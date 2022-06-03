@@ -138,11 +138,19 @@ void append_value_vector(Nst_sequence *vect, Nst_Obj *val)
     vect->len++;
 }
 
-void set_value_seq(Nst_sequence *seq, size_t idx, Nst_Obj *val)
+bool set_value_seq(Nst_sequence *seq, size_t idx, Nst_Obj *val)
 {
+    if ( idx < 0 )
+        idx += seq->len;
+
+    if ( idx < 0 || idx >= seq->len )
+        return false;
+
     inc_ref(val);
     dec_ref(seq->objs[idx]);
     seq->objs[idx] = val;
+
+    return true;
 }
 
 void rem_value_vector(Nst_sequence *vect, Nst_Obj *val)

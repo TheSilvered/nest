@@ -37,9 +37,10 @@ Nst_Obj *make_obj(void *value, Nst_Obj *type, void (*destructor)(void *))
 
     // the type of the type object is itself
     if ( type == NULL )
-        obj->type = obj;
-    else
-        obj->type = type;
+        type = obj;
+
+    obj->type = type;
+    obj->type_name = AS_STR(type->value)->value;
 
     inc_ref(obj->type);
 

@@ -25,7 +25,7 @@ typedef struct Nst_func
 {
     Node *body;
     LList *args;
-};
+} Nst_func;
 
 #define NST_TRUE 1
 #define NST_FALSE 0

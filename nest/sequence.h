@@ -21,7 +21,7 @@ Nst_sequence *new_vector_values(LList *values);
 
 void resize_vector(Nst_sequence *vect);
 void append_value_vector(Nst_sequence *vect, Nst_Obj *val);
-void set_value_seq(Nst_sequence *seq, size_t idx, Nst_Obj *val);
+bool set_value_seq(Nst_sequence *seq, size_t idx, Nst_Obj *val);
 void rem_value_vector(Nst_sequence *vect, Nst_Obj *val);
 Nst_Obj *pop_value_vector(Nst_sequence *vect, size_t quantity);
 

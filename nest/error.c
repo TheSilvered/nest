@@ -1,7 +1,10 @@
 #include <stdio.h>
 #include <string.h>
 #include <assert.h>
+#include <stdlib.h>
 #include "error.h"
+
+#define MAX_INT_CHAR_COUNT 21
 
 Pos copy_pos(Pos pos)
 {
@@ -89,7 +92,7 @@ void print_position(Pos start, Pos end)
 
     print_repeat('^', res.len - start.col);
     printf("\n| ");
-    if ( end.line - start.line > 1 ) printf("[...]\n| ");
+    if ( end.line - start.line > 1 ) printf("    [...]\n| ");
     print_line(end.line, end.text, end.text_len);
     printf("| ");
     print_repeat('^', end.col);
@@ -113,4 +116,22 @@ void print_traceback(Nst_Traceback tb)
     }
 
     print_error(*tb.error);
+}
+
+char *format_type_error(const char *format, char *type_name)
+{
+    char *buffer = malloc(strlen(format) + 5);
+    if ( buffer == NULL )
+        return NULL;
+    sprintf(buffer, format, type_name);
+    return buffer;
+}
+
+char *format_idx_error(const char *format, size_t idx, size_t seq_len)
+{
+    char *buffer = malloc(strlen(format) + MAX_INT_CHAR_COUNT * 2 - 1);
+    if ( buffer == NULL )
+        return NULL;
+    sprintf(buffer, format, idx, seq_len);
+    return buffer;
 }

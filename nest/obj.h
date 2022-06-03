@@ -5,7 +5,7 @@
 
 typedef struct Nst_Obj
 {
-    size_t ref_count;
+    int ref_count;
     void *value;
     char *type_name;
     struct Nst_Obj *type;

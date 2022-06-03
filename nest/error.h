@@ -34,6 +34,9 @@ Pos copy_pos(Pos pos);
 void print_error(Nst_Error err);
 void print_traceback(Nst_Traceback tb);
 
+char *format_type_error(const char *format, char *type_name);
+char *format_idx_error(const char *format, size_t idx, size_t seq_len);
+
 #define SYNTAX_ERROR(error, e_start, e_end, msg) \
     error->start = e_start; \
     error->end = e_end; \
@@ -44,6 +47,18 @@ void print_traceback(Nst_Traceback tb);
     error->start = e_start; \
     error->end = e_end; \
     error->name = "Memory Error"; \
+    error->message = msg
+
+#define TYPE_ERROR(error, e_start, e_end, msg) \
+    error->start = e_start; \
+    error->end = e_end; \
+    error->name = "Type Error"; \
+    error->message = msg
+
+#define VALUE_ERROR(error, e_start, e_end, msg) \
+    error->start = e_start; \
+    error->end = e_end; \
+    error->name = "Value Error"; \
     error->message = msg
 
 #define GENERAL_ERROR(error, e_start, e_end, msg) \
@@ -75,5 +90,8 @@ void print_traceback(Nst_Traceback tb);
 #define MISSING_VECTOR_BRACE "unmatched vector brace"
 #define EXPECTED_COMMA_OR_BRACE "expected ',' or '}'"
 #define EXPECTED_COLON "expected ':'"
+#define EXPECTED_TYPE(type) "expected type ' " type "', got '%s' instead"
+#define UNHASHABLE_TYPE "unhashable type '%s'"
+#define INDEX_OUT_OF_BOUNDS "index %zi out of bounds for sequence of size %zi"
 
 #endif // !ERROR_H

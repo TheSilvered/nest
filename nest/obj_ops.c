@@ -12,7 +12,7 @@
 #define IS_SEQ(obj) ( obj->type == nst_t_arr || obj->type == nst_t_vect )
 #define ARE_TYPE(nst_type) ( ob1->type == nst_type && ob2->type == nst_type )
 
-#define TYPE_ERROR(operand) \
+#define RETURN_TYPE_ERROR(operand) \
     err->name = "Type Error"; \
     err->message = "invalid type for '" operand "'"; \
     return NULL
@@ -129,7 +129,7 @@ Nst_Obj *obj_gt(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
     }
     else
     {
-        TYPE_ERROR(">");
+        RETURN_TYPE_ERROR(">");
     }
 }
 
@@ -161,7 +161,7 @@ Nst_Obj *obj_lt(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
     }
     else
     {
-        TYPE_ERROR("<");
+        RETURN_TYPE_ERROR("<");
     }
 }
 
@@ -216,10 +216,16 @@ Nst_Obj *obj_add(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
             new_real(*AS_REAL(ob1->value) + *AS_REAL(ob2->value)),
             nst_t_real, free
         );
+        
+        dec_ref(ob1);
+        dec_ref(ob2);
+
+        return new_obj;
     }
     else
     {
-        TYPE_ERROR("+");
+        printf("%s\n", ob1->type_name);
+        RETURN_TYPE_ERROR("+");
     }
 }
 
@@ -241,10 +247,15 @@ Nst_Obj *obj_sub(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
             new_real(*AS_REAL(ob1->value) - *AS_REAL(ob2->value)),
             nst_t_real, free
         );
+
+        dec_ref(ob1);
+        dec_ref(ob2);
+
+        return new_obj;
     }
     else
     {
-        TYPE_ERROR("-");
+        RETURN_TYPE_ERROR("-");
     }
 }
 
@@ -266,10 +277,15 @@ Nst_Obj *obj_mul(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
             new_real(*AS_REAL(ob1->value) * *AS_REAL(ob2->value)),
             nst_t_real, free
         );
+
+        dec_ref(ob1);
+        dec_ref(ob2);
+
+        return new_obj;
     }
     else
     {
-        TYPE_ERROR("*");
+        RETURN_TYPE_ERROR("*");
     }
 }
 
@@ -313,7 +329,7 @@ Nst_Obj *obj_div(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
     }
     else
     {
-        TYPE_ERROR("/");
+        RETURN_TYPE_ERROR("/");
     }
 }
 
@@ -348,14 +364,14 @@ Nst_Obj *obj_pow(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
             return NULL;
         }
 
-        Nst_Obj *new_obj = make_obj(
+        return make_obj(
             new_real((Nst_real)powl(v1, v2)),
             nst_t_real, free
         );
     }
     else
     {
-        TYPE_ERROR("^");
+        RETURN_TYPE_ERROR("^");
     }
 }
 
@@ -366,7 +382,7 @@ Nst_Obj *obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
         if ( *AS_INT(ob2->value) == 0 )
         {
             err->name = "Math Error";
-            err->message = "division by zero";
+            err->message = "modulo by zero";
             return NULL;
         }
 
@@ -383,7 +399,7 @@ Nst_Obj *obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
         if ( *AS_REAL(ob2->value) == 0.0 )
         {
             err->name = "Math Error";
-            err->message = "division by zero";
+            err->message = "modulo by zero";
             return NULL;
         }
 
@@ -399,7 +415,7 @@ Nst_Obj *obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
     }
     else
     {
-        TYPE_ERROR("/");
+        RETURN_TYPE_ERROR("/");
     }
 }
 
@@ -415,7 +431,7 @@ Nst_Obj *obj_bwor(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
     }
     else
     {
-        TYPE_ERROR("|");
+        RETURN_TYPE_ERROR("|");
     }
 }
 
@@ -430,7 +446,7 @@ Nst_Obj *obj_bwand(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
     }
     else
     {
-        TYPE_ERROR("&");
+        RETURN_TYPE_ERROR("&");
     }
 }
 
@@ -445,7 +461,7 @@ Nst_Obj *obj_bwxor(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
     }
     else
     {
-        TYPE_ERROR("^^");
+        RETURN_TYPE_ERROR("^^");
     }
 }
 
@@ -460,7 +476,7 @@ Nst_Obj *obj_bwls(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
     }
     else
     {
-        TYPE_ERROR("<<");
+        RETURN_TYPE_ERROR("<<");
     }
 }
 
@@ -475,7 +491,7 @@ Nst_Obj *obj_bwrs(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
     }
     else
     {
-        TYPE_ERROR(">>");
+        RETURN_TYPE_ERROR(">>");
     }
 }
 
@@ -659,7 +675,7 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
             );
         else
         {
-            TYPE_ERROR("::");
+            RETURN_TYPE_ERROR("::");
         }
     }
     else if ( type == nst_t_real )
@@ -676,12 +692,12 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
             );
         else
         {
-            TYPE_ERROR("::");
+            RETURN_TYPE_ERROR("::");
         }
     }
     else
     {
-        TYPE_ERROR("::");
+        RETURN_TYPE_ERROR("::");
     }
 }
 
@@ -690,24 +706,36 @@ Nst_Obj *obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
     ob1 = obj_cast(ob1, nst_t_str, err);
     ob2 = obj_cast(ob2, nst_t_str, err);
 
-    Nst_string *s1 = ob1->value;
-    Nst_string *s2 = ob2->value;
+    Nst_string *nst_s1 = ob1->value;
+    Nst_string *nst_s2 = ob2->value;
 
-    dec_ref(ob1);
-    dec_ref(ob2);
+    register char *s1 = AS_STR(nst_s1)->value;
+    register char *s2 = AS_STR(nst_s2)->value;
+    register size_t len1 = AS_STR(nst_s1)->len;
+    register size_t len2 = AS_STR(nst_s2)->len;
+    register size_t tot_len = len1 + len2;
 
-    char *buffer = malloc(sizeof(char) * (s1->len + s2->len + 1));
+    char *buffer = malloc(sizeof(char) * (tot_len + 1));
+
     if ( buffer == NULL )
     {
         errno = ENOMEM;
         return NULL;
     }
 
-    sprintf(buffer, "%s%s", s1->value, s2->value);
-    return make_obj(
-        new_string(buffer, s1->len + s2->len, true),
+    memcpy(buffer, s1, len1);
+    memcpy(buffer + len1, s2, len2);
+    buffer[tot_len] = '\0';
+
+    Nst_Obj *new_obj = make_obj(
+        new_string(buffer, tot_len, true),
         nst_t_str, destroy_string
     );
+
+    dec_ref(ob1);
+    dec_ref(ob2);
+
+    return new_obj;
 }
 
 // Local operations
@@ -730,7 +758,7 @@ Nst_Obj *obj_len(Nst_Obj *ob, OpErr *err)
         );
     else
     {
-        TYPE_ERROR("$");
+        RETURN_TYPE_ERROR("$");
     }
 }
 
@@ -743,7 +771,7 @@ Nst_Obj *obj_bwnot(Nst_Obj *ob, OpErr *err)
         );
     else
     {
-        TYPE_ERROR("~");
+        RETURN_TYPE_ERROR("~");
     }
 }
 
@@ -766,7 +794,7 @@ Nst_Obj *obj_lgnot(Nst_Obj *ob, OpErr *err)
 Nst_Obj *obj_stdout(Nst_Obj *ob, OpErr *err)
 {
     Nst_Obj *str = obj_cast(ob, nst_t_str, err);
-    Nst_string *text = AS_STR(ob->value);
+    Nst_string *text = AS_STR(str->value);
     printf("%s", text->value);
     dec_ref(str);
     inc_ref(ob);
@@ -789,11 +817,15 @@ Nst_Obj *obj_stdin(Nst_Obj *ob, OpErr *err)
 
     size_t buffer_size = 4;
     size_t i = 0;
-    char ch = 0;
-    scanf("%c", &ch);
+    char ch = getchar();
 
-    while ( ch != '\n' && ch != '\r' )
+    while ( ch != '\n' )
     {
+        if ( ch == '\r' )
+            continue;
+        else if ( ch == '\0' )
+            break;
+
         if ( buffer_size == i + 2 )
         {
             char *new_buffer = realloc(buffer, buffer_size *= 2);
@@ -807,7 +839,7 @@ Nst_Obj *obj_stdin(Nst_Obj *ob, OpErr *err)
         }
 
         buffer[i++] = ch;
-        scanf("%c", &ch);
+        ch = getchar();
     }
     buffer[i] = '\0';
     char *new_buffer = realloc(buffer, i + 1);

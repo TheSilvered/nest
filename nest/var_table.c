@@ -8,27 +8,28 @@ VarTable *new_var_table(VarTable *global_table)
     if ( vt == NULL ) return NULL;
 
     vt->global_table = global_table;
+    vt->vars = new_map();
 
     if ( vt->global_table != NULL )
         return vt;
 
-    Nst_Obj *key_type = make_obj(new_string_raw("type",   false), nst_t_str, destroy_string);
-    Nst_Obj *key_int  = make_obj(new_string_raw("int",    false), nst_t_str, destroy_string);
-    Nst_Obj *key_real = make_obj(new_string_raw("real",   false), nst_t_str, destroy_string);
-    Nst_Obj *key_bool = make_obj(new_string_raw("bool",   false), nst_t_str, destroy_string);
-    Nst_Obj *key_null = make_obj(new_string_raw("null",   false), nst_t_str, destroy_string);
-    Nst_Obj *key_str  = make_obj(new_string_raw("str",    false), nst_t_str, destroy_string);
-    Nst_Obj *key_arr  = make_obj(new_string_raw("array",  false), nst_t_str, destroy_string);
-    Nst_Obj *key_vect = make_obj(new_string_raw("vector", false), nst_t_str, destroy_string);
-    Nst_Obj *key_map  = make_obj(new_string_raw("map",    false), nst_t_str, destroy_string);
-    Nst_Obj *key_func = make_obj(new_string_raw("func",   false), nst_t_str, destroy_string);
-    Nst_Obj *key_iter = make_obj(new_string_raw("iter",   false), nst_t_str, destroy_string);
-    Nst_Obj *key_byte = make_obj(new_string_raw("byte",   false), nst_t_str, destroy_string);
-    Nst_Obj *key_file = make_obj(new_string_raw("iofile", false), nst_t_str, destroy_string);
+    Nst_Obj *key_type = make_obj(new_string_raw("Type",   false), nst_t_str, destroy_string);
+    Nst_Obj *key_int  = make_obj(new_string_raw("Int",    false), nst_t_str, destroy_string);
+    Nst_Obj *key_real = make_obj(new_string_raw("Real",   false), nst_t_str, destroy_string);
+    Nst_Obj *key_bool = make_obj(new_string_raw("Bool",   false), nst_t_str, destroy_string);
+    Nst_Obj *key_null = make_obj(new_string_raw("Null",   false), nst_t_str, destroy_string);
+    Nst_Obj *key_str  = make_obj(new_string_raw("Str",    false), nst_t_str, destroy_string);
+    Nst_Obj *key_arr  = make_obj(new_string_raw("Array",  false), nst_t_str, destroy_string);
+    Nst_Obj *key_vect = make_obj(new_string_raw("Vector", false), nst_t_str, destroy_string);
+    Nst_Obj *key_map  = make_obj(new_string_raw("Map",    false), nst_t_str, destroy_string);
+    Nst_Obj *key_func = make_obj(new_string_raw("Func",   false), nst_t_str, destroy_string);
+    Nst_Obj *key_iter = make_obj(new_string_raw("Iter",   false), nst_t_str, destroy_string);
+    Nst_Obj *key_byte = make_obj(new_string_raw("Byte",   false), nst_t_str, destroy_string);
+    Nst_Obj *key_file = make_obj(new_string_raw("IOfile", false), nst_t_str, destroy_string);
 
-    Nst_Obj *key_const_true  = make_obj(new_string_raw("TRUE",  false), nst_t_str, destroy_string);
-    Nst_Obj *key_const_false = make_obj(new_string_raw("FALSE", false), nst_t_str, destroy_string);
-    Nst_Obj *key_const_null  = make_obj(new_string_raw("NULL",  false), nst_t_str, destroy_string);
+    Nst_Obj *key_const_true  = make_obj(new_string_raw("true",  false), nst_t_str, destroy_string);
+    Nst_Obj *key_const_false = make_obj(new_string_raw("false", false), nst_t_str, destroy_string);
+    Nst_Obj *key_const_null  = make_obj(new_string_raw("null",  false), nst_t_str, destroy_string);
 
     map_set(vt->vars, key_type, nst_t_type);
     map_set(vt->vars, key_int , nst_t_int );

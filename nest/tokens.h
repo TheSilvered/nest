@@ -92,7 +92,7 @@ enum token_types
     MAP
 };
 
-#define SYMBOL_CHARS "+-*/^%&|<>=!@~:;?.#\\"
+#define SYMBOL_CHARS "+-*/^%&|<>=!@~:;?.#"
 #define PAREN_CHARS "<()[]{}"
 #define DIGIT_CHARS "0123456789"
 #define LETTER_CHARS "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"

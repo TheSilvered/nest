@@ -589,7 +589,7 @@ static Node *fix_expr(Node *expr)
         Node *new_node = new_node_full(start, end, STACK_OP, new_nodes, new_tokens);
 
         LList_push(curr_node->nodes, new_node, true);
-        curr_node = LList_peek_front(new_node->nodes);
+        curr_node = new_node;
     }
 
     return expr;
@@ -720,6 +720,7 @@ static Node *parse_assignment(LList *tokens, ParsingState *state, Node *value)
         RETURN_ERROR(err_start, err_end, EXPECTED_IDENT_OR_EXTR);
     }
 
+    // If a compound assignmen operator such as '+=' or '*='
     if ( tok->type != ASSIGN )
     {
         SAFE_LLIST_CREATE(new_value_tokens,
@@ -740,9 +741,10 @@ static Node *parse_assignment(LList *tokens, ParsingState *state, Node *value)
             tok->end,
             ASSIGMENT_TO_STACK_OP(tok->type)
         );
-    
+        
         LList_append(new_value_tokens, op_tok, true);
-        LList_append(new_value_nodes, name, false); // will be freed later
+        // will be freed later if the list is destroyed
+        LList_append(new_value_nodes, name, false);
         LList_append(new_value_nodes, value, true);
 
         value = new_node_full(value->start, name->end, STACK_OP,
@@ -756,7 +758,7 @@ static Node *parse_assignment(LList *tokens, ParsingState *state, Node *value)
         if ( !has_shared_node ) destroy_node(name)
     );
     LList_append(new_nodes, value, true);
-    LList_append(new_nodes, name, true); // here it's freed
+    LList_append(new_nodes, name, true); // here it's freed when the list is destroyed
     return new_node_nodes(start, end, ASSIGN_E, new_nodes);
 }
 
@@ -793,7 +795,6 @@ static Node *parse_extraction(LList *tokens, ParsingState *state)
 
         final_node = new_node_nodes(final_node->start, atom->end, EXTRACT_E, new_nodes);
     }
-
     return final_node;
 }
 
@@ -1035,7 +1036,7 @@ static void _print_ast(Node *node, Token *tok, int lvl, LList *is_last)
         return;
     }
 
-    if ( node->type == LONG_S ) printf("LONG_S");
+    if      ( node->type == LONG_S ) printf("LONG_S");
     else if ( node->type == WHILE_L ) printf("WHILE_L");
     else if ( node->type == DOWHILE_L ) printf("DOWHILE_L");
     else if ( node->type == FOR_L ) printf("FOR_L");

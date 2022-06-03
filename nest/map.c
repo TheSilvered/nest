@@ -5,31 +5,41 @@
 #include "map.h"
 #include "hash.h"
 #include "obj_ops.h"
+#include "nst_types.h"
 
-void set_clean(Nst_map *map, size_t hash, Nst_Obj *key, Nst_Obj *value)
+static void set_clean(Nst_map *map, size_t hash, Nst_Obj *key, Nst_Obj *value)
 {
-    register size_t i = hash & map->mask;
-    register MapNode *node = &map->nodes[i];
-    i = ((5 * i) + 1) % map->size;
+    if ( key == NULL )
+        return;
 
-    for ( ; node->key != NULL; i = ((5 * i) + 1) % map->size )
+    register size_t mask = map->mask;
+    register MapNode *nodes = map->nodes;
+    register size_t i = hash & mask;
+    register MapNode curr_node = nodes[i];
+
+    for ( size_t perturb = hash;
+        curr_node.key != NULL && curr_node.key != key;
+        perturb >>= 5 )
     {
-        node = &map->nodes[i];
+        if ( curr_node.hash == hash && *AS_BOOL(obj_eq(key, curr_node.key, NULL)->value) )
+            break;
+        i = (i * 5) + 1 + perturb;
+        curr_node = nodes[i & mask];
     }
 
-    node->hash = hash;
-    node->key = key;
-    node->value = value;
+    (nodes + (i & mask))->hash = hash;
+    (nodes + (i & mask))->key = key;
+    (nodes + (i & mask))->value = value;
 }
 
-void resize_map(Nst_map *map, size_t new_size)
+void resize_map(Nst_map *map)
 {
     size_t old_size = map->size;
     MapNode *old_nodes = map->nodes;
+    register size_t size = (map->size *= 2);
+    map->mask = size - 1;
 
-    map->size = new_size;
-
-    map->nodes = calloc(new_size, sizeof(MapNode));
+    map->nodes = calloc(size, sizeof(MapNode));
     if ( map->nodes == NULL )
     {
         map->nodes = old_nodes;
@@ -37,8 +47,6 @@ void resize_map(Nst_map *map, size_t new_size)
         errno = ENOMEM;
         return;
     }
-
-    map->mask = new_size - 1;
 
     for ( size_t i = 0; i < old_size; i++ )
     {
@@ -49,6 +57,8 @@ void resize_map(Nst_map *map, size_t new_size)
             old_nodes[i].value
         );
     }
+
+    free(old_nodes);
 }
 
 Nst_map *new_map()
@@ -76,58 +86,73 @@ Nst_map *new_map()
 
 bool map_set(Nst_map *map, Nst_Obj *key, Nst_Obj *value)
 {
-    register size_t i = hash_obj(key);
-    if ( i == -1 )
+    register size_t hash = hash_obj(key);
+    if ( hash == -1 )
         return false;
-    i &= map->mask;
-    register MapNode *node = &map->nodes[i];
-    i = ((5 * i) + 1) % map->size;
 
-    for ( ; node->key != NULL && !obj_eq(node->key, key, NULL); i = ((5 * i) + 1) % map->size )
+    register size_t mask = map->mask;
+    register MapNode *nodes = map->nodes;
+    register size_t i = hash & mask;
+    register MapNode curr_node = nodes[i];
+    register size_t map_size = map->size;
+
+    for ( size_t perturb = hash;
+          curr_node.key != NULL && curr_node.key != key;
+          perturb >>= 5 )
     {
-        node = &map->nodes[i];
+        if ( curr_node.hash == hash && *AS_BOOL(obj_eq(key, curr_node.key, NULL)->value) )
+            break;
+        i = (i * 5) + 1 + perturb;
+        curr_node = nodes[i & mask];
     }
 
     inc_ref(key);
     inc_ref(value);
 
-    // decrease after increasing to prevent deletion if they are the same object
-    if ( node->key != NULL )
-        dec_ref(node->key);
+    if ( curr_node.key != NULL )
+    {
+        dec_ref(curr_node.key);
+        dec_ref(curr_node.value);
+    }
     else
         map->item_count++;
 
-    if ( node->value != NULL )
-        dec_ref(node->value);
+    (nodes + (i & mask))->hash = hash;
+    (nodes + (i & mask))->key = key;
+    (nodes + (i & mask))->value = value;
 
-    node->key = key;
-    node->value = value;
-
-    if ( (float)map->item_count / map->size > 0.6f )
-        resize_map(map, map->size * 2);
+    if ( map_size - map->item_count < map_size >> 2 )
+        resize_map(map);
 
     return true;
 }
 
 Nst_Obj *map_get(Nst_map *map, Nst_Obj *key)
 {
-    register size_t i = hash_obj(key);
-    if ( i == -1 )
+    register size_t hash = hash_obj(key);
+    if ( hash == -1 )
         return NULL;
-    i &= map->mask;
 
-    register MapNode *node = &map->nodes[i];
-    i = ((5*i) + 1) % map->size;
+    register size_t mask = map->mask;
+    register MapNode *nodes = map->nodes;
+    register size_t i = hash & mask;
+    register MapNode curr_node = nodes[i];
 
-    for ( ; node->key != NULL && !obj_eq(node->key, key, NULL); i = ((5*i) + 1) % map->size )
+    if ( curr_node.key == key )
+        return curr_node.value;
+
+    for ( size_t perturb = hash; ; perturb >>= 5 )
     {
-        node = &map->nodes[i];
+        i = (i * 5) + 1 + perturb;
+        curr_node = nodes[i & mask];
+
+        if ( curr_node.hash == hash && 
+           ( curr_node.key == key || *AS_BOOL(obj_eq(key, curr_node.key, NULL)->value) ) )
+        {
+            inc_ref(curr_node.value);
+            return curr_node.value;
+        }
     }
-
-    if ( node->value != NULL )
-        inc_ref(node->value);
-
-    return node->value;
 }
 
 void map_destroy(Nst_map *map)
