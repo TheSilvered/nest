@@ -185,23 +185,14 @@ multi-line strings.
 There escapes supported are:
 
 | `\'` | single quote        |
-|------|---------------------|
 | `\"` | double quote        |
-|------|---------------------|
 | `\\` | backslash           |
-|------|---------------------|
 | `\a` | alert / bell        |
-|------|---------------------|
 | `\b` | backspace           |
-|------|---------------------|
 | `\f` | form feed           |
-|------|---------------------|
 | `\n` | newline / line feed |
-|------|---------------------|
 | `\r` | carriage return     |
-|------|---------------------|
 | `\t` | horizontal tab      |
-|------|---------------------|
 | `\v` | vertical tab        |
 
 ### Arrays
