@@ -417,6 +417,8 @@ static void exe_stack_op(Node *node, VarTable *vt, ExecutionState *state)
             return;
         SET_ERROR(GENERAL_ERROR, node->start, node->end, err.message);
         state->traceback->error->name = err.name;
+
+        return;
     }
 
     dec_ref(ob1);
@@ -435,12 +437,15 @@ static void exe_local_stack_op(Node *node, VarTable *vt, ExecutionState *state)
     {
     case CAST:
         if ( arg_count != 2 )
+        {
             SET_ERROR(
                 CALL_ERROR,
                 node->start,
                 node->end,
                 arg_count > 2 ? TOO_MANY_ARGS("cast") : TOO_FEW_ARGS("cast")
             );
+            return;
+        }
 
         SAFE_EXE(HEAD_NODE(node));
         Nst_Obj *type = state->value;
@@ -477,6 +482,8 @@ static void exe_local_stack_op(Node *node, VarTable *vt, ExecutionState *state)
                 TAIL_NODE(node)->end,
                 format_type_error(EXPECTED_TYPE("Func"), func_obj->type_name)
             );
+
+            return;
         }
 
         Nst_func func = *AS_FUNC(func_obj);
@@ -489,6 +496,7 @@ static void exe_local_stack_op(Node *node, VarTable *vt, ExecutionState *state)
                 node->end,
                 arg_count - 1 > func.arg_num ? TOO_MANY_ARGS_FUNC : TOO_FEW_ARGS_FUNC
             );
+            return;
         }
 
         Nst_Obj **args_arr = malloc(func.arg_num * sizeof(Nst_Obj *));
@@ -526,6 +534,7 @@ static void exe_local_stack_op(Node *node, VarTable *vt, ExecutionState *state)
                 node->end,
                 arg_count > 3 ? TOO_MANY_ARGS("range") : TOO_FEW_ARGS("range")
             );
+            return;
         }
 
         SAFE_EXE(HEAD_NODE(node));
@@ -648,6 +657,8 @@ static void exe_local_op(Node *node, VarTable *vt, ExecutionState *state)
             return;
         SET_ERROR(GENERAL_ERROR, node->start, node->end, err.message);
         state->traceback->error->name = err.name;
+
+        return;
     }
 
     SET_VALUE(res);

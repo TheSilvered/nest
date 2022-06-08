@@ -1,7 +1,2 @@
-﻿  map.c
-  nest.c
-  simple_types.c
-  tokens.c
-  sequence.c
-  Generazione del codice in corso...
+﻿  interpreter.c
   nest.vcxproj -> E:\C++\nest\x64\Debug\nest.exe

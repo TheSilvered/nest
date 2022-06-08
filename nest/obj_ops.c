@@ -775,10 +775,10 @@ Nst_Obj *obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
     Nst_string *nst_s1 = ob1->value;
     Nst_string *nst_s2 = ob2->value;
 
-    register char *s1 = AS_STR(nst_s1)->value;
-    register char *s2 = AS_STR(nst_s2)->value;
-    register size_t len1 = AS_STR(nst_s1)->len;
-    register size_t len2 = AS_STR(nst_s2)->len;
+    register char *s1 = nst_s1->value;
+    register char *s2 = nst_s2->value;
+    register size_t len1 = nst_s1->len;
+    register size_t len2 = nst_s2->len;
     register size_t tot_len = len1 + len2;
 
     char *buffer = malloc(sizeof(char) * (tot_len + 1));

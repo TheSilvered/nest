@@ -39,6 +39,7 @@ PrintLineResult print_line(size_t lineno, char *text, size_t text_len, int64_t s
     bool is_indentation = true;
     bool is_printing_error = false;
 
+    size_t li = 0;
     for ( size_t i = 0; i < text_len; i++ )
     {
         if ( curr_line == lineno )
@@ -46,7 +47,7 @@ PrintLineResult print_line(size_t lineno, char *text, size_t text_len, int64_t s
             if ( text[i] != ' ' && text[i] != '\t' )
                 is_indentation = false;
 
-            if ( i == start )
+            if ( li == start )
             {
                 is_printing_error = true;
                 printf(C_BG_RED);
@@ -66,23 +67,24 @@ PrintLineResult print_line(size_t lineno, char *text, size_t text_len, int64_t s
             else
                 result.indent++;
 
-            if ( end != -1 && i == end )
+            if ( end != -1 && li == end )
             {
                 is_printing_error = false;
                 printf(C_RESET);
             }
         }
-
+        li++;
         if ( text[i] == '\n' )
         {
             curr_line++;
+            li = 0;
             if ( curr_line - 1 == lineno )
                 break;
         }
     }
 
     if ( curr_line == lineno )
-        if ( is_printing_error )
+        if ( is_printing_error || li == start )
             printf(C_RESET C_BG_RED " \n" C_RESET);
         else
             printf("\n");

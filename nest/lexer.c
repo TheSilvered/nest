@@ -304,8 +304,15 @@ static void make_symbol(LexerCursor *cursor, Token **tok, Nst_Error **err)
     // Ignores the comment
     if ( strstr(symbol, "--") != NULL )
     {
-        while ( cursor->idx < (long) cursor->len && cursor->ch != '\n' )
+        while ( cursor->idx < (long)cursor->len && cursor->ch != '\n' )
+        {
             advance(cursor);
+            if ( cursor->ch == '\\' )
+            {
+                advance(cursor);
+                advance(cursor);
+            }
+        }
         go_back(cursor);
         return;
     }

@@ -27,6 +27,22 @@ There are only the following types in Nest:
 
 ## Syntax
 
+### Comments
+
+Comments in nest are started by `--` and end with the end of a line.
+Multi-line comments are created by escaping the line feed at the end with a
+backslash.
+
+```
+-- This is a comment
+
+-- This is a comment that \
+   spans multiple lines
+```
+
+Note that if there are any characters after `\` in multi-line comments, the
+escape doesn't work.
+
 ### Stack operations
 
 This kind of operations take one or more values and they do the operation to
@@ -88,7 +104,7 @@ There local operators are:
 - `!`, logical not
 - `~`, bit-wise not
 - `>>>`, out: casts the object to a string and prints it to stdout
-- `<<<`, in: prints the object and returns what the user typed in
+- `<<<`, in: prints the object and reads stdin
 - `?::`, type: gets the type of the object
 
 The length operator works only on maps, arrays, vector and strings.
@@ -100,11 +116,11 @@ A program that asks for the user's name and greets him
 ```
 assignments and string escapes will be covered in other sections.
 
-### Local/stack operations
+### Local-stack operations
 This kind of operator affects the last of it's members differently from the
 one preceding it but can take an indefinite amount of values.
 
-The stack-local operators are:
+The local-stack operators are:
 - `::`, cast: changes the type of an object
 - `@`, call: calls a function
 - `->`, range: creates an iterator with a range
@@ -125,7 +141,7 @@ of the declaration, and one following which is the function
 ```
 1 2 @add
 ```
-here te function `add` is called with `1` and `2` as arguments.
+here the function `add` is called with `1` and `2` as arguments.
 
 ---
 
@@ -137,5 +153,230 @@ here te function `add` is called with `1` and `2` as arguments.
 ```
 this creates an iterator that starts at 0 and arrives ad 10 (not included) with
 a step of two (giving `0`, `2`, `4`, `6`, `8`).
+
+### Numbers
+
+There are two types of numbers in Nest: integers and real numbers.
+
+Integers can only be written in base 10 and no underscores (`_`) are allowed
+between the numbers. (Should change in the future)
+
+Real numbers are written with a dot and there must be digits on either side, so
+`1.` and `.1` are both invalid but `1.0` or `0.1` are correct.
+It's not possible to write them with scientific notation (such as `1.3e4`).
+
+### Strings
+
+Strings are written by enclosing parts of text with single (`'`) or double (`"`)
+quotes.
+
+Between these there is almost no difference, but the latter allows for
+multi-line strings.
+
+```
+'This is a single-line string'
+"This is a
+ multi-line string"
+
+'This is a
+ syntax error'
+```
+
+There escapes supported are:
+
+| `\'` | single quote        |
+|------|---------------------|
+| `\"` | double quote        |
+|------|---------------------|
+| `\\` | backslash           |
+|------|---------------------|
+| `\a` | alert / bell        |
+|------|---------------------|
+| `\b` | backspace           |
+|------|---------------------|
+| `\f` | form feed           |
+|------|---------------------|
+| `\n` | newline / line feed |
+|------|---------------------|
+| `\r` | carriage return     |
+|------|---------------------|
+| `\t` | horizontal tab      |
+|------|---------------------|
+| `\v` | vertical tab        |
+
+### Arrays
+
+An array is an ordered sequence of objects that has always the same size.
+It is written by writing its values inside curly braces and separating them
+with commas.
+
+```
+{ 1, 2, 3, 4, 5 }
+```
+this is an array containing 1, 2, 3, 4 and 5 in this order.
+
+To get a value from the array you can use the extraction operator (`.`) followed
+by the index. Indices go from 0 to n - 1 where n is the length of the array.
+You can use negative indices too and to get the actual index just add the length
+of the array.
+
+```
+{ 1, 2, 3, 4, 5 } = arr
+arr.4 -- last item
+arr. -1 -- also last item
+```
+With the negative index a space is needed to separate the dot `.` and the hyphen
+`-` because together create an nonexistent operator `.-`.
+
+You cannot index an array directly with variable names, those need to be inside
+parenthesis otherwise they will be treated like strings.
+
+```
+0 = idx
+{ 1, 2, 3, 4, 5 } = arr
+
+arr.idx -- error, this is equal to writing arr.'idx'
+arr.(idx) -- does what is expected
+```
+
+### Vectors
+
+Vectors are similar to arrays but they can also change size.
+The syntax is similar too, but instead of using `{` and `}` as the delimiters,
+you use `<{` and `}>`.
+
+```
+<{ 1, 2, 3, 4, 5 }>
+```
+this is a vector containing 1, 2, 3, 4 and 5 in this order.
+
+Indexing a vector is identical to indexing an array.
+
+The operators `+`, `-`, `*` and `/` each have a special function to operate
+with the data in the vector.
+
+The `+` operator adds an element to the end of the vector and returns the vector
+itself.
+
+```
+<{ 1, 2 }> = v
+v 3 +
+>>> arr.2 --> 3
+```
+----
+
+The `-` removes the firs occurrence of an element from the vector and returns
+the vector itself.
+
+```
+<{ 1, 2 }> = v
+arr 1 -
+>>> arr.0 --> 2
+```
+
+----
+
+The `*` operator repeats the contents of the vector and returns the vector
+itself.
+
+```
+<{ 1, 2 }> = v
+v 3 *
+>>> arr.2 --> 1
+>>> arr.3 --> 2
+>>> arr.4 --> 1
+```
+
+----
+
+The `/` operator drops a certain amount of items from a vector and returns the
+last one dropped.
+
+```
+<{ 1, 2, 3 }> = v
+>>> (v 2 /) --> 2
+
+<{ 1, 2 }> = v
+>>> (v 1 /) --> 3
+```
+
+### Maps
+
+A map is a hash table that contains key-value pairs and that can change size.
+To create a hash table you delimit the whole structure with curly braces and
+inside there the keys followed by a semicolon and a value. Multiple key-value
+pairs are separated with commas.
+
+The types that can be used as keys are integers, strings, boolean, null and type.
+
+```
+{ 'key_1': 1,
+  'key_2': 2,
+  'key_3': 3 } = m
+```
+
+There cannot be two equal keys inside the map but two values with the same hash
+can exist.
+
+To index a map you can use the extraction operator followed by the key.
+
+```
+>>> m.key_1 --> 1, since m.key_1 and m.'key_1' are the same
+```
+
+### Functions
+
+A function is declared with the hash symbol `#`. Following it there is the name
+of the function and the name of its arguments and the body encapsulated by two
+brackets.
+
+```
+#func arg1 arg2 arg3 [
+    -- body
+]
+```
+
+To return a value you can use `=>` followed by the value to return.
+
+```
+#add n1 n2 [
+    => n1 n2 +
+]
+```
+
+### While and do-while loops
+
+A while loop has the while symbol `?..` followed by the condition and the body
+encapsulated by two brackets.
+
+```
+?.. condition [
+    -- body
+]
+```
+
+Do-while loops are very similar except for the fact that they use the do-while
+symbol `..?`
+
+```
+..? condition [
+    -- body
+]
+```
+
+To break out of the current loop you can use a semi-colon `;` and to stop the
+current iteration and continue to the next one you can use two dots `..`
+
+Any variable declared inside a loop does not get deleted when the loop ends but
+is accessible in the local scope
+
+```
+?.. true [
+    3 = a
+    ;
+]
+
+>>> a --> 3
+```
 
 ## Work in progress...
