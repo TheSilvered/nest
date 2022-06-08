@@ -183,7 +183,8 @@ multi-line strings.
 ```
 
 There escapes supported are:
-
+| Escape | Name |
+|--------|------|
 | `\'` | single quote        |
 | `\"` | double quote        |
 | `\\` | backslash           |
