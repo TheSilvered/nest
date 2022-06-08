@@ -300,11 +300,11 @@ static Node *parse_for_loop(LList *tokens, ParsingState *state)
 
     int node_type = FOR_L;
 
-    Node *condition = parse_expr(tokens, state);
+    Node *range = parse_expr(tokens, state);
 
     if ( state->error != NULL ) return NULL;
 
-    SAFE_LLIST_CREATE(node_tokens, destroy_node(condition));
+    SAFE_LLIST_CREATE(node_tokens, destroy_node(range));
 
     if ( TOK(LList_peek_front(tokens))->type == AS )
     {
@@ -323,7 +323,7 @@ static Node *parse_for_loop(LList *tokens, ParsingState *state)
 
     if ( TOK(LList_peek_front(tokens))->type != L_BRACKET )
     {
-        destroy_node(condition);
+        destroy_node(range);
         RETURN_ERROR(err_pos, err_pos, EXPECTED_BRACKET);
     }
 
@@ -334,7 +334,7 @@ static Node *parse_for_loop(LList *tokens, ParsingState *state)
     Node *body = parse_long_statement(tokens, state);
     if ( state->error != NULL )
     {
-        destroy_node(condition);
+        destroy_node(range);
         LList_destroy(node_tokens, destroy_token);
         return NULL;
     }
@@ -342,7 +342,7 @@ static Node *parse_for_loop(LList *tokens, ParsingState *state)
 
     if ( TOK(LList_peek_front(tokens))->type != R_BRACKET )
     {
-        destroy_node(condition);
+        destroy_node(range);
         destroy_node(body);
         RETURN_ERROR(err_pos, err_pos, UNEXPECTED_TOK);
     }
@@ -351,9 +351,9 @@ static Node *parse_for_loop(LList *tokens, ParsingState *state)
     Pos end = tok->end;
     destroy_token(tok);
 
-    SAFE_LLIST_CREATE(nodes, destroy_node(condition); destroy_node(body));
+    SAFE_LLIST_CREATE(nodes, destroy_node(range); destroy_node(body));
 
-    LList_append(nodes, condition, true);
+    LList_append(nodes, range, true);
     LList_append(nodes, body, true);
 
     return new_node_full(start, end, node_type, nodes, node_tokens);
@@ -835,7 +835,7 @@ static Node *parse_atom(LList *tokens, ParsingState *state)
         SAFE_LLIST_CREATE(new_tokens, destroy_token(tok));
         LList_append(new_tokens, tok, true);
         SAFE_LLIST_CREATE(new_nodes, LList_destroy(new_tokens, destroy_token));
-        Node *value = parse_atom(tokens, state);
+        Node *value = parse_extraction(tokens, state);
         if ( state->error != NULL )
         {
             LList_destroy(new_tokens, destroy_token);
@@ -987,7 +987,7 @@ static Node *parse_arr_or_map_literal(LList *tokens, ParsingState *state)
             destroy_token(tok);
             return new_node_nodes(
                 start, end,
-                is_map ? MAP_LIT : VECT_LIT,
+                is_map ? MAP_LIT : ARR_LIT,
                 nodes
             );
         }

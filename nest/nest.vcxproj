@@ -86,7 +86,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -100,7 +100,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
     </ClCompile>
     <Link>
@@ -141,24 +141,29 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="error.c" />
+    <ClCompile Include="function.c" />
     <ClCompile Include="hash.c" />
     <ClCompile Include="interpreter.c" />
+    <ClCompile Include="iter.c" />
     <ClCompile Include="lexer.c" />
     <ClCompile Include="llist.c" />
     <ClCompile Include="map.c" />
     <ClCompile Include="nest.c" />
     <ClCompile Include="nodes.c" />
-    <ClCompile Include="nst_types.c" />
     <ClCompile Include="obj.c" />
     <ClCompile Include="obj_ops.c" />
     <ClCompile Include="parser.c" />
+    <ClCompile Include="str.c" />
+    <ClCompile Include="simple_types.c" />
     <ClCompile Include="tokens.c" />
     <ClCompile Include="var_table.c" />
     <ClCompile Include="sequence.c" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="error.h" />
+    <ClInclude Include="function.h" />
     <ClInclude Include="hash.h" />
+    <ClInclude Include="iter.h" />
     <ClInclude Include="lexer.h" />
     <ClInclude Include="llist.h" />
     <ClInclude Include="map.h" />
@@ -168,6 +173,8 @@
     <ClInclude Include="obj_ops.h" />
     <ClInclude Include="parser.h" />
     <ClInclude Include="interpreter.h" />
+    <ClInclude Include="str.h" />
+    <ClInclude Include="simple_types.h" />
     <ClInclude Include="tokens.h" />
     <ClInclude Include="var_table.h" />
     <ClInclude Include="sequence.h" />

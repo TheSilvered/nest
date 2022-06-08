@@ -3,86 +3,64 @@
 #include "nst_types.h"
 #include "var_table.h"
 
-size_t hash_str(Nst_string *str);
-size_t hash_int(Nst_int *num);
-size_t hash_ptr(void *ptr);
-static inline size_t murmur_32_scramble(uint32_t k);
+#define FNV_OFFSET_BASIS 0xcbf29ce484222325
+#define FNV_PRIME 0x00000100000001B3
+#define LOWER_HALF 0xffffffff
 
-size_t hash_obj(Nst_Obj *obj)
+int32_t hash_str(Nst_string *str);
+int32_t hash_int(Nst_int *num);
+int32_t hash_ptr(void *ptr);
+
+int32_t hash_obj(Nst_Obj *obj)
 {
     // Hashing floats can lead to unpredictable behaviour
     // caused by floating point imprecision. Because of this
     // it's not natively supported to hash floats
+
+    int32_t hash;
     if ( obj->type == nst_t_type ||
          obj->type == nst_t_null ||
          obj->type == nst_t_bool )
-        return hash_ptr(obj);
+        hash = hash_ptr(obj);
     else if ( obj->type == nst_t_str )
-        return hash_str(obj->value);
+        hash = hash_str(obj->value);
     else if ( obj->type == nst_t_int )
-        return hash_int(obj->value);
+        hash = hash_int(obj->value);
     else
         return -1;
+
+    obj->hash = hash;
+    return hash;
 }
 
-size_t hash_ptr(void *ptr)
+int32_t hash_ptr(void *ptr)
 {
     // taken from https://github.com/python/cpython/blob/main/Python/pyhash.c
     size_t x = (size_t)ptr;
     x = (x >> 4) | (x << (8 * sizeof(void *) - 4));
 
     if ( x == -1 ) x = -2;
-    return x;
+    return (int32_t)x;
 }
 
-static inline size_t murmur_32_scramble(uint32_t k) {
-    k *= 0xcc9e2d51;
-    k = (k << 15) | (k >> 17);
-    k *= 0x1b873593;
-    return k;
-}
-
-size_t hash_str(Nst_string *str)
+int32_t hash_str(Nst_string *str)
 {
-    // MurmurHash 3, implementation taken from
-    // https://en.wikipedia.org/wiki/MurmurHash
+    // taken from https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
+    register int64_t hash = FNV_OFFSET_BASIS;
+    register char *s = str->value;
 
-    const uint8_t *key = str->value;
-    size_t len = str->len;
-
-    register uint32_t h = 0xcd8837c; // seed
-    uint32_t k;
-
-    for ( size_t i = len >> 2; i; i-- ) {
-        memcpy(&k, key, sizeof(uint32_t));
-        key += sizeof(uint32_t);
-        h ^= murmur_32_scramble(k);
-        h = (h << 13) | (h >> 19);
-        h = h * 5 + 0xe6546b64;
+    while ( *s )
+    {
+        hash ^= *s++;
+        hash *= FNV_PRIME;
     }
 
-    k = 0;
-    for ( size_t i = len & 3; i; i-- ) {
-        k <<= 8;
-        k |= key[i - 1];
-    }
-
-    h ^= murmur_32_scramble(k);
-
-    h ^= len;
-    h ^= h >> 16;
-    h *= 0x85ebca6b;
-    h ^= h >> 13;
-    h *= 0xc2b2ae35;
-    h ^= h >> 16;
-
-    if ( h == -1 ) return -2;
-    return h;
+    return (int32_t)((hash >> 32) ^ (hash & LOWER_HALF));
 }
 
-size_t hash_int(Nst_int *num)
+int32_t hash_int(Nst_int *num)
 {
     if ( *num == -1 )
         return -2;
-    return *num;
+    return (int32_t) *num;
 }

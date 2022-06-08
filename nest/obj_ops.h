@@ -13,16 +13,8 @@ Functions that are guaranteed to not return an error:
     obj_cast when an object is casted to a string or a boolean
 */
 
-#include <stdbool.h>
+#include "error.h"
 #include "obj.h"
-#include "var_table.h"
-
-typedef struct OpErr
-{
-    char *name;
-    char *message;
-}
-OpErr;
 
 // Comparisons
 Nst_Obj *obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err);

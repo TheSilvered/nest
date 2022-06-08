@@ -37,7 +37,6 @@ enum token_types
     LTE,       // - - stack-op end, comp-op end
     CAST,      // + local-stack-op start
     CALL,      // |
-    EXTRACT,   // |
     RANGE,     // - local-stack-op end
     ASSIGN,    // + assignment start
     ADD_A,     // |
@@ -78,6 +77,7 @@ enum token_types
     EOFILE,    // - expr-end end
 
     // other tokens
+    EXTRACT,
     WHILE,
     DOWHILE,
     FOR,

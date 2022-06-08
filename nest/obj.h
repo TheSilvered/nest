@@ -2,6 +2,7 @@
 #define OBJ_H
 
 #include <stdbool.h>
+#include <stdint.h>
 
 typedef struct Nst_Obj
 {
@@ -10,15 +11,18 @@ typedef struct Nst_Obj
     char *type_name;
     struct Nst_Obj *type;
     void (*destructor)(void *);
+    int32_t hash;
 }
 Nst_Obj;
 
 Nst_Obj *make_obj(void *value, Nst_Obj *type, void (*destructor)(void *));
-void inc_ref(Nst_Obj *obj);
+Nst_Obj *make_obj_free(void *value, Nst_Obj *type);
+Nst_Obj *inc_ref(Nst_Obj *obj);
 void dec_ref(Nst_Obj *obj);
 void destroy_obj(Nst_Obj *obj);
 
 void init_obj(void);
+void del_obj(void);
 
 extern Nst_Obj *nst_t_type;
 extern Nst_Obj *nst_t_int;

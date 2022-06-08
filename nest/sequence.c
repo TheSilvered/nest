@@ -7,7 +7,7 @@
 Nst_sequence *new_array_empty(size_t len)
 {
     Nst_sequence *arr = malloc(sizeof(Nst_sequence));
-    Nst_Obj **objs = malloc(len * sizeof(Nst_Obj *));
+    Nst_Obj **objs = calloc(len, sizeof(Nst_Obj *));
 
     if ( arr == NULL || objs == NULL )
     {
@@ -22,30 +22,6 @@ Nst_sequence *new_array_empty(size_t len)
     return arr;
 }
 
-Nst_sequence *new_array_values(LList *values)
-{
-    Nst_sequence *arr = malloc(sizeof(Nst_sequence));
-    Nst_Obj **objs = malloc(values->size * sizeof(Nst_Obj *));
-
-    if ( arr == NULL || objs == NULL )
-    {
-        errno = ENOMEM;
-        return NULL;
-    }
-
-    size_t idx = 0;
-    for ( LLNode *cursor = values->head;
-          cursor != NULL;
-          cursor = cursor->next )
-        objs[idx++] = cursor->value;
-
-    arr->len = values->size;
-    arr->size = values->size;
-    arr->objs = objs;
-
-    return arr;
-}
-
 Nst_sequence *new_vector_empty(size_t len)
 {
     size_t size = (size_t)(len * VECTOR_GROWTH_RATIO);
@@ -54,7 +30,7 @@ Nst_sequence *new_vector_empty(size_t len)
         size = VECTOR_MIN_SIZE;
 
     Nst_sequence *vect = malloc(sizeof(Nst_sequence));
-    Nst_Obj **objs = malloc(size * sizeof(Nst_Obj *));
+    Nst_Obj **objs = calloc(size, sizeof(Nst_Obj *));
 
     if ( vect == NULL || objs == NULL )
     {
@@ -69,31 +45,14 @@ Nst_sequence *new_vector_empty(size_t len)
     return vect;
 }
 
-Nst_sequence *new_vector_values(LList *values)
+void destroy_seq(Nst_sequence *seq)
 {
-    size_t size = (size_t)(values->size * VECTOR_GROWTH_RATIO);
+    Nst_Obj **objs = seq->objs;
+    for ( size_t i = 0, n = seq->len; i < n; i++ )
+        dec_ref(objs[i]);
 
-    if ( size < VECTOR_MIN_SIZE )
-        size = VECTOR_MIN_SIZE;
-
-    Nst_sequence *vect = malloc(sizeof(Nst_sequence));
-    Nst_Obj **objs = malloc(values->size * sizeof(Nst_Obj *));
-
-    if ( vect == NULL || objs == NULL )
-    {
-        errno = ENOMEM;
-        return NULL;
-    }
-
-    size_t idx = 0;
-    for ( LLNode *cursor = values->head; cursor != NULL; cursor = cursor->next )
-        objs[idx++] = cursor->value;
-
-    vect->len = values->size;
-    vect->size = values->size;
-    vect->objs = objs;
-
-    return vect;
+    free(objs);
+    free(seq);
 }
 
 void resize_vector(Nst_sequence *vect)
@@ -122,6 +81,9 @@ void resize_vector(Nst_sequence *vect)
         return;
     }
 
+    for ( size_t i = len; i < new_size; i++ )
+        vect->objs[i] = NULL;
+
     vect->size = new_size;
     vect->objs = new_objs;
 }
@@ -134,26 +96,40 @@ void append_value_vector(Nst_sequence *vect, Nst_Obj *val)
     if ( errno == ENOMEM )
         return;
 
+    inc_ref(val);
     vect->objs[vect->len] = val;
     vect->len++;
 }
 
-bool set_value_seq(Nst_sequence *seq, size_t idx, Nst_Obj *val)
+bool set_value_seq(Nst_sequence *seq, int64_t idx, Nst_Obj *val)
 {
     if ( idx < 0 )
         idx += seq->len;
 
-    if ( idx < 0 || idx >= seq->len )
+    if ( idx < 0 || idx >= (int64_t)seq->len )
         return false;
 
     inc_ref(val);
-    dec_ref(seq->objs[idx]);
+    if ( seq->objs[idx] != NULL )
+        dec_ref(seq->objs[idx]);
     seq->objs[idx] = val;
 
     return true;
 }
 
-void rem_value_vector(Nst_sequence *vect, Nst_Obj *val)
+Nst_Obj *get_value_seq(Nst_sequence *seq, int64_t idx)
+{
+    if ( idx < 0 )
+        idx += seq->len;
+
+    if ( idx < 0 || idx >= (int64_t)seq->len )
+        return NULL;
+
+    inc_ref(seq->objs[idx]);
+    return seq->objs[idx];
+}
+
+Nst_Obj *rem_value_vector(Nst_sequence *vect, Nst_Obj *val)
 {
     register size_t i = 0;
     register size_t n = vect->len;
@@ -164,7 +140,10 @@ void rem_value_vector(Nst_sequence *vect, Nst_Obj *val)
         if ( obj_eq(val, objs[i], NULL) == nst_true )
             break;
         if ( i + 1 == n )
-            return;
+        {
+            inc_ref(nst_false);
+            return nst_false;
+        }
     }
 
     for ( i++; i < n; i++ )
@@ -175,6 +154,9 @@ void rem_value_vector(Nst_sequence *vect, Nst_Obj *val)
     dec_ref(objs[n - 1]);
     vect->len--;
     resize_vector(vect);
+
+    inc_ref(nst_true);
+    return nst_true;
 }
 
 Nst_Obj *pop_value_vector(Nst_sequence *vect, size_t quantity)
@@ -193,5 +175,14 @@ Nst_Obj *pop_value_vector(Nst_sequence *vect, size_t quantity)
         vect->len--;
     }
 
-    return last_obj ? last_obj : nst_null;
+    if ( last_obj == NULL )
+    {
+        inc_ref(nst_null);
+        return nst_null;
+    }
+    else
+    {
+        // Has already one more reference because it was in the vector
+        return last_obj;
+    }
 }

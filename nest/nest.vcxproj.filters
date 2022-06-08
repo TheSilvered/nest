@@ -48,9 +48,6 @@
     <ClCompile Include="obj_ops.c">
       <Filter>File di origine</Filter>
     </ClCompile>
-    <ClCompile Include="nst_types.c">
-      <Filter>File di origine</Filter>
-    </ClCompile>
     <ClCompile Include="interpreter.c">
       <Filter>File di origine</Filter>
     </ClCompile>
@@ -58,6 +55,18 @@
       <Filter>File di origine</Filter>
     </ClCompile>
     <ClCompile Include="sequence.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="iter.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="function.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="str.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="simple_types.c">
       <Filter>File di origine</Filter>
     </ClCompile>
   </ItemGroup>
@@ -102,6 +111,18 @@
       <Filter>File di origine</Filter>
     </ClInclude>
     <ClInclude Include="sequence.h">
+      <Filter>File di origine</Filter>
+    </ClInclude>
+    <ClInclude Include="iter.h">
+      <Filter>File di origine</Filter>
+    </ClInclude>
+    <ClInclude Include="function.h">
+      <Filter>File di origine</Filter>
+    </ClInclude>
+    <ClInclude Include="str.h">
+      <Filter>File di origine</Filter>
+    </ClInclude>
+    <ClInclude Include="simple_types.h">
       <Filter>File di origine</Filter>
     </ClInclude>
   </ItemGroup>

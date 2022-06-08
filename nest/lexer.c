@@ -113,7 +113,7 @@ LList *tokenize(char *text, size_t text_len, char *filename)
 
     advance(&cursor);
 
-    while ( cursor.idx < (int)cursor.len )
+    while ( cursor.idx < (long)cursor.len )
     {
         if ( cursor.ch == ' ' || cursor.ch == '\t' )
         {
@@ -185,7 +185,7 @@ inline static void advance(LexerCursor *cursor)
     cursor->idx++;
     cursor->pos.col++;
 
-    if ( cursor->idx >= cursor->len )
+    if ( cursor->idx >= (long) cursor->len )
         return;
 
     if ( cursor->ch == '\n' )
@@ -221,7 +221,7 @@ inline static char *add_while_in(LexerCursor *cursor, char *charset)
     size_t chunk_size = START_CH_SIZE;
 
     // While cursor.ch is in charset and there is text left to check
-    while ( cursor->idx < cursor->len && strchr(charset, cursor->ch) != NULL )
+    while ( cursor->idx < (long) cursor->len && strchr(charset, cursor->ch) != NULL )
     {
         RESIZE_STR(str, realloc_str, str_len, chunk_size, NULL);
 
@@ -304,7 +304,7 @@ static void make_symbol(LexerCursor *cursor, Token **tok, Nst_Error **err)
     // Ignores the comment
     if ( strstr(symbol, "--") != NULL )
     {
-        while ( cursor->idx < cursor->len && cursor->ch != '\n' )
+        while ( cursor->idx < (long) cursor->len && cursor->ch != '\n' )
             advance(cursor);
         go_back(cursor);
         return;
@@ -482,7 +482,7 @@ static void make_str_literal(LexerCursor *cursor, Token **tok, Nst_Error **err)
     advance(cursor); // still on '"' or '\''
 
     // while there is text to add and (the string has not ended or the end is inside and escape)
-    while ( cursor->idx < cursor->len && (cursor->ch != closing_ch || escape) )
+    while ( cursor->idx < (long) cursor->len && (cursor->ch != closing_ch || escape) )
     {
         // the string is resized to fit at least one character
         RESIZE_STR(end_str, end_str_realloc, str_len, chunk_size,);

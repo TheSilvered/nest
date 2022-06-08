@@ -8,6 +8,7 @@
 #include "var_table.h"
 #include "tokens.h"
 #include "obj_ops.h"
+#include "hash.h"
 
 #define SET_ERROR(err_macro, start, end, message) \
     do { \
@@ -23,10 +24,9 @@
     } while ( 0 )
 
 #define SET_VALUE(new_value) do { \
-    Nst_Obj *_val_nst_obj = new_value; \
     if ( state->value != NULL ) \
         dec_ref(state->value); \
-    state->value = _val_nst_obj; \
+    state->value = new_value; \
     } while ( 0 )
 
 #define SET_NULL do { \
@@ -78,6 +78,11 @@ static void exe_assign_e(Node *node, VarTable *vt, ExecutionState *state);
 static void exe_continue_s(Node *node, VarTable *vt, ExecutionState *state);
 static void exe_break_s(Node *node, VarTable *vt, ExecutionState *state);
 
+static void call_func(Node *node,
+    Nst_func *func,
+    VarTable *vt, Nst_Obj **args,
+    ExecutionState *state);
+
 void run(Node *node)
 {
     if ( node == NULL )
@@ -102,6 +107,12 @@ void run(Node *node)
 
     if ( state.error_occurred )
         print_traceback(tb);
+
+    destroy_map(vt->vars);
+    free(vt);
+    dec_ref(state.value);
+
+    del_obj();
 }
 
 void exe_node(Node *node, VarTable *vt, ExecutionState *state)
@@ -140,9 +151,9 @@ static void exe_long_s(Node *node, VarTable *vt, ExecutionState *state)
     {
         SAFE_EXE(cursor->value);
 
-        if ( state->must_break     ||
-             state->must_continue  ||
-             state->must_return       )
+        if ( state->must_return )
+            return;
+        if ( state->must_break || state->must_continue )
             break;
     }
     SET_NULL;
@@ -171,23 +182,145 @@ static void exe_while_l(Node *node, VarTable *vt, ExecutionState *state)
             state->must_continue = false;
         }
     }
-
-    SET_NULL;
 }
 
 static void exe_dowhile_l(Node *node, VarTable *vt, ExecutionState *state)
 {
-    assert(false);
+    while ( true )
+    {
+        SAFE_EXE(TAIL_NODE(node));
+
+        if ( state->must_break || state->must_return )
+        {
+            state->must_break = false;
+            state->must_continue = false;
+            break;
+        }
+        else if ( state->must_continue )
+        {
+            state->must_continue = false;
+        }
+
+        SAFE_EXE(HEAD_NODE(node));
+        Nst_Obj *condition = obj_cast(state->value, nst_t_bool, NULL);
+
+        if ( condition == nst_false )
+            break;
+    }
 }
 
 static void exe_for_l(Node *node, VarTable *vt, ExecutionState *state)
 {
-    assert(false);
+    SAFE_EXE(HEAD_NODE(node));
+    Nst_Obj *range = state->value;
+    inc_ref(range);
+
+    if ( range->type != nst_t_int )
+    {
+        SET_ERROR(
+            TYPE_ERROR,
+            HEAD_NODE(node)->start,
+            HEAD_NODE(node)->end,
+            format_type_error(EXPECTED_TYPE("Int"), range->type_name)
+        );
+        return;
+    }
+
+
+    for ( Nst_int i = 0, n = AS_INT(range); i < n; i++ )
+    {
+        SAFE_EXE(TAIL_NODE(node));
+
+        if ( state->must_break || state->must_return )
+        {
+            state->must_break = false;
+            state->must_continue = false;
+            break;
+        }
+        else if ( state->must_continue )
+        {
+            state->must_continue = false;
+        }
+    }
+
+    dec_ref(range);
 }
 
 static void exe_for_as_l(Node *node, VarTable *vt, ExecutionState *state)
 {
-    assert(false);
+    SAFE_EXE(HEAD_NODE(node));
+    Nst_Obj *iter_obj = state->value;
+    inc_ref(iter_obj);
+
+    if ( iter_obj->type != nst_t_iter )
+    {
+        SET_ERROR(
+            TYPE_ERROR,
+            HEAD_NODE(node)->start,
+            HEAD_NODE(node)->end,
+            format_type_error(EXPECTED_TYPE("Iter"), iter_obj->type_name)
+        );
+        return;
+    }
+
+    Nst_iter *iterator = iter_obj->value;
+    Nst_Obj *iter_val = iterator->value;
+
+    call_func(node, iterator->start->value, vt, &iter_val, state);
+    if ( state->error_occurred )
+        return;
+
+    Nst_Obj *var_name = make_obj(HEAD_TOK(node)->value, nst_t_str, NULL);
+
+    while ( true )
+    {
+        call_func(node, iterator->is_done->value, vt, &iter_val, state);
+        if ( state->error_occurred )
+            return;
+
+        if ( state->value->type != nst_t_bool )
+        {
+            SET_ERROR(
+                TYPE_ERROR,
+                HEAD_NODE(node)->start,
+                HEAD_NODE(node)->end,
+                format_type_error(EXPECTED_BOOL_ITER_IS_DONE, state->value->type_name)
+            );
+            return;
+        }
+
+        if ( AS_BOOL(state->value) )
+        {
+            SET_NULL;
+            break;
+        }
+
+        call_func(node, iterator->get_val->value, vt, &iter_val, state);
+        if ( state->error_occurred )
+            return;
+
+        set_val(vt, var_name, state->value);
+
+        SAFE_EXE(TAIL_NODE(node));
+
+        if ( state->must_break || state->must_return )
+        {
+            state->must_break = false;
+            state->must_continue = false;
+            break;
+        }
+        else if ( state->must_continue )
+        {
+            state->must_continue = false;
+        }
+
+        call_func(node, iterator->advance->value, vt, &iter_val, state);
+        if ( state->error_occurred )
+            return;
+    }
+
+    dec_ref(var_name);
+    dec_ref(iter_obj);
 }
 
 static void exe_if_e(Node *node, VarTable *vt, ExecutionState *state)
@@ -216,7 +349,23 @@ static void exe_if_e(Node *node, VarTable *vt, ExecutionState *state)
 
 static void exe_func_declr(Node *node, VarTable *vt, ExecutionState *state)
 {
-    assert(false);
+    Nst_func *func = new_func(node->tokens->size - 1);
+
+    register size_t i = 0;
+    for ( LLNode *n = node->tokens->head->next; n != NULL; n = n->next )
+        func->args[i++] = TOK(n->value)->value;
+
+    func->body = HEAD_NODE(node);
+
+    Nst_Obj *func_obj = new_func_obj(func);
+    Nst_Obj *func_name = make_obj(HEAD_TOK(node)->value, nst_t_str, NULL);
+
+    set_val(vt, func_name, func_obj);
+
+    dec_ref(func_obj);
+    dec_ref(func_name);
+
+    SET_NULL;
 }
 
 static void exe_return_s(Node *node, VarTable *vt, ExecutionState *state)
@@ -278,7 +427,200 @@ static void exe_stack_op(Node *node, VarTable *vt, ExecutionState *state)
 
 static void exe_local_stack_op(Node *node, VarTable *vt, ExecutionState *state)
 {
-    assert(false);
+    int op_tok = TOK(node->tokens->head->value)->type;
+    register size_t arg_count = node->nodes->size;
+    OpErr err = { "", "" };
+
+    switch ( op_tok )
+    {
+    case CAST:
+        if ( arg_count != 2 )
+            SET_ERROR(
+                CALL_ERROR,
+                node->start,
+                node->end,
+                arg_count > 2 ? TOO_MANY_ARGS("cast") : TOO_FEW_ARGS("cast")
+            );
+
+        SAFE_EXE(HEAD_NODE(node));
+        Nst_Obj *type = state->value;
+        inc_ref(type);
+        SAFE_EXE(TAIL_NODE(node));
+        Nst_Obj *obj = state->value;
+        inc_ref(obj);
+
+        Nst_Obj *res = obj_cast(obj, type, &err);
+        if ( res == NULL )
+        {
+            if ( errno == ENOMEM )
+                return;
+            SET_ERROR(GENERAL_ERROR, node->start, node->end, err.message);
+            state->traceback->error->name = err.name;
+            return;
+        }
+
+        dec_ref(type);
+        dec_ref(obj);
+
+        SET_VALUE(res);
+        break;
+    case CALL:
+        SAFE_EXE(TAIL_NODE(node));
+        Nst_Obj *func_obj = state->value;
+        inc_ref(func_obj);
+
+        if ( func_obj->type != nst_t_func )
+        {
+            SET_ERROR(
+                TYPE_ERROR,
+                TAIL_NODE(node)->start,
+                TAIL_NODE(node)->end,
+                format_type_error(EXPECTED_TYPE("Func"), func_obj->type_name)
+            );
+        }
+
+        Nst_func func = *AS_FUNC(func_obj);
+
+        if ( arg_count - 1 != func.arg_num )
+        {
+            SET_ERROR(
+                CALL_ERROR,
+                node->start,
+                node->end,
+                arg_count - 1 > func.arg_num ? TOO_MANY_ARGS_FUNC : TOO_FEW_ARGS_FUNC
+            );
+        }
+
+        Nst_Obj **args_arr = malloc(func.arg_num * sizeof(Nst_Obj *));
+        if ( args_arr == NULL )
+        {
+            errno = ENOMEM;
+            return;
+        }
+
+        LLNode *n = node->nodes->head;
+        for ( size_t i = 0; i < func.arg_num; i++ )
+        {
+            SAFE_EXE(n->value);
+            Nst_Obj *val = state->value;
+            inc_ref(val);
+            args_arr[i] = val;
+
+            n = n->next;
+        }
+
+        call_func(node, &func, vt, args_arr, state);
+        dec_ref(func_obj);
+
+        for ( size_t i = 0; i < func.arg_num; i++ )
+            dec_ref(args_arr[i]);
+        free(args_arr);
+
+        break;
+    case RANGE:
+        if ( arg_count != 3 && arg_count != 2 )
+        {
+            SET_ERROR(
+                CALL_ERROR,
+                node->start,
+                node->end,
+                arg_count > 3 ? TOO_MANY_ARGS("range") : TOO_FEW_ARGS("range")
+            );
+        }
+
+        SAFE_EXE(HEAD_NODE(node));
+        Nst_Obj *start = state->value;
+        inc_ref(start);
+        SAFE_EXE(TAIL_NODE(node));
+        Nst_Obj *stop = state->value;
+        inc_ref(stop);
+
+        Nst_Obj *step = NULL;
+
+        if ( start->type != nst_t_int )
+        {
+            SET_ERROR(
+                TYPE_ERROR,
+                HEAD_NODE(node)->start,
+                HEAD_NODE(node)->end,
+                format_type_error(EXPECTED_TYPE("Int"), start->type_name)
+            );
+            return;
+        }
+
+        if ( stop->type != nst_t_int )
+        {
+            SET_ERROR(
+                TYPE_ERROR,
+                TAIL_NODE(node)->start,
+                TAIL_NODE(node)->end,
+                format_type_error(EXPECTED_TYPE("Int"), start->type_name)
+            );
+            return;
+        }
+
+        if ( arg_count == 3 )
+        {
+            Node *n = node->nodes->head->next->value;
+            SAFE_EXE(n);
+            step = state->value;
+            inc_ref(step);
+
+            if ( step->type != nst_t_int )
+            {
+                SET_ERROR(
+                    TYPE_ERROR,
+                    TAIL_NODE(node)->start,
+                    TAIL_NODE(node)->end,
+                    format_type_error(EXPECTED_TYPE("Int"), start->type_name)
+                );
+                return;
+            }
+
+            if ( AS_INT(step) == 0 )
+            {
+                SET_ERROR(
+                    VALUE_ERROR,
+                    n->start,
+                    n->end,
+                    ZERO_RANGE_STEP
+                );
+                return;
+            }
+        }
+        else
+        {
+            if ( AS_INT(start) <= AS_INT(stop) )
+                step = make_obj_free(new_int( 1), nst_t_int);
+            else
+                step = make_obj_free(new_int(-1), nst_t_int);
+        }
+
+        Nst_Obj *idx = make_obj_free(new_int(0), nst_t_int);
+
+        Nst_sequence *data_seq = new_array_empty(4);
+        set_value_seq(data_seq, 0, idx);
+        set_value_seq(data_seq, 1, start);
+        set_value_seq(data_seq, 2, stop);
+        set_value_seq(data_seq, 3, step);
+
+        dec_ref(idx);
+        dec_ref(start);
+        dec_ref(stop);
+        dec_ref(step);
+
+        SET_VALUE(new_iter_obj(new_iter(
+            new_func_obj(new_cfunc(1, num_iter_start)),
+            new_func_obj(new_cfunc(1, num_iter_advance)),
+            new_func_obj(new_cfunc(1, num_iter_is_done)),
+            new_func_obj(new_cfunc(1, num_iter_get_val)),
+            make_obj(data_seq, nst_t_arr, destroy_seq)
+        )));
+
+        break;
+    default:
+        return;
+    }
 }
 
 static void exe_local_op(Node *node, VarTable *vt, ExecutionState *state)
@@ -313,17 +655,68 @@ static void exe_local_op(Node *node, VarTable *vt, ExecutionState *state)
 
 static void exe_arr_lit(Node *node, VarTable *vt, ExecutionState *state)
 {
-    assert(false);
+    Nst_sequence *arr = new_array_empty(node->nodes->size);
+    Nst_Obj **objs = arr->objs;
+    size_t i = 0;
+
+    for ( LLNode *n = node->nodes->head; n != NULL; n = n->next )
+    {
+        SAFE_EXE(n->value);
+        set_value_seq(arr, i++, state->value);
+    }
+
+    SET_VALUE(make_obj(arr, nst_t_arr, destroy_seq));
 }
 
 static void exe_vect_lit(Node *node, VarTable *vt, ExecutionState *state)
 {
-    assert(false);
+    Nst_sequence *arr = new_vector_empty(node->nodes->size);
+    Nst_Obj **objs = arr->objs;
+    size_t i = 0;
+
+    for ( LLNode *n = node->nodes->head; n != NULL; n = n->next )
+    {
+        SAFE_EXE(n->value);
+        set_value_seq(arr, i++, state->value);
+    }
+
+    SET_VALUE(make_obj(arr, nst_t_vect, destroy_seq));
 }
 
 static void exe_map_lit(Node *node, VarTable *vt, ExecutionState *state)
 {
-    assert(false);
+    Nst_map *map = new_map();
+    register Nst_Obj *key = NULL;
+    register Node *key_node = NULL;
+
+    for ( LLNode *n = node->nodes->head; n != NULL; n = n->next )
+    {
+        SAFE_EXE(n->value);
+        if ( key == NULL )
+        {
+            key_node = n->value;
+            key = state->value;
+            inc_ref(state->value);
+            continue;
+        }
+
+        if ( !map_set(map, key, state->value) )
+        {
+            SET_ERROR(
+                TYPE_ERROR,
+                key_node->start,
+                key_node->end,
+                format_type_error(UNHASHABLE_TYPE, key->type_name);
+            );
+
+            return;
+        }
+
+        dec_ref(key);
+        key = NULL;
+    }
+
+    SET_VALUE(make_obj(map, nst_t_map, destroy_map));
 }
 
 static void exe_value(Node *node, VarTable *vt, ExecutionState *state)
@@ -334,19 +727,19 @@ static void exe_value(Node *node, VarTable *vt, ExecutionState *state)
     {
     case INT:
         SET_VALUE(make_obj(
-            AS_INT(tok->value),
+            &AS_INT(tok),
             nst_t_int, NULL // these should never be freed
         ));
         break;
     case REAL:
         SET_VALUE(make_obj(
-            AS_REAL(tok->value),
+            &AS_REAL(tok),
             nst_t_real, NULL
         ));
         break;
     case STRING:
         SET_VALUE(make_obj(
-            AS_STR(tok->value),
+            AS_STR(tok),
             nst_t_str, NULL
         ));
         break;
@@ -360,17 +753,140 @@ static void exe_access(Node *node, VarTable *vt, ExecutionState *state)
         nst_t_str, NULL
     );
 
-    SET_VALUE(get_val(vt, key));
+    Nst_Obj *val = get_val(vt, key);
+    if ( val == NULL )
+    {
+        inc_ref(nst_null);
+        val = nst_null;
+    }
 
-    if ( state->value == NULL )
-        state->value = nst_t_null;
+    SET_VALUE(val);
 
-    destroy_obj(key);
+    dec_ref(key);
 }
 
 static void exe_extract_e(Node *node, VarTable *vt, ExecutionState *state)
 {
-    assert(false);
+    SAFE_EXE(HEAD_NODE(node));
+    Nst_Obj *container = state->value;
+    inc_ref(container);
+    SAFE_EXE(TAIL_NODE(node));
+    Nst_Obj *key = state->value;
+    inc_ref(key);
+
+    if ( container->type == nst_t_arr || container->type == nst_t_vect )
+    {
+        if ( key->type != nst_t_int )
+        {
+            SET_ERROR(
+                TYPE_ERROR,
+                TAIL_NODE(node)->start,
+                TAIL_NODE(node)->end,
+                format_type_error(EXPECTED_TYPE("Int"), key->type_name)
+            );
+            return;
+        }
+
+        Nst_int idx = AS_INT(key);
+        Nst_Obj *val = get_value_seq(container->value, idx);
+
+        if ( val == NULL )
+        {
+            SET_ERROR(
+                VALUE_ERROR,
+                TAIL_NODE(node)->start,
+                TAIL_NODE(node)->end,
+                format_idx_error(
+                    container->type == nst_t_arr ? INDEX_OUT_OF_BOUNDS("Array")
+                                                 : INDEX_OUT_OF_BOUNDS("Vector"),
+                    idx,
+                    AS_SEQ(container)->len
+                )
+            );
+            return;
+        }
+
+        SET_VALUE(val);
+    }
+    else if ( container->type == nst_t_str )
+    {
+        if ( key->type != nst_t_int )
+        {
+            SET_ERROR(
+                TYPE_ERROR,
+                TAIL_NODE(node)->start,
+                TAIL_NODE(node)->end,
+                format_type_error(EXPECTED_TYPE("Int"), key->type_name)
+            );
+            return;
+        }
+
+        Nst_string *str = AS_STR(container);
+        Nst_int idx = AS_INT(key);
+        if ( idx < 0 )
+            idx += str->len;
+
+        if ( idx < 0 || idx >= (Nst_int)str->len )
+        {
+            SET_ERROR(
+                VALUE_ERROR,
+                TAIL_NODE(node)->start,
+                TAIL_NODE(node)->end,
+                format_idx_error(INDEX_OUT_OF_BOUNDS("Str"), idx, str->len)
+            );
+            return;
+        }
+
+        char *ch = calloc(2, sizeof(char));
+        if ( ch == NULL )
+        {
+            errno = ENOMEM;
+            return;
+        }
+
+        ch[0] = str->value[idx];
+
+        Nst_Obj *val = make_obj(new_string(ch, 1, true), nst_t_str, destroy_string);
+
+        SET_VALUE(val);
+    }
+    else if ( container->type == nst_t_map )
+    {
+        hash_obj(key);
+        if ( key->hash == -1 )
+        {
+            SET_ERROR(
+                VALUE_ERROR,
+                TAIL_NODE(node)->start,
+                TAIL_NODE(node)->end,
+                format_type_error(UNHASHABLE_TYPE, key->type_name)
+            );
+            return;
+        }
+
+        Nst_Obj *val = map_get(container->value, key);
+
+        if ( val == NULL )
+        {
+            inc_ref(nst_null);
+            val = nst_null;
+        }
+
+        SET_VALUE(val);
+    }
+    else
+    {
+        SET_ERROR(
+            TYPE_ERROR,
+            HEAD_NODE(node)->start,
+            HEAD_NODE(node)->end,
+            format_type_error(EXPECTED_TYPE("Array', 'Vector', 'Map' or 'Str"), container->type_name)
+        );
+        return;
+    }
+
+    dec_ref(key);
+    dec_ref(container);
 }
 
 static void exe_assign_e(Node *node, VarTable *vt, ExecutionState *state)
@@ -394,18 +910,23 @@ static void exe_assign_e(Node *node, VarTable *vt, ExecutionState *state)
         return; // state->value is still the same
     }
     
+    inc_ref(value);
+
     // If name_node->type == EXTRACTION
     // can't be anything else because of the parser
     SAFE_EXE(HEAD_NODE(name_node));
     Nst_Obj *obj_to_set = state->value;
+    inc_ref(obj_to_set);
 
     SAFE_EXE(TAIL_NODE(name_node));
     Nst_Obj *idx = state->value;
+    inc_ref(idx);
+
     SET_VALUE(value);
 
     if ( obj_to_set->type == nst_t_map )
     {
-        bool res = map_set(AS_MAP(obj_to_set->value), idx, value);
+        bool res = map_set(AS_MAP(obj_to_set), idx, value);
         if ( !res )
         {
             SET_ERROR(
@@ -418,6 +939,7 @@ static void exe_assign_e(Node *node, VarTable *vt, ExecutionState *state)
         }
 
         dec_ref(obj_to_set);
+        dec_ref(idx);
         return;
     }
     else if ( obj_to_set->type == nst_t_arr || obj_to_set->type == nst_t_vect )
@@ -428,12 +950,12 @@ static void exe_assign_e(Node *node, VarTable *vt, ExecutionState *state)
                 TYPE_ERROR,
                 TAIL_NODE(name_node)->start,
                 TAIL_NODE(name_node)->end,
-                format_type_error(EXPECTED_TYPE("int"), idx->type_name)
+                format_type_error(EXPECTED_TYPE("Int"), idx->type_name)
             );
             return;
         }
         
-        bool res = set_value_seq(AS_SEQ(obj_to_set->value), *AS_INT(idx->value), value);
+        bool res = set_value_seq(AS_SEQ(obj_to_set), AS_INT(idx), value);
 
         if ( !res )
         {
@@ -442,15 +964,17 @@ static void exe_assign_e(Node *node, VarTable *vt, ExecutionState *state)
                 name_node->start,
                 name_node->end,
                 format_idx_error(
-                    INDEX_OUT_OF_BOUNDS,
-                    *AS_INT(idx->value),
-                    AS_SEQ(obj_to_set->value)->len
+                    obj_to_set->type == nst_t_arr ? INDEX_OUT_OF_BOUNDS("Array")
+                                                  : INDEX_OUT_OF_BOUNDS("Vector"),
+                    AS_INT(idx),
+                    AS_SEQ(obj_to_set)->len
                 )
             );
             return;
         }
 
         dec_ref(obj_to_set);
+        dec_ref(idx);
         return;
     }
     else
@@ -459,7 +983,7 @@ static void exe_assign_e(Node *node, VarTable *vt, ExecutionState *state)
             TYPE_ERROR,
             HEAD_NODE(name_node)->start,
             HEAD_NODE(name_node)->end,
-            format_type_error(EXPECTED_TYPE("map', 'arr' or 'vect"), obj_to_set->type_name)
+            format_type_error(EXPECTED_TYPE("Array', 'Vector' or 'Map"), obj_to_set->type_name)
         );
         return;
     }
@@ -475,4 +999,60 @@ static void exe_break_s(Node *node, VarTable *vt, ExecutionState *state)
 {
     state->must_break = true;
     SET_NULL;
+}
+
+static void call_func(Node *node,
+                      Nst_func *func,
+                      VarTable *vt,
+                      Nst_Obj **args,
+                      ExecutionState *state)
+{
+    if ( func->body != NULL )
+    {
+        VarTable *func_vt = NULL;
+
+        if ( vt->global_table != NULL )
+            func_vt = new_var_table(vt->global_table);
+        else
+            func_vt = new_var_table(vt);
+
+        for ( size_t i = 0; i < func->arg_num; i++ )
+        {
+            Nst_Obj *arg_name = make_obj(
+                func->args[i],
+                nst_t_str, NULL
+            );
+
+            set_val(func_vt, arg_name, args[i]);
+            dec_ref(arg_name);
+        }
+
+        exe_node(func->body, func_vt, state);
+        if ( state->error_occurred )
+        {
+            LList_append(state->traceback->positions, &node->start, false);
+            LList_append(state->traceback->positions, &node->end, false);
+            return;
+        }
+
+        state->must_return = false;
+
+        destroy_map(func_vt->vars);
+        free(func_vt);
+    }
+    else
+    {
+        assert(func->cbody != NULL);
+        OpErr err = { "", "" };
+        Nst_Obj *res = func->cbody(func->arg_num, args, &err);
+        if ( res == NULL )
+        {
+            if ( errno == ENOMEM )
+                return;
+            SET_ERROR(GENERAL_ERROR, node->start, node->end, err.message);
+            state->traceback->error->name = err.name;
+            return;
+        }
+        SET_VALUE(res);
+    }
 }

@@ -34,22 +34,29 @@ Nst_Obj *make_obj(void *value, Nst_Obj *type, void (*destructor)(void *))
     obj->ref_count = 1;
     obj->value = value;
     obj->destructor = destructor;
+    obj->hash = -1;
 
     // the type of the type object is itself
     if ( type == NULL )
         type = obj;
 
     obj->type = type;
-    obj->type_name = AS_STR(type->value)->value;
+    obj->type_name = AS_STR(type)->value;
 
     inc_ref(obj->type);
 
     return obj;
 }
 
-void inc_ref(Nst_Obj *obj)
+Nst_Obj *make_obj_free(void *value, Nst_Obj *type)
+{
+    return make_obj(value, type, free);
+}
+
+Nst_Obj *inc_ref(Nst_Obj *obj)
 {
     obj->ref_count++;
+    return obj;
 }
 
 void dec_ref(Nst_Obj *obj)
@@ -69,39 +76,41 @@ void destroy_obj(Nst_Obj *obj)
 
 void init_obj(void)
 {
-    nst_t_type = make_obj(new_string("type",   4, false), NULL,       destroy_string);
-    nst_t_int  = make_obj(new_string("int",    3, false), nst_t_type, destroy_string);
-    nst_t_real = make_obj(new_string("real",   4, false), nst_t_type, destroy_string);
-    nst_t_bool = make_obj(new_string("bool",   4, false), nst_t_type, destroy_string);
-    nst_t_null = make_obj(new_string("null",   4, false), nst_t_type, destroy_string);
-    nst_t_str  = make_obj(new_string("str",    3, false), nst_t_type, destroy_string);
-    nst_t_arr  = make_obj(new_string("array",  5, false), nst_t_type, destroy_string);
-    nst_t_vect = make_obj(new_string("vector", 6, false), nst_t_type, destroy_string);
-    nst_t_map  = make_obj(new_string("map",    3, false), nst_t_type, destroy_string);
-    nst_t_func = make_obj(new_string("func",   4, false), nst_t_type, destroy_string);
-    nst_t_iter = make_obj(new_string("iter",   4, false), nst_t_type, destroy_string);
-    nst_t_byte = make_obj(new_string("byte",   4, false), nst_t_type, destroy_string);
-    nst_t_file = make_obj(new_string("iofile", 6, false), nst_t_type, destroy_string);
+    nst_t_type = make_obj(new_string("Type",   4, false), NULL,       destroy_string);
+    nst_t_int  = make_obj(new_string("Int",    3, false), nst_t_type, destroy_string);
+    nst_t_real = make_obj(new_string("Real",   4, false), nst_t_type, destroy_string);
+    nst_t_bool = make_obj(new_string("Bool",   4, false), nst_t_type, destroy_string);
+    nst_t_null = make_obj(new_string("Null",   4, false), nst_t_type, destroy_string);
+    nst_t_str  = make_obj(new_string("Str",    3, false), nst_t_type, destroy_string);
+    nst_t_arr  = make_obj(new_string("Array",  5, false), nst_t_type, destroy_string);
+    nst_t_vect = make_obj(new_string("Vector", 6, false), nst_t_type, destroy_string);
+    nst_t_map  = make_obj(new_string("Map",    3, false), nst_t_type, destroy_string);
+    nst_t_func = make_obj(new_string("Func",   4, false), nst_t_type, destroy_string);
+    nst_t_iter = make_obj(new_string("Iter",   4, false), nst_t_type, destroy_string);
+    nst_t_byte = make_obj(new_string("Byte",   4, false), nst_t_type, destroy_string);
+    nst_t_file = make_obj(new_string("IOfile", 6, false), nst_t_type, destroy_string);
 
     nst_true  = make_obj(new_bool(NST_TRUE ), nst_t_bool, free);
     nst_false = make_obj(new_bool(NST_FALSE), nst_t_bool, free);
     nst_null = make_obj(NULL, nst_t_null, NULL);
+}
 
-    // There must always be a reference to these objects
-    inc_ref(nst_t_type);
-    inc_ref(nst_t_int );
-    inc_ref(nst_t_real);
-    inc_ref(nst_t_bool);
-    inc_ref(nst_t_null);
-    inc_ref(nst_t_str );
-    inc_ref(nst_t_arr );
-    inc_ref(nst_t_vect);
-    inc_ref(nst_t_map );
-    inc_ref(nst_t_func);
-    inc_ref(nst_t_iter);
-    inc_ref(nst_t_byte);
-    inc_ref(nst_t_file);
-    inc_ref(nst_true  );
-    inc_ref(nst_false );
-    inc_ref(nst_null  );
+void del_obj(void)
+{
+    dec_ref(nst_t_type);
+    dec_ref(nst_t_int);
+    dec_ref(nst_t_real);
+    dec_ref(nst_t_bool);
+    dec_ref(nst_t_null);
+    dec_ref(nst_t_str);
+    dec_ref(nst_t_arr);
+    dec_ref(nst_t_vect);
+    dec_ref(nst_t_map);
+    dec_ref(nst_t_func);
+    dec_ref(nst_t_iter);
+    dec_ref(nst_t_byte);
+    dec_ref(nst_t_file);
+    dec_ref(nst_true);
+    dec_ref(nst_false);
+    dec_ref(nst_null);
 }

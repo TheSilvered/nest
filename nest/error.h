@@ -2,6 +2,7 @@
 #define ERROR_H
 
 #include <stddef.h>
+#include <stdint.h>
 #include "llist.h"
 
 typedef struct Pos
@@ -23,6 +24,13 @@ typedef struct Nst_Error
 }
 Nst_Error;
 
+typedef struct OpErr
+{
+    char *name;
+    char *message;
+}
+OpErr;
+
 typedef struct Nst_Traceback
 {
     Nst_Error *error;
@@ -35,7 +43,7 @@ void print_error(Nst_Error err);
 void print_traceback(Nst_Traceback tb);
 
 char *format_type_error(const char *format, char *type_name);
-char *format_idx_error(const char *format, size_t idx, size_t seq_len);
+char *format_idx_error(const char *format, int64_t idx, size_t seq_len);
 
 #define SYNTAX_ERROR(error, e_start, e_end, msg) \
     error->start = e_start; \
@@ -59,6 +67,12 @@ char *format_idx_error(const char *format, size_t idx, size_t seq_len);
     error->start = e_start; \
     error->end = e_end; \
     error->name = "Value Error"; \
+    error->message = msg
+
+#define CALL_ERROR(error, e_start, e_end, msg) \
+    error->start = e_start; \
+    error->end = e_end; \
+    error->name = "Call Error"; \
     error->message = msg
 
 #define GENERAL_ERROR(error, e_start, e_end, msg) \
@@ -90,8 +104,14 @@ char *format_idx_error(const char *format, size_t idx, size_t seq_len);
 #define MISSING_VECTOR_BRACE "unmatched vector brace"
 #define EXPECTED_COMMA_OR_BRACE "expected ',' or '}'"
 #define EXPECTED_COLON "expected ':'"
-#define EXPECTED_TYPE(type) "expected type ' " type "', got '%s' instead"
+#define EXPECTED_TYPE(type) "expected type '" type "', got '%s' instead"
 #define UNHASHABLE_TYPE "unhashable type '%s'"
-#define INDEX_OUT_OF_BOUNDS "index %zi out of bounds for sequence of size %zi"
+#define INDEX_OUT_OF_BOUNDS(type) "index %lli out of bounds for '" type "' of size %zi"
+#define TOO_MANY_ARGS(name) "too many arguments were given to" name
+#define TOO_FEW_ARGS(name) "too few arguments were given to" name
+#define TOO_MANY_ARGS_FUNC "too many arguments were passed to the function"
+#define TOO_FEW_ARGS_FUNC "too few arguments were passed to the function"
+#define ZERO_RANGE_STEP "step must not be zero"
+#define EXPECTED_BOOL_ITER_IS_DONE "expected 'Bool' type from ':is_done:', got type '%s' instead"
 
 #endif // !ERROR_H

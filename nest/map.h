@@ -9,7 +9,7 @@
 
 typedef struct MapNode
 {
-    size_t hash;
+    int32_t hash;
     Nst_Obj *key;
     Nst_Obj *value;
 }
@@ -27,6 +27,8 @@ Nst_map;
 Nst_map *new_map();
 bool map_set(Nst_map *map, Nst_Obj *key, Nst_Obj *value);
 Nst_Obj *map_get(Nst_map *map, Nst_Obj *key);
-void map_destroy(Nst_map *map);
+void destroy_map(Nst_map *map);
+#define AS_MAP(ptr) ((Nst_map *)(ptr->value))
+#define AS_MAP_V(ptr) ((Nst_map *)(ptr))
 
 #endif // !MAP_H

@@ -1,0 +1,18 @@
+﻿  error.c
+  hash.c
+  interpreter.c
+  iter.c
+  lexer.c
+  llist.c
+  map.c
+  nest.c
+  nodes.c
+  nst_types.c
+  obj.c
+  obj_ops.c
+  parser.c
+  tokens.c
+  var_table.c
+  sequence.c
+  Generazione del codice in corso...
+  nest.vcxproj -> E:\C++\nest\Debug\nest.exe

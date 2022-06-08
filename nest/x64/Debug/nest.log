@@ -1,2 +1,7 @@
-﻿  obj_ops.c
+﻿  map.c
+  nest.c
+  simple_types.c
+  tokens.c
+  sequence.c
+  Generazione del codice in corso...
   nest.vcxproj -> E:\C++\nest\x64\Debug\nest.exe

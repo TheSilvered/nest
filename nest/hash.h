@@ -3,6 +3,6 @@
 
 #include "obj.h"
 
-size_t hash_obj(Nst_Obj *obj);
+int32_t hash_obj(Nst_Obj *obj);
 
 #endif // !HASH_H
