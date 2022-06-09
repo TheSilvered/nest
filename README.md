@@ -9,8 +9,10 @@ A programming language with no keywords.
 - Has named variables
 - Has hash maps, vectors and arrays
 
-## Types
-There are only the following types in Nest:
+## Syntax
+
+### Predefined variables
+The built-in type names:
 - `Int`, 64-bit integers
 - `Real`, double precision floating point numbers
 - `Bool`, boolean
@@ -25,7 +27,10 @@ There are only the following types in Nest:
 - `IOfile`, file
 - `Type`, any type's type
 
-## Syntax
+And values that are always the same object:
+- `true`, boolean true
+- `false`, boolean false
+- `null`, null object, not to confuse with the type `Null`
 
 ### Comments
 
@@ -183,18 +188,19 @@ multi-line strings.
 ```
 
 There escapes supported are:
-| Escape | Name |
-|--------|------|
-| `\'` | single quote        |
-| `\"` | double quote        |
-| `\\` | backslash           |
-| `\a` | alert / bell        |
-| `\b` | backspace           |
-| `\f` | form feed           |
-| `\n` | newline / line feed |
-| `\r` | carriage return     |
-| `\t` | horizontal tab      |
-| `\v` | vertical tab        |
+
+| Escape | Name                |
+|--------|---------------------|
+| `\'`   | single quote        |
+| `\"`   | double quote        |
+| `\\`   | backslash           |
+| `\a`   | alert / bell        |
+| `\b`   | backspace           |
+| `\f`   | form feed           |
+| `\n`   | newline / line feed |
+| `\r`   | carriage return     |
+| `\t`   | horizontal tab      |
+| `\v`   | vertical tab        |
 
 ### Arrays
 
@@ -371,4 +377,110 @@ is accessible in the local scope
 >>> a --> 3
 ```
 
-## Work in progress...
+### If expressions
+
+An if expression is written with a condition, followed by a question mark and
+the code to execute if the condition is true. Optionally, you can add a colon
+and set the code to execute when the condition is false.
+
+```
+condition ? >>> 'The condition is true\n' : >>> 'The condition is false\n'
+```
+
+To execute more than one instruction you can use a code block (code between two
+brackets).
+
+```
+name ? [
+    <<<'' = name
+    >>> name
+] : [
+    >>> name
+]
+```
+
+An if expression only returns a value with single-line statements, code blocks
+always return null.
+
+### Assignment expressions
+
+To assign a value to a variable you type the value expression followed by an
+equal sign and the name of the variable or the expression you would use to
+access an item in a map, vector or array.
+
+You can use assignments to add a key to a map.
+
+```
+1 = n
+>>> n --> 1
+
+{ 1, 2 } = a
+3 = a.1
+>>> a.1 --> 3
+
+{ 1: 10, 2: 20 } = m
+30 = m.3
+200 = m.2
+>>> m.3 --> 30
+>>> m.2 --> 200
+```
+
+There are also some compound operators for syntactic sugar:
+- `+=`, addition
+- `-=`, subtraction
+- `*=`, multiplication
+- `/=`, division
+- `^=`, exponentiation (power)
+- `%=`, reminder
+- `&=`, bit-wise and
+- `|=`, bit-wise or
+- `^^=`, bit-wise xor
+- `<<=`, bit-wise left shift
+- `>>=`, bit-wise right shift
+- `><=`, concatenation
+
+and they simply to the stack operation taking the new value and the variable's
+value.
+
+```
+1 = a
+>>> a --> 1
+
+2 += a
+>>> a --> 3
+```
+
+### Type casting
+
+We have seen before the cast operator `::` but here are all the valid casts in
+Nest.
+
+| Initial type | Casted Type |
+|--------------|-------------|
+| Int          | Real        |
+| Int          | Bool        |
+| Int          | Str         |
+| Real         | Int         |
+| Real         | Bool        |
+| Real         | Str         |
+| Bool         | Str         |
+| Null         | Bool        |
+| Str          | Bool        |
+| Str          | Iter        |
+| Array        | Bool        |
+| Array        | Iter        |
+| Vector       | Bool        |
+| Vector       | Iter        |
+| Map          | Bool        |
+| Map          | Iter        |
+| Byte         | Int         |
+| Byte         | Real        |
+| Byte         | Bool        |
+| Byte         | Str         |
+
+Casting to a boolean `null`, it will always return `false`.
+Casting to a boolean an array, vector, string or map will return `false` when
+it's empty, otherwise true.
+Casting to a boolean a number (Byte, Int or Real), it will return `false` when
+it is equal to zero.
+Casting

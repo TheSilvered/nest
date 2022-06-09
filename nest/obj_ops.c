@@ -585,15 +585,28 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
         {
             if ( AS_BYTE_V(ob_val) >= '!' && AS_BYTE_V(ob_val) <= '~' )
             {
-                char str[2] = { AS_BYTE_V(ob_val), 0 };
+                char *str = calloc(2, sizeof(char));
+                if ( str == NULL )
+                {
+                    errno = ENOMEM;
+                    return NULL;
+                }
+
+                str[0] = AS_BYTE_V(ob_val);
 
                 return make_obj(
-                    new_string(str, 1, false),
+                    new_string(str, 1, true),
                     nst_t_str, destroy_string
                 );
             }
             
-            char str[MAX_BYTE_CHAR_COUNT] = { 0 };
+            char *str = calloc(MAX_BYTE_CHAR_COUNT, sizeof(char));
+            if ( str == NULL )
+            {
+                errno = ENOMEM;
+                return NULL;
+            }
+
             sprintf(str, "\\%i", AS_BYTE_V(ob_val));
 
             return make_obj(
