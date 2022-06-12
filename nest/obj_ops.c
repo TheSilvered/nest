@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
+#include <windows.h>
 #include "obj_ops.h"
 #include "nst_types.h"
 
@@ -665,7 +666,14 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
             return make_obj(
                 new_int((Nst_int)AS_INT_V(ob_val)),
                 nst_t_int, free
-            );   
+            );
+        else if ( ob_t == nst_t_str )
+        {
+            Nst_int *val = parse_int(AS_STR_V(ob_val)->value, err);
+            if ( val == NULL )
+                return NULL;
+            return make_obj_free(val, nst_t_int);
+        }
         else
             RETURN_TYPE_ERROR("::");
     }
@@ -681,6 +689,13 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
                 new_real((Nst_real)AS_BYTE_V(ob_val)),
                 nst_t_real, free
             );
+        else if ( ob_t == nst_t_str )
+        {
+            Nst_real *val = parse_real(AS_STR_V(ob_val)->value, err);
+            if ( val == NULL )
+                return NULL;
+            return make_obj_free(val, nst_t_real);
+        }
         else
             RETURN_TYPE_ERROR("::");
     }
@@ -818,6 +833,16 @@ Nst_Obj *obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 }
 
 // Local operations
+Nst_Obj *obj_neg(Nst_Obj *ob, OpErr *err)
+{
+    if ( ob->type == nst_t_int )
+        return make_obj_free(new_int(-AS_INT(ob)), nst_t_int);
+    else if ( ob->type == nst_t_real )
+        return make_obj_free(new_real(-AS_REAL(ob)), nst_t_real);
+    else
+        RETURN_TYPE_ERROR("-");
+}
+
 Nst_Obj *obj_len(Nst_Obj *ob, OpErr *err)
 {
     if ( ob->type == nst_t_str )

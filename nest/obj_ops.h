@@ -16,6 +16,10 @@ Functions that are guaranteed to not return an error:
 #include "error.h"
 #include "obj.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif // !__cplusplus
+
 // Comparisons
 Nst_Obj *obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err);
 Nst_Obj *obj_ne(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err);
@@ -49,11 +53,16 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err); // TODO
 Nst_Obj *obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err);
 
 // Local operations
+Nst_Obj *obj_neg(Nst_Obj *ob, OpErr *err);
 Nst_Obj *obj_len(Nst_Obj *ob, OpErr *err);
 Nst_Obj *obj_bwnot(Nst_Obj *ob, OpErr *err);
 Nst_Obj *obj_lgnot(Nst_Obj *ob, OpErr *err);
 Nst_Obj *obj_stdout(Nst_Obj *ob, OpErr *err);
 Nst_Obj *obj_stdin(Nst_Obj *ob, OpErr *err);
 Nst_Obj *obj_typeof(Nst_Obj *ob, OpErr *err);
+
+#ifdef __cplusplus
+}
+#endif // !__cplusplus
 
 #endif // !OBJ_OPS_H

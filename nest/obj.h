@@ -4,6 +4,10 @@
 #include <stdbool.h>
 #include <stdint.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif // !__cplusplus
+
 typedef struct Nst_Obj
 {
     int ref_count;
@@ -41,5 +45,9 @@ extern Nst_Obj *nst_t_file;
 extern Nst_Obj *nst_true;
 extern Nst_Obj *nst_false;
 extern Nst_Obj *nst_null;
+
+#ifdef __cplusplus
+}
+#endif // !__cplusplus
 
 #endif // !OBJ_H

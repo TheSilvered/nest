@@ -2,6 +2,11 @@
 #define Nst_LLIST_H
 
 #include <stdbool.h>
+#include <stddef.h>
+
+#ifdef __cplusplus
+extern "C" {
+#endif // !__cplusplus
 
 typedef struct LLNode
 {
@@ -39,5 +44,9 @@ void LList_destroy(LList *llist, void (*item_destroy_func)(void *));
 /* Frees all the values inside the list but mantains the list
 If 'item_destroy_func' is NULL and 'allocated' is true, the item is not freed */
 void LList_empty(LList *llist, void (*item_destroy_func)(void *));
+
+#ifdef __cplusplus
+}
+#endif // !__cplusplus
 
 #endif // !Nst_LLIST_H

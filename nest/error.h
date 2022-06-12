@@ -5,46 +5,6 @@
 #include <stdint.h>
 #include "llist.h"
 
-typedef struct Pos
-{
-    size_t line;
-    size_t col;
-    char *filename;
-    char *text;
-    size_t text_len;
-}
-Pos;
-
-typedef struct Nst_Error
-{
-    Pos start;
-    Pos end;
-    char *name;
-    char *message;
-}
-Nst_Error;
-
-typedef struct OpErr
-{
-    char *name;
-    char *message;
-}
-OpErr;
-
-typedef struct Nst_Traceback
-{
-    Nst_Error *error;
-    LList *positions;
-}
-Nst_Traceback;
-
-Pos copy_pos(Pos pos);
-void print_error(Nst_Error err);
-void print_traceback(Nst_Traceback tb);
-
-char *format_type_error(const char *format, char *type_name);
-char *format_idx_error(const char *format, int64_t idx, size_t seq_len);
-
 #define SYNTAX_ERROR(error, e_start, e_end, msg) \
     error->start = e_start; \
     error->end = e_end; \
@@ -113,5 +73,59 @@ char *format_idx_error(const char *format, int64_t idx, size_t seq_len);
 #define TOO_FEW_ARGS_FUNC "too few arguments were passed to the function"
 #define ZERO_RANGE_STEP "step must not be zero"
 #define EXPECTED_BOOL_ITER_IS_DONE "expected 'Bool' type from ':is_done:', got type '%s' instead"
+#define EMPTY_STRING_IMPORT "unexpected empty string for '|#|'"
+#define FILE_NOT_FOUND "file '%s' not found"
+#define FILE_NOT_DLL "the file was not a valid DLL"
+#define NO_LIB_INIT "the DLL does not specify a 'lib_init' function"
+#define NO_GET_FUNC_PTRS "the DLL does not specify a 'get_func_ptrs' function"
+
+#ifdef __cplusplus
+extern "C" {
+#endif // !__cplusplus
+
+typedef struct Pos
+{
+    size_t line;
+    size_t col;
+    char *filename;
+    char *text;
+    size_t text_len;
+}
+Pos;
+
+typedef struct Nst_Error
+{
+    Pos start;
+    Pos end;
+    char *name;
+    char *message;
+}
+Nst_Error;
+
+typedef struct OpErr
+{
+    char *name;
+    char *message;
+}
+OpErr;
+
+typedef struct Nst_Traceback
+{
+    Nst_Error *error;
+    LList *positions;
+}
+Nst_Traceback;
+
+Pos copy_pos(Pos pos);
+void print_error(Nst_Error err);
+void print_traceback(Nst_Traceback tb);
+
+char *format_type_error(const char *format, char *type_name);
+char *format_idx_error(const char *format, int64_t idx, size_t seq_len);
+char *format_fnf_error(const char *format, char *file_name);
+
+#ifdef __cplusplus
+}
+#endif // !__cplusplus
 
 #endif // !ERROR_H

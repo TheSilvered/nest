@@ -24,3 +24,13 @@ Nst_bool *new_bool(Nst_bool value)
     *num = value;
     return num;
 }
+
+Nst_Obj *new_int_obj(Nst_int value)
+{
+    return make_obj_free(new_int(value), nst_t_int);
+}
+
+Nst_Obj *new_real_obj(Nst_real value)
+{
+    return make_obj_free(new_real(value), nst_t_real);
+}

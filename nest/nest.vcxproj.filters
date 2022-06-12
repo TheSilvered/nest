@@ -72,62 +72,71 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="error.h">
-      <Filter>File di origine</Filter>
-    </ClInclude>
-    <ClInclude Include="llist.h">
-      <Filter>File di origine</Filter>
-    </ClInclude>
-    <ClInclude Include="tokens.h">
-      <Filter>File di origine</Filter>
-    </ClInclude>
-    <ClInclude Include="lexer.h">
-      <Filter>File di origine</Filter>
-    </ClInclude>
-    <ClInclude Include="nst_types.h">
-      <Filter>File di origine</Filter>
-    </ClInclude>
-    <ClInclude Include="parser.h">
-      <Filter>File di origine</Filter>
-    </ClInclude>
-    <ClInclude Include="nodes.h">
-      <Filter>File di origine</Filter>
-    </ClInclude>
-    <ClInclude Include="obj.h">
-      <Filter>File di origine</Filter>
-    </ClInclude>
-    <ClInclude Include="hash.h">
-      <Filter>File di origine</Filter>
-    </ClInclude>
-    <ClInclude Include="map.h">
-      <Filter>File di origine</Filter>
-    </ClInclude>
-    <ClInclude Include="obj_ops.h">
-      <Filter>File di origine</Filter>
-    </ClInclude>
-    <ClInclude Include="interpreter.h">
-      <Filter>File di origine</Filter>
-    </ClInclude>
-    <ClInclude Include="var_table.h">
-      <Filter>File di origine</Filter>
-    </ClInclude>
-    <ClInclude Include="sequence.h">
-      <Filter>File di origine</Filter>
-    </ClInclude>
-    <ClInclude Include="iter.h">
-      <Filter>File di origine</Filter>
+      <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="function.h">
-      <Filter>File di origine</Filter>
+      <Filter>File di intestazione</Filter>
     </ClInclude>
-    <ClInclude Include="str.h">
-      <Filter>File di origine</Filter>
+    <ClInclude Include="hash.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="iter.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="lexer.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="llist.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="nodes.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="nst_types.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="parser.h">
+      <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="simple_types.h">
-      <Filter>File di origine</Filter>
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="sequence.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="map.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="obj.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="obj_ops.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="str.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="var_table.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="tokens.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="nest_include.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="lib_import.h">
+      <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="_test.nest">
+      <Filter>File di origine</Filter>
+    </None>
+    <None Include="lib_import.c">
       <Filter>File di origine</Filter>
     </None>
   </ItemGroup>

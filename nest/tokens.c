@@ -116,9 +116,9 @@ int str_to_tok(char *str)
     if ( strcmp("><", str) == 0 )
         return CONCAT;
     if ( strcmp(">>>", str) == 0 )
-        return OUT;
+        return STDOUT;
     if ( strcmp("<<<", str) == 0 )
-        return IN;
+        return STDIN;
     if ( strcmp("->", str) == 0 )
         return RANGE;
     if ( strcmp("$", str) == 0 )
@@ -181,6 +181,28 @@ int str_to_tok(char *str)
         return BREAK;
     if ( strcmp(":", str) == 0 )
         return COLON;
+    if ( strcmp("|#|", str) == 0 )
+        return IMPORT;
+    if ( strcmp("$", str) == 0 )
+        return LEN;
+    if ( strcmp(",", str) == 0 )
+        return COMMA;
+    if ( strcmp("(", str) == 0 )
+        return L_PAREN;
+    if ( strcmp(")", str) == 0 )
+        return R_PAREN;
+    if ( strcmp("[", str) == 0 )
+        return L_BRACKET;
+    if ( strcmp("]", str) == 0 )
+        return R_BRACKET;
+    if ( strcmp("{", str) == 0 )
+        return L_BRACE;
+    if ( strcmp("}", str) == 0 )
+        return R_BRACE;
+    if ( strcmp("<{", str) == 0 )
+        return L_VBRACE;
+    if ( strcmp("}>", str) == 0 )
+        return R_VBRACE;
     return -1;
 }
 
@@ -229,12 +251,12 @@ void print_token(Token *token)
     else if ( token->type == LEN       ) printf("LEN");
     else if ( token->type == L_NOT     ) printf("L_NOT");
     else if ( token->type == B_NOT     ) printf("B_NOT");
-    else if ( token->type == OUT       ) printf("OUT");
-    else if ( token->type == IN        ) printf("IN");
+    else if ( token->type == STDOUT    ) printf("STDOUT");
+    else if ( token->type == STDIN     ) printf("STDIN");
     else if ( token->type == TYPEOF    ) printf("TYPEOF");
     else if ( token->type == IDENT     ) printf("IDENT");
-    else if ( token->type == INT       ) printf("INT");
-    else if ( token->type == REAL      ) printf("REAL");
+    else if ( token->type == N_INT     ) printf("N_INT");
+    else if ( token->type == N_REAL    ) printf("N_REAL");
     else if ( token->type == STRING    ) printf("STRING");
     else if ( token->type == L_PAREN   ) printf("L_PAREN");
     else if ( token->type == L_BRACE   ) printf("L_BRACE");
@@ -257,16 +279,14 @@ void print_token(Token *token)
     else if ( token->type == RETURN    ) printf("RETURN");
     else if ( token->type == CONTINUE  ) printf("CONTINUE");
     else if ( token->type == BREAK     ) printf("BREAK");
-    else if ( token->type == ARRAY     ) printf("ARRAY");
-    else if ( token->type == VECTOR    ) printf("VECTOR");
-    else if ( token->type == MAP       ) printf("MAP");
+    else if ( token->type == IMPORT    ) printf("IMPORT");
     else printf("__UNKNOWN__");
 
     printf(" - ");
 
-    if ( token->type == INT )
+    if ( token->type == N_INT )
         printf("%lli, ", *(Nst_int *)(token->value));
-    else if ( token->type == REAL )
+    else if ( token->type == N_REAL )
         printf("%g, ", *(Nst_real *)(token->value));
     else if ( token->type == STRING || token->type == IDENT )
         printf("%s, ", ((Nst_string *)(token->value))->value);

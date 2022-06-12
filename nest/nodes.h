@@ -4,6 +4,12 @@
 #include "error.h"
 #include "llist.h"
 
+#define NODE(expr) ((Node *)(expr))
+
+#ifdef __cplusplus
+extern "C" {
+#endif // !__cplusplus
+
 typedef struct Node
 {
     Pos start;
@@ -44,6 +50,8 @@ Node *new_node_full(Pos start, Pos end, int type, LList *nodes, LList *tokens);
 Node *new_node_empty(Pos start, Pos end, int type);
 void destroy_node(Node *node);
 
-#define NODE(expr) ((Node *)(expr))
+#ifdef __cplusplus
+}
+#endif // !__cplusplus
 
 #endif // !Nst_NODES_H

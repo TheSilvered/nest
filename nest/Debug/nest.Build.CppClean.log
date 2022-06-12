@@ -3,10 +3,11 @@ e:\c++\nest\nest\debug\vc143.idb
 e:\c++\nest\nest\debug\sequence.obj
 e:\c++\nest\nest\debug\var_table.obj
 e:\c++\nest\nest\debug\tokens.obj
+e:\c++\nest\nest\debug\simple_types.obj
+e:\c++\nest\nest\debug\str.obj
 e:\c++\nest\nest\debug\parser.obj
 e:\c++\nest\nest\debug\obj_ops.obj
 e:\c++\nest\nest\debug\obj.obj
-e:\c++\nest\nest\debug\nst_types.obj
 e:\c++\nest\nest\debug\nodes.obj
 e:\c++\nest\nest\debug\nest.obj
 e:\c++\nest\nest\debug\map.obj
@@ -15,7 +16,9 @@ e:\c++\nest\nest\debug\lexer.obj
 e:\c++\nest\nest\debug\iter.obj
 e:\c++\nest\nest\debug\interpreter.obj
 e:\c++\nest\nest\debug\hash.obj
+e:\c++\nest\nest\debug\function.obj
 e:\c++\nest\nest\debug\error.obj
+e:\c++\nest\nest\debug\optimizer.obj
 e:\c++\nest\debug\nest.exe
 e:\c++\nest\nest\debug\nest.ilk
 e:\c++\nest\debug\nest.pdb

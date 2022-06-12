@@ -6,7 +6,6 @@
 
 #define MAX_INT_CHAR_COUNT 21
 
-#define C_RED "\x1b[31m"
 #define C_BG_RED "\x1b[41m"
 #define C_GREEN "\x1b[32m"
 #define C_YELLOW "\x1b[33m"
@@ -57,9 +56,9 @@ PrintLineResult print_line(size_t lineno, char *text, size_t text_len, int64_t s
             {
                 char ch = text[i];
                 if ( is_printing_error && ch == ' ' )
-                    printf(C_RESET C_BG_RED "%c" C_RESET C_RED, ch);
+                    printf(C_RESET C_BG_RED "%c" C_RESET C_BG_RED, ch);
                 else if ( is_printing_error && ch == '\n' )
-                    printf(C_RESET C_BG_RED " \n" C_RESET C_RED);
+                    printf(C_RESET C_BG_RED " \n" C_RESET C_BG_RED);
                 else
                     printf("%c", text[i]);
                 result.len++;
@@ -127,7 +126,7 @@ void print_position(Pos start, Pos end)
 
     print_repeat('^', res.len - start.col);
     printf("\n| ");
-    if ( end.line - start.line > 1 ) printf(C_RED "    [...]" C_RESET "\n| ");
+    if ( end.line - start.line > 1 ) printf(C_BG_RED "    [...]" C_RESET "\n| ");
     print_line(end.line, end.text, end.text_len, 0, end.col);
     printf("| ");
     print_repeat('^', end.col);
@@ -168,5 +167,14 @@ char *format_idx_error(const char *format, int64_t idx, size_t seq_len)
     if ( buffer == NULL )
         return NULL;
     sprintf(buffer, format, idx, seq_len);
+    return buffer;
+}
+
+char *format_fnf_error(const char *format, char *file_name)
+{
+    char *buffer = malloc(strlen(format) + strlen(file_name) + 1);
+    if ( buffer == NULL )
+        return NULL;
+    sprintf(buffer, format, file_name);
     return buffer;
 }

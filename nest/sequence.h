@@ -5,6 +5,15 @@
 #include "obj.h"
 #include "llist.h"
 
+#define VECTOR_MIN_SIZE 8
+#define VECTOR_GROWTH_RATIO 1.8f
+#define AS_SEQ(ptr)  ((Nst_sequence *)(ptr->value))
+#define AS_SEQ_V(ptr)  ((Nst_sequence *)(ptr))
+
+#ifdef __cplusplus
+extern "C" {
+#endif // !__cplusplus
+
 typedef struct Nst_sequence // vector or array
 {
     Nst_Obj **objs;
@@ -24,9 +33,8 @@ Nst_Obj *rem_value_vector(Nst_sequence *vect, Nst_Obj *val);
 Nst_Obj *pop_value_vector(Nst_sequence *vect, size_t quantity);
 Nst_Obj *get_value_seq(Nst_sequence *seq, int64_t idx);
 
-#define VECTOR_MIN_SIZE 8
-#define VECTOR_GROWTH_RATIO 1.8f
-#define AS_SEQ(ptr)  ((Nst_sequence *)(ptr->value))
-#define AS_SEQ_V(ptr)  ((Nst_sequence *)(ptr))
+#ifdef __cplusplus
+}
+#endif // !__cplusplus
 
 #endif //!SEQUENCE_H

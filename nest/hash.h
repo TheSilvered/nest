@@ -3,6 +3,14 @@
 
 #include "obj.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif // !__cplusplus
+
 int32_t hash_obj(Nst_Obj *obj);
+
+#ifdef __cplusplus
+}
+#endif // !__cplusplus
 
 #endif // !HASH_H

@@ -6,6 +6,7 @@
 #include "error.h"
 #include "tokens.h"
 #include "nst_types.h"
+#include "hash.h"
 
 #define START_CH_SIZE 4 * sizeof(char)
 
@@ -51,7 +52,6 @@ inline static void advance(LexerCursor *cursor);
 inline static void go_back(LexerCursor *cursor);
 inline static char *add_while_in(LexerCursor *cursor, char *charset);
 
-static void make_parens(LexerCursor *cursor, Token **tok, Nst_Error **err);
 static void make_symbol(LexerCursor *cursor, Token **tok, Nst_Error **err);
 static void make_num_literal(LexerCursor *cursor, Token **tok, Nst_Error **err);
 static void make_ident(LexerCursor *cursor, Token **tok, Nst_Error **err);
@@ -120,8 +120,6 @@ LList *tokenize(char *text, size_t text_len, char *filename)
             advance(&cursor);
             continue;
         }
-        else if ( strchr(PAREN_CHARS, cursor.ch) != NULL )
-            make_parens(&cursor, &tok, &err);
         else if ( strchr(DIGIT_CHARS "-", cursor.ch) != NULL )
             make_num_literal(&cursor, &tok, &err);
         else if ( strchr(SYMBOL_CHARS, cursor.ch) != NULL )
@@ -132,10 +130,6 @@ LList *tokenize(char *text, size_t text_len, char *filename)
             make_str_literal(&cursor, &tok, &err);
         else if ( cursor.ch == '\n' )
             tok = new_token_noend(copy_pos(cursor.pos), ENDL);
-        else if ( cursor.ch == ',' )
-            tok = new_token_noend(copy_pos(cursor.pos), COMMA);
-        else if ( cursor.ch == '$' )
-            tok = new_token_noend(copy_pos(cursor.pos), LEN);
         else if ( cursor.ch == '\\' )
             advance(&cursor);
         else
@@ -248,61 +242,14 @@ inline static char *add_while_in(LexerCursor *cursor, char *charset)
     return str;
 }
 
-static void make_parens(LexerCursor *cursor, Token **tok, Nst_Error **err)
-{
-    Pos start = copy_pos(cursor->pos);
-    switch ( cursor->ch )
-    {
-    // Normal parenthesis are fine
-    case '(':
-        *tok = new_token_noend(start, L_PAREN);
-        break;
-    case ')':
-        *tok = new_token_noend(start, R_PAREN);
-        break;
-    case '[':
-        *tok = new_token_noend(start, L_BRACKET);
-        break;
-    case ']':
-        *tok = new_token_noend(start, R_BRACKET);
-        break;
-    case '{':
-        *tok = new_token_noend(start, L_BRACE);
-        break;
-    // The problem is with vector braces wich have more than one character
-    case '}':
-        advance(cursor);
-        if ( cursor->ch == '>' )
-            *tok = new_token_noval(start, copy_pos(cursor->pos), R_VBRACE);
-        else
-        {
-            go_back(cursor);
-            *tok = new_token_noend(start, R_BRACE);
-        }
-        break;
-    case '<':
-        advance(cursor);
-        if ( cursor->ch == '{' )
-            *tok = new_token_noval(start, copy_pos(cursor->pos), L_VBRACE);
-        else
-        {
-            go_back(cursor);
-            make_symbol(cursor, tok, err);
-        }
-        break;
-    default:
-        break;
-    }
-}
-
 static void make_symbol(LexerCursor *cursor, Token **tok, Nst_Error **err)
 {
     Pos start = copy_pos(cursor->pos);
     char *symbol = add_while_in(cursor, SYMBOL_CHARS);
     Pos end = copy_pos(cursor->pos);
+    char *comment_start = NULL;
 
-    // Ignores the comment
-    if ( strstr(symbol, "--") != NULL )
+    if ( strcmp(symbol, "--") == 0 )
     {
         while ( cursor->idx < (long)cursor->len && cursor->ch != '\n' )
         {
@@ -314,17 +261,26 @@ static void make_symbol(LexerCursor *cursor, Token **tok, Nst_Error **err)
             }
         }
         go_back(cursor);
+        free(symbol);
         return;
     }
 
-    int token_type = str_to_tok(symbol);
-
-    // str_to_tok returns -1 when no match is found
-    if ( token_type == -1 )
+    // Ignores the comment
+    if ( (comment_start = strstr(symbol, "--")) != NULL )
     {
-        free(symbol);
-        SET_ERROR(SYNTAX_ERROR, start, end, INVALID_SYMBOL, *err, );
-        return;
+        *comment_start = '\0';
+    }
+
+    int token_type = str_to_tok(symbol);
+    char *symbol_end = symbol + strlen(symbol);
+
+    while ( token_type == -1 )
+    {
+        go_back(cursor);
+        end = copy_pos(cursor->pos);
+        --symbol_end;
+        *symbol_end = '\0';
+        token_type = str_to_tok(symbol);
     }
 
     *tok = new_token_noval(start, end, token_type);
@@ -380,7 +336,7 @@ static void make_num_literal(LexerCursor *cursor, Token **tok, Nst_Error **err)
         }
 
         if ( is_negative ) *value *= -1;
-        *tok = new_token_value(start, end, INT, value);
+        *tok = new_token_value(start, end, N_INT, make_obj_free(value, nst_t_int));
         return;
     }
 
@@ -440,7 +396,7 @@ static void make_num_literal(LexerCursor *cursor, Token **tok, Nst_Error **err)
     }
 
     if ( is_negative ) *value *= -1;
-    *tok = new_token_value(start, end, REAL, value);
+    *tok = new_token_value(start, end, N_REAL, make_obj_free(value, nst_t_real));
     free(ltrl);
     return;
 }
@@ -462,7 +418,10 @@ static void make_ident(LexerCursor *cursor, Token **tok, Nst_Error **err)
     value->value = str;
     value->len = strlen(str);
 
-    *tok = new_token_value(start, end, IDENT, value);
+    Nst_Obj *val_obj = new_str_obj(value);
+    hash_obj(val_obj);
+
+    *tok = new_token_value(start, end, IDENT, val_obj);
 }
 
 static void make_str_literal(LexerCursor *cursor, Token **tok, Nst_Error **err)
@@ -566,5 +525,8 @@ static void make_str_literal(LexerCursor *cursor, Token **tok, Nst_Error **err)
     value->value = end_str;
     value->len = str_len;
 
-    *tok = new_token_value(start, end, STRING, value);
+    Nst_Obj *val_obj = new_str_obj(value);
+    hash_obj(val_obj);
+
+    *tok = new_token_value(start, end, STRING, val_obj);
 }

@@ -2,10 +2,11 @@ e:\c++\nest\nest\x64\release\vc143.pdb
 e:\c++\nest\nest\x64\release\sequence.obj
 e:\c++\nest\nest\x64\release\var_table.obj
 e:\c++\nest\nest\x64\release\tokens.obj
+e:\c++\nest\nest\x64\release\simple_types.obj
+e:\c++\nest\nest\x64\release\str.obj
 e:\c++\nest\nest\x64\release\parser.obj
 e:\c++\nest\nest\x64\release\obj_ops.obj
 e:\c++\nest\nest\x64\release\obj.obj
-e:\c++\nest\nest\x64\release\nst_types.obj
 e:\c++\nest\nest\x64\release\nodes.obj
 e:\c++\nest\nest\x64\release\nest.obj
 e:\c++\nest\nest\x64\release\map.obj
@@ -14,6 +15,7 @@ e:\c++\nest\nest\x64\release\lexer.obj
 e:\c++\nest\nest\x64\release\iter.obj
 e:\c++\nest\nest\x64\release\interpreter.obj
 e:\c++\nest\nest\x64\release\hash.obj
+e:\c++\nest\nest\x64\release\function.obj
 e:\c++\nest\nest\x64\release\error.obj
 e:\c++\nest\x64\release\nest.exe
 e:\c++\nest\nest\x64\release\nest.ipdb

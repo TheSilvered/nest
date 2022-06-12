@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <errno.h>
 #include <assert.h>
+#include <windows.h>
 #include "interpreter.h"
 #include "error.h"
 #include "obj.h"
@@ -9,6 +10,8 @@
 #include "tokens.h"
 #include "obj_ops.h"
 #include "hash.h"
+#include "llist.h"
+#include "lib_import.h"
 
 #define SET_ERROR(err_macro, start, end, message) \
     do { \
@@ -53,10 +56,14 @@ typedef struct ExecutionState
     bool must_return;
     bool must_continue;
     bool must_break;
+    LList *loaded_libs;
 }
 ExecutionState;
 
-static void exe_node(Node *node, VarTable *vt, ExecutionState *state);
+typedef bool(__cdecl *LIB_INIT_PROC)(LPWSTR);
+typedef FuncDeclr *(__cdecl *GET_FUNC_PTRS_PROC)(LPWSTR);
+
+static inline void exe_node(Node *node, VarTable *vt, ExecutionState *state);
 static void exe_long_s(Node *node, VarTable *vt, ExecutionState *state);
 static void exe_while_l(Node *node, VarTable *vt, ExecutionState *state);
 static void exe_dowhile_l(Node *node, VarTable *vt, ExecutionState *state);
@@ -79,16 +86,17 @@ static void exe_continue_s(Node *node, VarTable *vt, ExecutionState *state);
 static void exe_break_s(Node *node, VarTable *vt, ExecutionState *state);
 
 static void call_func(Node *node,
-    Nst_func *func,
-    VarTable *vt, Nst_Obj **args,
-    ExecutionState *state);
+                      Nst_func *func,
+                      VarTable *vt,
+                      Nst_Obj **args,
+                      ExecutionState *state);
+static Nst_Obj *import_lib(Nst_Obj *ob, OpErr *err, ExecutionState *state);
 
 void run(Node *node)
 {
     if ( node == NULL )
         return;
 
-    init_obj();
     Nst_Traceback tb = { NULL, LList_new() };
     ExecutionState state = {
         &tb,
@@ -96,7 +104,8 @@ void run(Node *node)
         false,
         false,
         false,
-        false
+        false,
+        LList_new()
     };
 
     inc_ref(nst_null);
@@ -108,14 +117,18 @@ void run(Node *node)
     if ( state.error_occurred )
         print_traceback(tb);
 
-    destroy_map(vt->vars);
-    free(vt);
     dec_ref(state.value);
 
-    del_obj();
+    destroy_map(vt->vars);
+    free(vt);
+
+    for ( LLNode *n = state.loaded_libs->head; n != NULL; n = n->next )
+        FreeLibrary((HMODULE)(n->value));
+
+    LList_destroy(state.loaded_libs, NULL);
 }
 
-void exe_node(Node *node, VarTable *vt, ExecutionState *state)
+static inline void exe_node(Node *node, VarTable *vt, ExecutionState *state)
 {
     switch ( node->type )
     {
@@ -270,7 +283,7 @@ static void exe_for_as_l(Node *node, VarTable *vt, ExecutionState *state)
     if ( state->error_occurred )
         return;
 
-    Nst_Obj *var_name = make_obj(HEAD_TOK(node)->value, nst_t_str, NULL);
+    Nst_Obj *var_name = HEAD_TOK(node)->value;
 
     while ( true )
     {
@@ -319,7 +332,6 @@ static void exe_for_as_l(Node *node, VarTable *vt, ExecutionState *state)
             return;
     }
 
-    dec_ref(var_name);
     dec_ref(iter_obj);
 }
 
@@ -358,12 +370,11 @@ static void exe_func_declr(Node *node, VarTable *vt, ExecutionState *state)
     func->body = HEAD_NODE(node);
 
     Nst_Obj *func_obj = new_func_obj(func);
-    Nst_Obj *func_name = make_obj(HEAD_TOK(node)->value, nst_t_str, NULL);
+    Nst_Obj *func_name = HEAD_TOK(node)->value;
 
     set_val(vt, func_name, func_obj);
 
     dec_ref(func_obj);
-    dec_ref(func_name);
 
     SET_NULL;
 }
@@ -642,12 +653,14 @@ static void exe_local_op(Node *node, VarTable *vt, ExecutionState *state)
 
     switch ( op_tok )
     {
+    case SUB:    res = obj_neg(ob, &err);    break;
     case LEN:    res = obj_len(ob, &err);    break;
     case L_NOT:  res = obj_lgnot(ob, &err);  break;
     case B_NOT:  res = obj_bwnot(ob, &err);  break;
-    case OUT:    res = obj_stdout(ob, &err); break;
-    case IN:     res = obj_stdin(ob, &err);  break;
+    case STDIN:  res = obj_stdin(ob, &err);  break;
+    case STDOUT: res = obj_stdout(ob, &err); break;
     case TYPEOF: res = obj_typeof(ob, &err); break;
+    case IMPORT: res = import_lib(ob, &err, state); break;
     default: return;
     }
 
@@ -733,36 +746,21 @@ static void exe_map_lit(Node *node, VarTable *vt, ExecutionState *state)
 static void exe_value(Node *node, VarTable *vt, ExecutionState *state)
 {
     Token *tok = LList_peek_front(node->tokens);
+    inc_ref(tok->value);
 
     switch ( tok->type )
     {
-    case INT:
-        SET_VALUE(make_obj(
-            &AS_INT(tok),
-            nst_t_int, NULL // these should never be freed
-        ));
-        break;
-    case REAL:
-        SET_VALUE(make_obj(
-            &AS_REAL(tok),
-            nst_t_real, NULL
-        ));
-        break;
+    case N_INT:
+    case N_REAL:
     case STRING:
-        SET_VALUE(make_obj(
-            AS_STR(tok),
-            nst_t_str, NULL
-        ));
+        SET_VALUE(tok->value);
         break;
     }
 }
 
 static void exe_access(Node *node, VarTable *vt, ExecutionState *state)
 {
-    Nst_Obj *key = make_obj(
-        TOK(LList_peek_front(node->tokens))->value,
-        nst_t_str, NULL
-    );
+    Nst_Obj *key = TOK(LList_peek_front(node->tokens))->value;
 
     Nst_Obj *val = get_val(vt, key);
     if ( val == NULL )
@@ -772,8 +770,6 @@ static void exe_access(Node *node, VarTable *vt, ExecutionState *state)
     }
 
     SET_VALUE(val);
-
-    dec_ref(key);
 }
 
 static void exe_extract_e(Node *node, VarTable *vt, ExecutionState *state)
@@ -910,14 +906,9 @@ static void exe_assign_e(Node *node, VarTable *vt, ExecutionState *state)
 
     if ( name_node->type == ACCESS )
     {
-        Nst_Obj *name = make_obj(
-            copy_string(HEAD_TOK(name_node)->value),
-            nst_t_str,
-            destroy_string
-        );
+        Nst_Obj *name = HEAD_TOK(name_node)->value;
 
         set_val(vt, name, value);
-        dec_ref(name);
         return; // state->value is still the same
     }
     
@@ -1028,15 +1019,7 @@ static void call_func(Node *node,
             func_vt = new_var_table(vt);
 
         for ( size_t i = 0; i < func->arg_num; i++ )
-        {
-            Nst_Obj *arg_name = make_obj(
-                func->args[i],
-                nst_t_str, NULL
-            );
-
-            set_val(func_vt, arg_name, args[i]);
-            dec_ref(arg_name);
-        }
+            set_val(func_vt, func->args[i], args[i]);
 
         exe_node(func->body, func_vt, state);
         if ( state->error_occurred )
@@ -1066,4 +1049,82 @@ static void call_func(Node *node,
         }
         SET_VALUE(res);
     }
+}
+
+static Nst_Obj *import_lib(Nst_Obj *ob, OpErr *err, ExecutionState *state)
+{
+
+    if ( ob->type != nst_t_str )
+    {
+        err->name = "Type Error";
+        err->message = format_type_error(EXPECTED_TYPE("Str"), ob->type_name);
+        return NULL;
+    }
+
+    char *file_name = AS_STR(ob)->value;
+
+    if ( AS_STR(ob)->len == 0 )
+    {
+        err->name = "Value Error";
+        err->message = EMPTY_STRING_IMPORT;
+        return NULL;
+    }
+
+    FILE *file;
+    if ( (file = fopen(file_name, "r")) == NULL )
+    {
+        err->name = "Value Error";
+        err->message = format_fnf_error(FILE_NOT_FOUND, file_name);
+        return NULL;
+    }
+    fclose(file);
+
+    HINSTANCE lib = LoadLibrary((LPCWSTR)file_name);
+
+    if ( !lib )
+    {
+        err->name = "Import Error";
+        err->message = FILE_NOT_DLL;
+        return NULL;
+    }
+
+    bool (*lib_init)() = (LIB_INIT_PROC)GetProcAddress(lib, "lib_init");
+    if ( lib_init == NULL )
+    {
+        err->name = "Import Error";
+        err->message = NO_LIB_INIT;
+        return NULL;
+    }
+
+    if ( !lib_init() )
+    {
+        errno = ENOMEM;
+        return NULL;
+    }
+
+    FuncDeclr *(*get_func_ptrs)() = (GET_FUNC_PTRS_PROC)GetProcAddress(lib, "get_func_ptrs");
+    if ( get_func_ptrs == NULL )
+    {
+        err->name = "Import Error";
+        err->message = NO_GET_FUNC_PTRS;
+        return NULL;
+    }
+
+    FuncDeclr *func_ptrs = get_func_ptrs();
+    
+    Nst_map *func_map = new_map();
+
+    for ( size_t i = 0;; i++ )
+    {
+        FuncDeclr func = func_ptrs[i];
+        if ( func.func_ptr == NULL )
+            break;
+
+        Nst_Obj *func_obj = new_func_obj(new_cfunc(func.arg_num, func.func_ptr));
+
+        map_set(func_map, make_obj(func.name, nst_t_str, NULL), func_obj);
+    }
+
+    LList_append(state->loaded_libs, lib, false);
+    return make_obj(func_map, nst_t_map, destroy_map);
 }

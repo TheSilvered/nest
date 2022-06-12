@@ -6,11 +6,10 @@
 #include "error.h"
 #include "tokens.h"
 
-#define SAFE_LLIST_CREATE(name, free_on_fail) \
+#define SAFE_LLIST_CREATE(name) \
     LList *name = LList_new(); \
     if ( name == NULL ) \
     { \
-        free_on_fail; \
         errno = ENOMEM; \
         return NULL; \
     } \
@@ -105,7 +104,7 @@ static inline void skip_blank(LList *tokens)
 
 static Node *parse_long_statement(LList *tokens, ParsingState *state)
 {
-    SAFE_LLIST_CREATE(nodes, );
+    SAFE_LLIST_CREATE(nodes);
     Node *node = NULL;
     skip_blank(tokens);
 
@@ -191,7 +190,7 @@ static Node *parse_statement(LList *tokens, ParsingState *state)
         Node *expr = parse_expr(tokens, state);
         if ( state->error != NULL ) return NULL;
 
-        SAFE_LLIST_CREATE(nodes, destroy_node(expr));
+        SAFE_LLIST_CREATE(nodes);
         LList_append(nodes, expr, true);
         return new_node_nodes(start, expr->end, RETURN_S, nodes);
     }
@@ -281,10 +280,7 @@ static Node *parse_while_loop(LList *tokens, ParsingState *state)
     Pos end = tok->end;
     destroy_token(tok);
 
-    SAFE_LLIST_CREATE(nodes,
-        destroy_node(condition);
-        destroy_node(body)
-    );
+    SAFE_LLIST_CREATE(nodes);
 
     LList_append(nodes, condition, true);
     LList_append(nodes, body, true);
@@ -304,7 +300,7 @@ static Node *parse_for_loop(LList *tokens, ParsingState *state)
 
     if ( state->error != NULL ) return NULL;
 
-    SAFE_LLIST_CREATE(node_tokens, destroy_node(range));
+    SAFE_LLIST_CREATE(node_tokens);
 
     if ( TOK(LList_peek_front(tokens))->type == AS )
     {
@@ -351,7 +347,7 @@ static Node *parse_for_loop(LList *tokens, ParsingState *state)
     Pos end = tok->end;
     destroy_token(tok);
 
-    SAFE_LLIST_CREATE(nodes, destroy_node(range); destroy_node(body));
+    SAFE_LLIST_CREATE(nodes);
 
     LList_append(nodes, range, true);
     LList_append(nodes, body, true);
@@ -364,7 +360,7 @@ static Node *parse_if_expr(LList *tokens, ParsingState *state, Node *condition)
     destroy_token(LList_pop(tokens));
     skip_blank(tokens);
 
-    SAFE_LLIST_CREATE(nodes, destroy_node(condition));
+    SAFE_LLIST_CREATE(nodes);
     LList_append(nodes, condition, true);
 
     Node *body_if_true = parse_statement(tokens, state);
@@ -400,7 +396,7 @@ static Node *parse_func_def(LList *tokens, ParsingState *state)
     Pos start = tok->start;
     destroy_token(tok);
 
-    SAFE_LLIST_CREATE(node_tokens, );
+    SAFE_LLIST_CREATE(node_tokens);
 
     while ( TOK(LList_peek_front(tokens))->type == IDENT )
         LList_append(node_tokens, LList_pop(tokens), true);
@@ -430,10 +426,7 @@ static Node *parse_func_def(LList *tokens, ParsingState *state)
 
     state->in_func = prev_state;
 
-    SAFE_LLIST_CREATE(nodes,
-        destroy_node(body);
-        LList_destroy(node_tokens, destroy_token)
-    );
+    SAFE_LLIST_CREATE(nodes);
     LList_append(nodes, body, true);
 
     if ( TOK(LList_peek_front(tokens))->type != R_BRACKET )
@@ -454,7 +447,7 @@ static Node *parse_expr(LList *tokens, ParsingState *state)
     Pos start = TOK(LList_peek_front(tokens))->start;
 
     Node *stack_op_node = NULL;
-    SAFE_LLIST_CREATE(nodes, );
+    SAFE_LLIST_CREATE(nodes);
 
     while ( !T_IN_EXPR_END(TOK(LList_peek_front(tokens))->type) )
     {
@@ -546,11 +539,11 @@ static Node *fix_expr(Node *expr)
     // writing 1 2 3 < becomes (1 2 <) (2 3 <) &&
     if ( T_IN_COMP_OP(op_tok->type) && expr->nodes->size > 2)
     {
-        SAFE_LLIST_CREATE(pairs, );
+        SAFE_LLIST_CREATE(pairs);
         for ( size_t i = 0, n = expr->nodes->size - 1; i < n; i++ )
         {
-            SAFE_LLIST_CREATE(new_nodes, );
-            SAFE_LLIST_CREATE(new_tokens, LList_destroy(new_nodes, NULL));
+            SAFE_LLIST_CREATE(new_nodes);
+            SAFE_LLIST_CREATE(new_tokens);
 
             LList_append(new_nodes, LList_pop(expr->nodes), true);
             if ( i == n - 1 )
@@ -579,8 +572,8 @@ static Node *fix_expr(Node *expr)
         Pos start = curr_node->start;
         Pos end = curr_node->end;
         // create the new lists
-        SAFE_LLIST_CREATE(new_nodes, );
-        SAFE_LLIST_CREATE(new_tokens, LList_destroy(new_nodes, NULL));
+        SAFE_LLIST_CREATE(new_nodes);
+        SAFE_LLIST_CREATE(new_tokens);
         // move the nodes except for the last one
         for ( size_t j = 0, m = curr_node->nodes->size - 1; j < m; j++ )
             LList_append(new_nodes, LList_pop(curr_node->nodes), true);
@@ -601,9 +594,9 @@ static Node *parse_stack_op(LList *tokens, ParsingState *state)
 
 
     Node *value_node = NULL;
-    SAFE_LLIST_CREATE(new_nodes, );
+    SAFE_LLIST_CREATE(new_nodes);
 
-    while ( T_IN_ATOM(TOK(LList_peek_front(tokens))->type) )
+    do
     {
         value_node = parse_extraction(tokens, state);
         if ( state->error != NULL )
@@ -612,7 +605,7 @@ static Node *parse_stack_op(LList *tokens, ParsingState *state)
             return NULL;
         }
         LList_append(new_nodes, value_node, true);
-    }
+    } while ( T_IN_ATOM(TOK(LList_peek_front(tokens))->type) );
 
     Node *node = NULL;
     Token *op_tok = LList_peek_front(tokens);
@@ -621,7 +614,7 @@ static Node *parse_stack_op(LList *tokens, ParsingState *state)
     if ( T_IN_STACK_OP(op_tok->type) )
     {
         LList_pop(tokens);
-        SAFE_LLIST_CREATE(new_tokens, LList_destroy(new_nodes, destroy_node));
+        SAFE_LLIST_CREATE(new_tokens);
         LList_append(new_tokens, op_tok, true);
         node = new_node_full(start, end, STACK_OP, new_nodes, new_tokens);
     }
@@ -644,11 +637,8 @@ static Node *parse_stack_op(LList *tokens, ParsingState *state)
     {
         if ( T_IN_STACK_OP(TOK(LList_peek_front(tokens))->type) )
         {
-            SAFE_LLIST_CREATE(new_node_nodes, destroy_node(node));
-            SAFE_LLIST_CREATE(new_node_tokens,
-                destroy_node(node);
-                free(new_node_tokens)
-            );
+            SAFE_LLIST_CREATE(new_node_nodes);
+            SAFE_LLIST_CREATE(new_node_tokens);
             LList_append(new_node_nodes, node, true);
             op_tok = LList_pop(tokens);
             LList_append(new_node_tokens, op_tok, true);
@@ -656,7 +646,7 @@ static Node *parse_stack_op(LList *tokens, ParsingState *state)
         }
         else if ( T_IN_LOCAL_STACK_OP(TOK(LList_peek_front(tokens))->type) )
         {
-            SAFE_LLIST_CREATE(new_node_nodes, destroy_node(node));
+            SAFE_LLIST_CREATE(new_node_nodes);
             LList_append(new_node_nodes, node, true);
             node = parse_local_stack_op(tokens, state, new_node_nodes);
             if ( state->error != NULL ) return NULL;
@@ -674,7 +664,7 @@ static Node *parse_stack_op(LList *tokens, ParsingState *state)
 
 static Node *parse_local_stack_op(LList *tokens, ParsingState *state, LList *nodes)
 {
-    SAFE_LLIST_CREATE(node_tokens, );
+    SAFE_LLIST_CREATE(node_tokens);
     LList_append(node_tokens, LList_pop(tokens), true);
     
     Node *special_node = parse_extraction(tokens, state);
@@ -723,18 +713,8 @@ static Node *parse_assignment(LList *tokens, ParsingState *state, Node *value)
     // If a compound assignmen operator such as '+=' or '*='
     if ( tok->type != ASSIGN )
     {
-        SAFE_LLIST_CREATE(new_value_tokens,
-            destroy_token(tok);
-            destroy_node(value);
-            destroy_node(name)
-        );
-        
-        SAFE_LLIST_CREATE(new_value_nodes,
-            LList_destroy(new_value_tokens, NULL);
-            destroy_token(tok);
-            destroy_node(value);
-            destroy_node(name)
-        );
+        SAFE_LLIST_CREATE(new_value_tokens);
+        SAFE_LLIST_CREATE(new_value_nodes);
 
         Token *op_tok = new_token_noval(
             tok->start,
@@ -753,10 +733,7 @@ static Node *parse_assignment(LList *tokens, ParsingState *state, Node *value)
     }
     destroy_token(tok);
 
-    SAFE_LLIST_CREATE(new_nodes,
-        destroy_node(value);
-        if ( !has_shared_node ) destroy_node(name)
-    );
+    SAFE_LLIST_CREATE(new_nodes);
     LList_append(new_nodes, value, true);
     LList_append(new_nodes, name, true); // here it's freed when the list is destroyed
     return new_node_nodes(start, end, ASSIGN_E, new_nodes);
@@ -788,7 +765,7 @@ static Node *parse_extraction(LList *tokens, ParsingState *state)
             TOK(LList_peek_front(atom->tokens))->type = STRING;
         }
 
-        SAFE_LLIST_CREATE(new_nodes, destroy_node(final_node));
+        SAFE_LLIST_CREATE(new_nodes);
 
         LList_append(new_nodes, final_node, true);
         LList_append(new_nodes, atom, true);
@@ -804,7 +781,7 @@ static Node *parse_atom(LList *tokens, ParsingState *state)
     
     if ( T_IN_VALUE(tok->type) )
     {
-        SAFE_LLIST_CREATE(new_tokens, destroy_token(tok));
+        SAFE_LLIST_CREATE(new_tokens);
         LList_append(new_tokens, tok, true);
         return new_node_tokens(
             tok->start,
@@ -832,9 +809,9 @@ static Node *parse_atom(LList *tokens, ParsingState *state)
     }
     else if ( T_IN_LOCAL_OP(tok->type) )
     {
-        SAFE_LLIST_CREATE(new_tokens, destroy_token(tok));
+        SAFE_LLIST_CREATE(new_tokens);
         LList_append(new_tokens, tok, true);
-        SAFE_LLIST_CREATE(new_nodes, LList_destroy(new_tokens, destroy_token));
+        SAFE_LLIST_CREATE(new_nodes);
         Node *value = parse_extraction(tokens, state);
         if ( state->error != NULL )
         {
@@ -845,6 +822,12 @@ static Node *parse_atom(LList *tokens, ParsingState *state)
 
         LList_append(new_nodes, value, true);
         return new_node_full(tok->start, value->end, LOCAL_OP, new_nodes, new_tokens);
+    }
+    else if ( tok->type == CALL )
+    {
+        LList_push(tokens, tok, true);
+        SAFE_LLIST_CREATE(nodes);
+        return parse_local_stack_op(tokens, state, nodes);
     }
     else if ( tok->type == L_VBRACE )
     {
@@ -879,7 +862,7 @@ static Node *parse_vector_literal(LList *tokens, ParsingState *state)
         return new_node_empty(start, end, VECT_LIT);
     }
 
-    SAFE_LLIST_CREATE(nodes, );
+    SAFE_LLIST_CREATE(nodes);
 
     while ( true )
     {
@@ -928,7 +911,7 @@ static Node *parse_arr_or_map_literal(LList *tokens, ParsingState *state)
         return new_node_empty(start, end, MAP_LIT);
     }
 
-    SAFE_LLIST_CREATE(nodes, );
+    SAFE_LLIST_CREATE(nodes);
 
     while ( true )
     {

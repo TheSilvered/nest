@@ -49,22 +49,22 @@ VarTable *new_var_table(VarTable *global_table)
     map_set(vt->vars, key_const_null,  nst_null);
 
     // ensures that these never get freed
-    inc_ref(key_type);
-    inc_ref(key_int);
-    inc_ref(key_real);
-    inc_ref(key_bool);
-    inc_ref(key_null);
-    inc_ref(key_str);
-    inc_ref(key_arr);
-    inc_ref(key_vect);
-    inc_ref(key_map);
-    inc_ref(key_func);
-    inc_ref(key_iter);
-    inc_ref(key_byte);
-    inc_ref(key_file);
-    inc_ref(key_const_true);
-    inc_ref(key_const_false);
-    inc_ref(key_const_null);
+    dec_ref(key_type);
+    dec_ref(key_int);
+    dec_ref(key_real);
+    dec_ref(key_bool);
+    dec_ref(key_null);
+    dec_ref(key_str);
+    dec_ref(key_arr);
+    dec_ref(key_vect);
+    dec_ref(key_map);
+    dec_ref(key_func);
+    dec_ref(key_iter);
+    dec_ref(key_byte);
+    dec_ref(key_file);
+    dec_ref(key_const_true);
+    dec_ref(key_const_false);
+    dec_ref(key_const_null);
 
     return vt;
 }

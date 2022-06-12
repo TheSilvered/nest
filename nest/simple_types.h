@@ -3,12 +3,7 @@
 
 #include <stdint.h>
 #include <stdio.h>
-
-typedef int64_t Nst_int;
-typedef double Nst_real;
-typedef char Nst_bool;
-typedef char Nst_byte;
-typedef FILE Nst_iofile;
+#include "obj.h"
 
 #define NST_TRUE 1
 #define NST_FALSE 0
@@ -23,8 +18,25 @@ typedef FILE Nst_iofile;
 #define AS_BYTE_V(ptr) (*(Nst_byte *)(ptr))
 #define AS_BOOL_V(ptr) (*(Nst_bool *)(ptr))
 
+#ifdef __cplusplus
+extern "C" {
+#endif // !__cplusplus
+
+typedef int64_t Nst_int;
+typedef double Nst_real;
+typedef char Nst_bool;
+typedef char Nst_byte;
+typedef FILE Nst_iofile;
+
 Nst_int *new_int(Nst_int value);
 Nst_real *new_real(Nst_real value);
 Nst_bool *new_bool(Nst_bool value);
+
+Nst_Obj *new_int_obj(Nst_int value);
+Nst_Obj *new_real_obj(Nst_real value);
+
+#ifdef __cplusplus
+}
+#endif // !__cplusplus
 
 #endif // !SYMPLE_TYPES_H

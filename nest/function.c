@@ -11,7 +11,7 @@ Nst_Obj *new_func_obj(Nst_func *func)
 Nst_func *new_func(size_t arg_num)
 {
     Nst_func *func = malloc(sizeof(Nst_func));
-    Nst_string **args = malloc(sizeof(Nst_string *) * arg_num);
+    Nst_Obj **args = malloc(sizeof(Nst_Obj *) * arg_num);
     if ( func == NULL || args == NULL )
     {
         errno = ENOMEM;
@@ -29,7 +29,7 @@ Nst_func *new_func(size_t arg_num)
 Nst_func *new_cfunc(size_t arg_num, Nst_Obj *(*cbody)(size_t arg_num, Nst_Obj **args, OpErr *err))
 {
     Nst_func *func = malloc(sizeof(Nst_func));
-    Nst_string **args = NULL;
+    Nst_Obj **args = NULL;
     if ( func == NULL )
     {
         errno = ENOMEM;

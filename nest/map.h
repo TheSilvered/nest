@@ -6,6 +6,12 @@
 #include "obj.h"
 
 #define MAP_MIN_SIZE 32
+#define AS_MAP(ptr) ((Nst_map *)(ptr->value))
+#define AS_MAP_V(ptr) ((Nst_map *)(ptr))
+
+#ifdef __cplusplus
+extern "C" {
+#endif // !__cplusplus
 
 typedef struct MapNode
 {
@@ -28,7 +34,9 @@ Nst_map *new_map();
 bool map_set(Nst_map *map, Nst_Obj *key, Nst_Obj *value);
 Nst_Obj *map_get(Nst_map *map, Nst_Obj *key);
 void destroy_map(Nst_map *map);
-#define AS_MAP(ptr) ((Nst_map *)(ptr->value))
-#define AS_MAP_V(ptr) ((Nst_map *)(ptr))
+
+#ifdef __cplusplus
+}
+#endif // !__cplusplus
 
 #endif // !MAP_H

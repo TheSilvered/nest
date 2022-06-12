@@ -165,8 +165,10 @@
     <ClInclude Include="hash.h" />
     <ClInclude Include="iter.h" />
     <ClInclude Include="lexer.h" />
+    <ClInclude Include="lib_import.h" />
     <ClInclude Include="llist.h" />
     <ClInclude Include="map.h" />
+    <ClInclude Include="nest_include.h" />
     <ClInclude Include="nodes.h" />
     <ClInclude Include="nst_types.h" />
     <ClInclude Include="obj.h" />
@@ -180,6 +182,7 @@
     <ClInclude Include="sequence.h" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="lib_import.c" />
     <None Include="_test.nest" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

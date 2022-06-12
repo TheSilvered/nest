@@ -3,6 +3,10 @@
 
 #include "error.h" // Pos
 
+#ifdef __cplusplus
+extern "C" {
+#endif // !__cplusplus
+
 typedef struct Token
 {
     Pos start;
@@ -54,12 +58,13 @@ enum token_types
     LEN,       // + + atom start, local-op start
     L_NOT,     // | |
     B_NOT,     // | |
-    OUT,       // | |
-    IN,        // | |
+    STDOUT,    // | |
+    STDIN,     // | |
+    IMPORT,    // | |
     TYPEOF,    // | - local-op end
     IDENT,     // | + value start
-    INT,       // | |
-    REAL,      // | |
+    N_INT,     // | |
+    N_REAL,    // | |
     STRING,    // | - value end
     L_PAREN,   // |
     L_BRACE,   // |
@@ -84,16 +89,23 @@ enum token_types
     FUNC,
     RETURN,
     CONTINUE,
-    BREAK,
-
-    // only used by the optimizer
-    ARRAY,
-    VECTOR,
-    MAP
+    BREAK
 };
 
-#define SYMBOL_CHARS "+-*/^%&|<>=!@~:;?.#"
-#define PAREN_CHARS "<()[]{}"
+Token *new_token_value(Pos start, Pos end, int type, void *value);
+Token *new_token_noval(Pos start, Pos end, int type);
+Token *new_token_noend(Pos start, int type);
+void destroy_token(Token *token);
+
+int str_to_tok(char *str);
+
+void print_token(Token *token);
+
+#ifdef __cplusplus
+}
+#endif // !__cplusplus
+
+#define SYMBOL_CHARS "+-*/^%&|<>=!@~:;?.#()[]{},$"
 #define DIGIT_CHARS "0123456789"
 #define LETTER_CHARS "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
 
@@ -123,14 +135,5 @@ enum token_types
     ( token_type - ADD_A )
 
 #define TOK(expr) ((Token *)(expr))
-
-Token *new_token_value(Pos start, Pos end, int type, void *value);
-Token *new_token_noval(Pos start, Pos end, int type);
-Token *new_token_noend(Pos start, int type);
-void destroy_token(Token *token);
-
-int str_to_tok(char *str);
-
-void print_token(Token *token);
 
 #endif // !Nst_TOKENS_H
