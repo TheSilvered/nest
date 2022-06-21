@@ -584,7 +584,7 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
         }
         else if ( ob_t == nst_t_byte )
         {
-            if ( AS_BYTE_V(ob_val) >= '!' && AS_BYTE_V(ob_val) <= '~' )
+            if ( AS_BYTE_V(ob_val) >= ' ' && AS_BYTE_V(ob_val) <= '~' )
             {
                 char *str = calloc(2, sizeof(char));
                 if ( str == NULL )

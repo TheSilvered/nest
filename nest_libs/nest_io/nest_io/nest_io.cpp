@@ -40,9 +40,9 @@ bool lib_init()
     func_list_[4] = { get_file_size, 1, new_string_raw("file_size", false) };
     func_list_[5] = { move_file_pointer, 2, new_string_raw("seek_fptr", false) };
     func_list_[5] = { get_file_pointer, 2, new_string_raw("get_fptr", false) };
-    func_list_[6] = { get_stdin,  0, new_string_raw("get_stdin",  false) };
-    func_list_[7] = { get_stdout, 0, new_string_raw("get_stdout", false) };
-    func_list_[8] = { get_stderr, 0, new_string_raw("get_stderr", false) };
+    func_list_[6] = { get_stdin,  0, new_string_raw("_get_stdin",  false) };
+    func_list_[7] = { get_stdout, 0, new_string_raw("_get_stdout", false) };
+    func_list_[8] = { get_stderr, 0, new_string_raw("_get_stderr", false) };
 
     lib_init_ = true;
     return true;
@@ -125,7 +125,7 @@ Nst_Obj *open_file(size_t arg_num, Nst_Obj **args, OpErr *err)
         return nst_null;
     }
 
-    return make_obj_free(file_ptr, nst_t_file);
+    return make_obj(file_ptr, nst_t_file, NULL);
 }
 
 Nst_Obj *close_file(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -221,8 +221,9 @@ Nst_Obj *read_from_file(size_t arg_num, Nst_Obj **args, OpErr *err)
     fread(buffer, sizeof(char), bytes_to_read, file_ptr);
 
     for ( size_t i = 0; i < (size_t)bytes_to_read; i++ )
-        bytes_array->objs[i] = make_obj_free((void *)(buffer + i), nst_t_byte);
+        bytes_array->objs[i] = new_byte_obj(buffer[i]);
 
+    delete[] buffer;
     return make_obj(bytes_array, nst_t_arr, (void (*)(void *))destroy_seq);
 }
 
@@ -319,15 +320,15 @@ Nst_Obj *move_file_pointer(size_t arg_num, Nst_Obj **args, OpErr *err)
 
 Nst_Obj *get_stdin(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    return make_obj_free(stdin, nst_t_file);
+    return make_obj(stdin, nst_t_file, NULL);
 }
 
 Nst_Obj *get_stdout(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    return make_obj_free(stdout, nst_t_file);
+    return make_obj(stdout, nst_t_file, NULL);
 }
 
 Nst_Obj *get_stderr(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    return make_obj_free(stderr, nst_t_file);
+    return make_obj(stderr, nst_t_file, NULL);
 }

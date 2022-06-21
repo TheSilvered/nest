@@ -2,7 +2,7 @@
 #include "var_table.h"
 #include "nst_types.h"
 
-VarTable *new_var_table(VarTable *global_table)
+VarTable *new_var_table(VarTable *global_table, Nst_string *path)
 {
     VarTable *vt = malloc(sizeof(VarTable));
     if ( vt == NULL ) return NULL;
@@ -10,7 +10,7 @@ VarTable *new_var_table(VarTable *global_table)
     vt->global_table = global_table;
     vt->vars = new_map();
 
-    if ( vt->global_table != NULL )
+    if ( global_table != NULL )
         return vt;
 
     Nst_Obj *key_type = make_obj(new_string_raw("Type",   false), nst_t_str, destroy_string);
@@ -31,6 +31,8 @@ VarTable *new_var_table(VarTable *global_table)
     Nst_Obj *key_const_false = make_obj(new_string_raw("false", false), nst_t_str, destroy_string);
     Nst_Obj *key_const_null  = make_obj(new_string_raw("null",  false), nst_t_str, destroy_string);
 
+    Nst_Obj *key_path = make_obj(new_string_raw("_cwd_", false), nst_t_str, destroy_string);
+
     map_set(vt->vars, key_type, nst_t_type);
     map_set(vt->vars, key_int , nst_t_int );
     map_set(vt->vars, key_real, nst_t_real);
@@ -47,8 +49,8 @@ VarTable *new_var_table(VarTable *global_table)
     map_set(vt->vars, key_const_true,  nst_true);
     map_set(vt->vars, key_const_false, nst_false);
     map_set(vt->vars, key_const_null,  nst_null);
+    map_set(vt->vars, key_path, new_str_obj(path));
 
-    // ensures that these never get freed
     dec_ref(key_type);
     dec_ref(key_int);
     dec_ref(key_real);
@@ -65,6 +67,7 @@ VarTable *new_var_table(VarTable *global_table)
     dec_ref(key_const_true);
     dec_ref(key_const_false);
     dec_ref(key_const_null);
+    dec_ref(key_path);
 
     return vt;
 }

@@ -149,7 +149,8 @@ void print_traceback(Nst_Traceback tb)
         print_position(start, end);
     }
 
-    print_error(*tb.error);
+    if ( tb.error != NULL )
+        print_error(*tb.error);
 }
 
 char *format_type_error(const char *format, char *type_name)

@@ -12,6 +12,8 @@
 #include "hash.h"
 #include "llist.h"
 #include "lib_import.h"
+#include "lexer.h"
+#include "parser.h"
 
 #define SET_ERROR(err_macro, start, end, message) \
     do { \
@@ -63,6 +65,7 @@ typedef struct ExecutionState
     bool must_continue;
     bool must_break;
     LList *loaded_libs;
+    Nst_string *curr_path;
 }
 ExecutionState;
 
@@ -100,6 +103,23 @@ void run(Node *node)
     if ( node == NULL )
         return;
 
+    size_t path_len = strlen(node->start.filename);
+    char *path = malloc(sizeof(char) * (path_len + 1));
+    if ( path == NULL )
+        return;
+
+    strcpy(path, node->start.filename);
+
+    for ( char *i = path + path_len - 1; i - path + 1; i-- )
+    {
+        if ( *i == '/' || *i == '\\' )
+            break;
+        *i = 0;
+        --path_len;
+    }
+
+    Nst_string *path_str = new_string(path, path_len, true);
+
     Nst_Traceback tb = { NULL, LList_new() };
     ExecutionState state = {
         &tb,
@@ -108,27 +128,63 @@ void run(Node *node)
         false,
         false,
         false,
-        LList_new()
+        LList_new(),
+        path_str
     };
-
     inc_ref(nst_null);
-
-    VarTable *vt = new_var_table(NULL);
+    VarTable *vt = new_var_table(NULL, path_str);
 
     exe_node(node, vt, &state);
 
-    if ( state.error_occurred )
+    if ( state.error_occurred && state.traceback->error != NULL )
         print_traceback(tb);
 
+    destroy_map(vt->vars);
+    free(vt);
     dec_ref(state.value);
+    LList_destroy(state.loaded_libs, FreeLibrary);
+}
 
-    //destroy_map(vt->vars);
-    //free(vt);
+Nst_map *run_module(char *file_name, ExecutionState *state)
+{
+    Nst_string *prev_path = state->curr_path;
 
-    for ( LLNode *n = state.loaded_libs->head; n != NULL; n = n->next )
-        FreeLibrary((HMODULE)(n->value));
+    size_t new_path_len = strlen(file_name);
+    char *new_path = malloc(sizeof(char) * (prev_path->len + new_path_len + 1));
+    if ( new_path == NULL )
+        return NULL;
 
-    LList_destroy(state.loaded_libs, NULL);
+    strcpy(new_path, prev_path->value);
+    strcat(new_path, file_name);
+
+    for ( char *i = new_path + new_path_len - 1; i - new_path_len + 1; i-- )
+    {
+        if ( *i == '/' || *i == '\\' )
+            break;
+        *i = 0;
+        --new_path_len;
+    }
+
+    Nst_string *path_str = new_string(new_path, new_path_len, true);
+    state->curr_path = path_str;
+
+    Node *module_ast = parse(ftokenize(file_name));
+
+    if ( module_ast == NULL )
+        return NULL;
+
+    SET_NULL;
+    VarTable *vt = new_var_table(NULL, path_str);
+
+    exe_node(module_ast, vt, state);
+
+    if ( state->error_occurred )
+        return NULL;
+
+    Nst_map *var_map = vt->vars;
+    free(vt);
+    state->curr_path = prev_path;
+    return var_map;
 }
 
 static inline void exe_node(Node *node, VarTable *vt, ExecutionState *state)
@@ -671,8 +727,17 @@ static void exe_local_op(Node *node, VarTable *vt, ExecutionState *state)
     {
         if ( errno == ENOMEM )
             return;
-        SET_ERROR(GENERAL_ERROR, node->start, node->end, err.message);
-        state->traceback->error->name = err.name;
+
+        if ( state->error_occurred )
+        {
+            LList_append(state->traceback->positions, &node->start, false);
+            LList_append(state->traceback->positions, &node->end, false);
+        }
+        else
+        {
+            SET_ERROR(GENERAL_ERROR, node->start, node->end, err.message);
+            state->traceback->error->name = err.name;
+        }
 
         return;
     }
@@ -1017,9 +1082,9 @@ static void call_func(Node *node,
         VarTable *func_vt = NULL;
 
         if ( vt->global_table != NULL )
-            func_vt = new_var_table(vt->global_table);
+            func_vt = new_var_table(vt->global_table, NULL);
         else
-            func_vt = new_var_table(vt);
+            func_vt = new_var_table(vt, NULL);
 
         for ( size_t i = 0; i < func->arg_num; i++ )
             set_val(func_vt, func->args[i], args[i]);
@@ -1065,24 +1130,46 @@ static Nst_Obj *import_lib(Nst_Obj *ob, OpErr *err, ExecutionState *state)
     }
 
     char *file_name = AS_STR(ob)->value;
+    bool c_import = false;
 
-    if ( AS_STR(ob)->len == 0 )
+    if ( file_name[0] == '_' && file_name[1] == '_' &&
+         file_name[2] == 'C' && file_name[3] == '_' &&
+         file_name[4] == '_' && file_name[5] == ':' )
     {
-        err->name = "Value Error";
-        err->message = EMPTY_STRING_IMPORT;
-        return NULL;
+        c_import = true;
+        file_name += 6; // length of __C__:
     }
 
-    FILE *file;
-    if ( (file = fopen(file_name, "r")) == NULL )
+    char *file_path = malloc(sizeof(char) * (state->curr_path->len + strlen(file_name) + 1));
+    if ( file_path == NULL )
+        return NULL;
+
+    strcpy(file_path, state->curr_path->value);
+    strcat(file_path, file_name);
+
+    Nst_iofile *file;
+    if ( (file = fopen(file_path, "r")) == NULL )
     {
         err->name = "Value Error";
-        err->message = format_fnf_error(FILE_NOT_FOUND, file_name);
+        err->message = format_fnf_error(FILE_NOT_FOUND, file_path);
         return NULL;
     }
     fclose(file);
 
-    HMODULE lib = LoadLibraryA(file_name);
+    if ( !c_import )
+    {
+        Nst_map *map = run_module(file_path, state);
+
+        if ( map == NULL )
+        {
+            state->error_occurred = true;
+            return NULL;
+        }
+
+        return make_obj(map, nst_t_map, destroy_map);
+    }
+
+    HMODULE lib = LoadLibraryA(file_path);
 
     if ( !lib )
     {

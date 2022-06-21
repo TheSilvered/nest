@@ -1,0 +1,17 @@
+|#| "__C__:x64\\Debug\\nest_io.dll" = __io
+
+__io.open      = open
+__io.close     = close
+__io.write     = write
+__io.read      = read
+__io.file_size = file_size
+__io.seek_fptr = seek_fptr
+__io.get_fptr  = get_fptr
+
+@__io._get_stdin  = STDIN
+@__io._get_stdout = STDOUT
+@__io._get_stderr = STDERR
+
+0 = SEEK_START = SEEK_SET
+1 = SEEK_CUR
+2 = SEEK_END

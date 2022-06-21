@@ -1,13 +1,12 @@
-|#| "..\\nest_libs\\nest_io\\x64\\Debug\\nest_io.dll" = io
+|#| "..\\nest_libs\\nest_io\\stdio.nest" = io
 
-"file con un nome molto lungo.txt" "w" @io.open = f
+_cwd_ "file-with-a-really-long-name.txt" >< "w" @io.open = f
 f "Hello world!" @io.write
 f @io.close
 
-"file con un nome molto lungo che non esiste.txt" "r" @io.open = f
+"file-with-a-really-long-name.txt" "r" @io.open = f
 f -1 @io.read = res
 ... Iter :: res ~= byte [
 	>>> (byte)
 ]
 f @io.close
-f -1 @io.read = res

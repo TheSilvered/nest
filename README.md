@@ -221,10 +221,8 @@ of the array.
 ```
 { 1, 2, 3, 4, 5 } = arr
 arr.4 -- last item
-arr. -1 -- also last item
+arr.-1 -- also last item
 ```
-With the negative index a space is needed to separate the dot `.` and the hyphen
-`-` because together create an nonexistent operator `.-`.
 
 You cannot index an array directly with variable names, those need to be inside
 parenthesis otherwise they will be treated like strings.
@@ -483,4 +481,62 @@ Casting to a boolean an array, vector, string or map will return `false` when
 it's empty, otherwise true.
 Casting to a boolean a number (Byte, Int or Real), it will return `false` when
 it is equal to zero.
-Casting
+
+Casting a `Map` to an `Iter` does _not_ create an iterator that cycles through
+all the keys, but a custom iterator.
+
+### Custom iterators
+
+An iterator, in Nest, is a type that contains four functions and a value.
+The four functions are called `:start:`, `:advance:`, `:is_done:` and `:get_val:`.
+`:start:` is called when the loop that uses the iterator starts, should return
+`null`.
+`:advance:` is called at the end of each iteration and should return `null`.
+`:is_done:` is called at the start of each iteration and should return `true` or
+`false`.
+`:get_val:` is called after `:is_done:` and should return the value to assign to
+the variable of the loop.
+
+All of these functions take exactly one argument which is map they belong to.
+
+```
+-- This is a nest implementation of the standard library's 'enumerate' function \
+ | Here you can see how the functions should behave \
+ | '_self' is the map that is created and casted to Iter, this means that you
+ | could access also the function itself: _self.':start:'
+
+#_Enum_start   _self [
+    0 = _self._idx
+]
+
+#_Enum_advance _self [
+    1 += _self._idx
+]
+
+#_Enum_is_done _self [
+    => _self._idx $_self._seq ==
+]
+
+#_Enum_get_val _self [
+    => { _self._idx, _self._seq.(_self._idx) }
+]
+
+#enumerate obj [
+    ?::obj = _ob_t
+
+    (_ob_t Vector !=) (_ob_t Array !=) (_ob_t Str !=) && ? [
+        >>> _ob_t
+        >>> '\n'
+        => null
+    ]
+
+    => Iter :: {
+        ':start:': _Enum_start,
+        ':advance:': _Enum_advance,
+        ':is_done:': _Enum_is_done,
+        ':get_val:': _Enum_get_val,
+        '_seq': obj,
+        '_idx': 0
+    }
+]
+```

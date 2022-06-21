@@ -247,9 +247,9 @@ static void make_symbol(LexerCursor *cursor, Token **tok, Nst_Error **err)
     Pos start = copy_pos(cursor->pos);
     char *symbol = add_while_in(cursor, SYMBOL_CHARS);
     Pos end = copy_pos(cursor->pos);
-    char *comment_start = NULL;
+    char *comment_start = strstr(symbol, "--");
 
-    if ( strcmp(symbol, "--") == 0 )
+    if ( comment_start == symbol )
     {
         while ( cursor->idx < (long)cursor->len && cursor->ch != '\n' )
         {

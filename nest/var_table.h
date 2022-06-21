@@ -3,6 +3,7 @@
 
 #include "map.h"
 #include "obj.h"
+#include "nst_types.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -15,7 +16,7 @@ typedef struct VarTable
 }
 VarTable;
 
-VarTable *new_var_table(VarTable *global_table);
+VarTable *new_var_table(VarTable *global_table, Nst_string *path);
 Nst_Obj *get_val(VarTable *vt, Nst_Obj *name);
 void set_val(VarTable *vt, Nst_Obj *name, Nst_Obj *val);
 
