@@ -43,6 +43,12 @@
         return; \
     } while ( 0 )
 
+#define OBJ_INIT_FARGS \
+    Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *, \
+    Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *, \
+    Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *, \
+    Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *
+
 #define HEAD_NODE(node) (NODE(node->nodes->head->value))
 #define TAIL_NODE(node) (NODE(node->nodes->tail->value))
 #define HEAD_TOK(node) (TOK(node->tokens->head->value))
@@ -59,9 +65,6 @@ typedef struct ExecutionState
     LList *loaded_libs;
 }
 ExecutionState;
-
-typedef bool(__cdecl *LIB_INIT_PROC)(LPWSTR);
-typedef FuncDeclr *(__cdecl *GET_FUNC_PTRS_PROC)(LPWSTR);
 
 static inline void exe_node(Node *node, VarTable *vt, ExecutionState *state);
 static void exe_long_s(Node *node, VarTable *vt, ExecutionState *state);
@@ -119,8 +122,8 @@ void run(Node *node)
 
     dec_ref(state.value);
 
-    destroy_map(vt->vars);
-    free(vt);
+    //destroy_map(vt->vars);
+    //free(vt);
 
     for ( LLNode *n = state.loaded_libs->head; n != NULL; n = n->next )
         FreeLibrary((HMODULE)(n->value));
@@ -1079,7 +1082,7 @@ static Nst_Obj *import_lib(Nst_Obj *ob, OpErr *err, ExecutionState *state)
     }
     fclose(file);
 
-    HINSTANCE lib = LoadLibrary((LPCWSTR)file_name);
+    HMODULE lib = LoadLibraryA(file_name);
 
     if ( !lib )
     {
@@ -1088,7 +1091,7 @@ static Nst_Obj *import_lib(Nst_Obj *ob, OpErr *err, ExecutionState *state)
         return NULL;
     }
 
-    bool (*lib_init)() = (LIB_INIT_PROC)GetProcAddress(lib, "lib_init");
+    bool (*lib_init)() = (bool (*)())GetProcAddress(lib, "lib_init");
     if ( lib_init == NULL )
     {
         err->name = "Import Error";
@@ -1102,7 +1105,7 @@ static Nst_Obj *import_lib(Nst_Obj *ob, OpErr *err, ExecutionState *state)
         return NULL;
     }
 
-    FuncDeclr *(*get_func_ptrs)() = (GET_FUNC_PTRS_PROC)GetProcAddress(lib, "get_func_ptrs");
+    FuncDeclr *(*get_func_ptrs)() = (FuncDeclr *(*)())GetProcAddress(lib, "get_func_ptrs");
     if ( get_func_ptrs == NULL )
     {
         err->name = "Import Error";
@@ -1112,6 +1115,13 @@ static Nst_Obj *import_lib(Nst_Obj *ob, OpErr *err, ExecutionState *state)
 
     FuncDeclr *func_ptrs = get_func_ptrs();
     
+    if ( func_ptrs == NULL )
+    {
+        err->name = "Import Error";
+        err->message = "module was not initialized correctly";
+        return NULL;
+    }
+
     Nst_map *func_map = new_map();
 
     for ( size_t i = 0;; i++ )
@@ -1124,6 +1134,23 @@ static Nst_Obj *import_lib(Nst_Obj *ob, OpErr *err, ExecutionState *state)
 
         map_set(func_map, make_obj(func.name, nst_t_str, NULL), func_obj);
     }
+
+    FARPROC a = GetProcAddress(lib, "init_lib_obj");
+
+    void (*init_lib_obj)(OBJ_INIT_FARGS)
+        = (void (*)(OBJ_INIT_FARGS))GetProcAddress(lib, "init_lib_obj");
+
+    if ( init_lib_obj == NULL )
+    {
+        err->name = "Import Error";
+        err->message = "module does not import \"obj.h\"";
+        return NULL;
+    }
+
+    init_lib_obj(nst_t_type, nst_t_int,  nst_t_real, nst_t_bool,
+                      nst_t_null, nst_t_str,  nst_t_arr,  nst_t_vect,
+                      nst_t_map,  nst_t_func, nst_t_iter, nst_t_byte,
+                      nst_t_file, nst_true,   nst_false,  nst_null);
 
     LList_append(state->loaded_libs, lib, false);
     return make_obj(func_map, nst_t_map, destroy_map);

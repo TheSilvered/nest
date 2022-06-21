@@ -133,11 +133,11 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="_test.nest">
-      <Filter>File di origine</Filter>
-    </None>
     <None Include="lib_import.c">
       <Filter>File di origine</Filter>
+    </None>
+    <None Include="_test.nest">
+      <Filter>File di risorse</Filter>
     </None>
   </ItemGroup>
 </Project>
