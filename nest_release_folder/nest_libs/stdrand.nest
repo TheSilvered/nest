@@ -1,0 +1,10 @@
+|#| "__C__:stdrand.dll" = __rand
+
+__rand.rand = random
+__rand.rand_int = rand_int
+__rand.rand_perc = rand_perc
+__rand.choice = choice
+__rand.shuffle = shuffle
+__rand.rand_seed = rand_seed
+
+@__rand._get_rand_max = RAND_MAX

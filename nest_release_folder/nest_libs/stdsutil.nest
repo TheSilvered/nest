@@ -1,0 +1,26 @@
+|#| "__C__:stdsutil.dll" = __s
+
+__s.lfind = lfind
+__s.rfind = rfind
+__s.trim  = trim
+__s.ltrim = ltrim
+__s.rtrim = rtrim
+__s.ljust = ljust
+__s.rjust = rjust
+__s.to_upper = to_upper
+__s.to_lower = to_lower
+__s.is_upper = is_upper
+__s.is_lower = is_lower
+__s.is_alpha = is_alpha
+__s.is_digit = is_digit
+__s.is_alnum = is_alnum
+__s.is_charset = is_charset
+__s.is_printable = is_printable
+__s.replace_substr = replace_substr
+__s.bytearray_to_str = bytearray_to_str
+
+"0123456789" = DIGITS
+"abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ" = LETTERS
+"abcdefghijklmnopqrstuvwxyz" = LOWERCASE_LETTERS
+"ABCDEFGHIJKLMNOPQRSTUVWXYZ" = UPPERCASE_LETTERS
+" !\"#$%&'()*+,-/0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~" = PRINTABLE

@@ -60,17 +60,11 @@ Nst_Obj *random(size_t arg_num, Nst_Obj **args, OpErr *err)
 
 Nst_Obj *rand_int(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_Obj *min_obj = args[0];
-    Nst_Obj *max_obj = args[1];
+    Nst_int min;
+    Nst_int max;
 
-    if ( min_obj->type != nst_t_int || max_obj->type != nst_t_int )
-    {
-        SET_TYPE_ERROR("expected 'Int'");
+    if ( !extract_arg_values("ii", arg_num, args, err, &min, &max) )
         return nullptr;
-    }
-
-    Nst_int min = AS_INT(min_obj);
-    Nst_int max = AS_INT(max_obj);
 
     if ( min > max )
     {
@@ -88,29 +82,21 @@ Nst_Obj *rand_perc(size_t arg_num, Nst_Obj **args, OpErr *err)
 
 Nst_Obj *choice(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_Obj *seq_obj = args[0];
+    Nst_sequence *seq;
 
-    if ( seq_obj->type != nst_t_arr || seq_obj->type != nst_t_vect )
-    {
-        SET_TYPE_ERROR("expected 'Array' or 'Vector'");
+    if ( !extract_arg_values("a", arg_num, args, err, &seq) )
         return nullptr;
-    }
 
-    Nst_sequence *seq = AS_SEQ(seq_obj);
     return get_value_seq(seq, rand() % seq->len);
 }
 
 Nst_Obj *shuffle(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_Obj *seq_obj = args[0];
+    Nst_sequence *seq;
 
-    if ( seq_obj->type != nst_t_arr || seq_obj->type != nst_t_vect )
-    {
-        SET_TYPE_ERROR("expected 'Array' or 'Vector'");
+    if ( !extract_arg_values("a", arg_num, args, err, &seq) )
         return nullptr;
-    }
 
-    Nst_sequence *seq = AS_SEQ(seq_obj);
     size_t seq_len = seq->len;
     Nst_Obj **objs = seq->objs;
 
@@ -128,15 +114,12 @@ Nst_Obj *shuffle(size_t arg_num, Nst_Obj **args, OpErr *err)
 
 Nst_Obj *rand_seed(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_Obj *seed = args[0];
+    Nst_int seed;
 
-    if ( seed->type != nst_t_int )
-    {
-        SET_TYPE_ERROR("expected 'Int'");
+    if ( !extract_arg_values("i", arg_num, args, err, &seed) )
         return nullptr;
-    }
 
-    srand(AS_INT(seed));
+    srand((unsigned int)seed);
 
     inc_ref(nst_null);
     return nst_null;

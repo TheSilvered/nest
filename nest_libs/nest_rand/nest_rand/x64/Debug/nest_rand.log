@@ -1,6 +1,5 @@
 ﻿  dllmain.cpp
   nest_rand.cpp
-E:\C++\nest\nest_libs\nest_rand\nest_rand\nest_rand.cpp(139,11): warning C4244: 'argomento': conversione da 'Nst_int' a 'unsigned int'. Possibile perdita di dati.
   Generazione del codice in corso...
   error.c
   function.c

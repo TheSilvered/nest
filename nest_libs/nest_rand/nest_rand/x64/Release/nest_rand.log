@@ -1,0 +1,23 @@
+﻿  dllmain.cpp
+  nest_rand.cpp
+  error.c
+  function.c
+  hash.c
+  iter.c
+  lib_import.c
+  llist.c
+  map.c
+  nodes.c
+  obj.c
+  obj_ops.c
+  sequence.c
+  simple_types.c
+  str.c
+  tokens.c
+  var_table.c
+     Creazione della libreria E:\C++\nest\nest_libs\nest_rand\x64\Release\nest_rand.lib e dell'oggetto E:\C++\nest\nest_libs\nest_rand\x64\Release\nest_rand.exp
+  Generazione codice in corso...
+  Previous IPDB not found, fall back to full compilation.
+  All 51 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Generazione codice terminata
+  nest_rand.vcxproj -> E:\C++\nest\nest_libs\nest_rand\x64\Release\nest_rand.dll

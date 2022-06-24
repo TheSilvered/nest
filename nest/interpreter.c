@@ -1278,6 +1278,7 @@ static Nst_Obj *import_lib(Nst_Obj *ob, OpErr *err)
         file_name += 6; // length of __C__:
     }
 
+    size_t file_name_len = strlen(file_name);
     char *file_path = NULL;
     bool file_path_allocated = false;
 
@@ -1285,7 +1286,7 @@ static Nst_Obj *import_lib(Nst_Obj *ob, OpErr *err)
         file_path = file_name;
     else
     {
-        file_path = malloc(sizeof(char) * (state.curr_path->len + strlen(file_name) + 1));
+        file_path = malloc(sizeof(char) * (state.curr_path->len + file_name_len + 1));
         file_path_allocated = true;
         if ( file_path == NULL )
             return NULL;
@@ -1297,9 +1298,31 @@ static Nst_Obj *import_lib(Nst_Obj *ob, OpErr *err)
     Nst_iofile *file;
     if ( (file = fopen(file_path, "r")) == NULL )
     {
-        err->name = "Value Error";
-        err->message = format_fnf_error(FILE_NOT_FOUND, file_path);
-        return NULL;
+        char *appdata = getenv("LOCALAPPDATA");
+        char *original_path = format_fnf_error(FILE_NOT_FOUND, file_path);
+        if ( appdata == NULL || !file_path_allocated )
+        {
+            err->name = "Value Error";
+            err->message = original_path;
+            return NULL;
+        }
+
+        size_t appdata_len = strlen(appdata);
+        char *realloc_file_path = realloc(file_path, appdata_len + file_name_len + 26);
+        if ( !realloc_file_path ) return NULL;
+
+        char *lib_dir = "\\Programs\\nest\\nest_libs\\";
+        file_path = realloc_file_path;
+        memcpy(file_path, appdata, appdata_len);
+        memcpy(file_path + appdata_len, lib_dir, 25);
+        memcpy(file_path + appdata_len + 25, file_name, file_name_len + 1); // copies also \0
+
+        if ( (file = fopen(file_path, "r")) == NULL )
+        {
+            err->name = "Value Error";
+            err->message = original_path;
+            return NULL;
+        }
     }
     fclose(file);
 
