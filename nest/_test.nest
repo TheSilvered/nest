@@ -1,12 +1,169 @@
 |#| "..\\nest_libs\\nest_io\\stdio.nest" = io
+|#| "..\\nest_libs\\nest_fs\\stdfs.nest" = fs
+|#| "..\\nest_libs\\nest_string\\stdsutil.nest" = su
 
-_cwd_ "file-with-a-really-long-name.txt" >< "w" @io.open = f
-f "Hello world!" @io.write
-f @io.close
+#copy_file src dst [
+    src "r" @io.open = src_f
+    src_f null == ? => false
+    src_f -1 @io.read = content
+    src_f @io.close
 
-"file-with-a-really-long-name.txt" "r" @io.open = f
-f -1 @io.read = res
-... Iter :: res ~= byte [
-	>>> (byte)
+    dst "w" @io.open = dst_f
+    dst_f content @io.write
+    dst_f @io.close
+    => true
 ]
-f @io.close
+
+-- not all source files, only the ones that can be used
+{
+    "error.h",
+    "function.h",
+    "hash.h",
+    "iter.h",
+    "lib_import.h",
+    "llist.h",
+    "map.h",
+    "nest_include.h",
+    "nodes.h",
+    "nst_types.h",
+    "obj.h",
+    "obj_ops.h",
+    "sequence.h",
+    "simple_types.h",
+    "str.h",
+    "tokens.h",
+    "var_table.h",
+    "error.c",
+    "function.c",
+    "hash.c",
+    "iter.c",
+    "lib_import.c",
+    "llist.c",
+    "map.c",
+    "nodes.c",
+    "obj.c",
+    "obj_ops.c",
+    "sequence.c",
+    "simple_types.c",
+    "str.c",
+    "tokens.c",
+    "var_table.c"
+} = nest_source_files
+
+#main [
+    { "_test.nest", "update", "..\\nest_libs\\nest_fs\\nest_fs" } = _args_
+    ($_args_ 3 !=) ($_args_ 4 !=) && ? [
+        >>> "USAGE: nest .\\make_clib_files.py (new LIBRARY_NAME|update) LOCATION\n"
+        => 1
+    ]
+
+    _args_.1 = operation
+    ($_args_ 4 == ? _args_.2 : null) = project_name
+    _args_.($_args_ 4 == ? 3 : 2) = location
+
+    (operation "new" !=) (operation "update" !=) && ? [
+        >>> ("The given operation (\""operation"\") is not valid\n" ><)
+        => 1
+    ]
+
+    !(location @fs.isdir) ? [
+        >>> ("The given path (\""location"\") doesn't exist\n" ><)
+        => 2
+    ]
+
+    location"\\nest_source" >< @fs.mkdir
+
+    ... Iter :: nest_source_files ~= file_name [
+        "..\\nest\\"file_name >< "r" @io.open = src_f
+        src_f -1 @io.read = content
+        src_f @io.close
+
+        location"\\nest_source\\"file_name >< "w" @io.open = dst_f
+        dst_f content @io.write
+        dst_f @io.close
+    ]
+
+    operation "update" == ? => 0
+
+    project_name " " "_" @su.replace_substr = project_name_c
+
+    !(project_name_c (su.LETTERS su.DIGITS "_" ><) @su.is_charset) ? [
+        >>> ("The given name (\""project_name"\") is not valid\n" ><)
+        => 3
+    ]
+
+    project_name_c @su.to_upper = upper_project_name
+
+    location"\\"project_name".h" >< "w" @io.open = header_file
+    header_file ("#ifndef "upper_project_name"_H
+#define "upper_project_name"_H
+
+#include \"nest_source/nest_include.h\"
+
+#ifdef "(upper_project_name "_" "" @su.replace_substr)"_EXPORTS
+#define "upper_project_name"_API __declspec(dllexport)
+#else
+#define "upper_project_name"_API __declspec(dllimport)
+#endif
+
+#ifdef __cplusplus
+extern \"C\" {
+#endif // !__cplusplus
+
+"upper_project_name"_API bool lib_init();
+"upper_project_name"_API FuncDeclr *get_func_ptrs();
+"upper_project_name"_API INIT_LIB_OBJ_FUNC;
+
+// Here you can put your function signatures
+// They must always be `Nst_Obj *func_name(size_t arg_num, Nst_Obj **args, OpErr *err);`
+// replace func_name with your function's name
+
+// To compile remove precompiled headers in Project->Properties->C/C++->
+// ->Precompiled headers and set \"Precompiled header\" to \"Not Using Precompiled
+// Headers\"
+
+#ifdef __cplusplus
+}
+#endif // !__cplusplus
+
+#endif // !"upper_project_name"_H" ><) @io.write
+    header_file @io.close
+
+    location"\\"project_name".cpp" >< "w" @io.open = source_file
+    source_file ("#include \""project_name".h\"
+
+#define FUNC_COUNT // Set this to the number of functions in your module
+
+static FuncDeclr *func_list_;
+static bool lib_init_ = false;
+
+bool lib_init()
+{
+    if ( (func_list_ = new_func_list(FUNC_COUNT)) == nullptr )
+        return false;
+
+    size_t idx = 0;
+
+    // Set each function to an index in func_list_
+    // func_list_[idx++] = {
+    //     func_ptr, -> the function pointer
+    //     1, -> the number of arguments the function takes
+    //     new_string_raw(\"func_name\", false) -> the string containing the name
+    // }                                           of the funtion inside Nest
+
+    lib_init_ = true;
+    return true;
+}
+
+FuncDeclr *get_func_ptrs()
+{
+    return lib_init_ ? func_list_ : nullptr;
+}
+
+// Here you can put the implementations of your functions" ><) @io.write
+    source_file @io.close
+
+    => 0
+]
+
+@main

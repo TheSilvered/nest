@@ -19,6 +19,7 @@ VarTable;
 VarTable *new_var_table(VarTable *global_table, Nst_string *path);
 Nst_Obj *get_val(VarTable *vt, Nst_Obj *name);
 void set_val(VarTable *vt, Nst_Obj *name, Nst_Obj *val);
+Nst_Obj *set_argv(VarTable *vt, int argc, char **argv);
 
 #ifdef __cplusplus
 }

@@ -62,7 +62,7 @@ LList *ftokenize(char *filename)
     FILE *file = fopen(filename, "r");
     if ( file == NULL )
     {
-        printf("File not found\n");
+        printf("File \"%s\" not found\n", filename);
         return NULL;
     }
 

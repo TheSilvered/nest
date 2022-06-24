@@ -26,6 +26,9 @@ Nst_sequence *new_array_empty(size_t len);
 Nst_sequence *new_vector_empty(size_t len);
 void destroy_seq(Nst_sequence *seq);
 
+Nst_Obj *new_arr_obj(Nst_sequence *arr);
+Nst_Obj *new_vect_obj(Nst_sequence *vect);
+
 void resize_vector(Nst_sequence *vect);
 void append_value_vector(Nst_sequence *vect, Nst_Obj *val);
 bool set_value_seq(Nst_sequence *seq, int64_t idx, Nst_Obj *val);

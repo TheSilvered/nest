@@ -1,0 +1,7 @@
+|#| "__C__:x64\\Debug\\nest_fs.dll" = __fs
+
+__fs.isdir = isdir
+__fs.mkdir = mkdir
+__fs.rmdir = rmdir
+__fs.isfile = isfile
+__fs.rmfile = rmfile

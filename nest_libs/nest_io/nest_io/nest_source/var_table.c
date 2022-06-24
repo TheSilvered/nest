@@ -91,3 +91,19 @@ void set_val(VarTable *vt, Nst_Obj *name, Nst_Obj *val)
 {
     map_set(vt->vars, name, val);
 }
+
+Nst_Obj *set_argv(VarTable *vt, int argc, char **argv)
+{
+    Nst_sequence *cmd_args = new_array_empty(argc - 1);
+
+    for ( int i = 1; i < argc; i++ )
+        set_value_seq(cmd_args, i - 1, new_str_obj(new_string_raw(argv[i], false)));
+
+    Nst_Obj *argv_obj = new_arr_obj(cmd_args);
+    Nst_Obj *argv_key = new_str_obj(new_string("_args_", 6, false));
+
+    map_set(vt->vars, argv_key, argv_obj);
+
+    dec_ref(argv_key);
+    return argv_obj;
+}

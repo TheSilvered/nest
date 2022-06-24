@@ -1,0 +1,22 @@
+﻿  dllmain.cpp
+  nest_rand.cpp
+E:\C++\nest\nest_libs\nest_rand\nest_rand\nest_rand.cpp(139,11): warning C4244: 'argomento': conversione da 'Nst_int' a 'unsigned int'. Possibile perdita di dati.
+  Generazione del codice in corso...
+  error.c
+  function.c
+  hash.c
+  iter.c
+  lib_import.c
+  llist.c
+  map.c
+  nodes.c
+  obj.c
+  obj_ops.c
+  sequence.c
+  simple_types.c
+  str.c
+  tokens.c
+  var_table.c
+  Generazione del codice in corso...
+     Creazione della libreria E:\C++\nest\nest_libs\nest_rand\x64\Debug\nest_rand.lib e dell'oggetto E:\C++\nest\nest_libs\nest_rand\x64\Debug\nest_rand.exp
+  nest_rand.vcxproj -> E:\C++\nest\nest_libs\nest_rand\x64\Debug\nest_rand.dll

@@ -73,11 +73,13 @@
 #define TOO_FEW_ARGS_FUNC "too few arguments were passed to the function"
 #define ZERO_RANGE_STEP "step must not be zero"
 #define EXPECTED_BOOL_ITER_IS_DONE "expected 'Bool' type from ':is_done:', got type '%s' instead"
-#define EMPTY_STRING_IMPORT "unexpected empty string for '|#|'"
 #define FILE_NOT_FOUND "file '%s' not found"
 #define FILE_NOT_DLL "the file was not a valid DLL"
 #define NO_LIB_INIT "the DLL does not specify a 'lib_init' function"
 #define NO_GET_FUNC_PTRS "the DLL does not specify a 'get_func_ptrs' function"
+#define WRONG_TYPE_FOR_ARG(type) "expected type '" type "' for argument %zi, got type '%s' instead"
+#define ARG_NUM_DOESNT_MATCH "argument number doesn't match to the given types"
+#define INCVALID_TYPE_LETTER "invalid letter in type string"
 
 #ifdef __cplusplus
 extern "C" {
@@ -123,6 +125,7 @@ void print_traceback(Nst_Traceback tb);
 char *format_type_error(const char *format, char *type_name);
 char *format_idx_error(const char *format, int64_t idx, size_t seq_len);
 char *format_fnf_error(const char *format, char *file_name);
+char *format_arg_error(const char *format, char *type_name, size_t idx);
 
 #ifdef __cplusplus
 }

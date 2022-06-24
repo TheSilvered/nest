@@ -285,11 +285,11 @@ void print_token(Token *token)
     printf(" - ");
 
     if ( token->type == N_INT )
-        printf("%lli, ", *(Nst_int *)(token->value));
+        printf("%lli, ", AS_INT(((Nst_Obj *)token->value)));
     else if ( token->type == N_REAL )
-        printf("%g, ", *(Nst_real *)(token->value));
+        printf("%g, ", AS_REAL(((Nst_Obj *)token->value)));
     else if ( token->type == STRING || token->type == IDENT )
-        printf("%s, ", ((Nst_string *)(token->value))->value);
+        printf("%s, ", AS_STR(((Nst_Obj *)token->value))->value);
 
     printf("%zi:%zi, %zi:%zi)",
         token->start.line,

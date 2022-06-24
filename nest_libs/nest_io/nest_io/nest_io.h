@@ -17,16 +17,18 @@ NEST_IO_API bool lib_init();
 NEST_IO_API FuncDeclr *get_func_ptrs();
 NEST_IO_API INIT_LIB_OBJ_FUNC;
 
-Nst_Obj *open_file(size_t arg_num, Nst_Obj **args, OpErr *err);
-Nst_Obj *close_file(size_t arg_num, Nst_Obj **args, OpErr *err);
-Nst_Obj *write_to_file(size_t arg_num, Nst_Obj **args, OpErr *err);
-Nst_Obj *read_from_file(size_t arg_num, Nst_Obj **args, OpErr *err);
-Nst_Obj *get_file_size(size_t arg_num, Nst_Obj **args, OpErr *err);
-Nst_Obj *move_file_pointer(size_t arg_num, Nst_Obj **args, OpErr *err);
-Nst_Obj *get_file_pointer(size_t arg_num, Nst_Obj **args, OpErr *err);
-Nst_Obj *get_stdin(size_t arg_num, Nst_Obj **args, OpErr *err);
-Nst_Obj *get_stdout(size_t arg_num, Nst_Obj **args, OpErr *err);
-Nst_Obj *get_stderr(size_t arg_num, Nst_Obj **args, OpErr *err);
+Nst_Obj *open(size_t arg_num, Nst_Obj **args, OpErr *err);
+Nst_Obj *close(size_t arg_num, Nst_Obj **args, OpErr *err);
+Nst_Obj *write(size_t arg_num, Nst_Obj **args, OpErr *err);
+Nst_Obj *write_bytes(size_t arg_num, Nst_Obj **args, OpErr *err);
+Nst_Obj *read(size_t arg_num, Nst_Obj **args, OpErr *err);
+Nst_Obj *read_bytes(size_t arg_num, Nst_Obj **args, OpErr *err);
+Nst_Obj *file_size(size_t arg_num, Nst_Obj **args, OpErr *err);
+Nst_Obj *move_fptr(size_t arg_num, Nst_Obj **args, OpErr *err);
+Nst_Obj *get_fptr(size_t arg_num, Nst_Obj **args, OpErr *err);
+Nst_Obj *_get_stdin(size_t arg_num, Nst_Obj **args, OpErr *err);
+Nst_Obj *_get_stdout(size_t arg_num, Nst_Obj **args, OpErr *err);
+Nst_Obj *_get_stderr(size_t arg_num, Nst_Obj **args, OpErr *err);
 
 #ifdef __cplusplus
 }

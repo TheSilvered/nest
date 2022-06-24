@@ -27,7 +27,7 @@ extern "C" {
 typedef int64_t Nst_int;
 typedef double Nst_real;
 typedef char Nst_bool;
-typedef char Nst_byte;
+typedef unsigned char Nst_byte;
 typedef FILE Nst_iofile;
 
 Nst_int *new_int(Nst_int value);

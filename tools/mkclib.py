@@ -3,7 +3,7 @@ import os
 import shutil
 import string
 
-# not all source files, only the one that can be used
+# not all source files, only the ones that can be used
 nest_source_files = [
     "error.h",
     "function.h",
@@ -58,7 +58,7 @@ def main():
         exit(2)
 
     if not os.path.isdir(f"{location}\\nest_source"):
-            os.mkdir(f"{location}\\nest_source")
+        os.mkdir(f"{location}\\nest_source")
 
     for file_name in nest_source_files:
         shutil.copyfile(
@@ -101,7 +101,8 @@ extern "C" {{
 
 // To compile remove precompiled headers in Project->Properties->C/C++->
 // ->Precompiled headers and set "Precompiled header" to "Not Using Precompiled
-// Headers"
+// Headers" and define in Project->Properties->C/C++->Preprocessor the directive
+// _CRT_SECURE_NO_WARNINGS
 
 #ifdef __cplusplus
 }}
@@ -127,7 +128,7 @@ bool lib_init()
     //     func_ptr, -> the function pointer
     //     1, -> the number of arguments the function takes
     //     new_string_raw("func_name", false) -> the string containing the name
-    // }}                                        of the funtion inside Nest
+    // }}                                         of the funtion inside Nest
 
     lib_init_ = true;
     return true;

@@ -584,36 +584,20 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
         }
         else if ( ob_t == nst_t_byte )
         {
-            if ( AS_BYTE_V(ob_val) >= ' ' && AS_BYTE_V(ob_val) <= '~' )
-            {
-                char *str = calloc(2, sizeof(char));
-                if ( str == NULL )
-                {
-                    errno = ENOMEM;
-                    return NULL;
-                }
-
-                str[0] = AS_BYTE_V(ob_val);
-
-                return make_obj(
-                    new_string(str, 1, true),
-                    nst_t_str, destroy_string
-                );
-            }
-            
-            char *str = calloc(MAX_BYTE_CHAR_COUNT, sizeof(char));
+            char *str = calloc(2, sizeof(char));
             if ( str == NULL )
             {
                 errno = ENOMEM;
                 return NULL;
             }
 
-            sprintf(str, "\\%i", AS_BYTE_V(ob_val));
+            str[0] = AS_BYTE_V(ob_val);
 
             return make_obj(
-                new_string_raw(str, false),
+                new_string(str, 1, true),
                 nst_t_str, destroy_string
             );
+
         }
         else
         {
@@ -699,6 +683,15 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
         else
             RETURN_TYPE_ERROR("::");
     }
+    else if ( type == nst_t_byte )
+    {
+        if ( ob_t == nst_t_int )
+        {
+            return new_byte_obj(AS_INT_V(ob_val) & 0xff);
+        }
+        else
+            RETURN_TYPE_ERROR("::");
+    }
     else if ( type == nst_t_iter )
     {
         if ( ob_t == nst_t_str )
@@ -761,10 +754,10 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
         }
         else if ( ob_t == nst_t_map )
         {
-            Nst_Obj *start_key   = make_obj(new_string(":start:",   7, false), nst_t_str, destroy_string);
-            Nst_Obj *advance_key = make_obj(new_string(":advance:", 9, false), nst_t_str, destroy_string);
-            Nst_Obj *is_done_key = make_obj(new_string(":is_done:", 9, false), nst_t_str, destroy_string);
-            Nst_Obj *get_val_key = make_obj(new_string(":get_val:", 9, false), nst_t_str, destroy_string);
+            Nst_Obj *start_key   = make_obj(new_string("_start_",   7, false), nst_t_str, destroy_string);
+            Nst_Obj *advance_key = make_obj(new_string("_advance_", 9, false), nst_t_str, destroy_string);
+            Nst_Obj *is_done_key = make_obj(new_string("_is_done_", 9, false), nst_t_str, destroy_string);
+            Nst_Obj *get_val_key = make_obj(new_string("_get_val_", 9, false), nst_t_str, destroy_string);
 
             Nst_Obj *start_obj   = map_get(ob_val, start_key);
             Nst_Obj *advance_obj = map_get(ob_val, advance_key);

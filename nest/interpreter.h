@@ -7,7 +7,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-void run(Node *node);
+void run(Node *node, int argc, char **argv);
 
 #ifdef __cplusplus
 }

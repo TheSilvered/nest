@@ -33,6 +33,8 @@
         nst_null = main_null; \
     }
 
+#define MAKE_FUNCDECLR(func_ptr, argc) { func_ptr, argc, new_string_raw(#func_ptr, false) }
+
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
@@ -46,6 +48,11 @@ typedef struct FuncDeclr
 FuncDeclr;
 
 FuncDeclr *new_func_list(size_t count);
+bool extract_arg_values(const char *types,
+                        size_t arg_num,
+                        Nst_Obj **args,
+                        OpErr *err,
+                        ...);
 
 #ifdef __cplusplus
 }

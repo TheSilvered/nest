@@ -55,6 +55,16 @@ void destroy_seq(Nst_sequence *seq)
     free(seq);
 }
 
+Nst_Obj *new_arr_obj(Nst_sequence *arr)
+{
+    return make_obj(arr, nst_t_arr, destroy_seq);
+}
+
+Nst_Obj *new_vect_obj(Nst_sequence *vect)
+{
+    return make_obj(vect, nst_t_arr, destroy_seq);
+}
+
 void resize_vector(Nst_sequence *vect)
 {
     register size_t len = vect->len;
