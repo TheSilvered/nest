@@ -488,13 +488,13 @@ all the keys, but a custom iterator.
 ### Custom iterators
 
 An iterator, in Nest, is a type that contains four functions and a value.
-The four functions are called `:start:`, `:advance:`, `:is_done:` and `:get_val:`.
-`:start:` is called when the loop that uses the iterator starts, should return
+The four functions are called `_start_`, `_advance_`, `_is_done_` and `_get_val_`.
+`_start_` is called when the loop that uses the iterator starts, should return
 `null`.
-`:advance:` is called at the end of each iteration and should return `null`.
-`:is_done:` is called at the start of each iteration and should return `true` or
+`_advance_` is called at the end of each iteration and should return `null`.
+`_is_done_` is called at the start of each iteration and should return `true` or
 `false`.
-`:get_val:` is called after `:is_done:` and should return the value to assign to
+`_get_val_` is called after `_is_done_` and should return the value to assign to
 the variable of the loop.
 
 All of these functions take exactly one argument which is map they belong to.
@@ -502,7 +502,7 @@ All of these functions take exactly one argument which is map they belong to.
 ```
 -- This is a nest implementation of the standard library's 'enumerate' function \
  | Here you can see how the functions should behave \
- | '_self' is the map that is created and casted to Iter, this means that you
+ | '_self' is the map that is created and casted to Iter, this means that you \
  | could access also the function itself: _self.':start:'
 
 #_Enum_start   _self [
@@ -531,10 +531,10 @@ All of these functions take exactly one argument which is map they belong to.
     ]
 
     => Iter :: {
-        ':start:': _Enum_start,
-        ':advance:': _Enum_advance,
-        ':is_done:': _Enum_is_done,
-        ':get_val:': _Enum_get_val,
+        '_start_': _Enum_start,
+        '_advance_': _Enum_advance,
+        '_is_done_': _Enum_is_done,
+        '_get_val_': _Enum_get_val,
         '_seq': obj,
         '_idx': 0
     }
