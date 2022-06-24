@@ -1,0 +1,5 @@
+{
+    "cmd": ["nest", "$file"],
+    "selector": "source.nest",
+    "file_patterns": ["*.nest", "*.nst"]
+}

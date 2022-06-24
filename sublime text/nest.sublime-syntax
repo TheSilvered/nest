@@ -1,0 +1,164 @@
+%YAML 1.2
+---
+name: Nest
+scope: source.nest
+
+file_extensions:
+  - nest
+
+variables:
+  identifier: '[A-Za-z_][A-Za-z_0-9]*'
+  lang_constants: '\b(true|false|null|_cwd_|_args_)\b'
+  lang_types: '\b(Type|Int|Real|Bool|Null|Str|Array|Vector|Map|Func|Iter|Byte|IOfile)\b'
+  lang_keywords: '(\?\.\.|\.\.\?|\.\.\.|\?|~=|\.\.|;)'
+  lang_arith_operators: '(\+|-|\*|/|//|\^|%|><)'
+  lang_logic_operators: '(!=|==|>=|<=|&&|\|\||\|&)'
+  lang_other_operators: '(\$|::|\?::|!|>>>|<<<)'
+  lang_assign_operators: '(\+=|-=|\*=|/=|//=|\^=|%=|><=|=|\|#\|)'
+
+contexts:
+  main:
+    - include: strings
+    - include: comment
+    - include: keywords
+    - include: soft-keywords
+    - include: func-def
+    - include: func-call
+    - include: builtins
+    - include: values
+    - include: general
+
+  strings:
+    - match: '"'
+      scope: punctuation.definition.string.begin.nest
+      push: string_double
+
+    - match: "'"
+      scope: punctuation.definition.string.begin.nest
+      push: string_single
+
+  values:
+    - match: '(<\{|{)'
+      push: arr-obj-vect
+
+    - match: '{{identifier}}'
+      scope: variable.other.nest
+
+    - match: '\d+(\.\d+)?'
+      scope: constant.numeric.nest
+
+  comment:
+    - match: '(-->|--+)'
+      scope: comment.line.nest
+      push: comment_end
+
+  keywords:
+    - match: =>
+      scope: keyword.control.nest
+
+    - include: operators
+
+    - match: '{{lang_keywords}}'
+      scope: keyword.control.nest
+
+    - match: \.
+      scope: punctuation.accessor.nest
+
+  soft-keywords:
+    - match: ':'
+      scope: keyword.control.nest
+
+  operators:
+    - match: ->
+      scope: keyword.operator.nest
+
+    - match: '{{lang_logic_operators}}'
+      scope: keyword.operator.logical.nest
+
+    - match: '{{lang_assign_operators}}'
+      scope: keyword.operator.assignment.nest
+
+    - match: '{{lang_arith_operators}}'
+      scope: keyword.operator.arithmetic.nest
+
+    - match: '{{lang_other_operators}}'
+      scope: keyword.operator.nest
+
+    - match: '(<(?!\{)|(?<!\})>)'
+      scope: keyword.operator.logical.nest
+
+  func-call:
+    - match: '@'
+      scope: keyword.operator.nest
+
+    - match: '(?<=@)\s*{{identifier}}((\s*\.)\s*{{identifier}})*'
+      scope: variable.function.nest
+      captures:
+        2: punctuation.accessor.nest
+
+  general:
+    - match: ']'
+      scope: punctuation.section.block.end.nest
+
+  builtins:
+    - match: '{{lang_constants}}'
+      scope: constant.language.nest
+
+    - match: '{{lang_types}}'
+      scope: support.type.nest
+
+  func-def:
+    - match: '#\s*({{identifier}})'
+      scope: keyword.declaration.function.nest
+      captures:
+        1: entity.name.function.nest
+      push: func-args
+
+  string_double:
+    - meta_scope: string.quoted.double
+    - match: '\\[abfnrtv\\"'']'
+      scope: constant.character.escape.nest
+    - match: '\\[^abfnrtv\\"'']'
+      scope: invalid.illegal.nest
+    - match: '(?<=[^\\]")_(start|advance|is_done|get_val)_(?=")'
+      scope: constant.character.escape.nest
+    - match: '"'
+      scope: punctuation.definition.string.end.nest
+      pop: true
+
+  string_single:
+    - meta_scope: string.quoted.double
+    - match: '\\[abfnrtv\\"'']'
+      scope: constant.character.escape.nest
+    - match: '\\[^abfnrtv\\"'']'
+      scope: invalid.illegal.nest
+    - match: '(?<=[^\\]'')_(start|advance|is_done|get_val)_(?='')'
+      scope: constant.character.escape.nest
+    - match: '(''|$)'
+      scope: punctuation.definition.string.end.nest
+      pop: true
+
+  comment_end:
+    - meta_scope: comment.line.nest
+    - match: (?<!\\)\n
+      pop: true
+
+  func-args:
+    - meta_scope: variable.parameter.nest
+    - match: '(\[|$)'
+      scope: punctuation.section.block.begin.nest
+      pop: true
+
+  arr-obj-vect:
+    - include: strings
+    - include: comment
+    - include: operators
+    - include: func-call
+    - include: builtins
+    - include: values
+
+    - match: '[,:]'
+      scope: punctuation.separator.nest
+
+    - match: '(\}|\}>)'
+      pop: true
