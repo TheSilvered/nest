@@ -1,14 +1,11 @@
 |#| "stdrand.nest" = rand
 
 #randomize_table t [
-    int :: <<< 'Seed: ' = seed
-
     3 = x
     3 = y
 
     ... 200 [
-        seed @rand = seed
-        seed 4 % = move
+        0 4 @rand.rand_int = move
         t move x y @swap_tiles = new_coords
         new_coords.0 = x
         new_coords.1 = y
@@ -45,10 +42,9 @@
 ]
 
 #print_table t [
-    ... 0 -> $t ~= i [
+    ... Iter :: t ~= row [
         >>> '+----+----+----+----+\n'
-        ... 0 -> $t.(i) ~= j [
-            t.(i).(j) = val
+        ... Iter :: row ~= val [
             >>> '| '
 
             val 0 == ? >>> '  '
@@ -64,17 +60,17 @@
 
 #make_moves str t x y [
     -- 1 - removes the new line
-    ... 0 -> $str ~= i [
-        str.(i) 's' == ?
+    ... Iter :: str ~= ch [
+        ch 's' == ?
             t 0 x y @swap_tiles = new_coords
-        : str.(i) 'w' == ?
+        : ch 'w' == ?
             t 1 x y @swap_tiles = new_coords
-        : str.(i) 'd' == ?
+        : ch 'd' == ?
             t 2 x y @swap_tiles = new_coords
-        : str.(i) 'a' == ?
+        : ch 'a' == ?
             t 3 x y @swap_tiles = new_coords
         : [
-            >>> ('Invalid move \"' str.(i) '\"\n' ><)
+            >>> ('Invalid move \"' ch '\"\n' ><)
             ..
         ]
         new_coords.0 = x
@@ -84,10 +80,10 @@
 ]
 
 {
-    <{ 1, 2, 3, 4 }>,
-    <{ 5, 6, 7, 8 }>,
-    <{ 9,10,11,12 }>,
-    <{13,14,15, 0 }>
+    { 1, 2, 3, 4 },
+    { 5, 6, 7, 8 },
+    { 9,10,11,12 },
+    {13,14,15, 0 }
 } = table
 
 {

@@ -8,7 +8,7 @@
 #include "llist.h"
 #include "tokens.h"
 
-#define VERSION "beta-0.1.0"
+#define VERSION "beta-0.1.1"
 
 int main(int argc, char **argv)
 {
