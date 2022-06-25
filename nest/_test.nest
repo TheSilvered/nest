@@ -1,169 +1,112 @@
-|#| "..\\nest_libs\\nest_io\\stdio.nest" = io
-|#| "..\\nest_libs\\nest_fs\\stdfs.nest" = fs
-|#| "..\\nest_libs\\nest_string\\stdsutil.nest" = su
+|#| "stdrand.nest" = rand
 
-#copy_file src dst [
-    src "r" @io.open = src_f
-    src_f null == ? => false
-    src_f -1 @io.read = content
-    src_f @io.close
+#randomize_table t [
+    int :: <<< 'Seed: ' = seed
 
-    dst "w" @io.open = dst_f
-    dst_f content @io.write
-    dst_f @io.close
-    => true
+    3 = x
+    3 = y
+
+    ... 200 [
+        seed @rand = seed
+        seed 4 % = move
+        t move x y @swap_tiles = new_coords
+        new_coords.0 = x
+        new_coords.1 = y
+    ]
+    => { x, y }
 ]
 
--- not all source files, only the ones that can be used
-{
-    "error.h",
-    "function.h",
-    "hash.h",
-    "iter.h",
-    "lib_import.h",
-    "llist.h",
-    "map.h",
-    "nest_include.h",
-    "nodes.h",
-    "nst_types.h",
-    "obj.h",
-    "obj_ops.h",
-    "sequence.h",
-    "simple_types.h",
-    "str.h",
-    "tokens.h",
-    "var_table.h",
-    "error.c",
-    "function.c",
-    "hash.c",
-    "iter.c",
-    "lib_import.c",
-    "llist.c",
-    "map.c",
-    "nodes.c",
-    "obj.c",
-    "obj_ops.c",
-    "sequence.c",
-    "simple_types.c",
-    "str.c",
-    "tokens.c",
-    "var_table.c"
-} = nest_source_files
-
-#main [
-    { "_test.nest", "update", "..\\nest_libs\\nest_fs\\nest_fs" } = _args_
-    ($_args_ 3 !=) ($_args_ 4 !=) && ? [
-        >>> "USAGE: nest .\\make_clib_files.py (new LIBRARY_NAME|update) LOCATION\n"
-        => 1
+#swap_tiles t move x y [
+    move 0 == ? [
+        y 0 == ? => { x, y }
+        t.(y 1 -).(x) = t.(y).(x)
+        0 = t.(y 1 -).(x)
+        1 -= y
     ]
-
-    _args_.1 = operation
-    ($_args_ 4 == ? _args_.2 : null) = project_name
-    _args_.($_args_ 4 == ? 3 : 2) = location
-
-    (operation "new" !=) (operation "update" !=) && ? [
-        >>> ("The given operation (\""operation"\") is not valid\n" ><)
-        => 1
+    : move 1 == ? [
+        y 3 == ? => { x, y }
+        t.(y 1 +).(x) = t.(y).(x)
+        0 = t.(y 1 +).(x)
+        1 += y
     ]
-
-    !(location @fs.isdir) ? [
-        >>> ("The given path (\""location"\") doesn't exist\n" ><)
-        => 2
+    : move 2 == ? [
+        x 0 == ? => { x, y }
+        t.(y).(x 1 -) = t.(y).(x)
+        0 = t.(y).(x 1 -)
+        1 -= x
     ]
-
-    location"\\nest_source" >< @fs.mkdir
-
-    ... Iter :: nest_source_files ~= file_name [
-        "..\\nest\\"file_name >< "r" @io.open = src_f
-        src_f -1 @io.read = content
-        src_f @io.close
-
-        location"\\nest_source\\"file_name >< "w" @io.open = dst_f
-        dst_f content @io.write
-        dst_f @io.close
+    : [
+        x 3 == ? => { x, y }
+        t.(y).(x 1 +) = t.(y).(x)
+        0 = t.(y).(x 1 +)
+        1 += x
     ]
-
-    operation "update" == ? => 0
-
-    project_name " " "_" @su.replace_substr = project_name_c
-
-    !(project_name_c (su.LETTERS su.DIGITS "_" ><) @su.is_charset) ? [
-        >>> ("The given name (\""project_name"\") is not valid\n" ><)
-        => 3
-    ]
-
-    project_name_c @su.to_upper = upper_project_name
-
-    location"\\"project_name".h" >< "w" @io.open = header_file
-    header_file ("#ifndef "upper_project_name"_H
-#define "upper_project_name"_H
-
-#include \"nest_source/nest_include.h\"
-
-#ifdef "(upper_project_name "_" "" @su.replace_substr)"_EXPORTS
-#define "upper_project_name"_API __declspec(dllexport)
-#else
-#define "upper_project_name"_API __declspec(dllimport)
-#endif
-
-#ifdef __cplusplus
-extern \"C\" {
-#endif // !__cplusplus
-
-"upper_project_name"_API bool lib_init();
-"upper_project_name"_API FuncDeclr *get_func_ptrs();
-"upper_project_name"_API INIT_LIB_OBJ_FUNC;
-
-// Here you can put your function signatures
-// They must always be `Nst_Obj *func_name(size_t arg_num, Nst_Obj **args, OpErr *err);`
-// replace func_name with your function's name
-
-// To compile remove precompiled headers in Project->Properties->C/C++->
-// ->Precompiled headers and set \"Precompiled header\" to \"Not Using Precompiled
-// Headers\"
-
-#ifdef __cplusplus
-}
-#endif // !__cplusplus
-
-#endif // !"upper_project_name"_H" ><) @io.write
-    header_file @io.close
-
-    location"\\"project_name".cpp" >< "w" @io.open = source_file
-    source_file ("#include \""project_name".h\"
-
-#define FUNC_COUNT // Set this to the number of functions in your module
-
-static FuncDeclr *func_list_;
-static bool lib_init_ = false;
-
-bool lib_init()
-{
-    if ( (func_list_ = new_func_list(FUNC_COUNT)) == nullptr )
-        return false;
-
-    size_t idx = 0;
-
-    // Set each function to an index in func_list_
-    // func_list_[idx++] = {
-    //     func_ptr, -> the function pointer
-    //     1, -> the number of arguments the function takes
-    //     new_string_raw(\"func_name\", false) -> the string containing the name
-    // }                                           of the funtion inside Nest
-
-    lib_init_ = true;
-    return true;
-}
-
-FuncDeclr *get_func_ptrs()
-{
-    return lib_init_ ? func_list_ : nullptr;
-}
-
-// Here you can put the implementations of your functions" ><) @io.write
-    source_file @io.close
-
-    => 0
+    => { x, y }
 ]
 
-@main
+#print_table t [
+    ... 0 -> $t ~= i [
+        >>> '+----+----+----+----+\n'
+        ... 0 -> $t.(i) ~= j [
+            t.(i).(j) = val
+            >>> '| '
+
+            val 0 == ? >>> '  '
+            : val 10 < ? >>> (0 val ><)
+            : >>> val
+
+            >>> ' '
+        ]
+        >>> '|\n'
+    ]
+    >>> '+----+----+----+----+\n'
+]
+
+#make_moves str t x y [
+    -- 1 - removes the new line
+    ... 0 -> $str ~= i [
+        str.(i) 's' == ?
+            t 0 x y @swap_tiles = new_coords
+        : str.(i) 'w' == ?
+            t 1 x y @swap_tiles = new_coords
+        : str.(i) 'd' == ?
+            t 2 x y @swap_tiles = new_coords
+        : str.(i) 'a' == ?
+            t 3 x y @swap_tiles = new_coords
+        : [
+            >>> ('Invalid move \"' str.(i) '\"\n' ><)
+            ..
+        ]
+        new_coords.0 = x
+        new_coords.1 = y
+    ]
+    => { x, y }
+]
+
+{
+    <{ 1, 2, 3, 4 }>,
+    <{ 5, 6, 7, 8 }>,
+    <{ 9,10,11,12 }>,
+    <{13,14,15, 0 }>
+} = table
+
+{
+    { 1, 2, 3, 4 },
+    { 5, 6, 7, 8 },
+    { 9,10,11,12 },
+    {13,14,15, 0 }
+} = win_table
+
+table @randomize_table = coords
+
+..? table win_table != [
+    table @print_table
+    <<< "> " = moves
+    moves 'exit' == ? ;
+    moves table coords.0 coords.1 @make_moves = coords
+]
+
+table win_table == ? [
+    table @print_table
+    >>> "You win!\n"
+]

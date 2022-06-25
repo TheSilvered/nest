@@ -18,6 +18,6 @@
      Creazione della libreria E:\C++\nest\nest_libs\nest_fs\x64\Release\nest_fs.lib e dell'oggetto E:\C++\nest\nest_libs\nest_fs\x64\Release\nest_fs.exp
   Generazione codice in corso...
   Previous IPDB not found, fall back to full compilation.
-  Generazione codice terminata
   All 34 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  Generazione codice terminata
   nest_fs.vcxproj -> E:\C++\nest\nest_libs\nest_fs\x64\Release\nest_fs.dll

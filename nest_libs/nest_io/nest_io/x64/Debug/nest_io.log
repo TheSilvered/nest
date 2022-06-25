@@ -1,4 +1,6 @@
-﻿  nest_io.cpp
+﻿  dllmain.cpp
+  nest_io.cpp
+  Generazione del codice in corso...
   error.c
   function.c
   hash.c
@@ -15,4 +17,5 @@
   tokens.c
   var_table.c
   Generazione del codice in corso...
+     Creazione della libreria E:\C++\nest\nest_libs\nest_io\x64\Debug\nest_io.lib e dell'oggetto E:\C++\nest\nest_libs\nest_io\x64\Debug\nest_io.exp
   nest_io.vcxproj -> E:\C++\nest\nest_libs\nest_io\x64\Debug\nest_io.dll

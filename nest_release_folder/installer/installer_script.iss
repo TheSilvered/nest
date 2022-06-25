@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "nest"
-#define MyAppVersion "0.1.0"
+#define MyAppVersion "0.1.1"
 #define MyAppPublisher "Davide Taffarello"
 #define MyAppExeName "nest.exe"
 #define MyAppAssocName "Nest File"
@@ -27,7 +27,7 @@ LicenseFile=E:\C++\nest\LICENSE.txt
 PrivilegesRequired=lowest
 PrivilegesRequiredOverridesAllowed=dialog
 OutputDir=E:\C++\nest\nest_release_folder\installer
-OutputBaseFilename=nest-0.1.0-x64-installer
+OutputBaseFilename=nest-{#MyAppVersion}-x64-installer
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern

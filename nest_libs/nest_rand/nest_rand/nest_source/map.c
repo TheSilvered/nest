@@ -17,13 +17,13 @@ static void set_clean(Nst_map *map, int32_t hash, Nst_Obj *key, Nst_Obj *value)
     register int32_t i = hash & mask;
     register MapNode curr_node = nodes[i];
 
-    for ( int32_t perturb = hash;
+    for ( size_t perturb = (size_t)hash;
         curr_node.key != NULL && curr_node.key != key;
         perturb >>= 5 )
     {
         if ( curr_node.hash == hash && AS_BOOL(obj_eq(key, curr_node.key, NULL)) )
             break;
-        i = (i * 5) + 1 + perturb;
+        i = (int32_t)((i * 5) + 1 + perturb);
         curr_node = nodes[i & mask];
     }
 
@@ -97,17 +97,17 @@ bool map_set(Nst_map *map, Nst_Obj *key, Nst_Obj *value)
 
     register size_t mask = map->mask;
     register MapNode *nodes = map->nodes;
-    register int32_t i = hash & mask;
+    register size_t i = hash & mask;
     register MapNode curr_node = nodes[i];
     register size_t map_size = map->size;
 
-    for ( int32_t perturb = hash;
+    for ( size_t perturb = (size_t)hash;
           curr_node.key != NULL && curr_node.key != key;
           perturb >>= 5 )
     {
         if ( curr_node.hash == hash && AS_BOOL(obj_eq(key, curr_node.key, NULL)) )
             break;
-        i = (i * 5) + 1 + perturb;
+        i = (int32_t)((i * 5) + 1 + perturb);
         curr_node = nodes[i & mask];
     }
 
@@ -155,9 +155,9 @@ Nst_Obj *map_get(Nst_map *map, Nst_Obj *key)
         return curr_node.value;
     }
 
-    for ( int32_t perturb = hash; ; perturb >>= 5 )
+    for ( size_t perturb = (size_t)hash; ; perturb >>= 5 )
     {
-        i = (i * 5) + 1 + perturb;
+        i = (int32_t)((i * 5) + 1 + perturb);
         curr_node = nodes[i & mask];
 
         if ( curr_node.key == NULL )

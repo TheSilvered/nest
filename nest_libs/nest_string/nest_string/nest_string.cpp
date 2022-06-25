@@ -22,8 +22,8 @@ bool lib_init()
     func_list_[idx++] = MAKE_FUNCDECLR(trim, 1);
     func_list_[idx++] = MAKE_FUNCDECLR(ltrim, 1);
     func_list_[idx++] = MAKE_FUNCDECLR(rtrim, 1);
-    func_list_[idx++] = MAKE_FUNCDECLR(ljust, 2);
-    func_list_[idx++] = MAKE_FUNCDECLR(rjust, 2);
+    func_list_[idx++] = MAKE_FUNCDECLR(ljust, 3);
+    func_list_[idx++] = MAKE_FUNCDECLR(rjust, 3);
     func_list_[idx++] = MAKE_FUNCDECLR(to_upper, 1);
     func_list_[idx++] = MAKE_FUNCDECLR(to_lower, 1);
     func_list_[idx++] = MAKE_FUNCDECLR(is_upper, 1);
@@ -201,8 +201,9 @@ Nst_Obj *ljust(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_string *str;
     Nst_int just_len;
+    Nst_string *just_char;
 
-    if ( !extract_arg_values("si", arg_num, args, err, &str, &just_len) )
+    if ( !extract_arg_values("sis", arg_num, args, err, &str, &just_len, &just_char) )
         return nullptr;
 
     size_t len = str->len;
@@ -213,9 +214,16 @@ Nst_Obj *ljust(size_t arg_num, Nst_Obj **args, OpErr *err)
         return args[0];
     }
 
+    if ( just_char->len != 1 )
+    {
+        err->name = (char *)"Value Error";
+        err->message = (char *)"filling string must be one character long";
+        return NULL;
+    }
+
     char *new_str = new char[just_len + 1];
     memcpy(new_str, str->value, len);
-    memset(new_str + len, ' ', just_len - len);
+    memset(new_str + len, *(just_char->value), just_len - len);
     new_str[just_len] = 0;
 
     return new_str_obj(new_string(new_str, just_len, true));
@@ -225,8 +233,9 @@ Nst_Obj *rjust(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_string *str;
     Nst_int just_len;
+    Nst_string *just_char;
 
-    if ( !extract_arg_values("si", arg_num, args, err, &str, &just_len) )
+    if ( !extract_arg_values("si", arg_num, args, err, &str, &just_len, &just_char) )
         return nullptr;
 
     size_t len = str->len;
@@ -237,8 +246,15 @@ Nst_Obj *rjust(size_t arg_num, Nst_Obj **args, OpErr *err)
         return args[0];
     }
 
+    if ( just_char->len != 1 )
+    {
+        err->name = (char *)"Value Error";
+        err->message = (char *)"filling string must be one character long";
+        return NULL;
+    }
+
     char *new_str = new char[just_len + 1];
-    memset(new_str, ' ', just_len - len);
+    memset(new_str, *(just_char->value), just_len - len);
     memcpy(new_str + (just_len - len), str->value, len);
     new_str[just_len] = 0;
 
