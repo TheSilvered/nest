@@ -100,7 +100,7 @@ Nst_Obj *shuffle(size_t arg_num, Nst_Obj **args, OpErr *err)
     size_t seq_len = seq->len;
     Nst_Obj **objs = seq->objs;
 
-    for ( size_t i = 0; i - 1 < seq_len; i++ )
+    for ( size_t i = 0; i + 1 < seq_len; i++ )
     {
         size_t idx = size_t(rand_range(i + 1, seq_len));
         Nst_Obj *obj = seq->objs[i];

@@ -24,3 +24,4 @@ __s.bytearray_to_str = bytearray_to_str
 "abcdefghijklmnopqrstuvwxyz" = LOWERCASE_LETTERS
 "ABCDEFGHIJKLMNOPQRSTUVWXYZ" = UPPERCASE_LETTERS
 " !\"#$%&'()*+,-/0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~" = PRINTABLE
+"!\"#$%&'()*+,-/:;<=>?@[\\]^_`{|}~" = PUNCTUATION

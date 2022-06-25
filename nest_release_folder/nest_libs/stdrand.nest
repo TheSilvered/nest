@@ -1,6 +1,6 @@
 |#| "__C__:stdrand.dll" = __rand
 
-__rand.rand = random
+__rand.random = random
 __rand.rand_int = rand_int
 __rand.rand_perc = rand_perc
 __rand.choice = choice

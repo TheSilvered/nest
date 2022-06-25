@@ -235,7 +235,7 @@ Nst_Obj *rjust(size_t arg_num, Nst_Obj **args, OpErr *err)
     Nst_int just_len;
     Nst_string *just_char;
 
-    if ( !extract_arg_values("si", arg_num, args, err, &str, &just_len, &just_char) )
+    if ( !extract_arg_values("sis", arg_num, args, err, &str, &just_len, &just_char) )
         return nullptr;
 
     size_t len = str->len;
