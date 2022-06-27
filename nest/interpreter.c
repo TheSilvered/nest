@@ -45,6 +45,32 @@
     Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *, \
     Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *
 
+#define exe_node(node, vt) do { \
+    switch ( node->type ) \
+    { \
+    case LONG_S:         exe_long_s(node, vt); break; \
+    case WHILE_L:        exe_while_l(node, vt); break; \
+    case DOWHILE_L:      exe_dowhile_l(node, vt); break; \
+    case FOR_L:          exe_for_l(node, vt); break; \
+    case FOR_AS_L:       exe_for_as_l(node, vt); break; \
+    case IF_E:           exe_if_e(node, vt); break; \
+    case FUNC_DECLR:     exe_func_declr(node, vt); break; \
+    case RETURN_S:       exe_return_s(node, vt); break; \
+    case STACK_OP:       exe_stack_op(node, vt); break; \
+    case LOCAL_STACK_OP: exe_local_stack_op(node, vt); break; \
+    case LOCAL_OP:       exe_local_op(node, vt); break; \
+    case ARR_LIT:        exe_arr_lit(node, vt); break; \
+    case VECT_LIT:       exe_vect_lit(node, vt); break; \
+    case MAP_LIT:        exe_map_lit(node, vt); break; \
+    case VALUE:          exe_value(node, vt); break; \
+    case ACCESS:         exe_access(node, vt); break; \
+    case EXTRACT_E:      exe_extract_e(node, vt); break; \
+    case ASSIGN_E:       exe_assign_e(node, vt); break; \
+    case CONTINUE_S:     exe_continue_s(node, vt); break; \
+    case BREAK_S:        exe_break_s(node, vt); break; \
+    } \
+    } while (0)
+
 #define HEAD_NODE(node) (NODE(node->nodes->head->value))
 #define TAIL_NODE(node) (NODE(node->nodes->tail->value))
 #define HEAD_TOK(node) (TOK(node->tokens->head->value))
@@ -58,15 +84,30 @@ typedef struct ExecutionState
     bool must_return;
     bool must_continue;
     bool must_break;
-    LList *loaded_libs;
     Nst_string *curr_path;
-    Nst_Obj *argv;
+    LList *loaded_libs;
+    LList *lib_paths;
+    LList *lib_handles;
 }
 ExecutionState;
 
+typedef union LibHandleVal
+{
+    Node *ast;
+    HMODULE dll;
+}
+LibHandleVal;
+
+typedef struct LibHandle
+{
+    LibHandleVal *val;
+    char *path;
+}
+LibHandle;
+
 static ExecutionState state;
 
-static inline void exe_node(Node *node, VarTable *vt);
+//static inline void exe_node(Node *node, VarTable *vt);
 static void exe_long_s(Node *node, VarTable *vt);
 static void exe_while_l(Node *node, VarTable *vt);
 static void exe_dowhile_l(Node *node, VarTable *vt);
@@ -92,28 +133,74 @@ static void call_func(Node *node, Nst_func *func, VarTable *vt, Nst_Obj **args);
 static Nst_Obj *import_lib(Nst_Obj *ob, OpErr *err);
 
 static inline bool safe_exe(Node *node, VarTable *vt);
+static size_t get_full_path(char *file_path, char **buf, char **file_part)
+{
+    char *path = malloc(sizeof(char) * MAX_PATH);
+    if ( path == NULL )
+        return 0;
+    
+    DWORD path_len = GetFullPathNameA(file_path, MAX_PATH, path, file_part);
+    if ( path_len > MAX_PATH )
+    {
+        free(path);
+        path = malloc(sizeof(char) * path_len);
+        if ( path == NULL )
+            return 0;
+        path_len = GetFullPathNameA(file_path, path_len, path, file_part);
+    }
+
+    *buf = path; // shrinking always succeedes
+    return path_len;
+}
+
+static Nst_string *make_cwd(char *file_path)
+{
+    char *path = NULL;
+    char *file_part = NULL;
+    
+    get_full_path(file_path, &path, &file_part);
+
+    *file_part = 0;
+
+    return new_string(path, file_part - path, true);
+}
+
+static bool check_same_file(char *p1, char *p2)
+{
+    HANDLE f1 = CreateFileA(p1, GENERIC_READ, FILE_SHARE_READ, NULL,
+                            OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+    if ( f1 == INVALID_HANDLE_VALUE )
+        return false;
+    HANDLE f2 = CreateFileA(p2, GENERIC_READ, FILE_SHARE_READ, NULL,
+                            OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+
+    if ( f2 == INVALID_HANDLE_VALUE )
+    {
+        CloseHandle(f1);
+        return false;
+    }
+
+    BY_HANDLE_FILE_INFORMATION info1;
+    BY_HANDLE_FILE_INFORMATION info2;
+
+    bool are_equal = GetFileInformationByHandle(f1, &info1) &&
+                     GetFileInformationByHandle(f2, &info2) &&
+                     info1.dwVolumeSerialNumber == info2.dwVolumeSerialNumber &&
+                     info1.nFileIndexLow == info2.nFileIndexLow &&
+                     info1.nFileIndexHigh == info2.nFileIndexHigh;
+
+    CloseHandle(f1);
+    CloseHandle(f2);
+
+    return are_equal;
+}
 
 void run(Node *node, int argc, char **argv)
 {
     if ( node == NULL )
         return;
 
-    size_t path_len = strlen(node->start.filename);
-    char *path = malloc(sizeof(char) * (path_len + 1));
-    if ( path == NULL )
-        return;
-
-    strcpy(path, node->start.filename);
-
-    for ( char *i = path + path_len - 1; i - path + 1; i-- )
-    {
-        if ( *i == '/' || *i == '\\' )
-            break;
-        *i = 0;
-        --path_len;
-    }
-
-    Nst_string *path_str = new_string(path, path_len, true);
+    Nst_string *path_str = make_cwd(node->start.filename);
     VarTable *vt = new_var_table(NULL, path_str);
     Nst_Traceback tb = { NULL, LList_new() };
 
@@ -123,11 +210,14 @@ void run(Node *node, int argc, char **argv)
     state.must_return = false;
     state.must_continue = false;
     state.must_break = false;
-    state.loaded_libs = LList_new();
     state.curr_path = path_str;
-    state.argv = set_argv(vt, argc, argv);
+    state.loaded_libs = LList_new();
+    state.lib_paths = LList_new();
+    state.lib_handles = LList_new();
+    set_argv(vt, argc, argv);
 
     inc_ref(nst_null);
+    LList_append(state.lib_paths, node->start.filename, false);
 
     exe_node(node, vt);
 
@@ -138,78 +228,59 @@ void run(Node *node, int argc, char **argv)
     free(vt);
     dec_ref(state.value);
     LList_destroy(state.loaded_libs, FreeLibrary);
+    LList_destroy(state.lib_paths, free);
+    LList_destroy(state.lib_handles, free);
 }
 
 Nst_map *run_module(char *file_name)
 {
     Nst_string *prev_path = state.curr_path;
 
-    size_t new_path_len = strlen(file_name);
-    char *new_path = malloc(sizeof(char) * (new_path_len + 1));
-    if ( new_path == NULL )
-        return NULL;
-
-    strcpy(new_path, file_name);
-
-    for ( char *i = new_path + new_path_len - 1; i - new_path + 1; i-- )
-    {
-        if ( *i == '/' || *i == '\\' )
-            break;
-        *i = 0;
-        --new_path_len;
-    }
-
-    Nst_string *path_str = new_string(new_path, new_path_len, true);
+    Nst_string *path_str = make_cwd(file_name);
     state.curr_path = path_str;
 
-    Node *module_ast = parse(ftokenize(file_name));
+    Node *module_ast = NULL;
+    bool found_ast = false;
+
+    for ( LLNode *n = state.lib_handles->head; n != NULL; n = n->next )
+    {
+        LibHandle *handle = (LibHandle *)(n->value);
+        if ( strcmp(handle->path, file_name) == 0 )
+        {
+            found_ast = true;
+            module_ast = (handle->val)->ast;
+            break;
+        }
+    }
+
+    if ( !found_ast )
+        module_ast = parse(ftokenize(file_name));
 
     if ( module_ast == NULL )
         return NULL;
 
-    SET_NULL;
     VarTable *vt = new_var_table(NULL, path_str);
-    Nst_Obj *argv_key = new_str_obj(new_string("_args_", 6, false));
-    set_val(vt, argv_key, state.argv);
-    dec_ref(argv_key);
 
+    Nst_sequence *seq = new_array_empty(1);
+    seq->objs[0] = new_str_obj(new_string_raw(file_name, true));
+    Nst_Obj *arr = new_arr_obj(seq);
+
+    map_set_str(vt->vars, "_args_", arr);
+    dec_ref(arr);
+    LList_append(state.lib_paths, path_str, false);
+
+    SET_NULL;
     exe_node(module_ast, vt);
 
     if ( state.error_occurred )
         return NULL;
 
+    LList_pop(state.lib_paths);
+
     Nst_map *var_map = vt->vars;
     free(vt);
     state.curr_path = prev_path;
     return var_map;
-}
-
-static inline void exe_node(Node *node, VarTable *vt)
-{
-    switch ( node->type )
-    {
-    case LONG_S:         exe_long_s        (node, vt); break;
-    case WHILE_L:        exe_while_l       (node, vt); break;
-    case DOWHILE_L:      exe_dowhile_l     (node, vt); break;
-    case FOR_L:          exe_for_l         (node, vt); break;
-    case FOR_AS_L:       exe_for_as_l      (node, vt); break;
-    case IF_E:           exe_if_e          (node, vt); break;
-    case FUNC_DECLR:     exe_func_declr    (node, vt); break;
-    case RETURN_S:       exe_return_s      (node, vt); break;
-    case STACK_OP:       exe_stack_op      (node, vt); break;
-    case LOCAL_STACK_OP: exe_local_stack_op(node, vt); break;
-    case LOCAL_OP:       exe_local_op      (node, vt); break;
-    case ARR_LIT:        exe_arr_lit       (node, vt); break;
-    case VECT_LIT:       exe_vect_lit      (node, vt); break;
-    case MAP_LIT:        exe_map_lit       (node, vt); break;
-    case VALUE:          exe_value         (node, vt); break;
-    case ACCESS:         exe_access        (node, vt); break;
-    case EXTRACT_E:      exe_extract_e     (node, vt); break;
-    case ASSIGN_E:       exe_assign_e      (node, vt); break;
-    case CONTINUE_S:     exe_continue_s    (node, vt); break;
-    case BREAK_S:        exe_break_s       (node, vt); break;
-    default: return;
-    }
 }
 
 static inline bool safe_exe(Node *node, VarTable *vt)
@@ -1321,10 +1392,28 @@ static Nst_Obj *import_lib(Nst_Obj *ob, OpErr *err)
         {
             err->name = "Value Error";
             err->message = original_path;
+            free(file_path);
+            return NULL;
+        }
+
+        free(original_path);
+    }
+    fclose(file);
+
+    char *full_path = NULL;
+    get_full_path(file_path, &full_path, NULL);
+    free(file_path);
+    file_path = full_path;
+
+    for ( LLNode *n = state.lib_paths->head; n != NULL; n = n->next )
+    {
+        if ( strcmp(file_path, (const char *)(n->value)) == 0 )
+        {
+            err->name = "Import Error";
+            err->message = "circular import";
             return NULL;
         }
     }
-    fclose(file);
 
     if ( !c_import )
     {
@@ -1339,27 +1428,44 @@ static Nst_Obj *import_lib(Nst_Obj *ob, OpErr *err)
         return make_obj(map, nst_t_map, destroy_map);
     }
 
-    HMODULE lib = LoadLibraryA(file_path);
+    bool lib_found = false;
+    HMODULE lib = NULL;
 
-    if ( !lib )
+    for ( LLNode *n = state.lib_handles->head; n != NULL; n = n->next )
     {
-        err->name = "Import Error";
-        err->message = FILE_NOT_DLL;
-        return NULL;
+        LibHandle *handle = (LibHandle *)(n->value);
+        if ( strcmp(handle->path, file_path) == 0 )
+        {
+            lib_found = true;
+            lib = (handle->val)->dll;
+            break;
+        }
     }
 
-    bool (*lib_init)() = (bool (*)())GetProcAddress(lib, "lib_init");
-    if ( lib_init == NULL )
+    if ( !lib_found )
     {
-        err->name = "Import Error";
-        err->message = NO_LIB_INIT;
-        return NULL;
-    }
+        lib = LoadLibraryA(file_path);
 
-    if ( !lib_init() )
-    {
-        errno = ENOMEM;
-        return NULL;
+        if ( !lib )
+        {
+            err->name = "Import Error";
+            err->message = FILE_NOT_DLL;
+            return NULL;
+        }
+
+        bool (*lib_init)() = (bool (*)())GetProcAddress(lib, "lib_init");
+        if ( lib_init == NULL )
+        {
+            err->name = "Import Error";
+            err->message = NO_LIB_INIT;
+            return NULL;
+        }
+
+        if ( !lib_init() )
+        {
+            errno = ENOMEM;
+            return NULL;
+        }
     }
 
     FuncDeclr *(*get_func_ptrs)() = (FuncDeclr *(*)())GetProcAddress(lib, "get_func_ptrs");
@@ -1409,6 +1515,23 @@ static Nst_Obj *import_lib(Nst_Obj *ob, OpErr *err)
                       nst_t_map,  nst_t_func, nst_t_iter, nst_t_byte,
                       nst_t_file, nst_true,   nst_false,  nst_null);
 
-    LList_append(state.loaded_libs, lib, false);
+    if ( !lib_found )
+    {
+        LList_append(state.loaded_libs, lib, false);
+        
+        LibHandleVal *val = malloc(sizeof(LibHandleVal));
+        LibHandle *handle = malloc(sizeof(LibHandle));
+        if ( handle == NULL || val == NULL )
+        {
+            errno = ENOMEM;
+            return NULL;
+        }
+
+        val->dll = lib;
+        handle->val = val;
+        handle->path = file_path;
+
+        LList_append(state.lib_handles, handle, true);
+    }
     return make_obj(func_map, nst_t_map, destroy_map);
 }

@@ -18,6 +18,6 @@
   sequence.c
   Generazione codice in corso...
   Previous IPDB not found, fall back to full compilation.
-  All 179 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
+  All 181 functions were compiled because no usable IPDB/IOBJ from previous compilation was found.
   Generazione codice terminata
   nest.vcxproj -> E:\C++\nest\x64\Release\nest.exe

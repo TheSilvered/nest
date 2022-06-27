@@ -39,7 +39,7 @@ bool lib_init()
     func_list_[idx++] = MAKE_FUNCDECLR(_get_rand_max, 0);
 
     srand(unsigned int(
-        duration_cast<milliseconds>(
+        duration_cast<nanoseconds>(
             system_clock::now().time_since_epoch()
         ).count())
     );
@@ -84,7 +84,7 @@ Nst_Obj *choice(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_sequence *seq;
 
-    if ( !extract_arg_values("a", arg_num, args, err, &seq) )
+    if ( !extract_arg_values("A", arg_num, args, err, &seq) )
         return nullptr;
 
     return get_value_seq(seq, rand() % seq->len);
@@ -94,7 +94,7 @@ Nst_Obj *shuffle(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_sequence *seq;
 
-    if ( !extract_arg_values("a", arg_num, args, err, &seq) )
+    if ( !extract_arg_values("A", arg_num, args, err, &seq) )
         return nullptr;
 
     size_t seq_len = seq->len;

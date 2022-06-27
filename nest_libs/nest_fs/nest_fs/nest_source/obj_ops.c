@@ -889,6 +889,7 @@ Nst_Obj *obj_stdout(Nst_Obj *ob, OpErr *err)
     Nst_Obj *str = obj_cast(ob, nst_t_str, err);
     Nst_string *text = AS_STR(str);
     fwrite(text->value, sizeof(char), text->len, stdout);
+    fflush(stdout);
     dec_ref(str);
     return inc_ref(ob);
 }
@@ -898,6 +899,7 @@ Nst_Obj *obj_stdin(Nst_Obj *ob, OpErr *err)
     ob = obj_cast(ob, nst_t_str, err);
     Nst_string *text = AS_STR(ob);
     printf("%s", text->value);
+    fflush(stdout);
     dec_ref(ob);
 
     char *buffer = malloc(4);

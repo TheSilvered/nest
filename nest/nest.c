@@ -8,10 +8,15 @@
 #include "llist.h"
 #include "tokens.h"
 
-#define VERSION "beta-0.1.1"
+#define VERSION "beta-0.1.2"
 
 int main(int argc, char **argv)
 {
+#ifdef _DEBUG
+    puts("USING DEBUG BUILD");
+    fflush(stdout);
+#endif
+
     if ( argc < 2 )
     {
         printf("USAGE: nest <filename>\n");

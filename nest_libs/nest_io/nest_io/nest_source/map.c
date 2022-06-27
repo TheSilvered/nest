@@ -172,6 +172,21 @@ Nst_Obj *map_get(Nst_map *map, Nst_Obj *key)
     }
 }
 
+void map_set_str(Nst_map *map, const char *key, Nst_Obj *value)
+{
+    Nst_Obj *key_obj = new_str_obj(new_string_raw(key, false));
+    map_set(map, key_obj, value);
+    dec_ref(key_obj);
+}
+
+Nst_Obj *map_get_str(Nst_map *map, const char *key)
+{
+    Nst_Obj *key_obj = new_str_obj(new_string_raw(key, false));
+    Nst_Obj *value = map_get(map, key_obj);
+    dec_ref(key_obj);
+    return value;
+}
+
 void destroy_map(Nst_map *map)
 {
     for ( size_t i = 0; i < map->size; i++ )

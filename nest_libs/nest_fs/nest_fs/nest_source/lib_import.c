@@ -39,10 +39,13 @@ bool extract_arg_values(const char *types,
        't': type
        'i': integer
        'r': real
+       'R': real or integer, always returns a real
        'b': bool
        'n': null
        's': string
-       'a': array or vector
+       'v': vector
+       'a': array
+       'A': array or vector
        'm': map
        'f': func
        'I': iter
@@ -71,6 +74,14 @@ bool extract_arg_values(const char *types,
                 SET_TYPE_ERROR("Real");
             *(Nst_real *)arg = AS_REAL(ob);
             break;
+        case 'N':
+            if ( ob->type != nst_t_real && ob->type != nst_t_int )
+                SET_TYPE_ERROR("Real' or 'Int");
+            if ( ob->type == nst_t_real )
+                *(Nst_real *)arg = AS_REAL(ob);
+            else
+                *(Nst_real *)arg = (Nst_real)AS_INT(ob);
+            break;
         case 'b':
             if ( ob->type != nst_t_bool )
                 SET_TYPE_ERROR("Bool");
@@ -86,7 +97,17 @@ bool extract_arg_values(const char *types,
                 SET_TYPE_ERROR("Str");
             *(Nst_string **)arg = AS_STR(ob);
             break;
+        case 'v':
+            if ( ob->type != nst_t_vect )
+                SET_TYPE_ERROR("Vector");
+            *(Nst_sequence **)arg = AS_SEQ(ob);
+            break;
         case 'a':
+            if ( ob->type != nst_t_arr )
+                SET_TYPE_ERROR("Array");
+            *(Nst_sequence **)arg = AS_SEQ(ob);
+            break;
+        case 'A':
             if ( ob->type != nst_t_arr && ob->type != nst_t_vect )
                 SET_TYPE_ERROR("Array' or 'Vector");
             *(Nst_sequence **)arg = AS_SEQ(ob);

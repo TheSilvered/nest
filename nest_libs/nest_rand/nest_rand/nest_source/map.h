@@ -33,6 +33,8 @@ Nst_map;
 Nst_map *new_map();
 bool map_set(Nst_map *map, Nst_Obj *key, Nst_Obj *value);
 Nst_Obj *map_get(Nst_map *map, Nst_Obj *key);
+void map_set_str(Nst_map *map, const char *key, Nst_Obj *value);
+Nst_Obj *map_get_str(Nst_map *map, const char *key);
 void destroy_map(Nst_map *map);
 
 #ifdef __cplusplus

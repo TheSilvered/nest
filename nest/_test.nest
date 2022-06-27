@@ -1,9 +1,2 @@
-|#| "..\\nest_libs\\nest_rand\\stdrand.nest" = rand
-
-{ 0, 1, 2, 3, 4, 5 } = a
-a @rand.shuffle
-
-... Iter :: a ~= item [
-	>>> item
-]
->>> '\n'
+|#| "..\\nest_libs\\nest_time\\stdtime.nesta" = t
+>>> t.MONTH_NAMES.(@t.month)

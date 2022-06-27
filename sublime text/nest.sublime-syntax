@@ -144,10 +144,15 @@ contexts:
       pop: true
 
   func-args:
-    - meta_scope: variable.parameter.nest
-    - match: '(\[|$)'
+    - match: '{{identifier}}'
+      scope: variable.parameter.nest
+    - match: '[ \t]*'
+      scope: text.nest
+    - match: '\['
       scope: punctuation.section.block.begin.nest
       pop: true
+    - match: .
+      scope: invalid.illegal.nest
 
   arr-obj-vect:
     - include: strings

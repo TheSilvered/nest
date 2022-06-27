@@ -26,6 +26,7 @@ Nst_Obj *read_bytes(size_t arg_num, Nst_Obj **args, OpErr *err);
 Nst_Obj *file_size(size_t arg_num, Nst_Obj **args, OpErr *err);
 Nst_Obj *move_fptr(size_t arg_num, Nst_Obj **args, OpErr *err);
 Nst_Obj *get_fptr(size_t arg_num, Nst_Obj **args, OpErr *err);
+Nst_Obj *flush(size_t arg_num, Nst_Obj **args, OpErr *err);
 Nst_Obj *_get_stdin(size_t arg_num, Nst_Obj **args, OpErr *err);
 Nst_Obj *_get_stdout(size_t arg_num, Nst_Obj **args, OpErr *err);
 Nst_Obj *_get_stderr(size_t arg_num, Nst_Obj **args, OpErr *err);

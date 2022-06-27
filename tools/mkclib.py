@@ -142,6 +142,20 @@ FuncDeclr *get_func_ptrs()
 // Here you can put the implementations of your functions
 """)
 
+        # remove precompiled header files
+        if os.path.exists(f"{location}\\pch.cpp"):
+            os.remove(f"{location}\\pch.cpp")
+        if os.path.exists(f"{location}\\pch.h"):
+            os.remove(f"{location}\\pch.h")
+
+        if os.path.exists(f"{location}\\dllmain.cpp") \
+           && os.path.exists(f"{location}\\framework.h"):
+            with open(f"{location}\\dllmain.cpp") as dllmain_cpp:
+                dllmain_content = dllmain_cpp.read().replace("pch", "framework")
+
+            with open(f"{location}\\dllmain.cpp", "w") as dllmain_cpp:
+                dllmain_cpp.write(dllmain_content)
+
         exit(0)
 
 

@@ -9,6 +9,7 @@ __io.read_bytes  = read_bytes
 __io.file_size   = file_size
 __io.move_fptr   = move_fptr
 __io.get_fptr    = get_fptr
+__io.flush       = flush
 
 @__io._get_stdin  = STDIN
 @__io._get_stdout = STDOUT

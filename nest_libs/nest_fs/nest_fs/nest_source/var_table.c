@@ -92,7 +92,7 @@ void set_val(VarTable *vt, Nst_Obj *name, Nst_Obj *val)
     map_set(vt->vars, name, val);
 }
 
-Nst_Obj *set_argv(VarTable *vt, int argc, char **argv)
+void set_argv(VarTable *vt, int argc, char **argv)
 {
     Nst_sequence *cmd_args = new_array_empty(argc - 1);
 
@@ -105,5 +105,4 @@ Nst_Obj *set_argv(VarTable *vt, int argc, char **argv)
     map_set(vt->vars, argv_key, argv_obj);
 
     dec_ref(argv_key);
-    return argv_obj;
 }
