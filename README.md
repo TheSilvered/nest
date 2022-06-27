@@ -489,12 +489,12 @@ all the keys, but a custom iterator.
 
 An iterator, in Nest, is a type that contains four functions and a value.
 The four functions are called `_start_`, `_advance_`, `_is_done_` and `_get_val_`.
-`_start_` is called when the loop that uses the iterator starts, should return
+- `_start_` is called when the loop that uses the iterator starts, should return
 `null`.
-`_advance_` is called at the end of each iteration and should return `null`.
-`_is_done_` is called at the start of each iteration and should return `true` if
+- `_advance_` is called at the end of each iteration and should return `null`.
+- `_is_done_` is called at the start of each iteration and should return `true` if
 the iteration should end and false otherwise`false`.
-`_get_val_` is called after `_is_done_` and should return the value to assign to
+- `_get_val_` is called after `_is_done_` and should return the value to assign to
 the variable of the loop.
 
 All of these functions take exactly one argument which is map they belong to.
