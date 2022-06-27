@@ -104,7 +104,7 @@ be true.
 
 This kind of operator affects the value immediately after it.
 
-There local operators are:
+The local operators are:
 - `$`, length: gets the length of the object
 - `!`, logical not
 - `~`, bit-wise not
@@ -292,7 +292,7 @@ last one dropped.
 <{ 1, 2, 3 }> = v
 >>> (v 2 /) --> 2
 
-<{ 1, 2 }> = v
+<{ 1, 2, 3 }> = v
 >>> (v 1 /) --> 3
 ```
 
@@ -492,8 +492,8 @@ The four functions are called `_start_`, `_advance_`, `_is_done_` and `_get_val_
 `_start_` is called when the loop that uses the iterator starts, should return
 `null`.
 `_advance_` is called at the end of each iteration and should return `null`.
-`_is_done_` is called at the start of each iteration and should return `true` or
-`false`.
+`_is_done_` is called at the start of each iteration and should return `true` if
+the iteration should end and false otherwise`false`.
 `_get_val_` is called after `_is_done_` and should return the value to assign to
 the variable of the loop.
 
