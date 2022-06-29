@@ -2,15 +2,6 @@
 #include <chrono>
 #include "nest_rand.h"
 
-#define SET_TYPE_ERROR(msg) \
-    err->name = (char *)"Type Error"; \
-    err->message = (char *)msg;
-
-#define SET_VALUE_ERROR(msg) \
-    err->name = (char *)"Value Error"; \
-    err->message = (char *)msg;
-
-
 #define FUNC_COUNT 7
 
 static FuncDeclr *func_list_;

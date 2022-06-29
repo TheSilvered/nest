@@ -34,6 +34,47 @@
     }
 
 #define MAKE_FUNCDECLR(func_ptr, argc) { func_ptr, argc, new_string_raw(#func_ptr, false) }
+#define MAKE_NAMED_FUNCDECLR(func_ptr, argc, name) { func_ptr, argc, new_string_raw(name, false) }
+
+#define SET_ERROR_CUSTOM(err_name, msg) do { \
+    err->name = (char *)err_name; \
+    err->message = (char *)err_msg; \
+    } while ( 0 )
+
+#define SET_SYNTAX_ERROR(msg) do { \
+    err->name = SYNTAX_ERROR; \
+    err->message = (char *)msg; \
+    } while ( 0 )
+
+#define SET_MEMORY_ERROR(msg) do { \
+    err->name = MEMORY_ERROR; \
+    err->message = (char *)msg; \
+    } while ( 0 )
+
+#define SET_TYPE_ERROR(msg) do { \
+    err->name = TYPE_ERROR; \
+    err->message = (char *)msg; \
+    } while ( 0 )
+
+#define SET_VALUE_ERROR(msg) do { \
+    err->name = VALUE_ERROR; \
+    err->message = (char *)msg; \
+    } while ( 0 )
+
+#define SET_MATH_ERROR(msg) do { \
+    err->name = MATH_ERROR; \
+    err->message = (char *)msg; \
+    } while ( 0 )
+
+#define SET_CALL_ERROR(msg) do { \
+    err->name = CALL_ERROR; \
+    err->message = (char *)msg; \
+    } while ( 0 )
+
+#define SET_GENERAL_ERROR(msg) do { \
+    err->name = GENERAL_ERROR; \
+    err->message = (char *)msg; \
+    } while ( 0 )
 
 #ifdef __cplusplus
 extern "C" {

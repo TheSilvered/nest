@@ -3,19 +3,13 @@
 
 #include "nest_source/nest_include.h"
 
-#ifdef NESTTIME_EXPORTS
-#define NEST_TIME_API __declspec(dllexport)
-#else
-#define NEST_TIME_API __declspec(dllimport)
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
-NEST_TIME_API bool lib_init();
-NEST_TIME_API FuncDeclr *get_func_ptrs();
-NEST_TIME_API INIT_LIB_OBJ_FUNC;
+__declspec(dllexport) bool lib_init();
+__declspec(dllexport) FuncDeclr *get_func_ptrs();
+__declspec(dllexport) INIT_LIB_OBJ_FUNC;
 
 Nst_Obj *_time(size_t arg_num, Nst_Obj **args, OpErr *err);
 Nst_Obj *_time_ns(size_t arg_num, Nst_Obj **args, OpErr *err);

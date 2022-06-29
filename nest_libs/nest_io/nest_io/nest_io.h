@@ -3,19 +3,13 @@
 
 #include "nest_source/nest_include.h"
 
-#ifdef NESTIO_EXPORTS
-#define NEST_IO_API __declspec(dllexport)
-#else
-#define NEST_IO_API __declspec(dllimport)
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
-NEST_IO_API bool lib_init();
-NEST_IO_API FuncDeclr *get_func_ptrs();
-NEST_IO_API INIT_LIB_OBJ_FUNC;
+__declspec(dllexport) bool lib_init();
+__declspec(dllexport) FuncDeclr *get_func_ptrs();
+__declspec(dllexport) INIT_LIB_OBJ_FUNC;
 
 Nst_Obj *open(size_t arg_num, Nst_Obj **args, OpErr *err);
 Nst_Obj *close(size_t arg_num, Nst_Obj **args, OpErr *err);

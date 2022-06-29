@@ -5,41 +5,21 @@
 #include <stdint.h>
 #include "llist.h"
 
-#define SYNTAX_ERROR(error, e_start, e_end, msg) \
-    error->start = e_start; \
-    error->end = e_end; \
-    error->name = "Syntax Error"; \
-    error->message = msg
+#define SYNTAX_ERROR (char *)"Syntax Error"
+#define MEMORY_ERROR (char *)"Memory Error"
+#define VALUE_ERROR (char *)"Value Error"
+#define TYPE_ERROR (char *)"Type Error"
+#define CALL_ERROR (char *)"Call Error"
+#define MATH_ERROR (char *)"Math Error"
+#define GENERAL_ERROR (char *)"Unknown Error"
 
-#define MEMORY_ERROR(error, e_start, e_end, msg) \
-    error->start = e_start; \
-    error->end = e_end; \
-    error->name = "Memory Error"; \
-    error->message = msg
-
-#define TYPE_ERROR(error, e_start, e_end, msg) \
-    error->start = e_start; \
-    error->end = e_end; \
-    error->name = "Type Error"; \
-    error->message = msg
-
-#define VALUE_ERROR(error, e_start, e_end, msg) \
-    error->start = e_start; \
-    error->end = e_end; \
-    error->name = "Value Error"; \
-    error->message = msg
-
-#define CALL_ERROR(error, e_start, e_end, msg) \
-    error->start = e_start; \
-    error->end = e_end; \
-    error->name = "Call Error"; \
-    error->message = msg
-
-#define GENERAL_ERROR(error, e_start, e_end, msg) \
-    error->start = e_start; \
-    error->end = e_end; \
-    error->name = "Unknown Error"; \
-    error->message = msg
+#define CSYNTAX_ERROR "Syntax Error"
+#define CMEMORY_ERROR "Memory Error"
+#define CVALUE_ERROR "Value Error"
+#define CTYPE_ERROR "Type Error"
+#define CCALL_ERROR "Call Error"
+#define CMATH_ERROR "Math Error"
+#define CGENERAL_ERROR "Unknown Error"
 
 // error messages
 #define UNEXPECTED_NEWLINE "unescaped line feed not allowed on single-line strings"

@@ -1,2 +1,8 @@
-|#| "..\\nest_libs\\nest_time\\stdtime.nesta" = t
->>> t.MONTH_NAMES.(@t.month)
+|#| "..\\nest_libs\\nest_sutil\\stdsutil.nest" = su
+|#| "..\\nest_libs\\nest_io\\stdio.nest" = io
+
+"..\\nest_libs\\nest_fs\\stdfs.nest" "r" @io.open = file
+file -1 @io.read = text
+file @io.close
+>>> text
+>>> (text "x64\\Debug\\nest_" @su.lfind)

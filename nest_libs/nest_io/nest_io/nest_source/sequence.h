@@ -14,13 +14,13 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct Nst_sequence // vector or array
+typedef struct Nst_sequence
 {
     Nst_Obj **objs;
     size_t len;
     size_t size;
 }
-Nst_sequence;
+Nst_sequence; // vector or array
 
 Nst_sequence *new_array_empty(size_t len);
 Nst_sequence *new_vector_empty(size_t len);

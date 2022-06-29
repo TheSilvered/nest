@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include <string.h>
 #include "lexer.h"
-#include "error.h"
+#include "set_error_internal.h"
 #include "tokens.h"
 #include "nst_types.h"
 #include "hash.h"
@@ -135,7 +135,7 @@ LList *tokenize(char *text, size_t text_len, char *filename)
         else
         {
             SET_ERROR(
-                SYNTAX_ERROR, cursor.pos, cursor.pos, "invalid character",
+                SET_SYNTAX_ERROR_INT, cursor.pos, cursor.pos, "invalid character",
                 err, NULL
             );
         }
@@ -331,7 +331,7 @@ static void make_num_literal(LexerCursor *cursor, Token **tok, Nst_Error **err)
         {
             free(ltrl);
             free(value);
-            SET_ERROR(SYNTAX_ERROR, start, end, INT_TOO_BIG, *err, );
+            SET_ERROR(SET_SYNTAX_ERROR_INT, start, end, INT_TOO_BIG, *err, );
             return;
         }
 
@@ -352,7 +352,7 @@ static void make_num_literal(LexerCursor *cursor, Token **tok, Nst_Error **err)
     {
         free(ltrl);
         free(fract_part);
-        SET_ERROR(MEMORY_ERROR, start, end, BAD_REAL_LITEARL, *err, );
+        SET_ERROR(SET_MEMORY_ERROR_INT, start, end, BAD_REAL_LITEARL, *err, );
         return;
     }
 
@@ -391,7 +391,7 @@ static void make_num_literal(LexerCursor *cursor, Token **tok, Nst_Error **err)
     {
         free(ltrl);
         free(value);
-        SET_ERROR(MEMORY_ERROR, start, end, REAL_TOO_BIG, *err, );
+        SET_ERROR(SET_MEMORY_ERROR_INT, start, end, REAL_TOO_BIG, *err, );
         return;
     }
 
@@ -458,7 +458,7 @@ static void make_str_literal(LexerCursor *cursor, Token **tok, Nst_Error **err)
             if ( cursor->ch == '\n' && !allow_multiline )
             {
                 free(end_str);
-                SET_ERROR(SYNTAX_ERROR, cursor->pos, cursor->pos, UNEXPECTED_NEWLINE, *err, );
+                SET_ERROR(SET_SYNTAX_ERROR_INT, cursor->pos, cursor->pos, UNEXPECTED_NEWLINE, *err, );
                 return;
             }
             else if ( cursor->ch == '\\' )
@@ -487,7 +487,7 @@ static void make_str_literal(LexerCursor *cursor, Token **tok, Nst_Error **err)
         case 'v': end_str[str_len++] = '\v'; break;
         default:
             free(end_str);
-            SET_ERROR(SYNTAX_ERROR, escape_start, cursor->pos, INVALID_ESCAPE, *err, );
+            SET_ERROR(SET_SYNTAX_ERROR_INT, escape_start, cursor->pos, INVALID_ESCAPE, *err, );
             return;
         }
 
@@ -499,7 +499,7 @@ static void make_str_literal(LexerCursor *cursor, Token **tok, Nst_Error **err)
     
     if ( cursor->ch != closing_ch )
     {
-        SET_ERROR(SYNTAX_ERROR, start, end, UNCLOSED_STR_LITERAL, *err, );
+        SET_ERROR(SET_SYNTAX_ERROR_INT, start, end, UNCLOSED_STR_LITERAL, *err, );
     }
 
     if ( str_len < chunk_size )

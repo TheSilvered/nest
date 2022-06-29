@@ -40,7 +40,7 @@
 
 #main [
     ($_args_ 3 !=) ($_args_ 4 !=) && ? [
-        >>> "USAGE: nest .\\make_clib_files.py (new LIBRARY_NAME|update) LOCATION\n"
+        >>> "USAGE: nest .\\make_clib_files.py (new <library_name>|update) <location>\n"
         => 1
     ]
 
@@ -58,15 +58,12 @@
         => 2
     ]
 
-    location"\\nest_source" >< @fs.mkdir
+    (location"\\nest_source" >< = srcdir) @fs.mkdir
 
     ... Iter :: nest_source_files ~= file_name [
-        "..\\nest\\"file_name >< "r" @io.open = src_f
-        src_f -1 @io.read = content
+        ("..\\nest\\"file_name >< "r" @io.open = src_f) -1 @io.read = content
         src_f @io.close
-
-        location"\\nest_source\\"file_name >< "w" @io.open = dst_f
-        dst_f content @io.write
+        (srcdir"\\"file_name >< "w" @io.open = dst_f) content @io.write
         dst_f @io.close
     ]
 
@@ -87,19 +84,13 @@
 
 #include \"nest_source/nest_include.h\"
 
-#ifdef "(upper_project_name "_" "" @su.replace_substr)"_EXPORTS
-#define "upper_project_name"_API __declspec(dllexport)
-#else
-#define "upper_project_name"_API __declspec(dllimport)
-#endif
-
 #ifdef __cplusplus
 extern \"C\" {
 #endif // !__cplusplus
 
-"upper_project_name"_API bool lib_init();
-"upper_project_name"_API FuncDeclr *get_func_ptrs();
-"upper_project_name"_API INIT_LIB_OBJ_FUNC;
+__declspec(dllexport) bool lib_init();
+__declspec(dllexport) FuncDeclr *get_func_ptrs();
+__declspec(dllexport) INIT_LIB_OBJ_FUNC;
 
 // Here you can put your function signatures
 // They must always be `Nst_Obj *func_name(size_t arg_num, Nst_Obj **args, OpErr *err);`

@@ -3,7 +3,6 @@
 #include <assert.h>
 #include <windows.h>
 #include "interpreter.h"
-#include "error.h"
 #include "obj.h"
 #include "nst_types.h"
 #include "var_table.h"
@@ -14,6 +13,7 @@
 #include "lib_import.h"
 #include "lexer.h"
 #include "parser.h"
+#include "set_error_internal.h"
 
 #define SET_ERROR(err_macro, start, end, message) \
     do { \
@@ -138,7 +138,7 @@ static size_t get_full_path(char *file_path, char **buf, char **file_part)
     char *path = malloc(sizeof(char) * MAX_PATH);
     if ( path == NULL )
         return 0;
-    
+
     DWORD path_len = GetFullPathNameA(file_path, MAX_PATH, path, file_part);
     if ( path_len > MAX_PATH )
     {
@@ -157,7 +157,7 @@ static Nst_string *make_cwd(char *file_path)
 {
     char *path = NULL;
     char *file_part = NULL;
-    
+
     get_full_path(file_path, &path, &file_part);
 
     *file_part = 0;
@@ -379,7 +379,7 @@ static void exe_for_l(Node *node, VarTable *vt)
     if ( range->type != nst_t_int )
     {
         SET_ERROR(
-            TYPE_ERROR,
+            SET_TYPE_ERROR_INT,
             HEAD_NODE(node)->start,
             HEAD_NODE(node)->end,
             format_type_error(EXPECTED_TYPE("Int"), range->type_name)
@@ -421,7 +421,7 @@ static void exe_for_as_l(Node *node, VarTable *vt)
     if ( iter_obj->type != nst_t_iter )
     {
         SET_ERROR(
-            TYPE_ERROR,
+            SET_TYPE_ERROR_INT,
             HEAD_NODE(node)->start,
             HEAD_NODE(node)->end,
             format_type_error(EXPECTED_TYPE("Iter"), iter_obj->type_name)
@@ -452,7 +452,7 @@ static void exe_for_as_l(Node *node, VarTable *vt)
         if ( state.value->type != nst_t_bool )
         {
             SET_ERROR(
-                TYPE_ERROR,
+                SET_TYPE_ERROR_INT,
                 HEAD_NODE(node)->start,
                 HEAD_NODE(node)->end,
                 format_type_error(EXPECTED_BOOL_ITER_IS_DONE, state.value->type_name)
@@ -614,7 +614,7 @@ static void exe_stack_op(Node *node, VarTable *vt)
     {
         if ( errno == ENOMEM )
             return;
-        SET_ERROR(GENERAL_ERROR, node->start, node->end, err.message);
+        SET_ERROR(SET_GENERAL_ERROR_INT, node->start, node->end, err.message);
         state.traceback->error->name = err.name;
         dec_ref(ob1);
         dec_ref(ob2);
@@ -639,7 +639,7 @@ static void exe_local_stack_op(Node *node, VarTable *vt)
         if ( arg_count != 2 )
         {
             SET_ERROR(
-                CALL_ERROR,
+                SET_CALL_ERROR_INT,
                 node->start,
                 node->end,
                 arg_count > 2 ? TOO_MANY_ARGS("cast") : TOO_FEW_ARGS("cast")
@@ -664,7 +664,7 @@ static void exe_local_stack_op(Node *node, VarTable *vt)
         {
             if ( errno == ENOMEM )
                 return;
-            SET_ERROR(GENERAL_ERROR, node->start, node->end, err.message);
+            SET_ERROR(SET_GENERAL_ERROR_INT, node->start, node->end, err.message);
             state.traceback->error->name = err.name;
             dec_ref(type);
             dec_ref(obj);
@@ -685,7 +685,7 @@ static void exe_local_stack_op(Node *node, VarTable *vt)
         if ( func_obj->type != nst_t_func )
         {
             SET_ERROR(
-                TYPE_ERROR,
+                SET_TYPE_ERROR_INT,
                 TAIL_NODE(node)->start,
                 TAIL_NODE(node)->end,
                 format_type_error(EXPECTED_TYPE("Func"), func_obj->type_name)
@@ -699,7 +699,7 @@ static void exe_local_stack_op(Node *node, VarTable *vt)
         if ( arg_count - 1 != func.arg_num )
         {
             SET_ERROR(
-                CALL_ERROR,
+                SET_CALL_ERROR_INT,
                 node->start,
                 node->end,
                 arg_count - 1 > func.arg_num ? TOO_MANY_ARGS_FUNC : TOO_FEW_ARGS_FUNC
@@ -746,7 +746,7 @@ static void exe_local_stack_op(Node *node, VarTable *vt)
         if ( arg_count != 3 && arg_count != 2 )
         {
             SET_ERROR(
-                CALL_ERROR,
+                SET_CALL_ERROR_INT,
                 node->start,
                 node->end,
                 arg_count > 3 ? TOO_MANY_ARGS("range") : TOO_FEW_ARGS("range")
@@ -771,7 +771,7 @@ static void exe_local_stack_op(Node *node, VarTable *vt)
         if ( start->type != nst_t_int )
         {
             SET_ERROR(
-                TYPE_ERROR,
+                SET_TYPE_ERROR_INT,
                 HEAD_NODE(node)->start,
                 HEAD_NODE(node)->end,
                 format_type_error(EXPECTED_TYPE("Int"), start->type_name)
@@ -785,7 +785,7 @@ static void exe_local_stack_op(Node *node, VarTable *vt)
         if ( stop->type != nst_t_int )
         {
             SET_ERROR(
-                TYPE_ERROR,
+                SET_TYPE_ERROR_INT,
                 TAIL_NODE(node)->start,
                 TAIL_NODE(node)->end,
                 format_type_error(EXPECTED_TYPE("Int"), start->type_name)
@@ -811,7 +811,7 @@ static void exe_local_stack_op(Node *node, VarTable *vt)
             if ( step->type != nst_t_int )
             {
                 SET_ERROR(
-                    TYPE_ERROR,
+                    SET_TYPE_ERROR_INT,
                     TAIL_NODE(node)->start,
                     TAIL_NODE(node)->end,
                     format_type_error(EXPECTED_TYPE("Int"), start->type_name)
@@ -826,7 +826,7 @@ static void exe_local_stack_op(Node *node, VarTable *vt)
             if ( AS_INT(step) == 0 )
             {
                 SET_ERROR(
-                    VALUE_ERROR,
+                    SET_VALUE_ERROR_INT,
                     n->start,
                     n->end,
                     ZERO_RANGE_STEP
@@ -891,6 +891,23 @@ static void exe_local_op(Node *node, VarTable *vt)
     case STDOUT: res = obj_stdout(ob, &err); break;
     case TYPEOF: res = obj_typeof(ob, &err); break;
     case IMPORT: res = import_lib(ob, &err); break;
+    case NEG:    res = obj_neg(ob, &err);    break;
+    case LOC_CALL:
+    {
+        Nst_func *func = AS_FUNC(ob);
+        if ( func->arg_num != 0 )
+        {
+            SET_ERROR(
+                SET_CALL_ERROR_INT,
+                node->start,
+                node->end,
+                TOO_FEW_ARGS_FUNC
+            );
+        }
+
+        call_func(node, func, vt, NULL);
+        return;
+    }
     default: return;
     }
 
@@ -906,7 +923,7 @@ static void exe_local_op(Node *node, VarTable *vt)
         }
         else
         {
-            SET_ERROR(GENERAL_ERROR, node->start, node->end, err.message);
+            SET_ERROR(SET_GENERAL_ERROR_INT, node->start, node->end, err.message);
             state.traceback->error->name = err.name;
         }
 
@@ -969,7 +986,7 @@ static void exe_map_lit(Node *node, VarTable *vt)
         if ( !map_set(map, key, state.value) )
         {
             SET_ERROR(
-                TYPE_ERROR,
+                SET_TYPE_ERROR_INT,
                 key_node->start,
                 key_node->end,
                 format_type_error(UNHASHABLE_TYPE, key->type_name);
@@ -1033,7 +1050,7 @@ static void exe_extract_e(Node *node, VarTable *vt)
         if ( key->type != nst_t_int )
         {
             SET_ERROR(
-                TYPE_ERROR,
+                SET_TYPE_ERROR_INT,
                 TAIL_NODE(node)->start,
                 TAIL_NODE(node)->end,
                 format_type_error(EXPECTED_TYPE("Int"), key->type_name)
@@ -1050,7 +1067,7 @@ static void exe_extract_e(Node *node, VarTable *vt)
         if ( val == NULL )
         {
             SET_ERROR(
-                VALUE_ERROR,
+                SET_VALUE_ERROR_INT,
                 TAIL_NODE(node)->start,
                 TAIL_NODE(node)->end,
                 format_idx_error(
@@ -1073,7 +1090,7 @@ static void exe_extract_e(Node *node, VarTable *vt)
         if ( key->type != nst_t_int )
         {
             SET_ERROR(
-                TYPE_ERROR,
+                SET_TYPE_ERROR_INT,
                 TAIL_NODE(node)->start,
                 TAIL_NODE(node)->end,
                 format_type_error(EXPECTED_TYPE("Int"), key->type_name)
@@ -1092,7 +1109,7 @@ static void exe_extract_e(Node *node, VarTable *vt)
         if ( idx < 0 || idx >= (Nst_int)str->len )
         {
             SET_ERROR(
-                VALUE_ERROR,
+                SET_VALUE_ERROR_INT,
                 TAIL_NODE(node)->start,
                 TAIL_NODE(node)->end,
                 format_idx_error(INDEX_OUT_OF_BOUNDS("Str"), idx, str->len)
@@ -1124,7 +1141,7 @@ static void exe_extract_e(Node *node, VarTable *vt)
         if ( key->hash == -1 )
         {
             SET_ERROR(
-                VALUE_ERROR,
+                SET_VALUE_ERROR_INT,
                 TAIL_NODE(node)->start,
                 TAIL_NODE(node)->end,
                 format_type_error(UNHASHABLE_TYPE, key->type_name)
@@ -1148,7 +1165,7 @@ static void exe_extract_e(Node *node, VarTable *vt)
     else
     {
         SET_ERROR(
-            TYPE_ERROR,
+            SET_TYPE_ERROR_INT,
             HEAD_NODE(node)->start,
             HEAD_NODE(node)->end,
             format_type_error(EXPECTED_TYPE("Array', 'Vector', 'Map' or 'Str"), container->type_name)
@@ -1175,7 +1192,7 @@ static void exe_assign_e(Node *node, VarTable *vt)
         set_val(vt, name, value);
         return; // state.value is still the same
     }
-    
+
     inc_ref(value);
 
     // If name_node->type == EXTRACTION
@@ -1205,7 +1222,7 @@ static void exe_assign_e(Node *node, VarTable *vt)
         if ( !res )
         {
             SET_ERROR(
-                TYPE_ERROR,
+                SET_TYPE_ERROR_INT,
                 name_node->start,
                 name_node->end,
                 format_type_error(UNHASHABLE_TYPE, idx->type_name)
@@ -1221,7 +1238,7 @@ static void exe_assign_e(Node *node, VarTable *vt)
         if ( idx->type != nst_t_int )
         {
             SET_ERROR(
-                TYPE_ERROR,
+                SET_TYPE_ERROR_INT,
                 TAIL_NODE(name_node)->start,
                 TAIL_NODE(name_node)->end,
                 format_type_error(EXPECTED_TYPE("Int"), idx->type_name)
@@ -1231,13 +1248,13 @@ static void exe_assign_e(Node *node, VarTable *vt)
             dec_ref(idx);
             return;
         }
-        
+
         bool res = set_value_seq(AS_SEQ(obj_to_set), AS_INT(idx), value);
 
         if ( !res )
         {
             SET_ERROR(
-                VALUE_ERROR,
+                SET_VALUE_ERROR_INT,
                 name_node->start,
                 name_node->end,
                 format_idx_error(
@@ -1256,7 +1273,7 @@ static void exe_assign_e(Node *node, VarTable *vt)
     else
     {
         SET_ERROR(
-            TYPE_ERROR,
+            SET_TYPE_ERROR_INT,
             HEAD_NODE(name_node)->start,
             HEAD_NODE(name_node)->end,
             format_type_error(EXPECTED_TYPE("Array', 'Vector' or 'Map"), obj_to_set->type_name)
@@ -1319,7 +1336,7 @@ static void call_func(Node *node, Nst_func *func, VarTable *vt, Nst_Obj **args)
         {
             if ( errno == ENOMEM )
                 return;
-            SET_ERROR(GENERAL_ERROR, node->start, node->end, err.message);
+            SET_ERROR(SET_GENERAL_ERROR_INT, node->start, node->end, err.message);
             state.traceback->error->name = err.name;
             return;
         }
@@ -1477,7 +1494,7 @@ static Nst_Obj *import_lib(Nst_Obj *ob, OpErr *err)
     }
 
     FuncDeclr *func_ptrs = get_func_ptrs();
-    
+
     if ( func_ptrs == NULL )
     {
         err->name = "Import Error";
@@ -1518,7 +1535,7 @@ static Nst_Obj *import_lib(Nst_Obj *ob, OpErr *err)
     if ( !lib_found )
     {
         LList_append(state.loaded_libs, lib, false);
-        
+
         LibHandleVal *val = malloc(sizeof(LibHandleVal));
         LibHandle *handle = malloc(sizeof(LibHandle));
         if ( handle == NULL || val == NULL )

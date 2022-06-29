@@ -155,12 +155,16 @@ int str_to_tok(char *str)
         return CONCAT_A;
     if ( strcmp("@", str) == 0 )
         return CALL;
+    if ( strcmp("@@", str) == 0 )
+        return LOC_CALL;
     if ( strcmp("!", str) == 0 )
         return L_NOT;
     if ( strcmp("~", str) == 0 )
         return B_NOT;
     if ( strcmp(".", str) == 0 )
         return EXTRACT;
+    if ( strcmp("-:", str) == 0 )
+        return NEG;
     if ( strcmp("?", str) == 0 )
         return IF;
     if ( strcmp("?..", str) == 0 )

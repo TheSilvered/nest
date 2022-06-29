@@ -33,7 +33,6 @@ And values that are always the same object:
 - `null`, null object, not to confuse with the type `Null`
 
 ### Comments
-
 Comments in nest are started by `--` and end with the end of a line.
 Multi-line comments are created by escaping the line feed at the end with a
 backslash.
@@ -92,8 +91,8 @@ The stack operators are:
 Some stack operators do not behave like the others though.
 
 All comparison operators (`>`, `<`, `==`, `!=`, `>=`, `<=`) compare each
-adjacent values and check if all of them are true meaning that `1 2 3 <` yields 
-the same result as `(1 2 <) (2 3 <) &&` and yes, you can use parenthesis to 
+adjacent values and check if all of them are true meaning that `1 2 3 <` yields
+the same result as `(1 2 <) (2 3 <) &&` and yes, you can use parenthesis to
 prioritize sub-expressions.
 Keep in mind that writing `a b c !=` does not mean that all the elements are
 different from each other, you only know that adjacent elements are different

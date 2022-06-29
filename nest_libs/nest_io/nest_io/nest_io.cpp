@@ -6,16 +6,8 @@
 
 #define FUNC_COUNT 13
 
-#define SET_TYPE_ERROR(msg) \
-    err->name = (char *)"Type Error"; \
-    err->message = (char *)msg
-
-#define SET_VALUE_ERROR(msg) \
-    err->name = (char *)"Value Error"; \
-    err->message = (char *)msg
-
 #define SET_FILE_CLOSED_ERROR \
-    err->name = (char *)"Value Error"; \
+    err->name = VALUE_ERROR; \
     err->message = (char *)"file given was closed"
 
 static FuncDeclr *func_list_;
@@ -37,7 +29,7 @@ bool lib_init()
     func_list_[idx++] = MAKE_FUNCDECLR(file_size, 1);
     func_list_[idx++] = MAKE_FUNCDECLR(move_fptr, 2);
     func_list_[idx++] = MAKE_FUNCDECLR(get_fptr, 2);
-    func_list_[idx++] = MAKE_FUNCDECLR(flush, 2);
+    func_list_[idx++] = MAKE_FUNCDECLR(flush, 1);
     func_list_[idx++] = MAKE_FUNCDECLR(_get_stdin, 0);
     func_list_[idx++] = MAKE_FUNCDECLR(_get_stdout, 0);
     func_list_[idx++] = MAKE_FUNCDECLR(_get_stderr, 0);

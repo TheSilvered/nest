@@ -3,7 +3,7 @@
 #include <stdio.h>
 #include "llist.h"
 #include "parser.h"
-#include "error.h"
+#include "set_error_internal.h"
 #include "tokens.h"
 
 #define SAFE_LLIST_CREATE(name) \
@@ -21,7 +21,7 @@
         errno = ENOMEM; \
         return NULL; \
     } \
-    SYNTAX_ERROR(error, start, end, message); \
+    SET_SYNTAX_ERROR_INT(error, start, end, message); \
     state->error = error; \
     return NULL
 
@@ -85,7 +85,7 @@ Node *parse(LList *tokens)
             return NULL;
         }
 
-        SYNTAX_ERROR(error, start, end, UNEXPECTED_TOK);
+        SET_SYNTAX_ERROR_INT(error, start, end, UNEXPECTED_TOK);
         print_error(*error);
         printf("\n");
         LList_destroy(tokens, destroy_token);

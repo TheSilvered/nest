@@ -3,14 +3,6 @@
 #pragma comment(lib, "shlwapi.lib")
 #include "nest_fs.h"
 
-#define SET_STR_TYPE_ERROR \
-    err->name = (char *)"Type Error"; \
-    err->message = (char *)"expected 'Str'"
-
-#define SET_VALUE_ERROR(msg) \
-    err->name = (char *)"Value Error"; \
-    err->message = (char *)msg
-
 #define FUNC_COUNT 5
 static FuncDeclr *func_list_;
 static bool lib_init_ = false;

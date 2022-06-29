@@ -131,6 +131,9 @@
     <ClInclude Include="lib_import.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
+    <ClInclude Include="set_error_internal.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="lib_import.c">

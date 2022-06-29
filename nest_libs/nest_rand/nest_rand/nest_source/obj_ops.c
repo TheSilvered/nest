@@ -5,6 +5,7 @@
 #include <windows.h>
 #include "obj_ops.h"
 #include "nst_types.h"
+#include "error.h"
 
 #define MAX_INT_CHAR_COUNT 21
 #define MAX_REAL_CHAR_COUNT 25
@@ -15,7 +16,7 @@
 #define ARE_TYPE(nst_type) ( ob1->type == nst_type && ob2->type == nst_type )
 
 #define RETURN_TYPE_ERROR(operand) do { \
-    err->name = "Type Error"; \
+    err->name = TYPE_ERROR; \
     err->message = "invalid type for '" operand "'"; \
     return NULL; } while (0)
 
@@ -149,7 +150,7 @@ Nst_Obj *obj_ge(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 
     Nst_Obj *res = obj_gt(ob1, ob2, err);
 
-    if ( strcmp(err->name, "Type Error") == 0 )
+    if ( strcmp(err->name, TYPE_ERROR) == 0 )
         err->message = "invalid type for '>='";
     return res;
 }
@@ -161,7 +162,7 @@ Nst_Obj *obj_le(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 
     Nst_Obj *res = obj_lt(ob1, ob2, err);
 
-    if ( strcmp(err->name, "Type Error") == 0 )
+    if ( strcmp(err->name, TYPE_ERROR) == 0 )
     {
         err->message = "invalid type for '<='";
     }
@@ -295,7 +296,7 @@ Nst_Obj *obj_div(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
     {
         if ( AS_INT(ob2) == 0 )
         {
-            err->name = "Math Error";
+            err->name = MATH_ERROR;
             err->message = "division by zero";
             return NULL;
         }
@@ -312,7 +313,7 @@ Nst_Obj *obj_div(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 
         if ( AS_REAL(ob2) == 0.0 )
         {
-            err->name = "Math Error";
+            err->name = MATH_ERROR;
             err->message = "division by zero";
             return NULL;
         }
@@ -357,7 +358,7 @@ Nst_Obj *obj_pow(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
         // any root of a negative number gives -nan as a result
         if ( v1 < 0 && floor(v2) != v2 )
         {
-            err->name = "Math Error";
+            err->name = MATH_ERROR;
             err->message = "fractional power of a negative number";
             return NULL;
         }
@@ -377,7 +378,7 @@ Nst_Obj *obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
     {
         if ( AS_INT(ob2) == 0 )
         {
-            err->name = "Math Error";
+            err->name = MATH_ERROR;
             err->message = "modulo by zero";
             return NULL;
         }
@@ -394,7 +395,7 @@ Nst_Obj *obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 
         if ( AS_REAL(ob2) == 0.0 )
         {
-            err->name = "Math Error";
+            err->name = MATH_ERROR;
             err->message = "modulo by zero";
             return NULL;
         }
@@ -524,6 +525,95 @@ Nst_Obj *obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 }
 
 // Other
+Nst_Obj *obj_str_cast_seq(Nst_Obj *seq, LList *all_seq)
+{
+    for ( LLNode *n = all_seq->head; n != NULL; n = n->next )
+    {
+        if ( seq == n->value )
+            return new_str_obj(new_string("{.}", 3, false));
+    }
+
+    LList_append(all_seq, seq, false);
+
+    Nst_Obj **objs = AS_SEQ(seq)->objs;
+    Nst_Obj *obj = NULL;
+    size_t len = AS_SEQ(seq)->len;
+    Nst_Obj *str_to_add_obj = NULL;
+    Nst_string *str_to_add = NULL;
+    char *str = NULL;
+    size_t str_len = 0;
+    bool is_vect = seq->type == nst_t_vect;
+
+    if ( is_vect )
+    {
+        str = malloc(sizeof(char) * 4);
+        str[0] = '<';
+        str[1] = '{';
+        str[2] = ' ';
+        str[3] = '\0';
+        str_len = 3;
+    }
+    else
+    {
+        str = malloc(sizeof(char) * 3);
+        str[0] = '{';
+        str[1] = ' ';
+        str[2] = '\0';
+        str_len = 2;
+    }
+
+    for ( size_t i = 0; i < len - 1; i++ )
+    {
+        obj = objs[i];
+
+        if ( obj->type == nst_t_arr || obj->type == nst_t_vect )
+            str_to_add_obj = obj_str_cast_seq(obj, all_seq);
+        else
+            str_to_add_obj = obj_cast(obj, nst_t_str, NULL);
+
+        str_to_add = AS_STR(str_to_add_obj);
+        char *realloc_str = realloc(str, str_len + str_to_add->len + 3);
+        if ( realloc_str == NULL )
+            return NULL;
+        str = realloc_str;
+        memcpy(str + str_len, str_to_add->value, str_to_add->len);
+        str_len += str_to_add->len + 2;
+        str[str_len - 2] = ',';
+        str[str_len - 1] = ' ';
+        str[str_len] = '\0';
+
+        dec_ref(str_to_add_obj);
+    }
+
+    obj = objs[len - 1];
+    if ( obj->type == nst_t_arr || obj->type == nst_t_vect )
+        str_to_add_obj = obj_str_cast_seq(obj, all_seq);
+    else
+        str_to_add_obj = obj_cast(obj, nst_t_str, NULL);
+
+    str_to_add = AS_STR(str_to_add_obj);
+    char *realloc_str = realloc(str, str_len + str_to_add->len + (is_vect ? 4 : 3));
+    if ( realloc_str == NULL )
+        return NULL;
+    str = realloc_str;
+    memcpy(str + str_len, str_to_add->value, str_to_add->len);
+    str_len += str_to_add->len + (is_vect ? 3 : 2);
+    if ( is_vect )
+    {
+        str[str_len - 3] = ' ';
+        str[str_len - 2] = '}';
+        str[str_len - 1] = '>';
+    }
+    else
+    {
+        str[str_len - 2] = ' ';
+        str[str_len - 1] = '}';
+    }
+    str[str_len] = 0;
+
+    return new_str_obj(new_string(str, str_len, true));
+}
+
 Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
 {
     register Nst_Obj *ob_t = ob->type;
@@ -598,6 +688,13 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
                 nst_t_str, destroy_string
             );
 
+        }
+        else if ( ob_t == nst_t_arr || ob_t == nst_t_vect )
+        {
+            LList *all_seq = LList_new();
+            Nst_Obj *str = obj_str_cast_seq(ob, all_seq);
+            LList_destroy(all_seq, NULL);
+            return str;
         }
         else
         {
@@ -712,7 +809,7 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
             Nst_Obj *advance_obj = make_obj(advance_func, nst_t_func, destroy_func);
             Nst_Obj *is_done_obj = make_obj(is_done_func, nst_t_func, destroy_func);
             Nst_Obj *get_val_obj = make_obj(get_val_func, nst_t_func, destroy_func);
-        
+
             Nst_iter *iter = new_iter(
                 start_obj,
                 advance_obj,

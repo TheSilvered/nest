@@ -61,6 +61,8 @@ enum token_types
     STDOUT,    // | |
     STDIN,     // | |
     IMPORT,    // | |
+    LOC_CALL,  // | |
+    NEG,       // | |
     TYPEOF,    // | - local-op end
     IDENT,     // | + value start
     N_INT,     // | |
