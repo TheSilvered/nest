@@ -1,0 +1,31 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.2.32616.157
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nest_itutil", "nest_itutil\nest_itutil.vcxproj", "{43DA3592-8111-4423-A784-D4F43D924686}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{43DA3592-8111-4423-A784-D4F43D924686}.Debug|x64.ActiveCfg = Debug|x64
+		{43DA3592-8111-4423-A784-D4F43D924686}.Debug|x64.Build.0 = Debug|x64
+		{43DA3592-8111-4423-A784-D4F43D924686}.Debug|x86.ActiveCfg = Debug|Win32
+		{43DA3592-8111-4423-A784-D4F43D924686}.Debug|x86.Build.0 = Debug|Win32
+		{43DA3592-8111-4423-A784-D4F43D924686}.Release|x64.ActiveCfg = Release|x64
+		{43DA3592-8111-4423-A784-D4F43D924686}.Release|x64.Build.0 = Release|x64
+		{43DA3592-8111-4423-A784-D4F43D924686}.Release|x86.ActiveCfg = Release|Win32
+		{43DA3592-8111-4423-A784-D4F43D924686}.Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {455C2AFE-35CF-4016-8BFB-6F9A16AB4B92}
+	EndGlobalSection
+EndGlobal

@@ -1,4 +1,4 @@
-|#| "__C__:stdio.dll" = __io
+|#| '__C__:stdio.dll' = __io
 
 __io.open        = open
 __io.close       = close

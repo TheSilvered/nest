@@ -1,4 +1,4 @@
-|#| "__C__:stdfs.dll" = __fs
+|#| '__C__:stdfs.dll' = __fs
 
 __fs.isdir = isdir
 __fs.mkdir = mkdir

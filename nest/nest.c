@@ -8,7 +8,7 @@
 #include "llist.h"
 #include "tokens.h"
 
-#define VERSION "beta-0.1.2"
+#define VERSION "beta-0.1.3"
 
 int main(int argc, char **argv)
 {
@@ -105,7 +105,6 @@ int main(int argc, char **argv)
             print_token(n->value);
             printf("\n");
         }
-        
         del_obj();
         return 0;
     }

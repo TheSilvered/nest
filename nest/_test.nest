@@ -1,8 +1,21 @@
-|#| "..\\nest_libs\\nest_sutil\\stdsutil.nest" = su
-|#| "..\\nest_libs\\nest_io\\stdio.nest" = io
+|#| '..\\nest_libs\\nest_itutil\\stditutil.nest' = itu
 
-"..\\nest_libs\\nest_fs\\stdfs.nest" "r" @io.open = file
-file -1 @io.read = text
-file @io.close
->>> text
->>> (text "x64\\Debug\\nest_" @su.lfind)
+#map_to_str m [
+	0 = count
+	'{ ' = s
+
+	... m @itu.items ~= i [
+		i.0 = key
+		i.1 = value
+
+		(1 += count) $m == ? ;
+		s key ': ' value ', ' >< = s
+	]
+
+	count 0 > ? s key ': ' value ' ' >< = s
+
+	=> s '}' ><
+]
+
+{ 'a': 1, 'a': 2, 'c': 3 } = map
+>>> (map @map_to_str)

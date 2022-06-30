@@ -1,4 +1,4 @@
-|#| "__C__:x64\\Debug\\nest_fs.dll" = __fs
+|#| '__C__:x64\\Debug\\nest_fs.dll' = __fs
 
 __fs.isdir = isdir
 __fs.mkdir = mkdir

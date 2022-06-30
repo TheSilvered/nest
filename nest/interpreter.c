@@ -227,6 +227,12 @@ void run(Node *node, int argc, char **argv)
     destroy_map(vt->vars);
     free(vt);
     dec_ref(state.value);
+    for ( LLNode *n = state.loaded_libs->head; n != NULL; n = n->next )
+    {
+        void (*free_lib_func)() = (void (*)())GetProcAddress(n->value, "free_lib");
+        if ( free_lib_func != NULL )
+            free_lib_func();
+    }
     LList_destroy(state.loaded_libs, FreeLibrary);
     LList_destroy(state.lib_paths, free);
     LList_destroy(state.lib_handles, free);

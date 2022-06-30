@@ -540,13 +540,18 @@ Nst_Obj *obj_str_cast_seq(Nst_Obj *seq, LList *all_seq)
     size_t len = AS_SEQ(seq)->len;
     Nst_Obj *str_to_add_obj = NULL;
     Nst_string *str_to_add = NULL;
-    char *str = NULL;
     size_t str_len = 0;
     bool is_vect = seq->type == nst_t_vect;
+    char *str = malloc(sizeof(char) * (is_vect ? 4 : 3));
+    char *realloc_str = NULL;
+    if ( str == NULL )
+    {
+        errno = ENOMEM;
+        return NULL;
+    }
 
     if ( is_vect )
     {
-        str = malloc(sizeof(char) * 4);
         str[0] = '<';
         str[1] = '{';
         str[2] = ' ';
@@ -555,14 +560,13 @@ Nst_Obj *obj_str_cast_seq(Nst_Obj *seq, LList *all_seq)
     }
     else
     {
-        str = malloc(sizeof(char) * 3);
         str[0] = '{';
         str[1] = ' ';
         str[2] = '\0';
         str_len = 2;
     }
 
-    for ( size_t i = 0; i < len - 1; i++ )
+    for ( size_t i = 0; i < len; i++ )
     {
         obj = objs[i];
 
@@ -572,32 +576,27 @@ Nst_Obj *obj_str_cast_seq(Nst_Obj *seq, LList *all_seq)
             str_to_add_obj = obj_cast(obj, nst_t_str, NULL);
 
         str_to_add = AS_STR(str_to_add_obj);
-        char *realloc_str = realloc(str, str_len + str_to_add->len + 3);
+        realloc_str = realloc(
+            str,
+            str_len
+             + str_to_add->len
+             + (is_vect && i == len - 1 ? 4 : 3)
+        );
         if ( realloc_str == NULL )
             return NULL;
         str = realloc_str;
         memcpy(str + str_len, str_to_add->value, str_to_add->len);
-        str_len += str_to_add->len + 2;
+        str_len += str_to_add->len + (is_vect && i == len - 1 ? 3 : 2);
+        dec_ref(str_to_add_obj);
+        
+        if ( i == len - 1 )
+            break;
+
         str[str_len - 2] = ',';
         str[str_len - 1] = ' ';
         str[str_len] = '\0';
-
-        dec_ref(str_to_add_obj);
     }
 
-    obj = objs[len - 1];
-    if ( obj->type == nst_t_arr || obj->type == nst_t_vect )
-        str_to_add_obj = obj_str_cast_seq(obj, all_seq);
-    else
-        str_to_add_obj = obj_cast(obj, nst_t_str, NULL);
-
-    str_to_add = AS_STR(str_to_add_obj);
-    char *realloc_str = realloc(str, str_len + str_to_add->len + (is_vect ? 4 : 3));
-    if ( realloc_str == NULL )
-        return NULL;
-    str = realloc_str;
-    memcpy(str + str_len, str_to_add->value, str_to_add->len);
-    str_len += str_to_add->len + (is_vect ? 3 : 2);
     if ( is_vect )
     {
         str[str_len - 3] = ' ';
@@ -877,6 +876,43 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
             inc_ref(ob);
 
             return make_obj(iter, nst_t_iter, destroy_iter);
+        }
+        else
+            RETURN_TYPE_ERROR("::");
+    }
+    else if ( type == nst_t_arr || type == nst_t_vect )
+    {
+        bool is_vect = type == nst_t_vect;
+        if ( ob_t == nst_t_arr || ob_t == nst_t_vect )
+        {
+            size_t seq_len = AS_SEQ_V(ob_val)->len;
+            Nst_sequence *seq = is_vect ? new_vector_empty(seq_len)
+                                        : new_array_empty(seq_len);
+
+            for ( size_t i = 0; i < seq_len; i++ )
+                set_value_seq(seq, i, AS_SEQ_V(ob_val)->objs[i]);
+
+            return is_vect ? new_vect_obj(seq) : new_arr_obj(seq);
+        }
+        else if ( ob_t == nst_t_str )
+        {
+            size_t str_len = AS_STR_V(ob_val)->len;
+            Nst_sequence *seq = is_vect ? new_vector_empty(str_len)
+                                        : new_array_empty(str_len);
+
+            for ( size_t i = 0; i < str_len; i++ )
+            {
+                char *ch = calloc(2, sizeof(char));
+                if ( ch == NULL )
+                {
+                    errno = ENOMEM;
+                    return NULL;
+                }
+
+                ch[0] = AS_STR_V(ob_val)->value[i];
+                seq->objs[i] = new_str_obj(new_string(ch, 1, true));
+            }
+            return is_vect ? new_vect_obj(seq) : new_arr_obj(seq);
         }
         else
             RETURN_TYPE_ERROR("::");

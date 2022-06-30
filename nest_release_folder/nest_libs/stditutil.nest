@@ -1,0 +1,12 @@
+|#| '__C__:stditutil.dll' = __itu
+
+__itu.count     = count
+__itu.cycle     = cycle
+__itu.repeat    = repeat
+__itu.chain     = chain
+__itu.zip       = zip
+__itu.enumerate = enumerate
+__itu.keys      = keys
+__itu.values    = values
+__itu.items     = items
+__itu.reversed  = reversed

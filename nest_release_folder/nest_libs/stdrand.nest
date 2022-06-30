@@ -1,4 +1,4 @@
-|#| "__C__:stdrand.dll" = __rand
+|#| '__C__:stdrand.dll' = __rand
 
 __rand.random = random
 __rand.rand_int = rand_int
