@@ -76,7 +76,7 @@ int main(int argc, char **argv)
         print_tokens = true;
         file_name = argv[2];
     }
-    else if ( strcmp(argv[1], "-t") == 0 || strcmp(argv[1], "--tokens") == 0 )
+    else if ( strcmp(argv[1], "-a") == 0 || strcmp(argv[1], "--ast") == 0 )
     {
         if ( argc < 3 )
         {
