@@ -293,7 +293,7 @@ void print_token(Token *token)
     else if ( token->type == N_REAL )
         printf("%g, ", AS_REAL(((Nst_Obj *)token->value)));
     else if ( token->type == STRING || token->type == IDENT )
-        printf("%s, ", AS_STR(((Nst_Obj *)token->value))->value);
+        printf("%s, ", repr_string(AS_STR(((Nst_Obj *)token->value)))->value);
 
     printf("%zi:%zi, %zi:%zi)",
         token->start.line,

@@ -200,3 +200,12 @@ void destroy_map(Nst_map *map)
     free(map->nodes);
     free(map);
 }
+
+Nst_int get_next_idx(Nst_int curr_idx, Nst_map *map)
+{
+    for ( Nst_int i = curr_idx + 1; i < (Nst_int)map->size; i++ )
+        if ( map->nodes[i].key != NULL )
+            return i;
+
+    return -1;
+}

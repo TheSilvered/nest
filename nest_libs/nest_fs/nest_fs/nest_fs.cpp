@@ -37,15 +37,9 @@ Nst_Obj *isdir(size_t arg_num, Nst_Obj **args, OpErr *err)
         return nullptr;
 
     if ( PathIsDirectoryA(path->value) )
-    {
-        inc_ref(nst_true);
-        return nst_true;
-    }
+        return inc_ref(nst_true);
     else
-    {
-        inc_ref(nst_false);
-        return nst_false;
-    }
+        return inc_ref(nst_false);
 }
 
 Nst_Obj *mkdir(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -58,10 +52,7 @@ Nst_Obj *mkdir(size_t arg_num, Nst_Obj **args, OpErr *err)
     bool success = CreateDirectoryA(path->value, nullptr);
 
     if ( success || GetLastError() == ERROR_ALREADY_EXISTS )
-    {
-        inc_ref(nst_null);
-        return nst_null;
-    }
+        return inc_ref(nst_null);
     else
     {
         SET_VALUE_ERROR("directory path not found");
@@ -79,10 +70,7 @@ Nst_Obj *rmdir(size_t arg_num, Nst_Obj **args, OpErr *err)
     bool success = RemoveDirectoryA(path->value);
 
     if ( success )
-    {
-        inc_ref(nst_null);
-        return nst_null;
-    }
+        return inc_ref(nst_null);
     else if ( GetLastError() == ERROR_PATH_NOT_FOUND )
     {
         SET_VALUE_ERROR("directory path not found");
@@ -109,16 +97,9 @@ Nst_Obj *isfile(size_t arg_num, Nst_Obj **args, OpErr *err)
 
     Nst_iofile *file = fopen(path->value, "rb");
     if ( file == nullptr )
-    {
-        inc_ref(nst_false);
-        return nst_false;
-    }
+        return inc_ref(nst_false);
     else
-    {
-        fclose(file);
-        inc_ref(nst_true);
-        return nst_true;
-    }
+        return inc_ref(nst_true);
 }
 
 Nst_Obj *rmfile(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -131,10 +112,7 @@ Nst_Obj *rmfile(size_t arg_num, Nst_Obj **args, OpErr *err)
     bool success = DeleteFileA(path->value);
 
     if ( success )
-    {
-        inc_ref(nst_null);
-        return nst_null;
-    }
+        return inc_ref(nst_null);
     else if ( GetLastError() == ERROR_PATH_NOT_FOUND )
     {
         SET_VALUE_ERROR("file not found");

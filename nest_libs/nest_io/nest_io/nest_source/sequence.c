@@ -62,7 +62,7 @@ Nst_Obj *new_arr_obj(Nst_sequence *arr)
 
 Nst_Obj *new_vect_obj(Nst_sequence *vect)
 {
-    return make_obj(vect, nst_t_arr, destroy_seq);
+    return make_obj(vect, nst_t_vect, destroy_seq);
 }
 
 void resize_vector(Nst_sequence *vect)

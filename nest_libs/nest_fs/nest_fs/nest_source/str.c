@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <ctype.h>
 #include "str.h"
 
 #define IS_WHITESPACE(ch) \
@@ -65,6 +66,95 @@ Nst_string *copy_string(Nst_string *src)
     strcpy(buffer, src->value);
 
     return new_string(buffer, src->len, true);
+}
+
+Nst_string *repr_string(Nst_string *src)
+{
+    char *orig = src->value;
+    size_t new_size = 2;
+    int double_quotes_count = 0;
+    int single_quotes_count = 0;
+    bool using_doub = false;
+
+    for ( char *s = orig; *s; s++ )
+    {
+        switch ( *s )
+        {
+        case '\\':
+        case '\a':
+        case '\b':
+        case '\f':
+        case '\n':
+        case '\r':
+        case '\t':
+        case '\v': new_size += 2; break;
+        case '\'': single_quotes_count += 1; break;
+        case '"': double_quotes_count += 1; break;
+        default:
+            if ( isprint(*s) )
+                new_size += 1;
+            else
+                new_size += 4;
+        }
+    }
+
+    if ( single_quotes_count > double_quotes_count )
+    {
+        using_doub = true;
+        new_size += double_quotes_count * 2;
+        new_size += single_quotes_count;
+    }
+    else
+    {
+        new_size += single_quotes_count * 2;
+        new_size += double_quotes_count;
+    }
+
+    char *new_str = malloc(sizeof(char) * (new_size + 1));
+    if ( new_str == NULL )
+    {
+        errno = ENOMEM;
+        return NULL;
+    }
+
+    *new_str = using_doub ? '"' : '\'';
+
+    size_t i = 1;
+    for ( char *s = orig; *s; s++ )
+    {
+        switch ( *s )
+        {
+        case '\\': new_str[i++] = '\\'; new_str[i++] = '\\'; break;
+        case '\a': new_str[i++] = '\\'; new_str[i++] = 'a'; break;
+        case '\b': new_str[i++] = '\\'; new_str[i++] = 'b'; break;
+        case '\f': new_str[i++] = '\\'; new_str[i++] = 'f'; break;
+        case '\n': new_str[i++] = '\\'; new_str[i++] = 'n'; break;
+        case '\r': new_str[i++] = '\\'; new_str[i++] = 'r'; break;
+        case '\t': new_str[i++] = '\\'; new_str[i++] = 't'; break;
+        case '\v': new_str[i++] = '\\'; new_str[i++] = 'v'; break;
+        case '\'':
+            if ( !using_doub ) new_str[i++] = '\\';
+            new_str[i++] = '\'';
+            break;
+        case '"':
+            if ( using_doub ) new_str[i++] = '\\';
+            new_str[i++] = '"';
+            break;
+        default:
+            if ( isprint(*s) )
+                new_str[i++] = *s;
+            else
+            {
+                sprintf(&new_str[i], "\\x%02x", *s);
+                i += 4;
+            }
+        }
+    }
+
+    new_str[new_size - 1] = using_doub ? '"' : '\'';
+    new_str[new_size] = 0;
+
+    return new_string(new_str, new_size, true);
 }
 
 void destroy_string(Nst_string *str)

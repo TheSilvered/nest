@@ -59,8 +59,8 @@
     case STACK_OP:       exe_stack_op(node, vt); break; \
     case LOCAL_STACK_OP: exe_local_stack_op(node, vt); break; \
     case LOCAL_OP:       exe_local_op(node, vt); break; \
-    case ARR_LIT:        exe_arr_lit(node, vt); break; \
-    case VECT_LIT:       exe_vect_lit(node, vt); break; \
+    case ARR_LIT: \
+    case VECT_LIT:       exe_arr_or_vect_lit(node, vt); break; \
     case MAP_LIT:        exe_map_lit(node, vt); break; \
     case VALUE:          exe_value(node, vt); break; \
     case ACCESS:         exe_access(node, vt); break; \
@@ -119,8 +119,7 @@ static void exe_return_s(Node *node, VarTable *vt);
 static void exe_stack_op(Node *node, VarTable *vt);
 static void exe_local_stack_op(Node *node, VarTable *vt);
 static void exe_local_op(Node *node, VarTable *vt);
-static void exe_arr_lit(Node *node, VarTable *vt);
-static void exe_vect_lit(Node *node, VarTable *vt);
+static void exe_arr_or_vect_lit(Node *node, VarTable *vt);
 static void exe_map_lit(Node *node, VarTable *vt);
 static void exe_value(Node *node, VarTable *vt);
 static void exe_access(Node *node, VarTable *vt);
@@ -939,36 +938,75 @@ static void exe_local_op(Node *node, VarTable *vt)
     SET_VALUE(res);
 }
 
-static void exe_arr_lit(Node *node, VarTable *vt)
+static void exe_arr_or_vect_lit(Node *node, VarTable *vt)
 {
-    Nst_sequence *arr = new_array_empty(node->nodes->size);
-    Nst_Obj **objs = arr->objs;
+    bool is_arr = node->type == ARR_LIT;
+
+    if ( node->tokens->size != 0 )
+    {
+        if ( !safe_exe(HEAD_NODE(node), vt) )
+            return;
+        Nst_Obj *value = inc_ref(state.value);
+        if ( !safe_exe(TAIL_NODE(node), vt) )
+        {
+            dec_ref(value);
+            return;
+        }
+
+        Nst_Obj *quantity = state.value;
+        if ( quantity->type != nst_t_int )
+        {
+            SET_ERROR(
+                SET_VALUE_ERROR_INT,
+                TAIL_NODE(node)->start,
+                TAIL_NODE(node)->end,
+                format_type_error(EXPECTED_TYPE("Int"), quantity->type_name)
+            );
+            dec_ref(value);
+            return;
+        }
+
+        Nst_int size = AS_INT(quantity);
+        Nst_sequence *seq = is_arr ? new_array_empty(size)
+                                   : new_vector_empty(size);
+        if ( seq == NULL )
+        {
+            SET_ERROR(
+                SET_MEMORY_ERROR_INT,
+                node->start,
+                node->end,
+                RAN_OUT_OF_MEMORY
+            );
+            dec_ref(value);
+            return;
+        }
+
+        for ( Nst_int i = 0; i < size; i++ )
+            set_value_seq(seq, i, value);
+
+        dec_ref(value);
+        if ( is_arr )
+            SET_VALUE(new_arr_obj(seq));
+        else
+            SET_VALUE(new_vect_obj(seq));
+        return;
+    }
+
+    Nst_sequence *seq = is_arr ? new_array_empty(node->nodes->size)
+                               : new_vector_empty(node->nodes->size);
     size_t i = 0;
 
     for ( LLNode *n = node->nodes->head; n != NULL; n = n->next )
     {
         if ( !safe_exe(n->value, vt) )
             return;
-        set_value_seq(arr, i++, state.value);
+        set_value_seq(seq, i++, state.value);
     }
 
-    SET_VALUE(make_obj(arr, nst_t_arr, destroy_seq));
-}
-
-static void exe_vect_lit(Node *node, VarTable *vt)
-{
-    Nst_sequence *arr = new_vector_empty(node->nodes->size);
-    Nst_Obj **objs = arr->objs;
-    size_t i = 0;
-
-    for ( LLNode *n = node->nodes->head; n != NULL; n = n->next )
-    {
-        if ( !safe_exe(n->value, vt) )
-            return;
-        set_value_seq(arr, i++, state.value);
-    }
-
-    SET_VALUE(make_obj(arr, nst_t_vect, destroy_seq));
+    if ( is_arr )
+        SET_VALUE(new_arr_obj(seq));
+    else
+        SET_VALUE(new_vect_obj(seq));
 }
 
 static void exe_map_lit(Node *node, VarTable *vt)

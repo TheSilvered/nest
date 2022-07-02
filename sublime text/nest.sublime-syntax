@@ -7,11 +7,12 @@ file_extensions:
   - nest
 
 variables:
-  identifier: '[A-Za-z_][A-Za-z_0-9]*'
+  identifier: '\b[A-Za-z_][A-Za-z_0-9]*\b'
+  constant: '\b(_*\d*[A-Z]{2,}[A-Za-z_0-9]*|[A-Z])\b'
   lang_constants: '\b(true|false|null|_cwd_|_args_)\b'
   lang_types: '\b(Type|Int|Real|Bool|Null|Str|Array|Vector|Map|Func|Iter|Byte|IOfile)\b'
   lang_keywords: '(\?\.\.|\.\.\?|\.\.\.|\?|~=|\.\.|;)'
-  lang_arith_operators: '(\+|-|\*|/|//|\^|%|><)'
+  lang_arith_operators: '(-:|\+|-|\*|/|//|\^|%|><)'
   lang_logic_operators: '(!=|==|>=|<=|&&|\|\||\|&)'
   lang_other_operators: '(\$|::|\?::|!|>>>|<<<)'
   lang_assign_operators: '(\+=|-=|\*=|/=|//=|\^=|%=|><=|=|\|#\|)'
@@ -41,6 +42,14 @@ contexts:
     - match: '(<\{|{)'
       push: arr-obj-vect
 
+    - match: '{{constant}}'
+      scope: constant.language.nest
+
+    - match: '(?<=[^.]\.)\s*({{identifier}})'
+      scope: text.nest
+      captures:
+        1: variable.language.nest
+
     - match: '{{identifier}}'
       scope: variable.other.nest
 
@@ -51,6 +60,9 @@ contexts:
     - match: '(-->|--+)'
       scope: comment.line.nest
       push: comment_end
+    - match: '-/'
+      scope: comment.line.nest
+      push: multiline_comment_end
 
   keywords:
     - match: =>
@@ -88,13 +100,11 @@ contexts:
       scope: keyword.operator.logical.nest
 
   func-call:
-    - match: '@'
-      scope: keyword.operator.nest
-
-    - match: '(?<=@)\s*{{identifier}}((\s*\.)\s*{{identifier}})*'
+    - match: '(@@|@)\s*{{identifier}}((\s*\.)\s*{{identifier}})*'
       scope: variable.function.nest
       captures:
-        2: punctuation.accessor.nest
+        1: keyword.operator.nest
+        3: punctuation.accessor.nest
 
   general:
     - match: ']'
@@ -105,7 +115,7 @@ contexts:
       scope: constant.language.nest
 
     - match: '{{lang_types}}'
-      scope: support.type.nest
+      scope: storage.type.nest
 
   func-def:
     - match: '#\s*({{identifier}})'
@@ -114,33 +124,36 @@ contexts:
         1: entity.name.function.nest
       push: func-args
 
-  string_double:
-    - meta_scope: string.quoted.double
-    - match: '\\[abfnrtv\\"'']'
+  string_escape:
+    - match: '\\([abfnrtv\\"'']|x[0-7][0-9a-fA-F])'
       scope: constant.character.escape.nest
-    - match: '\\[^abfnrtv\\"'']'
+    - match: '\\(x[^0-7].|x[0-7][^0-9a-fA-F]|[^abfnrtv\\"''])'
       scope: invalid.illegal.nest
-    - match: '(?<=[^\\]")_(start|advance|is_done|get_val)_(?=")'
+    - match: '(?<=[^\\]'')_(start|advance|is_done|get_val)_(?='')'
       scope: constant.character.escape.nest
+
+  string_double:
+    - meta_scope: string.quoted.double.nest
+    - include: string_escape
     - match: '"'
       scope: punctuation.definition.string.end.nest
       pop: true
 
   string_single:
-    - meta_scope: string.quoted.double
-    - match: '\\[abfnrtv\\"'']'
-      scope: constant.character.escape.nest
-    - match: '\\[^abfnrtv\\"'']'
-      scope: invalid.illegal.nest
-    - match: '(?<=[^\\]'')_(start|advance|is_done|get_val)_(?='')'
-      scope: constant.character.escape.nest
+    - meta_scope: string.quoted.single.nest
+    - include: string_escape
     - match: '(''|$)'
       scope: punctuation.definition.string.end.nest
       pop: true
 
   comment_end:
     - meta_scope: comment.line.nest
-    - match: (?<!\\)\n
+    - match: (?<!\\)\r?\n
+      pop: true
+
+  multiline_comment_end:
+    - meta_scope: comment.line.nest
+    - match: '/-'
       pop: true
 
   func-args:
@@ -162,7 +175,7 @@ contexts:
     - include: builtins
     - include: values
 
-    - match: '[,:]'
+    - match: '[,:;]'
       scope: punctuation.separator.nest
 
     - match: '(\}|\}>)'

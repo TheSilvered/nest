@@ -2,7 +2,6 @@
 #include "itutil_functions.h"
 
 #define FUNC_COUNT 10
-#define NO_IMPL { inc_ref(nst_null); return nst_null; }
 
 static FuncDeclr *func_list_;
 static bool lib_init_ = false;
@@ -59,15 +58,15 @@ Nst_Obj *count(size_t arg_num, Nst_Obj **args, OpErr *err)
 
 Nst_Obj *cycle(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_sequence *seq;
+    Nst_Obj *seq;
 
-    if ( !extract_arg_values("A", arg_num, args, err, &seq) )
+    if ( !extract_arg_values("S", arg_num, args, err, &seq) )
         return nullptr;
 
     // Layout: [idx, seq]
     Nst_sequence *arr = new_array_empty(2);
     arr->objs[0] = new_int_obj(0);
-    set_value_seq(arr, 1, args[0]);
+    arr->objs[1] = seq;
 
     return new_iter_obj(new_iter(
         new_func_obj(new_cfunc(1, cycle_start)),
@@ -124,17 +123,17 @@ Nst_Obj *chain(size_t arg_num, Nst_Obj **args, OpErr *err)
 
 Nst_Obj *zip(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_sequence *seq1;
-    Nst_sequence *seq2;
+    Nst_Obj *seq1;
+    Nst_Obj *seq2;
 
-    if ( !extract_arg_values("AA", arg_num, args, err, &seq1, &seq2) )
+    if ( !extract_arg_values("SS", arg_num, args, err, &seq1, &seq2) )
         return nullptr;
 
     // Layout: [idx, seq1, seq2]
     Nst_sequence *arr = new_array_empty(3);
     arr->objs[0] = new_int_obj(0);
-    set_value_seq(arr, 1, args[0]);
-    set_value_seq(arr, 2, args[1]);
+    arr->objs[1] = seq1;
+    arr->objs[2] = seq2;
 
     return new_iter_obj(new_iter(
         new_func_obj(new_cfunc(1, zip_start)),
@@ -147,15 +146,15 @@ Nst_Obj *zip(size_t arg_num, Nst_Obj **args, OpErr *err)
 
 Nst_Obj *enumerate(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_sequence *seq;
+    Nst_Obj *seq;
 
-    if ( !extract_arg_values("A", arg_num, args, err, &seq) )
+    if ( !extract_arg_values("S", arg_num, args, err, &seq) )
         return nullptr;
 
     // Layout: [idx, seq]
     Nst_sequence *arr = new_array_empty(2);
     arr->objs[0] = new_int_obj(0);
-    set_value_seq(arr, 1, args[0]);
+    arr->objs[1] = seq;
 
     return new_iter_obj(new_iter(
         new_func_obj(new_cfunc(1, enumerate_start)),
@@ -231,15 +230,15 @@ Nst_Obj *items(size_t arg_num, Nst_Obj **args, OpErr *err)
 
 Nst_Obj *reversed(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_sequence *seq;
+    Nst_Obj *seq;
 
-    if ( !extract_arg_values("A", arg_num, args, err, &seq) )
+    if ( !extract_arg_values("S", arg_num, args, err, &seq) )
         return nullptr;
 
-    // Layout: [idx, map]
+    // Layout: [idx, seq]
     Nst_sequence *arr = new_array_empty(2);
     arr->objs[0] = new_int_obj(0);
-    set_value_seq(arr, 1, args[0]);
+    arr->objs[1] = seq;
 
     return new_iter_obj(new_iter(
         new_func_obj(new_cfunc(1, reversed_start)),

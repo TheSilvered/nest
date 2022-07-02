@@ -74,10 +74,10 @@ static void add_date(Nst_map *map, tm *(*time_func)(const time_t*))
     Nst_Obj *year_obj = new_int_obj(t->tm_year + 1900);
 
     map_set_str(map, "day", day_obj);
-    map_set_str(map, "weekday", weekday_obj);
-    map_set_str(map, "yearday", yearday_obj);
+    map_set_str(map, "week_day", weekday_obj);
+    map_set_str(map, "year_day", yearday_obj);
     map_set_str(map, "month", month_obj);
-    map_set_str(map, "year", month_obj);
+    map_set_str(map, "year", year_obj);
 
     dec_ref(day_obj);
     dec_ref(weekday_obj);
@@ -242,11 +242,10 @@ Nst_Obj *sleep(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_real time;
 
-    if ( !extract_arg_values("R", arg_num, args, err, &time) )
+    if ( !extract_arg_values("N", arg_num, args, err, &time) )
         return nullptr;
 
     Sleep(DWORD(time * 1000));
 
-    inc_ref(nst_null);
-    return nst_null;
+    return inc_ref(nst_null);
 }

@@ -4,11 +4,12 @@
 #include "lib_import.h"
 #include "error.h"
 #include "nst_types.h"
+#include "obj_ops.h"
 
-#define SET_TYPE_ERROR_INT(type) do { \
+#define SET_TYPE_ERROR_INT(type) { \
     err->name = (char *)"Type Error"; \
     err->message = format_arg_error(WRONG_TYPE_FOR_ARG(type), ob->type_name, i); \
-    error_occurred = true; } while ( 0 )
+    error_occurred = true; break; }
 
 FuncDeclr *new_func_list(size_t count)
 {
@@ -46,6 +47,7 @@ bool extract_arg_values(const char *types,
        'v': vector
        'a': array
        'A': array or vector
+       'S': array, vector or string, always returns a Nst_Obj *
        'm': map
        'f': func
        'I': iter
@@ -111,6 +113,15 @@ bool extract_arg_values(const char *types,
             if ( ob->type != nst_t_arr && ob->type != nst_t_vect )
                 SET_TYPE_ERROR_INT("Array' or 'Vector");
             *(Nst_sequence **)arg = AS_SEQ(ob);
+            break;
+        case 'S':
+            if ( ob->type != nst_t_arr && ob->type != nst_t_vect
+                 && ob->type != nst_t_str )
+                SET_TYPE_ERROR_INT("Array', 'Vector' or 'String");
+            if ( ob->type == nst_t_str )
+                *(Nst_Obj **)arg = obj_cast(ob, nst_t_arr, err);
+            else
+                *(Nst_Obj **)arg = inc_ref(ob);
             break;
         case 'm':
             if ( ob->type != nst_t_map )

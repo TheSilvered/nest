@@ -43,6 +43,7 @@
 #define MISSING_PAREN "unmatched parenthesis"
 #define MISSING_VECTOR_BRACE "unmatched vector brace"
 #define EXPECTED_COMMA_OR_BRACE "expected ',' or '}'"
+#define EXPECTED_BRACE "expected '}'"
 #define EXPECTED_COLON "expected ':'"
 #define EXPECTED_TYPE(type) "expected type '" type "', got '%s' instead"
 #define UNHASHABLE_TYPE "unhashable type '%s'"
@@ -60,6 +61,7 @@
 #define WRONG_TYPE_FOR_ARG(type) "expected type '" type "' for argument %zi, got type '%s' instead"
 #define ARG_NUM_DOESNT_MATCH "argument number doesn't match to the given types"
 #define INCVALID_TYPE_LETTER "invalid letter in type string"
+#define RAN_OUT_OF_MEMORY "ran out of memory"
 
 #ifdef __cplusplus
 extern "C" {

@@ -27,8 +27,8 @@ bool lib_init()
     func_list_[idx++] = MAKE_FUNCDECLR(read, 2);
     func_list_[idx++] = MAKE_FUNCDECLR(read_bytes, 2);
     func_list_[idx++] = MAKE_FUNCDECLR(file_size, 1);
-    func_list_[idx++] = MAKE_FUNCDECLR(move_fptr, 2);
-    func_list_[idx++] = MAKE_FUNCDECLR(get_fptr, 2);
+    func_list_[idx++] = MAKE_FUNCDECLR(move_fptr, 3);
+    func_list_[idx++] = MAKE_FUNCDECLR(get_fptr, 1);
     func_list_[idx++] = MAKE_FUNCDECLR(flush, 1);
     func_list_[idx++] = MAKE_FUNCDECLR(_get_stdin, 0);
     func_list_[idx++] = MAKE_FUNCDECLR(_get_stdout, 0);
@@ -101,10 +101,7 @@ Nst_Obj *open(size_t arg_num, Nst_Obj **args, OpErr *err)
 
     Nst_iofile *file_ptr = fopen(file_name, file_mode);
     if ( file_ptr == nullptr )
-    {
-        inc_ref(nst_null);
-        return nst_null;
-    }
+        return inc_ref(nst_null);
 
     return make_obj(file_ptr, nst_t_file, nullptr);
 }
@@ -125,8 +122,7 @@ Nst_Obj *close(size_t arg_num, Nst_Obj **args, OpErr *err)
     fclose(f);
     args[0]->value = nullptr;
     
-    inc_ref(nst_null);
-    return nst_null;
+    return inc_ref(nst_null);
 }
 
 Nst_Obj *write(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -149,8 +145,7 @@ Nst_Obj *write(size_t arg_num, Nst_Obj **args, OpErr *err)
     fwrite(str->value, sizeof(char), str->len, f);
 
     dec_ref(str_to_write);
-    inc_ref(nst_null);
-    return nst_null;
+    return inc_ref(nst_null);
 }
 
 Nst_Obj *write_bytes(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -186,8 +181,7 @@ Nst_Obj *write_bytes(size_t arg_num, Nst_Obj **args, OpErr *err)
     fwrite(bytes, sizeof(char), seq_len, f);
 
     delete[] bytes;
-    inc_ref(nst_null);
-    return nst_null;
+    return inc_ref(nst_null);
 }
 
 Nst_Obj *read(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -315,8 +309,7 @@ Nst_Obj *move_fptr(size_t arg_num, Nst_Obj **args, OpErr *err)
 
     fseek(f, (long)offset, (int)start);
 
-    inc_ref(nst_null);
-    return nst_null;
+    return inc_ref(nst_null);
 }
 
 Nst_Obj *flush(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -333,8 +326,7 @@ Nst_Obj *flush(size_t arg_num, Nst_Obj **args, OpErr *err)
     }
 
     fflush(f);
-    inc_ref(nst_null);
-    return nst_null;
+    return inc_ref(nst_null);
 }
 
 Nst_Obj *_get_stdin(size_t arg_num, Nst_Obj **args, OpErr *err)

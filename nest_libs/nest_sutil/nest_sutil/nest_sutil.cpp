@@ -3,7 +3,7 @@
 #include <cstring>
 #include <cstdlib>
 
-#define FUNC_COUNT 18
+#define FUNC_COUNT 19
 
 #define EXPECTED_BYTE "expected only type 'Byte', got type '%s' instead"
 
@@ -17,7 +17,7 @@ bool lib_init()
 
     size_t idx = 0;
 
-    func_list_[idx++] = { nst_lfind, 2, new_string_raw("lfind", false) };
+    func_list_[idx++] = MAKE_NAMED_FUNCDECLR(nst_lfind, 2, "lfind");
     func_list_[idx++] = MAKE_FUNCDECLR(rfind, 2);
     func_list_[idx++] = MAKE_FUNCDECLR(trim, 1);
     func_list_[idx++] = MAKE_FUNCDECLR(ltrim, 1);
@@ -35,6 +35,7 @@ bool lib_init()
     func_list_[idx++] = MAKE_FUNCDECLR(is_printable, 1);
     func_list_[idx++] = MAKE_FUNCDECLR(replace_substr, 3);
     func_list_[idx++] = MAKE_FUNCDECLR(bytearray_to_str, 1);
+    func_list_[idx++] = MAKE_FUNCDECLR(repr, 1);
 
     lib_init_ = true;
     return true;
@@ -209,10 +210,7 @@ Nst_Obj *ljust(size_t arg_num, Nst_Obj **args, OpErr *err)
     size_t len = str->len;
 
     if ( just_len <= (Nst_int)len )
-    {
-        inc_ref(args[0]);
-        return args[0];
-    }
+        return inc_ref(args[0]);
 
     if ( just_char->len != 1 )
     {
@@ -241,10 +239,7 @@ Nst_Obj *rjust(size_t arg_num, Nst_Obj **args, OpErr *err)
     size_t len = str->len;
 
     if ( just_len <= (Nst_int)len )
-    {
-        inc_ref(args[0]);
-        return args[0];
-    }
+        return inc_ref(args[0]);
 
     if ( just_char->len != 1 )
     {
@@ -311,15 +306,11 @@ Nst_Obj *is_upper(size_t arg_num, Nst_Obj **args, OpErr *err)
     while ( *s )
     {
         if ( isalpha(*s) && !isupper(*s) )
-        {
-            inc_ref(nst_false);
-            return nst_false;
-        }
+            return inc_ref(nst_false);
         ++s;
     }
 
-    inc_ref(nst_true);
-    return nst_true;
+    return inc_ref(nst_true);
 }
 
 Nst_Obj *is_lower(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -334,15 +325,11 @@ Nst_Obj *is_lower(size_t arg_num, Nst_Obj **args, OpErr *err)
     while ( *s )
     {
         if ( isalpha(*s) && !islower(*s) )
-        {
-            inc_ref(nst_false);
-            return nst_false;
-        }
+            return inc_ref(nst_false);
         ++s;
     }
 
-    inc_ref(nst_true);
-    return nst_true;
+    return inc_ref(nst_true);
 }
 
 Nst_Obj *is_alpha(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -357,14 +344,10 @@ Nst_Obj *is_alpha(size_t arg_num, Nst_Obj **args, OpErr *err)
     while ( *s )
     {
         if ( !isalpha(*s++) )
-        {
-            inc_ref(nst_false);
-            return nst_false;
-        }
+            return inc_ref(nst_false);
     }
 
-    inc_ref(nst_true);
-    return nst_true;
+    return inc_ref(nst_true);
 }
 
 Nst_Obj *is_digit(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -379,14 +362,10 @@ Nst_Obj *is_digit(size_t arg_num, Nst_Obj **args, OpErr *err)
     while ( *s )
     {
         if ( !isdigit(*s++) )
-        {
-            inc_ref(nst_false);
-            return nst_false;
-        }
+            return inc_ref(nst_false);
     }
 
-    inc_ref(nst_true);
-    return nst_true;
+    return inc_ref(nst_true);
 }
 
 Nst_Obj *is_alnum(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -401,14 +380,10 @@ Nst_Obj *is_alnum(size_t arg_num, Nst_Obj **args, OpErr *err)
     while ( *s )
     {
         if ( !isalnum(*s++) )
-        {
-            inc_ref(nst_false);
-            return nst_false;
-        }
+            return inc_ref(nst_false);
     }
 
-    inc_ref(nst_true);
-    return nst_true;
+    return inc_ref(nst_true);
 }
 
 Nst_Obj *is_charset(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -434,15 +409,11 @@ Nst_Obj *is_charset(size_t arg_num, Nst_Obj **args, OpErr *err)
         }
 
         if ( !*p2 )
-        {
-            inc_ref(nst_false);
-            return nst_false;
-        }
+            return inc_ref(nst_false);
         ++s1;
     }
 
-    inc_ref(nst_true);
-    return nst_true;
+    return inc_ref(nst_true);
 }
 
 Nst_Obj *is_printable(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -457,14 +428,10 @@ Nst_Obj *is_printable(size_t arg_num, Nst_Obj **args, OpErr *err)
     while ( *s )
     {
         if ( !isprint(*s++) )
-        {
-            inc_ref(nst_false);
-            return nst_false;
-        }
+            return inc_ref(nst_false);
     }
 
-    inc_ref(nst_true);
-    return nst_true;
+    return inc_ref(nst_true);
 }
 
 Nst_Obj *replace_substr(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -482,10 +449,7 @@ Nst_Obj *replace_substr(size_t arg_num, Nst_Obj **args, OpErr *err)
     char *sub = strstr(s, s1);
 
     if ( sub == nullptr || *s1 == 0 )
-    {
-        inc_ref(args[0]);
-        return args[0];
-    }
+        return inc_ref(args[0]);
 
     size_t s_len = str->len;
     size_t s1_len = str1->len;
@@ -566,4 +530,14 @@ Nst_Obj *bytearray_to_str(size_t arg_num, Nst_Obj **args, OpErr *err)
 
     new_str[len] = 0;
     return new_str_obj(new_string(new_str, len, true));
+}
+
+Nst_Obj *repr(size_t arg_num, Nst_Obj **args, OpErr *err)
+{
+    Nst_string *str;
+
+    if ( !extract_arg_values("s", arg_num, args, err, &str) )
+        return nullptr;
+
+    return new_str_obj(repr_string(str));
 }

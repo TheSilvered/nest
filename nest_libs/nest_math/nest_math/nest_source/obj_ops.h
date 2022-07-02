@@ -49,7 +49,9 @@ Nst_Obj *obj_lgand(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err);
 Nst_Obj *obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err);
 
 // Other
-Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err); // TODO
+Nst_Obj *obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs);
+Nst_Obj *obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs);
+Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err);
 Nst_Obj *obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err);
 
 // Local operations

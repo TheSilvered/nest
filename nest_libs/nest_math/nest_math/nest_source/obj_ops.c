@@ -5,6 +5,7 @@
 #include <windows.h>
 #include "obj_ops.h"
 #include "nst_types.h"
+#include "map.h"
 #include "error.h"
 
 #define MAX_INT_CHAR_COUNT 21
@@ -19,6 +20,14 @@
     err->name = TYPE_ERROR; \
     err->message = "invalid type for '" operand "'"; \
     return NULL; } while (0)
+
+#define CHECK_BUFFER(buf) do { \
+        if ( buf == NULL ) \
+        { \
+            errno = ENOMEM; \
+            return NULL; \
+        } \
+    } while (0)
 
 #define RETURN_TRUE return inc_ref(nst_true)
 #define RETURN_FALSE return inc_ref(nst_false)
@@ -525,90 +534,211 @@ Nst_Obj *obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 }
 
 // Other
-Nst_Obj *obj_str_cast_seq(Nst_Obj *seq, LList *all_seq)
+Nst_Obj *obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs)
 {
-    for ( LLNode *n = all_seq->head; n != NULL; n = n->next )
+    for ( LLNode *n = all_objs->head; n != NULL; n = n->next )
     {
-        if ( seq == n->value )
+        if ( seq_obj == n->value )
             return new_str_obj(new_string("{.}", 3, false));
     }
 
-    LList_append(all_seq, seq, false);
+    LList_push(all_objs, seq_obj, false);
+    bool is_vect = seq_obj->type == nst_t_vect;
 
-    Nst_Obj **objs = AS_SEQ(seq)->objs;
-    Nst_Obj *obj = NULL;
-    size_t len = AS_SEQ(seq)->len;
-    Nst_Obj *str_to_add_obj = NULL;
-    Nst_string *str_to_add = NULL;
+    size_t len = AS_SEQ(seq_obj)->len;
     size_t str_len = 0;
-    bool is_vect = seq->type == nst_t_vect;
-    char *str = malloc(sizeof(char) * (is_vect ? 4 : 3));
+    Nst_Obj *val_obj = NULL;
+    Nst_string *val = NULL;
+
+    char *str = malloc(sizeof(char) * (is_vect ? 6 : 4));
     char *realloc_str = NULL;
-    if ( str == NULL )
-    {
-        errno = ENOMEM;
-        return NULL;
-    }
+    CHECK_BUFFER(str);
 
     if ( is_vect )
     {
         str[0] = '<';
         str[1] = '{';
         str[2] = ' ';
-        str[3] = '\0';
         str_len = 3;
     }
     else
     {
         str[0] = '{';
         str[1] = ' ';
-        str[2] = '\0';
         str_len = 2;
     }
 
     for ( size_t i = 0; i < len; i++ )
     {
-        obj = objs[i];
+        val_obj = AS_SEQ(seq_obj)->objs[i];
 
-        if ( obj->type == nst_t_arr || obj->type == nst_t_vect )
-            str_to_add_obj = obj_str_cast_seq(obj, all_seq);
+        if ( IS_SEQ(val_obj) )
+        {
+            val_obj = obj_str_cast_seq(val_obj, all_objs);
+            val = AS_STR(val_obj);
+        }
+        else if ( val_obj->type == nst_t_map )
+        {
+            val_obj = obj_str_cast_map(val_obj, all_objs);
+            val = AS_STR(val_obj);
+        }
+        else if ( val_obj->type == nst_t_str )
+        {
+            val = repr_string(AS_STR(val_obj));
+            val_obj = NULL;
+        }
         else
-            str_to_add_obj = obj_cast(obj, nst_t_str, NULL);
+        {
+            val_obj = obj_cast(val_obj, nst_t_str, NULL);
+            val = AS_STR(val_obj);
+        }
 
-        str_to_add = AS_STR(str_to_add_obj);
         realloc_str = realloc(
             str,
             str_len
-             + str_to_add->len
+             + val->len
              + (is_vect && i == len - 1 ? 4 : 3)
         );
-        if ( realloc_str == NULL )
-            return NULL;
+        CHECK_BUFFER(realloc_str);
         str = realloc_str;
-        memcpy(str + str_len, str_to_add->value, str_to_add->len);
-        str_len += str_to_add->len + (is_vect && i == len - 1 ? 3 : 2);
-        dec_ref(str_to_add_obj);
-        
+        memcpy(str + str_len, val->value, val->len);
+        str_len += val->len + (is_vect && i == len - 1 ? 3 : 2);
+        if ( val_obj != NULL )
+        {
+            dec_ref(val_obj);
+            val_obj = NULL;
+        }
+
         if ( i == len - 1 )
             break;
 
         str[str_len - 2] = ',';
         str[str_len - 1] = ' ';
-        str[str_len] = '\0';
     }
 
     if ( is_vect )
     {
+        if ( str_len == 3 )
+            str_len = 5;
         str[str_len - 3] = ' ';
         str[str_len - 2] = '}';
         str[str_len - 1] = '>';
     }
     else
     {
+        if ( str_len == 2 )
+            str_len = 3;
         str[str_len - 2] = ' ';
         str[str_len - 1] = '}';
     }
     str[str_len] = 0;
+
+    LList_pop(all_objs);
+
+    return new_str_obj(new_string(str, str_len, true));
+}
+
+Nst_Obj *obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
+{
+    for ( LLNode *n = all_objs->head; n != NULL; n = n->next )
+    {
+        if ( map_obj == n->value )
+            return new_str_obj(new_string("{.}", 3, false));
+    }
+
+    LList_push(all_objs, map_obj, false);
+
+    size_t str_len = 2;
+    Nst_Obj *key_obj = NULL;
+    Nst_string *key = NULL;
+    Nst_Obj *val_obj = NULL;
+    Nst_string *val = NULL;
+
+    char *str = malloc(sizeof(char) * 4);
+    char *realloc_str = NULL;
+    CHECK_BUFFER(str);
+
+    str[0] = '{';
+    str[1] = ' ';
+
+    Nst_map *map = AS_MAP(map_obj);
+    size_t idx = -1;
+    size_t tot = map->item_count;
+    size_t count = 0;
+
+    while ( count++ < tot )
+    {
+        idx = get_next_idx(idx, map);
+        Nst_Obj *key_obj = map->nodes[idx].key;
+        Nst_Obj *val_obj = map->nodes[idx].value;
+
+        // Key cannot be a vector, an array or a map
+        if ( key_obj->type == nst_t_str )
+        {
+            key = repr_string(AS_STR(key_obj));
+            key_obj = NULL;
+        }
+        else
+        {
+            key_obj = obj_cast(key_obj, nst_t_str, NULL);
+            key = AS_STR(key_obj);
+        }
+
+        if ( IS_SEQ(val_obj) )
+        {
+            val_obj = obj_str_cast_seq(val_obj, all_objs);
+            val = AS_STR(val_obj);
+        }
+        else if ( val_obj->type == nst_t_map )
+        {
+            val_obj = obj_str_cast_map(val_obj, all_objs);
+            val = AS_STR(val_obj);
+        }
+        else if ( val_obj->type == nst_t_str )
+        {
+            val = repr_string(AS_STR(val_obj));
+            val_obj = NULL;
+        }
+        else
+        {
+            val_obj = obj_cast(val_obj, nst_t_str, NULL);
+            val = AS_STR(val_obj);
+        }
+
+        realloc_str = realloc(str, str_len + key->len + val->len + 5);
+        CHECK_BUFFER(realloc_str);
+        str = realloc_str;
+        memcpy(str + str_len, key->value, key->len);
+        str_len += key->len + 2;
+        str[str_len - 2] = ':';
+        str[str_len - 1] = ' ';
+        memcpy(str + str_len, val->value, val->len);
+        str_len += val->len + 2;
+
+        if ( key_obj != NULL )
+        {
+            dec_ref(key_obj);
+            key_obj = NULL;
+        }
+        if ( val_obj != NULL )
+        {
+            dec_ref(val_obj);
+            val_obj = NULL;
+        }
+
+        if ( count == tot )
+            break;
+
+        str[str_len - 2] = ',';
+        str[str_len - 1] = ' ';
+    }
+
+    if ( str_len == 2 ) str_len = 3;
+    str[str_len - 2] = ' ';
+    str[str_len - 1] = '}';
+    str[str_len] = 0;
+
+    LList_pop(all_objs);
 
     return new_str_obj(new_string(str, str_len, true));
 }
@@ -626,11 +756,7 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
         if ( ob_t == nst_t_int )
         {
             char *buffer = malloc(MAX_INT_CHAR_COUNT * sizeof(char));
-            if ( buffer == NULL )
-            {
-                errno = ENOMEM;
-                return NULL;
-            }
+            CHECK_BUFFER(buffer);
             sprintf(buffer, "%lli", AS_INT_V(ob_val));
             return make_obj(
                 new_string_raw(buffer, true),
@@ -640,11 +766,7 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
         else if ( ob_t == nst_t_real )
         {
             char *buffer = malloc(MAX_REAL_CHAR_COUNT * sizeof(char));
-            if ( buffer == NULL )
-            {
-                errno = ENOMEM;
-                return NULL;
-            }
+            CHECK_BUFFER(buffer);
             sprintf(buffer, "%g", AS_REAL_V(ob_val));
             return make_obj(
                 new_string_raw(buffer, true),
@@ -674,11 +796,7 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
         else if ( ob_t == nst_t_byte )
         {
             char *str = calloc(2, sizeof(char));
-            if ( str == NULL )
-            {
-                errno = ENOMEM;
-                return NULL;
-            }
+            CHECK_BUFFER(str);
 
             str[0] = AS_BYTE_V(ob_val);
 
@@ -690,19 +808,22 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
         }
         else if ( ob_t == nst_t_arr || ob_t == nst_t_vect )
         {
-            LList *all_seq = LList_new();
-            Nst_Obj *str = obj_str_cast_seq(ob, all_seq);
-            LList_destroy(all_seq, NULL);
+            LList *all_objs = LList_new();
+            Nst_Obj *str = obj_str_cast_seq(ob, all_objs);
+            LList_destroy(all_objs, NULL);
+            return str;
+        }
+        else if ( ob_t == nst_t_map )
+        {
+            LList *all_objs = LList_new();
+            Nst_Obj *str = obj_str_cast_map(ob, all_objs);
+            LList_destroy(all_objs, NULL);
             return str;
         }
         else
         {
             char *buffer = malloc(sizeof(char) * (AS_STR(ob->type)->len + 10));
-            if ( buffer == NULL )
-            {
-                errno = ENOMEM;
-                return NULL;
-            }
+            CHECK_BUFFER(buffer);
 
             sprintf(buffer, "<%s object>", AS_STR(ob->type)->value);
 
@@ -903,11 +1024,7 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
             for ( size_t i = 0; i < str_len; i++ )
             {
                 char *ch = calloc(2, sizeof(char));
-                if ( ch == NULL )
-                {
-                    errno = ENOMEM;
-                    return NULL;
-                }
+                CHECK_BUFFER(ch);
 
                 ch[0] = AS_STR_V(ob_val)->value[i];
                 seq->objs[i] = new_str_obj(new_string(ch, 1, true));
@@ -937,11 +1054,7 @@ Nst_Obj *obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 
     char *buffer = malloc(sizeof(char) * (tot_len + 1));
 
-    if ( buffer == NULL )
-    {
-        errno = ENOMEM;
-        return NULL;
-    }
+    CHECK_BUFFER(buffer);
 
     memcpy(buffer, s1, len1);
     memcpy(buffer + len1, s2, len2);
@@ -1036,11 +1149,7 @@ Nst_Obj *obj_stdin(Nst_Obj *ob, OpErr *err)
     dec_ref(ob);
 
     char *buffer = malloc(4);
-    if ( buffer == NULL )
-    {
-        errno = ENOMEM;
-        return NULL;
-    }
+    CHECK_BUFFER(buffer);
 
     size_t buffer_size = 4;
     size_t i = 0;

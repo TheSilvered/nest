@@ -76,6 +76,8 @@ enum token_types
     R_BRACE,   // |
     R_VBRACE,  // |
     R_BRACKET, // |
+    BREAK,     // |
+    CONTINUE,  // |
     IF,        // |
     AS,        // |
     ENDL,      // |
@@ -89,9 +91,7 @@ enum token_types
     DOWHILE,
     FOR,
     FUNC,
-    RETURN,
-    CONTINUE,
-    BREAK
+    RETURN
 };
 
 Token *new_token_value(Pos start, Pos end, int type, void *value);

@@ -21,6 +21,7 @@ Nst_Obj *new_str_obj(Nst_string *str);
 Nst_string *new_string_raw(const char *val, bool allocated);
 Nst_string *new_string(char *val, size_t len, bool allocated);
 Nst_string *copy_string(Nst_string *src);
+Nst_string *repr_string(Nst_string *src);
 
 Nst_int *parse_int(char *str, OpErr *err);
 Nst_real *parse_real(char *str, OpErr *err);

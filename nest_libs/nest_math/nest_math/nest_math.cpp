@@ -54,7 +54,7 @@ Nst_Obj *floor_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_real n;
 
-    if ( !extract_arg_values("R", arg_num, args, err, &n) )
+    if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
     return new_int_obj((Nst_int)n);
@@ -64,7 +64,7 @@ Nst_Obj *ceil_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_real n;
 
-    if ( !extract_arg_values("R", arg_num, args, err, &n) )
+    if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
     return new_int_obj((Nst_int)ceil(n));
@@ -74,7 +74,7 @@ Nst_Obj *round_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_real n;
 
-    if ( !extract_arg_values("R", arg_num, args, err, &n) )
+    if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
     return new_int_obj((Nst_int)round(n));
@@ -84,7 +84,7 @@ Nst_Obj *exp_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_real n;
 
-    if ( !extract_arg_values("R", arg_num, args, err, &n) )
+    if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
     return new_real_obj(exp(n));
@@ -94,7 +94,7 @@ Nst_Obj *log_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_real n;
 
-    if ( !extract_arg_values("R", arg_num, args, err, &n) )
+    if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
     return new_real_obj(log(n));
@@ -105,7 +105,7 @@ Nst_Obj *logn_(size_t arg_num, Nst_Obj **args, OpErr *err)
     Nst_real n;
     Nst_real base;
 
-    if ( !extract_arg_values("RR", arg_num, args, err, &n, &base) )
+    if ( !extract_arg_values("NN", arg_num, args, err, &n, &base) )
         return nullptr;
 
     return new_real_obj(log(n) / log(base));
@@ -115,7 +115,7 @@ Nst_Obj *log2_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_real n;
 
-    if ( !extract_arg_values("R", arg_num, args, err, &n) )
+    if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
     return new_real_obj(log2(n));
@@ -125,7 +125,7 @@ Nst_Obj *log10_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_real n;
 
-    if ( !extract_arg_values("R", arg_num, args, err, &n) )
+    if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
     return new_real_obj(log10(n));
@@ -150,7 +150,7 @@ Nst_Obj *sin_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_real n;
 
-    if ( !extract_arg_values("R", arg_num, args, err, &n) )
+    if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
     return new_real_obj(sin(n));
@@ -160,7 +160,7 @@ Nst_Obj *cos_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_real n;
 
-    if ( !extract_arg_values("R", arg_num, args, err, &n) )
+    if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
     return new_real_obj(cos(n));
@@ -170,7 +170,7 @@ Nst_Obj *tan_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_real n;
 
-    if ( !extract_arg_values("R", arg_num, args, err, &n) )
+    if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
     return new_real_obj(tan(n));
@@ -180,7 +180,7 @@ Nst_Obj *asin_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_real n;
 
-    if ( !extract_arg_values("R", arg_num, args, err, &n) )
+    if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
     return new_real_obj(asin(n));
@@ -190,7 +190,7 @@ Nst_Obj *acos_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_real n;
 
-    if ( !extract_arg_values("R", arg_num, args, err, &n) )
+    if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
     return new_real_obj(acos(n));
@@ -200,7 +200,7 @@ Nst_Obj *atan_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_real n;
 
-    if ( !extract_arg_values("R", arg_num, args, err, &n) )
+    if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
     return new_real_obj(atan(n));
@@ -211,7 +211,7 @@ Nst_Obj *atan2_(size_t arg_num, Nst_Obj **args, OpErr *err)
     Nst_real x;
     Nst_real y;
 
-    if ( !extract_arg_values("RR", arg_num, args, err, &x, &y) )
+    if ( !extract_arg_values("NN", arg_num, args, err, &x, &y) )
         return nullptr;
 
     return new_real_obj(atan2(x, y));
@@ -221,7 +221,7 @@ Nst_Obj *sinh_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_real n;
 
-    if ( !extract_arg_values("R", arg_num, args, err, &n) )
+    if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
     return new_real_obj(sinh(n));
@@ -231,7 +231,7 @@ Nst_Obj *cosh_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_real n;
 
-    if ( !extract_arg_values("R", arg_num, args, err, &n) )
+    if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
     return new_real_obj(cosh(n));
@@ -241,7 +241,7 @@ Nst_Obj *tanh_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_real n;
 
-    if ( !extract_arg_values("R", arg_num, args, err, &n) )
+    if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
     return new_real_obj(tanh(n));
@@ -251,7 +251,7 @@ Nst_Obj *asinh_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_real n;
 
-    if ( !extract_arg_values("R", arg_num, args, err, &n) )
+    if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
     return new_real_obj(asinh(n));
@@ -261,7 +261,7 @@ Nst_Obj *acosh_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_real n;
 
-    if ( !extract_arg_values("R", arg_num, args, err, &n) )
+    if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
     return new_real_obj(acosh(n));
@@ -271,7 +271,7 @@ Nst_Obj *atanh_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_real n;
 
-    if ( !extract_arg_values("R", arg_num, args, err, &n) )
+    if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
     return new_real_obj(atanh(n));
@@ -403,7 +403,7 @@ Nst_Obj *deg_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_real n;
 
-    if ( !extract_arg_values("R", arg_num, args, err, &n) )
+    if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
     // 57.29577951308232 = 180 / PI
     return new_real_obj(n * 57.29577951308232);
@@ -413,7 +413,7 @@ Nst_Obj *rad_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_real n;
 
-    if ( !extract_arg_values("R", arg_num, args, err, &n) )
+    if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
     // 0.017453292519943295 = PI / 180
     return new_real_obj(n * 0.017453292519943295);

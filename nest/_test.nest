@@ -1,21 +1,3 @@
-|#| '..\\nest_libs\\nest_itutil\\stditutil.nest' = itu
+#println s [>>> (s '\n' ><)]
 
-#map_to_str m [
-	0 = count
-	'{ ' = s
-
-	... m @itu.items ~= i [
-		i.0 = key
-		i.1 = value
-
-		(1 += count) $m == ? ;
-		s key ': ' value ', ' >< = s
-	]
-
-	count 0 > ? s key ': ' value ' ' >< = s
-
-	=> s '}' ><
-]
-
-{ 'a': 1, 'a': 2, 'c': 3 } = map
->>> (map @map_to_str)
+'Hi' @println >< @println

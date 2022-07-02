@@ -2,6 +2,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
+#include <ctype.h>
 #include "lexer.h"
 #include "set_error_internal.h"
 #include "tokens.h"
@@ -35,6 +36,11 @@
     } \
     err_macro(error, start, end, message); \
     err = error
+
+#define SET_INVALID_ESCAPE_ERROR do { \
+    free(end_str); \
+    SET_ERROR(SET_SYNTAX_ERROR_INT, escape_start, cursor->pos, INVALID_ESCAPE, *err, ); \
+    return; } while (0)
 
 LList *ftokenize(char *filename);
 LList *tokenize(char *text, size_t text_len, char *filename);
@@ -248,6 +254,7 @@ static void make_symbol(LexerCursor *cursor, Token **tok, Nst_Error **err)
     char *symbol = add_while_in(cursor, SYMBOL_CHARS);
     Pos end = copy_pos(cursor->pos);
     char *comment_start = strstr(symbol, "--");
+    char *multcom_start = strstr(symbol, "-/");
 
     if ( comment_start == symbol )
     {
@@ -264,11 +271,35 @@ static void make_symbol(LexerCursor *cursor, Token **tok, Nst_Error **err)
         free(symbol);
         return;
     }
+    else if ( multcom_start == symbol )
+    {
+        bool can_close = false;
+        while ( cursor->idx < (long)cursor->len )
+        {
+            advance(cursor);
+            if ( can_close && cursor->ch == '-' )
+            {
+                advance(cursor);
+                break;
+            }
 
-    // Ignores the comment
-    if ( (comment_start = strstr(symbol, "--")) != NULL )
+            can_close = cursor->ch == '/';
+        }
+        go_back(cursor);
+        free(symbol);
+        return;
+    }
+
+    // Checks only up to the comment, the comment itself will be ignored in
+    // the next call of 'make_symbol'
+    if ( comment_start != NULL )
     {
         *comment_start = '\0';
+    }
+    // Not `else if` beacause `-/ --` would not start a multiline comment
+    if ( multcom_start != NULL )
+    {
+        *multcom_start = '\0';
     }
 
     int token_type = str_to_tok(symbol);
@@ -305,10 +336,10 @@ static void make_num_literal(LexerCursor *cursor, Token **tok, Nst_Error **err)
         // Otherwise it's a negative number
         is_negative = true;
     }
-    
+
     char *ltrl = add_while_in(cursor, DIGIT_CHARS);
     advance(cursor);
-    
+
     // If there is no dot it's an integer
     if ( cursor->ch != '.' )
     {
@@ -346,7 +377,7 @@ static void make_num_literal(LexerCursor *cursor, Token **tok, Nst_Error **err)
     advance(cursor);
     char *fract_part = add_while_in(cursor, DIGIT_CHARS);
     Pos end = copy_pos(cursor->pos);
-    
+
     // If there is no number it's invalid
     if ( strlen(fract_part) == 0 )
     {
@@ -485,10 +516,30 @@ static void make_str_literal(LexerCursor *cursor, Token **tok, Nst_Error **err)
         case 'r': end_str[str_len++] = '\r'; break;
         case 't': end_str[str_len++] = '\t'; break;
         case 'v': end_str[str_len++] = '\v'; break;
+        case 'x':
+            advance(cursor);
+            if ( cursor->idx >= (long)cursor->len || cursor->ch == closing_ch )
+                SET_INVALID_ESCAPE_ERROR;
+
+            char ch1 = tolower(cursor->ch);
+            advance(cursor);
+
+            if ( cursor->idx >= (long)cursor->len || cursor->ch == closing_ch )
+                SET_INVALID_ESCAPE_ERROR;
+
+            char ch2 = tolower(cursor->ch);
+
+            if ( (ch1 < '0' || ch1 > '7' || ch2 < '0' || (ch2 > '9' && ch2 < 'a') || ch2 > 'f') )
+                SET_INVALID_ESCAPE_ERROR;
+
+            char result = (ch1 - '0') * 16 + (ch2 > '9' ? ch2 - 'a' + 10 : ch2 - '0');
+            if ( !result )
+                SET_INVALID_ESCAPE_ERROR;
+
+            end_str[str_len++] = result;
+            break;
         default:
-            free(end_str);
-            SET_ERROR(SET_SYNTAX_ERROR_INT, escape_start, cursor->pos, INVALID_ESCAPE, *err, );
-            return;
+            SET_INVALID_ESCAPE_ERROR;
         }
 
         escape = false;
@@ -496,7 +547,7 @@ static void make_str_literal(LexerCursor *cursor, Token **tok, Nst_Error **err)
     }
 
     Pos end = copy_pos(cursor->pos);
-    
+
     if ( cursor->ch != closing_ch )
     {
         SET_ERROR(SET_SYNTAX_ERROR_INT, start, end, UNCLOSED_STR_LITERAL, *err, );
