@@ -51,7 +51,7 @@ __t.sleep = sleep
   4: 'Thursday',
   5: 'Friday',
   6: 'Saturday',
-  7: 'Sunday' } = WEEKDAY_NAMES
+  0: 'Sunday' } = WEEKDAY_NAMES
 
 { 1: 'Mon',
   2: 'Tue',
@@ -59,4 +59,4 @@ __t.sleep = sleep
   4: 'Thu',
   5: 'Fri',
   6: 'Sat',
-  7: 'Sun' } = SHORT_WEEKDAY_NAMES
+  0: 'Sun' } = SHORT_WEEKDAY_NAMES
