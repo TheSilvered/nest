@@ -31,10 +31,10 @@ Both integer and real literals can be prefixed with a minus `-` to make them
 negative.
 
 ```
--- Iteger literals
+-- Integer literals
 10
 -123
-012 -- equal to just 12 but still valid
+012 -- equal to 12 but still valid
 
 -- Real literals
 0.2
@@ -65,6 +65,34 @@ are all the valid escape sequences:
 | `\t`     | Horizontal tab         |
 | `\v`     | Vertical tab           |
 | `\xhh`   | Hexadecimal byte, `hh` represents hex digits from `01` to `7f`  |
+
+### Array literals
+
+Array literals start and end with braces (`{` and `}`) and inside have various
+expressions separated by a comma.
+
+```
+{ 1, 2, 3, 4 }
+```
+
+> NOTE: writing `{ }` creates an empty map, not an empty array.
+
+### Vector literals
+
+Vector literals start with `<{` and end with `}>` and inside have various
+expressions separated by a comma.
+
+```
+<{ 1, 2, 3, 4 }>
+```
+
+### Map literals
+
+Map literals start with `{` and end with `}` and inside have key-value pairs.
+
+```
+{ 'key_1': 1, 'key_2': 2 }
+```
 
 ## Expressions
 
@@ -120,8 +148,30 @@ The following two expressions are equal but the first one is more concise:
 (1 2 <) (2 3 <) (3 4 <) &&
 ```
 
-> NOTE: writing `a b c !=` does not mean that all three values are different, it
-> only means that adjacent are.
+> NOTE: writing `a b c !=` does not mean that all three values are different
+> from each other, it only means that adjacent ones are.
+
+The operators `+`, `-`, `*` and `/` have a different meaning when operating in
+vectors.
+
+The `+` operator appends any value to the end of a vector and returns the vector
+itself.
+
+The `-` operator removes the first occurrence of a value in a vector and returns
+`true` if there was a value to remove and `false` otherwise.
+
+The `*` operator repeats the contents of a vector a number of times and returns
+the vector itself.
+
+The `/` operator pops a number of values from the end and returns the last value
+popped.
+
+```
+>>> (<{ 1, 2, 3 }> 2 + '\n' ><) --> <{ 1, 2, 3, 2 }>
+>>> (<{ 1, 2, 3 }> 2 - '\n' ><) --> true
+>>> (<{ 1, 2, 3 }> 2 * '\n' ><) --> <{ 1, 2, 3, 1, 2, 3 }>
+>>> (<{ 1, 2, 3 }> 2 / '\n' ><) --> 2
+```
 
 ### Local operators
 
@@ -221,6 +271,53 @@ an element in an array, vector or map.
 
 ```
 10 = a -- assigns the value 10 to the variable 'a'
+```
+
+### Access operator
+
+The access operator `.` can be used to get a specific value from vectors, arrays,
+strings and maps.
+
+To access a value you write the value to access from, a dot, and the index of
+the value to get.
+
+---
+
+To index arrays, vectors or strings you can use integers. The first element is
+at index `0`, the second at index `1` etc. until `n - 1` where `n` is the length
+of the array or vector.
+
+You can use also negative integers where `-1` is the last element, `-2` is the
+second to last element etc.
+
+```
+{ 1, 2, 3 } = arr
+arr.0 --> 1
+arr. -1 --> 3
+```
+
+If you need to index based on a variable you must use parenthesis otherwise the
+variable name is treated like a string.
+
+```
+{ 1, 2, 3 } = arr
+2 = idx
+
+arr.idx --> ERROR: arr.idx is equal to arr.'idx'
+arr.(idx) --> 3
+```
+
+To index multiple-dimension arrays or vectors you cannot chain multiple
+extractions since a real number literal would be formed. To prevent this you can
+either put parenthesis around the integer or put a space before the dot.
+
+```
+{ { 1, 2 },
+  { 3, 4 } } = arr
+
+arr.(0).(1) --> 2
+arr.1 .1 --> 4
+arr.1.0 --> ERROR: cannot index an array with '1.0'
 ```
 
 ## Statements
