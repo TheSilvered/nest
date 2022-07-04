@@ -75,7 +75,21 @@ expressions separated by a comma.
 { 1, 2, 3, 4 }
 ```
 
-> NOTE: writing `{ }` creates an empty map, not an empty array.
+> NOTE: writing `{ }` creates an empty map, not an empty array. To create an
+> empty array you can write `Array :: <{ }>`
+
+You can also create an array with all of the same value like this:
+```
+{ 10;30 } --> array of length 30, with all values that are 10
+```
+
+This puts the same object in all slots of the array meaning that if an
+object can change values inside of itself (array, vector or map) the values of
+all objects will change:
+```
+{ { 1, 2 };2 } = a --> 'a' is equal to { { 1, 2 }, { 1, 2 } }
+3 = a.0 .0 --> 'a' is now equal to { { 3, 2 }, { 3, 2 } }
+```
 
 ### Vector literals
 
@@ -86,6 +100,12 @@ expressions separated by a comma.
 <{ 1, 2, 3, 4 }>
 ```
 
+Just like arrays, vectors also have a smaller syntax to fill all slots with the
+same value:
+```
+<{ 10;30 }> --> vector of length 30, with all values that are 10
+```
+
 ### Map literals
 
 Map literals start with `{` and end with `}` and inside have key-value pairs.
@@ -93,6 +113,27 @@ Map literals start with `{` and end with `}` and inside have key-value pairs.
 ```
 { 'key_1': 1, 'key_2': 2 }
 ```
+
+## Predefined variables
+
+- `Int`: integer type
+- `Real`: real number type
+- `Bool`: boolean type
+- `Null`: null type, absence of a value
+- `Str`: ASCII string type
+- `Array`: array type, non-resizable ordered collection of objects
+- `Vector`: vector type, resizable ordered collection of objects
+- `Map`: hash map type, holds key-value pairs
+- `Func`: function type
+- `Iter`: iterator type
+- `Byte`: byte type, an integer from 0 to 255
+- `IOfile`: file type, the same as `FILE *` in C or `TextIOWrapper` in python
+- `Type`: type of all types
+- `true`: boolean true
+- `false`: boolean false
+- `null`: the only possible value of type `Null`
+- `_cwd_`: a string showing the current working directory
+- `_args_`: an array with the arguments passed in the command line
 
 ## Expressions
 
@@ -312,13 +353,31 @@ extractions since a real number literal would be formed. To prevent this you can
 either put parenthesis around the integer or put a space before the dot.
 
 ```
-{ { 1, 2 },
-  { 3, 4 } } = arr
+{{ 1, 2 },
+ { 3, 4 }} = arr
 
 arr.(0).(1) --> 2
 arr.1 .1 --> 4
 arr.1.0 --> ERROR: cannot index an array with '1.0'
 ```
+
+---
+
+To index a map you put the key of the value after the dot. If a key is a string
+that is also a valid variable name you can put the name without any quotes.
+
+```
+{ 'key_1': 2, 'invalid var': 10 } = map
+
+map.key_1 --> 10
+map.invalid var --> ERROR: will try to get map.'invalid'
+map.'invalid var' --> 10
+
+map.not_a_key --> null
+```
+
+> NOTE: if you try to index a key that is not in the map the result will be
+> `null`
 
 ## Statements
 
