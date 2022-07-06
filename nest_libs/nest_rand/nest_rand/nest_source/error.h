@@ -67,7 +67,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct Pos
+typedef struct
 {
     size_t line;
     size_t col;
@@ -77,7 +77,7 @@ typedef struct Pos
 }
 Pos;
 
-typedef struct Nst_Error
+typedef struct
 {
     Pos start;
     Pos end;
@@ -86,14 +86,14 @@ typedef struct Nst_Error
 }
 Nst_Error;
 
-typedef struct OpErr
+typedef struct
 {
     char *name;
     char *message;
 }
 OpErr;
 
-typedef struct Nst_Traceback
+typedef struct
 {
     Nst_Error *error;
     LList *positions;

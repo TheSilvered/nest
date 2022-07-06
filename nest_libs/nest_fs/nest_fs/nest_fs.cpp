@@ -2,6 +2,7 @@
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
 #include "nest_fs.h"
+#include <filesystem>
 
 #define FUNC_COUNT 5
 static FuncDeclr *func_list_;

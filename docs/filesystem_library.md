@@ -2,23 +2,22 @@
 
 ## Functions
 
-### `[Str] @isdir`
+### `[path: Str] @isdir`
 
-Checks if a directory path exists. The first argument is the path to check.
+Checks if a directory exists at `path`.
 
-### `[Str] @mkdir`
+### `[path: Str] @mkdir`
 
-Creates a new directory, succedes even if the directory exists. . The first
-argument is the path of the new directory.
+Creates a new directory at `path`, succedes even if the directory exists.
 
-### `[Str] @rmdir`
+### `[path: Str] @rmdir`
 
-Removes a directory. The first argument is the path.
+Removes a directory at `path`.
 
-### `[Str] @isfile`
+### `[path: Str] @isfile`
 
-Checks if a file path exists. The first argument is the path to check.
+Checks if a file exists at `path`.
 
-### `[Str] @rmfile`
+### `[path: Str] @rmfile`
 
-Removes a file. The first argument is the path.
+Removes a file at `path`.

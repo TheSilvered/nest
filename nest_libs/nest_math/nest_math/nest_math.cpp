@@ -2,6 +2,10 @@
 #include <cmath>
 
 #define FUNC_COUNT 27
+#define COORD_TYPE_ERROR do { \
+        SET_VALUE_ERROR("all coordinates must be of type 'Real' or 'Int'"); \
+        return nullptr; \
+    } while (0)
 
 static FuncDeclr *func_list_;
 static bool lib_init_ = false;
@@ -211,10 +215,10 @@ Nst_Obj *atan2_(size_t arg_num, Nst_Obj **args, OpErr *err)
     Nst_real x;
     Nst_real y;
 
-    if ( !extract_arg_values("NN", arg_num, args, err, &x, &y) )
+    if ( !extract_arg_values("NN", arg_num, args, err, &y, &x) )
         return nullptr;
 
-    return new_real_obj(atan2(x, y));
+    return new_real_obj(atan2(y, x));
 }
 
 Nst_Obj *sinh_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -291,23 +295,31 @@ Nst_Obj *dist_2d_(size_t arg_num, Nst_Obj **args, OpErr *err)
         return nullptr;
     }
 
+    Nst_real x1;
+    Nst_real y1;
+    Nst_real x2;
+    Nst_real y2;
+
     Nst_Obj *p1x_obj = p1->objs[0];
     Nst_Obj *p1y_obj = p1->objs[1];
-
     Nst_Obj *p2x_obj = p2->objs[0];
     Nst_Obj *p2y_obj = p2->objs[1];
 
-    if ( p1x_obj->type != nst_t_real || p1y_obj->type != nst_t_real ||
-         p2x_obj->type != nst_t_real || p2y_obj->type != nst_t_real )
-    {
-        SET_VALUE_ERROR("all coordinates must be of type 'Real'");
-        return nullptr;
-    }
+    if      ( p1x_obj->type == nst_t_int  ) x1 = (Nst_real)AS_INT(p1x_obj);
+    else if ( p1x_obj->type == nst_t_real ) x1 = AS_REAL(p1x_obj);
+    else COORD_TYPE_ERROR;
 
-    Nst_real x1 = AS_REAL(p1x_obj);
-    Nst_real y1 = AS_REAL(p1y_obj);
-    Nst_real x2 = AS_REAL(p2x_obj);
-    Nst_real y2 = AS_REAL(p2y_obj);
+    if      ( p1y_obj->type == nst_t_int  ) y1 = (Nst_real)AS_INT(p1y_obj);
+    else if ( p1y_obj->type == nst_t_real ) y1 = AS_REAL(p1y_obj);
+    else COORD_TYPE_ERROR;
+
+    if      ( p2x_obj->type == nst_t_int  ) x2 = (Nst_real)AS_INT(p2x_obj);
+    else if ( p2x_obj->type == nst_t_real ) x2 = AS_REAL(p2x_obj);
+    else COORD_TYPE_ERROR;
+
+    if      ( p2y_obj->type == nst_t_int  ) y2 = (Nst_real)AS_INT(p2y_obj);
+    else if ( p2y_obj->type == nst_t_real ) y2 = AS_REAL(p2y_obj);
+    else COORD_TYPE_ERROR;
 
     // sqrt((x1 - x2)^2 + (y1 - y2)^2)
     Nst_real c2 = (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2);
@@ -328,6 +340,13 @@ Nst_Obj *dist_3d_(size_t arg_num, Nst_Obj **args, OpErr *err)
         return nullptr;
     }
 
+    Nst_real x1;
+    Nst_real y1;
+    Nst_real z1;
+    Nst_real x2;
+    Nst_real y2;
+    Nst_real z2;
+
     Nst_Obj *p1x_obj = p1->objs[0];
     Nst_Obj *p1y_obj = p1->objs[1];
     Nst_Obj *p1z_obj = p1->objs[2];
@@ -336,20 +355,29 @@ Nst_Obj *dist_3d_(size_t arg_num, Nst_Obj **args, OpErr *err)
     Nst_Obj *p2y_obj = p2->objs[1];
     Nst_Obj *p2z_obj = p2->objs[2];
 
-    if ( p1x_obj->type != nst_t_real || p2x_obj->type != nst_t_real ||
-         p1y_obj->type != nst_t_real || p2y_obj->type != nst_t_real ||
-         p1z_obj->type != nst_t_real || p2z_obj->type != nst_t_real )
-    {
-        SET_VALUE_ERROR("all coordinates must be of type 'Real'");
-        return nullptr;
-    }
+    if      ( p1x_obj->type == nst_t_int  ) x1 = (Nst_real)AS_INT(p1x_obj);
+    else if ( p1x_obj->type == nst_t_real ) x1 = AS_REAL(p1x_obj);
+    else COORD_TYPE_ERROR;
 
-    Nst_real x1 = AS_REAL(p1x_obj);
-    Nst_real y1 = AS_REAL(p1y_obj);
-    Nst_real z1 = AS_REAL(p1z_obj);
-    Nst_real x2 = AS_REAL(p2x_obj);
-    Nst_real y2 = AS_REAL(p2y_obj);
-    Nst_real z2 = AS_REAL(p2z_obj);
+    if      ( p1y_obj->type == nst_t_int  ) y1 = (Nst_real)AS_INT(p1y_obj);
+    else if ( p1y_obj->type == nst_t_real ) y1 = AS_REAL(p1y_obj);
+    else COORD_TYPE_ERROR;
+
+    if      ( p1z_obj->type == nst_t_int  ) z1 = (Nst_real)AS_INT(p1z_obj);
+    else if ( p1z_obj->type == nst_t_real ) z1 = AS_REAL(p1z_obj);
+    else COORD_TYPE_ERROR;
+
+    if      ( p2x_obj->type == nst_t_int  ) x2 = (Nst_real)AS_INT(p2x_obj);
+    else if ( p2x_obj->type == nst_t_real ) x2 = AS_REAL(p2x_obj);
+    else COORD_TYPE_ERROR;
+
+    if      ( p2y_obj->type == nst_t_int  ) y2 = (Nst_real)AS_INT(p2y_obj);
+    else if ( p2y_obj->type == nst_t_real ) y2 = AS_REAL(p2y_obj);
+    else COORD_TYPE_ERROR;
+
+    if      ( p2z_obj->type == nst_t_int  ) z2 = (Nst_real)AS_INT(p2z_obj);
+    else if ( p2z_obj->type == nst_t_real ) z2 = AS_REAL(p2z_obj);
+    else COORD_TYPE_ERROR;
 
     // sqrt((x1 - x2)^2 + (y1 - y2)^2 + (z1 - z2)^2)
     Nst_real d2 = (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2) + (z1 - z2)*(z1 - z2);
@@ -385,14 +413,14 @@ Nst_Obj *dist_nd_(size_t arg_num, Nst_Obj **args, OpErr *err)
         obj1 = objs1[i];
         obj2 = objs2[i];
 
-        if ( obj1->type != nst_t_real || obj2->type != nst_t_real )
-        {
-            SET_VALUE_ERROR("all coordinates must be of type 'Real'");
-            return nullptr;
-        }
+        if      ( obj1->type == nst_t_int  ) t1 = (Nst_real)AS_INT(obj1);
+        else if ( obj1->type == nst_t_real ) t1 = AS_REAL(obj1);
+        else COORD_TYPE_ERROR;
 
-        t1 = AS_REAL(obj1);
-        t2 = AS_REAL(obj2);
+        if      ( obj2->type == nst_t_int  ) t2 = (Nst_real)AS_INT(obj2);
+        else if ( obj2->type == nst_t_real ) t2 = AS_REAL(obj2);
+        else COORD_TYPE_ERROR;
+
         tot += (t1 - t2) * (t1 - t2);
     }
 

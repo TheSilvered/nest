@@ -2,12 +2,10 @@
 
 ## Functions
 
-### `[Str, Str] @open`
+### `[path: Str, mode: Str] @open`
 
 Opens a file returning an `IOFile` object or a `null` object if the file was not
-found.  
-The first argument is the path to the file, the second is the mode to open the
-file.
+found.
 
 The file modes are:
 
@@ -26,54 +24,54 @@ The file modes are:
 | `a+`           | read and append, keeping the contents         |
 | `ab+` or `a+b` | read and append bytes, keeping the contents   |
 
-### `[IOFile] @close`
+### `[file: IOFile] @close`
 
 Closes a file.
 
-### `[IOFile, Str] @write`
+### `[file: IOFile, content: Str] @write`
 
-Writes to a file opened in `w`, `a`, `r+`, `w+` or `a+`.  
-The first argument is the file, the second are the contents to write.
+Writes to a file opened in `w`, `a`, `r+`, `w+` or `a+`.
 
-### `[IOFile, Array|Vector] @write_bytes`
+### `[file: IOFile, content: Array|Vector] @write_bytes`
 
 Writes to a binary file opened in `wb`, `ab`, `rb+`, `wb+` or `ab+`.  
-The first argument is the file, the second argument is an array or vector
-containing only `Byte` objects.
+The second argument is an array or vector containing only `Byte` objects.
 
-### `[IOFile, Int] @read`
+### `[file: IOFile, size: Int] @read`
 
 Reads a number of bytes from a file opened in `r`, `r+`, `w+` or `a+` and returns
 a `Str` object.  
-The first argument is the file, the second is the number of bytes to read, any
-negative integer reads the whole file.
+Any negative integer for `size` reads the whole file.
 
-### `[IOFile, Array|Vector] @read_bytes`
+### `[file: IOFile, size: Int] @read_bytes`
 
 Reads a number of bytes from a file opened in `r`, `r+`, `w+` or `a+` and returns
 an `Array` object. To convert the array to a string, use the function
 `bytearray_to_str` in `stdsutil.nest`.  
-The first argument is the file, the second is the number of bytes to read, any
-negative integer reads the whole file.
+Any negative integer for `size` reads the whole file.
 
-### `[IOFile] @file_size`
+### `[file: IOFile] @file_size`
 
-Returns the number of bytes the file contains.
+Returns the number of bytes that the file contains.
 
-### `[IOFile, Int, Int] @move_fptr`
+### `[file: IOFile, starting_position: Int, offset: Int] @move_fptr`
 
-Moves the file pointer. The first argument is the file itself, the second is the
-starting position and the last is the offset from the start.  
-The starting position can be set with `FROM_START`, `FROM_SET`, `FROM_CUR` and
-`FROM_END`.
+Moves the file pointer from `starting_position` that can be set with
+`FROM_START`, `FROM_SET`, `FROM_CUR` and `FROM_END` by a number of bytes
+specified by the `offset`.  
+`offset` can also be negative.
 
-### `[IOFile] @get_fptr`
+### `[file: IOFile] @get_fptr`
 
-Returns the position of the file pointer.
+Returns the position in bytes of the file pointer.
 
-### `[IOFile] @flush`
+### `[file: IOFile] @flush`
 
-Flushes the buffer of a file.
+Flushes the output buffer of a file.
+
+### `[file: IOFile] @at_eof`
+
+Returns `true` if the file pointer is at the end of the file, `false` otherwise.
 
 ## Constants
 

@@ -8,15 +8,15 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct LLNode
+typedef struct _llnode
 {
     void *value;
     bool allocated;
-    struct LLNode *next;
+    struct _llnode *next;
 }
 LLNode;
 
-typedef struct LList
+typedef struct
 {
     LLNode *head;
     LLNode *tail;

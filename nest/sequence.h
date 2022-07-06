@@ -14,7 +14,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct Nst_sequence
+typedef struct
 {
     Nst_Obj **objs;
     size_t len;

@@ -12,7 +12,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct Nst_func
+typedef struct
 {
     Node *body;
     Nst_Obj *(*cbody)(size_t arg_num, Nst_Obj **args, OpErr *err);

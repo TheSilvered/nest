@@ -14,7 +14,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct MapNode
+typedef struct
 {
     int32_t hash;
     Nst_Obj *key;
@@ -22,7 +22,7 @@ typedef struct MapNode
 }
 MapNode;
 
-typedef struct Nst_map
+typedef struct
 {
     size_t size;
     size_t item_count;

@@ -8,12 +8,12 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct Nst_Obj
+typedef struct _obj
 {
     int ref_count;
     void *value;
     char *type_name;
-    struct Nst_Obj *type;
+    struct _obj *type;
     void (*destructor)(void *);
     int32_t hash;
 }

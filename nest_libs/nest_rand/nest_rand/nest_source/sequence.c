@@ -92,7 +92,7 @@ void resize_vector(Nst_sequence *vect)
     }
 
     for ( size_t i = len; i < new_size; i++ )
-        vect->objs[i] = NULL;
+        new_objs[i] = NULL;
 
     vect->size = new_size;
     vect->objs = new_objs;

@@ -444,8 +444,6 @@ static Node *parse_func_def(LList *tokens, ParsingState *state)
 
 static Node *parse_expr(LList *tokens, ParsingState *state)
 {
-    Pos start = TOK(LList_peek_front(tokens))->start;
-
     Node *node = NULL;
 
     while ( !T_IN_EXPR_END(TOK(LList_peek_front(tokens))->type) )

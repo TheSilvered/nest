@@ -9,7 +9,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct Nst_string
+typedef struct
 {
     size_t len;
     char *value;

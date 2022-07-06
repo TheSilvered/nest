@@ -7,7 +7,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct Token
+typedef struct
 {
     Pos start;
     Pos end;

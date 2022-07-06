@@ -4,7 +4,7 @@
 #include "nest_io.h"
 #include "nest_source/obj_ops.h"
 
-#define FUNC_COUNT 13
+#define FUNC_COUNT 14
 
 #define SET_FILE_CLOSED_ERROR \
     err->name = VALUE_ERROR; \
@@ -30,6 +30,7 @@ bool lib_init()
     func_list_[idx++] = MAKE_FUNCDECLR(move_fptr, 3);
     func_list_[idx++] = MAKE_FUNCDECLR(get_fptr, 1);
     func_list_[idx++] = MAKE_FUNCDECLR(flush, 1);
+    func_list_[idx++] = MAKE_FUNCDECLR(at_eof, 1);
     func_list_[idx++] = MAKE_FUNCDECLR(_get_stdin, 0);
     func_list_[idx++] = MAKE_FUNCDECLR(_get_stdout, 0);
     func_list_[idx++] = MAKE_FUNCDECLR(_get_stderr, 0);
@@ -327,6 +328,25 @@ Nst_Obj *flush(size_t arg_num, Nst_Obj **args, OpErr *err)
 
     fflush(f);
     return inc_ref(nst_null);
+}
+
+Nst_Obj *at_eof(size_t arg_num, Nst_Obj **args, OpErr *err)
+{
+    Nst_iofile *f;
+
+    if ( !extract_arg_values("F", arg_num, args, err, &f) )
+        return nullptr;
+
+    if ( f == nullptr )
+    {
+        SET_FILE_CLOSED_ERROR;
+        return nullptr;
+    }
+
+    if ( feof(f) )
+        return inc_ref(nst_true);
+    else
+        return inc_ref(nst_false);
 }
 
 Nst_Obj *_get_stdin(size_t arg_num, Nst_Obj **args, OpErr *err)

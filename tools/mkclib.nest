@@ -1,46 +1,46 @@
-|#| "stdio.nest" = io
-|#| "stdfs.nest" = fs
-|#| "stdsutil.nest" = su
+|#| 'stdio.nest' = io
+|#| 'stdfs.nest' = fs
+|#| 'stdsutil.nest' = su
 
 -- not all source files, only the ones that can be used
 {
-    "error.h",
-    "function.h",
-    "hash.h",
-    "iter.h",
-    "lib_import.h",
-    "llist.h",
-    "map.h",
-    "nest_include.h",
-    "nodes.h",
-    "nst_types.h",
-    "obj.h",
-    "obj_ops.h",
-    "sequence.h",
-    "simple_types.h",
-    "str.h",
-    "tokens.h",
-    "var_table.h",
-    "error.c",
-    "function.c",
-    "hash.c",
-    "iter.c",
-    "lib_import.c",
-    "llist.c",
-    "map.c",
-    "nodes.c",
-    "obj.c",
-    "obj_ops.c",
-    "sequence.c",
-    "simple_types.c",
-    "str.c",
-    "tokens.c",
-    "var_table.c"
+    'error.h',
+    'function.h',
+    'hash.h',
+    'iter.h',
+    'lib_import.h',
+    'llist.h',
+    'map.h',
+    'nest_include.h',
+    'nodes.h',
+    'nst_types.h',
+    'obj.h',
+    'obj_ops.h',
+    'sequence.h',
+    'simple_types.h',
+    'str.h',
+    'tokens.h',
+    'var_table.h',
+    'error.c',
+    'function.c',
+    'hash.c',
+    'iter.c',
+    'lib_import.c',
+    'llist.c',
+    'map.c',
+    'nodes.c',
+    'obj.c',
+    'obj_ops.c',
+    'sequence.c',
+    'simple_types.c',
+    'str.c',
+    'tokens.c',
+    'var_table.c'
 } = nest_source_files
 
 #main [
     ($_args_ 3 !=) ($_args_ 4 !=) && ? [
-        >>> "USAGE: nest .\\make_clib_files.py (new <library_name>|update) <location>\n"
+        >>> 'USAGE: nest .\\make_clib_files.py (new <library_name>|update) <location>\n'
         => 1
     ]
 
@@ -48,37 +48,37 @@
     ($_args_ 4 == ? _args_.2 : null) = project_name
     _args_.($_args_ 4 == ? 3 : 2) = location
 
-    (operation "new" !=) (operation "update" !=) && ? [
-        >>> ("The given operation (\""operation"\") is not valid\n" ><)
+    (operation 'new' !=) (operation 'update' !=) && ? [
+        >>> ('The given operation ("'operation'") is not valid\n' ><)
         => 1
     ]
 
     !(location @fs.isdir) ? [
-        >>> ("The given path (\""location"\") doesn't exist\n" ><)
+        >>> ('The given path ("'location'") doesn\'t exist\n' ><)
         => 2
     ]
 
-    (location"\\nest_source" >< = srcdir) @fs.mkdir
+    (location'\\nest_source' >< = srcdir) @fs.mkdir
 
     ... Iter :: nest_source_files ~= file_name [
-        ("..\\nest\\"file_name >< "r" @io.open = src_f) -1 @io.read = content
+        ('..\\nest\\'file_name >< 'r' @io.open = src_f) -1 @io.read = content
         src_f @io.close
-        (srcdir"\\"file_name >< "w" @io.open = dst_f) content @io.write
+        (srcdir'\\'file_name >< 'w' @io.open = dst_f) content @io.write
         dst_f @io.close
     ]
 
-    operation "update" == ? => 0
+    operation 'update' == ? => 0
 
-    project_name " " "_" @su.replace_substr = project_name_c
+    project_name ' ' '_' @su.replace_substr = project_name_c
 
-    !(project_name_c (su.LETTERS su.DIGITS "_" ><) @su.is_charset) ? [
-        >>> ("The given name (\""project_name"\") is not valid\n" ><)
+    !(project_name_c (su.LETTERS su.DIGITS '_' ><) @su.is_charset) ? [
+        >>> ('The given name ("'project_name'") is not valid\n' ><)
         => 3
     ]
 
     project_name_c @su.to_upper = upper_project_name
 
-    location"\\"project_name".h" >< "w" @io.open = header_file
+    location'\\'project_name'.h' >< 'w' @io.open = header_file
     header_file ("#ifndef "upper_project_name"_H
 #define "upper_project_name"_H
 
@@ -108,7 +108,7 @@ __declspec(dllexport) INIT_LIB_OBJ_FUNC;
 #endif // !"upper_project_name"_H" ><) @io.write
     header_file @io.close
 
-    location"\\"project_name".cpp" >< "w" @io.open = source_file
+    location'\\'project_name'.cpp' >< 'w' @io.open = source_file
     source_file ("#include \""project_name".h\"
 
 #define FUNC_COUNT // Set this to the number of functions in your module
@@ -143,19 +143,19 @@ FuncDeclr *get_func_ptrs()
     source_file @io.close
 
     -- remove precompiled header files
-    location"\\pch.cpp" >< @fs.isfile ? location"\\pch.cpp" >< @fs.rmfile
-    location"\\pch.h"   >< @fs.isfile ? location"\\pch.h"   >< @fs.rmfile
+    location'\\pch.cpp' >< @fs.isfile ? location'\\pch.cpp' >< @fs.rmfile
+    location'\\pch.h'   >< @fs.isfile ? location'\\pch.h'   >< @fs.rmfile
 
     -- change '#include "pch.h" to #include "framework.h"' since pch.h has
     -- just been removed
-    (location"\\dllmain.cpp" >< @fs.isfile) \
-    (location"\\framework.h" >< @fs.isfile) && ? [
-        location"\\dllmain.cpp" >< "r" @io.open = dllmain_cpp
+    (location'\\dllmain.cpp' >< @fs.isfile) \
+    (location'\\framework.h' >< @fs.isfile) && ? [
+        location'\\dllmain.cpp' >< 'r' @io.open = dllmain_cpp
         dllmain_cpp -1 @io.read \
-          "pch" "framework" @su.replace_substr = dllmain_content
+          'pch' 'framework' @su.replace_substr = dllmain_content
         dllmain_cpp @io.close
 
-        location"\\dllmain.cpp" >< "w" @io.open = dllmain_cpp
+        location'\\dllmain.cpp' >< 'w' @io.open = dllmain_cpp
         dllmain_cpp dllmain_content @io.write
         dllmain_cpp @io.close
     ]

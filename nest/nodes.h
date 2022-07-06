@@ -10,7 +10,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct Node
+typedef struct
 {
     Pos start;
     Pos end;
