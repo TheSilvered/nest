@@ -31,5 +31,4 @@ Sets the seed for the pseudo random number generator. By default it is
 
 ### `RAND_MAX`
 
-The maximum number returned by `random`, it is guaranteed to be at least `32768`
-or `2^15`.
+The maximum number returned by `random`, it is guaranteed to be at least `32768`.
