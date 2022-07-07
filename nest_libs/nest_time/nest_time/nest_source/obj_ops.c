@@ -5,6 +5,8 @@
 #include <windows.h>
 #include "obj_ops.h"
 #include "nst_types.h"
+#include "interpreter.h"
+#include "lib_import.h"
 #include "map.h"
 #include "error.h"
 
@@ -29,17 +31,11 @@
         } \
     } while (0)
 
-#define RETURN_TRUE return inc_ref(nst_true)
-#define RETURN_FALSE return inc_ref(nst_false)
-#define RETURN_COND(cond) do { \
-    if ( cond ) \
-    { \
-        RETURN_TRUE; \
-    } \
-    else \
-    { \
-        RETURN_FALSE; \
-    } } while (0)
+#define OBJ_INIT_FARGS \
+    Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *, \
+    Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *, \
+    Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *, \
+    Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *
 
 // Comparisons
 Nst_Obj *obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
@@ -1190,6 +1186,215 @@ Nst_Obj *obj_stdin(Nst_Obj *ob, OpErr *err)
         new_string(new_buffer, i, true),
         nst_t_str, destroy_string
     );
+}
+
+Nst_Obj *obj_import(Nst_Obj *ob, OpErr *err)
+{
+
+    if ( ob->type != nst_t_str )
+    {
+        err->name = "Type Error";
+        err->message = format_type_error(EXPECTED_TYPE("Str"), ob->type_name);
+        return NULL;
+    }
+
+    char *file_name = AS_STR(ob)->value;
+    bool c_import = false;
+
+    if ( AS_STR(ob)->len > 6 &&
+        file_name[0] == '_' && file_name[1] == '_' &&
+        file_name[2] == 'C' && file_name[3] == '_' &&
+        file_name[4] == '_' && file_name[5] == ':' )
+    {
+        c_import = true;
+        file_name += 6; // length of __C__:
+    }
+
+    size_t file_name_len = strlen(file_name);
+    char *file_path = NULL;
+    bool file_path_allocated = false;
+
+    if ( AS_STR(ob)->len > 2 && file_name[1] == ':' )
+        file_path = file_name;
+    else
+    {
+        file_path = malloc(sizeof(char) * (state->curr_path->len + file_name_len + 1));
+        file_path_allocated = true;
+        if ( file_path == NULL )
+            return NULL;
+
+        strcpy(file_path, state->curr_path->value);
+        strcat(file_path, file_name);
+    }
+
+    Nst_iofile *file;
+    if ( (file = fopen(file_path, "r")) == NULL )
+    {
+        char *appdata = getenv("LOCALAPPDATA");
+        char *original_path = format_fnf_error(FILE_NOT_FOUND, file_path);
+        if ( appdata == NULL || !file_path_allocated )
+        {
+            err->name = "Value Error";
+            err->message = original_path;
+            return NULL;
+        }
+
+        size_t appdata_len = strlen(appdata);
+        char *realloc_file_path = realloc(file_path, appdata_len + file_name_len + 26);
+        if ( !realloc_file_path ) return NULL;
+
+        char *lib_dir = "\\Programs\\nest\\nest_libs\\";
+        file_path = realloc_file_path;
+        memcpy(file_path, appdata, appdata_len);
+        memcpy(file_path + appdata_len, lib_dir, 25);
+        memcpy(file_path + appdata_len + 25, file_name, file_name_len + 1); // copies also \0
+
+        if ( (file = fopen(file_path, "r")) == NULL )
+        {
+            err->name = "Value Error";
+            err->message = original_path;
+            free(file_path);
+            return NULL;
+        }
+
+        free(original_path);
+    }
+    fclose(file);
+
+    char *full_path = NULL;
+    get_full_path(file_path, &full_path, NULL);
+    free(file_path);
+    file_path = full_path;
+
+    for ( LLNode *n = state->lib_paths->head; n != NULL; n = n->next )
+    {
+        if ( strcmp(file_path, (const char *)(n->value)) == 0 )
+        {
+            err->name = "Import Error";
+            err->message = "circular import";
+            return NULL;
+        }
+    }
+
+    if ( !c_import )
+    {
+        Nst_map *map = run_module(file_path);
+
+        if ( map == NULL )
+        {
+            state->error_occurred = true;
+            return NULL;
+        }
+
+        return make_obj(map, nst_t_map, destroy_map);
+    }
+
+    bool lib_found = false;
+    HMODULE lib = NULL;
+
+    for ( LLNode *n = state->lib_handles->head; n != NULL; n = n->next )
+    {
+        LibHandle *handle = (LibHandle *)(n->value);
+        if ( strcmp(handle->path, file_path) == 0 )
+        {
+            lib_found = true;
+            lib = (handle->val)->dll;
+            break;
+        }
+    }
+
+    if ( !lib_found )
+    {
+        lib = LoadLibraryA(file_path);
+
+        if ( !lib )
+        {
+            err->name = "Import Error";
+            err->message = FILE_NOT_DLL;
+            return NULL;
+        }
+
+        bool (*lib_init)() = (bool (*)())GetProcAddress(lib, "lib_init");
+        if ( lib_init == NULL )
+        {
+            err->name = "Import Error";
+            err->message = NO_LIB_INIT;
+            return NULL;
+        }
+
+        if ( !lib_init() )
+        {
+            errno = ENOMEM;
+            return NULL;
+        }
+    }
+
+    FuncDeclr *(*get_func_ptrs)() = (FuncDeclr * (*)())GetProcAddress(lib, "get_func_ptrs");
+    if ( get_func_ptrs == NULL )
+    {
+        err->name = "Import Error";
+        err->message = NO_GET_FUNC_PTRS;
+        return NULL;
+    }
+
+    FuncDeclr *func_ptrs = get_func_ptrs();
+
+    if ( func_ptrs == NULL )
+    {
+        err->name = "Import Error";
+        err->message = "module was not initialized correctly";
+        return NULL;
+    }
+
+    Nst_map *func_map = new_map();
+
+    for ( size_t i = 0;; i++ )
+    {
+        FuncDeclr func = func_ptrs[i];
+        if ( func.func_ptr == NULL )
+            break;
+
+        Nst_Obj *func_obj = new_func_obj(new_cfunc(func.arg_num, func.func_ptr));
+
+        map_set(func_map, make_obj(func.name, nst_t_str, NULL), func_obj);
+    }
+
+    FARPROC a = GetProcAddress(lib, "init_lib_obj");
+
+    void (*init_lib_obj)(OBJ_INIT_FARGS)
+        = (void (*)(OBJ_INIT_FARGS))GetProcAddress(lib, "init_lib_obj");
+
+    if ( init_lib_obj == NULL )
+    {
+        err->name = "Import Error";
+        err->message = "module does not import \"obj.h\"";
+        return NULL;
+    }
+
+    init_lib_obj(nst_t_type, nst_t_int, nst_t_real, nst_t_bool,
+        nst_t_null, nst_t_str, nst_t_arr, nst_t_vect,
+        nst_t_map, nst_t_func, nst_t_iter, nst_t_byte,
+        nst_t_file, nst_true, nst_false, nst_null);
+
+    if ( !lib_found )
+    {
+        LList_append(state->loaded_libs, lib, false);
+
+        LibHandleVal *val = malloc(sizeof(LibHandleVal));
+        LibHandle *handle = malloc(sizeof(LibHandle));
+        if ( handle == NULL || val == NULL )
+        {
+            errno = ENOMEM;
+            return NULL;
+        }
+
+        val->dll = lib;
+        handle->val = val;
+        handle->path = file_path;
+
+        LList_append(state->lib_handles, handle, true);
+    }
+    return make_obj(func_map, nst_t_map, destroy_map);
 }
 
 Nst_Obj *obj_typeof(Nst_Obj *ob, OpErr *err)

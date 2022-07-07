@@ -62,6 +62,7 @@ Nst_Obj *obj_lgnot(Nst_Obj *ob, OpErr *err);
 Nst_Obj *obj_stdout(Nst_Obj *ob, OpErr *err);
 Nst_Obj *obj_stdin(Nst_Obj *ob, OpErr *err);
 Nst_Obj *obj_typeof(Nst_Obj *ob, OpErr *err);
+Nst_Obj *obj_import(Nst_Obj *ob, OpErr *err);
 
 #ifdef __cplusplus
 }

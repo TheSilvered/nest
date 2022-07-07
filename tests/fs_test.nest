@@ -1,0 +1,14 @@
+|#| 'stdfs.nest' = fs
+|#| 'stdtime.nest' = t
+|#| 'stdio.nest' = io
+
+#println s [ >>> (s '\n' ><) ]
+
+'_general_tests.nest' @fs.isfile @println
+'test_files' @fs.isdir @println
+
+'stdfs_dir' @fs.mkdir
+'stdfs_file' 'w' @io.open @io.close -- to create a file
+1 @t.sleep
+'stdfs_dir' @fs.rmdir
+'stdfs_file' @fs.rmfile

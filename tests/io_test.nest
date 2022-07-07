@@ -1,0 +1,29 @@
+|#| 'stdio.nest' = io
+|#| 'stdsutil.nest' = su
+>>> io
+#println s [ >>> (s '\n' ><) ]
+
+{ Byte :: 72, Byte :: 105 } = bytes -- Hi
+
+'test_files\\file.txt' 'wb' @io.open = f
+f bytes @io.write_bytes
+f @io.close
+
+'test_files\\file.txt' 'rb' @io.open = f
+f -1 @io.read_bytes @println
+f @io.close
+
+'test_files\\file.txt' 'w' @io.open = f
+f 'Hello' @io.write
+f @io.close
+
+'test_files\\file.txt' 'r' @io.open = f
+f -1 @io.read @println
+f @io.file_size @println
+f io.FROM_CUR -2 @io.move_fptr
+f @io.get_fptr @println
+f -1 @io.read @println
+f @io.close
+
+io.STDOUT 'Using write and flush\n' @io.write
+io.STDOUT @io.flush

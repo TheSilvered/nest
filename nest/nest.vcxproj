@@ -131,6 +131,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -175,7 +176,7 @@
     <ClInclude Include="obj_ops.h" />
     <ClInclude Include="parser.h" />
     <ClInclude Include="interpreter.h" />
-    <ClInclude Include="set_error_internal.h" />
+    <ClInclude Include="error_internal.h" />
     <ClInclude Include="str.h" />
     <ClInclude Include="simple_types.h" />
     <ClInclude Include="tokens.h" />

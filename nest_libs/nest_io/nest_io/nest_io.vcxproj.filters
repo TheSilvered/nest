@@ -24,13 +24,22 @@
     <ClInclude Include="nest_source\error.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
+    <ClInclude Include="nest_source\error_internal.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
     <ClInclude Include="nest_source\function.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="nest_source\hash.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
+    <ClInclude Include="nest_source\interpreter.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
     <ClInclude Include="nest_source\iter.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="nest_source\lexer.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="nest_source\lib_import.h">
@@ -55,6 +64,9 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="nest_source\obj_ops.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="nest_source\parser.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="nest_source\sequence.h">
@@ -89,7 +101,13 @@
     <ClCompile Include="nest_source\hash.c">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="nest_source\interpreter.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
     <ClCompile Include="nest_source\iter.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="nest_source\lexer.c">
       <Filter>File di origine</Filter>
     </ClCompile>
     <ClCompile Include="nest_source\lib_import.c">
@@ -104,7 +122,13 @@
     <ClCompile Include="nest_source\nodes.c">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="nest_source\obj.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
     <ClCompile Include="nest_source\obj_ops.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="nest_source\parser.c">
       <Filter>File di origine</Filter>
     </ClCompile>
     <ClCompile Include="nest_source\sequence.c">
@@ -120,9 +144,6 @@
       <Filter>File di origine</Filter>
     </ClCompile>
     <ClCompile Include="nest_source\var_table.c">
-      <Filter>File di origine</Filter>
-    </ClCompile>
-    <ClCompile Include="nest_source\obj.c">
       <Filter>File di origine</Filter>
     </ClCompile>
   </ItemGroup>

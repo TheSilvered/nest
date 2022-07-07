@@ -1,13 +1,10 @@
-#include <stdlib.h>
 #include <errno.h>
+#include <stdlib.h>
 #include "iter.h"
+#include "lib_import.h"
 #include "sequence.h"
 #include "simple_types.h"
 #include "str.h"
-
-#define RETURN_NULL do { inc_ref(nst_null); return nst_null; } while (0)
-#define RETURN_TRUE do { inc_ref(nst_true); return nst_true; } while (0)
-#define RETURN_FALSE do { inc_ref(nst_false); return nst_false; } while (0)
 
 Nst_Obj *new_iter_obj(Nst_iter * iter)
 {

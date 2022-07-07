@@ -1,7 +1,6 @@
 #include <errno.h>
 #include <stdlib.h>
 #include "function.h"
-#include "obj.h"
 
 Nst_Obj *new_func_obj(Nst_func *func)
 {

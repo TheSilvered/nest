@@ -1,0 +1,15 @@
+|#| 'stdtime.nest' = t
+|#| 'stdsutil.nest' = su
+
+#print_clock_datetime [
+    >>> ('\r' \
+         t.SHORT_WEEKDAY_NAMES.@@t.week_day ' ' \
+         (Str :: @t.day 2 '0' @su.rjust) ' ' \
+         t.SHORTH_MONTH_NAMES.@@t.month ' ' \
+         @@t.year ', ' \
+         (Str :: @t.hours   2 '0' @su.rjust) ':' \
+         (Str :: @t.minutes 2 '0' @su.rjust) ':' \
+         (Str :: @t.seconds 2 '0' @su.rjust) ><)
+]
+
+?.. 1 [ @print_clock_datetime ]

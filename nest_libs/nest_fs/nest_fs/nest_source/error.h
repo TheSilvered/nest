@@ -53,7 +53,7 @@
 #define TOO_MANY_ARGS_FUNC "too many arguments were passed to the function"
 #define TOO_FEW_ARGS_FUNC "too few arguments were passed to the function"
 #define ZERO_RANGE_STEP "step must not be zero"
-#define EXPECTED_BOOL_ITER_IS_DONE "expected 'Bool' type from ':is_done:', got type '%s' instead"
+#define EXPECTED_BOOL_ITER_IS_DONE "expected 'Bool' type from '_is_done_', got type '%s' instead"
 #define FILE_NOT_FOUND "file '%s' not found"
 #define FILE_NOT_DLL "the file was not a valid DLL"
 #define NO_LIB_INIT "the DLL does not specify a 'lib_init' function"

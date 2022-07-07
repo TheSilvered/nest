@@ -2,40 +2,29 @@
 |#| 'stdfs.nest' = fs
 |#| 'stdsutil.nest' = su
 
--- not all source files, only the ones that can be used
 {
-    'error.h',
-    'function.h',
-    'hash.h',
-    'iter.h',
-    'lib_import.h',
-    'llist.h',
-    'map.h',
+    --    Headers          Source    --
+    'error.h',          'error.c',
+    'error_internal.h',
+    'function.h',       'function.c',
+    'hash.h',           'hash.c',
+    'iter.h',           'iter.c',
+    'interpreter.h',    'interpreter.c',
+    'lexer.h',          'lexer.c',
+    'lib_import.h',     'lib_import.c',
+    'llist.h',          'llist.c',
+    'map.h',            'map.c',
     'nest_include.h',
-    'nodes.h',
+    'nodes.h',          'nodes.c',
     'nst_types.h',
-    'obj.h',
-    'obj_ops.h',
-    'sequence.h',
-    'simple_types.h',
-    'str.h',
-    'tokens.h',
-    'var_table.h',
-    'error.c',
-    'function.c',
-    'hash.c',
-    'iter.c',
-    'lib_import.c',
-    'llist.c',
-    'map.c',
-    'nodes.c',
-    'obj.c',
-    'obj_ops.c',
-    'sequence.c',
-    'simple_types.c',
-    'str.c',
-    'tokens.c',
-    'var_table.c'
+    'obj.h',            'obj.c',
+    'obj_ops.h',        'obj_ops.c',
+    'parser.h',         'parser.c',
+    'sequence.h',       'sequence.c',
+    'simple_types.h',   'simple_types.c',
+    'str.h',            'str.c',
+    'tokens.h',         'tokens.c',
+    'var_table.h',      'var_table.c'
 } = nest_source_files
 
 #main [

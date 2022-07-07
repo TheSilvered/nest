@@ -1,0 +1,17 @@
+|#| 'stdmath.nest' = math
+
+#println s [ >>> (s '\n' ><) ]
+
+0.5 @math.ceil @println
+0.5 @math.floor @println
+0.5 @math.round @println
+0.4 @math.round @println
+13 5 @math.divmod @println
+90 @math.rad @math.cos 1 - @println
+{ 1.0, 5.0 } { 2.0, 3.0 } @math.dist_2d @println
+{ 1.0, 5.0, 8.0 } \
+{ 2.0, 3.0, 2.0 } @math.dist_3d @println
+{ 1.0, 5.0, 8.0, 7.0 } \
+{ 2.0, 3.0, 2.0, 4.0 } @math.dist_nd @println
+math.PI @math.deg @println
+180 @math.rad @println

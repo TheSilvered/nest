@@ -1,0 +1,47 @@
+|#| 'stdsutil.nest' = su
+
+#println s [ >>> (s '\n' ><) ]
+
+'Hi!' 10 '_' @su.ljust @println
+'Hi!' 10 '_' @su.rjust @println
+
+'validName' su.LETTERS @su.is_charset @println
+'invalid name' su.LETTERS @su.is_charset @println
+
+'1word1 2word2 3word3' 'word' 'letter' @su.replace_substr @println
+'1word1 2word2 3word3' 'word' 'wor' @su.replace_substr @println
+
+'HELLO.:()' @su.is_upper @println
+'hello.:()' @su.is_lower @println
+'Hello.:()' @su.is_upper @println
+'hELLO.:()' @su.is_lower @println
+
+'Hello.:()' @su.to_upper @println
+'hELLO.:()' @su.to_lower @println
+
+'this is a sentence inside a string' 'a' @su.lfind @println -- expect 8
+'this is a sentence inside a string' 'a' @su.rfind @println -- expect 26
+
+'this is a sentence inside a string' 'is' @su.lfind @println -- expect 2
+'this is a sentence inside a string' 'is' @su.rfind @println -- expect 5
+
+'hello' @su.is_alpha @println
+'hell0' @su.is_alpha @println
+'110' @su.is_digit @println
+'11o' @su.is_alpha @println
+'hell0' @su.is_alnum @println
+'hell0 everybody' @su.is_printable @println
+'hell0 everybody\n' @su.is_printable @println
+
+'hell0 everybody\n' @su.repr @println
+'hell0 everybody\x10' @su.repr @println
+'"' @su.repr @println
+"'" @su.repr @println
+
+{ Byte :: 72, Byte :: 105 } @su.bytearray_to_str @println
+
+su.DIGITS @println
+su.LETTERS @println
+su.UPPERCASE_LETTERS @println
+su.LOWERCASE_LETTERS @println
+su.PUNCTUATION @println

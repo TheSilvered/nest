@@ -2,8 +2,8 @@
 #include <string.h>
 #include <errno.h>
 #include <stdio.h>
-#include "tokens.h"
 #include "nst_types.h"
+#include "tokens.h"
 
 Token *new_token_value(Pos start, Pos end, int type, void *value)
 {

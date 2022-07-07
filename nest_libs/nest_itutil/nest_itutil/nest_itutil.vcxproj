@@ -112,6 +112,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -129,6 +130,7 @@
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -143,9 +145,12 @@
     <ClInclude Include="itutil_functions.h" />
     <ClInclude Include="nest_itutil.h" />
     <ClInclude Include="nest_source\error.h" />
+    <ClInclude Include="nest_source\error_internal.h" />
     <ClInclude Include="nest_source\function.h" />
     <ClInclude Include="nest_source\hash.h" />
+    <ClInclude Include="nest_source\interpreter.h" />
     <ClInclude Include="nest_source\iter.h" />
+    <ClInclude Include="nest_source\lexer.h" />
     <ClInclude Include="nest_source\lib_import.h" />
     <ClInclude Include="nest_source\llist.h" />
     <ClInclude Include="nest_source\map.h" />
@@ -154,6 +159,7 @@
     <ClInclude Include="nest_source\nst_types.h" />
     <ClInclude Include="nest_source\obj.h" />
     <ClInclude Include="nest_source\obj_ops.h" />
+    <ClInclude Include="nest_source\parser.h" />
     <ClInclude Include="nest_source\sequence.h" />
     <ClInclude Include="nest_source\simple_types.h" />
     <ClInclude Include="nest_source\str.h" />
@@ -167,13 +173,16 @@
     <ClCompile Include="nest_source\error.c" />
     <ClCompile Include="nest_source\function.c" />
     <ClCompile Include="nest_source\hash.c" />
+    <ClCompile Include="nest_source\interpreter.c" />
     <ClCompile Include="nest_source\iter.c" />
+    <ClCompile Include="nest_source\lexer.c" />
     <ClCompile Include="nest_source\lib_import.c" />
     <ClCompile Include="nest_source\llist.c" />
     <ClCompile Include="nest_source\map.c" />
     <ClCompile Include="nest_source\nodes.c" />
     <ClCompile Include="nest_source\obj.c" />
     <ClCompile Include="nest_source\obj_ops.c" />
+    <ClCompile Include="nest_source\parser.c" />
     <ClCompile Include="nest_source\sequence.c" />
     <ClCompile Include="nest_source\simple_types.c" />
     <ClCompile Include="nest_source\str.c" />

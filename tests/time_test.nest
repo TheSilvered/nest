@@ -1,0 +1,35 @@
+|#| 'stdtime.nest' = t
+|#| 'stdsutil.nest' = su
+
+#println s [ >>> (s '\n' ><) ]
+#print_clock_datetime [
+    t.SHORT_WEEKDAY_NAMES.@@t.week_day ' ' \
+    (Str :: @t.day 2 '0' @su.rjust) ' ' \
+    t.SHORTH_MONTH_NAMES.@@t.month ' ' \
+    @@t.year ', ' \
+    (Str :: @t.hours   2 '0' @su.rjust) ':' \
+    (Str :: @t.minutes 2 '0' @su.rjust) ':' \
+    (Str :: @t.seconds 2 '0' @su.rjust) >< @println
+]
+
+@t.time @println
+@t.time_ns @println
+@t.high_res_time @println
+@t.high_res_time_ns @println
+@t.year_day @println
+@t.week_day @println
+@t.day @println
+@t.month @println
+@t.year @println
+@t.date @println
+@t.seconds @println
+@t.minutes @println
+@t.hours @println
+@t.clock_time @println
+@t.gmt_clock_time @println
+@t.clock_datetime @println
+@t.gmt_clock_datetime @println
+
+@print_clock_datetime
+2 @t.sleep
+@print_clock_datetime

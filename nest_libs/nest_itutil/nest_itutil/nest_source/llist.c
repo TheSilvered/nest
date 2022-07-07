@@ -1,5 +1,5 @@
-#include <stdlib.h>
 #include <errno.h>
+#include <stdlib.h>
 #include "llist.h"
 
 inline LLNode *LLNode_new(void *value, bool allocated)

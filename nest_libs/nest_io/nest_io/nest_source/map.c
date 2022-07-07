@@ -1,11 +1,10 @@
-#include <stdlib.h>
-#include <math.h>
 #include <errno.h>
-#include <stdio.h>
-#include "map.h"
+#include <math.h>
+#include <stdlib.h>
 #include "hash.h"
-#include "obj_ops.h"
+#include "map.h"
 #include "nst_types.h"
+#include "obj_ops.h"
 
 static void set_clean(Nst_map *map, int32_t hash, Nst_Obj *key, Nst_Obj *value)
 {

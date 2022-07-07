@@ -72,6 +72,18 @@
     <ClInclude Include="nest_source\var_table.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
+    <ClInclude Include="nest_source\error_internal.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="nest_source\interpreter.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="nest_source\lexer.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="nest_source\parser.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -123,6 +135,15 @@
       <Filter>File di origine</Filter>
     </ClCompile>
     <ClCompile Include="nest_source\var_table.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="nest_source\interpreter.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="nest_source\lexer.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="nest_source\parser.c">
       <Filter>File di origine</Filter>
     </ClCompile>
   </ItemGroup>
