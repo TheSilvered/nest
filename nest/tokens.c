@@ -179,6 +179,8 @@ int str_to_tok(char *str)
         return FUNC;
     if ( strcmp("=>", str) == 0 )
         return RETURN;
+    if ( strcmp("|>", str) == 0 )
+        return SWITCH;
     if ( strcmp("..", str) == 0 )
         return CONTINUE;
     if ( strcmp(";", str) == 0 )

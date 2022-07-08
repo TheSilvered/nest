@@ -68,6 +68,9 @@ contexts:
     - match: =>
       scope: keyword.control.nest
 
+    - match: '\|>'
+      scope: keyword.control.nest
+
     - include: operators
 
     - match: '{{lang_keywords}}'

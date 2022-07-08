@@ -60,6 +60,7 @@
     case ASSIGN_E:       exe_assign_e(node); break; \
     case CONTINUE_S:     exe_continue_s(node); break; \
     case BREAK_S:        exe_break_s(node); break; \
+    case SWITCH_S:       exe_switch_s(node); break; \
     } \
     } while (0)
 
@@ -87,7 +88,8 @@ static void exe_access(Node *node);
 static void exe_extract_e(Node *node);
 static void exe_assign_e(Node *node);
 static void exe_continue_s(Node *node);
-static void exe_break_s(Node *node);
+static void exe_break_s(Node * node);
+static void exe_switch_s(Node *node);
 
 // Operation functions that need the ExecutionState
 static void call_func_internal(Node *node, Nst_func *func, Nst_Obj **args);
@@ -1249,6 +1251,93 @@ static void exe_break_s(Node *node)
 {
     state->must_break = true;
     SET_NULL;
+}
+
+static void exe_switch_s(Node *node)
+{
+    size_t nodes_len = node->nodes->size;
+
+    if ( !safe_exe(HEAD_NODE(node)) )
+        return NULL;
+    Nst_Obj *main_val = inc_ref(state->value);
+
+    size_t i = 2;
+    LLNode *n = node->nodes->head;
+
+    while ( true )
+    {
+        n = n->next;
+
+        if ( i == nodes_len ) // has reached default case
+            exe_node(NODE(n->value));
+        if ( i >= nodes_len )
+        {
+            dec_ref(main_val);
+            state->must_continue = false;
+            SET_NULL;
+            return;
+        }
+
+        if ( !safe_exe(n->value) )
+        {
+            dec_ref(main_val);
+            return;
+        }
+
+        Nst_Obj *res = obj_eq(main_val, state->value, NULL);
+        n = n->next;
+        i += 2;
+
+        if ( res == nst_false )
+        {
+            dec_ref(res);
+            continue;
+        }
+        else
+        {
+            dec_ref(res);
+
+            if ( !safe_exe(n->value) )
+            {
+                dec_ref(main_val);
+                return;
+            }
+
+            if ( i > nodes_len ) // it's the last node
+            {
+                dec_ref(main_val);
+                state->must_continue = false;
+                SET_NULL;
+                return;
+            }
+
+            while ( state->must_continue )
+            {
+                if ( i == nodes_len )
+                    exe_node(NODE(n->next->value));
+                if ( i >= nodes_len )
+                {
+                    dec_ref(main_val);
+                    state->must_continue = false;
+                    SET_NULL;
+                    return;
+                }
+
+                n = n->next->next;
+                i += 2;
+                state->must_continue = false;
+
+                if ( !safe_exe(n->value) )
+                {
+                    dec_ref(main_val);
+                    return;
+                }
+            }
+
+            SET_NULL;
+            return;
+        }
+    }
 }
 
 Nst_Obj *call_func(Nst_func *func, Nst_Obj **args, OpErr *err)
