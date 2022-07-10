@@ -33,16 +33,9 @@ typedef struct
 }
 ExecutionState;
 
-typedef union
-{
-    Node *ast;
-    HMODULE dll;
-}
-LibHandleVal;
-
 typedef struct
 {
-    LibHandleVal *val;
+    Nst_map *val;
     char *path;
 }
 LibHandle;

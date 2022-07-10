@@ -463,7 +463,7 @@ Nst_Obj *replace_substr(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( new_str == nullptr )
         return nullptr;
 
-    memcpy(new_str, s, new_sub_len);
+    memcpy(new_str, s, sub - s);
     memcpy(new_str + (sub - s), s2, s2_len);
     new_str_len += new_sub_len;
     s_len -= sub - s + s1_len;

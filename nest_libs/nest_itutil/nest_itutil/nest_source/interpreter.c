@@ -60,6 +60,7 @@
     case ASSIGN_E:       exe_assign_e(node); break; \
     case CONTINUE_S:     exe_continue_s(node); break; \
     case BREAK_S:        exe_break_s(node); break; \
+    case SWITCH_S:       exe_switch_s(node); break; \
     } \
     } while (0)
 
@@ -87,7 +88,8 @@ static void exe_access(Node *node);
 static void exe_extract_e(Node *node);
 static void exe_assign_e(Node *node);
 static void exe_continue_s(Node *node);
-static void exe_break_s(Node *node);
+static void exe_break_s(Node * node);
+static void exe_switch_s(Node *node);
 
 // Operation functions that need the ExecutionState
 static void call_func_internal(Node *node, Nst_func *func, Nst_Obj **args);
@@ -109,7 +111,11 @@ void run(Node *node, int argc, char **argv)
     if ( state == NULL )
         return;
 
-    Nst_string *cwd = make_cwd(node->start.filename);
+    char *cwd_buf = malloc(sizeof(char) * MAX_PATH);
+    if ( cwd_buf == NULL )
+        return;
+
+    Nst_string *cwd = new_string_raw(_getcwd(cwd_buf, MAX_PATH), true);
     Nst_Traceback tb = { NULL, LList_new() };
 
     state->traceback = &tb;
@@ -141,43 +147,28 @@ void run(Node *node, int argc, char **argv)
         if ( free_lib_func != NULL )
             free_lib_func();
     }
-    LList_destroy(state->loaded_libs, FreeLibrary);
+    LList_destroy(state->loaded_libs, (void (*)(void *))FreeLibrary);
     LList_destroy(state->lib_paths, free);
     LList_destroy(state->lib_handles, free);
 }
 
 Nst_map *run_module(char *file_name)
 {
-    Nst_string *prev_path = state->curr_path;
-
-    Nst_string *path_str = make_cwd(file_name);
-    state->curr_path = path_str;
-    int res = _chdir(path_str->value);
-    assert(res == 0);
-
-    Node *module_ast = NULL;
-    bool found_ast = false;
-
-    for ( LLNode *n = state->lib_handles->head; n != NULL; n = n->next )
-    {
-        LibHandle *handle = (LibHandle *)(n->value);
-        if ( strcmp(handle->path, file_name) == 0 )
-        {
-            found_ast = true;
-            module_ast = (handle->val)->ast;
-            break;
-        }
-    }
-
-    if ( !found_ast )
-        module_ast = parse(ftokenize(file_name));
+    Node *module_ast = parse(ftokenize(file_name));
 
     if ( module_ast == NULL )
         return NULL;
 
+    Nst_string *prev_path = state->curr_path;
     VarTable *prev_vt = state->vt;
-    state->vt = new_var_table(NULL, path_str, make_argv(1, &file_name));
 
+    Nst_string *path_str = make_cwd(file_name);
+    state->curr_path = path_str;
+
+    int res = _chdir(path_str->value);
+    assert(res == 0);
+
+    state->vt = new_var_table(NULL, path_str, make_argv(1, &file_name));
     LList_append(state->lib_paths, path_str, false);
 
     SET_NULL;
@@ -195,6 +186,27 @@ Nst_map *run_module(char *file_name)
 
     res = _chdir(prev_path->value);
     assert(res == 0);
+    
+    map_drop_str(var_map, "Type");
+    map_drop_str(var_map, "Int");
+    map_drop_str(var_map, "Real");
+    map_drop_str(var_map, "Bool");
+    map_drop_str(var_map, "Null");
+    map_drop_str(var_map, "Str");
+    map_drop_str(var_map, "Array");
+    map_drop_str(var_map, "Vector");
+    map_drop_str(var_map, "Map");
+    map_drop_str(var_map, "Func");
+    map_drop_str(var_map, "Iter");
+    map_drop_str(var_map, "Byte");
+    map_drop_str(var_map, "IOfile");
+    map_drop_str(var_map, "true");
+    map_drop_str(var_map, "false");
+    map_drop_str(var_map, "null");
+    map_drop_str(var_map, "_cwd_");
+    map_drop_str(var_map, "_args_");
+    map_drop_str(var_map, "_vars_");
+    
     return var_map;
 }
 
@@ -877,8 +889,20 @@ static void exe_arr_or_vect_lit(Node *node)
         }
 
         Nst_int size = AS_INT(quantity);
-        Nst_sequence *seq = is_arr ? new_array_empty(size)
-                                   : new_vector_empty(size);
+        if ( size < 0 )
+        {
+            SET_ERROR(
+                SET_VALUE_ERROR_INT,
+                TAIL_NODE(node)->start,
+                TAIL_NODE(node)->end,
+                NEGATIVE_SIZE_FOR_SEQUENCE
+            );
+            dec_ref(value);
+            return;
+        }
+
+        Nst_sequence *seq = is_arr ? new_array_empty((size_t)size)
+                                   : new_vector_empty((size_t)size);
         if ( seq == NULL )
         {
             SET_ERROR(
@@ -973,15 +997,13 @@ static void exe_value(Node *node)
 
 static void exe_access(Node *node)
 {
-    Nst_Obj *key = TOK(LList_peek_front(node->tokens))->value;
-
+    Nst_Obj *key = HEAD_TOK(node)->value;
     Nst_Obj *val = get_val(state->vt, key);
     if ( val == NULL )
     {
-        inc_ref(nst_null);
-        val = nst_null;
+        SET_NULL;
+        return;
     }
-
     SET_VALUE(val);
 }
 
@@ -1091,27 +1113,25 @@ static void exe_extract_e(Node *node)
     }
     else if ( container->type == nst_t_map )
     {
-        hash_obj(key);
-        if ( key->hash == -1 )
-        {
-            SET_ERROR(
-                SET_VALUE_ERROR_INT,
-                TAIL_NODE(node)->start,
-                TAIL_NODE(node)->end,
-                format_type_error(UNHASHABLE_TYPE, key->type_name)
-            );
-
-            dec_ref(container);
-            dec_ref(key);
-            return;
-        }
-
         Nst_Obj *val = map_get(container->value, key);
 
         if ( val == NULL )
         {
-            inc_ref(nst_null);
-            val = nst_null;
+            if ( key->hash == -1 )
+            {
+                SET_ERROR(
+                    SET_VALUE_ERROR_INT,
+                    TAIL_NODE(node)->start,
+                    TAIL_NODE(node)->end,
+                    format_type_error(UNHASHABLE_TYPE, key->type_name)
+                );
+
+                dec_ref(container);
+                dec_ref(key);
+            }
+            else
+                SET_NULL;
+            return;
         }
 
         SET_VALUE(val);
@@ -1251,6 +1271,93 @@ static void exe_break_s(Node *node)
     SET_NULL;
 }
 
+static void exe_switch_s(Node *node)
+{
+    size_t nodes_len = node->nodes->size;
+
+    if ( !safe_exe(HEAD_NODE(node)) )
+        return;
+    Nst_Obj *main_val = inc_ref(state->value);
+
+    size_t i = 2;
+    LLNode *n = node->nodes->head;
+
+    while ( true )
+    {
+        n = n->next;
+
+        if ( i == nodes_len ) // has reached default case
+            exe_node(NODE(n->value));
+        if ( i >= nodes_len )
+        {
+            dec_ref(main_val);
+            state->must_continue = false;
+            SET_NULL;
+            return;
+        }
+
+        if ( !safe_exe(n->value) )
+        {
+            dec_ref(main_val);
+            return;
+        }
+
+        Nst_Obj *res = obj_eq(main_val, state->value, NULL);
+        n = n->next;
+        i += 2;
+
+        if ( res == nst_false )
+        {
+            dec_ref(res);
+            continue;
+        }
+        else
+        {
+            dec_ref(res);
+
+            if ( !safe_exe(n->value) )
+            {
+                dec_ref(main_val);
+                return;
+            }
+
+            if ( i > nodes_len ) // it's the last node
+            {
+                dec_ref(main_val);
+                state->must_continue = false;
+                SET_NULL;
+                return;
+            }
+
+            while ( state->must_continue )
+            {
+                if ( i == nodes_len )
+                    exe_node(NODE(n->next->value));
+                if ( i >= nodes_len )
+                {
+                    dec_ref(main_val);
+                    state->must_continue = false;
+                    SET_NULL;
+                    return;
+                }
+
+                n = n->next->next;
+                i += 2;
+                state->must_continue = false;
+
+                if ( !safe_exe(n->value) )
+                {
+                    dec_ref(main_val);
+                    return;
+                }
+            }
+
+            SET_NULL;
+            return;
+        }
+    }
+}
+
 Nst_Obj *call_func(Nst_func *func, Nst_Obj **args, OpErr *err)
 {
     if ( func->body != NULL )
@@ -1336,7 +1443,7 @@ size_t get_full_path(char *file_path, char **buf, char **file_part)
         path_len = GetFullPathNameA(file_path, path_len, path, file_part);
     }
 
-    *buf = path; // shrinking always succeedes
+    *buf = path;
     return path_len;
 }
 
@@ -1347,7 +1454,7 @@ static Nst_string *make_cwd(char *file_path)
 
     get_full_path(file_path, &path, &file_part);
 
-    *file_part = 0;
+    *(file_part - 1) = 0;
 
     return new_string(path, file_part - path, true);
 }

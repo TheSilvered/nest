@@ -105,13 +105,23 @@ LList *tokenize(char *text, size_t text_len, char *filename)
     Nst_Error *err = NULL;
     LList *tokens = LList_new();
 
+    cursor.idx = -1;
+    cursor.ch = ' ';
+    cursor.len = text_len;
+    cursor.text = text;
+    cursor.pos.col = -1;
+    cursor.pos.filename = filename;
+    cursor.pos.line = 0;
+    cursor.pos.text = text;
+    cursor.pos.text_len = text_len;
+
     advance();
 
     while ( cursor.idx < (long)cursor.len )
     {
         if ( cursor.ch == ' ' || cursor.ch == '\t' )
         {
-            advance(&cursor);
+            advance();
             continue;
         }
         else if ( strchr(DIGIT_CHARS "-", cursor.ch) != NULL )
@@ -161,7 +171,7 @@ LList *tokenize(char *text, size_t text_len, char *filename)
         if ( tok != NULL )
             LList_append(tokens, tok, true);
         tok = NULL;
-        advance(&cursor);
+        advance();
     }
 
     LList_append(tokens, new_token_noend(cursor.pos, EOFILE), true);

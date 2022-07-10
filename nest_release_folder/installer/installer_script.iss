@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "nest"
-#define MyAppVersion "0.1.4"
+#define MyAppVersion "0.2.0"
 #define MyAppPublisher "Davide Taffarello"
 #define MyAppExeName "nest.exe"
 #define MyAppAssocName "Nest File"
@@ -20,12 +20,10 @@ AppPublisher={#MyAppPublisher}
 DefaultDirName={userpf}\{#MyAppName}
 DisableDirPage=yes
 ChangesAssociations=yes
-DefaultGroupName={#MyAppName}
 DisableProgramGroupPage=yes
 LicenseFile=E:\C++\nest\LICENSE.txt
 ; Remove the following line to run in administrative install mode (install for all users.)
 PrivilegesRequired=lowest
-PrivilegesRequiredOverridesAllowed=dialog
 OutputDir=E:\C++\nest\nest_release_folder\installer
 OutputBaseFilename=nest-{#MyAppVersion}-x64-installer
 Compression=lzma

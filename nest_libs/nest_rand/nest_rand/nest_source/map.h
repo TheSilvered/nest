@@ -31,11 +31,14 @@ typedef struct
 }
 Nst_map;
 
+Nst_Obj *new_map_obj(Nst_map *map);
 Nst_map *new_map();
 bool map_set(Nst_map *map, Nst_Obj *key, Nst_Obj *value);
 Nst_Obj *map_get(Nst_map *map, Nst_Obj *key);
+Nst_Obj *map_drop(Nst_map *map, Nst_Obj *key);
 void map_set_str(Nst_map *map, const char *key, Nst_Obj *value);
 Nst_Obj *map_get_str(Nst_map *map, const char *key);
+Nst_Obj *map_drop_str(Nst_map *map, const char *key);
 void destroy_map(Nst_map *map);
 Nst_int get_next_idx(Nst_int curr_idx, Nst_map *map);
 

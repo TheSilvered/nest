@@ -27,10 +27,10 @@ copy ..\nest_libs\nest_math\x64\Release\nest_math.dll nest_libs\stdmath.dll /y
 copy ..\nest_libs\nest_math\stdmath.nest nest_libs\stdmath.nest /y
 
 :: Udate .nest files
-py update_nest_file.py nest_libs\stdfs.nest
-py update_nest_file.py nest_libs\stdio.nest
-py update_nest_file.py nest_libs\stdrand.nest
-py update_nest_file.py nest_libs\stdsutil.nest
-py update_nest_file.py nest_libs\stdtime.nest
-py update_nest_file.py nest_libs\stditutil.nest
-py update_nest_file.py nest_libs\stdmath.nest
+nest update_nest_file.nest nest_libs\stdfs.nest
+nest update_nest_file.nest nest_libs\stdio.nest
+nest update_nest_file.nest nest_libs\stdrand.nest
+nest update_nest_file.nest nest_libs\stdsutil.nest
+nest update_nest_file.nest nest_libs\stdtime.nest
+nest update_nest_file.nest nest_libs\stditutil.nest
+nest update_nest_file.nest nest_libs\stdmath.nest

@@ -11,6 +11,10 @@ VarTable *new_var_table(VarTable *global_table, Nst_string *cwd, Nst_sequence *a
     Nst_map *vars = new_map();
     vt->vars = vars;
 
+    Nst_Obj *vars_obj = make_obj(vt->vars, nst_t_map, NULL);
+    map_set_str(vars, "_vars_", vars_obj);
+    dec_ref(vars_obj);
+
     if ( global_table != NULL )
         return vt;
 

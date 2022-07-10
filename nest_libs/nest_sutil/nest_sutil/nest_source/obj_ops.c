@@ -35,7 +35,7 @@
     Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *, \
     Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *, \
     Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *, \
-    Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *
+    Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *, ExecutionState *
 
 // Comparisons
 Nst_Obj *obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
@@ -198,7 +198,7 @@ Nst_Obj *obj_add(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
             new_real(AS_REAL(ob1) + AS_REAL(ob2)),
             nst_t_real, free
         );
-        
+
         dec_ref(ob1);
         dec_ref(ob2);
 
@@ -216,6 +216,16 @@ Nst_Obj *obj_sub(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
     if ( ob1->type == nst_t_vect )
     {
         return rem_value_vector(ob1->value, ob2);
+    }
+    else if ( ob1->type == nst_t_map )
+    {
+        Nst_Obj *res = map_drop(ob1->value, ob2);
+        if ( res == NULL )
+        {
+            err->name = TYPE_ERROR;
+            err->message= format_type_error(UNHASHABLE_TYPE, ob2->type_name);
+        }
+        return res;
     }
     else if ( ARE_TYPE(nst_t_int) )
     {
@@ -658,15 +668,15 @@ Nst_Obj *obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
     str[1] = ' ';
 
     Nst_map *map = AS_MAP(map_obj);
-    size_t idx = -1;
+    Nst_int idx = -1;
     size_t tot = map->item_count;
     size_t count = 0;
 
     while ( count++ < tot )
     {
         idx = get_next_idx(idx, map);
-        Nst_Obj *key_obj = map->nodes[idx].key;
-        Nst_Obj *val_obj = map->nodes[idx].value;
+        key_obj = map->nodes[idx].key;
+        val_obj = map->nodes[idx].value;
 
         // Key cannot be a vector, an array or a map
         if ( key_obj->type == nst_t_str )
@@ -1188,6 +1198,11 @@ Nst_Obj *obj_stdin(Nst_Obj *ob, OpErr *err)
     );
 }
 
+Nst_Obj *obj_typeof(Nst_Obj *ob, OpErr *err)
+{
+    return inc_ref(ob->type);
+}
+
 Nst_Obj *obj_import(Nst_Obj *ob, OpErr *err)
 {
 
@@ -1207,32 +1222,21 @@ Nst_Obj *obj_import(Nst_Obj *ob, OpErr *err)
         file_name[4] == '_' && file_name[5] == ':' )
     {
         c_import = true;
-        file_name += 6; // length of __C__:
+        file_name += 6; // skip __C__:
     }
 
     size_t file_name_len = strlen(file_name);
-    char *file_path = NULL;
+    char *file_path = file_name;
     bool file_path_allocated = false;
 
-    if ( AS_STR(ob)->len > 2 && file_name[1] == ':' )
-        file_path = file_name;
-    else
-    {
-        file_path = malloc(sizeof(char) * (state->curr_path->len + file_name_len + 1));
-        file_path_allocated = true;
-        if ( file_path == NULL )
-            return NULL;
-
-        strcpy(file_path, state->curr_path->value);
-        strcat(file_path, file_name);
-    }
-
+    // Checks if the file exists with the given path
     Nst_iofile *file;
     if ( (file = fopen(file_path, "r")) == NULL )
     {
+        // Tries to open it as a file of the standard library
         char *appdata = getenv("LOCALAPPDATA");
-        char *original_path = format_fnf_error(FILE_NOT_FOUND, file_path);
-        if ( appdata == NULL || !file_path_allocated )
+        char *original_path = format_fnf_error(FILE_NOT_FOUND, file_name);
+        if ( appdata == NULL )
         {
             err->name = "Value Error";
             err->message = original_path;
@@ -1240,11 +1244,11 @@ Nst_Obj *obj_import(Nst_Obj *ob, OpErr *err)
         }
 
         size_t appdata_len = strlen(appdata);
-        char *realloc_file_path = realloc(file_path, appdata_len + file_name_len + 26);
-        if ( !realloc_file_path ) return NULL;
+        file_path = malloc(appdata_len + file_name_len + 26);
+        file_path_allocated = true;
+        if ( !file_path ) return NULL;
 
         char *lib_dir = "\\Programs\\nest\\nest_libs\\";
-        file_path = realloc_file_path;
         memcpy(file_path, appdata, appdata_len);
         memcpy(file_path + appdata_len, lib_dir, 25);
         memcpy(file_path + appdata_len + 25, file_name, file_name_len + 1); // copies also \0
@@ -1261,11 +1265,13 @@ Nst_Obj *obj_import(Nst_Obj *ob, OpErr *err)
     }
     fclose(file);
 
+    // Gets the full path to allow importing with different relative paths
     char *full_path = NULL;
     get_full_path(file_path, &full_path, NULL);
-    free(file_path);
+    if ( file_path_allocated ) free(file_path);
     file_path = full_path;
 
+    // Check if the module is in the import stack
     for ( LLNode *n = state->lib_paths->head; n != NULL; n = n->next )
     {
         if ( strcmp(file_path, (const char *)(n->value)) == 0 )
@@ -1273,6 +1279,16 @@ Nst_Obj *obj_import(Nst_Obj *ob, OpErr *err)
             err->name = "Import Error";
             err->message = "circular import";
             return NULL;
+        }
+    }
+
+    // Check if the module was loaded previously
+    for ( LLNode *n = state->lib_handles->head; n != NULL; n = n->next )
+    {
+        LibHandle *handle = (LibHandle *)(n->value);
+        if ( strcmp(handle->path, file_path) == 0 )
+        {
+            return make_obj(handle->val, nst_t_map, NULL);
         }
     }
 
@@ -1286,49 +1302,46 @@ Nst_Obj *obj_import(Nst_Obj *ob, OpErr *err)
             return NULL;
         }
 
-        return make_obj(map, nst_t_map, destroy_map);
-    }
-
-    bool lib_found = false;
-    HMODULE lib = NULL;
-
-    for ( LLNode *n = state->lib_handles->head; n != NULL; n = n->next )
-    {
-        LibHandle *handle = (LibHandle *)(n->value);
-        if ( strcmp(handle->path, file_path) == 0 )
-        {
-            lib_found = true;
-            lib = (handle->val)->dll;
-            break;
-        }
-    }
-
-    if ( !lib_found )
-    {
-        lib = LoadLibraryA(file_path);
-
-        if ( !lib )
-        {
-            err->name = "Import Error";
-            err->message = FILE_NOT_DLL;
-            return NULL;
-        }
-
-        bool (*lib_init)() = (bool (*)())GetProcAddress(lib, "lib_init");
-        if ( lib_init == NULL )
-        {
-            err->name = "Import Error";
-            err->message = NO_LIB_INIT;
-            return NULL;
-        }
-
-        if ( !lib_init() )
+        // Adds the generated map to the modules previously loaded
+        LibHandle *handle = malloc(sizeof(LibHandle));
+        if ( handle == NULL )
         {
             errno = ENOMEM;
             return NULL;
         }
+
+        handle->val = map;
+        handle->path = file_path;
+
+        LList_append(state->lib_handles, handle, true);
+        return make_obj(map, nst_t_map, NULL);
     }
 
+    HMODULE lib = LoadLibraryA(file_path);
+
+    if ( !lib )
+    {
+        err->name = "Import Error";
+        err->message = FILE_NOT_DLL;
+        return NULL;
+    }
+
+    // Initialize library
+    bool (*lib_init)() = (bool (*)())GetProcAddress(lib, "lib_init");
+    if ( lib_init == NULL )
+    {
+        err->name = "Import Error";
+        err->message = NO_LIB_INIT;
+        return NULL;
+    }
+
+    if ( !lib_init() )
+    {
+        errno = ENOMEM;
+        return NULL;
+    }
+
+    // Get function pointers
     FuncDeclr *(*get_func_ptrs)() = (FuncDeclr * (*)())GetProcAddress(lib, "get_func_ptrs");
     if ( get_func_ptrs == NULL )
     {
@@ -1346,6 +1359,7 @@ Nst_Obj *obj_import(Nst_Obj *ob, OpErr *err)
         return NULL;
     }
 
+    // Populate the function map
     Nst_map *func_map = new_map();
 
     for ( size_t i = 0;; i++ )
@@ -1371,33 +1385,26 @@ Nst_Obj *obj_import(Nst_Obj *ob, OpErr *err)
         return NULL;
     }
 
-    init_lib_obj(nst_t_type, nst_t_int, nst_t_real, nst_t_bool,
-        nst_t_null, nst_t_str, nst_t_arr, nst_t_vect,
-        nst_t_map, nst_t_func, nst_t_iter, nst_t_byte,
-        nst_t_file, nst_true, nst_false, nst_null);
+    // Link the global variables
+    init_lib_obj(nst_t_type, nst_t_int,  nst_t_real, nst_t_bool,
+                 nst_t_null, nst_t_str,  nst_t_arr,  nst_t_vect,
+                 nst_t_map,  nst_t_func, nst_t_iter, nst_t_byte,
+                 nst_t_file, nst_true,   nst_false,  nst_null, state);
 
-    if ( !lib_found )
+    LList_append(state->loaded_libs, lib, false);
+
+    // Add map to the loaded libaries
+    LibHandle *handle = malloc(sizeof(LibHandle));
+    if ( handle == NULL )
     {
-        LList_append(state->loaded_libs, lib, false);
-
-        LibHandleVal *val = malloc(sizeof(LibHandleVal));
-        LibHandle *handle = malloc(sizeof(LibHandle));
-        if ( handle == NULL || val == NULL )
-        {
-            errno = ENOMEM;
-            return NULL;
-        }
-
-        val->dll = lib;
-        handle->val = val;
-        handle->path = file_path;
-
-        LList_append(state->lib_handles, handle, true);
+        errno = ENOMEM;
+        return NULL;
     }
-    return make_obj(func_map, nst_t_map, destroy_map);
-}
 
-Nst_Obj *obj_typeof(Nst_Obj *ob, OpErr *err)
-{
-    return inc_ref(ob->type);
+    handle->val = func_map;
+    handle->path = file_path;
+
+    LList_append(state->lib_handles, handle, true);
+
+    return make_obj(func_map, nst_t_map, NULL);
 }

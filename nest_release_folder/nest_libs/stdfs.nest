@@ -2,6 +2,16 @@
 
 __fs.isdir = isdir
 __fs.mkdir = mkdir
+__fs.mkdirs = mkdirs
 __fs.rmdir = rmdir
+__fs.rmdir_recursive = rmdir_recursive
 __fs.isfile = isfile
 __fs.rmfile = rmfile
+__fs.copy = copy
+__fs.rename = rename
+__fs.list_dir = list_dir
+__fs.list_dir_recursive = list_dir_recursive
+__fs.absolute_path = absolute_path
+__fs.equivalent = equivalent
+
+@__fs._get_copy_options = CPO

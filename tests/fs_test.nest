@@ -7,8 +7,22 @@
 '_general_tests.nest' @fs.isfile @println
 'test_files' @fs.isdir @println
 
-'stdfs_dir' @fs.mkdir
-'stdfs_file' 'w' @io.open @io.close -- to create a file
-1 @t.sleep
-'stdfs_dir' @fs.rmdir
-'stdfs_file' @fs.rmfile
+'dir' @fs.mkdir
+'dir_1\\dir2' @fs.mkdirs
+'stdfs_file' 'w' @io.open @io.close -- creates a file
+'stdfs_file' 'dir\\stdfs_file' @fs.rename
+'dir\\stdfs_file' 'stdfs_file_copied' fs.CPO.normal @fs.copy
+
+... Iter :: ('dir_1' @fs.list_dir) ~= item [
+    'ld > ' item >< @println
+]
+
+... Iter :: ('dir_1' @fs.list_dir_recursive) ~= item [
+    'ldr > ' item >< @println
+]
+
+2 @t.sleep
+'stdfs_file_copied' @fs.rmfile
+'dir\\stdfs_file' @fs.rmfile
+'dir' @fs.rmdir
+'dir_1' @fs.rmdir_recursive

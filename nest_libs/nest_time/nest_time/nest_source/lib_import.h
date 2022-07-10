@@ -88,7 +88,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct FuncDeclr
+typedef struct
 {
     Nst_Obj *(*func_ptr)(size_t arg_num, Nst_Obj **args, OpErr *err);
     size_t arg_num;

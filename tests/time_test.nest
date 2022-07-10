@@ -2,6 +2,7 @@
 |#| 'stdsutil.nest' = su
 
 #println s [ >>> (s '\n' ><) ]
+
 #print_clock_datetime [
     t.SHORT_WEEKDAY_NAMES.@@t.week_day ' ' \
     (Str :: @t.day 2 '0' @su.rjust) ' ' \

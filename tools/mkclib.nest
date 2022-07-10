@@ -2,6 +2,16 @@
 |#| 'stdfs.nest' = fs
 |#| 'stdsutil.nest' = su
 
+#replace_file_str path s1 s2 [
+    path 'r' @io.open = file
+    file -1 @io.read s1 s2 @su.replace_substr = file_content
+    file @io.close
+
+    path 'w' @io.open = file
+    file file_content @io.write
+    file @io.close
+]
+
 {
     --    Headers          Source    --
     'error.h',          'error.c',
@@ -85,11 +95,6 @@ __declspec(dllexport) INIT_LIB_OBJ_FUNC;
 // They must always be `Nst_Obj *func_name(size_t arg_num, Nst_Obj **args, OpErr *err);`
 // replace func_name with your function's name
 
-// To compile remove precompiled headers in Project->Properties->C/C++->
-// ->Precompiled headers and set \"Precompiled header\" to \"Not Using Precompiled
-// Headers\" and define in Project->Properties->C/C++->Preprocessor the directive
-// _CRT_SECURE_NO_WARNINGS
-
 #ifdef __cplusplus
 }
 #endif // !__cplusplus
@@ -139,16 +144,78 @@ FuncDeclr *get_func_ptrs()
     -- just been removed
     (location'\\dllmain.cpp' >< @fs.isfile) \
     (location'\\framework.h' >< @fs.isfile) && ? [
-        location'\\dllmain.cpp' >< 'r' @io.open = dllmain_cpp
-        dllmain_cpp -1 @io.read \
-          'pch' 'framework' @su.replace_substr = dllmain_content
-        dllmain_cpp @io.close
-
-        location'\\dllmain.cpp' >< 'w' @io.open = dllmain_cpp
-        dllmain_cpp dllmain_content @io.write
-        dllmain_cpp @io.close
+        location'\\dllmain.cpp' >< 'pch' 'framework' @replace_file_str
     ]
 
+    -- Turn off precompiled headers
+    location'\\'project_name_c'.vcxproj' >< \
+    '<PrecompiledHeader>Use' \
+    '<PrecompiledHeader>NotUsing' @replace_file_str
+
+    -- Set language to C++ 20
+    location'\\'project_name_c'.vcxproj' >< \
+    '</PrecompiledHeaderFile>\n    </ClCompile>' \
+    "</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+    </ClCompile>" @replace_file_str
+
+    -- Remove warnings for functions such as fopen, strcat etc.
+    location'\\'project_name_c'.vcxproj' >< \
+    '_WINDOWS;_USRDLL' \
+    '_WINDOWS;_CRT_SECURE_NO_WARNINGS;_USRDLL' @replace_file_str
+
+    -- Remove pch.h and pch.cpp from the listed files, add the source files
+    location'\\'project_name_c'.vcxproj' >< \
+    '<ClInclude Include="pch.h" />' \
+    ("<ClInclude Include=\"nest_source\\error.h\" />
+    <ClInclude Include=\"nest_source\\error_internal.h\" />
+    <ClInclude Include=\"nest_source\\function.h\" />
+    <ClInclude Include=\"nest_source\\hash.h\" />
+    <ClInclude Include=\"nest_source\\interpreter.h\" />
+    <ClInclude Include=\"nest_source\\iter.h\" />
+    <ClInclude Include=\"nest_source\\lexer.h\" />
+    <ClInclude Include=\"nest_source\\lib_import.h\" />
+    <ClInclude Include=\"nest_source\\llist.h\" />
+    <ClInclude Include=\"nest_source\\map.h\" />
+    <ClInclude Include=\"nest_source\\nest_include.h\" />
+    <ClInclude Include=\"nest_source\\nodes.h\" />
+    <ClInclude Include=\"nest_source\\nst_types.h\" />
+    <ClInclude Include=\"nest_source\\obj.h\" />
+    <ClInclude Include=\"nest_source\\obj_ops.h\" />
+    <ClInclude Include=\"nest_source\\parser.h\" />
+    <ClInclude Include=\"nest_source\\sequence.h\" />
+    <ClInclude Include=\"nest_source\\simple_types.h\" />
+    <ClInclude Include=\"nest_source\\str.h\" />
+    <ClInclude Include=\"nest_source\\tokens.h\" />
+    <ClInclude Include=\"nest_source\\var_table.h\" />
+    <ClInclude Include=\""project_name".h\" />" ><) @replace_file_str
+
+    location'\\'project_name_c'.vcxproj' >< \
+    "<ClCompile Include=\"pch.cpp\">
+      <PrecompiledHeader Condition=\"'$(Configuration)|$(Platform)'=='Debug|x64'\">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition=\"'$(Configuration)|$(Platform)'=='Debug|Win32'\">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition=\"'$(Configuration)|$(Platform)'=='Release|Win32'\">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition=\"'$(Configuration)|$(Platform)'=='Release|x64'\">Create</PrecompiledHeader>
+    </ClCompile>" \
+    ("<ClCompile Include=\"nest_source\\error.c\" />
+    <ClCompile Include=\"nest_source\\function.c\" />
+    <ClCompile Include=\"nest_source\\hash.c\" />
+    <ClCompile Include=\"nest_source\\interpreter.c\" />
+    <ClCompile Include=\"nest_source\\iter.c\" />
+    <ClCompile Include=\"nest_source\\lexer.c\" />
+    <ClCompile Include=\"nest_source\\lib_import.c\" />
+    <ClCompile Include=\"nest_source\\llist.c\" />
+    <ClCompile Include=\"nest_source\\map.c\" />
+    <ClCompile Include=\"nest_source\\nodes.c\" />
+    <ClCompile Include=\"nest_source\\obj.c\" />
+    <ClCompile Include=\"nest_source\\obj_ops.c\" />
+    <ClCompile Include=\"nest_source\\parser.c\" />
+    <ClCompile Include=\"nest_source\\sequence.c\" />
+    <ClCompile Include=\"nest_source\\simple_types.c\" />
+    <ClCompile Include=\"nest_source\\str.c\" />
+    <ClCompile Include=\"nest_source\\tokens.c\" />
+    <ClCompile Include=\"nest_source\\var_table.c\" />
+    <ClInclude Include=\""project_name".cpp\" />" ><) @replace_file_str
     => 0
 ]
 

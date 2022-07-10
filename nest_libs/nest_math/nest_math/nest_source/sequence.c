@@ -150,10 +150,7 @@ Nst_Obj *rem_value_vector(Nst_sequence *vect, Nst_Obj *val)
         if ( obj_eq(val, objs[i], NULL) == nst_true )
             break;
         if ( i + 1 == n )
-        {
-            inc_ref(nst_false);
-            return nst_false;
-        }
+            return inc_ref(nst_false);
     }
 
     for ( i++; i < n; i++ )
@@ -165,8 +162,7 @@ Nst_Obj *rem_value_vector(Nst_sequence *vect, Nst_Obj *val)
     vect->len--;
     resize_vector(vect);
 
-    inc_ref(nst_true);
-    return nst_true;
+    return inc_ref(nst_true);;
 }
 
 Nst_Obj *pop_value_vector(Nst_sequence *vect, size_t quantity)

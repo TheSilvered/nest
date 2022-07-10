@@ -3,6 +3,7 @@
 |#| "stdsutil.nest" = su
 
 #main [
+
     $_args_ 2 != ? => 1
     _args_.1 = path
     !(path @fs.isfile) ? => 2
@@ -10,6 +11,7 @@
     path "r" @io.open = file
     file -1 @io.read \
         "x64\\\\Debug\\\\nest_" "std" @su.replace_substr = content
+
     file @io.close
 
     path "w" @io.open = file

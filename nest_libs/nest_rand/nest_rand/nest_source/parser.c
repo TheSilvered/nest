@@ -22,55 +22,55 @@
         return NULL; \
     } \
     SET_SYNTAX_ERROR_INT(error, start, end, message); \
-    state->error = error; \
+    p_state.error = error; \
     return NULL
 
 typedef struct ParsingState
 {
     bool in_func;
     bool in_loop;
+    bool in_switch;
     Nst_Error *error;
 }
 ParsingState;
 
-static inline void skip_blank(LList *tokens);
+static ParsingState p_state;
+static LList *tokens;
+
+static inline void skip_blank();
 static Node *fix_expr(Node *expr);
 
-static Node *parse_long_statement(LList *tokens, ParsingState *state);
-static Node *parse_statement(LList *tokens, ParsingState *state);
-static Node *parse_while_loop(LList *tokens, ParsingState *state);
-static Node *parse_for_loop(LList *tokens, ParsingState *state);
-static Node *parse_if_expr(LList *tokens, ParsingState *state, Node *condition);
-static Node *parse_func_def(LList *tokens, ParsingState *state);
-static Node *parse_expr(LList *tokens, ParsingState *state);
-static Node *parse_stack_op(LList *tokens, ParsingState *state, Node *value);
-static Node *parse_local_stack_op(LList *tokens, ParsingState *state, LList *nodes);
-static Node *parse_assignment(LList *tokens, ParsingState *state, Node *value);
-static Node *parse_extraction(LList *tokens, ParsingState *state);
-static Node *parse_atom(LList *tokens, ParsingState *state);
-static Node *parse_vector_literal(LList *tokens, ParsingState *state);
-static Node *parse_arr_or_map_literal(LList *tokens, ParsingState *state);
+static Node *parse_long_statement();
+static Node *parse_statement();
+static Node *parse_while_loop();
+static Node *parse_for_loop();
+static Node *parse_if_expr(Node *condition);
+static Node *parse_switch_statement();
+static Node *parse_func_def();
+static Node *parse_expr(bool break_as_end);
+static Node *parse_stack_op(Node *value);
+static Node *parse_local_stack_op(LList *nodes);
+static Node *parse_assignment(Node *value);
+static Node *parse_extraction();
+static Node *parse_atom();
+static Node *parse_vector_literal();
+static Node *parse_arr_or_map_literal();
 
-Node *parse(LList *tokens)
+Node *parse(LList *tokens_list)
 {
-    if ( tokens == NULL )
+    if ( tokens_list == NULL )
         return NULL;
 
-    ParsingState *state = malloc(sizeof(ParsingState));
-    if ( state == NULL )
-    {
-        LList_destroy(tokens, destroy_token);
-        errno = ENOMEM;
-        return NULL;
-    }
-    state->in_func = false;
-    state->in_loop = false;
-    state->error = NULL;
+    tokens = tokens_list;
 
-    Node *node = parse_long_statement(tokens, state);
-    if ( state->error != NULL )
+    p_state.in_func = false;
+    p_state.in_loop = false;
+    p_state.error = NULL;
+
+    Node *node = parse_long_statement();
+    if ( p_state.error != NULL )
     {
-        print_error(*(state->error));
+        print_error(*(p_state.error));
     }
     // i.e. the only token left is EOFILE
     else if ( tokens->size > 1 )
@@ -96,23 +96,23 @@ Node *parse(LList *tokens)
     return node; // NULL if there was an error
 }
 
-static inline void skip_blank(LList *tokens)
+static inline void skip_blank()
 {
     while ( TOK(LList_peek_front(tokens))->type == ENDL )
         destroy_token(LList_pop(tokens));
 }
 
-static Node *parse_long_statement(LList *tokens, ParsingState *state)
+static Node *parse_long_statement()
 {
     SAFE_LLIST_CREATE(nodes);
     Node *node = NULL;
-    skip_blank(tokens);
+    skip_blank();
 
     while ( TOK(LList_peek_front(tokens))->type != R_BRACKET &&
             TOK(LList_peek_front(tokens))->type != EOFILE       )
     {
-        node = parse_statement(tokens, state);
-        if ( state->error != NULL )
+        node = parse_statement();
+        if ( p_state.error != NULL )
         {
             return NULL;
         }
@@ -122,15 +122,10 @@ static Node *parse_long_statement(LList *tokens, ParsingState *state)
         {
             return NULL;
         }
-        skip_blank(tokens);
+        skip_blank();
     }
 
-    if ( nodes->size == 1 )
-    {
-        LList_destroy(nodes, NULL);
-        return node;
-    }
-    else if ( nodes->size == 0 )
+    if ( nodes->size == 0 )
     {
         LList_destroy(nodes, NULL);
         return new_node_empty(
@@ -148,9 +143,9 @@ static Node *parse_long_statement(LList *tokens, ParsingState *state)
     );
 }
 
-static Node *parse_statement(LList *tokens, ParsingState *state)
+static Node *parse_statement()
 {
-    skip_blank(tokens);
+    skip_blank();
     int tok_type = TOK(LList_peek_front(tokens))->type;
 
     if ( tok_type == L_BRACKET )
@@ -159,8 +154,8 @@ static Node *parse_statement(LList *tokens, ParsingState *state)
         Pos start = open_bracket->start;
         destroy_token(open_bracket);
 
-        Node *node = parse_long_statement(tokens, state);
-        if ( state->error != NULL ) return NULL;
+        Node *node = parse_long_statement();
+        if ( p_state.error != NULL ) return NULL;
 
         Token *close_bracket = LList_pop(tokens);
         if ( close_bracket->type != R_BRACKET )
@@ -170,11 +165,13 @@ static Node *parse_statement(LList *tokens, ParsingState *state)
         return node;
     }
     else if ( tok_type == WHILE || tok_type == DOWHILE )
-        return parse_while_loop(tokens, state);
+        return parse_while_loop();
     else if ( tok_type == FOR )
-        return parse_for_loop(tokens, state);
+        return parse_for_loop();
     else if ( tok_type == FUNC )
-        return parse_func_def(tokens, state);
+        return parse_func_def();
+    else if ( tok_type == SWITCH )
+        return parse_switch_statement();
     else if ( tok_type == RETURN )
     {
         Token *tok = LList_pop(tokens);
@@ -182,13 +179,13 @@ static Node *parse_statement(LList *tokens, ParsingState *state)
         Pos end = tok->end;
         destroy_token(tok);
 
-        if ( !state->in_func )
+        if ( !p_state.in_func )
         {
             RETURN_ERROR(start, end, BAD_RETURN);
         }
 
-        Node *expr = parse_expr(tokens, state);
-        if ( state->error != NULL ) return NULL;
+        Node *expr = parse_expr(false);
+        if ( p_state.error != NULL ) return NULL;
 
         SAFE_LLIST_CREATE(nodes);
         LList_append(nodes, expr, true);
@@ -201,7 +198,7 @@ static Node *parse_statement(LList *tokens, ParsingState *state)
         Pos end = tok->end;
         destroy_token(tok);
 
-        if ( !state->in_loop )
+        if ( !p_state.in_loop && !p_state.in_switch )
         {
             RETURN_ERROR(start, end, BAD_CONTINUE);
         }
@@ -215,7 +212,7 @@ static Node *parse_statement(LList *tokens, ParsingState *state)
         Pos end = tok->end;
         destroy_token(tok);
 
-        if ( !state->in_loop )
+        if ( !p_state.in_loop )
         {
             RETURN_ERROR(start, end, BAD_BREAK);
         }
@@ -223,7 +220,7 @@ static Node *parse_statement(LList *tokens, ParsingState *state)
         return new_node_empty(start, end, BREAK_S);
     }
     else if ( T_IN_ATOM(tok_type) || T_IN_LOCAL_STACK_OP(tok_type) )
-        return parse_expr(tokens, state);
+        return parse_expr(false);
     else
     {
         Token *tok = LList_pop(tokens);
@@ -235,7 +232,7 @@ static Node *parse_statement(LList *tokens, ParsingState *state)
     }
 }
 
-static Node *parse_while_loop(LList *tokens, ParsingState *state)
+static Node *parse_while_loop()
 {
     Token *tok = LList_pop(tokens);
     Pos start = tok->start;
@@ -244,8 +241,8 @@ static Node *parse_while_loop(LList *tokens, ParsingState *state)
 
     destroy_token(tok);
 
-    Node *condition = parse_expr(tokens, state);
-    if ( state->error != NULL ) return NULL;
+    Node *condition = parse_expr(false);
+    if ( p_state.error != NULL ) return NULL;
 
     Pos err_pos = TOK(LList_peek_front(tokens))->start;
 
@@ -257,17 +254,17 @@ static Node *parse_while_loop(LList *tokens, ParsingState *state)
 
     destroy_token(LList_pop(tokens));
 
-    bool prev_state = state->in_loop;
-    state->in_loop = true;
+    bool prev_state = p_state.in_loop;
+    p_state.in_loop = true;
 
-    Node *body = parse_long_statement(tokens, state);
-    if ( state->error != NULL )
+    Node *body = parse_long_statement();
+    if ( p_state.error != NULL )
     {
         destroy_node(condition);
         return NULL;
     }
 
-    state->in_loop = prev_state;
+    p_state.in_loop = prev_state;
 
     if ( TOK(LList_peek_front(tokens))->type != R_BRACKET )
     {
@@ -288,7 +285,7 @@ static Node *parse_while_loop(LList *tokens, ParsingState *state)
     return new_node_nodes(start, end, node_type, nodes);
 }
 
-static Node *parse_for_loop(LList *tokens, ParsingState *state)
+static Node *parse_for_loop()
 {
     Token *tok = LList_pop(tokens);
     Pos start = tok->start;
@@ -296,9 +293,9 @@ static Node *parse_for_loop(LList *tokens, ParsingState *state)
 
     int node_type = FOR_L;
 
-    Node *range = parse_expr(tokens, state);
+    Node *range = parse_expr(false);
 
-    if ( state->error != NULL ) return NULL;
+    if ( p_state.error != NULL ) return NULL;
 
     SAFE_LLIST_CREATE(node_tokens);
 
@@ -325,16 +322,16 @@ static Node *parse_for_loop(LList *tokens, ParsingState *state)
 
     destroy_token(LList_pop(tokens));
 
-    bool prev_state = state->in_loop;
-    state->in_loop = true;
-    Node *body = parse_long_statement(tokens, state);
-    if ( state->error != NULL )
+    bool prev_state = p_state.in_loop;
+    p_state.in_loop = true;
+    Node *body = parse_long_statement();
+    if ( p_state.error != NULL )
     {
         destroy_node(range);
         LList_destroy(node_tokens, destroy_token);
         return NULL;
     }
-    state->in_loop = prev_state;
+    p_state.in_loop = prev_state;
 
     if ( TOK(LList_peek_front(tokens))->type != R_BRACKET )
     {
@@ -355,32 +352,32 @@ static Node *parse_for_loop(LList *tokens, ParsingState *state)
     return new_node_full(start, end, node_type, nodes, node_tokens);
 }
 
-static Node *parse_if_expr(LList *tokens, ParsingState *state, Node *condition)
+static Node *parse_if_expr(Node *condition)
 {
     destroy_token(LList_pop(tokens));
-    skip_blank(tokens);
+    skip_blank();
 
     SAFE_LLIST_CREATE(nodes);
     LList_append(nodes, condition, true);
 
-    Node *body_if_true = parse_statement(tokens, state);
-    if ( state->error != NULL )
+    Node *body_if_true = parse_statement();
+    if ( p_state.error != NULL )
     {
         LList_destroy(nodes, destroy_node);
         return NULL;
     }
     LList_append(nodes, body_if_true, true);
 
-    skip_blank(tokens);
+    skip_blank();
 
     if ( TOK(LList_peek_front(tokens))->type != COLON )
         return new_node_nodes(condition->start, body_if_true->end, IF_E, nodes);
 
     destroy_token(LList_pop(tokens));
-    skip_blank(tokens);
+    skip_blank();
 
-    Node *body_if_false = parse_statement(tokens, state);
-    if ( state->error != NULL )
+    Node *body_if_false = parse_statement();
+    if ( p_state.error != NULL )
     {
         LList_destroy(nodes, destroy_node);
         return NULL;
@@ -390,7 +387,131 @@ static Node *parse_if_expr(LList *tokens, ParsingState *state, Node *condition)
     return new_node_nodes(condition->start, body_if_false->end, IF_E, nodes);
 }
 
-static Node *parse_func_def(LList *tokens, ParsingState *state)
+static Node *parse_switch_statement()
+{
+    Token *tok = LList_pop(tokens);
+    Pos start = tok->start;
+    Pos err_start;
+    Pos err_end;
+    destroy_token(tok);
+    skip_blank();
+
+    SAFE_LLIST_CREATE(nodes);
+
+    Node *main_val = parse_expr(false);
+
+    if ( p_state.error != NULL )
+    {
+        LList_destroy(nodes, NULL);
+        return NULL;
+    }
+    LList_append(nodes, main_val, true);
+
+    skip_blank();
+    tok = LList_pop(tokens);
+
+    if ( tok->type != L_BRACKET )
+    {
+        err_start = tok->start;
+        err_end = tok->end;
+        destroy_token(tok);
+        RETURN_ERROR(err_start, err_end, EXPECTED_BRACKET);
+    }
+    destroy_token(tok);
+
+    bool is_default_case = false;
+    bool prev_in_switch = p_state.in_switch;
+    p_state.in_switch = true;
+
+    while ( true )
+    {
+        skip_blank();
+        tok = LList_pop(tokens);
+        if ( tok->type != IF )
+        {
+            err_start = tok->start;
+            err_end = tok->end;
+            destroy_token(tok);
+            RETURN_ERROR(err_start, err_end, EXPECTED_QUESTION_MARK);
+        }
+        destroy_token(tok);
+        skip_blank();
+        tok = LList_peek_front(tokens);
+
+        if ( tok->type == L_BRACKET )
+        {
+            is_default_case = true;
+            err_start = tok->start;
+            err_end = tok->end;
+            destroy_token(LList_pop(tokens));
+        }
+        else
+        {
+            Node *val = parse_expr(false);
+
+            if ( p_state.error != NULL )
+            {
+                LList_destroy(nodes, destroy_node);
+                return NULL;
+            }
+
+            LList_append(nodes, val, true);
+            skip_blank();
+            tok = LList_pop(tokens);
+            err_start = tok->start;
+            err_end = tok->end;
+
+            if ( tok->type != L_BRACKET )
+            {
+                destroy_token(tok);
+                LList_destroy(nodes, destroy_node);
+                RETURN_ERROR(err_start, err_end, EXPECTED_BRACKET);
+            }
+            destroy_token(tok);
+        }
+
+        Node *body = parse_long_statement();
+
+        if ( p_state.error != NULL )
+        {
+            LList_destroy(nodes, destroy_node);
+            return NULL;
+        }
+
+        LList_append(nodes, body, true);
+        skip_blank();
+        tok = LList_pop(tokens);
+        if ( tok->type != R_BRACKET )
+        {
+            err_start = tok->start;
+            err_end = tok->end;
+            destroy_token(tok);
+            LList_destroy(nodes, destroy_node);
+            RETURN_ERROR(err_start, err_end, EXPECTED_R_BRACKET);
+        }
+        destroy_token(tok);
+        skip_blank();
+        tok = LList_peek_front(tokens);
+
+        if ( tok->type == R_BRACKET )
+        {
+            Pos end = tok->end;
+            destroy_token(LList_pop(tokens));
+            p_state.in_switch = prev_in_switch;
+            return new_node_nodes(start, end, SWITCH_S, nodes);
+        }
+        else if ( is_default_case )
+        {
+            err_start = tok->start;
+            err_end = tok->end;
+            destroy_token(LList_pop(tokens));
+            LList_destroy(nodes, destroy_node);
+            RETURN_ERROR(err_start, err_end, EXPECTED_R_BRACKET);
+        }
+    }
+}
+
+static Node *parse_func_def()
 {
     Token *tok = LList_pop(tokens);
     Pos start = tok->start;
@@ -401,7 +522,7 @@ static Node *parse_func_def(LList *tokens, ParsingState *state)
     while ( TOK(LList_peek_front(tokens))->type == IDENT )
         LList_append(node_tokens, LList_pop(tokens), true);
 
-    skip_blank(tokens);
+    skip_blank();
 
     Pos err_start = TOK(LList_peek_front(tokens))->start;
     Pos err_end = TOK(LList_peek_front(tokens))->end;
@@ -414,17 +535,17 @@ static Node *parse_func_def(LList *tokens, ParsingState *state)
 
     destroy_token(LList_pop(tokens));
 
-    bool prev_state = state->in_func;
-    state->in_func = true;
+    bool prev_state = p_state.in_func;
+    p_state.in_func = true;
 
-    Node *body = parse_long_statement(tokens, state);
-    if ( state->error != NULL )
+    Node *body = parse_long_statement();
+    if ( p_state.error != NULL )
     {
         LList_destroy(node_tokens, destroy_token);
         return NULL;
     }
 
-    state->in_func = prev_state;
+    p_state.in_func = prev_state;
 
     SAFE_LLIST_CREATE(nodes);
     LList_append(nodes, body, true);
@@ -442,16 +563,27 @@ static Node *parse_func_def(LList *tokens, ParsingState *state)
     return new_node_full(start, end, FUNC_DECLR, nodes, node_tokens);
 }
 
-static Node *parse_expr(LList *tokens, ParsingState *state)
+static Node *parse_expr(bool break_as_end)
 {
     Node *node = NULL;
+    int token_type = TOK(LList_peek_front(tokens))->type;
 
-    while ( !T_IN_EXPR_END(TOK(LList_peek_front(tokens))->type) )
-    {
-        node = parse_stack_op(tokens, state, node);
-        if ( state->error != NULL || errno == ENOMEM )
-            return NULL;
-    }
+    if ( break_as_end )
+        while ( !T_IN_EXPR_END_W_BREAK(token_type) )
+        {
+            node = parse_stack_op(node);
+            if ( p_state.error != NULL || errno == ENOMEM )
+                return NULL;
+            token_type = TOK(LList_peek_front(tokens))->type;
+        }
+    else
+        while ( !T_IN_EXPR_END(token_type) )
+        {
+            node = parse_stack_op(node);
+            if ( p_state.error != NULL || errno == ENOMEM )
+                return NULL;
+            token_type = TOK(LList_peek_front(tokens))->type;
+        }
 
     node = fix_expr(node);
     if ( errno == ENOMEM )
@@ -464,7 +596,7 @@ static Node *parse_expr(LList *tokens, ParsingState *state)
 
     if ( tok_type == IF )
         // the error propagates automatically
-        return parse_if_expr(tokens, state, node);
+        return parse_if_expr(node);
     return node;
 }
 
@@ -547,7 +679,7 @@ static Node *fix_expr(Node *expr)
     return expr;
 }
 
-static Node *parse_stack_op(LList *tokens, ParsingState *state, Node *value)
+static Node *parse_stack_op(Node *value)
 {
     Pos start = TOK(LList_peek_front(tokens))->start;
 
@@ -557,8 +689,8 @@ static Node *parse_stack_op(LList *tokens, ParsingState *state, Node *value)
         LList_append(new_nodes, value, true);
     else
     {
-        value_node = parse_extraction(tokens, state);
-        if ( state->error != NULL )
+        value_node = parse_extraction();
+        if ( p_state.error != NULL )
         {
             LList_destroy(new_nodes, destroy_node);
             return NULL;
@@ -568,8 +700,8 @@ static Node *parse_stack_op(LList *tokens, ParsingState *state, Node *value)
 
     while ( T_IN_ATOM(TOK(LList_peek_front(tokens))->type) )
     {
-        value_node = parse_extraction(tokens, state);
-        if ( state->error != NULL )
+        value_node = parse_extraction();
+        if ( p_state.error != NULL )
         {
             LList_destroy(new_nodes, destroy_node);
             return NULL;
@@ -591,8 +723,8 @@ static Node *parse_stack_op(LList *tokens, ParsingState *state, Node *value)
     }
     else if ( T_IN_LOCAL_STACK_OP(op_tok->type) )
     {
-        node = parse_local_stack_op(tokens, state, new_nodes);
-        if ( state->error != NULL ) return NULL;
+        node = parse_local_stack_op(new_nodes);
+        if ( p_state.error != NULL ) return NULL;
         is_local_stack_op = true;
     }
     else if ( new_nodes->size == 1 )
@@ -621,13 +753,13 @@ static Node *parse_stack_op(LList *tokens, ParsingState *state, Node *value)
         {
             SAFE_LLIST_CREATE(new_node_nodes);
             LList_append(new_node_nodes, node, true);
-            node = parse_local_stack_op(tokens, state, new_node_nodes);
-            if ( state->error != NULL ) return NULL;
+            node = parse_local_stack_op(new_node_nodes);
+            if ( p_state.error != NULL ) return NULL;
         }
         else if ( T_IN_ASSIGNMENT(op_tok->type) )
         {
-            node = parse_assignment(tokens, state, node);
-            if ( state->error != NULL ) return NULL;
+            node = parse_assignment(node);
+            if ( p_state.error != NULL ) return NULL;
         }
         else break;
     }
@@ -635,13 +767,13 @@ static Node *parse_stack_op(LList *tokens, ParsingState *state, Node *value)
     return node;
 }
 
-static Node *parse_local_stack_op(LList *tokens, ParsingState *state, LList *nodes)
+static Node *parse_local_stack_op(LList *nodes)
 {
     SAFE_LLIST_CREATE(node_tokens);
     LList_append(node_tokens, LList_pop(tokens), true);
     
-    Node *special_node = parse_extraction(tokens, state);
-    if ( state->error != NULL )
+    Node *special_node = parse_extraction();
+    if ( p_state.error != NULL )
     {
         LList_destroy(nodes, destroy_node);
         LList_destroy(node_tokens, destroy_token);
@@ -656,14 +788,14 @@ static Node *parse_local_stack_op(LList *tokens, ParsingState *state, LList *nod
     return new_node_full(start, end, LOCAL_STACK_OP, nodes, node_tokens);
 }
 
-static Node *parse_assignment(LList *tokens, ParsingState *state, Node *value)
+static Node *parse_assignment(Node *value)
 {
 
     Token *tok = LList_pop(tokens);
     bool has_shared_node = false;
 
-    Node *name = parse_extraction(tokens, state);
-    if ( state->error != NULL )
+    Node *name = parse_extraction();
+    if ( p_state.error != NULL )
     {
         destroy_token(tok);
         destroy_node(value);
@@ -712,10 +844,10 @@ static Node *parse_assignment(LList *tokens, ParsingState *state, Node *value)
     return new_node_nodes(start, end, ASSIGN_E, new_nodes);
 }
 
-static Node *parse_extraction(LList *tokens, ParsingState *state)
+static Node *parse_extraction()
 {
-    Node *atom = parse_atom(tokens, state);
-    if ( state->error != NULL ) return NULL;
+    Node *atom = parse_atom();
+    if ( p_state.error != NULL ) return NULL;
 
     Node *final_node = atom;
 
@@ -724,8 +856,8 @@ static Node *parse_extraction(LList *tokens, ParsingState *state)
         destroy_token(LList_pop(tokens));
         bool treat_as_string = TOK(LList_peek_front(tokens))->type == IDENT;
 
-        atom = parse_atom(tokens, state);
-        if ( state->error != NULL )
+        atom = parse_atom();
+        if ( p_state.error != NULL )
         {
             destroy_node(final_node);
             return NULL;
@@ -748,7 +880,7 @@ static Node *parse_extraction(LList *tokens, ParsingState *state)
     return final_node;
 }
 
-static Node *parse_atom(LList *tokens, ParsingState *state)
+static Node *parse_atom()
 {
     Token *tok = LList_pop(tokens);
 
@@ -768,8 +900,8 @@ static Node *parse_atom(LList *tokens, ParsingState *state)
         Pos err_start = tok->start;
         Pos err_end = tok->end;
         destroy_token(tok);
-        Node *expr = parse_expr(tokens, state);
-        if ( state->error != NULL ) return NULL;
+        Node *expr = parse_expr(false);
+        if ( p_state.error != NULL ) return NULL;
 
         tok = LList_pop(tokens);
         if ( tok->type != R_PAREN )
@@ -785,8 +917,8 @@ static Node *parse_atom(LList *tokens, ParsingState *state)
         SAFE_LLIST_CREATE(new_tokens);
         LList_append(new_tokens, tok, true);
         SAFE_LLIST_CREATE(new_nodes);
-        Node *value = parse_extraction(tokens, state);
-        if ( state->error != NULL )
+        Node *value = parse_extraction();
+        if ( p_state.error != NULL )
         {
             LList_destroy(new_tokens, destroy_token);
             LList_destroy(new_nodes, NULL); // it's empty
@@ -800,17 +932,17 @@ static Node *parse_atom(LList *tokens, ParsingState *state)
     {
         LList_push(tokens, tok, true);
         SAFE_LLIST_CREATE(nodes);
-        return parse_local_stack_op(tokens, state, nodes);
+        return parse_local_stack_op(nodes);
     }
     else if ( tok->type == L_VBRACE )
     {
         LList_push(tokens, tok, true);
-        return parse_vector_literal(tokens, state);
+        return parse_vector_literal();
     }
     else if ( tok->type == L_BRACE )
     {
         LList_push(tokens, tok, true);
-        return parse_arr_or_map_literal(tokens, state);
+        return parse_arr_or_map_literal();
     }
     else
     {
@@ -820,7 +952,7 @@ static Node *parse_atom(LList *tokens, ParsingState *state)
     }
 }
 
-static Node *parse_vector_literal(LList *tokens, ParsingState *state)
+static Node *parse_vector_literal()
 {
     Token *tok = LList_pop(tokens);
     Pos start = tok->start;
@@ -839,8 +971,8 @@ static Node *parse_vector_literal(LList *tokens, ParsingState *state)
 
     while ( true )
     {
-        Node *value = parse_expr(tokens, state);
-        if ( state->error != NULL )
+        Node *value = parse_expr(true);
+        if ( p_state.error != NULL )
         {
             LList_destroy(nodes, destroy_node);
             return NULL;
@@ -854,17 +986,17 @@ static Node *parse_vector_literal(LList *tokens, ParsingState *state)
         {
             SAFE_LLIST_CREATE(node_tokens);
             LList_append(node_tokens, tok, true);
-            skip_blank(tokens);
+            skip_blank();
 
-            value = parse_expr(tokens, state);
-            if ( state->error != NULL )
+            value = parse_expr(false);
+            if ( p_state.error != NULL )
             {
                 LList_destroy(nodes, destroy_node);
                 return NULL;
             }
             LList_append(nodes, value, true);
 
-            skip_blank(tokens);
+            skip_blank();
             tok = LList_pop(tokens);
 
             if ( tok->type != R_VBRACE )
@@ -897,7 +1029,7 @@ static Node *parse_vector_literal(LList *tokens, ParsingState *state)
     return new_node_nodes(start, end, VECT_LIT, nodes);
 }
 
-static Node *parse_arr_or_map_literal(LList *tokens, ParsingState *state)
+static Node *parse_arr_or_map_literal()
 {
     Token *tok = LList_pop(tokens);
     Pos start = tok->start;
@@ -918,17 +1050,17 @@ static Node *parse_arr_or_map_literal(LList *tokens, ParsingState *state)
 
     while ( true )
     {
-        skip_blank(tokens);
+        skip_blank();
 
-        Node *value = parse_expr(tokens, state);
-        if ( state->error != NULL )
+        Node *value = parse_expr(true);
+        if ( p_state.error != NULL )
         {
             LList_destroy(nodes, NULL); // it's empty
             return NULL;
         }
         LList_append(nodes, value, true);
 
-        skip_blank(tokens);
+        skip_blank();
         tok = LList_pop(tokens);
 
         if ( tok->type == COLON && (count == 0 || is_map) )
@@ -936,34 +1068,34 @@ static Node *parse_arr_or_map_literal(LList *tokens, ParsingState *state)
             is_map = true;
 
             destroy_token(tok);
-            skip_blank(tokens);
+            skip_blank();
 
-            value = parse_expr(tokens, state);
-            if ( state->error != NULL )
+            value = parse_expr(false);
+            if ( p_state.error != NULL )
             {
                 LList_destroy(nodes, destroy_node);
                 return NULL;
             }
             LList_append(nodes, value, true);
 
-            skip_blank(tokens);
+            skip_blank();
             tok = LList_pop(tokens);
         }
         else if ( tok->type == BREAK && count == 0 )
         {
             SAFE_LLIST_CREATE(node_tokens);
             LList_append(node_tokens, tok, true);
-            skip_blank(tokens);
+            skip_blank();
 
-            value = parse_expr(tokens, state);
-            if ( state->error != NULL )
+            value = parse_expr(false);
+            if ( p_state.error != NULL )
             {
                 LList_destroy(nodes, destroy_node);
                 return NULL;
             }
             LList_append(nodes, value, true);
 
-            skip_blank(tokens);
+            skip_blank();
             tok = LList_pop(tokens);
 
             if ( tok->type != R_BRACE )

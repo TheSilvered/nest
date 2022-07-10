@@ -76,8 +76,6 @@ enum token_types
     R_BRACE,   // |
     R_VBRACE,  // |
     R_BRACKET, // |
-    BREAK,     // |
-    CONTINUE,  // |
     IF,        // |
     AS,        // |
     ENDL,      // |
@@ -91,7 +89,10 @@ enum token_types
     DOWHILE,
     FOR,
     FUNC,
-    RETURN
+    RETURN,
+    SWITCH,
+    BREAK,
+    CONTINUE
 };
 
 Token *new_token_value(Pos start, Pos end, int type, void *value);
@@ -131,6 +132,8 @@ void print_token(Token *token);
     ( token_type >= IDENT && token_type <= STRING )
 #define T_IN_EXPR_END(token_type) \
     ( token_type >= L_BRACKET && token_type <= EOFILE )
+#define T_IN_EXPR_END_W_BREAK(token_type) \
+    ( token_type >= L_BRACKET && token_type <= EOFILE || token_type == BREAK )
 
 // the assignment tokens are in the same order as the stack op tokens
 #define ASSIGMENT_TO_STACK_OP(token_type) \

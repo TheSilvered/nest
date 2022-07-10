@@ -41,7 +41,8 @@ enum node_types
     EXTRACT_E,
     ASSIGN_E,
     CONTINUE_S,
-    BREAK_S
+    BREAK_S,
+    SWITCH_S
 };
 
 Node *new_node_tokens(Pos start, Pos end, int type, LList *tokens);

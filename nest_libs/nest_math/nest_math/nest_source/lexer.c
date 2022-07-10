@@ -39,7 +39,7 @@
 
 #define SET_INVALID_ESCAPE_ERROR do { \
     free(end_str); \
-    SET_ERROR(SET_SYNTAX_ERROR_INT, escape_start, cursor->pos, INVALID_ESCAPE, *err, ); \
+    SET_ERROR(SET_SYNTAX_ERROR_INT, escape_start, cursor.pos, INVALID_ESCAPE, *err, ); \
     return; } while (0)
 
 LList *ftokenize(char *filename);
@@ -53,15 +53,16 @@ typedef struct LexerCursor {
     char ch;
 } LexerCursor;
 
+static LexerCursor cursor;
 
-inline static void advance(LexerCursor *cursor);
-inline static void go_back(LexerCursor *cursor);
-inline static char *add_while_in(LexerCursor *cursor, char *charset);
+inline static void advance();
+inline static void go_back();
+inline static char *add_while_in(char *charset);
 
-static void make_symbol(LexerCursor *cursor, Token **tok, Nst_Error **err);
-static void make_num_literal(LexerCursor *cursor, Token **tok, Nst_Error **err);
-static void make_ident(LexerCursor *cursor, Token **tok, Nst_Error **err);
-static void make_str_literal(LexerCursor *cursor, Token **tok, Nst_Error **err);
+static void make_symbol(Token **tok, Nst_Error **err);
+static void make_num_literal(Token **tok, Nst_Error **err);
+static void make_ident(Token **tok, Nst_Error **err);
+static void make_str_literal(Token **tok, Nst_Error **err);
 
 LList *ftokenize(char *filename)
 {
@@ -103,41 +104,38 @@ LList *tokenize(char *text, size_t text_len, char *filename)
     Token *tok = NULL;
     Nst_Error *err = NULL;
     LList *tokens = LList_new();
-    LexerCursor cursor = {
-        .text = text,
-        .len = text_len,
-        .idx = -1,
-        .ch = ' ',
-        .pos = {
-            .line = 0,
-            .col = -1,
-            .filename = filename,
-            .text = text,
-            .text_len = text_len
-        }
-    };
 
-    advance(&cursor);
+    cursor.idx = -1;
+    cursor.ch = ' ';
+    cursor.len = text_len;
+    cursor.text = text;
+    cursor.pos.col = -1;
+    cursor.pos.filename = filename;
+    cursor.pos.line = 0;
+    cursor.pos.text = text;
+    cursor.pos.text_len = text_len;
+
+    advance();
 
     while ( cursor.idx < (long)cursor.len )
     {
         if ( cursor.ch == ' ' || cursor.ch == '\t' )
         {
-            advance(&cursor);
+            advance();
             continue;
         }
         else if ( strchr(DIGIT_CHARS "-", cursor.ch) != NULL )
-            make_num_literal(&cursor, &tok, &err);
+            make_num_literal(&tok, &err);
         else if ( strchr(SYMBOL_CHARS, cursor.ch) != NULL )
-            make_symbol(&cursor, &tok, &err);
+            make_symbol(&tok, &err);
         else if ( strchr(LETTER_CHARS, cursor.ch) != NULL )
-            make_ident(&cursor, &tok, &err);
+            make_ident(&tok, &err);
         else if ( cursor.ch == '"' || cursor.ch == '\'' )
-            make_str_literal(&cursor, &tok, &err);
+            make_str_literal(&tok, &err);
         else if ( cursor.ch == '\n' )
             tok = new_token_noend(copy_pos(cursor.pos), ENDL);
         else if ( cursor.ch == '\\' )
-            advance(&cursor);
+            advance();
         else
         {
             SET_ERROR(
@@ -173,40 +171,40 @@ LList *tokenize(char *text, size_t text_len, char *filename)
         if ( tok != NULL )
             LList_append(tokens, tok, true);
         tok = NULL;
-        advance(&cursor);
+        advance();
     }
 
     LList_append(tokens, new_token_noend(cursor.pos, EOFILE), true);
     return tokens;
 }
 
-inline static void advance(LexerCursor *cursor)
+inline static void advance()
 {
-    cursor->idx++;
-    cursor->pos.col++;
+    cursor.idx++;
+    cursor.pos.col++;
 
-    if ( cursor->idx >= (long) cursor->len )
+    if ( cursor.idx >= (long) cursor.len )
         return;
 
-    if ( cursor->ch == '\n' )
+    if ( cursor.ch == '\n' )
     {
-        cursor->pos.col = 0;
-        cursor->pos.line++;
+        cursor.pos.col = 0;
+        cursor.pos.line++;
     }
 
-    cursor->ch = cursor->text[cursor->idx];
+    cursor.ch = cursor.text[cursor.idx];
 }
 
-inline static void go_back(LexerCursor *cursor)
+inline static void go_back()
 {
-    cursor->idx--;
-    cursor->pos.col--;
+    cursor.idx--;
+    cursor.pos.col--;
 
-    if ( cursor->idx >= 0 )
-        cursor->ch = cursor->text[cursor->idx];
+    if ( cursor.idx >= 0 )
+        cursor.ch = cursor.text[cursor.idx];
 }
 
-inline static char *add_while_in(LexerCursor *cursor, char *charset)
+inline static char *add_while_in(char *charset)
 {
     char *str = malloc(START_CH_SIZE);
     char *realloc_str = NULL;
@@ -221,11 +219,11 @@ inline static char *add_while_in(LexerCursor *cursor, char *charset)
     size_t chunk_size = START_CH_SIZE;
 
     // While cursor.ch is in charset and there is text left to check
-    while ( cursor->idx < (long) cursor->len && strchr(charset, cursor->ch) != NULL )
+    while ( cursor.idx < (long) cursor.len && strchr(charset, cursor.ch) != NULL )
     {
         RESIZE_STR(str, realloc_str, str_len, chunk_size, NULL);
 
-        str[str_len++] = cursor->ch;
+        str[str_len++] = cursor.ch;
         advance(cursor);
     }
 
@@ -248,20 +246,20 @@ inline static char *add_while_in(LexerCursor *cursor, char *charset)
     return str;
 }
 
-static void make_symbol(LexerCursor *cursor, Token **tok, Nst_Error **err)
+static void make_symbol(Token **tok, Nst_Error **err)
 {
-    Pos start = copy_pos(cursor->pos);
-    char *symbol = add_while_in(cursor, SYMBOL_CHARS);
-    Pos end = copy_pos(cursor->pos);
+    Pos start = copy_pos(cursor.pos);
+    char *symbol = add_while_in(SYMBOL_CHARS);
+    Pos end = copy_pos(cursor.pos);
     char *comment_start = strstr(symbol, "--");
     char *multcom_start = strstr(symbol, "-/");
 
     if ( comment_start == symbol )
     {
-        while ( cursor->idx < (long)cursor->len && cursor->ch != '\n' )
+        while ( cursor.idx < (long)cursor.len && cursor.ch != '\n' )
         {
             advance(cursor);
-            if ( cursor->ch == '\\' )
+            if ( cursor.ch == '\\' )
             {
                 advance(cursor);
                 advance(cursor);
@@ -274,16 +272,16 @@ static void make_symbol(LexerCursor *cursor, Token **tok, Nst_Error **err)
     else if ( multcom_start == symbol )
     {
         bool can_close = false;
-        while ( cursor->idx < (long)cursor->len )
+        while ( cursor.idx < (long)cursor.len )
         {
             advance(cursor);
-            if ( can_close && cursor->ch == '-' )
+            if ( can_close && cursor.ch == '-' )
             {
                 advance(cursor);
                 break;
             }
 
-            can_close = cursor->ch == '/';
+            can_close = cursor.ch == '/';
         }
         go_back(cursor);
         free(symbol);
@@ -308,7 +306,7 @@ static void make_symbol(LexerCursor *cursor, Token **tok, Nst_Error **err)
     while ( token_type == -1 )
     {
         go_back(cursor);
-        end = copy_pos(cursor->pos);
+        end = copy_pos(cursor.pos);
         --symbol_end;
         *symbol_end = '\0';
         token_type = str_to_tok(symbol);
@@ -317,34 +315,34 @@ static void make_symbol(LexerCursor *cursor, Token **tok, Nst_Error **err)
     *tok = new_token_noval(start, end, token_type);
 }
 
-static void make_num_literal(LexerCursor *cursor, Token **tok, Nst_Error **err)
+static void make_num_literal(Token **tok, Nst_Error **err)
 {
-    Pos start = copy_pos(cursor->pos);
+    Pos start = copy_pos(cursor.pos);
     bool is_negative = false;
 
     // If there is a minus, there might be a negative number or a symbol
-    if ( cursor->ch == '-' )
+    if ( cursor.ch == '-' )
     {
         advance(cursor);
         // In case it's a symbol, make_symbol handles that
-        if ( strchr(DIGIT_CHARS, cursor->ch) == NULL )
+        if ( strchr(DIGIT_CHARS, cursor.ch) == NULL )
         {
             go_back(cursor);
-            make_symbol(cursor, tok, err);
+            make_symbol(tok, err);
             return;
         }
         // Otherwise it's a negative number
         is_negative = true;
     }
 
-    char *ltrl = add_while_in(cursor, DIGIT_CHARS);
+    char *ltrl = add_while_in(DIGIT_CHARS);
     advance(cursor);
 
     // If there is no dot it's an integer
-    if ( cursor->ch != '.' )
+    if ( cursor.ch != '.' )
     {
         go_back(cursor);
-        Pos end = copy_pos(cursor->pos);
+        Pos end = copy_pos(cursor.pos);
         Nst_int *value = malloc(sizeof(Nst_int));
 
         if ( value == NULL )
@@ -375,8 +373,8 @@ static void make_num_literal(LexerCursor *cursor, Token **tok, Nst_Error **err)
 
     // Get the number after '.'
     advance(cursor);
-    char *fract_part = add_while_in(cursor, DIGIT_CHARS);
-    Pos end = copy_pos(cursor->pos);
+    char *fract_part = add_while_in(DIGIT_CHARS);
+    Pos end = copy_pos(cursor.pos);
 
     // If there is no number it's invalid
     if ( strlen(fract_part) == 0 )
@@ -432,11 +430,11 @@ static void make_num_literal(LexerCursor *cursor, Token **tok, Nst_Error **err)
     return;
 }
 
-static void make_ident(LexerCursor *cursor, Token **tok, Nst_Error **err)
+static void make_ident(Token **tok, Nst_Error **err)
 {
-    Pos start = copy_pos(cursor->pos);
-    char *str = add_while_in(cursor, LETTER_CHARS DIGIT_CHARS);
-    Pos end = copy_pos(cursor->pos);
+    Pos start = copy_pos(cursor.pos);
+    char *str = add_while_in(LETTER_CHARS DIGIT_CHARS);
+    Pos end = copy_pos(cursor.pos);
 
     Nst_string *value = malloc(sizeof(Nst_string));
     if ( value == NULL )
@@ -455,12 +453,12 @@ static void make_ident(LexerCursor *cursor, Token **tok, Nst_Error **err)
     *tok = new_token_value(start, end, IDENT, val_obj);
 }
 
-static void make_str_literal(LexerCursor *cursor, Token **tok, Nst_Error **err)
+static void make_str_literal(Token **tok, Nst_Error **err)
 {
-    Pos start = copy_pos(cursor->pos);
-    Pos escape_start = copy_pos(cursor->pos);
-    char closing_ch = cursor->ch;
-    bool allow_multiline = cursor->ch == '"';
+    Pos start = copy_pos(cursor.pos);
+    Pos escape_start = copy_pos(cursor.pos);
+    char closing_ch = cursor.ch;
+    bool allow_multiline = cursor.ch == '"';
     bool escape = false;
     char escape_str = 0;
 
@@ -479,32 +477,32 @@ static void make_str_literal(LexerCursor *cursor, Token **tok, Nst_Error **err)
     advance(cursor); // still on '"' or '\''
 
     // while there is text to add and (the string has not ended or the end is inside and escape)
-    while ( cursor->idx < (long) cursor->len && (cursor->ch != closing_ch || escape) )
+    while ( cursor.idx < (long) cursor.len && (cursor.ch != closing_ch || escape) )
     {
         // the string is resized to fit at least one character
         RESIZE_STR(end_str, end_str_realloc, str_len, chunk_size,);
 
         if ( !escape )
         {
-            if ( cursor->ch == '\n' && !allow_multiline )
+            if ( cursor.ch == '\n' && !allow_multiline )
             {
                 free(end_str);
-                SET_ERROR(SET_SYNTAX_ERROR_INT, cursor->pos, cursor->pos, UNEXPECTED_NEWLINE, *err, );
+                SET_ERROR(SET_SYNTAX_ERROR_INT, cursor.pos, cursor.pos, UNEXPECTED_NEWLINE, *err, );
                 return;
             }
-            else if ( cursor->ch == '\\' )
+            else if ( cursor.ch == '\\' )
             {
                 escape = true;
-                escape_start = copy_pos(cursor->pos);
+                escape_start = copy_pos(cursor.pos);
             }
             else
-                end_str[str_len++] = cursor->ch;
+                end_str[str_len++] = cursor.ch;
             advance(cursor);
             continue;
         }
 
         // If there is an escape sequence
-        switch ( cursor->ch )
+        switch ( cursor.ch )
         {
         case '\'':end_str[str_len++] = '\''; break;
         case '"': end_str[str_len++] = '"' ; break;
@@ -518,16 +516,16 @@ static void make_str_literal(LexerCursor *cursor, Token **tok, Nst_Error **err)
         case 'v': end_str[str_len++] = '\v'; break;
         case 'x':
             advance(cursor);
-            if ( cursor->idx >= (long)cursor->len || cursor->ch == closing_ch )
+            if ( cursor.idx >= (long)cursor.len || cursor.ch == closing_ch )
                 SET_INVALID_ESCAPE_ERROR;
 
-            char ch1 = tolower(cursor->ch);
+            char ch1 = tolower(cursor.ch);
             advance(cursor);
 
-            if ( cursor->idx >= (long)cursor->len || cursor->ch == closing_ch )
+            if ( cursor.idx >= (long)cursor.len || cursor.ch == closing_ch )
                 SET_INVALID_ESCAPE_ERROR;
 
-            char ch2 = tolower(cursor->ch);
+            char ch2 = tolower(cursor.ch);
 
             if ( (ch1 < '0' || ch1 > '7' || ch2 < '0' || (ch2 > '9' && ch2 < 'a') || ch2 > 'f') )
                 SET_INVALID_ESCAPE_ERROR;
@@ -546,9 +544,9 @@ static void make_str_literal(LexerCursor *cursor, Token **tok, Nst_Error **err)
         advance(cursor);
     }
 
-    Pos end = copy_pos(cursor->pos);
+    Pos end = copy_pos(cursor.pos);
 
-    if ( cursor->ch != closing_ch )
+    if ( cursor.ch != closing_ch )
     {
         SET_ERROR(SET_SYNTAX_ERROR_INT, start, end, UNCLOSED_STR_LITERAL, *err, );
     }

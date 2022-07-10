@@ -64,6 +64,7 @@
 #define ARG_NUM_DOESNT_MATCH "argument number doesn't match to the given types"
 #define INCVALID_TYPE_LETTER "invalid letter in type string"
 #define RAN_OUT_OF_MEMORY "ran out of memory"
+#define NEGATIVE_SIZE_FOR_SEQUENCE "the specified quantity is negative"
 
 #ifdef __cplusplus
 extern "C" {
