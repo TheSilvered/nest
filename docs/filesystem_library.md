@@ -21,11 +21,15 @@ Removes a directory at `path`, returns the error code of the OS in case of
 failure, otherwise returns `0`. If the directory path does not exist, raises an
 error.
 
+[Windows error codes](https://docs.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-)
+
 ### `[path: Str] @rmdir_recursive`
 
 Removes a directory at `path` and all of its contents, returns the error code of
 the OS in case of failure, otherwise returns `0`. If the directory path does not
 exist, raises an error.
+
+[Windows error codes](https://docs.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-)
 
 ### `[path: Str] @isfile`
 
@@ -35,6 +39,8 @@ Checks if a file exists at `path`.
 
 Removes a file at `path`, returns the error code of the OS in case of failure,
 otherwise returns `0`. If the path does not exist, raises an error.
+
+[Windows error codes](https://docs.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-)
 
 ### `[from: Str, to: Str, options: Int] @copy`
 
