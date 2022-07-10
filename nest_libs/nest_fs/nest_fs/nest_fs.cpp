@@ -281,7 +281,7 @@ Nst_Obj *equivalent(size_t arg_num, Nst_Obj **args, OpErr *err)
     Nst_string *path_1;
     Nst_string *path_2;
 
-    if ( !extract_arg_values("s", arg_num, args, err, &path_1, &path_2) )
+    if ( !extract_arg_values("ss", arg_num, args, err, &path_1, &path_2) )
         return nullptr;
 
     HANDLE f1 = CreateFileA(path_1->value, GENERIC_READ, FILE_SHARE_READ, NULL,
@@ -316,14 +316,14 @@ Nst_Obj *_get_copy_options(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_map *options = new_map();
 
-    map_set_str(options, "normal", new_int_obj((Nst_int)fs::copy_options::none));
+    map_set_str(options, "none", new_int_obj((Nst_int)fs::copy_options::none));
     map_set_str(options, "skip", new_int_obj((Nst_int)fs::copy_options::skip_existing));
     map_set_str(options, "overwrite", new_int_obj((Nst_int)fs::copy_options::overwrite_existing));
     map_set_str(options, "update", new_int_obj((Nst_int)fs::copy_options::update_existing));
     map_set_str(options, "recursive", new_int_obj((Nst_int)fs::copy_options::recursive));
     map_set_str(options, "copy_symlinks", new_int_obj((Nst_int)fs::copy_options::copy_symlinks));
     map_set_str(options, "skip_symlinks", new_int_obj((Nst_int)fs::copy_options::skip_symlinks));
-    map_set_str(options, "dirs_symonly", new_int_obj((Nst_int)fs::copy_options::directories_only));
+    map_set_str(options, "dirs_only", new_int_obj((Nst_int)fs::copy_options::directories_only));
     map_set_str(options, "make_symlinks", new_int_obj((Nst_int)fs::copy_options::create_symlinks));
     map_set_str(options, "make_hard_links", new_int_obj((Nst_int)fs::copy_options::create_hard_links));
 

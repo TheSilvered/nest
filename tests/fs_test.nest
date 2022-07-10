@@ -11,7 +11,10 @@
 'dir_1\\dir2' @fs.mkdirs
 'stdfs_file' 'w' @io.open @io.close -- creates a file
 'stdfs_file' 'dir\\stdfs_file' @fs.rename
-'dir\\stdfs_file' 'stdfs_file_copied' fs.CPO.normal @fs.copy
+'dir\\stdfs_file' 'stdfs_file_copied' fs.CPO.make_hard_links @fs.copy
+
+'dir\\stdfs_file' @fs.absolute_path @println
+'stdfs_file_copied' 'dir\\stdfs_file' @fs.equivalent @println
 
 ... Iter :: ('dir_1' @fs.list_dir) ~= item [
     'ld > ' item >< @println
