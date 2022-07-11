@@ -214,6 +214,16 @@ popped.
 >>> (<{ 1, 2, 3 }> 2 / '\n' ><) --> 2
 ```
 
+The operator `-` behaves differently with maps too. It will remove a key from a
+map and return `true` if the key existed, `false` otherwise.
+
+```
+{ 'a': 1, 'b': 2 } = m
+>>> (m 'a' - '\n' ><) --> true
+>>> (m 'j' - '\n' ><) --> false
+>>> m --> { 'b': 2 }
+```
+
 ### Local operators
 
 In Nest there is another type of operator that is called local operator. A local
@@ -448,4 +458,57 @@ When calling a function the arguments are taken from left to right:
 ]
 
 1 2 3 @print_args --> outputs '1 2 3'
+```
+
+### The switch statement
+
+The switch statement has the following syntax:
+```
+|> expression [
+    ? case_1 [
+        -- code executed if expression is equal to case_1
+    ]
+    ? case_2 [
+        -- code executed if expression is equal to case_2
+    ]
+    ? [
+        -- code for the default case
+    ]
+]
+```
+
+If `expression` is not equal to any of the cases, the code for the default case
+is executed. If there is no default case, nothing happens.  
+When the code for a case is executed, the switch statement ends. To have the
+same behaviour as C when the `break` keyword is omitted, you can use the `..`
+keyword.
+
+The following two codes are equivalent:
+
+```c
+// C / C++
+switch 10
+{
+case 5:
+    printf("5");
+case 10:
+    printf("10");
+default:
+    printf("default");
+}
+```
+
+```
+-- Nest
+|> 10 [
+    ? 5 [
+        >>> 5
+        ..
+    ]
+    ? 10 [
+        >>> 10
+        ..
+    ]
+    ? [ >>> 'default' ]
+]
 ```
