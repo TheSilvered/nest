@@ -138,10 +138,11 @@ LList *tokenize(char *text, size_t text_len, char *filename)
             advance();
         else
         {
-            SET_ERROR(
-                SET_SYNTAX_ERROR_INT, cursor.pos, cursor.pos, "invalid character",
-                err, NULL
-            );
+            SET_ERROR(SET_SYNTAX_ERROR_INT,
+                      cursor.pos,
+                      cursor.pos,
+                      "invalid character",
+                      err, NULL);
         }
 
         // When errno == ENOMEM means there wasn't enough
@@ -224,12 +225,12 @@ inline static char *add_while_in(char *charset)
         RESIZE_STR(str, realloc_str, str_len, chunk_size, NULL);
 
         str[str_len++] = cursor.ch;
-        advance(cursor);
+        advance();
     }
 
     // I'm guaranteed to pass at least once in the loop
     // since I check the first character before calling this funciton
-    go_back(cursor);
+    go_back();
 
     // Makes the string the correct size
     if ( str_len < chunk_size )
@@ -258,33 +259,45 @@ static void make_symbol(Token **tok, Nst_Error **err)
     {
         while ( cursor.idx < (long)cursor.len && cursor.ch != '\n' )
         {
-            advance(cursor);
+            advance();
             if ( cursor.ch == '\\' )
             {
-                advance(cursor);
-                advance(cursor);
+                advance();
+                advance();
             }
         }
-        go_back(cursor);
+        go_back();
         free(symbol);
         return;
     }
     else if ( multcom_start == symbol )
     {
         bool can_close = false;
+        bool was_closed = false;
+        go_back();
+        Pos start = copy_pos(cursor.pos);
+        advance();
         while ( cursor.idx < (long)cursor.len )
         {
-            advance(cursor);
+            advance();
             if ( can_close && cursor.ch == '-' )
             {
-                advance(cursor);
+                advance();
+                was_closed = true;
                 break;
             }
 
             can_close = cursor.ch == '/';
         }
-        go_back(cursor);
+
+        go_back();
         free(symbol);
+        
+        if ( !was_closed )
+        {
+            SET_ERROR(SET_SYNTAX_ERROR_INT, start, cursor.pos, UNCLOSED_COMMENT, *err, );
+        }
+        
         return;
     }
 
@@ -305,7 +318,7 @@ static void make_symbol(Token **tok, Nst_Error **err)
 
     while ( token_type == -1 )
     {
-        go_back(cursor);
+        go_back();
         end = copy_pos(cursor.pos);
         --symbol_end;
         *symbol_end = '\0';
@@ -323,11 +336,11 @@ static void make_num_literal(Token **tok, Nst_Error **err)
     // If there is a minus, there might be a negative number or a symbol
     if ( cursor.ch == '-' )
     {
-        advance(cursor);
+        advance();
         // In case it's a symbol, make_symbol handles that
         if ( strchr(DIGIT_CHARS, cursor.ch) == NULL )
         {
-            go_back(cursor);
+            go_back();
             make_symbol(tok, err);
             return;
         }
@@ -336,12 +349,12 @@ static void make_num_literal(Token **tok, Nst_Error **err)
     }
 
     char *ltrl = add_while_in(DIGIT_CHARS);
-    advance(cursor);
+    advance();
 
     // If there is no dot it's an integer
     if ( cursor.ch != '.' )
     {
-        go_back(cursor);
+        go_back();
         Pos end = copy_pos(cursor.pos);
         Nst_int *value = malloc(sizeof(Nst_int));
 
@@ -372,7 +385,7 @@ static void make_num_literal(Token **tok, Nst_Error **err)
     // Otherwise it's a float
 
     // Get the number after '.'
-    advance(cursor);
+    advance();
     char *fract_part = add_while_in(DIGIT_CHARS);
     Pos end = copy_pos(cursor.pos);
 
@@ -474,7 +487,7 @@ static void make_str_literal(Token **tok, Nst_Error **err)
     size_t str_len = 0;
     size_t chunk_size = START_CH_SIZE;
 
-    advance(cursor); // still on '"' or '\''
+    advance(); // still on '"' or '\''
 
     // while there is text to add and (the string has not ended or the end is inside and escape)
     while ( cursor.idx < (long) cursor.len && (cursor.ch != closing_ch || escape) )
@@ -497,7 +510,7 @@ static void make_str_literal(Token **tok, Nst_Error **err)
             }
             else
                 end_str[str_len++] = cursor.ch;
-            advance(cursor);
+            advance();
             continue;
         }
 
@@ -515,12 +528,12 @@ static void make_str_literal(Token **tok, Nst_Error **err)
         case 't': end_str[str_len++] = '\t'; break;
         case 'v': end_str[str_len++] = '\v'; break;
         case 'x':
-            advance(cursor);
+            advance();
             if ( cursor.idx >= (long)cursor.len || cursor.ch == closing_ch )
                 SET_INVALID_ESCAPE_ERROR;
 
             char ch1 = tolower(cursor.ch);
-            advance(cursor);
+            advance();
 
             if ( cursor.idx >= (long)cursor.len || cursor.ch == closing_ch )
                 SET_INVALID_ESCAPE_ERROR;
@@ -541,7 +554,7 @@ static void make_str_literal(Token **tok, Nst_Error **err)
         }
 
         escape = false;
-        advance(cursor);
+        advance();
     }
 
     Pos end = copy_pos(cursor.pos);

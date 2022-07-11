@@ -87,3 +87,10 @@ Its members are:
 | `dirs_only`       | Copies only directories                                          |
 | `make_symlinks`   | Creates symlinks of the files instead of copying them            |
 | `make_hard_links` | Creates hard_links of the files instead of copying them          |
+
+To join more options you can use the bit-wise or operator `|`.
+
+```
+CPO.recursive CPO.make_hard_links | = options
+'dir1' 'dir2' options @copy
+```

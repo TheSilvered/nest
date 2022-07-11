@@ -151,7 +151,7 @@ void print_position(Pos start, Pos end)
 #endif
     print_line(end.line, end.text, end.text_len, 0, end.col);
     printf("| ");
-    print_repeat('^', end.col);
+    print_repeat('^', end.col + 1);
     printf("\n");
     return;
 }

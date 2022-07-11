@@ -30,6 +30,8 @@ Nst_Obj *is_printable(size_t arg_num, Nst_Obj **args, OpErr *err);
 Nst_Obj *replace_substr(size_t arg_num, Nst_Obj **args, OpErr *err);
 Nst_Obj *bytearray_to_str(size_t arg_num, Nst_Obj **args, OpErr *err);
 Nst_Obj *repr(size_t arg_num, Nst_Obj **args, OpErr *err);
+Nst_Obj *join(size_t arg_num, Nst_Obj **args, OpErr *err);
+Nst_Obj *split(size_t arg_num, Nst_Obj **args, OpErr *err);
 
 #ifdef __cplusplus
 }

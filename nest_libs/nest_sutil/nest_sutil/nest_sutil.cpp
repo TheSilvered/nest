@@ -3,7 +3,7 @@
 #include <cstring>
 #include <cstdlib>
 
-#define FUNC_COUNT 19
+#define FUNC_COUNT 21
 
 #define EXPECTED_BYTE "expected only type 'Byte', got type '%s' instead"
 
@@ -36,6 +36,8 @@ bool lib_init()
     func_list_[idx++] = MAKE_FUNCDECLR(replace_substr, 3);
     func_list_[idx++] = MAKE_FUNCDECLR(bytearray_to_str, 1);
     func_list_[idx++] = MAKE_FUNCDECLR(repr, 1);
+    func_list_[idx++] = MAKE_FUNCDECLR(join, 2);
+    func_list_[idx++] = MAKE_FUNCDECLR(split, 2);
 
     lib_init_ = true;
     return true;
@@ -45,6 +47,8 @@ FuncDeclr *get_func_ptrs()
 {
     return lib_init_ ? func_list_ : nullptr;
 }
+
+
 
 Nst_Obj *nst_lfind(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
@@ -540,4 +544,86 @@ Nst_Obj *repr(size_t arg_num, Nst_Obj **args, OpErr *err)
         return nullptr;
 
     return new_str_obj(repr_string(str));
+}
+
+Nst_Obj *join(size_t arg_num, Nst_Obj **args, OpErr *err)
+{
+    Nst_string *str;
+    Nst_sequence *seq;
+
+    if ( !extract_arg_values("sA", arg_num, args, err, &str, &seq) )
+        return nullptr;
+
+    size_t len = seq->len;
+    size_t str_len = str->len;
+    size_t tot_len = str_len * (len - 1);
+    Nst_Obj **objs = new Nst_Obj *[len];
+
+    for ( size_t i = 0; i < len; i++ )
+    {
+        objs[i] = obj_cast(seq->objs[i], nst_t_str, NULL);
+        tot_len += AS_STR(objs[i])->len;
+    }
+
+    char *new_str = new char[tot_len + 1];
+    size_t str_idx = 0;
+
+    for ( size_t i = 0; i < len; i++ )
+    {
+        Nst_string *curr_str = AS_STR(objs[i]);
+        memcpy(new_str + str_idx, curr_str->value, curr_str->len);
+        str_idx += curr_str->len;
+        dec_ref(objs[i]);
+        if ( i + 1 == len ) break;
+        memcpy(new_str + str_idx, str->value, str_len);
+        str_idx += str_len;
+    }
+
+    new_str[tot_len] = 0;
+    return new_str_obj(new_string(new_str, tot_len, true));
+}
+
+Nst_Obj *split(size_t arg_num, Nst_Obj **args, OpErr *err)
+{
+    Nst_string *str;
+    Nst_string *substr;
+
+    if ( !extract_arg_values("ss", arg_num, args, err, &str, &substr) )
+        return nullptr;
+
+    if ( substr->len == 0 )
+    {
+        SET_VALUE_ERROR("separator must be at least one character long");
+        return nullptr;
+    }
+
+    Nst_sequence *vector = new_vector_empty(0);
+
+    char *s = str->value;
+    char *sub = substr->value;
+    char *sub_idx = s;
+    char *str_split;
+    size_t s_len = str->len;
+    Nst_Obj *str_obj;
+
+    while ( (sub_idx = strstr(s, sub)) != NULL )
+    {
+        str_split = new char[sub_idx - s + 1];
+        memcpy(str_split, s, sub_idx - s);
+        str_split[sub_idx - s] = 0;
+        str_obj = new_str_obj(new_string(str_split, sub_idx - s, true));
+        append_value_vector(vector, str_obj);
+        dec_ref(str_obj);
+        s_len -= sub_idx - s + substr->len;
+        s = sub_idx + substr->len;
+    }
+
+    str_split = new char[s_len + 1];
+    memcpy(str_split, s, s_len);
+    str_split[s_len] = 0;
+    str_obj = new_str_obj(new_string(str_split, s_len, true));
+    append_value_vector(vector, str_obj);
+    dec_ref(str_obj);
+
+    return new_vect_obj(vector);
 }
