@@ -8,4 +8,4 @@ A programming language with no keywords.
 - Function-oriented
 - Has named variables
 - Has hash maps, vectors and arrays built in
-- Can be expanded with C
+- Can be expanded with C/C++
