@@ -29,7 +29,7 @@
 #define SET_VALUE(new_value) do { \
     if ( state->value != NULL ) \
         dec_ref(state->value); \
-    state->value = new_value; \
+    state->value = (Nst_Obj *)new_value; \
     } while ( 0 )
 
 #define SET_NULL do { \
@@ -92,13 +92,13 @@ static void exe_break_s(Node * node);
 static void exe_switch_s(Node *node);
 
 // Operation functions that need the ExecutionState
-static void call_func_internal(Node *node, Nst_func *func, Nst_Obj **args);
+static void call_func_internal(Node *node, Nst_FuncObj *func, Nst_Obj **args);
 
 // Uitility functions
 static inline bool safe_exe(Node *node);
-static Nst_string *make_cwd(char *file_path);
+static Nst_StrObj *make_cwd(char *file_path);
 static bool check_same_file(char *p1, char *p2);
-static Nst_sequence *make_argv(int argc, char **argv);
+static Nst_SeqObj *make_argv(int argc, char **argv);
 
 ExecutionState *state;
 
@@ -115,7 +115,7 @@ void run(Node *node, int argc, char **argv)
     if ( cwd_buf == NULL )
         return;
 
-    Nst_string *cwd = new_string_raw(_getcwd(cwd_buf, MAX_PATH), true);
+    Nst_StrObj *cwd = AS_STR(new_string_raw(_getcwd(cwd_buf, MAX_PATH), true));
     Nst_Traceback tb = { NULL, LList_new() };
 
     state->traceback = &tb;
@@ -152,17 +152,17 @@ void run(Node *node, int argc, char **argv)
     LList_destroy(state->lib_handles, free);
 }
 
-Nst_map *run_module(char *file_name)
+Nst_MapObj *run_module(char *file_name)
 {
     Node *module_ast = parse(ftokenize(file_name));
 
     if ( module_ast == NULL )
         return NULL;
 
-    Nst_string *prev_path = state->curr_path;
+    Nst_StrObj *prev_path = state->curr_path;
     VarTable *prev_vt = state->vt;
 
-    Nst_string *path_str = make_cwd(file_name);
+    Nst_StrObj *path_str = make_cwd(file_name);
     state->curr_path = path_str;
 
     int res = _chdir(path_str->value);
@@ -179,7 +179,7 @@ Nst_map *run_module(char *file_name)
 
     LList_pop(state->lib_paths);
 
-    Nst_map *var_map = state->vt->vars;
+    Nst_MapObj *var_map = state->vt->vars;
     free(state->vt);
     state->curr_path = prev_path;
     state->vt = prev_vt;
@@ -342,29 +342,31 @@ static void exe_for_as_l(Node *node)
     if ( !safe_exe(HEAD_NODE(node)) )
         return;
 
-    Nst_Obj *iter_obj = state->value;
-    inc_ref(iter_obj);
+    Nst_IterObj *iterator = AS_ITER(state->value);
+    inc_ref((Nst_Obj *)iterator);
 
-    if ( iter_obj->type != nst_t_iter )
+    if ( iterator->type != nst_t_iter )
     {
         SET_ERROR(
             SET_TYPE_ERROR_INT,
             HEAD_NODE(node)->start,
             HEAD_NODE(node)->end,
-            format_type_error(EXPECTED_TYPE("Iter"), iter_obj->type_name)
+            format_type_error(EXPECTED_TYPE("Iter"), iterator->type_name)
         );
 
-        dec_ref(iter_obj);
+        dec_ref((Nst_Obj *)iterator);
         return;
     }
 
-    Nst_iter *iterator = iter_obj->value;
     Nst_Obj *iter_val = iterator->value;
+    register Nst_FuncObj *is_done_func = AS_FUNC(iterator->is_done);
+    register Nst_FuncObj *get_val_func = AS_FUNC(iterator->get_val);
+    register Nst_FuncObj *advance_func = AS_FUNC(iterator->advance);
 
-    call_func_internal(node, iterator->start->value, &iter_val);
+    call_func_internal(node, AS_FUNC(iterator->start), &iter_val);
     if ( state->error_occurred )
     {
-        dec_ref(iter_obj);
+        dec_ref((Nst_Obj *)iterator);
         return;
     }
 
@@ -372,7 +374,7 @@ static void exe_for_as_l(Node *node)
 
     while ( true )
     {
-        call_func_internal(node, iterator->is_done->value, &iter_val);
+        call_func_internal(node, is_done_func, &iter_val);
         if ( state->error_occurred )
             break;
 
@@ -393,7 +395,7 @@ static void exe_for_as_l(Node *node)
             break;
         }
 
-        call_func_internal(node, iterator->get_val->value, &iter_val);
+        call_func_internal(node, get_val_func, &iter_val);
         if ( state->error_occurred )
             break;
 
@@ -413,12 +415,12 @@ static void exe_for_as_l(Node *node)
             state->must_continue = false;
         }
 
-        call_func_internal(node, iterator->advance->value, &iter_val);
+        call_func_internal(node, advance_func, &iter_val);
         if ( state->error_occurred )
             return;
     }
 
-    dec_ref(iter_obj);
+    dec_ref(iterator);
 }
 
 static void exe_if_e(Node *node)
@@ -449,21 +451,16 @@ static void exe_if_e(Node *node)
 
 static void exe_func_declr(Node *node)
 {
-    Nst_func *func = new_func(node->tokens->size - 1);
-
+    Nst_FuncObj *func = AS_FUNC(new_func(node->tokens->size - 1));
     register size_t i = 0;
+
     for ( LLNode *n = node->tokens->head->next; n != NULL; n = n->next )
         func->args[i++] = TOK(n->value)->value;
 
     func->body = HEAD_NODE(node);
-
-    Nst_Obj *func_obj = new_func_obj(func);
     Nst_Obj *func_name = HEAD_TOK(node)->value;
-
-    set_val(state->vt, func_name, func_obj);
-
-    dec_ref(func_obj);
-
+    set_val(state->vt, func_name, (Nst_Obj *)func);
+    dec_ref(func);
     SET_NULL;
 }
 
@@ -621,22 +618,22 @@ static void exe_local_stack_op(Node *node)
             return;
         }
 
-        Nst_func func = *AS_FUNC(func_obj);
+        Nst_FuncObj *func = AS_FUNC(func_obj);
 
-        if ( arg_count - 1 != func.arg_num )
+        if ( arg_count - 1 != func->arg_num )
         {
             SET_ERROR(
                 SET_CALL_ERROR_INT,
                 node->start,
                 node->end,
-                arg_count - 1 > func.arg_num ? TOO_MANY_ARGS_FUNC : TOO_FEW_ARGS_FUNC
+                arg_count - 1 > func->arg_num ? TOO_MANY_ARGS_FUNC : TOO_FEW_ARGS_FUNC
             );
 
             dec_ref(func_obj);
             return;
         }
 
-        Nst_Obj **args_arr = malloc(func.arg_num * sizeof(Nst_Obj *));
+        Nst_Obj **args_arr = malloc(func->arg_num * sizeof(Nst_Obj *));
         if ( args_arr == NULL )
         {
             errno = ENOMEM;
@@ -644,7 +641,7 @@ static void exe_local_stack_op(Node *node)
         }
 
         LLNode *n = node->nodes->head;
-        for ( size_t i = 0; i < func.arg_num; i++ )
+        for ( size_t i = 0; i < func->arg_num; i++ )
         {
             if ( !safe_exe(n->value) )
             {
@@ -661,10 +658,10 @@ static void exe_local_stack_op(Node *node)
             n = n->next;
         }
 
-        call_func_internal(node, &func, args_arr);
+        call_func_internal(node, func, args_arr);
         dec_ref(func_obj);
 
-        for ( size_t i = 0; i < func.arg_num; i++ )
+        for ( size_t i = 0; i < func->arg_num; i++ )
             dec_ref(args_arr[i]);
         free(args_arr);
 
@@ -768,14 +765,14 @@ static void exe_local_stack_op(Node *node)
         else
         {
             if ( AS_INT(start) <= AS_INT(stop) )
-                step = make_obj_free(new_int( 1), nst_t_int);
+                step = new_int(1);
             else
-                step = make_obj_free(new_int(-1), nst_t_int);
+                step = new_int(-1);
         }
 
-        Nst_Obj *idx = make_obj_free(new_int(0), nst_t_int);
+        Nst_Obj *idx = new_int(0);
 
-        Nst_sequence *data_seq = new_array_empty(4);
+        Nst_SeqObj *data_seq = AS_SEQ(new_array(4));
         set_value_seq(data_seq, 0, idx);
         set_value_seq(data_seq, 1, start);
         set_value_seq(data_seq, 2, stop);
@@ -786,13 +783,13 @@ static void exe_local_stack_op(Node *node)
         dec_ref(stop);
         dec_ref(step);
 
-        SET_VALUE(new_iter_obj(new_iter(
-            new_func_obj(new_cfunc(1, num_iter_start)),
-            new_func_obj(new_cfunc(1, num_iter_advance)),
-            new_func_obj(new_cfunc(1, num_iter_is_done)),
-            new_func_obj(new_cfunc(1, num_iter_get_val)),
-            make_obj(data_seq, nst_t_arr, destroy_seq)
-        )));
+        SET_VALUE(new_iter(
+            AS_FUNC(new_cfunc(1, num_iter_start)),
+            AS_FUNC(new_cfunc(1, num_iter_advance)),
+            AS_FUNC(new_cfunc(1, num_iter_is_done)),
+            AS_FUNC(new_cfunc(1, num_iter_get_val)),
+            (Nst_Obj *)data_seq
+        ));
 
         break;
     default:
@@ -821,7 +818,7 @@ static void exe_local_op(Node *node)
     case NEG:    res = obj_neg(ob, &err);    break;
     case LOC_CALL:
     {
-        Nst_func *func = AS_FUNC(ob);
+        Nst_FuncObj *func = AS_FUNC(ob);
         if ( func->arg_num != 0 )
         {
             SET_ERROR(
@@ -901,8 +898,8 @@ static void exe_arr_or_vect_lit(Node *node)
             return;
         }
 
-        Nst_sequence *seq = is_arr ? new_array_empty((size_t)size)
-                                   : new_vector_empty((size_t)size);
+        Nst_SeqObj *seq = is_arr ? AS_SEQ(new_array((size_t)size))
+                                 : AS_SEQ(new_vector((size_t)size));
         if ( seq == NULL )
         {
             SET_ERROR(
@@ -919,15 +916,12 @@ static void exe_arr_or_vect_lit(Node *node)
             set_value_seq(seq, i, value);
 
         dec_ref(value);
-        if ( is_arr )
-            SET_VALUE(new_arr_obj(seq));
-        else
-            SET_VALUE(new_vect_obj(seq));
+        SET_VALUE(seq);
         return;
     }
 
-    Nst_sequence *seq = is_arr ? new_array_empty(node->nodes->size)
-                               : new_vector_empty(node->nodes->size);
+    Nst_SeqObj *seq = is_arr ? AS_SEQ(new_array(node->nodes->size))
+                             : AS_SEQ(new_vector(node->nodes->size));
     size_t i = 0;
 
     for ( LLNode *n = node->nodes->head; n != NULL; n = n->next )
@@ -937,15 +931,12 @@ static void exe_arr_or_vect_lit(Node *node)
         set_value_seq(seq, i++, state->value);
     }
 
-    if ( is_arr )
-        SET_VALUE(new_arr_obj(seq));
-    else
-        SET_VALUE(new_vect_obj(seq));
+    SET_VALUE(seq);
 }
 
 static void exe_map_lit(Node *node)
 {
-    Nst_map *map = new_map();
+    Nst_MapObj *map = new_map();
     register Nst_Obj *key = NULL;
     register Node *key_node = NULL;
 
@@ -977,7 +968,7 @@ static void exe_map_lit(Node *node)
         key = NULL;
     }
 
-    SET_VALUE(make_obj(map, nst_t_map, destroy_map));
+    SET_VALUE(map);
 }
 
 static void exe_value(Node *node)
@@ -1038,7 +1029,7 @@ static void exe_extract_e(Node *node)
         }
 
         Nst_int idx = AS_INT(key);
-        Nst_Obj *val = get_value_seq(container->value, idx);
+        Nst_Obj *val = get_value_seq(AS_SEQ(container), idx);
 
         if ( val == NULL )
         {
@@ -1077,7 +1068,7 @@ static void exe_extract_e(Node *node)
             return;
         }
 
-        Nst_string *str = AS_STR(container);
+        Nst_StrObj *str = AS_STR(container);
         Nst_int idx = AS_INT(key);
         if ( idx < 0 )
             idx += str->len;
@@ -1107,13 +1098,13 @@ static void exe_extract_e(Node *node)
 
         ch[0] = str->value[idx];
 
-        Nst_Obj *val = make_obj(new_string(ch, 1, true), nst_t_str, destroy_string);
+        Nst_Obj *val = new_string(ch, 1, true);
 
         SET_VALUE(val);
     }
     else if ( container->type == nst_t_map )
     {
-        Nst_Obj *val = map_get(container->value, key);
+        Nst_Obj *val = map_get(AS_MAP(container), key);
 
         if ( val == NULL )
         {
@@ -1358,7 +1349,7 @@ static void exe_switch_s(Node *node)
     }
 }
 
-Nst_Obj *call_func(Nst_func *func, Nst_Obj **args, OpErr *err)
+Nst_Obj *call_func(Nst_FuncObj *func, Nst_Obj **args, OpErr *err)
 {
     if ( func->body != NULL )
     {
@@ -1403,7 +1394,7 @@ Nst_Obj *call_func(Nst_func *func, Nst_Obj **args, OpErr *err)
     }
 }
 
-static void call_func_internal(Node *node, Nst_func *func, Nst_Obj **args)
+static void call_func_internal(Node *node, Nst_FuncObj *func, Nst_Obj **args)
 {
     OpErr err = { "", "" };
     Nst_Obj *res = call_func(func, args, &err);
@@ -1447,7 +1438,7 @@ size_t get_full_path(char *file_path, char **buf, char **file_part)
     return path_len;
 }
 
-static Nst_string *make_cwd(char *file_path)
+static Nst_StrObj *make_cwd(char *file_path)
 {
     char *path = NULL;
     char *file_part = NULL;
@@ -1456,7 +1447,7 @@ static Nst_string *make_cwd(char *file_path)
 
     *(file_part - 1) = 0;
 
-    return new_string(path, file_part - path, true);
+    return AS_STR(new_string(path, file_part - path, true));
 }
 
 static bool check_same_file(char *p1, char *p2)
@@ -1489,12 +1480,16 @@ static bool check_same_file(char *p1, char *p2)
     return are_equal;
 }
 
-static Nst_sequence *make_argv(int argc, char **argv)
+static Nst_SeqObj *make_argv(int argc, char **argv)
 {
-    Nst_sequence *args = new_array_empty(argc - 1);
+    Nst_SeqObj *args = AS_SEQ(new_array(argc - 1));
 
     for ( int i = 1; i < argc; i++ )
-        set_value_seq(args, i - 1, new_str_obj(new_string_raw(argv[i], false)));
+    {
+        Nst_Obj *val = new_string_raw(argv[i], false);
+        set_value_seq(AS_SEQ(args), i - 1, val);
+        dec_ref(val);
+    }
 
     return args;
 }

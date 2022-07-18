@@ -22,9 +22,9 @@ Nst_Obj *nst_true;
 Nst_Obj *nst_false;
 Nst_Obj *nst_null;
 
-Nst_Obj *make_obj(void *value, Nst_Obj *type, void (*destructor)(void *))
+Nst_Obj *alloc_obj(size_t size, Nst_Obj *type, void (*destructor)(void *))
 {
-    Nst_Obj *obj = malloc(sizeof(Nst_Obj));
+    Nst_Obj *obj = malloc(size);
     if ( obj == NULL )
     {
         errno = ENOMEM;
@@ -32,7 +32,6 @@ Nst_Obj *make_obj(void *value, Nst_Obj *type, void (*destructor)(void *))
     }
 
     obj->ref_count = 1;
-    obj->value = value;
     obj->destructor = destructor;
     obj->hash = -1;
 
@@ -48,51 +47,26 @@ Nst_Obj *make_obj(void *value, Nst_Obj *type, void (*destructor)(void *))
     return obj;
 }
 
-Nst_Obj *make_obj_free(void *value, Nst_Obj *type)
-{
-    return make_obj(value, type, free);
-}
-
-Nst_Obj *inc_ref(Nst_Obj *obj)
-{
-    obj->ref_count++;
-    return obj;
-}
-
-void dec_ref(Nst_Obj *obj)
-{
-    obj->ref_count--;
-    if ( obj->ref_count <= 0 )
-        destroy_obj(obj);
-}
-
-void destroy_obj(Nst_Obj *obj)
-{
-    if ( obj->value != NULL && obj->destructor != NULL )
-        (*obj->destructor)(obj->value);
-    dec_ref(obj->type);
-    free(obj);
-}
-
 void init_obj(void)
 {
-    nst_t_type = make_obj(new_string("Type",   4, false), NULL,       destroy_string);
-    nst_t_int  = make_obj(new_string("Int",    3, false), nst_t_type, destroy_string);
-    nst_t_real = make_obj(new_string("Real",   4, false), nst_t_type, destroy_string);
-    nst_t_bool = make_obj(new_string("Bool",   4, false), nst_t_type, destroy_string);
-    nst_t_null = make_obj(new_string("Null",   4, false), nst_t_type, destroy_string);
-    nst_t_str  = make_obj(new_string("Str",    3, false), nst_t_type, destroy_string);
-    nst_t_arr  = make_obj(new_string("Array",  5, false), nst_t_type, destroy_string);
-    nst_t_vect = make_obj(new_string("Vector", 6, false), nst_t_type, destroy_string);
-    nst_t_map  = make_obj(new_string("Map",    3, false), nst_t_type, destroy_string);
-    nst_t_func = make_obj(new_string("Func",   4, false), nst_t_type, destroy_string);
-    nst_t_iter = make_obj(new_string("Iter",   4, false), nst_t_type, destroy_string);
-    nst_t_byte = make_obj(new_string("Byte",   4, false), nst_t_type, destroy_string);
-    nst_t_file = make_obj(new_string("IOfile", 6, false), nst_t_type, destroy_string);
+    nst_t_type = NULL;
+    nst_t_type = new_type_obj("Type",   4);
+    nst_t_int  = new_type_obj("Int",    3);
+    nst_t_real = new_type_obj("Real",   4);
+    nst_t_bool = new_type_obj("Bool",   4);
+    nst_t_null = new_type_obj("Null",   4);
+    nst_t_str  = new_type_obj("Str",    3);
+    nst_t_arr  = new_type_obj("Array",  5);
+    nst_t_vect = new_type_obj("Vector", 6);
+    nst_t_map  = new_type_obj("Map",    3);
+    nst_t_func = new_type_obj("Func",   4);
+    nst_t_iter = new_type_obj("Iter",   4);
+    nst_t_byte = new_type_obj("Byte",   4);
+    nst_t_file = new_type_obj("IOfile", 6);
 
-    nst_true  = make_obj(new_bool(NST_TRUE ), nst_t_bool, free);
-    nst_false = make_obj(new_bool(NST_FALSE), nst_t_bool, free);
-    nst_null  = make_obj(NULL, nst_t_null, NULL);
+    nst_true  = new_bool(NST_TRUE );
+    nst_false = new_bool(NST_FALSE);
+    nst_null  = alloc_obj(sizeof(Nst_Obj), nst_t_null, NULL);
 }
 
 void del_obj(void)

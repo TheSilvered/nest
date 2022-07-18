@@ -36,8 +36,8 @@
         state = main_state; \
     }
 
-#define MAKE_FUNCDECLR(func_ptr, argc) { func_ptr, argc, new_string_raw(#func_ptr, false) }
-#define MAKE_NAMED_FUNCDECLR(func_ptr, argc, name) { func_ptr, argc, new_string_raw(name, false) }
+#define MAKE_FUNCDECLR(func_ptr, argc) { func_ptr, argc, AS_STR(new_string_raw(#func_ptr, false)) }
+#define MAKE_NAMED_FUNCDECLR(func_ptr, argc, name) { func_ptr, argc, AS_STR(new_string_raw(name, false)) }
 
 #define SET_ERROR_CUSTOM(err_name, msg) do { \
     err->name = (char *)err_name; \
@@ -92,7 +92,7 @@ typedef struct
 {
     Nst_Obj *(*func_ptr)(size_t arg_num, Nst_Obj **args, OpErr *err);
     size_t arg_num;
-    Nst_string *name;
+    Nst_StrObj *name;
 }
 FuncDeclr;
 

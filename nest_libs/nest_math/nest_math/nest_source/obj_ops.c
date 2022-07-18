@@ -23,6 +23,11 @@
     err->message = "invalid type for '" operand "'"; \
     return NULL; } while (0)
 
+#define RETURN_MISSING_FUNC_ERROR(func) do { \
+    err->name = VALUE_ERROR; \
+    err->message = "missing '" func "' for a custom iterator"; \
+    return NULL; } while (0)
+
 #define CHECK_BUFFER(buf) do { \
         if ( buf == NULL ) \
         { \
@@ -40,20 +45,17 @@
 // Comparisons
 Nst_Obj *obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 {
-    register void *v1 = ob1->value;
-    register void *v2 = ob2->value;
-
     if ( ob1 == ob2 )
         RETURN_TRUE;
     else if ( ob1->type == nst_t_map || ob2->type == nst_t_map )
         RETURN_FALSE;
     else if ( ARE_TYPE(nst_t_int) )
-        RETURN_COND(AS_INT_V(v1) == AS_INT_V(v2));
+        RETURN_COND(AS_INT(ob1) == AS_INT(ob2));
     else if ( IS_NUMBER(ob1) && IS_NUMBER(ob2) )
     {
         ob1 = obj_cast(ob1, nst_t_real, err);
         ob2 = obj_cast(ob2, nst_t_real, err);
-        bool check = AS_BOOL_V(v1) == AS_BOOL_V(v2);
+        bool check = AS_BOOL(ob1) == AS_BOOL(ob2);
         dec_ref(ob1);
         dec_ref(ob2);
 
@@ -63,23 +65,20 @@ Nst_Obj *obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
             RETURN_FALSE;
     }
     else if ( ob1->type == nst_t_str && ob2->type == nst_t_str )
-    {
-        Nst_string s1 = *AS_STR_V(v1);
-        Nst_string s2 = *AS_STR_V(v2);
-
-        RETURN_COND(strcmp(s1.value, s2.value) == 0);
-    }
+        RETURN_COND(strcmp(AS_STR(ob1)->value, AS_STR(ob2)->value) == 0);
     else if ( ob1->type == nst_t_bool && ob2->type == nst_t_bool )
-        RETURN_COND(v1 == v2);
+        RETURN_COND(ob1 == ob2);
     else if ( IS_SEQ(ob1) && IS_SEQ(ob2) )
     {
-        if ( AS_SEQ_V(v1)->len != AS_SEQ_V(v2)->len )
+        if ( AS_SEQ(ob1)->len != AS_SEQ(ob2)->len )
             RETURN_FALSE;
 
-        for ( size_t i = 0, n = AS_SEQ_V(v1)->len; i < n; i++ )
+        for ( size_t i = 0, n = AS_SEQ(ob1)->len; i < n; i++ )
         {
-            if ( obj_eq(AS_SEQ_V(v1)->objs[i], AS_SEQ_V(v2)->objs[i], err) == nst_false )
+            if ( obj_eq(AS_SEQ(ob1)->objs[i], AS_SEQ(ob2)->objs[i], err) == nst_false )
                 RETURN_FALSE;
+            else
+                dec_ref(nst_true);
         }
         RETURN_TRUE;
     }
@@ -94,23 +93,15 @@ Nst_Obj *obj_ne(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 
 Nst_Obj *obj_gt(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 {
-    register void *v1 = ob1->value;
-    register void *v2 = ob2->value;
-
     if ( ARE_TYPE(nst_t_str) )
-    {
-        Nst_string s1 = *AS_STR_V(v1);
-        Nst_string s2 = *AS_STR_V(v2);
-
-        RETURN_COND(strcmp(s1.value, s2.value) > 0);
-    }
+        RETURN_COND(strcmp(AS_STR(ob1)->value, AS_STR(ob2)->value) > 0);
     else if ( ARE_TYPE(nst_t_int) )
-        RETURN_COND(AS_INT_V(v1) > AS_INT_V(v2));
+        RETURN_COND(AS_INT(ob1) > AS_INT(ob2));
     else if ( IS_NUMBER(ob1) && IS_NUMBER(ob2) )
     {
         ob1 = obj_cast(ob1, nst_t_real, err);
         ob2 = obj_cast(ob2, nst_t_real, err);
-        bool check = AS_REAL_V(v1) > AS_REAL_V(v2);
+        bool check = AS_REAL(ob1) > AS_REAL(ob2);
         dec_ref(ob1);
         dec_ref(ob2);
 
@@ -122,23 +113,15 @@ Nst_Obj *obj_gt(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 
 Nst_Obj *obj_lt(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 {
-    register void *v1 = ob1->value;
-    register void *v2 = ob2->value;
-
     if ( ARE_TYPE(nst_t_str) )
-    {
-        Nst_string s1 = *AS_STR_V(v1);
-        Nst_string s2 = *AS_STR_V(v2);
-
-        RETURN_COND(strcmp(s1.value, s2.value) < 0);
-    }
+        RETURN_COND(strcmp(AS_STR(ob1)->value, AS_STR(ob2)->value) < 0);
     else if ( ARE_TYPE(nst_t_int) )
-        RETURN_COND(AS_INT_V(v1) < AS_INT_V(v2));
+        RETURN_COND(AS_INT(ob1) < AS_INT(ob2));
     else if ( IS_NUMBER(ob1) && IS_NUMBER(ob2) )
     {
         ob1 = obj_cast(ob1, nst_t_real, err);
         ob2 = obj_cast(ob2, nst_t_real, err);
-        bool check = AS_REAL_V(v1) < AS_REAL_V(v2);
+        bool check = AS_REAL(ob1) < AS_REAL(ob2);
         dec_ref(ob1);
         dec_ref(ob2);
 
@@ -179,25 +162,17 @@ Nst_Obj *obj_add(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 {
     if ( ob1->type == nst_t_vect )
     {
-        append_value_vector(ob1->value, ob2);
+        append_value_vector(AS_SEQ(ob1), ob2);
         return inc_ref(ob1);
     }
     else if ( ARE_TYPE(nst_t_int) )
-    {
-        return make_obj(
-            new_int(AS_INT(ob1) + AS_INT(ob2)),
-            nst_t_int, free
-        );
-    }
+        return new_int(AS_INT(ob1) + AS_INT(ob2));
     else if ( IS_NUMBER(ob1) && IS_NUMBER(ob2) )
     {
         ob1 = obj_cast(ob1, nst_t_real, err);
         ob2 = obj_cast(ob2, nst_t_real, err);
 
-        Nst_Obj *new_obj = make_obj(
-            new_real(AS_REAL(ob1) + AS_REAL(ob2)),
-            nst_t_real, free
-        );
+        Nst_Obj *new_obj = new_real(AS_REAL(ob1) + AS_REAL(ob2));
 
         dec_ref(ob1);
         dec_ref(ob2);
@@ -205,21 +180,18 @@ Nst_Obj *obj_add(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
         return new_obj;
     }
     else
-    {
-        printf("%s\n", ob1->type_name);
         RETURN_TYPE_ERROR("+");
-    }
 }
 
 Nst_Obj *obj_sub(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 {
     if ( ob1->type == nst_t_vect )
     {
-        return rem_value_vector(ob1->value, ob2);
+        return rem_value_vector(AS_SEQ(ob1), ob2);
     }
     else if ( ob1->type == nst_t_map )
     {
-        Nst_Obj *res = map_drop(ob1->value, ob2);
+        Nst_Obj *res = map_drop(AS_MAP(ob1), ob2);
         if ( res == NULL )
         {
             err->name = TYPE_ERROR;
@@ -228,21 +200,13 @@ Nst_Obj *obj_sub(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
         return res;
     }
     else if ( ARE_TYPE(nst_t_int) )
-    {
-        return make_obj(
-            new_int(AS_INT(ob1) - AS_INT(ob2)),
-            nst_t_int, free
-        );
-    }
+        return new_int(AS_INT(ob1) - AS_INT(ob2));
     else if ( IS_NUMBER(ob1) && IS_NUMBER(ob2) )
     {
         ob1 = obj_cast(ob1, nst_t_real, err);
         ob2 = obj_cast(ob2, nst_t_real, err);
 
-        Nst_Obj *new_obj = make_obj(
-            new_real(AS_REAL(ob1) - AS_REAL(ob2)),
-            nst_t_real, free
-        );
+        Nst_Obj *new_obj = new_real(AS_REAL(ob1) - AS_REAL(ob2));
 
         dec_ref(ob1);
         dec_ref(ob2);
@@ -257,40 +221,26 @@ Nst_Obj *obj_mul(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 {
     if ( ob1->type == nst_t_vect && ob2->type == nst_t_int )
     {
-        register Nst_sequence *vect = ob1->value;
+        Nst_SeqObj *vect = AS_SEQ(ob1);
         size_t max_ob = vect->len;
 
         for ( Nst_int i = 0, n = AS_INT(ob2) - 1; i < n; i++ )
-        {
             for ( size_t j = 0; j < max_ob; j++ )
-            {
                 append_value_vector(vect, vect->objs[j]);
-            }
-        }
 
         if ( AS_INT(ob2) == 0 )
-        {
-            return make_obj(new_vector_empty(0), nst_t_vect, destroy_seq);
-        }
+            return new_vector(0);
 
         return inc_ref(ob1);
     }
     else if ( ARE_TYPE(nst_t_int) )
-    {
-        return make_obj(
-            new_int(AS_INT(ob1) * AS_INT(ob2)),
-            nst_t_int, free
-        );
-    }
+        return new_int(AS_INT(ob1) * AS_INT(ob2));
     else if ( IS_NUMBER(ob1) && IS_NUMBER(ob2) )
     {
         ob1 = obj_cast(ob1, nst_t_real, err);
         ob2 = obj_cast(ob2, nst_t_real, err);
 
-        Nst_Obj *new_obj = make_obj(
-            new_real(AS_REAL(ob1) * AS_REAL(ob2)),
-            nst_t_real, free
-        );
+        Nst_Obj *new_obj = new_real(AS_REAL(ob1) * AS_REAL(ob2));
 
         dec_ref(ob1);
         dec_ref(ob2);
@@ -304,9 +254,7 @@ Nst_Obj *obj_mul(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 Nst_Obj *obj_div(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 {
     if ( ob1->type == nst_t_vect && ob2->type == nst_t_int )
-    {
-        return pop_value_vector(ob1->value, (size_t)AS_INT(ob2));
-    }
+        return pop_value_vector(AS_SEQ(ob1), (size_t)AS_INT(ob2));
     else if ( ARE_TYPE(nst_t_int) )
     {
         if ( AS_INT(ob2) == 0 )
@@ -316,10 +264,7 @@ Nst_Obj *obj_div(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
             return NULL;
         }
 
-        return make_obj(
-            new_int(AS_INT(ob1) / AS_INT(ob2)),
-            nst_t_int, free
-        );
+        return new_int(AS_INT(ob1) / AS_INT(ob2));
     }
     else if ( IS_NUMBER(ob1) && IS_NUMBER(ob2) )
     {
@@ -333,10 +278,7 @@ Nst_Obj *obj_div(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
             return NULL;
         }
 
-        Nst_Obj *new_obj = make_obj(
-            new_real(AS_REAL(ob1) / AS_REAL(ob2)),
-            nst_t_real, free
-        );
+        Nst_Obj *new_obj = new_real(AS_REAL(ob1) / AS_REAL(ob2));
 
         dec_ref(ob1);
         dec_ref(ob2);
@@ -350,15 +292,9 @@ Nst_Obj *obj_div(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 Nst_Obj *obj_pow(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 {
     if ( ARE_TYPE(nst_t_int) )
-    {
-        return make_obj(
-            new_int((Nst_int)powl(
-                (Nst_real)AS_INT(ob1),
-                (Nst_real)AS_INT(ob2)
-            )),
-            nst_t_int, free
-        );
-    }
+        return new_int((Nst_int)powl(
+                       (Nst_real)AS_INT(ob1),
+                       (Nst_real)AS_INT(ob2)));
     else if ( IS_NUMBER(ob1) && IS_NUMBER(ob2) )
     {
         ob1 = obj_cast(ob1, nst_t_real, err);
@@ -378,10 +314,7 @@ Nst_Obj *obj_pow(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
             return NULL;
         }
 
-        return make_obj(
-            new_real((Nst_real)powl(v1, v2)),
-            nst_t_real, free
-        );
+        return new_real((Nst_real)powl(v1, v2));
     }
     else
         RETURN_TYPE_ERROR("^");
@@ -398,10 +331,7 @@ Nst_Obj *obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
             return NULL;
         }
 
-        return make_obj(
-            new_int(AS_INT(ob1) % AS_INT(ob2)),
-            nst_t_int, free
-        );
+        return new_int(AS_INT(ob1) % AS_INT(ob2));
     }
     else if ( IS_NUMBER(ob1) && IS_NUMBER(ob2) )
     {
@@ -415,10 +345,7 @@ Nst_Obj *obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
             return NULL;
         }
 
-        Nst_Obj *new_obj = make_obj(
-            new_real(fmodl(AS_REAL(ob1), AS_REAL(ob2))),
-            nst_t_real, free
-        );
+        Nst_Obj *new_obj = new_real(fmodl(AS_REAL(ob1), AS_REAL(ob2)));
 
         dec_ref(ob1);
         dec_ref(ob2);
@@ -433,12 +360,7 @@ Nst_Obj *obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 Nst_Obj *obj_bwor(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 {
     if ( ARE_TYPE(nst_t_int) )
-    {
-        return make_obj(
-            new_int(AS_INT(ob1) | AS_INT(ob2)),
-            nst_t_int, free
-        );
-    }
+        return new_int(AS_INT(ob1) | AS_INT(ob2));
     else
         RETURN_TYPE_ERROR("|");
 }
@@ -446,12 +368,7 @@ Nst_Obj *obj_bwor(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 Nst_Obj *obj_bwand(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 {
     if ( ARE_TYPE(nst_t_int) )
-    {
-        return make_obj(
-            new_int(AS_INT(ob1) & AS_INT(ob2)),
-            nst_t_int, free
-        );
-    }
+        return new_int(AS_INT(ob1) & AS_INT(ob2));
     else
         RETURN_TYPE_ERROR("&");
 }
@@ -459,12 +376,7 @@ Nst_Obj *obj_bwand(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 Nst_Obj *obj_bwxor(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 {
     if ( ARE_TYPE(nst_t_int) )
-    {
-        return make_obj(
-            new_int(AS_INT(ob1) ^ AS_INT(ob2)),
-            nst_t_int, free
-        );
-    }
+        return new_int(AS_INT(ob1) ^ AS_INT(ob2));
     else
         RETURN_TYPE_ERROR("^^");
 }
@@ -472,12 +384,7 @@ Nst_Obj *obj_bwxor(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 Nst_Obj *obj_bwls(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 {
     if ( ARE_TYPE(nst_t_int) )
-    {
-        return make_obj(
-            new_int(AS_INT(ob1) << AS_INT(ob2)),
-            nst_t_int, free
-        );
-    }
+        return new_int(AS_INT(ob1) << AS_INT(ob2));
     else
         RETURN_TYPE_ERROR("<<");
 }
@@ -485,12 +392,7 @@ Nst_Obj *obj_bwls(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 Nst_Obj *obj_bwrs(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 {
     if ( ARE_TYPE(nst_t_int) )
-    {
-        return make_obj(
-            new_int(AS_INT(ob1) >> AS_INT(ob2)),
-            nst_t_int, free
-        );
-    }
+        return new_int(AS_INT(ob1) >> AS_INT(ob2));
     else
         RETURN_TYPE_ERROR(">>");
 }
@@ -545,7 +447,7 @@ Nst_Obj *obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs)
     for ( LLNode *n = all_objs->head; n != NULL; n = n->next )
     {
         if ( seq_obj == n->value )
-            return new_str_obj(new_string("{.}", 3, false));
+            return new_string("{.}", 3, false);
     }
 
     LList_push(all_objs, seq_obj, false);
@@ -553,8 +455,7 @@ Nst_Obj *obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs)
 
     size_t len = AS_SEQ(seq_obj)->len;
     size_t str_len = 0;
-    Nst_Obj *val_obj = NULL;
-    Nst_string *val = NULL;
+    Nst_Obj *val = NULL;
 
     char *str = malloc(sizeof(char) * (is_vect ? 6 : 4));
     char *realloc_str = NULL;
@@ -576,44 +477,28 @@ Nst_Obj *obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs)
 
     for ( size_t i = 0; i < len; i++ )
     {
-        val_obj = AS_SEQ(seq_obj)->objs[i];
+        val = AS_SEQ(seq_obj)->objs[i];
 
-        if ( IS_SEQ(val_obj) )
-        {
-            val_obj = obj_str_cast_seq(val_obj, all_objs);
-            val = AS_STR(val_obj);
-        }
-        else if ( val_obj->type == nst_t_map )
-        {
-            val_obj = obj_str_cast_map(val_obj, all_objs);
-            val = AS_STR(val_obj);
-        }
-        else if ( val_obj->type == nst_t_str )
-        {
-            val = repr_string(AS_STR(val_obj));
-            val_obj = NULL;
-        }
+        if ( IS_SEQ(val) )
+            val = obj_str_cast_seq(val, all_objs);
+        else if ( val->type == nst_t_map )
+            val = obj_str_cast_map(val, all_objs);
+        else if ( val->type == nst_t_str )
+            val = repr_string(AS_STR(val));
         else
-        {
-            val_obj = obj_cast(val_obj, nst_t_str, NULL);
-            val = AS_STR(val_obj);
-        }
+            val = obj_cast(val, nst_t_str, NULL);
 
         realloc_str = realloc(
             str,
             str_len
-             + val->len
+             + AS_STR(val)->len
              + (is_vect && i == len - 1 ? 4 : 3)
         );
         CHECK_BUFFER(realloc_str);
         str = realloc_str;
-        memcpy(str + str_len, val->value, val->len);
-        str_len += val->len + (is_vect && i == len - 1 ? 3 : 2);
-        if ( val_obj != NULL )
-        {
-            dec_ref(val_obj);
-            val_obj = NULL;
-        }
+        memcpy(str + str_len, AS_STR(val)->value, AS_STR(val)->len);
+        str_len += AS_STR(val)->len + (is_vect && i == len - 1 ? 3 : 2);
+        dec_ref(val);
 
         if ( i == len - 1 )
             break;
@@ -641,7 +526,7 @@ Nst_Obj *obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs)
 
     LList_pop(all_objs);
 
-    return new_str_obj(new_string(str, str_len, true));
+    return new_string(str, str_len, true);
 }
 
 Nst_Obj *obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
@@ -649,16 +534,14 @@ Nst_Obj *obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
     for ( LLNode *n = all_objs->head; n != NULL; n = n->next )
     {
         if ( map_obj == n->value )
-            return new_str_obj(new_string("{.}", 3, false));
+            return new_string("{.}", 3, false);
     }
 
     LList_push(all_objs, map_obj, false);
 
     size_t str_len = 2;
-    Nst_Obj *key_obj = NULL;
-    Nst_string *key = NULL;
-    Nst_Obj *val_obj = NULL;
-    Nst_string *val = NULL;
+    Nst_Obj *key = NULL;
+    Nst_Obj *val = NULL;
 
     char *str = malloc(sizeof(char) * 4);
     char *realloc_str = NULL;
@@ -667,7 +550,7 @@ Nst_Obj *obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
     str[0] = '{';
     str[1] = ' ';
 
-    Nst_map *map = AS_MAP(map_obj);
+    Nst_MapObj *map = AS_MAP(map_obj);
     Nst_int idx = -1;
     size_t tot = map->item_count;
     size_t count = 0;
@@ -675,62 +558,35 @@ Nst_Obj *obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
     while ( count++ < tot )
     {
         idx = get_next_idx(idx, map);
-        key_obj = map->nodes[idx].key;
-        val_obj = map->nodes[idx].value;
+        key = map->nodes[idx].key;
+        val = map->nodes[idx].value;
 
         // Key cannot be a vector, an array or a map
-        if ( key_obj->type == nst_t_str )
-        {
-            key = repr_string(AS_STR(key_obj));
-            key_obj = NULL;
-        }
+        if ( key->type == nst_t_str )
+            key = repr_string(AS_STR(key));
         else
-        {
-            key_obj = obj_cast(key_obj, nst_t_str, NULL);
-            key = AS_STR(key_obj);
-        }
+            key = obj_cast(key, nst_t_str, NULL);
 
-        if ( IS_SEQ(val_obj) )
-        {
-            val_obj = obj_str_cast_seq(val_obj, all_objs);
-            val = AS_STR(val_obj);
-        }
-        else if ( val_obj->type == nst_t_map )
-        {
-            val_obj = obj_str_cast_map(val_obj, all_objs);
-            val = AS_STR(val_obj);
-        }
-        else if ( val_obj->type == nst_t_str )
-        {
-            val = repr_string(AS_STR(val_obj));
-            val_obj = NULL;
-        }
+        if ( IS_SEQ(val) )
+            val = obj_str_cast_seq(val, all_objs);
+        else if ( val->type == nst_t_map )
+            val = obj_str_cast_map(val, all_objs);
+        else if ( val->type == nst_t_str )
+            val = repr_string(AS_STR(val));
         else
-        {
-            val_obj = obj_cast(val_obj, nst_t_str, NULL);
-            val = AS_STR(val_obj);
-        }
+            val = obj_cast(val, nst_t_str, NULL);
 
-        realloc_str = realloc(str, str_len + key->len + val->len + 5);
+        realloc_str = realloc(str, str_len + AS_STR(key)->len + AS_STR(val)->len + 5);
         CHECK_BUFFER(realloc_str);
         str = realloc_str;
-        memcpy(str + str_len, key->value, key->len);
-        str_len += key->len + 2;
+        memcpy(str + str_len, AS_STR(key)->value, AS_STR(key)->len);
+        str_len += AS_STR(key)->len + 2;
         str[str_len - 2] = ':';
         str[str_len - 1] = ' ';
-        memcpy(str + str_len, val->value, val->len);
-        str_len += val->len + 2;
-
-        if ( key_obj != NULL )
-        {
-            dec_ref(key_obj);
-            key_obj = NULL;
-        }
-        if ( val_obj != NULL )
-        {
-            dec_ref(val_obj);
-            val_obj = NULL;
-        }
+        memcpy(str + str_len, AS_STR(val)->value, AS_STR(val)->len);
+        str_len += AS_STR(val)->len + 2;
+        dec_ref(key);
+        dec_ref(val);
 
         if ( count == tot )
             break;
@@ -746,13 +602,12 @@ Nst_Obj *obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
 
     LList_pop(all_objs);
 
-    return new_str_obj(new_string(str, str_len, true));
+    return new_string(str, str_len, true);
 }
 
 Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
 {
     register Nst_Obj *ob_t = ob->type;
-    register void *ob_val = ob->value;
 
     if ( ob_t == type )
         return inc_ref(ob);
@@ -763,53 +618,33 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
         {
             char *buffer = malloc(MAX_INT_CHAR_COUNT * sizeof(char));
             CHECK_BUFFER(buffer);
-            sprintf(buffer, "%lli", AS_INT_V(ob_val));
-            return make_obj(
-                new_string_raw(buffer, true),
-                nst_t_str, destroy_string
-            );
+            sprintf(buffer, "%lli", AS_INT(ob));
+            return new_string_raw(buffer, true);
         }
         else if ( ob_t == nst_t_real )
         {
             char *buffer = malloc(MAX_REAL_CHAR_COUNT * sizeof(char));
             CHECK_BUFFER(buffer);
-            sprintf(buffer, "%g", AS_REAL_V(ob_val));
-            return make_obj(
-                new_string_raw(buffer, true),
-                nst_t_str, destroy_string
-            );
+            sprintf(buffer, "%g", AS_REAL(ob));
+            return new_string_raw(buffer, true);
         }
         else if ( ob_t == nst_t_bool )
         {
-            if ( AS_BOOL_V(ob_val) == NST_TRUE )
-                return make_obj(
-                    new_string("true", 4, false),
-                    nst_t_str, destroy_string
-                );
+            if ( AS_BOOL(ob) == NST_TRUE )
+                return new_string("true", 4, false);
             else
-                return make_obj(
-                    new_string("false", 5, false),
-                    nst_t_str, destroy_string
-                );
+                return new_string("false", 5, false);
         }
         else if ( ob_t == nst_t_type )
-        {
-            return make_obj(
-                copy_string(ob_val),
-                nst_t_str, destroy_string
-            );
-        }
+            return copy_string(AS_STR(ob));
         else if ( ob_t == nst_t_byte )
         {
             char *str = calloc(2, sizeof(char));
             CHECK_BUFFER(str);
 
-            str[0] = AS_BYTE_V(ob_val);
+            str[0] = AS_BYTE(ob);
 
-            return make_obj(
-                new_string(str, 1, true),
-                nst_t_str, destroy_string
-            );
+            return new_string(str, 1, true);
 
         }
         else if ( ob_t == nst_t_arr || ob_t == nst_t_vect )
@@ -833,30 +668,27 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
 
             sprintf(buffer, "<%s object>", AS_STR(ob->type)->value);
 
-            return make_obj(
-                new_string_raw(buffer, true),
-                nst_t_str, destroy_string
-            );
+            return new_string_raw(buffer, true);
         }
     }
     else if ( type == nst_t_bool )
     {
         if ( ob_t == nst_t_int )
-            RETURN_COND(AS_INT_V(ob_val) != 0);
+            RETURN_COND(AS_INT(ob) != 0);
         else if ( ob_t == nst_t_real )
-            RETURN_COND(AS_REAL_V(ob_val) != 0.0);
+            RETURN_COND(AS_REAL(ob) != 0.0);
         else if ( ob_t == nst_t_str )
-            RETURN_COND(AS_STR_V(ob_val)->len != 0);
+            RETURN_COND(AS_STR(ob)->len != 0);
         else if ( ob_t == nst_t_map )
-            RETURN_COND(AS_MAP_V(ob_val)->item_count != 0);
+            RETURN_COND(AS_MAP(ob)->item_count != 0);
         else if ( ob_t == nst_t_arr || ob_t == nst_t_vect )
-            RETURN_COND(AS_SEQ_V(ob_val)->len != 0);
+            RETURN_COND(AS_SEQ(ob)->len != 0);
         else if ( ob_t == nst_t_null )
         {
             RETURN_FALSE;
         }
         else if ( ob_t == nst_t_byte )
-            RETURN_COND(AS_BYTE_V(ob_val) != 0);
+            RETURN_COND(AS_BYTE(ob) != 0);
         else
         {
             RETURN_TRUE;
@@ -865,53 +697,29 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
     else if ( type == nst_t_int )
     {
         if ( ob_t == nst_t_real )
-            return make_obj(
-                new_int((Nst_int)AS_REAL_V(ob_val)),
-                nst_t_int, free
-            );
+            return new_int((Nst_int)AS_REAL(ob));
         else if ( ob_t == nst_t_byte )
-            return make_obj(
-                new_int((Nst_int)AS_INT_V(ob_val)),
-                nst_t_int, free
-            );
+            return new_int((Nst_int)AS_BYTE(ob));
         else if ( ob_t == nst_t_str )
-        {
-            Nst_int *val = parse_int(AS_STR_V(ob_val)->value, err);
-            if ( val == NULL )
-                return NULL;
-            return make_obj_free(val, nst_t_int);
-        }
+            return parse_int(AS_STR(ob)->value, err);
         else
             RETURN_TYPE_ERROR("::");
     }
     else if ( type == nst_t_real )
     {
         if ( ob_t == nst_t_int )
-            return make_obj(
-                new_real((Nst_real)AS_INT_V(ob_val)),
-                nst_t_real, free
-            );
+            return new_real((Nst_real)AS_INT(ob));
         else if ( ob_t == nst_t_byte )
-            return make_obj(
-                new_real((Nst_real)AS_BYTE_V(ob_val)),
-                nst_t_real, free
-            );
+            return new_real((Nst_real)AS_BYTE(ob));
         else if ( ob_t == nst_t_str )
-        {
-            Nst_real *val = parse_real(AS_STR_V(ob_val)->value, err);
-            if ( val == NULL )
-                return NULL;
-            return make_obj_free(val, nst_t_real);
-        }
+            return parse_real(AS_STR(ob)->value, err);
         else
             RETURN_TYPE_ERROR("::");
     }
     else if ( type == nst_t_byte )
     {
         if ( ob_t == nst_t_int )
-        {
-            return new_byte_obj(AS_INT_V(ob_val) & 0xff);
-        }
+            return new_byte(AS_INT(ob) & 0xff);
         else
             RETURN_TYPE_ERROR("::");
     }
@@ -919,90 +727,59 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
     {
         if ( ob_t == nst_t_str )
         {
-            Nst_Obj *idx = make_obj(new_int(0), nst_t_int, free);
-            Nst_sequence *data_seq = new_array_empty(2);
-            set_value_seq(data_seq, 0, idx);
-            set_value_seq(data_seq, 1, ob);
-            Nst_Obj *data_obj = make_obj(data_seq, nst_t_arr, destroy_seq);
+            Nst_Obj *idx = new_int(0);
+            Nst_SeqObj *data = AS_SEQ(new_array(2));
+            set_value_seq(data, 0, idx);
+            set_value_seq(data, 1, ob);
             dec_ref(idx);
 
-            Nst_func *start_func   = new_cfunc(1, str_iter_start);
-            Nst_func *advance_func = new_cfunc(1, str_iter_advance);
-            Nst_func *is_done_func = new_cfunc(1, str_iter_is_done);
-            Nst_func *get_val_func = new_cfunc(1, str_iter_get_val);
-
-            Nst_Obj *start_obj   = make_obj(start_func,   nst_t_func, destroy_func);
-            Nst_Obj *advance_obj = make_obj(advance_func, nst_t_func, destroy_func);
-            Nst_Obj *is_done_obj = make_obj(is_done_func, nst_t_func, destroy_func);
-            Nst_Obj *get_val_obj = make_obj(get_val_func, nst_t_func, destroy_func);
-
-            Nst_iter *iter = new_iter(
-                start_obj,
-                advance_obj,
-                is_done_obj,
-                get_val_obj,
-                data_obj
+            return new_iter(
+                AS_FUNC(new_cfunc(1, str_iter_start)),
+                AS_FUNC(new_cfunc(1, str_iter_advance)),
+                AS_FUNC(new_cfunc(1, str_iter_is_done)),
+                AS_FUNC(new_cfunc(1, str_iter_get_val)),
+                (Nst_Obj *)data
             );
-
-            return make_obj(iter, nst_t_iter, destroy_iter);
         }
         else if ( ob_t == nst_t_arr || ob_t == nst_t_vect )
         {
-            Nst_Obj *idx = make_obj(new_int(0), nst_t_int, free);
-            Nst_sequence *data_seq = new_array_empty(2);
-            set_value_seq(data_seq, 0, idx);
-            set_value_seq(data_seq, 1, ob);
-            Nst_Obj *data_obj = make_obj(data_seq, nst_t_arr, destroy_seq);
+            Nst_Obj *idx = new_int(0);
+            Nst_SeqObj *data = AS_SEQ(new_array(2));
+            set_value_seq(data, 0, idx);
+            set_value_seq(data, 1, ob);
             dec_ref(idx);
 
-            Nst_func *start_func   = new_cfunc(1, seq_iter_start);
-            Nst_func *advance_func = new_cfunc(1, seq_iter_advance);
-            Nst_func *is_done_func = new_cfunc(1, seq_iter_is_done);
-            Nst_func *get_val_func = new_cfunc(1, seq_iter_get_val);
-
-            Nst_Obj *start_obj   = make_obj(start_func,   nst_t_func, destroy_func);
-            Nst_Obj *advance_obj = make_obj(advance_func, nst_t_func, destroy_func);
-            Nst_Obj *is_done_obj = make_obj(is_done_func, nst_t_func, destroy_func);
-            Nst_Obj *get_val_obj = make_obj(get_val_func, nst_t_func, destroy_func);
-
-            Nst_iter *iter = new_iter(
-                start_obj,
-                advance_obj,
-                is_done_obj,
-                get_val_obj,
-                data_obj
+            return new_iter(
+                AS_FUNC(new_cfunc(1, seq_iter_start)),
+                AS_FUNC(new_cfunc(1, seq_iter_advance)),
+                AS_FUNC(new_cfunc(1, seq_iter_is_done)),
+                AS_FUNC(new_cfunc(1, seq_iter_get_val)),
+                (Nst_Obj *)data
             );
-
-            return make_obj(iter, nst_t_iter, destroy_iter);
         }
         else if ( ob_t == nst_t_map )
         {
-            Nst_Obj *start_key   = make_obj(new_string("_start_",   7, false), nst_t_str, destroy_string);
-            Nst_Obj *advance_key = make_obj(new_string("_advance_", 9, false), nst_t_str, destroy_string);
-            Nst_Obj *is_done_key = make_obj(new_string("_is_done_", 9, false), nst_t_str, destroy_string);
-            Nst_Obj *get_val_key = make_obj(new_string("_get_val_", 9, false), nst_t_str, destroy_string);
+            Nst_Obj *start_obj   = map_get_str(AS_MAP(ob), "_start_");
+            Nst_Obj *advance_obj = map_get_str(AS_MAP(ob), "_advance_");
+            Nst_Obj *is_done_obj = map_get_str(AS_MAP(ob), "_is_done_");
+            Nst_Obj *get_val_obj = map_get_str(AS_MAP(ob), "_get_val_");
 
-            Nst_Obj *start_obj   = map_get(ob_val, start_key);
-            Nst_Obj *advance_obj = map_get(ob_val, advance_key);
-            Nst_Obj *is_done_obj = map_get(ob_val, is_done_key);
-            Nst_Obj *get_val_obj = map_get(ob_val, get_val_key);
+            if ( start_obj == NULL )
+                RETURN_MISSING_FUNC_ERROR("_start_");
+            if ( advance_obj == NULL )
+                RETURN_MISSING_FUNC_ERROR("_advance_");
+            if ( is_done_obj == NULL )
+                RETURN_MISSING_FUNC_ERROR("_is_done_");
+            if ( get_val_obj == NULL )
+                RETURN_MISSING_FUNC_ERROR("_get_val_");
 
-            dec_ref(start_key);
-            dec_ref(advance_key);
-            dec_ref(is_done_key);
-            dec_ref(get_val_key);
-
-            Nst_iter *iter = new_iter(
-                start_obj,
-                advance_obj,
-                is_done_obj,
-                get_val_obj,
-                ob
+            return new_iter(
+                AS_FUNC(start_obj),
+                AS_FUNC(advance_obj),
+                AS_FUNC(is_done_obj),
+                AS_FUNC(get_val_obj),
+                inc_ref(ob)
             );
-
-            inc_ref(ob);
-
-            return make_obj(iter, nst_t_iter, destroy_iter);
         }
         else
             RETURN_TYPE_ERROR("::");
@@ -1012,30 +789,31 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
         bool is_vect = type == nst_t_vect;
         if ( ob_t == nst_t_arr || ob_t == nst_t_vect )
         {
-            size_t seq_len = AS_SEQ_V(ob_val)->len;
-            Nst_sequence *seq = is_vect ? new_vector_empty(seq_len)
-                                        : new_array_empty(seq_len);
+            size_t seq_len = AS_SEQ(ob)->len;
+            Nst_SeqObj *seq = is_vect ? AS_SEQ(new_vector(seq_len))
+                                      : AS_SEQ(new_array(seq_len));
 
             for ( size_t i = 0; i < seq_len; i++ )
-                set_value_seq(seq, i, AS_SEQ_V(ob_val)->objs[i]);
+                set_value_seq(seq, i, AS_SEQ(ob)->objs[i]);
 
-            return is_vect ? new_vect_obj(seq) : new_arr_obj(seq);
+            return (Nst_Obj *)seq;
         }
         else if ( ob_t == nst_t_str )
         {
-            size_t str_len = AS_STR_V(ob_val)->len;
-            Nst_sequence *seq = is_vect ? new_vector_empty(str_len)
-                                        : new_array_empty(str_len);
+            size_t str_len = AS_STR(ob)->len;
+            Nst_SeqObj *seq = is_vect ? AS_SEQ(new_vector(str_len))
+                                      : AS_SEQ(new_array(str_len));
 
             for ( size_t i = 0; i < str_len; i++ )
             {
-                char *ch = calloc(2, sizeof(char));
+                char *ch = malloc(2 * sizeof(char));
                 CHECK_BUFFER(ch);
 
-                ch[0] = AS_STR_V(ob_val)->value[i];
-                seq->objs[i] = new_str_obj(new_string(ch, 1, true));
+                ch[0] = AS_STR(ob)->value[i];
+                ch[1] = 0;
+                seq->objs[i] = new_string(ch, 1, true);
             }
-            return is_vect ? new_vect_obj(seq) : new_arr_obj(seq);
+            return (Nst_Obj *)seq;
         }
         else
             RETURN_TYPE_ERROR("::");
@@ -1049,8 +827,8 @@ Nst_Obj *obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
     ob1 = obj_cast(ob1, nst_t_str, err);
     ob2 = obj_cast(ob2, nst_t_str, err);
 
-    Nst_string *nst_s1 = ob1->value;
-    Nst_string *nst_s2 = ob2->value;
+    Nst_StrObj *nst_s1 = AS_STR(ob1);
+    Nst_StrObj *nst_s2 = AS_STR(ob2);
 
     register char *s1 = nst_s1->value;
     register char *s2 = nst_s2->value;
@@ -1066,10 +844,7 @@ Nst_Obj *obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
     memcpy(buffer + len1, s2, len2);
     buffer[tot_len] = '\0';
 
-    Nst_Obj *new_obj = make_obj(
-        new_string(buffer, tot_len, true),
-        nst_t_str, destroy_string
-    );
+    Nst_Obj *new_obj = new_string(buffer, tot_len, true);
 
     dec_ref(ob1);
     dec_ref(ob2);
@@ -1081,9 +856,9 @@ Nst_Obj *obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 Nst_Obj *obj_neg(Nst_Obj *ob, OpErr *err)
 {
     if ( ob->type == nst_t_int )
-        return make_obj_free(new_int(-AS_INT(ob)), nst_t_int);
+        return new_int(-AS_INT(ob));
     else if ( ob->type == nst_t_real )
-        return make_obj_free(new_real(-AS_REAL(ob)), nst_t_real);
+        return new_real(-AS_REAL(ob));
     else
         RETURN_TYPE_ERROR("-");
 }
@@ -1091,20 +866,11 @@ Nst_Obj *obj_neg(Nst_Obj *ob, OpErr *err)
 Nst_Obj *obj_len(Nst_Obj *ob, OpErr *err)
 {
     if ( ob->type == nst_t_str )
-        return make_obj(
-            new_int(AS_STR(ob)->len),
-            nst_t_int, free
-        );
+        return new_int(AS_STR(ob)->len);
     else if ( ob->type == nst_t_map )
-        return make_obj(
-            new_int(AS_MAP(ob)->item_count),
-            nst_t_int, free
-        );
+        return new_int(AS_MAP(ob)->item_count);
     else if ( IS_SEQ(ob) )
-        return make_obj(
-            new_int(AS_SEQ(ob)->len),
-            nst_t_int, free
-        );
+        return new_int(AS_SEQ(ob)->len);
     else
         RETURN_TYPE_ERROR("$");
 }
@@ -1112,10 +878,7 @@ Nst_Obj *obj_len(Nst_Obj *ob, OpErr *err)
 Nst_Obj *obj_bwnot(Nst_Obj *ob, OpErr *err)
 {
     if ( ob->type == nst_t_int )
-        return make_obj(
-            new_int(~AS_INT(ob)),
-            nst_t_int, free
-        );
+        return new_int(~AS_INT(ob));
     else
         RETURN_TYPE_ERROR("~");
 }
@@ -1139,8 +902,7 @@ Nst_Obj *obj_lgnot(Nst_Obj *ob, OpErr *err)
 Nst_Obj *obj_stdout(Nst_Obj *ob, OpErr *err)
 {
     Nst_Obj *str = obj_cast(ob, nst_t_str, err);
-    Nst_string *text = AS_STR(str);
-    fwrite(text->value, sizeof(char), text->len, stdout);
+    fwrite(AS_STR(str)->value, sizeof(char), AS_STR(str)->len, stdout);
     fflush(stdout);
     dec_ref(str);
     return inc_ref(ob);
@@ -1149,8 +911,7 @@ Nst_Obj *obj_stdout(Nst_Obj *ob, OpErr *err)
 Nst_Obj *obj_stdin(Nst_Obj *ob, OpErr *err)
 {
     ob = obj_cast(ob, nst_t_str, err);
-    Nst_string *text = AS_STR(ob);
-    printf("%s", text->value);
+    printf("%s", AS_STR(ob)->value);
     fflush(stdout);
     dec_ref(ob);
 
@@ -1192,10 +953,7 @@ Nst_Obj *obj_stdin(Nst_Obj *ob, OpErr *err)
         return NULL;
     }
 
-    return make_obj(
-        new_string(new_buffer, i, true),
-        nst_t_str, destroy_string
-    );
+    return new_string(new_buffer, i, true);
 }
 
 Nst_Obj *obj_typeof(Nst_Obj *ob, OpErr *err)
@@ -1230,7 +988,7 @@ Nst_Obj *obj_import(Nst_Obj *ob, OpErr *err)
     bool file_path_allocated = false;
 
     // Checks if the file exists with the given path
-    Nst_iofile *file;
+    Nst_iofile file;
     if ( (file = fopen(file_path, "r")) == NULL )
     {
         // Tries to open it as a file of the standard library
@@ -1288,13 +1046,13 @@ Nst_Obj *obj_import(Nst_Obj *ob, OpErr *err)
         LibHandle *handle = (LibHandle *)(n->value);
         if ( strcmp(handle->path, file_path) == 0 )
         {
-            return make_obj(handle->val, nst_t_map, NULL);
+            return inc_ref(handle->val);
         }
     }
 
     if ( !c_import )
     {
-        Nst_map *map = run_module(file_path);
+        Nst_MapObj *map = run_module(file_path);
 
         if ( map == NULL )
         {
@@ -1314,7 +1072,7 @@ Nst_Obj *obj_import(Nst_Obj *ob, OpErr *err)
         handle->path = file_path;
 
         LList_append(state->lib_handles, handle, true);
-        return make_obj(map, nst_t_map, NULL);
+        return inc_ref(map);
     }
 
     HMODULE lib = LoadLibraryA(file_path);
@@ -1325,6 +1083,22 @@ Nst_Obj *obj_import(Nst_Obj *ob, OpErr *err)
         err->message = FILE_NOT_DLL;
         return NULL;
     }
+
+    void (*init_lib_obj)(OBJ_INIT_FARGS)
+        = (void (*)(OBJ_INIT_FARGS))GetProcAddress(lib, "init_lib_obj");
+
+    if ( init_lib_obj == NULL )
+    {
+        err->name = "Import Error";
+        err->message = "module does not import \"obj.h\"";
+        return NULL;
+    }
+
+    // Link the global variables
+    init_lib_obj(nst_t_type, nst_t_int, nst_t_real, nst_t_bool,
+        nst_t_null, nst_t_str, nst_t_arr, nst_t_vect,
+        nst_t_map, nst_t_func, nst_t_iter, nst_t_byte,
+        nst_t_file, nst_true, nst_false, nst_null, state);
 
     // Initialize library
     bool (*lib_init)() = (bool (*)())GetProcAddress(lib, "lib_init");
@@ -1360,7 +1134,7 @@ Nst_Obj *obj_import(Nst_Obj *ob, OpErr *err)
     }
 
     // Populate the function map
-    Nst_map *func_map = new_map();
+    Nst_MapObj *func_map = new_map();
 
     for ( size_t i = 0;; i++ )
     {
@@ -1368,28 +1142,10 @@ Nst_Obj *obj_import(Nst_Obj *ob, OpErr *err)
         if ( func.func_ptr == NULL )
             break;
 
-        Nst_Obj *func_obj = new_func_obj(new_cfunc(func.arg_num, func.func_ptr));
+        Nst_Obj *func_obj = new_cfunc(func.arg_num, func.func_ptr);
 
-        map_set(func_map, make_obj(func.name, nst_t_str, NULL), func_obj);
+        map_set(func_map, (Nst_Obj *)func.name, func_obj);
     }
-
-    FARPROC a = GetProcAddress(lib, "init_lib_obj");
-
-    void (*init_lib_obj)(OBJ_INIT_FARGS)
-        = (void (*)(OBJ_INIT_FARGS))GetProcAddress(lib, "init_lib_obj");
-
-    if ( init_lib_obj == NULL )
-    {
-        err->name = "Import Error";
-        err->message = "module does not import \"obj.h\"";
-        return NULL;
-    }
-
-    // Link the global variables
-    init_lib_obj(nst_t_type, nst_t_int,  nst_t_real, nst_t_bool,
-                 nst_t_null, nst_t_str,  nst_t_arr,  nst_t_vect,
-                 nst_t_map,  nst_t_func, nst_t_iter, nst_t_byte,
-                 nst_t_file, nst_true,   nst_false,  nst_null, state);
 
     LList_append(state->loaded_libs, lib, false);
 
@@ -1406,5 +1162,5 @@ Nst_Obj *obj_import(Nst_Obj *ob, OpErr *err)
 
     LList_append(state->lib_handles, handle, true);
 
-    return make_obj(func_map, nst_t_map, NULL);
+    return inc_ref(func_map);
 }

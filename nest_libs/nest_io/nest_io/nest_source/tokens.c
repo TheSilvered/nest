@@ -62,12 +62,7 @@ void destroy_token(Token *token)
         return;
 
     if ( token->value != NULL )
-    {
-        if ( token->type == STRING || token->type == IDENT )
-            destroy_string(token->value);
-        else
-            free(token->value);
-    }
+        dec_ref(token->value);
     free(token);
 }
 
@@ -291,11 +286,11 @@ void print_token(Token *token)
     printf(" - ");
 
     if ( token->type == N_INT )
-        printf("%lli, ", AS_INT(((Nst_Obj *)token->value)));
+        printf("%lli, ", AS_INT(token->value));
     else if ( token->type == N_REAL )
-        printf("%g, ", AS_REAL(((Nst_Obj *)token->value)));
+        printf("%g, ", AS_REAL(token->value));
     else if ( token->type == STRING || token->type == IDENT )
-        printf("%s, ", repr_string(AS_STR(((Nst_Obj *)token->value)))->value);
+        printf("%s, ", AS_STR(repr_string(AS_STR(token->value)))->value);
 
     printf("%zi:%zi, %zi:%zi)",
         token->start.line,

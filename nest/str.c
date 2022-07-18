@@ -25,36 +25,43 @@
     return NULL; \
     } while (0)
 
-Nst_Obj *new_str_obj(Nst_string *str)
+Nst_Obj *new_string_raw(const char *val, bool allocated)
 {
-    return make_obj(str, nst_t_str, destroy_string);
-}
-
-Nst_string *new_string_raw(const char *val, bool allocated)
-{
-    Nst_string *str = malloc(sizeof(Nst_string));
+    Nst_StrObj *str = AS_STR(alloc_obj(sizeof(Nst_StrObj), nst_t_str, destroy_string));
     if ( str == NULL ) return NULL;
 
     str->allocated = allocated;
     str->len = strlen(val);
     str->value = (char *)val;
 
-    return str;
+    return (Nst_Obj *)str;
 }
 
-Nst_string *new_string(char *val, size_t len, bool allocated)
+Nst_Obj *new_string(char *val, size_t len, bool allocated)
 {
-    Nst_string *str = malloc(sizeof(Nst_string));
+    Nst_StrObj *str = AS_STR(alloc_obj(sizeof(Nst_StrObj), nst_t_str, destroy_string));
     if ( str == NULL ) return NULL;
 
     str->allocated = allocated;
     str->len = len;
     str->value = val;
 
-    return str;
+    return (Nst_Obj *)str;
 }
 
-Nst_string *copy_string(Nst_string *src)
+Nst_Obj *new_type_obj(const char *val, size_t len)
+{
+    Nst_StrObj *str = AS_STR(alloc_obj(sizeof(Nst_StrObj), nst_t_type, destroy_string));
+    if ( str == NULL ) return NULL;
+
+    str->allocated = false;
+    str->len = len;
+    str->value = (char *)val;
+
+    return (Nst_Obj *)str;
+}
+
+Nst_Obj *copy_string(Nst_StrObj *src)
 {
     char *buffer = malloc(sizeof(char) * (src->len + 1));
     if ( buffer == NULL )
@@ -68,7 +75,7 @@ Nst_string *copy_string(Nst_string *src)
     return new_string(buffer, src->len, true);
 }
 
-Nst_string *repr_string(Nst_string *src)
+Nst_Obj *repr_string(Nst_StrObj *src)
 {
     char *orig = src->value;
     size_t new_size = 2;
@@ -157,15 +164,14 @@ Nst_string *repr_string(Nst_string *src)
     return new_string(new_str, new_size, true);
 }
 
-void destroy_string(Nst_string *str)
+void destroy_string(Nst_StrObj *str)
 {
     if ( str == NULL ) return;
     if ( str->allocated )
         free(str->value);
-    free(str);
 }
 
-Nst_int *parse_int(char *str, OpErr *err)
+Nst_Obj *parse_int(char *str, OpErr *err)
 {
     register char *s = str;
     register Nst_int num = 0;
@@ -208,7 +214,7 @@ Nst_int *parse_int(char *str, OpErr *err)
     return new_int(num * sign);
 }
 
-Nst_real *parse_real(char *str, OpErr *err)
+Nst_Obj *parse_real(char *str, OpErr *err)
 {
     register char *s = str;
     register Nst_real num = 0;

@@ -727,7 +727,7 @@ static Node *parse_stack_op(Node *value)
         if ( p_state.error != NULL ) return NULL;
         is_local_stack_op = true;
     }
-    else if ( new_nodes->size == 1 )
+    else if ( new_nodes->size == 1 && value == NULL )
     {
         node = LList_pop(new_nodes);
     }

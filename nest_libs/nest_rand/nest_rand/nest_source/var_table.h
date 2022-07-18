@@ -11,12 +11,12 @@ extern "C" {
 
 typedef struct VarTable
 {
-    Nst_map *vars;
+    Nst_MapObj *vars;
     struct VarTable *global_table;
 }
 VarTable;
 
-VarTable *new_var_table(VarTable *global_table, Nst_string *cwd, Nst_sequence *args);
+VarTable *new_var_table(VarTable *global_table, Nst_StrObj *cwd, Nst_SeqObj *args);
 Nst_Obj *get_val(VarTable *vt, Nst_Obj *name);
 void set_val(VarTable *vt, Nst_Obj *name, Nst_Obj *val);
 #ifdef __cplusplus

@@ -2,24 +2,19 @@
 #include "var_table.h"
 #include "nst_types.h"
 
-VarTable *new_var_table(VarTable *global_table, Nst_string *cwd, Nst_sequence *args)
+VarTable *new_var_table(VarTable *global_table, Nst_StrObj *cwd, Nst_SeqObj *args)
 {
     VarTable *vt = malloc(sizeof(VarTable));
     if ( vt == NULL ) return NULL;
 
     vt->global_table = global_table;
-    Nst_map *vars = new_map();
+    Nst_MapObj *vars = AS_MAP(new_map());
     vt->vars = vars;
 
-    Nst_Obj *vars_obj = make_obj(vt->vars, nst_t_map, NULL);
-    map_set_str(vars, "_vars_", vars_obj);
-    dec_ref(vars_obj);
+    map_set_str(vars, "_vars_", (Nst_Obj *)vars);
 
     if ( global_table != NULL )
         return vt;
-
-    Nst_Obj *cwd_obj = new_str_obj(cwd);
-    Nst_Obj *args_obj = new_arr_obj(args);
 
     map_set_str(vars, "Type",   nst_t_type);
     map_set_str(vars, "Int",    nst_t_int );
@@ -39,11 +34,10 @@ VarTable *new_var_table(VarTable *global_table, Nst_string *cwd, Nst_sequence *a
     map_set_str(vars, "false", nst_false);
     map_set_str(vars, "null", nst_null);
 
-    map_set_str(vars, "_cwd_", cwd_obj);
-    map_set_str(vars, "_args_", args_obj);
+    map_set_str(vars, "_cwd_", (Nst_Obj *)cwd);
+    map_set_str(vars, "_args_", (Nst_Obj *)args);
 
-    dec_ref(cwd_obj);
-    dec_ref(args_obj);
+    dec_ref(args);
 
     return vt;
 }

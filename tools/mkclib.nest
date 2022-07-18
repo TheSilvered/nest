@@ -60,10 +60,7 @@
     (location'\\nest_source' >< = srcdir) @fs.mkdir
 
     ... Iter :: nest_source_files ~= file_name [
-        ('..\\nest\\'file_name >< 'r' @io.open = src_f) -1 @io.read = content
-        src_f @io.close
-        (srcdir'\\'file_name >< 'w' @io.open = dst_f) content @io.write
-        dst_f @io.close
+        ('..\\nest\\'file_name ><) (srcdir'\\'file_name ><) fs.CPO.none @fs.copy
     ]
 
     operation 'update' == ? => 0

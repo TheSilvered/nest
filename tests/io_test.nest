@@ -1,6 +1,6 @@
 |#| 'stdio.nest' = io
 |#| 'stdsutil.nest' = su
->>> io
+
 #println s [ >>> (s '\n' ><) ]
 
 { Byte :: 72, Byte :: 105 } = bytes -- Hi

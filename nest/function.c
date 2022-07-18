@@ -2,14 +2,9 @@
 #include <stdlib.h>
 #include "function.h"
 
-Nst_Obj *new_func_obj(Nst_func *func)
+Nst_Obj *new_func(size_t arg_num)
 {
-    return make_obj(func, nst_t_func, destroy_func);
-}
-
-Nst_func *new_func(size_t arg_num)
-{
-    Nst_func *func = malloc(sizeof(Nst_func));
+    Nst_FuncObj *func = AS_FUNC(alloc_obj(sizeof(Nst_FuncObj), nst_t_func, destroy_func));
     Nst_Obj **args = malloc(sizeof(Nst_Obj *) * arg_num);
     if ( func == NULL || args == NULL )
     {
@@ -22,12 +17,12 @@ Nst_func *new_func(size_t arg_num)
     func->args = args;
     func->arg_num = arg_num;
 
-    return func;
+    return (Nst_Obj *)func;
 }
 
-Nst_func *new_cfunc(size_t arg_num, Nst_Obj *(*cbody)(size_t arg_num, Nst_Obj **args, OpErr *err))
+Nst_Obj *new_cfunc(size_t arg_num, Nst_Obj *(*cbody)(size_t arg_num, Nst_Obj **args, OpErr *err))
 {
-    Nst_func *func = malloc(sizeof(Nst_func));
+    Nst_FuncObj *func = AS_FUNC(alloc_obj(sizeof(Nst_FuncObj), nst_t_func, destroy_func));
     Nst_Obj **args = NULL;
     if ( func == NULL )
     {
@@ -40,12 +35,11 @@ Nst_func *new_cfunc(size_t arg_num, Nst_Obj *(*cbody)(size_t arg_num, Nst_Obj **
     func->args = args;
     func->arg_num = arg_num;
 
-    return func;
+    return (Nst_Obj *)func;
 }
 
-void destroy_func(Nst_func *func)
+void destroy_func(Nst_FuncObj *func)
 {
     if ( func->args != NULL )
         free(func->args);
-    free(func);
 }

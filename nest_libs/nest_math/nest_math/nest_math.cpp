@@ -61,7 +61,7 @@ Nst_Obj *floor_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
-    return new_int_obj((Nst_int)n);
+    return new_int((Nst_int)n);
 }
 
 Nst_Obj *ceil_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -71,7 +71,7 @@ Nst_Obj *ceil_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
-    return new_int_obj((Nst_int)ceil(n));
+    return new_int((Nst_int)ceil(n));
 }
 
 Nst_Obj *round_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -81,7 +81,7 @@ Nst_Obj *round_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
-    return new_int_obj((Nst_int)round(n));
+    return new_int((Nst_int)round(n));
 }
 
 Nst_Obj *exp_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -91,7 +91,7 @@ Nst_Obj *exp_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
-    return new_real_obj(exp(n));
+    return new_real(exp(n));
 }
 
 Nst_Obj *log_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -101,7 +101,7 @@ Nst_Obj *log_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
-    return new_real_obj(log(n));
+    return new_real(log(n));
 }
 
 Nst_Obj *logn_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -112,7 +112,7 @@ Nst_Obj *logn_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("NN", arg_num, args, err, &n, &base) )
         return nullptr;
 
-    return new_real_obj(log(n) / log(base));
+    return new_real(log(n) / log(base));
 }
 
 Nst_Obj *log2_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -122,7 +122,7 @@ Nst_Obj *log2_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
-    return new_real_obj(log2(n));
+    return new_real(log2(n));
 }
 
 Nst_Obj *log10_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -132,7 +132,7 @@ Nst_Obj *log10_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
-    return new_real_obj(log10(n));
+    return new_real(log10(n));
 }
 
 Nst_Obj *divmod_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -143,11 +143,11 @@ Nst_Obj *divmod_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("ii", arg_num, args, err, &x, &y) )
         return nullptr;
 
-    Nst_sequence *res = new_array_empty(2);
-    res->objs[0] = new_int_obj(x / y);
-    res->objs[1] = new_int_obj(x % y);
+    Nst_SeqObj *res = AS_SEQ(new_array(2));
+    res->objs[0] = new_int(x / y);
+    res->objs[1] = new_int(x % y);
 
-    return new_arr_obj(res);
+    return (Nst_Obj *)res;
 }
 
 Nst_Obj *sin_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -157,7 +157,7 @@ Nst_Obj *sin_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
-    return new_real_obj(sin(n));
+    return new_real(sin(n));
 }
 
 Nst_Obj *cos_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -167,7 +167,7 @@ Nst_Obj *cos_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
-    return new_real_obj(cos(n));
+    return new_real(cos(n));
 }
 
 Nst_Obj *tan_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -177,7 +177,7 @@ Nst_Obj *tan_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
-    return new_real_obj(tan(n));
+    return new_real(tan(n));
 }
 
 Nst_Obj *asin_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -187,7 +187,7 @@ Nst_Obj *asin_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
-    return new_real_obj(asin(n));
+    return new_real(asin(n));
 }
 
 Nst_Obj *acos_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -197,7 +197,7 @@ Nst_Obj *acos_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
-    return new_real_obj(acos(n));
+    return new_real(acos(n));
 }
 
 Nst_Obj *atan_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -207,7 +207,7 @@ Nst_Obj *atan_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
-    return new_real_obj(atan(n));
+    return new_real(atan(n));
 }
 
 Nst_Obj *atan2_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -218,7 +218,7 @@ Nst_Obj *atan2_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("NN", arg_num, args, err, &y, &x) )
         return nullptr;
 
-    return new_real_obj(atan2(y, x));
+    return new_real(atan2(y, x));
 }
 
 Nst_Obj *sinh_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -228,7 +228,7 @@ Nst_Obj *sinh_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
-    return new_real_obj(sinh(n));
+    return new_real(sinh(n));
 }
 
 Nst_Obj *cosh_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -238,7 +238,7 @@ Nst_Obj *cosh_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
-    return new_real_obj(cosh(n));
+    return new_real(cosh(n));
 }
 
 Nst_Obj *tanh_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -248,7 +248,7 @@ Nst_Obj *tanh_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
-    return new_real_obj(tanh(n));
+    return new_real(tanh(n));
 }
 
 Nst_Obj *asinh_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -258,7 +258,7 @@ Nst_Obj *asinh_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
-    return new_real_obj(asinh(n));
+    return new_real(asinh(n));
 }
 
 Nst_Obj *acosh_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -268,7 +268,7 @@ Nst_Obj *acosh_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
-    return new_real_obj(acosh(n));
+    return new_real(acosh(n));
 }
 
 Nst_Obj *atanh_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -278,13 +278,13 @@ Nst_Obj *atanh_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
 
-    return new_real_obj(atanh(n));
+    return new_real(atanh(n));
 }
 
 Nst_Obj *dist_2d_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_sequence *p1;
-    Nst_sequence *p2;
+    Nst_SeqObj *p1;
+    Nst_SeqObj *p2;
 
     if ( !extract_arg_values("AA", arg_num, args, err, &p1, &p2) )
         return nullptr;
@@ -323,13 +323,13 @@ Nst_Obj *dist_2d_(size_t arg_num, Nst_Obj **args, OpErr *err)
 
     // sqrt((x1 - x2)^2 + (y1 - y2)^2)
     Nst_real c2 = (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2);
-    return new_real_obj(sqrt(c2));
+    return new_real(sqrt(c2));
 }
 
 Nst_Obj *dist_3d_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_sequence *p1;
-    Nst_sequence *p2;
+    Nst_SeqObj *p1;
+    Nst_SeqObj *p2;
 
     if ( !extract_arg_values("AA", arg_num, args, err, &p1, &p2) )
         return nullptr;
@@ -381,13 +381,13 @@ Nst_Obj *dist_3d_(size_t arg_num, Nst_Obj **args, OpErr *err)
 
     // sqrt((x1 - x2)^2 + (y1 - y2)^2 + (z1 - z2)^2)
     Nst_real d2 = (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2) + (z1 - z2)*(z1 - z2);
-    return new_real_obj(sqrt(d2));
+    return new_real(sqrt(d2));
 }
 
 Nst_Obj *dist_nd_(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_sequence *p1;
-    Nst_sequence *p2;
+    Nst_SeqObj *p1;
+    Nst_SeqObj *p2;
 
     if ( !extract_arg_values("AA", arg_num, args, err, &p1, &p2) )
         return nullptr;
@@ -424,7 +424,7 @@ Nst_Obj *dist_nd_(size_t arg_num, Nst_Obj **args, OpErr *err)
         tot += (t1 - t2) * (t1 - t2);
     }
 
-    return new_real_obj(sqrt(tot));
+    return new_real(sqrt(tot));
 }
 
 Nst_Obj *deg_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -434,7 +434,7 @@ Nst_Obj *deg_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
     // 57.29577951308232 = 180 / PI
-    return new_real_obj(n * 57.29577951308232);
+    return new_real(n * 57.29577951308232);
 }
 
 Nst_Obj *rad_(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -444,5 +444,5 @@ Nst_Obj *rad_(size_t arg_num, Nst_Obj **args, OpErr *err)
     if ( !extract_arg_values("N", arg_num, args, err, &n) )
         return nullptr;
     // 0.017453292519943295 = PI / 180
-    return new_real_obj(n * 0.017453292519943295);
+    return new_real(n * 0.017453292519943295);
 }

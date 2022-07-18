@@ -1,54 +1,48 @@
 #include <stdlib.h>
+#include <stdio.h>
 #include "simple_types.h"
 
-Nst_int *new_int(Nst_int value)
+#define NEW_SYMPLE_TYPE(type, type_obj) \
+    type *obj = (type *)alloc_obj(sizeof(type), type_obj, NULL); \
+    if ( obj == NULL ) return NULL; \
+    obj->value = value; \
+    return (Nst_Obj *)obj
+
+Nst_Obj *new_int(Nst_int value)
 {
-    Nst_int *num = malloc(sizeof(Nst_int));
-    if ( num == NULL ) return NULL;
-    *num = value;
-    return num;
+    NEW_SYMPLE_TYPE(Nst_IntObj, nst_t_int);
 }
 
-Nst_real *new_real(Nst_real value)
+Nst_Obj *new_real(Nst_real value)
 {
-    Nst_real *num = malloc(sizeof(Nst_real));
-    if ( num == NULL ) return NULL;
-    *num = value;
-    return num;
+    NEW_SYMPLE_TYPE(Nst_RealObj, nst_t_real);
 }
 
-Nst_bool *new_bool(Nst_bool value)
+Nst_Obj *new_byte(Nst_byte value)
 {
-    Nst_bool *num = malloc(sizeof(Nst_bool));
-    if ( num == NULL ) return NULL;
-    *num = value;
-    return num;
+    NEW_SYMPLE_TYPE(Nst_ByteObj, nst_t_byte);
 }
 
-Nst_byte *new_byte(Nst_byte value)
+Nst_Obj *new_bool(Nst_bool value)
 {
-    Nst_byte *num = malloc(sizeof(Nst_byte));
-    if ( num == NULL ) return NULL;
-    *num = value;
-    return num;
+    NEW_SYMPLE_TYPE(Nst_BoolObj, nst_t_bool);
 }
 
-Nst_Obj *new_int_obj(Nst_int value)
+Nst_Obj *new_file(Nst_iofile value, bool bin, bool read, bool write)
 {
-    return make_obj_free(new_int(value), nst_t_int);
+    Nst_IOFileObj *obj = AS_FILE(alloc_obj(sizeof(Nst_IOFileObj), nst_t_file, destroy_iofile));
+    if ( obj == NULL ) return NULL;
+    obj->value = value;
+    obj->is_closed = false;
+    obj->is_bin = false;
+    obj->is_bin = bin;
+    obj->can_read = read;
+    obj->can_write = write;
+    return (Nst_Obj *)obj;
 }
 
-Nst_Obj *new_real_obj(Nst_real value)
+void destroy_iofile(Nst_IOFileObj *obj)
 {
-    return make_obj_free(new_real(value), nst_t_real);
-}
-
-Nst_Obj *new_byte_obj(Nst_byte value)
-{
-    return make_obj_free(new_byte(value), nst_t_byte);
-}
-
-Nst_Obj *new_file_obj(Nst_iofile *file)
-{
-    return make_obj_free(file, nst_t_file);
+    if ( !obj->is_closed )
+        fclose(obj->value);
 }

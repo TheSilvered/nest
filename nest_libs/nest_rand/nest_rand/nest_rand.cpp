@@ -46,7 +46,7 @@ FuncDeclr *get_func_ptrs()
 
 Nst_Obj *random(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    return new_int_obj(rand());
+    return new_int(rand());
 }
 
 Nst_Obj *rand_int(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -63,12 +63,12 @@ Nst_Obj *rand_int(size_t arg_num, Nst_Obj **args, OpErr *err)
         return nullptr;
     }
 
-    return new_int_obj(rand_range(min, max));
+    return new_int(rand_range(min, max));
 }
 
 Nst_Obj *rand_perc(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    return new_real_obj(double(rand()) / double(RAND_MAX));
+    return new_real(double(rand()) / double(RAND_MAX));
 }
 
 Nst_Obj *choice(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -85,7 +85,7 @@ Nst_Obj *choice(size_t arg_num, Nst_Obj **args, OpErr *err)
 
 Nst_Obj *shuffle(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_sequence *seq;
+    Nst_SeqObj *seq;
 
     if ( !extract_arg_values("A", arg_num, args, err, &seq) )
         return nullptr;
@@ -101,7 +101,7 @@ Nst_Obj *shuffle(size_t arg_num, Nst_Obj **args, OpErr *err)
         seq->objs[idx] = obj;
     }
 
-    return inc_ref(nst_null);
+    RETURN_NULL;
 }
 
 Nst_Obj *rand_seed(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -118,5 +118,5 @@ Nst_Obj *rand_seed(size_t arg_num, Nst_Obj **args, OpErr *err)
 
 Nst_Obj *_get_rand_max(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    return new_int_obj(RAND_MAX);
+    return new_int(RAND_MAX);
 }

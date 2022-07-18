@@ -23,7 +23,7 @@ Nst_Obj *count_is_done(size_t arg_num, Nst_Obj **args, OpErr *err)
 Nst_Obj *count_get_val(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_Obj **objs = AS_SEQ(args[0])->objs;
-    return new_int_obj(AS_INT(objs[0]));
+    return new_int(AS_INT(objs[0]));
 }
 
 // --------------------------------- Cycle ---------------------------------- //
@@ -99,7 +99,7 @@ Nst_Obj *chain_advance(size_t arg_num, Nst_Obj **args, OpErr *err)
     Nst_Obj **objs = AS_SEQ(args[0])->objs;
     AS_INT(objs[1]) += 1;
     Nst_int idx = AS_INT(objs[0]);
-    Nst_sequence *seq = AS_SEQ(objs[2]);
+    Nst_SeqObj *seq = AS_SEQ(objs[2]);
 
     if ( AS_INT(objs[1]) >= (Nst_int)AS_SEQ(seq->objs[idx])->len )
     {
@@ -113,7 +113,7 @@ Nst_Obj *chain_is_done(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_Obj **objs = AS_SEQ(args[0])->objs;
     Nst_int idx = AS_INT(objs[0]);
-    Nst_sequence *seq = AS_SEQ(objs[2]);
+    Nst_SeqObj *seq = AS_SEQ(objs[2]);
     Nst_Obj *sub_seq = seq->objs[idx];
 
     if ( idx >= (Nst_int)seq->len )
@@ -125,7 +125,7 @@ Nst_Obj *chain_is_done(size_t arg_num, Nst_Obj **args, OpErr *err)
 Nst_Obj *chain_get_val(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_Obj **objs = AS_SEQ(args[0])->objs;
-    Nst_sequence *seq = AS_SEQ(objs[2]);
+    Nst_SeqObj *seq = AS_SEQ(objs[2]);
     Nst_int idx1 = AS_INT(objs[0]);
     Nst_int idx2 = AS_INT(objs[1]);
     Nst_Obj *sub_seq = seq->objs[idx1];
@@ -172,11 +172,11 @@ Nst_Obj *zip_get_val(size_t arg_num, Nst_Obj **args, OpErr *err)
     Nst_Obj **objs = AS_SEQ(args[0])->objs;
     Nst_int idx = AS_INT(objs[0]);
 
-    Nst_sequence *arr = new_array_empty(2);
+    Nst_SeqObj *arr = AS_SEQ(new_array(2));
     set_value_seq(arr, 0, AS_SEQ(objs[1])->objs[idx]);
     set_value_seq(arr, 1, AS_SEQ(objs[2])->objs[idx]);
 
-    return new_arr_obj(arr);
+    return (Nst_Obj *)arr;
 }
 
 // ------------------------------- Enumerate -------------------------------- //
@@ -205,13 +205,13 @@ Nst_Obj *enumerate_is_done(size_t arg_num, Nst_Obj **args, OpErr *err)
 Nst_Obj *enumerate_get_val(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     Nst_Obj **objs = AS_SEQ(args[0])->objs;
-    Nst_sequence *arr = new_array_empty(2);
+    Nst_SeqObj *arr = AS_SEQ(new_array(2));
     Nst_int idx = AS_INT(objs[0]);
 
-    arr->objs[0] = new_int_obj(idx);
+    arr->objs[0] = new_int(idx);
     set_value_seq(arr, 1, AS_SEQ(objs[1])->objs[idx]);
 
-    return new_arr_obj(arr);
+    return (Nst_Obj *)arr;
 }
 
 // -------------------------- Keys, values, items --------------------------- //
@@ -258,11 +258,11 @@ Nst_Obj *items_get_val(size_t arg_num, Nst_Obj **args, OpErr *err)
     Nst_Obj **objs = AS_SEQ(args[0])->objs;
     MapNode node = AS_MAP(objs[1])->nodes[AS_INT(objs[0])];
 
-    Nst_sequence *arr = new_array_empty(2);
+    Nst_SeqObj *arr = AS_SEQ(new_array(2));
     set_value_seq(arr, 0, node.key);
     set_value_seq(arr, 1, node.value);
 
-    return new_arr_obj(arr);
+    return (Nst_Obj *)arr;
 }
 
 // -------------------------------- Reversed -------------------------------- //

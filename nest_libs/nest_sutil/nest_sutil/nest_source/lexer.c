@@ -356,29 +356,20 @@ static void make_num_literal(Token **tok, Nst_Error **err)
     {
         go_back();
         Pos end = copy_pos(cursor.pos);
-        Nst_int *value = malloc(sizeof(Nst_int));
-
-        if ( value == NULL )
-        {
-            free(ltrl);
-            errno = ENOMEM;
-            return;
-        }
 
         // Don't really need str_end but it's required by the function
         char **str_end = NULL;
-        *value = strtoll(ltrl, str_end, 10);
+        Nst_int value = strtoll(ltrl, str_end, 10);
 
         if ( errno == ERANGE )
         {
             free(ltrl);
-            free(value);
             SET_ERROR(SET_SYNTAX_ERROR_INT, start, end, INT_TOO_BIG, *err, );
             return;
         }
 
-        if ( is_negative ) *value *= -1;
-        *tok = new_token_value(start, end, N_INT, make_obj_free(value, nst_t_int));
+        if ( is_negative ) value *= -1;
+        *tok = new_token_value(start, end, N_INT, new_int(value));
         return;
     }
 
@@ -416,29 +407,19 @@ static void make_num_literal(Token **tok, Nst_Error **err)
     ltrl = strcat(ltrl, fract_part);
     free(fract_part);
 
-    // Evaluate the value
-    Nst_real *value = malloc(sizeof(Nst_real));
-    if ( value == NULL )
-    {
-        free(ltrl);
-        errno = ENOMEM;
-        return;
-    }
-
     // Don't really need str_end but it's required by the function
-    char **str_end = NULL;
-    *value = strtod(ltrl, str_end);
+    char *str_end = NULL;
+    Nst_real value = strtod(ltrl, &str_end);
 
     if ( errno == ERANGE )
     {
         free(ltrl);
-        free(value);
         SET_ERROR(SET_MEMORY_ERROR_INT, start, end, REAL_TOO_BIG, *err, );
         return;
     }
 
-    if ( is_negative ) *value *= -1;
-    *tok = new_token_value(start, end, N_REAL, make_obj_free(value, nst_t_real));
+    if ( is_negative ) value *= -1;
+    *tok = new_token_value(start, end, N_REAL, new_real(value));
     free(ltrl);
     return;
 }
@@ -449,19 +430,8 @@ static void make_ident(Token **tok, Nst_Error **err)
     char *str = add_while_in(LETTER_CHARS DIGIT_CHARS);
     Pos end = copy_pos(cursor.pos);
 
-    Nst_string *value = malloc(sizeof(Nst_string));
-    if ( value == NULL )
-    {
-        free(str);
-        errno = ENOMEM;
-        return;
-    }
-
-    value->value = str;
-    value->len = strlen(str);
-
-    Nst_Obj *val_obj = new_str_obj(value);
-    hash_obj(val_obj);
+    Nst_StrObj *val_obj = AS_STR(new_string_raw(str, true));
+    hash_obj((Nst_Obj *)val_obj);
 
     *tok = new_token_value(start, end, IDENT, val_obj);
 }
@@ -576,19 +546,8 @@ static void make_str_literal(Token **tok, Nst_Error **err)
     end_str = end_str_realloc;
     end_str[str_len] = '\0';
 
-    Nst_string *value = malloc(sizeof(Nst_string));
-    if ( value == NULL )
-    {
-        free(end_str);
-        errno = ENOMEM;
-        return;
-    }
-
-    value->value = end_str;
-    value->len = str_len;
-
-    Nst_Obj *val_obj = new_str_obj(value);
-    hash_obj(val_obj);
+    Nst_StrObj *val_obj = AS_STR(new_string(end_str, str_len, true));
+    hash_obj((Nst_Obj *)val_obj);
 
     *tok = new_token_value(start, end, STRING, val_obj);
 }

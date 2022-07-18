@@ -64,7 +64,7 @@ bool extract_arg_values(const char *types,
         case 't':
             if ( ob->type != nst_t_type )
                 SET_TYPE_ERROR_INT("Type");
-            *(Nst_string **)arg = AS_STR(ob);
+            *(Nst_StrObj **)arg = AS_STR(ob);
             break;
         case 'i':
             if ( ob->type != nst_t_int )
@@ -97,22 +97,22 @@ bool extract_arg_values(const char *types,
         case 's':
             if ( ob->type != nst_t_str )
                 SET_TYPE_ERROR_INT("Str");
-            *(Nst_string **)arg = AS_STR(ob);
+            *(Nst_StrObj **)arg = AS_STR(ob);
             break;
         case 'v':
             if ( ob->type != nst_t_vect )
                 SET_TYPE_ERROR_INT("Vector");
-            *(Nst_sequence **)arg = AS_SEQ(ob);
+            *(Nst_SeqObj **)arg = AS_SEQ(ob);
             break;
         case 'a':
             if ( ob->type != nst_t_arr )
                 SET_TYPE_ERROR_INT("Array");
-            *(Nst_sequence **)arg = AS_SEQ(ob);
+            *(Nst_SeqObj **)arg = AS_SEQ(ob);
             break;
         case 'A':
             if ( ob->type != nst_t_arr && ob->type != nst_t_vect )
                 SET_TYPE_ERROR_INT("Array' or 'Vector");
-            *(Nst_sequence **)arg = AS_SEQ(ob);
+            *(Nst_SeqObj **)arg = AS_SEQ(ob);
             break;
         case 'S':
             if ( ob->type != nst_t_arr && ob->type != nst_t_vect
@@ -126,17 +126,17 @@ bool extract_arg_values(const char *types,
         case 'm':
             if ( ob->type != nst_t_map )
                 SET_TYPE_ERROR_INT("Map");
-            *(Nst_map **)arg = AS_MAP(ob);
+            *(Nst_MapObj **)arg = AS_MAP(ob);
             break;
         case 'f':
             if ( ob->type != nst_t_func )
                 SET_TYPE_ERROR_INT("Func");
-            *(Nst_func **)arg = AS_FUNC(ob);
+            *(Nst_FuncObj **)arg = AS_FUNC(ob);
             break;
         case 'I':
             if ( ob->type != nst_t_iter )
                 SET_TYPE_ERROR_INT("Iter");
-            *(Nst_iter **)arg = AS_ITER(ob);
+            *(Nst_IterObj **)arg = AS_ITER(ob);
             break;
         case 'B':
             if ( ob->type != nst_t_byte )
@@ -146,7 +146,7 @@ bool extract_arg_values(const char *types,
         case 'F':
             if ( ob->type != nst_t_file )
                 SET_TYPE_ERROR_INT("IOfile");
-            *(Nst_iofile **)arg = AS_FILE(ob);
+            *(Nst_IOFileObj **)arg = AS_FILE(ob);
             break;
         default:
             err->name = (char *)"Value Error";

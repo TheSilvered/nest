@@ -61,17 +61,17 @@ static Nst_int get_year_day_c(tm *t)
     return day_of_the_year;
 }
 
-static void add_date(Nst_map *map, tm *(*time_func)(const time_t*))
+static void add_date(Nst_MapObj *map, tm *(*time_func)(const time_t*))
 {
     time_t raw_time;
     time(&raw_time);
     tm *t = time_func(&raw_time);
 
-    Nst_Obj *day_obj = new_int_obj(t->tm_mday);
-    Nst_Obj *weekday_obj = new_int_obj(t->tm_wday);
-    Nst_Obj *yearday_obj = new_int_obj(get_year_day_c(t));
-    Nst_Obj *month_obj = new_int_obj(t->tm_mon);
-    Nst_Obj *year_obj = new_int_obj(t->tm_year + 1900);
+    Nst_Obj *day_obj = new_int(t->tm_mday);
+    Nst_Obj *weekday_obj = new_int(t->tm_wday);
+    Nst_Obj *yearday_obj = new_int(get_year_day_c(t));
+    Nst_Obj *month_obj = new_int(t->tm_mon);
+    Nst_Obj *year_obj = new_int(t->tm_year + 1900);
 
     map_set_str(map, "day", day_obj);
     map_set_str(map, "week_day", weekday_obj);
@@ -86,15 +86,15 @@ static void add_date(Nst_map *map, tm *(*time_func)(const time_t*))
     dec_ref(year_obj);
 }
 
-static void add_time(Nst_map *map, tm *(*time_func)(const time_t *))
+static void add_time(Nst_MapObj *map, tm *(*time_func)(const time_t *))
 {
     time_t raw_time;
     time(&raw_time);
     tm *t = time_func(&raw_time);
 
-    Nst_Obj *seconds = new_int_obj(t->tm_sec);
-    Nst_Obj *minutes = new_int_obj(t->tm_min);
-    Nst_Obj *hours = new_int_obj(t->tm_hour);
+    Nst_Obj *seconds = new_int(t->tm_sec);
+    Nst_Obj *minutes = new_int(t->tm_min);
+    Nst_Obj *hours = new_int(t->tm_hour);
 
     map_set_str(map, "seconds", seconds);
     map_set_str(map, "minutes", minutes);
@@ -107,28 +107,28 @@ static void add_time(Nst_map *map, tm *(*time_func)(const time_t *))
 
 Nst_Obj *_time(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    return new_real_obj(duration<Nst_real>(
+    return new_real(duration<Nst_real>(
         system_clock::now().time_since_epoch()).count()
     );
 }
 
 Nst_Obj *_time_ns(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    return new_int_obj(Nst_int(duration_cast<nanoseconds>(
+    return new_int(Nst_int(duration_cast<nanoseconds>(
         system_clock::now().time_since_epoch()).count()
     ));
 }
 
 Nst_Obj *_high_res_time(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    return new_real_obj(duration<Nst_real>(
+    return new_real(duration<Nst_real>(
         high_resolution_clock::now().time_since_epoch()).count()
     );
 }
 
 Nst_Obj *_high_res_time_ns(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    return new_int_obj(Nst_int(duration_cast<nanoseconds>(
+    return new_int(Nst_int(duration_cast<nanoseconds>(
         high_resolution_clock::now().time_since_epoch()).count()
     ));
 }
@@ -138,39 +138,38 @@ Nst_Obj *_year_day(size_t arg_num, Nst_Obj **args, OpErr *err)
     time_t raw_time;
     time(&raw_time);
     tm *t = localtime(&raw_time);
-    return new_int_obj(get_year_day_c(t));
+    return new_int(get_year_day_c(t));
 }
 
 Nst_Obj *_week_day(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     year_month_day ymd{ std::chrono::floor<days>(system_clock::now()) };
-    return new_int_obj(weekday{ ymd }.c_encoding());
+    return new_int(weekday{ ymd }.c_encoding());
 }
 
 Nst_Obj *_day(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     year_month_day ymd{ std::chrono::floor<days>(system_clock::now()) };
-    return new_int_obj((unsigned int)ymd.day());
+    return new_int((unsigned int)ymd.day());
 }
 
 Nst_Obj *_month(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     year_month_day ymd{ std::chrono::floor<days>(system_clock::now()) };
-    return new_int_obj((unsigned int)ymd.month());
+    return new_int((unsigned int)ymd.month());
 }
 
 Nst_Obj *_year(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
     year_month_day ymd{ std::chrono::floor<days>(system_clock::now()) };
-    return new_int_obj((int)ymd.year());
+    return new_int((int)ymd.year());
 }
 
 Nst_Obj *_date(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_map *map = new_map();
+    Nst_MapObj *map = AS_MAP(new_map());
     add_date(map, localtime);
-
-    return make_obj(map, nst_t_map, (void (*)(void *))destroy_map);
+    return (Nst_Obj *)map;
 }
 
 Nst_Obj *_seconds(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -178,8 +177,7 @@ Nst_Obj *_seconds(size_t arg_num, Nst_Obj **args, OpErr *err)
     time_t raw_time;
     time(&raw_time);
     tm *t = localtime(&raw_time);
-    
-    return new_int_obj(t->tm_sec);
+    return new_int(t->tm_sec);
 }
 
 Nst_Obj *_minutes(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -187,8 +185,7 @@ Nst_Obj *_minutes(size_t arg_num, Nst_Obj **args, OpErr *err)
     time_t raw_time;
     time(&raw_time);
     tm *t = localtime(&raw_time);
-
-    return new_int_obj(t->tm_min);
+    return new_int(t->tm_min);
 }
 
 Nst_Obj *_hours(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -196,46 +193,37 @@ Nst_Obj *_hours(size_t arg_num, Nst_Obj **args, OpErr *err)
     time_t raw_time;
     time(&raw_time);
     tm *t = localtime(&raw_time);
-
-    return new_int_obj(t->tm_hour);
+    return new_int(t->tm_hour);
 }
 
 Nst_Obj *_clock_time(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_map *map = new_map();
-
+    Nst_MapObj *map = new_map();
     add_time(map, localtime);
-
-    return make_obj(map, nst_t_map, (void (*)(void *))destroy_map);
+    return (Nst_Obj *)map;
 }
 
 Nst_Obj *_gmt_clock_time(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_map *map = new_map();
-
+    Nst_MapObj *map = new_map();
     add_time(map, gmtime);
-
-    return make_obj(map, nst_t_map, (void (*)(void *))destroy_map);
+    return (Nst_Obj *)map;
 }
 
 Nst_Obj *_clock_datetime(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_map *map = new_map();
-
+    Nst_MapObj *map = new_map();
     add_date(map, localtime);
     add_time(map, localtime);
-
-    return make_obj(map, nst_t_map, (void (*)(void *))destroy_map);
+    return (Nst_Obj *)map;
 }
 
 Nst_Obj *_gmt_clock_datetime(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_map *map = new_map();
-
+    Nst_MapObj *map = new_map();
     add_date(map, gmtime);
     add_time(map, gmtime);
-
-    return make_obj(map, nst_t_map, (void (*)(void *))destroy_map);
+    return (Nst_Obj *)map;
 }
 
 Nst_Obj *sleep(size_t arg_num, Nst_Obj **args, OpErr *err)
@@ -246,6 +234,5 @@ Nst_Obj *sleep(size_t arg_num, Nst_Obj **args, OpErr *err)
         return nullptr;
 
     Sleep(DWORD(time * 1000));
-
     return inc_ref(nst_null);
 }

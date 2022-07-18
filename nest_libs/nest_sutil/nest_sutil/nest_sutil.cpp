@@ -52,14 +52,14 @@ FuncDeclr *get_func_ptrs()
 
 Nst_Obj *nst_lfind(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_string *str1 = nullptr;
-    Nst_string *str2 = nullptr;
+    Nst_StrObj *str1 = nullptr;
+    Nst_StrObj *str2 = nullptr;
 
     if ( !extract_arg_values("ss", arg_num, args, err, &str1, &str2) )
         return nullptr;
 
     if ( str1 == str2 )
-        return new_int_obj(0);
+        return new_int(0);
 
     char *s1 = str1->value;
     char *s2 = str2->value;
@@ -78,22 +78,22 @@ Nst_Obj *nst_lfind(size_t arg_num, Nst_Obj **args, OpErr *err)
         }
 
         if ( *p2 == 0 )
-            return new_int_obj(s1 - str1->value - 1);
+            return new_int(s1 - str1->value - 1);
     }
 
-    return new_int_obj(-1);
+    return new_int(-1);
 }
 
 Nst_Obj *rfind(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_string *str1;
-    Nst_string *str2;
+    Nst_StrObj *str1;
+    Nst_StrObj *str2;
 
     if ( !extract_arg_values("ss", arg_num, args, err, &str1, &str2) )
         return nullptr;
 
     if ( str1 == str2 )
-        return new_int_obj(0);
+        return new_int(0);
 
     char *s1 = str1->value + str1->len - 1;
     char *s2 = str2->value + str2->len - 1;
@@ -116,15 +116,15 @@ Nst_Obj *rfind(size_t arg_num, Nst_Obj **args, OpErr *err)
         }
 
         if ( p2 - s2_start + 1 == 0 )
-            return new_int_obj(p1 - s1_start + 1);
+            return new_int(p1 - s1_start + 1);
     }
 
-    return new_int_obj(-1);
+    return new_int(-1);
 }
 
 Nst_Obj *trim(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_string *str;
+    Nst_StrObj *str;
 
     if ( !extract_arg_values("s", arg_num, args, err, &str) )
         return nullptr;
@@ -140,7 +140,7 @@ Nst_Obj *trim(size_t arg_num, Nst_Obj **args, OpErr *err)
     }
 
     if ( s_start == s_end + 1 )
-        return new_str_obj(new_string((char *)"", 0, false));
+        return new_string((char *)"", 0, false);
 
     while ( isspace(*s_end) )
     {
@@ -151,12 +151,12 @@ Nst_Obj *trim(size_t arg_num, Nst_Obj **args, OpErr *err)
     char *new_str = new char[len + 1];
     strncpy(new_str, s_start, len);
 
-    return new_str_obj(new_string(new_str, len, true));
+    return new_string(new_str, len, true);
 }
 
 Nst_Obj *ltrim(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_string *str;
+    Nst_StrObj *str;
 
     if ( !extract_arg_values("s", arg_num, args, err, &str) )
         return nullptr;
@@ -173,12 +173,12 @@ Nst_Obj *ltrim(size_t arg_num, Nst_Obj **args, OpErr *err)
     char *new_str = new char[len + 1];
     strcpy(new_str, s_start);
 
-    return new_str_obj(new_string(new_str, len, true));
+    return new_string(new_str, len, true);
 }
 
 Nst_Obj *rtrim(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_string *str;
+    Nst_StrObj *str;
 
     if ( !extract_arg_values("s", arg_num, args, err, &str) )
         return nullptr;
@@ -188,7 +188,7 @@ Nst_Obj *rtrim(size_t arg_num, Nst_Obj **args, OpErr *err)
     size_t len = str->len;
 
     if ( len == 0 )
-        return new_str_obj(new_string((char *)"", 0, false));
+        return new_string((char *)"", 0, false);
 
     while ( s_end + 1 != s_start && isspace(*s_end) )
     {
@@ -199,14 +199,14 @@ Nst_Obj *rtrim(size_t arg_num, Nst_Obj **args, OpErr *err)
     char *new_str = new char[len + 1];
     strncpy(new_str, s_start, len);
 
-    return new_str_obj(new_string(new_str, len, true));
+    return new_string(new_str, len, true);
 }
 
 Nst_Obj *ljust(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_string *str;
+    Nst_StrObj *str;
     Nst_int just_len;
-    Nst_string *just_char;
+    Nst_StrObj *just_char;
 
     if ( !extract_arg_values("sis", arg_num, args, err, &str, &just_len, &just_char) )
         return nullptr;
@@ -228,14 +228,14 @@ Nst_Obj *ljust(size_t arg_num, Nst_Obj **args, OpErr *err)
     memset(new_str + len, *(just_char->value), just_len - len);
     new_str[just_len] = 0;
 
-    return new_str_obj(new_string(new_str, just_len, true));
+    return new_string(new_str, just_len, true);
 }
 
 Nst_Obj *rjust(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_string *str;
+    Nst_StrObj *str;
     Nst_int just_len;
-    Nst_string *just_char;
+    Nst_StrObj *just_char;
 
     if ( !extract_arg_values("sis", arg_num, args, err, &str, &just_len, &just_char) )
         return nullptr;
@@ -257,17 +257,17 @@ Nst_Obj *rjust(size_t arg_num, Nst_Obj **args, OpErr *err)
     memcpy(new_str + (just_len - len), str->value, len);
     new_str[just_len] = 0;
 
-    return new_str_obj(new_string(new_str, just_len, true));
+    return new_string(new_str, just_len, true);
 }
 
 Nst_Obj *to_upper(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_string *str;
+    Nst_StrObj *str;
 
     if ( !extract_arg_values("s", arg_num, args, err, &str) )
         return nullptr;
 
-    Nst_string *new_str = copy_string(str);
+    Nst_StrObj *new_str = AS_STR(copy_string(str));
     char *s = new_str->value;
 
     while ( *s )
@@ -276,17 +276,17 @@ Nst_Obj *to_upper(size_t arg_num, Nst_Obj **args, OpErr *err)
         ++s;
     }
 
-    return new_str_obj(new_str);
+    return (Nst_Obj *)new_str;
 }
 
 Nst_Obj *to_lower(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_string *str;
+    Nst_StrObj *str;
 
     if ( !extract_arg_values("s", arg_num, args, err, &str) )
         return nullptr;
 
-    Nst_string *new_str = copy_string(str);
+    Nst_StrObj *new_str = AS_STR(copy_string(str));
     char *s = new_str->value;
 
     while ( *s )
@@ -295,12 +295,12 @@ Nst_Obj *to_lower(size_t arg_num, Nst_Obj **args, OpErr *err)
         ++s;
     }
 
-    return new_str_obj(new_str);
+    return (Nst_Obj *)new_str;
 }
 
 Nst_Obj *is_upper(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_string *str;
+    Nst_StrObj *str;
 
     if ( !extract_arg_values("s", arg_num, args, err, &str) )
         return nullptr;
@@ -319,7 +319,7 @@ Nst_Obj *is_upper(size_t arg_num, Nst_Obj **args, OpErr *err)
 
 Nst_Obj *is_lower(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_string *str;
+    Nst_StrObj *str;
 
     if ( !extract_arg_values("s", arg_num, args, err, &str) )
         return nullptr;
@@ -338,7 +338,7 @@ Nst_Obj *is_lower(size_t arg_num, Nst_Obj **args, OpErr *err)
 
 Nst_Obj *is_alpha(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_string *str;
+    Nst_StrObj *str;
 
     if ( !extract_arg_values("s", arg_num, args, err, &str) )
         return nullptr;
@@ -356,7 +356,7 @@ Nst_Obj *is_alpha(size_t arg_num, Nst_Obj **args, OpErr *err)
 
 Nst_Obj *is_digit(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_string *str;
+    Nst_StrObj *str;
 
     if ( !extract_arg_values("s", arg_num, args, err, &str) )
         return nullptr;
@@ -374,7 +374,7 @@ Nst_Obj *is_digit(size_t arg_num, Nst_Obj **args, OpErr *err)
 
 Nst_Obj *is_alnum(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_string *str;
+    Nst_StrObj *str;
 
     if ( !extract_arg_values("s", arg_num, args, err, &str) )
         return nullptr;
@@ -392,8 +392,8 @@ Nst_Obj *is_alnum(size_t arg_num, Nst_Obj **args, OpErr *err)
 
 Nst_Obj *is_charset(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_string *str1;
-    Nst_string *str2;
+    Nst_StrObj *str1;
+    Nst_StrObj *str2;
 
     if ( !extract_arg_values("ss", arg_num, args, err, &str1, &str2) )
         return nullptr;
@@ -422,7 +422,7 @@ Nst_Obj *is_charset(size_t arg_num, Nst_Obj **args, OpErr *err)
 
 Nst_Obj *is_printable(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_string *str;
+    Nst_StrObj *str;
 
     if ( !extract_arg_values("s", arg_num, args, err, &str) )
         return nullptr;
@@ -440,9 +440,9 @@ Nst_Obj *is_printable(size_t arg_num, Nst_Obj **args, OpErr *err)
 
 Nst_Obj *replace_substr(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_string *str;
-    Nst_string *str1;
-    Nst_string *str2;
+    Nst_StrObj *str;
+    Nst_StrObj *str1;
+    Nst_StrObj *str2;
 
     if ( !extract_arg_values("sss", arg_num, args, err, &str, &str1, &str2) )
         return nullptr;
@@ -497,12 +497,12 @@ Nst_Obj *replace_substr(size_t arg_num, Nst_Obj **args, OpErr *err)
     new_str_len += s_len;
 
     new_str[new_str_len] = 0;
-    return new_str_obj(new_string(new_str, new_str_len, true));
+    return new_string(new_str, new_str_len, true);
 }
 
 Nst_Obj *bytearray_to_str(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_sequence *seq;
+    Nst_SeqObj *seq;
 
     if ( !extract_arg_values("A", arg_num, args, err, &seq) )
         return nullptr;
@@ -533,23 +533,23 @@ Nst_Obj *bytearray_to_str(size_t arg_num, Nst_Obj **args, OpErr *err)
     }
 
     new_str[len] = 0;
-    return new_str_obj(new_string(new_str, len, true));
+    return new_string(new_str, len, true);
 }
 
 Nst_Obj *repr(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_string *str;
+    Nst_StrObj *str;
 
     if ( !extract_arg_values("s", arg_num, args, err, &str) )
         return nullptr;
 
-    return new_str_obj(repr_string(str));
+    return repr_string(str);
 }
 
 Nst_Obj *join(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_string *str;
-    Nst_sequence *seq;
+    Nst_StrObj *str;
+    Nst_SeqObj *seq;
 
     if ( !extract_arg_values("sA", arg_num, args, err, &str, &seq) )
         return nullptr;
@@ -570,7 +570,7 @@ Nst_Obj *join(size_t arg_num, Nst_Obj **args, OpErr *err)
 
     for ( size_t i = 0; i < len; i++ )
     {
-        Nst_string *curr_str = AS_STR(objs[i]);
+        Nst_StrObj *curr_str = AS_STR(objs[i]);
         memcpy(new_str + str_idx, curr_str->value, curr_str->len);
         str_idx += curr_str->len;
         dec_ref(objs[i]);
@@ -580,13 +580,13 @@ Nst_Obj *join(size_t arg_num, Nst_Obj **args, OpErr *err)
     }
 
     new_str[tot_len] = 0;
-    return new_str_obj(new_string(new_str, tot_len, true));
+    return new_string(new_str, tot_len, true);
 }
 
 Nst_Obj *split(size_t arg_num, Nst_Obj **args, OpErr *err)
 {
-    Nst_string *str;
-    Nst_string *substr;
+    Nst_StrObj *str;
+    Nst_StrObj *substr;
 
     if ( !extract_arg_values("ss", arg_num, args, err, &str, &substr) )
         return nullptr;
@@ -597,7 +597,7 @@ Nst_Obj *split(size_t arg_num, Nst_Obj **args, OpErr *err)
         return nullptr;
     }
 
-    Nst_sequence *vector = new_vector_empty(0);
+    Nst_SeqObj *vector = AS_SEQ(new_vector(0));
 
     char *s = str->value;
     char *sub = substr->value;
@@ -611,7 +611,7 @@ Nst_Obj *split(size_t arg_num, Nst_Obj **args, OpErr *err)
         str_split = new char[sub_idx - s + 1];
         memcpy(str_split, s, sub_idx - s);
         str_split[sub_idx - s] = 0;
-        str_obj = new_str_obj(new_string(str_split, sub_idx - s, true));
+        str_obj = new_string(str_split, sub_idx - s, true);
         append_value_vector(vector, str_obj);
         dec_ref(str_obj);
         s_len -= sub_idx - s + substr->len;
@@ -621,9 +621,9 @@ Nst_Obj *split(size_t arg_num, Nst_Obj **args, OpErr *err)
     str_split = new char[s_len + 1];
     memcpy(str_split, s, s_len);
     str_split[s_len] = 0;
-    str_obj = new_str_obj(new_string(str_split, s_len, true));
+    str_obj = new_string(str_split, s_len, true);
     append_value_vector(vector, str_obj);
     dec_ref(str_obj);
 
-    return new_vect_obj(vector);
+    return (Nst_Obj *)vector;
 }

@@ -7,8 +7,8 @@
 #define FNV_PRIME 0x00000100000001B3
 #define LOWER_HALF 0xffffffff
 
-int32_t hash_str(Nst_string *str);
-int32_t hash_int(Nst_int *num);
+int32_t hash_str(Nst_StrObj *str);
+int32_t hash_int(Nst_IntObj *num);
 int32_t hash_ptr(void *ptr);
 
 int32_t hash_obj(Nst_Obj *obj)
@@ -23,9 +23,9 @@ int32_t hash_obj(Nst_Obj *obj)
          obj->type == nst_t_bool )
         hash = hash_ptr(obj);
     else if ( obj->type == nst_t_str )
-        hash = hash_str(obj->value);
+        hash = hash_str(AS_STR(obj));
     else if ( obj->type == nst_t_int )
-        hash = hash_int(obj->value);
+        hash = hash_int((Nst_IntObj *)obj);
     else
         return -1;
 
@@ -43,7 +43,7 @@ int32_t hash_ptr(void *ptr)
     return (int32_t)x;
 }
 
-int32_t hash_str(Nst_string *str)
+int32_t hash_str(Nst_StrObj *str)
 {
     // taken from https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
     register int64_t hash = FNV_OFFSET_BASIS;
@@ -58,9 +58,9 @@ int32_t hash_str(Nst_string *str)
     return (int32_t)((hash >> 32) ^ (hash & LOWER_HALF));
 }
 
-int32_t hash_int(Nst_int *num)
+int32_t hash_int(Nst_IntObj *num)
 {
-    if ( *num == -1 )
+    if ( num->value == -1 )
         return -2;
-    return (int32_t) *num;
+    return (int32_t)(num->value);
 }

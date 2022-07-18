@@ -3,31 +3,32 @@
 
 #include "error.h"
 #include "obj.h"
+#include "function.h"
 
-#define AS_ITER(ptr) ((Nst_iter *)(ptr->value))
-#define AS_ITER_V(ptr) ((Nst_iter *)(ptr))
+#define AS_ITER(ptr) ((Nst_IterObj *)(ptr))
 
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct Nst_iter
+typedef struct
 {
-    Nst_Obj *start;
-    Nst_Obj *advance;
-    Nst_Obj *is_done;
-    Nst_Obj *get_val;
+    OBJ_HEAD;
+    Nst_FuncObj *start;
+    Nst_FuncObj *advance;
+    Nst_FuncObj *is_done;
+    Nst_FuncObj *get_val;
     Nst_Obj *value;
 }
-Nst_iter;
+Nst_IterObj;
 
-Nst_Obj *new_iter_obj(Nst_iter *iter);
-Nst_iter *new_iter(Nst_Obj *start,
-                   Nst_Obj *advance,
-                   Nst_Obj *is_done,
-                   Nst_Obj *get_val,
-                   Nst_Obj *value);
-void destroy_iter(Nst_iter *iter);
+Nst_Obj *new_iter(
+    Nst_FuncObj *start,
+    Nst_FuncObj *advance,
+    Nst_FuncObj *is_done,
+    Nst_FuncObj *get_val,
+    Nst_Obj *value);
+void destroy_iter(Nst_IterObj *iter);
 
 Nst_Obj *num_iter_start(size_t arg_num, Nst_Obj **args, OpErr *err);
 Nst_Obj *num_iter_advance(size_t arg_num, Nst_Obj **args, OpErr *err);
