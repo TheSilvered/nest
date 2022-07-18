@@ -585,6 +585,12 @@ static Node *parse_expr(bool break_as_end)
             token_type = TOK(LList_peek_front(tokens))->type;
         }
 
+    if ( node == NULL )
+    {
+        Token *tok = TOK(LList_peek_front(tokens));
+        RETURN_ERROR(tok->start, tok->end, EXPECTED_VALUE);
+    }
+
     node = fix_expr(node);
     if ( errno == ENOMEM )
     {
