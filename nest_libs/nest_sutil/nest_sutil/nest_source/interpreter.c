@@ -359,6 +359,9 @@ static void exe_for_as_l(Node *node)
     }
 
     Nst_Obj *iter_val = iterator->value;
+    register Nst_FuncObj *is_done_func = AS_FUNC(iterator->is_done);
+    register Nst_FuncObj *get_val_func = AS_FUNC(iterator->get_val);
+    register Nst_FuncObj *advance_func = AS_FUNC(iterator->advance);
 
     call_func_internal(node, AS_FUNC(iterator->start), &iter_val);
     if ( state->error_occurred )
@@ -371,7 +374,7 @@ static void exe_for_as_l(Node *node)
 
     while ( true )
     {
-        call_func_internal(node, AS_FUNC(iterator->is_done), &iter_val);
+        call_func_internal(node, is_done_func, &iter_val);
         if ( state->error_occurred )
             break;
 
@@ -392,7 +395,7 @@ static void exe_for_as_l(Node *node)
             break;
         }
 
-        call_func_internal(node, AS_FUNC(iterator->get_val), &iter_val);
+        call_func_internal(node, get_val_func, &iter_val);
         if ( state->error_occurred )
             break;
 
@@ -412,7 +415,7 @@ static void exe_for_as_l(Node *node)
             state->must_continue = false;
         }
 
-        call_func_internal(node, AS_FUNC(iterator->advance), &iter_val);
+        call_func_internal(node, advance_func, &iter_val);
         if ( state->error_occurred )
             return;
     }

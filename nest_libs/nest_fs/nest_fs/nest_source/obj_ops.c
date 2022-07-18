@@ -9,12 +9,14 @@
 #include "lib_import.h"
 #include "map.h"
 #include "error.h"
+#include "lib_import.h"
 
 #define MAX_INT_CHAR_COUNT 21
 #define MAX_REAL_CHAR_COUNT 25
 #define MAX_BYTE_CHAR_COUNT 5
 
-#define IS_NUMBER(obj) ( obj->type == nst_t_int || obj->type == nst_t_real )
+#define IS_NUM(obj) ( obj->type == nst_t_int || obj->type == nst_t_real || obj->type == nst_t_byte )
+#define IS_INT(obj) ( obj->type == nst_t_int || obj->type == nst_t_byte )
 #define IS_SEQ(obj) ( obj->type == nst_t_arr || obj->type == nst_t_vect )
 #define ARE_TYPE(nst_type) ( ob1->type == nst_type && ob2->type == nst_type )
 
@@ -49,24 +51,29 @@ Nst_Obj *obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
         RETURN_TRUE;
     else if ( ob1->type == nst_t_map || ob2->type == nst_t_map )
         RETURN_FALSE;
-    else if ( ARE_TYPE(nst_t_int) )
-        RETURN_COND(AS_INT(ob1) == AS_INT(ob2));
-    else if ( IS_NUMBER(ob1) && IS_NUMBER(ob2) )
+    else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
-        ob1 = obj_cast(ob1, nst_t_real, err);
-        ob2 = obj_cast(ob2, nst_t_real, err);
-        bool check = AS_BOOL(ob1) == AS_BOOL(ob2);
+        ob1 = obj_cast(ob1, nst_t_int, err);
+        ob2 = obj_cast(ob2, nst_t_int, err);
+        bool check = AS_INT(ob1) == AS_INT(ob2);
         dec_ref(ob1);
         dec_ref(ob2);
 
-        if ( check )
-            RETURN_TRUE;
-        else
-            RETURN_FALSE;
+        RETURN_COND(check);
     }
-    else if ( ob1->type == nst_t_str && ob2->type == nst_t_str )
+    else if ( IS_NUM(ob1) && IS_NUM(ob2) )
+    {
+        ob1 = obj_cast(ob1, nst_t_real, err);
+        ob2 = obj_cast(ob2, nst_t_real, err);
+        bool check = AS_REAL(ob1) == AS_REAL(ob2);
+        dec_ref(ob1);
+        dec_ref(ob2);
+
+        RETURN_COND(check);
+    }
+    else if ( ARE_TYPE(nst_t_str) )
         RETURN_COND(strcmp(AS_STR(ob1)->value, AS_STR(ob2)->value) == 0);
-    else if ( ob1->type == nst_t_bool && ob2->type == nst_t_bool )
+    else if ( ARE_TYPE(nst_t_bool) )
         RETURN_COND(ob1 == ob2);
     else if ( IS_SEQ(ob1) && IS_SEQ(ob2) )
     {
@@ -88,16 +95,33 @@ Nst_Obj *obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 
 Nst_Obj *obj_ne(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 {
-    return obj_lgnot(obj_eq(ob1, ob2, err), err);
+    if ( obj_eq(ob1, ob2, err) == nst_true )
+    {
+        dec_ref(nst_true);
+        RETURN_FALSE;
+    }
+    else
+    {
+        dec_ref(nst_false);
+        RETURN_TRUE;
+    }
 }
 
 Nst_Obj *obj_gt(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 {
     if ( ARE_TYPE(nst_t_str) )
         RETURN_COND(strcmp(AS_STR(ob1)->value, AS_STR(ob2)->value) > 0);
-    else if ( ARE_TYPE(nst_t_int) )
-        RETURN_COND(AS_INT(ob1) > AS_INT(ob2));
-    else if ( IS_NUMBER(ob1) && IS_NUMBER(ob2) )
+    else if ( IS_INT(ob1) && IS_INT(ob2) )
+    {
+        ob1 = obj_cast(ob1, nst_t_int, err);
+        ob2 = obj_cast(ob2, nst_t_int, err);
+        bool check = AS_INT(ob1) > AS_INT(ob2);
+        dec_ref(ob1);
+        dec_ref(ob2);
+
+        RETURN_COND(check);
+    }
+    else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
         ob1 = obj_cast(ob1, nst_t_real, err);
         ob2 = obj_cast(ob2, nst_t_real, err);
@@ -115,9 +139,17 @@ Nst_Obj *obj_lt(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 {
     if ( ARE_TYPE(nst_t_str) )
         RETURN_COND(strcmp(AS_STR(ob1)->value, AS_STR(ob2)->value) < 0);
-    else if ( ARE_TYPE(nst_t_int) )
-        RETURN_COND(AS_INT(ob1) < AS_INT(ob2));
-    else if ( IS_NUMBER(ob1) && IS_NUMBER(ob2) )
+    else if ( IS_INT(ob1) && IS_INT(ob2) )
+    {
+        ob1 = obj_cast(ob1, nst_t_int, err);
+        ob2 = obj_cast(ob2, nst_t_int, err);
+        bool check = AS_INT(ob1) < AS_INT(ob2);
+        dec_ref(ob1);
+        dec_ref(ob2);
+
+        RETURN_COND(check);
+    }
+    else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
         ob1 = obj_cast(ob1, nst_t_real, err);
         ob2 = obj_cast(ob2, nst_t_real, err);
@@ -134,7 +166,7 @@ Nst_Obj *obj_lt(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 Nst_Obj *obj_ge(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 {
     if ( obj_eq(ob1, ob2, err) == nst_true )
-        RETURN_TRUE;
+        return nst_true;
 
     Nst_Obj *res = obj_gt(ob1, ob2, err);
 
@@ -146,7 +178,7 @@ Nst_Obj *obj_ge(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 Nst_Obj *obj_le(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 {
     if ( obj_eq(ob1, ob2, err) == nst_true )
-        RETURN_TRUE;
+        return nst_true;
 
     Nst_Obj *res = obj_lt(ob1, ob2, err);
 
@@ -165,9 +197,21 @@ Nst_Obj *obj_add(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
         append_value_vector(AS_SEQ(ob1), ob2);
         return inc_ref(ob1);
     }
-    else if ( ARE_TYPE(nst_t_int) )
-        return new_int(AS_INT(ob1) + AS_INT(ob2));
-    else if ( IS_NUMBER(ob1) && IS_NUMBER(ob2) )
+    else if ( ARE_TYPE(nst_t_byte) )
+        return new_byte(AS_BYTE(ob1) + AS_BYTE(ob2));
+    else if ( IS_INT(ob1) && IS_INT(ob2) )
+    {
+        ob1 = obj_cast(ob1, nst_t_int, err);
+        ob2 = obj_cast(ob2, nst_t_int, err);
+
+        Nst_Obj *new_obj = new_int(AS_INT(ob1) + AS_INT(ob2));
+
+        dec_ref(ob1);
+        dec_ref(ob2);
+
+        return new_obj;
+    }
+    else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
         ob1 = obj_cast(ob1, nst_t_real, err);
         ob2 = obj_cast(ob2, nst_t_real, err);
@@ -199,9 +243,21 @@ Nst_Obj *obj_sub(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
         }
         return res;
     }
-    else if ( ARE_TYPE(nst_t_int) )
-        return new_int(AS_INT(ob1) - AS_INT(ob2));
-    else if ( IS_NUMBER(ob1) && IS_NUMBER(ob2) )
+    else if ( ARE_TYPE(nst_t_byte) )
+        return new_byte(AS_BYTE(ob1) - AS_BYTE(ob2));
+    else if ( IS_INT(ob1) && IS_INT(ob2) )
+    {
+        ob1 = obj_cast(ob1, nst_t_int, err);
+        ob2 = obj_cast(ob2, nst_t_int, err);
+
+        Nst_Obj *new_obj = new_int(AS_INT(ob1) - AS_INT(ob2));
+
+        dec_ref(ob1);
+        dec_ref(ob2);
+
+        return new_obj;
+    }
+    else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
         ob1 = obj_cast(ob1, nst_t_real, err);
         ob2 = obj_cast(ob2, nst_t_real, err);
@@ -233,9 +289,21 @@ Nst_Obj *obj_mul(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 
         return inc_ref(ob1);
     }
-    else if ( ARE_TYPE(nst_t_int) )
-        return new_int(AS_INT(ob1) * AS_INT(ob2));
-    else if ( IS_NUMBER(ob1) && IS_NUMBER(ob2) )
+    else if ( ARE_TYPE(nst_t_byte) )
+        return new_byte(AS_BYTE(ob1) * AS_BYTE(ob2));
+    else if ( IS_INT(ob1) && IS_INT(ob2) )
+    {
+        ob1 = obj_cast(ob1, nst_t_int, err);
+        ob2 = obj_cast(ob2, nst_t_int, err);
+
+        Nst_Obj *new_obj = new_int(AS_INT(ob1) * AS_INT(ob2));
+
+        dec_ref(ob1);
+        dec_ref(ob2);
+
+        return new_obj;
+    }
+    else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
         ob1 = obj_cast(ob1, nst_t_real, err);
         ob2 = obj_cast(ob2, nst_t_real, err);
@@ -255,8 +323,22 @@ Nst_Obj *obj_div(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 {
     if ( ob1->type == nst_t_vect && ob2->type == nst_t_int )
         return pop_value_vector(AS_SEQ(ob1), (size_t)AS_INT(ob2));
-    else if ( ARE_TYPE(nst_t_int) )
+    else if ( ARE_TYPE(nst_t_byte) )
     {
+        if ( AS_BYTE(ob2) == 0 )
+        {
+            err->name = MATH_ERROR;
+            err->message = "division by zero";
+            return NULL;
+        }
+
+        return new_byte(AS_BYTE(ob1) / AS_BYTE(ob2));
+    }
+    else if ( IS_INT(ob1) && IS_INT(ob2) )
+    {
+        ob1 = obj_cast(ob1, nst_t_int, err);
+        ob2 = obj_cast(ob2, nst_t_int, err);
+
         if ( AS_INT(ob2) == 0 )
         {
             err->name = MATH_ERROR;
@@ -264,9 +346,14 @@ Nst_Obj *obj_div(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
             return NULL;
         }
 
-        return new_int(AS_INT(ob1) / AS_INT(ob2));
+        Nst_Obj *new_obj = new_int(AS_INT(ob1) / AS_INT(ob2));
+
+        dec_ref(ob1);
+        dec_ref(ob2);
+
+        return new_obj;
     }
-    else if ( IS_NUMBER(ob1) && IS_NUMBER(ob2) )
+    else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
         ob1 = obj_cast(ob1, nst_t_real, err);
         ob2 = obj_cast(ob2, nst_t_real, err);
@@ -291,11 +378,35 @@ Nst_Obj *obj_div(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 
 Nst_Obj *obj_pow(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 {
-    if ( ARE_TYPE(nst_t_int) )
-        return new_int((Nst_int)powl(
-                       (Nst_real)AS_INT(ob1),
-                       (Nst_real)AS_INT(ob2)));
-    else if ( IS_NUMBER(ob1) && IS_NUMBER(ob2) )
+    if ( ARE_TYPE(nst_t_byte) )
+    {
+        register Nst_byte res = 1;
+        register Nst_byte num = AS_BYTE(ob1);
+
+        for ( Nst_byte i = 0, n = AS_BYTE(ob2); i < n; i++ )
+            res *= num;
+
+        return new_byte(res);
+    }
+    else if ( IS_INT(ob1) && IS_INT(ob2) )
+    {
+        ob1 = obj_cast(ob1, nst_t_int, err);
+        ob2 = obj_cast(ob2, nst_t_int, err);
+
+        register Nst_int res = 1;
+        register Nst_int num = AS_INT(ob1);
+
+        for ( Nst_int i = 0, n = AS_INT(ob2); i < n; i++ )
+            res *= num;
+
+        Nst_Obj *new_obj = new_int(res);
+
+        dec_ref(ob1);
+        dec_ref(ob2);
+
+        return new_obj;
+    }
+    else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
         ob1 = obj_cast(ob1, nst_t_real, err);
         ob2 = obj_cast(ob2, nst_t_real, err);
@@ -322,8 +433,22 @@ Nst_Obj *obj_pow(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 
 Nst_Obj *obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
 {
-    if ( ARE_TYPE(nst_t_int) )
+    if ( ARE_TYPE(nst_t_byte) )
     {
+        if ( AS_BYTE(ob2) == 0 )
+        {
+            err->name = MATH_ERROR;
+            err->message = "modulo by zero";
+            return NULL;
+        }
+
+        return new_byte(AS_BYTE(ob1) % AS_BYTE(ob2));
+    }
+    else if ( IS_INT(ob1) && IS_INT(ob2) )
+    {
+        ob1 = obj_cast(ob1, nst_t_int, err);
+        ob2 = obj_cast(ob2, nst_t_int, err);
+
         if ( AS_INT(ob2) == 0 )
         {
             err->name = MATH_ERROR;
@@ -331,9 +456,14 @@ Nst_Obj *obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, OpErr *err)
             return NULL;
         }
 
-        return new_int(AS_INT(ob1) % AS_INT(ob2));
+        Nst_Obj *new_obj = new_int(AS_INT(ob1) % AS_INT(ob2));
+
+        dec_ref(ob1);
+        dec_ref(ob2);
+
+        return new_obj;
     }
-    else if ( IS_NUMBER(ob1) && IS_NUMBER(ob2) )
+    else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
         ob1 = obj_cast(ob1, nst_t_real, err);
         ob2 = obj_cast(ob2, nst_t_real, err);
@@ -720,6 +850,16 @@ Nst_Obj *obj_cast(Nst_Obj *ob, Nst_Obj *type, OpErr *err)
     {
         if ( ob_t == nst_t_int )
             return new_byte(AS_INT(ob) & 0xff);
+        else if ( ob_t == nst_t_str )
+        {
+            if ( AS_STR(ob)->len != 1 )
+            {
+                SET_VALUE_ERROR("string must be exactly one character long");
+                return NULL;
+            }
+
+            return new_byte(*AS_STR(ob)->value);
+        }
         else
             RETURN_TYPE_ERROR("::");
     }
