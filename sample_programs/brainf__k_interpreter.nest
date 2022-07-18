@@ -1,0 +1,68 @@
+|#| 'stdio.nest' = io
+
+#clean code [
+    <{}> = clean_code
+    ... Iter :: code ~= command [
+        (command '+' ==) \
+        (command '-' ==) \
+        (command '[' ==) \
+        (command ']' ==) \
+        (command '>' ==) \
+        (command '<' ==) \
+        (command '.' ==) \
+        (command ',' ==) || ? clean_code command +
+    ]
+
+    => Array :: clean_code
+]
+
+#main [
+    $_args_ 1 != ? => >>> 'Usage: nest brainf__k_interpreter.nest <filename>'
+
+    _args_.0 'r' @io.open = f
+
+    f @io.read @clean = code
+    f @io.close
+
+    { 0; 1000 } = tape
+    <{}> = loop_starts
+    0 = pointer
+
+    -1 = index
+
+    ?.. index $code < [
+        1 += index
+        code.(index) = command
+
+        |> command [
+            ? '+' [
+                1 += tape.(pointer)
+                256 tape.(pointer) == ? 0 = tape.(pointer)
+            ]
+            ? '-' [
+                1 -= tape.(pointer)
+                -1 tape.(pointer) == ? 255 = tape.(pointer)
+            ]
+            ? '[' [
+                loop_starts pointer +
+            ]
+            ? ']' [
+                $loop_starts 0 == ? => >>> 'Unmatched "]"\n'
+                -- skips '[' autimatically
+                tape.(pointer) 0 != ? loop_starts.-1 = index
+            ]
+            ? '>' [
+                1 pointer + $tape % = pointer
+            ]
+            ? '<' [
+                1 pointer - $tape % = pointer
+            ]
+            ? '.' [
+                >>> (Byte :: tape.(pointer))
+            ]
+            ? ',' [
+                
+            ]
+        ]
+    ]
+]

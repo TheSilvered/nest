@@ -1,0 +1,2 @@
+-- Prints 'Hello, world!' to stdout
+>>> 'Hello, world!\n'
