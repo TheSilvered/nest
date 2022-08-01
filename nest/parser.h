@@ -8,8 +8,8 @@
 extern "C" {
 #endif // !__cplusplus
 
-Node *parse(LList *tokens);
-void print_ast(Node *ast);
+Nst_Node *nst_parse(LList *tokens);
+void nst_print_ast(Nst_Node *ast);
 
 #ifdef __cplusplus
 }

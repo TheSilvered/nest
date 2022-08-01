@@ -11,8 +11,8 @@
 
 #define AS_INT(ptr)  (((Nst_IntObj  *)(ptr))->value)
 #define AS_REAL(ptr) (((Nst_RealObj *)(ptr))->value)
-#define AS_BYTE(ptr) (((Nst_BoolObj *)(ptr))->value)
-#define AS_BOOL(ptr) (((Nst_ByteObj *)(ptr))->value)
+#define AS_BYTE(ptr) (((Nst_ByteObj *)(ptr))->value)
+#define AS_BOOL(ptr) (((Nst_BoolObj *)(ptr))->value)
 #define AS_FILE(ptr) ((Nst_IOFileObj *)(ptr))
 
 #define SIMPLE_TYPE_STRUCT(type, type_name, obj_name) \
@@ -28,44 +28,44 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef long long Nst_int;
-typedef double Nst_real;
-typedef char Nst_bool;
-typedef unsigned char Nst_byte;
-typedef FILE *Nst_iofile;
+typedef long long Nst_Int;
+typedef double Nst_Real;
+typedef char Nst_Bool;
+typedef unsigned char Nst_Byte;
+typedef FILE *Nst_IOfile;
 
 typedef struct
 {
     OBJ_HEAD;
-    Nst_int value;
+    Nst_Int value;
 }
 Nst_IntObj;
 
 typedef struct
 {
     OBJ_HEAD;
-    Nst_real value;
+    Nst_Real value;
 }
 Nst_RealObj;
 
 typedef struct
 {
     OBJ_HEAD;
-    Nst_bool value;
+    Nst_Bool value;
 }
 Nst_BoolObj;
 
 typedef struct
 {
     OBJ_HEAD;
-    Nst_byte value;
+    Nst_Byte value;
 }
 Nst_ByteObj;
 
 typedef struct
 {
     OBJ_HEAD;
-    Nst_iofile value;
+    Nst_IOfile value;
     bool is_closed;
     bool is_bin;
     bool can_write;
@@ -73,13 +73,13 @@ typedef struct
 }
 Nst_IOFileObj;
 
-Nst_Obj *new_int(Nst_int value);
-Nst_Obj *new_real(Nst_real value);
-Nst_Obj *new_bool(Nst_bool value);
-Nst_Obj *new_byte(Nst_byte value);
-Nst_Obj *new_file(Nst_iofile value, bool bin, bool read, bool write);
+Nst_Obj *nst_new_int(Nst_Int value);
+Nst_Obj *nst_new_real(Nst_Real value);
+Nst_Obj *nst_new_bool(Nst_Bool value);
+Nst_Obj *nst_new_byte(Nst_Byte value);
+Nst_Obj *nst_new_file(Nst_IOfile value, bool bin, bool read, bool write);
 
-void destroy_iofile(Nst_IOFileObj *obj);
+void nst_destroy_iofile(Nst_IOFileObj *obj);
 
 #ifdef __cplusplus
 }

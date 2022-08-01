@@ -6,20 +6,20 @@
 #include "nst_types.h"
 #include "obj_ops.h"
 
-#define SET_TYPE_ERROR_INT(type) { \
+#define _NST_SET_TYPE_ERROR(type) { \
     err->name = (char *)"Type Error"; \
-    err->message = format_arg_error(WRONG_TYPE_FOR_ARG(type), ob->type_name, i); \
+    err->message = _nst_format_arg_error(WRONG_TYPE_FOR_ARG(type), ob->type_name, i); \
     error_occurred = true; break; }
 
-FuncDeclr *new_func_list(size_t count)
+FuncDeclr *nst_new_func_list(size_t count)
 {
     return (FuncDeclr *)calloc(count + 1, sizeof(FuncDeclr));
 }
 
-bool extract_arg_values(const char *types,
+bool nst_extract_arg_values(const char *types,
                         size_t arg_num,
                         Nst_Obj **args,
-                        OpErr *err,
+                        Nst_OpErr *err,
                         ...)
 {
 
@@ -63,89 +63,89 @@ bool extract_arg_values(const char *types,
         {
         case 't':
             if ( ob->type != nst_t_type )
-                SET_TYPE_ERROR_INT("Type");
+                _NST_SET_TYPE_ERROR("Type");
             *(Nst_StrObj **)arg = AS_STR(ob);
             break;
         case 'i':
             if ( ob->type != nst_t_int )
-                SET_TYPE_ERROR_INT("Int");
-            *(Nst_int *)arg = AS_INT(ob);
+                _NST_SET_TYPE_ERROR("Int");
+            *(Nst_Int *)arg = AS_INT(ob);
             break;
         case 'r':
             if ( ob->type != nst_t_real )
-                SET_TYPE_ERROR_INT("Real");
-            *(Nst_real *)arg = AS_REAL(ob);
+                _NST_SET_TYPE_ERROR("Real");
+            *(Nst_Real *)arg = AS_REAL(ob);
             break;
         case 'N':
             if ( ob->type != nst_t_real && ob->type != nst_t_int )
-                SET_TYPE_ERROR_INT("Real' or 'Int");
+                _NST_SET_TYPE_ERROR("Real' or 'Int");
             if ( ob->type == nst_t_real )
-                *(Nst_real *)arg = AS_REAL(ob);
+                *(Nst_Real *)arg = AS_REAL(ob);
             else
-                *(Nst_real *)arg = (Nst_real)AS_INT(ob);
+                *(Nst_Real *)arg = (Nst_Real)AS_INT(ob);
             break;
         case 'b':
             if ( ob->type != nst_t_bool )
-                SET_TYPE_ERROR_INT("Bool");
-            *(Nst_bool *)arg = AS_BOOL(ob);
+                _NST_SET_TYPE_ERROR("Bool");
+            *(Nst_Bool *)arg = AS_BOOL(ob);
             break;
         case 'n':
             if ( ob->type != nst_t_null )
-                SET_TYPE_ERROR_INT("Null");
+                _NST_SET_TYPE_ERROR("Null");
             *(void **)arg = NULL;
             break;
         case 's':
             if ( ob->type != nst_t_str )
-                SET_TYPE_ERROR_INT("Str");
+                _NST_SET_TYPE_ERROR("Str");
             *(Nst_StrObj **)arg = AS_STR(ob);
             break;
         case 'v':
             if ( ob->type != nst_t_vect )
-                SET_TYPE_ERROR_INT("Vector");
+                _NST_SET_TYPE_ERROR("Vector");
             *(Nst_SeqObj **)arg = AS_SEQ(ob);
             break;
         case 'a':
             if ( ob->type != nst_t_arr )
-                SET_TYPE_ERROR_INT("Array");
+                _NST_SET_TYPE_ERROR("Array");
             *(Nst_SeqObj **)arg = AS_SEQ(ob);
             break;
         case 'A':
             if ( ob->type != nst_t_arr && ob->type != nst_t_vect )
-                SET_TYPE_ERROR_INT("Array' or 'Vector");
+                _NST_SET_TYPE_ERROR("Array' or 'Vector");
             *(Nst_SeqObj **)arg = AS_SEQ(ob);
             break;
         case 'S':
             if ( ob->type != nst_t_arr && ob->type != nst_t_vect
                  && ob->type != nst_t_str )
-                SET_TYPE_ERROR_INT("Array', 'Vector' or 'String");
+                _NST_SET_TYPE_ERROR("Array', 'Vector' or 'String");
             if ( ob->type == nst_t_str )
-                *(Nst_Obj **)arg = obj_cast(ob, nst_t_arr, err);
+                *(Nst_Obj **)arg = nst_obj_cast(ob, nst_t_arr, err);
             else
                 *(Nst_Obj **)arg = inc_ref(ob);
             break;
         case 'm':
             if ( ob->type != nst_t_map )
-                SET_TYPE_ERROR_INT("Map");
+                _NST_SET_TYPE_ERROR("Map");
             *(Nst_MapObj **)arg = AS_MAP(ob);
             break;
         case 'f':
             if ( ob->type != nst_t_func )
-                SET_TYPE_ERROR_INT("Func");
+                _NST_SET_TYPE_ERROR("Func");
             *(Nst_FuncObj **)arg = AS_FUNC(ob);
             break;
         case 'I':
             if ( ob->type != nst_t_iter )
-                SET_TYPE_ERROR_INT("Iter");
+                _NST_SET_TYPE_ERROR("Iter");
             *(Nst_IterObj **)arg = AS_ITER(ob);
             break;
         case 'B':
             if ( ob->type != nst_t_byte )
-                SET_TYPE_ERROR_INT("Byte");
-            *(Nst_byte *)arg = AS_BYTE(ob);
+                _NST_SET_TYPE_ERROR("Byte");
+            *(Nst_Byte *)arg = AS_BYTE(ob);
             break;
         case 'F':
             if ( ob->type != nst_t_file )
-                SET_TYPE_ERROR_INT("IOfile");
+                _NST_SET_TYPE_ERROR("IOfile");
             *(Nst_IOFileObj **)arg = AS_FILE(ob);
             break;
         default:

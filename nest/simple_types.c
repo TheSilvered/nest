@@ -8,29 +8,29 @@
     obj->value = value; \
     return (Nst_Obj *)obj
 
-Nst_Obj *new_int(Nst_int value)
+Nst_Obj *nst_new_int(Nst_Int value)
 {
     NEW_SYMPLE_TYPE(Nst_IntObj, nst_t_int);
 }
 
-Nst_Obj *new_real(Nst_real value)
+Nst_Obj *nst_new_real(Nst_Real value)
 {
     NEW_SYMPLE_TYPE(Nst_RealObj, nst_t_real);
 }
 
-Nst_Obj *new_byte(Nst_byte value)
+Nst_Obj *nst_new_byte(Nst_Byte value)
 {
     NEW_SYMPLE_TYPE(Nst_ByteObj, nst_t_byte);
 }
 
-Nst_Obj *new_bool(Nst_bool value)
+Nst_Obj *nst_new_bool(Nst_Bool value)
 {
     NEW_SYMPLE_TYPE(Nst_BoolObj, nst_t_bool);
 }
 
-Nst_Obj *new_file(Nst_iofile value, bool bin, bool read, bool write)
+Nst_Obj *nst_new_file(Nst_IOfile value, bool bin, bool read, bool write)
 {
-    Nst_IOFileObj *obj = AS_FILE(alloc_obj(sizeof(Nst_IOFileObj), nst_t_file, destroy_iofile));
+    Nst_IOFileObj *obj = AS_FILE(alloc_obj(sizeof(Nst_IOFileObj), nst_t_file, nst_destroy_iofile));
     if ( obj == NULL ) return NULL;
     obj->value = value;
     obj->is_closed = false;
@@ -41,7 +41,7 @@ Nst_Obj *new_file(Nst_iofile value, bool bin, bool read, bool write)
     return (Nst_Obj *)obj;
 }
 
-void destroy_iofile(Nst_IOFileObj *obj)
+void nst_destroy_iofile(Nst_IOFileObj *obj)
 {
     if ( !obj->is_closed )
         fclose(obj->value);

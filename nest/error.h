@@ -5,21 +5,21 @@
 #include <stdint.h>
 #include "llist.h"
 
-#define SYNTAX_ERROR (char *)"Syntax Error"
-#define MEMORY_ERROR (char *)"Memory Error"
-#define VALUE_ERROR (char *)"Value Error"
-#define TYPE_ERROR (char *)"Type Error"
-#define CALL_ERROR (char *)"Call Error"
-#define MATH_ERROR (char *)"Math Error"
-#define GENERAL_ERROR (char *)"Unknown Error"
+#define NST_E_SYNTAX_ERROR (char *)"Syntax Error"
+#define NST_E_MEMORY_ERROR (char *)"Memory Error"
+#define NST_E_VALUE_ERROR (char *)"Value Error"
+#define NST_E_TYPE_ERROR (char *)"Type Error"
+#define NST_E_CALL_ERROR (char *)"Call Error"
+#define NST_E_MATH_ERROR (char *)"Math Error"
+#define NST_E_GENERAL_ERROR (char *)"Unknown Error"
 
-#define CSYNTAX_ERROR "Syntax Error"
-#define CMEMORY_ERROR "Memory Error"
-#define CVALUE_ERROR "Value Error"
-#define CTYPE_ERROR "Type Error"
-#define CCALL_ERROR "Call Error"
-#define CMATH_ERROR "Math Error"
-#define CGENERAL_ERROR "Unknown Error"
+#define NST_E_CSYNTAX_ERROR "Syntax Error"
+#define NST_E_CMEMORY_ERROR "Memory Error"
+#define NST_E_CVALUE_ERROR "Value Error"
+#define NST_E_CTYPE_ERROR "Type Error"
+#define NST_E_CCALL_ERROR "Call Error"
+#define NST_E_CMATH_ERROR "Math Error"
+#define NST_E_CGENERAL_ERROR "Unknown Error"
 
 // error messages
 #define UNEXPECTED_NEWLINE "unescaped line feed not allowed on single-line strings"
@@ -51,8 +51,8 @@
 #define EXPECTED_TYPE(type) "expected type '" type "', got '%s' instead"
 #define UNHASHABLE_TYPE "unhashable type '%s'"
 #define INDEX_OUT_OF_BOUNDS(type) "index %lli out of bounds for '" type "' of size %zi"
-#define TOO_MANY_ARGS(name) "too many arguments were given to" name
-#define TOO_FEW_ARGS(name) "too few arguments were given to" name
+#define TOO_MANY_ARGS(name) "too many arguments were given to '" name "'"
+#define TOO_FEW_ARGS(name) "too few arguments were given to '" name "'"
 #define TOO_MANY_ARGS_FUNC "too many arguments were passed to the function"
 #define TOO_FEW_ARGS_FUNC "too few arguments were passed to the function"
 #define ZERO_RANGE_STEP "step must not be zero"
@@ -79,12 +79,12 @@ typedef struct
     char *text;
     size_t text_len;
 }
-Pos;
+Nst_Pos;
 
 typedef struct
 {
-    Pos start;
-    Pos end;
+    Nst_Pos start;
+    Nst_Pos end;
     char *name;
     char *message;
 }
@@ -95,7 +95,7 @@ typedef struct
     char *name;
     char *message;
 }
-OpErr;
+Nst_OpErr;
 
 typedef struct
 {
@@ -104,14 +104,15 @@ typedef struct
 }
 Nst_Traceback;
 
-Pos copy_pos(Pos pos);
-void print_error(Nst_Error err);
-void print_traceback(Nst_Traceback tb);
+Nst_Pos nst_copy_pos(Nst_Pos pos);
+Nst_Pos nst_no_pos();
+void nst_print_error(Nst_Error err);
+void nst_print_traceback(Nst_Traceback tb);
 
-char *format_type_error(const char *format, char *type_name);
-char *format_idx_error(const char *format, int64_t idx, size_t seq_len);
-char *format_fnf_error(const char *format, char *file_name);
-char *format_arg_error(const char *format, char *type_name, size_t idx);
+char *_nst_format_type_error(const char *format, char *type_name);
+char *_nst_format_idx_error(const char *format, int64_t idx, size_t seq_len);
+char *_nst_format_fnf_error(const char *format, char *file_name);
+char *_nst_format_arg_error(const char *format, char *type_name, size_t idx);
 
 #ifdef __cplusplus
 }

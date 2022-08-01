@@ -12,16 +12,16 @@
 extern "C" {
 #endif // !__cplusplus
 
-void run(Node *node, int argc, char **argv);
-Nst_MapObj *run_module(char *file_name);
-Nst_Obj *call_func(Nst_FuncObj *func, Nst_Obj **args, OpErr *err);
-size_t get_full_path(char *file_path, char **buf, char **file_part);
+void nst_run(Nst_Node *node, int argc, char **argv);
+Nst_MapObj *nst_run_module(char *file_name);
+Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err);
+size_t nst_get_full_path(char *file_path, char **buf, char **file_part);
 
 typedef struct
 {
     Nst_Traceback *traceback;
     Nst_Obj *value;
-    VarTable *vt;
+    struct _varTable *vt;
     bool error_occurred;
     bool must_return;
     bool must_continue;
@@ -31,16 +31,16 @@ typedef struct
     LList *lib_paths;
     LList *lib_handles;
 }
-ExecutionState;
+Nst_ExecutionState;
 
 typedef struct
 {
     Nst_MapObj *val;
     char *path;
 }
-LibHandle;
+Nst_LibHandle;
 
-extern ExecutionState *state;
+extern Nst_ExecutionState *nst_state;
 
 #ifdef __cplusplus
 }

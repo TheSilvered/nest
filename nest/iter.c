@@ -13,7 +13,7 @@ Nst_Obj *new_iter(
     Nst_FuncObj *get_val,
     Nst_Obj *value)
 {
-    Nst_IterObj *iter = AS_ITER(alloc_obj(sizeof(Nst_IterObj), nst_t_iter, destroy_iter));
+    Nst_IterObj *iter = AS_ITER(alloc_obj(sizeof(Nst_IterObj), nst_t_iter, nst_destroy_iter));
     if ( iter == NULL )
     {
         errno = ENOMEM;
@@ -29,7 +29,7 @@ Nst_Obj *new_iter(
     return (Nst_Obj *)iter;
 }
 
-void destroy_iter(Nst_IterObj *iter)
+void nst_destroy_iter(Nst_IterObj *iter)
 {
     dec_ref(iter->start);
     dec_ref(iter->advance);
@@ -38,79 +38,79 @@ void destroy_iter(Nst_IterObj *iter)
     dec_ref(iter->value);
 }
 
-Nst_Obj *num_iter_start(size_t arg_num, Nst_Obj **args, OpErr *err)
+NST_FUNC_SIGN(nst_num_iter_start)
 {
     Nst_SeqObj *val = AS_SEQ(args[0]);
     AS_INT(val->objs[0]) = AS_INT(val->objs[1]);
-    RETURN_NULL;
+    NST_RETURN_NULL;
 }
 
-Nst_Obj *num_iter_advance(size_t arg_num, Nst_Obj **args, OpErr *err)
+NST_FUNC_SIGN(nst_num_iter_advance)
 {
     Nst_SeqObj *val = AS_SEQ(args[0]);
     register Nst_Obj *idx_obj = val->objs[0];
     AS_INT(val->objs[0]) += AS_INT(val->objs[3]);
-    RETURN_NULL;
+    NST_RETURN_NULL;
 }
 
-Nst_Obj *num_iter_is_done(size_t arg_num, Nst_Obj **args, OpErr *err)
+NST_FUNC_SIGN(nst_num_iter_is_done)
 {
     Nst_SeqObj *val = AS_SEQ(args[0]);
     Nst_Obj **objs = val->objs;
-    register Nst_int idx = AS_INT(objs[0]);
-    register Nst_int stop = AS_INT(objs[2]);
-    register Nst_int step = AS_INT(objs[3]);
+    register Nst_Int idx = AS_INT(objs[0]);
+    register Nst_Int stop = AS_INT(objs[2]);
+    register Nst_Int step = AS_INT(objs[3]);
 
     if ( step > 0 )
     {
         if ( idx < stop )
-            RETURN_FALSE;
+            NST_RETURN_FALSE;
         else
-            RETURN_TRUE;
+            NST_RETURN_TRUE;
     }
     else
     {
         if ( idx > stop )
-            RETURN_FALSE;
+            NST_RETURN_FALSE;
         else
-            RETURN_TRUE;
+            NST_RETURN_TRUE;
     }
 }
 
-Nst_Obj *num_iter_get_val(size_t arg_num, Nst_Obj **args, OpErr *err)
+NST_FUNC_SIGN(nst_num_iter_get_val)
 {
     Nst_SeqObj *val = AS_SEQ(args[0]);
-    return new_int(AS_INT(val->objs[0]));
+    return nst_new_int(AS_INT(val->objs[0]));
 }
 
-Nst_Obj *seq_iter_start(size_t arg_num, Nst_Obj **args, OpErr *err)
+NST_FUNC_SIGN(nst_seq_iter_start)
 {
     Nst_SeqObj *val = AS_SEQ(args[0]);
     AS_INT(val->objs[0]) = 0;
-    RETURN_NULL;
+    NST_RETURN_NULL;
 }
 
-Nst_Obj *seq_iter_advance(size_t arg_num, Nst_Obj **args, OpErr *err)
+NST_FUNC_SIGN(nst_seq_iter_advance)
 {
     Nst_SeqObj *val = AS_SEQ(args[0]);
     Nst_Obj **objs = val->objs;
     AS_INT(val->objs[0]) += 1;
-    RETURN_NULL;
+    NST_RETURN_NULL;
 }
 
-Nst_Obj *seq_iter_is_done(size_t arg_num, Nst_Obj **args, OpErr *err)
+NST_FUNC_SIGN(nst_seq_iter_is_done)
 {
     Nst_SeqObj *val = AS_SEQ(args[0]);
     Nst_Obj **objs = val->objs;
     register size_t seq_len = AS_SEQ(objs[1])->len;
 
-    if ( seq_len == 0 || AS_INT(objs[0]) >= (Nst_int)seq_len )
-        RETURN_TRUE;
+    if ( seq_len == 0 || AS_INT(objs[0]) >= (Nst_Int)seq_len )
+        NST_RETURN_TRUE;
     else
-        RETURN_FALSE;
+        NST_RETURN_FALSE;
 }
 
-Nst_Obj *seq_iter_get_val(size_t arg_num, Nst_Obj **args, OpErr *err)
+NST_FUNC_SIGN(nst_seq_iter_get_val)
 {
     Nst_SeqObj *val = AS_SEQ(args[0]);
     register Nst_Obj *obj = AS_SEQ(val->objs[1])->objs[AS_INT(val->objs[0])];
@@ -119,34 +119,34 @@ Nst_Obj *seq_iter_get_val(size_t arg_num, Nst_Obj **args, OpErr *err)
     return obj;
 }
 
-Nst_Obj *str_iter_start(size_t arg_num, Nst_Obj **args, OpErr *err)
+NST_FUNC_SIGN(nst_str_iter_start)
 {
     Nst_SeqObj *val = AS_SEQ(args[0]);
     AS_INT(val->objs[0]) = 0;
-    RETURN_NULL;
+    NST_RETURN_NULL;
 }
 
-Nst_Obj *str_iter_advance(size_t arg_num, Nst_Obj **args, OpErr *err)
+NST_FUNC_SIGN(nst_str_iter_advance)
 {
     Nst_SeqObj *val = AS_SEQ(args[0]);
     Nst_Obj **objs = val->objs;
     AS_INT(val->objs[0]) += 1;
-    RETURN_NULL;
+    NST_RETURN_NULL;
 }
 
-Nst_Obj *str_iter_is_done(size_t arg_num, Nst_Obj **args, OpErr *err)
+NST_FUNC_SIGN(nst_str_iter_is_done)
 {
     Nst_SeqObj *val = AS_SEQ(args[0]);
     Nst_Obj **objs = val->objs;
     register size_t str_len = AS_STR(objs[1])->len;
 
-    if ( str_len == 0 || AS_INT(objs[0]) >= (Nst_int)str_len )
-        RETURN_TRUE;
+    if ( str_len == 0 || AS_INT(objs[0]) >= (Nst_Int)str_len )
+        NST_RETURN_TRUE;
     else
-        RETURN_FALSE;
+        NST_RETURN_FALSE;
 }
 
-Nst_Obj *str_iter_get_val(size_t arg_num, Nst_Obj **args, OpErr *err)
+NST_FUNC_SIGN(nst_str_iter_get_val)
 {
     Nst_SeqObj *val = AS_SEQ(args[0]);
     Nst_Obj **objs = val->objs;
@@ -159,5 +159,5 @@ Nst_Obj *str_iter_get_val(size_t arg_num, Nst_Obj **args, OpErr *err)
 
     ch[0] = AS_STR(objs[1])->value[AS_INT(objs[0])];
 
-    return new_string(ch, 1, true);
+    return nst_new_string(ch, 1, true);
 }

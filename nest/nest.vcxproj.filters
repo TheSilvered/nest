@@ -69,6 +69,9 @@
     <ClCompile Include="simple_types.c">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="compiler.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="error.h">
@@ -132,6 +135,9 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="error_internal.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="compiler.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>

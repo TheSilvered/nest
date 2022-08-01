@@ -4,6 +4,7 @@
 #include "error.h"
 #include "obj.h"
 #include "function.h"
+#include "lib_import.h"
 
 #define AS_ITER(ptr) ((Nst_IterObj *)(ptr))
 
@@ -28,22 +29,22 @@ Nst_Obj *new_iter(
     Nst_FuncObj *is_done,
     Nst_FuncObj *get_val,
     Nst_Obj *value);
-void destroy_iter(Nst_IterObj *iter);
+void nst_destroy_iter(Nst_IterObj *iter);
 
-Nst_Obj *num_iter_start(size_t arg_num, Nst_Obj **args, OpErr *err);
-Nst_Obj *num_iter_advance(size_t arg_num, Nst_Obj **args, OpErr *err);
-Nst_Obj *num_iter_is_done(size_t arg_num, Nst_Obj **args, OpErr *err);
-Nst_Obj *num_iter_get_val(size_t arg_num, Nst_Obj **args, OpErr *err);
+NST_FUNC_SIGN(nst_num_iter_start);
+NST_FUNC_SIGN(nst_num_iter_advance);
+NST_FUNC_SIGN(nst_num_iter_is_done);
+NST_FUNC_SIGN(nst_num_iter_get_val);
 
-Nst_Obj *seq_iter_start(size_t arg_num, Nst_Obj **args, OpErr *err);
-Nst_Obj *seq_iter_advance(size_t arg_num, Nst_Obj **args, OpErr *err);
-Nst_Obj *seq_iter_is_done(size_t arg_num, Nst_Obj **args, OpErr *err);
-Nst_Obj *seq_iter_get_val(size_t arg_num, Nst_Obj **args, OpErr *err);
+NST_FUNC_SIGN(nst_seq_iter_start);
+NST_FUNC_SIGN(nst_seq_iter_advance);
+NST_FUNC_SIGN(nst_seq_iter_is_done);
+NST_FUNC_SIGN(nst_seq_iter_get_val);
 
-Nst_Obj *str_iter_start(size_t arg_num, Nst_Obj **args, OpErr *err);
-Nst_Obj *str_iter_advance(size_t arg_num, Nst_Obj **args, OpErr *err);
-Nst_Obj *str_iter_is_done(size_t arg_num, Nst_Obj **args, OpErr *err);
-Nst_Obj *str_iter_get_val(size_t arg_num, Nst_Obj **args, OpErr *err);
+NST_FUNC_SIGN(nst_str_iter_start);
+NST_FUNC_SIGN(nst_str_iter_advance);
+NST_FUNC_SIGN(nst_str_iter_is_done);
+NST_FUNC_SIGN(nst_str_iter_get_val);
 
 #ifdef __cplusplus
 }

@@ -3,9 +3,9 @@
 #include "nodes.h"
 #include "tokens.h"
 
-Node *new_node_tokens(Pos start, Pos end, int type, LList *tokens)
+Nst_Node *new_node_tokens(Nst_Pos start, Nst_Pos end, int type, LList *tokens)
 {
-    Node *node = malloc(sizeof(Node));
+    Nst_Node *node = malloc(sizeof(Nst_Node));
 
     if ( node == NULL )
     {
@@ -29,9 +29,9 @@ Node *new_node_tokens(Pos start, Pos end, int type, LList *tokens)
     return node;
 }
 
-Node *new_node_nodes(Pos start, Pos end, int type, LList *nodes)
+Nst_Node *new_node_nodes(Nst_Pos start, Nst_Pos end, int type, LList *nodes)
 {
-    Node *node = malloc(sizeof(Node));
+    Nst_Node *node = malloc(sizeof(Nst_Node));
 
     if ( node == NULL )
     {
@@ -55,9 +55,9 @@ Node *new_node_nodes(Pos start, Pos end, int type, LList *nodes)
     return node;
 }
 
-Node *new_node_full(Pos start, Pos end, int type, LList *nodes, LList *tokens)
+Nst_Node *new_node_full(Nst_Pos start, Nst_Pos end, int type, LList *nodes, LList *tokens)
 {
-    Node *node = malloc(sizeof(Node));
+    Nst_Node *node = malloc(sizeof(Nst_Node));
 
     if ( node == NULL )
     {
@@ -73,9 +73,9 @@ Node *new_node_full(Pos start, Pos end, int type, LList *nodes, LList *tokens)
     return node;
 }
 
-Node *new_node_empty(Pos start, Pos end, int type)
+Nst_Node *new_node_empty(Nst_Pos start, Nst_Pos end, int type)
 {
-    Node *node = malloc(sizeof(Node));
+    Nst_Node *node = malloc(sizeof(Nst_Node));
 
     if ( node == NULL )
     {
@@ -107,12 +107,12 @@ Node *new_node_empty(Pos start, Pos end, int type)
     return node;
 }
 
-void destroy_node(Node *node)
+void destroy_node(Nst_Node *node)
 {
     if ( node == NULL )
         return;
 
-    LList_destroy(node->tokens, destroy_token);
+    LList_destroy(node->tokens, nst_destroy_token);
     LList_destroy(node->nodes, destroy_node);
 
     free(node);

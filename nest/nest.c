@@ -7,6 +7,7 @@
 #include "obj.h"
 #include "llist.h"
 #include "tokens.h"
+#include "compiler.h"
 
 #define VERSION "beta-0.2.2"
 
@@ -61,6 +62,7 @@ int main(int argc, char **argv)
     char *file_name = NULL;
     bool print_tokens = false;
     bool print_tree = false;
+    bool print_bc = false;
 
     if ( strcmp(argv[1], "-t") == 0 || strcmp(argv[1], "--tokens") == 0 )
     {
@@ -90,10 +92,24 @@ int main(int argc, char **argv)
         print_tree = true;
         file_name = argv[2];
     }
+    else if ( strcmp(argv[1], "-b") == 0 || strcmp(argv[1], "--bytecode") == 0 )
+    {
+        if ( argc < 3 )
+        {
+            printf("USAGE: nest [compilation-options] <filename>\n"
+                "     : nest <filename> [args]\n"
+                "     : nest <options>\n"
+            );
+            del_obj();
+            return -1;
+        }
+        print_bc = true;
+        file_name = argv[2];
+    }
     else
         file_name = argv[1];
 
-    LList *tokens = ftokenize(file_name);
+    LList *tokens = nst_ftokenize(file_name);
 
     if ( tokens == NULL )
         return 0;
@@ -102,26 +118,45 @@ int main(int argc, char **argv)
     {
         for ( LLNode *n = tokens->head; n != NULL; n = n->next )
         {
-            print_token(n->value);
+            nst_print_token(n->value);
             printf("\n");
         }
         del_obj();
         return 0;
     }
 
-    Node *ast = parse(tokens);
+    Nst_Node *ast = nst_parse(tokens);
 
     if ( ast == NULL )
-        return 0;
-
-    if ( print_tree )
     {
-        print_ast(ast);
         del_obj();
         return 0;
     }
 
-    run(ast, argc, argv);
+    if ( print_tree )
+    {
+        nst_print_ast(ast);
+        del_obj();
+        return 0;
+    }
+
+    Nst_InstructionList *inst_ls = nst_compile(ast);
+
+    if ( inst_ls == NULL )
+    {
+        destroy_node(ast);
+        del_obj();
+        return 0;
+    }
+
+    if ( print_bc )
+    {
+        nst_print_bytecode(inst_ls, 0);
+        del_obj();
+        return 0;
+    }
+
+    nst_run(ast, argc, argv);
     destroy_node(ast);
 
     del_obj();

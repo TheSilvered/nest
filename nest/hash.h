@@ -7,7 +7,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-int32_t hash_obj(Nst_Obj *obj);
+int32_t nst_hash_obj(Nst_Obj *obj);
 
 #ifdef __cplusplus
 }

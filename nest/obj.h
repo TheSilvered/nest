@@ -26,6 +26,8 @@ typedef struct _obj
 Nst_Obj;
 
 Nst_Obj *alloc_obj(size_t size, Nst_Obj *type, void (*destructor)(void *));
+void init_obj(void);
+void del_obj(void);
 
 inline void destroy_obj(Nst_Obj *obj);
 
@@ -38,7 +40,7 @@ inline Nst_Obj *_inc_ref(Nst_Obj *obj)
 inline void _dec_ref(Nst_Obj *obj)
 {
     obj->ref_count--;
-    if ( obj->ref_count <= 0 )
+    if ( obj->ref_count <= 0 || obj == obj->type && obj->ref_count == 1 )
         destroy_obj(obj);
 }
 
@@ -46,12 +48,10 @@ inline void destroy_obj(Nst_Obj *obj)
 {
     if ( obj->destructor != NULL )
         (*obj->destructor)(obj);
-    dec_ref(obj->type);
+    if ( obj != obj->type )
+        dec_ref(obj->type);
     free(obj);
 }
-
-void init_obj(void);
-void del_obj(void);
 
 extern Nst_Obj *nst_t_type;
 extern Nst_Obj *nst_t_int;

@@ -21,17 +21,17 @@ typedef struct
 }
 Nst_StrObj;
 
-Nst_Obj *new_string_raw(const char *val, bool allocated);
-Nst_Obj *new_string(char *val, size_t len, bool allocated);
+Nst_Obj *nst_new_string_raw(const char *val, bool allocated);
+Nst_Obj *nst_new_string(char *val, size_t len, bool allocated);
 
-Nst_Obj *new_type_obj(const char *val, size_t len);
+Nst_Obj *nst_new_type_obj(const char *val, size_t len);
 
-Nst_Obj *copy_string(Nst_StrObj *src);
-Nst_Obj *repr_string(Nst_StrObj *src);
+Nst_Obj *nst_copy_string(Nst_StrObj *src);
+Nst_Obj *nst_repr_string(Nst_StrObj *src);
 
-Nst_Obj *parse_int(char *str, OpErr *err);
-Nst_Obj *parse_real(char *str, OpErr *err);
-void destroy_string(Nst_StrObj *str);
+Nst_Obj *nst_parse_int(char *str, Nst_OpErr *err);
+Nst_Obj *nst_parse_real(char *str, Nst_OpErr *err);
+void nst_destroy_string(Nst_StrObj *str);
 
 #ifdef __cplusplus
 }

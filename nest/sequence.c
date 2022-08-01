@@ -4,9 +4,9 @@
 #include "sequence.h"
 #include "obj_ops.h"
 
-Nst_Obj *new_array(size_t len)
+Nst_Obj *nst_new_array(size_t len)
 {
-    Nst_SeqObj *arr = AS_SEQ(alloc_obj(sizeof(Nst_SeqObj), nst_t_arr, destroy_seq));
+    Nst_SeqObj *arr = AS_SEQ(alloc_obj(sizeof(Nst_SeqObj), nst_t_arr, nst_destroy_seq));
     Nst_Obj **objs = calloc(len, sizeof(Nst_Obj *));
 
     if ( arr == NULL || objs == NULL )
@@ -22,14 +22,14 @@ Nst_Obj *new_array(size_t len)
     return (Nst_Obj *)arr;
 }
 
-Nst_Obj *new_vector(size_t len)
+Nst_Obj *nst_new_vector(size_t len)
 {
     size_t size = (size_t)(len * VECTOR_GROWTH_RATIO);
 
     if ( size < VECTOR_MIN_SIZE )
         size = VECTOR_MIN_SIZE;
 
-    Nst_SeqObj *vect = AS_SEQ(alloc_obj(sizeof(Nst_SeqObj), nst_t_vect, destroy_seq));
+    Nst_SeqObj *vect = AS_SEQ(alloc_obj(sizeof(Nst_SeqObj), nst_t_vect, nst_destroy_seq));
     Nst_Obj **objs = calloc(size, sizeof(Nst_Obj *));
 
     if ( vect == NULL || objs == NULL )
@@ -45,7 +45,7 @@ Nst_Obj *new_vector(size_t len)
     return (Nst_Obj *)vect;
 }
 
-void destroy_seq(Nst_SeqObj *seq)
+void nst_destroy_seq(Nst_SeqObj *seq)
 {
     Nst_Obj **objs = seq->objs;
     for ( size_t i = 0, n = seq->len; i < n; i++ )
@@ -54,7 +54,7 @@ void destroy_seq(Nst_SeqObj *seq)
     free(objs);
 }
 
-void resize_vector(Nst_SeqObj *vect)
+void _nst_resize_vector(Nst_SeqObj *vect)
 {
     register size_t len = vect->len;
     register size_t size = vect->size;
@@ -87,10 +87,10 @@ void resize_vector(Nst_SeqObj *vect)
     vect->objs = new_objs;
 }
 
-void append_value_vector(Nst_SeqObj *vect, Nst_Obj *val)
+void _nst_append_value_vector(Nst_SeqObj *vect, Nst_Obj *val)
 {
     if ( vect->size == vect->len )
-        resize_vector(vect);
+        _nst_resize_vector(vect);
 
     if ( errno == ENOMEM )
         return;
@@ -100,7 +100,7 @@ void append_value_vector(Nst_SeqObj *vect, Nst_Obj *val)
     vect->len++;
 }
 
-bool set_value_seq(Nst_SeqObj *seq, int64_t idx, Nst_Obj *val)
+bool _nst_set_value_seq(Nst_SeqObj *seq, int64_t idx, Nst_Obj *val)
 {
     if ( idx < 0 )
         idx += seq->len;
@@ -116,7 +116,7 @@ bool set_value_seq(Nst_SeqObj *seq, int64_t idx, Nst_Obj *val)
     return true;
 }
 
-Nst_Obj *get_value_seq(Nst_SeqObj *seq, int64_t idx)
+Nst_Obj *_nst_get_value_seq(Nst_SeqObj *seq, int64_t idx)
 {
     if ( idx < 0 )
         idx += seq->len;
@@ -128,7 +128,7 @@ Nst_Obj *get_value_seq(Nst_SeqObj *seq, int64_t idx)
     return seq->objs[idx];
 }
 
-Nst_Obj *rem_value_vector(Nst_SeqObj *vect, Nst_Obj *val)
+Nst_Obj *_nst_rem_value_vector(Nst_SeqObj *vect, Nst_Obj *val)
 {
     register size_t i = 0;
     register size_t n = vect->len;
@@ -136,7 +136,7 @@ Nst_Obj *rem_value_vector(Nst_SeqObj *vect, Nst_Obj *val)
 
     for ( ; i < n; i++ )
     {
-        if ( obj_eq(val, objs[i], NULL) == nst_true )
+        if ( nst_obj_eq(val, objs[i], NULL) == nst_true )
             break;
         if ( i + 1 == n )
             return inc_ref(nst_false);
@@ -144,17 +144,17 @@ Nst_Obj *rem_value_vector(Nst_SeqObj *vect, Nst_Obj *val)
 
     for ( i++; i < n; i++ )
     {
-        set_value_seq(vect, i - 1, objs[i]);
+        _nst_set_value_seq(vect, i - 1, objs[i]);
     }
 
     dec_ref(objs[n - 1]);
     vect->len--;
-    resize_vector(vect);
+    _nst_resize_vector(vect);
 
     return inc_ref(nst_true);;
 }
 
-Nst_Obj *pop_value_vector(Nst_SeqObj *vect, size_t quantity)
+Nst_Obj *_nst_pop_value_vector(Nst_SeqObj *vect, size_t quantity)
 {
     if ( quantity > vect->len )
         quantity = vect->len;

@@ -39,16 +39,16 @@
 
 #define SET_INVALID_ESCAPE_ERROR do { \
     free(end_str); \
-    SET_ERROR(SET_SYNTAX_ERROR_INT, escape_start, cursor.pos, INVALID_ESCAPE, *err, ); \
+    SET_ERROR(_NST_SET_SYNTAX_ERROR, escape_start, cursor.pos, INVALID_ESCAPE, *err, ); \
     return; } while (0)
 
-LList *ftokenize(char *filename);
-LList *tokenize(char *text, size_t text_len, char *filename);
+LList *nst_ftokenize(char *filename);
+LList *nst_tokenize(char *text, size_t text_len, char *filename);
 
 typedef struct LexerCursor {
     char *text;
     size_t len;
-    Pos pos;
+    Nst_Pos pos;
     long idx;
     char ch;
 } LexerCursor;
@@ -59,12 +59,12 @@ inline static void advance();
 inline static void go_back();
 inline static char *add_while_in(char *charset);
 
-static void make_symbol(Token **tok, Nst_Error **err);
-static void make_num_literal(Token **tok, Nst_Error **err);
-static void make_ident(Token **tok, Nst_Error **err);
-static void make_str_literal(Token **tok, Nst_Error **err);
+static void make_symbol(Nst_LexerToken **tok, Nst_Error **err);
+static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err);
+static void make_ident(Nst_LexerToken **tok, Nst_Error **err);
+static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err);
 
-LList *ftokenize(char *filename)
+LList *nst_ftokenize(char *filename)
 {
     FILE *file = fopen(filename, "r");
     if ( file == NULL )
@@ -96,12 +96,12 @@ LList *ftokenize(char *filename)
         text = strcat(text, chunk);
     }
     fclose(file);
-    return tokenize(text, str_len, filename);
+    return nst_tokenize(text, str_len, filename);
 }
 
-LList *tokenize(char *text, size_t text_len, char *filename)
+LList *nst_tokenize(char *text, size_t text_len, char *filename)
 {
-    Token *tok = NULL;
+    Nst_LexerToken *tok = NULL;
     Nst_Error *err = NULL;
     LList *tokens = LList_new();
 
@@ -124,21 +124,21 @@ LList *tokenize(char *text, size_t text_len, char *filename)
             advance();
             continue;
         }
-        else if ( strchr(DIGIT_CHARS "-", cursor.ch) != NULL )
+        else if ( strchr(_NST_DIGIT_CHARS "-", cursor.ch) != NULL )
             make_num_literal(&tok, &err);
-        else if ( strchr(SYMBOL_CHARS, cursor.ch) != NULL )
+        else if ( strchr(_NST_SYMBOL_CHARS, cursor.ch) != NULL )
             make_symbol(&tok, &err);
-        else if ( strchr(LETTER_CHARS, cursor.ch) != NULL )
+        else if ( strchr(_NST_LETTER_CHARS, cursor.ch) != NULL )
             make_ident(&tok, &err);
         else if ( cursor.ch == '"' || cursor.ch == '\'' )
             make_str_literal(&tok, &err);
         else if ( cursor.ch == '\n' )
-            tok = new_token_noend(copy_pos(cursor.pos), ENDL);
+            tok = nst_new_token_noend(nst_copy_pos(cursor.pos), NST_TT_ENDL);
         else if ( cursor.ch == '\\' )
             advance();
         else
         {
-            SET_ERROR(SET_SYNTAX_ERROR_INT,
+            SET_ERROR(_NST_SET_SYNTAX_ERROR,
                       cursor.pos,
                       cursor.pos,
                       "invalid character",
@@ -153,19 +153,19 @@ LList *tokenize(char *text, size_t text_len, char *filename)
             if ( err != NULL )
                 free(err);
             if ( tok != NULL )
-                destroy_token(tok);
-            LList_destroy(tokens, destroy_token);
+                nst_destroy_token(tok);
+            LList_destroy(tokens, nst_destroy_token);
             printf("Ran out of memory\n");
             return NULL;
         }
 
         if ( err != NULL )
         {
-            print_error(*err);
+            nst_print_error(*err);
             free(err);
             if ( tok != NULL )
-                destroy_token(tok);
-            LList_destroy(tokens, destroy_token);
+                nst_destroy_token(tok);
+            LList_destroy(tokens, nst_destroy_token);
             return NULL;
         }
 
@@ -175,7 +175,7 @@ LList *tokenize(char *text, size_t text_len, char *filename)
         advance();
     }
 
-    LList_append(tokens, new_token_noend(cursor.pos, EOFILE), true);
+    LList_append(tokens, nst_new_token_noend(cursor.pos, NST_TT_EOFILE), true);
     return tokens;
 }
 
@@ -247,11 +247,11 @@ inline static char *add_while_in(char *charset)
     return str;
 }
 
-static void make_symbol(Token **tok, Nst_Error **err)
+static void make_symbol(Nst_LexerToken **tok, Nst_Error **err)
 {
-    Pos start = copy_pos(cursor.pos);
-    char *symbol = add_while_in(SYMBOL_CHARS);
-    Pos end = copy_pos(cursor.pos);
+    Nst_Pos start = nst_copy_pos(cursor.pos);
+    char *symbol = add_while_in(_NST_SYMBOL_CHARS);
+    Nst_Pos end = nst_copy_pos(cursor.pos);
     char *comment_start = strstr(symbol, "--");
     char *multcom_start = strstr(symbol, "-/");
 
@@ -275,7 +275,7 @@ static void make_symbol(Token **tok, Nst_Error **err)
         bool can_close = false;
         bool was_closed = false;
         go_back();
-        Pos start = copy_pos(cursor.pos);
+        Nst_Pos start = nst_copy_pos(cursor.pos);
         advance();
         while ( cursor.idx < (long)cursor.len )
         {
@@ -295,7 +295,7 @@ static void make_symbol(Token **tok, Nst_Error **err)
         
         if ( !was_closed )
         {
-            SET_ERROR(SET_SYNTAX_ERROR_INT, start, cursor.pos, UNCLOSED_COMMENT, *err, );
+            SET_ERROR(_NST_SET_SYNTAX_ERROR, start, cursor.pos, UNCLOSED_COMMENT, *err, );
         }
         
         return;
@@ -313,24 +313,24 @@ static void make_symbol(Token **tok, Nst_Error **err)
         *multcom_start = '\0';
     }
 
-    int token_type = str_to_tok(symbol);
+    int token_type = nst_str_to_tok(symbol);
     char *symbol_end = symbol + strlen(symbol);
 
     while ( token_type == -1 )
     {
         go_back();
-        end = copy_pos(cursor.pos);
+        end = nst_copy_pos(cursor.pos);
         --symbol_end;
         *symbol_end = '\0';
-        token_type = str_to_tok(symbol);
+        token_type = nst_str_to_tok(symbol);
     }
 
-    *tok = new_token_noval(start, end, token_type);
+    *tok = nst_new_token_noval(start, end, token_type);
 }
 
-static void make_num_literal(Token **tok, Nst_Error **err)
+static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err)
 {
-    Pos start = copy_pos(cursor.pos);
+    Nst_Pos start = nst_copy_pos(cursor.pos);
     bool is_negative = false;
 
     // If there is a minus, there might be a negative number or a symbol
@@ -338,7 +338,7 @@ static void make_num_literal(Token **tok, Nst_Error **err)
     {
         advance();
         // In case it's a symbol, make_symbol handles that
-        if ( strchr(DIGIT_CHARS, cursor.ch) == NULL )
+        if ( strchr(_NST_DIGIT_CHARS, cursor.ch) == NULL )
         {
             go_back();
             make_symbol(tok, err);
@@ -348,28 +348,28 @@ static void make_num_literal(Token **tok, Nst_Error **err)
         is_negative = true;
     }
 
-    char *ltrl = add_while_in(DIGIT_CHARS);
+    char *ltrl = add_while_in(_NST_DIGIT_CHARS);
     advance();
 
     // If there is no dot it's an integer
     if ( cursor.ch != '.' )
     {
         go_back();
-        Pos end = copy_pos(cursor.pos);
+        Nst_Pos end = nst_copy_pos(cursor.pos);
 
         // Don't really need str_end but it's required by the function
         char **str_end = NULL;
-        Nst_int value = strtoll(ltrl, str_end, 10);
+        Nst_Int value = strtoll(ltrl, str_end, 10);
 
         if ( errno == ERANGE )
         {
             free(ltrl);
-            SET_ERROR(SET_SYNTAX_ERROR_INT, start, end, INT_TOO_BIG, *err, );
+            SET_ERROR(_NST_SET_SYNTAX_ERROR, start, end, INT_TOO_BIG, *err, );
             return;
         }
 
         if ( is_negative ) value *= -1;
-        *tok = new_token_value(start, end, N_INT, new_int(value));
+        *tok = nst_new_token_value(start, end, NST_TT_INT, nst_new_int(value));
         return;
     }
 
@@ -377,15 +377,15 @@ static void make_num_literal(Token **tok, Nst_Error **err)
 
     // Get the number after '.'
     advance();
-    char *fract_part = add_while_in(DIGIT_CHARS);
-    Pos end = copy_pos(cursor.pos);
+    char *fract_part = add_while_in(_NST_DIGIT_CHARS);
+    Nst_Pos end = nst_copy_pos(cursor.pos);
 
     // If there is no number it's invalid
     if ( strlen(fract_part) == 0 )
     {
         free(ltrl);
         free(fract_part);
-        SET_ERROR(SET_MEMORY_ERROR_INT, start, end, BAD_REAL_LITEARL, *err, );
+        SET_ERROR(_NST_SET_MEMORY_ERROR, start, end, BAD_REAL_LITEARL, *err, );
         return;
     }
 
@@ -409,37 +409,37 @@ static void make_num_literal(Token **tok, Nst_Error **err)
 
     // Don't really need str_end but it's required by the function
     char *str_end = NULL;
-    Nst_real value = strtod(ltrl, &str_end);
+    Nst_Real value = strtod(ltrl, &str_end);
 
     if ( errno == ERANGE )
     {
         free(ltrl);
-        SET_ERROR(SET_MEMORY_ERROR_INT, start, end, REAL_TOO_BIG, *err, );
+        SET_ERROR(_NST_SET_MEMORY_ERROR, start, end, REAL_TOO_BIG, *err, );
         return;
     }
 
     if ( is_negative ) value *= -1;
-    *tok = new_token_value(start, end, N_REAL, new_real(value));
+    *tok = nst_new_token_value(start, end, NST_TT_REAL, nst_new_real(value));
     free(ltrl);
     return;
 }
 
-static void make_ident(Token **tok, Nst_Error **err)
+static void make_ident(Nst_LexerToken **tok, Nst_Error **err)
 {
-    Pos start = copy_pos(cursor.pos);
-    char *str = add_while_in(LETTER_CHARS DIGIT_CHARS);
-    Pos end = copy_pos(cursor.pos);
+    Nst_Pos start = nst_copy_pos(cursor.pos);
+    char *str = add_while_in(_NST_LETTER_CHARS _NST_DIGIT_CHARS);
+    Nst_Pos end = nst_copy_pos(cursor.pos);
 
-    Nst_StrObj *val_obj = AS_STR(new_string_raw(str, true));
-    hash_obj((Nst_Obj *)val_obj);
+    Nst_StrObj *val_obj = AS_STR(nst_new_string_raw(str, true));
+    nst_hash_obj((Nst_Obj *)val_obj);
 
-    *tok = new_token_value(start, end, IDENT, val_obj);
+    *tok = nst_new_token_value(start, end, NST_TT_IDENT, val_obj);
 }
 
-static void make_str_literal(Token **tok, Nst_Error **err)
+static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err)
 {
-    Pos start = copy_pos(cursor.pos);
-    Pos escape_start = copy_pos(cursor.pos);
+    Nst_Pos start = nst_copy_pos(cursor.pos);
+    Nst_Pos escape_start = nst_copy_pos(cursor.pos);
     char closing_ch = cursor.ch;
     bool allow_multiline = cursor.ch == '"';
     bool escape = false;
@@ -470,13 +470,13 @@ static void make_str_literal(Token **tok, Nst_Error **err)
             if ( cursor.ch == '\n' && !allow_multiline )
             {
                 free(end_str);
-                SET_ERROR(SET_SYNTAX_ERROR_INT, cursor.pos, cursor.pos, UNEXPECTED_NEWLINE, *err, );
+                SET_ERROR(_NST_SET_SYNTAX_ERROR, cursor.pos, cursor.pos, UNEXPECTED_NEWLINE, *err, );
                 return;
             }
             else if ( cursor.ch == '\\' )
             {
                 escape = true;
-                escape_start = copy_pos(cursor.pos);
+                escape_start = nst_copy_pos(cursor.pos);
             }
             else
                 end_str[str_len++] = cursor.ch;
@@ -527,11 +527,11 @@ static void make_str_literal(Token **tok, Nst_Error **err)
         advance();
     }
 
-    Pos end = copy_pos(cursor.pos);
+    Nst_Pos end = nst_copy_pos(cursor.pos);
 
     if ( cursor.ch != closing_ch )
     {
-        SET_ERROR(SET_SYNTAX_ERROR_INT, start, end, UNCLOSED_STR_LITERAL, *err, );
+        SET_ERROR(_NST_SET_SYNTAX_ERROR, start, end, UNCLOSED_STR_LITERAL, *err, );
     }
 
     if ( str_len < chunk_size )
@@ -546,8 +546,8 @@ static void make_str_literal(Token **tok, Nst_Error **err)
     end_str = end_str_realloc;
     end_str[str_len] = '\0';
 
-    Nst_StrObj *val_obj = AS_STR(new_string(end_str, str_len, true));
-    hash_obj((Nst_Obj *)val_obj);
+    Nst_StrObj *val_obj = AS_STR(nst_new_string(end_str, str_len, true));
+    nst_hash_obj((Nst_Obj *)val_obj);
 
-    *tok = new_token_value(start, end, STRING, val_obj);
+    *tok = nst_new_token_value(start, end, NST_TT_STRING, val_obj);
 }

@@ -5,20 +5,23 @@
 #include "obj.h"
 #include "nst_types.h"
 
+#define nst_get_val(vt, name) _nst_get_val(vt, (Nst_Obj *)name)
+#define nst_set_val(vt, name, val) _nst_set_val(vt, (Nst_Obj *)name, (Nst_Obj *)val)
+
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct VarTable
+typedef struct _varTable
 {
     Nst_MapObj *vars;
-    struct VarTable *global_table;
+    struct _varTable *global_table;
 }
-VarTable;
+Nst_VarTable;
 
-VarTable *new_var_table(VarTable *global_table, Nst_StrObj *cwd, Nst_SeqObj *args);
-Nst_Obj *get_val(VarTable *vt, Nst_Obj *name);
-void set_val(VarTable *vt, Nst_Obj *name, Nst_Obj *val);
+Nst_VarTable *nst_new_var_table(Nst_VarTable *global_table, Nst_StrObj *cwd, Nst_SeqObj *args);
+Nst_Obj *_nst_get_val(Nst_VarTable *vt, Nst_Obj *name);
+void _nst_set_val(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val);
 #ifdef __cplusplus
 }
 #endif // !__cplusplus

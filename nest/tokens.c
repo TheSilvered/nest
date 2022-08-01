@@ -5,9 +5,9 @@
 #include "nst_types.h"
 #include "tokens.h"
 
-Token *new_token_value(Pos start, Pos end, int type, void *value)
+Nst_LexerToken *nst_new_token_value(Nst_Pos start, Nst_Pos end, int type, void *value)
 {
-    Token *token = malloc(sizeof(Token));
+    Nst_LexerToken *token = malloc(sizeof(Nst_LexerToken));
     if ( token == NULL )
     {
         errno = ENOMEM;
@@ -22,9 +22,9 @@ Token *new_token_value(Pos start, Pos end, int type, void *value)
     return token;
 }
 
-Token *new_token_noval(Pos start, Pos end, int type)
+Nst_LexerToken *nst_new_token_noval(Nst_Pos start, Nst_Pos end, int type)
 {
-    Token *token = malloc(sizeof(Token));
+    Nst_LexerToken *token = malloc(sizeof(Nst_LexerToken));
     if ( token == NULL )
     {
         errno = ENOMEM;
@@ -39,9 +39,9 @@ Token *new_token_noval(Pos start, Pos end, int type)
     return token;
 }
 
-Token *new_token_noend(Pos start, int type)
+Nst_LexerToken *nst_new_token_noend(Nst_Pos start, int type)
 {
-    Token *token = malloc(sizeof(Token));
+    Nst_LexerToken *token = malloc(sizeof(Nst_LexerToken));
     if ( token == NULL )
     {
         errno = ENOMEM;
@@ -56,7 +56,7 @@ Token *new_token_noend(Pos start, int type)
     return token;
 }
 
-void destroy_token(Token *token)
+void nst_destroy_token(Nst_LexerToken *token)
 {
     if ( token == NULL )
         return;
@@ -66,231 +66,231 @@ void destroy_token(Token *token)
     free(token);
 }
 
-int str_to_tok(char *str)
+int nst_str_to_tok(char *str)
 {
     if ( strcmp("+", str) == 0 )
-        return ADD;
+        return NST_TT_ADD;
     if ( strcmp("-", str) == 0 )
-        return SUB;
+        return NST_TT_SUB;
     if ( strcmp("*", str) == 0 )
-        return MUL;
+        return NST_TT_MUL;
     if ( strcmp("/", str) == 0 )
-        return DIV;
+        return NST_TT_DIV;
     if ( strcmp("^", str) == 0 )
-        return POW;
+        return NST_TT_POW;
     if ( strcmp("%", str) == 0 )
-        return MOD;
+        return NST_TT_MOD;
     if ( strcmp("&&", str) == 0 )
-        return L_AND;
+        return NST_TT_L_AND;
     if ( strcmp("||", str) == 0 )
-        return L_OR;
+        return NST_TT_L_OR;
     if ( strcmp("&|", str) == 0 )
-        return L_XOR;
+        return NST_TT_L_XOR;
     if ( strcmp("&", str) == 0 )
-        return B_AND;
+        return NST_TT_B_AND;
     if ( strcmp("|", str) == 0 )
-        return B_OR;
+        return NST_TT_B_OR;
     if ( strcmp("^^", str) == 0 )
-        return B_XOR;
+        return NST_TT_B_XOR;
     if ( strcmp("<<", str) == 0 )
-        return LSHIFT;
+        return NST_TT_LSHIFT;
     if ( strcmp(">>", str) == 0 )
-        return RSHIFT;
+        return NST_TT_RSHIFT;
     if ( strcmp(">", str) == 0 )
-        return GT;
+        return NST_TT_GT;
     if ( strcmp("<", str) == 0 )
-        return LT;
+        return NST_TT_LT;
     if ( strcmp("==", str) == 0 )
-        return EQ;
+        return NST_TT_EQ;
     if ( strcmp("!=", str) == 0 )
-        return NEQ;
+        return NST_TT_NEQ;
     if ( strcmp(">=", str) == 0 )
-        return GTE;
+        return NST_TT_GTE;
     if ( strcmp("<=", str) == 0 )
-        return LTE;
+        return NST_TT_LTE;
     if ( strcmp("><", str) == 0 )
-        return CONCAT;
+        return NST_TT_CONCAT;
     if ( strcmp(">>>", str) == 0 )
-        return STDOUT;
+        return NST_TT_STDOUT;
     if ( strcmp("<<<", str) == 0 )
-        return STDIN;
+        return NST_TT_STDIN;
     if ( strcmp("->", str) == 0 )
-        return RANGE;
+        return NST_TT_RANGE;
     if ( strcmp("$", str) == 0 )
-        return LEN;
+        return NST_TT_LEN;
     if ( strcmp("::", str) == 0 )
-        return CAST;
+        return NST_TT_CAST;
     if ( strcmp("?::", str) == 0 )
-        return TYPEOF;
+        return NST_TT_TYPEOF;
     if ( strcmp("=", str) == 0 )
-        return ASSIGN;
+        return NST_TT_ASSIGN;
     if ( strcmp("+=", str) == 0 )
-        return ADD_A;
+        return NST_TT_ADD_A;
     if ( strcmp("-=", str) == 0 )
-        return SUB_A;
+        return NST_TT_SUB_A;
     if ( strcmp("*=", str) == 0 )
-        return MUL_A;
+        return NST_TT_MUL_A;
     if ( strcmp("/=", str) == 0 )
-        return DIV_A;
+        return NST_TT_DIV_A;
     if ( strcmp("^=", str) == 0 )
-        return POW_A;
+        return NST_TT_POW_A;
     if ( strcmp("%=", str) == 0 )
-        return MOD_A;
+        return NST_TT_MOD_A;
     if ( strcmp("|=", str) == 0 )
-        return B_OR_A;
+        return NST_TT_B_OR_A;
     if ( strcmp("&=", str) == 0 )
-        return B_AND_A;
+        return NST_TT_B_AND_A;
     if ( strcmp("^^=", str) == 0 )
-        return B_XOR_A;
+        return NST_TT_B_XOR_A;
     if ( strcmp("<<=", str) == 0 )
-        return LSHIFT_A;
+        return NST_TT_LSHIFT_A;
     if ( strcmp(">>=", str) == 0 )
-        return RSHIFT_A;
+        return NST_TT_RSHIFT_A;
     if ( strcmp("><=", str) == 0 )
-        return CONCAT_A;
+        return NST_TT_CONCAT_A;
     if ( strcmp("@", str) == 0 )
-        return CALL;
+        return NST_TT_CALL;
     if ( strcmp("@@", str) == 0 )
-        return LOC_CALL;
+        return NST_TT_LOC_CALL;
     if ( strcmp("!", str) == 0 )
-        return L_NOT;
+        return NST_TT_L_NOT;
     if ( strcmp("~", str) == 0 )
-        return B_NOT;
+        return NST_TT_B_NOT;
     if ( strcmp(".", str) == 0 )
-        return EXTRACT;
+        return NST_TT_EXTRACT;
     if ( strcmp("-:", str) == 0 )
-        return NEG;
+        return NST_TT_NEG;
     if ( strcmp("?", str) == 0 )
-        return IF;
+        return NST_TT_IF;
     if ( strcmp("?..", str) == 0 )
-        return WHILE;
+        return NST_TT_WHILE;
     if ( strcmp("..?", str) == 0 )
-        return DOWHILE;
+        return NST_TT_DOWHILE;
     if ( strcmp("...", str) == 0 )
-        return FOR;
+        return NST_TT_FOR;
     if ( strcmp("~=", str) == 0 )
-        return AS;
+        return NST_TT_AS;
     if ( strcmp("#", str) == 0 )
-        return FUNC;
+        return NST_TT_FUNC;
     if ( strcmp("=>", str) == 0 )
-        return RETURN;
+        return NST_TT_RETURN;
     if ( strcmp("|>", str) == 0 )
-        return SWITCH;
+        return NST_TT_SWITCH;
     if ( strcmp("..", str) == 0 )
-        return CONTINUE;
+        return NST_TT_CONTINUE;
     if ( strcmp(";", str) == 0 )
-        return BREAK;
+        return NST_TT_BREAK;
     if ( strcmp(":", str) == 0 )
-        return COLON;
+        return NST_TT_COLON;
     if ( strcmp("|#|", str) == 0 )
-        return IMPORT;
+        return NST_TT_IMPORT;
     if ( strcmp("$", str) == 0 )
-        return LEN;
+        return NST_TT_LEN;
     if ( strcmp(",", str) == 0 )
-        return COMMA;
+        return NST_TT_COMMA;
     if ( strcmp("(", str) == 0 )
-        return L_PAREN;
+        return NST_TT_L_PAREN;
     if ( strcmp(")", str) == 0 )
-        return R_PAREN;
+        return NST_TT_R_PAREN;
     if ( strcmp("[", str) == 0 )
-        return L_BRACKET;
+        return NST_TT_L_BRACKET;
     if ( strcmp("]", str) == 0 )
-        return R_BRACKET;
+        return NST_TT_R_BRACKET;
     if ( strcmp("{", str) == 0 )
-        return L_BRACE;
+        return NST_TT_L_BRACE;
     if ( strcmp("}", str) == 0 )
-        return R_BRACE;
+        return NST_TT_R_BRACE;
     if ( strcmp("<{", str) == 0 )
-        return L_VBRACE;
+        return NST_TT_L_VBRACE;
     if ( strcmp("}>", str) == 0 )
-        return R_VBRACE;
+        return NST_TT_R_VBRACE;
     return -1;
 }
 
-void print_token(Token *token)
+void nst_print_token(Nst_LexerToken *token)
 {
     printf("(");
 
-    if      ( token->type == ADD       ) printf("ADD");
-    else if ( token->type == SUB       ) printf("SUB");
-    else if ( token->type == MUL       ) printf("MUL");
-    else if ( token->type == DIV       ) printf("DIV");
-    else if ( token->type == POW       ) printf("POW");
-    else if ( token->type == MOD       ) printf("MOD");
-    else if ( token->type == B_AND     ) printf("B_AND");
-    else if ( token->type == B_OR      ) printf("B_OR");
-    else if ( token->type == B_XOR     ) printf("B_XOR");
-    else if ( token->type == LSHIFT    ) printf("LSHIFT");
-    else if ( token->type == RSHIFT    ) printf("RSHIFT");
-    else if ( token->type == CONCAT    ) printf("CONCAT");
-    else if ( token->type == L_AND     ) printf("L_AND");
-    else if ( token->type == L_OR      ) printf("L_OR");
-    else if ( token->type == L_XOR     ) printf("L_XOR");
-    else if ( token->type == GT        ) printf("GT");
-    else if ( token->type == LT        ) printf("LT");
-    else if ( token->type == EQ        ) printf("EQ");
-    else if ( token->type == NEQ       ) printf("NEQ");
-    else if ( token->type == GTE       ) printf("GTE");
-    else if ( token->type == LTE       ) printf("LTE");
-    else if ( token->type == CAST      ) printf("CAST");
-    else if ( token->type == CALL      ) printf("CALL");
-    else if ( token->type == EXTRACT   ) printf("EXTRACT");
-    else if ( token->type == RANGE     ) printf("RANGE");
-    else if ( token->type == ASSIGN    ) printf("ASSIGN");
-    else if ( token->type == ADD_A     ) printf("ADD_A");
-    else if ( token->type == SUB_A     ) printf("SUB_A");
-    else if ( token->type == MUL_A     ) printf("MUL_A");
-    else if ( token->type == DIV_A     ) printf("DIV_A");
-    else if ( token->type == POW_A     ) printf("POW_A");
-    else if ( token->type == MOD_A     ) printf("MOD_A");
-    else if ( token->type == B_AND_A   ) printf("B_AND_A");
-    else if ( token->type == B_OR_A    ) printf("B_OR_A");
-    else if ( token->type == B_XOR_A   ) printf("B_XOR_A");
-    else if ( token->type == LSHIFT_A  ) printf("LSHIFT_A");
-    else if ( token->type == RSHIFT_A  ) printf("RSHIFT_A");
-    else if ( token->type == CONCAT_A  ) printf("CONCAT_A");
-    else if ( token->type == LEN       ) printf("LEN");
-    else if ( token->type == L_NOT     ) printf("L_NOT");
-    else if ( token->type == B_NOT     ) printf("B_NOT");
-    else if ( token->type == STDOUT    ) printf("STDOUT");
-    else if ( token->type == STDIN     ) printf("STDIN");
-    else if ( token->type == TYPEOF    ) printf("TYPEOF");
-    else if ( token->type == IDENT     ) printf("IDENT");
-    else if ( token->type == N_INT     ) printf("N_INT");
-    else if ( token->type == N_REAL    ) printf("N_REAL");
-    else if ( token->type == STRING    ) printf("STRING");
-    else if ( token->type == L_PAREN   ) printf("L_PAREN");
-    else if ( token->type == L_BRACE   ) printf("L_BRACE");
-    else if ( token->type == L_VBRACE  ) printf("L_VBRACE");
-    else if ( token->type == L_BRACKET ) printf("L_BRACKET");
-    else if ( token->type == R_PAREN   ) printf("R_PAREN");
-    else if ( token->type == R_BRACE   ) printf("R_BRACE");
-    else if ( token->type == R_VBRACE  ) printf("R_VBRACE");
-    else if ( token->type == R_BRACKET ) printf("R_BRACKET");
-    else if ( token->type == IF        ) printf("IF");
-    else if ( token->type == AS        ) printf("AS");
-    else if ( token->type == ENDL      ) printf("ENDL");
-    else if ( token->type == COMMA     ) printf("COMMA");
-    else if ( token->type == COLON     ) printf("COLON");
-    else if ( token->type == EOFILE    ) printf("EOFILE");
-    else if ( token->type == WHILE     ) printf("WHILE");
-    else if ( token->type == DOWHILE   ) printf("DOWHILE");
-    else if ( token->type == FOR       ) printf("FOR");
-    else if ( token->type == FUNC      ) printf("FUNC");
-    else if ( token->type == RETURN    ) printf("RETURN");
-    else if ( token->type == CONTINUE  ) printf("CONTINUE");
-    else if ( token->type == BREAK     ) printf("BREAK");
-    else if ( token->type == IMPORT    ) printf("IMPORT");
+    if      ( token->type == NST_TT_ADD       ) printf("ADD");
+    else if ( token->type == NST_TT_SUB       ) printf("SUB");
+    else if ( token->type == NST_TT_MUL       ) printf("MUL");
+    else if ( token->type == NST_TT_DIV       ) printf("DIV");
+    else if ( token->type == NST_TT_POW       ) printf("POW");
+    else if ( token->type == NST_TT_MOD       ) printf("MOD");
+    else if ( token->type == NST_TT_B_AND     ) printf("B_AND");
+    else if ( token->type == NST_TT_B_OR      ) printf("B_OR");
+    else if ( token->type == NST_TT_B_XOR     ) printf("B_XOR");
+    else if ( token->type == NST_TT_LSHIFT    ) printf("LSHIFT");
+    else if ( token->type == NST_TT_RSHIFT    ) printf("RSHIFT");
+    else if ( token->type == NST_TT_CONCAT    ) printf("CONCAT");
+    else if ( token->type == NST_TT_L_AND     ) printf("L_AND");
+    else if ( token->type == NST_TT_L_OR      ) printf("L_OR");
+    else if ( token->type == NST_TT_L_XOR     ) printf("L_XOR");
+    else if ( token->type == NST_TT_GT        ) printf("GT");
+    else if ( token->type == NST_TT_LT        ) printf("LT");
+    else if ( token->type == NST_TT_EQ        ) printf("EQ");
+    else if ( token->type == NST_TT_NEQ       ) printf("NEQ");
+    else if ( token->type == NST_TT_GTE       ) printf("GTE");
+    else if ( token->type == NST_TT_LTE       ) printf("LTE");
+    else if ( token->type == NST_TT_CAST      ) printf("CAST");
+    else if ( token->type == NST_TT_CALL      ) printf("CALL");
+    else if ( token->type == NST_TT_EXTRACT   ) printf("EXTRACT");
+    else if ( token->type == NST_TT_RANGE     ) printf("RANGE");
+    else if ( token->type == NST_TT_ASSIGN    ) printf("ASSIGN");
+    else if ( token->type == NST_TT_ADD_A     ) printf("ADD_A");
+    else if ( token->type == NST_TT_SUB_A     ) printf("SUB_A");
+    else if ( token->type == NST_TT_MUL_A     ) printf("MUL_A");
+    else if ( token->type == NST_TT_DIV_A     ) printf("DIV_A");
+    else if ( token->type == NST_TT_POW_A     ) printf("POW_A");
+    else if ( token->type == NST_TT_MOD_A     ) printf("MOD_A");
+    else if ( token->type == NST_TT_B_AND_A   ) printf("B_AND_A");
+    else if ( token->type == NST_TT_B_OR_A    ) printf("B_OR_A");
+    else if ( token->type == NST_TT_B_XOR_A   ) printf("B_XOR_A");
+    else if ( token->type == NST_TT_LSHIFT_A  ) printf("LSHIFT_A");
+    else if ( token->type == NST_TT_RSHIFT_A  ) printf("RSHIFT_A");
+    else if ( token->type == NST_TT_CONCAT_A  ) printf("CONCAT_A");
+    else if ( token->type == NST_TT_LEN       ) printf("LEN");
+    else if ( token->type == NST_TT_L_NOT     ) printf("L_NOT");
+    else if ( token->type == NST_TT_B_NOT     ) printf("B_NOT");
+    else if ( token->type == NST_TT_STDOUT    ) printf("STDOUT");
+    else if ( token->type == NST_TT_STDIN     ) printf("STDIN");
+    else if ( token->type == NST_TT_TYPEOF    ) printf("TYPEOF");
+    else if ( token->type == NST_TT_IDENT     ) printf("IDENT");
+    else if ( token->type == NST_TT_INT     ) printf("N_INT");
+    else if ( token->type == NST_TT_REAL    ) printf("N_REAL");
+    else if ( token->type == NST_TT_STRING    ) printf("STRING");
+    else if ( token->type == NST_TT_L_PAREN   ) printf("L_PAREN");
+    else if ( token->type == NST_TT_L_BRACE   ) printf("L_BRACE");
+    else if ( token->type == NST_TT_L_VBRACE  ) printf("L_VBRACE");
+    else if ( token->type == NST_TT_L_BRACKET ) printf("L_BRACKET");
+    else if ( token->type == NST_TT_R_PAREN   ) printf("R_PAREN");
+    else if ( token->type == NST_TT_R_BRACE   ) printf("R_BRACE");
+    else if ( token->type == NST_TT_R_VBRACE  ) printf("R_VBRACE");
+    else if ( token->type == NST_TT_R_BRACKET ) printf("R_BRACKET");
+    else if ( token->type == NST_TT_IF        ) printf("IF");
+    else if ( token->type == NST_TT_AS        ) printf("AS");
+    else if ( token->type == NST_TT_ENDL      ) printf("ENDL");
+    else if ( token->type == NST_TT_COMMA     ) printf("COMMA");
+    else if ( token->type == NST_TT_COLON     ) printf("COLON");
+    else if ( token->type == NST_TT_EOFILE    ) printf("EOFILE");
+    else if ( token->type == NST_TT_WHILE     ) printf("WHILE");
+    else if ( token->type == NST_TT_DOWHILE   ) printf("DOWHILE");
+    else if ( token->type == NST_TT_FOR       ) printf("FOR");
+    else if ( token->type == NST_TT_FUNC      ) printf("FUNC");
+    else if ( token->type == NST_TT_RETURN    ) printf("RETURN");
+    else if ( token->type == NST_TT_CONTINUE  ) printf("CONTINUE");
+    else if ( token->type == NST_TT_BREAK     ) printf("BREAK");
+    else if ( token->type == NST_TT_IMPORT    ) printf("IMPORT");
     else printf("__UNKNOWN__");
 
     printf(" - ");
 
-    if ( token->type == N_INT )
+    if ( token->type == NST_TT_INT )
         printf("%lli, ", AS_INT(token->value));
-    else if ( token->type == N_REAL )
+    else if ( token->type == NST_TT_REAL )
         printf("%g, ", AS_REAL(token->value));
-    else if ( token->type == STRING || token->type == IDENT )
-        printf("%s, ", AS_STR(repr_string(AS_STR(token->value)))->value);
+    else if ( token->type == NST_TT_STRING || token->type == NST_TT_IDENT )
+        printf("%s, ", AS_STR(nst_repr_string(AS_STR(token->value)))->value);
 
     printf("%zi:%zi, %zi:%zi)",
         token->start.line,

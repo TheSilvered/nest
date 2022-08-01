@@ -25,9 +25,9 @@
     return NULL; \
     } while (0)
 
-Nst_Obj *new_string_raw(const char *val, bool allocated)
+Nst_Obj *nst_new_string_raw(const char *val, bool allocated)
 {
-    Nst_StrObj *str = AS_STR(alloc_obj(sizeof(Nst_StrObj), nst_t_str, destroy_string));
+    Nst_StrObj *str = AS_STR(alloc_obj(sizeof(Nst_StrObj), nst_t_str, nst_destroy_string));
     if ( str == NULL ) return NULL;
 
     str->allocated = allocated;
@@ -37,9 +37,9 @@ Nst_Obj *new_string_raw(const char *val, bool allocated)
     return (Nst_Obj *)str;
 }
 
-Nst_Obj *new_string(char *val, size_t len, bool allocated)
+Nst_Obj *nst_new_string(char *val, size_t len, bool allocated)
 {
-    Nst_StrObj *str = AS_STR(alloc_obj(sizeof(Nst_StrObj), nst_t_str, destroy_string));
+    Nst_StrObj *str = AS_STR(alloc_obj(sizeof(Nst_StrObj), nst_t_str, nst_destroy_string));
     if ( str == NULL ) return NULL;
 
     str->allocated = allocated;
@@ -49,9 +49,9 @@ Nst_Obj *new_string(char *val, size_t len, bool allocated)
     return (Nst_Obj *)str;
 }
 
-Nst_Obj *new_type_obj(const char *val, size_t len)
+Nst_Obj *nst_new_type_obj(const char *val, size_t len)
 {
-    Nst_StrObj *str = AS_STR(alloc_obj(sizeof(Nst_StrObj), nst_t_type, destroy_string));
+    Nst_StrObj *str = AS_STR(alloc_obj(sizeof(Nst_StrObj), nst_t_type, nst_destroy_string));
     if ( str == NULL ) return NULL;
 
     str->allocated = false;
@@ -61,7 +61,7 @@ Nst_Obj *new_type_obj(const char *val, size_t len)
     return (Nst_Obj *)str;
 }
 
-Nst_Obj *copy_string(Nst_StrObj *src)
+Nst_Obj *nst_copy_string(Nst_StrObj *src)
 {
     char *buffer = malloc(sizeof(char) * (src->len + 1));
     if ( buffer == NULL )
@@ -72,10 +72,10 @@ Nst_Obj *copy_string(Nst_StrObj *src)
 
     strcpy(buffer, src->value);
 
-    return new_string(buffer, src->len, true);
+    return nst_new_string(buffer, src->len, true);
 }
 
-Nst_Obj *repr_string(Nst_StrObj *src)
+Nst_Obj *nst_repr_string(Nst_StrObj *src)
 {
     char *orig = src->value;
     size_t new_size = 2;
@@ -161,22 +161,22 @@ Nst_Obj *repr_string(Nst_StrObj *src)
     new_str[new_size - 1] = using_doub ? '"' : '\'';
     new_str[new_size] = 0;
 
-    return new_string(new_str, new_size, true);
+    return nst_new_string(new_str, new_size, true);
 }
 
-void destroy_string(Nst_StrObj *str)
+void nst_destroy_string(Nst_StrObj *str)
 {
     if ( str == NULL ) return;
     if ( str->allocated )
         free(str->value);
 }
 
-Nst_Obj *parse_int(char *str, OpErr *err)
+Nst_Obj *nst_parse_int(char *str, Nst_OpErr *err)
 {
     register char *s = str;
-    register Nst_int num = 0;
-    register Nst_int digit = 0;
-    register Nst_int sign = 1;
+    register Nst_Int num = 0;
+    register Nst_Int digit = 0;
+    register Nst_Int sign = 1;
 
     if ( *s == 0 ) RETURN_INT_ERR;
 
@@ -202,7 +202,7 @@ Nst_Obj *parse_int(char *str, OpErr *err)
                 ++s;
 
             if ( *s == 0 )
-                return new_int(num * sign);
+                return nst_new_int(num * sign);
             else
                 RETURN_INT_ERR;
         }
@@ -211,16 +211,16 @@ Nst_Obj *parse_int(char *str, OpErr *err)
         ++s;
     }
 
-    return new_int(num * sign);
+    return nst_new_int(num * sign);
 }
 
-Nst_Obj *parse_real(char *str, OpErr *err)
+Nst_Obj *nst_parse_real(char *str, Nst_OpErr *err)
 {
     register char *s = str;
-    register Nst_real num = 0;
-    register Nst_real sign = 1.0;
-    register Nst_real pow = 10;
-    register Nst_int digit = 0;
+    register Nst_Real num = 0;
+    register Nst_Real sign = 1.0;
+    register Nst_Real pow = 10;
+    register Nst_Int digit = 0;
 
     if ( *s == 0 ) RETURN_REAL_ERR;
 
@@ -246,7 +246,7 @@ Nst_Obj *parse_real(char *str, OpErr *err)
                 ++s;
 
             if ( *s == 0 )
-                return new_real(num * sign);
+                return nst_new_real(num * sign);
             else
                 RETURN_REAL_ERR;
         }
@@ -256,7 +256,7 @@ Nst_Obj *parse_real(char *str, OpErr *err)
     }
 
     if ( *s == 0 )
-        return new_real(num * sign);
+        return nst_new_real(num * sign);
 
     // here, there can only be a dot
     ++s;
@@ -270,7 +270,7 @@ Nst_Obj *parse_real(char *str, OpErr *err)
                 ++s;
 
             if ( *s == 0 )
-                return new_real(num * sign);
+                return nst_new_real(num * sign);
             else
                 RETURN_REAL_ERR;
         }
@@ -280,5 +280,5 @@ Nst_Obj *parse_real(char *str, OpErr *err)
         pow *= 10;
     }
 
-    return new_real(num * sign);
+    return nst_new_real(num * sign);
 }

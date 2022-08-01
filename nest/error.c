@@ -12,9 +12,9 @@
 #define C_YELLOW "\x1b[33m"
 #define C_RESET "\x1b[0m"
 
-Pos copy_pos(Pos pos)
+Nst_Pos nst_copy_pos(Nst_Pos pos)
 {
-    Pos new_pos = {
+    Nst_Pos new_pos = {
         pos.line,
         pos.col,
         pos.filename,
@@ -22,6 +22,12 @@ Pos copy_pos(Pos pos)
         pos.text_len
     };
 
+    return new_pos;
+}
+
+Nst_Pos nst_no_pos()
+{
+    Nst_Pos new_pos = { 0, 0, NULL, NULL, 0 };
     return new_pos;
 }
 
@@ -114,7 +120,7 @@ inline void print_repeat(char ch, size_t times)
         printf("%c", ch);
 }
 
-void print_position(Pos start, Pos end)
+void print_position(Nst_Pos start, Nst_Pos end)
 {
     assert(start.filename == end.filename);
 #ifdef FANCY_ERRORS
@@ -156,7 +162,7 @@ void print_position(Pos start, Pos end)
     return;
 }
 
-void print_error(Nst_Error err)
+void nst_print_error(Nst_Error err)
 {
     print_position(err.start, err.end);
 #ifdef FANCY_ERRORS
@@ -166,20 +172,20 @@ void print_error(Nst_Error err)
 #endif
 }
 
-void print_traceback(Nst_Traceback tb)
+void nst_print_traceback(Nst_Traceback tb)
 {
     while ( tb.positions->head != NULL )
     {
-        Pos start = *(Pos *)LList_pop(tb.positions);
-        Pos end   = *(Pos *)LList_pop(tb.positions);
+        Nst_Pos start = *(Nst_Pos *)LList_pop(tb.positions);
+        Nst_Pos end   = *(Nst_Pos *)LList_pop(tb.positions);
         print_position(start, end);
     }
 
     if ( tb.error != NULL )
-        print_error(*tb.error);
+        nst_print_error(*tb.error);
 }
 
-char *format_type_error(const char *format, char *type_name)
+char *_nst_format_type_error(const char *format, char *type_name)
 {
     char *buffer = malloc(strlen(format) + 5);
     if ( buffer == NULL )
@@ -188,7 +194,7 @@ char *format_type_error(const char *format, char *type_name)
     return buffer;
 }
 
-char *format_idx_error(const char *format, int64_t idx, size_t seq_len)
+char *_nst_format_idx_error(const char *format, int64_t idx, size_t seq_len)
 {
     char *buffer = malloc(strlen(format) + MAX_INT_CHAR_COUNT * 2 - 1);
     if ( buffer == NULL )
@@ -197,7 +203,7 @@ char *format_idx_error(const char *format, int64_t idx, size_t seq_len)
     return buffer;
 }
 
-char *format_fnf_error(const char *format, char *file_name)
+char *_nst_format_fnf_error(const char *format, char *file_name)
 {
     char *buffer = malloc(strlen(format) + strlen(file_name) + 1);
     if ( buffer == NULL )
@@ -206,7 +212,7 @@ char *format_fnf_error(const char *format, char *file_name)
     return buffer;
 }
 
-char *format_arg_error(const char *format, char *type_name, size_t idx)
+char *_nst_format_arg_error(const char *format, char *type_name, size_t idx)
 {
     char *buffer = malloc(strlen(format) + 5 + MAX_INT_CHAR_COUNT);
     if ( buffer == NULL )
