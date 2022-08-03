@@ -8,6 +8,7 @@
 #include "llist.h"
 #include "tokens.h"
 #include "compiler.h"
+#include "optimizer.h"
 
 #define VERSION "beta-0.2.2"
 
@@ -126,6 +127,8 @@ int main(int argc, char **argv)
     }
 
     Nst_Node *ast = nst_parse(tokens);
+    if ( ast != NULL )
+        ast = nst_optimize_ast(ast);
 
     if ( ast == NULL )
     {
@@ -144,7 +147,7 @@ int main(int argc, char **argv)
 
     if ( inst_ls == NULL )
     {
-        destroy_node(ast);
+        nst_destroy_node(ast);
         del_obj();
         return 0;
     }
@@ -157,7 +160,7 @@ int main(int argc, char **argv)
     }
 
     nst_run(ast, argc, argv);
-    destroy_node(ast);
+    nst_destroy_node(ast);
 
     del_obj();
 

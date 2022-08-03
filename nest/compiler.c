@@ -154,7 +154,7 @@ static Nst_InstructionList *compile_internal(Nst_Node *code, bool is_func)
 
     compile_node(code);
 
-    bool add_return = c_state.inst_ls->tail != NULL &&
+    bool add_return = c_state.inst_ls->tail == NULL ||
         INST(c_state.inst_ls->tail->value)->id != NST_IC_RETURN_VAL;
 
     inst_list->total_size = c_state.inst_ls->size + (add_return ? 2 : 0);
@@ -194,7 +194,7 @@ static Nst_InstructionList *compile_internal(Nst_Node *code, bool is_func)
     }
 
     LList_destroy(c_state.inst_ls, free); // To not decrease the references of the objects
-    if ( !is_func ) destroy_node(code);
+    if ( !is_func ) nst_destroy_node(code);
     return inst_list;
 }
 
@@ -214,7 +214,7 @@ static void compile_node(Nst_Node *node)
     case NST_NT_LOCAL_STACK_OP: compile_local_stack_op(node); break;
     case NST_NT_LOCAL_OP:       compile_local_op(node); break;
     case NST_NT_ARR_LIT:
-    case NST_NT_VECT_LIT:       compile_arr_or_vect_lit(node); break;
+    case NST_NT_VEC_LIT:       compile_arr_or_vect_lit(node); break;
     case NST_NT_MAP_LIT:        compile_map_lit(node); break;
     case NST_NT_VALUE:          compile_value(node); break;
     case NST_NT_ACCESS:         compile_access(node); break;
@@ -242,8 +242,7 @@ static void compile_long_s(Nst_Node *node)
     {
         compile_node(cursor->value);
 
-        int inst_id = INST(LList_peek_back(c_state.inst_ls))->id;
-        if ( INST_LEAVES_VAL(inst_id) )
+        if ( NODE_RETUNS_VALUE(NODE(cursor->value)->type) )
         {
             Nst_RuntimeInstruction *inst = new_inst_empty(NST_IC_POP_VAL, 0);
             ADD_INST(inst);
@@ -505,33 +504,23 @@ static void compile_if_e(Nst_Node *node)
     If expression bytecode
 
             [CONDITION CODE]
-            JUMPIF_FALSE if_end
+            JUMPIF_FALSE elseif
             [CODE IF TRUE]
+            JUMP if_end
+    elseif: PUSH_VAL null
     if_end: [CODE CONTINUATION]
     */
 
     compile_node(HEAD_NODE); // Condition
 
+    Nst_RuntimeInstruction *inst;
     Nst_RuntimeInstruction *jump_if_false = new_inst_empty(NST_IC_JUMPIF_F, 0);
     ADD_INST(jump_if_false);
-
-    // If there is no else clause
-    if ( node->nodes->size == 2 )
-    {
-        compile_node(TAIL_NODE); // Body if true
-        if ( TAIL_NODE->type == NST_NT_LONG_S )
-        {
-            Nst_RuntimeInstruction *inst = new_inst_val(NST_IC_PUSH_VAL, nst_null, nst_no_pos(), nst_no_pos());
-            ADD_INST(inst);
-        }
-        jump_if_false->int_val = CURR_LEN;
-        return;
-    }
 
     compile_node(node->nodes->head->next->value); // Body if true
     if ( NODE(node->nodes->head->next->value)->type == NST_NT_LONG_S )
     {
-        Nst_RuntimeInstruction *inst = new_inst_val(NST_IC_PUSH_VAL, nst_null, nst_no_pos(), nst_no_pos());
+        inst = new_inst_val(NST_IC_PUSH_VAL, nst_null, nst_no_pos(), nst_no_pos());
         ADD_INST(inst);
     }
 
@@ -539,11 +528,19 @@ static void compile_if_e(Nst_Node *node)
     ADD_INST(jump_at_end);
     jump_if_false->int_val = CURR_LEN;
 
-    compile_node(TAIL_NODE); // Body if false
-    if ( TAIL_NODE == NST_NT_LONG_S )
+    if ( node->nodes->size == 2 )
     {
-        Nst_RuntimeInstruction *inst = new_inst_val(NST_IC_PUSH_VAL, nst_null, nst_no_pos(), nst_no_pos());
+        inst = new_inst_val(NST_IC_PUSH_VAL, nst_null, nst_no_pos(), nst_no_pos());
         ADD_INST(inst);
+    }
+    else
+    {
+        compile_node(TAIL_NODE); // Body if false
+        if ( TAIL_NODE == NST_NT_LONG_S )
+        {
+            inst = new_inst_val(NST_IC_PUSH_VAL, nst_null, nst_no_pos(), nst_no_pos());
+            ADD_INST(inst);
+        }
     }
 
     jump_at_end->int_val = CURR_LEN;
@@ -780,14 +777,27 @@ static void compile_arr_or_vect_lit(Nst_Node *node)
 
     [VALUE CODE] *
     MAKE_ARR | MAKE_VEC - number of elements
+
+    [VALUE CODE]
+    [TIMES TO REPEAT CODE]
+    MAKE_ARR_REP | MAKE_VEC_REP
     */
+
+    Nst_RuntimeInstruction *inst;
     for ( LLNode *n = node->nodes->head; n != NULL; n = n->next )
         compile_node(n->value);
     
-    Nst_RuntimeInstruction *inst = new_inst_empty(
-        node->type == NST_NT_ARR_LIT ? NST_IC_MAKE_ARR : NST_IC_MAKE_VEC,
-        node->nodes->size
-    );
+    if ( node->tokens->size != 0 )
+        inst = new_inst_empty(
+            node->type == NST_NT_ARR_LIT ? NST_IC_MAKE_ARR_REP : NST_IC_MAKE_VEC_REP,
+            0
+        );
+    else
+        inst = new_inst_empty(
+            node->type == NST_NT_ARR_LIT ? NST_IC_MAKE_ARR : NST_IC_MAKE_VEC,
+            node->nodes->size
+        );
+
     ADD_INST(inst);
 }
 
@@ -1063,8 +1073,8 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
         case NST_IC_OP_CALL:       printf("OP_CALL      "); break;
         case NST_IC_OP_CAST:       printf("OP_CAST      "); break;
         case NST_IC_OP_RANGE:      printf("OP_RANGE     "); break;
-        case NST_IC_STACK_OP:      printf("OP_STACK     "); break;
-        case NST_IC_LOCAL_OP:      printf("OP_LOCAL     "); break;
+        case NST_IC_STACK_OP:      printf("STACK_OP     "); break;
+        case NST_IC_LOCAL_OP:      printf("LOCAL_OP     "); break;
         case NST_IC_OP_IMPORT:     printf("OP_IMPORT    "); break;
         case NST_IC_OP_EXTRACT:    printf("OP_EXTRACT   "); break;
         case NST_IC_INC_INT:       printf("INC_INT      "); break;
@@ -1090,7 +1100,7 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
         {
             if ( inst.val->type == nst_t_str )
             {
-                Nst_StrObj *s = AS_STR(nst_repr_string(AS_STR(inst.val)));
+                Nst_StrObj *s = AS_STR(_nst_repr_string(AS_STR(inst.val)));
                 printf("%s", s->value);
                 dec_ref(s);
             }

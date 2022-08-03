@@ -2,6 +2,7 @@
 #define Nst_TOKENS_H
 
 #include "error.h" // Pos
+#include "obj.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -12,7 +13,7 @@ typedef struct
     Nst_Pos start;
     Nst_Pos end;
     int type;
-    void *value;
+    Nst_Obj *value;
 }
 Nst_LexerToken;
 
@@ -65,8 +66,11 @@ enum Nst_TokenTypes
     NST_TT_NEG,       // | |
     NST_TT_TYPEOF,    // | - local-op end
     NST_TT_IDENT,     // | + value start
-    NST_TT_INT,     // | |
-    NST_TT_REAL,    // | |
+    NST_TT_INT,       // | |
+    NST_TT_REAL,      // | |
+    NST_TT_ARR,       // | |
+    NST_TT_VECT,      // | |
+    NST_TT_MAP,       // | |
     NST_TT_STRING,    // | - value end
     NST_TT_L_PAREN,   // |
     NST_TT_L_BRACE,   // |

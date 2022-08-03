@@ -155,6 +155,7 @@
     <ClCompile Include="nodes.c" />
     <ClCompile Include="obj.c" />
     <ClCompile Include="obj_ops.c" />
+    <ClCompile Include="optimizer.c" />
     <ClCompile Include="parser.c" />
     <ClCompile Include="str.c" />
     <ClCompile Include="simple_types.c" />
@@ -177,6 +178,7 @@
     <ClInclude Include="nst_types.h" />
     <ClInclude Include="obj.h" />
     <ClInclude Include="obj_ops.h" />
+    <ClInclude Include="optimizer.h" />
     <ClInclude Include="parser.h" />
     <ClInclude Include="interpreter.h" />
     <ClInclude Include="error_internal.h" />

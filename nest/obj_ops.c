@@ -614,7 +614,7 @@ Nst_Obj *nst_obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs)
         else if ( val->type == nst_t_map )
             val = nst_obj_str_cast_map(val, all_objs);
         else if ( val->type == nst_t_str )
-            val = nst_repr_string(AS_STR(val));
+            val = _nst_repr_string(AS_STR(val));
         else
             val = nst_obj_cast(val, nst_t_str, NULL);
 
@@ -693,7 +693,7 @@ Nst_Obj *nst_obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
 
         // Key cannot be a vector, an array or a map
         if ( key->type == nst_t_str )
-            key = nst_repr_string(AS_STR(key));
+            key = _nst_repr_string(AS_STR(key));
         else
             key = nst_obj_cast(key, nst_t_str, NULL);
 
@@ -702,7 +702,7 @@ Nst_Obj *nst_obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
         else if ( val->type == nst_t_map )
             val = nst_obj_str_cast_map(val, all_objs);
         else if ( val->type == nst_t_str )
-            val = nst_repr_string(AS_STR(val));
+            val = _nst_repr_string(AS_STR(val));
         else
             val = nst_obj_cast(val, nst_t_str, NULL);
 
@@ -766,7 +766,7 @@ Nst_Obj *nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
                 return nst_new_string("false", 5, false);
         }
         else if ( ob_t == nst_t_type )
-            return nst_copy_string(AS_STR(ob));
+            return _nst_copy_string(AS_STR(ob));
         else if ( ob_t == nst_t_byte )
         {
             char *str = calloc(2, sizeof(char));
@@ -945,14 +945,7 @@ Nst_Obj *nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
                                       : AS_SEQ(nst_new_array(str_len));
 
             for ( size_t i = 0; i < str_len; i++ )
-            {
-                char *ch = malloc(2 * sizeof(char));
-                CHECK_BUFFER(ch);
-
-                ch[0] = AS_STR(ob)->value[i];
-                ch[1] = 0;
-                seq->objs[i] = nst_new_string(ch, 1, true);
-            }
+                seq->objs[i] = nst_string_get_idx(ob, i);
             return (Nst_Obj *)seq;
         }
         else

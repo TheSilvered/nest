@@ -61,7 +61,7 @@ Nst_Obj *nst_new_type_obj(const char *val, size_t len)
     return (Nst_Obj *)str;
 }
 
-Nst_Obj *nst_copy_string(Nst_StrObj *src)
+Nst_Obj *_nst_copy_string(Nst_StrObj *src)
 {
     char *buffer = malloc(sizeof(char) * (src->len + 1));
     if ( buffer == NULL )
@@ -75,7 +75,7 @@ Nst_Obj *nst_copy_string(Nst_StrObj *src)
     return nst_new_string(buffer, src->len, true);
 }
 
-Nst_Obj *nst_repr_string(Nst_StrObj *src)
+Nst_Obj *_nst_repr_string(Nst_StrObj *src)
 {
     char *orig = src->value;
     size_t new_size = 2;
@@ -162,6 +162,27 @@ Nst_Obj *nst_repr_string(Nst_StrObj *src)
     new_str[new_size] = 0;
 
     return nst_new_string(new_str, new_size, true);
+}
+
+Nst_Obj *_nst_string_get_idx(Nst_StrObj *str, Nst_Int idx)
+{
+    if ( idx < 0 )
+        idx += str->len;
+
+    if ( idx < 0 || idx >= (int64_t)str->len )
+        return NULL;
+
+    char *ch = malloc(2 * sizeof(char));
+    if ( ch == NULL )
+    {
+        errno = ENOMEM;
+        return NULL;
+    }
+
+    ch[0] = str->value[idx];
+    ch[1] = 0;
+
+    return nst_new_string(ch, 1, true);
 }
 
 void nst_destroy_string(Nst_StrObj *str)

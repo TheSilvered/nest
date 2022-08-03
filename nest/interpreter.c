@@ -52,7 +52,7 @@
     case NST_NT_LOCAL_STACK_OP: exe_local_stack_op(node); break; \
     case NST_NT_LOCAL_OP:       exe_local_op(node); break; \
     case NST_NT_ARR_LIT: \
-    case NST_NT_VECT_LIT:       exe_arr_or_vect_lit(node); break; \
+    case NST_NT_VEC_LIT:       exe_arr_or_vect_lit(node); break; \
     case NST_NT_MAP_LIT:        exe_map_lit(node); break; \
     case NST_NT_VALUE:          exe_value(node); break; \
     case NST_NT_ACCESS:         exe_access(node); break; \
@@ -771,11 +771,11 @@ static void exe_local_stack_op(Nst_Node *node)
 
         Nst_Obj *idx = nst_new_int(0);
 
-        Nst_SeqObj *data_seq = AS_SEQ(nst_new_array(4));
-        _nst_set_value_seq(data_seq, 0, idx);
-        _nst_set_value_seq(data_seq, 1, start);
-        _nst_set_value_seq(data_seq, 2, stop);
-        _nst_set_value_seq(data_seq, 3, step);
+        Nst_Obj *data_seq = nst_new_array(4);
+        nst_set_value_seq(data_seq, 0, idx);
+        nst_set_value_seq(data_seq, 1, start);
+        nst_set_value_seq(data_seq, 2, stop);
+        nst_set_value_seq(data_seq, 3, step);
 
         dec_ref(idx);
         dec_ref(start);
@@ -787,7 +787,7 @@ static void exe_local_stack_op(Nst_Node *node)
             AS_FUNC(new_cfunc(1, nst_num_iter_advance)),
             AS_FUNC(new_cfunc(1, nst_num_iter_is_done)),
             AS_FUNC(new_cfunc(1, nst_num_iter_get_val)),
-            (Nst_Obj *)data_seq
+            data_seq
         ));
 
         break;

@@ -4,8 +4,9 @@
 #include <stdio.h>
 #include "nst_types.h"
 #include "tokens.h"
+#include "obj_ops.h"
 
-Nst_LexerToken *nst_new_token_value(Nst_Pos start, Nst_Pos end, int type, void *value)
+Nst_LexerToken *nst_new_token_value(Nst_Pos start, Nst_Pos end, int type, Nst_Obj *value)
 {
     Nst_LexerToken *token = malloc(sizeof(Nst_LexerToken));
     if ( token == NULL )
@@ -285,12 +286,15 @@ void nst_print_token(Nst_LexerToken *token)
 
     printf(" - ");
 
-    if ( token->type == NST_TT_INT )
-        printf("%lli, ", AS_INT(token->value));
-    else if ( token->type == NST_TT_REAL )
-        printf("%g, ", AS_REAL(token->value));
-    else if ( token->type == NST_TT_STRING || token->type == NST_TT_IDENT )
-        printf("%s, ", AS_STR(nst_repr_string(AS_STR(token->value)))->value);
+    if ( token->type == NST_TT_STRING || token->type == NST_TT_IDENT )
+    {
+        Nst_StrObj *s = AS_STR(_nst_repr_string(AS_STR(token->value)));
+        printf("%s", s->value);
+        dec_ref(s);
+    }
+    else
+        nst_obj_stdout(token->value, NULL);
+
 
     printf("%zi:%zi, %zi:%zi)",
         token->start.line,

@@ -150,14 +150,6 @@ NST_FUNC_SIGN(nst_str_iter_get_val)
 {
     Nst_SeqObj *val = AS_SEQ(args[0]);
     Nst_Obj **objs = val->objs;
-    char *ch = calloc(2, sizeof(char));
-    if ( ch == NULL )
-    {
-        errno = ENOMEM;
-        return NULL;
-    }
 
-    ch[0] = AS_STR(objs[1])->value[AS_INT(objs[0])];
-
-    return nst_new_string(ch, 1, true);
+    return nst_string_get_idx(objs[1], AS_INT(objs[0]));
 }

@@ -67,7 +67,9 @@ enum Nst_InstructionCodes
     NST_IC_TYPE_CHECK, // Checks the type of the top value on the stack
     NST_IC_DUP, // duplicates the top value on the stack
     NST_IC_MAKE_ARR,
+    NST_IC_MAKE_ARR_REP,
     NST_IC_MAKE_VEC,
+    NST_IC_MAKE_VEC_REP,
     NST_IC_MAKE_MAP,
     NST_IC_FOR_IS_DONE,
     NST_IC_FOR_GET_VAL
