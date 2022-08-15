@@ -194,7 +194,7 @@ Nst_Obj *nst_obj_add(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ob1->type == nst_t_vect )
     {
-        _nst_append_value_vector(AS_SEQ(ob1), ob2);
+        nst_append_value_vector(ob1, ob2);
         return inc_ref(ob1);
     }
     else if ( ARE_TYPE(nst_t_byte) )
@@ -231,11 +231,11 @@ Nst_Obj *nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ob1->type == nst_t_vect )
     {
-        return _nst_rem_value_vector(AS_SEQ(ob1), ob2);
+        return nst_rem_value_vector(ob1, ob2);
     }
     else if ( ob1->type == nst_t_map )
     {
-        Nst_Obj *res = _nst_map_drop(AS_MAP(ob1), ob2);
+        Nst_Obj *res = nst_map_drop(ob1, ob2);
         if ( res == NULL )
         {
             err->name = NST_E_TYPE_ERROR;
@@ -282,7 +282,7 @@ Nst_Obj *nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 
         for ( Nst_Int i = 0, n = AS_INT(ob2) - 1; i < n; i++ )
             for ( size_t j = 0; j < max_ob; j++ )
-                _nst_append_value_vector(vect, vect->objs[j]);
+                nst_append_value_vector(vect, vect->objs[j]);
 
         if ( AS_INT(ob2) == 0 )
             return nst_new_vector(0);
@@ -322,7 +322,7 @@ Nst_Obj *nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 Nst_Obj *nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ob1->type == nst_t_vect && ob2->type == nst_t_int )
-        return _nst_pop_value_vector(AS_SEQ(ob1), (size_t)AS_INT(ob2));
+        return nst_pop_value_vector(ob1, (size_t)AS_INT(ob2));
     else if ( ARE_TYPE(nst_t_byte) )
     {
         if ( AS_BYTE(ob2) == 0 )
@@ -614,7 +614,7 @@ Nst_Obj *nst_obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs)
         else if ( val->type == nst_t_map )
             val = nst_obj_str_cast_map(val, all_objs);
         else if ( val->type == nst_t_str )
-            val = _nst_repr_string(AS_STR(val));
+            val = nst_repr_string(val);
         else
             val = nst_obj_cast(val, nst_t_str, NULL);
 
@@ -687,13 +687,13 @@ Nst_Obj *nst_obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
 
     while ( count++ < tot )
     {
-        idx = _nst_map_get_next_idx(idx, map);
+        idx = nst_map_get_next_idx(idx, map);
         key = map->nodes[idx].key;
         val = map->nodes[idx].value;
 
         // Key cannot be a vector, an array or a map
         if ( key->type == nst_t_str )
-            key = _nst_repr_string(AS_STR(key));
+            key = nst_repr_string(AS_STR(key));
         else
             key = nst_obj_cast(key, nst_t_str, NULL);
 
@@ -702,7 +702,7 @@ Nst_Obj *nst_obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
         else if ( val->type == nst_t_map )
             val = nst_obj_str_cast_map(val, all_objs);
         else if ( val->type == nst_t_str )
-            val = _nst_repr_string(AS_STR(val));
+            val = nst_repr_string(AS_STR(val));
         else
             val = nst_obj_cast(val, nst_t_str, NULL);
 
@@ -766,7 +766,7 @@ Nst_Obj *nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
                 return nst_new_string("false", 5, false);
         }
         else if ( ob_t == nst_t_type )
-            return _nst_copy_string(AS_STR(ob));
+            return nst_copy_string(ob);
         else if ( ob_t == nst_t_byte )
         {
             char *str = calloc(2, sizeof(char));
@@ -869,8 +869,8 @@ Nst_Obj *nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
         {
             Nst_Obj *idx = nst_new_int(0);
             Nst_SeqObj *data = AS_SEQ(nst_new_array(2));
-            _nst_set_value_seq(data, 0, idx);
-            _nst_set_value_seq(data, 1, ob);
+            nst_set_value_seq(data, 0, idx);
+            nst_set_value_seq(data, 1, ob);
             dec_ref(idx);
 
             return new_iter(
@@ -885,8 +885,8 @@ Nst_Obj *nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
         {
             Nst_Obj *idx = nst_new_int(0);
             Nst_SeqObj *data = AS_SEQ(nst_new_array(2));
-            _nst_set_value_seq(data, 0, idx);
-            _nst_set_value_seq(data, 1, ob);
+            nst_set_value_seq(data, 0, idx);
+            nst_set_value_seq(data, 1, ob);
             dec_ref(idx);
 
             return new_iter(
@@ -899,10 +899,10 @@ Nst_Obj *nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
         }
         else if ( ob_t == nst_t_map )
         {
-            Nst_Obj *start_obj   = _nst_map_get_str(AS_MAP(ob), "_start_");
-            Nst_Obj *advance_obj = _nst_map_get_str(AS_MAP(ob), "_advance_");
-            Nst_Obj *is_done_obj = _nst_map_get_str(AS_MAP(ob), "_is_done_");
-            Nst_Obj *get_val_obj = _nst_map_get_str(AS_MAP(ob), "_get_val_");
+            Nst_Obj *start_obj   = nst_map_get_str(ob, "_start_");
+            Nst_Obj *advance_obj = nst_map_get_str(ob, "_advance_");
+            Nst_Obj *is_done_obj = nst_map_get_str(ob, "_is_done_");
+            Nst_Obj *get_val_obj = nst_map_get_str(ob, "_get_val_");
 
             if ( start_obj == NULL )
                 RETURN_MISSING_FUNC_ERROR("_start_");
@@ -934,7 +934,7 @@ Nst_Obj *nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
                                       : AS_SEQ(nst_new_array(seq_len));
 
             for ( size_t i = 0; i < seq_len; i++ )
-                _nst_set_value_seq(seq, i, AS_SEQ(ob)->objs[i]);
+                nst_set_value_seq(seq, i, AS_SEQ(ob)->objs[i]);
 
             return (Nst_Obj *)seq;
         }

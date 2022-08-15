@@ -49,6 +49,7 @@
 #define EXPECTED_BRACE "expected '}'"
 #define EXPECTED_COLON "expected ':'"
 #define EXPECTED_TYPE(type) "expected type '" type "', got '%s' instead"
+#define EXPECTED_TYPES "expected type '%s', got '%s' instead"
 #define UNHASHABLE_TYPE "unhashable type '%s'"
 #define INDEX_OUT_OF_BOUNDS(type) "index %lli out of bounds for '" type "' of size %zi"
 #define TOO_MANY_ARGS(name) "too many arguments were given to '" name "'"
@@ -66,6 +67,7 @@
 #define INCVALID_TYPE_LETTER "invalid letter in type string"
 #define RAN_OUT_OF_MEMORY "ran out of memory"
 #define NEGATIVE_SIZE_FOR_SEQUENCE "the specified quantity is negative"
+#define CALL_STACK_SIZE_EXCEEDED "the maximum call stack size (1000 calls) was exceeded"
 
 #ifdef __cplusplus
 extern "C" {
@@ -110,6 +112,7 @@ void nst_print_error(Nst_Error err);
 void nst_print_traceback(Nst_Traceback tb);
 
 char *_nst_format_type_error(const char *format, char *type_name);
+char *_nst_format_types_error(const char *format, char *type_name1, char *type_name2);
 char *_nst_format_idx_error(const char *format, int64_t idx, size_t seq_len);
 char *_nst_format_fnf_error(const char *format, char *file_name);
 char *_nst_format_arg_error(const char *format, char *type_name, size_t idx);

@@ -146,7 +146,9 @@
     <ClCompile Include="error.c" />
     <ClCompile Include="function.c" />
     <ClCompile Include="hash.c" />
+    <ClCompile Include="instructions.c" />
     <ClCompile Include="interpreter.c" />
+    <ClCompile Include="interpreter_ast.c" />
     <ClCompile Include="iter.c" />
     <ClCompile Include="lexer.c" />
     <ClCompile Include="llist.c" />
@@ -157,6 +159,7 @@
     <ClCompile Include="obj_ops.c" />
     <ClCompile Include="optimizer.c" />
     <ClCompile Include="parser.c" />
+    <ClCompile Include="runtime_stack.c" />
     <ClCompile Include="str.c" />
     <ClCompile Include="simple_types.c" />
     <ClCompile Include="tokens.c" />
@@ -168,6 +171,8 @@
     <ClInclude Include="error.h" />
     <ClInclude Include="function.h" />
     <ClInclude Include="hash.h" />
+    <ClInclude Include="instructions.h" />
+    <ClInclude Include="interpreter.h" />
     <ClInclude Include="iter.h" />
     <ClInclude Include="lexer.h" />
     <ClInclude Include="lib_import.h" />
@@ -180,8 +185,9 @@
     <ClInclude Include="obj_ops.h" />
     <ClInclude Include="optimizer.h" />
     <ClInclude Include="parser.h" />
-    <ClInclude Include="interpreter.h" />
+    <ClInclude Include="interpreter_ast.h" />
     <ClInclude Include="error_internal.h" />
+    <ClInclude Include="runtime_stack.h" />
     <ClInclude Include="str.h" />
     <ClInclude Include="simple_types.h" />
     <ClInclude Include="tokens.h" />

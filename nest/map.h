@@ -16,9 +16,9 @@
 
 #define nst_map_get_next_idx(curr_idx, map) _nst_map_get_next_idx(curr_idx, AS_MAP(map))
 
-#define nst_map_set_str(map, key, value) _nst_map_set_str(AS_MAP(map), (Nst_Obj *)key, (Nst_Obj *)value)
-#define nst_map_get_str(map, key) _nst_map_get_str(AS_MAP(map), (Nst_Obj *)key)
-#define nst_map_drop_str(map, key) _nst_map_drop_str(AS_MAP(map), (Nst_Obj *)key)
+#define nst_map_set_str(map, key, value) _nst_map_set_str(AS_MAP(map), key, (Nst_Obj *)value)
+#define nst_map_get_str(map, key) _nst_map_get_str(AS_MAP(map), key)
+#define nst_map_drop_str(map, key) _nst_map_drop_str(AS_MAP(map), key)
 
 #ifdef __cplusplus
 extern "C" {

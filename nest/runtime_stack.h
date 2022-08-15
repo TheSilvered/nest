@@ -1,0 +1,50 @@
+#ifndef RUNTIME_STACK
+#define RUNTIME_STACK
+
+#include "obj.h"
+#include "error.h"
+#include "function.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif // !__cplusplus
+
+typedef struct
+{
+    Nst_Obj **stack;
+    size_t current_size;
+    size_t max_size;
+}
+Nst_ValueStack;
+
+typedef struct
+{
+    Nst_BcFuncObj *func;
+    Nst_Pos start;
+    Nst_Pos end;
+}
+Nst_FuncCall;
+
+typedef struct
+{
+    Nst_FuncCall *stack;
+    size_t current_size;
+    size_t max_size;
+}
+Nst_CallStack;
+
+Nst_ValueStack *nst_new_val_stack();
+bool nst_push_val(Nst_ValueStack *v_stack, Nst_Obj *obj);
+Nst_Obj *nst_pop_val(Nst_ValueStack *v_stack);
+Nst_Obj *nst_peek_val(Nst_ValueStack *v_stack);
+bool nst_dup_val(Nst_ValueStack *v_stack);
+
+Nst_CallStack *nst_new_call_stack();
+bool nst_push_func(Nst_CallStack *f_stack, Nst_BcFuncObj *func);
+Nst_FuncCall nst_pop_func(Nst_CallStack *f_stack);
+
+#ifdef __cplusplus
+}
+#endif // !__cplusplus
+
+#endif // !RUNTIME_STACK

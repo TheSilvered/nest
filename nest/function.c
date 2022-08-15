@@ -85,5 +85,5 @@ void destroy_bfunc(Nst_BcFuncObj *func)
     if ( func->args != NULL )
         free(func->args);
     if ( func->body != NULL )
-        destroy_inst_list(func->body);
+        nst_destroy_inst_list(func->body);
 }

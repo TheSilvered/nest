@@ -13,7 +13,7 @@
 #define nst_append_value_vector(vect, val) _nst_append_value_vector(AS_SEQ(vect), (Nst_Obj *)val)
 #define nst_set_value_seq(seq, idx, val) _nst_set_value_seq(AS_SEQ(seq), idx, (Nst_Obj *)val)
 #define nst_rem_value_vector(vect, val) _nst_rem_value_vector(AS_SEQ(vect), (Nst_Obj *)val)
-#define nst_pop_value_vector(vect, quantity) _nst_pop_value_vector(AS_SEQ(vect), quantity);
+#define nst_pop_value_vector(vect, quantity) _nst_pop_value_vector(AS_SEQ(vect), quantity)
 #define nst_get_value_seq(seq, idx) _nst_get_value_seq(AS_SEQ(seq), idx)
 
 #ifdef __cplusplus

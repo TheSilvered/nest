@@ -48,7 +48,7 @@
     <ClCompile Include="obj_ops.c">
       <Filter>File di origine</Filter>
     </ClCompile>
-    <ClCompile Include="interpreter.c">
+    <ClCompile Include="interpreter_ast.c">
       <Filter>File di origine</Filter>
     </ClCompile>
     <ClCompile Include="var_table.c">
@@ -75,6 +75,15 @@
     <ClCompile Include="optimizer.c">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="interpreter.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="instructions.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="runtime_stack.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="error.h">
@@ -86,7 +95,7 @@
     <ClInclude Include="hash.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
-    <ClInclude Include="interpreter.h">
+    <ClInclude Include="interpreter_ast.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="iter.h">
@@ -144,6 +153,15 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="optimizer.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="interpreter.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="runtime_stack.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="instructions.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>

@@ -139,6 +139,7 @@ int main(int argc, char **argv)
     if ( print_tree )
     {
         nst_print_ast(ast);
+        nst_destroy_node(ast);
         del_obj();
         return 0;
     }
@@ -155,11 +156,12 @@ int main(int argc, char **argv)
     if ( print_bc )
     {
         nst_print_bytecode(inst_ls, 0);
+        nst_destroy_inst_list(inst_ls);
         del_obj();
         return 0;
     }
 
-    nst_run(ast, argc, argv);
+    nst_run(inst_ls, argc, argv);
     nst_destroy_node(ast);
 
     del_obj();

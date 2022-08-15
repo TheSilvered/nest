@@ -1,32 +1,28 @@
 #ifndef INTERPRETER_H
 #define INTERPRETER_H
 
-#include <stdbool.h>
-#include <windows.h>
 #include "error.h"
-#include "obj.h"
-#include "nodes.h"
+#include "str.h"
+#include "llist.h"
 #include "var_table.h"
+#include "map.h"
+#include "compiler.h"
+#include "simple_types.h"
+#include "runtime_stack.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
-void nst_run(Nst_Node *node, int argc, char **argv);
-Nst_MapObj *nst_run_module(char *file_name);
-Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err);
-size_t nst_get_full_path(char *file_path, char **buf, char **file_part);
-
 typedef struct
 {
     Nst_Traceback *traceback;
-    Nst_Obj *value;
     struct _varTable *vt;
     bool error_occurred;
-    bool must_return;
-    bool must_continue;
-    bool must_break;
     Nst_StrObj *curr_path;
+    Nst_InstructionList *curr_bytecode;
+    Nst_ValueStack *v_stack;
+    Nst_CallStack *f_stack;
     LList *loaded_libs;
     LList *lib_paths;
     LList *lib_handles;
@@ -39,6 +35,11 @@ typedef struct
     char *path;
 }
 Nst_LibHandle;
+
+void nst_run(Nst_InstructionList *inst_ls, int argc, char **argv);
+Nst_MapObj *nst_run_module(char *file_name);
+Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err);
+size_t nst_get_full_path(char *file_path, char **buf, char **file_part);
 
 extern Nst_ExecutionState *nst_state;
 

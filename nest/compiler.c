@@ -36,86 +36,6 @@ static dec_loop_id()
     c_state.loop_id += 2;
 }
 
-Nst_RuntimeInstruction *new_inst_empty(int id, Nst_Int int_val)
-{
-    Nst_RuntimeInstruction *inst = malloc(sizeof(Nst_RuntimeInstruction));
-    if ( inst == NULL )
-        return NULL;
-
-    inst->id = id;
-    inst->int_val = int_val;
-    inst->val = NULL;
-    inst->start = nst_no_pos();
-    inst->end = nst_no_pos();
-
-    return inst;
-}
-
-Nst_RuntimeInstruction *new_inst_pos(int id, Nst_Pos start, Nst_Pos end)
-{
-    Nst_RuntimeInstruction *inst = malloc(sizeof(Nst_RuntimeInstruction));
-    if ( inst == NULL )
-        return NULL;
-
-    inst->id = id;
-    inst->int_val = 0;
-    inst->val = NULL;
-    inst->start = start;
-    inst->end = end;
-
-    return inst;
-}
-
-Nst_RuntimeInstruction *new_inst_val(int id, Nst_Obj *val, Nst_Pos start, Nst_Pos end)
-{
-    Nst_RuntimeInstruction *inst = malloc(sizeof(Nst_RuntimeInstruction));
-    if ( inst == NULL )
-        return NULL;
-
-    inst->id = id;
-    inst->int_val = 0;
-    inst->val = inc_ref(val);
-    inst->start = start;
-    inst->end = end;
-
-    return inst;
-}
-
-Nst_RuntimeInstruction *new_inst_int_val(int id, Nst_Int int_val, Nst_Pos start, Nst_Pos end)
-{
-    Nst_RuntimeInstruction *inst = malloc(sizeof(Nst_RuntimeInstruction));
-    if ( inst == NULL )
-        return NULL;
-
-    inst->id = id;
-    inst->int_val = int_val;
-    inst->val = NULL;
-    inst->start = start;
-    inst->end = end;
-
-    return inst;
-}
-
-void destroy_inst(Nst_RuntimeInstruction *inst)
-{
-    if ( inst->val != NULL )
-        dec_ref(inst->val);
-    free(inst);
-}
-
-void destroy_inst_list(Nst_InstructionList *inst_list)
-{
-    Nst_RuntimeInstruction *instructions = inst_list->instructions;
-    for ( Nst_Int i = 0, n = inst_list->total_size; i < n; i++ )
-    {
-        if ( instructions[i].val != NULL )
-            dec_ref(instructions[i].val);
-    }
-
-    free(instructions);
-    free(inst_list);
-}
-
 static Nst_InstructionList *compile_internal(Nst_Node *node, bool is_func);
 static void compile_node(Nst_Node *node);
 static void compile_long_s(Nst_Node *node);
@@ -214,7 +134,7 @@ static void compile_node(Nst_Node *node)
     case NST_NT_LOCAL_STACK_OP: compile_local_stack_op(node); break;
     case NST_NT_LOCAL_OP:       compile_local_op(node); break;
     case NST_NT_ARR_LIT:
-    case NST_NT_VEC_LIT:       compile_arr_or_vect_lit(node); break;
+    case NST_NT_VEC_LIT:        compile_arr_or_vect_lit(node); break;
     case NST_NT_MAP_LIT:        compile_map_lit(node); break;
     case NST_NT_VALUE:          compile_value(node); break;
     case NST_NT_ACCESS:         compile_access(node); break;
@@ -655,13 +575,17 @@ static void compile_local_stack_op(Nst_Node *node)
     Range operation bytecode
 
     [VALUE CODE]
+    TYPE_CHECK Int
     [VALUE CODE]
-    ([VALUE CODE])
+    TYPE_CHECK Int
+    ([VALUE CODE]
+     TYPE_CHECK Int)
     OP_RANGE - arg num
 
     Cast operation bytecode
 
     [VALUE CODE]
+    TYPE_CHECK Type
     [VALUE CODE]
     OP_CAST
 
@@ -670,6 +594,7 @@ static void compile_local_stack_op(Nst_Node *node)
     PUSH_VAL nullptr
     [ARG CODE] *
     [FUNC CODE]
+    TYPE_CHECK Func
     PUSH_FUNC
     OP_CALL - arg num
     POP_FUNC
@@ -681,11 +606,34 @@ static void compile_local_stack_op(Nst_Node *node)
     if ( tok_type == NST_TT_RANGE )
     {
         compile_node(HEAD_NODE);
+        inst = new_inst_val(
+            NST_IC_TYPE_CHECK,
+            nst_t_int,
+            HEAD_NODE->start,
+            HEAD_NODE->end
+        );
+        ADD_INST(inst);
 
         if ( node->nodes->size == 3 )
+        {
             compile_node(node->nodes->head->next->value);
+            inst = new_inst_val(
+                NST_IC_TYPE_CHECK,
+                nst_t_int,
+                HEAD_NODE->start,
+                HEAD_NODE->end
+            );
+            ADD_INST(inst);
+        }
         
         compile_node(TAIL_NODE);
+        inst = new_inst_val(
+            NST_IC_TYPE_CHECK,
+            nst_t_int,
+            HEAD_NODE->start,
+            HEAD_NODE->end
+        );
+        ADD_INST(inst);
 
         inst = new_inst_empty(NST_IC_OP_RANGE, node->nodes->size);
         ADD_INST(inst);
@@ -693,6 +641,14 @@ static void compile_local_stack_op(Nst_Node *node)
     else if ( tok_type == NST_TT_CAST )
     {
         compile_node(HEAD_NODE);
+        inst = new_inst_val(
+            NST_IC_TYPE_CHECK,
+            nst_t_type,
+            HEAD_NODE->start,
+            HEAD_NODE->end
+        );
+        ADD_INST(inst);
+
         compile_node(TAIL_NODE);
         inst = new_inst_empty(NST_IC_OP_CAST, node->nodes->size);
         ADD_INST(inst);
@@ -705,7 +661,9 @@ static void compile_local_stack_op(Nst_Node *node)
         for ( LLNode *n = node->nodes->head; n != NULL; n = n->next )
             compile_node(n->value);
 
-        inst = new_inst_empty(NST_IC_PUSH_FUNC, 0);
+        inst = new_inst_val(NST_IC_TYPE_CHECK, nst_t_func, node->start, node->end);
+        ADD_INST(inst);
+        inst = new_inst_int_val(NST_IC_PUSH_FUNC, 0, node->start, node->end);
         ADD_INST(inst);
         inst = new_inst_empty(NST_IC_OP_CALL, node->nodes->size - 1);
         ADD_INST(inst);
@@ -729,6 +687,7 @@ static void compile_local_op(Nst_Node *node)
     PUSH_VAL nullptr
     [ARG CODE]
     [FUNC CODE]
+    TYPE_CHECK Func
     PUSH_FUNC
     OP_CALL - arg num
     POP_FUNC
@@ -746,7 +705,9 @@ static void compile_local_op(Nst_Node *node)
         inst = new_inst_empty(NST_IC_PUSH_VAL, 0);
         ADD_INST(inst);
         compile_node(HEAD_NODE);
-        inst = new_inst_empty(NST_IC_PUSH_FUNC, 0);
+        inst = new_inst_val(NST_IC_TYPE_CHECK, nst_t_func, node->start, node->end);
+        ADD_INST(inst);
+        inst = new_inst_int_val(NST_IC_PUSH_FUNC, 0, node->start, node->end);
         ADD_INST(inst);
         inst = new_inst_empty(NST_IC_OP_CALL, node->nodes->size - 1);
         ADD_INST(inst);
@@ -780,6 +741,7 @@ static void compile_arr_or_vect_lit(Nst_Node *node)
 
     [VALUE CODE]
     [TIMES TO REPEAT CODE]
+    TYPE_CHECK Int
     MAKE_ARR_REP | MAKE_VEC_REP
     */
 
@@ -788,10 +750,19 @@ static void compile_arr_or_vect_lit(Nst_Node *node)
         compile_node(n->value);
     
     if ( node->tokens->size != 0 )
+    {
+        inst = new_inst_val(
+            NST_IC_TYPE_CHECK,
+            nst_t_int,
+            TAIL_NODE->start,
+            TAIL_NODE->end
+        );
+        ADD_INST(inst);
         inst = new_inst_empty(
             node->type == NST_NT_ARR_LIT ? NST_IC_MAKE_ARR_REP : NST_IC_MAKE_VEC_REP,
-            0
+            node->nodes->size
         );
+    }
     else
         inst = new_inst_empty(
             node->type == NST_NT_ARR_LIT ? NST_IC_MAKE_ARR : NST_IC_MAKE_VEC,
@@ -806,13 +777,25 @@ static void compile_map_lit(Nst_Node *node)
     /*
     Map literal bytecode
 
-    [VALUE CODE] *
+    ( [VALUE CODE]
+      HASH_CHECK )*
     MAKE_MAP - number of elements (key-value pairs * 2)
     */
+    Nst_RuntimeInstruction *inst;
+
     for ( LLNode *n = node->nodes->head; n != NULL; n = n->next )
+    {
         compile_node(n->value);
+        inst = new_inst_int_val(
+            NST_IC_HASH_CHECK,
+            0,
+            NODE(n->value)->start,
+            NODE(n->value)->end
+        );
+        ADD_INST(inst);
+    }
     
-    Nst_RuntimeInstruction *inst = new_inst_empty(NST_IC_MAKE_MAP, node->nodes->size);
+    inst = new_inst_empty(NST_IC_MAKE_MAP, node->nodes->size);
     ADD_INST(inst);
 }
 
@@ -1067,7 +1050,6 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
         case NST_IC_SET_VAL:       printf("SET_VAL      "); break;
         case NST_IC_SET_VAL_LOC:   printf("SET_VAL_LOC  "); break;
         case NST_IC_GET_VAL:       printf("GET_VAL      "); break;
-        case NST_IC_DROP_VAL:      printf("DROP_VAL     "); break;
         case NST_IC_PUSH_VAL:      printf("PUSH_VAL     "); break;
         case NST_IC_SET_CONT_VAL:  printf("SET_CONT_VAL "); break;
         case NST_IC_OP_CALL:       printf("OP_CALL      "); break;
@@ -1077,10 +1059,10 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
         case NST_IC_LOCAL_OP:      printf("LOCAL_OP     "); break;
         case NST_IC_OP_IMPORT:     printf("OP_IMPORT    "); break;
         case NST_IC_OP_EXTRACT:    printf("OP_EXTRACT   "); break;
-        case NST_IC_INC_INT:       printf("INC_INT      "); break;
         case NST_IC_DEC_INT:       printf("DEC_INT      "); break;
         case NST_IC_NEW_OBJ:       printf("NEW_OBJ      "); break;
         case NST_IC_TYPE_CHECK:    printf("TYPE_CHECK   "); break;
+        case NST_IC_HASH_CHECK:    printf("HASH_CHECK   "); break;
         case NST_IC_DUP:           printf("DUP          "); break;
         case NST_IC_MAKE_ARR:      printf("MAKE_ARR     "); break;
         case NST_IC_MAKE_VEC:      printf("MAKE_VEC     "); break;
