@@ -29,8 +29,14 @@ Nst_InstructionList;
 
 Nst_RuntimeInstruction *new_inst_empty(int id, Nst_Int int_val);
 Nst_RuntimeInstruction *new_inst_pos(int id, Nst_Pos start, Nst_Pos end);
-Nst_RuntimeInstruction *new_inst_val(int id, Nst_Obj *val, Nst_Pos start, Nst_Pos end);
-Nst_RuntimeInstruction *new_inst_int_val(int id, Nst_Int int_val, Nst_Pos start, Nst_Pos end);
+Nst_RuntimeInstruction *new_inst_val(int id,
+                                     Nst_Obj *val,
+                                     Nst_Pos start,
+                                     Nst_Pos end);
+Nst_RuntimeInstruction *new_inst_int_val(int id,
+                                         Nst_Int int_val,
+                                         Nst_Pos start,
+                                         Nst_Pos end);
 
 void nst_destroy_inst(Nst_RuntimeInstruction *inst);
 void nst_destroy_inst_list(Nst_InstructionList *inst_list);

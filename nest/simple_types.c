@@ -30,8 +30,13 @@ Nst_Obj *nst_new_bool(Nst_Bool value)
 
 Nst_Obj *nst_new_file(Nst_IOfile value, bool bin, bool read, bool write)
 {
-    Nst_IOFileObj *obj = AS_FILE(alloc_obj(sizeof(Nst_IOFileObj), nst_t_file, nst_destroy_iofile));
+    Nst_IOFileObj *obj = AS_FILE(alloc_obj(
+        sizeof(Nst_IOFileObj),
+        nst_t_file,
+        nst_destroy_iofile
+    ));
     if ( obj == NULL ) return NULL;
+
     obj->value = value;
     obj->is_closed = false;
     obj->is_bin = false;

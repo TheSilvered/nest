@@ -13,7 +13,11 @@ Nst_Obj *new_iter(
     Nst_FuncObj *get_val,
     Nst_Obj *value)
 {
-    Nst_IterObj *iter = AS_ITER(alloc_obj(sizeof(Nst_IterObj), nst_t_iter, nst_destroy_iter));
+    Nst_IterObj *iter = AS_ITER(alloc_obj(
+        sizeof(Nst_IterObj),
+        nst_t_iter,
+        nst_destroy_iter
+    ));
     if ( iter == NULL )
     {
         errno = ENOMEM;

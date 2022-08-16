@@ -34,10 +34,14 @@ typedef struct
 Nst_BcFuncObj;
 
 Nst_Obj *new_func(size_t arg_num);
-Nst_Obj *new_cfunc(size_t arg_num, Nst_Obj *(*cbody)(size_t arg_num, Nst_Obj **args, Nst_OpErr *err));
+Nst_Obj *new_cfunc(size_t arg_num, Nst_Obj *(*cbody)(size_t arg_num,
+                                                     Nst_Obj **args,
+                                                     Nst_OpErr *err));
 
 Nst_Obj *new_bfunc(size_t arg_num);
-Nst_Obj *new_bcfunc(size_t arg_num, Nst_Obj *(*cbody)(size_t arg_num, Nst_Obj **args, Nst_OpErr *err));
+Nst_Obj *new_bcfunc(size_t arg_num, Nst_Obj *(*cbody)(size_t arg_num,
+                                                      Nst_Obj **args,
+                                                      Nst_OpErr *err));
 
 void destroy_func(Nst_FuncObj *func);
 void destroy_bfunc(Nst_BcFuncObj *func);

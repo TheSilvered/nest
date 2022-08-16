@@ -14,13 +14,16 @@ Nst_ValueStack *nst_new_val_stack()
     return v_stack;
 }
 
-bool nst_push_val(Nst_ValueStack *v_stack, Nst_Obj *obj)
+bool _nst_push_val(Nst_ValueStack *v_stack, Nst_Obj *obj)
 {
     register size_t max_size = v_stack->max_size;
 
     if ( v_stack->current_size == max_size )
     {
-        Nst_Obj **new_objs = realloc(v_stack->stack, max_size * 2 * sizeof(Nst_Obj *));
+        Nst_Obj **new_objs = realloc(
+            v_stack->stack,
+            max_size * 2 * sizeof(Nst_Obj *)
+        );
         if ( new_objs == NULL )
             return false;
 
@@ -70,7 +73,10 @@ Nst_CallStack *nst_new_call_stack()
     return f_stack;
 }
 
-bool nst_push_func(Nst_CallStack *f_stack, Nst_BcFuncObj *func, Nst_Pos call_start, Nst_Pos call_end)
+bool _nst_push_func(Nst_CallStack *f_stack,
+                    Nst_BcFuncObj *func,
+                    Nst_Pos call_start,
+                    Nst_Pos call_end)
 {
     register size_t max_size = f_stack->max_size;
 
@@ -79,7 +85,10 @@ bool nst_push_func(Nst_CallStack *f_stack, Nst_BcFuncObj *func, Nst_Pos call_sta
 
     if ( f_stack->current_size == max_size )
     {
-        Nst_FuncCall *new_calls = realloc(f_stack->stack, max_size * 2 * sizeof(Nst_FuncCall));
+        Nst_FuncCall *new_calls = realloc(
+            f_stack->stack,
+            max_size * 2 * sizeof(Nst_FuncCall)
+        );
         if ( new_calls == NULL )
             return false;
 
@@ -87,7 +96,7 @@ bool nst_push_func(Nst_CallStack *f_stack, Nst_BcFuncObj *func, Nst_Pos call_sta
         f_stack->max_size = max_size * 2;
     }
 
-    f_stack->stack[f_stack->current_size].func = inc_ref(func);
+    f_stack->stack[f_stack->current_size].func = AS_BFUNC(inc_ref(func));
     f_stack->stack[f_stack->current_size].start = call_start;
     f_stack->stack[f_stack->current_size++].end = call_end;
     return true;

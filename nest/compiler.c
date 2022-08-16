@@ -274,7 +274,7 @@ static void compile_for_l(Nst_Node *node)
 {
     /*
     For loop bytecode
-                
+
                 [TIMES TO REPEAT CODE]
                 TYPE_CHECK Int
                 NEW_OBJ
@@ -388,7 +388,7 @@ static void compile_for_as_l(Nst_Node *node)
     ADD_INST(inst);
 
     jump_body_end->int_val = CURR_LEN;
-    
+
     for ( LLNode *cursor = body_start;
         cursor != NULL && cursor != body_end;
         cursor = cursor->next )
@@ -458,7 +458,12 @@ static void compile_if_e(Nst_Node *node)
         compile_node(TAIL_NODE); // Body if false
         if ( TAIL_NODE == NST_NT_LONG_S )
         {
-            inst = new_inst_val(NST_IC_PUSH_VAL, nst_null, nst_no_pos(), nst_no_pos());
+            inst = new_inst_val(
+                NST_IC_PUSH_VAL,
+                nst_null,
+                nst_no_pos(),
+                nst_no_pos()
+            );
             ADD_INST(inst);
         }
     }
@@ -487,9 +492,20 @@ static void compile_func_declr(Nst_Node *node)
     c_state.loop_id = prev_loop_id;
     c_state.inst_ls = prev_inst_ls;
 
-    Nst_RuntimeInstruction *inst = new_inst_val(NST_IC_PUSH_VAL, (Nst_Obj *)func, nst_no_pos(), nst_no_pos());
+    Nst_RuntimeInstruction *inst = new_inst_val(
+        NST_IC_PUSH_VAL,
+        (Nst_Obj *)func,
+        nst_no_pos(),
+        nst_no_pos()
+    );
     ADD_INST(inst);
-    inst = new_inst_val(NST_IC_SET_VAL_LOC, HEAD_TOK->value, nst_no_pos(), nst_no_pos());
+
+    inst = new_inst_val(
+        NST_IC_SET_VAL_LOC,
+        HEAD_TOK->value,
+        nst_no_pos(),
+        nst_no_pos()
+    );
     ADD_INST(inst);
 }
 
@@ -590,7 +606,7 @@ static void compile_local_stack_op(Nst_Node *node)
     OP_CAST
 
     Call operation bytecode
-    
+
     PUSH_VAL nullptr
     [ARG CODE] *
     [FUNC CODE]
@@ -625,7 +641,7 @@ static void compile_local_stack_op(Nst_Node *node)
             );
             ADD_INST(inst);
         }
-        
+
         compile_node(TAIL_NODE);
         inst = new_inst_val(
             NST_IC_TYPE_CHECK,
@@ -650,7 +666,7 @@ static void compile_local_stack_op(Nst_Node *node)
         ADD_INST(inst);
 
         compile_node(TAIL_NODE);
-        inst = new_inst_empty(NST_IC_OP_CAST, node->nodes->size);
+        inst = new_inst_int_val(NST_IC_OP_CAST, 0, node->start, node->end);
         ADD_INST(inst);
     }
     else if ( tok_type == NST_TT_CALL )
@@ -677,7 +693,7 @@ static void compile_local_op(Nst_Node *node)
 {
     /*
     Import bytecode
-    
+
     [LIB NAME CODE]
     TYPE_CHECK Str
     OP_IMPORT
@@ -727,7 +743,13 @@ static void compile_local_op(Nst_Node *node)
         return;
     }
 
-    inst = new_inst_int_val(NST_IC_LOCAL_OP, HEAD_TOK->type, HEAD_NODE->start, HEAD_NODE->end);
+    inst = new_inst_int_val(
+        NST_IC_LOCAL_OP,
+        HEAD_TOK->type,
+        HEAD_NODE->start,
+        HEAD_NODE->end
+    );
+
     ADD_INST(inst);
 }
 
@@ -748,7 +770,7 @@ static void compile_arr_or_vect_lit(Nst_Node *node)
     Nst_RuntimeInstruction *inst;
     for ( LLNode *n = node->nodes->head; n != NULL; n = n->next )
         compile_node(n->value);
-    
+
     if ( node->tokens->size != 0 )
     {
         inst = new_inst_val(
@@ -794,7 +816,7 @@ static void compile_map_lit(Nst_Node *node)
         );
         ADD_INST(inst);
     }
-    
+
     inst = new_inst_empty(NST_IC_MAKE_MAP, node->nodes->size);
     ADD_INST(inst);
 }

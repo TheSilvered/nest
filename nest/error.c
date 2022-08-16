@@ -38,7 +38,11 @@ typedef struct PrintLineResult
 }
 PrintLineResult;
 
-PrintLineResult print_line(size_t lineno, char *text, size_t text_len, int64_t start, int64_t end)
+PrintLineResult print_line(size_t lineno,
+                           char *text,
+                           size_t text_len,
+                           int64_t start,
+                           int64_t end)
 {
     PrintLineResult result = { 0, 0 };
     size_t curr_line = 0;
@@ -124,9 +128,13 @@ void print_position(Nst_Pos start, Nst_Pos end)
 {
     assert(start.filename == end.filename);
 #ifdef FANCY_ERRORS
-    printf("File " C_GREEN "\"%s\"" C_RESET " at line %zi", start.filename, start.line + 1);
+    printf("File " C_GREEN "\"%s\"" C_RESET " at line %zi",
+           start.filename,
+           start.line + 1);
 #else
-    printf("File \"%s\" at line %zi", start.filename, start.line + 1);
+    printf("File \"%s\" at line %zi",
+           start.filename,
+           start.line + 1);
 #endif
     if ( start.line != end.line ) printf(" to %zi", end.line + 1);
     printf(":\n| ");
@@ -135,7 +143,13 @@ void print_position(Nst_Pos start, Nst_Pos end)
 
     if ( start.line == end.line )
     {
-        PrintLineResult res = print_line(start.line, start.text, start.text_len, start.col, end.col);
+        PrintLineResult res = print_line(
+            start.line,
+            start.text,
+            start.text_len,
+            start.col,
+            end.col
+        );
         printf("| ");
         print_repeat(' ', start.col - res.indent);
         print_repeat('^', end.col - start.col + 1);
@@ -143,7 +157,12 @@ void print_position(Nst_Pos start, Nst_Pos end)
         return;
     }
 
-    PrintLineResult res = print_line(start.line, start.text, start.text_len, start.col, -1);
+    PrintLineResult res = print_line(
+        start.line,
+        start.text,
+        start.text_len,
+        start.col, -1
+    );
     printf("| ");
     print_repeat(' ', start.col - res.indent);
 
@@ -194,7 +213,9 @@ char *_nst_format_type_error(const char *format, char *type_name)
     return buffer;
 }
 
-char *_nst_format_types_error(const char *format, char *type_name1, char *type_name2)
+char *_nst_format_types_error(const char *format,
+                              char *type_name1,
+                              char *type_name2)
 {
     char *buffer = malloc(strlen(format) + strlen(type_name1) + strlen(type_name2));
     if ( buffer == NULL )

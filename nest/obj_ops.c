@@ -15,7 +15,10 @@
 #define MAX_REAL_CHAR_COUNT 25
 #define MAX_BYTE_CHAR_COUNT 5
 
-#define IS_NUM(obj) ( obj->type == nst_t_int || obj->type == nst_t_real || obj->type == nst_t_byte )
+#define IS_NUM(obj) \
+    ( obj->type == nst_t_int || \
+      obj->type == nst_t_real || \
+      obj->type == nst_t_byte )
 #define IS_INT(obj) ( obj->type == nst_t_int || obj->type == nst_t_byte )
 #define IS_SEQ(obj) ( obj->type == nst_t_arr || obj->type == nst_t_vect )
 #define ARE_TYPE(nst_type) ( ob1->type == nst_type && ob2->type == nst_type )
@@ -42,10 +45,10 @@
     Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *, \
     Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *, \
     Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *, \
-    Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_ExecutionState *
+    Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_ExecutionState
 
 // Comparisons
-Nst_Obj *nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ob1 == ob2 )
         NST_RETURN_TRUE;
@@ -77,13 +80,16 @@ Nst_Obj *nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         NST_RETURN_COND(ob1 == ob2);
     else if ( IS_SEQ(ob1) && IS_SEQ(ob2) )
     {
-        if ( AS_SEQ(ob1)->len != AS_SEQ(ob2)->len )
+        Nst_SeqObj *seq1 = AS_SEQ(ob1);
+        Nst_SeqObj *seq2 = AS_SEQ(ob2);
+
+        if ( seq1->len != seq2->len )
             NST_RETURN_FALSE;
 
         for ( size_t i = 0, n = AS_SEQ(ob1)->len; i < n; i++ )
         {
-            if ( nst_obj_eq(AS_SEQ(ob1)->objs[i], AS_SEQ(ob2)->objs[i], err) == nst_false )
-                NST_RETURN_FALSE;
+            if ( nst_obj_eq(seq1->objs[i], seq2->objs[i], err) == nst_false )
+                return nst_false;
             else
                 dec_ref(nst_true);
         }
@@ -93,7 +99,7 @@ Nst_Obj *nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         NST_RETURN_FALSE;
 }
 
-Nst_Obj *nst_obj_ne(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_ne(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( nst_obj_eq(ob1, ob2, err) == nst_true )
     {
@@ -107,7 +113,7 @@ Nst_Obj *nst_obj_ne(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
 }
 
-Nst_Obj *nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ARE_TYPE(nst_t_str) )
         NST_RETURN_COND(strcmp(AS_STR(ob1)->value, AS_STR(ob2)->value) > 0);
@@ -135,7 +141,7 @@ Nst_Obj *nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         RETURN_TYPE_ERROR(">");
 }
 
-Nst_Obj *nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ARE_TYPE(nst_t_str) )
         NST_RETURN_COND(strcmp(AS_STR(ob1)->value, AS_STR(ob2)->value) < 0);
@@ -163,7 +169,7 @@ Nst_Obj *nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         RETURN_TYPE_ERROR("<");
 }
 
-Nst_Obj *nst_obj_ge(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_ge(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( nst_obj_eq(ob1, ob2, err) == nst_true )
         return nst_true;
@@ -175,7 +181,7 @@ Nst_Obj *nst_obj_ge(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     return res;
 }
 
-Nst_Obj *nst_obj_le(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_le(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( nst_obj_eq(ob1, ob2, err) == nst_true )
         return nst_true;
@@ -190,7 +196,7 @@ Nst_Obj *nst_obj_le(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 }
 
 // Arithmetic operations
-Nst_Obj *nst_obj_add(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_add(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ob1->type == nst_t_vect )
     {
@@ -227,7 +233,7 @@ Nst_Obj *nst_obj_add(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         RETURN_TYPE_ERROR("+");
 }
 
-Nst_Obj *nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ob1->type == nst_t_vect )
     {
@@ -239,7 +245,10 @@ Nst_Obj *nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         if ( res == NULL )
         {
             err->name = NST_E_TYPE_ERROR;
-            err->message= _nst_format_type_error(UNHASHABLE_TYPE, ob2->type_name);
+            err->message = _nst_format_type_error(
+                UNHASHABLE_TYPE,
+                ob2->type_name
+            );
         }
         return res;
     }
@@ -273,7 +282,7 @@ Nst_Obj *nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         RETURN_TYPE_ERROR("-");
 }
 
-Nst_Obj *nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ob1->type == nst_t_vect && ob2->type == nst_t_int )
     {
@@ -319,7 +328,7 @@ Nst_Obj *nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         RETURN_TYPE_ERROR("*");
 }
 
-Nst_Obj *nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ob1->type == nst_t_vect && ob2->type == nst_t_int )
         return nst_pop_value_vector(ob1, (size_t)AS_INT(ob2));
@@ -376,7 +385,7 @@ Nst_Obj *nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         RETURN_TYPE_ERROR("/");
 }
 
-Nst_Obj *nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ARE_TYPE(nst_t_byte) )
     {
@@ -431,7 +440,7 @@ Nst_Obj *nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         RETURN_TYPE_ERROR("^");
 }
 
-Nst_Obj *nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ARE_TYPE(nst_t_byte) )
     {
@@ -487,7 +496,7 @@ Nst_Obj *nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 }
 
 // Bitwise operations
-Nst_Obj *nst_obj_bwor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_bwor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ARE_TYPE(nst_t_int) )
         return nst_new_int(AS_INT(ob1) | AS_INT(ob2));
@@ -495,7 +504,7 @@ Nst_Obj *nst_obj_bwor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         RETURN_TYPE_ERROR("|");
 }
 
-Nst_Obj *nst_obj_bwand(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_bwand(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ARE_TYPE(nst_t_int) )
         return nst_new_int(AS_INT(ob1) & AS_INT(ob2));
@@ -503,7 +512,7 @@ Nst_Obj *nst_obj_bwand(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         RETURN_TYPE_ERROR("&");
 }
 
-Nst_Obj *nst_obj_bwxor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_bwxor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ARE_TYPE(nst_t_int) )
         return nst_new_int(AS_INT(ob1) ^ AS_INT(ob2));
@@ -511,7 +520,7 @@ Nst_Obj *nst_obj_bwxor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         RETURN_TYPE_ERROR("^^");
 }
 
-Nst_Obj *nst_obj_bwls(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_bwls(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ARE_TYPE(nst_t_int) )
         return nst_new_int(AS_INT(ob1) << AS_INT(ob2));
@@ -519,7 +528,7 @@ Nst_Obj *nst_obj_bwls(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         RETURN_TYPE_ERROR("<<");
 }
 
-Nst_Obj *nst_obj_bwrs(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_bwrs(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ARE_TYPE(nst_t_int) )
         return nst_new_int(AS_INT(ob1) >> AS_INT(ob2));
@@ -528,7 +537,7 @@ Nst_Obj *nst_obj_bwrs(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 }
 
 // Logical operations
-Nst_Obj *nst_obj_lgor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_lgor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     ob1 = nst_obj_cast(ob1, nst_t_bool, err);
     ob2 = nst_obj_cast(ob2, nst_t_bool, err);
@@ -542,7 +551,7 @@ Nst_Obj *nst_obj_lgor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     NST_RETURN_COND( v1 == NST_TRUE || v2 == NST_TRUE );
 }
 
-Nst_Obj *nst_obj_lgand(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_lgand(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     ob1 = nst_obj_cast(ob1, nst_t_bool, err);
     ob2 = nst_obj_cast(ob2, nst_t_bool, err);
@@ -556,7 +565,7 @@ Nst_Obj *nst_obj_lgand(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     NST_RETURN_COND(v1 == NST_TRUE && v2 == NST_TRUE);
 }
 
-Nst_Obj *nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     ob1 = nst_obj_cast(ob1, nst_t_bool, err);
     ob2 = nst_obj_cast(ob2, nst_t_bool, err);
@@ -572,7 +581,7 @@ Nst_Obj *nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 }
 
 // Other
-Nst_Obj *nst_obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs)
+Nst_Obj *_nst_obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs)
 {
     for ( LLNode *n = all_objs->head; n != NULL; n = n->next )
     {
@@ -610,9 +619,9 @@ Nst_Obj *nst_obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs)
         val = AS_SEQ(seq_obj)->objs[i];
 
         if ( IS_SEQ(val) )
-            val = nst_obj_str_cast_seq(val, all_objs);
+            val = _nst_obj_str_cast_seq(val, all_objs);
         else if ( val->type == nst_t_map )
-            val = nst_obj_str_cast_map(val, all_objs);
+            val = _nst_obj_str_cast_map(val, all_objs);
         else if ( val->type == nst_t_str )
             val = nst_repr_string(val);
         else
@@ -659,7 +668,7 @@ Nst_Obj *nst_obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs)
     return nst_new_string(str, str_len, true);
 }
 
-Nst_Obj *nst_obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
+Nst_Obj *_nst_obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
 {
     for ( LLNode *n = all_objs->head; n != NULL; n = n->next )
     {
@@ -698,9 +707,9 @@ Nst_Obj *nst_obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
             key = nst_obj_cast(key, nst_t_str, NULL);
 
         if ( IS_SEQ(val) )
-            val = nst_obj_str_cast_seq(val, all_objs);
+            val = _nst_obj_str_cast_seq(val, all_objs);
         else if ( val->type == nst_t_map )
-            val = nst_obj_str_cast_map(val, all_objs);
+            val = _nst_obj_str_cast_map(val, all_objs);
         else if ( val->type == nst_t_str )
             val = nst_repr_string(AS_STR(val));
         else
@@ -735,7 +744,7 @@ Nst_Obj *nst_obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
     return nst_new_string(str, str_len, true);
 }
 
-Nst_Obj *nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
+Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
 {
     register Nst_Obj *ob_t = ob->type;
 
@@ -780,14 +789,14 @@ Nst_Obj *nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
         else if ( ob_t == nst_t_arr || ob_t == nst_t_vect )
         {
             LList *all_objs = LList_new();
-            Nst_Obj *str = nst_obj_str_cast_seq(ob, all_objs);
+            Nst_Obj *str = _nst_obj_str_cast_seq(ob, all_objs);
             LList_destroy(all_objs, NULL);
             return str;
         }
         else if ( ob_t == nst_t_map )
         {
             LList *all_objs = LList_new();
-            Nst_Obj *str = nst_obj_str_cast_map(ob, all_objs);
+            Nst_Obj *str = _nst_obj_str_cast_map(ob, all_objs);
             LList_destroy(all_objs, NULL);
             return str;
         }
@@ -955,7 +964,7 @@ Nst_Obj *nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
         RETURN_TYPE_ERROR("::");
 }
 
-Nst_Obj *nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     ob1 = nst_obj_cast(ob1, nst_t_str, err);
     ob2 = nst_obj_cast(ob2, nst_t_str, err);
@@ -986,7 +995,7 @@ Nst_Obj *nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 }
 
 // Local operations
-Nst_Obj *nst_obj_neg(Nst_Obj *ob, Nst_OpErr *err)
+Nst_Obj *_nst_obj_neg(Nst_Obj *ob, Nst_OpErr *err)
 {
     if ( ob->type == nst_t_int )
         return nst_new_int(-AS_INT(ob));
@@ -996,7 +1005,7 @@ Nst_Obj *nst_obj_neg(Nst_Obj *ob, Nst_OpErr *err)
         RETURN_TYPE_ERROR("-");
 }
 
-Nst_Obj *nst_obj_len(Nst_Obj *ob, Nst_OpErr *err)
+Nst_Obj *_nst_obj_len(Nst_Obj *ob, Nst_OpErr *err)
 {
     if ( ob->type == nst_t_str )
         return nst_new_int(AS_STR(ob)->len);
@@ -1008,7 +1017,7 @@ Nst_Obj *nst_obj_len(Nst_Obj *ob, Nst_OpErr *err)
         RETURN_TYPE_ERROR("$");
 }
 
-Nst_Obj *nst_obj_bwnot(Nst_Obj *ob, Nst_OpErr *err)
+Nst_Obj *_nst_obj_bwnot(Nst_Obj *ob, Nst_OpErr *err)
 {
     if ( ob->type == nst_t_int )
         return nst_new_int(~AS_INT(ob));
@@ -1016,7 +1025,7 @@ Nst_Obj *nst_obj_bwnot(Nst_Obj *ob, Nst_OpErr *err)
         RETURN_TYPE_ERROR("~");
 }
 
-Nst_Obj *nst_obj_lgnot(Nst_Obj *ob, Nst_OpErr *err)
+Nst_Obj *_nst_obj_lgnot(Nst_Obj *ob, Nst_OpErr *err)
 {
     ob = nst_obj_cast(ob, nst_t_bool, err);
     
@@ -1032,7 +1041,7 @@ Nst_Obj *nst_obj_lgnot(Nst_Obj *ob, Nst_OpErr *err)
     }
 }
 
-Nst_Obj *nst_obj_stdout(Nst_Obj *ob, Nst_OpErr *err)
+Nst_Obj *_nst_obj_stdout(Nst_Obj *ob, Nst_OpErr *err)
 {
     Nst_Obj *str = nst_obj_cast(ob, nst_t_str, err);
     fwrite(AS_STR(str)->value, sizeof(char), AS_STR(str)->len, stdout);
@@ -1041,7 +1050,7 @@ Nst_Obj *nst_obj_stdout(Nst_Obj *ob, Nst_OpErr *err)
     return inc_ref(ob);
 }
 
-Nst_Obj *nst_obj_stdin(Nst_Obj *ob, Nst_OpErr *err)
+Nst_Obj *_nst_obj_stdin(Nst_Obj *ob, Nst_OpErr *err)
 {
     ob = nst_obj_cast(ob, nst_t_str, err);
     printf("%s", AS_STR(ob)->value);
@@ -1089,12 +1098,12 @@ Nst_Obj *nst_obj_stdin(Nst_Obj *ob, Nst_OpErr *err)
     return nst_new_string(new_buffer, i, true);
 }
 
-Nst_Obj *nst_obj_typeof(Nst_Obj *ob, Nst_OpErr *err)
+Nst_Obj *_nst_obj_typeof(Nst_Obj *ob, Nst_OpErr *err)
 {
     return inc_ref(ob->type);
 }
 
-Nst_Obj *nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
+Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
 {
 
     if ( ob->type != nst_t_str )
@@ -1163,7 +1172,7 @@ Nst_Obj *nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     file_path = full_path;
 
     // Check if the module is in the import stack
-    for ( LLNode *n = nst_state->lib_paths->head; n != NULL; n = n->next )
+    for ( LLNode *n = nst_state.lib_paths->head; n != NULL; n = n->next )
     {
         if ( strcmp(file_path, (const char *)(n->value)) == 0 )
         {
@@ -1174,7 +1183,7 @@ Nst_Obj *nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     }
 
     // Check if the module was loaded previously
-    for ( LLNode *n = nst_state->lib_handles->head; n != NULL; n = n->next )
+    for ( LLNode *n = nst_state.lib_handles->head; n != NULL; n = n->next )
     {
         Nst_LibHandle *handle = (Nst_LibHandle *)(n->value);
         if ( strcmp(handle->path, file_path) == 0 )
@@ -1189,7 +1198,7 @@ Nst_Obj *nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
 
         if ( map == NULL )
         {
-            nst_state->error_occurred = true;
+            *nst_state.error_occurred = true;
             return NULL;
         }
 
@@ -1204,7 +1213,7 @@ Nst_Obj *nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         handle->val = map;
         handle->path = file_path;
 
-        LList_append(nst_state->lib_handles, handle, true);
+        LList_append(nst_state.lib_handles, handle, true);
         return inc_ref(map);
     }
 
@@ -1249,7 +1258,7 @@ Nst_Obj *nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     }
 
     // Get function pointers
-    FuncDeclr *(*get_func_ptrs)() = (FuncDeclr * (*)())GetProcAddress(lib, "get_func_ptrs");
+    FuncDeclr *(*get_func_ptrs)() = (FuncDeclr *(*)())GetProcAddress(lib, "get_func_ptrs");
     if ( get_func_ptrs == NULL )
     {
         err->name = "Import Error";
@@ -1280,7 +1289,7 @@ Nst_Obj *nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         nst_map_set(func_map, (Nst_Obj *)func.name, func_obj);
     }
 
-    LList_append(nst_state->loaded_libs, lib, false);
+    LList_append(nst_state.loaded_libs, lib, false);
 
     // Add map to the loaded libaries
     Nst_LibHandle *handle = malloc(sizeof(Nst_LibHandle));
@@ -1293,7 +1302,7 @@ Nst_Obj *nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     handle->val = func_map;
     handle->path = file_path;
 
-    LList_append(nst_state->lib_handles, handle, true);
+    LList_append(nst_state.lib_handles, handle, true);
 
     return inc_ref(func_map);
 }

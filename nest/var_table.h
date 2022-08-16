@@ -19,7 +19,9 @@ typedef struct _varTable
 }
 Nst_VarTable;
 
-Nst_VarTable *nst_new_var_table(Nst_VarTable *global_table, Nst_StrObj *cwd, Nst_SeqObj *args);
+Nst_VarTable *nst_new_var_table(Nst_VarTable *global_table,
+                                Nst_StrObj *cwd,
+                                Nst_SeqObj *args);
 Nst_Obj *_nst_get_val(Nst_VarTable *vt, Nst_Obj *name);
 void _nst_set_val(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val);
 #ifdef __cplusplus

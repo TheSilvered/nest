@@ -27,7 +27,11 @@
 
 Nst_Obj *nst_new_string_raw(const char *val, bool allocated)
 {
-    Nst_StrObj *str = AS_STR(alloc_obj(sizeof(Nst_StrObj), nst_t_str, nst_destroy_string));
+    Nst_StrObj *str = AS_STR(alloc_obj(
+        sizeof(Nst_StrObj),
+        nst_t_str,
+        nst_destroy_string
+    ));
     if ( str == NULL ) return NULL;
 
     str->allocated = allocated;
@@ -39,7 +43,11 @@ Nst_Obj *nst_new_string_raw(const char *val, bool allocated)
 
 Nst_Obj *nst_new_string(char *val, size_t len, bool allocated)
 {
-    Nst_StrObj *str = AS_STR(alloc_obj(sizeof(Nst_StrObj), nst_t_str, nst_destroy_string));
+    Nst_StrObj *str = AS_STR(alloc_obj(
+        sizeof(Nst_StrObj),
+        nst_t_str,
+        nst_destroy_string
+    ));
     if ( str == NULL ) return NULL;
 
     str->allocated = allocated;
@@ -51,7 +59,11 @@ Nst_Obj *nst_new_string(char *val, size_t len, bool allocated)
 
 Nst_Obj *nst_new_type_obj(const char *val, size_t len)
 {
-    Nst_StrObj *str = AS_STR(alloc_obj(sizeof(Nst_StrObj), nst_t_type, nst_destroy_string));
+    Nst_StrObj *str = AS_STR(alloc_obj(
+        sizeof(Nst_StrObj),
+        nst_t_type,
+        nst_destroy_string
+    ));
     if ( str == NULL ) return NULL;
 
     str->allocated = false;

@@ -55,7 +55,11 @@ Nst_Node *nst_new_node_nodes(Nst_Pos start, Nst_Pos end, int type, LList *nodes)
     return node;
 }
 
-Nst_Node *nst_new_node_full(Nst_Pos start, Nst_Pos end, int type, LList *nodes, LList *tokens)
+Nst_Node *nst_new_node_full(Nst_Pos start,
+                            Nst_Pos end,
+                            int type,
+                            LList *nodes,
+                            LList *tokens)
 {
     Nst_Node *node = malloc(sizeof(Nst_Node));
 

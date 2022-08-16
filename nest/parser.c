@@ -371,7 +371,12 @@ static Nst_Node *parse_if_expr(Nst_Node *condition)
     skip_blank();
 
     if ( TOK(LList_peek_front(tokens))->type != NST_TT_COLON )
-        return nst_new_node_nodes(condition->start, body_if_true->end, NST_NT_IF_E, nodes);
+        return nst_new_node_nodes(
+            condition->start,
+            body_if_true->end,
+            NST_NT_IF_E,
+            nodes
+        );
 
     nst_destroy_token(LList_pop(tokens));
     skip_blank();
@@ -384,7 +389,12 @@ static Nst_Node *parse_if_expr(Nst_Node *condition)
     }
     LList_append(nodes, body_if_false, true);
 
-    return nst_new_node_nodes(condition->start, body_if_false->end, NST_NT_IF_E, nodes);
+    return nst_new_node_nodes(
+        condition->start,
+        body_if_false->end,
+        NST_NT_IF_E,
+        nodes
+    );
 }
 
 static Nst_Node *parse_switch_statement()
@@ -608,7 +618,9 @@ static Nst_Node *parse_expr(bool break_as_end)
 
 static Nst_Node *fix_expr(Nst_Node *expr)
 {
-    if ( expr->type != NST_NT_STACK_OP && expr->type != NST_NT_LOCAL_STACK_OP && expr->type != NST_NT_ASSIGN_E )
+    if ( expr->type != NST_NT_STACK_OP &&
+         expr->type != NST_NT_LOCAL_STACK_OP &&
+         expr->type != NST_NT_ASSIGN_E )
         return expr;
 
     else if ( expr->type == NST_NT_STACK_OP && expr->nodes->size == 1 )
@@ -622,7 +634,9 @@ static Nst_Node *fix_expr(Nst_Node *expr)
 
     LLNode *cursor = expr->nodes->head;
 
-    for ( LLNode *cursor = expr->nodes->head; cursor != NULL; cursor = cursor->next )
+    for ( LLNode *cursor = expr->nodes->head;
+          cursor != NULL;
+          cursor = cursor->next )
         cursor->value = fix_expr(cursor->value);
 
     if ( expr->type != NST_NT_STACK_OP )
@@ -632,7 +646,7 @@ static Nst_Node *fix_expr(Nst_Node *expr)
 
     Nst_Node *curr_node = expr;
     Nst_LexerToken *op_tok = LList_peek_front(expr->tokens);
-    
+
     // writing 1 2 3 < becomes (1 2 <) (2 3 <) &&
     if ( T_IN_COMP_OP(op_tok->type) && expr->nodes->size > 2)
     {
@@ -653,7 +667,15 @@ static Nst_Node *fix_expr(Nst_Node *expr)
             Nst_Pos start = NODE(LList_peek_front(new_nodes))->start;
             Nst_Pos end = NODE(LList_peek_back(new_nodes))->end;
 
-            LList_append(pairs, nst_new_node_full(start, end, NST_NT_STACK_OP, new_nodes, new_tokens), true);
+            LList_append(pairs,
+                nst_new_node_full(
+                    start,
+                    end,
+                    NST_NT_STACK_OP,
+                    new_nodes, new_tokens
+                ),
+                true
+            );
         }
         LList_destroy(expr->nodes, NULL);
         expr->nodes = pairs;
@@ -676,7 +698,13 @@ static Nst_Node *fix_expr(Nst_Node *expr)
             LList_append(new_nodes, LList_pop(curr_node->nodes), true);
 
         LList_append(new_tokens, op_tok, false);
-        Nst_Node *new_node = nst_new_node_full(start, end, NST_NT_STACK_OP, new_nodes, new_tokens);
+        Nst_Node *new_node = nst_new_node_full(
+            start,
+            end,
+            NST_NT_STACK_OP,
+            new_nodes,
+            new_tokens
+        );
 
         LList_push(curr_node->nodes, new_node, true);
         curr_node = new_node;
@@ -725,7 +753,13 @@ static Nst_Node *parse_stack_op(Nst_Node *value)
         LList_pop(tokens);
         SAFE_LLIST_CREATE(new_tokens);
         LList_append(new_tokens, op_tok, true);
-        node = nst_new_node_full(start, end, NST_NT_STACK_OP, new_nodes, new_tokens);
+        node = nst_new_node_full(
+            start,
+            end,
+            NST_NT_STACK_OP,
+            new_nodes,
+            new_tokens
+        );
     }
     else if ( T_IN_LOCAL_STACK_OP(op_tok->type) )
     {
@@ -753,7 +787,13 @@ static Nst_Node *parse_stack_op(Nst_Node *value)
             LList_append(new_node_nodes, node, true);
             op_tok = LList_pop(tokens);
             LList_append(new_node_tokens, op_tok, true);
-            node = nst_new_node_full(start, op_tok->end, NST_NT_STACK_OP, new_node_nodes, new_node_tokens);
+            node = nst_new_node_full(
+                start,
+                op_tok->end,
+                NST_NT_STACK_OP,
+                new_node_nodes,
+                new_node_tokens
+            );
         }
         else if ( T_IN_LOCAL_STACK_OP(op_tok->type) && is_local_stack_op )
         {
@@ -776,7 +816,7 @@ static Nst_Node *parse_stack_op(Nst_Node *value)
 static Nst_Node *parse_local_stack_op(LList *nodes)
 {
     Nst_LexerToken *tok = LList_pop(tokens);
-    
+
     if ( tok->type == NST_TT_CAST && nodes->size != 1 )
     {
         RETURN_ERROR(
@@ -796,7 +836,7 @@ static Nst_Node *parse_local_stack_op(LList *nodes)
 
     SAFE_LLIST_CREATE(node_tokens);
     LList_append(node_tokens, tok, true);
-    
+
     Nst_Node *special_node = parse_extraction();
     if ( p_state.error != NULL )
     {
@@ -806,11 +846,17 @@ static Nst_Node *parse_local_stack_op(LList *nodes)
     }
 
     LList_append(nodes, special_node, true);
-    
+
     Nst_Pos start = NODE(LList_peek_front(nodes))->start;
     Nst_Pos end = special_node->end;
 
-    return nst_new_node_full(start, end, NST_NT_LOCAL_STACK_OP, nodes, node_tokens);
+    return nst_new_node_full(
+        start,
+        end,
+        NST_NT_LOCAL_STACK_OP,
+        nodes,
+        node_tokens
+    );
 }
 
 static Nst_Node *parse_assignment(Nst_Node *value)
@@ -851,7 +897,7 @@ static Nst_Node *parse_assignment(Nst_Node *value)
             tok->end,
             ASSIGMENT_TO_STACK_OP(tok->type)
         );
-        
+
         LList_append(new_value_tokens, op_tok, true);
         // will be freed later if the list is destroyed
         LList_append(new_value_nodes, name, false);
@@ -900,7 +946,12 @@ static Nst_Node *parse_extraction()
         LList_append(new_nodes, final_node, true);
         LList_append(new_nodes, atom, true);
 
-        final_node = nst_new_node_nodes(final_node->start, atom->end, NST_NT_EXTRACT_E, new_nodes);
+        final_node = nst_new_node_nodes(
+            final_node->start,
+            atom->end,
+            NST_NT_EXTRACT_E,
+            new_nodes
+        );
     }
     return final_node;
 }
@@ -951,7 +1002,13 @@ static Nst_Node *parse_atom()
         }
 
         LList_append(new_nodes, value, true);
-        return nst_new_node_full(tok->start, value->end, NST_NT_LOCAL_OP, new_nodes, new_tokens);
+        return nst_new_node_full(
+            tok->start,
+            value->end,
+            NST_NT_LOCAL_OP,
+            new_nodes,
+            new_tokens
+        );
     }
     else if ( tok->type == NST_TT_CALL )
     {
@@ -1035,7 +1092,13 @@ static Nst_Node *parse_vector_literal()
             }
             Nst_Pos end = tok->end;
             nst_destroy_token(tok);
-            return nst_new_node_full(start, end, NST_NT_VEC_LIT, nodes, node_tokens);
+            return nst_new_node_full(
+                start,
+                end,
+                NST_NT_VEC_LIT,
+                nodes,
+                node_tokens
+            );
         }
         else if ( tok->type == NST_TT_COMMA )
         {
@@ -1134,7 +1197,13 @@ static Nst_Node *parse_arr_or_map_literal()
             }
             Nst_Pos end = tok->end;
             nst_destroy_token(tok);
-            return nst_new_node_full(start, end, NST_NT_ARR_LIT, nodes, node_tokens);
+            return nst_new_node_full(
+                start,
+                end,
+                NST_NT_ARR_LIT,
+                nodes,
+                node_tokens
+            );
         }
         // if it's not the first iteration and it's not supposed to be a map
         else if ( tok->type == NST_TT_COLON )

@@ -6,7 +6,11 @@
 
 Nst_Obj *nst_new_array(size_t len)
 {
-    Nst_SeqObj *arr = AS_SEQ(alloc_obj(sizeof(Nst_SeqObj), nst_t_arr, nst_destroy_seq));
+    Nst_SeqObj *arr = AS_SEQ(alloc_obj(
+        sizeof(Nst_SeqObj),
+        nst_t_arr,
+        nst_destroy_seq
+    ));
     Nst_Obj **objs = calloc(len, sizeof(Nst_Obj *));
 
     if ( arr == NULL || objs == NULL )
@@ -29,7 +33,11 @@ Nst_Obj *nst_new_vector(size_t len)
     if ( size < VECTOR_MIN_SIZE )
         size = VECTOR_MIN_SIZE;
 
-    Nst_SeqObj *vect = AS_SEQ(alloc_obj(sizeof(Nst_SeqObj), nst_t_vect, nst_destroy_seq));
+    Nst_SeqObj *vect = AS_SEQ(alloc_obj(
+        sizeof(Nst_SeqObj),
+        nst_t_vect,
+        nst_destroy_seq
+    ));
     Nst_Obj **objs = calloc(size, sizeof(Nst_Obj *));
 
     if ( vect == NULL || objs == NULL )

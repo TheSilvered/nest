@@ -39,7 +39,13 @@
 
 #define SET_INVALID_ESCAPE_ERROR do { \
     free(end_str); \
-    SET_ERROR(_NST_SET_SYNTAX_ERROR, escape_start, cursor.pos, INVALID_ESCAPE, *err, ); \
+    SET_ERROR( \
+        _NST_SET_SYNTAX_ERROR, \
+        escape_start, \
+        cursor.pos, \
+        INVALID_ESCAPE, \
+        *err, \
+    ); \
     return; } while (0)
 
 LList *nst_ftokenize(char *filename);
@@ -292,12 +298,18 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error **err)
 
         go_back();
         free(symbol);
-        
+
         if ( !was_closed )
         {
-            SET_ERROR(_NST_SET_SYNTAX_ERROR, start, cursor.pos, UNCLOSED_COMMENT, *err, );
+            SET_ERROR(
+                _NST_SET_SYNTAX_ERROR,
+                start,
+                cursor.pos,
+                UNCLOSED_COMMENT,
+                *err,
+            );
         }
-        
+
         return;
     }
 
@@ -470,7 +482,13 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err)
             if ( cursor.ch == '\n' && !allow_multiline )
             {
                 free(end_str);
-                SET_ERROR(_NST_SET_SYNTAX_ERROR, cursor.pos, cursor.pos, UNEXPECTED_NEWLINE, *err, );
+                SET_ERROR(
+                    _NST_SET_SYNTAX_ERROR,
+                    cursor.pos,
+                    cursor.pos,
+                    UNEXPECTED_NEWLINE,
+                    *err,
+                );
                 return;
             }
             else if ( cursor.ch == '\\' )
@@ -510,10 +528,12 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err)
 
             char ch2 = tolower(cursor.ch);
 
-            if ( (ch1 < '0' || ch1 > '7' || ch2 < '0' || (ch2 > '9' && ch2 < 'a') || ch2 > 'f') )
+            if ( ch1 < '0' || ch1 > '7' ||
+                 ch2 < '0' || ch2 > 'f' ||
+                (ch2 > '9' && ch2 < 'a') )
                 SET_INVALID_ESCAPE_ERROR;
 
-            char result = (ch1 - '0') * 16 + (ch2 > '9' ? ch2 - 'a' + 10 : ch2 - '0');
+            char result = ((ch1 - '0') << 4) + (ch2 > '9' ? ch2 - 'a' + 10 : ch2 - '0');
             if ( !result )
                 SET_INVALID_ESCAPE_ERROR;
 
@@ -531,7 +551,13 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err)
 
     if ( cursor.ch != closing_ch )
     {
-        SET_ERROR(_NST_SET_SYNTAX_ERROR, start, end, UNCLOSED_STR_LITERAL, *err, );
+        SET_ERROR(
+            _NST_SET_SYNTAX_ERROR,
+            start,
+            end,
+            UNCLOSED_STR_LITERAL,
+            *err,
+        );
     }
 
     if ( str_len < chunk_size )

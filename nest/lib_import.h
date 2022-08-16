@@ -15,7 +15,7 @@
                       Nst_Obj *main_t_iter, Nst_Obj *main_t_byte,\
                       Nst_Obj *main_t_file, Nst_Obj *main_true, \
                       Nst_Obj *main_false,  Nst_Obj *main_null, \
-                      Nst_ExecutionState *main_state) \
+                      Nst_ExecutionState main_state) \
     { \
         nst_t_type = main_t_type; \
         nst_t_int = main_t_int; \
@@ -36,8 +36,19 @@
         nst_state = main_state; \
     }
 
-#define NST_MAKE_FUNCDECLR(func_ptr, argc) { func_ptr, argc, AS_STR(nst_new_string_raw(#func_ptr, false)) }
-#define NST_MAKE_NAMED_FUNCDECLR(func_ptr, argc, name) { func_ptr, argc, AS_STR(nst_new_string_raw(name, false)) }
+#define NST_MAKE_FUNCDECLR(func_ptr, argc) \
+    { \
+        func_ptr, \
+        argc, \
+        AS_STR(nst_new_string_raw(#func_ptr, false)) \
+    }
+
+#define NST_MAKE_NAMED_FUNCDECLR(func_ptr, argc, name) \
+    { \
+        func_ptr, \
+        argc, \
+        AS_STR(nst_new_string_raw(name, false)) \
+    }
 
 #define NST_SET_ERROR_CUSTOM(err_name, msg) do { \
     err->name = (char *)err_name; \
@@ -82,9 +93,11 @@
 #define NST_RETURN_TRUE return inc_ref(nst_true)
 #define NST_RETURN_FALSE return inc_ref(nst_false)
 #define NST_RETURN_NULL return inc_ref(nst_null)
-#define NST_RETURN_COND(cond) return (cond) ? inc_ref(nst_true) : inc_ref(nst_false)
+#define NST_RETURN_COND(cond) \
+    return (cond) ? inc_ref(nst_true) : inc_ref(nst_false)
 
-#define NST_FUNC_SIGN(name) Nst_Obj *name(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+#define NST_FUNC_SIGN(name) \
+    Nst_Obj *name(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 
 #ifdef __cplusplus
 extern "C" {

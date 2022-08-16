@@ -5,6 +5,9 @@
 #include "error.h"
 #include "function.h"
 
+#define nst_push_func(f_stack, func, start, end) _nst_push_func(f_stack, AS_BFUNC(func), start, end)
+#define nst_push_val(v_stack, val) _nst_push_val(v_stack, (Nst_Obj *)(val))
+
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
@@ -34,13 +37,16 @@ typedef struct
 Nst_CallStack;
 
 Nst_ValueStack *nst_new_val_stack();
-bool nst_push_val(Nst_ValueStack *v_stack, Nst_Obj *obj);
+bool _nst_push_val(Nst_ValueStack *v_stack, Nst_Obj *obj);
 Nst_Obj *nst_pop_val(Nst_ValueStack *v_stack);
 Nst_Obj *nst_peek_val(Nst_ValueStack *v_stack);
 bool nst_dup_val(Nst_ValueStack *v_stack);
 
 Nst_CallStack *nst_new_call_stack();
-bool nst_push_func(Nst_CallStack *f_stack, Nst_BcFuncObj *func);
+bool _nst_push_func(Nst_CallStack *f_stack,
+                    Nst_BcFuncObj *func,
+                    Nst_Pos call_start,
+                    Nst_Pos call_end);
 Nst_FuncCall nst_pop_func(Nst_CallStack *f_stack);
 
 #ifdef __cplusplus

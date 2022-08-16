@@ -30,7 +30,10 @@ Nst_RuntimeInstruction *new_inst_pos(int id, Nst_Pos start, Nst_Pos end)
     return inst;
 }
 
-Nst_RuntimeInstruction *new_inst_val(int id, Nst_Obj *val, Nst_Pos start, Nst_Pos end)
+Nst_RuntimeInstruction *new_inst_val(int id,
+                                     Nst_Obj *val,
+                                     Nst_Pos start,
+                                     Nst_Pos end)
 {
     Nst_RuntimeInstruction *inst = malloc(sizeof(Nst_RuntimeInstruction));
     if ( inst == NULL )
@@ -45,7 +48,10 @@ Nst_RuntimeInstruction *new_inst_val(int id, Nst_Obj *val, Nst_Pos start, Nst_Po
     return inst;
 }
 
-Nst_RuntimeInstruction *new_inst_int_val(int id, Nst_Int int_val, Nst_Pos start, Nst_Pos end)
+Nst_RuntimeInstruction *new_inst_int_val(int id,
+                                         Nst_Int int_val,
+                                         Nst_Pos start,
+                                         Nst_Pos end)
 {
     Nst_RuntimeInstruction *inst = malloc(sizeof(Nst_RuntimeInstruction));
     if ( inst == NULL )

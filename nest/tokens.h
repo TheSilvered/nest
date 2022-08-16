@@ -99,7 +99,10 @@ enum Nst_TokenTypes
     NST_TT_CONTINUE
 };
 
-Nst_LexerToken *nst_new_token_value(Nst_Pos start, Nst_Pos end, int type, void *value);
+Nst_LexerToken *nst_new_token_value(Nst_Pos start,
+                                    Nst_Pos end,
+                                    int type,
+                                    void *value);
 Nst_LexerToken *nst_new_token_noval(Nst_Pos start, Nst_Pos end, int type);
 Nst_LexerToken *nst_new_token_noend(Nst_Pos start, int type);
 void nst_destroy_token(Nst_LexerToken *token);
@@ -137,7 +140,9 @@ void nst_print_token(Nst_LexerToken *token);
 #define T_IN_EXPR_END(token_type) \
     ( token_type >= NST_TT_L_BRACKET && token_type <= NST_TT_EOFILE )
 #define T_IN_EXPR_END_W_BREAK(token_type) \
-    ( token_type >= NST_TT_L_BRACKET && token_type <= NST_TT_EOFILE || token_type == NST_TT_BREAK )
+    ( token_type >= NST_TT_L_BRACKET && \
+      token_type <= NST_TT_EOFILE || \
+      token_type == NST_TT_BREAK )
 
 // the assignment tokens are in the same order as the stack op tokens
 #define ASSIGMENT_TO_STACK_OP(token_type) \

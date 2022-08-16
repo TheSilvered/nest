@@ -2,7 +2,9 @@
 #include "var_table.h"
 #include "nst_types.h"
 
-Nst_VarTable *nst_new_var_table(Nst_VarTable *global_table, Nst_StrObj *cwd, Nst_SeqObj *args)
+Nst_VarTable *nst_new_var_table(Nst_VarTable *global_table,
+                                Nst_StrObj *cwd,
+                                Nst_SeqObj *args)
 {
     Nst_VarTable *vt = malloc(sizeof(Nst_VarTable));
     if ( vt == NULL ) return NULL;

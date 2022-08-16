@@ -8,7 +8,10 @@
 
 #define _NST_SET_TYPE_ERROR(type) { \
     err->name = (char *)"Type Error"; \
-    err->message = _nst_format_arg_error(WRONG_TYPE_FOR_ARG(type), ob->type_name, i); \
+    err->message = _nst_format_arg_error(
+        WRONG_TYPE_FOR_ARG(type), \
+        ob->type_name, i \
+    ); \
     error_occurred = true; break; }
 
 FuncDeclr *nst_new_func_list(size_t count)

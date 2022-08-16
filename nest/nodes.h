@@ -50,7 +50,11 @@ enum Nst_NodeTypes
 
 Nst_Node *nst_new_node_tokens(Nst_Pos start, Nst_Pos end, int type, LList *tokens);
 Nst_Node *nst_new_node_nodes(Nst_Pos start, Nst_Pos end, int type, LList *nodes);
-Nst_Node *nst_new_node_full(Nst_Pos start, Nst_Pos end, int type, LList *nodes, LList *tokens);
+Nst_Node *nst_new_node_full(Nst_Pos start,
+                            Nst_Pos end,
+                            int type,
+                            LList *nodes,
+                            LList *tokens);
 Nst_Node *nst_new_node_empty(Nst_Pos start, Nst_Pos end, int type);
 void nst_destroy_node(Nst_Node *node);
 
