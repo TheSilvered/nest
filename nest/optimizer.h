@@ -9,6 +9,7 @@ extern "C" {
 #endif
 
 Nst_Node *nst_optimize_ast(Nst_Node *ast);
+Nst_InstructionList *nst_optimize_bytecode(Nst_InstructionList *bc);
 
 #ifdef __cplusplus
 }

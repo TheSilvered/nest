@@ -4,7 +4,7 @@
 #include "simple_types.h"
 #include "error.h"
 
-#define IS_JUMP(inst) ( inst == NST_IC_JUMP || inst == NST_IC_JUMPIF_ZERO )
+#define IS_JUMP(inst) ( inst >= NST_IC_JUMP && inst <= NST_IC_JUMPIF_ZERO )
 
 #ifdef __cplusplus
 extern "C" {

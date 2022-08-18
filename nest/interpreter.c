@@ -81,8 +81,15 @@ void nst_run(Nst_InstructionList *inst_ls, int argc, char **argv)
 
 }
 
-Nst_MapObj *nst_run_module(char *file_name);
-Nst_Obj *nst_call_func(Nst_BcFuncObj *func, Nst_Obj **args, Nst_OpErr *err);
+Nst_MapObj *nst_run_module(char *file_name)
+{
+    return NULL;
+}
+
+Nst_Obj *nst_call_func(Nst_BcFuncObj *func, Nst_Obj **args, Nst_OpErr *err)
+{
+    return NULL;
+}
 
 static void run_instruction(Nst_InstructionList *inst_ls, Nst_Int *idx)
 {
@@ -317,7 +324,49 @@ static inline void exe_op_cast(Nst_RuntimeInstruction inst)
 
 static inline void exe_op_range(Nst_RuntimeInstruction inst)
 {
-    assert(false);
+    CHECK_V_STACK_SIZE(inst.int_val);
+    Nst_Obj *stop = nst_pop_val(nst_state.v_stack);
+    Nst_Obj *step = NULL;
+    Nst_Obj *start = NULL;
+
+    if ( inst.int_val == 3 )
+    {
+        step = nst_pop_val(nst_state.v_stack);
+        start = nst_pop_val(nst_state.v_stack);
+    }
+    else
+    {
+        start = nst_pop_val(nst_state.v_stack);
+
+        if ( AS_INT(start) <= AS_INT(stop) )
+            step = nst_new_int(1);
+        else
+            step = nst_new_int(-1);
+    }
+
+    Nst_Obj *idx = nst_new_int(0);
+
+    Nst_Obj *data_seq = nst_new_array(4);
+    nst_set_value_seq(data_seq, 0, idx);
+    nst_set_value_seq(data_seq, 1, start);
+    nst_set_value_seq(data_seq, 2, stop);
+    nst_set_value_seq(data_seq, 3, step);
+
+    dec_ref(idx);
+    dec_ref(start);
+    dec_ref(stop);
+    dec_ref(step);
+
+    Nst_Obj *iter = new_iter(
+        AS_FUNC(new_cfunc(1, nst_num_iter_start)),
+        AS_FUNC(new_cfunc(1, nst_num_iter_advance)),
+        AS_FUNC(new_cfunc(1, nst_num_iter_is_done)),
+        AS_FUNC(new_cfunc(1, nst_num_iter_get_val)),
+        data_seq
+    );
+
+    nst_push_val(nst_state.v_stack, iter);
+    dec_ref(iter);
 }
 
 static inline void exe_stack_op(Nst_RuntimeInstruction inst)

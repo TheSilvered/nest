@@ -145,10 +145,10 @@ int main(int argc, char **argv)
     }
 
     Nst_InstructionList *inst_ls = nst_compile(ast);
+    inst_ls = nst_optimize_bytecode(inst_ls);
 
     if ( inst_ls == NULL )
     {
-        nst_destroy_node(ast);
         del_obj();
         return 0;
     }

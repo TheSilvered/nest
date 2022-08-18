@@ -102,7 +102,7 @@ static Nst_InstructionList *compile_internal(Nst_Node *code, bool is_func)
     {
         inst_list->instructions[i].id = NST_IC_PUSH_VAL;
         inst_list->instructions[i].int_val = 0;
-        inst_list->instructions[i].val = nst_null;
+        inst_list->instructions[i].val = inc_ref(nst_null);
         inst_list->instructions[i].start = nst_no_pos();
         inst_list->instructions[i++].end = nst_no_pos();
 
