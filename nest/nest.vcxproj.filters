@@ -48,9 +48,6 @@
     <ClCompile Include="obj_ops.c">
       <Filter>File di origine</Filter>
     </ClCompile>
-    <ClCompile Include="interpreter_ast.c">
-      <Filter>File di origine</Filter>
-    </ClCompile>
     <ClCompile Include="var_table.c">
       <Filter>File di origine</Filter>
     </ClCompile>
@@ -93,9 +90,6 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="hash.h">
-      <Filter>File di intestazione</Filter>
-    </ClInclude>
-    <ClInclude Include="interpreter_ast.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="iter.h">
@@ -171,6 +165,12 @@
     </None>
     <None Include="_test.nest">
       <Filter>File di risorse</Filter>
+    </None>
+    <None Include="interpreter_ast.c">
+      <Filter>File di origine</Filter>
+    </None>
+    <None Include="interpreter_ast.h">
+      <Filter>File di intestazione</Filter>
     </None>
   </ItemGroup>
 </Project>

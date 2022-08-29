@@ -6,7 +6,6 @@
 #include "str.h"
 #include "obj_ops.h"
 #include "function.h"
-
 #define HEAD_NODE (NODE(node->nodes->head->value))
 #define TAIL_NODE (NODE(node->nodes->tail->value))
 #define HEAD_TOK (TOK(node->tokens->head->value))
@@ -75,7 +74,7 @@ static Nst_InstructionList *compile_internal(Nst_Node *code, bool is_func)
     compile_node(code);
 
     bool add_return = c_state.inst_ls->tail == NULL ||
-        INST(c_state.inst_ls->tail->value)->id != NST_IC_RETURN_VAL;
+                      INST(c_state.inst_ls->tail->value)->id != NST_IC_RETURN_VAL;
 
     inst_list->total_size = c_state.inst_ls->size + (add_return ? 2 : 0);
     inst_list->instructions = malloc(inst_list->total_size * sizeof(Nst_RuntimeInstruction));
@@ -88,8 +87,8 @@ static Nst_InstructionList *compile_internal(Nst_Node *code, bool is_func)
 
     size_t i = 0;
     for ( LLNode *n = c_state.inst_ls->head;
-        n != NULL;
-        n = n->next )
+          n != NULL;
+          n = n->next )
     {
         inst_list->instructions[i].id = INST(n->value)->id;
         inst_list->instructions[i].int_val = INST(n->value)->int_val;
@@ -346,12 +345,14 @@ static void compile_for_as_l(Nst_Node *node)
 
                 [ITERATOR CODE]
                 FOR_START
+                POP_VAL
     cond_start: FOR_IS_DONE
                 JUMPIF_T body_end
                 FOR_GET_VAL
                 SET_VAL_LOC name
                 [BODY CODE]
                 FOR_ADVANCE
+                POP_VAL
                 JUMP cond_start
     body_end:   [CODE CONTINUATION]
     */
@@ -360,18 +361,20 @@ static void compile_for_as_l(Nst_Node *node)
     compile_node(HEAD_NODE);
 
     // Initialization
-    inst = new_inst_int_val(NST_IC_FOR_START, 0, HEAD_NODE->start, HEAD_NODE->end);
+    inst = new_inst_int_val(NST_IC_FOR_START, 1, HEAD_NODE->start, HEAD_NODE->end);
+    ADD_INST(inst);
+    inst = new_inst_empty(NST_IC_POP_VAL, 0);
     ADD_INST(inst);
 
     // Condition
     Nst_Int cond_start_idx = CURR_LEN;
-    inst = new_inst_int_val(NST_IC_FOR_IS_DONE, 0, HEAD_NODE->start, HEAD_NODE->end);
+    inst = new_inst_int_val(NST_IC_FOR_IS_DONE, 1, HEAD_NODE->start, HEAD_NODE->end);
     ADD_INST(inst);
     Nst_RuntimeInstruction *jump_body_end = new_inst_empty(NST_IC_JUMPIF_T, 0);
     ADD_INST(jump_body_end);
 
     // Setting variable
-    inst = new_inst_int_val(NST_IC_FOR_GET_VAL, 0, HEAD_NODE->start, HEAD_NODE->end);
+    inst = new_inst_int_val(NST_IC_FOR_GET_VAL, 1, HEAD_NODE->start, HEAD_NODE->end);
     ADD_INST(inst);
     inst = new_inst_val(NST_IC_SET_VAL_LOC, HEAD_TOK->value, nst_no_pos(), nst_no_pos());
     ADD_INST(inst);
@@ -380,7 +383,9 @@ static void compile_for_as_l(Nst_Node *node)
     inc_loop_id();
     LLNode *body_start = c_state.inst_ls->tail;
     compile_node(TAIL_NODE);
-    inst = new_inst_int_val(NST_IC_FOR_ADVANCE, 0, HEAD_NODE->start, HEAD_NODE->end);
+    inst = new_inst_int_val(NST_IC_FOR_ADVANCE, 1, HEAD_NODE->start, HEAD_NODE->end);
+    ADD_INST(inst);
+    inst = new_inst_empty(NST_IC_POP_VAL, 0);
     ADD_INST(inst);
     body_start = body_start->next;
     LLNode *body_end = c_state.inst_ls->tail;
@@ -484,7 +489,7 @@ static void compile_func_declr(Nst_Node *node)
     register size_t i = 0;
 
     for ( LLNode *n = node->tokens->head->next; n != NULL; n = n->next )
-        func->args[i++] = TOK(n->value)->value;
+        func->args[i++] = inc_ref(TOK(n->value)->value);
 
     int prev_loop_id = c_state.loop_id;
     LList *prev_inst_ls = c_state.inst_ls;
@@ -611,9 +616,7 @@ static void compile_local_stack_op(Nst_Node *node)
     [ARG CODE] *
     [FUNC CODE]
     TYPE_CHECK Func
-    PUSH_FUNC
     OP_CALL - arg num
-    POP_FUNC
     */
 
     int tok_type = HEAD_TOK->type;
@@ -679,11 +682,11 @@ static void compile_local_stack_op(Nst_Node *node)
 
         inst = new_inst_val(NST_IC_TYPE_CHECK, nst_t_func, node->start, node->end);
         ADD_INST(inst);
-        inst = new_inst_int_val(NST_IC_PUSH_FUNC, 0, node->start, node->end);
-        ADD_INST(inst);
-        inst = new_inst_empty(NST_IC_OP_CALL, node->nodes->size - 1);
-        ADD_INST(inst);
-        inst = new_inst_empty(NST_IC_POP_FUNC, 0);
+        inst = new_inst_int_val(
+            NST_IC_OP_CALL,
+            node->nodes->size - 1,
+            node->start, node->end
+        );
         ADD_INST(inst);
         // The function object is popped by the RETURN_VAL instruction
     }
@@ -704,9 +707,7 @@ static void compile_local_op(Nst_Node *node)
     [ARG CODE]
     [FUNC CODE]
     TYPE_CHECK Func
-    PUSH_FUNC
     OP_CALL - arg num
-    POP_FUNC
 
     Other operations bytecode
 
@@ -723,11 +724,12 @@ static void compile_local_op(Nst_Node *node)
         compile_node(HEAD_NODE);
         inst = new_inst_val(NST_IC_TYPE_CHECK, nst_t_func, node->start, node->end);
         ADD_INST(inst);
-        inst = new_inst_int_val(NST_IC_PUSH_FUNC, 0, node->start, node->end);
-        ADD_INST(inst);
-        inst = new_inst_empty(NST_IC_OP_CALL, node->nodes->size - 1);
-        ADD_INST(inst);
-        inst = new_inst_empty(NST_IC_POP_FUNC, 0);
+        inst = new_inst_int_val(
+            NST_IC_OP_CALL,
+            node->nodes->size - 1,
+            node->start,
+            node->end
+        );
         ADD_INST(inst);
         return;
     }
@@ -805,16 +807,22 @@ static void compile_map_lit(Nst_Node *node)
     */
     Nst_RuntimeInstruction *inst;
 
+    bool is_key = true;
     for ( LLNode *n = node->nodes->head; n != NULL; n = n->next )
     {
         compile_node(n->value);
-        inst = new_inst_int_val(
-            NST_IC_HASH_CHECK,
-            0,
-            NODE(n->value)->start,
-            NODE(n->value)->end
-        );
-        ADD_INST(inst);
+
+        if ( is_key )
+        {
+            inst = new_inst_int_val(
+                NST_IC_HASH_CHECK,
+                0,
+                NODE(n->value)->start,
+                NODE(n->value)->end
+            );
+            ADD_INST(inst);
+        }
+        is_key = !is_key;
     }
 
     inst = new_inst_empty(NST_IC_MAKE_MAP, node->nodes->size);
@@ -1063,8 +1071,6 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
         switch ( inst.id )
         {
         case NST_IC_POP_VAL:       printf("POP_VAL      "); break;
-        case NST_IC_PUSH_FUNC:     printf("PUSH_FUNC    "); break;
-        case NST_IC_POP_FUNC:      printf("POP_FUNC     "); break;
         case NST_IC_JUMP:          printf("JUMP         "); break;
         case NST_IC_JUMPIF_T:      printf("JUMPIF_T     "); break;
         case NST_IC_JUMPIF_F:      printf("JUMPIF_F     "); break;
@@ -1109,7 +1115,7 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
                 dec_ref(s);
             }
             else
-                nst_obj_stdout(inst.val, NULL);
+                dec_ref(nst_obj_stdout(inst.val, NULL));
 
             if ( inst.val->type == nst_t_func )
             {

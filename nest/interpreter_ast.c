@@ -782,7 +782,7 @@ static void exe_local_stack_op(Nst_Node *node)
         dec_ref(stop);
         dec_ref(step);
 
-        SET_VALUE(new_iter(
+        SET_VALUE(nst_new_iter(
             AS_FUNC(new_cfunc(1, nst_num_iter_start)),
             AS_FUNC(new_cfunc(1, nst_num_iter_advance)),
             AS_FUNC(new_cfunc(1, nst_num_iter_is_done)),

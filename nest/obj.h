@@ -11,7 +11,7 @@
 #define OBJ_HEAD \
     int ref_count; \
     char *type_name; \
-    struct _obj *type; \
+    struct Nst_Obj *type; \
     void (*destructor)(void *); \
     int32_t hash
 
@@ -19,7 +19,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct _obj
+typedef struct Nst_Obj
 {
     OBJ_HEAD;
 }

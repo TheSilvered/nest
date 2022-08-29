@@ -4,9 +4,13 @@
 #include "obj.h"
 #include "error.h"
 #include "function.h"
+#include "var_table.h"
 
-#define nst_push_func(f_stack, func, start, end) _nst_push_func(f_stack, AS_BFUNC(func), start, end)
-#define nst_push_val(v_stack, val) _nst_push_val(v_stack, (Nst_Obj *)(val))
+#define nst_push_func(f_stack, func, start, end, vt, idx) \
+        _nst_push_func(f_stack, AS_BFUNC(func), start, end, vt, idx)
+
+#define nst_push_val(v_stack, val) \
+        _nst_push_val(v_stack, (Nst_Obj *)(val))
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,6 +29,8 @@ typedef struct
     Nst_BcFuncObj *func;
     Nst_Pos start;
     Nst_Pos end;
+    Nst_VarTable *vt;
+    Nst_Int idx;
 }
 Nst_FuncCall;
 
@@ -41,13 +47,18 @@ bool _nst_push_val(Nst_ValueStack *v_stack, Nst_Obj *obj);
 Nst_Obj *nst_pop_val(Nst_ValueStack *v_stack);
 Nst_Obj *nst_peek_val(Nst_ValueStack *v_stack);
 bool nst_dup_val(Nst_ValueStack *v_stack);
+void nst_destroy_v_stack(Nst_ValueStack *v_stack);
 
 Nst_CallStack *nst_new_call_stack();
 bool _nst_push_func(Nst_CallStack *f_stack,
                     Nst_BcFuncObj *func,
                     Nst_Pos call_start,
-                    Nst_Pos call_end);
+                    Nst_Pos call_end,
+                    Nst_VarTable *vt,
+                    Nst_Int idx);
 Nst_FuncCall nst_pop_func(Nst_CallStack *f_stack);
+Nst_FuncCall nst_peek_func(Nst_CallStack *f_stack);
+void nst_destroy_f_stack(Nst_CallStack *f_stack);
 
 #ifdef __cplusplus
 }

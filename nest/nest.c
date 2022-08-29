@@ -10,12 +10,13 @@
 #include "compiler.h"
 #include "optimizer.h"
 
-#define VERSION "beta-0.2.2"
+#define VERSION "beta-0.3.0"
 
 int main(int argc, char **argv)
 {
 #ifdef _DEBUG
-    puts("USING DEBUG BUILD");
+    puts("**USING DEBUG BUILD**");
+    puts("---------------------");
     fflush(stdout);
 #endif
 
@@ -146,6 +147,7 @@ int main(int argc, char **argv)
 
     Nst_InstructionList *inst_ls = nst_compile(ast);
     inst_ls = nst_optimize_bytecode(inst_ls);
+    nst_print_bytecode(inst_ls, 0);
 
     if ( inst_ls == NULL )
     {
@@ -161,8 +163,9 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    nst_run(inst_ls, argc, argv);
-    nst_destroy_node(ast);
+    Nst_BcFuncObj *main_func = AS_BFUNC(new_bfunc(0));
+    main_func->body = inst_ls;
+    nst_run(main_func, argc, argv);
 
     del_obj();
 

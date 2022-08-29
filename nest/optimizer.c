@@ -4,6 +4,7 @@
 #include "tokens.h"
 #include "error_internal.h"
 #include "iter.h"
+#include "hash.h"
 
 #define HEAD_NODE NODE(node->nodes->head->value)
 #define TAIL_NODE NODE(node->nodes->tail->value)
@@ -283,47 +284,64 @@ static Nst_Int count_jumps_to(Nst_InstructionList *bc, Nst_Int idx);
 static void remove_push_pop(Nst_InstructionList *bc);
 static void remove_assign_pop(Nst_InstructionList *bc);
 static bool remove_push_typecheck(Nst_InstructionList *bc);
+static bool remove_push_hashcheck(Nst_InstructionList *bc);
 static void remove_inst(Nst_InstructionList *bc, Nst_Int idx);
+static void optimize_funcs(Nst_InstructionList *bc);
 
-Nst_InstructionList *nst_optimize_bytecode(Nst_InstructionList *bc)
+Nst_InstructionList *nst_optimize_bytecode(Nst_InstructionList *bc, bool optimize_builtins)
 {
-    OPTIMIZE_BUILTIN("Type",   nst_t_type);
-    OPTIMIZE_BUILTIN("Int",    nst_t_int );
-    OPTIMIZE_BUILTIN("Real",   nst_t_real);
-    OPTIMIZE_BUILTIN("Bool",   nst_t_bool);
-    OPTIMIZE_BUILTIN("Null",   nst_t_null);
-    OPTIMIZE_BUILTIN("Str",    nst_t_str );
-    OPTIMIZE_BUILTIN("Array",  nst_t_arr );
-    OPTIMIZE_BUILTIN("Vector", nst_t_vect);
-    OPTIMIZE_BUILTIN("Map",    nst_t_map );
-    OPTIMIZE_BUILTIN("Func",   nst_t_func);
-    OPTIMIZE_BUILTIN("Iter",   nst_t_iter);
-    OPTIMIZE_BUILTIN("Byte",   nst_t_byte);
-    OPTIMIZE_BUILTIN("IOfile", nst_t_file);
-    OPTIMIZE_BUILTIN("true",   nst_true );
-    OPTIMIZE_BUILTIN("false",  nst_false);
-    OPTIMIZE_BUILTIN("null",   nst_null );
-
-    if ( remove_push_typecheck(bc) )
+    if ( optimize_builtins )
     {
-        nst_destroy_inst_list(bc);
-        return NULL;
+        OPTIMIZE_BUILTIN("Type",   nst_t_type);
+        OPTIMIZE_BUILTIN("Int",    nst_t_int );
+        OPTIMIZE_BUILTIN("Real",   nst_t_real);
+        OPTIMIZE_BUILTIN("Bool",   nst_t_bool);
+        OPTIMIZE_BUILTIN("Null",   nst_t_null);
+        OPTIMIZE_BUILTIN("Str",    nst_t_str );
+        OPTIMIZE_BUILTIN("Array",  nst_t_arr );
+        OPTIMIZE_BUILTIN("Vector", nst_t_vect);
+        OPTIMIZE_BUILTIN("Map",    nst_t_map );
+        OPTIMIZE_BUILTIN("Func",   nst_t_func);
+        OPTIMIZE_BUILTIN("Iter",   nst_t_iter);
+        OPTIMIZE_BUILTIN("Byte",   nst_t_byte);
+        OPTIMIZE_BUILTIN("IOfile", nst_t_file);
+        OPTIMIZE_BUILTIN("true",   nst_true );
+        OPTIMIZE_BUILTIN("false",  nst_false);
+        OPTIMIZE_BUILTIN("null",   nst_null );
     }
 
-    remove_push_pop(bc);
-    remove_assign_pop(bc);
-
-    register Nst_Int size = bc->total_size;
-    register Nst_RuntimeInstruction *inst_list = bc->instructions;
-    for ( Nst_Int i = 0; i < size; i++ )
+    Nst_Int initial_size;
+    do
     {
-        if ( inst_list[i].id == NST_IC_NO_OP )
+        initial_size = bc->total_size;
+        if ( remove_push_typecheck(bc) )
         {
-            remove_inst(bc, i);
-            --i;
-            --size;
+            nst_destroy_inst_list(bc);
+            return NULL;
+        }
+
+        if ( remove_push_hashcheck(bc) )
+        {
+            nst_destroy_inst_list(bc);
+            return NULL;
+        }
+
+        remove_push_pop(bc);
+        remove_assign_pop(bc);
+
+        register Nst_Int size = bc->total_size;
+        register Nst_RuntimeInstruction *inst_list = bc->instructions;
+        for ( Nst_Int i = 0; i < size; i++ )
+        {
+            if ( inst_list[i].id == NST_IC_NO_OP )
+            {
+                remove_inst(bc, i);
+                --i;
+                --size;
+            }
         }
     }
+    while ( initial_size != bc->total_size );
 
     return bc;
 }
@@ -478,6 +496,49 @@ static bool remove_push_typecheck(Nst_InstructionList *bc)
     return false;
 }
 
+static bool remove_push_hashcheck(Nst_InstructionList *bc)
+{
+    register Nst_Int size = bc->total_size;
+    register Nst_RuntimeInstruction *inst_list = bc->instructions;
+    register bool expect_hc = false;
+
+    for ( Nst_Int i = 0; i < size; i++ )
+    {
+        if ( inst_list[i].id == NST_IC_PUSH_VAL )
+        {
+            expect_hc = true;
+            continue;
+        }
+        else if ( !expect_hc ||
+            inst_list[i].id != NST_IC_HASH_CHECK ||
+            count_jumps_to(bc, i) != 0 )
+        {
+            expect_hc = false;
+            continue;
+        }
+
+        nst_hash_obj(inst_list[i - 1].val);
+        if ( inst_list[i - 1].val->hash == -1 )
+        {
+            Nst_Error error = {
+                inst_list[i].start,
+                inst_list[i].end,
+                NST_E_TYPE_ERROR,
+                _nst_format_type_error(
+                    UNHASHABLE_TYPE,
+                    inst_list[i - 1].val->type_name
+                )
+            };
+
+            nst_print_error(error);
+            return true;
+        }
+
+        inst_list[i].id = NST_IC_NO_OP;
+    }
+    return false;
+}
+
 static void remove_inst(Nst_InstructionList *bc, Nst_Int idx)
 {
     register Nst_Int size = bc->total_size;
@@ -496,5 +557,17 @@ static void remove_inst(Nst_InstructionList *bc, Nst_Int idx)
     {
         if ( IS_JUMP(inst_list[i].id) && inst_list[i].int_val > idx )
             --inst_list[i].int_val;
+    }
+}
+
+static void optimize_funcs(Nst_InstructionList *bc)
+{
+    register Nst_Int size = bc->total_size;
+    register Nst_RuntimeInstruction *inst_list = bc->instructions;
+
+    for ( Nst_Int i = 0; i < size - 1; i++ )
+    {
+        if ( inst_list[i].id == NST_IC_PUSH_VAL && inst_list[i].val->type == nst_t_func )
+            nst_optimize_bytecode(AS_BFUNC(inst_list[i].val)->body, false);
     }
 }

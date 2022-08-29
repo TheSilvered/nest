@@ -21,7 +21,7 @@ typedef struct
 {
     Nst_Traceback *traceback;
     Nst_Obj *value;
-    struct _varTable *vt;
+    Nst_VarTable *vt;
     bool error_occurred;
     bool must_return;
     bool must_continue;

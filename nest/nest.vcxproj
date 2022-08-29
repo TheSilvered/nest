@@ -133,6 +133,7 @@
       <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
+      <PreprocessToFile>false</PreprocessToFile>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -148,7 +149,9 @@
     <ClCompile Include="hash.c" />
     <ClCompile Include="instructions.c" />
     <ClCompile Include="interpreter.c" />
-    <ClCompile Include="interpreter_ast.c" />
+    <None Include="interpreter_ast.c">
+      <FileType>CppCode</FileType>
+    </None>
     <ClCompile Include="iter.c" />
     <ClCompile Include="lexer.c" />
     <ClCompile Include="llist.c" />
@@ -185,7 +188,7 @@
     <ClInclude Include="obj_ops.h" />
     <ClInclude Include="optimizer.h" />
     <ClInclude Include="parser.h" />
-    <ClInclude Include="interpreter_ast.h" />
+    <None Include="interpreter_ast.h" />
     <ClInclude Include="error_internal.h" />
     <ClInclude Include="runtime_stack.h" />
     <ClInclude Include="str.h" />

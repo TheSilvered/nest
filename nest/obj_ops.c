@@ -882,11 +882,11 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
             nst_set_value_seq(data, 1, ob);
             dec_ref(idx);
 
-            return new_iter(
-                AS_FUNC(new_cfunc(1, nst_str_iter_start)),
-                AS_FUNC(new_cfunc(1, nst_str_iter_advance)),
-                AS_FUNC(new_cfunc(1, nst_str_iter_is_done)),
-                AS_FUNC(new_cfunc(1, nst_str_iter_get_val)),
+            return nst_new_iter(
+                AS_BFUNC(new_cfunc(1, nst_str_iter_start)),
+                AS_BFUNC(new_cfunc(1, nst_str_iter_advance)),
+                AS_BFUNC(new_cfunc(1, nst_str_iter_is_done)),
+                AS_BFUNC(new_cfunc(1, nst_str_iter_get_val)),
                 (Nst_Obj *)data
             );
         }
@@ -898,11 +898,11 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
             nst_set_value_seq(data, 1, ob);
             dec_ref(idx);
 
-            return new_iter(
-                AS_FUNC(new_cfunc(1, nst_seq_iter_start)),
-                AS_FUNC(new_cfunc(1, nst_seq_iter_advance)),
-                AS_FUNC(new_cfunc(1, nst_seq_iter_is_done)),
-                AS_FUNC(new_cfunc(1, nst_seq_iter_get_val)),
+            return nst_new_iter(
+                AS_BFUNC(new_cfunc(1, nst_seq_iter_start)),
+                AS_BFUNC(new_cfunc(1, nst_seq_iter_advance)),
+                AS_BFUNC(new_cfunc(1, nst_seq_iter_is_done)),
+                AS_BFUNC(new_cfunc(1, nst_seq_iter_get_val)),
                 (Nst_Obj *)data
             );
         }
@@ -922,11 +922,11 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
             if ( get_val_obj == NULL )
                 RETURN_MISSING_FUNC_ERROR("_get_val_");
 
-            return new_iter(
-                AS_FUNC(start_obj),
-                AS_FUNC(advance_obj),
-                AS_FUNC(is_done_obj),
-                AS_FUNC(get_val_obj),
+            return nst_new_iter(
+                AS_BFUNC(start_obj),
+                AS_BFUNC(advance_obj),
+                AS_BFUNC(is_done_obj),
+                AS_BFUNC(get_val_obj),
                 inc_ref(ob)
             );
         }

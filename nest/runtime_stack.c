@@ -59,10 +59,21 @@ bool nst_dup_val(Nst_ValueStack *v_stack)
     return true;
 }
 
+void nst_destroy_v_stack(Nst_ValueStack *v_stack)
+{
+    for ( Nst_Int i = 0; i < (Nst_Int)v_stack->current_size; i++ )
+    {
+        if ( v_stack->stack[i] != NULL )
+            dec_ref(v_stack->stack[i]);
+    }
+
+    free(v_stack);
+}
+
 Nst_CallStack *nst_new_call_stack()
 {
     Nst_CallStack *f_stack = malloc(sizeof(Nst_CallStack));
-    Nst_FuncCall *calls = malloc(125 * sizeof(Nst_FuncCall *));
+    Nst_FuncCall *calls = malloc(125 * sizeof(Nst_FuncCall));
     if ( f_stack == NULL || calls == NULL )
         return NULL;
 
@@ -76,15 +87,17 @@ Nst_CallStack *nst_new_call_stack()
 bool _nst_push_func(Nst_CallStack *f_stack,
                     Nst_BcFuncObj *func,
                     Nst_Pos call_start,
-                    Nst_Pos call_end)
+                    Nst_Pos call_end,
+                    Nst_VarTable *vt,
+                    Nst_Int idx)
 {
     register size_t max_size = f_stack->max_size;
 
-    if ( max_size == 1000 )
-        return false;
-
     if ( f_stack->current_size == max_size )
     {
+        if ( max_size == 128000 )
+            return false;
+
         Nst_FuncCall *new_calls = realloc(
             f_stack->stack,
             max_size * 2 * sizeof(Nst_FuncCall)
@@ -98,7 +111,9 @@ bool _nst_push_func(Nst_CallStack *f_stack,
 
     f_stack->stack[f_stack->current_size].func = AS_BFUNC(inc_ref(func));
     f_stack->stack[f_stack->current_size].start = call_start;
-    f_stack->stack[f_stack->current_size++].end = call_end;
+    f_stack->stack[f_stack->current_size].end = call_end;
+    f_stack->stack[f_stack->current_size].vt = vt;
+    f_stack->stack[f_stack->current_size++].idx = idx;
     return true;
 }
 
@@ -114,4 +129,38 @@ Nst_FuncCall nst_pop_func(Nst_CallStack *f_stack)
         return call;
     }
     return f_stack->stack[--f_stack->current_size];
+}
+
+Nst_FuncCall nst_peek_func(Nst_CallStack *f_stack)
+{
+    if ( f_stack->current_size == 0 )
+    {
+        Nst_FuncCall ret_val = {
+            NULL,
+            nst_no_pos(),
+            nst_no_pos(),
+            NULL,
+            0
+        };
+        return ret_val;
+    }
+
+    return f_stack->stack[f_stack->current_size - 1];
+}
+
+void nst_destroy_f_stack(Nst_CallStack *f_stack)
+{
+    for ( Nst_Int i = 0; i < (Nst_Int)f_stack->current_size; i++ )
+    {
+        if ( f_stack->stack[i].func != NULL )
+            dec_ref(f_stack->stack[i].func);
+
+        if ( f_stack->stack[i].vt != NULL )
+        {
+            nst_destroy_map(f_stack->stack[i].vt->vars);
+            free(f_stack->stack[i].vt);
+        }
+    }
+
+    free(f_stack);
 }

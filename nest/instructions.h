@@ -45,8 +45,6 @@ enum Nst_InstructionCodes
 {
     NST_IC_NO_OP,
     NST_IC_POP_VAL, // Pop a value from the value stack
-    NST_IC_PUSH_FUNC, // Push a function onto the call stack
-    NST_IC_POP_FUNC, // Pop a function from the call stack
     NST_IC_FOR_START,
     NST_IC_RETURN_VAL,
     NST_IC_FOR_ADVANCE,

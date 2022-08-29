@@ -227,6 +227,7 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
 
 void nst_destroy_map(Nst_MapObj *map)
 {
+    map->ref_count = 2147483647;
     for ( size_t i = 0; i < map->size; i++ )
     {
         if ( map->nodes[i].key != NULL )

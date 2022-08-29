@@ -1,6 +1,5 @@
 #include <stdlib.h>
 #include "var_table.h"
-#include "nst_types.h"
 
 Nst_VarTable *nst_new_var_table(Nst_VarTable *global_table,
                                 Nst_StrObj *cwd,
@@ -13,7 +12,11 @@ Nst_VarTable *nst_new_var_table(Nst_VarTable *global_table,
     Nst_MapObj *vars = AS_MAP(nst_new_map());
     vt->vars = vars;
 
-    _nst_map_set_str(vars, "_vars_", (Nst_Obj *)vars);
+    nst_map_set_str(vars, "_vars_", vars);
+    if ( global_table == NULL )
+        nst_map_set_str(vars, "_globals_", nst_null);
+    else
+        nst_map_set_str(vars, "_globals_", global_table->vars);
 
     if ( global_table != NULL )
         return vt;

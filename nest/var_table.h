@@ -3,19 +3,20 @@
 
 #include "map.h"
 #include "obj.h"
-#include "nst_types.h"
+#include "str.h"
+#include "sequence.h"
 
-#define nst_get_val(vt, name) _nst_get_val(vt, (Nst_Obj *)name)
-#define nst_set_val(vt, name, val) _nst_set_val(vt, (Nst_Obj *)name, (Nst_Obj *)val)
+#define nst_get_val(vt, name) _nst_get_val(vt, (Nst_Obj *)(name))
+#define nst_set_val(vt, name, val) _nst_set_val(vt, (Nst_Obj *)(name), (Nst_Obj *)(val))
 
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct _varTable
+typedef struct Nst_VarTable
 {
     Nst_MapObj *vars;
-    struct _varTable *global_table;
+    struct Nst_VarTable *global_table;
 }
 Nst_VarTable;
 

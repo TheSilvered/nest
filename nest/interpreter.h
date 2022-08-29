@@ -17,10 +17,10 @@ extern "C" {
 typedef struct
 {
     Nst_Traceback *traceback;
-    struct _varTable *vt;
+    Nst_VarTable *vt;
+    Nst_Int *idx;
     bool *error_occurred;
     Nst_StrObj *curr_path;
-    Nst_InstructionList *curr_bytecode;
     Nst_ValueStack *v_stack;
     Nst_CallStack *f_stack;
     LList *loaded_libs;
@@ -36,7 +36,7 @@ typedef struct
 }
 Nst_LibHandle;
 
-void nst_run(Nst_InstructionList *inst_ls, int argc, char **argv);
+void nst_run(Nst_BcFuncObj *main_func, int argc, char **argv);
 Nst_MapObj *nst_run_module(char *file_name);
 Nst_Obj *nst_call_func(Nst_BcFuncObj *func, Nst_Obj **args, Nst_OpErr *err);
 size_t nst_get_full_path(char *file_path, char **buf, char **file_part);
