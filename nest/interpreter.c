@@ -118,8 +118,8 @@ void nst_run(Nst_BcFuncObj *main_func, int argc, char **argv)
         if ( i >= (Nst_Int)curr_inst_ls->total_size )
         {
             Nst_FuncCall call = nst_pop_func(nst_state.f_stack);
-            if ( nst_peek_val(nst_state.v_stack) != nst_state.vt->vars )
-                destroy_obj(nst_state.vt->vars);
+            if ( nst_peek_val(nst_state.v_stack) != (Nst_Obj *)nst_state.vt->vars )
+                destroy_obj((Nst_Obj *)nst_state.vt->vars);
             free(nst_state.vt);
             dec_ref(call.func);
             nst_state.vt = call.vt;
@@ -291,9 +291,6 @@ static inline void exe_for_inst(Nst_RuntimeInstruction inst, Nst_IterObj *iter, 
             nst_push_val(nst_state.v_stack, res);
             dec_ref(res);
         }
-
-        dec_ref(func);
-        return;
     }
     else
     {
@@ -544,18 +541,35 @@ static inline void exe_op_call(Nst_RuntimeInstruction inst)
     if ( func->cbody != NULL )
     {
         Nst_OpErr err = { "", "" };
-        Nst_Obj **args = malloc(sizeof(Nst_Obj *) * inst.int_val);
-        if ( args == NULL )
-            return;
+        Nst_Obj **args;
+        Nst_Obj *arg;
+        bool args_allocated = false;
 
-        for ( Nst_Int i = 0; i < inst.int_val; i++ )
-            args[i] = nst_pop_val(nst_state.v_stack);
+        if ( inst.int_val == 0 )
+            args = NULL;
+        else if ( inst.int_val == 1 )
+        {
+            arg = nst_pop_val(nst_state.v_stack);
+            args = &arg;
+        }
+        else
+        {
+            args = malloc(sizeof(Nst_Obj *) * inst.int_val);
+            if ( args == NULL )
+                return;
+
+            for ( Nst_Int i = 0; i < inst.int_val; i++ )
+                args[i] = nst_pop_val(nst_state.v_stack);
+            args_allocated = true;
+        }
 
         Nst_Obj *res = func->cbody(inst.int_val, args, &err);
 
         for ( Nst_Int i = 0; i < inst.int_val; i++ )
             dec_ref(args[i]);
-        free(args);
+
+        if ( args_allocated )
+            free(args);
 
         if ( res == NULL )
         {

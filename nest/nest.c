@@ -146,7 +146,7 @@ int main(int argc, char **argv)
     }
 
     Nst_InstructionList *inst_ls = nst_compile(ast);
-    inst_ls = nst_optimize_bytecode(inst_ls);
+    inst_ls = nst_optimize_bytecode(inst_ls, true);
     nst_print_bytecode(inst_ls, 0);
 
     if ( inst_ls == NULL )

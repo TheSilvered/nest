@@ -461,7 +461,7 @@ static void compile_if_e(Nst_Node *node)
     else
     {
         compile_node(TAIL_NODE); // Body if false
-        if ( TAIL_NODE == NST_NT_LONG_S )
+        if ( TAIL_NODE->type == NST_NT_LONG_S )
         {
             inst = new_inst_val(
                 NST_IC_PUSH_VAL,
@@ -1104,7 +1104,10 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
         default:            printf("__UNKNOWN__  "); break;
         }
 
-        printf("%3lli ", inst.int_val);
+        if ( IS_JUMP(inst.id) || inst.int_val != 0 )
+            printf("| %3lli | ", inst.int_val);
+        else
+            printf("|     | ");
 
         if ( inst.val != NULL )
         {
