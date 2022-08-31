@@ -7,7 +7,7 @@
 Counts intefinitely from `start`, advancing by `step`.
 
 ```
-0 2 @cound --> 0, 2, 4, 6, 8, ...
+0 2 @count --> 0, 2, 4, 6, 8, ...
 ```
 
 ### `[sequence: Str|Array|Vector] @cycle`
@@ -24,7 +24,7 @@ the sequence ends.
 Repeats the first argument a certain number of times.
 
 ```
-'Hi!' 3 @cycle --> 'Hi!', 'Hi!', 'Hi!'
+'Hi!' 3 @repeat --> 'Hi!', 'Hi!', 'Hi!'
 ```
 
 ### `[sequence: Array|Vector] @chain`
@@ -33,7 +33,7 @@ Chains any number of sequences (`Str`, `Array` or `Vector`), iterating over
 their objects:
 
 ```
-{ 'Hi!' { 1, 2, 3 } } @cycle --> 'H', 'i', '!', 1, 2, 3
+{ 'Hi!' { 1, 2, 3 } } @chain --> 'H', 'i', '!', 1, 2, 3
 ```
 
 ### `[sequence_1: Str|Array|Vector, sequence_2: Str|Array|Vector] @zip`
