@@ -1,5 +1,0 @@
-#func a b c [
-    => _vars_
-]
-
->>> (1 2 3 @func)

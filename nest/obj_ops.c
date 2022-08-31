@@ -1194,9 +1194,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
 
     if ( !c_import )
     {
-        Nst_MapObj *map = nst_run_module(file_path);
-
-        if ( map == NULL )
+        if ( !nst_run_module(file_path) )
         {
             *nst_state.error_occurred = true;
             return NULL;
@@ -1210,11 +1208,12 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
             return NULL;
         }
 
+        Nst_MapObj *map = AS_MAP(nst_pop_val(nst_state.v_stack));
         handle->val = map;
         handle->path = file_path;
 
         LList_append(nst_state.lib_handles, handle, true);
-        return inc_ref(map);
+        return (Nst_Obj *)map;
     }
 
     HMODULE lib = LoadLibraryA(file_path);

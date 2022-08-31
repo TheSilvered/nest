@@ -168,6 +168,7 @@
     <ClCompile Include="tokens.c" />
     <ClCompile Include="var_table.c" />
     <ClCompile Include="sequence.c" />
+    <None Include="_test_mod.nest" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="compiler.h" />

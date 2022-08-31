@@ -35,7 +35,7 @@ static dec_loop_id()
     c_state.loop_id += 2;
 }
 
-static Nst_InstructionList *compile_internal(Nst_Node *node, bool is_func);
+static Nst_InstructionList *compile_internal(Nst_Node *node, bool is_func, bool is_module);
 static void compile_node(Nst_Node *node);
 static void compile_long_s(Nst_Node *node);
 static void compile_while_l(Nst_Node *node);
@@ -58,12 +58,12 @@ static void compile_continue_s(Nst_Node *node);
 static void compile_break_s(Nst_Node *node);
 static void compile_switch_s(Nst_Node *node);
 
-Nst_InstructionList *nst_compile(Nst_Node *code)
+Nst_InstructionList *nst_compile(Nst_Node *code, bool is_module)
 {
-    return compile_internal(code, false);
+    return compile_internal(code, false, is_module);
 }
 
-static Nst_InstructionList *compile_internal(Nst_Node *code, bool is_func)
+static Nst_InstructionList *compile_internal(Nst_Node *code, bool is_func, bool is_module)
 {
     c_state.loop_id = 0;
     c_state.inst_ls = LList_new();
@@ -76,7 +76,10 @@ static Nst_InstructionList *compile_internal(Nst_Node *code, bool is_func)
     bool add_return = c_state.inst_ls->tail == NULL ||
                       INST(c_state.inst_ls->tail->value)->id != NST_IC_RETURN_VAL;
 
-    inst_list->total_size = c_state.inst_ls->size + (add_return ? 2 : 0);
+    if ( is_module )
+        inst_list->total_size = c_state.inst_ls->size + 1;
+    else
+        inst_list->total_size = c_state.inst_ls->size + (add_return ? 2 : 0);
     inst_list->instructions = malloc(inst_list->total_size * sizeof(Nst_RuntimeInstruction));
     if ( inst_list->instructions == NULL )
     {
@@ -97,7 +100,15 @@ static Nst_InstructionList *compile_internal(Nst_Node *code, bool is_func)
         inst_list->instructions[i++].end = INST(n->value)->end;
     }
 
-    if ( add_return )
+    if ( is_module )
+    {
+        inst_list->instructions[i].id = NST_IC_RETURN_VARS;
+        inst_list->instructions[i].int_val = 0;
+        inst_list->instructions[i].val = NULL;
+        inst_list->instructions[i].start = nst_no_pos();
+        inst_list->instructions[i].end = nst_no_pos();
+    }
+    else if ( add_return )
     {
         inst_list->instructions[i].id = NST_IC_PUSH_VAL;
         inst_list->instructions[i].int_val = 0;
@@ -493,7 +504,7 @@ static void compile_func_declr(Nst_Node *node)
 
     int prev_loop_id = c_state.loop_id;
     LList *prev_inst_ls = c_state.inst_ls;
-    func->body = compile_internal(HEAD_NODE, true);
+    func->body = compile_internal(HEAD_NODE, true, false);
     c_state.loop_id = prev_loop_id;
     c_state.inst_ls = prev_inst_ls;
 
@@ -1066,7 +1077,10 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
         Nst_RuntimeInstruction inst = ls->instructions[i];
 
         for ( int i = 0; i < indent; i++ ) printf("    ");
-        printf("%3zi %02zi:%02zi ", i, inst.start.line + 1, inst.start.col + 1);
+        if ( inst.start.filename == NULL )
+            printf("%3zi       ", i);
+        else
+            printf("%3zi %02zi:%02zi ", i, inst.start.line + 1, inst.start.col + 1);
 
         switch ( inst.id )
         {
@@ -1100,8 +1114,8 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
         case NST_IC_FOR_IS_DONE:   printf("FOR_IS_DONE  "); break;
         case NST_IC_FOR_GET_VAL:   printf("FOR_GET_VAL  "); break;
         case NST_IC_RETURN_VAL:    printf("RETURN_VAL   "); break;
-        //case MAKE_FUNC:     printf("MAKE_FUNC    "); break;
-        default:            printf("__UNKNOWN__  "); break;
+        case NST_IC_RETURN_VARS:   printf("RETURN_VARS  "); break;
+        default:                   printf("__UNKNOWN__  "); break;
         }
 
         if ( IS_JUMP(inst.id) || inst.int_val != 0 )

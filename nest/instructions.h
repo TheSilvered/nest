@@ -47,6 +47,7 @@ enum Nst_InstructionCodes
     NST_IC_POP_VAL, // Pop a value from the value stack
     NST_IC_FOR_START,
     NST_IC_RETURN_VAL,
+    NST_IC_RETURN_VARS, // Returns the var table
     NST_IC_FOR_ADVANCE,
     NST_IC_SET_VAL_LOC, // Does not push its value onto the stack
     NST_IC_JUMP, // Jump to an index in the instuction array

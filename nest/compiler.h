@@ -5,7 +5,7 @@
 #include "instructions.h"
 #include "nodes.h"
 
-Nst_InstructionList *nst_compile(Nst_Node *code);
+Nst_InstructionList *nst_compile(Nst_Node *code, bool is_module);
 void nst_print_bytecode(Nst_InstructionList *ls, int indent);
 
 #endif // !COMPILER_H

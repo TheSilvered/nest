@@ -271,13 +271,13 @@ static void ast_optimize_long_s(Nst_Node *node, Nst_Error **error)
 }
 
 static Nst_Int count_assignments(Nst_InstructionList *bc, Nst_StrObj *name);
-static void replace_access(Nst_InstructionList *bc, Nst_StrObj *name, Nst_Obj *val);
-static void optimize_builtin(Nst_InstructionList *bc, char *name, Nst_Obj *val);
-static void optimize_func_builtin(Nst_InstructionList *bc, Nst_StrObj *name, Nst_Obj *val);
 static Nst_Int count_jumps_to(Nst_InstructionList *bc,
                               Nst_Int idx,
                               Nst_Int avoid_start,
                               Nst_Int avoid_end);
+static void replace_access(Nst_InstructionList *bc, Nst_StrObj *name, Nst_Obj *val);
+static void optimize_builtin(Nst_InstructionList *bc, char *name, Nst_Obj *val);
+static void optimize_func_builtin(Nst_InstructionList *bc, Nst_StrObj *name, Nst_Obj *val);
 static void remove_push_pop(Nst_InstructionList *bc);
 static void remove_assign_pop(Nst_InstructionList *bc);
 static bool remove_push_check(Nst_InstructionList *bc);
@@ -391,7 +391,9 @@ static void optimize_builtin(Nst_InstructionList *bc, char *name, Nst_Obj *val)
 
     for ( Nst_Int i = 0; i < size - 1; i++ )
     {
-        if ( inst_list[i].id == NST_IC_PUSH_VAL && inst_list[i].val->type == nst_t_func )
+        if ( inst_list[i].id == NST_IC_PUSH_VAL &&
+             inst_list[i].val != NULL &&
+             inst_list[i].val->type == nst_t_func )
             optimize_func_builtin(AS_BFUNC(inst_list[i].val)->body, str_obj, val);
     }
 
@@ -648,7 +650,7 @@ static void remove_dead_code(Nst_InstructionList *bc)
 {
     register Nst_Int size = bc->total_size;
     register Nst_RuntimeInstruction *inst_list = bc->instructions;
-    
+
     for ( Nst_Int i = 0; i < size; i++ )
     {
         if ( inst_list[i].id != NST_IC_JUMP || inst_list[i].int_val < i )

@@ -42,8 +42,6 @@ Nst_VarTable *nst_new_var_table(Nst_VarTable *global_table,
     _nst_map_set_str(vars, "_cwd_", (Nst_Obj *)cwd);
     _nst_map_set_str(vars, "_args_", (Nst_Obj *)args);
 
-    dec_ref(args);
-
     return vt;
 }
 

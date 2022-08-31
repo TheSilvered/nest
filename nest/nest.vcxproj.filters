@@ -172,5 +172,8 @@
     <None Include="interpreter_ast.h">
       <Filter>File di intestazione</Filter>
     </None>
+    <None Include="_test_mod.nest">
+      <Filter>File di risorse</Filter>
+    </None>
   </ItemGroup>
 </Project>
