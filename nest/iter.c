@@ -7,10 +7,10 @@
 #include "str.h"
 
 Nst_Obj *nst_new_iter(
-    Nst_BcFuncObj *start,
-    Nst_BcFuncObj *advance,
-    Nst_BcFuncObj *is_done,
-    Nst_BcFuncObj *get_val,
+    Nst_FuncObj *start,
+    Nst_FuncObj *advance,
+    Nst_FuncObj *is_done,
+    Nst_FuncObj *get_val,
     Nst_Obj *value)
 {
     Nst_IterObj *iter = AS_ITER(alloc_obj(

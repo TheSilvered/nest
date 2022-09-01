@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <windows.h>
 #include "lexer.h"
 #include "parser.h"
 #include "interpreter.h"
@@ -14,6 +15,8 @@
 
 int main(int argc, char **argv)
 {
+    SetConsoleOutputCP(CP_UTF8);
+
 #ifdef _DEBUG
     puts("**USING DEBUG BUILD**");
     puts("---------------------");
@@ -40,19 +43,20 @@ int main(int argc, char **argv)
                "  The name of the file you wish to compile and run\n\n"
 
                "Compilation options:\n"
-               "  -t --tokens : prints the list of tokens of the program\n"
-               "  -a --ast    : prints the abstract syntax tree of the program\n\n"
+               "  -t --tokens  : prints the list of tokens of the program\n"
+               "  -a --ast     : prints the abstract syntax tree of the program\n"
+               "  -b --bytecode: prints the bytecode of the program\n\n"
 
                "Args:\n"
                "  the arguments that will be accessible throgh _args_ during execution\n\n"
 
                "Options:\n"
-               "  -h --help   : prints this message\n"
-               "  -v --version: prints the version of nest being used\n"
+               "  -h -? --help: prints this message\n"
+               "  -V --version: prints the version of nest being used\n"
         );
         return 0;
     }
-    else if ( argc == 2 && (strcmp(argv[1], "-v")        == 0
+    else if ( argc == 2 && (strcmp(argv[1], "-V")        == 0
                         ||  strcmp(argv[1], "--version") == 0) )
     {
         printf("Using nest version: " VERSION);
@@ -147,7 +151,7 @@ int main(int argc, char **argv)
 
     Nst_InstructionList *inst_ls = nst_compile(ast, false);
     inst_ls = nst_optimize_bytecode(inst_ls, true);
-    nst_print_bytecode(inst_ls, 0);
+    //nst_print_bytecode(inst_ls, 0);
 
     if ( inst_ls == NULL )
     {
@@ -163,7 +167,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    Nst_BcFuncObj *main_func = AS_BFUNC(new_bfunc(0));
+    Nst_FuncObj *main_func = AS_FUNC(new_func(0));
     main_func->body = inst_ls;
     nst_run(main_func, argc, argv);
 

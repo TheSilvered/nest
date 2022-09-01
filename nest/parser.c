@@ -1,6 +1,7 @@
 ﻿#include <errno.h>
 #include <stdlib.h>
 #include <stdio.h>
+#include <windows.h>
 #include "llist.h"
 #include "parser.h"
 #include "error_internal.h"
@@ -1263,12 +1264,12 @@ static void _print_ast(Nst_Node *node, Nst_LexerToken *tok, int lvl, LList *is_l
             if ( *((bool *)(cursor->value)) )
                 printf("   ");
             else
-                printf("|  ");
+                printf("\xE2\x94\x82  ");
         }
         if ( *((bool *)(cursor->value)) )
-            printf("\\--");
+            printf("\xE2\x94\x94\xE2\x94\x80\xE2\x94\x80");
         else
-            printf("+--");
+            printf("\xE2\x94\x9C\xE2\x94\x80\xE2\x94\x80");
     }
 
     if ( tok != NULL )

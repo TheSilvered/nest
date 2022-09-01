@@ -8,7 +8,7 @@
 
 #define _NST_SET_TYPE_ERROR(type) { \
     err->name = (char *)"Type Error"; \
-    err->message = _nst_format_arg_error(
+    err->message = _nst_format_arg_error( \
         WRONG_TYPE_FOR_ARG(type), \
         ob->type_name, i \
     ); \

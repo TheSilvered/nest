@@ -293,6 +293,7 @@ static void compile_for_l(Nst_Node *node)
                 DEC_INT
                 JUMP cond_start
     body_end:   POP_VAL
+                POP_VAL
                 [CODE CONTINUATION]
     */
 
@@ -326,6 +327,8 @@ static void compile_for_l(Nst_Node *node)
     Nst_Int body_end_idx = CURR_LEN;
     jump_body_end_idx->int_val = body_end_idx;
 
+    inst = new_inst_empty(NST_IC_POP_VAL, 0);
+    ADD_INST(inst);
     inst = new_inst_empty(NST_IC_POP_VAL, 0);
     ADD_INST(inst);
 
@@ -496,7 +499,7 @@ static void compile_func_declr(Nst_Node *node)
     SET_VAL_LOC name
     */
 
-    Nst_BcFuncObj *func = AS_BFUNC(new_bfunc(node->tokens->size - 1));
+    Nst_FuncObj *func = AS_FUNC(new_func(node->tokens->size - 1));
     register size_t i = 0;
 
     for ( LLNode *n = node->tokens->head->next; n != NULL; n = n->next )
@@ -1072,15 +1075,24 @@ static void compile_switch_s(Nst_Node *node)
 
 void nst_print_bytecode(Nst_InstructionList *ls, int indent)
 {
+    size_t tot_size = ls->total_size;
+    int i_len = 1; // maximum length of the index in a string
+
+    while ( tot_size >= 10 )
+    {
+        tot_size /= 10;
+        ++i_len;
+    }
+
     for ( size_t i = 0, n = ls->total_size; i < n; i++ )
     {
         Nst_RuntimeInstruction inst = ls->instructions[i];
 
         for ( int i = 0; i < indent; i++ ) printf("    ");
         if ( inst.start.filename == NULL )
-            printf("%3zi       ", i);
+            printf("%*zi         ", i_len, i);
         else
-            printf("%3zi %02zi:%02zi ", i, inst.start.line + 1, inst.start.col + 1);
+            printf("%*zi %3zi:%-3zi ", i_len, i, inst.start.line + 1, inst.start.col + 1);
 
         switch ( inst.id )
         {
@@ -1115,13 +1127,34 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
         case NST_IC_FOR_GET_VAL:   printf("FOR_GET_VAL  "); break;
         case NST_IC_RETURN_VAL:    printf("RETURN_VAL   "); break;
         case NST_IC_RETURN_VARS:   printf("RETURN_VARS  "); break;
+        case NST_IC_NO_OP:         printf("NO_OP        "); break;
         default:                   printf("__UNKNOWN__  "); break;
         }
 
+        if ( inst.id == NST_IC_NO_OP )
+        {
+            printf("| ");
+            if ( i_len <= 3 )
+                printf("|     | ");
+            else
+                for ( int j = 0; j < i_len; j++ )
+                    putchar(' ');
+            printf(" | ");
+            continue;
+        }
+
         if ( IS_JUMP(inst.id) || inst.int_val != 0 )
-            printf("| %3lli | ", inst.int_val);
+            printf("| %*lli | ", i_len > 3 ? i_len : 3, inst.int_val);
         else
-            printf("|     | ");
+        {
+            printf("| ");
+            if ( i_len <= 3 )
+                printf("   ");
+            else
+                for ( int j = 0; j < i_len; j++ )
+                    putchar(' ');
+            printf(" | ");
+        }
 
         if ( inst.val != NULL )
         {
@@ -1139,7 +1172,7 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
                 printf("\n\n");
                 for ( int i = 0; i < indent + 1; i++ ) printf("    ");
                 printf("<Func object> bytecode:\n");
-                nst_print_bytecode(AS_BFUNC(inst.val)->body, indent + 1);
+                nst_print_bytecode(AS_FUNC(inst.val)->body, indent + 1);
             }
         }
         else if ( inst.id == NST_IC_PUSH_VAL )

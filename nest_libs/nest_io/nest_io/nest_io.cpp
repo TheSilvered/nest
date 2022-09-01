@@ -2,12 +2,12 @@
 #include <cstring>
 #include <cerrno>
 #include "nest_io.h"
-#include "nest_source/obj_ops.h"
+#include "../../../nest/obj_ops.h"
 
 #define FUNC_COUNT 13
 
 #define SET_FILE_CLOSED_ERROR \
-    err->name = VALUE_ERROR; \
+    err->name = NST_E_VALUE_ERROR; \
     err->message = (char *)"file given was closed"
 
 static FuncDeclr *func_list_;
@@ -15,24 +15,24 @@ static bool lib_init_ = false;
 
 bool lib_init()
 {
-    if ( (func_list_ = new_func_list(FUNC_COUNT)) == nullptr )
+    if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
         return false;
 
     size_t idx = 0;
 
-    func_list_[idx++] = MAKE_FUNCDECLR(open, 2);
-    func_list_[idx++] = MAKE_FUNCDECLR(close, 1);
-    func_list_[idx++] = MAKE_FUNCDECLR(write, 2);
-    func_list_[idx++] = MAKE_FUNCDECLR(write_bytes, 2);
-    func_list_[idx++] = MAKE_FUNCDECLR(read, 2);
-    func_list_[idx++] = MAKE_FUNCDECLR(read_bytes, 2);
-    func_list_[idx++] = MAKE_FUNCDECLR(file_size, 1);
-    func_list_[idx++] = MAKE_FUNCDECLR(move_fptr, 3);
-    func_list_[idx++] = MAKE_FUNCDECLR(get_fptr, 1);
-    func_list_[idx++] = MAKE_FUNCDECLR(flush, 1);
-    func_list_[idx++] = MAKE_FUNCDECLR(_get_stdin, 0);
-    func_list_[idx++] = MAKE_FUNCDECLR(_get_stdout, 0);
-    func_list_[idx++] = MAKE_FUNCDECLR(_get_stderr, 0);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(open, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(close, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(write, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(write_bytes, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(read, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(read_bytes, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(file_size, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(move_fptr, 3);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(get_fptr, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(flush, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_stdin, 0);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_stdout, 0);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_stderr, 0);
 
     lib_init_ = true;
     return true;
@@ -43,12 +43,12 @@ FuncDeclr *get_func_ptrs()
     return lib_init_ ? func_list_ : nullptr;
 }
 
-Nst_Obj *open(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *open(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_StrObj *file_name_str;
     Nst_StrObj *file_mode_str;
 
-    if ( !extract_arg_values("ss", arg_num, args, err, &file_name_str, &file_mode_str) )
+    if ( !nst_extract_arg_values("ss", arg_num, args, err, &file_name_str, &file_mode_str) )
         return nullptr;
 
     char *file_name = file_name_str->value;
@@ -62,7 +62,7 @@ Nst_Obj *open(size_t arg_num, Nst_Obj **args, OpErr *err)
 
     if ( file_mode_len < 1 || file_mode_len > 3 )
     {
-        SET_VALUE_ERROR("file mode is not valid");
+        NST_SET_VALUE_ERROR("file mode is not valid");
         return nullptr;
     }
 
@@ -76,7 +76,7 @@ Nst_Obj *open(size_t arg_num, Nst_Obj **args, OpErr *err)
         can_write = true;
         break;
     default:
-        SET_VALUE_ERROR("file mode is not valid");
+        NST_SET_VALUE_ERROR("file mode is not valid");
         return nullptr;
     }
     
@@ -92,7 +92,7 @@ Nst_Obj *open(size_t arg_num, Nst_Obj **args, OpErr *err)
             can_write = true;
             break;
         default:
-            SET_VALUE_ERROR("file mode is not valid");
+            NST_SET_VALUE_ERROR("file mode is not valid");
             return nullptr;
         }
     }
@@ -105,23 +105,23 @@ Nst_Obj *open(size_t arg_num, Nst_Obj **args, OpErr *err)
         if ( (file_mode[1] != 'b' && file_mode[2] != '+') ||
              (file_mode[1] != '+' && file_mode[2] != 'b') )
         {
-            SET_VALUE_ERROR("file mode is not valid");
+            NST_SET_VALUE_ERROR("file mode is not valid");
             return nullptr;
         }
     }
 
-    Nst_iofile file_ptr = fopen(file_name, file_mode);
+    Nst_IOfile file_ptr = fopen(file_name, file_mode);
     if ( file_ptr == nullptr )
         return inc_ref(nst_null);
 
-    return new_file(file_ptr, is_bin, can_read, can_write);
+    return nst_new_file(file_ptr, is_bin, can_read, can_write);
 }
 
-Nst_Obj *close(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *close(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_IOFileObj *f;
 
-    if ( !extract_arg_values("F", arg_num, args, err, &f) )
+    if ( !nst_extract_arg_values("F", arg_num, args, err, &f) )
         return nullptr;
 
     if ( f == nullptr )
@@ -137,12 +137,12 @@ Nst_Obj *close(size_t arg_num, Nst_Obj **args, OpErr *err)
     return inc_ref(nst_null);
 }
 
-Nst_Obj *write(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *write(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_Obj *value_to_write = args[1];
     Nst_IOFileObj *f;
 
-    if ( !extract_arg_values("F", 1, args, err, &f) )
+    if ( !nst_extract_arg_values("F", 1, args, err, &f) )
         return nullptr;
 
     if ( f->is_closed )
@@ -152,17 +152,17 @@ Nst_Obj *write(size_t arg_num, Nst_Obj **args, OpErr *err)
     }
     else if ( !f->can_write )
     {
-        SET_VALUE_ERROR("the file does not support writing");
+        NST_SET_VALUE_ERROR("the file does not support writing");
         return nullptr;
     }
     else if ( f->is_bin )
     {
-        SET_VALUE_ERROR("the file is binary, try using 'write_bytes'");
+        NST_SET_VALUE_ERROR("the file is binary, try using 'write_bytes'");
         return nullptr;
     }
 
     // casting to a string never returns an error
-    Nst_Obj *str_to_write = obj_cast(value_to_write, nst_t_str, nullptr);
+    Nst_Obj *str_to_write = nst_obj_cast(value_to_write, nst_t_str, nullptr);
     Nst_StrObj *str = AS_STR(str_to_write);
     fwrite(str->value, sizeof(char), str->len, f->value);
 
@@ -170,12 +170,12 @@ Nst_Obj *write(size_t arg_num, Nst_Obj **args, OpErr *err)
     return inc_ref(nst_null);
 }
 
-Nst_Obj *write_bytes(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *write_bytes(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_IOFileObj *f;
     Nst_SeqObj *seq;
 
-    if ( !extract_arg_values("FA", arg_num, args, err, &f, &seq) )
+    if ( !nst_extract_arg_values("FA", arg_num, args, err, &f, &seq) )
         return nullptr;
 
     if ( f->is_closed )
@@ -185,12 +185,12 @@ Nst_Obj *write_bytes(size_t arg_num, Nst_Obj **args, OpErr *err)
     }
     else if ( !f->can_write )
     {
-        SET_VALUE_ERROR("the file does not support writing");
+        NST_SET_VALUE_ERROR("the file does not support writing");
         return nullptr;
     }
     else if ( !f->is_bin )
     {
-        SET_VALUE_ERROR("the file is not binary, try using 'write'");
+        NST_SET_VALUE_ERROR("the file is not binary, try using 'write'");
         return nullptr;
     }
 
@@ -203,7 +203,7 @@ Nst_Obj *write_bytes(size_t arg_num, Nst_Obj **args, OpErr *err)
         if ( objs[i]->type != nst_t_byte )
         {
             delete[] bytes;
-            SET_TYPE_ERROR("expected 'Byte'");
+            NST_SET_TYPE_ERROR("expected 'Byte'");
             return nullptr;
         }
 
@@ -216,12 +216,12 @@ Nst_Obj *write_bytes(size_t arg_num, Nst_Obj **args, OpErr *err)
     return inc_ref(nst_null);
 }
 
-Nst_Obj *read(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *read(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_IOFileObj *f;
-    Nst_int bytes_to_read;
+    Nst_Int bytes_to_read;
 
-    if ( !extract_arg_values("Fi", arg_num, args, err, &f, &bytes_to_read) )
+    if ( !nst_extract_arg_values("Fi", arg_num, args, err, &f, &bytes_to_read) )
         return nullptr;
 
     if ( f->is_closed )
@@ -231,12 +231,12 @@ Nst_Obj *read(size_t arg_num, Nst_Obj **args, OpErr *err)
     }
     else if ( !f->can_read )
     {
-        SET_VALUE_ERROR("the file does not support reading");
+        NST_SET_VALUE_ERROR("the file does not support reading");
         return nullptr;
     }
     else if ( f->is_bin )
     {
-        SET_VALUE_ERROR("the file is binary, try using 'read_bytes'");
+        NST_SET_VALUE_ERROR("the file is binary, try using 'read_bytes'");
         return nullptr;
     }
 
@@ -245,7 +245,7 @@ Nst_Obj *read(size_t arg_num, Nst_Obj **args, OpErr *err)
     long end = ftell(f->value);
     fseek(f->value, start, SEEK_SET); // pointer back to what it was before
 
-    Nst_int max_size = (Nst_int)(end - start);
+    Nst_Int max_size = (Nst_Int)(end - start);
     if ( bytes_to_read < 0 || bytes_to_read > max_size )
         bytes_to_read = max_size;
 
@@ -253,15 +253,15 @@ Nst_Obj *read(size_t arg_num, Nst_Obj **args, OpErr *err)
     size_t read_bytes = fread(buffer, sizeof(char), bytes_to_read, f->value);
     buffer[read_bytes] = 0;
 
-    return new_string(buffer, read_bytes, true);
+    return nst_new_string(buffer, read_bytes, true);
 }
 
-Nst_Obj *read_bytes(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *read_bytes(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_IOFileObj *f;
-    Nst_int bytes_to_read;
+    Nst_Int bytes_to_read;
 
-    if ( !extract_arg_values("Fi", arg_num, args, err, &f, &bytes_to_read) )
+    if ( !nst_extract_arg_values("Fi", arg_num, args, err, &f, &bytes_to_read) )
         return nullptr;
 
     if ( f->is_closed )
@@ -271,12 +271,12 @@ Nst_Obj *read_bytes(size_t arg_num, Nst_Obj **args, OpErr *err)
     }
     else if ( !f->can_read )
     {
-        SET_VALUE_ERROR("the file does not support reading");
+        NST_SET_VALUE_ERROR("the file does not support reading");
         return nullptr;
     }
     else if ( !f->is_bin )
     {
-        SET_VALUE_ERROR("the file is not binary, try using 'read'");
+        NST_SET_VALUE_ERROR("the file is not binary, try using 'read'");
         return nullptr;
     }
 
@@ -285,27 +285,27 @@ Nst_Obj *read_bytes(size_t arg_num, Nst_Obj **args, OpErr *err)
     long end = ftell(f->value);
     fseek(f->value, start, SEEK_SET); // pointer back to what it was before
 
-    Nst_int max_size = (Nst_int)(end - start);
+    Nst_Int max_size = (Nst_Int)(end - start);
     if ( bytes_to_read < 0 || bytes_to_read > max_size )
         bytes_to_read = max_size;
 
     char *buffer = new char[bytes_to_read];
     size_t read_bytes = fread(buffer, sizeof(char), bytes_to_read, f->value);
 
-    Nst_SeqObj *bytes_array = AS_SEQ(new_array(read_bytes));
+    Nst_SeqObj *bytes_array = AS_SEQ(nst_new_array(read_bytes));
 
     for ( size_t i = 0; i < read_bytes; i++ )
-        bytes_array->objs[i] = new_byte(buffer[i]);
+        bytes_array->objs[i] = nst_new_byte(buffer[i]);
 
     delete[] buffer;
     return (Nst_Obj *)bytes_array;
 }
 
-Nst_Obj *file_size(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *file_size(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_IOFileObj *f;
 
-    if ( !extract_arg_values("F", arg_num, args, err, &f) )
+    if ( !nst_extract_arg_values("F", arg_num, args, err, &f) )
         return nullptr;
 
     if ( f->is_closed )
@@ -319,14 +319,14 @@ Nst_Obj *file_size(size_t arg_num, Nst_Obj **args, OpErr *err)
     long end = ftell(f->value);
     fseek(f->value, start, SEEK_SET);
 
-    return new_int(end);
+    return nst_new_int(end);
 }
 
-Nst_Obj *get_fptr(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *get_fptr(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_IOFileObj *f;
 
-    if ( !extract_arg_values("F", arg_num, args, err, &f) )
+    if ( !nst_extract_arg_values("F", arg_num, args, err, &f) )
         return nullptr;
 
     if ( f->is_closed )
@@ -335,16 +335,16 @@ Nst_Obj *get_fptr(size_t arg_num, Nst_Obj **args, OpErr *err)
         return nullptr;
     }
 
-    return new_int(ftell(f->value));
+    return nst_new_int(ftell(f->value));
 }
 
-Nst_Obj *move_fptr(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *move_fptr(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_IOFileObj *f;
-    Nst_int start;
-    Nst_int offset;
+    Nst_Int start;
+    Nst_Int offset;
 
-    if ( !extract_arg_values("Fii", arg_num, args, err, &f, &start, &offset) )
+    if ( !nst_extract_arg_values("Fii", arg_num, args, err, &f, &start, &offset) )
         return nullptr;
 
     if ( f->is_closed )
@@ -355,7 +355,7 @@ Nst_Obj *move_fptr(size_t arg_num, Nst_Obj **args, OpErr *err)
 
     if ( start < 0 || start > 2 )
     {
-        SET_VALUE_ERROR("invalid origin for seek_fptr");
+        NST_SET_VALUE_ERROR("invalid origin for seek_fptr");
         return nullptr;
     }
 
@@ -364,11 +364,11 @@ Nst_Obj *move_fptr(size_t arg_num, Nst_Obj **args, OpErr *err)
     return inc_ref(nst_null);
 }
 
-Nst_Obj *flush(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *flush(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_IOFileObj *f;
 
-    if ( !extract_arg_values("F", arg_num, args, err, &f) )
+    if ( !nst_extract_arg_values("F", arg_num, args, err, &f) )
         return nullptr;
 
     if ( f == nullptr )
@@ -381,17 +381,17 @@ Nst_Obj *flush(size_t arg_num, Nst_Obj **args, OpErr *err)
     return inc_ref(nst_null);
 }
 
-Nst_Obj *_get_stdin(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *_get_stdin(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
-    return new_file(stdin, false, true, false);
+    return nst_new_file(stdin, false, true, false);
 }
 
-Nst_Obj *_get_stdout(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *_get_stdout(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
-    return new_file(stdout, false, false, true);
+    return nst_new_file(stdout, false, false, true);
 }
 
-Nst_Obj *_get_stderr(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *_get_stderr(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
-    return new_file(stderr, false, false, true);
+    return nst_new_file(stderr, false, false, true);
 }

@@ -166,14 +166,5 @@
     <None Include="_test.nest">
       <Filter>File di risorse</Filter>
     </None>
-    <None Include="interpreter_ast.c">
-      <Filter>File di origine</Filter>
-    </None>
-    <None Include="interpreter_ast.h">
-      <Filter>File di intestazione</Filter>
-    </None>
-    <None Include="_test_mod.nest">
-      <Filter>File di risorse</Filter>
-    </None>
   </ItemGroup>
 </Project>

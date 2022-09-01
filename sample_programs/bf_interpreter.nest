@@ -4,9 +4,8 @@
 
 "
 Put your brainf*ck program here
-
 This program prints all the ascii characters
-,[.,]
+.+[.+]
 " = code_global
 
 #main [

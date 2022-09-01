@@ -394,7 +394,7 @@ static void optimize_builtin(Nst_InstructionList *bc, char *name, Nst_Obj *val)
         if ( inst_list[i].id == NST_IC_PUSH_VAL &&
              inst_list[i].val != NULL &&
              inst_list[i].val->type == nst_t_func )
-            optimize_func_builtin(AS_BFUNC(inst_list[i].val)->body, str_obj, val);
+            optimize_func_builtin(AS_FUNC(inst_list[i].val)->body, str_obj, val);
     }
 
     dec_ref(str_obj);
@@ -410,8 +410,10 @@ static void optimize_func_builtin(Nst_InstructionList *bc, Nst_StrObj *name, Nst
 
     for ( Nst_Int i = 0; i < size - 1; i++ )
     {
-        if ( inst_list[i].id == NST_IC_PUSH_VAL && inst_list[i].val->type == nst_t_func )
-            optimize_func_builtin(AS_BFUNC(inst_list[i].val)->body, name, val);
+        if ( inst_list[i].id == NST_IC_PUSH_VAL &&
+             inst_list[i].val != NULL &&
+             inst_list[i].val->type == nst_t_func )
+            optimize_func_builtin(AS_FUNC(inst_list[i].val)->body, name, val);
     }
 }
 
@@ -642,7 +644,7 @@ static void optimize_funcs(Nst_InstructionList *bc)
     for ( Nst_Int i = 0; i < size - 1; i++ )
     {
         if ( inst_list[i].id == NST_IC_PUSH_VAL && inst_list[i].val->type == nst_t_func )
-            nst_optimize_bytecode(AS_BFUNC(inst_list[i].val)->body, false);
+            nst_optimize_bytecode(AS_FUNC(inst_list[i].val)->body, false);
     }
 }
 
@@ -653,13 +655,13 @@ static void remove_dead_code(Nst_InstructionList *bc)
 
     for ( Nst_Int i = 0; i < size; i++ )
     {
-        if ( inst_list[i].id != NST_IC_JUMP || inst_list[i].int_val < i )
+        if ( inst_list[i].id != NST_IC_JUMP || i + 1 >= inst_list[i].int_val )
             continue;
 
         bool is_jump_useless = true;
         for ( Nst_Int j = i + 1; j < inst_list[i].int_val; j++ )
         {
-            if ( count_jumps_to(bc, j, i + 1, inst_list[i].int_val) != 0 )
+            if ( count_jumps_to(bc, j, i + 1, inst_list[i].int_val - 1) != 0 )
             {
                 is_jump_useless = false;
                 break;

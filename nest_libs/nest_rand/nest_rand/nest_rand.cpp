@@ -7,7 +7,7 @@
 static FuncDeclr *func_list_;
 static bool lib_init_ = false;
 
-static inline Nst_int rand_range(Nst_int min, Nst_int max)
+static inline Nst_Int rand_range(Nst_Int min, Nst_Int max)
 {
     return rand() % (max - min) + min;
 }
@@ -16,18 +16,18 @@ bool lib_init()
 {
     using namespace std::chrono;
 
-    if ( (func_list_ = new_func_list(FUNC_COUNT)) == nullptr )
+    if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
         return false;
 
     size_t idx = 0;
 
-    func_list_[idx++] = MAKE_FUNCDECLR(random, 0);
-    func_list_[idx++] = MAKE_FUNCDECLR(rand_int, 2);
-    func_list_[idx++] = MAKE_FUNCDECLR(rand_perc, 0);
-    func_list_[idx++] = MAKE_FUNCDECLR(choice, 1);
-    func_list_[idx++] = MAKE_FUNCDECLR(shuffle, 1);
-    func_list_[idx++] = MAKE_FUNCDECLR(rand_seed, 1);
-    func_list_[idx++] = MAKE_FUNCDECLR(_get_rand_max, 0);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(random, 0);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(rand_int, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(rand_perc, 0);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(choice, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(shuffle, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(rand_seed, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_rand_max, 0);
 
     srand(unsigned int(
         duration_cast<nanoseconds>(
@@ -44,50 +44,50 @@ FuncDeclr *get_func_ptrs()
     return lib_init_ ? func_list_ : nullptr;
 }
 
-Nst_Obj *random(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *random(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
-    return new_int(rand());
+    return nst_new_int(rand());
 }
 
-Nst_Obj *rand_int(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *rand_int(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
-    Nst_int min;
-    Nst_int max;
+    Nst_Int min;
+    Nst_Int max;
 
-    if ( !extract_arg_values("ii", arg_num, args, err, &min, &max) )
+    if ( !nst_extract_arg_values("ii", arg_num, args, err, &min, &max) )
         return nullptr;
 
     if ( min > max )
     {
-        SET_VALUE_ERROR("'min' is greater than 'max'");
+        NST_SET_VALUE_ERROR("'min' is greater than 'max'");
         return nullptr;
     }
 
-    return new_int(rand_range(min, max));
+    return nst_new_int(rand_range(min, max));
 }
 
-Nst_Obj *rand_perc(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *rand_perc(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
-    return new_real(double(rand()) / double(RAND_MAX));
+    return nst_new_real(double(rand()) / double(RAND_MAX));
 }
 
-Nst_Obj *choice(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *choice(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_Obj *seq;
 
-    if ( !extract_arg_values("S", arg_num, args, err, &seq) )
+    if ( !nst_extract_arg_values("S", arg_num, args, err, &seq) )
         return nullptr;
 
-    Nst_Obj *val = get_value_seq(AS_SEQ(seq), rand() % AS_SEQ(seq)->len);
+    Nst_Obj *val = nst_get_value_seq(AS_SEQ(seq), rand() % AS_SEQ(seq)->len);
     dec_ref(seq);
     return val;
 }
 
-Nst_Obj *shuffle(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *shuffle(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_SeqObj *seq;
 
-    if ( !extract_arg_values("A", arg_num, args, err, &seq) )
+    if ( !nst_extract_arg_values("A", arg_num, args, err, &seq) )
         return nullptr;
 
     size_t seq_len = seq->len;
@@ -101,14 +101,14 @@ Nst_Obj *shuffle(size_t arg_num, Nst_Obj **args, OpErr *err)
         seq->objs[idx] = obj;
     }
 
-    RETURN_NULL;
+    NST_RETURN_NULL;
 }
 
-Nst_Obj *rand_seed(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *rand_seed(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
-    Nst_int seed;
+    Nst_Int seed;
 
-    if ( !extract_arg_values("i", arg_num, args, err, &seed) )
+    if ( !nst_extract_arg_values("i", arg_num, args, err, &seed) )
         return nullptr;
 
     srand((unsigned int)seed);
@@ -116,7 +116,7 @@ Nst_Obj *rand_seed(size_t arg_num, Nst_Obj **args, OpErr *err)
     return inc_ref(nst_null);
 }
 
-Nst_Obj *_get_rand_max(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *_get_rand_max(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
-    return new_int(RAND_MAX);
+    return nst_new_int(RAND_MAX);
 }

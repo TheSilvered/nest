@@ -5,25 +5,25 @@ copy ..\x64\Release\nest.exe nest.exe /y
 :: ================
 
 :: File system
-copy ..\nest_libs\nest_fs\x64\Release\nest_fs.dll nest_libs\stdfs.dll /y
+copy ..\x64\Release\nest_fs.dll nest_libs\stdfs.dll /y
 copy ..\nest_libs\nest_fs\stdfs.nest nest_libs\stdfs.nest /y
 :: Input/Output
-copy ..\nest_libs\nest_io\x64\Release\nest_io.dll nest_libs\stdio.dll /y
+copy ..\x64\Release\nest_io.dll nest_libs\stdio.dll /y
 copy ..\nest_libs\nest_io\stdio.nest nest_libs\stdio.nest /y
 :: Random
-copy ..\nest_libs\nest_rand\x64\Release\nest_rand.dll nest_libs\stdrand.dll /y
+copy ..\x64\Release\nest_rand.dll nest_libs\stdrand.dll /y
 copy ..\nest_libs\nest_rand\stdrand.nest nest_libs\stdrand.nest /y
 :: String utitlities
-copy ..\nest_libs\nest_sutil\x64\Release\nest_sutil.dll nest_libs\stdsutil.dll /y
+copy ..\x64\Release\nest_sutil.dll nest_libs\stdsutil.dll /y
 copy ..\nest_libs\nest_sutil\stdsutil.nest nest_libs\stdsutil.nest /y
 :: Time and date
-copy ..\nest_libs\nest_time\x64\Release\nest_time.dll nest_libs\stdtime.dll /y
+copy ..\x64\Release\nest_time.dll nest_libs\stdtime.dll /y
 copy ..\nest_libs\nest_time\stdtime.nest nest_libs\stdtime.nest /y
 :: Iteration utilities
-copy ..\nest_libs\nest_itutil\x64\Release\nest_itutil.dll nest_libs\stditutil.dll /y
+copy ..\x64\Release\nest_itutil.dll nest_libs\stditutil.dll /y
 copy ..\nest_libs\nest_itutil\stditutil.nest nest_libs\stditutil.nest /y
 :: Math
-copy ..\nest_libs\nest_math\x64\Release\nest_math.dll nest_libs\stdmath.dll /y
+copy ..\x64\Release\nest_math.dll nest_libs\stdmath.dll /y
 copy ..\nest_libs\nest_math\stdmath.nest nest_libs\stdmath.nest /y
 
 :: Udate .nest files

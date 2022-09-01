@@ -68,9 +68,6 @@ enum Nst_TokenTypes
     NST_TT_IDENT,     // | + value start
     NST_TT_INT,       // | |
     NST_TT_REAL,      // | |
-    NST_TT_ARR,       // | |
-    NST_TT_VECT,      // | |
-    NST_TT_MAP,       // | |
     NST_TT_STRING,    // | - value end
     NST_TT_L_PAREN,   // |
     NST_TT_L_BRACE,   // |

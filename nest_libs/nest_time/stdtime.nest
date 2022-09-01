@@ -1,4 +1,4 @@
-|#| '__C__:x64\\Debug\\nest_time.dll' = __t
+|#| '__C__:..\\..\\x64\\Debug\\nest_time.dll' = __t
 
 __t._time = time
 __t._time_ns = time_ns

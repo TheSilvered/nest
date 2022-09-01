@@ -149,9 +149,6 @@
     <ClCompile Include="hash.c" />
     <ClCompile Include="instructions.c" />
     <ClCompile Include="interpreter.c" />
-    <None Include="interpreter_ast.c">
-      <FileType>CppCode</FileType>
-    </None>
     <ClCompile Include="iter.c" />
     <ClCompile Include="lexer.c" />
     <ClCompile Include="llist.c" />
@@ -168,7 +165,6 @@
     <ClCompile Include="tokens.c" />
     <ClCompile Include="var_table.c" />
     <ClCompile Include="sequence.c" />
-    <None Include="_test_mod.nest" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="compiler.h" />
@@ -189,7 +185,6 @@
     <ClInclude Include="obj_ops.h" />
     <ClInclude Include="optimizer.h" />
     <ClInclude Include="parser.h" />
-    <None Include="interpreter_ast.h" />
     <ClInclude Include="error_internal.h" />
     <ClInclude Include="runtime_stack.h" />
     <ClInclude Include="str.h" />

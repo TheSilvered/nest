@@ -883,10 +883,10 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
             dec_ref(idx);
 
             return nst_new_iter(
-                AS_BFUNC(new_cfunc(1, nst_str_iter_start)),
-                AS_BFUNC(new_cfunc(1, nst_str_iter_advance)),
-                AS_BFUNC(new_cfunc(1, nst_str_iter_is_done)),
-                AS_BFUNC(new_cfunc(1, nst_str_iter_get_val)),
+                AS_FUNC(new_cfunc(1, nst_str_iter_start)),
+                AS_FUNC(new_cfunc(1, nst_str_iter_advance)),
+                AS_FUNC(new_cfunc(1, nst_str_iter_is_done)),
+                AS_FUNC(new_cfunc(1, nst_str_iter_get_val)),
                 (Nst_Obj *)data
             );
         }
@@ -899,10 +899,10 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
             dec_ref(idx);
 
             return nst_new_iter(
-                AS_BFUNC(new_cfunc(1, nst_seq_iter_start)),
-                AS_BFUNC(new_cfunc(1, nst_seq_iter_advance)),
-                AS_BFUNC(new_cfunc(1, nst_seq_iter_is_done)),
-                AS_BFUNC(new_cfunc(1, nst_seq_iter_get_val)),
+                AS_FUNC(new_cfunc(1, nst_seq_iter_start)),
+                AS_FUNC(new_cfunc(1, nst_seq_iter_advance)),
+                AS_FUNC(new_cfunc(1, nst_seq_iter_is_done)),
+                AS_FUNC(new_cfunc(1, nst_seq_iter_get_val)),
                 (Nst_Obj *)data
             );
         }
@@ -923,10 +923,10 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
                 RETURN_MISSING_FUNC_ERROR("_get_val_");
 
             return nst_new_iter(
-                AS_BFUNC(start_obj),
-                AS_BFUNC(advance_obj),
-                AS_BFUNC(is_done_obj),
-                AS_BFUNC(get_val_obj),
+                AS_FUNC(start_obj),
+                AS_FUNC(advance_obj),
+                AS_FUNC(is_done_obj),
+                AS_FUNC(get_val_obj),
                 inc_ref(ob)
             );
         }
@@ -1105,7 +1105,6 @@ Nst_Obj *_nst_obj_typeof(Nst_Obj *ob, Nst_OpErr *err)
 
 Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
 {
-
     if ( ob->type != nst_t_str )
     {
         err->name = "Type Error";

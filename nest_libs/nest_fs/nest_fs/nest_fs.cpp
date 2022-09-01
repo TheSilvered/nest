@@ -13,25 +13,25 @@ static bool lib_init_ = false;
 
 bool lib_init()
 {
-    if ( (func_list_ = new_func_list(FUNC_COUNT)) == nullptr )
+    if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
         return false;
 
     size_t idx = 0;
 
-    func_list_[idx++] = MAKE_FUNCDECLR(isdir, 1);
-    func_list_[idx++] = MAKE_FUNCDECLR(mkdir, 1);
-    func_list_[idx++] = MAKE_FUNCDECLR(mkdirs, 1);
-    func_list_[idx++] = MAKE_FUNCDECLR(rmdir, 1);
-    func_list_[idx++] = MAKE_FUNCDECLR(rmdir_recursive, 1);
-    func_list_[idx++] = MAKE_FUNCDECLR(isfile, 1);
-    func_list_[idx++] = MAKE_FUNCDECLR(rmfile, 1);
-    func_list_[idx++] = MAKE_FUNCDECLR(copy, 3);
-    func_list_[idx++] = MAKE_NAMED_FUNCDECLR(rename_file, 2, "rename");
-    func_list_[idx++] = MAKE_FUNCDECLR(list_dir, 1);
-    func_list_[idx++] = MAKE_FUNCDECLR(list_dir_recursive, 1);
-    func_list_[idx++] = MAKE_FUNCDECLR(absolute_path, 1);
-    func_list_[idx++] = MAKE_FUNCDECLR(equivalent, 2);
-    func_list_[idx++] = MAKE_FUNCDECLR(_get_copy_options, 0);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(isdir, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(mkdir, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(mkdirs, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(rmdir, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(rmdir_recursive, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(isfile, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(rmfile, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(copy, 3);
+    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(rename_file, 2, "rename");
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(list_dir, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(list_dir_recursive, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(absolute_path, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(equivalent, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_copy_options, 0);
 
     lib_init_ = true;
     return true;
@@ -47,40 +47,40 @@ Nst_StrObj *heap_str(std::string str)
     char *heap_s = new char[str.length() + 1];
     memcpy(heap_s, str.c_str(), str.length());
     heap_s[str.length()] = 0;
-    return AS_STR(new_string(heap_s, str.length(), true));
+    return AS_STR(nst_new_string(heap_s, str.length(), true));
 }
 
-Nst_Obj *isdir(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *isdir(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_StrObj *path;
 
-    if ( !extract_arg_values("s", arg_num, args, err, &path) )
+    if ( !nst_extract_arg_values("s", arg_num, args, err, &path) )
         return nullptr;
 
-    RETURN_COND(PathIsDirectoryA(path->value));
+    NST_RETURN_COND(PathIsDirectoryA(path->value));
 }
 
-Nst_Obj *mkdir(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *mkdir(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_StrObj *path;
     std::error_code ec;
 
-    if ( !extract_arg_values("s", arg_num, args, err, &path) )
+    if ( !nst_extract_arg_values("s", arg_num, args, err, &path) )
         return nullptr;
 
     bool success = fs::create_directory(path->value, ec);
 
     if ( success || ec.value() == ERROR_ALREADY_EXISTS )
-        return new_int(0);
+        return nst_new_int(0);
     else
-        return new_int(ec.value());
+        return nst_new_int(ec.value());
 }
 
-Nst_Obj *mkdirs(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *mkdirs(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_StrObj *path;
 
-    if ( !extract_arg_values("s", arg_num, args, err, &path) )
+    if ( !nst_extract_arg_values("s", arg_num, args, err, &path) )
         return nullptr;
 
     std::error_code ec;
@@ -88,100 +88,100 @@ Nst_Obj *mkdirs(size_t arg_num, Nst_Obj **args, OpErr *err)
     bool success = fs::create_directories(path->value, ec);
 
     if ( success || ec.value() == ERROR_ALREADY_EXISTS )
-        return new_int(0);
+        return nst_new_int(0);
     else
-        return new_int(ec.value());
+        return nst_new_int(ec.value());
 }
 
-Nst_Obj *rmdir(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *rmdir(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_StrObj *path;
 
-    if ( !extract_arg_values("s", arg_num, args, err, &path) )
+    if ( !nst_extract_arg_values("s", arg_num, args, err, &path) )
         return nullptr;
 
     if ( !PathIsDirectoryA(path->value) )
     {
-        SET_VALUE_ERROR("directory path not found");
+        NST_SET_VALUE_ERROR("directory path not found");
         return nullptr;
     }
 
     bool success = RemoveDirectoryA(path->value);
 
     if ( success )
-        return new_int(0);
+        return nst_new_int(0);
     else
-        return new_int(GetLastError());
+        return nst_new_int(GetLastError());
 }
 
-Nst_Obj *rmdir_recursive(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *rmdir_recursive(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_StrObj *path;
 
-    if ( !extract_arg_values("s", arg_num, args, err, &path) )
+    if ( !nst_extract_arg_values("s", arg_num, args, err, &path) )
         return nullptr;
 
     std::error_code ec;
 
     if ( !PathIsDirectoryA(path->value) )
     {
-        SET_VALUE_ERROR("directory path not found");
+        NST_SET_VALUE_ERROR("directory path not found");
         return nullptr;
     }
 
     bool success = fs::remove_all(path->value, ec);
 
     if ( success )
-        return new_int(0);
+        return nst_new_int(0);
     else
-        return new_int(ec.value());
+        return nst_new_int(ec.value());
 }
 
-Nst_Obj *isfile(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *isfile(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_StrObj *path;
 
-    if ( !extract_arg_values("s", arg_num, args, err, &path) )
+    if ( !nst_extract_arg_values("s", arg_num, args, err, &path) )
         return nullptr;
 
-    Nst_iofile file = fopen(path->value, "rb");
+    FILE* file = fopen(path->value, "rb");
 
     if ( file == nullptr )
-        RETURN_FALSE;
+        NST_RETURN_FALSE;
     else
     {
         fclose(file);
-        RETURN_TRUE;
+        NST_RETURN_TRUE;
     }
 }
 
-Nst_Obj *rmfile(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *rmfile(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_StrObj *path;
 
-    if ( !extract_arg_values("s", arg_num, args, err, &path) )
+    if ( !nst_extract_arg_values("s", arg_num, args, err, &path) )
         return nullptr;
 
     bool success = DeleteFileA(path->value);
 
     if ( success )
-        return new_int(0);
+        return nst_new_int(0);
     else if ( GetLastError() == ERROR_FILE_NOT_FOUND )
     {
-        SET_VALUE_ERROR("file not found");
+        NST_SET_VALUE_ERROR("file not found");
         return nullptr;
     }
     else
-        return new_int(GetLastError());
+        return nst_new_int(GetLastError());
 }
 
-Nst_Obj *copy(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *copy(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_StrObj *path_from;
     Nst_StrObj *path_to;
-    Nst_int options;
+    Nst_Int options;
 
-    if ( !extract_arg_values("ssi", arg_num, args, err, &path_from, &path_to, &options) )
+    if ( !nst_extract_arg_values("ssi", arg_num, args, err, &path_from, &path_to, &options) )
         return nullptr;
 
     std::error_code ec;
@@ -190,19 +190,19 @@ Nst_Obj *copy(size_t arg_num, Nst_Obj **args, OpErr *err)
 
     if ( ec.value() == ERROR_PATH_NOT_FOUND )
     {
-        SET_VALUE_ERROR("file not found");
+        NST_SET_VALUE_ERROR("file not found");
         return nullptr;
     }
     else
-        return new_int(ec.value());
+        return nst_new_int(ec.value());
 }
 
-Nst_Obj *rename_file(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *rename_file(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_StrObj *old_path;
     Nst_StrObj *new_path;
 
-    if ( !extract_arg_values("ss", arg_num, args, err, &old_path, &new_path) )
+    if ( !nst_extract_arg_values("ss", arg_num, args, err, &old_path, &new_path) )
         return nullptr;
 
     std::error_code ec;
@@ -211,64 +211,64 @@ Nst_Obj *rename_file(size_t arg_num, Nst_Obj **args, OpErr *err)
 
     if ( ec.value() == ERROR_PATH_NOT_FOUND )
     {
-        SET_VALUE_ERROR("file not found");
+        NST_SET_VALUE_ERROR("file not found");
         return nullptr;
     }
     else
-        return new_int(ec.value());
+        return nst_new_int(ec.value());
 }
 
-Nst_Obj *list_dir(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *list_dir(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_StrObj *path;
 
-    if ( !extract_arg_values("s", arg_num, args, err, &path) )
+    if ( !nst_extract_arg_values("s", arg_num, args, err, &path) )
         return nullptr;
 
     if ( !PathIsDirectoryA(path->value) )
     {
-        SET_VALUE_ERROR("directory path not found");
+        NST_SET_VALUE_ERROR("directory path not found");
         return nullptr;
     }
 
-    Nst_SeqObj *vector = AS_SEQ(new_vector(0));
+    Nst_SeqObj *vector = AS_SEQ(nst_new_vector(0));
 
     for ( fs::directory_entry const &entry : fs::directory_iterator{ path->value } )
     {
-        append_value_vector(vector, (Nst_Obj *)heap_str(entry.path().string()));
+        nst_append_value_vector(vector, (Nst_Obj *)heap_str(entry.path().string()));
     }
 
     return (Nst_Obj *)vector;
 }
 
-Nst_Obj *list_dir_recursive(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *list_dir_recursive(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_StrObj *path;
 
-    if ( !extract_arg_values("s", arg_num, args, err, &path) )
+    if ( !nst_extract_arg_values("s", arg_num, args, err, &path) )
         return nullptr;
 
     if ( !PathIsDirectoryA(path->value) )
     {
-        SET_VALUE_ERROR("directory path not found");
+        NST_SET_VALUE_ERROR("directory path not found");
         return nullptr;
     }
 
-    Nst_SeqObj *vector = AS_SEQ(new_vector(0));
+    Nst_SeqObj *vector = AS_SEQ(nst_new_vector(0));
 
     for ( fs::directory_entry const &entry : fs::recursive_directory_iterator{ path->value } )
     {
-        append_value_vector(vector, (Nst_Obj *)heap_str(entry.path().string()));
+        nst_append_value_vector(vector, (Nst_Obj *)heap_str(entry.path().string()));
     }
 
     return (Nst_Obj *)vector;
 }
 
-Nst_Obj *absolute_path(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *absolute_path(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_StrObj *path;
 
-    if ( !extract_arg_values("s", arg_num, args, err, &path) )
+    if ( !nst_extract_arg_values("s", arg_num, args, err, &path) )
         return nullptr;
 
     std::error_code ec;
@@ -276,25 +276,25 @@ Nst_Obj *absolute_path(size_t arg_num, Nst_Obj **args, OpErr *err)
     return (Nst_Obj *)heap_str(fs::absolute(path->value).string());
 }
 
-Nst_Obj *equivalent(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *equivalent(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
     Nst_StrObj *path_1;
     Nst_StrObj *path_2;
 
-    if ( !extract_arg_values("ss", arg_num, args, err, &path_1, &path_2) )
+    if ( !nst_extract_arg_values("ss", arg_num, args, err, &path_1, &path_2) )
         return nullptr;
 
     HANDLE f1 = CreateFileA(path_1->value, GENERIC_READ, FILE_SHARE_READ, NULL,
         OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
     if ( f1 == INVALID_HANDLE_VALUE )
-        RETURN_FALSE;
+        NST_RETURN_FALSE;
     HANDLE f2 = CreateFileA(path_2->value, GENERIC_READ, FILE_SHARE_READ, NULL,
         OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
 
     if ( f2 == INVALID_HANDLE_VALUE )
     {
         CloseHandle(f1);
-        RETURN_FALSE;
+        NST_RETURN_FALSE;
     }
 
     BY_HANDLE_FILE_INFORMATION info1;
@@ -309,23 +309,23 @@ Nst_Obj *equivalent(size_t arg_num, Nst_Obj **args, OpErr *err)
     CloseHandle(f1);
     CloseHandle(f2);
 
-    RETURN_COND(are_equal);
+    NST_RETURN_COND(are_equal);
 }
 
-Nst_Obj *_get_copy_options(size_t arg_num, Nst_Obj **args, OpErr *err)
+Nst_Obj *_get_copy_options(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 {
-    Nst_MapObj *options = new_map();
+    Nst_MapObj *options = AS_MAP(nst_new_map());
 
-    map_set_str(options, "none", new_int((Nst_int)fs::copy_options::none));
-    map_set_str(options, "skip", new_int((Nst_int)fs::copy_options::skip_existing));
-    map_set_str(options, "overwrite", new_int((Nst_int)fs::copy_options::overwrite_existing));
-    map_set_str(options, "update", new_int((Nst_int)fs::copy_options::update_existing));
-    map_set_str(options, "recursive", new_int((Nst_int)fs::copy_options::recursive));
-    map_set_str(options, "copy_symlinks", new_int((Nst_int)fs::copy_options::copy_symlinks));
-    map_set_str(options, "skip_symlinks", new_int((Nst_int)fs::copy_options::skip_symlinks));
-    map_set_str(options, "dirs_only", new_int((Nst_int)fs::copy_options::directories_only));
-    map_set_str(options, "make_symlinks", new_int((Nst_int)fs::copy_options::create_symlinks));
-    map_set_str(options, "make_hard_links", new_int((Nst_int)fs::copy_options::create_hard_links));
+    nst_map_set_str(options, "none",            nst_new_int((Nst_Int)fs::copy_options::none));
+    nst_map_set_str(options, "skip",            nst_new_int((Nst_Int)fs::copy_options::skip_existing));
+    nst_map_set_str(options, "overwrite",       nst_new_int((Nst_Int)fs::copy_options::overwrite_existing));
+    nst_map_set_str(options, "update",          nst_new_int((Nst_Int)fs::copy_options::update_existing));
+    nst_map_set_str(options, "recursive",       nst_new_int((Nst_Int)fs::copy_options::recursive));
+    nst_map_set_str(options, "copy_symlinks",   nst_new_int((Nst_Int)fs::copy_options::copy_symlinks));
+    nst_map_set_str(options, "skip_symlinks",   nst_new_int((Nst_Int)fs::copy_options::skip_symlinks));
+    nst_map_set_str(options, "dirs_only",       nst_new_int((Nst_Int)fs::copy_options::directories_only));
+    nst_map_set_str(options, "make_symlinks",   nst_new_int((Nst_Int)fs::copy_options::create_symlinks));
+    nst_map_set_str(options, "make_hard_links", nst_new_int((Nst_Int)fs::copy_options::create_hard_links));
 
     return (Nst_Obj *)options;
 }

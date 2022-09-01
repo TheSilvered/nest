@@ -1,4 +1,4 @@
-|#| '__C__:x64\\Debug\\nest_sutil.dll' = __s
+|#| '__C__:..\\..\\x64\\Debug\\nest_sutil.dll' = __s
 
 __s.lfind = lfind
 __s.rfind = rfind

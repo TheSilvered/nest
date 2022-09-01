@@ -27,6 +27,12 @@
 
 #define SET_OP_ERROR(start_pos, end_pos, op_err) \
     do { \
+        if ( nst_state.traceback->error != NULL ) \
+        { \
+            LList_append(nst_state.traceback->positions, &start_pos, false);\
+            LList_append(nst_state.traceback->positions, &end_pos, false);\
+            break; \
+        } \
         Nst_Error *error = malloc(sizeof(Nst_Error)); \
         if ( error == NULL ) \
         { \
@@ -85,7 +91,7 @@ static inline void exe_make_map(Nst_RuntimeInstruction inst);
 static Nst_SeqObj *make_argv(int argc, char **argv);
 static Nst_StrObj *make_cwd(char *file_path);
 
-void nst_run(Nst_BcFuncObj *main_func, int argc, char **argv)
+void nst_run(Nst_FuncObj *main_func, int argc, char **argv)
 {
     // nst_state global variable initialization
     char *cwd_buf = malloc(sizeof(char) * MAX_PATH);
@@ -179,7 +185,7 @@ static void complete_function(size_t final_stack_size)
             dec_ref(call.func);
             nst_state.vt = call.vt;
             *nst_state.idx = call.idx;
-            Nst_BcFuncObj *func = nst_peek_func(nst_state.f_stack).func;
+            Nst_FuncObj *func = nst_peek_func(nst_state.f_stack).func;
             curr_inst_ls = func == NULL ? NULL : func->body;
             continue;
         }
@@ -216,7 +222,7 @@ bool nst_run_module(char *file_name)
     if ( inst_ls == NULL )
         return false;
 
-    Nst_BcFuncObj *mod_func = AS_BFUNC(new_bfunc(0));
+    Nst_FuncObj *mod_func = AS_FUNC(new_func(0));
     mod_func->body = inst_ls;
 
     // Change the cwd
@@ -228,6 +234,7 @@ bool nst_run_module(char *file_name)
     int res = _chdir(path_str->value);
     assert(res == 0);
 
+    nst_push_val(nst_state.v_stack, NULL);
     nst_push_func(
         nst_state.f_stack,
         mod_func,
@@ -246,12 +253,56 @@ bool nst_run_module(char *file_name)
     res = _chdir(prev_path->value);
     assert(res == 0);
 
-    return true;
+    if ( *nst_state.error_occurred )
+    {
+        Nst_FuncCall call = nst_pop_func(nst_state.f_stack);
+        if ( nst_peek_val(nst_state.v_stack) != (Nst_Obj *)nst_state.vt->vars )
+            destroy_obj((Nst_Obj *)nst_state.vt->vars);
+        free(nst_state.vt);
+        dec_ref(call.func);
+        nst_state.vt = call.vt;
+        *nst_state.idx = call.idx;
+        return false;
+    }
+    else
+        return true;
 }
 
-Nst_Obj *nst_call_func(Nst_BcFuncObj *func, Nst_Obj **args, Nst_OpErr *err)
+Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err)
 {
-    return NULL;
+    if ( func->cbody != NULL )
+        return func->cbody(func->arg_num, args, err);
+
+    assert(func->body != NULL);
+
+    Nst_VarTable *new_vt;
+    if ( nst_state.vt->global_table == NULL )
+        new_vt = nst_new_var_table(nst_state.vt, NULL, NULL);
+    else
+        new_vt = nst_new_var_table(nst_state.vt->global_table, NULL, NULL);
+
+    for ( size_t i = 0, n = func->arg_num; i < n; i++ )
+    {
+        nst_set_val(new_vt, func->args[i], args[i]);
+        dec_ref(args[i]);
+    }
+
+    nst_push_val(nst_state.v_stack, NULL);
+    nst_push_func(
+        nst_state.f_stack,
+        func,
+        nst_no_pos(),
+        nst_no_pos(),
+        nst_state.vt,
+        *nst_state.idx - 1
+    );
+    nst_state.vt = new_vt;
+    complete_function(nst_state.f_stack->current_size - 1);
+
+    if ( *nst_state.error_occurred )
+        return NULL;
+
+    return nst_pop_val(nst_state.v_stack);
 }
 
 static inline void run_instruction(Nst_RuntimeInstruction inst)
@@ -303,7 +354,7 @@ static inline void exe_pop_val(Nst_RuntimeInstruction inst)
     dec_ref(obj);
 }
 
-static inline void exe_for_inst(Nst_RuntimeInstruction inst, Nst_IterObj *iter, Nst_BcFuncObj *func)
+static inline void exe_for_inst(Nst_RuntimeInstruction inst, Nst_IterObj *iter, Nst_FuncObj *func)
 {
     if ( func->cbody != NULL )
     {
@@ -592,7 +643,7 @@ static inline void exe_set_cont_val(Nst_RuntimeInstruction inst)
 static inline void exe_op_call(Nst_RuntimeInstruction inst)
 {
     CHECK_V_STACK_SIZE(inst.int_val + 1);
-    Nst_BcFuncObj *func = AS_BFUNC(nst_pop_val(nst_state.v_stack));
+    Nst_FuncObj *func = AS_FUNC(nst_pop_val(nst_state.v_stack));
 
     if ( func->arg_num != inst.int_val )
     {
@@ -628,10 +679,11 @@ static inline void exe_op_call(Nst_RuntimeInstruction inst)
             if ( args == NULL )
                 return;
 
-            for ( Nst_Int i = 0; i < inst.int_val; i++ )
+            for ( Nst_Int i = inst.int_val - 1; i >= 0; i-- )
                 args[i] = nst_pop_val(nst_state.v_stack);
             args_allocated = true;
         }
+        nst_pop_val(nst_state.v_stack); // removes the NULL separator for the call
 
         Nst_Obj *res = func->cbody(inst.int_val, args, &err);
 
@@ -759,10 +811,10 @@ static inline void exe_op_range(Nst_RuntimeInstruction inst)
     dec_ref(step);
 
     Nst_Obj *iter = nst_new_iter(
-        AS_BFUNC(new_cfunc(1, nst_num_iter_start)),
-        AS_BFUNC(new_cfunc(1, nst_num_iter_advance)),
-        AS_BFUNC(new_cfunc(1, nst_num_iter_is_done)),
-        AS_BFUNC(new_cfunc(1, nst_num_iter_get_val)),
+        AS_FUNC(new_cfunc(1, nst_num_iter_start)),
+        AS_FUNC(new_cfunc(1, nst_num_iter_advance)),
+        AS_FUNC(new_cfunc(1, nst_num_iter_is_done)),
+        AS_FUNC(new_cfunc(1, nst_num_iter_get_val)),
         data_seq
     );
 

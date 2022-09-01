@@ -6,7 +6,7 @@ def main():
     path = sys.argv[1]
 
     with open(path, 'r') as file:
-        content = file.read().replace('x64\\\\Debug\\\\nest_', 'std')
+        content = file.read().replace('..\\\\..\\\\x64\\\\Debug\\\\nest_', 'std')
 
     with open(path, 'w') as file:
         file.write(content)
