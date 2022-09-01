@@ -41,7 +41,7 @@ int main(int argc, char **argv)
                "     : nest <options>\n\n"
 
                "Filename:\n"
-               "  The name of the file you wish to compile and run\n\n"
+               "  The name of the file to execute\n\n"
 
                "Compilation options:\n"
                "  -t --tokens  : prints the list of tokens of the program\n"
