@@ -76,6 +76,10 @@ void _nst_init_obj(void)
 
 void _nst_del_obj(void)
 {
+    nst_destroy_obj(nst_true);
+    nst_destroy_obj(nst_false);
+    nst_destroy_obj(nst_null);
+
     nst_destroy_obj(nst_t_int);
     nst_destroy_obj(nst_t_real);
     nst_destroy_obj(nst_t_bool);
@@ -88,9 +92,5 @@ void _nst_del_obj(void)
     nst_destroy_obj(nst_t_iter);
     nst_destroy_obj(nst_t_byte);
     nst_destroy_obj(nst_t_file);
-    nst_destroy_obj(nst_true);
-    nst_destroy_obj(nst_false);
-    nst_destroy_obj(nst_null);
-
     nst_destroy_obj(nst_t_type);
 }
