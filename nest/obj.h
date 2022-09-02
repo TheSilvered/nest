@@ -5,10 +5,11 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define dec_ref(obj) _dec_ref((Nst_Obj *)obj)
-#define inc_ref(obj) _inc_ref((Nst_Obj *)obj)
+#define nst_dec_ref(obj) _dec_ref((Nst_Obj *)obj)
+#define nst_inc_ref(obj) _inc_ref((Nst_Obj *)obj)
+#define nst_destroy_obj(obj) _destroy_obj((Nst_Obj *)obj)
 
-#define OBJ_HEAD \
+#define NST_OBJ_HEAD \
     int ref_count; \
     char *type_name; \
     struct Nst_Obj *type; \
@@ -21,15 +22,15 @@ extern "C" {
 
 typedef struct Nst_Obj
 {
-    OBJ_HEAD;
+    NST_OBJ_HEAD;
 }
 Nst_Obj;
 
-Nst_Obj *alloc_obj(size_t size, Nst_Obj *type, void (*destructor)(void *));
-void init_obj(void);
-void del_obj(void);
+Nst_Obj *nst_alloc_obj(size_t size, Nst_Obj *type, void (*destructor)(void *));
+void _nst_init_obj(void);
+void _nst_del_obj(void);
 
-inline void destroy_obj(Nst_Obj *obj);
+inline void _destroy_obj(Nst_Obj *obj);
 
 inline Nst_Obj *_inc_ref(Nst_Obj *obj)
 {
@@ -41,15 +42,16 @@ inline void _dec_ref(Nst_Obj *obj)
 {
     obj->ref_count--;
     if ( obj->ref_count <= 0 || obj == obj->type && obj->ref_count == 1 )
-        destroy_obj(obj);
+        _destroy_obj(obj);
 }
 
-inline void destroy_obj(Nst_Obj *obj)
+inline void _destroy_obj(Nst_Obj *obj)
 {
+    obj->ref_count = 2147483647;
     if ( obj->destructor != NULL )
         (*obj->destructor)(obj);
     if ( obj != obj->type )
-        dec_ref(obj->type);
+        nst_dec_ref(obj->type);
     free(obj);
 }
 

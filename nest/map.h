@@ -34,7 +34,7 @@ Nst_MapNode;
 
 typedef struct
 {
-    OBJ_HEAD;
+    NST_OBJ_HEAD;
     size_t size;
     size_t item_count;
     size_t mask;
@@ -54,14 +54,14 @@ inline void _nst_map_set_str(Nst_MapObj *map, const char *key, Nst_Obj *value)
 {
     Nst_Obj *key_obj = nst_new_string_raw(key, false);
     nst_map_set(map, key_obj, value);
-    dec_ref(key_obj);
+    nst_dec_ref(key_obj);
 }
 
 inline Nst_Obj *_nst_map_get_str(Nst_MapObj *map, const char *key)
 {
     Nst_Obj *key_obj = nst_new_string_raw(key, false);
     Nst_Obj *value = _nst_map_get(map, key_obj);
-    dec_ref(key_obj);
+    nst_dec_ref(key_obj);
     return value;
 }
 
@@ -69,7 +69,7 @@ inline Nst_Obj *_nst_map_drop_str(Nst_MapObj *map, const char *key)
 {
     Nst_Obj *key_obj = nst_new_string_raw(key, false);
     Nst_Obj *value = _nst_map_drop(map, key_obj);
-    dec_ref(key_obj);
+    nst_dec_ref(key_obj);
     return value;
 }
 

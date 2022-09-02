@@ -4,7 +4,7 @@
 
 Nst_Obj *new_func(size_t arg_num)
 {
-    Nst_FuncObj *func = AS_FUNC(alloc_obj(
+    Nst_FuncObj *func = AS_FUNC(nst_alloc_obj(
         sizeof(Nst_FuncObj),
         nst_t_func,
         destroy_func
@@ -28,7 +28,7 @@ Nst_Obj *new_cfunc(size_t arg_num, Nst_Obj *(*cbody)(size_t arg_num,
                                                      Nst_Obj **args,
                                                      Nst_OpErr *err))
 {
-    Nst_FuncObj *func = AS_FUNC(alloc_obj(
+    Nst_FuncObj *func = AS_FUNC(nst_alloc_obj(
         sizeof(Nst_FuncObj),
         nst_t_func,
         destroy_func

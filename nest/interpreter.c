@@ -151,8 +151,8 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv)
     // Freeing nst_state
     LList_destroy(nst_state.traceback->positions, NULL);
     free(error_occurred);
-    dec_ref(cwd);
-    dec_ref(argv_obj);
+    nst_dec_ref(cwd);
+    nst_dec_ref(argv_obj);
     nst_destroy_v_stack(nst_state.v_stack);
     nst_destroy_f_stack(nst_state.f_stack);
     for ( LLNode *n = nst_state.loaded_libs->head; n != NULL; n = n->next )
@@ -179,10 +179,13 @@ static void complete_function(size_t final_stack_size)
         {
             // Free the function call
             Nst_FuncCall call = nst_pop_func(nst_state.f_stack);
-            if ( nst_peek_val(nst_state.v_stack) != (Nst_Obj *)nst_state.vt->vars )
-                destroy_obj((Nst_Obj *)nst_state.vt->vars);
+            Nst_MapObj *vars_to_del = nst_state.vt->vars;
+
+            nst_dec_ref(nst_map_drop_str(vars_to_del, "_vars_"));
+            nst_dec_ref(vars_to_del);
+
             free(nst_state.vt);
-            dec_ref(call.func);
+            nst_dec_ref(call.func);
             nst_state.vt = call.vt;
             *nst_state.idx = call.idx;
             Nst_FuncObj *func = nst_peek_func(nst_state.f_stack).func;
@@ -248,7 +251,7 @@ bool nst_run_module(char *file_name)
 
     complete_function(nst_state.f_stack->current_size - 1);
     nst_state.curr_path = prev_path;
-    dec_ref(path_str);
+    nst_dec_ref(path_str);
 
     res = _chdir(prev_path->value);
     assert(res == 0);
@@ -257,9 +260,9 @@ bool nst_run_module(char *file_name)
     {
         Nst_FuncCall call = nst_pop_func(nst_state.f_stack);
         if ( nst_peek_val(nst_state.v_stack) != (Nst_Obj *)nst_state.vt->vars )
-            destroy_obj((Nst_Obj *)nst_state.vt->vars);
+            nst_destroy_obj((Nst_Obj *)nst_state.vt->vars);
         free(nst_state.vt);
-        dec_ref(call.func);
+        nst_dec_ref(call.func);
         nst_state.vt = call.vt;
         *nst_state.idx = call.idx;
         return false;
@@ -284,7 +287,7 @@ Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err)
     for ( size_t i = 0, n = func->arg_num; i < n; i++ )
     {
         nst_set_val(new_vt, func->args[i], args[i]);
-        dec_ref(args[i]);
+        nst_dec_ref(args[i]);
     }
 
     nst_push_val(nst_state.v_stack, NULL);
@@ -351,7 +354,7 @@ static inline void exe_pop_val(Nst_RuntimeInstruction inst)
 {
     CHECK_V_STACK;
     Nst_Obj *obj = nst_pop_val(nst_state.v_stack);
-    dec_ref(obj);
+    nst_dec_ref(obj);
 }
 
 static inline void exe_for_inst(Nst_RuntimeInstruction inst, Nst_IterObj *iter, Nst_FuncObj *func)
@@ -359,7 +362,7 @@ static inline void exe_for_inst(Nst_RuntimeInstruction inst, Nst_IterObj *iter, 
     if ( func->cbody != NULL )
     {
         Nst_OpErr err = { "", "" };
-        Nst_Obj *res = func->cbody(inst.int_val, &iter->value, &err);
+        Nst_Obj *res = func->cbody((size_t)inst.int_val, &iter->value, &err);
 
         if ( res == NULL )
         {
@@ -374,7 +377,7 @@ static inline void exe_for_inst(Nst_RuntimeInstruction inst, Nst_IterObj *iter, 
         else
         {
             nst_push_val(nst_state.v_stack, res);
-            dec_ref(res);
+            nst_dec_ref(res);
         }
     }
     else
@@ -421,13 +424,13 @@ static inline void exe_return_val()
 
     while ( obj != NULL )
     {
-        dec_ref(obj);
+        nst_dec_ref(obj);
         obj = nst_pop_val(nst_state.v_stack);
     }
 
     nst_push_val(nst_state.v_stack, result);
     *nst_state.idx = nst_peek_func(nst_state.f_stack).func->body->total_size;
-    dec_ref(result);
+    nst_dec_ref(result);
 }
 
 static inline void exe_return_vars()
@@ -437,7 +440,7 @@ static inline void exe_return_vars()
 
     while ( obj != NULL )
     {
-        dec_ref(obj);
+        nst_dec_ref(obj);
         obj = nst_pop_val(nst_state.v_stack);
     }
 
@@ -471,7 +474,7 @@ static inline void exe_set_val_loc(Nst_RuntimeInstruction inst)
     CHECK_V_STACK;
     Nst_Obj *val = nst_pop_val(nst_state.v_stack);
     nst_set_val(nst_state.vt, inst.val, val);
-    dec_ref(val);
+    nst_dec_ref(val);
 }
 
 static inline void exe_jump(Nst_RuntimeInstruction inst)
@@ -484,11 +487,11 @@ static inline void exe_jumpif_t(Nst_RuntimeInstruction inst)
     CHECK_V_STACK;
     Nst_Obj *top_val = nst_pop_val(nst_state.v_stack);
     Nst_Obj *result = nst_obj_cast(top_val, nst_t_bool, NULL);
-    dec_ref(top_val);
+    nst_dec_ref(top_val);
 
     if ( result == nst_true )
         *nst_state.idx = inst.int_val - 1;
-    dec_ref(result);
+    nst_dec_ref(result);
 }
 
 static inline void exe_jumpif_f(Nst_RuntimeInstruction inst)
@@ -496,11 +499,11 @@ static inline void exe_jumpif_f(Nst_RuntimeInstruction inst)
     CHECK_V_STACK;
     Nst_Obj *top_val = nst_pop_val(nst_state.v_stack);
     Nst_Obj *result = nst_obj_cast(top_val, nst_t_bool, NULL);
-    dec_ref(top_val);
+    nst_dec_ref(top_val);
 
     if ( result == nst_false )
         *nst_state.idx = inst.int_val - 1;
-    dec_ref(result);
+    nst_dec_ref(result);
 }
 
 static inline void exe_jumpif_zero(Nst_RuntimeInstruction inst)
@@ -560,7 +563,7 @@ static inline void exe_get_val(Nst_RuntimeInstruction inst)
     else
     {
         nst_push_val(nst_state.v_stack, obj);
-        dec_ref(obj);
+        nst_dec_ref(obj);
     }
 }
 
@@ -587,8 +590,8 @@ static inline void exe_set_cont_val(Nst_RuntimeInstruction inst)
                 _nst_format_type_error(EXPECTED_TYPE("Int"), idx->type_name)
             );
 
-            dec_ref(cont);
-            dec_ref(idx);
+            nst_dec_ref(cont);
+            nst_dec_ref(idx);
             return;
         }
 
@@ -609,8 +612,8 @@ static inline void exe_set_cont_val(Nst_RuntimeInstruction inst)
             );
         }
 
-        dec_ref(cont);
-        dec_ref(idx);
+        nst_dec_ref(cont);
+        nst_dec_ref(idx);
     }
     else if ( cont->type == nst_t_map )
     {
@@ -625,8 +628,8 @@ static inline void exe_set_cont_val(Nst_RuntimeInstruction inst)
             );
         }
 
-        dec_ref(cont);
-        dec_ref(idx);
+        nst_dec_ref(cont);
+        nst_dec_ref(idx);
     }
     else
         SET_ERROR(
@@ -655,7 +658,7 @@ static inline void exe_op_call(Nst_RuntimeInstruction inst)
                                                   : TOO_FEW_ARGS_FUNC
         );
 
-        dec_ref(func);
+        nst_dec_ref(func);
         return;
     }
 
@@ -675,7 +678,7 @@ static inline void exe_op_call(Nst_RuntimeInstruction inst)
         }
         else
         {
-            args = malloc(sizeof(Nst_Obj *) * inst.int_val);
+            args = malloc((size_t)(sizeof(Nst_Obj *) * inst.int_val));
             if ( args == NULL )
                 return;
 
@@ -685,10 +688,10 @@ static inline void exe_op_call(Nst_RuntimeInstruction inst)
         }
         nst_pop_val(nst_state.v_stack); // removes the NULL separator for the call
 
-        Nst_Obj *res = func->cbody(inst.int_val, args, &err);
+        Nst_Obj *res = func->cbody((size_t)inst.int_val, args, &err);
 
         for ( Nst_Int i = 0; i < inst.int_val; i++ )
-            dec_ref(args[i]);
+            nst_dec_ref(args[i]);
 
         if ( args_allocated )
             free(args);
@@ -706,10 +709,10 @@ static inline void exe_op_call(Nst_RuntimeInstruction inst)
         else
         {
             nst_push_val(nst_state.v_stack, res);
-            dec_ref(res);
+            nst_dec_ref(res);
         }
 
-        dec_ref(func);
+        nst_dec_ref(func);
         return;
     }
 
@@ -734,7 +737,7 @@ static inline void exe_op_call(Nst_RuntimeInstruction inst)
             CALL_STACK_SIZE_EXCEEDED
         );
 
-        dec_ref(func);
+        nst_dec_ref(func);
         return;
     }
 
@@ -749,7 +752,7 @@ static inline void exe_op_call(Nst_RuntimeInstruction inst)
     {
         Nst_Obj *val = nst_pop_val(nst_state.v_stack);
         nst_set_val(new_vt, func->args[inst.int_val - i - 1], val);
-        dec_ref(val);
+        nst_dec_ref(val);
     }
     nst_state.vt = new_vt;
 }
@@ -768,11 +771,11 @@ static inline void exe_op_cast(Nst_RuntimeInstruction inst)
     else
     {
         nst_push_val(nst_state.v_stack, res);
-        dec_ref(res);
+        nst_dec_ref(res);
     }
 
-    dec_ref(val);
-    dec_ref(type);
+    nst_dec_ref(val);
+    nst_dec_ref(type);
 }
 
 static inline void exe_op_range(Nst_RuntimeInstruction inst)
@@ -805,10 +808,10 @@ static inline void exe_op_range(Nst_RuntimeInstruction inst)
     nst_set_value_seq(data_seq, 2, stop);
     nst_set_value_seq(data_seq, 3, step);
 
-    dec_ref(idx);
-    dec_ref(start);
-    dec_ref(stop);
-    dec_ref(step);
+    nst_dec_ref(idx);
+    nst_dec_ref(start);
+    nst_dec_ref(stop);
+    nst_dec_ref(step);
 
     Nst_Obj *iter = nst_new_iter(
         AS_FUNC(new_cfunc(1, nst_num_iter_start)),
@@ -819,7 +822,7 @@ static inline void exe_op_range(Nst_RuntimeInstruction inst)
     );
 
     nst_push_val(nst_state.v_stack, iter);
-    dec_ref(iter);
+    nst_dec_ref(iter);
 }
 
 static inline void exe_stack_op(Nst_RuntimeInstruction inst)
@@ -860,11 +863,11 @@ static inline void exe_stack_op(Nst_RuntimeInstruction inst)
     else
     {
         nst_push_val(nst_state.v_stack, res);
-        dec_ref(res);
+        nst_dec_ref(res);
     }
 
-    dec_ref(ob1);
-    dec_ref(ob2);
+    nst_dec_ref(ob1);
+    nst_dec_ref(ob2);
 }
 
 static inline void exe_local_op(Nst_RuntimeInstruction inst)
@@ -888,13 +891,13 @@ static inline void exe_local_op(Nst_RuntimeInstruction inst)
     if ( res == NULL )
     {
         SET_OP_ERROR(inst.start, inst.end, err);
-        dec_ref(obj);
+        nst_dec_ref(obj);
         return;
     }
 
     nst_push_val(nst_state.v_stack, res);
-    dec_ref(obj);
-    dec_ref(res);
+    nst_dec_ref(obj);
+    nst_dec_ref(res);
 }
 
 static inline void exe_op_import(Nst_RuntimeInstruction inst)
@@ -907,13 +910,13 @@ static inline void exe_op_import(Nst_RuntimeInstruction inst)
     if ( res == NULL )
     {
         SET_OP_ERROR(inst.start, inst.end, err);
-        dec_ref(name);
+        nst_dec_ref(name);
         return;
     }
 
     nst_push_val(nst_state.v_stack, res);
-    dec_ref(name);
-    dec_ref(res);
+    nst_dec_ref(name);
+    nst_dec_ref(res);
 }
 
 static inline void exe_op_extract(Nst_RuntimeInstruction inst)
@@ -934,8 +937,8 @@ static inline void exe_op_extract(Nst_RuntimeInstruction inst)
                 _nst_format_type_error(EXPECTED_TYPE("Int"), idx->type_name)
             );
 
-            dec_ref(cont);
-            dec_ref(idx);
+            nst_dec_ref(cont);
+            nst_dec_ref(idx);
             return;
         }
 
@@ -955,8 +958,8 @@ static inline void exe_op_extract(Nst_RuntimeInstruction inst)
                 )
             );
 
-            dec_ref(cont);
-            dec_ref(idx);
+            nst_dec_ref(cont);
+            nst_dec_ref(idx);
             return;
         }
 
@@ -980,8 +983,8 @@ static inline void exe_op_extract(Nst_RuntimeInstruction inst)
                 );
             }
 
-            dec_ref(cont);
-            dec_ref(idx);
+            nst_dec_ref(cont);
+            nst_dec_ref(idx);
             return;
         }
         else
@@ -999,14 +1002,14 @@ static inline void exe_op_extract(Nst_RuntimeInstruction inst)
             );
         );
 
-        dec_ref(idx);
-        dec_ref(cont);
+        nst_dec_ref(idx);
+        nst_dec_ref(cont);
         return;
     }
 
-    dec_ref(res);
-    dec_ref(cont);
-    dec_ref(idx);
+    nst_dec_ref(res);
+    nst_dec_ref(cont);
+    nst_dec_ref(idx);
 }
 
 static inline void exe_dec_int()
@@ -1022,7 +1025,7 @@ static inline void exe_new_obj()
     Nst_Obj *obj = nst_peek_val(nst_state.v_stack);
     Nst_Obj *new_obj = nst_new_int(AS_INT(obj));
     nst_push_val(nst_state.v_stack, new_obj);
-    dec_ref(new_obj);
+    nst_dec_ref(new_obj);
 }
 
 static inline void exe_dup()
@@ -1033,19 +1036,19 @@ static inline void exe_dup()
 
 static inline void exe_make_seq(Nst_RuntimeInstruction inst)
 {
-    Nst_Obj *seq = inst.id == NST_IC_MAKE_ARR ? nst_new_array(inst.int_val)
-                                              : nst_new_vector(inst.int_val);
+    Nst_Obj *seq = inst.id == NST_IC_MAKE_ARR ? nst_new_array((size_t)inst.int_val)
+                                              : nst_new_vector((size_t)inst.int_val);
     CHECK_V_STACK_SIZE(inst.int_val);
 
     for ( Nst_Int i = 1; i <= inst.int_val; i++ )
     {
         Nst_Obj *curr_obj = nst_pop_val(nst_state.v_stack);
         nst_set_value_seq(seq, inst.int_val - i, curr_obj);
-        dec_ref(curr_obj);
+        nst_dec_ref(curr_obj);
     }
 
     nst_push_val(nst_state.v_stack, seq);
-    dec_ref(seq);
+    nst_dec_ref(seq);
 }
 
 static inline void exe_make_seq_rep(Nst_RuntimeInstruction inst)
@@ -1055,16 +1058,16 @@ static inline void exe_make_seq_rep(Nst_RuntimeInstruction inst)
     Nst_Obj *val = nst_pop_val(nst_state.v_stack);
 
     Nst_Int size = AS_INT(size_obj);
-    dec_ref(size_obj);
-    Nst_Obj *seq = inst.id == NST_IC_MAKE_ARR_REP ? nst_new_array(size)
-                                                  : nst_new_vector(size);
+    nst_dec_ref(size_obj);
+    Nst_Obj *seq = inst.id == NST_IC_MAKE_ARR_REP ? nst_new_array((size_t)size)
+                                                  : nst_new_vector((size_t)size);
 
     for ( Nst_Int i = 1; i <= size; i++ )
         nst_set_value_seq(seq, inst.int_val - i, val);
 
     nst_push_val(nst_state.v_stack, seq);
-    dec_ref(seq);
-    dec_ref(val);
+    nst_dec_ref(seq);
+    nst_dec_ref(val);
 }
 
 static inline void exe_make_map(Nst_RuntimeInstruction inst)
@@ -1078,12 +1081,12 @@ static inline void exe_make_map(Nst_RuntimeInstruction inst)
         Nst_Obj *key = nst_pop_val(nst_state.v_stack);
         i++;
         nst_map_set(map, key, val);
-        dec_ref(val);
-        dec_ref(key);
+        nst_dec_ref(val);
+        nst_dec_ref(key);
     }
 
     nst_push_val(nst_state.v_stack, map);
-    dec_ref(map);
+    nst_dec_ref(map);
 }
 
 size_t nst_get_full_path(char *file_path, char **buf, char **file_part)
@@ -1114,7 +1117,7 @@ static Nst_SeqObj *make_argv(int argc, char **argv)
     {
         Nst_Obj *val = nst_new_string_raw(argv[i], false);
         nst_set_value_seq(args, i - 1, val);
-        dec_ref(val);
+        nst_dec_ref(val);
     }
 
     return args;

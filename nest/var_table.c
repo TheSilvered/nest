@@ -54,7 +54,7 @@ Nst_Obj *_nst_get_val(Nst_VarTable *vt, Nst_Obj *name)
 
     if ( val == NULL )
     {
-        inc_ref(nst_null);
+        nst_inc_ref(nst_null);
         return nst_null;
     }
     return val;

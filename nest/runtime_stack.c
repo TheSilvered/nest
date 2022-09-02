@@ -31,7 +31,7 @@ bool _nst_push_val(Nst_ValueStack *v_stack, Nst_Obj *obj)
         v_stack->max_size = max_size * 2;
     }
 
-    v_stack->stack[v_stack->current_size++] = obj != NULL ? inc_ref(obj) : NULL;
+    v_stack->stack[v_stack->current_size++] = obj != NULL ? nst_inc_ref(obj) : NULL;
     return true;
 }
 
@@ -64,7 +64,7 @@ void nst_destroy_v_stack(Nst_ValueStack *v_stack)
     for ( Nst_Int i = 0; i < (Nst_Int)v_stack->current_size; i++ )
     {
         if ( v_stack->stack[i] != NULL )
-            dec_ref(v_stack->stack[i]);
+            nst_dec_ref(v_stack->stack[i]);
     }
 
     free(v_stack);
@@ -109,7 +109,7 @@ bool _nst_push_func(Nst_CallStack *f_stack,
         f_stack->max_size = max_size * 2;
     }
 
-    f_stack->stack[f_stack->current_size].func = AS_FUNC(inc_ref(func));
+    f_stack->stack[f_stack->current_size].func = AS_FUNC(nst_inc_ref(func));
     f_stack->stack[f_stack->current_size].start = call_start;
     f_stack->stack[f_stack->current_size].end = call_end;
     f_stack->stack[f_stack->current_size].vt = vt;
@@ -153,7 +153,7 @@ void nst_destroy_f_stack(Nst_CallStack *f_stack)
     for ( Nst_Int i = 0; i < (Nst_Int)f_stack->current_size; i++ )
     {
         if ( f_stack->stack[i].func != NULL )
-            dec_ref(f_stack->stack[i].func);
+            nst_dec_ref(f_stack->stack[i].func);
 
         if ( f_stack->stack[i].vt != NULL )
         {

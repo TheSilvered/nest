@@ -7,7 +7,7 @@
 
 using namespace std::chrono;
 
-static FuncDeclr *func_list_;
+static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
 
 bool lib_init()
@@ -40,7 +40,7 @@ bool lib_init()
     return true;
 }
 
-FuncDeclr *get_func_ptrs()
+Nst_FuncDeclr *get_func_ptrs()
 {
     return lib_init_ ? func_list_ : nullptr;
 }
@@ -79,11 +79,11 @@ static void add_date(Nst_MapObj *map, tm *(*time_func)(const time_t*))
     nst_map_set_str(map, "month", month_obj);
     nst_map_set_str(map, "year", year_obj);
 
-    dec_ref(day_obj);
-    dec_ref(weekday_obj);
-    dec_ref(yearday_obj);
-    dec_ref(month_obj);
-    dec_ref(year_obj);
+    nst_dec_ref(day_obj);
+    nst_dec_ref(weekday_obj);
+    nst_dec_ref(yearday_obj);
+    nst_dec_ref(month_obj);
+    nst_dec_ref(year_obj);
 }
 
 static void add_time(Nst_MapObj *map, tm *(*time_func)(const time_t *))
@@ -100,9 +100,9 @@ static void add_time(Nst_MapObj *map, tm *(*time_func)(const time_t *))
     nst_map_set_str(map, "minutes", minutes);
     nst_map_set_str(map, "hours", hours);
 
-    dec_ref(seconds);
-    dec_ref(minutes);
-    dec_ref(hours);
+    nst_dec_ref(seconds);
+    nst_dec_ref(minutes);
+    nst_dec_ref(hours);
 }
 
 Nst_Obj *_time(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
@@ -234,5 +234,5 @@ Nst_Obj *sleep(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
         return nullptr;
 
     Sleep(DWORD(time * 1000));
-    return inc_ref(nst_null);
+    return nst_inc_ref(nst_null);
 }

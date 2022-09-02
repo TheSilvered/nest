@@ -112,7 +112,7 @@ static Nst_InstructionList *compile_internal(Nst_Node *code, bool is_func, bool 
     {
         inst_list->instructions[i].id = NST_IC_PUSH_VAL;
         inst_list->instructions[i].int_val = 0;
-        inst_list->instructions[i].val = inc_ref(nst_null);
+        inst_list->instructions[i].val = nst_inc_ref(nst_null);
         inst_list->instructions[i].start = nst_no_pos();
         inst_list->instructions[i++].end = nst_no_pos();
 
@@ -503,7 +503,7 @@ static void compile_func_declr(Nst_Node *node)
     register size_t i = 0;
 
     for ( LLNode *n = node->tokens->head->next; n != NULL; n = n->next )
-        func->args[i++] = inc_ref(TOK(n->value)->value);
+        func->args[i++] = nst_inc_ref(TOK(n->value)->value);
 
     int prev_loop_id = c_state.loop_id;
     LList *prev_inst_ls = c_state.inst_ls;
@@ -1162,10 +1162,10 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
             {
                 Nst_StrObj *s = AS_STR(_nst_repr_string(AS_STR(inst.val)));
                 printf("%s", s->value);
-                dec_ref(s);
+                nst_dec_ref(s);
             }
             else
-                dec_ref(nst_obj_stdout(inst.val, NULL));
+                nst_dec_ref(nst_obj_stdout(inst.val, NULL));
 
             if ( inst.val->type == nst_t_func )
             {

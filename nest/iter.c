@@ -13,7 +13,7 @@ Nst_Obj *nst_new_iter(
     Nst_FuncObj *get_val,
     Nst_Obj *value)
 {
-    Nst_IterObj *iter = AS_ITER(alloc_obj(
+    Nst_IterObj *iter = AS_ITER(nst_alloc_obj(
         sizeof(Nst_IterObj),
         nst_t_iter,
         nst_destroy_iter
@@ -35,11 +35,11 @@ Nst_Obj *nst_new_iter(
 
 void nst_destroy_iter(Nst_IterObj *iter)
 {
-    dec_ref(iter->start);
-    dec_ref(iter->advance);
-    dec_ref(iter->is_done);
-    dec_ref(iter->get_val);
-    dec_ref(iter->value);
+    nst_dec_ref(iter->start);
+    nst_dec_ref(iter->advance);
+    nst_dec_ref(iter->is_done);
+    nst_dec_ref(iter->get_val);
+    nst_dec_ref(iter->value);
 }
 
 NST_FUNC_SIGN(nst_num_iter_start)
@@ -119,7 +119,7 @@ NST_FUNC_SIGN(nst_seq_iter_get_val)
     Nst_SeqObj *val = AS_SEQ(args[0]);
     register Nst_Obj *obj = AS_SEQ(val->objs[1])->objs[AS_INT(val->objs[0])];
 
-    inc_ref(obj);
+    nst_inc_ref(obj);
     return obj;
 }
 

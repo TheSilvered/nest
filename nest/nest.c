@@ -11,7 +11,7 @@
 #include "compiler.h"
 #include "optimizer.h"
 
-#define VERSION "beta-0.3.0"
+#define VERSION "beta-0.3.1"
 
 int main(int argc, char **argv)
 {
@@ -64,7 +64,7 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    init_obj();
+    _nst_init_obj();
 
     char *file_name = NULL;
     bool print_tokens = false;
@@ -79,7 +79,7 @@ int main(int argc, char **argv)
                 "     : nest <filename> [args]\n"
                 "     : nest <options>\n"
             );
-            del_obj();
+            _nst_del_obj();
             return -1;
         }
         print_tokens = true;
@@ -93,7 +93,7 @@ int main(int argc, char **argv)
                 "     : nest <filename> [args]\n"
                 "     : nest <options>\n"
             );
-            del_obj();
+            _nst_del_obj();
             return -1;
         }
         print_tree = true;
@@ -107,7 +107,7 @@ int main(int argc, char **argv)
                 "     : nest <filename> [args]\n"
                 "     : nest <options>\n"
             );
-            del_obj();
+            _nst_del_obj();
             return -1;
         }
         print_bc = true;
@@ -128,7 +128,7 @@ int main(int argc, char **argv)
             nst_print_token(n->value);
             printf("\n");
         }
-        del_obj();
+        _nst_del_obj();
         return 0;
     }
 
@@ -138,7 +138,7 @@ int main(int argc, char **argv)
 
     if ( ast == NULL )
     {
-        del_obj();
+        _nst_del_obj();
         return 0;
     }
 
@@ -146,7 +146,7 @@ int main(int argc, char **argv)
     {
         nst_print_ast(ast);
         nst_destroy_node(ast);
-        del_obj();
+        _nst_del_obj();
         return 0;
     }
 
@@ -156,7 +156,7 @@ int main(int argc, char **argv)
 
     if ( inst_ls == NULL )
     {
-        del_obj();
+        _nst_del_obj();
         return 0;
     }
 
@@ -164,7 +164,7 @@ int main(int argc, char **argv)
     {
         nst_print_bytecode(inst_ls, 0);
         nst_destroy_inst_list(inst_ls);
-        del_obj();
+        _nst_del_obj();
         return 0;
     }
 
@@ -172,7 +172,7 @@ int main(int argc, char **argv)
     main_func->body = inst_ls;
     nst_run(main_func, argc, argv);
 
-    del_obj();
+    _nst_del_obj();
 
     return 0;
 }

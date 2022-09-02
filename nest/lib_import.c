@@ -14,9 +14,9 @@
     ); \
     error_occurred = true; break; }
 
-FuncDeclr *nst_new_func_list(size_t count)
+Nst_FuncDeclr *nst_new_func_list(size_t count)
 {
-    return (FuncDeclr *)calloc(count + 1, sizeof(FuncDeclr));
+    return (Nst_FuncDeclr *)calloc(count + 1, sizeof(Nst_FuncDeclr));
 }
 
 bool nst_extract_arg_values(const char *types,
@@ -124,7 +124,7 @@ bool nst_extract_arg_values(const char *types,
             if ( ob->type == nst_t_str )
                 *(Nst_Obj **)arg = nst_obj_cast(ob, nst_t_arr, err);
             else
-                *(Nst_Obj **)arg = inc_ref(ob);
+                *(Nst_Obj **)arg = nst_inc_ref(ob);
             break;
         case 'm':
             if ( ob->type != nst_t_map )

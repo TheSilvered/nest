@@ -14,7 +14,7 @@ extern "C" {
 
 typedef struct
 {
-    OBJ_HEAD;
+    NST_OBJ_HEAD;
     Nst_FuncObj *start;
     Nst_FuncObj *advance;
     Nst_FuncObj *is_done;

@@ -18,7 +18,7 @@ extern "C" {
 
 typedef struct
 {
-    OBJ_HEAD;
+    NST_OBJ_HEAD;
     size_t len;
     char *value;
     bool allocated;

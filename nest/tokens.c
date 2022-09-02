@@ -66,7 +66,7 @@ void nst_destroy_token(Nst_LexerToken *token)
         return;
 
     if ( token->value != NULL )
-        dec_ref(token->value);
+        nst_dec_ref(token->value);
     free(token);
 }
 
@@ -306,7 +306,7 @@ void nst_print_token(Nst_LexerToken *token)
         {
             Nst_StrObj *s = AS_STR(_nst_repr_string(AS_STR(token->value)));
             printf("%s", s->value);
-            dec_ref(s);
+            nst_dec_ref(s);
         }
         else
             nst_obj_stdout(token->value, NULL);

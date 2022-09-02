@@ -2,7 +2,7 @@
 ; SEE THE DOCUMENTATION FOR DETAILS ON CREATING INNO SETUP SCRIPT FILES!
 
 #define MyAppName "nest"
-#define MyAppVersion "0.3.0"
+#define MyAppVersion "0.3.1"
 #define MyAppPublisher "Davide Taffarello"
 #define MyAppExeName "nest.exe"
 #define MyAppAssocName "Nest File"
@@ -21,10 +21,10 @@ DefaultDirName={userpf}\{#MyAppName}
 DisableDirPage=yes
 ChangesAssociations=yes
 DisableProgramGroupPage=yes
-LicenseFile=E:\C++\nest\LICENSE.txt
+LicenseFile=..\LICENSE.txt
 ; Remove the following line to run in administrative install mode (install for all users.)
 PrivilegesRequired=lowest
-OutputDir=E:\C++\nest\nest_release_folder\installer
+OutputDir=.
 OutputBaseFilename=nest-{#MyAppVersion}-x64-installer
 Compression=lzma
 SolidCompression=yes
@@ -34,8 +34,8 @@ WizardStyle=modern
 Name: "english"; MessagesFile: "compiler:Default.isl"
 
 [Files]
-Source: "E:\C++\nest\nest_release_folder\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "E:\C++\nest\nest_release_folder\nest_libs\*"; DestDir: "{app}\nest_libs"; Flags: ignoreversion recursesubdirs createallsubdirs
+Source: "..\x64\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\x64\nest_libs\*"; DestDir: "{app}\nest_libs"; Flags: ignoreversion recursesubdirs createallsubdirs
 ; NOTE: Don't use "Flags: ignoreversion" on any shared system files
 
 [Registry]

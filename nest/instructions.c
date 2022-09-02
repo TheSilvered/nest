@@ -41,7 +41,7 @@ Nst_RuntimeInstruction *new_inst_val(int id,
 
     inst->id = id;
     inst->int_val = 0;
-    inst->val = inc_ref(val);
+    inst->val = nst_inc_ref(val);
     inst->start = start;
     inst->end = end;
 
@@ -69,7 +69,7 @@ Nst_RuntimeInstruction *new_inst_int_val(int id,
 void nst_destroy_inst(Nst_RuntimeInstruction *inst)
 {
     if ( inst->val != NULL )
-        dec_ref(inst->val);
+        nst_dec_ref(inst->val);
     free(inst);
 }
 
@@ -79,7 +79,7 @@ void nst_destroy_inst_list(Nst_InstructionList *inst_list)
     for ( Nst_Int i = 0, n = inst_list->total_size; i < n; i++ )
     {
         if ( instructions[i].val != NULL )
-            dec_ref(instructions[i].val);
+            nst_dec_ref(instructions[i].val);
     }
 
     free(instructions);

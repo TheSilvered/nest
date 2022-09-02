@@ -8,7 +8,7 @@ extern "C" {
 #endif // !__cplusplus
 
 __declspec(dllexport) bool lib_init();
-__declspec(dllexport) FuncDeclr *get_func_ptrs();
+__declspec(dllexport) Nst_FuncDeclr *get_func_ptrs();
 __declspec(dllexport) NST_INIT_LIB_OBJ_FUNC;
 
 Nst_Obj *_time(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);

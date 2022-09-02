@@ -22,7 +22,7 @@ Nst_Obj *nst_true;
 Nst_Obj *nst_false;
 Nst_Obj *nst_null;
 
-Nst_Obj *alloc_obj(size_t size, Nst_Obj *type, void (*destructor)(void *))
+Nst_Obj *nst_alloc_obj(size_t size, Nst_Obj *type, void (*destructor)(void *))
 {
     Nst_Obj *obj = malloc(size);
     if ( obj == NULL )
@@ -47,12 +47,12 @@ Nst_Obj *alloc_obj(size_t size, Nst_Obj *type, void (*destructor)(void *))
         obj->type_name = AS_STR(type)->value;
     }
 
-    inc_ref(obj->type);
+    nst_inc_ref(obj->type);
 
     return obj;
 }
 
-void init_obj(void)
+void _nst_init_obj(void)
 {
     nst_t_type = NULL;
     nst_t_type = nst_new_type_obj("Type",   4);
@@ -71,25 +71,26 @@ void init_obj(void)
 
     nst_true  = nst_new_bool(NST_TRUE );
     nst_false = nst_new_bool(NST_FALSE);
-    nst_null  = alloc_obj(sizeof(Nst_Obj), nst_t_null, NULL);
+    nst_null  = nst_alloc_obj(sizeof(Nst_Obj), nst_t_null, NULL);
 }
 
-void del_obj(void)
+void _nst_del_obj(void)
 {
-    dec_ref(nst_t_type);
-    dec_ref(nst_t_int);
-    dec_ref(nst_t_real);
-    dec_ref(nst_t_bool);
-    dec_ref(nst_t_null);
-    dec_ref(nst_t_str);
-    dec_ref(nst_t_arr);
-    dec_ref(nst_t_vect);
-    dec_ref(nst_t_map);
-    dec_ref(nst_t_func);
-    dec_ref(nst_t_iter);
-    dec_ref(nst_t_byte);
-    dec_ref(nst_t_file);
-    dec_ref(nst_true);
-    dec_ref(nst_false);
-    dec_ref(nst_null);
+    nst_destroy_obj(nst_t_int);
+    nst_destroy_obj(nst_t_real);
+    nst_destroy_obj(nst_t_bool);
+    nst_destroy_obj(nst_t_null);
+    nst_destroy_obj(nst_t_str);
+    nst_destroy_obj(nst_t_arr);
+    nst_destroy_obj(nst_t_vect);
+    nst_destroy_obj(nst_t_map);
+    nst_destroy_obj(nst_t_func);
+    nst_destroy_obj(nst_t_iter);
+    nst_destroy_obj(nst_t_byte);
+    nst_destroy_obj(nst_t_file);
+    nst_destroy_obj(nst_true);
+    nst_destroy_obj(nst_false);
+    nst_destroy_obj(nst_null);
+
+    nst_destroy_obj(nst_t_type);
 }

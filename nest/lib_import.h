@@ -90,11 +90,11 @@
     err->message = (char *)msg; \
     } while ( 0 )
 
-#define NST_RETURN_TRUE return inc_ref(nst_true)
-#define NST_RETURN_FALSE return inc_ref(nst_false)
-#define NST_RETURN_NULL return inc_ref(nst_null)
+#define NST_RETURN_TRUE return nst_inc_ref(nst_true)
+#define NST_RETURN_FALSE return nst_inc_ref(nst_false)
+#define NST_RETURN_NULL return nst_inc_ref(nst_null)
 #define NST_RETURN_COND(cond) \
-    return (cond) ? inc_ref(nst_true) : inc_ref(nst_false)
+    return (cond) ? nst_inc_ref(nst_true) : nst_inc_ref(nst_false)
 
 #define NST_FUNC_SIGN(name) \
     Nst_Obj *name(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
@@ -109,9 +109,9 @@ typedef struct
     size_t arg_num;
     Nst_StrObj *name;
 }
-FuncDeclr;
+Nst_FuncDeclr;
 
-FuncDeclr *nst_new_func_list(size_t count);
+Nst_FuncDeclr *nst_new_func_list(size_t count);
 bool nst_extract_arg_values(const char *types,
                             size_t arg_num,
                             Nst_Obj **args,

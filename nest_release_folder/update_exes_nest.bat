@@ -1,36 +1,58 @@
 :: Main executable
-copy ..\x64\Release\nest.exe nest.exe /y
+copy ..\x64\Release\nest.exe x64\nest.exe /y
+copy ..\Release\nest.exe x86\nest.exe /y
 
 :: Standard Library
 :: ================
 
 :: File system
-copy ..\x64\Release\nest_fs.dll nest_libs\stdfs.dll /y
-copy ..\nest_libs\nest_fs\stdfs.nest nest_libs\stdfs.nest /y
+copy ..\x64\Release\nest_fs.dll x64\nest_libs\stdfs.dll /y
+copy ..\Release\nest_fs.dll x86\nest_libs\stdfs.dll /y
+copy ..\nest_libs\nest_fs\stdfs.nest x64\nest_libs\stdfs.nest /y
+copy ..\nest_libs\nest_fs\stdfs.nest x86\nest_libs\stdfs.nest /y
 :: Input/Output
-copy ..\x64\Release\nest_io.dll nest_libs\stdio.dll /y
-copy ..\nest_libs\nest_io\stdio.nest nest_libs\stdio.nest /y
+copy ..\x64\Release\nest_io.dll x64\nest_libs\stdio.dll /y
+copy ..\Release\nest_io.dll x86\nest_libs\stdio.dll /y
+copy ..\nest_libs\nest_io\stdio.nest x64\nest_libs\stdio.nest /y
+copy ..\nest_libs\nest_io\stdio.nest x86\nest_libs\stdio.nest /y
 :: Random
-copy ..\x64\Release\nest_rand.dll nest_libs\stdrand.dll /y
-copy ..\nest_libs\nest_rand\stdrand.nest nest_libs\stdrand.nest /y
+copy ..\x64\Release\nest_rand.dll x64\nest_libs\stdrand.dll /y
+copy ..\Release\nest_rand.dll x86\nest_libs\stdrand.dll /y
+copy ..\nest_libs\nest_rand\stdrand.nest x64\nest_libs\stdrand.nest /y
+copy ..\nest_libs\nest_rand\stdrand.nest x86\nest_libs\stdrand.nest /y
 :: String utitlities
-copy ..\x64\Release\nest_sutil.dll nest_libs\stdsutil.dll /y
-copy ..\nest_libs\nest_sutil\stdsutil.nest nest_libs\stdsutil.nest /y
+copy ..\x64\Release\nest_sutil.dll x64\nest_libs\stdsutil.dll /y
+copy ..\Release\nest_sutil.dll x86\nest_libs\stdsutil.dll /y
+copy ..\nest_libs\nest_sutil\stdsutil.nest x64\nest_libs\stdsutil.nest /y
+copy ..\nest_libs\nest_sutil\stdsutil.nest x86\nest_libs\stdsutil.nest /y
 :: Time and date
-copy ..\x64\Release\nest_time.dll nest_libs\stdtime.dll /y
-copy ..\nest_libs\nest_time\stdtime.nest nest_libs\stdtime.nest /y
+copy ..\x64\Release\nest_time.dll x64\nest_libs\stdtime.dll /y
+copy ..\Release\nest_time.dll x86\nest_libs\stdtime.dll /y
+copy ..\nest_libs\nest_time\stdtime.nest x64\nest_libs\stdtime.nest /y
+copy ..\nest_libs\nest_time\stdtime.nest x86\nest_libs\stdtime.nest /y
 :: Iteration utilities
-copy ..\x64\Release\nest_itutil.dll nest_libs\stditutil.dll /y
-copy ..\nest_libs\nest_itutil\stditutil.nest nest_libs\stditutil.nest /y
+copy ..\x64\Release\nest_itutil.dll x64\nest_libs\stditutil.dll /y
+copy ..\Release\nest_itutil.dll x86\nest_libs\stditutil.dll /y
+copy ..\nest_libs\nest_itutil\stditutil.nest x64\nest_libs\stditutil.nest /y
+copy ..\nest_libs\nest_itutil\stditutil.nest x86\nest_libs\stditutil.nest /y
 :: Math
-copy ..\x64\Release\nest_math.dll nest_libs\stdmath.dll /y
-copy ..\nest_libs\nest_math\stdmath.nest nest_libs\stdmath.nest /y
+copy ..\x64\Release\nest_math.dll x64\nest_libs\stdmath.dll /y
+copy ..\Release\nest_math.dll x86\nest_libs\stdmath.dll /y
+copy ..\nest_libs\nest_math\stdmath.nest x64\nest_libs\stdmath.nest /y
+copy ..\nest_libs\nest_math\stdmath.nest x86\nest_libs\stdmath.nest /y
 
 :: Udate .nest files
-nest update_nest_file.nest nest_libs\stdfs.nest
-nest update_nest_file.nest nest_libs\stdio.nest
-nest update_nest_file.nest nest_libs\stdrand.nest
-nest update_nest_file.nest nest_libs\stdsutil.nest
-nest update_nest_file.nest nest_libs\stdtime.nest
-nest update_nest_file.nest nest_libs\stditutil.nest
-nest update_nest_file.nest nest_libs\stdmath.nest
+nest update_nest_file.nest x64\nest_libs\stdfs.nest
+nest update_nest_file.nest x86\nest_libs\stdfs.nest
+nest update_nest_file.nest x64\nest_libs\stdio.nest
+nest update_nest_file.nest x86\nest_libs\stdio.nest
+nest update_nest_file.nest x64\nest_libs\stdrand.nest
+nest update_nest_file.nest x86\nest_libs\stdrand.nest
+nest update_nest_file.nest x64\nest_libs\stdsutil.nest
+nest update_nest_file.nest x86\nest_libs\stdsutil.nest
+nest update_nest_file.nest x64\nest_libs\stdtime.nest
+nest update_nest_file.nest x86\nest_libs\stdtime.nest
+nest update_nest_file.nest x64\nest_libs\stditutil.nest
+nest update_nest_file.nest x86\nest_libs\stditutil.nest
+nest update_nest_file.nest x64\nest_libs\stdmath.nest
+nest update_nest_file.nest x86\nest_libs\stdmath.nest

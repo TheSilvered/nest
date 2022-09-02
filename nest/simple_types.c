@@ -3,7 +3,7 @@
 #include "simple_types.h"
 
 #define NEW_SYMPLE_TYPE(type, type_obj) \
-    type *obj = (type *)alloc_obj(sizeof(type), type_obj, NULL); \
+    type *obj = (type *)nst_alloc_obj(sizeof(type), type_obj, NULL); \
     if ( obj == NULL ) return NULL; \
     obj->value = value; \
     return (Nst_Obj *)obj
@@ -30,7 +30,7 @@ Nst_Obj *nst_new_bool(Nst_Bool value)
 
 Nst_Obj *nst_new_file(Nst_IOfile value, bool bin, bool read, bool write)
 {
-    Nst_IOFileObj *obj = AS_FILE(alloc_obj(
+    Nst_IOFileObj *obj = AS_FILE(nst_alloc_obj(
         sizeof(Nst_IOFileObj),
         nst_t_file,
         nst_destroy_iofile

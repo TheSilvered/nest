@@ -372,8 +372,8 @@ static void replace_access(Nst_InstructionList *bc, Nst_StrObj *name, Nst_Obj *v
         if ( strcmp(name->value, AS_STR(inst_list[i].val)->value) == 0 )
         {
             inst_list[i].id = NST_IC_PUSH_VAL;
-            dec_ref(inst_list[i].val);
-            inst_list[i].val = inc_ref(val);
+            nst_dec_ref(inst_list[i].val);
+            inst_list[i].val = nst_inc_ref(val);
         }
     }
 }
@@ -397,7 +397,7 @@ static void optimize_builtin(Nst_InstructionList *bc, char *name, Nst_Obj *val)
             optimize_func_builtin(AS_FUNC(inst_list[i].val)->body, str_obj, val);
     }
 
-    dec_ref(str_obj);
+    nst_dec_ref(str_obj);
 }
 
 static void optimize_func_builtin(Nst_InstructionList *bc, Nst_StrObj *name, Nst_Obj *val)
@@ -598,17 +598,17 @@ static void remove_push_jumpif(Nst_InstructionList *bc)
             if ( (cond == nst_true && inst_list[i].id == NST_IC_JUMPIF_T) ||
                  (cond == nst_false && inst_list[i].id == NST_IC_JUMPIF_F) )
             {
-                dec_ref(inst_list[i - 1].val);
+                nst_dec_ref(inst_list[i - 1].val);
                 inst_list[i - 1].id = NST_IC_NO_OP;
                 inst_list[i].id = NST_IC_JUMP;
             }
             else
             {
-                dec_ref(inst_list[i - 1].val);
+                nst_dec_ref(inst_list[i - 1].val);
                 inst_list[i - 1].id = NST_IC_NO_OP;
                 inst_list[i].id = NST_IC_NO_OP;
             }
-            dec_ref(cond);
+            nst_dec_ref(cond);
         }
 
         expect_jumpif = false;
@@ -668,7 +668,7 @@ static void remove_dead_code(Nst_InstructionList *bc)
             }
 
             if ( inst_list[j].val != NULL )
-                dec_ref(inst_list[j].val);
+                nst_dec_ref(inst_list[j].val);
 
             inst_list[j].id = NST_IC_NO_OP;
         }

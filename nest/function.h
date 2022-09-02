@@ -14,7 +14,7 @@ extern "C" {
 
 typedef struct
 {
-    OBJ_HEAD;
+    NST_OBJ_HEAD;
     Nst_InstructionList *body;
     Nst_Obj *(*cbody)(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
     Nst_Obj **args;

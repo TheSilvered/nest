@@ -19,7 +19,7 @@
     typedef type type_name; \
     typedef struct \
     { \
-        OBJ_HEAD; \
+        NST_OBJ_HEAD; \
         type_name value; \
     } \
     obj_name
@@ -36,35 +36,35 @@ typedef FILE *Nst_IOfile;
 
 typedef struct
 {
-    OBJ_HEAD;
+    NST_OBJ_HEAD;
     Nst_Int value;
 }
 Nst_IntObj;
 
 typedef struct
 {
-    OBJ_HEAD;
+    NST_OBJ_HEAD;
     Nst_Real value;
 }
 Nst_RealObj;
 
 typedef struct
 {
-    OBJ_HEAD;
+    NST_OBJ_HEAD;
     Nst_Bool value;
 }
 Nst_BoolObj;
 
 typedef struct
 {
-    OBJ_HEAD;
+    NST_OBJ_HEAD;
     Nst_Byte value;
 }
 Nst_ByteObj;
 
 typedef struct
 {
-    OBJ_HEAD;
+    NST_OBJ_HEAD;
     Nst_IOfile value;
     bool is_closed;
     bool is_bin;

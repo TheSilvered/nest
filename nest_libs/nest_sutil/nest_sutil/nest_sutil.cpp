@@ -7,7 +7,7 @@
 
 #define EXPECTED_BYTE "expected only type 'Byte', got type '%s' instead"
 
-static FuncDeclr *func_list_;
+static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
 
 bool lib_init()
@@ -43,7 +43,7 @@ bool lib_init()
     return true;
 }
 
-FuncDeclr *get_func_ptrs()
+Nst_FuncDeclr *get_func_ptrs()
 {
     return lib_init_ ? func_list_ : nullptr;
 }
@@ -214,7 +214,7 @@ Nst_Obj *ljust(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     size_t len = str->len;
 
     if ( just_len <= (Nst_Int)len )
-        return inc_ref(args[0]);
+        return nst_inc_ref(args[0]);
 
     if ( just_char->len != 1 )
     {
@@ -223,12 +223,12 @@ Nst_Obj *ljust(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
         return NULL;
     }
 
-    char *new_str = new char[just_len + 1];
+    char *new_str = new char[(unsigned int)(just_len + 1)];
     memcpy(new_str, str->value, len);
-    memset(new_str + len, *(just_char->value), just_len - len);
+    memset(new_str + len, *(just_char->value), (size_t)(just_len - len));
     new_str[just_len] = 0;
 
-    return nst_new_string(new_str, just_len, true);
+    return nst_new_string(new_str, (size_t)just_len, true);
 }
 
 Nst_Obj *rjust(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
@@ -243,7 +243,7 @@ Nst_Obj *rjust(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     size_t len = str->len;
 
     if ( just_len <= (Nst_Int)len )
-        return inc_ref(args[0]);
+        return nst_inc_ref(args[0]);
 
     if ( just_char->len != 1 )
     {
@@ -252,12 +252,12 @@ Nst_Obj *rjust(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
         return NULL;
     }
 
-    char *new_str = new char[just_len + 1];
-    memset(new_str, *(just_char->value), just_len - len);
+    char *new_str = new char[(unsigned int)(just_len + 1)];
+    memset(new_str, *(just_char->value), (size_t)(just_len - len));
     memcpy(new_str + (just_len - len), str->value, len);
     new_str[just_len] = 0;
 
-    return nst_new_string(new_str, just_len, true);
+    return nst_new_string(new_str, (size_t)just_len, true);
 }
 
 Nst_Obj *to_upper(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
@@ -310,11 +310,11 @@ Nst_Obj *is_upper(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     while ( *s )
     {
         if ( isalpha(*s) && !isupper(*s) )
-            return inc_ref(nst_false);
+            return nst_inc_ref(nst_false);
         ++s;
     }
 
-    return inc_ref(nst_true);
+    return nst_inc_ref(nst_true);
 }
 
 Nst_Obj *is_lower(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
@@ -329,11 +329,11 @@ Nst_Obj *is_lower(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     while ( *s )
     {
         if ( isalpha(*s) && !islower(*s) )
-            return inc_ref(nst_false);
+            return nst_inc_ref(nst_false);
         ++s;
     }
 
-    return inc_ref(nst_true);
+    return nst_inc_ref(nst_true);
 }
 
 Nst_Obj *is_alpha(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
@@ -348,10 +348,10 @@ Nst_Obj *is_alpha(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     while ( *s )
     {
         if ( !isalpha(*s++) )
-            return inc_ref(nst_false);
+            return nst_inc_ref(nst_false);
     }
 
-    return inc_ref(nst_true);
+    return nst_inc_ref(nst_true);
 }
 
 Nst_Obj *is_digit(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
@@ -366,10 +366,10 @@ Nst_Obj *is_digit(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     while ( *s )
     {
         if ( !isdigit(*s++) )
-            return inc_ref(nst_false);
+            return nst_inc_ref(nst_false);
     }
 
-    return inc_ref(nst_true);
+    return nst_inc_ref(nst_true);
 }
 
 Nst_Obj *is_alnum(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
@@ -384,10 +384,10 @@ Nst_Obj *is_alnum(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     while ( *s )
     {
         if ( !isalnum(*s++) )
-            return inc_ref(nst_false);
+            return nst_inc_ref(nst_false);
     }
 
-    return inc_ref(nst_true);
+    return nst_inc_ref(nst_true);
 }
 
 Nst_Obj *is_charset(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
@@ -413,11 +413,11 @@ Nst_Obj *is_charset(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
         }
 
         if ( !*p2 )
-            return inc_ref(nst_false);
+            return nst_inc_ref(nst_false);
         ++s1;
     }
 
-    return inc_ref(nst_true);
+    return nst_inc_ref(nst_true);
 }
 
 Nst_Obj *is_printable(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
@@ -432,10 +432,10 @@ Nst_Obj *is_printable(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     while ( *s )
     {
         if ( !isprint(*s++) )
-            return inc_ref(nst_false);
+            return nst_inc_ref(nst_false);
     }
 
-    return inc_ref(nst_true);
+    return nst_inc_ref(nst_true);
 }
 
 Nst_Obj *replace_substr(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
@@ -453,7 +453,7 @@ Nst_Obj *replace_substr(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     char *sub = strstr(s, s1);
 
     if ( sub == nullptr || *s1 == 0 )
-        return inc_ref(args[0]);
+        return nst_inc_ref(args[0]);
 
     size_t s_len = str->len;
     size_t s1_len = str1->len;
@@ -573,7 +573,7 @@ Nst_Obj *join(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
         Nst_StrObj *curr_str = AS_STR(objs[i]);
         memcpy(new_str + str_idx, curr_str->value, curr_str->len);
         str_idx += curr_str->len;
-        dec_ref(objs[i]);
+        nst_dec_ref(objs[i]);
         if ( i + 1 == len ) break;
         memcpy(new_str + str_idx, str->value, str_len);
         str_idx += str_len;
@@ -613,7 +613,7 @@ Nst_Obj *split(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
         str_split[sub_idx - s] = 0;
         str_obj = nst_new_string(str_split, sub_idx - s, true);
         nst_append_value_vector(vector, str_obj);
-        dec_ref(str_obj);
+        nst_dec_ref(str_obj);
         s_len -= sub_idx - s + substr->len;
         s = sub_idx + substr->len;
     }
@@ -623,7 +623,7 @@ Nst_Obj *split(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     str_split[s_len] = 0;
     str_obj = nst_new_string(str_split, s_len, true);
     nst_append_value_vector(vector, str_obj);
-    dec_ref(str_obj);
+    nst_dec_ref(str_obj);
 
     return (Nst_Obj *)vector;
 }

@@ -8,7 +8,7 @@
 
 Nst_Obj *nst_new_map()
 {
-    Nst_MapObj *map = AS_MAP(alloc_obj(sizeof(Nst_MapObj), nst_t_map, nst_destroy_map));
+    Nst_MapObj *map = AS_MAP(nst_alloc_obj(sizeof(Nst_MapObj), nst_t_map, nst_destroy_map));
     if ( map == NULL )
     {
         errno = ENOMEM;
@@ -117,13 +117,13 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
         curr_node = nodes[i & mask];
     }
 
-    inc_ref(key);
-    inc_ref(value);
+    nst_inc_ref(key);
+    nst_inc_ref(value);
 
     if ( curr_node.key != NULL )
     {
-        dec_ref(curr_node.key);
-        dec_ref(curr_node.value);
+        nst_dec_ref(curr_node.key);
+        nst_dec_ref(curr_node.value);
     }
     else
         map->item_count++;
@@ -156,7 +156,7 @@ Nst_Obj *_nst_map_get(Nst_MapObj *map, Nst_Obj *key)
     if ( curr_node.key != NULL &&
         (curr_node.key == key || AS_BOOL(nst_obj_eq(key, curr_node.key, NULL))) )
     {
-        inc_ref(curr_node.value);
+        nst_inc_ref(curr_node.value);
         return curr_node.value;
     }
 
@@ -171,7 +171,7 @@ Nst_Obj *_nst_map_get(Nst_MapObj *map, Nst_Obj *key)
         if ( curr_node.hash == hash && 
            ( curr_node.key == key || AS_BOOL(nst_obj_eq(key, curr_node.key, NULL)) ) )
         {
-            inc_ref(curr_node.value);
+            nst_inc_ref(curr_node.value);
             return curr_node.value;
         }
     }
@@ -196,12 +196,15 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
     if ( curr_node.key != NULL &&
         (curr_node.key == key || AS_BOOL(nst_obj_eq(key, curr_node.key, NULL))) )
     {
+        nst_dec_ref(map->nodes[i].key);
+        nst_dec_ref(map->nodes[i].value);
+
         map->nodes[i].hash = -1;
         map->nodes[i].key = NULL;
         map->nodes[i].value = NULL;
         map->item_count--;
         resize_map(map, true);
-        return inc_ref(nst_true);
+        return nst_inc_ref(nst_true);
     }
 
     for ( size_t perturb = (size_t)hash; ; perturb >>= 5 )
@@ -210,30 +213,32 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
         curr_node = nodes[i & mask];
 
         if ( curr_node.key == NULL )
-            return inc_ref(nst_false);
+            return nst_inc_ref(nst_false);
 
         if ( curr_node.hash == hash &&
             (curr_node.key == key || AS_BOOL(nst_obj_eq(key, curr_node.key, NULL))) )
         {
+            nst_dec_ref(map->nodes[i & mask].key);
+            nst_dec_ref(map->nodes[i & mask].value);
+
             map->nodes[i & mask].hash = -1;
             map->nodes[i & mask].key = NULL;
             map->nodes[i & mask].value = NULL;
             map->item_count--;
             resize_map(map, true);
-            return inc_ref(nst_true);
+            return nst_inc_ref(nst_true);
         }
     }
 }
 
 void nst_destroy_map(Nst_MapObj *map)
 {
-    map->ref_count = 2147483647;
     for ( size_t i = 0; i < map->size; i++ )
     {
         if ( map->nodes[i].key != NULL )
-            dec_ref(map->nodes[i].key);
+            nst_dec_ref(map->nodes[i].key);
         if ( map->nodes[i].value != NULL )
-            dec_ref(map->nodes[i].value);
+            nst_dec_ref(map->nodes[i].value);
     }
 
     free(map->nodes);

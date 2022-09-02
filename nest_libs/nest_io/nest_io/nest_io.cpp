@@ -10,7 +10,7 @@
     err->name = NST_E_VALUE_ERROR; \
     err->message = (char *)"file given was closed"
 
-static FuncDeclr *func_list_;
+static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
 
 bool lib_init()
@@ -38,7 +38,7 @@ bool lib_init()
     return true;
 }
 
-FuncDeclr *get_func_ptrs()
+Nst_FuncDeclr *get_func_ptrs()
 {
     return lib_init_ ? func_list_ : nullptr;
 }
@@ -112,7 +112,7 @@ Nst_Obj *open(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 
     Nst_IOfile file_ptr = fopen(file_name, file_mode);
     if ( file_ptr == nullptr )
-        return inc_ref(nst_null);
+        return nst_inc_ref(nst_null);
 
     return nst_new_file(file_ptr, is_bin, can_read, can_write);
 }
@@ -134,7 +134,7 @@ Nst_Obj *close(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     f->value = nullptr;
     f->is_closed = true;
     
-    return inc_ref(nst_null);
+    return nst_inc_ref(nst_null);
 }
 
 Nst_Obj *write(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
@@ -166,8 +166,8 @@ Nst_Obj *write(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     Nst_StrObj *str = AS_STR(str_to_write);
     fwrite(str->value, sizeof(char), str->len, f->value);
 
-    dec_ref(str_to_write);
-    return inc_ref(nst_null);
+    nst_dec_ref(str_to_write);
+    return nst_inc_ref(nst_null);
 }
 
 Nst_Obj *write_bytes(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
@@ -213,7 +213,7 @@ Nst_Obj *write_bytes(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     fwrite(bytes, sizeof(char), seq_len, f->value);
 
     delete[] bytes;
-    return inc_ref(nst_null);
+    return nst_inc_ref(nst_null);
 }
 
 Nst_Obj *read(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
@@ -249,8 +249,8 @@ Nst_Obj *read(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     if ( bytes_to_read < 0 || bytes_to_read > max_size )
         bytes_to_read = max_size;
 
-    char *buffer = new char[bytes_to_read + 1];
-    size_t read_bytes = fread(buffer, sizeof(char), bytes_to_read, f->value);
+    char *buffer = new char[(unsigned int)(bytes_to_read + 1)];
+    size_t read_bytes = fread(buffer, sizeof(char), (size_t)bytes_to_read, f->value);
     buffer[read_bytes] = 0;
 
     return nst_new_string(buffer, read_bytes, true);
@@ -289,8 +289,8 @@ Nst_Obj *read_bytes(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     if ( bytes_to_read < 0 || bytes_to_read > max_size )
         bytes_to_read = max_size;
 
-    char *buffer = new char[bytes_to_read];
-    size_t read_bytes = fread(buffer, sizeof(char), bytes_to_read, f->value);
+    char *buffer = new char[(unsigned int)bytes_to_read];
+    size_t read_bytes = fread(buffer, sizeof(char), (size_t)bytes_to_read, f->value);
 
     Nst_SeqObj *bytes_array = AS_SEQ(nst_new_array(read_bytes));
 
@@ -361,7 +361,7 @@ Nst_Obj *move_fptr(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 
     fseek(f->value, (long)offset, (int)start);
 
-    return inc_ref(nst_null);
+    return nst_inc_ref(nst_null);
 }
 
 Nst_Obj *flush(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
@@ -378,7 +378,7 @@ Nst_Obj *flush(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     }
 
     fflush(f->value);
-    return inc_ref(nst_null);
+    return nst_inc_ref(nst_null);
 }
 
 Nst_Obj *_get_stdin(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)

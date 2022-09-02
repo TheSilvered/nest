@@ -3,7 +3,7 @@
 
 #define FUNC_COUNT 10
 
-static FuncDeclr *func_list_;
+static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
 
 bool lib_init()
@@ -28,7 +28,7 @@ bool lib_init()
     return true;
 }
 
-FuncDeclr *get_func_ptrs()
+Nst_FuncDeclr *get_func_ptrs()
 {
     return lib_init_ ? func_list_ : nullptr;
 }

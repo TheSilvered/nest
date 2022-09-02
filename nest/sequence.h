@@ -22,7 +22,7 @@ extern "C" {
 
 typedef struct
 {
-    OBJ_HEAD;
+    NST_OBJ_HEAD;
     Nst_Obj **objs;
     size_t len;
     size_t size;

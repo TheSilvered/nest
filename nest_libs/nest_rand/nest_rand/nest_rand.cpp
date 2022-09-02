@@ -4,7 +4,7 @@
 
 #define FUNC_COUNT 7
 
-static FuncDeclr *func_list_;
+static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
 
 static inline Nst_Int rand_range(Nst_Int min, Nst_Int max)
@@ -39,7 +39,7 @@ bool lib_init()
     return true;
 }
 
-FuncDeclr *get_func_ptrs()
+Nst_FuncDeclr *get_func_ptrs()
 {
     return lib_init_ ? func_list_ : nullptr;
 }
@@ -79,7 +79,7 @@ Nst_Obj *choice(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
         return nullptr;
 
     Nst_Obj *val = nst_get_value_seq(AS_SEQ(seq), rand() % AS_SEQ(seq)->len);
-    dec_ref(seq);
+    nst_dec_ref(seq);
     return val;
 }
 
@@ -113,7 +113,7 @@ Nst_Obj *rand_seed(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 
     srand((unsigned int)seed);
 
-    return inc_ref(nst_null);
+    NST_RETURN_NULL;
 }
 
 Nst_Obj *_get_rand_max(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
