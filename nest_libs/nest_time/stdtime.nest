@@ -1,23 +1,23 @@
 |#| '__C__:..\\..\\x64\\Debug\\nest_time.dll' = __t
 
-__t._time = time
-__t._time_ns = time_ns
-__t._high_res_time = high_res_time
-__t._high_res_time_ns = high_res_time_ns
-__t._year_day = year_day
-__t._week_day = week_day
-__t._day = day
-__t._month = month
-__t._year = year
-__t._date = date
-__t._seconds = seconds
-__t._minutes = minutes
-__t._hours = hours
-__t._clock_time = clock_time
-__t._gmt_clock_time = gmt_clock_time
-__t._clock_datetime = clock_datetime
-__t._gmt_clock_datetime = gmt_clock_datetime
-__t.sleep = sleep
+__t.time_               = time
+__t.time_ns_            = time_ns
+__t.high_res_time_      = high_res_time
+__t.high_res_time_ns_   = high_res_time_ns
+__t.year_day_           = year_day
+__t.week_day_           = week_day
+__t.day_                = day
+__t.month_              = month
+__t.year_               = year
+__t.date_               = date
+__t.seconds_            = seconds
+__t.minutes_            = minutes
+__t.hours_              = hours
+__t.clock_time_         = clock_time
+__t.gmt_clock_time_     = gmt_clock_time
+__t.clock_datetime_     = clock_datetime
+__t.gmt_clock_datetime_ = gmt_clock_datetime
+__t.sleep_              = sleep
 
 { 1: 'January',
   2: 'February',

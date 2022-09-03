@@ -15,3 +15,10 @@
 { 2.0, 3.0, 2.0, 4.0 } @math.dist_nd @println
 math.PI @math.deg @println
 180 @math.rad @println
+10 2 @math.min @println -- 2
+10 2 @math.max @println -- 10
+{ 3, 2, 7, 5 } @math.min_seq @println -- 2
+{ 3, 2, 7, 5 } @math.max_seq @println -- 7
+{ 3, 2, 7, 5 } @math.sum_seq @println -- 17
+1.5 @math.frexp @println -- { 0.75, 1 }
+0.75 1 @math.ldexp @println -- 1.4

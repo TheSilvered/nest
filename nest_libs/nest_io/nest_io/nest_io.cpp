@@ -12,6 +12,9 @@
 
 static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
+static Nst_Obj *stdin_obj;
+static Nst_Obj *stdout_obj;
+static Nst_Obj *stderr_obj;
 
 bool lib_init()
 {
@@ -20,19 +23,23 @@ bool lib_init()
 
     size_t idx = 0;
 
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(open, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(close, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(write, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(write_bytes, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(read, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(read_bytes, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(file_size, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(move_fptr, 3);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(get_fptr, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(flush, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_stdin, 0);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_stdout, 0);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_stderr, 0);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(open_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(close_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(write_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(write_bytes_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(read_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(read_bytes_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(file_size_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(move_fptr_, 3);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(get_fptr_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(flush_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_stdin_, 0);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_stdout_, 0);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_stderr_, 0);
+
+    stdin_obj = nst_new_file(stdin, false, true, false);
+    stdout_obj = nst_new_file(stdout, false, false, true);
+    stderr_obj = nst_new_file(stderr, false, false, true);
 
     lib_init_ = true;
     return true;
@@ -43,7 +50,14 @@ Nst_FuncDeclr *get_func_ptrs()
     return lib_init_ ? func_list_ : nullptr;
 }
 
-Nst_Obj *open(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+void free_lib()
+{
+    nst_dec_ref(stdin_obj);
+    nst_dec_ref(stdout_obj);
+    nst_dec_ref(stderr_obj);
+}
+
+NST_FUNC_SIGN(open_)
 {
     Nst_StrObj *file_name_str;
     Nst_StrObj *file_mode_str;
@@ -117,7 +131,7 @@ Nst_Obj *open(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_file(file_ptr, is_bin, can_read, can_write);
 }
 
-Nst_Obj *close(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(close_)
 {
     Nst_IOFileObj *f;
 
@@ -137,7 +151,7 @@ Nst_Obj *close(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_inc_ref(nst_null);
 }
 
-Nst_Obj *write(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(write_)
 {
     Nst_Obj *value_to_write = args[1];
     Nst_IOFileObj *f;
@@ -170,7 +184,7 @@ Nst_Obj *write(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_inc_ref(nst_null);
 }
 
-Nst_Obj *write_bytes(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(write_bytes_)
 {
     Nst_IOFileObj *f;
     Nst_SeqObj *seq;
@@ -216,7 +230,7 @@ Nst_Obj *write_bytes(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_inc_ref(nst_null);
 }
 
-Nst_Obj *read(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(read_)
 {
     Nst_IOFileObj *f;
     Nst_Int bytes_to_read;
@@ -256,7 +270,7 @@ Nst_Obj *read(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_string(buffer, read_bytes, true);
 }
 
-Nst_Obj *read_bytes(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(read_bytes_)
 {
     Nst_IOFileObj *f;
     Nst_Int bytes_to_read;
@@ -301,7 +315,7 @@ Nst_Obj *read_bytes(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return (Nst_Obj *)bytes_array;
 }
 
-Nst_Obj *file_size(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(file_size_)
 {
     Nst_IOFileObj *f;
 
@@ -322,7 +336,7 @@ Nst_Obj *file_size(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_int(end);
 }
 
-Nst_Obj *get_fptr(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(get_fptr_)
 {
     Nst_IOFileObj *f;
 
@@ -338,7 +352,7 @@ Nst_Obj *get_fptr(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_int(ftell(f->value));
 }
 
-Nst_Obj *move_fptr(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(move_fptr_)
 {
     Nst_IOFileObj *f;
     Nst_Int start;
@@ -364,7 +378,7 @@ Nst_Obj *move_fptr(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_inc_ref(nst_null);
 }
 
-Nst_Obj *flush(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(flush_)
 {
     Nst_IOFileObj *f;
 
@@ -381,17 +395,17 @@ Nst_Obj *flush(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_inc_ref(nst_null);
 }
 
-Nst_Obj *_get_stdin(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(_get_stdin_)
 {
-    return nst_new_file(stdin, false, true, false);
+    return nst_inc_ref(stdin_obj);
 }
 
-Nst_Obj *_get_stdout(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(_get_stdout_)
 {
-    return nst_new_file(stdout, false, false, true);
+    return nst_inc_ref(stdout_obj);
 }
 
-Nst_Obj *_get_stderr(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(_get_stderr_)
 {
-    return nst_new_file(stderr, false, false, true);
+    return nst_inc_ref(stderr_obj);
 }

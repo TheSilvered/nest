@@ -11,16 +11,16 @@ __declspec(dllexport) bool lib_init();
 __declspec(dllexport) Nst_FuncDeclr *get_func_ptrs();
 __declspec(dllexport) NST_INIT_LIB_OBJ_FUNC;
 
-Nst_Obj *count(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *cycle(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *repeat(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *chain(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *zip(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *enumerate(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *keys(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *values(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *items(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *reversed(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
+NST_FUNC_SIGN(count_);
+NST_FUNC_SIGN(cycle_);
+NST_FUNC_SIGN(repeat_);
+NST_FUNC_SIGN(chain_);
+NST_FUNC_SIGN(zip_);
+NST_FUNC_SIGN(enumerate_);
+NST_FUNC_SIGN(keys_);
+NST_FUNC_SIGN(values_);
+NST_FUNC_SIGN(items_);
+NST_FUNC_SIGN(reversed_);
 
 #ifdef __cplusplus
 }

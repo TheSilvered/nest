@@ -21,13 +21,13 @@ bool lib_init()
 
     size_t idx = 0;
 
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(random, 0);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(rand_int, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(rand_perc, 0);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(choice, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(shuffle, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(rand_seed, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_rand_max, 0);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(random_, 0);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(rand_int_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(rand_perc_, 0);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(choice_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(shuffle_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(rand_seed_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_rand_max_, 0);
 
     srand(unsigned int(
         duration_cast<nanoseconds>(
@@ -44,12 +44,12 @@ Nst_FuncDeclr *get_func_ptrs()
     return lib_init_ ? func_list_ : nullptr;
 }
 
-Nst_Obj *random(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(random_)
 {
     return nst_new_int(rand());
 }
 
-Nst_Obj *rand_int(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(rand_int_)
 {
     Nst_Int min;
     Nst_Int max;
@@ -66,12 +66,12 @@ Nst_Obj *rand_int(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_int(rand_range(min, max));
 }
 
-Nst_Obj *rand_perc(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(rand_perc_)
 {
     return nst_new_real(double(rand()) / double(RAND_MAX));
 }
 
-Nst_Obj *choice(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(choice_)
 {
     Nst_Obj *seq;
 
@@ -83,7 +83,7 @@ Nst_Obj *choice(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return val;
 }
 
-Nst_Obj *shuffle(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(shuffle_)
 {
     Nst_SeqObj *seq;
 
@@ -104,7 +104,7 @@ Nst_Obj *shuffle(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     NST_RETURN_NULL;
 }
 
-Nst_Obj *rand_seed(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(rand_seed_)
 {
     Nst_Int seed;
 
@@ -116,7 +116,7 @@ Nst_Obj *rand_seed(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     NST_RETURN_NULL;
 }
 
-Nst_Obj *_get_rand_max(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(_get_rand_max_)
 {
     return nst_new_int(RAND_MAX);
 }

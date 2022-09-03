@@ -11,13 +11,13 @@ __declspec(dllexport) bool lib_init();
 __declspec(dllexport) Nst_FuncDeclr *get_func_ptrs();
 __declspec(dllexport) NST_INIT_LIB_OBJ_FUNC;
 
-Nst_Obj *random(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *rand_int(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *rand_perc(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *choice(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *shuffle(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *rand_seed(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *_get_rand_max(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
+NST_FUNC_SIGN(random_);
+NST_FUNC_SIGN(rand_int_);
+NST_FUNC_SIGN(rand_perc_);
+NST_FUNC_SIGN(choice_);
+NST_FUNC_SIGN(shuffle_);
+NST_FUNC_SIGN(rand_seed_);
+NST_FUNC_SIGN(_get_rand_max_);
 
 #ifdef __cplusplus
 }

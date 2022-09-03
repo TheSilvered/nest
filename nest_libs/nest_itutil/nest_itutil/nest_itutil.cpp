@@ -13,16 +13,16 @@ bool lib_init()
 
     size_t idx = 0;
 
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(count, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(cycle, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(repeat, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(chain, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(zip, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(enumerate, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(keys, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(values, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(items, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(reversed, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(count_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(cycle_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(repeat_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(chain_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(zip_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(enumerate_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(keys_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(values_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(items_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(reversed_, 1);
 
     lib_init_ = true;
     return true;
@@ -33,7 +33,7 @@ Nst_FuncDeclr *get_func_ptrs()
     return lib_init_ ? func_list_ : nullptr;
 }
 
-Nst_Obj *count(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(count_)
 {
     Nst_Int start;
     Nst_Int step;
@@ -56,7 +56,7 @@ Nst_Obj *count(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     );
 }
 
-Nst_Obj *cycle(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(cycle_)
 {
     Nst_Obj *seq;
 
@@ -77,7 +77,7 @@ Nst_Obj *cycle(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     );
 }
 
-Nst_Obj *repeat(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(repeat_)
 {
     Nst_Int times;
 
@@ -99,7 +99,7 @@ Nst_Obj *repeat(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     );
 }
 
-Nst_Obj *chain(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(chain_)
 {
     Nst_SeqObj *seq;
 
@@ -121,7 +121,7 @@ Nst_Obj *chain(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     );
 }
 
-Nst_Obj *zip(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(zip_)
 {
     Nst_Obj *seq1;
     Nst_Obj *seq2;
@@ -144,7 +144,7 @@ Nst_Obj *zip(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     );
 }
 
-Nst_Obj *enumerate(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(enumerate_)
 {
     Nst_Obj *seq;
 
@@ -165,7 +165,7 @@ Nst_Obj *enumerate(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     );
 }
 
-Nst_Obj *keys(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(keys_)
 {
     Nst_MapObj *map;
 
@@ -186,7 +186,7 @@ Nst_Obj *keys(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     );
 }
 
-Nst_Obj *values(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(values_)
 {
     Nst_MapObj *map;
 
@@ -207,7 +207,7 @@ Nst_Obj *values(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     );
 }
 
-Nst_Obj *items(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(items_)
 {
     Nst_MapObj *map;
 
@@ -228,7 +228,7 @@ Nst_Obj *items(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     );
 }
 
-Nst_Obj *reversed(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(reversed_)
 {
     Nst_Obj *seq;
 

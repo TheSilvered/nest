@@ -11,24 +11,24 @@ __declspec(dllexport) bool lib_init();
 __declspec(dllexport) Nst_FuncDeclr *get_func_ptrs();
 __declspec(dllexport) NST_INIT_LIB_OBJ_FUNC;
 
-Nst_Obj *_time(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *_time_ns(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *_high_res_time(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *_high_res_time_ns(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *_year_day(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *_week_day(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *_day(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *_month(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *_year(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *_date(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *_seconds(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *_minutes(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *_hours(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *_clock_time(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *_gmt_clock_time(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *_clock_datetime(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *_gmt_clock_datetime(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *sleep(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
+NST_FUNC_SIGN(time_);
+NST_FUNC_SIGN(time_ns_);
+NST_FUNC_SIGN(high_res_time_);
+NST_FUNC_SIGN(high_res_time_ns_);
+NST_FUNC_SIGN(year_day_);
+NST_FUNC_SIGN(week_day_);
+NST_FUNC_SIGN(day_);
+NST_FUNC_SIGN(month_);
+NST_FUNC_SIGN(year_);
+NST_FUNC_SIGN(date_);
+NST_FUNC_SIGN(seconds_);
+NST_FUNC_SIGN(minutes_);
+NST_FUNC_SIGN(hours_);
+NST_FUNC_SIGN(clock_time_);
+NST_FUNC_SIGN(gmt_clock_time_);
+NST_FUNC_SIGN(clock_datetime_);
+NST_FUNC_SIGN(gmt_clock_datetime_);
+NST_FUNC_SIGN(sleep_);
 
 #ifdef __cplusplus
 }

@@ -17,27 +17,27 @@ bool lib_init()
 
     size_t idx = 0;
 
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(nst_lfind, 2, "lfind");
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(rfind, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(trim, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(ltrim, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(rtrim, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(ljust, 3);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(rjust, 3);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(to_upper, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(to_lower, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_upper, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_lower, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_alpha, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_digit, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_alnum, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_charset, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_printable, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(replace_substr, 3);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(bytearray_to_str, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(repr, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(join, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(split, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(lfind_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(rfind_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(trim_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(ltrim_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(rtrim_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(ljust_, 3);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(rjust_, 3);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(to_upper_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(to_lower_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_upper_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_lower_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_alpha_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_digit_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_alnum_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_charset_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_printable_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(replace_substr_, 3);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(bytearray_to_str_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(repr_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(join_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(split_, 2);
 
     lib_init_ = true;
     return true;
@@ -50,7 +50,7 @@ Nst_FuncDeclr *get_func_ptrs()
 
 
 
-Nst_Obj *nst_lfind(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(lfind_)
 {
     Nst_StrObj *str1 = nullptr;
     Nst_StrObj *str2 = nullptr;
@@ -84,7 +84,7 @@ Nst_Obj *nst_lfind(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_int(-1);
 }
 
-Nst_Obj *rfind(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(rfind_)
 {
     Nst_StrObj *str1;
     Nst_StrObj *str2;
@@ -122,7 +122,7 @@ Nst_Obj *rfind(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_int(-1);
 }
 
-Nst_Obj *trim(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(trim_)
 {
     Nst_StrObj *str;
 
@@ -154,7 +154,7 @@ Nst_Obj *trim(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_string(new_str, len, true);
 }
 
-Nst_Obj *ltrim(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(ltrim_)
 {
     Nst_StrObj *str;
 
@@ -176,7 +176,7 @@ Nst_Obj *ltrim(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_string(new_str, len, true);
 }
 
-Nst_Obj *rtrim(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(rtrim_)
 {
     Nst_StrObj *str;
 
@@ -202,7 +202,7 @@ Nst_Obj *rtrim(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_string(new_str, len, true);
 }
 
-Nst_Obj *ljust(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(ljust_)
 {
     Nst_StrObj *str;
     Nst_Int just_len;
@@ -231,7 +231,7 @@ Nst_Obj *ljust(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_string(new_str, (size_t)just_len, true);
 }
 
-Nst_Obj *rjust(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(rjust_)
 {
     Nst_StrObj *str;
     Nst_Int just_len;
@@ -260,7 +260,7 @@ Nst_Obj *rjust(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_string(new_str, (size_t)just_len, true);
 }
 
-Nst_Obj *to_upper(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(to_upper_)
 {
     Nst_StrObj *str;
 
@@ -279,7 +279,7 @@ Nst_Obj *to_upper(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return (Nst_Obj *)new_str;
 }
 
-Nst_Obj *to_lower(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(to_lower_)
 {
     Nst_StrObj *str;
 
@@ -298,7 +298,7 @@ Nst_Obj *to_lower(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return (Nst_Obj *)new_str;
 }
 
-Nst_Obj *is_upper(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(is_upper_)
 {
     Nst_StrObj *str;
 
@@ -317,7 +317,7 @@ Nst_Obj *is_upper(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_inc_ref(nst_true);
 }
 
-Nst_Obj *is_lower(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(is_lower_)
 {
     Nst_StrObj *str;
 
@@ -336,7 +336,7 @@ Nst_Obj *is_lower(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_inc_ref(nst_true);
 }
 
-Nst_Obj *is_alpha(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(is_alpha_)
 {
     Nst_StrObj *str;
 
@@ -354,7 +354,7 @@ Nst_Obj *is_alpha(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_inc_ref(nst_true);
 }
 
-Nst_Obj *is_digit(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(is_digit_)
 {
     Nst_StrObj *str;
 
@@ -372,7 +372,7 @@ Nst_Obj *is_digit(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_inc_ref(nst_true);
 }
 
-Nst_Obj *is_alnum(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(is_alnum_)
 {
     Nst_StrObj *str;
 
@@ -390,7 +390,7 @@ Nst_Obj *is_alnum(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_inc_ref(nst_true);
 }
 
-Nst_Obj *is_charset(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(is_charset_)
 {
     Nst_StrObj *str1;
     Nst_StrObj *str2;
@@ -420,7 +420,7 @@ Nst_Obj *is_charset(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_inc_ref(nst_true);
 }
 
-Nst_Obj *is_printable(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(is_printable_)
 {
     Nst_StrObj *str;
 
@@ -438,7 +438,7 @@ Nst_Obj *is_printable(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_inc_ref(nst_true);
 }
 
-Nst_Obj *replace_substr(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(replace_substr_)
 {
     Nst_StrObj *str;
     Nst_StrObj *str1;
@@ -500,7 +500,7 @@ Nst_Obj *replace_substr(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_string(new_str, new_str_len, true);
 }
 
-Nst_Obj *bytearray_to_str(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(bytearray_to_str_)
 {
     Nst_SeqObj *seq;
 
@@ -536,7 +536,7 @@ Nst_Obj *bytearray_to_str(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_string(new_str, len, true);
 }
 
-Nst_Obj *repr(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(repr_)
 {
     Nst_StrObj *str;
 
@@ -546,7 +546,7 @@ Nst_Obj *repr(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_repr_string(str);
 }
 
-Nst_Obj *join(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(join_)
 {
     Nst_StrObj *str;
     Nst_SeqObj *seq;
@@ -583,7 +583,7 @@ Nst_Obj *join(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_string(new_str, tot_len, true);
 }
 
-Nst_Obj *split(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(split_)
 {
     Nst_StrObj *str;
     Nst_StrObj *substr;

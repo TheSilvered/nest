@@ -18,20 +18,20 @@ bool lib_init()
 
     size_t idx = 0;
 
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(isdir, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(mkdir, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(mkdirs, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(rmdir, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(rmdir_recursive, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(isfile, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(rmfile, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(copy, 3);
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(rename_file, 2, "rename");
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(list_dir, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(list_dir_recursive, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(absolute_path, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(equivalent, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_copy_options, 0);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(isdir_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(mkdir_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(mkdirs_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(rmdir_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(rmdir_recursive_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(isfile_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(rmfile_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(copy_, 3);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(rename_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(list_dir_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(list_dir_recursive_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(absolute_path_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(equivalent_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_copy_options_, 0);
 
     lib_init_ = true;
     return true;
@@ -50,7 +50,7 @@ Nst_StrObj *heap_str(std::string str)
     return AS_STR(nst_new_string(heap_s, str.length(), true));
 }
 
-Nst_Obj *isdir(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(isdir_)
 {
     Nst_StrObj *path;
 
@@ -60,7 +60,7 @@ Nst_Obj *isdir(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     NST_RETURN_COND(PathIsDirectoryA(path->value));
 }
 
-Nst_Obj *mkdir(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(mkdir_)
 {
     Nst_StrObj *path;
     std::error_code ec;
@@ -76,7 +76,7 @@ Nst_Obj *mkdir(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
         return nst_new_int(ec.value());
 }
 
-Nst_Obj *mkdirs(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(mkdirs_)
 {
     Nst_StrObj *path;
 
@@ -93,7 +93,7 @@ Nst_Obj *mkdirs(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
         return nst_new_int(ec.value());
 }
 
-Nst_Obj *rmdir(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(rmdir_)
 {
     Nst_StrObj *path;
 
@@ -114,7 +114,7 @@ Nst_Obj *rmdir(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
         return nst_new_int(GetLastError());
 }
 
-Nst_Obj *rmdir_recursive(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(rmdir_recursive_)
 {
     Nst_StrObj *path;
 
@@ -137,7 +137,7 @@ Nst_Obj *rmdir_recursive(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
         return nst_new_int(ec.value());
 }
 
-Nst_Obj *isfile(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(isfile_)
 {
     Nst_StrObj *path;
 
@@ -155,7 +155,7 @@ Nst_Obj *isfile(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     }
 }
 
-Nst_Obj *rmfile(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(rmfile_)
 {
     Nst_StrObj *path;
 
@@ -175,7 +175,7 @@ Nst_Obj *rmfile(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
         return nst_new_int(GetLastError());
 }
 
-Nst_Obj *copy(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(copy_)
 {
     Nst_StrObj *path_from;
     Nst_StrObj *path_to;
@@ -197,7 +197,7 @@ Nst_Obj *copy(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
         return nst_new_int(ec.value());
 }
 
-Nst_Obj *rename_file(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(rename_)
 {
     Nst_StrObj *old_path;
     Nst_StrObj *new_path;
@@ -218,7 +218,7 @@ Nst_Obj *rename_file(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
         return nst_new_int(ec.value());
 }
 
-Nst_Obj *list_dir(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(list_dir_)
 {
     Nst_StrObj *path;
 
@@ -241,7 +241,7 @@ Nst_Obj *list_dir(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return (Nst_Obj *)vector;
 }
 
-Nst_Obj *list_dir_recursive(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(list_dir_recursive_)
 {
     Nst_StrObj *path;
 
@@ -264,7 +264,7 @@ Nst_Obj *list_dir_recursive(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return (Nst_Obj *)vector;
 }
 
-Nst_Obj *absolute_path(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(absolute_path_)
 {
     Nst_StrObj *path;
 
@@ -276,7 +276,7 @@ Nst_Obj *absolute_path(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return (Nst_Obj *)heap_str(fs::absolute(path->value).string());
 }
 
-Nst_Obj *equivalent(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(equivalent_)
 {
     Nst_StrObj *path_1;
     Nst_StrObj *path_2;
@@ -312,7 +312,7 @@ Nst_Obj *equivalent(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     NST_RETURN_COND(are_equal);
 }
 
-Nst_Obj *_get_copy_options(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(_get_copy_options_)
 {
     Nst_MapObj *options = AS_MAP(nst_new_map());
 

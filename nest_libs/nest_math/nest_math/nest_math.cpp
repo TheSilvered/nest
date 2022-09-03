@@ -1,7 +1,8 @@
-#include "nest_math.h"
 #include <cmath>
+#include "nest_math.h"
+#include "../../../nest/obj_ops.h"
 
-#define FUNC_COUNT 27
+#define FUNC_COUNT 34
 #define COORD_TYPE_ERROR do { \
         NST_SET_VALUE_ERROR("all coordinates must be of type 'Real' or 'Int'"); \
         return nullptr; \
@@ -17,33 +18,40 @@ bool lib_init()
 
     size_t idx = 0;
 
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(floor_,  1, "floor");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(ceil_,   1, "ceil");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(round_,  1, "round");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(exp_,    1, "exp");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(log_,    1, "log");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(logn_,   2, "logn");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(log2_,   1, "log2");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(log10_,  1, "log10");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(divmod_, 2, "divmod");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(sin_,    1, "sin");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(cos_,    1, "cos");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(tan_,    1, "tan");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(asin_,   1, "asin");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(acos_,   1, "acos");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(atan_,   1, "atan");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(atan2_,  2, "atan2");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(sinh_,   1, "sinh");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(cosh_,   1, "cosh");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(tanh_,   1, "tanh");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(asinh_,  1, "asinh");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(acosh_,  1, "acosh");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(atanh_,  1, "atanh");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(dist_2d_,2, "dist_2d");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(dist_3d_,2, "dist_3d");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(dist_nd_,2, "dist_nd");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(deg_,    1, "deg");
-    func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(rad_,    1, "rad");
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(floor_,  1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(ceil_,   1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(round_,  1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(exp_,    1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(log_,    1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(logn_,   2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(log2_,   1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(log10_,  1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(divmod_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(sin_,    1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(cos_,    1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(tan_,    1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(asin_,   1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(acos_,   1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(atan_,   1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(atan2_,  2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(sinh_,   1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(cosh_,   1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(tanh_,   1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(asinh_,  1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(acosh_,  1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(atanh_,  1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(dist_2d_,2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(dist_3d_,2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(dist_nd_,2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(deg_,    1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(rad_,    1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(min_,    2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(max_,    2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(min_seq_,1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(max_seq_,1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(sum_seq_,1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(frexp_,  1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(ldexp_,  2);
 
     lib_init_ = true;
     return true;
@@ -54,7 +62,7 @@ Nst_FuncDeclr *get_func_ptrs()
     return lib_init_ ? func_list_ : nullptr;
 }
 
-Nst_Obj *floor_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(floor_)
 {
     Nst_Real n;
 
@@ -64,7 +72,7 @@ Nst_Obj *floor_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_int((Nst_Int)n);
 }
 
-Nst_Obj *ceil_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(ceil_)
 {
     Nst_Real n;
 
@@ -74,7 +82,7 @@ Nst_Obj *ceil_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_int((Nst_Int)ceil(n));
 }
 
-Nst_Obj *round_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(round_)
 {
     Nst_Real n;
 
@@ -84,7 +92,7 @@ Nst_Obj *round_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_int((Nst_Int)round(n));
 }
 
-Nst_Obj *exp_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(exp_)
 {
     Nst_Real n;
 
@@ -94,7 +102,7 @@ Nst_Obj *exp_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_real(exp(n));
 }
 
-Nst_Obj *log_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(log_)
 {
     Nst_Real n;
 
@@ -104,7 +112,7 @@ Nst_Obj *log_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_real(log(n));
 }
 
-Nst_Obj *logn_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(logn_)
 {
     Nst_Real n;
     Nst_Real base;
@@ -115,7 +123,7 @@ Nst_Obj *logn_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_real(log(n) / log(base));
 }
 
-Nst_Obj *log2_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(log2_)
 {
     Nst_Real n;
 
@@ -125,7 +133,7 @@ Nst_Obj *log2_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_real(log2(n));
 }
 
-Nst_Obj *log10_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(log10_)
 {
     Nst_Real n;
 
@@ -135,7 +143,7 @@ Nst_Obj *log10_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_real(log10(n));
 }
 
-Nst_Obj *divmod_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(divmod_)
 {
     Nst_Int x;
     Nst_Int y;
@@ -150,7 +158,7 @@ Nst_Obj *divmod_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return (Nst_Obj *)res;
 }
 
-Nst_Obj *sin_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(sin_)
 {
     Nst_Real n;
 
@@ -160,7 +168,7 @@ Nst_Obj *sin_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_real(sin(n));
 }
 
-Nst_Obj *cos_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(cos_)
 {
     Nst_Real n;
 
@@ -170,7 +178,7 @@ Nst_Obj *cos_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_real(cos(n));
 }
 
-Nst_Obj *tan_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(tan_)
 {
     Nst_Real n;
 
@@ -180,7 +188,7 @@ Nst_Obj *tan_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_real(tan(n));
 }
 
-Nst_Obj *asin_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(asin_)
 {
     Nst_Real n;
 
@@ -190,7 +198,7 @@ Nst_Obj *asin_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_real(asin(n));
 }
 
-Nst_Obj *acos_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(acos_)
 {
     Nst_Real n;
 
@@ -200,7 +208,7 @@ Nst_Obj *acos_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_real(acos(n));
 }
 
-Nst_Obj *atan_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(atan_)
 {
     Nst_Real n;
 
@@ -210,7 +218,7 @@ Nst_Obj *atan_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_real(atan(n));
 }
 
-Nst_Obj *atan2_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(atan2_)
 {
     Nst_Real x;
     Nst_Real y;
@@ -221,7 +229,7 @@ Nst_Obj *atan2_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_real(atan2(y, x));
 }
 
-Nst_Obj *sinh_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(sinh_)
 {
     Nst_Real n;
 
@@ -231,7 +239,7 @@ Nst_Obj *sinh_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_real(sinh(n));
 }
 
-Nst_Obj *cosh_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(cosh_)
 {
     Nst_Real n;
 
@@ -241,7 +249,7 @@ Nst_Obj *cosh_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_real(cosh(n));
 }
 
-Nst_Obj *tanh_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(tanh_)
 {
     Nst_Real n;
 
@@ -251,7 +259,7 @@ Nst_Obj *tanh_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_real(tanh(n));
 }
 
-Nst_Obj *asinh_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(asinh_)
 {
     Nst_Real n;
 
@@ -261,7 +269,7 @@ Nst_Obj *asinh_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_real(asinh(n));
 }
 
-Nst_Obj *acosh_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(acosh_)
 {
     Nst_Real n;
 
@@ -271,7 +279,7 @@ Nst_Obj *acosh_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_real(acosh(n));
 }
 
-Nst_Obj *atanh_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(atanh_)
 {
     Nst_Real n;
 
@@ -281,7 +289,7 @@ Nst_Obj *atanh_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_real(atanh(n));
 }
 
-Nst_Obj *dist_2d_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(dist_2d_)
 {
     Nst_SeqObj *p1;
     Nst_SeqObj *p2;
@@ -326,7 +334,7 @@ Nst_Obj *dist_2d_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_real(sqrt(c2));
 }
 
-Nst_Obj *dist_3d_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(dist_3d_)
 {
     Nst_SeqObj *p1;
     Nst_SeqObj *p2;
@@ -384,7 +392,7 @@ Nst_Obj *dist_3d_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_real(sqrt(d2));
 }
 
-Nst_Obj *dist_nd_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(dist_nd_)
 {
     Nst_SeqObj *p1;
     Nst_SeqObj *p2;
@@ -427,7 +435,7 @@ Nst_Obj *dist_nd_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_real(sqrt(tot));
 }
 
-Nst_Obj *deg_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(deg_)
 {
     Nst_Real n;
 
@@ -437,7 +445,7 @@ Nst_Obj *deg_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
     return nst_new_real(n * 57.29577951308232);
 }
 
-Nst_Obj *rad_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+NST_FUNC_SIGN(rad_)
 {
     Nst_Real n;
 
@@ -445,4 +453,139 @@ Nst_Obj *rad_(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
         return nullptr;
     // 0.017453292519943295 = PI / 180
     return nst_new_real(n * 0.017453292519943295);
+}
+
+NST_FUNC_SIGN(min_)
+{
+    Nst_Real a;
+    Nst_Real b;
+
+    if ( !nst_extract_arg_values("NN", arg_num, args, err, &a, &b))
+        return nullptr;
+
+    if ( b < a )
+        return nst_inc_ref(args[1]);
+    return nst_inc_ref(args[0]);
+}
+
+NST_FUNC_SIGN(max_)
+{
+    Nst_Real a;
+    Nst_Real b;
+
+    if ( !nst_extract_arg_values("NN", arg_num, args, err, &a, &b))
+        return nullptr;
+
+    if ( b > a )
+        return nst_inc_ref(args[1]);
+    return nst_inc_ref(args[0]);
+}
+
+NST_FUNC_SIGN(min_seq_)
+{
+    Nst_SeqObj *seq;
+
+    if ( !nst_extract_arg_values("A", arg_num, args, err, &seq) )
+        return nullptr;
+
+    size_t seq_len = seq->len;
+
+    if ( seq_len == 0 )
+    {
+        NST_SET_VALUE_ERROR("sequence length is zero");
+    }
+
+    Nst_Obj *min_obj = seq->objs[0];
+
+    for ( size_t i = 1; i < seq_len; i++)
+    {
+        Nst_Obj *res = nst_obj_lt(seq->objs[i], min_obj, err);
+        if ( err->message[0] ) // an empty string has only one byte: NUL
+            return nullptr;
+
+        if ( res == nst_true )
+            min_obj = seq->objs[i];
+        nst_dec_ref(res);
+    }
+
+    return nst_inc_ref(min_obj);
+}
+
+NST_FUNC_SIGN(max_seq_)
+{
+    Nst_SeqObj *seq;
+
+    if ( !nst_extract_arg_values("A", arg_num, args, err, &seq) )
+        return nullptr;
+
+    size_t seq_len = seq->len;
+
+    if ( seq_len == 0 )
+    {
+        NST_SET_VALUE_ERROR("the sequence has a length of zero");
+    }
+
+    Nst_Obj *max_obj = seq->objs[0];
+
+    for ( size_t i = 1; i < seq_len; i++ )
+    {
+        Nst_Obj *res = nst_obj_gt(seq->objs[i], max_obj, err);
+        if ( err->message[0] ) // an empty string has only one byte: NUL
+            return nullptr;
+
+        if ( res == nst_true )
+            max_obj = seq->objs[i];
+        nst_dec_ref(res);
+    }
+
+    return nst_inc_ref(max_obj);
+}
+
+NST_FUNC_SIGN(sum_seq_)
+{
+    Nst_SeqObj *seq;
+
+    if ( !nst_extract_arg_values("A", arg_num, args, err, &seq) )
+        return nullptr;
+
+    Nst_Obj *total = nst_new_int(0);
+    size_t seq_len = seq->len;
+
+    for ( size_t i = 0; i < seq_len; i++ )
+    {
+        Nst_Obj *res = nst_obj_add(total, seq->objs[i], err);
+        nst_dec_ref(total);
+        if ( err->message[0] ) // an empty string has only one byte: NUL
+            return nullptr;
+
+        total = res;
+    }
+
+    return total;
+}
+
+NST_FUNC_SIGN(frexp_)
+{
+    Nst_Real n;
+
+    if ( !nst_extract_arg_values("r", arg_num, args, err, &n) )
+        return nullptr;
+
+    int num;
+    Nst_SeqObj *arr = AS_SEQ(nst_new_array(2));
+    arr->objs[0] = nst_new_real(frexp(n, &num));
+    arr->objs[1] = nst_new_int(num);
+
+    return (Nst_Obj *)arr;
+}
+
+NST_FUNC_SIGN(ldexp_)
+{
+    Nst_Real m;
+    Nst_Int e;
+
+    if ( !nst_extract_arg_values("ri", arg_num, args, err, &m, &e) )
+        return nullptr;
+
+    return nst_new_real(ldexp(m, e));
 }

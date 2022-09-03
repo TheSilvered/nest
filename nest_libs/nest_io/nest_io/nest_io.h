@@ -10,20 +10,21 @@ extern "C" {
 __declspec(dllexport) bool lib_init();
 __declspec(dllexport) Nst_FuncDeclr *get_func_ptrs();
 __declspec(dllexport) NST_INIT_LIB_OBJ_FUNC;
+__declspec(dllexport) void free_lib();
 
-Nst_Obj *open(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *close(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *write(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *write_bytes(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *read(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *read_bytes(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *file_size(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *move_fptr(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *get_fptr(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *flush(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *_get_stdin(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *_get_stdout(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *_get_stderr(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
+NST_FUNC_SIGN(open_);
+NST_FUNC_SIGN(close_);
+NST_FUNC_SIGN(write_);
+NST_FUNC_SIGN(write_bytes_);
+NST_FUNC_SIGN(read_);
+NST_FUNC_SIGN(read_bytes_);
+NST_FUNC_SIGN(file_size_);
+NST_FUNC_SIGN(get_fptr_);
+NST_FUNC_SIGN(move_fptr_);
+NST_FUNC_SIGN(flush_);
+NST_FUNC_SIGN(_get_stdin_);
+NST_FUNC_SIGN(_get_stdout_);
+NST_FUNC_SIGN(_get_stderr_);
 
 #ifdef __cplusplus
 }

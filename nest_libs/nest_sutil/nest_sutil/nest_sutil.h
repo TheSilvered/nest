@@ -11,27 +11,27 @@ __declspec(dllexport) bool lib_init();
 __declspec(dllexport) Nst_FuncDeclr *get_func_ptrs();
 __declspec(dllexport) NST_INIT_LIB_OBJ_FUNC;
 
-Nst_Obj *nst_lfind(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *rfind(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *trim(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *ltrim(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *rtrim(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *ljust(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *rjust(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *to_upper(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *to_lower(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *is_upper(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *is_lower(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *is_alpha(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *is_digit(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *is_alnum(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *is_charset(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *is_printable(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *replace_substr(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *bytearray_to_str(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *repr(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *join(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *split(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
+NST_FUNC_SIGN(lfind_);
+NST_FUNC_SIGN(rfind_);
+NST_FUNC_SIGN(trim_);
+NST_FUNC_SIGN(ltrim_);
+NST_FUNC_SIGN(rtrim_);
+NST_FUNC_SIGN(ljust_);
+NST_FUNC_SIGN(rjust_);
+NST_FUNC_SIGN(to_upper_);
+NST_FUNC_SIGN(to_lower_);
+NST_FUNC_SIGN(is_upper_);
+NST_FUNC_SIGN(is_lower_);
+NST_FUNC_SIGN(is_alpha_);
+NST_FUNC_SIGN(is_digit_);
+NST_FUNC_SIGN(is_alnum_);
+NST_FUNC_SIGN(is_charset_);
+NST_FUNC_SIGN(is_printable_);
+NST_FUNC_SIGN(replace_substr_);
+NST_FUNC_SIGN(bytearray_to_str_);
+NST_FUNC_SIGN(repr_);
+NST_FUNC_SIGN(join_);
+NST_FUNC_SIGN(split_);
 
 #ifdef __cplusplus
 }

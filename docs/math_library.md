@@ -117,6 +117,36 @@ Transforms `n` radians in degrees.
 
 Transforms `n` degrees in radians.
 
+### `[a: Int|Real, b: Int|Real] @min`
+
+Returns the smallest number between `a` and `b`.
+
+### `[a: Int|Real, b: Int|Real] @max`
+
+Returns the biggest number between `a` and `b`.
+
+### `[sequence: Array|Vector] @max_seq`
+
+Returns the smallest number in `sequence`.
+
+### `[sequence: Array|Vector] @min_seq`
+
+Returns the biggest number in `sequence`.
+
+### `[sequence: Array|Vector] @sum_seq`
+
+Returns the sum of the elements in `sequence`.
+
+### `[n: Real] @frexp`
+
+Returns an array of size two with the mantissa of `n` as the first element and
+the exponent as the second.
+
+### `[m: Real, e: Int] @ldexp`
+
+Inverse of `frexp`, returns a `Real` number with `m` as the mantissa and `e` as
+the exponent.
+
 ## Constants
 
 ### `PI`

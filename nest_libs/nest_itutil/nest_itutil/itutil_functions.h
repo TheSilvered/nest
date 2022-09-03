@@ -3,46 +3,46 @@
 
 #include "../../../nest/nest_include.h"
 
-Nst_Obj *count_start(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *count_advance(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *count_is_done(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *count_get_val(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
+NST_FUNC_SIGN(count_start);
+NST_FUNC_SIGN(count_advance);
+NST_FUNC_SIGN(count_is_done);
+NST_FUNC_SIGN(count_get_val);
 
-Nst_Obj *cycle_start(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *cycle_advance(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *cycle_is_done(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *cycle_get_val(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
+NST_FUNC_SIGN(cycle_start);
+NST_FUNC_SIGN(cycle_advance);
+NST_FUNC_SIGN(cycle_is_done);
+NST_FUNC_SIGN(cycle_get_val);
 
-Nst_Obj *repeat_start(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *repeat_advance(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *repeat_is_done(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *repeat_get_val(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
+NST_FUNC_SIGN(repeat_start);
+NST_FUNC_SIGN(repeat_advance);
+NST_FUNC_SIGN(repeat_is_done);
+NST_FUNC_SIGN(repeat_get_val);
 
-Nst_Obj *chain_start(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *chain_advance(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *chain_is_done(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *chain_get_val(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
+NST_FUNC_SIGN(chain_start);
+NST_FUNC_SIGN(chain_advance);
+NST_FUNC_SIGN(chain_is_done);
+NST_FUNC_SIGN(chain_get_val);
 
-Nst_Obj *zip_start(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *zip_advance(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *zip_is_done(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *zip_get_val(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
+NST_FUNC_SIGN(zip_start);
+NST_FUNC_SIGN(zip_advance);
+NST_FUNC_SIGN(zip_is_done);
+NST_FUNC_SIGN(zip_get_val);
 
-Nst_Obj *enumerate_start(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *enumerate_advance(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *enumerate_is_done(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *enumerate_get_val(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
+NST_FUNC_SIGN(enumerate_start);
+NST_FUNC_SIGN(enumerate_advance);
+NST_FUNC_SIGN(enumerate_is_done);
+NST_FUNC_SIGN(enumerate_get_val);
 
-Nst_Obj *kvi_start(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *kvi_advance(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *kvi_is_done(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *keys_get_val(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *values_get_val(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *items_get_val(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
+NST_FUNC_SIGN(kvi_start);
+NST_FUNC_SIGN(kvi_advance);
+NST_FUNC_SIGN(kvi_is_done);
+NST_FUNC_SIGN(keys_get_val);
+NST_FUNC_SIGN(values_get_val);
+NST_FUNC_SIGN(items_get_val);
 
-Nst_Obj *reversed_start(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *reversed_advance(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *reversed_is_done(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
-Nst_Obj *reversed_get_val(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
+NST_FUNC_SIGN(reversed_start);
+NST_FUNC_SIGN(reversed_advance);
+NST_FUNC_SIGN(reversed_is_done);
+NST_FUNC_SIGN(reversed_get_val);
 
 #endif // !ITUTIL_FUNCTIONS_H

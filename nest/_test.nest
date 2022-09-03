@@ -1,0 +1,5 @@
+|#| '..\\nest_libs\\nest_math\\stdmath.nest' = math
+
+math '__math' -
+
+>>> ( 0.75 1 @math.ldexp )
