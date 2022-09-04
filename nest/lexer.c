@@ -265,12 +265,13 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error **err)
     {
         while ( cursor.idx < (long)cursor.len && cursor.ch != '\n' )
         {
-            advance();
             if ( cursor.ch == '\\' )
             {
                 advance();
-                advance();
+                if ( cursor.ch == '\\' )
+                    go_back();
             }
+            advance();
         }
         go_back();
         free(symbol);
@@ -459,6 +460,8 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err)
 
     char *end_str = malloc(START_CH_SIZE);
     char *end_str_realloc = NULL;
+    char ch1;
+    char ch2;
 
     if ( end_str == NULL )
     {
@@ -520,25 +523,56 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err)
             if ( cursor.idx >= (long)cursor.len || cursor.ch == closing_ch )
                 SET_INVALID_ESCAPE_ERROR;
 
-            char ch1 = tolower(cursor.ch);
+            ch1 = tolower(cursor.ch);
             advance();
 
             if ( cursor.idx >= (long)cursor.len || cursor.ch == closing_ch )
                 SET_INVALID_ESCAPE_ERROR;
 
-            char ch2 = tolower(cursor.ch);
+            ch2 = tolower(cursor.ch);
 
-            if ( ch1 < '0' || ch1 > '7' ||
-                 ch2 < '0' || ch2 > 'f' ||
+            if ( ch1 < '0' || ch1 > 'f'  ||
+                (ch1 > '9' && ch1 < 'a') ||
+                 ch2 < '0' || ch2 > 'f'  ||
                 (ch2 > '9' && ch2 < 'a') )
                 SET_INVALID_ESCAPE_ERROR;
 
-            char result = ((ch1 - '0') << 4) + (ch2 > '9' ? ch2 - 'a' + 10 : ch2 - '0');
-            if ( !result )
-                SET_INVALID_ESCAPE_ERROR;
+            char result = ((ch1 > '9' ? ch1 - 'a' + 10 : ch1 - '0') << 4) +
+                           (ch2 > '9' ? ch2 - 'a' + 10 : ch2 - '0');
 
             end_str[str_len++] = result;
             break;
+        case '0':
+        case '1':
+        case '2':
+        case '3':
+        case '4':
+        case '5':
+        case '6':
+        case '7':
+            ch1 = cursor.ch;
+
+            advance();
+            if ( cursor.ch < '0' || cursor.ch > '7' )
+            {
+                end_str[str_len++] = ch1 - '0';
+                go_back();
+                break;
+            }
+
+            ch2 = cursor.ch;
+
+            advance();
+            if ( cursor.ch < '0' || cursor.ch > '7' )
+            {
+                end_str[str_len++] = ((ch1 - '0') << 3) + ch2 - '0';
+                go_back();
+                break;
+            }
+
+            end_str[str_len++] = ((ch1 - '0') << 6) + ((ch2 - '0') << 3) + cursor.ch - '0';
+            break;
+
         default:
             SET_INVALID_ESCAPE_ERROR;
         }

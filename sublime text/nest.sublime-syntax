@@ -151,8 +151,7 @@ contexts:
 
   comment_end:
     - meta_scope: comment.line.nest
-    - match: (\\\\)*\\\r?\n # odd number of backslashes = escaped comment
-    - match: (\\\\)*\r?\n
+    - match: '[^\\]\r?\n'
       pop: true
 
   multiline_comment_end:
