@@ -30,6 +30,30 @@ contexts:
     - include: general
 
   strings:
+    - match: '(")(_(start|is_done|get_val|advance)_)(")'
+      captures:
+        1: punctuation.definition.string.begin.nest
+        2: constant.character.escape.nest
+        4: punctuation.definition.string.end.nest
+
+    - match: '('')(_(start|is_done|get_val|advance)_)('')'
+      captures:
+        1: punctuation.definition.string.begin.nest
+        2: constant.character.escape.nest
+        4: punctuation.definition.string.end.nest
+
+    - match: '(?<=\|#\|)\s*(")(__C__:)'
+      captures:
+        1: punctuation.definition.string.begin.nest
+        2: constant.character.escape.nest
+      push: string_double
+
+    - match: '(?<=\|#\|)\s*('')(__C__:)'
+      captures:
+        1: punctuation.definition.string.begin.nest
+        2: constant.character.escape.nest
+      push: string_single
+
     - match: '"'
       scope: punctuation.definition.string.begin.nest
       push: string_double
@@ -128,12 +152,10 @@ contexts:
       push: func-args
 
   string_escape:
-    - match: '\\([abfnrtv\\"'']|x[0-7][0-9a-fA-F])'
+    - match: '\\([abfnrtv\\"'']|x[0-9a-fA-F][0-9a-fA-F]|[0-7]{1,3})'
       scope: constant.character.escape.nest
-    - match: '\\(x[^0-7].|x[0-7][^0-9a-fA-F]|[^abfnrtv\\"''])'
+    - match: '\\(x[^0-9a-fA-F].|x[0-9a-fA-F][^0-9a-fA-F]|[^abfnrtv\\"''])'
       scope: invalid.illegal.nest
-    - match: '(?<=[^\\]'')_(start|advance|is_done|get_val)_(?='')'
-      scope: constant.character.escape.nest
 
   string_double:
     - meta_scope: string.quoted.double.nest
