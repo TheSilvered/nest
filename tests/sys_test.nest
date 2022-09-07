@@ -2,10 +2,10 @@
 
 #println s [ >>> (s '\n' ><) ]
 
-"echo Hello" @sys.system
-"APPDATA" @sys.getenv @println
-"HOME" @sys.getenv @println
-"Hello" @sys.get_ref_count @println -- 2
+'echo Hello' @sys.system
+'APPDATA' @sys.getenv @println
+'HOME' @sys.getenv @println
+'Hello' @sys.get_ref_count @println -- 2
 10 @sys.get_addr @println -- a big number
 10 @sys.hash @println -- 10
 -1 @sys.hash @println -- -2

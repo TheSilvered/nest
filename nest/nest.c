@@ -11,7 +11,7 @@
 #include "compiler.h"
 #include "optimizer.h"
 
-#define VERSION "beta-0.3.1"
+#define VERSION "beta-0.4.0"
 
 int main(int argc, char **argv)
 {

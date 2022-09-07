@@ -101,7 +101,7 @@ NST_FUNC_SIGN(chain_advance)
     Nst_Int idx = AS_INT(objs[0]);
     Nst_SeqObj *seq = AS_SEQ(objs[2]);
 
-    if ( AS_INT(objs[1]) >= (Nst_Int)seq->len )
+    if ( idx >= (Nst_Int)seq->len )
     {
         NST_SET_VALUE_ERROR(_nst_format_idx_error(
             seq->type == nst_t_arr ? INDEX_OUT_OF_BOUNDS("Array")
@@ -124,11 +124,9 @@ NST_FUNC_SIGN(chain_advance)
 NST_FUNC_SIGN(chain_is_done)
 {
     Nst_Obj **objs = AS_SEQ(args[0])->objs;
-    Nst_Int idx = AS_INT(objs[0]);
     Nst_SeqObj *seq = AS_SEQ(objs[2]);
-    Nst_Obj *sub_seq = seq->objs[idx];
 
-    if ( idx >= (Nst_Int)seq->len )
+    if ( AS_INT(objs[0]) >= (Nst_Int)seq->len )
         NST_RETURN_TRUE;
 
     NST_RETURN_FALSE;

@@ -7,4 +7,4 @@ __rand.choice_    = choice
 __rand.shuffle_   = shuffle
 __rand.rand_seed_ = rand_seed
 
-@__rand._get_rand_max = RAND_MAX
+@__rand._get_rand_max_ = RAND_MAX

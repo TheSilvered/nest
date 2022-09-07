@@ -40,6 +40,16 @@ copy ..\x64\Release\nest_math.dll x64\nest_libs\stdmath.dll /y
 copy ..\Release\nest_math.dll x86\nest_libs\stdmath.dll /y
 copy ..\nest_libs\nest_math\stdmath.nest x64\nest_libs\stdmath.nest /y
 copy ..\nest_libs\nest_math\stdmath.nest x86\nest_libs\stdmath.nest /y
+:: Sequence utilities
+copy ..\x64\Release\nest_sequtil.dll x64\nest_libs\stdsequtil.dll /y
+copy ..\Release\nest_sequtil.dll x86\nest_libs\stdsequtil.dll /y
+copy ..\nest_libs\nest_sequtil\stdsequtil.nest x64\nest_libs\stdsequtil.nest /y
+copy ..\nest_libs\nest_sequtil\stdsequtil.nest x86\nest_libs\stdsequtil.nest /y
+:: System
+copy ..\x64\Release\nest_sys.dll x64\nest_libs\stdsys.dll /y
+copy ..\Release\nest_sys.dll x86\nest_libs\stdsys.dll /y
+copy ..\nest_libs\nest_sys\stdsys.nest x64\nest_libs\stdsys.nest /y
+copy ..\nest_libs\nest_sys\stdsys.nest x86\nest_libs\stdsys.nest /y
 
 :: Udate .nest files
 nest update_nest_file.nest x64\nest_libs\stdfs.nest
@@ -56,3 +66,7 @@ nest update_nest_file.nest x64\nest_libs\stditutil.nest
 nest update_nest_file.nest x86\nest_libs\stditutil.nest
 nest update_nest_file.nest x64\nest_libs\stdmath.nest
 nest update_nest_file.nest x86\nest_libs\stdmath.nest
+nest update_nest_file.nest x64\nest_libs\stdsequtil.nest
+nest update_nest_file.nest x86\nest_libs\stdsequtil.nest
+nest update_nest_file.nest x64\nest_libs\stdsys.nest
+nest update_nest_file.nest x86\nest_libs\stdsys.nest
