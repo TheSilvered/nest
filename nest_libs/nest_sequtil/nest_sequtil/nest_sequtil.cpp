@@ -338,7 +338,7 @@ NST_FUNC_SIGN(sort_)
         }
     }
 
-    NST_RETURN_NULL;
+    return nst_inc_ref(seq);
 }
 
 NST_FUNC_SIGN(empty_)
@@ -353,7 +353,7 @@ NST_FUNC_SIGN(empty_)
 
     vect->len = 0;
 
-    NST_RETURN_NULL;
+    nst_inc_ref(vect);
 }
 
 NST_FUNC_SIGN(any_)
