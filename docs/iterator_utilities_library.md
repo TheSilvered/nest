@@ -91,3 +91,19 @@ Returns the elements of a sequence in reverse order, from the last to the first.
 ```
 'Hi!' @reverse --> '!', 'i', 'H'
 ```
+
+### `[iter: Iter] @iter_start`
+
+Calls the `_start_` function of an iterator.
+
+### `[iter: Iter] @iter_get_val`
+
+Calls the `_get_val_` function of an iterator.
+
+### `[iter: Iter] @iter_is_done`
+
+Calls the `_is_done_` function of an iterator.
+
+### `[iter: Iter] @iter_advance`
+
+Calls the `_advance_` function of an iterator.

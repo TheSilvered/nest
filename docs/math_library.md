@@ -147,6 +147,18 @@ the exponent as the second.
 Inverse of `frexp`, returns a `Real` number with `m` as the mantissa and `e` as
 the exponent.
 
+### `[n: Int|Real, min1: Int|Real, max1: Int|Real, min2: Int|Real, max2: Int|Real] @map`
+
+Maps `n` from a range from `min1` to `max2`, to a range from `min2` to `max2`.  
+Uses the formula `(n min1 -) (max1 - min1) / (max2 min2 -) * min2 +`.  
+This implies that `min1` cannot be equal to `min2`.
+
+### `[n: Int|Real, min: Int|Real, max: Int|Real] @clamp`
+
+Returns a value such that `min <= value <= max`. If `n` is greater than `max`,
+`max` is returned, similarly if `n` is smaller than `min` then `min` is returned.
+If `n` is between `min` and `max` inclusive, it is returned.
+
 ## Constants
 
 ### `PI`
