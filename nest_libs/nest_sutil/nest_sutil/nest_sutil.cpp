@@ -19,7 +19,7 @@ bool lib_init()
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(lfind_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(rfind_, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(trim_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(trim_,  1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(ltrim_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(rtrim_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(ljust_, 3);

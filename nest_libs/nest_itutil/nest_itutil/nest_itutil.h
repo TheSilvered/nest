@@ -21,6 +21,10 @@ NST_FUNC_SIGN(keys_);
 NST_FUNC_SIGN(values_);
 NST_FUNC_SIGN(items_);
 NST_FUNC_SIGN(reversed_);
+NST_FUNC_SIGN(iter_start_);
+NST_FUNC_SIGN(iter_is_done_);
+NST_FUNC_SIGN(iter_get_val_);
+NST_FUNC_SIGN(iter_advance_);
 
 #ifdef __cplusplus
 }

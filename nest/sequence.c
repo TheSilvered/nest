@@ -145,17 +145,17 @@ Nst_Obj *_nst_rem_value_vector(Nst_SeqObj *vect, Nst_Obj *val)
     for ( ; i < n; i++ )
     {
         if ( nst_obj_eq(val, objs[i], NULL) == nst_true )
+        {
+            nst_dec_ref(objs[i]);
             break;
+        }
         if ( i + 1 == n )
             return nst_inc_ref(nst_false);
     }
 
     for ( i++; i < n; i++ )
-    {
-        _nst_set_value_seq(vect, i - 1, objs[i]);
-    }
+        vect->objs[i - 1] = objs[i];
 
-    nst_dec_ref(objs[n - 1]);
     vect->len--;
     _nst_resize_vector(vect);
 

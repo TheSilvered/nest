@@ -1,12 +1,16 @@
 |#| '__C__:..\\..\\x64\\Debug\\nest_itutil.dll' = __itu
 
-__itu.count_     = count
-__itu.cycle_     = cycle
-__itu.repeat_    = repeat
-__itu.chain_     = chain
-__itu.zip_       = zip
-__itu.enumerate_ = enumerate
-__itu.keys_      = keys
-__itu.values_    = values
-__itu.items_     = items
-__itu.reversed_  = reversed
+__itu.count_        = count
+__itu.cycle_        = cycle
+__itu.repeat_       = repeat
+__itu.chain_        = chain
+__itu.zip_          = zip
+__itu.enumerate_    = enumerate
+__itu.keys_         = keys
+__itu.values_       = values
+__itu.items_        = items
+__itu.reversed_     = reversed
+__itu.iter_start_   = iter_start
+__itu.iter_is_done_ = iter_is_done
+__itu.iter_get_val_ = iter_get_val
+__itu.iter_advance_ = iter_advance

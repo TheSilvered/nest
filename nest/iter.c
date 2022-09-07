@@ -66,19 +66,9 @@ NST_FUNC_SIGN(nst_num_iter_is_done)
     register Nst_Int step = AS_INT(objs[3]);
 
     if ( step > 0 )
-    {
-        if ( idx < stop )
-            NST_RETURN_FALSE;
-        else
-            NST_RETURN_TRUE;
-    }
+        NST_RETURN_COND(idx >= stop);
     else
-    {
-        if ( idx > stop )
-            NST_RETURN_FALSE;
-        else
-            NST_RETURN_TRUE;
-    }
+        NST_RETURN_COND(idx <= stop);
 }
 
 NST_FUNC_SIGN(nst_num_iter_get_val)
@@ -117,10 +107,23 @@ NST_FUNC_SIGN(nst_seq_iter_is_done)
 NST_FUNC_SIGN(nst_seq_iter_get_val)
 {
     Nst_SeqObj *val = AS_SEQ(args[0]);
-    register Nst_Obj *obj = AS_SEQ(val->objs[1])->objs[AS_INT(val->objs[0])];
+    register Nst_SeqObj *seq = AS_SEQ(val->objs[1]);
+    register size_t idx = (size_t)AS_INT(val->objs[0]);
 
-    nst_inc_ref(obj);
-    return obj;
+    if ( seq->len < idx )
+    {
+        NST_SET_VALUE_ERROR(_nst_format_idx_error(
+            seq->type == nst_t_arr ? INDEX_OUT_OF_BOUNDS("Array")
+                                   : INDEX_OUT_OF_BOUNDS("Vector"),
+            idx,
+            seq->len
+        ));
+
+        return NULL;
+    }
+
+    register Nst_Obj *obj = AS_SEQ(val->objs[1])->objs[AS_INT(val->objs[0])];
+    return nst_inc_ref(obj);
 }
 
 NST_FUNC_SIGN(nst_str_iter_start)
@@ -154,6 +157,19 @@ NST_FUNC_SIGN(nst_str_iter_get_val)
 {
     Nst_SeqObj *val = AS_SEQ(args[0]);
     Nst_Obj **objs = val->objs;
+    Nst_StrObj *str = AS_STR(objs[1]);
+    register size_t idx = (size_t)AS_INT(objs[0]);
+
+    if ( str->len < idx )
+    {
+        NST_SET_VALUE_ERROR(_nst_format_idx_error(
+            INDEX_OUT_OF_BOUNDS("Str"),
+            idx,
+            str->len
+        ));
+
+        return NULL;
+    }
 
     return nst_string_get_idx(objs[1], AS_INT(objs[0]));
 }

@@ -1,0 +1,81 @@
+#include <stdlib.h>
+#include "nest_sys.h"
+
+#define FUNC_COUNT 6
+
+static Nst_FuncDeclr *func_list_;
+static bool lib_init_ = false;
+
+bool lib_init()
+{
+    if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
+        return false;
+
+    size_t idx = 0;
+
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(system_,        1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(exit_,          1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(getenv_,        1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(get_ref_count_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(get_addr_,      1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(hash_,          1);
+
+    lib_init_ = true;
+    return true;
+}
+
+Nst_FuncDeclr *get_func_ptrs()
+{
+    return lib_init_ ? func_list_ : nullptr;
+}
+
+NST_FUNC_SIGN(system_)
+{
+    Nst_StrObj *command;
+
+    if ( !nst_extract_arg_values("s", arg_num, args, err, &command) )
+        return nullptr;
+
+    return nst_new_int(system(command->value));
+}
+
+NST_FUNC_SIGN(exit_)
+{
+    Nst_Int status;
+
+    if ( !nst_extract_arg_values("i", arg_num, args, err, &status) )
+        return nullptr;
+
+    exit((int)status);
+    return nullptr;
+}
+
+NST_FUNC_SIGN(getenv_)
+{
+    Nst_StrObj *name;
+
+    if ( !nst_extract_arg_values("s", arg_num, args, err, &name) )
+        return nullptr;
+
+    char *env_name = getenv(name->value);
+
+    if ( env_name == nullptr )
+        NST_RETURN_NULL;
+
+    return nst_new_string_raw(env_name, false);
+}
+
+NST_FUNC_SIGN(get_ref_count_)
+{
+    return nst_new_int(args[0]->ref_count);
+}
+
+NST_FUNC_SIGN(get_addr_)
+{
+    return nst_new_int((size_t)args[0]);
+}
+
+NST_FUNC_SIGN(hash_)
+{
+    return nst_new_int(nst_hash_obj(args[0]));
+}

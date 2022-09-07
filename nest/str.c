@@ -90,14 +90,15 @@ Nst_Obj *_nst_copy_string(Nst_StrObj *src)
 Nst_Obj *_nst_repr_string(Nst_StrObj *src)
 {
     char *orig = src->value;
+    size_t l = src->len;
     size_t new_size = 2;
     int double_quotes_count = 0;
     int single_quotes_count = 0;
     bool using_doub = false;
 
-    for ( char *s = orig; *s; s++ )
+    for ( size_t i = 0; i < l; i++ )
     {
-        switch ( *s )
+        switch ( orig[i] )
         {
         case '\\':
         case '\a':
@@ -110,7 +111,7 @@ Nst_Obj *_nst_repr_string(Nst_StrObj *src)
         case '\'': single_quotes_count += 1; break;
         case '"': double_quotes_count += 1; break;
         default:
-            if ( isprint(*s) )
+            if ( isprint(orig[i]) )
                 new_size += 1;
             else
                 new_size += 4;
@@ -139,9 +140,9 @@ Nst_Obj *_nst_repr_string(Nst_StrObj *src)
     *new_str = using_doub ? '"' : '\'';
 
     size_t i = 1;
-    for ( char *s = orig; *s; s++ )
+    for ( size_t j = 0; j < l; j++ )
     {
-        switch ( *s )
+        switch ( orig[j] )
         {
         case '\\': new_str[i++] = '\\'; new_str[i++] = '\\'; break;
         case '\a': new_str[i++] = '\\'; new_str[i++] = 'a'; break;
@@ -160,11 +161,11 @@ Nst_Obj *_nst_repr_string(Nst_StrObj *src)
             new_str[i++] = '"';
             break;
         default:
-            if ( isprint(*s) )
-                new_str[i++] = *s;
+            if ( isprint(orig[j]) )
+                new_str[i++] = orig[j];
             else
             {
-                sprintf(&new_str[i], "\\x%02x", *s);
+                sprintf(&new_str[i], "\\x%02x", orig[j]);
                 i += 4;
             }
         }

@@ -2,7 +2,7 @@
 #include "nest_math.h"
 #include "../../../nest/obj_ops.h"
 
-#define FUNC_COUNT 34
+#define FUNC_COUNT 36
 #define COORD_TYPE_ERROR do { \
         NST_SET_VALUE_ERROR("all coordinates must be of type 'Real' or 'Int'"); \
         return nullptr; \
@@ -52,6 +52,8 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(sum_seq_,1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(frexp_,  1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(ldexp_,  2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(map_,    5);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(clamp_,  3);
 
     lib_init_ = true;
     return true;
@@ -587,5 +589,37 @@ NST_FUNC_SIGN(ldexp_)
     if ( !nst_extract_arg_values("ri", arg_num, args, err, &m, &e) )
         return nullptr;
 
-    return nst_new_real(ldexp(m, e));
+    return nst_new_real(ldexp(m, (int)e));
+}
+
+NST_FUNC_SIGN(map_)
+{
+    Nst_Real val;
+    Nst_Real min1;
+    Nst_Real max1;
+    Nst_Real min2;
+    Nst_Real max2;
+
+    if ( !nst_extract_arg_values("NNNNN", arg_num, args, err, &val, &min1, &max1, &min2, &max2) )
+        return nullptr;
+
+    if ( min1 == max1 )
+    {
+        NST_SET_MATH_ERROR("original minimum and maximum are equal");
+        return nullptr;
+    }
+
+    return nst_new_real((val - min1) / (max1 - min1) * (max2 - min2) + min2);
+}
+
+NST_FUNC_SIGN(clamp_)
+{
+    Nst_Real val;
+    Nst_Real min;
+    Nst_Real max;
+
+    if ( !nst_extract_arg_values("NNN", arg_num, args, err, &val, &min, &max) )
+        return nullptr;
+
+    return nst_new_real(min > val ? min : max < val ? max : val);
 }

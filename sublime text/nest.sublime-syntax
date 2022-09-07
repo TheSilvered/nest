@@ -173,7 +173,8 @@ contexts:
 
   comment_end:
     - meta_scope: comment.line.nest
-    - match: '[^\\]\r?\n'
+    - match: '\\\r?\n'
+    - match: '\n'
       pop: true
 
   multiline_comment_end:

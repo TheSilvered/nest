@@ -45,6 +45,8 @@ NST_FUNC_SIGN(max_seq_);
 NST_FUNC_SIGN(sum_seq_);
 NST_FUNC_SIGN(frexp_);
 NST_FUNC_SIGN(ldexp_);
+NST_FUNC_SIGN(map_);
+NST_FUNC_SIGN(clamp_);
 
 #ifdef __cplusplus
 }

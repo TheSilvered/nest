@@ -17,10 +17,10 @@ extern "C" {
 typedef struct
 {
     Nst_Traceback *traceback;
-    Nst_VarTable *vt;
+    Nst_VarTable **vt;
     Nst_Int *idx;
     bool *error_occurred;
-    Nst_StrObj *curr_path;
+    Nst_StrObj **curr_path;
     Nst_SeqObj *argv;
     Nst_ValueStack *v_stack;
     Nst_CallStack *f_stack;

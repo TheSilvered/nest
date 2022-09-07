@@ -1,7 +1,7 @@
 #include "nest_itutil.h"
 #include "itutil_functions.h"
 
-#define FUNC_COUNT 10
+#define FUNC_COUNT 14
 
 static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
@@ -13,16 +13,20 @@ bool lib_init()
 
     size_t idx = 0;
 
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(count_, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(cycle_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(repeat_, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(chain_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(zip_, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(enumerate_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(keys_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(values_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(items_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(reversed_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(count_,        2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(cycle_,        1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(repeat_,       2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(chain_,        1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(zip_,          2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(enumerate_,    1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(keys_,         1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(values_,       1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(items_,        1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(reversed_,     1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(iter_start_,   1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(iter_is_done_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(iter_get_val_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(iter_advance_, 1);
 
     lib_init_ = true;
     return true;
@@ -247,4 +251,44 @@ NST_FUNC_SIGN(reversed_)
         AS_FUNC(new_cfunc(1, reversed_get_val)),
         (Nst_Obj *)arr
     );
+}
+
+NST_FUNC_SIGN(iter_start_)
+{
+    Nst_IterObj *iter;
+
+    if ( !nst_extract_arg_values("I", arg_num, args, err, &iter) )
+        return nullptr;
+
+    return nst_call_func(iter->start, &iter->value, err);
+}
+
+NST_FUNC_SIGN(iter_is_done_)
+{
+    Nst_IterObj *iter;
+
+    if ( !nst_extract_arg_values("I", arg_num, args, err, &iter) )
+        return nullptr;
+
+    return nst_call_func(iter->is_done, &iter->value, err);
+}
+
+NST_FUNC_SIGN(iter_get_val_)
+{
+    Nst_IterObj *iter;
+
+    if ( !nst_extract_arg_values("I", arg_num, args, err, &iter) )
+        return nullptr;
+
+    return nst_call_func(iter->get_val, &iter->value, err);
+}
+
+NST_FUNC_SIGN(iter_advance_)
+{
+    Nst_IterObj *iter;
+
+    if ( !nst_extract_arg_values("I", arg_num, args, err, &iter) )
+        return nullptr;
+
+    return nst_call_func(iter->advance, &iter->value, err);
 }

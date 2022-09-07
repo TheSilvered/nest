@@ -1,0 +1,6 @@
+|#| "..\\nest_libs\\nest_sequtil\\stdsequtil.nest" = seq
+|#| "..\\nest_libs\\nest_itutil\\stditutil.nest" = itu
+
+{ 1, 2, 3 } = a
+
+>>> ( a @itu.enumerate @seq.from_iter )

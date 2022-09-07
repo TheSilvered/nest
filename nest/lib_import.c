@@ -50,12 +50,13 @@ bool nst_extract_arg_values(const char *types,
        'v': vector
        'a': array
        'A': array or vector
-       'S': array, vector or string, always returns a Nst_Obj *
+       'S': array, vector or string, always returns a Nst_SeqObj *
        'm': map
        'f': func
        'I': iter
        'B': byte
        'F': file
+       'o': any object
      */
     for ( size_t i = 0; i < arg_num; i++ )
     {
@@ -152,6 +153,9 @@ bool nst_extract_arg_values(const char *types,
             if ( ob->type != nst_t_file )
                 _NST_SET_TYPE_ERROR("IOfile");
             *(Nst_IOFileObj **)arg = AS_FILE(ob);
+            break;
+        case 'o':
+            *(Nst_Obj **)arg = ob;
             break;
         default:
             err->name = (char *)"Value Error";

@@ -34,6 +34,8 @@ __math.max_seq_ = max_seq
 __math.sum_seq_ = sum_seq
 __math.frexp_   = frexp
 __math.ldexp_   = ldexp
+__math.map_     = map
+__math.clamp_   = clamp
 
 3.141592653589793 = PI
 6.283185307179586 = TAU

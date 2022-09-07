@@ -43,7 +43,7 @@
 
 #main [
     ($_args_ 3 !=) ($_args_ 4 !=) && ? [
-        >>> 'USAGE: nest .\\make_clib_files.py (new <library_name>|update) <location>\n'
+        >>> 'USAGE: nest .\\mkclib.py (new <library_name>|update) <location>\n'
         => 1
     ]
 
@@ -89,11 +89,11 @@ extern \"C\" {
 #endif // !__cplusplus
 
 __declspec(dllexport) bool lib_init();
-__declspec(dllexport) FuncDeclr *get_func_ptrs();
-__declspec(dllexport) INIT_LIB_OBJ_FUNC;
+__declspec(dllexport) Nst_FuncDeclr *get_func_ptrs();
+__declspec(dllexport) NST_INIT_LIB_OBJ_FUNC;
 
 // Here you can put your function signatures
-// They must always be `Nst_Obj *func_name(size_t arg_num, Nst_Obj **args, OpErr *err);`
+// They must always be `NST_FUNC_SIGN(func_name);`
 // replace func_name with your function's name
 
 #ifdef __cplusplus
@@ -108,28 +108,32 @@ __declspec(dllexport) INIT_LIB_OBJ_FUNC;
 
 #define FUNC_COUNT // Set this to the number of functions in your module
 
-static FuncDeclr *func_list_;
+static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
 
 bool lib_init()
 {
-    if ( (func_list_ = new_func_list(FUNC_COUNT)) == nullptr )
+    if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
         return false;
 
     size_t idx = 0;
 
     // Set each function to an index in func_list_
-    // func_list_[idx++] = {
+    // func_list_[idx++] = NST_MAKE_FUNCDECLR(
     //     func_ptr, -> the function pointer
-    //     1, -> the number of arguments the function takes
-    //     new_string_raw(\"func_name\", false) -> the string containing the name
-    // }                                           of the funtion inside Nest
+    //     1 -> the number of arguments the function takes
+    // );
+    //
+    // The function will be accessed by nest throwgh the name of `func_ptr` but
+    // if you wish to change it you can use:
+    // func_list_[idx++] = NST_MAKE_NAMED_FUNCDECLR(func_ptr, 1, \"new_name\");
+    // where 'new_name' is the name of the function
 
     lib_init_ = true;
     return true;
 }
 
-FuncDeclr *get_func_ptrs()
+Nst_FuncDeclr *get_func_ptrs()
 {
     return lib_init_ ? func_list_ : nullptr;
 }
@@ -202,29 +206,29 @@ FuncDeclr *get_func_ptrs()
       <PrecompiledHeader Condition=\"'$(Configuration)|$(Platform)'=='Release|Win32'\">Create</PrecompiledHeader>
       <PrecompiledHeader Condition=\"'$(Configuration)|$(Platform)'=='Release|x64'\">Create</PrecompiledHeader>
     </ClCompile>" \
-    ("<ClCompile Include=\"nest_source\\compiler.c />
-      <ClCompile Include=\"nest_source\\error.c />
-      <ClCompile Include=\"nest_source\\function.c />
-      <ClCompile Include=\"nest_source\\hash.c />
-      <ClCompile Include=\"nest_source\\instructions.c />
-      <ClCompile Include=\"nest_source\\interpreter.c />
-      <ClCompile Include=\"nest_source\\iter.c />
-      <ClCompile Include=\"nest_source\\lexer.c />
-      <ClCompile Include=\"nest_source\\lib_import.c />
-      <ClCompile Include=\"nest_source\\llist.c />
-      <ClCompile Include=\"nest_source\\map.c />
-      <ClCompile Include=\"nest_source\\nodes.c />
-      <ClCompile Include=\"nest_source\\obj.c />
-      <ClCompile Include=\"nest_source\\obj_ops.c />
-      <ClCompile Include=\"nest_source\\optimizer.c />
-      <ClCompile Include=\"nest_source\\parser.c />
-      <ClCompile Include=\"nest_source\\runtime_stack.c />
-      <ClCompile Include=\"nest_source\\sequence.c />
-      <ClCompile Include=\"nest_source\\simple_types.c />
-      <ClCompile Include=\"nest_source\\str.c />
-      <ClCompile Include=\"nest_source\\tokens.c />
-      <ClCompile Include=\"nest_source\\var_table.c />
-      <ClInclude Include=\""project_name".cpp\" />" ><) @replace_file_str
+    ("<ClCompile Include=\"nest_source\\compiler.c\" />
+      <ClCompile Include=\"nest_source\\error.c\" />
+      <ClCompile Include=\"nest_source\\function.c\" />
+      <ClCompile Include=\"nest_source\\hash.c\" />
+      <ClCompile Include=\"nest_source\\instructions.c\" />
+      <ClCompile Include=\"nest_source\\interpreter.c\" />
+      <ClCompile Include=\"nest_source\\iter.c\" />
+      <ClCompile Include=\"nest_source\\lexer.c\" />
+      <ClCompile Include=\"nest_source\\lib_import.c\" />
+      <ClCompile Include=\"nest_source\\llist.c\" />
+      <ClCompile Include=\"nest_source\\map.c\" />
+      <ClCompile Include=\"nest_source\\nodes.c\" />
+      <ClCompile Include=\"nest_source\\obj.c\" />
+      <ClCompile Include=\"nest_source\\obj_ops.c\" />
+      <ClCompile Include=\"nest_source\\optimizer.c\" />
+      <ClCompile Include=\"nest_source\\parser.c\" />
+      <ClCompile Include=\"nest_source\\runtime_stack.c\" />
+      <ClCompile Include=\"nest_source\\sequence.c\" />
+      <ClCompile Include=\"nest_source\\simple_types.c\" />
+      <ClCompile Include=\"nest_source\\str.c\" />
+      <ClCompile Include=\"nest_source\\tokens.c\" />
+      <ClCompile Include=\"nest_source\\var_table.c\" />
+      <ClCompile Include=\""project_name".cpp\" />" ><) @replace_file_str
 
     => 0
 ]
