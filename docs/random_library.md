@@ -1,4 +1,4 @@
-# Random library (`stdrand.h` - `rand`)
+# Random library (`stdrand.nest` - `rand`)
 
 ## Functions
 
