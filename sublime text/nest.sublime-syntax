@@ -80,6 +80,10 @@ contexts:
     - match: '\d+(\.\d+)?'
       scope: constant.numeric.nest
 
+    - match: '##'
+      scope: keyword.declaration.function.nest
+      push: lambda-args
+
   comment:
     - match: '(-->|--+)'
       scope: comment.line.nest
@@ -189,6 +193,17 @@ contexts:
       scope: text.nest
     - match: '\['
       scope: punctuation.section.block.begin.nest
+      pop: true
+    - match: .
+      scope: invalid.illegal.nest
+
+  lambda-args:
+    - match: '{{identifier}}'
+      scope: variable.parameter.nest
+    - match: '[ \t]*'
+      scope: text.nest
+    - match: '=>'
+      scope: keyword.control.nest
       pop: true
     - match: .
       scope: invalid.illegal.nest
