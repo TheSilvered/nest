@@ -11,15 +11,15 @@
 #include "compiler.h"
 #include "optimizer.h"
 
-#define VERSION "beta-0.4.0"
+#define VERSION "beta-0.4.1"
 
 int main(int argc, char **argv)
 {
     SetConsoleOutputCP(CP_UTF8);
 
 #ifdef _DEBUG
-    puts("**USING DEBUG BUILD**");
-    puts("---------------------");
+    puts("**USING DEBUG BUILD - " VERSION "**");
+    puts("----------------------------------");
     fflush(stdout);
 #endif
 
@@ -152,7 +152,6 @@ int main(int argc, char **argv)
 
     Nst_InstructionList *inst_ls = nst_compile(ast, false);
     inst_ls = nst_optimize_bytecode(inst_ls, true);
-    //nst_print_bytecode(inst_ls, 0);
 
     if ( inst_ls == NULL )
     {

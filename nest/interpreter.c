@@ -148,8 +148,14 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv)
         {
             if ( calls[n - i].start.filename == NULL ) // i.e. there is no valid position
                 continue;
-            LList_append(nst_state.traceback->positions, &(calls[n - i].start), false);
-            LList_append(nst_state.traceback->positions, &(calls[n - i].end)  , false);
+
+            Nst_Pos *positions = malloc(sizeof(Nst_Pos) * 2);
+            if ( positions == NULL ) continue;
+                positions[0] = calls[n - i].start;
+                positions[1] = calls[n - i].end;
+
+            LList_append(nst_state.traceback->positions, &positions[0], false);
+            LList_append(nst_state.traceback->positions, &positions[1], false);
         }
 
         nst_print_traceback(*nst_state.traceback);
@@ -1008,6 +1014,44 @@ static inline void exe_op_extract(Nst_RuntimeInstruction inst)
                     _nst_format_type_error(UNHASHABLE_TYPE, idx->type_name)
                 );
             }
+
+            nst_dec_ref(cont);
+            nst_dec_ref(idx);
+            return;
+        }
+        else
+            nst_push_val(nst_state.v_stack, res);
+    }
+    else if ( cont->type == nst_t_str )
+    {
+        if ( idx->type != nst_t_int )
+        {
+            SET_ERROR(
+                _NST_SET_TYPE_ERROR,
+                inst.start,
+                inst.end,
+                _nst_format_type_error(EXPECTED_TYPE("Int"), idx->type_name)
+            );
+
+            nst_dec_ref(cont);
+            nst_dec_ref(idx);
+            return;
+        }
+
+        res = nst_string_get_idx(cont, AS_INT(idx));
+
+        if ( res == NULL )
+        {
+            SET_ERROR(
+                _NST_SET_VALUE_ERROR,
+                inst.start,
+                inst.end,
+                _nst_format_idx_error(
+                    INDEX_OUT_OF_BOUNDS("Str"),
+                    AS_INT(idx),
+                    AS_SEQ(cont)->len
+                )
+            );
 
             nst_dec_ref(cont);
             nst_dec_ref(idx);

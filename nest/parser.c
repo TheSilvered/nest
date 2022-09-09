@@ -56,6 +56,7 @@ static Nst_Node *parse_extraction();
 static Nst_Node *parse_atom();
 static Nst_Node *parse_vector_literal();
 static Nst_Node *parse_arr_or_map_literal();
+static Nst_Node *parse_lambda();
 
 Nst_Node *nst_parse(LList *tokens_list)
 {
@@ -1027,6 +1028,11 @@ static Nst_Node *parse_atom()
         LList_push(tokens, tok, true);
         return parse_arr_or_map_literal();
     }
+    else if ( tok->type == NST_TT_LAMBDA )
+    {
+        LList_push(tokens, tok, true);
+        return parse_lambda();
+    }
     else
     {
         Nst_Pos err_start = tok->start;
@@ -1246,6 +1252,52 @@ static Nst_Node *parse_arr_or_map_literal()
     }
 }
 
+static Nst_Node *parse_lambda()
+{
+    Nst_LexerToken *tok = LList_pop(tokens);
+    Nst_Pos start = tok->start;
+    nst_destroy_token(tok);
+
+    SAFE_LLIST_CREATE(node_tokens);
+
+    while ( TOK(LList_peek_front(tokens))->type == NST_TT_IDENT )
+        LList_append(node_tokens, LList_pop(tokens), true);
+
+    skip_blank();
+
+    Nst_Pos return_tok_start = TOK(LList_peek_front(tokens))->start;
+    Nst_Pos return_tok_end = TOK(LList_peek_front(tokens))->end;
+
+    if ( TOK(LList_peek_front(tokens))->type != NST_TT_RETURN )
+    {
+        LList_destroy(node_tokens, nst_destroy_token);
+        RETURN_ERROR(return_tok_start, return_tok_end, EXPECTED_RETURN);
+    }
+    nst_destroy_token(LList_pop(tokens));
+
+    Nst_Node *expr = parse_expr(false);
+    if ( p_state.error != NULL )
+    {
+        LList_destroy(node_tokens, nst_destroy_token);
+        return NULL;
+    }
+
+    SAFE_LLIST_CREATE(return_nodes);
+    LList_append(return_nodes, expr, true);
+    Nst_Node *return_node = nst_new_node_nodes(
+        return_tok_start,
+        expr->end,
+        NST_NT_RETURN_S,
+        return_nodes
+    );
+
+    SAFE_LLIST_CREATE(nodes);
+    LList_append(nodes, return_node, true);
+
+    Nst_Pos end = expr->end;
+    return nst_new_node_full(start, end, NST_NT_LAMBDA, nodes, node_tokens);
+}
+
 static void _print_ast(Nst_Node *node, Nst_LexerToken *tok, int lvl, LList *is_last)
 {
     LLNode *cursor = NULL;
@@ -1279,27 +1331,32 @@ static void _print_ast(Nst_Node *node, Nst_LexerToken *tok, int lvl, LList *is_l
         return;
     }
 
-    if      ( node->type == NST_NT_LONG_S ) printf("LONG_S");
-    else if ( node->type == NST_NT_WHILE_L ) printf("WHILE_L");
-    else if ( node->type == NST_NT_DOWHILE_L ) printf("DOWHILE_L");
-    else if ( node->type == NST_NT_FOR_L ) printf("FOR_L");
-    else if ( node->type == NST_NT_FOR_AS_L ) printf("FOR_AS_L");
-    else if ( node->type == NST_NT_IF_E ) printf("IF_E");
-    else if ( node->type == NST_NT_FUNC_DECLR ) printf("FUNC_DECLR");
-    else if ( node->type == NST_NT_RETURN_S ) printf("RETURN_S");
-    else if ( node->type == NST_NT_STACK_OP ) printf("STACK_OP");
-    else if ( node->type == NST_NT_LOCAL_STACK_OP ) printf("LOCAL_STACK_OP");
-    else if ( node->type == NST_NT_LOCAL_OP ) printf("LOCAL_OP");
-    else if ( node->type == NST_NT_ARR_LIT ) printf("ARR_LIT");
-    else if ( node->type == NST_NT_VEC_LIT ) printf("VECT_LIT");
-    else if ( node->type == NST_NT_MAP_LIT ) printf("MAP_LIT");
-    else if ( node->type == NST_NT_VALUE ) printf("VALUE");
-    else if ( node->type == NST_NT_ACCESS ) printf("ACCESS");
-    else if ( node->type == NST_NT_EXTRACT_E ) printf("EXTRACT_E");
-    else if ( node->type == NST_NT_ASSIGN_E ) printf("ASSIGN_E");
-    else if ( node->type == NST_NT_CONTINUE_S ) printf("CONTINUE_S");
-    else if ( node->type == NST_NT_BREAK_S ) printf("BREAK_S");
-    else printf("__UNKNOWN__");
+    switch ( node->type )
+    {
+    case NST_NT_LONG_S:        printf("LONG_S");        break;
+    case NST_NT_WHILE_L:       printf("WHILE_L");       break;
+    case NST_NT_DOWHILE_L:     printf("DOWHILE_L");     break;
+    case NST_NT_FOR_L:         printf("FOR_L");         break;
+    case NST_NT_FOR_AS_L:      printf("FOR_AS_L");      break;
+    case NST_NT_IF_E:          printf("IF_E");          break;
+    case NST_NT_FUNC_DECLR:    printf("FUNC_DECLR");    break;
+    case NST_NT_RETURN_S:      printf("RETURN_S");      break;
+    case NST_NT_STACK_OP:      printf("STACK_OP");      break;
+    case NST_NT_LOCAL_STACK_OP:printf("LOCAL_STACK_OP");break;
+    case NST_NT_LOCAL_OP:      printf("LOCAL_OP");      break;
+    case NST_NT_ARR_LIT:       printf("ARR_LIT");       break;
+    case NST_NT_VEC_LIT:       printf("VEC_LIT");       break;
+    case NST_NT_MAP_LIT:       printf("MAP_LIT");       break;
+    case NST_NT_VALUE:         printf("VALUE");         break;
+    case NST_NT_ACCESS:        printf("ACCESS");        break;
+    case NST_NT_EXTRACT_E:     printf("EXTRACT_E");     break;
+    case NST_NT_ASSIGN_E:      printf("ASSIGN_E");      break;
+    case NST_NT_CONTINUE_S:    printf("CONTINUE_S");    break;
+    case NST_NT_BREAK_S:       printf("BREAK_S");       break;
+    case NST_NT_LAMBDA:        printf("LAMBDA");        break;
+    default:                   printf("__UNKNOWN__");   break;
+    }
+
     printf("\n");
 
     size_t tot_len = node->nodes->size + node->tokens->size - 1;

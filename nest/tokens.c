@@ -208,6 +208,8 @@ int nst_str_to_tok(char *str)
         return NST_TT_L_VBRACE;
     if ( strcmp("}>", str) == 0 )
         return NST_TT_R_VBRACE;
+    if ( strcmp("##", str) == 0 )
+        return NST_TT_LAMBDA;
     return -1;
 }
 
@@ -272,6 +274,7 @@ void nst_print_token(Nst_LexerToken *token)
     case NST_TT_INT:      printf("INT");      break;
     case NST_TT_REAL:     printf("REAL");     break;
     case NST_TT_STRING:   printf("STRING");   break;
+    case NST_TT_LAMBDA:   printf("LAMBDA");   break;
     case NST_TT_L_PAREN:  printf("L_PAREN");  break;
     case NST_TT_L_BRACE:  printf("L_BRACE");  break;
     case NST_TT_L_VBRACE: printf("L_VBRACE"); break;

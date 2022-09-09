@@ -69,6 +69,7 @@ enum Nst_TokenTypes
     NST_TT_INT,       // | |
     NST_TT_REAL,      // | |
     NST_TT_STRING,    // | - value end
+    NST_TT_LAMBDA,    // |
     NST_TT_L_PAREN,   // |
     NST_TT_L_BRACE,   // |
     NST_TT_L_VBRACE,  // - atom end
@@ -99,7 +100,7 @@ enum Nst_TokenTypes
 Nst_LexerToken *nst_new_token_value(Nst_Pos start,
                                     Nst_Pos end,
                                     int type,
-                                    void *value);
+                                    Nst_Obj *value);
 Nst_LexerToken *nst_new_token_noval(Nst_Pos start, Nst_Pos end, int type);
 Nst_LexerToken *nst_new_token_noend(Nst_Pos start, int type);
 void nst_destroy_token(Nst_LexerToken *token);

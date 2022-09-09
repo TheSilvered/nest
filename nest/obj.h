@@ -41,7 +41,7 @@ inline Nst_Obj *_inc_ref(Nst_Obj *obj)
 inline void _dec_ref(Nst_Obj *obj)
 {
     obj->ref_count--;
-    if ( obj->ref_count <= 0 || obj == obj->type && obj->ref_count == 1 )
+    if ( obj->ref_count <= 0 || (obj == obj->type && obj->ref_count == 1) )
         _destroy_obj(obj);
 }
 

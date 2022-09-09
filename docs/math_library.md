@@ -150,7 +150,7 @@ the exponent.
 ### `[n: Int|Real, min1: Int|Real, max1: Int|Real, min2: Int|Real, max2: Int|Real] @map`
 
 Maps `n` from a range from `min1` to `max2`, to a range from `min2` to `max2`.  
-Uses the formula `(n min1 -) (max1 - min1) / (max2 min2 -) * min2 +`.  
+Uses the formula `(n min1 -) (max1 min1 -) / (max2 min2 -) * min2 +`.  
 This implies that `min1` cannot be equal to `min2`.
 
 ### `[n: Int|Real, min: Int|Real, max: Int|Real] @clamp`
@@ -170,7 +170,7 @@ It is about equal to `3.141592653589793`.
 ### `TAU`
 
 τ, defined as the ratio between the radius of the circle and its circumference.  
-It is about equal to `6.283185307179586` or exactly equal to `2π`.
+It is about equal to `6.283185307179586` or to `2π`.
 
 ### `E`
 

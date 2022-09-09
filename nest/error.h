@@ -36,6 +36,7 @@
 #define BAD_CONTINUE "'..' outside of a loop"
 #define BAD_BREAK "';' outside of a loop"
 #define EXPECTED_BRACKET "expected '['"
+#define EXPECTED_RETURN "expected '=>'"
 #define EXPECTED_R_BRACKET "expected ']'"
 #define EXPECTED_QUESTION_MARK "expected '?'"
 #define EXPECTED_IDENT "expected identifier"

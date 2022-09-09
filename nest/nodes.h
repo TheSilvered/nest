@@ -46,6 +46,7 @@ enum Nst_NodeTypes
     NST_NT_EXTRACT_E,
     NST_NT_ASSIGN_E,
     NST_NT_IF_E,
+    NST_NT_LAMBDA
 };
 
 Nst_Node *nst_new_node_tokens(Nst_Pos start, Nst_Pos end, int type, LList *tokens);

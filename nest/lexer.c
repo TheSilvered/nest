@@ -446,7 +446,7 @@ static void make_ident(Nst_LexerToken **tok, Nst_Error **err)
     Nst_StrObj *val_obj = AS_STR(nst_new_string_raw(str, true));
     nst_hash_obj((Nst_Obj *)val_obj);
 
-    *tok = nst_new_token_value(start, end, NST_TT_IDENT, val_obj);
+    *tok = nst_new_token_value(start, end, NST_TT_IDENT, (Nst_Obj *)val_obj);
 }
 
 static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err)
@@ -609,5 +609,5 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err)
     Nst_StrObj *val_obj = AS_STR(nst_new_string(end_str, str_len, true));
     nst_hash_obj((Nst_Obj *)val_obj);
 
-    *tok = nst_new_token_value(start, end, NST_TT_STRING, val_obj);
+    *tok = nst_new_token_value(start, end, NST_TT_STRING, (Nst_Obj *)val_obj);
 }

@@ -1,6 +1,17 @@
-|#| "..\\nest_libs\\nest_sequtil\\stdsequtil.nest" = seq
-|#| "..\\nest_libs\\nest_itutil\\stditutil.nest" = itu
+#enumerate seq [
+    (?::seq Array !=) (?::seq Vector !=) (?::seq Str !=) && ?
+        => null
 
-{ 1, 2, 3 } = a
+    => Iter :: {
+        '_start_':   ##_self => 0 = _self._vals.0,
+        '_is_done_': ##_self => _self._vals.0 $_self._vals.1 >=,
+        '_get_val_': ##_self => { _self._vals.0 = _i, _self._vals.1 .(_i) },
+        '_advance_': ##_self => 1 += _self._vals.0,
+        '_vals': { 0, seq }
+    }
+]
 
->>> ( a @itu.enumerate @seq.from_iter )
+... "Hello" @enumerate ~= i [
+    >>> i
+    >>> '\n'
+]

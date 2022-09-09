@@ -2,10 +2,12 @@
 
 ## Comments
 
-In Nest comments start with a double hyphen `--` and end at the end of the line.
-There are also multi-line comments that are either single-line comments which
-have a single backslash `\` as their last character or block comments which
-start with `-/` and end with `/-`.
+In Nest there are two kinds of comments: line comments and block comments.
+Line comments start with `--` and end at the end of the line. If there is a
+backslash at the end, the line feed is escaped and the line comment continues
+to the next line.
+
+Block comments start with `-/` and end with `/-`
 
 ```
 -- This is a single line comment
@@ -64,7 +66,11 @@ are all the valid escape sequences:
 | `\n`     | Line feed / Newline    |
 | `\t`     | Horizontal tab         |
 | `\v`     | Vertical tab           |
-| `\xhh`   | Hexadecimal byte, `hh` represents hex digits from `01` to `7f`  |
+| `\xhh`   | Hexadecimal byte, `hh` represents hex digits from `00` to `ff` |
+| `\nnn`   | Octal byte, `nnn` represents octal digits from `0` to `777` |
+
+> NOTE: octal escapes can have either one, two or three digits, `\12` and `\012`
+> are both valid escapes
 
 ### Array literals
 
@@ -114,6 +120,24 @@ Map literals start with `{` and end with `}` and inside have key-value pairs.
 { 'key_1': 1, 'key_2': 2 }
 ```
 
+### Anonymous functions (lambdas)
+
+Lambdas are one-expression functions that have no name. Their syntax is the
+following:
+
+```
+##arg1 arg2 arg3 => expression
+```
+
+If you want to store a lambda in a variable you need parenthesis otherwise the
+assignment will be included in the expression returned.
+
+```
+##a => a 1 + = func -- wrong, func is assigned inside the return expression
+
+(##a => a 1 +) = func -- correct, func now holds the lambda
+```
+
 ## Predefined variables
 
 - `Int`: integer type
@@ -127,13 +151,17 @@ Map literals start with `{` and end with `}` and inside have key-value pairs.
 - `Func`: function type
 - `Iter`: iterator type
 - `Byte`: byte type, an integer from 0 to 255
-- `IOfile`: file type, the same as `FILE *` in C or `TextIOWrapper` in python
+- `IOfile`: file type, similar to `FILE *` in C
 - `Type`: type of all types
 - `true`: boolean true
 - `false`: boolean false
 - `null`: the only possible value of type `Null`
 - `_cwd_`: a string showing the current working directory
 - `_args_`: an array with the arguments passed in the command line
+- `_vars_`: a table containing the variables of the local scope
+- `_globals_`: a table containing the variables of the global scope
+
+> NOTE: the value of `_globals_` in the global scope is `null`
 
 ## Expressions
 
@@ -388,6 +416,8 @@ map.not_a_key --> null
 
 > NOTE: if you try to index a key that is not in the map the result will be
 > `null`
+
+###
 
 ## Statements
 
