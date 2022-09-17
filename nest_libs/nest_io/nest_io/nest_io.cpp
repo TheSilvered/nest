@@ -146,7 +146,7 @@ NST_FUNC_SIGN(close_)
 
     fclose(f->value);
     f->value = nullptr;
-    f->is_closed = true;
+    f->flags &= NST_FLAG_IOFILE_IS_CLOSED;
     
     return nst_inc_ref(nst_null);
 }
@@ -159,17 +159,17 @@ NST_FUNC_SIGN(write_)
     if ( !nst_extract_arg_values("F", 1, args, err, &f) )
         return nullptr;
 
-    if ( f->is_closed )
+    if ( NST_IOF_IS_CLOSED(f) )
     {
         SET_FILE_CLOSED_ERROR;
         return nullptr;
     }
-    else if ( !f->can_write )
+    else if ( !NST_IOF_CAN_WRITE(f) )
     {
         NST_SET_VALUE_ERROR("the file does not support writing");
         return nullptr;
     }
-    else if ( f->is_bin )
+    else if ( NST_IOF_IS_BIN(f) )
     {
         NST_SET_VALUE_ERROR("the file is binary, try using 'write_bytes'");
         return nullptr;
@@ -192,17 +192,17 @@ NST_FUNC_SIGN(write_bytes_)
     if ( !nst_extract_arg_values("FA", arg_num, args, err, &f, &seq) )
         return nullptr;
 
-    if ( f->is_closed )
+    if ( NST_IOF_IS_CLOSED(f) )
     {
         SET_FILE_CLOSED_ERROR;
         return nullptr;
     }
-    else if ( !f->can_write )
+    else if ( !NST_IOF_CAN_WRITE(f) )
     {
         NST_SET_VALUE_ERROR("the file does not support writing");
         return nullptr;
     }
-    else if ( !f->is_bin )
+    else if ( !NST_IOF_IS_BIN(f) )
     {
         NST_SET_VALUE_ERROR("the file is not binary, try using 'write'");
         return nullptr;
@@ -238,17 +238,17 @@ NST_FUNC_SIGN(read_)
     if ( !nst_extract_arg_values("Fi", arg_num, args, err, &f, &bytes_to_read) )
         return nullptr;
 
-    if ( f->is_closed )
+    if ( NST_IOF_IS_CLOSED(f) )
     {
         SET_FILE_CLOSED_ERROR;
         return nullptr;
     }
-    else if ( !f->can_read )
+    else if ( !NST_IOF_CAN_READ(f) )
     {
         NST_SET_VALUE_ERROR("the file does not support reading");
         return nullptr;
     }
-    else if ( f->is_bin )
+    else if ( NST_IOF_IS_BIN(f) )
     {
         NST_SET_VALUE_ERROR("the file is binary, try using 'read_bytes'");
         return nullptr;
@@ -278,17 +278,17 @@ NST_FUNC_SIGN(read_bytes_)
     if ( !nst_extract_arg_values("Fi", arg_num, args, err, &f, &bytes_to_read) )
         return nullptr;
 
-    if ( f->is_closed )
+    if ( NST_IOF_IS_CLOSED(f) )
     {
         SET_FILE_CLOSED_ERROR;
         return nullptr;
     }
-    else if ( !f->can_read )
+    else if ( !NST_IOF_CAN_READ(f) )
     {
         NST_SET_VALUE_ERROR("the file does not support reading");
         return nullptr;
     }
-    else if ( !f->is_bin )
+    else if ( !NST_IOF_IS_BIN(f) )
     {
         NST_SET_VALUE_ERROR("the file is not binary, try using 'read'");
         return nullptr;
@@ -322,7 +322,7 @@ NST_FUNC_SIGN(file_size_)
     if ( !nst_extract_arg_values("F", arg_num, args, err, &f) )
         return nullptr;
 
-    if ( f->is_closed )
+    if ( NST_IOF_IS_CLOSED(f) )
     {
         SET_FILE_CLOSED_ERROR;
         return nullptr;
@@ -343,7 +343,7 @@ NST_FUNC_SIGN(get_fptr_)
     if ( !nst_extract_arg_values("F", arg_num, args, err, &f) )
         return nullptr;
 
-    if ( f->is_closed )
+    if ( NST_IOF_IS_CLOSED(f) )
     {
         SET_FILE_CLOSED_ERROR;
         return nullptr;
@@ -361,7 +361,7 @@ NST_FUNC_SIGN(move_fptr_)
     if ( !nst_extract_arg_values("Fii", arg_num, args, err, &f, &start, &offset) )
         return nullptr;
 
-    if ( f->is_closed )
+    if ( NST_IOF_IS_CLOSED(f) )
     {
         SET_FILE_CLOSED_ERROR;
         return nullptr;

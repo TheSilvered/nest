@@ -354,6 +354,7 @@ NST_FUNC_SIGN(empty_)
     vect->len = 0;
 
     nst_inc_ref(vect);
+    return (Nst_Obj *)vect;
 }
 
 NST_FUNC_SIGN(any_)

@@ -5,16 +5,19 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define nst_dec_ref(obj) _dec_ref((Nst_Obj *)obj)
-#define nst_inc_ref(obj) _inc_ref((Nst_Obj *)obj)
-#define nst_destroy_obj(obj) _destroy_obj((Nst_Obj *)obj)
+#define nst_dec_ref(obj) _dec_ref((Nst_Obj *)(obj))
+#define nst_inc_ref(obj) _inc_ref((Nst_Obj *)(obj))
+#define nst_destroy_obj(obj) _destroy_obj((Nst_Obj *)(obj))
+
+// flags can support up to 6 flags
+// the top 2 are reserved for the garbage collector
 
 #define NST_OBJ_HEAD \
     int ref_count; \
-    char *type_name; \
     struct Nst_Obj *type; \
     void (*destructor)(void *); \
-    int32_t hash
+    int32_t hash; \
+    unsigned char flags
 
 #ifdef __cplusplus
 extern "C" {

@@ -1,6 +1,7 @@
 #include <errno.h>
 #include <math.h>
 #include <stdlib.h>
+#include <assert.h>
 #include "hash.h"
 #include "map.h"
 #include "nst_types.h"
@@ -19,6 +20,8 @@ Nst_Obj *nst_new_map()
     map->nodes = calloc(MAP_MIN_SIZE, sizeof(Nst_MapNode));
     map->mask = MAP_MIN_SIZE - 1;
     map->size = MAP_MIN_SIZE;
+    map->head_idx = -1;
+    map->tail_idx = -1;
 
     if ( map->nodes == NULL )
     {
@@ -29,10 +32,9 @@ Nst_Obj *nst_new_map()
     return (Nst_Obj *)map;
 }
 
-static void set_clean(Nst_MapObj *map, int32_t hash, Nst_Obj *key, Nst_Obj *value)
+static int32_t set_clean(Nst_MapObj *map, int32_t hash, Nst_Obj *key, Nst_Obj *value, int prev_idx)
 {
-    if ( key == NULL )
-        return;
+    assert(key != NULL);
 
     register size_t mask = map->mask;
     register Nst_MapNode *nodes = map->nodes;
@@ -52,6 +54,9 @@ static void set_clean(Nst_MapObj *map, int32_t hash, Nst_Obj *key, Nst_Obj *valu
     (nodes + (i & mask))->hash = hash;
     (nodes + (i & mask))->key = key;
     (nodes + (i & mask))->value = value;
+    (nodes + (i & mask))->prev_idx = prev_idx;
+    (nodes + (i & mask))->next_idx = -1;
+    return i & mask;
 }
 
 void resize_map(Nst_MapObj *map, bool force_item_reset)
@@ -78,15 +83,26 @@ void resize_map(Nst_MapObj *map, bool force_item_reset)
         return;
     }
 
-    for ( size_t i = 0; i < old_size; i++ )
+    int prev_idx = -1;
+    int new_idx = 0;
+
+    for ( int i = map->head_idx; i != -1; i = old_nodes[i].next_idx )
     {
-        set_clean(
+        new_idx = set_clean(
             map,
             old_nodes[i].hash,
             old_nodes[i].key,
-            old_nodes[i].value
+            old_nodes[i].value,
+            prev_idx
         );
+
+        if ( prev_idx != -1 )
+            map->nodes[prev_idx].next_idx = new_idx;
+        else
+            map->head_idx = new_idx;
+        prev_idx = new_idx;
     }
+    map->tail_idx = prev_idx;
 
     free(old_nodes);
 }
@@ -124,9 +140,37 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
     {
         nst_dec_ref(curr_node.key);
         nst_dec_ref(curr_node.value);
+
+        // if it's not the last node
+        if ( curr_node.next_idx != -1 )
+        {
+            nodes[curr_node.next_idx].prev_idx = curr_node.prev_idx;
+
+            if ( curr_node.prev_idx != -1 )
+                nodes[curr_node.prev_idx].next_idx = curr_node.next_idx;
+            else
+                map->head_idx = curr_node.next_idx;
+            (nodes + (i & mask))->next_idx = -1;
+        }
     }
     else
+    {
         map->item_count++;
+        
+        // if it's the first node inserted
+        if ( map->head_idx == -1 )
+        {
+            map->head_idx = (int)(i & mask);
+            (nodes + (i & mask))->prev_idx = -1;
+        }
+        else
+        {
+            nodes[map->tail_idx].next_idx = (int)(i & mask);
+            (nodes + (i & mask))->prev_idx = map->tail_idx;
+        }
+        map->tail_idx = (int)(i & mask);
+        (nodes + (i & mask))->next_idx = -1;
+    }
 
     (nodes + (i & mask))->hash = hash;
     (nodes + (i & mask))->key = key;
@@ -196,13 +240,24 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
     if ( curr_node.key != NULL &&
         (curr_node.key == key || AS_BOOL(nst_obj_eq(key, curr_node.key, NULL))) )
     {
-        nst_dec_ref(map->nodes[i].key);
-        nst_dec_ref(map->nodes[i].value);
+        nst_dec_ref(curr_node.key);
+        nst_dec_ref(curr_node.value);
 
-        map->nodes[i].hash = -1;
-        map->nodes[i].key = NULL;
-        map->nodes[i].value = NULL;
+        nodes[i].hash = -1;
+        nodes[i].key = NULL;
+        nodes[i].value = NULL;
         map->item_count--;
+
+        if ( curr_node.next_idx != -1 )
+            nodes[curr_node.next_idx].prev_idx = curr_node.prev_idx;
+        else
+            map->tail_idx = curr_node.prev_idx;
+
+        if ( curr_node.prev_idx != -1 )
+            nodes[curr_node.prev_idx].next_idx = curr_node.next_idx;
+        else
+            map->head_idx = curr_node.next_idx;
+
         resize_map(map, true);
         return nst_inc_ref(nst_true);
     }
@@ -218,13 +273,24 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
         if ( curr_node.hash == hash &&
             (curr_node.key == key || AS_BOOL(nst_obj_eq(key, curr_node.key, NULL))) )
         {
-            nst_dec_ref(map->nodes[i & mask].key);
-            nst_dec_ref(map->nodes[i & mask].value);
+            nst_dec_ref(curr_node.key);
+            nst_dec_ref(curr_node.value);
 
-            map->nodes[i & mask].hash = -1;
-            map->nodes[i & mask].key = NULL;
-            map->nodes[i & mask].value = NULL;
+            nodes[i].hash = -1;
+            nodes[i].key = NULL;
+            nodes[i].value = NULL;
             map->item_count--;
+
+            if ( curr_node.next_idx != -1 )
+                nodes[curr_node.next_idx].prev_idx = curr_node.prev_idx;
+            else
+                map->tail_idx = curr_node.prev_idx;
+
+            if ( curr_node.prev_idx != -1 )
+                nodes[curr_node.prev_idx].next_idx = curr_node.next_idx;
+            else
+                map->head_idx = curr_node.next_idx;
+
             resize_map(map, true);
             return nst_inc_ref(nst_true);
         }
@@ -246,9 +312,8 @@ void nst_destroy_map(Nst_MapObj *map)
 
 Nst_Int _nst_map_get_next_idx(Nst_Int curr_idx, Nst_MapObj *map)
 {
-    for ( Nst_Int i = curr_idx + 1; i < (Nst_Int)map->size; i++ )
-        if ( map->nodes[i].key != NULL )
-            return i;
-
-    return -1;
+    if ( curr_idx == -1 )
+        return map->head_idx;
+    else
+        return map->nodes[curr_idx].next_idx;
 }

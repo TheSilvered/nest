@@ -15,6 +15,11 @@
 #define AS_BOOL(ptr) (((Nst_BoolObj *)(ptr))->value)
 #define AS_FILE(ptr) ((Nst_IOFileObj *)(ptr))
 
+#define NST_IOF_IS_CLOSED(f) ( (f)->flags & NST_FLAG_IOFILE_IS_CLOSED )
+#define NST_IOF_IS_BIN(f)    ( (f)->flags & NST_FLAG_IOFILE_IS_BIN )
+#define NST_IOF_CAN_WRITE(f) ( (f)->flags & NST_FLAG_IOFILE_CAN_WRITE )
+#define NST_IOF_CAN_READ(f)  ( (f)->flags & NST_FLAG_IOFILE_CAN_READ )
+
 #define SIMPLE_TYPE_STRUCT(type, type_name, obj_name) \
     typedef type type_name; \
     typedef struct \
@@ -66,12 +71,15 @@ typedef struct
 {
     NST_OBJ_HEAD;
     Nst_IOfile value;
-    bool is_closed;
-    bool is_bin;
-    bool can_write;
-    bool can_read;
 }
 Nst_IOFileObj;
+
+enum Nst_IOFileFlags {
+    NST_FLAG_IOFILE_IS_CLOSED = 0b0001,
+    NST_FLAG_IOFILE_IS_BIN    = 0b0010,
+    NST_FLAG_IOFILE_CAN_WRITE = 0b0100,
+    NST_FLAG_IOFILE_CAN_READ  = 0b1000,
+};
 
 Nst_Obj *nst_new_int(Nst_Int value);
 Nst_Obj *nst_new_real(Nst_Real value);

@@ -546,7 +546,7 @@ static inline void exe_type_check(Nst_RuntimeInstruction inst)
             _nst_format_types_error(
                 EXPECTED_TYPES,
                 AS_STR(inst.val)->value,
-                obj->type_name
+                TYPE_NAME(obj)
             );
         );
 }
@@ -561,7 +561,7 @@ static inline void exe_hash_check(Nst_RuntimeInstruction inst)
             _NST_SET_TYPE_ERROR,
             inst.start,
             inst.end,
-            _nst_format_type_error(UNHASHABLE_TYPE, obj->type_name);
+            _nst_format_type_error(UNHASHABLE_TYPE, TYPE_NAME(obj));
         );
 }
 
@@ -607,7 +607,7 @@ static inline void exe_set_cont_val(Nst_RuntimeInstruction inst)
                 _NST_SET_TYPE_ERROR,
                 inst.start,
                 inst.end,
-                _nst_format_type_error(EXPECTED_TYPE("Int"), idx->type_name)
+                _nst_format_type_error(EXPECTED_TYPE("Int"), TYPE_NAME(idx))
             );
 
             nst_dec_ref(cont);
@@ -644,7 +644,7 @@ static inline void exe_set_cont_val(Nst_RuntimeInstruction inst)
                 _NST_SET_TYPE_ERROR,
                 inst.start,
                 inst.end,
-                _nst_format_type_error(UNHASHABLE_TYPE, idx->type_name)
+                _nst_format_type_error(UNHASHABLE_TYPE, TYPE_NAME(idx))
             );
         }
 
@@ -657,8 +657,8 @@ static inline void exe_set_cont_val(Nst_RuntimeInstruction inst)
             inst.start,
             inst.end,
             _nst_format_type_error(
-                EXPECTED_TYPE("Array', 'Vector' or 'Map"),
-                cont->type_name
+                EXPECTED_TYPE("Array', 'Vector', 'Map' or 'Str"),
+                TYPE_NAME(cont)
             )
         );
 }
@@ -966,7 +966,7 @@ static inline void exe_op_extract(Nst_RuntimeInstruction inst)
                 _NST_SET_TYPE_ERROR,
                 inst.start,
                 inst.end,
-                _nst_format_type_error(EXPECTED_TYPE("Int"), idx->type_name)
+                _nst_format_type_error(EXPECTED_TYPE("Int"), TYPE_NAME(idx))
             );
 
             nst_dec_ref(cont);
@@ -1011,7 +1011,7 @@ static inline void exe_op_extract(Nst_RuntimeInstruction inst)
                     _NST_SET_VALUE_ERROR,
                     inst.start,
                     inst.start,
-                    _nst_format_type_error(UNHASHABLE_TYPE, idx->type_name)
+                    _nst_format_type_error(UNHASHABLE_TYPE, TYPE_NAME(idx))
                 );
             }
 
@@ -1030,7 +1030,7 @@ static inline void exe_op_extract(Nst_RuntimeInstruction inst)
                 _NST_SET_TYPE_ERROR,
                 inst.start,
                 inst.end,
-                _nst_format_type_error(EXPECTED_TYPE("Int"), idx->type_name)
+                _nst_format_type_error(EXPECTED_TYPE("Int"), TYPE_NAME(idx))
             );
 
             nst_dec_ref(cont);
@@ -1068,7 +1068,7 @@ static inline void exe_op_extract(Nst_RuntimeInstruction inst)
             inst.end,
             _nst_format_type_error(
                 EXPECTED_TYPE("Array', 'Vector' or 'Map"),
-                cont->type_name
+                TYPE_NAME(cont)
             );
         );
 
@@ -1144,17 +1144,19 @@ static inline void exe_make_map(Nst_RuntimeInstruction inst)
 {
     Nst_Obj *map = nst_new_map();
     CHECK_V_STACK_SIZE(inst.int_val);
+    size_t stack_size = nst_state.v_stack->current_size;
+    Nst_Obj **v_stack = nst_state.v_stack->stack;
 
     for ( Nst_Int i = 0; i < inst.int_val; i++ )
     {
-        Nst_Obj *val = nst_pop_val(nst_state.v_stack);
-        Nst_Obj *key = nst_pop_val(nst_state.v_stack);
+        Nst_Obj *key = v_stack[stack_size - inst.int_val + i];
         i++;
+        Nst_Obj *val = v_stack[stack_size - inst.int_val + i];
         nst_map_set(map, key, val);
         nst_dec_ref(val);
         nst_dec_ref(key);
     }
-
+    nst_state.v_stack->current_size -= inst.int_val;
     nst_push_val(nst_state.v_stack, map);
     nst_dec_ref(map);
 }

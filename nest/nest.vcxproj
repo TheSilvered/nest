@@ -148,6 +148,7 @@
     <ClCompile Include="compiler.c" />
     <ClCompile Include="error.c" />
     <ClCompile Include="function.c" />
+    <ClCompile Include="ggc.c" />
     <ClCompile Include="hash.c" />
     <ClCompile Include="instructions.c" />
     <ClCompile Include="interpreter.c" />
@@ -172,6 +173,7 @@
     <ClInclude Include="compiler.h" />
     <ClInclude Include="error.h" />
     <ClInclude Include="function.h" />
+    <ClInclude Include="ggc.h" />
     <ClInclude Include="hash.h" />
     <ClInclude Include="instructions.h" />
     <ClInclude Include="interpreter.h" />

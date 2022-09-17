@@ -7,6 +7,8 @@
 #include "error.h"
 
 #define AS_STR(ptr) ((Nst_StrObj *)(ptr))
+#define TYPE_NAME(obj) (AS_STR(obj->type)->value)
+#define NST_STR_IS_ALLOC(str) ((str)->flags & NST_FLAG_STR_IS_ALLOC)
 
 #define nst_copy_string(src) _nst_copy_string(AS_STR(src))
 #define nst_repr_string(src) _nst_repr_string(AS_STR(src))
@@ -21,7 +23,6 @@ typedef struct
     NST_OBJ_HEAD;
     size_t len;
     char *value;
-    bool allocated;
 }
 Nst_StrObj;
 
@@ -37,6 +38,10 @@ Nst_Obj *_nst_string_get_idx(Nst_StrObj *str, Nst_Int idx);
 Nst_Obj *nst_parse_int(char *str, Nst_OpErr *err);
 Nst_Obj *nst_parse_real(char *str, Nst_OpErr *err);
 void nst_destroy_string(Nst_StrObj *str);
+
+enum Nst_StrFlags {
+    NST_FLAG_STR_IS_ALLOC = 0b1
+};
 
 #ifdef __cplusplus
 }

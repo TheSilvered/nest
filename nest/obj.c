@@ -34,18 +34,13 @@ Nst_Obj *nst_alloc_obj(size_t size, Nst_Obj *type, void (*destructor)(void *))
     obj->ref_count = 1;
     obj->destructor = destructor;
     obj->hash = -1;
+    obj->flags = 0;
 
     // the type of the type object is itself
     if ( type == NULL )
-    {
         obj->type = obj;
-        obj->type_name = "Type";
-    }
     else
-    {
         obj->type = type;
-        obj->type_name = AS_STR(type)->value;
-    }
 
     nst_inc_ref(obj->type);
 

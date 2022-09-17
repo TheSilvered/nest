@@ -247,7 +247,7 @@ Nst_Obj *_nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
             err->name = NST_E_TYPE_ERROR;
             err->message = _nst_format_type_error(
                 UNHASHABLE_TYPE,
-                ob2->type_name
+                TYPE_NAME(ob2)
             );
         }
         return res;
@@ -1108,7 +1108,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     if ( ob->type != nst_t_str )
     {
         err->name = "Type Error";
-        err->message = _nst_format_type_error(EXPECTED_TYPE("Str"), ob->type_name);
+        err->message = _nst_format_type_error(EXPECTED_TYPE("Str"), TYPE_NAME(ob));
         return NULL;
     }
 

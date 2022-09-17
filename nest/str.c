@@ -34,7 +34,7 @@ Nst_Obj *nst_new_string_raw(const char *val, bool allocated)
     ));
     if ( str == NULL ) return NULL;
 
-    str->allocated = allocated;
+    if (allocated) str->flags |= NST_FLAG_STR_IS_ALLOC;
     str->len = strlen(val);
     str->value = (char *)val;
 
@@ -50,7 +50,7 @@ Nst_Obj *nst_new_string(char *val, size_t len, bool allocated)
     ));
     if ( str == NULL ) return NULL;
 
-    str->allocated = allocated;
+    if ( allocated ) str->flags |= NST_FLAG_STR_IS_ALLOC;
     str->len = len;
     str->value = val;
 
@@ -66,7 +66,6 @@ Nst_Obj *nst_new_type_obj(const char *val, size_t len)
     ));
     if ( str == NULL ) return NULL;
 
-    str->allocated = false;
     str->len = len;
     str->value = (char *)val;
 
@@ -201,7 +200,7 @@ Nst_Obj *_nst_string_get_idx(Nst_StrObj *str, Nst_Int idx)
 void nst_destroy_string(Nst_StrObj *str)
 {
     if ( str == NULL ) return;
-    if ( str->allocated )
+    if ( NST_STR_IS_ALLOC(str) )
         free(str->value);
 }
 

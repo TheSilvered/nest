@@ -38,16 +38,16 @@ Nst_Obj *nst_new_file(Nst_IOfile value, bool bin, bool read, bool write)
     if ( obj == NULL ) return NULL;
 
     obj->value = value;
-    obj->is_closed = false;
-    obj->is_bin = false;
-    obj->is_bin = bin;
-    obj->can_read = read;
-    obj->can_write = write;
+
+    if ( bin )   obj->flags |= NST_FLAG_IOFILE_IS_BIN;
+    if ( read )  obj->flags |= NST_FLAG_IOFILE_CAN_READ;
+    if ( write ) obj->flags |= NST_FLAG_IOFILE_CAN_WRITE;
+
     return (Nst_Obj *)obj;
 }
 
 void nst_destroy_iofile(Nst_IOFileObj *obj)
 {
-    if ( !obj->is_closed )
+    if ( !NST_IOF_IS_CLOSED(obj) )
         fclose(obj->value);
 }

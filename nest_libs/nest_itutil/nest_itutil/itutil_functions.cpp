@@ -144,7 +144,7 @@ NST_FUNC_SIGN(chain_get_val)
     {
         NST_SET_VALUE_ERROR(
             _nst_format_type_error(EXPECTED_TYPE("Array' or 'Vector"),
-                sub_seq->type_name)
+                TYPE_NAME(sub_seq))
         );
         return nullptr;
     }

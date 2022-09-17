@@ -81,6 +81,9 @@
     <ClCompile Include="runtime_stack.c">
       <Filter>File di origine</Filter>
     </ClCompile>
+    <ClCompile Include="ggc.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="error.h">
@@ -156,6 +159,9 @@
       <Filter>File di intestazione</Filter>
     </ClInclude>
     <ClInclude Include="instructions.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
+    <ClInclude Include="ggc.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
   </ItemGroup>

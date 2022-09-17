@@ -29,6 +29,8 @@ typedef struct
     int32_t hash;
     Nst_Obj *key;
     Nst_Obj *value;
+    int next_idx;
+    int prev_idx;
 }
 Nst_MapNode;
 
@@ -39,6 +41,8 @@ typedef struct
     size_t item_count;
     size_t mask;
     Nst_MapNode *nodes;
+    int head_idx;
+    int tail_idx;
 }
 Nst_MapObj;
 
