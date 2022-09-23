@@ -52,8 +52,8 @@ void collect_gen(Nst_GGCList *gen)
           ob = ob->ggc_next )
     {
         NST_UNSET_FLAG(ob, NST_FLAG_GGC_REACHABLE
-                           | NST_FLAG_GGC_UNREACHABLE 
-                           | NST_FLAG_GGC_OBJ_DELETED );
+                         | NST_FLAG_GGC_UNREACHABLE 
+                         | NST_FLAG_GGC_OBJ_DELETED );
     }
 
     // All objects in the variable tables are reachable

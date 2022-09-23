@@ -15,10 +15,10 @@
 #define AS_BOOL(ptr) (((Nst_BoolObj *)(ptr))->value)
 #define AS_FILE(ptr) ((Nst_IOFileObj *)(ptr))
 
-#define NST_IOF_IS_CLOSED(f) ( (f)->flags & NST_FLAG_IOFILE_IS_CLOSED )
-#define NST_IOF_IS_BIN(f)    ( (f)->flags & NST_FLAG_IOFILE_IS_BIN )
-#define NST_IOF_CAN_WRITE(f) ( (f)->flags & NST_FLAG_IOFILE_CAN_WRITE )
-#define NST_IOF_CAN_READ(f)  ( (f)->flags & NST_FLAG_IOFILE_CAN_READ )
+#define NST_IOF_IS_CLOSED(f) ( HAS_FLAG(f, NST_FLAG_IOFILE_IS_CLOSED) )
+#define NST_IOF_IS_BIN(f)    ( HAS_FLAG(f, NST_FLAG_IOFILE_IS_BIN) )
+#define NST_IOF_CAN_WRITE(f) ( HAS_FLAG(f, NST_FLAG_IOFILE_CAN_WRITE) )
+#define NST_IOF_CAN_READ(f)  ( HAS_FLAG(f, NST_FLAG_IOFILE_CAN_READ) )
 
 #define SIMPLE_TYPE_STRUCT(type, type_name, obj_name) \
     typedef type type_name; \

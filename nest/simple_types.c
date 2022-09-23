@@ -39,9 +39,9 @@ Nst_Obj *nst_new_file(Nst_IOfile value, bool bin, bool read, bool write)
 
     obj->value = value;
 
-    if ( bin )   obj->flags |= NST_FLAG_IOFILE_IS_BIN;
-    if ( read )  obj->flags |= NST_FLAG_IOFILE_CAN_READ;
-    if ( write ) obj->flags |= NST_FLAG_IOFILE_CAN_WRITE;
+    if ( bin )   NST_SET_FLAG(obj, NST_FLAG_IOFILE_IS_BIN);
+    if ( read )  NST_SET_FLAG(obj, NST_FLAG_IOFILE_CAN_READ);
+    if ( write ) NST_SET_FLAG(obj, NST_FLAG_IOFILE_CAN_WRITE);
 
     return (Nst_Obj *)obj;
 }
