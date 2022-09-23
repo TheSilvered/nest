@@ -299,15 +299,26 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
 
 void nst_destroy_map(Nst_MapObj *map)
 {
-    for ( size_t i = 0; i < map->size; i++ )
+    for ( Nst_Int i = _nst_map_get_next_idx(-1, map);
+          i != -1;
+          i = _nst_map_get_next_idx(i, map) )
     {
-        if ( map->nodes[i].key != NULL )
-            nst_dec_ref(map->nodes[i].key);
-        if ( map->nodes[i].value != NULL )
-            nst_dec_ref(map->nodes[i].value);
+        nst_dec_ref(map->nodes[i].key);
+        nst_dec_ref(map->nodes[i].value);
     }
 
     free(map->nodes);
+}
+
+void nst_traverse_map(Nst_MapObj *map)
+{
+    for ( Nst_Int i = _nst_map_get_next_idx(-1, map);
+          i != -1;
+          i = _nst_map_get_next_idx(i, map) )
+    {
+        NST_SET_FLAG(map->nodes[i].key,   NST_FLAG_GGC_REACHABLE);
+        NST_SET_FLAG(map->nodes[i].value, NST_FLAG_GGC_REACHABLE);
+    }
 }
 
 Nst_Int _nst_map_get_next_idx(Nst_Int curr_idx, Nst_MapObj *map)

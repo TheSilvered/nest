@@ -800,6 +800,8 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
             LList_destroy(all_objs, NULL);
             return str;
         }
+        else if ( ob_t == nst_t_null )
+            return nst_new_string("null", 4, false);
         else
         {
             char *buffer = malloc(sizeof(char) * (AS_STR(ob->type)->len + 10));

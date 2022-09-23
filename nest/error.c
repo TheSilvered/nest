@@ -198,7 +198,6 @@ void nst_print_traceback(Nst_Traceback tb)
         Nst_Pos *start = (Nst_Pos *)LList_pop(tb.positions);
         Nst_Pos *end   = (Nst_Pos *)LList_pop(tb.positions);
         print_position(*start, *end);
-        free(start);
     }
 
     if ( tb.error != NULL )

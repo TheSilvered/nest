@@ -1,0 +1,25 @@
+{
+  "name": "nest-lang",
+  "displayName": "Nest Lang",
+  "description": "Nest language syntax highlighting",
+  "version": "0.0.1",
+  "engines": {
+    "vscode": "^1.71.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
+  "contributes": {
+    "languages": [{
+      "id": "nest",
+      "aliases": ["Nest", "nest"],
+      "extensions": [".nest"],
+      "configuration": "./language-configuration.json"
+    }],
+    "grammars": [{
+      "language": "nest",
+      "scopeName": "source.nest",
+      "path": "./syntaxes/nest.tmLanguage.json"
+    }]
+  }
+}

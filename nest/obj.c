@@ -3,6 +3,7 @@
 #include "obj.h"
 #include "map.h"
 #include "nst_types.h"
+#include "ggc.h"
 
 Nst_Obj *nst_t_type;
 Nst_Obj *nst_t_int;
@@ -45,6 +46,37 @@ Nst_Obj *nst_alloc_obj(size_t size, Nst_Obj *type, void (*destructor)(void *))
     nst_inc_ref(obj->type);
 
     return obj;
+}
+
+void _destroy_obj(Nst_Obj *obj)
+{
+    if ( obj->flags & NST_FLAG_GGC_IS_SUPPORTED )
+    {
+        // the object has already been deleted
+        if ( NST_HAS_FLAG(obj, NST_FLAG_GGC_OBJ_DELETED) )
+            return;
+
+        obj->ref_count = 2147483647;
+        if ( obj->destructor != NULL )
+            (*obj->destructor)(obj);
+        if ( obj != obj->type )
+            nst_dec_ref(obj->type);
+
+        // The object is being deleted by the garbage collector
+        if ( NST_HAS_FLAG(obj, NST_FLAG_GGC_UNREACHABLE) )
+            NST_SET_FLAG(obj, NST_FLAG_GGC_OBJ_DELETED);
+        else
+            free(obj);
+    }
+    else
+    {
+        if ( obj->destructor != NULL )
+            (*obj->destructor)(obj);
+        if ( obj != obj->type )
+            nst_dec_ref(obj->type);
+
+        free(obj);
+    }
 }
 
 void _nst_init_obj(void)

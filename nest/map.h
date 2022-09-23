@@ -6,6 +6,7 @@
 #include "obj.h"
 #include "simple_types.h"
 #include "str.h"
+#include "ggc.h"
 
 #define MAP_MIN_SIZE 32
 #define AS_MAP(ptr) ((Nst_MapObj *)(ptr))
@@ -37,6 +38,7 @@ Nst_MapNode;
 typedef struct
 {
     NST_OBJ_HEAD;
+    NST_GGC_SUPPORT;
     size_t size;
     size_t item_count;
     size_t mask;
@@ -52,6 +54,7 @@ Nst_Obj *_nst_map_get(Nst_MapObj *map, Nst_Obj *key);
 Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key);
 
 void nst_destroy_map(Nst_MapObj *map);
+void nst_traverse_map(Nst_MapObj *map);
 Nst_Int _nst_map_get_next_idx(Nst_Int curr_idx, Nst_MapObj *map);
 
 inline void _nst_map_set_str(Nst_MapObj *map, const char *key, Nst_Obj *value)

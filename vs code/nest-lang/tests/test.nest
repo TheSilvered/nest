@@ -1,0 +1,52 @@
+'_start_'
+'_advance_'
+'_is_done_'
+'_get_val_'
+'hello\n \xff \123 \' abc'
+'the string
+stops'
+
+"_start_"
+"_advance_"
+"_is_done_"
+"_get_val_"
+"hello\n \xff \123 \" abc"
+"the string
+continues"
+
+-- line comment
+
+-- line comment \
+   escaped \
+   twice
+not a comment
+-/ multiline
+   comment /-
+
++ - * / ^ % >< && || &| & | ^^ << >> > >= < <= == !=
+$ ! ~ >>> <<< -: ?:: |#| :: ->
+= += /= *= ^= |= &= ^^=
+
+<{ }>
+
+..? ?.. ... ~= .. ; ? :
+
+{ a: b }
+
+#func a b c [
+   
+]
+
+@namespace.func
+@@func
+
+true false null _cwd_ _args_ _vars_ _globals_
+Type Int Real Bool Null Str Array Vector Map Func Iter Byte IOfile
+
+var
+CONST
+_12CONST
+A
+map.key
+
+(##x => x 1 +) = f

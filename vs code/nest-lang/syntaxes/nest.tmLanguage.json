@@ -1,0 +1,210 @@
+{
+	"$schema": "https://raw.githubusercontent.com/martinring/tmlanguage/master/tmlanguage.json",
+	"name": "Nest",
+	"scopeName": "source.nest",
+	"fileTypes": [""],
+	"patterns": [
+		{ "include": "#strings" },
+		{ "include": "#comment" },
+		{ "include": "#keywords" },
+		{ "include": "#soft-keywords" },
+		{ "include": "#func-def" },
+		{ "include": "#func-call" },
+		{ "include": "#builtins" },
+		{ "include": "#values" },
+		{ "include": "#general" }
+	],
+	"repository": {
+		"strings": {
+			"patterns": [
+				{ "include": "#special-strings-double" },
+				{ "include": "#special-strings-single" },
+				{ "include": "#str-double" },
+				{ "include": "#str-single" }
+			]
+		},
+		"special-strings-double": {
+			"name": "string.quoted.double.nest",
+			"match": "(\")(_(start|is_done|get_val|advance)_)(\")",
+			"captures": {
+				"2": { "name": "constant.character.escape.nest" }
+			}
+		},
+		"special-strings-single": {
+			"name": "string.quoted.single.nest",
+			"match": "(')(_(start|is_done|get_val|advance)_)(')",
+			"captures": {
+				"2": { "name": "constant.character.escape.nest" }
+			}
+		},
+		"str-double": {
+			"name": "string.quoted.double.nest",
+			"begin": "\"",
+			"end": "\"",
+			"patterns": [
+				{ "include": "#string-escapes" }
+			]
+		},
+		"str-single": {
+			"name": "string.quoted.single.nest",
+			"begin": "'",
+			"end": "('|\\r?\\n)",
+			"patterns": [
+				{ "include": "#string-escapes" }
+			]
+		},
+		"string-escapes": {
+			"patterns": [
+				{
+					"name": "constant.character.escape.nest",
+					"match": "\\\\([abfnrtv\\\\\"']|x[0-9a-fA-F][0-9a-fA-F]|[0-7]{1,3})"
+				}
+			]
+		},
+		"comment": {
+			"patterns": [
+				{ "include": "#line-comment" },
+				{ "include": "#block-comment" }
+			]
+		},
+		"line-comment": {
+			"name": "comment.line.nest",
+			"begin": "--",
+			"end": "[^\\\\]\\r?\\n"
+		},
+		"block-comment": {
+			"name": "comment.block.nest",
+			"begin": "-/",
+			"end": "/-"
+		},
+		"keywords": {
+			"patterns": [
+				{
+					"name": "keyword.control.nest",
+					"match": "=>"
+				},
+				{
+					"name": "keyword.control.nest",
+					"match": "\\|>"
+				},
+				{ "include": "#operators" },
+				{
+					"name": "keyword.control.nest",
+					"match": "(\\?\\.\\.|\\.\\.\\?|\\.\\.\\.|\\?|~=|\\.\\.|;)"
+				},
+				{
+					"name": "punctuation.accessor.nest",
+					"match": "\\."
+				}
+			]
+		},
+		"soft-keywords": {
+			"name": "keyword.control.nest",
+			"match": ":"
+		},
+		"operators": {
+			"patterns": [
+				{
+					"name": "keyword.operator.nest",
+					"match": "->"
+				},
+				{
+					"name": "keyword.operator.nest",
+					"match": "!=|==|>=|<=|&&|\\|\\||&\\||\\+=|-=|\\*=|/=|\\|=|&=|\\^=|%=|><=|=|\\|#\\||-:|\\+|-|\\*|/|/|\\^\\^|\\^|%|><|\\$|::|\\?::|!|>>>|<<<|>>|<<|\\||~|&|<(?!\\{)|(?<!\\})>"
+				}
+			]
+		},
+		"func-def": {
+			"match": "^\\s*(#)\\s*(\\b[A-Za-z_][A-Za-z_0-9]*\\b)\\s*(\\r?\\n)*((\\b[A-Za-z_][A-Za-z_0-9]*\\b\\s*(\\r?\\n)*)*)",
+			"captures": {
+				"1": { "name": "keyword.other.nest" },
+				"2": { "name": "entity.name.function.nest" },
+				"4": { "name": "variable.parameter.nest" }
+			}
+		},
+		"func-call": {
+			"name": "variable.function.nest",
+			"match": "(@@|@)\\s*\\b[A-Za-z_][A-Za-z_0-9]*\\b((\\s*\\.)\\s*\\b[A-Za-z_][A-Za-z_0-9]*\\b)*",
+			"captures": {
+				"1": { "name": "keyword.operator.nest" },
+				"3": { "name": "punctuation.accessor.nest" }
+			}
+		},
+		"builtins": {
+			"patterns": [
+				{
+					"name": "constant.language.nest",
+					"match": "\\b(true|false|null|_cwd_|_args_|_vars_|_globals_)\\b"
+				},
+				{
+					"name": "storage.type.nest",
+					"match": "\\b(Type|Int|Real|Bool|Null|Str|Array|Vector|Map|Func|Iter|Byte|IOfile)\\b"
+				}
+			]
+		},
+		"values": {
+			"patterns": [
+				{ "include": "#arr-map" },
+				{ "include": "#vect" },
+				{
+					"name": "constant.language.nest",
+					"match": "\\b(_*\\d*[A-Z]{2,}[A-Z_0-9]*|[A-Z])\\b"
+				},
+				{
+					"name": "variable.language.nest",
+					"match": "(?<=[^.]\\.)\\s*(\\b[A-Za-z_][A-Za-z_0-9]*\\b)"
+				},
+				{
+					"name": "variable.other.nest",
+					"match": "\\b[A-Za-z_][A-Za-z_0-9]*\\b"
+				},
+				{
+					"name": "constant.numeric.nest",
+					"match": "\\d+(\\.\\d+)?"
+				},
+				{ "include": "#lambda" }
+			]
+		},
+		"arr-map": {
+			"begin": "{",
+			"end": "}",
+			"patterns": [
+				{ "include": "#strings" },
+				{ "include": "#comment" },
+				{ "include": "#operators" },
+				{ "include": "#func-call" },
+				{ "include": "#builtins" },
+				{ "include": "#values" },
+				{
+					"name": "punctuation.separator.nest",
+					"match": "[,:;]"
+				}
+			]
+		},
+		"vect": {
+			"begin": "<{",
+			"end": "}>",
+			"patterns": [
+				{ "include": "#strings" },
+				{ "include": "#comment" },
+				{ "include": "#operators" },
+				{ "include": "#func-call" },
+				{ "include": "#builtins" },
+				{ "include": "#values" },
+				{
+					"name": "punctuation.separator.nest",
+					"match": "[,;]"
+				}
+			]
+		},
+		"lambda": {
+			"match": "(##)((\\b[A-Za-z_][A-Za-z_0-9]*\\b\\s*(\\r?\\n)*)*)\\s*(=>)",
+			"captures": {
+				"1": { "name": "keyword.other.nest" },
+				"2": { "name": "variable.parameter.nest" },
+				"5": { "name": "keyword.control.nest" }
+			}
+		}
+	}
+}
+

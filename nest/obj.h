@@ -9,8 +9,12 @@
 #define nst_inc_ref(obj) _inc_ref((Nst_Obj *)(obj))
 #define nst_destroy_obj(obj) _destroy_obj((Nst_Obj *)(obj))
 
-// flags can support up to 6 flags
-// the top 2 are reserved for the garbage collector
+#define NST_SET_FLAG(obj, flag) ((obj)->flags |= flag)
+#define NST_UNSET_FLAG(obj, flag) ((obj)->flags &= ~(flag))
+#define NST_HAS_FLAG(obj, flag) ((obj)->flags & (flag))
+
+// flags can support up to 4 flags
+// the top 4 are reserved for the garbage collector
 
 #define NST_OBJ_HEAD \
     int ref_count; \
@@ -32,8 +36,7 @@ Nst_Obj;
 Nst_Obj *nst_alloc_obj(size_t size, Nst_Obj *type, void (*destructor)(void *));
 void _nst_init_obj(void);
 void _nst_del_obj(void);
-
-inline void _destroy_obj(Nst_Obj *obj);
+void _destroy_obj(Nst_Obj *obj);
 
 inline Nst_Obj *_inc_ref(Nst_Obj *obj)
 {
@@ -46,16 +49,6 @@ inline void _dec_ref(Nst_Obj *obj)
     obj->ref_count--;
     if ( obj->ref_count <= 0 || (obj == obj->type && obj->ref_count == 1) )
         _destroy_obj(obj);
-}
-
-inline void _destroy_obj(Nst_Obj *obj)
-{
-    obj->ref_count = 2147483647;
-    if ( obj->destructor != NULL )
-        (*obj->destructor)(obj);
-    if ( obj != obj->type )
-        nst_dec_ref(obj->type);
-    free(obj);
 }
 
 extern Nst_Obj *nst_t_type;

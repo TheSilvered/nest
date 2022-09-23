@@ -133,8 +133,8 @@ int main(int argc, char **argv)
     }
 
     Nst_Node *ast = nst_parse(tokens);
-    if ( ast != NULL )
-        ast = nst_optimize_ast(ast);
+    //if ( ast != NULL )
+      //  ast = nst_optimize_ast(ast);
 
     if ( ast == NULL )
     {
@@ -151,7 +151,7 @@ int main(int argc, char **argv)
     }
 
     Nst_InstructionList *inst_ls = nst_compile(ast, false);
-    inst_ls = nst_optimize_bytecode(inst_ls, true);
+    //inst_ls = nst_optimize_bytecode(inst_ls, true);
 
     if ( inst_ls == NULL )
     {

@@ -8,13 +8,13 @@ file_extensions:
 
 variables:
   identifier: '\b[A-Za-z_][A-Za-z_0-9]*\b'
-  constant: '\b(_*\d*[A-Z]{2,}[A-Za-z_0-9]*|[A-Z])\b'
+  constant: '\b(_*\d*[A-Z]{2,}[A-Z_0-9]*|[A-Z])\b'
   lang_constants: '\b(true|false|null|_cwd_|_args_|_vars_|_globals_)\b'
   lang_types: '\b(Type|Int|Real|Bool|Null|Str|Array|Vector|Map|Func|Iter|Byte|IOfile)\b'
   lang_keywords: '(\?\.\.|\.\.\?|\.\.\.|\?|~=|\.\.|;)'
   lang_arith_operators: '(-:|\+|-|\*|/|//|\^|%|><)'
-  lang_logic_operators: '(!=|==|>=|<=|&&|\|\||\|&)'
-  lang_other_operators: '(\$|::|\?::|!|>>>|<<<)'
+  lang_logic_operators: '(!=|==|>=|<=|&&|\|\||&\|)'
+  lang_other_operators: '(\$|::|\?::|!|>>>|<<<|>>|<<|\||&|\^\^|~)'
   lang_assign_operators: '(\+=|-=|\*=|/=|//=|\^=|%=|><=|=|\|#\|)'
 
 contexts:
