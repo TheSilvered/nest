@@ -1,1 +1,28 @@
-Array :: <{ }> = a
+_vars_ "true" -
+_vars_ "false" -
+_vars_ "null" -
+_vars_ "Int" -
+_vars_ "Real" -
+_vars_ "Array" -
+_vars_ "Vector" -
+_vars_ "IOfile" -
+_vars_ "Map" -
+_vars_ "Type" -
+_vars_ "Str" -
+_vars_ "Bool" -
+_vars_ "Byte" -
+_vars_ "Null" -
+_vars_ "Func" -
+_vars_ "Iter" -
+_vars_ "_globals_" -
+_vars_ "_args_" -
+_vars_ "_cwd_" -
+
+>>> _vars_
+
+-/
+... 100000 [
+	<{ }> = a
+	a a +
+]
+/-

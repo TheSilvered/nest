@@ -1,1 +1,9 @@
->>> 1 2 3 4 <
+|#| 'stdsys.nest' = sys
+
+#println s [ >>> (s '\n' ><) ]
+
+"true" @sys.hash @println
+"false" @sys.hash @println
+"null" @sys.hash @println
+"Int" @sys.hash @println
+"Real" @sys.hash @println

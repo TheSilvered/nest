@@ -290,10 +290,10 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
         {
             nst_dec_ref(curr_node.key);
             nst_dec_ref(curr_node.value);
-
-            nodes[i].hash = -1;
-            nodes[i].key = NULL;
-            nodes[i].value = NULL;
+            
+            nodes[i & mask].hash = -1;
+            nodes[i & mask].key = NULL;
+            nodes[i & mask].value = NULL;
             map->item_count--;
 
             if ( curr_node.next_idx != -1 )

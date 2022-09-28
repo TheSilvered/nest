@@ -188,6 +188,7 @@ void nst_collect()
     if ( old_gen_size > NST_OLD_GEN_MIN &&
          old_gen_size - ggc->old_gen_pending > old_gen_size >> 2 )
     {
+        printf("Collected old_gen\n");
         nst_collect_gen(&ggc->old_gen);
         ggc->old_gen_pending = 0;
     }
@@ -199,6 +200,7 @@ void nst_collect()
     // Collect the generations if they are over their maximum value
     if ( ggc->gen1.size > NST_GEN1_MAX )
     {
+        printf("Collected gen1\n");
         nst_collect_gen(&ggc->gen1);
         has_collected_gen1 = true;
     }
@@ -207,6 +209,7 @@ void nst_collect()
          (has_collected_gen1 &&
           ggc->gen1.size + ggc->gen2.size > NST_GEN2_MAX) )
     {
+        printf("Collected gen2\n");
         nst_collect_gen(&ggc->gen2);
         has_collected_gen2 = true;
     }
@@ -215,6 +218,7 @@ void nst_collect()
          (has_collected_gen2 && 
           ggc->gen2.size + ggc->gen3.size > NST_GEN3_MAX) )
     {
+        printf("Collected gen3\n");
         nst_collect_gen(&ggc->gen2);
         has_collected_gen3 = true;
         ggc->old_gen_pending += ggc->gen3.size;
@@ -251,9 +255,9 @@ void nst_collect()
 
 void nst_add_tracked_object(Nst_GGCObj *obj)
 {
-    printf("Added object %p of type %s\n", obj, TYPE_NAME(obj));
-
+    //printf("Added object %p of type %s\n", obj, TYPE_NAME(obj));
     register Nst_GarbageCollector *ggc = nst_state.ggc;
+    printf("%zi, %zi, %zi, %zi\n", ggc->gen1.size, ggc->gen2.size, ggc->gen3.size, ggc->old_gen.size);
 
     if ( ggc->gen1.size == 0 )
     {
