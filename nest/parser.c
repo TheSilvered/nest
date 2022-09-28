@@ -39,6 +39,8 @@ static ParsingState p_state;
 static LList *tokens;
 
 static inline void skip_blank();
+static Nst_Node *copy_node(Nst_Node *node);
+static Nst_LexerToken *copy_token(Nst_LexerToken *tok);
 static Nst_Node *fix_expr(Nst_Node *expr);
 
 static Nst_Node *parse_long_statement();
@@ -102,6 +104,40 @@ static inline void skip_blank()
 {
     while ( TOK(LList_peek_front(tokens))->type == NST_TT_ENDL )
         nst_destroy_token(LList_pop(tokens));
+}
+
+static Nst_Node *copy_node(Nst_Node *node)
+{
+    SAFE_LLIST_CREATE(nodes);
+    SAFE_LLIST_CREATE(node_tokens);
+
+    for ( LLNode *cursor = node->nodes->head;
+          cursor != NULL;
+          cursor = cursor->next )
+        LList_append(nodes, copy_node(cursor->value), true);
+
+    for ( LLNode *cursor = node->tokens->head;
+          cursor != NULL;
+          cursor = cursor->next )
+        LList_append(node_tokens, copy_token(cursor->value), true);
+
+    return nst_new_node_full(
+        node->start,
+        node->end,
+        node->type,
+        nodes,
+        node_tokens
+    );
+}
+
+static Nst_LexerToken *copy_token(Nst_LexerToken *tok)
+{
+    return nst_new_token_value(
+        tok->start,
+        tok->end,
+        tok->type,
+        tok->value != NULL ? nst_inc_ref(tok->value) : NULL
+    );
 }
 
 static Nst_Node *parse_long_statement()
@@ -634,8 +670,6 @@ static Nst_Node *fix_expr(Nst_Node *expr)
         return new_node;
     }
 
-    LLNode *cursor = expr->nodes->head;
-
     for ( LLNode *cursor = expr->nodes->head;
           cursor != NULL;
           cursor = cursor->next )
@@ -662,9 +696,9 @@ static Nst_Node *fix_expr(Nst_Node *expr)
             if ( i == n - 1 )
                 LList_append(new_nodes, LList_pop(expr->nodes), true);
             else
-                LList_append(new_nodes, LList_peek_front(expr->nodes), false);
+                LList_append(new_nodes, copy_node(LList_peek_front(expr->nodes)), true);
 
-            LList_append(new_tokens, op_tok, i == n - 1);
+            LList_append(new_tokens, copy_token(op_tok), true);
 
             Nst_Pos start = NODE(LList_peek_front(new_nodes))->start;
             Nst_Pos end = NODE(LList_peek_back(new_nodes))->end;
@@ -699,7 +733,7 @@ static Nst_Node *fix_expr(Nst_Node *expr)
         for ( size_t j = 0, m = curr_node->nodes->size - 1; j < m; j++ )
             LList_append(new_nodes, LList_pop(curr_node->nodes), true);
 
-        LList_append(new_tokens, op_tok, false);
+        LList_append(new_tokens, copy_token(op_tok), true);
         Nst_Node *new_node = nst_new_node_full(
             start,
             end,
@@ -1092,10 +1126,10 @@ static Nst_Node *parse_vector_literal()
             {
                 LList_destroy(nodes, nst_destroy_node);
                 LList_destroy(nodes, nst_destroy_token);
-                Nst_Pos err_start = tok->start;
-                Nst_Pos err_end = tok->end;
+                Nst_Pos tok_start = tok->start;
+                Nst_Pos tok_end = tok->end;
                 nst_destroy_token(tok);
-                RETURN_ERROR(err_start, err_end, EXPECTED_BRACE);
+                RETURN_ERROR(tok_start, tok_end, EXPECTED_BRACE);
             }
             Nst_Pos end = tok->end;
             nst_destroy_token(tok);

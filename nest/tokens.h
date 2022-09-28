@@ -68,6 +68,7 @@ enum Nst_TokenTypes
     NST_TT_IDENT,     // | + value start
     NST_TT_INT,       // | |
     NST_TT_REAL,      // | |
+    NST_TT_BOOL,      // | |
     NST_TT_STRING,    // | - value end
     NST_TT_LAMBDA,    // |
     NST_TT_L_PAREN,   // |

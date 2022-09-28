@@ -4,7 +4,7 @@
 #define REACHABLE(ob) ((ob)->flags & NST_FLAG_GCC_REACHABLE)
 #define UNREACHABLE(ob) ((ob)->flags & NST_FLAG_GCC_UNREACHABLE)
 
-inline void move_obj(Nst_GGCObject *obj, Nst_GGCList *from, Nst_GGCList *to)
+static inline void move_obj(Nst_GGCObject *obj, Nst_GGCList *from, Nst_GGCList *to)
 {
     if ( from->size == 1 )
     {
@@ -37,7 +37,32 @@ inline void move_obj(Nst_GGCObject *obj, Nst_GGCList *from, Nst_GGCList *to)
     to->size++;
 }
 
-void collect_gen(Nst_GGCList *gen)
+static void move_list(Nst_GGCList *from, Nst_GGCList *to)
+{
+    if ( from->size == 0 )
+        return;
+
+    if ( to->head == NULL )
+    {
+        to->head = from->head;
+        to->tail = from->tail;
+        to->size = from->size;
+        from->head = NULL;
+        from->tail = NULL;
+        from->size = 0;
+        return;
+    }
+
+    from->head->ggc_prev = to->tail;
+    to->tail = from->tail;
+    to->size += from->size;
+
+    from->head = NULL;
+    from->tail = NULL;
+    from->size = 0;
+}
+
+void nst_collect_gen(Nst_GGCList *gen)
 {
     // Unreachable values
     Nst_GGCList uv = {
@@ -46,10 +71,9 @@ void collect_gen(Nst_GGCList *gen)
         0
     };
 
-    // Clear flags
     for ( Nst_GGCObject *ob = gen->head;
-          ob->ggc_next != NULL;
-          ob = ob->ggc_next )
+            ob->ggc_next != NULL;
+            ob = ob->ggc_next )
     {
         NST_UNSET_FLAG(ob, NST_FLAG_GGC_REACHABLE
                          | NST_FLAG_GGC_UNREACHABLE 
@@ -65,37 +89,47 @@ void collect_gen(Nst_GGCList *gen)
             nst_traverse_map(vt->vars);
     }
 
+    register Nst_GGCObject *ob = NULL;
+    register Nst_GGCObject *new_ob = NULL;
+
+    // Move unreachable objects to `unreachable_values`
+    for ( ob = gen->head; ob != NULL; )
+    {
+        if ( NST_HAS_FLAG(ob, NST_FLAG_GGC_REACHABLE) )
+        {
+            ob = ob->ggc_next;
+            continue;
+        }
+        NST_SET_FLAG(ob, NST_FLAG_GGC_UNREACHABLE);
+        new_ob = ob->ggc_next;
+        move_obj(ob, gen, &uv);
+        ob = new_ob;
+    }
+
     // previous unreachable_values size 
     register size_t prev_uv_size = 0;
 
     // last traversed value in `gen`
-    register Nst_GGCObject *traversed_end = NULL;
-
-    register Nst_GGCObject *ob = NULL;
-    register Nst_GGCObject *new_ob = NULL;
+    register Nst_GGCObject *traversed_end = gen->head;
 
     do
     {
         prev_uv_size = uv.size;
-        // Move unreachable objects to `unreachable_values`
-        for ( ob = traversed_end ? traversed_end : gen->head; ob != NULL; )
+        // Traverse reachable objects
+        for ( ob = traversed_end; ob != NULL; )
         {
-            if ( NST_HAS_FLAG(ob, NST_FLAG_GGC_REACHABLE) )
-            {
-                ob = ob->ggc_next;
-                continue;
-            }
-            NST_SET_FLAG(ob, NST_FLAG_GGC_UNREACHABLE);
-            new_ob = ob->ggc_next;
-            move_obj(ob, gen, &uv);
-            ob = new_ob;
+            ob->traverse_func((Nst_Obj *)ob);
+            ob = ob->ggc_next;
         }
 
         traversed_end = gen->tail;
 
+        if ( uv.size == 0 )
+            return;
         if ( prev_uv_size == uv.size )
             break;
 
+        // Move objects reached back into the reachable objects to be traversed
         for ( ob = uv.head; ob != NULL; )
         {
             if ( NST_HAS_FLAG(ob, NST_FLAG_GGC_REACHABLE) )
@@ -125,5 +159,97 @@ void collect_gen(Nst_GGCList *gen)
         new_ob = ob->ggc_next;
         free(ob);
         ob = new_ob;
+    }
+}
+
+void nst_collect()
+{
+    register Nst_GarbageCollector *ggc = nst_state.ggc;
+    register size_t old_gen_size = ggc->old_gen.size;
+    // if the number of objects never checked in the old generation
+    // is more than 25% and there are at least 10 objects
+    if ( old_gen_size > NST_OLD_GEN_MIN &&
+         old_gen_size - ggc->old_gen_pending > old_gen_size >> 2 )
+    {
+        nst_collect_gen(&ggc->old_gen);
+        ggc->old_gen_pending = 0;
+    }
+
+    bool has_collected_gen1 = false;
+    bool has_collected_gen2 = false;
+    bool has_collected_gen3 = false;
+
+    // Collect the generations if they are over their maximum value
+    if ( ggc->gen1.size > NST_GEN1_MAX )
+    {
+        nst_collect_gen(&ggc->gen1);
+        has_collected_gen1 = true;
+    }
+
+    if ( ggc->gen2.size > NST_GEN2_MAX ||
+         (has_collected_gen1 &&
+          ggc->gen1.size + ggc->gen2.size > NST_GEN2_MAX) )
+    {
+        nst_collect_gen(&ggc->gen2);
+        has_collected_gen2 = true;
+    }
+
+    if ( ggc->gen3.size > NST_GEN3_MAX ||
+         (has_collected_gen2 && 
+          ggc->gen2.size + ggc->gen3.size > NST_GEN3_MAX) )
+    {
+        nst_collect_gen(&ggc->gen2);
+        has_collected_gen3 = true;
+        ggc->old_gen_pending += ggc->gen3.size;
+        move_list(&ggc->gen3, &ggc->old_gen);
+    }
+
+    if ( has_collected_gen2 )
+    {
+        if ( ggc->gen2.size + ggc->gen3.size > NST_GEN3_MAX )
+        {
+            ggc->old_gen_pending += ggc->gen2.size;
+            move_list(&ggc->gen2, &ggc->old_gen);
+        }
+        else
+            move_list(&ggc->gen2, &ggc->gen3);
+    }
+
+    if ( has_collected_gen1 )
+    {
+        if ( ggc->gen1.size + ggc->gen2.size > NST_GEN2_MAX )
+        {
+            if ( ggc->gen1.size + ggc->gen3.size > NST_GEN3_MAX )
+            {
+                ggc->old_gen_pending += ggc->gen1.size;
+                move_list(&ggc->gen1, &ggc->old_gen);
+            }
+            else
+                move_list(&ggc->gen1, &ggc->gen3);
+        }
+        else
+            move_list(&ggc->gen1, &ggc->gen2);
+    }
+}
+
+void nst_add_tracked_object(Nst_GGCObject *obj)
+{
+    register Nst_GarbageCollector *ggc = nst_state.ggc;
+
+    if ( ggc->gen1.size == 0 )
+    {
+        ggc->gen1.head = obj;
+        ggc->gen1.tail = obj;
+        ggc->gen1.size = 1;
+    }
+    else
+    {
+        obj->ggc_prev = ggc->gen1.tail;
+        ggc->gen1.tail->ggc_next = obj;
+        ggc->gen1.tail = obj;
+        ggc->gen1.size += 1;
+
+        if ( ggc->gen1.size > NST_GEN1_MAX )
+            nst_collect();
     }
 }

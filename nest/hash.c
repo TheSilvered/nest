@@ -39,7 +39,7 @@ int32_t hash_ptr(void *ptr)
     size_t x = (size_t)ptr;
     x = (x >> 4) | (x << (8 * sizeof(void *) - 4));
 
-    if ( x == -1 ) x = -2;
+    if ( x == -1 ) return -2;
     return (int32_t)x;
 }
 

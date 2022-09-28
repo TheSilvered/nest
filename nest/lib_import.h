@@ -99,6 +99,15 @@
 #define NST_FUNC_SIGN(name) \
     Nst_Obj *name(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 
+#define NST_FUNC_SAFE(name) \
+    Nst_Obj *name(size_t arg_num, Nst_Obj **args, Nst_OpErr *)
+
+#define NST_FUNC_INT(name) \
+    Nst_Obj *name(size_t, Nst_Obj **args, Nst_OpErr *err)
+
+#define NST_FUNC_INT_SAFE(name) \
+    Nst_Obj *name(size_t, Nst_Obj **args, Nst_OpErr *)
+
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus

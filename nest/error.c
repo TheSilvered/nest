@@ -38,6 +38,8 @@ typedef struct PrintLineResult
 }
 PrintLineResult;
 
+#pragma warning( disable: 4100 )
+
 PrintLineResult print_line(size_t lineno,
                            char *text,
                            size_t text_len,
@@ -128,15 +130,15 @@ void print_position(Nst_Pos start, Nst_Pos end)
 {
     assert(start.filename == end.filename);
 #ifdef FANCY_ERRORS
-    printf("File " C_GREEN "\"%s\"" C_RESET " at line %zi",
+    printf("File " C_GREEN "\"%s\"" C_RESET " at line %li",
            start.filename,
            start.line + 1);
 #else
-    printf("File \"%s\" at line %zi",
+    printf("File \"%s\" at line %li",
            start.filename,
            start.line + 1);
 #endif
-    if ( start.line != end.line ) printf(" to %zi", end.line + 1);
+    if ( start.line != end.line ) printf(" to %li", end.line + 1);
     printf(":\n| ");
 
     assert(start.text == end.text);

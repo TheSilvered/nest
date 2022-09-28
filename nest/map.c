@@ -23,6 +23,11 @@ Nst_Obj *nst_new_map()
     map->head_idx = -1;
     map->tail_idx = -1;
 
+    // GGC support
+    map->ggc_next = NULL;
+    map->ggc_prev = NULL;
+    map->traverse_func = (void (*)(Nst_Obj *))nst_traverse_map;
+
     if ( map->nodes == NULL )
     {
         free(map);
@@ -176,6 +181,13 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
     (nodes + (i & mask))->key = key;
     (nodes + (i & mask))->value = value;
 
+    if ( NST_HAS_FLAG(value, NST_FLAG_GGC_IS_SUPPORTED) &&
+         !NST_HAS_FLAG(map, NST_FLAG_MAP_TRACKED)          )
+    {
+        NST_SET_FLAG(map, NST_FLAG_MAP_TRACKED);
+        nst_add_tracked_object((Nst_GGCObject *)map);
+    }
+
     resize_map(map, false);
 
     return true;
@@ -316,6 +328,7 @@ void nst_traverse_map(Nst_MapObj *map)
           i != -1;
           i = _nst_map_get_next_idx(i, map) )
     {
+        // don't really care if the object is tracked by the garbage collector
         NST_SET_FLAG(map->nodes[i].key,   NST_FLAG_GGC_REACHABLE);
         NST_SET_FLAG(map->nodes[i].value, NST_FLAG_GGC_REACHABLE);
     }

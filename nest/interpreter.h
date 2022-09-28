@@ -9,6 +9,7 @@
 #include "compiler.h"
 #include "simple_types.h"
 #include "runtime_stack.h"
+#include "ggc.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -18,15 +19,16 @@ typedef struct
 {
     Nst_Traceback *traceback;
     Nst_VarTable **vt;
-    Nst_Int *idx;
+    Nst_Int *idx; // Instruction index
+    Nst_GarbageCollector *ggc; // Generational garbage collector
     bool *error_occurred;
-    Nst_StrObj **curr_path;
+    Nst_StrObj **curr_path; // Current working directory
     Nst_SeqObj *argv;
-    Nst_ValueStack *v_stack;
-    Nst_CallStack *f_stack;
+    Nst_ValueStack *v_stack; // Value stack
+    Nst_CallStack *f_stack; // Call stack
     LList *loaded_libs; // C imports list
     LList *lib_paths; // Import stack
-    LList *lib_handles; // Libraries' maps
+    LList *lib_handles; // Maps of the libraries
 }
 Nst_ExecutionState;
 

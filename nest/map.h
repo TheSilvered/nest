@@ -8,6 +8,7 @@
 #include "str.h"
 #include "ggc.h"
 
+// Must be a power of 2
 #define MAP_MIN_SIZE 32
 #define AS_MAP(ptr) ((Nst_MapObj *)(ptr))
 
@@ -79,6 +80,10 @@ inline Nst_Obj *_nst_map_drop_str(Nst_MapObj *map, const char *key)
     nst_dec_ref(key_obj);
     return value;
 }
+
+enum Nst_MapFlags {
+    NST_FLAG_MAP_TRACKED = 0b1
+};
 
 #ifdef __cplusplus
 }

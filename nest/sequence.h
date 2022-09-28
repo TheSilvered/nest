@@ -4,6 +4,7 @@
 #include <stdint.h>
 #include "obj.h"
 #include "llist.h"
+#include "ggc.h"
 
 #define VECTOR_MIN_SIZE 8
 #define VECTOR_GROWTH_RATIO 1.8f
@@ -23,6 +24,7 @@ extern "C" {
 typedef struct
 {
     NST_OBJ_HEAD;
+    NST_GGC_SUPPORT;
     Nst_Obj **objs;
     size_t len;
     size_t size;
@@ -32,6 +34,7 @@ Nst_SeqObj; // vector or array
 Nst_Obj *nst_new_array(size_t len);
 Nst_Obj *nst_new_vector(size_t len);
 void nst_destroy_seq(Nst_SeqObj *seq);
+void nst_traverse_seq(Nst_SeqObj *seq);
 
 void _nst_resize_vector(Nst_SeqObj *vect);
 void _nst_append_value_vector(Nst_SeqObj *vect, Nst_Obj *val);

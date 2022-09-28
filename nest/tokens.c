@@ -215,7 +215,7 @@ int nst_str_to_tok(char *str)
 
 void nst_print_token(Nst_LexerToken *token)
 {
-    printf("(%02zi:%02zi, %02zi:%02zi | ",
+    printf("(%02li:%02li, %02li:%02li | ",
         token->start.line,
         token->start.col,
         token->end.line,
@@ -273,6 +273,7 @@ void nst_print_token(Nst_LexerToken *token)
     case NST_TT_IDENT:    printf("IDENT");    break;
     case NST_TT_INT:      printf("INT");      break;
     case NST_TT_REAL:     printf("REAL");     break;
+    case NST_TT_BOOL:     printf("BOOL");     break;
     case NST_TT_STRING:   printf("STRING");   break;
     case NST_TT_LAMBDA:   printf("LAMBDA");   break;
     case NST_TT_L_PAREN:  printf("L_PAREN");  break;

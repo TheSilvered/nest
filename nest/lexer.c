@@ -67,7 +67,7 @@ inline static char *add_while_in(char *charset);
 
 static void make_symbol(Nst_LexerToken **tok, Nst_Error **err);
 static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err);
-static void make_ident(Nst_LexerToken **tok, Nst_Error **err);
+static void make_ident(Nst_LexerToken **tok);
 static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err);
 
 LList *nst_ftokenize(char *filename)
@@ -135,7 +135,7 @@ LList *nst_tokenize(char *text, size_t text_len, char *filename)
         else if ( strchr(_NST_SYMBOL_CHARS, cursor.ch) != NULL )
             make_symbol(&tok, &err);
         else if ( strchr(_NST_LETTER_CHARS, cursor.ch) != NULL )
-            make_ident(&tok, &err);
+            make_ident(&tok);
         else if ( cursor.ch == '"' || cursor.ch == '\'' )
             make_str_literal(&tok, &err);
         else if ( cursor.ch == '\n' )
@@ -282,7 +282,6 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error **err)
         bool can_close = false;
         bool was_closed = false;
         go_back();
-        Nst_Pos start = nst_copy_pos(cursor.pos);
         advance();
         while ( cursor.idx < (long)cursor.len )
         {
@@ -437,7 +436,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err)
     return;
 }
 
-static void make_ident(Nst_LexerToken **tok, Nst_Error **err)
+static void make_ident(Nst_LexerToken **tok)
 {
     Nst_Pos start = nst_copy_pos(cursor.pos);
     char *str = add_while_in(_NST_LETTER_CHARS _NST_DIGIT_CHARS);
@@ -456,7 +455,6 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err)
     char closing_ch = cursor.ch;
     bool allow_multiline = cursor.ch == '"';
     bool escape = false;
-    char escape_str = 0;
 
     char *end_str = malloc(START_CH_SIZE);
     char *end_str_realloc = NULL;
@@ -523,13 +521,13 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err)
             if ( cursor.idx >= (long)cursor.len || cursor.ch == closing_ch )
                 SET_INVALID_ESCAPE_ERROR;
 
-            ch1 = tolower(cursor.ch);
+            ch1 = (char)tolower(cursor.ch);
             advance();
 
             if ( cursor.idx >= (long)cursor.len || cursor.ch == closing_ch )
                 SET_INVALID_ESCAPE_ERROR;
 
-            ch2 = tolower(cursor.ch);
+            ch2 = (char)tolower(cursor.ch);
 
             if ( ch1 < '0' || ch1 > 'f'  ||
                 (ch1 > '9' && ch1 < 'a') ||

@@ -76,8 +76,8 @@ extern "C" {
 
 typedef struct
 {
-    size_t line;
-    size_t col;
+    long line;
+    long col;
     char *filename;
     char *text;
     size_t text_len;

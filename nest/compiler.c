@@ -1121,11 +1121,11 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
     {
         Nst_RuntimeInstruction inst = ls->instructions[i];
 
-        for ( int i = 0; i < indent; i++ ) printf("    ");
+        for ( int j = 0; j < indent; j++ ) printf("    ");
         if ( inst.start.filename == NULL )
             printf("%*zi         ", i_len, i);
         else
-            printf("%*zi %3zi:%-3zi ", i_len, i, inst.start.line + 1, inst.start.col + 1);
+            printf("%*zi %3li:%-3li ", i_len, i, inst.start.line + 1, inst.start.col + 1);
 
         switch ( inst.id )
         {
@@ -1209,7 +1209,7 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
             if ( inst.val->type == nst_t_func )
             {
                 printf("\n\n");
-                for ( int i = 0; i < indent + 1; i++ ) printf("    ");
+                for ( int j = 0; j < indent + 1; j++ ) printf("    ");
                 printf("<Func object> bytecode:\n");
                 nst_print_bytecode(AS_FUNC(inst.val)->body, indent + 1);
             }

@@ -30,22 +30,6 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error **error);
 static void ast_optimize_local_op(Nst_Node *node, Nst_Error **error);
 static void ast_optimize_long_s(Nst_Node *node, Nst_Error **error);
 
-inline void destroy_node_if_allocated(LList *nodes)
-{
-    if ( nodes->head->allocated )
-        nst_destroy_node(LList_pop(nodes));
-    else
-        LList_pop(nodes);
-}
-
-inline void destroy_tok_if_allocated(LList *tokens)
-{
-    if ( tokens->head->allocated )
-        nst_destroy_token(LList_pop(tokens));
-    else
-        LList_pop(tokens);
-}
-
 Nst_Node *nst_optimize_ast(Nst_Node *ast)
 {
     Nst_Error *error = NULL;
@@ -141,9 +125,9 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error **error)
         return;
     }
 
-    destroy_node_if_allocated(node->nodes);
-    destroy_node_if_allocated(node->nodes);
-    destroy_tok_if_allocated(node->tokens);
+    nst_destroy_node(LList_pop(node->nodes));
+    nst_destroy_node(LList_pop(node->nodes));
+    nst_destroy_token(LList_pop(node->tokens));
 
     node->type = NST_NT_VALUE;
     int new_tok_type;
@@ -152,6 +136,8 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error **error)
         new_tok_type = NST_TT_INT;
     else if ( res->type == nst_t_real )
         new_tok_type = NST_TT_REAL;
+    else if ( res->type == nst_t_bool )
+        new_tok_type = NST_TT_BOOL;
     else
         new_tok_type = NST_TT_STRING;
 
@@ -199,8 +185,8 @@ static void ast_optimize_local_op(Nst_Node *node, Nst_Error **error)
         return;
     }
 
-    destroy_node_if_allocated(node->nodes);
-    destroy_tok_if_allocated(node->tokens);
+    nst_destroy_node(LList_pop(node->nodes));
+    nst_destroy_token(LList_pop(node->tokens));
 
     node->type = NST_NT_VALUE;
     int new_tok_type;
@@ -335,7 +321,7 @@ Nst_InstructionList *nst_optimize_bytecode(Nst_InstructionList *bc, bool optimiz
             }
         }
     }
-    while ( initial_size != bc->total_size );
+    while ( initial_size != (Nst_Int)bc->total_size );
 
     return bc;
 }

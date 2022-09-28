@@ -23,6 +23,11 @@ Nst_Obj *nst_new_array(size_t len)
     arr->size = len;
     arr->objs = objs;
 
+    arr->ggc_next = NULL;
+    arr->ggc_prev = NULL;
+    arr->traverse_func = (void (*)(Nst_Obj *))nst_traverse_seq;
+    nst_add_tracked_object((Nst_GGCObject *)arr);
+
     return (Nst_Obj *)arr;
 }
 
@@ -50,16 +55,28 @@ Nst_Obj *nst_new_vector(size_t len)
     vect->size = size;
     vect->objs = objs;
 
+    vect->ggc_next = NULL;
+    vect->ggc_prev = NULL;
+    vect->traverse_func = (void (*)(Nst_Obj *))nst_traverse_seq;
+    nst_add_tracked_object((Nst_GGCObject *)vect);
+
     return (Nst_Obj *)vect;
 }
 
 void nst_destroy_seq(Nst_SeqObj *seq)
 {
-    Nst_Obj **objs = seq->objs;
+    register Nst_Obj **objs = seq->objs;
     for ( size_t i = 0, n = seq->len; i < n; i++ )
         nst_dec_ref(objs[i]);
 
     free(objs);
+}
+
+void nst_traverse_seq(Nst_SeqObj *seq)
+{
+    register Nst_Obj **objs = seq->objs;
+    for ( size_t i = 0, n = seq->len; i < n; i++ )
+        NST_SET_FLAG(objs[i], NST_FLAG_GGC_REACHABLE);
 }
 
 void _nst_resize_vector(Nst_SeqObj *vect)

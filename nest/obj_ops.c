@@ -427,7 +427,7 @@ Nst_Obj *_nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         nst_dec_ref(ob2);
 
         // any root of a negative number gives -nan as a result
-        if ( v1 < 0 && floor(v2) != v2 )
+        if ( v1 < 0 && floorl(v2) != v2 )
         {
             err->name = NST_E_MATH_ERROR;
             err->message = "fractional power of a negative number";
@@ -1064,7 +1064,7 @@ Nst_Obj *_nst_obj_stdin(Nst_Obj *ob, Nst_OpErr *err)
 
     size_t buffer_size = 4;
     size_t i = 0;
-    char ch = getchar();
+    char ch = (char)getchar();
 
     while ( ch != '\n' )
     {
@@ -1086,7 +1086,7 @@ Nst_Obj *_nst_obj_stdin(Nst_Obj *ob, Nst_OpErr *err)
         }
 
         buffer[i++] = ch;
-        ch = getchar();
+        ch = (char)getchar();
     }
     buffer[i] = '\0';
     char *new_buffer = realloc(buffer, i + 1);
@@ -1098,11 +1098,6 @@ Nst_Obj *_nst_obj_stdin(Nst_Obj *ob, Nst_OpErr *err)
     }
 
     return nst_new_string(new_buffer, i, true);
-}
-
-Nst_Obj *_nst_obj_typeof(Nst_Obj *ob, Nst_OpErr *err)
-{
-    return nst_inc_ref(ob->type);
 }
 
 Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
@@ -1305,4 +1300,10 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     LList_append(nst_state.lib_handles, handle, true);
 
     return nst_inc_ref(func_map);
+}
+
+#pragma warning( disable: 4100 )
+Nst_Obj *_nst_obj_typeof(Nst_Obj *ob, Nst_OpErr *err)
+{
+    return nst_inc_ref(ob->type);
 }

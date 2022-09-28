@@ -95,26 +95,34 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv)
 {
     // nst_state global variable initialization
     char *cwd_buf = malloc(sizeof(char) * MAX_PATH);
-    bool *error_occurred = malloc(sizeof(bool));
     Nst_VarTable **vt = malloc(sizeof(Nst_VarTable *));
     Nst_StrObj **curr_path = malloc(sizeof(Nst_StrObj *));
     if ( cwd_buf        == NULL ||
-         error_occurred == NULL ||
          vt             == NULL ||
          curr_path      == NULL )
         return;
-
-    *error_occurred = false;
+    
+    bool error_occurred = false;
     Nst_StrObj *cwd = AS_STR(nst_new_string_raw(_getcwd(cwd_buf, MAX_PATH), true));
     Nst_Traceback tb = { NULL, LList_new() };
-    Nst_Int i = 0;
+    Nst_Int idx = 0;
+    
+    // Create the garbage collector
+    Nst_GGCList gen1 = { NULL, NULL, 0 };
+    Nst_GGCList gen2 = { NULL, NULL, 0 };
+    Nst_GGCList gen3 = { NULL, NULL, 0 };
+    Nst_GGCList old_gen = { NULL, NULL, 0 };
+    Nst_GarbageCollector ggc = { gen1, gen2, gen3, old_gen, 0 };
+
+    // make_argv creates a tracked object
+    nst_state.ggc = &ggc;
 
     Nst_SeqObj *argv_obj = make_argv(argc, argv);
     nst_state.traceback = &tb;
     nst_state.vt = vt;
     *nst_state.vt = nst_new_var_table(NULL, cwd, argv_obj);
-    nst_state.idx = &i;
-    nst_state.error_occurred = error_occurred;
+    nst_state.idx = &idx;
+    nst_state.error_occurred = &error_occurred;
     nst_state.curr_path = curr_path;
     *nst_state.curr_path = cwd;
     nst_state.argv = argv_obj;
@@ -123,8 +131,6 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv)
     nst_state.loaded_libs = LList_new();
     nst_state.lib_paths = LList_new();
     nst_state.lib_handles = LList_new();
-
-    register Nst_InstructionList *curr_inst_ls = main_func->body;
 
     nst_push_func(
         nst_state.f_stack,
@@ -158,7 +164,6 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv)
 
     // Freeing nst_state
     LList_destroy(nst_state.traceback->positions, NULL);
-    free(error_occurred);
     free(vt);
     free(curr_path);
     nst_dec_ref(cwd);
@@ -662,7 +667,7 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
     CHECK_V_STACK_SIZE(arg_num + 1);
     Nst_FuncObj *func = AS_FUNC(nst_pop_val(nst_state.v_stack));
 
-    if ( func->arg_num != arg_num )
+    if ( (Nst_Int)(func->arg_num) != arg_num )
     {
         SET_ERROR(
             _NST_SET_CALL_ERROR,

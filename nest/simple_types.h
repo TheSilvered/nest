@@ -15,10 +15,10 @@
 #define AS_BOOL(ptr) (((Nst_BoolObj *)(ptr))->value)
 #define AS_FILE(ptr) ((Nst_IOFileObj *)(ptr))
 
-#define NST_IOF_IS_CLOSED(f) ( HAS_FLAG(f, NST_FLAG_IOFILE_IS_CLOSED) )
-#define NST_IOF_IS_BIN(f)    ( HAS_FLAG(f, NST_FLAG_IOFILE_IS_BIN) )
-#define NST_IOF_CAN_WRITE(f) ( HAS_FLAG(f, NST_FLAG_IOFILE_CAN_WRITE) )
-#define NST_IOF_CAN_READ(f)  ( HAS_FLAG(f, NST_FLAG_IOFILE_CAN_READ) )
+#define NST_IOF_IS_CLOSED(f) ( NST_HAS_FLAG(f, NST_FLAG_IOFILE_IS_CLOSED) )
+#define NST_IOF_IS_BIN(f)    ( NST_HAS_FLAG(f, NST_FLAG_IOFILE_IS_BIN) )
+#define NST_IOF_CAN_WRITE(f) ( NST_HAS_FLAG(f, NST_FLAG_IOFILE_CAN_WRITE) )
+#define NST_IOF_CAN_READ(f)  ( NST_HAS_FLAG(f, NST_FLAG_IOFILE_CAN_READ) )
 
 #define SIMPLE_TYPE_STRUCT(type, type_name, obj_name) \
     typedef type type_name; \
@@ -34,7 +34,7 @@ extern "C" {
 #endif // !__cplusplus
 
 typedef long long Nst_Int;
-typedef double Nst_Real;
+typedef long double Nst_Real;
 typedef char Nst_Bool;
 typedef unsigned char Nst_Byte;
 typedef FILE *Nst_IOfile;
@@ -78,7 +78,7 @@ enum Nst_IOFileFlags {
     NST_FLAG_IOFILE_IS_CLOSED = 0b0001,
     NST_FLAG_IOFILE_IS_BIN    = 0b0010,
     NST_FLAG_IOFILE_CAN_WRITE = 0b0100,
-    NST_FLAG_IOFILE_CAN_READ  = 0b1000,
+    NST_FLAG_IOFILE_CAN_READ  = 0b1000
 };
 
 Nst_Obj *nst_new_int(Nst_Int value);

@@ -42,6 +42,8 @@ void nst_destroy_iter(Nst_IterObj *iter)
     nst_dec_ref(iter->value);
 }
 
+#pragma warning( disable: 4100 )
+
 NST_FUNC_SIGN(nst_num_iter_start)
 {
     Nst_SeqObj *val = AS_SEQ(args[0]);
@@ -52,7 +54,6 @@ NST_FUNC_SIGN(nst_num_iter_start)
 NST_FUNC_SIGN(nst_num_iter_advance)
 {
     Nst_SeqObj *val = AS_SEQ(args[0]);
-    register Nst_Obj *idx_obj = val->objs[0];
     AS_INT(val->objs[0]) += AS_INT(val->objs[3]);
     NST_RETURN_NULL;
 }
@@ -87,7 +88,6 @@ NST_FUNC_SIGN(nst_seq_iter_start)
 NST_FUNC_SIGN(nst_seq_iter_advance)
 {
     Nst_SeqObj *val = AS_SEQ(args[0]);
-    Nst_Obj **objs = val->objs;
     AS_INT(val->objs[0]) += 1;
     NST_RETURN_NULL;
 }
@@ -136,7 +136,6 @@ NST_FUNC_SIGN(nst_str_iter_start)
 NST_FUNC_SIGN(nst_str_iter_advance)
 {
     Nst_SeqObj *val = AS_SEQ(args[0]);
-    Nst_Obj **objs = val->objs;
     AS_INT(val->objs[0]) += 1;
     NST_RETURN_NULL;
 }
