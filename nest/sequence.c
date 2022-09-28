@@ -25,8 +25,11 @@ Nst_Obj *nst_new_array(size_t len)
 
     arr->ggc_next = NULL;
     arr->ggc_prev = NULL;
+    arr->ggc_list = NULL;
     arr->traverse_func = (void (*)(Nst_Obj *))nst_traverse_seq;
-    nst_add_tracked_object((Nst_GGCObject *)arr);
+    nst_add_tracked_object((Nst_GGCObj *)arr);
+
+    NST_SET_FLAG(arr, NST_FLAG_GGC_IS_SUPPORTED);
 
     return (Nst_Obj *)arr;
 }
@@ -57,8 +60,11 @@ Nst_Obj *nst_new_vector(size_t len)
 
     vect->ggc_next = NULL;
     vect->ggc_prev = NULL;
+    vect->ggc_list = NULL;
     vect->traverse_func = (void (*)(Nst_Obj *))nst_traverse_seq;
-    nst_add_tracked_object((Nst_GGCObject *)vect);
+    nst_add_tracked_object((Nst_GGCObj *)vect);
+
+    NST_SET_FLAG(vect, NST_FLAG_GGC_IS_SUPPORTED);
 
     return (Nst_Obj *)vect;
 }

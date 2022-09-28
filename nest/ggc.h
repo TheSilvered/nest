@@ -5,8 +5,9 @@
 #include "simple_types.h"
 
 #define NST_GGC_SUPPORT \
-    struct Nst_GGCObject *ggc_next; \
-    struct Nst_GGCObject *ggc_prev; \
+    struct Nst_GGCObj *ggc_next; \
+    struct Nst_GGCObj *ggc_prev; \
+    struct Nst_GGCList *ggc_list; \
     void (* traverse_func)(Nst_Obj *)
 
 #define NST_GEN1_MAX 700
@@ -14,17 +15,19 @@
 #define NST_GEN3_MAX 10
 #define NST_OLD_GEN_MIN 10
 
-typedef struct Nst_GGCObject
+struct Nst_GGCList;
+
+typedef struct Nst_GGCObj
 {
     NST_OBJ_HEAD;
     NST_GGC_SUPPORT;
 }
-Nst_GGCObject;
+Nst_GGCObj;
 
-typedef struct
+typedef struct Nst_GGCList
 {
-    Nst_GGCObject *head;
-    Nst_GGCObject *tail;
+    Nst_GGCObj *head;
+    Nst_GGCObj *tail;
     size_t size;
 }
 Nst_GGCList;
@@ -40,8 +43,8 @@ typedef struct
 Nst_GarbageCollector;
 
 void nst_collect_gen(Nst_GGCList *gen);
-void nst_collect();
-void nst_add_tracked_object(Nst_GGCObject *obj);
+void nst_collect(void);
+void nst_add_tracked_object(Nst_GGCObj *obj);
 
 enum Nst_GGCFlags
 {

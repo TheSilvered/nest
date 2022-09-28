@@ -4,7 +4,7 @@
 #define REACHABLE(ob) ((ob)->flags & NST_FLAG_GCC_REACHABLE)
 #define UNREACHABLE(ob) ((ob)->flags & NST_FLAG_GCC_UNREACHABLE)
 
-static inline void move_obj(Nst_GGCObject *obj, Nst_GGCList *from, Nst_GGCList *to)
+static inline void move_obj(Nst_GGCObj *obj, Nst_GGCList *from, Nst_GGCList *to)
 {
     if ( from->size == 1 )
     {
@@ -35,12 +35,19 @@ static inline void move_obj(Nst_GGCObject *obj, Nst_GGCList *from, Nst_GGCList *
     obj->ggc_next = NULL;
     to->tail = obj;
     to->size++;
+
+    obj->ggc_list = to;
 }
 
 static void move_list(Nst_GGCList *from, Nst_GGCList *to)
 {
     if ( from->size == 0 )
         return;
+
+    for ( Nst_GGCObj *cursor = from->head;
+          cursor != NULL;
+          cursor = cursor->ggc_next )
+        cursor->ggc_list = to;
 
     if ( to->head == NULL )
     {
@@ -71,7 +78,7 @@ void nst_collect_gen(Nst_GGCList *gen)
         0
     };
 
-    for ( Nst_GGCObject *ob = gen->head;
+    for ( Nst_GGCObj *ob = gen->head;
             ob->ggc_next != NULL;
             ob = ob->ggc_next )
     {
@@ -81,16 +88,26 @@ void nst_collect_gen(Nst_GGCList *gen)
     }
 
     // All objects in the variable tables are reachable
+    NST_UNSET_FLAG((*nst_state.vt)->vars, NST_FLAG_GGC_UNREACHABLE);
+    NST_SET_FLAG((*nst_state.vt)->vars, NST_FLAG_GGC_REACHABLE);
     nst_traverse_map((*nst_state.vt)->vars);
     for ( size_t i = 0, n = nst_state.f_stack->current_size; i < n; i++ )
     {
         Nst_VarTable *vt = nst_state.f_stack->stack[i].vt;
         if ( vt != NULL )
+        {
             nst_traverse_map(vt->vars);
+            NST_UNSET_FLAG(vt->vars, NST_FLAG_GGC_UNREACHABLE);
+            NST_SET_FLAG(vt->vars, NST_FLAG_GGC_REACHABLE);
+        }
     }
 
-    register Nst_GGCObject *ob = NULL;
-    register Nst_GGCObject *new_ob = NULL;
+    NST_UNSET_FLAG(nst_state.argv, NST_FLAG_GGC_UNREACHABLE);
+    NST_SET_FLAG(nst_state.argv, NST_FLAG_GGC_REACHABLE);
+    nst_traverse_seq(nst_state.argv);
+
+    register Nst_GGCObj *ob = NULL;
+    register Nst_GGCObj *new_ob = NULL;
 
     // Move unreachable objects to `unreachable_values`
     for ( ob = gen->head; ob != NULL; )
@@ -106,11 +123,11 @@ void nst_collect_gen(Nst_GGCList *gen)
         ob = new_ob;
     }
 
-    // previous unreachable_values size 
+    // previous unreachable_values size
     register size_t prev_uv_size = 0;
 
     // last traversed value in `gen`
-    register Nst_GGCObject *traversed_end = gen->head;
+    register Nst_GGCObj *traversed_end = gen->head;
 
     do
     {
@@ -232,8 +249,10 @@ void nst_collect()
     }
 }
 
-void nst_add_tracked_object(Nst_GGCObject *obj)
+void nst_add_tracked_object(Nst_GGCObj *obj)
 {
+    printf("Added object %p of type %s\n", obj, TYPE_NAME(obj));
+
     register Nst_GarbageCollector *ggc = nst_state.ggc;
 
     if ( ggc->gen1.size == 0 )

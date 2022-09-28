@@ -66,7 +66,27 @@ void _destroy_obj(Nst_Obj *obj)
         if ( NST_HAS_FLAG(obj, NST_FLAG_GGC_UNREACHABLE) )
             NST_SET_FLAG(obj, NST_FLAG_GGC_OBJ_DELETED);
         else
+        {
+            Nst_GGCObj *ggc_obj = (Nst_GGCObj *)obj;
+            Nst_GGCList *ls = ggc_obj->ggc_list;
+
+            if ( ls != NULL )
+            {
+                if ( ls->head == ggc_obj )
+                    ls->head = ggc_obj->ggc_next;
+                else
+                    ggc_obj->ggc_prev = ggc_obj->ggc_next;
+
+                if ( ls->tail == ggc_obj )
+                    ls->tail = ggc_obj->ggc_prev;
+                else
+                    ggc_obj->ggc_prev = ggc_obj->ggc_next;
+
+                ls->size--;
+            }
+
             free(obj);
+        }
     }
     else
     {

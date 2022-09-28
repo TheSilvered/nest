@@ -26,7 +26,10 @@ Nst_Obj *nst_new_map()
     // GGC support
     map->ggc_next = NULL;
     map->ggc_prev = NULL;
+    map->ggc_list = NULL;
     map->traverse_func = (void (*)(Nst_Obj *))nst_traverse_map;
+
+    NST_SET_FLAG(map, NST_FLAG_GGC_IS_SUPPORTED);
 
     if ( map->nodes == NULL )
     {
@@ -185,7 +188,7 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
          !NST_HAS_FLAG(map, NST_FLAG_MAP_TRACKED)          )
     {
         NST_SET_FLAG(map, NST_FLAG_MAP_TRACKED);
-        nst_add_tracked_object((Nst_GGCObject *)map);
+        nst_add_tracked_object((Nst_GGCObj *)map);
     }
 
     resize_map(map, false);
