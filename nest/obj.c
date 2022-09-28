@@ -48,7 +48,7 @@ Nst_Obj *nst_alloc_obj(size_t size, Nst_Obj *type, void (*destructor)(void *))
     return obj;
 }
 
-void _destroy_obj(Nst_Obj *obj)
+void _nst_destroy_obj(Nst_Obj *obj)
 {
     if ( obj->flags & NST_FLAG_GGC_IS_SUPPORTED )
     {

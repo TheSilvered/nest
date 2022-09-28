@@ -5,9 +5,9 @@
 #include <stdint.h>
 #include <stdlib.h>
 
-#define nst_dec_ref(obj) _dec_ref((Nst_Obj *)(obj))
-#define nst_inc_ref(obj) _inc_ref((Nst_Obj *)(obj))
-#define nst_destroy_obj(obj) _destroy_obj((Nst_Obj *)(obj))
+#define nst_inc_ref(obj) _nst_inc_ref((Nst_Obj *)(obj))
+#define nst_dec_ref(obj) _nst_dec_ref((Nst_Obj *)(obj))
+#define nst_destroy_obj(obj) _nst_destroy_obj((Nst_Obj *)(obj))
 
 #define NST_SET_FLAG(obj, flag) ((obj)->flags |= flag)
 #define NST_UNSET_FLAG(obj, flag) ((obj)->flags &= ~(flag))
@@ -36,19 +36,19 @@ Nst_Obj;
 Nst_Obj *nst_alloc_obj(size_t size, Nst_Obj *type, void (*destructor)(void *));
 void _nst_init_obj(void);
 void _nst_del_obj(void);
-void _destroy_obj(Nst_Obj *obj);
+void _nst_destroy_obj(Nst_Obj *obj);
 
-inline Nst_Obj *_inc_ref(Nst_Obj *obj)
+inline Nst_Obj *_nst_inc_ref(Nst_Obj *obj)
 {
     obj->ref_count++;
     return obj;
 }
 
-inline void _dec_ref(Nst_Obj *obj)
+inline void _nst_dec_ref(Nst_Obj *obj)
 {
     obj->ref_count--;
     if ( obj->ref_count <= 0 || (obj == obj->type && obj->ref_count == 1) )
-        _destroy_obj(obj);
+        _nst_destroy_obj(obj);
 }
 
 extern Nst_Obj *nst_t_type;

@@ -184,11 +184,15 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
     (nodes + (i & mask))->key = key;
     (nodes + (i & mask))->value = value;
 
-    if ( NST_HAS_FLAG(value, NST_FLAG_GGC_IS_SUPPORTED) &&
-         !NST_HAS_FLAG(map, NST_FLAG_MAP_TRACKED)          )
+    if ( NST_HAS_FLAG(value, NST_FLAG_GGC_IS_SUPPORTED) )
     {
-        NST_SET_FLAG(map, NST_FLAG_MAP_TRACKED);
-        nst_add_tracked_object((Nst_GGCObj *)map);
+        if ( !NST_HAS_FLAG(map, NST_FLAG_MAP_TRACKED) )
+        {
+            NST_SET_FLAG(map, NST_FLAG_MAP_TRACKED);
+            nst_add_tracked_object((Nst_GGCObj *)map);
+        }
+
+        nst_add_tracked_object(value);
     }
 
     resize_map(map, false);

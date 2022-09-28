@@ -13,7 +13,7 @@
 #define NST_GEN1_MAX 700
 #define NST_GEN2_MAX 10
 #define NST_GEN3_MAX 10
-#define NST_OLD_GEN_MIN 10
+#define NST_OLD_GEN_MIN 100
 
 struct Nst_GGCList;
 

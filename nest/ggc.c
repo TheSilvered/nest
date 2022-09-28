@@ -31,6 +31,8 @@ static inline void move_obj(Nst_GGCObj *obj, Nst_GGCList *from, Nst_GGCList *to)
 
     if ( to->size == 0 )
         to->head = obj;
+    else
+        to->tail->ggc_next = obj;
     obj->ggc_prev = to->tail;
     obj->ggc_next = NULL;
     to->tail = obj;
@@ -143,12 +145,12 @@ void nst_collect_gen(Nst_GGCList *gen)
 
         if ( uv.size == 0 )
             return;
-        if ( prev_uv_size == uv.size )
-            break;
 
+        int i = 0;
         // Move objects reached back into the reachable objects to be traversed
         for ( ob = uv.head; ob != NULL; )
         {
+            i++;
             if ( NST_HAS_FLAG(ob, NST_FLAG_GGC_REACHABLE) )
                 NST_UNSET_FLAG(ob, NST_FLAG_GGC_UNREACHABLE);
             else
@@ -161,6 +163,9 @@ void nst_collect_gen(Nst_GGCList *gen)
             move_obj(ob, &uv, gen);
             ob = new_ob;
         }
+
+        if ( prev_uv_size == uv.size )
+            break;
     }
     while ( true );
 
@@ -169,7 +174,7 @@ void nst_collect_gen(Nst_GGCList *gen)
         // does not actually destroy the object, only calls the destructor
         // this happens because of the NST_FLAG_GGC_UNREACHABLE flag
         nst_destroy_obj(ob);
-
+    
     // Free the memory
     for ( ob = uv.head; ob != NULL; )
     {
@@ -186,9 +191,8 @@ void nst_collect()
     // if the number of objects never checked in the old generation
     // is more than 25% and there are at least 10 objects
     if ( old_gen_size > NST_OLD_GEN_MIN &&
-         old_gen_size - ggc->old_gen_pending > old_gen_size >> 2 )
+         ggc->old_gen_pending >= (Nst_Int)old_gen_size >> 2 )
     {
-        printf("Collected old_gen\n");
         nst_collect_gen(&ggc->old_gen);
         ggc->old_gen_pending = 0;
     }
@@ -200,7 +204,6 @@ void nst_collect()
     // Collect the generations if they are over their maximum value
     if ( ggc->gen1.size > NST_GEN1_MAX )
     {
-        printf("Collected gen1\n");
         nst_collect_gen(&ggc->gen1);
         has_collected_gen1 = true;
     }
@@ -209,7 +212,6 @@ void nst_collect()
          (has_collected_gen1 &&
           ggc->gen1.size + ggc->gen2.size > NST_GEN2_MAX) )
     {
-        printf("Collected gen2\n");
         nst_collect_gen(&ggc->gen2);
         has_collected_gen2 = true;
     }
@@ -218,7 +220,6 @@ void nst_collect()
          (has_collected_gen2 && 
           ggc->gen2.size + ggc->gen3.size > NST_GEN3_MAX) )
     {
-        printf("Collected gen3\n");
         nst_collect_gen(&ggc->gen2);
         has_collected_gen3 = true;
         ggc->old_gen_pending += ggc->gen3.size;
@@ -255,19 +256,22 @@ void nst_collect()
 
 void nst_add_tracked_object(Nst_GGCObj *obj)
 {
-    //printf("Added object %p of type %s\n", obj, TYPE_NAME(obj));
     register Nst_GarbageCollector *ggc = nst_state.ggc;
-    printf("%zi, %zi, %zi, %zi\n", ggc->gen1.size, ggc->gen2.size, ggc->gen3.size, ggc->old_gen.size);
+
+    if ( obj->ggc_list != NULL )
+        return;
 
     if ( ggc->gen1.size == 0 )
     {
         ggc->gen1.head = obj;
         ggc->gen1.tail = obj;
         ggc->gen1.size = 1;
+        obj->ggc_list = &ggc->gen1;
     }
     else
     {
         obj->ggc_prev = ggc->gen1.tail;
+        obj->ggc_list = &ggc->gen1;
         ggc->gen1.tail->ggc_next = obj;
         ggc->gen1.tail = obj;
         ggc->gen1.size += 1;
