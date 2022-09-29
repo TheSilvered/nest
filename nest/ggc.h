@@ -45,6 +45,7 @@ Nst_GarbageCollector;
 void nst_collect_gen(Nst_GGCList *gen);
 void nst_collect(void);
 void nst_add_tracked_object(Nst_GGCObj *obj);
+void delete_objects(Nst_GarbageCollector *ggc);
 
 enum Nst_GGCFlags
 {

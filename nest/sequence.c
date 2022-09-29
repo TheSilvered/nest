@@ -129,7 +129,7 @@ void _nst_append_value_vector(Nst_SeqObj *vect, Nst_Obj *val)
     vect->len++;
 
     if ( NST_HAS_FLAG(val, NST_FLAG_GGC_IS_SUPPORTED) )
-        nst_add_tracked_object(val);
+        nst_add_tracked_object((Nst_GGCObj *)val);
 }
 
 bool _nst_set_value_seq(Nst_SeqObj *seq, int64_t idx, Nst_Obj *val)
@@ -146,7 +146,7 @@ bool _nst_set_value_seq(Nst_SeqObj *seq, int64_t idx, Nst_Obj *val)
     seq->objs[idx] = val;
 
     if ( NST_HAS_FLAG(val, NST_FLAG_GGC_IS_SUPPORTED) )
-        nst_add_tracked_object(val);
+        nst_add_tracked_object((Nst_GGCObj *)val);
 
     return true;
 }

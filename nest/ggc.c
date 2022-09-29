@@ -63,6 +63,7 @@ static void move_list(Nst_GGCList *from, Nst_GGCList *to)
     }
 
     from->head->ggc_prev = to->tail;
+    to->tail->ggc_next = from->head;
     to->tail = from->tail;
     to->size += from->size;
 
@@ -70,6 +71,25 @@ static void move_list(Nst_GGCList *from, Nst_GGCList *to)
     from->tail = NULL;
     from->size = 0;
 }
+
+static inline void call_objs_destructor(Nst_GGCList *ls)
+{
+    for ( Nst_GGCObj *ob = ls->head; ob != NULL; ob = ob->ggc_next )
+        nst_destroy_obj(ob);
+}
+
+static inline void free_obj_memory(Nst_GGCList *ls)
+{
+    Nst_GGCObj *new_ob = NULL;
+    for ( Nst_GGCObj *ob = ls->head; ob != NULL; )
+    {
+        new_ob = ob->ggc_next;
+        free(ob);
+        ob = new_ob;
+    }
+}
+
+static inline void set_unreachable(Nst_GGCList *ls);
 
 void nst_collect_gen(Nst_GGCList *gen)
 {
@@ -80,9 +100,10 @@ void nst_collect_gen(Nst_GGCList *gen)
         0
     };
 
-    for ( Nst_GGCObj *ob = gen->head;
-            ob->ggc_next != NULL;
-            ob = ob->ggc_next )
+    register Nst_GGCObj *ob = NULL;
+    register Nst_GGCObj *new_ob = NULL;
+
+    for ( ob = gen->head; ob != NULL; ob = ob->ggc_next )
     {
         NST_UNSET_FLAG(ob, NST_FLAG_GGC_REACHABLE
                          | NST_FLAG_GGC_UNREACHABLE 
@@ -107,9 +128,6 @@ void nst_collect_gen(Nst_GGCList *gen)
     NST_UNSET_FLAG(nst_state.argv, NST_FLAG_GGC_UNREACHABLE);
     NST_SET_FLAG(nst_state.argv, NST_FLAG_GGC_REACHABLE);
     nst_traverse_seq(nst_state.argv);
-
-    register Nst_GGCObj *ob = NULL;
-    register Nst_GGCObj *new_ob = NULL;
 
     // Move unreachable objects to `unreachable_values`
     for ( ob = gen->head; ob != NULL; )
@@ -169,19 +187,26 @@ void nst_collect_gen(Nst_GGCList *gen)
     }
     while ( true );
 
-    // Delete the objects
-    for ( ob = uv.head; ob != NULL; ob = ob->ggc_next )
-        // does not actually destroy the object, only calls the destructor
-        // this happens because of the NST_FLAG_GGC_UNREACHABLE flag
-        nst_destroy_obj(ob);
-    
-    // Free the memory
-    for ( ob = uv.head; ob != NULL; )
-    {
-        new_ob = ob->ggc_next;
-        free(ob);
-        ob = new_ob;
-    }
+    call_objs_destructor(&uv);
+    free_obj_memory(&uv);
+}
+
+void delete_objects(Nst_GarbageCollector *ggc)
+{
+    set_unreachable(&ggc->gen1);
+    set_unreachable(&ggc->gen2);
+    set_unreachable(&ggc->gen3);
+    set_unreachable(&ggc->old_gen);
+
+    call_objs_destructor(&ggc->gen1);
+    call_objs_destructor(&ggc->gen2);
+    call_objs_destructor(&ggc->gen3);
+    call_objs_destructor(&ggc->old_gen);
+
+    free_obj_memory(&ggc->gen1);
+    free_obj_memory(&ggc->gen2);
+    free_obj_memory(&ggc->gen3);
+    free_obj_memory(&ggc->old_gen);
 }
 
 void nst_collect()
@@ -274,7 +299,7 @@ void nst_add_tracked_object(Nst_GGCObj *obj)
         obj->ggc_list = &ggc->gen1;
         ggc->gen1.tail->ggc_next = obj;
         ggc->gen1.tail = obj;
-        ggc->gen1.size += 1;
+        ggc->gen1.size++;
 
         if ( ggc->gen1.size > NST_GEN1_MAX )
             nst_collect();

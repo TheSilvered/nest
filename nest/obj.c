@@ -50,7 +50,7 @@ Nst_Obj *nst_alloc_obj(size_t size, Nst_Obj *type, void (*destructor)(void *))
 
 void _nst_destroy_obj(Nst_Obj *obj)
 {
-    if ( obj->flags & NST_FLAG_GGC_IS_SUPPORTED )
+    if ( NST_HAS_FLAG(obj, NST_FLAG_GGC_IS_SUPPORTED) )
     {
         // the object has already been deleted
         if ( NST_HAS_FLAG(obj, NST_FLAG_GGC_OBJ_DELETED) )

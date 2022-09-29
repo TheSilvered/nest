@@ -192,7 +192,7 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
             nst_add_tracked_object((Nst_GGCObj *)map);
         }
 
-        nst_add_tracked_object(value);
+        nst_add_tracked_object((Nst_GGCObj *)value);
     }
 
     resize_map(map, false);
@@ -334,11 +334,9 @@ void nst_traverse_map(Nst_MapObj *map)
     for ( Nst_Int i = _nst_map_get_next_idx(-1, map);
           i != -1;
           i = _nst_map_get_next_idx(i, map) )
-    {
-        // don't really care if the object is tracked by the garbage collector
-        NST_SET_FLAG(map->nodes[i].key,   NST_FLAG_GGC_REACHABLE);
+        // don't really care if the object is tracked by the garbage collector or not
+        // the keys are never tracked since they can only be integers or strings
         NST_SET_FLAG(map->nodes[i].value, NST_FLAG_GGC_REACHABLE);
-    }
 }
 
 Nst_Int _nst_map_get_next_idx(Nst_Int curr_idx, Nst_MapObj *map)
