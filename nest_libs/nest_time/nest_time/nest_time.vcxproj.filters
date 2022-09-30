@@ -99,6 +99,9 @@
     <ClInclude Include="..\..\..\nest\var_table.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\nest\ggc.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -171,6 +174,9 @@
       <Filter>File di origine</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\nodes.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\nest\ggc.c">
       <Filter>File di origine</Filter>
     </ClCompile>
   </ItemGroup>

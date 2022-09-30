@@ -89,7 +89,11 @@ static inline void free_obj_memory(Nst_GGCList *ls)
     }
 }
 
-static inline void set_unreachable(Nst_GGCList *ls);
+static inline void set_unreachable(Nst_GGCList *ls)
+{
+    for ( Nst_GGCObj *ob = ls->head; ob != NULL; ob = ob->ggc_next )
+        NST_SET_FLAG(ob, NST_FLAG_GGC_UNREACHABLE);
+}
 
 void nst_collect_gen(Nst_GGCList *gen)
 {

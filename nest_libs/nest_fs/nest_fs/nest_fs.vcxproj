@@ -147,6 +147,7 @@
     <ClInclude Include="..\..\..\nest\error.h" />
     <ClInclude Include="..\..\..\nest\error_internal.h" />
     <ClInclude Include="..\..\..\nest\function.h" />
+    <ClInclude Include="..\..\..\nest\ggc.h" />
     <ClInclude Include="..\..\..\nest\hash.h" />
     <ClInclude Include="..\..\..\nest\instructions.h" />
     <ClInclude Include="..\..\..\nest\interpreter.h" />
@@ -175,6 +176,7 @@
     <ClCompile Include="..\..\..\nest\compiler.c" />
     <ClCompile Include="..\..\..\nest\error.c" />
     <ClCompile Include="..\..\..\nest\function.c" />
+    <ClCompile Include="..\..\..\nest\ggc.c" />
     <ClCompile Include="..\..\..\nest\hash.c" />
     <ClCompile Include="..\..\..\nest\instructions.c" />
     <ClCompile Include="..\..\..\nest\interpreter.c" />

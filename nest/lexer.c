@@ -48,9 +48,6 @@
     ); \
     return; } while (0)
 
-LList *nst_ftokenize(char *filename);
-LList *nst_tokenize(char *text, size_t text_len, char *filename);
-
 typedef struct LexerCursor {
     char *text;
     size_t len;
@@ -70,7 +67,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err);
 static void make_ident(Nst_LexerToken **tok);
 static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err);
 
-LList *nst_ftokenize(char *filename)
+LList *nst_ftokenize(char *filename, char **text_buffer)
 {
     FILE *file = fopen(filename, "r");
     if ( file == NULL )
@@ -93,7 +90,7 @@ LList *nst_ftokenize(char *filename)
         {
             fclose(file);
             free(text);
-            printf("Ran out of memory\n");
+            printf("Ran out of memory while reading the file\n");
             return NULL;
         }
 
@@ -102,6 +99,7 @@ LList *nst_ftokenize(char *filename)
         text = strcat(text, chunk);
     }
     fclose(file);
+    *text_buffer = text;
     return nst_tokenize(text, str_len, filename);
 }
 
@@ -579,7 +577,9 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err)
         advance();
     }
 
+    go_back();
     Nst_Pos end = nst_copy_pos(cursor.pos);
+    advance();
 
     if ( cursor.ch != closing_ch )
     {

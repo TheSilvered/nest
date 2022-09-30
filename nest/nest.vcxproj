@@ -145,6 +145,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="argv_parser.c" />
     <ClCompile Include="compiler.c" />
     <ClCompile Include="error.c" />
     <ClCompile Include="function.c" />
@@ -170,6 +171,7 @@
     <ClCompile Include="sequence.c" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="argv_parser.h" />
     <ClInclude Include="compiler.h" />
     <ClInclude Include="error.h" />
     <ClInclude Include="function.h" />

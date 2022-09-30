@@ -21,9 +21,6 @@
     <ClInclude Include="nest_sys.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
-    <ClInclude Include="nest_sys.cpp">
-      <Filter>File di origine</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\nest\compiler.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
@@ -102,6 +99,9 @@
     <ClInclude Include="..\..\..\nest\var_table.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\nest\ggc.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
@@ -171,6 +171,12 @@
       <Filter>File di origine</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\var_table.c">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="nest_sys.cpp">
+      <Filter>File di origine</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\nest\ggc.c">
       <Filter>File di origine</Filter>
     </ClCompile>
   </ItemGroup>

@@ -1117,15 +1117,22 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
         ++i_len;
     }
 
+    i_len = i_len < 3 ? 3 : i_len;
+    for ( int i = 0; i < indent; i++ ) printf("    ");
+    for ( int i = 3; i < i_len;  i++ ) putchar(' ');
+    printf(" Idx |   Pos   |  Instruction  | ");
+    for ( int i = 3; i < i_len; i++ ) putchar(' ');
+    printf("Int | Object\n");
+
     for ( size_t i = 0, n = ls->total_size; i < n; i++ )
     {
         Nst_RuntimeInstruction inst = ls->instructions[i];
 
         for ( int j = 0; j < indent; j++ ) printf("    ");
         if ( inst.start.filename == NULL )
-            printf("%*zi         ", i_len, i);
+            printf(" %*zi |         | ", i_len, i);
         else
-            printf("%*zi %3li:%-3li ", i_len, i, inst.start.line + 1, inst.start.col + 1);
+            printf(" %*zi | %3li:%-3li | ", i_len, i, inst.start.line + 1, inst.start.col + 1);
 
         switch ( inst.id )
         {
@@ -1166,12 +1173,9 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
 
         if ( inst.id == NST_IC_NO_OP )
         {
-            printf("| ");
-            if ( i_len <= 3 )
-                printf("|     | ");
-            else
-                for ( int j = 0; j < i_len; j++ )
-                    putchar(' ');
+            printf(" | ");
+            for ( int j = 0; j < i_len; j++ )
+                putchar(' ');
             printf(" | ");
             continue;
         }
@@ -1183,20 +1187,18 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
              inst.id == NST_IC_MAKE_VEC ||
              inst.id == NST_IC_MAKE_MAP ||
              inst.int_val != 0 )
-            printf("| %*lli | ", i_len > 3 ? i_len : 3, inst.int_val);
+            printf(" | %*lli | ", i_len > 3 ? i_len : 3, inst.int_val);
         else
         {
-            printf("| ");
-            if ( i_len <= 3 )
-                printf("   ");
-            else
-                for ( int j = 0; j < i_len; j++ )
-                    putchar(' ');
+            printf(" | ");
+            for ( int j = 0; j < i_len; j++ )
+                putchar(' ');
             printf(" | ");
         }
 
         if ( inst.val != NULL )
         {
+            printf("(%s) ", TYPE_NAME(inst.val));
             if ( inst.val->type == nst_t_str )
             {
                 Nst_StrObj *s = AS_STR(_nst_repr_string(AS_STR(inst.val)));

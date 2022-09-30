@@ -101,12 +101,12 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv)
          vt             == NULL ||
          curr_path      == NULL )
         return;
-    
+
     bool error_occurred = false;
     Nst_StrObj *cwd = AS_STR(nst_new_string_raw(_getcwd(cwd_buf, MAX_PATH), true));
     Nst_Traceback tb = { NULL, LList_new() };
     Nst_Int idx = 0;
-    
+
     // Create the garbage collector
     Nst_GGCList gen1 = { NULL, NULL, 0 };
     Nst_GGCList gen2 = { NULL, NULL, 0 };
@@ -230,7 +230,8 @@ bool nst_run_module(char *file_name)
     // Compile and optimize the imported module
 
     // The file is guaranteed to exist
-    LList *tokens = nst_ftokenize(file_name);
+    char *text;
+    LList *tokens = nst_ftokenize(file_name, &text);
     Nst_Node *ast = nst_parse(tokens);
     if ( ast != NULL )
         ast = nst_optimize_ast(ast);

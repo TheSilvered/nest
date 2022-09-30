@@ -10,116 +10,55 @@
 #include "tokens.h"
 #include "compiler.h"
 #include "optimizer.h"
-
-#define VERSION "beta-0.5.0"
+#include "argv_parser.h"
+#include "nest.h"
 
 int main(int argc, char **argv)
 {
     SetConsoleOutputCP(CP_UTF8);
 
 #ifdef _DEBUG
-    puts("**USING DEBUG BUILD - " VERSION "**");
+    puts("**USING DEBUG BUILD - " NEST_VERSION "**");
     puts("----------------------------------");
     fflush(stdout);
 #endif
 
-    if ( argc < 2 )
-    {
-        printf("USAGE: nest [compilation-options] <filename>\n"
-               "     : nest <filename> [args]\n"
-               "     : nest <options>\n"
-        );
+    bool print_tokens;
+    bool print_tree;
+    bool print_bc;
+    bool force_exe;
+    int opt_level;
+    char *command;
+    char *filename;
+
+    int parse_result = nst_parse_args(
+        argc, argv,
+        &print_tokens,
+        &print_tree,
+        &print_bc,
+        &force_exe,
+        &opt_level,
+        &command,
+        &filename
+    );
+
+    if ( parse_result == -1 )
         return -1;
-    }
-
-    if ( argc == 2 && (strcmp(argv[1], "-h")     == 0
-                   ||  strcmp(argv[1], "--help") == 0
-                   ||  strcmp(argv[1], "-?")     == 0) )
-    {
-        printf("USAGE: nest [compilation-options] <filename>\n"
-               "     : nest <filename> [args]\n"
-               "     : nest <options>\n\n"
-
-               "Filename:\n"
-               "  The name of the file to execute\n\n"
-
-               "Compilation options:\n"
-               "  -t --tokens  : prints the list of tokens of the program\n"
-               "  -a --ast     : prints the abstract syntax tree of the program\n"
-               "  -b --bytecode: prints the bytecode of the program\n\n"
-
-               "Args:\n"
-               "  the arguments that will be accessible throgh _args_ during execution\n\n"
-
-               "Options:\n"
-               "  -h -? --help: prints this message\n"
-               "  -V --version: prints the version of nest being used\n"
-        );
+    else if ( parse_result == 1 )
         return 0;
-    }
-    else if ( argc == 2 && (strcmp(argv[1], "-V")        == 0
-                        ||  strcmp(argv[1], "--version") == 0) )
-    {
-        printf("Using nest version: " VERSION);
-        return 0;
-    }
 
     _nst_init_obj();
 
-    char *file_name = NULL;
-    bool print_tokens = false;
-    bool print_tree = false;
-    bool print_bc = false;
+    char *text = NULL;
+    LList *tokens;
 
-    if ( strcmp(argv[1], "-t") == 0 || strcmp(argv[1], "--tokens") == 0 )
-    {
-        if ( argc < 3 )
-        {
-            printf("USAGE: nest [compilation-options] <filename>\n"
-                "     : nest <filename> [args]\n"
-                "     : nest <options>\n"
-            );
-            _nst_del_obj();
-            return -1;
-        }
-        print_tokens = true;
-        file_name = argv[2];
-    }
-    else if ( strcmp(argv[1], "-a") == 0 || strcmp(argv[1], "--ast") == 0 )
-    {
-        if ( argc < 3 )
-        {
-            printf("USAGE: nest [compilation-options] <filename>\n"
-                "     : nest <filename> [args]\n"
-                "     : nest <options>\n"
-            );
-            _nst_del_obj();
-            return -1;
-        }
-        print_tree = true;
-        file_name = argv[2];
-    }
-    else if ( strcmp(argv[1], "-b") == 0 || strcmp(argv[1], "--bytecode") == 0 )
-    {
-        if ( argc < 3 )
-        {
-            printf("USAGE: nest [compilation-options] <filename>\n"
-                "     : nest <filename> [args]\n"
-                "     : nest <options>\n"
-            );
-            _nst_del_obj();
-            return -1;
-        }
-        print_bc = true;
-        file_name = argv[2];
-    }
+    if ( filename != NULL )
+        tokens = nst_ftokenize(filename, &text);
     else
-        file_name = argv[1];
-
-    LList *tokens = nst_ftokenize(file_name);
+        tokens = nst_tokenize(command, strlen(command), "<command>");
 
     if ( tokens == NULL )
-        return 0;
+        goto end;
 
     if ( print_tokens )
     {
@@ -128,30 +67,39 @@ int main(int argc, char **argv)
             nst_print_token(n->value);
             printf("\n");
         }
-        _nst_del_obj();
-        return 0;
+
+        if ( !force_exe && !print_tree && !print_bc )
+        {
+            LList_destroy(tokens, nst_destroy_token);
+            goto end;
+        }
     }
 
     Nst_Node *ast = nst_parse(tokens);
-    if ( ast != NULL )
+
+    if ( opt_level >= 1 && ast != NULL )
         ast = nst_optimize_ast(ast);
 
+    // nst_optimize_ast can delete the ast
     if ( ast == NULL )
-    {
-        _nst_del_obj();
-        return 0;
-    }
+        goto end;
 
     if ( print_tree )
     {
         nst_print_ast(ast);
-        nst_destroy_node(ast);
-        _nst_del_obj();
-        return 0;
+
+        if ( !force_exe && !print_bc )
+        {
+            nst_destroy_node(ast);
+            goto end;
+        }
     }
 
+    // nst_compile never fails
     Nst_InstructionList *inst_ls = nst_compile(ast, false);
-    inst_ls = nst_optimize_bytecode(inst_ls, true);
+
+    if ( opt_level >= 2 )
+        inst_ls = nst_optimize_bytecode(inst_ls, opt_level == 3);
 
     if ( inst_ls == NULL )
     {
@@ -162,16 +110,19 @@ int main(int argc, char **argv)
     if ( print_bc )
     {
         nst_print_bytecode(inst_ls, 0);
-        nst_destroy_inst_list(inst_ls);
-        _nst_del_obj();
-        return 0;
+
+        if ( !force_exe )
+        {
+            nst_destroy_inst_list(inst_ls);
+            goto end;
+        }
     }
 
     Nst_FuncObj *main_func = AS_FUNC(new_func(0));
     main_func->body = inst_ls;
     nst_run(main_func, argc, argv);
 
-    _nst_del_obj();
-
+    end: _nst_del_obj();
+    if ( text != NULL ) free(text);
     return 0;
 }
