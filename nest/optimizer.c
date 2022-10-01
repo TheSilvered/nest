@@ -130,21 +130,11 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error **error)
     nst_destroy_token(LList_pop(node->tokens));
 
     node->type = NST_NT_VALUE;
-    int new_tok_type;
-
-    if ( res->type == nst_t_int )
-        new_tok_type = NST_TT_INT;
-    else if ( res->type == nst_t_real )
-        new_tok_type = NST_TT_REAL;
-    else if ( res->type == nst_t_bool )
-        new_tok_type = NST_TT_BOOL;
-    else
-        new_tok_type = NST_TT_STRING;
 
     Nst_LexerToken *new_tok = nst_new_token_value(
         node->start,
         node->end,
-        new_tok_type,
+        NST_TT_VALUE,
         res
     );
 
@@ -189,21 +179,13 @@ static void ast_optimize_local_op(Nst_Node *node, Nst_Error **error)
     nst_destroy_token(LList_pop(node->tokens));
 
     node->type = NST_NT_VALUE;
-    int new_tok_type;
-
-    if ( res->type == nst_t_int )
-        new_tok_type = NST_TT_INT;
-    else if ( res->type == nst_t_real )
-        new_tok_type = NST_TT_REAL;
-    else
-        new_tok_type = NST_TT_STRING;
 
     LList_append(
         node->tokens,
         nst_new_token_value(
             node->start,
             node->end,
-            new_tok_type,
+            NST_TT_VALUE,
             res
         ),
         true

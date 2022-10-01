@@ -271,10 +271,7 @@ void nst_print_token(Nst_LexerToken *token)
     case NST_TT_NEG:      printf("NEG");      break;
     case NST_TT_TYPEOF:   printf("TYPEOF");   break;
     case NST_TT_IDENT:    printf("IDENT");    break;
-    case NST_TT_INT:      printf("INT");      break;
-    case NST_TT_REAL:     printf("REAL");     break;
-    case NST_TT_BOOL:     printf("BOOL");     break;
-    case NST_TT_STRING:   printf("STRING");   break;
+    case NST_TT_VALUE:    printf("VALUE");    break;
     case NST_TT_LAMBDA:   printf("LAMBDA");   break;
     case NST_TT_L_PAREN:  printf("L_PAREN");  break;
     case NST_TT_L_BRACE:  printf("L_BRACE");  break;
@@ -306,7 +303,7 @@ void nst_print_token(Nst_LexerToken *token)
     {
         printf(" - ");
 
-        if ( token->type == NST_TT_STRING || token->type == NST_TT_IDENT )
+        if ( token->value->type == nst_t_str )
         {
             Nst_StrObj *s = AS_STR(_nst_repr_string(AS_STR(token->value)));
             printf("%s", s->value);

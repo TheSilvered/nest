@@ -4,6 +4,41 @@
 #include "error.h" // Pos
 #include "obj.h"
 
+#define _NST_SYMBOL_CHARS "+-*/^%&|<>=!@~:;?.#()[]{},$"
+#define _NST_DIGIT_CHARS "0123456789"
+#define _NST_LETTER_CHARS "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
+
+#define T_IN_STACK_OP(token_type) \
+    ( token_type >= NST_TT_ADD && token_type <= NST_TT_LTE )
+#define T_IN_NUM_OP(token_type) \
+    ( token_type >= NST_TT_ADD && token_type <= NST_TT_RSHIFT )
+#define T_IN_COND_OP(token_type) \
+    ( token_type >= NST_TT_L_AND && token_type <= NST_TT_L_XOR )
+#define T_IN_COMP_OP(token_type) \
+    ( token_type >= NST_TT_GT && token_type <= NST_TT_LTE )
+#define T_IN_LOCAL_STACK_OP(token_type) \
+    ( token_type >= NST_TT_CAST && token_type <= NST_TT_RANGE )
+#define T_IN_ASSIGNMENT(token_type) \
+    ( token_type >= NST_TT_ASSIGN && token_type <= NST_TT_CONCAT_A )
+#define T_IN_LOCAL_OP(token_type) \
+    ( token_type >= NST_TT_LEN && token_type <= NST_TT_TYPEOF )
+#define T_IN_ATOM(token_type) \
+    ( token_type >= NST_TT_LEN && token_type <= NST_TT_L_VBRACE )
+#define T_IN_VALUE(token_type) \
+    ( token_type == NST_TT_IDENT || token_type == NST_TT_VALUE )
+#define T_IN_EXPR_END(token_type) \
+    ( token_type >= NST_TT_L_BRACKET && token_type <= NST_TT_EOFILE )
+#define T_IN_EXPR_END_W_BREAK(token_type) \
+    ( token_type >= NST_TT_L_BRACKET && \
+      token_type <= NST_TT_EOFILE || \
+      token_type == NST_TT_BREAK )
+
+// the assignment tokens are in the same order as the stack op tokens
+#define ASSIGMENT_TO_STACK_OP(token_type) \
+    ( token_type - NST_TT_ADD_A )
+
+#define TOK(expr) ((Nst_LexerToken *)(expr))
+
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
@@ -66,10 +101,7 @@ enum Nst_TokenTypes
     NST_TT_NEG,       // | |
     NST_TT_TYPEOF,    // | - local-op end
     NST_TT_IDENT,     // | + value start
-    NST_TT_INT,       // | |
-    NST_TT_REAL,      // | |
-    NST_TT_BOOL,      // | |
-    NST_TT_STRING,    // | - value end
+    NST_TT_VALUE,     // | - value end
     NST_TT_LAMBDA,    // |
     NST_TT_L_PAREN,   // |
     NST_TT_L_BRACE,   // |
@@ -113,40 +145,5 @@ void nst_print_token(Nst_LexerToken *token);
 #ifdef __cplusplus
 }
 #endif // !__cplusplus
-
-#define _NST_SYMBOL_CHARS "+-*/^%&|<>=!@~:;?.#()[]{},$"
-#define _NST_DIGIT_CHARS "0123456789"
-#define _NST_LETTER_CHARS "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
-
-#define T_IN_STACK_OP(token_type) \
-    ( token_type >= NST_TT_ADD && token_type <= NST_TT_LTE )
-#define T_IN_NUM_OP(token_type) \
-    ( token_type >= NST_TT_ADD && token_type <= NST_TT_RSHIFT )
-#define T_IN_COND_OP(token_type) \
-    ( token_type >= NST_TT_L_AND && token_type <= NST_TT_L_XOR )
-#define T_IN_COMP_OP(token_type) \
-    ( token_type >= NST_TT_GT && token_type <= NST_TT_LTE )
-#define T_IN_LOCAL_STACK_OP(token_type) \
-    ( token_type >= NST_TT_CAST && token_type <= NST_TT_RANGE )
-#define T_IN_ASSIGNMENT(token_type) \
-    ( token_type >= NST_TT_ASSIGN && token_type <= NST_TT_CONCAT_A )
-#define T_IN_LOCAL_OP(token_type) \
-    ( token_type >= NST_TT_LEN && token_type <= NST_TT_TYPEOF )
-#define T_IN_ATOM(token_type) \
-    ( token_type >= NST_TT_LEN && token_type <= NST_TT_L_VBRACE )
-#define T_IN_VALUE(token_type) \
-    ( token_type >= NST_TT_IDENT && token_type <= NST_TT_STRING )
-#define T_IN_EXPR_END(token_type) \
-    ( token_type >= NST_TT_L_BRACKET && token_type <= NST_TT_EOFILE )
-#define T_IN_EXPR_END_W_BREAK(token_type) \
-    ( token_type >= NST_TT_L_BRACKET && \
-      token_type <= NST_TT_EOFILE || \
-      token_type == NST_TT_BREAK )
-
-// the assignment tokens are in the same order as the stack op tokens
-#define ASSIGMENT_TO_STACK_OP(token_type) \
-    ( token_type - NST_TT_ADD_A )
-
-#define TOK(expr) ((Nst_LexerToken *)(expr))
 
 #endif // !Nst_TOKENS_H

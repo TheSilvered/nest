@@ -974,7 +974,7 @@ static Nst_Node *parse_extraction()
         if ( treat_as_string )
         {
             atom->type = NST_NT_VALUE;
-            TOK(LList_peek_front(atom->tokens))->type = NST_TT_STRING;
+            TOK(LList_peek_front(atom->tokens))->type = NST_TT_VALUE;
         }
 
         SAFE_LLIST_CREATE(new_nodes);
