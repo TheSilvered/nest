@@ -138,7 +138,7 @@ NST_FUNC_SIGN(close_)
     if ( !nst_extract_arg_values("F", arg_num, args, err, &f) )
         return nullptr;
 
-    if ( f == nullptr )
+    if ( NST_IOF_IS_CLOSED(f) )
     {
         SET_FILE_CLOSED_ERROR;
         return nullptr;
@@ -146,7 +146,7 @@ NST_FUNC_SIGN(close_)
 
     fclose(f->value);
     f->value = nullptr;
-    f->flags &= NST_FLAG_IOFILE_IS_CLOSED;
+    NST_SET_FLAG(f, NST_FLAG_IOFILE_IS_CLOSED);
     
     return nst_inc_ref(nst_null);
 }

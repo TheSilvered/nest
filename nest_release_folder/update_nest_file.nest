@@ -1,28 +1,18 @@
 |#| "stdio.nest" = io
 |#| "stdfs.nest" = fs
 |#| "stdsutil.nest" = su
+|#| "stdsys.nest" = sys
 
-#main [
+$_args_ 2 != ? 1 @sys.exit
+_args_.1 = path
+!(path @fs.isfile) ? 2 @sys.exit
 
-    $_args_ 2 != ? => 1
-    _args_.1 = path
-    !(path @fs.isfile) ? => 2
+path "r" @io.open = file
+file -1 @io.read \
+    "..\\\\..\\\\x64\\\\Debug\\\\nest_" "std" @su.replace_substr = content
 
-    path "r" @io.open = file
-    file -1 @io.read \
-        "..\\\\..\\\\x64\\\\Debug\\\\nest_" "std" @su.replace_substr = content
+file @io.close
 
-    file @io.close
-
-    path "w" @io.open = file
-    file content @io.write
-    file @io.close
-
-    => 0
-]
-
-(@main = exit_code) ? [
-    >>> exit_code
-    >>> ("Operation failed with code " exit_code "\n" >< )
-    <<< "PRESS ENTER TO EXIT..."
-]
+path "w" @io.open = file
+file content @io.write
+file @io.close

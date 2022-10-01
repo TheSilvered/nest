@@ -278,8 +278,8 @@ bool nst_run_module(char *filename)
     if ( *nst_state.error_occurred )
     {
         Nst_FuncCall call = nst_pop_func(nst_state.f_stack);
-        if ( nst_peek_val(nst_state.v_stack) != (Nst_Obj *)(*nst_state.vt)->vars )
-            nst_destroy_obj((Nst_Obj *)(*nst_state.vt)->vars);
+        nst_dec_ref(nst_map_drop_str((*nst_state.vt)->vars, "_vars_"));
+        nst_dec_ref((*nst_state.vt)->vars);
         free(*nst_state.vt);
         nst_dec_ref(call.func);
         *nst_state.vt = call.vt;

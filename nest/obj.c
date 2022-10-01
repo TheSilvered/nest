@@ -75,12 +75,12 @@ void _nst_destroy_obj(Nst_Obj *obj)
                 if ( ls->head == ggc_obj )
                     ls->head = ggc_obj->ggc_next;
                 else
-                    ggc_obj->ggc_prev = ggc_obj->ggc_next;
+                    ggc_obj->ggc_prev->ggc_next = ggc_obj->ggc_next;
 
                 if ( ls->tail == ggc_obj )
                     ls->tail = ggc_obj->ggc_prev;
                 else
-                    ggc_obj->ggc_prev = ggc_obj->ggc_next;
+                    ggc_obj->ggc_next->ggc_prev = ggc_obj->ggc_prev;
 
                 ls->size--;
             }
