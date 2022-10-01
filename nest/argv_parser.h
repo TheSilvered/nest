@@ -13,6 +13,7 @@ int nst_parse_args(int argc, char **argv,
                    bool *force_execution,
                    int  *opt_level,
                    char **command,
-                   char **filename);
+                   char **filename,
+                   int  *args_start);
 
 #endif

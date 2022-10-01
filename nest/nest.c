@@ -30,6 +30,7 @@ int main(int argc, char **argv)
     int opt_level;
     char *command;
     char *filename;
+    int args_start;
 
     int parse_result = nst_parse_args(
         argc, argv,
@@ -39,7 +40,8 @@ int main(int argc, char **argv)
         &force_exe,
         &opt_level,
         &command,
-        &filename
+        &filename,
+        &args_start
     );
 
     if ( parse_result == -1 )
@@ -120,7 +122,12 @@ int main(int argc, char **argv)
 
     Nst_FuncObj *main_func = AS_FUNC(new_func(0));
     main_func->body = inst_ls;
-    nst_run(main_func, argc, argv);
+    nst_run(
+        main_func,
+        argc - args_start,
+        argv + args_start,
+        filename != NULL ? filename : "-c"
+    );
 
     end: _nst_del_obj();
     if ( text != NULL ) free(text);

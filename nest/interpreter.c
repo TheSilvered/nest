@@ -88,10 +88,10 @@ static inline void exe_make_seq(Nst_RuntimeInstruction *inst);
 static inline void exe_make_seq_rep(Nst_RuntimeInstruction *inst);
 static inline void exe_make_map(Nst_RuntimeInstruction *inst);
 
-static Nst_SeqObj *make_argv(int argc, char **argv);
+static Nst_SeqObj *make_argv(int argc, char **argv, char *filename);
 static Nst_StrObj *make_cwd(char *file_path);
 
-void nst_run(Nst_FuncObj *main_func, int argc, char **argv)
+void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename)
 {
     // nst_state global variable initialization
     char *cwd_buf = malloc(sizeof(char) * MAX_PATH);
@@ -117,7 +117,7 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv)
     // make_argv creates a tracked object
     nst_state.ggc = &ggc;
 
-    Nst_SeqObj *argv_obj = make_argv(argc, argv);
+    Nst_SeqObj *argv_obj = make_argv(argc, argv, filename);
     nst_state.traceback = &tb;
     nst_state.vt = vt;
     *nst_state.vt = nst_new_var_table(NULL, cwd, argv_obj);
@@ -225,13 +225,13 @@ static void complete_function(size_t final_stack_size)
     }
 }
 
-bool nst_run_module(char *file_name)
+bool nst_run_module(char *filename)
 {
     // Compile and optimize the imported module
 
     // The file is guaranteed to exist
     char *text;
-    LList *tokens = nst_ftokenize(file_name, &text);
+    LList *tokens = nst_ftokenize(filename, &text);
     Nst_Node *ast = nst_parse(tokens);
     if ( ast != NULL )
         ast = nst_optimize_ast(ast);
@@ -250,7 +250,7 @@ bool nst_run_module(char *file_name)
     // Change the cwd
     Nst_StrObj *prev_path = *nst_state.curr_path;
 
-    Nst_StrObj *path_str = make_cwd(file_name);
+    Nst_StrObj *path_str = make_cwd(filename);
     *nst_state.curr_path = path_str;
 
     int res = _chdir(path_str->value);
@@ -1157,7 +1157,7 @@ static inline void exe_make_map(Nst_RuntimeInstruction *inst)
         nst_dec_ref(val);
         nst_dec_ref(key);
     }
-    nst_state.v_stack->current_size -= map_size;
+    nst_state.v_stack->current_size -= (size_t)map_size;
     nst_push_val(nst_state.v_stack, map);
     nst_dec_ref(map);
 }
@@ -1182,14 +1182,18 @@ size_t nst_get_full_path(char *file_path, char **buf, char **file_part)
     return path_len;
 }
 
-static Nst_SeqObj *make_argv(int argc, char **argv)
+static Nst_SeqObj *make_argv(int argc, char **argv, char *filename)
 {
-    Nst_SeqObj *args = AS_SEQ(nst_new_array(argc - 1));
+    Nst_SeqObj *args = AS_SEQ(nst_new_array(argc + 1));
 
-    for ( int i = 1; i < argc; i++ )
+    Nst_Obj *val = nst_new_string_raw(filename, false);
+    nst_set_value_seq(args, 0, val);
+    nst_dec_ref(val);
+
+    for ( int i = 0; i < argc; i++ )
     {
-        Nst_Obj *val = nst_new_string_raw(argv[i], false);
-        nst_set_value_seq(args, i - 1, val);
+        val = nst_new_string_raw(argv[i], false);
+        nst_set_value_seq(args, i + 1, val);
         nst_dec_ref(val);
     }
 

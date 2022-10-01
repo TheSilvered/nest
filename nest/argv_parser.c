@@ -12,7 +12,12 @@
     "Command:\n" \
     "  A string of code to execute\n\n" \
     \
+    "Args:\n" \
+    "  the arguments that will be accessible through _args_ during execution\n\n" \
+    \
     "Options:\n" \
+    "  -h -? --help: prints this message\n" \
+    "  -V --version: prints the version of nest being used\n" \
     "  -t --tokens: prints the list of tokens of the program\n" \
     "  -a --ast: prints the abstract syntax tree of the program\n" \
     "  -b --bytecode: prints the byte code of the program\n" \
@@ -21,14 +26,7 @@
     "  -O2: optimize only the abstract syntax tree (e.g. basic expressions)\n" \
     "  -O3: optimize byte code instruction sequences that can be more concise\n" \
     "  -O4: replace built-in names (e.g. 'true', 'Int', etc.) with their corresponding value\n" \
-    "       this does not replace it when they are re-purposed in the scope\n\n" \
-    \
-    "Args:\n" \
-    "  the arguments that will be accessible through _args_ during execution\n\n" \
-    \
-    "Options:\n" \
-    "  -h -? --help: prints this message\n" \
-    "  -V --version: prints the version of nest being used\n"
+    "       this does not replace them when they are re-purposed in the scope\n" \
 
 #define USAGE_MESSAGE \
     "USAGE: nest [options] [filename | -c command] [args]\n" \
@@ -41,7 +39,8 @@ int nst_parse_args(int argc, char **argv,
                    bool *force_execution,
                    int  *opt_level,
                    char **command,
-                   char **filename)
+                   char **filename,
+                   int *args_start)
 {
     *print_tokens = false;
     *print_ast = false;
@@ -50,6 +49,7 @@ int nst_parse_args(int argc, char **argv,
     *opt_level = 3;
     *command = NULL;
     *filename = NULL;
+    *args_start = 1;
 
     if ( argc < 2 )
     {
@@ -61,17 +61,18 @@ int nst_parse_args(int argc, char **argv,
     for ( ; i < argc; i++ )
     {
         char *arg = argv[i];
-        size_t arg_len = strlen(arg);
+        int arg_len = (int)strlen(arg);
 
         if ( arg[0] == '-' )
         {
             if ( arg_len == 1 )
             {
                 printf("Invalid option: -\n");
+                printf("\n" USAGE_MESSAGE);
                 return -1;
             }
 
-            for ( int j = 1; j < arg_len; j++)
+            for ( int j = 1; j < (int)arg_len; j++)
             {
                 switch ( arg[j] )
                 {
@@ -92,11 +93,13 @@ int nst_parse_args(int argc, char **argv,
                     if ( j != 1 )
                     {
                         printf("Invalid option: -O\n");
+                        printf("\n" USAGE_MESSAGE);
                         return -1;
                     }
                     else if ( arg_len != 3 )
                     {
                         printf("Invalid option: %s\n", arg);
+                        printf("\n" USAGE_MESSAGE);
                         return -1;
                     }
 
@@ -105,6 +108,7 @@ int nst_parse_args(int argc, char **argv,
                     if ( level < 0 || level > 3)
                     {
                         printf("Invalid option: -O%c\n", (char)(level + '1'));
+                        printf("\n" USAGE_MESSAGE);
                         return -1;
                     }
 
@@ -116,16 +120,19 @@ int nst_parse_args(int argc, char **argv,
                     if ( j != 1 || arg_len != 2 || i + 1 == argc )
                     {
                         printf("Invalid option: -c\n");
+                        printf("\n" USAGE_MESSAGE);
                         return -1;
                     }
 
                     *command = argv[i + 1];
+                    *args_start = i + 2;
                     return 0;
 
                 case '-':
                     if ( j != 1 )
                     {
                         printf("Invalid option: --\n");
+                        printf("\n" USAGE_MESSAGE);
                         return -1;
                     }
                     else if ( arg_len == 2 )
@@ -152,6 +159,7 @@ int nst_parse_args(int argc, char **argv,
                     else
                     {
                         printf("Invalid option: %s\n", arg);
+                        printf("\n" USAGE_MESSAGE);
                         return -1;
                     }
 
@@ -160,6 +168,7 @@ int nst_parse_args(int argc, char **argv,
 
                 default:
                     printf("Invalid option: -%c\n", arg[j]);
+                    printf("\n" USAGE_MESSAGE);
                     return -1;
                 }
             }
@@ -167,6 +176,7 @@ int nst_parse_args(int argc, char **argv,
         else
         {
             *filename = arg;
+            *args_start = i + 1;
             return 0;
         }
     }
@@ -176,8 +186,11 @@ int nst_parse_args(int argc, char **argv,
     else
     {
         printf("No file provided\n");
+        printf("\n" USAGE_MESSAGE);
         return -1;
     }
+
+    *args_start = ++i;
 
     return 0;
 }
