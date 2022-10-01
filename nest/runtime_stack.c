@@ -157,7 +157,7 @@ void nst_destroy_f_stack(Nst_CallStack *f_stack)
 
         if ( f_stack->stack[i].vt != NULL )
         {
-            nst_destroy_map(f_stack->stack[i].vt->vars);
+            nst_dec_ref(f_stack->stack[i].vt->vars);
             free(f_stack->stack[i].vt);
         }
     }

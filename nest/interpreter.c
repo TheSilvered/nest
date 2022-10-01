@@ -158,7 +158,7 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename)
         nst_print_traceback(*nst_state.traceback);
         free(nst_state.traceback->error);
 
-        nst_destroy_map((*nst_state.vt)->vars);
+        nst_dec_ref((*nst_state.vt)->vars);
         free(*nst_state.vt);
     }
 

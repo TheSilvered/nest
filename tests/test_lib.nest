@@ -1,0 +1,24 @@
+|#| '../nest_libs/nest_sys/stdsys.nest' = sys
+
+#_assertion_failed msg [
+    >>> ('Assertion failed: ' msg '\n' ><)
+    -1 @sys.exit
+]
+
+#assert_eq a b [
+    a b == ? => null : a ' == ' b >< @_assertion_failed
+]
+
+#assert_ne a b [
+    a b != ? => null : a ' == ' b >< @_assertion_failed
+]
+
+#assert_true a [
+    a ? => null : a @_assertion_failed
+]
+
+#assert_false a [
+    !a ? => null : '!(' a ')' >< @_assertion_failed
+]
+
+#println s [ >>> (s '\n' ><) ]

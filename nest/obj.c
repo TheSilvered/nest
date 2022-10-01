@@ -5,6 +5,8 @@
 #include "nst_types.h"
 #include "ggc.h"
 
+#include "str.h"
+
 Nst_Obj *nst_t_type;
 Nst_Obj *nst_t_int;
 Nst_Obj *nst_t_real;
@@ -41,7 +43,10 @@ Nst_Obj *nst_alloc_obj(size_t size, Nst_Obj *type, void (*destructor)(void *))
     if ( type == NULL )
         obj->type = obj;
     else
+    {
         obj->type = type;
+        // printf("%p %s\n", obj, TYPE_NAME(obj));
+    }
 
     nst_inc_ref(obj->type);
 
