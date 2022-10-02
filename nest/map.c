@@ -18,24 +18,19 @@ Nst_Obj *nst_new_map()
 
     map->item_count = 0;
     map->nodes = calloc(MAP_MIN_SIZE, sizeof(Nst_MapNode));
-    map->mask = MAP_MIN_SIZE - 1;
-    map->size = MAP_MIN_SIZE;
-    map->head_idx = -1;
-    map->tail_idx = -1;
-
-    // GGC support
-    map->ggc_next = NULL;
-    map->ggc_prev = NULL;
-    map->ggc_list = NULL;
-    map->traverse_func = (void (*)(Nst_Obj *))nst_traverse_map;
-
-    NST_SET_FLAG(map, NST_FLAG_GGC_IS_SUPPORTED);
 
     if ( map->nodes == NULL )
     {
         free(map);
         return NULL;
     }
+
+    map->mask = MAP_MIN_SIZE - 1;
+    map->size = MAP_MIN_SIZE;
+    map->head_idx = -1;
+    map->tail_idx = -1;
+
+    NST_GGC_SUPPORT_INIT(map, nst_traverse_map);
 
     return (Nst_Obj *)map;
 }

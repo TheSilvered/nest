@@ -1190,7 +1190,9 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
 
     if ( !c_import )
     {
-        if ( !nst_run_module(file_path) )
+        char *lib_text;
+
+        if ( !nst_run_module(file_path, &lib_text) )
         {
             *nst_state.error_occurred = true;
             return NULL;
@@ -1205,8 +1207,10 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         }
 
         Nst_MapObj *map = AS_MAP(nst_pop_val(nst_state.v_stack));
+        
         handle->val = map;
         handle->path = file_path;
+        handle->text = lib_text;
 
         LList_append(nst_state.lib_handles, handle, true);
         return (Nst_Obj *)map;
@@ -1296,6 +1300,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
 
     handle->val = func_map;
     handle->path = file_path;
+    handle->text = NULL;
 
     LList_append(nst_state.lib_handles, handle, true);
 

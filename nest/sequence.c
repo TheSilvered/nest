@@ -4,67 +4,43 @@
 #include "sequence.h"
 #include "obj_ops.h"
 
-Nst_Obj *nst_new_array(size_t len)
+static Nst_Obj *new_seq(size_t len, Nst_Obj *type)
 {
-    Nst_SeqObj *arr = AS_SEQ(nst_alloc_obj(
+    Nst_SeqObj *seq = AS_SEQ(nst_alloc_obj(
         sizeof(Nst_SeqObj),
-        nst_t_arr,
+        type,
         nst_destroy_seq
     ));
     Nst_Obj **objs = calloc(len, sizeof(Nst_Obj *));
 
-    if ( arr == NULL || objs == NULL )
+    if ( seq == NULL || objs == NULL )
     {
         errno = ENOMEM;
         return NULL;
     }
 
-    arr->len = len;
-    arr->size = len;
-    arr->objs = objs;
+    seq->len = len;
+    seq->size = len;
+    seq->objs = objs;
 
-    arr->ggc_next = NULL;
-    arr->ggc_prev = NULL;
-    arr->ggc_list = NULL;
-    arr->traverse_func = (void (*)(Nst_Obj *))nst_traverse_seq;
+    NST_GGC_SUPPORT_INIT(seq, nst_traverse_seq);
 
-    NST_SET_FLAG(arr, NST_FLAG_GGC_IS_SUPPORTED);
+    return (Nst_Obj *)seq;
+}
 
-    return (Nst_Obj *)arr;
+Nst_Obj *nst_new_array(size_t len)
+{
+    return new_seq(len, nst_t_arr);
 }
 
 Nst_Obj *nst_new_vector(size_t len)
 {
-    size_t size = (size_t)(len * VECTOR_GROWTH_RATIO);
+    size_t new_len = (size_t)(len * VECTOR_GROWTH_RATIO);
 
-    if ( size < VECTOR_MIN_SIZE )
-        size = VECTOR_MIN_SIZE;
+    if ( new_len < VECTOR_MIN_SIZE )
+        new_len = VECTOR_MIN_SIZE;
 
-    Nst_SeqObj *vect = AS_SEQ(nst_alloc_obj(
-        sizeof(Nst_SeqObj),
-        nst_t_vect,
-        nst_destroy_seq
-    ));
-    Nst_Obj **objs = calloc(size, sizeof(Nst_Obj *));
-
-    if ( vect == NULL || objs == NULL )
-    {
-        errno = ENOMEM;
-        return NULL;
-    }
-
-    vect->len = len;
-    vect->size = size;
-    vect->objs = objs;
-
-    vect->ggc_next = NULL;
-    vect->ggc_prev = NULL;
-    vect->ggc_list = NULL;
-    vect->traverse_func = (void (*)(Nst_Obj *))nst_traverse_seq;
-
-    NST_SET_FLAG(vect, NST_FLAG_GGC_IS_SUPPORTED);
-
-    return (Nst_Obj *)vect;
+    return new_seq(new_len, nst_t_arr);
 }
 
 void nst_destroy_seq(Nst_SeqObj *seq)

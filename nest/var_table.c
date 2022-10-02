@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include "var_table.h"
 
-Nst_VarTable *nst_new_var_table(Nst_VarTable *global_table,
+Nst_VarTable *nst_new_var_table(Nst_MapObj *global_table,
                                 Nst_StrObj *cwd,
                                 Nst_SeqObj *args)
 {
@@ -16,7 +16,7 @@ Nst_VarTable *nst_new_var_table(Nst_VarTable *global_table,
     if ( global_table == NULL )
         nst_map_set_str(vars, "_globals_", nst_null);
     else
-        nst_map_set_str(vars, "_globals_", global_table->vars);
+        nst_map_set_str(vars, "_globals_", global_table);
 
     if ( global_table != NULL )
         return vt;
@@ -50,7 +50,7 @@ Nst_Obj *_nst_get_val(Nst_VarTable *vt, Nst_Obj *name)
     Nst_Obj *val = _nst_map_get(vt->vars, name);
 
     if ( val == NULL && vt->global_table != NULL )
-        val = _nst_map_get(vt->global_table->vars, name);
+        val = _nst_map_get(vt->global_table, name);
 
     if ( val == NULL )
     {

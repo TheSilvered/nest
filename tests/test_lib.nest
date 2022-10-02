@@ -1,6 +1,7 @@
 |#| '../nest_libs/nest_sys/stdsys.nest' = sys
 
 #_assertion_failed msg [
+    >>> _vars_
     >>> ('Assertion failed: ' msg '\n' ><)
     -1 @sys.exit
 ]

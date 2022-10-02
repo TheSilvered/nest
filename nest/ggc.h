@@ -4,16 +4,25 @@
 #include "obj.h"
 #include "simple_types.h"
 
+#define NST_GEN1_MAX 700
+#define NST_GEN2_MAX 10
+#define NST_GEN3_MAX 10
+#define NST_OLD_GEN_MIN 100
+
 #define NST_GGC_SUPPORT \
     struct Nst_GGCObj *ggc_next; \
     struct Nst_GGCObj *ggc_prev; \
     struct Nst_GGCList *ggc_list; \
     void (* traverse_func)(Nst_Obj *)
 
-#define NST_GEN1_MAX 700
-#define NST_GEN2_MAX 10
-#define NST_GEN3_MAX 10
-#define NST_OLD_GEN_MIN 100
+#define NST_GGC_SUPPORT_INIT(obj, trav_func) \
+    do { \
+        obj->ggc_prev = NULL; \
+        obj->ggc_next = NULL; \
+        obj->ggc_list = NULL; \
+        obj->traverse_func = (void (*)(Nst_Obj *))(trav_func); \
+        NST_SET_FLAG(obj, NST_FLAG_GGC_IS_SUPPORTED); \
+    } while (0)
 
 struct Nst_GGCList;
 

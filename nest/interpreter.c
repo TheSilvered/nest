@@ -178,7 +178,7 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename)
     }
     LList_destroy(nst_state.loaded_libs, (void (*)(void *))FreeLibrary);
     LList_destroy(nst_state.lib_paths, free);
-    LList_destroy(nst_state.lib_handles, free);
+    LList_destroy(nst_state.lib_handles, nst_destroy_lib_handle);
 
     delete_objects(&ggc);
 }
@@ -225,13 +225,12 @@ static void complete_function(size_t final_stack_size)
     }
 }
 
-bool nst_run_module(char *filename)
+bool nst_run_module(char *filename, char **lib_text)
 {
     // Compile and optimize the imported module
 
     // The file is guaranteed to exist
-    char *text;
-    LList *tokens = nst_ftokenize(filename, &text);
+    LList *tokens = nst_ftokenize(filename, lib_text);
     Nst_Node *ast = nst_parse(tokens);
     if ( ast != NULL )
         ast = nst_optimize_ast(ast);
@@ -268,9 +267,12 @@ bool nst_run_module(char *filename)
     *nst_state.idx = -1;
     *nst_state.vt = nst_new_var_table(NULL, path_str, nst_state.argv);
 
+    _nst_set_global_vt(mod_func, (*nst_state.vt)->vars);
+
     complete_function(nst_state.f_stack->current_size - 1);
     *nst_state.curr_path = prev_path;
     nst_dec_ref(path_str);
+    nst_dec_ref(mod_func);
 
     res = _chdir(prev_path->value);
     assert(res == 0);
@@ -298,8 +300,10 @@ Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err)
     assert(func->body != NULL);
 
     Nst_VarTable *new_vt;
+    if ( func->mod_globals != NULL )
+        new_vt = nst_new_var_table(func->mod_globals, NULL, NULL);
     if ( (*nst_state.vt)->global_table == NULL )
-        new_vt = nst_new_var_table(*nst_state.vt, NULL, NULL);
+        new_vt = nst_new_var_table((*nst_state.vt)->vars, NULL, NULL);
     else
         new_vt = nst_new_var_table((*nst_state.vt)->global_table, NULL, NULL);
 
@@ -773,8 +777,10 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
 
     Nst_VarTable *new_vt;
 
-    if ( (*nst_state.vt)->global_table == NULL )
-        new_vt = nst_new_var_table((*nst_state.vt), NULL, NULL);
+    if ( func->mod_globals != NULL )
+        new_vt = nst_new_var_table(func->mod_globals, NULL, NULL);
+    else if ( (*nst_state.vt)->global_table == NULL )
+        new_vt = nst_new_var_table((*nst_state.vt)->vars, NULL, NULL);
     else
         new_vt = nst_new_var_table((*nst_state.vt)->global_table, NULL, NULL);
 
@@ -1210,4 +1216,11 @@ static Nst_StrObj *make_cwd(char *file_path)
     *(file_part - 1) = 0;
 
     return AS_STR(nst_new_string(path, file_part - path, true));
+}
+
+void nst_destroy_lib_handle(Nst_LibHandle *handle)
+{
+    if ( handle->text != NULL )
+        free(handle->text);
+    free(handle);
 }

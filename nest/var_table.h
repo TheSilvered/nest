@@ -16,11 +16,11 @@ extern "C" {
 typedef struct Nst_VarTable
 {
     Nst_MapObj *vars;
-    struct Nst_VarTable *global_table;
+    Nst_MapObj *global_table;
 }
 Nst_VarTable;
 
-Nst_VarTable *nst_new_var_table(Nst_VarTable *global_table,
+Nst_VarTable *nst_new_var_table(Nst_MapObj *global_table,
                                 Nst_StrObj *cwd,
                                 Nst_SeqObj *args);
 Nst_Obj *_nst_get_val(Nst_VarTable *vt, Nst_Obj *name);
