@@ -373,12 +373,20 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err)
 
         if ( errno == ERANGE )
         {
-            free(ltrl);
-            SET_ERROR(_NST_SET_SYNTAX_ERROR, start, end, INT_TOO_BIG, *err, );
-            return;
+            if ( strcmp(ltrl, "9223372036854775808") == 0 && is_negative )
+            {
+                errno = 0;
+                value = -9223372036854775808i64;
+            }
+            else
+            {
+                free(ltrl);
+                SET_ERROR(_NST_SET_SYNTAX_ERROR, start, end, INT_TOO_BIG, *err, );
+                return;
+            }
         }
-
-        if ( is_negative ) value *= -1;
+        else if ( is_negative )
+            value *= -1;
         *tok = nst_new_token_value(start, end, NST_TT_VALUE, nst_new_int(value));
         return;
     }
