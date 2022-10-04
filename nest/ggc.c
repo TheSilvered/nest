@@ -228,7 +228,6 @@ void nst_collect()
 
     bool has_collected_gen1 = false;
     bool has_collected_gen2 = false;
-    bool has_collected_gen3 = false;
 
     // Collect the generations if they are over their maximum value
     if ( ggc->gen1.size > NST_GEN1_MAX )
@@ -250,7 +249,6 @@ void nst_collect()
           ggc->gen2.size + ggc->gen3.size > NST_GEN3_MAX) )
     {
         nst_collect_gen(&ggc->gen2);
-        has_collected_gen3 = true;
         ggc->old_gen_pending += ggc->gen3.size;
         move_list(&ggc->gen3, &ggc->old_gen);
     }

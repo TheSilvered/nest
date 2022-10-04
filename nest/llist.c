@@ -2,6 +2,10 @@
 #include <stdlib.h>
 #include "llist.h"
 
+#if !defined(_WIN32) && !defined(WIN32)
+LLNode *LLNode_new(void *value, bool allocated);
+#endif
+
 inline LLNode *LLNode_new(void *value, bool allocated)
 {
     LLNode *node = malloc(sizeof(LLNode));

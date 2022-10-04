@@ -290,6 +290,7 @@ Nst_InstructionList *nst_optimize_bytecode(Nst_InstructionList *bc, bool optimiz
         remove_assign_pop(bc);
         remove_push_jumpif(bc);
         remove_dead_code(bc);
+        optimize_funcs(bc);
 
         register Nst_Int size = bc->total_size;
         register Nst_RuntimeInstruction *inst_list = bc->instructions;
@@ -555,7 +556,6 @@ static void remove_push_jumpif(Nst_InstructionList *bc)
         {
             if ( AS_INT(inst_list[i - 1].val) == 0 )
             {
-                AS_INT(inst_list[i - 1].val);
                 inst_list[i - 1].id = NST_IC_NO_OP;
                 inst_list[i].id = NST_IC_JUMP;
             }

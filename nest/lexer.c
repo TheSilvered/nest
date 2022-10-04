@@ -158,7 +158,7 @@ LList *nst_tokenize(char *text, size_t text_len, char *filename)
                 free(err);
             if ( tok != NULL )
                 nst_destroy_token(tok);
-            LList_destroy(tokens, nst_destroy_token);
+            LList_destroy(tokens, (LList_item_destructor)nst_destroy_token);
             printf("Ran out of memory\n");
             return NULL;
         }
@@ -169,7 +169,7 @@ LList *nst_tokenize(char *text, size_t text_len, char *filename)
             free(err);
             if ( tok != NULL )
                 nst_destroy_token(tok);
-            LList_destroy(tokens, nst_destroy_token);
+            LList_destroy(tokens, (LList_item_destructor)nst_destroy_token);
             return NULL;
         }
 
@@ -376,7 +376,8 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err)
             if ( strcmp(ltrl, "9223372036854775808") == 0 && is_negative )
             {
                 errno = 0;
-                value = -9223372036854775808i64;
+                value = -9223372036854775807;
+                --value; // parsers think that -9223372036854775808 is too large
             }
             else
             {

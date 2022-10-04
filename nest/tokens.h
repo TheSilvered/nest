@@ -29,8 +29,7 @@
 #define T_IN_EXPR_END(token_type) \
     ( token_type >= NST_TT_L_BRACKET && token_type <= NST_TT_EOFILE )
 #define T_IN_EXPR_END_W_BREAK(token_type) \
-    ( token_type >= NST_TT_L_BRACKET && \
-      token_type <= NST_TT_EOFILE || \
+    ( (token_type >= NST_TT_L_BRACKET && token_type <= NST_TT_EOFILE) || \
       token_type == NST_TT_BREAK )
 
 // the assignment tokens are in the same order as the stack op tokens

@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
-#include <windows.h>
+#include <errno.h>
 #include "obj_ops.h"
 #include "nst_types.h"
 #include "interpreter.h"
@@ -10,6 +10,17 @@
 #include "map.h"
 #include "error.h"
 #include "lib_import.h"
+
+#if defined(_WIN32) || defined(WIN32)
+
+#include <windows.h>
+#define dlsym GetProcAddress
+
+#else
+
+#include <dlfcn.h>
+
+#endif
 
 #define MAX_INT_CHAR_COUNT 21
 #define MAX_REAL_CHAR_COUNT 25
@@ -764,7 +775,7 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
         {
             char *buffer = malloc(MAX_REAL_CHAR_COUNT * sizeof(char));
             CHECK_BUFFER(buffer);
-            sprintf(buffer, "%g", AS_REAL(ob));
+            sprintf(buffer, "%Lg", AS_REAL(ob));
             return nst_new_string_raw(buffer, true);
         }
         else if ( ob_t == nst_t_bool )
@@ -1207,7 +1218,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         }
 
         Nst_MapObj *map = AS_MAP(nst_pop_val(nst_state.v_stack));
-        
+
         handle->val = map;
         handle->path = file_path;
         handle->text = lib_text;
@@ -1216,7 +1227,11 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         return (Nst_Obj *)map;
     }
 
+#if defined(_WIN32) || defined(WIN32)
     HMODULE lib = LoadLibraryA(file_path);
+#else
+    void *lib = dlopen(file_path, RTLD_LAZY);
+#endif
 
     if ( !lib )
     {
@@ -1226,7 +1241,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     }
 
     void (*init_lib_obj)(OBJ_INIT_FARGS)
-        = (void (*)(OBJ_INIT_FARGS))GetProcAddress(lib, "init_lib_obj");
+        = (void (*)(OBJ_INIT_FARGS))dlsym(lib, "init_lib_obj");
 
     if ( init_lib_obj == NULL )
     {
@@ -1242,7 +1257,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         nst_t_file, nst_true, nst_false, nst_null, nst_state);
 
     // Initialize library
-    bool (*lib_init)() = (bool (*)())GetProcAddress(lib, "lib_init");
+    bool (*lib_init)() = (bool (*)())dlsym(lib, "lib_init");
     if ( lib_init == NULL )
     {
         err->name = "Import Error";
@@ -1257,7 +1272,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     }
 
     // Get function pointers
-    Nst_FuncDeclr *(*get_func_ptrs)() = (Nst_FuncDeclr *(*)())GetProcAddress(lib, "get_func_ptrs");
+    Nst_FuncDeclr *(*get_func_ptrs)() = (Nst_FuncDeclr *(*)())dlsym(lib, "get_func_ptrs");
     if ( get_func_ptrs == NULL )
     {
         err->name = "Import Error";
@@ -1307,7 +1322,10 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     return nst_inc_ref(func_map);
 }
 
+#if defined(_WIN32) || defined(WIN32)
 #pragma warning( disable: 4100 )
+#endif
+
 Nst_Obj *_nst_obj_typeof(Nst_Obj *ob, Nst_OpErr *err)
 {
     return nst_inc_ref(ob->type);

@@ -22,10 +22,10 @@
     "  -a --ast: prints the abstract syntax tree of the program\n" \
     "  -b --bytecode: prints the byte code of the program\n" \
     "  -f --force-execution: executes the program even when -t, -a or -b are used\n" \
-    "  -O1: do not optimize the program (note that it is the letter O and not the number zero)\n" \
-    "  -O2: optimize only the abstract syntax tree (e.g. basic expressions)\n" \
-    "  -O3: optimize byte code instruction sequences that can be more concise\n" \
-    "  -O4: replace built-in names (e.g. 'true', 'Int', etc.) with their corresponding value\n" \
+    "  -O0: do not optimize the program (note that it is the letter O and not the number zero)\n" \
+    "  -O1: optimize only the abstract syntax tree (e.g. basic expressions)\n" \
+    "  -O2: optimize byte code instruction sequences that can be more concise\n" \
+    "  -O3: replace built-in names (e.g. 'true', 'Int', etc.) with their corresponding value\n" \
     "       this does not replace them when they are re-purposed in the scope\n" \
 
 #define USAGE_MESSAGE \
@@ -103,11 +103,11 @@ int nst_parse_args(int argc, char **argv,
                         return -1;
                     }
 
-                    int level = arg[j + 1] - '1';
+                    int level = arg[j + 1] - '0';
 
                     if ( level < 0 || level > 3)
                     {
-                        printf("Invalid option: -O%c\n", (char)(level + '1'));
+                        printf("Invalid option: -O%c\n", (char)(level + '0'));
                         printf("\n" USAGE_MESSAGE);
                         return -1;
                     }

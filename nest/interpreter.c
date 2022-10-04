@@ -1,6 +1,6 @@
 #include <assert.h>
-#include <windows.h>
-#include <direct.h>
+#include <errno.h>
+#include <stdlib.h>
 #include "interpreter.h"
 #include "error_internal.h"
 #include "obj_ops.h"
@@ -11,6 +11,26 @@
 #include "optimizer.h"
 #include "parser.h"
 #include "lexer.h"
+
+#if defined(_WIN32) || defined(WIN32)
+
+#include <windows.h>
+#include <direct.h>
+
+#define dlclose FreeLibrary
+#define dlsym GetProcAddress
+#define PATH_MAX MAX_PATH
+
+#else
+
+#include <dlfcn.h>
+#include <unistd.h>
+#include <limits.h>
+
+#define _chdir chdir
+#define _getcwd getcwd
+
+#endif
 
 #define SET_ERROR(err_macro, start, end, message) \
     do { \
@@ -94,7 +114,7 @@ static Nst_StrObj *make_cwd(char *file_path);
 void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename)
 {
     // nst_state global variable initialization
-    char *cwd_buf = malloc(sizeof(char) * MAX_PATH);
+    char *cwd_buf = malloc(sizeof(char) * PATH_MAX);
     Nst_VarTable **vt = malloc(sizeof(Nst_VarTable *));
     Nst_StrObj **curr_path = malloc(sizeof(Nst_StrObj *));
     if ( cwd_buf        == NULL ||
@@ -103,7 +123,7 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename)
         return;
 
     bool error_occurred = false;
-    Nst_StrObj *cwd = AS_STR(nst_new_string_raw(_getcwd(cwd_buf, MAX_PATH), true));
+    Nst_StrObj *cwd = AS_STR(nst_new_string_raw(_getcwd(cwd_buf, PATH_MAX), true));
     Nst_Traceback tb = { NULL, LList_new() };
     Nst_Int idx = 0;
 
@@ -172,13 +192,13 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename)
     nst_destroy_f_stack(nst_state.f_stack);
     for ( LLNode *n = nst_state.loaded_libs->head; n != NULL; n = n->next )
     {
-        void (*free_lib_func)() = (void (*)())GetProcAddress(n->value, "free_lib");
+        void (*free_lib_func)() = (void (*)())dlsym(n->value, "free_lib");
         if ( free_lib_func != NULL )
             free_lib_func();
     }
-    LList_destroy(nst_state.loaded_libs, (void (*)(void *))FreeLibrary);
+    LList_destroy(nst_state.loaded_libs, (LList_item_destructor)dlclose);
     LList_destroy(nst_state.lib_paths, free);
-    LList_destroy(nst_state.lib_handles, nst_destroy_lib_handle);
+    LList_destroy(nst_state.lib_handles, (LList_item_destructor)nst_destroy_lib_handle);
 
     delete_objects(&ggc);
 }
@@ -1169,13 +1189,15 @@ static inline void exe_make_map(Nst_RuntimeInstruction *inst)
 }
 
 size_t nst_get_full_path(char *file_path, char **buf, char **file_part)
+#if defined(_WIN32) || defined(WIN32)
+
 {
-    char *path = malloc(sizeof(char) * MAX_PATH);
+    char *path = malloc(sizeof(char) * PATH_MAX);
     if ( path == NULL )
         return 0;
 
-    DWORD path_len = GetFullPathNameA(file_path, MAX_PATH, path, file_part);
-    if ( path_len > MAX_PATH )
+    DWORD path_len = GetFullPathNameA(file_path, PATH_MAX, path, file_part);
+    if ( path_len > PATH_MAX )
     {
         free(path);
         path = malloc(sizeof(char) * path_len);
@@ -1187,6 +1209,21 @@ size_t nst_get_full_path(char *file_path, char **buf, char **file_part)
     *buf = path;
     return path_len;
 }
+
+#else
+
+{
+    char *path = malloc(sizeof(char) * PATH_MAX);
+    if ( path == NULL )
+        return 0;
+
+    *file_part = realpath(file_path, path);
+
+    *buf = path;
+    return strlen(path);
+}
+
+#endif
 
 static Nst_SeqObj *make_argv(int argc, char **argv, char *filename)
 {

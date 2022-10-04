@@ -38,7 +38,9 @@ typedef struct PrintLineResult
 }
 PrintLineResult;
 
+#if defined(_WIN32) || defined(WIN32)
 #pragma warning( disable: 4100 )
+#endif
 
 PrintLineResult print_line(size_t lineno,
                            char *text,
@@ -119,7 +121,7 @@ PrintLineResult print_line(size_t lineno,
     return result;
 }
 
-inline void print_repeat(char ch, size_t times)
+void print_repeat(char ch, size_t times)
 {
     if ( times < 0 ) times = 1;
     for ( size_t i = 0; i < times; i++ )

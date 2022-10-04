@@ -14,11 +14,11 @@
 ]
 
 #assert_true a [
-    a ? => null : a @_assertion_failed
+    a ? => null : a ' == true' >< @_assertion_failed
 ]
 
 #assert_false a [
-    !a ? => null : '!(' a ')' >< @_assertion_failed
+    !a ? => null : a ' == false' >< @_assertion_failed
 ]
 
 #println s [ >>> (s '\n' ><) ]

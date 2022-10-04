@@ -24,6 +24,8 @@ typedef struct
 }
 LList;
 
+typedef void (*LList_item_destructor)(void *);
+
 // Adds an element to the front
 void LList_push(LList *llist, void *value, bool allocated);
 // Adds an element to the back

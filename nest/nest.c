@@ -1,7 +1,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include <windows.h>
 #include "lexer.h"
 #include "parser.h"
 #include "interpreter.h"
@@ -13,9 +12,22 @@
 #include "argv_parser.h"
 #include "nest.h"
 
+#if defined(_WIN32) || defined(WIN32)
+
+#include <windows.h>
+#define SET_UTF8_TERMINAL SetConsoleOutputCP(CP_UTF8)
+
+#else
+
+#include <wchar.h>
+#include <locale.h>
+#define SET_UTF8_TERMINAL setlocale(LC_ALL, "")
+
+#endif
+
 int main(int argc, char **argv)
 {
-    SetConsoleOutputCP(CP_UTF8);
+    SET_UTF8_TERMINAL;
 
 #ifdef _DEBUG
     puts("**USING DEBUG BUILD - " NEST_VERSION "**");
@@ -72,7 +84,7 @@ int main(int argc, char **argv)
 
         if ( !force_exe && !print_tree && !print_bc )
         {
-            LList_destroy(tokens, nst_destroy_token);
+            LList_destroy(tokens, (LList_item_destructor)nst_destroy_token);
             goto end;
         }
     }

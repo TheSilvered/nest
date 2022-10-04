@@ -25,7 +25,7 @@ Nst_Obj *nst_true;
 Nst_Obj *nst_false;
 Nst_Obj *nst_null;
 
-Nst_Obj *nst_alloc_obj(size_t size, Nst_Obj *type, void (*destructor)(void *))
+Nst_Obj *_nst_alloc_obj(size_t size, Nst_Obj *type, void (*destructor)(void *))
 {
     Nst_Obj *obj = malloc(size);
     if ( obj == NULL )
@@ -103,6 +103,20 @@ void _nst_destroy_obj(Nst_Obj *obj)
         free(obj);
     }
 }
+
+Nst_Obj *_nst_inc_ref(Nst_Obj *obj)
+{
+    obj->ref_count++;
+    return obj;
+}
+
+void _nst_dec_ref(Nst_Obj *obj)
+{
+    obj->ref_count--;
+    if ( obj->ref_count <= 0 || (obj == obj->type && obj->ref_count == 1) )
+        _nst_destroy_obj(obj);
+}
+
 
 void _nst_init_obj(void)
 {

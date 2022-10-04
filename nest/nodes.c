@@ -116,8 +116,8 @@ void nst_destroy_node(Nst_Node *node)
     if ( node == NULL )
         return;
 
-    LList_destroy(node->tokens, nst_destroy_token);
-    LList_destroy(node->nodes, nst_destroy_node);
+    LList_destroy(node->tokens, (LList_item_destructor)nst_destroy_token);
+    LList_destroy(node->nodes, (LList_item_destructor)nst_destroy_node);
 
     free(node);
 }

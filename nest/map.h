@@ -58,28 +58,9 @@ void nst_destroy_map(Nst_MapObj *map);
 void nst_traverse_map(Nst_MapObj *map);
 Nst_Int _nst_map_get_next_idx(Nst_Int curr_idx, Nst_MapObj *map);
 
-inline void _nst_map_set_str(Nst_MapObj *map, const char *key, Nst_Obj *value)
-{
-    Nst_Obj *key_obj = nst_new_string_raw(key, false);
-    nst_map_set(map, key_obj, value);
-    nst_dec_ref(key_obj);
-}
-
-inline Nst_Obj *_nst_map_get_str(Nst_MapObj *map, const char *key)
-{
-    Nst_Obj *key_obj = nst_new_string_raw(key, false);
-    Nst_Obj *value = _nst_map_get(map, key_obj);
-    nst_dec_ref(key_obj);
-    return value;
-}
-
-inline Nst_Obj *_nst_map_drop_str(Nst_MapObj *map, const char *key)
-{
-    Nst_Obj *key_obj = nst_new_string_raw(key, false);
-    Nst_Obj *value = _nst_map_drop(map, key_obj);
-    nst_dec_ref(key_obj);
-    return value;
-}
+void _nst_map_set_str(Nst_MapObj *map, const char *key, Nst_Obj *value);
+Nst_Obj *_nst_map_get_str(Nst_MapObj *map, const char *key);
+Nst_Obj *_nst_map_drop_str(Nst_MapObj *map, const char *key);
 
 enum Nst_MapFlags {
     NST_FLAG_MAP_TRACKED = 0b1

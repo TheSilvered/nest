@@ -42,7 +42,9 @@ void nst_destroy_iter(Nst_IterObj *iter)
     nst_dec_ref(iter->value);
 }
 
+#if defined(_WIN32) || defined(WIN32)
 #pragma warning( disable: 4100 )
+#endif
 
 NST_FUNC_SIGN(nst_num_iter_start)
 {
