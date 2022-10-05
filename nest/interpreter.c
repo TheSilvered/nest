@@ -26,6 +26,7 @@
 #include <dlfcn.h>
 #include <unistd.h>
 #include <limits.h>
+#include <string.h>
 
 #define _chdir chdir
 #define _getcwd getcwd
@@ -1217,7 +1218,17 @@ size_t nst_get_full_path(char *file_path, char **buf, char **file_part)
     if ( path == NULL )
         return 0;
 
-    *file_part = realpath(file_path, path);
+    realpath(file_path, path);
+
+    if ( file_part != NULL )
+    {
+        *file_part = strrchr(path, '/');
+
+        if ( !*file_part )
+            *file_part = path;
+        else
+            *file_part++;
+    }
 
     *buf = path;
     return strlen(path);

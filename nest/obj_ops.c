@@ -1141,6 +1141,10 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     if ( (file = fopen(file_path, "r")) == NULL )
     {
         // Tries to open it as a file of the standard library
+
+#if defined(_WIN32) || defined(WIN32)
+
+        // In Windows the standard library is stored in %LOCALAPPDATA%/Programs/nest/nest_libs
         char *appdata = getenv("LOCALAPPDATA");
         char *original_path = _nst_format_fnf_error(FILE_NOT_FOUND, file_name);
         if ( appdata == NULL )
@@ -1151,7 +1155,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         }
 
         size_t appdata_len = strlen(appdata);
-        file_path = malloc(appdata_len + file_name_len + 26);
+        file_path = malloc((appdata_len + file_name_len + 26) * sizeof(char));
         file_path_allocated = true;
         if ( !file_path ) return NULL;
 
@@ -1159,6 +1163,27 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         memcpy(file_path, appdata, appdata_len);
         memcpy(file_path + appdata_len, lib_dir, 25);
         memcpy(file_path + appdata_len + 25, file_name, file_name_len + 1); // copies also \0
+        size_t path_len = appdata_len + file_name_len + 25;
+
+#else
+
+        // In UNIX the standard library is stored in /usr/lib/nest
+        file_path = malloc((file_name_len + 15) * sizeof(char));
+        file_path_allocated = true;
+        if ( !file_path ) return NULL;
+
+        char *lib_dir = "/usr/lib/nest/";
+        memcpy(file_path, lib_dir, 14);
+        memcpy(file_path + 14, file_name, file_name_len + 1); // copies also \0
+        size_t path_len = file_name_len + 14;
+
+#endif
+
+        for ( size_t i = 0; i < path_len; i++ )
+        {
+            if ( file_path[i] == '\\' )
+                file_path[i] == '/';
+        }
 
         if ( (file = fopen(file_path, "r")) == NULL )
         {
@@ -1172,7 +1197,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     }
     fclose(file);
 
-    // Gets the full path to allow importing with different relative paths
+    // Gets the full path to not re-import with different relative paths
     char *full_path = NULL;
     nst_get_full_path(file_path, &full_path, NULL);
     if ( file_path_allocated ) free(file_path);
