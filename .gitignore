@@ -449,3 +449,6 @@ modules.order
 Module.symvers
 Mkfile.old
 dkms.conf
+
+# Make output
+unix_executable/

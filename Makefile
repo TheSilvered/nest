@@ -1,5 +1,6 @@
 CC=gcc
-CFLAGS= -Wall -g
+CFLAGS=-Wall -g
+CLINKS=-lm -ldl
 EXE_NAME=nest
 
 SRC_DIR=nest
@@ -8,14 +9,20 @@ EXE_DIR=unix_executable
 SRCS = $(shell find $(SRC_DIR) -name *.c -or -name *.cpp)
 TARGET = $(EXE_DIR)/$(EXE_NAME)
 
-.PHONY: clean libs all optimized
+.PHONY: clean libs all optimized debug
 
 $(TARGET): $(SRCS)
-	$(CC) $(CFLAGS) $(SRCS) -lm -o $@
+	mkdir -p $(EXE_DIR)
+	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -o $@
 
 clean:
 	rm -fr $(OBJ_DIR)/*.o
 	rm -fr $(TARGET)
 
 optimized:
-	$(CC) $(CFLAGS) $(SRCS) -lm -O3 -o $(TARGET)
+	mkdir -p $(EXE_DIR)
+	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -O3 -o $(TARGET)
+
+debug:
+	mkdir -p $(EXE_DIR)
+	$(CC) -D_DEBUG $(CFLAGS) $(SRCS) $(CLINKS) -o $(TARGET)
