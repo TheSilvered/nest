@@ -73,6 +73,7 @@
 #define CHECK_F_STACK assert(nst_state.f_stack->current_size != 0)
 
 Nst_ExecutionState nst_state;
+static int opt_level;
 
 static void complete_function(size_t final_stack_size);
 static inline void run_instruction(Nst_RuntimeInstruction *inst);
@@ -112,8 +113,10 @@ static inline void exe_make_map(Nst_RuntimeInstruction *inst);
 static Nst_SeqObj *make_argv(int argc, char **argv, char *filename);
 static Nst_StrObj *make_cwd(char *file_path);
 
-void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename)
+void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int opt_lvl)
 {
+    opt_level = opt_lvl;
+
     // nst_state global variable initialization
     char *cwd_buf = malloc(sizeof(char) * PATH_MAX);
     Nst_VarTable **vt = malloc(sizeof(Nst_VarTable *));
@@ -253,14 +256,15 @@ bool nst_run_module(char *filename, char **lib_text)
     // The file is guaranteed to exist
     LList *tokens = nst_ftokenize(filename, lib_text);
     Nst_Node *ast = nst_parse(tokens);
-    if ( ast != NULL )
+    if ( ast != NULL && opt_level >= 1 )
         ast = nst_optimize_ast(ast);
 
     if ( ast == NULL )
         return false;
 
     Nst_InstructionList *inst_ls = nst_compile(ast, true);
-    inst_ls = nst_optimize_bytecode(inst_ls, true);
+    if ( opt_level >= 2 )
+        inst_ls = nst_optimize_bytecode(inst_ls, opt_level == 3);
     if ( inst_ls == NULL )
         return false;
 

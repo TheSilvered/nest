@@ -138,7 +138,8 @@ int main(int argc, char **argv)
         main_func,
         argc - args_start,
         argv + args_start,
-        filename != NULL ? filename : "-c"
+        filename != NULL ? filename : "-c",
+        opt_level
     );
 
     end: _nst_del_obj();

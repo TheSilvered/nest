@@ -40,7 +40,7 @@ typedef struct
 }
 Nst_LibHandle;
 
-void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename);
+void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int opt_level);
 bool nst_run_module(char *file_name, char **lib_text);
 Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err);
 size_t nst_get_full_path(char *file_path, char **buf, char **file_part);
