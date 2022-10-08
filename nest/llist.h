@@ -1,5 +1,7 @@
-#ifndef Nst_LLIST_H
-#define Nst_LLIST_H
+/* Linked list interface */
+
+#ifndef LLIST_H
+#define LLIST_H
 
 #include <stdbool.h>
 #include <stddef.h>
@@ -51,4 +53,4 @@ void LList_empty(LList *llist, void (*item_destroy_func)(void *));
 }
 #endif // !__cplusplus
 
-#endif // !Nst_LLIST_H
+#endif // !LLIST_H

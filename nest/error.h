@@ -1,3 +1,5 @@
+/* Error interface */
+
 #ifndef ERROR_H
 #define ERROR_H
 
@@ -107,9 +109,13 @@ typedef struct
 }
 Nst_Traceback;
 
+// Creates a new Nst_Pos on the stack
 Nst_Pos nst_copy_pos(Nst_Pos pos);
+// An Nst_Pos that is empty, (col=0, line=0, filename=NULL, text=NULL, text_len=0)
 Nst_Pos nst_no_pos();
+// Prints a formatted Nst_Error
 void nst_print_error(Nst_Error err);
+// Prints a formatted Nst_Trackeback
 void nst_print_traceback(Nst_Traceback tb);
 
 char *_nst_format_type_error(const char *format, char *type_name);

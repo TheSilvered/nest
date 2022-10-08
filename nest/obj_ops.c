@@ -1182,7 +1182,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         for ( size_t i = 0; i < path_len; i++ )
         {
             if ( file_path[i] == '\\' )
-                file_path[i] == '/';
+                file_path[i] = '/';
         }
 
         if ( (file = fopen(file_path, "r")) == NULL )
@@ -1228,7 +1228,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     {
         char *lib_text;
 
-        if ( !nst_run_module(file_path, &lib_text) )
+        if ( nst_run_module(file_path, &lib_text) == -1 )
         {
             *nst_state.error_occurred = true;
             return NULL;

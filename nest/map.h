@@ -1,3 +1,5 @@
+/* Nst_MapObj interface */
+
 #ifndef MAP_H
 #define MAP_H
 
@@ -49,17 +51,28 @@ typedef struct
 }
 Nst_MapObj;
 
+// Creates a new empty map
 Nst_Obj *nst_new_map();
+// Sets `key` and `value` in `map`, if the key is not hashable retunrs false
 bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value);
+// Gets the value at `key`, returns NULL if the key is unhashable or
+// the object does not exist
 Nst_Obj *_nst_map_get(Nst_MapObj *map, Nst_Obj *key);
+// Drops a key value pair from the map, returns NULL if the key is unhashable
+// nst_true if an object was removed or nst_false if there was no key to remove
 Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key);
 
 void nst_destroy_map(Nst_MapObj *map);
 void nst_traverse_map(Nst_MapObj *map);
+// Gets the next index when iterating over a map's elements,
+// when curr_idx is -1 the first index is returned
 Nst_Int _nst_map_get_next_idx(Nst_Int curr_idx, Nst_MapObj *map);
 
+// Sets a value in the map with the key that is a string
 void _nst_map_set_str(Nst_MapObj *map, const char *key, Nst_Obj *value);
+// Gets a value in the map with the key that is a string
 Nst_Obj *_nst_map_get_str(Nst_MapObj *map, const char *key);
+// Drops a value in the map with the key that is a string
 Nst_Obj *_nst_map_drop_str(Nst_MapObj *map, const char *key);
 
 enum Nst_MapFlags {

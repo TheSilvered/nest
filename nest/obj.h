@@ -1,3 +1,5 @@
+/* Nest Object interface */
+
 #ifndef OBJ_H
 #define OBJ_H
 
@@ -36,12 +38,18 @@ Nst_Obj;
 
 typedef void (*Nst_ObjDestructor)(void *);
 
+// Create a new object of size `size` on the heap
 Nst_Obj *_nst_alloc_obj(size_t size, Nst_Obj *type, void (*destructor)(void *));
+// Create constant object (nst_t_*, nst_true, nst_false, nst_null)
 void _nst_init_obj(void);
+// Delete constant objects (nst_t_*, nst_true, nst_false, nst_null)
 void _nst_del_obj(void);
+// Call the objec's destructor and deallocate its memory
 void _nst_destroy_obj(Nst_Obj *obj);
 
+// Increase the reference count of the object
 Nst_Obj *_nst_inc_ref(Nst_Obj *obj);
+// Decrease the reference count of the object
 void _nst_dec_ref(Nst_Obj *obj);
 
 extern Nst_Obj *nst_t_type;

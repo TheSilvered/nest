@@ -1,3 +1,5 @@
+/* C/C++ Library utilities */
+
 #ifndef LIB_IMPORT_H
 #define LIB_IMPORT_H
 
@@ -120,7 +122,36 @@ typedef struct
 }
 Nst_FuncDeclr;
 
+// Allocates the function list of the module
 Nst_FuncDeclr *nst_new_func_list(size_t count);
+/* Extracts the C values from the arguments
+`types` is a string of letters for the types
+`arg_num`: number of arguments the function expects
+`args`: the arguments themselves
+`err`: the `err` argument of the function
+...: the pointers to store the values in
+
+Characters for each type:
+    't': type,
+    'i': integer
+    'r': real
+    'N': real, integer or byte, always returns a real
+    'b': bool
+    'n': null
+    's': string
+    'v': vector
+    'a': array
+    'A': array or vector
+    'S': array, vector or string
+         returns a Nst_SeqObj that must be dec_ref'd
+    'm': map
+    'f': func
+    'I': iter
+    'B': byte
+    'F': file
+    'o': any object, the ref_count doesn't change
+
+*/
 bool nst_extract_arg_values(const char *types,
                             size_t arg_num,
                             Nst_Obj **args,

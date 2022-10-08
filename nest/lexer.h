@@ -1,3 +1,5 @@
+/* Lexer & Tokenizer for the code */
+
 #ifndef Nst_LEXER_H
 #define Nst_LEXER_H
 

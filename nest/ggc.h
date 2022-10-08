@@ -1,3 +1,5 @@
+/* Generational Garbage Collector (GGC) */
+
 #ifndef GGC_H
 #define GGC_H
 
@@ -51,9 +53,14 @@ typedef struct
 }
 Nst_GarbageCollector;
 
+// Collects the object of a generation
 void nst_collect_gen(Nst_GGCList *gen);
+// Runs a collection, does not guaratee to collect all generations
 void nst_collect(void);
+// Adds an object to the tracked objects by the garbage collector
 void nst_add_tracked_object(Nst_GGCObj *obj);
+// Deletes the objects still present in the GGC at program end
+// This function should never be called
 void delete_objects(Nst_GarbageCollector *ggc);
 
 enum Nst_GGCFlags

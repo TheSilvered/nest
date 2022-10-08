@@ -1,3 +1,5 @@
+/* Inteface for Nst_IntObj, Nst_RealObj, Nst_ByteObj, Nst_BoolObj, Nst_IOFileObj */
+
 #ifndef SYMPLE_TYPES_H
 #define SYMPLE_TYPES_H
 
@@ -81,10 +83,16 @@ enum Nst_IOFileFlags {
     NST_FLAG_IOFILE_CAN_READ  = 0b1000
 };
 
+// Creates a new Int object
 Nst_Obj *nst_new_int(Nst_Int value);
+// Creates a new Real object
 Nst_Obj *nst_new_real(Nst_Real value);
+// Creates a new Bool object
 Nst_Obj *nst_new_bool(Nst_Bool value);
+// Creates a new Byte object
 Nst_Obj *nst_new_byte(Nst_Byte value);
+// Creates a new IOfile object, bin: is opened in binary format,
+// read: supports reading, write: supports writing
 Nst_Obj *nst_new_file(Nst_IOfile value, bool bin, bool read, bool write);
 
 void nst_destroy_iofile(Nst_IOFileObj *obj);

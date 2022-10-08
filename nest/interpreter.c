@@ -249,7 +249,7 @@ static void complete_function(size_t final_stack_size)
     }
 }
 
-bool nst_run_module(char *filename, char **lib_text)
+int nst_run_module(char *filename, char **lib_text)
 {
     // Compile and optimize the imported module
 
@@ -260,13 +260,13 @@ bool nst_run_module(char *filename, char **lib_text)
         ast = nst_optimize_ast(ast);
 
     if ( ast == NULL )
-        return false;
+        return -1;
 
     Nst_InstructionList *inst_ls = nst_compile(ast, true);
     if ( opt_level >= 2 )
         inst_ls = nst_optimize_bytecode(inst_ls, opt_level == 3);
     if ( inst_ls == NULL )
-        return false;
+        return -1;
 
     Nst_FuncObj *mod_func = AS_FUNC(new_func(0));
     mod_func->body = inst_ls;
@@ -311,10 +311,10 @@ bool nst_run_module(char *filename, char **lib_text)
         nst_dec_ref(call.func);
         *nst_state.vt = call.vt;
         *nst_state.idx = call.idx;
-        return false;
+        return -1;
     }
     else
-        return true;
+        return 0;
 }
 
 Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err)

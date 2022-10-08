@@ -1,3 +1,5 @@
+/* Type objects of nest */
+
 #ifndef NST_TYPES_H
 #define NST_TYPES_H
 

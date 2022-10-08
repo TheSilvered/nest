@@ -1,3 +1,5 @@
+/* Tokens for the lexer */
+
 #ifndef Nst_TOKENS_H
 #define Nst_TOKENS_H
 
@@ -129,16 +131,22 @@ enum Nst_TokenTypes
     NST_TT_CONTINUE
 };
 
+// Creates a new token with a value
 Nst_LexerToken *nst_new_token_value(Nst_Pos start,
                                     Nst_Pos end,
                                     int type,
                                     Nst_Obj *value);
+// Creates a new tokens with only a type 
 Nst_LexerToken *nst_new_token_noval(Nst_Pos start, Nst_Pos end, int type);
+// Creates a new token where start and end are the same
 Nst_LexerToken *nst_new_token_noend(Nst_Pos start, int type);
 void nst_destroy_token(Nst_LexerToken *token);
 
+// Returns the corresponding token id from a string literal
+// Ex nst_str_to_tok("+") -> NST_TT_ADD == 0
 int nst_str_to_tok(char *str);
 
+// Prints a token like the tokens when using the -t flag
 void nst_print_token(Nst_LexerToken *token);
 
 #ifdef __cplusplus

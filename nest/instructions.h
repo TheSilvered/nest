@@ -1,3 +1,5 @@
+/* Bytecode instruction interface */
+
 #ifndef INSTRUCTIONS_H
 #define INSTRUCTIONS_H
 
@@ -27,18 +29,24 @@ typedef struct
 }
 Nst_InstructionList;
 
+// Creates a new instruction on the heap with no position
 Nst_RuntimeInstruction *new_inst_empty(int id, Nst_Int int_val);
+// Creates a new instruction on the heap with positions
 Nst_RuntimeInstruction *new_inst_pos(int id, Nst_Pos start, Nst_Pos end);
+// Creates a new instruction on the heap with positions and a value
 Nst_RuntimeInstruction *new_inst_val(int id,
                                      Nst_Obj *val,
                                      Nst_Pos start,
                                      Nst_Pos end);
+// Creates a new instruction on the heap with positions and an integer value
 Nst_RuntimeInstruction *new_inst_int_val(int id,
                                          Nst_Int int_val,
                                          Nst_Pos start,
                                          Nst_Pos end);
 
+// Destroys an instruction allocated on the heap
 void nst_destroy_inst(Nst_RuntimeInstruction *inst);
+// Destroys an insturction list
 void nst_destroy_inst_list(Nst_InstructionList *inst_list);
 
 enum Nst_InstructionCodes

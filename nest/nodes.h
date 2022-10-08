@@ -1,3 +1,5 @@
+/* Nodes of the AST */
+
 #ifndef Nst_NODES_H
 #define Nst_NODES_H
 
@@ -49,14 +51,19 @@ enum Nst_NodeTypes
     NST_NT_LAMBDA
 };
 
+// New node on the heap with only a list of tokens
 Nst_Node *nst_new_node_tokens(Nst_Pos start, Nst_Pos end, int type, LList *tokens);
+// New node on the heap with only a list of nodes
 Nst_Node *nst_new_node_nodes(Nst_Pos start, Nst_Pos end, int type, LList *nodes);
+// New node on the heap with both a list of nodes an tokens
 Nst_Node *nst_new_node_full(Nst_Pos start,
                             Nst_Pos end,
                             int type,
                             LList *nodes,
                             LList *tokens);
+// New node with no lists
 Nst_Node *nst_new_node_empty(Nst_Pos start, Nst_Pos end, int type);
+// Destroy a token and its children
 void nst_destroy_node(Nst_Node *node);
 
 #ifdef __cplusplus
