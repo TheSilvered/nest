@@ -1137,7 +1137,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     bool file_path_allocated = false;
 
     // Checks if the file exists with the given path
-    Nst_IOfile file;
+    Nst_IOFile file;
     if ( (file = fopen(file_path, "r")) == NULL )
     {
         // Tries to open it as a file of the standard library

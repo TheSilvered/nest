@@ -4,14 +4,14 @@
 #include "sequence.h"
 #include "obj_ops.h"
 
-static Nst_Obj *new_seq(size_t len, Nst_Obj *type)
+static Nst_Obj *new_seq(size_t len, size_t size, Nst_Obj *type)
 {
     Nst_SeqObj *seq = AS_SEQ(nst_alloc_obj(
         sizeof(Nst_SeqObj),
         type,
         nst_destroy_seq
     ));
-    Nst_Obj **objs = calloc(len, sizeof(Nst_Obj *));
+    Nst_Obj **objs = calloc(size, sizeof(Nst_Obj *));
 
     if ( seq == NULL || objs == NULL )
     {
@@ -20,7 +20,7 @@ static Nst_Obj *new_seq(size_t len, Nst_Obj *type)
     }
 
     seq->len = len;
-    seq->size = len;
+    seq->size = size;
     seq->objs = objs;
 
     NST_GGC_SUPPORT_INIT(seq, nst_traverse_seq);
@@ -30,17 +30,17 @@ static Nst_Obj *new_seq(size_t len, Nst_Obj *type)
 
 Nst_Obj *nst_new_array(size_t len)
 {
-    return new_seq(len, nst_t_arr);
+    return new_seq(len, len, nst_t_arr);
 }
 
 Nst_Obj *nst_new_vector(size_t len)
 {
-    size_t new_len = (size_t)(len * VECTOR_GROWTH_RATIO);
+    size_t size = (size_t)(len * VECTOR_GROWTH_RATIO);
 
-    if ( new_len < VECTOR_MIN_SIZE )
-        new_len = VECTOR_MIN_SIZE;
+    if ( size < VECTOR_MIN_SIZE )
+        size = VECTOR_MIN_SIZE;
 
-    return new_seq(new_len, nst_t_arr);
+    return new_seq(len, size, nst_t_arr);
 }
 
 void nst_destroy_seq(Nst_SeqObj *seq)

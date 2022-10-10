@@ -28,7 +28,7 @@ Nst_Obj *nst_new_bool(Nst_Bool value)
     NEW_SYMPLE_TYPE(Nst_BoolObj, nst_t_bool);
 }
 
-Nst_Obj *nst_new_file(Nst_IOfile value, bool bin, bool read, bool write)
+Nst_Obj *nst_new_file(Nst_IOFile value, bool bin, bool read, bool write)
 {
     Nst_IOFileObj *obj = AS_FILE(nst_alloc_obj(
         sizeof(Nst_IOFileObj),

@@ -611,7 +611,9 @@ static void optimize_funcs(Nst_InstructionList *bc)
 
     for ( Nst_Int i = 0; i < size - 1; i++ )
     {
-        if ( inst_list[i].id == NST_IC_PUSH_VAL && inst_list[i].val->type == nst_t_func )
+        if ( inst_list[i].id == NST_IC_PUSH_VAL &&
+             inst_list[i].val != NULL           &&
+             inst_list[i].val->type == nst_t_func )
             nst_optimize_bytecode(AS_FUNC(inst_list[i].val)->body, false);
     }
 }
