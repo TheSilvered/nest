@@ -151,7 +151,7 @@ the exponent.
 
 Maps `n` from a range from `min1` to `max2`, to a range from `min2` to `max2`.  
 Uses the formula `(n min1 -) (max1 min1 -) / (max2 min2 -) * min2 +`.  
-This implies that `min1` cannot be equal to `min2`.
+This implies that `min1` cannot be equal to `max1`.
 
 ### `[n: Int|Real, min: Int|Real, max: Int|Real] @clamp`
 

@@ -133,7 +133,7 @@ void _nst_init_obj(void)
     nst_t_func = nst_new_type_obj("Func",   4);
     nst_t_iter = nst_new_type_obj("Iter",   4);
     nst_t_byte = nst_new_type_obj("Byte",   4);
-    nst_t_file = nst_new_type_obj("IOfile", 6);
+    nst_t_file = nst_new_type_obj("IOFile", 6);
 
     nst_true  = nst_new_bool(NST_TRUE );
     nst_false = nst_new_bool(NST_FALSE);

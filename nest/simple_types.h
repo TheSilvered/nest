@@ -39,7 +39,7 @@ typedef long long Nst_Int;
 typedef long double Nst_Real;
 typedef char Nst_Bool;
 typedef unsigned char Nst_Byte;
-typedef FILE *Nst_IOfile;
+typedef FILE *Nst_IOFile;
 
 typedef struct
 {
@@ -72,7 +72,7 @@ Nst_ByteObj;
 typedef struct
 {
     NST_OBJ_HEAD;
-    Nst_IOfile value;
+    Nst_IOFile value;
 }
 Nst_IOFileObj;
 
@@ -91,9 +91,9 @@ Nst_Obj *nst_new_real(Nst_Real value);
 Nst_Obj *nst_new_bool(Nst_Bool value);
 // Creates a new Byte object
 Nst_Obj *nst_new_byte(Nst_Byte value);
-// Creates a new IOfile object, bin: is opened in binary format,
+// Creates a new IOFile object, bin: is opened in binary format,
 // read: supports reading, write: supports writing
-Nst_Obj *nst_new_file(Nst_IOfile value, bool bin, bool read, bool write);
+Nst_Obj *nst_new_file(Nst_IOFile value, bool bin, bool read, bool write);
 
 void nst_destroy_iofile(Nst_IOFileObj *obj);
 

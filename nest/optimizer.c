@@ -270,7 +270,7 @@ Nst_InstructionList *nst_optimize_bytecode(Nst_InstructionList *bc, bool optimiz
         optimize_builtin(bc, "Func",   nst_t_func);
         optimize_builtin(bc, "Iter",   nst_t_iter);
         optimize_builtin(bc, "Byte",   nst_t_byte);
-        optimize_builtin(bc, "IOfile", nst_t_file);
+        optimize_builtin(bc, "IOFile", nst_t_file);
         optimize_builtin(bc, "true",   nst_true );
         optimize_builtin(bc, "false",  nst_false);
         optimize_builtin(bc, "null",   nst_null );

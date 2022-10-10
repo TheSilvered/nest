@@ -493,27 +493,6 @@ static inline void exe_return_vars()
         obj = nst_pop_val(nst_state.v_stack);
     }
 
-    nst_map_drop_str(vars, "Type");
-    nst_map_drop_str(vars, "Int");
-    nst_map_drop_str(vars, "Real");
-    nst_map_drop_str(vars, "Bool");
-    nst_map_drop_str(vars, "Null");
-    nst_map_drop_str(vars, "Str");
-    nst_map_drop_str(vars, "Array");
-    nst_map_drop_str(vars, "Vector");
-    nst_map_drop_str(vars, "Map");
-    nst_map_drop_str(vars, "Func");
-    nst_map_drop_str(vars, "Iter");
-    nst_map_drop_str(vars, "Byte");
-    nst_map_drop_str(vars, "IOfile");
-    nst_map_drop_str(vars, "true");
-    nst_map_drop_str(vars, "false");
-    nst_map_drop_str(vars, "null");
-    nst_map_drop_str(vars, "_cwd_");
-    nst_map_drop_str(vars, "_args_");
-    nst_map_drop_str(vars, "_vars_");
-    nst_map_drop_str(vars, "_globals_");
-
     nst_push_val(nst_state.v_stack, vars);
     *nst_state.idx = nst_peek_func(nst_state.f_stack).func->body->total_size;
 }

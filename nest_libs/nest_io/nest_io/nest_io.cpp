@@ -124,7 +124,7 @@ NST_FUNC_SIGN(open_)
         }
     }
 
-    Nst_IOfile file_ptr = fopen(file_name, file_mode);
+    Nst_IOFile file_ptr = fopen(file_name, file_mode);
     if ( file_ptr == nullptr )
         return nst_inc_ref(nst_null);
 

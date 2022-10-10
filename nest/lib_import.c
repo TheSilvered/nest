@@ -151,7 +151,7 @@ bool nst_extract_arg_values(const char *types,
             break;
         case 'F':
             if ( ob->type != nst_t_file )
-                SET_TYPE_ERROR("IOfile");
+                SET_TYPE_ERROR("IOFile");
             *(Nst_IOFileObj **)arg = AS_FILE(ob);
             break;
         case 'o':

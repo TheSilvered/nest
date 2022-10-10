@@ -33,7 +33,7 @@ Nst_VarTable *nst_new_var_table(Nst_MapObj *global_table,
     _nst_map_set_str(vars, "Func",   nst_t_func);
     _nst_map_set_str(vars, "Iter",   nst_t_iter);
     _nst_map_set_str(vars, "Byte",   nst_t_byte);
-    _nst_map_set_str(vars, "IOfile", nst_t_file);
+    _nst_map_set_str(vars, "IOFile", nst_t_file);
 
     _nst_map_set_str(vars, "true", nst_true);
     _nst_map_set_str(vars, "false", nst_false);

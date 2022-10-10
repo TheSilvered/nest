@@ -1,4 +1,4 @@
-### Sequence utilities library (`stdsequtil.nest` - `seq`)
+# Sequence utilities library (`stdsequtil.nest` - `seq`)
 
 ## Functions
 
