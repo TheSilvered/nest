@@ -289,7 +289,7 @@ int nst_run_module(char *filename, char **lib_text)
         *nst_state.vt,
         *nst_state.idx - 1
     );
-    *nst_state.idx = -1;
+    *nst_state.idx = 0;
     *nst_state.vt = nst_new_var_table(NULL, path_str, nst_state.argv);
 
     _nst_set_global_vt(mod_func, (*nst_state.vt)->vars);
@@ -347,7 +347,7 @@ Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err)
         *nst_state.vt,
         *nst_state.idx - 1
     );
-    *nst_state.idx = -1;
+    *nst_state.idx = 0;
     *nst_state.vt = new_vt;
     complete_function(nst_state.f_stack->current_size - 1);
 
@@ -361,7 +361,7 @@ static inline void run_instruction(Nst_RuntimeInstruction *inst)
 {
     switch ( inst->id )
     {
-    case NST_IC_POP_VAL:      exe_pop_val();          break;
+    case NST_IC_POP_VAL:      exe_pop_val();              break;
     case NST_IC_FOR_START:    exe_for_start(inst);        break;
     case NST_IC_FOR_IS_DONE:  exe_for_is_done(inst);      break;
     case NST_IC_FOR_GET_VAL:  exe_for_get_val(inst);      break;
@@ -403,6 +403,8 @@ static inline void exe_pop_val()
 {
     CHECK_V_STACK;
     Nst_Obj *obj = nst_pop_val(nst_state.v_stack);
+    if (obj == NULL)
+        printf("hi\n");
     nst_dec_ref(obj);
 }
 

@@ -17,7 +17,6 @@ Nst_ValueStack *nst_new_val_stack()
 bool _nst_push_val(Nst_ValueStack *v_stack, Nst_Obj *obj)
 {
     register size_t max_size = v_stack->max_size;
-
     if ( v_stack->current_size == max_size )
     {
         Nst_Obj **new_objs = realloc(
