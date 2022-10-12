@@ -9,7 +9,7 @@ Nst_Obj *new_func(size_t arg_num)
         nst_t_func,
         nst_destroy_func
     ));
-    Nst_Obj **args = malloc(sizeof(Nst_Obj *) * arg_num);
+    Nst_Obj **args = (Nst_Obj **)malloc(sizeof(Nst_Obj *) * arg_num);
     if ( func == NULL || args == NULL )
     {
         errno = ENOMEM;
@@ -77,7 +77,7 @@ void _nst_set_global_vt(Nst_FuncObj *func, Nst_MapObj *map)
 
     func->mod_globals = AS_MAP(nst_inc_ref(map));
 
-    register Nst_RuntimeInstruction *instructions = func->body->instructions;
+    Nst_RuntimeInstruction *instructions = func->body->instructions;
     for ( size_t i = 0, n = func->body->total_size; i < n; i++ )
     {
         if ( instructions[i].val != NULL && instructions[i].val->type == nst_t_func )

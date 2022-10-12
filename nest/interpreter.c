@@ -35,36 +35,22 @@
 
 #define SET_ERROR(err_macro, start, end, message) \
     do { \
-        Nst_Error *error = malloc(sizeof(Nst_Error)); \
-        if ( error == NULL ) \
-        { \
-            errno = ENOMEM; \
-            return; \
-        } \
-        err_macro(error, start, end, message); \
-        nst_state.traceback->error = error; \
+        err_macro(&(nst_state.traceback->error), start, end, message); \
         *nst_state.error_occurred = true; \
     } while ( 0 )
 
 #define SET_OP_ERROR(start_pos, end_pos, op_err) \
     do { \
-        if ( nst_state.traceback->error != NULL ) \
+        if ( nst_state.traceback->error.start.filename == NULL ) \
         { \
             LList_append(nst_state.traceback->positions, &(start_pos), false); \
             LList_append(nst_state.traceback->positions, &(end_pos), false); \
             break; \
         } \
-        Nst_Error *error = malloc(sizeof(Nst_Error)); \
-        if ( error == NULL ) \
-        { \
-            errno = ENOMEM; \
-            return; \
-        } \
-        error->start = start_pos; \
-        error->end = end_pos; \
-        error->name = op_err.name; \
-        error->message = op_err.message; \
-        nst_state.traceback->error = error; \
+        nst_state.traceback->error.start = start_pos; \
+        nst_state.traceback->error.end = end_pos; \
+        nst_state.traceback->error.name = (char *)op_err.name; \
+        nst_state.traceback->error.message = (char *)op_err.message; \
         *nst_state.error_occurred = true; \
     } while ( 0 )
 
@@ -118,9 +104,9 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
     opt_level = opt_lvl;
 
     // nst_state global variable initialization
-    char *cwd_buf = malloc(sizeof(char) * PATH_MAX);
-    Nst_VarTable **vt = malloc(sizeof(Nst_VarTable *));
-    Nst_StrObj **curr_path = malloc(sizeof(Nst_StrObj *));
+    char *cwd_buf = (char *)malloc(sizeof(char) * PATH_MAX);
+    Nst_VarTable **vt = (Nst_VarTable **)malloc(sizeof(Nst_VarTable *));
+    Nst_StrObj **curr_path = (Nst_StrObj **)malloc(sizeof(Nst_StrObj *));
     if ( cwd_buf        == NULL ||
          vt             == NULL ||
          curr_path      == NULL )
@@ -128,7 +114,12 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
 
     bool error_occurred = false;
     Nst_StrObj *cwd = AS_STR(nst_new_string_raw(_getcwd(cwd_buf, PATH_MAX), true));
-    Nst_Traceback tb = { NULL, LList_new() };
+    Nst_Traceback tb;
+    tb.error.start = nst_no_pos();
+    tb.error.end = nst_no_pos();
+    tb.error.name = NULL;
+    tb.error.message = NULL;
+    tb.positions = LList_new();
     Nst_Int idx = 0;
 
     // Create the garbage collector
@@ -180,7 +171,7 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
         }
 
         nst_print_traceback(*nst_state.traceback);
-        free(nst_state.traceback->error);
+        free(&(nst_state.traceback->error));
 
         nst_dec_ref((*nst_state.vt)->vars);
         free(*nst_state.vt);
@@ -212,7 +203,7 @@ static void complete_function(size_t final_stack_size)
     if ( nst_state.f_stack->current_size == 0 )
         return;
 
-    register Nst_InstructionList *curr_inst_ls = nst_peek_func(nst_state.f_stack).func->body;
+    Nst_InstructionList *curr_inst_ls = nst_peek_func(nst_state.f_stack).func->body;
 
     for ( ; nst_state.f_stack->current_size > final_stack_size; (*nst_state.idx)++ )
     {
@@ -412,7 +403,7 @@ static inline void exe_for_inst(Nst_RuntimeInstruction *inst, Nst_IterObj *iter,
 {
     if ( func->cbody != NULL )
     {
-        Nst_OpErr err = { "", "" };
+        Nst_OpErr err = { NULL, NULL };
         Nst_Obj *res = func->cbody((size_t)inst->int_val, &iter->value, &err);
 
         if ( res == NULL )
@@ -423,7 +414,7 @@ static inline void exe_for_inst(Nst_RuntimeInstruction *inst, Nst_IterObj *iter,
                 inst->end,
                 err.message
             );
-            nst_state.traceback->error->name = err.name;
+            nst_state.traceback->error.name = (char *)err.name;
         }
         else
         {
@@ -557,7 +548,7 @@ static inline void exe_type_check(Nst_RuntimeInstruction *inst)
                 EXPECTED_TYPES,
                 AS_STR(inst->val)->value,
                 TYPE_NAME(obj)
-            );
+            )
         );
 }
 
@@ -571,7 +562,7 @@ static inline void exe_hash_check(Nst_RuntimeInstruction *inst)
             _NST_SET_TYPE_ERROR,
             inst->start,
             inst->end,
-            _nst_format_type_error(UNHASHABLE_TYPE, TYPE_NAME(obj));
+            _nst_format_type_error(UNHASHABLE_TYPE, TYPE_NAME(obj))
         );
 }
 
@@ -710,7 +701,7 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
         }
         else
         {
-            args = malloc((size_t)(sizeof(Nst_Obj *) * arg_num));
+            args = (Nst_Obj **)malloc((size_t)(sizeof(Nst_Obj *) * arg_num));
             if ( args == NULL )
                 return;
 
@@ -738,7 +729,7 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
                     inst->end,
                     err.message
                 );
-                nst_state.traceback->error->name = err.name;
+                nst_state.traceback->error.name = (char *)err.name;
             }
             else
             {
@@ -1079,7 +1070,7 @@ static inline void exe_op_extract(Nst_RuntimeInstruction *inst)
             _nst_format_type_error(
                 EXPECTED_TYPE("Array', 'Vector' or 'Map"),
                 TYPE_NAME(cont)
-            );
+            )
         );
 
         nst_dec_ref(idx);
@@ -1116,7 +1107,7 @@ static inline void exe_dup()
 
 static inline void exe_make_seq(Nst_RuntimeInstruction *inst)
 {
-    register Nst_Int seq_size = inst->int_val;
+    Nst_Int seq_size = inst->int_val;
     Nst_Obj *seq = inst->id == NST_IC_MAKE_ARR ? nst_new_array((size_t)seq_size)
                                               : nst_new_vector((size_t)seq_size);
     CHECK_V_STACK_SIZE(seq_size);
@@ -1134,7 +1125,7 @@ static inline void exe_make_seq(Nst_RuntimeInstruction *inst)
 
 static inline void exe_make_seq_rep(Nst_RuntimeInstruction *inst)
 {
-    register Nst_Int seq_size = inst->int_val;
+    Nst_Int seq_size = inst->int_val;
     CHECK_V_STACK_SIZE(2);
     Nst_Obj *size_obj = nst_pop_val(nst_state.v_stack);
     Nst_Obj *val = nst_pop_val(nst_state.v_stack);
@@ -1154,7 +1145,7 @@ static inline void exe_make_seq_rep(Nst_RuntimeInstruction *inst)
 
 static inline void exe_make_map(Nst_RuntimeInstruction *inst)
 {
-    register Nst_Int map_size = inst->int_val;
+    Nst_Int map_size = inst->int_val;
     Nst_Obj *map = nst_new_map();
     CHECK_V_STACK_SIZE(map_size);
     size_t stack_size = nst_state.v_stack->current_size;
@@ -1178,7 +1169,7 @@ size_t nst_get_full_path(char *file_path, char **buf, char **file_part)
 #if defined(_WIN32) || defined(WIN32)
 
 {
-    char *path = malloc(sizeof(char) * PATH_MAX);
+    char *path = (char *)malloc(sizeof(char) * PATH_MAX);
     if ( path == NULL )
         return 0;
 
@@ -1186,7 +1177,7 @@ size_t nst_get_full_path(char *file_path, char **buf, char **file_part)
     if ( path_len > PATH_MAX )
     {
         free(path);
-        path = malloc(sizeof(char) * path_len);
+        path = (char *)malloc(sizeof(char) * path_len);
         if ( path == NULL )
             return 0;
         path_len = GetFullPathNameA(file_path, path_len, path, file_part);
@@ -1199,11 +1190,11 @@ size_t nst_get_full_path(char *file_path, char **buf, char **file_part)
 #else
 
 {
-    char *path = malloc(sizeof(char) * PATH_MAX);
+    char *path = (char *)malloc(sizeof(char) * PATH_MAX);
     if ( path == NULL )
         return 0;
 
-    realpath(file_path, path);
+    path = realpath(file_path, path);
 
     if ( file_part != NULL )
     {
@@ -1212,7 +1203,7 @@ size_t nst_get_full_path(char *file_path, char **buf, char **file_part)
         if ( !*file_part )
             *file_part = path;
         else
-            *file_part++;
+            (*file_part)++;
     }
 
     *buf = path;

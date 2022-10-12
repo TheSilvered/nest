@@ -39,15 +39,15 @@ int32_t hash_ptr(void *ptr)
     size_t x = (size_t)ptr;
     x = (x >> 4) | (x << (8 * sizeof(void *) - 4));
 
-    if ( x == -1 ) return -2;
+    if ( (int32_t)x == -1 ) return -2;
     return (int32_t)x;
 }
 
 int32_t hash_str(Nst_StrObj *str)
 {
     // taken from https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
-    register int64_t hash = FNV_OFFSET_BASIS;
-    register char *s = str->value;
+    int64_t hash = FNV_OFFSET_BASIS;
+    char *s = str->value;
 
     while ( *s )
     {

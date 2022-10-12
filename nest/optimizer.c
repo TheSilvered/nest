@@ -14,7 +14,7 @@
 
 #define SET_ERROR(err_macro, start, end, message) \
     do { \
-        Nst_Error *new_error = malloc(sizeof(Nst_Error)); \
+        Nst_Error *new_error = (Nst_Error *)malloc(sizeof(Nst_Error)); \
         if ( new_error == NULL ) \
         { \
             errno = ENOMEM; \
@@ -68,7 +68,7 @@ static void ast_optimize_node_nodes(Nst_Node *node, Nst_Error **error)
 {
     for ( LLNode *n = node->nodes->head; n != NULL; n = n->next )
     {
-        ast_optimize_node(n->value, error);
+        ast_optimize_node(NODE(n->value), error);
         if ( *error != NULL )
             return;
     }
@@ -121,13 +121,13 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error **error)
         if ( errno == ENOMEM )
             return;
         SET_ERROR(_NST_SET_GENERAL_ERROR, node->start, node->end, err.message);
-        (*error)->name = err.name;
+        (*error)->name = (char *)err.name;
         return;
     }
 
-    nst_destroy_node(LList_pop(node->nodes));
-    nst_destroy_node(LList_pop(node->nodes));
-    nst_destroy_token(LList_pop(node->tokens));
+    nst_destroy_node(NODE(LList_pop(node->nodes)));
+    nst_destroy_node(NODE(LList_pop(node->nodes)));
+    nst_destroy_token(TOK(LList_pop(node->tokens)));
 
     node->type = NST_NT_VALUE;
 
@@ -171,12 +171,12 @@ static void ast_optimize_local_op(Nst_Node *node, Nst_Error **error)
         if ( errno == ENOMEM )
             return;
         SET_ERROR(_NST_SET_GENERAL_ERROR, node->start, node->end, err.message);
-        (*error)->name = err.name;
+        (*error)->name = (char *)err.name;
         return;
     }
 
-    nst_destroy_node(LList_pop(node->nodes));
-    nst_destroy_token(LList_pop(node->tokens));
+    nst_destroy_node(NODE(LList_pop(node->nodes)));
+    nst_destroy_token(TOK(LList_pop(node->tokens)));
 
     node->type = NST_NT_VALUE;
 
@@ -200,11 +200,11 @@ static void ast_optimize_long_s(Nst_Node *node, Nst_Error **error)
 
     for ( LLNode *n = node->nodes->head; n != NULL; n = n->next )
     {
-        ast_optimize_node(n->value, error);
+        ast_optimize_node(NODE(n->value), error);
         if ( *error != NULL )
             return;
 
-        curr_node = n->value;
+        curr_node = NODE(n->value);
 
         if ( curr_node->type != NST_NT_VALUE && curr_node->type != NST_NT_ACCESS )
         {
@@ -225,7 +225,7 @@ static void ast_optimize_long_s(Nst_Node *node, Nst_Error **error)
                 nodes->tail = prev_valid_node;
         }
 
-        nst_destroy_node(n->value);
+        nst_destroy_node(NODE(n->value));
         free(n);
 
         if ( prev_valid_node == NULL )
@@ -244,7 +244,7 @@ static Nst_Int count_jumps_to(Nst_InstructionList *bc,
                               Nst_Int avoid_start,
                               Nst_Int avoid_end);
 static void replace_access(Nst_InstructionList *bc, Nst_StrObj *name, Nst_Obj *val);
-static void optimize_builtin(Nst_InstructionList *bc, char *name, Nst_Obj *val);
+static void optimize_builtin(Nst_InstructionList *bc, const char *name, Nst_Obj *val);
 static void optimize_func_builtin(Nst_InstructionList *bc, Nst_StrObj *name, Nst_Obj *val);
 static void remove_push_pop(Nst_InstructionList *bc);
 static void remove_assign_pop(Nst_InstructionList *bc);
@@ -292,8 +292,8 @@ Nst_InstructionList *nst_optimize_bytecode(Nst_InstructionList *bc, bool optimiz
         remove_dead_code(bc);
         optimize_funcs(bc);
 
-        register Nst_Int size = bc->total_size;
-        register Nst_RuntimeInstruction *inst_list = bc->instructions;
+        Nst_Int size = bc->total_size;
+        Nst_RuntimeInstruction *inst_list = bc->instructions;
         for ( Nst_Int i = 0; i < size; i++ )
         {
             if ( inst_list[i].id == NST_IC_NO_OP )
@@ -311,9 +311,9 @@ Nst_InstructionList *nst_optimize_bytecode(Nst_InstructionList *bc, bool optimiz
 
 static Nst_Int count_assignments(Nst_InstructionList *bc, Nst_StrObj *name)
 {
-    register Nst_Int tot = 0;
-    register Nst_Int size = bc->total_size;
-    register Nst_RuntimeInstruction *inst_list = bc->instructions;
+    Nst_Int tot = 0;
+    Nst_Int size = bc->total_size;
+    Nst_RuntimeInstruction *inst_list = bc->instructions;
 
     for ( Nst_Int i = 0; i < size; i++ )
     {
@@ -330,8 +330,8 @@ static Nst_Int count_assignments(Nst_InstructionList *bc, Nst_StrObj *name)
 
 static void replace_access(Nst_InstructionList *bc, Nst_StrObj *name, Nst_Obj *val)
 {
-    register Nst_Int size = bc->total_size;
-    register Nst_RuntimeInstruction *inst_list = bc->instructions;
+    Nst_Int size = bc->total_size;
+    Nst_RuntimeInstruction *inst_list = bc->instructions;
 
     for ( Nst_Int i = 0; i < size; i++ )
     {
@@ -347,10 +347,10 @@ static void replace_access(Nst_InstructionList *bc, Nst_StrObj *name, Nst_Obj *v
     }
 }
 
-static void optimize_builtin(Nst_InstructionList *bc, char *name, Nst_Obj *val)
+static void optimize_builtin(Nst_InstructionList *bc, const char *name, Nst_Obj *val)
 {
-    register Nst_Int size = bc->total_size;
-    register Nst_RuntimeInstruction *inst_list = bc->instructions;
+    Nst_Int size = bc->total_size;
+    Nst_RuntimeInstruction *inst_list = bc->instructions;
 
     Nst_StrObj *str_obj = AS_STR(nst_new_string_raw(name, false));
     if ( count_assignments(bc, str_obj) != 0 )
@@ -371,8 +371,8 @@ static void optimize_builtin(Nst_InstructionList *bc, char *name, Nst_Obj *val)
 
 static void optimize_func_builtin(Nst_InstructionList *bc, Nst_StrObj *name, Nst_Obj *val)
 {
-    register Nst_Int size = bc->total_size;
-    register Nst_RuntimeInstruction *inst_list = bc->instructions;
+    Nst_Int size = bc->total_size;
+    Nst_RuntimeInstruction *inst_list = bc->instructions;
 
     if ( count_assignments(bc, name) == 0 )
         replace_access(bc, name, val);
@@ -391,10 +391,10 @@ static Nst_Int count_jumps_to(Nst_InstructionList *bc,
                               Nst_Int avoid_start,
                               Nst_Int avoid_end)
 {
-    register Nst_Int tot = 0;
-    register Nst_Int size = bc->total_size;
-    register Nst_RuntimeInstruction *inst_list = bc->instructions;
-    register Nst_RuntimeInstruction inst;
+    Nst_Int tot = 0;
+    Nst_Int size = bc->total_size;
+    Nst_RuntimeInstruction *inst_list = bc->instructions;
+    Nst_RuntimeInstruction inst;
 
     for ( Nst_Int i = 0; i < size; i++ )
     {
@@ -411,9 +411,9 @@ static Nst_Int count_jumps_to(Nst_InstructionList *bc,
 
 static void remove_push_pop(Nst_InstructionList *bc)
 {
-    register Nst_Int size = bc->total_size;
-    register Nst_RuntimeInstruction *inst_list = bc->instructions;
-    register bool expect_pop = false;
+    Nst_Int size = bc->total_size;
+    Nst_RuntimeInstruction *inst_list = bc->instructions;
+    bool expect_pop = false;
 
     for ( Nst_Int i = 0; i < size; i++ )
     {
@@ -439,9 +439,9 @@ static void remove_push_pop(Nst_InstructionList *bc)
 
 static void remove_assign_pop(Nst_InstructionList *bc)
 {
-    register Nst_Int size = bc->total_size;
-    register Nst_RuntimeInstruction *inst_list = bc->instructions;
-    register bool expect_pop = false;
+    Nst_Int size = bc->total_size;
+    Nst_RuntimeInstruction *inst_list = bc->instructions;
+    bool expect_pop = false;
 
     for ( Nst_Int i = 0; i < size; i++ )
     {
@@ -467,9 +467,9 @@ static void remove_assign_pop(Nst_InstructionList *bc)
 
 static bool remove_push_check(Nst_InstructionList *bc)
 {
-    register Nst_Int size = bc->total_size;
-    register Nst_RuntimeInstruction *inst_list = bc->instructions;
-    register bool was_push = false;
+    Nst_Int size = bc->total_size;
+    Nst_RuntimeInstruction *inst_list = bc->instructions;
+    bool was_push = false;
 
     for ( Nst_Int i = 0; i < size; i++ )
     {
@@ -532,9 +532,9 @@ static bool remove_push_check(Nst_InstructionList *bc)
 
 static void remove_push_jumpif(Nst_InstructionList *bc)
 {
-    register Nst_Int size = bc->total_size;
-    register Nst_RuntimeInstruction *inst_list = bc->instructions;
-    register bool expect_jumpif = false;
+    Nst_Int size = bc->total_size;
+    Nst_RuntimeInstruction *inst_list = bc->instructions;
+    bool expect_jumpif = false;
 
     for ( Nst_Int i = 0; i < size; i++ )
     {
@@ -585,8 +585,8 @@ static void remove_push_jumpif(Nst_InstructionList *bc)
 
 static void remove_inst(Nst_InstructionList *bc, Nst_Int idx)
 {
-    register Nst_Int size = bc->total_size;
-    register Nst_RuntimeInstruction *inst_list = bc->instructions;
+    Nst_Int size = bc->total_size;
+    Nst_RuntimeInstruction *inst_list = bc->instructions;
 
     if ( idx < 0 || idx >= size )
         return;
@@ -606,8 +606,8 @@ static void remove_inst(Nst_InstructionList *bc, Nst_Int idx)
 
 static void optimize_funcs(Nst_InstructionList *bc)
 {
-    register Nst_Int size = bc->total_size;
-    register Nst_RuntimeInstruction *inst_list = bc->instructions;
+    Nst_Int size = bc->total_size;
+    Nst_RuntimeInstruction *inst_list = bc->instructions;
 
     for ( Nst_Int i = 0; i < size - 1; i++ )
     {
@@ -620,8 +620,8 @@ static void optimize_funcs(Nst_InstructionList *bc)
 
 static void remove_dead_code(Nst_InstructionList *bc)
 {
-    register Nst_Int size = bc->total_size;
-    register Nst_RuntimeInstruction *inst_list = bc->instructions;
+    Nst_Int size = bc->total_size;
+    Nst_RuntimeInstruction *inst_list = bc->instructions;
 
     for ( Nst_Int i = 0; i < size; i++ )
     {

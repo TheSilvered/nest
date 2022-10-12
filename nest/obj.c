@@ -27,7 +27,7 @@ Nst_Obj *nst_null;
 
 Nst_Obj *_nst_alloc_obj(size_t size, Nst_Obj *type, void (*destructor)(void *))
 {
-    Nst_Obj *obj = malloc(size);
+    Nst_Obj *obj = (Nst_Obj *)malloc(size);
     if ( obj == NULL )
     {
         errno = ENOMEM;

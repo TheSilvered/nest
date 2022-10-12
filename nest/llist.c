@@ -8,7 +8,7 @@ LLNode *LLNode_new(void *value, bool allocated);
 
 inline LLNode *LLNode_new(void *value, bool allocated)
 {
-    LLNode *node = malloc(sizeof(LLNode));
+    LLNode *node = (LLNode *)malloc(sizeof(LLNode));
     if ( node == NULL )
     {
         errno = ENOMEM;
@@ -78,7 +78,7 @@ void *LList_pop(LList *llist)
 
 LList *LList_new()
 {
-    LList *llist = malloc(sizeof(LList));
+    LList *llist = (LList *)malloc(sizeof(LList));
     if ( llist == NULL )
     {
         errno = ENOMEM;

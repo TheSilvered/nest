@@ -104,8 +104,8 @@ void nst_collect_gen(Nst_GGCList *gen)
         0
     };
 
-    register Nst_GGCObj *ob = NULL;
-    register Nst_GGCObj *new_ob = NULL;
+    Nst_GGCObj *ob = NULL;
+    Nst_GGCObj *new_ob = NULL;
 
     for ( ob = gen->head; ob != NULL; ob = ob->ggc_next )
     {
@@ -148,10 +148,10 @@ void nst_collect_gen(Nst_GGCList *gen)
     }
 
     // previous unreachable_values size
-    register size_t prev_uv_size = 0;
+    size_t prev_uv_size = 0;
 
     // last traversed value in `gen`
-    register Nst_GGCObj *traversed_end = gen->head;
+    Nst_GGCObj *traversed_end = gen->head;
 
     do
     {
@@ -215,8 +215,8 @@ void delete_objects(Nst_GarbageCollector *ggc)
 
 void nst_collect()
 {
-    register Nst_GarbageCollector *ggc = nst_state.ggc;
-    register size_t old_gen_size = ggc->old_gen.size;
+    Nst_GarbageCollector *ggc = nst_state.ggc;
+    size_t old_gen_size = ggc->old_gen.size;
     // if the number of objects never checked in the old generation
     // is more than 25% and there are at least 10 objects
     if ( old_gen_size > NST_OLD_GEN_MIN &&
@@ -283,7 +283,7 @@ void nst_collect()
 
 void nst_add_tracked_object(Nst_GGCObj *obj)
 {
-    register Nst_GarbageCollector *ggc = nst_state.ggc;
+    Nst_GarbageCollector *ggc = nst_state.ggc;
 
     if ( obj->ggc_list != NULL )
         return;

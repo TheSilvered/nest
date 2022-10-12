@@ -74,7 +74,7 @@ Nst_Obj *nst_new_type_obj(const char *val, size_t len)
 
 Nst_Obj *_nst_copy_string(Nst_StrObj *src)
 {
-    char *buffer = malloc(sizeof(char) * (src->len + 1));
+    char *buffer = (char *)malloc(sizeof(char) * (src->len + 1));
     if ( buffer == NULL )
     {
         errno = ENOMEM;
@@ -129,7 +129,7 @@ Nst_Obj *_nst_repr_string(Nst_StrObj *src)
         new_size += double_quotes_count;
     }
 
-    char *new_str = malloc(sizeof(char) * (new_size + 1));
+    char *new_str = (char *)malloc(sizeof(char) * (new_size + 1));
     if ( new_str == NULL )
     {
         errno = ENOMEM;
@@ -184,7 +184,7 @@ Nst_Obj *_nst_string_get_idx(Nst_StrObj *str, Nst_Int idx)
     if ( idx < 0 || idx >= (int64_t)str->len )
         return NULL;
 
-    char *ch = malloc(2 * sizeof(char));
+    char *ch = (char *)malloc(2 * sizeof(char));
     if ( ch == NULL )
     {
         errno = ENOMEM;
@@ -206,10 +206,10 @@ void nst_destroy_string(Nst_StrObj *str)
 
 Nst_Obj *nst_parse_int(char *str, Nst_OpErr *err)
 {
-    register char *s = str;
-    register Nst_Int num = 0;
-    register Nst_Int digit = 0;
-    register Nst_Int sign = 1;
+    char *s = str;
+    Nst_Int num = 0;
+    Nst_Int digit = 0;
+    Nst_Int sign = 1;
 
     if ( *s == 0 ) RETURN_INT_ERR;
 
@@ -249,11 +249,11 @@ Nst_Obj *nst_parse_int(char *str, Nst_OpErr *err)
 
 Nst_Obj *nst_parse_real(char *str, Nst_OpErr *err)
 {
-    register char *s = str;
-    register Nst_Real num = 0;
-    register Nst_Real sign = 1.0;
-    register Nst_Real pow = 10;
-    register Nst_Int digit = 0;
+    char *s = str;
+    Nst_Real num = 0;
+    Nst_Real sign = 1.0;
+    Nst_Real pow = 10;
+    Nst_Int digit = 0;
 
     if ( *s == 0 ) RETURN_REAL_ERR;
 

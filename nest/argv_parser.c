@@ -86,7 +86,7 @@ int nst_parse_args(int argc, char **argv,
                     return 1;
 
                 case 'V':
-                    printf("Using nest version "NEST_VERSION "\n");
+                    printf("Using nest version " NEST_VERSION "\n");
                     return 1;
 
                 case 'O':
@@ -103,17 +103,19 @@ int nst_parse_args(int argc, char **argv,
                         return -1;
                     }
 
-                    int level = arg[j + 1] - '0';
-
-                    if ( level < 0 || level > 3)
                     {
-                        printf("Invalid option: -O%c\n", (char)(level + '0'));
-                        printf("\n" USAGE_MESSAGE);
-                        return -1;
-                    }
+                        int level = arg[j + 1] - '0';
 
-                    *opt_level = level;
-                    j = (int)arg_len;
+                        if ( level < 0 || level > 3)
+                        {
+                            printf("Invalid option: -O%c\n", (char)(level + '0'));
+                            printf("\n" USAGE_MESSAGE);
+                            return -1;
+                        }
+
+                        *opt_level = level;
+                        j = (int)arg_len;
+                    }
                     break;
 
                 case 'c':
@@ -136,7 +138,20 @@ int nst_parse_args(int argc, char **argv,
                         return -1;
                     }
                     else if ( arg_len == 2 )
-                        goto end_args;
+                    {
+                        if ( ++i < argc )
+                            *filename = argv[i];
+                        else
+                        {
+                            printf("No file provided\n");
+                            printf("\n" USAGE_MESSAGE);
+                            return -1;
+                        }
+
+                        *args_start = ++i;
+
+                        return 0;
+                    }
 
                     if ( strcmp(arg, "--tokens") == 0 )
                         *print_tokens = true;
@@ -153,7 +168,7 @@ int nst_parse_args(int argc, char **argv,
                     }
                     else if ( strcmp(arg, "--version") == 0 )
                     {
-                        printf("Using nest version "NEST_VERSION "\n");
+                        printf("Using nest version " NEST_VERSION "\n");
                         return 1;
                     }
                     else
@@ -181,7 +196,7 @@ int nst_parse_args(int argc, char **argv,
         }
     }
 
-    end_args: if ( ++i < argc )
+    if ( ++i < argc )
         *filename = argv[i];
     else
     {

@@ -5,7 +5,7 @@ Nst_VarTable *nst_new_var_table(Nst_MapObj *global_table,
                                 Nst_StrObj *cwd,
                                 Nst_SeqObj *args)
 {
-    Nst_VarTable *vt = malloc(sizeof(Nst_VarTable));
+    Nst_VarTable *vt = (Nst_VarTable *)malloc(sizeof(Nst_VarTable));
     if ( vt == NULL ) return NULL;
 
     vt->global_table = global_table;

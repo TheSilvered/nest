@@ -69,23 +69,29 @@ int main(int argc, char **argv)
     if ( filename != NULL )
         tokens = nst_ftokenize(filename, &text);
     else
-        tokens = nst_tokenize(command, strlen(command), "<command>");
+        tokens = nst_tokenize(command, strlen(command), (char *)"<command>");
 
     if ( tokens == NULL )
-        goto end;
+    {
+        _nst_del_obj();
+        if ( text != NULL ) free(text);
+        return 0;
+    }
 
     if ( print_tokens )
     {
         for ( LLNode *n = tokens->head; n != NULL; n = n->next )
         {
-            nst_print_token(n->value);
+            nst_print_token(TOK(n->value));
             printf("\n");
         }
 
         if ( !force_exe && !print_tree && !print_bc )
         {
             LList_destroy(tokens, (LList_item_destructor)nst_destroy_token);
-            goto end;
+            _nst_del_obj();
+            if ( text != NULL ) free(text);
+            return 0;
         }
     }
 
@@ -96,7 +102,11 @@ int main(int argc, char **argv)
 
     // nst_optimize_ast can delete the ast
     if ( ast == NULL )
-        goto end;
+    {
+        _nst_del_obj();
+        if ( text != NULL ) free(text);
+        return 0;
+    }
 
     if ( print_tree )
     {
@@ -105,7 +115,9 @@ int main(int argc, char **argv)
         if ( !force_exe && !print_bc )
         {
             nst_destroy_node(ast);
-            goto end;
+            _nst_del_obj();
+            if ( text!=NULL ) free(text);
+            return 0;
         }
     }
 
@@ -128,7 +140,9 @@ int main(int argc, char **argv)
         if ( !force_exe )
         {
             nst_destroy_inst_list(inst_ls);
-            goto end;
+            _nst_del_obj();
+            if ( text!=NULL ) free(text);
+            return 0;
         }
     }
 
@@ -138,11 +152,11 @@ int main(int argc, char **argv)
         main_func,
         argc - args_start,
         argv + args_start,
-        filename != NULL ? filename : "-c",
+        filename != NULL ? filename : (char *)"-c",
         opt_level
     );
 
-    end: _nst_del_obj();
+    _nst_del_obj();
     if ( text != NULL ) free(text);
     return 0;
 }

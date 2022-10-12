@@ -2,8 +2,8 @@
 
 Nst_ValueStack *nst_new_val_stack()
 {
-    Nst_ValueStack *v_stack = malloc(sizeof(Nst_ValueStack));
-    Nst_Obj **objs = malloc(32 * sizeof(Nst_Obj *));
+    Nst_ValueStack *v_stack = (Nst_ValueStack *)malloc(sizeof(Nst_ValueStack));
+    Nst_Obj **objs = (Nst_Obj **)malloc(32 * sizeof(Nst_Obj *));
     if ( v_stack == NULL || objs == NULL )
         return NULL;
 
@@ -16,10 +16,10 @@ Nst_ValueStack *nst_new_val_stack()
 
 bool _nst_push_val(Nst_ValueStack *v_stack, Nst_Obj *obj)
 {
-    register size_t max_size = v_stack->max_size;
+    size_t max_size = v_stack->max_size;
     if ( v_stack->current_size == max_size )
     {
-        Nst_Obj **new_objs = realloc(
+        Nst_Obj **new_objs = (Nst_Obj **)realloc(
             v_stack->stack,
             max_size * 2 * sizeof(Nst_Obj *)
         );
@@ -71,8 +71,8 @@ void nst_destroy_v_stack(Nst_ValueStack *v_stack)
 
 Nst_CallStack *nst_new_call_stack()
 {
-    Nst_CallStack *f_stack = malloc(sizeof(Nst_CallStack));
-    Nst_FuncCall *calls = malloc(125 * sizeof(Nst_FuncCall));
+    Nst_CallStack *f_stack = (Nst_CallStack *)malloc(sizeof(Nst_CallStack));
+    Nst_FuncCall *calls = (Nst_FuncCall *)malloc(125 * sizeof(Nst_FuncCall));
     if ( f_stack == NULL || calls == NULL )
         return NULL;
 
@@ -90,14 +90,14 @@ bool _nst_push_func(Nst_CallStack *f_stack,
                     Nst_VarTable *vt,
                     Nst_Int idx)
 {
-    register size_t max_size = f_stack->max_size;
+    size_t max_size = f_stack->max_size;
 
     if ( f_stack->current_size == max_size )
     {
         if ( max_size == 128000 )
             return false;
 
-        Nst_FuncCall *new_calls = realloc(
+        Nst_FuncCall *new_calls = (Nst_FuncCall *)realloc(
             f_stack->stack,
             max_size * 2 * sizeof(Nst_FuncCall)
         );

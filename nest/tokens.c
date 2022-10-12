@@ -11,7 +11,7 @@ Nst_LexerToken *nst_new_token_value(Nst_Pos start,
                                     int type,
                                     Nst_Obj *value)
 {
-    Nst_LexerToken *token = malloc(sizeof(Nst_LexerToken));
+    Nst_LexerToken *token = TOK(malloc(sizeof(Nst_LexerToken)));
     if ( token == NULL )
     {
         errno = ENOMEM;
@@ -28,7 +28,7 @@ Nst_LexerToken *nst_new_token_value(Nst_Pos start,
 
 Nst_LexerToken *nst_new_token_noval(Nst_Pos start, Nst_Pos end, int type)
 {
-    Nst_LexerToken *token = malloc(sizeof(Nst_LexerToken));
+    Nst_LexerToken *token = TOK(malloc(sizeof(Nst_LexerToken)));
     if ( token == NULL )
     {
         errno = ENOMEM;
@@ -45,7 +45,7 @@ Nst_LexerToken *nst_new_token_noval(Nst_Pos start, Nst_Pos end, int type)
 
 Nst_LexerToken *nst_new_token_noend(Nst_Pos start, int type)
 {
-    Nst_LexerToken *token = malloc(sizeof(Nst_LexerToken));
+    Nst_LexerToken *token = TOK(malloc(sizeof(Nst_LexerToken)));
     if ( token == NULL )
     {
         errno = ENOMEM;

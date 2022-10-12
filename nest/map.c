@@ -17,7 +17,7 @@ Nst_Obj *nst_new_map()
     }
 
     map->item_count = 0;
-    map->nodes = calloc(MAP_MIN_SIZE, sizeof(Nst_MapNode));
+    map->nodes = (Nst_MapNode *)calloc(MAP_MIN_SIZE, sizeof(Nst_MapNode));
 
     if ( map->nodes == NULL )
     {
@@ -39,10 +39,10 @@ static int32_t set_clean(Nst_MapObj *map, int32_t hash, Nst_Obj *key, Nst_Obj *v
 {
     assert(key != NULL);
 
-    register size_t mask = map->mask;
-    register Nst_MapNode *nodes = map->nodes;
-    register int32_t i = hash & mask;
-    register Nst_MapNode curr_node = nodes[i];
+    size_t mask = map->mask;
+    Nst_MapNode *nodes = map->nodes;
+    int32_t i = hash & mask;
+    Nst_MapNode curr_node = nodes[i];
 
     for ( size_t perturb = (size_t)hash;
         curr_node.key != NULL && curr_node.key != key;
@@ -66,7 +66,7 @@ void resize_map(Nst_MapObj *map, bool force_item_reset)
 {
     size_t old_size = map->size;
     Nst_MapNode *old_nodes = map->nodes;
-    register size_t size;
+    size_t size;
     if ( old_size - map->item_count < old_size >> 2 )
         size = old_size << 1;
     else if ( old_size > MAP_MIN_SIZE && old_size >> 2 >= map->item_count )
@@ -77,7 +77,7 @@ void resize_map(Nst_MapObj *map, bool force_item_reset)
         return;
     map->mask = size - 1;
     map->size = size;
-    map->nodes = calloc(size, sizeof(Nst_MapNode));
+    map->nodes = (Nst_MapNode *)calloc(size, sizeof(Nst_MapNode));
     if ( map->nodes == NULL )
     {
         map->nodes = old_nodes;
@@ -112,7 +112,7 @@ void resize_map(Nst_MapObj *map, bool force_item_reset)
 
 bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
 {
-    register int32_t hash = key->hash;
+    int32_t hash = key->hash;
 
     if ( hash == -1 )
     {
@@ -121,10 +121,10 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
             return false;
     }
 
-    register size_t mask = map->mask;
-    register Nst_MapNode *nodes = map->nodes;
-    register size_t i = hash & mask;
-    register Nst_MapNode curr_node = nodes[i];
+    size_t mask = map->mask;
+    Nst_MapNode *nodes = map->nodes;
+    size_t i = hash & mask;
+    Nst_MapNode curr_node = nodes[i];
 
     for ( size_t perturb = (size_t)hash;
           curr_node.key != NULL && curr_node.key != key;
@@ -197,7 +197,7 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
 
 Nst_Obj *_nst_map_get(Nst_MapObj *map, Nst_Obj *key)
 {
-    register int32_t hash = key->hash;
+    int32_t hash = key->hash;
 
     if ( hash == -1 )
     {
@@ -206,10 +206,10 @@ Nst_Obj *_nst_map_get(Nst_MapObj *map, Nst_Obj *key)
             return NULL;
     }
 
-    register size_t mask = map->mask;
-    register Nst_MapNode *nodes = map->nodes;
-    register int32_t i = hash & mask;
-    register Nst_MapNode curr_node = nodes[i];
+    size_t mask = map->mask;
+    Nst_MapNode *nodes = map->nodes;
+    int32_t i = hash & mask;
+    Nst_MapNode curr_node = nodes[i];
 
     if ( curr_node.key != NULL &&
         (curr_node.key == key || AS_BOOL(nst_obj_eq(key, curr_node.key, NULL))) )
@@ -237,7 +237,7 @@ Nst_Obj *_nst_map_get(Nst_MapObj *map, Nst_Obj *key)
 
 Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
 {
-    register int32_t hash = key->hash;
+    int32_t hash = key->hash;
 
     if ( hash == -1 )
     {
@@ -246,10 +246,10 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
             return NULL;
     }
 
-    register size_t mask = map->mask;
-    register Nst_MapNode *nodes = map->nodes;
-    register int32_t i = hash & mask;
-    register Nst_MapNode curr_node = nodes[i];
+    size_t mask = map->mask;
+    Nst_MapNode *nodes = map->nodes;
+    int32_t i = hash & mask;
+    Nst_MapNode curr_node = nodes[i];
 
     if ( curr_node.key != NULL &&
         (curr_node.key == key || AS_BOOL(nst_obj_eq(key, curr_node.key, NULL))) )

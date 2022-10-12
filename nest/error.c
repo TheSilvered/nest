@@ -204,13 +204,12 @@ void nst_print_traceback(Nst_Traceback tb)
         print_position(*start, *end);
     }
 
-    if ( tb.error != NULL )
-        nst_print_error(*tb.error);
+    nst_print_error(tb.error);
 }
 
 char *_nst_format_type_error(const char *format, char *type_name)
 {
-    char *buffer = malloc(strlen(format) + strlen(type_name));
+    char *buffer = (char *)malloc(strlen(format) + strlen(type_name));
     if ( buffer == NULL )
         return NULL;
     sprintf(buffer, format, type_name);
@@ -221,7 +220,7 @@ char *_nst_format_types_error(const char *format,
                               char *type_name1,
                               char *type_name2)
 {
-    char *buffer = malloc(strlen(format) + strlen(type_name1) + strlen(type_name2));
+    char *buffer = (char *)malloc(strlen(format) + strlen(type_name1) + strlen(type_name2));
     if ( buffer == NULL )
         return NULL;
     sprintf(buffer, format, type_name1, type_name2);
@@ -230,7 +229,7 @@ char *_nst_format_types_error(const char *format,
 
 char *_nst_format_idx_error(const char *format, int64_t idx, size_t seq_len)
 {
-    char *buffer = malloc(strlen(format) + MAX_INT_CHAR_COUNT * 2 - 1);
+    char *buffer = (char *)malloc(strlen(format) + MAX_INT_CHAR_COUNT * 2 - 1);
     if ( buffer == NULL )
         return NULL;
     sprintf(buffer, format, idx, seq_len);
@@ -239,7 +238,7 @@ char *_nst_format_idx_error(const char *format, int64_t idx, size_t seq_len)
 
 char *_nst_format_fnf_error(const char *format, char *file_name)
 {
-    char *buffer = malloc(strlen(format) + strlen(file_name) + 1);
+    char *buffer = (char *)malloc(strlen(format) + strlen(file_name) + 1);
     if ( buffer == NULL )
         return NULL;
     sprintf(buffer, format, file_name);
@@ -248,7 +247,7 @@ char *_nst_format_fnf_error(const char *format, char *file_name)
 
 char *_nst_format_arg_error(const char *format, char *type_name, size_t idx)
 {
-    char *buffer = malloc(strlen(format) + strlen(type_name) + MAX_INT_CHAR_COUNT);
+    char *buffer = (char *)malloc(strlen(format) + strlen(type_name) + MAX_INT_CHAR_COUNT);
     if ( buffer == NULL )
         return NULL;
     sprintf(buffer, format, idx, type_name);

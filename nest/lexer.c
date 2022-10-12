@@ -16,7 +16,7 @@
         if ( len + 1 == ch_size ) \
         { \
             chunk_size = (int)(chunk_size * 1.5); \
-            re_str = realloc(str, sizeof(char) * ch_size); \
+            re_str = (char *)realloc(str, sizeof(char) * ch_size); \
             if ( re_str == NULL ) \
             { \
                 free(str); \
@@ -28,7 +28,7 @@
     } while ( false )
 
 #define SET_ERROR(err_macro, start, end, message, err, ret_val) \
-    Nst_Error *error = malloc(sizeof(Nst_Error)); \
+    Nst_Error *error = (Nst_Error *)malloc(sizeof(Nst_Error)); \
     if ( error == NULL ) \
     { \
         errno = ENOMEM; \
@@ -60,7 +60,7 @@ static LexerCursor cursor;
 
 inline static void advance();
 inline static void go_back();
-inline static char *add_while_in(char *charset);
+inline static char *add_while_in(const char *charset);
 
 static void make_symbol(Nst_LexerToken **tok, Nst_Error **err);
 static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err);
@@ -77,7 +77,7 @@ LList *nst_ftokenize(char *filename, char **text_buffer)
     }
 
     char chunk[101] = {'\0'};
-    char *text = calloc(1, sizeof(char));
+    char *text = (char *)calloc(1, sizeof(char));
     char *realloc_text = NULL;
     size_t str_len = 0;
     size_t size_read = 0;
@@ -85,7 +85,7 @@ LList *nst_ftokenize(char *filename, char **text_buffer)
     while ( (size_read = fread(chunk, sizeof(char), 100, file)) != 0 )
     {
         str_len += size_read;
-        realloc_text = realloc(text, (str_len + 1) * sizeof(char));
+        realloc_text = (char *)realloc(text, (str_len + 1) * sizeof(char));
         if ( realloc_text == NULL )
         {
             fclose(file);
@@ -209,9 +209,9 @@ inline static void go_back()
         cursor.ch = cursor.text[cursor.idx];
 }
 
-inline static char *add_while_in(char *charset)
+inline static char *add_while_in(const char *charset)
 {
-    char *str = malloc(START_CH_SIZE);
+    char *str = (char *)malloc(START_CH_SIZE);
     char *realloc_str = NULL;
 
     if ( str == NULL )
@@ -238,7 +238,7 @@ inline static char *add_while_in(char *charset)
 
     // Makes the string the correct size
     if ( str_len < chunk_size )
-        realloc_str = realloc(str, sizeof(char) * (str_len + 1));
+        realloc_str = (char *)realloc(str, sizeof(char) * (str_len + 1));
     if ( realloc_str == NULL )
     {
         free(str);
@@ -410,7 +410,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err)
 
     // Concatinate the strings and the dot (+ 2 includes '.' and '\0')
     size_t len = strlen(ltrl) + strlen(fract_part) + 2;
-    char *fltrl = realloc(ltrl, len * sizeof(char));
+    char *fltrl = (char *)realloc(ltrl, len * sizeof(char));
 
     if ( fltrl == NULL )
     {
@@ -463,7 +463,7 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err)
     bool allow_multiline = cursor.ch == '"';
     bool escape = false;
 
-    char *end_str = malloc(START_CH_SIZE);
+    char *end_str = (char *)malloc(START_CH_SIZE);
     char *end_str_realloc = NULL;
     char ch1;
     char ch2;
@@ -542,10 +542,12 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err)
                 (ch2 > '9' && ch2 < 'a') )
                 SET_INVALID_ESCAPE_ERROR;
 
-            char result = ((ch1 > '9' ? ch1 - 'a' + 10 : ch1 - '0') << 4) +
-                           (ch2 > '9' ? ch2 - 'a' + 10 : ch2 - '0');
+            {
+                char result = ((ch1 > '9' ? ch1 - 'a' + 10 : ch1 - '0') << 4) +
+                              (ch2 > '9' ? ch2 - 'a' + 10 : ch2 - '0');
 
-            end_str[str_len++] = result;
+                end_str[str_len++] = result;
+            }
             break;
         case '0':
         case '1':
@@ -602,7 +604,7 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err)
     }
 
     if ( str_len < chunk_size )
-        end_str_realloc = realloc(end_str, sizeof(char) * (str_len + 1));
+        end_str_realloc = (char *)realloc(end_str, sizeof(char) * (str_len + 1));
     if ( end_str_realloc == NULL )
     {
         free(end_str);

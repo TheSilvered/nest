@@ -2,7 +2,7 @@
 
 Nst_RuntimeInstruction *new_inst_empty(int id, Nst_Int int_val)
 {
-    Nst_RuntimeInstruction *inst = malloc(sizeof(Nst_RuntimeInstruction));
+    Nst_RuntimeInstruction *inst = (Nst_RuntimeInstruction *)malloc(sizeof(Nst_RuntimeInstruction));
     if ( inst == NULL )
         return NULL;
 
@@ -17,7 +17,7 @@ Nst_RuntimeInstruction *new_inst_empty(int id, Nst_Int int_val)
 
 Nst_RuntimeInstruction *new_inst_pos(int id, Nst_Pos start, Nst_Pos end)
 {
-    Nst_RuntimeInstruction *inst = malloc(sizeof(Nst_RuntimeInstruction));
+    Nst_RuntimeInstruction *inst = (Nst_RuntimeInstruction *)malloc(sizeof(Nst_RuntimeInstruction));
     if ( inst == NULL )
         return NULL;
 
@@ -35,7 +35,7 @@ Nst_RuntimeInstruction *new_inst_val(int id,
                                      Nst_Pos start,
                                      Nst_Pos end)
 {
-    Nst_RuntimeInstruction *inst = malloc(sizeof(Nst_RuntimeInstruction));
+    Nst_RuntimeInstruction *inst = (Nst_RuntimeInstruction*)malloc(sizeof(Nst_RuntimeInstruction));
     if ( inst == NULL )
         return NULL;
 
@@ -53,7 +53,7 @@ Nst_RuntimeInstruction *new_inst_int_val(int id,
                                          Nst_Pos start,
                                          Nst_Pos end)
 {
-    Nst_RuntimeInstruction *inst = malloc(sizeof(Nst_RuntimeInstruction));
+    Nst_RuntimeInstruction *inst = (Nst_RuntimeInstruction *)malloc(sizeof(Nst_RuntimeInstruction));
     if ( inst == NULL )
         return NULL;
 

@@ -5,7 +5,7 @@
 
 Nst_Node *nst_new_node_tokens(Nst_Pos start, Nst_Pos end, int type, LList *tokens)
 {
-    Nst_Node *node = malloc(sizeof(Nst_Node));
+    Nst_Node *node = (Nst_Node *)malloc(sizeof(Nst_Node));
 
     if ( node == NULL )
     {
@@ -31,7 +31,7 @@ Nst_Node *nst_new_node_tokens(Nst_Pos start, Nst_Pos end, int type, LList *token
 
 Nst_Node *nst_new_node_nodes(Nst_Pos start, Nst_Pos end, int type, LList *nodes)
 {
-    Nst_Node *node = malloc(sizeof(Nst_Node));
+    Nst_Node *node = (Nst_Node *)malloc(sizeof(Nst_Node));
 
     if ( node == NULL )
     {
@@ -61,7 +61,7 @@ Nst_Node *nst_new_node_full(Nst_Pos start,
                             LList *nodes,
                             LList *tokens)
 {
-    Nst_Node *node = malloc(sizeof(Nst_Node));
+    Nst_Node *node = (Nst_Node *)malloc(sizeof(Nst_Node));
 
     if ( node == NULL )
     {
@@ -79,7 +79,7 @@ Nst_Node *nst_new_node_full(Nst_Pos start,
 
 Nst_Node *nst_new_node_empty(Nst_Pos start, Nst_Pos end, int type)
 {
-    Nst_Node *node = malloc(sizeof(Nst_Node));
+    Nst_Node *node = (Nst_Node *)malloc(sizeof(Nst_Node));
 
     if ( node == NULL )
     {

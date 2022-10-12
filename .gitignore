@@ -451,4 +451,5 @@ Mkfile.old
 dkms.conf
 
 # Make output
-unix_executable/
+unix_release/
+unix_debug/

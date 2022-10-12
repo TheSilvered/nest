@@ -11,7 +11,7 @@ static Nst_Obj *new_seq(size_t len, size_t size, Nst_Obj *type)
         type,
         nst_destroy_seq
     ));
-    Nst_Obj **objs = calloc(size, sizeof(Nst_Obj *));
+    Nst_Obj **objs = (Nst_Obj **)calloc(size, sizeof(Nst_Obj *));
 
     if ( seq == NULL || objs == NULL )
     {
@@ -45,7 +45,7 @@ Nst_Obj *nst_new_vector(size_t len)
 
 void nst_destroy_seq(Nst_SeqObj *seq)
 {
-    register Nst_Obj **objs = seq->objs;
+    Nst_Obj **objs = seq->objs;
     for ( size_t i = 0, n = seq->len; i < n; i++ )
         nst_dec_ref(objs[i]);
 
@@ -54,15 +54,15 @@ void nst_destroy_seq(Nst_SeqObj *seq)
 
 void nst_traverse_seq(Nst_SeqObj *seq)
 {
-    register Nst_Obj **objs = seq->objs;
+    Nst_Obj **objs = seq->objs;
     for ( size_t i = 0, n = seq->len; i < n; i++ )
         NST_SET_FLAG(objs[i], NST_FLAG_GGC_REACHABLE);
 }
 
 void _nst_resize_vector(Nst_SeqObj *vect)
 {
-    register size_t len = vect->len;
-    register size_t size = vect->size;
+    size_t len = vect->len;
+    size_t size = vect->size;
 
     size_t new_size;
 
@@ -77,7 +77,7 @@ void _nst_resize_vector(Nst_SeqObj *vect)
     else
         return;
 
-    Nst_Obj **new_objs = realloc(vect->objs, new_size * sizeof(Nst_Obj *));
+    Nst_Obj **new_objs = (Nst_Obj **)realloc(vect->objs, new_size * sizeof(Nst_Obj *));
 
     if ( new_objs == NULL )
     {
@@ -141,9 +141,9 @@ Nst_Obj *_nst_get_value_seq(Nst_SeqObj *seq, int64_t idx)
 
 Nst_Obj *_nst_rem_value_vector(Nst_SeqObj *vect, Nst_Obj *val)
 {
-    register size_t i = 0;
-    register size_t n = vect->len;
-    register Nst_Obj **objs = vect->objs;
+    size_t i = 0;
+    size_t n = vect->len;
+    Nst_Obj **objs = vect->objs;
 
     for ( ; i < n; i++ )
     {
@@ -170,8 +170,8 @@ Nst_Obj *_nst_pop_value_vector(Nst_SeqObj *vect, size_t quantity)
     if ( quantity > vect->len )
         quantity = vect->len;
 
-    register Nst_Obj *last_obj = NULL;
-    register size_t n = vect->len;
+    Nst_Obj *last_obj = NULL;
+    size_t n = vect->len;
 
     for ( size_t i = 1; i <= quantity; i++ )
     {

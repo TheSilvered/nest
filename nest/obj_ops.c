@@ -400,8 +400,8 @@ Nst_Obj *_nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ARE_TYPE(nst_t_byte) )
     {
-        register Nst_Byte res = 1;
-        register Nst_Byte num = AS_BYTE(ob1);
+        Nst_Byte res = 1;
+        Nst_Byte num = AS_BYTE(ob1);
 
         for ( Nst_Byte i = 0, n = AS_BYTE(ob2); i < n; i++ )
             res *= num;
@@ -413,8 +413,8 @@ Nst_Obj *_nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         ob1 = nst_obj_cast(ob1, nst_t_int, err);
         ob2 = nst_obj_cast(ob2, nst_t_int, err);
 
-        register Nst_Int res = 1;
-        register Nst_Int num = AS_INT(ob1);
+        Nst_Int res = 1;
+        Nst_Int num = AS_INT(ob1);
 
         for ( Nst_Int i = 0, n = AS_INT(ob2); i < n; i++ )
             res *= num;
@@ -597,7 +597,7 @@ Nst_Obj *_nst_obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs)
     for ( LLNode *n = all_objs->head; n != NULL; n = n->next )
     {
         if ( seq_obj == n->value )
-            return nst_new_string("{.}", 3, false);
+            return nst_new_string((char *)"{.}", 3, false);
     }
 
     LList_push(all_objs, seq_obj, false);
@@ -607,7 +607,7 @@ Nst_Obj *_nst_obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs)
     size_t str_len = 0;
     Nst_Obj *val = NULL;
 
-    char *str = malloc(sizeof(char) * (is_vect ? 6 : 4));
+    char *str = (char *)malloc(sizeof(char) * (is_vect ? 6 : 4));
     char *realloc_str = NULL;
     CHECK_BUFFER(str);
 
@@ -638,7 +638,7 @@ Nst_Obj *_nst_obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs)
         else
             val = nst_obj_cast(val, nst_t_str, NULL);
 
-        realloc_str = realloc(
+        realloc_str = (char *)realloc(
             str,
             str_len
              + AS_STR(val)->len
@@ -684,7 +684,7 @@ Nst_Obj *_nst_obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
     for ( LLNode *n = all_objs->head; n != NULL; n = n->next )
     {
         if ( map_obj == n->value )
-            return nst_new_string("{.}", 3, false);
+            return nst_new_string((char *)"{.}", 3, false);
     }
 
     LList_push(all_objs, map_obj, false);
@@ -693,7 +693,7 @@ Nst_Obj *_nst_obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
     Nst_Obj *key = NULL;
     Nst_Obj *val = NULL;
 
-    char *str = malloc(sizeof(char) * 4);
+    char *str = (char *)malloc(sizeof(char) * 4);
     char *realloc_str = NULL;
     CHECK_BUFFER(str);
 
@@ -726,7 +726,7 @@ Nst_Obj *_nst_obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
         else
             val = nst_obj_cast(val, nst_t_str, NULL);
 
-        realloc_str = realloc(str, str_len + AS_STR(key)->len + AS_STR(val)->len + 5);
+        realloc_str = (char *)realloc(str, str_len + AS_STR(key)->len + AS_STR(val)->len + 5);
         CHECK_BUFFER(realloc_str);
         str = realloc_str;
         memcpy(str + str_len, AS_STR(key)->value, AS_STR(key)->len);
@@ -757,7 +757,7 @@ Nst_Obj *_nst_obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
 
 Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
 {
-    register Nst_Obj *ob_t = ob->type;
+    Nst_Obj *ob_t = ob->type;
 
     if ( ob_t == type )
         return nst_inc_ref(ob);
@@ -766,14 +766,14 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
     {
         if ( ob_t == nst_t_int )
         {
-            char *buffer = malloc(MAX_INT_CHAR_COUNT * sizeof(char));
+            char *buffer = (char *)malloc(MAX_INT_CHAR_COUNT * sizeof(char));
             CHECK_BUFFER(buffer);
             sprintf(buffer, "%lli", AS_INT(ob));
             return nst_new_string_raw(buffer, true);
         }
         else if ( ob_t == nst_t_real )
         {
-            char *buffer = malloc(MAX_REAL_CHAR_COUNT * sizeof(char));
+            char *buffer = (char *)malloc(MAX_REAL_CHAR_COUNT * sizeof(char));
             CHECK_BUFFER(buffer);
             sprintf(buffer, "%Lg", AS_REAL(ob));
             return nst_new_string_raw(buffer, true);
@@ -781,15 +781,15 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
         else if ( ob_t == nst_t_bool )
         {
             if ( AS_BOOL(ob) == NST_TRUE )
-                return nst_new_string("true", 4, false);
+                return nst_new_string((char *)"true", 4, false);
             else
-                return nst_new_string("false", 5, false);
+                return nst_new_string((char *)"false", 5, false);
         }
         else if ( ob_t == nst_t_type )
             return nst_copy_string(ob);
         else if ( ob_t == nst_t_byte )
         {
-            char *str = calloc(2, sizeof(char));
+            char *str = (char *)calloc(2, sizeof(char));
             CHECK_BUFFER(str);
 
             str[0] = AS_BYTE(ob);
@@ -812,10 +812,10 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
             return str;
         }
         else if ( ob_t == nst_t_null )
-            return nst_new_string("null", 4, false);
+            return nst_new_string((char *)"null", 4, false);
         else
         {
-            char *buffer = malloc(sizeof(char) * (AS_STR(ob->type)->len + 10));
+            char *buffer = (char *)malloc(sizeof(char) * (AS_STR(ob->type)->len + 10));
             CHECK_BUFFER(buffer);
 
             sprintf(buffer, "<%s object>", AS_STR(ob->type)->value);
@@ -985,13 +985,13 @@ Nst_Obj *_nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     Nst_StrObj *nst_s1 = AS_STR(ob1);
     Nst_StrObj *nst_s2 = AS_STR(ob2);
 
-    register char *s1 = nst_s1->value;
-    register char *s2 = nst_s2->value;
-    register size_t len1 = nst_s1->len;
-    register size_t len2 = nst_s2->len;
-    register size_t tot_len = len1 + len2;
+    char *s1 = nst_s1->value;
+    char *s2 = nst_s2->value;
+    size_t len1 = nst_s1->len;
+    size_t len2 = nst_s2->len;
+    size_t tot_len = len1 + len2;
 
-    char *buffer = malloc(sizeof(char) * (tot_len + 1));
+    char *buffer = (char *)malloc(sizeof(char) * (tot_len + 1));
 
     CHECK_BUFFER(buffer);
 
@@ -1070,7 +1070,7 @@ Nst_Obj *_nst_obj_stdin(Nst_Obj *ob, Nst_OpErr *err)
     fflush(stdout);
     nst_dec_ref(ob);
 
-    char *buffer = malloc(4);
+    char *buffer = (char *)malloc(4);
     CHECK_BUFFER(buffer);
 
     size_t buffer_size = 4;
@@ -1086,7 +1086,7 @@ Nst_Obj *_nst_obj_stdin(Nst_Obj *ob, Nst_OpErr *err)
 
         if ( buffer_size == i + 2 )
         {
-            char *new_buffer = realloc(buffer, buffer_size *= 2);
+            char *new_buffer = (char *)realloc(buffer, buffer_size *= 2);
             if ( new_buffer == NULL )
             {
                 free(buffer);
@@ -1100,7 +1100,7 @@ Nst_Obj *_nst_obj_stdin(Nst_Obj *ob, Nst_OpErr *err)
         ch = (char)getchar();
     }
     buffer[i] = '\0';
-    char *new_buffer = realloc(buffer, i + 1);
+    char *new_buffer = (char *)realloc(buffer, i + 1);
     if ( new_buffer == NULL )
     {
         free(buffer);
@@ -1140,13 +1140,13 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     Nst_IOFile file;
     if ( (file = fopen(file_path, "r")) == NULL )
     {
-        // Tries to open it as a file of the standard library
+        char *original_path=_nst_format_fnf_error(FILE_NOT_FOUND, file_name);
 
+        // Tries to open it as a file of the standard library
 #if defined(_WIN32) || defined(WIN32)
 
         // In Windows the standard library is stored in %LOCALAPPDATA%/Programs/nest/nest_libs
         char *appdata = getenv("LOCALAPPDATA");
-        char *original_path = _nst_format_fnf_error(FILE_NOT_FOUND, file_name);
         if ( appdata == NULL )
         {
             err->name = "Value Error";
@@ -1155,11 +1155,11 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         }
 
         size_t appdata_len = strlen(appdata);
-        file_path = malloc((appdata_len + file_name_len + 26) * sizeof(char));
+        file_path = (char *)malloc((appdata_len + file_name_len + 26) * sizeof(char));
         file_path_allocated = true;
         if ( !file_path ) return NULL;
 
-        char *lib_dir = "\\Programs\\nest\\nest_libs\\";
+        char *lib_dir = (char *)"\\Programs\\nest\\nest_libs\\";
         memcpy(file_path, appdata, appdata_len);
         memcpy(file_path + appdata_len, lib_dir, 25);
         memcpy(file_path + appdata_len + 25, file_name, file_name_len + 1); // copies also \0
@@ -1168,11 +1168,11 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
 #else
 
         // In UNIX the standard library is stored in /usr/lib/nest
-        file_path = malloc((file_name_len + 15) * sizeof(char));
+        file_path = (char *)malloc((file_name_len + 15) * sizeof(char));
         file_path_allocated = true;
         if ( !file_path ) return NULL;
 
-        char *lib_dir = "/usr/lib/nest/";
+        char *lib_dir = (char *)"/usr/lib/nest/";
         memcpy(file_path, lib_dir, 14);
         memcpy(file_path + 14, file_name, file_name_len + 1); // copies also \0
         size_t path_len = file_name_len + 14;
@@ -1235,7 +1235,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         }
 
         // Adds the generated map to the modules previously loaded
-        Nst_LibHandle *handle = malloc(sizeof(Nst_LibHandle));
+        Nst_LibHandle *handle = (Nst_LibHandle *)malloc(sizeof(Nst_LibHandle));
         if ( handle == NULL )
         {
             errno = ENOMEM;
@@ -1331,7 +1331,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     LList_append(nst_state.loaded_libs, lib, false);
 
     // Add map to the loaded libaries
-    Nst_LibHandle *handle = malloc(sizeof(Nst_LibHandle));
+    Nst_LibHandle *handle = (Nst_LibHandle *)malloc(sizeof(Nst_LibHandle));
     if ( handle == NULL )
     {
         errno = ENOMEM;

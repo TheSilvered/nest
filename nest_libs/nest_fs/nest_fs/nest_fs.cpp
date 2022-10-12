@@ -1,9 +1,16 @@
-#include "framework.h"
-#include <shlwapi.h>
-#pragma comment(lib, "shlwapi.lib")
-#include "nest_fs.h"
-#include <filesystem>
+#if defined(_WIN32) || defined(WIN32)
+#include <winerror.h>
+#else
+// This error does not get thrown on UNIX
+#define ERROR_ALREADY_EXISTS 0
+// ERROR_PATH_NOT_FOUND and ERROR_FILE_NOT_FOUND are the same on UNIX
+#define ERROR_PATH_NOT_FOUND ENOENT
+#endif
 
+#include "nest_fs.h"
+
+#include <filesystem>
+#include <cerrno>
 #define FUNC_COUNT 14
 
 namespace fs = std::filesystem;
@@ -57,7 +64,7 @@ NST_FUNC_SIGN(isdir_)
     if ( !nst_extract_arg_values("s", arg_num, args, err, &path) )
         return nullptr;
 
-    NST_RETURN_COND(PathIsDirectoryA(path->value));
+    NST_RETURN_COND(fs::is_directory(path->value));
 }
 
 NST_FUNC_SIGN(mkdir_)
@@ -100,18 +107,20 @@ NST_FUNC_SIGN(rmdir_)
     if ( !nst_extract_arg_values("s", arg_num, args, err, &path) )
         return nullptr;
 
-    if ( !PathIsDirectoryA(path->value) )
+    std::error_code ec;
+
+    if ( !fs::is_directory(path->value) )
     {
         NST_SET_VALUE_ERROR("directory path not found");
         return nullptr;
     }
 
-    bool success = RemoveDirectoryA(path->value);
+    bool success = fs::remove(path->value);
 
     if ( success )
         return nst_new_int(0);
     else
-        return nst_new_int(GetLastError());
+        return nst_new_int(ec.value());
 }
 
 NST_FUNC_SIGN(rmdir_recursive_)
@@ -123,7 +132,7 @@ NST_FUNC_SIGN(rmdir_recursive_)
 
     std::error_code ec;
 
-    if ( !PathIsDirectoryA(path->value) )
+    if ( !fs::is_directory(path->value) )
     {
         NST_SET_VALUE_ERROR("directory path not found");
         return nullptr;
@@ -162,17 +171,20 @@ NST_FUNC_SIGN(rmfile_)
     if ( !nst_extract_arg_values("s", arg_num, args, err, &path) )
         return nullptr;
 
-    bool success = DeleteFileA(path->value);
-
-    if ( success )
-        return nst_new_int(0);
-    else if ( GetLastError() == ERROR_FILE_NOT_FOUND )
+    std::error_code ec;
+    // if it's not a file
+    if ( !fs::is_regular_file(path->value, ec) && !fs::is_other(path->value, ec) )
     {
         NST_SET_VALUE_ERROR("file not found");
         return nullptr;
     }
+
+    bool success = fs::remove(path->value, ec);
+
+    if ( success )
+        return nst_new_int(0);
     else
-        return nst_new_int(GetLastError());
+        return nst_new_int(ec.value());
 }
 
 NST_FUNC_SIGN(copy_)
@@ -225,7 +237,8 @@ NST_FUNC_SIGN(list_dir_)
     if ( !nst_extract_arg_values("s", arg_num, args, err, &path) )
         return nullptr;
 
-    if ( !PathIsDirectoryA(path->value) )
+    std::error_code ec;
+    if ( !fs::is_directory(path->value, ec) )
     {
         NST_SET_VALUE_ERROR("directory path not found");
         return nullptr;
@@ -248,7 +261,8 @@ NST_FUNC_SIGN(list_dir_recursive_)
     if ( !nst_extract_arg_values("s", arg_num, args, err, &path) )
         return nullptr;
 
-    if ( !PathIsDirectoryA(path->value) )
+    std::error_code ec;
+    if ( !fs::is_directory(path->value, ec) )
     {
         NST_SET_VALUE_ERROR("directory path not found");
         return nullptr;
@@ -284,32 +298,8 @@ NST_FUNC_SIGN(equivalent_)
     if ( !nst_extract_arg_values("ss", arg_num, args, err, &path_1, &path_2) )
         return nullptr;
 
-    HANDLE f1 = CreateFileA(path_1->value, GENERIC_READ, FILE_SHARE_READ, NULL,
-        OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-    if ( f1 == INVALID_HANDLE_VALUE )
-        NST_RETURN_FALSE;
-    HANDLE f2 = CreateFileA(path_2->value, GENERIC_READ, FILE_SHARE_READ, NULL,
-        OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
-
-    if ( f2 == INVALID_HANDLE_VALUE )
-    {
-        CloseHandle(f1);
-        NST_RETURN_FALSE;
-    }
-
-    BY_HANDLE_FILE_INFORMATION info1;
-    BY_HANDLE_FILE_INFORMATION info2;
-
-    bool are_equal = GetFileInformationByHandle(f1, &info1) &&
-        GetFileInformationByHandle(f2, &info2) &&
-        info1.dwVolumeSerialNumber == info2.dwVolumeSerialNumber &&
-        info1.nFileIndexLow == info2.nFileIndexLow &&
-        info1.nFileIndexHigh == info2.nFileIndexHigh;
-
-    CloseHandle(f1);
-    CloseHandle(f2);
-
-    NST_RETURN_COND(are_equal);
+    std::error_code ec;
+    NST_RETURN_COND(fs::equivalent(path_1->value, path_2->value, ec));
 }
 
 NST_FUNC_SIGN(_get_copy_options_)
