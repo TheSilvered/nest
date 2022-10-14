@@ -1,5 +1,6 @@
 #include "runtime_stack.h"
 
+#include "interpreter.h"
 Nst_ValueStack *nst_new_val_stack()
 {
     Nst_ValueStack *v_stack = (Nst_ValueStack *)malloc(sizeof(Nst_ValueStack));
@@ -39,7 +40,8 @@ Nst_Obj *nst_pop_val(Nst_ValueStack *v_stack)
     if ( v_stack->current_size == 0 )
         return NULL;
 
-    return v_stack->stack[--v_stack->current_size];
+    Nst_Obj *val = v_stack->stack[--v_stack->current_size];
+    return val;
 }
 
 

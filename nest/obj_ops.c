@@ -1261,7 +1261,11 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     if ( !lib )
     {
         err->name = "Import Error";
+#if defined(_WIN32) || defined(WIN32)
         err->message = FILE_NOT_DLL;
+#else
+        err->message = dlerror();
+#endif
         return NULL;
     }
 

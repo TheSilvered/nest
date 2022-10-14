@@ -62,7 +62,8 @@
 #define ZERO_RANGE_STEP (char *)"step must not be zero"
 #define EXPECTED_BOOL_ITER_IS_DONE (char *)"expected 'Bool' type from '_is_done_', got type '%s' instead"
 #define FILE_NOT_FOUND (char *)"file '%s' not found"
-#define FILE_NOT_DLL (char *)"the file was not a valid DLL"
+#define FILE_NOT_DLL (char *)"the file is not a valid DLL"
+#define FILE_NOT_SO (char *)"the file is not a valid shared object"
 #define NO_LIB_INIT (char *)"the DLL does not specify a 'lib_init' function"
 #define NO_GET_FUNC_PTRS (char *)"the DLL does not specify a 'get_func_ptrs' function"
 #define WRONG_TYPE_FOR_ARG(type) (char *)("expected type '" type "' for argument %zi, got type '%s' instead")

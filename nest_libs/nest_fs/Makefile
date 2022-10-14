@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-Wall -g -fPIC -std=c++2a
+CFLAGS=-Wall -g -shared -fPIC -std=c++2a
 CLINKS=-lm -ldl
 EXE_NAME=stdfs.so
 

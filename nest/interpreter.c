@@ -41,7 +41,7 @@
 
 #define SET_OP_ERROR(start_pos, end_pos, op_err) \
     do { \
-        if ( nst_state.traceback->error.start.filename == NULL ) \
+        if ( nst_state.traceback->error.start.filename != NULL ) \
         { \
             LList_append(nst_state.traceback->positions, &(start_pos), false); \
             LList_append(nst_state.traceback->positions, &(end_pos), false); \
@@ -169,9 +169,7 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
             LList_append(nst_state.traceback->positions, &(calls[n - i].start), false);
             LList_append(nst_state.traceback->positions, &(calls[n - i].start), false);
         }
-
         nst_print_traceback(*nst_state.traceback);
-        free(&(nst_state.traceback->error));
 
         nst_dec_ref((*nst_state.vt)->vars);
         free(*nst_state.vt);
@@ -394,8 +392,6 @@ static inline void exe_pop_val()
 {
     CHECK_V_STACK;
     Nst_Obj *obj = nst_pop_val(nst_state.v_stack);
-    if (obj == NULL)
-        printf("hi\n");
     nst_dec_ref(obj);
 }
 
