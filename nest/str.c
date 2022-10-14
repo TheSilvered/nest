@@ -291,7 +291,7 @@ Nst_Obj *nst_parse_real(char *str, Nst_OpErr *err)
     if ( *s == 0 )
         return nst_new_real(num * sign);
 
-    // here, there can only be a dot
+    // at this point there can only be a dot
     ++s;
 
     while ( *s )

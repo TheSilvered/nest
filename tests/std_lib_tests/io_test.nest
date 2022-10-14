@@ -1,5 +1,4 @@
 |#| '../test_lib.nest' = test
-
 |#| 'stdio.nest' = io
 
 { Byte :: 72, Byte :: 105 } = bytes -- Hi

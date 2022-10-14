@@ -11,7 +11,7 @@
 ]
 
 #assert_ne a b [
-    a b != ? => null : a ' == ' b >< @_assertion_failed
+    a b != ? => null : a ' != ' b >< @_assertion_failed
 ]
 
 #assert_true a [

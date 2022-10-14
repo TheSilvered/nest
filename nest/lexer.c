@@ -428,7 +428,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err)
 
     // Don't really need str_end but it's required by the function
     char *str_end = NULL;
-    Nst_Real value = strtod(ltrl, &str_end);
+    Nst_Real value = strtold(ltrl, &str_end);
 
     if ( errno == ERANGE )
     {

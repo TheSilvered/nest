@@ -1,12 +1,11 @@
+|#| '../test_lib.nest' = test
 |#| 'stdsys.nest' = sys
 
-#println s [ >>> (s '\n' ><) ]
-
 'echo Hello' @sys.system
-'APPDATA' @sys.getenv @println
-'HOME' @sys.getenv @println
-'Hello' @sys.get_ref_count @println -- 2
-10 @sys.get_addr @println -- a big number
-10 @sys.hash @println -- 10
--1 @sys.hash @println -- -2
-1 @sys.exit
+'APPDATA' @sys.getenv @test.println
+'HOME' @sys.getenv @test.println
+'Hello' @sys.get_ref_count 2 @test.assert_eq
+10 @sys.get_addr @test.println -- a big number
+10 @sys.hash 10 @test.assert_eq
+-1 @sys.hash -2 @test.assert_eq
+1 @sys.exit -- process should end with exit code 1

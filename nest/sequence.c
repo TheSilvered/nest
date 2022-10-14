@@ -40,7 +40,7 @@ Nst_Obj *nst_new_vector(size_t len)
     if ( size < VECTOR_MIN_SIZE )
         size = VECTOR_MIN_SIZE;
 
-    return new_seq(len, size, nst_t_arr);
+    return new_seq(len, size, nst_t_vect);
 }
 
 void nst_destroy_seq(Nst_SeqObj *seq)

@@ -23,8 +23,13 @@
 #endif
 
 #define MAX_INT_CHAR_COUNT 21
+
+// precision    1  +     17    +  1  +    2     +        3               + 1 
+//           (sign) (precision) (dot) (e+ or e-) (over e+308 becomes inf) (\0)
 #define MAX_REAL_CHAR_COUNT 25
 #define MAX_BYTE_CHAR_COUNT 5
+#define REAL_EPSILON 0.0000000000000001
+#define REAL_PRECISION "17"
 
 #define IS_NUM(obj) \
     ( obj->type == nst_t_int || \
@@ -79,7 +84,7 @@ Nst_Obj *_nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     {
         ob1 = nst_obj_cast(ob1, nst_t_real, err);
         ob2 = nst_obj_cast(ob2, nst_t_real, err);
-        bool check = AS_REAL(ob1) == AS_REAL(ob2);
+        bool check = fabsl(AS_REAL(ob1) - AS_REAL(ob2)) < REAL_EPSILON;
         nst_dec_ref(ob1);
         nst_dec_ref(ob2);
 
@@ -775,7 +780,7 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
         {
             char *buffer = (char *)malloc(MAX_REAL_CHAR_COUNT * sizeof(char));
             CHECK_BUFFER(buffer);
-            sprintf(buffer, "%Lg", AS_REAL(ob));
+            sprintf(buffer, "%." REAL_PRECISION "Lg", AS_REAL(ob));
             return nst_new_string_raw(buffer, true);
         }
         else if ( ob_t == nst_t_bool )

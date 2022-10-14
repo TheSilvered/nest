@@ -1,14 +1,13 @@
+|#| '../test_lib.nest' = test
 |#| 'stdrand.nest' = rand
-
-#println s [ >>> (s '\n' ><) ]
 
 @rand.random @rand.rand_seed
 
-@rand.random @println
-0 100 @rand.rand_int @println
-@rand.rand_perc @println
-{ 1, 2, 3, 4, 5 } @rand.choice @println
+@rand.random @test.println
+0 100 @rand.rand_int @test.println
+@rand.rand_perc @test.println
+{ 1, 2, 3, 4, 5 } @rand.choice @test.println
 { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 } = a
 a @rand.shuffle
-a @println
-rand.RAND_MAX @println
+a @test.println
+rand.RAND_MAX @test.println
