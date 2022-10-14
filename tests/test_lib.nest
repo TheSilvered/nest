@@ -1,7 +1,8 @@
 |#| 'stdsys.nest' = sys
+|#| 'stdio.nest' = io
 
 #_assertion_failed msg [
-    >>> ('Assertion failed: ' msg '\n' ><)
+    io.STDERR ('Assertion failed: ' msg '\n' ><) @io.write
     -1 @sys.exit
 ]
 

@@ -371,7 +371,8 @@ static void compile_for_as_l(Nst_Node *node)
                 FOR_ADVANCE
                 POP_VAL
                 JUMP cond_start
-    body_end:   [CODE CONTINUATION]
+    body_end:   POP_VAL
+                [CODE CONTINUATION]
     */
 
     Nst_RuntimeInstruction *inst;
@@ -411,7 +412,10 @@ static void compile_for_as_l(Nst_Node *node)
     inst = new_inst_empty(NST_IC_JUMP, cond_start_idx);
     ADD_INST(inst);
 
-    jump_body_end->int_val = CURR_LEN;
+    Nst_Int body_end_idx = CURR_LEN;
+    jump_body_end->int_val = body_end_idx;
+    inst = new_inst_empty(NST_IC_POP_VAL, 0);
+    ADD_INST(inst);
 
     for ( LLNode *cursor = body_start;
         cursor != NULL && cursor != body_end;
@@ -426,7 +430,7 @@ static void compile_for_as_l(Nst_Node *node)
                 inst->int_val = cond_start_idx;
             // Break statement
             else if ( inst->int_val == c_state.loop_id - 1 )
-                inst->int_val = CURR_LEN;
+                inst->int_val = body_end_idx;
         }
     }
 

@@ -1,57 +1,36 @@
+|#| '../test_lib.nest' = test
+
 |#| 'stditutil.nest' = itu
-
-... 10 2 @itu.count ~= i [
-    >>> (i ' ' ><)
-    i 20 >= ? ;
-]
->>> '\n'
-
-0 = j
-... 'Hi!' @itu.cycle ~= i [
-    >>> (i ' ' ><)
-    1 += j
-    j 6 > ? ;
-]
->>> '\n'
-
-... 10 3 @itu.repeat ~= i [
-    >>> (i ' ' ><)
-]
->>> '\n'
-
-... { { 1, 2 }, Array :: 'Hi' } @itu.chain ~= i [
-    >>> (i ' ' ><)
-]
->>> '\n'
-
-... { 1, 2, 3 } 'Hi' @itu.zip ~= i [
-    >>> (i ' ' ><)
-]
->>> '\n'
-
-... 'Hello' @itu.enumerate ~= i [
-    >>> (i ' ' ><)
-]
->>> '\n'
 
 { 'a': 1, 'b': 2, 'c': 3 } = m
 
-... m @itu.keys ~= i [
-    >>> (i ' ' ><)
-]
->>> '\n'
+{ { 10 3 @itu.repeat, '101010' },
+  { { { 1, 2 }, Array :: 'Hi' } @itu.chain, '12Hi' },
+  { { 1, 2, 3 } 'Hi' @itu.zip, "{ 1, 'H' }{ 2, 'i' }" },
+  { 'Hello' @itu.enumerate, "{ 0, 'H' }{ 1, 'e' }{ 2, 'l' }{ 3, 'l' }{ 4, 'o' }" },
+  { m @itu.keys, 'abc' },
+  { m @itu.values, '123' },
+  { m @itu.items, "{ 'a', 1 }{ 'b', 2 }{ 'c', 3 }" },
+  { 'Hello' @itu.reversed, 'olleH' } } = iterators
 
-... m @itu.values ~= i [
-    >>> (i ' ' ><)
-]
->>> '\n'
+{ { 10 2 @itu.count, '101214161820', 5 },
+  { 'Hi!' @itu.cycle, 'Hi!Hi!H', 6 } } = infinite_iterators
 
-... m @itu.items ~= i [
-    >>> (i ' ' ><)
-]
->>> '\n'
+... Iter :: infinite_iterators ~= i [
+    '' = s
+    0 = count
 
-... 'Hello' @itu.reversed ~= i [
-    >>> (i ' ' ><)
+    ... i.0 ~= j [
+        j ><= s
+
+        1 += count i.2 > ? ;
+    ]
+
+    s i.1 @test.assert_eq
 ]
->>> '\n'
+
+... Iter :: iterators ~= i [
+    '' = s
+    ... i.0 ~= j [ j ><= s ]
+    s i.1 @test.assert_eq
+]
