@@ -2,5 +2,27 @@
 
 'a' 'a' @test.assert_eq
 'hello' 'hello' @test.assert_eq
+"string" 'string' @test.assert_eq
+
+?::'hello' Str @test.assert_eq
+$'hello' 5 @test.assert_eq
+
+Str :: 10 '10' @test.assert_eq
+Str :: -10 '-10' @test.assert_eq
+Str :: 0.0 '0' @test.assert_eq
+Str :: 0.1 '0.1' @test.assert_eq
+Str :: Type 'Type' @test.assert_eq
+Str :: null 'null' @test.assert_eq
+Str :: true 'true' @test.assert_eq
+Str :: false 'false' @test.assert_eq
+
+'s1' 's2' >< 's1s2' @test.assert_eq
+'str'.0 's' @test.assert_eq
+'str'.1 't' @test.assert_eq
+'str'.2 'r' @test.assert_eq
+'str'.-1 'r' @test.assert_eq
+'str'.-2 't' @test.assert_eq
+'str'.-3 's' @test.assert_eq
+
 '' @test.assert_false
 'smth' @test.assert_true

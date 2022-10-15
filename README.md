@@ -26,8 +26,14 @@ To compile the installer you need InnoSetup installed. Then follow these steps
 
 ### Linux
 
+**C/C++ libraries do not work on linux yet.**
+
 Execute `make all` to compile the main interpreter and all the libraries.  
 Execute `make` to compile only the main iterpreter.
 Execute `make debug` for a fast compilation of the main interpreter.
-Execute `make all-debug` for a fast compilation of the main interpreter and all the libraries.
+Execute `make all-debug` for a fast compilation of the main interpreter and all
+the libraries.
 Execute `make clean` to remove the previously compiled programs.
+
+When `make debug` or `make all-debug` are ran, the compiled program is inserted
+in `unix_debug/`, otherwise the executable is put in `unix_release/`

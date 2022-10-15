@@ -1,47 +1,46 @@
+|#| '../test_lib.nest' = test
 |#| 'stdsutil.nest' = su
 
-#println s [ >>> (s '\n' ><) ]
+'Hi!' 10 '_' @su.ljust 'Hi!_______' @test.assert_eq
+'Hi!' 10 '_' @su.rjust '_______Hi!' @test.assert_eq
 
-'Hi!' 10 '_' @su.ljust @println
-'Hi!' 10 '_' @su.rjust @println
+'validName' su.LETTERS @su.is_charset @test.assert_true
+'invalid name' su.LETTERS @su.is_charset @test.assert_false
 
-'validName' su.LETTERS @su.is_charset @println
-'invalid name' su.LETTERS @su.is_charset @println
+'1word1 2word2' 'word' 'letter' @su.replace_substr '1letter1 2letter2' @test.assert_eq
+'1word1 2word2' 'word' 'wor' @su.replace_substr '1wor1 2wor2' @test.assert_eq
 
-'1word1 2word2 3word3' 'word' 'letter' @su.replace_substr @println
-'1word1 2word2 3word3' 'word' 'wor' @su.replace_substr @println
+'HELLO.:()' @su.is_upper @test.assert_true
+'hello.:()' @su.is_lower @test.assert_true
+'Hello.:()' @su.is_upper @test.assert_false
+'hELLO.:()' @su.is_lower @test.assert_false
 
-'HELLO.:()' @su.is_upper @println
-'hello.:()' @su.is_lower @println
-'Hello.:()' @su.is_upper @println
-'hELLO.:()' @su.is_lower @println
+'Hello.:()' @su.to_upper 'HELLO.:()' @test.assert_eq
+'hELLO.:()' @su.to_lower 'hello.:()' @test.assert_eq
 
-'Hello.:()' @su.to_upper @println
-'hELLO.:()' @su.to_lower @println
+'this is a sentence inside a string' 'a' @su.lfind 8  @test.assert_eq
+'this is a sentence inside a string' 'a' @su.rfind 26 @test.assert_eq
 
-'this is a sentence inside a string' 'a' @su.lfind @println -- expect 8
-'this is a sentence inside a string' 'a' @su.rfind @println -- expect 26
+'this is a sentence inside a string' 'is' @su.lfind 2 @test.assert_eq
+'this is a sentence inside a string' 'is' @su.rfind 5 @test.assert_eq
 
-'this is a sentence inside a string' 'is' @su.lfind @println -- expect 2
-'this is a sentence inside a string' 'is' @su.rfind @println -- expect 5
+'hello' @su.is_alpha @test.assert_true
+'hell0' @su.is_alpha @test.assert_false
+'110' @su.is_digit @test.assert_true
+'11o' @su.is_alpha @test.assert_false
+'hell0' @su.is_alnum @test.assert_true
+'hell0 everybody' @su.is_printable @test.assert_true
+'hell0 everybody\n' @su.is_printable @test.assert_false
 
-'hello' @su.is_alpha @println
-'hell0' @su.is_alpha @println
-'110' @su.is_digit @println
-'11o' @su.is_alpha @println
-'hell0' @su.is_alnum @println
-'hell0 everybody' @su.is_printable @println
-'hell0 everybody\n' @su.is_printable @println
+'hell0 everybody\n' @su.repr "'hell0 everybody\\n'" @test.assert_eq
+'hell0 everybody\x10' @su.repr "'hell0 everybody\\x10'" @test.assert_eq
+'"' @su.repr "'\"'" @test.assert_eq
+"'" @su.repr '"\'"' @test.assert_eq
 
-'hell0 everybody\n' @su.repr @println
-'hell0 everybody\x10' @su.repr @println
-'"' @su.repr @println
-"'" @su.repr @println
+{ Byte :: 72, Byte :: 105 } @su.bytearray_to_str 'Hi' @test.assert_eq
 
-{ Byte :: 72, Byte :: 105 } @su.bytearray_to_str @println
-
-su.DIGITS @println
-su.LETTERS @println
-su.UPPERCASE_LETTERS @println
-su.LOWERCASE_LETTERS @println
-su.PUNCTUATION @println
+?::su.DIGITS            Str @test.assert_eq
+?::su.LETTERS           Str @test.assert_eq
+?::su.UPPERCASE_LETTERS Str @test.assert_eq
+?::su.LOWERCASE_LETTERS Str @test.assert_eq
+?::su.PUNCTUATION       Str @test.assert_eq

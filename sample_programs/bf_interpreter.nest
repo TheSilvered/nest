@@ -89,9 +89,9 @@ This program prints all the ascii characters
                     0 = input_index
                 ]
 
-                $curr_input 0 == ?
+                $curr_input 0 == ? [
                     byte_0 = tape.(pointer)
-                : [
+                ] : [
                     Byte :: curr_input.(input_index) = tape.(pointer)
                     1 += input_index
                 ]

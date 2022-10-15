@@ -426,7 +426,7 @@ map.not_a_key --> null
 The for loop has the following syntax:
 ```
 ... times_to_repeat [
-  -- code
+    -- code
 ]
 ```
 
@@ -438,7 +438,7 @@ iterator and assign a variable, use a for-as loop.
 The for-as loop has the following syntax:
 ```
 ... iterator ~= var_name [
-  -- code
+    -- code
 ]
 ```
 
@@ -448,7 +448,7 @@ variable to be assigned.
 This for loop prints the numbers one through ten:
 ```
 ... 1->11 ~= i [
-  >>> (i '\n' ><)
+    >>> (i '\n' ><)
 ]
 ```
 
@@ -457,14 +457,14 @@ This for loop prints the numbers one through ten:
 The while loop has the following syntax:
 ```
 ?.. condition [
-  -- code
+    -- code
 ]
 ```
 
 The do-while loop has the following syntax:
 ```
 ..? condition [
-  -- code
+    -- code
 ]
 ```
 
@@ -477,14 +477,14 @@ A function declaration is a hash followed by the name of the function and the
 name of its arguments:
 ```
 #func_name arg1 arg2 arg3 [
-  -- code
+    -- code
 ]
 ```
 
 When calling a function the arguments are taken from left to right:
 ```
 #print_args a b c [
-  >>> (a ' ' b ' ' c '\n' ><)
+    >>> (a ' ' b ' ' c '\n' ><)
 ]
 
 1 2 3 @print_args --> outputs '1 2 3'
@@ -495,15 +495,15 @@ When calling a function the arguments are taken from left to right:
 The switch statement has the following syntax:
 ```
 |> expression [
-  ? case_1 [
-    -- code executed if expression is equal to case_1
-  ]
-    ? case_2 [
-    -- code executed if expression is equal to case_2
-  ]
-    ? [
-    -- code for the default case
-  ]
+    ? case_1 [
+        -- code executed if expression is equal to case_1
+    ]
+        ? case_2 [
+        -- code executed if expression is equal to case_2
+    ]
+        ? [
+        -- code for the default case
+    ]
 ]
 ```
 
@@ -531,14 +531,16 @@ default:
 ```
 -- Nest
 |> 10 [
-  ? 5 [
-    >>> 5
-    ..
-  ]
-  ? 10 [
-    >>> 10
-    ..
-  ]
-  ? [ >>> 'default' ]
+    ? 5 [
+        >>> 5
+        ..
+    ]
+    ? 10 [
+        >>> 10
+        ..
+    ]
+    ? [
+        >>> 'default'
+    ]
 ]
 ```

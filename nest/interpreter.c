@@ -1046,7 +1046,7 @@ static inline void exe_op_extract(Nst_RuntimeInstruction *inst)
                 _nst_format_idx_error(
                     INDEX_OUT_OF_BOUNDS("Str"),
                     AS_INT(idx),
-                    AS_SEQ(cont)->len
+                    AS_STR(cont)->len
                 )
             );
 
@@ -1162,12 +1162,12 @@ static inline void exe_make_map(Nst_RuntimeInstruction *inst)
 }
 
 size_t nst_get_full_path(char *file_path, char **buf, char **file_part)
-#if defined(_WIN32) || defined(WIN32)
-
 {
     char *path = (char *)malloc(sizeof(char) * PATH_MAX);
     if ( path == NULL )
         return 0;
+
+#if defined(_WIN32) || defined(WIN32)
 
     DWORD path_len = GetFullPathNameA(file_path, PATH_MAX, path, file_part);
     if ( path_len > PATH_MAX )
@@ -1181,14 +1181,8 @@ size_t nst_get_full_path(char *file_path, char **buf, char **file_part)
 
     *buf = path;
     return path_len;
-}
 
 #else
-
-{
-    char *path = (char *)malloc(sizeof(char) * PATH_MAX);
-    if ( path == NULL )
-        return 0;
 
     path = realpath(file_path, path);
 
@@ -1204,9 +1198,9 @@ size_t nst_get_full_path(char *file_path, char **buf, char **file_part)
 
     *buf = path;
     return strlen(path);
+#endif
 }
 
-#endif
 
 static Nst_SeqObj *make_argv(int argc, char **argv, char *filename)
 {
@@ -1235,7 +1229,7 @@ static Nst_StrObj *make_cwd(char *file_path)
 
     *(file_part - 1) = 0;
 
-    return AS_STR(nst_new_string(path, file_part - path, true));
+    return AS_STR(nst_new_string(path, file_part - path - 1, true));
 }
 
 void nst_destroy_lib_handle(Nst_LibHandle *handle)
