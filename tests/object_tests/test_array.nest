@@ -1,0 +1,30 @@
+|#| '../test_lib.nest' = test
+
+{ 1, 2, 3, 4, 5 } = arr
+$arr 5 @test.assert_eq
+arr.0 1 @test.assert_eq
+arr.1 2 @test.assert_eq
+arr.2 3 @test.assert_eq
+arr.3 4 @test.assert_eq
+arr.4 5 @test.assert_eq
+arr.-1 5 @test.assert_eq
+arr.-2 4 @test.assert_eq
+arr.-3 3 @test.assert_eq
+arr.-4 2 @test.assert_eq
+arr.-5 1 @test.assert_eq
+
+10 = arr.0
+arr.0 10 @test.assert_eq
+50 = arr.-1
+arr.-1 50 @test.assert_eq
+
+{ { 1, 2 },
+  { 3, 4 } } = arr_2d
+
+arr_2d.0 .0 1 @test.assert_eq
+arr_2d.0 { 1, 2 } @test.assert_eq
+
+{ 1, 2 } <{ 1, 2 }> @test.assert_eq
+{ 1, 2 } { 1, 2 } @test.assert_eq
+{ 1, 2 } <{ 1, 2, 3 }> @test.assert_ne
+{ 1, 2 } { 1, 2, 3 } @test.assert_ne
