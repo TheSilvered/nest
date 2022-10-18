@@ -94,6 +94,16 @@ Transforms an array of `Byte` objects into a string.
 
 Creates a new string representing the string literal of `string`.
 
+### `[separator: Str, seq: Array|Vector] @join`
+
+Casts all the elements in `seq` and joins them in a string separating them with
+`separator`.
+
+### `[string: Str, separator: Str] @split`
+
+Splits `string` where it finds `separator` without including it and returns a
+vector with all the resulting strings.
+
 ## Constants
 
 ### `DIGITS`
