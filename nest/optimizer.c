@@ -317,6 +317,16 @@ static Nst_Int count_assignments(Nst_InstructionList *bc, Nst_StrObj *name)
 
     for ( Nst_Int i = 0; i < size; i++ )
     {
+        if ( i > 0 && inst_list[i].id == NST_IC_SET_CONT_VAL )
+        {
+            Nst_RuntimeInstruction prev_inst = inst_list[i - 1];
+            if ( prev_inst.id == NST_IC_PUSH_VAL &&
+                 prev_inst.val != NULL &&
+                 prev_inst.val->type == nst_t_str && 
+                 strcmp(name->value, AS_STR(prev_inst.val)->value) == 0 )
+                ++tot;
+        }
+
         if ( inst_list[i].id != NST_IC_SET_VAL &&
              inst_list[i].id != NST_IC_SET_VAL_LOC )
             continue;
