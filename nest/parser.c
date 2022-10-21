@@ -567,10 +567,12 @@ static Nst_Node *parse_func_def()
 
     SAFE_LLIST_CREATE(node_tokens);
 
-    while ( TOK(LList_peek_front(tokens))->type == NST_TT_IDENT )
-        LList_append(node_tokens, TOK(LList_pop(tokens)), true);
-
     skip_blank();
+    while ( TOK(LList_peek_front(tokens))->type == NST_TT_IDENT )
+    {
+        LList_append(node_tokens, TOK(LList_pop(tokens)), true);
+        skip_blank();
+    }
 
     Nst_Pos err_start = TOK(LList_peek_front(tokens))->start;
     Nst_Pos err_end = TOK(LList_peek_front(tokens))->end;
@@ -1101,6 +1103,7 @@ static Nst_Node *parse_vector_literal()
 
         LList_append(nodes, value, true);
 
+        skip_blank();
         tok = TOK(LList_pop(tokens));
 
         if ( tok->type == NST_TT_BREAK && nodes->size == 1 )
@@ -1142,6 +1145,7 @@ static Nst_Node *parse_vector_literal()
         else if ( tok->type == NST_TT_COMMA )
         {
             nst_destroy_token(tok);
+            skip_blank();
         }
         else break;
     }

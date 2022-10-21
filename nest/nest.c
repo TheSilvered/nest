@@ -29,6 +29,10 @@ int main(int argc, char **argv)
 {
     SET_UTF8_TERMINAL;
 
+#if defined(_WIN32) || defined(WIN32)
+    SetErrorMode(SEM_FAILCRITICALERRORS);
+#endif
+
 #ifdef _DEBUG
     puts("**USING DEBUG BUILD - " NEST_VERSION "**");
     puts("----------------------------------");

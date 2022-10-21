@@ -1,6 +1,8 @@
 |#| '../test_lib.nest' = test
 
 { 1, 2, 3, 4, 5 } = arr
+
+?::arr Array @test.assert_eq
 $arr 5 @test.assert_eq
 arr.0 1 @test.assert_eq
 arr.1 2 @test.assert_eq
@@ -28,3 +30,9 @@ arr_2d.0 { 1, 2 } @test.assert_eq
 { 1, 2 } { 1, 2 } @test.assert_eq
 { 1, 2 } <{ 1, 2, 3 }> @test.assert_ne
 { 1, 2 } { 1, 2, 3 } @test.assert_ne
+
+{ 10;5 } { 10, 10, 10, 10, 10 } @test.assert_eq
+
+Str :: { 1, 2, 3 } '{ 1, 2, 3 }' @test.assert_eq
+Array ::  <{}> @test.assert_false
+{ 1 } @test.assert_true
