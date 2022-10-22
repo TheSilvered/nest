@@ -1,0 +1,3 @@
+|#| '../test_lib.nest' = test
+
+256b 0 @test.assert_eq

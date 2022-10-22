@@ -223,6 +223,8 @@ Nst_Obj *nst_parse_int(char *str, Nst_OpErr *err)
         sign = -1;
         ++s;
     }
+    else if ( *s == '+' )
+        ++s;
 
     if ( *s == 0 ) RETURN_INT_ERR;
 
@@ -231,11 +233,22 @@ Nst_Obj *nst_parse_int(char *str, Nst_OpErr *err)
         digit = *s - '0';
         if ( digit < 0 || digit > 9 )
         {
+            bool is_byte = false;
+            if ( digit + '0' == 'b' || digit + '0' == 'B' )
+            {
+                ++s;
+                is_byte = true;
+            }
+
             while ( IS_WHITESPACE(*s) )
                 ++s;
 
             if ( *s == 0 )
+            {
+                if ( is_byte )
+                    return nst_new_byte((Nst_Byte)((num * sign) & 0xff));
                 return nst_new_int(num * sign);
+            }
             else
                 RETURN_INT_ERR;
         }
@@ -267,6 +280,8 @@ Nst_Obj *nst_parse_real(char *str, Nst_OpErr *err)
         sign = -1.0;
         ++s;
     }
+    else if ( *s == '+' )
+        ++s;
 
     if ( *s == 0 ) RETURN_REAL_ERR;
 

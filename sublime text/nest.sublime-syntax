@@ -77,7 +77,7 @@ contexts:
     - match: '{{identifier}}'
       scope: variable.other.nest
 
-    - match: '\d+(\.\d+)?'
+    - match: '\d+(\.\d+|[bB])?'
       scope: constant.numeric.nest
 
     - match: '##'

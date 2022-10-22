@@ -6,6 +6,7 @@
 #include "str.h"
 #include "obj_ops.h"
 #include "function.h"
+
 #define HEAD_NODE (NODE(node->nodes->head->value))
 #define TAIL_NODE (NODE(node->nodes->tail->value))
 #define HEAD_TOK (TOK(node->tokens->head->value))

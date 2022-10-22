@@ -1,6 +1,5 @@
 #include "runtime_stack.h"
 
-#include "interpreter.h"
 Nst_ValueStack *nst_new_val_stack()
 {
     Nst_ValueStack *v_stack = (Nst_ValueStack *)malloc(sizeof(Nst_ValueStack));
@@ -96,7 +95,7 @@ bool _nst_push_func(Nst_CallStack *f_stack,
 
     if ( f_stack->current_size == max_size )
     {
-        if ( max_size == 128000 )
+        if ( max_size == 1000 )
             return false;
 
         Nst_FuncCall *new_calls = (Nst_FuncCall *)realloc(

@@ -147,11 +147,12 @@ Nst_Obj *_nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     {
         ob1 = nst_obj_cast(ob1, nst_t_real, err);
         ob2 = nst_obj_cast(ob2, nst_t_real, err);
+        bool eq_check = fabsl(AS_REAL(ob1) - AS_REAL(ob2)) < REAL_EPSILON;
         bool check = AS_REAL(ob1) > AS_REAL(ob2);
         nst_dec_ref(ob1);
         nst_dec_ref(ob2);
 
-        NST_RETURN_COND(check);
+        NST_RETURN_COND(check && !eq_check);
     }
     else
         RETURN_TYPE_ERROR(">");
@@ -175,11 +176,12 @@ Nst_Obj *_nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     {
         ob1 = nst_obj_cast(ob1, nst_t_real, err);
         ob2 = nst_obj_cast(ob2, nst_t_real, err);
+        bool eq_check = fabsl(AS_REAL(ob1) - AS_REAL(ob2)) < REAL_EPSILON;
         bool check = AS_REAL(ob1) < AS_REAL(ob2);
         nst_dec_ref(ob1);
         nst_dec_ref(ob2);
 
-        NST_RETURN_COND(check);
+        NST_RETURN_COND(check && !eq_check);
     }
     else
         RETURN_TYPE_ERROR("<");

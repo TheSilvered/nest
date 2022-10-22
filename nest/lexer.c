@@ -128,7 +128,7 @@ LList *nst_tokenize(char *text, size_t text_len, char *filename)
             advance();
             continue;
         }
-        else if ( strchr(_NST_DIGIT_CHARS "-", cursor.ch) != NULL )
+        else if ( strchr(_NST_DIGIT_CHARS "+-", cursor.ch) != NULL )
             make_num_literal(&tok, &err);
         else if ( strchr(_NST_SYMBOL_CHARS, cursor.ch) != NULL )
             make_symbol(&tok, &err);
@@ -344,8 +344,10 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err)
     bool is_negative = false;
 
     // If there is a minus, there might be a negative number or a symbol
-    if ( cursor.ch == '-' )
+    if ( cursor.ch == '-' || cursor.ch == '+' )
     {
+        is_negative = cursor.ch == '-';
+
         advance();
         // In case it's a symbol, make_symbol handles that
         if ( strchr(_NST_DIGIT_CHARS, cursor.ch) == NULL )
@@ -354,8 +356,6 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err)
             make_symbol(tok, err);
             return;
         }
-        // Otherwise it's a negative number
-        is_negative = true;
     }
 
     char *ltrl = add_while_in(_NST_DIGIT_CHARS);
@@ -364,7 +364,8 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err)
     // If there is no dot it's an integer
     if ( cursor.ch != '.' )
     {
-        go_back();
+        bool is_byte = tolower(cursor.ch) == 'b';
+        if ( !is_byte ) go_back();
         Nst_Pos end = nst_copy_pos(cursor.pos);
 
         // Don't really need str_end but it's required by the function
@@ -377,7 +378,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err)
             {
                 errno = 0;
                 value = -9223372036854775807;
-                --value; // parsers think that -9223372036854775808 is too large
+                --value; // parsers think that -9223372036854775808 is too small
             }
             else
             {
@@ -388,7 +389,13 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err)
         }
         else if ( is_negative )
             value *= -1;
-        *tok = nst_new_token_value(start, end, NST_TT_VALUE, nst_new_int(value));
+
+        *tok = nst_new_token_value(
+            start, end,
+            NST_TT_VALUE,
+            is_byte ? nst_new_byte((Nst_Byte)(value & 0xff))
+                    : nst_new_int(value)
+        );
         return;
     }
 

@@ -1,0 +1,40 @@
+|#| '../test_lib.nest' = test
+
+1 = global_var
+
+#f1 []
+
+#f2 [ => 10 ]
+
+#f3 [ => global_var ]
+
+#f4 [
+    10 = global_var
+    => global_var
+]
+
+#f5 [
+    10 = _vars_._globals_.global_var
+    => global_var
+]
+
+#f6 arg1 arg2 arg3 [
+    => { arg1, arg2, arg3 }
+]
+
+#f7 cond [
+    ?.. cond [
+        => 'Hello'
+    ]
+]
+
+@f1 null @test.assert_eq
+@f2 10 @test.assert_eq
+@f3 global_var @test.assert_eq
+@f4 global_var @test.assert_ne
+@f5 global_var @test.assert_eq
+1 2 3 @f6 { 1, 2, 3 } @test.assert_eq
+true @f7 'Hello' @test.assert_eq
+false @f7 null @test.assert_eq
+
+?::f1 Func @test.assert_eq
