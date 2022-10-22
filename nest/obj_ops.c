@@ -796,12 +796,12 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
             return nst_copy_string(ob);
         else if ( ob_t == nst_t_byte )
         {
-            char *str = (char *)calloc(2, sizeof(char));
+            char *str = (char *)calloc(5, sizeof(char));
             CHECK_BUFFER(str);
 
-            str[0] = AS_BYTE(ob);
+            sprintf(str, "%ib", (int)AS_BYTE(ob));
 
-            return nst_new_string(str, 1, true);
+            return nst_new_string_raw((const char *)str, true);
 
         }
         else if ( ob_t == nst_t_arr || ob_t == nst_t_vect )
