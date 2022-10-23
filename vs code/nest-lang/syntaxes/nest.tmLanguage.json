@@ -115,7 +115,7 @@
 			]
 		},
 		"func-def": {
-			"match": "^\\s*(#)\\s*(\\b[A-Za-z_][A-Za-z_0-9]*\\b)\\s*(\\r?\\n)*((\\b[A-Za-z_][A-Za-z_0-9]*\\b\\s*(\\r?\\n)*)*)",
+			"match": "^\\s*(#)\\s*([A-Za-z_][A-Za-z_0-9]*)\\s*(\\r?\\n)*(([A-Za-z_][A-Za-z_0-9]*\\s*(\\r?\\n)*)*)",
 			"captures": {
 				"1": { "name": "keyword.other.nest" },
 				"2": { "name": "entity.name.function.nest" },
@@ -124,7 +124,7 @@
 		},
 		"func-call": {
 			"name": "variable.function.nest",
-			"match": "(@@|@)\\s*\\b[A-Za-z_][A-Za-z_0-9]*\\b((\\s*\\.)\\s*\\b[A-Za-z_][A-Za-z_0-9]*\\b)*",
+			"match": "(@@|@)\\s*[A-Za-z_][A-Za-z_0-9]*((\\s*\\.)\\s*[A-Za-z_][A-Za-z_0-9]*)*",
 			"captures": {
 				"1": { "name": "keyword.operator.nest" },
 				"3": { "name": "punctuation.accessor.nest" }
@@ -148,19 +148,19 @@
 				{ "include": "#vect" },
 				{
 					"name": "constant.language.nest",
-					"match": "\\b(_*\\d*[A-Z]{2,}[A-Z_0-9]*|[A-Z])\\b"
+					"match": "(_*\\d*[A-Z]{2,}[A-Z_0-9]*|[A-Z])"
 				},
 				{
 					"name": "variable.language.nest",
-					"match": "(?<=[^.]\\.)\\s*(\\b[A-Za-z_][A-Za-z_0-9]*\\b)"
+					"match": "(?<=[^.]\\.)\\s*([A-Za-z_][A-Za-z_0-9]*)"
 				},
 				{
 					"name": "variable.other.nest",
-					"match": "\\b[A-Za-z_][A-Za-z_0-9]*\\b"
+					"match": "[A-Za-z_][A-Za-z_0-9]*"
 				},
 				{
 					"name": "constant.numeric.nest",
-					"match": "\\d+(\\.\\d+)?"
+					"match": "\\d+(\\.\\d+|[Bb])?"
 				},
 				{ "include": "#lambda" }
 			]
@@ -198,7 +198,7 @@
 			]
 		},
 		"lambda": {
-			"match": "(##)((\\b[A-Za-z_][A-Za-z_0-9]*\\b\\s*(\\r?\\n)*)*)\\s*(=>)",
+			"match": "(##)(([A-Za-z_][A-Za-z_0-9]*\\s*(\\r?\\n)*)*)\\s*(=>)",
 			"captures": {
 				"1": { "name": "keyword.other.nest" },
 				"2": { "name": "variable.parameter.nest" },

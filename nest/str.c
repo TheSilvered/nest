@@ -19,6 +19,12 @@
     return NULL; \
     } while (0)
 
+#define RETURN_BYTE_ERR do { \
+    err->name = "Value Error"; \
+    err->message = "invalid byte literal"; \
+    return NULL; \
+    } while (0)
+
 #define RETURN_REAL_ERR do { \
     err->name = "Value Error"; \
     err->message = "invalid real literal"; \
@@ -204,19 +210,20 @@ void nst_destroy_string(Nst_StrObj *str)
         free(str->value);
 }
 
-Nst_Obj *nst_parse_int(char *str, Nst_OpErr *err)
+Nst_Obj *nst_parse_int(Nst_StrObj *str, Nst_OpErr *err)
 {
-    char *s = str;
+    char *s = str->value;
+    char *end = s + str->len;
     Nst_Int num = 0;
     Nst_Int digit = 0;
     Nst_Int sign = 1;
 
-    if ( *s == 0 ) RETURN_INT_ERR;
+    if ( s == end ) RETURN_INT_ERR;
 
     while ( IS_WHITESPACE(*s) )
         ++s;
 
-    if ( *s == 0 ) RETURN_INT_ERR;
+    if ( s == end ) RETURN_INT_ERR;
 
     if ( *s == '-' )
     {
@@ -226,29 +233,18 @@ Nst_Obj *nst_parse_int(char *str, Nst_OpErr *err)
     else if ( *s == '+' )
         ++s;
 
-    if ( *s == 0 ) RETURN_INT_ERR;
+    if ( s == end ) RETURN_INT_ERR;
 
-    while ( *s )
+    while ( s != end )
     {
         digit = *s - '0';
         if ( digit < 0 || digit > 9 )
         {
-            bool is_byte = false;
-            if ( digit + '0' == 'b' || digit + '0' == 'B' )
-            {
-                ++s;
-                is_byte = true;
-            }
-
             while ( IS_WHITESPACE(*s) )
                 ++s;
 
-            if ( *s == 0 )
-            {
-                if ( is_byte )
-                    return nst_new_byte((Nst_Byte)((num * sign) & 0xff));
+            if ( s == end )
                 return nst_new_int(num * sign);
-            }
             else
                 RETURN_INT_ERR;
         }
@@ -260,20 +256,76 @@ Nst_Obj *nst_parse_int(char *str, Nst_OpErr *err)
     return nst_new_int(num * sign);
 }
 
-Nst_Obj *nst_parse_real(char *str, Nst_OpErr *err)
+Nst_Obj *nst_parse_byte(Nst_StrObj *str, Nst_OpErr *err)
 {
-    char *s = str;
+    if ( str->len == 1 )
+        return nst_new_byte(str->value[0]);
+
+    char* s = str->value;
+    char* end = s + str->len;
+    Nst_Int num = 0;
+    Nst_Int digit = 0;
+    Nst_Int sign = 1;
+
+    if (s == end) RETURN_BYTE_ERR;
+
+    while ( IS_WHITESPACE(*s) )
+        ++s;
+
+    if (s == end) RETURN_BYTE_ERR;
+
+    if (*s == '-')
+    {
+        sign = -1;
+        ++s;
+    }
+    else if (*s == '+')
+        ++s;
+
+    // No error checking since the string cannot be of length one
+
+    while (s != end)
+    {
+        digit = *s - '0';
+        if (digit < 0 || digit > 9)
+        {
+            if ( *s == 'b' || *s == 'B' )
+                ++s;
+            else
+                RETURN_BYTE_ERR;
+
+            while (IS_WHITESPACE(*s))
+                ++s;
+
+            if (s == end)
+                return nst_new_byte((Nst_Byte)((num * sign) & 0xff));
+            else
+                RETURN_BYTE_ERR;
+        }
+
+        num = num * 10 + digit;
+        ++s;
+    }
+
+    // The byte literal must end with b or B
+    RETURN_BYTE_ERR;
+}
+
+Nst_Obj *nst_parse_real(Nst_StrObj *str, Nst_OpErr *err)
+{
+    char *s = str->value;
+    char *end = s + str->len;
     Nst_Real num = 0;
     Nst_Real sign = 1.0;
     Nst_Real pow = 10;
     Nst_Int digit = 0;
 
-    if ( *s == 0 ) RETURN_REAL_ERR;
+    if ( s == end ) RETURN_REAL_ERR;
 
     while ( IS_WHITESPACE(*s) )
         ++s;
 
-    if ( *s == 0 ) RETURN_REAL_ERR;
+    if ( s == end ) RETURN_REAL_ERR;
 
     if ( *s == '-' )
     {
@@ -283,9 +335,9 @@ Nst_Obj *nst_parse_real(char *str, Nst_OpErr *err)
     else if ( *s == '+' )
         ++s;
 
-    if ( *s == 0 ) RETURN_REAL_ERR;
+    if ( s == end ) RETURN_REAL_ERR;
 
-    while ( *s && *s != '.' )
+    while ( s != end && *s != '.' )
     {
         digit = *s - '0';
         if ( digit < 0 || digit > 9 )
@@ -293,7 +345,7 @@ Nst_Obj *nst_parse_real(char *str, Nst_OpErr *err)
             while ( IS_WHITESPACE(*s) )
                 ++s;
 
-            if ( *s == 0 )
+            if ( s == end )
                 return nst_new_real(num * sign);
             else
                 RETURN_REAL_ERR;
@@ -303,13 +355,13 @@ Nst_Obj *nst_parse_real(char *str, Nst_OpErr *err)
         ++s;
     }
 
-    if ( *s == 0 )
+    if ( s == end )
         return nst_new_real(num * sign);
 
     // at this point there can only be a dot
     ++s;
 
-    while ( *s )
+    while ( s != end )
     {
         digit = *s - '0';
         if ( digit < 0 || digit > 9 )
@@ -317,7 +369,7 @@ Nst_Obj *nst_parse_real(char *str, Nst_OpErr *err)
             while ( IS_WHITESPACE(*s) )
                 ++s;
 
-            if ( *s == 0 )
+            if ( s == end )
                 return nst_new_real(num * sign);
             else
                 RETURN_REAL_ERR;

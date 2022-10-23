@@ -107,6 +107,9 @@ Nst_Obj *_nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err);
 
 // Other
 
+// Casts an object to a string that does not contain unprintable characters
+// and that usually a valid literal for the value
+Nst_Obj *_nst_repr_str_cast(Nst_Obj *ob);
 // Internal cast from sequence to Str
 Nst_Obj *_nst_obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs);
 // Internal cast from Map to Str

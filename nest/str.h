@@ -43,10 +43,15 @@ Nst_Obj *_nst_repr_string(Nst_StrObj *src);
 // Creates a one-character string with the character at `idx` of idx
 Nst_Obj *_nst_string_get_idx(Nst_StrObj *str, Nst_Int idx);
 
-// Parses a Nst_IntObj from a C string
-Nst_Obj *nst_parse_int(char *str, Nst_OpErr *err);
-// Parses a Nst_RealObj from a C string
-Nst_Obj *nst_parse_real(char *str, Nst_OpErr *err);
+// Parses a Nst_IntObj from a string, any NUL characters in the middle
+// do not intefere with the parsing
+Nst_Obj *nst_parse_int(Nst_StrObj *str, Nst_OpErr *err);
+// Parses a Nst_ByteObj from a string, any NUL characters in the middle
+// do not intefere with the parsing
+Nst_Obj* nst_parse_byte(Nst_StrObj* str, Nst_OpErr* err);
+// Parses a Nst_RealObj from a string, any NUL characters in the middle
+// do not intefere with the parsing
+Nst_Obj *nst_parse_real(Nst_StrObj *str, Nst_OpErr *err);
 void nst_destroy_string(Nst_StrObj *str);
 
 enum Nst_StrFlags {

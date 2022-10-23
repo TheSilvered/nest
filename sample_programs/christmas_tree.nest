@@ -1,6 +1,6 @@
 -- This program prints a christmas tree of the desired height
 
-Int :: <<< 'Input the hight: ' = height -- assumes the user types a number
+Int :: <<< 'Input the hight: ' = height
 
 ... 1 2 -> (height 2 *) ~= i [
     ... height (i 2 /) 1 - [ >>> ' ' ]

@@ -599,6 +599,26 @@ Nst_Obj *_nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 }
 
 // Other
+
+Nst_Obj* _nst_repr_str_cast(Nst_Obj* ob)
+{
+    Nst_Obj *ob_t = ob->type;
+
+    if ( ob_t == nst_t_str )
+        return nst_repr_string(ob);
+    else if ( ob_t == nst_t_byte )
+    {
+        char *str = (char*)calloc(5, sizeof(char));
+        CHECK_BUFFER(str);
+
+        sprintf(str, "%ib", (int)AS_BYTE(ob));
+
+        return nst_new_string_raw((const char *)str, true);
+    }
+    else
+        return nst_obj_cast(ob, nst_t_str, NULL);
+}
+
 Nst_Obj *_nst_obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs)
 {
     for ( LLNode *n = all_objs->head; n != NULL; n = n->next )
@@ -640,10 +660,8 @@ Nst_Obj *_nst_obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs)
             val = _nst_obj_str_cast_seq(val, all_objs);
         else if ( val->type == nst_t_map )
             val = _nst_obj_str_cast_map(val, all_objs);
-        else if ( val->type == nst_t_str )
-            val = nst_repr_string(val);
         else
-            val = nst_obj_cast(val, nst_t_str, NULL);
+            val = _nst_repr_str_cast(val);
 
         realloc_str = (char *)realloc(
             str,
@@ -728,10 +746,8 @@ Nst_Obj *_nst_obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
             val = _nst_obj_str_cast_seq(val, all_objs);
         else if ( val->type == nst_t_map )
             val = _nst_obj_str_cast_map(val, all_objs);
-        else if ( val->type == nst_t_str )
-            val = nst_repr_string(AS_STR(val));
         else
-            val = nst_obj_cast(val, nst_t_str, NULL);
+            val = _nst_repr_str_cast(val);
 
         realloc_str = (char *)realloc(str, str_len + AS_STR(key)->len + AS_STR(val)->len + 5);
         CHECK_BUFFER(realloc_str);
@@ -796,13 +812,11 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
             return nst_copy_string(ob);
         else if ( ob_t == nst_t_byte )
         {
-            char *str = (char *)calloc(5, sizeof(char));
+            char *str = (char *)calloc(2, sizeof(char));
             CHECK_BUFFER(str);
+            str[0] = AS_BYTE(ob);
 
-            sprintf(str, "%ib", (int)AS_BYTE(ob));
-
-            return nst_new_string_raw((const char *)str, true);
-
+            return nst_new_string(str, 1, true);
         }
         else if ( ob_t == nst_t_arr || ob_t == nst_t_vect )
         {
@@ -860,7 +874,7 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
         else if ( ob_t == nst_t_byte )
             return nst_new_int((Nst_Int)AS_BYTE(ob));
         else if ( ob_t == nst_t_str )
-            return nst_parse_int(AS_STR(ob)->value, err);
+            return nst_parse_int(AS_STR(ob), err);
         else
             RETURN_TYPE_ERROR("::");
     }
@@ -871,7 +885,7 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
         else if ( ob_t == nst_t_byte )
             return nst_new_real((Nst_Real)AS_BYTE(ob));
         else if ( ob_t == nst_t_str )
-            return nst_parse_real(AS_STR(ob)->value, err);
+            return nst_parse_real(AS_STR(ob), err);
         else
             RETURN_TYPE_ERROR("::");
     }
@@ -880,15 +894,7 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err)
         if ( ob_t == nst_t_int )
             return nst_new_byte(AS_INT(ob) & 0xff);
         else if ( ob_t == nst_t_str )
-        {
-            if ( AS_STR(ob)->len != 1 )
-            {
-                NST_SET_VALUE_ERROR("string must be exactly one character long");
-                return NULL;
-            }
-
-            return nst_new_byte(*AS_STR(ob)->value);
-        }
+            return nst_parse_byte(AS_STR(ob), err);
         else
             RETURN_TYPE_ERROR("::");
     }

@@ -12,4 +12,4 @@
          (Str :: @t.seconds 2 '0' @su.rjust) ><)
 ]
 
-?.. 1 [ @print_clock_datetime ]
+?.. true [ @print_clock_datetime ]

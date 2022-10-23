@@ -1,3 +1,7 @@
-|#| '../test_lib.nest' = test
+-/|#| '../test_lib.nest' = test
 
 256b 0 @test.assert_eq
+?::(Int :: '1') Byte @test.assert_eq/-
+
+
+>>> (Int :: '10\0hi')

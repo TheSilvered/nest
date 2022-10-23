@@ -1123,10 +1123,17 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
     }
 
     i_len = i_len < 3 ? 3 : i_len;
-    for ( int i = 0; i < indent; i++ ) printf("    ");
-    for ( int i = 3; i < i_len;  i++ ) putchar(' ');
+
+    for ( int i = 0; i < indent; i++ )
+        printf("    ");
+    for ( int i = 3; i < i_len;  i++ )
+        putchar(' ');
+
     printf(" Idx |   Pos   |  Instruction  | ");
-    for ( int i = 3; i < i_len; i++ ) putchar(' ');
+
+    for ( int i = 3; i < i_len; i++ )
+        putchar(' ');
+
     printf("Int | Object\n");
 
     for ( size_t i = 0, n = ls->total_size; i < n; i++ )
@@ -1204,14 +1211,9 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
         if ( inst.val != NULL )
         {
             printf("(%s) ", TYPE_NAME(inst.val));
-            if ( inst.val->type == nst_t_str )
-            {
-                Nst_StrObj *s = AS_STR(_nst_repr_string(AS_STR(inst.val)));
-                printf("%s", s->value);
-                nst_dec_ref(s);
-            }
-            else
-                nst_dec_ref(nst_obj_stdout(inst.val, NULL));
+            Nst_StrObj* s = AS_STR(_nst_repr_str_cast(inst.val));
+            fwrite(s->value, sizeof(char), s->len, stdout);
+            nst_dec_ref(s);
 
             if ( inst.val->type == nst_t_func )
             {

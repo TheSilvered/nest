@@ -303,14 +303,9 @@ void nst_print_token(Nst_LexerToken *token)
     {
         printf(" - ");
 
-        if ( token->value->type == nst_t_str )
-        {
-            Nst_StrObj *s = AS_STR(_nst_repr_string(AS_STR(token->value)));
-            printf("%s", s->value);
-            nst_dec_ref(s);
-        }
-        else
-            nst_obj_stdout(token->value, NULL);
+        Nst_StrObj* s = AS_STR(_nst_repr_str_cast(token->value));
+        fwrite(s->value, sizeof(char), s->len, stdout);
+        nst_dec_ref(s);
     }
 
     printf(")");

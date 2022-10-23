@@ -149,7 +149,7 @@ FuncDeclr *get_func_ptrs()
             os.remove(f"{location}\\pch.h")
 
         if os.path.exists(f"{location}\\dllmain.cpp") \
-           && os.path.exists(f"{location}\\framework.h"):
+           and os.path.exists(f"{location}\\framework.h"):
             with open(f"{location}\\dllmain.cpp") as dllmain_cpp:
                 dllmain_content = dllmain_cpp.read().replace("pch", "framework")
 
