@@ -1,5 +1,6 @@
 |#| 'stdsys.nest' = sys
 |#| 'stdio.nest' = io
+|#| 'stdsutil.nest' = su
 
 #_assertion_failed msg [
     io.STDERR ('Assertion failed: ' msg '\n' ><) @io.write
@@ -7,19 +8,19 @@
 ]
 
 #assert_eq a b [
-    a b == ? => null : a ' == ' b >< @_assertion_failed
+    a b == ? => null : (a @su.repr) ' == ' (b @su.repr) >< @_assertion_failed
 ]
 
 #assert_ne a b [
-    a b != ? => null : a ' != ' b >< @_assertion_failed
+    a b != ? => null : (a @su.repr) ' != ' (b @su.repr) >< @_assertion_failed
 ]
 
 #assert_true a [
-    a ? => null : a ' == true' >< @_assertion_failed
+    a ? => null : (a @su.repr) ' == true' >< @_assertion_failed
 ]
 
 #assert_false a [
-    !a ? => null : a ' == false' >< @_assertion_failed
+    !a ? => null : (a @su.repr) ' == false' >< @_assertion_failed
 ]
 
 #println s [ >>> (s '\n' ><) ]

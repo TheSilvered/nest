@@ -26,3 +26,6 @@ Str :: false 'false' @test.assert_eq
 
 '' @test.assert_false
 'smth' @test.assert_true
+
+
+'a\0hello' 'a\0hi' @test.assert_ne

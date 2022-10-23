@@ -382,3 +382,24 @@ Nst_Obj *nst_parse_real(Nst_StrObj *str, Nst_OpErr *err)
 
     return nst_new_real(num * sign);
 }
+
+int nst_compare_strings(Nst_StrObj *str1, Nst_StrObj *str2)
+{
+    char *p1 = str1->value;
+    char *p2 = str2->value;
+    char *end1 = p1 + str1->len;
+    char *end2 = p2 + str2->len;
+
+    while ( p1 != end1 || p2 != end2 )
+    {
+        if ( *p1 != *p2 )
+            return (int)(*p1 - *p2);
+        else
+        {
+            ++p1;
+            ++p2;
+        }
+    }
+
+    return 0;
+}

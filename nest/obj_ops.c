@@ -110,7 +110,7 @@ Nst_Obj *_nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         NST_RETURN_COND(check);
     }
     else if ( ARE_TYPE(nst_t_str) )
-        NST_RETURN_COND(strcmp(AS_STR(ob1)->value, AS_STR(ob2)->value) == 0);
+        NST_RETURN_COND(nst_compare_strings(AS_STR(ob1), AS_STR(ob2)) == 0);
     else if ( ARE_TYPE(nst_t_bool) )
         NST_RETURN_COND(ob1 == ob2);
     else if ( IS_SEQ(ob1) && IS_SEQ(ob2) )
@@ -151,7 +151,7 @@ Nst_Obj *_nst_obj_ne(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 Nst_Obj *_nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ARE_TYPE(nst_t_str) )
-        NST_RETURN_COND(strcmp(AS_STR(ob1)->value, AS_STR(ob2)->value) > 0);
+        NST_RETURN_COND(nst_compare_strings(AS_STR(ob1), AS_STR(ob2)) > 0);
     else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
         ob1 = nst_obj_cast(ob1, nst_t_int, err);
@@ -180,7 +180,7 @@ Nst_Obj *_nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 Nst_Obj *_nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ARE_TYPE(nst_t_str) )
-        NST_RETURN_COND(strcmp(AS_STR(ob1)->value, AS_STR(ob2)->value) < 0);
+        NST_RETURN_COND(nst_compare_strings(AS_STR(ob1), AS_STR(ob2)) < 0);
     else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
         ob1 = nst_obj_cast(ob1, nst_t_int, err);

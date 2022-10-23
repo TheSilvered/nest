@@ -52,6 +52,13 @@ Nst_Obj* nst_parse_byte(Nst_StrObj* str, Nst_OpErr* err);
 // Parses a Nst_RealObj from a string, any NUL characters in the middle
 // do not intefere with the parsing
 Nst_Obj *nst_parse_real(Nst_StrObj *str, Nst_OpErr *err);
+// The same as strcmp but uses the string's length instead of the NUL
+// byte for the end.
+// Return value:
+//     0: the strings are equal
+//   > 0: str1 is greater than str2
+//   < 0: str2 is greater than str1
+int nst_compare_strings(Nst_StrObj *str1, Nst_StrObj *str2);
 void nst_destroy_string(Nst_StrObj *str);
 
 enum Nst_StrFlags {
