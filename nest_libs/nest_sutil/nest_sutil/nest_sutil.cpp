@@ -538,12 +538,12 @@ NST_FUNC_SIGN(bytearray_to_str_)
 
 NST_FUNC_SIGN(repr_)
 {
-    Nst_StrObj *str;
+    Nst_Obj *obj;
 
-    if ( !nst_extract_arg_values("s", arg_num, args, err, &str) )
+    if ( !nst_extract_arg_values("o", arg_num, args, err, &obj) )
         return nullptr;
 
-    return nst_repr_string(str);
+    return _nst_repr_str_cast(obj);
 }
 
 NST_FUNC_SIGN(join_)

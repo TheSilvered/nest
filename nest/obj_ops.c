@@ -516,40 +516,100 @@ Nst_Obj *_nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 // Bitwise operations
 Nst_Obj *_nst_obj_bwor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
-    if ( ARE_TYPE(nst_t_int) )
-        return nst_new_int(AS_INT(ob1) | AS_INT(ob2));
+    if ( ARE_TYPE(nst_t_byte) )
+        return nst_new_byte(AS_BYTE(ob1) | AS_BYTE(ob2));
+    else if ( IS_INT(ob1) && IS_INT(ob2) )
+    {
+        ob1 = nst_obj_cast(ob1, nst_t_int, err);
+        ob2 = nst_obj_cast(ob2, nst_t_int, err);
+
+        Nst_Obj* new_obj = nst_new_int(AS_INT(ob1) | AS_INT(ob2));
+
+        nst_dec_ref(ob1);
+        nst_dec_ref(ob2);
+
+        return new_obj;
+    }
     else
         RETURN_TYPE_ERROR("|");
 }
 
 Nst_Obj *_nst_obj_bwand(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
-    if ( ARE_TYPE(nst_t_int) )
-        return nst_new_int(AS_INT(ob1) & AS_INT(ob2));
+    if (ARE_TYPE(nst_t_byte))
+        return nst_new_byte(AS_BYTE(ob1) & AS_BYTE(ob2));
+    else if (IS_INT(ob1) && IS_INT(ob2))
+    {
+        ob1 = nst_obj_cast(ob1, nst_t_int, err);
+        ob2 = nst_obj_cast(ob2, nst_t_int, err);
+
+        Nst_Obj* new_obj = nst_new_int(AS_INT(ob1) & AS_INT(ob2));
+
+        nst_dec_ref(ob1);
+        nst_dec_ref(ob2);
+
+        return new_obj;
+    }
     else
         RETURN_TYPE_ERROR("&");
 }
 
 Nst_Obj *_nst_obj_bwxor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
-    if ( ARE_TYPE(nst_t_int) )
-        return nst_new_int(AS_INT(ob1) ^ AS_INT(ob2));
+    if (ARE_TYPE(nst_t_byte))
+        return nst_new_byte(AS_BYTE(ob1) ^ AS_BYTE(ob2));
+    else if (IS_INT(ob1) && IS_INT(ob2))
+    {
+        ob1 = nst_obj_cast(ob1, nst_t_int, err);
+        ob2 = nst_obj_cast(ob2, nst_t_int, err);
+
+        Nst_Obj* new_obj = nst_new_int(AS_INT(ob1) ^ AS_INT(ob2));
+
+        nst_dec_ref(ob1);
+        nst_dec_ref(ob2);
+
+        return new_obj;
+    }
     else
         RETURN_TYPE_ERROR("^^");
 }
 
 Nst_Obj *_nst_obj_bwls(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
-    if ( ARE_TYPE(nst_t_int) )
-        return nst_new_int(AS_INT(ob1) << AS_INT(ob2));
+    if (ARE_TYPE(nst_t_byte))
+        return nst_new_byte(AS_BYTE(ob1) << AS_BYTE(ob2));
+    else if (IS_INT(ob1) && IS_INT(ob2))
+    {
+        ob1 = nst_obj_cast(ob1, nst_t_int, err);
+        ob2 = nst_obj_cast(ob2, nst_t_int, err);
+
+        Nst_Obj* new_obj = nst_new_int(AS_INT(ob1) << AS_INT(ob2));
+
+        nst_dec_ref(ob1);
+        nst_dec_ref(ob2);
+
+        return new_obj;
+    }
     else
         RETURN_TYPE_ERROR("<<");
 }
 
 Nst_Obj *_nst_obj_bwrs(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
-    if ( ARE_TYPE(nst_t_int) )
-        return nst_new_int(AS_INT(ob1) >> AS_INT(ob2));
+    if (ARE_TYPE(nst_t_byte))
+        return nst_new_byte(AS_BYTE(ob1) >> AS_BYTE(ob2));
+    else if (IS_INT(ob1) && IS_INT(ob2))
+    {
+        ob1 = nst_obj_cast(ob1, nst_t_int, err);
+        ob2 = nst_obj_cast(ob2, nst_t_int, err);
+
+        Nst_Obj* new_obj = nst_new_int(AS_INT(ob1) >> AS_INT(ob2));
+
+        nst_dec_ref(ob1);
+        nst_dec_ref(ob2);
+
+        return new_obj;
+    }
     else
         RETURN_TYPE_ERROR(">>");
 }
