@@ -91,8 +91,9 @@ NST_FUNC_SIGN(insert_at_)
 
     if ( new_idx < 0 || new_idx >= (Nst_Int)vect->len )
     {
-        NST_SET_VALUE_ERROR(_nst_format_idx_error(
-            INDEX_OUT_OF_BOUNDS("Vector"),
+        NST_SET_VALUE_ERROR(_nst_format_error(
+            _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+            "iu",
             idx,
             vect->len
         ));
@@ -126,8 +127,9 @@ NST_FUNC_SIGN(remove_at_)
 
     if ( new_idx < 0 || new_idx >= (Nst_Int)vect->len )
     {
-        NST_SET_VALUE_ERROR(_nst_format_idx_error(
-            INDEX_OUT_OF_BOUNDS("Vector"),
+        NST_SET_VALUE_ERROR(_nst_format_error(
+            _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+            "iu",
             idx,
             vect->len
         ));

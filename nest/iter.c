@@ -114,9 +114,10 @@ NST_FUNC_SIGN(nst_seq_iter_get_val)
 
     if ( seq->len < idx )
     {
-        NST_SET_VALUE_ERROR(_nst_format_idx_error(
-            seq->type == nst_t_arr ? INDEX_OUT_OF_BOUNDS("Array")
-                                   : INDEX_OUT_OF_BOUNDS("Vector"),
+        NST_SET_VALUE_ERROR(_nst_format_error(
+            seq->type == nst_t_arr ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
+                                   : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+            "iu",
             idx,
             seq->len
         ));
@@ -163,8 +164,9 @@ NST_FUNC_SIGN(nst_str_iter_get_val)
 
     if ( str->len < idx )
     {
-        NST_SET_VALUE_ERROR(_nst_format_idx_error(
-            INDEX_OUT_OF_BOUNDS("Str"),
+        NST_SET_VALUE_ERROR(_nst_format_error(
+            _NST_EM_INDEX_OUT_OF_BOUNDS("Str"),
+            "iu",
             idx,
             str->len
         ));

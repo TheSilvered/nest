@@ -8,8 +8,9 @@
 
 #define SET_TYPE_ERROR(type) { \
     err->name = (char *)"Type Error"; \
-    err->message = _nst_format_arg_error( \
-        WRONG_TYPE_FOR_ARG(type), \
+    err->message = _nst_format_error( \
+        _NST_EM_WRONG_TYPE_FOR_ARG(type), \
+        "us", \
         TYPE_NAME(ob), i \
     ); \
     error_occurred = true; break; }
@@ -29,7 +30,7 @@ bool nst_extract_arg_values(const char *types,
     if ( strlen(types) != arg_num )
     {
         err->name = (char *)"Value Error";
-        err->message = (char *)ARG_NUM_DOESNT_MATCH;
+        err->message = (char *)_NST_EM_ARG_NUM_DOESNT_MATCH;
         return false;
     }
 
@@ -159,7 +160,7 @@ bool nst_extract_arg_values(const char *types,
             break;
         default:
             err->name = (char *)"Value Error";
-            err->message = (char *)INCVALID_TYPE_LETTER;
+            err->message = (char *)_NST_EM_INCVALID_TYPE_LETTER;
             error_occurred = true;
         }
 

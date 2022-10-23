@@ -103,9 +103,10 @@ NST_FUNC_SIGN(chain_advance)
 
     if ( idx >= (Nst_Int)seq->len )
     {
-        NST_SET_VALUE_ERROR(_nst_format_idx_error(
-            seq->type == nst_t_arr ? INDEX_OUT_OF_BOUNDS("Array")
-                                   : INDEX_OUT_OF_BOUNDS("Vector"),
+        NST_SET_VALUE_ERROR(_nst_format_error(
+            seq->type == nst_t_arr ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
+                                   : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+            "iu",
             AS_INT(objs[1]),
             seq->len
         ));
@@ -143,8 +144,11 @@ NST_FUNC_SIGN(chain_get_val)
     if ( sub_seq->type != nst_t_arr && sub_seq->type != nst_t_vect )
     {
         NST_SET_VALUE_ERROR(
-            _nst_format_type_error(EXPECTED_TYPE("Array' or 'Vector"),
-                TYPE_NAME(sub_seq))
+            _nst_format_error(
+                _NST_EM_EXPECTED_TYPE("Array' or 'Vector"),
+                "s",
+                TYPE_NAME(sub_seq)
+            )
         );
         return nullptr;
     }
@@ -153,9 +157,10 @@ NST_FUNC_SIGN(chain_get_val)
 
     if ( res == NULL )
     {
-        NST_SET_VALUE_ERROR(_nst_format_idx_error(
-            sub_seq->type == nst_t_arr ? INDEX_OUT_OF_BOUNDS("Array")
-                                       : INDEX_OUT_OF_BOUNDS("Vector"),
+        NST_SET_VALUE_ERROR(_nst_format_error(
+            sub_seq->type == nst_t_arr ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
+                                       : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+            "iu",
             idx2,
             sub_seq->len
         ));
@@ -198,9 +203,10 @@ NST_FUNC_SIGN(zip_get_val)
 
     if ( idx >= (Nst_Int)AS_SEQ(objs[1])->len )
     {
-        NST_SET_VALUE_ERROR(_nst_format_idx_error(
-            AS_SEQ(objs[1])->type == nst_t_arr ? INDEX_OUT_OF_BOUNDS("Array")
-                                               : INDEX_OUT_OF_BOUNDS("Vector"),
+        NST_SET_VALUE_ERROR(_nst_format_error(
+            AS_SEQ(objs[1])->type == nst_t_arr ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
+                                               : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+            "iu",
             idx,
             AS_SEQ(objs[1])->len
         ));
@@ -209,9 +215,10 @@ NST_FUNC_SIGN(zip_get_val)
     }
     else if ( idx >= (Nst_Int)AS_SEQ(objs[2])->len )
     {
-        NST_SET_VALUE_ERROR(_nst_format_idx_error(
-            AS_SEQ(objs[2])->type == nst_t_arr ? INDEX_OUT_OF_BOUNDS("Array")
-            : INDEX_OUT_OF_BOUNDS("Vector"),
+        NST_SET_VALUE_ERROR(_nst_format_error(
+            AS_SEQ(objs[2])->type == nst_t_arr ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
+                                               : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+            "iu",
             idx,
             AS_SEQ(objs[2])->len
         ));
@@ -256,9 +263,10 @@ NST_FUNC_SIGN(enumerate_get_val)
 
     if ( idx >= (Nst_Int)AS_SEQ(objs[1])->len )
     {
-        NST_SET_VALUE_ERROR(_nst_format_idx_error(
-            AS_SEQ(objs[1])->type == nst_t_arr ? INDEX_OUT_OF_BOUNDS("Array")
-            : INDEX_OUT_OF_BOUNDS("Vector"),
+        NST_SET_VALUE_ERROR(_nst_format_error(
+            AS_SEQ(objs[1])->type == nst_t_arr ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
+                                               : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+            "iu",
             idx,
             AS_SEQ(objs[1])->len
         ));
@@ -374,9 +382,10 @@ NST_FUNC_SIGN(reversed_get_val)
 
     if ( res == NULL )
     {
-        NST_SET_VALUE_ERROR(_nst_format_idx_error(
-            AS_SEQ(objs[1])->type == nst_t_arr ? INDEX_OUT_OF_BOUNDS("Array")
-                                               : INDEX_OUT_OF_BOUNDS("Vector"),
+        NST_SET_VALUE_ERROR(_nst_format_error(
+            AS_SEQ(objs[1])->type == nst_t_arr ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
+                                               : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+            "iu",
             AS_INT(objs[0]),
             AS_SEQ(objs[1])->len
         ));

@@ -2,7 +2,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdarg.h>
 #include "error.h"
+#include "simple_types.h"
 
 #define MAX_INT_CHAR_COUNT 21
 //#define FANCY_ERRORS
@@ -207,49 +209,48 @@ void nst_print_traceback(Nst_Traceback tb)
     nst_print_error(tb.error);
 }
 
-char *_nst_format_type_error(const char *format, char *type_name)
+char *_nst_format_error(const char *format, const char *format_args, ...)
 {
-    char *buffer = (char *)malloc(strlen(format) + strlen(type_name));
-    if ( buffer == NULL )
-        return NULL;
-    sprintf(buffer, format, type_name);
-    return buffer;
-}
+    /*
+    Format args types:
+        s: string
+        u: size_t
+        i: Nst_Int
+    */
 
-char *_nst_format_types_error(const char *format,
-                              char *type_name1,
-                              char *type_name2)
-{
-    char *buffer = (char *)malloc(strlen(format) + strlen(type_name1) + strlen(type_name2));
-    if ( buffer == NULL )
-        return NULL;
-    sprintf(buffer, format, type_name1, type_name2);
-    return buffer;
-}
+    va_list args;
+    va_start(args, format_args);
 
-char *_nst_format_idx_error(const char *format, int64_t idx, size_t seq_len)
-{
-    char *buffer = (char *)malloc(strlen(format) + MAX_INT_CHAR_COUNT * 2 - 1);
-    if ( buffer == NULL )
-        return NULL;
-    sprintf(buffer, format, idx, seq_len);
-    return buffer;
-}
+    size_t tot_size = strlen(format);
+    char *arg_ptr = (char *)format_args;
+    while ( *arg_ptr )
+    {
+        switch ( *arg_ptr )
+        {
+        case 's':
+            tot_size += strlen(va_arg(args, char *));
+            break;
+        case 'u':
+            va_arg(args, size_t);
+            tot_size += MAX_INT_CHAR_COUNT;
+            break;
+        case 'i':
+            va_arg(args, Nst_Int);
+            tot_size += MAX_INT_CHAR_COUNT;
+            break;
+        default:
+            break;
+        }
+        ++arg_ptr;
+    }
 
-char *_nst_format_fnf_error(const char *format, char *file_name)
-{
-    char *buffer = (char *)malloc(strlen(format) + strlen(file_name) + 1);
-    if ( buffer == NULL )
+    char *buffer = (char *)calloc(tot_size + 1, sizeof(char));
+    if (buffer == NULL)
         return NULL;
-    sprintf(buffer, format, file_name);
-    return buffer;
-}
 
-char *_nst_format_arg_error(const char *format, char *type_name, size_t idx)
-{
-    char *buffer = (char *)malloc(strlen(format) + strlen(type_name) + MAX_INT_CHAR_COUNT);
-    if ( buffer == NULL )
-        return NULL;
-    sprintf(buffer, format, idx, type_name);
+    va_start(args, format_args);
+    vsprintf(buffer, format, args);
+    va_end(args);
+
     return buffer;
 }

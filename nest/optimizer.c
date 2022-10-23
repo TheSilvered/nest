@@ -504,8 +504,9 @@ static bool remove_push_check(Nst_InstructionList *bc)
                 inst_list[i].start,
                 inst_list[i].end,
                 NST_E_TYPE_ERROR,
-                _nst_format_types_error(
-                    EXPECTED_TYPES,
+                _nst_format_error(
+                    _NST_EM_EXPECTED_TYPES,
+                    "ss",
                     AS_STR(inst_list[i].val)->value,
                     TYPE_NAME(inst_list[i - 1].val)
                 )
@@ -523,8 +524,9 @@ static bool remove_push_check(Nst_InstructionList *bc)
                     inst_list[i].start,
                     inst_list[i].end,
                     NST_E_TYPE_ERROR,
-                    _nst_format_type_error(
-                        UNHASHABLE_TYPE,
+                    _nst_format_error(
+                        _NST_EM_UNHASHABLE_TYPE,
+                        "s",
                         TYPE_NAME(inst_list[i - 1].val)
                     )
                 };

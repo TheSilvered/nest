@@ -43,7 +43,7 @@
         _NST_SET_SYNTAX_ERROR, \
         escape_start, \
         cursor.pos, \
-        INVALID_ESCAPE, \
+        _NST_EM_INVALID_ESCAPE, \
         *err, \
     ); \
     return; } while (0)
@@ -303,7 +303,7 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error **err)
                 _NST_SET_SYNTAX_ERROR,
                 start,
                 cursor.pos,
-                UNCLOSED_COMMENT,
+                _NST_EM_UNCLOSED_COMMENT,
                 *err,
             );
         }
@@ -383,7 +383,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err)
             else
             {
                 free(ltrl);
-                SET_ERROR(_NST_SET_SYNTAX_ERROR, start, end, INT_TOO_BIG, *err, );
+                SET_ERROR(_NST_SET_SYNTAX_ERROR, start, end, _NST_EM_INT_TOO_BIG, *err, );
                 return;
             }
         }
@@ -411,7 +411,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err)
     {
         free(ltrl);
         free(fract_part);
-        SET_ERROR(_NST_SET_MEMORY_ERROR, start, end, BAD_REAL_LITEARL, *err, );
+        SET_ERROR(_NST_SET_MEMORY_ERROR, start, end, _NST_EM_BAD_REAL_LITEARL, *err, );
         return;
     }
 
@@ -440,7 +440,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err)
     if ( errno == ERANGE )
     {
         free(ltrl);
-        SET_ERROR(_NST_SET_MEMORY_ERROR, start, end, REAL_TOO_BIG, *err, );
+        SET_ERROR(_NST_SET_MEMORY_ERROR, start, end, _NST_EM_REAL_TOO_BIG, *err, );
         return;
     }
 
@@ -501,7 +501,7 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err)
                     _NST_SET_SYNTAX_ERROR,
                     cursor.pos,
                     cursor.pos,
-                    UNEXPECTED_NEWLINE,
+                    _NST_EM_UNEXPECTED_NEWLINE,
                     *err,
                 );
                 return;
@@ -605,7 +605,7 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err)
             _NST_SET_SYNTAX_ERROR,
             start,
             end,
-            UNCLOSED_STR_LITERAL,
+            _NST_EM_UNCLOSED_STR_LITERAL,
             *err,
         );
     }

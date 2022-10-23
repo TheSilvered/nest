@@ -515,7 +515,7 @@ NST_FUNC_SIGN(bytearray_to_str_)
     {
         if ( objs[i]->type != nst_t_byte )
         {
-            NST_SET_TYPE_ERROR(_nst_format_type_error(EXPECTED_BYTE, TYPE_NAME(objs[i])));
+            NST_SET_TYPE_ERROR(_nst_format_error(EXPECTED_BYTE, "s", TYPE_NAME(objs[i])));
             delete[] new_str;
             return NULL;
         }

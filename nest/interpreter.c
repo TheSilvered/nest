@@ -540,8 +540,8 @@ static inline void exe_type_check(Nst_RuntimeInstruction *inst)
             _NST_SET_TYPE_ERROR,
             inst->start,
             inst->end,
-            _nst_format_types_error(
-                EXPECTED_TYPES,
+            _nst_format_error(
+                _NST_EM_EXPECTED_TYPES, "ss",
                 AS_STR(inst->val)->value,
                 TYPE_NAME(obj)
             )
@@ -558,7 +558,7 @@ static inline void exe_hash_check(Nst_RuntimeInstruction *inst)
             _NST_SET_TYPE_ERROR,
             inst->start,
             inst->end,
-            _nst_format_type_error(UNHASHABLE_TYPE, TYPE_NAME(obj))
+            _nst_format_error(_NST_EM_UNHASHABLE_TYPE, "s", TYPE_NAME(obj))
         );
 }
 
@@ -604,7 +604,7 @@ static inline void exe_set_cont_val(Nst_RuntimeInstruction *inst)
                 _NST_SET_TYPE_ERROR,
                 inst->start,
                 inst->end,
-                _nst_format_type_error(EXPECTED_TYPE("Int"), TYPE_NAME(idx))
+                _nst_format_error(_NST_EM_EXPECTED_TYPE("Int"), "s", TYPE_NAME(idx))
             );
 
             nst_dec_ref(cont);
@@ -620,9 +620,10 @@ static inline void exe_set_cont_val(Nst_RuntimeInstruction *inst)
                 _NST_SET_VALUE_ERROR,
                 inst->start,
                 inst->end,
-                _nst_format_idx_error(
-                    cont->type == nst_t_arr ? INDEX_OUT_OF_BOUNDS("Array")
-                                            : INDEX_OUT_OF_BOUNDS("Vector"),
+                _nst_format_error(
+                    cont->type == nst_t_arr ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
+                                            : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+                    "iu",
                     AS_INT(idx),
                     AS_SEQ(cont)->len
                 )
@@ -641,7 +642,7 @@ static inline void exe_set_cont_val(Nst_RuntimeInstruction *inst)
                 _NST_SET_TYPE_ERROR,
                 inst->start,
                 inst->end,
-                _nst_format_type_error(UNHASHABLE_TYPE, TYPE_NAME(idx))
+                _nst_format_error(_NST_EM_UNHASHABLE_TYPE, "s", TYPE_NAME(idx))
             );
         }
 
@@ -653,8 +654,9 @@ static inline void exe_set_cont_val(Nst_RuntimeInstruction *inst)
             _NST_SET_TYPE_ERROR,
             inst->start,
             inst->end,
-            _nst_format_type_error(
-                EXPECTED_TYPE("Array', 'Vector', 'Map' or 'Str"),
+            _nst_format_error(
+                _NST_EM_EXPECTED_TYPE("Array', 'Vector', 'Map' or 'Str"),
+                "s",
                 TYPE_NAME(cont)
             )
         );
@@ -673,8 +675,7 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
             _NST_SET_CALL_ERROR,
             inst->start,
             inst->end,
-            arg_num > (Nst_Int)func->arg_num ? TOO_MANY_ARGS_FUNC
-                                             : TOO_FEW_ARGS_FUNC
+            _nst_format_error(_NST_EM_WRONG_ARG_NUM, "ui", func->arg_num, arg_num)
         );
 
         nst_dec_ref(func);
@@ -761,7 +762,7 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
             _NST_SET_CALL_ERROR,
             inst->start,
             inst->end,
-            CALL_STACK_SIZE_EXCEEDED
+            _NST_EM_CALL_STACK_SIZE_EXCEEDED
         );
 
         nst_dec_ref(func);
@@ -963,7 +964,7 @@ static inline void exe_op_extract(Nst_RuntimeInstruction *inst)
                 _NST_SET_TYPE_ERROR,
                 inst->start,
                 inst->end,
-                _nst_format_type_error(EXPECTED_TYPE("Int"), TYPE_NAME(idx))
+                _nst_format_error(_NST_EM_EXPECTED_TYPE("Int"), "s", TYPE_NAME(idx))
             );
 
             nst_dec_ref(cont);
@@ -979,9 +980,10 @@ static inline void exe_op_extract(Nst_RuntimeInstruction *inst)
                 _NST_SET_VALUE_ERROR,
                 inst->start,
                 inst->end,
-                _nst_format_idx_error(
-                    cont->type == nst_t_arr ? INDEX_OUT_OF_BOUNDS("Array")
-                                            : INDEX_OUT_OF_BOUNDS("Vector"),
+                _nst_format_error(
+                    cont->type == nst_t_arr ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
+                                            : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+                    "iu",
                     AS_INT(idx),
                     AS_SEQ(cont)->len
                 )
@@ -1008,7 +1010,7 @@ static inline void exe_op_extract(Nst_RuntimeInstruction *inst)
                     _NST_SET_VALUE_ERROR,
                     inst->start,
                     inst->start,
-                    _nst_format_type_error(UNHASHABLE_TYPE, TYPE_NAME(idx))
+                    _nst_format_error(_NST_EM_UNHASHABLE_TYPE, "s", TYPE_NAME(idx))
                 );
             }
 
@@ -1027,7 +1029,7 @@ static inline void exe_op_extract(Nst_RuntimeInstruction *inst)
                 _NST_SET_TYPE_ERROR,
                 inst->start,
                 inst->end,
-                _nst_format_type_error(EXPECTED_TYPE("Int"), TYPE_NAME(idx))
+                _nst_format_error(_NST_EM_EXPECTED_TYPE("Int"), "s", TYPE_NAME(idx))
             );
 
             nst_dec_ref(cont);
@@ -1043,8 +1045,9 @@ static inline void exe_op_extract(Nst_RuntimeInstruction *inst)
                 _NST_SET_VALUE_ERROR,
                 inst->start,
                 inst->end,
-                _nst_format_idx_error(
-                    INDEX_OUT_OF_BOUNDS("Str"),
+                _nst_format_error(
+                    _NST_EM_INDEX_OUT_OF_BOUNDS("Str"),
+                    "iu",
                     AS_INT(idx),
                     AS_STR(cont)->len
                 )
@@ -1063,8 +1066,9 @@ static inline void exe_op_extract(Nst_RuntimeInstruction *inst)
             _NST_SET_TYPE_ERROR,
             inst->start,
             inst->end,
-            _nst_format_type_error(
-                EXPECTED_TYPE("Array', 'Vector' or 'Map"),
+            _nst_format_error(
+                _NST_EM_EXPECTED_TYPE("Array', 'Vector' or 'Map"),
+                "s",
                 TYPE_NAME(cont)
             )
         );

@@ -88,7 +88,7 @@ Nst_Node *nst_parse(LList *tokens_list)
             return NULL;
         }
 
-        _NST_SET_SYNTAX_ERROR(error, start, end, UNEXPECTED_TOK);
+        _NST_SET_SYNTAX_ERROR(error, start, end, _NST_EM_UNEXPECTED_TOK);
         nst_print_error(*error);
         printf("\n");
         LList_destroy(tokens, (LList_item_destructor)nst_destroy_token);
@@ -197,7 +197,7 @@ static Nst_Node *parse_statement()
         Nst_LexerToken *close_bracket = TOK(LList_pop(tokens));
         if ( close_bracket->type != NST_TT_R_BRACKET )
         {
-            RETURN_ERROR(start, start, MISSING_BRACKET);
+            RETURN_ERROR(start, start, _NST_EM_MISSING_BRACKET);
         }
         return node;
     }
@@ -218,7 +218,7 @@ static Nst_Node *parse_statement()
 
         if ( !p_state.in_func )
         {
-            RETURN_ERROR(start, end, BAD_RETURN);
+            RETURN_ERROR(start, end, _NST_EM_BAD_RETURN);
         }
 
         Nst_Node *expr = parse_expr(false);
@@ -237,7 +237,7 @@ static Nst_Node *parse_statement()
 
         if ( !p_state.in_loop && !p_state.in_switch )
         {
-            RETURN_ERROR(start, end, BAD_CONTINUE);
+            RETURN_ERROR(start, end, _NST_EM_BAD_CONTINUE);
         }
 
         return nst_new_node_empty(start, end, NST_NT_CONTINUE_S);
@@ -251,7 +251,7 @@ static Nst_Node *parse_statement()
 
         if ( !p_state.in_loop )
         {
-            RETURN_ERROR(start, end, BAD_BREAK);
+            RETURN_ERROR(start, end, _NST_EM_BAD_BREAK);
         }
 
         return nst_new_node_empty(start, end, NST_NT_BREAK_S);
@@ -265,7 +265,7 @@ static Nst_Node *parse_statement()
         Nst_Pos end = tok->end;
 
         nst_destroy_token(tok);
-        RETURN_ERROR(start, end, UNEXPECTED_TOK);
+        RETURN_ERROR(start, end, _NST_EM_UNEXPECTED_TOK);
     }
 }
 
@@ -286,7 +286,7 @@ static Nst_Node *parse_while_loop()
     if ( TOK(LList_peek_front(tokens))->type != NST_TT_L_BRACKET )
     {
         nst_destroy_node(condition);
-        RETURN_ERROR(err_pos, err_pos, EXPECTED_BRACKET);
+        RETURN_ERROR(err_pos, err_pos, _NST_EM_EXPECTED_BRACKET);
     }
 
     nst_destroy_token(TOK(LList_pop(tokens)));
@@ -307,7 +307,7 @@ static Nst_Node *parse_while_loop()
     {
         nst_destroy_node(condition);
         nst_destroy_node(body);
-        RETURN_ERROR(err_pos, err_pos, MISSING_BRACKET);
+        RETURN_ERROR(err_pos, err_pos, _NST_EM_MISSING_BRACKET);
     }
 
     tok = TOK(LList_pop(tokens));
@@ -343,7 +343,7 @@ static Nst_Node *parse_for_loop()
         {
             Nst_Pos err_start = TOK(LList_peek_front(tokens))->start;
             Nst_Pos err_end = TOK(LList_peek_front(tokens))->end;
-            RETURN_ERROR(err_start, err_end, EXPECTED_IDENT);
+            RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_IDENT);
         }
         LList_append(node_tokens, LList_pop(tokens), true);
         node_type = NST_NT_FOR_AS_L;
@@ -354,7 +354,7 @@ static Nst_Node *parse_for_loop()
     if ( TOK(LList_peek_front(tokens))->type != NST_TT_L_BRACKET )
     {
         nst_destroy_node(range);
-        RETURN_ERROR(err_pos, err_pos, EXPECTED_BRACKET);
+        RETURN_ERROR(err_pos, err_pos, _NST_EM_EXPECTED_BRACKET);
     }
 
     nst_destroy_token(TOK(LList_pop(tokens)));
@@ -374,7 +374,7 @@ static Nst_Node *parse_for_loop()
     {
         nst_destroy_node(range);
         nst_destroy_node(body);
-        RETURN_ERROR(err_pos, err_pos, UNEXPECTED_TOK);
+        RETURN_ERROR(err_pos, err_pos, _NST_EM_UNEXPECTED_TOK);
     }
 
     tok = TOK(LList_pop(tokens));
@@ -462,7 +462,7 @@ static Nst_Node *parse_switch_statement()
         err_start = tok->start;
         err_end = tok->end;
         nst_destroy_token(tok);
-        RETURN_ERROR(err_start, err_end, EXPECTED_BRACKET);
+        RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_BRACKET);
     }
     nst_destroy_token(tok);
 
@@ -479,7 +479,7 @@ static Nst_Node *parse_switch_statement()
             err_start = tok->start;
             err_end = tok->end;
             nst_destroy_token(tok);
-            RETURN_ERROR(err_start, err_end, EXPECTED_QUESTION_MARK);
+            RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_QUESTION_MARK);
         }
         nst_destroy_token(tok);
         skip_blank();
@@ -512,7 +512,7 @@ static Nst_Node *parse_switch_statement()
             {
                 nst_destroy_token(tok);
                 LList_destroy(nodes, (LList_item_destructor)nst_destroy_node);
-                RETURN_ERROR(err_start, err_end, EXPECTED_BRACKET);
+                RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_BRACKET);
             }
             nst_destroy_token(tok);
         }
@@ -534,7 +534,7 @@ static Nst_Node *parse_switch_statement()
             err_end = tok->end;
             nst_destroy_token(tok);
             LList_destroy(nodes, (LList_item_destructor)nst_destroy_node);
-            RETURN_ERROR(err_start, err_end, EXPECTED_R_BRACKET);
+            RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_R_BRACKET);
         }
         nst_destroy_token(tok);
         skip_blank();
@@ -553,7 +553,7 @@ static Nst_Node *parse_switch_statement()
             err_end = tok->end;
             nst_destroy_token(TOK(LList_pop(tokens)));
             LList_destroy(nodes, (LList_item_destructor)nst_destroy_node);
-            RETURN_ERROR(err_start, err_end, EXPECTED_R_BRACKET);
+            RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_R_BRACKET);
         }
     }
 }
@@ -579,7 +579,7 @@ static Nst_Node *parse_func_def()
     if ( TOK(LList_peek_front(tokens))->type != NST_TT_L_BRACKET )
     {
         LList_destroy(node_tokens, (LList_item_destructor)nst_destroy_token);
-        RETURN_ERROR(err_start, err_end, EXPECTED_BRACKET);
+        RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_BRACKET);
     }
 
     nst_destroy_token(TOK(LList_pop(tokens)));
@@ -602,7 +602,7 @@ static Nst_Node *parse_func_def()
     if ( TOK(LList_peek_front(tokens))->type != NST_TT_R_BRACKET )
     {
         LList_destroy(node_tokens, (LList_item_destructor)nst_destroy_token);
-        RETURN_ERROR(err_start, err_end, MISSING_BRACKET);
+        RETURN_ERROR(err_start, err_end, _NST_EM_MISSING_BRACKET);
     }
 
     tok = TOK(LList_pop(tokens));
@@ -637,7 +637,7 @@ static Nst_Node *parse_expr(bool break_as_end)
     if ( node == NULL )
     {
         Nst_LexerToken *tok = TOK(LList_peek_front(tokens));
-        RETURN_ERROR(tok->start, tok->end, EXPECTED_VALUE);
+        RETURN_ERROR(tok->start, tok->end, _NST_EM_EXPECTED_VALUE);
     }
 
     node = fix_expr(node);
@@ -811,7 +811,7 @@ static Nst_Node *parse_stack_op(Nst_Node *value)
     else
     {
         LList_destroy(new_nodes, (LList_item_destructor)nst_destroy_node);
-        RETURN_ERROR(end, end, EXPECTED_OP);
+        RETURN_ERROR(end, end, _NST_EM_EXPECTED_OP);
     }
 
     while ( !T_IN_EXPR_END(TOK(LList_peek_front(tokens))->type) )
@@ -859,7 +859,7 @@ static Nst_Node *parse_local_stack_op(LList *nodes)
         RETURN_ERROR(
             NODE(LList_peek_front(nodes))->start,
             NODE(LList_peek_back(nodes))->end,
-            nodes->size > 2 ? TOO_MANY_ARGS("::") : TOO_FEW_ARGS("::")
+            nodes->size > 2 ? _NST_EM_TOO_MANY_ARGS("::") : _NST_EM_TOO_FEW_ARGS("::")
         );
     }
     else if ( tok->type == NST_TT_RANGE && (nodes->size != 1 && nodes->size != 2) )
@@ -867,7 +867,7 @@ static Nst_Node *parse_local_stack_op(LList *nodes)
         RETURN_ERROR(
             NODE(LList_peek_front(nodes))->start,
             NODE(LList_peek_back(nodes))->end,
-            nodes->size > 2 ? TOO_MANY_ARGS("->") : TOO_FEW_ARGS("->")
+            nodes->size > 2 ? _NST_EM_TOO_MANY_ARGS("->") : _NST_EM_TOO_FEW_ARGS("->")
         );
     }
 
@@ -919,7 +919,7 @@ static Nst_Node *parse_assignment(Nst_Node *value)
         Nst_Pos err_start = name->start;
         Nst_Pos err_end = name->end;
         nst_destroy_node(name);
-        RETURN_ERROR(err_start, err_end, EXPECTED_IDENT_OR_EXTR);
+        RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_IDENT_OR_EXTR);
     }
 
     // If a compound assignmen operator such as '+=' or '*='
@@ -1018,7 +1018,7 @@ static Nst_Node *parse_atom()
         if ( tok->type != NST_TT_R_PAREN )
         {
             nst_destroy_node(expr);
-            RETURN_ERROR(err_start, err_end, MISSING_PAREN);
+            RETURN_ERROR(err_start, err_end, _NST_EM_MISSING_PAREN);
         }
         nst_destroy_token(tok);
         return expr;
@@ -1070,7 +1070,7 @@ static Nst_Node *parse_atom()
     {
         Nst_Pos err_start = tok->start;
         Nst_Pos err_end = tok->end;
-        RETURN_ERROR(err_start, err_end, EXPECTED_VALUE);
+        RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_VALUE);
     }
 }
 
@@ -1129,7 +1129,7 @@ static Nst_Node *parse_vector_literal()
                 Nst_Pos tok_start = tok->start;
                 Nst_Pos tok_end = tok->end;
                 nst_destroy_token(tok);
-                RETURN_ERROR(tok_start, tok_end, EXPECTED_BRACE);
+                RETURN_ERROR(tok_start, tok_end, _NST_EM_EXPECTED_BRACE);
             }
             Nst_Pos end = tok->end;
             nst_destroy_token(tok);
@@ -1152,7 +1152,7 @@ static Nst_Node *parse_vector_literal()
     if ( tok->type != NST_TT_R_VBRACE )
     {
         LList_destroy(nodes, (LList_item_destructor)nst_destroy_node);
-        RETURN_ERROR(start, err_end, MISSING_VECTOR_BRACE);
+        RETURN_ERROR(start, err_end, _NST_EM_MISSING_VECTOR_BRACE);
     }
 
     Nst_Pos end = tok->end;
@@ -1235,7 +1235,7 @@ static Nst_Node *parse_arr_or_map_literal()
                 Nst_Pos err_start = tok->start;
                 Nst_Pos err_end = tok->end;
                 nst_destroy_token(tok);
-                RETURN_ERROR(err_start, err_end, EXPECTED_BRACE);
+                RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_BRACE);
             }
             Nst_Pos end = tok->end;
             nst_destroy_token(tok);
@@ -1254,7 +1254,7 @@ static Nst_Node *parse_arr_or_map_literal()
             Nst_Pos err_start = tok->start;
             Nst_Pos err_end = tok->end;
             nst_destroy_token(tok);
-            RETURN_ERROR(err_start, err_end, EXPECTED_COMMA_OR_BRACE);
+            RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_COMMA_OR_BRACE);
         }
         else if ( tok->type != NST_TT_COLON && is_map )
         {
@@ -1262,7 +1262,7 @@ static Nst_Node *parse_arr_or_map_literal()
             Nst_Pos err_start = tok->start;
             Nst_Pos err_end = tok->end;
             nst_destroy_token(tok);
-            RETURN_ERROR(err_start, err_end, EXPECTED_COLON);
+            RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_COLON);
         }
 
         if ( tok->type == NST_TT_R_BRACE )
@@ -1281,7 +1281,7 @@ static Nst_Node *parse_arr_or_map_literal()
             Nst_Pos err_start = tok->start;
             Nst_Pos err_end = tok->end;
             nst_destroy_token(tok);
-            RETURN_ERROR(err_start, err_end, EXPECTED_COMMA_OR_BRACE);
+            RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_COMMA_OR_BRACE);
         }
         count++;
     }
@@ -1306,7 +1306,7 @@ static Nst_Node *parse_lambda()
     if ( TOK(LList_peek_front(tokens))->type != NST_TT_RETURN )
     {
         LList_destroy(node_tokens, (LList_item_destructor)nst_destroy_token);
-        RETURN_ERROR(return_tok_start, return_tok_end, EXPECTED_RETURN);
+        RETURN_ERROR(return_tok_start, return_tok_end, _NST_EM_EXPECTED_RETURN);
     }
     nst_destroy_token(TOK(LList_pop(tokens)));
 
