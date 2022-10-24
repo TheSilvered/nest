@@ -1,0 +1,24 @@
+|#| '../test_lib.nest' = test
+
+'' = s
+
+... 0 2->10 ~= i [
+    i ><= s
+]
+
+s '02468' @test.assert_eq
+
+<{ }> = v
+
+{ '_start_':   ##_self => 0 = _self.idx,
+  '_is_done_': ##_self => _self.idx $_self.seq >=,
+  '_get_val_': ##_self => { _self.idx = i, _self.seq.(i) },
+  '_advance_': ##_self => 1 += _self.idx,
+  'idx': 0,
+  'seq': { 'a', 'b', 'c', 'd', 'e' } } = iter_map
+
+... Iter :: iter_map ~= i [
+    v i +
+]
+
+v { { 0, 'a' }, { 1, 'b' }, { 2, 'c' }, { 3, 'd' }, { 4, 'e' } } @test.assert_eq
