@@ -3,6 +3,7 @@
 
 #include "sequence.h"
 #include "obj_ops.h"
+#include "lib_import.h"
 
 static Nst_Obj *new_seq(size_t len, size_t size, Nst_Obj *type)
 {
@@ -153,7 +154,7 @@ Nst_Obj *_nst_rem_value_vector(Nst_SeqObj *vect, Nst_Obj *val)
             break;
         }
         if ( i + 1 == n )
-            return nst_inc_ref(nst_false);
+            NST_RETURN_FALSE;
     }
 
     for ( i++; i < n; i++ )
@@ -162,7 +163,7 @@ Nst_Obj *_nst_rem_value_vector(Nst_SeqObj *vect, Nst_Obj *val)
     vect->len--;
     _nst_resize_vector(vect);
 
-    return nst_inc_ref(nst_true);;
+    NST_RETURN_TRUE;
 }
 
 Nst_Obj *_nst_pop_value_vector(Nst_SeqObj *vect, size_t quantity)

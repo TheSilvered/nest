@@ -273,7 +273,7 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
             map->head_idx = curr_node.next_idx;
 
         resize_map(map, true);
-        return nst_inc_ref(nst_true);
+        NST_RETURN_TRUE;
     }
 
     for ( size_t perturb = (size_t)hash; ; perturb >>= 5 )
@@ -282,7 +282,7 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
         curr_node = nodes[i & mask];
 
         if ( curr_node.key == NULL )
-            return nst_inc_ref(nst_false);
+            NST_RETURN_FALSE;
 
         if ( curr_node.hash == hash &&
             (curr_node.key == key || AS_BOOL(nst_obj_eq(key, curr_node.key, NULL))) )
@@ -306,7 +306,7 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
                 map->head_idx = curr_node.next_idx;
 
             resize_map(map, true);
-            return nst_inc_ref(nst_true);
+            NST_RETURN_TRUE;
         }
     }
 }

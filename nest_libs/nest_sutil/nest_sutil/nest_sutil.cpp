@@ -48,7 +48,30 @@ Nst_FuncDeclr *get_func_ptrs()
     return lib_init_ ? func_list_ : nullptr;
 }
 
+static char *find_substring(char *s1, size_t l1, char *s2, size_t l2)
+{
+    char* end1 = s1 + l1;
+    char* end2 = s2 + l2;
+    char* p1 = nullptr;
+    char* p2 = nullptr;
 
+    while (s1 != end1)
+    {
+        p1 = s1++;
+        p2 = s2;
+
+        while (p1 != end1 && p2 != end2 && *p1 == *p2)
+        {
+            ++p1;
+            ++p2;
+        }
+
+        if (p2 == end2)
+            return s1 - 1;
+    }
+
+    return nullptr;
+}
 
 NST_FUNC_SIGN(lfind_)
 {
@@ -61,27 +84,12 @@ NST_FUNC_SIGN(lfind_)
     if ( str1 == str2 )
         return nst_new_int(0);
 
-    char *s1 = str1->value;
-    char *s2 = str2->value;
-    char *p1 = nullptr;
-    char *p2 = nullptr;
+    char *sub = find_substring(str1->value, str1->len, str2->value, str2->len);
 
-    while ( *s1 )
-    {
-        p1 = s1++;
-        p2 = s2;
-
-        while ( *p1 && *p2 && *p1 == *p2 )
-        {
-            ++p1;
-            ++p2;
-        }
-
-        if ( *p2 == 0 )
-            return nst_new_int(s1 - str1->value - 1);
-    }
-
-    return nst_new_int(-1);
+    if ( sub == nullptr )
+        return nst_new_int(-1);
+    else
+        return nst_new_int(sub - str1->value);
 }
 
 NST_FUNC_SIGN(rfind_)
@@ -133,7 +141,7 @@ NST_FUNC_SIGN(trim_)
     char *s_end = str->value + str->len - 1;
     size_t len = str->len;
 
-    while ( *s_start && isspace(*s_start) )
+    while ( isspace(*s_start) )
     {
         ++s_start;
         --len;
@@ -164,7 +172,7 @@ NST_FUNC_SIGN(ltrim_)
     char *s_start = str->value;
     size_t len = str->len;
 
-    while ( *s_start && isspace(*s_start) )
+    while ( isspace(*s_start) )
     {
         ++s_start;
         --len;
@@ -183,9 +191,9 @@ NST_FUNC_SIGN(rtrim_)
     if ( !nst_extract_arg_values("s", arg_num, args, err, &str) )
         return nullptr;
 
-    char *s_start = str->value;
-    char *s_end = str->value + str->len - 1;
     size_t len = str->len;
+    char *s_start = str->value;
+    char *s_end = s_start + len - 1;
 
     if ( len == 0 )
         return nst_new_string((char *)"", 0, false);
@@ -269,8 +277,9 @@ NST_FUNC_SIGN(to_upper_)
 
     Nst_StrObj *new_str = AS_STR(nst_copy_string(str));
     char *s = new_str->value;
+    char* end = s + new_str->len;
 
-    while ( *s )
+    while (s != end)
     {
         *s = toupper(*s);
         ++s;
@@ -288,8 +297,9 @@ NST_FUNC_SIGN(to_lower_)
 
     Nst_StrObj *new_str = AS_STR(nst_copy_string(str));
     char *s = new_str->value;
+    char *end = s + new_str->len;
 
-    while ( *s )
+    while ( s != end )
     {
         *s = tolower(*s);
         ++s;
@@ -306,15 +316,16 @@ NST_FUNC_SIGN(is_upper_)
         return nullptr;
 
     char *s = str->value;
+    char *end = s + str->len;
 
-    while ( *s )
+    while ( s != end )
     {
         if ( isalpha(*s) && !isupper(*s) )
-            return nst_inc_ref(nst_false);
+            NST_RETURN_FALSE;
         ++s;
     }
 
-    return nst_inc_ref(nst_true);
+    NST_RETURN_TRUE;
 }
 
 NST_FUNC_SIGN(is_lower_)
@@ -325,15 +336,16 @@ NST_FUNC_SIGN(is_lower_)
         return nullptr;
 
     char *s = str->value;
+    char *end = s + str->len;
 
-    while ( *s )
+    while ( s != end )
     {
         if ( isalpha(*s) && !islower(*s) )
-            return nst_inc_ref(nst_false);
+            NST_RETURN_FALSE;
         ++s;
     }
 
-    return nst_inc_ref(nst_true);
+    NST_RETURN_TRUE;
 }
 
 NST_FUNC_SIGN(is_alpha_)
@@ -344,14 +356,15 @@ NST_FUNC_SIGN(is_alpha_)
         return nullptr;
 
     char *s = str->value;
+    char *end = s + str->len;
 
-    while ( *s )
+    while ( s != end )
     {
         if ( !isalpha(*s++) )
-            return nst_inc_ref(nst_false);
+            NST_RETURN_FALSE;
     }
 
-    return nst_inc_ref(nst_true);
+    NST_RETURN_TRUE;
 }
 
 NST_FUNC_SIGN(is_digit_)
@@ -362,14 +375,15 @@ NST_FUNC_SIGN(is_digit_)
         return nullptr;
 
     char *s = str->value;
+    char *end = s + str->len;
 
-    while ( *s )
+    while ( s != end )
     {
         if ( !isdigit(*s++) )
-            return nst_inc_ref(nst_false);
+            NST_RETURN_FALSE;
     }
 
-    return nst_inc_ref(nst_true);
+    NST_RETURN_TRUE;
 }
 
 NST_FUNC_SIGN(is_alnum_)
@@ -380,14 +394,15 @@ NST_FUNC_SIGN(is_alnum_)
         return nullptr;
 
     char *s = str->value;
+    char *end = s + str->len;
 
-    while ( *s )
+    while ( s != end )
     {
         if ( !isalnum(*s++) )
-            return nst_inc_ref(nst_false);
+            NST_RETURN_FALSE;
     }
 
-    return nst_inc_ref(nst_true);
+    NST_RETURN_TRUE;
 }
 
 NST_FUNC_SIGN(is_charset_)
@@ -400,24 +415,26 @@ NST_FUNC_SIGN(is_charset_)
 
     char *s1 = str1->value;
     char *s2 = str2->value;
+    char *end1 = s1 + str1->len;
+    char *end2 = s2 + str2->len;
     char *p2 = s2;
 
-    while ( *s1 )
+    while ( s1 != end1 )
     {
         p2 = s2;
-        while ( *p2 )
+        while ( p2 != end2 )
         {
             if ( *s1 == *p2 )
                 break;
             ++p2;
         }
 
-        if ( !*p2 )
-            return nst_inc_ref(nst_false);
+        if ( p2 == end2 )
+            NST_RETURN_FALSE;
         ++s1;
     }
 
-    return nst_inc_ref(nst_true);
+    NST_RETURN_TRUE;
 }
 
 NST_FUNC_SIGN(is_printable_)
@@ -428,64 +445,69 @@ NST_FUNC_SIGN(is_printable_)
         return nullptr;
 
     char *s = str->value;
+    char *end = s + str->len;
 
-    while ( *s )
+    while ( s != end )
     {
         if ( !isprint(*s++) )
-            return nst_inc_ref(nst_false);
+            NST_RETURN_FALSE;
     }
 
-    return nst_inc_ref(nst_true);
+    NST_RETURN_TRUE;
 }
 
 NST_FUNC_SIGN(replace_substr_)
 {
     Nst_StrObj *str;
-    Nst_StrObj *str1;
-    Nst_StrObj *str2;
+    Nst_StrObj *str_from;
+    Nst_StrObj *str_to;
 
-    if ( !nst_extract_arg_values("sss", arg_num, args, err, &str, &str1, &str2) )
+    if ( !nst_extract_arg_values("sss", arg_num, args, err, &str, &str_from, &str_to) )
         return nullptr;
 
+    size_t s_len = str->len;
+    size_t s_from_len = str_from->len;
+    size_t s_to_len = str_to->len;
     char *s = str->value;
-    char *s1 = str1->value;
-    char *s2 = str2->value;
-    char *sub = strstr(s, s1);
+    char *s_from = str_from->value;
+    char *s_to = str_to->value;
+    char *sub = find_substring(s, s_len, s_from, s_from_len);
 
-    if ( sub == nullptr || *s1 == 0 )
+    // if str_from does not appear in str
+    if ( sub == nullptr || *s_from == 0 )
         return nst_inc_ref(args[0]);
 
-    size_t s_len = str->len;
-    size_t s1_len = str1->len;
-    size_t s2_len = str2->len;
-    size_t new_str_len = 0;
-    size_t new_sub_len = 0;
+    // length of the string up to the first occurence of s_from + s_to_len
+    size_t new_sub_len = sub - s + s_to_len;
+    size_t new_str_len = new_sub_len;
     char *realloc_new_str = nullptr;
 
-    new_sub_len = sub - s + s2_len;
     char *new_str = (char *)malloc(sizeof(char) * new_sub_len + 1);
     if ( new_str == nullptr )
         return nullptr;
 
+    // copy the memory in the new string
     memcpy(new_str, s, sub - s);
-    memcpy(new_str + (sub - s), s2, s2_len);
-    new_str_len += new_sub_len;
-    s_len -= sub - s + s1_len;
-    s = sub + s1_len;
+    memcpy(new_str + (sub - s), s_to, s_to_len);
 
-    while ( (sub = strstr(s, s1)) != nullptr )
+    // update the pointers
+    s_len -= sub - s + s_from_len;
+    s = sub + s_from_len;
+
+    // while s_from is present in the string
+    while ( (sub = find_substring(s, s_len, s_from, s_from_len)) != nullptr )
     {
-        new_sub_len = sub - s + s2_len;
+        new_sub_len = sub - s + s_to_len;
         realloc_new_str = (char *)realloc(new_str, new_str_len + new_sub_len + 1);
         if ( realloc_new_str == nullptr )
             return nullptr;
         new_str = realloc_new_str;
 
         memcpy(new_str + new_str_len, s, sub - s);
-        memcpy(new_str + (sub - s) + new_str_len, s2, s2_len);
+        memcpy(new_str + (sub - s) + new_str_len, s_to, s_to_len);
         new_str_len += new_sub_len;
-        s_len -= sub - s + s1_len;
-        s = sub + s1_len;
+        s_len -= sub - s + s_from_len;
+        s = sub + s_from_len;
     }
 
     realloc_new_str = (char *)realloc(new_str, new_str_len + s_len + 1);
@@ -496,7 +518,7 @@ NST_FUNC_SIGN(replace_substr_)
     memcpy(new_str + new_str_len, s, s_len);
     new_str_len += s_len;
 
-    new_str[new_str_len] = 0;
+    new_str[new_str_len] = '\0';
     return nst_new_string(new_str, new_str_len, true);
 }
 
@@ -520,16 +542,7 @@ NST_FUNC_SIGN(bytearray_to_str_)
             return NULL;
         }
 
-        Nst_Byte val = AS_BYTE(objs[i]);
-
-        if ( val == 0 )
-        {
-            err->name = (char *)"Value Error";
-            err->message = (char *)"fount byte zero in byte array";
-            delete[] new_str;
-            return NULL;
-        }
-        new_str[i] = val;
+        new_str[i] = AS_BYTE(objs[i]);
     }
 
     new_str[len] = 0;
@@ -579,7 +592,7 @@ NST_FUNC_SIGN(join_)
         str_idx += str_len;
     }
 
-    new_str[tot_len] = 0;
+    new_str[tot_len] = '\0';
     return nst_new_string(new_str, tot_len, true);
 }
 
@@ -604,13 +617,14 @@ NST_FUNC_SIGN(split_)
     char *sub_idx = s;
     char *str_split;
     size_t s_len = str->len;
+    size_t sub_len = substr->len;
     Nst_Obj *str_obj;
 
-    while ( (sub_idx = strstr(s, sub)) != NULL )
+    while ( (sub_idx = find_substring(s, s_len, sub, sub_len)) != NULL )
     {
         str_split = new char[sub_idx - s + 1];
         memcpy(str_split, s, sub_idx - s);
-        str_split[sub_idx - s] = 0;
+        str_split[sub_idx - s] = '\0';
         str_obj = nst_new_string(str_split, sub_idx - s, true);
         nst_append_value_vector(vector, str_obj);
         nst_dec_ref(str_obj);
@@ -620,7 +634,7 @@ NST_FUNC_SIGN(split_)
 
     str_split = new char[s_len + 1];
     memcpy(str_split, s, s_len);
-    str_split[s_len] = 0;
+    str_split[s_len] = '\0';
     str_obj = nst_new_string(str_split, s_len, true);
     nst_append_value_vector(vector, str_obj);
     nst_dec_ref(str_obj);

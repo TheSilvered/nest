@@ -30,20 +30,32 @@ Real number literals do not support scientific notation and must have some
 digits both before and after the dot.
 
 Both integer and real literals can be prefixed with a minus `-` to make them
-negative.
+negative. There can also be a plus sign `+` before the number but that does not
+change its sign.
 
 ```
 -- Integer literals
 10
 -123
 012 -- equal to 12 but still valid
++11
 
 -- Real literals
 0.2
 -13.4
 1.0
++38.1
 1. -- invalid
 .3 -- also invalid
+```
+
+Nest has also a byte type that can be written as an integer literal followed by
+a lowercase `b` or an uppercas one `B`.
+
+```
+-- Byte literals
+10b
+256b -- equivalent to 0b
 ```
 
 ### String literals
