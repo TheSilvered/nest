@@ -114,6 +114,7 @@ int main(int argc, char **argv)
 
     if ( print_tree )
     {
+        if ( print_tokens ) printf("\n");
         nst_print_ast(ast);
 
         if ( !force_exe && !print_bc )
@@ -139,6 +140,7 @@ int main(int argc, char **argv)
 
     if ( print_bc )
     {
+        if ( print_tokens || print_tree ) printf("\n");
         nst_print_bytecode(inst_ls, 0);
 
         if ( !force_exe )

@@ -195,7 +195,7 @@ void nst_collect_gen(Nst_GGCList *gen)
     free_obj_memory(&uv);
 }
 
-void delete_objects(Nst_GarbageCollector *ggc)
+void nst_delete_objects(Nst_GarbageCollector *ggc)
 {
     set_unreachable(&ggc->gen1);
     set_unreachable(&ggc->gen2);

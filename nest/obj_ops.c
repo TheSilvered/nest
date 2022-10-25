@@ -82,6 +82,45 @@
     Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *, \
     Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_ExecutionState
 
+static Nst_Obj *seq_eq(Nst_SeqObj *seq1, Nst_SeqObj *seq2, LList *sequences)
+{
+    if (seq1->len != seq2->len)
+        NST_RETURN_FALSE;
+
+    for ( LLNode *n = sequences->head; n != NULL; n = n->next )
+    {
+        if ( n->value == seq1 || n->value == seq2 )
+            NST_RETURN_FALSE;
+    }
+
+    LList_append(sequences, seq1, false);
+    LList_append(sequences, seq2, false);
+
+    Nst_Obj *ob1 = NULL;
+    Nst_Obj *ob2 = NULL;
+    Nst_Obj *result = NULL;
+    for (size_t i = 0, n = seq1->len; i < n; i++)
+    {
+        ob1 = seq1->objs[i];
+        ob2 = seq2->objs[i];
+
+        if ( IS_SEQ(ob1) && IS_SEQ(ob2) )
+            result = seq_eq(AS_SEQ(ob1), AS_SEQ(ob2), sequences);
+        else
+            result = nst_obj_eq(seq1->objs[i], seq2->objs[i], NULL);
+
+        if (result == nst_false)
+            return nst_false;
+        else
+            nst_dec_ref(nst_true);
+    }
+
+    LList_pop(sequences); // pops seq1
+    LList_pop(sequences); // pops seq2
+
+    NST_RETURN_TRUE;
+}
+
 // Comparisons
 Nst_Obj *_nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
@@ -115,20 +154,8 @@ Nst_Obj *_nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         NST_RETURN_COND(ob1 == ob2);
     else if ( IS_SEQ(ob1) && IS_SEQ(ob2) )
     {
-        Nst_SeqObj *seq1 = AS_SEQ(ob1);
-        Nst_SeqObj *seq2 = AS_SEQ(ob2);
-
-        if ( seq1->len != seq2->len )
-            NST_RETURN_FALSE;
-
-        for ( size_t i = 0, n = AS_SEQ(ob1)->len; i < n; i++ )
-        {
-            if ( nst_obj_eq(seq1->objs[i], seq2->objs[i], err) == nst_false )
-                return nst_false;
-            else
-                nst_dec_ref(nst_true);
-        }
-        NST_RETURN_TRUE;
+        LList *sequences = LList_new();
+        return seq_eq(AS_SEQ(ob1), AS_SEQ(ob2), sequences);
     }
     else
         NST_RETURN_FALSE;

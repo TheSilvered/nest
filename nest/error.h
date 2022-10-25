@@ -123,7 +123,7 @@ void nst_print_traceback(Nst_Traceback tb);
 //   s: char *,
 //   u: size_t,
 //   i: Nst_Int
-char* _nst_format_error(const char* format, const char* format_args, ...);
+char *_nst_format_error(const char *format, const char *format_args, ...);
 
 #ifdef __cplusplus
 }

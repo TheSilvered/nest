@@ -193,7 +193,7 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
     LList_destroy(nst_state.lib_paths, free);
     LList_destroy(nst_state.lib_handles, (LList_item_destructor)nst_destroy_lib_handle);
 
-    delete_objects(&ggc);
+    nst_delete_objects(&ggc);
 }
 
 static void complete_function(size_t final_stack_size)

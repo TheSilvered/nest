@@ -7,9 +7,9 @@
 #include "simple_types.h"
 
 #define MAX_INT_CHAR_COUNT 21
-//#define FANCY_ERRORS
+#define FANCY_ERRORS
 
-#define C_BG_RED "\x1b[41m"
+#define C_RED "\x1b[31m"
 #define C_GREEN "\x1b[32m"
 #define C_YELLOW "\x1b[33m"
 #define C_RESET "\x1b[0m"
@@ -33,26 +33,30 @@ Nst_Pos nst_no_pos()
     return new_pos;
 }
 
-typedef struct PrintLineResult
-{
-    size_t len;
-    size_t indent;
-}
-PrintLineResult;
-
 #if defined(_WIN32) || defined(WIN32)
 #pragma warning( disable: 4100 )
 #endif
 
-PrintLineResult print_line(size_t lineno,
-                           char *text,
-                           size_t text_len,
-                           int64_t start,
-                           int64_t end)
+static void print_repeat(char ch, size_t times)
 {
-    PrintLineResult result = { 0, 0 };
+    if ( times < 0 ) times = 1;
+    for ( size_t i = 0; i < times; i++ )
+        printf("%c", ch);
+}
+
+static void print_line(Nst_Pos *pos, long start_col, long end_col)
+{
+    printf("| ");
+
+    long line_length = 0;
+    long indent = 0;
     size_t curr_line = 0;
     bool is_indentation = true;
+    char *text = pos->text;
+    size_t text_len = pos->text_len;
+
+    long lineno = pos->line;
+
 #ifdef FANCY_ERRORS
     bool is_printing_error = false;
 #endif
@@ -66,10 +70,10 @@ PrintLineResult print_line(size_t lineno,
                 is_indentation = false;
 
 #ifdef FANCY_ERRORS
-            if ( li == start )
+            if ( li == start_col )
             {
                 is_printing_error = true;
-                printf(C_BG_RED);
+                printf(C_RED);
             }
 #endif
 
@@ -78,19 +82,19 @@ PrintLineResult print_line(size_t lineno,
 #ifdef FANCY_ERRORS
                 char ch = text[i];
                 if ( is_printing_error && ch == ' ' )
-                    printf(C_RESET C_BG_RED "%c" C_RESET C_BG_RED, ch);
+                    printf(C_RESET C_RED "%c" C_RESET C_RED, ch);
                 else if ( is_printing_error && ch == '\n' )
-                    printf(C_RESET C_BG_RED " \n" C_RESET C_BG_RED);
+                    printf(C_RESET C_RED " \n" C_RESET C_RED);
                 else
 #endif
                     printf("%c", text[i]);
-                result.len++;
+                line_length++;
             }
             else
-                result.indent++;
+                ++indent;
 
 #ifdef FANCY_ERRORS
-            if ( end != -1 && li == end )
+            if ( end_col != -1 && li == end_col )
             {
                 is_printing_error = false;
                 printf(C_RESET);
@@ -107,84 +111,76 @@ PrintLineResult print_line(size_t lineno,
         }
     }
 
+    // If there is a line feed at the end of the printed line curr_line == lineno + 1
     if ( curr_line == lineno )
-#ifdef FANCY_ERRORS
-        if ( is_printing_error || li == start )
-            printf(C_RESET C_BG_RED " \n" C_RESET);
-        else
-#endif
-            printf("\n");
+        printf("\n");
     else
-        result.len--;
+        line_length--;
+
+    if ( end_col == -1 )
+        end_col = line_length - 1;
+
+    if ( end_col - start_col + 1 == line_length )
+    {
+#ifdef FANCY_ERRORS
+        printf(C_RESET);
+#endif
+        return;
+    }
 
 #ifdef FANCY_ERRORS
-    printf(C_RESET);
+    printf("| " C_RED);
+    print_repeat(' ', start_col - indent);
+    print_repeat('^', end_col - start_col + 1);
+    printf(C_RESET "\n");
+#else
+    printf("| ");
+    print_repeat(' ', start_col - indent);
+    print_repeat('^', end_col - start_col + 1);
+    printf("\n");
 #endif
-    return result;
 }
 
-void print_repeat(char ch, size_t times)
-{
-    if ( times < 0 ) times = 1;
-    for ( size_t i = 0; i < times; i++ )
-        printf("%c", ch);
-}
-
-void print_position(Nst_Pos start, Nst_Pos end)
+static void print_position(Nst_Pos start, Nst_Pos end)
 {
     assert(start.filename == end.filename);
+    assert(start.text == end.text);
+
 #ifdef FANCY_ERRORS
     printf("File " C_GREEN "\"%s\"" C_RESET " at line %li",
            start.filename,
            start.line + 1);
 #else
     printf("File \"%s\" at line %li",
-           start.filename,
-           start.line + 1);
+        start.filename,
+        start.line + 1);
 #endif
-    if ( start.line != end.line ) printf(" to %li", end.line + 1);
-    printf(":\n| ");
 
-    assert(start.text == end.text);
+    if ( start.line != end.line) printf(" to %li", end.line + 1 );
+    printf(":\n");
 
     if ( start.line == end.line )
     {
-        PrintLineResult res = print_line(
-            start.line,
-            start.text,
-            start.text_len,
-            start.col,
-            end.col
-        );
-        printf("| ");
-        print_repeat(' ', start.col - res.indent);
-        print_repeat('^', end.col - start.col + 1);
-        printf("\n");
+        print_line(&start, start.col, end.col);
         return;
     }
 
-    PrintLineResult res = print_line(
-        start.line,
-        start.text,
-        start.text_len,
-        start.col, -1
-    );
-    printf("| ");
-    print_repeat(' ', start.col - res.indent);
+    print_line(&start, start.col, -1);
 
-    print_repeat('^', res.len - start.col);
-    printf("\n| ");
-    if ( end.line - start.line > 1 )
-#ifdef FACNY_ERRORS
-        printf(C_BG_RED "    [...]" C_RESET "\n| ");
-#else
-        printf("    [...]\n| ");
-#endif
-    print_line(end.line, end.text, end.text_len, 0, end.col);
-    printf("| ");
-    print_repeat('^', end.col + 1);
-    printf("\n");
-    return;
+    for (long i = 1, n = end.line - start.line; i < n; i++)
+    {
+        Nst_Pos mid_line_pos = {
+            start.line + i,
+            0,
+            start.filename,
+            start.text,
+            start.text_len
+        };
+
+        print_line(&mid_line_pos, 0, -1);
+    }
+
+    print_line(&end, 0, end.col);
 }
 
 void nst_print_error(Nst_Error err)
