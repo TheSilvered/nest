@@ -49,7 +49,7 @@ NST_FUNC_SIGN(map_)
 
     if ( func->arg_num != 1 )
     {
-        NST_SET_VALUE_ERROR("function must take exactly one argument");
+        NST_SET_VALUE_ERROR("the function must take exactly one argument");
         return nullptr;
     }
 
@@ -384,13 +384,13 @@ NST_FUNC_SIGN(filter_)
         if ( res == nullptr )
             return nullptr;
         
-        if ( nst_obj_cast(res, nst_t_bool, nullptr) == nst_false )
+        if ( nst_obj_cast(res, nst_t_bool, nullptr) == nst_true )
         {
             nst_append_value_vector(new_seq, seq->objs[i]);
-            nst_dec_ref(nst_false);
+            nst_dec_ref(nst_true);
         }
         else
-            nst_dec_ref(nst_true);
+            nst_dec_ref(nst_false);
 
         nst_dec_ref(res);
     }

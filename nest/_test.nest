@@ -1,3 +1,0 @@
-|#| '../nest_libs/nest_math/stdmath.nest' = math
-
-'0.5' @math.ceil

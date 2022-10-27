@@ -35,6 +35,16 @@ but not a mixture of those. This is implemented using an algorithm called Timsor
 
 Empties `vect` and returns it.
 
+### `[seq: Vector|Array, func: Function] @filter`
+
+Creates a new sequence (the type depends on the first argument) that has all the
+elements from `seq` that when passed as an argument to `func` returned `true`.
+
+### `[container: Vector|Array|Map, object: Any] @contains`
+
+Returns `true` if `object` is inside `container`, for maps only the keys are
+checked therefore `{ 'a': 1 } 1 @contains` is false.
+
 ### `[seq: Array|Vector] @any`
 
 Returns true if any of the elements of `seq` casted to a boolean is true.

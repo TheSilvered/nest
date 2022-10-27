@@ -28,3 +28,9 @@ Returns the address of the object in memory.
 ### `[object: Any] @hash`
 
 Returns the hash of the object, used in maps.
+
+## Constants
+
+### `VERSION`
+
+The current version of Nest in form of a string.
