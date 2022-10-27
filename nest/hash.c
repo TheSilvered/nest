@@ -17,6 +17,9 @@ int32_t nst_hash_obj(Nst_Obj *obj)
     // caused by floating point imprecision. Because of this
     // it's not natively supported to hash floats
 
+    if ( obj->hash != -1 )
+        return obj->hash;
+
     int32_t hash;
     if ( obj->type == nst_t_type ||
          obj->type == nst_t_null ||

@@ -10,3 +10,25 @@ __seq.empty_ = empty
 __seq.any_ = any
 __seq.all_ = all
 __seq.from_iter_ = from_iter
+
+_vars_ '__seq' -
+_vars_ 'Int' -
+_vars_ 'Real' -
+_vars_ 'Bool' -
+_vars_ 'Null' -
+_vars_ 'Str' -
+_vars_ 'Array' -
+_vars_ 'Vector' -
+_vars_ 'Map' -
+_vars_ 'Func' -
+_vars_ 'Iter' -
+_vars_ 'Byte' -
+_vars_ 'IOFile' -
+_vars_ 'Type' -
+_vars_ 'true' -
+_vars_ 'false' -
+_vars_ 'null' -
+_vars_ '_cwd_' -
+_vars_ '_args_' -
+_vars_ '_globals_' -
+_vars_ '_vars_' -

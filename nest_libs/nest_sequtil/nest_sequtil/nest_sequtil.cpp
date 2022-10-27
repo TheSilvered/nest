@@ -1,7 +1,7 @@
 #include "nest_sequtil.h"
 #include <cmath>
 
-#define FUNC_COUNT 10
+#define FUNC_COUNT 12
 #define RUN 32
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
@@ -24,6 +24,8 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(merge_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(sort_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(empty_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(filter_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(contains_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(any_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(all_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(from_iter_, 1);
@@ -357,6 +359,105 @@ NST_FUNC_SIGN(empty_)
 
     nst_inc_ref(vect);
     return (Nst_Obj *)vect;
+}
+
+NST_FUNC_SIGN(filter_)
+{
+    Nst_SeqObj *seq;
+    Nst_FuncObj *func;
+
+    if ( !nst_extract_arg_values("Af", arg_num, args, err, &seq, &func) )
+        return nullptr;
+
+    if ( func->arg_num != 1 )
+    {
+        NST_SET_CALL_ERROR("the function must take exactly one argument");
+        return nullptr;
+    }
+
+    Nst_SeqObj *new_seq = AS_SEQ(nst_new_vector(0));
+
+    for ( size_t i = 0, n = seq->len; i < n; i++ )
+    {
+        Nst_Obj *res = nst_call_func(func, &seq->objs[i], err);
+
+        if ( res == nullptr )
+            return nullptr;
+        
+        if ( nst_obj_cast(res, nst_t_bool, nullptr) == nst_false )
+        {
+            nst_append_value_vector(new_seq, seq->objs[i]);
+            nst_dec_ref(nst_false);
+        }
+        else
+            nst_dec_ref(nst_true);
+
+        nst_dec_ref(res);
+    }
+
+    if ( seq->type == nst_t_arr )
+    {
+        Nst_Obj **new_objs = (Nst_Obj **)realloc(new_seq->objs, sizeof(Nst_Obj *) * new_seq->len);
+        if ( new_objs != nullptr )
+        {
+            new_seq->objs = new_objs;
+            new_seq->size = new_seq->len;
+        }
+
+        nst_dec_ref(new_seq->type);
+        new_seq->type = nst_inc_ref(nst_t_arr);
+    }
+
+    return (Nst_Obj *)new_seq;
+}
+
+NST_FUNC_SIGN(contains_)
+{
+    Nst_Obj *container;
+    Nst_Obj *object;
+
+    if (!nst_extract_arg_values("oo", arg_num, args, err, &container, &object))
+        return nullptr;
+
+    if ( container->type == nst_t_arr || container->type == nst_t_vect )
+    {
+        Nst_SeqObj *seq = AS_SEQ(container);
+
+        for ( size_t i = 0, n = seq->len; i < n; i++ )
+        {
+            if ( nst_obj_eq(seq->objs[i], object, nullptr) == nst_true )
+                return nst_true;
+            else
+                nst_dec_ref(nst_false);
+        }
+
+        NST_RETURN_FALSE;
+    }
+    else if ( container->type == nst_t_map )
+    {
+        Nst_MapObj *map = AS_MAP(container);
+
+        if ( nst_hash_obj(object) == -1 )
+            NST_RETURN_FALSE;
+
+        Nst_Obj *item = nst_map_get(map, object);
+        if ( item == nullptr )
+            NST_RETURN_FALSE;
+        else
+        {
+            nst_dec_ref(item);
+            NST_RETURN_TRUE;
+        }
+    }
+    else
+    {
+        NST_SET_TYPE_ERROR(_nst_format_error(
+            _NST_EM_WRONG_TYPE_FOR_ARG("Array', 'Sequence' or 'Vector"),
+            "s",
+            TYPE_NAME(container), 1
+        ));
+        return nullptr;
+    }
 }
 
 NST_FUNC_SIGN(any_)

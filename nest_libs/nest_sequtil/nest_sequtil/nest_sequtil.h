@@ -24,6 +24,8 @@ NST_FUNC_SIGN(slice_);
 NST_FUNC_SIGN(merge_);
 NST_FUNC_SIGN(sort_);
 NST_FUNC_SIGN(empty_);
+NST_FUNC_SIGN(filter_);
+NST_FUNC_SIGN(contains_);
 NST_FUNC_SIGN(any_);
 NST_FUNC_SIGN(all_);
 NST_FUNC_SIGN(from_iter_);

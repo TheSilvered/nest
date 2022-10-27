@@ -1,10 +1,12 @@
 #include <stdlib.h>
+#include <cstring>
 #include "nest_sys.h"
 
-#define FUNC_COUNT 6
+#define FUNC_COUNT 7
 
 static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
+static Nst_StrObj *version_obj;
 
 bool lib_init()
 {
@@ -19,14 +21,23 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_ref_count_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_addr_,      1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(hash_,          1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_version_,   0);
 
     lib_init_ = true;
+
+    version_obj = AS_STR(nst_new_string_raw(NEST_VERSION, false));
+
     return true;
 }
 
 Nst_FuncDeclr *get_func_ptrs()
 {
     return lib_init_ ? func_list_ : nullptr;
+}
+
+void free_lib()
+{
+    nst_dec_ref(version_obj);
 }
 
 NST_FUNC_SIGN(system_)
@@ -78,4 +89,9 @@ NST_FUNC_SIGN(get_addr_)
 NST_FUNC_SIGN(hash_)
 {
     return nst_new_int(nst_hash_obj(args[0]));
+}
+
+NST_FUNC_SIGN(_get_version_)
+{
+    return nst_inc_ref(version_obj);
 }

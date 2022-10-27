@@ -6,5 +6,28 @@ __rand.rand_perc_ = rand_perc
 __rand.choice_    = choice
 __rand.shuffle_   = shuffle
 __rand.rand_seed_ = rand_seed
+__rand._get_rand_max_ = _get_rand_max
 
 @__rand._get_rand_max_ = RAND_MAX
+
+_vars_ '__rand' -
+_vars_ 'Int' -
+_vars_ 'Real' -
+_vars_ 'Bool' -
+_vars_ 'Null' -
+_vars_ 'Str' -
+_vars_ 'Array' -
+_vars_ 'Vector' -
+_vars_ 'Map' -
+_vars_ 'Func' -
+_vars_ 'Iter' -
+_vars_ 'Byte' -
+_vars_ 'IOFile' -
+_vars_ 'Type' -
+_vars_ 'true' -
+_vars_ 'false' -
+_vars_ 'null' -
+_vars_ '_cwd_' -
+_vars_ '_args_' -
+_vars_ '_globals_' -
+_vars_ '_vars_' -

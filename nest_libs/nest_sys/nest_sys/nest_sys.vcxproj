@@ -157,6 +157,7 @@
     <ClInclude Include="..\..\..\nest\lib_import.h" />
     <ClInclude Include="..\..\..\nest\llist.h" />
     <ClInclude Include="..\..\..\nest\map.h" />
+    <ClInclude Include="..\..\..\nest\nest.h" />
     <ClInclude Include="..\..\..\nest\nest_include.h" />
     <ClInclude Include="..\..\..\nest\nodes.h" />
     <ClInclude Include="..\..\..\nest\nst_types.h" />

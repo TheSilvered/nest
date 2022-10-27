@@ -1,23 +1,23 @@
-|#| '__C__:..\\..\\x64\\Debug\\nest_time.dll' = __t
+|#| '__C__:..\\..\\x64\\Debug\\nest_time.dll' = __dt
 
-__t.time_               = time
-__t.time_ns_            = time_ns
-__t.high_res_time_      = high_res_time
-__t.high_res_time_ns_   = high_res_time_ns
-__t.year_day_           = year_day
-__t.week_day_           = week_day
-__t.day_                = day
-__t.month_              = month
-__t.year_               = year
-__t.date_               = date
-__t.seconds_            = seconds
-__t.minutes_            = minutes
-__t.hours_              = hours
-__t.clock_time_         = clock_time
-__t.gmt_clock_time_     = gmt_clock_time
-__t.clock_datetime_     = clock_datetime
-__t.gmt_clock_datetime_ = gmt_clock_datetime
-__t.sleep_              = sleep
+__dt.time_               = time
+__dt.time_ns_            = time_ns
+__dt.high_res_time_      = high_res_time
+__dt.high_res_time_ns_   = high_res_time_ns
+__dt.year_day_           = year_day
+__dt.week_day_           = week_day
+__dt.day_                = day
+__dt.month_              = month
+__dt.year_               = year
+__dt.date_               = date
+__dt.seconds_            = seconds
+__dt.minutes_            = minutes
+__dt.hours_              = hours
+__dt.clock_time_         = clock_time
+__dt.gmt_clock_time_     = gmt_clock_time
+__dt.clock_datetime_     = clock_datetime
+__dt.gmt_clock_datetime_ = gmt_clock_datetime
+__dt.sleep_              = sleep
 
 { 1: 'January',
   2: 'February',
@@ -60,3 +60,25 @@ __t.sleep_              = sleep
   5: 'Fri',
   6: 'Sat',
   0: 'Sun' } = SHORT_WEEKDAY_NAMES
+
+_vars_ '__dt' -
+_vars_ 'Int' -
+_vars_ 'Real' -
+_vars_ 'Bool' -
+_vars_ 'Null' -
+_vars_ 'Str' -
+_vars_ 'Array' -
+_vars_ 'Vector' -
+_vars_ 'Map' -
+_vars_ 'Func' -
+_vars_ 'Iter' -
+_vars_ 'Byte' -
+_vars_ 'IOFile' -
+_vars_ 'Type' -
+_vars_ 'true' -
+_vars_ 'false' -
+_vars_ 'null' -
+_vars_ '_cwd_' -
+_vars_ '_args_' -
+_vars_ '_globals_' -
+_vars_ '_vars_' -

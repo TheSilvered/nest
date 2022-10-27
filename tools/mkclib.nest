@@ -26,6 +26,7 @@
     'lib_import.h',     'lib_import.c',
     'llist.h',          'llist.c',
     'map.h',            'map.c',
+    'nest_h',
     'nest_include.h',
     'nodes.h',          'nodes.c',
     'nst_types.h',

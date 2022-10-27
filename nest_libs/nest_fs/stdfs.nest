@@ -13,6 +13,7 @@ __fs.list_dir_           = list_dir
 __fs.list_dir_recursive_ = list_dir_recursive
 __fs.absolute_path_      = absolute_path
 __fs.equivalent_         = equivalent
+__fs._get_copy_options_  = _get_copy_options
 
 -/
   Contents of CPO:
@@ -28,3 +29,25 @@ __fs.equivalent_         = equivalent
   - make_hard_links: C++ create_hard_links
 /-
 @__fs._get_copy_options_ = CPO
+
+_vars_ '__fs' -
+_vars_ 'Int' -
+_vars_ 'Real' -
+_vars_ 'Bool' -
+_vars_ 'Null' -
+_vars_ 'Str' -
+_vars_ 'Array' -
+_vars_ 'Vector' -
+_vars_ 'Map' -
+_vars_ 'Func' -
+_vars_ 'Iter' -
+_vars_ 'Byte' -
+_vars_ 'IOFile' -
+_vars_ 'Type' -
+_vars_ 'true' -
+_vars_ 'false' -
+_vars_ 'null' -
+_vars_ '_cwd_' -
+_vars_ '_args_' -
+_vars_ '_globals_' -
+_vars_ '_vars_' -

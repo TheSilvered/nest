@@ -11,7 +11,7 @@
     err->message = _nst_format_error( \
         _NST_EM_WRONG_TYPE_FOR_ARG(type), \
         "us", \
-        TYPE_NAME(ob), i \
+        i + 1, TYPE_NAME(ob) \
     ); \
     error_occurred = true; break; }
 
