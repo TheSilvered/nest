@@ -27,6 +27,7 @@
     "  -O2: optimize byte code instruction sequences that can be more concise\n" \
     "  -O3: replace built-in names (e.g. 'true', 'Int', etc.) with their corresponding value\n" \
     "       this does not replace them when they are re-purposed in the scope\n" \
+    "  -m --monochrome: prints the error messages without ANSI color escapes\n"
 
 #define USAGE_MESSAGE \
     "USAGE: nest [options] [filename | -c command] [args]\n" \
@@ -37,6 +38,7 @@ int nst_parse_args(int argc, char **argv,
                    bool *print_ast,
                    bool *print_bytecode,
                    bool *force_execution,
+                   bool *monochrome,
                    int  *opt_level,
                    char **command,
                    char **filename,
@@ -46,6 +48,7 @@ int nst_parse_args(int argc, char **argv,
     *print_ast = false;
     *print_bytecode = false;
     *force_execution = false;
+    *monochrome = false;
     *opt_level = 3;
     *command = NULL;
     *filename = NULL;
@@ -76,10 +79,11 @@ int nst_parse_args(int argc, char **argv,
             {
                 switch ( arg[j] )
                 {
-                case 't': *print_tokens = true;   break;
-                case 'a': *print_ast = true;      break;
-                case 'b': *print_bytecode = true; break;
+                case 't': *print_tokens    = true; break;
+                case 'a': *print_ast       = true; break;
+                case 'b': *print_bytecode  = true; break;
                 case 'f': *force_execution = true; break;
+                case 'm': *monochrome      = true; break;
                 case 'h':
                 case '?':
                     printf(HELP_MESSAGE);
@@ -161,6 +165,8 @@ int nst_parse_args(int argc, char **argv,
                         *print_bytecode = true;
                     else if ( strcmp(arg, "--force-execution") == 0 )
                         *force_execution = true;
+                    else if ( strcmp(arg, "--monochrome") == 0 )
+                        *monochrome = true;
                     else if ( strcmp(arg, "--help") == 0 )
                     {
                         printf(HELP_MESSAGE);

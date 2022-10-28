@@ -110,6 +110,8 @@ typedef struct
 }
 Nst_Traceback;
 
+// Sets how the error message is printed (with or withoud ANSI color escapes)
+void nst_set_color(bool color);
 // Creates a new Nst_Pos on the stack
 Nst_Pos nst_copy_pos(Nst_Pos pos);
 // An Nst_Pos that is empty, (col=0, line=0, filename=NULL, text=NULL, text_len=0)

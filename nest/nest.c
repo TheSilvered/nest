@@ -56,6 +56,7 @@ int main(int argc, char **argv)
     bool print_tree;
     bool print_bc;
     bool force_exe;
+    bool monochrome;
     int opt_level;
     char *command;
     char *filename;
@@ -67,11 +68,14 @@ int main(int argc, char **argv)
         &print_tree,
         &print_bc,
         &force_exe,
+        &monochrome,
         &opt_level,
         &command,
         &filename,
         &args_start
     );
+
+    nst_set_color(!monochrome);
 
     if ( parse_result == -1 )
         return -1;
