@@ -1350,7 +1350,6 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
 
         if ( nst_run_module(file_path, &lib_text) == -1 )
         {
-            *nst_state.error_occurred = true;
             return NULL;
         }
 

@@ -186,6 +186,7 @@
     <ClInclude Include="lib_import.h" />
     <ClInclude Include="llist.h" />
     <ClInclude Include="map.h" />
+    <ClInclude Include="nest.h" />
     <ClInclude Include="nest_include.h" />
     <ClInclude Include="nodes.h" />
     <ClInclude Include="nst_types.h" />

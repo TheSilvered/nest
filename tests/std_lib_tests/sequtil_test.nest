@@ -18,6 +18,15 @@ v <{ 1, 2, 3, 4, 5 }> @test.assert_eq
 a @seq.sort { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } @test.assert_eq
 v @seq.empty <{ }> @test.assert_eq
 
+{ 0, 1, 2, 3, 4, 5 } (##x => x 3 >=) @seq.filter { 3, 4, 5 } @test.assert_eq
+?::(<{ 0 }> (##x => true) @seq.filter) Vector @test.assert_eq
+
+{ 0, 1, 2, 3 } 3 @seq.contains @test.assert_true
+<{ 0, 1, 2, 3 }> 4 @seq.contains @test.assert_false
+
+{ 'a': 10 } 'a' @seq.contains @test.assert_true
+{ 'a': 10 } 10 @seq.contains @test.assert_false
+
 { false, false, false } @seq.any @test.assert_false
 { false, false, true  } @seq.any @test.assert_true
 { false, false, true  } @seq.all @test.assert_false

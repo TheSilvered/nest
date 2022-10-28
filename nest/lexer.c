@@ -27,24 +27,13 @@
         } \
     } while ( false )
 
-#define SET_ERROR(err_macro, start, end, message, err, ret_val) \
-    Nst_Error *error = (Nst_Error *)malloc(sizeof(Nst_Error)); \
-    if ( error == NULL ) \
-    { \
-        errno = ENOMEM; \
-        return ret_val; \
-    } \
-    err_macro(error, start, end, message); \
-    err = error
-
 #define SET_INVALID_ESCAPE_ERROR do { \
     free(end_str); \
-    SET_ERROR( \
-        _NST_SET_SYNTAX_ERROR, \
+    _NST_SET_SYNTAX_ERROR( \
+        error, \
         escape_start, \
         cursor.pos, \
-        _NST_EM_INVALID_ESCAPE, \
-        *err, \
+        _NST_EM_INVALID_ESCAPE \
     ); \
     return; } while (0)
 
@@ -62,12 +51,12 @@ inline static void advance();
 inline static void go_back();
 inline static char *add_while_in(const char *charset);
 
-static void make_symbol(Nst_LexerToken **tok, Nst_Error **err);
-static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err);
+static void make_symbol(Nst_LexerToken **tok, Nst_Error *error);
+static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error);
 static void make_ident(Nst_LexerToken **tok);
-static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err);
+static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error);
 
-LList *nst_ftokenize(char *filename, char **text_buffer)
+LList *nst_ftokenize(char *filename, char **text_buffer, Nst_Error *error)
 {
     FILE *file = fopen(filename, "r");
     if ( file == NULL )
@@ -100,13 +89,12 @@ LList *nst_ftokenize(char *filename, char **text_buffer)
     }
     fclose(file);
     *text_buffer = text;
-    return nst_tokenize(text, str_len, filename);
+    return nst_tokenize(text, str_len, filename, error);
 }
 
-LList *nst_tokenize(char *text, size_t text_len, char *filename)
+LList *nst_tokenize(char *text, size_t text_len, char *filename, Nst_Error *error)
 {
     Nst_LexerToken *tok = NULL;
-    Nst_Error *err = NULL;
     LList *tokens = LList_new();
 
     cursor.idx = -1;
@@ -129,44 +117,29 @@ LList *nst_tokenize(char *text, size_t text_len, char *filename)
             continue;
         }
         else if ( strchr(_NST_DIGIT_CHARS "+-", cursor.ch) != NULL )
-            make_num_literal(&tok, &err);
+            make_num_literal(&tok, error);
         else if ( strchr(_NST_SYMBOL_CHARS, cursor.ch) != NULL )
-            make_symbol(&tok, &err);
+            make_symbol(&tok, error);
         else if ( strchr(_NST_LETTER_CHARS, cursor.ch) != NULL )
             make_ident(&tok);
         else if ( cursor.ch == '"' || cursor.ch == '\'' )
-            make_str_literal(&tok, &err);
+            make_str_literal(&tok, error);
         else if ( cursor.ch == '\n' )
             tok = nst_new_token_noend(nst_copy_pos(cursor.pos), NST_TT_ENDL);
         else if ( cursor.ch == '\\' )
             advance();
         else
         {
-            SET_ERROR(_NST_SET_SYNTAX_ERROR,
-                      cursor.pos,
-                      cursor.pos,
-                      "invalid character",
-                      err, NULL);
+            _NST_SET_SYNTAX_ERROR(
+                error,
+                cursor.pos,
+                cursor.pos,
+                "invalid character"
+            );
         }
 
-        // When errno == ENOMEM means there wasn't enough
-        // memory after a malloc, realloc or calloc call
-        // and everything is freed
-        if ( errno == ENOMEM )
+        if ( error->occurred )
         {
-            if ( err != NULL )
-                free(err);
-            if ( tok != NULL )
-                nst_destroy_token(tok);
-            LList_destroy(tokens, (LList_item_destructor)nst_destroy_token);
-            printf("Ran out of memory\n");
-            return NULL;
-        }
-
-        if ( err != NULL )
-        {
-            nst_print_error(*err);
-            free(err);
             if ( tok != NULL )
                 nst_destroy_token(tok);
             LList_destroy(tokens, (LList_item_destructor)nst_destroy_token);
@@ -251,7 +224,7 @@ inline static char *add_while_in(const char *charset)
     return str;
 }
 
-static void make_symbol(Nst_LexerToken **tok, Nst_Error **err)
+static void make_symbol(Nst_LexerToken **tok, Nst_Error *error)
 {
     Nst_Pos start = nst_copy_pos(cursor.pos);
     char *symbol = add_while_in(_NST_SYMBOL_CHARS);
@@ -299,12 +272,11 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error **err)
 
         if ( !was_closed )
         {
-            SET_ERROR(
-                _NST_SET_SYNTAX_ERROR,
+            _NST_SET_SYNTAX_ERROR(
+                error,
                 start,
                 cursor.pos,
-                _NST_EM_UNCLOSED_COMMENT,
-                *err,
+                _NST_EM_UNCLOSED_COMMENT
             );
         }
 
@@ -338,7 +310,7 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error **err)
     *tok = nst_new_token_noval(start, end, token_type);
 }
 
-static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err)
+static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
 {
     Nst_Pos start = nst_copy_pos(cursor.pos);
     bool is_negative = false;
@@ -353,7 +325,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err)
         if ( strchr(_NST_DIGIT_CHARS, cursor.ch) == NULL )
         {
             go_back();
-            make_symbol(tok, err);
+            make_symbol(tok, error);
             return;
         }
     }
@@ -383,7 +355,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err)
             else
             {
                 free(ltrl);
-                SET_ERROR(_NST_SET_SYNTAX_ERROR, start, end, _NST_EM_INT_TOO_BIG, *err, );
+                _NST_SET_SYNTAX_ERROR(error, start, end, _NST_EM_INT_TOO_BIG);
                 return;
             }
         }
@@ -411,7 +383,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err)
     {
         free(ltrl);
         free(fract_part);
-        SET_ERROR(_NST_SET_MEMORY_ERROR, start, end, _NST_EM_BAD_REAL_LITEARL, *err, );
+        _NST_SET_MEMORY_ERROR(error, start, end, _NST_EM_BAD_REAL_LITEARL);
         return;
     }
 
@@ -440,7 +412,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error **err)
     if ( errno == ERANGE )
     {
         free(ltrl);
-        SET_ERROR(_NST_SET_MEMORY_ERROR, start, end, _NST_EM_REAL_TOO_BIG, *err, );
+        _NST_SET_MEMORY_ERROR(error, start, end, _NST_EM_REAL_TOO_BIG);
         return;
     }
 
@@ -462,7 +434,7 @@ static void make_ident(Nst_LexerToken **tok)
     *tok = nst_new_token_value(start, end, NST_TT_IDENT, (Nst_Obj *)val_obj);
 }
 
-static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err)
+static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
 {
     Nst_Pos start = nst_copy_pos(cursor.pos);
     Nst_Pos escape_start = nst_copy_pos(cursor.pos);
@@ -497,12 +469,11 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err)
             if ( cursor.ch == '\n' && !allow_multiline )
             {
                 free(end_str);
-                SET_ERROR(
-                    _NST_SET_SYNTAX_ERROR,
+                _NST_SET_SYNTAX_ERROR(
+                    error,
                     cursor.pos,
                     cursor.pos,
-                    _NST_EM_UNEXPECTED_NEWLINE,
-                    *err,
+                    _NST_EM_UNEXPECTED_NEWLINE
                 );
                 return;
             }
@@ -601,12 +572,11 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error **err)
 
     if ( cursor.ch != closing_ch )
     {
-        SET_ERROR(
-            _NST_SET_SYNTAX_ERROR,
+        _NST_SET_SYNTAX_ERROR(
+            error,
             start,
             error_end,
-            _NST_EM_UNCLOSED_STR_LITERAL,
-            *err,
+            _NST_EM_UNCLOSED_STR_LITERAL
         );
     }
 

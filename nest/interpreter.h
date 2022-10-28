@@ -23,7 +23,6 @@ typedef struct
     Nst_VarTable **vt;
     Nst_Int *idx; // Instruction index
     Nst_GarbageCollector *ggc; // Generational garbage collector
-    bool *error_occurred;
     Nst_StrObj **curr_path; // Current working directory
     Nst_SeqObj *argv;
     Nst_ValueStack *v_stack; // Value stack

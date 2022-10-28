@@ -88,6 +88,7 @@ Nst_Pos;
 
 typedef struct
 {
+    bool occurred;
     Nst_Pos start;
     Nst_Pos end;
     char *name;

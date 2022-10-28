@@ -33,26 +33,19 @@
 
 #endif
 
-#define SET_ERROR(err_macro, start, end, message) \
-    do { \
-        err_macro(&(nst_state.traceback->error), start, end, message); \
-        *nst_state.error_occurred = true; \
-    } while ( 0 )
-
 #define SET_OP_ERROR(start_pos, end_pos, op_err) \
     do { \
-        if ( nst_state.traceback->error.start.filename != NULL ) \
+        if ( nst_state.traceback->error.occurred ) \
         { \
             LList_append(nst_state.traceback->positions, &(start_pos), false); \
             LList_append(nst_state.traceback->positions, &(end_pos), false); \
             break; \
         } \
-        nst_state.traceback->error.start = start_pos; \
-        nst_state.traceback->error.end = end_pos; \
-        nst_state.traceback->error.name = (char *)op_err.name; \
-        nst_state.traceback->error.message = (char *)op_err.message; \
-        *nst_state.error_occurred = true; \
+        _NST_SET_ERROR(GLOBAL_ERROR, start_pos, end_pos, op_err.name, op_err.message); \
     } while ( 0 )
+
+#define ERROR_OCCURRED (nst_state.traceback->error.occurred)
+#define GLOBAL_ERROR (&(nst_state.traceback->error))
 
 #define CHECK_V_STACK assert(nst_state.v_stack->current_size != 0)
 #define CHECK_V_STACK_SIZE(size) assert((Nst_Int)(nst_state.v_stack->current_size) >= size)
@@ -112,13 +105,13 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
          curr_path      == NULL )
         return;
 
-    bool error_occurred = false;
     Nst_StrObj *cwd = AS_STR(nst_new_string_raw(_getcwd(cwd_buf, PATH_MAX), true));
     Nst_Traceback tb;
     tb.error.start = nst_no_pos();
     tb.error.end = nst_no_pos();
     tb.error.name = NULL;
     tb.error.message = NULL;
+    tb.error.occurred = false;
     tb.positions = LList_new();
     Nst_Int idx = 0;
 
@@ -137,7 +130,6 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
     nst_state.vt = vt;
     *nst_state.vt = nst_new_var_table(NULL, cwd, argv_obj);
     nst_state.idx = &idx;
-    nst_state.error_occurred = &error_occurred;
     nst_state.curr_path = curr_path;
     *nst_state.curr_path = cwd;
     nst_state.argv = argv_obj;
@@ -158,7 +150,7 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
 
     complete_function(0);
 
-    if ( *(nst_state.error_occurred) )
+    if ( ERROR_OCCURRED )
     {
         Nst_FuncCall *calls = nst_state.f_stack->stack;
         for ( Nst_Int i = 0, n = nst_state.f_stack->current_size - 1; i < n; i++ )
@@ -227,7 +219,7 @@ static void complete_function(size_t final_stack_size)
         int inst_id = inst->id;
         run_instruction(inst);
 
-        if ( *(nst_state.error_occurred) )
+        if ( ERROR_OCCURRED )
             break;
 
         // only OP_CALL and FOR_* can push a function on the call stack
@@ -242,20 +234,53 @@ int nst_run_module(char *filename, char **lib_text)
 {
     // Compile and optimize the imported module
 
+    Nst_Error error = { false, nst_no_pos(), nst_no_pos(), NULL, NULL };
+
     // The file is guaranteed to exist
-    LList *tokens = nst_ftokenize(filename, lib_text);
-    Nst_Node *ast = nst_parse(tokens);
+    LList *tokens = nst_ftokenize(filename, lib_text, &error);
+
+    if ( tokens == NULL )
+    {
+        _NST_SET_ERROR(
+            GLOBAL_ERROR,
+            error.start,
+            error.end,
+            error.name,
+            error.message
+        );
+        return -1;
+    }
+
+    Nst_Node *ast = nst_parse(tokens, &error);
     if ( ast != NULL && opt_level >= 1 )
-        ast = nst_optimize_ast(ast);
+        ast = nst_optimize_ast(ast, &error);
 
     if ( ast == NULL )
+    {
+        _NST_SET_ERROR(
+            GLOBAL_ERROR,
+            error.start,
+            error.end,
+            error.name,
+            error.message
+        );
         return -1;
+    }
 
     Nst_InstructionList *inst_ls = nst_compile(ast, true);
     if ( opt_level >= 2 )
-        inst_ls = nst_optimize_bytecode(inst_ls, opt_level == 3);
+        inst_ls = nst_optimize_bytecode(inst_ls, opt_level == 3, &error);
     if ( inst_ls == NULL )
+    {
+        _NST_SET_ERROR(
+            GLOBAL_ERROR,
+            error.start,
+            error.end,
+            error.name,
+            error.message
+        );
         return -1;
+    }
 
     Nst_FuncObj *mod_func = AS_FUNC(new_func(0));
     mod_func->body = inst_ls;
@@ -291,7 +316,7 @@ int nst_run_module(char *filename, char **lib_text)
     res = _chdir(prev_path->value);
     assert(res == 0);
 
-    if ( *nst_state.error_occurred )
+    if ( ERROR_OCCURRED )
     {
         Nst_FuncCall call = nst_pop_func(nst_state.f_stack);
         nst_dec_ref(nst_map_drop_str((*nst_state.vt)->vars, "_vars_"));
@@ -340,7 +365,7 @@ Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err)
     *nst_state.vt = new_vt;
     complete_function(nst_state.f_stack->current_size - 1);
 
-    if ( *nst_state.error_occurred )
+    if ( ERROR_OCCURRED )
         return NULL;
 
     return nst_pop_val(nst_state.v_stack);
@@ -404,13 +429,13 @@ static inline void exe_for_inst(Nst_RuntimeInstruction *inst, Nst_IterObj *iter,
 
         if ( res == NULL )
         {
-            SET_ERROR(
-                _NST_SET_GENERAL_ERROR,
+            _NST_SET_ERROR(
+                GLOBAL_ERROR,
                 inst->start,
                 inst->end,
+                err.name,
                 err.message
             );
-            nst_state.traceback->error.name = (char *)err.name;
         }
         else
         {
@@ -536,8 +561,8 @@ static inline void exe_type_check(Nst_RuntimeInstruction *inst)
     CHECK_V_STACK;
     Nst_Obj *obj = nst_peek_val(nst_state.v_stack);
     if ( obj->type != inst->val )
-        SET_ERROR(
-            _NST_SET_TYPE_ERROR,
+        _NST_SET_TYPE_ERROR(
+            GLOBAL_ERROR,
             inst->start,
             inst->end,
             _nst_format_error(
@@ -554,8 +579,8 @@ static inline void exe_hash_check(Nst_RuntimeInstruction *inst)
     Nst_Obj *obj = nst_peek_val(nst_state.v_stack);
     nst_hash_obj(obj);
     if ( obj->hash == -1 )
-        SET_ERROR(
-            _NST_SET_TYPE_ERROR,
+        _NST_SET_TYPE_ERROR(
+            GLOBAL_ERROR,
             inst->start,
             inst->end,
             _nst_format_error(_NST_EM_UNHASHABLE_TYPE, "s", TYPE_NAME(obj))
@@ -600,8 +625,8 @@ static inline void exe_set_cont_val(Nst_RuntimeInstruction *inst)
     {
         if ( idx->type != nst_t_int )
         {
-            SET_ERROR(
-                _NST_SET_TYPE_ERROR,
+            _NST_SET_TYPE_ERROR(
+                GLOBAL_ERROR,
                 inst->start,
                 inst->end,
                 _nst_format_error(_NST_EM_EXPECTED_TYPE("Int"), "s", TYPE_NAME(idx))
@@ -616,8 +641,8 @@ static inline void exe_set_cont_val(Nst_RuntimeInstruction *inst)
 
         if ( !res )
         {
-            SET_ERROR(
-                _NST_SET_VALUE_ERROR,
+            _NST_SET_VALUE_ERROR(
+                GLOBAL_ERROR,
                 inst->start,
                 inst->end,
                 _nst_format_error(
@@ -638,8 +663,8 @@ static inline void exe_set_cont_val(Nst_RuntimeInstruction *inst)
         bool res = nst_map_set(cont, idx, val);
         if ( !res )
         {
-            SET_ERROR(
-                _NST_SET_TYPE_ERROR,
+            _NST_SET_TYPE_ERROR(
+                GLOBAL_ERROR,
                 inst->start,
                 inst->end,
                 _nst_format_error(_NST_EM_UNHASHABLE_TYPE, "s", TYPE_NAME(idx))
@@ -650,8 +675,8 @@ static inline void exe_set_cont_val(Nst_RuntimeInstruction *inst)
         nst_dec_ref(idx);
     }
     else
-        SET_ERROR(
-            _NST_SET_TYPE_ERROR,
+        _NST_SET_TYPE_ERROR(
+            GLOBAL_ERROR,
             inst->start,
             inst->end,
             _nst_format_error(
@@ -671,8 +696,8 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
 
     if ( (Nst_Int)(func->arg_num) != arg_num )
     {
-        SET_ERROR(
-            _NST_SET_CALL_ERROR,
+        _NST_SET_CALL_ERROR(
+            GLOBAL_ERROR,
             inst->start,
             inst->end,
             _nst_format_error(_NST_EM_WRONG_ARG_NUM, "ui", func->arg_num, arg_num)
@@ -718,15 +743,15 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
 
         if ( res == NULL )
         {
-            if ( !*nst_state.error_occurred )
+            if ( !ERROR_OCCURRED )
             {
-                SET_ERROR(
-                    _NST_SET_GENERAL_ERROR,
+                _NST_SET_ERROR(
+                    GLOBAL_ERROR,
                     inst->start,
                     inst->end,
+                    err.name,
                     err.message
                 );
-                nst_state.traceback->error.name = (char *)err.name;
             }
             else
             {
@@ -758,8 +783,8 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
 
     if ( !res )
     {
-        SET_ERROR(
-            _NST_SET_CALL_ERROR,
+        _NST_SET_CALL_ERROR(
+            GLOBAL_ERROR,
             inst->start,
             inst->end,
             _NST_EM_CALL_STACK_SIZE_EXCEEDED
@@ -960,8 +985,8 @@ static inline void exe_op_extract(Nst_RuntimeInstruction *inst)
     {
         if ( idx->type != nst_t_int )
         {
-            SET_ERROR(
-                _NST_SET_TYPE_ERROR,
+            _NST_SET_TYPE_ERROR(
+                GLOBAL_ERROR,
                 inst->start,
                 inst->end,
                 _nst_format_error(_NST_EM_EXPECTED_TYPE("Int"), "s", TYPE_NAME(idx))
@@ -976,8 +1001,8 @@ static inline void exe_op_extract(Nst_RuntimeInstruction *inst)
 
         if ( res == NULL )
         {
-            SET_ERROR(
-                _NST_SET_VALUE_ERROR,
+            _NST_SET_VALUE_ERROR(
+                GLOBAL_ERROR,
                 inst->start,
                 inst->end,
                 _nst_format_error(
@@ -1006,8 +1031,8 @@ static inline void exe_op_extract(Nst_RuntimeInstruction *inst)
                 nst_push_val(nst_state.v_stack, nst_null);
             else
             {
-                SET_ERROR(
-                    _NST_SET_VALUE_ERROR,
+                _NST_SET_VALUE_ERROR(
+                    GLOBAL_ERROR,
                     inst->start,
                     inst->start,
                     _nst_format_error(_NST_EM_UNHASHABLE_TYPE, "s", TYPE_NAME(idx))
@@ -1025,8 +1050,8 @@ static inline void exe_op_extract(Nst_RuntimeInstruction *inst)
     {
         if ( idx->type != nst_t_int )
         {
-            SET_ERROR(
-                _NST_SET_TYPE_ERROR,
+            _NST_SET_TYPE_ERROR(
+                GLOBAL_ERROR,
                 inst->start,
                 inst->end,
                 _nst_format_error(_NST_EM_EXPECTED_TYPE("Int"), "s", TYPE_NAME(idx))
@@ -1041,8 +1066,8 @@ static inline void exe_op_extract(Nst_RuntimeInstruction *inst)
 
         if ( res == NULL )
         {
-            SET_ERROR(
-                _NST_SET_VALUE_ERROR,
+            _NST_SET_VALUE_ERROR(
+                GLOBAL_ERROR,
                 inst->start,
                 inst->end,
                 _nst_format_error(
@@ -1062,8 +1087,8 @@ static inline void exe_op_extract(Nst_RuntimeInstruction *inst)
     }
     else
     {
-        SET_ERROR(
-            _NST_SET_TYPE_ERROR,
+        _NST_SET_TYPE_ERROR(
+            GLOBAL_ERROR,
             inst->start,
             inst->end,
             _nst_format_error(

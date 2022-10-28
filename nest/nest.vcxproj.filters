@@ -170,6 +170,9 @@
     <ClInclude Include="argv_parser.h">
       <Filter>File di intestazione</Filter>
     </ClInclude>
+    <ClInclude Include="nest.h">
+      <Filter>File di intestazione</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="lib_import.c">

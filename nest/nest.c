@@ -12,6 +12,19 @@
 #include "argv_parser.h"
 #include "nest.h"
 
+#define EXIT \
+    do { \
+    _nst_del_obj(); \
+    if ( text != NULL ) free(text); \
+    return 0; \
+    } while (0)
+
+#define ERROR_EXIT \
+    do { \
+    nst_print_error(error); \
+    EXIT; \
+    } while (0)
+
 #if defined(_WIN32) || defined(WIN32)
 
 #include <windows.h>
@@ -27,11 +40,11 @@
 
 int main(int argc, char **argv)
 {
-    SET_UTF8_TERMINAL;
-
 #if defined(_WIN32) || defined(WIN32)
     SetErrorMode(SEM_FAILCRITICALERRORS);
 #endif
+
+    SET_UTF8_TERMINAL;
 
 #ifdef _DEBUG
     puts("**USING DEBUG BUILD - " NEST_VERSION "**");
@@ -69,18 +82,16 @@ int main(int argc, char **argv)
 
     char *text = NULL;
     LList *tokens;
+    Nst_Error error = { false, nst_no_pos(), nst_no_pos(), "", "" };
 
     if ( filename != NULL )
-        tokens = nst_ftokenize(filename, &text);
+        tokens = nst_ftokenize(filename, &text, &error);
     else
-        tokens = nst_tokenize(command, strlen(command), (char *)"<command>");
+        tokens = nst_tokenize(command, strlen(command), (char *)"<command>", &error);
 
     if ( tokens == NULL )
-    {
-        _nst_del_obj();
-        if ( text != NULL ) free(text);
-        return 0;
-    }
+        ERROR_EXIT;
+
 
     if ( print_tokens )
     {
@@ -93,24 +104,19 @@ int main(int argc, char **argv)
         if ( !force_exe && !print_tree && !print_bc )
         {
             LList_destroy(tokens, (LList_item_destructor)nst_destroy_token);
-            _nst_del_obj();
-            if ( text != NULL ) free(text);
-            return 0;
+            EXIT;
         }
     }
 
-    Nst_Node *ast = nst_parse(tokens);
+    Nst_Node *ast = nst_parse(tokens, &error);
 
     if ( opt_level >= 1 && ast != NULL )
-        ast = nst_optimize_ast(ast);
+        ast = nst_optimize_ast(ast, &error);
 
     // nst_optimize_ast can delete the ast
     if ( ast == NULL )
-    {
-        _nst_del_obj();
-        if ( text != NULL ) free(text);
-        return 0;
-    }
+        ERROR_EXIT;
+
 
     if ( print_tree )
     {
@@ -120,9 +126,7 @@ int main(int argc, char **argv)
         if ( !force_exe && !print_bc )
         {
             nst_destroy_node(ast);
-            _nst_del_obj();
-            if ( text!=NULL ) free(text);
-            return 0;
+            EXIT;
         }
     }
 
@@ -130,12 +134,11 @@ int main(int argc, char **argv)
     Nst_InstructionList *inst_ls = nst_compile(ast, false);
 
     if ( opt_level >= 2 )
-        inst_ls = nst_optimize_bytecode(inst_ls, opt_level == 3);
-
-    if ( inst_ls == NULL )
     {
-        _nst_del_obj();
-        return 0;
+        inst_ls = nst_optimize_bytecode(inst_ls, opt_level == 3, &error);
+
+        if ( inst_ls == NULL )
+            ERROR_EXIT;
     }
 
     if ( print_bc )
@@ -146,9 +149,7 @@ int main(int argc, char **argv)
         if ( !force_exe )
         {
             nst_destroy_inst_list(inst_ls);
-            _nst_del_obj();
-            if ( text!=NULL ) free(text);
-            return 0;
+            EXIT;
         }
     }
 
@@ -162,7 +163,5 @@ int main(int argc, char **argv)
         opt_level
     );
 
-    _nst_del_obj();
-    if ( text != NULL ) free(text);
-    return 0;
+    EXIT;
 }
