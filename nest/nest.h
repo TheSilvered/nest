@@ -3,4 +3,4 @@
 
 #define NEST_VERSION "beta-0.5.1"
 
-#endif
+#endif //!NEST_H

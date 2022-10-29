@@ -1,5 +1,5 @@
 {
-    "cmd": ["nest", "$file"],
+    "cmd": ["nest", "--monochrome", "$file"],
     "selector": "source.nest",
     "file_patterns": ["*.nest"]
 }

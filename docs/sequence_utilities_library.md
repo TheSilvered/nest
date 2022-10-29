@@ -2,7 +2,7 @@
 
 ## Functions
 
-### `[seq: Array|Vector, func: Function] @map`
+### `[seq: Array|Vector, func: Func] @map`
 
 Creates a new sequence of type `?::seq` where all items of `seq` are passed
 through `func`.  
@@ -35,7 +35,7 @@ but not a mixture of those. This is implemented using an algorithm called Timsor
 
 Empties `vect` and returns it.
 
-### `[seq: Vector|Array, func: Function] @filter`
+### `[seq: Vector|Array, func: Func] @filter`
 
 Creates a new sequence (the type depends on the first argument) that has all the
 elements from `seq` that when passed as an argument to `func` returned `true`.
