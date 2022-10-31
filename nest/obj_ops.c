@@ -82,19 +82,21 @@
     Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *, \
     Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_Obj *, Nst_ExecutionState
 
-static Nst_Obj *seq_eq(Nst_SeqObj *seq1, Nst_SeqObj *seq2, LList *sequences)
+static Nst_Obj* map_eq(Nst_MapObj* map1, Nst_MapObj* map2, LList* containers);
+
+static Nst_Obj *seq_eq(Nst_SeqObj *seq1, Nst_SeqObj *seq2, LList *containers)
 {
     if (seq1->len != seq2->len)
         NST_RETURN_FALSE;
 
-    for ( LLNode *n = sequences->head; n != NULL; n = n->next )
+    for ( LLNode *n = containers->head; n != NULL; n = n->next )
     {
         if ( n->value == seq1 || n->value == seq2 )
             NST_RETURN_FALSE;
     }
 
-    LList_append(sequences, seq1, false);
-    LList_append(sequences, seq2, false);
+    LList_append(containers, seq1, false);
+    LList_append(containers, seq2, false);
 
     Nst_Obj *ob1 = NULL;
     Nst_Obj *ob2 = NULL;
@@ -105,9 +107,11 @@ static Nst_Obj *seq_eq(Nst_SeqObj *seq1, Nst_SeqObj *seq2, LList *sequences)
         ob2 = seq2->objs[i];
 
         if ( IS_SEQ(ob1) && IS_SEQ(ob2) )
-            result = seq_eq(AS_SEQ(ob1), AS_SEQ(ob2), sequences);
+            result = seq_eq(AS_SEQ(ob1), AS_SEQ(ob2), containers);
+        else if ( ARE_TYPE(nst_t_map) )
+            result = map_eq(AS_MAP(ob1), AS_MAP(ob2), containers);
         else
-            result = nst_obj_eq(seq1->objs[i], seq2->objs[i], NULL);
+            result = nst_obj_eq(ob1, ob2, NULL);
 
         if (result == nst_false)
             return nst_false;
@@ -115,8 +119,58 @@ static Nst_Obj *seq_eq(Nst_SeqObj *seq1, Nst_SeqObj *seq2, LList *sequences)
             nst_dec_ref(nst_true);
     }
 
-    LList_pop(sequences); // pops seq1
-    LList_pop(sequences); // pops seq2
+    LList_pop(containers); // pops seq1
+    LList_pop(containers); // pops seq2
+
+    NST_RETURN_TRUE;
+}
+
+static Nst_Obj* map_eq(Nst_MapObj* map1, Nst_MapObj* map2, LList* containers)
+{
+    if ( map1->item_count != map2->item_count )
+        NST_RETURN_FALSE;
+
+    for ( LLNode *n = containers->head; n != NULL; n = n->next )
+    {
+        if ( n->value == map1 || n->value == map2 )
+            NST_RETURN_FALSE;
+    }
+
+    LList_append(containers, map1, false);
+    LList_append(containers, map2, false);
+
+    Nst_Obj *key = NULL;
+    Nst_Obj *ob1 = NULL;
+    Nst_Obj *ob2 = NULL;
+    Nst_Obj *result = NULL;
+    for ( Nst_Int i = _nst_map_get_next_idx(-1, map1);
+          i != -1;
+          i = _nst_map_get_next_idx(i, map1) )
+    {
+        key = map1->nodes[i].key;
+        ob1 = map1->nodes[i].value;
+
+        ob2 = _nst_map_get(map2, key);
+        if ( ob2 == NULL )
+            NST_RETURN_FALSE;
+        else
+            nst_dec_ref(ob2);
+
+        if ( IS_SEQ(ob1) && IS_SEQ(ob2) )
+            result = seq_eq(AS_SEQ(ob1), AS_SEQ(ob2), containers);
+        else if ( ARE_TYPE(nst_t_map) )
+            result = map_eq(AS_MAP(ob1), AS_MAP(ob2), containers);
+        else
+            result = nst_obj_eq(ob1, ob2, NULL);
+
+        if (result == nst_false)
+            return nst_false;
+        else
+            nst_dec_ref(nst_true);
+    }
+
+    LList_pop(containers); // pops seq1
+    LList_pop(containers); // pops seq2
 
     NST_RETURN_TRUE;
 }
@@ -126,8 +180,6 @@ Nst_Obj *_nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ob1 == ob2 )
         NST_RETURN_TRUE;
-    else if ( ob1->type == nst_t_map || ob2->type == nst_t_map )
-        NST_RETURN_FALSE;
     else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
         ob1 = nst_obj_cast(ob1, nst_t_int, err);
@@ -154,8 +206,17 @@ Nst_Obj *_nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         NST_RETURN_COND(ob1 == ob2);
     else if ( IS_SEQ(ob1) && IS_SEQ(ob2) )
     {
-        LList *sequences = LList_new();
-        return seq_eq(AS_SEQ(ob1), AS_SEQ(ob2), sequences);
+        LList *containers = LList_new();
+        Nst_Obj *res = seq_eq(AS_SEQ(ob1), AS_SEQ(ob2), containers);
+        LList_destroy(containers, NULL);
+        return res;
+    }
+    else if ( ARE_TYPE(nst_t_map) )
+    {
+        LList *containers = LList_new();
+        Nst_Obj *res = map_eq(AS_MAP(ob1), AS_MAP(ob2), containers);
+        LList_destroy(containers, NULL);
+        return res;
     }
     else
         NST_RETURN_FALSE;
