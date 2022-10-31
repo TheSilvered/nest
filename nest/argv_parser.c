@@ -22,8 +22,8 @@
     "  -a --ast: prints the abstract syntax tree of the program\n" \
     "  -b --bytecode: prints the byte code of the program\n" \
     "  -f --force-execution: executes the program even when -t, -a or -b are used\n" \
-    "  -O0: do not optimize the program (note that it is the letter O and not the number zero)\n" \
-    "  -O1: optimize only the abstract syntax tree (e.g. basic expressions)\n" \
+    "  -O0: do not optimize the program\n" \
+    "  -O1: optimize only the expressions with known values\n" \
     "  -O2: optimize byte code instruction sequences that can be more concise\n" \
     "  -O3: replace built-in names (e.g. 'true', 'Int', etc.) with their corresponding value\n" \
     "       this does not replace them when they are re-purposed in the scope\n" \

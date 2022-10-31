@@ -56,7 +56,7 @@ static int print_line(Nst_Pos *pos, long start_col, long end_col, int max_indent
 
     long line_length = 0;
     long indent = 0;
-    size_t curr_line = 0;
+    long curr_line = 0;
     bool is_indentation = true;
     char *text = pos->text;
     size_t text_len = pos->text_len;
@@ -65,7 +65,7 @@ static int print_line(Nst_Pos *pos, long start_col, long end_col, int max_indent
 
     bool is_printing_error = false;
 
-    size_t li = 0;
+    long li = 0;
     for ( size_t i = 0; i < text_len; i++ )
     {
         if ( curr_line == lineno )

@@ -52,16 +52,16 @@ void nst_destroy_iter(Nst_IterObj *iter)
 void nst_traverse_iter(Nst_IterObj* iter)
 {
     if ( NST_HAS_FLAG(iter->start, NST_FLAG_GGC_IS_SUPPORTED) )
-        iter->start->traverse_func(iter->start);
+        iter->start->traverse_func((Nst_Obj *)iter->start);
 
     if ( NST_HAS_FLAG(iter->advance, NST_FLAG_GGC_IS_SUPPORTED) )
-        iter->advance->traverse_func(iter->advance);
+        iter->advance->traverse_func((Nst_Obj *)iter->advance);
 
     if ( NST_HAS_FLAG(iter->is_done, NST_FLAG_GGC_IS_SUPPORTED) )
-        iter->is_done->traverse_func(iter->is_done);
+        iter->is_done->traverse_func((Nst_Obj *)iter->is_done);
 
     if ( NST_HAS_FLAG(iter->get_val, NST_FLAG_GGC_IS_SUPPORTED) )
-        iter->get_val->traverse_func(iter->get_val);
+        iter->get_val->traverse_func((Nst_Obj *)iter->get_val);
 
     if ( NST_HAS_FLAG(iter->value, NST_FLAG_GGC_IS_SUPPORTED) )
         ((Nst_GGCObj *)iter->value)->traverse_func(iter->value);
