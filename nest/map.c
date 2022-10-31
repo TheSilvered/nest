@@ -44,12 +44,11 @@ static int32_t set_clean(Nst_MapObj *map, int32_t hash, Nst_Obj *key, Nst_Obj *v
     int32_t i = hash & mask;
     Nst_MapNode curr_node = nodes[i];
 
+    // I already know there are no duplicate keys, every new key must end in an empty node
     for ( size_t perturb = (size_t)hash;
-        curr_node.key != NULL && curr_node.key != key;
-        perturb >>= 5 )
+          curr_node.key != NULL;
+          perturb >>= 5 )
     {
-        if ( curr_node.hash == hash && AS_BOOL(nst_obj_eq(key, curr_node.key, NULL)) )
-            break;
         i = (int32_t)((i * 5) + 1 + perturb);
         curr_node = nodes[i & mask];
     }
