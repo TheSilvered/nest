@@ -10,7 +10,17 @@ A programming language with no keywords.
 - Has hash maps, vectors and arrays built in
 - Can be expanded with C/C++
 
-## Building
+## Quick start
+
+Nest currently only works on Windows and can be installed via the `.exe`
+installer.
+
+After using the installer you can edit the `PATH` environment variable relative
+to the account (*not* relative to the system) by adding
+`%LOCALAPPDATA%\Programs\nest`. This is to add Nest as a command when using the
+Command Prompt or Windows PowerShell.
+
+## Building from source
 
 ### Windows
 
@@ -23,6 +33,9 @@ To compile the installer you need InnoSetup installed. Then follow these steps
 3. Compile `installer-script-x__.iss` with InnoSetup
 4. The compiled exe should appear in the same directory with the name
    `nest-[VERSION]-x[ARCHITECTURE]-installer.exe`
+
+Keep in mind that if you change the version it has to be changed both in
+`nest.h` and in the installers' scripts.
 
 ### Linux
 

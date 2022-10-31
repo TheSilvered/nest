@@ -49,7 +49,8 @@ Nst_Obj *new_cfunc(size_t arg_num, Nst_Obj *(*cbody)(size_t arg_num,
     func->arg_num = arg_num;
     func->mod_globals = NULL;
 
-    NST_GGC_SUPPORT_INIT(func, nst_traverse_func);
+    // Functions with a C body never have mod_globals set
+    // so there is not need to track them in the ggc
 
     return (Nst_Obj *)func;
 }

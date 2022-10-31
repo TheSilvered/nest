@@ -179,18 +179,18 @@ Nst_FuncDeclr *get_func_ptrs()
 
     '' = vcxproj_headers
     ... Iter :: nest_source_files ~= f [
-        f.-1 'c' ? ..
+        f.-1 'c' == ? ..
         -- The spaces pad the next line so the file still looks nice 
-        '<ClInclude Include="nest_source\\' f '" />\n      ' ><= vcxproj_headers
+        vcxproj_headers '<ClInclude Include="nest_source\\' f '" />\n    ' >< = vcxproj_headers
     ]
-    '<ClInclude Include="'project_name'.h" />' ><= vcxproj_headers
+    '<ClInclude Include="'project_name'.h" />' >< ><= vcxproj_headers
 
     '' = vcxproj_sources
     ... Iter :: nest_source_files ~= f [
-        f.-1 'h' ? ..
-        '<ClCompile Include="nest_source\\' f '" />\n      ' ><= vcxproj_sources
+        f.-1 'h' == ? ..
+        vcxproj_sources '<ClCompile Include="nest_source\\' f '" />\n    ' >< = vcxproj_sources
     ]
-    '<ClInclude Include="'project_name'.cpp" />' ><= vcxproj_sources
+    '<ClCompile Include="'project_name'.cpp" />' >< ><= vcxproj_sources
 
     -- Remove pch.h and pch.cpp from the listed files, add the source files
     location'\\'project_name_c'.vcxproj' >< \

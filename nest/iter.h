@@ -5,6 +5,7 @@
 
 #include "error.h"
 #include "obj.h"
+#include "ggc.h"
 #include "function.h"
 #include "lib_import.h"
 
@@ -17,6 +18,7 @@ extern "C" {
 typedef struct
 {
     NST_OBJ_HEAD;
+    NST_GGC_SUPPORT;
     Nst_FuncObj *start;
     Nst_FuncObj *advance;
     Nst_FuncObj *is_done;
@@ -32,6 +34,7 @@ Nst_Obj *nst_new_iter(
     Nst_FuncObj *get_val,
     Nst_Obj *value);
 void nst_destroy_iter(Nst_IterObj *iter);
+void nst_traverse_iter(Nst_IterObj *iter);
 
 // Functions for the range iterator
 

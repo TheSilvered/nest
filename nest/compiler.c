@@ -404,6 +404,9 @@ static void compile_for_as_l(Nst_Node *node)
     inc_loop_id();
     LLNode *body_start = c_state.inst_ls->tail;
     compile_node(TAIL_NODE);
+
+    // For loop advance
+    Nst_Int loop_advance = CURR_LEN;
     inst = new_inst_int_val(NST_IC_FOR_ADVANCE, 1, HEAD_NODE->start, HEAD_NODE->end);
     ADD_INST(inst);
     inst = new_inst_empty(NST_IC_POP_VAL, 0);
@@ -428,7 +431,7 @@ static void compile_for_as_l(Nst_Node *node)
         {
             // Continue statement
             if ( inst->int_val == c_state.loop_id )
-                inst->int_val = cond_start_idx;
+                inst->int_val = loop_advance;
             // Break statement
             else if ( inst->int_val == c_state.loop_id - 1 )
                 inst->int_val = body_end_idx;

@@ -30,6 +30,13 @@ Nst_Obj *nst_new_iter(
     iter->get_val = get_val;
     iter->value = value;
 
+    if ( NST_HAS_FLAG(start,   NST_FLAG_GGC_IS_SUPPORTED) ||
+         NST_HAS_FLAG(advance, NST_FLAG_GGC_IS_SUPPORTED) ||
+         NST_HAS_FLAG(is_done, NST_FLAG_GGC_IS_SUPPORTED) ||
+         NST_HAS_FLAG(get_val, NST_FLAG_GGC_IS_SUPPORTED) ||
+         NST_HAS_FLAG(value,   NST_FLAG_GGC_IS_SUPPORTED) )
+        NST_GGC_SUPPORT_INIT(iter, nst_traverse_iter);
+
     return (Nst_Obj *)iter;
 }
 
@@ -40,6 +47,24 @@ void nst_destroy_iter(Nst_IterObj *iter)
     nst_dec_ref(iter->is_done);
     nst_dec_ref(iter->get_val);
     nst_dec_ref(iter->value);
+}
+
+void nst_traverse_iter(Nst_IterObj* iter)
+{
+    if ( NST_HAS_FLAG(iter->start, NST_FLAG_GGC_IS_SUPPORTED) )
+        iter->start->traverse_func(iter->start);
+
+    if ( NST_HAS_FLAG(iter->advance, NST_FLAG_GGC_IS_SUPPORTED) )
+        iter->advance->traverse_func(iter->advance);
+
+    if ( NST_HAS_FLAG(iter->is_done, NST_FLAG_GGC_IS_SUPPORTED) )
+        iter->is_done->traverse_func(iter->is_done);
+
+    if ( NST_HAS_FLAG(iter->get_val, NST_FLAG_GGC_IS_SUPPORTED) )
+        iter->get_val->traverse_func(iter->get_val);
+
+    if ( NST_HAS_FLAG(iter->value, NST_FLAG_GGC_IS_SUPPORTED) )
+        ((Nst_GGCObj *)iter->value)->traverse_func(iter->value);
 }
 
 #if defined(_WIN32) || defined(WIN32)
