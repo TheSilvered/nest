@@ -18,6 +18,7 @@
     'error_internal.h',
     'error.h',          'error.c',
     'function.h',       'function.c',
+    'ggc.h',            'ggc.c'
     'hash.h',           'hash.c',
     'instructions.h',   'instructions.c',
     'interpreter.h',    'interpreter.c',
@@ -64,7 +65,7 @@
 
     (location'\\nest_source' >< = srcdir) @fs.mkdir
 
-    ... Iter :: nest_source_files ~= file_name [
+    ... Iter :: nest_source_files := file_name [
         ('..\\nest\\'file_name ><) (srcdir'\\'file_name ><) fs.CPO.update @fs.copy
     ]
 
@@ -178,7 +179,7 @@ Nst_FuncDeclr *get_func_ptrs()
     '_WINDOWS;_CRT_SECURE_NO_WARNINGS;_USRDLL' @replace_file_str
 
     '' = vcxproj_headers
-    ... Iter :: nest_source_files ~= f [
+    ... Iter :: nest_source_files := f [
         f.-1 'c' == ? ..
         -- The spaces pad the next line so the file still looks nice 
         vcxproj_headers '<ClInclude Include="nest_source\\' f '" />\n    ' >< = vcxproj_headers
@@ -186,7 +187,7 @@ Nst_FuncDeclr *get_func_ptrs()
     '<ClInclude Include="'project_name'.h" />' >< ><= vcxproj_headers
 
     '' = vcxproj_sources
-    ... Iter :: nest_source_files ~= f [
+    ... Iter :: nest_source_files := f [
         f.-1 'h' == ? ..
         vcxproj_sources '<ClCompile Include="nest_source\\' f '" />\n    ' >< = vcxproj_sources
     ]

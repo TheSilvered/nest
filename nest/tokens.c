@@ -172,7 +172,7 @@ int nst_str_to_tok(char *str)
         return NST_TT_DOWHILE;
     if ( strcmp("...", str) == 0 )
         return NST_TT_FOR;
-    if ( strcmp("~=", str) == 0 )
+    if ( strcmp(":=", str) == 0 )
         return NST_TT_AS;
     if ( strcmp("#", str) == 0 )
         return NST_TT_FUNC;

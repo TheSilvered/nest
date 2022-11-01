@@ -96,16 +96,10 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
 {
     opt_level = opt_lvl;
 
-    // nst_state global variable initialization
     char *cwd_buf = (char *)malloc(sizeof(char) * PATH_MAX);
-    Nst_VarTable **vt = (Nst_VarTable **)malloc(sizeof(Nst_VarTable *));
-    Nst_StrObj **curr_path = (Nst_StrObj **)malloc(sizeof(Nst_StrObj *));
-    if ( cwd_buf        == NULL ||
-         vt             == NULL ||
-         curr_path      == NULL )
+    if ( cwd_buf == NULL )
         return;
 
-    Nst_StrObj *cwd = AS_STR(nst_new_string_raw(_getcwd(cwd_buf, PATH_MAX), true));
     Nst_Traceback tb;
     tb.error.start = nst_no_pos();
     tb.error.end = nst_no_pos();
@@ -125,13 +119,14 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
     // make_argv creates a tracked object
     nst_state.ggc = &ggc;
 
+    Nst_StrObj *cwd = AS_STR(nst_new_string_raw(_getcwd(cwd_buf, PATH_MAX), true));
     Nst_SeqObj *argv_obj = make_argv(argc, argv, filename);
+    Nst_VarTable *vt = nst_new_var_table(NULL, cwd, argv_obj);
+
     nst_state.traceback = &tb;
-    nst_state.vt = vt;
-    *nst_state.vt = nst_new_var_table(NULL, cwd, argv_obj);
+    nst_state.vt = &vt;
     nst_state.idx = &idx;
-    nst_state.curr_path = curr_path;
-    *nst_state.curr_path = cwd;
+    nst_state.curr_path = &cwd;
     nst_state.argv = argv_obj;
     nst_state.v_stack = nst_new_val_stack();
     nst_state.f_stack = nst_new_call_stack();
@@ -151,26 +146,10 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
     complete_function(0);
 
     if ( ERROR_OCCURRED )
-    {
-        Nst_FuncCall *calls = nst_state.f_stack->stack;
-        for ( Nst_Int i = 0, n = nst_state.f_stack->current_size - 1; i < n; i++ )
-        {
-            if ( calls[n - i].start.filename == NULL ) // i.e. there is no valid position
-                continue;
-
-            LList_append(nst_state.traceback->positions, &(calls[n - i].start), false);
-            LList_append(nst_state.traceback->positions, &(calls[n - i].start), false);
-        }
         nst_print_traceback(*nst_state.traceback);
 
-        nst_dec_ref((*nst_state.vt)->vars);
-        free(*nst_state.vt);
-    }
-
     // Freeing nst_state
-    LList_destroy(nst_state.traceback->positions, NULL);
-    free(vt);
-    free(curr_path);
+    LList_destroy(nst_state.traceback->positions, free);
     nst_dec_ref(cwd);
     nst_dec_ref(argv_obj);
     nst_destroy_v_stack(nst_state.v_stack);
@@ -197,6 +176,7 @@ static void complete_function(size_t final_stack_size)
 
     for ( ; nst_state.f_stack->current_size > final_stack_size; (*nst_state.idx)++ )
     {
+        assert(curr_inst_ls != NULL);
         if ( *nst_state.idx >= (Nst_Int)curr_inst_ls->total_size )
         {
             // Free the function call
@@ -210,6 +190,7 @@ static void complete_function(size_t final_stack_size)
             nst_dec_ref(call.func);
             *nst_state.vt = call.vt;
             *nst_state.idx = call.idx;
+
             Nst_FuncObj *func = nst_peek_func(nst_state.f_stack).func;
             curr_inst_ls = func == NULL ? NULL : func->body;
             continue;
@@ -220,7 +201,39 @@ static void complete_function(size_t final_stack_size)
         run_instruction(inst);
 
         if ( ERROR_OCCURRED )
+        {
+            while ( nst_state.f_stack->current_size > final_stack_size )
+            {
+                Nst_FuncCall call = nst_pop_func(nst_state.f_stack);
+
+                nst_dec_ref(nst_map_drop_str((*nst_state.vt)->vars, "_vars_"));
+                nst_dec_ref((*nst_state.vt)->vars);
+                nst_dec_ref(call.func);
+
+                free(*nst_state.vt);
+                *nst_state.vt = call.vt;
+                *nst_state.idx = call.idx + 1;
+
+                Nst_Obj *obj = nst_pop_val(nst_state.v_stack);
+                while ( obj != NULL )
+                {
+                    nst_dec_ref(obj);
+                    obj = nst_pop_val(nst_state.v_stack);
+                }
+
+                Nst_Pos *positions = malloc(sizeof(Nst_Pos) * 2);
+
+                if ( positions == NULL )
+                    continue;
+
+                positions[0] = call.start;
+                positions[1] = call.end;
+                LList_push(nst_state.traceback->positions, positions + 1, false);
+                LList_push(nst_state.traceback->positions, positions,     true);
+            }
+
             break;
+        }
 
         // only OP_CALL and FOR_* can push a function on the call stack
         if ( inst_id == NST_IC_OP_CALL     || inst_id == NST_IC_FOR_START   ||
@@ -325,6 +338,7 @@ int nst_run_module(char *filename, char **lib_text)
         nst_dec_ref(call.func);
         *nst_state.vt = call.vt;
         *nst_state.idx = call.idx;
+
         return -1;
     }
     else
@@ -341,7 +355,7 @@ Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err)
     Nst_VarTable *new_vt;
     if ( func->mod_globals != NULL )
         new_vt = nst_new_var_table(func->mod_globals, NULL, NULL);
-    if ( (*nst_state.vt)->global_table == NULL )
+    else if ( (*nst_state.vt)->global_table == NULL )
         new_vt = nst_new_var_table((*nst_state.vt)->vars, NULL, NULL);
     else
         new_vt = nst_new_var_table((*nst_state.vt)->global_table, NULL, NULL);

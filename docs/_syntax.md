@@ -348,7 +348,12 @@ a b == ? [
 ]
 ```
 
-When using code blocks the expression is always `null`.
+When using even only one code block expression always evaluates to `null`:
+```
+(10 15 == ? [ true ] : false) = val
+```
+
+Here `val` is set to `null` because the first
 
 ### Assignment expressions
 
@@ -449,7 +454,7 @@ iterator and assign a variable, use a for-as loop.
 
 The for-as loop has the following syntax:
 ```
-... iterator ~= var_name [
+... iterator := var_name [
     -- code
 ]
 ```
@@ -459,7 +464,7 @@ variable to be assigned.
 
 This for loop prints the numbers one through ten:
 ```
-... 1->11 ~= i [
+... 1->11 := i [
     >>> (i '\n' ><)
 ]
 ```
@@ -510,10 +515,10 @@ The switch statement has the following syntax:
     ? case_1 [
         -- code executed if expression is equal to case_1
     ]
-        ? case_2 [
+    ? case_2 [
         -- code executed if expression is equal to case_2
     ]
-        ? [
+    ? [
         -- code for the default case
     ]
 ]

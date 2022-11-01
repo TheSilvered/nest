@@ -1,191 +1,191 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="File di origine">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="File di intestazione">
+    <Filter Include="Header files">
       <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
       <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
     </Filter>
-    <Filter Include="File di risorse">
+    <Filter Include="Source files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Resources">
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="framework.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="nest_sutil.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\compiler.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\error.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\error_internal.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\function.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\hash.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\instructions.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\interpreter.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\interpreter_ast.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\iter.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\lexer.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\lib_import.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\llist.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\map.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\nest_include.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\nodes.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\nst_types.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\obj.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\obj_ops.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\optimizer.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\parser.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\runtime_stack.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\sequence.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\simple_types.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\str.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\tokens.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\var_table.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\ggc.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\nest.h">
-      <Filter>File di intestazione</Filter>
+      <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="nest_sutil.cpp">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\compiler.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\error.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\function.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\hash.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\instructions.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\interpreter.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\iter.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\lexer.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\lib_import.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\llist.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\map.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\nodes.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\obj.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\obj_ops.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\optimizer.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\parser.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\runtime_stack.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\sequence.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\simple_types.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\str.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\tokens.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\var_table.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\ggc.c">
-      <Filter>File di origine</Filter>
+      <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\stdsutil.nest">
-      <Filter>File di risorse</Filter>
+      <Filter>Resources</Filter>
     </None>
   </ItemGroup>
 </Project>

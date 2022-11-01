@@ -18,7 +18,7 @@ This program prints all the ascii characters
 
 #clean code [
     <{}> = clean_code
-    ... Iter :: code ~= command [
+    ... Iter :: code := command [
         (command '+' ==) \
         (command '-' ==) \
         (command '[' ==) \
@@ -36,7 +36,7 @@ This program prints all the ascii characters
     <{}> = loop_starts
     {} = map
 
-    ... code @itu.enumerate ~= i [
+    ... code @itu.enumerate := i [
           i.1 '[' == ? loop_starts i.0 +
         : i.1 ']' == ? [
             $loop_starts 0 == ? => ('Unmatched "]" at' i.0 '\n' ><)

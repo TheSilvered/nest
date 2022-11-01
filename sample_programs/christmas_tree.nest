@@ -2,7 +2,7 @@
 
 Int :: <<< 'Input the hight: ' = height
 
-... 1 2 -> (height 2 *) ~= i [
+... 1 2 -> (height 2 *) := i [
     ... height (i 2 /) 1 - [ >>> ' ' ]
     ... i [ >>> '*' ]
     >>> '\n'

@@ -18,16 +18,13 @@
     <ClInclude Include="framework.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="nest_rand.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\nest\compiler.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\error.h">
+    <ClInclude Include="..\..\..\nest\error_internal.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\error_internal.h">
+    <ClInclude Include="..\..\..\nest\error.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\function.h">
@@ -40,9 +37,6 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\interpreter.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\nest\interpreter_ast.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\iter.h">
@@ -99,18 +93,15 @@
     <ClInclude Include="..\..\..\nest\var_table.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\ggc.h">
+    <ClInclude Include="nest_err.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\nest.h">
+    <ClInclude Include="..\..\..\nest\ggc.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="dllmain.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
-    <ClCompile Include="nest_rand.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\compiler.c">
@@ -179,13 +170,11 @@
     <ClCompile Include="..\..\..\nest\var_table.c">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="nest_err.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\nest\ggc.c">
       <Filter>Source files</Filter>
     </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\stdrand.nest">
-      <Filter>Resources</Filter>
-    </None>
   </ItemGroup>
 </Project>

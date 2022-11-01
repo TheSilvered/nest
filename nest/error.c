@@ -195,10 +195,18 @@ void nst_print_error(Nst_Error err)
 
 void nst_print_traceback(Nst_Traceback tb)
 {
-    while ( tb.positions->head != NULL )
+    assert(tb.positions->size % 2 == 0);
+
+    for ( LLNode *n1 = tb.positions->head, *n2 = n1->next;
+          n1 != NULL;
+          n1 = n2->next, n2 = n1 == NULL ? n1 : n1->next )
     {
-        Nst_Pos *start = (Nst_Pos *)LList_pop(tb.positions);
-        Nst_Pos *end   = (Nst_Pos *)LList_pop(tb.positions);
+        Nst_Pos *start = (Nst_Pos *)n1->value;
+        Nst_Pos *end   = (Nst_Pos *)n2->value;
+
+        if ( start->filename == NULL )
+            continue;
+
         print_position(*start, *end);
     }
 

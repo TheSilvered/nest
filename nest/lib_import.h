@@ -52,7 +52,7 @@
         AS_STR(nst_new_string_raw(name, false)) \
     }
 
-#define NST_SET_ERROR_CUSTOM(err_name, msg) do { \
+#define NST_SET_ERROR(err_name, err_msg) do { \
     err->name = (char *)err_name; \
     err->message = (char *)err_msg; \
     } while ( 0 )

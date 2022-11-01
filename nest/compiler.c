@@ -293,9 +293,9 @@ static void compile_for_l(Nst_Node *node)
                 NEW_OBJ
     cond_start: JUMPIF_ZERO body_end
                 [BODY CODE]
-                DEC_INT
+    body_end:   DEC_INT
                 JUMP cond_start
-    body_end:   POP_VAL
+    loop_end:   POP_VAL
                 POP_VAL
                 [CODE CONTINUATION]
     */
@@ -321,14 +321,15 @@ static void compile_for_l(Nst_Node *node)
 
     inc_loop_id();
     compile_node(TAIL_NODE); // body
+    Nst_Int body_end_idx = CURR_LEN;
     inst = new_inst_empty(NST_IC_DEC_INT, 0);
     ADD_INST(inst);
     LLNode *body_end = c_state.inst_ls->tail;
 
     inst = new_inst_empty(NST_IC_JUMP, cond_start_idx);
     ADD_INST(inst);
-    Nst_Int body_end_idx = CURR_LEN;
-    jump_body_end_idx->int_val = body_end_idx;
+    Nst_Int loop_end_idx = CURR_LEN;
+    jump_body_end_idx->int_val = loop_end_idx;
 
     inst = new_inst_empty(NST_IC_POP_VAL, 0);
     ADD_INST(inst);
@@ -345,10 +346,10 @@ static void compile_for_l(Nst_Node *node)
         {
             // Continue statement
             if ( inst->int_val == c_state.loop_id )
-                inst->int_val = cond_start_idx;
+                inst->int_val = body_end_idx;
             // Break statement
             else if ( inst->int_val == c_state.loop_id - 1 )
-                inst->int_val = body_end_idx;
+                inst->int_val = loop_end_idx;
         }
     }
 
@@ -369,10 +370,10 @@ static void compile_for_as_l(Nst_Node *node)
                 FOR_GET_VAL
                 SET_VAL_LOC name
                 [BODY CODE]
-                FOR_ADVANCE
+    body_end:   FOR_ADVANCE
                 POP_VAL
                 JUMP cond_start
-    body_end:   POP_VAL
+    loop_end:   POP_VAL
                 [CODE CONTINUATION]
     */
 
