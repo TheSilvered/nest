@@ -13,6 +13,6 @@
   { 5b 2b ^, 25b },
   { Str :: 65b, 'A' } } = eq_tests
 
-... Iter :: eq_tests ~= i [
+... Iter :: eq_tests := i [
     i.0 i.1 @test.assert_eq
 ]

@@ -795,9 +795,9 @@ static void compile_local_op(Nst_Node *node)
 
     if ( HEAD_TOK->type == NST_TT_IMPORT )
     {
-        inst = new_inst_val(NST_IC_TYPE_CHECK, nst_t_str, HEAD_NODE->start, HEAD_NODE->end);
+        inst = new_inst_val(NST_IC_TYPE_CHECK, nst_t_str, node->start, node->end);
         ADD_INST(inst);
-        inst = new_inst_int_val(NST_IC_OP_IMPORT, 0, HEAD_NODE->start, HEAD_NODE->end);
+        inst = new_inst_int_val(NST_IC_OP_IMPORT, 0, node->start, node->end);
         ADD_INST(inst);
         return;
     }

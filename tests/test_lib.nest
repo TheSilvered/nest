@@ -1,26 +1,58 @@
 |#| 'stdsys.nest' = sys
 |#| 'stdio.nest' = io
 |#| 'stdsutil.nest' = su
+|#| 'stderr.nest' = err
+
+#_cast_obj obj type [
+    => type :: obj
+]
 
 #_assertion_failed msg [
-    io.STDERR ('Assertion failed: ' msg '\n' ><) @io.write
-    -1 @sys.exit
+    'Assertion Error' msg @err.raise
 ]
 
 #assert_eq a b [
-    a b == ? => null : (a @su.repr) ' == ' (b @su.repr) >< @_assertion_failed
+    a b == ?
+        => null
+    :
+        (a @su.repr) ' == ' (b @su.repr) >< @_assertion_failed
 ]
 
 #assert_ne a b [
-    a b != ? => null : (a @su.repr) ' != ' (b @su.repr) >< @_assertion_failed
+    a b != ?
+        => null
+    :
+        (a @su.repr) ' != ' (b @su.repr) >< @_assertion_failed
 ]
 
 #assert_true a [
-    a ? => null : (a @su.repr) ' == true' >< @_assertion_failed
+    a ?
+        => null
+    :
+        (a @su.repr) ' == true' >< @_assertion_failed
 ]
 
 #assert_false a [
-    !a ? => null : (a @su.repr) ' == false' >< @_assertion_failed
+    !a ?
+        => null
+    :
+        (a @su.repr) ' == false' >< @_assertion_failed
 ]
 
-#println s [ >>> (s '\n' ><) ]
+#assert_cast_error obj type [
+    _cast_obj { obj, type } @err.try = res
+
+    res.error null == ?
+        type ' :: ' obj >< @_assertion_failed
+]
+
+#assert_raises_error func args [
+    func args @err.try = res
+
+    res.error null == ?
+        'Func at' (func @sys.get_addr) 'did not fail' >< @_assertion_failed
+]
+
+#println s [
+    >>> (s '\n' ><)
+]

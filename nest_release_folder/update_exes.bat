@@ -5,6 +5,11 @@ copy ..\Release\nest.exe x86\nest.exe /y
 :: Standard Library
 :: ================
 
+:: Error
+copy ..\x64\Release\nest_err.dll x64\nest_libs\stderr.dll /y
+copy ..\Release\nest_err.dll x86\nest_libs\stderr.dll /y
+copy ..\nest_libs\nest_err\stderr.nest x64\nest_libs\stderr.nest /y
+copy ..\nest_libs\nest_err\stderr.nest x86\nest_libs\stderr.nest /y
 :: File system
 copy ..\x64\Release\nest_fs.dll x64\nest_libs\stdfs.dll /y
 copy ..\Release\nest_fs.dll x86\nest_libs\stdfs.dll /y
@@ -52,6 +57,8 @@ copy ..\nest_libs\nest_sys\stdsys.nest x64\nest_libs\stdsys.nest /y
 copy ..\nest_libs\nest_sys\stdsys.nest x86\nest_libs\stdsys.nest /y
 
 :: Udate .nest files
+py update_nest_file.py x64\nest_libs\stderr.nest
+py update_nest_file.py x86\nest_libs\stderr.nest
 py update_nest_file.py x64\nest_libs\stdfs.nest
 py update_nest_file.py x86\nest_libs\stdfs.nest
 py update_nest_file.py x64\nest_libs\stdio.nest

@@ -15,11 +15,11 @@
 { { 10 2 @itu.count, '101214161820', 5 },
   { 'Hi!' @itu.cycle, 'Hi!Hi!H', 6 } } = infinite_iterators
 
-... Iter :: infinite_iterators ~= i [
+... Iter :: infinite_iterators := i [
     '' = s
     0 = count
 
-    ... i.0 ~= j [
+    ... i.0 := j [
         j ><= s
 
         1 += count i.2 > ? ;
@@ -28,8 +28,8 @@
     s i.1 @test.assert_eq
 ]
 
-... Iter :: iterators ~= i [
+... Iter :: iterators := i [
     '' = s
-    ... i.0 ~= j [ j ><= s ]
+    ... i.0 := j [ j ><= s ]
     s i.1 @test.assert_eq
 ]

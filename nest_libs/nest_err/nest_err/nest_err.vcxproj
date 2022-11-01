@@ -199,6 +199,9 @@
     <ClCompile Include="..\..\..\nest\var_table.c" />
     <ClCompile Include="nest_err.cpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\stderr.nest" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

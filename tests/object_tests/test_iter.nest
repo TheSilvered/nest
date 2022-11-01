@@ -2,7 +2,7 @@
 
 '' = s
 
-... 0 2->10 ~= i [
+... 0 2->10 := i [
     i ><= s
 ]
 
@@ -17,7 +17,7 @@ s '02468' @test.assert_eq
   'idx': 0,
   'seq': { 'a', 'b', 'c', 'd', 'e' } } = iter_map
 
-... Iter :: iter_map ~= i [
+... Iter :: iter_map := i [
     v i +
 ]
 

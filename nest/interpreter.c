@@ -37,8 +37,13 @@
     do { \
         if ( nst_state.traceback->error.occurred ) \
         { \
-            LList_append(nst_state.traceback->positions, &(start_pos), false); \
-            LList_append(nst_state.traceback->positions, &(end_pos), false); \
+            Nst_Pos *positions = malloc(sizeof(Nst_Pos) * 2); \
+            if ( positions == NULL ) \
+                break; \
+            positions[0] = start_pos; \
+            positions[1] = end_pos; \
+            LList_push(nst_state.traceback->positions, positions + 1, false); \
+            LList_push(nst_state.traceback->positions, positions,     true); \
             break; \
         } \
         _NST_SET_ERROR(GLOBAL_ERROR, start_pos, end_pos, op_err.name, op_err.message); \
@@ -331,14 +336,6 @@ int nst_run_module(char *filename, char **lib_text)
 
     if ( ERROR_OCCURRED )
     {
-        Nst_FuncCall call = nst_pop_func(nst_state.f_stack);
-        nst_dec_ref(nst_map_drop_str((*nst_state.vt)->vars, "_vars_"));
-        nst_dec_ref((*nst_state.vt)->vars);
-        free(*nst_state.vt);
-        nst_dec_ref(call.func);
-        *nst_state.vt = call.vt;
-        *nst_state.idx = call.idx;
-
         return -1;
     }
     else

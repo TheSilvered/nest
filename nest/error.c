@@ -50,22 +50,30 @@ static void print_repeat(char ch, long times)
         printf("%c", ch);
 }
 
-static int print_line(Nst_Pos *pos, long start_col, long end_col, int max_indent)
+static int print_line(Nst_Pos *pos, long start_col, long end_col, int max_indent, int max_line)
 {
-    printf("| ");
-
     long line_length = 0;
     long indent = 0;
     long curr_line = 0;
     bool is_indentation = true;
     char *text = pos->text;
     size_t text_len = pos->text_len;
-
     long lineno = pos->line;
-
     bool is_printing_error = false;
-
     long li = 0;
+    int line_len = 0;
+
+    if ( max_line == 0 )
+        max_line = lineno + 1;
+
+    while ( max_line > 0 )
+    {
+        line_len++;
+        max_line /= 10;
+    }
+
+    printf(" %#*i | ", line_len, lineno + 1);
+
     for ( size_t i = 0; i < text_len; i++ )
     {
         if ( curr_line == lineno )
@@ -126,14 +134,16 @@ static int print_line(Nst_Pos *pos, long start_col, long end_col, int max_indent
 
     if ( use_color )
     {
-        printf(C_RESET "| " C_RED);
+        print_repeat(' ', line_len);
+        printf(C_RESET "  | " C_RED);
         print_repeat(' ', start_col - indent);
         print_repeat('^', end_col - start_col + 1);
         printf(C_RESET "\n");
     }
     else
     {
-        printf("| ");
+        print_repeat(' ', line_len);
+        printf("  | ");
         print_repeat(' ', start_col - indent);
         print_repeat('^', end_col - start_col + 1);
         printf("\n");
@@ -161,11 +171,11 @@ static void print_position(Nst_Pos start, Nst_Pos end)
 
     if ( start.line == end.line )
     {
-        print_line(&start, start.col, end.col, -1);
+        print_line(&start, start.col, end.col, -1, 0);
         return;
     }
 
-    int max_indent = print_line(&start, start.col, -1, -1);
+    int max_indent = print_line(&start, start.col, -1, -1, end.line + 1);
 
     for (long i = 1, n = end.line - start.line; i < n; i++)
     {
@@ -177,10 +187,10 @@ static void print_position(Nst_Pos start, Nst_Pos end)
             start.text_len
         };
 
-        print_line(&mid_line_pos, 0, -1, max_indent);
+        print_line(&mid_line_pos, 0, -1, max_indent, end.line + 1);
     }
 
-    print_line(&end, 0, end.col, max_indent);
+    print_line(&end, 0, end.col, max_indent, end.line);
 }
 
 void nst_print_error(Nst_Error err)

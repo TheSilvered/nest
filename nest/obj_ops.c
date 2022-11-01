@@ -1395,6 +1395,8 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         }
     }
 
+    LList_append(nst_state.lib_paths, full_path, false);
+
     // Check if the module was loaded previously
     for ( LLNode *n = nst_state.lib_handles->head; n != NULL; n = n->next )
     {
@@ -1429,6 +1431,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         handle->text = lib_text;
 
         LList_append(nst_state.lib_handles, handle, true);
+        LList_pop(nst_state.lib_paths);
         return (Nst_Obj *)map;
     }
 
@@ -1527,7 +1530,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     handle->text = NULL;
 
     LList_append(nst_state.lib_handles, handle, true);
-
+    LList_pop(nst_state.lib_paths);
     return nst_inc_ref(func_map);
 }
 
