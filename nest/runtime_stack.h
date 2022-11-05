@@ -9,7 +9,7 @@
 #include "var_table.h"
 
 #define nst_push_func(f_stack, func, start, end, vt, idx) \
-        _nst_push_func(f_stack, AS_FUNC(func), start, end, vt, idx)
+        _nst_push_func(f_stack, FUNC(func), start, end, vt, idx)
 
 #define nst_push_val(v_stack, val) \
         _nst_push_val(v_stack, (Nst_Obj *)(val))
@@ -18,7 +18,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct
+typedef struct _Nst_ValueStack
 {
     Nst_Obj **stack;
     size_t current_size;
@@ -26,7 +26,7 @@ typedef struct
 }
 Nst_ValueStack;
 
-typedef struct
+typedef struct _Nst_FuncCall
 {
     Nst_FuncObj *func;
     Nst_Pos start;
@@ -36,7 +36,7 @@ typedef struct
 }
 Nst_FuncCall;
 
-typedef struct
+typedef struct _Nst_CallStack
 {
     Nst_FuncCall *stack;
     size_t current_size;

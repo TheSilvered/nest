@@ -5,9 +5,9 @@
 #include "obj_ops.h"
 #include "lib_import.h"
 
-static Nst_Obj *new_seq(size_t len, size_t size, Nst_Obj *type)
+static Nst_Obj *new_seq(size_t len, size_t size, Nst_TypeObj *type)
 {
-    Nst_SeqObj *seq = AS_SEQ(nst_alloc_obj(
+    Nst_SeqObj *seq = SEQ(nst_alloc_obj(
         sizeof(Nst_SeqObj),
         type,
         nst_destroy_seq
@@ -31,7 +31,7 @@ static Nst_Obj *new_seq(size_t len, size_t size, Nst_Obj *type)
 
 Nst_Obj *nst_new_array(size_t len)
 {
-    return new_seq(len, len, nst_t_arr);
+    return new_seq(len, len, nst_t.Array);
 }
 
 Nst_Obj *nst_new_vector(size_t len)
@@ -41,7 +41,7 @@ Nst_Obj *nst_new_vector(size_t len)
     if ( size < VECTOR_MIN_SIZE )
         size = VECTOR_MIN_SIZE;
 
-    return new_seq(len, size, nst_t_vect);
+    return new_seq(len, size, nst_t.Vector);
 }
 
 void nst_destroy_seq(Nst_SeqObj *seq)
@@ -148,7 +148,7 @@ Nst_Obj *_nst_rem_value_vector(Nst_SeqObj *vect, Nst_Obj *val)
 
     for ( ; i < n; i++ )
     {
-        if ( nst_obj_eq(val, objs[i], NULL) == nst_true )
+        if ( nst_obj_eq(val, objs[i], NULL) == nst_c.b_true )
         {
             nst_dec_ref(objs[i]);
             break;
@@ -184,8 +184,8 @@ Nst_Obj *_nst_pop_value_vector(Nst_SeqObj *vect, size_t quantity)
 
     if ( last_obj == NULL )
     {
-        nst_inc_ref(nst_null);
-        return nst_null;
+        nst_inc_ref(nst_c.null);
+        return nst_c.null;
     }
     else
     {

@@ -10,20 +10,20 @@
 
 #define VECTOR_MIN_SIZE 8
 #define VECTOR_GROWTH_RATIO 1.8f
-#define AS_SEQ(ptr)  ((Nst_SeqObj *)(ptr))
+#define SEQ(ptr)  ((Nst_SeqObj *)(ptr))
 
-#define nst_resize_vector(vect) _nst_resize_vector(AS_SEQ(vect))
-#define nst_append_value_vector(vect, val) _nst_append_value_vector(AS_SEQ(vect), (Nst_Obj *)val)
-#define nst_set_value_seq(seq, idx, val) _nst_set_value_seq(AS_SEQ(seq), idx, (Nst_Obj *)val)
-#define nst_rem_value_vector(vect, val) _nst_rem_value_vector(AS_SEQ(vect), (Nst_Obj *)val)
-#define nst_pop_value_vector(vect, quantity) _nst_pop_value_vector(AS_SEQ(vect), quantity)
-#define nst_get_value_seq(seq, idx) _nst_get_value_seq(AS_SEQ(seq), idx)
+#define nst_resize_vector(vect) _nst_resize_vector(SEQ(vect))
+#define nst_append_value_vector(vect, val) _nst_append_value_vector(SEQ(vect), (Nst_Obj *)val)
+#define nst_set_value_seq(seq, idx, val) _nst_set_value_seq(SEQ(seq), idx, (Nst_Obj *)val)
+#define nst_rem_value_vector(vect, val) _nst_rem_value_vector(SEQ(vect), (Nst_Obj *)val)
+#define nst_pop_value_vector(vect, quantity) _nst_pop_value_vector(SEQ(vect), quantity)
+#define nst_get_value_seq(seq, idx) _nst_get_value_seq(SEQ(seq), idx)
 
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct
+typedef struct _Nst_SeqObj
 {
     NST_OBJ_HEAD;
     NST_GGC_SUPPORT;
@@ -32,6 +32,9 @@ typedef struct
     size_t size;
 }
 Nst_SeqObj; // vector or array
+
+typedef Nst_SeqObj Nst_ArrayObj;
+typedef Nst_SeqObj Nst_VectorObj;
 
 // Creates a new array of length `len`, the objects must be set manually inside
 Nst_Obj *nst_new_array(size_t len);

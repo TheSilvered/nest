@@ -5,6 +5,7 @@
 #include "sequence.h"
 #include "simple_types.h"
 #include "str.h"
+#include "global_consts.h"
 
 Nst_Obj *nst_new_iter(
     Nst_FuncObj *start,
@@ -13,9 +14,9 @@ Nst_Obj *nst_new_iter(
     Nst_FuncObj *get_val,
     Nst_Obj *value)
 {
-    Nst_IterObj *iter = AS_ITER(nst_alloc_obj(
+    Nst_IterObj *iter = ITER(nst_alloc_obj(
         sizeof(Nst_IterObj),
-        nst_t_iter,
+        nst_t.Iter,
         nst_destroy_iter
     ));
     if ( iter == NULL )
@@ -73,21 +74,21 @@ void nst_traverse_iter(Nst_IterObj* iter)
 
 NST_FUNC_SIGN(nst_num_iter_start)
 {
-    Nst_SeqObj *val = AS_SEQ(args[0]);
+    Nst_SeqObj *val = SEQ(args[0]);
     AS_INT(val->objs[0]) = AS_INT(val->objs[1]);
     NST_RETURN_NULL;
 }
 
 NST_FUNC_SIGN(nst_num_iter_advance)
 {
-    Nst_SeqObj *val = AS_SEQ(args[0]);
+    Nst_SeqObj *val = SEQ(args[0]);
     AS_INT(val->objs[0]) += AS_INT(val->objs[3]);
     NST_RETURN_NULL;
 }
 
 NST_FUNC_SIGN(nst_num_iter_is_done)
 {
-    Nst_SeqObj *val = AS_SEQ(args[0]);
+    Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
     Nst_Int idx = AS_INT(objs[0]);
     Nst_Int stop = AS_INT(objs[2]);
@@ -101,29 +102,29 @@ NST_FUNC_SIGN(nst_num_iter_is_done)
 
 NST_FUNC_SIGN(nst_num_iter_get_val)
 {
-    Nst_SeqObj *val = AS_SEQ(args[0]);
+    Nst_SeqObj *val = SEQ(args[0]);
     return nst_new_int(AS_INT(val->objs[0]));
 }
 
 NST_FUNC_SIGN(nst_seq_iter_start)
 {
-    Nst_SeqObj *val = AS_SEQ(args[0]);
+    Nst_SeqObj *val = SEQ(args[0]);
     AS_INT(val->objs[0]) = 0;
     NST_RETURN_NULL;
 }
 
 NST_FUNC_SIGN(nst_seq_iter_advance)
 {
-    Nst_SeqObj *val = AS_SEQ(args[0]);
+    Nst_SeqObj *val = SEQ(args[0]);
     AS_INT(val->objs[0]) += 1;
     NST_RETURN_NULL;
 }
 
 NST_FUNC_SIGN(nst_seq_iter_is_done)
 {
-    Nst_SeqObj *val = AS_SEQ(args[0]);
+    Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
-    size_t seq_len = AS_SEQ(objs[1])->len;
+    size_t seq_len = SEQ(objs[1])->len;
 
     if ( seq_len == 0 || AS_INT(objs[0]) >= (Nst_Int)seq_len )
         NST_RETURN_TRUE;
@@ -133,14 +134,14 @@ NST_FUNC_SIGN(nst_seq_iter_is_done)
 
 NST_FUNC_SIGN(nst_seq_iter_get_val)
 {
-    Nst_SeqObj *val = AS_SEQ(args[0]);
-    Nst_SeqObj *seq = AS_SEQ(val->objs[1]);
+    Nst_SeqObj *val = SEQ(args[0]);
+    Nst_SeqObj *seq = SEQ(val->objs[1]);
     size_t idx = (size_t)AS_INT(val->objs[0]);
 
     if ( seq->len < idx )
     {
         NST_SET_VALUE_ERROR(_nst_format_error(
-            seq->type == nst_t_arr ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
+            seq->type == nst_t.Array ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
                                    : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
             "iu",
             idx,
@@ -150,29 +151,29 @@ NST_FUNC_SIGN(nst_seq_iter_get_val)
         return NULL;
     }
 
-    Nst_Obj *obj = AS_SEQ(val->objs[1])->objs[AS_INT(val->objs[0])];
+    Nst_Obj *obj = SEQ(val->objs[1])->objs[AS_INT(val->objs[0])];
     return nst_inc_ref(obj);
 }
 
 NST_FUNC_SIGN(nst_str_iter_start)
 {
-    Nst_SeqObj *val = AS_SEQ(args[0]);
+    Nst_SeqObj *val = SEQ(args[0]);
     AS_INT(val->objs[0]) = 0;
     NST_RETURN_NULL;
 }
 
 NST_FUNC_SIGN(nst_str_iter_advance)
 {
-    Nst_SeqObj *val = AS_SEQ(args[0]);
+    Nst_SeqObj *val = SEQ(args[0]);
     AS_INT(val->objs[0]) += 1;
     NST_RETURN_NULL;
 }
 
 NST_FUNC_SIGN(nst_str_iter_is_done)
 {
-    Nst_SeqObj *val = AS_SEQ(args[0]);
+    Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
-    size_t str_len = AS_STR(objs[1])->len;
+    size_t str_len = STR(objs[1])->len;
 
     if ( str_len == 0 || AS_INT(objs[0]) >= (Nst_Int)str_len )
         NST_RETURN_TRUE;
@@ -182,9 +183,9 @@ NST_FUNC_SIGN(nst_str_iter_is_done)
 
 NST_FUNC_SIGN(nst_str_iter_get_val)
 {
-    Nst_SeqObj *val = AS_SEQ(args[0]);
+    Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
-    Nst_StrObj *str = AS_STR(objs[1]);
+    Nst_StrObj *str = STR(objs[1]);
     size_t idx = (size_t)AS_INT(objs[0]);
 
     if ( str->len < idx )

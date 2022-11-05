@@ -87,6 +87,9 @@
     <ClCompile Include="argv_parser.c">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="global_consts.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="error.h">
@@ -140,9 +143,6 @@
     <ClInclude Include="tokens.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="nest_include.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="lib_import.h">
       <Filter>Header files</Filter>
     </ClInclude>
@@ -171,6 +171,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="nest.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="global_consts.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

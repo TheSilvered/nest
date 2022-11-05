@@ -3,7 +3,6 @@
 #ifndef COMPILER_H
 #define COMPILER_H
 
-#include "simple_types.h"
 #include "instructions.h"
 #include "nodes.h"
 

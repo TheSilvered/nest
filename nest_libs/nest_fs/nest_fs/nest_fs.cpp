@@ -54,7 +54,7 @@ Nst_StrObj *heap_str(std::string str)
     char *heap_s = new char[str.length() + 1];
     memcpy(heap_s, str.c_str(), str.length());
     heap_s[str.length()] = 0;
-    return AS_STR(nst_new_string(heap_s, str.length(), true));
+    return STR(nst_new_string(heap_s, str.length(), true));
 }
 
 NST_FUNC_SIGN(isdir_)
@@ -244,7 +244,7 @@ NST_FUNC_SIGN(list_dir_)
         return nullptr;
     }
 
-    Nst_SeqObj *vector = AS_SEQ(nst_new_vector(0));
+    Nst_SeqObj *vector = SEQ(nst_new_vector(0));
 
     for ( fs::directory_entry const &entry : fs::directory_iterator{ path->value } )
     {
@@ -268,7 +268,7 @@ NST_FUNC_SIGN(list_dir_recursive_)
         return nullptr;
     }
 
-    Nst_SeqObj *vector = AS_SEQ(nst_new_vector(0));
+    Nst_SeqObj *vector = SEQ(nst_new_vector(0));
 
     for ( fs::directory_entry const &entry : fs::recursive_directory_iterator{ path->value } )
     {
@@ -304,7 +304,7 @@ NST_FUNC_SIGN(equivalent_)
 
 NST_FUNC_SIGN(_get_copy_options_)
 {
-    Nst_MapObj *options = AS_MAP(nst_new_map());
+    Nst_MapObj *options = MAP(nst_new_map());
 
     nst_map_set_str(options, "none",            nst_new_int((Nst_Int)fs::copy_options::none));
     nst_map_set_str(options, "skip",            nst_new_int((Nst_Int)fs::copy_options::skip_existing));

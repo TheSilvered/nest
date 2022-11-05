@@ -4,6 +4,8 @@
 #include <string.h>
 #include <ctype.h>
 #include "str.h"
+#include "error.h"
+#include "lib_import.h"
 
 #define IS_WHITESPACE(ch) \
         (  ch == ' ' \
@@ -14,44 +16,35 @@
         || ch == '\f')
 
 #define RETURN_INT_ERR do { \
-    err->name = "Value Error"; \
-    err->message = "invalid integer literal"; \
+    NST_SET_RAW_VALUE_ERROR(_NST_EM_BAD_INT_LITERAL); \
     return NULL; \
-    } while (0)
+    } while ( 0 )
 
 #define RETURN_BYTE_ERR do { \
-    err->name = "Value Error"; \
-    err->message = "invalid byte literal"; \
+    NST_SET_RAW_VALUE_ERROR(_NST_EM_BAD_BYTE_LITERAL); \
     return NULL; \
-    } while (0)
+    } while ( 0 )
 
 #define RETURN_REAL_ERR do { \
-    err->name = "Value Error"; \
-    err->message = "invalid real literal"; \
+    NST_SET_RAW_VALUE_ERROR(_NST_EM_BAD_REAL_LITERAL); \
     return NULL; \
-    } while (0)
+    } while ( 0 )
 
-Nst_Obj *nst_new_string_raw(const char *val, bool allocated)
+Nst_Obj *nst_new_cstring_raw(const char *val, bool allocated)
 {
-    Nst_StrObj *str = AS_STR(nst_alloc_obj(
-        sizeof(Nst_StrObj),
-        nst_t_str,
-        nst_destroy_string
-    ));
-    if ( str == NULL ) return NULL;
+    return nst_new_string((char *)val, strlen(val), allocated);
+}
 
-    if (allocated) str->flags |= NST_FLAG_STR_IS_ALLOC;
-    str->len = strlen(val);
-    str->value = (char *)val;
-
-    return (Nst_Obj *)str;
+Nst_Obj *nst_new_cstring(const char *val, size_t len, bool allocated)
+{
+    return nst_new_string((char *)val, len, allocated);
 }
 
 Nst_Obj *nst_new_string(char *val, size_t len, bool allocated)
 {
-    Nst_StrObj *str = AS_STR(nst_alloc_obj(
+    Nst_StrObj *str = STR(nst_alloc_obj(
         sizeof(Nst_StrObj),
-        nst_t_str,
+        nst_t.Str,
         nst_destroy_string
     ));
     if ( str == NULL ) return NULL;
@@ -63,11 +56,11 @@ Nst_Obj *nst_new_string(char *val, size_t len, bool allocated)
     return (Nst_Obj *)str;
 }
 
-Nst_Obj *nst_new_type_obj(const char *val, size_t len)
+Nst_TypeObj *nst_new_type_obj(const char *val, size_t len)
 {
-    Nst_StrObj *str = AS_STR(nst_alloc_obj(
+    Nst_TypeObj *str = STR(nst_alloc_obj(
         sizeof(Nst_StrObj),
-        nst_t_type,
+        nst_t.Type,
         nst_destroy_string
     ));
     if ( str == NULL ) return NULL;
@@ -75,7 +68,7 @@ Nst_Obj *nst_new_type_obj(const char *val, size_t len)
     str->len = len;
     str->value = (char *)val;
 
-    return (Nst_Obj *)str;
+    return str;
 }
 
 Nst_Obj *_nst_copy_string(Nst_StrObj *src)
@@ -210,7 +203,7 @@ void nst_destroy_string(Nst_StrObj *str)
         free(str->value);
 }
 
-Nst_Obj *nst_parse_int(Nst_StrObj *str, Nst_OpErr *err)
+Nst_Obj *nst_parse_int(Nst_StrObj *str, struct _Nst_OpErr *err)
 {
     char *s = str->value;
     char *end = s + str->len;
@@ -256,7 +249,7 @@ Nst_Obj *nst_parse_int(Nst_StrObj *str, Nst_OpErr *err)
     return nst_new_int(num * sign);
 }
 
-Nst_Obj *nst_parse_byte(Nst_StrObj *str, Nst_OpErr *err)
+Nst_Obj *nst_parse_byte(Nst_StrObj *str, struct _Nst_OpErr *err)
 {
     if ( str->len == 1 )
         return nst_new_byte(str->value[0]);
@@ -311,7 +304,7 @@ Nst_Obj *nst_parse_byte(Nst_StrObj *str, Nst_OpErr *err)
     RETURN_BYTE_ERR;
 }
 
-Nst_Obj *nst_parse_real(Nst_StrObj *str, Nst_OpErr *err)
+Nst_Obj *nst_parse_real(Nst_StrObj *str, struct _Nst_OpErr *err)
 {
     char *s = str->value;
     char *end = s + str->len;

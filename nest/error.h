@@ -5,105 +5,107 @@
 
 #include <stddef.h>
 #include <stdint.h>
+#include "str.h"
 #include "llist.h"
 
-#define NST_E_SYNTAX_ERROR (char *)"Syntax Error"
-#define NST_E_MEMORY_ERROR (char *)"Memory Error"
-#define NST_E_VALUE_ERROR (char *)"Value Error"
-#define NST_E_TYPE_ERROR (char *)"Type Error"
-#define NST_E_CALL_ERROR (char *)"Call Error"
-#define NST_E_MATH_ERROR (char *)"Math Error"
-#define NST_E_GENERAL_ERROR (char *)"Unknown Error"
-
-#define NST_E_CSYNTAX_ERROR "Syntax Error"
-#define NST_E_CMEMORY_ERROR "Memory Error"
-#define NST_E_CVALUE_ERROR "Value Error"
-#define NST_E_CTYPE_ERROR "Type Error"
-#define NST_E_CCALL_ERROR "Call Error"
-#define NST_E_CMATH_ERROR "Math Error"
-#define NST_E_CGENERAL_ERROR "Unknown Error"
-
 // error messages
-#define _NST_EM_UNEXPECTED_NEWLINE (char *)"unescaped line feed not allowed on single-line strings"
-#define _NST_EM_INVALID_SYMBOL (char *)"invalid symbol"
-#define _NST_EM_INT_TOO_BIG (char *)"Int literal's value is too large"
-#define _NST_EM_REAL_TOO_BIG (char *)"Real literal's value is too large"
-#define _NST_EM_BAD_REAL_LITEARL (char *)"invalid Real literal"
-#define _NST_EM_INVALID_ESCAPE (char *)"invalid escape sequence"
-#define _NST_EM_UNCLOSED_STR_LITERAL (char *)"string literal was never closed"
-#define _NST_EM_UNCLOSED_COMMENT (char *)"multiline comment was never closed"
-#define _NST_EM_UNEXPECTED_TOK (char *)"unexpected token"
-#define _NST_EM_MISSING_BRACKET (char *)"unmatched '['"
-#define _NST_EM_BAD_RETURN (char *)"'=>' ouside of a function"
-#define _NST_EM_BAD_CONTINUE (char *)"'..' outside of a loop"
-#define _NST_EM_BAD_BREAK (char *)"';' outside of a loop"
-#define _NST_EM_EXPECTED_BRACKET (char *)"expected '['"
-#define _NST_EM_EXPECTED_RETURN (char *)"expected '=>'"
-#define _NST_EM_EXPECTED_R_BRACKET (char *)"expected ']'"
-#define _NST_EM_EXPECTED_QUESTION_MARK (char *)"expected '?'"
-#define _NST_EM_EXPECTED_IDENT (char *)"expected identifier"
-#define _NST_EM_EXPECTED_VALUE (char *)"expected value"
-#define _NST_EM_INVALID_EXPRESSION (char *)"invalid expression"
-#define _NST_EM_EXPECTED_OP (char *)"expected stack or local stack operator"
-#define _NST_EM_EXPECTED_IDENT_OR_EXTR (char *)"expected identifier or extraction"
-#define _NST_EM_MISSING_PAREN (char *)"unmatched '('"
-#define _NST_EM_MISSING_VECTOR_BRACE (char *)"unmatched '<{'"
-#define _NST_EM_EXPECTED_COMMA_OR_BRACE (char *)"expected ',' or '}'"
-#define _NST_EM_EXPECTED_BRACE (char *)"expected '}'"
-#define _NST_EM_EXPECTED_COLON (char *)"expected ':'"
-#define _NST_EM_EXPECTED_TYPE(type) (char *)("expected type '" type "', got '%s' instead")
-#define _NST_EM_EXPECTED_TYPES (char *)"expected type '%s', got '%s' instead"
-#define _NST_EM_UNHASHABLE_TYPE (char *)"unhashable type '%s'"
-#define _NST_EM_INDEX_OUT_OF_BOUNDS(type) (char *)("index %lli out of bounds for '" type "' of size %zi")
-#define _NST_EM_TOO_MANY_ARGS(name) (char *)("too many arguments were given to '" name "'")
-#define _NST_EM_TOO_FEW_ARGS(name) (char *)("too few arguments were given to '" name "'")
-#define _NST_EM_WRONG_ARG_NUM (char *)"the function expected %zi arguments but %lli were passed"
-#define _NST_EM_ZERO_RANGE_STEP (char *)"step must not be zero"
-#define _NST_EM_EXPECTED_BOOL_ITER_IS_DONE (char *)"expected 'Bool' type from '_is_done_', got type '%s' instead"
-#define _NST_EM_FILE_NOT_FOUND (char *)"file '%s' not found"
-#define _NST_EM_FILE_NOT_DLL (char *)"the file is not a valid DLL"
-#define _NST_EM_FILE_NOT_SO (char *)"the file is not a valid shared object"
-#define _NST_EM_NO_LIB_INIT (char *)"the DLL does not specify a 'lib_init' function"
-#define _NST_EM_NO_GET_FUNC_PTRS (char *)"the DLL does not specify a 'get_func_ptrs' function"
-#define _NST_EM_WRONG_TYPE_FOR_ARG(type) (char *)("expected type '" type "' for argument %zi, got type '%s' instead")
-#define _NST_EM_ARG_NUM_DOESNT_MATCH (char *)"argument number doesn't match to the given types"
-#define _NST_EM_INCVALID_TYPE_LETTER (char *)"invalid letter in type string"
-#define _NST_EM_RAN_OUT_OF_MEMORY (char *)"ran out of memory"
-#define _NST_EM_NEGATIVE_SIZE_FOR_SEQUENCE (char *)"the specified quantity is negative"
-#define _NST_EM_CALL_STACK_SIZE_EXCEEDED (char *)"the maximum call stack size (1000 calls) was exceeded"
+#define _NST_EM_INVALID_CHAR "invalid character"
+#define _NST_EM_UNEXPECTED_NEWLINE "unescaped line feed not allowed on single-line strings"
+#define _NST_EM_INVALID_SYMBOL "invalid symbol"
+#define _NST_EM_INT_TOO_BIG "Int literal's value is too large"
+#define _NST_EM_REAL_TOO_BIG "Real literal's value is too large"
+#define _NST_EM_BAD_INT_LITERAL "invalid Int literal"
+#define _NST_EM_BAD_BYTE_LITERAL "invalid Byte literal"
+#define _NST_EM_BAD_REAL_LITERAL "invalid Real literal"
+#define _NST_EM_INVALID_ESCAPE "invalid escape sequence"
+#define _NST_EM_OPEN_STR_LITERAL "string literal was never closed"
+#define _NST_EM_OPEN_COMMENT "multiline comment was never closed"
+#define _NST_EM_UNEXPECTED_TOK "unexpected token"
+#define _NST_EM_MISSING_BRACKET "unmatched '['"
+#define _NST_EM_BAD_RETURN "'=>' ouside of a function"
+#define _NST_EM_BAD_CONTINUE "'..' outside of a loop"
+#define _NST_EM_BAD_BREAK "';' outside of a loop"
+#define _NST_EM_EXPECTED_BRACKET "expected '['"
+#define _NST_EM_EXPECTED_RETURN "expected '=>'"
+#define _NST_EM_EXPECTED_R_BRACKET "expected ']'"
+#define _NST_EM_EXPECTED_IF "expected '?'"
+#define _NST_EM_EXPECTED_IDENT "expected identifier"
+#define _NST_EM_EXPECTED_VALUE "expected value"
+#define _NST_EM_INVALID_EXPRESSION "invalid expression"
+#define _NST_EM_EXPECTED_OP "expected stack or local stack operator"
+#define _NST_EM_EXPECTED_IDENT_OR_EXTR "expected identifier or extraction"
+#define _NST_EM_MISSING_PAREN "unmatched '('"
+#define _NST_EM_MISSING_VBRACE "unmatched '<{'"
+#define _NST_EM_EXPECTED_COMMA_OR_BRACE "expected ',' or '}'"
+#define _NST_EM_EXPECTED_BRACE "expected '}'"
+#define _NST_EM_EXPECTED_COLON "expected ':'"
+#define _NST_EM_RANGE_STEP_ZERO "step must not be zero"
+#define _NST_EM_FILE_NOT_DLL "the file is not a valid DLL"
+#define _NST_EM_FILE_NOT_SO "the file is not a valid shared object"
+#define _NST_EM_ARG_NUM_DOESNT_MATCH "argument number doesn't match to the given types"
+#define _NST_EM_INVALID_TYPE_LETTER "invalid letter in type string"
+#define _NST_EM_RAN_OUT_OF_MEMORY "ran out of memory"
+#define _NST_EM_NEGATIVE_SIZE_FOR_SEQ "the specified quantity is negative"
+#define _NST_EM_CALL_STACK_SIZE_EXCEEDED "the maximum call stack size (1000 calls) was exceeded"
+#define _NST_EM_DIVISION_BY_ZERO "division by zero"
+#define _NST_EM_MODULO_BY_ZERO "modulo by zero"
+#define _NST_EM_COMPLEX_POW "fractional power of a negative number"
+#define _NST_EM_INVALID_CASTING "invalid casting from '%s' to '%s'"
+#define _NST_EM_CIRC_IMPORT "circular import"
+#define _NST_EM_LIB_INIT_FAILED "module was not initialized correctly"
+
+#define _NST_EM_EXPECTED_TYPE(type) "expected type '" type "', got '%s' instead"
+#define _NST_EM_EXPECTED_TYPES "expected type '%s', got '%s' instead"
+#define _NST_EM_UNHASHABLE_TYPE "unhashable type '%s'"
+#define _NST_EM_INDEX_OUT_OF_BOUNDS(type) "index %lli out of bounds for '" type "' of size %zi"
+#define _NST_EM_TOO_MANY_ARGS(name) "too many arguments were given to '" name "'"
+#define _NST_EM_TOO_FEW_ARGS(name) "too few arguments were given to '" name "'"
+#define _NST_EM_WRONG_ARG_NUM "the function expected %zi arguments but %lli were passed"
+#define _NST_EM_EXPECTED_BOOL_ITER_IS_DONE "expected 'Bool' type from '_is_done_', got type '%s' instead"
+#define _NST_EM_FILE_NOT_FOUND "file '%s' not found"
+#define _NST_EM_WRONG_TYPE_FOR_ARG(type) "expected type '" type "' for argument %zi, got type '%s' instead"
+#define _NST_EM_MISSING_FUNC(func) "missing '" func "' for a custom iterator"
+#define _NST_EM_INVALID_OPERAND_TYPE(operand) "invalid type '%s' for '" operand "'"
+#define _NST_EM_NO_LIB_FUNC(func) "the library does not specify a '" func "' function"
 
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct
+typedef struct _Nst_SourceText
+{
+    char *text;
+    char *path;
+    size_t len;
+}
+Nst_SourceText;
+
+typedef struct _Nst_Pos
 {
     long line;
     long col;
-    char *filename;
-    char *text;
-    size_t text_len;
+    Nst_SourceText *text;
 }
 Nst_Pos;
 
-typedef struct
+typedef struct _Nst_Error
 {
     bool occurred;
     Nst_Pos start;
     Nst_Pos end;
-    char *name;
-    char *message;
+    Nst_StrObj *name;
+    Nst_StrObj *message;
 }
 Nst_Error;
 
-typedef struct
+typedef struct _Nst_OpErr
 {
-    const char *name;
-    const char *message;
+    Nst_StrObj *name;
+    Nst_StrObj *message;
 }
 Nst_OpErr;
 
-typedef struct
+typedef struct _Nst_Traceback
 {
     Nst_Error error;
     LList *positions;
@@ -126,7 +128,7 @@ void nst_print_traceback(Nst_Traceback tb);
 //   s: char *,
 //   u: size_t,
 //   i: Nst_Int
-char *_nst_format_error(const char *format, const char *format_args, ...);
+Nst_StrObj *_nst_format_error(const char *format, const char *format_args, ...);
 
 #ifdef __cplusplus
 }

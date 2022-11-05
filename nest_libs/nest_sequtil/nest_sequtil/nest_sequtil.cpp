@@ -53,8 +53,8 @@ NST_FUNC_SIGN(map_)
         return nullptr;
     }
 
-    Nst_SeqObj *new_seq = seq->type == nst_t_arr ? AS_SEQ(nst_new_array(seq->len))
-                                                 : AS_SEQ(nst_new_vector(seq->len));
+    Nst_SeqObj *new_seq = seq->type == nst_t.Array ? SEQ(nst_new_array(seq->len))
+                                                 : SEQ(nst_new_vector(seq->len));
 
     for ( size_t i = 0, n = seq->len; i < n; i++ )
     {
@@ -104,8 +104,8 @@ NST_FUNC_SIGN(insert_at_)
     }
 
     // Force the vector to grow
-    nst_append_value_vector(vect, nst_null);
-    nst_dec_ref(nst_null);
+    nst_append_value_vector(vect, nst_c.null);
+    nst_dec_ref(nst_c.null);
 
     for ( Nst_Int i = vect->len - 1; i >= new_idx; i-- )
         vect->objs[i + 1] = vect->objs[i];
@@ -159,7 +159,7 @@ NST_FUNC_SIGN(slice_)
         return nullptr;
 
     size_t seq_len = seq->len;
-    Nst_Obj *seq_type = args[0]->type;
+    Nst_TypeObj *seq_type = args[0]->type;
 
     if ( start < 0 )
         start += seq_len;
@@ -179,9 +179,9 @@ NST_FUNC_SIGN(slice_)
 
     if ( start >= stop || step < 0 )
     {
-        if ( seq_type == nst_t_str )
+        if ( seq_type == nst_t.Str )
             return nst_new_string((char *)"", 0, false);
-        else if ( seq_type == nst_t_arr )
+        else if ( seq_type == nst_t.Array )
             return nst_new_array(0);
         else
             return nst_new_vector(0);
@@ -189,9 +189,9 @@ NST_FUNC_SIGN(slice_)
 
     size_t new_size = (size_t)((stop - start + 1) / step);
 
-    if ( seq_type == nst_t_arr || seq_type == nst_t_vect )
+    if ( seq_type == nst_t.Array || seq_type == nst_t.Vector )
     {
-        Nst_Obj *new_seq = seq_type == nst_t_arr ? nst_new_array(new_size)
+        Nst_Obj *new_seq = seq_type == nst_t.Array ? nst_new_array(new_size)
                                                  : nst_new_vector(new_size);
 
         for ( size_t i = 0; i < new_size; i++ )
@@ -205,7 +205,7 @@ NST_FUNC_SIGN(slice_)
         char *buf = new char[new_size + 1];
 
         for ( size_t i = 0; i < new_size; i++ )
-            buf[i] = AS_STR(seq->objs[i * step + start])->value[0];
+            buf[i] = STR(seq->objs[i * step + start])->value[0];
         buf[new_size] = 0;
         nst_dec_ref(seq);
         return nst_new_string(buf, new_size, true);
@@ -222,10 +222,10 @@ NST_FUNC_SIGN(merge_)
 
     Nst_SeqObj *new_seq;
 
-    if ( seq1->type == nst_t_vect || seq2->type == nst_t_vect )
-        new_seq = AS_SEQ(nst_new_vector(seq1->len + seq2->len));
+    if ( seq1->type == nst_t.Vector || seq2->type == nst_t.Vector )
+        new_seq = SEQ(nst_new_vector(seq1->len + seq2->len));
     else
-        new_seq = AS_SEQ(nst_new_array(seq1->len + seq2->len));
+        new_seq = SEQ(nst_new_array(seq1->len + seq2->len));
 
     Nst_Int i = 0;
 
@@ -244,16 +244,16 @@ bool insertion_sort(Nst_SeqObj *seq, Nst_Int left, Nst_Int right, Nst_OpErr *err
     {
         Nst_Obj *temp = seq->objs[i];
         Nst_Int j = i - 1;
-        while ( j >= left && nst_obj_gt(seq->objs[j], temp, err) == nst_true)
+        while ( j >= left && nst_obj_gt(seq->objs[j], temp, err) == nst_c.b_true)
         {
-            nst_dec_ref(nst_true);
+            nst_dec_ref(nst_c.b_true);
             seq->objs[j + 1] = seq->objs[j];
             j--;
         }
 
-        if ( err->message[0] )
+        if ( err->message != NULL )
             return false;
-        nst_dec_ref(nst_false);
+        nst_dec_ref(nst_c.b_false);
         seq->objs[j + 1] = temp;
     }
 
@@ -281,17 +281,17 @@ void merge(Nst_SeqObj *seq, size_t l, size_t m, size_t r)
     while ( i < len1 && j < len2 )
     {
         // all objects passed through nst_obj_gt, no errors can occur
-        if ( nst_obj_le(left[i], right[j], NULL) == nst_true )
+        if ( nst_obj_le(left[i], right[j], NULL) == nst_c.b_true )
         {
             seq->objs[k] = left[i];
             i++;
-            nst_dec_ref(nst_true);
+            nst_dec_ref(nst_c.b_true);
         }
         else
         {
             seq->objs[k] = right[j];
             j++;
-            nst_dec_ref(nst_false);
+            nst_dec_ref(nst_c.b_false);
         }
         k++;
     }
@@ -375,7 +375,7 @@ NST_FUNC_SIGN(filter_)
         return nullptr;
     }
 
-    Nst_SeqObj *new_seq = AS_SEQ(nst_new_vector(0));
+    Nst_SeqObj *new_seq = SEQ(nst_new_vector(0));
 
     for ( size_t i = 0, n = seq->len; i < n; i++ )
     {
@@ -384,18 +384,18 @@ NST_FUNC_SIGN(filter_)
         if ( res == nullptr )
             return nullptr;
         
-        if ( nst_obj_cast(res, nst_t_bool, nullptr) == nst_true )
+        if ( nst_obj_cast(res, nst_t.Bool, nullptr) == nst_c.b_true )
         {
             nst_append_value_vector(new_seq, seq->objs[i]);
-            nst_dec_ref(nst_true);
+            nst_dec_ref(nst_c.b_true);
         }
         else
-            nst_dec_ref(nst_false);
+            nst_dec_ref(nst_c.b_false);
 
         nst_dec_ref(res);
     }
 
-    if ( seq->type == nst_t_arr )
+    if ( seq->type == nst_t.Array )
     {
         Nst_Obj **new_objs = (Nst_Obj **)realloc(new_seq->objs, sizeof(Nst_Obj *) * new_seq->len);
         if ( new_objs != nullptr )
@@ -405,7 +405,7 @@ NST_FUNC_SIGN(filter_)
         }
 
         nst_dec_ref(new_seq->type);
-        new_seq->type = nst_inc_ref(nst_t_arr);
+        new_seq->type = TYPE(nst_inc_ref(nst_t.Array));
     }
 
     return (Nst_Obj *)new_seq;
@@ -419,23 +419,23 @@ NST_FUNC_SIGN(contains_)
     if (!nst_extract_arg_values("oo", arg_num, args, err, &container, &object))
         return nullptr;
 
-    if ( container->type == nst_t_arr || container->type == nst_t_vect )
+    if ( container->type == nst_t.Array || container->type == nst_t.Vector )
     {
-        Nst_SeqObj *seq = AS_SEQ(container);
+        Nst_SeqObj *seq = SEQ(container);
 
         for ( size_t i = 0, n = seq->len; i < n; i++ )
         {
-            if ( nst_obj_eq(seq->objs[i], object, nullptr) == nst_true )
-                return nst_true;
+            if ( nst_obj_eq(seq->objs[i], object, nullptr) == nst_c.b_true )
+                return nst_c.b_true;
             else
-                nst_dec_ref(nst_false);
+                nst_dec_ref(nst_c.b_false);
         }
 
         NST_RETURN_FALSE;
     }
-    else if ( container->type == nst_t_map )
+    else if ( container->type == nst_t.Map )
     {
-        Nst_MapObj *map = AS_MAP(container);
+        Nst_MapObj *map = MAP(container);
 
         if ( nst_hash_obj(object) == -1 )
             NST_RETURN_FALSE;
@@ -469,10 +469,10 @@ NST_FUNC_SIGN(any_)
 
     for ( size_t i = 0, n = seq->len; i < n; i++ )
     {
-        Nst_Obj *bool_obj = nst_obj_cast(seq->objs[i], nst_t_bool, NULL);
+        Nst_Obj *bool_obj = nst_obj_cast(seq->objs[i], nst_t.Bool, NULL);
 
-        if ( bool_obj == nst_true )
-            return nst_true;
+        if ( bool_obj == nst_c.b_true )
+            return nst_c.b_true;
 
         nst_dec_ref(bool_obj);
     }
@@ -489,10 +489,10 @@ NST_FUNC_SIGN(all_)
 
     for ( size_t i = 0, n = seq->len; i < n; i++ )
     {
-        Nst_Obj *bool_obj = nst_obj_cast(seq->objs[i], nst_t_bool, NULL);
+        Nst_Obj *bool_obj = nst_obj_cast(seq->objs[i], nst_t.Bool, NULL);
 
-        if ( bool_obj == nst_false )
-            return nst_false;
+        if ( bool_obj == nst_c.b_false )
+            return nst_c.b_false;
 
         nst_dec_ref(bool_obj);
     }
@@ -525,9 +525,9 @@ NST_FUNC_SIGN(from_iter_)
         }
         else
         {
-            Nst_Obj *bool_obj = nst_obj_cast(res, nst_t_bool, NULL);
+            Nst_Obj *bool_obj = nst_obj_cast(res, nst_t.Bool, NULL);
             nst_dec_ref(res);
-            if ( bool_obj == nst_true )
+            if ( bool_obj == nst_c.b_true )
             {
                 nst_dec_ref(bool_obj);
                 break;

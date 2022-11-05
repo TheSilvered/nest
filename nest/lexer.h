@@ -11,9 +11,9 @@ extern "C" {
 #endif // !__cplusplus
 
 // Returns an LList of tokens given the path to a file
-LList *nst_ftokenize(char *filename, char **text_buffer, Nst_Error *error);
+LList *nst_ftokenize(char *filename, Nst_SourceText *src_text, Nst_Error *error);
 // Returns an LList of tokens given the text, it's length and a filename
-LList *nst_tokenize(char *text, size_t text_len, char *filename, Nst_Error *error);
+LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error);
 
 #ifdef __cplusplus
 }

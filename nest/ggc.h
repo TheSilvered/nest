@@ -12,9 +12,9 @@
 #define NST_OLD_GEN_MIN 100
 
 #define NST_GGC_SUPPORT \
-    struct Nst_GGCObj *ggc_next; \
-    struct Nst_GGCObj *ggc_prev; \
-    struct Nst_GGCList *ggc_list; \
+    struct _Nst_GGCObj *ggc_next; \
+    struct _Nst_GGCObj *ggc_prev; \
+    struct _Nst_GGCList *ggc_list; \
     void (* traverse_func)(Nst_Obj *)
 
 #define NST_GGC_SUPPORT_INIT(obj, trav_func) \
@@ -26,16 +26,16 @@
         NST_SET_FLAG(obj, NST_FLAG_GGC_IS_SUPPORTED); \
     } while (0)
 
-struct Nst_GGCList;
+struct _Nst_GGCList;
 
-typedef struct Nst_GGCObj
+typedef struct _Nst_GGCObj
 {
     NST_OBJ_HEAD;
     NST_GGC_SUPPORT;
 }
 Nst_GGCObj;
 
-typedef struct Nst_GGCList
+typedef struct _Nst_GGCList
 {
     Nst_GGCObj *head;
     Nst_GGCObj *tail;
@@ -43,7 +43,7 @@ typedef struct Nst_GGCList
 }
 Nst_GGCList;
 
-typedef struct
+typedef struct _Nst_GarbageCollector
 {
     Nst_GGCList gen1;
     Nst_GGCList gen2;

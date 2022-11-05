@@ -72,7 +72,7 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
         return;
 
     int op_tok = HEAD_TOK->type;
-    Nst_OpErr err = { "", "" };
+    Nst_OpErr err = { NULL, NULL };
     Nst_Obj *ob1 = TOK(HEAD_NODE->tokens->head->value)->value;
     Nst_Obj *ob2 = TOK(TAIL_NODE->tokens->head->value)->value;
     Nst_Obj *res = NULL;
@@ -137,7 +137,7 @@ static void ast_optimize_local_op(Nst_Node *node, Nst_Error *error)
         return;
 
     int op_tok = HEAD_TOK->type;
-    Nst_OpErr err = { "", "" };
+    Nst_OpErr err = { NULL, NULL };
     Nst_Obj *ob = TOK(HEAD_NODE->tokens->head->value)->value;
     Nst_Obj *res = NULL;
 
@@ -245,22 +245,22 @@ Nst_InstructionList *nst_optimize_bytecode(Nst_InstructionList *bc,
 {
     if ( optimize_builtins )
     {
-        optimize_builtin(bc, "Type",   nst_t_type);
-        optimize_builtin(bc, "Int",    nst_t_int );
-        optimize_builtin(bc, "Real",   nst_t_real);
-        optimize_builtin(bc, "Bool",   nst_t_bool);
-        optimize_builtin(bc, "Null",   nst_t_null);
-        optimize_builtin(bc, "Str",    nst_t_str );
-        optimize_builtin(bc, "Array",  nst_t_arr );
-        optimize_builtin(bc, "Vector", nst_t_vect);
-        optimize_builtin(bc, "Map",    nst_t_map );
-        optimize_builtin(bc, "Func",   nst_t_func);
-        optimize_builtin(bc, "Iter",   nst_t_iter);
-        optimize_builtin(bc, "Byte",   nst_t_byte);
-        optimize_builtin(bc, "IOFile", nst_t_file);
-        optimize_builtin(bc, "true",   nst_true );
-        optimize_builtin(bc, "false",  nst_false);
-        optimize_builtin(bc, "null",   nst_null );
+        optimize_builtin(bc, "Type",   OBJ(nst_t.Type));
+        optimize_builtin(bc, "Int",    OBJ(nst_t.Int ));
+        optimize_builtin(bc, "Real",   OBJ(nst_t.Real));
+        optimize_builtin(bc, "Bool",   OBJ(nst_t.Bool));
+        optimize_builtin(bc, "Null",   OBJ(nst_t.Null));
+        optimize_builtin(bc, "Str",    OBJ(nst_t.Str ));
+        optimize_builtin(bc, "Array",  OBJ(nst_t.Array ));
+        optimize_builtin(bc, "Vector", OBJ(nst_t.Vector));
+        optimize_builtin(bc, "Map",    OBJ(nst_t.Map ));
+        optimize_builtin(bc, "Func",   OBJ(nst_t.Func));
+        optimize_builtin(bc, "Iter",   OBJ(nst_t.Iter));
+        optimize_builtin(bc, "Byte",   OBJ(nst_t.Byte));
+        optimize_builtin(bc, "IOFile", OBJ(nst_t.IOFile));
+        optimize_builtin(bc, "true",   OBJ(nst_c.b_true ));
+        optimize_builtin(bc, "false",  OBJ(nst_c.b_false));
+        optimize_builtin(bc, "null",   OBJ(nst_c.null ));
     }
 
     Nst_Int initial_size;
@@ -316,8 +316,8 @@ static Nst_Int count_assignments(Nst_InstructionList *bc, Nst_StrObj *name)
             Nst_RuntimeInstruction prev_inst = inst_list[i - 1];
             if ( prev_inst.id == NST_IC_PUSH_VAL &&
                  prev_inst.val != NULL &&
-                 prev_inst.val->type == nst_t_str && 
-                 strcmp(name->value, AS_STR(prev_inst.val)->value) == 0 )
+                 prev_inst.val->type == nst_t.Str && 
+                 strcmp(name->value, STR(prev_inst.val)->value) == 0 )
                 ++tot;
         }
 
@@ -325,7 +325,7 @@ static Nst_Int count_assignments(Nst_InstructionList *bc, Nst_StrObj *name)
              inst_list[i].id != NST_IC_SET_VAL_LOC )
             continue;
 
-        if ( strcmp(name->value, AS_STR(inst_list[i].val)->value) == 0 )
+        if ( strcmp(name->value, STR(inst_list[i].val)->value) == 0 )
             ++tot;
     }
 
@@ -342,7 +342,7 @@ static void replace_access(Nst_InstructionList *bc, Nst_StrObj *name, Nst_Obj *v
         if ( inst_list[i].id != NST_IC_GET_VAL )
             continue;
 
-        if ( strcmp(name->value, AS_STR(inst_list[i].val)->value) == 0 )
+        if ( strcmp(name->value, STR(inst_list[i].val)->value) == 0 )
         {
             inst_list[i].id = NST_IC_PUSH_VAL;
             nst_dec_ref(inst_list[i].val);
@@ -356,7 +356,7 @@ static void optimize_builtin(Nst_InstructionList *bc, const char *name, Nst_Obj 
     Nst_Int size = bc->total_size;
     Nst_RuntimeInstruction *inst_list = bc->instructions;
 
-    Nst_StrObj *str_obj = AS_STR(nst_new_string_raw(name, false));
+    Nst_StrObj *str_obj = STR(nst_new_cstring_raw(name, false));
     if ( count_assignments(bc, str_obj) != 0 )
         return;
 
@@ -366,8 +366,8 @@ static void optimize_builtin(Nst_InstructionList *bc, const char *name, Nst_Obj 
     {
         if ( inst_list[i].id == NST_IC_PUSH_VAL &&
              inst_list[i].val != NULL &&
-             inst_list[i].val->type == nst_t_func )
-            optimize_func_builtin(AS_FUNC(inst_list[i].val)->body, str_obj, val);
+             inst_list[i].val->type == nst_t.Func )
+            optimize_func_builtin(FUNC(inst_list[i].val)->body.bytecode, str_obj, val);
     }
 
     nst_dec_ref(str_obj);
@@ -385,8 +385,8 @@ static void optimize_func_builtin(Nst_InstructionList *bc, Nst_StrObj *name, Nst
     {
         if ( inst_list[i].id == NST_IC_PUSH_VAL &&
              inst_list[i].val != NULL &&
-             inst_list[i].val->type == nst_t_func )
-            optimize_func_builtin(AS_FUNC(inst_list[i].val)->body, name, val);
+             inst_list[i].val->type == nst_t.Func )
+            optimize_func_builtin(FUNC(inst_list[i].val)->body.bytecode, name, val);
     }
 }
 
@@ -494,7 +494,7 @@ static void remove_push_check(Nst_InstructionList *bc, Nst_Error *error)
         if ( inst_list[i].id == NST_IC_TYPE_CHECK )
         {
 
-            if ( inst_list[i].val != inst_list[i - 1].val->type )
+            if ( inst_list[i].val != OBJ(inst_list[i - 1].val->type) )
             {
                 _NST_SET_TYPE_ERROR(
                     error,
@@ -503,7 +503,7 @@ static void remove_push_check(Nst_InstructionList *bc, Nst_Error *error)
                     _nst_format_error(
                         _NST_EM_EXPECTED_TYPES,
                         "ss",
-                        AS_STR(inst_list[i].val)->value,
+                        STR(inst_list[i].val)->value,
                         TYPE_NAME(inst_list[i - 1].val)
                     )
                 );
@@ -569,9 +569,9 @@ static void remove_push_jumpif(Nst_InstructionList *bc)
         }
         else
         {
-            Nst_Obj *cond = nst_obj_cast(inst_list[i - 1].val, nst_t_bool, NULL);
-            if ( (cond == nst_true && inst_list[i].id == NST_IC_JUMPIF_T) ||
-                 (cond == nst_false && inst_list[i].id == NST_IC_JUMPIF_F) )
+            Nst_Obj *cond = nst_obj_cast(inst_list[i - 1].val, nst_t.Bool, NULL);
+            if ( (cond == nst_c.b_true && inst_list[i].id == NST_IC_JUMPIF_T) ||
+                 (cond == nst_c.b_false && inst_list[i].id == NST_IC_JUMPIF_F) )
             {
                 nst_dec_ref(inst_list[i - 1].val);
                 inst_list[i - 1].id = NST_IC_NO_OP;
@@ -620,14 +620,14 @@ static void optimize_funcs(Nst_InstructionList *bc, Nst_Error *error)
     {
         if ( inst_list[i].id == NST_IC_PUSH_VAL &&
              inst_list[i].val != NULL           &&
-             inst_list[i].val->type == nst_t_func )
-            nst_optimize_bytecode(AS_FUNC(inst_list[i].val)->body, false, error);
+             inst_list[i].val->type == nst_t.Func )
+            nst_optimize_bytecode(FUNC(inst_list[i].val)->body.bytecode, false, error);
         else
             continue;
 
         if ( error->occurred )
         {
-            Nst_FuncObj *func = AS_FUNC(inst_list[i].val);
+            Nst_FuncObj *func = FUNC(inst_list[i].val);
             if ( func->args != NULL )
                 free(func->args);
 

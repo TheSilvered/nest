@@ -1,5 +1,0 @@
-#import lib [
-    => |#| lib
-]
-
-'_lib.nest' @import

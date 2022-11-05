@@ -7,12 +7,13 @@
 #include "error.h"
 
 #define IS_JUMP(inst) ( inst >= NST_IC_JUMP && inst <= NST_IC_JUMPIF_ZERO )
+#define nst_new_inst_val(id, val, start, end) _nst_new_inst_val(id, OBJ(val), start, end)
 
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct
+typedef struct _Nst_RuntimeInstruction
 {
     int id;
     Nst_Int int_val;
@@ -22,24 +23,25 @@ typedef struct
 }
 Nst_RuntimeInstruction;
 
-typedef struct
+typedef struct _Nst_InstructionList
 {
     size_t total_size;
     Nst_RuntimeInstruction *instructions;
 }
 Nst_InstructionList;
 
+
 // Creates a new instruction on the heap with no position
-Nst_RuntimeInstruction *new_inst_empty(int id, Nst_Int int_val);
+Nst_RuntimeInstruction *nst_new_inst_empty(int id, Nst_Int int_val);
 // Creates a new instruction on the heap with positions
-Nst_RuntimeInstruction *new_inst_pos(int id, Nst_Pos start, Nst_Pos end);
+Nst_RuntimeInstruction *nst_new_inst_pos(int id, Nst_Pos start, Nst_Pos end);
 // Creates a new instruction on the heap with positions and a value
-Nst_RuntimeInstruction *new_inst_val(int id,
-                                     Nst_Obj *val,
-                                     Nst_Pos start,
-                                     Nst_Pos end);
+Nst_RuntimeInstruction *_nst_new_inst_val(int id,
+                                          Nst_Obj *val,
+                                          Nst_Pos start,
+                                          Nst_Pos end);
 // Creates a new instruction on the heap with positions and an integer value
-Nst_RuntimeInstruction *new_inst_int_val(int id,
+Nst_RuntimeInstruction *nst_new_inst_int(int id,
                                          Nst_Int int_val,
                                          Nst_Pos start,
                                          Nst_Pos end);
@@ -59,8 +61,8 @@ enum Nst_InstructionCodes
     NST_IC_FOR_ADVANCE,
     NST_IC_SET_VAL_LOC, // Does not push its value onto the stack
     NST_IC_JUMP, // Jump to an index in the instuction array
-    NST_IC_JUMPIF_T, // Jump to an index in the instuction array if the top value is nst_true, consumes the value
-    NST_IC_JUMPIF_F, // Jump to an index in the instuction array if the top value is nst_false, consumes the value
+    NST_IC_JUMPIF_T, // Jump to an index in the instuction array if the top value is nst_c.b_true, consumes the value
+    NST_IC_JUMPIF_F, // Jump to an index in the instuction array if the top value is nst_c.b_false, consumes the value
     NST_IC_JUMPIF_ZERO, // Jumps if the top item is an integer and is zero
     NST_IC_TYPE_CHECK, // Checks the type of the top value on the stack
     NST_IC_HASH_CHECK, // Checks the type on top of the stack is hashable

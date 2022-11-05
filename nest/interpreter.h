@@ -5,11 +5,11 @@
 
 #include "error.h"
 #include "str.h"
+#include "map.h"
+#include "simple_types.h"
 #include "llist.h"
 #include "var_table.h"
-#include "map.h"
 #include "compiler.h"
-#include "simple_types.h"
 #include "runtime_stack.h"
 #include "ggc.h"
 
@@ -17,7 +17,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct
+typedef struct _Nst_ExecutionState
 {
     Nst_Traceback *traceback;
     Nst_VarTable **vt;
@@ -33,18 +33,18 @@ typedef struct
 }
 Nst_ExecutionState;
 
-typedef struct
+typedef struct _Nst_LibHandle
 {
     Nst_MapObj *val;
     char *path;
-    char *text;
+    Nst_SourceText *text;
 }
 Nst_LibHandle;
 
 // Runs the main program, must never be called
 void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int opt_level);
 // Runs an external Nest file, returns -1 on fail and 0 on success
-int nst_run_module(char *file_name, char **lib_text);
+int nst_run_module(char *file_name, Nst_SourceText *lib_src);
 // Calls a Nst_FuncObj, it can be both a C function or a bytecode function
 Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err);
 /* Returns the full path of a file

@@ -13,7 +13,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct
+typedef struct _Nst_Node
 {
     Nst_Pos start;
     Nst_Pos end;

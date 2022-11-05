@@ -35,7 +35,7 @@ Functions that are guaranteed to not return an error:
 #define nst_obj_lgor(ob1, ob2, err) _nst_obj_lgor((Nst_Obj *)(ob1), (Nst_Obj *)(ob2), err)
 #define nst_obj_lgand(ob1, ob2, err) _nst_obj_lgand((Nst_Obj *)(ob1), (Nst_Obj *)(ob2), err)
 #define nst_obj_lgxor(ob1, ob2, err) _nst_obj_lgxor((Nst_Obj *)(ob1), (Nst_Obj *)(ob2), err)
-#define nst_obj_cast(ob, type, err) _nst_obj_cast((Nst_Obj *)(ob), (Nst_Obj *)(type), err)
+#define nst_obj_cast(ob, type, err) _nst_obj_cast((Nst_Obj *)(ob), (Nst_TypeObj *)(type), err)
 #define nst_obj_concat(ob1, ob2, err) _nst_obj_concat((Nst_Obj *)(ob1), (Nst_Obj *)(ob2), err)
 #define nst_obj_neg(ob, err) _nst_obj_neg((Nst_Obj *)(ob), err)
 #define nst_obj_len(ob, err) _nst_obj_len((Nst_Obj *)(ob), err)
@@ -115,7 +115,7 @@ Nst_Obj *_nst_obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs);
 // Internal cast from Map to Str
 Nst_Obj *_nst_obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs);
 // operator ::
-Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_Obj *type, Nst_OpErr *err);
+Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err);
 // operator ><
 Nst_Obj *_nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err);
 

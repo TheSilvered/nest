@@ -15,7 +15,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct Nst_VarTable
+typedef struct _Nst_VarTable
 {
     Nst_MapObj *vars;
     Nst_MapObj *global_table;

@@ -152,6 +152,7 @@
     <ClCompile Include="error.c" />
     <ClCompile Include="function.c" />
     <ClCompile Include="ggc.c" />
+    <ClCompile Include="global_consts.c" />
     <ClCompile Include="hash.c" />
     <ClCompile Include="instructions.c" />
     <ClCompile Include="interpreter.c" />
@@ -178,6 +179,7 @@
     <ClInclude Include="error.h" />
     <ClInclude Include="function.h" />
     <ClInclude Include="ggc.h" />
+    <ClInclude Include="global_consts.h" />
     <ClInclude Include="hash.h" />
     <ClInclude Include="instructions.h" />
     <ClInclude Include="interpreter.h" />
@@ -187,7 +189,6 @@
     <ClInclude Include="llist.h" />
     <ClInclude Include="map.h" />
     <ClInclude Include="nest.h" />
-    <ClInclude Include="nest_include.h" />
     <ClInclude Include="nodes.h" />
     <ClInclude Include="nst_types.h" />
     <ClInclude Include="obj.h" />

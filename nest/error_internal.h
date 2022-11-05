@@ -8,29 +8,59 @@
         (error)->occurred = true; \
         (error)->start = e_start; \
         (error)->end = e_end; \
-        (error)->name = (char *)e_name; \
-        (error)->message = (char *)(msg); \
+        (error)->name = STR(nst_inc_ref(e_name)); \
+        (error)->message = STR(nst_inc_ref(msg)); \
+    } while ( 0 )
+
+#define _NST_SET_RAW_ERROR(error, e_start, e_end, e_name, msg) \
+    do { \
+        (error)->occurred = true; \
+        (error)->start = e_start; \
+        (error)->end = e_end; \
+        (error)->name = STR(nst_inc_ref(e_name)); \
+        (error)->message = STR(nst_new_cstring_raw((const char *)(msg), false)); \
     } while ( 0 )
 
 #define _NST_SET_SYNTAX_ERROR(error, e_start, e_end, msg) \
-    _NST_SET_ERROR(error, e_start, e_end, NST_E_SYNTAX_ERROR, msg)
+    _NST_SET_ERROR(error, e_start, e_end, nst_s.e_SyntaxError, msg)
 
 #define _NST_SET_MEMORY_ERROR(error, e_start, e_end, msg) \
-    _NST_SET_ERROR(error, e_start, e_end, NST_E_MEMORY_ERROR, msg)
+    _NST_SET_ERROR(error, e_start, e_end, nst_s.e_MemoryError, msg)
 
 #define _NST_SET_TYPE_ERROR(error, e_start, e_end, msg) \
-    _NST_SET_ERROR(error, e_start, e_end, NST_E_TYPE_ERROR, msg)
+    _NST_SET_ERROR(error, e_start, e_end, nst_s.e_TypeError, msg)
 
 #define _NST_SET_VALUE_ERROR(error, e_start, e_end, msg) \
-    _NST_SET_ERROR(error, e_start, e_end, NST_E_VALUE_ERROR, msg)
+    _NST_SET_ERROR(error, e_start, e_end, nst_s.e_ValueError, msg)
 
 #define _NST_SET_MATH_ERROR(error, e_start, e_end, msg) \
-    _NST_SET_ERROR(error, e_start, e_end, NST_E_MATH_ERROR, msg)
+    _NST_SET_ERROR(error, e_start, e_end, nst_s.e_MathError, msg)
 
 #define _NST_SET_CALL_ERROR(error, e_start, e_end, msg) \
-    _NST_SET_ERROR(error, e_start, e_end, NST_E_CALL_ERROR, msg)
+    _NST_SET_ERROR(error, e_start, e_end, nst_s.e_CallError, msg)
 
-#define _NST_SET_GENERAL_ERROR(error, e_start, e_end, msg) \
-    _NST_SET_ERROR(error, e_start, e_end, NST_E_GENERAL_ERROR, msg)
+#define _NST_SET_IMPORT_ERROR(error, e_start, e_end, msg) \
+    _NST_SET_ERROR(error, e_start, e_end, nst_s.e_ImportError, msg)
+
+#define _NST_SET_RAW_SYNTAX_ERROR(error, e_start, e_end, msg) \
+    _NST_SET_RAW_ERROR(error, e_start, e_end, nst_s.e_SyntaxError, msg)
+
+#define _NST_SET_RAW_MEMORY_ERROR(error, e_start, e_end, msg) \
+    _NST_SET_RAW_ERROR(error, e_start, e_end, nst_s.e_MemoryError, msg)
+
+#define _NST_SET_RAW_TYPE_ERROR(error, e_start, e_end, msg) \
+    _NST_SET_RAW_ERROR(error, e_start, e_end, nst_s.e_TypeError, msg)
+
+#define _NST_SET_RAW_VALUE_ERROR(error, e_start, e_end, msg) \
+    _NST_SET_RAW_ERROR(error, e_start, e_end, nst_s.e_ValueError, msg)
+
+#define _NST_SET_RAW_MATH_ERROR(error, e_start, e_end, msg) \
+    _NST_SET_RAW_ERROR(error, e_start, e_end, nst_s.e_MathError, msg)
+
+#define _NST_SET_RAW_CALL_ERROR(error, e_start, e_end, msg) \
+    _NST_SET_RAW_ERROR(error, e_start, e_end, nst_s.e_CallError, msg)
+
+#define _NST_SET_RAW_IMPORT_ERROR(error, e_start, e_end, msg) \
+    _NST_SET_RAW_ERROR(error, e_start, e_end, nst_s.e_ImportError, msg)
 
 #endif // !SET_ERROR_INTERNAL

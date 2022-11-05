@@ -15,7 +15,7 @@
 #define AS_REAL(ptr) (((Nst_RealObj *)(ptr))->value)
 #define AS_BYTE(ptr) (((Nst_ByteObj *)(ptr))->value)
 #define AS_BOOL(ptr) (((Nst_BoolObj *)(ptr))->value)
-#define AS_FILE(ptr) ((Nst_IOFileObj *)(ptr))
+#define IOFILE(ptr) ((Nst_IOFileObj *)(ptr))
 
 #define NST_IOF_IS_CLOSED(f) ( NST_HAS_FLAG(f, NST_FLAG_IOFILE_IS_CLOSED) )
 #define NST_IOF_IS_BIN(f)    ( NST_HAS_FLAG(f, NST_FLAG_IOFILE_IS_BIN) )
@@ -41,35 +41,35 @@ typedef char Nst_Bool;
 typedef unsigned char Nst_Byte;
 typedef FILE *Nst_IOFile;
 
-typedef struct
+typedef struct _Nst_IntObj
 {
     NST_OBJ_HEAD;
     Nst_Int value;
 }
 Nst_IntObj;
 
-typedef struct
+typedef struct _Nst_RealObj
 {
     NST_OBJ_HEAD;
     Nst_Real value;
 }
 Nst_RealObj;
 
-typedef struct
+typedef struct _Nst_BoolObj
 {
     NST_OBJ_HEAD;
     Nst_Bool value;
 }
 Nst_BoolObj;
 
-typedef struct
+typedef struct _Nst_ByteObj
 {
     NST_OBJ_HEAD;
     Nst_Byte value;
 }
 Nst_ByteObj;
 
-typedef struct
+typedef struct _Nst_IOFileObj
 {
     NST_OBJ_HEAD;
     Nst_IOFile value;

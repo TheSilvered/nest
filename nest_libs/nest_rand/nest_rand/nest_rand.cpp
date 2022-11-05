@@ -78,7 +78,7 @@ NST_FUNC_SIGN(choice_)
     if ( !nst_extract_arg_values("S", arg_num, args, err, &seq) )
         return nullptr;
 
-    Nst_Obj *val = nst_get_value_seq(AS_SEQ(seq), rand() % AS_SEQ(seq)->len);
+    Nst_Obj *val = nst_get_value_seq(SEQ(seq), rand() % SEQ(seq)->len);
     nst_dec_ref(seq);
     return val;
 }

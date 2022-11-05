@@ -5,30 +5,28 @@
 
 #include <stdbool.h>
 #include <stdint.h>
-#include "obj.h"
-#include "simple_types.h"
 #include "str.h"
 #include "ggc.h"
 
 // Must be a power of 2
 #define MAP_MIN_SIZE 32
-#define AS_MAP(ptr) ((Nst_MapObj *)(ptr))
+#define MAP(ptr) ((Nst_MapObj *)(ptr))
 
-#define nst_map_set(map, key, value) _nst_map_set(AS_MAP(map), (Nst_Obj *)key, (Nst_Obj *)value)
-#define nst_map_get(map, key) _nst_map_get(AS_MAP(map), (Nst_Obj *)key)
-#define nst_map_drop(map, key) _nst_map_drop(AS_MAP(map), (Nst_Obj *)key)
+#define nst_map_set(map, key, value) _nst_map_set(MAP(map), (Nst_Obj *)key, (Nst_Obj *)value)
+#define nst_map_get(map, key) _nst_map_get(MAP(map), (Nst_Obj *)key)
+#define nst_map_drop(map, key) _nst_map_drop(MAP(map), (Nst_Obj *)key)
 
-#define nst_map_get_next_idx(curr_idx, map) _nst_map_get_next_idx(curr_idx, AS_MAP(map))
+#define nst_map_get_next_idx(curr_idx, map) _nst_map_get_next_idx(curr_idx, MAP(map))
 
-#define nst_map_set_str(map, key, value) _nst_map_set_str(AS_MAP(map), key, (Nst_Obj *)value)
-#define nst_map_get_str(map, key) _nst_map_get_str(AS_MAP(map), key)
-#define nst_map_drop_str(map, key) _nst_map_drop_str(AS_MAP(map), key)
+#define nst_map_set_str(map, key, value) _nst_map_set_str(MAP(map), key, (Nst_Obj *)value)
+#define nst_map_get_str(map, key) _nst_map_get_str(MAP(map), key)
+#define nst_map_drop_str(map, key) _nst_map_drop_str(MAP(map), key)
 
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct
+typedef struct _Nst_MapNode
 {
     int32_t hash;
     Nst_Obj *key;
@@ -38,7 +36,7 @@ typedef struct
 }
 Nst_MapNode;
 
-typedef struct
+typedef struct _Nst_MapObj
 {
     NST_OBJ_HEAD;
     NST_GGC_SUPPORT;
@@ -59,7 +57,7 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value);
 // the object does not exist
 Nst_Obj *_nst_map_get(Nst_MapObj *map, Nst_Obj *key);
 // Drops a key value pair from the map, returns NULL if the key is unhashable
-// nst_true if an object was removed or nst_false if there was no key to remove
+// nst_c.b_true if an object was removed or nst_c.b_false if there was no key to remove
 Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key);
 
 void nst_destroy_map(Nst_MapObj *map);

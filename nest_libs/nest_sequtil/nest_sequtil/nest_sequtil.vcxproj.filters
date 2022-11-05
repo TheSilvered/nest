@@ -60,9 +60,6 @@
     <ClInclude Include="..\..\..\nest\map.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\nest_include.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\nest\nodes.h">
       <Filter>Header files</Filter>
     </ClInclude>
@@ -103,6 +100,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\nest\nest.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\nest\global_consts.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -180,6 +180,9 @@
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\nest\ggc.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\nest\global_consts.c">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -11,17 +11,22 @@
 #include "optimizer.h"
 #include "argv_parser.h"
 #include "nest.h"
+#include "global_consts.h"
 
 #define EXIT \
     do { \
-    _nst_del_obj(); \
-    if ( text != NULL ) free(text); \
+    _nst_del_consts(); \
+    _nst_del_strs(); \
+    _nst_del_types(); \
+    if ( src_text.text != NULL ) free(src_text.text); \
     return 0; \
     } while (0)
 
 #define ERROR_EXIT \
     do { \
     nst_print_error(error); \
+    nst_dec_ref(error.name); \
+    nst_dec_ref(error.message); \
     EXIT; \
     } while (0)
 
@@ -82,20 +87,26 @@ int main(int argc, char **argv)
     else if ( parse_result == 1 )
         return 0;
 
-    _nst_init_obj();
+    _nst_init_types();
+    _nst_init_strs();
+    _nst_init_consts();
 
-    char *text = NULL;
     LList *tokens;
-    Nst_Error error = { false, nst_no_pos(), nst_no_pos(), "", "" };
+    Nst_Error error = { false, nst_no_pos(), nst_no_pos(), NULL, NULL };
+    Nst_SourceText src_text;
 
     if ( filename != NULL )
-        tokens = nst_ftokenize(filename, &text, &error);
+        tokens = nst_ftokenize(filename, &src_text, &error);
     else
-        tokens = nst_tokenize(command, strlen(command), (char *)"<command>", &error);
+    {
+        src_text.path = (char *)"<command>";
+        src_text.len = strlen(command);
+        src_text.text = command;
+        tokens = nst_tokenize(&src_text, &error);
+    }
 
     if ( tokens == NULL )
         ERROR_EXIT;
-
 
     if ( print_tokens )
     {
@@ -157,8 +168,8 @@ int main(int argc, char **argv)
         }
     }
 
-    Nst_FuncObj *main_func = AS_FUNC(new_func(0));
-    main_func->body = inst_ls;
+    Nst_FuncObj *main_func = FUNC(new_func(0, inst_ls));
+
     nst_run(
         main_func,
         argc - args_start,

@@ -143,6 +143,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\nest\global_consts.h" />
+    <ClInclude Include="..\..\..\nest\nest.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="..\..\..\nest\compiler.h" />
     <ClInclude Include="..\..\..\nest\error_internal.h" />
@@ -157,7 +159,6 @@
     <ClInclude Include="..\..\..\nest\lib_import.h" />
     <ClInclude Include="..\..\..\nest\llist.h" />
     <ClInclude Include="..\..\..\nest\map.h" />
-    <ClInclude Include="..\..\..\nest\nest_include.h" />
     <ClInclude Include="..\..\..\nest\nodes.h" />
     <ClInclude Include="..\..\..\nest\nst_types.h" />
     <ClInclude Include="..\..\..\nest\obj.h" />
@@ -173,6 +174,7 @@
     <ClInclude Include="nest_err.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\nest\global_consts.c" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="..\..\..\nest\compiler.c" />
     <ClCompile Include="..\..\..\nest\error.c" />

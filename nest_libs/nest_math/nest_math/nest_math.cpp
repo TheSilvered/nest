@@ -153,7 +153,7 @@ NST_FUNC_SIGN(divmod_)
     if ( !nst_extract_arg_values("ii", arg_num, args, err, &x, &y) )
         return nullptr;
 
-    Nst_SeqObj *res = AS_SEQ(nst_new_array(2));
+    Nst_SeqObj *res = SEQ(nst_new_array(2));
     res->objs[0] = nst_new_int(x / y);
     res->objs[1] = nst_new_int(x % y);
 
@@ -315,20 +315,20 @@ NST_FUNC_SIGN(dist_2d_)
     Nst_Obj *p2x_obj = p2->objs[0];
     Nst_Obj *p2y_obj = p2->objs[1];
 
-    if      ( p1x_obj->type == nst_t_int  ) x1 = (Nst_Real)AS_INT(p1x_obj);
-    else if ( p1x_obj->type == nst_t_real ) x1 = AS_REAL(p1x_obj);
+    if      ( p1x_obj->type == nst_t.Int  ) x1 = (Nst_Real)AS_INT(p1x_obj);
+    else if ( p1x_obj->type == nst_t.Real ) x1 = AS_REAL(p1x_obj);
     else COORD_TYPE_ERROR;
 
-    if      ( p1y_obj->type == nst_t_int  ) y1 = (Nst_Real)AS_INT(p1y_obj);
-    else if ( p1y_obj->type == nst_t_real ) y1 = AS_REAL(p1y_obj);
+    if      ( p1y_obj->type == nst_t.Int  ) y1 = (Nst_Real)AS_INT(p1y_obj);
+    else if ( p1y_obj->type == nst_t.Real ) y1 = AS_REAL(p1y_obj);
     else COORD_TYPE_ERROR;
 
-    if      ( p2x_obj->type == nst_t_int  ) x2 = (Nst_Real)AS_INT(p2x_obj);
-    else if ( p2x_obj->type == nst_t_real ) x2 = AS_REAL(p2x_obj);
+    if      ( p2x_obj->type == nst_t.Int  ) x2 = (Nst_Real)AS_INT(p2x_obj);
+    else if ( p2x_obj->type == nst_t.Real ) x2 = AS_REAL(p2x_obj);
     else COORD_TYPE_ERROR;
 
-    if      ( p2y_obj->type == nst_t_int  ) y2 = (Nst_Real)AS_INT(p2y_obj);
-    else if ( p2y_obj->type == nst_t_real ) y2 = AS_REAL(p2y_obj);
+    if      ( p2y_obj->type == nst_t.Int  ) y2 = (Nst_Real)AS_INT(p2y_obj);
+    else if ( p2y_obj->type == nst_t.Real ) y2 = AS_REAL(p2y_obj);
     else COORD_TYPE_ERROR;
 
     // sqrt((x1 - x2)^2 + (y1 - y2)^2)
@@ -365,28 +365,28 @@ NST_FUNC_SIGN(dist_3d_)
     Nst_Obj *p2y_obj = p2->objs[1];
     Nst_Obj *p2z_obj = p2->objs[2];
 
-    if      ( p1x_obj->type == nst_t_int  ) x1 = (Nst_Real)AS_INT(p1x_obj);
-    else if ( p1x_obj->type == nst_t_real ) x1 = AS_REAL(p1x_obj);
+    if      ( p1x_obj->type == nst_t.Int  ) x1 = (Nst_Real)AS_INT(p1x_obj);
+    else if ( p1x_obj->type == nst_t.Real ) x1 = AS_REAL(p1x_obj);
     else COORD_TYPE_ERROR;
 
-    if      ( p1y_obj->type == nst_t_int  ) y1 = (Nst_Real)AS_INT(p1y_obj);
-    else if ( p1y_obj->type == nst_t_real ) y1 = AS_REAL(p1y_obj);
+    if      ( p1y_obj->type == nst_t.Int  ) y1 = (Nst_Real)AS_INT(p1y_obj);
+    else if ( p1y_obj->type == nst_t.Real ) y1 = AS_REAL(p1y_obj);
     else COORD_TYPE_ERROR;
 
-    if      ( p1z_obj->type == nst_t_int  ) z1 = (Nst_Real)AS_INT(p1z_obj);
-    else if ( p1z_obj->type == nst_t_real ) z1 = AS_REAL(p1z_obj);
+    if      ( p1z_obj->type == nst_t.Int  ) z1 = (Nst_Real)AS_INT(p1z_obj);
+    else if ( p1z_obj->type == nst_t.Real ) z1 = AS_REAL(p1z_obj);
     else COORD_TYPE_ERROR;
 
-    if      ( p2x_obj->type == nst_t_int  ) x2 = (Nst_Real)AS_INT(p2x_obj);
-    else if ( p2x_obj->type == nst_t_real ) x2 = AS_REAL(p2x_obj);
+    if      ( p2x_obj->type == nst_t.Int  ) x2 = (Nst_Real)AS_INT(p2x_obj);
+    else if ( p2x_obj->type == nst_t.Real ) x2 = AS_REAL(p2x_obj);
     else COORD_TYPE_ERROR;
 
-    if      ( p2y_obj->type == nst_t_int  ) y2 = (Nst_Real)AS_INT(p2y_obj);
-    else if ( p2y_obj->type == nst_t_real ) y2 = AS_REAL(p2y_obj);
+    if      ( p2y_obj->type == nst_t.Int  ) y2 = (Nst_Real)AS_INT(p2y_obj);
+    else if ( p2y_obj->type == nst_t.Real ) y2 = AS_REAL(p2y_obj);
     else COORD_TYPE_ERROR;
 
-    if      ( p2z_obj->type == nst_t_int  ) z2 = (Nst_Real)AS_INT(p2z_obj);
-    else if ( p2z_obj->type == nst_t_real ) z2 = AS_REAL(p2z_obj);
+    if      ( p2z_obj->type == nst_t.Int  ) z2 = (Nst_Real)AS_INT(p2z_obj);
+    else if ( p2z_obj->type == nst_t.Real ) z2 = AS_REAL(p2z_obj);
     else COORD_TYPE_ERROR;
 
     // sqrt((x1 - x2)^2 + (y1 - y2)^2 + (z1 - z2)^2)
@@ -423,12 +423,12 @@ NST_FUNC_SIGN(dist_nd_)
         obj1 = objs1[i];
         obj2 = objs2[i];
 
-        if      ( obj1->type == nst_t_int  ) t1 = (Nst_Real)AS_INT(obj1);
-        else if ( obj1->type == nst_t_real ) t1 = AS_REAL(obj1);
+        if      ( obj1->type == nst_t.Int  ) t1 = (Nst_Real)AS_INT(obj1);
+        else if ( obj1->type == nst_t.Real ) t1 = AS_REAL(obj1);
         else COORD_TYPE_ERROR;
 
-        if      ( obj2->type == nst_t_int  ) t2 = (Nst_Real)AS_INT(obj2);
-        else if ( obj2->type == nst_t_real ) t2 = AS_REAL(obj2);
+        if      ( obj2->type == nst_t.Int  ) t2 = (Nst_Real)AS_INT(obj2);
+        else if ( obj2->type == nst_t.Real ) t2 = AS_REAL(obj2);
         else COORD_TYPE_ERROR;
 
         tot += (t1 - t2) * (t1 - t2);
@@ -502,10 +502,10 @@ NST_FUNC_SIGN(min_seq_)
     for ( size_t i = 1; i < seq_len; i++)
     {
         Nst_Obj *res = nst_obj_lt(seq->objs[i], min_obj, err);
-        if ( err->message[0] ) // an empty string has only one byte: NUL
+        if ( res == nullptr )
             return nullptr;
 
-        if ( res == nst_true )
+        if ( res == nst_c.b_true )
             min_obj = seq->objs[i];
         nst_dec_ref(res);
     }
@@ -532,10 +532,10 @@ NST_FUNC_SIGN(max_seq_)
     for ( size_t i = 1; i < seq_len; i++ )
     {
         Nst_Obj *res = nst_obj_gt(seq->objs[i], max_obj, err);
-        if ( err->message[0] ) // an empty string has only one byte: NUL
+        if ( res == nullptr )
             return nullptr;
 
-        if ( res == nst_true )
+        if ( res == nst_c.b_true )
             max_obj = seq->objs[i];
         nst_dec_ref(res);
     }
@@ -557,7 +557,7 @@ NST_FUNC_SIGN(sum_seq_)
     {
         Nst_Obj *res = nst_obj_add(total, seq->objs[i], err);
         nst_dec_ref(total);
-        if ( err->message[0] ) // an empty string has only one byte: NUL
+        if ( res == nullptr )
             return nullptr;
 
         total = res;
@@ -574,7 +574,7 @@ NST_FUNC_SIGN(frexp_)
         return nullptr;
 
     int num;
-    Nst_SeqObj *arr = AS_SEQ(nst_new_array(2));
+    Nst_SeqObj *arr = SEQ(nst_new_array(2));
     arr->objs[0] = nst_new_real(frexp(n, &num));
     arr->objs[1] = nst_new_int(num);
 

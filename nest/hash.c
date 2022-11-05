@@ -2,6 +2,7 @@
 #include "hash.h"
 #include "nst_types.h"
 #include "var_table.h"
+#include "global_consts.h"
 
 #define FNV_OFFSET_BASIS 0xcbf29ce484222325
 #define FNV_PRIME 0x00000100000001B3
@@ -22,15 +23,15 @@ int32_t nst_hash_obj(Nst_Obj *obj)
         return obj->hash;
 
     int32_t hash;
-    if ( obj->type == nst_t_type ||
-         obj->type == nst_t_null ||
-         obj->type == nst_t_bool )
+    if ( obj->type == nst_t.Type ||
+         obj->type == nst_t.Null ||
+         obj->type == nst_t.Bool )
         hash = hash_ptr(obj);
-    else if ( obj->type == nst_t_str )
-        hash = hash_str(AS_STR(obj));
-    else if ( obj->type == nst_t_int )
+    else if ( obj->type == nst_t.Str )
+        hash = hash_str(STR(obj));
+    else if ( obj->type == nst_t.Int )
         hash = hash_int((Nst_IntObj *)obj);
-    else if ( obj->type == nst_t_byte )
+    else if ( obj->type == nst_t.Byte )
         hash = hash_byte((Nst_ByteObj *)obj);
     else
         return -1;

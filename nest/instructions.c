@@ -1,6 +1,6 @@
 #include "instructions.h"
 
-Nst_RuntimeInstruction *new_inst_empty(int id, Nst_Int int_val)
+Nst_RuntimeInstruction *nst_new_inst_empty(int id, Nst_Int int_val)
 {
     Nst_RuntimeInstruction *inst = (Nst_RuntimeInstruction *)malloc(sizeof(Nst_RuntimeInstruction));
     if ( inst == NULL )
@@ -15,7 +15,7 @@ Nst_RuntimeInstruction *new_inst_empty(int id, Nst_Int int_val)
     return inst;
 }
 
-Nst_RuntimeInstruction *new_inst_pos(int id, Nst_Pos start, Nst_Pos end)
+Nst_RuntimeInstruction *nst_new_inst_pos(int id, Nst_Pos start, Nst_Pos end)
 {
     Nst_RuntimeInstruction *inst = (Nst_RuntimeInstruction *)malloc(sizeof(Nst_RuntimeInstruction));
     if ( inst == NULL )
@@ -30,10 +30,10 @@ Nst_RuntimeInstruction *new_inst_pos(int id, Nst_Pos start, Nst_Pos end)
     return inst;
 }
 
-Nst_RuntimeInstruction *new_inst_val(int id,
-                                     Nst_Obj *val,
-                                     Nst_Pos start,
-                                     Nst_Pos end)
+Nst_RuntimeInstruction *_nst_new_inst_val(int id,
+                                          Nst_Obj *val,
+                                          Nst_Pos start,
+                                          Nst_Pos end)
 {
     Nst_RuntimeInstruction *inst = (Nst_RuntimeInstruction*)malloc(sizeof(Nst_RuntimeInstruction));
     if ( inst == NULL )
@@ -48,7 +48,7 @@ Nst_RuntimeInstruction *new_inst_val(int id,
     return inst;
 }
 
-Nst_RuntimeInstruction *new_inst_int_val(int id,
+Nst_RuntimeInstruction *nst_new_inst_int(int id,
                                          Nst_Int int_val,
                                          Nst_Pos start,
                                          Nst_Pos end)

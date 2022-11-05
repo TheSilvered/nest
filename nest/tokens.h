@@ -44,7 +44,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct
+typedef struct _Nst_LexerToken
 {
     Nst_Pos start;
     Nst_Pos end;
@@ -78,6 +78,7 @@ enum Nst_TokenTypes
     NST_TT_LTE,       // - - stack-op end, comp-op end
     NST_TT_CAST,      // + local-stack-op start
     NST_TT_CALL,      // |
+    // NST_TT_RAISE,     // |
     NST_TT_RANGE,     // - local-stack-op end
     NST_TT_ASSIGN,    // + assignment start
     NST_TT_ADD_A,     // |
@@ -128,7 +129,9 @@ enum Nst_TokenTypes
     NST_TT_RETURN,
     NST_TT_SWITCH,
     NST_TT_BREAK,
-    NST_TT_CONTINUE
+    NST_TT_CONTINUE,
+    // NST_TT_TRY,
+    // NST_TT_CATCH
 };
 
 // Creates a new token with a value

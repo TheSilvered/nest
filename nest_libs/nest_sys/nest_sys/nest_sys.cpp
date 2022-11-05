@@ -25,7 +25,7 @@ bool lib_init()
 
     lib_init_ = true;
 
-    version_obj = AS_STR(nst_new_string_raw(NEST_VERSION, false));
+    version_obj = STR(nst_new_cstring_raw(NEST_VERSION, false));
 
     return true;
 }
@@ -73,7 +73,7 @@ NST_FUNC_SIGN(getenv_)
     if ( env_name == nullptr )
         NST_RETURN_NULL;
 
-    return nst_new_string_raw(env_name, false);
+    return nst_new_cstring_raw(env_name, false);
 }
 
 NST_FUNC_SIGN(get_ref_count_)

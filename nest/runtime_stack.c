@@ -109,7 +109,7 @@ bool _nst_push_func(Nst_CallStack *f_stack,
         f_stack->max_size = max_size * 2;
     }
 
-    f_stack->stack[f_stack->current_size].func = AS_FUNC(nst_inc_ref(func));
+    f_stack->stack[f_stack->current_size].func = FUNC(nst_inc_ref(func));
     f_stack->stack[f_stack->current_size].start = call_start;
     f_stack->stack[f_stack->current_size].end = call_end;
     f_stack->stack[f_stack->current_size].vt = vt;

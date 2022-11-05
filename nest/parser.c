@@ -5,6 +5,7 @@
 #include "parser.h"
 #include "error_internal.h"
 #include "tokens.h"
+#include "global_consts.h"
 
 #define SAFE_LLIST_CREATE(name) \
     LList *name = LList_new(); \
@@ -15,7 +16,7 @@
     } \
 
 #define RETURN_ERROR(start, end, message) \
-    _NST_SET_SYNTAX_ERROR(p_state.error, start, end, message); \
+    _NST_SET_RAW_SYNTAX_ERROR(p_state.error, start, end, message); \
     return NULL
 
 typedef struct ParsingState
@@ -71,7 +72,7 @@ Nst_Node *nst_parse(LList *tokens_list, Nst_Error *error)
         Nst_Pos start = TOK(LList_peek_front(tokens))->start;
         Nst_Pos end = TOK(LList_peek_front(tokens))->start;
 
-        _NST_SET_SYNTAX_ERROR(error, start, end, _NST_EM_UNEXPECTED_TOK);
+        _NST_SET_RAW_SYNTAX_ERROR(error, start, end, _NST_EM_UNEXPECTED_TOK);
     }
 
     LList_destroy(tokens, (LList_item_destructor)nst_destroy_token);
@@ -458,7 +459,7 @@ static Nst_Node *parse_switch_statement()
             err_start = tok->start;
             err_end = tok->end;
             nst_destroy_token(tok);
-            RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_QUESTION_MARK);
+            RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_IF);
         }
         nst_destroy_token(tok);
         skip_blank();
@@ -847,7 +848,7 @@ static Nst_Node *parse_local_stack_op(LList *nodes, Nst_Pos start)
         RETURN_ERROR(
             NODE(LList_peek_front(nodes))->start,
             NODE(LList_peek_back(nodes))->end,
-            nodes->size > 2 ? _NST_EM_TOO_MANY_ARGS("->") : _NST_EM_TOO_FEW_ARGS("->")
+            (int)nodes->size > 2 ? _NST_EM_TOO_MANY_ARGS("->") : _NST_EM_TOO_FEW_ARGS("->")
         );
     }
 
@@ -1136,7 +1137,7 @@ static Nst_Node *parse_vector_literal()
     if ( tok->type != NST_TT_R_VBRACE )
     {
         LList_destroy(nodes, (LList_item_destructor)nst_destroy_node);
-        RETURN_ERROR(start, err_end, _NST_EM_MISSING_VECTOR_BRACE);
+        RETURN_ERROR(start, err_end, _NST_EM_MISSING_VBRACE);
     }
 
     Nst_Pos end = tok->end;

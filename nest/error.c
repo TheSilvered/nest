@@ -25,9 +25,7 @@ Nst_Pos nst_copy_pos(Nst_Pos pos)
     Nst_Pos new_pos = {
         pos.line,
         pos.col,
-        pos.filename,
-        pos.text,
-        pos.text_len
+        pos.text
     };
 
     return new_pos;
@@ -35,7 +33,7 @@ Nst_Pos nst_copy_pos(Nst_Pos pos)
 
 Nst_Pos nst_no_pos()
 {
-    Nst_Pos new_pos = { 0, 0, NULL, NULL, 0 };
+    Nst_Pos new_pos = { 0, 0, NULL };
     return new_pos;
 }
 
@@ -56,8 +54,8 @@ static int print_line(Nst_Pos *pos, long start_col, long end_col, int max_indent
     long indent = 0;
     long curr_line = 0;
     bool is_indentation = true;
-    char *text = pos->text;
-    size_t text_len = pos->text_len;
+    char *text = pos->text->text;
+    size_t text_len = pos->text->len;
     long lineno = pos->line;
     bool is_printing_error = false;
     long li = 0;
@@ -154,16 +152,15 @@ static int print_line(Nst_Pos *pos, long start_col, long end_col, int max_indent
 
 static void print_position(Nst_Pos start, Nst_Pos end)
 {
-    assert(start.filename == end.filename);
     assert(start.text == end.text);
 
     if ( use_color )
         printf("File " C_GREEN "\"%s\"" C_RESET " at line %li",
-            start.filename,
+            start.text->path,
             start.line + 1);
     else
         printf("File \"%s\" at line %li",
-            start.filename,
+            start.text->path,
             start.line + 1);
 
     if ( start.line != end.line) printf(" to %li", end.line + 1 );
@@ -182,9 +179,7 @@ static void print_position(Nst_Pos start, Nst_Pos end)
         Nst_Pos mid_line_pos = {
             start.line + i,
             0,
-            start.filename,
-            start.text,
-            start.text_len
+            start.text
         };
 
         print_line(&mid_line_pos, 0, -1, max_indent, end.line + 1);
@@ -198,9 +193,9 @@ void nst_print_error(Nst_Error err)
     print_position(err.start, err.end);
 
     if ( use_color )
-        printf(C_YELLOW "%s" C_RESET " - %s\n", err.name, err.message);
+        printf(C_YELLOW "%s" C_RESET " - %s\n", err.name->value, err.message->value);
     else
-        printf("%s - %s\n", err.name, err.message);
+        printf("%s - %s\n", err.name->value, err.message->value);
 }
 
 void nst_print_traceback(Nst_Traceback tb)
@@ -214,7 +209,7 @@ void nst_print_traceback(Nst_Traceback tb)
         Nst_Pos *start = (Nst_Pos *)n1->value;
         Nst_Pos *end   = (Nst_Pos *)n2->value;
 
-        if ( start->filename == NULL )
+        if ( start->text == NULL )
             continue;
 
         print_position(*start, *end);
@@ -223,7 +218,7 @@ void nst_print_traceback(Nst_Traceback tb)
     nst_print_error(tb.error);
 }
 
-char *_nst_format_error(const char *format, const char *format_args, ...)
+Nst_StrObj *_nst_format_error(const char *format, const char *format_args, ...)
 {
     /*
     Format args types:
@@ -266,5 +261,5 @@ char *_nst_format_error(const char *format, const char *format_args, ...)
     vsprintf(buffer, format, args);
     va_end(args);
 
-    return buffer;
+    return STR(nst_new_cstring_raw((const char *)buffer, true));
 }

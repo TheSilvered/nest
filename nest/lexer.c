@@ -29,7 +29,7 @@
 
 #define SET_INVALID_ESCAPE_ERROR do { \
     free(end_str); \
-    _NST_SET_SYNTAX_ERROR( \
+    _NST_SET_RAW_SYNTAX_ERROR( \
         error, \
         escape_start, \
         cursor.pos, \
@@ -56,7 +56,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error);
 static void make_ident(Nst_LexerToken **tok);
 static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error);
 
-LList *nst_ftokenize(char *filename, char **text_buffer, Nst_Error *error)
+LList *nst_ftokenize(char *filename, Nst_SourceText *src_text, Nst_Error *error)
 {
     FILE *file = fopen(filename, "r");
     if ( file == NULL )
@@ -88,24 +88,26 @@ LList *nst_ftokenize(char *filename, char **text_buffer, Nst_Error *error)
         text = strcat(text, chunk);
     }
     fclose(file);
-    *text_buffer = text;
-    return nst_tokenize(text, str_len, filename, error);
+
+    src_text->text = text;
+    src_text->len = str_len;
+    src_text->path = filename;
+
+    return nst_tokenize(src_text, error);
 }
 
-LList *nst_tokenize(char *text, size_t text_len, char *filename, Nst_Error *error)
+LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
 {
     Nst_LexerToken *tok = NULL;
     LList *tokens = LList_new();
 
     cursor.idx = -1;
     cursor.ch = ' ';
-    cursor.len = text_len;
-    cursor.text = text;
+    cursor.len = text->len;
+    cursor.text = text->text;
     cursor.pos.col = -1;
-    cursor.pos.filename = filename;
     cursor.pos.line = 0;
     cursor.pos.text = text;
-    cursor.pos.text_len = text_len;
 
     advance();
 
@@ -130,11 +132,11 @@ LList *nst_tokenize(char *text, size_t text_len, char *filename, Nst_Error *erro
             advance();
         else
         {
-            _NST_SET_SYNTAX_ERROR(
+            _NST_SET_RAW_SYNTAX_ERROR(
                 error,
                 cursor.pos,
                 cursor.pos,
-                "invalid character"
+                _NST_EM_INVALID_CHAR
             );
         }
 
@@ -272,11 +274,11 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error *error)
 
         if ( !was_closed )
         {
-            _NST_SET_SYNTAX_ERROR(
+            _NST_SET_RAW_SYNTAX_ERROR(
                 error,
                 start,
                 cursor.pos,
-                _NST_EM_UNCLOSED_COMMENT
+                _NST_EM_OPEN_COMMENT
             );
         }
 
@@ -355,7 +357,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
             else
             {
                 free(ltrl);
-                _NST_SET_SYNTAX_ERROR(error, start, end, _NST_EM_INT_TOO_BIG);
+                _NST_SET_RAW_MEMORY_ERROR(error, start, end, _NST_EM_INT_TOO_BIG);
                 return;
             }
         }
@@ -383,7 +385,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
     {
         free(ltrl);
         free(fract_part);
-        _NST_SET_MEMORY_ERROR(error, start, end, _NST_EM_BAD_REAL_LITEARL);
+        _NST_SET_RAW_SYNTAX_ERROR(error, start, end, _NST_EM_BAD_REAL_LITERAL);
         return;
     }
 
@@ -412,7 +414,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
     if ( errno == ERANGE )
     {
         free(ltrl);
-        _NST_SET_MEMORY_ERROR(error, start, end, _NST_EM_REAL_TOO_BIG);
+        _NST_SET_RAW_MEMORY_ERROR(error, start, end, _NST_EM_REAL_TOO_BIG);
         return;
     }
 
@@ -428,7 +430,7 @@ static void make_ident(Nst_LexerToken **tok)
     char *str = add_while_in(_NST_LETTER_CHARS _NST_DIGIT_CHARS);
     Nst_Pos end = nst_copy_pos(cursor.pos);
 
-    Nst_StrObj *val_obj = AS_STR(nst_new_string_raw(str, true));
+    Nst_StrObj *val_obj = STR(nst_new_cstring_raw(str, true));
     nst_hash_obj((Nst_Obj *)val_obj);
 
     *tok = nst_new_token_value(start, end, NST_TT_IDENT, (Nst_Obj *)val_obj);
@@ -469,7 +471,7 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
             if ( cursor.ch == '\n' && !allow_multiline )
             {
                 free(end_str);
-                _NST_SET_SYNTAX_ERROR(
+                _NST_SET_RAW_SYNTAX_ERROR(
                     error,
                     cursor.pos,
                     cursor.pos,
@@ -572,11 +574,11 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
 
     if ( cursor.ch != closing_ch )
     {
-        _NST_SET_SYNTAX_ERROR(
+        _NST_SET_RAW_SYNTAX_ERROR(
             error,
             start,
             error_end,
-            _NST_EM_UNCLOSED_STR_LITERAL
+            _NST_EM_OPEN_STR_LITERAL
         );
     }
 
@@ -592,7 +594,7 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
     end_str = end_str_realloc;
     end_str[str_len] = '\0';
 
-    Nst_StrObj *val_obj = AS_STR(nst_new_string(end_str, str_len, true));
+    Nst_StrObj *val_obj = STR(nst_new_string(end_str, str_len, true));
     nst_hash_obj((Nst_Obj *)val_obj);
 
     *tok = nst_new_token_value(start, cursor.pos, NST_TT_VALUE, (Nst_Obj *)val_obj);

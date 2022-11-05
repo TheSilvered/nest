@@ -7,8 +7,7 @@
 #define FUNC_COUNT 13
 
 #define SET_FILE_CLOSED_ERROR \
-    err->name = NST_E_VALUE_ERROR; \
-    err->message = (char *)"file given was closed"
+    NST_SET_RAW_VALUE_ERROR("the given file given was previously closed")
 
 static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
@@ -76,7 +75,7 @@ NST_FUNC_SIGN(open_)
 
     if ( file_mode_len < 1 || file_mode_len > 3 )
     {
-        NST_SET_VALUE_ERROR("file mode is not valid");
+        NST_SET_VALUE_ERROR("the file mode is not valid");
         return nullptr;
     }
 
@@ -90,7 +89,7 @@ NST_FUNC_SIGN(open_)
         can_write = true;
         break;
     default:
-        NST_SET_VALUE_ERROR("file mode is not valid");
+        NST_SET_VALUE_ERROR("the file mode is not valid");
         return nullptr;
     }
     
@@ -106,7 +105,7 @@ NST_FUNC_SIGN(open_)
             can_write = true;
             break;
         default:
-            NST_SET_VALUE_ERROR("file mode is not valid");
+            NST_SET_VALUE_ERROR("the file mode is not valid");
             return nullptr;
         }
     }
@@ -119,14 +118,14 @@ NST_FUNC_SIGN(open_)
         if ( (file_mode[1] != 'b' && file_mode[2] != '+') ||
              (file_mode[1] != '+' && file_mode[2] != 'b') )
         {
-            NST_SET_VALUE_ERROR("file mode is not valid");
+            NST_SET_VALUE_ERROR("the file mode is not valid");
             return nullptr;
         }
     }
 
     Nst_IOFile file_ptr = fopen(file_name, file_mode);
     if ( file_ptr == nullptr )
-        return nst_inc_ref(nst_null);
+        return nst_inc_ref(nst_c.null);
 
     return nst_new_file(file_ptr, is_bin, can_read, can_write);
 }
@@ -148,7 +147,7 @@ NST_FUNC_SIGN(close_)
     f->value = nullptr;
     NST_SET_FLAG(f, NST_FLAG_IOFILE_IS_CLOSED);
     
-    return nst_inc_ref(nst_null);
+    return nst_inc_ref(nst_c.null);
 }
 
 NST_FUNC_SIGN(write_)
@@ -176,12 +175,12 @@ NST_FUNC_SIGN(write_)
     }
 
     // casting to a string never returns an error
-    Nst_Obj *str_to_write = nst_obj_cast(value_to_write, nst_t_str, nullptr);
-    Nst_StrObj *str = AS_STR(str_to_write);
+    Nst_Obj *str_to_write = nst_obj_cast(value_to_write, nst_t.Str, nullptr);
+    Nst_StrObj *str = STR(str_to_write);
     fwrite(str->value, sizeof(char), str->len, f->value);
 
     nst_dec_ref(str_to_write);
-    return nst_inc_ref(nst_null);
+    return nst_inc_ref(nst_c.null);
 }
 
 NST_FUNC_SIGN(write_bytes_)
@@ -214,7 +213,7 @@ NST_FUNC_SIGN(write_bytes_)
 
     for ( size_t i = 0; i < seq_len; i++ )
     {
-        if ( objs[i]->type != nst_t_byte )
+        if ( objs[i]->type != nst_t.Byte )
         {
             delete[] bytes;
             NST_SET_TYPE_ERROR("expected 'Byte'");
@@ -227,7 +226,7 @@ NST_FUNC_SIGN(write_bytes_)
     fwrite(bytes, sizeof(char), seq_len, f->value);
 
     delete[] bytes;
-    return nst_inc_ref(nst_null);
+    return nst_inc_ref(nst_c.null);
 }
 
 NST_FUNC_SIGN(read_)
@@ -306,7 +305,7 @@ NST_FUNC_SIGN(read_bytes_)
     char *buffer = new char[(unsigned int)bytes_to_read];
     size_t read_bytes = fread(buffer, sizeof(char), (size_t)bytes_to_read, f->value);
 
-    Nst_SeqObj *bytes_array = AS_SEQ(nst_new_array(read_bytes));
+    Nst_SeqObj *bytes_array = SEQ(nst_new_array(read_bytes));
 
     for ( size_t i = 0; i < read_bytes; i++ )
         bytes_array->objs[i] = nst_new_byte(buffer[i]);
@@ -375,7 +374,7 @@ NST_FUNC_SIGN(move_fptr_)
 
     fseek(f->value, (long)offset, (int)start);
 
-    return nst_inc_ref(nst_null);
+    return nst_inc_ref(nst_c.null);
 }
 
 NST_FUNC_SIGN(flush_)
@@ -392,7 +391,7 @@ NST_FUNC_SIGN(flush_)
     }
 
     fflush(f->value);
-    return nst_inc_ref(nst_null);
+    return nst_inc_ref(nst_c.null);
 }
 
 NST_FUNC_SIGN(_get_stdin_)

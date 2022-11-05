@@ -9,13 +9,13 @@
 #include "function.h"
 #include "lib_import.h"
 
-#define AS_ITER(ptr) ((Nst_IterObj *)(ptr))
+#define ITER(ptr) ((Nst_IterObj *)(ptr))
 
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct
+typedef struct _Nst_IterObj
 {
     NST_OBJ_HEAD;
     NST_GGC_SUPPORT;

@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "simple_types.h"
+#include "global_consts.h"
 
 #define NEW_SYMPLE_TYPE(type, type_obj) \
     type *obj = (type *)nst_alloc_obj(sizeof(type), type_obj, NULL); \
@@ -10,29 +11,29 @@
 
 Nst_Obj *nst_new_int(Nst_Int value)
 {
-    NEW_SYMPLE_TYPE(Nst_IntObj, nst_t_int);
+    NEW_SYMPLE_TYPE(Nst_IntObj, nst_t.Int);
 }
 
 Nst_Obj *nst_new_real(Nst_Real value)
 {
-    NEW_SYMPLE_TYPE(Nst_RealObj, nst_t_real);
+    NEW_SYMPLE_TYPE(Nst_RealObj, nst_t.Real);
 }
 
 Nst_Obj *nst_new_byte(Nst_Byte value)
 {
-    NEW_SYMPLE_TYPE(Nst_ByteObj, nst_t_byte);
+    NEW_SYMPLE_TYPE(Nst_ByteObj, nst_t.Byte);
 }
 
 Nst_Obj *nst_new_bool(Nst_Bool value)
 {
-    NEW_SYMPLE_TYPE(Nst_BoolObj, nst_t_bool);
+    NEW_SYMPLE_TYPE(Nst_BoolObj, nst_t.Bool);
 }
 
 Nst_Obj *nst_new_file(Nst_IOFile value, bool bin, bool read, bool write)
 {
-    Nst_IOFileObj *obj = AS_FILE(nst_alloc_obj(
+    Nst_IOFileObj *obj = IOFILE(nst_alloc_obj(
         sizeof(Nst_IOFileObj),
-        nst_t_file,
+        nst_t.IOFile,
         nst_destroy_iofile
     ));
     if ( obj == NULL ) return NULL;

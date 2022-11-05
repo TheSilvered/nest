@@ -6,6 +6,7 @@
 #include "tokens.h"
 #include "obj_ops.h"
 
+
 Nst_LexerToken *nst_new_token_value(Nst_Pos start,
                                     Nst_Pos end,
                                     int type,
@@ -210,6 +211,12 @@ int nst_str_to_tok(char *str)
         return NST_TT_R_VBRACE;
     if ( strcmp("##", str) == 0 )
         return NST_TT_LAMBDA;
+    /* if (strcmp("??", str) == 0)
+        return NST_TT_TRY;
+    if ( strcmp("?!", str) == 0 )
+        return NST_TT_CATCH;
+    if ( strcmp("!!", str) == 0 )
+        return NST_TT_RAISE; */
     return -1;
 }
 
@@ -247,6 +254,7 @@ void nst_print_token(Nst_LexerToken *token)
     case NST_TT_LTE:      printf("LTE");      break;
     case NST_TT_CAST:     printf("CAST");     break;
     case NST_TT_CALL:     printf("CALL");     break;
+    // case NST_TT_RAISE:    printf("RAISE");    break;
     case NST_TT_RANGE:    printf("RANGE");    break;
     case NST_TT_ASSIGN:   printf("ASSIGN");   break;
     case NST_TT_ADD_A:    printf("ADD_A");    break;
@@ -296,6 +304,8 @@ void nst_print_token(Nst_LexerToken *token)
     case NST_TT_SWITCH:   printf("SWITCH");   break;
     case NST_TT_BREAK:    printf("BREAK");    break;
     case NST_TT_CONTINUE: printf("CONTINUE"); break;
+    // case NST_TT_TRY:      printf("TRY");      break;
+    // case NST_TT_CATCH:    printf("CATCH");    break;
     default: printf("__UNKNOWN__");
     }
 
@@ -303,7 +313,7 @@ void nst_print_token(Nst_LexerToken *token)
     {
         printf(" - ");
 
-        Nst_StrObj* s = AS_STR(_nst_repr_str_cast(token->value));
+        Nst_StrObj* s = STR(_nst_repr_str_cast(token->value));
         fwrite(s->value, sizeof(char), s->len, stdout);
         nst_dec_ref(s);
     }

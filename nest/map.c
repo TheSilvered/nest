@@ -2,14 +2,15 @@
 #include <math.h>
 #include <stdlib.h>
 #include <assert.h>
-#include "hash.h"
 #include "map.h"
-#include "nst_types.h"
+#include "hash.h"
+#include "lib_import.h"
 #include "obj_ops.h"
+#include "global_consts.h"
 
 Nst_Obj *nst_new_map()
 {
-    Nst_MapObj *map = AS_MAP(nst_alloc_obj(sizeof(Nst_MapObj), nst_t_map, nst_destroy_map));
+    Nst_MapObj *map = MAP(nst_alloc_obj(sizeof(Nst_MapObj), nst_t.Map, nst_destroy_map));
     if ( map == NULL )
     {
         errno = ENOMEM;
@@ -325,14 +326,14 @@ void nst_destroy_map(Nst_MapObj *map)
 
 void _nst_map_set_str(Nst_MapObj *map, const char *key, Nst_Obj *value)
 {
-    Nst_Obj *key_obj = nst_new_string_raw(key, false);
+    Nst_Obj *key_obj = nst_new_cstring_raw(key, false);
     nst_map_set(map, key_obj, value);
     nst_dec_ref(key_obj);
 }
 
 Nst_Obj *_nst_map_get_str(Nst_MapObj *map, const char *key)
 {
-    Nst_Obj *key_obj = nst_new_string_raw(key, false);
+    Nst_Obj *key_obj = nst_new_cstring_raw(key, false);
     Nst_Obj *value = _nst_map_get(map, key_obj);
     nst_dec_ref(key_obj);
     return value;
@@ -340,7 +341,7 @@ Nst_Obj *_nst_map_get_str(Nst_MapObj *map, const char *key)
 
 Nst_Obj *_nst_map_drop_str(Nst_MapObj *map, const char *key)
 {
-    Nst_Obj *key_obj = nst_new_string_raw(key, false);
+    Nst_Obj *key_obj = nst_new_cstring_raw(key, false);
     Nst_Obj *value = _nst_map_drop(map, key_obj);
     nst_dec_ref(key_obj);
     return value;

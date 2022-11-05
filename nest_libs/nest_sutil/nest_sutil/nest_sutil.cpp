@@ -226,9 +226,8 @@ NST_FUNC_SIGN(ljust_)
 
     if ( just_char->len != 1 )
     {
-        err->name = (char *)"Value Error";
-        err->message = (char *)"filling string must be one character long";
-        return NULL;
+        NST_SET_RAW_VALUE_ERROR("filling string must be one character long");
+        return nullptr;
     }
 
     char *new_str = new char[(unsigned int)(just_len + 1)];
@@ -255,9 +254,8 @@ NST_FUNC_SIGN(rjust_)
 
     if ( just_char->len != 1 )
     {
-        err->name = (char *)"Value Error";
-        err->message = (char *)"filling string must be one character long";
-        return NULL;
+        NST_SET_RAW_VALUE_ERROR("filling string must be one character long");
+        return nullptr;
     }
 
     char *new_str = new char[(unsigned int)(just_len + 1)];
@@ -275,7 +273,7 @@ NST_FUNC_SIGN(to_upper_)
     if ( !nst_extract_arg_values("s", arg_num, args, err, &str) )
         return nullptr;
 
-    Nst_StrObj *new_str = AS_STR(nst_copy_string(str));
+    Nst_StrObj *new_str = STR(nst_copy_string(str));
     char *s = new_str->value;
     char* end = s + new_str->len;
 
@@ -295,7 +293,7 @@ NST_FUNC_SIGN(to_lower_)
     if ( !nst_extract_arg_values("s", arg_num, args, err, &str) )
         return nullptr;
 
-    Nst_StrObj *new_str = AS_STR(nst_copy_string(str));
+    Nst_StrObj *new_str = STR(nst_copy_string(str));
     char *s = new_str->value;
     char *end = s + new_str->len;
 
@@ -535,11 +533,11 @@ NST_FUNC_SIGN(bytearray_to_str_)
 
     for ( size_t i = 0; i < len; i++ )
     {
-        if ( objs[i]->type != nst_t_byte )
+        if ( objs[i]->type != nst_t.Byte )
         {
             NST_SET_TYPE_ERROR(_nst_format_error(EXPECTED_BYTE, "s", TYPE_NAME(objs[i])));
             delete[] new_str;
-            return NULL;
+            return nullptr;
         }
 
         new_str[i] = AS_BYTE(objs[i]);
@@ -574,8 +572,8 @@ NST_FUNC_SIGN(join_)
 
     for ( size_t i = 0; i < len; i++ )
     {
-        objs[i] = nst_obj_cast(seq->objs[i], nst_t_str, NULL);
-        tot_len += AS_STR(objs[i])->len;
+        objs[i] = nst_obj_cast(seq->objs[i], nst_t.Str, nullptr);
+        tot_len += STR(objs[i])->len;
     }
 
     char *new_str = new char[tot_len + 1];
@@ -583,7 +581,7 @@ NST_FUNC_SIGN(join_)
 
     for ( size_t i = 0; i < len; i++ )
     {
-        Nst_StrObj *curr_str = AS_STR(objs[i]);
+        Nst_StrObj *curr_str = STR(objs[i]);
         memcpy(new_str + str_idx, curr_str->value, curr_str->len);
         str_idx += curr_str->len;
         nst_dec_ref(objs[i]);
@@ -610,7 +608,7 @@ NST_FUNC_SIGN(split_)
         return nullptr;
     }
 
-    Nst_SeqObj *vector = AS_SEQ(nst_new_vector(0));
+    Nst_SeqObj *vector = SEQ(nst_new_vector(0));
 
     char *s = str->value;
     char *sub = substr->value;
@@ -620,7 +618,7 @@ NST_FUNC_SIGN(split_)
     size_t sub_len = substr->len;
     Nst_Obj *str_obj;
 
-    while ( (sub_idx = find_substring(s, s_len, sub, sub_len)) != NULL )
+    while ( (sub_idx = find_substring(s, s_len, sub, sub_len)) != nullptr )
     {
         str_split = new char[sub_idx - s + 1];
         memcpy(str_split, s, sub_idx - s);
