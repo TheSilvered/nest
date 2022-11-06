@@ -363,7 +363,8 @@ Nst_Obj *_nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ob1->type == nst_t.Vector )
     {
-        return nst_rem_value_vector(ob1, ob2);
+        nst_dec_ref(nst_rem_value_vector(ob1, ob2));
+        return nst_inc_ref(ob1);
     }
     else if ( ob1->type == nst_t.Map )
     {
@@ -375,8 +376,11 @@ Nst_Obj *_nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
                 "s",
                 TYPE_NAME(ob2)
             ));
+            return NULL;
         }
-        return res;
+
+        nst_dec_ref(res);
+        return nst_inc_ref(ob1);
     }
     else if ( ARE_TYPE(nst_t.Byte) )
         return nst_new_byte(AS_BYTE(ob1) - AS_BYTE(ob2));

@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include "nest_err.h"
 
-#define FUNC_COUNT 2 // Set this to the number of functions in your module
+#define FUNC_COUNT 3 // Set this to the number of functions in your module
 
 static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
@@ -15,6 +15,7 @@ bool lib_init()
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(try_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(raise_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_err_names_, 0);
 
     lib_init_ = true;
     return true;
@@ -159,7 +160,6 @@ NST_FUNC_SIGN(try_)
         return failure(err);
 }
 
-
 NST_FUNC_SIGN(raise_)
 {
     Nst_StrObj *name;
@@ -174,4 +174,18 @@ NST_FUNC_SIGN(raise_)
     );
 
     return nullptr;
+}
+
+NST_FUNC_SIGN(_get_err_names_)
+{
+    Nst_SeqObj *names = SEQ(nst_new_array(7));
+    names->objs[0] = nst_inc_ref(nst_s.e_SyntaxError);
+    names->objs[1] = nst_inc_ref(nst_s.e_ValueError);
+    names->objs[2] = nst_inc_ref(nst_s.e_TypeError);
+    names->objs[3] = nst_inc_ref(nst_s.e_CallError);
+    names->objs[4] = nst_inc_ref(nst_s.e_MemoryError);
+    names->objs[5] = nst_inc_ref(nst_s.e_MathError);
+    names->objs[6] = nst_inc_ref(nst_s.e_ImportError);
+    
+    return OBJ(names);
 }

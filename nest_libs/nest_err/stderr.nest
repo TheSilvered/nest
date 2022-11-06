@@ -2,8 +2,19 @@
 
 __err.try_ = try
 __err.raise_ = raise
+__err._get_err_names_ = _get_err_names
+
+@__err._get_err_names_ = names
+names.0 = SYNTAX_ERROR
+names.1 = VALUE_ERROR
+names.2 = TYPE_ERROR
+names.3 = CALL_ERROR
+names.4 = MEMORY_ERROR
+names.5 = MATH_ERROR
+names.6 = IMPORT_ERROR
 
 _vars_ '__err' -
+_vars_ 'names' -
 _vars_ 'Int' -
 _vars_ 'Real' -
 _vars_ 'Bool' -

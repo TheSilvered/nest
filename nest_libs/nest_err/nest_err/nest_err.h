@@ -19,6 +19,7 @@ EXPORT NST_INIT_LIB_OBJ_FUNC;
 
 NST_FUNC_SIGN(try_);
 NST_FUNC_SIGN(raise_);
+NST_FUNC_SIGN(_get_err_names_);
 
 #ifdef __cplusplus
 }
