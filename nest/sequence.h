@@ -42,6 +42,7 @@ Nst_Obj *nst_new_array(size_t len);
 Nst_Obj *nst_new_vector(size_t len);
 void nst_destroy_seq(Nst_SeqObj *seq);
 void nst_traverse_seq(Nst_SeqObj *seq);
+void nst_track_seq(Nst_SeqObj *seq);
 
 // Resizes the vector if it is full, callled automatically with
 // nst_append_value_vector, nst_rem_value_vector and nst_pop_value_vector

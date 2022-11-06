@@ -11,18 +11,22 @@
 #define NST_GEN3_MAX 10
 #define NST_OLD_GEN_MIN 100
 
+#define NST_OBJ_IS_TRACKED(obj) ((Nst_GGCObj *)(obj)->ggc_list != NULL)
+
 #define NST_GGC_SUPPORT \
     struct _Nst_GGCObj *ggc_next; \
     struct _Nst_GGCObj *ggc_prev; \
     struct _Nst_GGCList *ggc_list; \
-    void (* traverse_func)(Nst_Obj *)
+    void (* traverse_func)(Nst_Obj *); \
+    void (* track_func)(Nst_Obj *)
 
-#define NST_GGC_SUPPORT_INIT(obj, trav_func) \
+#define NST_GGC_SUPPORT_INIT(obj, trav_func, track_function) \
     do { \
         obj->ggc_prev = NULL; \
         obj->ggc_next = NULL; \
         obj->ggc_list = NULL; \
         obj->traverse_func = (void (*)(Nst_Obj *))(trav_func); \
+        obj->track_func = (void (*)(Nst_Obj *))(track_function); \
         NST_SET_FLAG(obj, NST_FLAG_GGC_IS_SUPPORTED); \
     } while (0)
 
@@ -67,8 +71,7 @@ enum Nst_GGCFlags
 {
     NST_FLAG_GGC_REACHABLE    = 0b10000000,
     NST_FLAG_GGC_UNREACHABLE  = 0b01000000,
-    NST_FLAG_GGC_OBJ_DELETED  = 0b00100000, // used by _nst_destroy_obj
-    NST_FLAG_GGC_IS_SUPPORTED = 0b00010000
+    NST_FLAG_GGC_IS_SUPPORTED = 0b00100000
 };
 
 #endif // !GGC_H

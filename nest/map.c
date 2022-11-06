@@ -31,7 +31,7 @@ Nst_Obj *nst_new_map()
     map->head_idx = -1;
     map->tail_idx = -1;
 
-    NST_GGC_SUPPORT_INIT(map, nst_traverse_map);
+    NST_GGC_SUPPORT_INIT(map, nst_traverse_map, nst_track_map);
 
     return (Nst_Obj *)map;
 }
@@ -179,16 +179,8 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
     (nodes + (i & mask))->key = key;
     (nodes + (i & mask))->value = value;
 
-    if ( NST_HAS_FLAG(value, NST_FLAG_GGC_IS_SUPPORTED) )
-    {
-        if ( !NST_HAS_FLAG(map, NST_FLAG_MAP_TRACKED) )
-        {
-            NST_SET_FLAG(map, NST_FLAG_MAP_TRACKED);
-            nst_add_tracked_object((Nst_GGCObj *)map);
-        }
-
+    if ( NST_OBJ_IS_TRACKED(map) && NST_HAS_FLAG(value, NST_FLAG_GGC_IS_SUPPORTED) )
         nst_add_tracked_object((Nst_GGCObj *)value);
-    }
 
     resize_map(map, false);
 
@@ -355,6 +347,20 @@ void nst_traverse_map(Nst_MapObj *map)
         // don't really care if the object is tracked by the garbage collector or not
         // the keys are never tracked since they can only be integers or strings
         NST_SET_FLAG(map->nodes[i].value, NST_FLAG_GGC_REACHABLE);
+}
+
+void nst_track_map(Nst_MapObj *map)
+{
+    if ( NST_OBJ_IS_TRACKED(map) )
+        return;
+
+    for ( Nst_Int i = _nst_map_get_next_idx(-1, map);
+        i != -1;
+        i = _nst_map_get_next_idx(i, map) )
+    {
+        if ( NST_HAS_FLAG(map->nodes[i].value, NST_FLAG_GGC_IS_SUPPORTED) )
+            nst_add_tracked_object((Nst_GGCObj *)(map->nodes[i].value));
+    }
 }
 
 Nst_Int _nst_map_get_next_idx(Nst_Int curr_idx, Nst_MapObj *map)

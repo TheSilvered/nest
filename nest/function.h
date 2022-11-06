@@ -47,6 +47,7 @@ void _nst_set_global_vt(Nst_FuncObj *func, Nst_MapObj *map);
 
 // traverse function for Nst_FuncObj, needed for the GGC
 void nst_traverse_func(Nst_FuncObj *func);
+void nst_track_func(Nst_FuncObj *func);
 // destroy function for Nst_Func_Obj
 void nst_destroy_func(Nst_FuncObj *func);
 

@@ -11,6 +11,7 @@
 #define C_RED "\x1b[31m"
 #define C_GREEN "\x1b[32m"
 #define C_YELLOW "\x1b[33m"
+#define C_CYAN "\x1b[96m"
 #define C_RESET "\x1b[0m"
 
 static bool use_color = true;
@@ -70,7 +71,10 @@ static int print_line(Nst_Pos *pos, long start_col, long end_col, int max_indent
         max_line /= 10;
     }
 
-    printf(" %#*i | ", line_len, lineno + 1);
+    if ( use_color )
+        printf(C_CYAN " %#*i" C_RESET " | ", line_len, lineno + 1);
+    else
+        printf(" %#*i | ", line_len, lineno + 1);
 
     for ( size_t i = 0; i < text_len; i++ )
     {
@@ -158,7 +162,7 @@ static void print_position(Nst_Pos start, Nst_Pos end)
         return;
 
     if ( use_color )
-        printf("File " C_GREEN "\"%s\"" C_RESET " at line %li",
+        printf("File " C_GREEN "\"%s\"" C_RESET " at line " C_CYAN "%li" C_RESET,
             start.text->path,
             start.line + 1);
     else
@@ -166,7 +170,13 @@ static void print_position(Nst_Pos start, Nst_Pos end)
             start.text->path,
             start.line + 1);
 
-    if ( start.line != end.line) printf(" to %li", end.line + 1 );
+    if ( start.line != end.line)
+    {
+        if ( use_color )
+            printf(" to " C_CYAN "% li" C_RESET, end.line + 1 );
+        else
+            printf(" to %li", end.line + 1 );
+    }
     printf(":\n");
 
     if ( start.line == end.line )
@@ -225,7 +235,12 @@ void nst_print_traceback(Nst_Traceback tb)
         else
         {
             if ( repeat_count > 0 )
-                printf("-- Previous position repeated %i more times --\n", repeat_count);
+            {
+                if ( use_color )
+                    printf(C_RED "-- Previous position repeated %i more times --\n" C_RESET, repeat_count);
+                else
+                    printf("-- Previous position repeated %i more times --\n", repeat_count);
+            }
             repeat_count = 0;
             prev_start = *start;
             prev_end = *end;
@@ -233,8 +248,27 @@ void nst_print_traceback(Nst_Traceback tb)
 
         print_position(*start, *end);
     }
+    if ( tb.error.start.col == prev_start.col && tb.error.start.line == prev_start.line &&
+         tb.error.end.col   == prev_end.col   && tb.error.end.line   == prev_end.line   &&
+         tb.error.start.text == prev_start.text )
+    {
+        repeat_count++;
+    }
 
-    nst_print_error(tb.error);
+    if ( repeat_count > 0 )
+    {
+        if ( use_color )
+            printf(C_RED "-- Previous position repeated %i more times --\n" C_RESET, repeat_count);
+        else
+            printf("-- Previous position repeated %i more times --\n", repeat_count);
+    }
+    else
+        print_position(tb.error.start, tb.error.end);
+
+    if ( use_color )
+        printf(C_YELLOW "%s" C_RESET " - %s\n", tb.error.name->value, tb.error.message->value);
+    else
+        printf("%s - %s\n", tb.error.name->value, tb.error.message->value);
 }
 
 Nst_StrObj *_nst_format_error(const char *format, const char *format_args, ...)

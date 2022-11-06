@@ -35,6 +35,7 @@ Nst_Obj *nst_new_iter(
     Nst_Obj *value);
 void nst_destroy_iter(Nst_IterObj *iter);
 void nst_traverse_iter(Nst_IterObj *iter);
+void nst_track_iter(Nst_IterObj *iter);
 
 // Functions for the range iterator
 

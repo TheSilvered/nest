@@ -109,13 +109,10 @@ void nst_collect_gen(Nst_GGCList *gen)
 
     for ( ob = gen->head; ob != NULL; ob = ob->ggc_next )
     {
-        NST_UNSET_FLAG(ob, NST_FLAG_GGC_REACHABLE
-                         | NST_FLAG_GGC_UNREACHABLE 
-                         | NST_FLAG_GGC_OBJ_DELETED );
+        NST_UNSET_FLAG(ob, NST_FLAG_GGC_REACHABLE | NST_FLAG_GGC_UNREACHABLE );
     }
 
     // All objects in the variable tables are reachable
-    NST_UNSET_FLAG((*nst_state.vt)->vars, NST_FLAG_GGC_UNREACHABLE);
     NST_SET_FLAG((*nst_state.vt)->vars, NST_FLAG_GGC_REACHABLE);
     nst_traverse_map((*nst_state.vt)->vars);
     for ( size_t i = 0, n = nst_state.f_stack->current_size; i < n; i++ )
@@ -285,7 +282,7 @@ void nst_add_tracked_object(Nst_GGCObj *obj)
 {
     Nst_GarbageCollector *ggc = nst_state.ggc;
 
-    if ( obj->ggc_list != NULL )
+    if ( NST_OBJ_IS_TRACKED(obj) )
         return;
 
     if ( ggc->gen1.size == 0 )
@@ -302,6 +299,8 @@ void nst_add_tracked_object(Nst_GGCObj *obj)
         ggc->gen1.tail->ggc_next = obj;
         ggc->gen1.tail = obj;
         ggc->gen1.size++;
+
+        obj->track_func(OBJ(obj));
 
         if ( ggc->gen1.size > NST_GEN1_MAX )
             nst_collect();

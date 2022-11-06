@@ -62,6 +62,7 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key);
 
 void nst_destroy_map(Nst_MapObj *map);
 void nst_traverse_map(Nst_MapObj *map);
+void nst_track_map(Nst_MapObj *map);
 // Gets the next index when iterating over a map's elements,
 // when curr_idx is -1 the first index is returned
 Nst_Int _nst_map_get_next_idx(Nst_Int curr_idx, Nst_MapObj *map);
@@ -72,10 +73,6 @@ void _nst_map_set_str(Nst_MapObj *map, const char *key, Nst_Obj *value);
 Nst_Obj *_nst_map_get_str(Nst_MapObj *map, const char *key);
 // Drops a value in the map with the key that is a string
 Nst_Obj *_nst_map_drop_str(Nst_MapObj *map, const char *key);
-
-enum Nst_MapFlags {
-    NST_FLAG_MAP_TRACKED = 0b1
-};
 
 #ifdef __cplusplus
 }

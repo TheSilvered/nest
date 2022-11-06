@@ -36,7 +36,7 @@ Nst_Obj *nst_new_iter(
          NST_HAS_FLAG(is_done, NST_FLAG_GGC_IS_SUPPORTED) ||
          NST_HAS_FLAG(get_val, NST_FLAG_GGC_IS_SUPPORTED) ||
          NST_HAS_FLAG(value,   NST_FLAG_GGC_IS_SUPPORTED) )
-        NST_GGC_SUPPORT_INIT(iter, nst_traverse_iter);
+        NST_GGC_SUPPORT_INIT(iter, nst_traverse_iter, nst_track_iter);
 
     return (Nst_Obj *)iter;
 }
@@ -66,6 +66,24 @@ void nst_traverse_iter(Nst_IterObj* iter)
 
     if ( NST_HAS_FLAG(iter->value, NST_FLAG_GGC_IS_SUPPORTED) )
         ((Nst_GGCObj *)iter->value)->traverse_func(iter->value);
+}
+
+void nst_track_iter(Nst_IterObj* iter)
+{
+    if ( NST_HAS_FLAG(iter->start, NST_FLAG_GGC_IS_SUPPORTED) )
+        nst_add_tracked_object((Nst_GGCObj *)iter->start);
+
+    if ( NST_HAS_FLAG(iter->advance, NST_FLAG_GGC_IS_SUPPORTED) )
+        nst_add_tracked_object((Nst_GGCObj *)iter->advance);
+
+    if ( NST_HAS_FLAG(iter->is_done, NST_FLAG_GGC_IS_SUPPORTED) )
+        nst_add_tracked_object((Nst_GGCObj *)iter->is_done);
+
+    if ( NST_HAS_FLAG(iter->get_val, NST_FLAG_GGC_IS_SUPPORTED) )
+        nst_add_tracked_object((Nst_GGCObj *)iter->get_val);
+
+    if ( NST_HAS_FLAG(iter->value, NST_FLAG_GGC_IS_SUPPORTED) )
+        nst_add_tracked_object((Nst_GGCObj *)iter->value);
 }
 
 #if defined(_WIN32) || defined(WIN32)

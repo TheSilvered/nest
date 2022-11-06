@@ -34,8 +34,7 @@
 
 #endif
 
-#define SET_OP_ERROR(start_pos, end_pos, op_err) \
-    do { \
+#define SET_OP_ERROR(start_pos, end_pos, op_err) do { \
         if ( nst_state.traceback->error.occurred ) \
         { \
             Nst_Pos *positions = malloc(sizeof(Nst_Pos) * 2); \
@@ -50,6 +49,11 @@
         _NST_SET_ERROR(GLOBAL_ERROR, start_pos, end_pos, op_err.name, op_err.message); \
         nst_dec_ref(op_err.name); \
         nst_dec_ref(op_err.message); \
+    } while ( 0 )
+
+#define CHANGE_VT(new_vt) do { \
+    *nst_state.vt = new_vt; \
+    nst_add_tracked_object((Nst_GGCObj *)(*nst_state.vt)->vars); \
     } while ( 0 )
 
 #define ERROR_OCCURRED (nst_state.traceback->error.occurred)
@@ -328,7 +332,7 @@ int nst_run_module(char *filename, Nst_SourceText *lib_src)
         *nst_state.idx - 1
     );
     *nst_state.idx = 0;
-    *nst_state.vt = nst_new_var_table(NULL, path_str, nst_state.argv);
+    CHANGE_VT(nst_new_var_table(NULL, path_str, nst_state.argv));
 
     _nst_set_global_vt(mod_func, (*nst_state.vt)->vars);
 
@@ -353,6 +357,16 @@ Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err)
     if ( NST_HAS_FLAG(func, NST_FLAG_FUNC_IS_C) )
         return func->body.c_func(func->arg_num, args, err);
 
+    nst_push_val(nst_state.v_stack, NULL);
+    nst_push_func(
+        nst_state.f_stack,
+        func,
+        nst_no_pos(),
+        nst_no_pos(),
+        *nst_state.vt,
+        *nst_state.idx - 1
+    );
+
     Nst_VarTable *new_vt;
     if ( func->mod_globals != NULL )
         new_vt = nst_new_var_table(func->mod_globals, NULL, NULL);
@@ -367,17 +381,8 @@ Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err)
         nst_dec_ref(args[i]);
     }
 
-    nst_push_val(nst_state.v_stack, NULL);
-    nst_push_func(
-        nst_state.f_stack,
-        func,
-        nst_no_pos(),
-        nst_no_pos(),
-        *nst_state.vt,
-        *nst_state.idx - 1
-    );
     *nst_state.idx = 0;
-    *nst_state.vt = new_vt;
+    CHANGE_VT(new_vt);
     complete_function(nst_state.f_stack->current_size - 1);
 
     if ( ERROR_OCCURRED )
@@ -822,7 +827,7 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
         nst_set_val(new_vt, func->args[arg_num - i - 1], val);
         nst_dec_ref(val);
     }
-    *nst_state.vt = new_vt;
+    CHANGE_VT(new_vt);
 }
 
 static inline void exe_op_cast(Nst_RuntimeInstruction *inst)

@@ -514,18 +514,18 @@ static void compile_func_declr(Nst_Node *node)
     SET_VAL_LOC name
     */
 
+    int prev_loop_id = c_state.loop_id;
+    LList *prev_inst_ls = c_state.inst_ls;
     Nst_FuncObj *func = FUNC(new_func(
         node->tokens->size - 1,
         compile_internal(HEAD_NODE, true, false)
     ));
+    c_state.loop_id = prev_loop_id;
+    c_state.inst_ls = prev_inst_ls;
+
     size_t i = 0;
     for ( LLNode *n = node->tokens->head->next; n != NULL; n = n->next )
         func->args[i++] = nst_inc_ref(TOK(n->value)->value);
-
-    int prev_loop_id = c_state.loop_id;
-    LList *prev_inst_ls = c_state.inst_ls;
-    c_state.loop_id = prev_loop_id;
-    c_state.inst_ls = prev_inst_ls;
 
     Nst_RuntimeInstruction *inst = nst_new_inst_val(
         NST_IC_PUSH_VAL,
@@ -552,19 +552,18 @@ static void compile_lambda(Nst_Node *node)
     PUSH_VAL lambda function
     */
 
+    int prev_loop_id = c_state.loop_id;
+    LList *prev_inst_ls = c_state.inst_ls;
     Nst_FuncObj *func = FUNC(new_func(
         node->tokens->size,
         compile_internal(HEAD_NODE, true, false)
     ));
-    size_t i = 0;
-
-    for ( LLNode *n = node->tokens->head; n != NULL; n = n->next )
-        func->args[i++] = nst_inc_ref(TOK(n->value)->value);
-
-    int prev_loop_id = c_state.loop_id;
-    LList *prev_inst_ls = c_state.inst_ls;
     c_state.loop_id = prev_loop_id;
     c_state.inst_ls = prev_inst_ls;
+
+    size_t i = 0;
+    for ( LLNode *n = node->tokens->head; n != NULL; n = n->next )
+        func->args[i++] = nst_inc_ref(TOK(n->value)->value);
 
     Nst_RuntimeInstruction *inst = nst_new_inst_val(
         NST_IC_PUSH_VAL,

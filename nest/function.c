@@ -22,7 +22,7 @@ Nst_Obj *new_func(size_t arg_num, Nst_InstructionList *bytecode)
     func->arg_num = arg_num;
     func->mod_globals = NULL;
 
-    NST_GGC_SUPPORT_INIT(func, nst_traverse_func);
+    NST_GGC_SUPPORT_INIT(func, nst_traverse_func, nst_track_func);
 
     return (Nst_Obj *)func;
 }
@@ -60,6 +60,12 @@ void nst_traverse_func(Nst_FuncObj *func)
 {
     if ( func->mod_globals != NULL )
         nst_traverse_map(func->mod_globals);
+}
+
+void nst_track_func(Nst_FuncObj *func)
+{
+    if ( func->mod_globals != NULL )
+        nst_add_tracked_object((Nst_GGCObj *)func->mod_globals);
 }
 
 void nst_destroy_func(Nst_FuncObj *func)

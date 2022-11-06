@@ -498,6 +498,7 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
         case '\\':end_str[str_len++] = '\\'; break;
         case 'a': end_str[str_len++] = '\a'; break;
         case 'b': end_str[str_len++] = '\b'; break;
+        case 'e': end_str[str_len++] = '\x1b'; break;
         case 'f': end_str[str_len++] = '\f'; break;
         case 'n': end_str[str_len++] = '\n'; break;
         case 'r': end_str[str_len++] = '\r'; break;

@@ -24,7 +24,7 @@ static Nst_Obj *new_seq(size_t len, size_t size, Nst_TypeObj *type)
     seq->size = size;
     seq->objs = objs;
 
-    NST_GGC_SUPPORT_INIT(seq, nst_traverse_seq);
+    NST_GGC_SUPPORT_INIT(seq, nst_traverse_seq, nst_track_seq);
 
     return (Nst_Obj *)seq;
 }
@@ -58,6 +58,19 @@ void nst_traverse_seq(Nst_SeqObj *seq)
     Nst_Obj **objs = seq->objs;
     for ( size_t i = 0, n = seq->len; i < n; i++ )
         NST_SET_FLAG(objs[i], NST_FLAG_GGC_REACHABLE);
+}
+
+void nst_track_seq(Nst_SeqObj* seq)
+{
+    if ( NST_OBJ_IS_TRACKED(seq) )
+        return;
+
+    Nst_Obj **objs = seq->objs;
+    for ( size_t i = 0, n = seq->len; i < n; i++ )
+    {
+        if ( NST_HAS_FLAG(objs[i], NST_FLAG_GGC_IS_SUPPORTED) )
+            nst_add_tracked_object((Nst_GGCObj *)objs[i]);
+    }
 }
 
 void _nst_resize_vector(Nst_SeqObj *vect)
@@ -105,7 +118,7 @@ void _nst_append_value_vector(Nst_SeqObj *vect, Nst_Obj *val)
     vect->objs[vect->len] = val;
     vect->len++;
 
-    if ( NST_HAS_FLAG(val, NST_FLAG_GGC_IS_SUPPORTED) )
+    if ( NST_OBJ_IS_TRACKED(vect) && NST_HAS_FLAG(val, NST_FLAG_GGC_IS_SUPPORTED) )
         nst_add_tracked_object((Nst_GGCObj *)val);
 }
 
@@ -122,7 +135,7 @@ bool _nst_set_value_seq(Nst_SeqObj *seq, int64_t idx, Nst_Obj *val)
         nst_dec_ref(seq->objs[idx]);
     seq->objs[idx] = val;
 
-    if ( NST_HAS_FLAG(val, NST_FLAG_GGC_IS_SUPPORTED) )
+    if ( NST_OBJ_IS_TRACKED(seq) && NST_HAS_FLAG(val, NST_FLAG_GGC_IS_SUPPORTED) )
         nst_add_tracked_object((Nst_GGCObj *)val);
 
     return true;
