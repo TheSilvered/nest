@@ -154,6 +154,9 @@ static void print_position(Nst_Pos start, Nst_Pos end)
 {
     assert(start.text == end.text);
 
+    if ( start.text == NULL )
+        return;
+
     if ( use_color )
         printf("File " C_GREEN "\"%s\"" C_RESET " at line %li",
             start.text->path,
@@ -202,6 +205,9 @@ void nst_print_traceback(Nst_Traceback tb)
 {
     assert(tb.positions->size % 2 == 0);
 
+    Nst_Pos prev_start = { -1, -1, NULL };
+    Nst_Pos prev_end = { -1, -1, NULL };
+    int repeat_count = 0;
     for ( LLNode *n1 = tb.positions->head, *n2 = n1->next;
           n1 != NULL;
           n1 = n2->next, n2 = n1 == NULL ? n1 : n1->next )
@@ -209,8 +215,21 @@ void nst_print_traceback(Nst_Traceback tb)
         Nst_Pos *start = (Nst_Pos *)n1->value;
         Nst_Pos *end   = (Nst_Pos *)n2->value;
 
-        if ( start->text == NULL )
+        if ( start->col == prev_start.col && start->line == prev_start.line &&
+             end->col   == prev_end.col   && end->line   == prev_end.line   &&
+             start->text == prev_start.text )
+        {
+            repeat_count++;
             continue;
+        }
+        else
+        {
+            if ( repeat_count > 0 )
+                printf("-- Previous position repeated %i more times --\n", repeat_count);
+            repeat_count = 0;
+            prev_start = *start;
+            prev_end = *end;
+        }
 
         print_position(*start, *end);
     }

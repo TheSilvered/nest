@@ -971,33 +971,33 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
         }
         else if ( ob_t == nst_t.Type )
         {
-            if ( ob == nst_t.Null )
+            if ( ob == OBJ(nst_t.Null) )
                 return nst_inc_ref(nst_s.t_Null);
-            if ( ob == nst_t.Int )
+            if ( ob == OBJ(nst_t.Int) )
                 return nst_inc_ref(nst_s.t_Int);
-            if ( ob == nst_t.Real )
+            if ( ob == OBJ(nst_t.Real) )
                 return nst_inc_ref(nst_s.t_Real);
-            if ( ob == nst_t.Bool )
+            if ( ob == OBJ(nst_t.Bool) )
                 return nst_inc_ref(nst_s.t_Bool);
-            if ( ob == nst_t.Str )
+            if ( ob == OBJ(nst_t.Str) )
                 return nst_inc_ref(nst_s.t_Str);
-            if ( ob == nst_t.Map )
+            if ( ob == OBJ(nst_t.Map) )
                 return nst_inc_ref(nst_s.t_Map);
-            if ( ob == nst_t.Vector )
+            if ( ob == OBJ(nst_t.Vector) )
                 return nst_inc_ref(nst_s.t_Vector);
-            if ( ob == nst_t.Array )
+            if ( ob == OBJ(nst_t.Array) )
                 return nst_inc_ref(nst_s.t_Array);
-            if ( ob == nst_t.Byte )
+            if ( ob == OBJ(nst_t.Byte) )
                 return nst_inc_ref(nst_s.t_Byte);
-            if ( ob == nst_t.Type )
+            if ( ob == OBJ(nst_t.Type) )
                 return nst_inc_ref(nst_s.t_Type);
-            if ( ob == nst_t.Iter )
+            if ( ob == OBJ(nst_t.Iter) )
                 return nst_inc_ref(nst_s.t_Iter);
-            if ( ob == nst_t.Func )
+            if ( ob == OBJ(nst_t.Func) )
                 return nst_inc_ref(nst_s.t_Func);
-            if ( ob == nst_t.IOFile )
+            if ( ob == OBJ(nst_t.IOFile) )
                 return nst_inc_ref(nst_s.t_IOFile);
-
+            
             // for custom types defined in external libraries
             return nst_copy_string(ob);
         }
@@ -1209,6 +1209,33 @@ Nst_Obj *_nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     nst_dec_ref(ob2);
 
     return new_obj;
+}
+
+Nst_Obj *_nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step, Nst_OpErr *err)
+{
+    if ( AS_INT(step) == 0 )
+    {
+        NST_SET_RAW_VALUE_ERROR(_NST_EM_RANGE_STEP_ZERO);
+        return NULL;
+    }
+
+    Nst_Obj *idx = nst_new_int(0);
+
+    Nst_SeqObj *data_seq = SEQ(nst_new_array(4));
+    data_seq->objs[0] = idx;
+    data_seq->objs[0] = nst_inc_ref(start);
+    data_seq->objs[0] = nst_inc_ref(stop);
+    data_seq->objs[0] = nst_inc_ref(step);
+
+    Nst_Obj *iter = nst_new_iter(
+        FUNC(new_cfunc(1, nst_num_iter_start)),
+        FUNC(new_cfunc(1, nst_num_iter_advance)),
+        FUNC(new_cfunc(1, nst_num_iter_is_done)),
+        FUNC(new_cfunc(1, nst_num_iter_get_val)),
+        OBJ(data_seq)
+    );
+
+    return iter;
 }
 
 // Local operations

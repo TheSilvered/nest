@@ -715,7 +715,7 @@ static void compile_local_stack_op(Nst_Node *node)
         );
         ADD_INST(inst);
 
-        inst = nst_new_inst_empty(NST_IC_OP_RANGE, node->nodes->size);
+        inst = nst_new_inst_int(NST_IC_OP_RANGE, node->nodes->size, node->start, node->end);
         ADD_INST(inst);
     }
     else if ( tok_type == NST_TT_CAST )

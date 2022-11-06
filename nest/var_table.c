@@ -15,9 +15,9 @@ Nst_VarTable *nst_new_var_table(Nst_MapObj *global_table,
 
     nst_map_set(vars, nst_s.o__vars_, vars);
     if ( global_table == NULL )
-        nst_map_set_str(vars, nst_s.o__globals_, nst_c.null);
+        nst_map_set(vars, nst_s.o__globals_, nst_c.null);
     else
-        nst_map_set_str(vars, nst_s.o__globals_, global_table);
+        nst_map_set(vars, nst_s.o__globals_, global_table);
 
     if ( global_table != NULL )
         return vt;

@@ -855,8 +855,8 @@ static inline void exe_op_range(Nst_RuntimeInstruction *inst)
 
     if ( inst->int_val == 3 )
     {
-        step = nst_pop_val(nst_state.v_stack);
         start = nst_pop_val(nst_state.v_stack);
+        step  = nst_pop_val(nst_state.v_stack);
     }
     else
     {
@@ -868,29 +868,16 @@ static inline void exe_op_range(Nst_RuntimeInstruction *inst)
             step = nst_new_int(-1);
     }
 
-    Nst_Obj *idx = nst_new_int(0);
+    Nst_OpErr err = { NULL, NULL };
+    Nst_Obj *iter = _nst_obj_range(start, stop, step, &err);
 
-    Nst_Obj *data_seq = nst_new_array(4);
-    nst_set_value_seq(data_seq, 0, idx);
-    nst_set_value_seq(data_seq, 1, start);
-    nst_set_value_seq(data_seq, 2, stop);
-    nst_set_value_seq(data_seq, 3, step);
-
-    nst_dec_ref(idx);
-    nst_dec_ref(start);
-    nst_dec_ref(stop);
-    nst_dec_ref(step);
-
-    Nst_Obj *iter = nst_new_iter(
-        FUNC(new_cfunc(1, nst_num_iter_start)),
-        FUNC(new_cfunc(1, nst_num_iter_advance)),
-        FUNC(new_cfunc(1, nst_num_iter_is_done)),
-        FUNC(new_cfunc(1, nst_num_iter_get_val)),
-        data_seq
-    );
-
-    nst_push_val(nst_state.v_stack, iter);
-    nst_dec_ref(iter);
+    if ( iter == NULL )
+        SET_OP_ERROR(inst->start, inst->end, err);
+    else
+    {
+        nst_push_val(nst_state.v_stack, iter);
+        nst_dec_ref(iter);
+    }
 }
 
 static inline void exe_stack_op(Nst_RuntimeInstruction *inst)
