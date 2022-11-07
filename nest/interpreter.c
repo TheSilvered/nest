@@ -237,7 +237,7 @@ static void complete_function(size_t final_stack_size)
                     obj = nst_pop_val(nst_state.v_stack);
                 }
 
-                Nst_Pos *positions = malloc(sizeof(Nst_Pos) * 2);
+                Nst_Pos *positions = (Nst_Pos *)malloc(sizeof(Nst_Pos) * 2);
 
                 if ( positions == NULL )
                     continue;
@@ -345,9 +345,7 @@ int nst_run_module(char *filename, Nst_SourceText *lib_src)
     assert(res == 0);
 
     if ( ERROR_OCCURRED )
-    {
         return -1;
-    }
     else
         return 0;
 }
@@ -376,10 +374,7 @@ Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err)
         new_vt = nst_new_var_table((*nst_state.vt)->global_table, NULL, NULL);
 
     for ( size_t i = 0, n = func->arg_num; i < n; i++ )
-    {
         nst_set_val(new_vt, func->args[i], args[i]);
-        nst_dec_ref(args[i]);
-    }
 
     *nst_state.idx = 0;
     CHANGE_VT(new_vt);
@@ -1273,5 +1268,6 @@ void nst_destroy_lib_handle(Nst_LibHandle *handle)
         free(handle->text->text);
         free(handle->text);
     }
+    free(handle->path);
     free(handle);
 }

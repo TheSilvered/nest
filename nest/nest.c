@@ -1,17 +1,18 @@
-#include <stdio.h>
-#include <string.h>
-#include <stdlib.h>
-#include "lexer.h"
-#include "parser.h"
-#include "interpreter.h"
-#include "obj.h"
-#include "llist.h"
-#include "tokens.h"
-#include "compiler.h"
-#include "optimizer.h"
 #include "argv_parser.h"
 #include "nest.h"
-#include "global_consts.h"
+
+#if defined(_WIN32) || defined(WIN32)
+
+#include <windows.h>
+#define SET_UTF8_TERMINAL SetConsoleOutputCP(CP_UTF8)
+
+#else
+
+#include <wchar.h>
+#include <locale.h>
+#define SET_UTF8_TERMINAL setlocale(LC_ALL, "")
+
+#endif
 
 #define EXIT \
     do { \
@@ -29,19 +30,6 @@
     nst_dec_ref(error.message); \
     EXIT; \
     } while (0)
-
-#if defined(_WIN32) || defined(WIN32)
-
-#include <windows.h>
-#define SET_UTF8_TERMINAL SetConsoleOutputCP(CP_UTF8)
-
-#else
-
-#include <wchar.h>
-#include <locale.h>
-#define SET_UTF8_TERMINAL setlocale(LC_ALL, "")
-
-#endif
 
 int main(int argc, char **argv)
 {

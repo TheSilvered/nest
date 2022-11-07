@@ -1,15 +1,15 @@
 |#| 'stdfs.nest' = fs
 |#| 'stdsequtil.nest' = seq
 
-|#| 'run_tests.nest'
+|#| 'object_tests/test_byte.nest'
 
 #run_tests dir [
     ... Iter :: (dir @fs.list_dir_recursive) := test_path [
         test_path -5 -1 1 @seq.slice '.nest' != ? ..
 
         -- runs the file
-        -- |#| test_path
         >>> (test_path '\n' ><)
+        |#| test_path
     ]
 ]
 

@@ -109,7 +109,9 @@ void nst_collect_gen(Nst_GGCList *gen)
 
     for ( ob = gen->head; ob != NULL; ob = ob->ggc_next )
     {
-        NST_UNSET_FLAG(ob, NST_FLAG_GGC_REACHABLE | NST_FLAG_GGC_UNREACHABLE );
+        NST_UNSET_FLAG(ob, NST_FLAG_GGC_REACHABLE
+                         | NST_FLAG_GGC_UNREACHABLE
+                         | NST_FLAG_GGC_DELETED );
     }
 
     // All objects in the variable tables are reachable

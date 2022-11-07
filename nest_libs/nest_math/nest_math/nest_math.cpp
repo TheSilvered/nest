@@ -4,7 +4,7 @@
 
 #define FUNC_COUNT 36
 #define COORD_TYPE_ERROR do { \
-        NST_SET_VALUE_ERROR("all coordinates must be of type 'Real' or 'Int'"); \
+        NST_SET_RAW_VALUE_ERROR("all coordinates must be of type 'Real' or 'Int'"); \
         return nullptr; \
     } while (0)
 
@@ -301,7 +301,7 @@ NST_FUNC_SIGN(dist_2d_)
 
     if ( p1->len != 2 || p2->len != 2 )
     {
-        NST_SET_VALUE_ERROR("the points must have exactly two values");
+        NST_SET_RAW_VALUE_ERROR("the points must have exactly two values");
         return nullptr;
     }
 
@@ -346,7 +346,7 @@ NST_FUNC_SIGN(dist_3d_)
 
     if ( p1->len != 3 || p2->len != 3 )
     {
-        NST_SET_VALUE_ERROR("the points must have exactly three values");
+        NST_SET_RAW_VALUE_ERROR("the points must have exactly three values");
         return nullptr;
     }
 
@@ -404,7 +404,7 @@ NST_FUNC_SIGN(dist_nd_)
 
     if ( p1->len != p2->len )
     {
-        NST_SET_VALUE_ERROR("the points must have the same number of values");
+        NST_SET_RAW_VALUE_ERROR("the points must have the same number of values");
         return nullptr;
     }
 
@@ -494,7 +494,7 @@ NST_FUNC_SIGN(min_seq_)
 
     if ( seq_len == 0 )
     {
-        NST_SET_VALUE_ERROR("sequence length is zero");
+        NST_SET_RAW_VALUE_ERROR("sequence length is zero");
     }
 
     Nst_Obj *min_obj = seq->objs[0];
@@ -524,7 +524,7 @@ NST_FUNC_SIGN(max_seq_)
 
     if ( seq_len == 0 )
     {
-        NST_SET_VALUE_ERROR("the sequence has a length of zero");
+        NST_SET_RAW_VALUE_ERROR("the sequence has a length of zero");
     }
 
     Nst_Obj *max_obj = seq->objs[0];
@@ -605,7 +605,7 @@ NST_FUNC_SIGN(map_)
 
     if ( min1 == max1 )
     {
-        NST_SET_MATH_ERROR("original minimum and maximum are equal");
+        NST_SET_RAW_MATH_ERROR("original minimum and maximum are equal");
         return nullptr;
     }
 

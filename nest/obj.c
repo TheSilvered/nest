@@ -38,6 +38,9 @@ void _nst_destroy_obj(Nst_Obj *obj)
 {
     if ( NST_HAS_FLAG(obj, NST_FLAG_GGC_IS_SUPPORTED) )
     {
+        if ( NST_HAS_FLAG(obj, NST_FLAG_GGC_DELETED) )
+            return;
+
         obj->ref_count = 2147483647;
         if ( obj->destructor != NULL )
             (*obj->destructor)(obj);
@@ -46,7 +49,10 @@ void _nst_destroy_obj(Nst_Obj *obj)
 
         // The object is being deleted by the garbage collector
         if ( NST_HAS_FLAG(obj, NST_FLAG_GGC_UNREACHABLE) )
+        {
+            NST_SET_FLAG(obj, NST_FLAG_GGC_DELETED);
             return;
+        }
         else
         {
             Nst_GGCObj *ggc_obj = (Nst_GGCObj *)obj;

@@ -59,7 +59,7 @@ NST_FUNC_SIGN(rand_int_)
 
     if ( min > max )
     {
-        NST_SET_VALUE_ERROR("'min' is greater than 'max'");
+        NST_SET_RAW_VALUE_ERROR("'min' is greater than 'max'");
         return nullptr;
     }
 

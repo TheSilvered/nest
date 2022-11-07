@@ -13,5 +13,10 @@
 #include "nst_types.h"
 #include "obj_ops.h"
 #include "global_consts.h"
+#include "tokens.h"
+#include "lexer.h"
+#include "parser.h"
+#include "compiler.h"
+#include "optimizer.h"
 
 #endif //!NEST_H

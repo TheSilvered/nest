@@ -604,7 +604,7 @@ NST_FUNC_SIGN(split_)
 
     if ( substr->len == 0 )
     {
-        NST_SET_VALUE_ERROR("separator must be at least one character long");
+        NST_SET_RAW_VALUE_ERROR("separator must be at least one character long");
         return nullptr;
     }
 

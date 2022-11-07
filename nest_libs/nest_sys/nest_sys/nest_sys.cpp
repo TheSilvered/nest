@@ -21,7 +21,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_ref_count_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_addr_,      1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(hash_,          1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_version_,   0);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_version_,  0);
 
     lib_init_ = true;
 

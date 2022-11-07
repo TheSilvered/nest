@@ -49,12 +49,12 @@ NST_FUNC_SIGN(map_)
 
     if ( func->arg_num != 1 )
     {
-        NST_SET_VALUE_ERROR("the function must take exactly one argument");
+        NST_SET_RAW_VALUE_ERROR("the function must take exactly one argument");
         return nullptr;
     }
 
     Nst_SeqObj *new_seq = seq->type == nst_t.Array ? SEQ(nst_new_array(seq->len))
-                                                 : SEQ(nst_new_vector(seq->len));
+                                                   : SEQ(nst_new_vector(seq->len));
 
     for ( size_t i = 0, n = seq->len; i < n; i++ )
     {
@@ -371,7 +371,7 @@ NST_FUNC_SIGN(filter_)
 
     if ( func->arg_num != 1 )
     {
-        NST_SET_CALL_ERROR("the function must take exactly one argument");
+        NST_SET_RAW_CALL_ERROR("the function must take exactly one argument");
         return nullptr;
     }
 

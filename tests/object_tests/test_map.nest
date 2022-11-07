@@ -13,8 +13,8 @@ m.b 2 @test.assert_eq
 m.c 3 @test.assert_eq
 m.d 4 @test.assert_eq
 
-m 'c' - @test.assert_true
-m 'h' - @test.assert_false
+m 'c' - { 'a': 1, 'b': 2, 'd': 4 } @test.assert_eq
+m 'h' - { 'a': 1, 'b': 2, 'd': 4 } @test.assert_eq
 
 Str :: m "{ 'a': 1, 'b': 2, 'd': 4 }" @test.assert_eq
 {} @test.assert_false

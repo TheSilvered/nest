@@ -1227,9 +1227,9 @@ Nst_Obj *_nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step, Nst_OpErr 
 
     Nst_SeqObj *data_seq = SEQ(nst_new_array(4));
     data_seq->objs[0] = idx;
-    data_seq->objs[0] = nst_inc_ref(start);
-    data_seq->objs[0] = nst_inc_ref(stop);
-    data_seq->objs[0] = nst_inc_ref(step);
+    data_seq->objs[1] = nst_inc_ref(start);
+    data_seq->objs[2] = nst_inc_ref(stop);
+    data_seq->objs[3] = nst_inc_ref(step);
 
     Nst_Obj *iter = nst_new_iter(
         FUNC(new_cfunc(1, nst_num_iter_start)),
@@ -1359,6 +1359,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     }
 
     char *file_name = STR(ob)->value;
+    size_t file_name_len = STR(ob)->len;
     bool c_import = false;
 
     if ( STR(ob)->len > 6 &&
@@ -1368,11 +1369,11 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     {
         c_import = true;
         file_name += 6; // skip __C__:
+        file_name_len -= 6;
     }
 
-    size_t file_name_len = strlen(file_name);
-    char *file_path = file_name;
-    bool file_path_allocated = false;
+    char *file_path;
+    size_t path_len = nst_get_full_path(file_name, &file_path, NULL);
 
     Nst_IOFile file;
     // Checks if the file exists with the given path
@@ -1381,7 +1382,12 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     {
 #if defined(_WIN32) || defined(WIN32)
 
+  #ifdef _DEBUG
+        file_path = (char *)malloc((file_name_len + 35) * sizeof(char));
+        sprintf(file_path, "E:/C++/nest/nest_libs/_nest_files/%s", file_name);
+  #else
         // In Windows the standard library is stored in %LOCALAPPDATA%/Programs/nest/nest_libs
+
         char *appdata = getenv("LOCALAPPDATA");
         if ( appdata == NULL )
         {
@@ -1395,34 +1401,19 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
 
         size_t appdata_len = strlen(appdata);
         file_path = (char *)malloc((appdata_len + file_name_len + 26) * sizeof(char));
-        file_path_allocated = true;
         if ( !file_path ) return NULL;
-
-        char *lib_dir = (char *)"\\Programs\\nest\\nest_libs\\";
-        memcpy(file_path, appdata, appdata_len);
-        memcpy(file_path + appdata_len, lib_dir, 25);
-        memcpy(file_path + appdata_len + 25, file_name, file_name_len + 1); // copies also \0
-        size_t path_len = appdata_len + file_name_len + 25;
+        sprintf(file_path, "%s/Programs/nest/nest_libs/%s", appdata, file_name);
+  #endif
 
 #else
 
         // In UNIX the standard library is stored in /usr/lib/nest
         file_path = (char *)malloc((file_name_len + 15) * sizeof(char));
-        file_path_allocated = true;
         if ( !file_path ) return NULL;
 
-        char *lib_dir = (char *)"/usr/lib/nest/";
-        memcpy(file_path, lib_dir, 14);
-        memcpy(file_path + 14, file_name, file_name_len + 1); // copies also \0
-        size_t path_len = file_name_len + 14;
+        sprintf(file_path, "/usr/lib/nest/%s", file_name);
 
 #endif
-
-        for ( size_t i = 0; i < path_len; i++ )
-        {
-            if ( file_path[i] == '\\' )
-                file_path[i] = '/';
-        }
 
         if ( (file = fopen(file_path, "r")) == NULL )
         {
@@ -1435,27 +1426,31 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
             return NULL;
         }
 
-        free(file_name);
+        char *abs_path;
+        path_len = nst_get_full_path(file_path, &abs_path, NULL);
+        free(file_path);
+        file_path = abs_path;
     }
     fclose(file);
 
-    // Gets the full path to not re-import with different relative paths
-    char *full_path = NULL;
-    nst_get_full_path(file_path, &full_path, NULL);
-    if ( file_path_allocated ) free(file_path);
-    file_path = full_path;
+    for ( size_t i = 0; i < path_len; i++ )
+    {
+        if ( file_path[i] == '\\' )
+            file_path[i] = '/';
+    }
 
     // Check if the module is in the import stack
     for ( LLNode *n = nst_state.lib_paths->head; n != NULL; n = n->next )
     {
         if ( strcmp(file_path, (const char *)(n->value)) == 0 )
         {
+            LList_pop(nst_state.lib_paths);
             NST_SET_RAW_IMPORT_ERROR(_NST_EM_CIRC_IMPORT);
             return NULL;
         }
     }
 
-    LList_append(nst_state.lib_paths, full_path, false);
+    LList_append(nst_state.lib_paths, file_path, false);
 
     // Check if the module was loaded previously
     for ( LLNode *n = nst_state.lib_handles->head; n != NULL; n = n->next )
@@ -1463,6 +1458,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         Nst_LibHandle *handle = (Nst_LibHandle *)(n->value);
         if ( strcmp(handle->path, file_path) == 0 )
         {
+            LList_pop(nst_state.lib_paths);
             return nst_inc_ref(handle->val);
         }
     }
@@ -1470,20 +1466,21 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     if ( !c_import )
     {
         Nst_SourceText *lib_src = (Nst_SourceText *)malloc(sizeof(Nst_SourceText));
-        if ( lib_src == NULL )
-            return NULL;
-
-        if ( nst_run_module(file_path, lib_src) == -1 )
+        Nst_LibHandle *handle = (Nst_LibHandle *)malloc(sizeof(Nst_LibHandle));
+        if ( lib_src == NULL || handle == NULL )
         {
-            free(lib_src);
+            LList_pop(nst_state.lib_paths);
             return NULL;
         }
 
-        // Adds the generated map to the modules previously loaded
-        Nst_LibHandle *handle = (Nst_LibHandle *)malloc(sizeof(Nst_LibHandle));
-        if ( handle == NULL )
+        handle->path = file_path;
+        handle->text = lib_src;
+
+        if ( nst_run_module(file_path, lib_src) == -1 )
         {
-            errno = ENOMEM;
+            handle->val = NULL;
+            LList_append(nst_state.lib_handles, handle, true);
+            LList_pop(nst_state.lib_paths);
             return NULL;
         }
 
@@ -1495,7 +1492,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
 
         LList_append(nst_state.lib_handles, handle, true);
         LList_pop(nst_state.lib_paths);
-        return (Nst_Obj *)map;
+        return nst_inc_ref(map);
     }
 
 #if defined(_WIN32) || defined(WIN32)
@@ -1506,6 +1503,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
 
     if ( !lib )
     {
+        LList_pop(nst_state.lib_paths);
 #if defined(_WIN32) || defined(WIN32)
         NST_SET_RAW_IMPORT_ERROR(_NST_EM_FILE_NOT_DLL);
 #else
@@ -1519,6 +1517,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
 
     if ( init_lib_obj == NULL )
     {
+        LList_pop(nst_state.lib_paths);
         NST_SET_RAW_IMPORT_ERROR(_NST_EM_NO_LIB_FUNC("init_lib_obj"));
         return NULL;
     }
@@ -1530,12 +1529,14 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     bool (*lib_init)() = (bool (*)())dlsym(lib, "lib_init");
     if ( lib_init == NULL )
     {
+        LList_pop(nst_state.lib_paths);
         NST_SET_RAW_IMPORT_ERROR(_NST_EM_NO_LIB_FUNC("lib_init"));
         return NULL;
     }
 
     if ( !lib_init() )
     {
+        LList_pop(nst_state.lib_paths);
         errno = ENOMEM;
         return NULL;
     }
@@ -1544,6 +1545,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     Nst_FuncDeclr *(*get_func_ptrs)() = (Nst_FuncDeclr *(*)())dlsym(lib, "get_func_ptrs");
     if ( get_func_ptrs == NULL )
     {
+        LList_pop(nst_state.lib_paths);
         NST_SET_RAW_IMPORT_ERROR(_NST_EM_NO_LIB_FUNC("get_func_ptrs"));
         return NULL;
     }
@@ -1552,6 +1554,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
 
     if ( func_ptrs == NULL )
     {
+        LList_pop(nst_state.lib_paths);
         NST_SET_RAW_IMPORT_ERROR(_NST_EM_LIB_INIT_FAILED);
         return NULL;
     }
@@ -1576,6 +1579,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     Nst_LibHandle *handle = (Nst_LibHandle *)malloc(sizeof(Nst_LibHandle));
     if ( handle == NULL )
     {
+        LList_pop(nst_state.lib_paths);
         errno = ENOMEM;
         return NULL;
     }

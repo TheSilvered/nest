@@ -111,7 +111,7 @@ NST_FUNC_SIGN(rmdir_)
 
     if ( !fs::is_directory(path->value) )
     {
-        NST_SET_VALUE_ERROR("directory path not found");
+        NST_SET_RAW_VALUE_ERROR("directory path not found");
         return nullptr;
     }
 
@@ -134,7 +134,7 @@ NST_FUNC_SIGN(rmdir_recursive_)
 
     if ( !fs::is_directory(path->value) )
     {
-        NST_SET_VALUE_ERROR("directory path not found");
+        NST_SET_RAW_VALUE_ERROR("directory path not found");
         return nullptr;
     }
 
@@ -175,7 +175,7 @@ NST_FUNC_SIGN(rmfile_)
     // if it's not a file
     if ( !fs::is_regular_file(path->value, ec) && !fs::is_other(path->value, ec) )
     {
-        NST_SET_VALUE_ERROR("file not found");
+        NST_SET_RAW_VALUE_ERROR("file not found");
         return nullptr;
     }
 
@@ -202,7 +202,7 @@ NST_FUNC_SIGN(copy_)
 
     if ( ec.value() == ERROR_PATH_NOT_FOUND )
     {
-        NST_SET_VALUE_ERROR("file not found");
+        NST_SET_RAW_VALUE_ERROR("file not found");
         return nullptr;
     }
     else
@@ -223,7 +223,7 @@ NST_FUNC_SIGN(rename_)
 
     if ( ec.value() == ERROR_PATH_NOT_FOUND )
     {
-        NST_SET_VALUE_ERROR("file not found");
+        NST_SET_RAW_VALUE_ERROR("file not found");
         return nullptr;
     }
     else
@@ -240,7 +240,7 @@ NST_FUNC_SIGN(list_dir_)
     std::error_code ec;
     if ( !fs::is_directory(path->value, ec) )
     {
-        NST_SET_VALUE_ERROR("directory path not found");
+        NST_SET_RAW_VALUE_ERROR("directory path not found");
         return nullptr;
     }
 
@@ -264,7 +264,7 @@ NST_FUNC_SIGN(list_dir_recursive_)
     std::error_code ec;
     if ( !fs::is_directory(path->value, ec) )
     {
-        NST_SET_VALUE_ERROR("directory path not found");
+        NST_SET_RAW_VALUE_ERROR("directory path not found");
         return nullptr;
     }
 
