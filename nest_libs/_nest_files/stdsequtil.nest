@@ -1,19 +1,19 @@
-|#| '__C__:..\\..\\x64\\Debug\\nest_sequtil.dll' = __seq
+|#| '__C__:..\\..\\x64\\Debug\\nest_sequtil.dll' = __sequ
 
-__seq.map_ = map
-__seq.insert_at_ = insert_at
-__seq.remove_at_ = remove_at
-__seq.slice_ = slice
-__seq.merge_ = merge
-__seq.sort_ = sort
-__seq.empty_ = empty
-__seq.filter_ = filter
-__seq.contains_ = contains
-__seq.any_ = any
-__seq.all_ = all
-__seq.from_iter_ = from_iter
+__sequ.map_ = map
+__sequ.insert_at_ = insert_at
+__sequ.remove_at_ = remove_at
+__sequ.slice_ = slice
+__sequ.merge_ = merge
+__sequ.sort_ = sort
+__sequ.empty_ = empty
+__sequ.filter_ = filter
+__sequ.contains_ = contains
+__sequ.any_ = any
+__sequ.all_ = all
+__sequ.from_iter_ = from_iter
 
-_vars_ '__seq' -
+_vars_ '__sequ' -
 _vars_ 'Int' -
 _vars_ 'Real' -
 _vars_ 'Bool' -

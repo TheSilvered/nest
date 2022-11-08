@@ -1096,6 +1096,7 @@ static void compile_switch_s(Nst_Node *node)
 
     if ( prev_body_start != NULL )
     {
+        inc_loop_id();
         for ( LLNode *cursor = prev_body_start->next;
             cursor != NULL && cursor != prev_body_end;
             cursor = cursor->next )
@@ -1105,16 +1106,34 @@ static void compile_switch_s(Nst_Node *node)
             if ( IS_JUMP(inst->id) && inst->int_val == c_state.loop_id )
                 inst->int_val = CURR_LEN;
         }
+        dec_loop_id();
     }
 
     if ( default_body != NULL )
+    {
+        inc_loop_id();
+        LLNode *default_body_start = c_state.inst_ls->tail;
         compile_node(default_body);
+
+        for ( LLNode *cursor = default_body_start->next;
+            cursor != NULL;
+            cursor = cursor->next )
+        {
+            inst = INST(cursor->value);
+
+            if ( IS_JUMP(inst->id) && inst->int_val == c_state.loop_id )
+                inst->int_val = CURR_LEN;
+        }
+
+        dec_loop_id();
+    }
 
     for ( LLNode *cursor = jumps_to_switch_end->head;
           cursor != NULL;
           cursor = cursor->next )
         INST(cursor->value)->int_val = CURR_LEN;
 
+    inst = nst_new_inst_empty(NST_IC_POP_VAL, 0);
     LList_destroy(jumps_to_switch_end, NULL);
 }
 

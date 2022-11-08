@@ -1,11 +1,9 @@
 |#| 'stdfs.nest' = fs
-|#| 'stdsequtil.nest' = seq
-
-|#| 'object_tests/test_byte.nest'
+|#| 'stdsequtil.nest' = sequ
 
 #run_tests dir [
     ... Iter :: (dir @fs.list_dir_recursive) := test_path [
-        test_path -5 -1 1 @seq.slice '.nest' != ? ..
+        test_path -5 -1 1 @sequ.slice '.nest' != ? ..
 
         -- runs the file
         >>> (test_path '\n' ><)
@@ -13,5 +11,5 @@
     ]
 ]
 
-'./object_tests' @run_tests
-'./std_lib_tests' @run_tests
+'.\\object_tests' @run_tests
+'.\\std_lib_tests' @run_tests

@@ -1,6 +1,7 @@
 |#| 'stdio.nest' = io
 |#| 'stdfs.nest' = fs
 |#| 'stdsutil.nest' = su
+|#| 'stdsys.nest' = sys
 
 #replace_file_str path s1 s2 [
     path 'r' @io.open = file
@@ -45,7 +46,7 @@
 #main [
     ($_args_ 3 !=) ($_args_ 4 !=) && ? [
         >>> 'USAGE: nest .\\mkclib.py (new <library_name>|update) <location>\n'
-        => 1
+        1 @sys.exit
     ]
 
     _args_.1 = operation
@@ -54,12 +55,12 @@
 
     (operation 'new' !=) (operation 'update' !=) && ? [
         >>> ('The given operation ("'operation'") is not valid\n' ><)
-        => 1
+        1 @sys.exit
     ]
 
     !(location @fs.isdir) ? [
         >>> ('The given path ("'location'") doesn\'t exist\n' ><)
-        => 2
+        2 @sys.exit
     ]
 
     (location'\\nest_source' >< = srcdir) @fs.mkdir
@@ -74,7 +75,7 @@
 
     !(project_name_c (su.LETTERS su.DIGITS '_' ><) @su.is_charset) ? [
         >>> ('The given name ("'project_name'") is not valid\n' ><)
-        => 3
+        3 @sys.exit
     ]
 
     project_name_c @su.to_upper = upper_project_name

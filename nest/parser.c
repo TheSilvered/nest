@@ -1373,6 +1373,7 @@ static void _print_ast(Nst_Node *node, Nst_LexerToken *tok, int lvl, LList *is_l
     case NST_NT_ASSIGN_E:      printf("ASSIGN_E");      break;
     case NST_NT_CONTINUE_S:    printf("CONTINUE_S");    break;
     case NST_NT_BREAK_S:       printf("BREAK_S");       break;
+    case NST_NT_SWITCH_S:      printf("SWITCH_S");      break;
     case NST_NT_LAMBDA:        printf("LAMBDA");        break;
     default:                   printf("__UNKNOWN__");   break;
     }

@@ -67,19 +67,21 @@ lines.
 To escape a character you can use a backslash `\` before the character and here
 are all the valid escape sequences:
 
-| Sequence | Name                   |
-|----------|------------------------|
-| `\\`     | Backslash              |
-| `\'`     | Single quote           |
-| `\"`     | Double quotes          |
-| `\a`     | Alert / Bell           |
-| `\b`     | Backspace              |
-| `\f`     | Form feed / Page break |
-| `\n`     | Line feed / Newline    |
-| `\t`     | Horizontal tab         |
-| `\v`     | Vertical tab           |
-| `\xhh`   | Hexadecimal byte, `hh` represents hex digits from `00` to `ff` |
-| `\nnn`   | Octal byte, `nnn` represents octal digits from `0` to `777` |
+| Sequence | Hex Value | Name                   |
+|----------|-----------|------------------------|
+| `\\`     | `5c`      | Backslash              |
+| `\'`     | `27`      | Single quote           |
+| `\"`     | `22`      | Double quotes          |
+| `\a`     | `07`      | Alert / Bell           |
+| `\b`     | `08`      | Backspace              |
+| `\e`     | `1b`      | Backspace              |
+| `\f`     | `0c`      | Form feed / Page break |
+| `\n`     | `0a`      | Line feed / Newline    |
+| `\r`     | `0d`      | Line feed / Newline    |
+| `\t`     | `09`      | Horizontal tab         |
+| `\v`     | `0b`      | Vertical tab           |
+| `\xhh`   | None      | Hexadecimal byte, `hh` represents a hex number from `00` to `ff` |
+| `\nnn`   | None      | Octal byte, `nnn` represents an octal number from `0` to `777` |
 
 > NOTE: octal escapes can have either one, two or three digits, `\12` and `\012`
 > are both valid escapes

@@ -123,7 +123,7 @@ int nst_parse_args(int argc, char **argv,
                 case 'c':
                     if ( j != 1 || arg_len != 2 || i + 1 == argc )
                     {
-                        printf("Invalid option: -c\n");
+                        printf("Invalid usage of the option: -c\n");
                         printf("\n" USAGE_MESSAGE);
                         return -1;
                     }

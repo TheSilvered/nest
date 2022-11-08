@@ -29,13 +29,11 @@ $ ! ~ >>> <<< -: ?:: |#| :: ->
 
 <{ }>
 
-..? ?.. ... ~= .. ; ? :
+..? ?.. ... := .. ; ? :
 
 { a: b }
 
-#func a b c [
-   
-]
+#func a b c [ ]
 
 @namespace.func
 @@func
@@ -44,9 +42,10 @@ true false null _cwd_ _args_ _vars_ _globals_
 Type Int Real Bool Null Str Array Vector Map Func Iter Byte IOfile
 
 var
+Var
 CONST
 _12CONST
-A
+C
 map.key
 
 (##x => x 1 +) = f

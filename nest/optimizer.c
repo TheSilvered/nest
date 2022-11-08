@@ -646,7 +646,7 @@ static void remove_dead_code(Nst_InstructionList *bc)
 
     for ( Nst_Int i = 0; i < size; i++ )
     {
-        if ( inst_list[i].id != NST_IC_JUMP || i + 1 >= inst_list[i].int_val )
+        if ( inst_list[i].id != NST_IC_JUMP || i + 1 > inst_list[i].int_val )
             continue;
 
         bool is_jump_useless = true;

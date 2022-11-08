@@ -3,40 +3,34 @@ import os
 import shutil
 import string
 
-# not all source files, only the ones that can be used
 nest_source_files = [
-    "error.h",
-    "function.h",
-    "hash.h",
-    "iter.h",
-    "lib_import.h",
-    "llist.h",
-    "map.h",
-    "nest_include.h",
-    "nodes.h",
+    #     Headers          Source     #
+    "compiler.h",       "compiler.c",
+    "error_internal.h",
+    "error.h",          "error.c",
+    "function.h",       "function.c",
+    "ggc.h",            "ggc.c"
+    "hash.h",           "hash.c",
+    "instructions.h",   "instructions.c",
+    "interpreter.h",    "interpreter.c",
+    "iter.h",           "iter.c",
+    "lexer.h",          "lexer.c",
+    "lib_import.h",     "lib_import.c",
+    "llist.h",          "llist.c",
+    "map.h",            "map.c",
+    "nest.h",
+    "nodes.h",          "nodes.c",
     "nst_types.h",
-    "obj.h",
-    "obj_ops.h",
-    "sequence.h",
-    "simple_types.h",
-    "str.h",
-    "tokens.h",
-    "var_table.h",
-    "error.c",
-    "function.c",
-    "hash.c",
-    "iter.c",
-    "lib_import.c",
-    "llist.c",
-    "map.c",
-    "nodes.c",
-    "obj.c",
-    "obj_ops.c",
-    "sequence.c",
-    "simple_types.c",
-    "str.c",
-    "tokens.c",
-    "var_table.c"
+    "obj.h",            "obj.c",
+    "obj_ops.h",        "obj_ops.c",
+    "optimizer.h",      "optimizer.c",
+    "parser.h",         "parser.c",
+    "runtime_stack.h",  "runtime_stack.c",
+    "sequence.h",       "sequence.c",
+    "simple_types.h",   "simple_types.c",
+    "str.h",            "str.c",
+    "tokens.h",         "tokens.c",
+    "var_table.h",      "var_table.c"
 ]
 
 
@@ -97,7 +91,7 @@ extern "C" {{
 
 // Here you can put your function signatures
 // They must always be `Nst_Obj *func_name(size_t arg_num, Nst_Obj **args, OpErr *err);`
-// replace func_name with your function's name
+// replace func_name with your function"s name
 
 // To compile remove precompiled headers in Project->Properties->C/C++->
 // ->Precompiled headers and set "Precompiled header" to "Not Using Precompiled

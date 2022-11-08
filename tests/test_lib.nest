@@ -1,5 +1,4 @@
 |#| 'stdsys.nest' = sys
-|#| 'stdio.nest' = io
 |#| 'stdsutil.nest' = su
 |#| 'stderr.nest' = err
 

@@ -19,7 +19,7 @@
     _nst_del_consts(); \
     _nst_del_strs(); \
     _nst_del_types(); \
-    if ( src_text.text != NULL ) free(src_text.text); \
+    if ( filename != NULL ) free(src_text.text); \
     return 0; \
     } while (0)
 
