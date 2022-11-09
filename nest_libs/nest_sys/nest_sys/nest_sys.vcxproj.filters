@@ -187,7 +187,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\stdsys.nest">
+    <None Include="..\..\_nest_files\stdsys.nest">
       <Filter>Resources</Filter>
     </None>
   </ItemGroup>

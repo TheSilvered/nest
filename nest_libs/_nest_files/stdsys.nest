@@ -1,4 +1,4 @@
-|#| '__C__:..\\..\\x64\\Debug\\nest_sys.dll' = __sys
+|#| '__C__:../../x64/Debug/nest_sys.dll' = __sys
 
 __sys.system_        = system
 __sys.exit_          = exit

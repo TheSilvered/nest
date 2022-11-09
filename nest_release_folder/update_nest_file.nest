@@ -9,7 +9,7 @@ _args_.1 = path
 
 path "r" @io.open = file
 file -1 @io.read \
-    "..\\\\..\\\\x64\\\\Debug\\\\nest_" "std" @su.replace_substr = content
+    "../../x64/Debug/nest_" "std" @su.replace_substr = content
 
 file @io.close
 

@@ -14,7 +14,7 @@ bool lib_init()
     size_t idx = 0;
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(try_, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(raise_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(throw_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_err_names_, 0);
 
     lib_init_ = true;
@@ -160,7 +160,7 @@ NST_FUNC_SIGN(try_)
         return failure(err);
 }
 
-NST_FUNC_SIGN(raise_)
+NST_FUNC_SIGN(throw_)
 {
     Nst_StrObj *name;
     Nst_StrObj *message;

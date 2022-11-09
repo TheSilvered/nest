@@ -11,6 +11,10 @@
 #include "error.h"
 #include "lib_import.h"
 
+#ifdef _DEBUG
+#define DEBUG_FOLDER "E:/C++/nest/nest_libs/_nest_files/"
+#endif
+
 #if defined(_WIN32) || defined(WIN32)
 
 #include <windows.h>
@@ -1383,8 +1387,8 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
 #if defined(_WIN32) || defined(WIN32)
 
   #ifdef _DEBUG
-        file_path = (char *)malloc((file_name_len + 35) * sizeof(char));
-        sprintf(file_path, "E:/C++/nest/nest_libs/_nest_files/%s", file_name);
+        file_path = (char *)malloc((file_name_len + strlen(DEBUG_FOLDER) + 1) * sizeof(char));
+        sprintf(file_path, DEBUG_FOLDER "%s", file_name);
   #else
         // In Windows the standard library is stored in %LOCALAPPDATA%/Programs/nest/nest_libs
 

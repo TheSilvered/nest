@@ -187,7 +187,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\stdrand.nest">
+    <None Include="..\..\_nest_files\stdrand.nest">
       <Filter>Resources</Filter>
     </None>
   </ItemGroup>

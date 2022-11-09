@@ -203,7 +203,7 @@
     <ClCompile Include="nest_sutil.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\stdsutil.nest" />
+    <None Include="..\..\_nest_files\stdsutil.nest" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

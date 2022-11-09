@@ -1,4 +1,4 @@
-|#| '__C__:..\\..\\x64\\Debug\\nest_math.dll' = __math
+|#| '__C__:../../x64/Debug/nest_math.dll' = __math
 
 __math.floor_   = floor
 __math.ceil_    = ceil

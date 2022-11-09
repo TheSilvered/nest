@@ -1,4 +1,4 @@
-|#| '__C__:..\\..\\x64\\Debug\\nest_io.dll' = __io
+|#| '__C__:../../x64/Debug/nest_io.dll' = __io
 
 __io.open_        = open
 __io.close_       = close

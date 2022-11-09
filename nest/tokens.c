@@ -216,7 +216,7 @@ int nst_str_to_tok(char *str)
     if ( strcmp("?!", str) == 0 )
         return NST_TT_CATCH;
     if ( strcmp("!!", str) == 0 )
-        return NST_TT_RAISE; */
+        return NST_TT_THROW; */
     return -1;
 }
 
@@ -254,7 +254,7 @@ void nst_print_token(Nst_LexerToken *token)
     case NST_TT_LTE:      printf("LTE");      break;
     case NST_TT_CAST:     printf("CAST");     break;
     case NST_TT_CALL:     printf("CALL");     break;
-    // case NST_TT_RAISE:    printf("RAISE");    break;
+    // case NST_TT_THROW:    printf("THROW");    break;
     case NST_TT_RANGE:    printf("RANGE");    break;
     case NST_TT_ASSIGN:   printf("ASSIGN");   break;
     case NST_TT_ADD_A:    printf("ADD_A");    break;

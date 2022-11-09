@@ -193,7 +193,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\stditutil.nest">
+    <None Include="..\..\_nest_files\stditutil.nest">
       <Filter>Resources</Filter>
     </None>
   </ItemGroup>
