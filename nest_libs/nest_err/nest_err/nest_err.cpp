@@ -186,6 +186,6 @@ NST_FUNC_SIGN(_get_err_names_)
     names->objs[4] = nst_inc_ref(nst_s.e_MemoryError);
     names->objs[5] = nst_inc_ref(nst_s.e_MathError);
     names->objs[6] = nst_inc_ref(nst_s.e_ImportError);
-    
+
     return OBJ(names);
 }
