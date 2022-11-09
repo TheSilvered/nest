@@ -19,7 +19,7 @@
     'error_internal.h',
     'error.h',          'error.c',
     'function.h',       'function.c',
-    'ggc.h',            'ggc.c'
+    'ggc.h',            'ggc.c',
     'hash.h',           'hash.c',
     'instructions.h',   'instructions.c',
     'interpreter.h',    'interpreter.c',
