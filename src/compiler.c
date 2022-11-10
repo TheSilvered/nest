@@ -750,6 +750,19 @@ static void compile_local_stack_op(Nst_Node *node)
         ADD_INST(inst);
         // The function object is popped by the RETURN_VAL instruction
     }
+    else if ( tok_type == NST_TT_THROW )
+    {
+        compile_node(HEAD_NODE);
+        inst = nst_new_inst_val(NST_IC_TYPE_CHECK, nst_t.Str, HEAD_NODE->start, HEAD_NODE->end);
+        ADD_INST(inst);
+
+        compile_node(TAIL_NODE);
+        inst = nst_new_inst_val(NST_IC_TYPE_CHECK, nst_t.Str, TAIL_NODE->start, TAIL_NODE->end);
+        ADD_INST(inst);
+
+        inst = nst_new_inst_int(NST_IC_THROW_ERR, 0, node->start, node->end);
+        ADD_INST(inst);
+    }
 }
 
 static void compile_local_op(Nst_Node *node)
@@ -1205,6 +1218,7 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
         case NST_IC_FOR_GET_VAL:   printf("FOR_GET_VAL  "); break;
         case NST_IC_RETURN_VAL:    printf("RETURN_VAL   "); break;
         case NST_IC_RETURN_VARS:   printf("RETURN_VARS  "); break;
+        case NST_IC_THROW_ERR:     printf("THROW_ERR    "); break;
         case NST_IC_NO_OP:         printf("NO_OP        "); break;
         default:                   printf("__UNKNOWN__  "); break;
         }

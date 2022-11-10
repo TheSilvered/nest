@@ -12,7 +12,7 @@
 #include "lib_import.h"
 
 #ifdef _DEBUG
-#define DEBUG_FOLDER "E:/C++/nest/nest_libs/_nest_files/"
+#define DEBUG_FOLDER "E:/C++/nest/libs/_nest_files/"
 #endif
 
 #if defined(_WIN32) || defined(WIN32)

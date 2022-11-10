@@ -851,6 +851,14 @@ static Nst_Node *parse_local_stack_op(LList *nodes, Nst_Pos start)
             (int)nodes->size > 2 ? _NST_EM_TOO_MANY_ARGS("->") : _NST_EM_TOO_FEW_ARGS("->")
         );
     }
+    else if ( tok->type == NST_TT_THROW && nodes->size != 1 )
+    {
+        RETURN_ERROR(
+            NODE(LList_peek_front(nodes))->start,
+            NODE(LList_peek_back(nodes))->end,
+            nodes->size > 2 ? _NST_EM_TOO_MANY_ARGS("!!") : _NST_EM_TOO_FEW_ARGS("!!")
+        );
+    }
 
     SAFE_LLIST_CREATE(node_tokens);
     LList_append(node_tokens, tok, true);

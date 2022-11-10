@@ -90,6 +90,7 @@ static inline void exe_set_cont_val(Nst_RuntimeInstruction *inst);
 static inline void exe_op_call(Nst_RuntimeInstruction *inst);
 static inline void exe_op_cast(Nst_RuntimeInstruction *inst);
 static inline void exe_op_range(Nst_RuntimeInstruction *inst);
+static inline void exe_op_throw(Nst_RuntimeInstruction *inst);
 static inline void exe_stack_op(Nst_RuntimeInstruction *inst);
 static inline void exe_local_op(Nst_RuntimeInstruction *inst);
 static inline void exe_op_import(Nst_RuntimeInstruction *inst);
@@ -411,6 +412,7 @@ static inline void run_instruction(Nst_RuntimeInstruction *inst)
     case NST_IC_OP_CALL:      exe_op_call(inst);          break;
     case NST_IC_OP_CAST:      exe_op_cast(inst);          break;
     case NST_IC_OP_RANGE:     exe_op_range(inst);         break;
+    case NST_IC_THROW_ERR:    exe_op_throw(inst);         break;
     case NST_IC_STACK_OP:     exe_stack_op(inst);         break;
     case NST_IC_LOCAL_OP:     exe_local_op(inst);         break;
     case NST_IC_OP_IMPORT:    exe_op_import(inst);        break;
@@ -878,6 +880,15 @@ static inline void exe_op_range(Nst_RuntimeInstruction *inst)
         nst_push_val(nst_state.v_stack, iter);
         nst_dec_ref(iter);
     }
+}
+
+static inline void exe_op_throw(Nst_RuntimeInstruction *inst)
+{
+    CHECK_V_STACK_SIZE(2);
+    Nst_Obj *message = nst_pop_val(nst_state.v_stack);
+    Nst_Obj *name = nst_pop_val(nst_state.v_stack);
+
+    _NST_SET_ERROR(GLOBAL_ERROR, inst->start, inst->end, name, message);
 }
 
 static inline void exe_stack_op(Nst_RuntimeInstruction *inst)

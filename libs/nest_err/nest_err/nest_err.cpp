@@ -28,7 +28,7 @@ Nst_FuncDeclr *get_func_ptrs()
 
 Nst_Obj *make_pos(Nst_Pos start, Nst_Pos end)
 {
-    if ( start.text->path == nullptr )
+    if ( start.text == nullptr )
         return nullptr;
 
     Nst_Obj *map = nst_new_map();

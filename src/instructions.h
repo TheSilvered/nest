@@ -66,6 +66,7 @@ enum Nst_InstructionCodes
     NST_IC_JUMPIF_ZERO, // Jumps if the top item is an integer and is zero
     NST_IC_TYPE_CHECK, // Checks the type of the top value on the stack
     NST_IC_HASH_CHECK, // Checks the type on top of the stack is hashable
+    NST_IC_THROW_ERR, // throws an error
 
     // These instruction push a value on the value stack
     NST_IC_SET_VAL, // Sets a value in the current var table
