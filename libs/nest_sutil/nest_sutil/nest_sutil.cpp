@@ -1,11 +1,9 @@
-#include "nest_sutil.h"
 #include <cctype>
 #include <cstring>
 #include <cstdlib>
+#include "nest_sutil.h"
 
 #define FUNC_COUNT 21
-
-#define EXPECTED_BYTE "expected only type 'Byte', got type '%s' instead"
 
 static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
@@ -535,7 +533,11 @@ NST_FUNC_SIGN(bytearray_to_str_)
     {
         if ( objs[i]->type != nst_t.Byte )
         {
-            NST_SET_TYPE_ERROR(_nst_format_error(EXPECTED_BYTE, "s", TYPE_NAME(objs[i])));
+            NST_SET_TYPE_ERROR(_nst_format_error(
+                "expected only type 'Byte', got type '%s' instead",
+                "s",
+                TYPE_NAME(objs[i])
+            ));
             delete[] new_str;
             return nullptr;
         }

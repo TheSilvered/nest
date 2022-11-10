@@ -1,7 +1,7 @@
 #ifndef NEST_MATH_H
 #define NEST_MATH_H
 
-#include "../../../nest/nest.h"
+#include "../../../src/nest.h"
 
 #if defined(_WIN32) || defined(WIN32)
 #define EXPORT __declspec(dllexport)

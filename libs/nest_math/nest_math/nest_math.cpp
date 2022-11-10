@@ -1,6 +1,5 @@
 #include <cmath>
 #include "nest_math.h"
-#include "../../../nest/obj_ops.h"
 
 #define FUNC_COUNT 36
 #define COORD_TYPE_ERROR do { \

@@ -2,7 +2,6 @@
 #include <cstring>
 #include <cerrno>
 #include "nest_io.h"
-#include "../../../nest/obj_ops.h"
 
 #define FUNC_COUNT 13
 

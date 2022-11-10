@@ -24,88 +24,88 @@
     <ClInclude Include="itutil_functions.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\compiler.h">
+    <ClInclude Include="..\..\..\src\compiler.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\error.h">
+    <ClInclude Include="..\..\..\src\error.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\error_internal.h">
+    <ClInclude Include="..\..\..\src\error_internal.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\function.h">
+    <ClInclude Include="..\..\..\src\function.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\hash.h">
+    <ClInclude Include="..\..\..\src\hash.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\instructions.h">
+    <ClInclude Include="..\..\..\src\instructions.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\interpreter.h">
+    <ClInclude Include="..\..\..\src\interpreter.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\interpreter_ast.h">
+    <ClInclude Include="..\..\..\src\interpreter_ast.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\iter.h">
+    <ClInclude Include="..\..\..\src\iter.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\lexer.h">
+    <ClInclude Include="..\..\..\src\lexer.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\lib_import.h">
+    <ClInclude Include="..\..\..\src\lib_import.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\llist.h">
+    <ClInclude Include="..\..\..\src\llist.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\map.h">
+    <ClInclude Include="..\..\..\src\map.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\nodes.h">
+    <ClInclude Include="..\..\..\src\nodes.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\nst_types.h">
+    <ClInclude Include="..\..\..\src\nst_types.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\obj.h">
+    <ClInclude Include="..\..\..\src\obj.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\obj_ops.h">
+    <ClInclude Include="..\..\..\src\obj_ops.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\optimizer.h">
+    <ClInclude Include="..\..\..\src\optimizer.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\parser.h">
+    <ClInclude Include="..\..\..\src\parser.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\runtime_stack.h">
+    <ClInclude Include="..\..\..\src\runtime_stack.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\sequence.h">
+    <ClInclude Include="..\..\..\src\sequence.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\simple_types.h">
+    <ClInclude Include="..\..\..\src\simple_types.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\str.h">
+    <ClInclude Include="..\..\..\src\str.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\tokens.h">
+    <ClInclude Include="..\..\..\src\tokens.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\var_table.h">
+    <ClInclude Include="..\..\..\src\var_table.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\ggc.h">
+    <ClInclude Include="..\..\..\src\ggc.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\nest.h">
+    <ClInclude Include="..\..\..\src\nest.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\nest\global_consts.h">
+    <ClInclude Include="..\..\..\src\global_consts.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -119,76 +119,76 @@
     <ClCompile Include="itutil_functions.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\compiler.c">
+    <ClCompile Include="..\..\..\src\compiler.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\error.c">
+    <ClCompile Include="..\..\..\src\error.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\function.c">
+    <ClCompile Include="..\..\..\src\function.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\hash.c">
+    <ClCompile Include="..\..\..\src\hash.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\instructions.c">
+    <ClCompile Include="..\..\..\src\instructions.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\interpreter.c">
+    <ClCompile Include="..\..\..\src\interpreter.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\iter.c">
+    <ClCompile Include="..\..\..\src\iter.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\lexer.c">
+    <ClCompile Include="..\..\..\src\lexer.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\lib_import.c">
+    <ClCompile Include="..\..\..\src\lib_import.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\llist.c">
+    <ClCompile Include="..\..\..\src\llist.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\map.c">
+    <ClCompile Include="..\..\..\src\map.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\nodes.c">
+    <ClCompile Include="..\..\..\src\nodes.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\obj.c">
+    <ClCompile Include="..\..\..\src\obj.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\obj_ops.c">
+    <ClCompile Include="..\..\..\src\obj_ops.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\optimizer.c">
+    <ClCompile Include="..\..\..\src\optimizer.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\parser.c">
+    <ClCompile Include="..\..\..\src\parser.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\runtime_stack.c">
+    <ClCompile Include="..\..\..\src\runtime_stack.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\sequence.c">
+    <ClCompile Include="..\..\..\src\sequence.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\simple_types.c">
+    <ClCompile Include="..\..\..\src\simple_types.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\str.c">
+    <ClCompile Include="..\..\..\src\str.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\tokens.c">
+    <ClCompile Include="..\..\..\src\tokens.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\var_table.c">
+    <ClCompile Include="..\..\..\src\var_table.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\ggc.c">
+    <ClCompile Include="..\..\..\src\ggc.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\nest\global_consts.c">
+    <ClCompile Include="..\..\..\src\global_consts.c">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>

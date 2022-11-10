@@ -1,5 +1,5 @@
-#include "nest_sequtil.h"
 #include <cmath>
+#include "nest_sequtil.h"
 
 #define FUNC_COUNT 12
 #define RUN 32
