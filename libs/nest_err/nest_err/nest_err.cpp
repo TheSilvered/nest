@@ -109,6 +109,8 @@ Nst_Obj *failure(Nst_OpErr *err)
 
         LList_empty(positions, free);
         nst_state.traceback->error.occurred = false;
+        nst_dec_ref(error.name);
+        nst_dec_ref(error.message);
     }
     else
     {

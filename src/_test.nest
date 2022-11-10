@@ -1,0 +1,14 @@
+|#| 'stdmath.nest' = math
+
+?.. true [
+    ??
+        Real :: <<< 'Type the radius of the circle: ' = num
+    ?! e [
+        >>> 'expected a number\n'
+        ..
+    ]
+
+    ;
+]
+
+>>> ('The area is ' (num num math.PI *) '\n' ><)

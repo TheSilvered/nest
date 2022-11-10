@@ -60,6 +60,7 @@ static void compile_assign_e(Nst_Node *node);
 static void compile_continue_s(Nst_Node *node);
 static void compile_break_s(Nst_Node *node);
 static void compile_switch_s(Nst_Node *node);
+static void compile_try_catch_s(Nst_Node *node);
 
 Nst_InstructionList *nst_compile(Nst_Node *code, bool is_module)
 {
@@ -157,6 +158,7 @@ static void compile_node(Nst_Node *node)
     case NST_NT_BREAK_S:        compile_break_s(node); break;
     case NST_NT_SWITCH_S:       compile_switch_s(node); break;
     case NST_NT_LAMBDA:         compile_lambda(node); break;
+    case NST_NT_TRY_CATCH_S:    compile_try_catch_s(node); break;
     }
 }
 
@@ -1049,7 +1051,8 @@ static void compile_switch_s(Nst_Node *node)
                 [BODY CODE]
                 JUMP switch_end
     body2_end:  [DEFAULT CODE]
-    switch_end: [CODE CONTINUATION]
+    switch_end: POP_VAL
+                [CODE CONTINUATION]
     */
 
     Nst_RuntimeInstruction *inst;
@@ -1147,7 +1150,48 @@ static void compile_switch_s(Nst_Node *node)
         INST(cursor->value)->int_val = CURR_LEN;
 
     inst = nst_new_inst_empty(NST_IC_POP_VAL, 0);
+    ADD_INST(inst);
     LList_destroy(jumps_to_switch_end, NULL);
+}
+
+static void compile_try_catch_s(Nst_Node* node)
+{
+    /*
+    Switch statement bytecode
+
+                 PUSH_CATCH catch_start
+                 [TRY BLOCK CODE]
+                 POP_CATCH
+                 JUMP catch_end
+    catch_start: SAVE_ERROR
+                 SET_VAL_LOC err_name
+                 POP_CATCH
+                 [CATCH BLOCK CODE]
+    catch_end:   [CODE_CONTINUATION]
+    */
+
+    Nst_RuntimeInstruction *inst;
+    Nst_RuntimeInstruction *push_catch = nst_new_inst_empty(NST_IC_PUSH_CATCH, 0);
+    ADD_INST(push_catch);
+    compile_node(HEAD_NODE);
+    inst = nst_new_inst_empty(NST_IC_POP_CATCH, 0);
+    ADD_INST(inst);
+
+    // The code inside this jump will never be optimized since NST_IC_PUSH_CATCH,
+    // that is considered a jump, refers to NST_IC_SAVE_ERROR that is inside the
+    // block
+    Nst_RuntimeInstruction *jump_catch_end = nst_new_inst_empty(NST_IC_JUMP, 0);
+    ADD_INST(jump_catch_end);
+    push_catch->int_val = CURR_LEN;
+
+    inst = nst_new_inst_empty(NST_IC_SAVE_ERROR, 0);
+    ADD_INST(inst);
+    inst = nst_new_inst_val(NST_IC_SET_VAL_LOC, HEAD_TOK->value, HEAD_TOK->start, HEAD_TOK->end);
+    ADD_INST(inst);
+    inst = nst_new_inst_empty(NST_IC_POP_CATCH, 0);
+    ADD_INST(inst);
+    compile_node(TAIL_NODE);
+    jump_catch_end->int_val = CURR_LEN;
 }
 
 void nst_print_bytecode(Nst_InstructionList *ls, int indent)
@@ -1219,6 +1263,9 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
         case NST_IC_RETURN_VAL:    printf("RETURN_VAL   "); break;
         case NST_IC_RETURN_VARS:   printf("RETURN_VARS  "); break;
         case NST_IC_THROW_ERR:     printf("THROW_ERR    "); break;
+        case NST_IC_PUSH_CATCH:    printf("PUSH_CATCH   "); break;
+        case NST_IC_POP_CATCH:     printf("POP_CATCH    "); break;
+        case NST_IC_SAVE_ERROR:    printf("SAVE_ERROR   "); break;
         case NST_IC_NO_OP:         printf("NO_OP        "); break;
         default:                   printf("__UNKNOWN__  "); break;
         }

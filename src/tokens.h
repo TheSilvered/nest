@@ -130,8 +130,8 @@ enum Nst_TokenTypes
     NST_TT_SWITCH,
     NST_TT_BREAK,
     NST_TT_CONTINUE,
-    // NST_TT_TRY,
-    // NST_TT_CATCH
+    NST_TT_TRY,
+    NST_TT_CATCH
 };
 
 // Creates a new token with a value

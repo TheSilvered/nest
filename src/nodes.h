@@ -35,6 +35,7 @@ enum Nst_NodeTypes
     NST_NT_CONTINUE_S,
     NST_NT_BREAK_S,
     NST_NT_SWITCH_S,
+    NST_NT_TRY_CATCH_S,
 
     // These nodes return a value
     NST_NT_STACK_OP,

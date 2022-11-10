@@ -44,6 +44,22 @@ typedef struct _Nst_CallStack
 }
 Nst_CallStack;
 
+typedef struct _Nst_CatchFrame
+{
+    size_t f_stack_size;
+    size_t v_stack_size;
+    Nst_Int inst_idx;
+}
+Nst_CatchFrame;
+
+typedef struct _Nst_CatchStack
+{
+    Nst_CatchFrame *stack;
+    size_t current_size;
+    size_t max_size;
+}
+Nst_CatchStack;
+
 // New value stack on the heap
 Nst_ValueStack *nst_new_val_stack();
 // Push a value on the value stack
@@ -73,6 +89,20 @@ Nst_FuncCall nst_pop_func(Nst_CallStack *f_stack);
 Nst_FuncCall nst_peek_func(Nst_CallStack *f_stack);
 // Destroys the call stack
 void nst_destroy_f_stack(Nst_CallStack *f_stack);
+
+// New catch stack on the heap
+Nst_CatchStack *nst_new_catch_stack();
+// Pushes a value to the catch stack
+bool nst_push_catch(Nst_CatchStack *c_stack,
+                    Nst_Int inst_idx,
+                    size_t v_stack_size,
+                    size_t f_stack_size);
+// Peeks the top value of the catch stack
+Nst_CatchFrame nst_peek_catch(Nst_CatchStack *c_stack);
+// Returns the top value of the catch stack
+Nst_CatchFrame nst_pop_catch(Nst_CatchStack *c_stack);
+// Destroys the catch stack
+void nst_destroy_c_stack(Nst_CatchStack *c_stack);
 
 #ifdef __cplusplus
 }

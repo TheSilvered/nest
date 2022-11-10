@@ -238,6 +238,7 @@ static void remove_push_jumpif(Nst_InstructionList *bc);
 static void remove_inst(Nst_InstructionList *bc, Nst_Int idx);
 static void optimize_funcs(Nst_InstructionList *bc, Nst_Error *error);
 static void remove_dead_code(Nst_InstructionList *bc);
+static void optimize_chained_jumps(Nst_InstructionList *bc);
 
 Nst_InstructionList *nst_optimize_bytecode(Nst_InstructionList *bc,
                                            bool optimize_builtins,
@@ -277,6 +278,7 @@ Nst_InstructionList *nst_optimize_bytecode(Nst_InstructionList *bc,
         remove_push_pop(bc);
         remove_assign_pop(bc);
         remove_push_jumpif(bc);
+        optimize_chained_jumps(bc);
         remove_dead_code(bc);
 
         optimize_funcs(bc, error);
@@ -666,5 +668,24 @@ static void remove_dead_code(Nst_InstructionList *bc)
 
         if ( is_jump_useless )
             inst_list[i].id = NST_IC_NO_OP;
+    }
+}
+
+static void optimize_chained_jumps(Nst_InstructionList* bc)
+{
+    Nst_Int size = bc->total_size;
+    Nst_RuntimeInstruction *inst_list = bc->instructions;
+
+    for ( Nst_Int i = 0; i < size; i++ )
+    {
+        if ( !IS_JUMP(inst_list[i].id) )
+            continue;
+
+        Nst_Int end_jump = inst_list[i].int_val;
+
+        while ( inst_list[end_jump].id == NST_IC_JUMP )
+            end_jump = inst_list[end_jump].int_val;
+
+        inst_list[i].int_val = end_jump;
     }
 }

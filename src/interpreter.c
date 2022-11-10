@@ -90,7 +90,7 @@ static inline void exe_set_cont_val(Nst_RuntimeInstruction *inst);
 static inline void exe_op_call(Nst_RuntimeInstruction *inst);
 static inline void exe_op_cast(Nst_RuntimeInstruction *inst);
 static inline void exe_op_range(Nst_RuntimeInstruction *inst);
-static inline void exe_op_throw(Nst_RuntimeInstruction *inst);
+static inline void exe_throw_err(Nst_RuntimeInstruction *inst);
 static inline void exe_stack_op(Nst_RuntimeInstruction *inst);
 static inline void exe_local_op(Nst_RuntimeInstruction *inst);
 static inline void exe_op_import(Nst_RuntimeInstruction *inst);
@@ -101,6 +101,9 @@ static inline void exe_dup();
 static inline void exe_make_seq(Nst_RuntimeInstruction *inst);
 static inline void exe_make_seq_rep(Nst_RuntimeInstruction *inst);
 static inline void exe_make_map(Nst_RuntimeInstruction *inst);
+static inline void exe_push_catch(Nst_RuntimeInstruction *inst);
+static inline void exe_pop_catch();
+static inline void exe_save_error();
 
 static Nst_SeqObj *make_argv(int argc, char **argv, char *filename);
 static Nst_StrObj *make_cwd(char *file_path);
@@ -143,6 +146,7 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
     nst_state.argv = argv_obj;
     nst_state.v_stack = nst_new_val_stack();
     nst_state.f_stack = nst_new_call_stack();
+    nst_state.c_stack = nst_new_catch_stack();
     nst_state.loaded_libs = LList_new();
     nst_state.lib_paths = LList_new();
     nst_state.lib_handles = LList_new();
@@ -171,6 +175,7 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
     nst_dec_ref(argv_obj);
     nst_destroy_v_stack(nst_state.v_stack);
     nst_destroy_f_stack(nst_state.f_stack);
+    nst_destroy_c_stack(nst_state.c_stack);
     for ( LLNode *n = nst_state.loaded_libs->head; n != NULL; n = n->next )
     {
         void (*free_lib_func)() = (void (*)())dlsym(n->value, "free_lib");
@@ -186,6 +191,8 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
 
 static void complete_function(size_t final_stack_size)
 {
+    // TODO: stop cleanup when arrivint at the top catch frame
+
     if ( nst_state.f_stack->current_size == 0 )
         return;
 
@@ -391,40 +398,43 @@ static inline void run_instruction(Nst_RuntimeInstruction *inst)
 {
     switch ( inst->id )
     {
-    case NST_IC_POP_VAL:      exe_pop_val();              break;
-    case NST_IC_FOR_START:    exe_for_start(inst);        break;
-    case NST_IC_FOR_IS_DONE:  exe_for_is_done(inst);      break;
-    case NST_IC_FOR_GET_VAL:  exe_for_get_val(inst);      break;
-    case NST_IC_FOR_ADVANCE:  exe_for_advance(inst);      break;
-    case NST_IC_RETURN_VAL:   exe_return_val();           break;
-    case NST_IC_RETURN_VARS:  exe_return_vars();          break;
-    case NST_IC_SET_VAL_LOC:  exe_set_val_loc(inst);      break;
-    case NST_IC_JUMP:         exe_jump(inst);             break;
-    case NST_IC_JUMPIF_T:     exe_jumpif_t(inst);         break;
-    case NST_IC_JUMPIF_F:     exe_jumpif_f(inst);         break;
-    case NST_IC_JUMPIF_ZERO:  exe_jumpif_zero(inst);      break;
-    case NST_IC_TYPE_CHECK:   exe_type_check(inst);       break;
-    case NST_IC_HASH_CHECK:   exe_hash_check(inst);       break;
-    case NST_IC_SET_VAL:      exe_set_val(inst);          break;
-    case NST_IC_GET_VAL:      exe_get_val(inst);          break;
-    case NST_IC_PUSH_VAL:     exe_push_val(inst);         break;
-    case NST_IC_SET_CONT_VAL: exe_set_cont_val(inst);     break;
-    case NST_IC_OP_CALL:      exe_op_call(inst);          break;
-    case NST_IC_OP_CAST:      exe_op_cast(inst);          break;
-    case NST_IC_OP_RANGE:     exe_op_range(inst);         break;
-    case NST_IC_THROW_ERR:    exe_op_throw(inst);         break;
-    case NST_IC_STACK_OP:     exe_stack_op(inst);         break;
-    case NST_IC_LOCAL_OP:     exe_local_op(inst);         break;
-    case NST_IC_OP_IMPORT:    exe_op_import(inst);        break;
-    case NST_IC_OP_EXTRACT:   exe_op_extract(inst);       break;
-    case NST_IC_DEC_INT:      exe_dec_int();              break;
-    case NST_IC_NEW_OBJ:      exe_new_obj();              break;
-    case NST_IC_DUP:          exe_dup();                  break;
+    case NST_IC_POP_VAL:      exe_pop_val();           break;
+    case NST_IC_FOR_START:    exe_for_start(inst);     break;
+    case NST_IC_FOR_IS_DONE:  exe_for_is_done(inst);   break;
+    case NST_IC_FOR_GET_VAL:  exe_for_get_val(inst);   break;
+    case NST_IC_FOR_ADVANCE:  exe_for_advance(inst);   break;
+    case NST_IC_RETURN_VAL:   exe_return_val();        break;
+    case NST_IC_RETURN_VARS:  exe_return_vars();       break;
+    case NST_IC_SET_VAL_LOC:  exe_set_val_loc(inst);   break;
+    case NST_IC_JUMP:         exe_jump(inst);          break;
+    case NST_IC_JUMPIF_T:     exe_jumpif_t(inst);      break;
+    case NST_IC_JUMPIF_F:     exe_jumpif_f(inst);      break;
+    case NST_IC_JUMPIF_ZERO:  exe_jumpif_zero(inst);   break;
+    case NST_IC_TYPE_CHECK:   exe_type_check(inst);    break;
+    case NST_IC_HASH_CHECK:   exe_hash_check(inst);    break;
+    case NST_IC_SET_VAL:      exe_set_val(inst);       break;
+    case NST_IC_GET_VAL:      exe_get_val(inst);       break;
+    case NST_IC_PUSH_VAL:     exe_push_val(inst);      break;
+    case NST_IC_SET_CONT_VAL: exe_set_cont_val(inst);  break;
+    case NST_IC_OP_CALL:      exe_op_call(inst);       break;
+    case NST_IC_OP_CAST:      exe_op_cast(inst);       break;
+    case NST_IC_OP_RANGE:     exe_op_range(inst);      break;
+    case NST_IC_THROW_ERR:    exe_throw_err(inst);     break;
+    case NST_IC_STACK_OP:     exe_stack_op(inst);      break;
+    case NST_IC_LOCAL_OP:     exe_local_op(inst);      break;
+    case NST_IC_OP_IMPORT:    exe_op_import(inst);     break;
+    case NST_IC_OP_EXTRACT:   exe_op_extract(inst);    break;
+    case NST_IC_DEC_INT:      exe_dec_int();           break;
+    case NST_IC_NEW_OBJ:      exe_new_obj();           break;
+    case NST_IC_DUP:          exe_dup();               break;
     case NST_IC_MAKE_ARR:
-    case NST_IC_MAKE_VEC:     exe_make_seq(inst);         break;
+    case NST_IC_MAKE_VEC:     exe_make_seq(inst);      break;
     case NST_IC_MAKE_ARR_REP:
-    case NST_IC_MAKE_VEC_REP: exe_make_seq_rep(inst);     break;
-    case NST_IC_MAKE_MAP:     exe_make_map(inst);         break;
+    case NST_IC_MAKE_VEC_REP: exe_make_seq_rep(inst);  break;
+    case NST_IC_MAKE_MAP:     exe_make_map(inst);      break;
+    case NST_IC_PUSH_CATCH:   exe_push_catch(inst);    break;
+    case NST_IC_POP_CATCH:    exe_pop_catch();         break;
+    case NST_IC_SAVE_ERROR:   exe_save_error();        break;
     }
 }
 
@@ -882,7 +892,7 @@ static inline void exe_op_range(Nst_RuntimeInstruction *inst)
     }
 }
 
-static inline void exe_op_throw(Nst_RuntimeInstruction *inst)
+static inline void exe_throw_err(Nst_RuntimeInstruction *inst)
 {
     CHECK_V_STACK_SIZE(2);
     Nst_Obj *message = nst_pop_val(nst_state.v_stack);
@@ -1199,6 +1209,37 @@ static inline void exe_make_map(Nst_RuntimeInstruction *inst)
     nst_state.v_stack->current_size -= (size_t)map_size;
     nst_push_val(nst_state.v_stack, map);
     nst_dec_ref(map);
+}
+
+static inline void exe_push_catch(Nst_RuntimeInstruction* inst)
+{
+    nst_push_catch(nst_state.c_stack,
+                   inst->int_val,
+                   nst_state.v_stack->current_size,
+                   nst_state.f_stack->current_size);
+}
+
+static inline void exe_pop_catch()
+{
+    nst_pop_catch(nst_state.c_stack);
+}
+
+static inline void exe_save_error()
+{
+    assert(GLOBAL_ERROR->occurred);
+
+    Nst_Obj *err_map = nst_new_map();
+    nst_map_set_str(err_map, "name", GLOBAL_ERROR->name);
+    nst_map_set_str(err_map, "message", GLOBAL_ERROR->message);
+
+    nst_state.traceback->error.occurred = false;
+    nst_dec_ref(GLOBAL_ERROR->name);
+    nst_dec_ref(GLOBAL_ERROR->message);
+
+    LList_empty(nst_state.traceback->positions, free);
+
+    nst_push_val(nst_state.v_stack, err_map);
+    nst_dec_ref(err_map);
 }
 
 size_t nst_get_full_path(char *file_path, char **buf, char **file_part)

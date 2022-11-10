@@ -211,10 +211,10 @@ int nst_str_to_tok(char *str)
         return NST_TT_R_VBRACE;
     if ( strcmp("##", str) == 0 )
         return NST_TT_LAMBDA;
-    /* if (strcmp("??", str) == 0)
+    if (strcmp("??", str) == 0)
         return NST_TT_TRY;
     if ( strcmp("?!", str) == 0 )
-        return NST_TT_CATCH; */
+        return NST_TT_CATCH;
     if ( strcmp("!!", str) == 0 )
         return NST_TT_THROW;
     return -1;
@@ -304,8 +304,8 @@ void nst_print_token(Nst_LexerToken *token)
     case NST_TT_SWITCH:   printf("SWITCH");   break;
     case NST_TT_BREAK:    printf("BREAK");    break;
     case NST_TT_CONTINUE: printf("CONTINUE"); break;
-    // case NST_TT_TRY:      printf("TRY");      break;
-    // case NST_TT_CATCH:    printf("CATCH");    break;
+    case NST_TT_TRY:      printf("TRY");      break;
+    case NST_TT_CATCH:    printf("CATCH");    break;
     default: printf("__UNKNOWN__");
     }
 

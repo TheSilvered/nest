@@ -164,3 +164,71 @@ void nst_destroy_f_stack(Nst_CallStack *f_stack)
 
     free(f_stack);
 }
+
+Nst_CatchStack *nst_new_catch_stack()
+{
+    Nst_CatchStack *c_stack = (Nst_CatchStack *)malloc(sizeof(Nst_CatchStack));
+    Nst_CatchFrame *frames = (Nst_CatchFrame *)malloc(4 * sizeof(Nst_CatchFrame));
+    if ( c_stack == NULL || frames == NULL )
+        return NULL;
+
+    c_stack->stack = frames;
+    c_stack->current_size = 0;
+    c_stack->max_size = 4;
+
+    return c_stack;
+}
+
+bool nst_push_catch(Nst_CatchStack *c_stack,
+                    Nst_Int inst_idx,
+                    size_t v_stack_size,
+                    size_t f_stack_size)
+{
+    size_t max_size = c_stack->max_size;
+
+    if ( c_stack->current_size == max_size )
+    {
+        Nst_CatchFrame *new_frames = (Nst_CatchFrame *)realloc(
+            c_stack->stack,
+            max_size * 2 * sizeof(Nst_CatchFrame)
+        );
+        if ( new_frames == NULL )
+            return false;
+
+        c_stack->stack = new_frames;
+        c_stack->max_size = max_size * 2;
+    }
+
+    c_stack->stack[c_stack->current_size].f_stack_size = f_stack_size;
+    c_stack->stack[c_stack->current_size].v_stack_size = v_stack_size;
+    c_stack->stack[c_stack->current_size++].inst_idx   = inst_idx;
+    return true;
+}
+
+Nst_CatchFrame nst_peek_catch(Nst_CatchStack *c_stack)
+{
+    if ( c_stack->current_size == 0 )
+    {
+        Nst_CatchFrame frame = { 0, 0, -1 };
+        return frame;
+    }
+
+    return c_stack->stack[c_stack->current_size - 1];
+}
+
+Nst_CatchFrame nst_pop_catch(Nst_CatchStack *c_stack)
+{
+    if ( c_stack->current_size == 0 )
+    {
+        Nst_CatchFrame frame = { 0, 0, -1 };
+        return frame;
+    }
+
+    return c_stack->stack[--c_stack->current_size];
+}
+
+void nst_destroy_c_stack(Nst_CatchStack *c_stack)
+{
+    free(c_stack->stack);
+    free(c_stack);
+}

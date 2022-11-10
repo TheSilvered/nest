@@ -52,6 +52,7 @@ static Nst_Node *parse_atom();
 static Nst_Node *parse_vector_literal();
 static Nst_Node *parse_arr_or_map_literal();
 static Nst_Node *parse_lambda();
+static Nst_Node *parse_try_catch();
 
 Nst_Node *nst_parse(LList *tokens_list, Nst_Error *error)
 {
@@ -236,6 +237,8 @@ static Nst_Node *parse_statement()
 
         return nst_new_node_empty(start, end, NST_NT_BREAK_S);
     }
+    else if ( tok_type == NST_TT_TRY )
+        return parse_try_catch();
     else if ( T_IN_ATOM(tok_type) || T_IN_LOCAL_STACK_OP(tok_type) )
         return parse_expr(false);
     else
@@ -1326,6 +1329,56 @@ static Nst_Node *parse_lambda()
     return nst_new_node_full(start, end, NST_NT_LAMBDA, nodes, node_tokens);
 }
 
+static Nst_Node *parse_try_catch()
+{
+    Nst_LexerToken *tok = TOK(LList_pop(tokens));
+    Nst_Pos start = tok->start;
+    nst_destroy_token(tok);
+
+    skip_blank();
+
+    Nst_Node *try_block = parse_statement();
+    if ( p_state.error->occurred )
+        return NULL;
+
+    skip_blank();
+
+    tok = TOK(LList_pop(tokens));
+    if ( tok->type != NST_TT_CATCH )
+    {
+        Nst_Pos err_start = tok->start;
+        Nst_Pos err_end = tok->end;
+        nst_destroy_token(tok);
+        RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_CATCH);
+    }
+
+    skip_blank();
+
+    Nst_LexerToken *name_tok = TOK(LList_pop(tokens));
+    if ( name_tok->type != NST_TT_IDENT )
+    {
+        Nst_Pos err_start = name_tok->start;
+        Nst_Pos err_end = name_tok->end;
+        nst_destroy_token(name_tok);
+        RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_IDENT);
+    }
+
+    skip_blank();
+
+    Nst_Node *catch_block = parse_statement();
+    if ( p_state.error->occurred )
+        return NULL;
+
+    SAFE_LLIST_CREATE(nodes);
+    SAFE_LLIST_CREATE(tokens);
+
+    LList_append(nodes, (void *)try_block, true);
+    LList_append(nodes, (void *)catch_block, true);
+    LList_append(tokens, (void *)name_tok, true);
+
+    return nst_new_node_full(start, catch_block->end, NST_NT_TRY_CATCH_S, nodes, tokens);
+}
+
 static void _print_ast(Nst_Node *node, Nst_LexerToken *tok, int lvl, LList *is_last)
 {
     LLNode *cursor = NULL;
@@ -1336,11 +1389,6 @@ static void _print_ast(Nst_Node *node, Nst_LexerToken *tok, int lvl, LList *is_l
         // Until, but excluding, the last node
         for ( cursor = is_last->head; cursor->next != NULL; cursor = cursor->next )
         {
-            if ( cursor == NULL )
-            {
-                printf("cursor is null\n");
-                return;
-            }
             if ( *((bool *)(cursor->value)) )
                 printf("   ");
             else
@@ -1361,29 +1409,30 @@ static void _print_ast(Nst_Node *node, Nst_LexerToken *tok, int lvl, LList *is_l
 
     switch ( node->type )
     {
-    case NST_NT_LONG_S:        printf("LONG_S");        break;
-    case NST_NT_WHILE_L:       printf("WHILE_L");       break;
-    case NST_NT_DOWHILE_L:     printf("DOWHILE_L");     break;
-    case NST_NT_FOR_L:         printf("FOR_L");         break;
-    case NST_NT_FOR_AS_L:      printf("FOR_AS_L");      break;
-    case NST_NT_IF_E:          printf("IF_E");          break;
-    case NST_NT_FUNC_DECLR:    printf("FUNC_DECLR");    break;
-    case NST_NT_RETURN_S:      printf("RETURN_S");      break;
-    case NST_NT_STACK_OP:      printf("STACK_OP");      break;
-    case NST_NT_LOCAL_STACK_OP:printf("LOCAL_STACK_OP");break;
-    case NST_NT_LOCAL_OP:      printf("LOCAL_OP");      break;
-    case NST_NT_ARR_LIT:       printf("ARR_LIT");       break;
-    case NST_NT_VEC_LIT:       printf("VEC_LIT");       break;
-    case NST_NT_MAP_LIT:       printf("MAP_LIT");       break;
-    case NST_NT_VALUE:         printf("VALUE");         break;
-    case NST_NT_ACCESS:        printf("ACCESS");        break;
-    case NST_NT_EXTRACT_E:     printf("EXTRACT_E");     break;
-    case NST_NT_ASSIGN_E:      printf("ASSIGN_E");      break;
-    case NST_NT_CONTINUE_S:    printf("CONTINUE_S");    break;
-    case NST_NT_BREAK_S:       printf("BREAK_S");       break;
-    case NST_NT_SWITCH_S:      printf("SWITCH_S");      break;
-    case NST_NT_LAMBDA:        printf("LAMBDA");        break;
-    default:                   printf("__UNKNOWN__");   break;
+    case NST_NT_LONG_S:         printf("LONG_S");         break;
+    case NST_NT_WHILE_L:        printf("WHILE_L");        break;
+    case NST_NT_DOWHILE_L:      printf("DOWHILE_L");      break;
+    case NST_NT_FOR_L:          printf("FOR_L");          break;
+    case NST_NT_FOR_AS_L:       printf("FOR_AS_L");       break;
+    case NST_NT_IF_E:           printf("IF_E");           break;
+    case NST_NT_FUNC_DECLR:     printf("FUNC_DECLR");     break;
+    case NST_NT_RETURN_S:       printf("RETURN_S");       break;
+    case NST_NT_STACK_OP:       printf("STACK_OP");       break;
+    case NST_NT_LOCAL_STACK_OP: printf("LOCAL_STACK_OP"); break;
+    case NST_NT_LOCAL_OP:       printf("LOCAL_OP");       break;
+    case NST_NT_ARR_LIT:        printf("ARR_LIT");        break;
+    case NST_NT_VEC_LIT:        printf("VEC_LIT");        break;
+    case NST_NT_MAP_LIT:        printf("MAP_LIT");        break;
+    case NST_NT_VALUE:          printf("VALUE");          break;
+    case NST_NT_ACCESS:         printf("ACCESS");         break;
+    case NST_NT_EXTRACT_E:      printf("EXTRACT_E");      break;
+    case NST_NT_ASSIGN_E:       printf("ASSIGN_E");       break;
+    case NST_NT_CONTINUE_S:     printf("CONTINUE_S");     break;
+    case NST_NT_BREAK_S:        printf("BREAK_S");        break;
+    case NST_NT_SWITCH_S:       printf("SWITCH_S");       break;
+    case NST_NT_LAMBDA:         printf("LAMBDA");         break;
+    case NST_NT_TRY_CATCH_S:    printf("TRY_CATCH_S");    break;
+    default:                    printf("__UNKNOWN__");    break;
     }
 
     printf(" (%li:%li, %li:%li)\n",
@@ -1402,19 +1451,19 @@ static void _print_ast(Nst_Node *node, Nst_LexerToken *tok, int lvl, LList *is_l
         return;
     LList_append(is_last, last, true);
 
-    for ( cursor = node->nodes->head; cursor != NULL; cursor = cursor->next )
+    for ( cursor = node->tokens->head; cursor != NULL; cursor = cursor->next )
     {
         *last = idx == tot_len;
-        _print_ast(NODE(cursor->value), NULL, lvl + 1, is_last);
+        _print_ast(NULL, TOK(cursor->value), lvl + 1, is_last);
         idx++;
     }
 
     idx = 0;
 
-    for ( cursor = node->tokens->head; cursor != NULL; cursor = cursor->next )
+    for ( cursor = node->nodes->head; cursor != NULL; cursor = cursor->next )
     {
-        *last = idx == node->tokens->size - 1;
-        _print_ast(NULL, TOK(cursor->value), lvl + 1, is_last);
+        *last = idx == node->nodes->size - 1;
+        _print_ast(NODE(cursor->value), NULL, lvl + 1, is_last);
         idx++;
     }
 
@@ -1434,4 +1483,5 @@ void nst_print_ast(Nst_Node *ast)
         return;
 
     _print_ast(ast, NULL, 0, is_last);
+    LList_destroy(is_last, NULL);
 }

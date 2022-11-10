@@ -6,7 +6,7 @@
 #include "simple_types.h"
 #include "error.h"
 
-#define IS_JUMP(inst) ( inst >= NST_IC_JUMP && inst <= NST_IC_JUMPIF_ZERO )
+#define IS_JUMP(inst) ( inst >= NST_IC_JUMP && inst <= NST_IC_JUMPIF_ZERO || inst == NST_IC_PUSH_CATCH )
 #define nst_new_inst_val(id, val, start, end) _nst_new_inst_val(id, OBJ(val), start, end)
 
 #ifdef __cplusplus
@@ -67,6 +67,8 @@ enum Nst_InstructionCodes
     NST_IC_TYPE_CHECK, // Checks the type of the top value on the stack
     NST_IC_HASH_CHECK, // Checks the type on top of the stack is hashable
     NST_IC_THROW_ERR, // throws an error
+    NST_IC_PUSH_CATCH, // sets the start index of a catch block in case of an error <--
+    NST_IC_POP_CATCH, // sets the start index of a catch block in case of an error <--
 
     // These instruction push a value on the value stack
     NST_IC_SET_VAL, // Sets a value in the current var table
@@ -89,7 +91,8 @@ enum Nst_InstructionCodes
     NST_IC_MAKE_VEC_REP,
     NST_IC_MAKE_MAP,
     NST_IC_FOR_IS_DONE,
-    NST_IC_FOR_GET_VAL
+    NST_IC_FOR_GET_VAL,
+    NST_IC_SAVE_ERROR // creates a map with the current error's info and pushes it on the stack <--
 };
 
 #ifdef __cplusplus

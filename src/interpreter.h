@@ -26,7 +26,8 @@ typedef struct _Nst_ExecutionState
     Nst_StrObj **curr_path; // Current working directory
     Nst_SeqObj *argv;
     Nst_ValueStack *v_stack; // Value stack
-    Nst_CallStack *f_stack; // Call stack
+    Nst_CallStack  *f_stack; // Call stack
+    Nst_CatchStack *c_stack; // Catch stack
     LList *loaded_libs; // C imports list
     LList *lib_paths; // Import stack
     LList *lib_handles; // Maps of the libraries
