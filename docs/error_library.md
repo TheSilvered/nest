@@ -19,28 +19,6 @@ A position is a map that contains 3 keys:
 
 Note that the lines and the columns start from 0.
 
-### `[name: Str, message: Str] @throw`
-
-This function throws an error with the name set as `name` and the message set as
-`message`.
-
-For example this code:
-```
-# example.nest
-|#| 'stderr.nest' = err
-'Random Error' 'I just felt like throwing an error' @err.throw
-```
-
-whould produce this output:
-```
-File "example.nest" at line 3:
- 3 | 'Random Error' 'I just felt like throwing an error' @err.throw
-Random Error - I just felt like throwing an error
-```
-
-Here `Random Error` is the name and `I just felt like throwing an error` is the
-message.
-
 ## Constants
 
 ### `SYNTAX_ERROR`

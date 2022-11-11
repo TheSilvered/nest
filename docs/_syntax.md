@@ -295,9 +295,10 @@ depending on the operator you are using. These operators are used do to specific
 functions built in the language.
 
 The local-stack operators are:
-- `::` casts a type to another
+- `::` casts an object to another type
 - `@` calls a function
 - `->` creates an integer iterator
+- `!!` throws an error
 
 To use a local-stack operator you write the last argument to the right and all
 the others to the left.
@@ -324,6 +325,26 @@ range should end.
 This creates a range of even numbers from 10 (included) to 20 (excluded):
 ```
 2 10 -> 20
+```
+
+`!!` takes two arguments, like `::`. The first one is the name of the error and
+the last one the message that is printed along with the error.
+
+Here is what would be printed when using the operator in `example.nest`.
+
+This is the file:
+```
+-- file example.nest
+'This Is The Name' !! 'this is the message'
+```
+
+This is the output of the program:
+```
+> nest example.nest
+
+File "example.nest" at line 2:
+ 2 | 'This Is The Name' !! 'this is the message'
+This Is The Name - this is the message
 ```
 
 ### If expression
@@ -563,3 +584,34 @@ default:
     ]
 ]
 ```
+
+### The try-catch statement
+
+The try-catch statement has the following syntax:
+```
+??
+    -- try block
+?! error_var
+    -- catch block
+```
+
+If you want multiple statements you can use brackets:
+```
+?? [
+    -- try block
+] ?! error_var [
+    -- catch block
+]
+```
+
+When using a try-catch statement any error that occurs inside the try block will
+be caught in the catch block; you cannot catch only specific errors.
+
+If an error occurs, it will be stored inside `error_var` as a map with two keys:
+- `name`: the name of the error
+- `message`: the message of the error
+
+> NOTE: you can call `error_var` with any valid variable name
+
+If you want to also get the position and traceback of the error you can use the
+`try` function of the `stderr` library.
