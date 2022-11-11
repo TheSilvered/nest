@@ -1,2 +1,14 @@
+|#| '../test_lib.nest' = test
 |#| 'stderr.nest' = err
->>> err
+
+#f [
+    'Error' !! 'f'
+]
+
+f <{ }> @err.try = res
+res.value null @test.assert_eq
+res.error.name 'Error' @test.assert_eq
+res.error.message 'f' @test.assert_eq
+res.error.pos.start { 4, 4 } @test.assert_eq
+res.error.pos.end { 4, 17 } @test.assert_eq
+-- can't check the file path

@@ -11,10 +11,10 @@ variables:
   constant: '(_*\d*[A-Z]{2,}[A-Z_0-9]*|[A-Z])'
   lang_constants: '\b(true|false|null|_cwd_|_args_|_vars_|_globals_)\b'
   lang_types: '\b(Type|Int|Real|Bool|Null|Str|Array|Vector|Map|Func|Iter|Byte|IOfile)\b'
-  lang_keywords: '(\?\.\.|\.\.\?|\.\.\.|\?|:=|\.\.|;)'
+  lang_keywords: '(\?\.\.|\.\.\?|\.\.\.|\?\?|\?!|\?|:=|\.\.|;)'
   lang_arith_operators: '(-:|\+|-|\*|/|//|\^|%|><)'
   lang_logic_operators: '(!=|==|>=|<=|&&|\|\||&\|)'
-  lang_other_operators: '(\$|::|\?::|!|>>>|<<<|>>|<<|\||&|\^\^|~)'
+  lang_other_operators: '(!!|\$|::|\?::|!|>>>|<<<|>>|<<|\||&|\^\^|~)'
   lang_assign_operators: '(\+=|-=|\*=|/=|//=|\^=|%=|><=|=|\|#\|)'
 
 contexts:

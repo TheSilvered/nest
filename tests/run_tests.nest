@@ -5,8 +5,8 @@
     ... Iter :: (dir @fs.list_dir_recursive) := test_path [
         test_path -5 -1 1 @sequ.slice '.nest' != ? ..
 
-        -- runs the file
         >>> (test_path '\n' ><)
+        -- runs the file
         |#| test_path
     ]
 ]

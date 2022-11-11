@@ -7,7 +7,7 @@
 ]
 
 #_assertion_failed msg [
-    'Assertion Error' msg @err.raise
+    'Assertion Error' !! msg
 ]
 
 #assert_eq a b [
@@ -39,17 +39,16 @@
 ]
 
 #assert_cast_error obj type [
-    _cast_obj { obj, type } @err.try = res
-
-    res.error null == ?
-        type ' :: ' obj >< @_assertion_failed
+    ?? type :: obj
+    ?! _ => null
+    type ' :: ' obj ' did not fail' >< @_assertion_failed
 ]
 
 #assert_raises_error func args [
     func args @err.try = res
 
     res.error null == ?
-        'Func at' (func @sys.get_addr) 'did not fail' >< @_assertion_failed
+        'Func at ' (func @sys.get_addr) ' did not fail' >< @_assertion_failed
 ]
 
 #println s [

@@ -1370,13 +1370,13 @@ static Nst_Node *parse_try_catch()
         return NULL;
 
     SAFE_LLIST_CREATE(nodes);
-    SAFE_LLIST_CREATE(tokens);
+    SAFE_LLIST_CREATE(node_tokens);
 
     LList_append(nodes, (void *)try_block, true);
     LList_append(nodes, (void *)catch_block, true);
-    LList_append(tokens, (void *)name_tok, true);
+    LList_append(node_tokens, (void *)name_tok, true);
 
-    return nst_new_node_full(start, catch_block->end, NST_NT_TRY_CATCH_S, nodes, tokens);
+    return nst_new_node_full(start, catch_block->end, NST_NT_TRY_CATCH_S, nodes, node_tokens);
 }
 
 static void _print_ast(Nst_Node *node, Nst_LexerToken *tok, int lvl, LList *is_last)

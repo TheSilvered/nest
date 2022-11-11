@@ -61,24 +61,24 @@ __dt.sleep_              = sleep
   6: 'Sat',
   0: 'Sun' } = SHORT_WEEKDAY_NAMES
 
-_vars_ '__dt' -
-_vars_ 'Int' -
-_vars_ 'Real' -
-_vars_ 'Bool' -
-_vars_ 'Null' -
-_vars_ 'Str' -
-_vars_ 'Array' -
-_vars_ 'Vector' -
-_vars_ 'Map' -
-_vars_ 'Func' -
-_vars_ 'Iter' -
-_vars_ 'Byte' -
-_vars_ 'IOFile' -
-_vars_ 'Type' -
-_vars_ 'true' -
-_vars_ 'false' -
-_vars_ 'null' -
-_vars_ '_cwd_' -
-_vars_ '_args_' -
-_vars_ '_globals_' -
-_vars_ '_vars_' -
+_vars_ '__dt' \
+       'Int' \
+       'Real' \
+       'Bool' \
+       'Null' \
+       'Str' \
+       'Array' \
+       'Vector' \
+       'Map' \
+       'Func' \
+       'Iter' \
+       'Byte' \
+       'IOFile' \
+       'Type' \
+       'true' \
+       'false' \
+       'null' \
+       '_cwd_' \
+       '_args_' \
+       '_globals_' \
+       '_vars_' -

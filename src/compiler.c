@@ -1184,11 +1184,11 @@ static void compile_try_catch_s(Nst_Node* node)
     ADD_INST(jump_catch_end);
     push_catch->int_val = CURR_LEN;
 
+    inst = nst_new_inst_empty(NST_IC_POP_CATCH, 0);
+    ADD_INST(inst);
     inst = nst_new_inst_empty(NST_IC_SAVE_ERROR, 0);
     ADD_INST(inst);
     inst = nst_new_inst_val(NST_IC_SET_VAL_LOC, HEAD_TOK->value, HEAD_TOK->start, HEAD_TOK->end);
-    ADD_INST(inst);
-    inst = nst_new_inst_empty(NST_IC_POP_CATCH, 0);
     ADD_INST(inst);
     compile_node(TAIL_NODE);
     jump_catch_end->int_val = CURR_LEN;

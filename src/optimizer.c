@@ -233,6 +233,7 @@ static void optimize_builtin(Nst_InstructionList *bc, const char *name, Nst_Obj 
 static void optimize_func_builtin(Nst_InstructionList *bc, Nst_StrObj *name, Nst_Obj *val);
 static void remove_push_pop(Nst_InstructionList *bc);
 static void remove_assign_pop(Nst_InstructionList *bc);
+static void remove_assign_loc_get_val(Nst_InstructionList *bc);
 static void remove_push_check(Nst_InstructionList *bc, Nst_Error *error);
 static void remove_push_jumpif(Nst_InstructionList *bc);
 static void remove_inst(Nst_InstructionList *bc, Nst_Int idx);
@@ -277,6 +278,7 @@ Nst_InstructionList *nst_optimize_bytecode(Nst_InstructionList *bc,
 
         remove_push_pop(bc);
         remove_assign_pop(bc);
+        remove_assign_loc_get_val(bc);
         remove_push_jumpif(bc);
         optimize_chained_jumps(bc);
         remove_dead_code(bc);
@@ -468,6 +470,50 @@ static void remove_assign_pop(Nst_InstructionList *bc)
         inst_list[i - 1].id = NST_IC_SET_VAL_LOC;
 
         expect_pop = false;
+    }
+}
+
+static void remove_assign_loc_get_val(Nst_InstructionList* bc)
+{
+    Nst_Int size = bc->total_size;
+    Nst_RuntimeInstruction *inst_list = bc->instructions;
+    bool expect_get_val = false;
+    Nst_Obj *expected_name = false;
+
+    for ( Nst_Int i = 0; i < size; i++ )
+    {
+        if ( inst_list[i].id == NST_IC_SET_VAL_LOC )
+        {
+            expect_get_val = true;
+            expected_name = inst_list[i].val;
+            continue;
+        }
+        else if ( !expect_get_val ||
+                  inst_list[i].id != NST_IC_GET_VAL ||
+                  count_jumps_to(bc, i, -1, -1) != 0 ||
+                  nst_obj_eq(expected_name, inst_list[i].val, NULL) == nst_c.b_false )
+        {
+            expect_get_val = false;
+            expected_name = NULL;
+            continue;
+        }
+
+        if ( nst_obj_eq(expected_name, inst_list[i].val, NULL) == nst_c.b_false )
+        {
+            nst_dec_ref(nst_c.b_false);
+            expect_get_val = false;
+            expected_name = NULL;
+            continue;
+        }
+        else
+            nst_dec_ref(nst_c.b_true);
+
+        inst_list[i].id = NST_IC_NO_OP;
+        nst_dec_ref(inst_list[i].val);
+        inst_list[i - 1].id = NST_IC_SET_VAL;
+
+        expect_get_val = false;
+        expected_name = NULL;
     }
 }
 

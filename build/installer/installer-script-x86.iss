@@ -1,5 +1,5 @@
 #define MyAppName "nest"
-#define MyAppVersion "0.6.0"
+#define MyAppVersion "0.6.1"
 #define MyAppPublisher "Davide Taffarello"
 #define MyAppExeName "nest.exe"
 #define MyAppAssocName "Nest File"
@@ -22,7 +22,7 @@ LicenseFile=..\LICENSE.txt
 ; Remove the following line to run in administrative install mode (install for all users.)
 PrivilegesRequired=lowest
 OutputDir=.
-OutputBaseFilename=nest-{#MyAppVersion}-x64-installer
+OutputBaseFilename=nest-{#MyAppVersion}-x86-installer
 Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
