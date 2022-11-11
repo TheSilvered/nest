@@ -241,7 +241,7 @@ The `+` operator appends any value to the end of a vector and returns the vector
 itself.
 
 The `-` operator removes the first occurrence of a value in a vector and returns
-`true` if there was a value to remove and `false` otherwise.
+the vector itself.
 
 The `*` operator repeats the contents of a vector a number of times and returns
 the vector itself.
@@ -251,19 +251,19 @@ popped.
 
 ```
 >>> (<{ 1, 2, 3 }> 2 + '\n' ><) --> <{ 1, 2, 3, 2 }>
->>> (<{ 1, 2, 3 }> 2 - '\n' ><) --> true
+>>> (<{ 1, 2, 3 }> 2 - '\n' ><) --> <{ 1, 3 }>
 >>> (<{ 1, 2, 3 }> 2 * '\n' ><) --> <{ 1, 2, 3, 1, 2, 3 }>
 >>> (<{ 1, 2, 3 }> 2 / '\n' ><) --> 2
 ```
 
 The operator `-` behaves differently with maps too. It will remove a key from a
-map and return `true` if the key existed, `false` otherwise.
+map and return the map itself.
 
 ```
 { 'a': 1, 'b': 2 } = m
->>> (m 'a' - '\n' ><) --> true
->>> (m 'j' - '\n' ><) --> false
->>> m --> { 'b': 2 }
+>>> (m 'a' - '\n' ><) --> { 'b': 2 }
+>>> (m 'j' - '\n' ><) --> { 'b': 2 } removing a key that does not exist does not
+                      --             throw an error
 ```
 
 ### Local operators
@@ -317,13 +317,13 @@ Here the function `func` is called with three arguments:
 1 2 3 @func
 ```
 
-`->` takes two or three arguments, the first argument is where the range should
-start, the second is optional and is the step, and the last is where the range
-should end.
+`->` takes two or three arguments, the first argument is optional and is the
+step, the second is where the range should start, and the last is where the
+range should end.
 
 This creates a range of even numbers from 10 (included) to 20 (excluded):
 ```
-10 2 -> 20
+2 10 -> 20
 ```
 
 ### If expression
@@ -355,7 +355,7 @@ When using even only one code block expression always evaluates to `null`:
 (10 15 == ? [ true ] : false) = val
 ```
 
-Here `val` is set to `null` because the first
+Here `val` is set to `null` because `true` is inside a block.
 
 ### Assignment expressions
 

@@ -191,8 +191,6 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
 
 static void complete_function(size_t final_stack_size)
 {
-    // TODO: stop cleanup when arrivint at the top catch frame
-
     if ( nst_state.f_stack->current_size == 0 )
         return;
 
@@ -226,7 +224,11 @@ static void complete_function(size_t final_stack_size)
 
         if ( ERROR_OCCURRED )
         {
-            while ( nst_state.f_stack->current_size > final_stack_size )
+            size_t end_size = nst_peek_catch(nst_state.c_stack).f_stack_size;
+            if ( end_size < final_stack_size )
+                end_size = final_stack_size;
+            
+            while ( nst_state.f_stack->current_size > end_size )
             {
                 Nst_FuncCall call = nst_pop_func(nst_state.f_stack);
 
