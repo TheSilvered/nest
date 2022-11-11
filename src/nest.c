@@ -81,7 +81,7 @@ int main(int argc, char **argv)
 
     LList *tokens;
     Nst_Error error = { false, nst_no_pos(), nst_no_pos(), NULL, NULL };
-    Nst_SourceText src_text;
+    Nst_SourceText src_text = { NULL, NULL, 0 };
 
     if ( filename != NULL )
         tokens = nst_ftokenize(filename, &src_text, &error);
@@ -94,7 +94,12 @@ int main(int argc, char **argv)
     }
 
     if ( tokens == NULL )
-        ERROR_EXIT;
+    {
+        if ( src_text.text == NULL )
+            EXIT;
+        else
+            ERROR_EXIT;
+    }
 
     if ( print_tokens )
     {
