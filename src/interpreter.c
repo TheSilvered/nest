@@ -224,7 +224,10 @@ static void complete_function(size_t final_stack_size)
 
         if ( ERROR_OCCURRED )
         {
-            size_t end_size = nst_peek_catch(nst_state.c_stack).f_stack_size;
+            Nst_CatchFrame top_catch = nst_peek_catch(nst_state.c_stack);
+            Nst_Obj *obj;
+
+            size_t end_size = top_catch.f_stack_size;
             if ( end_size < final_stack_size )
                 end_size = final_stack_size;
             
@@ -240,7 +243,7 @@ static void complete_function(size_t final_stack_size)
                 *nst_state.vt = call.vt;
                 *nst_state.idx = call.idx + 1;
 
-                Nst_Obj *obj = nst_pop_val(nst_state.v_stack);
+                obj = nst_pop_val(nst_state.v_stack);
                 while ( obj != NULL )
                 {
                     nst_dec_ref(obj);
@@ -258,7 +261,17 @@ static void complete_function(size_t final_stack_size)
                 LList_push(nst_state.traceback->positions, positions,     true);
             }
 
-            break;
+            if ( end_size == final_stack_size )
+                return;
+            
+            while ( nst_state.v_stack->current_size > top_catch.v_stack_size )
+            {
+                obj = nst_pop_val(nst_state.v_stack);
+                if ( obj != NULL )
+                    nst_dec_ref(obj);
+            }
+            *nst_state.idx = top_catch.inst_idx - 1;
+            curr_inst_ls = nst_peek_func(nst_state.f_stack).func->body.bytecode;
         }
 
         // only OP_CALL and FOR_* can push a function on the call stack
