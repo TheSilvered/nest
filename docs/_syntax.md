@@ -611,7 +611,7 @@ If an error occurs, it will be stored inside `error_var` as a map with two keys:
 - `name`: the name of the error
 - `message`: the message of the error
 
-> NOTE: you can call `error_var` with any valid variable name
+> NOTE: you can call `error_var` with any valid variable name.
 
 If you want to also get the position and traceback of the error you can use the
 `try` function of the `stderr` library.

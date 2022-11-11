@@ -118,6 +118,7 @@ enum Nst_TokenTypes
     NST_TT_ENDL,      // |
     NST_TT_COMMA,     // |
     NST_TT_COLON,     // |
+    NST_TT_CATCH,     // |
     NST_TT_EOFILE,    // - expr-end end
 
     // other tokens
@@ -130,8 +131,7 @@ enum Nst_TokenTypes
     NST_TT_SWITCH,
     NST_TT_BREAK,
     NST_TT_CONTINUE,
-    NST_TT_TRY,
-    NST_TT_CATCH
+    NST_TT_TRY
 };
 
 // Creates a new token with a value
