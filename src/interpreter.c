@@ -159,6 +159,7 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
         NULL,
         0
     );
+    nst_set_vt_func(main_func, vt->vars);
 
     complete_function(0);
 
@@ -357,7 +358,7 @@ int nst_run_module(char *filename, Nst_SourceText *lib_src)
     *nst_state.idx = 0;
     CHANGE_VT(nst_new_var_table(NULL, path_str, nst_state.argv));
 
-    _nst_set_global_vt(mod_func, (*nst_state.vt)->vars);
+    nst_set_vt_func(mod_func, (*nst_state.vt)->vars);
 
     complete_function(nst_state.f_stack->current_size - 1);
     *nst_state.curr_path = prev_path;

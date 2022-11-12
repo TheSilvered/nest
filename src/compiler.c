@@ -92,16 +92,26 @@ static Nst_InstructionList *compile_internal(Nst_Node *code, bool is_func, bool 
         return NULL;
     }
 
+    LList *funcs = LList_new();
+    inst_list->functions = funcs;
     size_t i = 0;
+    Nst_RuntimeInstruction *inst;
     for ( LLNode *n = c_state.inst_ls->head;
           n != NULL;
           n = n->next )
     {
-        inst_list->instructions[i].id = INST(n->value)->id;
-        inst_list->instructions[i].int_val = INST(n->value)->int_val;
-        inst_list->instructions[i].val = INST(n->value)->val;
-        inst_list->instructions[i].start = INST(n->value)->start;
-        inst_list->instructions[i++].end = INST(n->value)->end;
+        inst = INST(n->value);
+
+        if ( inst->id == NST_IC_PUSH_VAL &&
+             inst->val != NULL &&
+             inst->val->type == nst_t.Func )
+            LList_append(funcs, inst->val, false);
+
+        inst_list->instructions[i].id = inst->id;
+        inst_list->instructions[i].int_val = inst->int_val;
+        inst_list->instructions[i].val = inst->val;
+        inst_list->instructions[i].start = inst->start;
+        inst_list->instructions[i++].end = inst->end;
     }
 
     if ( is_module )

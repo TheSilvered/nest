@@ -27,9 +27,9 @@ typedef struct _Nst_InstructionList
 {
     size_t total_size;
     Nst_RuntimeInstruction *instructions;
+    LList *functions; // all the functions declared inside the bytecode
 }
 Nst_InstructionList;
-
 
 // Creates a new instruction on the heap with no position
 Nst_RuntimeInstruction *nst_new_inst_empty(int id, Nst_Int int_val);

@@ -78,17 +78,16 @@ void nst_destroy_func(Nst_FuncObj *func)
         nst_dec_ref(func->mod_globals);
 }
 
-void _nst_set_global_vt(Nst_FuncObj *func, Nst_MapObj *map)
+void _nst_set_vt_func(Nst_FuncObj *func, Nst_MapObj *map)
 {
-    if ( NST_HAS_FLAG(func, NST_FLAG_FUNC_IS_C) )
+    if ( NST_HAS_FLAG(func, NST_FLAG_FUNC_IS_C) ||
+         func->mod_globals != NULL )
         return;
 
     func->mod_globals = MAP(nst_inc_ref(map));
 
-    Nst_RuntimeInstruction *instructions = func->body.bytecode->instructions;
-    for ( size_t i = 0, n = func->body.bytecode->total_size; i < n; i++ )
-    {
-        if ( instructions[i].val != NULL && instructions[i].val->type == nst_t.Func )
-            nst_set_global_vt(instructions[i].val, nst_inc_ref(map));
-    }
+    for ( LLNode *n = func->body.bytecode->functions->head;
+          n != NULL;
+          n = n->next )
+        nst_set_vt_func(n->value, map);
 }

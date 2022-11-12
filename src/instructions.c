@@ -83,5 +83,6 @@ void nst_destroy_inst_list(Nst_InstructionList *inst_list)
     }
 
     free(instructions);
+    LList_destroy(inst_list->functions, NULL);
     free(inst_list);
 }
