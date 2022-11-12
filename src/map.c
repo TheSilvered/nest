@@ -203,8 +203,11 @@ Nst_Obj *_nst_map_get(Nst_MapObj *map, Nst_Obj *key)
     int32_t i = hash & mask;
     Nst_MapNode curr_node = nodes[i];
 
-    if ( curr_node.key != NULL &&
-        (curr_node.key == key || AS_BOOL(nst_obj_eq(key, curr_node.key, NULL))) )
+    if ( curr_node.key == NULL )
+        return NULL;
+
+    if ( curr_node.hash == hash &&
+         (curr_node.key == key || AS_BOOL(nst_obj_eq(key, curr_node.key, NULL))) )
     {
         nst_inc_ref(curr_node.value);
         return curr_node.value;
@@ -243,7 +246,10 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
     int32_t i = hash & mask;
     Nst_MapNode curr_node = nodes[i];
 
-    if ( curr_node.key != NULL &&
+    if ( curr_node.key == NULL )
+        NST_RETURN_FALSE;
+
+    if ( curr_node.hash == hash &&
         (curr_node.key == key || AS_BOOL(nst_obj_eq(key, curr_node.key, NULL))) )
     {
         nst_dec_ref(curr_node.key);
@@ -305,13 +311,10 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
 
 void nst_destroy_map(Nst_MapObj *map)
 {
-    // printf("called");
     for ( Nst_Int i = _nst_map_get_next_idx(-1, map);
           i != -1;
           i = _nst_map_get_next_idx(i, map) )
     {
-        if ( map->nodes[i].key->type == nst_t.Str )
-            // printf("Key: %s\n", STR(map->nodes[i].key)->value);
         nst_dec_ref(map->nodes[i].key);
         nst_dec_ref(map->nodes[i].value);
     }
