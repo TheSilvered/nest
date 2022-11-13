@@ -371,9 +371,9 @@ a b == ? [
 ]
 ```
 
-When using even only one code block expression always evaluates to `null`:
+When using a code block expression evaluates to `null`:
 ```
-(10 15 == ? [ true ] : false) = val
+(true ? [ true ] : false) = val
 ```
 
 Here `val` is set to `null` because `true` is inside a block.
