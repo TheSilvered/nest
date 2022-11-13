@@ -1,0 +1,12 @@
+statement: '[' long-statement ']'
+         | while-loop
+         | do-while-loop
+         | for-loop
+         | for-as-loop
+         | func-def
+         | try-catch-statement
+         | switch-statement
+         | '=>' expression
+         | '..'
+         | ';'
+         | 

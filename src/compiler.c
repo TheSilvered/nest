@@ -483,8 +483,9 @@ static void compile_if_e(Nst_Node *node)
     Nst_RuntimeInstruction *jump_if_false = nst_new_inst_empty(NST_IC_JUMPIF_F, 0);
     ADD_INST(jump_if_false);
 
-    compile_node(NODE(node->nodes->head->next->value)); // Body if true
-    if ( NODE(node->nodes->head->next->value)->type == NST_NT_LONG_S )
+    Nst_Node *second_node = NODE(node->nodes->head->next->value);
+    compile_node(second_node); // Body if true
+    if ( !NODE_RETUNS_VALUE(second_node->type) )
     {
         inst = nst_new_inst_val(NST_IC_PUSH_VAL, nst_c.null, nst_no_pos(), nst_no_pos());
         ADD_INST(inst);
@@ -502,7 +503,7 @@ static void compile_if_e(Nst_Node *node)
     else
     {
         compile_node(TAIL_NODE); // Body if false
-        if ( TAIL_NODE->type == NST_NT_LONG_S )
+        if ( !NODE_RETUNS_VALUE(TAIL_NODE->type) )
         {
             inst = nst_new_inst_val(
                 NST_IC_PUSH_VAL,
@@ -1184,6 +1185,13 @@ static void compile_try_catch_s(Nst_Node* node)
     Nst_RuntimeInstruction *push_catch = nst_new_inst_empty(NST_IC_PUSH_CATCH, 0);
     ADD_INST(push_catch);
     compile_node(HEAD_NODE);
+
+    if ( NODE_RETUNS_VALUE(HEAD_NODE->type) )
+    {
+        inst = nst_new_inst_empty(NST_IC_POP_VAL, 0);
+        ADD_INST(inst);
+    }
+
     inst = nst_new_inst_empty(NST_IC_POP_CATCH, 0);
     ADD_INST(inst);
 
@@ -1201,6 +1209,11 @@ static void compile_try_catch_s(Nst_Node* node)
     inst = nst_new_inst_empty(NST_IC_POP_CATCH, 0);
     ADD_INST(inst);
     compile_node(TAIL_NODE);
+    if ( NODE_RETUNS_VALUE(TAIL_NODE->type) )
+    {
+        inst = nst_new_inst_empty(NST_IC_POP_VAL, 0);
+        ADD_INST(inst);
+    }
     jump_catch_end->int_val = CURR_LEN;
 }
 
@@ -1302,12 +1315,12 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
             printf(" | ");
             for ( int j = 0; j < i_len; j++ )
                 putchar(' ');
-            printf(" | ");
+            printf(" |");
         }
 
         if ( inst.val != NULL )
         {
-            printf("(%s) ", TYPE_NAME(inst.val));
+            printf(" (%s) ", TYPE_NAME(inst.val));
             Nst_StrObj* s = STR(_nst_repr_str_cast(inst.val));
             fwrite(s->value, sizeof(char), s->len, stdout);
             nst_dec_ref(s);
