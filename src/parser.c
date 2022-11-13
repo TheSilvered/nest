@@ -260,9 +260,12 @@ static Nst_Node *parse_while_loop()
     int node_type = tok->type == NST_TT_WHILE ? NST_NT_WHILE_L : NST_NT_DOWHILE_L;
 
     nst_destroy_token(tok);
+    skip_blank();
 
     Nst_Node *condition = parse_expr(false);
     if ( p_state.error->occurred ) return NULL;
+
+    skip_blank();
 
     Nst_Pos err_pos = TOK(LList_peek_front(tokens))->start;
 
@@ -313,6 +316,7 @@ static Nst_Node *parse_for_loop()
 
     int node_type = NST_NT_FOR_L;
 
+    skip_blank();
     Nst_Node *range = parse_expr(false);
 
     if ( p_state.error->occurred ) return NULL;
@@ -331,6 +335,8 @@ static Nst_Node *parse_for_loop()
         LList_append(node_tokens, LList_pop(tokens), true);
         node_type = NST_NT_FOR_AS_L;
     }
+
+    skip_blank();
 
     Nst_Pos err_pos = TOK(LList_peek_front(tokens))->start;
 

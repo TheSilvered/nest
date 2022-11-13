@@ -1,3 +1,22 @@
+# Nest grammar rules
+
+# Token types that are not symbols are uppercase and defined at the start of the
+# file.
+# Symbols are between two apostrophes (').
+# A rule is a lowercase name separated by hyphens followed by a colon and the
+# tokens that need to be matched.
+# TOK -> match TOK
+# TOK1 | TOK2 -> match TOK1 or TOK2
+# [TOK] -> match TOK but do not consume it, can contain multiple tokens
+# TOK* -> match zero or more of TOK
+# TOK+ -> match one or more of TOK
+# TOK? -> match zero or one of TOK
+# (TOK1 TOK2) -> token group or change operator precedence
+
+EOF = end of file
+IDENT = identifier
+LF = line feed
+
 statement: '[' long-statement ']'
          | while-loop
          | do-while-loop
@@ -9,4 +28,21 @@ statement: '[' long-statement ']'
          | '=>' expression
          | '..'
          | ';'
-         | 
+         | expr
+         | LF
+
+long_statement: statement* [']'| EOF]
+
+while-loop: '?..' expr LF* '[' long-statement ']'
+
+do-while-loop: '..?' expr LF* '[' long-statement ']'
+
+for-loop: '...' expr LF* '[' long-statement ']'
+
+for-as-loop: '...' expr ':=' IDENT LF* '[' long-statement ']'
+
+func-def: '#' (IDENT LF*)+ '[' long-statement ']'
+
+try-catch-statement: '??' LF* statement LF* '?!' IDENT LF* statement
+
+switch-statement: '|>' expr LF* '['
