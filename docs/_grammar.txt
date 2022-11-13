@@ -16,8 +16,9 @@
 EOF = end of file
 IDENT = identifier
 LF = line feed
+VALUE = a number or string literal
 
-statement: '[' long-statement ']'
+statement: ('[' long-statement ']')
          | while-loop
          | do-while-loop
          | for-loop
@@ -25,24 +26,53 @@ statement: '[' long-statement ']'
          | func-def
          | try-catch-statement
          | switch-statement
-         | '=>' expression
+         | ('=>' expr)
          | '..'
          | ';'
          | expr
          | LF
 
-long_statement: statement* [']'| EOF]
+long_statement: statement* [']' | EOF]
 
-while-loop: '?..' expr LF* '[' long-statement ']'
+while-loop: '?..' LF* expr LF* '[' long-statement ']'
 
-do-while-loop: '..?' expr LF* '[' long-statement ']'
+do-while-loop: '..?' LF* expr LF* '[' long-statement ']'
 
-for-loop: '...' expr LF* '[' long-statement ']'
+for-loop: '...' LF* expr LF* '[' long-statement ']'
 
-for-as-loop: '...' expr ':=' IDENT LF* '[' long-statement ']'
+for-as-loop: '...' LF* expr ':=' IDENT LF* '[' long-statement ']'
 
-func-def: '#' (IDENT LF*)+ '[' long-statement ']'
+func-def: '#' LF* (IDENT LF*)+ '[' long-statement ']'
 
-try-catch-statement: '??' LF* statement LF* '?!' IDENT LF* statement
+try-catch-statement: '??' LF* statement LF* '?!' LF* IDENT LF* statement
 
-switch-statement: '|>' expr LF* '['
+switch-statement: '|>' LF* expr LF* '['
+
+expr: (((atom+ (stack-op | (local-stack-op atom))+)+ | atom) ['[' | ')'  | ']'
+        | '}' | '}>' | '?' | ':=' | LF | ',' | ':' | '?!' | EOF ])
+    | ( expr '?' LF* statement (LF* ':' statement)? )
+
+atom: (local-op atom)
+    | ('@' atom) # this only matches if it is the first atom of the expression
+    | ('(' expr ')')
+    | VALUE
+    | (atom '.' atom)
+    | ('##' LF* (IDENT LF*)+ '=>' expr )
+    | vector-literal
+    | array-literal
+    | map-literal
+
+vector-literal: ('<{' LF* (expr (LF* ',' LF* expr)* )* LF* '}>')
+              | ('<{' LF* expr ';' LF* expr LF* '}>')
+
+array-literal: '{' LF* (expr (LF* ',' LF* expr)* )+ LF* '}'
+              | ('{' LF* expr ';' LF* expr LF* '}')
+
+map-literal: '{' LF* (expr LF* ':' LF* expr (LF* ',' LF* expr LF* ':' LF* expr)* )* LF* '}'
+
+stack-op: '+' | '-'  | '*'  | '/'  | '^' | '%'  | '><' | '&&' | '||' | '&|' | '&'
+        | '|' | '^^' | '<<' | '>>' | '>' | '>=' | '<'  | '<=' | '==' | '!='
+
+local-stack-op: '::' | '->' | '@' | '!!'
+
+local-op: '$' | '!' | '~' | '>>>' | '<<<' | '-:' | '?::' | '@@' | '|#|'
