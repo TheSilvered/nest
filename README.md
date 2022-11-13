@@ -15,16 +15,35 @@ A programming language with no keywords.
 Nest currently only works on Windows and can be installed via the `.exe`
 installer.
 
-After using the installer you can edit the `PATH` environment variable relative
-to the account (*not* relative to the system) by adding
-`%LOCALAPPDATA%\Programs\nest`. This is to add Nest as a command when using the
-Command Prompt or Windows PowerShell.
+### VS Code
+
+To install the VS Code plugin copy `plugins/vs_code/nest-lang` into
+`%USERPROFILE%/.vscode/extensions` and reload the VS Code window.
+
+Currently VS Code supports only syntax highlighting, to run the Nest file you
+can install Code Runner and add `"nest": "cd $dir && nest -m $fileName"` inside
+`"code-runner.executorMap"` in `settings.json`.
+
+This method does not support input, to do that you still have to run the file
+from the console.
+
+### Sublime Text
+
+To install the SublimeText plugin copy `plugins/subilme_text/Nest` into
+`%APPDATA%/SublimeText/Packages`.
+
+In Sublime Text, in addition to syntax highlighting you can also run a script
+with `CTRL + B` and you can comment and un-comment with the default keyboard
+shortcuts.
+
+Like VS Code, Sublime Text does not support input from the user in the output
+panel, to do that you can install a plugin like `Terminus`.
 
 ## Building from source
 
 ### Windows
 
-On windows open `nest.sln` in Visual Studio with the C++ application develompent
+On windows open `nest.sln` in Visual Studio with the C++ application development
 package installed and compile it from there.
 
 To compile the installer you need InnoSetup installed. Then follow these steps
@@ -39,10 +58,10 @@ Keep in mind that if you change the version it has to be changed both in
 
 ### Linux
 
-**C/C++ libraries do not work on linux yet.**
+**C/C++ libraries do not work on Linux yet.**
 
 Execute `make all` to compile the main interpreter and all the libraries.  
-Execute `make` to compile only the main iterpreter.
+Execute `make` to compile only the main interpreter.
 Execute `make debug` for a fast compilation of the main interpreter.
 Execute `make all-debug` for a fast compilation of the main interpreter and all
 the libraries.

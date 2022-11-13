@@ -89,7 +89,7 @@ contexts:
       scope: comment.line.nest
       push: comment_end
     - match: '-/'
-      scope: comment.line.nest
+      scope: comment.block.nest
       push: multiline_comment_end
 
   keywords:
@@ -182,7 +182,7 @@ contexts:
       pop: true
 
   multiline_comment_end:
-    - meta_scope: comment.line.nest
+    - meta_scope: comment.block.nest
     - match: '/-'
       pop: true
 
