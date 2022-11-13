@@ -48,15 +48,16 @@ try-catch-statement: '??' LF* statement LF* '?!' LF* IDENT LF* statement
 
 switch-statement: '|>' LF* expr LF* '['
 
-expr: (((atom+ (stack-op | (local-stack-op atom))+)+ | atom) ['[' | ')'  | ']'
-        | '}' | '}>' | '?' | ':=' | LF | ',' | ':' | '?!' | EOF ])
+expr: (((extraction+ (stack-op | (local-stack-op extraction))+)+ | extraction)
+        ['[' | ')'  | ']' | '}' | '}>' | '?' | ':=' | LF | ',' | ':' | '?!' | EOF ])
     | ( expr '?' LF* statement (LF* ':' statement)? )
 
-atom: (local-op atom)
-    | ('@' atom) # this only matches if it is the first atom of the expression
+extraction: atom ('.' atom)*
+
+atom: (local-op extraction)
+    | ('@' extraction) # this only matches if it is the first atom of the expression
     | ('(' expr ')')
     | VALUE
-    | (atom '.' atom)
     | ('##' LF* (IDENT LF*)+ '=>' expr )
     | vector-literal
     | array-literal
