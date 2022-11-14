@@ -70,7 +70,7 @@
 		"line-comment": {
 			"name": "comment.line.nest",
 			"begin": "--",
-			"end": "[^\\\\]\\r?\\n"
+			"end": "(?<!\\\\)\\r?\\n"
 		},
 		"block-comment": {
 			"name": "comment.block.nest",
@@ -207,4 +207,3 @@
 		}
 	}
 }
-
