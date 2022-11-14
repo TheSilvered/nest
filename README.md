@@ -39,6 +39,9 @@ shortcuts.
 Like VS Code, Sublime Text does not support input from the user in the output
 panel, to do that you can install a plugin like `Terminus`.
 
+**When downloading the plugins I suggest downloading them with the code of the
+most recent commit rather than from the source code of the latest release.**
+
 ## Building from source
 
 ### Windows
