@@ -371,6 +371,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
             is_byte ? nst_new_byte((Nst_Byte)(value & 0xff))
                     : nst_new_int(value)
         );
+        free(ltrl);
         return;
     }
 

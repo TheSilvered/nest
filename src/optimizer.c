@@ -321,7 +321,7 @@ static Nst_Int count_assignments(Nst_InstructionList *bc, Nst_StrObj *name)
             if ( prev_inst.id == NST_IC_PUSH_VAL &&
                  prev_inst.val != NULL &&
                  prev_inst.val->type == nst_t.Str && 
-                 strcmp(name->value, STR(prev_inst.val)->value) == 0 )
+                 nst_compare_strings(name, STR(prev_inst.val)) == 0 )
                 ++tot;
         }
 
@@ -329,7 +329,7 @@ static Nst_Int count_assignments(Nst_InstructionList *bc, Nst_StrObj *name)
              inst_list[i].id != NST_IC_SET_VAL_LOC )
             continue;
 
-        if ( strcmp(name->value, STR(inst_list[i].val)->value) == 0 )
+        if ( nst_compare_strings(name, STR(inst_list[i].val)) == 0 )
             ++tot;
     }
 
@@ -346,7 +346,7 @@ static void replace_access(Nst_InstructionList *bc, Nst_StrObj *name, Nst_Obj *v
         if ( inst_list[i].id != NST_IC_GET_VAL )
             continue;
 
-        if ( strcmp(name->value, STR(inst_list[i].val)->value) == 0 )
+        if ( nst_compare_strings(name, STR(inst_list[i].val)) == 0 )
         {
             inst_list[i].id = NST_IC_PUSH_VAL;
             nst_dec_ref(inst_list[i].val);
@@ -478,35 +478,32 @@ static void remove_assign_loc_get_val(Nst_InstructionList* bc)
     Nst_Int size = bc->total_size;
     Nst_RuntimeInstruction *inst_list = bc->instructions;
     bool expect_get_val = false;
-    Nst_Obj *expected_name = false;
+    Nst_StrObj *expected_name = false;
 
     for ( Nst_Int i = 0; i < size; i++ )
     {
         if ( inst_list[i].id == NST_IC_SET_VAL_LOC )
         {
             expect_get_val = true;
-            expected_name = inst_list[i].val;
+            expected_name = STR(inst_list[i].val);
             continue;
         }
         else if ( !expect_get_val ||
                   inst_list[i].id != NST_IC_GET_VAL ||
                   count_jumps_to(bc, i, -1, -1) != 0 ||
-                  nst_obj_eq(expected_name, inst_list[i].val, NULL) == nst_c.b_false )
+                  nst_compare_strings(expected_name, STR(inst_list[i].val)) != 0 )
         {
             expect_get_val = false;
             expected_name = NULL;
             continue;
         }
 
-        if ( nst_obj_eq(expected_name, inst_list[i].val, NULL) == nst_c.b_false )
+        if ( nst_compare_strings(expected_name, STR(inst_list[i].val)) != 0 )
         {
-            nst_dec_ref(nst_c.b_false);
             expect_get_val = false;
             expected_name = NULL;
             continue;
         }
-        else
-            nst_dec_ref(nst_c.b_true);
 
         inst_list[i].id = NST_IC_NO_OP;
         nst_dec_ref(inst_list[i].val);
@@ -580,6 +577,8 @@ static void remove_push_check(Nst_InstructionList *bc, Nst_Error *error)
         }
 
         inst_list[i].id = NST_IC_NO_OP;
+        if ( inst_list[i].val != NULL )
+            nst_dec_ref(inst_list[i].val);
         was_push = false;
     }
     return;

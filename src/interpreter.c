@@ -900,6 +900,10 @@ static inline void exe_op_range(Nst_RuntimeInstruction *inst)
     Nst_OpErr err = { NULL, NULL };
     Nst_Obj *iter = _nst_obj_range(start, stop, step, &err);
 
+    nst_dec_ref(start);
+    nst_dec_ref(stop);
+    nst_dec_ref(step);
+
     if ( iter == NULL )
         SET_OP_ERROR(inst->start, inst->end, err);
     else

@@ -6,7 +6,7 @@
 #include "simple_types.h"
 #include "error.h"
 
-#define IS_JUMP(inst) ( inst >= NST_IC_JUMP && inst <= NST_IC_JUMPIF_ZERO || inst == NST_IC_PUSH_CATCH )
+#define IS_JUMP(inst) ( (inst >= NST_IC_JUMP && inst <= NST_IC_JUMPIF_ZERO) || inst == NST_IC_PUSH_CATCH )
 #define nst_new_inst_val(id, val, start, end) _nst_new_inst_val(id, OBJ(val), start, end)
 
 #ifdef __cplusplus
