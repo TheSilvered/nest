@@ -121,6 +121,12 @@ void _nst_del_strs()
     nst_dec_ref(nst_s.e_TypeError);
     nst_dec_ref(nst_s.e_CallError);
     nst_dec_ref(nst_s.e_MathError);
+    nst_dec_ref(nst_s.e_ImportError);
+
+    nst_dec_ref(nst_s.o__args_);
+    nst_dec_ref(nst_s.o__cwd_);
+    nst_dec_ref(nst_s.o__globals_);
+    nst_dec_ref(nst_s.o__vars_);
 
     nst_s_initialized = false;
 }

@@ -1,0 +1,2 @@
+'Davide' = name
+>>> ('Hello, ' name '!\n' ><)

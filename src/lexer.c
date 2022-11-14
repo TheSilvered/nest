@@ -310,6 +310,7 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error *error)
     }
 
     *tok = nst_new_token_noval(start, end, token_type);
+    free(symbol);
 }
 
 static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)

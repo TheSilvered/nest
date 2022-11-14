@@ -797,6 +797,7 @@ static Nst_Node *parse_stack_op(Nst_Node *value, Nst_Pos start)
     else if ( new_nodes->size == 1 && value == NULL )
     {
         node = NODE(LList_pop(new_nodes));
+        LList_destroy(new_nodes, NULL);
     }
     else
     {

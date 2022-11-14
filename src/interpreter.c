@@ -163,6 +163,7 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
 
     complete_function(0);
 
+    nst_dec_ref(main_func);
     if ( ERROR_OCCURRED )
     {
         nst_print_traceback(*nst_state.traceback);

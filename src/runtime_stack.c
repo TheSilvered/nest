@@ -67,6 +67,7 @@ void nst_destroy_v_stack(Nst_ValueStack *v_stack)
             nst_dec_ref(v_stack->stack[i]);
     }
 
+    free(v_stack->stack);
     free(v_stack);
 }
 
@@ -162,6 +163,7 @@ void nst_destroy_f_stack(Nst_CallStack *f_stack)
         }
     }
 
+    free(f_stack->stack);
     free(f_stack);
 }
 

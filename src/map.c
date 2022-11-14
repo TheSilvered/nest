@@ -62,6 +62,23 @@ static int32_t set_clean(Nst_MapObj *map, int32_t hash, Nst_Obj *key, Nst_Obj *v
     return i & mask;
 }
 
+static bool are_eq(Nst_Obj *ob1, Nst_Obj *ob2)
+{
+    if ( ob1 == ob2 )
+        return true;
+
+    if ( nst_obj_eq(ob1, ob2, NULL) == nst_c.b_true )
+    {
+        nst_dec_ref(nst_c.b_true);
+        return true;
+    }
+    else
+    {
+        nst_dec_ref(nst_c.b_false);
+        return false;
+    }
+}
+
 void resize_map(Nst_MapObj *map, bool force_item_reset)
 {
     size_t old_size = map->size;
@@ -130,8 +147,9 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
           curr_node.key != NULL && curr_node.key != key;
           perturb >>= 5 )
     {
-        if ( curr_node.hash == hash && AS_BOOL(nst_obj_eq(key, curr_node.key, NULL)) )
+        if ( curr_node.hash == hash && are_eq(key, curr_node.key) )
             break;
+
         i = (int32_t)((i * 5) + 1 + perturb);
         curr_node = nodes[i & mask];
     }
@@ -206,8 +224,7 @@ Nst_Obj *_nst_map_get(Nst_MapObj *map, Nst_Obj *key)
     if ( curr_node.key == NULL )
         return NULL;
 
-    if ( curr_node.hash == hash &&
-         (curr_node.key == key || AS_BOOL(nst_obj_eq(key, curr_node.key, NULL))) )
+    if ( curr_node.hash == hash && are_eq(key, curr_node.key) )
     {
         nst_inc_ref(curr_node.value);
         return curr_node.value;
@@ -221,8 +238,7 @@ Nst_Obj *_nst_map_get(Nst_MapObj *map, Nst_Obj *key)
         if ( curr_node.key == NULL )
             return NULL;
 
-        if ( curr_node.hash == hash && 
-           ( curr_node.key == key || AS_BOOL(nst_obj_eq(key, curr_node.key, NULL)) ) )
+        if ( curr_node.hash == hash && are_eq(key, curr_node.key) )
         {
             nst_inc_ref(curr_node.value);
             return curr_node.value;
@@ -249,8 +265,7 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
     if ( curr_node.key == NULL )
         NST_RETURN_FALSE;
 
-    if ( curr_node.hash == hash &&
-        (curr_node.key == key || AS_BOOL(nst_obj_eq(key, curr_node.key, NULL))) )
+    if ( curr_node.hash == hash && are_eq(key, curr_node.key) )
     {
         nst_dec_ref(curr_node.key);
         nst_dec_ref(curr_node.value);
@@ -282,8 +297,7 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
         if ( curr_node.key == NULL )
             NST_RETURN_FALSE;
 
-        if ( curr_node.hash == hash &&
-            (curr_node.key == key || AS_BOOL(nst_obj_eq(key, curr_node.key, NULL))) )
+        if ( curr_node.hash == hash && are_eq(key, curr_node.key) )
         {
             nst_dec_ref(curr_node.key);
             nst_dec_ref(curr_node.value);
