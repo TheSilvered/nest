@@ -542,7 +542,7 @@ static void compile_func_declr(Nst_Node *node)
 
     Nst_RuntimeInstruction *inst = nst_new_inst_val(
         NST_IC_PUSH_VAL,
-        (Nst_Obj *)func,
+        OBJ(func),
         nst_no_pos(),
         nst_no_pos()
     );
@@ -581,7 +581,7 @@ static void compile_lambda(Nst_Node *node)
 
     Nst_RuntimeInstruction *inst = nst_new_inst_val(
         NST_IC_PUSH_VAL,
-        (Nst_Obj *)func,
+        OBJ(func),
         node->start,
         node->end
     );

@@ -53,7 +53,7 @@ Nst_Obj *nst_new_string(char *val, size_t len, bool allocated)
     str->len = len;
     str->value = val;
 
-    return (Nst_Obj *)str;
+    return OBJ(str);
 }
 
 Nst_TypeObj *nst_new_type_obj(const char *val, size_t len)

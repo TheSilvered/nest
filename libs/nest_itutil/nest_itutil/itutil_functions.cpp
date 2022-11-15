@@ -155,7 +155,7 @@ NST_FUNC_SIGN(chain_get_val)
 
     Nst_Obj *res = nst_get_value_seq(SEQ(sub_seq), idx2);
 
-    if ( res == NULL )
+    if ( res == nullptr )
     {
         NST_SET_VALUE_ERROR(_nst_format_error(
             sub_seq->type == nst_t.Array ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
@@ -230,7 +230,7 @@ NST_FUNC_SIGN(zip_get_val)
     nst_set_value_seq(arr, 0, SEQ(objs[1])->objs[idx]);
     nst_set_value_seq(arr, 1, SEQ(objs[2])->objs[idx]);
 
-    return (Nst_Obj *)arr;
+    return OBJ(arr);
 }
 
 // ------------------------------- Enumerate -------------------------------- //
@@ -278,7 +278,7 @@ NST_FUNC_SIGN(enumerate_get_val)
     arr->objs[0] = nst_new_int(idx);
     nst_set_value_seq(arr, 1, SEQ(objs[1])->objs[idx]);
 
-    return (Nst_Obj *)arr;
+    return OBJ(arr);
 }
 
 // -------------------------- Keys, values, items --------------------------- //
@@ -344,7 +344,7 @@ NST_FUNC_SIGN(items_get_val)
         nst_set_value_seq(arr, 1, node.value);
     }
 
-    return (Nst_Obj *)arr;
+    return OBJ(arr);
 }
 
 // -------------------------------- Reversed -------------------------------- //
@@ -380,7 +380,7 @@ NST_FUNC_SIGN(reversed_get_val)
     Nst_Obj **objs = SEQ(args[0])->objs;
     Nst_Obj *res = nst_get_value_seq(SEQ(objs[1]), AS_INT(objs[0]));
 
-    if ( res == NULL )
+    if ( res == nullptr )
     {
         NST_SET_VALUE_ERROR(_nst_format_error(
             SEQ(objs[1])->type == nst_t.Array ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")

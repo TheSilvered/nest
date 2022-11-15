@@ -1112,7 +1112,7 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
                 FUNC(new_cfunc(1, nst_str_iter_advance)),
                 FUNC(new_cfunc(1, nst_str_iter_is_done)),
                 FUNC(new_cfunc(1, nst_str_iter_get_val)),
-                (Nst_Obj *)data
+                OBJ(data)
             );
         }
         else if ( ob_t == nst_t.Array || ob_t == nst_t.Vector )
@@ -1128,7 +1128,7 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
                 FUNC(new_cfunc(1, nst_seq_iter_advance)),
                 FUNC(new_cfunc(1, nst_seq_iter_is_done)),
                 FUNC(new_cfunc(1, nst_seq_iter_get_val)),
-                (Nst_Obj *)data
+                OBJ(data)
             );
         }
         else if ( ob_t == nst_t.Map )
@@ -1170,7 +1170,7 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
             for ( size_t i = 0; i < seq_len; i++ )
                 nst_set_value_seq(seq, i, SEQ(ob)->objs[i]);
 
-            return (Nst_Obj *)seq;
+            return OBJ(seq);
         }
         else if ( ob_t == nst_t.Str )
         {
@@ -1180,7 +1180,7 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
 
             for ( size_t i = 0; i < str_len; i++ )
                 seq->objs[i] = nst_string_get_idx(ob, i);
-            return (Nst_Obj *)seq;
+            return OBJ(seq);
         }
         else
             RETURN_CAST_TYPE_ERROR;
@@ -1576,7 +1576,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
 
         Nst_Obj *func_obj = new_cfunc(func.arg_num, func.func_ptr);
 
-        nst_map_set(func_map, (Nst_Obj *)func.name, func_obj);
+        nst_map_set(func_map, func.name, func_obj);
         nst_dec_ref(func.name);
         nst_dec_ref(func_obj);
     }

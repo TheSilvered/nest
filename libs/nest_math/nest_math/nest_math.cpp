@@ -156,7 +156,7 @@ NST_FUNC_SIGN(divmod_)
     res->objs[0] = nst_new_int(x / y);
     res->objs[1] = nst_new_int(x % y);
 
-    return (Nst_Obj *)res;
+    return OBJ(res);
 }
 
 NST_FUNC_SIGN(sin_)
@@ -577,7 +577,7 @@ NST_FUNC_SIGN(frexp_)
     arr->objs[0] = nst_new_real(frexp(n, &num));
     arr->objs[1] = nst_new_int(num);
 
-    return (Nst_Obj *)arr;
+    return OBJ(arr);
 }
 
 NST_FUNC_SIGN(ldexp_)

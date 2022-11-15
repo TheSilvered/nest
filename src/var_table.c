@@ -40,8 +40,8 @@ Nst_VarTable *nst_new_var_table(Nst_MapObj *global_table,
     nst_map_set(vars, nst_s.c_false, nst_c.b_false);
     nst_map_set(vars, nst_s.c_null,  nst_c.null);
 
-    nst_map_set(vars, nst_s.o__cwd_, (Nst_Obj *)cwd);
-    nst_map_set(vars, nst_s.o__args_, (Nst_Obj *)args);
+    nst_map_set(vars, nst_s.o__cwd_, cwd);
+    nst_map_set(vars, nst_s.o__args_, args);
 
     return vt;
 }

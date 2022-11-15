@@ -281,7 +281,7 @@ NST_FUNC_SIGN(to_upper_)
         ++s;
     }
 
-    return (Nst_Obj *)new_str;
+    return OBJ(new_str);
 }
 
 NST_FUNC_SIGN(to_lower_)
@@ -301,7 +301,7 @@ NST_FUNC_SIGN(to_lower_)
         ++s;
     }
 
-    return (Nst_Obj *)new_str;
+    return OBJ(new_str);
 }
 
 NST_FUNC_SIGN(is_upper_)
@@ -639,5 +639,5 @@ NST_FUNC_SIGN(split_)
     nst_append_value_vector(vector, str_obj);
     nst_dec_ref(str_obj);
 
-    return (Nst_Obj *)vector;
+    return OBJ(vector);
 }

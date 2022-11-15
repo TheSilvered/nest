@@ -433,9 +433,9 @@ static void make_ident(Nst_LexerToken **tok)
     Nst_Pos end = nst_copy_pos(cursor.pos);
 
     Nst_StrObj *val_obj = STR(nst_new_cstring_raw(str, true));
-    nst_hash_obj((Nst_Obj *)val_obj);
+    nst_hash_obj(OBJ(val_obj));
 
-    *tok = nst_new_token_value(start, end, NST_TT_IDENT, (Nst_Obj *)val_obj);
+    *tok = nst_new_token_value(start, end, NST_TT_IDENT, OBJ(val_obj));
 }
 
 static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
@@ -598,7 +598,7 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
     end_str[str_len] = '\0';
 
     Nst_StrObj *val_obj = STR(nst_new_string(end_str, str_len, true));
-    nst_hash_obj((Nst_Obj *)val_obj);
+    nst_hash_obj(OBJ(val_obj));
 
-    *tok = nst_new_token_value(start, cursor.pos, NST_TT_VALUE, (Nst_Obj *)val_obj);
+    *tok = nst_new_token_value(start, cursor.pos, NST_TT_VALUE, OBJ(val_obj));
 }

@@ -33,7 +33,7 @@ Nst_Obj *nst_new_map()
 
     NST_GGC_SUPPORT_INIT(map, nst_traverse_map, nst_track_map);
 
-    return (Nst_Obj *)map;
+    return OBJ(map);
 }
 
 static int32_t set_clean(Nst_MapObj *map, int32_t hash, Nst_Obj *key, Nst_Obj *value, int prev_idx)

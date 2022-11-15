@@ -26,7 +26,7 @@ static Nst_Obj *new_seq(size_t len, size_t size, Nst_TypeObj *type)
 
     NST_GGC_SUPPORT_INIT(seq, nst_traverse_seq, nst_track_seq);
 
-    return (Nst_Obj *)seq;
+    return OBJ(seq);
 }
 
 Nst_Obj *nst_new_array(size_t len)

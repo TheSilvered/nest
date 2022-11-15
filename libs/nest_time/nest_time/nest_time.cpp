@@ -169,7 +169,7 @@ NST_FUNC_SIGN(date_)
 {
     Nst_MapObj *map = MAP(nst_new_map());
     add_date(map, localtime);
-    return (Nst_Obj *)map;
+    return OBJ(map);
 }
 
 NST_FUNC_SIGN(seconds_)
@@ -200,14 +200,14 @@ NST_FUNC_SIGN(clock_time_)
 {
     Nst_MapObj *map = MAP(nst_new_map());
     add_time(map, localtime);
-    return (Nst_Obj *)map;
+    return OBJ(map);
 }
 
 NST_FUNC_SIGN(gmt_clock_time_)
 {
     Nst_MapObj *map = MAP(nst_new_map());
     add_time(map, gmtime);
-    return (Nst_Obj *)map;
+    return OBJ(map);
 }
 
 NST_FUNC_SIGN(clock_datetime_)
@@ -215,7 +215,7 @@ NST_FUNC_SIGN(clock_datetime_)
     Nst_MapObj *map = MAP(nst_new_map());
     add_date(map, localtime);
     add_time(map, localtime);
-    return (Nst_Obj *)map;
+    return OBJ(map);
 }
 
 NST_FUNC_SIGN(gmt_clock_datetime_)
@@ -223,7 +223,7 @@ NST_FUNC_SIGN(gmt_clock_datetime_)
     Nst_MapObj *map = MAP(nst_new_map());
     add_date(map, gmtime);
     add_time(map, gmtime);
-    return (Nst_Obj *)map;
+    return OBJ(map);
 }
 
 NST_FUNC_SIGN(sleep_)

@@ -158,7 +158,7 @@ void nst_collect_gen(Nst_GGCList *gen)
         // Traverse reachable objects
         for ( ob = traversed_end; ob != NULL; )
         {
-            ob->traverse_func((Nst_Obj *)ob);
+            ob->traverse_func(OBJ(ob));
             ob = ob->ggc_next;
         }
 

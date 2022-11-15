@@ -7,7 +7,7 @@
     type *obj = (type *)nst_alloc_obj(sizeof(type), type_obj, NULL); \
     if ( obj == NULL ) return NULL; \
     obj->value = value; \
-    return (Nst_Obj *)obj
+    return OBJ(obj)
 
 Nst_Obj *nst_new_int(Nst_Int value)
 {
@@ -44,7 +44,7 @@ Nst_Obj *nst_new_file(Nst_IOFile value, bool bin, bool read, bool write)
     if ( read )  NST_SET_FLAG(obj, NST_FLAG_IOFILE_CAN_READ);
     if ( write ) NST_SET_FLAG(obj, NST_FLAG_IOFILE_CAN_WRITE);
 
-    return (Nst_Obj *)obj;
+    return OBJ(obj);
 }
 
 void nst_destroy_iofile(Nst_IOFileObj *obj)

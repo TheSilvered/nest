@@ -310,7 +310,7 @@ NST_FUNC_SIGN(read_bytes_)
         bytes_array->objs[i] = nst_new_byte(buffer[i]);
 
     delete[] buffer;
-    return (Nst_Obj *)bytes_array;
+    return OBJ(bytes_array);
 }
 
 NST_FUNC_SIGN(file_size_)

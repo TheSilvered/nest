@@ -16,6 +16,7 @@ extern "C" {
 EXPORT bool lib_init();
 EXPORT Nst_FuncDeclr *get_func_ptrs();
 EXPORT NST_INIT_LIB_OBJ_FUNC;
+EXPORT void free_lib();
 
 NST_FUNC_SIGN(isdir_);
 NST_FUNC_SIGN(mkdir_);

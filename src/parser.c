@@ -1157,10 +1157,12 @@ static Nst_Node *parse_vector_literal()
     if ( tok->type != NST_TT_R_VBRACE )
     {
         LList_destroy(nodes, (LList_item_destructor)nst_destroy_node);
+        nst_destroy_token(tok);
         RETURN_ERROR(start, err_end, _NST_EM_MISSING_VBRACE);
     }
 
     Nst_Pos end = tok->end;
+    nst_destroy_token(tok);
     return nst_new_node_nodes(start, end, NST_NT_VEC_LIT, nodes);
 }
 

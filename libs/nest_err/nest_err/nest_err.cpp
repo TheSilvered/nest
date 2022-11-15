@@ -88,7 +88,7 @@ Nst_Obj *failure(Nst_OpErr *err)
         Nst_Int skipped = 0;
         LLNode *n1 = positions->head;
         LLNode *n2 = n1 == nullptr ? n1 : n1->next;
-        for ( size_t i = 0; n1 != NULL; i++ )
+        for ( size_t i = 0; n1 != nullptr; i++ )
         {
             Nst_Obj *pos = make_pos(*(Nst_Pos *)n1->value,
                                     *(Nst_Pos *)n2->value);
@@ -153,7 +153,7 @@ NST_FUNC_SIGN(try_)
 
     Nst_Obj *result = nst_call_func(func, func_args->objs, err);
 
-    if ( result != NULL )
+    if ( result != nullptr )
         return success(result);
     else
         return failure(err);
