@@ -434,7 +434,7 @@ static void make_ident(Nst_LexerToken **tok)
 
     Nst_StrObj *val_obj = STR(nst_new_cstring_raw(str, true));
     nst_hash_obj((Nst_Obj *)val_obj);
-    printf("%p, %li:%li\n", val_obj, start.line, start.col);
+
     *tok = nst_new_token_value(start, end, NST_TT_IDENT, (Nst_Obj *)val_obj);
 }
 

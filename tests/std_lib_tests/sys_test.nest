@@ -9,5 +9,5 @@
 10 @sys.hash 10 @test.assert_eq
 -1 @sys.hash -2 @test.assert_eq
 sys.VERSION @test.println
-0 @sys.exit -- process should end with exit here
->>> 'do not print this'
+-- 0 @sys.exit -- process should end with exit here
+-- >>> 'do not print this'
