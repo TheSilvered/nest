@@ -547,6 +547,7 @@ static void compile_func_declr(Nst_Node *node)
         nst_no_pos()
     );
     ADD_INST(inst);
+    nst_dec_ref(func);
 
     inst = nst_new_inst_val(
         NST_IC_SET_VAL_LOC,
@@ -585,6 +586,7 @@ static void compile_lambda(Nst_Node *node)
         node->end
     );
     ADD_INST(inst);
+    nst_dec_ref(func);
 }
 
 static void compile_return_s(Nst_Node *node)
@@ -1298,7 +1300,7 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
             printf(" | ");
             for ( int j = 0; j < i_len; j++ )
                 putchar(' ');
-            printf(" | ");
+            printf(" |");
             continue;
         }
 
@@ -1309,7 +1311,7 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
              inst.id == NST_IC_MAKE_VEC ||
              inst.id == NST_IC_MAKE_MAP ||
              inst.int_val != 0 )
-            printf(" | %*lli | ", i_len > 3 ? i_len : 3, inst.int_val);
+            printf(" | %*lli |", i_len > 3 ? i_len : 3, inst.int_val);
         else
         {
             printf(" | ");
@@ -1334,7 +1336,7 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
             }
         }
         else if ( inst.id == NST_IC_PUSH_VAL )
-            printf("NULL");
+            printf(" NULL");
 
         printf("\n");
     }

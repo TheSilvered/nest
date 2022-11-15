@@ -1384,6 +1384,8 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     // otherwise it tries to open it with the path of the standard library
     if ( (file = fopen(file_path, "r")) == NULL )
     {
+        free(file_path);
+
 #if defined(_WIN32) || defined(WIN32)
 
   #ifdef _DEBUG
@@ -1575,8 +1577,10 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         Nst_Obj *func_obj = new_cfunc(func.arg_num, func.func_ptr);
 
         nst_map_set(func_map, (Nst_Obj *)func.name, func_obj);
+        nst_dec_ref(func.name);
+        nst_dec_ref(func_obj);
     }
-
+    free(func_ptrs);
     LList_append(nst_state.loaded_libs, lib, false);
 
     // Add map to the loaded libaries

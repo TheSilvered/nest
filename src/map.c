@@ -171,6 +171,10 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
                 nodes[curr_node.prev_idx].next_idx = curr_node.next_idx;
             else
                 map->head_idx = curr_node.next_idx;
+
+            nodes[map->tail_idx].next_idx = (int)(i & mask);
+            (nodes + (i & mask))->prev_idx = map->tail_idx;
+            map->tail_idx = (int)(i & mask);
             (nodes + (i & mask))->next_idx = -1;
         }
     }

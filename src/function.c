@@ -71,7 +71,11 @@ void nst_track_func(Nst_FuncObj *func)
 void nst_destroy_func(Nst_FuncObj *func)
 {
     if ( func->args != NULL )
+    {
+        for ( size_t i = 0, n = func->arg_num; i < n; i++ )
+            nst_dec_ref(func->args[i]);
         free(func->args);
+    }
     if ( !NST_HAS_FLAG(func, NST_FLAG_FUNC_IS_C) )
         nst_destroy_inst_list(func->body.bytecode);
     if ( func->mod_globals != NULL )

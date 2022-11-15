@@ -160,6 +160,7 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
         0
     );
     nst_set_vt_func(main_func, vt->vars);
+    nst_add_tracked_object((Nst_GGCObj *)vt->vars);
 
     complete_function(0);
 
@@ -822,6 +823,7 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
         *nst_state.idx
     );
     *nst_state.idx = -1;
+    nst_dec_ref(func);
 
     if ( !res )
     {
@@ -832,7 +834,6 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
             _NST_EM_CALL_STACK_SIZE_EXCEEDED
         );
 
-        nst_dec_ref(func);
         return;
     }
 

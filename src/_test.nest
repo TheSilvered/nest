@@ -1,1 +1,103 @@
-'=_[]>>>(39b_ 39b_><)'=_[]>>>(39b_ 39b_><)
+-- An interpreter for the brainf*ck programming language
+
+|#| 'stditutil.nest' = itu
+
+"
+Put your brainf*ck program here
+This program prints all the ascii characters
+.+[.+]
+" = code_global
+
+#main [
+    code_global @clean = code
+    code @make_loop_map = loop_map
+    ?::loop_map Map != ? => null
+
+    code loop_map @execute
+]
+
+#clean code [
+    <{}> = clean_code
+    ... Iter :: code := command [
+        (command '+' ==) \
+        (command '-' ==) \
+        (command '[' ==) \
+        (command ']' ==) \
+        (command '>' ==) \
+        (command '<' ==) \
+        (command '.' ==) \
+        (command ',' ==) || ? clean_code command +
+    ]
+
+    => Array :: clean_code
+]
+
+#make_loop_map code [
+    <{}> = loop_starts
+    {} = map
+
+    ... code @itu.enumerate := i [
+          i.1 '[' == ? loop_starts i.0 +
+        : i.1 ']' == ? [
+            $loop_starts 0 == ? => ('Unmatched "]" at' i.0 '\n' ><)
+            i.0 = map.(loop_starts.-1)
+            loop_starts 1 / = map.(i.0)
+        ]
+    ]
+    => map
+]
+
+#execute code loop_map [
+    Byte :: 1 = byte_1
+    Byte :: 0 = byte_0
+
+    { byte_0; 1000 } = tape
+    0 = pointer
+    -1 = index
+    '' = curr_input
+    0 = input_index
+
+    ?.. index 1 + $code < [
+        1 += index
+        code.(index) = command
+        -->>> (command ' ' pointer ' ' (Int :: tape.(pointer)) '\n' ><)
+        |> command [
+            ? '+' [
+                byte_1 += tape.(pointer)
+            ]
+            ? '-' [
+                byte_1 -= tape.(pointer)
+            ]
+            ? '[' [
+                tape.(pointer) 0 == ? loop_map.(index) = index
+            ]
+            ? ']' [
+                tape.(pointer) 0 != ? loop_map.(index) = index
+            ]
+            ? '>' [
+                pointer 1 + $tape % = pointer
+            ]
+            ? '<' [
+                pointer 1 - $tape % = pointer
+            ]
+            ? '.' [
+                >>> (Byte :: tape.(pointer))
+            ]
+            ? ',' [
+                $curr_input input_index - 0 <= ? [
+                    Vector :: <<< '' = curr_input
+                    0 = input_index
+                ]
+
+                $curr_input 0 == ? [
+                    byte_0 = tape.(pointer)
+                ] : [
+                    Byte :: curr_input.(input_index) = tape.(pointer)
+                    1 += input_index
+                ]
+            ]
+        ]
+    ]
+]
+
+@main

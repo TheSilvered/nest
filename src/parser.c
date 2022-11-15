@@ -178,8 +178,10 @@ static Nst_Node *parse_statement()
         Nst_LexerToken *close_bracket = TOK(LList_pop(tokens));
         if ( close_bracket->type != NST_TT_R_BRACKET )
         {
+            nst_destroy_token(close_bracket);
             RETURN_ERROR(start, start, _NST_EM_MISSING_BRACKET);
         }
+        nst_destroy_token(close_bracket);
         return node;
     }
     else if ( tok_type == NST_TT_WHILE || tok_type == NST_TT_DOWHILE )
@@ -1286,6 +1288,8 @@ static Nst_Node *parse_arr_or_map_literal()
             nst_destroy_token(tok);
             RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_COMMA_OR_BRACE);
         }
+
+        nst_destroy_token(tok);
         count++;
     }
 }
