@@ -24,10 +24,7 @@ Nst_Obj *_nst_alloc_obj(size_t size, struct _Nst_StrObj *type, void (*destructor
     if ( type == NULL )
         obj->type = TYPE(obj);
     else
-    {
         obj->type = type;
-        // printf("%p %s\n", obj, TYPE_NAME(obj));
-    }
 
     nst_inc_ref(obj->type);
 
