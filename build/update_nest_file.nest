@@ -1,16 +1,12 @@
 |#| "stdio.nest" = io
-|#| "stdfs.nest" = fs
 |#| "stdsutil.nest" = su
 |#| "stdsys.nest" = sys
 
 $_args_ 2 != ? 1 @sys.exit
 _args_.1 = path
-!(path @fs.isfile) ? 2 @sys.exit
 
 path "r" @io.open = file
-file -1 @io.read \
-    "../../x64/Debug/nest_" "std" @su.replace_substr = content
-
+file -1 @io.read "../../x64/Debug/nest_" "std" @su.replace_substr = content
 file @io.close
 
 path "w" @io.open = file

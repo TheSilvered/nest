@@ -50,7 +50,12 @@ switch-statement: '|>' LF* expr LF* '['
 
 expr: (((extraction+ (stack-op | (local-stack-op extraction))+)+ | extraction)
         ['[' | ')'  | ']' | '}' | '}>' | '?' | ':=' | LF | ',' | ':' | '?!' | EOF ])
-    | ( expr '?' LF* statement (LF* ':' statement)? )
+    | if-expr
+    | assignment
+
+if-expr: expr '?' LF* statement (LF* ':' LF* statement)
+
+assignment: expr assignment-tok (atom ('.' atom)+ | IDENT)
 
 extraction: atom ('.' atom)*
 
@@ -58,10 +63,12 @@ atom: (local-op extraction)
     | ('@' extraction) # this only matches if it is the first atom of the expression
     | ('(' expr ')')
     | VALUE
-    | ('##' LF* (IDENT LF*)+ '=>' expr )
+    | lambda
     | vector-literal
     | array-literal
     | map-literal
+
+lambda: '##' LF* (IDENT LF*)+ '=>' expr
 
 vector-literal: ('<{' LF* (expr (LF* ',' LF* expr)* )* LF* '}>')
               | ('<{' LF* expr ';' LF* expr LF* '}>')
@@ -77,3 +84,6 @@ stack-op: '+' | '-'  | '*'  | '/'  | '^' | '%'  | '><' | '&&' | '||' | '&|' | '&
 local-stack-op: '::' | '->' | '@' | '!!'
 
 local-op: '$' | '!' | '~' | '>>>' | '<<<' | '-:' | '?::' | '@@' | '|#|'
+
+assignment-tok: '+=' | '-='  | '*='  | '/=' | '^=' | '%=' | '><=' | '&=' |
+                '|=' |'^^=' | '<<=' | '>>=' | '='

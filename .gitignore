@@ -453,3 +453,6 @@ dkms.conf
 # Make output
 unix_release/
 unix_debug/
+
+# Other
+*.zip
