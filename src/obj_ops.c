@@ -241,6 +241,8 @@ Nst_Obj *_nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ARE_TYPE(nst_t.Str) )
         NST_RETURN_COND(nst_compare_strings(STR(ob1), STR(ob2)) > 0);
+    else if ( ARE_TYPE(nst_t.Byte))
+        NST_RETURN_COND(AS_BYTE(ob1) > AS_BYTE(ob2));
     else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
         ob1 = nst_obj_cast(ob1, nst_t.Int, err);
@@ -270,6 +272,8 @@ Nst_Obj *_nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ARE_TYPE(nst_t.Str) )
         NST_RETURN_COND(nst_compare_strings(STR(ob1), STR(ob2)) < 0);
+    else if ( ARE_TYPE(nst_t.Byte))
+        NST_RETURN_COND(AS_BYTE(ob1) < AS_BYTE(ob2));
     else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
         ob1 = nst_obj_cast(ob1, nst_t.Int, err);
@@ -299,6 +303,8 @@ Nst_Obj *_nst_obj_ge(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( nst_obj_eq(ob1, ob2, err) == nst_c.b_true )
         return nst_c.b_true;
+    else
+        nst_dec_ref(nst_c.b_false);
 
     Nst_Obj *res = nst_obj_gt(ob1, ob2, err);
 
@@ -314,6 +320,8 @@ Nst_Obj *_nst_obj_le(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( nst_obj_eq(ob1, ob2, err) == nst_c.b_true )
         return nst_c.b_true;
+    else
+        nst_dec_ref(nst_c.b_false);
 
     Nst_Obj *res = nst_obj_lt(ob1, ob2, err);
 
@@ -1450,13 +1458,15 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     {
         if ( strcmp(file_path, (const char *)(n->value)) == 0 )
         {
+            printf("%s, %s\n", (char *)n->value, file_path);
             LList_pop(nst_state.lib_paths);
+            free(file_path);
             NST_SET_RAW_IMPORT_ERROR(_NST_EM_CIRC_IMPORT);
             return NULL;
         }
     }
 
-    LList_append(nst_state.lib_paths, file_path, false);
+    LList_push(nst_state.lib_paths, file_path, false);
 
     // Check if the module was loaded previously
     for ( LLNode *n = nst_state.lib_handles->head; n != NULL; n = n->next )
@@ -1465,6 +1475,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         if ( strcmp(handle->path, file_path) == 0 )
         {
             LList_pop(nst_state.lib_paths);
+            free(file_path);
             return nst_inc_ref(handle->val);
         }
     }
@@ -1476,6 +1487,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         if ( lib_src == NULL || handle == NULL )
         {
             LList_pop(nst_state.lib_paths);
+            free(file_path);
             return NULL;
         }
 
@@ -1510,6 +1522,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     if ( !lib )
     {
         LList_pop(nst_state.lib_paths);
+        free(file_path);
 #if defined(_WIN32) || defined(WIN32)
         NST_SET_RAW_IMPORT_ERROR(_NST_EM_FILE_NOT_DLL);
 #else
@@ -1524,6 +1537,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     if ( init_lib_obj == NULL )
     {
         LList_pop(nst_state.lib_paths);
+        free(file_path);
         NST_SET_RAW_IMPORT_ERROR(_NST_EM_NO_LIB_FUNC("init_lib_obj"));
         return NULL;
     }
@@ -1536,6 +1550,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     if ( lib_init == NULL )
     {
         LList_pop(nst_state.lib_paths);
+        free(file_path);
         NST_SET_RAW_IMPORT_ERROR(_NST_EM_NO_LIB_FUNC("lib_init"));
         return NULL;
     }
@@ -1543,6 +1558,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     if ( !lib_init() )
     {
         LList_pop(nst_state.lib_paths);
+        free(file_path);
         errno = ENOMEM;
         return NULL;
     }
@@ -1552,6 +1568,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     if ( get_func_ptrs == NULL )
     {
         LList_pop(nst_state.lib_paths);
+        free(file_path);
         NST_SET_RAW_IMPORT_ERROR(_NST_EM_NO_LIB_FUNC("get_func_ptrs"));
         return NULL;
     }
@@ -1561,6 +1578,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     if ( func_ptrs == NULL )
     {
         LList_pop(nst_state.lib_paths);
+        free(file_path);
         NST_SET_RAW_IMPORT_ERROR(_NST_EM_LIB_INIT_FAILED);
         return NULL;
     }
@@ -1588,6 +1606,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     if ( handle == NULL )
     {
         LList_pop(nst_state.lib_paths);
+        free(file_path);
         errno = ENOMEM;
         return NULL;
     }

@@ -31,5 +31,5 @@
 @t.gmt_clock_datetime @test.println
 
 @print_clock_datetime
-2 @t.sleep
-@print_clock_datetime
+-- 2 @t.sleep
+-- @print_clock_datetime

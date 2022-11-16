@@ -281,7 +281,9 @@ NST_FUNC_SIGN(list_dir_recursive_)
 
     for ( fs::directory_entry const &entry : fs::recursive_directory_iterator{ path->value } )
     {
-        nst_append_value_vector(vector, (Nst_Obj *)heap_str(entry.path().string()));
+        Nst_StrObj *str =  heap_str(entry.path().string());
+        nst_append_value_vector(vector, OBJ(str));
+        nst_dec_ref(str);
     }
 
     return OBJ(vector);

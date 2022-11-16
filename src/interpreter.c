@@ -921,6 +921,9 @@ static inline void exe_throw_err(Nst_RuntimeInstruction *inst)
     Nst_Obj *name = nst_pop_val(nst_state.v_stack);
 
     _NST_SET_ERROR(GLOBAL_ERROR, inst->start, inst->end, name, message);
+
+    nst_dec_ref(name);
+    nst_dec_ref(message);
 }
 
 static inline void exe_stack_op(Nst_RuntimeInstruction *inst)

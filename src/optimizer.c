@@ -440,6 +440,7 @@ static void remove_push_pop(Nst_InstructionList *bc)
 
         inst_list[i].id = NST_IC_NO_OP;
         inst_list[i - 1].id = NST_IC_NO_OP;
+        nst_dec_ref(inst_list[i - 1].val);
 
         expect_pop = false;
     }

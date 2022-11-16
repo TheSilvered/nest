@@ -253,7 +253,10 @@ bool insertion_sort(Nst_SeqObj *seq, Nst_Int left, Nst_Int right, Nst_OpErr *err
 
         if ( err->message != nullptr )
             return false;
-        nst_dec_ref(nst_c.b_false);
+
+        if ( j >= left )
+            nst_dec_ref(nst_c.b_false);
+
         seq->objs[j + 1] = temp;
     }
 
@@ -297,18 +300,10 @@ void merge(Nst_SeqObj *seq, size_t l, size_t m, size_t r)
     }
 
     while ( i < len1 )
-    {
-        seq->objs[k] = left[i];
-        k++;
-        i++;
-    }
+        seq->objs[k++] = left[i++];
 
     while ( j < len2 )
-    {
-        seq->objs[k] = right[j];
-        k++;
-        j++;
-    }
+        seq->objs[k++] = right[j++];
 
     delete[] left;
     delete[] right;
@@ -357,8 +352,7 @@ NST_FUNC_SIGN(empty_)
 
     vect->len = 0;
 
-    nst_inc_ref(vect);
-    return OBJ(vect);
+    return nst_inc_ref(vect);
 }
 
 NST_FUNC_SIGN(filter_)

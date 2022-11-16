@@ -163,9 +163,13 @@ Nst_Obj *_nst_rem_value_vector(Nst_SeqObj *vect, Nst_Obj *val)
     {
         if ( nst_obj_eq(val, objs[i], NULL) == nst_c.b_true )
         {
+            nst_dec_ref(nst_c.b_true);
             nst_dec_ref(objs[i]);
             break;
         }
+        else
+            nst_dec_ref(nst_c.b_false);
+
         if ( i + 1 == n )
             NST_RETURN_FALSE;
     }

@@ -1364,6 +1364,7 @@ static Nst_Node *parse_try_catch()
         nst_destroy_token(tok);
         RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_CATCH);
     }
+    nst_destroy_token(tok);
 
     skip_blank();
 
