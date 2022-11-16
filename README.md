@@ -17,30 +17,29 @@ installer.
 
 ### VS Code
 
-To install the VS Code plugin copy `plugins/vs_code/nest-lang` into
-`%USERPROFILE%/.vscode/extensions` and reload the VS Code window.
+To install the VSCode extension download `vs-code-extension-[VERSION].zip`,
+extract it into `%USERPROFILE%/.vscode/extensions` and reload the VS Code window.
 
-Currently VS Code supports only syntax highlighting, to run the Nest file you
-can install Code Runner and add `"nest": "cd $dir && nest -m $fileName"` inside
-`"code-runner.executorMap"` in `settings.json`.
+Currently VS Code supports only syntax highlighting and commenting with keyboard
+shortcuts, to run the Nest file you can install Code Runner and add
+`"nest": "cd $dir && nest -m $fileName"` inside `"code-runner.executorMap"` in
+`settings.json`.
 
-This method does not support input, to do that you still have to run the file
-from the console.
+This method does not support input, to do that you can select the option to run
+Code Runner in the terminal and remove `-m` from the command.
 
 ### Sublime Text
 
-To install the SublimeText plugin copy `plugins/subilme_text/Nest` into
-`%APPDATA%/SublimeText/Packages`.
+To install the Sublime Text plugin download `sublime-text-plugin-[VERSION].zip`
+into from the latest release and extract it into `%APPDATA%/SublimeText/Packages`.
 
 In Sublime Text, in addition to syntax highlighting you can also run a script
 with `CTRL + B` and you can comment and un-comment with the default keyboard
 shortcuts.
 
-Like VS Code, Sublime Text does not support input from the user in the output
-panel, to do that you can install a plugin like `Terminus`.
-
-**When downloading the plugins I suggest downloading them with the code of the
-most recent commit rather than from the source code of the latest release.**
+Since Sublime Text does not support input from the user in the output panel,
+you have to run the file from a terminal emulator, to do that I suggest
+installing a plugin like `Terminus`.
 
 ## Building from source
 
