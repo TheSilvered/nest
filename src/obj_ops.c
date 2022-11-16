@@ -1447,10 +1447,10 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     }
     fclose(file);
 
-    for ( size_t i = 0; i < path_len; i++ )
+    for ( char *p = file_path; *p; p++ )
     {
-        if ( file_path[i] == '\\' )
-            file_path[i] = '/';
+        if ( *p == '\\' )
+            *p = '/';
     }
 
     // Check if the module is in the import stack
@@ -1458,7 +1458,6 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     {
         if ( strcmp(file_path, (const char *)(n->value)) == 0 )
         {
-            printf("%s, %s\n", (char *)n->value, file_path);
             LList_pop(nst_state.lib_paths);
             free(file_path);
             NST_SET_RAW_IMPORT_ERROR(_NST_EM_CIRC_IMPORT);

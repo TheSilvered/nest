@@ -467,54 +467,40 @@ NST_FUNC_SIGN(replace_substr_)
     char *s = str->value;
     char *s_from = str_from->value;
     char *s_to = str_to->value;
-    char *sub = find_substring(s, s_len, s_from, s_from_len);
 
-    // if str_from does not appear in str
-    if ( sub == nullptr || *s_from == 0 )
-        return nst_inc_ref(args[0]);
+    char *sub = nullptr;
+    size_t new_str_len = 0;
+    int count = 0;
 
-    // length of the string up to the first occurence of s_from + s_to_len
-    size_t new_sub_len = sub - s + s_to_len;
-    size_t new_str_len = new_sub_len;
-    char *realloc_new_str = nullptr;
-
-    char *new_str = (char *)malloc(sizeof(char) * new_sub_len + 1);
-    if ( new_str == nullptr )
-        return nullptr;
-
-    // copy the memory in the new string
-    memcpy(new_str, s, sub - s);
-    memcpy(new_str + (sub - s), s_to, s_to_len);
-
-    // update the pointers
-    s_len -= sub - s + s_from_len;
-    s = sub + s_from_len;
-
-    // while s_from is present in the string
-    while ( (sub = find_substring(s, s_len, s_from, s_from_len)) != nullptr )
+    // Count all the occurences of the substring
+    while ( sub = find_substring(s, s_len, s_from, s_from_len) )
     {
-        new_sub_len = sub - s + s_to_len;
-        realloc_new_str = (char *)realloc(new_str, new_str_len + new_sub_len + 1);
-        if ( realloc_new_str == nullptr )
-            return nullptr;
-        new_str = realloc_new_str;
+        s = sub +s_from_len;
+        count++;
+    }
 
+    if ( count == 0 )
+        return nst_inc_ref(str);
+
+    char *new_str = new char[s_len - s_from_len * count + s_to_len * count + 1];
+    s = str->value;
+
+    // Copy replacing the occurrence
+    while ( sub = find_substring(s, s_len, s_from, s_from_len) )
+    {
         memcpy(new_str + new_str_len, s, sub - s);
-        memcpy(new_str + (sub - s) + new_str_len, s_to, s_to_len);
-        new_str_len += new_sub_len;
+        new_str_len += sub - s;
+        memcpy(new_str + new_str_len, s_to, s_to_len);
+        new_str_len += s_to_len;
         s_len -= sub - s + s_from_len;
         s = sub + s_from_len;
     }
 
-    realloc_new_str = (char *)realloc(new_str, new_str_len + s_len + 1);
-    if ( realloc_new_str == nullptr )
-        return nullptr;
-    new_str = realloc_new_str;
-
+    // Copy the remaining part
     memcpy(new_str + new_str_len, s, s_len);
     new_str_len += s_len;
 
-    new_str[new_str_len] = '\0';
+    new_str[new_str_len] = 0;
     return nst_new_string(new_str, new_str_len, true);
 }
 
