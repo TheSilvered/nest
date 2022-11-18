@@ -1,0 +1,24 @@
+-- Prints the lyrics of the song 99 Bottles of Beer
+
+99 = n
+
+... n -> -1 := i [
+    i 0 == ? [
+        >>> 'No more bottles of beer on the wall, no more bottles of beer.\n'
+        >>> ('Go to the store and buy some more, ' n ' bottles of beer on the wall.\n' ><)
+        ..
+    ]
+    : i 1 == ? [
+        >>> '1 bottle of beer on the wall, 1 bottle of beer.\n'
+        >>> 'Take one down and pass it around, no more bottles of beer on the wall.\n\n'
+        ..
+    ]
+
+    >>> (i ' bottles of beer on the wall, ' i ' bottles of beer.\n' ><)
+
+    1 -= i
+
+    i 1 == ? >>> 'Take one down and pass it around, 1 bottle of beer on the wall.'
+    :        >>> ('Take one down and pass it around, ' i ' bottles of beer on the wall.' ><)
+    >>> '\n\n'
+]
