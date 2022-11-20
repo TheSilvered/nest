@@ -2,6 +2,8 @@
 
 __su.lfind_            = lfind
 __su.rfind_            = rfind
+__su.starts_with_      = starts_with
+__su.ends_with_        = ends_with
 __su.trim_             = trim
 __su.ltrim_            = ltrim
 __su.rtrim_            = rtrim
@@ -18,6 +20,7 @@ __su.is_charset_       = is_charset
 __su.is_printable_     = is_printable
 __su.replace_substr_   = replace_substr
 __su.bytearray_to_str_ = bytearray_to_str
+__su.str_to_bytearray_ = str_to_bytearray
 __su.repr_             = repr
 __su.join_             = join
 __su.split_            = split

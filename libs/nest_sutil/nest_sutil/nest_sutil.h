@@ -19,6 +19,8 @@ EXPORT NST_INIT_LIB_OBJ_FUNC;
 
 NST_FUNC_SIGN(lfind_);
 NST_FUNC_SIGN(rfind_);
+NST_FUNC_SIGN(starts_with_);
+NST_FUNC_SIGN(ends_with_);
 NST_FUNC_SIGN(trim_);
 NST_FUNC_SIGN(ltrim_);
 NST_FUNC_SIGN(rtrim_);
@@ -35,6 +37,7 @@ NST_FUNC_SIGN(is_charset_);
 NST_FUNC_SIGN(is_printable_);
 NST_FUNC_SIGN(replace_substr_);
 NST_FUNC_SIGN(bytearray_to_str_);
+NST_FUNC_SIGN(str_to_bytearray_);
 NST_FUNC_SIGN(repr_);
 NST_FUNC_SIGN(join_);
 NST_FUNC_SIGN(split_);

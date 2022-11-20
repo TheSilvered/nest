@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include "nest_sutil.h"
 
-#define FUNC_COUNT 21
+#define FUNC_COUNT 24
 
 static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
@@ -17,6 +17,8 @@ bool lib_init()
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(lfind_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(rfind_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(starts_with_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(ends_with_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(trim_,  1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(ltrim_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(rtrim_, 1);
@@ -33,6 +35,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(is_printable_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(replace_substr_, 3);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(bytearray_to_str_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(str_to_bytearray_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(repr_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(join_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(split_, 2);
@@ -128,6 +131,63 @@ NST_FUNC_SIGN(rfind_)
     return nst_new_int(-1);
 }
 
+NST_FUNC_SIGN(starts_with_)
+{
+    Nst_StrObj *str;
+    Nst_StrObj *substr;
+
+    if ( !nst_extract_arg_values("ss", arg_num, args, err, &str, &substr) )
+        return nullptr;
+
+    if ( str->len < substr->len )
+        NST_RETURN_FALSE;
+
+    char *s = str->value;
+    char *sub = substr->value;
+    char *sub_end = sub + substr->len;
+
+    while ( sub != sub_end )
+    {
+        if ( *sub++ != *s++)
+            NST_RETURN_FALSE;
+    }
+
+    NST_RETURN_TRUE;
+}
+
+NST_FUNC_SIGN(ends_with_)
+{
+    /*
+    hello
+    ^
+
+    ello
+    ^
+
+    */
+
+    Nst_StrObj *str;
+    Nst_StrObj *substr;
+
+    if ( !nst_extract_arg_values("ss", arg_num, args, err, &str, &substr) )
+        return nullptr;
+
+    if ( str->len < substr->len )
+        NST_RETURN_FALSE;
+
+    char *s_end = str->value + str->len;
+    char *sub = substr->value;
+    char *sub_end = sub + substr->len;
+
+    while ( sub_end != sub )
+    {
+        if ( *--sub_end != *--s_end)
+            NST_RETURN_FALSE;
+    }
+
+    NST_RETURN_TRUE;
+}
+
 NST_FUNC_SIGN(trim_)
 {
     Nst_StrObj *str;
@@ -146,7 +206,7 @@ NST_FUNC_SIGN(trim_)
     }
 
     if ( s_start == s_end + 1 )
-        return nst_new_string((char *)"", 0, false);
+        return nst_new_cstring("", 0, false);
 
     while ( isspace(*s_end) )
     {
@@ -533,6 +593,24 @@ NST_FUNC_SIGN(bytearray_to_str_)
 
     new_str[len] = 0;
     return nst_new_string(new_str, len, true);
+}
+
+NST_FUNC_SIGN(str_to_bytearray_)
+{
+    Nst_StrObj *str;
+
+    if ( !nst_extract_arg_values("s", arg_num, args, err, &str) )
+        return nullptr;
+
+    size_t len = str->len;
+    char *s = str->value;
+    Nst_SeqObj *new_arr = SEQ(nst_new_array(len));
+    Nst_Obj **objs = new_arr->objs;
+
+    for ( size_t i = 0; i < len; i++ )
+        objs[i] = nst_new_byte(s[i]);
+
+    return OBJ(new_arr);
 }
 
 NST_FUNC_SIGN(repr_)
