@@ -1,7 +1,7 @@
 {
   "name": "nest-lang",
   "displayName": "Nest Lang",
-  "description": "Nest language syntax highlighting",
+  "description": "Syntax highlighting for the Nest programming language",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.71.0"
