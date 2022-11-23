@@ -30,6 +30,10 @@
         NST_SET_FLAG(obj, NST_FLAG_GGC_IS_SUPPORTED); \
     } while (0)
 
+#ifdef __cplusplus
+extern "C" {
+#endif // !__cplusplus
+
 struct _Nst_GGCList;
 
 typedef struct _Nst_GGCObj
@@ -74,5 +78,9 @@ enum Nst_GGCFlags
     NST_FLAG_GGC_DELETED      = 0b00100000,
     NST_FLAG_GGC_IS_SUPPORTED = 0b00010000
 };
+
+#ifdef __cplusplus
+}
+#endif // !__cplusplus
 
 #endif // !GGC_H

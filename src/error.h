@@ -77,7 +77,9 @@ typedef struct _Nst_SourceText
 {
     char *text;
     char *path;
+    char **lines;
     size_t len;
+    size_t line_count;
 }
 Nst_SourceText;
 

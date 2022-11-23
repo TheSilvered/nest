@@ -59,7 +59,7 @@ Nst_Obj *new_cfunc(size_t arg_num, Nst_Obj *(*cbody)(size_t arg_num,
 void nst_traverse_func(Nst_FuncObj *func)
 {
     if ( func->mod_globals != NULL )
-        nst_traverse_map(func->mod_globals);
+        NST_SET_FLAG(func->mod_globals, NST_FLAG_GGC_REACHABLE);
 }
 
 void nst_track_func(Nst_FuncObj *func)

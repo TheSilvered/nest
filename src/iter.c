@@ -53,24 +53,6 @@ void nst_destroy_iter(Nst_IterObj *iter)
 void nst_traverse_iter(Nst_IterObj* iter)
 {
     if ( NST_HAS_FLAG(iter->start, NST_FLAG_GGC_IS_SUPPORTED) )
-        iter->start->traverse_func(OBJ(iter->start));
-
-    if ( NST_HAS_FLAG(iter->advance, NST_FLAG_GGC_IS_SUPPORTED) )
-        iter->advance->traverse_func(OBJ(iter->advance));
-
-    if ( NST_HAS_FLAG(iter->is_done, NST_FLAG_GGC_IS_SUPPORTED) )
-        iter->is_done->traverse_func(OBJ(iter->is_done));
-
-    if ( NST_HAS_FLAG(iter->get_val, NST_FLAG_GGC_IS_SUPPORTED) )
-        iter->get_val->traverse_func(OBJ(iter->get_val));
-
-    if ( NST_HAS_FLAG(iter->value, NST_FLAG_GGC_IS_SUPPORTED) )
-        ((Nst_GGCObj *)iter->value)->traverse_func(iter->value);
-}
-
-void nst_track_iter(Nst_IterObj* iter)
-{
-    if ( NST_HAS_FLAG(iter->start, NST_FLAG_GGC_IS_SUPPORTED) )
         nst_add_tracked_object((Nst_GGCObj *)iter->start);
 
     if ( NST_HAS_FLAG(iter->advance, NST_FLAG_GGC_IS_SUPPORTED) )
@@ -84,6 +66,15 @@ void nst_track_iter(Nst_IterObj* iter)
 
     if ( NST_HAS_FLAG(iter->value, NST_FLAG_GGC_IS_SUPPORTED) )
         nst_add_tracked_object((Nst_GGCObj *)iter->value);
+}
+
+void nst_track_iter(Nst_IterObj* iter)
+{
+    NST_SET_FLAG(iter->start,   NST_FLAG_GGC_REACHABLE);
+    NST_SET_FLAG(iter->advance, NST_FLAG_GGC_REACHABLE);
+    NST_SET_FLAG(iter->is_done, NST_FLAG_GGC_REACHABLE);
+    NST_SET_FLAG(iter->get_val, NST_FLAG_GGC_REACHABLE);
+    NST_SET_FLAG(iter->value,   NST_FLAG_GGC_REACHABLE);
 }
 
 #if defined(_WIN32) || defined(WIN32)
@@ -160,7 +151,7 @@ NST_FUNC_SIGN(nst_seq_iter_get_val)
     {
         NST_SET_VALUE_ERROR(_nst_format_error(
             seq->type == nst_t.Array ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
-                                   : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+                                     : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
             "iu",
             idx,
             seq->len

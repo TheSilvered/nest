@@ -1,0 +1,42 @@
+|#| '__C__:../../x64/Debug/nest_co.dll' = __co
+
+__co.create_    = create
+__co.call_      = call
+__co.pause_     = pause
+__co.get_state_ = get_state
+
+@__co._get_co_type_obj_ = Coroutine
+__co._get_co_type_obj_ = _get_co_type_obj
+
+{ 'suspended': 1,
+  'running': 2,
+  'paused': 4,
+  'ended': 8 } = STATE
+
+{ 1: 'suspended',
+  2: 'running',
+  4: 'paused',
+  8: 'ended' } = STR_STATE
+
+_vars_ '__co' \
+       'names' \
+       'Int' \
+       'Real' \
+       'Bool' \
+       'Null' \
+       'Str' \
+       'Array' \
+       'Vector' \
+       'Map' \
+       'Func' \
+       'Iter' \
+       'Byte' \
+       'IOFile' \
+       'Type' \
+       'true' \
+       'false' \
+       'null' \
+       '_cwd_' \
+       '_args_' \
+       '_globals_' \
+       '_vars_' -

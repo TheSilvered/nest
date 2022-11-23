@@ -48,6 +48,12 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
 int nst_run_module(char *file_name, Nst_SourceText *lib_src);
 // Calls a Nst_FuncObj, it can be both a C function or a bytecode function
 Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err);
+/* Calls a function that has NOT a C body with the given start indexand var table.
+The NULL value MUST be added on the stack manually */
+Nst_Obj *nst_run_func_context(Nst_FuncObj *func,
+                              Nst_Int idx,
+                              Nst_MapObj *vars,
+                              Nst_MapObj *globals);
 /* Returns the full path of a file
 `file_path` is the relative path of the file
 `buf` is the pointer where the full path is stored, the memory is allocated by the function

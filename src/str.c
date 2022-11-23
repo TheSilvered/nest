@@ -109,7 +109,7 @@ Nst_Obj *_nst_repr_string(Nst_StrObj *src)
         case '\'': single_quotes_count += 1; break;
         case '"': double_quotes_count += 1; break;
         default:
-            if ( isprint(orig[i]) )
+            if ( isprint((unsigned char)orig[i]) )
                 new_size += 1;
             else
                 new_size += 4;
@@ -159,7 +159,7 @@ Nst_Obj *_nst_repr_string(Nst_StrObj *src)
             new_str[i++] = '"';
             break;
         default:
-            if ( isprint(orig[j]) )
+            if ( isprint((unsigned char)orig[j]) )
                 new_str[i++] = orig[j];
             else
             {

@@ -19,7 +19,10 @@
     _nst_del_consts(); \
     _nst_del_strs(); \
     _nst_del_types(); \
-    if ( filename != NULL ) free(src_text.text); \
+    if ( filename != NULL ) { \
+        free(src_text.text); \
+        free(src_text.lines); \
+    } \
     return 0; \
     } while (0)
 
@@ -90,6 +93,8 @@ int main(int argc, char **argv)
         src_text.path = (char *)"<command>";
         src_text.len = strlen(command);
         src_text.text = command;
+        src_text.line_count = 1;
+        src_text.lines = &src_text.path;
         tokens = nst_tokenize(&src_text, &error);
     }
 

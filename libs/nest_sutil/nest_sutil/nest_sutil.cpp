@@ -157,15 +157,6 @@ NST_FUNC_SIGN(starts_with_)
 
 NST_FUNC_SIGN(ends_with_)
 {
-    /*
-    hello
-    ^
-
-    ello
-    ^
-
-    */
-
     Nst_StrObj *str;
     Nst_StrObj *substr;
 
@@ -199,7 +190,7 @@ NST_FUNC_SIGN(trim_)
     char *s_end = str->value + str->len - 1;
     size_t len = str->len;
 
-    while ( isspace(*s_start) )
+    while ( isspace((unsigned char)*s_start) )
     {
         ++s_start;
         --len;
@@ -208,7 +199,7 @@ NST_FUNC_SIGN(trim_)
     if ( s_start == s_end + 1 )
         return nst_new_cstring("", 0, false);
 
-    while ( isspace(*s_end) )
+    while ( isspace((unsigned char)*s_end) )
     {
         --s_end;
         --len;
@@ -230,7 +221,7 @@ NST_FUNC_SIGN(ltrim_)
     char *s_start = str->value;
     size_t len = str->len;
 
-    while ( isspace(*s_start) )
+    while ( isspace((unsigned char)*s_start) )
     {
         ++s_start;
         --len;
@@ -256,7 +247,7 @@ NST_FUNC_SIGN(rtrim_)
     if ( len == 0 )
         return nst_new_string((char *)"", 0, false);
 
-    while ( s_end + 1 != s_start && isspace(*s_end) )
+    while ( s_end + 1 != s_start && isspace((unsigned char)*s_end) )
     {
         --s_end;
         --len;
@@ -337,7 +328,7 @@ NST_FUNC_SIGN(to_upper_)
 
     while (s != end)
     {
-        *s = toupper(*s);
+        *s = toupper((unsigned char)*s);
         ++s;
     }
 
@@ -357,7 +348,7 @@ NST_FUNC_SIGN(to_lower_)
 
     while ( s != end )
     {
-        *s = tolower(*s);
+        *s = tolower((unsigned char)*s);
         ++s;
     }
 
@@ -376,7 +367,7 @@ NST_FUNC_SIGN(is_upper_)
 
     while ( s != end )
     {
-        if ( isalpha(*s) && !isupper(*s) )
+        if ( isalpha((unsigned char)*s) && !isupper((unsigned char)*s) )
             NST_RETURN_FALSE;
         ++s;
     }
@@ -396,7 +387,7 @@ NST_FUNC_SIGN(is_lower_)
 
     while ( s != end )
     {
-        if ( isalpha(*s) && !islower(*s) )
+        if ( isalpha((unsigned char)*s) && !islower((unsigned char)*s) )
             NST_RETURN_FALSE;
         ++s;
     }
@@ -416,7 +407,7 @@ NST_FUNC_SIGN(is_alpha_)
 
     while ( s != end )
     {
-        if ( !isalpha(*s++) )
+        if ( !isalpha((unsigned char)*s++) )
             NST_RETURN_FALSE;
     }
 
@@ -435,7 +426,7 @@ NST_FUNC_SIGN(is_digit_)
 
     while ( s != end )
     {
-        if ( !isdigit(*s++) )
+        if ( !isdigit((unsigned char)*s++) )
             NST_RETURN_FALSE;
     }
 
@@ -454,7 +445,7 @@ NST_FUNC_SIGN(is_alnum_)
 
     while ( s != end )
     {
-        if ( !isalnum(*s++) )
+        if ( !isalnum((unsigned char)*s++) )
             NST_RETURN_FALSE;
     }
 
@@ -505,7 +496,7 @@ NST_FUNC_SIGN(is_printable_)
 
     while ( s != end )
     {
-        if ( !isprint(*s++) )
+        if ( !isprint((unsigned char)*s++) )
             NST_RETURN_FALSE;
     }
 

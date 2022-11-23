@@ -368,9 +368,12 @@ void nst_traverse_map(Nst_MapObj *map)
     for ( Nst_Int i = _nst_map_get_next_idx(-1, map);
           i != -1;
           i = _nst_map_get_next_idx(i, map) )
+    {
         // don't really care if the object is tracked by the garbage collector or not
-        // the keys are never tracked since they can only be integers or strings
+        // keys shouldn't be tracked but for good mesure the flag is added reguardless
+        NST_SET_FLAG(map->nodes[i].key,   NST_FLAG_GGC_REACHABLE);
         NST_SET_FLAG(map->nodes[i].value, NST_FLAG_GGC_REACHABLE);
+    }
 }
 
 void nst_track_map(Nst_MapObj *map)

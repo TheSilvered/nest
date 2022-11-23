@@ -56,6 +56,8 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error);
 static void make_ident(Nst_LexerToken **tok);
 static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error);
 
+static void add_lines(Nst_SourceText *text);
+
 LList *nst_ftokenize(char *filename, Nst_SourceText *src_text, Nst_Error *error)
 {
     FILE *file = fopen(filename, "r");
@@ -92,6 +94,8 @@ LList *nst_ftokenize(char *filename, Nst_SourceText *src_text, Nst_Error *error)
     src_text->text = text;
     src_text->len = str_len;
     src_text->path = filename;
+
+    add_lines(src_text);
 
     return nst_tokenize(src_text, error);
 }
@@ -601,4 +605,51 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
     nst_hash_obj(OBJ(val_obj));
 
     *tok = nst_new_token_value(start, cursor.pos, NST_TT_VALUE, OBJ(val_obj));
+}
+
+static void add_lines(Nst_SourceText* text)
+{
+    char *text_p = text->text;
+    char **starts = (char **)calloc(100, sizeof(char *));
+    if ( starts == NULL )
+    {
+        text->lines = NULL;
+        text->line_count = 0;
+        return;
+    }
+
+    starts[0] = text_p;
+    size_t line_count = 1;
+
+    for ( size_t i = 0, n = text->len; i < n; i++ )
+    {
+        if ( text_p[i] != '\n' )
+            continue;
+
+        if ( i + 1 == n )
+        {
+            text->lines = starts;
+            text->line_count = line_count;
+        }
+
+        line_count++;
+
+        if ( line_count % 100 == 0 )
+        {
+            void *temp = realloc(starts, i + 100);
+            if ( temp == NULL )
+            {
+                free(starts);
+                text->lines = NULL;
+                text->line_count = 0;
+                return;
+            }
+            starts = temp;
+        }
+
+        starts[line_count - 1] = text_p + i + 1;
+    }
+
+    text->lines = starts;
+    text->line_count = line_count;
 }

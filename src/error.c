@@ -46,83 +46,75 @@ static void print_repeat(char ch, long times)
 {
     if ( times < 0 ) times = 0;
     for ( long i = 0; i < times; i++ )
-        printf("%c", ch);
+        putc(ch, stdout);
 }
 
-static int print_line(Nst_Pos *pos, long start_col, long end_col, int max_indent, int max_line)
+static long get_indent(Nst_SourceText *text, long lineno)
+{
+    long indent = 0;
+
+    for ( char *p = text->lines[lineno]; *p != '\n' && *p != '\0'; p++)
+    {
+        if ( *p == ' ' || *p == '\t' )
+            indent++;
+        else
+            return indent;
+    }
+    return indent;
+}
+
+static void print_line(Nst_Pos *pos, long start_col, long end_col, int keep_indent, int max_line)
 {
     long line_length = 0;
-    long indent = 0;
-    long curr_line = 0;
-    bool is_indentation = true;
-    char *text = pos->text->text;
-    size_t text_len = pos->text->len;
+    int lineno_len = 0;
     long lineno = pos->line;
-    bool is_printing_error = false;
-    long li = 0;
-    int line_len = 0;
+    char *text = pos->text->lines[lineno];
+    long indent = get_indent(pos->text, lineno) - keep_indent;
+
+    if ( keep_indent == -1 )
+    {
+        indent--;
+        keep_indent = indent;
+    }
+
+    if ( start_col == 0 )
+        start_col = keep_indent;
 
     if ( max_line == 0 )
         max_line = lineno + 1;
 
     while ( max_line > 0 )
     {
-        line_len++;
+        lineno_len++;
         max_line /= 10;
     }
 
     if ( use_color )
-        printf(C_CYAN " %#*i" C_RESET " | ", line_len, lineno + 1);
+        printf(C_CYAN " %#*i" C_RESET " | ", lineno_len, lineno + 1);
     else
-        printf(" %#*i | ", line_len, lineno + 1);
+        printf(" %#*i | ", lineno_len, lineno + 1);
 
-    for ( size_t i = 0; i < text_len; i++ )
+    for ( long i = keep_indent; text[i] != '\n' && text[i] != '\0'; i++ )
     {
-        if ( curr_line == lineno )
-        {
-            if ( (text[i] != ' ' && text[i] != '\t') || indent == max_indent )
-                is_indentation = false;
+        if ( i == start_col && use_color )
+            printf(C_RED);
 
-            if ( li == start_col && use_color )
-            {
-                is_printing_error = true;
-                printf(C_RED);
-            }
+        putc(text[i], stdout);
+        line_length++;
 
-            if ( !is_indentation )
-            {
-                printf("%c", text[i]);
-                line_length++;
-            }
-            else
-                ++indent;
-
-            if ( use_color && li == end_col )
-            {
-                is_printing_error = false;
-                printf(C_RESET);
-            }
-        }
-
-        li++;
-
-        if ( text[i] == '\n' )
-        {
-            curr_line++;
-            li = 0;
-            if ( curr_line - 1 == lineno )
-                break;
-        }
+        if ( use_color && i == end_col )
+            printf(C_RESET);
     }
+    printf("\n");
 
-    // If there is a line feed at the end of the printed line curr_line == lineno + 1
-    if ( curr_line == lineno )
-        printf("\n");
-    else
-        line_length--;
+    line_length -= indent;
 
     if ( end_col == -1 )
         end_col = indent + line_length - 1;
+    else
+        end_col -= keep_indent;
+
+    start_col -= keep_indent;
 
     if ( start_col < indent )
         start_col = indent;
@@ -131,12 +123,12 @@ static int print_line(Nst_Pos *pos, long start_col, long end_col, int max_indent
     {
         if ( use_color )
             printf(C_RESET);
-        return indent;
+        return;
     }
 
     if ( use_color )
     {
-        print_repeat(' ', line_len);
+        print_repeat(' ', lineno_len);
         printf(C_RESET "  | " C_RED);
         print_repeat(' ', start_col - indent);
         print_repeat('^', end_col - start_col + 1);
@@ -144,14 +136,12 @@ static int print_line(Nst_Pos *pos, long start_col, long end_col, int max_indent
     }
     else
     {
-        print_repeat(' ', line_len);
+        print_repeat(' ', lineno_len);
         printf("  | ");
         print_repeat(' ', start_col - indent);
         print_repeat('^', end_col - start_col + 1);
         printf("\n");
     }
-
-    return indent;
 }
 
 static void print_position(Nst_Pos start, Nst_Pos end)
@@ -162,20 +152,27 @@ static void print_position(Nst_Pos start, Nst_Pos end)
         return;
 
     if ( use_color )
-        printf("File " C_GREEN "\"%s\"" C_RESET " at line " C_CYAN "%li" C_RESET,
-            start.text->path,
-            start.line + 1);
+        printf("File " C_GREEN "\"%s\"" C_RESET " at ", start.text->path);
     else
-        printf("File \"%s\" at line %li",
-            start.text->path,
-            start.line + 1);
+        printf("File \"%s\" at ", start.text->path);
 
-    if ( start.line != end.line)
+    if ( start.line != end.line )
     {
         if ( use_color )
-            printf(" to " C_CYAN "% li" C_RESET, end.line + 1 );
+            printf("lines " C_CYAN "%li" C_RESET " to " C_CYAN "%li" C_RESET,
+                start.line + 1,
+                end.line + 1 );
         else
-            printf(" to %li", end.line + 1 );
+            printf("lines %li to %li",
+                start.line + 1,
+                end.line + 1 );
+    }
+    else
+    {
+        if ( use_color )
+            printf("line " C_CYAN "%li" C_RESET, start.line + 1 );
+        else
+            printf("line %li", start.line + 1 );
     }
     printf(":\n");
 
@@ -185,9 +182,17 @@ static void print_position(Nst_Pos start, Nst_Pos end)
         return;
     }
 
-    int max_indent = print_line(&start, start.col, -1, -1, end.line + 1);
+    long min_indent = get_indent(start.text, start.line);
+    for ( long i = start.line + 1; i <= end.line; i++ )
+    {
+        long indent = get_indent(start.text, i);
+        if ( indent < min_indent )
+            min_indent = indent;
+    }
+    
+    print_line(&start, start.col, -1, min_indent, end.line + 1);
 
-    for (long i = 1, n = end.line - start.line; i < n; i++)
+    for ( long i = 1, n = end.line - start.line; i < n; i++ )
     {
         Nst_Pos mid_line_pos = {
             start.line + i,
@@ -195,10 +200,10 @@ static void print_position(Nst_Pos start, Nst_Pos end)
             start.text
         };
 
-        print_line(&mid_line_pos, 0, -1, max_indent, end.line + 1);
+        print_line(&mid_line_pos, 0, -1, min_indent, end.line + 1);
     }
 
-    print_line(&end, 0, end.col, max_indent, end.line);
+    print_line(&end, 0, end.col, min_indent, end.line);
 }
 
 void nst_print_error(Nst_Error err)
@@ -226,6 +231,9 @@ void nst_print_traceback(Nst_Traceback tb)
         i++;
         Nst_Pos *start = (Nst_Pos *)n1->value;
         Nst_Pos *end   = (Nst_Pos *)n2->value;
+
+        if ( start->text == NULL )
+            continue;
 
         if ( start->col == prev_start.col && start->line == prev_start.line &&
              end->col   == prev_end.col   && end->line   == prev_end.line   &&

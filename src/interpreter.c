@@ -34,16 +34,20 @@
 
 #endif
 
+#define ADD_POSITIONS(start_pos, end_pos) do { \
+        Nst_Pos *positions = (Nst_Pos *)malloc(sizeof(Nst_Pos) * 2); \
+        if ( positions == NULL ) \
+            break; \
+        positions[0] = start_pos; \
+        positions[1] = end_pos; \
+        LList_push(nst_state.traceback->positions, positions + 1, false); \
+        LList_push(nst_state.traceback->positions, positions,     true); \
+    } while ( 0 )
+
 #define SET_OP_ERROR(start_pos, end_pos, op_err) do { \
         if ( nst_state.traceback->error.occurred ) \
         { \
-            Nst_Pos *positions = malloc(sizeof(Nst_Pos) * 2); \
-            if ( positions == NULL ) \
-                break; \
-            positions[0] = start_pos; \
-            positions[1] = end_pos; \
-            LList_push(nst_state.traceback->positions, positions + 1, false); \
-            LList_push(nst_state.traceback->positions, positions,     true); \
+            ADD_POSITIONS(start_pos, end_pos);\
             break; \
         } \
         _NST_SET_ERROR(GLOBAL_ERROR, start_pos, end_pos, op_err.name, op_err.message); \
@@ -203,6 +207,20 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
     nst_delete_objects(&ggc);
 }
 
+static inline void destroy_call(Nst_FuncCall *call, Nst_Int offset)
+{
+    nst_dec_ref(nst_map_drop_str((*nst_state.vt)->vars, "_vars_"));
+    nst_dec_ref((*nst_state.vt)->vars);
+    if ( (*nst_state.vt)->global_table != NULL )
+        nst_dec_ref((*nst_state.vt)->global_table);
+    free(*nst_state.vt);
+
+    nst_dec_ref(call->func);
+
+    *nst_state.vt = call->vt;
+    *nst_state.idx = call->idx + offset;
+}
+
 static void complete_function(size_t final_stack_size)
 {
     if ( nst_state.f_stack->current_size == 0 )
@@ -217,15 +235,8 @@ static void complete_function(size_t final_stack_size)
         {
             // Free the function call
             Nst_FuncCall call = nst_pop_func(nst_state.f_stack);
-            Nst_MapObj *vars_to_del = (*nst_state.vt)->vars;
 
-            nst_dec_ref(nst_map_drop_str(vars_to_del, "_vars_"));
-            nst_dec_ref(vars_to_del);
-
-            free(*nst_state.vt);
-            nst_dec_ref(call.func);
-            *nst_state.vt = call.vt;
-            *nst_state.idx = call.idx;
+            destroy_call(&call, 0);
 
             Nst_FuncObj *func = nst_peek_func(nst_state.f_stack).func;
             curr_inst_ls = func == NULL ? NULL : func->body.bytecode;
@@ -249,13 +260,7 @@ static void complete_function(size_t final_stack_size)
             {
                 Nst_FuncCall call = nst_pop_func(nst_state.f_stack);
 
-                nst_dec_ref(nst_map_drop_str((*nst_state.vt)->vars, "_vars_"));
-                nst_dec_ref((*nst_state.vt)->vars);
-                nst_dec_ref(call.func);
-
-                free(*nst_state.vt);
-                *nst_state.vt = call.vt;
-                *nst_state.idx = call.idx + 1;
+                destroy_call(&call, 1);
 
                 obj = nst_pop_val(nst_state.v_stack);
                 while ( obj != NULL )
@@ -264,15 +269,7 @@ static void complete_function(size_t final_stack_size)
                     obj = nst_pop_val(nst_state.v_stack);
                 }
 
-                Nst_Pos *positions = (Nst_Pos *)malloc(sizeof(Nst_Pos) * 2);
-
-                if ( positions == NULL )
-                    continue;
-
-                positions[0] = call.start;
-                positions[1] = call.end;
-                LList_push(nst_state.traceback->positions, positions + 1, false);
-                LList_push(nst_state.traceback->positions, positions,     true);
+                ADD_POSITIONS(call.start, call.end);
             }
 
             if ( end_size == final_stack_size )
@@ -415,6 +412,48 @@ Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err)
 
     *nst_state.idx = 0;
     CHANGE_VT(new_vt);
+    complete_function(nst_state.f_stack->current_size - 1);
+
+    if ( ERROR_OCCURRED )
+        return NULL;
+
+    return nst_pop_val(nst_state.v_stack);
+}
+
+Nst_Obj *nst_run_func_context(Nst_FuncObj *func,
+                              Nst_Int idx,
+                              Nst_MapObj *vars,
+                              Nst_MapObj *globals)
+{
+    assert(!NST_HAS_FLAG(func, NST_FLAG_FUNC_IS_C));
+
+    nst_push_func(
+        nst_state.f_stack,
+        func,
+        nst_no_pos(),
+        nst_no_pos(),
+        *nst_state.vt,
+        *nst_state.idx - 1
+    );
+
+    Nst_VarTable *new_vt = (Nst_VarTable *)malloc(sizeof(Nst_VarTable));
+    if ( new_vt == NULL ) return NULL;
+
+    new_vt->vars = MAP(nst_inc_ref(vars));
+
+    if ( globals == NULL )
+    {
+        if ( func->mod_globals != NULL )
+            new_vt->global_table = func->mod_globals;
+        else if ( (*nst_state.vt)->global_table == NULL )
+            new_vt->global_table = (*nst_state.vt)->vars;
+        else
+            new_vt->global_table = (*nst_state.vt)->global_table;
+    }
+    else
+        new_vt->global_table = globals;
+    CHANGE_VT(new_vt);
+    *nst_state.idx = idx;
     complete_function(nst_state.f_stack->current_size - 1);
 
     if ( ERROR_OCCURRED )
@@ -798,23 +837,7 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
             free(args);
 
         if ( res == NULL )
-        {
-            if ( !ERROR_OCCURRED )
-            {
-                _NST_SET_ERROR(
-                    GLOBAL_ERROR,
-                    inst->start,
-                    inst->end,
-                    err.name,
-                    err.message
-                );
-            }
-            else
-            {
-                LList_append(nst_state.traceback->positions, &inst->start, false);
-                LList_append(nst_state.traceback->positions, &inst->end, false);
-            }
-        }
+            SET_OP_ERROR(inst->start, inst->end, err);
         else
         {
             nst_push_val(nst_state.v_stack, res);
@@ -1354,6 +1377,7 @@ void nst_destroy_lib_handle(Nst_LibHandle *handle)
     if ( handle->text != NULL )
     {
         free(handle->text->text);
+        free(handle->text->lines);
         free(handle->text);
     }
     free(handle->path);
