@@ -37,6 +37,8 @@
     ); \
     return; } while (0)
 
+#define CUR_AT_END (cursor.idx >= (long)cursor.len)
+
 typedef struct LexerCursor {
     char *text;
     size_t len;
@@ -115,7 +117,7 @@ LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
 
     advance();
 
-    while ( cursor.idx < (long)cursor.len )
+    while ( !CUR_AT_END )
     {
         if ( cursor.ch == ' ' || cursor.ch == '\t' )
         {
@@ -233,14 +235,26 @@ inline static char *add_while_in(const char *charset)
 static void make_symbol(Nst_LexerToken **tok, Nst_Error *error)
 {
     Nst_Pos start = nst_copy_pos(cursor.pos);
-    char *symbol = add_while_in(_NST_SYMBOL_CHARS);
-    Nst_Pos end = nst_copy_pos(cursor.pos);
-    char *comment_start = strstr(symbol, "--");
-    char *multcom_start = strstr(symbol, "-/");
-
-    if ( comment_start == symbol )
+    char symbol[4] = { cursor.ch, 0, 0, 0 };
+    advance();
+    if ( !CUR_AT_END && strchr(_NST_SYMBOL_CHARS, cursor.ch) != NULL )
     {
-        while ( cursor.idx < (long)cursor.len && cursor.ch != '\n' )
+        symbol[1] = cursor.ch;
+        advance();
+
+        if ( !CUR_AT_END && strchr(_NST_SYMBOL_CHARS, cursor.ch) != NULL )
+        {
+            symbol[2] = cursor.ch;
+        }
+        else
+            go_back();
+    }
+    else
+        go_back();
+
+    if ( symbol[0] == '-' && symbol[1] == '-' )
+    {
+        while ( !CUR_AT_END && cursor.ch != '\n' )
         {
             if ( cursor.ch == '\\' )
             {
@@ -251,16 +265,15 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error *error)
             advance();
         }
         go_back();
-        free(symbol);
         return;
     }
-    else if ( multcom_start == symbol )
+    else if ( symbol[0] == '-' && symbol[1] == '/' )
     {
         bool can_close = false;
         bool was_closed = false;
         go_back();
         advance();
-        while ( cursor.idx < (long)cursor.len )
+        while ( !CUR_AT_END )
         {
             advance();
             if ( can_close && cursor.ch == '-' )
@@ -274,7 +287,6 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error *error)
         }
 
         go_back();
-        free(symbol);
 
         if ( !was_closed )
         {
@@ -289,32 +301,43 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error *error)
         return;
     }
 
-    // Checks only up to the comment, the comment itself will be ignored in
-    // the next call of 'make_symbol'
-    if ( comment_start != NULL )
+    if ( symbol[1] == '-' && symbol[2] == '-' )
     {
-        *comment_start = '\0';
+        symbol[1] = '\0';
+        symbol[2] = '\0';
+        go_back();
+        go_back();
     }
-    // Not `else if` beacause `-/ --` would not start a multiline comment
-    if ( multcom_start != NULL )
+    else if ( symbol[1] == '-' && symbol[2] == '/' )
     {
-        *multcom_start = '\0';
+        symbol[1] = '\0';
+        symbol[2] = '\0';
+        go_back();
+        go_back();
+    }
+    // A '-' at the end might start a comment, il can be checked only when it
+    // is at index 0 or 1
+    else if ( symbol[2] == '-' )
+    {
+        symbol[2] = '\0';
+        go_back();
     }
 
     int token_type = nst_str_to_tok(symbol);
-    char *symbol_end = symbol + strlen(symbol);
 
     while ( token_type == -1 )
     {
         go_back();
-        end = nst_copy_pos(cursor.pos);
-        --symbol_end;
-        *symbol_end = '\0';
+
+        if ( symbol[2] != '\0' )
+            symbol[2] = '\0';
+        else if ( symbol[1] != '\0' )
+            symbol[1] = '\0';
+
         token_type = nst_str_to_tok(symbol);
     }
 
-    *tok = nst_new_token_noval(start, end, token_type);
-    free(symbol);
+    *tok = nst_new_token_noval(start, nst_copy_pos(cursor.pos), token_type);
 }
 
 static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
@@ -512,13 +535,13 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
         case 'v': end_str[str_len++] = '\v'; break;
         case 'x':
             advance();
-            if ( cursor.idx >= (long)cursor.len || cursor.ch == closing_ch )
+            if ( CUR_AT_END || cursor.ch == closing_ch )
                 SET_INVALID_ESCAPE_ERROR;
 
             ch1 = (char)tolower(cursor.ch);
             advance();
 
-            if ( cursor.idx >= (long)cursor.len || cursor.ch == closing_ch )
+            if ( CUR_AT_END || cursor.ch == closing_ch )
                 SET_INVALID_ESCAPE_ERROR;
 
             ch2 = (char)tolower(cursor.ch);

@@ -73,150 +73,158 @@ void nst_destroy_token(Nst_LexerToken *token)
 
 int nst_str_to_tok(char *str)
 {
-    if ( strcmp("+", str) == 0 )
-        return NST_TT_ADD;
-    if ( strcmp("-", str) == 0 )
-        return NST_TT_SUB;
-    if ( strcmp("*", str) == 0 )
-        return NST_TT_MUL;
-    if ( strcmp("/", str) == 0 )
-        return NST_TT_DIV;
-    if ( strcmp("^", str) == 0 )
-        return NST_TT_POW;
-    if ( strcmp("%", str) == 0 )
-        return NST_TT_MOD;
-    if ( strcmp("&&", str) == 0 )
-        return NST_TT_L_AND;
-    if ( strcmp("||", str) == 0 )
-        return NST_TT_L_OR;
-    if ( strcmp("&|", str) == 0 )
-        return NST_TT_L_XOR;
-    if ( strcmp("&", str) == 0 )
-        return NST_TT_B_AND;
-    if ( strcmp("|", str) == 0 )
-        return NST_TT_B_OR;
-    if ( strcmp("^^", str) == 0 )
-        return NST_TT_B_XOR;
-    if ( strcmp("<<", str) == 0 )
-        return NST_TT_LSHIFT;
-    if ( strcmp(">>", str) == 0 )
-        return NST_TT_RSHIFT;
-    if ( strcmp(">", str) == 0 )
-        return NST_TT_GT;
-    if ( strcmp("<", str) == 0 )
-        return NST_TT_LT;
-    if ( strcmp("==", str) == 0 )
-        return NST_TT_EQ;
-    if ( strcmp("!=", str) == 0 )
-        return NST_TT_NEQ;
-    if ( strcmp(">=", str) == 0 )
-        return NST_TT_GTE;
-    if ( strcmp("<=", str) == 0 )
-        return NST_TT_LTE;
-    if ( strcmp("><", str) == 0 )
-        return NST_TT_CONCAT;
-    if ( strcmp(">>>", str) == 0 )
-        return NST_TT_STDOUT;
-    if ( strcmp("<<<", str) == 0 )
-        return NST_TT_STDIN;
-    if ( strcmp("->", str) == 0 )
-        return NST_TT_RANGE;
-    if ( strcmp("$", str) == 0 )
-        return NST_TT_LEN;
-    if ( strcmp("::", str) == 0 )
-        return NST_TT_CAST;
-    if ( strcmp("?::", str) == 0 )
-        return NST_TT_TYPEOF;
-    if ( strcmp("=", str) == 0 )
-        return NST_TT_ASSIGN;
-    if ( strcmp("+=", str) == 0 )
-        return NST_TT_ADD_A;
-    if ( strcmp("-=", str) == 0 )
-        return NST_TT_SUB_A;
-    if ( strcmp("*=", str) == 0 )
-        return NST_TT_MUL_A;
-    if ( strcmp("/=", str) == 0 )
-        return NST_TT_DIV_A;
-    if ( strcmp("^=", str) == 0 )
-        return NST_TT_POW_A;
-    if ( strcmp("%=", str) == 0 )
-        return NST_TT_MOD_A;
-    if ( strcmp("|=", str) == 0 )
-        return NST_TT_B_OR_A;
-    if ( strcmp("&=", str) == 0 )
-        return NST_TT_B_AND_A;
-    if ( strcmp("^^=", str) == 0 )
-        return NST_TT_B_XOR_A;
-    if ( strcmp("<<=", str) == 0 )
-        return NST_TT_LSHIFT_A;
-    if ( strcmp(">>=", str) == 0 )
-        return NST_TT_RSHIFT_A;
-    if ( strcmp("><=", str) == 0 )
-        return NST_TT_CONCAT_A;
-    if ( strcmp("@", str) == 0 )
-        return NST_TT_CALL;
-    if ( strcmp("@@", str) == 0 )
-        return NST_TT_LOC_CALL;
-    if ( strcmp("!", str) == 0 )
-        return NST_TT_L_NOT;
-    if ( strcmp("~", str) == 0 )
-        return NST_TT_B_NOT;
-    if ( strcmp(".", str) == 0 )
-        return NST_TT_EXTRACT;
-    if ( strcmp("-:", str) == 0 )
-        return NST_TT_NEG;
-    if ( strcmp("?", str) == 0 )
-        return NST_TT_IF;
-    if ( strcmp("?..", str) == 0 )
-        return NST_TT_WHILE;
-    if ( strcmp("..?", str) == 0 )
-        return NST_TT_DOWHILE;
-    if ( strcmp("...", str) == 0 )
-        return NST_TT_FOR;
-    if ( strcmp(":=", str) == 0 )
-        return NST_TT_AS;
-    if ( strcmp("#", str) == 0 )
-        return NST_TT_FUNC;
-    if ( strcmp("=>", str) == 0 )
-        return NST_TT_RETURN;
-    if ( strcmp("|>", str) == 0 )
-        return NST_TT_SWITCH;
-    if ( strcmp("..", str) == 0 )
-        return NST_TT_CONTINUE;
-    if ( strcmp(";", str) == 0 )
-        return NST_TT_BREAK;
-    if ( strcmp(":", str) == 0 )
-        return NST_TT_COLON;
-    if ( strcmp("|#|", str) == 0 )
-        return NST_TT_IMPORT;
-    if ( strcmp("$", str) == 0 )
-        return NST_TT_LEN;
-    if ( strcmp(",", str) == 0 )
-        return NST_TT_COMMA;
-    if ( strcmp("(", str) == 0 )
-        return NST_TT_L_PAREN;
-    if ( strcmp(")", str) == 0 )
-        return NST_TT_R_PAREN;
-    if ( strcmp("[", str) == 0 )
-        return NST_TT_L_BRACKET;
-    if ( strcmp("]", str) == 0 )
-        return NST_TT_R_BRACKET;
-    if ( strcmp("{", str) == 0 )
-        return NST_TT_L_BRACE;
-    if ( strcmp("}", str) == 0 )
-        return NST_TT_R_BRACE;
-    if ( strcmp("<{", str) == 0 )
-        return NST_TT_L_VBRACE;
-    if ( strcmp("}>", str) == 0 )
-        return NST_TT_R_VBRACE;
-    if ( strcmp("##", str) == 0 )
-        return NST_TT_LAMBDA;
-    if (strcmp("??", str) == 0)
-        return NST_TT_TRY;
-    if ( strcmp("?!", str) == 0 )
-        return NST_TT_CATCH;
-    if ( strcmp("!!", str) == 0 )
-        return NST_TT_THROW;
+    if ( str[1] == '\0' )
+    {
+        switch ( str[0] )
+        {
+        case '+': return NST_TT_ADD;
+        case '-': return NST_TT_SUB;
+        case '*': return NST_TT_MUL;
+        case '/': return NST_TT_DIV;
+        case '^': return NST_TT_POW;
+        case '%': return NST_TT_MOD;
+        case '&': return NST_TT_B_AND;
+        case '|': return NST_TT_B_OR;
+        case '<': return NST_TT_LT;
+        case '>': return NST_TT_GT;
+        case '=': return NST_TT_ASSIGN;
+        case '!': return NST_TT_L_NOT;
+        case '@': return NST_TT_CALL;
+        case '~': return NST_TT_B_NOT;
+        case ':': return NST_TT_COLON;
+        case ';': return NST_TT_BREAK;
+        case '?': return NST_TT_IF;
+        case '.': return NST_TT_EXTRACT;
+        case '#': return NST_TT_FUNC;
+        case '(': return NST_TT_L_PAREN;
+        case ')': return NST_TT_R_PAREN;
+        case '[': return NST_TT_L_BRACKET;
+        case ']': return NST_TT_R_BRACKET;
+        case '{': return NST_TT_L_BRACE;
+        case '}': return NST_TT_R_BRACE;
+        case ',': return NST_TT_COMMA;
+        case '$': return NST_TT_LEN;
+        default: return -1;
+        }
+    }
+
+    if ( str[2] == '\0' )
+    {
+        switch ( str[0] )
+        {
+        case '&':
+            if ( str[1] == '&' ) return NST_TT_L_AND;
+            if ( str[1] == '|' ) return NST_TT_L_XOR;
+            if ( str[1] == '=' ) return NST_TT_B_AND_A;
+            break;
+        case '|':
+            if ( str[1] == '|' ) return NST_TT_L_OR;
+            if ( str[1] == '=' ) return NST_TT_B_OR_A;
+            if ( str[1] == '>' ) return NST_TT_SWITCH;
+            break;
+        case '^':
+            if ( str[1] == '^' ) return NST_TT_B_XOR;
+            if ( str[1] == '=' ) return NST_TT_POW_A;
+            break;
+        case '<':
+            if ( str[1] == '<' ) return NST_TT_LSHIFT;
+            if ( str[1] == '=' ) return NST_TT_LTE;
+            if ( str[1] == '{' ) return NST_TT_L_VBRACE;
+            break;
+        case '>':
+            if ( str[1] == '>' ) return NST_TT_RSHIFT;
+            if ( str[1] == '=' ) return NST_TT_GTE;
+            if ( str[1] == '<' ) return NST_TT_CONCAT;
+            break;
+        case '=':
+            if ( str[1] == '=' ) return NST_TT_EQ;
+            if ( str[1] == '>' ) return NST_TT_RETURN;
+            break;
+        case '!':
+            if ( str[1] == '=' ) return NST_TT_NEQ;
+            if ( str[1] == '!' ) return NST_TT_THROW;
+            break;
+        case '-':
+            if ( str[1] == '>' ) return NST_TT_RANGE;
+            if ( str[1] == '=' ) return NST_TT_SUB_A;
+            if ( str[1] == ':' ) return NST_TT_NEG;
+            break;
+        case ':':
+            if ( str[1] == ':' ) return NST_TT_CAST;
+            if ( str[1] == '=' ) return NST_TT_AS;
+            break;
+        case '+':
+            if ( str[1] == '=' ) return NST_TT_ADD_A;
+            break;
+        case '*':
+            if ( str[1] == '=' ) return NST_TT_MUL_A;
+            break;
+        case '/':
+            if ( str[1] == '=' ) return NST_TT_DIV_A;
+            break;
+        case '%':
+            if ( str[1] == '=' ) return NST_TT_MOD_A;
+            break;
+        case '@':
+            if ( str[1] == '@' ) return NST_TT_LOC_CALL;
+            break;
+        case '.':
+            if ( str[1] == '.' ) return NST_TT_CONTINUE;
+            break;
+        case '}':
+            if ( str[1] == '>' ) return NST_TT_R_VBRACE;
+            break;
+        case '#':
+            if ( str[1] == '#' ) return NST_TT_LAMBDA;
+            break;
+        case '?':
+            if ( str[1] == '?' ) return NST_TT_TRY;
+            if ( str[1] == '!' ) return NST_TT_CATCH;
+            break;
+        }
+        return -1;
+    }
+
+    if ( str[0] == '>' )
+    {
+        if ( str[1] == '>' && str[2] == '>' )
+            return NST_TT_STDOUT;
+        if ( str[1] == '>' && str[2] == '=' )
+            return NST_TT_RSHIFT_A;
+        if ( str[1] == '<' && str[2] == '=' )
+            return NST_TT_CONCAT_A;
+    }
+    else if ( str[0] == '<' )
+    {
+        if ( str[1] == '<' && str[2] == '<' )
+            return NST_TT_STDIN;
+        if ( str[1] == '<' && str[2] == '=' )
+            return NST_TT_LSHIFT_A;
+    }
+    else if ( str[0] == '?' )
+    {
+        if ( str[1] == '.' && str[2] == '.' )
+            return NST_TT_WHILE;
+        if ( str[1] == ':' && str[2] == ':' )
+            return NST_TT_TYPEOF;
+    }
+    else if ( str[0] == '.' )
+    {
+        if ( str[1] != '.' ) return -1;
+        if ( str[2] == '?' ) return NST_TT_DOWHILE;
+        if ( str[2] == '.' ) return NST_TT_FOR;
+    }
+    else if ( str[0] == '|' )
+    {
+        if ( str[1] == '#' && str[2] == '|' )
+            return NST_TT_IMPORT;
+    }
+    else if ( str[0] == '^' )
+    {
+        if ( str[1] == '^' && str[2] == '=' )
+            return NST_TT_B_XOR_A;
+    }
+
     return -1;
 }
 
