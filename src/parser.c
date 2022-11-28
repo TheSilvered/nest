@@ -19,7 +19,7 @@
     _NST_SET_RAW_SYNTAX_ERROR(p_state.error, start, end, message); \
     return NULL
 
-typedef struct ParsingState
+typedef struct _ParsingState
 {
     bool in_func;
     bool in_loop;

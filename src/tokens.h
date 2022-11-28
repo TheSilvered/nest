@@ -6,10 +6,6 @@
 #include "error.h" // Pos
 #include "obj.h"
 
-#define _NST_SYMBOL_CHARS "+-*/^%&|<>=!@~:;?.#()[]{},$"
-#define _NST_DIGIT_CHARS "0123456789"
-#define _NST_LETTER_CHARS "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz_"
-
 #define T_IN_STACK_OP(token_type) \
     ( token_type >= NST_TT_ADD && token_type <= NST_TT_LTE )
 #define T_IN_NUM_OP(token_type) \

@@ -90,7 +90,7 @@ Its members are:
 
 To join more options you can use the bit-wise or operator `|`.
 
-```
+```text
 CPO.recursive CPO.make_hard_links | = options
 'dir1' 'dir2' options @copy
 ```

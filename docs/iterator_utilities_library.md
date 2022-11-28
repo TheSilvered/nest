@@ -6,7 +6,7 @@
 
 Counts intefinitely from `start`, advancing by `step`.
 
-```
+```text
 0 2 @count --> 0, 2, 4, 6, 8, ...
 ```
 
@@ -15,7 +15,7 @@ Counts intefinitely from `start`, advancing by `step`.
 Cycles through the elements of the given object restarting from the first when
 the sequence ends.
 
-```
+```text
 'Hi!' @cycle --> 'H', 'i', '!', 'H', 'i' ...
 ```
 
@@ -23,7 +23,7 @@ the sequence ends.
 
 Repeats the first argument a certain number of times.
 
-```
+```text
 'Hi!' 3 @repeat --> 'Hi!', 'Hi!', 'Hi!'
 ```
 
@@ -32,7 +32,7 @@ Repeats the first argument a certain number of times.
 Chains any number of sequences (`Str`, `Array` or `Vector`), iterating over
 their objects:
 
-```
+```text
 { 'Hi!' { 1, 2, 3 } } @chain --> 'H', 'i', '!', 1, 2, 3
 ```
 
@@ -41,7 +41,7 @@ their objects:
 Returns a 2-element array with an object from the same index of the two
 sequences. It stops when the shortest sequence ends.
 
-```
+```text
 'Hi!' { 1, 2, 3 } @zip --> { 'H', 1 }, { 'i', 2 }, { 'i', 3 }
 ```
 
@@ -50,7 +50,7 @@ sequences. It stops when the shortest sequence ends.
 Returns a 2-element array with the index and the object at that index in the
 sequence.
 
-```
+```text
 'Hi!' @enumerate --> { 0, 'H' }, { 1, 'i' }, { 2, '!' }
 ```
 
@@ -59,7 +59,7 @@ sequence.
 Returns all the keys in a map, the order is not the one in which you put the
 objects in.
 
-```
+```text
 { 'key_1': 1, 'key_2': 2 } @keys --> 'key_2', 'key_1'
 { 'key_2': 2, 'key_1': 1 } @keys --> 'key_2', 'key_1'
 ```
@@ -69,7 +69,7 @@ objects in.
 Returns all the values in a map, the order is not the one in which you put the
 objects in.
 
-```
+```text
 { 'key_1': 1, 'key_2': 2 } @values --> 2, 1
 { 'key_2': 2, 'key_1': 1 } @values --> 2, 1
 ```
@@ -79,7 +79,7 @@ objects in.
 Returns all the key-value pairs in a map, the order is not the one in which you
 put the objects in.
 
-```
+```text
 { 'key_1': 1, 'key_2': 2 } @items --> { 'key_2', 2 }, { 'key_1', 1 }
 { 'key_2': 2, 'key_1': 1 } @items --> { 'key_2', 2 }, { 'key_1', 1 }
 ```
@@ -88,7 +88,7 @@ put the objects in.
 
 Returns the elements of a sequence in reverse order, from the last to the first.
 
-```
+```text
 'Hi!' @reverse --> '!', 'i', 'H'
 ```
 

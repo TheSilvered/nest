@@ -22,59 +22,22 @@
 #define NST_IOF_CAN_WRITE(f) ( NST_HAS_FLAG(f, NST_FLAG_IOFILE_CAN_WRITE) )
 #define NST_IOF_CAN_READ(f)  ( NST_HAS_FLAG(f, NST_FLAG_IOFILE_CAN_READ) )
 
-#define SIMPLE_TYPE_STRUCT(type, type_name, obj_name) \
-    typedef type type_name; \
-    typedef struct \
-    { \
+#define NST_SIMPLE_TYPE_STRUCT(type, alias) \
+    typedef type alias; \
+    typedef struct _ ## alias ## Obj {  \
         NST_OBJ_HEAD; \
-        type_name value; \
-    } \
-    obj_name
+        alias value; \
+    } alias ## Obj
 
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
-typedef long long Nst_Int;
-typedef long double Nst_Real;
-typedef char Nst_Bool;
-typedef unsigned char Nst_Byte;
-typedef FILE *Nst_IOFile;
-
-typedef struct _Nst_IntObj
-{
-    NST_OBJ_HEAD;
-    Nst_Int value;
-}
-Nst_IntObj;
-
-typedef struct _Nst_RealObj
-{
-    NST_OBJ_HEAD;
-    Nst_Real value;
-}
-Nst_RealObj;
-
-typedef struct _Nst_BoolObj
-{
-    NST_OBJ_HEAD;
-    Nst_Bool value;
-}
-Nst_BoolObj;
-
-typedef struct _Nst_ByteObj
-{
-    NST_OBJ_HEAD;
-    Nst_Byte value;
-}
-Nst_ByteObj;
-
-typedef struct _Nst_IOFileObj
-{
-    NST_OBJ_HEAD;
-    Nst_IOFile value;
-}
-Nst_IOFileObj;
+NST_SIMPLE_TYPE_STRUCT(long long, Nst_Int);
+NST_SIMPLE_TYPE_STRUCT(long double, Nst_Real);
+NST_SIMPLE_TYPE_STRUCT(char, Nst_Bool);
+NST_SIMPLE_TYPE_STRUCT(unsigned char, Nst_Byte);
+NST_SIMPLE_TYPE_STRUCT(FILE *, Nst_IOFile);
 
 enum Nst_IOFileFlags {
     NST_FLAG_IOFILE_IS_CLOSED = 0b0001,

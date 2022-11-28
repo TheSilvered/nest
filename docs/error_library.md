@@ -12,6 +12,7 @@ It returns a map containing `value`, `error` and `traceback`.
 `traceback` is an array of positions that trace back the cause of the error.
 
 A position is a map that contains 3 keys:
+
 - `file` is the path of the file that the position refers to
 - `start` is an array of length 2 with the first number being the line and the
   second being the column of the start of the interested expression
