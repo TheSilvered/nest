@@ -1337,6 +1337,44 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
         }
         else if ( inst.id == NST_IC_PUSH_VAL )
             printf(" NULL");
+        else if ( inst.id == NST_IC_STACK_OP || inst.id == NST_IC_LOCAL_OP )
+        {
+            char *s;
+
+            switch ( inst.int_val )
+            {
+            case NST_TT_ADD:    s = "+";  break;
+            case NST_TT_SUB:    s = "-";  break;
+            case NST_TT_MUL:    s = "*";  break;
+            case NST_TT_DIV:    s = "/";  break;
+            case NST_TT_POW:    s = "^";  break;
+            case NST_TT_MOD:    s = "%";  break;
+            case NST_TT_B_AND:  s = "&";  break;
+            case NST_TT_B_OR:   s = "|";  break;
+            case NST_TT_B_XOR:  s = "^^"; break;
+            case NST_TT_LSHIFT: s = "<<"; break;
+            case NST_TT_RSHIFT: s = ">>"; break;
+            case NST_TT_CONCAT: s = "><"; break;
+            case NST_TT_L_AND:  s = "&&"; break;
+            case NST_TT_L_OR:   s = "||"; break;
+            case NST_TT_L_XOR:  s = "&|"; break;
+            case NST_TT_GT:     s = ">";  break;
+            case NST_TT_LT:     s = "<";  break;
+            case NST_TT_EQ:     s = "=="; break;
+            case NST_TT_NEQ:    s = "!="; break;
+            case NST_TT_GTE:    s = ">="; break;
+            case NST_TT_LTE:    s = "<="; break;
+            case NST_TT_LEN:    s = "$";  break;
+            case NST_TT_L_NOT:  s = "!";  break;
+            case NST_TT_B_NOT:  s = "~";  break;
+            case NST_TT_STDOUT: s = ">>>";break;
+            case NST_TT_STDIN:  s = "<<<";break;
+            case NST_TT_NEG:    s = "-:"; break;
+            default: s = "__UNKNOWN_OP__";
+            }
+
+            printf(" [%s]", s);
+        }
 
         printf("\n");
     }
