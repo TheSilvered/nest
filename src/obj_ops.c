@@ -1385,7 +1385,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     }
 
     char *file_path;
-    size_t path_len = nst_get_full_path(file_name, &file_path, NULL);
+    nst_get_full_path(file_name, &file_path, NULL);
 
     Nst_IOFile file;
     // Checks if the file exists with the given path
@@ -1441,7 +1441,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         }
 
         char *abs_path;
-        path_len = nst_get_full_path(file_path, &abs_path, NULL);
+        nst_get_full_path(file_path, &abs_path, NULL);
         free(file_path);
         file_path = abs_path;
     }

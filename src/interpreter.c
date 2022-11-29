@@ -140,7 +140,8 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
     nst_state.ggc = &ggc;
 
     Nst_StrObj *cwd = STR(nst_new_cstring_raw(_getcwd(cwd_buf, PATH_MAX), true));
-    Nst_SeqObj *argv_obj = make_argv(argc, argv, filename);
+    Nst_SeqObj *argv_obj = make_argv(argc, argv, filename == NULL ? (char *)"-c"
+                                                                  : filename);
     Nst_VarTable *vt = nst_new_var_table(NULL, cwd, argv_obj);
 
     nst_state.traceback = &tb;
@@ -155,16 +156,19 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
     nst_state.lib_paths = LList_new();
     nst_state.lib_handles = LList_new();
 
-    char *path_main_file;
-    nst_get_full_path(filename, &path_main_file, NULL);
-
-    for ( char *p = path_main_file; *p; p++ )
+    if ( filename != NULL )
     {
-        if ( *p == '\\' )
-            *p = '/';
-    }
+        char *path_main_file = NULL;
+        nst_get_full_path(filename, &path_main_file, NULL);
 
-    LList_append(nst_state.lib_paths, path_main_file, true);
+        for ( char *p = path_main_file; *p; p++ )
+        {
+            if ( *p == '\\' )
+                *p = '/';
+        }
+
+        LList_append(nst_state.lib_paths, path_main_file, true);
+    }
 
     nst_push_func(
         nst_state.f_stack,

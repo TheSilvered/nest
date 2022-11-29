@@ -90,9 +90,9 @@ static void print_line(Nst_Pos *pos, long start_col, long end_col, int keep_inde
     }
 
     if ( use_color )
-        printf(C_CYAN " %#*i" C_RESET " | ", lineno_len, lineno + 1);
+        printf(C_CYAN " %*li" C_RESET " | ", lineno_len, lineno + 1);
     else
-        printf(" %#*i | ", lineno_len, lineno + 1);
+        printf(" %*li | ", lineno_len, lineno + 1);
 
     for ( long i = keep_indent; text[i] != '\n' && text[i] != '\0'; i++ )
     {

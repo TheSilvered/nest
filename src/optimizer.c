@@ -479,7 +479,7 @@ static void remove_assign_loc_get_val(Nst_InstructionList* bc)
     Nst_Int size = bc->total_size;
     Nst_RuntimeInstruction *inst_list = bc->instructions;
     bool expect_get_val = false;
-    Nst_StrObj *expected_name = false;
+    Nst_StrObj *expected_name = NULL;
 
     for ( Nst_Int i = 0; i < size; i++ )
     {

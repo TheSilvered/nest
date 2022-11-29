@@ -1,9 +1,9 @@
 CC=g++
-CFLAGS=-Wall -g -shared -fPIC -std=c++2a
+CFLAGS=-Wall -g -shared -fPIC -rdynamic -std=c++2a
 CLINKS=-lm -ldl
 EXE_NAME=stdfs.so
 
-SRC_DIR=../../nest
+SRC_DIR=../../src
 EXE_DIR=../../unix_release
 DBG_DIR=../../unix_debug
 

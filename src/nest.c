@@ -94,7 +94,7 @@ int main(int argc, char **argv)
         src_text.len = strlen(command);
         src_text.text = command;
         src_text.line_count = 1;
-        src_text.lines = &src_text.path;
+        src_text.lines = &src_text.text;
         tokens = nst_tokenize(&src_text, &error);
     }
 
@@ -129,7 +129,6 @@ int main(int argc, char **argv)
     // nst_optimize_ast can delete the ast
     if ( ast == NULL )
         ERROR_EXIT;
-
 
     if ( print_tree )
     {
@@ -172,7 +171,7 @@ int main(int argc, char **argv)
         main_func,
         argc - args_start,
         argv + args_start,
-        filename != NULL ? filename : (char *)"-c",
+        filename,
         opt_level
     );
 

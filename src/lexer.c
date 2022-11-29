@@ -76,11 +76,11 @@ typedef struct LexerCursor {
 
 static LexerCursor cursor;
 
-inline static void advance();
-inline static void go_back();
-inline static char *add_while_in(bool (*cond_func)(ch),
-                                 bool ignore_underscore,
-                                 size_t *len);
+static inline void advance();
+static inline void go_back();
+static char *add_while_in(bool (*cond_func)(char),
+                          bool ignore_underscore,
+                          size_t *len);
 
 static void make_symbol(Nst_LexerToken **tok, Nst_Error *error);
 static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error);
@@ -210,7 +210,7 @@ inline static void go_back()
         cursor.ch = cursor.text[cursor.idx];
 }
 
-inline static char *add_while_in(bool (*cond_func)(ch),
+inline static char *add_while_in(bool (*cond_func)(char),
                                  bool ignore_underscore,
                                  size_t *len)
 {
@@ -456,7 +456,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
         {
             advance();
             int_part = add_while_in(is_hex, true, NULL);
-            
+
             if ( int_part == NULL)
             {
                 end = nst_copy_pos(cursor.pos);
@@ -568,6 +568,12 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
         else
         {
             int_part = add_while_in(is_dec, true, &len_int_part);
+            if ( int_part == NULL )
+            {
+                _NST_SET_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_REAL_LITERAL);
+                return;
+            }
+
             advance();
             if ( cursor.ch == '.' )
                 goto real_lit;
@@ -603,6 +609,11 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
     }
 
     int_part = add_while_in(is_dec, true, &len_int_part);
+    if ( int_part == NULL )
+    {
+        _NST_SET_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_REAL_LITERAL);
+        return;
+    }
     advance();
     if ( cursor.ch != '.' )
         goto int_lit;
@@ -630,6 +641,14 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
         }
 
         char *exp = add_while_in(is_dec, true, &len_exp);
+        if ( exp == NULL )
+        {
+            free(int_part);
+            free(frac_part);
+            _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_REAL_LITERAL);
+            return;
+        }
+
         end = nst_copy_pos(cursor.pos);
         //                                        9        .       26          e-    5       \0
         char *complete_lit = (char *)malloc(len_int_part + 1 + len_frac_part + 2 + len_exp + 1);
@@ -638,7 +657,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
             errno = ENOMEM;
             return;
         }
-        
+
         sprintf(complete_lit, "%s%s%s%s%s", int_part, ".", frac_part, exp_neg ? "e-" : "e+", exp );
         free(int_part);
         free(frac_part);
@@ -1027,7 +1046,7 @@ static void add_lines(Nst_SourceText* text)
                 text->line_count = 0;
                 return;
             }
-            starts = temp;
+            starts = (char **)temp;
         }
 
         starts[line_count - 1] = text_p + i + 1;

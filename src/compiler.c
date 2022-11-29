@@ -1339,7 +1339,7 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
             printf(" NULL");
         else if ( inst.id == NST_IC_STACK_OP || inst.id == NST_IC_LOCAL_OP )
         {
-            char *s;
+            const char *s;
 
             switch ( inst.int_val )
             {
