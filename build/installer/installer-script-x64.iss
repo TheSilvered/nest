@@ -1,5 +1,5 @@
 #define MyAppName "nest"
-#define MyAppVersion "0.6.3"
+#define MyAppVersion "0.7.0"
 #define MyAppPublisher "Davide Taffarello"
 #define MyAppExeName "nest.exe"
 #define MyAppAssocName "Nest File"
@@ -29,7 +29,7 @@ WizardStyle=modern
 ChangesEnvironment=yes
 
 [Tasks]
-Name: envPath; Description: "Add to PATH variable" 
+Name: envPath; Description: "Add to PATH envirnoment variable" 
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

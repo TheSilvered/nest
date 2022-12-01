@@ -683,8 +683,8 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
 
         memcpy(complete_lit, int_part, len_int_part);
         complete_lit[len_int_part] = '.';
-        memcpy(complete_lit + len_int_part, frac_part, len_frac_part);
-        complete_lit[len_int_part + len_frac_part + 2] = '\0';
+        memcpy(complete_lit + len_int_part + 1, frac_part, len_frac_part);
+        complete_lit[len_int_part + len_frac_part + 1] = '\0';
         free(int_part);
         free(frac_part);
 
