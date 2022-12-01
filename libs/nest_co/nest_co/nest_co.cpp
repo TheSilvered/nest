@@ -240,7 +240,7 @@ NST_FUNC_SIGN(pause_)
         return nullptr;
     }
 
-    if ( nst_state.f_stack->current_size - 1 != co->call_stack_size )
+    if ( nst_state.f_stack->current_size - 1 != co->call_stack_size || !NST_HAS_FLAG(co, FLAG_CO_RUNNING) )
     {
         NST_SET_RAW_CALL_ERROR("the function was not called with 'call'");
         return nullptr;
