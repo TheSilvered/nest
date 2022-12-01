@@ -56,6 +56,7 @@
         free(int_part); \
         value = -9223372036854775807; \
         --value; \
+        errno = 0; \
     } \
     else if ( errno == ERANGE ) \
     { \
@@ -582,7 +583,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
             end = nst_copy_pos(cursor.pos);
             value = strtoll(int_part, NULL, 10);
 
-            CHECK_MIN(-9223372036854775808);
+            CHECK_MIN(9223372036854775808);
 
             advance();
             goto byte;
@@ -674,6 +675,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
     }
     else
     {
+        go_back();
         char *complete_lit = (char *)malloc(len_int_part + len_frac_part + 2);
         if ( complete_lit == NULL )
         {

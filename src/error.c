@@ -130,7 +130,7 @@ static void print_line(Nst_Pos *pos, long start_col, long end_col, int keep_inde
     {
         print_repeat(' ', lineno_len);
         printf(C_RESET "  | " C_RED);
-        print_repeat(' ', start_col - indent);
+        print_repeat(' ', start_col);
         print_repeat('^', end_col - start_col + 1);
         printf(C_RESET "\n");
     }
@@ -138,7 +138,7 @@ static void print_line(Nst_Pos *pos, long start_col, long end_col, int keep_inde
     {
         print_repeat(' ', lineno_len);
         printf("  | ");
-        print_repeat(' ', start_col - indent);
+        print_repeat(' ', start_col);
         print_repeat('^', end_col - start_col + 1);
         printf("\n");
     }
