@@ -25,7 +25,10 @@ __su.repr_             = repr
 __su.join_             = join
 __su.split_            = split
 
-'0123456789' = DIGITS
+'0123456789'             = DIGITS
+'0123456789abcdefABCDEF' = HEX_DIGITS
+'01234567'               = OCT_DIGITS
+'01'                     = BIN_DIGITS
 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ' = LETTERS
 'abcdefghijklmnopqrstuvwxyz' = LOWERCASE_LETTERS
 'ABCDEFGHIJKLMNOPQRSTUVWXYZ' = UPPERCASE_LETTERS

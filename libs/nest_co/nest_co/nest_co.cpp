@@ -53,8 +53,8 @@ void free_lib()
 
 Nst_Obj *new_coroutine(Nst_FuncObj *func)
 {
-    CorutineObj *co = (CorutineObj *)nst_alloc_obj(
-        sizeof(CorutineObj),
+    CoroutineObj *co = (CoroutineObj *)nst_alloc_obj(
+        sizeof(CoroutineObj),
         t_Coroutine,
         destroy_coroutine
     );
@@ -75,7 +75,7 @@ Nst_Obj *new_coroutine(Nst_FuncObj *func)
     return OBJ(co);
 }
 
-void traverse_coroutine(CorutineObj *co)
+void traverse_coroutine(CoroutineObj *co)
 {
     NST_SET_FLAG(co->func, NST_FLAG_GGC_REACHABLE);
 
@@ -92,7 +92,7 @@ void traverse_coroutine(CorutineObj *co)
     NST_SET_FLAG(co->globals, NST_FLAG_GGC_REACHABLE);
 }
 
-void track_coroutine(CorutineObj *co)
+void track_coroutine(CoroutineObj *co)
 {
     nst_add_tracked_object((Nst_GGCObj *)co->func);
 
@@ -109,7 +109,7 @@ void track_coroutine(CorutineObj *co)
     nst_add_tracked_object((Nst_GGCObj *)co->globals);
 }
 
-void destroy_coroutine(CorutineObj *co)
+void destroy_coroutine(CoroutineObj *co)
 {
     nst_dec_ref(co->func);
 
@@ -154,7 +154,7 @@ NST_FUNC_SIGN(create_)
 NST_FUNC_SIGN(call_)
 {
     Nst_Obj *co_args = args[0];
-    CorutineObj *co = (CorutineObj *)args[1];
+    CoroutineObj *co = (CoroutineObj *)args[1];
 
     if ( co->type != t_Coroutine )
     {
@@ -219,7 +219,7 @@ NST_FUNC_SIGN(call_)
 
 NST_FUNC_SIGN(pause_)
 {
-    CorutineObj *co = (CorutineObj *)args[0];
+    CoroutineObj *co = (CoroutineObj *)args[0];
     Nst_Obj *return_value = args[1];
 
     if ( co->type != t_Coroutine )
@@ -285,7 +285,7 @@ NST_FUNC_SIGN(pause_)
 
 NST_FUNC_SIGN(get_state_)
 {
-    CorutineObj *co = (CorutineObj *)args[0];
+    CoroutineObj *co = (CoroutineObj *)args[0];
 
     if ( co->type != t_Coroutine )
     {

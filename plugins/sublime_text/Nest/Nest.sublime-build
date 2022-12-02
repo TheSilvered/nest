@@ -2,7 +2,7 @@
     "cmd": ["nest", "--monochrome", "$file"],
     "selector": "source.nest",
     "file_patterns": ["*.nest"],
-    "file_regex": "^[ ]*File \"(...*?)\" at line ([0-9]*)",
+    "file_regex": "^File \"(...*?)\" at lines? ([0-9]*)",
 
     "variants": [
         {

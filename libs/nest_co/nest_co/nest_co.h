@@ -18,7 +18,7 @@ EXPORT Nst_FuncDeclr *get_func_ptrs();
 EXPORT NST_INIT_LIB_OBJ_FUNC;
 EXPORT void free_lib();
 
-typedef struct _CorutineObj
+typedef struct _CoroutineObj
 {
     NST_OBJ_HEAD;
     NST_GGC_SUPPORT;
@@ -33,9 +33,9 @@ typedef struct _CorutineObj
     // size of the call stack when pausing won't match
     size_t call_stack_size;
 }
-CorutineObj;
+CoroutineObj;
 
-enum CorutineFlags
+enum CoroutineFlags
 {
     FLAG_CO_SUSPENDED = 0b0001,
     FLAG_CO_RUNNING   = 0b0010,
@@ -47,9 +47,9 @@ enum CorutineFlags
 };
 
 Nst_Obj *new_coroutine(Nst_FuncObj *func);
-void traverse_coroutine(CorutineObj *co);
-void track_coroutine(CorutineObj *co);
-void destroy_coroutine(CorutineObj *co);
+void traverse_coroutine(CoroutineObj *co);
+void track_coroutine(CoroutineObj *co);
+void destroy_coroutine(CoroutineObj *co);
 
 NST_FUNC_SIGN(create_);
 NST_FUNC_SIGN(call_);

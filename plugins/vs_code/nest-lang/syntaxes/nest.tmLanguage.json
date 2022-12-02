@@ -160,7 +160,7 @@
 				},
 				{
 					"name": "constant.numeric.nest",
-					"match": "\\d+(\\.\\d+|[Bb])?"
+					"match": "[+-]?(0[bB][01][01_]*([bB]|(?!\\d))|0[oO][0-7][0-7_]*([bB]|(?!\\d))|0[xXhH][0-9a-fA-F][0-9a-fA-F_]*(?![g-zG-Z])|\\d[\\d_]*\\.\\d[\\d_]*([eE][+-]?\\d[\\d_]*)?|\\d[\\d_]*[bB]?)"
 				},
 				{ "include": "#lambda" }
 			]

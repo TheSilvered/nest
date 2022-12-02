@@ -7,8 +7,29 @@ file_extensions:
   - nest
 
 variables:
-  identifier: '[A-Za-z_][A-Za-z_0-9]*'
-  constant: '(_*\d*[A-Z]{2,}[A-Z_0-9]*|[A-Z]\b)'
+  # number regex
+  dec_digits: '\d[\d_]*'
+  dec_ltrl: '{{dec_digits}}[bB]?'
+  real_ltrl: '{{dec_digits}}\.{{dec_digits}}([eE][+-]?{{dec_digits}})?'
+  real_illegal: '{{dec_digits}}\.{{dec_digits}}[eE][+-]?[^-+0-9]'
+
+  oct_digits: '[0-7][0-7_]*'
+  oct_ltrl: '0[oO]{{oct_digits}}([bB]|(?!\d))'
+  oct_illegal: '0[oO]({{oct_digits}}[89]|[^0-7]|[89])'
+
+  bin_digits: '[01][01_]*'
+  bin_ltrl: '0[bB]{{bin_digits}}([bB]|(?!\d))'
+  bin_illegal: '0[bB]({{bin_digits}}[2-9]|[2-9])'
+
+  hex_digits: '[0-9a-fA-F][0-9a-fA-F_]*'
+  hex_ltrl: '0[xXhH]{{hex_digits}}(?![g-zG-Z])'
+  hex_illegal: '0[xXhH]({{hex_digits}}[g-zG-Z]|[^0-9a-fA-F]|[g-zG-Z])'
+
+  num_ltrl: '[+-]?({{bin_ltrl}}|{{oct_ltrl}}|{{hex_ltrl}}|{{real_ltrl}}|{{dec_ltrl}})'
+  illegal_num_literals: '({{real_illegal}}|{{hex_illegal}}|{{oct_illegal}}|{{bin_illegal}})'
+
+  identifier: '[A-Za-z_][A-Za-z0-9_]*'
+  constant: '(_*\d*[A-Z]{2,}[A-Z0-9_]*|[A-Z]\b)'
   lang_constants: '\b(true|false|null|_cwd_|_args_|_vars_|_globals_)\b'
   lang_types: '\b(Type|Int|Real|Bool|Null|Str|Array|Vector|Map|Func|Iter|Byte|IOfile)\b'
   lang_keywords: '(\?\.\.|\.\.\?|\.\.\.|\?\?|\?!|\?|:=|\.\.|;)'
@@ -77,7 +98,10 @@ contexts:
     - match: '{{identifier}}'
       scope: variable.other.nest
 
-    - match: '\d+(\.\d+|[bB])?'
+    - match: '{{illegal_num_literals}}'
+      scope: invalid.illegal.nest
+
+    - match: '{{num_ltrl}}'
       scope: constant.numeric.nest
 
     - match: '##'

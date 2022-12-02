@@ -7,6 +7,11 @@
 'validName' su.LETTERS @su.is_charset @test.assert_true
 'invalid name' su.LETTERS @su.is_charset @test.assert_false
 
+'this is a little sentence' 'this is' @su.starts_with @test.assert_true
+'this is a little sentence' 'entence' @su.ends_with   @test.assert_true
+'this is a little sentence' 'this us' @su.starts_with @test.assert_false
+'this is a little sentence' 'sntence' @su.ends_with   @test.assert_false
+
 '1word1 2word2' 'word' 'letter' @su.replace_substr '1letter1 2letter2' @test.assert_eq
 '1word1 2word2' 'word' 'wor' @su.replace_substr '1wor1 2wor2' @test.assert_eq
 
@@ -38,9 +43,13 @@
 '"' @su.repr "'\"'" @test.assert_eq
 "'" @su.repr '"\'"' @test.assert_eq
 
-{ Byte :: 72, Byte :: 105 } @su.bytearray_to_str 'Hi' @test.assert_eq
+{ 72b, 105b } @su.bytearray_to_str 'Hi' @test.assert_eq
+'Hi' @su.str_to_bytearray { 72b, 105b } @test.assert_eq
 
 ?::su.DIGITS            Str @test.assert_eq
+?::su.HEX_DIGITS        Str @test.assert_eq
+?::su.OCT_DIGITS        Str @test.assert_eq
+?::su.BIN_DIGITS        Str @test.assert_eq
 ?::su.LETTERS           Str @test.assert_eq
 ?::su.UPPERCASE_LETTERS Str @test.assert_eq
 ?::su.LOWERCASE_LETTERS Str @test.assert_eq
