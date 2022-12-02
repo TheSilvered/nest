@@ -799,7 +799,11 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
             GLOBAL_ERROR,
             inst->start,
             inst->end,
-            _nst_format_error(_NST_EM_WRONG_ARG_NUM, "ui", func->arg_num, arg_num)
+            _nst_format_error(
+                _NST_EM_WRONG_ARG_NUM, "usis",
+                func->arg_num, func->arg_num == 1 ? "" : "s",
+                arg_num, arg_num == 1 ? "was" : "were"
+            )
         );
 
         nst_dec_ref(func);

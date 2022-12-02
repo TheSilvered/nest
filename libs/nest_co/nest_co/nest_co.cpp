@@ -171,9 +171,9 @@ NST_FUNC_SIGN(call_)
          co->func->arg_num != SEQ(co_args)->len )
     {
         NST_SET_CALL_ERROR(_nst_format_error(
-            "the function of the coroutine expected %zi args but %zi were given",
-            "uu",
-            co->func->arg_num, SEQ(co_args)->len
+            _NST_EM_WRONG_ARG_NUM, "usis",
+            co->func->arg_num, co->func->arg_num == 1 ? "" : "s",
+            SEQ(co_args)->len, SEQ(co_args)->len == 1 ? "was" : "were"
         ));
 
         return nullptr;

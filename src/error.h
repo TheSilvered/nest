@@ -61,7 +61,7 @@
 #define _NST_EM_INDEX_OUT_OF_BOUNDS(type) "index %lli out of bounds for '" type "' of size %zi"
 #define _NST_EM_TOO_MANY_ARGS(name) "too many arguments were passed to '" name "'"
 #define _NST_EM_TOO_FEW_ARGS(name) "too few arguments were passed to '" name "'"
-#define _NST_EM_WRONG_ARG_NUM "the function expected %zi arguments but %lli were passed"
+#define _NST_EM_WRONG_ARG_NUM "the function expected %zi argument%s but %lli %s passed"
 #define _NST_EM_EXPECTED_BOOL_ITER_IS_DONE "expected 'Bool' type from '_is_done_', got type '%s' instead"
 #define _NST_EM_FILE_NOT_FOUND "file '%s' not found"
 #define _NST_EM_WRONG_TYPE_FOR_ARG(type) "expected type '" type "' for argument %zi, got type '%s' instead"

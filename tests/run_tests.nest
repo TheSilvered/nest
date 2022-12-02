@@ -1,9 +1,9 @@
 |#| 'stdfs.nest' = fs
-|#| 'stdsequtil.nest' = sequ
+|#| 'stdsutil.nest' = su
 
 #run_tests dir [
     ... Iter :: (dir @fs.list_dir_recursive) := test_path [
-        test_path -5 -1 1 @sequ.slice '.nest' != ? ..
+        !(test_path '.nest' @su.ends_with) ? ..
 
         >>> (test_path '\n' ><)
         -- runs the file

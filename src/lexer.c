@@ -568,10 +568,11 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
         }
         else
         {
+            go_back();
             int_part = add_while_in(is_dec, true, &len_int_part);
             if ( int_part == NULL )
             {
-                _NST_SET_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_REAL_LITERAL);
+                _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_REAL_LITERAL);
                 return;
             }
 
@@ -612,7 +613,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
     int_part = add_while_in(is_dec, true, &len_int_part);
     if ( int_part == NULL )
     {
-        _NST_SET_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_REAL_LITERAL);
+        _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_REAL_LITERAL);
         return;
     }
     advance();
@@ -624,7 +625,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
     if ( frac_part == NULL )
     {
         free(int_part);
-        _NST_SET_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_REAL_LITERAL);
+        _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_REAL_LITERAL);
         return;
     }
     advance();
