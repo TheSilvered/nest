@@ -55,8 +55,15 @@ copy ..\x64\Release\nest_sys.dll x64\nest_libs\stdsys.dll /y
 copy ..\Release\nest_sys.dll x86\nest_libs\stdsys.dll /y
 copy ..\libs\_nest_files\stdsys.nest x64\nest_libs\stdsys.nest /y
 copy ..\libs\_nest_files\stdsys.nest x86\nest_libs\stdsys.nest /y
+:: Coroutines
+copy ..\x64\Release\nest_co.dll x64\nest_libs\stdco.dll /y
+copy ..\Release\nest_co.dll x86\nest_libs\stdco.dll /y
+copy ..\libs\_nest_files\stdco.nest x64\nest_libs\stdco.nest /y
+copy ..\libs\_nest_files\stdco.nest x86\nest_libs\stdco.nest /y
 
 :: Udate .nest files
+py update_nest_file.py x64\nest_libs\stdco.nest
+py update_nest_file.py x86\nest_libs\stdco.nest
 py update_nest_file.py x64\nest_libs\stderr.nest
 py update_nest_file.py x86\nest_libs\stderr.nest
 py update_nest_file.py x64\nest_libs\stdfs.nest

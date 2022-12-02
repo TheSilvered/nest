@@ -1,35 +1,33 @@
 |#| '../test_lib.nest' = test
-|#| 'stdtime.nest' = t
+|#| 'stdtime.nest' = dt
 |#| 'stdsutil.nest' = su
 
 #print_clock_datetime [
-    t.SHORT_WEEKDAY_NAMES.@@t.week_day ' ' \
-    (Str :: @t.day 2 '0' @su.rjust) ' ' \
-    t.SHORTH_MONTH_NAMES.@@t.month ' ' \
-    @@t.year ', ' \
-    (Str :: @t.hours   2 '0' @su.rjust) ':' \
-    (Str :: @t.minutes 2 '0' @su.rjust) ':' \
-    (Str :: @t.seconds 2 '0' @su.rjust) >< @test.println
+    dt.SHORT_WEEKDAY_NAMES.@@dt.week_day ' ' \
+    (Str :: @dt.day 2 '0' @su.rjust) ' ' \
+    dt.SHORTH_MONTH_NAMES.@@dt.month ' ' \
+    @@dt.year ', ' \
+    (Str :: @dt.hours   2 '0' @su.rjust) ':' \
+    (Str :: @dt.minutes 2 '0' @su.rjust) ':' \
+    (Str :: @dt.seconds 2 '0' @su.rjust) >< @test.println
 ]
 
-@t.time @test.println
-@t.time_ns @test.println
-@t.high_res_time @test.println
-@t.high_res_time_ns @test.println
-@t.year_day @test.println
-@t.week_day @test.println
-@t.day @test.println
-@t.month @test.println
-@t.year @test.println
-@t.date @test.println
-@t.seconds @test.println
-@t.minutes @test.println
-@t.hours @test.println
-@t.clock_time @test.println
-@t.gmt_clock_time @test.println
-@t.clock_datetime @test.println
-@t.gmt_clock_datetime @test.println
+@dt.time @test.println
+@dt.time_ns @test.println
+@dt.high_res_time @test.println
+@dt.high_res_time_ns @test.println
+@dt.year_day @test.println
+@dt.week_day @test.println
+@dt.day @test.println
+@dt.month @test.println
+@dt.year @test.println
+@dt.date @test.println
+@dt.seconds @test.println
+@dt.minutes @test.println
+@dt.hours @test.println
+@dt.clock_time @test.println
+@dt.gmt_clock_time @test.println
+@dt.clock_datetime @test.println
+@dt.gmt_clock_datetime @test.println
 
 @print_clock_datetime
--- 2 @t.sleep
--- @print_clock_datetime

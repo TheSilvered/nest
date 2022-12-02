@@ -73,11 +73,11 @@ static void add_date(Nst_MapObj *map, tm *(*time_func)(const time_t*))
     Nst_Obj *month_obj = nst_new_int(t->tm_mon);
     Nst_Obj *year_obj = nst_new_int(t->tm_year + 1900);
 
+    nst_map_set_str(map, "year", year_obj);
+    nst_map_set_str(map, "month", month_obj);
+    nst_map_set_str(map, "year_day", yearday_obj);
     nst_map_set_str(map, "day", day_obj);
     nst_map_set_str(map, "week_day", weekday_obj);
-    nst_map_set_str(map, "year_day", yearday_obj);
-    nst_map_set_str(map, "month", month_obj);
-    nst_map_set_str(map, "year", year_obj);
 
     nst_dec_ref(day_obj);
     nst_dec_ref(weekday_obj);
@@ -96,9 +96,9 @@ static void add_time(Nst_MapObj *map, tm *(*time_func)(const time_t *))
     Nst_Obj *minutes = nst_new_int(t->tm_min);
     Nst_Obj *hours = nst_new_int(t->tm_hour);
 
-    nst_map_set_str(map, "seconds", seconds);
-    nst_map_set_str(map, "minutes", minutes);
     nst_map_set_str(map, "hours", hours);
+    nst_map_set_str(map, "minutes", minutes);
+    nst_map_set_str(map, "seconds", seconds);
 
     nst_dec_ref(seconds);
     nst_dec_ref(minutes);
