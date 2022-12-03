@@ -72,16 +72,16 @@ static void move_list(Nst_GGCList *from, Nst_GGCList *to)
     from->size = 0;
 }
 
-static inline void call_objs_destructor(Nst_GGCList *ls)
+static inline void call_objs_destructor(Nst_GGCList *gen)
 {
-    for ( Nst_GGCObj *ob = ls->head; ob != NULL; ob = ob->ggc_next )
+    for ( Nst_GGCObj *ob = gen->head; ob != NULL; ob = ob->ggc_next )
         nst_destroy_obj(ob);
 }
 
-static inline void free_obj_memory(Nst_GGCList *ls)
+static inline void free_obj_memory(Nst_GGCList *gen)
 {
     Nst_GGCObj *new_ob = NULL;
-    for ( Nst_GGCObj *ob = ls->head; ob != NULL; )
+    for ( Nst_GGCObj *ob = gen->head; ob != NULL; )
     {
         new_ob = ob->ggc_next;
         free(ob);
@@ -89,13 +89,22 @@ static inline void free_obj_memory(Nst_GGCList *ls)
     }
 }
 
-static inline void set_unreachable(Nst_GGCList *ls)
+static inline void set_unreachable(Nst_GGCList *gen)
 {
-    for ( Nst_GGCObj *ob = ls->head; ob != NULL; ob = ob->ggc_next )
+    for ( Nst_GGCObj *ob = gen->head; ob != NULL; ob = ob->ggc_next )
         NST_SET_FLAG(ob, NST_FLAG_GGC_UNREACHABLE);
 }
 
-void nst_collect_gen(Nst_GGCList *gen)
+static inline void traverse_gen(Nst_GGCList *gen)
+{
+    for ( Nst_GGCObj *ob = gen->head; ob != NULL; ob = ob->ggc_next )
+        ob->traverse_func(OBJ(ob));
+}
+
+void nst_collect_gen(Nst_GGCList *gen,
+                     Nst_GGCList *other_gen1,
+                     Nst_GGCList *other_gen2,
+                     Nst_GGCList *other_gen3)
 {
     // Unreachable values
     Nst_GGCList uv = {
@@ -127,6 +136,11 @@ void nst_collect_gen(Nst_GGCList *gen)
             NST_SET_FLAG(vt->vars, NST_FLAG_GGC_REACHABLE);
         }
     }
+
+    // As well as the objects inside other generations
+    traverse_gen(other_gen1);
+    traverse_gen(other_gen2);
+    traverse_gen(other_gen3);
 
     NST_UNSET_FLAG(nst_state.argv, NST_FLAG_GGC_UNREACHABLE);
     NST_SET_FLAG(nst_state.argv, NST_FLAG_GGC_REACHABLE);
@@ -221,7 +235,7 @@ void nst_collect()
     if ( old_gen_size > NST_OLD_GEN_MIN &&
          ggc->old_gen_pending >= (Nst_Int)old_gen_size >> 2 )
     {
-        nst_collect_gen(&ggc->old_gen);
+        nst_collect_gen(&ggc->old_gen, &ggc->gen1, &ggc->gen2, &ggc->gen3);
         ggc->old_gen_pending = 0;
     }
 
@@ -231,7 +245,7 @@ void nst_collect()
     // Collect the generations if they are over their maximum value
     if ( ggc->gen1.size > NST_GEN1_MAX )
     {
-        nst_collect_gen(&ggc->gen1);
+        nst_collect_gen(&ggc->gen1, &ggc->gen2, &ggc->gen3, &ggc->old_gen);
         has_collected_gen1 = true;
     }
 
@@ -239,7 +253,7 @@ void nst_collect()
          (has_collected_gen1 &&
           ggc->gen1.size + ggc->gen2.size > NST_GEN2_MAX) )
     {
-        nst_collect_gen(&ggc->gen2);
+        nst_collect_gen(&ggc->gen2, &ggc->gen1, &ggc->gen3, &ggc->old_gen);
         has_collected_gen2 = true;
     }
 
@@ -247,7 +261,7 @@ void nst_collect()
          (has_collected_gen2 && 
           ggc->gen2.size + ggc->gen3.size > NST_GEN3_MAX) )
     {
-        nst_collect_gen(&ggc->gen2);
+        nst_collect_gen(&ggc->gen3, &ggc->gen1, &ggc->gen2, &ggc->old_gen);
         ggc->old_gen_pending += ggc->gen3.size;
         move_list(&ggc->gen3, &ggc->old_gen);
     }

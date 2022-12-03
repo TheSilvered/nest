@@ -378,9 +378,6 @@ void nst_traverse_map(Nst_MapObj *map)
 
 void nst_track_map(Nst_MapObj *map)
 {
-    if ( NST_OBJ_IS_TRACKED(map) )
-        return;
-
     for ( Nst_Int i = _nst_map_get_next_idx(-1, map);
         i != -1;
         i = _nst_map_get_next_idx(i, map) )

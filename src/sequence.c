@@ -62,9 +62,6 @@ void nst_traverse_seq(Nst_SeqObj *seq)
 
 void nst_track_seq(Nst_SeqObj* seq)
 {
-    if ( NST_OBJ_IS_TRACKED(seq) )
-        return;
-
     Nst_Obj **objs = seq->objs;
     for ( size_t i = 0, n = seq->len; i < n; i++ )
     {

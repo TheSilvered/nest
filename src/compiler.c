@@ -1370,6 +1370,7 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
             case NST_TT_STDOUT: s = ">>>";break;
             case NST_TT_STDIN:  s = "<<<";break;
             case NST_TT_NEG:    s = "-:"; break;
+            case NST_TT_TYPEOF: s = "?::"; break;
             default: s = "__UNKNOWN_OP__";
             }
 

@@ -50,7 +50,7 @@ void nst_destroy_iter(Nst_IterObj *iter)
     nst_dec_ref(iter->value);
 }
 
-void nst_traverse_iter(Nst_IterObj* iter)
+void nst_track_iter(Nst_IterObj* iter)
 {
     if ( NST_HAS_FLAG(iter->start, NST_FLAG_GGC_IS_SUPPORTED) )
         nst_add_tracked_object((Nst_GGCObj *)iter->start);
@@ -68,7 +68,7 @@ void nst_traverse_iter(Nst_IterObj* iter)
         nst_add_tracked_object((Nst_GGCObj *)iter->value);
 }
 
-void nst_track_iter(Nst_IterObj* iter)
+void nst_traverse_iter(Nst_IterObj* iter)
 {
     NST_SET_FLAG(iter->start,   NST_FLAG_GGC_REACHABLE);
     NST_SET_FLAG(iter->advance, NST_FLAG_GGC_REACHABLE);
