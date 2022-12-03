@@ -187,12 +187,14 @@ NST_FUNC_SIGN(slice_)
             return nst_new_vector(0);
     }
 
-    size_t new_size = (size_t)((stop - start + 1) / step);
+    size_t new_size = (size_t)((stop - start) / step);
+
+    if ( (stop - start) % step != 0 ) new_size++;
 
     if ( seq_type == nst_t.Array || seq_type == nst_t.Vector )
     {
         Nst_Obj *new_seq = seq_type == nst_t.Array ? nst_new_array(new_size)
-                                                 : nst_new_vector(new_size);
+                                                   : nst_new_vector(new_size);
 
         for ( size_t i = 0; i < new_size; i++ )
             nst_set_value_seq(new_seq, i, seq->objs[i * step + start]);
@@ -447,8 +449,8 @@ NST_FUNC_SIGN(contains_)
     {
         NST_SET_TYPE_ERROR(_nst_format_error(
             _NST_EM_WRONG_TYPE_FOR_ARG("Array', 'Sequence' or 'Vector"),
-            "s",
-            TYPE_NAME(container), 1
+            "us",
+            1, TYPE_NAME(container)
         ));
         return nullptr;
     }

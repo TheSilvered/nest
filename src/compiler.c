@@ -18,6 +18,8 @@
 
 #define ADD_INST(instruction) LList_append(c_state.inst_ls, instruction, true)
 
+#define PRINT(str, size) fwrite(str, sizeof(char), size, stdout)
+
 typedef struct
 {
     int loop_id;
@@ -1233,16 +1235,16 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
     i_len = i_len < 3 ? 3 : i_len;
 
     for ( int i = 0; i < indent; i++ )
-        printf("    ");
+        PRINT("    ", 4);
     for ( int i = 3; i < i_len;  i++ )
         putchar(' ');
 
-    printf(" Idx |   Pos   |  Instruction  | ");
+    PRINT(" Idx |   Pos   |  Instruction  | ", 33);
 
     for ( int i = 3; i < i_len; i++ )
         putchar(' ');
 
-    printf("Int | Object\n");
+    PRINT("Int | Object\n", 13);
 
     for ( size_t i = 0, n = ls->total_size; i < n; i++ )
     {
@@ -1256,51 +1258,51 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
 
         switch ( inst.id )
         {
-        case NST_IC_POP_VAL:       printf("POP_VAL      "); break;
-        case NST_IC_JUMP:          printf("JUMP         "); break;
-        case NST_IC_JUMPIF_T:      printf("JUMPIF_T     "); break;
-        case NST_IC_JUMPIF_F:      printf("JUMPIF_F     "); break;
-        case NST_IC_JUMPIF_ZERO:   printf("JUMPIF_ZERO  "); break;
-        case NST_IC_SET_VAL:       printf("SET_VAL      "); break;
-        case NST_IC_SET_VAL_LOC:   printf("SET_VAL_LOC  "); break;
-        case NST_IC_GET_VAL:       printf("GET_VAL      "); break;
-        case NST_IC_PUSH_VAL:      printf("PUSH_VAL     "); break;
-        case NST_IC_SET_CONT_VAL:  printf("SET_CONT_VAL "); break;
-        case NST_IC_OP_CALL:       printf("OP_CALL      "); break;
-        case NST_IC_OP_CAST:       printf("OP_CAST      "); break;
-        case NST_IC_OP_RANGE:      printf("OP_RANGE     "); break;
-        case NST_IC_STACK_OP:      printf("STACK_OP     "); break;
-        case NST_IC_LOCAL_OP:      printf("LOCAL_OP     "); break;
-        case NST_IC_OP_IMPORT:     printf("OP_IMPORT    "); break;
-        case NST_IC_OP_EXTRACT:    printf("OP_EXTRACT   "); break;
-        case NST_IC_DEC_INT:       printf("DEC_INT      "); break;
-        case NST_IC_NEW_OBJ:       printf("NEW_OBJ      "); break;
-        case NST_IC_TYPE_CHECK:    printf("TYPE_CHECK   "); break;
-        case NST_IC_HASH_CHECK:    printf("HASH_CHECK   "); break;
-        case NST_IC_DUP:           printf("DUP          "); break;
-        case NST_IC_MAKE_ARR:      printf("MAKE_ARR     "); break;
-        case NST_IC_MAKE_VEC:      printf("MAKE_VEC     "); break;
-        case NST_IC_MAKE_MAP:      printf("MAKE_MAP     "); break;
-        case NST_IC_FOR_START:     printf("FOR_START    "); break;
-        case NST_IC_FOR_ADVANCE:   printf("FOR_ADVANCE  "); break;
-        case NST_IC_FOR_IS_DONE:   printf("FOR_IS_DONE  "); break;
-        case NST_IC_FOR_GET_VAL:   printf("FOR_GET_VAL  "); break;
-        case NST_IC_RETURN_VAL:    printf("RETURN_VAL   "); break;
-        case NST_IC_RETURN_VARS:   printf("RETURN_VARS  "); break;
-        case NST_IC_THROW_ERR:     printf("THROW_ERR    "); break;
-        case NST_IC_PUSH_CATCH:    printf("PUSH_CATCH   "); break;
-        case NST_IC_POP_CATCH:     printf("POP_CATCH    "); break;
-        case NST_IC_SAVE_ERROR:    printf("SAVE_ERROR   "); break;
-        case NST_IC_NO_OP:         printf("NO_OP        "); break;
-        default:                   printf("__UNKNOWN__  "); break;
+        case NST_IC_POP_VAL:       PRINT("POP_VAL      ", 13); break;
+        case NST_IC_JUMP:          PRINT("JUMP         ", 13); break;
+        case NST_IC_JUMPIF_T:      PRINT("JUMPIF_T     ", 13); break;
+        case NST_IC_JUMPIF_F:      PRINT("JUMPIF_F     ", 13); break;
+        case NST_IC_JUMPIF_ZERO:   PRINT("JUMPIF_ZERO  ", 13); break;
+        case NST_IC_SET_VAL:       PRINT("SET_VAL      ", 13); break;
+        case NST_IC_SET_VAL_LOC:   PRINT("SET_VAL_LOC  ", 13); break;
+        case NST_IC_GET_VAL:       PRINT("GET_VAL      ", 13); break;
+        case NST_IC_PUSH_VAL:      PRINT("PUSH_VAL     ", 13); break;
+        case NST_IC_SET_CONT_VAL:  PRINT("SET_CONT_VAL ", 13); break;
+        case NST_IC_OP_CALL:       PRINT("OP_CALL      ", 13); break;
+        case NST_IC_OP_CAST:       PRINT("OP_CAST      ", 13); break;
+        case NST_IC_OP_RANGE:      PRINT("OP_RANGE     ", 13); break;
+        case NST_IC_STACK_OP:      PRINT("STACK_OP     ", 13); break;
+        case NST_IC_LOCAL_OP:      PRINT("LOCAL_OP     ", 13); break;
+        case NST_IC_OP_IMPORT:     PRINT("OP_IMPORT    ", 13); break;
+        case NST_IC_OP_EXTRACT:    PRINT("OP_EXTRACT   ", 13); break;
+        case NST_IC_DEC_INT:       PRINT("DEC_INT      ", 13); break;
+        case NST_IC_NEW_OBJ:       PRINT("NEW_OBJ      ", 13); break;
+        case NST_IC_TYPE_CHECK:    PRINT("TYPE_CHECK   ", 13); break;
+        case NST_IC_HASH_CHECK:    PRINT("HASH_CHECK   ", 13); break;
+        case NST_IC_DUP:           PRINT("DUP          ", 13); break;
+        case NST_IC_MAKE_ARR:      PRINT("MAKE_ARR     ", 13); break;
+        case NST_IC_MAKE_VEC:      PRINT("MAKE_VEC     ", 13); break;
+        case NST_IC_MAKE_MAP:      PRINT("MAKE_MAP     ", 13); break;
+        case NST_IC_FOR_START:     PRINT("FOR_START    ", 13); break;
+        case NST_IC_FOR_ADVANCE:   PRINT("FOR_ADVANCE  ", 13); break;
+        case NST_IC_FOR_IS_DONE:   PRINT("FOR_IS_DONE  ", 13); break;
+        case NST_IC_FOR_GET_VAL:   PRINT("FOR_GET_VAL  ", 13); break;
+        case NST_IC_RETURN_VAL:    PRINT("RETURN_VAL   ", 13); break;
+        case NST_IC_RETURN_VARS:   PRINT("RETURN_VARS  ", 13); break;
+        case NST_IC_THROW_ERR:     PRINT("THROW_ERR    ", 13); break;
+        case NST_IC_PUSH_CATCH:    PRINT("PUSH_CATCH   ", 13); break;
+        case NST_IC_POP_CATCH:     PRINT("POP_CATCH    ", 13); break;
+        case NST_IC_SAVE_ERROR:    PRINT("SAVE_ERROR   ", 13); break;
+        case NST_IC_NO_OP:         PRINT("NO_OP        ", 13); break;
+        default:                   PRINT("__UNKNOWN__  ", 13); break;
         }
 
         if ( inst.id == NST_IC_NO_OP )
         {
-            printf(" | ");
+            PRINT(" | ", 3);
             for ( int j = 0; j < i_len; j++ )
                 putchar(' ');
-            printf(" |");
+            PRINT(" |", 2);
             continue;
         }
 
@@ -1314,10 +1316,10 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
             printf(" | %*lli |", i_len > 3 ? i_len : 3, inst.int_val);
         else
         {
-            printf(" | ");
+            PRINT(" | ", 3);
             for ( int j = 0; j < i_len; j++ )
                 putchar(' ');
-            printf(" |");
+            PRINT(" |", 2);
         }
 
         if ( inst.val != NULL )
@@ -1329,54 +1331,54 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
 
             if ( inst.val->type == nst_t.Func )
             {
-                printf("\n\n");
-                for ( int j = 0; j < indent + 1; j++ ) printf("    ");
-                printf("<Func object> bytecode:\n");
+                PRINT("\n\n", 2);
+                for ( int j = 0; j < indent + 1; j++ ) PRINT("    ", 4);
+                PRINT("<Func object> bytecode:\n", 24);
                 nst_print_bytecode(FUNC(inst.val)->body.bytecode, indent + 1);
             }
         }
         else if ( inst.id == NST_IC_PUSH_VAL )
-            printf(" NULL");
+            PRINT(" NULL", 5);
         else if ( inst.id == NST_IC_STACK_OP || inst.id == NST_IC_LOCAL_OP )
         {
-            const char *s;
+            PRINT(" [", 2);
 
             switch ( inst.int_val )
             {
-            case NST_TT_ADD:    s = "+";  break;
-            case NST_TT_SUB:    s = "-";  break;
-            case NST_TT_MUL:    s = "*";  break;
-            case NST_TT_DIV:    s = "/";  break;
-            case NST_TT_POW:    s = "^";  break;
-            case NST_TT_MOD:    s = "%";  break;
-            case NST_TT_B_AND:  s = "&";  break;
-            case NST_TT_B_OR:   s = "|";  break;
-            case NST_TT_B_XOR:  s = "^^"; break;
-            case NST_TT_LSHIFT: s = "<<"; break;
-            case NST_TT_RSHIFT: s = ">>"; break;
-            case NST_TT_CONCAT: s = "><"; break;
-            case NST_TT_L_AND:  s = "&&"; break;
-            case NST_TT_L_OR:   s = "||"; break;
-            case NST_TT_L_XOR:  s = "&|"; break;
-            case NST_TT_GT:     s = ">";  break;
-            case NST_TT_LT:     s = "<";  break;
-            case NST_TT_EQ:     s = "=="; break;
-            case NST_TT_NEQ:    s = "!="; break;
-            case NST_TT_GTE:    s = ">="; break;
-            case NST_TT_LTE:    s = "<="; break;
-            case NST_TT_LEN:    s = "$";  break;
-            case NST_TT_L_NOT:  s = "!";  break;
-            case NST_TT_B_NOT:  s = "~";  break;
-            case NST_TT_STDOUT: s = ">>>";break;
-            case NST_TT_STDIN:  s = "<<<";break;
-            case NST_TT_NEG:    s = "-:"; break;
-            case NST_TT_TYPEOF: s = "?::"; break;
-            default: s = "__UNKNOWN_OP__";
+            case NST_TT_ADD:    PRINT("+", 1);  break;
+            case NST_TT_SUB:    PRINT("-", 1);  break;
+            case NST_TT_MUL:    PRINT("*", 1);  break;
+            case NST_TT_DIV:    PRINT("/", 1);  break;
+            case NST_TT_POW:    PRINT("^", 1);  break;
+            case NST_TT_MOD:    PRINT("%", 1);  break;
+            case NST_TT_B_AND:  PRINT("&", 1);  break;
+            case NST_TT_B_OR:   PRINT("|", 1);  break;
+            case NST_TT_LEN:    PRINT("$", 1);  break;
+            case NST_TT_L_NOT:  PRINT("!", 1);  break;
+            case NST_TT_B_NOT:  PRINT("~", 1);  break;
+            case NST_TT_GT:     PRINT(">", 1);  break;
+            case NST_TT_LT:     PRINT("<", 1);  break;
+            case NST_TT_B_XOR:  PRINT("^^", 2); break;
+            case NST_TT_LSHIFT: PRINT("<<", 2); break;
+            case NST_TT_RSHIFT: PRINT(">>", 2); break;
+            case NST_TT_CONCAT: PRINT("><", 2); break;
+            case NST_TT_L_AND:  PRINT("&&", 2); break;
+            case NST_TT_L_OR:   PRINT("||", 2); break;
+            case NST_TT_L_XOR:  PRINT("&|", 2); break;
+            case NST_TT_EQ:     PRINT("==", 2); break;
+            case NST_TT_NEQ:    PRINT("!=", 2); break;
+            case NST_TT_GTE:    PRINT(">=", 2); break;
+            case NST_TT_LTE:    PRINT("<=", 2); break;
+            case NST_TT_NEG:    PRINT("-:", 2); break;
+            case NST_TT_STDOUT: PRINT(">>>", 3);break;
+            case NST_TT_STDIN:  PRINT("<<<", 3);break;
+            case NST_TT_TYPEOF: PRINT("?::", 3);break;
+            default: PRINT("__UNKNOWN_OP__", 14);
             }
 
-            printf(" [%s]", s);
+            putchar(']');
         }
 
-        printf("\n");
+        putchar('\n');
     }
 }

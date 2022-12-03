@@ -1,0 +1,30 @@
+|#| 'stdio.nest' = io
+|#| 'stdsutil.nest' = su
+|#| 'stdsequtil.nest' = sequ
+
+-- 'day3.txt' 'r' @io.open = data_file
+-- data_file -1 @io.read '\n' @su.split = data
+-- data_file @io.close
+
+<{ 'vJrwpWtwJgWrhcsFMMfFFhFp',
+   'jqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL',
+   'PmmdzqPrVvPwwTWBwg',
+   'wMqvLMZHhHMvwLHjbvcjnnSBnvTQFn',
+   'ttgJtRGJQctTZtZT',
+   'CrZsJsPPZsGzwwsLwLmpwMDw' }> = data
+
+#part_one [
+    <{ }> = doubles
+
+    ... Iter :: data := items [
+        items 0 ($items 2 /) 1 @sequ.slice = f_compartment
+        items ($items 2 /) $items 1 @sequ.slice = b_compartment
+
+        ... Iter :: f_compartment := item [
+            item b_compartment @sequ.contains ?
+                >>> (item ' ' ><)
+        ]
+    ]
+]
+
+@part_one
