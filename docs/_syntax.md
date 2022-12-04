@@ -23,10 +23,13 @@ Block comments start with `-/` and end with `/-`
 
 ### Numeric literals
 
-There are no binary, octal or hexadecimal integer literals so the only possible
-integer is decimal.
+Integer literals can be decimal, binary, octal or hexadecimal. The first one has
+no prefix, the second `0b`, the third `0o` and the fourth `0x`.
 
-Real number literals do not support scientific notation and must have some
+Binary and octal literals cannot be directly followed by another integer and
+hexadecimal literals cannot be followed by a word.
+
+Real number literals support scientific notation but must always have some
 digits both before and after the dot.
 
 Both integer and real literals can be prefixed with a minus `-` to make them
@@ -39,23 +42,52 @@ change its sign.
 -123
 012 -- equal to 12 but still valid
 +11
+0b101
+0o377
+0xab
+
+0b102 -- invalid because followed by 2
+0o159 -- invalid because followed by 9
+0xabg -- invalid because followed by g
 
 -- Real literals
 0.2
 -13.4
 1.0
 +38.1
+1.2e10
+1.2e-10
 1. -- invalid
 .3 -- also invalid
+3e10 -- invalid because real literals need always a dot
 ```
 
 Nest has also a byte type that can be written as an integer literal followed by
-a lowercase `b` or an uppercas one `B`.
+a lowercase `b` or an uppercas one `B`. If the integer is written with an
+hexadecimal literal, since adding a `b` at the end would be counted as digit,
+you start with `0h` instead.
 
 ```text
 -- Byte literals
 10b
 256b -- equivalent to 0b
+0b101b
+0o123b
+0hff
+```
+
+Decimal, binary and octal byte literals can be followed by a word or by another
+literal but that could cause confusion, so it is better to keep a space.
+
+```text
+10bab -- split into '10b' and 'ab'
+0b0b0 -- split into '0b' (from '0b0b') and '0'
+00b10 -- split into '0b' (from '00b') and '10'
+
+-- these are much clearer
+10b ab
+0b0b 0
+00b 10
 ```
 
 ### String literals

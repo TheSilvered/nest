@@ -12,6 +12,14 @@ returns the index of the first character.
 Finds the first occurrence of `substring` in `string` starting from the right
 and returns the index of the first character.
 
+### `[string: Str, substring: Str] @starts_with`
+
+Checks if `substring` is equal to the start of `string`.
+
+### `[string: Str, substring: Str] @ends_with`
+
+Checks if `substring` is equal to the end of `string`.
+
 ### `[string: Str] @trim`
 
 Creates a new string with leading and trailing whitespaces removed.
@@ -90,6 +98,10 @@ If `new_substing` is an empty string, nothing is replaced.
 
 Transforms an array of `Byte` objects into a string.
 
+### `[string: Str] @str_to_bytearray`
+
+Transforms a string into an array of `Byte` objects.
+
 ### `[string: Str] @repr`
 
 Creates a new string representing the string literal of `string`.
@@ -108,7 +120,19 @@ vector with all the resulting strings.
 
 ### `DIGITS`
 
-The digit characters (`0-9`).
+Digit characters (`0-9`).
+
+### `BIN_DIGITS`
+
+Binary digit characters (`01`).
+
+### `OCT_DIGITS`
+
+Octal digit characters (`0-7`).
+
+### `HEX_DIGITS`
+
+Hexadecimal digit characters (`0-9a-fA-F`).
 
 ### `LETTERS`
 

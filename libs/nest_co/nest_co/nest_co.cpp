@@ -186,7 +186,7 @@ NST_FUNC_SIGN(call_)
     NST_UNSET_FLAG(co, FLAG_CO_ENDED);
     NST_SET_FLAG(co, FLAG_CO_RUNNING);
     co->call_stack_size = nst_state.f_stack->current_size;
-    
+
     Nst_Obj *result = nullptr;
     if ( is_paused )
     {
@@ -206,7 +206,7 @@ NST_FUNC_SIGN(call_)
     // If an error occurred
     if ( result == nullptr )
         return nullptr;
-    
+
     if ( !NST_HAS_FLAG(co, FLAG_CO_PAUSED) )
     {
         NST_UNSET_FLAG(co, FLAG_CO_SUSPENDED);
