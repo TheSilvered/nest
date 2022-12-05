@@ -580,6 +580,7 @@ static void remove_push_check(Nst_InstructionList *bc, Nst_Error *error)
         inst_list[i].id = NST_IC_NO_OP;
         if ( inst_list[i].val != NULL )
             nst_dec_ref(inst_list[i].val);
+        inst_list[i].val = NULL;
         was_push = false;
     }
     return;
