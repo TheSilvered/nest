@@ -523,18 +523,19 @@ NST_FUNC_SIGN(replace_substr_)
     size_t new_str_len = 0;
     int count = 0;
 
-    // Count all the occurences of the substring
     while ( sub = find_substring(s, s_len, s_from, s_from_len) )
     {
-        s = sub +s_from_len;
+        s_len = sub + s_from_len - s;
+        s = sub + s_from_len;
         count++;
     }
 
     if ( count == 0 )
         return nst_inc_ref(str);
 
-    char *new_str = new char[s_len - s_from_len * count + s_to_len * count + 1];
+    s_len = str->len;
     s = str->value;
+    char *new_str = new char[s_len - s_from_len * count + s_to_len * count + 1];
 
     // Copy replacing the occurrence
     while ( sub = find_substring(s, s_len, s_from, s_from_len) )

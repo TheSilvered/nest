@@ -3,7 +3,7 @@
 #ifndef NEST_H
 #define NEST_H
 
-#define NEST_VERSION "beta-0.7.0"
+#define NEST_VERSION "beta-0.7.1"
 
 #include "error.h"
 #include "hash.h"
