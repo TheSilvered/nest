@@ -486,8 +486,11 @@ static void compile_if_e(Nst_Node *node)
     ADD_INST(jump_if_false);
 
     Nst_Node *second_node = NODE(node->nodes->head->next->value);
+    bool both_are_null = !NODE_RETUNS_VALUE(second_node->type) &&
+                         (node->nodes->size == 2 || !NODE_RETUNS_VALUE(TAIL_NODE->type));
+
     compile_node(second_node); // Body if true
-    if ( !NODE_RETUNS_VALUE(second_node->type) )
+    if ( !both_are_null && !NODE_RETUNS_VALUE(second_node->type) )
     {
         inst = nst_new_inst_val(NST_IC_PUSH_VAL, nst_c.null, nst_no_pos(), nst_no_pos());
         ADD_INST(inst);
@@ -499,12 +502,19 @@ static void compile_if_e(Nst_Node *node)
 
     if ( node->nodes->size == 2 )
     {
+        if ( both_are_null )
+            jump_at_end->int_val = CURR_LEN;
+
         inst = nst_new_inst_val(NST_IC_PUSH_VAL, nst_c.null, nst_no_pos(), nst_no_pos());
         ADD_INST(inst);
     }
     else
     {
         compile_node(TAIL_NODE); // Body if false
+        
+        if ( both_are_null )
+            jump_at_end->int_val = CURR_LEN;
+
         if ( !NODE_RETUNS_VALUE(TAIL_NODE->type) )
         {
             inst = nst_new_inst_val(
@@ -516,8 +526,8 @@ static void compile_if_e(Nst_Node *node)
             ADD_INST(inst);
         }
     }
-
-    jump_at_end->int_val = CURR_LEN;
+    if ( !both_are_null )
+        jump_at_end->int_val = CURR_LEN;
 }
 
 static void compile_func_declr(Nst_Node *node)
