@@ -511,7 +511,7 @@ static void compile_if_e(Nst_Node *node)
     else
     {
         compile_node(TAIL_NODE); // Body if false
-        
+
         if ( both_are_null )
             jump_at_end->int_val = CURR_LEN;
 

@@ -22,7 +22,7 @@
 #define _NST_EM_OPEN_COMMENT "multiline comment was never closed"
 #define _NST_EM_UNEXPECTED_TOK "unexpected token"
 #define _NST_EM_MISSING_BRACKET "unmatched '['"
-#define _NST_EM_BAD_RETURN "'=>' ouside of a function"
+#define _NST_EM_BAD_RETURN "'=>' outside of a function"
 #define _NST_EM_BAD_CONTINUE "'..' outside of a loop"
 #define _NST_EM_BAD_BREAK "';' outside of a loop"
 #define _NST_EM_EXPECTED_BRACKET "expected '['"
@@ -115,7 +115,7 @@ typedef struct _Nst_Traceback
 }
 Nst_Traceback;
 
-// Sets how the error message is printed (with or withoud ANSI color escapes)
+// Sets how the error message is printed (with or without ANSI color escapes)
 void nst_set_color(bool color);
 // Creates a new Nst_Pos on the stack
 Nst_Pos nst_copy_pos(Nst_Pos pos);

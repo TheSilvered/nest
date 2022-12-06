@@ -259,7 +259,7 @@ static void complete_function(size_t final_stack_size)
             size_t end_size = top_catch.f_stack_size;
             if ( end_size < final_stack_size )
                 end_size = final_stack_size;
-            
+
             while ( nst_state.f_stack->current_size > end_size )
             {
                 Nst_FuncCall call = nst_pop_func(nst_state.f_stack);
@@ -278,7 +278,7 @@ static void complete_function(size_t final_stack_size)
 
             if ( end_size == final_stack_size )
                 return;
-            
+
             while ( nst_state.v_stack->current_size > top_catch.v_stack_size )
             {
                 obj = nst_pop_val(nst_state.v_stack);

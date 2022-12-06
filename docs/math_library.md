@@ -159,6 +159,10 @@ Returns a value such that `min <= value <= max`. If `n` is greater than `max`,
 `max` is returned, similarly if `n` is smaller than `min` then `min` is returned.
 If `n` is between `min` and `max` inclusive, it is returned.
 
+### `[seq: Array|Vector] @sum`
+
+Returns the sum of all the elements inside `seq`.
+
 ## Constants
 
 ### `PI`

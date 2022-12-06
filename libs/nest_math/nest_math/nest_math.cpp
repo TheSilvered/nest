@@ -627,11 +627,11 @@ NST_FUNC_SIGN(clamp_)
 NST_FUNC_SIGN(sum_)
 {
     Nst_SeqObj *seq;
-    
+
     if ( !nst_extract_arg_values("A", arg_num, args, err, &seq) )
         return nullptr;
 
-    Nst_Obj *tot = nst_new_int(0);
+    Nst_Obj *tot = nst_new_byte(0);
     Nst_Obj *new_tot = nullptr;
 
     for (size_t i = 0, n = seq->len; i < n; i++)

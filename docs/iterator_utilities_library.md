@@ -45,6 +45,18 @@ sequences. It stops when the shortest sequence ends.
 'Hi!' { 1, 2, 3 } @zip --> { 'H', 1 }, { 'i', 2 }, { 'i', 3 }
 ```
 
+### `[sequences: Array|Vector] @zipn`
+
+`sequences` can contain arrays, vector or strings.
+
+Returns a n-element array (where n is the length of `sequences`) with an object
+from the same index of each sequence in `sequences`. It stops when the shortest
+sequence ends.
+
+```text
+{ 'Hi!', { 1, 2, 3 }, <{ 9, 8, 7, 6 }> } @zipn --> { 'H', 1, 9 }, { 'i', 2, 8 }, { 'i', 3, 7 }
+```
+
 ### `[sequence: Str|Array|Vector] @enumerate`
 
 Returns a 2-element array with the index and the object at that index in the

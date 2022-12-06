@@ -181,7 +181,7 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
     else
     {
         map->item_count++;
-        
+
         // if it's the first node inserted
         if ( map->head_idx == -1 )
         {
@@ -305,7 +305,7 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
         {
             nst_dec_ref(curr_node.key);
             nst_dec_ref(curr_node.value);
-            
+
             nodes[i & mask].hash = -1;
             nodes[i & mask].key = NULL;
             nodes[i & mask].value = NULL;

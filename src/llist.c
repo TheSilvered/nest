@@ -66,7 +66,7 @@ void *LList_pop(LList *llist)
 
     LLNode *node = llist->head;
     llist->head = llist->head->next;
-    
+
     if ( llist->head == NULL )
         llist->tail = NULL;
 

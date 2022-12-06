@@ -29,7 +29,7 @@ WizardStyle=modern
 ChangesEnvironment=yes
 
 [Tasks]
-Name: envPath; Description: "Add to PATH environment variable" 
+Name: envPath; Description: "Add to PATH environment variable"
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

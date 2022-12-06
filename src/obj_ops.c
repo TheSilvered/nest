@@ -28,7 +28,7 @@
 
 #define MAX_INT_CHAR_COUNT 21
 
-// precision    1  +     16    +  1  +    2     +        3               + 1 
+// precision    1  +     16    +  1  +    2     +        3               + 1
 //           (sign) (precision) (dot) (e+ or e-) (over e+308 becomes inf) (\0)
 #define MAX_REAL_CHAR_COUNT 24
 #define MAX_BYTE_CHAR_COUNT 5
@@ -1013,7 +1013,7 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
                 return nst_inc_ref(nst_s.t_Func);
             if ( ob == OBJ(nst_t.IOFile) )
                 return nst_inc_ref(nst_s.t_IOFile);
-            
+
             // for custom types defined in external libraries
             return nst_copy_string(ob);
         }
@@ -1288,7 +1288,7 @@ Nst_Obj *_nst_obj_bwnot(Nst_Obj *ob, Nst_OpErr *err)
 Nst_Obj *_nst_obj_lgnot(Nst_Obj *ob, Nst_OpErr *err)
 {
     ob = nst_obj_cast(ob, nst_t.Bool, err);
-    
+
     if ( ob == nst_c.b_true )
     {
         nst_dec_ref(nst_c.b_true);

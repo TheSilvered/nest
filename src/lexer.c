@@ -218,7 +218,7 @@ inline static char *add_while_in(bool (*cond_func)(char),
     char *str;
     if ( !(cond_func(cursor.ch)) )
         return NULL;
- 
+
     char *str_start = cursor.text + cursor.idx;
     size_t str_len = 1;
     advance();
@@ -231,7 +231,7 @@ inline static char *add_while_in(bool (*cond_func)(char),
         advance();
     }
     go_back();
-    
+
     str = (char *)malloc(str_len + 1);
 
     if ( str == NULL )

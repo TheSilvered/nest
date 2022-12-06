@@ -320,7 +320,7 @@ static Nst_Int count_assignments(Nst_InstructionList *bc, Nst_StrObj *name)
             Nst_RuntimeInstruction prev_inst = inst_list[i - 1];
             if ( prev_inst.id == NST_IC_PUSH_VAL &&
                  prev_inst.val != NULL &&
-                 prev_inst.val->type == nst_t.Str && 
+                 prev_inst.val->type == nst_t.Str &&
                  nst_compare_strings(name, STR(prev_inst.val)) == 0 )
                 ++tot;
         }

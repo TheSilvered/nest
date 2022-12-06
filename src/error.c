@@ -189,7 +189,7 @@ static void print_position(Nst_Pos start, Nst_Pos end)
         if ( indent < min_indent )
             min_indent = indent;
     }
-    
+
     print_line(&start, start.col, -1, min_indent, end.line + 1);
 
     for ( long i = 1, n = end.line - start.line; i < n; i++ )

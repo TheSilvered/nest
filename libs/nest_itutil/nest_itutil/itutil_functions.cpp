@@ -376,10 +376,10 @@ NST_FUNC_SIGN(keys_get_val)
 NST_FUNC_SIGN(values_get_val)
 {
     Nst_Obj **objs = SEQ(args[0])->objs;
-    
+
     if ( AS_INT(objs[0]) == -1 )
         NST_RETURN_NULL;
-    
+
     Nst_MapNode node = MAP(objs[1])->nodes[AS_INT(objs[0])];
     return nst_inc_ref(node.value);
 }

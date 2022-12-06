@@ -23,3 +23,7 @@ math.PI @math.deg 180 @test.assert_eq
 0.75 1 @math.ldexp 1.5 @test.assert_eq
 3 1 11 0 100 @math.map 20 @test.assert_eq
 3 10 20 @math.clamp 10 @test.assert_eq
+{ 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 } @math.sum 55 @test.assert_eq
+?::({ 1b, 2b, 3 } @math.sum) Int @test.assert_eq
+?::({ 1, 2.0, 3b } @math.sum) Real @test.assert_eq
+?::({ 1b, 2b, 3b } @math.sum) Byte @test.assert_eq

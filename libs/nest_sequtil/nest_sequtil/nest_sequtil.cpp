@@ -379,7 +379,7 @@ NST_FUNC_SIGN(filter_)
 
         if ( res == nullptr )
             return nullptr;
-        
+
         if ( nst_obj_cast(res, nst_t.Bool, nullptr) == nst_c.b_true )
         {
             nst_append_value_vector(new_seq, seq->objs[i]);

@@ -91,7 +91,7 @@ NST_FUNC_SIGN(open_)
         NST_SET_RAW_VALUE_ERROR("the file mode is not valid");
         return nullptr;
     }
-    
+
     if ( file_mode_len == 2 )
     {
         switch ( file_mode[1] )
@@ -145,7 +145,7 @@ NST_FUNC_SIGN(close_)
     fclose(f->value);
     f->value = nullptr;
     NST_SET_FLAG(f, NST_FLAG_IOFILE_IS_CLOSED);
-    
+
     return nst_inc_ref(nst_c.null);
 }
 

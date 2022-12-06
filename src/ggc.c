@@ -258,7 +258,7 @@ void nst_collect()
     }
 
     if ( ggc->gen3.size > NST_GEN3_MAX ||
-         (has_collected_gen2 && 
+         (has_collected_gen2 &&
           ggc->gen2.size + ggc->gen3.size > NST_GEN3_MAX) )
     {
         nst_collect_gen(&ggc->gen3, &ggc->gen1, &ggc->gen2, &ggc->old_gen);
