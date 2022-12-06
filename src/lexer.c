@@ -215,6 +215,8 @@ inline static char *add_while_in(bool (*cond_func)(char),
                                  bool ignore_underscore,
                                  size_t *len)
 {
+    if ( len != NULL )
+        *len = 0; // to set the value even if the function fails
     char *str;
     if ( !(cond_func(cursor.ch)) )
         return NULL;
@@ -443,6 +445,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
                 _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_INT_LITERAL);
                 return;
             }
+            go_back();
             end = nst_copy_pos(cursor.pos);
 
             value = strtoll(int_part, NULL, 2);
@@ -474,6 +477,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
                 _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_INT_LITERAL);
                 return;
             }
+            go_back();
             end = nst_copy_pos(cursor.pos);
 
             value = strtoll(int_part, NULL, 16);
@@ -535,9 +539,8 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
 
             if ( int_part == NULL)
             {
-                go_back();
                 end = nst_copy_pos(cursor.pos);
-                *tok = nst_new_token_value(start, end, NST_TT_VALUE, nst_new_byte(0));
+                _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_INT_LITERAL);
                 return;
             }
 
@@ -569,12 +572,8 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
         else
         {
             go_back();
+            // there is at least a 0, no error can occur here
             int_part = add_while_in(is_dec, true, &len_int_part);
-            if ( int_part == NULL )
-            {
-                _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_REAL_LITERAL);
-                return;
-            }
 
             advance();
             if ( cursor.ch == '.' )
