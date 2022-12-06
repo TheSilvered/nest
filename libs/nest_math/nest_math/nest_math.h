@@ -53,6 +53,7 @@ NST_FUNC_SIGN(frexp_);
 NST_FUNC_SIGN(ldexp_);
 NST_FUNC_SIGN(map_);
 NST_FUNC_SIGN(clamp_);
+NST_FUNC_SIGN(sum_);
 
 #ifdef __cplusplus
 }

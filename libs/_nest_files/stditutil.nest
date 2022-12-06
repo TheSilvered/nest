@@ -5,6 +5,7 @@ __itu.cycle_        = cycle
 __itu.repeat_       = repeat
 __itu.chain_        = chain
 __itu.zip_          = zip
+__itu.zipn_         = zipn
 __itu.enumerate_    = enumerate
 __itu.keys_         = keys
 __itu.values_       = values

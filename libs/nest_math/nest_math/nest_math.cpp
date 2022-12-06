@@ -1,7 +1,7 @@
 #include <cmath>
 #include "nest_math.h"
 
-#define FUNC_COUNT 36
+#define FUNC_COUNT 37
 #define COORD_TYPE_ERROR do { \
         NST_SET_RAW_VALUE_ERROR("all coordinates must be of type 'Real' or 'Int'"); \
         return nullptr; \
@@ -53,6 +53,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(ldexp_,  2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(map_,    5);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(clamp_,  3);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(sum_,    1);
 
     lib_init_ = true;
     return true;
@@ -621,4 +622,28 @@ NST_FUNC_SIGN(clamp_)
         return nullptr;
 
     return nst_new_real(min > val ? min : max < val ? max : val);
+}
+
+NST_FUNC_SIGN(sum_)
+{
+    Nst_SeqObj *seq;
+    
+    if ( !nst_extract_arg_values("A", arg_num, args, err, &seq) )
+        return nullptr;
+
+    Nst_Obj *tot = nst_new_int(0);
+    Nst_Obj *new_tot = nullptr;
+
+    for (size_t i = 0, n = seq->len; i < n; i++)
+    {
+        new_tot = nst_obj_add(tot, seq->objs[i], err);
+        nst_dec_ref(tot);
+
+        if ( new_tot == nullptr )
+            return nullptr;
+        else
+            tot = new_tot;
+    }
+
+    return tot;
 }

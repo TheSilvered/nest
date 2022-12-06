@@ -205,7 +205,7 @@ NST_FUNC_SIGN(zip_get_val)
     {
         NST_SET_VALUE_ERROR(_nst_format_error(
             SEQ(objs[1])->type == nst_t.Array ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
-                                               : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+                                              : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
             "iu",
             idx,
             SEQ(objs[1])->len
@@ -217,7 +217,7 @@ NST_FUNC_SIGN(zip_get_val)
     {
         NST_SET_VALUE_ERROR(_nst_format_error(
             SEQ(objs[2])->type == nst_t.Array ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
-                                               : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+                                              : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
             "iu",
             idx,
             SEQ(objs[2])->len
@@ -229,6 +229,64 @@ NST_FUNC_SIGN(zip_get_val)
     Nst_SeqObj *arr = SEQ(nst_new_array(2));
     nst_set_value_seq(arr, 0, SEQ(objs[1])->objs[idx]);
     nst_set_value_seq(arr, 1, SEQ(objs[2])->objs[idx]);
+
+    return OBJ(arr);
+}
+
+// ---------------------------- Zip n sequences ----------------------------- //
+
+NST_FUNC_SIGN(zipn_start)
+{
+    Nst_Obj **objs = SEQ(args[0])->objs;
+    AS_INT(objs[0]) = 0;
+    NST_RETURN_NULL;
+}
+
+NST_FUNC_SIGN(zipn_advance)
+{
+    Nst_Obj **objs = SEQ(args[0])->objs;
+    AS_INT(objs[0]) += 1;
+    NST_RETURN_NULL;
+}
+
+NST_FUNC_SIGN(zipn_is_done)
+{
+    Nst_Obj **objs = SEQ(args[0])->objs;
+    Nst_Int idx = AS_INT(objs[0]);
+
+    for ( size_t i = 1, n = SEQ(args[0])->len; i < n; i++ )
+    {
+        if ( idx >= (Nst_Int)SEQ(objs[i])->len )
+            NST_RETURN_TRUE;
+    }
+
+    NST_RETURN_FALSE;
+}
+
+NST_FUNC_SIGN(zipn_get_val)
+{
+    Nst_Obj **objs = SEQ(args[0])->objs;
+    Nst_Int idx = AS_INT(objs[0]);
+
+    for ( size_t i = 1, n = SEQ(args[0])->len; i < n; i++ )
+    {
+        if ( idx >= (Nst_Int)SEQ(objs[i])->len )
+        {
+            NST_SET_VALUE_ERROR(_nst_format_error(
+                SEQ(objs[i])->type == nst_t.Array ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
+                                                  : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+                "iu",
+                idx,
+                SEQ(objs[i])->len
+            ));
+
+            return nullptr;
+        }
+    }
+
+    Nst_SeqObj *arr = SEQ(nst_new_array(SEQ(args[0])->len - 1));
+    for ( size_t i = 1, n = SEQ(args[0])->len; i < n; i++ )
+        nst_set_value_seq(arr, i - 1, SEQ(objs[i])->objs[idx]);
 
     return OBJ(arr);
 }

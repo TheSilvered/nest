@@ -22,6 +22,7 @@ NST_FUNC_SIGN(cycle_);
 NST_FUNC_SIGN(repeat_);
 NST_FUNC_SIGN(chain_);
 NST_FUNC_SIGN(zip_);
+NST_FUNC_SIGN(zipn_);
 NST_FUNC_SIGN(enumerate_);
 NST_FUNC_SIGN(keys_);
 NST_FUNC_SIGN(values_);

@@ -1,7 +1,7 @@
 #include "nest_itutil.h"
 #include "itutil_functions.h"
 
-#define FUNC_COUNT 14
+#define FUNC_COUNT 15
 
 static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
@@ -18,6 +18,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(repeat_,       2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(chain_,        1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(zip_,          2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(zipn_,         1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(enumerate_,    1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(keys_,         1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(values_,       1);
@@ -144,6 +145,59 @@ NST_FUNC_SIGN(zip_)
         FUNC(new_cfunc(1, zip_advance)),
         FUNC(new_cfunc(1, zip_is_done)),
         FUNC(new_cfunc(1, zip_get_val)),
+        OBJ(arr)
+    );
+}
+
+NST_FUNC_SIGN(zipn_)
+{
+    Nst_SeqObj *seq;
+
+    if ( !nst_extract_arg_values("A", arg_num, args, err, &seq) )
+        return nullptr;
+
+    if ( seq->len < 2 )
+    {
+        NST_SET_RAW_VALUE_ERROR("the sequence must be at least of length two");
+        return nullptr;
+    }
+
+    Nst_Obj **objs = seq->objs;
+
+    for ( size_t i = 0, n = seq->len; i < n; i++ )
+    {
+        if ( objs[i]->type != nst_t.Array &&
+             objs[i]->type != nst_t.Vector &&
+             objs[i]->type != nst_t.Str )
+        {
+            NST_SET_TYPE_ERROR(_nst_format_error(
+                "all objects in the sequence must be of type 'Array', 'Vector'"
+                " or 'Str' but the object at index %zi was type '%s'",
+                "us",
+                i, TYPE_NAME(objs[i])
+            ));
+            return nullptr;
+        }
+    }
+
+    // Layout: [idx, seq1, seq2, ...]
+    Nst_SeqObj *arr = SEQ(nst_new_array(seq->len + 1));
+    arr->objs[0] = nst_new_int(0);
+
+    for ( size_t i = 0, n = seq->len; i < n; i++ )
+    {
+        if ( objs[i]->type == nst_t.Array || objs[i]->type == nst_t.Vector )
+            arr->objs[i + 1] = nst_inc_ref(objs[i]);
+        else
+            // casting a string to an array always succedes
+            arr->objs[i + 1] = nst_obj_cast(objs[i], nst_t.Array, nullptr);
+    }
+
+    return nst_new_iter(
+        FUNC(new_cfunc(1, zipn_start)),
+        FUNC(new_cfunc(1, zipn_advance)),
+        FUNC(new_cfunc(1, zipn_is_done)),
+        FUNC(new_cfunc(1, zipn_get_val)),
         OBJ(arr)
     );
 }

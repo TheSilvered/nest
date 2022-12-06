@@ -36,6 +36,7 @@ __math.frexp_   = frexp
 __math.ldexp_   = ldexp
 __math.map_     = map
 __math.clamp_   = clamp
+__math.sum_     = sum
 
 3.141592653589793 = PI
 6.283185307179586 = TAU
