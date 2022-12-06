@@ -6,6 +6,7 @@
 { { 10 3 @itu.repeat, '101010' },
   { { { 1, 2 }, Array :: 'Hi' } @itu.chain, '12Hi' },
   { { 1, 2, 3 } 'Hi' @itu.zip, "{ 1, 'H' }{ 2, 'i' }" },
+  { { { 1, 2, 3 }, 'Hi', <{ 9, 8, 7, 6, 5 }> } @itu.zipn, "{ 1, 'H', 9 }{ 2, 'i', 8 }" },
   { 'Hello' @itu.enumerate, "{ 0, 'H' }{ 1, 'e' }{ 2, 'l' }{ 3, 'l' }{ 4, 'o' }" },
   { m @itu.keys, 'abc' },
   { m @itu.values, '123' },
