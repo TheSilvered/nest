@@ -38,6 +38,7 @@
 #define _NST_EM_MISSING_VBRACE "unmatched '<{'"
 #define _NST_EM_EXPECTED_COMMA_OR_BRACE "expected ',' or '}'"
 #define _NST_EM_EXPECTED_BRACE "expected '}'"
+#define _NST_EM_EXPECTED_VBRACE "expected '}>'"
 #define _NST_EM_EXPECTED_COLON "expected ':'"
 #define _NST_EM_EXPECTED_CATCH "expected '?!'"
 #define _NST_EM_RANGE_STEP_ZERO "step must not be zero"

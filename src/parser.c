@@ -365,7 +365,7 @@ static Nst_Node *parse_for_loop()
     {
         nst_destroy_node(range);
         nst_destroy_node(body);
-        RETURN_ERROR(err_pos, err_pos, _NST_EM_UNEXPECTED_TOK);
+        RETURN_ERROR(err_pos, err_pos, _NST_EM_MISSING_BRACKET);
     }
 
     tok = TOK(LList_pop(tokens));
@@ -567,6 +567,11 @@ static Nst_Node *parse_func_def()
     Nst_Pos err_start = TOK(LList_peek_front(tokens))->start;
     Nst_Pos err_end = TOK(LList_peek_front(tokens))->end;
 
+    if ( node_tokens->size == 0 ) // if there are no identifiers after #
+    {
+        LList_destroy(node_tokens, (LList_item_destructor)nst_destroy_token);
+        RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_IDENT);
+    }
     if ( TOK(LList_peek_front(tokens))->type != NST_TT_L_BRACKET )
     {
         LList_destroy(node_tokens, (LList_item_destructor)nst_destroy_token);
@@ -1130,11 +1135,11 @@ static Nst_Node *parse_vector_literal()
             if ( tok->type != NST_TT_R_VBRACE )
             {
                 LList_destroy(nodes, (LList_item_destructor)nst_destroy_node);
-                LList_destroy(nodes, (LList_item_destructor)nst_destroy_token);
+                LList_destroy(node_tokens, (LList_item_destructor)nst_destroy_token);
                 Nst_Pos tok_start = tok->start;
                 Nst_Pos tok_end = tok->end;
                 nst_destroy_token(tok);
-                RETURN_ERROR(tok_start, tok_end, _NST_EM_EXPECTED_BRACE);
+                RETURN_ERROR(tok_start, tok_end, _NST_EM_EXPECTED_VBRACE);
             }
             Nst_Pos end = tok->end;
             nst_destroy_token(tok);
@@ -1238,7 +1243,7 @@ static Nst_Node *parse_arr_or_map_literal()
             if ( tok->type != NST_TT_R_BRACE )
             {
                 LList_destroy(nodes, (LList_item_destructor)nst_destroy_node);
-                LList_destroy(nodes, (LList_item_destructor)nst_destroy_token);
+                LList_destroy(node_tokens, (LList_item_destructor)nst_destroy_token);
                 Nst_Pos err_start = tok->start;
                 Nst_Pos err_end = tok->end;
                 nst_destroy_token(tok);

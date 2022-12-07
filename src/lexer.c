@@ -447,6 +447,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
             }
             go_back();
             end = nst_copy_pos(cursor.pos);
+            advance();
 
             value = strtoll(int_part, NULL, 2);
 
@@ -463,7 +464,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
 
             if ( int_part == NULL)
             {
-                end = nst_copy_pos(cursor.pos);
+                go_back();
                 _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_INT_LITERAL);
                 return;
             }
@@ -502,7 +503,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
 
             if ( int_part == NULL)
             {
-                end = nst_copy_pos(cursor.pos);
+                go_back();
                 _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_BYTE_LITERAL);
                 return;
             }
@@ -539,7 +540,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
 
             if ( int_part == NULL)
             {
-                end = nst_copy_pos(cursor.pos);
+                go_back();
                 _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_INT_LITERAL);
                 return;
             }
@@ -610,11 +611,6 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
     }
 
     int_part = add_while_in(is_dec, true, &len_int_part);
-    if ( int_part == NULL )
-    {
-        _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_REAL_LITERAL);
-        return;
-    }
     advance();
     if ( cursor.ch != '.' )
         goto int_lit;
@@ -624,6 +620,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
     if ( frac_part == NULL )
     {
         free(int_part);
+        go_back();
         _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_REAL_LITERAL);
         return;
     }
@@ -646,6 +643,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
         {
             free(int_part);
             free(frac_part);
+            go_back();
             _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_REAL_LITERAL);
             return;
         }
@@ -755,7 +753,7 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
                 errno = ENOMEM;
                 return;
             }
-                end_str = end_str_realloc;
+            end_str = end_str_realloc;
         }
 
         if ( !escape )
@@ -790,7 +788,7 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
         case '\\':end_str[str_len++] = '\\'; break;
         case 'a': end_str[str_len++] = '\a'; break;
         case 'b': end_str[str_len++] = '\b'; break;
-        case 'e': end_str[str_len++] = '\x1b'; break;
+        case 'e': end_str[str_len++] ='\x1b';break;
         case 'f': end_str[str_len++] = '\f'; break;
         case 'n': end_str[str_len++] = '\n'; break;
         case 'r': end_str[str_len++] = '\r'; break;
