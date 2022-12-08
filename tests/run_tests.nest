@@ -16,13 +16,18 @@
 
         !(file_part 'e_' @su.starts_with) ?
             |#| test_path
-        :
+        : [
             ?? [
                 -- runs the file
                 |#| test_path
-                'Assertion Error' !! ('the file ' file_part ' should raise an error' ><)
             ]
-            ?! e []
+            ?! e [
+                >>> file_part
+                >>> '\n'
+                ..
+            ]
+            'Assertion Error' !! ('the file ' file_part ' should raise an error' ><)
+        ]
         >>> file_part
         >>> '\n'
     ]
