@@ -1,6 +1,9 @@
 |#| 'stdsys.nest' = sys
+|#| 'stdio.nest' = io
 |#| 'stdsutil.nest' = su
 |#| 'stderr.nest' = err
+
+null = log_file
 
 #_cast_obj obj type [
     => type :: obj
@@ -52,5 +55,5 @@
 ]
 
 #println s [
-    >>> (s '\n' ><)
+    log_file (s '\n' ><) @io.write
 ]

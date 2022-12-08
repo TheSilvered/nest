@@ -454,5 +454,8 @@ dkms.conf
 unix_release/
 unix_debug/
 
+# Test output
+tests/test_output.txt
+
 # Other
 *.zip

@@ -26,9 +26,3 @@ Shuffles `sequence` in-place, it does not create a new one.
 
 Sets the seed for the pseudo random number generator. By default it is
 `@@time_ns` from the function in `stdtime.nest`
-
-## Constants
-
-### `RAND_MAX`
-
-The maximum number returned by `random`, it is guaranteed to be at least `32768`.

@@ -1,13 +1,12 @@
 |#| '../test_lib.nest' = test
 |#| 'stdrand.nest' = rand
 
-@rand.random @rand.rand_seed
+10 @rand.rand_seed
 
-@rand.random @test.println
-0 100 @rand.rand_int @test.println
-@rand.rand_perc @test.println
-{ 1, 2, 3, 4, 5 } @rand.choice @test.println
+@rand.random -7355028476745759822 @test.assert_eq
+0 100 @rand.rand_int 98 @test.assert_eq
+@rand.rand_perc 0.2667319490808125 @test.assert_eq
+{ 1, 2, 3, 4, 5 } @rand.choice 4 @test.assert_eq
 { 1, 2, 3, 4, 5, 6, 7, 8, 9, 0 } = a
 a @rand.shuffle
-a @test.println
-rand.RAND_MAX @test.println
+a { 0, 7, 4, 1, 9, 8, 2, 3, 5, 6 } @test.assert_eq

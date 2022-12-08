@@ -1,5 +1,6 @@
 |#| '../test_lib.nest' = test
 |#| 'stdio.nest' = io
+|#| 'stdfs.nest' = fs
 
 { Byte :: 72, Byte :: 105 } = bytes -- Hi
 
@@ -22,7 +23,3 @@ f io.FROM_CUR -2 @io.move_fptr
 f @io.get_fptr 3 @test.assert_eq
 f -1 @io.read 'lo' @test.assert_eq
 f @io.close
-
--- should appear in the standard output
-io.STDOUT 'Using write and flush\n' @io.write
-io.STDOUT @io.flush

@@ -23,7 +23,6 @@ NST_FUNC_SIGN(rand_perc_);
 NST_FUNC_SIGN(choice_);
 NST_FUNC_SIGN(shuffle_);
 NST_FUNC_SIGN(rand_seed_);
-NST_FUNC_SIGN(_get_rand_max_);
 
 #ifdef __cplusplus
 }
