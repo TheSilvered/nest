@@ -779,7 +779,7 @@ static inline void exe_set_cont_val(Nst_RuntimeInstruction *inst)
             inst->start,
             inst->end,
             _nst_format_error(
-                _NST_EM_EXPECTED_TYPE("Array', 'Vector', 'Map' or 'Str"),
+                _NST_EM_EXPECTED_TYPE("Array', 'Vector', or 'Map"),
                 "s",
                 TYPE_NAME(cont)
             )
@@ -1095,7 +1095,7 @@ static inline void exe_op_extract(Nst_RuntimeInstruction *inst)
                 inst->end,
                 _nst_format_error(
                     cont->type == nst_t.Array ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
-                                            : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+                                              : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
                     "iu",
                     AS_INT(idx),
                     SEQ(cont)->len
@@ -1180,7 +1180,7 @@ static inline void exe_op_extract(Nst_RuntimeInstruction *inst)
             inst->start,
             inst->end,
             _nst_format_error(
-                _NST_EM_EXPECTED_TYPE("Array', 'Vector' or 'Map"),
+                _NST_EM_EXPECTED_TYPE("Array', 'Vector', 'Map' or 'Str"),
                 "s",
                 TYPE_NAME(cont)
             )

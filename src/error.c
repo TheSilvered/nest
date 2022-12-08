@@ -107,17 +107,12 @@ static void print_line(Nst_Pos *pos, long start_col, long end_col, int keep_inde
     }
     printf("\n");
 
-    line_length -= indent;
-
     if ( end_col == -1 )
         end_col = indent + line_length - 1;
     else
         end_col -= keep_indent;
 
     start_col -= keep_indent;
-
-    if ( start_col < indent )
-        start_col = indent;
 
     if ( end_col - start_col + 1 == line_length )
     {

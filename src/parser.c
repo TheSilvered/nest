@@ -915,9 +915,6 @@ static Nst_Node *parse_assignment(Nst_Node *value)
         return NULL;
     }
 
-    Nst_Pos start = value->start;
-    Nst_Pos end = value->end;
-
     if ( name->type != NST_NT_ACCESS && name->type != NST_NT_EXTRACT_E )
     {
         nst_destroy_token(tok);
@@ -949,6 +946,9 @@ static Nst_Node *parse_assignment(Nst_Node *value)
                               new_value_nodes, new_value_tokens);
     }
     nst_destroy_token(tok);
+
+    Nst_Pos start = value->start;
+    Nst_Pos end = name->end;
 
     SAFE_LLIST_CREATE(new_nodes);
     LList_append(new_nodes, value, true);
