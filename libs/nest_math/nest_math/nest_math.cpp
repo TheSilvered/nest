@@ -631,6 +631,9 @@ NST_FUNC_SIGN(sum_)
     if ( !nst_extract_arg_values("A", arg_num, args, err, &seq) )
         return nullptr;
 
+    if ( seq->len == 0 )
+        return nst_new_int(0);
+
     Nst_Obj *tot = nst_new_byte(0);
     Nst_Obj *new_tot = nullptr;
 

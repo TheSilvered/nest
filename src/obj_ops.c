@@ -310,8 +310,9 @@ Nst_Obj *_nst_obj_ge(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 
     if ( err->name == nst_s.e_TypeError )
     {
+        nst_dec_ref(err->name);
         nst_dec_ref(err->message);
-        err->message = STR(nst_new_cstring_raw("invalid type for '>='", false));
+        RETURN_STACK_OP_TYPE_ERROR(">=");
     }
     return res;
 }
@@ -327,8 +328,9 @@ Nst_Obj *_nst_obj_le(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 
     if ( err->name == nst_s.e_TypeError )
     {
+        nst_dec_ref(err->name);
         nst_dec_ref(err->message);
-        err->message = STR(nst_new_cstring_raw("invalid type for '<='", false));
+        RETURN_STACK_OP_TYPE_ERROR("<=");
     }
     return res;
 }
