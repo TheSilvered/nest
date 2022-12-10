@@ -112,13 +112,13 @@ static inline void exe_save_error();
 static Nst_SeqObj *make_argv(int argc, char **argv, char *filename);
 static Nst_StrObj *make_cwd(char *file_path);
 
-void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int opt_lvl)
+int nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int opt_lvl)
 {
     opt_level = opt_lvl;
 
     char *cwd_buf = (char *)malloc(sizeof(char) * PATH_MAX);
     if ( cwd_buf == NULL )
-        return;
+        return -1;
 
     Nst_Traceback tb;
     tb.error.start = nst_no_pos();
@@ -209,6 +209,7 @@ void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int 
     LList_destroy(nst_state.lib_handles, (LList_item_destructor)nst_destroy_lib_handle);
 
     nst_delete_objects(&ggc);
+    return ERROR_OCCURRED ? 1 : 0;
 }
 
 static inline void destroy_call(Nst_FuncCall *call, Nst_Int offset)

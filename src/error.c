@@ -8,11 +8,16 @@
 
 #define MAX_INT_CHAR_COUNT 21
 
+#define PRINT(str, len) fwrite(str, len, sizeof(char), stdout)
+
 #define C_RED "\x1b[31m"
 #define C_GREEN "\x1b[32m"
 #define C_YELLOW "\x1b[33m"
 #define C_CYAN "\x1b[96m"
 #define C_RESET "\x1b[0m"
+
+#define RESET_LEN 4
+#define COLOR_LEN 5
 
 static bool use_color = true;
 
@@ -42,7 +47,7 @@ Nst_Pos nst_no_pos()
 #pragma warning( disable: 4100 )
 #endif
 
-static void print_repeat(char ch, long times)
+static inline void print_repeat(char ch, long times)
 {
     if ( times < 0 ) times = 0;
     for ( long i = 0; i < times; i++ )
@@ -97,13 +102,13 @@ static void print_line(Nst_Pos *pos, long start_col, long end_col, int keep_inde
     for ( long i = keep_indent; text[i] != '\n' && text[i] != '\0'; i++ )
     {
         if ( i == start_col && use_color )
-            printf(C_RED);
+            PRINT(C_RED, COLOR_LEN);
 
         putc(text[i], stdout);
         line_length++;
 
         if ( use_color && i == end_col )
-            printf(C_RESET);
+            PRINT(C_RESET, RESET_LEN);
     }
     printf("\n");
 
@@ -117,25 +122,25 @@ static void print_line(Nst_Pos *pos, long start_col, long end_col, int keep_inde
     if ( end_col - start_col + 1 == line_length )
     {
         if ( use_color )
-            printf(C_RESET);
+            PRINT(C_RESET, RESET_LEN);
         return;
     }
 
     if ( use_color )
     {
         print_repeat(' ', lineno_len);
-        printf(C_RESET "  | " C_RED);
+        PRINT(C_RESET "  | " C_RED, RESET_LEN + 4 + COLOR_LEN);
         print_repeat(' ', start_col);
         print_repeat('^', end_col - start_col + 1);
-        printf(C_RESET "\n");
+        PRINT(C_RESET "\n", RESET_LEN + 1);
     }
     else
     {
         print_repeat(' ', lineno_len);
-        printf("  | ");
+        PRINT("  | ", 4);
         print_repeat(' ', start_col);
         print_repeat('^', end_col - start_col + 1);
-        printf("\n");
+        PRINT(C_RESET "\n", RESET_LEN + 1);
     }
 }
 
@@ -209,6 +214,7 @@ void nst_print_error(Nst_Error err)
         printf(C_YELLOW "%s" C_RESET " - %s\n", err.name->value, err.message->value);
     else
         printf("%s - %s\n", err.name->value, err.message->value);
+    fflush(stdout);
 }
 
 void nst_print_traceback(Nst_Traceback tb)
@@ -274,6 +280,7 @@ void nst_print_traceback(Nst_Traceback tb)
         printf(C_YELLOW "%s" C_RESET " - %s\n", tb.error.name->value, tb.error.message->value);
     else
         printf("%s - %s\n", tb.error.name->value, tb.error.message->value);
+    fflush(stdout);
 }
 
 Nst_StrObj *_nst_format_error(const char *format, const char *format_args, ...)

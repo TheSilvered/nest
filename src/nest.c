@@ -14,7 +14,7 @@
 
 #endif
 
-#define EXIT \
+#define EXIT(code) \
     do { \
     _nst_del_consts(); \
     _nst_del_strs(); \
@@ -23,7 +23,7 @@
         free(src_text.text); \
         free(src_text.lines); \
     } \
-    return 0; \
+    return code; \
     } while (0)
 
 #define ERROR_EXIT \
@@ -31,7 +31,7 @@
     nst_print_error(error); \
     nst_dec_ref(error.name); \
     nst_dec_ref(error.message); \
-    EXIT; \
+    EXIT(1); \
     } while (0)
 
 int main(int argc, char **argv)
@@ -101,7 +101,7 @@ int main(int argc, char **argv)
     if ( tokens == NULL )
     {
         if ( src_text.text == NULL )
-            EXIT;
+            EXIT(0);
         else
             ERROR_EXIT;
     }
@@ -117,7 +117,7 @@ int main(int argc, char **argv)
         if ( !force_exe && !print_tree && !print_bc )
         {
             LList_destroy(tokens, (LList_item_destructor)nst_destroy_token);
-            EXIT;
+            EXIT(0);
         }
     }
 
@@ -138,7 +138,7 @@ int main(int argc, char **argv)
         if ( !force_exe && !print_bc )
         {
             nst_destroy_node(ast);
-            EXIT;
+            EXIT(0);
         }
     }
 
@@ -161,13 +161,13 @@ int main(int argc, char **argv)
         if ( !force_exe )
         {
             nst_destroy_inst_list(inst_ls);
-            EXIT;
+            EXIT(0);
         }
     }
 
     Nst_FuncObj *main_func = FUNC(new_func(0, inst_ls));
 
-    nst_run(
+    int exe_result = nst_run(
         main_func,
         argc - args_start,
         argv + args_start,
@@ -175,5 +175,5 @@ int main(int argc, char **argv)
         opt_level
     );
 
-    EXIT;
+    EXIT(exe_result);
 }

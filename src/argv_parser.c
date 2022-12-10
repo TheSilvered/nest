@@ -14,18 +14,20 @@
     "  the arguments that will be accessible through _args_ during execution\n\n" \
     \
     "Options:\n" \
-    "  -h -? --help: prints this message\n" \
-    "  -V --version: prints the version of nest being used\n" \
-    "  -t --tokens: prints the list of tokens of the program\n" \
-    "  -a --ast: prints the abstract syntax tree of the program\n" \
-    "  -b --bytecode: prints the byte code of the program\n" \
-    "  -f --force-execution: executes the program even when -t, -a or -b are used\n" \
-    "  -O0: do not optimize the program\n" \
-    "  -O1: optimize only the expressions with known values\n" \
-    "  -O2: optimize byte code instruction sequences that can be more concise\n" \
-    "  -O3: replace built-in names (e.g. 'true', 'Int', etc.) with their corresponding value\n" \
-    "       this does not replace them when they are re-purposed in the scope\n" \
-    "  -m --monochrome: prints the error messages without ANSI color escapes\n"
+    "  -h -? --help          prints this message\n" \
+    "  -V --version          prints the version of nest being used\n" \
+    "  -t --tokens           prints the list of tokens of the program\n" \
+    "  -a --ast              prints the abstract syntax tree of the program\n" \
+    "  -b --bytecode         prints the byte code of the program\n" \
+    "  -f --force-execution  executes the program even when -t, -a or -b are used\n\n" \
+    \
+    "  -O0                   do not optimize the program\n" \
+    "  -O1                   optimize only the expressions with known values\n" \
+    "  -O2                   optimize byte code instruction sequences that can be more concise\n" \
+    "  -O3                   replace built-in names (e.g. 'true', 'Int', etc.) with their corresponding value\n" \
+    "                        this does not replace them when they might be modified\n\n" \
+    \
+    "  -m --monochrome       prints the error messages without ANSI color escapes\n"
 
 #define USAGE_MESSAGE \
     "USAGE: nest [options] [filename | -c command] [args]\n" \
@@ -88,7 +90,7 @@ int nst_parse_args(int argc, char **argv,
                     return 1;
 
                 case 'V':
-                    printf("Using nest version " NEST_VERSION "\n");
+                    printf("Using Nest version " NEST_VERSION "\n");
                     return 1;
 
                 case 'O':

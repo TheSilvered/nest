@@ -43,7 +43,7 @@ typedef struct _Nst_LibHandle
 Nst_LibHandle;
 
 // Runs the main program, must never be called
-void nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int opt_level);
+int nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int opt_level);
 // Runs an external Nest file, returns -1 on fail and 0 on success
 int nst_run_module(char *file_name, Nst_SourceText *lib_src);
 // Calls a Nst_FuncObj, it can be both a C function or a bytecode function
