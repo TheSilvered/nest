@@ -761,9 +761,6 @@ static void compile_local_stack_op(Nst_Node *node)
     }
     else if ( tok_type == NST_TT_CALL )
     {
-        inst = nst_new_inst_empty(NST_IC_PUSH_VAL, 0);
-        ADD_INST(inst);
-
         for ( LLNode *n = node->nodes->head; n != NULL; n = n->next )
             compile_node(NODE(n->value));
 
@@ -819,8 +816,6 @@ static void compile_local_op(Nst_Node *node)
 
     if ( HEAD_TOK->type == NST_TT_LOC_CALL )
     {
-        inst = nst_new_inst_empty(NST_IC_PUSH_VAL, 0);
-        ADD_INST(inst);
         compile_node(HEAD_NODE);
         inst = nst_new_inst_val(NST_IC_TYPE_CHECK, nst_t.Func, node->start, node->end);
         ADD_INST(inst);
@@ -1347,8 +1342,6 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
                 nst_print_bytecode(FUNC(inst.val)->body.bytecode, indent + 1);
             }
         }
-        else if ( inst.id == NST_IC_PUSH_VAL )
-            PRINT(" NULL", 5);
         else if ( inst.id == NST_IC_STACK_OP || inst.id == NST_IC_LOCAL_OP )
         {
             PRINT(" [", 2);

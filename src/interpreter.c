@@ -544,7 +544,6 @@ static inline void exe_for_inst(Nst_RuntimeInstruction *inst, Nst_IterObj *iter,
     }
     else
     {
-        nst_push_val(nst_state.v_stack, NULL);
         nst_push_val(nst_state.v_stack, iter->value);
         nst_push_val(nst_state.v_stack, func);
         exe_op_call(inst);
@@ -834,7 +833,6 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
                 args[i] = nst_pop_val(nst_state.v_stack);
             args_allocated = true;
         }
-        nst_pop_val(nst_state.v_stack); // removes the NULL separator for the call
 
         Nst_Obj *res = func->body.c_func((size_t)arg_num, args, &err);
 
@@ -895,6 +893,7 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
         nst_dec_ref(val);
     }
     CHANGE_VT(new_vt);
+    nst_push_val(nst_state.v_stack, NULL);
 }
 
 static inline void exe_op_cast(Nst_RuntimeInstruction *inst)

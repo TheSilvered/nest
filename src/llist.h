@@ -6,6 +6,12 @@
 #include <stdbool.h>
 #include <stddef.h>
 
+// Initialize a for loop on a list
+#define ITER_LLIST(node, llist) \
+    LLNode *node = llist->head; \
+    node != NULL; \
+    node = node->next
+
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus

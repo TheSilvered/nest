@@ -91,14 +91,10 @@ static Nst_Node *copy_node(Nst_Node *node)
     SAFE_LLIST_CREATE(nodes);
     SAFE_LLIST_CREATE(node_tokens);
 
-    for ( LLNode *cursor = node->nodes->head;
-          cursor != NULL;
-          cursor = cursor->next )
+    for ( ITER_LLIST(cursor, node->nodes) )
         LList_append(nodes, copy_node(NODE(cursor->value)), true);
 
-    for ( LLNode *cursor = node->tokens->head;
-          cursor != NULL;
-          cursor = cursor->next )
+    for ( ITER_LLIST(cursor, node->tokens) )
         LList_append(node_tokens, copy_token(TOK(cursor->value)), true);
 
     return nst_new_node_full(
@@ -668,9 +664,7 @@ static Nst_Node *fix_expr(Nst_Node *expr)
         return new_node;
     }
 
-    for ( LLNode *cursor = expr->nodes->head;
-          cursor != NULL;
-          cursor = cursor->next )
+    for ( ITER_LLIST(cursor, expr->nodes) )
         cursor->value = fix_expr(NODE(cursor->value));
 
     if ( expr->type != NST_NT_STACK_OP )
