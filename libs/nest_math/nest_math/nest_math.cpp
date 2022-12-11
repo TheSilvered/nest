@@ -1,7 +1,7 @@
 #include <cmath>
 #include "nest_math.h"
 
-#define FUNC_COUNT 37
+#define FUNC_COUNT 38
 #define COORD_TYPE_ERROR do { \
         NST_SET_RAW_VALUE_ERROR("all coordinates must be of type 'Real' or 'Int'"); \
         return nullptr; \
@@ -53,7 +53,8 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(ldexp_,  2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(map_,    5);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(clamp_,  3);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(sum_,    1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(gcd_,    2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(lcm_,    2);
 
     lib_init_ = true;
     return true;
@@ -550,20 +551,24 @@ NST_FUNC_SIGN(sum_seq_)
     if ( !nst_extract_arg_values("A", arg_num, args, err, &seq) )
         return nullptr;
 
-    Nst_Obj *total = nst_new_int(0);
-    size_t seq_len = seq->len;
+    if ( seq->len == 0 )
+        return nst_new_int(0);
 
-    for ( size_t i = 0; i < seq_len; i++ )
+    Nst_Obj *tot = nst_new_byte(0);
+    Nst_Obj *new_tot = nullptr;
+
+    for (size_t i = 0, n = seq->len; i < n; i++)
     {
-        Nst_Obj *res = nst_obj_add(total, seq->objs[i], err);
-        nst_dec_ref(total);
-        if ( res == nullptr )
-            return nullptr;
+        new_tot = nst_obj_add(tot, seq->objs[i], err);
+        nst_dec_ref(tot);
 
-        total = res;
+        if ( new_tot == nullptr )
+            return nullptr;
+        else
+            tot = new_tot;
     }
 
-    return total;
+    return tot;
 }
 
 NST_FUNC_SIGN(frexp_)
@@ -604,10 +609,7 @@ NST_FUNC_SIGN(map_)
         return nullptr;
 
     if ( min1 == max1 )
-    {
-        NST_SET_RAW_MATH_ERROR("original minimum and maximum are equal");
-        return nullptr;
-    }
+        return nst_new_real(min2);
 
     return nst_new_real((val - min1) / (max1 - min1) * (max2 - min2) + min2);
 }
@@ -624,29 +626,90 @@ NST_FUNC_SIGN(clamp_)
     return nst_new_real(min > val ? min : max < val ? max : val);
 }
 
-NST_FUNC_SIGN(sum_)
+static inline Nst_Byte gcd_byte(Nst_Byte a, Nst_Byte b, Nst_Byte res)
 {
-    Nst_SeqObj *seq;
+    if ( a == b )
+        return res * a;
+    else if ( !(a & 1) && !(b & 1) )
+        return gcd_byte(a >> 1, b >> 1, res << 1);
+    else if ( !(a & 1) )
+        return gcd_byte(a >> 1, b, res);
+    else if ( !(b & 1) )
+        return gcd_byte(a, b >> 1, res);
+    else if ( a > b )
+        return gcd_byte(a - b, b, res);
+    else
+        return gcd_byte(a, b - a, res);
+}
 
-    if ( !nst_extract_arg_values("A", arg_num, args, err, &seq) )
+static inline Nst_Int gcd_int(Nst_Int a, Nst_Int b, Nst_Int res)
+{
+    if ( a == b )
+        return res * a;
+    if ( !(a & 1) && !(b & 1) )
+        return gcd_int(a >> 1, b >> 1, res << 1);
+    if ( !(a & 1) )
+         return gcd_int(a >> 1, b, res);
+    if ( !(b & 1) )
+        return gcd_int(a, b >> 1, res);
+    if ( a > b )
+        return gcd_int(a - b, b, res);
+
+    return gcd_int(a, b - a, res);
+}
+
+static inline Nst_Real gcd_real(Nst_Real a, Nst_Real b)
+{
+    if ( a == b )
+        return a;
+    if ( a > b )
+        return gcd_real(a - b, b);
+    
+    return gcd_real(a, b - a);
+}
+
+NST_FUNC_SIGN(gcd_)
+{
+    Nst_Real n1;
+    Nst_Real n2;
+
+    if ( !nst_extract_arg_values("NN", arg_num, args, err, &n1, &n2) )
         return nullptr;
 
-    if ( seq->len == 0 )
-        return nst_new_int(0);
-
-    Nst_Obj *tot = nst_new_byte(0);
-    Nst_Obj *new_tot = nullptr;
-
-    for (size_t i = 0, n = seq->len; i < n; i++)
+    if ( args[0]->type == nst_t.Real || args[1]->type == nst_t.Real )
+        return nst_new_real(gcd_real(n1, n2));
+    else if ( args[0]->type == nst_t.Int || args[1]->type == nst_t.Int )
     {
-        new_tot = nst_obj_add(tot, seq->objs[i], err);
-        nst_dec_ref(tot);
+        Nst_Int n1_int;
+        Nst_Int n2_int;
 
-        if ( new_tot == nullptr )
-            return nullptr;
+        if ( args[0]->type == nst_t.Int )
+            n1_int = AS_INT(args[0]);
         else
-            tot = new_tot;
-    }
+            n1_int = (Nst_Int)AS_BYTE(args[0]);
 
-    return tot;
+        if ( args[1]->type == nst_t.Int )
+            n2_int = AS_INT(args[1]);
+        else
+            n2_int = (Nst_Int)AS_BYTE(args[1]);
+
+        return nst_new_int(gcd_int(n1_int, n2_int, 1));
+    }
+    else
+        return nst_new_byte(gcd_byte(AS_BYTE(args[0]), AS_BYTE(args[1]), 1));
+}
+
+NST_FUNC_SIGN(lcm_)
+{
+    Nst_Obj *denominator = gcd_(2, args, err);
+    if ( denominator == nullptr )
+        return nullptr;
+
+    // there cannot be an error as they are all numbers
+    Nst_Obj *numerator = nst_obj_mul(args[0], args[1], nullptr);
+    Nst_Obj *result = nst_obj_div(numerator, denominator, nullptr);
+    nst_dec_ref(numerator);
+    nst_dec_ref(denominator);
+
+    return result;
 }

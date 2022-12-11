@@ -1,37 +1,39 @@
 # Math library (`stdmath.nest` - `math`)
 
+If an argument is annotated with `Number`, it is equivalent to `Byte|Int|Real`.
+
 ## Functions
 
-### `[n: Int|Real] @floor`
+### `[n: Number] @floor`
 
 Calculates the floor of `n`.
 
-### `[n: Int|Real] @ceil`
+### `[n: Number] @ceil`
 
 Calculates the ceil of `n`.
 
-### `[n: Int|Real] @round`
+### `[n: Number] @round`
 
 Rounds `n` to the nearest integer.
 
-### `[n: Int|Real] @exp`
+### `[n: Number] @exp`
 
 Returns Euler's constant `e` raised to the power of `n`.
 
-### `[n: Int|Real] @log`
+### `[n: Number] @log`
 
 Returns the natural logarithm of `n`.
 
-### `[n: Int|Real, m: Int|Real] @logn`
+### `[n: Number, m: Number] @logn`
 
 Returns the logarithm of `n` with the base `m`, calculated with
 `(n @log) (m @log) /`.
 
-### `[n: Int|Real] @log2`
+### `[n: Number] @log2`
 
 Returns the logarithm base 2 of `n`.
 
-### `[n: Int|Real] @log10`
+### `[n: Number] @log10`
 
 Returns the logarithm base 10 of `n`.
 
@@ -40,58 +42,58 @@ Returns the logarithm base 10 of `n`.
 Returns a 2-element array with the first being the result of `a b /` and the
 second being the result of `a b %`, equal to `{ a b /, a b % }`
 
-### `[n: Int|Real] @sin`
+### `[n: Number] @sin`
 
 Returns the sine of `n` radians.
 
-### `[n: Int|Real] @cos`
+### `[n: Number] @cos`
 
 Returns the cosine of `n` radians.
 
-### `[n: Int|Real] @tan`
+### `[n: Number] @tan`
 
 Returns the tangent of `n` radians.
 
-### `[n: Int|Real] @asin`
+### `[n: Number] @asin`
 
 Returns the area sine of `n` radians.
 
-### `[n: Int|Real] @acos`
+### `[n: Number] @acos`
 
 Returns the area cosine of `n` radians.
 
-### `[n: Int|Real] @atan`
+### `[n: Number] @atan`
 
 Returns the area tangent of `n` radians.
 
-### `[y: Int|Real, x: Int|Real] @atan2`
-
-Calculates the angle in radians of the vector from `{ 0, 0 }` to `{ x, y }`
-relative to the x axis.
-
-### `[n: Int|Real] @sinh`
+### `[n: Number] @sinh`
 
 Returns the hyperbolic sine of `n` radians.
 
-### `[n: Int|Real] @cosh`
+### `[n: Number] @cosh`
 
 Returns the hyperbolic cosine of `n` radians.
 
-### `[n: Int|Real] @tanh`
+### `[n: Number] @tanh`
 
 Returns the hyperbolic tangent of `n` radians.
 
-### `[n: Int|Real] @asinh`
+### `[n: Number] @asinh`
 
 Returns the area hyperbolic sine of `n` radians.
 
-### `[n: Int|Real] @acosh`
+### `[n: Number] @acosh`
 
 Returns the area hyperbolic cosine of `n` radians.
 
-### `[n: Int|Real] @atanh`
+### `[n: Number] @atanh`
 
 Returns the area hyperbolic tangent of `n` radians.
+
+### `[y: Number, x: Number] @atan2`
+
+Calculates the angle in radians of the vector from `{ 0, 0 }` to `{ x, y }`
+relative to the x axis.
 
 ### `[a: Array|Vector, b: Array|Vector] @dist_2d`
 
@@ -109,19 +111,19 @@ Calculates the euclidean distance of points `a` and `b` with the same number of
 dimensions. The two arrays must have the same length and the coordinates must be
 of type `Int` or `Real`.
 
-### `[n: Int|Real] @deg`
+### `[n: Number] @deg`
 
 Transforms `n` radians in degrees.
 
-### `[n: Int|Real] @rad`
+### `[n: Number] @rad`
 
 Transforms `n` degrees in radians.
 
-### `[a: Int|Real, b: Int|Real] @min`
+### `[a: Number, b: Number] @min`
 
 Returns the smallest number between `a` and `b`.
 
-### `[a: Int|Real, b: Int|Real] @max`
+### `[a: Number, b: Number] @max`
 
 Returns the biggest number between `a` and `b`.
 
@@ -147,21 +149,19 @@ the exponent as the second.
 Inverse of `frexp`, returns a `Real` number with `m` as the mantissa and `e` as
 the exponent.
 
-### `[n: Int|Real, min1: Int|Real, max1: Int|Real, min2: Int|Real, max2: Int|Real] @map`
+### `[n: Number, min1: Number, max1: Number, min2: Number, max2: Number] @map`
 
 Maps `n` from a range from `min1` to `max2`, to a range from `min2` to `max2`.  
 Uses the formula `(n min1 -) (max1 min1 -) / (max2 min2 -) * min2 +`.  
-This implies that `min1` cannot be equal to `max1`.
+If `min1` and `max1` are equal, `min2` is returned.
 
-### `[n: Int|Real, min: Int|Real, max: Int|Real] @clamp`
+### `[n: Number, min: Number, max: Number] @clamp`
 
 Returns a value such that `min <= value <= max`. If `n` is greater than `max`,
 `max` is returned, similarly if `n` is smaller than `min` then `min` is returned.
 If `n` is between `min` and `max` inclusive, it is returned.
 
-### `[seq: Array|Vector] @sum`
-
-Returns the sum of all the elements inside `seq`.
+### `[n1: Number, n2: Number]`
 
 ## Constants
 
@@ -169,20 +169,20 @@ Returns the sum of all the elements inside `seq`.
 
 π, defined as the ratio between the radius of the circle and its
 semicircumference.  
-It is about equal to `3.141592653589793`.
+It is about equal to `3.14159`.
 
 ### `TAU`
 
 τ, defined as the ratio between the radius of the circle and its circumference.  
-It is about equal to `6.283185307179586` or to `2π`.
+It is about equal to `6.28318` or to `2π`.
 
 ### `E`
 
-Euler's constant, about equal to `2.718281828459045`.
+Euler's constant, about equal to `2.71828`.
 
 ### `PHI`
 
-φ, the golden ratio, about equal to `1.618033988749895`.
+φ, the golden ratio, about equal to `1.61803`.
 
 ### `GOLDEN_RATIO`
 
