@@ -60,8 +60,8 @@ Returns the current hour, from `0` to `23`.
 
 ### `[] @clock_time`
 
-Returns a map containing the current second as `seconds`, the current minute as
-`minute` and the current hour as `hours`.
+Returns a map containing the current second as `second`, the current minute as
+`minute` and the current hour as `hour`.
 
 ### `[] @gmt_clock_time`
 

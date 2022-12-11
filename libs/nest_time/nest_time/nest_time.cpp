@@ -92,17 +92,17 @@ static void add_time(Nst_MapObj *map, tm *(*time_func)(const time_t *))
     time(&raw_time);
     tm *t = time_func(&raw_time);
 
-    Nst_Obj *seconds = nst_new_int(t->tm_sec);
-    Nst_Obj *minutes = nst_new_int(t->tm_min);
-    Nst_Obj *hours = nst_new_int(t->tm_hour);
+    Nst_Obj *second = nst_new_int(t->tm_sec);
+    Nst_Obj *minute = nst_new_int(t->tm_min);
+    Nst_Obj *hour = nst_new_int(t->tm_hour);
 
-    nst_map_set_str(map, "hours", hours);
-    nst_map_set_str(map, "minutes", minutes);
-    nst_map_set_str(map, "seconds", seconds);
+    nst_map_set_str(map, "hour", hour);
+    nst_map_set_str(map, "minute", minute);
+    nst_map_set_str(map, "second", second);
 
-    nst_dec_ref(seconds);
-    nst_dec_ref(minutes);
-    nst_dec_ref(hours);
+    nst_dec_ref(second);
+    nst_dec_ref(minute);
+    nst_dec_ref(hour);
 }
 
 NST_FUNC_SIGN(time_)
