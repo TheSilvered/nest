@@ -935,9 +935,9 @@ static inline void exe_op_range(Nst_RuntimeInstruction *inst)
         start = nst_pop_val(nst_state.v_stack);
 
         if ( AS_INT(start) <= AS_INT(stop) )
-            step = nst_new_int(1);
+            step = nst_inc_ref(nst_c.Int_1);
         else
-            step = nst_new_int(-1);
+            step = nst_inc_ref(nst_c.Int_neg1);
     }
 
     Nst_OpErr err = { NULL, NULL };

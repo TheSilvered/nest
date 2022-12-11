@@ -39,6 +39,9 @@ __math.clamp_   = clamp
 __math.sum_     = sum
 __math.gcd_     = gcd
 __math.lcm_     = lcm
+__math.gcd_seq_ = gcd_seq
+__math.lcm_seq_ = lcm_seq
+__math.abs_     = abs
 
 3.141592653589793 = PI
 6.283185307179586 = TAU

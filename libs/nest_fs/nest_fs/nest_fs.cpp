@@ -85,7 +85,7 @@ NST_FUNC_SIGN(mkdir_)
     bool success = fs::create_directory(path->value, ec);
 
     if ( success || ec.value() == ERROR_ALREADY_EXISTS )
-        return nst_new_int(0);
+        NST_RETURN_ZERO;
     else
         return nst_new_int(ec.value());
 }
@@ -102,7 +102,7 @@ NST_FUNC_SIGN(mkdirs_)
     bool success = fs::create_directories(path->value, ec);
 
     if ( success || ec.value() == ERROR_ALREADY_EXISTS )
-        return nst_new_int(0);
+        NST_RETURN_ZERO;
     else
         return nst_new_int(ec.value());
 }
@@ -125,7 +125,7 @@ NST_FUNC_SIGN(rmdir_)
     bool success = fs::remove(path->value);
 
     if ( success )
-        return nst_new_int(0);
+        NST_RETURN_ZERO;
     else
         return nst_new_int(ec.value());
 }
@@ -148,7 +148,7 @@ NST_FUNC_SIGN(rmdir_recursive_)
     bool success = fs::remove_all(path->value, ec);
 
     if ( success )
-        return nst_new_int(0);
+        NST_RETURN_ZERO;
     else
         return nst_new_int(ec.value());
 }
@@ -189,7 +189,7 @@ NST_FUNC_SIGN(rmfile_)
     bool success = fs::remove(path->value, ec);
 
     if ( success )
-        return nst_new_int(0);
+        NST_RETURN_ZERO;
     else
         return nst_new_int(ec.value());
 }

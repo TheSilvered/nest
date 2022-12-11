@@ -83,12 +83,12 @@ NST_FUNC_SIGN(lfind_)
         return nullptr;
 
     if ( str1 == str2 )
-        return nst_new_int(0);
+        NST_RETURN_ZERO;
 
     char *sub = find_substring(str1->value, str1->len, str2->value, str2->len);
 
     if ( sub == nullptr )
-        return nst_new_int(-1);
+        return nst_inc_ref(nst_c.Int_neg1);
     else
         return nst_new_int(sub - str1->value);
 }
@@ -102,7 +102,7 @@ NST_FUNC_SIGN(rfind_)
         return nullptr;
 
     if ( str1 == str2 )
-        return nst_new_int(0);
+        NST_RETURN_ZERO;
 
     char *s1 = str1->value + str1->len - 1;
     char *s2 = str2->value + str2->len - 1;
@@ -128,7 +128,7 @@ NST_FUNC_SIGN(rfind_)
             return nst_new_int(p1 - s1_start + 1);
     }
 
-    return nst_new_int(-1);
+    return nst_inc_ref(nst_c.Int_neg1);
 }
 
 NST_FUNC_SIGN(starts_with_)

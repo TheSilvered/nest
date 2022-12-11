@@ -161,7 +161,25 @@ Returns a value such that `min <= value <= max`. If `n` is greater than `max`,
 `max` is returned, similarly if `n` is smaller than `min` then `min` is returned.
 If `n` is between `min` and `max` inclusive, it is returned.
 
-### `[n1: Number, n2: Number]`
+### `[n1: Number, n2: Number] @gcd`
+
+Returns the greatest common divisor between `n1` and `n2`.
+
+### `[n1: Number, n2: Number] @lcm`
+
+Returns the least common multiple between `n1` and `n2`.
+
+### `[seq: Array|Vector] @gcd_seq`
+
+Returns the greatest common divisor between all the elements in `seq`.
+
+### `[seq: Array|Vector] @lcm_seq`
+
+Returns the least common multiple between all the elements in `seq`.
+
+### `[number: Number] @abs`
+
+Returns the absolute value of `number`.
 
 ## Constants
 

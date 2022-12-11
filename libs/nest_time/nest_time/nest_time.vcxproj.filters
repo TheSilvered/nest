@@ -42,9 +42,6 @@
     <ClInclude Include="..\..\..\src\interpreter.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\src\interpreter_ast.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\src\iter.h">
       <Filter>Header files</Filter>
     </ClInclude>

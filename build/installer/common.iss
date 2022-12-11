@@ -10,7 +10,7 @@
 AppId={{90CC9EB3-3160-4D79-B767-3123B661A530}
 AppName={#MyAppName}
 AppVersion={#MyAppVersion}
-AppVerName={#MyAppName} beta-{#MyAppVersion}
+AppVerName={#MyAppName}
 AppPublisher={#MyAppPublisher}
 DefaultDirName={userpf}\{#MyAppName}
 DisableDirPage=yes

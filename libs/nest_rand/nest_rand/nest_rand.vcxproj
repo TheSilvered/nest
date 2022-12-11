@@ -152,7 +152,6 @@
     <ClInclude Include="..\..\..\src\hash.h" />
     <ClInclude Include="..\..\..\src\instructions.h" />
     <ClInclude Include="..\..\..\src\interpreter.h" />
-    <ClInclude Include="..\..\..\src\interpreter_ast.h" />
     <ClInclude Include="..\..\..\src\iter.h" />
     <ClInclude Include="..\..\..\src\lexer.h" />
     <ClInclude Include="..\..\..\src\lib_import.h" />

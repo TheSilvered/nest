@@ -60,6 +60,8 @@
 #define NST_RETURN_TRUE return nst_inc_ref(nst_c.b_true)
 #define NST_RETURN_FALSE return nst_inc_ref(nst_c.b_false)
 #define NST_RETURN_NULL return nst_inc_ref(nst_c.null)
+#define NST_RETURN_ZERO return nst_inc_ref(nst_c.Int_0)
+#define NST_RETURN_ONE return nst_inc_ref(nst_c.Int_1)
 #define NST_RETURN_COND(cond) \
     return (cond) ? nst_inc_ref(nst_c.b_true) : nst_inc_ref(nst_c.b_false)
 

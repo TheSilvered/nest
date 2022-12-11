@@ -138,7 +138,14 @@ void _nst_init_consts()
 
     nst_c.b_true  = nst_new_bool(NST_TRUE);
     nst_c.b_false = nst_new_bool(NST_FALSE);
-    nst_c.null = _nst_alloc_obj(sizeof(Nst_Obj), nst_t.Null, NULL);
+    nst_c.null    = _nst_alloc_obj(sizeof(Nst_Obj), nst_t.Null, NULL);
+    nst_c.Int_0   = nst_new_int(0);
+    nst_c.Int_1   = nst_new_int(1);
+    nst_c.Int_neg1= nst_new_int(-1);
+    nst_c.Real_0  = nst_new_real(0.0);
+    nst_c.Real_1  = nst_new_real(1.0);
+    nst_c.Byte_0  = nst_new_byte(0);
+    nst_c.Byte_1  = nst_new_byte(1);
 
     nst_c_initialized = true;
 }
@@ -151,6 +158,13 @@ void _nst_del_consts()
     nst_dec_ref(nst_c.b_true);
     nst_dec_ref(nst_c.b_false);
     nst_dec_ref(nst_c.null);
+    nst_dec_ref(nst_c.Int_0);
+    nst_dec_ref(nst_c.Int_1);
+    nst_dec_ref(nst_c.Int_neg1);
+    nst_dec_ref(nst_c.Real_0);
+    nst_dec_ref(nst_c.Real_1);
+    nst_dec_ref(nst_c.Byte_0);
+    nst_dec_ref(nst_c.Byte_1);
 
     nst_c_initialized = false;
 }

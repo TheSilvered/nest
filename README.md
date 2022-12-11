@@ -56,7 +56,7 @@ To compile the installer you need InnoSetup installed. Then follow these steps
    `nest-[VERSION]-x[ARCHITECTURE]-installer.exe`
 
 Keep in mind that if you change the version it has to be changed both in
-`nest.h` and in the installers' scripts.
+`src/nest.h` and in `build/installer/common.iss`.
 
 ### Linux
 

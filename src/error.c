@@ -140,7 +140,7 @@ static void print_line(Nst_Pos *pos, long start_col, long end_col, int keep_inde
         PRINT("  | ", 4);
         print_repeat(' ', start_col);
         print_repeat('^', end_col - start_col + 1);
-        PRINT(C_RESET "\n", RESET_LEN + 1);
+        PRINT("\n", 1);
     }
 }
 

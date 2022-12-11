@@ -71,6 +71,13 @@ typedef struct _Nst_Consts
     Nst_Obj *b_true;
     Nst_Obj *b_false;
     Nst_Obj *null;
+    Nst_Obj *Int_0;
+    Nst_Obj *Int_1;
+    Nst_Obj *Int_neg1;
+    Nst_Obj *Real_0;
+    Nst_Obj *Real_1;
+    Nst_Obj *Byte_0;
+    Nst_Obj *Byte_1;
 }
 Nst_Consts;
 

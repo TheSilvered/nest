@@ -1,7 +1,7 @@
 #include <cmath>
 #include "nest_math.h"
 
-#define FUNC_COUNT 38
+#define FUNC_COUNT 41
 #define COORD_TYPE_ERROR do { \
         NST_SET_RAW_VALUE_ERROR("all coordinates must be of type 'Real' or 'Int'"); \
         return nullptr; \
@@ -55,6 +55,9 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(clamp_,  3);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(gcd_,    2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(lcm_,    2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(gcd_seq_,1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(lcm_seq_,1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(abs_,    1);
 
     lib_init_ = true;
     return true;
@@ -552,9 +555,9 @@ NST_FUNC_SIGN(sum_seq_)
         return nullptr;
 
     if ( seq->len == 0 )
-        return nst_new_int(0);
+        NST_RETURN_ZERO;
 
-    Nst_Obj *tot = nst_new_byte(0);
+    Nst_Obj *tot = nst_inc_ref(nst_c.Byte_0);
     Nst_Obj *new_tot = nullptr;
 
     for (size_t i = 0, n = seq->len; i < n; i++)
@@ -626,46 +629,63 @@ NST_FUNC_SIGN(clamp_)
     return nst_new_real(min > val ? min : max < val ? max : val);
 }
 
-static inline Nst_Byte gcd_byte(Nst_Byte a, Nst_Byte b, Nst_Byte res)
-{
-    if ( a == b )
-        return res * a;
-    else if ( !(a & 1) && !(b & 1) )
-        return gcd_byte(a >> 1, b >> 1, res << 1);
-    else if ( !(a & 1) )
-        return gcd_byte(a >> 1, b, res);
-    else if ( !(b & 1) )
-        return gcd_byte(a, b >> 1, res);
-    else if ( a > b )
-        return gcd_byte(a - b, b, res);
-    else
-        return gcd_byte(a, b - a, res);
-}
+template <typename T>
 
-static inline Nst_Int gcd_int(Nst_Int a, Nst_Int b, Nst_Int res)
+static inline T gcd_int(T a, T b)
 {
-    if ( a == b )
-        return res * a;
-    if ( !(a & 1) && !(b & 1) )
-        return gcd_int(a >> 1, b >> 1, res << 1);
-    if ( !(a & 1) )
-         return gcd_int(a >> 1, b, res);
-    if ( !(b & 1) )
-        return gcd_int(a, b >> 1, res);
-    if ( a > b )
-        return gcd_int(a - b, b, res);
+    if ( a == 0 )
+        return b;
+    else if ( b == 0 )
+        return a;
 
-    return gcd_int(a, b - a, res);
+    if ( a < 0 )
+        a *= -1;
+    if ( b < 0 )
+        b *= -1;
+
+    T res = 1;
+    while ( true )
+    {
+        if ( a == b )
+            return res * a;
+        else if ( !(a & 1) && !(b & 1) )
+        {
+            a >>= 1;
+            b >>= 1;
+            res <<= 1;
+        }
+        else if ( !(a & 1) )
+            a >>= 1;
+        else if ( !(b & 1) )
+            b >>= 1;
+        else if ( a > b )
+            a -= b;
+        else
+            b -= a;
+    }
 }
 
 static inline Nst_Real gcd_real(Nst_Real a, Nst_Real b)
 {
-    if ( a == b )
+    if ( a == 0.0 )
+        return b;
+    else if ( b == 0.0 )
         return a;
-    if ( a > b )
-        return gcd_real(a - b, b);
-    
-    return gcd_real(a, b - a);
+
+    if ( a < 0.0 )
+        a *= -1.0;
+    if ( b < 0.0 )
+        b *= -1.0;
+
+    while ( true )
+    {
+        if ( a == b )
+            return a;
+        else if ( a > b )
+            a -= b;
+        else
+            b -= a;
+    }
 }
 
 NST_FUNC_SIGN(gcd_)
@@ -693,23 +713,159 @@ NST_FUNC_SIGN(gcd_)
         else
             n2_int = (Nst_Int)AS_BYTE(args[1]);
 
-        return nst_new_int(gcd_int(n1_int, n2_int, 1));
+        return nst_new_int(gcd_int<Nst_Int>(n1_int, n2_int));
     }
     else
-        return nst_new_byte(gcd_byte(AS_BYTE(args[0]), AS_BYTE(args[1]), 1));
+    {
+        Nst_Byte n1_byte = AS_BYTE(args[0]);
+        Nst_Byte n2_byte = AS_BYTE(args[1]);
+        return nst_new_byte(gcd_int<Nst_Byte>(n1_byte, n2_byte));
+    }
 }
 
 NST_FUNC_SIGN(lcm_)
 {
+    Nst_Real n1;
+    Nst_Real n2;
+
+    if ( !nst_extract_arg_values("NN", arg_num, args, err, &n1, &n2) )
+        return nullptr;
+
+    Nst_Obj *numerator = nst_obj_mul(args[0], args[1], nullptr);
+
+    if ( (numerator->type == nst_t.Int  && AS_INT(numerator)  == 0)   ||
+         (numerator->type == nst_t.Real && AS_REAL(numerator) == 0.0) ||
+         (numerator->type == nst_t.Byte && AS_BYTE(numerator) == 0) )
+        return numerator;
+
     Nst_Obj *denominator = gcd_(2, args, err);
     if ( denominator == nullptr )
         return nullptr;
 
-    // there cannot be an error as they are all numbers
-    Nst_Obj *numerator = nst_obj_mul(args[0], args[1], nullptr);
-    Nst_Obj *result = nst_obj_div(numerator, denominator, nullptr);
+    Nst_Obj *result = nst_obj_div(numerator, denominator, err);
     nst_dec_ref(numerator);
     nst_dec_ref(denominator);
 
     return result;
+}
+
+NST_FUNC_SIGN(gcd_seq_)
+{
+    Nst_SeqObj *seq;
+    if ( !nst_extract_arg_values("A", arg_num, args, err, &seq) )
+        return nullptr;
+
+    if ( seq->len == 0 )
+        NST_RETURN_ZERO;
+
+    Nst_Obj **objs = seq->objs;
+
+    if ( objs[0]->type != nst_t.Int &&
+         objs[0]->type != nst_t.Real &&
+         objs[0]->type != nst_t.Byte )
+    {
+        NST_SET_TYPE_ERROR(_nst_format_error(
+            "expected type 'Byte', 'Int' or 'Real', but object at index %zi is of type '%s'",
+            "us",
+            0, TYPE_NAME(objs[0])
+        ));
+        return nullptr;
+    }
+
+    Nst_Obj *prev = nst_inc_ref(objs[0]);
+    Nst_Obj *curr = nullptr;
+    Nst_Obj *gcd_args[2] = { prev, nullptr };
+
+    for ( size_t i = 1, n = seq->len; i < n; i++ )
+    {
+        if ( objs[i]->type != nst_t.Int &&
+             objs[i]->type != nst_t.Real &&
+             objs[i]->type != nst_t.Byte )
+        {
+            NST_SET_TYPE_ERROR(_nst_format_error(
+                "expected type 'Byte', 'Int' or 'Real', but object at index %zi is of type '%s'",
+                "us",
+                i, TYPE_NAME(objs[i])
+            ));
+            nst_dec_ref(prev);
+            return nullptr;
+        }
+        gcd_args[0] = prev;
+        gcd_args[1] = objs[i];
+        curr = gcd_(2, gcd_args, err);
+        nst_dec_ref(prev);
+
+        if ( curr == nullptr )
+            return nullptr;
+
+        prev = curr;
+    }
+
+    return prev;
+}
+
+NST_FUNC_SIGN(lcm_seq_)
+{
+    Nst_SeqObj *seq;
+    if ( !nst_extract_arg_values("A", arg_num, args, err, &seq) )
+        return nullptr;
+
+    if ( seq->len == 0 )
+        NST_RETURN_ZERO;
+
+    Nst_Obj **objs = seq->objs;
+
+    if ( objs[0]->type != nst_t.Int &&
+        objs[0]->type != nst_t.Real &&
+        objs[0]->type != nst_t.Byte )
+    {
+        NST_SET_TYPE_ERROR(_nst_format_error(
+            "expected type 'Byte', 'Int' or 'Real', but object at index %zi is of type '%s'",
+            "us",
+            0, TYPE_NAME(objs[0])
+        ));
+        return nullptr;
+    }
+
+    Nst_Obj *prev = nst_inc_ref(objs[0]);
+    Nst_Obj *curr = nullptr;
+    Nst_Obj *lcm_args[2] = { prev, nullptr };
+
+    for ( size_t i = 1, n = seq->len; i < n; i++ )
+    {
+        if ( objs[i]->type != nst_t.Int &&
+            objs[i]->type != nst_t.Real &&
+            objs[i]->type != nst_t.Byte )
+        {
+            NST_SET_TYPE_ERROR(_nst_format_error(
+                "expected type 'Byte', 'Int' or 'Real', but object at index %zi is of type '%s'",
+                "us",
+                i, TYPE_NAME(objs[i])
+            ));
+            nst_dec_ref(prev);
+            return nullptr;
+        }
+        lcm_args[0] = prev;
+        lcm_args[1] = objs[i];
+        curr = lcm_(2, lcm_args, err);
+        nst_dec_ref(prev);
+
+        if ( curr == nullptr )
+            return nullptr;
+
+        prev = curr;
+    }
+
+    return prev;
+}
+
+NST_FUNC_SIGN(abs_)
+{
+    Nst_Real n;
+    if ( !nst_extract_arg_values("N", arg_num, args, err, &n) )
+        return nullptr;
+
+    if ( n >= 0 )
+        return nst_inc_ref(args[0]);
+    return nst_obj_mul(args[0], nst_c.Int_neg1, err);
 }
