@@ -1263,13 +1263,23 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
 
         switch ( inst.id )
         {
+        case NST_IC_NO_OP:         PRINT("NO_OP        ", 13); break;
         case NST_IC_POP_VAL:       PRINT("POP_VAL      ", 13); break;
+        case NST_IC_FOR_START:     PRINT("FOR_START    ", 13); break;
+        case NST_IC_RETURN_VAL:    PRINT("RETURN_VAL   ", 13); break;
+        case NST_IC_RETURN_VARS:   PRINT("RETURN_VARS  ", 13); break;
+        case NST_IC_FOR_ADVANCE:   PRINT("FOR_ADVANCE  ", 13); break;
+        case NST_IC_SET_VAL_LOC:   PRINT("SET_VAL_LOC  ", 13); break;
         case NST_IC_JUMP:          PRINT("JUMP         ", 13); break;
         case NST_IC_JUMPIF_T:      PRINT("JUMPIF_T     ", 13); break;
         case NST_IC_JUMPIF_F:      PRINT("JUMPIF_F     ", 13); break;
         case NST_IC_JUMPIF_ZERO:   PRINT("JUMPIF_ZERO  ", 13); break;
+        case NST_IC_TYPE_CHECK:    PRINT("TYPE_CHECK   ", 13); break;
+        case NST_IC_HASH_CHECK:    PRINT("HASH_CHECK   ", 13); break;
+        case NST_IC_THROW_ERR:     PRINT("THROW_ERR    ", 13); break;
+        case NST_IC_PUSH_CATCH:    PRINT("PUSH_CATCH   ", 13); break;
+        case NST_IC_POP_CATCH:     PRINT("POP_CATCH    ", 13); break;
         case NST_IC_SET_VAL:       PRINT("SET_VAL      ", 13); break;
-        case NST_IC_SET_VAL_LOC:   PRINT("SET_VAL_LOC  ", 13); break;
         case NST_IC_GET_VAL:       PRINT("GET_VAL      ", 13); break;
         case NST_IC_PUSH_VAL:      PRINT("PUSH_VAL     ", 13); break;
         case NST_IC_SET_CONT_VAL:  PRINT("SET_CONT_VAL ", 13); break;
@@ -1282,23 +1292,15 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
         case NST_IC_OP_EXTRACT:    PRINT("OP_EXTRACT   ", 13); break;
         case NST_IC_DEC_INT:       PRINT("DEC_INT      ", 13); break;
         case NST_IC_NEW_OBJ:       PRINT("NEW_OBJ      ", 13); break;
-        case NST_IC_TYPE_CHECK:    PRINT("TYPE_CHECK   ", 13); break;
-        case NST_IC_HASH_CHECK:    PRINT("HASH_CHECK   ", 13); break;
         case NST_IC_DUP:           PRINT("DUP          ", 13); break;
         case NST_IC_MAKE_ARR:      PRINT("MAKE_ARR     ", 13); break;
+        case NST_IC_MAKE_ARR_REP:  PRINT("MAKE_ARR_REP ", 13); break;
         case NST_IC_MAKE_VEC:      PRINT("MAKE_VEC     ", 13); break;
+        case NST_IC_MAKE_VEC_REP:  PRINT("MAKE_VEC_REP ", 13); break;
         case NST_IC_MAKE_MAP:      PRINT("MAKE_MAP     ", 13); break;
-        case NST_IC_FOR_START:     PRINT("FOR_START    ", 13); break;
-        case NST_IC_FOR_ADVANCE:   PRINT("FOR_ADVANCE  ", 13); break;
         case NST_IC_FOR_IS_DONE:   PRINT("FOR_IS_DONE  ", 13); break;
         case NST_IC_FOR_GET_VAL:   PRINT("FOR_GET_VAL  ", 13); break;
-        case NST_IC_RETURN_VAL:    PRINT("RETURN_VAL   ", 13); break;
-        case NST_IC_RETURN_VARS:   PRINT("RETURN_VARS  ", 13); break;
-        case NST_IC_THROW_ERR:     PRINT("THROW_ERR    ", 13); break;
-        case NST_IC_PUSH_CATCH:    PRINT("PUSH_CATCH   ", 13); break;
-        case NST_IC_POP_CATCH:     PRINT("POP_CATCH    ", 13); break;
         case NST_IC_SAVE_ERROR:    PRINT("SAVE_ERROR   ", 13); break;
-        case NST_IC_NO_OP:         PRINT("NO_OP        ", 13); break;
         default:                   PRINT("__UNKNOWN__  ", 13); break;
         }
 
