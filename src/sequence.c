@@ -79,7 +79,7 @@ void _nst_resize_vector(Nst_SeqObj *vect)
 
     if ( size == len )
         new_size = (size_t)(len * VECTOR_GROWTH_RATIO);
-    else if ( len << 2 <= size ) // if it's half empty or less
+    else if ( len << 2 <= len ) // if it's half empty or less
     {
         new_size = (size_t)(len / VECTOR_GROWTH_RATIO);
         if ( new_size < VECTOR_MIN_SIZE )
