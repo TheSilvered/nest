@@ -113,7 +113,7 @@ static void print_line(Nst_Pos *pos, long start_col, long end_col, int keep_inde
     printf("\n");
 
     if ( end_col == -1 )
-        end_col = indent + line_length - 1;
+        end_col = keep_indent + line_length - 1;
     else
         end_col -= keep_indent;
 
