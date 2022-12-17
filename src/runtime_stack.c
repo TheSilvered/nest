@@ -1,5 +1,5 @@
+#include <assert.h>
 #include "runtime_stack.h"
-#include <crtdbg.h>
 
 #define V_STACK_MIN_SIZE 32
 #define F_STACK_MIN_SIZE 125
@@ -20,13 +20,14 @@ static void shrink_stack(GenericStack *g_stack, int min_size)
 
     if ( g_stack->max_size >> 2 < g_stack->current_size )
         return;
-    printf("%i ", _CrtIsValidHeapPointer(g_stack->stack));
+
+    assert(g_stack->current_size <= g_stack->max_size);
+
     void *new_stack = realloc(g_stack->stack, sizeof(void *) * (g_stack->max_size >> 1));
     if ( new_stack == NULL )
         return;
     g_stack->max_size >>= 1;
     g_stack->stack = new_stack;
-    printf("%i\n", _CrtIsValidHeapPointer(g_stack->stack));
 }
 
 Nst_ValueStack *nst_new_val_stack()

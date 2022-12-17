@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <errno.h>
+#include <assert.h>
 
 #include "sequence.h"
 #include "obj_ops.h"
@@ -74,16 +75,20 @@ void _nst_resize_vector(Nst_SeqObj *vect)
 {
     size_t len = vect->len;
     size_t size = vect->size;
-
     size_t new_size;
+
+    assert(len <= size);
 
     if ( size == len )
         new_size = (size_t)(len * VECTOR_GROWTH_RATIO);
     else if ( size >> 2 >= len ) // if it's three quarters empty or less
     {
-        new_size = (size_t)(len / VECTOR_GROWTH_RATIO);
+        new_size = (size_t)(size / VECTOR_GROWTH_RATIO);
         if ( new_size < VECTOR_MIN_SIZE )
             new_size = VECTOR_MIN_SIZE;
+
+        if ( size == VECTOR_MIN_SIZE )
+            return;
     }
     else
         return;
