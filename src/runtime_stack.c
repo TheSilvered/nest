@@ -13,7 +13,7 @@ typedef struct _GenericStack
 }
 GenericStack;
 
-static void shrink_stack(GenericStack *g_stack, int min_size)
+static void shrink_stack(GenericStack *g_stack, size_t min_size)
 {
     if ( g_stack->max_size <= min_size )
         return;
