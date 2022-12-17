@@ -3,7 +3,7 @@
 |#| 'stdsutil.nest' = su
 |#| 'stderr.nest' = err
 
-null = log_file
+io.STDOUT = log_file -- allows to run tests singularly
 
 #_cast_obj obj type [
     => type :: obj
@@ -56,4 +56,5 @@ null = log_file
 
 #println s [
     log_file (s '\n' ><) @io.write
+    log_file @io.flush
 ]

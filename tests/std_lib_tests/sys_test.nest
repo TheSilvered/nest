@@ -6,10 +6,10 @@ test.log_file @io.close
 'echo written with echo>> ..\\test_output.txt' @sys.system
 '..\\test_output.txt' 'a+' @io.open = test.log_file
 
-'APPDATA: ' ('APPDATA' @sys.getenv) >< @test.println
-'HOME: ' ('HOME' @sys.getenv) >< @test.println
+'sys.getenv (appdata): ' ('APPDATA' @sys.getenv) >< @test.println
+'sys.getenv (home): ' ('HOME' @sys.getenv) >< @test.println
 'Hello' @sys.get_ref_count 2 @test.assert_eq
-10 @sys.get_addr @test.println -- a big number
+'get_addr: '(10 @sys.get_addr) >< @test.println
 10 @sys.hash 10 @test.assert_eq
 -1 @sys.hash -2 @test.assert_eq
 ?::sys.VERSION Str @test.assert_eq

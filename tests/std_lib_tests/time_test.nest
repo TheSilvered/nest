@@ -3,6 +3,7 @@
 |#| 'stdsutil.nest' = su
 
 #print_clock_datetime [
+    'Formatted time: ' \
     dt.SHORT_WEEKDAY_NAMES.@@dt.week_day ' ' \
     (Str :: @dt.day 2 '0' @su.rjust) ' ' \
     dt.SHORTH_MONTH_NAMES.@@dt.month ' ' \
@@ -12,22 +13,22 @@
     (Str :: @dt.seconds 2 '0' @su.rjust) >< @test.println
 ]
 
-@dt.time @test.println
-@dt.time_ns @test.println
-@dt.high_res_time @test.println
-@dt.high_res_time_ns @test.println
-@dt.year_day @test.println
-@dt.week_day @test.println
-@dt.day @test.println
-@dt.month @test.println
-@dt.year @test.println
-@dt.date @test.println
-@dt.seconds @test.println
-@dt.minutes @test.println
-@dt.hours @test.println
-@dt.clock_time @test.println
-@dt.gmt_clock_time @test.println
-@dt.clock_datetime @test.println
-@dt.gmt_clock_datetime @test.println
+'dt.time: ' @@dt.time >< @test.println
+'time_ns: ' @@dt.time_ns >< @test.println
+'high_res_time: ' @@dt.high_res_time >< @test.println
+'high_res_time_ns: ' @@dt.high_res_time_ns >< @test.println
+'year_day: ' @@dt.year_day >< @test.println
+'week_day: ' @@dt.week_day >< @test.println
+'day: ' @@dt.day >< @test.println
+'month: ' @@dt.month >< @test.println
+'year: ' @@dt.year >< @test.println
+'date: ' @@dt.date >< @test.println
+'seconds: ' @@dt.seconds >< @test.println
+'minutes: ' @@dt.minutes >< @test.println
+'hours: ' @@dt.hours >< @test.println
+'clock_time: ' @@dt.clock_time >< @test.println
+'gmt_clock_time: ' @@dt.gmt_clock_time >< @test.println
+'clock_datetime: ' @@dt.clock_datetime >< @test.println
+'gmt_clock_datetime: ' @@dt.gmt_clock_datetime >< @test.println
 
 @print_clock_datetime
