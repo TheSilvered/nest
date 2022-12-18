@@ -51,6 +51,7 @@ static void compile_func_declr(Nst_Node *node);
 static void compile_lambda(Nst_Node *node);
 static void compile_return_s(Nst_Node *node);
 static void compile_stack_op(Nst_Node *node);
+static void compile_comp_op(Nst_Node *node);
 static void compile_local_stack_op(Nst_Node *node);
 static void compile_local_op(Nst_Node *node);
 static void compile_arr_or_vect_lit(Nst_Node *node);
@@ -641,9 +642,15 @@ static void compile_stack_op(Nst_Node *node)
            DUP
            JUMPIF_T e_end
            [VAL 2 CODE]
-           OP_STACK &&
+           OP_STACK ||
     e_end: [CODE CONTINUATION]
     */
+
+    if ( T_IN_COMP_OP(HEAD_TOK->type) && node->nodes->size > 2 )
+    {
+        compile_comp_op(node);
+        return;
+    }
 
     Nst_RuntimeInstruction *inst;
     Nst_RuntimeInstruction *jump_to_end = NULL;
@@ -675,6 +682,76 @@ static void compile_stack_op(Nst_Node *node)
 
     if ( jump_to_end != NULL )
         jump_to_end->int_val = CURR_LEN;
+}
+
+static void compile_comp_op(Nst_Node *node)
+{
+    /*
+    Comparison operator bytecode
+
+         [VALUE 1]            
+         [VALUE 2]            -+
+         DUP                   |
+         ROT 3                 |
+         OP_STACK - operator   | Repeated for each value
+         DUP                   |
+         JUMPIF_F fix          |
+         POP_VAL              -+
+         [VALUE 3]
+         DUP
+         ROT 3
+         OP_STACK - operator
+         DUP
+         JUMPIF_F fix
+         POP_VAL
+    ...
+         [VALUE N]
+         OP_STACK - operator
+         JUMP end
+    fix: ROT 2
+         POP_VAL
+    end: [CODE CONTINUATION]
+    */
+
+    Nst_RuntimeInstruction *inst;
+    int op_id = HEAD_TOK->type;
+
+    compile_node(HEAD_NODE);
+    LList *fix_jumps = LList_new();
+
+    for ( LLNode *n = node->nodes->head->next;
+          n->next != NULL;
+          n = n->next )
+    {
+        compile_node(NODE(n->value));
+        inst = nst_new_inst_empty(NST_IC_DUP, 0);
+        ADD_INST(inst);
+        inst = nst_new_inst_empty(NST_IC_ROT, 3);
+        ADD_INST(inst);
+        inst = nst_new_inst_int(NST_IC_STACK_OP, op_id, node->start, node->end);
+        ADD_INST(inst);
+        inst = nst_new_inst_empty(NST_IC_DUP, 0);
+        ADD_INST(inst);
+        inst = nst_new_inst_empty(NST_IC_JUMPIF_F, 0);
+        LList_append(fix_jumps, inst, false);
+        ADD_INST(inst);
+        inst = nst_new_inst_empty(NST_IC_POP_VAL, 0);
+        ADD_INST(inst);
+    }
+
+    compile_node(TAIL_NODE);
+    inst = nst_new_inst_int(NST_IC_STACK_OP, op_id, node->start, node->end);
+    ADD_INST(inst);
+    inst = nst_new_inst_empty(NST_IC_JUMP, CURR_LEN + 3);
+    ADD_INST(inst);
+
+    for ( ITER_LLIST(n, fix_jumps) )
+        ((Nst_RuntimeInstruction *)n->value)->int_val = CURR_LEN;
+
+    inst = nst_new_inst_empty(NST_IC_ROT, 2);
+    ADD_INST(inst);
+    inst = nst_new_inst_empty(NST_IC_POP_VAL, 0);
+    ADD_INST(inst);
 }
 
 static void compile_local_stack_op(Nst_Node *node)
@@ -1293,6 +1370,7 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
         case NST_IC_DEC_INT:       PRINT("DEC_INT      ", 13); break;
         case NST_IC_NEW_OBJ:       PRINT("NEW_OBJ      ", 13); break;
         case NST_IC_DUP:           PRINT("DUP          ", 13); break;
+        case NST_IC_ROT:           PRINT("ROT          ", 13); break;
         case NST_IC_MAKE_ARR:      PRINT("MAKE_ARR     ", 13); break;
         case NST_IC_MAKE_ARR_REP:  PRINT("MAKE_ARR_REP ", 13); break;
         case NST_IC_MAKE_VEC:      PRINT("MAKE_VEC     ", 13); break;

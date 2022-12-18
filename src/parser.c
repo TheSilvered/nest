@@ -32,7 +32,6 @@ static ParsingState p_state;
 static LList *tokens;
 
 static inline void skip_blank();
-static Nst_Node *copy_node(Nst_Node *node);
 static Nst_LexerToken *copy_token(Nst_LexerToken *tok);
 static Nst_Node *fix_expr(Nst_Node *expr);
 
@@ -84,26 +83,6 @@ static inline void skip_blank()
 {
     while ( TOK(LList_peek_front(tokens))->type == NST_TT_ENDL )
         nst_destroy_token(TOK(LList_pop(tokens)));
-}
-
-static Nst_Node *copy_node(Nst_Node *node)
-{
-    SAFE_LLIST_CREATE(nodes);
-    SAFE_LLIST_CREATE(node_tokens);
-
-    for ( ITER_LLIST(cursor, node->nodes) )
-        LList_append(nodes, copy_node(NODE(cursor->value)), true);
-
-    for ( ITER_LLIST(cursor, node->tokens) )
-        LList_append(node_tokens, copy_token(TOK(cursor->value)), true);
-
-    return nst_new_node_full(
-        node->start,
-        node->end,
-        node->type,
-        nodes,
-        node_tokens
-    );
 }
 
 static Nst_LexerToken *copy_token(Nst_LexerToken *tok)
@@ -675,42 +654,9 @@ static Nst_Node *fix_expr(Nst_Node *expr)
     Nst_Node *curr_node = expr;
     Nst_LexerToken *op_tok = TOK(LList_peek_front(expr->tokens));
 
-    // writing 1 2 3 < becomes (1 2 <) (2 3 <) &&
-    if ( T_IN_COMP_OP(op_tok->type) && expr->nodes->size > 2)
-    {
-        SAFE_LLIST_CREATE(pairs);
-        for ( size_t i = 0, n = expr->nodes->size - 1; i < n; i++ )
-        {
-            SAFE_LLIST_CREATE(new_nodes);
-            SAFE_LLIST_CREATE(new_tokens);
-
-            LList_append(new_nodes, LList_pop(expr->nodes), true);
-            if ( i == n - 1 )
-                LList_append(new_nodes, LList_pop(expr->nodes), true);
-            else
-                LList_append(new_nodes, copy_node(NODE(LList_peek_front(expr->nodes))), true);
-
-            LList_append(new_tokens, copy_token(op_tok), true);
-
-            Nst_Pos start = NODE(LList_peek_front(new_nodes))->start;
-            Nst_Pos end = NODE(LList_peek_back(new_nodes))->end;
-
-            LList_append(pairs,
-                nst_new_node_full(
-                    start,
-                    end,
-                    NST_NT_STACK_OP,
-                    new_nodes, new_tokens
-                ),
-                true
-            );
-        }
-        LList_destroy(expr->nodes, NULL);
-        expr->nodes = pairs;
-        op_tok = nst_new_token_noval(op_tok->start, op_tok->end, NST_TT_L_AND);
-        LList_pop(expr->tokens);
-        LList_append(expr->tokens, op_tok, true);
-    }
+    // comparisons are handled differently to not copy nodes
+    if ( T_IN_COMP_OP(op_tok->type) )
+        return expr;
 
     // writing 1 2 3 4 + becomes 1 2 + 3 + 4 +
     for ( size_t i = 0, n = expr->nodes->size - 2; i < n; i++ )

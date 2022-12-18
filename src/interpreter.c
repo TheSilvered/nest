@@ -102,6 +102,7 @@ static inline void exe_op_extract(Nst_RuntimeInstruction *inst);
 static inline void exe_dec_int();
 static inline void exe_new_obj();
 static inline void exe_dup();
+static inline void exe_rot(Nst_RuntimeInstruction *inst);
 static inline void exe_make_seq(Nst_RuntimeInstruction *inst);
 static inline void exe_make_seq_rep(Nst_RuntimeInstruction *inst);
 static inline void exe_make_map(Nst_RuntimeInstruction *inst);
@@ -500,6 +501,7 @@ static inline void run_instruction(Nst_RuntimeInstruction *inst)
     case NST_IC_DEC_INT:      exe_dec_int();           break;
     case NST_IC_NEW_OBJ:      exe_new_obj();           break;
     case NST_IC_DUP:          exe_dup();               break;
+    case NST_IC_ROT:          exe_rot(inst);           break;
     case NST_IC_MAKE_ARR:
     case NST_IC_MAKE_VEC:     exe_make_seq(inst);      break;
     case NST_IC_MAKE_ARR_REP:
@@ -1216,6 +1218,19 @@ static inline void exe_dup()
 {
     CHECK_V_STACK;
     nst_push_val(nst_state.v_stack, nst_peek_val(nst_state.v_stack));
+}
+
+static inline void exe_rot(Nst_RuntimeInstruction *inst)
+{
+    CHECK_V_STACK_SIZE(inst->int_val);
+
+    Nst_Obj *obj = nst_peek_val(nst_state.v_stack);
+    size_t stack_size = nst_state.v_stack->current_size - 1;
+    Nst_Obj **stack = nst_state.v_stack->stack;
+    for ( Nst_Int i = 1, n = inst->int_val; i < n; i++ )
+        stack[stack_size - i + 1] = stack[stack_size - i];
+
+    stack[stack_size - inst->int_val + 1] = obj;
 }
 
 static inline void exe_make_seq(Nst_RuntimeInstruction *inst)

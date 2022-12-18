@@ -15,6 +15,7 @@
 static void ast_optimize_node(Nst_Node *node, Nst_Error *error);
 static void ast_optimize_node_nodes(Nst_Node *node, Nst_Error *error);
 static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error);
+static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error);
 static void ast_optimize_local_op(Nst_Node *node, Nst_Error *error);
 static void ast_optimize_long_s(Nst_Node *node, Nst_Error *error);
 
@@ -62,6 +63,12 @@ static void ast_optimize_node_nodes(Nst_Node *node, Nst_Error *error)
 
 static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
 {
+    if ( T_IN_COMP_OP(HEAD_TOK->type) )
+    {
+        ast_optimize_comp_op(node, error);
+        return;
+    }
+
     ast_optimize_node(HEAD_NODE, error);
     ast_optimize_node(TAIL_NODE, error);
 
@@ -77,7 +84,8 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
     Nst_Obj *ob2 = TOK(TAIL_NODE->tokens->head->value)->value;
     Nst_Obj *res = NULL;
 
-    switch ( op_tok ) {
+    switch ( op_tok )
+    {
     case NST_TT_ADD:    res = nst_obj_add(ob1, ob2, &err);   break;
     case NST_TT_SUB:    res = nst_obj_sub(ob1, ob2, &err);   break;
     case NST_TT_MUL:    res = nst_obj_mul(ob1, ob2, &err);   break;
@@ -93,12 +101,6 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
     case NST_TT_L_AND:  res = nst_obj_lgand(ob1, ob2, &err); break;
     case NST_TT_L_OR:   res = nst_obj_lgor(ob1, ob2, &err);  break;
     case NST_TT_L_XOR:  res = nst_obj_lgxor(ob1, ob2, &err); break;
-    case NST_TT_GT:     res = nst_obj_gt(ob1, ob2, &err);    break;
-    case NST_TT_LT:     res = nst_obj_lt(ob1, ob2, &err);    break;
-    case NST_TT_EQ:     res = nst_obj_eq(ob1, ob2, &err);    break;
-    case NST_TT_NEQ:    res = nst_obj_ne(ob1, ob2, &err);    break;
-    case NST_TT_GTE:    res = nst_obj_ge(ob1, ob2, &err);    break;
-    case NST_TT_LTE:    res = nst_obj_le(ob1, ob2, &err);    break;
     default: return;
     }
 
@@ -112,6 +114,67 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
 
     nst_destroy_node(NODE(LList_pop(node->nodes)));
     nst_destroy_node(NODE(LList_pop(node->nodes)));
+    nst_destroy_token(TOK(LList_pop(node->tokens)));
+
+    node->type = NST_NT_VALUE;
+
+    Nst_LexerToken *new_tok = nst_new_token_value(
+        node->start,
+        node->end,
+        NST_TT_VALUE,
+        res
+    );
+
+    LList_append(node->tokens, new_tok, true);
+}
+
+static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
+{
+    Nst_Obj *res = NULL;
+    int op_tok = HEAD_TOK->type;
+    Nst_OpErr err = { NULL, NULL };
+    Nst_Obj *ob1 = NULL;
+    Nst_Obj *ob2 = NULL;
+
+    ast_optimize_node_nodes(node, error);
+    if ( error->occurred )
+        return;
+
+    for ( ITER_LLIST(n, node->nodes) )
+        if ( NODE(n->value)->type != NST_NT_VALUE )
+            return;
+
+    for ( ITER_LLIST(n, node->nodes) )
+    {
+        if ( n->next == NULL )
+            break;
+
+        ob1 = TOK(NODE(n->value)->tokens->head->value)->value;
+        ob2 = TOK(NODE(n->next->value)->tokens->head->value)->value;
+
+        switch ( op_tok )
+        {
+        case NST_TT_GT:     res = nst_obj_gt(ob1, ob2, &err);    break;
+        case NST_TT_LT:     res = nst_obj_lt(ob1, ob2, &err);    break;
+        case NST_TT_EQ:     res = nst_obj_eq(ob1, ob2, &err);    break;
+        case NST_TT_NEQ:    res = nst_obj_ne(ob1, ob2, &err);    break;
+        case NST_TT_GTE:    res = nst_obj_ge(ob1, ob2, &err);    break;
+        case NST_TT_LTE:    res = nst_obj_le(ob1, ob2, &err);    break;
+        default: return;
+        }
+
+        if ( res == nst_c.b_false )
+            break;
+        else if ( res == NULL )
+        {
+            if ( errno == ENOMEM )
+                return;
+            _NST_SET_ERROR(error, node->start, node->end, err.name, err.message);
+            return;
+        }
+    }
+
+    LList_empty(node->nodes, (LList_item_destructor)nst_destroy_node);
     nst_destroy_token(TOK(LList_pop(node->tokens)));
 
     node->type = NST_NT_VALUE;
