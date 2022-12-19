@@ -158,6 +158,7 @@ int nst_str_to_tok(char *str)
             break;
         case '*':
             if ( str[1] == '=' ) return NST_TT_MUL_A;
+            if ( str[1] == '@' ) return NST_TT_SEQ_CALL;
             break;
         case '/':
             if ( str[1] == '=' ) return NST_TT_DIV_A;
@@ -314,6 +315,7 @@ void nst_print_token(Nst_LexerToken *token)
     case NST_TT_CONTINUE: printf("CONTINUE"); break;
     case NST_TT_TRY:      printf("TRY");      break;
     case NST_TT_CATCH:    printf("CATCH");    break;
+    case NST_TT_SEQ_CALL: printf("SEQ_CALL"); break;
     default: printf("__UNKNOWN__");
     }
 

@@ -791,9 +791,40 @@ static inline void exe_set_cont_val(Nst_RuntimeInstruction *inst)
 static inline void exe_op_call(Nst_RuntimeInstruction *inst)
 {
     Nst_Int arg_num = inst->int_val;
+    bool is_seq_call = false;
 
-    CHECK_V_STACK_SIZE(arg_num + 1);
+    if ( arg_num == -1 )
+        CHECK_V_STACK_SIZE(2);
+    else
+        CHECK_V_STACK_SIZE(arg_num + 1);
     Nst_FuncObj *func = FUNC(nst_pop_val(nst_state.v_stack));
+    Nst_SeqObj *args_seq;
+    
+    if ( arg_num == -1 )
+    {
+        args_seq = SEQ(nst_pop_val(nst_state.v_stack));
+        if ( args_seq->type != nst_t.Array && args_seq->type != nst_t.Vector )
+        {
+            _NST_SET_TYPE_ERROR(
+                GLOBAL_ERROR,
+                inst->start,
+                inst->end,
+                _nst_format_error(
+                    _NST_EM_EXPECTED_TYPE("Array' or 'Vector"),
+                    "s",
+                    TYPE_NAME(args_seq)
+                )
+            );
+
+            nst_dec_ref(args_seq);
+            nst_dec_ref(func);
+            return;
+        }
+        is_seq_call = true;
+        arg_num = args_seq->len;
+    }
+    else
+        args_seq = NULL;
 
     if ( (Nst_Int)(func->arg_num) != arg_num )
     {
@@ -809,6 +840,9 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
         );
 
         nst_dec_ref(func);
+        if ( is_seq_call )
+            nst_dec_ref(args_seq);
+
         return;
     }
 
@@ -819,7 +853,9 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
         Nst_Obj *arg;
         bool args_allocated = false;
 
-        if ( arg_num == 0 )
+        if ( is_seq_call )
+            args = args_seq->objs;
+        else if ( arg_num == 0 )
             args = NULL;
         else if ( arg_num == 1 )
         {
@@ -839,8 +875,9 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
 
         Nst_Obj *res = func->body.c_func((size_t)arg_num, args, &err);
 
-        for ( Nst_Int i = 0; i < arg_num; i++ )
-            nst_dec_ref(args[i]);
+        if ( !is_seq_call )
+            for ( Nst_Int i = 0; i < arg_num; i++ )
+                nst_dec_ref(args[i]);
 
         if ( args_allocated )
             free(args);
@@ -891,7 +928,12 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
 
     for ( Nst_Int i = 0; i < arg_num; i++ )
     {
-        Nst_Obj *val = nst_pop_val(nst_state.v_stack);
+        Nst_Obj *val;
+        if ( is_seq_call )
+            val = nst_inc_ref(args_seq->objs[i]);
+        else
+            val = nst_pop_val(nst_state.v_stack);
+        
         nst_set_val(new_vt, func->args[arg_num - i - 1], val);
         nst_dec_ref(val);
     }

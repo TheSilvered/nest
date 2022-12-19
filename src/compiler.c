@@ -780,7 +780,7 @@ static void compile_local_stack_op(Nst_Node *node)
     [ARG CODE] *
     [FUNC CODE]
     TYPE_CHECK Func
-    OP_CALL - arg num
+    OP_CALL - arg num or -1 for SEQ_CALL
     */
 
     int tok_type = HEAD_TOK->type;
@@ -836,7 +836,7 @@ static void compile_local_stack_op(Nst_Node *node)
         inst = nst_new_inst_int(NST_IC_OP_CAST, 0, node->start, node->end);
         ADD_INST(inst);
     }
-    else if ( tok_type == NST_TT_CALL )
+    else if ( tok_type == NST_TT_CALL || tok_type == NST_TT_SEQ_CALL )
     {
         for ( LLNode *n = node->nodes->head; n != NULL; n = n->next )
             compile_node(NODE(n->value));
@@ -845,7 +845,7 @@ static void compile_local_stack_op(Nst_Node *node)
         ADD_INST(inst);
         inst = nst_new_inst_int(
             NST_IC_OP_CALL,
-            node->nodes->size - 1,
+            tok_type == NST_TT_CALL ? node->nodes->size - 1 : -1,
             node->start, node->end
         );
         ADD_INST(inst);

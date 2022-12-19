@@ -74,6 +74,7 @@ enum Nst_TokenTypes
     NST_TT_LTE,       // - - stack-op end, comp-op end
     NST_TT_CAST,      // + local-stack-op start
     NST_TT_CALL,      // |
+    NST_TT_SEQ_CALL,  // |
     NST_TT_THROW,     // |
     NST_TT_RANGE,     // - local-stack-op end
     NST_TT_ASSIGN,    // + assignment start
