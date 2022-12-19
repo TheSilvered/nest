@@ -640,7 +640,7 @@ static Nst_Node *fix_expr(Nst_Node *expr)
         LList_destroy(expr->nodes, NULL);
         LList_destroy(expr->tokens, (LList_item_destructor)nst_destroy_token);
         free(expr);
-        return new_node;
+        return fix_expr(new_node);
     }
 
     for ( ITER_LLIST(cursor, expr->nodes) )
@@ -689,8 +689,6 @@ static Nst_Node *fix_expr(Nst_Node *expr)
 
 static Nst_Node *parse_stack_op(Nst_Node *value, Nst_Pos start)
 {
-    // Nst_Pos start = TOK(LList_peek_front(tokens))->start;
-
     Nst_Node *value_node = NULL;
     SAFE_LLIST_CREATE(new_nodes);
     if ( value != NULL )
@@ -724,7 +722,6 @@ static Nst_Node *parse_stack_op(Nst_Node *value, Nst_Pos start)
 
     if ( T_IN_STACK_OP(op_tok->type) )
     {
-        TOK(LList_pop(tokens));
         SAFE_LLIST_CREATE(new_tokens);
         LList_append(new_tokens, op_tok, true);
         node = nst_new_node_full(
@@ -734,12 +731,33 @@ static Nst_Node *parse_stack_op(Nst_Node *value, Nst_Pos start)
             new_nodes,
             new_tokens
         );
+        LList_pop(tokens);
     }
     else if ( T_IN_LOCAL_STACK_OP(op_tok->type) )
     {
         node = parse_local_stack_op(new_nodes, start);
         if ( p_state.error->occurred ) return NULL;
         is_local_stack_op = true;
+    }
+    else if ( T_IN_ASSIGNMENT(op_tok->type) && op_tok->type != NST_TT_ASSIGN )
+    {
+        TOK(LList_peek_front(tokens));
+        SAFE_LLIST_CREATE(new_tokens);
+
+        Nst_LexerToken *new_tok = nst_new_token_noval(
+            op_tok->start,
+            op_tok->end,
+            ASSIGMENT_TO_STACK_OP(op_tok->type)
+        );
+
+        LList_append(new_tokens, new_tok, true);
+        node = nst_new_node_full(
+            start,
+            end,
+            NST_NT_STACK_OP,
+            new_nodes,
+            new_tokens
+        );
     }
     else if ( new_nodes->size == 1 && value == NULL )
     {
@@ -749,7 +767,7 @@ static Nst_Node *parse_stack_op(Nst_Node *value, Nst_Pos start)
     else
     {
         LList_destroy(new_nodes, (LList_item_destructor)nst_destroy_node);
-        RETURN_ERROR(end, end, _NST_EM_EXPECTED_OP);
+        RETURN_ERROR(op_tok->start, end, _NST_EM_EXPECTED_OP);
     }
 
     while ( !T_IN_EXPR_END(TOK(LList_peek_front(tokens))->type) )
@@ -844,7 +862,6 @@ static Nst_Node *parse_local_stack_op(LList *nodes, Nst_Pos start)
 
 static Nst_Node *parse_assignment(Nst_Node *value)
 {
-
     Nst_LexerToken *tok = TOK(LList_pop(tokens));
 
     Nst_Node *name = parse_extraction();
