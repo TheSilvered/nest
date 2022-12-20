@@ -293,24 +293,32 @@ static Nst_Node *parse_for_loop()
     nst_destroy_token(tok);
 
     int node_type = NST_NT_FOR_L;
+    SAFE_LLIST_CREATE(nodes);
 
     skip_blank();
     Nst_Node *range = parse_expr(false);
 
-    if ( p_state.error->occurred ) return NULL;
+    if ( p_state.error->occurred )
+    {
+        LList_destroy(nodes, NULL);
+        return NULL;
+    }
 
-    SAFE_LLIST_CREATE(node_tokens);
+    LList_append(nodes, range, true);
 
     if ( TOK(LList_peek_front(tokens))->type == NST_TT_AS )
     {
         nst_destroy_token(TOK(LList_pop(tokens)));
-        if ( TOK(LList_peek_front(tokens))->type != NST_TT_IDENT )
+        Nst_Node *name_node = parse_assignment_name(false);
+
+        if ( p_state.error->occurred )
         {
             Nst_Pos err_start = TOK(LList_peek_front(tokens))->start;
             Nst_Pos err_end = TOK(LList_peek_front(tokens))->end;
-            RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_IDENT);
+            LList_destroy(nodes, (LList_item_destructor)nst_destroy_node);
+            RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_IDENT_OR_EXTR);
         }
-        LList_append(node_tokens, LList_pop(tokens), true);
+        LList_append(nodes, name_node, true);
         node_type = NST_NT_FOR_AS_L;
     }
 
@@ -331,16 +339,15 @@ static Nst_Node *parse_for_loop()
     Nst_Node *body = parse_long_statement();
     if ( p_state.error->occurred )
     {
-        nst_destroy_node(range);
-        LList_destroy(node_tokens, (LList_item_destructor)nst_destroy_token);
+        LList_destroy(nodes, (LList_item_destructor)nst_destroy_node);
         return NULL;
     }
     p_state.in_loop = prev_state;
+    LList_append(nodes, body, true);
 
     if ( TOK(LList_peek_front(tokens))->type != NST_TT_R_BRACKET )
     {
-        nst_destroy_node(range);
-        nst_destroy_node(body);
+        LList_destroy(nodes, (LList_item_destructor)nst_destroy_node);
         RETURN_ERROR(err_pos, err_pos, _NST_EM_MISSING_BRACKET);
     }
 
@@ -348,12 +355,7 @@ static Nst_Node *parse_for_loop()
     Nst_Pos end = tok->end;
     nst_destroy_token(tok);
 
-    SAFE_LLIST_CREATE(nodes);
-
-    LList_append(nodes, range, true);
-    LList_append(nodes, body, true);
-
-    return nst_new_node_full(start, end, node_type, nodes, node_tokens);
+    return nst_new_node_nodes(start, end, node_type, nodes);
 }
 
 static Nst_Node *parse_if_expr(Nst_Node *condition)

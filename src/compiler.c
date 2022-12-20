@@ -415,8 +415,7 @@ static void compile_for_as_l(Nst_Node *node)
     // Setting variable
     inst = nst_new_inst_int(NST_IC_FOR_GET_VAL, 1, HEAD_NODE->start, HEAD_NODE->end);
     ADD_INST(inst);
-    inst = nst_new_inst_val(NST_IC_SET_VAL_LOC, HEAD_TOK->value, nst_no_pos(), nst_no_pos());
-    ADD_INST(inst);
+    compile_unpacking_assign_e(node->nodes->head->next->value);
 
     // For loop body
     inc_loop_id();
@@ -1095,7 +1094,11 @@ static void compile_assign_e(Nst_Node *node)
         ADD_INST(inst);
     }
     else
-        compile_unpacking_assign_e(node);
+    {
+        inst = nst_new_inst_empty(NST_IC_DUP, 0);
+        ADD_INST(inst);
+        compile_unpacking_assign_e(TAIL_NODE);
+    }
 }
 
 static void compile_unpacking_assign_e(Nst_Node *node)
@@ -1115,10 +1118,8 @@ static void compile_unpacking_assign_e(Nst_Node *node)
     */
 
     Nst_RuntimeInstruction *inst;
-    inst = nst_new_inst_empty(NST_IC_DUP, 0);
-    ADD_INST(inst);
     LList *nodes = LList_new();
-    LList_push(nodes, TAIL_NODE, false);
+    LList_push(nodes, node, false);
 
     while ( nodes->size != 0 )
     {
