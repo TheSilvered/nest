@@ -10,7 +10,7 @@
 
 // error messages
 #define _NST_EM_INVALID_CHAR "invalid character"
-#define _NST_EM_UNEXPECTED_NEWLINE "unescaped line feed not allowed on single-line strings"
+#define _NST_EM_UNEXPECTED_NEWLINE "single-quote strings cannot stretch multiple lines"
 #define _NST_EM_INVALID_SYMBOL "invalid symbol"
 #define _NST_EM_INT_TOO_BIG "Int literal's value is too large"
 #define _NST_EM_REAL_TOO_BIG "Real literal's value is too large"
@@ -29,11 +29,11 @@
 #define _NST_EM_EXPECTED_RETURN "expected '=>'"
 #define _NST_EM_EXPECTED_R_BRACKET "expected ']'"
 #define _NST_EM_EXPECTED_IF "expected '?'"
-#define _NST_EM_EXPECTED_IDENT "expected identifier"
-#define _NST_EM_EXPECTED_VALUE "expected value"
+#define _NST_EM_EXPECTED_IDENT "expected an identifier"
+#define _NST_EM_EXPECTED_VALUE "expected a value"
 #define _NST_EM_INVALID_EXPRESSION "invalid expression"
 #define _NST_EM_EXPECTED_OP "expected stack or local stack operator"
-#define _NST_EM_EXPECTED_IDENT_OR_EXTR "expected identifier or extraction"
+#define _NST_EM_EXPECTED_IDENT_OR_EXTR "expected an identifier or an extraction"
 #define _NST_EM_MISSING_PAREN "unmatched '('"
 #define _NST_EM_MISSING_VBRACE "unmatched '<{'"
 #define _NST_EM_EXPECTED_COMMA_OR_BRACE "expected ',' or '}'"
@@ -41,7 +41,7 @@
 #define _NST_EM_EXPECTED_VBRACE "expected '}>'"
 #define _NST_EM_EXPECTED_COLON "expected ':'"
 #define _NST_EM_EXPECTED_CATCH "expected '?!'"
-#define _NST_EM_RANGE_STEP_ZERO "step must not be zero"
+#define _NST_EM_RANGE_STEP_ZERO "the step cannot be zero"
 #define _NST_EM_FILE_NOT_DLL "the file is not a valid DLL"
 #define _NST_EM_FILE_NOT_SO "the file is not a valid shared object"
 #define _NST_EM_ARG_NUM_DOESNT_MATCH "argument number doesn't match to the given types"
@@ -55,6 +55,7 @@
 #define _NST_EM_INVALID_CASTING "invalid type cast from '%s' to '%s'"
 #define _NST_EM_CIRC_IMPORT "circular import"
 #define _NST_EM_LIB_INIT_FAILED "the module failed to initialize"
+#define _NST_EM_COMPOUND_ASSIGMENT "cannot unpack values in a compound assigment"
 
 #define _NST_EM_EXPECTED_TYPE(type) "expected type '" type "', got '%s' instead"
 #define _NST_EM_EXPECTED_TYPES "expected type '%s', got '%s' instead"
@@ -69,6 +70,7 @@
 #define _NST_EM_MISSING_FUNC(func) "missing '" func "' for a custom iterator"
 #define _NST_EM_INVALID_OPERAND_TYPE(operand) "invalid type '%s' for '" operand "'"
 #define _NST_EM_NO_LIB_FUNC(func) "the library does not specify a '" func "' function"
+#define _NST_EM_WRONG_UNPACK_LENGTH "expected %lli items to unpack but the sequence only contains %zi"
 
 #ifdef __cplusplus
 extern "C" {

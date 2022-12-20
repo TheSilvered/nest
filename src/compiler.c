@@ -60,6 +60,7 @@ static void compile_value(Nst_Node *node);
 static void compile_access(Nst_Node *node);
 static void compile_extract_e(Nst_Node *node);
 static void compile_assign_e(Nst_Node *node);
+static void compile_unpacking_assign_e(Nst_Node *node);
 static void compile_continue_s(Nst_Node *node);
 static void compile_break_s(Nst_Node *node);
 static void compile_switch_s(Nst_Node *node);
@@ -1079,8 +1080,9 @@ static void compile_assign_e(Nst_Node *node)
             node->start,
             node->end
         );
+        ADD_INST(inst);
     }
-    else
+    else if ( TAIL_NODE->type == NST_NT_EXTRACT_E )
     {
         compile_node(NODE(TAIL_NODE->nodes->head->value)); // Container
         compile_node(NODE(TAIL_NODE->nodes->tail->value)); // Index
@@ -1090,9 +1092,84 @@ static void compile_assign_e(Nst_Node *node)
             node->start,
             node->end
         );
+        ADD_INST(inst);
+    }
+    else
+        compile_unpacking_assign_e(node);
+}
+
+static void compile_unpacking_assign_e(Nst_Node *node)
+{
+    /*
+    Unpacking assigment
+
+    [VALUE CODE]
+    DUP
+    UNPACK_SEQ size_of_expected
+    
+    SET_VAL_LOC name - for variables
+
+    [CONTAINER_CODE]  +
+    [INDEX_CODE]      | for containers
+    SET_CONTAINER_VAL +
+    */
+
+    Nst_RuntimeInstruction *inst;
+    inst = nst_new_inst_empty(NST_IC_DUP, 0);
+    ADD_INST(inst);
+    LList *nodes = LList_new();
+    LList_push(nodes, TAIL_NODE, false);
+
+    while ( nodes->size != 0 )
+    {
+        Nst_Node *curr_node = NODE(LList_pop(nodes));
+
+        if ( curr_node->type == NST_NT_ARR_LIT )
+        {
+            LLNode *list_head = nodes->head;
+            LLNode *list_tail = nodes->tail;
+            nodes->head = NULL;
+            nodes->tail = NULL;
+
+            for ( ITER_LLIST(n, curr_node->nodes) )
+                LList_append(nodes, n->value, false);
+
+            // the array literal is guaranteed to have at least one item
+            nodes->tail->next = list_head;
+            nodes->tail = list_tail;
+
+            inst = nst_new_inst_int(
+                NST_IC_UNPACK_SEQ,
+                curr_node->nodes->size,
+                curr_node->start,
+                curr_node->end
+            );
+        }
+        else if ( curr_node->type == NST_NT_ACCESS )
+        {
+            inst = nst_new_inst_val(
+                NST_IC_SET_VAL_LOC,
+                TOK(curr_node->tokens->head->value)->value,
+                curr_node->start,
+                curr_node->end
+            );
+        }
+        else
+        {
+            compile_node(NODE(curr_node->nodes->head->value)); // Container
+            compile_node(NODE(curr_node->nodes->tail->value)); // Index
+
+            inst = nst_new_inst_pos(
+                NST_IC_SET_CONT_LOC,
+                curr_node->start,
+                curr_node->end
+            );
+        }
+
+        ADD_INST(inst);
     }
 
-    ADD_INST(inst);
+    LList_destroy(nodes, NULL);
 }
 
 static void compile_continue_s(Nst_Node *node)
@@ -1347,6 +1424,7 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
         case NST_IC_RETURN_VARS:   PRINT("RETURN_VARS  ", 13); break;
         case NST_IC_FOR_ADVANCE:   PRINT("FOR_ADVANCE  ", 13); break;
         case NST_IC_SET_VAL_LOC:   PRINT("SET_VAL_LOC  ", 13); break;
+        case NST_IC_SET_CONT_LOC:  PRINT("SET_CONT_LOC ", 13); break;
         case NST_IC_JUMP:          PRINT("JUMP         ", 13); break;
         case NST_IC_JUMPIF_T:      PRINT("JUMPIF_T     ", 13); break;
         case NST_IC_JUMPIF_F:      PRINT("JUMPIF_F     ", 13); break;
@@ -1379,6 +1457,7 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
         case NST_IC_FOR_IS_DONE:   PRINT("FOR_IS_DONE  ", 13); break;
         case NST_IC_FOR_GET_VAL:   PRINT("FOR_GET_VAL  ", 13); break;
         case NST_IC_SAVE_ERROR:    PRINT("SAVE_ERROR   ", 13); break;
+        case NST_IC_UNPACK_SEQ:    PRINT("UNPACK_SEQ   ", 13); break;
         default:                   PRINT("__UNKNOWN__  ", 13); break;
         }
 

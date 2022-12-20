@@ -573,7 +573,8 @@ static void remove_assign_pop(Nst_InstructionList *bc)
 
     for ( Nst_Int i = 0; i < size; i++ )
     {
-        if ( inst_list[i].id == NST_IC_SET_VAL )
+        if ( inst_list[i].id == NST_IC_SET_VAL ||
+             inst_list[i].id == NST_IC_SET_CONT_VAL )
         {
             expect_pop = true;
             continue;
@@ -587,7 +588,11 @@ static void remove_assign_pop(Nst_InstructionList *bc)
         }
 
         inst_list[i].id = NST_IC_NO_OP;
-        inst_list[i - 1].id = NST_IC_SET_VAL_LOC;
+
+        if ( inst_list[i - 1].id == NST_IC_SET_VAL )
+            inst_list[i - 1].id = NST_IC_SET_VAL_LOC;
+        else
+            inst_list[i - 1].id = NST_IC_SET_CONT_LOC;
 
         expect_pop = false;
     }

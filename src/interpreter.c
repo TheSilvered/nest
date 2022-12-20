@@ -72,7 +72,6 @@ static int opt_level;
 
 static void complete_function(size_t final_stack_size);
 static inline void run_instruction(Nst_RuntimeInstruction *inst);
-static inline void exe_no_op();
 static inline void exe_pop_val();
 static inline void exe_for_start(Nst_RuntimeInstruction *inst);
 static inline void exe_for_is_done(Nst_RuntimeInstruction *inst);
@@ -81,6 +80,7 @@ static inline void exe_for_advance(Nst_RuntimeInstruction *inst);
 static inline void exe_return_val();
 static inline void exe_return_vars();
 static inline void exe_set_val_loc(Nst_RuntimeInstruction *inst);
+static inline void exe_set_cont_loc(Nst_RuntimeInstruction *inst);
 static inline void exe_jump(Nst_RuntimeInstruction *inst);
 static inline void exe_jumpif_t(Nst_RuntimeInstruction *inst);
 static inline void exe_jumpif_f(Nst_RuntimeInstruction *inst);
@@ -109,6 +109,7 @@ static inline void exe_make_map(Nst_RuntimeInstruction *inst);
 static inline void exe_push_catch(Nst_RuntimeInstruction *inst);
 static inline void exe_pop_catch();
 static inline void exe_save_error();
+static inline void exe_unpack_seq(Nst_RuntimeInstruction *inst);
 
 static Nst_SeqObj *make_argv(int argc, char **argv, char *filename);
 static Nst_StrObj *make_cwd(char *file_path);
@@ -510,10 +511,11 @@ static inline void run_instruction(Nst_RuntimeInstruction *inst)
     case NST_IC_PUSH_CATCH:   exe_push_catch(inst);    break;
     case NST_IC_POP_CATCH:    exe_pop_catch();         break;
     case NST_IC_SAVE_ERROR:   exe_save_error();        break;
+    case NST_IC_UNPACK_SEQ:   exe_unpack_seq(inst);    break;
+    case NST_IC_NO_OP:                                 break;
+    default: assert(false);
     }
 }
-
-static inline void exe_no_op() {}
 
 static inline void exe_pop_val()
 {
@@ -618,6 +620,13 @@ static inline void exe_set_val_loc(Nst_RuntimeInstruction *inst)
     Nst_Obj *val = nst_pop_val(nst_state.v_stack);
     nst_set_val(*nst_state.vt, inst->val, val);
     nst_dec_ref(val);
+}
+
+static inline void exe_set_cont_loc(Nst_RuntimeInstruction *inst)
+{
+    exe_set_cont_val(inst);
+    CHECK_V_STACK;
+    nst_pop_val(nst_state.v_stack);
 }
 
 static inline void exe_jump(Nst_RuntimeInstruction *inst)
@@ -1364,6 +1373,43 @@ static inline void exe_save_error()
 
     nst_push_val(nst_state.v_stack, err_map);
     nst_dec_ref(err_map);
+}
+
+static inline void exe_unpack_seq(Nst_RuntimeInstruction* inst)
+{
+    CHECK_V_STACK;
+    Nst_SeqObj *seq = SEQ(nst_peek_val(nst_state.v_stack));
+
+    if ( seq->type != nst_t.Array && seq->type != nst_t.Vector )
+    {
+        _NST_SET_TYPE_ERROR(
+            GLOBAL_ERROR,
+            inst->start,
+            inst->end,
+            _nst_format_error(
+                _NST_EM_EXPECTED_TYPE("Array' or 'Vector"),
+                "s", TYPE_NAME(seq)
+            )
+        );
+        return;
+    }
+
+    if ( (Nst_Int)seq->len != inst->int_val )
+    {
+        _NST_SET_VALUE_ERROR(
+            GLOBAL_ERROR,
+            inst->start,
+            inst->end,
+            _nst_format_error(
+                _NST_EM_WRONG_UNPACK_LENGTH,
+                "iu", inst->int_val, seq->len
+            )
+        );
+        return;
+    }
+
+    for ( Nst_Int i = seq->len - 1; i >= 0; i-- )
+        nst_push_val(nst_state.v_stack, seq->objs[i]);
 }
 
 size_t nst_get_full_path(char *file_path, char **buf, char **file_part)

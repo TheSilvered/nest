@@ -45,6 +45,7 @@ static Nst_Node *parse_func_def();
 static Nst_Node *parse_expr(bool break_as_end);
 static Nst_Node *parse_stack_op(Nst_Node *value, Nst_Pos start);
 static Nst_Node *parse_local_stack_op(LList *nodes, Nst_Pos start);
+static Nst_Node *parse_assignment_name(bool is_compound);
 static Nst_Node *parse_assignment(Nst_Node *value);
 static Nst_Node *parse_extraction();
 static Nst_Node *parse_atom();
@@ -860,11 +861,84 @@ static Nst_Node *parse_local_stack_op(LList *nodes, Nst_Pos start)
     );
 }
 
+static Nst_Node *parse_assignment_name(bool is_compound)
+{
+    Nst_LexerToken *tok = TOK(LList_peek_front(tokens));
+    Nst_Pos start = tok->start;
+    Nst_Node *node;
+    Nst_Node *name_node;
+
+    if ( tok->type != NST_TT_L_BRACE )
+    {
+        node = parse_extraction();
+
+        if ( p_state.error->occurred )
+            return NULL;
+
+        if ( node->type != NST_NT_ACCESS && node->type != NST_NT_EXTRACT_E )
+        {
+            Nst_Pos err_start = node->start;
+            Nst_Pos err_end = node->end;
+            nst_destroy_node(node);
+            RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_IDENT_OR_EXTR);
+        }
+        return node;
+    }
+
+    tok = TOK(LList_pop(tokens));
+
+    if ( is_compound )
+    {
+        Nst_Pos err_start = tok->start;
+        Nst_Pos err_end = tok->end;
+        nst_destroy_token(tok);
+        RETURN_ERROR(err_start, err_end, _NST_EM_COMPOUND_ASSIGMENT);
+    }
+
+    SAFE_LLIST_CREATE(nodes);
+
+    while ( true )
+    {
+        nst_destroy_token(tok);
+        skip_blank();
+        name_node = parse_assignment_name(false);
+
+        if ( p_state.error->occurred )
+        {
+            LList_destroy(nodes, (LList_item_destructor)nst_destroy_node);
+            return NULL;
+        }
+
+        LList_append(nodes, name_node, true);
+
+        skip_blank();
+        tok = TOK(LList_pop(tokens));
+        if ( tok->type == NST_TT_COMMA )
+            continue;
+        else if ( tok->type == NST_TT_R_BRACE )
+        {
+            Nst_Pos end = tok->end;
+            nst_destroy_token(tok);
+
+            return nst_new_node_nodes(start, end, NST_NT_ARR_LIT, nodes);
+        }
+        else
+        {
+            LList_destroy(nodes, (LList_item_destructor)nst_destroy_node);
+            Nst_Pos err_start = tok->start;
+            Nst_Pos err_end = tok->end;
+            nst_destroy_token(tok);
+            RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_COMMA_OR_BRACE);
+        }
+    }
+}
+
 static Nst_Node *parse_assignment(Nst_Node *value)
 {
     Nst_LexerToken *tok = TOK(LList_pop(tokens));
+    bool is_compound = tok->type != NST_TT_ASSIGN;
+    Nst_Node *name = parse_assignment_name(is_compound);
 
-    Nst_Node *name = parse_extraction();
     if ( p_state.error->occurred )
     {
         nst_destroy_token(tok);
@@ -872,18 +946,8 @@ static Nst_Node *parse_assignment(Nst_Node *value)
         return NULL;
     }
 
-    if ( name->type != NST_NT_ACCESS && name->type != NST_NT_EXTRACT_E )
-    {
-        nst_destroy_token(tok);
-        nst_destroy_node(value);
-        Nst_Pos err_start = name->start;
-        Nst_Pos err_end = name->end;
-        nst_destroy_node(name);
-        RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_IDENT_OR_EXTR);
-    }
-
     // If a compound assignmen operator such as '+=' or '*='
-    if ( tok->type != NST_TT_ASSIGN )
+    if ( is_compound )
     {
         SAFE_LLIST_CREATE(new_value_tokens);
         SAFE_LLIST_CREATE(new_value_nodes);

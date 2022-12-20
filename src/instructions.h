@@ -61,7 +61,8 @@ enum Nst_InstructionCodes
     NST_IC_FOR_ADVANCE,
     NST_IC_RETURN_VAL,
     NST_IC_RETURN_VARS, // Returns the var table
-    NST_IC_SET_VAL_LOC, // Does not push its value onto the stack
+    NST_IC_SET_VAL_LOC, // Assigns the value without leaving ot on the stack
+    NST_IC_SET_CONT_LOC, // Assigns the value of a sequence without leaving it on the stack
     NST_IC_JUMP, // Jump to an index in the instuction array
     NST_IC_JUMPIF_T, // Jump to an index in the instuction array if the top value is nst_c.b_true, consumes the value
     NST_IC_JUMPIF_F, // Jump to an index in the instuction array if the top value is nst_c.b_false, consumes the value
@@ -93,7 +94,8 @@ enum Nst_InstructionCodes
     NST_IC_MAKE_VEC, // makes a vector instead of an array
     NST_IC_MAKE_VEC_REP,
     NST_IC_MAKE_MAP, // makes a map of size N/2 consuming N values from the stack
-    NST_IC_SAVE_ERROR // creates a map with the current error's info and pushes it on the stack
+    NST_IC_SAVE_ERROR, // creates a map with the current error's info and pushes it on the stack
+    NST_IC_UNPACK_SEQ // pushes the values of the sequence on top of the stack from the last to the first
 };
 
 #ifdef __cplusplus
