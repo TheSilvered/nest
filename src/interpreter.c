@@ -481,6 +481,7 @@ static inline void run_instruction(Nst_RuntimeInstruction *inst)
     case NST_IC_RETURN_VAL:   exe_return_val();        break;
     case NST_IC_RETURN_VARS:  exe_return_vars();       break;
     case NST_IC_SET_VAL_LOC:  exe_set_val_loc(inst);   break;
+    case NST_IC_SET_CONT_LOC: exe_set_cont_loc(inst);  break;
     case NST_IC_JUMP:         exe_jump(inst);          break;
     case NST_IC_JUMPIF_T:     exe_jumpif_t(inst);      break;
     case NST_IC_JUMPIF_F:     exe_jumpif_f(inst);      break;
