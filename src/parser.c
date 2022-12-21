@@ -818,7 +818,7 @@ static Nst_Node *parse_local_stack_op(LList *nodes, Nst_Pos start)
         RETURN_ERROR(
             NODE(LList_peek_front(nodes))->start,
             NODE(LList_peek_back(nodes))->end,
-            nodes->size > 2 ? _NST_EM_TOO_MANY_ARGS("::") : _NST_EM_TOO_FEW_ARGS("::")
+            _NST_EM_LEFT_ARGS_NUM("::", "1", "")
         );
     }
     else if ( tok->type == NST_TT_RANGE && (nodes->size != 1 && nodes->size != 2) )
@@ -826,7 +826,7 @@ static Nst_Node *parse_local_stack_op(LList *nodes, Nst_Pos start)
         RETURN_ERROR(
             NODE(LList_peek_front(nodes))->start,
             NODE(LList_peek_back(nodes))->end,
-            (int)nodes->size > 2 ? _NST_EM_TOO_MANY_ARGS("->") : _NST_EM_TOO_FEW_ARGS("->")
+            _NST_EM_LEFT_ARGS_NUM("->", "1 or 2", "s")
         );
     }
     else if ( tok->type == NST_TT_THROW && nodes->size != 1 )
@@ -834,7 +834,15 @@ static Nst_Node *parse_local_stack_op(LList *nodes, Nst_Pos start)
         RETURN_ERROR(
             NODE(LList_peek_front(nodes))->start,
             NODE(LList_peek_back(nodes))->end,
-            nodes->size > 2 ? _NST_EM_TOO_MANY_ARGS("!!") : _NST_EM_TOO_FEW_ARGS("!!")
+            _NST_EM_LEFT_ARGS_NUM("!!", "1", "")
+        );
+    }
+    else if ( tok->type == NST_TT_SEQ_CALL && nodes->size != 1 )
+    {
+        RETURN_ERROR(
+            NODE(LList_peek_front(nodes))->start,
+            NODE(LList_peek_back(nodes))->end,
+            _NST_EM_LEFT_ARGS_NUM("*@", "1", "")
         );
     }
 
