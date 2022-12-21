@@ -44,7 +44,10 @@ int main(int argc, char **argv)
 
 #ifdef _DEBUG
     puts("**USING DEBUG BUILD - " NEST_VERSION "**");
-    puts("----------------------------------");
+
+    for ( size_t i = 0, n = strlen(NEST_VERSION) + 24; i < n; i++ )
+        putc('-', stdout);
+    putc('\n', stdout);
     fflush(stdout);
 #endif
 

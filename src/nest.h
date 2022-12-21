@@ -3,7 +3,17 @@
 #ifndef NEST_H
 #define NEST_H
 
-#define NEST_VERSION "beta-0.8.0"
+#define _NEST_VERSION_BASE "beta-0.8.0"
+
+#if defined(_WIN32) || defined(WIN32)
+  #ifdef _WIN64
+    #define NEST_VERSION _NEST_VERSION_BASE " x64"
+  #else
+    #define NEST_VERSION _NEST_VERSION_BASE " x86"
+  #endif
+#else
+  #define NEST_VERSION _NEST_VERSION_BASE
+#endif
 
 #include "error.h"
 #include "hash.h"

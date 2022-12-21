@@ -15,7 +15,7 @@
     \
     "Options:\n" \
     "  -h -? --help          prints this message\n" \
-    "  -V --version          prints the version of nest being used\n" \
+    "  -V --version          prints the version of Nest being used\n" \
     "  -t --tokens           prints the list of tokens of the program\n" \
     "  -a --ast              prints the abstract syntax tree of the program\n" \
     "  -b --bytecode         prints the byte code of the program\n" \
@@ -32,6 +32,9 @@
 #define USAGE_MESSAGE \
     "USAGE: nest [options] [filename | -c command] [args]\n" \
     "Run 'nest --help' for more information\n"
+
+#define VERSION_MESSAGE \
+    "Using Nest version: " NEST_VERSION
 
 int nst_parse_args(int argc, char **argv,
                    bool *print_tokens,
@@ -90,7 +93,7 @@ int nst_parse_args(int argc, char **argv,
                     return 1;
 
                 case 'V':
-                    printf("Using Nest version " NEST_VERSION "\n");
+                    printf(VERSION_MESSAGE "\n");
                     return 1;
 
                 case 'O':
@@ -174,7 +177,7 @@ int nst_parse_args(int argc, char **argv,
                     }
                     else if ( strcmp(arg, "--version") == 0 )
                     {
-                        printf("Using nest version " NEST_VERSION "\n");
+                        printf(VERSION_MESSAGE "\n");
                         return 1;
                     }
                     else
