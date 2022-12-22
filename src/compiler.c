@@ -415,7 +415,7 @@ static void compile_for_as_l(Nst_Node *node)
     // Setting variable
     inst = nst_new_inst_int(NST_IC_FOR_GET_VAL, 1, HEAD_NODE->start, HEAD_NODE->end);
     ADD_INST(inst);
-    compile_unpacking_assign_e(node->nodes->head->next->value);
+    compile_unpacking_assign_e(NODE(node->nodes->head->next->value));
 
     // For loop body
     inc_loop_id();

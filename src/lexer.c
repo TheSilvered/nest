@@ -140,7 +140,7 @@ LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
 
     while ( !CUR_AT_END )
     {
-        if ( cursor.ch == ' ' || cursor.ch == '\t' )
+        if ( cursor.ch == ' ' || cursor.ch == '\t' || cursor.ch == '\r' )
         {
             advance();
             continue;
@@ -156,7 +156,11 @@ LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
         else if ( cursor.ch == '\n' )
             tok = nst_new_token_noend(nst_copy_pos(cursor.pos), NST_TT_ENDL);
         else if ( cursor.ch == '\\' )
+        {
             advance();
+            if ( cursor.ch == '\r' )
+                advance();
+        }
         else
         {
             _NST_SET_RAW_SYNTAX_ERROR(
@@ -293,6 +297,8 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error *error)
                 advance();
                 if ( cursor.ch == '\\' )
                     go_back();
+                else if ( cursor.ch == '\r' )
+                    advance();
             }
             advance();
         }

@@ -1,5 +1,6 @@
 #include <random>
 #include <chrono>
+#include <climits>
 #include "nest_rand.h"
 
 #define FUNC_COUNT 6
@@ -66,7 +67,7 @@ NST_FUNC_SIGN(rand_int_)
 
 NST_FUNC_SIGN(rand_perc_)
 {
-    return nst_new_real(long double(uint64_t(rand_num())) / long double(ULLONG_MAX));
+    return nst_new_real((long double)uint64_t(rand_num()) / (long double)ULLONG_MAX);
 }
 
 NST_FUNC_SIGN(choice_)
@@ -94,9 +95,9 @@ NST_FUNC_SIGN(shuffle_)
     for ( size_t i = 0; i + 1 < seq_len; i++ )
     {
         size_t idx = size_t(rand_range(i, seq_len));
-        Nst_Obj *obj = seq->objs[i];
-        seq->objs[i] = seq->objs[idx];
-        seq->objs[idx] = obj;
+        Nst_Obj *obj = objs[i];
+        objs[i] = objs[idx];
+        objs[idx] = obj;
     }
 
     NST_RETURN_NULL;

@@ -111,7 +111,6 @@ Nst_Obj *failure(Nst_OpErr *err)
     }
     else
     {
-        Nst_Obj *error_map = nst_new_map();
         error_name_str = OBJ(err->name);
         error_message_str = OBJ(err->message);
         error_pos = nst_inc_ref(nst_c.null);

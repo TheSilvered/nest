@@ -523,8 +523,12 @@ NST_FUNC_SIGN(replace_substr_)
     size_t new_str_len = 0;
     int count = 0;
 
-    while ( sub = find_substring(s, s_len, s_from, s_from_len) )
+    while ( true )
     {
+        sub = find_substring(s, s_len, s_from, s_from_len);
+        if ( sub == nullptr )
+            break;
+
         s_len = sub + s_from_len - s;
         s = sub + s_from_len;
         count++;
@@ -538,8 +542,12 @@ NST_FUNC_SIGN(replace_substr_)
     char *new_str = new char[s_len - s_from_len * count + s_to_len * count + 1];
 
     // Copy replacing the occurrence
-    while ( sub = find_substring(s, s_len, s_from, s_from_len) )
+    while ( true )
     {
+        sub = find_substring(s, s_len, s_from, s_from_len);
+        if (sub == nullptr)
+            break;
+
         memcpy(new_str + new_str_len, s, sub - s);
         new_str_len += sub - s;
         memcpy(new_str + new_str_len, s_to, s_to_len);

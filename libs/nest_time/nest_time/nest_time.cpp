@@ -1,7 +1,12 @@
 #include <chrono>
 #include <ctime>
-#include "framework.h"
 #include "nest_time.h"
+
+#if defined(_WIN32) || defined(WIN32)
+#include "framework.h"
+#else
+#include <unistd.h>
+#endif
 
 #define FUNC_COUNT 18
 
@@ -233,6 +238,10 @@ NST_FUNC_SIGN(sleep_)
     if ( !nst_extract_arg_values("N", arg_num, args, err, &time) )
         return nullptr;
 
+#if defined(_WIN32) || defined(WIN32)
     Sleep(DWORD(time * 1000));
+#else
+    usleep(useconds_t(time * 1000000));
+#endif
     return nst_inc_ref(nst_c.null);
 }

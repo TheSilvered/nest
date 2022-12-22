@@ -65,7 +65,7 @@ Nst_Obj *new_coroutine(Nst_FuncObj *func)
     co->stack = NULL;
     co->stack_size = 0;
     co->idx = -1;
-    size_t call_stack_size = 0;
+    co->call_stack_size = 0;
 
     NST_SET_FLAG(co, FLAG_CO_SUSPENDED);
     NST_SET_FLAG(func, FLAG_FUNC_IS_CO);

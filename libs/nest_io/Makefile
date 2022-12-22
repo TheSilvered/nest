@@ -1,13 +1,13 @@
 CC=g++
 CFLAGS=-Wall -shared -fPIC -rdynamic -std=c++2a
 CLINKS=-lm -ldl
-EXE_NAME=stdfs.so
+EXE_NAME=stdio.so
 
 SRC_DIR=../../src
 EXE_DIR=../../unix_release
 DBG_DIR=../../unix_debug
 
-LIB_SRCS=nest_fs/nest_fs.cpp
+LIB_SRCS=nest_io/nest_io.cpp
 SRCS := $(filter-out nest.c argv_parser.c, $(wildcard $(SRC_DIR)/*.c))
 DBG_TARGET := $(DBG_DIR)/$(EXE_NAME)
 EXE_TARGET := $(EXE_DIR)/$(EXE_NAME)
