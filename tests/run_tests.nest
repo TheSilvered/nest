@@ -2,7 +2,10 @@
 |#| 'stdio.nest' = io
 |#| 'stdsutil.nest' = su
 |#| 'stdsequtil.nest' = sequ
+|#| 'stdsys.nest' = sys
 |#| 'test_lib.nest' = test
+
+sys.PLATFORM 'windows' = on_windows
 
 -- Creates or clear the log file
 'test_output.txt' 'w' @io.open = test.log_file
@@ -11,7 +14,10 @@
     ... Iter :: (dir @fs.list_dir_recursive) := test_path [
         !(test_path '.nest' @su.ends_with) ? ..
 
-        (test_path '\\' @su.rfind 1 +) = last_slash
+        on_windows ?
+            (test_path '\\' @su.rfind 1 +) = last_slash
+        :
+            (test_path '/'  @su.rfind 1 +) = last_slash
         test_path last_slash $test_path 1 @sequ.slice = file_part
 
         !(file_part 'e_' @su.starts_with) ?
@@ -33,9 +39,15 @@
     ]
 ]
 
-'.\\object_tests' @run_tests
-'.\\std_lib_tests' @run_tests
-'.\\error_tests' @run_tests
+on_windows ? [
+    '.\\object_tests' @run_tests
+    '.\\std_lib_tests' @run_tests
+    '.\\error_tests' @run_tests
+] : [
+    './object_tests' @run_tests
+    './std_lib_tests' @run_tests
+    './error_tests' @run_tests
+]
 
 test.log_file @io.flush
 test.log_file @io.close

@@ -1426,6 +1426,14 @@ size_t nst_get_full_path(char *file_path, char **buf, char **file_part)
 #if defined(_WIN32) || defined(WIN32)
 
     DWORD path_len = GetFullPathNameA(file_path, PATH_MAX, path, file_part);
+
+    if ( path_len == 0 )
+    {
+        free(path);
+        *buf = NULL;
+        return 0;
+    }
+
     if ( path_len > PATH_MAX )
     {
         free(path);
@@ -1433,6 +1441,13 @@ size_t nst_get_full_path(char *file_path, char **buf, char **file_part)
         if ( path == NULL )
             return 0;
         path_len = GetFullPathNameA(file_path, path_len, path, file_part);
+
+        if ( path_len == 0 )
+        {
+            free(path);
+            *buf = NULL;
+            return 0;
+        }
     }
 
     *buf = path;
@@ -1440,7 +1455,14 @@ size_t nst_get_full_path(char *file_path, char **buf, char **file_part)
 
 #else
 
-    path = realpath(file_path, path);
+    char *result = realpath(file_path, path);
+
+    if ( result == NULL )
+    {
+        free(path);
+        *buf = NULL;
+        return 0;
+    }
 
     if ( file_part != NULL )
     {

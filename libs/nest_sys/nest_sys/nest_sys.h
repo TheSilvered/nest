@@ -25,6 +25,7 @@ NST_FUNC_SIGN(get_ref_count_);
 NST_FUNC_SIGN(get_addr_);
 NST_FUNC_SIGN(hash_);
 NST_FUNC_SIGN(_get_version_);
+NST_FUNC_SIGN(_get_platform_);
 
 #ifdef __cplusplus
 }

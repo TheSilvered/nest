@@ -11,6 +11,12 @@
   #else
     #define NEST_VERSION _NEST_VERSION_BASE " x86"
   #endif
+#elif defined(__GNUC__)
+  #if defined(__x86_64__) || defined(__ppc64__)
+    #define NEST_VERSION _NEST_VERSION_BASE " x64"
+  #else
+    #define NEST_VERSION _NEST_VERSION_BASE " x32"
+  #endif
 #else
   #define NEST_VERSION _NEST_VERSION_BASE
 #endif

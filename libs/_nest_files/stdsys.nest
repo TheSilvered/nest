@@ -8,7 +8,8 @@ __sys.get_addr_      = get_addr
 __sys.hash_          = hash
 __sys._get_version_  = _get_version
 
-@__sys._get_version_ = VERSION
+@__sys._get_version_  = VERSION
+@__sys._get_platform_ = PLATFORM
 
 _vars_ '__sys' \
        'Int' \

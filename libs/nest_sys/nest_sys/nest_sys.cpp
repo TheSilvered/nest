@@ -7,6 +7,7 @@
 static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
 static Nst_StrObj *version_obj;
+static Nst_StrObj *platform_obj;
 
 bool lib_init()
 {
@@ -22,10 +23,17 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_addr_,      1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(hash_,          1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_version_,  0);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_platform_, 0);
 
     lib_init_ = true;
 
     version_obj = STR(nst_new_cstring_raw(NEST_VERSION, false));
+
+#if defined(_WIN32) || defined(WIN32)
+    platform_obj = STR(nst_new_cstring("windows", 7, false));
+#else
+    platform_obj = STR(nst_new_cstring("linux", 5, false));
+#endif
 
     return true;
 }
@@ -94,4 +102,9 @@ NST_FUNC_SIGN(hash_)
 NST_FUNC_SIGN(_get_version_)
 {
     return nst_inc_ref(version_obj);
+}
+
+NST_FUNC_SIGN(_get_platform_)
+{
+    return nst_inc_ref(platform_obj);
 }

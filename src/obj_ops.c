@@ -1392,9 +1392,10 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     Nst_IOFile file;
     // Checks if the file exists with the given path
     // otherwise it tries to open it with the path of the standard library
-    if ( (file = fopen(file_path, "r")) == NULL )
+    if ( file_path == NULL || (file = fopen(file_path, "r")) == NULL )
     {
-        free(file_path);
+        if ( file_path != NULL )
+            free(file_path);
 
 #if defined(_WIN32) || defined(WIN32)
 

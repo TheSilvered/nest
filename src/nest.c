@@ -2,16 +2,7 @@
 #include "nest.h"
 
 #if defined(_WIN32) || defined(WIN32)
-
 #include <windows.h>
-#define SET_UTF8_TERMINAL SetConsoleOutputCP(CP_UTF8)
-
-#else
-
-#include <wchar.h>
-#include <locale.h>
-#define SET_UTF8_TERMINAL setlocale(LC_ALL, "")
-
 #endif
 
 #define EXIT(code) \
@@ -38,9 +29,8 @@ int main(int argc, char **argv)
 {
 #if defined(_WIN32) || defined(WIN32)
     SetErrorMode(SEM_FAILCRITICALERRORS);
+    SetConsoleOutputCP(CP_UTF8);
 #endif
-
-    SET_UTF8_TERMINAL;
 
 #ifdef _DEBUG
     puts("**USING DEBUG BUILD - " NEST_VERSION "**");

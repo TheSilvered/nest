@@ -67,6 +67,16 @@
     else \
         value *= sign
 
+#define SKIP_NEWLINE \
+    do { \
+        if ( cursor.ch == '\r' ) \
+        { \
+            advance(); \
+            if ( cursor.ch != '\n' ) \
+                go_back(); \
+        } \
+    } while ( 0 )
+
 typedef struct LexerCursor {
     char *text;
     size_t len;
@@ -158,8 +168,7 @@ LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
         else if ( cursor.ch == '\\' )
         {
             advance();
-            if ( cursor.ch == '\r' )
-                advance();
+            SKIP_NEWLINE;
         }
         else
         {
@@ -297,8 +306,8 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error *error)
                 advance();
                 if ( cursor.ch == '\\' )
                     go_back();
-                else if ( cursor.ch == '\r' )
-                    advance();
+                else
+                    SKIP_NEWLINE;
             }
             advance();
         }
