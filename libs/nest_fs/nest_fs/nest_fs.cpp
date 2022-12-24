@@ -399,9 +399,9 @@ NST_FUNC_SIGN(join_)
     for ( size_t i = 0; i < new_len; i++ )
     {
 #if defined(_WIN32) || defined(WIN32)
-        if ( new_str[i] == '/' ) new_str[i] == '\\';
+        if ( new_str[i] == '/' ) new_str[i] = '\\';
 #else
-        if ( new_str[i] == '\\' ) new_str[i] == '/';
+        if ( new_str[i] == '\\' ) new_str[i] = '/';
 #endif
     }
 

@@ -444,6 +444,41 @@ an element in an array, vector or map.
 10 = a -- assigns the value 10 to the variable 'a'
 ```
 
+---
+
+There is another kind of assignment in Nest: the unpacking assignment.  
+An unpacking assignment takes a vector or an array and splits its contents into
+the variables.
+
+```text
+{ 1, 2 } = { a, b } --> now 'a' is 1 and 'b' is 2
+```
+
+It can also be nested:
+
+```text
+{ 1, { 2, 3 } } = { a, { b, c } } --> now 'a' is 1, 'b' is 2 and 'c' is 3
+```
+
+And can be used in for-as loops:
+
+```text
+|#| 'stditutil.nest' = itu
+{ 'a', 'b', 'c' } = arr
+
+... arr @itu.enumerate := { idx, ch } [
+    >>> (idx ' ' ch '\n' ><)
+]
+```
+
+this program outputs:
+
+```text
+1 a
+2 b
+3 c
+```
+
 ### Access operator
 
 The access operator `.` can be used to get a specific value from vectors, arrays,

@@ -63,10 +63,55 @@ Lists the contents of a directory, and all the subdirectories.
 
 Returns the absolute path of a file or directory.
 
+### `[path: Str] @canonical_path`
+
+Returns the canonical path of a file or directory. A canonical path is an
+absolute path that does not point to a link. This means that any canonical path
+is an absolute path but not vice-versa.
+
+### `[path: Str, base: Str] @relative_path`
+
+Returns a relative path to `path` using `base` as the starting point.
+
+```text
+'/a/c' '/a/b/d' @relative_path --> '../../c'
+```
+
 ### `[path_1: Str, path_2: Str] @equivalent`
 
 Returns if the two paths point to the same file, note that comparing hard links
 and the file itself returns `true`.
+
+### `[path_1: Str, path_2: Str] @join`
+
+Joins two paths by adding, if needed, a slash between them.  
+If `path_2` is an absolute path it is returned.  
+This function normalizes the slashes after joining: on Windows `/` becomes `\`
+and on Linux `\` becomes `/`.
+
+### `[path: Str] @path`
+
+Returns only the folder path where `path` points to a file.
+
+```text
+'dir/subdir/file.txt' @path --> 'dir/subdir'
+```
+
+### `[path: Str] @filename`
+
+Returns the name of the file `path` points to.
+
+```text
+'dir/subdir/file.txt' @filename --> 'file.txt'
+```
+
+### `[path: Str] @extension`
+
+Returns the extension of the file pointed to by `path`.
+
+```text
+'dir/subdir/file.txt' @extension --> '.txt'
+```
 
 ## Constants
 

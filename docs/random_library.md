@@ -22,7 +22,7 @@ Returns a random element choosing between the ones in `sequence`.
 
 Shuffles `sequence` in-place, it does not create a new one.
 
-### `[seed: Int] @rand_seed`
+### `[seed: Int] @seed`
 
 Sets the seed for the pseudo random number generator. By default it is
 `@@time_ns` from the function in `stdtime.nest`
