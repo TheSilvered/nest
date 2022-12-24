@@ -87,14 +87,15 @@ Keep in mind that if you change the version it has to be changed both in
 On Linux you will need to install GCC (GNU Compiler Collection) and then run one
 of the following commands.
 
-Execute `make all` to compile the main interpreter and all the libraries.  
+Execute `make all` to compile the main interpreter and the standard library.  
 Execute `make` to compile only the main interpreter.  
 Execute `make debug` for a fast compilation of the main interpreter.  
-Execute `make all-debug` for a fast compilation of the main interpreter and all
-the libraries.  
+Execute `make all-debug` for a fast compilation of the main interpreter and the
+standard library.  
 Execute `make clean` to remove the previously compiled programs.  
-Execute `make x86` to compile for 32-bit systems.  
-Execute `make all-x86` to compile for 32-bit systems
+Execute `make x86` to compile the main interpreter for 32-bit systems.  
+Execute `make all-x86` to compile the main interpreter and the standard library
+for 32-bit systems
 
 When `make debug` or `make all-debug` are ran, the compiled program is inserted
 in `unix_debug/`, otherwise the executable is put in `unix_release/`.
