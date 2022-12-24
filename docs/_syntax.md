@@ -341,6 +341,7 @@ The local-stack operators are:
 
 - `::` casts an object to another type
 - `@` calls a function
+- `*@` calls a function with an array or a vector containing the arguments
 - `->` creates an integer iterator
 - `!!` throws an error
 
@@ -362,6 +363,13 @@ Here the function `func` is called with three arguments:
 
 ```text
 1 2 3 @func
+```
+
+`*@` calls a function as well but you can have the arguments inside a vector or
+an array:
+
+```text
+{ 1, 2, 3 } *@func
 ```
 
 `->` takes two or three arguments, the first argument is optional and is the

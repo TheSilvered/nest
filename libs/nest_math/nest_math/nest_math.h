@@ -58,6 +58,7 @@ NST_FUNC_SIGN(lcm_);
 NST_FUNC_SIGN(gcd_seq_);
 NST_FUNC_SIGN(lcm_seq_);
 NST_FUNC_SIGN(abs_);
+NST_FUNC_SIGN(hypot_);
 
 #ifdef __cplusplus
 }

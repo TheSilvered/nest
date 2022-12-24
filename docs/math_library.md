@@ -181,6 +181,10 @@ Returns the least common multiple between all the elements in `seq`.
 
 Returns the absolute value of `number`.
 
+### `[c1: Number, c2: Number] @hypot`
+
+Calculates the hypotenuse of a right given the two catheti.
+
 ## Constants
 
 ### `PI`

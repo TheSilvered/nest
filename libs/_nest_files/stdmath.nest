@@ -42,6 +42,7 @@ __math.lcm_     = lcm
 __math.gcd_seq_ = gcd_seq
 __math.lcm_seq_ = lcm_seq
 __math.abs_     = abs
+__math.hypot_   = hypot
 
 3.141592653589793 = PI
 6.283185307179586 = TAU
