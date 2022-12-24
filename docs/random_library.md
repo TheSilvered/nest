@@ -8,7 +8,7 @@ A random integer between `0` and `RAND_MAX`.
 
 ### `[min: Int, max: Int] @rand_int`
 
-A random integer between `min` and `max`. `max` must be greate or equalt to `min`.
+A random integer between `min` and `max`. `max` must be greater or equal to `min`.
 
 ### `[] @rand_perc`
 

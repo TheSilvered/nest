@@ -4,9 +4,9 @@
 
 ### `[cmd: Str] @system`
 
-Executes `cmd` in a subshell. The return value is the exit status of the shell.
+Executes `cmd` in a sub-shell. The return value is the exit status of the shell.
 
-On Unix is always the exit status, on Windows, it depends on the default shell.
+On Linux is always the exit status, on Windows, it depends on the default shell.
 
 ### `[code: Int] @exit`
 

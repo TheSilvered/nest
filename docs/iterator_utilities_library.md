@@ -4,7 +4,7 @@
 
 ### `[start: Int, step: Int] @count`
 
-Counts intefinitely from `start`, advancing by `step`.
+Counts indefinitely from `start`, advancing by `step`.
 
 ```text
 0 2 @count --> 0, 2, 4, 6, 8, ...

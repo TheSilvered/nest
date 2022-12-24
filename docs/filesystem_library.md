@@ -8,11 +8,11 @@ Checks if a directory exists at `path`.
 
 ### `[path: Str] @mkdir`
 
-Creates a new directory at `path`, succedes even if the directory exists.
+Creates a new directory at `path`, succeeds even if the directory exists.
 
 ### `[path: Str] @mkdirs`
 
-Creates a directory and subdirectories at `path`, succedes even if
+Creates a directory and sub-directories at `path`, succeeds even if
 the directory/ies exist(s).
 
 ### `[path: Str] @rmdir`
@@ -53,11 +53,11 @@ Renames or moves a file or a directory.
 
 ### `[path: Str] @list_dir`
 
-Lists the contents of a directory, both files and subdirectories.
+Lists the contents of a directory, both files and sub-directories.
 
 ### `[path: Str] @list_dir_recursive`
 
-Lists the contents of a directory, and all the subdirectories.
+Lists the contents of a directory, and all the sub-directories.
 
 ### `[path: Str] @absolute_path`
 
@@ -126,7 +126,7 @@ Its members are:
 | `skip`            | Skips existing files                                             |
 | `overwrite`       | Overwrites existing files                                        |
 | `update`          | Overwrites existing files if they are older than the file copied |
-| `recursive`       | Copies recursively also subdirectories                           |
+| `recursive`       | Copies recursively also sub-directories                          |
 | `copy_symlinks`   | Copies symlinks, not the files they point to                     |
 | `skip_symlinks`   | Ignores symlinks                                                 |
 | `dirs_only`       | Copies only directories                                          |
