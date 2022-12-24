@@ -5,7 +5,7 @@ __rand.rand_int_  = rand_int
 __rand.rand_perc_ = rand_perc
 __rand.choice_    = choice
 __rand.shuffle_   = shuffle
-__rand.rand_seed_ = rand_seed
+__rand.seed_      = seed
 
 _vars_ '__rand' \
        'Int' \

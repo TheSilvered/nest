@@ -30,7 +30,13 @@ NST_FUNC_SIGN(rename_);
 NST_FUNC_SIGN(list_dir_);
 NST_FUNC_SIGN(list_dir_recursive_);
 NST_FUNC_SIGN(absolute_path_);
+NST_FUNC_SIGN(canonical_path_);
+NST_FUNC_SIGN(relative_path_);
 NST_FUNC_SIGN(equivalent_);
+NST_FUNC_SIGN(join_);
+NST_FUNC_SIGN(path_);
+NST_FUNC_SIGN(filename_);
+NST_FUNC_SIGN(extension_);
 NST_FUNC_SIGN(_get_copy_options_);
 
 #ifdef __cplusplus

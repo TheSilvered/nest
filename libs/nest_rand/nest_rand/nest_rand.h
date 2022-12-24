@@ -22,7 +22,7 @@ NST_FUNC_SIGN(rand_int_);
 NST_FUNC_SIGN(rand_perc_);
 NST_FUNC_SIGN(choice_);
 NST_FUNC_SIGN(shuffle_);
-NST_FUNC_SIGN(rand_seed_);
+NST_FUNC_SIGN(seed_);
 
 #ifdef __cplusplus
 }

@@ -11,7 +11,7 @@
 
 #include <filesystem>
 #include <cerrno>
-#define FUNC_COUNT 14
+#define FUNC_COUNT 20
 
 namespace fs = std::filesystem;
 
@@ -38,7 +38,13 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(list_dir_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(list_dir_recursive_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(absolute_path_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(canonical_path_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(relative_path_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(equivalent_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(join_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(path_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(filename_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(extension_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_copy_options_, 0);
 
     lib_init_ = true;
@@ -297,8 +303,45 @@ NST_FUNC_SIGN(absolute_path_)
         return nullptr;
 
     std::error_code ec;
+    fs::path result = fs::absolute(path->value, ec);
 
-    return OBJ(heap_str(fs::absolute(path->value).string()));
+    if ( ec.value() == 0 )
+        return OBJ(heap_str(result.string()));
+    else
+        NST_RETURN_NULL;
+}
+
+NST_FUNC_SIGN(canonical_path_)
+{
+    Nst_StrObj *path;
+
+    if ( !nst_extract_arg_values("s", arg_num, args, err, &path) )
+        return nullptr;
+
+    std::error_code ec;
+    fs::path result = fs::canonical(path->value, ec);
+
+    if ( ec.value() == 0 )
+        return OBJ(heap_str(result.string()));
+    else
+        NST_RETURN_NULL;
+}
+
+NST_FUNC_SIGN(relative_path_)
+{
+    Nst_StrObj *path;
+    Nst_StrObj *base;
+
+    if ( !nst_extract_arg_values("ss", arg_num, args, err, &path, &base) )
+        return nullptr;
+
+    std::error_code ec;
+    fs::path result = fs::relative(path->value, base->value, ec);
+
+    if ( ec.value() == 0 )
+        return OBJ(heap_str(result.string()));
+    else
+        NST_RETURN_NULL;
 }
 
 NST_FUNC_SIGN(equivalent_)
@@ -311,6 +354,88 @@ NST_FUNC_SIGN(equivalent_)
 
     std::error_code ec;
     NST_RETURN_COND(fs::equivalent(path_1->value, path_2->value, ec));
+}
+
+NST_FUNC_SIGN(join_)
+{
+    Nst_StrObj *path_1;
+    Nst_StrObj *path_2;
+
+    if ( !nst_extract_arg_values("ss", arg_num, args, err, &path_1, &path_2) )
+        return nullptr;
+
+    char *p1 = path_1->value;
+    char *p2 = path_2->value;
+    size_t p1_len = path_1->len;
+    size_t p2_len = path_2->len;
+
+    if ( p2_len == 0 )
+        return nst_inc_ref(path_1);
+
+    if ( p2[0] == '/' || p2[0] == '\\' || p2[1] == ':' )
+        return nst_inc_ref(path_2);
+
+    size_t new_len = p1_len + p2_len;
+    bool add_slash = false;
+
+    if ( p1[p1_len - 1] != '/' && p1[p1_len - 1] != '\\' )
+    {
+        new_len++;
+        add_slash = true;
+    }
+
+    char *new_str = new char[new_len + 1];
+    memcpy(new_str, p1, p1_len);
+
+    if ( add_slash )
+#if defined(_WIN32) || defined(WIN32)
+        new_str[p1_len] = '\\';
+#else
+        new_str[p1_len] = '/';
+#endif
+    memcpy(new_str + p1_len + (add_slash ? 1 : 0), p2, p2_len);
+    new_str[new_len] = 0;
+
+    for ( size_t i = 0; i < new_len; i++ )
+    {
+#if defined(_WIN32) || defined(WIN32)
+        if ( new_str[i] == '/' ) new_str[i] == '\\';
+#else
+        if ( new_str[i] == '\\' ) new_str[i] == '/';
+#endif
+    }
+
+    return nst_new_string(new_str, new_len, true);
+}
+
+NST_FUNC_SIGN(path_)
+{
+    Nst_StrObj *path;
+
+    if ( !nst_extract_arg_values("s", arg_num, args, err, &path) )
+        return nullptr;
+
+    return OBJ(heap_str(fs::path(path->value).parent_path().string()));
+}
+
+NST_FUNC_SIGN(filename_)
+{
+    Nst_StrObj *path;
+
+    if ( !nst_extract_arg_values("s", arg_num, args, err, &path) )
+        return nullptr;
+
+    return OBJ(heap_str(fs::path(path->value).filename().string()));
+}
+
+NST_FUNC_SIGN(extension_)
+{
+    Nst_StrObj *path;
+
+    if ( !nst_extract_arg_values("s", arg_num, args, err, &path) )
+        return nullptr;
+
+    return OBJ(heap_str(fs::path(path->value).extension().string()));
 }
 
 NST_FUNC_SIGN(_get_copy_options_)
