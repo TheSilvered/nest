@@ -36,6 +36,8 @@ succedes, you can run `linux_install.sh` to copy all the files in their location
 if you need to install the 32-bit version add `x86` as the only argument when
 running the script.
 
+## Plugins
+
 ### VS Code
 
 To install the VSCode extension download `vs-code-extension-[VERSION].zip`,
