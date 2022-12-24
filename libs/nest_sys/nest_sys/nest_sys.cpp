@@ -2,7 +2,7 @@
 #include <cstring>
 #include "nest_sys.h"
 
-#define FUNC_COUNT 7
+#define FUNC_COUNT 8
 
 static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;

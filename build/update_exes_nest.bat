@@ -1,3 +1,6 @@
+if not exist .\x64\nest_libs mkdir .\x64\nest_libs
+if not exist .\x86\nest_libs mkdir .\x86\nest_libs
+
 :: Main executable
 copy ..\x64\Release\nest.exe x64\nest.exe /y
 copy ..\Release\nest.exe x86\nest.exe /y
@@ -62,25 +65,5 @@ copy ..\libs\_nest_files\stdco.nest x64\nest_libs\stdco.nest /y
 copy ..\libs\_nest_files\stdco.nest x86\nest_libs\stdco.nest /y
 
 :: Udate .nest files
-nest update_nest_file.nest x64\nest_libs\stdco.nest
-nest update_nest_file.nest x86\nest_libs\stdco.nest
-nest update_nest_file.nest x64\nest_libs\stderr.nest
-nest update_nest_file.nest x86\nest_libs\stderr.nest
-nest update_nest_file.nest x64\nest_libs\stdfs.nest
-nest update_nest_file.nest x86\nest_libs\stdfs.nest
-nest update_nest_file.nest x64\nest_libs\stdio.nest
-nest update_nest_file.nest x86\nest_libs\stdio.nest
-nest update_nest_file.nest x64\nest_libs\stdrand.nest
-nest update_nest_file.nest x86\nest_libs\stdrand.nest
-nest update_nest_file.nest x64\nest_libs\stdsutil.nest
-nest update_nest_file.nest x86\nest_libs\stdsutil.nest
-nest update_nest_file.nest x64\nest_libs\stdtime.nest
-nest update_nest_file.nest x86\nest_libs\stdtime.nest
-nest update_nest_file.nest x64\nest_libs\stditutil.nest
-nest update_nest_file.nest x86\nest_libs\stditutil.nest
-nest update_nest_file.nest x64\nest_libs\stdmath.nest
-nest update_nest_file.nest x86\nest_libs\stdmath.nest
-nest update_nest_file.nest x64\nest_libs\stdsequtil.nest
-nest update_nest_file.nest x86\nest_libs\stdsequtil.nest
-nest update_nest_file.nest x64\nest_libs\stdsys.nest
-nest update_nest_file.nest x86\nest_libs\stdsys.nest
+for %%G in (x64\nest_libs\std*.nest) do nest update_nest_file.nest %%G dll
+for %%G in (x86\nest_libs\std*.nest) do nest update_nest_file.nest %%G dll

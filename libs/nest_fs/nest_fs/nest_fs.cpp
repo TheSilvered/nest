@@ -122,7 +122,7 @@ NST_FUNC_SIGN(rmdir_)
         return nullptr;
     }
 
-    bool success = fs::remove(path->value);
+    bool success = fs::remove(path->value, ec);
 
     if ( success )
         NST_RETURN_ZERO;

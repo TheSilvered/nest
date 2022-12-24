@@ -458,4 +458,5 @@ unix_debug/
 tests/test_output.txt
 
 # Other
+unix_libs/
 *.zip

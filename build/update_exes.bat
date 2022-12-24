@@ -1,3 +1,6 @@
+if not exist .\x64\nest_libs mkdir .\x64\nest_libs
+if not exist .\x86\nest_libs mkdir .\x86\nest_libs
+
 :: Main executable
 copy ..\x64\Release\nest.exe x64\nest.exe /y
 copy ..\Release\nest.exe x86\nest.exe /y
@@ -62,25 +65,5 @@ copy ..\libs\_nest_files\stdco.nest x64\nest_libs\stdco.nest /y
 copy ..\libs\_nest_files\stdco.nest x86\nest_libs\stdco.nest /y
 
 :: Udate .nest files
-py update_nest_file.py x64\nest_libs\stdco.nest
-py update_nest_file.py x86\nest_libs\stdco.nest
-py update_nest_file.py x64\nest_libs\stderr.nest
-py update_nest_file.py x86\nest_libs\stderr.nest
-py update_nest_file.py x64\nest_libs\stdfs.nest
-py update_nest_file.py x86\nest_libs\stdfs.nest
-py update_nest_file.py x64\nest_libs\stdio.nest
-py update_nest_file.py x86\nest_libs\stdio.nest
-py update_nest_file.py x64\nest_libs\stdrand.nest
-py update_nest_file.py x86\nest_libs\stdrand.nest
-py update_nest_file.py x64\nest_libs\stdsutil.nest
-py update_nest_file.py x86\nest_libs\stdsutil.nest
-py update_nest_file.py x64\nest_libs\stdtime.nest
-py update_nest_file.py x86\nest_libs\stdtime.nest
-py update_nest_file.py x64\nest_libs\stditutil.nest
-py update_nest_file.py x86\nest_libs\stditutil.nest
-py update_nest_file.py x64\nest_libs\stdmath.nest
-py update_nest_file.py x86\nest_libs\stdmath.nest
-py update_nest_file.py x64\nest_libs\stdsequtil.nest
-py update_nest_file.py x86\nest_libs\stdsequtil.nest
-py update_nest_file.py x64\nest_libs\stdsys.nest
-py update_nest_file.py x86\nest_libs\stdsys.nest
+for %%G in (x64\nest_libs\std*.nest) do py update_nest_file.py %%G dll
+for %%G in (x86\nest_libs\std*.nest) do py update_nest_file.py %%G dll

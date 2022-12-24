@@ -32,7 +32,7 @@
 //           (sign) (precision) (dot) (e+ or e-) (over e+308 becomes inf) (\0)
 #define MAX_REAL_CHAR_COUNT 24
 #define MAX_BYTE_CHAR_COUNT 5
-#define REAL_EPSILON 1.0e-15
+#define REAL_EPSILON 9.9e-15
 #define REAL_PRECISION "16"
 
 #define IS_NUM(obj) \

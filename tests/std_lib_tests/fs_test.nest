@@ -1,25 +1,29 @@
 |#| '../test_lib.nest' = test
 |#| 'stdfs.nest' = fs
-|#| 'stdtime.nest' = t
 |#| 'stdio.nest' = io
+|#| 'stdsys.nest' = sys
 
 'fs_test.nest' @fs.isfile @test.assert_true
 'test_files' @fs.isdir @test.assert_true
 
 'dir' @fs.mkdir
-'dir_1\\dir2' @fs.mkdirs
+'dir_1/dir2' @fs.mkdirs
 'stdfs_file' 'w' @io.open @io.close -- creates a file
-'stdfs_file' 'dir\\stdfs_file' @fs.rename
-'dir\\stdfs_file' 'stdfs_file_copied' fs.CPO.make_hard_links @fs.copy
+'stdfs_file' 'dir/stdfs_file' @fs.rename
+'dir/stdfs_file' 'stdfs_file_copied' fs.CPO.make_hard_links @fs.copy
 
-'dir\\stdfs_file' @fs.absolute_path = abs_path
+'dir/stdfs_file' @fs.absolute_path = abs_path @test.println
 (abs_path.0 '/' ==) (abs_path.1 ':' ==) || @test.assert_true
-'stdfs_file_copied' 'dir\\stdfs_file' @fs.equivalent @test.assert_true
+'stdfs_file_copied' 'dir/stdfs_file' @fs.equivalent @test.assert_true
 
-'dir_1' @fs.list_dir { 'dir_1\\dir2' } @test.assert_eq
-'dir_1' @fs.list_dir_recursive { 'dir_1\\dir2' } @test.assert_eq
-
+sys.PLATFORM 'windows' == ? [
+    'dir_1' @fs.list_dir { 'dir_1\\dir2' } @test.assert_eq
+    'dir_1' @fs.list_dir_recursive { 'dir_1\\dir2' } @test.assert_eq
+] : [
+    'dir_1' @fs.list_dir { 'dir_1/dir2' } @test.assert_eq
+    'dir_1' @fs.list_dir_recursive { 'dir_1/dir2' } @test.assert_eq
+]
 'stdfs_file_copied' @fs.rmfile
-'dir\\stdfs_file' @fs.rmfile
+'dir/stdfs_file' @fs.rmfile
 'dir' @fs.rmdir
 'dir_1' @fs.rmdir_recursive
