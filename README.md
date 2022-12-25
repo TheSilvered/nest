@@ -31,10 +31,10 @@ can be downloaded at:
 
 To install Nest on Linux you will need to [compile it from source](#on-linux).
 
-After that, enter the `build` directory and run `update_files.sh`. If everything
-succedes, you can run `linux_install.sh` to copy all the files in their locations,
-if you need to install the 32-bit version add `x86` as the only argument when
-running the script.
+After that, run `build/linux/update_files.sh`. If everything succedes, you can
+run `linux_install.sh` to copy all the files in their locations, if you need to
+install the 32-bit version add `x86` as the only argument when running the
+script.
 
 ## Plugins
 
