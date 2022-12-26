@@ -1,8 +1,8 @@
 #!/bin/bash
-src_path="../../unix_release/x64";
+src_path="./linux_release/x64";
 
 if [ "$#" -eq 1 ] && [ "$1" = "x86" ]; then
-    src_path="../../unix_release/x86";
+    src_path="./linux_release/x86";
 fi
 
 sudo mkdir -p "/usr/lib/nest"

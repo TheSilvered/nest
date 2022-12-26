@@ -451,12 +451,12 @@ Mkfile.old
 dkms.conf
 
 # Make output
-unix_release/
-unix_debug/
+linux_release/
+linux_debug/
+linux_libs/
 
 # Test output
 tests/test_output.txt
 
 # Other
-unix_libs/
 *.zip

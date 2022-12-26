@@ -68,24 +68,27 @@ installing a plugin like `Terminus`.
 
 ### On Windows
 
-On Windows open `nest.sln` in Visual Studio with the C++ application development
-package installed and compile it from there.
+On Windows open `build\windows\projects\nest\nest.sln` in Visual Studio with the
+C++ application development package installed and compile it from there.
 
 To compile the installer you need InnoSetup installed. Then follow these steps
 
 1. Enter `nest_release_folder\`
-2. Execute `update_exes_nest.bat` (Nest) or `update_exes.bat` (Python)
+2. Run `.\update_exes.bat`, this will use the Nest script by default, execute
+   `.\update_exes.bat py` to use Python instead.
 3. Compile `installer-script-x__.iss` with InnoSetup
 4. The compiled exe should appear in the same directory with the name
    `nest-[VERSION]-x[ARCHITECTURE]-installer.exe`
 
 Keep in mind that if you change the version it has to be changed both in
-`src/nest.h` and in `build/installer/common.iss`.
+`include\nest.h` and in `build\installer\common.iss`.
 
 ### On Linux
 
 On Linux you will need to install GCC (GNU Compiler Collection) and then run one
 of the following commands.
+
+Enter `build/linux/makefiles`.
 
 Execute `make all` to compile the main interpreter and the standard library.  
 Execute `make` to compile only the main interpreter.  
@@ -95,7 +98,15 @@ standard library.
 Execute `make clean` to remove the previously compiled programs.  
 Execute `make x86` to compile the main interpreter for 32-bit systems.  
 Execute `make all-x86` to compile the main interpreter and the standard library
-for 32-bit systems
+for 32-bit systems.
+
+To compile only one library run `make -f` with the file that has the same name
+of the library.
 
 When `make debug` or `make all-debug` are ran, the compiled program is inserted
-in `unix_debug/`, otherwise the executable is put in `unix_release/`.
+in `build/linux/linux_debug`, otherwise the executable is put in
+`build/linux/linux_release/`.
+
+To update the `.nest` files of the standard library, run `./update_files.sh`,
+this will use Nest by default, run `./update_files.sh py` to use Python instead.
+The files will appear in `build/linux/linux_libs`.
