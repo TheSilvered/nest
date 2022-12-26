@@ -1,4 +1,4 @@
-|#| '__C__:../../x64/Debug/nest_co.dll' = __co
+|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_co.dll' = __co
 
 __co.create_    = create
 __co.call_      = call

@@ -7,7 +7,7 @@ ext = sys.argv[2]
 
 with open(path, 'r') as file:
     content = file.read() \
-        .replace('../../x64/Debug/nest_', 'std') \
+        .replace('../../build/windows/projects/nest/x64/Debug/nest_', 'std') \
         .replace('.dll', '.' + ext)
 
 with open(path, 'w') as file:

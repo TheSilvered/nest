@@ -1,4 +1,4 @@
-|#| '__C__:../../x64/Debug/nest_rand.dll' = __rand
+|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_rand.dll' = __rand
 
 __rand.random_    = random
 __rand.rand_int_  = rand_int

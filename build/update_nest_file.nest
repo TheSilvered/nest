@@ -7,7 +7,7 @@ _args_.1 = path
 _args_.2 = ext
 
 path 'r' @io.open = file
-file -1 @io.read '../../x64/Debug/nest_' 'std' @su.replace_substr \
+file -1 @io.read '../../build/windows/projects/nest/x64/Debug/nest_' 'std' @su.replace_substr \
                  '.dll' ('.' ext ><) @su.replace_substr = content
 file @io.close
 

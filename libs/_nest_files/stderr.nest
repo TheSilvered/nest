@@ -1,4 +1,4 @@
-|#| '__C__:../../x64/Debug/nest_err.dll' = __err
+|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_err.dll' = __err
 
 __err.try_ = try
 __err._get_err_names_ = _get_err_names
