@@ -29,12 +29,18 @@ can be downloaded at:
 
 ### Linux
 
-To install Nest on Linux you will need to [compile it from source](#on-linux).
+To install Nest on Linux you can compile the precompiled binaries or
+[compile it from source](#on-linux).
 
-After that, run `build/linux/update_files.sh`. If everything succedes, you can
-run `linux_install.sh` to copy all the files in their locations, if you need to
-install the 32-bit version add `x86` as the only argument when running the
-script.
+To Install it from the binaries download the `.tar.gz` file and extract it in
+the current directory with:
+
+```bash
+tar -xzf nest-[VERSION]-linux.tar.gz
+```
+
+Now run `./linux_install.sh` to copy the 64-bit binaries, or
+`./linux_install.sh x86` to copy the 32-bit ones.
 
 ## Plugins
 
@@ -101,12 +107,17 @@ Execute `make all-x86` to compile the main interpreter and the standard library
 for 32-bit systems.
 
 To compile only one library run `make -f` with the file that has the same name
-of the library.
+of the library. When compiling a library you can also add `debug` or `x86` to
+compile in debug mode or 32-bit respectively.
 
 When `make debug` or `make all-debug` are ran, the compiled program is inserted
 in `build/linux/linux_debug`, otherwise the executable is put in
-`build/linux/linux_release/`.
+`build/linux/linux_release/x64` or `build/linux/linux_release/x86`.
 
 To update the `.nest` files of the standard library, run `./update_files.sh`,
 this will use Nest by default, run `./update_files.sh py` to use Python instead.
 The files will appear in `build/linux/linux_libs`.
+
+Finally, to package the binaries run `./_make_archive.sh` and to install them
+run `./linux_install` or `./linux_install x86` as specified in the
+[installation](#linux) paragraph.

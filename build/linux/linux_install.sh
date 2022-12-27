@@ -6,6 +6,6 @@ if [ "$#" -eq 1 ] && [ "$1" = "x86" ]; then
 fi
 
 sudo mkdir -p "/usr/lib/nest"
-sudo cp "./unix_libs/std"* /usr/lib/nest
+sudo cp "./linux_libs/std"* /usr/lib/nest
 sudo cp "${src_path}/std"* /usr/lib/nest
 sudo cp "${src_path}/nest" /usr/bin
