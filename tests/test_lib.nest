@@ -1,7 +1,5 @@
-|#| 'stdsys.nest' = sys
 |#| 'stdio.nest' = io
 |#| 'stdsutil.nest' = su
-|#| 'stderr.nest' = err
 
 io.STDOUT = log_file -- allows to run tests singularly
 
@@ -48,10 +46,10 @@ io.STDOUT = log_file -- allows to run tests singularly
 ]
 
 #assert_raises_error func args [
-    func args @err.try = res
+    ?? args *@func
+    ?! _ => null
 
-    res.error null == ?
-        'Func at ' (func @sys.get_addr) ' did not fail' >< @_assertion_failed
+    'The function did not fail' >< @_assertion_failed
 ]
 
 #println s [

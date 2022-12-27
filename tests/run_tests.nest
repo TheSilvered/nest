@@ -1,26 +1,19 @@
 |#| 'stdfs.nest' = fs
 |#| 'stdio.nest' = io
 |#| 'stdsutil.nest' = su
-|#| 'stdsequtil.nest' = sequ
 |#| 'stdsys.nest' = sys
 |#| 'test_lib.nest' = test
-
-sys.PLATFORM 'windows' == = on_windows
 
 -- Creates or clear the log file
 'test_output.txt' 'w' @io.open = test.log_file
 
 #run_tests dir [
     ... Iter :: (dir @fs.list_dir_recursive) := test_path [
-        !(test_path '.nest' @su.ends_with) ? ..
+        test_path @fs.extension '.nest' != ? ..
 
-        on_windows ?
-            (test_path '\\' @su.rfind 1 +) = last_slash
-        :
-            (test_path '/'  @su.rfind 1 +) = last_slash
-        test_path last_slash $test_path 1 @sequ.slice = file_part
+        test_path @fs.filename = name
 
-        !(file_part 'e_' @su.starts_with) ?
+        !(name 'e_' @su.starts_with) ?
             |#| test_path
         : [
             ?? [
@@ -28,18 +21,18 @@ sys.PLATFORM 'windows' == = on_windows
                 |#| test_path
             ]
             ?! e [
-                >>> file_part
+                >>> name
                 >>> '\n'
                 ..
             ]
-            'Assertion Error' !! ('the file ' file_part ' should raise an error' ><)
+            'Assertion Error' !! ('the file ' name ' should raise an error' ><)
         ]
-        >>> file_part
+        >>> name
         >>> '\n'
     ]
 ]
 
-on_windows ? [
+sys.PLATFORM 'windows' == ? [
     '.\\object_tests' @run_tests
     '.\\std_lib_tests' @run_tests
     '.\\error_tests' @run_tests
