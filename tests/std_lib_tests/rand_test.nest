@@ -1,7 +1,7 @@
 |#| '../test_lib.nest' = test
 |#| 'stdrand.nest' = rand
 
-10 @rand.rand_seed
+10 @rand.seed
 
 @rand.random -7355028476745759822 @test.assert_eq
 0 100 @rand.rand_int 98 @test.assert_eq

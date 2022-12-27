@@ -35,3 +35,4 @@ math.PI @math.deg 180 @test.assert_eq
 { 65, 89, 34, 72, 50, 66, 98, 12, 89 } @math.lcm_seq 19082863800 @test.assert_eq
 -1 @math.abs 1 @test.assert_eq
 1 @math.abs 1 @test.assert_eq
+3 4 @math.hypot 5 @test.assert_eq
