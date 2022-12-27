@@ -67,16 +67,6 @@
     else \
         value *= sign
 
-#define SKIP_NEWLINE \
-    do { \
-        if ( cursor.ch == '\r' ) \
-        { \
-            advance(); \
-            if ( cursor.ch != '\n' ) \
-                go_back(); \
-        } \
-    } while ( 0 )
-
 typedef struct LexerCursor {
     char *text;
     size_t len;
@@ -150,7 +140,7 @@ LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
 
     while ( !CUR_AT_END )
     {
-        if ( cursor.ch == ' ' || cursor.ch == '\t' || cursor.ch == '\r' )
+        if ( cursor.ch == ' ' || cursor.ch == '\t' )
         {
             advance();
             continue;
@@ -166,10 +156,7 @@ LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
         else if ( cursor.ch == '\n' )
             tok = nst_new_token_noend(nst_copy_pos(cursor.pos), NST_TT_ENDL);
         else if ( cursor.ch == '\\' )
-        {
             advance();
-            SKIP_NEWLINE;
-        }
         else
         {
             _NST_SET_RAW_SYNTAX_ERROR(
@@ -220,8 +207,12 @@ inline static void go_back()
     cursor.idx--;
     cursor.pos.col--;
 
-    if ( cursor.idx >= 0 )
-        cursor.ch = cursor.text[cursor.idx];
+    if (cursor.idx < 0)
+        return;
+
+    cursor.ch = cursor.text[cursor.idx];
+    if ( cursor.ch == '\n' )
+        cursor.pos.line--;
 }
 
 inline static char *add_while_in(bool (*cond_func)(char),
@@ -304,10 +295,10 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error *error)
             if ( cursor.ch == '\\' )
             {
                 advance();
+
+                // Allows an even number of \ to escape the new line
                 if ( cursor.ch == '\\' )
                     go_back();
-                else
-                    SKIP_NEWLINE;
             }
             advance();
         }
@@ -920,6 +911,35 @@ static void add_lines(Nst_SourceText* text)
     starts[0] = text_p;
     size_t line_count = 1;
 
+    // normalize line endings
+
+    // if the file contains \n, then \r\n becomes just \n
+    // if the file only contains \r, it becomes \n
+
+    bool remove_r = false;
+    for ( size_t i = 0, n = text->len; i < n; i++ )
+    {
+        if ( text_p[i] == '\n' )
+        {
+            remove_r = true;
+            break;
+        }
+    }
+
+    size_t offset = 0;
+    for ( size_t i = 0, n = text->len; i < n; i++ )
+    {
+        if ( text_p[i] != '\r' )
+            text_p[i - offset] = text_p[i];
+        else if ( remove_r )
+            offset++;
+        else
+            text_p[i] = '\n';
+    }
+
+    text->len = text->len - offset;
+
+    // now all lines end with \n
     for ( size_t i = 0, n = text->len; i < n; i++ )
     {
         if ( text_p[i] != '\n' )

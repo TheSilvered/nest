@@ -460,3 +460,4 @@ tests/test_output.txt
 
 # Other
 *.zip
+*.tar.gz
