@@ -1,7 +1,7 @@
 #ifndef ITUTIL_FUNCTIONS_H
 #define ITUTIL_FUNCTIONS_H
 
-#include "../../src/nest.h"
+#include "nest.h"
 
 NST_FUNC_SIGN(count_start);
 NST_FUNC_SIGN(count_advance);

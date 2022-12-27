@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=-Wall -shared -fPIC -rdynamic -std=c++2a
+CFLAGS=-I../../../include -Wall -shared -fPIC -rdynamic -std=c++2a
 CLINKS=-lm -ldl
 EXE_NAME=stdtime.so
 

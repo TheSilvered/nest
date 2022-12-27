@@ -1,11 +1,12 @@
 CC=gcc
-CFLAGS=-Wall
+CFLAGS=-I../../../include -Wall
 CLINKS=-lm -ldl
 EXE_NAME=nest
 
 SRC_DIR=../../../src
-EXE_x64_DIR=../linux_release/x64
-EXE_x86_DIR=../linux_release/x86
+EXE_DIR=../linux_release
+EXE_x64_DIR:=$(EXE_DIR)/x64
+EXE_x86_DIR=$(EXE_DIR)/x86
 DBG_DIR=../linux_debug
 
 SRCS := $(wildcard $(SRC_DIR)/*.c)
