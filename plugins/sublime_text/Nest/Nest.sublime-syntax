@@ -106,7 +106,7 @@ contexts:
 
     - match: '##'
       scope: keyword.declaration.function.nest
-      push: lambda-args
+      push: func-args
 
   comment:
     - match: '(-->|--+)'
@@ -155,11 +155,11 @@ contexts:
       scope: keyword.operator.logical.nest
 
   func-call:
-    - match: '(@@|@)\s*{{identifier}}((\s*\.)\s*{{identifier}})*'
+    - match: '(@@|@)(\s*{{identifier}}((\s*\.)\s*{{identifier}})*|(?=\s*##))'
       scope: variable.function.nest
       captures:
         1: keyword.operator.nest
-        3: punctuation.accessor.nest
+        4: punctuation.accessor.nest
 
   general:
     - match: ']'
@@ -218,14 +218,6 @@ contexts:
     - match: '\['
       scope: punctuation.section.block.begin.nest
       pop: true
-    - match: .
-      scope: invalid.illegal.nest
-
-  lambda-args:
-    - match: '{{identifier}}'
-      scope: variable.parameter.nest
-    - match: '[ \t]*'
-      scope: text.nest
     - match: '=>'
       scope: keyword.control.nest
       pop: true

@@ -26,7 +26,7 @@
 #define _NST_EM_BAD_CONTINUE "'..' outside of a loop"
 #define _NST_EM_BAD_BREAK "';' outside of a loop"
 #define _NST_EM_EXPECTED_BRACKET "expected '['"
-#define _NST_EM_EXPECTED_RETURN "expected '=>'"
+#define _NST_EM_EXPECTED_RETURN_OR_BRACKET "expected '=>' or '['"
 #define _NST_EM_EXPECTED_R_BRACKET "expected ']'"
 #define _NST_EM_EXPECTED_IF "expected '?'"
 #define _NST_EM_EXPECTED_IDENT "expected an identifier"

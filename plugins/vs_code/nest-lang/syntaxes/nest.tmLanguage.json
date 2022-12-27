@@ -115,19 +115,20 @@
 			]
 		},
 		"func-def": {
-			"match": "^\\s*(#)\\s*([A-Za-z_][A-Za-z_0-9]*)\\s*(\\r?\\n)*(([A-Za-z_][A-Za-z_0-9]*\\s*(\\r?\\n)*)*)",
+			"match": "^\\s*(#)\\s*([A-Za-z_][A-Za-z_0-9]*)\\s*(\\r?\\n)*(([A-Za-z_][A-Za-z_0-9]*\\s*(\\r?\\n)*)*)(=>)?",
 			"captures": {
 				"1": { "name": "keyword.other.nest" },
 				"2": { "name": "entity.name.function.nest" },
-				"4": { "name": "variable.parameter.nest" }
+				"4": { "name": "variable.parameter.nest" },
+				"7": { "name": "keyword.control.nest" }
 			}
 		},
 		"func-call": {
 			"name": "variable.function.nest",
-			"match": "(@@|@)\\s*[A-Za-z_][A-Za-z_0-9]*((\\s*\\.)\\s*[A-Za-z_][A-Za-z_0-9]*)*",
+			"match": "(@@|@)(\\s*{{identifier}}((\\s*\\.)\\s*{{identifier}})*|(?=\\s*##))",
 			"captures": {
 				"1": { "name": "keyword.operator.nest" },
-				"3": { "name": "punctuation.accessor.nest" }
+				"4": { "name": "punctuation.accessor.nest" }
 			}
 		},
 		"builtins": {
@@ -198,7 +199,7 @@
 			]
 		},
 		"lambda": {
-			"match": "(##)(([A-Za-z_][A-Za-z_0-9]*\\s*(\\r?\\n)*)*)\\s*(=>)",
+			"match": "(##)(([A-Za-z_][A-Za-z_0-9]*\\s*(\\r?\\n)*)*)\\s*(=>)?",
 			"captures": {
 				"1": { "name": "keyword.other.nest" },
 				"2": { "name": "variable.parameter.nest" },
