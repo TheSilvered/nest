@@ -109,7 +109,7 @@ are all the valid escape sequences:
 | `\e`     | `1b`      | Backspace              |
 | `\f`     | `0c`      | Form feed / Page break |
 | `\n`     | `0a`      | Line feed / Newline    |
-| `\r`     | `0d`      | Line feed / Newline    |
+| `\r`     | `0d`      | Carriage return        |
 | `\t`     | `09`      | Horizontal tab         |
 | `\v`     | `0b`      | Vertical tab           |
 | `\xhh`   | None      | Hexadecimal byte, `hh` represents a hex number from `00` to `ff` |
