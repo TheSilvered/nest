@@ -29,7 +29,7 @@ Nst_Obj *nst_new_bool(Nst_Bool value)
     NEW_SYMPLE_TYPE(Nst_BoolObj, nst_t.Bool);
 }
 
-Nst_Obj *nst_new_file(Nst_IOFile value, bool bin, bool read, bool write)
+Nst_Obj *nst_new_true_file(Nst_IOFile value, bool bin, bool read, bool write)
 {
     Nst_IOFileObj *obj = IOFILE(nst_alloc_obj(
         sizeof(Nst_IOFileObj),
@@ -39,6 +39,43 @@ Nst_Obj *nst_new_file(Nst_IOFile value, bool bin, bool read, bool write)
     if ( obj == NULL ) return NULL;
 
     obj->value = value;
+    obj->read_f = (Nst_IOFile_read_f)fread;
+    obj->write_f = (Nst_IOFile_write_f)fwrite;
+    obj->flush_f = (Nst_IOFile_flush_f)fflush;
+    obj->seek_f = (Nst_IOFile_tell_f)fseek;
+    obj->tell_f = (Nst_IOFile_seek_f)ftell;
+    obj->close_f = (Nst_IOFile_close_f)fclose;
+
+    if ( bin )   NST_SET_FLAG(obj, NST_FLAG_IOFILE_IS_BIN);
+    if ( read )  NST_SET_FLAG(obj, NST_FLAG_IOFILE_CAN_READ);
+    if ( write ) NST_SET_FLAG(obj, NST_FLAG_IOFILE_CAN_WRITE);
+
+    return OBJ(obj);
+}
+
+Nst_Obj *nst_new_fake_file(void *value,
+                           bool bin, bool read, bool write,
+                           Nst_IOFile_read_f  read_f,
+                           Nst_IOFile_write_f write_f,
+                           Nst_IOFile_flush_f flush_f,
+                           Nst_IOFile_tell_f  tell_f,
+                           Nst_IOFile_seek_f  seek_f,
+                           Nst_IOFile_close_f close_f)
+{
+    Nst_IOFileObj *obj = IOFILE(nst_alloc_obj(
+        sizeof(Nst_IOFileObj),
+        nst_t.IOFile,
+        nst_destroy_iofile
+    ));
+    if ( obj == NULL ) return NULL;
+
+    obj->value = (Nst_IOFile)value;
+    obj->read_f = read_f;
+    obj->write_f = write_f;
+    obj->flush_f = flush_f;
+    obj->seek_f = tell_f;
+    obj->tell_f = seek_f;
+    obj->close_f = close_f;
 
     if ( bin )   NST_SET_FLAG(obj, NST_FLAG_IOFILE_IS_BIN);
     if ( read )  NST_SET_FLAG(obj, NST_FLAG_IOFILE_CAN_READ);
@@ -50,5 +87,5 @@ Nst_Obj *nst_new_file(Nst_IOFile value, bool bin, bool read, bool write)
 void nst_destroy_iofile(Nst_IOFileObj *obj)
 {
     if ( !NST_IOF_IS_CLOSED(obj) )
-        fclose(obj->value);
+        obj->close_f(obj->value);
 }

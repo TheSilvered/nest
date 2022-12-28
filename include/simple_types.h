@@ -37,7 +37,27 @@ NST_SIMPLE_TYPE_STRUCT(long long, Nst_Int);
 NST_SIMPLE_TYPE_STRUCT(long double, Nst_Real);
 NST_SIMPLE_TYPE_STRUCT(char, Nst_Bool);
 NST_SIMPLE_TYPE_STRUCT(unsigned char, Nst_Byte);
-NST_SIMPLE_TYPE_STRUCT(FILE *, Nst_IOFile);
+
+typedef FILE *Nst_IOFile;
+typedef size_t (*Nst_IOFile_read_f) (void *, size_t, size_t, void *);
+typedef size_t (*Nst_IOFile_write_f)(void *, size_t, size_t, void *);
+typedef int    (*Nst_IOFile_flush_f)(void *);
+typedef long   (*Nst_IOFile_tell_f) (void *);
+typedef int    (*Nst_IOFile_seek_f) (void *, long, int);
+typedef int    (*Nst_IOFile_close_f)(void *);
+
+typedef struct _Nst_IOFileObj
+{
+    NST_OBJ_HEAD;
+    Nst_IOFile value;
+    Nst_IOFile_read_f  read_f;
+    Nst_IOFile_write_f write_f;
+    Nst_IOFile_flush_f flush_f;
+    Nst_IOFile_tell_f  tell_f;
+    Nst_IOFile_seek_f  seek_f;
+    Nst_IOFile_close_f close_f;
+}
+Nst_IOFileObj;
 
 enum Nst_IOFileFlags {
     NST_FLAG_IOFILE_IS_CLOSED = 0b0001,
@@ -56,7 +76,15 @@ Nst_Obj *nst_new_bool(Nst_Bool value);
 Nst_Obj *nst_new_byte(Nst_Byte value);
 // Creates a new IOFile object, bin: is opened in binary format,
 // read: supports reading, write: supports writing
-Nst_Obj *nst_new_file(Nst_IOFile value, bool bin, bool read, bool write);
+Nst_Obj *nst_new_true_file(Nst_IOFile value, bool bin, bool read, bool write);
+Nst_Obj *nst_new_fake_file(void *value,
+                           bool bin, bool read, bool write,
+                           Nst_IOFile_read_f  read_f,
+                           Nst_IOFile_write_f write_f,
+                           Nst_IOFile_flush_f flush_f,
+                           Nst_IOFile_tell_f  tell_f,
+                           Nst_IOFile_seek_f  seek_f,
+                           Nst_IOFile_close_f close_f);
 
 void nst_destroy_iofile(Nst_IOFileObj *obj);
 

@@ -35,9 +35,9 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_stdout_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_stderr_, 0);
 
-    stdin_obj = nst_new_file(stdin, false, true, false);
-    stdout_obj = nst_new_file(stdout, false, false, true);
-    stderr_obj = nst_new_file(stderr, false, false, true);
+    stdin_obj = nst_new_true_file(stdin, false, true, false);
+    stdout_obj = nst_new_true_file(stdout, false, false, true);
+    stderr_obj = nst_new_true_file(stderr, false, false, true);
 
     lib_init_ = true;
     return true;
@@ -53,6 +53,15 @@ void free_lib()
     nst_dec_ref(stdin_obj);
     nst_dec_ref(stdout_obj);
     nst_dec_ref(stderr_obj);
+}
+
+static size_t get_file_size(Nst_IOFileObj *f)
+{
+    long start = ftell(f->value);
+    fseek(f->value, 0, SEEK_END);
+    long end = ftell(f->value);
+    fseek(f->value, start, SEEK_SET);
+    return end;
 }
 
 NST_FUNC_SIGN(open_)
@@ -126,7 +135,7 @@ NST_FUNC_SIGN(open_)
     if ( file_ptr == nullptr )
         return nst_inc_ref(nst_c.null);
 
-    return nst_new_file(file_ptr, is_bin, can_read, can_write);
+    return nst_new_true_file(file_ptr, is_bin, can_read, can_write);
 }
 
 NST_FUNC_SIGN(close_)
@@ -142,7 +151,7 @@ NST_FUNC_SIGN(close_)
         return nullptr;
     }
 
-    fclose(f->value);
+    f->close_f(f->value);
     f->value = nullptr;
     NST_SET_FLAG(f, NST_FLAG_IOFILE_IS_CLOSED);
 
@@ -176,7 +185,7 @@ NST_FUNC_SIGN(write_)
     // casting to a string never returns an error
     Nst_Obj *str_to_write = nst_obj_cast(value_to_write, nst_t.Str, nullptr);
     Nst_StrObj *str = STR(str_to_write);
-    fwrite(str->value, sizeof(char), str->len, f->value);
+    f->write_f(str->value, sizeof(char), str->len, f->value);
 
     nst_dec_ref(str_to_write);
     return nst_inc_ref(nst_c.null);
@@ -222,7 +231,7 @@ NST_FUNC_SIGN(write_bytes_)
         bytes[i] = AS_BYTE(objs[i]);
     }
 
-    fwrite(bytes, sizeof(char), seq_len, f->value);
+    f->write_f(bytes, sizeof(char), seq_len, f->value);
 
     delete[] bytes;
     return nst_inc_ref(nst_c.null);
@@ -253,16 +262,14 @@ NST_FUNC_SIGN(read_)
     }
 
     long start = ftell(f->value);
-    fseek(f->value, 0, SEEK_END);
-    long end = ftell(f->value);
-    fseek(f->value, start, SEEK_SET); // pointer back to what it was before
+    long end = get_file_size(f);
 
     Nst_Int max_size = (Nst_Int)(end - start);
     if ( bytes_to_read < 0 || bytes_to_read > max_size )
         bytes_to_read = max_size;
 
     char *buffer = new char[(unsigned int)(bytes_to_read + 1)];
-    size_t read_bytes = fread(buffer, sizeof(char), (size_t)bytes_to_read, f->value);
+    size_t read_bytes = f->read_f(buffer, sizeof(char), (size_t)bytes_to_read, f->value);
     buffer[read_bytes] = 0;
 
     return nst_new_string(buffer, read_bytes, true);
@@ -293,16 +300,14 @@ NST_FUNC_SIGN(read_bytes_)
     }
 
     long start = ftell(f->value);
-    fseek(f->value, 0, SEEK_END);
-    long end = ftell(f->value);
-    fseek(f->value, start, SEEK_SET); // pointer back to what it was before
+    long end = get_file_size(f);
 
     Nst_Int max_size = (Nst_Int)(end - start);
     if ( bytes_to_read < 0 || bytes_to_read > max_size )
         bytes_to_read = max_size;
 
     char *buffer = new char[(unsigned int)bytes_to_read];
-    size_t read_bytes = fread(buffer, sizeof(char), (size_t)bytes_to_read, f->value);
+    size_t read_bytes = f->read_f(buffer, sizeof(char), (size_t)bytes_to_read, f->value);
 
     Nst_SeqObj *bytes_array = SEQ(nst_new_array(read_bytes));
 
@@ -326,12 +331,7 @@ NST_FUNC_SIGN(file_size_)
         return nullptr;
     }
 
-    long start = ftell(f->value);
-    fseek(f->value, 0, SEEK_END);
-    long end = ftell(f->value);
-    fseek(f->value, start, SEEK_SET);
-
-    return nst_new_int(end);
+    return nst_new_int(get_file_size(f));
 }
 
 NST_FUNC_SIGN(get_fptr_)
@@ -347,7 +347,7 @@ NST_FUNC_SIGN(get_fptr_)
         return nullptr;
     }
 
-    return nst_new_int(ftell(f->value));
+    return nst_new_int(f->tell_f(f->value));
 }
 
 NST_FUNC_SIGN(move_fptr_)
@@ -371,7 +371,23 @@ NST_FUNC_SIGN(move_fptr_)
         return nullptr;
     }
 
-    fseek(f->value, (long)offset, (int)start);
+    long size = get_file_size(f);
+    long end_pos = 0;
+
+    if ( start == SEEK_END )
+        end_pos = size + offset;
+    else if ( start == SEEK_SET )
+        end_pos = offset;
+    else
+        end_pos = f->tell_f(f->value) + offset;
+
+    if ( end_pos < 0 || end_pos > size )
+    {
+        NST_SET_RAW_VALUE_ERROR("the file pointer goes outside the file");
+        return nullptr;
+    }
+
+    f->seek_f(f->value, (long)offset, (int)start);
 
     return nst_inc_ref(nst_c.null);
 }
@@ -389,7 +405,7 @@ NST_FUNC_SIGN(flush_)
         return nullptr;
     }
 
-    fflush(f->value);
+    f->flush_f(f->value);
     return nst_inc_ref(nst_c.null);
 }
 
