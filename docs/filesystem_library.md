@@ -74,7 +74,9 @@ is an absolute path but not vice-versa.
 Returns a relative path to `path` using `base` as the starting point.
 
 ```text
-'/a/c' '/a/b/d' @relative_path --> '../../c'
+|#| 'stdfs.nest' = fs
+
+'/a/c' '/a/b/d' @fs.relative_path --> '../../c'
 ```
 
 ### `[path_1: Str, path_2: Str] @equivalent`
@@ -94,7 +96,9 @@ and on Linux `\` becomes `/`.
 Returns only the folder path where `path` points to a file.
 
 ```text
-'dir/subdir/file.txt' @path --> 'dir/subdir'
+|#| 'stdfs.nest' = fs
+
+'dir/subdir/file.txt' @fs.path --> 'dir/subdir'
 ```
 
 ### `[path: Str] @filename`
@@ -102,7 +106,9 @@ Returns only the folder path where `path` points to a file.
 Returns the name of the file `path` points to.
 
 ```text
-'dir/subdir/file.txt' @filename --> 'file.txt'
+|#| 'stdfs.nest' = fs
+
+'dir/subdir/file.txt' @fs.filename --> 'file.txt'
 ```
 
 ### `[path: Str] @extension`
@@ -110,7 +116,9 @@ Returns the name of the file `path` points to.
 Returns the extension of the file pointed to by `path`.
 
 ```text
-'dir/subdir/file.txt' @extension --> '.txt'
+|#| 'stdfs.nest' = fs
+
+'dir/subdir/file.txt' @fs.extension --> '.txt'
 ```
 
 ## Constants
@@ -136,6 +144,11 @@ Its members are:
 To join more options you can use the bit-wise or operator `|`.
 
 ```text
-CPO.recursive CPO.make_hard_links | = options
-'dir1' 'dir2' options @copy
+|#| 'stdfs.nest' = fs
+
+fs.CPO.recursive fs.CPO.make_hard_links | = options
+'dir1' 'dir2' options @fs.copy
 ```
+
+> Note: when using `make_symlinks` the source path must be an absolute path
+> unless the destination path is in the current directory.

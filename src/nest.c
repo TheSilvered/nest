@@ -158,7 +158,7 @@ int main(int argc, char **argv)
         }
     }
 
-    Nst_FuncObj *main_func = FUNC(new_func(0, inst_ls));
+    Nst_FuncObj *main_func = FUNC(nst_new_func(0, inst_ls));
 
     int exe_result = nst_run(
         main_func,

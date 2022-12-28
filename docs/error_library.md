@@ -51,4 +51,4 @@ This is the string used by Nest when throwing math errors.
 This is the string used by Nest when throwing import errors.
 
 > The messages used inside the interpreter are not available as they are not
-> pre-allocated.
+> created in advance.

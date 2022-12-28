@@ -352,7 +352,7 @@ int nst_run_module(char *filename, Nst_SourceText *lib_src)
         return -1;
     }
 
-    Nst_FuncObj *mod_func = FUNC(new_func(0, inst_ls));
+    Nst_FuncObj *mod_func = FUNC(nst_new_func(0, inst_ls));
 
     // Change the cwd
     Nst_StrObj *prev_path = *nst_state.curr_path;
@@ -533,15 +533,7 @@ static inline void exe_for_inst(Nst_RuntimeInstruction *inst, Nst_IterObj *iter,
         Nst_Obj *res = func->body.c_func((size_t)inst->int_val, &iter->value, &err);
 
         if ( res == NULL )
-        {
-            _NST_SET_ERROR(
-                GLOBAL_ERROR,
-                inst->start,
-                inst->end,
-                err.name,
-                err.message
-            );
-        }
+            SET_OP_ERROR(inst->start, inst->end, err);
         else
         {
             nst_push_val(nst_state.v_stack, res);

@@ -1,6 +1,6 @@
 #include "nest_co.h"
 
-#define FUNC_COUNT 5 // Set this to the number of functions in your module
+#define FUNC_COUNT 6 // Set this to the number of functions in your module
 
 static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
@@ -21,6 +21,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(call_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(pause_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_state_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(generator_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_co_type_obj_, 0);
 
     t_Coroutine = nst_new_type_obj("Coroutine", 9);
@@ -49,6 +50,67 @@ void free_lib()
     nst_dec_ref(state_running);
     nst_dec_ref(state_paused);
     nst_dec_ref(state_ended);
+}
+
+static NST_FUNC_SIGN(generator_start)
+{
+    Nst_Obj **objs = SEQ(args[0])->objs;
+    CoroutineObj *co = (CoroutineObj *)(objs[1]);
+
+    if ( NST_HAS_FLAG(co, FLAG_CO_PAUSED) )
+    {
+        for ( size_t i = 0, n = co->stack_size; i < n; i++ )
+        {
+            nst_dec_ref(co->stack[i]);
+        }
+
+        delete[] co->stack;
+        nst_dec_ref(co->vars);
+        nst_dec_ref(co->globals);
+
+        NST_UNSET_FLAG(co, FLAG_CO_PAUSED);
+        NST_SET_FLAG(co, FLAG_CO_SUSPENDED);
+    }
+
+    Nst_Obj *obj = call_(2, objs, err);
+
+    if ( obj == nullptr )
+        return nullptr;
+
+    if ( NST_HAS_FLAG(co, FLAG_CO_ENDED) )
+        nst_set_value_seq(args[0], 3, nst_c.b_true);
+    else
+        nst_set_value_seq(args[0], 2, obj);
+    nst_dec_ref(obj);
+
+    NST_RETURN_NULL;
+}
+
+static NST_FUNC_SIGN(generator_is_done)
+{
+    return nst_inc_ref(SEQ(args[0])->objs[3]);
+}
+
+static NST_FUNC_SIGN(generator_advance)
+{
+    CoroutineObj *co = (CoroutineObj *)(SEQ(args[0])->objs[1]);
+    Nst_Obj *obj = call_(2, SEQ(args[0])->objs, err);
+
+    if ( obj == nullptr )
+        return nullptr;
+
+    if ( NST_HAS_FLAG(co, FLAG_CO_ENDED) )
+        nst_set_value_seq(args[0], 3, nst_c.b_true);
+    else
+        nst_set_value_seq(args[0], 2, obj);
+    nst_dec_ref(obj);
+
+    NST_RETURN_NULL;
+}
+
+static NST_FUNC_SIGN(generator_get_val)
+{
+    return nst_inc_ref(SEQ(args[0])->objs[2]);
 }
 
 Nst_Obj *new_coroutine(Nst_FuncObj *func)
@@ -176,6 +238,12 @@ NST_FUNC_SIGN(call_)
             SEQ(co_args)->len, SEQ(co_args)->len == 1 ? "was" : "were"
         ));
 
+        return nullptr;
+    }
+
+    if ( NST_HAS_FLAG(co, FLAG_CO_RUNNING) )
+    {
+        NST_SET_RAW_CALL_ERROR("the coroutine is already running");
         return nullptr;
     }
 
@@ -308,6 +376,39 @@ NST_FUNC_SIGN(get_state_)
         return nst_inc_ref(state_paused);
 
     return nst_inc_ref(state_ended);
+}
+
+NST_FUNC_SIGN(generator_)
+{
+    CoroutineObj *co = (CoroutineObj *)args[0];
+
+    if ( co->type != t_Coroutine )
+    {
+        NST_SET_TYPE_ERROR(_nst_format_error(
+            "expected type 'Coroutine' for argument 1, got type '%s' instead",
+            "s",
+            TYPE_NAME(co)
+        ));
+
+        return nullptr;
+    }
+
+    // layout co_args, co, obj, is_done
+    Nst_SeqObj *arr = SEQ(nst_new_array(4));
+    arr->objs[0] = nst_new_array(1);
+    arr->objs[1] = nst_inc_ref(co);
+    arr->objs[2] = nst_inc_ref(nst_c.null);
+    arr->objs[3] = nst_inc_ref(nst_c.b_false);
+
+    SEQ(arr->objs[0])->objs[0] = nst_inc_ref(co);
+
+    return nst_new_iter(
+        FUNC(nst_new_cfunc(1, generator_start)),
+        FUNC(nst_new_cfunc(1, generator_advance)),
+        FUNC(nst_new_cfunc(1, generator_is_done)),
+        FUNC(nst_new_cfunc(1, generator_get_val)),
+        OBJ(arr)
+    );
 }
 
 NST_FUNC_SIGN(_get_co_type_obj_)

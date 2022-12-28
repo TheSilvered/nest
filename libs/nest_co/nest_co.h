@@ -55,6 +55,7 @@ NST_FUNC_SIGN(create_);
 NST_FUNC_SIGN(call_);
 NST_FUNC_SIGN(pause_);
 NST_FUNC_SIGN(get_state_);
+NST_FUNC_SIGN(generator_);
 NST_FUNC_SIGN(_get_co_type_obj_);
 
 // Here you can put your function signatures

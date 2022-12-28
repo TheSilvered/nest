@@ -1122,10 +1122,10 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
             nst_dec_ref(idx);
 
             return nst_new_iter(
-                FUNC(new_cfunc(1, nst_str_iter_start)),
-                FUNC(new_cfunc(1, nst_str_iter_advance)),
-                FUNC(new_cfunc(1, nst_str_iter_is_done)),
-                FUNC(new_cfunc(1, nst_str_iter_get_val)),
+                FUNC(nst_new_cfunc(1, nst_str_iter_start)),
+                FUNC(nst_new_cfunc(1, nst_str_iter_advance)),
+                FUNC(nst_new_cfunc(1, nst_str_iter_is_done)),
+                FUNC(nst_new_cfunc(1, nst_str_iter_get_val)),
                 OBJ(data)
             );
         }
@@ -1138,10 +1138,10 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
             nst_dec_ref(idx);
 
             return nst_new_iter(
-                FUNC(new_cfunc(1, nst_seq_iter_start)),
-                FUNC(new_cfunc(1, nst_seq_iter_advance)),
-                FUNC(new_cfunc(1, nst_seq_iter_is_done)),
-                FUNC(new_cfunc(1, nst_seq_iter_get_val)),
+                FUNC(nst_new_cfunc(1, nst_seq_iter_start)),
+                FUNC(nst_new_cfunc(1, nst_seq_iter_advance)),
+                FUNC(nst_new_cfunc(1, nst_seq_iter_is_done)),
+                FUNC(nst_new_cfunc(1, nst_seq_iter_get_val)),
                 OBJ(data)
             );
         }
@@ -1250,10 +1250,10 @@ Nst_Obj *_nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step, Nst_OpErr 
     data_seq->objs[3] = nst_inc_ref(step);
 
     Nst_Obj *iter = nst_new_iter(
-        FUNC(new_cfunc(1, nst_num_iter_start)),
-        FUNC(new_cfunc(1, nst_num_iter_advance)),
-        FUNC(new_cfunc(1, nst_num_iter_is_done)),
-        FUNC(new_cfunc(1, nst_num_iter_get_val)),
+        FUNC(nst_new_cfunc(1, nst_num_iter_start)),
+        FUNC(nst_new_cfunc(1, nst_num_iter_advance)),
+        FUNC(nst_new_cfunc(1, nst_num_iter_is_done)),
+        FUNC(nst_new_cfunc(1, nst_num_iter_get_val)),
         OBJ(data_seq)
     );
 
@@ -1547,7 +1547,7 @@ static Nst_Obj *import_c_lib(char *file_path, Nst_OpErr *err)
         if ( func.func_ptr == NULL )
             break;
 
-        Nst_Obj *func_obj = new_cfunc(func.arg_num, func.func_ptr);
+        Nst_Obj *func_obj = nst_new_cfunc(func.arg_num, func.func_ptr);
 
         nst_map_set(func_map, func.name, func_obj);
         nst_dec_ref(func.name);

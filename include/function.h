@@ -37,9 +37,9 @@ Nst_FuncObj;
 
 // Creates a new function objects that accepts `arg_num` args
 // The function's `args` must be set manually
-Nst_Obj *new_func(size_t arg_num, Nst_InstructionList *bytecode);
+Nst_Obj *nst_new_func(size_t arg_num, Nst_InstructionList *bytecode);
 // Creates a new function object that is a wrapper of a C function
-Nst_Obj *new_cfunc(size_t arg_num, Nst_Obj *(*cbody)(size_t arg_num,
+Nst_Obj *nst_new_cfunc(size_t arg_num, Nst_Obj *(*cbody)(size_t arg_num,
                                                       Nst_Obj **args,
                                                       Nst_OpErr *err));
 // Sets mod_globals for the function

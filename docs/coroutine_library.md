@@ -20,6 +20,38 @@ called with `call`, and returns `return_value`
 Returns the current state of the coroutine. The return value is part of the
 `STATE` map.
 
+### `[co: Coroutine] @generator`
+
+Creates an `Iter` object given a coroutine and each time `pause` is called, a
+new value is yielded by the iterator. The return value is ignored.
+
+The function of the coroutine must take exactly one argument that is the
+coroutine itself.
+
+```text
+|#| 'stdco.nest' = co
+
+#f self [
+    self 1 @co.pause
+    self 2 @co.pause
+    self 3 @co.pause
+]
+
+f @co.create = f_co
+
+... f_co @co.generator := i [
+    >>> (i '\n' ><)
+]
+```
+
+this program outputs:
+
+```text
+1
+2
+3
+```
+
 ## Constants
 
 ### `Coroutine`

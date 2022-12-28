@@ -542,7 +542,7 @@ static void compile_func_declr(Nst_Node *node)
 
     int prev_loop_id = c_state.loop_id;
     LList *prev_inst_ls = c_state.inst_ls;
-    Nst_FuncObj *func = FUNC(new_func(
+    Nst_FuncObj *func = FUNC(nst_new_func(
         node->tokens->size - 1,
         compile_internal(HEAD_NODE, true, false)
     ));
@@ -581,7 +581,7 @@ static void compile_lambda(Nst_Node *node)
 
     int prev_loop_id = c_state.loop_id;
     LList *prev_inst_ls = c_state.inst_ls;
-    Nst_FuncObj *func = FUNC(new_func(
+    Nst_FuncObj *func = FUNC(nst_new_func(
         node->tokens->size,
         compile_internal(HEAD_NODE, true, false)
     ));
