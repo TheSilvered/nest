@@ -24,6 +24,13 @@ The file modes are:
 | `a+`           | read and append, keeping the contents         |
 | `ab+` or `a+b` | read and append bytes, keeping the contents   |
 
+### `[binary: Bool] @virtual_iof`
+
+Creates a virtual `IOFile` object that works like a normal file but is not an
+actual file.  
+`binary` specifies if the file should use `write` and `read` or `write_bytes` ad
+`read_bytes`.
+
 ### `[file: IOFile] @close`
 
 Closes a file.
