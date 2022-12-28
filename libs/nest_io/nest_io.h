@@ -18,7 +18,16 @@ EXPORT Nst_FuncDeclr *get_func_ptrs();
 EXPORT NST_INIT_LIB_OBJ_FUNC;
 EXPORT void free_lib();
 
+typedef struct _VirtualIOFile_data
+{
+    long ptr;
+    size_t size;
+    char *data;
+}
+VirtualIOFile_data;
+
 NST_FUNC_SIGN(open_);
+NST_FUNC_SIGN(virtual_iof_);
 NST_FUNC_SIGN(close_);
 NST_FUNC_SIGN(write_);
 NST_FUNC_SIGN(write_bytes_);

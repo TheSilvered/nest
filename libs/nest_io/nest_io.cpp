@@ -3,7 +3,7 @@
 #include <cerrno>
 #include "nest_io.h"
 
-#define FUNC_COUNT 13
+#define FUNC_COUNT 14
 
 #define SET_FILE_CLOSED_ERROR \
     NST_SET_RAW_VALUE_ERROR("the given file given was previously closed")
@@ -22,6 +22,7 @@ bool lib_init()
     size_t idx = 0;
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(open_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(virtual_iof_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(close_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(write_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(write_bytes_, 2);
@@ -55,13 +56,88 @@ void free_lib()
     nst_dec_ref(stderr_obj);
 }
 
-static size_t get_file_size(Nst_IOFileObj *f)
+static long get_file_size(Nst_IOFileObj *f)
 {
-    long start = ftell(f->value);
-    fseek(f->value, 0, SEEK_END);
-    long end = ftell(f->value);
-    fseek(f->value, start, SEEK_SET);
+    long start = f->tell_f(f->value);
+    f->seek_f(f->value, 0, SEEK_END);
+    long end = f->tell_f(f->value);
+    f->seek_f(f->value, start, SEEK_SET);
     return end;
+}
+
+static size_t virtual_iof_read_f(void *buf, size_t e_size, size_t e_count, VirtualIOFile_data *f)
+{
+    size_t byte_count = e_size * e_count;
+    if ( byte_count == 0 || f->ptr >= f->size )
+        return 0;
+    
+    if ( f->ptr + byte_count > f->size )
+        byte_count = f->size - (size_t)f->ptr;
+
+    memcpy(buf, f->data + f->ptr, byte_count);
+    f->ptr += (long)byte_count;
+    return byte_count;
+}
+
+static size_t virtual_iof_write_f(void *buf, size_t e_size, size_t e_count, VirtualIOFile_data *f)
+{
+    size_t byte_count = e_size * e_count;
+    if ( byte_count == 0 || f->ptr > f->size )
+        return 0;
+
+    if ( f->ptr + byte_count > f->size )
+    {
+        char *new_data = (char *)realloc(f->data, (size_t)f->ptr + byte_count);
+        f->size = (size_t)f->ptr + byte_count;
+        if ( new_data == NULL )
+        {
+            errno = ENOMEM;
+            return 0;
+        }
+        f->data = new_data;
+    }
+
+    memcpy(f->data + f->ptr, buf, byte_count);
+    f->ptr += (long)byte_count;
+    return byte_count;
+}
+
+static int virtual_iof_flush_f(VirtualIOFile_data *f)
+{
+    return 0;
+}
+
+static long virtual_iof_tell_f(VirtualIOFile_data *f)
+{
+    return f->ptr;
+}
+
+static int virtual_iof_seek_f(VirtualIOFile_data *f, long offset, int start)
+{
+    long new_pos;
+    if ( start == SEEK_CUR )
+        new_pos = f->ptr +  offset;
+    else if ( start == SEEK_SET)
+        new_pos = offset;
+    else
+        new_pos = (long)f->size - offset;
+
+    if ( new_pos < 0 )
+    {
+        errno = EINVAL;
+        return -1;
+    }
+
+    f->ptr = new_pos;
+
+    return 0;
+}
+
+static int virtual_iof_close_f(VirtualIOFile_data *f)
+{
+    delete[] f->data;
+    delete f;
+    return 0;
 }
 
 NST_FUNC_SIGN(open_)
@@ -136,6 +212,27 @@ NST_FUNC_SIGN(open_)
         return nst_inc_ref(nst_c.null);
 
     return nst_new_true_file(file_ptr, is_bin, can_read, can_write);
+}
+
+NST_FUNC_SIGN(virtual_iof_)
+{
+    Nst_Bool bin;
+
+    if ( !nst_extract_arg_values("b", arg_num, args, err, &bin) )
+        return nullptr;
+
+    VirtualIOFile_data *f = new VirtualIOFile_data;
+    f->data = new char[1];
+    f->size = 0;
+    f->ptr = 0;
+
+    return nst_new_fake_file((void *)f, bin, true, true,
+                             (Nst_IOFile_read_f)virtual_iof_read_f,
+                             (Nst_IOFile_write_f)virtual_iof_write_f,
+                             (Nst_IOFile_flush_f)virtual_iof_flush_f,
+                             (Nst_IOFile_tell_f)virtual_iof_tell_f,
+                             (Nst_IOFile_seek_f)virtual_iof_seek_f,
+                             (Nst_IOFile_close_f)virtual_iof_close_f);
 }
 
 NST_FUNC_SIGN(close_)
@@ -261,7 +358,7 @@ NST_FUNC_SIGN(read_)
         return nullptr;
     }
 
-    long start = ftell(f->value);
+    long start = f->tell_f(f->value);
     long end = get_file_size(f);
 
     Nst_Int max_size = (Nst_Int)(end - start);
@@ -299,7 +396,7 @@ NST_FUNC_SIGN(read_bytes_)
         return nullptr;
     }
 
-    long start = ftell(f->value);
+    long start = f->tell_f(f->value);
     long end = get_file_size(f);
 
     Nst_Int max_size = (Nst_Int)(end - start);
@@ -375,11 +472,11 @@ NST_FUNC_SIGN(move_fptr_)
     long end_pos = 0;
 
     if ( start == SEEK_END )
-        end_pos = size + offset;
+        end_pos = long(size + offset);
     else if ( start == SEEK_SET )
-        end_pos = offset;
+        end_pos = long(offset);
     else
-        end_pos = f->tell_f(f->value) + offset;
+        end_pos = f->tell_f(f->value) + long(offset);
 
     if ( end_pos < 0 || end_pos > size )
     {

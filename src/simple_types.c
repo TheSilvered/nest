@@ -42,8 +42,8 @@ Nst_Obj *nst_new_true_file(Nst_IOFile value, bool bin, bool read, bool write)
     obj->read_f = (Nst_IOFile_read_f)fread;
     obj->write_f = (Nst_IOFile_write_f)fwrite;
     obj->flush_f = (Nst_IOFile_flush_f)fflush;
-    obj->seek_f = (Nst_IOFile_tell_f)fseek;
-    obj->tell_f = (Nst_IOFile_seek_f)ftell;
+    obj->tell_f = (Nst_IOFile_tell_f)ftell;
+    obj->seek_f = (Nst_IOFile_seek_f)fseek;
     obj->close_f = (Nst_IOFile_close_f)fclose;
 
     if ( bin )   NST_SET_FLAG(obj, NST_FLAG_IOFILE_IS_BIN);
@@ -73,8 +73,8 @@ Nst_Obj *nst_new_fake_file(void *value,
     obj->read_f = read_f;
     obj->write_f = write_f;
     obj->flush_f = flush_f;
-    obj->seek_f = tell_f;
-    obj->tell_f = seek_f;
+    obj->tell_f = tell_f;
+    obj->seek_f = seek_f;
     obj->close_f = close_f;
 
     if ( bin )   NST_SET_FLAG(obj, NST_FLAG_IOFILE_IS_BIN);

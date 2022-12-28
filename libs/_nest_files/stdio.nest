@@ -1,6 +1,7 @@
 |#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_io.dll' = __io
 
 __io.open_        = open
+__io.virtual_iof_ = virtual_iof
 __io.close_       = close
 __io.write_       = write
 __io.write_bytes_ = write_bytes
