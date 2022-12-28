@@ -9,11 +9,12 @@
 
 #define NST_INIT_LIB_OBJ_FUNC \
     void init_lib_obj(Nst_TypeObjs main_t, Nst_StrConsts main_s, \
-                      Nst_Consts main_c, Nst_ExecutionState main_state) \
+                      Nst_Consts main_c, Nst_StdStreams *main_io, Nst_ExecutionState main_state) \
     { \
         nst_t = main_t; \
         nst_s = main_s; \
         nst_c = main_c; \
+        nst_io = main_io; \
         nst_state = main_state; \
     }
 

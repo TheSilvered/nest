@@ -17,10 +17,10 @@
 #define AS_BOOL(ptr) (((Nst_BoolObj *)(ptr))->value)
 #define IOFILE(ptr) ((Nst_IOFileObj *)(ptr))
 
-#define NST_IOF_IS_CLOSED(f) ( NST_HAS_FLAG(f, NST_FLAG_IOFILE_IS_CLOSED) )
-#define NST_IOF_IS_BIN(f)    ( NST_HAS_FLAG(f, NST_FLAG_IOFILE_IS_BIN) )
-#define NST_IOF_CAN_WRITE(f) ( NST_HAS_FLAG(f, NST_FLAG_IOFILE_CAN_WRITE) )
-#define NST_IOF_CAN_READ(f)  ( NST_HAS_FLAG(f, NST_FLAG_IOFILE_CAN_READ) )
+#define NST_IOF_IS_CLOSED(f) NST_HAS_FLAG(f, NST_FLAG_IOFILE_IS_CLOSED)
+#define NST_IOF_IS_BIN(f)    NST_HAS_FLAG(f, NST_FLAG_IOFILE_IS_BIN)
+#define NST_IOF_CAN_WRITE(f) NST_HAS_FLAG(f, NST_FLAG_IOFILE_CAN_WRITE)
+#define NST_IOF_CAN_READ(f)  NST_HAS_FLAG(f, NST_FLAG_IOFILE_CAN_READ)
 
 #define NST_SIMPLE_TYPE_STRUCT(type, alias) \
     typedef type alias; \

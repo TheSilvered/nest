@@ -1,9 +1,0 @@
-|#| 'stdco.nest' = co
-
-#f self [
-    { self } self @co.call
-]
-
-f @co.create = f_co
-
-{ f_co } f_co @co.call

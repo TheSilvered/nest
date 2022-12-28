@@ -81,6 +81,14 @@ typedef struct _Nst_Consts
 }
 Nst_Consts;
 
+typedef struct _Nst_StdStreams
+{
+    Nst_IOFileObj *in;
+    Nst_IOFileObj *out;
+    Nst_IOFileObj *err;
+}
+Nst_StdStreams;
+
 // Creates the objects inside nst_t
 void _nst_init_types();
 // Deletes the objects inside nst_t
@@ -96,9 +104,15 @@ void _nst_init_consts();
 // Deletes the objects inside nst_c
 void _nst_del_consts();
 
+// Creates the objects inside nst_io
+void _nst_init_streams();
+// Deletes the objects inside nst_io
+void _nst_del_streams();
+
 extern Nst_TypeObjs nst_t;
 extern Nst_StrConsts nst_s;
 extern Nst_Consts nst_c;
+extern Nst_StdStreams *nst_io;
 
 #ifdef __cplusplus
 }

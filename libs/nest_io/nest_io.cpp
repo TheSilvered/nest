@@ -3,7 +3,7 @@
 #include <cerrno>
 #include "nest_io.h"
 
-#define FUNC_COUNT 14
+#define FUNC_COUNT 17
 
 #define SET_FILE_CLOSED_ERROR \
     NST_SET_RAW_VALUE_ERROR("the given file given was previously closed")
@@ -32,11 +32,14 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(move_fptr_, 3);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_fptr_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(flush_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(_set_stdin_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(_set_stdout_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(_set_stderr_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_stdin_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_stdout_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_stderr_, 0);
 
-    stdin_obj = nst_new_true_file(stdin, false, true, false);
+    stdin_obj  = nst_new_true_file(stdin,  false, true, false);
     stdout_obj = nst_new_true_file(stdout, false, false, true);
     stderr_obj = nst_new_true_file(stderr, false, false, true);
 
@@ -52,8 +55,8 @@ Nst_FuncDeclr *get_func_ptrs()
 void free_lib()
 {
     nst_dec_ref(stdin_obj);
-    nst_dec_ref(stdout_obj);
     nst_dec_ref(stderr_obj);
+    nst_dec_ref(stdout_obj);
 }
 
 static long get_file_size(Nst_IOFileObj *f)
@@ -504,6 +507,93 @@ NST_FUNC_SIGN(flush_)
 
     f->flush_f(f->value);
     return nst_inc_ref(nst_c.null);
+}
+
+NST_FUNC_SIGN(_set_stdin_)
+{
+    Nst_IOFileObj *f;
+
+    if ( !nst_extract_arg_values("F", arg_num, args, err, &f) )
+        return nullptr;
+
+    if ( NST_IOF_IS_CLOSED(f) )
+    {
+        SET_FILE_CLOSED_ERROR;
+        return nullptr;
+    }
+
+    if ( !NST_IOF_CAN_READ(f) )
+    {
+        NST_SET_RAW_VALUE_ERROR("the file must support reading");
+        return nullptr;
+    }
+
+    if ( f == nst_io->in )
+        NST_RETURN_NULL;
+
+    nst_dec_ref(nst_io->in);
+    nst_dec_ref(stdin_obj);
+    nst_io->in = IOFILE(nst_inc_ref(f));
+    stdin_obj  = nst_inc_ref(f);
+    NST_RETURN_NULL;
+}
+
+NST_FUNC_SIGN(_set_stdout_)
+{
+    Nst_IOFileObj *f;
+
+    if ( !nst_extract_arg_values("F", arg_num, args, err, &f) )
+        return nullptr;
+
+    if ( NST_IOF_IS_CLOSED(f) )
+    {
+        SET_FILE_CLOSED_ERROR;
+        return nullptr;
+    }
+
+    if ( !NST_IOF_CAN_WRITE(f) )
+    {
+        NST_SET_RAW_VALUE_ERROR("the file must support writing");
+        return nullptr;
+    }
+
+    if ( f == nst_io->out )
+        NST_RETURN_NULL;
+
+    nst_dec_ref(nst_io->out);
+    nst_dec_ref(stdout_obj);
+    nst_io->out = IOFILE(nst_inc_ref(f));
+    stdout_obj  = nst_inc_ref(f);
+    NST_RETURN_NULL;
+}
+
+NST_FUNC_SIGN(_set_stderr_)
+{
+    Nst_IOFileObj *f;
+
+    if ( !nst_extract_arg_values("F", arg_num, args, err, &f) )
+        return nullptr;
+
+    if ( NST_IOF_IS_CLOSED(f) )
+    {
+        SET_FILE_CLOSED_ERROR;
+        return nullptr;
+    }
+
+    if ( !NST_IOF_CAN_WRITE(f) )
+    {
+        NST_SET_RAW_VALUE_ERROR("the file must support writing");
+        return nullptr;
+    }
+
+    if ( f == nst_io->err )
+        NST_RETURN_NULL;
+
+    nst_dec_ref(nst_io->err);
+    nst_dec_ref(stderr_obj);
+    nst_io->err = IOFILE(nst_inc_ref(f));
+    stderr_obj  = nst_inc_ref(f);
+    NST_RETURN_NULL;
 }
 
 NST_FUNC_SIGN(_get_stdin_)

@@ -10,6 +10,7 @@
     _nst_del_consts(); \
     _nst_del_strs(); \
     _nst_del_types(); \
+    _nst_del_streams(); \
     if ( filename != NULL ) { \
         free(src_text.text); \
         free(src_text.lines); \
@@ -74,6 +75,7 @@ int main(int argc, char **argv)
     _nst_init_types();
     _nst_init_strs();
     _nst_init_consts();
+    _nst_init_streams();
 
     LList *tokens;
     Nst_Error error = { false, nst_no_pos(), nst_no_pos(), NULL, NULL };

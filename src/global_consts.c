@@ -3,10 +3,15 @@
 Nst_TypeObjs nst_t;
 Nst_StrConsts nst_s;
 Nst_Consts nst_c;
+Nst_StdStreams *nst_io;
 
 static bool nst_t_initialized = false;
 static bool nst_s_initialized = false;
 static bool nst_c_initialized = false;
+static bool nst_io_initialized= false;
+static Nst_StdStreams local_nst_io;
+
+static int close_std_stream(void *f) { return 0; }
 
 void _nst_init_types()
 {
@@ -167,4 +172,34 @@ void _nst_del_consts()
     nst_dec_ref(nst_c.Byte_1);
 
     nst_c_initialized = false;
+}
+
+void _nst_init_streams()
+{
+    if ( nst_io_initialized )
+        return;
+
+    nst_io = &local_nst_io;
+
+    local_nst_io.in  = IOFILE(nst_new_true_file(stdin,  false, true, false));
+    local_nst_io.out = IOFILE(nst_new_true_file(stdout, false, false, true));
+    local_nst_io.err = IOFILE(nst_new_true_file(stderr, false, false, true));
+
+    local_nst_io.in->close_f = close_std_stream;
+    local_nst_io.out->close_f = close_std_stream;
+    local_nst_io.err->close_f = close_std_stream;
+
+    nst_io_initialized = true;
+}
+
+void _nst_del_streams()
+{
+    if ( !nst_io_initialized )
+        return;
+
+    nst_dec_ref(local_nst_io.in);
+    nst_dec_ref(local_nst_io.out);
+    nst_dec_ref(local_nst_io.err);
+
+    nst_io_initialized = false;
 }

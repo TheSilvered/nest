@@ -81,7 +81,7 @@
     } while (0)
 
 #define OBJ_INIT_FARGS \
-    Nst_TypeObjs, Nst_StrConsts, Nst_Consts, Nst_ExecutionState
+    Nst_TypeObjs, Nst_StrConsts, Nst_Consts, Nst_StdStreams*, Nst_ExecutionState
 
 
 static Nst_Obj* map_eq(Nst_MapObj* map1, Nst_MapObj* map2, LList* containers);
@@ -1309,15 +1309,33 @@ Nst_Obj *_nst_obj_lgnot(Nst_Obj *ob, Nst_OpErr *err)
 
 Nst_Obj *_nst_obj_stdout(Nst_Obj *ob, Nst_OpErr *err)
 {
+    if ( NST_IOF_IS_CLOSED(nst_io->out) )
+        return nst_inc_ref(ob);
+
     Nst_Obj *str = nst_obj_cast(ob, nst_t.Str, err);
-    fwrite(STR(str)->value, sizeof(char), STR(str)->len, stdout);
-    fflush(stdout);
+
+    nst_io->out->write_f(STR(str)->value, sizeof(char), STR(str)->len, nst_io->out->value);
+
+    nst_io->out->flush_f(nst_io->out->value);
     nst_dec_ref(str);
     return nst_inc_ref(ob);
 }
 
+static inline char get_one_char()
+{
+    char ch;
+    size_t chars_read = nst_io->in->read_f(&ch, sizeof(char), 1, nst_io->in->value);
+    if ( chars_read == 1 )
+        return ch;
+    else
+        return 0;
+}
+
 Nst_Obj *_nst_obj_stdin(Nst_Obj *ob, Nst_OpErr *err)
 {
+    if ( NST_IOF_IS_CLOSED(nst_io->in) )
+        return nst_new_cstring("", 0, false);
+
     ob = nst_obj_cast(ob, nst_t.Str, err);
     printf("%s", STR(ob)->value);
     fflush(stdout);
@@ -1328,7 +1346,7 @@ Nst_Obj *_nst_obj_stdin(Nst_Obj *ob, Nst_OpErr *err)
 
     size_t buffer_size = 4;
     size_t i = 0;
-    char ch = (char)getchar();
+    char ch = get_one_char();
 
     while ( ch != '\n' )
     {
@@ -1350,7 +1368,7 @@ Nst_Obj *_nst_obj_stdin(Nst_Obj *ob, Nst_OpErr *err)
         }
 
         buffer[i++] = ch;
-        ch = (char)getchar();
+        ch = get_one_char();
     }
     buffer[i] = '\0';
     char *new_buffer = (char *)realloc(buffer, i + 1);
@@ -1498,7 +1516,7 @@ static Nst_Obj *import_c_lib(char *file_path, Nst_OpErr *err)
     }
 
     // Link the global variables
-    init_lib_obj(nst_t, nst_s, nst_c, nst_state);
+    init_lib_obj(nst_t, nst_s, nst_c, nst_io, nst_state);
 
     // Initialize library
     bool (*lib_init)() = (bool (*)())dlsym(lib, "lib_init");
