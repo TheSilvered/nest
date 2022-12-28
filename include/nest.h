@@ -3,7 +3,7 @@
 #ifndef NEST_H
 #define NEST_H
 
-#define _NEST_VERSION_BASE "beta-0.8.1"
+#define _NEST_VERSION_BASE "beta-0.9.0"
 
 #if defined(_WIN32) || defined(WIN32)
   #ifdef _WIN64

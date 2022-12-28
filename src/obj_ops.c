@@ -83,7 +83,58 @@
 #define OBJ_INIT_FARGS \
     Nst_TypeObjs, Nst_StrConsts, Nst_Consts, Nst_ExecutionState
 
+
 static Nst_Obj* map_eq(Nst_MapObj* map1, Nst_MapObj* map2, LList* containers);
+static Nst_Obj *seq_eq(Nst_SeqObj *seq1, Nst_SeqObj *seq2, LList *containers);
+static Nst_Obj *import_nest_lib(char *file_path);
+static Nst_Obj *import_c_lib(char *file_path, Nst_OpErr *err);
+
+// Comparisons
+Nst_Obj *_nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+{
+    if ( ob1 == ob2 )
+        NST_RETURN_TRUE;
+    else if ( IS_INT(ob1) && IS_INT(ob2) )
+    {
+        ob1 = nst_obj_cast(ob1, nst_t.Int, err);
+        ob2 = nst_obj_cast(ob2, nst_t.Int, err);
+        bool check = AS_INT(ob1) == AS_INT(ob2);
+        nst_dec_ref(ob1);
+        nst_dec_ref(ob2);
+
+        NST_RETURN_COND(check);
+    }
+    else if ( IS_NUM(ob1) && IS_NUM(ob2) )
+    {
+        ob1 = nst_obj_cast(ob1, nst_t.Real, err);
+        ob2 = nst_obj_cast(ob2, nst_t.Real, err);
+        bool check = fabsl(AS_REAL(ob1) - AS_REAL(ob2)) < REAL_EPSILON;
+        nst_dec_ref(ob1);
+        nst_dec_ref(ob2);
+
+        NST_RETURN_COND(check);
+    }
+    else if ( ARE_TYPE(nst_t.Str) )
+        NST_RETURN_COND(nst_compare_strings(STR(ob1), STR(ob2)) == 0);
+    else if ( ARE_TYPE(nst_t.Bool) )
+        NST_RETURN_COND(ob1 == ob2);
+    else if ( IS_SEQ(ob1) && IS_SEQ(ob2) )
+    {
+        LList *containers = LList_new();
+        Nst_Obj *res = seq_eq(SEQ(ob1), SEQ(ob2), containers);
+        LList_destroy(containers, NULL);
+        return res;
+    }
+    else if ( ARE_TYPE(nst_t.Map) )
+    {
+        LList *containers = LList_new();
+        Nst_Obj *res = map_eq(MAP(ob1), MAP(ob2), containers);
+        LList_destroy(containers, NULL);
+        return res;
+    }
+    else
+        NST_RETURN_FALSE;
+}
 
 static Nst_Obj *seq_eq(Nst_SeqObj *seq1, Nst_SeqObj *seq2, LList *containers)
 {
@@ -145,8 +196,8 @@ static Nst_Obj* map_eq(Nst_MapObj* map1, Nst_MapObj* map2, LList* containers)
     Nst_Obj *ob2 = NULL;
     Nst_Obj *result = NULL;
     for ( Nst_Int i = _nst_map_get_next_idx(-1, map1);
-          i != -1;
-          i = _nst_map_get_next_idx(i, map1) )
+        i != -1;
+        i = _nst_map_get_next_idx(i, map1) )
     {
         key = map1->nodes[i].key;
         ob1 = map1->nodes[i].value;
@@ -174,53 +225,6 @@ static Nst_Obj* map_eq(Nst_MapObj* map1, Nst_MapObj* map2, LList* containers)
     LList_pop(containers); // pops seq2
 
     NST_RETURN_TRUE;
-}
-
-// Comparisons
-Nst_Obj *_nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
-{
-    if ( ob1 == ob2 )
-        NST_RETURN_TRUE;
-    else if ( IS_INT(ob1) && IS_INT(ob2) )
-    {
-        ob1 = nst_obj_cast(ob1, nst_t.Int, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Int, err);
-        bool check = AS_INT(ob1) == AS_INT(ob2);
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        NST_RETURN_COND(check);
-    }
-    else if ( IS_NUM(ob1) && IS_NUM(ob2) )
-    {
-        ob1 = nst_obj_cast(ob1, nst_t.Real, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Real, err);
-        bool check = fabsl(AS_REAL(ob1) - AS_REAL(ob2)) < REAL_EPSILON;
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        NST_RETURN_COND(check);
-    }
-    else if ( ARE_TYPE(nst_t.Str) )
-        NST_RETURN_COND(nst_compare_strings(STR(ob1), STR(ob2)) == 0);
-    else if ( ARE_TYPE(nst_t.Bool) )
-        NST_RETURN_COND(ob1 == ob2);
-    else if ( IS_SEQ(ob1) && IS_SEQ(ob2) )
-    {
-        LList *containers = LList_new();
-        Nst_Obj *res = seq_eq(SEQ(ob1), SEQ(ob2), containers);
-        LList_destroy(containers, NULL);
-        return res;
-    }
-    else if ( ARE_TYPE(nst_t.Map) )
-    {
-        LList *containers = LList_new();
-        Nst_Obj *res = map_eq(MAP(ob1), MAP(ob2), containers);
-        LList_destroy(containers, NULL);
-        return res;
-    }
-    else
-        NST_RETURN_FALSE;
 }
 
 Nst_Obj *_nst_obj_ne(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
@@ -1386,74 +1390,15 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         file_name_len -= 6;
     }
 
-    char *file_path;
-    nst_get_full_path(file_name, &file_path, NULL);
-
-    Nst_IOFile file;
-    // Checks if the file exists with the given path
-    // otherwise it tries to open it with the path of the standard library
-    if ( file_path == NULL || (file = fopen(file_path, "r")) == NULL )
+    char *file_path = _nst_get_import_path(file_name, file_name_len);
+    if ( file_path == NULL )
     {
-        if ( file_path != NULL )
-            free(file_path);
-
-#if defined(_WIN32) || defined(WIN32)
-
-  #ifdef _DEBUG
-        file_path = (char *)malloc((file_name_len + strlen(DEBUG_FOLDER) + 1) * sizeof(char));
-        sprintf(file_path, DEBUG_FOLDER "%s", file_name);
-  #else
-        // In Windows the standard library is stored in %LOCALAPPDATA%/Programs/nest/nest_libs
-
-        char *appdata = getenv("LOCALAPPDATA");
-        if ( appdata == NULL )
-        {
-            NST_SET_VALUE_ERROR(_nst_format_error(
-                _NST_EM_FILE_NOT_FOUND,
-                "s",
-                file_name
-            ));
-            return NULL;
-        }
-
-        size_t appdata_len = strlen(appdata);
-        file_path = (char *)malloc((appdata_len + file_name_len + 26) * sizeof(char));
-        if ( !file_path ) return NULL;
-        sprintf(file_path, "%s/Programs/nest/nest_libs/%s", appdata, file_name);
-  #endif
-
-#else
-
-        // In UNIX the standard library is stored in /usr/lib/nest
-        file_path = (char *)malloc((file_name_len + 15) * sizeof(char));
-        if ( !file_path ) return NULL;
-
-        sprintf(file_path, "/usr/lib/nest/%s", file_name);
-
-#endif
-
-        if ( (file = fopen(file_path, "r")) == NULL )
-        {
-            NST_SET_VALUE_ERROR(_nst_format_error(
-                _NST_EM_FILE_NOT_FOUND,
-                "s",
-                file_name
-            ));
-            free(file_path);
-            return NULL;
-        }
-
-        char *abs_path;
-        nst_get_full_path(file_path, &abs_path, NULL);
-        free(file_path);
-        file_path = abs_path;
-    }
-    fclose(file);
-
-    for ( char *p = file_path; *p; p++ )
-    {
-        if ( *p == '\\' )
-            *p = '/';
+        NST_SET_VALUE_ERROR(_nst_format_error(
+            _NST_EM_FILE_NOT_FOUND,
+            "s",
+            file_name
+        ));
+        return NULL;
     }
 
     // Check if the module is in the import stack
@@ -1483,38 +1428,46 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     }
 
     if ( !c_import )
+        return import_nest_lib(file_path);
+    else
+        return import_c_lib(file_path, err);
+}
+
+static Nst_Obj *import_nest_lib(char *file_path)
+{
+    Nst_SourceText *lib_src = (Nst_SourceText *)malloc(sizeof(Nst_SourceText));
+    Nst_LibHandle *handle = (Nst_LibHandle *)malloc(sizeof(Nst_LibHandle));
+    if ( lib_src == NULL || handle == NULL )
     {
-        Nst_SourceText *lib_src = (Nst_SourceText *)malloc(sizeof(Nst_SourceText));
-        Nst_LibHandle *handle = (Nst_LibHandle *)malloc(sizeof(Nst_LibHandle));
-        if ( lib_src == NULL || handle == NULL )
-        {
-            LList_pop(nst_state.lib_paths);
-            free(file_path);
-            return NULL;
-        }
-
-        handle->path = file_path;
-        handle->text = lib_src;
-
-        if ( nst_run_module(file_path, lib_src) == -1 )
-        {
-            handle->val = NULL;
-            LList_append(nst_state.lib_handles, handle, true);
-            LList_pop(nst_state.lib_paths);
-            return NULL;
-        }
-
-        Nst_MapObj *map = MAP(nst_pop_val(nst_state.v_stack));
-
-        handle->val = map;
-        handle->path = file_path;
-        handle->text = lib_src;
-
-        LList_append(nst_state.lib_handles, handle, true);
         LList_pop(nst_state.lib_paths);
-        return nst_inc_ref(map);
+        free(file_path);
+        return NULL;
     }
 
+    handle->path = file_path;
+    handle->text = lib_src;
+
+    if ( nst_run_module(file_path, lib_src) == -1 )
+    {
+        handle->val = NULL;
+        LList_append(nst_state.lib_handles, handle, true);
+        LList_pop(nst_state.lib_paths);
+        return NULL;
+    }
+
+    Nst_MapObj *map = MAP(nst_pop_val(nst_state.v_stack));
+
+    handle->val = map;
+    handle->path = file_path;
+    handle->text = lib_src;
+
+    LList_append(nst_state.lib_handles, handle, true);
+    LList_pop(nst_state.lib_paths);
+    return nst_inc_ref(map);
+}
+
+static Nst_Obj *import_c_lib(char *file_path, Nst_OpErr *err)
+{
 #if defined(_WIN32) || defined(WIN32)
     HMODULE lib = LoadLibraryA(file_path);
 #else
@@ -1620,6 +1573,71 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     LList_append(nst_state.lib_handles, handle, true);
     LList_pop(nst_state.lib_paths);
     return nst_inc_ref(func_map);
+}
+
+char *_nst_get_import_path(char *initial_path, size_t path_len)
+{
+    char *file_path;
+    nst_get_full_path(initial_path, &file_path, NULL);
+    Nst_IOFile file;
+
+    if ( file_path != NULL && (file = fopen(file_path, "r")) != NULL )
+    {
+        fclose(file);
+        goto fix_path;
+    }
+
+    if ( file_path != NULL )
+        free(file_path);
+
+#if defined(_WIN32) || defined(WIN32)
+
+  #ifdef _DEBUG
+    file_path = (char *)malloc((path_len + strlen(DEBUG_FOLDER) + 1) * sizeof(char));
+    sprintf(file_path, DEBUG_FOLDER "%s", initial_path);
+  #else
+    // In Windows the standard library is stored in %LOCALAPPDATA%/Programs/nest/nest_libs
+
+    char *appdata = getenv("LOCALAPPDATA");
+    if ( appdata == NULL )
+        return NULL;
+
+    size_t appdata_len = strlen(appdata);
+    file_path = (char *)malloc((appdata_len + path_len + 26) * sizeof(char));
+    if ( !file_path ) return NULL;
+    sprintf(file_path, "%s/Programs/nest/nest_libs/%s", appdata, initial_path);
+  #endif
+
+#else
+
+    // In UNIX the standard library is stored in /usr/lib/nest
+    file_path = (char *)malloc((path_len + 15) * sizeof(char));
+    if ( !file_path ) return NULL;
+
+    sprintf(file_path, "/usr/lib/nest/%s", initial_path);
+
+#endif
+
+    if ( (file = fopen(file_path, "r")) == NULL )
+    {
+        free(file_path);
+        return NULL;
+    }
+    fclose(file);
+
+    char *abs_path;
+    nst_get_full_path(file_path, &abs_path, NULL);
+    free(file_path);
+    file_path = abs_path;
+
+fix_path:
+    for ( char *p = file_path; *p; p++ )
+    {
+        if ( *p == '\\' )
+            *p = '/';
+    }
+
+    return file_path;
 }
 
 #if defined(_WIN32) || defined(WIN32)

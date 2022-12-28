@@ -141,6 +141,9 @@ Nst_Obj *_nst_obj_typeof(Nst_Obj *ob, Nst_OpErr *err);
 // operator |#|
 Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err);
 
+// returns the path of the library to import or NULL if it cannot be found
+// the path is heap allocated so it will require to be freed
+char *_nst_get_import_path(char *initial_path);
 
 #ifdef __cplusplus
 }
