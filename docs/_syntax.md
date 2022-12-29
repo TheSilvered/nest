@@ -356,6 +356,42 @@ Here the number `10` is casted to a `Byte` object:
 Byte :: 10
 ```
 
+The valid type casts in nest are the following:
+
+| ↱        | `Int` | `Real` | `Bool` | `Null` | `Str` | `Array` | `Vector` | `Map` | `Func` | `Iter` | `Byte` | `IOFile` | `Type` |
+|----------|-------|--------|--------|--------|-------|---------|----------|-------|--------|--------|--------|----------|--------|
+| `Int`    |   X   |   X    |   X    |        |   X   |         |          |       |        |        |   X    |          |        |
+| `Real`   |   X   |   X    |   X    |        |   X   |         |          |       |        |        |        |          |        |
+| `Bool`   |       |        |   X    |        |   X   |         |          |       |        |        |        |          |        |
+| `Null`   |       |        |   X    |   X    |   X   |         |          |       |        |        |        |          |        |
+| `Str`    |   X   |   X    |   X    |        |   X   |    X    |     X    |       |        |   X    |   X    |          |        |
+| `Array`  |       |        |   X    |        |   X   |    X    |     X    |       |        |   X    |        |          |        |
+| `Vector` |       |        |   X    |        |   X   |    X    |     X    |       |        |   X    |        |          |        |
+| `Map`    |       |        |   X    |        |   X   |         |          |   X   |        |   X    |        |          |        |
+| `Func`   |       |        |   X    |        |   X   |         |          |       |    X   |        |        |          |        |
+| `Iter`   |       |        |   X    |        |   X   |         |          |       |        |   X    |        |          |        |
+| `Byte`   |       |        |   X    |        |   X   |         |          |       |        |        |   X    |          |        |
+| `IOFile` |       |        |   X    |        |   X   |         |          |       |        |        |        |    X     |        |
+| `Type`   |       |        |   X    |        |   X   |         |          |       |        |        |        |          |   X    |
+
+
+| From | To |
+|------|----|
+|`Int` |`Str`|
+|`Int` | `Bool`|
+|`Int` |`Real`|
+|`Int` | `Byte`|
+|`Real`|`Str`|
+|`Real`|`Bool`|
+|`Real`|`Int`|
+|`Bool`|`Str`|
+|`Type`|`Str`|
+|`Type`|`Bool`|
+|`Byte`|`Str`|
+|`Byte`|`Bool`|
+|`Byte`|`Int`|
+|`Byte`|`Real`|
+
 `@` takes the number of arguments of the function plus the function itself as
 the last argument.
 
