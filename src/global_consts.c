@@ -11,7 +11,7 @@ static bool nst_c_initialized = false;
 static bool nst_io_initialized= false;
 static Nst_StdStreams local_nst_io;
 
-static int close_std_stream(void *f) { return 0; }
+static int close_std_stream(void *f);
 
 void _nst_init_types()
 {
@@ -203,3 +203,9 @@ void _nst_del_streams()
 
     nst_io_initialized = false;
 }
+
+#if defined(_WIN32) || defined(WIN32)
+#pragma warning( disable: 4100 )
+#endif
+
+static int close_std_stream(void *f) { return 0; }

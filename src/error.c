@@ -9,7 +9,7 @@
 
 #define INT_CH_COUNT 21
 
-#define PRINT(str, len) err_stream->write_f(str, sizeof(char), (size_t)len, err_stream->value)
+#define PRINT(str, len) err_stream->write_f((void *)str, sizeof(char), (size_t)len, err_stream->value)
 
 #define C_RED "\x1b[31m"
 #define C_GRN "\x1b[32m"
@@ -54,7 +54,7 @@ static inline void err_printf(const char *format, int size, ...)
             return;
         buf_size = (size_t)size + 1;
     }
-    else if ( buf_size < size + 1 )
+    else if ( buf_size < (size_t)size + 1 )
     {
         char *new_buf = (char *)realloc(printf_buf, size + 1);
         if ( new_buf == NULL )

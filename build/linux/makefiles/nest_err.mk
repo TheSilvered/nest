@@ -16,7 +16,7 @@ EXE_x86_TARGET := $(EXE_x86_DIR)/$(EXE_NAME)
 
 .PHONY: debug x86
 
-$(EXE_x64_TARGET): $(SRCS)
+$(EXE_x64_TARGET): $(SRCS) $(LIB_SRCS)
 	mkdir -p $(EXE_x64_DIR)
 	$(CC) $(CFLAGS) $(SRCS) $(LIB_SRCS) $(CLINKS) -O3 -o $@
 

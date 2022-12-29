@@ -72,7 +72,7 @@ static long get_file_size(Nst_IOFileObj *f)
 static size_t virtual_iof_read_f(void *buf, size_t e_size, size_t e_count, VirtualIOFile_data *f)
 {
     size_t byte_count = e_size * e_count;
-    if ( byte_count == 0 || f->ptr >= f->size )
+    if ( byte_count == 0 || f->ptr >= (long)f->size )
         return 0;
 
     if ( f->ptr + byte_count > f->size )
@@ -86,7 +86,7 @@ static size_t virtual_iof_read_f(void *buf, size_t e_size, size_t e_count, Virtu
 static size_t virtual_iof_write_f(void *buf, size_t e_size, size_t e_count, VirtualIOFile_data *f)
 {
     size_t byte_count = e_size * e_count;
-    if ( byte_count == 0 || f->ptr > f->size )
+    if ( byte_count == 0 || f->ptr > (long)f->size )
         return 0;
 
     if ( f->ptr + byte_count > f->size )

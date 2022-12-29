@@ -13,7 +13,7 @@ typedef struct _GenericStack
 }
 GenericStack;
 
-static void shrink_stack(GenericStack *g_stack, size_t min_size)
+static void shrink_stack(GenericStack *g_stack, size_t min_size, size_t unit_size)
 {
     if ( g_stack->max_size <= min_size )
         return;
@@ -23,7 +23,7 @@ static void shrink_stack(GenericStack *g_stack, size_t min_size)
 
     assert(g_stack->current_size <= g_stack->max_size);
 
-    void *new_stack = realloc(g_stack->stack, sizeof(void *) * (g_stack->max_size >> 1));
+    void *new_stack = realloc(g_stack->stack, unit_size * (g_stack->max_size >> 1));
     if ( new_stack == NULL )
         return;
     g_stack->max_size >>= 1;
@@ -70,7 +70,7 @@ Nst_Obj *nst_pop_val(Nst_ValueStack *v_stack)
         return NULL;
 
     Nst_Obj *val = v_stack->stack[--v_stack->current_size];
-    shrink_stack((GenericStack *)v_stack, V_STACK_MIN_SIZE);
+    shrink_stack((GenericStack *)v_stack, V_STACK_MIN_SIZE, sizeof(Nst_Obj *));
 
     return val;
 }
@@ -161,7 +161,7 @@ Nst_FuncCall nst_pop_func(Nst_CallStack *f_stack)
         return call;
 
     call = f_stack->stack[--f_stack->current_size];
-    shrink_stack((GenericStack *)f_stack, F_STACK_MIN_SIZE);
+    shrink_stack((GenericStack *)f_stack, F_STACK_MIN_SIZE, sizeof(Nst_FuncCall));
     return call;
 }
 
@@ -258,7 +258,7 @@ Nst_CatchFrame nst_pop_catch(Nst_CatchStack *c_stack)
         return frame;
 
     frame = c_stack->stack[--c_stack->current_size];
-    shrink_stack((GenericStack *)c_stack, C_STACK_MIN_SIZE);
+    shrink_stack((GenericStack *)c_stack, C_STACK_MIN_SIZE, sizeof(Nst_CatchFrame));
     return frame;
 }
 
