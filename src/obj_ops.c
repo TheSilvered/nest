@@ -1070,15 +1070,13 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
         else if ( ob_t == nst_t.Array || ob_t == nst_t.Vector )
             NST_RETURN_COND(SEQ(ob)->len != 0);
         else if ( ob_t == nst_t.Null )
-        {
             NST_RETURN_FALSE;
-        }
         else if ( ob_t == nst_t.Byte )
             NST_RETURN_COND(AS_BYTE(ob) != 0);
+        else if ( ob_t == nst_t.IOFile )
+            NST_RETURN_COND(!NST_IOF_IS_CLOSED(ob));
         else
-        {
             NST_RETURN_TRUE;
-        }
     }
     else if ( type == nst_t.Int )
     {

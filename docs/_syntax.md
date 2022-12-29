@@ -358,7 +358,7 @@ Here the number `10` is casted to a `Byte` object:
 Byte :: 10
 ```
 
-The valid type casts in nest are the following:
+The valid type casts in Nest are the following:
 
 | ↱       | `Int` | `Real` | `Bool` | `Null` | `Str` | `Array` | `Vector` | `Map` | `Func` | `Iter` | `Byte` | `IOFile` | `Type` |
 |----------|-------|--------|--------|--------|-------|---------|----------|-------|--------|--------|--------|----------|--------|
@@ -380,6 +380,8 @@ When `Int`, `Real` or `Byte` objects are casted to `Bool`, they become `false`
 if they are zero and `true` otherwise.  
 When `Str`, `Array`, `Vector` or `Map` objects are casted to a boolean, it
 returns `false` if their length zero and `true` otherwise.  
+When an `IOFile` is casted to `Bool`, it returns `true` if the file is open and
+`false` if it has been closed.  
 When `Null` is casted to `Bool`, it always returns `false`.  
 When any other object is casted to a `Bool`, it always returns `true`.
 

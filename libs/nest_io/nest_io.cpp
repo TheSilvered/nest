@@ -3,7 +3,7 @@
 #include <cerrno>
 #include "nest_io.h"
 
-#define FUNC_COUNT 17
+#define FUNC_COUNT 18
 
 #define SET_FILE_CLOSED_ERROR \
     NST_SET_RAW_VALUE_ERROR("the given file given was previously closed")
@@ -32,6 +32,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(move_fptr_, 3);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_fptr_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(flush_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(get_flags_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_set_stdin_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_set_stdout_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_set_stderr_, 1);
@@ -202,8 +203,8 @@ NST_FUNC_SIGN(open_)
         can_read = true;
         can_write = true;
 
-        if ( (file_mode[1] != 'b' && file_mode[2] != '+') ||
-             (file_mode[1] != '+' && file_mode[2] != 'b') )
+        if ( !(file_mode[1] == 'b' && file_mode[2] == '+') &&
+             !(file_mode[1] == '+' && file_mode[2] == 'b') )
         {
             NST_SET_RAW_VALUE_ERROR("the file mode is not valid");
             return nullptr;
@@ -507,6 +508,22 @@ NST_FUNC_SIGN(flush_)
 
     f->flush_f(f->value);
     return nst_inc_ref(nst_c.null);
+}
+
+NST_FUNC_SIGN(get_flags_)
+{
+    Nst_IOFileObj *f;
+
+    if ( !nst_extract_arg_values("F", arg_num, args, err, &f) )
+        return nullptr;
+
+    char *flags = new char[4];
+    flags[0] = NST_IOF_CAN_READ(f)  ? 'r' : '-';
+    flags[1] = NST_IOF_CAN_WRITE(f) ? 'w' : '-';
+    flags[2] = NST_IOF_IS_BIN(f)    ? 'b' : '-';
+    flags[3] = 0;
+
+    return nst_new_string(flags,  3, true);
 }
 
 NST_FUNC_SIGN(_set_stdin_)

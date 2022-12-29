@@ -11,6 +11,7 @@ __io.file_size_   = file_size
 __io.move_fptr_   = move_fptr
 __io.get_fptr_    = get_fptr
 __io.flush_       = flush
+__io.get_flags_   = get_flags
 __io._set_stdin_  = _set_stdin
 __io._set_stdout_ = _set_stdout
 __io._set_stderr_ = _set_stderr

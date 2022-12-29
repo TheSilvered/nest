@@ -1,0 +1,7 @@
+|#| 'stdio.nest' = io
+
+'a.txt' 'w+b' @io.open = f
+>>> (Bool :: f '\n' ><)
+>>> (f @io.get_flags '\n' ><)
+f @io.close
+>>> (Bool :: f '\n' ><)
