@@ -8,6 +8,7 @@
 #include "lexer.h"
 #include "nst_types.h"
 #include "tokens.h"
+#include "interpreter.h"
 
 #define START_CH_SIZE 8 * sizeof(char)
 
@@ -114,9 +115,12 @@ LList *nst_ftokenize(char *filename, Nst_SourceText *src_text, Nst_Error *error)
     fclose(file);
     text[size] = '\0';
 
+    char *full_path;
+    nst_get_full_path(filename, &full_path, NULL);
+
     src_text->text = text;
     src_text->len = str_len;
-    src_text->path = filename;
+    src_text->path = full_path;
 
     add_lines(src_text);
 

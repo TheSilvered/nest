@@ -14,6 +14,7 @@
     if ( filename != NULL ) { \
         free(src_text.text); \
         free(src_text.lines); \
+        free(src_text.path); \
     } \
     return code; \
     } while (0)

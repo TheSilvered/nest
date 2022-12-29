@@ -171,21 +171,25 @@ Map literals start with `{` and end with `}` and inside have key-value pairs.
 
 ### Anonymous functions (lambdas)
 
-Lambdas are one-expression functions that have no name. Their syntax is the
-following:
+Lambdas are declared by using `##` followed by any number of identifiers that
+are the names of the parameters.
+
+A lambda can return the value of a single expression by following the parameters
+with `=>` or contain multiple statements with a block of code, delimited by `[`
+and `]`.
 
 ```text
-##arg1 arg2 arg3 => expression
+##a b => a b + --> this lambda adds 'a' and 'b', returning their value
+
+-- This lambda also prints the operation
+##a b [
+    >>> (a ' + ' b '\n' ><)
+    => a b +
+]
 ```
 
-If you want to store a lambda in a variable you need parenthesis otherwise the
-assignment will be included in the expression returned.
-
-```text
-##a => a 1 + = func -- wrong, func is assigned inside the return expression
-
-(##a => a 1 +) = func -- correct, func now holds the lambda
-```
+See also [function declarations](#function-declaration) and the
+[return statement](#the-return-statement)
 
 ## Predefined variables
 
@@ -644,6 +648,11 @@ The do-while loop has the following syntax:
 The only difference between while and do-while loops is that do-while loops
 execute the code once before checking the condition.
 
+### The return statement
+
+The return statement is introduced by `=>`. If it is followed by an expression,
+its value is returned otherwise the function returns `null`.
+
 ### Function declaration
 
 A function declaration is a hash followed by the name of the function and the
@@ -653,6 +662,13 @@ name of its arguments:
 #func_name arg1 arg2 arg3 [
     -- code
 ]
+```
+
+As with [lambdas](#anonymous-functions-lambdas), functions can also contain only
+one expression and return its value:
+
+```text
+#func_name arg1 arg2 => -/ expression /-
 ```
 
 When calling a function the arguments are taken from left to right:

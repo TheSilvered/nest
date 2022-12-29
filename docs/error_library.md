@@ -18,7 +18,8 @@ A position is a map that contains 3 keys:
   second being the column of the start of the interested expression
 - `end` is also an array with the line and column of the end of the expression
 
-Note that the lines and the columns start from 0.
+> Note that the lines start from 0 and the columns from 1 and the end position
+> is inclusive.
 
 ## Constants
 

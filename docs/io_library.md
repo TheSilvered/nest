@@ -33,16 +33,31 @@ actual file.
 
 ### `[file: IOFile] @close`
 
-Closes a file.
+Closes a file. After a file is closed, you will not be able to do any other
+operation with it.
 
-### `[file: IOFile, content: Str] @write`
+### `[file: IOFile, content: Any] @write`
 
-Writes to a file opened in `w`, `a`, `r+`, `w+` or `a+`.
+Writes to a file opened in `w`, `a`, `r+`, `w+` or `a+`. The content is casted
+to a string.
+
+```text
+|#| 'stdio.nest' = io
+
+'a.txt' 'w' @io.open = f
+f { 1, 2, 3 } @io.write
+f @io.close
+```
+
+Now the file `a.txt` contains the string `{ 1, 2, 3 }`
 
 ### `[file: IOFile, content: Array|Vector] @write_bytes`
 
 Writes to a binary file opened in `wb`, `ab`, `rb+`, `wb+` or `ab+`.  
-The second argument is an array or vector containing only `Byte` objects.
+The second argument is an array or vector containing only `Byte` objects.  
+To create such vector from a string, use the
+[`str_to_bytearray`](string_utilities_library.md#string-str-str_to_bytearray)
+function in `stdsutil.nest`.
 
 ### `[file: IOFile, size: Int] @read`
 
@@ -52,9 +67,10 @@ Any negative integer for `size` reads the whole file.
 
 ### `[file: IOFile, size: Int] @read_bytes`
 
-Reads a number of bytes from a file opened in `r`, `r+`, `w+` or `a+` and returns
-an `Array` object. To convert the array to a string, use the function
-`bytearray_to_str` in `stdsutil.nest`.  
+Reads a number of bytes from a file opened in `rb`, `rb+`, `wb+` or `ab+` and
+returns an `Array` object. To convert the array to a string, use the
+[`bytearray_to_str`](string_utilities_library.md#sequence-arrayvector-bytearray_to_str)
+function in `stdsutil.nest`.  
 Any negative integer for `size` reads the whole file.
 
 ### `[file: IOFile] @file_size`
@@ -76,23 +92,85 @@ Returns the position in bytes of the file pointer.
 
 Flushes the output buffer of a file.
 
-### `[file: IOFile] @at_eof`
+### `[file: IOFile] @get_flags`
 
-Returns `true` if the file pointer is at the end of the file, `false` otherwise.
+Returns a 3-characted string where the first character is `r` if the file can
+be read and `-` otherwise, the second one is `w` if the file can be written and
+`-` otherwise and the last one `b` if the file is opened in binary mode and
+`-` if it is opened normally.
+
+```text
+|#| 'stdio.nest' = io
+
+'a.txt' 'w' @io.open = f1
+>>> (f1 @io.get_flags '\n' ><) --> '-w-'
+f1 @io.close
+
+'a.txt' 'r+' @io.open = f2
+>>> (f2 @io.get_flags '\n' ><) --> 'rw-'
+f2 @io.close
+
+'a.txt' 'rb' @io.open = f3
+>>> (f3 @io.get_flags '\n' ><) --> 'r-b'
+f3 @io.close
+```
+
+### `[file: IOFile] @_set_stdin`
+
+Changes the standard input stream to `file`.  
+`file` must support reading and must not be already closed.
+
+The [`STDIN`](#stdin) constant will **not** reflect any changes and will always
+point to the original input stream unless changed manually.
+
+### `[file: IOFile] @_set_stdout`
+
+Changes the standard output stream to `file`.  
+`file` must support writing and must not be already closed.
+
+The [`STDOUT`](#stdout) constant will **not** reflect any changes and will
+always point to the original output stream unless changed manually.
+
+### `[file: IOFile] @_set_stderr`
+
+Changes the standard error stream to `file`.  
+`file` must support writing and must not be already closed.
+
+The [`STDERR`](#stderr) constant will **not** reflect any changes and will
+always point to the original error stream unless changed manually.
+
+### `[file: IOFile] @_get_stdin`
+
+Returns the current input stream. If `_set_stdin` is never called this will
+return the same object that `STDIN` points to.
+
+### `[file: IOFile] @_get_stdout`
+
+Returns the current output stream. If `_set_stdout` is never called this will
+return the same object that `STDOUT` points to.
+
+### `[file: IOFile] @_get_stderr`
+
+Returns the current error stream. If `_set_stderr` is never called this will
+return the same object that `STDERR` points to.
 
 ## Constants
 
 ### `STDIN`
 
-File pointer to the standard input.
+File object of the standard input stream, changing this constant does not change
+the stream used by `<<<`, use [`_set_stdin`](#file-iofile-_set_stdin) instead.
 
 ### `STDOUT`
 
-File pointer to the standard output.
+File object of the standard output stream, changing this constant does not
+change the stream used by `>>>`, use [`_set_stdout`](#file-iofile-_set_stdout)
+instead.
 
 ### `STDERR`
 
-File pointer to the standard error.
+File object of the standard error stream, changing this constant does not change
+the actual error stream, use [`_set_stderr`](#file-iofile-_set_stderr) instead.
 
 ### `FROM_START`
 
