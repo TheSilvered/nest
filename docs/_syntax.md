@@ -348,6 +348,8 @@ The local-stack operators are:
 To use a local-stack operator you write the last argument to the right and all
 the others to the left.
 
+---
+
 `::` only takes two arguments: the object to cast and the type to cast it to.
 
 Here the number `10` is casted to a `Byte` object:
@@ -358,39 +360,30 @@ Byte :: 10
 
 The valid type casts in nest are the following:
 
-| ↱        | `Int` | `Real` | `Bool` | `Null` | `Str` | `Array` | `Vector` | `Map` | `Func` | `Iter` | `Byte` | `IOFile` | `Type` |
+| ↱       | `Int` | `Real` | `Bool` | `Null` | `Str` | `Array` | `Vector` | `Map` | `Func` | `Iter` | `Byte` | `IOFile` | `Type` |
 |----------|-------|--------|--------|--------|-------|---------|----------|-------|--------|--------|--------|----------|--------|
-| `Int`    |   X   |   X    |   X    |        |   X   |         |          |       |        |        |   X    |          |        |
-| `Real`   |   X   |   X    |   X    |        |   X   |         |          |       |        |        |        |          |        |
-| `Bool`   |       |        |   X    |        |   X   |         |          |       |        |        |        |          |        |
-| `Null`   |       |        |   X    |   X    |   X   |         |          |       |        |        |        |          |        |
-| `Str`    |   X   |   X    |   X    |        |   X   |    X    |     X    |       |        |   X    |   X    |          |        |
-| `Array`  |       |        |   X    |        |   X   |    X    |     X    |       |        |   X    |        |          |        |
-| `Vector` |       |        |   X    |        |   X   |    X    |     X    |       |        |   X    |        |          |        |
-| `Map`    |       |        |   X    |        |   X   |         |          |   X   |        |   X    |        |          |        |
-| `Func`   |       |        |   X    |        |   X   |         |          |       |    X   |        |        |          |        |
-| `Iter`   |       |        |   X    |        |   X   |         |          |       |        |   X    |        |          |        |
-| `Byte`   |       |        |   X    |        |   X   |         |          |       |        |        |   X    |          |        |
-| `IOFile` |       |        |   X    |        |   X   |         |          |       |        |        |        |    X     |        |
-| `Type`   |       |        |   X    |        |   X   |         |          |       |        |        |        |          |   X    |
+| `Int`    |   ✓  |   ✓   |   ✓   |        |   ✓  |         |          |       |        |        |   ✓   |          |        |
+| `Real`   |   ✓  |   ✓   |   ✓   |        |   ✓  |         |          |       |        |        |        |          |        |
+| `Bool`   |       |        |   ✓   |        |   ✓  |         |          |       |        |        |        |          |        |
+| `Null`   |       |        |   ✓   |   ✓   |   ✓  |         |          |       |        |        |        |          |        |
+| `Str`    |   ✓  |   ✓   |   ✓   |        |   ✓  |    ✓   |     ✓   |       |        |   ✓   |   ✓   |          |        |
+| `Array`  |       |        |   ✓   |        |   ✓  |    ✓   |     ✓   |       |        |   ✓   |        |          |        |
+| `Vector` |       |        |   ✓   |        |   ✓  |    ✓   |     ✓   |       |        |   ✓   |        |          |        |
+| `Map`    |       |        |   ✓   |        |   ✓  |         |          |   ✓  |        |   ✓   |        |          |        |
+| `Func`   |       |        |   ✓   |        |   ✓  |         |          |       |    ✓  |        |        |          |        |
+| `Iter`   |       |        |   ✓   |        |   ✓  |         |          |       |        |   ✓   |        |          |        |
+| `Byte`   |       |        |   ✓   |        |   ✓  |         |          |       |        |        |   ✓   |          |        |
+| `IOFile` |       |        |   ✓   |        |   ✓  |         |          |       |        |        |        |    ✓    |        |
+| `Type`   |       |        |   ✓   |        |   ✓  |         |          |       |        |        |        |          |   ✓   |
 
+When `Int`, `Real` or `Byte` objects are casted to `Bool`, they become `false`
+if they are zero and `true` otherwise.  
+When `Str`, `Array`, `Vector` or `Map` objects are casted to a boolean, it
+returns `false` if their length zero and `true` otherwise.  
+When `Null` is casted to `Bool`, it always returns `false`.  
+When any other object is casted to a `Bool`, it always returns `true`.
 
-| From | To |
-|------|----|
-|`Int` |`Str`|
-|`Int` | `Bool`|
-|`Int` |`Real`|
-|`Int` | `Byte`|
-|`Real`|`Str`|
-|`Real`|`Bool`|
-|`Real`|`Int`|
-|`Bool`|`Str`|
-|`Type`|`Str`|
-|`Type`|`Bool`|
-|`Byte`|`Str`|
-|`Byte`|`Bool`|
-|`Byte`|`Int`|
-|`Byte`|`Real`|
+---
 
 `@` takes the number of arguments of the function plus the function itself as
 the last argument.
@@ -408,6 +401,8 @@ an array:
 { 1, 2, 3 } *@func
 ```
 
+---
+
 `->` takes two or three arguments, the first argument is optional and is the
 step, the second is where the range should start, and the last is where the
 range should end.
@@ -417,6 +412,8 @@ This creates a range of even numbers from 10 (included) to 20 (excluded):
 ```text
 2 10 -> 20
 ```
+
+---
 
 `!!` takes two arguments, like `::`. The first one is the name of the error and
 the last one the message that is printed along with the error.
