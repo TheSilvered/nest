@@ -801,7 +801,7 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
         CHECK_V_STACK_SIZE(arg_num + 1);
     Nst_FuncObj *func = FUNC(nst_pop_val(nst_state.v_stack));
     Nst_SeqObj *args_seq;
-    
+
     if ( arg_num == -1 )
     {
         args_seq = SEQ(nst_pop_val(nst_state.v_stack));
@@ -935,7 +935,7 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
             val = nst_inc_ref(args_seq->objs[i]);
         else
             val = nst_pop_val(nst_state.v_stack);
-        
+
         nst_set_val(new_vt, func->args[arg_num - i - 1], val);
         nst_dec_ref(val);
     }
@@ -1470,7 +1470,6 @@ size_t nst_get_full_path(char *file_path, char **buf, char **file_part)
     return strlen(path);
 #endif
 }
-
 
 static Nst_SeqObj *make_argv(int argc, char **argv, char *filename)
 {

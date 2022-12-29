@@ -74,7 +74,7 @@ static size_t virtual_iof_read_f(void *buf, size_t e_size, size_t e_count, Virtu
     size_t byte_count = e_size * e_count;
     if ( byte_count == 0 || f->ptr >= f->size )
         return 0;
-    
+
     if ( f->ptr + byte_count > f->size )
         byte_count = f->size - (size_t)f->ptr;
 

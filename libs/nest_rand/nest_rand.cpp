@@ -29,7 +29,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(choice_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(shuffle_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(seed_, 1);
-    
+
     rand_num.seed(duration_cast<nanoseconds>(
         system_clock::now().time_since_epoch()
     ).count());

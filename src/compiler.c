@@ -1109,7 +1109,7 @@ static void compile_unpacking_assign_e(Nst_Node *node)
     [VALUE CODE]
     DUP
     UNPACK_SEQ size_of_expected
-    
+
     SET_VAL_LOC name - for variables
 
     [CONTAINER_CODE]  +
