@@ -161,6 +161,12 @@ NST_FUNC_SIGN(slice_)
     size_t seq_len = seq->len;
     Nst_TypeObj *seq_type = args[0]->type;
 
+    if ( step == 0 )
+    {
+        NST_SET_RAW_VALUE_ERROR("the step cannot be zero");
+        return nullptr;
+    }
+
     if ( start < 0 )
         start += seq_len;
 
@@ -177,7 +183,11 @@ NST_FUNC_SIGN(slice_)
     else if ( stop > (Nst_Int)seq_len )
         stop = seq_len;
 
-    if ( start >= stop || step < 0 )
+    size_t new_size = (size_t)((stop - start) / step);
+
+    if ( (stop - start) % step != 0 ) new_size++;
+
+    if ( new_size <= 0 )
     {
         if ( seq_type == nst_t.Str )
             return nst_new_string((char *)"", 0, false);
@@ -186,10 +196,6 @@ NST_FUNC_SIGN(slice_)
         else
             return nst_new_vector(0);
     }
-
-    size_t new_size = (size_t)((stop - start) / step);
-
-    if ( (stop - start) % step != 0 ) new_size++;
 
     if ( seq_type == nst_t.Array || seq_type == nst_t.Vector )
     {
