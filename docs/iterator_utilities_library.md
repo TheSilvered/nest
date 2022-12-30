@@ -20,7 +20,7 @@ the sequence ends.
 ```text
 |#| 'stditutil.nest' = itu
 
-'Hi!' @itu.cycle --> 'H', 'i', '!', 'H', 'i' ...
+'Hi!' @itu.cycle --> 'H', 'i', '!', 'H', 'i', ...
 ```
 
 ### `[object: Any, times: Int] @repeat`
@@ -88,7 +88,7 @@ objects in.
 ```text
 |#| 'stditutil.nest' = itu
 
-{ 'key_1': 1, 'key_2': 2 } @itu.keys --> 'key_2', 'key_1'
+{ 'key_1': 1, 'key_2': 2 } @itu.keys --> 'key_1', 'key_2'
 { 'key_2': 2, 'key_1': 1 } @itu.keys --> 'key_2', 'key_1'
 ```
 
@@ -100,7 +100,7 @@ objects in.
 ```text
 |#| 'stditutil.nest' = itu
 
-{ 'key_1': 1, 'key_2': 2 } @itu.values --> 2, 1
+{ 'key_1': 1, 'key_2': 2 } @itu.values --> 1, 2
 { 'key_2': 2, 'key_1': 1 } @itu.values --> 2, 1
 ```
 
@@ -112,7 +112,7 @@ put the objects in.
 ```text
 |#| 'stditutil.nest' = itu
 
-{ 'key_1': 1, 'key_2': 2 } @itu.items --> { 'key_2', 2 }, { 'key_1', 1 }
+{ 'key_1': 1, 'key_2': 2 } @itu.items --> { 'key_1', 1 }, { 'key_2', 2 }
 { 'key_2': 2, 'key_1': 1 } @itu.items --> { 'key_2', 2 }, { 'key_1', 1 }
 ```
 

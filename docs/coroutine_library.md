@@ -20,8 +20,9 @@ f @co.create = f_co
 
 ### `[args: Array|Vector, co: Coroutine] @call`
 
-Calls the function of `co` with `args`. If the coroutine is already running, the
-arguments are completely ignored.
+Calls the function of `co` with `args`. If the coroutine is paused, the
+arguments are completely ignored and if it is running, the function throws an
+error.
 
 ```text
 { f_co } f_co @co.call --> 'Hello,'

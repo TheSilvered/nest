@@ -4,7 +4,7 @@
 
 ### `[func: Func, args: Array|Vector] @try`
 
-Calls `func` giving it `args` as the arguments.
+Calls `func` passing `args` as the arguments.
 It returns a map containing `value`, `error` and `traceback`.
 `value` is the value returned by the function or `null` if an error occurred.
 `error` is `null` if everything was successful otherwise it is a map containing

@@ -12,8 +12,8 @@ Creates a new directory at `path`, succeeds even if the directory exists.
 
 ### `[path: Str] @mkdirs`
 
-Creates a directory and sub-directories at `path`, succeeds even if
-the directory/ies exist(s).
+Creates a directory at `path`, and the parent directories if needed, succeeds
+even if the directory already exists.
 
 ### `[path: Str] @rmdir`
 
@@ -22,6 +22,7 @@ failure, otherwise returns `0`. If the directory path does not exist, raises an
 error.
 
 [Windows error codes](https://docs.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-)
+[Linux error codes](https://chromium.googlesource.com/chromiumos/docs/+/master/constants/errnos.md)
 
 ### `[path: Str] @rmdir_recursive`
 
@@ -30,6 +31,7 @@ the OS in case of failure, otherwise returns `0`. If the directory path does not
 exist, raises an error.
 
 [Windows error codes](https://docs.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-)
+[Linux error codes](https://chromium.googlesource.com/chromiumos/docs/+/master/constants/errnos.md)
 
 ### `[path: Str] @isfile`
 
@@ -41,6 +43,7 @@ Removes a file at `path`, returns the error code of the OS in case of failure,
 otherwise returns `0`. If the path does not exist, raises an error.
 
 [Windows error codes](https://docs.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-)
+[Linux error codes](https://chromium.googlesource.com/chromiumos/docs/+/master/constants/errnos.md)
 
 ### `[from: Str, to: Str, options: Int] @copy`
 

@@ -4,7 +4,7 @@
 
 ### `[] @random`
 
-A random integer between `0` and `RAND_MAX`.
+A random integer in the range [-2^63, 2^63).
 
 ### `[min: Int, max: Int] @rand_int`
 

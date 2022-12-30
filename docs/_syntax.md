@@ -63,7 +63,7 @@ change its sign.
 ```
 
 Nest has also a byte type that can be written as an integer literal followed by
-a lowercase `b` or an uppercas one `B`. If the integer is written with an
+a lowercase `b` or an uppercase one `B`. If the integer is written with an
 hexadecimal literal, since adding a `b` at the end would be counted as digit,
 you start with `0h` instead.
 
@@ -226,7 +226,7 @@ are called stack operators.
 
 The stack operators in Nest are:
 
-- `+` additiontext
+- `+` addition
 - `-` subtraction
 - `*` multiplication
 - `/` division
@@ -364,21 +364,21 @@ Byte :: 10
 
 The valid type casts in Nest are the following:
 
-| ↱       | `Int` | `Real` | `Bool` | `Null` | `Str` | `Array` | `Vector` | `Map` | `Func` | `Iter` | `Byte` | `IOFile` | `Type` |
-|----------|-------|--------|--------|--------|-------|---------|----------|-------|--------|--------|--------|----------|--------|
-| `Int`    |   ✓  |   ✓   |   ✓   |        |   ✓  |         |          |       |        |        |   ✓   |          |        |
-| `Real`   |   ✓  |   ✓   |   ✓   |        |   ✓  |         |          |       |        |        |        |          |        |
-| `Bool`   |       |        |   ✓   |        |   ✓  |         |          |       |        |        |        |          |        |
-| `Null`   |       |        |   ✓   |   ✓   |   ✓  |         |          |       |        |        |        |          |        |
-| `Str`    |   ✓  |   ✓   |   ✓   |        |   ✓  |    ✓   |     ✓   |       |        |   ✓   |   ✓   |          |        |
-| `Array`  |       |        |   ✓   |        |   ✓  |    ✓   |     ✓   |       |        |   ✓   |        |          |        |
-| `Vector` |       |        |   ✓   |        |   ✓  |    ✓   |     ✓   |       |        |   ✓   |        |          |        |
-| `Map`    |       |        |   ✓   |        |   ✓  |         |          |   ✓  |        |   ✓   |        |          |        |
-| `Func`   |       |        |   ✓   |        |   ✓  |         |          |       |    ✓  |        |        |          |        |
-| `Iter`   |       |        |   ✓   |        |   ✓  |         |          |       |        |   ✓   |        |          |        |
-| `Byte`   |       |        |   ✓   |        |   ✓  |         |          |       |        |        |   ✓   |          |        |
-| `IOFile` |       |        |   ✓   |        |   ✓  |         |          |       |        |        |        |    ✓    |        |
-| `Type`   |       |        |   ✓   |        |   ✓  |         |          |       |        |        |        |          |   ✓   |
+| ↱           | `Int` | `Real` | `Bool` | `Null` | `Str` | `Array` | `Vector` | `Map` | `Func` | `Iter` | `Byte` | `IOFile` | `Type` |
+|:------------:|:-----:|:------:|:------:|:------:|:-----:|:-------:|:--------:|:-----:|:------:|:------:|:------:|:--------:|:------:|
+| **`Int`**    |   ✓  |   ✓   |   ✓   |        |   ✓  |         |          |       |        |        |   ✓   |          |        |
+| **`Real`**   |   ✓  |   ✓   |   ✓   |        |   ✓  |         |          |       |        |        |        |          |        |
+| **`Bool`**   |       |        |   ✓   |        |   ✓  |         |          |       |        |        |        |          |        |
+| **`Null`**   |       |        |   ✓   |   ✓   |   ✓  |         |          |       |        |        |        |          |        |
+| **`Str`**    |   ✓  |   ✓   |   ✓   |        |   ✓  |    ✓   |     ✓   |       |        |   ✓   |   ✓   |          |        |
+| **`Array`**  |       |        |   ✓   |        |   ✓  |    ✓   |     ✓   |       |        |   ✓   |        |          |        |
+| **`Vector`** |       |        |   ✓   |        |   ✓  |    ✓   |     ✓   |       |        |   ✓   |        |          |        |
+| **`Map`**    |       |        |   ✓   |        |   ✓  |         |          |   ✓  |        |   ✓   |        |          |        |
+| **`Func`**   |       |        |   ✓   |        |   ✓  |         |          |       |    ✓  |        |        |          |        |
+| **`Iter`**   |       |        |   ✓   |        |   ✓  |         |          |       |        |   ✓   |        |          |        |
+| **`Byte`**   |       |        |   ✓   |        |   ✓  |         |          |       |        |        |   ✓   |          |        |
+| **`IOFile`** |       |        |   ✓   |        |   ✓  |         |          |       |        |        |        |    ✓    |        |
+| **`Type`**   |       |        |   ✓   |        |   ✓  |         |          |       |        |        |        |          |   ✓   |
 
 When `Int`, `Real` or `Byte` objects are casted to `Bool`, they become `false`
 if they are zero and `true` otherwise.  
@@ -424,7 +424,7 @@ This creates a range of even numbers from 10 (included) to 20 (excluded):
 `!!` takes two arguments, like `::`. The first one is the name of the error and
 the last one the message that is printed along with the error.
 
-Here is what would be printed when using the operator in `example.nest`.
+Here is what would be printed when using this operator in `example.nest`.
 
 This is the file:
 
@@ -469,7 +469,7 @@ a b == ? [
 ]
 ```
 
-When using a code block expression evaluates to `null`:
+When using a code block the expression evaluates to `null`:
 
 ```text
 (true ? [ true ] : false) = val
@@ -484,8 +484,8 @@ a vector, map or array.
 
 To write an assignment expression you write the value, followed by an equal sign
 (`=`) or a compound equal sign (`+=`, `-=` or any stack operator which is not a
-comparison operator) and ending with the name of the variable or an access to
-an element in an array, vector or map.
+comparison operator) and end with the name of the variable or an access to an
+element in an array, vector or map.
 
 ```text
 10 = a -- assigns the value 10 to the variable 'a'
@@ -525,6 +525,8 @@ this program outputs:
 2 b
 3 c
 ```
+
+> Note: when using this assignment you cannot use compound assignments.
 
 ### Access operator
 

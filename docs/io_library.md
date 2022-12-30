@@ -38,8 +38,8 @@ operation with it.
 
 ### `[file: IOFile, content: Any] @write`
 
-Writes to a file opened in `w`, `a`, `r+`, `w+` or `a+`. The content is casted
-to a string.
+Writes to a file opened in `w`, `a`, `r+`, `w+` or `a+`. `content` is casted
+to a string before being written.
 
 ```text
 |#| 'stdio.nest' = io
