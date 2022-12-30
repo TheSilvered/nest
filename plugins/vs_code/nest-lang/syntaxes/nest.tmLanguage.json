@@ -39,7 +39,12 @@
 		},
 		"str-double": {
 			"name": "string.quoted.double.nest",
-			"begin": "\"",
+			"begin": "((?<=\\|#\\|)\\s*(\")(__C__:))|(\")",
+			"beginCaptures": {
+				"2": { "name": "string.quoted.double.nest" },
+				"3": { "name": "constant.character.escape.nest" },
+				"4": { "name": "string.quoted.double.nest" }
+			},
 			"end": "\"",
 			"patterns": [
 				{ "include": "#string-escapes" }
@@ -47,7 +52,12 @@
 		},
 		"str-single": {
 			"name": "string.quoted.single.nest",
-			"begin": "'",
+			"begin": "((?<=\\|#\\|)\\s*(')(__C__:))|(')",
+			"beginCaptures": {
+				"2": { "name": "string.quoted.single.nest" },
+				"3": { "name": "constant.character.escape.nest" },
+				"4": { "name": "string.quoted.single.nest" }
+			},
 			"end": "('|\\r?\\n)",
 			"patterns": [
 				{ "include": "#string-escapes" }
@@ -125,7 +135,7 @@
 		},
 		"func-call": {
 			"name": "variable.function.nest",
-			"match": "(@@|@)(\\s*{{identifier}}((\\s*\\.)\\s*{{identifier}})*|(?=\\s*##))",
+			"match": "(@@|@)(\\s*[A-Za-z_][A-Za-z_0-9]*((\\s*\\.)\\s*[A-Za-z_][A-Za-z_0-9]*)*|(?=\\s*##))",
 			"captures": {
 				"1": { "name": "keyword.operator.nest" },
 				"4": { "name": "punctuation.accessor.nest" }
