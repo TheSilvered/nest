@@ -18,3 +18,13 @@ f_co @co.get_state co.STATE.paused @test.assert_eq
 f_co @co.get_state co.STATE.ended @test.assert_eq
 
 f { f_co, 1, 2 } @test.assert_raises_error
+
+#g self [
+    self 1 @co.pause
+    self 2 @co.pause
+    self 3 @co.pause
+]
+
+g @co.create = g_co
+
+Array :: (g_co @co.generator) { 1, 2, 3 } @test.assert_eq

@@ -1,25 +1,52 @@
 |#| '../test_lib.nest' = test
 |#| 'stdio.nest' = io
-|#| 'stdfs.nest' = fs
 
-{ Byte :: 72, Byte :: 105 } = bytes -- Hi
+#read_whole_file f [
+    f @io.get_fptr = start
+    f io.FROM_START 0 @io.move_fptr
+    f -1 @io.read = content
+    f io.FROM_START start @io.move_fptr
+    => content
+]
 
-'test_files\\file.txt' 'wb' @io.open = f
+{ 72b, 105b } = bytes -- Hi
+
+'test_files\\file.txt' 'wb+' @io.open = f
 f bytes @io.write_bytes
 f @io.close
 
 'test_files\\file.txt' 'rb' @io.open = f
-f -1 @io.read_bytes { Byte :: 72, Byte :: 105 } @test.assert_eq
+f -1 @io.read_bytes { 72b, 105b } @test.assert_eq
 f @io.close
 
 'test_files\\file.txt' 'w' @io.open = f
 f 'Hello' @io.write
 f @io.close
 
-'test_files\\file.txt' 'r' @io.open = f
+f @io.get_flags '-w-' @test.assert_eq
+
+'test_files\\file.txt' 'r+' @io.open = f
+
 f -1 @io.read 'Hello' @test.assert_eq
 f @io.file_size 5 @test.assert_eq
 f io.FROM_CUR -2 @io.move_fptr
 f @io.get_fptr 3 @test.assert_eq
 f -1 @io.read 'lo' @test.assert_eq
+
+f @io._set_stdout
+>>> ', world!'
+io.STDOUT @io._set_stdout
+
+f @read_whole_file 'Hello, world!' @test.assert_eq
+
+f @io.close
+
+false @io.virtual_iof = f
+f 'Hello' @io.write
+f @read_whole_file 'Hello' @test.assert_eq
+f @io.get_flags 'rw-' @test.assert_eq
+f @io.close
+
+true @io.virtual_iof = f
+f @io.get_flags 'rwb' @test.assert_eq
 f @io.close

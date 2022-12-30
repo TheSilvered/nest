@@ -1104,6 +1104,8 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
     {
         if ( ob_t == nst_t.Int )
             return nst_new_byte(AS_INT(ob) & 0xff);
+        else if ( ob_t == nst_t.Real )
+            return nst_new_byte((Nst_Int)AS_REAL(ob) & 0xff)
         else if ( ob_t == nst_t.Str )
             return nst_parse_byte(STR(ob), err);
         else

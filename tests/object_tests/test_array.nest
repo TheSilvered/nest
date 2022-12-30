@@ -34,6 +34,7 @@ arr_2d.0 { 1, 2 } @test.assert_eq
 { 10;5 } { 10, 10, 10, 10, 10 } @test.assert_eq
 
 Str :: { 1, 2, 3 } '{ 1, 2, 3 }' @test.assert_eq
-Array ::  <{}> @test.assert_false
+Array :: <{}> @test.assert_false
 { 1 } @test.assert_true
-
+?::(Vector :: { 1, 2, 3 }) Vector @test.assert_eq
+Map :: { { 'a', 1 }, { 'b', 2 } } { 'a': 1, 'b': 2 } @test.assert_eq
