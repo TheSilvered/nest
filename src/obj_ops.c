@@ -1194,6 +1194,64 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
                 seq->objs[i] = nst_string_get_idx(ob, i);
             return OBJ(seq);
         }
+        else if ( ob_t == nst_t.Iter )
+        {
+            Nst_SeqObj *seq = SEQ(nst_new_vector(0));
+            Nst_IterObj *iter = ITER(ob);
+
+            Nst_Obj *result = nst_call_func(iter->start, &iter->value, err);
+            if ( result == NULL )
+                goto fail;
+            nst_dec_ref(result);
+
+            while ( true )
+            {
+                result = nst_call_func(iter->is_done, &iter->value, err);
+
+                if (result == NULL)
+                    goto fail;
+                else if ( nst_obj_cast(result, nst_t.Bool, NULL) == nst_c.b_true )
+                {
+                    nst_dec_ref(nst_c.b_true);
+                    nst_dec_ref(result);
+                    break;
+                }
+                else
+                {
+                    nst_dec_ref(nst_c.b_false);
+                    nst_dec_ref(result);
+                }
+
+                result = nst_call_func(iter->get_val, &iter->value, err);
+                if (result == NULL)
+                    goto fail;
+                
+                nst_append_value_vector(seq, result);
+                nst_dec_ref(result);
+
+                result = nst_call_func(iter->advance, &iter->value, err);
+                if (result == NULL)
+                    goto fail;
+            }
+
+            if ( is_vect )
+                return OBJ(seq);
+            
+            Nst_Obj **new_objs = (Nst_Obj **)realloc(seq->objs, seq->len * sizeof(Nst_Obj *));
+            if ( new_objs != NULL )
+            {
+                seq->objs = new_objs;
+                seq->size = seq->len;
+            }
+
+            seq->type = STR(nst_inc_ref(nst_t.Array));
+            nst_dec_ref(nst_t.Vector);
+            return OBJ(seq);
+
+        fail:
+            nst_dec_ref(seq);
+            return NULL;
+        }
         else
             RETURN_CAST_TYPE_ERROR;
     }
