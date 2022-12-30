@@ -1468,6 +1468,7 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
             for ( int j = 0; j < i_len; j++ )
                 putchar(' ');
             PRINT(" |", 2);
+            putchar('\n');
             continue;
         }
 
