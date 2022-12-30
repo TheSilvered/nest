@@ -11,7 +11,6 @@ __sequ.filter_ = filter
 __sequ.contains_ = contains
 __sequ.any_ = any
 __sequ.all_ = all
-__sequ.from_iter_ = from_iter
 
 _vars_ '__sequ' \
        'Int' \

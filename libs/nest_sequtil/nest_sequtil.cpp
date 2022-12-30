@@ -1,7 +1,7 @@
 #include <cmath>
 #include "nest_sequtil.h"
 
-#define FUNC_COUNT 12
+#define FUNC_COUNT 11
 #define RUN 32
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
@@ -28,7 +28,6 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(contains_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(any_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(all_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(from_iter_, 1);
 
     lib_init_ = true;
     return true;
@@ -500,61 +499,4 @@ NST_FUNC_SIGN(all_)
     }
 
     NST_RETURN_TRUE;
-}
-
-NST_FUNC_SIGN(from_iter_)
-{
-    Nst_IterObj *iter;
-    Nst_Obj *res;
-
-    if ( !nst_extract_arg_values("I", arg_num, args, err, &iter) )
-        return nullptr;
-
-    res = nst_call_func(iter->start, &iter->value, err);
-    if ( res == nullptr )
-        return nullptr;
-    nst_dec_ref(res);
-
-    Nst_Obj *vect = nst_new_vector(0);
-
-    while ( true )
-    {
-        res = nst_call_func(iter->is_done, &iter->value, err);
-        if ( res == nullptr )
-        {
-            nst_dec_ref(vect);
-            return nullptr;
-        }
-        else
-        {
-            Nst_Obj *bool_obj = nst_obj_cast(res, nst_t.Bool, nullptr);
-            nst_dec_ref(res);
-            if ( bool_obj == nst_c.b_true )
-            {
-                nst_dec_ref(bool_obj);
-                break;
-            }
-            nst_dec_ref(bool_obj);
-        }
-
-        res = nst_call_func(iter->get_val, &iter->value, err);
-        if ( res == nullptr )
-        {
-            nst_dec_ref(vect);
-            return nullptr;
-        }
-
-        nst_append_value_vector(vect, res);
-        nst_dec_ref(res);
-
-        res = nst_call_func(iter->advance, &iter->value, err);
-        if ( res == nullptr )
-        {
-            nst_dec_ref(vect);
-            return nullptr;
-        }
-        nst_dec_ref(res);
-    }
-
-    return vect;
 }

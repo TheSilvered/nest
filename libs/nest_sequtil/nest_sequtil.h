@@ -28,7 +28,6 @@ NST_FUNC_SIGN(filter_);
 NST_FUNC_SIGN(contains_);
 NST_FUNC_SIGN(any_);
 NST_FUNC_SIGN(all_);
-NST_FUNC_SIGN(from_iter_);
 
 #ifdef __cplusplus
 }
