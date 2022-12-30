@@ -1199,38 +1199,22 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
             Nst_SeqObj *seq = SEQ(nst_new_vector(0));
             Nst_IterObj *iter = ITER(ob);
 
-            Nst_Obj *result = nst_call_func(iter->start, &iter->value, err);
-            if ( result == NULL )
+            if ( nst_start_iter(iter, err) )
                 goto fail;
-            nst_dec_ref(result);
 
             while ( true )
             {
-                result = nst_call_func(iter->is_done, &iter->value, err);
+                int is_done = nst_is_done_iter(iter, err);
+                if ( is_done == -1 ) goto fail;
+                else if ( is_done ) break;
 
-                if (result == NULL)
-                    goto fail;
-                else if ( nst_obj_cast(result, nst_t.Bool, NULL) == nst_c.b_true )
-                {
-                    nst_dec_ref(nst_c.b_true);
-                    nst_dec_ref(result);
-                    break;
-                }
-                else
-                {
-                    nst_dec_ref(nst_c.b_false);
-                    nst_dec_ref(result);
-                }
-
-                result = nst_call_func(iter->get_val, &iter->value, err);
-                if (result == NULL)
-                    goto fail;
+                Nst_Obj *result = nst_get_val_iter(iter, err);
+                if (result == NULL) goto fail;
                 
                 nst_append_value_vector(seq, result);
                 nst_dec_ref(result);
 
-                result = nst_call_func(iter->advance, &iter->value, err);
-                if (result == NULL)
+                if ( nst_advance_iter(iter, err) )
                     goto fail;
             }
 

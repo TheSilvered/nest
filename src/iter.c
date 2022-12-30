@@ -6,6 +6,7 @@
 #include "simple_types.h"
 #include "str.h"
 #include "global_consts.h"
+#include "obj_ops.h"
 
 Nst_Obj *nst_new_iter(
     Nst_FuncObj *start,
@@ -75,6 +76,51 @@ void nst_traverse_iter(Nst_IterObj* iter)
     NST_SET_FLAG(iter->is_done, NST_FLAG_GGC_REACHABLE);
     NST_SET_FLAG(iter->get_val, NST_FLAG_GGC_REACHABLE);
     NST_SET_FLAG(iter->value,   NST_FLAG_GGC_REACHABLE);
+}
+
+int _nst_start_iter(Nst_IterObj *iter, Nst_OpErr *err)
+{
+    Nst_Obj *result = nst_call_func(iter->start, &iter->value, err);
+
+    if ( result == NULL )
+        return -1;
+
+    nst_dec_ref(result);
+    return 0;
+}
+
+int _nst_is_done_iter(Nst_IterObj *iter, Nst_OpErr *err)
+{
+    Nst_Obj *result = nst_call_func(iter->is_done, &iter->value, err);
+
+    if ( result == NULL )
+        return -1;
+
+    if ( nst_obj_cast(result, nst_t.Bool, NULL) == nst_c.b_true )
+    {
+        nst_dec_ref(nst_c.b_true);
+        nst_dec_ref(result);
+        return 1;
+    }
+    nst_dec_ref(nst_c.b_false);
+    nst_dec_ref(result);
+    return 0;
+}
+
+int _nst_advance_iter(Nst_IterObj *iter, Nst_OpErr *err)
+{
+    Nst_Obj *result = nst_call_func(iter->advance, &iter->value, err);
+
+    if ( result == NULL )
+        return -1;
+
+    nst_dec_ref(result);
+    return 0;
+}
+
+Nst_Obj *_nst_get_val_iter(Nst_IterObj *iter, Nst_OpErr *err)
+{
+    return nst_call_func(iter->advance, &iter->value, err);
 }
 
 #if defined(_WIN32) || defined(WIN32)
