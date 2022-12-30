@@ -120,7 +120,7 @@ int _nst_advance_iter(Nst_IterObj *iter, Nst_OpErr *err)
 
 Nst_Obj *_nst_get_val_iter(Nst_IterObj *iter, Nst_OpErr *err)
 {
-    return nst_call_func(iter->advance, &iter->value, err);
+    return nst_call_func(iter->get_val, &iter->value, err);
 }
 
 #if defined(_WIN32) || defined(WIN32)

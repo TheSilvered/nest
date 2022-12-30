@@ -70,6 +70,9 @@
 #define _NST_EM_INVALID_OPERAND_TYPE(operand) "invalid type '%s' for '" operand "'"
 #define _NST_EM_NO_LIB_FUNC(func) "the library does not specify a '" func "' function"
 #define _NST_EM_WRONG_UNPACK_LENGTH "expected %lli items to unpack but the sequence only contains %zi"
+#define _NST_EM_MAP_TO_SEQ_TYPE_ERR(i) "expected each element to be a Vector or an Array, found a '%s' instead at " i " %zi"
+#define _NST_EM_MAP_TO_SEQ_LEN_ERR(i) "expected a sequence of length 2, found one of length %zi instead at " i " %zi"
+#define _NST_EM_MAP_TO_SEQ_HASH(i) "unhashable object found at " i " %zi"
 
 #ifdef __cplusplus
 extern "C" {

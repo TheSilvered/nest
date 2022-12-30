@@ -379,8 +379,8 @@ void nst_traverse_map(Nst_MapObj *map)
 void nst_track_map(Nst_MapObj *map)
 {
     for ( Nst_Int i = _nst_map_get_next_idx(-1, map);
-        i != -1;
-        i = _nst_map_get_next_idx(i, map) )
+          i != -1;
+          i = _nst_map_get_next_idx(i, map) )
     {
         if ( NST_HAS_FLAG(map->nodes[i].value, NST_FLAG_GGC_IS_SUPPORTED) )
             nst_add_tracked_object((Nst_GGCObj *)(map->nodes[i].value));

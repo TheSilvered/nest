@@ -1200,22 +1200,22 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
             Nst_IterObj *iter = ITER(ob);
 
             if ( nst_start_iter(iter, err) )
-                goto fail;
+                goto iter_to_seq_fail;
 
             while ( true )
             {
                 int is_done = nst_is_done_iter(iter, err);
-                if ( is_done == -1 ) goto fail;
+                if ( is_done == -1 ) goto iter_to_seq_fail;
                 else if ( is_done ) break;
 
                 Nst_Obj *result = nst_get_val_iter(iter, err);
-                if (result == NULL) goto fail;
+                if (result == NULL) goto iter_to_seq_fail;
                 
                 nst_append_value_vector(seq, result);
                 nst_dec_ref(result);
 
                 if ( nst_advance_iter(iter, err) )
-                    goto fail;
+                    goto iter_to_seq_fail;
             }
 
             if ( is_vect )
@@ -1232,15 +1232,137 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
             nst_dec_ref(nst_t.Vector);
             return OBJ(seq);
 
-        fail:
+        iter_to_seq_fail:
             nst_dec_ref(seq);
+            return NULL;
+        }
+        else if ( ob_t == nst_t.Map )
+        {
+            Nst_MapObj *map = MAP(ob);
+            size_t seq_len = map->item_count;
+            Nst_SeqObj *seq = is_vect ? SEQ(nst_new_vector(seq_len))
+                                      : SEQ(nst_new_array(seq_len));
+
+            size_t seq_i = 0;
+            for ( size_t i = _nst_map_get_next_idx(-1, map);
+                  i != -1;
+                  i = _nst_map_get_next_idx(i, map) )
+            {
+                Nst_SeqObj *node_arr = SEQ(nst_new_array(2));
+                node_arr->objs[0] = nst_inc_ref(map->nodes[i].key);
+                node_arr->objs[1] = nst_inc_ref(map->nodes[i].value);
+                seq->objs[seq_i++] = OBJ(node_arr);
+            }
+
+            return OBJ(seq);
+        }
+        else
+            RETURN_CAST_TYPE_ERROR;
+    }
+    else if ( type == nst_t.Map )
+    {
+        if ( ob_t == nst_t.Array || ob_t == nst_t.Vector )
+        {
+            Nst_SeqObj *seq = SEQ(ob);
+            Nst_Obj **objs = seq->objs;
+            Nst_MapObj *map = MAP(nst_new_map());
+
+            for ( size_t i = 0, n = seq->len; i < n; i++ )
+            {
+                if ( objs[i]->type != nst_t.Array && objs[i]->type != nst_t.Vector )
+                {
+                    NST_SET_TYPE_ERROR(_nst_format_error(
+                        _NST_EM_MAP_TO_SEQ_TYPE_ERR("index"),
+                        "su",
+                        TYPE_NAME(objs[i]), i));
+                    nst_dec_ref(map);
+                    return NULL;
+                }
+
+                if ( SEQ(objs[i])->len != 2 )
+                {
+                    NST_SET_TYPE_ERROR(_nst_format_error(
+                        _NST_EM_MAP_TO_SEQ_LEN_ERR("index"),
+                        "uu",
+                        SEQ(objs[i])->len, i));
+                    nst_dec_ref(map);
+                    return NULL;
+                }
+
+                if ( !nst_map_set(map, SEQ(objs[i])->objs[0], SEQ(objs[i])->objs[1]) )
+                {
+                    NST_SET_TYPE_ERROR(_nst_format_error(
+                        _NST_EM_MAP_TO_SEQ_HASH("index"),
+                        "u", i));
+                    nst_dec_ref(map);
+                    return NULL;
+                }
+            }
+
+            return OBJ(map);
+        }
+        else if ( ob_t == nst_t.Iter )
+        {
+            Nst_IterObj *iter = ITER(ob);
+            Nst_MapObj *map = MAP(nst_new_map());
+
+            if ( nst_start_iter(iter, err) )
+                goto iter_to_map_fail;
+
+            size_t iter_count = 1;
+
+            while ( true )
+            {
+                int is_done = nst_is_done_iter(iter, err);
+                if ( is_done == -1 ) goto iter_to_map_fail;
+                else if ( is_done ) break;
+
+                Nst_SeqObj *result = SEQ(nst_get_val_iter(iter, err));
+                if (result == NULL) goto iter_to_map_fail;
+
+                if (result->type != nst_t.Array && result->type != nst_t.Vector)
+                {
+                    NST_SET_TYPE_ERROR(_nst_format_error(
+                        _NST_EM_MAP_TO_SEQ_TYPE_ERR("iteration"),
+                        "su",
+                        TYPE_NAME(result), iter_count));
+                    goto iter_to_map_fail;
+                }
+
+                if (result->len != 2)
+                {
+                    NST_SET_TYPE_ERROR(_nst_format_error(
+                        _NST_EM_MAP_TO_SEQ_LEN_ERR("iteration"),
+                        "uu",
+                        result->len, iter_count));
+                    goto iter_to_map_fail;
+                }
+
+                if (!nst_map_set(map, result->objs[0], result->objs[1]))
+                {
+                    NST_SET_TYPE_ERROR(_nst_format_error(
+                        _NST_EM_MAP_TO_SEQ_HASH("iteration"),
+                        "u", iter_count));
+                    goto iter_to_map_fail;
+                }
+
+                nst_dec_ref(result);
+
+                if ( nst_advance_iter(iter, err) )
+                    goto iter_to_map_fail;
+            }
+
+            return OBJ(map);
+
+        iter_to_map_fail:
+            nst_dec_ref(map);
             return NULL;
         }
         else
             RETURN_CAST_TYPE_ERROR;
     }
     else
-    RETURN_CAST_TYPE_ERROR;
+        RETURN_CAST_TYPE_ERROR;
 }
 
 Nst_Obj *_nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
