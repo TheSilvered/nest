@@ -1,0 +1,30 @@
+name: Build and test
+
+on:
+  workflow_dispatch:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install GCC
+      run: sudo apt-get -y install build-essential
+    - name: Compile x64
+      working-directory: ./build/linux/makefiles
+      run: make all
+    - name: Compile x86
+      working-directory: ./build/linux/makefiles
+      run: make all-x86
+    - name: Install Nest
+      working-directory: ./build/linux
+      run: |
+        ./_update_files.sh py
+        ./linux_install_x64.sh
+    - name: Run Tests
+      working-directory: ./tests
+      run: |
+        nest -m run_tests.nest
+        cat test_output.txt
