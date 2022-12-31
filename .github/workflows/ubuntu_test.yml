@@ -21,7 +21,7 @@ jobs:
     - name: Install Nest
       run: |
         mkdir -p ./build/linux/linux_libs
-        cp ./libs/_nest_files/* ./build/linux_libs
+        cp ./libs/_nest_files/* ./build/linux/linux_libs
         for i in ./build/linux/linux_libs/*; do
           python3 ./build/update_nest_file.py "${i}" so
         done
