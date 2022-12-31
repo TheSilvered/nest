@@ -1,7 +1,7 @@
 |#| 'stdio.nest' = io
 |#| 'stdsutil.nest' = su
 
-io.STDOUT = log_file -- allows to run tests singularly
+io.STDOUT = log_file -- allows tests to be ran singularly
 
 #_cast_obj obj type [
     => type :: obj

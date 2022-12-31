@@ -4,7 +4,7 @@
 |#| 'stdsys.nest' = sys
 |#| 'test_lib.nest' = test
 
--- Creates or clear the log file
+-- Creates or clears the log file
 'test_output.txt' 'w' @io.open = test.log_file
 
 #run_tests dir [
