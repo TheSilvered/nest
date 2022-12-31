@@ -802,17 +802,24 @@ static void remove_dead_code(Nst_InstructionList *bc)
 
     for ( Nst_Int i = 0; i < size; i++ )
     {
-        if ( inst_list[i].id != NST_IC_JUMP || i + 1 > inst_list[i].int_val )
+        if ( (inst_list[i].id != NST_IC_JUMP || i + 1 > inst_list[i].int_val) &&
+              inst_list[i].id != NST_IC_RETURN_VAL && inst_list[i].id != NST_IC_THROW_ERR )
             continue;
 
-        bool is_jump_useless = true;
-        for ( Nst_Int j = i + 1; j < inst_list[i].int_val; j++ )
+        bool is_jump_useless = inst_list[i].id == NST_IC_JUMP;
+        bool stop_at_save_error = inst_list[i].id == NST_IC_THROW_ERR;
+        Nst_Int end = is_jump_useless ? inst_list[i].int_val : size;
+
+        for ( Nst_Int j = i + 1; j < end; j++ )
         {
             if ( has_jumps_to(bc, j, i + 1, inst_list[i].int_val - 1) )
             {
                 is_jump_useless = false;
                 break;
             }
+
+            if ( stop_at_save_error && inst_list[j].id == NST_IC_SAVE_ERROR )
+                break;
 
             if ( inst_list[j].val != NULL )
                 nst_dec_ref(inst_list[j].val);

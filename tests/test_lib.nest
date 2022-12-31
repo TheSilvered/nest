@@ -12,43 +12,32 @@ io.STDOUT = log_file -- allows to run tests singularly
 ]
 
 #assert_eq a b [
-    a b == ?
-        => null
-    :
-        (a @su.repr) ' == ' (b @su.repr) >< @_assertion_failed
+    a b == ? =>
+    : (a @su.repr) ' == ' (b @su.repr) >< @_assertion_failed
 ]
 
 #assert_ne a b [
-    a b != ?
-        => null
-    :
-        (a @su.repr) ' != ' (b @su.repr) >< @_assertion_failed
+    a b != ? =>
+    : (a @su.repr) ' != ' (b @su.repr) >< @_assertion_failed
 ]
 
 #assert_true a [
-    a ?
-        => null
-    :
-        (a @su.repr) ' == true' >< @_assertion_failed
+    a ? =>
+    : (a @su.repr) ' == true' >< @_assertion_failed
 ]
 
 #assert_false a [
-    !a ?
-        => null
-    :
-        (a @su.repr) ' == false' >< @_assertion_failed
+    !a ? =>
+    : (a @su.repr) ' == false' >< @_assertion_failed
 ]
 
 #assert_cast_error obj type [
-    ?? type :: obj
-    ?! _ => null
+    ?? type :: obj ?! _ =>
     type ' :: ' obj ' did not fail' >< @_assertion_failed
 ]
 
 #assert_raises_error func args [
-    ?? args *@func
-    ?! _ => null
-
+    ?? args *@func ?! _ =>
     'The function did not fail' >< @_assertion_failed
 ]
 
