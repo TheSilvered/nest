@@ -22,7 +22,7 @@ jobs:
       working-directory: ./build/linux
       run: |
         ./_update_files.sh py
-        ./linux_install_x64.sh
+        sudo ./linux_install_x64.sh
     - name: Run Tests
       working-directory: ./tests
       run: |
