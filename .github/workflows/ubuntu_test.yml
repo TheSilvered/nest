@@ -15,9 +15,9 @@ jobs:
     - name: Compile x64
       working-directory: ./build/linux/makefiles
       run: make all
-   # - name: Compile x86
-   #   working-directory: ./build/linux/makefiles
-   #   run: make all-x86
+    - name: Compile x86
+      working-directory: ./build/linux/makefiles
+      run: make all-x86
     - name: Install Nest
       run: |
         mkdir -p ./build/linux/linux_libs
