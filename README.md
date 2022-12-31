@@ -1,5 +1,7 @@
 # nest
 
+![ubuntu_test](https://github.com/TheSilvered/nest/actions/workflows/ubuntu_test.yml/badge.svg)
+
 A programming language with no keywords.
 
 ## Features
