@@ -21,7 +21,7 @@ jobs:
     - name: Install Nest
       working-directory: ./build/linux
       run: |
-        ./_update_files.sh py
+        sudo ./_update_files.sh py
         sudo ./linux_install_x64.sh
     - name: Run Tests
       working-directory: ./tests
