@@ -11,7 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Install GCC
-      run: sudo apt-get -y install build-essential
+      run: sudo apt-get -y install build-essential gcc-multilib
     - name: Compile x64
       working-directory: ./build/linux/makefiles
       run: make all
