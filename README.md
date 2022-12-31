@@ -36,11 +36,11 @@ To Install it from the binaries download the `.tar.gz` file and extract it in
 the current directory with:
 
 ```bash
-tar -xzf nest-[VERSION]-linux.tar.gz
+tar -xzf nest-[VERSION]-[ARCHITECTURE]-linux.tar.gz
 ```
 
-Now run `./linux_install.sh` to copy the 64-bit binaries, or
-`./linux_install.sh x86` to copy the 32-bit ones.
+Now run `./linux_install_[ARCHITECTURE].sh` to copy the binaries to
+`/usr/libs/nest` and to `/usr/local/bin`
 
 ## Plugins
 

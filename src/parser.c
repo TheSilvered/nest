@@ -62,6 +62,7 @@ Nst_Node *nst_parse(LList *tokens_list, Nst_Error *error)
 
     p_state.in_func = false;
     p_state.in_loop = false;
+    p_state.in_switch = false;
     p_state.error = error;
 
     Nst_Node *node = parse_long_statement();

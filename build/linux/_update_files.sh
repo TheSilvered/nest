@@ -8,6 +8,6 @@ if [ "$#" -eq 1 ] && [ "$1" = "py" ]; then
     done
 else
     for i in ./linux_libs/*; do
-        nest ../update_nest_file.nest "${i}" sudo
+        nest ../update_nest_file.nest "${i}" so
     done
 fi
