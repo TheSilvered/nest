@@ -19,10 +19,15 @@ jobs:
       working-directory: ./build/linux/makefiles
       run: make all-x86
     - name: Install Nest
-      working-directory: ./build/linux
       run: |
-        sudo ./_update_files.sh py
-        sudo ./linux_install_x64.sh
+        mkdir -p ./build/linux/linux_libs
+        for i in ./build/linux/linux_libs/*; do
+          python3 ./build/update_nest_file.py "${i}" so
+        done
+        sudo mkdir -p "/usr/lib/nest"
+        sudo cp ./build/linux/linux_libs/std* /usr/lib/nest
+        sudo cp ./build/linux/linux_release/x64/std* /usr/lib/nest
+        sudo cp ./build/linux/linux_release/x64/nest /usr/bin
     - name: Run Tests
       working-directory: ./tests
       run: |
