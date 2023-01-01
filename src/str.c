@@ -383,7 +383,7 @@ int nst_compare_strings(Nst_StrObj *str1, Nst_StrObj *str2)
     char *end1 = p1 + str1->len;
     char *end2 = p2 + str2->len;
 
-    while ( p1 != end1 || p2 != end2 )
+    while ( p1 != end1 && p2 != end2 )
     {
         if ( *p1 != *p2 )
             return (int)(*p1 - *p2);
@@ -394,5 +394,5 @@ int nst_compare_strings(Nst_StrObj *str1, Nst_StrObj *str2)
         }
     }
 
-    return 0;
+    return str1->len - str2-len;
 }
