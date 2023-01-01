@@ -454,6 +454,7 @@ dkms.conf
 linux_release/
 linux_debug/
 linux_libs/
+linux_archives/
 
 # Test output
 tests/test_output.txt
