@@ -313,8 +313,7 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error *error)
     {
         bool can_close = false;
         bool was_closed = false;
-        go_back();
-        advance();
+
         while ( !CUR_AT_END )
         {
             advance();

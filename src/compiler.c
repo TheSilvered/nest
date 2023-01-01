@@ -1339,8 +1339,8 @@ static void compile_try_catch_s(Nst_Node* node)
                  POP_CATCH
                  JUMP catch_end
     catch_start: SAVE_ERROR
-                 SET_VAL_LOC err_name
                  POP_CATCH
+                 SET_VAL_LOC err_name
                  [CATCH BLOCK CODE]
     catch_end:   [CODE_CONTINUATION]
     */
@@ -1368,9 +1368,9 @@ static void compile_try_catch_s(Nst_Node* node)
 
     inst = nst_new_inst_empty(NST_IC_SAVE_ERROR, 0);
     ADD_INST(inst);
-    inst = nst_new_inst_val(NST_IC_SET_VAL_LOC, HEAD_TOK->value, HEAD_TOK->start, HEAD_TOK->end);
-    ADD_INST(inst);
     inst = nst_new_inst_empty(NST_IC_POP_CATCH, 0);
+    ADD_INST(inst);
+    inst = nst_new_inst_val(NST_IC_SET_VAL_LOC, HEAD_TOK->value, HEAD_TOK->start, HEAD_TOK->end);
     ADD_INST(inst);
     compile_node(TAIL_NODE);
     if ( NODE_RETUNS_VALUE(TAIL_NODE->type) )

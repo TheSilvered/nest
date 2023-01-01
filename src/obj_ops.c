@@ -115,7 +115,8 @@ Nst_Obj *_nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         NST_RETURN_COND(check);
     }
     else if ( ARE_TYPE(nst_t.Str) )
-        NST_RETURN_COND(nst_compare_strings(STR(ob1), STR(ob2)) == 0);
+        NST_RETURN_COND(STR(ob1)->len == STR(ob2)->len &&
+                        nst_compare_strings(STR(ob1), STR(ob2)) == 0);
     else if ( ARE_TYPE(nst_t.Bool) )
         NST_RETURN_COND(ob1 == ob2);
     else if ( IS_SEQ(ob1) && IS_SEQ(ob2) )

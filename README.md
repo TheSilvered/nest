@@ -121,5 +121,7 @@ this will use Nest by default, run `./update_files.sh py` to use Python instead.
 The files will appear in `build/linux/linux_libs`.
 
 Finally, to package the binaries run `./_make_archive.sh` and to install them
-run `./linux_install` or `./linux_install x86` as specified in the
+run `./linux_install_x64.sh` or `./linux_install_x86.sh` as specified in the
 [installation](#linux) paragraph.
+
+You can also run `./_install_debug.sh` to install the debug binaries.
