@@ -37,7 +37,7 @@ Nst_ExecutionState;
 typedef struct _Nst_LibHandle
 {
     Nst_MapObj *val;
-    char *path;
+    Nst_StrObj *path;
     Nst_SourceText *text;
 }
 Nst_LibHandle;

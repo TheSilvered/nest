@@ -86,8 +86,8 @@
 
 static Nst_Obj* map_eq(Nst_MapObj* map1, Nst_MapObj* map2, LList* containers);
 static Nst_Obj *seq_eq(Nst_SeqObj *seq1, Nst_SeqObj *seq2, LList *containers);
-static Nst_Obj *import_nest_lib(char *file_path);
-static Nst_Obj *import_c_lib(char *file_path, Nst_OpErr *err);
+static Nst_Obj *import_nest_lib(Nst_StrObj *file_path);
+static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err);
 
 // Comparisons
 Nst_Obj *_nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
@@ -1597,7 +1597,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         file_name_len -= 6;
     }
 
-    char *file_path = _nst_get_import_path(file_name, file_name_len);
+    Nst_StrObj *file_path = _nst_get_import_path(file_name, file_name_len);
     if ( file_path == NULL )
     {
         NST_SET_VALUE_ERROR(_nst_format_error(
@@ -1611,7 +1611,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     // Check if the module is in the import stack
     for ( LLNode *n = nst_state.lib_paths->head; n != NULL; n = n->next )
     {
-        if ( strcmp(file_path, (const char *)(n->value)) == 0 )
+        if ( nst_compare_strings(file_path, STR(n->value)) == 0 )
         {
             LList_pop(nst_state.lib_paths);
             free(file_path);
@@ -1626,7 +1626,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     for ( LLNode *n = nst_state.lib_handles->head; n != NULL; n = n->next )
     {
         Nst_LibHandle *handle = (Nst_LibHandle *)(n->value);
-        if ( strcmp(handle->path, file_path) == 0 )
+        if ( nst_compare_strings(handle->path, file_path) == 0 )
         {
             LList_pop(nst_state.lib_paths);
             free(file_path);
@@ -1640,21 +1640,21 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         return import_c_lib(file_path, err);
 }
 
-static Nst_Obj *import_nest_lib(char *file_path)
+static Nst_Obj *import_nest_lib(Nst_StrObj *file_path)
 {
     Nst_SourceText *lib_src = (Nst_SourceText *)malloc(sizeof(Nst_SourceText));
     Nst_LibHandle *handle = (Nst_LibHandle *)malloc(sizeof(Nst_LibHandle));
     if ( lib_src == NULL || handle == NULL )
     {
         LList_pop(nst_state.lib_paths);
-        free(file_path);
+        nst_dec_ref(file_path);
         return NULL;
     }
 
     handle->path = file_path;
     handle->text = lib_src;
 
-    if ( nst_run_module(file_path, lib_src) == -1 )
+    if ( nst_run_module(file_path->value, lib_src) == -1 )
     {
         handle->val = NULL;
         LList_append(nst_state.lib_handles, handle, true);
@@ -1663,28 +1663,25 @@ static Nst_Obj *import_nest_lib(char *file_path)
     }
 
     Nst_MapObj *map = MAP(nst_pop_val(nst_state.v_stack));
-
     handle->val = map;
-    handle->path = file_path;
-    handle->text = lib_src;
 
     LList_append(nst_state.lib_handles, handle, true);
     LList_pop(nst_state.lib_paths);
     return nst_inc_ref(map);
 }
 
-static Nst_Obj *import_c_lib(char *file_path, Nst_OpErr *err)
+static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
 {
 #if defined(_WIN32) || defined(WIN32)
-    HMODULE lib = LoadLibraryA(file_path);
+    HMODULE lib = LoadLibraryA(file_path->value);
 #else
-    void *lib = dlopen(file_path, RTLD_LAZY);
+    void *lib = dlopen(file_path->value, RTLD_LAZY);
 #endif
 
     if ( !lib )
     {
         LList_pop(nst_state.lib_paths);
-        free(file_path);
+        nst_dec_ref(file_path);
 #if defined(_WIN32) || defined(WIN32)
         NST_SET_RAW_IMPORT_ERROR(_NST_EM_FILE_NOT_DLL);
 #else
@@ -1699,7 +1696,7 @@ static Nst_Obj *import_c_lib(char *file_path, Nst_OpErr *err)
     if ( init_lib_obj == NULL )
     {
         LList_pop(nst_state.lib_paths);
-        free(file_path);
+        nst_dec_ref(file_path);
         NST_SET_RAW_IMPORT_ERROR(_NST_EM_NO_LIB_FUNC("init_lib_obj"));
         return NULL;
     }
@@ -1712,7 +1709,7 @@ static Nst_Obj *import_c_lib(char *file_path, Nst_OpErr *err)
     if ( lib_init == NULL )
     {
         LList_pop(nst_state.lib_paths);
-        free(file_path);
+        nst_dec_ref(file_path);
         NST_SET_RAW_IMPORT_ERROR(_NST_EM_NO_LIB_FUNC("lib_init"));
         return NULL;
     }
@@ -1720,7 +1717,7 @@ static Nst_Obj *import_c_lib(char *file_path, Nst_OpErr *err)
     if ( !lib_init() )
     {
         LList_pop(nst_state.lib_paths);
-        free(file_path);
+        nst_dec_ref(file_path);
         errno = ENOMEM;
         return NULL;
     }
@@ -1730,7 +1727,7 @@ static Nst_Obj *import_c_lib(char *file_path, Nst_OpErr *err)
     if ( get_func_ptrs == NULL )
     {
         LList_pop(nst_state.lib_paths);
-        free(file_path);
+        nst_dec_ref(file_path);
         NST_SET_RAW_IMPORT_ERROR(_NST_EM_NO_LIB_FUNC("get_func_ptrs"));
         return NULL;
     }
@@ -1740,7 +1737,7 @@ static Nst_Obj *import_c_lib(char *file_path, Nst_OpErr *err)
     if ( func_ptrs == NULL )
     {
         LList_pop(nst_state.lib_paths);
-        free(file_path);
+        nst_dec_ref(file_path);
         NST_SET_RAW_IMPORT_ERROR(_NST_EM_LIB_INIT_FAILED);
         return NULL;
     }
@@ -1768,7 +1765,7 @@ static Nst_Obj *import_c_lib(char *file_path, Nst_OpErr *err)
     if ( handle == NULL )
     {
         LList_pop(nst_state.lib_paths);
-        free(file_path);
+        nst_dec_ref(file_path);
         errno = ENOMEM;
         return NULL;
     }
@@ -1782,16 +1779,16 @@ static Nst_Obj *import_c_lib(char *file_path, Nst_OpErr *err)
     return nst_inc_ref(func_map);
 }
 
-char *_nst_get_import_path(char *initial_path, size_t path_len)
+Nst_StrObj *_nst_get_import_path(char *initial_path, size_t path_len)
 {
     char *file_path;
-    nst_get_full_path(initial_path, &file_path, NULL);
+    size_t new_len = nst_get_full_path(initial_path, &file_path, NULL);
     Nst_IOFile file;
 
     if ( file_path != NULL && (file = fopen(file_path, "r")) != NULL )
     {
         fclose(file);
-        goto fix_path;
+        return STR(nst_new_string(file_path, new_len, true));
     }
 
     if ( file_path != NULL )
@@ -1833,18 +1830,9 @@ char *_nst_get_import_path(char *initial_path, size_t path_len)
     fclose(file);
 
     char *abs_path;
-    nst_get_full_path(file_path, &abs_path, NULL);
+    new_len = nst_get_full_path(file_path, &abs_path, NULL);
     free(file_path);
-    file_path = abs_path;
-
-fix_path:
-    for ( char *p = file_path; *p; p++ )
-    {
-        if ( *p == '\\' )
-            *p = '/';
-    }
-
-    return file_path;
+    return STR(nst_new_string(abs_path, new_len, true));
 }
 
 #if defined(_WIN32) || defined(WIN32)

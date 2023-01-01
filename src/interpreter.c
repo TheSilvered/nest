@@ -161,15 +161,13 @@ int nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int o
     if ( filename != NULL )
     {
         char *path_main_file = NULL;
-        nst_get_full_path(filename, &path_main_file, NULL);
+        size_t path_len = nst_get_full_path(filename, &path_main_file, NULL);
 
-        for ( char *p = path_main_file; *p; p++ )
-        {
-            if ( *p == '\\' )
-                *p = '/';
-        }
-
-        LList_append(nst_state.lib_paths, path_main_file, true);
+        LList_append(
+            nst_state.lib_paths,
+            nst_new_string(path_main_file, path_len, true),
+            true
+        );
     }
 
     nst_push_func(
@@ -207,7 +205,7 @@ int nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int o
             free_lib_func();
     }
     LList_destroy(nst_state.loaded_libs, (LList_item_destructor)dlclose);
-    LList_destroy(nst_state.lib_paths, free);
+    LList_destroy(nst_state.lib_paths, (LList_item_destructor)_nst_dec_ref);
     LList_destroy(nst_state.lib_handles, (LList_item_destructor)nst_destroy_lib_handle);
 
     nst_delete_objects(&ggc);
@@ -1509,6 +1507,10 @@ void nst_destroy_lib_handle(Nst_LibHandle *handle)
         free(handle->text->lines);
         free(handle->text);
     }
-    free(handle->path);
+    nst_dec_ref(handle->path);
+
+    if ( handle->val != NULL )
+        nst_dec_ref(handle->val);
+
     free(handle);
 }
