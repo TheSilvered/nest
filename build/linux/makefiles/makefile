@@ -64,7 +64,7 @@ all-x86:
 
 all-debug:
 	mkdir -p $(DBG_DIR)
-	$(CC) -D_DEBUG $(CFLAGS) $(SRCS) $(CLINKS) -o $(DBG_TARGET)
+	$(CC) -D_DEBUG -g $(CFLAGS) $(SRCS) $(CLINKS) -o $(DBG_TARGET)
 	make -f nest_co.mk      debug
 	make -f nest_err.mk     debug
 	make -f nest_fs.mk      debug

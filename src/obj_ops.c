@@ -1651,10 +1651,11 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         }
     }
 
-    LList_push(nst_state.lib_paths, file_path, false);
     Nst_Obj *func_map = nst_map_get(nst_state.lib_handles, file_path);
     if ( func_map != NULL )
         return func_map;
+
+    LList_push(nst_state.lib_paths, file_path, false);
 
     if ( !c_import )
         return import_nest_lib(file_path);
@@ -1826,7 +1827,6 @@ Nst_StrObj *_nst_get_import_path(char *initial_path, size_t path_len)
     // In UNIX the standard library is stored in /usr/lib/nest
     file_path = (char *)malloc((path_len + 15) * sizeof(char));
     if ( !file_path ) return NULL;
-
     sprintf(file_path, "/usr/lib/nest/%s", initial_path);
 
 #endif
