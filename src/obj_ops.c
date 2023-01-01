@@ -1051,14 +1051,29 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
         }
         else if ( ob_t == nst_t.Null )
             return nst_inc_ref(nst_s.c_null);
+        else if ( ob_t == nst_t.IOFile )
+        {
+            char *buffer = (char *)malloc(sizeof(char) * 14);
+            CHECK_BUFFER(buffer);
+            memcpy(buffer, "<IOFile --- >", 14);
+            if ( NST_IOF_CAN_READ(ob) )  buffer[8] = 'r';
+            if ( NST_IOF_CAN_WRITE(ob) ) buffer[9] = 'w';
+            if ( NST_IOF_IS_BIN(ob) )    buffer[10]= 'b';
+            return nst_new_string(buffer, 13, true);
+        }
+        else if ( ob_t == nst_t.Func )
+        {
+            char *buffer = (char *)malloc(sizeof(char) * (13 + MAX_INT_CHAR_COUNT));
+            CHECK_BUFFER(buffer);
+            int len = sprintf(buffer, "<Func %zi args>", FUNC(ob)->arg_num);
+            return nst_new_string(buffer, len, true);
+        }
         else
         {
-            char *buffer = (char *)malloc(sizeof(char) * (STR(ob->type)->len + 10));
+            char *buffer = (char *)malloc(sizeof(char) * (STR(ob->type)->len + 12 + MAX_INT_CHAR_COUNT));
             CHECK_BUFFER(buffer);
-
-            sprintf(buffer, "<%s object>", STR(ob->type)->value);
-
-            return nst_new_cstring_raw(buffer, true);
+            int len = sprintf(buffer, "<%s object at 0x%p>", STR(ob->type)->value, ob);
+            return nst_new_string(buffer, len, true);
         }
     }
     else if ( type == nst_t.Bool )

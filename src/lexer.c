@@ -283,9 +283,7 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error *error)
         advance();
 
         if ( !CUR_AT_END && CH_IS_SYMBOL(cursor.ch) )
-        {
             symbol[2] = cursor.ch;
-        }
         else
             go_back();
     }

@@ -107,15 +107,11 @@ static Nst_Node *parse_long_statement()
     {
         node = parse_statement();
         if ( p_state.error->occurred )
-        {
             return NULL;
-        }
         else if ( node != NULL )
             LList_append(nodes, node, true);
         if ( errno == ENOMEM )
-        {
             return NULL;
-        }
         skip_blank();
     }
 
@@ -177,9 +173,7 @@ static Nst_Node *parse_statement()
         nst_destroy_token(tok);
 
         if ( !p_state.in_func )
-        {
             RETURN_ERROR(start, end, _NST_EM_BAD_RETURN);
-        }
 
         tok_type = TOK(LList_peek_front(tokens))->type;
         if ( T_IN_EXPR_END(tok_type) )
@@ -210,9 +204,7 @@ static Nst_Node *parse_statement()
         nst_destroy_token(tok);
 
         if ( !p_state.in_loop && !p_state.in_switch )
-        {
             RETURN_ERROR(start, end, _NST_EM_BAD_CONTINUE);
-        }
 
         return nst_new_node_empty(start, end, NST_NT_CONTINUE_S);
     }
@@ -224,9 +216,7 @@ static Nst_Node *parse_statement()
         nst_destroy_token(tok);
 
         if ( !p_state.in_loop )
-        {
             RETURN_ERROR(start, end, _NST_EM_BAD_BREAK);
-        }
 
         return nst_new_node_empty(start, end, NST_NT_BREAK_S);
     }
@@ -699,9 +689,7 @@ static Nst_Node *fix_expr(Nst_Node *expr)
         cursor->value = fix_expr(NODE(cursor->value));
 
     if ( expr->type != NST_NT_STACK_OP )
-    {
         return expr;
-    }
 
     Nst_Node *curr_node = expr;
     Nst_LexerToken *op_tok = TOK(LList_peek_front(expr->tokens));

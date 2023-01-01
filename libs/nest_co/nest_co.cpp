@@ -60,9 +60,7 @@ static NST_FUNC_SIGN(generator_start)
     if ( NST_HAS_FLAG(co, FLAG_CO_PAUSED) )
     {
         for ( size_t i = 0, n = co->stack_size; i < n; i++ )
-        {
             nst_dec_ref(co->stack[i]);
-        }
 
         delete[] co->stack;
         nst_dec_ref(co->vars);

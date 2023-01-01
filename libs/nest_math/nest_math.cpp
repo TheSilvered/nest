@@ -500,6 +500,7 @@ NST_FUNC_SIGN(min_seq_)
     if ( seq_len == 0 )
     {
         NST_SET_RAW_VALUE_ERROR("sequence length is zero");
+        return nullptr;
     }
 
     Nst_Obj *min_obj = seq->objs[0];
@@ -530,6 +531,7 @@ NST_FUNC_SIGN(max_seq_)
     if ( seq_len == 0 )
     {
         NST_SET_RAW_VALUE_ERROR("the sequence has a length of zero");
+        return nullptr;
     }
 
     Nst_Obj *max_obj = seq->objs[0];
