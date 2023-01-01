@@ -394,5 +394,5 @@ int nst_compare_strings(Nst_StrObj *str1, Nst_StrObj *str2)
         }
     }
 
-    return str1->len - str2-len;
+    return (int)((Nst_Int)str1->len - (Nst_Int)str2->len);
 }
