@@ -16,8 +16,10 @@
     } \
 
 #define RETURN_ERROR(start, end, message) \
+    do { \
     _NST_SET_RAW_SYNTAX_ERROR(p_state.error, start, end, message); \
-    return NULL
+    return NULL; \
+    } while ( 0 )
 
 typedef struct _ParsingState
 {

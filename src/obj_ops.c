@@ -808,14 +808,28 @@ Nst_Obj* _nst_repr_str_cast(Nst_Obj* ob)
 
 Nst_Obj *_nst_obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs)
 {
+    bool is_vect = seq_obj->type == nst_t.Vector;
+
     for ( LLNode *n = all_objs->head; n != NULL; n = n->next )
     {
         if ( seq_obj == n->value )
-            return nst_new_string((char *)"{.}", 3, false);
+        {
+            if ( is_vect )
+                return nst_new_cstring("<{.}>", 5, false);
+            else
+                return nst_new_cstring("{.}", 3, false);
+        }
+    }
+
+    if ( SEQ(seq_obj)->len == 0 )
+    {
+        if ( is_vect )
+            return nst_new_cstring("<{}>", 4, false);
+        else
+            return nst_new_cstring("{}", 2, false);
     }
 
     LList_push(all_objs, seq_obj, false);
-    bool is_vect = seq_obj->type == nst_t.Vector;
 
     size_t len = SEQ(seq_obj)->len;
     size_t str_len = 0;
@@ -871,16 +885,12 @@ Nst_Obj *_nst_obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs)
 
     if ( is_vect )
     {
-        if ( str_len == 3 )
-            str_len = 5;
         str[str_len - 3] = ' ';
         str[str_len - 2] = '}';
         str[str_len - 1] = '>';
     }
     else
     {
-        if ( str_len == 2 )
-            str_len = 3;
         str[str_len - 2] = ' ';
         str[str_len - 1] = '}';
     }
@@ -898,6 +908,9 @@ Nst_Obj *_nst_obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
         if ( map_obj == n->value )
             return nst_new_string((char *)"{.}", 3, false);
     }
+
+    if ( MAP(map_obj)->item_count == 0 )
+        return nst_new_cstring("{}", 2, false);
 
     LList_push(all_objs, map_obj, false);
 
