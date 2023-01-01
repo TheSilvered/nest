@@ -71,6 +71,8 @@ Nst_ExecutionState nst_state;
 static int opt_level;
 
 static void complete_function(size_t final_stack_size);
+static void destroy_lib_handles_map(Nst_MapObj *map);
+
 static inline void run_instruction(Nst_RuntimeInstruction *inst);
 static inline void exe_pop_val();
 static inline void exe_for_start(Nst_RuntimeInstruction *inst);
@@ -156,7 +158,8 @@ int nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int o
     nst_state.c_stack = nst_new_catch_stack();
     nst_state.loaded_libs = LList_new();
     nst_state.lib_paths = LList_new();
-    nst_state.lib_handles = LList_new();
+    nst_state.lib_handles = MAP(nst_new_map());
+    nst_state.lib_handles->destructor = (Nst_ObjDestructor)destroy_lib_handles_map;
 
     if ( filename != NULL )
     {
@@ -206,7 +209,7 @@ int nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int o
     }
     LList_destroy(nst_state.loaded_libs, (LList_item_destructor)dlclose);
     LList_destroy(nst_state.lib_paths, (LList_item_destructor)_nst_dec_ref);
-    LList_destroy(nst_state.lib_handles, (LList_item_destructor)nst_destroy_lib_handle);
+    nst_dec_ref(nst_state.lib_handles);
 
     nst_delete_objects(&ggc);
     return ERROR_OCCURRED ? 1 : 0;
@@ -1499,18 +1502,20 @@ static Nst_StrObj *make_cwd(char *file_path)
     return STR(nst_new_string(path, file_part - path - 1, true));
 }
 
-void nst_destroy_lib_handle(Nst_LibHandle *handle)
+static void destroy_lib_handles_map(Nst_MapObj *map)
 {
-    if ( handle->text != NULL )
+    for ( Nst_Int i = _nst_map_get_next_idx(-1, map);
+          i != -1;
+          i = _nst_map_get_next_idx(i, map) )
     {
-        free(handle->text->text);
-        free(handle->text->lines);
-        free(handle->text);
+        Nst_SourceText *txt = (Nst_SourceText *)map->nodes[i].key->destructor;
+        map->nodes[i].key->destructor = (Nst_ObjDestructor)nst_destroy_string;
+
+        if ( txt == NULL ) continue;
+        free(txt->text);
+        free(txt->lines);
+        free(txt);
     }
-    nst_dec_ref(handle->path);
 
-    if ( handle->val != NULL )
-        nst_dec_ref(handle->val);
-
-    free(handle);
+    nst_destroy_map(map);
 }

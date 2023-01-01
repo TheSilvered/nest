@@ -30,17 +30,9 @@ typedef struct _Nst_ExecutionState
     Nst_CatchStack *c_stack; // Catch stack
     LList *loaded_libs; // C imports list
     LList *lib_paths; // Import stack
-    LList *lib_handles; // Maps of the libraries
+    Nst_MapObj *lib_handles; // Maps of the libraries
 }
 Nst_ExecutionState;
-
-typedef struct _Nst_LibHandle
-{
-    Nst_MapObj *val;
-    Nst_StrObj *path;
-    Nst_SourceText *text;
-}
-Nst_LibHandle;
 
 // Runs the main program, must never be called
 int nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int opt_level);
@@ -59,8 +51,6 @@ Nst_Obj *nst_run_func_context(Nst_FuncObj *func,
 `buf` is the pointer where the full path is stored, the memory is allocated by the function
 `file_part` is the pointer where the filename begins */
 size_t nst_get_full_path(char *file_path, char **buf, char **file_part);
-// Destoys a Nst_LibHandle
-void nst_destroy_lib_handle(Nst_LibHandle *handle);
 
 // The state of the interpreter
 extern Nst_ExecutionState nst_state;

@@ -88,6 +88,9 @@ static Nst_Obj* map_eq(Nst_MapObj* map1, Nst_MapObj* map2, LList* containers);
 static Nst_Obj *seq_eq(Nst_SeqObj *seq1, Nst_SeqObj *seq2, LList *containers);
 static Nst_Obj *import_nest_lib(Nst_StrObj *file_path);
 static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err);
+static void add_to_handle_map(Nst_StrObj *path,
+                              Nst_MapObj *map,
+                              Nst_SourceText *src_txt);
 
 // Comparisons
 Nst_Obj *_nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
@@ -1621,18 +1624,9 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     }
 
     LList_push(nst_state.lib_paths, file_path, false);
-
-    // Check if the module was loaded previously
-    for ( LLNode *n = nst_state.lib_handles->head; n != NULL; n = n->next )
-    {
-        Nst_LibHandle *handle = (Nst_LibHandle *)(n->value);
-        if ( nst_compare_strings(handle->path, file_path) == 0 )
-        {
-            LList_pop(nst_state.lib_paths);
-            free(file_path);
-            return nst_inc_ref(handle->val);
-        }
-    }
+    Nst_Obj *func_map = nst_map_get(nst_state.lib_handles, file_path);
+    if ( func_map != NULL )
+        return func_map;
 
     if ( !c_import )
         return import_nest_lib(file_path);
@@ -1640,34 +1634,35 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         return import_c_lib(file_path, err);
 }
 
+static void add_to_handle_map(Nst_StrObj *path, Nst_MapObj *map, Nst_SourceText *src_txt)
+{
+    path->destructor = (Nst_ObjDestructor)src_txt;
+    nst_map_set(nst_state.lib_handles, path, map);
+}
+
 static Nst_Obj *import_nest_lib(Nst_StrObj *file_path)
 {
     Nst_SourceText *lib_src = (Nst_SourceText *)malloc(sizeof(Nst_SourceText));
-    Nst_LibHandle *handle = (Nst_LibHandle *)malloc(sizeof(Nst_LibHandle));
-    if ( lib_src == NULL || handle == NULL )
+
+    if ( lib_src == NULL )
     {
         LList_pop(nst_state.lib_paths);
         nst_dec_ref(file_path);
         return NULL;
     }
 
-    handle->path = file_path;
-    handle->text = lib_src;
-
     if ( nst_run_module(file_path->value, lib_src) == -1 )
     {
-        handle->val = NULL;
-        LList_append(nst_state.lib_handles, handle, true);
+        add_to_handle_map(file_path, MAP(nst_c.null), lib_src);
         LList_pop(nst_state.lib_paths);
         return NULL;
     }
 
     Nst_MapObj *map = MAP(nst_pop_val(nst_state.v_stack));
-    handle->val = map;
 
-    LList_append(nst_state.lib_handles, handle, true);
+    add_to_handle_map(file_path, map, lib_src);
     LList_pop(nst_state.lib_paths);
-    return nst_inc_ref(map);
+    return OBJ(map);
 }
 
 static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
@@ -1760,23 +1755,9 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
     free(func_ptrs);
     LList_append(nst_state.loaded_libs, lib, false);
 
-    // Add map to the loaded libaries
-    Nst_LibHandle *handle = (Nst_LibHandle *)malloc(sizeof(Nst_LibHandle));
-    if ( handle == NULL )
-    {
-        LList_pop(nst_state.lib_paths);
-        nst_dec_ref(file_path);
-        errno = ENOMEM;
-        return NULL;
-    }
-
-    handle->val = func_map;
-    handle->path = file_path;
-    handle->text = NULL;
-
-    LList_append(nst_state.lib_handles, handle, true);
+    add_to_handle_map(file_path, func_map, NULL);
     LList_pop(nst_state.lib_paths);
-    return nst_inc_ref(func_map);
+    return OBJ(func_map);
 }
 
 Nst_StrObj *_nst_get_import_path(char *initial_path, size_t path_len)
