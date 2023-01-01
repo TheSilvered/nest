@@ -34,8 +34,8 @@ can be downloaded at:
 To install Nest on Linux you can compile the precompiled binaries or
 [compile it from source](#on-linux).
 
-To Install it from the binaries download the `.tar.gz` file and extract it in
-the current directory with:
+To Install it from the binaries download the `.tar.gz` file with the desired
+architecture and extract it in the current directory with:
 
 ```bash
 tar -xzf nest-[VERSION]-[ARCHITECTURE]-linux.tar.gz
@@ -62,7 +62,7 @@ Code Runner in the terminal and remove `-m` from the command.
 ### Sublime Text
 
 To install the Sublime Text plugin download `sublime-text-plugin-[VERSION].zip`
-into from the latest release and extract it into `%APPDATA%/SublimeText/Packages`.
+from the latest release and extract it into `%APPDATA%/SublimeText/Packages`.
 
 In Sublime Text, in addition to syntax highlighting you can also run a script
 with `CTRL + B` and you can comment and un-comment with the default keyboard
@@ -79,6 +79,10 @@ installing a plugin like `Terminus`.
 On Windows open `build\windows\projects\nest\nest.sln` in Visual Studio with the
 C++ application development package installed and compile it from there.
 
+To open one of the standard libraries singularly, you can use the `.sln` file
+with the name that has `std` replaced with `nest_`, for example the `stdio.nest`
+library can be opened with `nest_io.sln`.
+
 To compile the installer you need InnoSetup installed. Then follow these steps
 
 1. Enter `nest_release_folder\`
@@ -93,16 +97,21 @@ Keep in mind that if you change the version it has to be changed both in
 
 ### On Linux
 
-On Linux you will need to install GCC (GNU Compiler Collection) and then run one
-of the following commands.
+On Linux you will need to install GCC (GNU Compiler Collection) and the 32-bit
+libraries with this command:
 
-Enter `build/linux/makefiles`.
+```bash
+sudo apt-get -y install build-essential gcc-multilib g++-multilib
+```
+
+Now enter `build/linux/makefiles`.
 
 Execute `make all` to compile the main interpreter and the standard library.  
 Execute `make` to compile only the main interpreter.  
-Execute `make debug` for a fast compilation of the main interpreter.  
-Execute `make all-debug` for a fast compilation of the main interpreter and the
-standard library.  
+Execute `make debug` for a fast compilation with debug information of the main
+interpreter, this can be used with the GNU Debugger to debug the program.  
+Execute `make all-debug` for a fast compilation with debug information of the
+main interpreter and the standard library.  
 Execute `make clean` to remove the previously compiled programs.  
 Execute `make x86` to compile the main interpreter for 32-bit systems.  
 Execute `make all-x86` to compile the main interpreter and the standard library
@@ -120,7 +129,7 @@ To update the `.nest` files of the standard library, run `./update_files.sh`,
 this will use Nest by default, run `./update_files.sh py` to use Python instead.
 The files will appear in `build/linux/linux_libs`.
 
-Finally, to package the binaries run `./_make_archive.sh` and to install them
+Finally, to package the binaries run `./_make_archives.sh` and to install them
 run `./linux_install_x64.sh` or `./linux_install_x86.sh` as specified in the
 [installation](#linux) paragraph.
 
