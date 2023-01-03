@@ -13,6 +13,9 @@
       <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
       <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
     </Filter>
+    <Filter Include="Nest Source">
+      <UniqueIdentifier>{ddca9064-1128-450c-b799-0cb06e036629}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\libs\dll\framework.h">
@@ -22,168 +25,168 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\argv_parser.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\compiler.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\error.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\error_internal.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\function.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\ggc.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\global_consts.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\hash.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\instructions.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\interpreter.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\iter.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\lexer.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\lib_import.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\llist.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\map.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\nest.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\nodes.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\nst_types.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\obj.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\obj_ops.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\optimizer.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\parser.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\runtime_stack.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\sequence.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\simple_types.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\str.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\tokens.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\var_table.h">
-      <Filter>Header Files</Filter>
+      <Filter>Nest Source</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\compiler.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\error.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\function.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\ggc.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\hash.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\instructions.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\interpreter.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\iter.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\lexer.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\lib_import.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\llist.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\map.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\nodes.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\obj.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\obj_ops.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\optimizer.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\parser.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\runtime_stack.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\sequence.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\simple_types.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\str.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\tokens.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\var_table.c">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\libs\nest_co\nest_co.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\src\compiler.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\error.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\function.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\ggc.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
     <ClCompile Include="..\..\..\..\src\global_consts.c">
-      <Filter>Source Files</Filter>
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\hash.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\instructions.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\interpreter.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\iter.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\lexer.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\lib_import.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\llist.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\map.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\nodes.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\obj.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\obj_ops.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\optimizer.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\parser.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\runtime_stack.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\sequence.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\simple_types.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\str.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\tokens.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\var_table.c">
+      <Filter>Nest Source</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
