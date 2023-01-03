@@ -744,30 +744,26 @@ Nst_Obj *_nst_obj_bwrs(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 // Logical operations
 Nst_Obj *_nst_obj_lgor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
-    ob1 = nst_obj_cast(ob1, nst_t.Bool, err);
-    ob2 = nst_obj_cast(ob2, nst_t.Bool, err);
+    Nst_Obj *b = nst_obj_cast(ob1, nst_t.Bool, err);
+    Nst_Bool v1 = AS_BOOL(b);
+    nst_dec_ref(b);
 
-    Nst_Bool v1 = AS_BOOL(ob1);
-    Nst_Bool v2 = AS_BOOL(ob2);
-
-    nst_dec_ref(ob1);
-    nst_dec_ref(ob2);
-
-    NST_RETURN_COND( v1 == NST_TRUE || v2 == NST_TRUE );
+    if ( v1 )
+        return nst_inc_ref(ob1);
+    else
+        return nst_inc_ref(ob2);
 }
 
 Nst_Obj *_nst_obj_lgand(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
-    ob1 = nst_obj_cast(ob1, nst_t.Bool, err);
-    ob2 = nst_obj_cast(ob2, nst_t.Bool, err);
+    Nst_Obj *b = nst_obj_cast(ob1, nst_t.Bool, err);
+    Nst_Bool v1 = AS_BOOL(b);
+    nst_dec_ref(b);
 
-    Nst_Bool v1 = AS_BOOL(ob1);
-    Nst_Bool v2 = AS_BOOL(ob2);
-
-    nst_dec_ref(ob1);
-    nst_dec_ref(ob2);
-
-    NST_RETURN_COND(v1 == NST_TRUE && v2 == NST_TRUE);
+    if ( !v1 )
+        return nst_inc_ref(ob1);
+    else
+        return nst_inc_ref(ob2);
 }
 
 Nst_Obj *_nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
@@ -782,7 +778,7 @@ Nst_Obj *_nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     nst_dec_ref(ob2);
 
     NST_RETURN_COND((v1 == NST_TRUE && v2 == NST_FALSE) ||
-                (v1 == NST_FALSE && v2 == NST_TRUE));
+                    (v1 == NST_FALSE && v2 == NST_TRUE));
 }
 
 // Other

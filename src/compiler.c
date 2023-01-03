@@ -632,8 +632,8 @@ static void compile_stack_op(Nst_Node *node)
            [VAL 1 CODE]
            DUP
            JUMPIF_F e_end
+           POP_VAL
            [VAL 2 CODE]
-           OP_STACK &&
     e_end: [CODE CONTINUATION]
 
     L_OR bytecode
@@ -641,8 +641,8 @@ static void compile_stack_op(Nst_Node *node)
            [VAL 1 CODE]
            DUP
            JUMPIF_T e_end
+           POP_VAL
            [VAL 2 CODE]
-           OP_STACK ||
     e_end: [CODE CONTINUATION]
     */
 
@@ -655,30 +655,24 @@ static void compile_stack_op(Nst_Node *node)
     Nst_RuntimeInstruction *inst;
     Nst_RuntimeInstruction *jump_to_end = NULL;
     compile_node(HEAD_NODE);
+    inst = nst_new_inst_empty(NST_IC_DUP, 0);
+    ADD_INST(inst);
 
     if ( HEAD_TOK->type == NST_TT_L_AND )
     {
-        inst = nst_new_inst_empty(NST_IC_DUP, 0);
-        ADD_INST(inst);
         jump_to_end = nst_new_inst_empty(NST_IC_JUMPIF_F, 0);
         ADD_INST(jump_to_end);
     }
     else if ( HEAD_TOK->type == NST_TT_L_OR )
     {
-        inst = nst_new_inst_empty(NST_IC_DUP, 0);
-        ADD_INST(inst);
         jump_to_end = nst_new_inst_empty(NST_IC_JUMPIF_T, 0);
         ADD_INST(jump_to_end);
     }
 
-    compile_node(TAIL_NODE);
-    inst = nst_new_inst_int(
-        NST_IC_STACK_OP,
-        HEAD_TOK->type,
-        node->start,
-        node->end
-    );
+    inst = nst_new_inst_empty(NST_IC_POP_VAL, 0);
     ADD_INST(inst);
+
+    compile_node(TAIL_NODE);
 
     if ( jump_to_end != NULL )
         jump_to_end->int_val = CURR_LEN;

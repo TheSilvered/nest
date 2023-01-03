@@ -560,6 +560,7 @@ static void remove_push_pop(Nst_InstructionList *bc)
         inst_list[i].id = NST_IC_NO_OP;
         inst_list[i - 1].id = NST_IC_NO_OP;
         nst_dec_ref(inst_list[i - 1].val);
+        inst_list[i - 1].val = NULL;
 
         expect_pop = false;
     }
@@ -632,6 +633,7 @@ static void remove_assign_loc_get_val(Nst_InstructionList* bc)
 
         inst_list[i].id = NST_IC_NO_OP;
         nst_dec_ref(inst_list[i].val);
+        inst_list[i].val = NULL;
         inst_list[i - 1].id = NST_IC_SET_VAL;
 
         expect_get_val = false;
@@ -726,39 +728,25 @@ static void remove_push_jumpif(Nst_InstructionList *bc)
         else if ( !expect_jumpif ||
                   !IS_JUMP(inst_list[i].id) ||
                   inst_list[i].id == NST_IC_JUMP ||
+                  inst_list[i].id == NST_IC_JUMPIF_ZERO ||
                   has_jumps_to(bc, i, -1, -1) )
         {
             expect_jumpif = false;
             continue;
         }
 
-        if ( inst_list[i].id == NST_IC_JUMPIF_ZERO )
-        {
-            if ( AS_INT(inst_list[i - 1].val) == 0 )
-            {
-                inst_list[i - 1].id = NST_IC_NO_OP;
-                inst_list[i].id = NST_IC_JUMP;
-            }
-        }
+        Nst_Obj *cond = nst_obj_cast(inst_list[i - 1].val, nst_t.Bool, NULL);
+        if ( (cond == nst_c.b_true && inst_list[i].id == NST_IC_JUMPIF_T) ||
+                (cond == nst_c.b_false && inst_list[i].id == NST_IC_JUMPIF_F) )
+            inst_list[i].id = NST_IC_JUMP;
         else
-        {
-            Nst_Obj *cond = nst_obj_cast(inst_list[i - 1].val, nst_t.Bool, NULL);
-            if ( (cond == nst_c.b_true && inst_list[i].id == NST_IC_JUMPIF_T) ||
-                 (cond == nst_c.b_false && inst_list[i].id == NST_IC_JUMPIF_F) )
-            {
-                nst_dec_ref(inst_list[i - 1].val);
-                inst_list[i - 1].id = NST_IC_NO_OP;
-                inst_list[i].id = NST_IC_JUMP;
-            }
-            else
-            {
-                nst_dec_ref(inst_list[i - 1].val);
-                inst_list[i - 1].id = NST_IC_NO_OP;
-                inst_list[i].id = NST_IC_NO_OP;
-            }
-            nst_dec_ref(cond);
-        }
+            inst_list[i].id = NST_IC_NO_OP;
 
+        nst_dec_ref(inst_list[i - 1].val);
+        inst_list[i - 1].val = NULL;
+        inst_list[i - 1].id = NST_IC_NO_OP;
+
+        nst_dec_ref(cond);
         expect_jumpif = false;
     }
 }
@@ -825,6 +813,7 @@ static void remove_dead_code(Nst_InstructionList *bc)
                 nst_dec_ref(inst_list[j].val);
 
             inst_list[j].id = NST_IC_NO_OP;
+            inst_list[j].val = NULL;
         }
 
         if ( is_jump_useless )

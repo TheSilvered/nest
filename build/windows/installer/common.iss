@@ -1,5 +1,5 @@
 #define MyAppName "nest"
-#define MyAppVersion "0.9.1"
+#define MyAppVersion "0.9.2"
 #define MyAppPublisher "Davide Taffarello"
 #define MyAppExeName "nest.exe"
 #define MyAppAssocName "Nest File"
