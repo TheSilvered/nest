@@ -52,6 +52,7 @@ static void compile_lambda(Nst_Node *node);
 static void compile_return_s(Nst_Node *node);
 static void compile_stack_op(Nst_Node *node);
 static void compile_comp_op(Nst_Node *node);
+static void compile_lg_op(Nst_Node *node);
 static void compile_local_stack_op(Nst_Node *node);
 static void compile_local_op(Nst_Node *node);
 static void compile_arr_or_vect_lit(Nst_Node *node);
@@ -621,29 +622,11 @@ static void compile_return_s(Nst_Node *node)
 static void compile_stack_op(Nst_Node *node)
 {
     /*
-    General stack operation bytecode
+    Stack operation bytecode
 
     [VAL 1 CODE]
     [VAL 2 CODE]
     OP_STACK - operator
-
-    L_AND bytecode
-
-           [VAL 1 CODE]
-           DUP
-           JUMPIF_F e_end
-           POP_VAL
-           [VAL 2 CODE]
-    e_end: [CODE CONTINUATION]
-
-    L_OR bytecode
-
-           [VAL 1 CODE]
-           DUP
-           JUMPIF_T e_end
-           POP_VAL
-           [VAL 2 CODE]
-    e_end: [CODE CONTINUATION]
     */
 
     if ( T_IN_COMP_OP(HEAD_TOK->type) && node->nodes->size > 2 )
@@ -652,30 +635,23 @@ static void compile_stack_op(Nst_Node *node)
         return;
     }
 
-    Nst_RuntimeInstruction *inst;
-    Nst_RuntimeInstruction *jump_to_end = NULL;
     compile_node(HEAD_NODE);
-    inst = nst_new_inst_empty(NST_IC_DUP, 0);
-    ADD_INST(inst);
 
-    if ( HEAD_TOK->type == NST_TT_L_AND )
+    if ( HEAD_TOK->type == NST_TT_L_AND || HEAD_TOK->type == NST_TT_L_OR )
     {
-        jump_to_end = nst_new_inst_empty(NST_IC_JUMPIF_F, 0);
-        ADD_INST(jump_to_end);
+        compile_lg_op(node);
+        return;
     }
-    else if ( HEAD_TOK->type == NST_TT_L_OR )
-    {
-        jump_to_end = nst_new_inst_empty(NST_IC_JUMPIF_T, 0);
-        ADD_INST(jump_to_end);
-    }
-
-    inst = nst_new_inst_empty(NST_IC_POP_VAL, 0);
-    ADD_INST(inst);
 
     compile_node(TAIL_NODE);
 
-    if ( jump_to_end != NULL )
-        jump_to_end->int_val = CURR_LEN;
+    Nst_RuntimeInstruction *inst = nst_new_inst_int(
+        NST_IC_STACK_OP,
+        HEAD_TOK->type,
+        node->start,
+        node->end
+    );
+    ADD_INST(inst);
 }
 
 static void compile_comp_op(Nst_Node *node)
@@ -746,6 +722,53 @@ static void compile_comp_op(Nst_Node *node)
     ADD_INST(inst);
     inst = nst_new_inst_empty(NST_IC_POP_VAL, 0);
     ADD_INST(inst);
+}
+
+static void compile_lg_op(Nst_Node *node)
+{
+    /*
+    L_AND bytecode
+
+           [VAL 1 CODE]
+           DUP
+           JUMPIF_F e_end
+           POP_VAL
+           [VAL 2 CODE]
+    e_end: [CODE CONTINUATION]
+
+    L_OR bytecode
+
+           [VAL 1 CODE]
+           DUP
+           JUMPIF_T e_end
+           POP_VAL
+           [VAL 2 CODE]
+    e_end: [CODE CONTINUATION]
+    */
+
+    Nst_RuntimeInstruction *inst;
+    Nst_RuntimeInstruction *jump_to_end;
+
+    inst = nst_new_inst_empty(NST_IC_DUP, 0);
+    ADD_INST(inst);
+
+    if ( HEAD_TOK->type == NST_TT_L_AND )
+    {
+        jump_to_end = nst_new_inst_empty(NST_IC_JUMPIF_F, 0);
+        ADD_INST(jump_to_end);
+    }
+    else
+    {
+        jump_to_end = nst_new_inst_empty(NST_IC_JUMPIF_T, 0);
+        ADD_INST(jump_to_end);
+    }
+
+    inst = nst_new_inst_empty(NST_IC_POP_VAL, 0);
+    ADD_INST(inst);
+
+    compile_node(TAIL_NODE);
+
+    jump_to_end->int_val = CURR_LEN;
 }
 
 static void compile_local_stack_op(Nst_Node *node)
