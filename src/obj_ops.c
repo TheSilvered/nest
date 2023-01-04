@@ -822,7 +822,7 @@ Nst_Obj *_nst_obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs)
         if ( is_vect )
             return nst_new_cstring("<{}>", 4, false);
         else
-            return nst_new_cstring("{}", 2, false);
+            return nst_new_cstring("{,}", 3, false);
     }
 
     LList_push(all_objs, seq_obj, false);

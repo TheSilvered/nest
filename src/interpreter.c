@@ -751,7 +751,7 @@ static inline void exe_set_cont_val(Nst_RuntimeInstruction *inst)
                 inst->end,
                 _nst_format_error(
                     cont->type == nst_t.Array ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
-                                            : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+                                              : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
                     "iu",
                     AS_INT(idx),
                     SEQ(cont)->len

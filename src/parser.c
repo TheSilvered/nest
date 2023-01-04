@@ -1246,6 +1246,7 @@ static Nst_Node *parse_arr_or_map_literal()
     Nst_LexerToken *tok = TOK(LList_pop(tokens));
     Nst_Pos start = tok->start;
     nst_destroy_token(tok);
+    skip_blank();
 
     bool is_map = false;
     size_t count = 0;
@@ -1259,6 +1260,23 @@ static Nst_Node *parse_arr_or_map_literal()
     }
 
     SAFE_LLIST_CREATE(nodes);
+
+    skip_blank();
+
+    if ( TOK(LList_peek_front(tokens))->type == NST_TT_COMMA )
+    {
+        nst_destroy_token(LList_pop(tokens));
+        skip_blank();
+        tok = TOK(LList_pop(tokens));
+        Nst_Pos end = tok->end;
+        int type = tok->type;
+        nst_destroy_token(tok);
+
+        if ( type != NST_TT_R_BRACE )
+            RETURN_ERROR(start, end, _NST_EM_EXPECTED_BRACE);
+
+        return nst_new_node_empty(start, end, NST_NT_ARR_LIT);
+    }
 
     while ( true )
     {

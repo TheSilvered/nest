@@ -1,0 +1,4 @@
+1 = a -- the variable prevents the check to be done at compile-time
+... a := i [
+    >>> i
+]
