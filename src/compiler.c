@@ -10,6 +10,7 @@
 
 #define HEAD_NODE (NODE(node->nodes->head->value))
 #define TAIL_NODE (NODE(node->nodes->tail->value))
+#define SECOND_NODE (NODE(node->nodes->head->next->value))
 #define HEAD_TOK (TOK(node->tokens->head->value))
 #define TAIL_TOK (TOK(node->tokens->tail->value))
 
@@ -61,7 +62,7 @@ static void compile_value(Nst_Node *node);
 static void compile_access(Nst_Node *node);
 static void compile_extract_e(Nst_Node *node);
 static void compile_assign_e(Nst_Node *node);
-static void compile_unpacking_assign_e(Nst_Node *node);
+static void compile_unpacking_assign_e(Nst_Node *node, Nst_Pos v_start, Nst_Pos v_end);
 static void compile_continue_s(Nst_Node *node);
 static void compile_break_s(Nst_Node *node);
 static void compile_switch_s(Nst_Node *node);
@@ -416,7 +417,7 @@ static void compile_for_as_l(Nst_Node *node)
     // Setting variable
     inst = nst_new_inst_int(NST_IC_FOR_GET_VAL, 1, HEAD_NODE->start, HEAD_NODE->end);
     ADD_INST(inst);
-    compile_unpacking_assign_e(NODE(node->nodes->head->next->value));
+    compile_unpacking_assign_e(SECOND_NODE, HEAD_NODE->start, HEAD_NODE->end);
 
     // For loop body
     inc_loop_id();
@@ -487,7 +488,7 @@ static void compile_if_e(Nst_Node *node)
     Nst_RuntimeInstruction *jump_if_false = nst_new_inst_empty(NST_IC_JUMPIF_F, 0);
     ADD_INST(jump_if_false);
 
-    Nst_Node *second_node = NODE(node->nodes->head->next->value);
+    Nst_Node *second_node = SECOND_NODE;
     bool both_are_null = !NODE_RETUNS_VALUE(second_node->type) &&
                          (node->nodes->size == 2 || !NODE_RETUNS_VALUE(TAIL_NODE->type));
 
@@ -816,7 +817,7 @@ static void compile_local_stack_op(Nst_Node *node)
 
         if ( node->nodes->size == 3 )
         {
-            compile_node(NODE(node->nodes->head->next->value));
+            compile_node(SECOND_NODE);
             inst = nst_new_inst_val(
                 NST_IC_TYPE_CHECK,
                 nst_t.Int,
@@ -1114,11 +1115,11 @@ static void compile_assign_e(Nst_Node *node)
     {
         inst = nst_new_inst_empty(NST_IC_DUP, 0);
         ADD_INST(inst);
-        compile_unpacking_assign_e(node);
+        compile_unpacking_assign_e(TAIL_NODE, HEAD_NODE->start, HEAD_NODE->end);
     }
 }
 
-static void compile_unpacking_assign_e(Nst_Node *node)
+static void compile_unpacking_assign_e(Nst_Node *node, Nst_Pos v_start, Nst_Pos v_end)
 {
     /*
     Unpacking assigment
@@ -1136,7 +1137,7 @@ static void compile_unpacking_assign_e(Nst_Node *node)
 
     Nst_RuntimeInstruction *inst;
     LList *nodes = LList_new();
-    LList_push(nodes, TAIL_NODE, false);
+    LList_push(nodes, node, false);
 
     while ( nodes->size != 0 )
     {
@@ -1159,8 +1160,8 @@ static void compile_unpacking_assign_e(Nst_Node *node)
             inst = nst_new_inst_int(
                 NST_IC_UNPACK_SEQ,
                 curr_node->nodes->size,
-                HEAD_NODE->start,
-                HEAD_NODE->end
+                v_start,
+                v_end
             );
         }
         else if ( curr_node->type == NST_NT_ACCESS )
