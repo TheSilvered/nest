@@ -1265,7 +1265,7 @@ static Nst_Node *parse_arr_or_map_literal()
 
     if ( TOK(LList_peek_front(tokens))->type == NST_TT_COMMA )
     {
-        nst_destroy_token(LList_pop(tokens));
+        nst_destroy_token(TOK(LList_pop(tokens)));
         skip_blank();
         tok = TOK(LList_pop(tokens));
         Nst_Pos end = tok->end;

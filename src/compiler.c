@@ -1114,7 +1114,7 @@ static void compile_assign_e(Nst_Node *node)
     {
         inst = nst_new_inst_empty(NST_IC_DUP, 0);
         ADD_INST(inst);
-        compile_unpacking_assign_e(TAIL_NODE);
+        compile_unpacking_assign_e(node);
     }
 }
 
@@ -1136,7 +1136,7 @@ static void compile_unpacking_assign_e(Nst_Node *node)
 
     Nst_RuntimeInstruction *inst;
     LList *nodes = LList_new();
-    LList_push(nodes, node, false);
+    LList_push(nodes, TAIL_NODE, false);
 
     while ( nodes->size != 0 )
     {
@@ -1159,8 +1159,8 @@ static void compile_unpacking_assign_e(Nst_Node *node)
             inst = nst_new_inst_int(
                 NST_IC_UNPACK_SEQ,
                 curr_node->nodes->size,
-                curr_node->start,
-                curr_node->end
+                HEAD_NODE->start,
+                HEAD_NODE->end
             );
         }
         else if ( curr_node->type == NST_NT_ACCESS )
