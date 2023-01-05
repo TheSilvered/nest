@@ -1367,6 +1367,43 @@ static inline void exe_save_error()
 
     nst_push_val(nst_state.v_stack, err_map);
     nst_dec_ref(err_map);
+
+    // Remove any libraries that failed to laod
+    Nst_MapObj *lib_m = nst_state.lib_handles;
+    for ( int i = lib_m->tail_idx; i != -1; )
+    {
+        // All the failed imports will be at the end
+        if ( lib_m->nodes[i].value->type == nst_t.Map )
+            break;
+
+        Nst_SourceText *txt = (Nst_SourceText *)lib_m->nodes[i].key->destructor;
+        lib_m->nodes[i].key->destructor = (Nst_ObjDestructor)nst_destroy_string;
+
+        if ( txt != NULL )
+        {
+            free(txt->text);
+            free(txt->lines);
+            free(txt);
+        }
+
+        nst_dec_ref(lib_m->nodes[i].key);
+        nst_dec_ref(lib_m->nodes[i].value);
+        int prev_i = lib_m->nodes[i].prev_idx;
+        lib_m->tail_idx = prev_i;
+        lib_m->nodes[prev_i].next_idx = -1;
+        lib_m->item_count--;
+
+        lib_m->nodes[i].key = NULL;
+        lib_m->nodes[i].value = NULL;
+        lib_m->nodes[i].hash = -1;
+        lib_m->nodes[i].next_idx = -1;
+        lib_m->nodes[i].prev_idx = -1;
+
+        i = prev_i;
+    }
+
+    // removing items from the last one added does not
+    _nst_resize_map(lib_m, false);
 }
 
 static inline void exe_unpack_seq(Nst_RuntimeInstruction* inst)
@@ -1504,9 +1541,9 @@ static Nst_StrObj *make_cwd(char *file_path)
 
 static void destroy_lib_handles_map(Nst_MapObj *map)
 {
-    for ( Nst_Int i = _nst_map_get_next_idx(-1, map);
+    for ( int i = nst_map_get_next_idx(-1, map);
           i != -1;
-          i = _nst_map_get_next_idx(i, map) )
+          i = nst_map_get_next_idx(i, map) )
     {
         Nst_SourceText *txt = (Nst_SourceText *)map->nodes[i].key->destructor;
         map->nodes[i].key->destructor = (Nst_ObjDestructor)nst_destroy_string;

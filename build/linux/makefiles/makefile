@@ -1,6 +1,7 @@
 CC=gcc
 CFLAGS=-I../../../include -Wall
 CLINKS=-lm -ldl
+DBG_FLAGS=-D_DEBUG -g -O0
 EXE_NAME=nest
 
 SRC_DIR=../../../src
@@ -22,7 +23,7 @@ $(EXE_x64_TARGET): $(SRCS)
 
 x86:
 	mkdir -p $(EXE_x86_DIR)
-	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -m32 -o $(EXE_x86_TARGET)
+	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -O3 -m32 -o $(EXE_x86_TARGET)
 
 clean:
 	rm -fr $(EXE_DIR)
@@ -30,11 +31,10 @@ clean:
 
 debug:
 	mkdir -p $(DBG_DIR)
-	$(CC) -D_DEBUG -g $(CFLAGS) $(SRCS) $(CLINKS) -o $(DBG_TARGET)
+	$(CC) $(DBG_FLAGS) $(CFLAGS) $(FLAGS) $(SRCS) $(CLINKS) -o $(DBG_TARGET)
 
 all:
-	mkdir -p $(EXE_x64_DIR)
-	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -O3 -o $(EXE_x64_TARGET)
+	make
 	make -f nest_co.mk
 	make -f nest_err.mk
 	make -f nest_fs.mk
@@ -48,8 +48,7 @@ all:
 	make -f nest_time.mk
 
 all-x86:
-	mkdir -p $(EXE_x86_DIR)
-	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -O3 -m32 -o $(EXE_x86_TARGET)
+	make x86
 	make -f nest_co.mk      x86
 	make -f nest_err.mk     x86
 	make -f nest_fs.mk      x86
@@ -63,8 +62,7 @@ all-x86:
 	make -f nest_time.mk    x86
 
 all-debug:
-	mkdir -p $(DBG_DIR)
-	$(CC) -D_DEBUG -g $(CFLAGS) $(SRCS) $(CLINKS) -o $(DBG_TARGET)
+	make debug
 	make -f nest_co.mk      debug
 	make -f nest_err.mk     debug
 	make -f nest_fs.mk      debug

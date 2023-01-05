@@ -142,9 +142,15 @@ void nst_collect_gen(Nst_GGCList *gen,
     traverse_gen(other_gen2);
     traverse_gen(other_gen3);
 
+    // The argv array is reachable too
     NST_UNSET_FLAG(nst_state.argv, NST_FLAG_GGC_UNREACHABLE);
     NST_SET_FLAG(nst_state.argv, NST_FLAG_GGC_REACHABLE);
     nst_traverse_seq(nst_state.argv);
+
+    // And the same goes for the lib handles
+    NST_UNSET_FLAG(nst_state.lib_handles, NST_FLAG_GGC_UNREACHABLE);
+    NST_SET_FLAG(nst_state.lib_handles, NST_FLAG_GGC_REACHABLE);
+    nst_traverse_map(nst_state.lib_handles);
 
     // Move unreachable objects to `unreachable_values`
     for ( ob = gen->head; ob != NULL; )

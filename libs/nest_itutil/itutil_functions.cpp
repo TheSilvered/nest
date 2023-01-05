@@ -350,7 +350,7 @@ NST_FUNC_SIGN(kvi_start)
 NST_FUNC_SIGN(kvi_advance)
 {
     Nst_Obj **objs = SEQ(args[0])->objs;
-    AS_INT(objs[0]) = nst_map_get_next_idx(AS_INT(objs[0]), MAP(objs[1]));
+    AS_INT(objs[0]) = nst_map_get_next_idx((int)AS_INT(objs[0]), MAP(objs[1]));
     NST_RETURN_NULL;
 }
 

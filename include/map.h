@@ -63,9 +63,13 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key);
 void nst_destroy_map(Nst_MapObj *map);
 void nst_traverse_map(Nst_MapObj *map);
 void nst_track_map(Nst_MapObj *map);
+
 // Gets the next index when iterating over a map's elements,
 // when curr_idx is -1 the first index is returned
-Nst_Int _nst_map_get_next_idx(Nst_Int curr_idx, Nst_MapObj *map);
+int _nst_map_get_next_idx(int curr_idx, Nst_MapObj *map);
+// Resizes the node array if necessary
+// `force_item_reset` forces all the items in the map to be re-inserted
+void _nst_resize_map(Nst_MapObj *map, bool force_item_reset);
 
 // Sets a value in the map with the key that is a string
 void _nst_map_set_str(Nst_MapObj *map, const char *key, Nst_Obj *value);

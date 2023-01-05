@@ -199,9 +199,9 @@ static Nst_Obj* map_eq(Nst_MapObj* map1, Nst_MapObj* map2, LList* containers)
     Nst_Obj *ob1 = NULL;
     Nst_Obj *ob2 = NULL;
     Nst_Obj *result = NULL;
-    for ( Nst_Int i = _nst_map_get_next_idx(-1, map1);
-        i != -1;
-        i = _nst_map_get_next_idx(i, map1) )
+    for ( int i = nst_map_get_next_idx(-1, map1);
+          i != -1;
+          i = nst_map_get_next_idx(i, map1) )
     {
         key = map1->nodes[i].key;
         ob1 = map1->nodes[i].value;
@@ -922,7 +922,7 @@ Nst_Obj *_nst_obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
     str[1] = ' ';
 
     Nst_MapObj *map = MAP(map_obj);
-    Nst_Int idx = -1;
+    int idx = -1;
     size_t tot = map->item_count;
     size_t count = 0;
 
@@ -1285,9 +1285,9 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
                                       : SEQ(nst_new_array(seq_len));
 
             size_t seq_i = 0;
-            for ( Nst_Int i = _nst_map_get_next_idx(-1, map);
+            for ( int i = nst_map_get_next_idx(-1, map);
                   i != -1;
-                  i = _nst_map_get_next_idx(i, map) )
+                  i = nst_map_get_next_idx(i, map) )
             {
                 Nst_SeqObj *node_arr = SEQ(nst_new_array(2));
                 node_arr->objs[0] = nst_inc_ref(map->nodes[i].key);

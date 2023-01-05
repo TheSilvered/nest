@@ -1,6 +1,7 @@
 CC=g++
 CFLAGS=-I../../../include -Wall -shared -fPIC -rdynamic -std=c++2a
 CLINKS=-lm -ldl
+DBG_FLAGS=-D_DEBUG -g -O0
 EXE_NAME=stdrand.so
 
 SRC_DIR=../../../src
@@ -26,4 +27,4 @@ x86:
 
 debug:
 	mkdir -p $(DBG_DIR)
-	$(CC) -D_DEBUG -g $(CFLAGS) $(SRCS) $(LIB_SRCS) $(CLINKS) -o $(DBG_TARGET)
+	$(CC) $(DBG_FLAGS) $(CFLAGS) $(SRCS) $(LIB_SRCS) $(CLINKS) -o $(DBG_TARGET)

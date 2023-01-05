@@ -79,7 +79,7 @@ static bool are_eq(Nst_Obj *ob1, Nst_Obj *ob2)
     }
 }
 
-void resize_map(Nst_MapObj *map, bool force_item_reset)
+void _nst_resize_map(Nst_MapObj *map, bool force_item_reset)
 {
     size_t old_size = map->size;
     Nst_MapNode *old_nodes = map->nodes;
@@ -204,7 +204,7 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
     if ( NST_OBJ_IS_TRACKED(map) && NST_HAS_FLAG(value, NST_FLAG_GGC_IS_SUPPORTED) )
         nst_add_tracked_object((Nst_GGCObj *)value);
 
-    resize_map(map, false);
+    _nst_resize_map(map, false);
 
     return true;
 }
@@ -289,7 +289,7 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
         else
             map->head_idx = curr_node.next_idx;
 
-        resize_map(map, true);
+        _nst_resize_map(map, true);
         NST_RETURN_TRUE;
     }
 
@@ -321,7 +321,7 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
             else
                 map->head_idx = curr_node.next_idx;
 
-            resize_map(map, true);
+            _nst_resize_map(map, true);
             NST_RETURN_TRUE;
         }
     }
@@ -329,9 +329,9 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
 
 void nst_destroy_map(Nst_MapObj *map)
 {
-    for ( Nst_Int i = _nst_map_get_next_idx(-1, map);
+    for ( int i = nst_map_get_next_idx(-1, map);
           i != -1;
-          i = _nst_map_get_next_idx(i, map) )
+          i = nst_map_get_next_idx(i, map) )
     {
         nst_dec_ref(map->nodes[i].key);
         nst_dec_ref(map->nodes[i].value);
@@ -365,9 +365,9 @@ Nst_Obj *_nst_map_drop_str(Nst_MapObj *map, const char *key)
 
 void nst_traverse_map(Nst_MapObj *map)
 {
-    for ( Nst_Int i = _nst_map_get_next_idx(-1, map);
+    for ( int i = nst_map_get_next_idx(-1, map);
           i != -1;
-          i = _nst_map_get_next_idx(i, map) )
+          i = nst_map_get_next_idx(i, map) )
     {
         // don't really care if the object is tracked by the garbage collector or not
         // keys shouldn't be tracked but for good mesure the flag is added reguardless
@@ -378,16 +378,16 @@ void nst_traverse_map(Nst_MapObj *map)
 
 void nst_track_map(Nst_MapObj *map)
 {
-    for ( Nst_Int i = _nst_map_get_next_idx(-1, map);
+    for ( int i = nst_map_get_next_idx(-1, map);
           i != -1;
-          i = _nst_map_get_next_idx(i, map) )
+          i = nst_map_get_next_idx(i, map) )
     {
         if ( NST_HAS_FLAG(map->nodes[i].value, NST_FLAG_GGC_IS_SUPPORTED) )
             nst_add_tracked_object((Nst_GGCObj *)(map->nodes[i].value));
     }
 }
 
-Nst_Int _nst_map_get_next_idx(Nst_Int curr_idx, Nst_MapObj *map)
+int _nst_map_get_next_idx(int curr_idx, Nst_MapObj *map)
 {
     if ( curr_idx == -1 )
         return map->head_idx;
