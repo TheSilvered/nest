@@ -187,11 +187,9 @@ void nst_collect_gen(Nst_GGCList *gen,
         if ( uv.size == 0 )
             return;
 
-        int i = 0;
         // Move objects reached back into the reachable objects to be traversed
         for ( ob = uv.head; ob != NULL; )
         {
-            i++;
             if ( NST_HAS_FLAG(ob, NST_FLAG_GGC_REACHABLE) )
                 NST_UNSET_FLAG(ob, NST_FLAG_GGC_UNREACHABLE);
             else
@@ -210,6 +208,11 @@ void nst_collect_gen(Nst_GGCList *gen,
     }
     while ( true );
 
+    // If an object is in uv and references
+    // another object in uv too, if the memory
+    // if freed, the dec_ref function will cause
+    // a segfault, here i call only the destructor
+    // to not free the memory right away
     call_objs_destructor(&uv);
     free_obj_memory(&uv);
 }

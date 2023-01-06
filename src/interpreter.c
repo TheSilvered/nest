@@ -58,6 +58,8 @@
 #define CHANGE_VT(new_vt) do { \
     *nst_state.vt = new_vt; \
     nst_add_tracked_object((Nst_GGCObj *)(*nst_state.vt)->vars); \
+    if ( (*nst_state.vt)->global_table != NULL ) \
+        nst_add_tracked_object((Nst_GGCObj *)(*nst_state.vt)->global_table); \
     } while ( 0 )
 
 #define ERROR_OCCURRED (nst_state.traceback->error.occurred)
@@ -452,14 +454,14 @@ Nst_Obj *nst_run_func_context(Nst_FuncObj *func,
     if ( globals == NULL )
     {
         if ( func->mod_globals != NULL )
-            new_vt->global_table = func->mod_globals;
+            new_vt->global_table = (Nst_MapObj *)nst_inc_ref(func->mod_globals);
         else if ( (*nst_state.vt)->global_table == NULL )
-            new_vt->global_table = (*nst_state.vt)->vars;
+            new_vt->global_table = (Nst_MapObj *)nst_inc_ref((*nst_state.vt)->vars);
         else
-            new_vt->global_table = (*nst_state.vt)->global_table;
+            new_vt->global_table = (Nst_MapObj *)nst_inc_ref((*nst_state.vt)->global_table);
     }
     else
-        new_vt->global_table = globals;
+        new_vt->global_table = (Nst_MapObj *)nst_inc_ref(globals);
     CHANGE_VT(new_vt);
     *nst_state.idx = idx;
     complete_function(nst_state.f_stack->current_size - 1);

@@ -173,7 +173,10 @@ void destroy_coroutine(CoroutineObj *co)
 {
     nst_dec_ref(co->func);
 
-    if ( co->vars != NULL )
+    if ( !NST_HAS_FLAG(co, FLAG_CO_PAUSED) )
+        return;
+
+    if ( co->vars != NULL && !NST_HAS_FLAG(co->vars, NST_FLAG_GGC_DELETED) )
     {
         nst_dec_ref(nst_map_drop_str(co->vars, "_vars_"));
         nst_dec_ref(co->vars);
@@ -181,9 +184,6 @@ void destroy_coroutine(CoroutineObj *co)
 
     if ( co->globals != NULL )
         nst_dec_ref(co->globals);
-
-    if ( !NST_HAS_FLAG(co, FLAG_CO_PAUSED) )
-        return;
 
     for ( size_t i = 0, n = co->stack_size; i < n; i++ )
     {
@@ -265,6 +265,8 @@ NST_FUNC_SIGN(call_)
         delete[] co->stack;
         nst_push_val(nst_state.v_stack, nst_c.null); // emulates the return value of co.pause
         result = nst_run_func_context(co->func, co->idx + 1, co->vars, co->globals);
+        nst_dec_ref(co->vars);
+        nst_dec_ref(co->globals);
     }
     else
         result = nst_call_func(co->func, SEQ(co_args)->objs, err);
