@@ -3,8 +3,12 @@
 |#| 'stdio.nest' = io
 
 test.log_file @io.close
-'echo written with echo>> ..\\test_output.txt' @sys.system
-'..\\test_output.txt' 'a+' @io.open = test.log_file
+
+sys.PLATFORM 'windows' == ?
+    'echo written with echo>> ..\\test_output.txt' @sys.system
+:
+    'echo "written with echo" >> ../test_output.txt' @sys.system
+'../test_output.txt' 'a+' @io.open = test.log_file
 
 'sys.getenv (appdata): ' ('APPDATA' @sys.getenv) >< @test.println
 'sys.getenv (home): ' ('HOME' @sys.getenv) >< @test.println

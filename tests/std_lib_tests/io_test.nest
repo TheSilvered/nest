@@ -11,21 +11,21 @@
 
 { 72b, 105b } = bytes -- Hi
 
-'test_files\\file.txt' 'wb+' @io.open = f
+'test_files/file.txt' 'wb+' @io.open = f
 f bytes @io.write_bytes
 f @io.close
 
-'test_files\\file.txt' 'rb' @io.open = f
+'test_files/file.txt' 'rb' @io.open = f
 f -1 @io.read_bytes { 72b, 105b } @test.assert_eq
 f @io.close
 
-'test_files\\file.txt' 'w' @io.open = f
+'test_files/file.txt' 'w' @io.open = f
 f 'Hello' @io.write
 f @io.close
 
 f @io.get_flags '-w-' @test.assert_eq
 
-'test_files\\file.txt' 'r+' @io.open = f
+'test_files/file.txt' 'r+' @io.open = f
 
 f -1 @io.read 'Hello' @test.assert_eq
 f @io.file_size 5 @test.assert_eq

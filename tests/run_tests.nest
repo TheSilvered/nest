@@ -44,3 +44,4 @@ sys.PLATFORM 'windows' == ? [
 
 test.log_file @io.flush
 test.log_file @io.close
+
