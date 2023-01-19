@@ -24,6 +24,9 @@ __su.str_to_bytearray_ = str_to_bytearray
 __su.repr_             = repr
 __su.join_             = join
 __su.split_            = split
+__su.bin_              = bin
+__su.oct_              = oct
+__su.hex_              = hex
 
 '0123456789'             = DIGITS
 '0123456789abcdefABCDEF' = HEX_DIGITS

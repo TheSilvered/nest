@@ -69,6 +69,11 @@
 #define NST_FUNC_SIGN(name) \
     Nst_Obj *name(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 
+// Default call to nst_extract_arg_values
+#define NST_D_EXTRACT(ltrl, ...) \
+    if ( !nst_extract_arg_values(ltrl, arg_num, args, err, __VA_ARGS__) ) \
+        return NULL
+
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
@@ -90,10 +95,10 @@ Nst_FuncDeclr *nst_new_func_list(size_t count);
 `err`: the `err` argument of the function
 ...: the pointers to store the values in
 
-'t': type, 'i': integer, 'r': real, 'N': real, integer or byte, always returns a real, 'b': bool, 'n': null,
-'s': string, 'v': vector, 'a': array, 'A': array or vector, 'S': array, vector or string, returns a Nst_SeqObj
-that must be dec_ref'd, 'm': map, 'f': func, 'I': iter, 'B': byte, 'F': file, 'o': any object, the ref_count doesn't change
-
+'t': type, 'i': integer or byte, always as Nst_Int, 'r': real, 'N': real, integer or byte, always returns a real,
+'b': bool, 'n': null, 's': string, 'v': vector, 'a': array, 'A': array or vector, 'S': array, vector or string,
+returns a Nst_SeqObj that must be dec_ref'd, 'm': map, 'f': func, 'I': iter, 'B': byte, 'F': file, 'o': any object,
+the ref_count doesn't change
 */
 bool nst_extract_arg_values(const char *types,
                             size_t arg_num,

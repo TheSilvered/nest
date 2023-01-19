@@ -41,7 +41,7 @@ bool nst_extract_arg_values(const char *types,
 
     /* Characters for each type:
        't': type
-       'i': integer
+       'i': integer or byte
        'r': real
        'N': real, integer or byte, always returns a real
        'b': bool
@@ -71,9 +71,12 @@ bool nst_extract_arg_values(const char *types,
             *(Nst_StrObj **)arg = STR(ob);
             break;
         case 'i':
-            if ( ob->type != nst_t.Int )
+            if ( ob->type == nst_t.Int )
+                *(Nst_Int *)arg = AS_INT(ob);
+            else if ( ob->type == nst_t.Byte )
+                *(Nst_Int *)arg = (Nst_Int)AS_BYTE(ob);
+            else
                 SET_TYPE_ERROR("Int");
-            *(Nst_Int *)arg = AS_INT(ob);
             break;
         case 'r':
             if ( ob->type != nst_t.Real )

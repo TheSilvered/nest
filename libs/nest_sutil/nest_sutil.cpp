@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include "nest_sutil.h"
 
-#define FUNC_COUNT 24
+#define FUNC_COUNT 28
 
 static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
@@ -39,6 +39,10 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(repr_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(join_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(split_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(bin_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(oct_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(hex_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(fmt_, 2);
 
     lib_init_ = true;
     return true;
@@ -79,8 +83,7 @@ NST_FUNC_SIGN(lfind_)
     Nst_StrObj *str1 = nullptr;
     Nst_StrObj *str2 = nullptr;
 
-    if ( !nst_extract_arg_values("ss", arg_num, args, err, &str1, &str2) )
-        return nullptr;
+    NST_D_EXTRACT("ss", &str1, &str2);
 
     if ( str1 == str2 )
         NST_RETURN_ZERO;
@@ -98,8 +101,7 @@ NST_FUNC_SIGN(rfind_)
     Nst_StrObj *str1;
     Nst_StrObj *str2;
 
-    if ( !nst_extract_arg_values("ss", arg_num, args, err, &str1, &str2) )
-        return nullptr;
+    NST_D_EXTRACT("ss", &str1, &str2);
 
     if ( str1 == str2 )
         NST_RETURN_ZERO;
@@ -136,8 +138,7 @@ NST_FUNC_SIGN(starts_with_)
     Nst_StrObj *str;
     Nst_StrObj *substr;
 
-    if ( !nst_extract_arg_values("ss", arg_num, args, err, &str, &substr) )
-        return nullptr;
+    NST_D_EXTRACT("ss", &str, &substr);
 
     if ( str->len < substr->len )
         NST_RETURN_FALSE;
@@ -160,8 +161,7 @@ NST_FUNC_SIGN(ends_with_)
     Nst_StrObj *str;
     Nst_StrObj *substr;
 
-    if ( !nst_extract_arg_values("ss", arg_num, args, err, &str, &substr) )
-        return nullptr;
+    NST_D_EXTRACT("ss", &str, &substr);
 
     if ( str->len < substr->len )
         NST_RETURN_FALSE;
@@ -183,8 +183,7 @@ NST_FUNC_SIGN(trim_)
 {
     Nst_StrObj *str;
 
-    if ( !nst_extract_arg_values("s", arg_num, args, err, &str) )
-        return nullptr;
+    NST_D_EXTRACT("s", &str);
 
     char *s_start = str->value;
     char *s_end = str->value + str->len - 1;
@@ -215,8 +214,7 @@ NST_FUNC_SIGN(ltrim_)
 {
     Nst_StrObj *str;
 
-    if ( !nst_extract_arg_values("s", arg_num, args, err, &str) )
-        return nullptr;
+    NST_D_EXTRACT("s", &str);
 
     char *s_start = str->value;
     size_t len = str->len;
@@ -237,8 +235,7 @@ NST_FUNC_SIGN(rtrim_)
 {
     Nst_StrObj *str;
 
-    if ( !nst_extract_arg_values("s", arg_num, args, err, &str) )
-        return nullptr;
+    NST_D_EXTRACT("s", &str);
 
     size_t len = str->len;
     char *s_start = str->value;
@@ -265,8 +262,7 @@ NST_FUNC_SIGN(ljust_)
     Nst_Int just_len;
     Nst_StrObj *just_char;
 
-    if ( !nst_extract_arg_values("sis", arg_num, args, err, &str, &just_len, &just_char) )
-        return nullptr;
+    NST_D_EXTRACT("sis", &str, &just_len, &just_char);
 
     size_t len = str->len;
 
@@ -293,8 +289,7 @@ NST_FUNC_SIGN(rjust_)
     Nst_Int just_len;
     Nst_StrObj *just_char;
 
-    if ( !nst_extract_arg_values("sis", arg_num, args, err, &str, &just_len, &just_char) )
-        return nullptr;
+    NST_D_EXTRACT("sis", &str, &just_len, &just_char);
 
     size_t len = str->len;
 
@@ -319,8 +314,7 @@ NST_FUNC_SIGN(to_upper_)
 {
     Nst_StrObj *str;
 
-    if ( !nst_extract_arg_values("s", arg_num, args, err, &str) )
-        return nullptr;
+    NST_D_EXTRACT("s", &str);
 
     Nst_StrObj *new_str = STR(nst_copy_string(str));
     char *s = new_str->value;
@@ -339,8 +333,7 @@ NST_FUNC_SIGN(to_lower_)
 {
     Nst_StrObj *str;
 
-    if ( !nst_extract_arg_values("s", arg_num, args, err, &str) )
-        return nullptr;
+    NST_D_EXTRACT("s", &str);
 
     Nst_StrObj *new_str = STR(nst_copy_string(str));
     char *s = new_str->value;
@@ -359,8 +352,7 @@ NST_FUNC_SIGN(is_upper_)
 {
     Nst_StrObj *str;
 
-    if ( !nst_extract_arg_values("s", arg_num, args, err, &str) )
-        return nullptr;
+    NST_D_EXTRACT("s", &str);
 
     char *s = str->value;
     char *end = s + str->len;
@@ -379,8 +371,7 @@ NST_FUNC_SIGN(is_lower_)
 {
     Nst_StrObj *str;
 
-    if ( !nst_extract_arg_values("s", arg_num, args, err, &str) )
-        return nullptr;
+    NST_D_EXTRACT("s", &str);
 
     char *s = str->value;
     char *end = s + str->len;
@@ -399,8 +390,7 @@ NST_FUNC_SIGN(is_alpha_)
 {
     Nst_StrObj *str;
 
-    if ( !nst_extract_arg_values("s", arg_num, args, err, &str) )
-        return nullptr;
+    NST_D_EXTRACT("s", &str);
 
     char *s = str->value;
     char *end = s + str->len;
@@ -418,8 +408,7 @@ NST_FUNC_SIGN(is_digit_)
 {
     Nst_StrObj *str;
 
-    if ( !nst_extract_arg_values("s", arg_num, args, err, &str) )
-        return nullptr;
+    NST_D_EXTRACT("s", &str);
 
     char *s = str->value;
     char *end = s + str->len;
@@ -437,8 +426,7 @@ NST_FUNC_SIGN(is_alnum_)
 {
     Nst_StrObj *str;
 
-    if ( !nst_extract_arg_values("s", arg_num, args, err, &str) )
-        return nullptr;
+    NST_D_EXTRACT("s", &str);
 
     char *s = str->value;
     char *end = s + str->len;
@@ -457,8 +445,7 @@ NST_FUNC_SIGN(is_charset_)
     Nst_StrObj *str1;
     Nst_StrObj *str2;
 
-    if ( !nst_extract_arg_values("ss", arg_num, args, err, &str1, &str2) )
-        return nullptr;
+    NST_D_EXTRACT("ss", &str1, &str2);
 
     char *s1 = str1->value;
     char *s2 = str2->value;
@@ -488,8 +475,7 @@ NST_FUNC_SIGN(is_printable_)
 {
     Nst_StrObj *str;
 
-    if ( !nst_extract_arg_values("s", arg_num, args, err, &str) )
-        return nullptr;
+    NST_D_EXTRACT("s", &str);
 
     char *s = str->value;
     char *end = s + str->len;
@@ -509,8 +495,7 @@ NST_FUNC_SIGN(replace_substr_)
     Nst_StrObj *str_from;
     Nst_StrObj *str_to;
 
-    if ( !nst_extract_arg_values("sss", arg_num, args, err, &str, &str_from, &str_to) )
-        return nullptr;
+    NST_D_EXTRACT("sss", &str, &str_from, &str_to);
 
     size_t s_len = str->len;
     size_t s_from_len = str_from->len;
@@ -568,8 +553,7 @@ NST_FUNC_SIGN(bytearray_to_str_)
 {
     Nst_SeqObj *seq;
 
-    if ( !nst_extract_arg_values("A", arg_num, args, err, &seq) )
-        return nullptr;
+    NST_D_EXTRACT("A", &seq);
 
     size_t len = seq->len;
     char *new_str = new char[len + 1];
@@ -599,8 +583,7 @@ NST_FUNC_SIGN(str_to_bytearray_)
 {
     Nst_StrObj *str;
 
-    if ( !nst_extract_arg_values("s", arg_num, args, err, &str) )
-        return nullptr;
+    NST_D_EXTRACT("s", &str);
 
     size_t len = str->len;
     char *s = str->value;
@@ -628,8 +611,7 @@ NST_FUNC_SIGN(join_)
     Nst_StrObj *str;
     Nst_SeqObj *seq;
 
-    if ( !nst_extract_arg_values("sA", arg_num, args, err, &str, &seq) )
-        return nullptr;
+    NST_D_EXTRACT("sA", &str, &seq);
 
     size_t len = seq->len;
     size_t str_len = str->len;
@@ -665,8 +647,7 @@ NST_FUNC_SIGN(split_)
     Nst_StrObj *str;
     Nst_StrObj *substr;
 
-    if ( !nst_extract_arg_values("ss", arg_num, args, err, &str, &substr) )
-        return nullptr;
+    NST_D_EXTRACT("ss", &str, &substr);
 
     if ( substr->len == 0 )
     {
@@ -704,4 +685,109 @@ NST_FUNC_SIGN(split_)
     nst_dec_ref(str_obj);
 
     return OBJ(vector);
+}
+
+typedef unsigned long long ull;
+
+static Nst_Int highest_bit(ull n)
+{
+    ull str_len = 63;
+    ull part_size = 32;
+    // binary search to find the highest true bit
+    // it returns one bit higher to account for the NUL byte
+    for ( int i = 0; i < 6; i++)
+    {
+        if ( n < (1ull << str_len >> part_size) )
+            str_len -= part_size;
+
+        part_size >>= 1;
+    }
+
+    if ( 1ull << 63ull & n )
+        return str_len + 2;
+    else
+        return str_len + 1;
+}
+
+NST_FUNC_SIGN(bin_)
+{
+    Nst_Int n;
+    NST_D_EXTRACT("i", &n);
+
+    Nst_Int str_len = highest_bit(n);
+
+    char *buf = new char[str_len + 2];
+    buf[0] = '0';
+    buf[1] = 'b';
+
+    for ( Nst_Int i = 0; i < Nst_Int(str_len - 1); i++ )
+    {
+        if ( 1ll << i & n )
+            buf[str_len - i] = '1';
+        else
+            buf[str_len - i] = '0';
+    }
+    buf[str_len + 1] = '\0';
+
+    return nst_new_string(buf, str_len + 1, true);
+}
+
+NST_FUNC_SIGN(oct_)
+{
+    Nst_Int n;
+    NST_D_EXTRACT("i", &n);
+
+    Nst_Int h_bit = highest_bit(n);
+    Nst_Int str_len = h_bit / 3;
+    if ( h_bit % 3 )
+        str_len += 2;
+    else
+        str_len += 1;
+
+    char *buf = new char[str_len + 2];
+    buf[0] = '0';
+    buf[1] = 'o';
+
+    for ( Nst_Int i = 0; i < Nst_Int(str_len - 1); i++ )
+    {
+        char ch = char((07ull << (i * 3) & ull(n)) >> (i * 3));
+        buf[str_len - i] = '0' + ch;
+    }
+    buf[str_len + 1] = '\0';
+
+    return nst_new_string(buf, str_len + 1, true);
+}
+
+NST_FUNC_SIGN(hex_)
+{
+    Nst_Int n;
+    NST_D_EXTRACT("i", &n);
+
+    Nst_Int h_bit = highest_bit(n);
+    Nst_Int str_len = h_bit >> 2;
+    if ( h_bit & 4 )
+        str_len += 2;
+    else
+        str_len += 1;
+    
+    char *buf = new char[str_len + 2];
+    buf[0] = '0';
+    buf[1] = 'x';
+
+    for ( Nst_Int i = 0; i < Nst_Int(str_len - 1); i++ )
+    {
+        char ch = char((0xfull << (i * 4) & ull(n)) >> (i * 4));
+        if ( ch < 10 )
+            buf[str_len - i] = '0' + ch;
+        else
+            buf[str_len - i] = 'a' + ch - 10;
+    }
+    buf[str_len + 1] = '\0';
+
+    return nst_new_string(buf, str_len + 1, true);
+}
+
+NST_FUNC_SIGN(fmt_)
+{
+    NST_RETURN_NULL;
 }
