@@ -127,8 +127,8 @@ When `make debug` or `make all-debug` are ran, the compiled program is inserted
 in `build/linux/linux_debug`, otherwise the executable is put in
 `build/linux/linux_release/x64` or `build/linux/linux_release/x86`.
 
-To update the `.nest` files of the standard library, run `./update_files.sh`,
-this will use Nest by default, run `./update_files.sh py` to use Python instead.
+To update the `.nest` files of the standard library, run `./_update_files.sh`,
+this will use Nest by default, run `./_update_files.sh py` to use Python instead.
 The files will appear in `build/linux/linux_libs`.
 
 Finally, to package the binaries run `./_make_archives.sh` and to install them

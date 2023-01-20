@@ -1074,7 +1074,15 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
         {
             char *buffer = (char *)malloc(sizeof(char) * (13 + MAX_INT_CHAR_COUNT));
             CHECK_BUFFER(buffer);
-            int len = sprintf(buffer, "<Func %zi args>", FUNC(ob)->arg_num);
+            int len;
+
+            if ( FUNC(ob)->arg_num  == 1 )
+            {
+                memcpy(buffer, "<Func 1 arg>", 13);
+                len = 12;
+            }
+            else
+                len = sprintf(buffer, "<Func %zi args>", FUNC(ob)->arg_num);
             return nst_new_string(buffer, len, true);
         }
         else

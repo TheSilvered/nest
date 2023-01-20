@@ -43,8 +43,7 @@ NST_FUNC_SIGN(count_)
     Nst_Int start;
     Nst_Int step;
 
-    if ( !nst_extract_arg_values("ii", arg_num, args, err, &start, &step) )
-        return nullptr;
+    NST_D_EXTRACT("ii", &start, &step);
 
     // Layout: [idx, start, step]
     Nst_Obj *arr = nst_new_array(3);
@@ -65,8 +64,7 @@ NST_FUNC_SIGN(cycle_)
 {
     Nst_Obj *seq;
 
-    if ( !nst_extract_arg_values("S", arg_num, args, err, &seq) )
-        return nullptr;
+    NST_D_EXTRACT("S", &seq);
 
     // Layout: [idx, seq]
     Nst_SeqObj *arr = SEQ(nst_new_array(2));
@@ -84,10 +82,10 @@ NST_FUNC_SIGN(cycle_)
 
 NST_FUNC_SIGN(repeat_)
 {
+    Nst_Obj *ob;
     Nst_Int times;
 
-    if ( !nst_extract_arg_values("i", arg_num - 1, args + 1, err, &times) )
-        return nullptr;
+    NST_D_EXTRACT("oi", &ob, &times);
 
     // Layout: [count, item, max_times]
     Nst_Obj *arr = nst_new_array(3);
@@ -108,8 +106,7 @@ NST_FUNC_SIGN(chain_)
 {
     Nst_SeqObj *seq;
 
-    if ( !nst_extract_arg_values("A", arg_num, args, err, &seq) )
-        return nullptr;
+    NST_D_EXTRACT("A", &seq);
 
     // Layout: [idx_global, idx_local, seq]
     Nst_SeqObj *arr = SEQ(nst_new_array(3));
@@ -131,8 +128,7 @@ NST_FUNC_SIGN(zip_)
     Nst_Obj *seq1;
     Nst_Obj *seq2;
 
-    if ( !nst_extract_arg_values("SS", arg_num, args, err, &seq1, &seq2) )
-        return nullptr;
+    NST_D_EXTRACT("SS", &seq1, &seq2);
 
     // Layout: [idx, seq1, seq2]
     Nst_SeqObj *arr = SEQ(nst_new_array(3));
@@ -153,8 +149,7 @@ NST_FUNC_SIGN(zipn_)
 {
     Nst_SeqObj *seq;
 
-    if ( !nst_extract_arg_values("A", arg_num, args, err, &seq) )
-        return nullptr;
+    NST_D_EXTRACT("A", &seq);
 
     if ( seq->len < 2 )
     {
@@ -206,8 +201,7 @@ NST_FUNC_SIGN(enumerate_)
 {
     Nst_Obj *seq;
 
-    if ( !nst_extract_arg_values("S", arg_num, args, err, &seq) )
-        return nullptr;
+    NST_D_EXTRACT("S", &seq);
 
     // Layout: [idx, seq]
     Nst_SeqObj *arr = SEQ(nst_new_array(2));
@@ -227,8 +221,7 @@ NST_FUNC_SIGN(keys_)
 {
     Nst_MapObj *map;
 
-    if ( !nst_extract_arg_values("m", arg_num, args, err, &map) )
-        return nullptr;
+    NST_D_EXTRACT("m", &map);
 
     // Layout: [idx, map]
     Nst_SeqObj *arr = SEQ(nst_new_array(2));
@@ -248,8 +241,7 @@ NST_FUNC_SIGN(values_)
 {
     Nst_MapObj *map;
 
-    if ( !nst_extract_arg_values("m", arg_num, args, err, &map) )
-        return nullptr;
+    NST_D_EXTRACT("m", &map);
 
     // Layout: [idx, map]
     Nst_SeqObj *arr = SEQ(nst_new_array(2));
@@ -269,8 +261,7 @@ NST_FUNC_SIGN(items_)
 {
     Nst_MapObj *map;
 
-    if ( !nst_extract_arg_values("m", arg_num, args, err, &map) )
-        return nullptr;
+    NST_D_EXTRACT("m", &map);
 
     // Layout: [idx, map]
     Nst_SeqObj *arr = SEQ(nst_new_array(2));
@@ -290,8 +281,7 @@ NST_FUNC_SIGN(reversed_)
 {
     Nst_Obj *seq;
 
-    if ( !nst_extract_arg_values("S", arg_num, args, err, &seq) )
-        return nullptr;
+    NST_D_EXTRACT("S", &seq);
 
     // Layout: [idx, seq]
     Nst_SeqObj *arr = SEQ(nst_new_array(2));
@@ -311,8 +301,7 @@ NST_FUNC_SIGN(iter_start_)
 {
     Nst_IterObj *iter;
 
-    if ( !nst_extract_arg_values("I", arg_num, args, err, &iter) )
-        return nullptr;
+    NST_D_EXTRACT("I", &iter);
 
     return nst_call_func(iter->start, &iter->value, err);
 }
@@ -321,8 +310,7 @@ NST_FUNC_SIGN(iter_is_done_)
 {
     Nst_IterObj *iter;
 
-    if ( !nst_extract_arg_values("I", arg_num, args, err, &iter) )
-        return nullptr;
+    NST_D_EXTRACT("I", &iter);
 
     return nst_call_func(iter->is_done, &iter->value, err);
 }
@@ -331,8 +319,7 @@ NST_FUNC_SIGN(iter_get_val_)
 {
     Nst_IterObj *iter;
 
-    if ( !nst_extract_arg_values("I", arg_num, args, err, &iter) )
-        return nullptr;
+    NST_D_EXTRACT("I", &iter);
 
     return nst_call_func(iter->get_val, &iter->value, err);
 }
@@ -341,8 +328,7 @@ NST_FUNC_SIGN(iter_advance_)
 {
     Nst_IterObj *iter;
 
-    if ( !nst_extract_arg_values("I", arg_num, args, err, &iter) )
-        return nullptr;
+    NST_D_EXTRACT("I", &iter);
 
     return nst_call_func(iter->advance, &iter->value, err);
 }

@@ -43,8 +43,7 @@ NST_FUNC_SIGN(map_)
     Nst_SeqObj *seq;
     Nst_FuncObj *func;
 
-    if ( !nst_extract_arg_values("Af", arg_num, args, err, &seq, &func) )
-        return nullptr;
+    NST_D_EXTRACT("Af", &seq, &func);
 
     if ( func->arg_num != 1 )
     {
@@ -82,8 +81,7 @@ NST_FUNC_SIGN(insert_at_)
     Nst_Int idx;
     Nst_Obj *obj;
 
-    if ( !nst_extract_arg_values("vio", arg_num, args, err, &vect, &idx, &obj) )
-        return nullptr;
+    NST_D_EXTRACT("vio", &vect, &idx, &obj);
 
     Nst_Int new_idx = idx;
 
@@ -118,8 +116,7 @@ NST_FUNC_SIGN(remove_at_)
     Nst_SeqObj *vect;
     Nst_Int idx;
 
-    if ( !nst_extract_arg_values("vi", arg_num, args, err, &vect, &idx) )
-        return nullptr;
+    NST_D_EXTRACT("vi", &vect, &idx);
 
     Nst_Int new_idx = idx;
 
@@ -154,8 +151,7 @@ NST_FUNC_SIGN(slice_)
     Nst_Int stop;
     Nst_Int step;
 
-    if ( !nst_extract_arg_values("Siii", arg_num, args, err, &seq, &start, &stop, &step) )
-        return nullptr;
+    NST_D_EXTRACT("Siii", &seq, &start, &stop, &step);
 
     size_t seq_len = seq->len;
     Nst_TypeObj *seq_type = args[0]->type;
@@ -224,8 +220,7 @@ NST_FUNC_SIGN(merge_)
     Nst_SeqObj *seq1;
     Nst_SeqObj *seq2;
 
-    if ( !nst_extract_arg_values("AA", arg_num, args, err, &seq1, &seq2) )
-        return nullptr;
+    NST_D_EXTRACT("AA", &seq1, &seq2);
 
     Nst_SeqObj *new_seq;
 
@@ -321,8 +316,7 @@ NST_FUNC_SIGN(sort_)
     // Implementation of Timsort, adapted from https://www.geeksforgeeks.org/timsort/
     Nst_SeqObj *seq;
 
-    if ( !nst_extract_arg_values("A", arg_num, args, err, &seq) )
-        return nullptr;
+    NST_D_EXTRACT("A", &seq);
 
     size_t seq_len = seq->len;
 
@@ -351,8 +345,7 @@ NST_FUNC_SIGN(empty_)
 {
     Nst_SeqObj *vect;
 
-    if ( !nst_extract_arg_values("v", arg_num, args, err, &vect) )
-        return nullptr;
+    NST_D_EXTRACT("v", &vect);
 
     for ( size_t i = 0, n = vect->len; i < n; i++ )
         nst_dec_ref(vect->objs[i]);
@@ -367,8 +360,7 @@ NST_FUNC_SIGN(filter_)
     Nst_SeqObj *seq;
     Nst_FuncObj *func;
 
-    if ( !nst_extract_arg_values("Af", arg_num, args, err, &seq, &func) )
-        return nullptr;
+    NST_D_EXTRACT("Af", &seq, &func);
 
     if ( func->arg_num != 1 )
     {
@@ -417,8 +409,7 @@ NST_FUNC_SIGN(contains_)
     Nst_Obj *container;
     Nst_Obj *object;
 
-    if (!nst_extract_arg_values("oo", arg_num, args, err, &container, &object))
-        return nullptr;
+    NST_D_EXTRACT("oo", &container, &object);
 
     if ( container->type == nst_t.Array || container->type == nst_t.Vector )
     {
@@ -465,8 +456,7 @@ NST_FUNC_SIGN(any_)
 {
     Nst_SeqObj *seq;
 
-    if ( !nst_extract_arg_values("A", arg_num, args, err, &seq) )
-        return nullptr;
+    NST_D_EXTRACT("A", &seq);
 
     for ( size_t i = 0, n = seq->len; i < n; i++ )
     {
@@ -485,8 +475,7 @@ NST_FUNC_SIGN(all_)
 {
     Nst_SeqObj *seq;
 
-    if ( !nst_extract_arg_values("A", arg_num, args, err, &seq) )
-        return nullptr;
+    NST_D_EXTRACT("A", &seq);
 
     for ( size_t i = 0, n = seq->len; i < n; i++ )
     {

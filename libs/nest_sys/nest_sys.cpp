@@ -51,10 +51,7 @@ void free_lib()
 NST_FUNC_SIGN(system_)
 {
     Nst_StrObj *command;
-
-    if ( !nst_extract_arg_values("s", arg_num, args, err, &command) )
-        return nullptr;
-
+    NST_D_EXTRACT("s", &command);
     return nst_new_int(system(command->value));
 }
 
@@ -62,8 +59,7 @@ NST_FUNC_SIGN(exit_)
 {
     Nst_Int status;
 
-    if ( !nst_extract_arg_values("i", arg_num, args, err, &status) )
-        return nullptr;
+    NST_D_EXTRACT("i", &status);
 
     exit((int)status);
     return nullptr;
@@ -73,8 +69,7 @@ NST_FUNC_SIGN(getenv_)
 {
     Nst_StrObj *name;
 
-    if ( !nst_extract_arg_values("s", arg_num, args, err, &name) )
-        return nullptr;
+    NST_D_EXTRACT("s", &name);
 
     char *env_name = getenv(name->value);
 

@@ -235,8 +235,7 @@ NST_FUNC_SIGN(sleep_)
 {
     Nst_Real time;
 
-    if ( !nst_extract_arg_values("N", arg_num, args, err, &time) )
-        return nullptr;
+    NST_D_EXTRACT("N", &time);
 
 #if defined(_WIN32) || defined(WIN32)
     Sleep(DWORD(time * 1000));

@@ -149,8 +149,7 @@ NST_FUNC_SIGN(open_)
     Nst_StrObj *file_name_str;
     Nst_StrObj *file_mode_str;
 
-    if ( !nst_extract_arg_values("ss", arg_num, args, err, &file_name_str, &file_mode_str) )
-        return nullptr;
+    NST_D_EXTRACT("ss", &file_name_str, &file_mode_str);
 
     char *file_name = file_name_str->value;
     char *file_mode = file_mode_str->value;
@@ -222,8 +221,7 @@ NST_FUNC_SIGN(virtual_iof_)
 {
     Nst_Bool bin;
 
-    if ( !nst_extract_arg_values("b", arg_num, args, err, &bin) )
-        return nullptr;
+    NST_D_EXTRACT("b", &bin);
 
     VirtualIOFile_data *f = new VirtualIOFile_data;
     f->data = new char[1];
@@ -243,8 +241,7 @@ NST_FUNC_SIGN(close_)
 {
     Nst_IOFileObj *f;
 
-    if ( !nst_extract_arg_values("F", arg_num, args, err, &f) )
-        return nullptr;
+    NST_D_EXTRACT("F", &f);
 
     if ( NST_IOF_IS_CLOSED(f) )
     {
@@ -297,8 +294,7 @@ NST_FUNC_SIGN(write_bytes_)
     Nst_IOFileObj *f;
     Nst_SeqObj *seq;
 
-    if ( !nst_extract_arg_values("FA", arg_num, args, err, &f, &seq) )
-        return nullptr;
+    NST_D_EXTRACT("FA", &f, &seq);
 
     if ( NST_IOF_IS_CLOSED(f) )
     {
@@ -343,8 +339,7 @@ NST_FUNC_SIGN(read_)
     Nst_IOFileObj *f;
     Nst_Int bytes_to_read;
 
-    if ( !nst_extract_arg_values("Fi", arg_num, args, err, &f, &bytes_to_read) )
-        return nullptr;
+    NST_D_EXTRACT("Fi", &f, &bytes_to_read);
 
     if ( NST_IOF_IS_CLOSED(f) )
     {
@@ -381,8 +376,7 @@ NST_FUNC_SIGN(read_bytes_)
     Nst_IOFileObj *f;
     Nst_Int bytes_to_read;
 
-    if ( !nst_extract_arg_values("Fi", arg_num, args, err, &f, &bytes_to_read) )
-        return nullptr;
+    NST_D_EXTRACT("Fi", &f, &bytes_to_read);
 
     if ( NST_IOF_IS_CLOSED(f) )
     {
@@ -423,8 +417,7 @@ NST_FUNC_SIGN(file_size_)
 {
     Nst_IOFileObj *f;
 
-    if ( !nst_extract_arg_values("F", arg_num, args, err, &f) )
-        return nullptr;
+    NST_D_EXTRACT("F", &f);
 
     if ( NST_IOF_IS_CLOSED(f) )
     {
@@ -439,8 +432,7 @@ NST_FUNC_SIGN(get_fptr_)
 {
     Nst_IOFileObj *f;
 
-    if ( !nst_extract_arg_values("F", arg_num, args, err, &f) )
-        return nullptr;
+    NST_D_EXTRACT("F", &f);
 
     if ( NST_IOF_IS_CLOSED(f) )
     {
@@ -457,8 +449,7 @@ NST_FUNC_SIGN(move_fptr_)
     Nst_Int start;
     Nst_Int offset;
 
-    if ( !nst_extract_arg_values("Fii", arg_num, args, err, &f, &start, &offset) )
-        return nullptr;
+    NST_D_EXTRACT("Fii", &f, &start, &offset);
 
     if ( NST_IOF_IS_CLOSED(f) )
     {
@@ -497,8 +488,7 @@ NST_FUNC_SIGN(flush_)
 {
     Nst_IOFileObj *f;
 
-    if ( !nst_extract_arg_values("F", arg_num, args, err, &f) )
-        return nullptr;
+    NST_D_EXTRACT("F", &f);
 
     if ( f == nullptr )
     {
@@ -514,8 +504,7 @@ NST_FUNC_SIGN(get_flags_)
 {
     Nst_IOFileObj *f;
 
-    if ( !nst_extract_arg_values("F", arg_num, args, err, &f) )
-        return nullptr;
+    NST_D_EXTRACT("F", &f);
 
     char *flags = new char[4];
     flags[0] = NST_IOF_CAN_READ(f)  ? 'r' : '-';
@@ -530,8 +519,7 @@ NST_FUNC_SIGN(_set_stdin_)
 {
     Nst_IOFileObj *f;
 
-    if ( !nst_extract_arg_values("F", arg_num, args, err, &f) )
-        return nullptr;
+    NST_D_EXTRACT("F", &f);
 
     if ( NST_IOF_IS_CLOSED(f) )
     {
@@ -559,8 +547,7 @@ NST_FUNC_SIGN(_set_stdout_)
 {
     Nst_IOFileObj *f;
 
-    if ( !nst_extract_arg_values("F", arg_num, args, err, &f) )
-        return nullptr;
+    NST_D_EXTRACT("F", &f);
 
     if ( NST_IOF_IS_CLOSED(f) )
     {
@@ -588,8 +575,7 @@ NST_FUNC_SIGN(_set_stderr_)
 {
     Nst_IOFileObj *f;
 
-    if ( !nst_extract_arg_values("F", arg_num, args, err, &f) )
-        return nullptr;
+    NST_D_EXTRACT("F", &f);
 
     if ( NST_IOF_IS_CLOSED(f) )
     {

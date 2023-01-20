@@ -1,6 +1,6 @@
 #include "nest_co.h"
 
-#define FUNC_COUNT 6 // Set this to the number of functions in your module
+#define FUNC_COUNT 6
 
 static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
@@ -198,8 +198,7 @@ NST_FUNC_SIGN(create_)
 {
     Nst_FuncObj *func;
 
-    if ( !nst_extract_arg_values("f", arg_num, args, err, &func))
-        return nullptr;
+    NST_D_EXTRACT("f", &func);
 
     if ( NST_HAS_FLAG(func, NST_FLAG_FUNC_IS_C) )
     {
@@ -213,19 +212,15 @@ NST_FUNC_SIGN(create_)
 
 NST_FUNC_SIGN(call_)
 {
-    Nst_Obj *co_args = args[0];
-    CoroutineObj *co = (CoroutineObj *)args[1];
+    Nst_Obj *co_args;
+    CoroutineObj *co;
 
-    if ( co->type != t_Coroutine )
-    {
-        NST_SET_TYPE_ERROR(_nst_format_error(
-            "expected type 'Coroutine' for argument 2, got type '%s' instead",
-            "s",
-            TYPE_NAME(co)
-        ));
+    NST_D_EXTRACT("?A#", &co_args, t_Coroutine, &co);
 
-        return nullptr;
-    }
+    if ( co_args == nst_c.null )
+        co_args = nst_new_array(0);
+    else
+        nst_inc_ref(co_args);
 
     if ( !NST_HAS_FLAG(co, FLAG_CO_PAUSED) &&
          co->func->arg_num != SEQ(co_args)->len )
@@ -235,13 +230,14 @@ NST_FUNC_SIGN(call_)
             co->func->arg_num, co->func->arg_num == 1 ? "" : "s",
             SEQ(co_args)->len, SEQ(co_args)->len == 1 ? "was" : "were"
         ));
-
+        nst_dec_ref(co_args);
         return nullptr;
     }
 
     if ( NST_HAS_FLAG(co, FLAG_CO_RUNNING) )
     {
         NST_SET_RAW_CALL_ERROR("the coroutine is already running");
+        nst_dec_ref(co_args);
         return nullptr;
     }
 
@@ -271,6 +267,8 @@ NST_FUNC_SIGN(call_)
     else
         result = nst_call_func(co->func, SEQ(co_args)->objs, err);
 
+    nst_dec_ref(co_args);
+
     // If an error occurred
     if ( result == nullptr )
         return nullptr;
@@ -287,19 +285,10 @@ NST_FUNC_SIGN(call_)
 
 NST_FUNC_SIGN(pause_)
 {
-    CoroutineObj *co = (CoroutineObj *)args[0];
-    Nst_Obj *return_value = args[1];
+    CoroutineObj *co;
+    Nst_Obj *return_value;
 
-    if ( co->type != t_Coroutine )
-    {
-        NST_SET_TYPE_ERROR(_nst_format_error(
-            "expected type 'Coroutine' for argument 1, got type '%s' instead",
-            "s",
-            TYPE_NAME(co)
-        ));
-
-        return nullptr;
-    }
+    NST_D_EXTRACT("#o", t_Coroutine, &co, &return_value);
 
     Nst_FuncCall call = nst_peek_func(nst_state.f_stack);
     if ( call.func != co->func )
@@ -353,18 +342,9 @@ NST_FUNC_SIGN(pause_)
 
 NST_FUNC_SIGN(get_state_)
 {
-    CoroutineObj *co = (CoroutineObj *)args[0];
+    CoroutineObj *co;
 
-    if ( co->type != t_Coroutine )
-    {
-        NST_SET_TYPE_ERROR(_nst_format_error(
-            "expected type 'Coroutine' for argument 1, got type '%s' instead",
-            "s",
-            TYPE_NAME(co)
-        ));
-
-        return nullptr;
-    }
+    NST_D_EXTRACT("#", t_Coroutine, &co);
 
     if ( NST_HAS_FLAG(co, FLAG_CO_SUSPENDED))
         return nst_inc_ref(state_suspended);
@@ -380,18 +360,9 @@ NST_FUNC_SIGN(get_state_)
 
 NST_FUNC_SIGN(generator_)
 {
-    CoroutineObj *co = (CoroutineObj *)args[0];
+    CoroutineObj *co;
 
-    if ( co->type != t_Coroutine )
-    {
-        NST_SET_TYPE_ERROR(_nst_format_error(
-            "expected type 'Coroutine' for argument 1, got type '%s' instead",
-            "s",
-            TYPE_NAME(co)
-        ));
-
-        return nullptr;
-    }
+    NST_D_EXTRACT("#", t_Coroutine, &co);
 
     // layout co_args, co, obj, is_done
     Nst_SeqObj *arr = SEQ(nst_new_array(4));

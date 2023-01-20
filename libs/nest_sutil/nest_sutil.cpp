@@ -599,10 +599,7 @@ NST_FUNC_SIGN(str_to_bytearray_)
 NST_FUNC_SIGN(repr_)
 {
     Nst_Obj *obj;
-
-    if ( !nst_extract_arg_values("o", arg_num, args, err, &obj) )
-        return nullptr;
-
+    NST_D_EXTRACT("o", &obj);
     return _nst_repr_str_cast(obj);
 }
 
