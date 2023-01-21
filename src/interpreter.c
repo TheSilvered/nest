@@ -899,7 +899,7 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
         for ( Nst_Int i = 0; i < null_args; i++ )
             args[arg_num + i] = nst_inc_ref(nst_c.null);
 
-        Nst_Obj *res = func->body.c_func((size_t)arg_num, args, &err);
+        Nst_Obj *res = func->body.c_func((size_t)tot_args, args, &err);
 
         if ( !is_seq_call )
         {

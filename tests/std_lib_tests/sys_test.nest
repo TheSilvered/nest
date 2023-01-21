@@ -1,6 +1,7 @@
 |#| '../test_lib.nest' = test
 |#| 'stdsys.nest' = sys
 |#| 'stdio.nest' = io
+|#| 'stdsutil.nest' = su
 
 test.log_file @io.close
 
@@ -13,7 +14,7 @@ sys.PLATFORM 'windows' == ?
 'sys.getenv (appdata): ' ('APPDATA' @sys.getenv) >< @test.println
 'sys.getenv (home): ' ('HOME' @sys.getenv) >< @test.println
 'Hello' @sys.get_ref_count 2 @test.assert_eq
-'get_addr: '(10 @sys.get_addr) >< @test.println
+'get_addr: 0x'(10 @sys.get_addr @su.hex 16 '0' @su.rjust) >< @test.println
 10 @sys.hash 10 @test.assert_eq
 -1 @sys.hash -2 @test.assert_eq
 ?::sys.VERSION Str @test.assert_eq

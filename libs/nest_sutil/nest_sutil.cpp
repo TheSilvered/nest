@@ -41,7 +41,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(split_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(bin_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(oct_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(hex_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(hex_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(fmt_, 2);
 
     lib_init_ = true;
@@ -691,7 +691,6 @@ static Nst_Int highest_bit(ull n)
     ull str_len = 63;
     ull part_size = 32;
     // binary search to find the highest true bit
-    // it returns one bit higher to account for the NUL byte
     for ( int i = 0; i < 6; i++)
     {
         if ( n < (1ull << str_len >> part_size) )
@@ -700,10 +699,11 @@ static Nst_Int highest_bit(ull n)
         part_size >>= 1;
     }
 
+    // if the highest bit is a 1
     if ( 1ull << 63ull & n )
-        return str_len + 2;
-    else
         return str_len + 1;
+    else
+        return str_len;
 }
 
 NST_FUNC_SIGN(bin_)
@@ -711,22 +711,20 @@ NST_FUNC_SIGN(bin_)
     Nst_Int n;
     NST_D_EXTRACT("i", &n);
 
-    Nst_Int str_len = highest_bit(n);
+    Nst_Int str_len = highest_bit(n) + 1;
 
-    char *buf = new char[str_len + 2];
-    buf[0] = '0';
-    buf[1] = 'b';
+    char *buf = new char[str_len];
 
     for ( Nst_Int i = 0; i < Nst_Int(str_len - 1); i++ )
     {
         if ( 1ll << i & n )
-            buf[str_len - i] = '1';
+            buf[str_len - i - 2] = '1';
         else
-            buf[str_len - i] = '0';
+            buf[str_len - i - 2] = '0';
     }
-    buf[str_len + 1] = '\0';
+    buf[str_len - 1] = '\0';
 
-    return nst_new_string(buf, str_len + 1, true);
+    return nst_new_string(buf, str_len - 1, true);
 }
 
 NST_FUNC_SIGN(oct_)
@@ -741,47 +739,52 @@ NST_FUNC_SIGN(oct_)
     else
         str_len += 1;
 
-    char *buf = new char[str_len + 2];
-    buf[0] = '0';
-    buf[1] = 'o';
+    char *buf = new char[str_len ];
 
     for ( Nst_Int i = 0; i < Nst_Int(str_len - 1); i++ )
     {
         char ch = char((07ull << (i * 3) & ull(n)) >> (i * 3));
-        buf[str_len - i] = '0' + ch;
+        buf[str_len - i - 2] = '0' + ch;
     }
-    buf[str_len + 1] = '\0';
+    buf[str_len - 1] = '\0';
 
-    return nst_new_string(buf, str_len + 1, true);
+    return nst_new_string(buf, str_len - 1, true);
 }
 
 NST_FUNC_SIGN(hex_)
 {
     Nst_Int n;
-    NST_D_EXTRACT("i", &n);
+    Nst_Obj *upper_obj;
+    NST_D_EXTRACT("i?b", &n, &upper_obj);
+
+    Nst_Bool as_upper;
+    if ( upper_obj->type == nst_t.Null )
+        as_upper = false;
+    else
+        as_upper = AS_BOOL(upper_obj);
 
     Nst_Int h_bit = highest_bit(n);
-    Nst_Int str_len = h_bit >> 2;
-    if ( h_bit & 4 )
+    Nst_Int str_len = h_bit / 4;
+    if ( h_bit % 4 )
         str_len += 2;
     else
         str_len += 1;
     
-    char *buf = new char[str_len + 2];
-    buf[0] = '0';
-    buf[1] = 'x';
+    char *buf = new char[str_len];
 
     for ( Nst_Int i = 0; i < Nst_Int(str_len - 1); i++ )
     {
+        int idx = str_len - i - 2;
         char ch = char((0xfull << (i * 4) & ull(n)) >> (i * 4));
-        if ( ch < 10 )
-            buf[str_len - i] = '0' + ch;
-        else
-            buf[str_len - i] = 'a' + ch - 10;
-    }
-    buf[str_len + 1] = '\0';
 
-    return nst_new_string(buf, str_len + 1, true);
+        if ( ch < 10 )
+            buf[idx] = '0' + ch;
+        else
+            buf[idx] = (as_upper ? 'A' : 'a') + ch - 10;
+    }
+    buf[str_len - 1] = '\0';
+
+    return nst_new_string(buf, str_len - 1, true);
 }
 
 NST_FUNC_SIGN(fmt_)
