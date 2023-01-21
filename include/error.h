@@ -62,7 +62,7 @@
 #define _NST_EM_UNHASHABLE_TYPE "unhashable type '%s'"
 #define _NST_EM_INDEX_OUT_OF_BOUNDS(type) "index %lli out of bounds for '" type "' of size %zi"
 #define _NST_EM_LEFT_ARGS_NUM(op, count, s) "'" op "' expects only " count " argument" s " on the left"
-#define _NST_EM_WRONG_ARG_NUM "the function expected %zi argument%s but %lli %s passed"
+#define _NST_EM_WRONG_ARG_NUM "the function expected at most %zi argument%s but %lli %s passed"
 #define _NST_EM_EXPECTED_BOOL_ITER_IS_DONE "expected 'Bool' type from '_is_done_', got type '%s' instead"
 #define _NST_EM_FILE_NOT_FOUND "file '%s' not found"
 #define _NST_EM_WRONG_TYPE_FOR_ARG(type) "expected type '" type "' for argument %zi, got type '%s' instead"

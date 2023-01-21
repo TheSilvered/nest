@@ -1,4 +1,3 @@
-#!/bin/bash
 mkdir -p ./linux_libs
 cp ../../libs/_nest_files/* ./linux_libs
 

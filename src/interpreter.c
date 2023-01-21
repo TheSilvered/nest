@@ -831,7 +831,7 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
     else
         args_seq = NULL;
 
-    if ( (Nst_Int)(func->arg_num) != arg_num )
+    if ( (Nst_Int)(func->arg_num) < arg_num )
     {
         _NST_SET_CALL_ERROR(
             GLOBAL_ERROR,
@@ -851,25 +851,43 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
         return;
     }
 
+    Nst_Int null_args = (Nst_Int)func->arg_num - arg_num;
+    Nst_Int tot_args = arg_num + null_args;
+
     if ( NST_HAS_FLAG(func, NST_FLAG_FUNC_IS_C) )
     {
         Nst_OpErr err = { NULL, NULL };
         Nst_Obj **args;
-        Nst_Obj *arg;
+        Nst_Obj *stack_args[10]; // up to 10 arguments this array is used
         bool args_allocated = false;
 
-        if ( is_seq_call )
+        if ( is_seq_call && null_args == 0 )
             args = args_seq->objs;
+        else if ( is_seq_call && tot_args <= 10 )
+        {
+            memcpy(stack_args, args_seq->objs, arg_num * sizeof(Nst_Obj *));
+            args = stack_args;
+        }
+        else if ( is_seq_call )
+        {
+            args = (Nst_Obj **)malloc((size_t)(sizeof(Nst_Obj *) * tot_args));
+            if ( args == NULL )
+                return;
+
+            memcpy(stack_args, args_seq->objs, arg_num * sizeof(Nst_Obj *));
+            args = stack_args;
+        }
         else if ( arg_num == 0 )
             args = NULL;
-        else if ( arg_num == 1 )
+        else if ( tot_args <= 10 )
         {
-            arg = nst_pop_val(nst_state.v_stack);
-            args = &arg;
+            for ( Nst_Int i = arg_num - 1; i >= 0; i-- )
+                stack_args[i] = nst_pop_val(nst_state.v_stack);
+            args = stack_args;
         }
         else
         {
-            args = (Nst_Obj **)malloc((size_t)(sizeof(Nst_Obj *) * arg_num));
+            args = (Nst_Obj **)malloc((size_t)(sizeof(Nst_Obj *) * tot_args));
             if ( args == NULL )
                 return;
 
@@ -878,11 +896,16 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
             args_allocated = true;
         }
 
+        for ( Nst_Int i = 0; i < null_args; i++ )
+            args[arg_num + i] = nst_inc_ref(nst_c.null);
+
         Nst_Obj *res = func->body.c_func((size_t)arg_num, args, &err);
 
         if ( !is_seq_call )
+        {
             for ( Nst_Int i = 0; i < arg_num; i++ )
                 nst_dec_ref(args[i]);
+        }
 
         if ( args_allocated )
             free(args);
@@ -942,6 +965,10 @@ static inline void exe_op_call(Nst_RuntimeInstruction *inst)
         nst_set_val(new_vt, func->args[arg_num - i - 1], val);
         nst_dec_ref(val);
     }
+
+    for ( Nst_Int i = arg_num; i < tot_args; i++ )
+        nst_set_val(new_vt, func->args[i], nst_c.null);
+
     CHANGE_VT(new_vt);
     nst_push_val(nst_state.v_stack, NULL);
 }
