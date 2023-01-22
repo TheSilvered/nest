@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include "nest_sutil.h"
 
-#define FUNC_COUNT 28
+#define FUNC_COUNT 27
 
 static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
@@ -42,7 +42,6 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(bin_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(oct_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(hex_, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(fmt_, 2);
 
     lib_init_ = true;
     return true;
@@ -757,11 +756,11 @@ NST_FUNC_SIGN(hex_)
     Nst_Obj *upper_obj;
     NST_D_EXTRACT("i?b", &n, &upper_obj);
 
-    Nst_Bool as_upper;
-    if ( upper_obj->type == nst_t.Null )
-        as_upper = false;
+    const char *digits;
+    if ( upper_obj->type == nst_t.Null || !AS_BOOL(upper_obj) )
+        digits = "0123456789abcdef";
     else
-        as_upper = AS_BOOL(upper_obj);
+        digits = "0123456789ABCDEF";
 
     Nst_Int h_bit = highest_bit(n);
     Nst_Int str_len = h_bit / 4;
@@ -774,20 +773,10 @@ NST_FUNC_SIGN(hex_)
 
     for ( Nst_Int i = 0; i < Nst_Int(str_len - 1); i++ )
     {
-        int idx = str_len - i - 2;
-        char ch = char((0xfull << (i * 4) & ull(n)) >> (i * 4));
-
-        if ( ch < 10 )
-            buf[idx] = '0' + ch;
-        else
-            buf[idx] = (as_upper ? 'A' : 'a') + ch - 10;
+        ull ch_idx = (0xfull << (i * 4) & ull(n)) >> (i * 4);
+        buf[str_len - i - 2] = digits[ch_idx];
     }
     buf[str_len - 1] = '\0';
 
     return nst_new_string(buf, str_len - 1, true);
-}
-
-NST_FUNC_SIGN(fmt_)
-{
-    NST_RETURN_NULL;
 }

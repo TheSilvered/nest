@@ -1,4 +1,12 @@
-|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_err.dll' = __err
+_cwd_.0 '/' == ? [
+    '../../build/linux/linux_debug/std' = dbg_path
+    '.so' = ext
+] : [
+    '../../build/windows/projects/nest/x64/Debug/nest_' = dbg_path
+    '.dll' = ext
+]
+
+|#| ('__C__:' dbg_path 'err' ext ><) = __err
 
 __err.try_ = try
 __err._get_err_names_ = _get_err_names

@@ -34,7 +34,7 @@ extern "C" {
 #endif // !__cplusplus
 
 NST_SIMPLE_TYPE_STRUCT(long long, Nst_Int);
-NST_SIMPLE_TYPE_STRUCT(long double, Nst_Real);
+NST_SIMPLE_TYPE_STRUCT(double, Nst_Real);
 NST_SIMPLE_TYPE_STRUCT(char, Nst_Bool);
 NST_SIMPLE_TYPE_STRUCT(unsigned char, Nst_Byte);
 

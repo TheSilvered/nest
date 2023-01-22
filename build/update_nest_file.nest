@@ -6,9 +6,21 @@ $_args_ 3 != ? 1 @sys.exit
 _args_.1 = path
 _args_.2 = ext
 
+"_cwd_.0 '/' == ? [
+    '../../build/linux/linux_debug/std' = dbg_path
+    '.so' = ext
+] : [
+    '../../build/windows/projects/nest/x64/Debug/nest_' = dbg_path
+    '.dll' = ext
+]
+
+" = header
+
 path 'r' @io.open = file
-file -1 @io.read '../../build/windows/projects/nest/x64/Debug/nest_' 'std' @su.replace_substr \
-                 '.dll' ('.' ext ><) @su.replace_substr = content
+file -1 @io.read \
+    header '' @su.replace_substr \
+    "('__C__:' dbg_path '" "'__C__:std" @su.replace_substr \
+    "' ext ><)" ('.' ext "'" ><) @su.replace_substr = content
 file @io.close
 
 path 'w' @io.open = file

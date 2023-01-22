@@ -1,4 +1,12 @@
-|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_sys.dll' = __sys
+_cwd_.0 '/' == ? [
+    '../../build/linux/linux_debug/std' = dbg_path
+    '.so' = ext
+] : [
+    '../../build/windows/projects/nest/x64/Debug/nest_' = dbg_path
+    '.dll' = ext
+]
+
+|#| ('__C__:' dbg_path 'sys' ext ><) = __sys
 
 __sys.system_        = system
 __sys.exit_          = exit

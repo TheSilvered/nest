@@ -1,4 +1,12 @@
-|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_co.dll' = __co
+_cwd_.0 '/' == ? [
+    '../../build/linux/linux_debug/std' = dbg_path
+    '.so' = ext
+] : [
+    '../../build/windows/projects/nest/x64/Debug/nest_' = dbg_path
+    '.dll' = ext
+]
+
+|#| ('__C__:' dbg_path 'co' ext ><) = __co
 
 __co.create_    = create
 __co.call_      = call

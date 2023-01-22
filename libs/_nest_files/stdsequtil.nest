@@ -1,4 +1,12 @@
-|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_sequtil.dll' = __sequ
+_cwd_.0 '/' == ? [
+    '../../build/linux/linux_debug/std' = dbg_path
+    '.so' = ext
+] : [
+    '../../build/windows/projects/nest/x64/Debug/nest_' = dbg_path
+    '.dll' = ext
+]
+
+|#| ('__C__:' dbg_path 'sequtil' ext ><) = __sequ
 
 __sequ.map_ = map
 __sequ.insert_at_ = insert_at

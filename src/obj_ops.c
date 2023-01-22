@@ -11,10 +11,6 @@
 #include "error.h"
 #include "lib_import.h"
 
-#ifdef _DEBUG
-#define DEBUG_FOLDER "E:/C++/nest/libs/_nest_files/"
-#endif
-
 #if defined(_WIN32) || defined(WIN32)
 
 #include <windows.h>
@@ -629,7 +625,7 @@ Nst_Obj *_nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
             return NULL;
         }
 
-        Nst_Obj *new_obj = nst_new_real(fmodl(AS_REAL(ob1), AS_REAL(ob2)));
+        Nst_Obj *new_obj = nst_new_real(fmod(AS_REAL(ob1), AS_REAL(ob2)));
 
         nst_dec_ref(ob1);
         nst_dec_ref(ob2);
@@ -994,7 +990,7 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
         {
             char *buffer = (char *)malloc(MAX_REAL_CHAR_COUNT * sizeof(char));
             CHECK_BUFFER(buffer);
-            sprintf(buffer, "%." REAL_PRECISION "Lg", AS_REAL(ob));
+            sprintf(buffer, "%." REAL_PRECISION "lg", AS_REAL(ob));
             return nst_new_cstring_raw(buffer, true);
         }
         else if ( ob_t == nst_t.Bool )
@@ -1808,12 +1804,21 @@ Nst_StrObj *_nst_get_import_path(char *initial_path, size_t path_len)
     if ( file_path != NULL )
         free(file_path);
 
-#if defined(_WIN32) || defined(WIN32)
+#ifdef _DEBUG
 
-  #ifdef _DEBUG
-    file_path = (char *)malloc((path_len + strlen(DEBUG_FOLDER) + 1) * sizeof(char));
-    sprintf(file_path, DEBUG_FOLDER "%s", initial_path);
-  #else
+    size_t root_len = strlen(__FILE__) - 13;
+    size_t nest_file_len = 17;
+    const char *obj_ops_path = __FILE__;
+    const char* nest_files = "libs/_nest_files/";
+    size_t full_size = path_len + nest_file_len + root_len;
+    file_path = (char *)malloc((full_size + 1) * sizeof(char));
+    memcpy(file_path, obj_ops_path, root_len);
+    memcpy(file_path + root_len, nest_files, nest_file_len);
+    memcpy(file_path + root_len + nest_file_len, initial_path, path_len);
+    file_path[full_size] = '\0';
+
+#elif defined(_WIN32) || defined(WIN32)
+
     // In Windows the standard library is stored in %LOCALAPPDATA%/Programs/nest/nest_libs
 
     char *appdata = getenv("LOCALAPPDATA");
@@ -1824,7 +1829,6 @@ Nst_StrObj *_nst_get_import_path(char *initial_path, size_t path_len)
     file_path = (char *)malloc((appdata_len + path_len + 26) * sizeof(char));
     if ( !file_path ) return NULL;
     sprintf(file_path, "%s/Programs/nest/nest_libs/%s", appdata, initial_path);
-  #endif
 
 #else
 

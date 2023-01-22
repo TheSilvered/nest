@@ -1,4 +1,12 @@
-|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_sutil.dll' = __su
+_cwd_.0 '/' == ? [
+    '../../build/linux/linux_debug/std' = dbg_path
+    '.so' = ext
+] : [
+    '../../build/windows/projects/nest/x64/Debug/nest_' = dbg_path
+    '.dll' = ext
+]
+
+|#| ('__C__:' dbg_path 'sutil' ext ><) = __su
 
 __su.lfind_            = lfind
 __su.rfind_            = rfind
