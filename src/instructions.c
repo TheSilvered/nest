@@ -2,9 +2,12 @@
 
 Nst_RuntimeInstruction *nst_new_inst_empty(int id, Nst_Int int_val)
 {
-    Nst_RuntimeInstruction *inst = (Nst_RuntimeInstruction *)malloc(sizeof(Nst_RuntimeInstruction));
+    Nst_RuntimeInstruction *inst =
+        (Nst_RuntimeInstruction *)malloc(sizeof(Nst_RuntimeInstruction));
     if ( inst == NULL )
+    {
         return NULL;
+    }
 
     inst->id = id;
     inst->int_val = int_val;
@@ -17,9 +20,12 @@ Nst_RuntimeInstruction *nst_new_inst_empty(int id, Nst_Int int_val)
 
 Nst_RuntimeInstruction *nst_new_inst_pos(int id, Nst_Pos start, Nst_Pos end)
 {
-    Nst_RuntimeInstruction *inst = (Nst_RuntimeInstruction *)malloc(sizeof(Nst_RuntimeInstruction));
+    Nst_RuntimeInstruction *inst =
+        (Nst_RuntimeInstruction *)malloc(sizeof(Nst_RuntimeInstruction));
     if ( inst == NULL )
+    {
         return NULL;
+    }
 
     inst->id = id;
     inst->int_val = 0;
@@ -35,9 +41,12 @@ Nst_RuntimeInstruction *_nst_new_inst_val(int id,
                                           Nst_Pos start,
                                           Nst_Pos end)
 {
-    Nst_RuntimeInstruction *inst = (Nst_RuntimeInstruction*)malloc(sizeof(Nst_RuntimeInstruction));
+    Nst_RuntimeInstruction *inst =
+        (Nst_RuntimeInstruction*)malloc(sizeof(Nst_RuntimeInstruction));
     if ( inst == NULL )
+    {
         return NULL;
+    }
 
     inst->id = id;
     inst->int_val = 0;
@@ -53,9 +62,12 @@ Nst_RuntimeInstruction *nst_new_inst_int(int id,
                                          Nst_Pos start,
                                          Nst_Pos end)
 {
-    Nst_RuntimeInstruction *inst = (Nst_RuntimeInstruction *)malloc(sizeof(Nst_RuntimeInstruction));
+    Nst_RuntimeInstruction *inst =
+        (Nst_RuntimeInstruction *)malloc(sizeof(Nst_RuntimeInstruction));
     if ( inst == NULL )
+    {
         return NULL;
+    }
 
     inst->id = id;
     inst->int_val = int_val;
@@ -69,7 +81,9 @@ Nst_RuntimeInstruction *nst_new_inst_int(int id,
 void nst_destroy_inst(Nst_RuntimeInstruction *inst)
 {
     if ( inst->val != NULL )
+    {
         nst_dec_ref(inst->val);
+    }
     free(inst);
 }
 
@@ -79,7 +93,9 @@ void nst_destroy_inst_list(Nst_InstructionList *inst_list)
     for ( Nst_Int i = 0, n = inst_list->total_size; i < n; i++ )
     {
         if ( instructions[i].val != NULL )
+        {
             nst_dec_ref(instructions[i].val);
+        }
     }
 
     free(instructions);

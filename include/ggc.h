@@ -13,6 +13,8 @@
 
 #define NST_OBJ_IS_TRACKED(obj) ((Nst_GGCObj *)(obj)->ggc_list != NULL)
 
+// To add after NST_OBJ_HEAD and before any arguments, adds support for the GGC
+// to the object
 #define NST_GGC_SUPPORT \
     struct _Nst_GGCObj *ggc_next; \
     struct _Nst_GGCObj *ggc_prev; \
@@ -20,6 +22,7 @@
     void (* traverse_func)(Nst_Obj *); \
     void (* track_func)(Nst_Obj *)
 
+// To use when creating a new object that supports the GGC
 #define NST_GGC_SUPPORT_INIT(obj, trav_func, track_function) \
     do { \
         obj->ggc_prev = NULL; \

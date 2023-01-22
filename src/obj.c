@@ -6,9 +6,11 @@
 #include "ggc.h"
 #include "str.h"
 
-Nst_Obj *_nst_alloc_obj(size_t size, struct _Nst_StrObj *type, void (*destructor)(void *))
+Nst_Obj *_nst_alloc_obj(size_t              size,
+                        struct _Nst_StrObj *type,
+                        void (*destructor)(void *))
 {
-    Nst_Obj *obj = (Nst_Obj *)malloc(size);
+    Nst_Obj *obj = OBJ(malloc(size));
     if ( obj == NULL )
     {
         errno = ENOMEM;

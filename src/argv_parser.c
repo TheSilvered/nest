@@ -23,8 +23,10 @@
     \
     "  -O0                   do not optimize the program\n" \
     "  -O1                   optimize only expressions with known values\n" \
-    "  -O2                   optimize bytecode instruction sequences that can be more concise\n" \
-    "  -O3                   replace built-in names (e.g. 'true', 'Int', etc.) with their corresponding value,\n" \
+    "  -O2                   optimize bytecode instruction sequences that can be\n" \
+    "                        more concise\n" \
+    "  -O3                   replace built-in names (e.g. 'true', 'Int', etc.) with\n" \
+    "                        their corresponding value,\n" \
     "                        this does not replace them when they might be modified\n\n" \
     \
     "  -m --monochrome       prints the error messages without ANSI color escapes\n"
@@ -37,15 +39,15 @@
     "Using Nest version: " NEST_VERSION
 
 int nst_parse_args(int argc, char **argv,
-                   bool *print_tokens,
-                   bool *print_ast,
-                   bool *print_bytecode,
-                   bool *force_execution,
-                   bool *monochrome,
-                   int  *opt_level,
+                   bool  *print_tokens,
+                   bool  *print_ast,
+                   bool  *print_bytecode,
+                   bool  *force_execution,
+                   bool  *monochrome,
+                   int   *opt_level,
                    char **command,
                    char **filename,
-                   int *args_start)
+                   int   *args_start)
 {
     *print_tokens = false;
     *print_ast = false;
@@ -147,7 +149,9 @@ int nst_parse_args(int argc, char **argv,
                     else if ( arg_len == 2 )
                     {
                         if ( ++i < argc )
+                        {
                             *filename = argv[i];
+                        }
                         else
                         {
                             printf("No file provided\n");
@@ -161,15 +165,25 @@ int nst_parse_args(int argc, char **argv,
                     }
 
                     if ( strcmp(arg, "--tokens") == 0 )
+                    {
                         *print_tokens = true;
+                    }
                     else if ( strcmp(arg, "--ast") == 0 )
+                    {
                         *print_ast = true;
+                    }
                     else if ( strcmp(arg, "--bytecode") == 0 )
+                    {
                         *print_bytecode = true;
+                    }
                     else if ( strcmp(arg, "--force-execution") == 0 )
+                    {
                         *force_execution = true;
+                    }
                     else if ( strcmp(arg, "--monochrome") == 0 )
+                    {
                         *monochrome = true;
+                    }
                     else if ( strcmp(arg, "--help") == 0 )
                     {
                         printf(HELP_MESSAGE);
@@ -206,7 +220,9 @@ int nst_parse_args(int argc, char **argv,
     }
 
     if ( ++i < argc )
+    {
         *filename = argv[i];
+    }
     else
     {
         printf("No file provided\n");

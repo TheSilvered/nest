@@ -117,11 +117,11 @@ Nst_CallStack *nst_new_call_stack()
 }
 
 bool _nst_push_func(Nst_CallStack *f_stack,
-                    Nst_FuncObj *func,
-                    Nst_Pos call_start,
-                    Nst_Pos call_end,
-                    Nst_VarTable *vt,
-                    Nst_Int idx)
+                    Nst_FuncObj   *func,
+                    Nst_Pos        call_start,
+                    Nst_Pos        call_end,
+                    Nst_VarTable  *vt,
+                    Nst_Int        idx)
 {
     size_t max_size = f_stack->max_size;
 
@@ -215,9 +215,9 @@ Nst_CatchStack *nst_new_catch_stack()
 }
 
 bool nst_push_catch(Nst_CatchStack *c_stack,
-                    Nst_Int inst_idx,
-                    size_t v_stack_size,
-                    size_t f_stack_size)
+                    Nst_Int         inst_idx,
+                    size_t          v_stack_size,
+                    size_t          f_stack_size)
 {
     size_t max_size = c_stack->max_size;
 

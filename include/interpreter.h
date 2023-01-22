@@ -35,7 +35,11 @@ typedef struct _Nst_ExecutionState
 Nst_ExecutionState;
 
 // Runs the main program, must never be called
-int nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int opt_level);
+int nst_run(Nst_FuncObj *main_func,
+            int          argc,
+            char       **argv,
+            char        *filename,
+            int          opt_lvl);
 // Runs an external Nest file, returns -1 on fail and 0 on success
 int nst_run_module(char *file_name, Nst_SourceText *lib_src);
 // Calls a Nst_FuncObj, it can be both a C function or a bytecode function
@@ -43,13 +47,14 @@ Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err);
 /* Calls a function that has NOT a C body with the given start indexand var table.
 The NULL value MUST be added on the stack manually */
 Nst_Obj *nst_run_func_context(Nst_FuncObj *func,
-                              Nst_Int idx,
-                              Nst_MapObj *vars,
-                              Nst_MapObj *globals);
-/* Returns the full path of a file
-`file_path` is the relative path of the file
-`buf` is the pointer where the full path is stored, the memory is allocated by the function
-`file_part` is the pointer where the filename begins */
+                              Nst_Int      idx,
+                              Nst_MapObj  *vars,
+                              Nst_MapObj  *globals);
+// Returns the full path of a file
+// `file_path` is the relative path of the file
+// `buf` is the pointer where the full path is stored, the memory is allocated
+// by the function
+// `file_part` is the pointer where the filename begins
 size_t nst_get_full_path(char *file_path, char **buf, char **file_part);
 
 // The state of the interpreter

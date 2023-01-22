@@ -8,8 +8,11 @@
 #include "global_consts.h"
 
 #define NST_INIT_LIB_OBJ_FUNC \
-    void init_lib_obj(Nst_TypeObjs main_t, Nst_StrConsts main_s, \
-                      Nst_Consts main_c, Nst_StdStreams *main_io, Nst_ExecutionState main_state) \
+    void init_lib_obj(Nst_TypeObjs       main_t, \
+                      Nst_StrConsts      main_s, \
+                      Nst_Consts         main_c, \
+                      Nst_StdStreams    *main_io, \
+                      Nst_ExecutionState main_state) \
     { \
         nst_t = main_t; \
         nst_s = main_s; \
@@ -66,6 +69,7 @@
 #define NST_RETURN_COND(cond) \
     return (cond) ? nst_inc_ref(nst_c.b_true) : nst_inc_ref(nst_c.b_false)
 
+// Function signature for Nest function
 #define NST_FUNC_SIGN(name) \
     Nst_Obj *name(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 
@@ -88,17 +92,17 @@ Nst_FuncDeclr;
 
 // Allocates the function list of the module
 Nst_FuncDeclr *nst_new_func_list(size_t count);
-/* Extracts the C values from the arguments
-`types` is a string of letters for the types, check the full usage in src/lib_import.c
-`arg_num`: number of arguments the function expects
-`args`: the arguments themselves
-`err`: the `err` argument of the function
-...: the pointers to store the values in or the custom types
-*/
+// Extracts the C values from the arguments
+// `types` is a string of letters for the types, check the full usage in
+// src/lib_import.c
+// `arg_num`: number of arguments the function expects
+// `args`: the arguments themselves
+// `err`: the `err` argument of the function
+// ...: the pointers to store the values in or the custom types
 bool nst_extract_arg_values(const char *types,
-                            size_t arg_num,
-                            Nst_Obj **args,
-                            Nst_OpErr *err,
+                            size_t      arg_num,
+                            Nst_Obj   **args,
+                            Nst_OpErr  *err,
                             ...);
 
 #ifdef __cplusplus

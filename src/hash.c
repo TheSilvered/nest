@@ -20,21 +20,33 @@ int32_t nst_hash_obj(Nst_Obj *obj)
     // it's not natively supported to hash floats
 
     if ( obj->hash != -1 )
+    {
         return obj->hash;
+    }
 
     int32_t hash;
     if ( obj->type == nst_t.Type ||
          obj->type == nst_t.Null ||
          obj->type == nst_t.Bool )
+    {
         hash = hash_ptr(obj);
+    }
     else if ( obj->type == nst_t.Str )
+    {
         hash = hash_str(STR(obj));
+    }
     else if ( obj->type == nst_t.Int )
-        hash = hash_int((Nst_IntObj *)obj);
+    {
+        hash = hash_int((Nst_IntObj*)obj);
+    }
     else if ( obj->type == nst_t.Byte )
-        hash = hash_byte((Nst_ByteObj *)obj);
+    {
+        hash = hash_byte((Nst_ByteObj*)obj);
+    }
     else
+    {
         return -1;
+    }
 
     obj->hash = hash;
     return hash;
@@ -46,7 +58,10 @@ static int32_t hash_ptr(void *ptr)
     size_t x = (size_t)ptr;
     x = (x >> 4) | (x << (8 * sizeof(void *) - 4));
 
-    if ( (int32_t)x == -1 ) return -2;
+    if ( (int32_t)x == -1 )
+    {
+        return -2;
+    }
     return (int32_t)x;
 }
 
@@ -67,9 +82,7 @@ static int32_t hash_str(Nst_StrObj *str)
 
 static int32_t hash_int(Nst_IntObj *num)
 {
-    if ( num->value == -1 )
-        return -2;
-    return (int32_t)(num->value);
+    return num->value == -1 ? -1 : (int32_t)(num->value);
 }
 
 static int32_t hash_byte(Nst_ByteObj *byte)

@@ -7,9 +7,9 @@
 #include "obj_ops.h"
 
 
-Nst_LexerToken *nst_new_token_value(Nst_Pos start,
-                                    Nst_Pos end,
-                                    int type,
+Nst_LexerToken *nst_new_token_value(Nst_Pos  start,
+                                    Nst_Pos  end,
+                                    int      type,
                                     Nst_Obj *value)
 {
     Nst_LexerToken *token = TOK(malloc(sizeof(Nst_LexerToken)));

@@ -11,7 +11,9 @@
 #include "ggc.h"
 
 #define FUNC(ptr) ((Nst_FuncObj *)(ptr))
-#define nst_set_vt_func(func, map) _nst_set_vt_func((Nst_FuncObj *)(func), (Nst_MapObj *)(map))
+// Sets mod_globals for the function
+#define nst_set_vt_func(func, map) \
+    _nst_set_vt_func((Nst_FuncObj *)(func), (Nst_MapObj *)(map))
 
 #ifdef __cplusplus
 extern "C" {
@@ -39,10 +41,9 @@ Nst_FuncObj;
 // The function's `args` must be set manually
 Nst_Obj *nst_new_func(size_t arg_num, Nst_InstructionList *bytecode);
 // Creates a new function object that is a wrapper of a C function
-Nst_Obj *nst_new_cfunc(size_t arg_num, Nst_Obj *(*cbody)(size_t arg_num,
-                                                      Nst_Obj **args,
-                                                      Nst_OpErr *err));
-// Sets mod_globals for the function
+Nst_Obj *nst_new_cfunc(size_t arg_num, Nst_Obj *(*cbody)(size_t     arg_num,
+                                                         Nst_Obj  **args,
+                                                         Nst_OpErr *err));
 void _nst_set_vt_func(Nst_FuncObj *func, Nst_MapObj *map);
 
 // traverse function for Nst_FuncObj, needed for the GGC

@@ -8,11 +8,12 @@
 #include "function.h"
 #include "var_table.h"
 
+// Pushes a function on the call stack
 #define nst_push_func(f_stack, func, start, end, vt, idx) \
         _nst_push_func(f_stack, FUNC(func), start, end, vt, idx)
-
-#define nst_push_val(v_stack, val) \
-        _nst_push_val(v_stack, (Nst_Obj *)(val))
+// Push a value on the value stack
+// returns false on failing to reallocate the memory
+#define nst_push_val(v_stack, val) _nst_push_val(v_stack, OBJ(val))
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,8 +63,6 @@ Nst_CatchStack;
 
 // New value stack on the heap
 Nst_ValueStack *nst_new_val_stack();
-// Push a value on the value stack
-// returns false on failing to reallocate the memory
 bool _nst_push_val(Nst_ValueStack *v_stack, Nst_Obj *obj);
 // Pop a value from the value stack and return it
 Nst_Obj *nst_pop_val(Nst_ValueStack *v_stack);
@@ -76,13 +75,12 @@ void nst_destroy_v_stack(Nst_ValueStack *v_stack);
 
 // New call stack on the heap
 Nst_CallStack *nst_new_call_stack();
-// Pushes a function on the call stack
 bool _nst_push_func(Nst_CallStack *f_stack,
-                    Nst_FuncObj *func,
-                    Nst_Pos call_start,
-                    Nst_Pos call_end,
-                    Nst_VarTable *vt,
-                    Nst_Int idx);
+                    Nst_FuncObj   *func,
+                    Nst_Pos        call_start,
+                    Nst_Pos        call_end,
+                    Nst_VarTable  *vt,
+                    Nst_Int        idx);
 // Pops a function from the call stack
 Nst_FuncCall nst_pop_func(Nst_CallStack *f_stack);
 // Returns the top function in the call stack
@@ -94,9 +92,9 @@ void nst_destroy_f_stack(Nst_CallStack *f_stack);
 Nst_CatchStack *nst_new_catch_stack();
 // Pushes a value to the catch stack
 bool nst_push_catch(Nst_CatchStack *c_stack,
-                    Nst_Int inst_idx,
-                    size_t v_stack_size,
-                    size_t f_stack_size);
+                    Nst_Int         inst_idx,
+                    size_t          v_stack_size,
+                    size_t          f_stack_size);
 // Peeks the top value of the catch stack
 Nst_CatchFrame nst_peek_catch(Nst_CatchStack *c_stack);
 // Returns the top value of the catch stack

@@ -118,7 +118,11 @@ static inline void exe_unpack_seq(Nst_RuntimeInstruction *inst);
 static Nst_SeqObj *make_argv(int argc, char **argv, char *filename);
 static Nst_StrObj *make_cwd(char *file_path);
 
-int nst_run(Nst_FuncObj *main_func, int argc, char **argv, char *filename, int opt_lvl)
+int nst_run(Nst_FuncObj *main_func,
+            int          argc,
+            char       **argv,
+            char        *filename,
+            int          opt_lvl)
 {
     opt_level = opt_lvl;
 

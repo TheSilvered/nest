@@ -669,7 +669,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
         free(frac_part);
         free(exp);
 
-        Nst_Real value = strtold(complete_lit, NULL);
+        Nst_Real value = strtod(complete_lit, NULL);
         *tok = nst_new_token_value(
             start, end,
             NST_TT_VALUE,
@@ -695,7 +695,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
         free(int_part);
         free(frac_part);
 
-        Nst_Real value = strtold(complete_lit, NULL);
+        Nst_Real value = strtod(complete_lit, NULL);
         *tok = nst_new_token_value(
             start, cursor.pos,
             NST_TT_VALUE,

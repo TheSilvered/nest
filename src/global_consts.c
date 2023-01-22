@@ -16,7 +16,9 @@ static int close_std_stream(void *f);
 void _nst_init_types()
 {
     if ( nst_t_initialized )
+    {
         return;
+    }
 
     nst_t.Type   = NULL;
     nst_t.Type   = nst_new_type_obj("Type",   4);
@@ -39,7 +41,9 @@ void _nst_init_types()
 void _nst_del_types()
 {
     if ( !nst_t_initialized )
+    {
         return;
+    }
 
     nst_dec_ref(nst_t.Type);
     nst_dec_ref(nst_t.Int);
@@ -61,7 +65,9 @@ void _nst_del_types()
 void _nst_init_strs()
 {
     if ( nst_s_initialized )
+    {
         return;
+    }
 
     nst_s.t_Type   = STR(_nst_copy_string(nst_t.Type));
     nst_s.t_Int    = STR(_nst_copy_string(nst_t.Int));
@@ -100,7 +106,9 @@ void _nst_init_strs()
 void _nst_del_strs()
 {
     if ( !nst_s_initialized )
+    {
         return;
+    }
 
     nst_dec_ref(nst_s.t_Type);
     nst_dec_ref(nst_s.t_Int);
@@ -139,7 +147,9 @@ void _nst_del_strs()
 void _nst_init_consts()
 {
     if ( nst_c_initialized )
+    {
         return;
+    }
 
     nst_c.b_true  = nst_new_bool(NST_TRUE);
     nst_c.b_false = nst_new_bool(NST_FALSE);
@@ -158,7 +168,9 @@ void _nst_init_consts()
 void _nst_del_consts()
 {
     if ( !nst_c_initialized )
+    {
         return;
+    }
 
     nst_dec_ref(nst_c.b_true);
     nst_dec_ref(nst_c.b_false);
@@ -177,7 +189,9 @@ void _nst_del_consts()
 void _nst_init_streams()
 {
     if ( nst_io_initialized )
+    {
         return;
+    }
 
     nst_io = &local_nst_io;
 
@@ -185,7 +199,7 @@ void _nst_init_streams()
     local_nst_io.out = IOFILE(nst_new_true_file(stdout, false, false, true));
     local_nst_io.err = IOFILE(nst_new_true_file(stderr, false, false, true));
 
-    local_nst_io.in->close_f = close_std_stream;
+    local_nst_io.in ->close_f = close_std_stream;
     local_nst_io.out->close_f = close_std_stream;
     local_nst_io.err->close_f = close_std_stream;
 
@@ -195,7 +209,9 @@ void _nst_init_streams()
 void _nst_del_streams()
 {
     if ( !nst_io_initialized )
+    {
         return;
+    }
 
     nst_dec_ref(local_nst_io.in);
     nst_dec_ref(local_nst_io.out);

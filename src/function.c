@@ -8,8 +8,7 @@ Nst_Obj *nst_new_func(size_t arg_num, Nst_InstructionList *bytecode)
     Nst_FuncObj *func = FUNC(nst_alloc_obj(
         sizeof(Nst_FuncObj),
         nst_t.Func,
-        nst_destroy_func
-    ));
+        nst_destroy_func));
     Nst_Obj **args = (Nst_Obj **)malloc(sizeof(Nst_Obj *) * arg_num);
     if ( func == NULL || args == NULL )
     {
@@ -27,15 +26,14 @@ Nst_Obj *nst_new_func(size_t arg_num, Nst_InstructionList *bytecode)
     return OBJ(func);
 }
 
-Nst_Obj *nst_new_cfunc(size_t arg_num, Nst_Obj *(*cbody)(size_t arg_num,
-                                                     Nst_Obj **args,
-                                                     Nst_OpErr *err))
+Nst_Obj *nst_new_cfunc(size_t arg_num, Nst_Obj *(*cbody)(size_t     arg_num,
+                                                         Nst_Obj  **args,
+                                                         Nst_OpErr *err))
 {
     Nst_FuncObj *func = FUNC(nst_alloc_obj(
         sizeof(Nst_FuncObj),
         nst_t.Func,
-        nst_destroy_func
-    ));
+        nst_destroy_func));
     Nst_Obj **args = NULL;
     if ( func == NULL )
     {
@@ -59,13 +57,17 @@ Nst_Obj *nst_new_cfunc(size_t arg_num, Nst_Obj *(*cbody)(size_t arg_num,
 void nst_traverse_func(Nst_FuncObj *func)
 {
     if ( func->mod_globals != NULL )
+    {
         NST_SET_FLAG(func->mod_globals, NST_FLAG_GGC_REACHABLE);
+    }
 }
 
 void nst_track_func(Nst_FuncObj *func)
 {
     if ( func->mod_globals != NULL )
-        nst_add_tracked_object((Nst_GGCObj *)func->mod_globals);
+    {
+        nst_add_tracked_object((Nst_GGCObj*)func->mod_globals);
+    }
 }
 
 void nst_destroy_func(Nst_FuncObj *func)
@@ -73,25 +75,35 @@ void nst_destroy_func(Nst_FuncObj *func)
     if ( func->args != NULL )
     {
         for ( size_t i = 0, n = func->arg_num; i < n; i++ )
+        {
             nst_dec_ref(func->args[i]);
+        }
         free(func->args);
     }
     if ( !NST_HAS_FLAG(func, NST_FLAG_FUNC_IS_C) )
+    {
         nst_destroy_inst_list(func->body.bytecode);
+    }
     if ( func->mod_globals != NULL )
+    {
         nst_dec_ref(func->mod_globals);
+    }
 }
 
 void _nst_set_vt_func(Nst_FuncObj *func, Nst_MapObj *map)
 {
     if ( NST_HAS_FLAG(func, NST_FLAG_FUNC_IS_C) ||
          func->mod_globals != NULL )
+    {
         return;
+    }
 
     func->mod_globals = MAP(nst_inc_ref(map));
 
     for ( LLNode *n = func->body.bytecode->functions->head;
           n != NULL;
           n = n->next )
+    {
         nst_set_vt_func(n->value, map);
+    }
 }

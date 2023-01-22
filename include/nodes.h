@@ -53,15 +53,21 @@ enum Nst_NodeTypes
 };
 
 // New node on the heap with only a list of tokens
-Nst_Node *nst_new_node_tokens(Nst_Pos start, Nst_Pos end, int type, LList *tokens);
+Nst_Node *nst_new_node_tokens(Nst_Pos start,
+                              Nst_Pos end,
+                              int     type,
+                              LList  *tokens);
 // New node on the heap with only a list of nodes
-Nst_Node *nst_new_node_nodes(Nst_Pos start, Nst_Pos end, int type, LList *nodes);
+Nst_Node *nst_new_node_nodes(Nst_Pos start,
+                             Nst_Pos end,
+                             int     type,
+                             LList  *nodes);
 // New node on the heap with both a list of nodes an tokens
 Nst_Node *nst_new_node_full(Nst_Pos start,
                             Nst_Pos end,
-                            int type,
-                            LList *nodes,
-                            LList *tokens);
+                            int     type,
+                            LList  *nodes,
+                            LList  *tokens);
 // New node with no lists
 Nst_Node *nst_new_node_empty(Nst_Pos start, Nst_Pos end, int type);
 // Destroy a token and its children

@@ -10,9 +10,17 @@
 #include "lib_import.h"
 
 #define ITER(ptr) ((Nst_IterObj *)(ptr))
+// Executes the _start_ function of `iter`, returns 0 on success and -1
+// on failure
 #define nst_start_iter(iter, err) _nst_start_iter(ITER(iter), err)
+// Executes the _is_done_ function of `iter`, returns 0 if the _is_done_
+// returned false, 1 it the function returned true and -1 on failure
 #define nst_is_done_iter(iter, err) _nst_is_done_iter(ITER(iter), err)
+// Executes the _advance_ function of `iter`, returns 0 on success and -1
+// on failure
 #define nst_advance_iter(iter, err) _nst_advance_iter(ITER(iter), err)
+// Executes the _get_val_ function of `iter`, returns the object on
+// success and NULL on failure
 #define nst_get_val_iter(iter, err) _nst_get_val_iter(ITER(iter), err)
 
 #ifdef __cplusplus
@@ -41,17 +49,9 @@ void nst_destroy_iter(Nst_IterObj *iter);
 void nst_traverse_iter(Nst_IterObj *iter);
 void nst_track_iter(Nst_IterObj *iter);
 
-// Executes the _start_ function of `iter`, returns 0 on success and -1
-// on failure
 int _nst_start_iter(Nst_IterObj *iter, Nst_OpErr *err);
-// Executes the _is_done_ function of `iter`, returns 0 if the _is_done_
-// returned false, 1 it the function returned true and -1 on failure
 int _nst_is_done_iter(Nst_IterObj *iter, Nst_OpErr *err);
-// Executes the _advance_ function of `iter`, returns 0 on success and -1
-// on failure
 int _nst_advance_iter(Nst_IterObj *iter, Nst_OpErr *err);
-// Executes the _get_val_ function of `iter`, returns the object on
-// success and NULL on failure
 Nst_Obj *_nst_get_val_iter(Nst_IterObj *iter, Nst_OpErr *err);
 
 // Functions for the range iterator

@@ -3,7 +3,10 @@
 #include "nodes.h"
 #include "tokens.h"
 
-Nst_Node *nst_new_node_tokens(Nst_Pos start, Nst_Pos end, int type, LList *tokens)
+Nst_Node *nst_new_node_tokens(Nst_Pos start,
+                              Nst_Pos end,
+                              int     type,
+                              LList  *tokens)
 {
     Nst_Node *node = (Nst_Node *)malloc(sizeof(Nst_Node));
 
@@ -29,7 +32,10 @@ Nst_Node *nst_new_node_tokens(Nst_Pos start, Nst_Pos end, int type, LList *token
     return node;
 }
 
-Nst_Node *nst_new_node_nodes(Nst_Pos start, Nst_Pos end, int type, LList *nodes)
+Nst_Node *nst_new_node_nodes(Nst_Pos start,
+                             Nst_Pos end,
+                             int     type,
+                             LList  *nodes)
 {
     Nst_Node *node = (Nst_Node *)malloc(sizeof(Nst_Node));
 
@@ -57,9 +63,9 @@ Nst_Node *nst_new_node_nodes(Nst_Pos start, Nst_Pos end, int type, LList *nodes)
 
 Nst_Node *nst_new_node_full(Nst_Pos start,
                             Nst_Pos end,
-                            int type,
-                            LList *nodes,
-                            LList *tokens)
+                            int     type,
+                            LList  *nodes,
+                            LList  *tokens)
 {
     Nst_Node *node = (Nst_Node *)malloc(sizeof(Nst_Node));
 

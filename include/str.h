@@ -11,8 +11,11 @@
 #define TYPE_NAME(obj) (STR(obj->type)->value)
 #define NST_STR_IS_ALLOC(str) ((str)->flags & NST_FLAG_STR_IS_ALLOC)
 
+// Creates a copy of the string
 #define nst_copy_string(src) _nst_copy_string(STR(src))
+// Creates new string that is the representation of `src`
 #define nst_repr_string(src) _nst_repr_string(STR(src))
+// Creates a one-character string with the character at `idx` of idx
 #define nst_string_get_idx(str, idx) _nst_string_get_idx(STR(str), idx)
 
 #ifdef __cplusplus
@@ -41,11 +44,8 @@ Nst_Obj *nst_new_string(char *val, size_t len, bool allocated);
 // Creates a new Type object
 Nst_TypeObj *nst_new_type_obj(const char *val, size_t len);
 
-// Creates a copy of the string
 Nst_Obj *_nst_copy_string(Nst_StrObj *src);
-// Creates new string that is the representation of `src`
 Nst_Obj *_nst_repr_string(Nst_StrObj *src);
-// Creates a one-character string with the character at `idx` of idx
 Nst_Obj *_nst_string_get_idx(Nst_StrObj *str, Nst_Int idx);
 
 // Parses a Nst_IntObj from a string, any NUL characters in the middle

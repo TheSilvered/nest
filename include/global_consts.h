@@ -7,8 +7,8 @@
 extern "C" {
 #endif // !__cplusplus
 
-// the nomenclature is [group]_[value of the strings without spaces]
-// t_ is for types, c_ is for constants, e_ is for error names and o_ is for other
+// the nomenclature is [group]_[value of the strings without spaces] t_ is
+// for types, c_ is for constants, e_ is for error names and o_ is for other
 typedef struct _Nst_StrConsts
 {
     // Type strings

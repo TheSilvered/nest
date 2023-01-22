@@ -12,14 +12,27 @@
 #define MAP_MIN_SIZE 32
 #define MAP(ptr) ((Nst_MapObj *)(ptr))
 
-#define nst_map_set(map, key, value) _nst_map_set(MAP(map), (Nst_Obj *)key, (Nst_Obj *)value)
-#define nst_map_get(map, key) _nst_map_get(MAP(map), (Nst_Obj *)key)
-#define nst_map_drop(map, key) _nst_map_drop(MAP(map), (Nst_Obj *)key)
+// Sets `key` and `value` in `map`, if the key is not hashable retunrs false
+#define nst_map_set(map, key, value) _nst_map_set(MAP(map), OBJ(key), OBJ(value))
+// Gets the value at `key`, returns NULL if the key is unhashable or
+// the object does not exist
+#define nst_map_get(map, key) _nst_map_get(MAP(map), OBJ(key))
+// Drops a key value pair from the map, returns NULL if the key is unhashable
+// nst_c.b_true if an object was removed or nst_c.b_false if there was no key
+// to remove
+#define nst_map_drop(map, key) _nst_map_drop(MAP(map), OBJ(key))
 
-#define nst_map_get_next_idx(curr_idx, map) _nst_map_get_next_idx(curr_idx, MAP(map))
+// Gets the next index when iterating over a map's elements,
+// when curr_idx is -1 the first index is returned
+#define nst_map_get_next_idx(curr_idx, map) \
+    _nst_map_get_next_idx(curr_idx, MAP(map))
 
-#define nst_map_set_str(map, key, value) _nst_map_set_str(MAP(map), key, (Nst_Obj *)value)
+// Sets a value in the map with the key that is a string
+#define nst_map_set_str(map, key, value) \
+    _nst_map_set_str(MAP(map), key, OBJ(value))
+// Gets a value in the map with the key that is a string
 #define nst_map_get_str(map, key) _nst_map_get_str(MAP(map), key)
+// Drops a value in the map with the key that is a string
 #define nst_map_drop_str(map, key) _nst_map_drop_str(MAP(map), key)
 
 #ifdef __cplusplus
@@ -51,31 +64,21 @@ Nst_MapObj;
 
 // Creates a new empty map
 Nst_Obj *nst_new_map();
-// Sets `key` and `value` in `map`, if the key is not hashable retunrs false
 bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value);
-// Gets the value at `key`, returns NULL if the key is unhashable or
-// the object does not exist
 Nst_Obj *_nst_map_get(Nst_MapObj *map, Nst_Obj *key);
-// Drops a key value pair from the map, returns NULL if the key is unhashable
-// nst_c.b_true if an object was removed or nst_c.b_false if there was no key to remove
 Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key);
 
 void nst_destroy_map(Nst_MapObj *map);
 void nst_traverse_map(Nst_MapObj *map);
 void nst_track_map(Nst_MapObj *map);
 
-// Gets the next index when iterating over a map's elements,
-// when curr_idx is -1 the first index is returned
 int _nst_map_get_next_idx(int curr_idx, Nst_MapObj *map);
 // Resizes the node array if necessary
 // `force_item_reset` forces all the items in the map to be re-inserted
 void _nst_resize_map(Nst_MapObj *map, bool force_item_reset);
 
-// Sets a value in the map with the key that is a string
 void _nst_map_set_str(Nst_MapObj *map, const char *key, Nst_Obj *value);
-// Gets a value in the map with the key that is a string
 Nst_Obj *_nst_map_get_str(Nst_MapObj *map, const char *key);
-// Drops a value in the map with the key that is a string
 Nst_Obj *_nst_map_drop_str(Nst_MapObj *map, const char *key);
 
 #ifdef __cplusplus

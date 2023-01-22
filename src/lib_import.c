@@ -21,11 +21,11 @@ Nst_FuncDeclr *nst_new_func_list(size_t count)
 }
 
 static bool extract_builtin_type(const char type,
-                                 int idx,
+                                 int        idx,
                                  Nst_OpErr *err,
-                                 Nst_Obj *ob,
-                                 void *arg,
-                                 bool always_use_objects)
+                                 Nst_Obj   *ob,
+                                 void      *arg,
+                                 bool       always_use_objects)
 {
     switch (type)
     {
@@ -165,9 +165,9 @@ static bool extract_builtin_type(const char type,
 }
 
 bool nst_extract_arg_values(const char *types,
-                            size_t arg_num,
-                            Nst_Obj **args,
-                            Nst_OpErr *err,
+                            size_t      arg_num,
+                            Nst_Obj   **args,
+                            Nst_OpErr  *err,
                             ...)
 {
     /*

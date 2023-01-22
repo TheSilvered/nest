@@ -8,8 +8,10 @@
 #include "str.h"
 #include "sequence.h"
 
-#define nst_get_val(vt, name) _nst_get_val(vt, (Nst_Obj *)(name))
-#define nst_set_val(vt, name, val) _nst_set_val(vt, (Nst_Obj *)(name), (Nst_Obj *)(val))
+// Returns a value from the variable table
+#define nst_get_val(vt, name) _nst_get_val(vt, OBJ(name))
+// Sets a value in the variable table
+#define nst_set_val(vt, name, val) _nst_set_val(vt, OBJ(name), OBJ(val))
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,9 +28,7 @@ Nst_VarTable;
 Nst_VarTable *nst_new_var_table(Nst_MapObj *global_table,
                                 Nst_StrObj *cwd,
                                 Nst_SeqObj *args);
-// Returns a value from the variable table
 Nst_Obj *_nst_get_val(Nst_VarTable *vt, Nst_Obj *name);
-// Sets a value in the variable table
 void _nst_set_val(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val);
 #ifdef __cplusplus
 }

@@ -9,7 +9,12 @@
 
 #define INT_CH_COUNT 21
 
-#define PRINT(str, len) err_stream->write_f((void *)str, sizeof(char), (size_t)len, err_stream->value)
+#define PRINT(str, len) \
+    err_stream->write_f(\
+        (void *)str, \
+        sizeof(char), \
+        (size_t)len, \
+        err_stream->value)
 
 #define C_RED "\x1b[31m"
 #define C_GRN "\x1b[32m"
@@ -37,7 +42,7 @@ static inline void set_error_stream()
     {
         nst_dec_ref(err_stream);
         err_stream = IOFILE(nst_new_true_file(stderr, false, false, true));
-        fwrite("Cannot use @@io._get_stderr, using initial stderr\n", 1, 50, stderr);
+        fprintf(stderr, "Cannot use @@io._get_stderr, using initial stderr\n");
         fflush(stderr);
     }
 }
@@ -51,14 +56,18 @@ static inline void err_printf(const char *format, int size, ...)
     {
         printf_buf = (char *)calloc(size + 1, sizeof(char));
         if ( printf_buf == NULL )
+        {
             return;
+        }
         buf_size = (size_t)size + 1;
     }
     else if ( buf_size < (size_t)size + 1 )
     {
         char *new_buf = (char *)realloc(printf_buf, size + 1);
         if ( new_buf == NULL )
+        {
             return;
+        }
         printf_buf = new_buf;
         buf_size = (size_t)size + 1;
     }
@@ -115,7 +124,11 @@ static long get_indent(Nst_SourceText *text, long lineno)
     return indent;
 }
 
-static void print_line(Nst_Pos *pos, long start_col, long end_col, int keep_indent, int max_line)
+static void print_line(Nst_Pos *pos,
+                       long     start_col,
+                       long     end_col,
+                       int      keep_indent,
+                       int      max_line)
 {
     long line_length = 0;
     int lineno_len = 0;
@@ -130,10 +143,14 @@ static void print_line(Nst_Pos *pos, long start_col, long end_col, int keep_inde
     }
 
     if ( start_col == 0 )
+    {
         start_col = keep_indent;
+    }
 
     if ( max_line == 0 )
+    {
         max_line = lineno + 1;
+    }
 
     while ( max_line > 0 )
     {
@@ -142,36 +159,51 @@ static void print_line(Nst_Pos *pos, long start_col, long end_col, int keep_inde
     }
 
     if ( use_color )
-        err_printf(C_CYN " %*li" C_RES " | ",
-                   C_LEN + R_LEN + lineno_len + 4,
-                   lineno_len, lineno + 1);
+    {
+        err_printf(
+            C_CYN " %*li" C_RES " | ",
+            C_LEN + R_LEN + lineno_len + 4,
+            lineno_len, lineno + 1);
+    }
     else
+    {
         err_printf(" %*li | ", lineno_len + 4, lineno_len, lineno + 1);
+    }
 
     for ( long i = keep_indent; text[i] != '\n' && text[i] != '\0'; i++ )
     {
         if ( i == start_col && use_color )
+        {
             PRINT(C_RED, C_LEN);
+        }
 
         err_putc(text[i]);
         line_length++;
 
         if ( use_color && i == end_col )
+        {
             PRINT(C_RES, R_LEN);
+        }
     }
     err_putc('\n');
 
     if ( end_col == -1 )
+    {
         end_col = keep_indent + line_length - 1;
+    }
     else
+    {
         end_col -= keep_indent;
+    }
 
     start_col -= keep_indent;
 
     if ( end_col - start_col + 1 == line_length )
     {
         if ( use_color )
+        {
             PRINT(C_RES, R_LEN);
+        }
         return;
     }
 
@@ -201,33 +233,52 @@ static void print_position(Nst_Pos start, Nst_Pos end)
         return;
 
     if ( use_color )
-        err_printf("File " C_GRN "\"%s\"" C_RES " at ",
-                   C_LEN + R_LEN + 11 + (int)strlen(start.text->path),
-                   start.text->path);
+    {
+        err_printf(
+            "File " C_GRN "\"%s\"" C_RES " at ",
+            C_LEN + R_LEN + 11 + (int)strlen(start.text->path),
+            start.text->path);
+    }
     else
-        err_printf("File \"%s\" at ", 11 + (int)strlen(start.text->path), start.text->path);
+    {
+        err_printf(
+            "File \"%s\" at ",
+            11 + (int)strlen(start.text->path),
+            start.text->path);
+    }
 
     if ( start.line != end.line )
     {
         if ( use_color )
-            err_printf("lines " C_CYN "%li" C_RES " to " C_CYN "%li" C_RES,
-                       C_LEN * 2 + R_LEN * 2 + INT_CH_COUNT * 2 + 10,
-                       start.line + 1,
-                       end.line + 1 );
+        {
+            err_printf(
+                "lines " C_CYN "%li" C_RES " to " C_CYN "%li" C_RES,
+                C_LEN * 2 + R_LEN * 2 + INT_CH_COUNT * 2 + 10,
+                start.line + 1,
+                end.line + 1);
+        }
         else
-            err_printf("lines %li to %li",
-                       INT_CH_COUNT * 2 + 10,
-                       start.line + 1,
-                       end.line + 1 );
+        {
+            err_printf(
+                "lines %li to %li",
+                INT_CH_COUNT * 2 + 10,
+                start.line + 1,
+                end.line + 1);
+        }
     }
     else
     {
         if ( use_color )
-            err_printf("line " C_CYN "%li" C_RES,
-                       C_LEN + R_LEN + INT_CH_COUNT + 5,
-                       start.line + 1 );
+        {
+            err_printf(
+                "line " C_CYN "%li" C_RES,
+                C_LEN + R_LEN + INT_CH_COUNT + 5,
+                start.line + 1);
+        }
         else
-            err_printf("line %li", INT_CH_COUNT + 5, start.line + 1 );
+        {
+            err_printf("line %li", INT_CH_COUNT + 5, start.line + 1);
+        }
     }
     PRINT(":\n", 2);
 
@@ -242,7 +293,9 @@ static void print_position(Nst_Pos start, Nst_Pos end)
     {
         long indent = get_indent(start.text, i);
         if ( indent < min_indent )
+        {
             min_indent = indent;
+        }
     }
 
     print_line(&start, start.col, -1, min_indent, end.line + 1);
@@ -270,27 +323,41 @@ void nst_print_error(Nst_Error err)
     print_position(err.start, err.end);
 
     if ( use_color )
-        err_printf(C_YEL "%s" C_RES " - %s\n",
-                   (int)err.name->len + (int)err.message->len + C_LEN + R_LEN + 4,
-                   err.name->value, err.message->value);
+    {
+        err_printf(
+            C_YEL "%s" C_RES " - %s\n",
+            (int)err.name->len + (int)err.message->len + C_LEN + R_LEN + 4,
+            err.name->value, err.message->value);
+    }
     else
-        err_printf("%s - %s\n",
-                   (int)err.name->len + (int)err.message->len + 4,
-                   err.name->value, err.message->value);
+    {
+        err_printf(
+            "%s - %s\n",
+            (int)err.name->len + (int)err.message->len + 4,
+            err.name->value, err.message->value);
+    }
     err_stream->flush_f(err_stream->value);
 
     if ( buf_size != 0 )
+    {
         free(printf_buf);
+    }
 }
 
 static inline void print_rep_count(int count)
 {
     if ( use_color )
-        err_printf(C_RED "-- Previous position repeated %i more times --\n" C_RES,
-                    C_LEN + R_LEN + INT_CH_COUNT + 45, count);
+    {
+        err_printf(
+            C_RED "-- Previous position repeated %i more times --\n" C_RES,
+            C_LEN + R_LEN + INT_CH_COUNT + 45, count);
+    }
     else
-        err_printf("-- Previous position repeated %i more times --\n",
-                    INT_CH_COUNT + 45, count);
+    {
+        err_printf(
+            "-- Previous position repeated %i more times --\n",
+            INT_CH_COUNT + 45, count);
+    }
 }
 
 void nst_print_traceback(Nst_Traceback tb)
@@ -311,7 +378,9 @@ void nst_print_traceback(Nst_Traceback tb)
         Nst_Pos *end   = (Nst_Pos *)n2->value;
 
         if ( start->text == NULL )
+        {
             continue;
+        }
 
         if ( start->col == prev_start.col && start->line == prev_start.line &&
              end->col   == prev_end.col   && end->line   == prev_end.line   &&
@@ -323,7 +392,9 @@ void nst_print_traceback(Nst_Traceback tb)
         else
         {
             if ( repeat_count > 0 )
+            {
                 print_rep_count(repeat_count);
+            }
             repeat_count = 0;
             prev_start = *start;
             prev_end = *end;
@@ -344,20 +415,30 @@ void nst_print_traceback(Nst_Traceback tb)
         print_position(tb.error.start, tb.error.end);
     }
     else
+    {
         print_position(tb.error.start, tb.error.end);
+    }
 
     if ( use_color )
-        err_printf(C_YEL "%s" C_RES " - %s\n",
-                   (int)tb.error.name->len + (int)tb.error.message->len + C_LEN + R_LEN + 4,
-                   tb.error.name->value, tb.error.message->value);
+    {
+        err_printf(
+            C_YEL "%s" C_RES " - %s\n",
+            (int)tb.error.name->len + (int)tb.error.message->len + C_LEN + R_LEN + 4,
+            tb.error.name->value, tb.error.message->value);
+    }
     else
-        err_printf("%s - %s\n",
-                   (int)tb.error.name->len + (int)tb.error.message->len + 4,
-                   tb.error.name->value, tb.error.message->value);
+    {
+        err_printf(
+            "%s - %s\n",
+            (int)tb.error.name->len + (int)tb.error.message->len + 4,
+            tb.error.name->value, tb.error.message->value);
+    }
 
     err_stream->flush_f(err_stream->value);
     if ( buf_size != 0 )
+    {
         free(printf_buf);
+    }
 }
 
 Nst_StrObj *_nst_format_error(const char *format, const char *format_args, ...)
@@ -397,7 +478,9 @@ Nst_StrObj *_nst_format_error(const char *format, const char *format_args, ...)
 
     char *buffer = (char *)calloc(tot_size + 1, sizeof(char));
     if (buffer == NULL)
+    {
         return NULL;
+    }
 
     va_start(args, format_args);
     vsprintf(buffer, format, args);
