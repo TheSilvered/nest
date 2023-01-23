@@ -56,7 +56,9 @@ static inline void move_obj(Nst_GGCObj *obj, Nst_GGCList *from, Nst_GGCList *to)
 static void move_list(Nst_GGCList *from, Nst_GGCList *to)
 {
     if ( from->size == 0 )
+    {
         return;
+    }
 
     for ( Nst_GGCObj *cursor = from->head;
           cursor != NULL;
@@ -213,7 +215,9 @@ void nst_collect_gen(Nst_GGCList *gen,
         for ( ob = uv.head; ob != NULL; )
         {
             if ( NST_HAS_FLAG(ob, NST_FLAG_GGC_REACHABLE) )
+            {
                 NST_UNSET_FLAG(ob, NST_FLAG_GGC_UNREACHABLE);
+            }
             else
             {
                 ob = ob->ggc_next;

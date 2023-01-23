@@ -8,12 +8,12 @@
 #include "lib_import.h"
 
 #define IS_WHITESPACE(ch) \
-        (  ch == ' ' \
-        || ch == '\n' \
-        || ch == '\t' \
-        || ch == '\r' \
-        || ch == '\v' \
-        || ch == '\f')
+        (ch == ' '  || \
+         ch == '\n' || \
+         ch == '\t' || \
+         ch == '\r' || \
+         ch == '\v' || \
+         ch == '\f')
 
 #define RETURN_INT_ERR do { \
     NST_SET_RAW_VALUE_ERROR(_NST_EM_BAD_INT_LITERAL); \
@@ -45,11 +45,16 @@ Nst_Obj *nst_new_string(char *val, size_t len, bool allocated)
     Nst_StrObj *str = STR(nst_alloc_obj(
         sizeof(Nst_StrObj),
         nst_t.Str,
-        nst_destroy_string
-    ));
-    if ( str == NULL ) return NULL;
+        nst_destroy_string));
+    if ( str == NULL )
+    {
+        return NULL;
+    }
 
-    if ( allocated ) str->flags |= NST_FLAG_STR_IS_ALLOC;
+    if ( allocated )
+    {
+        str->flags |= NST_FLAG_STR_IS_ALLOC;
+    }
     str->len = len;
     str->value = val;
 
@@ -61,9 +66,11 @@ Nst_TypeObj *nst_new_type_obj(const char *val, size_t len)
     Nst_TypeObj *str = STR(nst_alloc_obj(
         sizeof(Nst_StrObj),
         nst_t.Type,
-        nst_destroy_string
-    ));
-    if ( str == NULL ) return NULL;
+        nst_destroy_string));
+    if ( str == NULL )
+    {
+        return NULL;
+    }
 
     str->len = len;
     str->value = (char *)val;
@@ -110,9 +117,13 @@ Nst_Obj *_nst_repr_string(Nst_StrObj *src)
         case '"': double_quotes_count += 1; break;
         default:
             if ( isprint((unsigned char)orig[i]) )
+            {
                 new_size += 1;
+            }
             else
+            {
                 new_size += 4;
+            }
         }
     }
 
@@ -151,16 +162,24 @@ Nst_Obj *_nst_repr_string(Nst_StrObj *src)
         case '\t': new_str[i++] = '\\'; new_str[i++] = 't'; break;
         case '\v': new_str[i++] = '\\'; new_str[i++] = 'v'; break;
         case '\'':
-            if ( !using_doub ) new_str[i++] = '\\';
+            if ( !using_doub )
+            {
+                new_str[i++] = '\\';
+            }
             new_str[i++] = '\'';
             break;
         case '"':
-            if ( using_doub ) new_str[i++] = '\\';
+            if ( using_doub )
+            {
+                new_str[i++] = '\\';
+            }
             new_str[i++] = '"';
             break;
         default:
             if ( isprint((unsigned char)orig[j]) )
+            {
                 new_str[i++] = orig[j];
+            }
             else
             {
                 sprintf(&new_str[i], "\\x%02x", orig[j]);
@@ -178,10 +197,14 @@ Nst_Obj *_nst_repr_string(Nst_StrObj *src)
 Nst_Obj *_nst_string_get_idx(Nst_StrObj *str, Nst_Int idx)
 {
     if ( idx < 0 )
+    {
         idx += str->len;
+    }
 
     if ( idx < 0 || idx >= (int64_t)str->len )
+    {
         return NULL;
+    }
 
     char *ch = (char *)malloc(2 * sizeof(char));
     if ( ch == NULL )
@@ -198,9 +221,14 @@ Nst_Obj *_nst_string_get_idx(Nst_StrObj *str, Nst_Int idx)
 
 void nst_destroy_string(Nst_StrObj *str)
 {
-    if ( str == NULL ) return;
+    if ( str == NULL )
+    {
+        return;
+    }
     if ( NST_STR_IS_ALLOC(str) )
+    {
         free(str->value);
+    }
 }
 
 Nst_Obj *nst_parse_int(Nst_StrObj *str, struct _Nst_OpErr *err)
@@ -211,12 +239,18 @@ Nst_Obj *nst_parse_int(Nst_StrObj *str, struct _Nst_OpErr *err)
     Nst_Int digit = 0;
     Nst_Int sign = 1;
 
-    if ( s == end ) RETURN_INT_ERR;
+    if ( s == end )
+    {
+        RETURN_INT_ERR;
+    }
 
     while ( IS_WHITESPACE(*s) )
         ++s;
 
-    if ( s == end ) RETURN_INT_ERR;
+    if ( s == end )
+    {
+        RETURN_INT_ERR;
+    }
 
     if ( *s == '-' )
     {
@@ -224,9 +258,14 @@ Nst_Obj *nst_parse_int(Nst_StrObj *str, struct _Nst_OpErr *err)
         ++s;
     }
     else if ( *s == '+' )
+    {
         ++s;
+    }
 
-    if ( s == end ) RETURN_INT_ERR;
+    if ( s == end )
+    {
+        RETURN_INT_ERR;
+    }
 
     while ( s != end )
     {
@@ -237,9 +276,13 @@ Nst_Obj *nst_parse_int(Nst_StrObj *str, struct _Nst_OpErr *err)
                 ++s;
 
             if ( s == end )
+            {
                 return nst_new_int(num * sign);
+            }
             else
+            {
                 RETURN_INT_ERR;
+            }
         }
 
         num = num * 10 + digit;
@@ -252,7 +295,9 @@ Nst_Obj *nst_parse_int(Nst_StrObj *str, struct _Nst_OpErr *err)
 Nst_Obj *nst_parse_byte(Nst_StrObj *str, struct _Nst_OpErr *err)
 {
     if ( str->len == 1 )
+    {
         return nst_new_byte(str->value[0]);
+    }
 
     char* s = str->value;
     char* end = s + str->len;
@@ -280,20 +325,28 @@ Nst_Obj *nst_parse_byte(Nst_StrObj *str, struct _Nst_OpErr *err)
     while (s != end)
     {
         digit = *s - '0';
-        if (digit < 0 || digit > 9)
+        if ( digit < 0 || digit > 9 )
         {
             if ( *s == 'b' || *s == 'B' )
+            {
                 ++s;
+            }
             else
+            {
                 RETURN_BYTE_ERR;
+            }
 
             while (IS_WHITESPACE(*s))
                 ++s;
 
-            if (s == end)
+            if ( s == end )
+            {
                 return nst_new_byte((Nst_Byte)((num * sign) & 0xff));
+            }
             else
+            {
                 RETURN_BYTE_ERR;
+            }
         }
 
         num = num * 10 + digit;
@@ -313,12 +366,18 @@ Nst_Obj *nst_parse_real(Nst_StrObj *str, struct _Nst_OpErr *err)
     Nst_Real pow = 10;
     Nst_Int digit = 0;
 
-    if ( s == end ) RETURN_REAL_ERR;
+    if ( s == end )
+    {
+        RETURN_REAL_ERR;
+    }
 
     while ( IS_WHITESPACE(*s) )
         ++s;
 
-    if ( s == end ) RETURN_REAL_ERR;
+    if ( s == end )
+    {
+        RETURN_REAL_ERR;
+    }
 
     if ( *s == '-' )
     {
@@ -326,9 +385,14 @@ Nst_Obj *nst_parse_real(Nst_StrObj *str, struct _Nst_OpErr *err)
         ++s;
     }
     else if ( *s == '+' )
+    {
         ++s;
+    }
 
-    if ( s == end ) RETURN_REAL_ERR;
+    if ( s == end )
+    {
+        RETURN_REAL_ERR;
+    }
 
     while ( s != end && *s != '.' )
     {
@@ -339,9 +403,13 @@ Nst_Obj *nst_parse_real(Nst_StrObj *str, struct _Nst_OpErr *err)
                 ++s;
 
             if ( s == end )
+            {
                 return nst_new_real(num * sign);
+            }
             else
+            {
                 RETURN_REAL_ERR;
+            }
         }
 
         num = num * 10 + digit;
@@ -349,7 +417,9 @@ Nst_Obj *nst_parse_real(Nst_StrObj *str, struct _Nst_OpErr *err)
     }
 
     if ( s == end )
+    {
         return nst_new_real(num * sign);
+    }
 
     // at this point there can only be a dot
     ++s;
@@ -363,9 +433,13 @@ Nst_Obj *nst_parse_real(Nst_StrObj *str, struct _Nst_OpErr *err)
                 ++s;
 
             if ( s == end )
+            {
                 return nst_new_real(num * sign);
+            }
             else
+            {
                 RETURN_REAL_ERR;
+            }
         }
 
         num += digit / pow;
@@ -386,7 +460,9 @@ int nst_compare_strings(Nst_StrObj *str1, Nst_StrObj *str2)
     while ( p1 != end1 && p2 != end2 )
     {
         if ( *p1 != *p2 )
+        {
             return (int)(*p1 - *p2);
+        }
         else
         {
             ++p1;

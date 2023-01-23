@@ -5,7 +5,8 @@
 
 #define NEW_SYMPLE_TYPE(type, type_obj) \
     type *obj = (type *)nst_alloc_obj(sizeof(type), type_obj, NULL); \
-    if ( obj == NULL ) return NULL; \
+    if ( obj == NULL ) \
+        return NULL; \
     obj->value = value; \
     return OBJ(obj)
 
@@ -34,9 +35,11 @@ Nst_Obj *nst_new_true_file(Nst_IOFile value, bool bin, bool read, bool write)
     Nst_IOFileObj *obj = IOFILE(nst_alloc_obj(
         sizeof(Nst_IOFileObj),
         nst_t.IOFile,
-        nst_destroy_iofile
-    ));
-    if ( obj == NULL ) return NULL;
+        nst_destroy_iofile));
+    if ( obj == NULL )
+    {
+        return NULL;
+    }
 
     obj->value = value;
     obj->read_f = (Nst_IOFile_read_f)fread;
@@ -46,9 +49,18 @@ Nst_Obj *nst_new_true_file(Nst_IOFile value, bool bin, bool read, bool write)
     obj->seek_f = (Nst_IOFile_seek_f)fseek;
     obj->close_f = (Nst_IOFile_close_f)fclose;
 
-    if ( bin )   NST_SET_FLAG(obj, NST_FLAG_IOFILE_IS_BIN);
-    if ( read )  NST_SET_FLAG(obj, NST_FLAG_IOFILE_CAN_READ);
-    if ( write ) NST_SET_FLAG(obj, NST_FLAG_IOFILE_CAN_WRITE);
+    if ( bin )
+    {
+        NST_SET_FLAG(obj, NST_FLAG_IOFILE_IS_BIN);
+    }
+    if ( read )
+    {
+        NST_SET_FLAG(obj, NST_FLAG_IOFILE_CAN_READ);
+    }
+    if ( write )
+    {
+        NST_SET_FLAG(obj, NST_FLAG_IOFILE_CAN_WRITE);
+    }
 
     return OBJ(obj);
 }
@@ -65,8 +77,7 @@ Nst_Obj *nst_new_fake_file(void *value,
     Nst_IOFileObj *obj = IOFILE(nst_alloc_obj(
         sizeof(Nst_IOFileObj),
         nst_t.IOFile,
-        nst_destroy_iofile
-    ));
+        nst_destroy_iofile));
     if ( obj == NULL ) return NULL;
 
     obj->value = (Nst_IOFile)value;
@@ -77,9 +88,18 @@ Nst_Obj *nst_new_fake_file(void *value,
     obj->seek_f = seek_f;
     obj->close_f = close_f;
 
-    if ( bin )   NST_SET_FLAG(obj, NST_FLAG_IOFILE_IS_BIN);
-    if ( read )  NST_SET_FLAG(obj, NST_FLAG_IOFILE_CAN_READ);
-    if ( write ) NST_SET_FLAG(obj, NST_FLAG_IOFILE_CAN_WRITE);
+    if ( bin )
+    {
+        NST_SET_FLAG(obj, NST_FLAG_IOFILE_IS_BIN);
+    }
+    if ( read )
+    {
+        NST_SET_FLAG(obj, NST_FLAG_IOFILE_CAN_READ);
+    }
+    if ( write )
+    {
+        NST_SET_FLAG(obj, NST_FLAG_IOFILE_CAN_WRITE);
+    }
 
     return OBJ(obj);
 }
@@ -87,5 +107,7 @@ Nst_Obj *nst_new_fake_file(void *value,
 void nst_destroy_iofile(Nst_IOFileObj *obj)
 {
     if ( !NST_IOF_IS_CLOSED(obj) )
+    {
         obj->close_f(obj->value);
+    }
 }

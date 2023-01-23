@@ -120,7 +120,9 @@ Nst_Node *nst_new_node_empty(Nst_Pos start, Nst_Pos end, int type)
 void nst_destroy_node(Nst_Node *node)
 {
     if ( node == NULL )
+    {
         return;
+    }
 
     LList_destroy(node->tokens, (LList_item_destructor)nst_destroy_token);
     LList_destroy(node->nodes, (LList_item_destructor)nst_destroy_node);

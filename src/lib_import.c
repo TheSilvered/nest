@@ -11,8 +11,7 @@
     NST_SET_TYPE_ERROR(_nst_format_error( \
         _NST_EM_WRONG_TYPE_FOR_ARG(type), \
         "us", \
-        idx + 1, TYPE_NAME(ob) \
-    )); \
+        idx + 1, TYPE_NAME(ob))); \
     return false; }
 
 Nst_FuncDeclr *nst_new_func_list(size_t count)
@@ -31,89 +30,137 @@ static bool extract_builtin_type(const char type,
     {
     case 't':
         if ( ob->type != nst_t.Type )
+        {
             SET_TYPE_ERROR("Type");
+        }
         *(Nst_StrObj **)arg = STR(ob);
         break;
     case 'i':
         if ( ob->type != nst_t.Int )
+        {
             SET_TYPE_ERROR("Int");
+        }
 
         if ( always_use_objects )
-            *(Nst_IntObj **)arg = (Nst_IntObj *)ob;
+        {
+            *(Nst_IntObj**)arg = (Nst_IntObj*)ob;
+        }
         else
-            *(Nst_Int *)arg = AS_INT(ob);
+        {
+            *(Nst_Int*)arg = AS_INT(ob);
+        }
         break;
     case 'l':
         if ( ob->type != nst_t.Int && ob->type == nst_t.Byte )
+        {
             SET_TYPE_ERROR("Int");
+        }
 
         if ( always_use_objects )
-            *(void **)arg = ob;
+        {
+            *(void**)arg = ob;
+        }
         else
         {
             if ( ob->type == nst_t.Int )
-                *(Nst_Int *)arg = AS_INT(ob);
+            {
+                *(Nst_Int*)arg = AS_INT(ob);
+            }
             else if ( ob->type == nst_t.Byte )
-                *(Nst_Int *)arg = (Nst_Int)AS_BYTE(ob);
+            {
+                *(Nst_Int*)arg = (Nst_Int)AS_BYTE(ob);
+            }
         }
         break;
     case 'r':
         if ( ob->type != nst_t.Real )
+        {
             SET_TYPE_ERROR("Real");
+        }
 
         if ( always_use_objects )
-            *(Nst_RealObj **)arg = (Nst_RealObj *)ob;
+        {
+            *(Nst_RealObj**)arg = (Nst_RealObj*)ob;
+        }
         else
-            *(Nst_Real *)arg = AS_REAL(ob);
+        {
+            *(Nst_Real*)arg = AS_REAL(ob);
+        }
         break;
     case 'N':
         if ( ob->type != nst_t.Real && ob->type != nst_t.Int )
+        {
             SET_TYPE_ERROR("Real', 'Int' or 'Byte");
+        }
 
         if ( always_use_objects )
-            *(void **)arg = ob;
+        {
+            *(void**)arg = ob;
+        }
         else
         {
             if ( ob->type == nst_t.Real )
-                *(Nst_Real *)arg = AS_REAL(ob);
+            {
+                *(Nst_Real*)arg = AS_REAL(ob);
+            }
             else if ( ob->type == nst_t.Int )
-                *(Nst_Real *)arg = (Nst_Real)AS_INT(ob);
+            {
+                *(Nst_Real*)arg = (Nst_Real)AS_INT(ob);
+            }
             else
-                *(Nst_Real *)arg = (Nst_Real)AS_BYTE(ob);
+            {
+                *(Nst_Real*)arg = (Nst_Real)AS_BYTE(ob);
+            }
         }
         break;
     case 'b':
         if ( ob->type != nst_t.Bool )
+        {
             SET_TYPE_ERROR("Bool");
+        }
 
         if ( always_use_objects )
-            *(Nst_BoolObj **)arg = (Nst_BoolObj *)ob;
+        {
+            *(Nst_BoolObj**)arg = (Nst_BoolObj*)ob;
+        }
         else
-            *(Nst_Bool *)arg = AS_BOOL(ob);
+        {
+            *(Nst_Bool*)arg = AS_BOOL(ob);
+        }
         break;
     case 'n':
         if ( ob->type != nst_t.Null )
+        {
             SET_TYPE_ERROR("Null");
+        }
         *(Nst_NullObj **)arg = nst_c.null;
         break;
     case 's':
         if ( ob->type != nst_t.Str )
+        {
             SET_TYPE_ERROR("Str");
+        }
         *(Nst_StrObj **)arg = STR(ob);
         break;
     case 'v':
         if ( ob->type != nst_t.Vector )
+        {
             SET_TYPE_ERROR("Vector");
+        }
         *(Nst_SeqObj **)arg = SEQ(ob);
         break;
     case 'a':
         if ( ob->type != nst_t.Array )
+        {
             SET_TYPE_ERROR("Array");
+        }
         *(Nst_SeqObj **)arg = SEQ(ob);
         break;
     case 'A':
         if ( ob->type != nst_t.Array && ob->type != nst_t.Vector )
+        {
             SET_TYPE_ERROR("Array' or 'Vector");
+        }
         *(Nst_SeqObj **)arg = SEQ(ob);
         break;
     case 'S':
@@ -122,36 +169,54 @@ static bool extract_builtin_type(const char type,
              ob->type != nst_t.Str )
             SET_TYPE_ERROR("Array', 'Vector' or 'String");
         if ( ob->type == nst_t.Str )
-            *(Nst_Obj **)arg = nst_obj_cast(ob, nst_t.Array, err);
+        {
+            *(Nst_Obj**)arg = nst_obj_cast(ob, nst_t.Array, err);
+        }
         else
-            *(Nst_Obj **)arg = nst_inc_ref(ob);
+        {
+            *(Nst_Obj**)arg = nst_inc_ref(ob);
+        }
         break;
     case 'm':
         if ( ob->type != nst_t.Map )
+        {
             SET_TYPE_ERROR("Map");
+        }
         *(Nst_MapObj **)arg = MAP(ob);
         break;
     case 'f':
         if ( ob->type != nst_t.Func )
+        {
             SET_TYPE_ERROR("Func");
+        }
         *(Nst_FuncObj **)arg = FUNC(ob);
         break;
     case 'I':
         if ( ob->type != nst_t.Iter )
+        {
             SET_TYPE_ERROR("Iter");
+        }
         *(Nst_IterObj **)arg = ITER(ob);
         break;
     case 'B':
         if ( ob->type != nst_t.Byte )
+        {
             SET_TYPE_ERROR("Byte");
+        }
         if ( always_use_objects )
-            *(Nst_ByteObj **)arg = (Nst_ByteObj *)ob;
+        {
+            *(Nst_ByteObj**)arg = (Nst_ByteObj*)ob;
+        }
         else
-            *(Nst_Byte *)arg = AS_BYTE(ob);
+        {
+            *(Nst_Byte*)arg = AS_BYTE(ob);
+        }
         break;
     case 'F':
         if ( ob->type != nst_t.IOFile )
+        {
             SET_TYPE_ERROR("IOFile");
+        }
         *(Nst_IOFileObj **)arg = IOFILE(ob);
         break;
     case 'o':
@@ -240,10 +305,13 @@ bool nst_extract_arg_values(const char *types,
             }
             i++;
             if ( ob->type == nst_t.Null )
-                *(void **)arg = nst_c.null;
+            {
+                *(void**)arg = nst_c.null;
+            }
             else
             {
-                if ( !extract_builtin_type(types[i], arg_idx, err, ob, arg, true) )
+                if ( !extract_builtin_type(types[i], arg_idx,
+                                           err, ob, arg, true) )
                 {
                     succeded = false;
                     goto end;
@@ -256,21 +324,23 @@ bool nst_extract_arg_values(const char *types,
             arg = va_arg(arglist, void *);
 
             if ( ob->type == custom_type )
-                *(void **)arg = ob;
+            {
+                *(void**)arg = ob;
+            }
             else
             {
                 NST_SET_TYPE_ERROR(_nst_format_error(
                     _NST_EM_WRONG_TYPE_FOR_ARG2,
                     "sus",
-                    custom_type->value, arg_idx + 1, TYPE_NAME(ob)
-                ));
+                    custom_type->value, arg_idx + 1, TYPE_NAME(ob)));
                 succeded = false;
                 goto end;
             }
             break;
         }
         default:
-            if ( !extract_builtin_type(types[i], arg_idx, err, ob, arg, false) )
+            if ( !extract_builtin_type(types[i], arg_idx,
+                                       err, ob, arg, false) )
             {
                 succeded = false;
                 goto end;

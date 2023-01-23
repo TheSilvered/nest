@@ -24,9 +24,13 @@ Nst_Obj *_nst_alloc_obj(size_t              size,
 
     // the type of the type object is itself
     if ( type == NULL )
+    {
         obj->type = TYPE(obj);
+    }
     else
+    {
         obj->type = type;
+    }
 
     nst_inc_ref(obj->type);
 
@@ -38,13 +42,19 @@ void _nst_destroy_obj(Nst_Obj *obj)
     if ( NST_HAS_FLAG(obj, NST_FLAG_GGC_IS_SUPPORTED) )
     {
         if ( NST_HAS_FLAG(obj, NST_FLAG_GGC_DELETED) )
+        {
             return;
+        }
 
         obj->ref_count = 2147483647;
         if ( obj->destructor != NULL )
+        {
             (*obj->destructor)(obj);
+        }
         if ( obj != OBJ(obj->type) )
+        {
             nst_dec_ref(obj->type);
+        }
 
         // The object is being deleted by the garbage collector
         if ( NST_HAS_FLAG(obj, NST_FLAG_GGC_UNREACHABLE) )
@@ -60,14 +70,22 @@ void _nst_destroy_obj(Nst_Obj *obj)
             if ( ls != NULL )
             {
                 if ( ls->head == ggc_obj )
+                {
                     ls->head = ggc_obj->ggc_next;
+                }
                 else
+                {
                     ggc_obj->ggc_prev->ggc_next = ggc_obj->ggc_next;
+                }
 
                 if ( ls->tail == ggc_obj )
+                {
                     ls->tail = ggc_obj->ggc_prev;
+                }
                 else
+                {
                     ggc_obj->ggc_next->ggc_prev = ggc_obj->ggc_prev;
+                }
 
                 ls->size--;
             }
@@ -78,9 +96,13 @@ void _nst_destroy_obj(Nst_Obj *obj)
     else
     {
         if ( obj->destructor != NULL )
+        {
             (*obj->destructor)(obj);
+        }
         if ( obj != OBJ(obj->type) )
+        {
             nst_dec_ref(obj->type);
+        }
 
         free(obj);
     }
@@ -96,5 +118,7 @@ void _nst_dec_ref(Nst_Obj *obj)
 {
     obj->ref_count--;
     if ( obj->ref_count <= 0 || (obj == OBJ(obj->type) && obj->ref_count == 1) )
+    {
         _nst_destroy_obj(obj);
+    }
 }

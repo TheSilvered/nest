@@ -58,11 +58,7 @@ static int32_t hash_ptr(void *ptr)
     size_t x = (size_t)ptr;
     x = (x >> 4) | (x << (8 * sizeof(void *) - 4));
 
-    if ( (int32_t)x == -1 )
-    {
-        return -2;
-    }
-    return (int32_t)x;
+    return (int32_t)x == -1 ? -2 : (int32_t)x;
 }
 
 static int32_t hash_str(Nst_StrObj *str)
@@ -82,7 +78,7 @@ static int32_t hash_str(Nst_StrObj *str)
 
 static int32_t hash_int(Nst_IntObj *num)
 {
-    return num->value == -1 ? -1 : (int32_t)(num->value);
+    return num->value == -1 ? -2 : (int32_t)(num->value);
 }
 
 static int32_t hash_byte(Nst_ByteObj *byte)

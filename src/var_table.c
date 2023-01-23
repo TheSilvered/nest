@@ -7,7 +7,10 @@ Nst_VarTable *nst_new_var_table(Nst_MapObj *global_table,
                                 Nst_SeqObj *args)
 {
     Nst_VarTable *vt = (Nst_VarTable *)malloc(sizeof(Nst_VarTable));
-    if ( vt == NULL ) return NULL;
+    if ( vt == NULL )
+    {
+        return NULL;
+    }
 
     vt->global_table = global_table;
     Nst_MapObj *vars = MAP(nst_new_map());
@@ -15,7 +18,9 @@ Nst_VarTable *nst_new_var_table(Nst_MapObj *global_table,
 
     nst_map_set(vars, nst_s.o__vars_, vars);
     if ( global_table == NULL )
+    {
         nst_map_set(vars, nst_s.o__globals_, nst_c.null);
+    }
     else
     {
         nst_map_set(vars, nst_s.o__globals_, global_table);
@@ -54,7 +59,9 @@ Nst_Obj *_nst_get_val(Nst_VarTable *vt, Nst_Obj *name)
     Nst_Obj *val = _nst_map_get(vt->vars, name);
 
     if ( val == NULL && vt->global_table != NULL )
+    {
         val = _nst_map_get(vt->global_table, name);
+    }
 
     if ( val == NULL )
     {

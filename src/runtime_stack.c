@@ -13,19 +13,28 @@ typedef struct _GenericStack
 }
 GenericStack;
 
-static void shrink_stack(GenericStack *g_stack, size_t min_size, size_t unit_size)
+static void shrink_stack(GenericStack *g_stack,
+                         size_t        min_size,
+                         size_t        unit_size)
 {
     if ( g_stack->max_size <= min_size )
+    {
         return;
+    }
 
     if ( g_stack->max_size >> 2 < g_stack->current_size )
+    {
         return;
+    }
 
     assert(g_stack->current_size <= g_stack->max_size);
 
-    void *new_stack = realloc(g_stack->stack, unit_size * (g_stack->max_size >> 1));
+    void *new_stack = realloc(
+        g_stack->stack, unit_size * (g_stack->max_size >> 1));
     if ( new_stack == NULL )
+    {
         return;
+    }
     g_stack->max_size >>= 1;
     g_stack->stack = new_stack;
 }
@@ -35,7 +44,9 @@ Nst_ValueStack *nst_new_val_stack()
     Nst_ValueStack *v_stack = (Nst_ValueStack *)malloc(sizeof(Nst_ValueStack));
     Nst_Obj **objs = (Nst_Obj **)malloc(V_STACK_MIN_SIZE * sizeof(Nst_Obj *));
     if ( v_stack == NULL || objs == NULL )
+    {
         return NULL;
+    }
 
     v_stack->stack = objs;
     v_stack->current_size = 0;
@@ -51,23 +62,27 @@ bool _nst_push_val(Nst_ValueStack *v_stack, Nst_Obj *obj)
     {
         Nst_Obj **new_objs = (Nst_Obj **)realloc(
             v_stack->stack,
-            max_size * 2 * sizeof(Nst_Obj *)
-        );
+            max_size * 2 * sizeof(Nst_Obj *));
         if ( new_objs == NULL )
+        {
             return false;
+        }
 
         v_stack->stack = new_objs;
         v_stack->max_size = max_size * 2;
     }
 
-    v_stack->stack[v_stack->current_size++] = obj != NULL ? nst_inc_ref(obj) : NULL;
+    v_stack->stack[v_stack->current_size++] =
+        obj != NULL ? nst_inc_ref(obj) : NULL;
     return true;
 }
 
 Nst_Obj *nst_pop_val(Nst_ValueStack *v_stack)
 {
     if ( v_stack->current_size == 0 )
+    {
         return NULL;
+    }
 
     Nst_Obj *val = v_stack->stack[--v_stack->current_size];
     shrink_stack((GenericStack *)v_stack, V_STACK_MIN_SIZE, sizeof(Nst_Obj *));
@@ -78,7 +93,9 @@ Nst_Obj *nst_pop_val(Nst_ValueStack *v_stack)
 Nst_Obj *nst_peek_val(Nst_ValueStack *v_stack)
 {
     if ( v_stack->current_size == 0 )
+    {
         return NULL;
+    }
 
     return v_stack->stack[v_stack->current_size - 1];
 }
@@ -86,7 +103,9 @@ Nst_Obj *nst_peek_val(Nst_ValueStack *v_stack)
 bool nst_dup_val(Nst_ValueStack *v_stack)
 {
     if ( v_stack->current_size != 0 )
+    {
         return nst_push_val(v_stack, nst_peek_val(v_stack));
+    }
     return true;
 }
 
@@ -95,7 +114,9 @@ void nst_destroy_v_stack(Nst_ValueStack *v_stack)
     for ( Nst_Int i = 0; i < (Nst_Int)v_stack->current_size; i++ )
     {
         if ( v_stack->stack[i] != NULL )
+        {
             nst_dec_ref(v_stack->stack[i]);
+        }
     }
 
     free(v_stack->stack);
@@ -105,9 +126,12 @@ void nst_destroy_v_stack(Nst_ValueStack *v_stack)
 Nst_CallStack *nst_new_call_stack()
 {
     Nst_CallStack *f_stack = (Nst_CallStack *)malloc(sizeof(Nst_CallStack));
-    Nst_FuncCall *calls = (Nst_FuncCall *)malloc(F_STACK_MIN_SIZE * sizeof(Nst_FuncCall));
+    Nst_FuncCall *calls = (Nst_FuncCall *)malloc(
+        F_STACK_MIN_SIZE * sizeof(Nst_FuncCall));
     if ( f_stack == NULL || calls == NULL )
+    {
         return NULL;
+    }
 
     f_stack->stack = calls;
     f_stack->current_size = 0;
@@ -128,14 +152,17 @@ bool _nst_push_func(Nst_CallStack *f_stack,
     if ( f_stack->current_size == max_size )
     {
         if ( max_size == 1000 )
+        {
             return false;
+        }
 
         Nst_FuncCall *new_calls = (Nst_FuncCall *)realloc(
             f_stack->stack,
-            max_size * 2 * sizeof(Nst_FuncCall)
-        );
+            max_size * 2 * sizeof(Nst_FuncCall));
         if ( new_calls == NULL )
+        {
             return false;
+        }
 
         f_stack->stack = new_calls;
         f_stack->max_size = max_size * 2;
@@ -158,10 +185,15 @@ Nst_FuncCall nst_pop_func(Nst_CallStack *f_stack)
     };
 
     if ( f_stack->current_size == 0 )
+    {
         return call;
+    }
 
     call = f_stack->stack[--f_stack->current_size];
-    shrink_stack((GenericStack *)f_stack, F_STACK_MIN_SIZE, sizeof(Nst_FuncCall));
+    shrink_stack(
+        (GenericStack *)f_stack,
+        F_STACK_MIN_SIZE,
+        sizeof(Nst_FuncCall));
     return call;
 }
 
@@ -187,7 +219,9 @@ void nst_destroy_f_stack(Nst_CallStack *f_stack)
     for ( Nst_Int i = 0; i < (Nst_Int)f_stack->current_size; i++ )
     {
         if ( f_stack->stack[i].func != NULL )
+        {
             nst_dec_ref(f_stack->stack[i].func);
+        }
 
         if ( f_stack->stack[i].vt != NULL )
         {
@@ -203,9 +237,12 @@ void nst_destroy_f_stack(Nst_CallStack *f_stack)
 Nst_CatchStack *nst_new_catch_stack()
 {
     Nst_CatchStack *c_stack = (Nst_CatchStack *)malloc(sizeof(Nst_CatchStack));
-    Nst_CatchFrame *frames = (Nst_CatchFrame *)malloc(C_STACK_MIN_SIZE * sizeof(Nst_CatchFrame));
+    Nst_CatchFrame *frames = (Nst_CatchFrame *)malloc(
+        C_STACK_MIN_SIZE * sizeof(Nst_CatchFrame));
     if ( c_stack == NULL || frames == NULL )
+    {
         return NULL;
+    }
 
     c_stack->stack = frames;
     c_stack->current_size = 0;
@@ -225,10 +262,11 @@ bool nst_push_catch(Nst_CatchStack *c_stack,
     {
         Nst_CatchFrame *new_frames = (Nst_CatchFrame *)realloc(
             c_stack->stack,
-            max_size * 2 * sizeof(Nst_CatchFrame)
-        );
+            max_size * 2 * sizeof(Nst_CatchFrame));
         if ( new_frames == NULL )
+        {
             return false;
+        }
 
         c_stack->stack = new_frames;
         c_stack->max_size = max_size * 2;
@@ -255,10 +293,15 @@ Nst_CatchFrame nst_pop_catch(Nst_CatchStack *c_stack)
 {
     Nst_CatchFrame frame = { 0, 0, -1 };
     if ( c_stack->current_size == 0 )
+    {
         return frame;
+    }
 
     frame = c_stack->stack[--c_stack->current_size];
-    shrink_stack((GenericStack *)c_stack, C_STACK_MIN_SIZE, sizeof(Nst_CatchFrame));
+    shrink_stack(
+        (GenericStack *)c_stack,
+        C_STACK_MIN_SIZE,
+        sizeof(Nst_CatchFrame));
     return frame;
 }
 

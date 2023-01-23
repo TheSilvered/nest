@@ -105,9 +105,14 @@ Nst_Pos nst_no_pos()
 
 static inline void print_repeat(char ch, long times)
 {
-    if ( times < 0 ) times = 0;
+    if ( times < 0 )
+    {
+        times = 0;
+    }
     for ( long i = 0; i < times; i++ )
+    {
         err_putc(ch);
+    }
 }
 
 static long get_indent(Nst_SourceText *text, long lineno)
@@ -117,9 +122,13 @@ static long get_indent(Nst_SourceText *text, long lineno)
     for ( char *p = text->lines[lineno]; *p != '\n' && *p != '\0'; p++)
     {
         if ( *p == ' ' || *p == '\t' )
+        {
             indent++;
+        }
         else
+        {
             return indent;
+        }
     }
     return indent;
 }
@@ -230,7 +239,9 @@ static void print_position(Nst_Pos start, Nst_Pos end)
     assert(start.text == end.text);
 
     if ( start.text == NULL )
+    {
         return;
+    }
 
     if ( use_color )
     {
@@ -317,7 +328,9 @@ static void print_position(Nst_Pos start, Nst_Pos end)
 void nst_print_error(Nst_Error err)
 {
     if ( !NST_IOF_IS_CLOSED(nst_io->out) )
+    {
         nst_io->out->flush_f(nst_io->out->value);
+    }
 
     set_error_stream();
     print_position(err.start, err.end);

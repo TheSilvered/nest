@@ -10,7 +10,10 @@
 
 Nst_Obj *nst_new_map()
 {
-    Nst_MapObj *map = MAP(nst_alloc_obj(sizeof(Nst_MapObj), nst_t.Map, nst_destroy_map));
+    Nst_MapObj *map = MAP(nst_alloc_obj(
+        sizeof(Nst_MapObj),
+        nst_t.Map,
+        nst_destroy_map));
     if ( map == NULL )
     {
         errno = ENOMEM;
@@ -36,7 +39,11 @@ Nst_Obj *nst_new_map()
     return OBJ(map);
 }
 
-static int32_t set_clean(Nst_MapObj *map, int32_t hash, Nst_Obj *key, Nst_Obj *value, int prev_idx)
+static int32_t set_clean(Nst_MapObj *map,
+                         int32_t     hash,
+                         Nst_Obj    *key,
+                         Nst_Obj    *value,
+                         int         prev_idx)
 {
     assert(key != NULL);
 
@@ -45,7 +52,7 @@ static int32_t set_clean(Nst_MapObj *map, int32_t hash, Nst_Obj *key, Nst_Obj *v
     int32_t i = hash & mask;
     Nst_MapNode curr_node = nodes[i];
 
-    // I already know there are no duplicate keys, every new key must end in an empty node
+    // every new key must end in an empty node because there are no duplicates
     for ( size_t perturb = (size_t)hash;
           curr_node.key != NULL;
           perturb >>= 5 )
@@ -65,7 +72,9 @@ static int32_t set_clean(Nst_MapObj *map, int32_t hash, Nst_Obj *key, Nst_Obj *v
 static bool are_eq(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if ( ob1 == ob2 )
+    {
         return true;
+    }
 
     if ( nst_obj_eq(ob1, ob2, NULL) == nst_c.b_true )
     {
@@ -85,13 +94,21 @@ void _nst_resize_map(Nst_MapObj *map, bool force_item_reset)
     Nst_MapNode *old_nodes = map->nodes;
     size_t size;
     if ( old_size - map->item_count < old_size >> 2 )
+    {
         size = old_size << 1;
+    }
     else if ( old_size > MAP_MIN_SIZE && old_size >> 2 >= map->item_count )
+    {
         size = old_size >> 1;
+    }
     else if ( force_item_reset )
+    {
         size = old_size; // resize_map only resets the items
+    }
     else
+    {
         return;
+    }
     map->mask = size - 1;
     map->size = size;
     map->nodes = (Nst_MapNode *)calloc(size, sizeof(Nst_MapNode));
@@ -113,13 +130,16 @@ void _nst_resize_map(Nst_MapObj *map, bool force_item_reset)
             old_nodes[i].hash,
             old_nodes[i].key,
             old_nodes[i].value,
-            prev_idx
-        );
+            prev_idx);
 
         if ( prev_idx != -1 )
+        {
             map->nodes[prev_idx].next_idx = new_idx;
+        }
         else
+        {
             map->head_idx = new_idx;
+        }
         prev_idx = new_idx;
     }
     map->tail_idx = prev_idx;
@@ -135,7 +155,9 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
     {
         hash = nst_hash_obj(key);
         if ( hash == -1 )
+        {
             return false;
+        }
     }
 
     size_t mask = map->mask;
@@ -148,7 +170,9 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
           perturb >>= 5 )
     {
         if ( curr_node.hash == hash && are_eq(key, curr_node.key) )
+        {
             break;
+        }
 
         i = (int32_t)((i * 5) + 1 + perturb);
         curr_node = nodes[i & mask];
@@ -168,9 +192,13 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
             nodes[curr_node.next_idx].prev_idx = curr_node.prev_idx;
 
             if ( curr_node.prev_idx != -1 )
+            {
                 nodes[curr_node.prev_idx].next_idx = curr_node.next_idx;
+            }
             else
+            {
                 map->head_idx = curr_node.next_idx;
+            }
 
             nodes[map->tail_idx].next_idx = (int)(i & mask);
             (nodes + (i & mask))->prev_idx = map->tail_idx;
@@ -201,8 +229,11 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
     (nodes + (i & mask))->key = key;
     (nodes + (i & mask))->value = value;
 
-    if ( NST_OBJ_IS_TRACKED(map) && NST_HAS_FLAG(value, NST_FLAG_GGC_IS_SUPPORTED) )
-        nst_add_tracked_object((Nst_GGCObj *)value);
+    if ( NST_OBJ_IS_TRACKED(map) &&
+         NST_HAS_FLAG(value, NST_FLAG_GGC_IS_SUPPORTED) )
+    {
+        nst_add_tracked_object((Nst_GGCObj*)value);
+    }
 
     _nst_resize_map(map, false);
 
@@ -217,7 +248,9 @@ Nst_Obj *_nst_map_get(Nst_MapObj *map, Nst_Obj *key)
     {
         hash = nst_hash_obj(key);
         if ( hash == -1 )
+        {
             return NULL;
+        }
     }
 
     size_t mask = map->mask;
@@ -226,7 +259,9 @@ Nst_Obj *_nst_map_get(Nst_MapObj *map, Nst_Obj *key)
     Nst_MapNode curr_node = nodes[i];
 
     if ( curr_node.key == NULL )
+    {
         return NULL;
+    }
 
     if ( curr_node.hash == hash && are_eq(key, curr_node.key) )
     {
@@ -240,7 +275,9 @@ Nst_Obj *_nst_map_get(Nst_MapObj *map, Nst_Obj *key)
         curr_node = nodes[i & mask];
 
         if ( curr_node.key == NULL )
+        {
             return NULL;
+        }
 
         if ( curr_node.hash == hash && are_eq(key, curr_node.key) )
         {
@@ -258,7 +295,9 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
     {
         hash = nst_hash_obj(key);
         if ( hash == -1 )
+        {
             return NULL;
+        }
     }
 
     size_t mask = map->mask;
@@ -267,7 +306,9 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
     Nst_MapNode curr_node = nodes[i];
 
     if ( curr_node.key == NULL )
+    {
         NST_RETURN_FALSE;
+    }
 
     if ( curr_node.hash == hash && are_eq(key, curr_node.key) )
     {
@@ -280,14 +321,22 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
         map->item_count--;
 
         if ( curr_node.next_idx != -1 )
+        {
             nodes[curr_node.next_idx].prev_idx = curr_node.prev_idx;
+        }
         else
+        {
             map->tail_idx = curr_node.prev_idx;
+        }
 
         if ( curr_node.prev_idx != -1 )
+        {
             nodes[curr_node.prev_idx].next_idx = curr_node.next_idx;
+        }
         else
+        {
             map->head_idx = curr_node.next_idx;
+        }
 
         _nst_resize_map(map, true);
         NST_RETURN_TRUE;
@@ -299,7 +348,9 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
         curr_node = nodes[i & mask];
 
         if ( curr_node.key == NULL )
+        {
             NST_RETURN_FALSE;
+        }
 
         if ( curr_node.hash == hash && are_eq(key, curr_node.key) )
         {
@@ -312,14 +363,22 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
             map->item_count--;
 
             if ( curr_node.next_idx != -1 )
+            {
                 nodes[curr_node.next_idx].prev_idx = curr_node.prev_idx;
+            }
             else
+            {
                 map->tail_idx = curr_node.prev_idx;
+            }
 
             if ( curr_node.prev_idx != -1 )
+            {
                 nodes[curr_node.prev_idx].next_idx = curr_node.next_idx;
+            }
             else
+            {
                 map->head_idx = curr_node.next_idx;
+            }
 
             _nst_resize_map(map, true);
             NST_RETURN_TRUE;
@@ -369,8 +428,9 @@ void nst_traverse_map(Nst_MapObj *map)
           i != -1;
           i = nst_map_get_next_idx(i, map) )
     {
-        // don't really care if the object is tracked by the garbage collector or not
-        // keys shouldn't be tracked but for good mesure the flag is added reguardless
+        // don't really care if the object is tracked by the garbage collector
+        // or not, keys shouldn't be tracked but for good mesure the flag is
+        // added reguardless
         NST_SET_FLAG(map->nodes[i].key,   NST_FLAG_GGC_REACHABLE);
         NST_SET_FLAG(map->nodes[i].value, NST_FLAG_GGC_REACHABLE);
     }
@@ -383,14 +443,20 @@ void nst_track_map(Nst_MapObj *map)
           i = nst_map_get_next_idx(i, map) )
     {
         if ( NST_HAS_FLAG(map->nodes[i].value, NST_FLAG_GGC_IS_SUPPORTED) )
-            nst_add_tracked_object((Nst_GGCObj *)(map->nodes[i].value));
+        {
+            nst_add_tracked_object((Nst_GGCObj*)(map->nodes[i].value));
+        }
     }
 }
 
 int _nst_map_get_next_idx(int curr_idx, Nst_MapObj *map)
 {
     if ( curr_idx == -1 )
+    {
         return map->head_idx;
+    }
     else
+    {
         return map->nodes[curr_idx].next_idx;
+    }
 }

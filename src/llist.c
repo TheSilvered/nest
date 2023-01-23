@@ -2,11 +2,7 @@
 #include <stdlib.h>
 #include "llist.h"
 
-#if !defined(_WIN32) && !defined(WIN32)
-LLNode *LLNode_new(void *value, bool allocated);
-#endif
-
-inline LLNode *LLNode_new(void *value, bool allocated)
+static inline LLNode *LLNode_new(void *value, bool allocated)
 {
     LLNode *node = (LLNode *)malloc(sizeof(LLNode));
     if ( node == NULL )
@@ -33,7 +29,9 @@ void LList_push(LList *llist, void *value, bool allocated)
     llist->head = node;
 
     if ( llist->tail == NULL )
+    {
         llist->tail = node;
+    }
     llist->size++;
 }
 
@@ -47,12 +45,16 @@ void LList_append(LList *llist, void *value, bool allocated)
     }
 
     if ( llist->tail != NULL )
+    {
         llist->tail->next = node;
+    }
 
     llist->tail = node;
 
     if ( llist->head == NULL )
+    {
         llist->head = node;
+    }
     llist->size++;
 }
 
@@ -68,7 +70,9 @@ void *LList_pop(LList *llist)
     llist->head = llist->head->next;
 
     if ( llist->head == NULL )
+    {
         llist->tail = NULL;
+    }
 
     llist->size--;
     void *value = node->value;
@@ -95,14 +99,18 @@ LList *LList_new()
 void *LList_peek_front(LList *llist)
 {
     if ( llist->head == NULL )
+    {
         return NULL;
+    }
     return llist->head->value;
 }
 
 void *LList_peek_back(LList *llist)
 {
     if ( llist->tail == NULL )
+    {
         return NULL;
+    }
     return llist->tail->value;
 }
 
@@ -115,7 +123,9 @@ void LList_destroy(LList *llist, void (*item_destroy_func)(void*))
 void LList_empty(LList *llist, void (*item_destroy_func)(void *))
 {
     if ( llist == NULL )
+    {
         return;
+    }
 
     LLNode *prev = NULL;
 

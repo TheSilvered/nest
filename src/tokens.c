@@ -64,10 +64,14 @@ Nst_LexerToken *nst_new_token_noend(Nst_Pos start, int type)
 void nst_destroy_token(Nst_LexerToken *token)
 {
     if ( token == NULL )
+    {
         return;
+    }
 
     if ( token->value != NULL )
+    {
         nst_dec_ref(token->value);
+    }
     free(token);
 }
 
@@ -113,74 +117,176 @@ int nst_str_to_tok(char *str)
         switch ( str[0] )
         {
         case '&':
-            if ( str[1] == '&' ) return NST_TT_L_AND;
-            if ( str[1] == '|' ) return NST_TT_L_XOR;
-            if ( str[1] == '=' ) return NST_TT_B_AND_A;
+            if ( str[1] == '&' )
+            {
+                return NST_TT_L_AND;
+            }
+            if ( str[1] == '|' )
+            {
+                return NST_TT_L_XOR;
+            }
+            if ( str[1] == '=' )
+            {
+                return NST_TT_B_AND_A;
+            }
             break;
         case '|':
-            if ( str[1] == '|' ) return NST_TT_L_OR;
-            if ( str[1] == '=' ) return NST_TT_B_OR_A;
-            if ( str[1] == '>' ) return NST_TT_SWITCH;
+            if ( str[1] == '|' )
+            {
+                return NST_TT_L_OR;
+            }
+            if ( str[1] == '=' )
+            {
+                return NST_TT_B_OR_A;
+            }
+            if ( str[1] == '>' )
+            {
+                return NST_TT_SWITCH;
+            }
             break;
         case '^':
-            if ( str[1] == '^' ) return NST_TT_B_XOR;
-            if ( str[1] == '=' ) return NST_TT_POW_A;
+            if ( str[1] == '^' )
+            {
+                return NST_TT_B_XOR;
+            }
+            if ( str[1] == '=' )
+            {
+                return NST_TT_POW_A;
+            }
             break;
         case '<':
-            if ( str[1] == '<' ) return NST_TT_LSHIFT;
-            if ( str[1] == '=' ) return NST_TT_LTE;
-            if ( str[1] == '{' ) return NST_TT_L_VBRACE;
+            if ( str[1] == '<' )
+            {
+                return NST_TT_LSHIFT;
+            }
+            if ( str[1] == '=' )
+            {
+                return NST_TT_LTE;
+            }
+            if ( str[1] == '{' )
+            {
+                return NST_TT_L_VBRACE;
+            }
             break;
         case '>':
-            if ( str[1] == '>' ) return NST_TT_RSHIFT;
-            if ( str[1] == '=' ) return NST_TT_GTE;
-            if ( str[1] == '<' ) return NST_TT_CONCAT;
+            if ( str[1] == '>' )
+            {
+                return NST_TT_RSHIFT;
+            }
+            if ( str[1] == '=' )
+            {
+                return NST_TT_GTE;
+            }
+            if ( str[1] == '<' )
+            {
+                return NST_TT_CONCAT;
+            }
             break;
         case '=':
-            if ( str[1] == '=' ) return NST_TT_EQ;
-            if ( str[1] == '>' ) return NST_TT_RETURN;
+            if ( str[1] == '=' )
+            {
+                return NST_TT_EQ;
+            }
+            if ( str[1] == '>' )
+            {
+                return NST_TT_RETURN;
+            }
             break;
         case '!':
-            if ( str[1] == '=' ) return NST_TT_NEQ;
-            if ( str[1] == '!' ) return NST_TT_THROW;
+            if ( str[1] == '=' )
+            {
+                return NST_TT_NEQ;
+            }
+            if ( str[1] == '!' )
+            {
+                return NST_TT_THROW;
+            }
             break;
         case '-':
-            if ( str[1] == '>' ) return NST_TT_RANGE;
-            if ( str[1] == '=' ) return NST_TT_SUB_A;
-            if ( str[1] == ':' ) return NST_TT_NEG;
+            if ( str[1] == '>' )
+            {
+                return NST_TT_RANGE;
+            }
+            if ( str[1] == '=' )
+            {
+                return NST_TT_SUB_A;
+            }
+            if ( str[1] == ':' )
+            {
+                return NST_TT_NEG;
+            }
             break;
         case ':':
-            if ( str[1] == ':' ) return NST_TT_CAST;
-            if ( str[1] == '=' ) return NST_TT_AS;
+            if ( str[1] == ':' )
+            {
+                return NST_TT_CAST;
+            }
+            if ( str[1] == '=' )
+            {
+                return NST_TT_AS;
+            }
             break;
         case '+':
-            if ( str[1] == '=' ) return NST_TT_ADD_A;
+            if ( str[1] == '=' )
+            {
+                return NST_TT_ADD_A;
+            }
             break;
         case '*':
-            if ( str[1] == '=' ) return NST_TT_MUL_A;
-            if ( str[1] == '@' ) return NST_TT_SEQ_CALL;
+            if ( str[1] == '=' )
+            {
+                return NST_TT_MUL_A;
+            }
+            if ( str[1] == '@' )
+            {
+                return NST_TT_SEQ_CALL;
+            }
             break;
         case '/':
-            if ( str[1] == '=' ) return NST_TT_DIV_A;
+            if ( str[1] == '=' )
+            {
+                return NST_TT_DIV_A;
+            }
             break;
         case '%':
-            if ( str[1] == '=' ) return NST_TT_MOD_A;
+            if ( str[1] == '=' )
+            {
+                return NST_TT_MOD_A;
+            }
             break;
         case '@':
-            if ( str[1] == '@' ) return NST_TT_LOC_CALL;
+            if ( str[1] == '@' )
+            {
+                return NST_TT_LOC_CALL;
+            }
             break;
         case '.':
-            if ( str[1] == '.' ) return NST_TT_CONTINUE;
+            if ( str[1] == '.' )
+            {
+                return NST_TT_CONTINUE;
+            }
             break;
         case '}':
-            if ( str[1] == '>' ) return NST_TT_R_VBRACE;
+            if ( str[1] == '>' )
+            {
+                return NST_TT_R_VBRACE;
+            }
             break;
         case '#':
-            if ( str[1] == '#' ) return NST_TT_LAMBDA;
+            if ( str[1] == '#' )
+            {
+                return NST_TT_LAMBDA;
+            }
             break;
         case '?':
-            if ( str[1] == '?' ) return NST_TT_TRY;
-            if ( str[1] == '!' ) return NST_TT_CATCH;
+            if ( str[1] == '?' )
+            {
+                return NST_TT_TRY;
+            }
+            if ( str[1] == '!' )
+            {
+                return NST_TT_CATCH;
+            }
             break;
         }
         return -1;
@@ -189,41 +295,68 @@ int nst_str_to_tok(char *str)
     if ( str[0] == '>' )
     {
         if ( str[1] == '>' && str[2] == '>' )
+        {
             return NST_TT_STDOUT;
+        }
         if ( str[1] == '>' && str[2] == '=' )
+        {
             return NST_TT_RSHIFT_A;
+        }
         if ( str[1] == '<' && str[2] == '=' )
+        {
             return NST_TT_CONCAT_A;
+        }
     }
     else if ( str[0] == '<' )
     {
         if ( str[1] == '<' && str[2] == '<' )
+        {
             return NST_TT_STDIN;
+        }
         if ( str[1] == '<' && str[2] == '=' )
+        {
             return NST_TT_LSHIFT_A;
+        }
     }
     else if ( str[0] == '?' )
     {
         if ( str[1] == '.' && str[2] == '.' )
+        {
             return NST_TT_WHILE;
+        }
         if ( str[1] == ':' && str[2] == ':' )
+        {
             return NST_TT_TYPEOF;
+        }
     }
     else if ( str[0] == '.' )
     {
-        if ( str[1] != '.' ) return -1;
-        if ( str[2] == '?' ) return NST_TT_DOWHILE;
-        if ( str[2] == '.' ) return NST_TT_FOR;
+        if ( str[1] != '.' )
+        {
+            return -1;
+        }
+        if ( str[2] == '?' )
+        {
+            return NST_TT_DOWHILE;
+        }
+        if ( str[2] == '.' )
+        {
+            return NST_TT_FOR;
+        }
     }
     else if ( str[0] == '|' )
     {
         if ( str[1] == '#' && str[2] == '|' )
+        {
             return NST_TT_IMPORT;
+        }
     }
     else if ( str[0] == '^' )
     {
         if ( str[1] == '^' && str[2] == '=' )
+        {
             return NST_TT_B_XOR_A;
+        }
     }
 
     return -1;
@@ -231,12 +364,12 @@ int nst_str_to_tok(char *str)
 
 void nst_print_token(Nst_LexerToken *token)
 {
-    printf("(%02li:%02li, %02li:%02li | ",
+    printf(
+        "(%02li:%02li, %02li:%02li | ",
         token->start.line,
         token->start.col,
         token->end.line,
-        token->end.col
-    );
+        token->end.col);
 
     switch ( token->type )
     {

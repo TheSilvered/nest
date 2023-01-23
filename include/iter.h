@@ -39,12 +39,11 @@ typedef struct _Nst_IterObj
 }
 Nst_IterObj;
 
-Nst_Obj *nst_new_iter(
-    Nst_FuncObj *start,
-    Nst_FuncObj *advance,
-    Nst_FuncObj *is_done,
-    Nst_FuncObj *get_val,
-    Nst_Obj *value);
+Nst_Obj *nst_new_iter(Nst_FuncObj *start,
+                      Nst_FuncObj *advance,
+                      Nst_FuncObj *is_done,
+                      Nst_FuncObj *get_val,
+                      Nst_Obj     *value);
 void nst_destroy_iter(Nst_IterObj *iter);
 void nst_traverse_iter(Nst_IterObj *iter);
 void nst_track_iter(Nst_IterObj *iter);

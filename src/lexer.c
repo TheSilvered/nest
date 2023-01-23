@@ -18,8 +18,7 @@
         error, \
         escape_start, \
         cursor.pos, \
-        _NST_EM_INVALID_ESCAPE \
-    ); \
+        _NST_EM_INVALID_ESCAPE); \
     return; } while (0)
 
 #define CUR_AT_END (cursor.idx >= (long)cursor.len)
@@ -51,7 +50,11 @@
         if ( strcmp(ones_start, #min_val) != 0 ) \
         { \
             free(int_part); \
-            _NST_SET_RAW_MEMORY_ERROR(error, start, end, _NST_EM_INT_TOO_BIG); \
+            _NST_SET_RAW_MEMORY_ERROR( \
+                error, \
+                start, \
+                end, \
+                _NST_EM_INT_TOO_BIG); \
             return; \
         } \
         free(int_part); \
@@ -91,7 +94,9 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error);
 
 static void add_lines(Nst_SourceText *text);
 
-LList *nst_ftokenize(char *filename, Nst_SourceText *src_text, Nst_Error *error)
+LList *nst_ftokenize(char           *filename,
+                     Nst_SourceText *src_text,
+                     Nst_Error      *error)
 {
     FILE *file = fopen(filename, "r");
     if ( file == NULL )
@@ -149,38 +154,53 @@ LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
             advance();
             continue;
         }
-        else if ( CH_IS_DEC(cursor.ch) || cursor.ch == '+' || cursor.ch == '-' )
+        else if ( CH_IS_DEC(cursor.ch) ||
+                  cursor.ch == '+'     ||
+                  cursor.ch == '-' )
+        {
             make_num_literal(&tok, error);
+        }
         else if ( CH_IS_SYMBOL(cursor.ch) )
+        {
             make_symbol(&tok, error);
+        }
         else if ( CH_IS_ALPHA(cursor.ch))
             make_ident(&tok);
         else if ( cursor.ch == '"' || cursor.ch == '\'' )
+        {
             make_str_literal(&tok, error);
+        }
         else if ( cursor.ch == '\n' )
+        {
             tok = nst_new_token_noend(nst_copy_pos(cursor.pos), NST_TT_ENDL);
+        }
         else if ( cursor.ch == '\\' )
+        {
             advance();
+        }
         else
         {
             _NST_SET_RAW_SYNTAX_ERROR(
                 error,
                 cursor.pos,
                 cursor.pos,
-                _NST_EM_INVALID_CHAR
-            );
+                _NST_EM_INVALID_CHAR);
         }
 
         if ( error->occurred )
         {
             if ( tok != NULL )
+            {
                 nst_destroy_token(tok);
+            }
             LList_destroy(tokens, (LList_item_destructor)nst_destroy_token);
             return NULL;
         }
 
         if ( tok != NULL )
+        {
             LList_append(tokens, tok, true);
+        }
         tok = NULL;
         advance();
     }
@@ -195,7 +215,9 @@ inline static void advance()
     cursor.pos.col++;
 
     if ( cursor.idx > (long) cursor.len )
+    {
         return;
+    }
 
     if ( cursor.ch == '\n' )
     {
@@ -216,7 +238,9 @@ inline static void go_back()
 
     cursor.ch = cursor.text[cursor.idx];
     if ( cursor.ch == '\n' )
+    {
         cursor.pos.line--;
+    }
 }
 
 inline static char *add_while_in(bool (*cond_func)(char),
@@ -224,10 +248,14 @@ inline static char *add_while_in(bool (*cond_func)(char),
                                  size_t *len)
 {
     if ( len != NULL )
+    {
         *len = 0; // to set the value even if the function fails
+    }
     char *str;
     if ( !(cond_func(cursor.ch)) )
+    {
         return NULL;
+    }
 
     char *str_start = cursor.text + cursor.idx;
     size_t str_len = 1;
@@ -237,7 +265,9 @@ inline static char *add_while_in(bool (*cond_func)(char),
             (cond_func(cursor.ch) || (ignore_underscore && cursor.ch == '_')) )
     {
         if ( !ignore_underscore || cursor.ch != '_' )
+        {
             str_len++;
+        }
         advance();
     }
     go_back();
@@ -255,19 +285,27 @@ inline static char *add_while_in(bool (*cond_func)(char),
         for ( size_t i = 0; i < str_len; i++ )
         {
             if ( *str_start == '_' )
+            {
                 i--;
+            }
             else
+            {
                 str[i] = *str_start;
+            }
             str_start++;
         }
     }
     else
+    {
         memcpy(str, str_start, str_len);
+    }
 
     str[str_len] = '\0';
 
     if ( len != NULL )
+    {
         *len = str_len;
+    }
 
     return str;
 }
@@ -283,12 +321,18 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error *error)
         advance();
 
         if ( !CUR_AT_END && CH_IS_SYMBOL(cursor.ch) )
+        {
             symbol[2] = cursor.ch;
+        }
         else
+        {
             go_back();
+        }
     }
     else
+    {
         go_back();
+    }
 
     if ( symbol[0] == '-' && symbol[1] == '-' )
     {
@@ -300,7 +344,9 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error *error)
 
                 // Allows an even number of \ to escape the new line
                 if ( cursor.ch == '\\' )
+                {
                     go_back();
+                }
             }
             advance();
         }
@@ -333,8 +379,7 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error *error)
                 error,
                 start,
                 cursor.pos,
-                _NST_EM_OPEN_COMMENT
-            );
+                _NST_EM_OPEN_COMMENT);
         }
 
         return;
@@ -369,9 +414,13 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error *error)
         go_back();
 
         if ( symbol[2] != '\0' )
+        {
             symbol[2] = '\0';
+        }
         else if ( symbol[1] != '\0' )
+        {
             symbol[1] = '\0';
+        }
 
         token_type = nst_str_to_tok(symbol);
     }
@@ -439,7 +488,11 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
             {
                 go_back();
                 end = nst_copy_pos(cursor.pos);
-                *tok = nst_new_token_value(start, end, NST_TT_VALUE, nst_new_byte(0));
+                *tok = nst_new_token_value(
+                    start,
+                    end,
+                    NST_TT_VALUE,
+                    nst_new_byte(0));
                 return;
             }
 
@@ -449,7 +502,11 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
             // so 0b1019 is invalid but 0b01hello is valid
             if ( CH_IS_DEC(cursor.ch) )
             {
-                _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_INT_LITERAL);
+                _NST_SET_RAW_SYNTAX_ERROR(
+                    error,
+                    start,
+                    cursor.pos,
+                    _NST_EM_BAD_INT_LITERAL);
                 return;
             }
             go_back();
@@ -472,7 +529,11 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
             if ( int_part == NULL)
             {
                 go_back();
-                _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_INT_LITERAL);
+                _NST_SET_RAW_SYNTAX_ERROR(
+                    error,
+                    start,
+                    cursor.pos,
+                    _NST_EM_BAD_INT_LITERAL);
                 return;
             }
 
@@ -482,7 +543,11 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
             // 0xabc(hello) is fine but 0xabchello is not
             if ( CH_IS_ALPHA(cursor.ch) )
             {
-                _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_INT_LITERAL);
+                _NST_SET_RAW_SYNTAX_ERROR(
+                    error,
+                    start,
+                    cursor.pos,
+                    _NST_EM_BAD_INT_LITERAL);
                 return;
             }
             go_back();
@@ -493,13 +558,12 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
             CHECK_MIN(8000000000000000);
             free(int_part);
 
-            // hex literals cannot have a b suffix as b is a digit, for hex bytex the 0h
-            // prefix is used instead
+            // hex literals cannot have a b suffix as b is a digit,
+            // for hex bytex the 0h prefix is used instead
             *tok = nst_new_token_value(
                 start, end,
                 NST_TT_VALUE,
-                nst_new_int(value)
-            );
+                nst_new_int(value));
             return;
         }
         // Byte hex literals
@@ -511,7 +575,11 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
             if ( int_part == NULL)
             {
                 go_back();
-                _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_BYTE_LITERAL);
+                _NST_SET_RAW_SYNTAX_ERROR(
+                    error,
+                    start,
+                    cursor.pos,
+                    _NST_EM_BAD_BYTE_LITERAL);
                 return;
             }
 
@@ -521,7 +589,11 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
             // 0habc(hello) is fine but 0habchello is not
             if ( CH_IS_ALPHA(cursor.ch) )
             {
-                _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_BYTE_LITERAL);
+                _NST_SET_RAW_SYNTAX_ERROR(
+                    error,
+                    start,
+                    cursor.pos,
+                    _NST_EM_BAD_BYTE_LITERAL);
                 return;
             }
             go_back();
@@ -535,8 +607,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
             *tok = nst_new_token_value(
                 start, end,
                 NST_TT_VALUE,
-                nst_new_byte((Nst_Byte)(value & 0xff))
-            );
+                nst_new_byte((Nst_Byte)(value & 0xff)));
             return;
         }
         // octal literals
@@ -548,7 +619,11 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
             if ( int_part == NULL)
             {
                 go_back();
-                _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_INT_LITERAL);
+                _NST_SET_RAW_SYNTAX_ERROR(
+                    error,
+                    start,
+                    cursor.pos,
+                    _NST_EM_BAD_INT_LITERAL);
                 return;
             }
 
@@ -558,7 +633,11 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
             // so 0o76459 is invalid but 0o53hello is valid
             if ( CH_IS_DEC(cursor.ch) )
             {
-                _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_INT_LITERAL);
+                _NST_SET_RAW_SYNTAX_ERROR(
+                    error,
+                    start,
+                    cursor.pos,
+                    _NST_EM_BAD_INT_LITERAL);
                 return;
             }
             go_back();
@@ -585,7 +664,9 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
 
             advance();
             if ( cursor.ch == '.' )
+            {
                 goto real_lit;
+            }
             int_lit: go_back();
 
             end = nst_copy_pos(cursor.pos);
@@ -597,13 +678,13 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
             goto byte;
         }
 
-        byte: if ( cursor.ch == 'b' || cursor.ch == 'B' )
+    byte:
+        if ( cursor.ch == 'b' || cursor.ch == 'B' )
         {
             *tok = nst_new_token_value(
                 start, cursor.pos,
                 NST_TT_VALUE,
-                nst_new_byte((Nst_Byte)(value & 0xff))
-            );
+                nst_new_byte((Nst_Byte)(value & 0xff)));
         }
         else
         {
@@ -611,8 +692,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
             *tok = nst_new_token_value(
                 start, end,
                 NST_TT_VALUE,
-                nst_new_int(value)
-            );
+                nst_new_int(value));
         }
         return;
     }
@@ -620,15 +700,22 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
     int_part = add_while_in(is_dec, true, &len_int_part);
     advance();
     if ( cursor.ch != '.' )
+    {
         goto int_lit;
+    }
 
-    real_lit: advance();
+real_lit:
+    advance();
     char *frac_part = add_while_in(is_dec, true, &len_frac_part);
     if ( frac_part == NULL )
     {
         free(int_part);
         go_back();
-        _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_REAL_LITERAL);
+        _NST_SET_RAW_SYNTAX_ERROR(
+            error,
+            start,
+            cursor.pos,
+            _NST_EM_BAD_REAL_LITERAL);
         return;
     }
     advance();
@@ -651,20 +738,29 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
             free(int_part);
             free(frac_part);
             go_back();
-            _NST_SET_RAW_SYNTAX_ERROR(error, start, cursor.pos, _NST_EM_BAD_REAL_LITERAL);
+            _NST_SET_RAW_SYNTAX_ERROR(
+                error,
+                start,
+                cursor.pos,
+                _NST_EM_BAD_REAL_LITERAL);
             return;
         }
 
         end = nst_copy_pos(cursor.pos);
-        //                                        9        .       26          e-    5       \0
-        char *complete_lit = (char *)malloc(len_int_part + 1 + len_frac_part + 2 + len_exp + 1);
+        char *complete_lit = (char *)malloc(
+        //        9        .       26          e-    5       \0
+            len_int_part + 1 + len_frac_part + 2 + len_exp + 1);
         if ( complete_lit == NULL )
         {
             errno = ENOMEM;
             return;
         }
 
-        sprintf(complete_lit, "%s%s%s%s%s", int_part, ".", frac_part, exp_neg ? "e-" : "e+", exp );
+        sprintf(
+            complete_lit,
+            "%s%s%s%s%s",
+            int_part, ".", frac_part,
+            exp_neg ? "e-" : "e+", exp);
         free(int_part);
         free(frac_part);
         free(exp);
@@ -673,8 +769,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
         *tok = nst_new_token_value(
             start, end,
             NST_TT_VALUE,
-            nst_new_real(value * sign)
-        );
+            nst_new_real(value * sign));
         free(complete_lit);
         return;
     }
@@ -699,8 +794,7 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
         *tok = nst_new_token_value(
             start, cursor.pos,
             NST_TT_VALUE,
-            nst_new_real(value * sign)
-        );
+            nst_new_real(value * sign));
         free(complete_lit);
         return;
     }
@@ -747,13 +841,17 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
 
     advance(); // still on '"' or '\''
 
-    // while there is text to add and (the string has not ended or the end is inside and escape)
-    while ( cursor.idx < (long) cursor.len && (cursor.ch != closing_ch || escape) )
+    // while there is text to add and (the string has not ended or
+    // the end is inside and escape)
+    while ( cursor.idx < (long) cursor.len &&
+            (cursor.ch != closing_ch || escape) )
     {
         if ( str_len + 1 == chunk_size )
         {
             chunk_size = (size_t)(chunk_size * 1.5);
-            end_str_realloc = (char *)realloc(end_str, sizeof(char) * chunk_size);
+            end_str_realloc = (char *)realloc(
+                end_str,
+                sizeof(char) * chunk_size);
             if ( end_str_realloc == NULL )
             {
                 free(end_str);
@@ -772,8 +870,7 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
                     error,
                     cursor.pos,
                     cursor.pos,
-                    _NST_EM_UNEXPECTED_NEWLINE
-                );
+                    _NST_EM_UNEXPECTED_NEWLINE);
                 return;
             }
             else if ( cursor.ch == '\\' )
@@ -782,7 +879,9 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
                 escape_start = nst_copy_pos(cursor.pos);
             }
             else
+            {
                 end_str[str_len++] = cursor.ch;
+            }
             advance();
             continue;
         }
@@ -804,13 +903,17 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
         case 'x':
             advance();
             if ( CUR_AT_END || cursor.ch == closing_ch )
+            {
                 SET_INVALID_ESCAPE_ERROR;
+            }
 
             ch1 = (char)tolower(cursor.ch);
             advance();
 
             if ( CUR_AT_END || cursor.ch == closing_ch )
+            {
                 SET_INVALID_ESCAPE_ERROR;
+            }
 
             ch2 = (char)tolower(cursor.ch);
 
@@ -855,7 +958,8 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
                 break;
             }
 
-            end_str[str_len++] = ((ch1 - '0') << 6) + ((ch2 - '0') << 3) + cursor.ch - '0';
+            end_str[str_len++] = ((ch1 - '0') << 6) + ((ch2 - '0') << 3) +
+                                 cursor.ch - '0';
             break;
 
         default:
@@ -876,12 +980,15 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
             error,
             start,
             error_end,
-            _NST_EM_OPEN_STR_LITERAL
-        );
+            _NST_EM_OPEN_STR_LITERAL);
     }
 
     if ( str_len < chunk_size )
-        end_str_realloc = (char *)realloc(end_str, sizeof(char) * (str_len + 1));
+    {
+        end_str_realloc = (char*)realloc(
+            end_str,
+            sizeof(char) * (str_len + 1));
+    }
     if ( end_str_realloc == NULL )
     {
         free(end_str);
@@ -914,8 +1021,8 @@ static void add_lines(Nst_SourceText* text)
 
     // normalize line endings
 
-    // if the file contains \n, then \r\n becomes just \n
-    // if the file only contains \r, it becomes \n
+    // if the file contains \n, then \n doesn't change and \r\n becomes just \n
+    // if the file only contains \r, it is replaced with \n
 
     bool remove_r = false;
     for ( size_t i = 0, n = text->len; i < n; i++ )
@@ -931,11 +1038,17 @@ static void add_lines(Nst_SourceText* text)
     for ( size_t i = 0, n = text->len; i < n; i++ )
     {
         if ( text_p[i] != '\r' )
+        {
             text_p[i - offset] = text_p[i];
+        }
         else if ( remove_r )
+        {
             offset++;
+        }
         else
+        {
             text_p[i] = '\n';
+        }
     }
 
     text->len = text->len - offset;
@@ -944,7 +1057,9 @@ static void add_lines(Nst_SourceText* text)
     for ( size_t i = 0, n = text->len; i < n; i++ )
     {
         if ( text_p[i] != '\n' )
+        {
             continue;
+        }
 
         if ( i + 1 == n )
         {

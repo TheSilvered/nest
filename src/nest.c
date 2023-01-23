@@ -38,7 +38,9 @@ int main(int argc, char **argv)
     puts("**USING DEBUG BUILD - " NEST_VERSION "**");
 
     for ( size_t i = 0, n = strlen(NEST_VERSION) + 24; i < n; i++ )
+    {
         putc('-', stdout);
+    }
     putc('\n', stdout);
     fflush(stdout);
 #endif
@@ -63,15 +65,18 @@ int main(int argc, char **argv)
         &opt_level,
         &command,
         &filename,
-        &args_start
-    );
+        &args_start);
 
     nst_set_color(!monochrome);
 
     if ( parse_result == -1 )
+    {
         return -1;
+    }
     else if ( parse_result == 1 )
+    {
         return 0;
+    }
 
     _nst_init_types();
     _nst_init_strs();
@@ -83,7 +88,9 @@ int main(int argc, char **argv)
     Nst_SourceText src_text = { NULL, NULL, 0 };
 
     if ( filename != NULL )
+    {
         tokens = nst_ftokenize(filename, &src_text, &error);
+    }
     else
     {
         src_text.path = (char *)"<command>";
@@ -97,9 +104,13 @@ int main(int argc, char **argv)
     if ( tokens == NULL )
     {
         if ( src_text.text == NULL )
+        {
             EXIT(0);
+        }
         else
+        {
             ERROR_EXIT;
+        }
     }
 
     if ( print_tokens )
@@ -120,11 +131,15 @@ int main(int argc, char **argv)
     Nst_Node *ast = nst_parse(tokens, &error);
 
     if ( opt_level >= 1 && ast != NULL )
+    {
         ast = nst_optimize_ast(ast, &error);
+    }
 
     // nst_optimize_ast can delete the ast
     if ( ast == NULL )
+    {
         ERROR_EXIT;
+    }
 
     if ( print_tree )
     {
@@ -146,7 +161,9 @@ int main(int argc, char **argv)
         inst_ls = nst_optimize_bytecode(inst_ls, opt_level == 3, &error);
 
         if ( inst_ls == NULL )
+        {
             ERROR_EXIT;
+        }
     }
 
     if ( print_bc )
@@ -168,8 +185,7 @@ int main(int argc, char **argv)
         argc - args_start,
         argv + args_start,
         filename,
-        opt_level
-    );
+        opt_level);
 
     EXIT(exe_result);
 }
