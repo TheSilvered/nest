@@ -18,7 +18,9 @@ static bool lib_init_ = false;
 bool lib_init()
 {
     if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
+    {
         return false;
+    }
 
     size_t idx = 0;
 
@@ -56,12 +58,15 @@ static Nst_Int get_year_day_c(tm *t)
     Nst_Int m = t->tm_mon;
     Nst_Int d = t->tm_mday;
 
-    int days_per_moth[] = { 0, 0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334 };
+    int days_per_moth[] = {   0,   0,  31,  59,  90, 120, 151,
+                            181, 212, 243, 273, 304, 334       };
 
     Nst_Int day_of_the_year = days_per_moth[m] + d;
     // If it's a leap year and it's at least March
     if ( ((y % 4 == 0 && y % 100 != 0) || (y % 400)) && m > 2 )
+    {
         day_of_the_year += 1;
+    }
 
     return day_of_the_year;
 }
@@ -113,29 +118,25 @@ static void add_time(Nst_MapObj *map, tm *(*time_func)(const time_t *))
 NST_FUNC_SIGN(time_)
 {
     return nst_new_real(duration<Nst_Real>(
-        system_clock::now().time_since_epoch()).count()
-    );
+        system_clock::now().time_since_epoch()).count());
 }
 
 NST_FUNC_SIGN(time_ns_)
 {
     return nst_new_int(Nst_Int(duration_cast<nanoseconds>(
-        system_clock::now().time_since_epoch()).count()
-    ));
+        system_clock::now().time_since_epoch()).count()));
 }
 
 NST_FUNC_SIGN(high_res_time_)
 {
     return nst_new_real(duration<Nst_Real>(
-        high_resolution_clock::now().time_since_epoch()).count()
-    );
+        high_resolution_clock::now().time_since_epoch()).count());
 }
 
 NST_FUNC_SIGN(high_res_time_ns_)
 {
     return nst_new_int(Nst_Int(duration_cast<nanoseconds>(
-        high_resolution_clock::now().time_since_epoch()).count()
-    ));
+        high_resolution_clock::now().time_since_epoch()).count()));
 }
 
 NST_FUNC_SIGN(year_day_)

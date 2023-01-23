@@ -9,7 +9,9 @@ static bool lib_init_ = false;
 bool lib_init()
 {
     if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
+    {
         return false;
+    }
 
     size_t idx = 0;
 
@@ -28,7 +30,9 @@ Nst_FuncDeclr *get_func_ptrs()
 Nst_Obj *make_pos(Nst_Pos start, Nst_Pos end)
 {
     if ( start.text == nullptr )
+    {
         return nullptr;
+    }
 
     Nst_Obj *map = nst_new_map();
 
@@ -82,7 +86,8 @@ Nst_Obj *failure(Nst_OpErr *err)
         error_message_str = OBJ(error.message);
         error_pos = make_pos(error.start, error.end);
 
-        error_traceback = nst_new_array(nst_state.traceback->positions->size / 2);
+        error_traceback =
+            nst_new_array(nst_state.traceback->positions->size / 2);
 
         LList *positions = nst_state.traceback->positions;
         Nst_Int skipped = 0;
@@ -152,9 +157,13 @@ NST_FUNC_SIGN(try_)
     Nst_Obj *result = nst_call_func(func, func_args->objs, err);
 
     if ( result != nullptr )
+    {
         return success(result);
+    }
     else
+    {
         return failure(err);
+    }
 }
 
 NST_FUNC_SIGN(_get_err_names_)

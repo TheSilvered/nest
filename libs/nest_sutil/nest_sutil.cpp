@@ -11,7 +11,9 @@ static bool lib_init_ = false;
 bool lib_init()
 {
     if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
+    {
         return false;
+    }
 
     size_t idx = 0;
 
@@ -85,14 +87,20 @@ NST_FUNC_SIGN(lfind_)
     NST_D_EXTRACT("ss", &str1, &str2);
 
     if ( str1 == str2 )
+    {
         NST_RETURN_ZERO;
+    }
 
     char *sub = find_substring(str1->value, str1->len, str2->value, str2->len);
 
     if ( sub == nullptr )
+    {
         return nst_inc_ref(nst_c.Int_neg1);
+    }
     else
+    {
         return nst_new_int(sub - str1->value);
+    }
 }
 
 NST_FUNC_SIGN(rfind_)
@@ -103,7 +111,9 @@ NST_FUNC_SIGN(rfind_)
     NST_D_EXTRACT("ss", &str1, &str2);
 
     if ( str1 == str2 )
+    {
         NST_RETURN_ZERO;
+    }
 
     char *s1 = str1->value + str1->len - 1;
     char *s2 = str2->value + str2->len - 1;
@@ -126,7 +136,9 @@ NST_FUNC_SIGN(rfind_)
         }
 
         if ( p2 - s2_start + 1 == 0 )
+        {
             return nst_new_int(p1 - s1_start + 1);
+        }
     }
 
     return nst_inc_ref(nst_c.Int_neg1);
@@ -140,7 +152,9 @@ NST_FUNC_SIGN(starts_with_)
     NST_D_EXTRACT("ss", &str, &substr);
 
     if ( str->len < substr->len )
+    {
         NST_RETURN_FALSE;
+    }
 
     char *s = str->value;
     char *sub = substr->value;
@@ -163,7 +177,9 @@ NST_FUNC_SIGN(ends_with_)
     NST_D_EXTRACT("ss", &str, &substr);
 
     if ( str->len < substr->len )
+    {
         NST_RETURN_FALSE;
+    }
 
     char *s_end = str->value + str->len;
     char *sub = substr->value;
@@ -195,7 +211,9 @@ NST_FUNC_SIGN(trim_)
     }
 
     if ( s_start == s_end + 1 )
+    {
         return nst_new_cstring("", 0, false);
+    }
 
     while ( isspace((unsigned char)*s_end) )
     {
@@ -241,7 +259,9 @@ NST_FUNC_SIGN(rtrim_)
     char *s_end = s_start + len - 1;
 
     if ( len == 0 )
-        return nst_new_string((char *)"", 0, false);
+    {
+        return nst_new_string((char*)"", 0, false);
+    }
 
     while ( s_end + 1 != s_start && isspace((unsigned char)*s_end) )
     {
@@ -266,7 +286,9 @@ NST_FUNC_SIGN(ljust_)
     size_t len = str->len;
 
     if ( just_len <= (Nst_Int)len )
+    {
         return nst_inc_ref(args[0]);
+    }
 
     if ( just_char->len != 1 )
     {
@@ -293,7 +315,9 @@ NST_FUNC_SIGN(rjust_)
     size_t len = str->len;
 
     if ( just_len <= (Nst_Int)len )
+    {
         return nst_inc_ref(args[0]);
+    }
 
     if ( just_char->len != 1 )
     {
@@ -359,7 +383,9 @@ NST_FUNC_SIGN(is_upper_)
     while ( s != end )
     {
         if ( isalpha((unsigned char)*s) && !isupper((unsigned char)*s) )
+        {
             NST_RETURN_FALSE;
+        }
         ++s;
     }
 
@@ -378,7 +404,9 @@ NST_FUNC_SIGN(is_lower_)
     while ( s != end )
     {
         if ( isalpha((unsigned char)*s) && !islower((unsigned char)*s) )
+        {
             NST_RETURN_FALSE;
+        }
         ++s;
     }
 
@@ -397,7 +425,9 @@ NST_FUNC_SIGN(is_alpha_)
     while ( s != end )
     {
         if ( !isalpha((unsigned char)*s++) )
+        {
             NST_RETURN_FALSE;
+        }
     }
 
     NST_RETURN_TRUE;
@@ -415,7 +445,9 @@ NST_FUNC_SIGN(is_digit_)
     while ( s != end )
     {
         if ( !isdigit((unsigned char)*s++) )
+        {
             NST_RETURN_FALSE;
+        }
     }
 
     NST_RETURN_TRUE;
@@ -433,7 +465,9 @@ NST_FUNC_SIGN(is_alnum_)
     while ( s != end )
     {
         if ( !isalnum((unsigned char)*s++) )
+        {
             NST_RETURN_FALSE;
+        }
     }
 
     NST_RETURN_TRUE;
@@ -458,12 +492,16 @@ NST_FUNC_SIGN(is_charset_)
         while ( p2 != end2 )
         {
             if ( *s1 == *p2 )
+            {
                 break;
+            }
             ++p2;
         }
 
         if ( p2 == end2 )
+        {
             NST_RETURN_FALSE;
+        }
         ++s1;
     }
 
@@ -482,7 +520,9 @@ NST_FUNC_SIGN(is_printable_)
     while ( s != end )
     {
         if ( !isprint((unsigned char)*s++) )
+        {
             NST_RETURN_FALSE;
+        }
     }
 
     NST_RETURN_TRUE;
@@ -511,7 +551,9 @@ NST_FUNC_SIGN(replace_substr_)
     {
         sub = find_substring(s, s_len, s_from, s_from_len);
         if ( sub == nullptr )
+        {
             break;
+        }
 
         s_len = sub + s_from_len - s;
         s = sub + s_from_len;
@@ -519,7 +561,9 @@ NST_FUNC_SIGN(replace_substr_)
     }
 
     if ( count == 0 )
+    {
         return nst_inc_ref(str);
+    }
 
     s_len = str->len;
     s = str->value;
@@ -565,8 +609,7 @@ NST_FUNC_SIGN(bytearray_to_str_)
             NST_SET_TYPE_ERROR(_nst_format_error(
                 "expected only type 'Byte', got type '%s' instead",
                 "s",
-                TYPE_NAME(objs[i])
-            ));
+                TYPE_NAME(objs[i])));
             delete[] new_str;
             return nullptr;
         }
@@ -590,7 +633,9 @@ NST_FUNC_SIGN(str_to_bytearray_)
     Nst_Obj **objs = new_arr->objs;
 
     for ( size_t i = 0; i < len; i++ )
+    {
         objs[i] = nst_new_byte(s[i]);
+    }
 
     return OBJ(new_arr);
 }
@@ -629,7 +674,10 @@ NST_FUNC_SIGN(join_)
         memcpy(new_str + str_idx, curr_str->value, curr_str->len);
         str_idx += curr_str->len;
         nst_dec_ref(objs[i]);
-        if ( i + 1 == len ) break;
+        if ( i + 1 == len )
+        {
+            break;
+        }
         memcpy(new_str + str_idx, str->value, str_len);
         str_idx += str_len;
     }
@@ -693,16 +741,22 @@ static Nst_Int highest_bit(ull n)
     for ( int i = 0; i < 6; i++)
     {
         if ( n < (1ull << str_len >> part_size) )
+        {
             str_len -= part_size;
+        }
 
         part_size >>= 1;
     }
 
     // if the highest bit is a 1
     if ( 1ull << 63ull & n )
+    {
         return str_len + 1;
+    }
     else
+    {
         return str_len;
+    }
 }
 
 NST_FUNC_SIGN(bin_)
@@ -717,9 +771,13 @@ NST_FUNC_SIGN(bin_)
     for ( Nst_Int i = 0; i < Nst_Int(str_len - 1); i++ )
     {
         if ( 1ll << i & n )
+        {
             buf[str_len - i - 2] = '1';
+        }
         else
+        {
             buf[str_len - i - 2] = '0';
+        }
     }
     buf[str_len - 1] = '\0';
 
@@ -734,9 +792,13 @@ NST_FUNC_SIGN(oct_)
     Nst_Int h_bit = highest_bit(n);
     Nst_Int str_len = h_bit / 3;
     if ( h_bit % 3 )
+    {
         str_len += 2;
+    }
     else
+    {
         str_len += 1;
+    }
 
     char *buf = new char[str_len ];
 
@@ -758,16 +820,24 @@ NST_FUNC_SIGN(hex_)
 
     const char *digits;
     if ( upper_obj->type == nst_t.Null || !AS_BOOL(upper_obj) )
+    {
         digits = "0123456789abcdef";
+    }
     else
+    {
         digits = "0123456789ABCDEF";
+    }
 
     Nst_Int h_bit = highest_bit(n);
     Nst_Int str_len = h_bit / 4;
     if ( h_bit % 4 )
+    {
         str_len += 2;
+    }
     else
+    {
         str_len += 1;
+    }
     
     char *buf = new char[str_len];
 

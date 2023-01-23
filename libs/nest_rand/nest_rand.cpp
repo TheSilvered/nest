@@ -19,7 +19,9 @@ bool lib_init()
     using namespace std::chrono;
 
     if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
+    {
         return false;
+    }
 
     size_t idx = 0;
 
@@ -66,7 +68,8 @@ NST_FUNC_SIGN(rand_int_)
 
 NST_FUNC_SIGN(rand_perc_)
 {
-    return nst_new_real((long double)uint64_t(rand_num()) / (long double)ULLONG_MAX);
+    return nst_new_real(
+        (long double)uint64_t(rand_num()) / (long double)ULLONG_MAX);
 }
 
 NST_FUNC_SIGN(choice_)

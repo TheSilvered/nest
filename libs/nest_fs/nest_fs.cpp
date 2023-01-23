@@ -22,7 +22,9 @@ static Nst_MapObj *CPO = nullptr;
 bool lib_init()
 {
     if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
+    {
         return false;
+    }
 
     size_t idx = 0;
 
@@ -59,7 +61,9 @@ Nst_FuncDeclr *get_func_ptrs()
 void free_lib()
 {
     if ( CPO != nullptr )
+    {
         nst_dec_ref(CPO);
+    }
 }
 
 Nst_StrObj *heap_str(std::string str)
@@ -89,9 +93,13 @@ NST_FUNC_SIGN(mkdir_)
     bool success = fs::create_directory(path->value, ec);
 
     if ( success || ec.value() == ERROR_ALREADY_EXISTS )
+    {
         NST_RETURN_ZERO;
+    }
     else
+    {
         return nst_new_int(ec.value());
+    }
 }
 
 NST_FUNC_SIGN(mkdirs_)
@@ -105,9 +113,13 @@ NST_FUNC_SIGN(mkdirs_)
     bool success = fs::create_directories(path->value, ec);
 
     if ( success || ec.value() == ERROR_ALREADY_EXISTS )
+    {
         NST_RETURN_ZERO;
+    }
     else
+    {
         return nst_new_int(ec.value());
+    }
 }
 
 NST_FUNC_SIGN(rmdir_)
@@ -127,9 +139,13 @@ NST_FUNC_SIGN(rmdir_)
     bool success = fs::remove(path->value, ec);
 
     if ( success )
+    {
         NST_RETURN_ZERO;
+    }
     else
+    {
         return nst_new_int(ec.value());
+    }
 }
 
 NST_FUNC_SIGN(rmdir_recursive_)
@@ -149,9 +165,13 @@ NST_FUNC_SIGN(rmdir_recursive_)
     bool success = fs::remove_all(path->value, ec);
 
     if ( success )
+    {
         NST_RETURN_ZERO;
+    }
     else
+    {
         return nst_new_int(ec.value());
+    }
 }
 
 NST_FUNC_SIGN(isfile_)
@@ -163,7 +183,9 @@ NST_FUNC_SIGN(isfile_)
     FILE* file = fopen(path->value, "rb");
 
     if ( file == nullptr )
+    {
         NST_RETURN_FALSE;
+    }
     else
     {
         fclose(file);
@@ -179,7 +201,8 @@ NST_FUNC_SIGN(rmfile_)
 
     std::error_code ec;
     // if it's not a file
-    if ( !fs::is_regular_file(path->value, ec) && !fs::is_other(path->value, ec) )
+    if ( !fs::is_regular_file(path->value, ec) &&
+         !fs::is_other(path->value, ec) )
     {
         NST_SET_RAW_VALUE_ERROR("file not found");
         return nullptr;
@@ -188,9 +211,13 @@ NST_FUNC_SIGN(rmfile_)
     bool success = fs::remove(path->value, ec);
 
     if ( success )
+    {
         NST_RETURN_ZERO;
+    }
     else
+    {
         return nst_new_int(ec.value());
+    }
 }
 
 NST_FUNC_SIGN(copy_)
@@ -211,7 +238,9 @@ NST_FUNC_SIGN(copy_)
         return nullptr;
     }
     else
+    {
         return nst_new_int(ec.value());
+    }
 }
 
 NST_FUNC_SIGN(rename_)
@@ -231,7 +260,9 @@ NST_FUNC_SIGN(rename_)
         return nullptr;
     }
     else
+    {
         return nst_new_int(ec.value());
+    }
 }
 
 NST_FUNC_SIGN(list_dir_)
@@ -249,7 +280,8 @@ NST_FUNC_SIGN(list_dir_)
 
     Nst_SeqObj *vector = SEQ(nst_new_vector(0));
 
-    for ( fs::directory_entry const &entry : fs::directory_iterator{ path->value } )
+    for ( fs::directory_entry const &entry
+        : fs::directory_iterator{ path->value } )
     {
         Nst_StrObj *str =  heap_str(entry.path().string());
         nst_append_value_vector(vector, OBJ(str));
@@ -274,7 +306,8 @@ NST_FUNC_SIGN(list_dir_recursive_)
 
     Nst_SeqObj *vector = SEQ(nst_new_vector(0));
 
-    for ( fs::directory_entry const &entry : fs::recursive_directory_iterator{ path->value } )
+    for ( fs::directory_entry const &entry
+        : fs::recursive_directory_iterator{ path->value } )
     {
         Nst_StrObj *str =  heap_str(entry.path().string());
         nst_append_value_vector(vector, OBJ(str));
@@ -294,9 +327,13 @@ NST_FUNC_SIGN(absolute_path_)
     fs::path result = fs::absolute(path->value, ec);
 
     if ( ec.value() == 0 )
+    {
         return OBJ(heap_str(result.string()));
+    }
     else
+    {
         NST_RETURN_NULL;
+    }
 }
 
 NST_FUNC_SIGN(canonical_path_)
@@ -309,9 +346,13 @@ NST_FUNC_SIGN(canonical_path_)
     fs::path result = fs::canonical(path->value, ec);
 
     if ( ec.value() == 0 )
+    {
         return OBJ(heap_str(result.string()));
+    }
     else
+    {
         NST_RETURN_NULL;
+    }
 }
 
 NST_FUNC_SIGN(relative_path_)
@@ -325,9 +366,13 @@ NST_FUNC_SIGN(relative_path_)
     fs::path result = fs::relative(path->value, base->value, ec);
 
     if ( ec.value() == 0 )
+    {
         return OBJ(heap_str(result.string()));
+    }
     else
+    {
         NST_RETURN_NULL;
+    }
 }
 
 NST_FUNC_SIGN(equivalent_)
@@ -354,10 +399,14 @@ NST_FUNC_SIGN(join_)
     size_t p2_len = path_2->len;
 
     if ( p2_len == 0 )
+    {
         return nst_inc_ref(path_1);
+    }
 
     if ( p2[0] == '/' || p2[0] == '\\' || p2[1] == ':' )
+    {
         return nst_inc_ref(path_2);
+    }
 
     size_t new_len = p1_len + p2_len;
     bool add_slash = false;
@@ -372,20 +421,28 @@ NST_FUNC_SIGN(join_)
     memcpy(new_str, p1, p1_len);
 
     if ( add_slash )
+    {
 #if defined(_WIN32) || defined(WIN32)
         new_str[p1_len] = '\\';
 #else
         new_str[p1_len] = '/';
 #endif
+    }
     memcpy(new_str + p1_len + (add_slash ? 1 : 0), p2, p2_len);
     new_str[new_len] = 0;
 
     for ( size_t i = 0; i < new_len; i++ )
     {
 #if defined(_WIN32) || defined(WIN32)
-        if ( new_str[i] == '/' ) new_str[i] = '\\';
+        if ( new_str[i] == '/' )
+        {
+            new_str[i] = '\\';
+        }
 #else
-        if ( new_str[i] == '\\' ) new_str[i] = '/';
+        if ( new_str[i] == '\\' )
+        {
+            new_str[i] = '/';
+        }
 #endif
     }
 
@@ -422,20 +479,32 @@ NST_FUNC_SIGN(extension_)
 NST_FUNC_SIGN(_get_copy_options_)
 {
     if ( CPO != nullptr )
+    {
         return nst_inc_ref(CPO);
+    }
 
     Nst_MapObj *options = MAP(nst_new_map());
 
-    Nst_Obj *none_opt            = nst_new_int((Nst_Int)fs::copy_options::none);
-    Nst_Obj *skip_opt            = nst_new_int((Nst_Int)fs::copy_options::skip_existing);
-    Nst_Obj *overwrite_opt       = nst_new_int((Nst_Int)fs::copy_options::overwrite_existing);
-    Nst_Obj *update_opt          = nst_new_int((Nst_Int)fs::copy_options::update_existing);
-    Nst_Obj *recursive_opt       = nst_new_int((Nst_Int)fs::copy_options::recursive);
-    Nst_Obj *copy_symlinks_opt   = nst_new_int((Nst_Int)fs::copy_options::copy_symlinks);
-    Nst_Obj *skip_symlinks_opt   = nst_new_int((Nst_Int)fs::copy_options::skip_symlinks);
-    Nst_Obj *dirs_only_opt       = nst_new_int((Nst_Int)fs::copy_options::directories_only);
-    Nst_Obj *make_symlinks_opt   = nst_new_int((Nst_Int)fs::copy_options::create_symlinks);
-    Nst_Obj *make_hard_links_opt = nst_new_int((Nst_Int)fs::copy_options::create_hard_links);
+    Nst_Obj *none_opt =
+        nst_new_int((Nst_Int)fs::copy_options::none);
+    Nst_Obj *skip_opt =
+        nst_new_int((Nst_Int)fs::copy_options::skip_existing);
+    Nst_Obj *overwrite_opt =
+        nst_new_int((Nst_Int)fs::copy_options::overwrite_existing);
+    Nst_Obj *update_opt =
+        nst_new_int((Nst_Int)fs::copy_options::update_existing);
+    Nst_Obj *recursive_opt =
+        nst_new_int((Nst_Int)fs::copy_options::recursive);
+    Nst_Obj *copy_symlinks_opt =
+        nst_new_int((Nst_Int)fs::copy_options::copy_symlinks);
+    Nst_Obj *skip_symlinks_opt =
+        nst_new_int((Nst_Int)fs::copy_options::skip_symlinks);
+    Nst_Obj *dirs_only_opt =
+        nst_new_int((Nst_Int)fs::copy_options::directories_only);
+    Nst_Obj *make_symlinks_opt =
+        nst_new_int((Nst_Int)fs::copy_options::create_symlinks);
+    Nst_Obj *make_hard_links_opt =
+        nst_new_int((Nst_Int)fs::copy_options::create_hard_links);
 
     nst_map_set_str(options, "none",            none_opt);
     nst_map_set_str(options, "skip",            skip_opt);

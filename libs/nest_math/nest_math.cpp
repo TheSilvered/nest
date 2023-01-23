@@ -3,7 +3,8 @@
 
 #define FUNC_COUNT 42
 #define COORD_TYPE_ERROR do { \
-        NST_SET_RAW_VALUE_ERROR("all coordinates must be of type 'Real' or 'Int'"); \
+        NST_SET_RAW_VALUE_ERROR( \
+            "all coordinates must be of type 'Real' or 'Int'"); \
         return nullptr; \
     } while (0)
 
@@ -13,7 +14,9 @@ static bool lib_init_ = false;
 bool lib_init()
 {
     if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
+    {
         return false;
+    }
 
     size_t idx = 0;
 
@@ -255,21 +258,57 @@ NST_FUNC_SIGN(dist_2d_)
     Nst_Obj *p2x_obj = p2->objs[0];
     Nst_Obj *p2y_obj = p2->objs[1];
 
-    if      ( p1x_obj->type == nst_t.Int  ) x1 = (Nst_Real)AS_INT(p1x_obj);
-    else if ( p1x_obj->type == nst_t.Real ) x1 = AS_REAL(p1x_obj);
-    else COORD_TYPE_ERROR;
+    if ( p1x_obj->type == nst_t.Int )
+    {
+        x1 = (Nst_Real)AS_INT(p1x_obj);
+    }
+    else if ( p1x_obj->type == nst_t.Real )
+    {
+        x1 = AS_REAL(p1x_obj);
+    }
+    else
+    {
+        COORD_TYPE_ERROR;
+    }
 
-    if      ( p1y_obj->type == nst_t.Int  ) y1 = (Nst_Real)AS_INT(p1y_obj);
-    else if ( p1y_obj->type == nst_t.Real ) y1 = AS_REAL(p1y_obj);
-    else COORD_TYPE_ERROR;
+    if ( p1y_obj->type == nst_t.Int )
+    {
+        y1 = (Nst_Real)AS_INT(p1y_obj);
+    }
+    else if ( p1y_obj->type == nst_t.Real )
+    {
+        y1 = AS_REAL(p1y_obj);
+    }
+    else
+    {
+        COORD_TYPE_ERROR;
+    }
 
-    if      ( p2x_obj->type == nst_t.Int  ) x2 = (Nst_Real)AS_INT(p2x_obj);
-    else if ( p2x_obj->type == nst_t.Real ) x2 = AS_REAL(p2x_obj);
-    else COORD_TYPE_ERROR;
+    if ( p2x_obj->type == nst_t.Int  )
+    {
+        x2 = (Nst_Real)AS_INT(p2x_obj);
+    }
+    else if ( p2x_obj->type == nst_t.Real )
+    {
+        x2 = AS_REAL(p2x_obj);
+    }
+    else
+    {
+        COORD_TYPE_ERROR;
+    }
 
-    if      ( p2y_obj->type == nst_t.Int  ) y2 = (Nst_Real)AS_INT(p2y_obj);
-    else if ( p2y_obj->type == nst_t.Real ) y2 = AS_REAL(p2y_obj);
-    else COORD_TYPE_ERROR;
+    if ( p2y_obj->type == nst_t.Int  )
+    {
+        y2 = (Nst_Real)AS_INT(p2y_obj);
+    }
+    else if ( p2y_obj->type == nst_t.Real )
+    {
+        y2 = AS_REAL(p2y_obj);
+    }
+    else
+    {
+        COORD_TYPE_ERROR;
+    }
 
     // sqrt((x1 - x2)^2 + (y1 - y2)^2)
     Nst_Real c2 = (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2);
@@ -304,32 +343,88 @@ NST_FUNC_SIGN(dist_3d_)
     Nst_Obj *p2y_obj = p2->objs[1];
     Nst_Obj *p2z_obj = p2->objs[2];
 
-    if      ( p1x_obj->type == nst_t.Int  ) x1 = (Nst_Real)AS_INT(p1x_obj);
-    else if ( p1x_obj->type == nst_t.Real ) x1 = AS_REAL(p1x_obj);
-    else COORD_TYPE_ERROR;
+    if ( p1x_obj->type == nst_t.Int )
+    {
+        x1 = (Nst_Real)AS_INT(p1x_obj);
+    }
+    else if ( p1x_obj->type == nst_t.Real )
+    {
+        x1 = AS_REAL(p1x_obj);
+    }
+    else
+    {
+        COORD_TYPE_ERROR;
+    }
 
-    if      ( p1y_obj->type == nst_t.Int  ) y1 = (Nst_Real)AS_INT(p1y_obj);
-    else if ( p1y_obj->type == nst_t.Real ) y1 = AS_REAL(p1y_obj);
-    else COORD_TYPE_ERROR;
+    if ( p1y_obj->type == nst_t.Int )
+    {
+        y1 = (Nst_Real)AS_INT(p1y_obj);
+    }
+    else if ( p1y_obj->type == nst_t.Real )
+    {
+        y1 = AS_REAL(p1y_obj);
+    }
+    else
+    {
+        COORD_TYPE_ERROR;
+    }
 
-    if      ( p1z_obj->type == nst_t.Int  ) z1 = (Nst_Real)AS_INT(p1z_obj);
-    else if ( p1z_obj->type == nst_t.Real ) z1 = AS_REAL(p1z_obj);
-    else COORD_TYPE_ERROR;
+    if ( p1z_obj->type == nst_t.Int )
+    {
+        z1 = (Nst_Real)AS_INT(p1z_obj);
+    }
+    else if ( p1z_obj->type == nst_t.Real )
+    {
+        z1 = AS_REAL(p1z_obj);
+    }
+    else
+    {
+        COORD_TYPE_ERROR;
+    }
 
-    if      ( p2x_obj->type == nst_t.Int  ) x2 = (Nst_Real)AS_INT(p2x_obj);
-    else if ( p2x_obj->type == nst_t.Real ) x2 = AS_REAL(p2x_obj);
-    else COORD_TYPE_ERROR;
+    if ( p2x_obj->type == nst_t.Int )
+    {
+        x2 = (Nst_Real)AS_INT(p2x_obj);
+    }
+    else if ( p2x_obj->type == nst_t.Real )
+    {
+        x2 = AS_REAL(p2x_obj);
+    }
+    else
+    {
+        COORD_TYPE_ERROR;
+    }
 
-    if      ( p2y_obj->type == nst_t.Int  ) y2 = (Nst_Real)AS_INT(p2y_obj);
-    else if ( p2y_obj->type == nst_t.Real ) y2 = AS_REAL(p2y_obj);
-    else COORD_TYPE_ERROR;
+    if ( p2y_obj->type == nst_t.Int )
+    {
+        y2 = (Nst_Real)AS_INT(p2y_obj);
+    }
+    else if ( p2y_obj->type == nst_t.Real )
+    {
+        y2 = AS_REAL(p2y_obj);
+    }
+    else
+    {
+        COORD_TYPE_ERROR;
+    }
 
-    if      ( p2z_obj->type == nst_t.Int  ) z2 = (Nst_Real)AS_INT(p2z_obj);
-    else if ( p2z_obj->type == nst_t.Real ) z2 = AS_REAL(p2z_obj);
-    else COORD_TYPE_ERROR;
+    if ( p2z_obj->type == nst_t.Int )
+    {
+        z2 = (Nst_Real)AS_INT(p2z_obj);
+    }
+    else if ( p2z_obj->type == nst_t.Real )
+    {
+        z2 = AS_REAL(p2z_obj);
+    }
+    else
+    {
+        COORD_TYPE_ERROR;
+    }
 
     // sqrt((x1 - x2)^2 + (y1 - y2)^2 + (z1 - z2)^2)
-    Nst_Real d2 = (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2) + (z1 - z2)*(z1 - z2);
+    Nst_Real d2 = (x1 - x2)*(x1 - x2)
+                + (y1 - y2)*(y1 - y2)
+                + (z1 - z2)*(z1 - z2);
     return nst_new_real(sqrt(d2));
 }
 
@@ -342,7 +437,8 @@ NST_FUNC_SIGN(dist_nd_)
 
     if ( p1->len != p2->len )
     {
-        NST_SET_RAW_VALUE_ERROR("the points must have the same number of values");
+        NST_SET_RAW_VALUE_ERROR(
+            "the points must have the same number of values");
         return nullptr;
     }
 
@@ -361,13 +457,31 @@ NST_FUNC_SIGN(dist_nd_)
         obj1 = objs1[i];
         obj2 = objs2[i];
 
-        if      ( obj1->type == nst_t.Int  ) t1 = (Nst_Real)AS_INT(obj1);
-        else if ( obj1->type == nst_t.Real ) t1 = AS_REAL(obj1);
-        else COORD_TYPE_ERROR;
+        if ( obj1->type == nst_t.Int )
+        {
+            t1 = (Nst_Real)AS_INT(obj1);
+        }
+        else if ( obj1->type == nst_t.Real )
+        {
+            t1 = AS_REAL(obj1);
+        }
+        else
+        {
+            COORD_TYPE_ERROR;
+        }
 
-        if      ( obj2->type == nst_t.Int  ) t2 = (Nst_Real)AS_INT(obj2);
-        else if ( obj2->type == nst_t.Real ) t2 = AS_REAL(obj2);
-        else COORD_TYPE_ERROR;
+        if      ( obj2->type == nst_t.Int  )
+        {
+            t2 = (Nst_Real)AS_INT(obj2);
+        }
+        else if ( obj2->type == nst_t.Real )
+        {
+            t2 = AS_REAL(obj2);
+        }
+        else
+        {
+            COORD_TYPE_ERROR;
+        }
 
         tot += (t1 - t2) * (t1 - t2);
     }
@@ -402,7 +516,9 @@ NST_FUNC_SIGN(min_)
         return nullptr;
 
     if ( b < a )
+    {
         return nst_inc_ref(args[1]);
+    }
     return nst_inc_ref(args[0]);
 }
 
@@ -415,7 +531,9 @@ NST_FUNC_SIGN(max_)
         return nullptr;
 
     if ( b > a )
+    {
         return nst_inc_ref(args[1]);
+    }
     return nst_inc_ref(args[0]);
 }
 
@@ -439,10 +557,14 @@ NST_FUNC_SIGN(min_seq_)
     {
         Nst_Obj *res = nst_obj_lt(seq->objs[i], min_obj, err);
         if ( res == nullptr )
+        {
             return nullptr;
+        }
 
         if ( res == nst_c.b_true )
+        {
             min_obj = seq->objs[i];
+        }
         nst_dec_ref(res);
     }
 
@@ -469,10 +591,14 @@ NST_FUNC_SIGN(max_seq_)
     {
         Nst_Obj *res = nst_obj_gt(seq->objs[i], max_obj, err);
         if ( res == nullptr )
+        {
             return nullptr;
+        }
 
         if ( res == nst_c.b_true )
+        {
             max_obj = seq->objs[i];
+        }
         nst_dec_ref(res);
     }
 
@@ -486,7 +612,9 @@ NST_FUNC_SIGN(sum_seq_)
     NST_D_EXTRACT("A", &seq);
 
     if ( seq->len == 0 )
+    {
         NST_RETURN_ZERO;
+    }
 
     Nst_Obj *tot = nst_inc_ref(nst_c.Byte_0);
     Nst_Obj *new_tot = nullptr;
@@ -497,9 +625,13 @@ NST_FUNC_SIGN(sum_seq_)
         nst_dec_ref(tot);
 
         if ( new_tot == nullptr )
+        {
             return nullptr;
+        }
         else
+        {
             tot = new_tot;
+        }
     }
 
     return tot;
@@ -540,7 +672,9 @@ NST_FUNC_SIGN(map_)
     NST_D_EXTRACT("NNNNN", &val, &min1, &max1, &min2, &max2);
 
     if ( min1 == max1 )
+    {
         return nst_new_real(min2);
+    }
 
     return nst_new_real((val - min1) / (max1 - min1) * (max2 - min2) + min2);
 }
@@ -561,20 +695,30 @@ template <typename T>
 static inline T gcd_int(T a, T b)
 {
     if ( a == 0 )
+    {
         return b;
+    }
     else if ( b == 0 )
+    {
         return a;
+    }
 
     if ( a < 0 )
+    {
         a *= -1;
+    }
     if ( b < 0 )
+    {
         b *= -1;
+    }
 
     T res = 1;
     while ( true )
     {
         if ( a == b )
+        {
             return res * a;
+        }
         else if ( !(a & 1) && !(b & 1) )
         {
             a >>= 1;
@@ -582,36 +726,58 @@ static inline T gcd_int(T a, T b)
             res <<= 1;
         }
         else if ( !(a & 1) )
+        {
             a >>= 1;
+        }
         else if ( !(b & 1) )
+        {
             b >>= 1;
+        }
         else if ( a > b )
+        {
             a -= b;
+        }
         else
+        {
             b -= a;
+        }
     }
 }
 
 static inline Nst_Real gcd_real(Nst_Real a, Nst_Real b)
 {
     if ( a == 0.0 )
+    {
         return b;
+    }
     else if ( b == 0.0 )
+    {
         return a;
+    }
 
     if ( a < 0.0 )
+    {
         a *= -1.0;
+    }
     if ( b < 0.0 )
+    {
         b *= -1.0;
+    }
 
     while ( true )
     {
         if ( a == b )
+        {
             return a;
+        }
         else if ( a > b )
+        {
             a -= b;
+        }
         else
+        {
             b -= a;
+        }
     }
 }
 
@@ -623,21 +789,31 @@ NST_FUNC_SIGN(gcd_)
     NST_D_EXTRACT("NN", &n1, &n2);
 
     if ( args[0]->type == nst_t.Real || args[1]->type == nst_t.Real )
+    {
         return nst_new_real(gcd_real(n1, n2));
+    }
     else if ( args[0]->type == nst_t.Int || args[1]->type == nst_t.Int )
     {
         Nst_Int n1_int;
         Nst_Int n2_int;
 
         if ( args[0]->type == nst_t.Int )
+        {
             n1_int = AS_INT(args[0]);
+        }
         else
+        {
             n1_int = (Nst_Int)AS_BYTE(args[0]);
+        }
 
         if ( args[1]->type == nst_t.Int )
+        {
             n2_int = AS_INT(args[1]);
+        }
         else
+        {
             n2_int = (Nst_Int)AS_BYTE(args[1]);
+        }
 
         return nst_new_int(gcd_int<Nst_Int>(n1_int, n2_int));
     }
@@ -665,7 +841,9 @@ NST_FUNC_SIGN(lcm_)
 
     Nst_Obj *denominator = gcd_(2, args, err);
     if ( denominator == nullptr )
+    {
         return nullptr;
+    }
 
     Nst_Obj *result = nst_obj_div(numerator, denominator, err);
     nst_dec_ref(numerator);
@@ -680,7 +858,9 @@ NST_FUNC_SIGN(gcd_seq_)
     NST_D_EXTRACT("A", &seq);
 
     if ( seq->len == 0 )
+    {
         NST_RETURN_ZERO;
+    }
 
     Nst_Obj **objs = seq->objs;
 
@@ -691,8 +871,7 @@ NST_FUNC_SIGN(gcd_seq_)
         NST_SET_TYPE_ERROR(_nst_format_error(
             "expected type 'Byte', 'Int' or 'Real', but object at index %zi is of type '%s'",
             "us",
-            0, TYPE_NAME(objs[0])
-        ));
+            0, TYPE_NAME(objs[0])));
         return nullptr;
     }
 
@@ -709,8 +888,7 @@ NST_FUNC_SIGN(gcd_seq_)
             NST_SET_TYPE_ERROR(_nst_format_error(
                 "expected type 'Byte', 'Int' or 'Real', but object at index %zi is of type '%s'",
                 "us",
-                i, TYPE_NAME(objs[i])
-            ));
+                i, TYPE_NAME(objs[i])));
             nst_dec_ref(prev);
             return nullptr;
         }
@@ -720,7 +898,9 @@ NST_FUNC_SIGN(gcd_seq_)
         nst_dec_ref(prev);
 
         if ( curr == nullptr )
+        {
             return nullptr;
+        }
 
         prev = curr;
     }
@@ -734,7 +914,9 @@ NST_FUNC_SIGN(lcm_seq_)
     NST_D_EXTRACT("A", &seq);
 
     if ( seq->len == 0 )
+    {
         NST_RETURN_ZERO;
+    }
 
     Nst_Obj **objs = seq->objs;
 
@@ -745,8 +927,7 @@ NST_FUNC_SIGN(lcm_seq_)
         NST_SET_TYPE_ERROR(_nst_format_error(
             "expected type 'Byte', 'Int' or 'Real', but object at index %zi is of type '%s'",
             "us",
-            0, TYPE_NAME(objs[0])
-        ));
+            0, TYPE_NAME(objs[0])));
         return nullptr;
     }
 
@@ -763,8 +944,7 @@ NST_FUNC_SIGN(lcm_seq_)
             NST_SET_TYPE_ERROR(_nst_format_error(
                 "expected type 'Byte', 'Int' or 'Real', but object at index %zi is of type '%s'",
                 "us",
-                i, TYPE_NAME(objs[i])
-            ));
+                i, TYPE_NAME(objs[i])));
             nst_dec_ref(prev);
             return nullptr;
         }
@@ -774,7 +954,9 @@ NST_FUNC_SIGN(lcm_seq_)
         nst_dec_ref(prev);
 
         if ( curr == nullptr )
+        {
             return nullptr;
+        }
 
         prev = curr;
     }
@@ -788,7 +970,9 @@ NST_FUNC_SIGN(abs_)
     NST_D_EXTRACT("N", &n);
 
     if ( n >= 0 )
+    {
         return nst_inc_ref(args[0]);
+    }
     return nst_obj_mul(args[0], nst_c.Int_neg1, err);
 }
 

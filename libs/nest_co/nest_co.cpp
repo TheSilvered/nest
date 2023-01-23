@@ -13,7 +13,9 @@ static Nst_Obj *state_ended;
 bool lib_init()
 {
     if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
+    {
         return false;
+    }
 
     size_t idx = 0;
 
@@ -43,7 +45,9 @@ Nst_FuncDeclr *get_func_ptrs()
 void free_lib()
 {
     if ( !lib_init_ )
+    {
         return;
+    }
 
     nst_dec_ref(t_Coroutine);
     nst_dec_ref(state_suspended);
@@ -60,7 +64,9 @@ static NST_FUNC_SIGN(generator_start)
     if ( NST_HAS_FLAG(co, FLAG_CO_PAUSED) )
     {
         for ( size_t i = 0, n = co->stack_size; i < n; i++ )
+        {
             nst_dec_ref(co->stack[i]);
+        }
 
         delete[] co->stack;
         nst_dec_ref(co->vars);
@@ -73,12 +79,18 @@ static NST_FUNC_SIGN(generator_start)
     Nst_Obj *obj = call_(2, objs, err);
 
     if ( obj == nullptr )
+    {
         return nullptr;
+    }
 
     if ( NST_HAS_FLAG(co, FLAG_CO_ENDED) )
+    {
         nst_set_value_seq(args[0], 3, nst_c.b_true);
+    }
     else
+    {
         nst_set_value_seq(args[0], 2, obj);
+    }
     nst_dec_ref(obj);
 
     NST_RETURN_NULL;
@@ -95,12 +107,18 @@ static NST_FUNC_SIGN(generator_advance)
     Nst_Obj *obj = call_(2, SEQ(args[0])->objs, err);
 
     if ( obj == nullptr )
+    {
         return nullptr;
+    }
 
     if ( NST_HAS_FLAG(co, FLAG_CO_ENDED) )
+    {
         nst_set_value_seq(args[0], 3, nst_c.b_true);
+    }
     else
+    {
         nst_set_value_seq(args[0], 2, obj);
+    }
     nst_dec_ref(obj);
 
     NST_RETURN_NULL;
@@ -116,8 +134,7 @@ Nst_Obj *new_coroutine(Nst_FuncObj *func)
     CoroutineObj *co = (CoroutineObj *)nst_alloc_obj(
         sizeof(CoroutineObj),
         t_Coroutine,
-        destroy_coroutine
-    );
+        destroy_coroutine);
 
     co->func = func;
     co->vars = NULL;
@@ -140,12 +157,16 @@ void traverse_coroutine(CoroutineObj *co)
     NST_SET_FLAG(co->func, NST_FLAG_GGC_REACHABLE);
 
     if ( !NST_HAS_FLAG(co, FLAG_CO_PAUSED) )
+    {
         return;
+    }
 
     for ( size_t i = 0, n = co->stack_size; i < n; i++ )
     {
         if ( co->stack[i] != NULL )
+        {
             NST_SET_FLAG(co->stack[i], NST_FLAG_GGC_REACHABLE);
+        }
     }
 
     NST_SET_FLAG(co->vars,    NST_FLAG_GGC_REACHABLE);
@@ -157,12 +178,17 @@ void track_coroutine(CoroutineObj *co)
     nst_add_tracked_object((Nst_GGCObj *)co->func);
 
     if ( !NST_HAS_FLAG(co, FLAG_CO_PAUSED) )
+    {
         return;
+    }
 
     for ( size_t i = 0, n = co->stack_size; i < n; i++ )
     {
-        if ( co->stack[i] != nullptr && NST_HAS_FLAG(co->stack[i], NST_FLAG_GGC_IS_SUPPORTED))
-            nst_add_tracked_object((Nst_GGCObj *)co->stack[i]);
+        if ( co->stack[i] != nullptr &&
+             NST_HAS_FLAG(co->stack[i], NST_FLAG_GGC_IS_SUPPORTED))
+        {
+            nst_add_tracked_object((Nst_GGCObj*)co->stack[i]);
+        }
     }
 
     nst_add_tracked_object((Nst_GGCObj *)co->vars);
@@ -174,7 +200,9 @@ void destroy_coroutine(CoroutineObj *co)
     nst_dec_ref(co->func);
 
     if ( !NST_HAS_FLAG(co, FLAG_CO_PAUSED) )
+    {
         return;
+    }
 
     if ( co->vars != NULL && !NST_HAS_FLAG(co->vars, NST_FLAG_GGC_DELETED) )
     {
@@ -183,7 +211,9 @@ void destroy_coroutine(CoroutineObj *co)
     }
 
     if ( co->globals != NULL )
+    {
         nst_dec_ref(co->globals);
+    }
 
     for ( size_t i = 0, n = co->stack_size; i < n; i++ )
     {
@@ -218,9 +248,13 @@ NST_FUNC_SIGN(call_)
     NST_D_EXTRACT("?A#", &co_args, t_Coroutine, &co);
 
     if ( co_args == nst_c.null )
+    {
         co_args = nst_new_array(0);
+    }
     else
+    {
         nst_inc_ref(co_args);
+    }
 
     if ( !NST_HAS_FLAG(co, FLAG_CO_PAUSED) &&
          co->func->arg_num != SEQ(co_args)->len )
@@ -228,8 +262,7 @@ NST_FUNC_SIGN(call_)
         NST_SET_CALL_ERROR(_nst_format_error(
             _NST_EM_WRONG_ARG_NUM, "usis",
             co->func->arg_num, co->func->arg_num == 1 ? "" : "s",
-            SEQ(co_args)->len, SEQ(co_args)->len == 1 ? "was" : "were"
-        ));
+            SEQ(co_args)->len, SEQ(co_args)->len == 1 ? "was" : "were"));
         nst_dec_ref(co_args);
         return nullptr;
     }
@@ -259,19 +292,28 @@ NST_FUNC_SIGN(call_)
             nst_dec_ref(co->stack[i]);
         }
         delete[] co->stack;
-        nst_push_val(nst_state.v_stack, nst_c.null); // emulates the return value of co.pause
-        result = nst_run_func_context(co->func, co->idx + 1, co->vars, co->globals);
+        // emulates the return value of co.pause
+        nst_push_val(nst_state.v_stack, nst_c.null);
+        result = nst_run_func_context(
+            co->func,
+            co->idx + 1,
+            co->vars,
+            co->globals);
         nst_dec_ref(co->vars);
         nst_dec_ref(co->globals);
     }
     else
+    {
         result = nst_call_func(co->func, SEQ(co_args)->objs, err);
+    }
 
     nst_dec_ref(co_args);
 
     // If an error occurred
     if ( result == nullptr )
+    {
         return nullptr;
+    }
 
     if ( !NST_HAS_FLAG(co, FLAG_CO_PAUSED) )
     {
@@ -293,11 +335,13 @@ NST_FUNC_SIGN(pause_)
     Nst_FuncCall call = nst_peek_func(nst_state.f_stack);
     if ( call.func != co->func )
     {
-        NST_SET_RAW_CALL_ERROR("the top function does not match the coroutine");
+        NST_SET_RAW_CALL_ERROR(
+            "the top function does not match the coroutine");
         return nullptr;
     }
 
-    if ( nst_state.f_stack->current_size - 1 != co->call_stack_size || !NST_HAS_FLAG(co, FLAG_CO_RUNNING) )
+    if ( nst_state.f_stack->current_size - 1 != co->call_stack_size ||
+         !NST_HAS_FLAG(co, FLAG_CO_RUNNING) )
     {
         NST_SET_RAW_CALL_ERROR("the function was not called with 'call'");
         return nullptr;
@@ -318,17 +362,23 @@ NST_FUNC_SIGN(pause_)
 
     size_t stack_size = 0;
     Nst_Obj **v_stack_objs = nst_state.v_stack->stack;
-    for ( Nst_Int i = (Nst_Int)nst_state.v_stack->current_size - 1; i >= 0; i-- )
+    for ( Nst_Int i = (Nst_Int)nst_state.v_stack->current_size - 1;
+          i >= 0;
+          i-- )
     {
         if ( v_stack_objs[i] == nullptr )
+        {
             break;
+        }
         stack_size++;
     }
 
     co->stack = new Nst_Obj *[stack_size];
 
     for ( size_t i = stack_size; i > 0; i-- )
+    {
         co->stack[i - 1] = nst_pop_val(nst_state.v_stack);
+    }
 
     nst_pop_val(nst_state.v_stack); // remove NULL from the stack
 
@@ -378,8 +428,7 @@ NST_FUNC_SIGN(generator_)
         FUNC(nst_new_cfunc(1, generator_advance)),
         FUNC(nst_new_cfunc(1, generator_is_done)),
         FUNC(nst_new_cfunc(1, generator_get_val)),
-        OBJ(arr)
-    );
+        OBJ(arr));
 }
 
 NST_FUNC_SIGN(_get_co_type_obj_)

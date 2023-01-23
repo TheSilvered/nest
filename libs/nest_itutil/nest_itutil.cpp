@@ -9,7 +9,9 @@ static bool lib_init_ = false;
 bool lib_init()
 {
     if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
+    {
         return false;
+    }
 
     size_t idx = 0;
 
@@ -56,8 +58,7 @@ NST_FUNC_SIGN(count_)
         FUNC(nst_new_cfunc(1, count_advance)),
         FUNC(nst_new_cfunc(1, count_is_done)),
         FUNC(nst_new_cfunc(1, count_get_val)),
-        arr
-    );
+        arr);
 }
 
 NST_FUNC_SIGN(cycle_)
@@ -76,8 +77,7 @@ NST_FUNC_SIGN(cycle_)
         FUNC(nst_new_cfunc(1, cycle_advance)),
         FUNC(nst_new_cfunc(1, cycle_is_done)),
         FUNC(nst_new_cfunc(1, cycle_get_val)),
-        OBJ(arr)
-    );
+        OBJ(arr));
 }
 
 NST_FUNC_SIGN(repeat_)
@@ -98,8 +98,7 @@ NST_FUNC_SIGN(repeat_)
         FUNC(nst_new_cfunc(1, repeat_advance)),
         FUNC(nst_new_cfunc(1, repeat_is_done)),
         FUNC(nst_new_cfunc(1, repeat_get_val)),
-        arr
-    );
+        arr);
 }
 
 NST_FUNC_SIGN(chain_)
@@ -119,8 +118,7 @@ NST_FUNC_SIGN(chain_)
         FUNC(nst_new_cfunc(1, chain_advance)),
         FUNC(nst_new_cfunc(1, chain_is_done)),
         FUNC(nst_new_cfunc(1, chain_get_val)),
-        OBJ(arr)
-    );
+        OBJ(arr));
 }
 
 NST_FUNC_SIGN(zip_)
@@ -141,8 +139,7 @@ NST_FUNC_SIGN(zip_)
         FUNC(nst_new_cfunc(1, zip_advance)),
         FUNC(nst_new_cfunc(1, zip_is_done)),
         FUNC(nst_new_cfunc(1, zip_get_val)),
-        OBJ(arr)
-    );
+        OBJ(arr));
 }
 
 NST_FUNC_SIGN(zipn_)
@@ -169,8 +166,7 @@ NST_FUNC_SIGN(zipn_)
                 "all objects in the sequence must be of type 'Array', 'Vector'"
                 " or 'Str' but the object at index %zi was type '%s'",
                 "us",
-                i, TYPE_NAME(objs[i])
-            ));
+                i, TYPE_NAME(objs[i])));
             return nullptr;
         }
     }
@@ -182,10 +178,14 @@ NST_FUNC_SIGN(zipn_)
     for ( size_t i = 0, n = seq->len; i < n; i++ )
     {
         if ( objs[i]->type == nst_t.Array || objs[i]->type == nst_t.Vector )
+        {
             arr->objs[i + 1] = nst_inc_ref(objs[i]);
+        }
         else
+        {
             // casting a string to an array always succedes
             arr->objs[i + 1] = nst_obj_cast(objs[i], nst_t.Array, nullptr);
+        }
     }
 
     return nst_new_iter(
@@ -193,8 +193,7 @@ NST_FUNC_SIGN(zipn_)
         FUNC(nst_new_cfunc(1, zipn_advance)),
         FUNC(nst_new_cfunc(1, zipn_is_done)),
         FUNC(nst_new_cfunc(1, zipn_get_val)),
-        OBJ(arr)
-    );
+        OBJ(arr));
 }
 
 NST_FUNC_SIGN(enumerate_)
@@ -213,8 +212,7 @@ NST_FUNC_SIGN(enumerate_)
         FUNC(nst_new_cfunc(1, enumerate_advance)),
         FUNC(nst_new_cfunc(1, enumerate_is_done)),
         FUNC(nst_new_cfunc(1, enumerate_get_val)),
-        OBJ(arr)
-    );
+        OBJ(arr));
 }
 
 NST_FUNC_SIGN(keys_)
@@ -233,8 +231,7 @@ NST_FUNC_SIGN(keys_)
         FUNC(nst_new_cfunc(1, kvi_advance)),
         FUNC(nst_new_cfunc(1, kvi_is_done)),
         FUNC(nst_new_cfunc(1, keys_get_val)),
-        OBJ(arr)
-    );
+        OBJ(arr));
 }
 
 NST_FUNC_SIGN(values_)
@@ -253,8 +250,7 @@ NST_FUNC_SIGN(values_)
         FUNC(nst_new_cfunc(1, kvi_advance)),
         FUNC(nst_new_cfunc(1, kvi_is_done)),
         FUNC(nst_new_cfunc(1, values_get_val)),
-        OBJ(arr)
-    );
+        OBJ(arr));
 }
 
 NST_FUNC_SIGN(items_)
@@ -273,8 +269,7 @@ NST_FUNC_SIGN(items_)
         FUNC(nst_new_cfunc(1, kvi_advance)),
         FUNC(nst_new_cfunc(1, kvi_is_done)),
         FUNC(nst_new_cfunc(1, items_get_val)),
-        OBJ(arr)
-    );
+        OBJ(arr));
 }
 
 NST_FUNC_SIGN(reversed_)
@@ -293,8 +288,7 @@ NST_FUNC_SIGN(reversed_)
         FUNC(nst_new_cfunc(1, reversed_advance)),
         FUNC(nst_new_cfunc(1, reversed_is_done)),
         FUNC(nst_new_cfunc(1, reversed_get_val)),
-        OBJ(arr)
-    );
+        OBJ(arr));
 }
 
 NST_FUNC_SIGN(iter_start_)

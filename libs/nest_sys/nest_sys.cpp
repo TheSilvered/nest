@@ -12,7 +12,9 @@ static Nst_StrObj *platform_obj;
 bool lib_init()
 {
     if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
+    {
         return false;
+    }
 
     size_t idx = 0;
 
@@ -74,7 +76,9 @@ NST_FUNC_SIGN(getenv_)
     char *env_name = getenv(name->value);
 
     if ( env_name == nullptr )
+    {
         NST_RETURN_NULL;
+    }
 
     return nst_new_cstring_raw(env_name, false);
 }
