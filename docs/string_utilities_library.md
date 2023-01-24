@@ -32,19 +32,21 @@ Creates a new string with leading whitespace removed.
 
 Creates a new string with trailing whitespace removed.
 
-### `[string: Str, length: Int, char: Str] @ljust`
+### `[string: Str, length: Int, char: Str?] @ljust`
 
 Creates a new string of length `length`, copies `string` justifying it to the
 left and fills the remaining space with `char`.  
 `char` must be of length 1.  
 If `length` is smaller than or equal to `$string`, the string itself is returned.
+If `char` is `null` a space will be used instead.
 
-### `[string: Str, length: Int, char: Str] @rjust`
+### `[string: Str, length: Int, char: Str?] @rjust`
 
 Creates a new string of length `length`, copies `string` justifying it to the
 right and fills the remaining space with `char`.  
 `char` must be of length 1.  
 If `length` is smaller than or equal to `$string`, the string itself is returned.
+If `char` is `null` a space will be used instead.
 
 ### `[string: Str] @to_upper`
 
@@ -106,15 +108,24 @@ Transforms a string into an array of `Byte` objects.
 
 Creates a new string representing the string literal of `string`.
 
-### `[separator: Str, seq: Array|Vector] @join`
+### `[seq: Array|Vector, separator: Str?] @join`
 
 Casts all the elements in `seq` and joins them in a string separating them with
 `separator`.
+If `separator` is `null` a space is used instead.
 
-### `[string: Str, separator: Str] @split`
+### `[string: Str, separator: Str?] @split`
 
 Splits `string` where it finds `separator` without including it and returns a
 vector with all the resulting strings.
+If `separator` is `null`, the string is split using spaces. One or more
+continuous space character count as one space.
+
+```text
+|#| 'stdsutil.nest' = su
+'a  b' @su.split --> <{ 'a', 'b' }>
+'a  b' ' ' @su.split --> <{ 'a', '', 'b' }>
+```
 
 ## Constants
 
