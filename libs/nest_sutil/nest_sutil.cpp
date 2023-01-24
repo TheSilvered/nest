@@ -73,7 +73,9 @@ static char *find_substring(char *s1, size_t l1, char *s2, size_t l2)
         }
 
         if (p2 == end2)
+        {
             return s1 - 1;
+        }
     }
 
     return nullptr;
@@ -279,9 +281,9 @@ NST_FUNC_SIGN(ljust_)
 {
     Nst_StrObj *str;
     Nst_Int just_len;
-    Nst_StrObj *just_char;
+    Nst_Obj *just_char;
 
-    NST_D_EXTRACT("sis", &str, &just_len, &just_char);
+    NST_D_EXTRACT("si?s", &str, &just_len, &just_char);
 
     size_t len = str->len;
 
@@ -290,15 +292,26 @@ NST_FUNC_SIGN(ljust_)
         return nst_inc_ref(args[0]);
     }
 
-    if ( just_char->len != 1 )
+    char just_ch;
+
+    if ( just_char == nst_c.null )
     {
-        NST_SET_RAW_VALUE_ERROR("filling string must be one character long");
-        return nullptr;
+        just_ch = ' ';
+    }
+    else
+    {
+        if ( STR(just_char)->len != 1 )
+        {
+            NST_SET_RAW_VALUE_ERROR(
+                "filling string must be one character long");
+            return nullptr;
+        }
+        just_ch = *STR(just_char)->value;
     }
 
     char *new_str = new char[(unsigned int)(just_len + 1)];
     memcpy(new_str, str->value, len);
-    memset(new_str + len, *(just_char->value), (size_t)(just_len - len));
+    memset(new_str + len, just_ch, (size_t)(just_len - len));
     new_str[just_len] = 0;
 
     return nst_new_string(new_str, (size_t)just_len, true);
@@ -308,9 +321,9 @@ NST_FUNC_SIGN(rjust_)
 {
     Nst_StrObj *str;
     Nst_Int just_len;
-    Nst_StrObj *just_char;
+    Nst_Obj *just_char;
 
-    NST_D_EXTRACT("sis", &str, &just_len, &just_char);
+    NST_D_EXTRACT("si?s", &str, &just_len, &just_char);
 
     size_t len = str->len;
 
@@ -319,14 +332,25 @@ NST_FUNC_SIGN(rjust_)
         return nst_inc_ref(args[0]);
     }
 
-    if ( just_char->len != 1 )
+    char just_ch;
+
+    if ( just_char == nst_c.null )
     {
-        NST_SET_RAW_VALUE_ERROR("filling string must be one character long");
-        return nullptr;
+        just_ch = ' ';
+    }
+    else
+    {
+        if ( STR(just_char)->len != 1 )
+        {
+            NST_SET_RAW_VALUE_ERROR(
+                "filling string must be one character long");
+            return nullptr;
+        }
+        just_ch = *STR(just_char)->value;
     }
 
     char *new_str = new char[(unsigned int)(just_len + 1)];
-    memset(new_str, *(just_char->value), (size_t)(just_len - len));
+    memset(new_str, just_ch, (size_t)(just_len - len));
     memcpy(new_str + (just_len - len), str->value, len);
     new_str[just_len] = 0;
 
@@ -649,13 +673,26 @@ NST_FUNC_SIGN(repr_)
 
 NST_FUNC_SIGN(join_)
 {
-    Nst_StrObj *str;
     Nst_SeqObj *seq;
+    Nst_Obj *opt_str;
 
-    NST_D_EXTRACT("sA", &str, &seq);
+    NST_D_EXTRACT("A?s", &seq, &opt_str);
+
+    size_t str_len;
+    char *str_val;
+
+    if ( opt_str == nst_c.null )
+    {
+        str_len = 1;
+        str_val = (char *)" ";
+    }
+    else
+    {
+        str_len = STR(opt_str)->len;
+        str_val = STR(opt_str)->value;
+    }
 
     size_t len = seq->len;
-    size_t str_len = str->len;
     size_t tot_len = str_len * (len - 1);
     Nst_Obj **objs = new Nst_Obj *[len];
 
@@ -678,7 +715,7 @@ NST_FUNC_SIGN(join_)
         {
             break;
         }
-        memcpy(new_str + str_idx, str->value, str_len);
+        memcpy(new_str + str_idx, str_val, str_len);
         str_idx += str_len;
     }
 
@@ -689,25 +726,53 @@ NST_FUNC_SIGN(join_)
 NST_FUNC_SIGN(split_)
 {
     Nst_StrObj *str;
-    Nst_StrObj *substr;
+    Nst_Obj *opt_substr;
 
-    NST_D_EXTRACT("ss", &str, &substr);
+    NST_D_EXTRACT("s?s", &str, &opt_substr);
 
-    if ( substr->len == 0 )
+    char *sub;
+    size_t sub_len;
+    bool rm_spaces = false;
+
+    if ( opt_substr == nst_c.null )
     {
-        NST_SET_RAW_VALUE_ERROR("separator must be at least one character long");
-        return nullptr;
+        sub = (char *)" ";
+        sub_len = 1;
+        rm_spaces = true;
+    }
+    else
+    {
+        if ( STR(opt_substr)->len == 0 )
+        {
+            NST_SET_RAW_VALUE_ERROR(
+                "separator must be at least one character long");
+            return nullptr;
+        }
+        sub = STR(opt_substr)->value;
+        sub_len = STR(opt_substr)->len;
     }
 
     Nst_SeqObj *vector = SEQ(nst_new_vector(0));
 
     char *s = str->value;
-    char *sub = substr->value;
     char *sub_idx = s;
     char *str_split;
     size_t s_len = str->len;
-    size_t sub_len = substr->len;
     Nst_Obj *str_obj;
+
+    if ( rm_spaces )
+    {
+        while ( *s == ' ' )
+        {
+            s++;
+            s_len--;
+        }
+    }
+
+    if ( s_len == 0 )
+    {
+        return OBJ(vector);
+    }
 
     while ( (sub_idx = find_substring(s, s_len, sub, sub_len)) != nullptr )
     {
@@ -717,16 +782,32 @@ NST_FUNC_SIGN(split_)
         str_obj = nst_new_string(str_split, sub_idx - s, true);
         nst_append_value_vector(vector, str_obj);
         nst_dec_ref(str_obj);
-        s_len -= sub_idx - s + substr->len;
-        s = sub_idx + substr->len;
+        s_len -= sub_idx - s + sub_len;
+        s = sub_idx + sub_len;
+
+        if ( rm_spaces )
+        {
+            while ( *s == ' ' )
+            {
+                s++;
+                s_len--;
+            }
+            if ( s_len == 0 )
+            {
+                break;
+            }
+        }
     }
 
-    str_split = new char[s_len + 1];
-    memcpy(str_split, s, s_len);
-    str_split[s_len] = '\0';
-    str_obj = nst_new_string(str_split, s_len, true);
-    nst_append_value_vector(vector, str_obj);
-    nst_dec_ref(str_obj);
+    if ( s_len != 0 )
+    {
+        str_split = new char[s_len + 1];
+        memcpy(str_split, s, s_len);
+        str_split[s_len] = '\0';
+        str_obj = nst_new_string(str_split, s_len, true);
+        nst_append_value_vector(vector, str_obj);
+        nst_dec_ref(str_obj);
+    }
 
     return OBJ(vector);
 }

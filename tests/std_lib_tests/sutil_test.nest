@@ -46,6 +46,14 @@
 { 72b, 105b } @su.bytearray_to_str 'Hi' @test.assert_eq
 'Hi' @su.str_to_bytearray { 72b, 105b } @test.assert_eq
 
+'a b' @su.split { 'a', 'b' } @test.assert_eq
+'a  b' @su.split { 'a', 'b' } @test.assert_eq
+' a b' @su.split { 'a', 'b' } @test.assert_eq
+'a b ' @su.split { 'a', 'b' } @test.assert_eq
+' a  b ' @su.split { 'a', 'b' } @test.assert_eq
+{ 'a', 'b', 'c' } @su.join 'a b c' @test.assert_eq
+{ 'a', 'b', 'c' } '' @su.join 'abc' @test.assert_eq
+
 ?::su.DIGITS            Str @test.assert_eq
 ?::su.HEX_DIGITS        Str @test.assert_eq
 ?::su.OCT_DIGITS        Str @test.assert_eq
