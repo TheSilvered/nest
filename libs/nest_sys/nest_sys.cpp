@@ -2,7 +2,23 @@
 #include <cstring>
 #include "nest_sys.h"
 
-#define FUNC_COUNT 8
+#if defined(_WIN32) || defined(WIN32)
+
+#include <direct.h>
+#include <windows.h>
+
+#define PATH_MAX MAX_PATH
+
+#else
+
+#include <unistd.h>
+
+#define _chdir chdir
+#define _getcwd getcwd
+
+#endif
+
+#define FUNC_COUNT 10
 
 static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
@@ -24,6 +40,8 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_ref_count_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_addr_,      1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(hash_,          1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(_set_cwd_,      1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_cwd_,      0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_version_,  0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_platform_, 0);
 
@@ -103,6 +121,24 @@ NST_FUNC_SIGN(get_addr_)
 NST_FUNC_SIGN(hash_)
 {
     return nst_new_int(nst_hash_obj(args[0]));
+}
+
+NST_FUNC_SIGN(_set_cwd_)
+{
+    Nst_StrObj *new_cwd;
+    NST_D_EXTRACT("s", &new_cwd);
+    if ( _chdir(new_cwd->value) == -1 )
+    {
+        errno = 0;
+        NST_SET_RAW_VALUE_ERROR("invalid path");
+    }
+    NST_RETURN_NULL;
+}
+
+NST_FUNC_SIGN(_get_cwd_)
+{
+    char *cwd = new char[PATH_MAX];
+    return nst_new_cstring_raw(_getcwd(cwd, PATH_MAX), true);
 }
 
 NST_FUNC_SIGN(_get_version_)

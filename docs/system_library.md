@@ -30,8 +30,21 @@ Returns the address of the object in memory.
 
 Returns the hash of the object, used in maps.
 
+### `[path: Str] @_set_cwd`
+
+Sets the current working directory. The changes do not reflect in `_cwd_`.
+
+### `[] @_get_cwd`
+
+Gets the current working directory. If `_set_cwd` was never called, this is
+equivalent to `_cwd_`.
+
 ## Constants
 
 ### `VERSION`
 
 The current version of Nest in form of a string.
+
+### `PLATFORM`
+
+The current platform, can be `windows` or `linux`.

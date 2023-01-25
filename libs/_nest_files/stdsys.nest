@@ -14,7 +14,8 @@ __sys.getenv_        = getenv
 __sys.get_ref_count_ = get_ref_count
 __sys.get_addr_      = get_addr
 __sys.hash_          = hash
-__sys._get_version_  = _get_version
+__sys._set_cwd_      = _set_cwd
+__sys._get_cwd_      = _get_cwd
 
 @__sys._get_version_  = VERSION
 @__sys._get_platform_ = PLATFORM

@@ -11,6 +11,7 @@ v <{ 1, 2, 3, 4, 5 }> @test.assert_eq
 'hceilaloo' 0 9 2 @sequ.slice 'hello' @test.assert_eq
 'hceilaloo' 1 8 2 @sequ.slice 'ciao' @test.assert_eq
 'abcde' 3 0 -1 @sequ.slice 'dcb' @test.assert_eq
+'abcde' null null -1 @sequ.slice 'edcba' @test.assert_eq
 <{ 1, 2, 3 }> <{ 4, 5, 6 }> @sequ.merge <{ 1, 2, 3, 4, 5, 6 }> @test.assert_eq
 ?::(<{ 1, 2, 3 }>  { 4, 5, 6 }  @sequ.merge) Vector @test.assert_eq
 ?::( { 1, 2, 3 }   { 4, 5, 6 }  @sequ.merge) Array  @test.assert_eq

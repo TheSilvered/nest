@@ -8,12 +8,13 @@
 ]
 
 f @co.create = f_co
+co.create { co.create } @test.assert_raises_error -- coroutine from a C function
 
 f_co @co.get_state co.STATE.suspended @test.assert_eq
 { f_co, 1, 2 } f_co @co.call 3 @test.assert_eq
 
 f_co @co.get_state co.STATE.paused @test.assert_eq
-{ f_co, 1, 2 } f_co @co.call 6 @test.assert_eq
+null f_co @co.call 6 @test.assert_eq
 
 f_co @co.get_state co.STATE.ended @test.assert_eq
 
@@ -28,3 +29,13 @@ f { f_co, 1, 2 } @test.assert_raises_error
 g @co.create = g_co
 
 Array :: (g_co @co.generator) { 1, 2, 3 } @test.assert_eq
+
+## self [
+    self @h
+] @co.create = bad_co
+
+#h coroutine [
+    coroutine @co.pause
+]
+
+co.call { { bad_co }, bad_co } @test.assert_raises_error

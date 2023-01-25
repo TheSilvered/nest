@@ -5,7 +5,7 @@
     'Error' !! 'f'
 ]
 
-f <{ }> @err.try = res
+f {,} @err.try = res
 res.value null @test.assert_eq
 res.error.name 'Error' @test.assert_eq
 res.error.message 'f' @test.assert_eq

@@ -312,6 +312,10 @@ NST_FUNC_SIGN(call_)
     // If an error occurred
     if ( result == nullptr )
     {
+        NST_UNSET_FLAG(co, FLAG_CO_SUSPENDED);
+        NST_UNSET_FLAG(co, FLAG_CO_RUNNING);
+        NST_UNSET_FLAG(co, FLAG_CO_PAUSED);
+        NST_SET_FLAG(co, FLAG_CO_ENDED);
         return nullptr;
     }
 

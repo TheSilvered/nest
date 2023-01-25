@@ -4,7 +4,7 @@
 #read_whole_file f [
     f @io.get_fptr = start
     f io.FROM_START 0 @io.move_fptr
-    f -1 @io.read = content
+    f @io.read = content
     f io.FROM_START start @io.move_fptr
     => content
 ]
@@ -16,7 +16,7 @@ f bytes @io.write_bytes
 f @io.close
 
 'test_files/file.txt' 'rb' @io.open = f
-f -1 @io.read_bytes { 72b, 105b } @test.assert_eq
+f -1 @io.read_bytes bytes @test.assert_eq
 f @io.close
 
 'test_files/file.txt' 'w' @io.open = f

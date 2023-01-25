@@ -3,7 +3,7 @@
 |#| 'stdio.nest' = io
 |#| 'stdsys.nest' = sys
 
--- if the file already exists the test will, fail
+-- if the file already exists the test will fail
 'stdfs_file_copied' @fs.isfile ? 'stdfs_file_copied' @fs.rmfile
 
 'fs_test.nest' @fs.isfile @test.assert_true

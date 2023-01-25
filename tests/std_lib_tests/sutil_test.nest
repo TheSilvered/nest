@@ -1,8 +1,10 @@
 |#| '../test_lib.nest' = test
 |#| 'stdsutil.nest' = su
 
-'Hi!' 10 '_' @su.ljust 'Hi!_______' @test.assert_eq
-'Hi!' 10 '_' @su.rjust '_______Hi!' @test.assert_eq
+'Hi!' 10 '_' @su.ljust  'Hi!_______' @test.assert_eq
+'Hi!' 10 '_' @su.rjust  '_______Hi!' @test.assert_eq
+'Hi!' 10 '_' @su.center '___Hi!____' @test.assert_eq
+'Hi!' 9  '_' @su.center '___Hi!___'  @test.assert_eq
 
 'validName' su.LETTERS @su.is_charset @test.assert_true
 'invalid name' su.LETTERS @su.is_charset @test.assert_false
