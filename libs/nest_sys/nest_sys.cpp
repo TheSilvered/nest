@@ -59,11 +59,18 @@ NST_FUNC_SIGN(system_)
 
 NST_FUNC_SIGN(exit_)
 {
-    Nst_Int status;
+    Nst_Obj *status;
 
-    NST_D_EXTRACT("i", &status);
+    NST_D_EXTRACT("?i", &status);
 
-    exit((int)status);
+    if ( status == nst_c.null )
+    {
+        exit(0);
+    }
+    else
+    {
+        exit((int)AS_INT(status));
+    }
     return nullptr;
 }
 

@@ -43,9 +43,11 @@ Nst_FuncDeclr *get_func_ptrs()
 NST_FUNC_SIGN(count_)
 {
     Nst_Int start;
-    Nst_Int step;
+    Nst_Obj *step_obj;
 
-    NST_D_EXTRACT("ii", &start, &step);
+    NST_D_EXTRACT("i?i", &start, &step_obj);
+    Nst_Int step;
+    NST_SET_DEF(step_obj, step, 1, AS_INT(step_obj));
 
     // Layout: [idx, start, step]
     Nst_Obj *arr = nst_new_array(3);

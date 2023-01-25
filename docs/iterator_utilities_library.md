@@ -57,7 +57,7 @@ sequences. It stops when the shortest sequence ends.
 
 ### `[sequences: Array|Vector] @zipn`
 
-`sequences` can contain arrays, vector or strings.
+`sequences` can contain arrays, vectors or strings.
 
 Returns a n-element array (where n is the length of `sequences`) with an object
 from the same index of each sequence in `sequences`. It stops when the shortest

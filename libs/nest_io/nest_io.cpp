@@ -241,9 +241,12 @@ NST_FUNC_SIGN(open_)
 
 NST_FUNC_SIGN(virtual_iof_)
 {
-    Nst_Bool bin;
+    Nst_Obj *bin_obj;
 
-    NST_D_EXTRACT("b", &bin);
+    NST_D_EXTRACT("?b", &bin_obj);
+
+    Nst_Bool bin;
+    NST_SET_DEF(bin_obj, bin, false, AS_BOOL(bin_obj));
 
     VirtualIOFile_data *f = new VirtualIOFile_data;
     f->data = new char[1];
@@ -361,9 +364,14 @@ NST_FUNC_SIGN(write_bytes_)
 NST_FUNC_SIGN(read_)
 {
     Nst_IOFileObj *f;
-    Nst_Int bytes_to_read;
+    Nst_Obj *bytes_to_read_obj;
 
-    NST_D_EXTRACT("Fi", &f, &bytes_to_read);
+    NST_D_EXTRACT("Fi", &f, &bytes_to_read_obj);
+    Nst_Int bytes_to_read;
+    NST_SET_DEF(
+        bytes_to_read_obj,
+        bytes_to_read,
+        -1, AS_INT(bytes_to_read_obj));
 
     if ( NST_IOF_IS_CLOSED(f) )
     {
@@ -404,9 +412,14 @@ NST_FUNC_SIGN(read_)
 NST_FUNC_SIGN(read_bytes_)
 {
     Nst_IOFileObj *f;
-    Nst_Int bytes_to_read;
+    Nst_Obj *bytes_to_read_obj;
 
-    NST_D_EXTRACT("Fi", &f, &bytes_to_read);
+    NST_D_EXTRACT("Fi", &f, &bytes_to_read_obj);
+    Nst_Int bytes_to_read;
+    NST_SET_DEF(
+        bytes_to_read_obj,
+        bytes_to_read,
+        -1, AS_INT(bytes_to_read_obj));
 
     if ( NST_IOF_IS_CLOSED(f) )
     {

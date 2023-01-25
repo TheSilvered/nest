@@ -26,6 +26,7 @@ NST_FUNC_SIGN(ltrim_);
 NST_FUNC_SIGN(rtrim_);
 NST_FUNC_SIGN(ljust_);
 NST_FUNC_SIGN(rjust_);
+NST_FUNC_SIGN(center_);
 NST_FUNC_SIGN(to_upper_);
 NST_FUNC_SIGN(to_lower_);
 NST_FUNC_SIGN(is_upper_);

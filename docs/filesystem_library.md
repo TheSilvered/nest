@@ -45,10 +45,11 @@ otherwise returns `0`. If the path does not exist, raises an error.
 [Windows error codes](https://docs.microsoft.com/en-us/windows/win32/debug/system-error-codes--0-499-)
 [Linux error codes](https://chromium.googlesource.com/chromiumos/docs/+/master/constants/errnos.md)
 
-### `[from: Str, to: Str, options: Int] @copy`
+### `[from: Str, to: Str, options: Int?] @copy`
 
 Copies a file or a directory from `from` to `to`. `options` must be set with
-the `CPO` constant and its members.
+the `CPO` constant and its members.  
+If `options` is `null`, `CPO.none` is used.
 
 ### `[old_path: Str, new_path: Str] @rename`
 
@@ -133,7 +134,7 @@ Its members are:
 
 | Name              | Description                                                      |
 | ----------------- | ---------------------------------------------------------------- |
-| `none`            | Copy a file normally                                             |
+| `none`            | Normal copy, follows symlinks and skips subdirectories           |
 | `skip`            | Skips existing files                                             |
 | `overwrite`       | Overwrites existing files                                        |
 | `update`          | Overwrites existing files if they are older than the file copied |

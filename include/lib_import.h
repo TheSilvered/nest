@@ -78,6 +78,15 @@
     if ( !nst_extract_arg_values(ltrl, arg_num, args, err, __VA_ARGS__) ) \
         return NULL
 
+// Sets 'var' to 'def_val' if obj is null and to 'val' otherwise
+#define NST_SET_DEF(obj, var, def_val, val) \
+    do { \
+    if ( (obj) == nst_c.null ) \
+       var = (def_val); \
+    else \
+        var = (val); \
+    } while ( 0 )
+
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus

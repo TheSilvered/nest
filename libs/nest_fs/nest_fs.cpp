@@ -224,13 +224,20 @@ NST_FUNC_SIGN(copy_)
 {
     Nst_StrObj *path_from;
     Nst_StrObj *path_to;
-    Nst_Int options;
+    Nst_Obj *options;
 
-    NST_D_EXTRACT("ssi", &path_from, &path_to, &options);
+    NST_D_EXTRACT("ss?i", &path_from, &path_to, &options);
+
+    fs::copy_options cp_options;
+    NST_SET_DEF(
+        options,
+        cp_options,
+        fs::copy_options::none,
+        (fs::copy_options)AS_INT(options));
 
     std::error_code ec;
 
-    fs::copy(path_from->value, path_to->value, (fs::copy_options)options, ec);
+    fs::copy(path_from->value, path_to->value, cp_options, ec);
 
     if ( ec.value() == ERROR_PATH_NOT_FOUND )
     {

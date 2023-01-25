@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include "nest_sutil.h"
 
-#define FUNC_COUNT 27
+#define FUNC_COUNT 28
 
 static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
@@ -26,6 +26,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(rtrim_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(ljust_, 3);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(rjust_, 3);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(center_, 3);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(to_upper_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(to_lower_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(is_upper_, 1);
@@ -352,6 +353,47 @@ NST_FUNC_SIGN(rjust_)
     char *new_str = new char[(unsigned int)(just_len + 1)];
     memset(new_str, just_ch, (size_t)(just_len - len));
     memcpy(new_str + (just_len - len), str->value, len);
+    new_str[just_len] = 0;
+
+    return nst_new_string(new_str, (size_t)just_len, true);
+}
+
+NST_FUNC_SIGN(center_)
+{
+    Nst_StrObj *str;
+    Nst_Int just_len;
+    Nst_Obj *just_char;
+
+    NST_D_EXTRACT("si?s", &str, &just_len, &just_char);
+
+    size_t len = str->len;
+
+    if ( just_len <= (Nst_Int)len )
+    {
+        return nst_inc_ref(args[0]);
+    }
+
+    char just_ch;
+
+    if ( just_char == nst_c.null )
+    {
+        just_ch = ' ';
+    }
+    else
+    {
+        if ( STR(just_char)->len != 1 )
+        {
+            NST_SET_RAW_VALUE_ERROR(
+                "filling string must be one character long");
+            return nullptr;
+        }
+        just_ch = *STR(just_char)->value;
+    }
+
+    char *new_str = new char[(unsigned int)(just_len + 1)];
+    size_t half = (size_t)(just_len - len) / 2;
+    memset(new_str, just_ch, just_len);
+    memcpy(new_str + half, str->value, len);
     new_str[just_len] = 0;
 
     return nst_new_string(new_str, (size_t)just_len, true);

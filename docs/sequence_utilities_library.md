@@ -16,10 +16,22 @@ Inserts `objects` at `index` in `vect`. Returns `null`.
 
 Removes the element at `index` in `vect` and returns it.
 
-### `[seq: Str|Array|Vector, start: Int, stop: Int, step: Int] @slice`
+### `[seq: Str|Array|Vector, start: Int?, stop: Int?, step: Int?] @slice`
 
 Creates a new sequence of type `?::seq` that contains the elements from `start`
-to `stop` separated by a gap of `step`.
+to `stop` separated by a gap of `step`.  
+If both `start` and `stop` are `null` and `step` is `-1` the sequence is just
+reversed.  
+If `step` is `null` it defaults to `1`.  
+If `start` is `null` it is set to `0` if the step is positive and to `$seq 1 -`
+if the step is negative.  
+If `stop` is `null` it is set to `$seq` if the step is positive and to `-1` if
+the step is negative.
+
+If a negative number is given for `start` or `stop` it will behave like an index
+where `-1` is the last element, `-2` the second to last and so on. The only
+exception is when `stop` is `null` and `step` is negative. In that case the `-1`
+remains `-1` to reach the first element of the sequence.
 
 ### `[seq1: Array|Vector, seq2: Array|Vector] @merge`
 
@@ -52,7 +64,3 @@ Returns true if any of the elements of `seq` casted to a boolean is true.
 ### `[seq: Array|Vector] @all`
 
 Returns true if all the elements of `seq` casted to a boolean are true.
-
-### `[iter: Iter] @from_iter`
-
-Returns a vector of which elements are the objects yielded by `iter`.

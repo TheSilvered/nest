@@ -24,12 +24,12 @@ The file modes are:
 | `a+`           | read and append, keeping the contents         |
 | `ab+` or `a+b` | read and append bytes, keeping the contents   |
 
-### `[binary: Bool] @virtual_iof`
+### `[binary: Bool?] @virtual_iof`
 
 Creates a virtual `IOFile` object that works like a normal file but is not an
 actual file.  
 `binary` specifies if the file should use `write` and `read` or `write_bytes` ad
-`read_bytes`.
+`read_bytes`. If set to `null` it is interpreted as false.
 
 ### `[file: IOFile] @close`
 
@@ -59,19 +59,19 @@ To create such vector from a string, use the
 [`str_to_bytearray`](string_utilities_library.md#string-str-str_to_bytearray)
 function in `stdsutil.nest`.
 
-### `[file: IOFile, size: Int] @read`
+### `[file: IOFile, size: Int?] @read`
 
 Reads a number of bytes from a file opened in `r`, `r+`, `w+` or `a+` and returns
 a `Str` object.  
-Any negative integer for `size` reads the whole file.
+If `size` is negative or `null` the whole file is read.
 
-### `[file: IOFile, size: Int] @read_bytes`
+### `[file: IOFile, size: Int?] @read_bytes`
 
 Reads a number of bytes from a file opened in `rb`, `rb+`, `wb+` or `ab+` and
 returns an `Array` object. To convert the array to a string, use the
 [`bytearray_to_str`](string_utilities_library.md#sequence-arrayvector-bytearray_to_str)
 function in `stdsutil.nest`.  
-Any negative integer for `size` reads the whole file.
+If `size` is negative or `null` the whole file is read.
 
 ### `[file: IOFile] @file_size`
 

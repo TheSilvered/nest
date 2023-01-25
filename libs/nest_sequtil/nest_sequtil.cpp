@@ -158,11 +158,17 @@ NST_FUNC_SIGN(remove_at_)
 NST_FUNC_SIGN(slice_)
 {
     Nst_SeqObj *seq;
-    Nst_Int start;
-    Nst_Int stop;
-    Nst_Int step;
+    Nst_Obj *start_obj;
+    Nst_Obj *stop_obj;
+    Nst_Obj *step_obj;
 
-    NST_D_EXTRACT("Siii", &seq, &start, &stop, &step);
+    NST_D_EXTRACT("S?i?i?i", &seq, &start_obj, &stop_obj, &step_obj);
+
+    Nst_Int start, stop, step;
+
+    NST_SET_DEF(step_obj, step, 1, AS_INT(step_obj));
+    NST_SET_DEF(start_obj, start, step > 0 ? 0 : seq->len, AS_INT(start_obj));
+    NST_SET_DEF(stop_obj, stop, step > 0 ? seq->len : -1, AS_INT(stop_obj));
 
     size_t seq_len = seq->len;
     Nst_TypeObj *seq_type = args[0]->type;
@@ -178,7 +184,7 @@ NST_FUNC_SIGN(slice_)
         start += seq_len;
     }
 
-    if ( stop < 0 )
+    if ( stop < 0 && stop_obj != nst_c.null )
     {
         stop += seq_len;
     }
@@ -192,7 +198,7 @@ NST_FUNC_SIGN(slice_)
         start = seq_len - 1;
     }
 
-    if ( stop < 0 )
+    if ( stop < 0 && stop_obj != nst_c.null )
     {
         stop = 0;
     }

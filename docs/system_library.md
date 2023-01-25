@@ -8,9 +8,10 @@ Executes `cmd` in a sub-shell. The return value is the exit status of the shell.
 
 On Linux is always the exit status, on Windows, it depends on the default shell.
 
-### `[code: Int] @exit`
+### `[code: Int?] @exit`
 
-Aborts the execution of the program and terminates with an exit code of `code`.
+Ends the execution of the program and terminates with an exit code of `code`.  
+If `code` is `null` it defaults to `0`.
 
 ### `[name: Str] @getenv`
 

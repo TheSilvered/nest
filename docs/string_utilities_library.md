@@ -48,6 +48,21 @@ right and fills the remaining space with `char`.
 If `length` is smaller than or equal to `$string`, the string itself is returned.
 If `char` is `null` a space will be used instead.
 
+### `[string: Str, length: Int, char: Str?] @center`
+
+Creates a new string of length `length`, copies `string` centering it and
+filling the remaining space with `char`. If the string cannot be perfectly
+centered it will be closer to the left side.  
+`char` must be of length 1.  
+If `length` is smaller than or equal to `$string`, the string itself is returned.
+If `char` is `null` a space will be used instead.
+
+```text
+|#| 'stdsutil.nest' = su
+'hello' 11 '.' @su.center --> '...hello...'
+'hello' 10 @su.center --> '  hello   '
+```
+
 ### `[string: Str] @to_upper`
 
 A new string is returned with all the letters uppercase.

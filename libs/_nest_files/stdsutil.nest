@@ -17,6 +17,7 @@ __su.ltrim_            = ltrim
 __su.rtrim_            = rtrim
 __su.ljust_            = ljust
 __su.rjust_            = rjust
+__su.center_           = center
 __su.to_upper_         = to_upper
 __su.to_lower_         = to_lower
 __su.is_upper_         = is_upper
