@@ -1977,7 +1977,8 @@ Nst_StrObj *_nst_get_import_path(char *initial_path, size_t path_len)
     if ( file_path != NULL )
         free(file_path);
 
-#ifdef _DEBUG
+#if defined(_WIN32) || defined(WIN32)
+ #ifdef _DEBUG
 
     size_t root_len = strlen(__FILE__) - 13;
     size_t nest_file_len = 17;
@@ -1989,9 +1990,7 @@ Nst_StrObj *_nst_get_import_path(char *initial_path, size_t path_len)
     memcpy(file_path + root_len, nest_files, nest_file_len);
     memcpy(file_path + root_len + nest_file_len, initial_path, path_len);
     file_path[full_size] = '\0';
-
-#elif defined(_WIN32) || defined(WIN32)
-
+ #else
     // In Windows the standard library is stored in %LOCALAPPDATA%/Programs/nest/nest_libs
 
     char *appdata = getenv("LOCALAPPDATA");
@@ -2002,7 +2001,7 @@ Nst_StrObj *_nst_get_import_path(char *initial_path, size_t path_len)
     file_path = (char *)malloc((appdata_len + path_len + 26) * sizeof(char));
     if ( !file_path ) return NULL;
     sprintf(file_path, "%s/Programs/nest/nest_libs/%s", appdata, initial_path);
-
+ #endif
 #else
 
     // In UNIX the standard library is stored in /usr/lib/nest

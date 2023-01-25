@@ -46,14 +46,18 @@ NST_FUNC_SIGN(count_)
     Nst_Obj *step_obj;
 
     NST_D_EXTRACT("i?i", &start, &step_obj);
-    Nst_Int step;
-    NST_SET_DEF(step_obj, step, 1, AS_INT(step_obj));
+    Nst_IntObj *step;
+    NST_SET_DEF(
+        step_obj, step,
+        (Nst_IntObj *)nst_new_int(1),
+        (Nst_IntObj *)nst_inc_ref(step_obj));
 
     // Layout: [idx, start, step]
     Nst_Obj *arr = nst_new_array(3);
     SEQ(arr)->objs[0] = nst_new_int(0);
     nst_set_value_seq(arr, 1, args[0]);
-    nst_set_value_seq(arr, 2, args[1]);
+    nst_set_value_seq(arr, 2, step);
+    nst_dec_ref(step);
 
     return nst_new_iter(
         FUNC(nst_new_cfunc(1, count_start)),

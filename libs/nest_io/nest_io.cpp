@@ -366,7 +366,7 @@ NST_FUNC_SIGN(read_)
     Nst_IOFileObj *f;
     Nst_Obj *bytes_to_read_obj;
 
-    NST_D_EXTRACT("Fi", &f, &bytes_to_read_obj);
+    NST_D_EXTRACT("F?i", &f, &bytes_to_read_obj);
     Nst_Int bytes_to_read;
     NST_SET_DEF(
         bytes_to_read_obj,
@@ -414,7 +414,7 @@ NST_FUNC_SIGN(read_bytes_)
     Nst_IOFileObj *f;
     Nst_Obj *bytes_to_read_obj;
 
-    NST_D_EXTRACT("Fi", &f, &bytes_to_read_obj);
+    NST_D_EXTRACT("F?i", &f, &bytes_to_read_obj);
     Nst_Int bytes_to_read;
     NST_SET_DEF(
         bytes_to_read_obj,
