@@ -12,6 +12,8 @@
 #else
 
 #include <unistd.h>
+#include <cerrno>
+#include <limits.h>
 
 #define _chdir chdir
 #define _getcwd getcwd
