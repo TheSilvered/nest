@@ -149,26 +149,34 @@ NST_FUNC_SIGN(year_day_)
 
 NST_FUNC_SIGN(week_day_)
 {
-    year_month_day ymd{ std::chrono::floor<days>(system_clock::now()) };
-    return nst_new_int(weekday{ ymd }.c_encoding());
+    time_t raw_time;
+    time(&raw_time);
+    tm *t = localtime(&raw_time);
+    return nst_new_int(t->tm_wday);
 }
 
 NST_FUNC_SIGN(day_)
 {
-    year_month_day ymd{ std::chrono::floor<days>(system_clock::now()) };
-    return nst_new_int((unsigned int)ymd.day());
+    time_t raw_time;
+    time(&raw_time);
+    tm *t = localtime(&raw_time);
+    return nst_new_int(t->tm_mday);
 }
 
 NST_FUNC_SIGN(month_)
 {
-    year_month_day ymd{ std::chrono::floor<days>(system_clock::now()) };
-    return nst_new_int((unsigned int)ymd.month());
+    time_t raw_time;
+    time(&raw_time);
+    tm *t = localtime(&raw_time);
+    return nst_new_int(t->tm_mon);
 }
 
 NST_FUNC_SIGN(year_)
 {
-    year_month_day ymd{ std::chrono::floor<days>(system_clock::now()) };
-    return nst_new_int((int)ymd.year());
+    time_t raw_time;
+    time(&raw_time);
+    tm *t = localtime(&raw_time);
+    return nst_new_int(t->tm_year);
 }
 
 NST_FUNC_SIGN(date_)

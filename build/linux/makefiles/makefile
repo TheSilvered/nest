@@ -40,6 +40,7 @@ all:
 	make -f nest_fs.mk
 	make -f nest_io.mk
 	make -f nest_itutil.mk
+	make -f nest_json.mk
 	make -f nest_math.mk
 	make -f nest_rand.mk
 	make -f nest_sequtil.mk
@@ -54,6 +55,7 @@ all-x86:
 	make -f nest_fs.mk      x86
 	make -f nest_io.mk      x86
 	make -f nest_itutil.mk  x86
+	make -f nest_json.mk    x86
 	make -f nest_math.mk    x86
 	make -f nest_rand.mk    x86
 	make -f nest_sequtil.mk x86
@@ -68,6 +70,7 @@ all-debug:
 	make -f nest_fs.mk      debug
 	make -f nest_io.mk      debug
 	make -f nest_itutil.mk  debug
+	make -f nest_json.mk    debug
 	make -f nest_math.mk    debug
 	make -f nest_rand.mk    debug
 	make -f nest_sequtil.mk debug

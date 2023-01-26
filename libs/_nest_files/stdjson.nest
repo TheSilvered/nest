@@ -1,0 +1,31 @@
+_cwd_.0 '/' == ? [
+    '../../build/linux/linux_debug/std' = dbg_path
+    '.so' = ext
+] : [
+    '../../build/windows/projects/nest/x64/Debug/nest_' = dbg_path
+    '.dll' = ext
+]
+
+|#| ('__C__:' dbg_path 'json' ext ><) = __json
+
+_vars_ '__itu' \
+       'Int' \
+       'Real' \
+       'Bool' \
+       'Null' \
+       'Str' \
+       'Array' \
+       'Vector' \
+       'Map' \
+       'Func' \
+       'Iter' \
+       'Byte' \
+       'IOFile' \
+       'Type' \
+       'true' \
+       'false' \
+       'null' \
+       '_cwd_' \
+       '_args_' \
+       '_globals_' \
+       '_vars_' -
