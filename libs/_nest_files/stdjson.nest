@@ -8,6 +8,16 @@ _cwd_.0 '/' == ? [
 
 |#| ('__C__:' dbg_path 'json' ext ><) = __json
 
+__json.parse_s_     = parse_s
+__json.parse_f_     = parse_f
+__json.dump_s_      = dump_s
+__json.dump_f_      = dump_f
+__json.set_options_ = set_options
+
+{ 'allow_comments':        0b001,
+  'allow_trailing_commas': 0b010,
+  'allow_split_strings':   0b100 } = OPTIONS
+
 _vars_ '__itu' \
        'Int' \
        'Real' \

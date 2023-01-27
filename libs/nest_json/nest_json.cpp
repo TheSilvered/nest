@@ -4,6 +4,9 @@
 
 static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
+static bool comments = false;
+static bool trailing_commas = false;
+static bool split_strings = false;
 
 bool lib_init()
 {
@@ -14,7 +17,7 @@ bool lib_init()
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(parse_s_,     1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(parse_f_,     1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(dump_s_,      2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(dump_s_,      1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(dump_f_,      2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(set_options_, 1);
     lib_init_ = true;

@@ -108,6 +108,7 @@ void nst_destroy_iofile(Nst_IOFileObj *obj)
 {
     if ( !NST_IOF_IS_CLOSED(obj) )
     {
+        obj->flush_f(obj->value);
         obj->close_f(obj->value);
     }
 }

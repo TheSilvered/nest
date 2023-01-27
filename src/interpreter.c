@@ -76,7 +76,6 @@
 #define CHECK_F_STACK assert(nst_state.f_stack->current_size != 0)
 
 Nst_ExecutionState nst_state;
-static int opt_level;
 
 static void complete_function(size_t final_stack_size);
 static void destroy_lib_handles_map(Nst_MapObj *map);
@@ -128,10 +127,8 @@ int nst_run(Nst_FuncObj *main_func,
             int          argc,
             char       **argv,
             char        *filename,
-            int          opt_lvl)
+            int          opt_level)
 {
-    opt_level = opt_lvl;
-
     char *cwd_buf = (char *)malloc(sizeof(char) * PATH_MAX);
     if ( cwd_buf == NULL )
     {
@@ -171,6 +168,7 @@ int nst_run(Nst_FuncObj *main_func,
     nst_state.idx = &idx;
     nst_state.curr_path = &cwd;
     nst_state.argv = argv_obj;
+    nst_state.opt_level = &opt_level;
     nst_state.v_stack = nst_new_val_stack();
     nst_state.f_stack = nst_new_call_stack();
     nst_state.c_stack = nst_new_catch_stack();
@@ -338,10 +336,11 @@ int nst_run_module(char *filename, Nst_SourceText *lib_src)
 {
     // Compile and optimize the imported module
 
+    int opt_level = *nst_state.opt_level;
     Nst_Error error = { false, nst_no_pos(), nst_no_pos(), NULL, NULL };
 
     // The file is guaranteed to exist
-    LList *tokens = nst_ftokenize(filename, lib_src, &error);
+    LList *tokens = nst_ftokenize(filename, false, lib_src, &error);
 
     if ( tokens == NULL )
     {

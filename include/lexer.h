@@ -12,6 +12,7 @@ extern "C" {
 
 // Returns an LList of tokens given the path to a file
 LList *nst_ftokenize(char           *filename,
+                     bool            force_cp1252,
                      Nst_SourceText *src_text,
                      Nst_Error      *error);
 // Returns an LList of tokens given the text, it's length and a filename

@@ -26,10 +26,12 @@
     "  -O2                   optimize bytecode instruction sequences that can be\n" \
     "                        more concise\n" \
     "  -O3                   replace built-in names (e.g. 'true', 'Int', etc.) with\n" \
-    "                        their corresponding value,\n" \
-    "                        this does not replace them when they might be modified\n\n" \
+    "                        their corresponding value, this does not replace them\n" \
+    "                        when they might be modified\n\n" \
     \
-    "  -m --monochrome       prints the error messages without ANSI color escapes\n"
+    "  -m --monochrome       prints the error messages without ANSI color escapes\n\n" \
+    \
+    "  --cp1252              reads the file using the CP-1252 encoding\n"
 
 #define USAGE_MESSAGE \
     "USAGE: nest [options] [filename | -c command] [args]\n" \
@@ -44,6 +46,7 @@ int nst_parse_args(int argc, char **argv,
                    bool  *print_bytecode,
                    bool  *force_execution,
                    bool  *monochrome,
+                   bool  *force_cp1252,
                    int   *opt_level,
                    char **command,
                    char **filename,
@@ -54,6 +57,7 @@ int nst_parse_args(int argc, char **argv,
     *print_bytecode = false;
     *force_execution = false;
     *monochrome = false;
+    *force_cp1252 = false;
     *opt_level = 3;
     *command = NULL;
     *filename = NULL;
@@ -183,6 +187,10 @@ int nst_parse_args(int argc, char **argv,
                     else if ( strcmp(arg, "--monochrome") == 0 )
                     {
                         *monochrome = true;
+                    }
+                    else if ( strcmp(arg, "--cp1252") == 0 )
+                    {
+                        *force_cp1252 = true;
                     }
                     else if ( strcmp(arg, "--help") == 0 )
                     {

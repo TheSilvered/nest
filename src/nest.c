@@ -50,6 +50,7 @@ int main(int argc, char **argv)
     bool print_bc;
     bool force_exe;
     bool monochrome;
+    bool force_cp1252;
     int opt_level;
     char *command;
     char *filename;
@@ -62,6 +63,7 @@ int main(int argc, char **argv)
         &print_bc,
         &force_exe,
         &monochrome,
+        &force_cp1252,
         &opt_level,
         &command,
         &filename,
@@ -89,7 +91,7 @@ int main(int argc, char **argv)
 
     if ( filename != NULL )
     {
-        tokens = nst_ftokenize(filename, &src_text, &error);
+        tokens = nst_ftokenize(filename, force_cp1252, &src_text, &error);
     }
     else
     {
