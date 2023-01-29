@@ -18,6 +18,13 @@ LList *nst_ftokenize(char           *filename,
 // Returns an LList of tokens given the text, it's length and a filename
 LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error);
 
+void nst_add_lines(Nst_SourceText *text);
+void nst_normalize_encoding(Nst_SourceText *text,
+                            bool            is_cp1252,
+                            Nst_Error      *error);
+int nst_check_utf8_bytes(unsigned char *bytes, size_t len);
+int nst_cp1252_to_utf8(char *str, char byte);
+
 #ifdef __cplusplus
 }
 #endif // !__cplusplus

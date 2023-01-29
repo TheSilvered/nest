@@ -92,13 +92,6 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error);
 static void make_ident(Nst_LexerToken **tok);
 static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error);
 
-static void add_lines(Nst_SourceText *text);
-static void normalize_encoding(Nst_SourceText *text,
-                               bool            is_cp1252,
-                               Nst_Error      *error);
-static int check_utf8_bytes(unsigned char *bytes, size_t len);
-static int cp1252_to_utf8(char *str, char byte);
-
 LList *nst_ftokenize(char           *filename,
                      bool            force_cp1252,
                      Nst_SourceText *src_text,
@@ -124,7 +117,7 @@ LList *nst_ftokenize(char           *filename,
 
     size_t str_len = fread(text, sizeof(char), size + 1, file);
     fclose(file);
-    text[size] = '\0';
+    text[str_len] = '\0';
 
     char *full_path;
     nst_get_full_path(filename, &full_path, NULL);
@@ -133,8 +126,8 @@ LList *nst_ftokenize(char           *filename,
     src_text->len = str_len;
     src_text->path = full_path;
 
-    normalize_encoding(src_text, force_cp1252, error);
-    add_lines(src_text);
+    nst_normalize_encoding(src_text, force_cp1252, error);
+    nst_add_lines(src_text);
     if ( error->occurred )
     {
         return NULL;
@@ -850,7 +843,7 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
     size_t str_len = 0;
     size_t chunk_size = START_CH_SIZE;
 
-    advance(); // still on '"' or '\''
+    advance(); // still on the opening character
 
     // while there is text to add and (the string has not ended or
     // the end is inside and escape)
@@ -866,7 +859,7 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
             if ( end_str_realloc == NULL )
             {
                 free(end_str);
-                errno = ENOMEM;
+                _NST_FAILED_ALLOCATION(error, cursor.pos, cursor.pos);
                 return;
             }
             end_str = end_str_realloc;
@@ -932,7 +925,9 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
                 (ch1 > '9' && ch1 < 'a') ||
                  ch2 < '0' || ch2 > 'f'  ||
                 (ch2 > '9' && ch2 < 'a') )
+            {
                 SET_INVALID_ESCAPE_ERROR;
+            }
 
             {
                 char result = ((ch1 > '9' ? ch1 - 'a' + 10 : ch1 - '0') << 4) +
@@ -987,11 +982,13 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
 
     if ( cursor.ch != closing_ch )
     {
+        free(end_str);
         _NST_SET_RAW_SYNTAX_ERROR(
             error,
             start,
             error_end,
             _NST_EM_OPEN_STR_LITERAL);
+        return;
     }
 
     if ( str_len < chunk_size )
@@ -1000,11 +997,9 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
             end_str,
             sizeof(char) * (str_len + 1));
     }
-    if ( end_str_realloc == NULL )
+    if ( end_str_realloc != NULL )
     {
-        free(end_str);
-        errno = ENOMEM;
-        return;
+        end_str = end_str_realloc;
     }
 
     end_str = end_str_realloc;
@@ -1016,7 +1011,7 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
     *tok = nst_new_token_value(start, cursor.pos, NST_TT_VALUE, OBJ(val_obj));
 }
 
-static void add_lines(Nst_SourceText* text)
+void nst_add_lines(Nst_SourceText* text)
 {
     char *text_p = text->text;
     char **starts = (char **)calloc(100, sizeof(char *));
@@ -1063,6 +1058,7 @@ static void add_lines(Nst_SourceText* text)
     }
 
     text->len = text->len - offset;
+    text->text[text->len] = '\0';
 
     // now all lines end with \n
     for ( size_t i = 0, n = text->len; i < n; i++ )
@@ -1100,9 +1096,9 @@ static void add_lines(Nst_SourceText* text)
     text->line_count = line_count;
 }
 
-static void normalize_encoding(Nst_SourceText *text,
-                               bool            is_cp1252,
-                               Nst_Error      *error)
+void nst_normalize_encoding(Nst_SourceText *text,
+                            bool            is_cp1252,
+                            Nst_Error      *error)
 {
     unsigned char *text_p = (unsigned char *)text->text;
     size_t ch_count = 0;
@@ -1118,7 +1114,7 @@ static void normalize_encoding(Nst_SourceText *text,
     {
         if ( text_p[i] > 0x7f )
         {
-            int offset = check_utf8_bytes(text_p + i, n - i);
+            int offset = nst_check_utf8_bytes(text_p + i, n - i);
             if ( offset == -1 )
             {
                 ch_count++;
@@ -1151,7 +1147,6 @@ fix_encoding:
     long col = 0;
     for ( i = 0; i < n; i++ )
     {
-        col++;
         if ( text_p[i] <= 0x7f )
         {
             if ( text_p[i] == '\n' )
@@ -1163,7 +1158,7 @@ fix_encoding:
             *utf8_ptr++ = text_p[i];
             continue;
         }
-        int offset = cp1252_to_utf8(utf8_ptr, text_p[i]);
+        int offset = nst_cp1252_to_utf8(utf8_ptr, text_p[i]);
 
         if ( offset == -1 )
         {
@@ -1177,13 +1172,14 @@ fix_encoding:
         }
 
         utf8_ptr += offset;
+        col++;
     }
     text->len = utf8_ptr - new_text;
     free(text->text);
     text->text = new_text;
 }
 
-static int check_utf8_bytes(unsigned char *byte, size_t len)
+int nst_check_utf8_bytes(unsigned char *byte, size_t len)
 {
     int n = 0;
 
@@ -1226,8 +1222,14 @@ static int check_utf8_bytes(unsigned char *byte, size_t len)
     return n + 1;
 }
 
-static int cp1252_to_utf8(char *str, char byte)
+int nst_cp1252_to_utf8(char *str, char byte)
 {
+    if ( (unsigned char)byte <= 0x7f )
+    {
+        *str = byte;
+        return 1;
+    }
+
     unsigned char b1, b2, b3;
     switch ( (unsigned char)byte )
     {

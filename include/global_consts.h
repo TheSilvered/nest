@@ -45,6 +45,7 @@ typedef struct _Nst_StrConsts
     Nst_StrObj *o__globals_;
     Nst_StrObj *o__args_;
     Nst_StrObj *o__cwd_;
+    Nst_StrObj *o_failed_alloc;
 }
 Nst_StrConsts;
 

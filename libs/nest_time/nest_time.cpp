@@ -244,7 +244,7 @@ NST_FUNC_SIGN(sleep_)
 {
     Nst_Real time;
 
-    NST_D_EXTRACT("N", &time);
+    NST_DEF_EXTRACT("N", &time);
 
 #if defined(_WIN32) || defined(WIN32)
     Sleep(DWORD(time * 1000));

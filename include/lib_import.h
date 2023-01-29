@@ -61,6 +61,9 @@
 #define NST_SET_RAW_CALL_ERROR(msg)   NST_SET_RAW_ERROR(nst_s.e_CallError,   msg)
 #define NST_SET_RAW_IMPORT_ERROR(msg) NST_SET_RAW_ERROR(nst_s.e_ImportError, msg)
 
+#define NST_FAILED_ALLOCATION \
+    NST_SET_ERROR(nst_s.e_MemoryError, nst_s.o_failed_alloc)
+
 #define NST_RETURN_TRUE return nst_inc_ref(nst_c.b_true)
 #define NST_RETURN_FALSE return nst_inc_ref(nst_c.b_false)
 #define NST_RETURN_NULL return nst_inc_ref(nst_c.null)
@@ -74,7 +77,7 @@
     Nst_Obj *name(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
 
 // Default call to nst_extract_arg_values
-#define NST_D_EXTRACT(ltrl, ...) \
+#define NST_DEF_EXTRACT(ltrl, ...) \
     if ( !nst_extract_arg_values(ltrl, arg_num, args, err, __VA_ARGS__) ) \
         return NULL
 

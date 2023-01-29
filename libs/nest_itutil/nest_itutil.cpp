@@ -45,7 +45,7 @@ NST_FUNC_SIGN(count_)
     Nst_Int start;
     Nst_Obj *step_obj;
 
-    NST_D_EXTRACT("i?i", &start, &step_obj);
+    NST_DEF_EXTRACT("i?i", &start, &step_obj);
     Nst_IntObj *step;
     NST_SET_DEF(
         step_obj, step,
@@ -71,7 +71,7 @@ NST_FUNC_SIGN(cycle_)
 {
     Nst_Obj *seq;
 
-    NST_D_EXTRACT("S", &seq);
+    NST_DEF_EXTRACT("S", &seq);
 
     // Layout: [idx, seq]
     Nst_SeqObj *arr = SEQ(nst_new_array(2));
@@ -91,7 +91,7 @@ NST_FUNC_SIGN(repeat_)
     Nst_Obj *ob;
     Nst_Int times;
 
-    NST_D_EXTRACT("oi", &ob, &times);
+    NST_DEF_EXTRACT("oi", &ob, &times);
 
     // Layout: [count, item, max_times]
     Nst_Obj *arr = nst_new_array(3);
@@ -111,7 +111,7 @@ NST_FUNC_SIGN(chain_)
 {
     Nst_SeqObj *seq;
 
-    NST_D_EXTRACT("A", &seq);
+    NST_DEF_EXTRACT("A", &seq);
 
     // Layout: [idx_global, idx_local, seq]
     Nst_SeqObj *arr = SEQ(nst_new_array(3));
@@ -132,7 +132,7 @@ NST_FUNC_SIGN(zip_)
     Nst_Obj *seq1;
     Nst_Obj *seq2;
 
-    NST_D_EXTRACT("SS", &seq1, &seq2);
+    NST_DEF_EXTRACT("SS", &seq1, &seq2);
 
     // Layout: [idx, seq1, seq2]
     Nst_SeqObj *arr = SEQ(nst_new_array(3));
@@ -152,7 +152,7 @@ NST_FUNC_SIGN(zipn_)
 {
     Nst_SeqObj *seq;
 
-    NST_D_EXTRACT("A", &seq);
+    NST_DEF_EXTRACT("A", &seq);
 
     if ( seq->len < 2 )
     {
@@ -206,7 +206,7 @@ NST_FUNC_SIGN(enumerate_)
 {
     Nst_Obj *seq;
 
-    NST_D_EXTRACT("S", &seq);
+    NST_DEF_EXTRACT("S", &seq);
 
     // Layout: [idx, seq]
     Nst_SeqObj *arr = SEQ(nst_new_array(2));
@@ -225,7 +225,7 @@ NST_FUNC_SIGN(keys_)
 {
     Nst_MapObj *map;
 
-    NST_D_EXTRACT("m", &map);
+    NST_DEF_EXTRACT("m", &map);
 
     // Layout: [idx, map]
     Nst_SeqObj *arr = SEQ(nst_new_array(2));
@@ -244,7 +244,7 @@ NST_FUNC_SIGN(values_)
 {
     Nst_MapObj *map;
 
-    NST_D_EXTRACT("m", &map);
+    NST_DEF_EXTRACT("m", &map);
 
     // Layout: [idx, map]
     Nst_SeqObj *arr = SEQ(nst_new_array(2));
@@ -263,7 +263,7 @@ NST_FUNC_SIGN(items_)
 {
     Nst_MapObj *map;
 
-    NST_D_EXTRACT("m", &map);
+    NST_DEF_EXTRACT("m", &map);
 
     // Layout: [idx, map]
     Nst_SeqObj *arr = SEQ(nst_new_array(2));
@@ -282,7 +282,7 @@ NST_FUNC_SIGN(reversed_)
 {
     Nst_Obj *seq;
 
-    NST_D_EXTRACT("S", &seq);
+    NST_DEF_EXTRACT("S", &seq);
 
     // Layout: [idx, seq]
     Nst_SeqObj *arr = SEQ(nst_new_array(2));
@@ -301,7 +301,7 @@ NST_FUNC_SIGN(iter_start_)
 {
     Nst_IterObj *iter;
 
-    NST_D_EXTRACT("I", &iter);
+    NST_DEF_EXTRACT("I", &iter);
 
     return nst_call_func(iter->start, &iter->value, err);
 }
@@ -310,7 +310,7 @@ NST_FUNC_SIGN(iter_is_done_)
 {
     Nst_IterObj *iter;
 
-    NST_D_EXTRACT("I", &iter);
+    NST_DEF_EXTRACT("I", &iter);
 
     return nst_call_func(iter->is_done, &iter->value, err);
 }
@@ -319,7 +319,7 @@ NST_FUNC_SIGN(iter_get_val_)
 {
     Nst_IterObj *iter;
 
-    NST_D_EXTRACT("I", &iter);
+    NST_DEF_EXTRACT("I", &iter);
 
     return nst_call_func(iter->get_val, &iter->value, err);
 }
@@ -328,7 +328,7 @@ NST_FUNC_SIGN(iter_advance_)
 {
     Nst_IterObj *iter;
 
-    NST_D_EXTRACT("I", &iter);
+    NST_DEF_EXTRACT("I", &iter);
 
     return nst_call_func(iter->advance, &iter->value, err);
 }

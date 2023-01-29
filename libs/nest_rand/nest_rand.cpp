@@ -55,7 +55,7 @@ NST_FUNC_SIGN(rand_int_)
     Nst_Int min;
     Nst_Int max;
 
-    NST_D_EXTRACT("ii", &min, &max);
+    NST_DEF_EXTRACT("ii", &min, &max);
 
     if ( min > max )
     {
@@ -76,7 +76,7 @@ NST_FUNC_SIGN(choice_)
 {
     Nst_Obj *seq;
 
-    NST_D_EXTRACT("S", &seq);
+    NST_DEF_EXTRACT("S", &seq);
 
     Nst_Obj *val = nst_get_value_seq(SEQ(seq), rand_num() % SEQ(seq)->len);
     nst_dec_ref(seq);
@@ -87,7 +87,7 @@ NST_FUNC_SIGN(shuffle_)
 {
     Nst_SeqObj *seq;
 
-    NST_D_EXTRACT("A", &seq);
+    NST_DEF_EXTRACT("A", &seq);
 
     size_t seq_len = seq->len;
     Nst_Obj **objs = seq->objs;
@@ -107,7 +107,7 @@ NST_FUNC_SIGN(seed_)
 {
     Nst_Int seed;
 
-    NST_D_EXTRACT("i", &seed);
+    NST_DEF_EXTRACT("i", &seed);
 
     rand_num.seed(seed);
 

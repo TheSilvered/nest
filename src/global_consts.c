@@ -5,21 +5,12 @@ Nst_StrConsts nst_s;
 Nst_Consts nst_c;
 Nst_StdStreams *nst_io;
 
-static bool nst_t_initialized = false;
-static bool nst_s_initialized = false;
-static bool nst_c_initialized = false;
-static bool nst_io_initialized= false;
 static Nst_StdStreams local_nst_io;
 
 static int close_std_stream(void *f);
 
 void _nst_init_types()
 {
-    if ( nst_t_initialized )
-    {
-        return;
-    }
-
     nst_t.Type   = NULL;
     nst_t.Type   = nst_new_type_obj("Type",   4);
     nst_t.Int    = nst_new_type_obj("Int",    3);
@@ -34,17 +25,10 @@ void _nst_init_types()
     nst_t.Iter   = nst_new_type_obj("Iter",   4);
     nst_t.Byte   = nst_new_type_obj("Byte",   4);
     nst_t.IOFile = nst_new_type_obj("IOFile", 6);
-
-    nst_t_initialized = true;
 }
 
 void _nst_del_types()
 {
-    if ( !nst_t_initialized )
-    {
-        return;
-    }
-
     nst_dec_ref(nst_t.Type);
     nst_dec_ref(nst_t.Int);
     nst_dec_ref(nst_t.Real);
@@ -58,17 +42,10 @@ void _nst_del_types()
     nst_dec_ref(nst_t.Iter);
     nst_dec_ref(nst_t.Byte);
     nst_dec_ref(nst_t.IOFile);
-
-    nst_t_initialized = false;
 }
 
 void _nst_init_strs()
 {
-    if ( nst_s_initialized )
-    {
-        return;
-    }
-
     nst_s.t_Type   = STR(_nst_copy_string(nst_t.Type));
     nst_s.t_Int    = STR(_nst_copy_string(nst_t.Int));
     nst_s.t_Real   = STR(_nst_copy_string(nst_t.Real));
@@ -100,16 +77,12 @@ void _nst_init_strs()
     nst_s.o__args_    = STR(nst_new_cstring("_args_",    6, false));
     nst_s.o__cwd_     = STR(nst_new_cstring("_cwd_",     5, false));
 
-    nst_s_initialized = true;
+    nst_s.o_failed_alloc =
+        STR(nst_new_cstring("failed allocation", 17, false));
 }
 
 void _nst_del_strs()
 {
-    if ( !nst_s_initialized )
-    {
-        return;
-    }
-
     nst_dec_ref(nst_s.t_Type);
     nst_dec_ref(nst_s.t_Int);
     nst_dec_ref(nst_s.t_Real);
@@ -140,17 +113,11 @@ void _nst_del_strs()
     nst_dec_ref(nst_s.o__cwd_);
     nst_dec_ref(nst_s.o__globals_);
     nst_dec_ref(nst_s.o__vars_);
-
-    nst_s_initialized = false;
+    nst_dec_ref(nst_s.o_failed_alloc);
 }
 
 void _nst_init_consts()
 {
-    if ( nst_c_initialized )
-    {
-        return;
-    }
-
     nst_c.b_true  = nst_new_bool(NST_TRUE);
     nst_c.b_false = nst_new_bool(NST_FALSE);
     nst_c.null    = _nst_alloc_obj(sizeof(Nst_Obj), nst_t.Null, NULL);
@@ -161,17 +128,10 @@ void _nst_init_consts()
     nst_c.Real_1  = nst_new_real(1.0);
     nst_c.Byte_0  = nst_new_byte(0);
     nst_c.Byte_1  = nst_new_byte(1);
-
-    nst_c_initialized = true;
 }
 
 void _nst_del_consts()
 {
-    if ( !nst_c_initialized )
-    {
-        return;
-    }
-
     nst_dec_ref(nst_c.b_true);
     nst_dec_ref(nst_c.b_false);
     nst_dec_ref(nst_c.null);
@@ -182,17 +142,10 @@ void _nst_del_consts()
     nst_dec_ref(nst_c.Real_1);
     nst_dec_ref(nst_c.Byte_0);
     nst_dec_ref(nst_c.Byte_1);
-
-    nst_c_initialized = false;
 }
 
 void _nst_init_streams()
 {
-    if ( nst_io_initialized )
-    {
-        return;
-    }
-
     nst_io = &local_nst_io;
 
     local_nst_io.in  = IOFILE(nst_new_true_file(stdin,  false, true, false));
@@ -202,22 +155,13 @@ void _nst_init_streams()
     local_nst_io.in ->close_f = close_std_stream;
     local_nst_io.out->close_f = close_std_stream;
     local_nst_io.err->close_f = close_std_stream;
-
-    nst_io_initialized = true;
 }
 
 void _nst_del_streams()
 {
-    if ( !nst_io_initialized )
-    {
-        return;
-    }
-
-    nst_dec_ref(local_nst_io.in);
-    nst_dec_ref(local_nst_io.out);
-    nst_dec_ref(local_nst_io.err);
-
-    nst_io_initialized = false;
+    nst_dec_ref(nst_io->in);
+    nst_dec_ref(nst_io->out);
+    nst_dec_ref(nst_io->err);
 }
 
 #if defined(_WIN32) || defined(WIN32)

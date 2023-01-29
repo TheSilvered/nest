@@ -63,4 +63,8 @@
 #define _NST_SET_RAW_IMPORT_ERROR(error, e_start, e_end, msg) \
     _NST_SET_RAW_ERROR(error, e_start, e_end, nst_s.e_ImportError, msg)
 
+#define _NST_FAILED_ALLOCATION(error, e_start, e_end) \
+    _NST_SET_ERROR(error, e_start, e_end, \
+                   nst_s.e_MemoryError, nst_s.o_failed_alloc)
+
 #endif // !SET_ERROR_INTERNAL

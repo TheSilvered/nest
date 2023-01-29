@@ -108,6 +108,12 @@
     <ClInclude Include="..\..\..\..\include\var_table.h">
       <Filter>Nest Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\libs\nest_json\json_lexer.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\libs\nest_json\json_parser.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp">
@@ -187,6 +193,12 @@
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\var_table.c">
       <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\libs\nest_json\json_lexer.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\libs\nest_json\json_parser.cpp">
+      <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>

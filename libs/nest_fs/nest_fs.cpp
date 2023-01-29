@@ -78,7 +78,7 @@ NST_FUNC_SIGN(isdir_)
 {
     Nst_StrObj *path;
 
-    NST_D_EXTRACT("s", &path);
+    NST_DEF_EXTRACT("s", &path);
 
     NST_RETURN_COND(fs::is_directory(path->value));
 }
@@ -88,7 +88,7 @@ NST_FUNC_SIGN(mkdir_)
     Nst_StrObj *path;
     std::error_code ec;
 
-    NST_D_EXTRACT("s", &path);
+    NST_DEF_EXTRACT("s", &path);
 
     bool success = fs::create_directory(path->value, ec);
 
@@ -106,7 +106,7 @@ NST_FUNC_SIGN(mkdirs_)
 {
     Nst_StrObj *path;
 
-    NST_D_EXTRACT("s", &path);
+    NST_DEF_EXTRACT("s", &path);
 
     std::error_code ec;
 
@@ -126,7 +126,7 @@ NST_FUNC_SIGN(rmdir_)
 {
     Nst_StrObj *path;
 
-    NST_D_EXTRACT("s", &path);
+    NST_DEF_EXTRACT("s", &path);
 
     std::error_code ec;
 
@@ -152,7 +152,7 @@ NST_FUNC_SIGN(rmdir_recursive_)
 {
     Nst_StrObj *path;
 
-    NST_D_EXTRACT("s", &path);
+    NST_DEF_EXTRACT("s", &path);
 
     std::error_code ec;
 
@@ -178,7 +178,7 @@ NST_FUNC_SIGN(isfile_)
 {
     Nst_StrObj *path;
 
-    NST_D_EXTRACT("s", &path);
+    NST_DEF_EXTRACT("s", &path);
 
     FILE* file = fopen(path->value, "rb");
 
@@ -197,7 +197,7 @@ NST_FUNC_SIGN(rmfile_)
 {
     Nst_StrObj *path;
 
-    NST_D_EXTRACT("s", &path);
+    NST_DEF_EXTRACT("s", &path);
 
     std::error_code ec;
     // if it's not a file
@@ -226,7 +226,7 @@ NST_FUNC_SIGN(copy_)
     Nst_StrObj *path_to;
     Nst_Obj *options;
 
-    NST_D_EXTRACT("ss?i", &path_from, &path_to, &options);
+    NST_DEF_EXTRACT("ss?i", &path_from, &path_to, &options);
 
     fs::copy_options cp_options;
     NST_SET_DEF(
@@ -255,7 +255,7 @@ NST_FUNC_SIGN(rename_)
     Nst_StrObj *old_path;
     Nst_StrObj *new_path;
 
-    NST_D_EXTRACT("ss", &old_path, &new_path);
+    NST_DEF_EXTRACT("ss", &old_path, &new_path);
 
     std::error_code ec;
 
@@ -276,7 +276,7 @@ NST_FUNC_SIGN(list_dir_)
 {
     Nst_StrObj *path;
 
-    NST_D_EXTRACT("s", &path);
+    NST_DEF_EXTRACT("s", &path);
 
     std::error_code ec;
     if ( !fs::is_directory(path->value, ec) )
@@ -302,7 +302,7 @@ NST_FUNC_SIGN(list_dir_recursive_)
 {
     Nst_StrObj *path;
 
-    NST_D_EXTRACT("s", &path);
+    NST_DEF_EXTRACT("s", &path);
 
     std::error_code ec;
     if ( !fs::is_directory(path->value, ec) )
@@ -328,7 +328,7 @@ NST_FUNC_SIGN(absolute_path_)
 {
     Nst_StrObj *path;
 
-    NST_D_EXTRACT("s", &path);
+    NST_DEF_EXTRACT("s", &path);
 
     std::error_code ec;
     fs::path result = fs::absolute(path->value, ec);
@@ -347,7 +347,7 @@ NST_FUNC_SIGN(canonical_path_)
 {
     Nst_StrObj *path;
 
-    NST_D_EXTRACT("s", &path);
+    NST_DEF_EXTRACT("s", &path);
 
     std::error_code ec;
     fs::path result = fs::canonical(path->value, ec);
@@ -367,7 +367,7 @@ NST_FUNC_SIGN(relative_path_)
     Nst_StrObj *path;
     Nst_StrObj *base;
 
-    NST_D_EXTRACT("ss", &path, &base);
+    NST_DEF_EXTRACT("ss", &path, &base);
 
     std::error_code ec;
     fs::path result = fs::relative(path->value, base->value, ec);
@@ -387,7 +387,7 @@ NST_FUNC_SIGN(equivalent_)
     Nst_StrObj *path_1;
     Nst_StrObj *path_2;
 
-    NST_D_EXTRACT("ss", &path_1, &path_2);
+    NST_DEF_EXTRACT("ss", &path_1, &path_2);
 
     std::error_code ec;
     NST_RETURN_COND(fs::equivalent(path_1->value, path_2->value, ec));
@@ -398,7 +398,7 @@ NST_FUNC_SIGN(join_)
     Nst_StrObj *path_1;
     Nst_StrObj *path_2;
 
-    NST_D_EXTRACT("ss", &path_1, &path_2);
+    NST_DEF_EXTRACT("ss", &path_1, &path_2);
 
     char *p1 = path_1->value;
     char *p2 = path_2->value;
@@ -460,7 +460,7 @@ NST_FUNC_SIGN(path_)
 {
     Nst_StrObj *path;
 
-    NST_D_EXTRACT("s", &path);
+    NST_DEF_EXTRACT("s", &path);
 
     return OBJ(heap_str(fs::path(path->value).parent_path().string()));
 }
@@ -469,7 +469,7 @@ NST_FUNC_SIGN(filename_)
 {
     Nst_StrObj *path;
 
-    NST_D_EXTRACT("s", &path);
+    NST_DEF_EXTRACT("s", &path);
 
     return OBJ(heap_str(fs::path(path->value).filename().string()));
 }
@@ -478,7 +478,7 @@ NST_FUNC_SIGN(extension_)
 {
     Nst_StrObj *path;
 
-    NST_D_EXTRACT("s", &path);
+    NST_DEF_EXTRACT("s", &path);
 
     return OBJ(heap_str(fs::path(path->value).extension().string()));
 }

@@ -152,6 +152,9 @@ void nst_print_traceback(Nst_Traceback tb);
 //   i: Nst_Int
 Nst_StrObj *_nst_format_error(const char *format, const char *format_args, ...);
 
+// Frees a heap allocated text source
+void nst_free_src_text(Nst_SourceText *text);
+
 #ifdef __cplusplus
 }
 #endif // !__cplusplus

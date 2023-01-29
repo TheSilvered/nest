@@ -32,6 +32,7 @@ typedef struct _Nst_ExecutionState
     LList *loaded_libs; // C imports list
     LList *lib_paths; // Import stack
     Nst_MapObj *lib_handles; // Maps of the libraries
+    LList *lib_srcs;
 }
 Nst_ExecutionState;
 
@@ -57,6 +58,9 @@ Nst_Obj *nst_run_func_context(Nst_FuncObj *func,
 // by the function
 // `file_part` is the pointer where the filename begins
 size_t nst_get_full_path(char *file_path, char **buf, char **file_part);
+
+// Frees all the variables inside nst_state
+void nst_free_state();
 
 // The state of the interpreter
 extern Nst_ExecutionState nst_state;

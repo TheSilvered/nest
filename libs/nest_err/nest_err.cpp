@@ -142,7 +142,7 @@ NST_FUNC_SIGN(try_)
     Nst_FuncObj *func;
     Nst_SeqObj *func_args;
 
-    NST_D_EXTRACT("fA", &func, &func_args);
+    NST_DEF_EXTRACT("fA", &func, &func_args);
 
     if ( func_args->len != func->arg_num )
     {

@@ -1836,9 +1836,11 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         return import_c_lib(file_path, err);
 }
 
-static void add_to_handle_map(Nst_StrObj *path, Nst_MapObj *map, Nst_SourceText *src_txt)
+static void add_to_handle_map(Nst_StrObj     *path,
+                              Nst_MapObj     *map,
+                              Nst_SourceText *src_txt)
 {
-    path->destructor = (Nst_ObjDestructor)src_txt;
+    LList_push(nst_state.lib_srcs, src_txt, true);
     nst_map_set(nst_state.lib_handles, path, map);
 }
 
@@ -1855,7 +1857,7 @@ static Nst_Obj *import_nest_lib(Nst_StrObj *file_path)
 
     if ( nst_run_module(file_path->value, lib_src) == -1 )
     {
-        add_to_handle_map(file_path, MAP(nst_c.null), lib_src);
+        LList_push(nst_state.lib_srcs, lib_src, true);
         LList_pop(nst_state.lib_paths);
         return NULL;
     }

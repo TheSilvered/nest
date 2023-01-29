@@ -62,7 +62,6 @@ void *LList_pop(LList *llist)
 {
     if ( llist->size == 0 )
     {
-        errno = ENOMEM;
         return NULL;
     }
 

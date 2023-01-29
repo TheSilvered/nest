@@ -73,7 +73,7 @@ void free_lib()
 NST_FUNC_SIGN(system_)
 {
     Nst_StrObj *command;
-    NST_D_EXTRACT("s", &command);
+    NST_DEF_EXTRACT("s", &command);
     return nst_new_int(system(command->value));
 }
 
@@ -81,16 +81,25 @@ NST_FUNC_SIGN(exit_)
 {
     Nst_Obj *status;
 
-    NST_D_EXTRACT("?i", &status);
+    NST_DEF_EXTRACT("?i", &status);
+    Nst_Int code;
 
     if ( status == nst_c.null )
     {
-        exit(0);
+        code = 0;
     }
     else
     {
-        exit((int)AS_INT(status));
+        code = AS_INT(status);
     }
+
+    nst_free_state();
+    _nst_del_types();
+    _nst_del_strs();
+    _nst_del_consts();
+    _nst_del_streams();
+    exit((int)code);
+
     return nullptr;
 }
 
@@ -98,7 +107,7 @@ NST_FUNC_SIGN(getenv_)
 {
     Nst_StrObj *name;
 
-    NST_D_EXTRACT("s", &name);
+    NST_DEF_EXTRACT("s", &name);
 
     char *env_name = getenv(name->value);
 
@@ -128,7 +137,7 @@ NST_FUNC_SIGN(hash_)
 NST_FUNC_SIGN(_set_cwd_)
 {
     Nst_StrObj *new_cwd;
-    NST_D_EXTRACT("s", &new_cwd);
+    NST_DEF_EXTRACT("s", &new_cwd);
     if ( _chdir(new_cwd->value) == -1 )
     {
         errno = 0;

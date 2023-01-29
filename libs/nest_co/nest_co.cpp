@@ -228,7 +228,7 @@ NST_FUNC_SIGN(create_)
 {
     Nst_FuncObj *func;
 
-    NST_D_EXTRACT("f", &func);
+    NST_DEF_EXTRACT("f", &func);
 
     if ( NST_HAS_FLAG(func, NST_FLAG_FUNC_IS_C) )
     {
@@ -245,7 +245,7 @@ NST_FUNC_SIGN(call_)
     Nst_Obj *co_args;
     CoroutineObj *co;
 
-    NST_D_EXTRACT("?A#", &co_args, t_Coroutine, &co);
+    NST_DEF_EXTRACT("?A#", &co_args, t_Coroutine, &co);
 
     if ( co_args == nst_c.null )
     {
@@ -334,7 +334,7 @@ NST_FUNC_SIGN(pause_)
     CoroutineObj *co;
     Nst_Obj *return_value;
 
-    NST_D_EXTRACT("#o", t_Coroutine, &co, &return_value);
+    NST_DEF_EXTRACT("#o", t_Coroutine, &co, &return_value);
 
     Nst_FuncCall call = nst_peek_func(nst_state.f_stack);
     if ( call.func != co->func )
@@ -398,7 +398,7 @@ NST_FUNC_SIGN(get_state_)
 {
     CoroutineObj *co;
 
-    NST_D_EXTRACT("#", t_Coroutine, &co);
+    NST_DEF_EXTRACT("#", t_Coroutine, &co);
 
     if ( NST_HAS_FLAG(co, FLAG_CO_SUSPENDED))
         return nst_inc_ref(state_suspended);
@@ -416,7 +416,7 @@ NST_FUNC_SIGN(generator_)
 {
     CoroutineObj *co;
 
-    NST_D_EXTRACT("#", t_Coroutine, &co);
+    NST_DEF_EXTRACT("#", t_Coroutine, &co);
 
     // layout co_args, co, obj, is_done
     Nst_SeqObj *arr = SEQ(nst_new_array(4));

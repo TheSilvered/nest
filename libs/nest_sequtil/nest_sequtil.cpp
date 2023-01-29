@@ -45,7 +45,7 @@ NST_FUNC_SIGN(map_)
     Nst_SeqObj *seq;
     Nst_FuncObj *func;
 
-    NST_D_EXTRACT("Af", &seq, &func);
+    NST_DEF_EXTRACT("Af", &seq, &func);
 
     if ( func->arg_num != 1 )
     {
@@ -86,7 +86,7 @@ NST_FUNC_SIGN(insert_at_)
     Nst_Int idx;
     Nst_Obj *obj;
 
-    NST_D_EXTRACT("vio", &vect, &idx, &obj);
+    NST_DEF_EXTRACT("vio", &vect, &idx, &obj);
 
     Nst_Int new_idx = idx;
 
@@ -124,7 +124,7 @@ NST_FUNC_SIGN(remove_at_)
     Nst_SeqObj *vect;
     Nst_Int idx;
 
-    NST_D_EXTRACT("vi", &vect, &idx);
+    NST_DEF_EXTRACT("vi", &vect, &idx);
 
     Nst_Int new_idx = idx;
 
@@ -162,7 +162,7 @@ NST_FUNC_SIGN(slice_)
     Nst_Obj *stop_obj;
     Nst_Obj *step_obj;
 
-    NST_D_EXTRACT("S?i?i?i", &seq, &start_obj, &stop_obj, &step_obj);
+    NST_DEF_EXTRACT("S?i?i?i", &seq, &start_obj, &stop_obj, &step_obj);
 
     Nst_Int start, stop, step;
 
@@ -262,7 +262,7 @@ NST_FUNC_SIGN(merge_)
     Nst_SeqObj *seq1;
     Nst_SeqObj *seq2;
 
-    NST_D_EXTRACT("AA", &seq1, &seq2);
+    NST_DEF_EXTRACT("AA", &seq1, &seq2);
 
     Nst_SeqObj *new_seq;
 
@@ -378,7 +378,7 @@ NST_FUNC_SIGN(sort_)
     // https://www.geeksforgeeks.org/timsort/
     Nst_SeqObj *seq;
 
-    NST_D_EXTRACT("A", &seq);
+    NST_DEF_EXTRACT("A", &seq);
 
     size_t seq_len = seq->len;
 
@@ -411,7 +411,7 @@ NST_FUNC_SIGN(empty_)
 {
     Nst_SeqObj *vect;
 
-    NST_D_EXTRACT("v", &vect);
+    NST_DEF_EXTRACT("v", &vect);
 
     for ( size_t i = 0, n = vect->len; i < n; i++ )
     {
@@ -428,7 +428,7 @@ NST_FUNC_SIGN(filter_)
     Nst_SeqObj *seq;
     Nst_FuncObj *func;
 
-    NST_D_EXTRACT("Af", &seq, &func);
+    NST_DEF_EXTRACT("Af", &seq, &func);
 
     if ( func->arg_num != 1 )
     {
@@ -483,7 +483,7 @@ NST_FUNC_SIGN(contains_)
     Nst_Obj *container;
     Nst_Obj *object;
 
-    NST_D_EXTRACT("oo", &container, &object);
+    NST_DEF_EXTRACT("oo", &container, &object);
 
     if ( container->type == nst_t.Array || container->type == nst_t.Vector )
     {
@@ -537,7 +537,7 @@ NST_FUNC_SIGN(any_)
 {
     Nst_SeqObj *seq;
 
-    NST_D_EXTRACT("A", &seq);
+    NST_DEF_EXTRACT("A", &seq);
 
     for ( size_t i = 0, n = seq->len; i < n; i++ )
     {
@@ -558,7 +558,7 @@ NST_FUNC_SIGN(all_)
 {
     Nst_SeqObj *seq;
 
-    NST_D_EXTRACT("A", &seq);
+    NST_DEF_EXTRACT("A", &seq);
 
     for ( size_t i = 0, n = seq->len; i < n; i++ )
     {

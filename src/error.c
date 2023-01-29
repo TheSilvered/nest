@@ -501,3 +501,15 @@ Nst_StrObj *_nst_format_error(const char *format, const char *format_args, ...)
 
     return STR(nst_new_cstring_raw((const char *)buffer, true));
 }
+
+void nst_free_src_text(Nst_SourceText *text)
+{
+    if ( text == NULL )
+    {
+        return;
+    }
+
+    free(text->text);
+    free(text->lines);
+    free(text);
+}

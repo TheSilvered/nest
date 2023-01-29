@@ -22,6 +22,8 @@
 #define dlsym GetProcAddress
 #define PATH_MAX MAX_PATH
 
+#define C_LIB_TYPE HMODULE
+
 #else
 
 #include <dlfcn.h>
@@ -31,6 +33,8 @@
 
 #define _chdir chdir
 #define _getcwd getcwd
+
+#define C_LIB_TYPE void *
 
 #endif
 
@@ -78,7 +82,7 @@
 Nst_ExecutionState nst_state;
 
 static void complete_function(size_t final_stack_size);
-static void destroy_lib_handles_map(Nst_MapObj *map);
+static void close_c_lib(C_LIB_TYPE handle);
 
 static inline void run_instruction(Nst_Instruction *inst);
 static inline void exe_pop_val();
@@ -175,8 +179,7 @@ int nst_run(Nst_FuncObj *main_func,
     nst_state.loaded_libs = LList_new();
     nst_state.lib_paths = LList_new();
     nst_state.lib_handles = MAP(nst_new_map());
-    nst_state.lib_handles->destructor =
-        (Nst_ObjDestructor)destroy_lib_handles_map;
+    nst_state.lib_srcs = LList_new();
 
     if ( filename != NULL )
     {
@@ -210,27 +213,23 @@ int nst_run(Nst_FuncObj *main_func,
         nst_dec_ref(nst_state.traceback->error.message);
     }
 
-    // Freeing nst_state
+    nst_free_state();
+    return ERROR_OCCURRED ? 1 : 0;
+}
+
+void nst_free_state()
+{
     LList_destroy(nst_state.traceback->positions, free);
-    nst_dec_ref(cwd);
-    nst_dec_ref(argv_obj);
+    nst_dec_ref(*nst_state.curr_path);
+    nst_dec_ref(nst_state.argv);
     nst_destroy_v_stack(nst_state.v_stack);
     nst_destroy_f_stack(nst_state.f_stack);
     nst_destroy_c_stack(nst_state.c_stack);
-    for ( LLNode *n = nst_state.loaded_libs->head; n != NULL; n = n->next )
-    {
-        void (*free_lib_func)() = (void (*)())dlsym(n->value, "free_lib");
-        if ( free_lib_func != NULL )
-        {
-            free_lib_func();
-        }
-    }
-    LList_destroy(nst_state.loaded_libs, (LList_item_destructor)dlclose);
+    LList_destroy(nst_state.loaded_libs, (LList_item_destructor)close_c_lib);
     LList_destroy(nst_state.lib_paths, (LList_item_destructor)_nst_dec_ref);
     nst_dec_ref(nst_state.lib_handles);
-
-    nst_delete_objects(&ggc);
-    return ERROR_OCCURRED ? 1 : 0;
+    LList_destroy(nst_state.lib_srcs, (LList_item_destructor)nst_free_src_text);
+    nst_delete_objects(nst_state.ggc);
 }
 
 static inline void destroy_call(Nst_FuncCall *call, Nst_Int offset)
@@ -1534,44 +1533,13 @@ static inline void exe_save_error()
     nst_push_val(nst_state.v_stack, err_map);
     nst_dec_ref(err_map);
 
-    // Remove any libraries that failed to laod
-    Nst_MapObj *lib_m = nst_state.lib_handles;
-    for ( int i = lib_m->tail_idx; i != -1; )
+    // Remove the source of any libraries that failed to load
+    return;
+    while ( nst_state.lib_srcs->size != nst_state.lib_handles->item_count )
     {
-        // All the failed imports will be at the end
-        if ( lib_m->nodes[i].value->type == nst_t.Map )
-        {
-            break;
-        }
-
-        Nst_SourceText *txt = (Nst_SourceText *)lib_m->nodes[i].key->destructor;
-        lib_m->nodes[i].key->destructor = (Nst_ObjDestructor)nst_destroy_string;
-
-        if ( txt != NULL )
-        {
-            free(txt->text);
-            free(txt->lines);
-            free(txt);
-        }
-
-        nst_dec_ref(lib_m->nodes[i].key);
-        nst_dec_ref(lib_m->nodes[i].value);
-        int prev_i = lib_m->nodes[i].prev_idx;
-        lib_m->tail_idx = prev_i;
-        lib_m->nodes[prev_i].next_idx = -1;
-        lib_m->item_count--;
-
-        lib_m->nodes[i].key = NULL;
-        lib_m->nodes[i].value = NULL;
-        lib_m->nodes[i].hash = -1;
-        lib_m->nodes[i].next_idx = -1;
-        lib_m->nodes[i].prev_idx = -1;
-
-        i = prev_i;
+        Nst_SourceText *txt = (Nst_SourceText *)LList_pop(nst_state.lib_srcs);
+        nst_free_src_text(txt);
     }
-
-    // removing items from the last one added does not
-    _nst_resize_map(lib_m, false);
 }
 
 static inline void exe_unpack_seq(Nst_Instruction* inst)
@@ -1713,23 +1681,12 @@ static Nst_StrObj *make_cwd(char *file_path)
     return STR(nst_new_string(path, file_part - path - 1, true));
 }
 
-static void destroy_lib_handles_map(Nst_MapObj *map)
+static void close_c_lib(C_LIB_TYPE handle)
 {
-    for ( int i = nst_map_get_next_idx(-1, map);
-          i != -1;
-          i = nst_map_get_next_idx(i, map) )
+    void (*free_lib_func)() = (void (*)())dlsym(handle, "free_lib");
+    if ( free_lib_func != NULL )
     {
-        Nst_SourceText *txt = (Nst_SourceText *)map->nodes[i].key->destructor;
-        map->nodes[i].key->destructor = (Nst_ObjDestructor)nst_destroy_string;
-
-        if ( txt == NULL )
-        {
-            continue;
-        }
-        free(txt->text);
-        free(txt->lines);
-        free(txt);
+        free_lib_func();
     }
-
-    nst_destroy_map(map);
+    dlclose(handle);
 }
