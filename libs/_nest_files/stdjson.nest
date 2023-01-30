@@ -13,6 +13,7 @@ __json.parse_f_     = parse_f
 __json.dump_s_      = dump_s
 __json.dump_f_      = dump_f
 __json.set_options_ = set_options
+__json.get_options_ = get_options
 
 { 'allow_comments':        0b01,
   'allow_trailing_commas': 0b10 } = OPTIONS

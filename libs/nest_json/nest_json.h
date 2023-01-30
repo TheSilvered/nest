@@ -22,6 +22,7 @@ NST_FUNC_SIGN(parse_f_);
 NST_FUNC_SIGN(dump_s_);
 NST_FUNC_SIGN(dump_f_);
 NST_FUNC_SIGN(set_options_);
+NST_FUNC_SIGN(get_options_);
 
 #ifdef __cplusplus
 }
