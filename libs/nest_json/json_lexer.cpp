@@ -22,13 +22,13 @@
 #define HEX_TO_INT(ch) ( ch <= '9' ? ch - '0' : ch - 'a' + 10 )
 
 bool comments = false;
-bool split_strings = false;
 
 typedef struct _LexerState
 {
     Nst_Pos pos;
     size_t idx;
     size_t len;
+    char *path;
     char ch;
 }
 LexerState;
@@ -64,11 +64,11 @@ static Nst_LexerToken *parse_json_num(Nst_OpErr *err);
 static Nst_LexerToken *parse_json_val(Nst_OpErr *err);
 static bool ignore_comment(Nst_OpErr *err);
 
-LList *tokenize(char      *path,
-                char      *text,
-                size_t     text_len,
-                bool       fix_encoding,
-                Nst_OpErr *err)
+LList *json_tokenize(char      *path,
+                     char      *text,
+                     size_t     text_len,
+                     bool       fix_encoding,
+                     Nst_OpErr *err)
 {
     Nst_SourceText src_text = {
         .text = text,
@@ -101,7 +101,8 @@ LList *tokenize(char      *path,
     state.pos.col = 1;
     state.pos.line = 1;
     state.idx = 0;
-    state.len = text_len;
+    state.len = src_text.len;
+    state.path = path;
     state.ch = *text;
 
     Nst_LexerToken *tok = nullptr;
@@ -180,7 +181,7 @@ LList *tokenize(char      *path,
         LList_append(tokens, tok, true);
         advance();
     }
-    LList_append(tokens, nullptr, false);
+    LList_append(tokens, nst_new_token_noend(state.pos, JSON_EOF), false);
     return tokens;
 }
 
@@ -314,12 +315,7 @@ static Nst_LexerToken *parse_json_str(Nst_OpErr *err)
 
     if ( state.ch != '"' )
     {
-        NST_SET_SYNTAX_ERROR(_nst_format_error(
-            "JSON: open string, file \"%s\", line %lli, column %lli",
-            "sii",
-            state.pos.text->path,
-            (Nst_Int)state.pos.line,
-            (Nst_Int)state.pos.col));
+        JSON_SYNTAX_ERROR("open string", state.path, state.pos);
         free(end_str);
         return nullptr;
     }
@@ -354,12 +350,7 @@ static Nst_LexerToken *parse_json_num(Nst_OpErr *err)
 
     if ( state.idx >= state.len )
     {
-        NST_SET_SYNTAX_ERROR(_nst_format_error(
-            "JSON: invalid number, file \"%s\", line %lli, column %lli",
-            "sii",
-            state.pos.text->path,
-            (Nst_Int)state.pos.line,
-            (Nst_Int)state.pos.col));
+        JSON_SYNTAX_ERROR("invalid number", state.path, state.pos);
         return nullptr;
     }
     else if ( state.ch == '0' )
@@ -367,12 +358,7 @@ static Nst_LexerToken *parse_json_num(Nst_OpErr *err)
         advance();
         if ( state.ch >= '0' && state.ch <= '9' )
         {
-            NST_SET_SYNTAX_ERROR(_nst_format_error(
-                "JSON: invalid number, file \"%s\", line %lli, column %lli",
-                "sii",
-                state.pos.text->path,
-                (Nst_Int)state.pos.line,
-                (Nst_Int)state.pos.col));
+            JSON_SYNTAX_ERROR("invalid number", state.path, state.pos);
             return nullptr;
         }
 
@@ -397,7 +383,7 @@ static Nst_LexerToken *parse_json_num(Nst_OpErr *err)
             NST_SET_MEMORY_ERROR(_nst_format_error(
                 "JSON: number too big, file \"%s\", line %lli, column %lli",
                 "sii",
-                state.pos.text->path,
+                state.path,
                 (Nst_Int)state.pos.line,
                 (Nst_Int)state.pos.col));
             return nullptr;
@@ -424,12 +410,7 @@ float_ltrl:
         advance();
         if (state.ch < '0' || state.ch > '9')
         {
-            NST_SET_SYNTAX_ERROR(_nst_format_error(
-                "JSON: invalid number, file \"%s\", line %lli, column %lli",
-                "sii",
-                state.pos.text->path,
-                (Nst_Int)state.pos.line,
-                (Nst_Int)state.pos.col));
+            JSON_SYNTAX_ERROR("invalid number", state.path, state.pos);
             return nullptr;
         }
         while ( state.ch >= '0' && state.ch <= '9' )
@@ -448,12 +429,7 @@ float_ltrl:
 
         if ( state.ch < '0' || state.ch > '9' )
         {
-            NST_SET_SYNTAX_ERROR(_nst_format_error(
-                "JSON: invalid number, file \"%s\", line %lli, column %lli",
-                "sii",
-                state.pos.text->path,
-                (Nst_Int)state.pos.line,
-                (Nst_Int)state.pos.col));
+            JSON_SYNTAX_ERROR("invalid number", state.path, state.pos);
             return nullptr;
         }
         while ( state.ch >= '0' && state.ch <= '9' )
@@ -484,7 +460,7 @@ static Nst_LexerToken *parse_json_val(Nst_OpErr *err)
     switch ( state.ch )
     {
     case 't':
-        if ( state.idx + 3 >= state.idx )
+        if ( state.idx + 3 >= state.len )
         {
             SET_INVALID_VALUE_ERROR;
             return nullptr;
@@ -503,14 +479,14 @@ static Nst_LexerToken *parse_json_val(Nst_OpErr *err)
             JSON_VALUE,
             nst_inc_ref(nst_c.b_true));
     case 'f':
-        if ( state.idx + 4 >= state.idx )
+        if ( state.idx + 4 >= state.len )
         {
             SET_INVALID_VALUE_ERROR;
             return nullptr;
         }
 
         if ( text[1] != 'a' || text[2] != 'l' ||
-             text[3] != 's' || text[4] != 's' )
+             text[3] != 's' || text[4] != 'e' )
         {
             SET_INVALID_VALUE_ERROR;
             return nullptr;
@@ -525,7 +501,7 @@ static Nst_LexerToken *parse_json_val(Nst_OpErr *err)
             JSON_VALUE,
             nst_inc_ref(nst_c.b_false));
     default:
-        if ( state.idx + 3 >= state.idx )
+        if ( state.idx + 3 >= state.len )
         {
             SET_INVALID_VALUE_ERROR;
             return nullptr;
@@ -551,24 +527,15 @@ static bool ignore_comment(Nst_OpErr *err)
 {
     if ( !comments )
     {
-        NST_SET_SYNTAX_ERROR(_nst_format_error(
-            "JSON: invalid character, file \"%s\", line %lli, column %lli",
-            "sii",
-            state.pos.text->path,
-            (Nst_Int)state.pos.line,
-            (Nst_Int)state.pos.col));
+        JSON_SYNTAX_ERROR("invalid character", state.path, state.pos);
         return false;
     }
 
     advance();
     if ( state.idx >= state.len || ( state.ch != '/' && state.ch != '*') )
     {
-        NST_SET_SYNTAX_ERROR(_nst_format_error(
-            "JSON: invalid character, file \"%s\", line %lli, column %lli",
-            "sii",
-            state.pos.text->path,
-            (Nst_Int)state.pos.line,
-            (Nst_Int)state.pos.col));
+        JSON_SYNTAX_ERROR("invalid character", state.path, state.pos);
+        return false;
     }
 
     bool is_multiline = state.ch == '*';
@@ -576,12 +543,15 @@ static bool ignore_comment(Nst_OpErr *err)
 
     while ( state.idx < state.len )
     {
+        advance();
         if ( state.ch == '\n' && !is_multiline )
         {
+            advance();
             return true;
         }
         else if ( state.ch == '/' && can_close )
         {
+            advance();
             return true;
         }
         else if ( state.ch == '*' )
@@ -596,12 +566,7 @@ static bool ignore_comment(Nst_OpErr *err)
 
     if ( is_multiline )
     {
-        NST_SET_SYNTAX_ERROR(_nst_format_error(
-            "JSON: open multiline comment, file \"%s\", line %lli, column %lli",
-            "sii",
-            state.pos.text->path,
-            (Nst_Int)state.pos.line,
-            (Nst_Int)state.pos.col));
+        JSON_SYNTAX_ERROR("open multiline comment", state.path, state.pos);
         return false;
     }
     return true;

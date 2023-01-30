@@ -39,12 +39,18 @@ NST_SIMPLE_TYPE_STRUCT(char, Nst_Bool);
 NST_SIMPLE_TYPE_STRUCT(unsigned char, Nst_Byte);
 
 typedef FILE *Nst_IOFile;
-typedef size_t (*Nst_IOFile_read_f) (void *, size_t, size_t, void *);
-typedef size_t (*Nst_IOFile_write_f)(void *, size_t, size_t, void *);
-typedef int    (*Nst_IOFile_flush_f)(void *);
-typedef long   (*Nst_IOFile_tell_f) (void *);
-typedef int    (*Nst_IOFile_seek_f) (void *, long, int);
-typedef int    (*Nst_IOFile_close_f)(void *);
+typedef size_t (*Nst_IOFile_read_f) (void  *buf,
+                                     size_t size,
+                                     size_t count,
+                                     void  *f_value);
+typedef size_t (*Nst_IOFile_write_f)(void  *buf,
+                                     size_t size,
+                                     size_t count,
+                                     void  *f_value);
+typedef int    (*Nst_IOFile_flush_f)(void *f_value);
+typedef long   (*Nst_IOFile_tell_f) (void *f_value);
+typedef int    (*Nst_IOFile_seek_f) (void *f_value, long offset, int origin);
+typedef int    (*Nst_IOFile_close_f)(void *f_value);
 
 typedef struct _Nst_IOFileObj
 {

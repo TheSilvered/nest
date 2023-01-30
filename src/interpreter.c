@@ -1534,7 +1534,6 @@ static inline void exe_save_error()
     nst_dec_ref(err_map);
 
     // Remove the source of any libraries that failed to load
-    return;
     while ( nst_state.lib_srcs->size != nst_state.lib_handles->item_count )
     {
         Nst_SourceText *txt = (Nst_SourceText *)LList_pop(nst_state.lib_srcs);

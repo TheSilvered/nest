@@ -14,9 +14,8 @@ __json.dump_s_      = dump_s
 __json.dump_f_      = dump_f
 __json.set_options_ = set_options
 
-{ 'allow_comments':        0b001,
-  'allow_trailing_commas': 0b010,
-  'allow_split_strings':   0b100 } = OPTIONS
+{ 'allow_comments':        0b01,
+  'allow_trailing_commas': 0b10 } = OPTIONS
 
 _vars_ '__json' \
        'Int' \
