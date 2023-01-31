@@ -950,7 +950,10 @@ static inline void exe_op_call(Nst_Instruction *inst)
         }
         else if ( is_seq_call && tot_args <= 10 )
         {
-            memcpy(stack_args, args_seq->objs, arg_num * sizeof(Nst_Obj *));
+            memcpy(
+                stack_args,
+                args_seq->objs,
+                (size_t)arg_num * sizeof(Nst_Obj *));
             args = stack_args;
         }
         else if ( is_seq_call )
@@ -961,7 +964,10 @@ static inline void exe_op_call(Nst_Instruction *inst)
                 return;
             }
 
-            memcpy(stack_args, args_seq->objs, arg_num * sizeof(Nst_Obj *));
+            memcpy(
+                stack_args,
+                args_seq->objs,
+                (size_t)arg_num * sizeof(Nst_Obj *));
             args = stack_args;
         }
         else if ( arg_num == 0 )
