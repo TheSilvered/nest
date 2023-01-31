@@ -15,8 +15,8 @@ bool lib_init()
 
     size_t idx = 0;
 
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(parse_s_,     1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(parse_f_,     1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(load_s_,     1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(load_f_,     1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(dump_s_,      2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(dump_f_,      3);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(set_options_, 1);
@@ -30,7 +30,7 @@ Nst_FuncDeclr *get_func_ptrs()
     return lib_init_ ? func_list_ : nullptr;
 }
 
-NST_FUNC_SIGN(parse_s_)
+NST_FUNC_SIGN(load_s_)
 {
     Nst_StrObj *str;
     NST_DEF_EXTRACT("s", &str);
@@ -48,7 +48,7 @@ NST_FUNC_SIGN(parse_s_)
     return value;
 }
 
-NST_FUNC_SIGN(parse_f_)
+NST_FUNC_SIGN(load_f_)
 {
     Nst_StrObj *path;
     NST_DEF_EXTRACT("s", &path);
@@ -84,7 +84,7 @@ NST_FUNC_SIGN(dump_s_)
     NST_DEF_EXTRACT("o?i", &obj, &indent_obj);
 
     Nst_Int indent;
-    NST_SET_DEF(indent_obj, indent, 4, AS_INT(indent_obj));
+    NST_SET_DEF(indent_obj, indent, 0, AS_INT(indent_obj));
 
     return json_dump(obj, (int)indent, err);
 }

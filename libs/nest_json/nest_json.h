@@ -17,8 +17,8 @@ EXPORT bool lib_init();
 EXPORT Nst_FuncDeclr *get_func_ptrs();
 EXPORT NST_INIT_LIB_OBJ_FUNC;
 
-NST_FUNC_SIGN(parse_s_);
-NST_FUNC_SIGN(parse_f_);
+NST_FUNC_SIGN(load_s_);
+NST_FUNC_SIGN(load_f_);
 NST_FUNC_SIGN(dump_s_);
 NST_FUNC_SIGN(dump_f_);
 NST_FUNC_SIGN(set_options_);
