@@ -51,6 +51,7 @@ int main(int argc, char **argv)
     bool force_exe;
     bool monochrome;
     bool force_cp1252;
+    bool no_default;
     int opt_level;
     char *command;
     char *filename;
@@ -64,6 +65,7 @@ int main(int argc, char **argv)
         &force_exe,
         &monochrome,
         &force_cp1252,
+        &no_default,
         &opt_level,
         &command,
         &filename,
@@ -91,7 +93,24 @@ int main(int argc, char **argv)
 
     if ( filename != NULL )
     {
-        tokens = nst_ftokenize(filename, force_cp1252, &src_text, &error);
+        int spec_opt_lvl;
+        bool spec_no_def;
+        tokens = nst_ftokenize(
+            filename,
+            force_cp1252,
+            &spec_opt_lvl,
+            &spec_no_def,
+            &src_text,
+            &error);
+
+        if ( spec_opt_lvl < opt_level )
+        {
+            opt_level = spec_opt_lvl;
+        }
+        if ( spec_no_def )
+        {
+            no_default = true;
+        }
     }
     else
     {
@@ -160,7 +179,10 @@ int main(int argc, char **argv)
 
     if ( opt_level >= 2 )
     {
-        inst_ls = nst_optimize_bytecode(inst_ls, opt_level == 3, &error);
+        inst_ls = nst_optimize_bytecode(
+            inst_ls,
+            opt_level == 3 && !no_default,
+            &error);
 
         if ( inst_ls == NULL )
         {
@@ -187,7 +209,8 @@ int main(int argc, char **argv)
         argc - args_start,
         argv + args_start,
         filename,
-        opt_level);
+        opt_level,
+        no_default);
 
     EXIT(exe_result);
 }

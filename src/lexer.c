@@ -91,12 +91,22 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error *error);
 static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error);
 static void make_ident(Nst_LexerToken **tok);
 static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error);
+static void parse_first_line(char  *text,
+                             size_t len,
+                             int   *opt_level,
+                             bool  *force_cp1252,
+                             bool  *no_default);
 
 LList *nst_ftokenize(char           *filename,
                      bool            force_cp1252,
+                     int            *opt_level,
+                     bool           *no_default,
                      Nst_SourceText *src_text,
                      Nst_Error      *error)
 {
+    *opt_level = 3;
+    *no_default = false;
+
     FILE *file = fopen(filename, "rb");
     if ( file == NULL )
     {
@@ -125,6 +135,8 @@ LList *nst_ftokenize(char           *filename,
     src_text->text = text;
     src_text->len = str_len;
     src_text->path = full_path;
+
+    parse_first_line(text, str_len, opt_level, &force_cp1252, no_default);
 
     nst_normalize_encoding(src_text, force_cp1252, error);
     nst_add_lines(src_text);
@@ -1376,4 +1388,103 @@ int nst_cp1252_to_utf8(char *str, char byte)
     }
     *str = b3;
     return 3;
+}
+
+static void parse_first_line(char  *text,
+                             size_t len,
+                             int   *opt_level,
+                             bool  *force_cp1252,
+                             bool  *no_default)
+{
+    if ( len < 3 || text[0] != '-' || text[1] != '-' || text[2] != '$' )
+    {
+        return;
+    }
+
+    char curr_opt[13];
+    size_t i = 0;
+    text += 3;
+    len -= 3;
+
+    while ( *text != '\n' && *text != '\r' && len != 0 )
+    {
+        if ( *text != ' ' )
+        {
+            if ( i < 12 )
+            {
+                curr_opt[i] = *text;
+            }
+            i++;
+            text++;
+            len--;
+            continue;
+        }
+        text++;
+        len--;
+
+        if ( i > 12 || i == 0 )
+        {
+            i = 0;
+            continue;
+        }
+        curr_opt[i] = '\0';
+
+        if ( strcmp(curr_opt, "-O0") == 0 )
+        {
+            *opt_level = 0;
+        }
+        else if ( strcmp(curr_opt, "-O1") == 0 )
+        {
+            *opt_level = 1;
+        }
+        else if ( strcmp(curr_opt, "-O2") == 0 )
+        {
+            *opt_level = 2;
+        }
+        else if ( strcmp(curr_opt, "-O3") == 0 )
+        {
+            *opt_level = 3;
+        }
+        else if ( strcmp(curr_opt, "--no-default") == 0 )
+        {
+            *no_default = true;
+        }
+        else if ( strcmp(curr_opt, "--cp1252") == 0 )
+        {
+            *force_cp1252 = true;
+        }
+        i = 0;
+    }
+
+    if ( i > 12 || i == 0 )
+    {
+        i = 0;
+        return;
+    }
+    curr_opt[i] = '\0';
+
+    if ( strcmp(curr_opt, "-O0") == 0 )
+    {
+        *opt_level = 0;
+    }
+    else if ( strcmp(curr_opt, "-O1") == 0 )
+    {
+        *opt_level = 1;
+    }
+    else if ( strcmp(curr_opt, "-O2") == 0 )
+    {
+        *opt_level = 2;
+    }
+    else if ( strcmp(curr_opt, "-O3") == 0 )
+    {
+        *opt_level = 3;
+    }
+    else if ( strcmp(curr_opt, "--no-default") == 0 )
+    {
+        *no_default = true;
+    }
+    else if ( strcmp(curr_opt, "--cp1252") == 0 )
+    {
+        *force_cp1252 = true;
+    }
 }

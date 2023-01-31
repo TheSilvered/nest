@@ -25,10 +25,8 @@ Nst_VarTable *nst_new_var_table(Nst_MapObj *global_table,
     {
         nst_map_set(vars, nst_s.o__globals_, global_table);
         nst_inc_ref(global_table);
-    }
-
-    if ( global_table != NULL )
         return vt;
+    }
 
     nst_map_set(vars, nst_s.t_Type,   nst_t.Type);
     nst_map_set(vars, nst_s.t_Int,    nst_t.Int );

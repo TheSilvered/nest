@@ -28,7 +28,6 @@ __co._get_co_type_obj_ = _get_co_type_obj
   0b1000: 'ended' } = STR_STATE
 
 _vars_ '__co' \
-       'names' \
        'Int' \
        'Real' \
        'Bool' \

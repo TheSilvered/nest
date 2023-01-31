@@ -131,7 +131,8 @@ int nst_run(Nst_FuncObj *main_func,
             int          argc,
             char       **argv,
             char        *filename,
-            int          opt_level)
+            int          opt_level,
+            bool         no_default)
 {
     char *cwd_buf = (char *)malloc(sizeof(char) * PATH_MAX);
     if ( cwd_buf == NULL )
@@ -165,7 +166,17 @@ int nst_run(Nst_FuncObj *main_func,
         argc,
         argv,
         filename == NULL ? (char *)"-c" : filename);
-    Nst_VarTable *vt = nst_new_var_table(NULL, cwd, argv_obj);
+    Nst_VarTable *vt = nst_new_var_table(
+        no_default ? MAP(nst_c.null) : NULL,
+        cwd,
+        argv_obj);
+
+    if ( no_default )
+    {
+        nst_dec_ref(nst_c.null);
+        vt->global_table = NULL;
+        nst_map_drop(vt->vars, nst_s.o__globals_);
+    }
 
     nst_state.traceback = &tb;
     nst_state.vt = &vt;
@@ -338,8 +349,22 @@ int nst_run_module(char *filename, Nst_SourceText *lib_src)
     int opt_level = *nst_state.opt_level;
     Nst_Error error = { false, nst_no_pos(), nst_no_pos(), NULL, NULL };
 
+    int file_opt_lvl;
+    bool no_default;
+
     // The file is guaranteed to exist
-    LList *tokens = nst_ftokenize(filename, false, lib_src, &error);
+    LList *tokens = nst_ftokenize(
+        filename,
+        false,
+        &file_opt_lvl,
+        &no_default,
+        lib_src,
+        &error);
+
+    if ( file_opt_lvl < opt_level )
+    {
+        opt_level = file_opt_lvl;
+    }
 
     if ( tokens == NULL )
     {
@@ -405,7 +430,19 @@ int nst_run_module(char *filename, Nst_SourceText *lib_src)
         *nst_state.vt,
         *nst_state.idx - 1);
     *nst_state.idx = 0;
-    CHANGE_VT(nst_new_var_table(NULL, path_str, nst_state.argv));
+    Nst_VarTable *vt = nst_new_var_table(
+        no_default ? MAP(nst_c.null) : NULL,
+        path_str,
+        nst_state.argv);
+
+    if ( no_default )
+    {
+        nst_dec_ref(nst_c.null);
+        vt->global_table = NULL;
+        nst_map_drop(vt->vars, nst_s.o__globals_);
+    }
+
+    CHANGE_VT(vt);
 
     nst_set_vt_func(mod_func, (*nst_state.vt)->vars);
 
