@@ -1183,11 +1183,15 @@ int nst_check_utf8_bytes(unsigned char *byte, size_t len)
 {
     int n = 0;
 
-    if ( *byte >= 0b11110000 && *byte <= 0b11110111 )
+    if ( *byte <= 0b01111111 )
+    {
+        return 1;
+    }
+    else if ( *byte >= 0b11110000 && *byte <= 0b11110111 )
     {
         if ( len < 4 )
         {
-            return - 1;
+            return -1;
         }
         n = 3;
     }
@@ -1195,7 +1199,7 @@ int nst_check_utf8_bytes(unsigned char *byte, size_t len)
     {
         if ( len < 3 )
         {
-            return - 1;
+            return -1;
         }
         n = 2;
     }
@@ -1203,20 +1207,20 @@ int nst_check_utf8_bytes(unsigned char *byte, size_t len)
     {
         if ( len < 2 )
         {
-            return - 1;
+            return -1;
         }
         n = 1;
     }
     else
     {
-        return - 1;
+        return -1;
     }
 
     for ( int i = 0; i < n; i++ )
     {
         if ( *(++byte) <= 0b10000000 || *byte >= 0b10111111 )
         {
-            return - 1;
+            return -1;
         }
     }
     return n + 1;

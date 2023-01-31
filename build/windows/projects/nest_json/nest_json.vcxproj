@@ -180,11 +180,13 @@
     <ClInclude Include="..\..\..\..\include\tokens.h" />
     <ClInclude Include="..\..\..\..\include\var_table.h" />
     <ClInclude Include="..\..\..\..\libs\dll\framework.h" />
+    <ClInclude Include="..\..\..\..\libs\nest_json\json_dumper.h" />
     <ClInclude Include="..\..\..\..\libs\nest_json\json_lexer.h" />
     <ClInclude Include="..\..\..\..\libs\nest_json\json_parser.h" />
     <ClInclude Include="..\..\..\..\libs\nest_json\nest_json.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\libs\nest_json\json_dumper.cpp" />
     <ClCompile Include="..\..\..\..\libs\nest_json\json_lexer.cpp" />
     <ClCompile Include="..\..\..\..\libs\nest_json\json_parser.cpp" />
     <ClCompile Include="..\..\..\..\src\compiler.c" />

@@ -9,7 +9,7 @@ EXE_x64_DIR=../linux_release/x64
 EXE_x86_DIR=../linux_release/x86
 DBG_DIR=../linux_debug
 
-LIB_SRCS=../../../libs/nest_json/nest_json.cpp ../../../libs/nest_json/json_lexer.cpp ../../../libs/nest_json/json_parser.cpp
+LIB_SRCS=../../../libs/nest_json/nest_json.cpp ../../../libs/nest_json/json_lexer.cpp ../../../libs/nest_json/json_parser.cpp ../../../libs/nest_json/json_dumper.cpp
 SRCS := $(filter-out nest.c argv_parser.c, $(wildcard $(SRC_DIR)/*.c))
 DBG_TARGET := $(DBG_DIR)/$(EXE_NAME)
 EXE_x64_TARGET := $(EXE_x64_DIR)/$(EXE_NAME)

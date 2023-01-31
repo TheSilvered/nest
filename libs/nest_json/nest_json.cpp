@@ -1,6 +1,7 @@
 #include "nest_json.h"
 #include "json_lexer.h"
 #include "json_parser.h"
+#include "json_dumper.h"
 
 #define FUNC_COUNT 6
 
@@ -16,8 +17,8 @@ bool lib_init()
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(parse_s_,     1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(parse_f_,     1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(dump_s_,      1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(dump_f_,      2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(dump_s_,      2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(dump_f_,      3);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(set_options_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_options_, 0);
     lib_init_ = true;
@@ -78,11 +79,41 @@ NST_FUNC_SIGN(parse_f_)
 
 NST_FUNC_SIGN(dump_s_)
 {
-    NST_RETURN_NULL;
+    Nst_Obj *obj;
+    Nst_Obj *indent_obj;
+    NST_DEF_EXTRACT("o?i", &obj, &indent_obj);
+
+    Nst_Int indent;
+    NST_SET_DEF(indent_obj, indent, 4, AS_INT(indent_obj));
+
+    return json_dump(obj, (int)indent, err);
 }
 
 NST_FUNC_SIGN(dump_f_)
 {
+    Nst_StrObj *path;
+    Nst_Obj *obj;
+    Nst_Obj *indent_obj;
+    NST_DEF_EXTRACT("so?i", &path, &obj, &indent_obj);
+
+    Nst_Int indent;
+    NST_SET_DEF(indent_obj, indent, 4, AS_INT(indent_obj));
+
+    Nst_IOFile f = fopen(path->value, "wb");
+    if ( f == nullptr )
+    {
+        NST_SET_RAW_VALUE_ERROR("file not found");
+        return nullptr;
+    }
+
+    Nst_Obj *res = json_dump(obj, (int)indent, err);
+    if ( res == nullptr )
+    {
+        fclose(f);
+        return nullptr;
+    }
+    fwrite(STR(res)->value, sizeof(char), STR(res)->len, f);
+    fclose(f);
     NST_RETURN_NULL;
 }
 
