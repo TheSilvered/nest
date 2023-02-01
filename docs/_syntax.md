@@ -19,6 +19,30 @@ Block comments start with `-/` and end with `/-`
    any escapes /-
 ```
 
+### File arguments
+
+In the command line there are some arguments that change the way a Nest file is
+compiled and interpreted. You can add some of those argument specifying them
+on the first line of the file. The line must start with `--$` and then you can
+have any combination of the following space-separated arguments:
+
+- `-O0` through `-O3` to specify the optimization level of the file; if the
+  specified level is higher than the one specified by the actual command, the
+  latter is used
+- `--cp1252` forces the file to be read with the CP or Windows 1252 encoding
+- `--no-default` will not add any [predefined variable](#predefined-variables)
+  to the global scope except for `_vars_`
+
+In this example the file will be read using CP1252, only simple expressions are
+optimized and no predefined variables are added.
+
+```text
+--$ --no-default --cp1252 -O1
+```
+
+> NOTE: when specifying various optimization levels only the last one is
+> considered, any invalid argument is ignored
+
 ## Value literals
 
 ### Numeric literals
@@ -30,7 +54,7 @@ Binary and octal literals cannot be directly followed by another integer and
 hexadecimal literals cannot be followed by a word.
 
 Real number literals support scientific notation but must always have some
-digits both before and after the dot.
+digits both before and after the decimal point.
 
 Both integer and real literals can be prefixed with a minus `-` to make them
 negative. There can also be a plus sign `+` before the number but that does not
@@ -59,7 +83,7 @@ change its sign.
 1.2e-10
 1. -- invalid
 .3 -- also invalid
-3e10 -- invalid because real literals need always a dot
+3e10 -- invalid because real literals must always contain the decimal point
 ```
 
 Nest has also a byte type that can be written as an integer literal followed by
@@ -92,7 +116,7 @@ literal but that could cause confusion, so it is better to keep a space.
 
 ### String literals
 
-String literals begin and end with either a single or a double quote but there
+String literals begin and end with either single or double quotes but there
 is a difference between the two: strings with double quotes can span multiple
 lines.
 
@@ -120,15 +144,15 @@ are all the valid escape sequences:
 
 ### Array literals
 
-Array literals start and end with braces (`{` and `}`) and inside have various
+Array literals start and end with curly braces (`{` and `}`) and contain various
 expressions separated by a comma.
 
 ```text
 { 1, 2, 3, 4 }
 ```
 
-> NOTE: writing `{ }` creates an empty map, not an empty array. To create an
-> empty array you can write `Array :: <{ }>`
+> NOTE: writing `{}` creates an empty map, not an empty array. To create an
+> empty array you can write `{,}`
 
 You can also create an array with all of the same value like this:
 
@@ -169,6 +193,9 @@ Map literals start with `{` and end with `}` and inside have key-value pairs.
 { 'key_1': 1, 'key_2': 2 }
 ```
 
+The keys can be of type `Str`, `Int` or `Byte` since only these three types are
+hashable. `Real` obects cannot be hashed because of floating point error.
+
 ### Anonymous functions (lambdas)
 
 Lambdas are declared by using `##` followed by any number of identifiers that
@@ -189,22 +216,22 @@ and `]`.
 ```
 
 See also [function declarations](#function-declaration) and the
-[return statement](#the-return-statement)
+[return statement](#the-return-statement).
 
 ## Predefined variables
 
 - `Int`: integer type
 - `Real`: real number type
 - `Bool`: boolean type
-- `Null`: null type, absence of a value
-- `Str`: ASCII string type
+- `Null`: null type
+- `Str`: string type
 - `Array`: array type, non-resizable ordered collection of objects
 - `Vector`: vector type, resizable ordered collection of objects
 - `Map`: hash map type, holds key-value pairs
 - `Func`: function type
 - `Iter`: iterator type
 - `Byte`: byte type, an integer from 0 to 255
-- `IOfile`: file type, similar to `FILE *` in C
+- `IOFile`: file type, similar to `FILE *` in C
 - `Type`: type of all types
 - `true`: boolean true
 - `false`: boolean false
@@ -364,21 +391,21 @@ Byte :: 10
 
 The valid type casts in Nest are the following:
 
-| ↱           | `Int` | `Real` | `Bool` | `Null` | `Str` | `Array` | `Vector` | `Map` | `Func` | `Iter` | `Byte` | `IOFile` | `Type` |
+| ↱            | `Int` | `Real` | `Bool` | `Null` | `Str` | `Array` | `Vector` | `Map` | `Func` | `Iter` | `Byte` | `IOFile` | `Type` |
 |:------------:|:-----:|:------:|:------:|:------:|:-----:|:-------:|:--------:|:-----:|:------:|:------:|:------:|:--------:|:------:|
-| **`Int`**    |   ✓  |   ✓   |   ✓   |        |   ✓  |         |          |       |        |        |   ✓   |          |        |
-| **`Real`**   |   ✓  |   ✓   |   ✓   |        |   ✓  |         |          |       |        |        |   ✓   |          |        |
-| **`Bool`**   |       |        |   ✓   |        |   ✓  |         |          |       |        |        |        |          |        |
-| **`Null`**   |       |        |   ✓   |   ✓   |   ✓  |         |          |       |        |        |        |          |        |
-| **`Str`**    |   ✓  |   ✓   |   ✓   |        |   ✓  |    ✓   |     ✓   |       |        |   ✓   |   ✓   |          |        |
-| **`Array`**  |       |        |   ✓   |        |   ✓  |    ✓   |     ✓   |   ✓  |        |   ✓   |        |          |        |
-| **`Vector`** |       |        |   ✓   |        |   ✓  |    ✓   |     ✓   |   ✓  |        |   ✓   |        |          |        |
-| **`Map`**    |       |        |   ✓   |        |   ✓  |    ✓   |     ✓   |   ✓  |        |   ✓   |        |          |        |
-| **`Func`**   |       |        |   ✓   |        |   ✓  |         |          |       |    ✓  |        |        |          |        |
-| **`Iter`**   |       |        |   ✓   |        |   ✓  |    ✓   |     ✓   |   ✓  |        |   ✓   |        |          |        |
-| **`Byte`**   |   ✓  |   ✓   |   ✓   |        |   ✓  |         |          |       |        |        |   ✓   |          |        |
-| **`IOFile`** |       |        |   ✓   |        |   ✓  |         |          |       |        |        |        |    ✓    |        |
-| **`Type`**   |       |        |   ✓   |        |   ✓  |         |          |       |        |        |        |          |   ✓   |
+| **`Int`**    |   ✓   |   ✓    |    ✓   |        |   ✓   |         |          |       |        |        |    ✓   |          |        |
+| **`Real`**   |   ✓   |   ✓    |    ✓   |        |   ✓   |         |          |       |        |        |    ✓   |          |        |
+| **`Bool`**   |       |        |    ✓   |        |   ✓   |         |          |       |        |        |        |          |        |
+| **`Null`**   |       |        |    ✓   |    ✓   |   ✓   |         |          |       |        |        |        |          |        |
+| **`Str`**    |   ✓   |   ✓    |    ✓   |        |   ✓   |    ✓    |     ✓    |       |        |    ✓   |    ✓   |          |        |
+| **`Array`**  |       |        |    ✓   |        |   ✓   |    ✓    |     ✓    |   ✓   |        |    ✓   |        |          |        |
+| **`Vector`** |       |        |    ✓   |        |   ✓   |    ✓    |     ✓    |   ✓   |        |    ✓   |        |          |        |
+| **`Map`**    |       |        |    ✓   |        |   ✓   |    ✓    |     ✓    |   ✓   |        |    ✓   |        |          |        |
+| **`Func`**   |       |        |    ✓   |        |   ✓   |         |          |       |    ✓   |        |        |          |        |
+| **`Iter`**   |       |        |    ✓   |        |   ✓   |    ✓    |     ✓    |   ✓   |        |    ✓   |        |          |        |
+| **`Byte`**   |   ✓   |   ✓    |    ✓   |        |   ✓   |         |          |       |        |        |    ✓   |          |        |
+| **`IOFile`** |       |        |    ✓   |        |   ✓   |         |          |       |        |        |        |     ✓    |        |
+| **`Type`**   |       |        |    ✓   |        |   ✓   |         |          |       |        |        |        |          |    ✓   |
 
 When `Int`, `Real` or `Byte` objects are casted to `Bool`, they become `false`
 if they are zero and `true` otherwise.  
@@ -406,6 +433,9 @@ an array:
 ```text
 { 1, 2, 3 } *@func
 ```
+
+Both for `@` and `*@`, if there are less arguments than the function expected,
+to the remaining ones is passed `null`.
 
 ---
 
@@ -518,7 +548,7 @@ And can be used in for-as loops:
 ]
 ```
 
-this program outputs:
+This program outputs:
 
 ```text
 1 a
@@ -530,8 +560,8 @@ this program outputs:
 
 ### Access operator
 
-The access operator `.` can be used to get a specific value from vectors, arrays,
-strings and maps.
+The access operator `.` can be used to get a specific value from vectors,
+arrays, strings and maps.
 
 To access a value you write the value to access from, a dot, and the index of
 the value to get.
@@ -650,11 +680,6 @@ The do-while loop has the following syntax:
 The only difference between while and do-while loops is that do-while loops
 execute the code once before checking the condition.
 
-### The return statement
-
-The return statement is introduced by `=>`. If it is followed by an expression,
-its value is returned otherwise the function returns `null`.
-
 ### Function declaration
 
 A function declaration is a hash followed by the name of the function and the
@@ -682,6 +707,13 @@ When calling a function the arguments are taken from left to right:
 
 1 2 3 @print_args --> outputs '1 2 3'
 ```
+
+### The return statement
+
+The return statement is introduced by `=>` and exits early from a function
+returning the value of the expression that follows it.  
+If it is not followed by an expression or there is no such statement in the
+function, `null` is returned.
 
 ### The switch statement
 
@@ -768,7 +800,7 @@ If an error occurs, it will be stored inside `error_var` as a map with two keys:
 - `name`: the name of the error
 - `message`: the message of the error
 
-> NOTE: you can call `error_var` with any valid variable name.
+> NOTE: you can call `error_var` with any valid variable name
 
 If you want to also get the position and traceback of the error you can use the
 `try` function of the `stderr` library.

@@ -397,7 +397,10 @@ int nst_run_module(char *filename, Nst_SourceText *lib_src)
     Nst_InstructionList *inst_ls = nst_compile(ast, true);
     if ( opt_level >= 2 )
     {
-        inst_ls = nst_optimize_bytecode(inst_ls, opt_level == 3, &error);
+        inst_ls = nst_optimize_bytecode(
+            inst_ls,
+            opt_level == 3 && !no_default,
+            &error);
     }
     if ( inst_ls == NULL )
     {
