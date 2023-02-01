@@ -129,6 +129,44 @@ name '.sln' >< 'w' @io.open = sln_file
 sln_file sln_content @io.write
 sln_file @io.close
 
+----------------------------------- makefile -----------------------------------
+
+"CC=g++
+CFLAGS=-I" name "/nest_source -Wall -shared -fPIC -rdynamic -std=c++2a
+CLINKS=-lm -ldl
+DBG_FLAGS=-D_DEBUG -g -O0
+EXE_NAME=" name ".so
+
+SRC_DIR=" name "/nest_source
+EXE_x64_DIR=linux_release/x64
+EXE_x86_DIR=linux_release/x86
+DBG_DIR=linux_debug
+
+LIB_SRCS=" name "/" name ".cpp
+SRCS := $(filter-out nest.c argv_parser.c, $(wildcard $(SRC_DIR)/*.c))
+DBG_TARGET := $(DBG_DIR)/$(EXE_NAME)
+EXE_x64_TARGET := $(EXE_x64_DIR)/$(EXE_NAME)
+EXE_x86_TARGET := $(EXE_x86_DIR)/$(EXE_NAME)
+
+.PHONY: debug x86
+
+$(EXE_x64_TARGET): $(SRCS) $(LIB_SRCS)
+	mkdir -p $(EXE_x64_DIR)
+	$(CC) $(CFLAGS) $(SRCS) $(LIB_SRCS) $(CLINKS) -O3 -o $@
+
+x86:
+	mkdir -p $(EXE_x86_DIR)
+	$(CC) $(CFLAGS) $(SRCS) $(LIB_SRCS) $(CLINKS) -O3 -m32 -o $(EXE_x86_TARGET)
+
+debug:
+	mkdir -p $(DBG_DIR)
+	$(CC) $(DBG_FLAGS) $(CFLAGS) $(SRCS) $(LIB_SRCS) $(CLINKS) -o $(DBG_TARGET)
+" >< = makefile_content
+
+'makefile' 'w' @io.open = makefile
+makefile makefile_content @io.write
+makefile @io.close
+
 -------------------------------- .vcxproj file ---------------------------------
 
 name @fs.mkdir
