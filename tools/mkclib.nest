@@ -1,1 +1,477 @@
--- TODO: rewrite
+|#| 'stdsys.nest' = sys
+|#| 'stdfs.nest' = fs
+|#| 'stdrand.nest' = rand
+|#| 'stdio.nest' = io
+|#| 'stdsutil.nest' = su
+
+-- mkclib.nest [new name|update] path
+
+#fail [
+    >>> 'Usage: nest mkclib.nest [new <name>|update] <path>\n'
+    1 @sys.exit
+]
+
+$_args_ 3 < ? @fail
+
+_args_.1 'update' == ? [
+    $_args_ 3 != ? @fail
+    _args_.2 = path
+] : _args_.1 'new' == ? [
+    $_args_ 4 != ? @fail
+    _args_.2 = name
+    _args_.3 = path
+] : @fail
+
+sys.PLATFORM 'windows' == ? [
+    Iter :: ('..\\src'     @fs.list_dir) = sources
+    Iter :: ('..\\include' @fs.list_dir) = headers
+] : [
+    Iter :: ('../src'     @fs.list_dir) = sources
+    Iter :: ('../include' @fs.list_dir) = headers
+]
+
+_args_.1 'update' == ? [
+    path 'nest_source' @fs.join = lib_path
+] : [
+    name ' ' '_' @su.replace_substr = name
+    !(name (su.LETTERS su.DIGITS '_' ><) @su.is_charset) ? [
+        >>> 'Invalid name\n'
+        1 @sys.exit
+    ]
+    path (name '/nest_source' ><) @fs.join = lib_path
+    lib_path @fs.mkdirs
+]
+
+... sources := source_path [
+    source_path lib_path fs.CPO.overwrite @fs.copy
+]
+
+... headers := header_path [
+    header_path lib_path fs.CPO.overwrite @fs.copy
+]
+
+_args_.1 'update' == ?
+    @sys.exit
+
+path @sys._set_cwd
+
+#create_guid upper [
+    upper ?
+        { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+          'A', 'B', 'C', 'D', 'E', 'F' } = chars
+    :
+        { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+          'a', 'b', 'c', 'd', 'e', 'f' } = chars
+
+    '{' = s
+    ... 8 [
+        chars @rand.choice ><= s
+    ]
+    '-' ><= s
+    ... 4 [
+        chars @rand.choice ><= s
+    ]
+    '-4' ><= s
+    ... 3 [
+        chars @rand.choice ><= s
+    ]
+    '-' ><= s
+    ... 4 [
+        chars @rand.choice ><= s
+    ]
+    '-' ><= s
+    ... 12 [
+        chars @rand.choice ><= s
+    ]
+    => s '}' ><
+]
+
+---------------------------------- .sln file -----------------------------------
+
+true @create_guid = sln_guid1
+true @create_guid = sln_guid2
+true @create_guid = sln_guid3
+
+"
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.4.33213.308
+MinimumVisualStudioVersion = 10.0.40219.1
+Project(\"" sln_guid1 "\") = \"" name "\", \"" name "\\" name ".vcxproj\", \"" sln_guid2 "\"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|x64 = Debug|x64
+		Debug|x86 = Debug|x86
+		Release|x64 = Release|x64
+		Release|x86 = Release|x86
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		" sln_guid2 ".Debug|x64.ActiveCfg = Debug|x64
+		" sln_guid2 ".Debug|x64.Build.0 = Debug|x64
+		" sln_guid2 ".Debug|x86.ActiveCfg = Debug|Win32
+		" sln_guid2 ".Debug|x86.Build.0 = Debug|Win32
+		" sln_guid2 ".Release|x64.ActiveCfg = Release|x64
+		" sln_guid2 ".Release|x64.Build.0 = Release|x64
+		" sln_guid2 ".Release|x86.ActiveCfg = Release|Win32
+		" sln_guid2 ".Release|x86.Build.0 = Release|Win32
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = " sln_guid3 "
+	EndGlobalSection
+EndGlobal
+" >< = sln_content
+
+name '.sln' >< 'w' @io.open = sln_file
+sln_file sln_content @io.write
+sln_file @io.close
+
+-------------------------------- .vcxproj file ---------------------------------
+
+name @fs.mkdir
+name @sys._set_cwd
+
+@create_guid = proj_guid
+name '_' '' @su.replace_substr = root_namespace
+
+"<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<Project DefaultTargets=\"Build\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">
+  <ItemGroup Label=\"ProjectConfigurations\">
+    <ProjectConfiguration Include=\"Debug|Win32\">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include=\"Release|Win32\">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include=\"Debug|x64\">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include=\"Release|x64\">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label=\"Globals\">
+    <VCProjectVersion>16.0</VCProjectVersion>
+    <Keyword>Win32Proj</Keyword>
+    <ProjectGuid>" proj_guid "</ProjectGuid>
+    <RootNamespace>" root_namespace "</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.Default.props\" />
+  <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|Win32'\" Label=\"Configuration\">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|Win32'\" Label=\"Configuration\">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|x64'\" Label=\"Configuration\">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>true</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <PropertyGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|x64'\" Label=\"Configuration\">
+    <ConfigurationType>DynamicLibrary</ConfigurationType>
+    <UseDebugLibraries>false</UseDebugLibraries>
+    <PlatformToolset>v143</PlatformToolset>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
+    <CharacterSet>Unicode</CharacterSet>
+  </PropertyGroup>
+  <Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.props\" />
+  <ImportGroup Label=\"ExtensionSettings\">
+  </ImportGroup>
+  <ImportGroup Label=\"Shared\">
+  </ImportGroup>
+  <ImportGroup Label=\"PropertySheets\" Condition=\"'$(Configuration)|$(Platform)'=='Debug|Win32'\">
+    <Import Project=\"$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props\" Condition=\"exists('$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props')\" Label=\"LocalAppDataPlatform\" />
+  </ImportGroup>
+  <ImportGroup Label=\"PropertySheets\" Condition=\"'$(Configuration)|$(Platform)'=='Release|Win32'\">
+    <Import Project=\"$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props\" Condition=\"exists('$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props')\" Label=\"LocalAppDataPlatform\" />
+  </ImportGroup>
+  <ImportGroup Label=\"PropertySheets\" Condition=\"'$(Configuration)|$(Platform)'=='Debug|x64'\">
+    <Import Project=\"$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props\" Condition=\"exists('$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props')\" Label=\"LocalAppDataPlatform\" />
+  </ImportGroup>
+  <ImportGroup Label=\"PropertySheets\" Condition=\"'$(Configuration)|$(Platform)'=='Release|x64'\">
+    <Import Project=\"$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props\" Condition=\"exists('$(UserRootDir)\\Microsoft.Cpp.$(Platform).user.props')\" Label=\"LocalAppDataPlatform\" />
+  </ImportGroup>
+  <PropertyGroup Label=\"UserMacros\" />
+  <ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|Win32'\">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;TESTLIBFILES_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>nest_source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|Win32'\">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;TESTLIBFILES_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>nest_source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|x64'\">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;TESTLIBFILES_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>nest_source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|x64'\">
+    <ClCompile>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;TESTLIBFILES_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <ConformanceMode>true</ConformanceMode>
+      <PrecompiledHeader>NotUsing</PrecompiledHeader>
+      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp20</LanguageStandard>
+      <AdditionalIncludeDirectories>nest_source;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+    </ClCompile>
+    <Link>
+      <SubSystem>Windows</SubSystem>
+      <EnableCOMDATFolding>true</EnableCOMDATFolding>
+      <OptimizeReferences>true</OptimizeReferences>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <EnableUAC>false</EnableUAC>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClInclude Include=\"framework.h\" />
+    <ClInclude Include=\"" name ".h\" />
+" >< = proj_content_first
+
+name '.vcxproj' >< 'w' @io.open = proj_file
+proj_file proj_content_first @io.write
+
+... headers := header_path [
+    'nest_source' (header_path @fs.filename) @fs.join = header_path
+    proj_file ('    <ClInclude Include="' header_path '" />\n' ><) @io.write
+]
+
+"  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include=\"dllmain.cpp\" />
+    <ClCompile Include=\"" name ".cpp\" />
+" >< = proj_content_second
+proj_file proj_content_second @io.write
+
+... sources := source_path [
+    'nest_source' (source_path @fs.filename) @fs.join = source_path
+    proj_file ('    <ClCompile Include="' source_path '" />\n' ><) @io.write
+]
+
+"  </ItemGroup>
+  <Import Project=\"$(VCTargetsPath)\\Microsoft.Cpp.targets\" />
+  <ImportGroup Label=\"ExtensionTargets\">
+  </ImportGroup>
+</Project>" = proj_content_third
+proj_file proj_content_third @io.write
+proj_file @io.close
+
+---------------------------- .vcxproj.filters file -----------------------------
+
+@create_guid = nest_src_guid
+
+"<?xml version=\"1.0\" encoding=\"utf-8\"?>
+<Project ToolsVersion=\"4.0\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">
+  <ItemGroup>
+    <Filter Include=\"Header files\">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include=\"Source files\">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include=\"Resources\">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include=\"Nest source\">
+      <UniqueIdentifier>" nest_src_guid "</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include=\"framework.h\">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include=\"" name ".h\">
+      <Filter>Header files</Filter>
+    </ClInclude>
+" >< = filters_content_first
+
+name '.vcxproj.filters' >< 'w' @io.open = filters_file
+filters_file filters_content_first @io.write
+
+... headers := header_path [
+    'nest_source' (header_path @fs.filename) @fs.join = header_path
+    "    <ClInclude Include=\"" header_path "\">\n" \
+    "      <Filter>Nest source</Filter>\n" \
+    "    </ClInclude>\n" >< = content
+    filters_file content @io.write
+]
+
+"  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include=\"dllmain.cpp\">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include=\"" name ".cpp\">
+      <Filter>Source files</Filter>
+    </ClCompile>
+" >< = filters_content_second
+filters_file filters_content_second @io.write
+
+... sources := source_path [
+    'nest_source' (source_path @fs.filename) @fs.join = source_path
+    "    <ClCompile Include=\"" source_path "\">\n" \
+    "      <Filter>Nest source</Filter>\n" \
+    "    </ClCompile>\n" >< = content
+    filters_file content @io.write
+]
+
+filters_file "  </ItemGroup>\n</Project>" @io.write
+filters_file @io.close
+
+"#include \"framework.h\"
+
+BOOL APIENTRY DllMain(HMODULE hModule,
+                      DWORD   ul_reason_for_call,
+                      LPVOID  lpReserved)
+{
+    return TRUE;
+}
+" = dllmain_content
+
+"#ifndef FRAMEWORK_H
+#define FRAMEWORK_H
+
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+
+#endif // !FRAMEWORK_H
+" = framework_h_content
+
+"#ifndef " (name @su.to_upper) "_H
+#define " (name @su.to_upper) "_H
+
+#include \"nest.h\"
+
+#if defined(_WIN32) || defined(WIN32)
+#define EXPORT __declspec(dllexport)
+#else
+#define EXPORT
+#endif
+
+#ifdef __cplusplus
+extern \"C\" {
+#endif // !__cplusplus
+
+EXPORT bool lib_init();
+EXPORT Nst_FuncDeclr *get_func_ptrs();
+EXPORT NST_INIT_LIB_OBJ_FUNC;
+// EXPORT void free_lib();
+
+// To add a Nest function use NST_FUNC_SIGN(func_name);
+
+#ifdef __cplusplus
+}
+#endif // !__cplusplus
+
+#endif // !" (name @su.to_upper) "_H
+" >< = name_h_content
+
+"#include \"" name ".h\"
+
+#define FUNC_COUNT 0 // define here the number of functions inside the library
+
+static Nst_FuncDeclr *func_list_;
+static bool lib_init_ = false;
+
+bool lib_init()
+{
+    if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
+    {
+        return false;
+    }
+
+    size_t idx = 0;
+
+    // use func_list_[idx++] = NST_MAKE_FUNCDECLR(func_name, arg_num); to add a
+    // function to the function list, arg num is an integer.
+
+    lib_init_ = true;
+    return true;
+}
+
+Nst_FuncDeclr *get_func_ptrs()
+{
+    return lib_init_ ? func_list_ : nullptr;
+}
+" >< = name_cpp_content
+
+'dllmain.cpp' 'w' @io.open = dllmain_file
+dllmain_file dllmain_content @io.write
+dllmain_file @io.close
+
+'framework.h' 'w' @io.open = framework_file
+framework_file framework_h_content @io.write
+framework_file @io.close
+
+name '.h' >< 'w' @io.open = name_h_file
+name_h_file name_h_content @io.write
+name_h_file @io.close
+
+name '.cpp' >< 'w' @io.open = name_cpp_file
+name_cpp_file name_cpp_content @io.write
+name_cpp_file @io.close
