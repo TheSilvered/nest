@@ -4,17 +4,35 @@
 	"scopeName": "source.nest",
 	"fileTypes": [""],
 	"patterns": [
-		{ "include": "#strings" },
-		{ "include": "#comment" },
-		{ "include": "#keywords" },
-		{ "include": "#soft-keywords" },
-		{ "include": "#func-def" },
-		{ "include": "#func-call" },
-		{ "include": "#builtins" },
-		{ "include": "#values" },
-		{ "include": "#general" }
+		{ "include": "#first-line" },
+		{ "include": "#body" }
 	],
 	"repository": {
+		"first-line": {
+			"name": "comment.line.args.nest",
+			"begin": "^--\\$",
+			"end": "\\r?\\n",
+			"patterns": [
+				{ "include": "#first-line-body" }
+			]
+		},
+		"first-line-body": {
+			"name": "constant.language.nest",
+			"match": "--no-default|-O[0-3]|--cp1252"
+		},
+		"body": {
+			"patterns": [
+				{ "include": "#strings" },
+				{ "include": "#comment" },
+				{ "include": "#keywords" },
+				{ "include": "#soft-keywords" },
+				{ "include": "#func-def" },
+				{ "include": "#func-call" },
+				{ "include": "#builtins" },
+				{ "include": "#values" },
+				{ "include": "#general" }
+			]
+		},
 		"strings": {
 			"patterns": [
 				{ "include": "#special-strings-double" },
@@ -78,7 +96,7 @@
 			]
 		},
 		"line-comment": {
-			"name": "comment.line.nest",
+			"name": "comment.line.double-dash.nest",
 			"begin": "--",
 			"end": "(?<!\\\\)\\r?\\n"
 		},
