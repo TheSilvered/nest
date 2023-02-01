@@ -1,12 +1,6 @@
-_cwd_.0 '/' == ? [
-    '../../build/linux/linux_debug/std' = dbg_path
-    '.so' = ext
-] : [
-    '../../build/windows/projects/nest/x64/Debug/nest_' = dbg_path
-    '.dll' = ext
-]
+--$ --no-default
 
-|#| ('__C__:' dbg_path 'json' ext ><) = __json
+|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_json.dll' = __json
 
 __json.parse_s_     = parse_s
 __json.parse_f_     = parse_f
@@ -18,24 +12,4 @@ __json.get_options_ = get_options
 { 'allow_comments':        0b01,
   'allow_trailing_commas': 0b10 } = OPTIONS
 
-_vars_ '__json' \
-       'Int' \
-       'Real' \
-       'Bool' \
-       'Null' \
-       'Str' \
-       'Array' \
-       'Vector' \
-       'Map' \
-       'Func' \
-       'Iter' \
-       'Byte' \
-       'IOFile' \
-       'Type' \
-       'true' \
-       'false' \
-       'null' \
-       '_cwd_' \
-       '_args_' \
-       '_globals_' \
-       '_vars_' -
+_vars_ '__json' '_vars_' -

@@ -1,12 +1,6 @@
-_cwd_.0 '/' == ? [
-    '../../build/linux/linux_debug/std' = dbg_path
-    '.so' = ext
-] : [
-    '../../build/windows/projects/nest/x64/Debug/nest_' = dbg_path
-    '.dll' = ext
-]
+--$ --no-default
 
-|#| ('__C__:' dbg_path 'fs' ext ><) = __fs
+|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_fs.dll' = __fs
 
 __fs.isdir_              = isdir
 __fs.mkdir_              = mkdir
@@ -44,24 +38,4 @@ __fs._get_copy_options_  = _get_copy_options
 /-
 @__fs._get_copy_options_ = CPO
 
-_vars_ '__fs' \
-       'Int' \
-       'Real' \
-       'Bool' \
-       'Null' \
-       'Str' \
-       'Array' \
-       'Vector' \
-       'Map' \
-       'Func' \
-       'Iter' \
-       'Byte' \
-       'IOFile' \
-       'Type' \
-       'true' \
-       'false' \
-       'null' \
-       '_cwd_' \
-       '_args_' \
-       '_globals_' \
-       '_vars_' -
+_vars_ '__fs' '_vars_' -

@@ -1,44 +1,17 @@
-_cwd_.0 '/' == ? [
-    '../../build/linux/linux_debug/std' = dbg_path
-    '.so' = ext
-] : [
-    '../../build/windows/projects/nest/x64/Debug/nest_' = dbg_path
-    '.dll' = ext
-]
+--$ --no-default
 
-|#| ('__C__:' dbg_path 'err' ext ><) = __err
+|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_err.dll' = __err
 
 __err.try_ = try
 __err._get_err_names_ = _get_err_names
 
-@__err._get_err_names_ = names
-names.0 = SYNTAX_ERROR
-names.1 = VALUE_ERROR
-names.2 = TYPE_ERROR
-names.3 = CALL_ERROR
-names.4 = MEMORY_ERROR
-names.5 = MATH_ERROR
-names.6 = IMPORT_ERROR
+@__err._get_err_names_ = __names
+__names.0 = SYNTAX_ERROR
+__names.1 = VALUE_ERROR
+__names.2 = TYPE_ERROR
+__names.3 = CALL_ERROR
+__names.4 = MEMORY_ERROR
+__names.5 = MATH_ERROR
+__names.6 = IMPORT_ERROR
 
-_vars_ '__err' \
-       'names' \
-       'Int' \
-       'Real' \
-       'Bool' \
-       'Null' \
-       'Str' \
-       'Array' \
-       'Vector' \
-       'Map' \
-       'Func' \
-       'Iter' \
-       'Byte' \
-       'IOFile' \
-       'Type' \
-       'true' \
-       'false' \
-       'null' \
-       '_cwd_' \
-       '_args_' \
-       '_globals_' \
-       '_vars_' -
+_vars_ '__err' '__names' '_vars_' -

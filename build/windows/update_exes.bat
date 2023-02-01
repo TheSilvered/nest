@@ -39,10 +39,10 @@ FOR %%G IN (x86\nest_libs\*.dll) DO (
 :: Udate .nest files
 :: =================
 
-if "%1" == "py" (
+IF "%1" == "py" (
     FOR %%G IN (x64\nest_libs\std*.nest) DO py ..\update_nest_file.py %%G dll
     FOR %%G IN (x86\nest_libs\std*.nest) DO py ..\update_nest_file.py %%G dll
-) else (
+) ELSE (
     FOR %%G IN (x64\nest_libs\std*.nest) DO nest ..\update_nest_file.nest %%G dll
     FOR %%G IN (x86\nest_libs\std*.nest) DO nest ..\update_nest_file.nest %%G dll
 )

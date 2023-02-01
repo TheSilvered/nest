@@ -1,12 +1,6 @@
-_cwd_.0 '/' == ? [
-    '../../build/linux/linux_debug/std' = dbg_path
-    '.so' = ext
-] : [
-    '../../build/windows/projects/nest/x64/Debug/nest_' = dbg_path
-    '.dll' = ext
-]
+--$ --no-default
 
-|#| ('__C__:' dbg_path 'co' ext ><) = __co
+|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_co.dll' = __co
 
 __co.create_    = create
 __co.call_      = call
@@ -27,24 +21,4 @@ __co._get_co_type_obj_ = _get_co_type_obj
   0b0100: 'paused',
   0b1000: 'ended' } = STR_STATE
 
-_vars_ '__co' \
-       'Int' \
-       'Real' \
-       'Bool' \
-       'Null' \
-       'Str' \
-       'Array' \
-       'Vector' \
-       'Map' \
-       'Func' \
-       'Iter' \
-       'Byte' \
-       'IOFile' \
-       'Type' \
-       'true' \
-       'false' \
-       'null' \
-       '_cwd_' \
-       '_args_' \
-       '_globals_' \
-       '_vars_' -
+_vars_ '__co' '_vars_' -

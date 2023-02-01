@@ -392,7 +392,7 @@ NST_FUNC_SIGN(center_)
 
     char *new_str = new char[(unsigned int)(just_len + 1)];
     size_t half = (size_t)(just_len - len) / 2;
-    memset(new_str, just_ch, just_len);
+    memset(new_str, just_ch, size_t(just_len));
     memcpy(new_str + half, str->value, len);
     new_str[just_len] = 0;
 
@@ -889,7 +889,7 @@ NST_FUNC_SIGN(bin_)
 
     Nst_Int str_len = highest_bit(n) + 1;
 
-    char *buf = new char[str_len];
+    char *buf = new char[(unsigned int)str_len];
 
     for ( Nst_Int i = 0; i < Nst_Int(str_len - 1); i++ )
     {
@@ -904,7 +904,7 @@ NST_FUNC_SIGN(bin_)
     }
     buf[str_len - 1] = '\0';
 
-    return nst_new_string(buf, str_len - 1, true);
+    return nst_new_string(buf, size_t(str_len) - 1, true);
 }
 
 NST_FUNC_SIGN(oct_)
@@ -923,7 +923,7 @@ NST_FUNC_SIGN(oct_)
         str_len += 1;
     }
 
-    char *buf = new char[str_len ];
+    char *buf = new char[(unsigned int)str_len];
 
     for ( Nst_Int i = 0; i < Nst_Int(str_len - 1); i++ )
     {
@@ -932,7 +932,7 @@ NST_FUNC_SIGN(oct_)
     }
     buf[str_len - 1] = '\0';
 
-    return nst_new_string(buf, str_len - 1, true);
+    return nst_new_string(buf, size_t(str_len) - 1, true);
 }
 
 NST_FUNC_SIGN(hex_)
@@ -962,7 +962,7 @@ NST_FUNC_SIGN(hex_)
         str_len += 1;
     }
     
-    char *buf = new char[str_len];
+    char *buf = new char[(unsigned int)str_len];
 
     for ( Nst_Int i = 0; i < Nst_Int(str_len - 1); i++ )
     {
@@ -971,5 +971,5 @@ NST_FUNC_SIGN(hex_)
     }
     buf[str_len - 1] = '\0';
 
-    return nst_new_string(buf, str_len - 1, true);
+    return nst_new_string(buf, size_t(str_len) - 1, true);
 }

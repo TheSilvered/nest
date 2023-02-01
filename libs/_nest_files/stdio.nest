@@ -1,12 +1,6 @@
-_cwd_.0 '/' == ? [
-    '../../build/linux/linux_debug/std' = dbg_path
-    '.so' = ext
-] : [
-    '../../build/windows/projects/nest/x64/Debug/nest_' = dbg_path
-    '.dll' = ext
-]
+--$ --no-default
 
-|#| ('__C__:' dbg_path 'io' ext ><) = __io
+|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_io.dll' = __io
 
 __io.open_        = open
 __io.virtual_iof_ = virtual_iof
@@ -35,24 +29,4 @@ __io._get_stderr_ = _get_stderr
 1 = FROM_CUR
 2 = FROM_END
 
-_vars_ '__io' \
-       'Int' \
-       'Real' \
-       'Bool' \
-       'Null' \
-       'Str' \
-       'Array' \
-       'Vector' \
-       'Map' \
-       'Func' \
-       'Iter' \
-       'Byte' \
-       'IOFile' \
-       'Type' \
-       'true' \
-       'false' \
-       'null' \
-       '_cwd_' \
-       '_args_' \
-       '_globals_' \
-       '_vars_' -
+_vars_ '__io' '_vars_' -

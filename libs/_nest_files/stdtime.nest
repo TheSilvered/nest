@@ -1,12 +1,6 @@
-_cwd_.0 '/' == ? [
-    '../../build/linux/linux_debug/std' = dbg_path
-    '.so' = ext
-] : [
-    '../../build/windows/projects/nest/x64/Debug/nest_' = dbg_path
-    '.dll' = ext
-]
+--$ --no-default
 
-|#| ('__C__:' dbg_path 'time' ext ><) = __dt
+|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_time.dll' = __dt
 
 __dt.time_               = time
 __dt.time_ns_            = time_ns
@@ -69,24 +63,4 @@ __dt.sleep_              = sleep
   6: 'Sat',
   0: 'Sun' } = SHORT_WEEKDAY_NAMES
 
-_vars_ '__dt' \
-       'Int' \
-       'Real' \
-       'Bool' \
-       'Null' \
-       'Str' \
-       'Array' \
-       'Vector' \
-       'Map' \
-       'Func' \
-       'Iter' \
-       'Byte' \
-       'IOFile' \
-       'Type' \
-       'true' \
-       'false' \
-       'null' \
-       '_cwd_' \
-       '_args_' \
-       '_globals_' \
-       '_vars_' -
+_vars_ '__dt' '_vars_' -

@@ -1,12 +1,6 @@
-_cwd_.0 '/' == ? [
-    '../../build/linux/linux_debug/std' = dbg_path
-    '.so' = ext
-] : [
-    '../../build/windows/projects/nest/x64/Debug/nest_' = dbg_path
-    '.dll' = ext
-]
+--$ --no-default
 
-|#| ('__C__:' dbg_path 'rand' ext ><) = __rand
+|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_rand.dll' = __rand
 
 __rand.random_    = random
 __rand.rand_int_  = rand_int
@@ -15,24 +9,4 @@ __rand.choice_    = choice
 __rand.shuffle_   = shuffle
 __rand.seed_      = seed
 
-_vars_ '__rand' \
-       'Int' \
-       'Real' \
-       'Bool' \
-       'Null' \
-       'Str' \
-       'Array' \
-       'Vector' \
-       'Map' \
-       'Func' \
-       'Iter' \
-       'Byte' \
-       'IOFile' \
-       'Type' \
-       'true' \
-       'false' \
-       'null' \
-       '_cwd_' \
-       '_args_' \
-       '_globals_' \
-       '_vars_' -
+_vars_ '__rand' '_vars_' -

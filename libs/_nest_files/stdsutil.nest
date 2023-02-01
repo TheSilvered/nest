@@ -1,12 +1,6 @@
-_cwd_.0 '/' == ? [
-    '../../build/linux/linux_debug/std' = dbg_path
-    '.so' = ext
-] : [
-    '../../build/windows/projects/nest/x64/Debug/nest_' = dbg_path
-    '.dll' = ext
-]
+--$ --no-default
 
-|#| ('__C__:' dbg_path 'sutil' ext ><) = __su
+|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_sutil.dll' = __su
 
 __su.lfind_            = lfind
 __su.rfind_            = rfind
@@ -47,24 +41,4 @@ __su.hex_              = hex
 ' !"#$%&\'()*+,-/0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~' = PRINTABLE
 '!"#$%&\'()*+,-/:;<=>?@[\\]^_`{|}~' = PUNCTUATION
 
-_vars_ '__su' \
-       'Int' \
-       'Real' \
-       'Bool' \
-       'Null' \
-       'Str' \
-       'Array' \
-       'Vector' \
-       'Map' \
-       'Func' \
-       'Iter' \
-       'Byte' \
-       'IOFile' \
-       'Type' \
-       'true' \
-       'false' \
-       'null' \
-       '_cwd_' \
-       '_args_' \
-       '_globals_' \
-       '_vars_' -
+_vars_ '__su' '_vars_' -
