@@ -404,6 +404,7 @@ static Nst_LexerToken *parse_json_num(Nst_OpErr *err)
 float_ltrl:
     if ( state.ch != '.' && state.ch != 'e' && state.ch != 'E' )
     {
+        go_back();
         return nst_new_token_value(
             start,
             state.pos,

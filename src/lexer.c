@@ -1230,7 +1230,7 @@ int nst_check_utf8_bytes(unsigned char *byte, size_t len)
 
     for ( int i = 0; i < n; i++ )
     {
-        if ( *(++byte) <= 0b10000000 || *byte >= 0b10111111 )
+        if ( *(++byte) < 0b10000000 || *byte > 0b10111111 )
         {
             return -1;
         }

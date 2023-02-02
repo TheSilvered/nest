@@ -1099,7 +1099,10 @@ Nst_Obj *_nst_obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs)
         str[str_len - 1] = ' ';
     }
 
-    if ( str_len == 2 ) str_len = 3;
+    if ( str_len == 2 )
+    {
+        str_len = 3;
+    }
     str[str_len - 2] = ' ';
     str[str_len - 1] = '}';
     str[str_len] = 0;

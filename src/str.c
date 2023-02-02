@@ -94,6 +94,7 @@ Nst_Obj *_nst_copy_string(Nst_StrObj *src)
 
 Nst_Obj *_nst_repr_string(Nst_StrObj *src)
 {
+    const char *hex_chars = "0123456789abcdef";
     char *orig = src->value;
     size_t l = src->len;
     size_t new_size = 2;
@@ -182,8 +183,10 @@ Nst_Obj *_nst_repr_string(Nst_StrObj *src)
             }
             else
             {
-                sprintf(&new_str[i], "\\x%02x", orig[j]);
-                i += 4;
+                new_str[i++] = '\\';
+                new_str[i++] = 'x';
+                new_str[i++] = hex_chars[(unsigned char)orig[j] >> 4];
+                new_str[i++] = hex_chars[(unsigned char)orig[j] & 0xf];
             }
         }
     }
