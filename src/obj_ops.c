@@ -1124,15 +1124,25 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
         {
             char *buffer = (char *)malloc(MAX_INT_CHAR_COUNT * sizeof(char));
             CHECK_BUFFER(buffer);
-            sprintf(buffer, "%lli", AS_INT(ob));
-            return nst_new_cstring_raw(buffer, true);
+            int len = sprintf(buffer, "%lli", AS_INT(ob));
+            return nst_new_string(buffer, len, true);
         }
         else if ( ob_t == nst_t.Real )
         {
             char *buffer = (char *)malloc(MAX_REAL_CHAR_COUNT * sizeof(char));
             CHECK_BUFFER(buffer);
-            sprintf(buffer, "%." REAL_PRECISION "lg", AS_REAL(ob));
-            return nst_new_cstring_raw(buffer, true);
+            int len = sprintf(buffer, "%." REAL_PRECISION "lg", AS_REAL(ob));
+            for ( int i = 0; i < len; i++ )
+            {
+                if ( buffer[i] == '.' || buffer[i] == 'e' )
+                {
+                    return nst_new_string(buffer, len, true);;
+                }
+            }
+            buffer[len++] = '.';
+            buffer[len++] = '0';
+            buffer[len] = '\0';
+            return nst_new_string(buffer, len, true);
         }
         else if ( ob_t == nst_t.Bool )
         {

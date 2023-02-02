@@ -1,0 +1,1 @@
+{"string": "hello", "int": 1234, "real1": 1.0, "real2": 1500.0, "real3": 1000.0, "real4": 0.0001321, "array": ["obj1", 2, [1, 2, 3], {"obj": 4}], "another_object": {"hello": "world"}}

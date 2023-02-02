@@ -2,8 +2,8 @@
 
 |#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_json.dll' = __json
 
-__json.parse_s_     = parse_s
-__json.parse_f_     = parse_f
+__json.load_s_      = load_s
+__json.load_f_      = load_f
 __json.dump_s_      = dump_s
 __json.dump_f_      = dump_f
 __json.set_options_ = set_options

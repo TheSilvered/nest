@@ -9,7 +9,7 @@ $'hello' 5 @test.assert_eq
 
 Str :: 10 '10' @test.assert_eq
 Str :: -10 '-10' @test.assert_eq
-Str :: 0.0 '0' @test.assert_eq
+Str :: 0.0 '0.0' @test.assert_eq
 Str :: 0.1 '0.1' @test.assert_eq
 Str :: Type 'Type' @test.assert_eq
 Str :: null 'null' @test.assert_eq

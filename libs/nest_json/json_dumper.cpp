@@ -9,6 +9,7 @@
 #endif
 
 #define EXCEPT_ERROR if ( str_buf == nullptr ) return
+#define FAIL do { delete[] str_buf; str_buf = nullptr; return; } while ( 0 )
 
 static void expand_to(size_t size_to_reach, Nst_OpErr *err);
 static void expand_by(size_t size_to_add, Nst_OpErr *err);
@@ -57,8 +58,7 @@ static void expand_to(size_t size_to_reach, Nst_OpErr *err)
     if ( new_buf == nullptr )
     {
         NST_FAILED_ALLOCATION;
-        free(str_buf);
-        str_buf = nullptr;
+        FAIL;
     }
 
     str_buf = new_buf;
@@ -130,8 +130,7 @@ static void dump_obj(Nst_Obj *obj, int indent, Nst_OpErr *err)
         NST_SET_TYPE_ERROR(_nst_format_error(
             "JSON: an object of type %s is not serializable", "s",
             TYPE_NAME(obj)));
-        free(str_buf);
-        str_buf = nullptr;
+        FAIL;
     }
 }
 
@@ -194,8 +193,7 @@ static void dump_str(Nst_StrObj *str, Nst_OpErr *err)
         case 4:
             NST_SET_RAW_VALUE_ERROR(
                 "JSON: cannot serialize characters above U+FFFF");
-            free(str_buf);
-            return;
+            FAIL;
         }
     }
     str_buf[str_len++] = '"';
@@ -221,9 +219,8 @@ static void dump_num(Nst_Obj *number, Nst_OpErr *err)
         if ( isinf(val) || isnan(val) )
         {
             NST_SET_RAW_VALUE_ERROR(
-                "JSON: cannot serialize characters infinities or NaNs");
-            free(str_buf);
-            return;
+                "JSON: cannot serialize infinities or NaNs");
+            FAIL;
         }
         char loc_buf[26];
         sprintf(loc_buf, "%.16lg", val);
@@ -330,6 +327,7 @@ static void dump_map(Nst_MapObj *map, int indent, Nst_OpErr *err)
         if ( key->type != nst_t.Str )
         {
             NST_SET_RAW_TYPE_ERROR("JSON: all keys of a map must be strings");
+            FAIL;
         }
 
         dump_str(STR(key), err);

@@ -97,7 +97,7 @@ NST_FUNC_SIGN(dump_f_)
     NST_DEF_EXTRACT("so?i", &path, &obj, &indent_obj);
 
     Nst_Int indent;
-    NST_SET_DEF(indent_obj, indent, 4, AS_INT(indent_obj));
+    NST_SET_DEF(indent_obj, indent, 0, AS_INT(indent_obj));
 
     Nst_IOFile f = fopen(path->value, "wb");
     if ( f == nullptr )

@@ -177,7 +177,8 @@ static Nst_Obj *parse_array(LList *tokens, Nst_OpErr *err)
     }
 
 end:
-    vec->type = nst_t.Array;
+    vec->type = TYPE(nst_inc_ref(nst_t.Array));
+    nst_dec_ref(nst_t.Vector);
     if ( vec->len < vec->size )
     {
         Nst_Obj **new_objs = (Nst_Obj **)realloc(

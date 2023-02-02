@@ -41,6 +41,7 @@ static void advance()
     state.pos.col++;
     if ( state.idx >= state.len )
     {
+        state.ch = '\0';
         return;
     }
 
@@ -87,7 +88,7 @@ LList *json_tokenize(char      *path,
         {
             err->name = error.name;
             err->message = error.message;
-            return NULL;
+            return nullptr;
         }
     }
 
@@ -192,9 +193,9 @@ static Nst_LexerToken *parse_json_str(Nst_OpErr *err)
     bool escape = false;
 
     char *end_str = (char *)malloc(8);
-    char *end_str_realloc = NULL;
+    char *end_str_realloc = nullptr;
 
-    if ( end_str == NULL )
+    if ( end_str == nullptr )
     {
         NST_FAILED_ALLOCATION;
         return nullptr;
@@ -213,7 +214,7 @@ static Nst_LexerToken *parse_json_str(Nst_OpErr *err)
             end_str_realloc = (char *)realloc(
                 end_str,
                 sizeof(char) * chunk_size);
-            if ( end_str_realloc == NULL )
+            if ( end_str_realloc == nullptr )
             {
                 free(end_str);
                 NST_FAILED_ALLOCATION;
@@ -326,7 +327,7 @@ static Nst_LexerToken *parse_json_str(Nst_OpErr *err)
             end_str,
             sizeof(char) * (str_len + 1));
     }
-    if ( end_str_realloc != NULL )
+    if ( end_str_realloc != nullptr )
     {
         end_str = end_str_realloc;
     }
@@ -394,6 +395,11 @@ static Nst_LexerToken *parse_json_num(Nst_OpErr *err)
             JSON_VALUE,
             nst_new_int(value));
     }
+    else
+    {
+        JSON_SYNTAX_ERROR("invalid number", state.path, state.pos);
+        return nullptr;
+    }
 
 float_ltrl:
     if ( state.ch != '.' && state.ch != 'e' && state.ch != 'E' )
@@ -444,7 +450,7 @@ float_ltrl:
     }
 
     {
-        Nst_Real value = strtod(start_idx, NULL);
+        Nst_Real value = strtod(start_idx, nullptr);
         return nst_new_token_value(
             start,
             state.pos,
