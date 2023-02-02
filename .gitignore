@@ -463,3 +463,4 @@ tests/test_output.txt
 *.zip
 *.tar.gz
 tests/_test.nest
+docs/prev_docs/
