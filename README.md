@@ -33,7 +33,7 @@ can be downloaded at:
 
 ### Linux
 
-To install Nest on Linux you can compile the precompiled binaries or
+To install Nest on Linux you can install the precompiled binaries or
 [compile it from source](#on-linux).
 
 To Install it from the binaries download the `.tar.gz` file with the desired
@@ -94,8 +94,9 @@ To compile the installer you need InnoSetup installed. Then follow these steps
 4. The compiled exe should appear in the same directory with the name
    `nest-[VERSION]-x[ARCHITECTURE]-installer.exe`
 
-Keep in mind that if you change the version it has to be changed both in
-`include\nest.h` and in `build\installer\common.iss`.
+Keep in mind that if you change the version it has to be updated in
+`include\nest.h`, `build\windows\installer\common.iss` and
+`build/linux/_make_archives.sh`
 
 ### On Linux
 
