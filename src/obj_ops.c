@@ -1303,7 +1303,7 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
         else if ( ob_t == nst_t.Byte )
             return nst_new_int((Nst_Int)AS_BYTE(ob));
         else if ( ob_t == nst_t.Str )
-            return nst_parse_int(STR(ob), err);
+            return nst_parse_int(STR(ob), 0, err);
         else
             RETURN_CAST_TYPE_ERROR;
     }

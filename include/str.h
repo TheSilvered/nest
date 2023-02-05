@@ -50,7 +50,7 @@ Nst_Obj *_nst_string_get_idx(Nst_StrObj *str, Nst_Int idx);
 
 // Parses a Nst_IntObj from a string, any NUL characters in the middle
 // do not intefere with the parsing
-Nst_Obj *nst_parse_int(Nst_StrObj *str, struct _Nst_OpErr *err);
+Nst_Obj *nst_parse_int(Nst_StrObj *str, int base, struct _Nst_OpErr *err);
 // Parses a Nst_ByteObj from a string, any NUL characters in the middle
 // do not intefere with the parsing
 Nst_Obj *nst_parse_byte(Nst_StrObj* str, struct _Nst_OpErr* err);

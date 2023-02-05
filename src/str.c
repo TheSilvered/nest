@@ -30,6 +30,13 @@
     return NULL; \
     } while ( 0 )
 
+#define ERR_IF_END(s, end, err_macro) do { \
+    if ( s == end ) \
+    { \
+        err_macro; \
+    } \
+    } while ( 0 )
+
 Nst_Obj *nst_new_cstring_raw(const char *val, bool allocated)
 {
     return nst_new_string((char *)val, strlen(val), allocated);
@@ -234,62 +241,129 @@ void nst_destroy_string(Nst_StrObj *str)
     }
 }
 
-Nst_Obj *nst_parse_int(Nst_StrObj *str, struct _Nst_OpErr *err)
+Nst_Obj *nst_parse_int(Nst_StrObj *str, int base, struct _Nst_OpErr *err)
 {
     char *s = str->value;
     char *end = s + str->len;
+    char ch;
+    int ch_val;
+    int sign = 1;
     Nst_Int num = 0;
-    Nst_Int digit = 0;
-    Nst_Int sign = 1;
+    Nst_Int cut_off = 0;
+    Nst_Int cut_lim = 0;
 
-    if ( s == end )
+    if ( (base < 2 || base > 36) && base != 0 )
     {
-        RETURN_INT_ERR;
+        NST_SET_RAW_VALUE_ERROR(_NST_EM_BAD_INT_BASE);
     }
+    ERR_IF_END(s, end, RETURN_INT_ERR);
 
-    while ( IS_WHITESPACE(*s) )
-        ++s;
-
-    if ( s == end )
+    ch = *s;
+    while ( IS_WHITESPACE(ch)  )
     {
-        RETURN_INT_ERR;
+        ch = *++s;
     }
+    ERR_IF_END(s, end, RETURN_INT_ERR);
 
-    if ( *s == '-' )
+    if ( ch == '-' || ch == '+' )
     {
-        sign = -1;
-        ++s;
+        sign = ch == '-' ? -1 : 1;
+        ch = *++s;
     }
-    else if ( *s == '+' )
-    {
-        ++s;
-    }
+    ERR_IF_END(s, end, RETURN_INT_ERR);
 
-    if ( s == end )
+    if ( ch == '0' )
     {
-        RETURN_INT_ERR;
-    }
-
-    while ( s != end )
-    {
-        digit = *s - '0';
-        if ( digit < 0 || digit > 9 )
+        ch = *++s;
+        switch ( ch )
         {
-            while ( IS_WHITESPACE(*s) )
-                ++s;
-
-            if ( s == end )
-            {
-                return nst_new_int(num * sign);
-            }
-            else
+        case 'B':
+        case 'b':
+            if ( base != 2 && base != 0 )
             {
                 RETURN_INT_ERR;
             }
+            base = 2;
+            ch = *++s;
+            break;
+        case 'O':
+        case 'o':
+            if ( base != 8 && base != 0 )
+            {
+                RETURN_INT_ERR;
+            }
+            base = 8;
+            ch = *++s;
+            break;
+        case 'X':
+        case 'x':
+            if ( base != 16 && base != 0 )
+            {
+                RETURN_INT_ERR;
+            }
+            base = 16;
+            ch = *++s;
+            break;
+        default:
+            ch = *--s;
+            break;
+        }
+    }
+    if ( base == 0 )
+    {
+        base = 10;
+    }
+
+    cut_off = sign == -1 ? -9223372036854775807 - 1 : 9223372036854775807;
+    cut_lim = sign * (cut_off % base);
+    cut_off /= sign * base;
+    while ( true )
+    {
+        if ( ch >= '0' && ch <= '9' )
+        {
+            ch_val = ch - '0';
+        }
+        else if ( ch >= 'a' && ch <= 'z' )
+        {
+            ch_val = ch - 'a' + 10;
+        }
+        else if ( ch >= 'A' && ch <= 'Z' )
+        {
+            ch_val = ch - 'A' + 10;
+        }
+        else if ( ch == '_' )
+        {
+            ch = *++s;
+            continue;
+        }
+        else
+        {
+            break;
         }
 
-        num = num * 10 + digit;
-        ++s;
+        if ( ch_val < 0 || ch_val > base - 1 )
+        {
+            RETURN_INT_ERR;
+        }
+
+        if ( num > cut_off || (num == cut_off && ch_val > cut_lim) )
+        {
+            NST_SET_RAW_MEMORY_ERROR(_NST_EM_INT_TOO_BIG);
+            return NULL;
+        }
+        num *= base;
+        num += ch_val;
+        ch = *++s;
+    }
+
+    while ( IS_WHITESPACE(ch) )
+    {
+        ch = *++s;
+    }
+
+    if ( s != end )
+    {
+        RETURN_INT_ERR;
     }
 
     return nst_new_int(num * sign);
@@ -304,153 +378,247 @@ Nst_Obj *nst_parse_byte(Nst_StrObj *str, struct _Nst_OpErr *err)
 
     char* s = str->value;
     char* end = s + str->len;
-    Nst_Int num = 0;
-    Nst_Int digit = 0;
-    Nst_Int sign = 1;
+    char ch = *s;
+    int num = 0;
+    int ch_val = 0;
+    int sign = 1;
+    int base = 10;
 
-    if (s == end) RETURN_BYTE_ERR;
+    if ( s == end )
+    {
+        RETURN_BYTE_ERR;
+    }
 
-    while ( IS_WHITESPACE(*s) )
-        ++s;
+    while ( IS_WHITESPACE(ch) )
+    {
+        ch = *++s;
+    }
 
-    if (s == end) RETURN_BYTE_ERR;
+    if ( s == end )
+    {
+        RETURN_BYTE_ERR;
+    }
 
-    if (*s == '-')
+    if ( ch == '-' )
     {
         sign = -1;
-        ++s;
+        ch = *++s;
     }
-    else if (*s == '+')
-        ++s;
-
-    // No error checking since the string cannot be of length one
-
-    while (s != end)
+    else if ( ch == '+' )
     {
-        digit = *s - '0';
-        if ( digit < 0 || digit > 9 )
-        {
-            if ( *s == 'b' || *s == 'B' )
-            {
-                ++s;
-            }
-            else
-            {
-                RETURN_BYTE_ERR;
-            }
-
-            while (IS_WHITESPACE(*s))
-                ++s;
-
-            if ( s == end )
-            {
-                return nst_new_byte((Nst_Byte)((num * sign) & 0xff));
-            }
-            else
-            {
-                RETURN_BYTE_ERR;
-            }
-        }
-
-        num = num * 10 + digit;
-        ++s;
+        ch = *++s;
     }
 
-    // The byte literal must end with b or B
-    RETURN_BYTE_ERR;
+    if ( s == end )
+    {
+        RETURN_BYTE_ERR;
+    }
+
+    if ( ch == '0' )
+    {
+        ch = *++s;
+        switch ( ch )
+        {
+        case 'b':
+        case 'B':
+            base = 2;
+            ch = *++s;
+
+            if ( IS_WHITESPACE(ch) )
+            {
+                while ( IS_WHITESPACE(ch) )
+                {
+                    ch = *++s;
+                }
+
+                if ( s == end )
+                {
+                    return nst_new_byte(0);
+                }
+                else
+                {
+                    RETURN_BYTE_ERR;
+                }
+            }
+            break;
+        case 'o':
+        case 'O':
+            base = 8;
+            ch = *++s;
+            break;
+        case 'h':
+        case 'H':
+            base = 16;
+            ch = *++s;
+            break;
+        default:
+            ch = *--s;
+        }
+    }
+
+    while ( true )
+    {
+        if ( ch >= '0' && ch <= '9' )
+        {
+            ch_val = ch - '0';
+        }
+        else if ( ch >= 'a' && ch <= 'z' && base == 16 )
+        {
+            ch_val = ch - 'a' + 10;
+        }
+        else if ( ch >= 'A' && ch <= 'Z' && base == 16 )
+        {
+            ch_val = ch - 'A' + 10;
+        }
+        else if ( ch == '_' )
+        {
+            ch = *++s;
+            continue;
+        }
+        else
+        {
+            break;
+        }
+        num *= base;
+        num += ch_val;
+        num %= 256;
+        ch = *++s;
+    }
+    num *= sign;
+    if ( base != 16 && ch != 'b' )
+    {
+        RETURN_BYTE_ERR;
+    }
+    ch = *++s;
+    while ( IS_WHITESPACE(ch) )
+    {
+        ch = *++s;
+    }
+    if ( s != end )
+    {
+        RETURN_BYTE_ERR;
+    }
+    return nst_new_byte(num & 0xff);
 }
 
 Nst_Obj *nst_parse_real(Nst_StrObj *str, struct _Nst_OpErr *err)
 {
+    // \s*[+-]?\d+\.\d+(?:[eE][+-]?\d+)
+
+    // strtod accepts also things like .5, 1e2, -1., ecc. that I do not
+    // so I need to check if the literal is valid first
     char *s = str->value;
     char *end = s + str->len;
-    Nst_Real num = 0;
-    Nst_Real sign = 1.0;
-    Nst_Real pow = 10;
-    Nst_Int digit = 0;
+    char *start = s;
+    size_t len = 0;
+    char ch = *s;
+    char *buf;
+    Nst_Real res;
 
     if ( s == end )
     {
         RETURN_REAL_ERR;
     }
 
-    while ( IS_WHITESPACE(*s) )
-        ++s;
+    while ( IS_WHITESPACE(ch) )
+    {
+        ch = *++s;
+        start++;
+    }
+    ERR_IF_END(s, end, RETURN_REAL_ERR);
 
-    if ( s == end )
+    if ( ch == '+' || ch == '-' )
+    {
+        ch = *++s;
+        len++;
+    }
+    ERR_IF_END(s, end, RETURN_REAL_ERR);
+
+    if ( ch < '0' || ch > '9' )
     {
         RETURN_REAL_ERR;
     }
-
-    if ( *s == '-' )
+    while ( (ch >= '0' && ch <= '9') || ch == '_' )
     {
-        sign = -1.0;
-        ++s;
-    }
-    else if ( *s == '+' )
-    {
-        ++s;
+        ch = *++s;
+        len++;
     }
 
-    if ( s == end )
+    if ( ch != '.' )
     {
-        RETURN_REAL_ERR;
-    }
-
-    while ( s != end && *s != '.' )
-    {
-        digit = *s - '0';
-        if ( digit < 0 || digit > 9 )
+        while ( IS_WHITESPACE(ch) )
         {
-            while ( IS_WHITESPACE(*s) )
-                ++s;
-
-            if ( s == end )
-            {
-                return nst_new_real(num * sign);
-            }
-            else
-            {
-                RETURN_REAL_ERR;
-            }
+            ch = *++s;
         }
-
-        num = num * 10 + digit;
-        ++s;
-    }
-
-    if ( s == end )
-    {
-        return nst_new_real(num * sign);
-    }
-
-    // at this point there can only be a dot
-    ++s;
-
-    while ( s != end )
-    {
-        digit = *s - '0';
-        if ( digit < 0 || digit > 9 )
+        if ( s != end )
         {
-            while ( IS_WHITESPACE(*s) )
-                ++s;
-
-            if ( s == end )
-            {
-                return nst_new_real(num * sign);
-            }
-            else
-            {
-                RETURN_REAL_ERR;
-            }
+            RETURN_REAL_ERR;
         }
+        goto end;
+    }
+    ch = *++s;
+    len++;
 
-        num += digit / pow;
-        ++s;
-        pow *= 10;
+    if ( ch < '0' || ch > '9' )
+    {
+        RETURN_REAL_ERR;
+    }
+    while ( (ch >= '0' && ch <= '9') || ch == '_' )
+    {
+        ch = *++s;
+        len++;
     }
 
-    return nst_new_real(num * sign);
+    if ( ch == 'e' || ch == 'E' )
+    {
+        ch = *++s;
+        len++;
+
+        if ( ch == '+' || ch == '-' )
+        {
+            ch = *++s;
+            len++;
+        }
+        ERR_IF_END(s, end, RETURN_REAL_ERR);
+
+        if ( ch < '0' || ch > '9' )
+        {
+            RETURN_REAL_ERR;
+        }
+        while ( (ch >= '0' && ch <= '9') || ch == '_' )
+        {
+            ch = *++s;
+            len++;
+        }
+    }
+
+    while ( IS_WHITESPACE(ch) )
+    {
+        ch = *++s;
+    }
+    if ( s != end )
+    {
+        RETURN_REAL_ERR;
+    }
+end:
+    buf = (char *)malloc(len + 1);
+    if ( buf == NULL )
+    {
+        NST_FAILED_ALLOCATION;
+        return NULL;
+    }
+    s = buf;
+    while ( len-- )
+    {
+        if ( (ch = *start++) != '_' )
+        {
+            *s++ = ch;
+        }
+    }
+    *s = '\0';
+    res = strtod(buf, NULL);
+    free(buf);
+    return nst_new_real(res);
 }
 
 int nst_compare_strings(Nst_StrObj *str1, Nst_StrObj *str2)

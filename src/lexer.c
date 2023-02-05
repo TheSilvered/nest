@@ -41,40 +41,25 @@
                            ch == '!' || ch == '['  || \
                            ch == ']' || ch == '^' )
 
-#define CHECK_MIN(min_val) \
-    if ( errno == ERANGE && sign == -1 ) \
+#define CHECK_ERR \
+    if ( res == NULL ) \
     { \
-        char *ones_start = int_part; \
-        while ( *ones_start == '0' ) \
-            ones_start++; \
-        if ( strcmp(ones_start, #min_val) != 0 ) \
-        { \
-            free(int_part); \
-            _NST_SET_RAW_MEMORY_ERROR( \
-                error, \
-                start, \
-                end, \
-                _NST_EM_INT_TOO_BIG); \
-            return; \
-        } \
-        free(int_part); \
-        value = -9223372036854775807; \
-        --value; \
-        errno = 0; \
-    } \
-    else if ( errno == ERANGE ) \
-    { \
-        free(int_part); \
-        _NST_SET_RAW_MEMORY_ERROR(error, start, end, _NST_EM_INT_TOO_BIG); \
+        _NST_SET_ERROR( \
+            error, \
+            start, \
+            cursor.pos, \
+            err.name, \
+            err.message); \
+        nst_dec_ref(err.name); \
+        nst_dec_ref(err.message); \
         return; \
-    } \
-    else \
-        value *= sign
+    }
 
 typedef struct LexerCursor {
     char *text;
     size_t len;
     Nst_Pos pos;
+    long prev_line_len;
     long idx;
     char ch;
 } LexerCursor;
@@ -83,13 +68,9 @@ static LexerCursor cursor;
 
 static inline void advance();
 static inline void go_back();
-static char *add_while_in(bool (*cond_func)(char),
-                          bool ignore_underscore,
-                          size_t *len);
-
 static void make_symbol(Nst_LexerToken **tok, Nst_Error *error);
 static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error);
-static void make_ident(Nst_LexerToken **tok);
+static void make_ident(Nst_LexerToken **tok, Nst_Error *error);
 static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error);
 static void parse_first_line(char  *text,
                              size_t len,
@@ -181,7 +162,7 @@ LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
             make_symbol(&tok, error);
         }
         else if ( CH_IS_ALPHA(cursor.ch))
-            make_ident(&tok);
+            make_ident(&tok, error);
         else if ( cursor.ch == '"' || cursor.ch == '\'' )
         {
             make_str_literal(&tok, error);
@@ -232,11 +213,13 @@ inline static void advance()
 
     if ( cursor.idx > (long) cursor.len )
     {
+        cursor.ch = '\0';
         return;
     }
 
     if ( cursor.ch == '\n' )
     {
+        cursor.prev_line_len = cursor.pos.col;
         cursor.pos.col = 0;
         cursor.pos.line++;
     }
@@ -256,74 +239,8 @@ inline static void go_back()
     if ( cursor.ch == '\n' )
     {
         cursor.pos.line--;
+        cursor.pos.col = cursor.prev_line_len;
     }
-}
-
-inline static char *add_while_in(bool (*cond_func)(char),
-                                 bool ignore_underscore,
-                                 size_t *len)
-{
-    if ( len != NULL )
-    {
-        *len = 0; // to set the value even if the function fails
-    }
-    char *str;
-    if ( !(cond_func(cursor.ch)) )
-    {
-        return NULL;
-    }
-
-    char *str_start = cursor.text + cursor.idx;
-    size_t str_len = 1;
-    advance();
-
-    while ( cursor.idx < (long) cursor.len &&
-            (cond_func(cursor.ch) || (ignore_underscore && cursor.ch == '_')) )
-    {
-        if ( !ignore_underscore || cursor.ch != '_' )
-        {
-            str_len++;
-        }
-        advance();
-    }
-    go_back();
-
-    str = (char *)malloc(str_len + 1);
-
-    if ( str == NULL )
-    {
-        errno = ENOMEM;
-        return NULL;
-    }
-
-    if ( ignore_underscore )
-    {
-        for ( size_t i = 0; i < str_len; i++ )
-        {
-            if ( *str_start == '_' )
-            {
-                i--;
-            }
-            else
-            {
-                str[i] = *str_start;
-            }
-            str_start++;
-        }
-    }
-    else
-    {
-        memcpy(str, str_start, str_len);
-    }
-
-    str[str_len] = '\0';
-
-    if ( len != NULL )
-    {
-        *len = str_len;
-    }
-
-    return str;
 }
 
 static void make_symbol(Nst_LexerToken **tok, Nst_Error *error)
@@ -444,289 +361,249 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error *error)
     *tok = nst_new_token_noval(start, nst_copy_pos(cursor.pos), token_type);
 }
 
-static bool is_dec(char ch)
-{
-    return CH_IS_DEC(ch);
-}
-
-static bool is_bin(char ch)
-{
-    return CH_IS_BIN(ch);
-}
-
-static bool is_oct(char ch)
-{
-    return CH_IS_OCT(ch);
-}
-
-static bool is_hex(char ch)
-{
-    return CH_IS_HEX(ch);
-}
-
 static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
 {
+    char *start_p = cursor.text + cursor.idx;
     Nst_Pos start = nst_copy_pos(cursor.pos);
     Nst_Pos end = start;
-    int sign = 1;
 
-    // If there is a minus or a plus it can also be a symbol
+    size_t ltrl_size = 0;
+    char *ltrl = NULL;
+    bool neg = false;
+    bool is_real = false;
+    Nst_StrObj s;
+    Nst_Obj *res;
+    Nst_OpErr err = { NULL, NULL };
+
     if ( cursor.ch == '-' || cursor.ch == '+' )
     {
-        sign = cursor.ch == '-' ? -1 : 1;
-
+        neg = cursor.ch == '-';
         advance();
-        // In case it's a symbol, make_symbol handles that
         if ( !CH_IS_DEC(cursor.ch) )
         {
             go_back();
             make_symbol(tok, error);
             return;
         }
+        start_p++;
     }
 
-    char *int_part;
-    size_t len_int_part;
-    size_t len_frac_part;
-
-    if ( cursor.ch == '0' )
+    if ( cursor.ch != '0' )
     {
-        Nst_Int value;
+        goto dec_num;
+    }
+
+    advance();
+    switch ( cursor.ch )
+    {
+    case 'b':
+    case 'B':
         advance();
-
-        // binary literals
-        if ( cursor.ch == 'b' || cursor.ch == 'B' )
+        if ( !CH_IS_BIN(cursor.ch) )
         {
-            advance();
-            int_part = add_while_in(is_bin, true, NULL);
-
-            if ( int_part == NULL)
-            {
-                go_back();
-                end = nst_copy_pos(cursor.pos);
-                *tok = nst_new_token_value(
-                    start,
-                    end,
-                    NST_TT_VALUE,
-                    nst_new_byte(0));
-                return;
-            }
-
-            advance();
-
-            // they cannot be followed by a digit but can by an identifier
-            // so 0b1019 is invalid but 0b01hello is valid
-            if ( CH_IS_DEC(cursor.ch) )
-            {
-                _NST_SET_RAW_SYNTAX_ERROR(
-                    error,
-                    start,
-                    cursor.pos,
-                    _NST_EM_BAD_INT_LITERAL);
-                return;
-            }
             go_back();
-            end = nst_copy_pos(cursor.pos);
-            advance();
-
-            value = strtoll(int_part, NULL, 2);
-
-            CHECK_MIN(1000000000000000000000000000000000000000000000000000000000000000);
-            free(int_part);
-
-            goto byte;
-        }
-        // Int hex literals
-        else if ( cursor.ch == 'x' || cursor.ch == 'X' )
-        {
-            advance();
-            int_part = add_while_in(is_hex, true, NULL);
-
-            if ( int_part == NULL)
-            {
-                go_back();
-                _NST_SET_RAW_SYNTAX_ERROR(
-                    error,
-                    start,
-                    cursor.pos,
-                    _NST_EM_BAD_INT_LITERAL);
-                return;
-            }
-
-            advance();
-
-            // they cannot be followed by a word
-            // 0xabc(hello) is fine but 0xabchello is not
-            if ( CH_IS_ALPHA(cursor.ch) )
-            {
-                _NST_SET_RAW_SYNTAX_ERROR(
-                    error,
-                    start,
-                    cursor.pos,
-                    _NST_EM_BAD_INT_LITERAL);
-                return;
-            }
-            go_back();
-            end = nst_copy_pos(cursor.pos);
-
-            value = strtoll(int_part, NULL, 16);
-
-            CHECK_MIN(8000000000000000);
-            free(int_part);
-
-            // hex literals cannot have a b suffix as b is a digit,
-            // for hex bytex the 0h prefix is used instead
             *tok = nst_new_token_value(
-                start, end,
+                start,
+                cursor.pos,
                 NST_TT_VALUE,
-                nst_new_int(value));
+                nst_new_byte(0));
             return;
         }
-        // Byte hex literals
-        else if ( cursor.ch == 'h' || cursor.ch == 'H' )
+        ltrl_size += 2;
+        do
         {
+            ltrl_size++;
             advance();
-            int_part = add_while_in(is_hex, true, NULL);
-
-            if ( int_part == NULL)
-            {
-                go_back();
-                _NST_SET_RAW_SYNTAX_ERROR(
-                    error,
-                    start,
-                    cursor.pos,
-                    _NST_EM_BAD_BYTE_LITERAL);
-                return;
-            }
-
-            advance();
-
-            // they cannot be followed by a word
-            // 0habc(hello) is fine but 0habchello is not
-            if ( CH_IS_ALPHA(cursor.ch) )
-            {
-                _NST_SET_RAW_SYNTAX_ERROR(
-                    error,
-                    start,
-                    cursor.pos,
-                    _NST_EM_BAD_BYTE_LITERAL);
-                return;
-            }
-            go_back();
-            end = nst_copy_pos(cursor.pos);
-
-            value = strtoll(int_part, NULL, 16);
-
-            CHECK_MIN(8000000000000000);
-            free(int_part);
-
-            *tok = nst_new_token_value(
-                start, end,
-                NST_TT_VALUE,
-                nst_new_byte((Nst_Byte)(value & 0xff)));
+        }
+        while ( CH_IS_BIN(cursor.ch) || cursor.ch == '_' );
+        if ( CH_IS_DEC(cursor.ch) )
+        {
+            _NST_SET_RAW_SYNTAX_ERROR(
+                error,
+                start,
+                cursor.pos,
+                _NST_EM_BAD_INT_LITERAL);
             return;
         }
-        // octal literals
-        else if ( cursor.ch == 'o' || cursor.ch == 'O' )
-        {
-            advance();
-            int_part = add_while_in(is_oct, true, NULL);
-
-            if ( int_part == NULL)
-            {
-                go_back();
-                _NST_SET_RAW_SYNTAX_ERROR(
-                    error,
-                    start,
-                    cursor.pos,
-                    _NST_EM_BAD_INT_LITERAL);
-                return;
-            }
-
-            advance();
-
-            // they cannot be followed by a digit but can by an identifier
-            // so 0o76459 is invalid but 0o53hello is valid
-            if ( CH_IS_DEC(cursor.ch) )
-            {
-                _NST_SET_RAW_SYNTAX_ERROR(
-                    error,
-                    start,
-                    cursor.pos,
-                    _NST_EM_BAD_INT_LITERAL);
-                return;
-            }
-            go_back();
-            end = nst_copy_pos(cursor.pos);
-
-            value = strtoll(int_part, NULL, 8);
-
-            CHECK_MIN(1000000000000000000000);
-            free(int_part);
-
-            advance();
-            goto byte;
-        }
-        else if ( !CH_IS_DEC(cursor.ch) && cursor.ch != '.' )
-        {
-            value = 0;
-            goto byte;
-        }
-        else
+        go_back();
+        end = nst_copy_pos(cursor.pos);
+        goto end;
+    case 'o':
+    case 'O':
+        advance();
+        if ( !CH_IS_OCT(cursor.ch) )
         {
             go_back();
-            // there is at least a 0, no error can occur here
-            int_part = add_while_in(is_dec, true, &len_int_part);
-
-            advance();
-            if ( cursor.ch == '.' )
-            {
-                goto real_lit;
-            }
-            int_lit: go_back();
-
-            end = nst_copy_pos(cursor.pos);
-            value = strtoll(int_part, NULL, 10);
-
-            CHECK_MIN(9223372036854775808);
-
-            advance();
-            goto byte;
+            _NST_SET_RAW_SYNTAX_ERROR(
+                error,
+                start,
+                cursor.pos,
+                _NST_EM_BAD_INT_LITERAL);
+            return;
         }
-
-    byte:
-        if ( cursor.ch == 'b' || cursor.ch == 'B' )
+        ltrl_size += 2;
+        do
         {
-            *tok = nst_new_token_value(
-                start, cursor.pos,
-                NST_TT_VALUE,
-                nst_new_byte((Nst_Byte)(value & 0xff)));
+            ltrl_size++;
+            advance();
         }
-        else
+        while ( CH_IS_OCT(cursor.ch) || cursor.ch == '_' );
+        if ( CH_IS_DEC(cursor.ch) )
+        {
+            _NST_SET_RAW_SYNTAX_ERROR(
+                error,
+                start,
+                cursor.pos,
+                _NST_EM_BAD_INT_LITERAL);
+            return;
+        }
+        go_back();
+        end = nst_copy_pos(cursor.pos);
+        goto end;
+    case 'x':
+    case 'X':
+        advance();
+        if ( !CH_IS_HEX(cursor.ch) )
         {
             go_back();
-            *tok = nst_new_token_value(
-                start, end,
-                NST_TT_VALUE,
-                nst_new_int(value));
+            _NST_SET_RAW_SYNTAX_ERROR(
+                error,
+                start,
+                cursor.pos,
+                _NST_EM_BAD_INT_LITERAL);
+            return;
         }
+        ltrl_size += 2;
+        do
+        {
+            ltrl_size++;
+            advance();
+        }
+        while ( CH_IS_HEX(cursor.ch) || cursor.ch == '_' );
+        if ( CH_IS_ALPHA(cursor.ch) )
+        {
+            _NST_SET_RAW_SYNTAX_ERROR(
+                error,
+                start,
+                cursor.pos,
+                _NST_EM_BAD_INT_LITERAL);
+            return;
+        }
+        go_back();
+        end = nst_copy_pos(cursor.pos);
+        goto end;
+    case 'h':
+    case 'H':
+    {
+        advance();
+        if ( !CH_IS_HEX(cursor.ch) )
+        {
+            go_back();
+            _NST_SET_RAW_SYNTAX_ERROR(
+                error,
+                start,
+                cursor.pos,
+                _NST_EM_BAD_BYTE_LITERAL);
+            return;
+        }
+        char ch1 = 0;
+        char ch2 = 0;
+        do
+        {
+            if ( cursor.ch == '_' )
+            {
+                advance();
+                continue;
+            }
+            ch1 = ch2;
+            if ( cursor.ch >= '0' && cursor.ch <= '9' )
+            {
+                ch2 = cursor.ch - '0';
+            }
+            else if ( cursor.ch >= 'a' && cursor.ch <= 'f' )
+            {
+                ch2 = cursor.ch - 'a' + 10;
+            }
+            else
+            {
+                ch2 = cursor.ch - 'A' + 10;
+            }
+            advance();
+        }
+        while ( CH_IS_HEX(cursor.ch) || cursor.ch == '_' );
+        if ( CH_IS_ALPHA(cursor.ch) )
+        {
+            _NST_SET_RAW_SYNTAX_ERROR(
+                error,
+                start,
+                cursor.pos,
+                _NST_EM_BAD_INT_LITERAL);
+            return;
+        }
+        go_back();
+        int val = (int)ch2 + (int)ch1 * 16;
+        if ( neg )
+        {
+            val = -val;
+        }
+        *tok = nst_new_token_value(
+            start,
+            cursor.pos,
+            NST_TT_VALUE,
+            nst_new_byte(val & 0xff));
         return;
     }
-
-    int_part = add_while_in(is_dec, true, &len_int_part);
-    advance();
-    if ( cursor.ch != '.' )
-    {
-        goto int_lit;
+    default:
+        go_back();
     }
 
-real_lit:
-    advance();
-    char *frac_part = add_while_in(is_dec, true, &len_frac_part);
-    if ( frac_part == NULL )
+dec_num:
+    do
     {
-        free(int_part);
+        advance();
+        ltrl_size++;
+    }
+    while ( CH_IS_DEC(cursor.ch) || cursor.ch == '_' );
+
+    if ( cursor.ch != '.' )
+    {
         go_back();
+        goto end;
+    }
+    is_real = true;
+    advance();
+    ltrl_size++;
+
+    if ( !CH_IS_DEC(cursor.ch) )
+    {
+        _NST_SET_RAW_SYNTAX_ERROR(
+            error,
+            start,
+            cursor.pos,
+            _NST_EM_BAD_REAL_LITERAL);
+            return;
+    }
+    do
+    {
+        advance();
+        ltrl_size++;
+    }
+    while ( CH_IS_DEC(cursor.ch) || cursor.ch == '_' );
+
+    if ( cursor.ch != 'e' && cursor.ch != 'E' )
+    {
+        go_back();
+        goto end;
+    }
+    advance();
+    ltrl_size++;
+    if ( cursor.ch == '+' || cursor.ch == '-' )
+    {
+        advance();
+        ltrl_size++;
+    }
+    if ( !CH_IS_DEC(cursor.ch) )
+    {
         _NST_SET_RAW_SYNTAX_ERROR(
             error,
             start,
@@ -734,97 +611,92 @@ real_lit:
             _NST_EM_BAD_REAL_LITERAL);
         return;
     }
-    advance();
-
-    if ( cursor.ch == 'e' || cursor.ch == 'E' )
+    do
     {
-        int exp_neg = false;
-        size_t len_exp;
-
         advance();
-        if ( cursor.ch == '-' || cursor.ch == '+' )
-        {
-            exp_neg = cursor.ch == '-';
-            advance();
-        }
+        ltrl_size++;
+    }
+    while ( CH_IS_DEC(cursor.ch) || cursor.ch == '_' );
+    go_back();
 
-        char *exp = add_while_in(is_dec, true, &len_exp);
-        if ( exp == NULL )
-        {
-            free(int_part);
-            free(frac_part);
-            go_back();
-            _NST_SET_RAW_SYNTAX_ERROR(
-                error,
-                start,
-                cursor.pos,
-                _NST_EM_BAD_REAL_LITERAL);
-            return;
-        }
-
-        end = nst_copy_pos(cursor.pos);
-        char *complete_lit = (char *)malloc(
-        //        9        .       26          e-    5       \0
-            len_int_part + 1 + len_frac_part + 2 + len_exp + 1);
-        if ( complete_lit == NULL )
-        {
-            errno = ENOMEM;
-            return;
-        }
-
-        sprintf(
-            complete_lit,
-            "%s%s%s%s%s",
-            int_part, ".", frac_part,
-            exp_neg ? "e-" : "e+", exp);
-        free(int_part);
-        free(frac_part);
-        free(exp);
-
-        Nst_Real value = strtod(complete_lit, NULL);
-        *tok = nst_new_token_value(
-            start, end,
-            NST_TT_VALUE,
-            nst_new_real(value * sign));
-        free(complete_lit);
+end:
+    ltrl = (char *)malloc(ltrl_size + 3);
+    if ( ltrl == NULL )
+    {
+        _NST_FAILED_ALLOCATION(error, start, cursor.pos);
         return;
+    }
+    ltrl[0] = neg ? '-' : '+';
+    memcpy(ltrl + 1, start_p, ltrl_size);
+    ltrl[ltrl_size + 1] = '\0';
+    s.value = ltrl;
+    s.len = ltrl_size + 1;
+
+    if ( is_real )
+    {
+        res = nst_parse_real(&s, &err);
     }
     else
     {
-        go_back();
-        char *complete_lit = (char *)malloc(len_int_part + len_frac_part + 2);
-        if ( complete_lit == NULL )
+        res = nst_parse_int(&s, 0, &err);
+
+        advance();
+        if ( cursor.ch == 'b' || cursor.ch == 'B' )
         {
-            errno = ENOMEM;
-            return;
+            if ( res == NULL && err.name == nst_s.e_MemoryError )
+            {
+                nst_dec_ref(err.name);
+                nst_dec_ref(err.message);
+                ltrl[ltrl_size + 1] = 'b';
+                ltrl[ltrl_size + 2] = '\0';
+                s.len++;
+                res = nst_parse_byte(&s, &err);
+            }
+            else
+            {
+                CHECK_ERR;
+                Nst_Obj *new_res = nst_new_byte(AS_INT(res) & 0xff);
+                nst_dec_ref(res);
+                res = new_res;
+            }
+            end = cursor.pos;
         }
-
-        memcpy(complete_lit, int_part, len_int_part);
-        complete_lit[len_int_part] = '.';
-        memcpy(complete_lit + len_int_part + 1, frac_part, len_frac_part);
-        complete_lit[len_int_part + len_frac_part + 1] = '\0';
-        free(int_part);
-        free(frac_part);
-
-        Nst_Real value = strtod(complete_lit, NULL);
-        *tok = nst_new_token_value(
-            start, cursor.pos,
-            NST_TT_VALUE,
-            nst_new_real(value * sign));
-        free(complete_lit);
-        return;
+        else
+        {
+            go_back();
+        }
     }
+
+// finish:
+    CHECK_ERR;
+    *tok = nst_new_token_value(start, end, NST_TT_VALUE, res);
 }
 
-static bool is_ident_ch(char ch)
-{
-    return CH_IS_ALPHA(ch) || CH_IS_DEC(ch);
-}
-
-static void make_ident(Nst_LexerToken **tok)
+static void make_ident(Nst_LexerToken **tok, Nst_Error *error)
 {
     Nst_Pos start = nst_copy_pos(cursor.pos);
-    char *str = add_while_in(is_ident_ch, false, NULL);
+
+    char *str;
+    char *str_start = cursor.text + cursor.idx;
+    size_t str_len = 1;
+    advance();
+
+    while ( cursor.idx < (long) cursor.len &&
+            (CH_IS_ALPHA(cursor.ch) || CH_IS_DEC(cursor.ch)) )
+    {
+        str_len++;
+        advance();
+    }
+    go_back();
+
+    str = (char *)malloc(str_len + 1);
+
+    if ( str == NULL )
+    {
+        _NST_FAILED_ALLOCATION(error, start, cursor.pos);
+    }
+    memcpy(str, str_start, str_len);
+    str[str_len] = '\0';
 
     Nst_Pos end = nst_copy_pos(cursor.pos);
     Nst_StrObj *val_obj = STR(nst_new_cstring_raw(str, true));

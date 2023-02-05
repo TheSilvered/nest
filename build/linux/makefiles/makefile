@@ -31,7 +31,7 @@ clean:
 
 debug:
 	mkdir -p $(DBG_DIR)
-	$(CC) $(DBG_FLAGS) $(CFLAGS) $(FLAGS) $(SRCS) $(CLINKS) -o $(DBG_TARGET)
+	$(CC) $(DBG_FLAGS) $(CFLAGS) $(SRCS) $(CLINKS) -o $(DBG_TARGET)
 
 all:
 	make
