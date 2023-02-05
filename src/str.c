@@ -255,6 +255,7 @@ Nst_Obj *nst_parse_int(Nst_StrObj *str, int base, struct _Nst_OpErr *err)
     if ( (base < 2 || base > 36) && base != 0 )
     {
         NST_SET_RAW_VALUE_ERROR(_NST_EM_BAD_INT_BASE);
+        return NULL;
     }
     ERR_IF_END(s, end, RETURN_INT_ERR);
 

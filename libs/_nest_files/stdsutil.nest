@@ -30,6 +30,7 @@ __su.split_            = split
 __su.bin_              = bin
 __su.oct_              = oct
 __su.hex_              = hex
+__su.parse_int_        = parse_int
 
 '0123456789'             = DIGITS
 '0123456789abcdefABCDEF' = HEX_DIGITS

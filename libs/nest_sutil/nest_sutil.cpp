@@ -978,3 +978,15 @@ NST_FUNC_SIGN(hex_)
 
     return nst_new_string(buf, size_t(str_len) - 1, true);
 }
+
+NST_FUNC_SIGN(parse_int_)
+{
+    Nst_StrObj *str;
+    Nst_Obj *base_obj;
+    NST_DEF_EXTRACT("s?i", &str, &base_obj);
+
+    Nst_Int base;
+    NST_SET_DEF(base_obj, base, 0, AS_INT(base_obj));
+
+    return nst_parse_int(str, (int)base, err);
+}
