@@ -15,12 +15,17 @@ bool lib_init()
 
     size_t idx = 0;
 
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(load_s_,     1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(load_f_,     1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(load_s_,      1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(load_f_,      1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(dump_s_,      2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(dump_f_,      3);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(set_options_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_options_, 0);
+
+#if __LINE__ - FUNC_COUNT != 19
+#error FUNC_COUNT does not match the number of lines
+#endif
+
     lib_init_ = true;
     return true;
 }

@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include "nest_sutil.h"
 
-#define FUNC_COUNT 28
+#define FUNC_COUNT 29
 
 static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
@@ -45,6 +45,11 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(bin_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(oct_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(hex_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(parse_int_, 2);
+
+#if __LINE__ - FUNC_COUNT != 21
+#error FUNC_COUNT does not match the number of lines
+#endif
 
     lib_init_ = true;
     return true;

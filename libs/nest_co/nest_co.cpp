@@ -26,6 +26,10 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(generator_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_co_type_obj_, 0);
 
+#if __LINE__ - FUNC_COUNT != 23
+#error FUNC_COUNT does not match the number of lines
+#endif
+
     t_Coroutine = nst_new_type_obj("Coroutine", 9);
 
     state_suspended = nst_new_int(FLAG_CO_SUSPENDED);

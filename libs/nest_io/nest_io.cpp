@@ -42,6 +42,10 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_stdout_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_stderr_, 0);
 
+#if __LINE__ - FUNC_COUNT != 27
+#error FUNC_COUNT does not match the number of lines
+#endif
+
     stdin_obj  = nst_new_true_file(stdin,  false, true, false);
     stdout_obj = nst_new_true_file(stdout, false, false, true);
     stderr_obj = nst_new_true_file(stderr, false, false, true);

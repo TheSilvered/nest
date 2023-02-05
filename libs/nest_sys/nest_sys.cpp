@@ -47,6 +47,10 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_version_,  0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_platform_, 0);
 
+#if __LINE__ - FUNC_COUNT != 40
+#error FUNC_COUNT does not match the number of lines
+#endif
+
     lib_init_ = true;
 
     version_obj = STR(nst_new_cstring_raw(NEST_VERSION, false));

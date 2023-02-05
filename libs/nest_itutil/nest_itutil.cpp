@@ -31,6 +31,10 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(iter_get_val_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(iter_advance_, 1);
 
+#if __LINE__ - FUNC_COUNT != 19
+#error FUNC_COUNT does not match the number of lines
+#endif
+
     lib_init_ = true;
     return true;
 }

@@ -460,7 +460,7 @@ EXPORT Nst_FuncDeclr *get_func_ptrs();
 EXPORT NST_INIT_LIB_OBJ_FUNC;
 // EXPORT void free_lib();
 
-// To add a Nest function use NST_FUNC_SIGN(func_name);
+NST_FUNC_SIGN(add);
 
 #ifdef __cplusplus
 }
@@ -471,7 +471,7 @@ EXPORT NST_INIT_LIB_OBJ_FUNC;
 
 "#include \"" name ".h\"
 
-#define FUNC_COUNT 0 // define here the number of functions inside the library
+#define FUNC_COUNT 1 // define here the number of functions inside the library
 
 static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
@@ -485,8 +485,12 @@ bool lib_init()
 
     size_t idx = 0;
 
-    // use func_list_[idx++] = NST_MAKE_FUNCDECLR(func_name, arg_num); to add a
-    // function to the function list, arg num is an integer.
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(add, 2);
+
+#if __LINE__ - FUNC_COUNT != 18 // keep this number as the line after the first
+                                // func_list_[idx++] = ...
+#error
+#endif
 
     lib_init_ = true;
     return true;
@@ -495,6 +499,13 @@ bool lib_init()
 Nst_FuncDeclr *get_func_ptrs()
 {
     return lib_init_ ? func_list_ : nullptr;
+}
+
+NST_FUNC_SIGN(add)
+{
+    Nst_Int a, b;
+    NST_DEF_EXTRACT("ii", &a, &b);
+    return nst_new_int(a + b);
 }
 " >< = name_cpp_content
 
