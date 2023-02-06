@@ -136,11 +136,15 @@ are all the valid escape sequences:
 | `\r`     | `0d`      | Carriage return        |
 | `\t`     | `09`      | Horizontal tab         |
 | `\v`     | `0b`      | Vertical tab           |
-| `\xhh`   | None      | Hexadecimal byte, `hh` represents a hex number from `00` to `ff` |
-| `\nnn`   | None      | Octal byte, `nnn` represents an octal number from `0` to `777` |
+| `\xhh`   | -         | Hexadecimal byte       |
+| `\ooo`   | -         | Octal byte             |
+| `\uhhhh` | -         | Unicode character from U+0000 to U+ffff |
+| `\Uhhhhhhhh` | -     | Unicode character from U+10000 to U+10ffff |
 
-> NOTE: octal escapes can have either one, two or three digits, `\12` and `\012`
-> are both valid escapes
+> NOTE: `h` represents a hexadecimal byte (`0-9`, `a-f` or `A-F`) and `n` an
+> octal one (`0-7`)  
+> NOTE: octal escapes can have either one, two or three digits: `\0`, `\12` and
+> `\012` are all valid
 
 ### Array literals
 
@@ -556,7 +560,7 @@ This program outputs:
 3 c
 ```
 
-> Note: when using this assignment you cannot use compound assignments.
+> NOTE: when using this assignment you cannot use compound assignments.
 
 ### Access operator
 

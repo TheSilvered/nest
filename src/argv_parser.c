@@ -2,17 +2,17 @@
 #include "nest.h"
 
 #define HELP_MESSAGE \
-    "USAGE: nest [options] [filename | -c command] [args]\n\n" \
-    \
+    "USAGE: nest [options] [filename | -c command] [args]\n" \
+    "\n" \
     "Filename:\n" \
-    "  The name of the file to execute\n\n" \
-    \
+    "  The name of the file to execute\n" \
+    "\n" \
     "Command:\n" \
-    "  A string of code to execute\n\n" \
-    \
+    "  A string of code to execute\n" \
+    "\n" \
     "Args:\n" \
-    "  the arguments that will be accessible through _args_ during execution\n\n" \
-    \
+    "  the arguments that will be accessible through _args_ during execution\n" \
+    "\n" \
     "Options:\n" \
     "  -h -? --help          prints this message\n" \
     "  -V --version          prints the version of Nest being used\n" \
@@ -20,20 +20,20 @@
     "  -a --ast              prints the abstract syntax tree of the program\n" \
     "  -b --bytecode         prints the byte code of the program\n" \
     "  -f --force-execution  executes the program even when -t, -a or -b are used\n" \
-    "  -D --no-default       does not set default variables such as 'true' or\n" \
-    "                        'Int', this will automatically set the optimization\n" \
-    "                        level to 2 if -O3 is specified\n\n" \
-    \
+    "  -D --no-default       does not set or optimize default variables such as\n" \
+    "                        'true' or 'Int'; this does not affect the optimization\n" \
+    "                        on imported modules\n" \
+    "\n" \
     "  -O0                   do not optimize the program\n" \
     "  -O1                   optimize only expressions with known values\n" \
     "  -O2                   optimize bytecode instruction sequences that can be\n" \
     "                        more concise\n" \
     "  -O3                   replace built-in names (e.g. 'true', 'Int', etc.) with\n" \
     "                        their corresponding value, this does not replace them\n" \
-    "                        when they might be modified\n\n" \
-    \
-    "  --cp1252              reads the file using the CP-1252 encoding\n\n" \
-    \
+    "                        when they might be modified\n" \
+    "\n" \
+    "  --cp1252              reads the file using the CP-1252 encoding\n" \
+    "\n" \
     "  -m --monochrome       prints the error messages without ANSI color escapes\n"
 
 #define USAGE_MESSAGE \

@@ -667,7 +667,6 @@ end:
         }
     }
 
-// finish:
     CHECK_ERR;
     *tok = nst_new_token_value(start, end, NST_TT_VALUE, res);
 }
@@ -694,6 +693,7 @@ static void make_ident(Nst_LexerToken **tok, Nst_Error *error)
     if ( str == NULL )
     {
         _NST_FAILED_ALLOCATION(error, start, cursor.pos);
+        return;
     }
     memcpy(str, str_start, str_len);
     str[str_len] = '\0';
@@ -715,8 +715,6 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
 
     char *end_str = (char *)malloc(START_CH_SIZE);
     char *end_str_realloc = NULL;
-    char ch1;
-    char ch2;
 
     if ( end_str == NULL )
     {
@@ -734,7 +732,7 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
     while ( cursor.idx < (long) cursor.len &&
             (cursor.ch != closing_ch || escape) )
     {
-        if ( str_len + 1 == chunk_size )
+        if ( str_len + 4 == chunk_size )
         {
             chunk_size = (size_t)(chunk_size * 1.5);
             end_str_realloc = (char *)realloc(
@@ -789,37 +787,75 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
         case 't': end_str[str_len++] = '\t'; break;
         case 'v': end_str[str_len++] = '\v'; break;
         case 'x':
+        {
+            if ( (size_t)cursor.idx + 2 >= cursor.len )
+            {
+                SET_INVALID_ESCAPE_ERROR;
+            }
+
             advance();
-            if ( CUR_AT_END || cursor.ch == closing_ch )
-            {
-                SET_INVALID_ESCAPE_ERROR;
-            }
-
-            ch1 = (char)tolower(cursor.ch);
+            char ch1 = (char)tolower(cursor.ch);
             advance();
+            char ch2 = (char)tolower(cursor.ch);
 
-            if ( CUR_AT_END || cursor.ch == closing_ch )
+            if ( !CH_IS_HEX(ch1) || !CH_IS_HEX(ch2) )
             {
                 SET_INVALID_ESCAPE_ERROR;
             }
 
-            ch2 = (char)tolower(cursor.ch);
+            char result = ((ch1 > '9' ? ch1 - 'a' + 10 : ch1 - '0') << 4) +
+                            (ch2 > '9' ? ch2 - 'a' + 10 : ch2 - '0');
 
-            if ( ch1 < '0' || ch1 > 'f'  ||
-                (ch1 > '9' && ch1 < 'a') ||
-                 ch2 < '0' || ch2 > 'f'  ||
-                (ch2 > '9' && ch2 < 'a') )
+            end_str[str_len++] = result;
+            break;
+        }
+        case 'u':
+        case 'U':
+        {
+            int size = cursor.ch == 'U' ? 8 : 4;
+            if ( (size_t)cursor.idx + size >= cursor.len )
             {
                 SET_INVALID_ESCAPE_ERROR;
             }
 
+            int num = 0;
+            for ( int i = 0; i < size; i++ )
             {
-                char result = ((ch1 > '9' ? ch1 - 'a' + 10 : ch1 - '0') << 4) +
-                              (ch2 > '9' ? ch2 - 'a' + 10 : ch2 - '0');
+                advance();
+                char ch = (char)tolower(cursor.ch);
+                if ( !CH_IS_HEX(ch) )
+                {
+                    SET_INVALID_ESCAPE_ERROR;
+                }
 
-                end_str[str_len++] = result;
+                ch -= ch > '9' ? 'a' - 10 : '0';
+                num += ch << (4 * (size - i - 1));
+            }
+
+            if ( num <= 0x7f )
+            {
+                end_str[str_len++] = (char)num;
+            }
+            else if ( num <= 0x7ff )
+            {
+                end_str[str_len++] = 0b11000000 | (char)(num >> 6);
+                end_str[str_len++] = 0b10000000 | (char)(num & 0x3f);
+            }
+            else if ( num <= 0xffff )
+            {
+                end_str[str_len++] = 0b11100000 | (char)(num >> 12);
+                end_str[str_len++] = 0b10000000 | (char)(num >> 6 & 0x3f);
+                end_str[str_len++] = 0b10000000 | (char)(num & 0x3f);
+            }
+            else
+            {
+                end_str[str_len++] = 0b11110000 | (char)(num >> 18);
+                end_str[str_len++] = 0b10000000 | (char)(num >> 12 & 0x3f);
+                end_str[str_len++] = 0b10000000 | (char)(num >> 6 & 0x3f);
+                end_str[str_len++] = 0b10000000 | (char)(num & 0x3f);
             }
             break;
+        }
         case '0':
         case '1':
         case '2':
@@ -828,30 +864,29 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
         case '5':
         case '6':
         case '7':
-            ch1 = cursor.ch;
+        {
+            char ch1 = cursor.ch - '0';
 
             advance();
-            if ( cursor.ch < '0' || cursor.ch > '7' )
+            if ( !CH_IS_OCT(cursor.ch) )
             {
-                end_str[str_len++] = ch1 - '0';
+                end_str[str_len++] = ch1;
                 go_back();
                 break;
             }
-
-            ch2 = cursor.ch;
+            char ch2 = cursor.ch - '0';
 
             advance();
-            if ( cursor.ch < '0' || cursor.ch > '7' )
+            if ( !CH_IS_OCT(cursor.ch) )
             {
-                end_str[str_len++] = ((ch1 - '0') << 3) + ch2 - '0';
+                end_str[str_len++] = (ch1 << 3) + ch2;
                 go_back();
                 break;
             }
-
-            end_str[str_len++] = ((ch1 - '0') << 6) + ((ch2 - '0') << 3) +
-                                 cursor.ch - '0';
+            char ch3 = cursor.ch - '0';
+            end_str[str_len++] = (ch1 << 6) + (ch2 << 3) + ch3;
             break;
-
+        }
         default:
             SET_INVALID_ESCAPE_ERROR;
         }
@@ -875,18 +910,15 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
         return;
     }
 
-    if ( str_len < chunk_size )
+    if ( str_len + 20 < chunk_size )
     {
-        end_str_realloc = (char*)realloc(
-            end_str,
-            sizeof(char) * (str_len + 1));
-    }
-    if ( end_str_realloc != NULL )
-    {
-        end_str = end_str_realloc;
+        end_str_realloc = (char *)realloc(end_str, str_len + 1);
+        if ( end_str_realloc != NULL )
+        {
+            end_str = end_str_realloc;
+        }
     }
 
-    end_str = end_str_realloc;
     end_str[str_len] = '\0';
 
     Nst_StrObj *val_obj = STR(nst_new_string(end_str, str_len, true));
