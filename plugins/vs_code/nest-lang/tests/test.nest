@@ -4,7 +4,7 @@
 '_advance_'
 '_is_done_'
 '_get_val_'
-'hello\n \xff \123 \' abc'
+'hello\n \xff \123 \' \u1234 \Uabdef123 abc'
 'the string
 stops'
 
@@ -12,7 +12,7 @@ stops'
 "_advance_"
 "_is_done_"
 "_get_val_"
-"hello\n \xff \123 \" abc"
+"hello\n \xff \123 \" \u1234 \Uabdef123 abc"
 "the string
 continues"
 
