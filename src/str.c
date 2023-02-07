@@ -6,6 +6,7 @@
 #include "str.h"
 #include "error.h"
 #include "lib_import.h"
+#include "lexer.h"
 
 #define IS_WHITESPACE(ch) \
         (ch == ' '  || \
@@ -102,7 +103,7 @@ Nst_Obj *_nst_copy_string(Nst_StrObj *src)
 Nst_Obj *_nst_repr_string(Nst_StrObj *src)
 {
     const char *hex_chars = "0123456789abcdef";
-    char *orig = src->value;
+    unsigned char *orig = (unsigned char *)src->value;
     size_t l = src->len;
     size_t new_size = 2;
     int double_quotes_count = 0;
@@ -124,13 +125,27 @@ Nst_Obj *_nst_repr_string(Nst_StrObj *src)
         case '\'': single_quotes_count += 1; break;
         case '"': double_quotes_count += 1; break;
         default:
-            if ( isprint((unsigned char)orig[i]) )
+            if ( isprint(orig[i]) )
             {
                 new_size += 1;
+                continue;
+            }
+            else if ( orig[i] < 0b01111111 )
+            {
+                new_size += 4;
             }
             else
             {
-                new_size += 4;
+                int res = nst_check_utf8_bytes(orig + i, l - i);
+                if ( res == -1 )
+                {
+                    new_size += 4;
+                }
+                else
+                {
+                    new_size += res;
+                    i += res - 1;
+                }
             }
         }
     }
@@ -188,12 +203,22 @@ Nst_Obj *_nst_repr_string(Nst_StrObj *src)
             {
                 new_str[i++] = orig[j];
             }
-            else
+            else if ( orig[i] < 0b01111111 ||
+                      nst_check_utf8_bytes(orig + j, l - j) == -1 )
             {
                 new_str[i++] = '\\';
                 new_str[i++] = 'x';
                 new_str[i++] = hex_chars[(unsigned char)orig[j] >> 4];
                 new_str[i++] = hex_chars[(unsigned char)orig[j] & 0xf];
+            }
+            else
+            {
+                int res = nst_check_utf8_bytes(orig + j, l - j);
+                for ( ; res > 0; res-- )
+                {
+                    new_str[i++] = orig[j++];
+                }
+                j--;
             }
         }
     }

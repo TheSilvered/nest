@@ -39,61 +39,7 @@ Nst_Obj *_nst_alloc_obj(size_t              size,
 
 void _nst_destroy_obj(Nst_Obj *obj)
 {
-    if ( NST_HAS_FLAG(obj, NST_FLAG_GGC_IS_SUPPORTED) )
-    {
-        if ( NST_HAS_FLAG(obj, NST_FLAG_GGC_DELETED) )
-        {
-            return;
-        }
-
-        obj->ref_count = 2147483647;
-        if ( obj->destructor != NULL )
-        {
-            (*obj->destructor)(obj);
-        }
-        if ( obj != OBJ(obj->type) )
-        {
-            nst_dec_ref(obj->type);
-        }
-
-        // The object is being deleted by the garbage collector
-        if ( NST_HAS_FLAG(obj, NST_FLAG_GGC_UNREACHABLE) )
-        {
-            NST_SET_FLAG(obj, NST_FLAG_GGC_DELETED);
-            return;
-        }
-        else
-        {
-            Nst_GGCObj *ggc_obj = (Nst_GGCObj *)obj;
-            Nst_GGCList *ls = ggc_obj->ggc_list;
-
-            if ( ls != NULL )
-            {
-                if ( ls->head == ggc_obj )
-                {
-                    ls->head = ggc_obj->ggc_next;
-                }
-                else
-                {
-                    ggc_obj->ggc_prev->ggc_next = ggc_obj->ggc_next;
-                }
-
-                if ( ls->tail == ggc_obj )
-                {
-                    ls->tail = ggc_obj->ggc_prev;
-                }
-                else
-                {
-                    ggc_obj->ggc_next->ggc_prev = ggc_obj->ggc_prev;
-                }
-
-                ls->size--;
-            }
-
-            free(obj);
-        }
-    }
-    else
+    if ( !NST_HAS_FLAG(obj, NST_FLAG_GGC_IS_SUPPORTED) )
     {
         if ( obj->destructor != NULL )
         {
@@ -105,7 +51,58 @@ void _nst_destroy_obj(Nst_Obj *obj)
         }
 
         free(obj);
+        return;
     }
+
+    if ( NST_HAS_FLAG(obj, NST_FLAG_GGC_DELETED) )
+    {
+        return;
+    }
+
+    obj->ref_count = 2147483647;
+    if ( obj->destructor != NULL )
+    {
+        (*obj->destructor)(obj);
+    }
+    if ( obj != OBJ(obj->type) )
+    {
+        nst_dec_ref(obj->type);
+    }
+
+    // if the object is being deleted by the garbage collector
+    if ( NST_HAS_FLAG(obj, NST_FLAG_GGC_UNREACHABLE) )
+    {
+        NST_SET_FLAG(obj, NST_FLAG_GGC_DELETED);
+        return;
+    }
+
+    Nst_GGCObj *ggc_obj = (Nst_GGCObj *)obj;
+    Nst_GGCList *ls = ggc_obj->ggc_list;
+
+    if ( ls != NULL )
+    {
+        if ( ls->head == ggc_obj )
+        {
+            ls->head = ggc_obj->ggc_next;
+        }
+        else
+        {
+            ggc_obj->ggc_prev->ggc_next = ggc_obj->ggc_next;
+        }
+
+        if ( ls->tail == ggc_obj )
+        {
+            ls->tail = ggc_obj->ggc_prev;
+        }
+        else
+        {
+            ggc_obj->ggc_next->ggc_prev = ggc_obj->ggc_prev;
+        }
+
+        ls->size--;
+    }
+
+    free(obj);
 }
 
 Nst_Obj *_nst_inc_ref(Nst_Obj *obj)
