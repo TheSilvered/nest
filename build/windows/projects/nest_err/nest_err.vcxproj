@@ -183,6 +183,7 @@
     <ClInclude Include="..\..\..\..\libs\nest_err\nest_err.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="..\..\..\..\src\argv_parser.c" />
     <ClCompile Include="..\..\..\..\src\global_consts.c" />
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp" />
     <ClCompile Include="..\..\..\..\src\compiler.c" />
@@ -197,6 +198,7 @@
     <ClCompile Include="..\..\..\..\src\lib_import.c" />
     <ClCompile Include="..\..\..\..\src\llist.c" />
     <ClCompile Include="..\..\..\..\src\map.c" />
+    <ClCompile Include="..\..\..\..\src\nest.c" />
     <ClCompile Include="..\..\..\..\src\nodes.c" />
     <ClCompile Include="..\..\..\..\src\obj.c" />
     <ClCompile Include="..\..\..\..\src\obj_ops.c" />

@@ -504,7 +504,7 @@ Nst_FuncDeclr *get_func_ptrs()
 NST_FUNC_SIGN(add)
 {
     Nst_Int a, b;
-    NST_DEF_EXTRACT("ii", &a, &b);
+    NST_DEF_EXTRACT(\"ii\", &a, &b);
     return nst_new_int(a + b);
 }
 " >< = name_cpp_content

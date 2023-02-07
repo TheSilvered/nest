@@ -47,6 +47,7 @@ all:
 	make -f nest_sutil.mk
 	make -f nest_sys.mk
 	make -f nest_time.mk
+	make -f nest_utf8.mk
 
 all-x86:
 	make x86
@@ -62,6 +63,7 @@ all-x86:
 	make -f nest_sutil.mk   x86
 	make -f nest_sys.mk     x86
 	make -f nest_time.mk    x86
+	make -f nest_utf8.mk    x86
 
 all-debug:
 	make debug
@@ -77,3 +79,4 @@ all-debug:
 	make -f nest_sutil.mk   debug
 	make -f nest_sys.mk     debug
 	make -f nest_time.mk    debug
+	make -f nest_utf8.mk    debug

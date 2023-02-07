@@ -206,6 +206,12 @@
     <ClCompile Include="..\..\..\..\libs\nest_json\json_dumper.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\src\argv_parser.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\nest.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\libs\_nest_files\stdjson.nest">
