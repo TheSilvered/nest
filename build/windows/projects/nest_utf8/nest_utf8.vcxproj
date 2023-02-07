@@ -208,6 +208,9 @@
     <ClCompile Include="..\..\..\..\src\tokens.c" />
     <ClCompile Include="..\..\..\..\src\var_table.c" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\libs\_nest_files\stdutf8.nest" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

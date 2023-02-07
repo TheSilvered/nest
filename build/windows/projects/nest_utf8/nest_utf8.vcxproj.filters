@@ -195,4 +195,9 @@
       <Filter>Nest source</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\..\..\..\libs\_nest_files\stdutf8.nest">
+      <Filter>Resources</Filter>
+    </None>
+  </ItemGroup>
 </Project>

@@ -18,6 +18,7 @@ EXPORT Nst_FuncDeclr *get_func_ptrs();
 EXPORT NST_INIT_LIB_OBJ_FUNC;
 
 NST_FUNC_SIGN(is_valid_);
+NST_FUNC_SIGN(get_len_);
 NST_FUNC_SIGN(get_at_);
 NST_FUNC_SIGN(to_iter_);
 
