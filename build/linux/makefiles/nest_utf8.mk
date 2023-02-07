@@ -2,7 +2,7 @@ CC=g++
 CFLAGS=-I../../../include -Wall -shared -fPIC -rdynamic -std=c++2a
 CLINKS=-lm -ldl
 DBG_FLAGS=-D_DEBUG -g -O0
-EXE_NAME=nest_utf8.so
+EXE_NAME=stdutf8.so
 
 SRC_DIR=../../../src
 EXE_x64_DIR=../linux_release/x64
