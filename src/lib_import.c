@@ -355,6 +355,7 @@ bool nst_extract_arg_values(const char *types,
         succeded = false;
     }
 
-    end: va_end(arglist);
+end:
+    va_end(arglist);
     return succeded;
 }

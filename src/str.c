@@ -117,6 +117,7 @@ Nst_Obj *_nst_repr_string(Nst_StrObj *src)
         case '\\':
         case '\a':
         case '\b':
+        case '\x1b':
         case '\f':
         case '\n':
         case '\r':
@@ -176,9 +177,10 @@ Nst_Obj *_nst_repr_string(Nst_StrObj *src)
     {
         switch ( orig[j] )
         {
-        case '\\': new_str[i++] = '\\'; new_str[i++] = '\\'; break;
+        case '\\': new_str[i++] = '\\'; new_str[i++] = '\\';break;
         case '\a': new_str[i++] = '\\'; new_str[i++] = 'a'; break;
         case '\b': new_str[i++] = '\\'; new_str[i++] = 'b'; break;
+        case'\x1b':new_str[i++] = '\\'; new_str[i++] = 'e'; break;
         case '\f': new_str[i++] = '\\'; new_str[i++] = 'f'; break;
         case '\n': new_str[i++] = '\\'; new_str[i++] = 'n'; break;
         case '\r': new_str[i++] = '\\'; new_str[i++] = 'r'; break;

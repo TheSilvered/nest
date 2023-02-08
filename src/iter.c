@@ -268,7 +268,7 @@ NST_FUNC_SIGN(nst_str_iter_get_val)
     Nst_StrObj *str = STR(objs[1]);
     size_t idx = (size_t)AS_INT(objs[0]);
 
-    if ( str->len < idx )
+    if ( idx >= str->len )
     {
         NST_SET_VALUE_ERROR(_nst_format_error(
             _NST_EM_INDEX_OUT_OF_BOUNDS("Str"),

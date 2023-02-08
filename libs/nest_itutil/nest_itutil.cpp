@@ -21,7 +21,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(chain_,        1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(zip_,          2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(zipn_,         1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(enumerate_,    1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(enumerate_,    3);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(keys_,         1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(values_,       1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(items_,        1);
@@ -208,14 +208,41 @@ NST_FUNC_SIGN(zipn_)
 
 NST_FUNC_SIGN(enumerate_)
 {
-    Nst_Obj *seq;
+    Nst_Obj *ob;
+    Nst_Obj *start_ob;
+    Nst_Obj *step_ob;
 
-    NST_DEF_EXTRACT("S", &seq);
+    Nst_Int start, step;
 
-    // Layout: [idx, seq]
-    Nst_SeqObj *arr = SEQ(nst_new_array(2));
+    NST_DEF_EXTRACT("o?i?i", &ob, &start_ob, &step_ob);
+    NST_SET_DEF(start_ob, start, 0, AS_INT(start_ob));
+    NST_SET_DEF(step_ob,  step,  1, AS_INT(step_ob ));
+
+    if ( ob->type == nst_t.Str   ||
+         ob->type == nst_t.Array ||
+         ob->type == nst_t.Vector )
+    {
+        ob = nst_obj_cast(ob, nst_t.Iter, nullptr);
+    }
+    else if ( ob->type == nst_t.Iter )
+    {
+        nst_inc_ref(ob);
+    }
+    else
+    {
+        NST_SET_TYPE_ERROR(_nst_format_error(
+            _NST_EM_WRONG_TYPE_FOR_ARG2,
+            "sus",
+            "Str', 'Array', 'Vector' or 'Iter", 1, TYPE_NAME(ob)));
+        return nullptr;
+    }
+
+    // Layout: [idx, iterator, start, step]
+    Nst_SeqObj *arr = SEQ(nst_new_array(4));
     arr->objs[0] = nst_new_int(0);
-    arr->objs[1] = seq;
+    arr->objs[1] = ob;
+    arr->objs[2] = nst_new_int(start);
+    arr->objs[3] = nst_new_int(step);
 
     return nst_new_iter(
         FUNC(nst_new_cfunc(1, enumerate_start)),

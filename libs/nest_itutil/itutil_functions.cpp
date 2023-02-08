@@ -305,48 +305,47 @@ NST_FUNC_SIGN(zipn_get_val)
 NST_FUNC_SIGN(enumerate_start)
 {
     Nst_Obj **objs = SEQ(args[0])->objs;
-    AS_INT(objs[0]) = 0;
+    AS_INT(objs[0]) = AS_INT(objs[2]);
+    if ( nst_start_iter(objs[1], err) )
+    {
+        return nullptr;
+    }
     NST_RETURN_NULL;
 }
 
 NST_FUNC_SIGN(enumerate_advance)
 {
     Nst_Obj **objs = SEQ(args[0])->objs;
-    AS_INT(objs[0]) += 1;
+    AS_INT(objs[0]) += AS_INT(objs[3]);
+    if ( nst_advance_iter(objs[1], err) )
+    {
+        return nullptr;
+    }
     NST_RETURN_NULL;
 }
 
 NST_FUNC_SIGN(enumerate_is_done)
 {
     Nst_Obj **objs = SEQ(args[0])->objs;
-    if ( AS_INT(objs[0]) >= (Nst_Int)SEQ(objs[1])->len )
-    {
-        NST_RETURN_TRUE;
-    }
-    NST_RETURN_FALSE;
+    Nst_IterObj *iter = ITER(objs[1]);
+    return nst_call_func(iter->is_done, &iter->value, err);
 }
 
 NST_FUNC_SIGN(enumerate_get_val)
 {
     Nst_Obj **objs = SEQ(args[0])->objs;
     Nst_Int idx = AS_INT(objs[0]);
+    Nst_IterObj *iter = ITER(objs[1]);
 
-    if ( idx >= (Nst_Int)SEQ(objs[1])->len )
+    Nst_Obj *res = nst_call_func(iter->get_val, &iter->value, err);
+    if ( res == nullptr )
     {
-        NST_SET_VALUE_ERROR(_nst_format_error(
-            SEQ(objs[1])->type == nst_t.Array
-                ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
-                : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
-            "iu",
-            idx,
-            SEQ(objs[1])->len));
-
         return nullptr;
     }
 
     Nst_SeqObj *arr = SEQ(nst_new_array(2));
     arr->objs[0] = nst_new_int(idx);
-    nst_set_value_seq(arr, 1, SEQ(objs[1])->objs[idx]);
+    arr->objs[1] = res;
 
     return OBJ(arr);
 }
