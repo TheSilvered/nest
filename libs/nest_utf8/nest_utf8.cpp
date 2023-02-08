@@ -59,7 +59,7 @@ NST_FUNC_SIGN(utf8_iter_advance)
     }
     int res = nst_check_utf8_bytes(
         (unsigned char *)str->value + val,
-        s_len - val);
+        s_len - (size_t)val);
     if ( res == -1 )
     {
         SET_INVALID_UTF8;
@@ -92,7 +92,7 @@ NST_FUNC_SIGN(utf8_iter_get_val)
     }
     int res = nst_check_utf8_bytes(
         (unsigned char *)str->value + val,
-        s_len - val);
+        s_len - (size_t)val);
     if ( res == -1 )
     {
         SET_INVALID_UTF8;
