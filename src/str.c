@@ -331,30 +331,39 @@ Nst_Obj *nst_parse_int(Nst_StrObj *str, int base, struct _Nst_OpErr *err)
         {
         case 'B':
         case 'b':
-            if ( base != 2 && base != 0 )
+            if ( base == 2 || base == 0 )
             {
-                RETURN_INT_ERR;
+                base = 2;
+                ch = *++s;
             }
-            base = 2;
-            ch = *++s;
+            else
+            {
+                ch = *--s;
+            }
             break;
         case 'O':
         case 'o':
-            if ( base != 8 && base != 0 )
+            if ( base == 8 || base == 0 )
             {
-                RETURN_INT_ERR;
+                base = 8;
+                ch = *++s;
             }
-            base = 8;
-            ch = *++s;
+            else
+            {
+                ch = *--s;
+            }
             break;
         case 'X':
         case 'x':
-            if ( base != 16 && base != 0 )
+            if ( base == 16 || base == 0 )
             {
-                RETURN_INT_ERR;
+                base = 16;
+                ch = *++s;
             }
-            base = 16;
-            ch = *++s;
+            else
+            {
+                ch = *--s;
+            }
             break;
         default:
             ch = *--s;

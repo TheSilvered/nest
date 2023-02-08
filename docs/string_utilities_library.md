@@ -142,6 +142,21 @@ continuous space character count as one space.
 'a  b' ' ' @su.split --> <{ 'a', '', 'b' }>
 ```
 
+### `[string: Str, base: Int?] @parse_int`
+
+This function parses an integer of base `base` from `string`.  
+`base` can be any integer between 2 and 36 inclusive. If it is set to 2, 8 or 16
+the corresponding prefix (`0b`, `0o` or `0x`) is ignored. If set to 0 it will
+use base 10 unless it finds one of the specified prefixes.  
+Setting `base` to `null` is the same as setting it to `0`.
+
+```text
+|#| 'stdsutil.nest' = su
+
+'0xff' @su.parse_int --> 255
+'0xff' 36 @su.parse_int --> 43323
+```
+
 ## Constants
 
 ### `DIGITS`

@@ -17,7 +17,7 @@ thrown.
 
 ### `[string: Str, index: Int] @get_at`
 
-Returns the Unicode character at `index` in `string`. Negative indicies do not
+Returns the Unicode character at `index` in `string`. Negative indices do not
 work unlike normal extraction operations.
 
 > NOTE: similarly to `get_len` this function does not operate on constant time

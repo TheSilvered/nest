@@ -198,7 +198,7 @@ Map literals start with `{` and end with `}` and inside have key-value pairs.
 ```
 
 The keys can be of type `Str`, `Int` or `Byte` since only these three types are
-hashable. `Real` obects cannot be hashed because of floating point error.
+hashable. `Real` objects cannot be hashed because of floating point error.
 
 ### Anonymous functions (lambdas)
 
