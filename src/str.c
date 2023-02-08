@@ -100,6 +100,12 @@ Nst_Obj *_nst_copy_string(Nst_StrObj *src)
     return nst_new_string(buffer, src->len, true);
 }
 
+static int is_unicode_escape(unsigned char b1, unsigned char b2)
+{
+    int v = ((b1 & 0x1f) << 6) + (b2 & 0x3f);
+    return v >= 0x80 && v <= 0x9f ? v : 0;
+}
+
 Nst_Obj *_nst_repr_string(Nst_StrObj *src)
 {
     const char *hex_chars = "0123456789abcdef";
@@ -131,7 +137,7 @@ Nst_Obj *_nst_repr_string(Nst_StrObj *src)
                 new_size += 1;
                 continue;
             }
-            else if ( orig[i] < 0b01111111 )
+            else if ( orig[i] <= 0b01111111 )
             {
                 new_size += 4;
             }
@@ -141,6 +147,11 @@ Nst_Obj *_nst_repr_string(Nst_StrObj *src)
                 if ( res == -1 )
                 {
                     new_size += 4;
+                }
+                else if ( res == 2 && is_unicode_escape(orig[i], orig[i + 1]) )
+                {
+                    new_size += 6;
+                    i++;
                 }
                 else
                 {
@@ -205,7 +216,7 @@ Nst_Obj *_nst_repr_string(Nst_StrObj *src)
             {
                 new_str[i++] = orig[j];
             }
-            else if ( orig[i] < 0b01111111 ||
+            else if ( orig[j] <= 0b01111111 ||
                       nst_check_utf8_bytes(orig + j, l - j) == -1 )
             {
                 new_str[i++] = '\\';
@@ -216,6 +227,19 @@ Nst_Obj *_nst_repr_string(Nst_StrObj *src)
             else
             {
                 int res = nst_check_utf8_bytes(orig + j, l - j);
+                if ( res == 2 && is_unicode_escape(orig[j], orig[j + 1]) )
+                {
+                    res = is_unicode_escape(orig[j], orig[j + 1]);
+                    j++;
+                    new_str[i++] = '\\';
+                    new_str[i++] = 'u';
+                    new_str[i++] = '0';
+                    new_str[i++] = '0';
+                    new_str[i++] = hex_chars[res >> 4];
+                    new_str[i++] = hex_chars[res & 0xf];
+                    continue;
+                }
+
                 for ( ; res > 0; res-- )
                 {
                     new_str[i++] = orig[j++];
