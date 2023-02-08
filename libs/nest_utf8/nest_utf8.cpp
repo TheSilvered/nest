@@ -148,7 +148,7 @@ NST_FUNC_SIGN(get_at_)
 {
     Nst_StrObj *str;
     Nst_Int idx;
-    NST_DEF_EXTRACT("sl", &str, &idx);
+    NST_DEF_EXTRACT("si", &str, &idx);
 
     unsigned char *s = (unsigned char *)str->value;
     size_t u_len = 0;

@@ -69,15 +69,22 @@ sequence ends.
 { 'Hi!', { 1, 2, 3 }, <{ 9, 8, 7, 6 }> } @itu.zipn --> { 'H', 1, 9 }, { 'i', 2, 8 }, { 'i', 3, 7 }
 ```
 
-### `[sequence: Str|Array|Vector] @enumerate`
+### `[iterator: Str|Array|Vector|Iter, start: Int?, step: Int?] @enumerate`
 
-Returns a 2-element array with the index and the object at that index in the
-sequence.
+Returns a 2-element array where the first element is the object returned by
+the `iterator` and the second the index that for the first element is `start`
+and then increases by `step` for each value after.  
+Start by default is `0` and step `1`.
+
+If `iterator` is a `Str`, `Array` or `Vector` it is automatically casted to an
+`Iter`.
 
 ```text
 |#| 'stditutil.nest' = itu
 
 'Hi!' @itu.enumerate --> { 0, 'H' }, { 1, 'i' }, { 2, '!' }
+'Hi!' 5 -1 @itu.enumerate --> { 5, 'H' }, { 4, 'i' }, { 3, '!' }
+'Hi!' @itu.reversed @itu.enumerate --> { 0, '!' }, { 1, 'i' }, { 2, 'H' }
 ```
 
 ### `[map: Map] @keys`
