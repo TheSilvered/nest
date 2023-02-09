@@ -33,15 +33,15 @@ Repeats the first argument a certain number of times.
 'Hi!' 3 @itu.repeat --> 'Hi!', 'Hi!', 'Hi!'
 ```
 
-### `[sequence: Array|Vector] @chain`
+### `[sequence: Iter|Array|Vector] @chain`
 
-Chains any number of sequences (`Str`, `Array` or `Vector`), iterating over
-their objects:
+Chains any number of `Str`, `Array`, `Vector` or `Iter` objects iterating over
+their elements:
 
 ```text
 |#| 'stditutil.nest' = itu
 
-{ 'Hi!' { 1, 2, 3 } } @itu.chain --> 'H', 'i', '!', 1, 2, 3
+{ 'Hi!', { 1, 2, 3 } } @itu.chain --> 'H', 'i', '!', 1, 2, 3
 ```
 
 ### `[sequence_1: Str|Array|Vector, sequence_2: Str|Array|Vector] @zip`
