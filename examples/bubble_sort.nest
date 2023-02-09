@@ -1,0 +1,20 @@
+|#| 'stdrand.nest' = rand
+
+#bubble_sort seq [
+    (?::seq Array !=) (?::seq Vector !=) && ?
+        'Value Error' !! 'expected an Array or a Vector'
+
+    ... $seq 1 - [
+        ... 0 -> ($seq 1 -) := i [
+            seq.(i) seq.(i 1 +) > ?
+                { seq.(i), seq.(i 1 +) } = { seq.(i 1 +), seq.(i) }
+        ]
+    ]
+    => seq
+]
+
+{ 1, 2, 3, 4, 5, 6, 7, 8, 9 } = arr
+arr @rand.shuffle
+>>> ('shuffled: ' arr '\n' ><)
+arr @bubble_sort
+>>> ('sorted: ' arr '\n' ><)

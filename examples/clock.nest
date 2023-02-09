@@ -1,3 +1,4 @@
+-- A clock that prints a nicely formatted time
 |#| 'stdtime.nest' = t
 |#| 'stdsutil.nest' = su
 

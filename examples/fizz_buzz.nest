@@ -1,0 +1,9 @@
+-- Prints Fizz if a number is divisible by 3, Buzz if it is divisible by 5 and
+-- FizzBuzz if both, the number itself if none
+... 1 -> 101 := i [
+    '' = s
+    i 3 % 0 == ? 'Fizz' ><= s
+    i 5 % 0 == ? 'Buzz' ><= s
+    !s ? Str :: i = s
+    >>> (s '\n' ><)
+]

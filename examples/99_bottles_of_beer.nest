@@ -7,8 +7,7 @@
         >>> 'No more bottles of beer on the wall, no more bottles of beer.\n'
         >>> ('Go to the store and buy some more, ' n ' bottles of beer on the wall.\n' ><)
         ..
-    ]
-    : i 1 == ? [
+    ] : i 1 == ? [
         >>> '1 bottle of beer on the wall, 1 bottle of beer.\n'
         >>> 'Take one down and pass it around, no more bottles of beer on the wall.\n\n'
         ..

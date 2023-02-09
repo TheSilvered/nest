@@ -60,7 +60,6 @@ This program prints all the ascii characters
     ?.. index 1 + $code < [
         1 += index
         code.(index) = command
-        -->>> (command ' ' pointer ' ' (Int :: tape.(pointer)) '\n' ><)
         |> command [
             ? '+' [
                 byte_1 += tape.(pointer)

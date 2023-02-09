@@ -1,0 +1,22 @@
+|#| 'stdrand.nest' = rand
+
+#insertion_sort seq [
+    (?::seq Array !=) (?::seq Vector !=) && ?
+        'Value Error' !! 'expected an Array or a Vector'
+
+    ... 1 -> $seq := i [
+        ... i -> 0 := j [
+            seq.(j) seq.(j 1 -) < ?
+                { seq.(j), seq.(j 1 -) } = { seq.(j 1 -), seq.(j) }
+            :
+                ;
+        ]
+    ]
+    => seq
+]
+
+{ 1, 2, 3, 4, 5, 6, 7, 8, 9 } = arr
+arr @rand.shuffle
+>>> ('shuffled: ' arr '\n' ><)
+arr @insertion_sort
+>>> ('sorted: ' arr '\n' ><)
