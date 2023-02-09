@@ -42,33 +42,6 @@ NST_FUNC_SIGN(utf8_iter_start)
     NST_RETURN_NULL;
 }
 
-NST_FUNC_SIGN(utf8_iter_advance)
-{
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    Nst_IntObj *idx = (Nst_IntObj *)objs[0];
-    Nst_StrObj *str = (Nst_StrObj *)objs[1];
-    size_t s_len = str->len;
-    Nst_Int val = idx->value;
-
-    if ( (size_t)val >= s_len )
-    {
-        NST_SET_VALUE_ERROR(_nst_format_error(
-            _NST_EM_INDEX_OUT_OF_BOUNDS("Str"),
-            "iu",
-            val, s_len));
-    }
-    int res = nst_check_utf8_bytes(
-        (unsigned char *)str->value + val,
-        s_len - (size_t)val);
-    if ( res == -1 )
-    {
-        SET_INVALID_UTF8;
-        return nullptr;
-    }
-    idx->value += res;
-    NST_RETURN_NULL;
-}
-
 NST_FUNC_SIGN(utf8_iter_is_done)
 {
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -101,6 +74,8 @@ NST_FUNC_SIGN(utf8_iter_get_val)
     char *new_s = new char[res + 1];
     memcpy(new_s, str->value + val, res);
     new_s[res] = '\0';
+    idx->value += res;
+
     return nst_new_string(new_s, res, true);
 }
 
@@ -203,7 +178,6 @@ NST_FUNC_SIGN(to_iter_)
 
     return nst_new_iter(
         FUNC(nst_new_cfunc(1, utf8_iter_start)),
-        FUNC(nst_new_cfunc(1, utf8_iter_advance)),
         FUNC(nst_new_cfunc(1, utf8_iter_is_done)),
         FUNC(nst_new_cfunc(1, utf8_iter_get_val)),
         OBJ(arr));

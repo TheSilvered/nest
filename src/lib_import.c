@@ -198,6 +198,23 @@ static bool extract_builtin_type(const char type,
         }
         *(Nst_IterObj **)arg = ITER(ob);
         break;
+    case 'R':
+        if ( ob->type != nst_t.Iter   &&
+             ob->type != nst_t.Array  &&
+             ob->type != nst_t.Vector &&
+             ob->type != nst_t.Str)
+        {
+            SET_TYPE_ERROR("Iter', 'Array', 'Vector' or 'String");
+        }
+        if ( ob->type != nst_t.Iter )
+        {
+            *(Nst_Obj**)arg = nst_obj_cast(ob, nst_t.Iter, err);
+        }
+        else
+        {
+            *(Nst_Obj**)arg = nst_inc_ref(ob);
+        }
+        break;
     case 'B':
         if ( ob->type != nst_t.Byte )
         {
@@ -254,6 +271,7 @@ bool nst_extract_arg_values(const char *types,
     'm': map
     'f': func
     'I': iter
+    'R': iter, array, vector or str returns always an iter
     'B': byte
     'F': file
     'o': any object

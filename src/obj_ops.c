@@ -1341,7 +1341,6 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
 
             return nst_new_iter(
                 FUNC(nst_new_cfunc(1, nst_str_iter_start)),
-                FUNC(nst_new_cfunc(1, nst_str_iter_advance)),
                 FUNC(nst_new_cfunc(1, nst_str_iter_is_done)),
                 FUNC(nst_new_cfunc(1, nst_str_iter_get_val)),
                 OBJ(data)
@@ -1357,7 +1356,6 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
 
             return nst_new_iter(
                 FUNC(nst_new_cfunc(1, nst_seq_iter_start)),
-                FUNC(nst_new_cfunc(1, nst_seq_iter_advance)),
                 FUNC(nst_new_cfunc(1, nst_seq_iter_is_done)),
                 FUNC(nst_new_cfunc(1, nst_seq_iter_get_val)),
                 OBJ(data)
@@ -1366,14 +1364,11 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
         else if ( ob_t == nst_t.Map )
         {
             Nst_Obj *start_obj   = nst_map_get_str(ob, "_start_");
-            Nst_Obj *advance_obj = nst_map_get_str(ob, "_advance_");
             Nst_Obj *is_done_obj = nst_map_get_str(ob, "_is_done_");
             Nst_Obj *get_val_obj = nst_map_get_str(ob, "_get_val_");
 
             if ( start_obj == NULL )
                 RETURN_MISSING_FUNC_ERROR("_start_");
-            if ( advance_obj == NULL )
-                RETURN_MISSING_FUNC_ERROR("_advance_");
             if ( is_done_obj == NULL )
                 RETURN_MISSING_FUNC_ERROR("_is_done_");
             if ( get_val_obj == NULL )
@@ -1381,7 +1376,6 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
 
             return nst_new_iter(
                 FUNC(start_obj),
-                FUNC(advance_obj),
                 FUNC(is_done_obj),
                 FUNC(get_val_obj),
                 nst_inc_ref(ob)
@@ -1445,12 +1439,6 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
                 
                 nst_append_value_vector(seq, result);
                 nst_dec_ref(result);
-
-                if ( nst_advance_iter(iter, err) )
-                {
-                    nst_dec_ref(seq);
-                    return NULL;
-                }
             }
 
             if ( is_vect )
@@ -1592,12 +1580,6 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
                 }
 
                 nst_dec_ref(result);
-
-                if ( nst_advance_iter(iter, err) )
-                {
-                    nst_dec_ref(map);
-                    return NULL;
-                }
             }
 
             return OBJ(map);
@@ -1657,7 +1639,6 @@ Nst_Obj *_nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step, Nst_OpErr 
 
     Nst_Obj *iter = nst_new_iter(
         FUNC(nst_new_cfunc(1, nst_num_iter_start)),
-        FUNC(nst_new_cfunc(1, nst_num_iter_advance)),
         FUNC(nst_new_cfunc(1, nst_num_iter_is_done)),
         FUNC(nst_new_cfunc(1, nst_num_iter_get_val)),
         OBJ(data_seq)

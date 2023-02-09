@@ -1,4 +1,4 @@
-VERSION="0.11.0"
+VERSION="0.11.1"
 
 mkdir -p linux_archives
 tar -czf "linux_archives/nest-${VERSION}-x64-linux.tar.gz" linux_libs linux_release/x64 linux_install_x64.sh

@@ -9,7 +9,6 @@
 #include "obj_ops.h"
 
 Nst_Obj *nst_new_iter(Nst_FuncObj *start,
-                      Nst_FuncObj *advance,
                       Nst_FuncObj *is_done,
                       Nst_FuncObj *get_val,
                       Nst_Obj     *value)
@@ -25,13 +24,11 @@ Nst_Obj *nst_new_iter(Nst_FuncObj *start,
     }
 
     iter->start = start;
-    iter->advance = advance;
     iter->is_done = is_done;
     iter->get_val = get_val;
     iter->value = value;
 
     if ( NST_HAS_FLAG(start,   NST_FLAG_GGC_IS_SUPPORTED) ||
-         NST_HAS_FLAG(advance, NST_FLAG_GGC_IS_SUPPORTED) ||
          NST_HAS_FLAG(is_done, NST_FLAG_GGC_IS_SUPPORTED) ||
          NST_HAS_FLAG(get_val, NST_FLAG_GGC_IS_SUPPORTED) ||
          NST_HAS_FLAG(value,   NST_FLAG_GGC_IS_SUPPORTED) )
@@ -43,7 +40,6 @@ Nst_Obj *nst_new_iter(Nst_FuncObj *start,
 void nst_destroy_iter(Nst_IterObj *iter)
 {
     nst_dec_ref(iter->start);
-    nst_dec_ref(iter->advance);
     nst_dec_ref(iter->is_done);
     nst_dec_ref(iter->get_val);
     nst_dec_ref(iter->value);
@@ -54,11 +50,6 @@ void nst_track_iter(Nst_IterObj* iter)
     if ( NST_HAS_FLAG(iter->start, NST_FLAG_GGC_IS_SUPPORTED) )
     {
         nst_add_tracked_object((Nst_GGCObj*)iter->start);
-    }
-
-    if ( NST_HAS_FLAG(iter->advance, NST_FLAG_GGC_IS_SUPPORTED) )
-    {
-        nst_add_tracked_object((Nst_GGCObj*)iter->advance);
     }
 
     if ( NST_HAS_FLAG(iter->is_done, NST_FLAG_GGC_IS_SUPPORTED) )
@@ -80,7 +71,6 @@ void nst_track_iter(Nst_IterObj* iter)
 void nst_traverse_iter(Nst_IterObj* iter)
 {
     NST_SET_FLAG(iter->start,   NST_FLAG_GGC_REACHABLE);
-    NST_SET_FLAG(iter->advance, NST_FLAG_GGC_REACHABLE);
     NST_SET_FLAG(iter->is_done, NST_FLAG_GGC_REACHABLE);
     NST_SET_FLAG(iter->get_val, NST_FLAG_GGC_REACHABLE);
     NST_SET_FLAG(iter->value,   NST_FLAG_GGC_REACHABLE);
@@ -119,19 +109,6 @@ int _nst_is_done_iter(Nst_IterObj *iter, Nst_OpErr *err)
     return 0;
 }
 
-int _nst_advance_iter(Nst_IterObj *iter, Nst_OpErr *err)
-{
-    Nst_Obj *result = nst_call_func(iter->advance, &iter->value, err);
-
-    if ( result == NULL )
-    {
-        return -1;
-    }
-
-    nst_dec_ref(result);
-    return 0;
-}
-
 Nst_Obj *_nst_get_val_iter(Nst_IterObj *iter, Nst_OpErr *err)
 {
     return nst_call_func(iter->get_val, &iter->value, err);
@@ -145,13 +122,6 @@ NST_FUNC_SIGN(nst_num_iter_start)
 {
     Nst_SeqObj *val = SEQ(args[0]);
     AS_INT(val->objs[0]) = AS_INT(val->objs[1]);
-    NST_RETURN_NULL;
-}
-
-NST_FUNC_SIGN(nst_num_iter_advance)
-{
-    Nst_SeqObj *val = SEQ(args[0]);
-    AS_INT(val->objs[0]) += AS_INT(val->objs[3]);
     NST_RETURN_NULL;
 }
 
@@ -176,20 +146,15 @@ NST_FUNC_SIGN(nst_num_iter_is_done)
 NST_FUNC_SIGN(nst_num_iter_get_val)
 {
     Nst_SeqObj *val = SEQ(args[0]);
-    return nst_new_int(AS_INT(val->objs[0]));
+    Nst_Obj *ob = nst_new_int(AS_INT(val->objs[0]));
+    AS_INT(val->objs[0]) += AS_INT(val->objs[3]);
+    return ob;
 }
 
 NST_FUNC_SIGN(nst_seq_iter_start)
 {
     Nst_SeqObj *val = SEQ(args[0]);
     AS_INT(val->objs[0]) = 0;
-    NST_RETURN_NULL;
-}
-
-NST_FUNC_SIGN(nst_seq_iter_advance)
-{
-    Nst_SeqObj *val = SEQ(args[0]);
-    AS_INT(val->objs[0]) += 1;
     NST_RETURN_NULL;
 }
 
@@ -228,6 +193,7 @@ NST_FUNC_SIGN(nst_seq_iter_get_val)
     }
 
     Nst_Obj *obj = SEQ(val->objs[1])->objs[AS_INT(val->objs[0])];
+    AS_INT(val->objs[0]) += 1;
     return nst_inc_ref(obj);
 }
 
@@ -235,13 +201,6 @@ NST_FUNC_SIGN(nst_str_iter_start)
 {
     Nst_SeqObj *val = SEQ(args[0]);
     AS_INT(val->objs[0]) = 0;
-    NST_RETURN_NULL;
-}
-
-NST_FUNC_SIGN(nst_str_iter_advance)
-{
-    Nst_SeqObj *val = SEQ(args[0]);
-    AS_INT(val->objs[0]) += 1;
     NST_RETURN_NULL;
 }
 
@@ -278,6 +237,7 @@ NST_FUNC_SIGN(nst_str_iter_get_val)
 
         return NULL;
     }
-
-    return nst_string_get_idx(objs[1], AS_INT(objs[0]));
+    Nst_Obj *ob = nst_string_get_idx(objs[1], AS_INT(objs[0]));
+    AS_INT(val->objs[0]) += 1;
+    return ob;
 }

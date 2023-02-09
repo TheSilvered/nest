@@ -423,9 +423,7 @@ static void compile_for_as_l(Nst_Node *node)
                 FOR_GET_VAL
                 SET_VAL_LOC name
                 [BODY CODE]
-    body_end:   FOR_ADVANCE
-                POP_VAL
-                JUMP cond_start
+    body_end:   JUMP cond_start
     loop_end:   POP_VAL
                 [CODE CONTINUATION]
     */
@@ -473,13 +471,6 @@ static void compile_for_as_l(Nst_Node *node)
 
     // For loop advance
     Nst_Int loop_advance = CURR_LEN;
-    inst = nst_new_inst_int(
-        NST_IC_FOR_ADVANCE, 1,
-        HEAD_NODE->start,
-        HEAD_NODE->end);
-    ADD_INST(inst);
-    inst = nst_new_inst_empty(NST_IC_POP_VAL, 0);
-    ADD_INST(inst);
     body_start = body_start->next;
     LLNode *body_end = c_state.inst_ls->tail;
     inst = nst_new_inst_empty(NST_IC_JUMP, cond_start_idx);
@@ -1546,7 +1537,6 @@ void nst_print_bytecode(Nst_InstructionList *ls, int indent)
         case NST_IC_FOR_START:     PRINT("FOR_START    ", 13); break;
         case NST_IC_RETURN_VAL:    PRINT("RETURN_VAL   ", 13); break;
         case NST_IC_RETURN_VARS:   PRINT("RETURN_VARS  ", 13); break;
-        case NST_IC_FOR_ADVANCE:   PRINT("FOR_ADVANCE  ", 13); break;
         case NST_IC_SET_VAL_LOC:   PRINT("SET_VAL_LOC  ", 13); break;
         case NST_IC_SET_CONT_LOC:  PRINT("SET_CONT_LOC ", 13); break;
         case NST_IC_JUMP:          PRINT("JUMP         ", 13); break;

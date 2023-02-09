@@ -60,7 +60,6 @@ enum Nst_InstructionCodes
     NST_IC_FOR_START,
     NST_IC_FOR_IS_DONE,
     NST_IC_FOR_GET_VAL,
-    NST_IC_FOR_ADVANCE,
     NST_IC_RETURN_VAL,
     NST_IC_RETURN_VARS, // Returns the var table
     NST_IC_SET_VAL_LOC, // Assigns the value without leaving ot on the stack

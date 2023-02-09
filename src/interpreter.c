@@ -89,7 +89,6 @@ static inline void exe_pop_val();
 static inline void exe_for_start(Nst_Instruction *inst);
 static inline void exe_for_is_done(Nst_Instruction *inst);
 static inline void exe_for_get_val(Nst_Instruction *inst);
-static inline void exe_for_advance(Nst_Instruction *inst);
 static inline void exe_return_val();
 static inline void exe_return_vars();
 static inline void exe_set_val_loc(Nst_Instruction *inst);
@@ -336,8 +335,7 @@ static void complete_function(size_t final_stack_size)
 
         // only OP_CALL and FOR_* can push a function on the call stack
         if ( inst_id == NST_IC_OP_CALL     || inst_id == NST_IC_FOR_START   ||
-             inst_id == NST_IC_FOR_IS_DONE || inst_id == NST_IC_FOR_GET_VAL ||
-             inst_id == NST_IC_FOR_ADVANCE )
+             inst_id == NST_IC_FOR_IS_DONE || inst_id == NST_IC_FOR_GET_VAL )
             curr_inst_ls = nst_peek_func(nst_state.f_stack).func->body.bytecode;
     }
 }
@@ -577,7 +575,6 @@ static inline void run_instruction(Nst_Instruction *inst)
     case NST_IC_FOR_START:    exe_for_start(inst);     break;
     case NST_IC_FOR_IS_DONE:  exe_for_is_done(inst);   break;
     case NST_IC_FOR_GET_VAL:  exe_for_get_val(inst);   break;
-    case NST_IC_FOR_ADVANCE:  exe_for_advance(inst);   break;
     case NST_IC_RETURN_VAL:   exe_return_val();        break;
     case NST_IC_RETURN_VARS:  exe_return_vars();       break;
     case NST_IC_SET_VAL_LOC:  exe_set_val_loc(inst);   break;
@@ -674,13 +671,6 @@ static inline void exe_for_get_val(Nst_Instruction *inst)
     CHECK_V_STACK;
     Nst_IterObj *iter = ITER(nst_peek_val(nst_state.v_stack));
     exe_for_inst(inst, iter, iter->get_val);
-}
-
-static inline void exe_for_advance(Nst_Instruction *inst)
-{
-    CHECK_V_STACK;
-    Nst_IterObj *iter = ITER(nst_peek_val(nst_state.v_stack));
-    exe_for_inst(inst, iter, iter->advance);
 }
 
 static inline void exe_return_val()

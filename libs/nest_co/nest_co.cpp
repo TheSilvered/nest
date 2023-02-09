@@ -106,8 +106,10 @@ static NST_FUNC_SIGN(generator_is_done)
     return nst_inc_ref(SEQ(args[0])->objs[3]);
 }
 
-static NST_FUNC_SIGN(generator_advance)
+static NST_FUNC_SIGN(generator_get_val)
 {
+    Nst_Obj *return_ob = nst_inc_ref(SEQ(args[0])->objs[2]);
+
     CoroutineObj *co = (CoroutineObj *)(SEQ(args[0])->objs[1]);
     Nst_Obj *obj = call_(2, SEQ(args[0])->objs, err);
 
@@ -126,12 +128,7 @@ static NST_FUNC_SIGN(generator_advance)
     }
     nst_dec_ref(obj);
 
-    NST_RETURN_NULL;
-}
-
-static NST_FUNC_SIGN(generator_get_val)
-{
-    return nst_inc_ref(SEQ(args[0])->objs[2]);
+    return return_ob;
 }
 
 Nst_Obj *new_coroutine(Nst_FuncObj *func)
@@ -434,7 +431,6 @@ NST_FUNC_SIGN(generator_)
 
     return nst_new_iter(
         FUNC(nst_new_cfunc(1, generator_start)),
-        FUNC(nst_new_cfunc(1, generator_advance)),
         FUNC(nst_new_cfunc(1, generator_is_done)),
         FUNC(nst_new_cfunc(1, generator_get_val)),
         OBJ(arr));
