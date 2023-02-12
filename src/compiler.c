@@ -125,7 +125,10 @@ static Nst_InstList *compile_internal(Nst_Node *code,
         if ( inst->id == NST_IC_PUSH_VAL &&
              inst->val != NULL &&
              inst->val->type == nst_t.Func )
+        {
             nst_llist_append(funcs, inst->val, false);
+            nst_inc_ref(inst->val);
+        }
 
         inst_list->instructions[i].id = inst->id;
         inst_list->instructions[i].int_val = inst->int_val;

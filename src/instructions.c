@@ -99,6 +99,8 @@ void nst_inst_list_destroy(Nst_InstList *inst_list)
     }
 
     free(instructions);
-    nst_llist_destroy(inst_list->functions, NULL);
+    nst_llist_destroy(
+        inst_list->functions,
+        (nst_llist_destructor)_nst_dec_ref);
     free(inst_list);
 }
