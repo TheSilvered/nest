@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include "nest_sutil.h"
 
-#define FUNC_COUNT 29
+#define FUNC_COUNT 31
 
 static Nst_FuncDeclr *func_list_;
 static bool lib_init_ = false;
@@ -27,8 +27,10 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(ljust_, 3);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(rjust_, 3);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(center_, 3);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(to_title_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(to_upper_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(to_lower_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_title_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(is_upper_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(is_lower_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(is_alpha_, 1);
@@ -60,33 +62,6 @@ Nst_FuncDeclr *get_func_ptrs()
     return lib_init_ ? func_list_ : nullptr;
 }
 
-static char *find_substring(char *s1, size_t l1, char *s2, size_t l2)
-{
-    char* end1 = s1 + l1;
-    char* end2 = s2 + l2;
-    char* p1 = nullptr;
-    char* p2 = nullptr;
-
-    while (s1 != end1)
-    {
-        p1 = s1++;
-        p2 = s2;
-
-        while (p1 != end1 && p2 != end2 && *p1 == *p2)
-        {
-            ++p1;
-            ++p2;
-        }
-
-        if (p2 == end2)
-        {
-            return s1 - 1;
-        }
-    }
-
-    return nullptr;
-}
-
 NST_FUNC_SIGN(lfind_)
 {
     Nst_StrObj *str1 = nullptr;
@@ -99,7 +74,7 @@ NST_FUNC_SIGN(lfind_)
         NST_RETURN_ZERO;
     }
 
-    char *sub = find_substring(str1->value, str1->len, str2->value, str2->len);
+    char *sub = nst_string_find(str1->value, str1->len, str2->value, str2->len);
 
     if ( sub == nullptr )
     {
@@ -404,6 +379,40 @@ NST_FUNC_SIGN(center_)
     return nst_string_new(new_str, (size_t)just_len, true);
 }
 
+NST_FUNC_SIGN(to_title_)
+{
+    Nst_StrObj *str;
+
+    NST_DEF_EXTRACT("s", &str);
+
+    Nst_StrObj *new_str = STR(nst_string_copy(str));
+    char *s = new_str->value;
+    char* end = s + new_str->len;
+    bool new_word = true;
+
+    while (s != end)
+    {
+        if ( isspace((unsigned char)*s) )
+        {
+            new_word = true;
+            ++s;
+            continue;
+        }
+        if ( new_word )
+        {
+            *s = toupper((unsigned char)*s);
+            new_word = false;
+        }
+        else
+        {
+            *s = tolower((unsigned char)*s);
+        }
+        ++s;
+    }
+
+    return OBJ(new_str);
+}
+
 NST_FUNC_SIGN(to_upper_)
 {
     Nst_StrObj *str;
@@ -440,6 +449,43 @@ NST_FUNC_SIGN(to_lower_)
     }
 
     return OBJ(new_str);
+}
+
+NST_FUNC_SIGN(is_title_)
+{
+    Nst_StrObj *str;
+
+    NST_DEF_EXTRACT("s", &str);
+
+    char *s = str->value;
+    char *end = s + str->len;
+    bool new_word = true;
+
+    while ( s != end )
+    {
+        if ( isspace((unsigned char)*s) )
+        {
+            new_word = true;
+            ++s;
+            continue;
+        }
+        else if ( !isalpha((unsigned char)*s) )
+        {
+            ++s;
+            continue;
+        }
+
+        if ( (new_word && isupper((unsigned char)*s)) ||
+             (!new_word && islower((unsigned char)*s)) )
+        {
+            new_word = false;
+            ++s;
+            continue;
+        }
+        NST_RETURN_FALSE;
+    }
+
+    NST_RETURN_TRUE;
 }
 
 NST_FUNC_SIGN(is_upper_)
@@ -620,7 +666,7 @@ NST_FUNC_SIGN(replace_substr_)
 
     while ( true )
     {
-        sub = find_substring(s, s_len, s_from, s_from_len);
+        sub = nst_string_find(s, s_len, s_from, s_from_len);
         if ( sub == nullptr )
         {
             break;
@@ -643,7 +689,7 @@ NST_FUNC_SIGN(replace_substr_)
     // Copy replacing the occurrence
     while ( true )
     {
-        sub = find_substring(s, s_len, s_from, s_from_len);
+        sub = nst_string_find(s, s_len, s_from, s_from_len);
         if (sub == nullptr)
             break;
 
@@ -821,7 +867,7 @@ NST_FUNC_SIGN(split_)
         return OBJ(vector);
     }
 
-    while ( (sub_idx = find_substring(s, s_len, sub, sub_len)) != nullptr )
+    while ( (sub_idx = nst_string_find(s, s_len, sub, sub_len)) != nullptr )
     {
         str_split = new char[sub_idx - s + 1];
         memcpy(str_split, s, sub_idx - s);

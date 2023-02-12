@@ -64,7 +64,11 @@ Nst_Obj *nst_string_parse_real(Nst_StrObj *str, struct _Nst_OpErr *err);
 //   > 0: str1 is greater than str2
 //   < 0: str2 is greater than str1
 int nst_string_compare(Nst_StrObj *str1, Nst_StrObj *str2);
-void nst_string_destroy(Nst_StrObj *str);
+void _nst_string_destroy(Nst_StrObj *str);
+
+// Returns the pointer of the start of the first occurrence of s2 in s1,
+// NULL if the substring cannot be found
+char *nst_string_find(char *s1, size_t l1, char *s2, size_t l2);
 
 typedef enum _Nst_StrFlags
 {

@@ -2,16 +2,17 @@
 
 |#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_sequtil.dll' = __sequ
 
-__sequ.map_ = map
+__sequ.map_       = map
 __sequ.insert_at_ = insert_at
 __sequ.remove_at_ = remove_at
-__sequ.slice_ = slice
-__sequ.merge_ = merge
-__sequ.sort_ = sort
-__sequ.empty_ = empty
-__sequ.filter_ = filter
-__sequ.contains_ = contains
-__sequ.any_ = any
-__sequ.all_ = all
+__sequ.slice_     = slice
+__sequ.merge_     = merge
+__sequ.sort_      = sort
+__sequ.empty_     = empty
+__sequ.filter_    = filter
+__sequ.contains_  = contains
+__sequ.any_       = any
+__sequ.all_       = all
+__sequ.count_     = count
 
 _vars_ '__sequ' '_vars_' -

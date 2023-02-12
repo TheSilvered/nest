@@ -1,7 +1,7 @@
 #include <cmath>
 #include "nest_sequtil.h"
 
-#define FUNC_COUNT 11
+#define FUNC_COUNT 12
 #define RUN 32
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
@@ -30,6 +30,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(contains_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(any_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(all_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(count_, 2);
 
 #if __LINE__ - FUNC_COUNT != 23
 #error FUNC_COUNT does not match the number of lines
@@ -527,10 +528,17 @@ NST_FUNC_SIGN(contains_)
             NST_RETURN_TRUE;
         }
     }
+    else if ( container->type == nst_t.Str && object->type == nst_t.Str )
+    {
+        char *res = nst_string_find(
+            STR(container)->value, STR(container)->len,
+            STR(object)->value, STR(object)->len);
+        NST_RETURN_COND(res != nullptr);
+    }
     else
     {
         NST_SET_TYPE_ERROR(nst_format_error(
-            _NST_EM_WRONG_TYPE_FOR_ARG("Array', 'Sequence' or 'Vector"),
+            _NST_EM_WRONG_TYPE_FOR_ARG("Array', 'Vector', 'Map' or 'Str"),
             "us",
             1, TYPE_NAME(container)));
         return nullptr;
@@ -577,4 +585,24 @@ NST_FUNC_SIGN(all_)
     }
 
     NST_RETURN_TRUE;
+}
+
+NST_FUNC_SIGN(count_)
+{
+    Nst_SeqObj *seq;
+    Nst_Obj *obj;
+
+    NST_DEF_EXTRACT("So", &seq, &obj);
+    size_t count = 0;
+
+    for ( size_t i = 0, n = seq->len; i < n; i++ )
+    {
+        Nst_Obj *res = nst_obj_eq(obj, seq->objs[i], nullptr);
+        if ( res == nst_c.Bool_true )
+        {
+            count++;
+        }
+        nst_dec_ref(res);
+    }
+    return nst_int_new(count);
 }

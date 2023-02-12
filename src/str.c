@@ -53,7 +53,7 @@ Nst_Obj *nst_string_new(char *val, size_t len, bool allocated)
     Nst_StrObj *str = STR(nst_obj_alloc(
         sizeof(Nst_StrObj),
         nst_t.Str,
-        nst_string_destroy));
+        _nst_string_destroy));
     if ( str == NULL )
     {
         return NULL;
@@ -74,7 +74,7 @@ Nst_TypeObj *nst_type_new(const char *val, size_t len)
     Nst_TypeObj *str = STR(nst_obj_alloc(
         sizeof(Nst_StrObj),
         nst_t.Type,
-        nst_string_destroy));
+        _nst_string_destroy));
     if ( str == NULL )
     {
         return NULL;
@@ -280,7 +280,7 @@ Nst_Obj *_nst_string_get(Nst_StrObj *str, Nst_Int idx)
     return nst_string_new(ch, 1, true);
 }
 
-void nst_string_destroy(Nst_StrObj *str)
+void _nst_string_destroy(Nst_StrObj *str)
 {
     if ( str == NULL )
     {
@@ -703,4 +703,31 @@ int nst_string_compare(Nst_StrObj *str1, Nst_StrObj *str2)
     }
 
     return (int)((Nst_Int)str1->len - (Nst_Int)str2->len);
+}
+
+char *nst_string_find(char *s1, size_t l1, char *s2, size_t l2)
+{
+    char *end1 = s1 + l1;
+    char *end2 = s2 + l2;
+    char *p1 = NULL;
+    char *p2 = NULL;
+
+    while (s1 != end1)
+    {
+        p1 = s1++;
+        p2 = s2;
+
+        while (p1 != end1 && p2 != end2 && *p1 == *p2)
+        {
+            ++p1;
+            ++p2;
+        }
+
+        if (p2 == end2)
+        {
+            return s1 - 1;
+        }
+    }
+
+    return NULL;
 }
