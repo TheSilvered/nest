@@ -41,7 +41,7 @@ static inline void set_error_stream()
     if ( NST_IOF_IS_CLOSED(err_stream) )
     {
         nst_dec_ref(err_stream);
-        err_stream = IOFILE(nst_new_true_file(stderr, false, false, true));
+        err_stream = IOFILE(nst_iof_new(stderr, false, false, true));
         fprintf(stderr, "Cannot use @@io._get_stderr, using initial stderr\n");
         fflush(stderr);
     }
@@ -382,7 +382,7 @@ void nst_print_traceback(Nst_Traceback tb)
     Nst_Pos prev_end = { -1, -1, NULL };
     int repeat_count = 0;
     int i = 0;
-    for ( LLNode *n1 = tb.positions->head, *n2 = n1->next;
+    for ( Nst_LLNode *n1 = tb.positions->head, *n2 = n1->next;
           n1 != NULL;
           n1 = n2->next, n2 = n1 == NULL ? n1 : n1->next )
     {
@@ -454,7 +454,7 @@ void nst_print_traceback(Nst_Traceback tb)
     }
 }
 
-Nst_StrObj *_nst_format_error(const char *format, const char *format_args, ...)
+Nst_StrObj *nst_format_error(const char *format, const char *format_args, ...)
 {
     /*
     Format args types:
@@ -499,7 +499,7 @@ Nst_StrObj *_nst_format_error(const char *format, const char *format_args, ...)
     vsprintf(buffer, format, args);
     va_end(args);
 
-    return STR(nst_new_cstring_raw((const char *)buffer, true));
+    return STR(nst_string_new_c_raw((const char *)buffer, true));
 }
 
 void nst_free_src_text(Nst_SourceText *text)

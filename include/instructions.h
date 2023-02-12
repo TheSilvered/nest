@@ -16,44 +16,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct _Nst_Instruction
-{
-    int id;
-    Nst_Int int_val;
-    Nst_Obj *val;
-    Nst_Pos start;
-    Nst_Pos end;
-}
-Nst_Instruction;
-
-typedef struct _Nst_InstructionList
-{
-    size_t total_size;
-    Nst_Instruction *instructions;
-    LList *functions; // all the functions declared inside the bytecode
-}
-Nst_InstructionList;
-
-// Creates a new instruction on the heap with no position
-Nst_Instruction *nst_new_inst_empty(int id, Nst_Int int_val);
-// Creates a new instruction on the heap with positions
-Nst_Instruction *nst_new_inst_pos(int id, Nst_Pos start, Nst_Pos end);
-Nst_Instruction *_nst_new_inst_val(int id,
-                                   Nst_Obj *val,
-                                   Nst_Pos start,
-                                   Nst_Pos end);
-// Creates a new instruction on the heap with positions and an integer value
-Nst_Instruction *nst_new_inst_int(int id,
-                                  Nst_Int int_val,
-                                  Nst_Pos start,
-                                  Nst_Pos end);
-
-// Destroys an instruction allocated on the heap
-void nst_destroy_inst(Nst_Instruction *inst);
-// Destroys an insturction list
-void nst_destroy_inst_list(Nst_InstructionList *inst_list);
-
-enum Nst_InstructionCodes
+typedef enum _Nst_InstID
 {
     NST_IC_NO_OP,
     NST_IC_POP_VAL, // Pop a value from the value stack
@@ -103,7 +66,45 @@ enum Nst_InstructionCodes
                        // it on the stack
     NST_IC_UNPACK_SEQ // pushes the values of the sequence on top of the stack
                       // from the last to the first
-};
+}
+Nst_InstID;
+
+typedef struct _Nst_Instruction
+{
+    Nst_InstID id;
+    Nst_Int int_val;
+    Nst_Obj *val;
+    Nst_Pos start;
+    Nst_Pos end;
+}
+Nst_Inst;
+
+typedef struct _Nst_InstList
+{
+    size_t total_size;
+    Nst_Inst *instructions;
+    Nst_LList *functions; // all the functions declared inside the bytecode
+}
+Nst_InstList;
+
+// Creates a new instruction on the heap with no position
+Nst_Inst *nst_new_inst_empty(Nst_InstID id, Nst_Int int_val);
+// Creates a new instruction on the heap with positions
+Nst_Inst *nst_new_inst_pos(Nst_InstID id, Nst_Pos start, Nst_Pos end);
+Nst_Inst *_nst_new_inst_val(Nst_InstID     id,
+                            Nst_Obj       *val,
+                            Nst_Pos        start,
+                            Nst_Pos        end);
+// Creates a new instruction on the heap with positions and an integer value
+Nst_Inst *nst_new_inst_int(Nst_InstID id,
+                           Nst_Int    int_val,
+                           Nst_Pos    start,
+                           Nst_Pos    end);
+
+// Destroys an instruction allocated on the heap
+void nst_inst_destroy(Nst_Inst *inst);
+// Destroys an insturction list
+void nst_inst_list_destroy(Nst_InstList *inst_list);
 
 #ifdef __cplusplus
 }

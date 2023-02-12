@@ -124,9 +124,9 @@ Nst_Obj *_nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err);
 // and that usually a valid literal for the value
 Nst_Obj *_nst_repr_str_cast(Nst_Obj *ob);
 // Internal cast from sequence to Str
-Nst_Obj *_nst_obj_str_cast_seq(Nst_Obj *seq_obj, LList *all_objs);
+Nst_Obj *_nst_obj_str_cast_seq(Nst_Obj *seq_obj, Nst_LList *all_objs);
 // Internal cast from Map to Str
-Nst_Obj *_nst_obj_str_cast_map(Nst_Obj *map_obj, LList *all_objs);
+Nst_Obj *_nst_obj_str_cast_map(Nst_Obj *map_obj, Nst_LList *all_objs);
 Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err);
 Nst_Obj *_nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err);
 Nst_Obj *_nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step, Nst_OpErr *err);

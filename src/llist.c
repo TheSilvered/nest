@@ -2,9 +2,9 @@
 #include <stdlib.h>
 #include "llist.h"
 
-static inline LLNode *LLNode_new(void *value, bool allocated)
+static inline Nst_LLNode *LLNode_new(void *value, bool allocated)
 {
-    LLNode *node = (LLNode *)malloc(sizeof(LLNode));
+    Nst_LLNode *node = (Nst_LLNode *)malloc(sizeof(Nst_LLNode));
     if ( node == NULL )
     {
         errno = ENOMEM;
@@ -16,9 +16,9 @@ static inline LLNode *LLNode_new(void *value, bool allocated)
     return node;
 }
 
-void LList_push(LList *llist, void *value, bool allocated)
+void nst_llist_push(Nst_LList *llist, void *value, bool allocated)
 {
-    LLNode *node = LLNode_new(value, allocated);
+    Nst_LLNode *node = LLNode_new(value, allocated);
     if ( node == NULL )
     {
         errno = ENOMEM;
@@ -35,9 +35,9 @@ void LList_push(LList *llist, void *value, bool allocated)
     llist->size++;
 }
 
-void LList_append(LList *llist, void *value, bool allocated)
+void nst_llist_append(Nst_LList *llist, void *value, bool allocated)
 {
-    LLNode *node = LLNode_new(value, allocated);
+    Nst_LLNode *node = LLNode_new(value, allocated);
     if ( node == NULL )
     {
         errno = ENOMEM;
@@ -58,14 +58,14 @@ void LList_append(LList *llist, void *value, bool allocated)
     llist->size++;
 }
 
-void *LList_pop(LList *llist)
+void *nst_llist_pop(Nst_LList *llist)
 {
     if ( llist->size == 0 )
     {
         return NULL;
     }
 
-    LLNode *node = llist->head;
+    Nst_LLNode *node = llist->head;
     llist->head = llist->head->next;
 
     if ( llist->head == NULL )
@@ -79,9 +79,9 @@ void *LList_pop(LList *llist)
     return value;
 }
 
-LList *LList_new()
+Nst_LList *nst_llist_new()
 {
-    LList *llist = (LList *)malloc(sizeof(LList));
+    Nst_LList *llist = (Nst_LList *)malloc(sizeof(Nst_LList));
     if ( llist == NULL )
     {
         errno = ENOMEM;
@@ -95,7 +95,7 @@ LList *LList_new()
     return llist;
 }
 
-void *LList_peek_front(LList *llist)
+void *nst_llist_peek_front(Nst_LList *llist)
 {
     if ( llist->head == NULL )
     {
@@ -104,7 +104,7 @@ void *LList_peek_front(LList *llist)
     return llist->head->value;
 }
 
-void *LList_peek_back(LList *llist)
+void *nst_llist_peek_back(Nst_LList *llist)
 {
     if ( llist->tail == NULL )
     {
@@ -113,22 +113,22 @@ void *LList_peek_back(LList *llist)
     return llist->tail->value;
 }
 
-void LList_destroy(LList *llist, void (*item_destroy_func)(void*))
+void nst_llist_destroy(Nst_LList *llist, void (*item_destroy_func)(void*))
 {
-    LList_empty(llist, item_destroy_func);
+    nst_llist_empty(llist, item_destroy_func);
     free(llist);
 }
 
-void LList_empty(LList *llist, void (*item_destroy_func)(void *))
+void nst_llist_empty(Nst_LList *llist, void (*item_destroy_func)(void *))
 {
     if ( llist == NULL )
     {
         return;
     }
 
-    LLNode *prev = NULL;
+    Nst_LLNode *prev = NULL;
 
-    for ( LLNode *cursor = llist->head; cursor != NULL; )
+    for ( Nst_LLNode *cursor = llist->head; cursor != NULL; )
     {
         if ( cursor->allocated && item_destroy_func != NULL )
             (*item_destroy_func)(cursor->value);

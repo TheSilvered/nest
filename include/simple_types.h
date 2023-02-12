@@ -17,10 +17,10 @@
 #define AS_BOOL(ptr) (((Nst_BoolObj *)(ptr))->value)
 #define IOFILE(ptr) ((Nst_IOFileObj *)(ptr))
 
-#define NST_IOF_IS_CLOSED(f) NST_HAS_FLAG(f, NST_FLAG_IOFILE_IS_CLOSED)
-#define NST_IOF_IS_BIN(f)    NST_HAS_FLAG(f, NST_FLAG_IOFILE_IS_BIN)
-#define NST_IOF_CAN_WRITE(f) NST_HAS_FLAG(f, NST_FLAG_IOFILE_CAN_WRITE)
-#define NST_IOF_CAN_READ(f)  NST_HAS_FLAG(f, NST_FLAG_IOFILE_CAN_READ)
+#define NST_IOF_IS_CLOSED(f) NST_FLAG_HAS(f, NST_FLAG_IOFILE_IS_CLOSED)
+#define NST_IOF_IS_BIN(f)    NST_FLAG_HAS(f, NST_FLAG_IOFILE_IS_BIN)
+#define NST_IOF_CAN_WRITE(f) NST_FLAG_HAS(f, NST_FLAG_IOFILE_CAN_WRITE)
+#define NST_IOF_CAN_READ(f)  NST_FLAG_HAS(f, NST_FLAG_IOFILE_CAN_READ)
 
 #define NST_SIMPLE_TYPE_STRUCT(type, alias) \
     typedef type alias; \
@@ -65,32 +65,34 @@ typedef struct _Nst_IOFileObj
 }
 Nst_IOFileObj;
 
-enum Nst_IOFileFlags {
+typedef enum _Nst_IOFileFlag
+{
     NST_FLAG_IOFILE_IS_CLOSED = 0b0001,
     NST_FLAG_IOFILE_IS_BIN    = 0b0010,
     NST_FLAG_IOFILE_CAN_WRITE = 0b0100,
     NST_FLAG_IOFILE_CAN_READ  = 0b1000
-};
+}
+Nst_IOFileFlag;
 
 // Creates a new Int object
-Nst_Obj *nst_new_int(Nst_Int value);
+Nst_Obj *nst_int_new(Nst_Int value);
 // Creates a new Real object
-Nst_Obj *nst_new_real(Nst_Real value);
+Nst_Obj *nst_real_new(Nst_Real value);
 // Creates a new Bool object
-Nst_Obj *nst_new_bool(Nst_Bool value);
+Nst_Obj *nst_bool_new(Nst_Bool value);
 // Creates a new Byte object
-Nst_Obj *nst_new_byte(Nst_Byte value);
+Nst_Obj *nst_byte_new(Nst_Byte value);
 // Creates a new IOFile object, bin: is opened in binary format,
 // read: supports reading, write: supports writing
-Nst_Obj *nst_new_true_file(Nst_IOFile value, bool bin, bool read, bool write);
-Nst_Obj *nst_new_fake_file(void *value,
-                           bool bin, bool read, bool write,
-                           Nst_IOFile_read_f  read_f,
-                           Nst_IOFile_write_f write_f,
-                           Nst_IOFile_flush_f flush_f,
-                           Nst_IOFile_tell_f  tell_f,
-                           Nst_IOFile_seek_f  seek_f,
-                           Nst_IOFile_close_f close_f);
+Nst_Obj *nst_iof_new(Nst_IOFile value, bool bin, bool read, bool write);
+Nst_Obj *nst_iof_new_fake(void *value,
+                          bool bin, bool read, bool write,
+                          Nst_IOFile_read_f  read_f,
+                          Nst_IOFile_write_f write_f,
+                          Nst_IOFile_flush_f flush_f,
+                          Nst_IOFile_tell_f  tell_f,
+                          Nst_IOFile_seek_f  seek_f,
+                          Nst_IOFile_close_f close_f);
 
 void nst_destroy_iofile(Nst_IOFileObj *obj);
 

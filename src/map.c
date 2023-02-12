@@ -8,12 +8,12 @@
 #include "obj_ops.h"
 #include "global_consts.h"
 
-Nst_Obj *nst_new_map()
+Nst_Obj *nst_map_new()
 {
-    Nst_MapObj *map = MAP(nst_alloc_obj(
+    Nst_MapObj *map = MAP(nst_obj_alloc(
         sizeof(Nst_MapObj),
         nst_t.Map,
-        nst_destroy_map));
+        _nst_map_destroy));
     if ( map == NULL )
     {
         errno = ENOMEM;
@@ -34,7 +34,7 @@ Nst_Obj *nst_new_map()
     map->head_idx = -1;
     map->tail_idx = -1;
 
-    NST_GGC_SUPPORT_INIT(map, nst_traverse_map, nst_track_map);
+    NST_GGC_OBJ_INIT(map, _nst_map_traverse, _nst_map_track);
 
     return OBJ(map);
 }
@@ -76,19 +76,19 @@ static bool are_eq(Nst_Obj *ob1, Nst_Obj *ob2)
         return true;
     }
 
-    if ( nst_obj_eq(ob1, ob2, NULL) == nst_c.b_true )
+    if ( nst_obj_eq(ob1, ob2, NULL) == nst_c.Bool_true )
     {
-        nst_dec_ref(nst_c.b_true);
+        nst_dec_ref(nst_c.Bool_true);
         return true;
     }
     else
     {
-        nst_dec_ref(nst_c.b_false);
+        nst_dec_ref(nst_c.Bool_false);
         return false;
     }
 }
 
-void _nst_resize_map(Nst_MapObj *map, bool force_item_reset)
+void _nst_map_resize(Nst_MapObj *map, bool force_item_reset)
 {
     size_t old_size = map->size;
     Nst_MapNode *old_nodes = map->nodes;
@@ -115,7 +115,7 @@ void _nst_resize_map(Nst_MapObj *map, bool force_item_reset)
     if ( map->nodes == NULL )
     {
         map->nodes = old_nodes;
-        nst_destroy_map(map);
+        _nst_map_destroy(map);
         errno = ENOMEM;
         return;
     }
@@ -153,7 +153,7 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
 
     if ( hash == -1 )
     {
-        hash = nst_hash_obj(key);
+        hash = nst_obj_hash(key);
         if ( hash == -1 )
         {
             return false;
@@ -230,12 +230,12 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
     (nodes + (i & mask))->value = value;
 
     if ( NST_OBJ_IS_TRACKED(map) &&
-         NST_HAS_FLAG(value, NST_FLAG_GGC_IS_SUPPORTED) )
+         NST_FLAG_HAS(value, NST_FLAG_GGC_IS_SUPPORTED) )
     {
-        nst_add_tracked_object((Nst_GGCObj*)value);
+        nst_ggc_track_obj((Nst_GGCObj*)value);
     }
 
-    _nst_resize_map(map, false);
+    _nst_map_resize(map, false);
 
     return true;
 }
@@ -246,7 +246,7 @@ Nst_Obj *_nst_map_get(Nst_MapObj *map, Nst_Obj *key)
 
     if ( hash == -1 )
     {
-        hash = nst_hash_obj(key);
+        hash = nst_obj_hash(key);
         if ( hash == -1 )
         {
             return NULL;
@@ -293,7 +293,7 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
 
     if ( hash == -1 )
     {
-        hash = nst_hash_obj(key);
+        hash = nst_obj_hash(key);
         if ( hash == -1 )
         {
             return NULL;
@@ -338,7 +338,7 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
             map->head_idx = curr_node.next_idx;
         }
 
-        _nst_resize_map(map, true);
+        _nst_map_resize(map, true);
         NST_RETURN_TRUE;
     }
 
@@ -380,13 +380,13 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
                 map->head_idx = curr_node.next_idx;
             }
 
-            _nst_resize_map(map, true);
+            _nst_map_resize(map, true);
             NST_RETURN_TRUE;
         }
     }
 }
 
-void nst_destroy_map(Nst_MapObj *map)
+void _nst_map_destroy(Nst_MapObj *map)
 {
     for ( int i = nst_map_get_next_idx(-1, map);
           i != -1;
@@ -401,14 +401,14 @@ void nst_destroy_map(Nst_MapObj *map)
 
 void _nst_map_set_str(Nst_MapObj *map, const char *key, Nst_Obj *value)
 {
-    Nst_Obj *key_obj = nst_new_cstring_raw(key, false);
+    Nst_Obj *key_obj = nst_string_new_c_raw(key, false);
     nst_map_set(map, key_obj, value);
     nst_dec_ref(key_obj);
 }
 
 Nst_Obj *_nst_map_get_str(Nst_MapObj *map, const char *key)
 {
-    Nst_Obj *key_obj = nst_new_cstring_raw(key, false);
+    Nst_Obj *key_obj = nst_string_new_c_raw(key, false);
     Nst_Obj *value = _nst_map_get(map, key_obj);
     nst_dec_ref(key_obj);
     return value;
@@ -416,13 +416,13 @@ Nst_Obj *_nst_map_get_str(Nst_MapObj *map, const char *key)
 
 Nst_Obj *_nst_map_drop_str(Nst_MapObj *map, const char *key)
 {
-    Nst_Obj *key_obj = nst_new_cstring_raw(key, false);
+    Nst_Obj *key_obj = nst_string_new_c_raw(key, false);
     Nst_Obj *value = _nst_map_drop(map, key_obj);
     nst_dec_ref(key_obj);
     return value;
 }
 
-void nst_traverse_map(Nst_MapObj *map)
+void _nst_map_traverse(Nst_MapObj *map)
 {
     for ( int i = nst_map_get_next_idx(-1, map);
           i != -1;
@@ -431,20 +431,20 @@ void nst_traverse_map(Nst_MapObj *map)
         // don't really care if the object is tracked by the garbage collector
         // or not, keys shouldn't be tracked but for good mesure the flag is
         // added reguardless
-        NST_SET_FLAG(map->nodes[i].key,   NST_FLAG_GGC_REACHABLE);
-        NST_SET_FLAG(map->nodes[i].value, NST_FLAG_GGC_REACHABLE);
+        NST_FLAG_SET(map->nodes[i].key,   NST_FLAG_GGC_REACHABLE);
+        NST_FLAG_SET(map->nodes[i].value, NST_FLAG_GGC_REACHABLE);
     }
 }
 
-void nst_track_map(Nst_MapObj *map)
+void _nst_map_track(Nst_MapObj *map)
 {
     for ( int i = nst_map_get_next_idx(-1, map);
           i != -1;
           i = nst_map_get_next_idx(i, map) )
     {
-        if ( NST_HAS_FLAG(map->nodes[i].value, NST_FLAG_GGC_IS_SUPPORTED) )
+        if ( NST_FLAG_HAS(map->nodes[i].value, NST_FLAG_GGC_IS_SUPPORTED) )
         {
-            nst_add_tracked_object((Nst_GGCObj*)(map->nodes[i].value));
+            nst_ggc_track_obj((Nst_GGCObj*)(map->nodes[i].value));
         }
     }
 }

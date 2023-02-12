@@ -8,15 +8,15 @@
 #include "global_consts.h"
 #include "obj_ops.h"
 
-Nst_Obj *nst_new_iter(Nst_FuncObj *start,
+Nst_Obj *nst_iter_new(Nst_FuncObj *start,
                       Nst_FuncObj *is_done,
                       Nst_FuncObj *get_val,
                       Nst_Obj     *value)
 {
-    Nst_IterObj *iter = ITER(nst_alloc_obj(
+    Nst_IterObj *iter = ITER(nst_obj_alloc(
         sizeof(Nst_IterObj),
         nst_t.Iter,
-        nst_destroy_iter));
+        _nst_iter_destroy));
     if ( iter == NULL )
     {
         errno = ENOMEM;
@@ -28,16 +28,16 @@ Nst_Obj *nst_new_iter(Nst_FuncObj *start,
     iter->get_val = get_val;
     iter->value = value;
 
-    if ( NST_HAS_FLAG(start,   NST_FLAG_GGC_IS_SUPPORTED) ||
-         NST_HAS_FLAG(is_done, NST_FLAG_GGC_IS_SUPPORTED) ||
-         NST_HAS_FLAG(get_val, NST_FLAG_GGC_IS_SUPPORTED) ||
-         NST_HAS_FLAG(value,   NST_FLAG_GGC_IS_SUPPORTED) )
-        NST_GGC_SUPPORT_INIT(iter, nst_traverse_iter, nst_track_iter);
+    if ( NST_FLAG_HAS(start,   NST_FLAG_GGC_IS_SUPPORTED) ||
+         NST_FLAG_HAS(is_done, NST_FLAG_GGC_IS_SUPPORTED) ||
+         NST_FLAG_HAS(get_val, NST_FLAG_GGC_IS_SUPPORTED) ||
+         NST_FLAG_HAS(value,   NST_FLAG_GGC_IS_SUPPORTED) )
+        NST_GGC_OBJ_INIT(iter, _nst_iter_traverse, _nst_iter_track);
 
     return OBJ(iter);
 }
 
-void nst_destroy_iter(Nst_IterObj *iter)
+void _nst_iter_destroy(Nst_IterObj *iter)
 {
     nst_dec_ref(iter->start);
     nst_dec_ref(iter->is_done);
@@ -45,38 +45,38 @@ void nst_destroy_iter(Nst_IterObj *iter)
     nst_dec_ref(iter->value);
 }
 
-void nst_track_iter(Nst_IterObj* iter)
+void _nst_iter_track(Nst_IterObj* iter)
 {
-    if ( NST_HAS_FLAG(iter->start, NST_FLAG_GGC_IS_SUPPORTED) )
+    if ( NST_FLAG_HAS(iter->start, NST_FLAG_GGC_IS_SUPPORTED) )
     {
-        nst_add_tracked_object((Nst_GGCObj*)iter->start);
+        nst_ggc_track_obj((Nst_GGCObj*)iter->start);
     }
 
-    if ( NST_HAS_FLAG(iter->is_done, NST_FLAG_GGC_IS_SUPPORTED) )
+    if ( NST_FLAG_HAS(iter->is_done, NST_FLAG_GGC_IS_SUPPORTED) )
     {
-        nst_add_tracked_object((Nst_GGCObj*)iter->is_done);
+        nst_ggc_track_obj((Nst_GGCObj*)iter->is_done);
     }
 
-    if ( NST_HAS_FLAG(iter->get_val, NST_FLAG_GGC_IS_SUPPORTED) )
+    if ( NST_FLAG_HAS(iter->get_val, NST_FLAG_GGC_IS_SUPPORTED) )
     {
-        nst_add_tracked_object((Nst_GGCObj*)iter->get_val);
+        nst_ggc_track_obj((Nst_GGCObj*)iter->get_val);
     }
 
-    if ( NST_HAS_FLAG(iter->value, NST_FLAG_GGC_IS_SUPPORTED) )
+    if ( NST_FLAG_HAS(iter->value, NST_FLAG_GGC_IS_SUPPORTED) )
     {
-        nst_add_tracked_object((Nst_GGCObj*)iter->value);
+        nst_ggc_track_obj((Nst_GGCObj*)iter->value);
     }
 }
 
-void nst_traverse_iter(Nst_IterObj* iter)
+void _nst_iter_traverse(Nst_IterObj* iter)
 {
-    NST_SET_FLAG(iter->start,   NST_FLAG_GGC_REACHABLE);
-    NST_SET_FLAG(iter->is_done, NST_FLAG_GGC_REACHABLE);
-    NST_SET_FLAG(iter->get_val, NST_FLAG_GGC_REACHABLE);
-    NST_SET_FLAG(iter->value,   NST_FLAG_GGC_REACHABLE);
+    NST_FLAG_SET(iter->start,   NST_FLAG_GGC_REACHABLE);
+    NST_FLAG_SET(iter->is_done, NST_FLAG_GGC_REACHABLE);
+    NST_FLAG_SET(iter->get_val, NST_FLAG_GGC_REACHABLE);
+    NST_FLAG_SET(iter->value,   NST_FLAG_GGC_REACHABLE);
 }
 
-int _nst_start_iter(Nst_IterObj *iter, Nst_OpErr *err)
+int _nst_iter_start(Nst_IterObj *iter, Nst_OpErr *err)
 {
     Nst_Obj *result = nst_call_func(iter->start, &iter->value, err);
 
@@ -89,7 +89,7 @@ int _nst_start_iter(Nst_IterObj *iter, Nst_OpErr *err)
     return 0;
 }
 
-int _nst_is_done_iter(Nst_IterObj *iter, Nst_OpErr *err)
+int _nst_iter_is_done(Nst_IterObj *iter, Nst_OpErr *err)
 {
     Nst_Obj *result = nst_call_func(iter->is_done, &iter->value, err);
 
@@ -98,18 +98,18 @@ int _nst_is_done_iter(Nst_IterObj *iter, Nst_OpErr *err)
         return -1;
     }
 
-    if ( nst_obj_cast(result, nst_t.Bool, NULL) == nst_c.b_true )
+    if ( nst_obj_cast(result, nst_t.Bool, NULL) == nst_c.Bool_true )
     {
-        nst_dec_ref(nst_c.b_true);
+        nst_dec_ref(nst_c.Bool_true);
         nst_dec_ref(result);
         return 1;
     }
-    nst_dec_ref(nst_c.b_false);
+    nst_dec_ref(nst_c.Bool_false);
     nst_dec_ref(result);
     return 0;
 }
 
-Nst_Obj *_nst_get_val_iter(Nst_IterObj *iter, Nst_OpErr *err)
+Nst_Obj *_nst_iter_get_val(Nst_IterObj *iter, Nst_OpErr *err)
 {
     return nst_call_func(iter->get_val, &iter->value, err);
 }
@@ -118,14 +118,14 @@ Nst_Obj *_nst_get_val_iter(Nst_IterObj *iter, Nst_OpErr *err)
 #pragma warning( disable: 4100 )
 #endif
 
-NST_FUNC_SIGN(nst_num_iter_start)
+NST_FUNC_SIGN(nst_iter_range_start)
 {
     Nst_SeqObj *val = SEQ(args[0]);
     AS_INT(val->objs[0]) = AS_INT(val->objs[1]);
     NST_RETURN_NULL;
 }
 
-NST_FUNC_SIGN(nst_num_iter_is_done)
+NST_FUNC_SIGN(nst_iter_range_is_done)
 {
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
@@ -143,22 +143,22 @@ NST_FUNC_SIGN(nst_num_iter_is_done)
     }
 }
 
-NST_FUNC_SIGN(nst_num_iter_get_val)
+NST_FUNC_SIGN(nst_iter_range_get_val)
 {
     Nst_SeqObj *val = SEQ(args[0]);
-    Nst_Obj *ob = nst_new_int(AS_INT(val->objs[0]));
+    Nst_Obj *ob = nst_int_new(AS_INT(val->objs[0]));
     AS_INT(val->objs[0]) += AS_INT(val->objs[3]);
     return ob;
 }
 
-NST_FUNC_SIGN(nst_seq_iter_start)
+NST_FUNC_SIGN(nst_iter_seq_start)
 {
     Nst_SeqObj *val = SEQ(args[0]);
     AS_INT(val->objs[0]) = 0;
     NST_RETURN_NULL;
 }
 
-NST_FUNC_SIGN(nst_seq_iter_is_done)
+NST_FUNC_SIGN(nst_iter_seq_is_done)
 {
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
@@ -174,7 +174,7 @@ NST_FUNC_SIGN(nst_seq_iter_is_done)
     }
 }
 
-NST_FUNC_SIGN(nst_seq_iter_get_val)
+NST_FUNC_SIGN(nst_iter_seq_get_val)
 {
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_SeqObj *seq = SEQ(val->objs[1]);
@@ -182,7 +182,7 @@ NST_FUNC_SIGN(nst_seq_iter_get_val)
 
     if ( seq->len < idx )
     {
-        NST_SET_VALUE_ERROR(_nst_format_error(
+        NST_SET_VALUE_ERROR(nst_format_error(
             seq->type == nst_t.Array ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
                                      : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
             "iu",
@@ -197,14 +197,14 @@ NST_FUNC_SIGN(nst_seq_iter_get_val)
     return nst_inc_ref(obj);
 }
 
-NST_FUNC_SIGN(nst_str_iter_start)
+NST_FUNC_SIGN(nst_iter_str_start)
 {
     Nst_SeqObj *val = SEQ(args[0]);
     AS_INT(val->objs[0]) = 0;
     NST_RETURN_NULL;
 }
 
-NST_FUNC_SIGN(nst_str_iter_is_done)
+NST_FUNC_SIGN(nst_iter_str_is_done)
 {
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
@@ -220,7 +220,7 @@ NST_FUNC_SIGN(nst_str_iter_is_done)
     }
 }
 
-NST_FUNC_SIGN(nst_str_iter_get_val)
+NST_FUNC_SIGN(nst_iter_str_get_val)
 {
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
@@ -229,7 +229,7 @@ NST_FUNC_SIGN(nst_str_iter_get_val)
 
     if ( idx >= str->len )
     {
-        NST_SET_VALUE_ERROR(_nst_format_error(
+        NST_SET_VALUE_ERROR(nst_format_error(
             _NST_EM_INDEX_OUT_OF_BOUNDS("Str"),
             "iu",
             idx,
@@ -237,7 +237,7 @@ NST_FUNC_SIGN(nst_str_iter_get_val)
 
         return NULL;
     }
-    Nst_Obj *ob = nst_string_get_idx(objs[1], AS_INT(objs[0]));
+    Nst_Obj *ob = nst_string_get(objs[1], AS_INT(objs[0]));
     AS_INT(val->objs[0]) += 1;
     return ob;
 }

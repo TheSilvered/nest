@@ -8,10 +8,10 @@
 
 static Nst_Obj *new_seq(size_t len, size_t size, Nst_TypeObj *type)
 {
-    Nst_SeqObj *seq = SEQ(nst_alloc_obj(
+    Nst_SeqObj *seq = SEQ(nst_obj_alloc(
         sizeof(Nst_SeqObj),
         type,
-        nst_destroy_seq));
+        nst_seq_destroy));
     Nst_Obj **objs = (Nst_Obj **)calloc(size, sizeof(Nst_Obj *));
 
     if ( seq == NULL || objs == NULL )
@@ -24,17 +24,17 @@ static Nst_Obj *new_seq(size_t len, size_t size, Nst_TypeObj *type)
     seq->size = size;
     seq->objs = objs;
 
-    NST_GGC_SUPPORT_INIT(seq, nst_traverse_seq, nst_track_seq);
+    NST_GGC_OBJ_INIT(seq, nst_seq_traverse, nst_seq_track);
 
     return OBJ(seq);
 }
 
-Nst_Obj *nst_new_array(size_t len)
+Nst_Obj *nst_array_new(size_t len)
 {
     return new_seq(len, len, nst_t.Array);
 }
 
-Nst_Obj *nst_new_vector(size_t len)
+Nst_Obj *nst_vector_new(size_t len)
 {
     size_t size = (size_t)(len * VECTOR_GROWTH_RATIO);
 
@@ -46,7 +46,7 @@ Nst_Obj *nst_new_vector(size_t len)
     return new_seq(len, size, nst_t.Vector);
 }
 
-void nst_destroy_seq(Nst_SeqObj *seq)
+void nst_seq_destroy(Nst_SeqObj *seq)
 {
     Nst_Obj **objs = seq->objs;
     for ( size_t i = 0, n = seq->len; i < n; i++ )
@@ -57,28 +57,28 @@ void nst_destroy_seq(Nst_SeqObj *seq)
     free(objs);
 }
 
-void nst_traverse_seq(Nst_SeqObj *seq)
+void nst_seq_traverse(Nst_SeqObj *seq)
 {
     Nst_Obj **objs = seq->objs;
     for ( size_t i = 0, n = seq->len; i < n; i++ )
     {
-        NST_SET_FLAG(objs[i], NST_FLAG_GGC_REACHABLE);
+        NST_FLAG_SET(objs[i], NST_FLAG_GGC_REACHABLE);
     }
 }
 
-void nst_track_seq(Nst_SeqObj* seq)
+void nst_seq_track(Nst_SeqObj* seq)
 {
     Nst_Obj **objs = seq->objs;
     for ( size_t i = 0, n = seq->len; i < n; i++ )
     {
-        if ( NST_HAS_FLAG(objs[i], NST_FLAG_GGC_IS_SUPPORTED) )
+        if ( NST_FLAG_HAS(objs[i], NST_FLAG_GGC_IS_SUPPORTED) )
         {
-            nst_add_tracked_object((Nst_GGCObj*)objs[i]);
+            nst_ggc_track_obj((Nst_GGCObj*)objs[i]);
         }
     }
 }
 
-void _nst_resize_vector(Nst_SeqObj *vect)
+void _nst_vector_resize(Nst_SeqObj *vect)
 {
     size_t len = vect->len;
     size_t size = vect->size;
@@ -127,11 +127,11 @@ void _nst_resize_vector(Nst_SeqObj *vect)
     vect->objs = new_objs;
 }
 
-void _nst_append_value_vector(Nst_SeqObj *vect, Nst_Obj *val)
+void _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val)
 {
     if ( vect->size == vect->len )
     {
-        _nst_resize_vector(vect);
+        _nst_vector_resize(vect);
     }
 
     if ( errno == ENOMEM )
@@ -144,13 +144,13 @@ void _nst_append_value_vector(Nst_SeqObj *vect, Nst_Obj *val)
     vect->len++;
 
     if ( NST_OBJ_IS_TRACKED(vect) &&
-         NST_HAS_FLAG(val, NST_FLAG_GGC_IS_SUPPORTED) )
+         NST_FLAG_HAS(val, NST_FLAG_GGC_IS_SUPPORTED) )
     {
-        nst_add_tracked_object((Nst_GGCObj*)val);
+        nst_ggc_track_obj((Nst_GGCObj*)val);
     }
 }
 
-bool _nst_set_value_seq(Nst_SeqObj *seq, int64_t idx, Nst_Obj *val)
+bool _nst_seq_set(Nst_SeqObj *seq, int64_t idx, Nst_Obj *val)
 {
     if ( idx < 0 )
     {
@@ -170,15 +170,15 @@ bool _nst_set_value_seq(Nst_SeqObj *seq, int64_t idx, Nst_Obj *val)
     seq->objs[idx] = val;
 
     if ( NST_OBJ_IS_TRACKED(seq) &&
-         NST_HAS_FLAG(val, NST_FLAG_GGC_IS_SUPPORTED) )
+         NST_FLAG_HAS(val, NST_FLAG_GGC_IS_SUPPORTED) )
     {
-        nst_add_tracked_object((Nst_GGCObj*)val);
+        nst_ggc_track_obj((Nst_GGCObj*)val);
     }
 
     return true;
 }
 
-Nst_Obj *_nst_get_value_seq(Nst_SeqObj *seq, int64_t idx)
+Nst_Obj *_nst_seq_get(Nst_SeqObj *seq, int64_t idx)
 {
     if ( idx < 0 )
     {
@@ -194,7 +194,7 @@ Nst_Obj *_nst_get_value_seq(Nst_SeqObj *seq, int64_t idx)
     return seq->objs[idx];
 }
 
-Nst_Obj *_nst_rem_value_vector(Nst_SeqObj *vect, Nst_Obj *val)
+Nst_Obj *_nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val)
 {
     size_t i = 0;
     size_t n = vect->len;
@@ -202,15 +202,15 @@ Nst_Obj *_nst_rem_value_vector(Nst_SeqObj *vect, Nst_Obj *val)
 
     for ( ; i < n; i++ )
     {
-        if ( nst_obj_eq(val, objs[i], NULL) == nst_c.b_true )
+        if ( nst_obj_eq(val, objs[i], NULL) == nst_c.Bool_true )
         {
-            nst_dec_ref(nst_c.b_true);
+            nst_dec_ref(nst_c.Bool_true);
             nst_dec_ref(objs[i]);
             break;
         }
         else
         {
-            nst_dec_ref(nst_c.b_false);
+            nst_dec_ref(nst_c.Bool_false);
         }
 
         if ( i + 1 == n )
@@ -225,12 +225,12 @@ Nst_Obj *_nst_rem_value_vector(Nst_SeqObj *vect, Nst_Obj *val)
     }
 
     vect->len--;
-    _nst_resize_vector(vect);
+    _nst_vector_resize(vect);
 
     NST_RETURN_TRUE;
 }
 
-Nst_Obj *_nst_pop_value_vector(Nst_SeqObj *vect, size_t quantity)
+Nst_Obj *_nst_vector_pop(Nst_SeqObj *vect, size_t quantity)
 {
     if ( quantity > vect->len )
     {
@@ -252,8 +252,8 @@ Nst_Obj *_nst_pop_value_vector(Nst_SeqObj *vect, size_t quantity)
 
     if ( last_obj == NULL )
     {
-        nst_inc_ref(nst_c.null);
-        return nst_c.null;
+        nst_inc_ref(nst_c.Null_null);
+        return nst_c.Null_null;
     }
     else
     {

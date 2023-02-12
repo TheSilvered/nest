@@ -7,10 +7,10 @@
 
 #define EXIT(code) \
     do { \
-    _nst_del_consts(); \
-    _nst_del_strs(); \
-    _nst_del_types(); \
-    _nst_del_streams(); \
+    _nst_consts_del(); \
+    _nst_strs_del(); \
+    _nst_types_del(); \
+    _nst_streams_del(); \
     if ( filename != NULL ) { \
         free(src_text.text); \
         free(src_text.lines); \
@@ -35,9 +35,9 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef _DEBUG
-    puts("**USING DEBUG BUILD - " NEST_VERSION "**");
+    puts("**USING DEBUG BUILD - " NST_VERSION "**");
 
-    for ( size_t i = 0, n = strlen(NEST_VERSION) + 24; i < n; i++ )
+    for ( size_t i = 0, n = strlen(NST_VERSION) + 24; i < n; i++ )
     {
         putc('-', stdout);
     }
@@ -82,12 +82,12 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    _nst_init_types();
-    _nst_init_strs();
-    _nst_init_consts();
-    _nst_init_streams();
+    _nst_types_init();
+    _nst_strs_init();
+    _nst_consts_init();
+    _nst_streams_init();
 
-    LList *tokens;
+    Nst_LList *tokens;
     Nst_Error error = { false, nst_no_pos(), nst_no_pos(), NULL, NULL };
     Nst_SourceText src_text = { NULL, NULL, 0 };
 
@@ -95,7 +95,7 @@ int main(int argc, char **argv)
     {
         int spec_opt_lvl;
         bool spec_no_def;
-        tokens = nst_ftokenize(
+        tokens = nst_tokenizef(
             filename,
             force_cp1252,
             &spec_opt_lvl,
@@ -136,15 +136,15 @@ int main(int argc, char **argv)
 
     if ( print_tokens )
     {
-        for ( LLNode *n = tokens->head; n != NULL; n = n->next )
+        for ( Nst_LLNode *n = tokens->head; n != NULL; n = n->next )
         {
-            nst_print_token(TOK(n->value));
+            nst_print_tok(TOK(n->value));
             printf("\n");
         }
 
         if ( !force_exe && !print_tree && !print_bc )
         {
-            LList_destroy(tokens, (LList_item_destructor)nst_destroy_token);
+            nst_llist_destroy(tokens, (nst_llist_destructor)nst_token_destroy);
             EXIT(0);
         }
     }
@@ -169,13 +169,13 @@ int main(int argc, char **argv)
 
         if ( !force_exe && !print_bc )
         {
-            nst_destroy_node(ast);
+            nst_node_destroy(ast);
             EXIT(0);
         }
     }
 
     // nst_compile never fails
-    Nst_InstructionList *inst_ls = nst_compile(ast, false);
+    Nst_InstList *inst_ls = nst_compile(ast, false);
 
     if ( opt_level >= 2 )
     {
@@ -197,12 +197,12 @@ int main(int argc, char **argv)
 
         if ( !force_exe )
         {
-            nst_destroy_inst_list(inst_ls);
+            nst_inst_list_destroy(inst_ls);
             EXIT(0);
         }
     }
 
-    Nst_FuncObj *main_func = FUNC(nst_new_func(0, inst_ls));
+    Nst_FuncObj *main_func = FUNC(nst_func_new(0, inst_ls));
 
     int exe_result = nst_run(
         main_func,

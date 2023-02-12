@@ -13,17 +13,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct _Nst_Node
-{
-    Nst_Pos start;
-    Nst_Pos end;
-    int type;
-    LList *nodes;
-    LList *tokens;
-}
-Nst_Node;
-
-enum Nst_NodeTypes
+typedef enum _Nst_NodeType
 {
     NST_NT_LONG_S,
     NST_NT_WHILE_L,
@@ -50,28 +40,39 @@ enum Nst_NodeTypes
     NST_NT_ASSIGN_E,
     NST_NT_IF_E,
     NST_NT_LAMBDA
-};
+}
+Nst_NodeType;
+
+typedef struct _Nst_Node
+{
+    Nst_Pos start;
+    Nst_Pos end;
+    Nst_NodeType type;
+    Nst_LList *nodes;
+    Nst_LList *tokens;
+}
+Nst_Node;
 
 // New node on the heap with only a list of tokens
-Nst_Node *nst_new_node_tokens(Nst_Pos start,
-                              Nst_Pos end,
-                              int     type,
-                              LList  *tokens);
+Nst_Node *nst_node_new_tokens(Nst_Pos      start,
+                              Nst_Pos      end,
+                              Nst_NodeType type,
+                              Nst_LList   *tokens);
 // New node on the heap with only a list of nodes
-Nst_Node *nst_new_node_nodes(Nst_Pos start,
-                             Nst_Pos end,
-                             int     type,
-                             LList  *nodes);
+Nst_Node *nst_node_new_nodes(Nst_Pos      start,
+                             Nst_Pos      end,
+                             Nst_NodeType type,
+                             Nst_LList   *nodes);
 // New node on the heap with both a list of nodes an tokens
-Nst_Node *nst_new_node_full(Nst_Pos start,
-                            Nst_Pos end,
-                            int     type,
-                            LList  *nodes,
-                            LList  *tokens);
+Nst_Node *nst_node_new_full(Nst_Pos      start,
+                            Nst_Pos      end,
+                            Nst_NodeType type,
+                            Nst_LList   *nodes,
+                            Nst_LList   *tokens);
 // New node with no lists
-Nst_Node *nst_new_node_empty(Nst_Pos start, Nst_Pos end, int type);
+Nst_Node *nst_node_new_empty(Nst_Pos start, Nst_Pos end, Nst_NodeType type);
 // Destroy a token and its children
-void nst_destroy_node(Nst_Node *node);
+void nst_node_destroy(Nst_Node *node);
 
 #ifdef __cplusplus
 }

@@ -9,9 +9,9 @@
 #include "sequence.h"
 
 // Returns a value from the variable table
-#define nst_get_val(vt, name) _nst_get_val(vt, OBJ(name))
+#define nst_vt_get(vt, name) _nst_vt_get(vt, OBJ(name))
 // Sets a value in the variable table
-#define nst_set_val(vt, name, val) _nst_set_val(vt, OBJ(name), OBJ(val))
+#define nst_vt_set(vt, name, val) _nst_vt_set(vt, OBJ(name), OBJ(val))
 
 #ifdef __cplusplus
 extern "C" {
@@ -25,11 +25,11 @@ typedef struct _Nst_VarTable
 Nst_VarTable;
 
 // Creates a new variable table
-Nst_VarTable *nst_new_var_table(Nst_MapObj *global_table,
+Nst_VarTable *nst_vt_new(Nst_MapObj *global_table,
                                 Nst_StrObj *cwd,
                                 Nst_SeqObj *args);
-Nst_Obj *_nst_get_val(Nst_VarTable *vt, Nst_Obj *name);
-void _nst_set_val(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val);
+Nst_Obj *_nst_vt_get(Nst_VarTable *vt, Nst_Obj *name);
+void _nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val);
 #ifdef __cplusplus
 }
 #endif // !__cplusplus

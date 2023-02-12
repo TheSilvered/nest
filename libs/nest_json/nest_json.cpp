@@ -10,7 +10,7 @@ static bool lib_init_ = false;
 
 bool lib_init()
 {
-    if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
+    if ( (func_list_ = nst_func_list_new(FUNC_COUNT)) == nullptr )
         return false;
 
     size_t idx = 0;
@@ -40,7 +40,7 @@ NST_FUNC_SIGN(load_s_)
     Nst_StrObj *str;
     NST_DEF_EXTRACT("s", &str);
 
-    LList *tokens = json_tokenize(
+    Nst_LList *tokens = json_tokenize(
         (char *)"<Str>",
         str->value, str->len,
         false, err);
@@ -72,7 +72,7 @@ NST_FUNC_SIGN(load_f_)
     char *buf = new char[buf_size + 1];
     size_t len = fread(buf, sizeof(char), buf_size, f);
     buf[len] = 0;
-    LList *tokens = json_tokenize(path->value, buf, len, true, err);
+    Nst_LList *tokens = json_tokenize(path->value, buf, len, true, err);
     if ( tokens == nullptr )
     {
         return nullptr;
@@ -138,5 +138,5 @@ NST_FUNC_SIGN(get_options_)
     Nst_Int val = 0;
     val |= comments        ? 0b01 : 0;
     val |= trailing_commas ? 0b10 : 0;
-    return nst_new_int(val);
+    return nst_int_new(val);
 }

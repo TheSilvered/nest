@@ -10,7 +10,7 @@ static bool lib_init_ = false;
 
 bool lib_init()
 {
-    if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
+    if ( (func_list_ = nst_func_list_new(FUNC_COUNT)) == nullptr )
     {
         return false;
     }
@@ -58,7 +58,7 @@ NST_FUNC_SIGN(utf8_iter_get_val)
 
     if ( (size_t)val >= s_len )
     {
-        NST_SET_VALUE_ERROR(_nst_format_error(
+        NST_SET_VALUE_ERROR(nst_format_error(
             _NST_EM_INDEX_OUT_OF_BOUNDS("Str"),
             "iu",
             val, s_len));
@@ -76,7 +76,7 @@ NST_FUNC_SIGN(utf8_iter_get_val)
     new_s[res] = '\0';
     idx->value += res;
 
-    return nst_new_string(new_s, res, true);
+    return nst_string_new(new_s, res, true);
 }
 
 NST_FUNC_SIGN(is_valid_)
@@ -116,7 +116,7 @@ NST_FUNC_SIGN(get_len_)
         i += res;
     }
 
-    return nst_new_int(len);
+    return nst_int_new(len);
 }
 
 NST_FUNC_SIGN(get_at_)
@@ -145,7 +145,7 @@ NST_FUNC_SIGN(get_at_)
 
     if ( curr_idx < idx || i == s_len )
     {
-        NST_SET_VALUE_ERROR(_nst_format_error(
+        NST_SET_VALUE_ERROR(nst_format_error(
             _NST_EM_INDEX_OUT_OF_BOUNDS("Str (Unicode)"),
             "iu",
             idx, u_len));
@@ -162,7 +162,7 @@ NST_FUNC_SIGN(get_at_)
     char *new_s = new char[res + 1];
     memcpy(new_s, s + i, res);
     new_s[res] = '\0';
-    return nst_new_string(new_s, res, true);
+    return nst_string_new(new_s, res, true);
 }
 
 NST_FUNC_SIGN(to_iter_)
@@ -172,13 +172,13 @@ NST_FUNC_SIGN(to_iter_)
     NST_DEF_EXTRACT("s", &str);
 
     // Layout: [idx, str]
-    Nst_SeqObj *arr = SEQ(nst_new_array(2));
-    arr->objs[0] = nst_new_int(0);
+    Nst_SeqObj *arr = SEQ(nst_array_new(2));
+    arr->objs[0] = nst_int_new(0);
     arr->objs[1] = nst_inc_ref(str);
 
-    return nst_new_iter(
-        FUNC(nst_new_cfunc(1, utf8_iter_start)),
-        FUNC(nst_new_cfunc(1, utf8_iter_is_done)),
-        FUNC(nst_new_cfunc(1, utf8_iter_get_val)),
+    return nst_iter_new(
+        FUNC(nst_func_new_c(1, utf8_iter_start)),
+        FUNC(nst_func_new_c(1, utf8_iter_is_done)),
+        FUNC(nst_func_new_c(1, utf8_iter_get_val)),
         OBJ(arr));
 }

@@ -3,22 +3,22 @@
 #ifndef NEST_H
 #define NEST_H
 
-#define _NEST_VERSION_BASE "beta-0.11.1"
+#define _NST_VERSION_BASE "beta-0.11.1"
 
 #if defined(_WIN32) || defined(WIN32)
   #ifdef _WIN64
-    #define NEST_VERSION _NEST_VERSION_BASE " x64"
+    #define NST_VERSION _NST_VERSION_BASE " x64"
   #else
-    #define NEST_VERSION _NEST_VERSION_BASE " x86"
+    #define NST_VERSION _NST_VERSION_BASE " x86"
   #endif
 #elif defined(__GNUC__)
   #if defined(__x86_64__) || defined(__ppc64__)
-    #define NEST_VERSION _NEST_VERSION_BASE " x64"
+    #define NST_VERSION _NST_VERSION_BASE " x64"
   #else
-    #define NEST_VERSION _NEST_VERSION_BASE " x86"
+    #define NST_VERSION _NST_VERSION_BASE " x86"
   #endif
 #else
-  #define NEST_VERSION _NEST_VERSION_BASE
+  #define NST_VERSION _NST_VERSION_BASE
 #endif
 
 #include "error.h"

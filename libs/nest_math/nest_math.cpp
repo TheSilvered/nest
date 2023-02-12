@@ -13,7 +13,7 @@ static bool lib_init_ = false;
 
 bool lib_init()
 {
-    if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
+    if ( (func_list_ = nst_func_list_new(FUNC_COUNT)) == nullptr )
     {
         return false;
     }
@@ -80,35 +80,35 @@ NST_FUNC_SIGN(floor_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_new_int((Nst_Int)n);
+    return nst_int_new((Nst_Int)n);
 }
 
 NST_FUNC_SIGN(ceil_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_new_int((Nst_Int)ceil(n));
+    return nst_int_new((Nst_Int)ceil(n));
 }
 
 NST_FUNC_SIGN(round_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_new_int((Nst_Int)round(n));
+    return nst_int_new((Nst_Int)round(n));
 }
 
 NST_FUNC_SIGN(exp_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_new_real(exp(n));
+    return nst_real_new(exp(n));
 }
 
 NST_FUNC_SIGN(log_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_new_real(log(n));
+    return nst_real_new(log(n));
 }
 
 NST_FUNC_SIGN(logn_)
@@ -116,21 +116,21 @@ NST_FUNC_SIGN(logn_)
     Nst_Real n;
     Nst_Real base;
     NST_DEF_EXTRACT("NN", &n, &base);
-    return nst_new_real(log(n) / log(base));
+    return nst_real_new(log(n) / log(base));
 }
 
 NST_FUNC_SIGN(log2_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_new_real(log2(n));
+    return nst_real_new(log2(n));
 }
 
 NST_FUNC_SIGN(log10_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_new_real(log10(n));
+    return nst_real_new(log10(n));
 }
 
 NST_FUNC_SIGN(divmod_)
@@ -140,9 +140,9 @@ NST_FUNC_SIGN(divmod_)
 
     NST_DEF_EXTRACT("ii", &x, &y);
 
-    Nst_SeqObj *res = SEQ(nst_new_array(2));
-    res->objs[0] = nst_new_int(x / y);
-    res->objs[1] = nst_new_int(x % y);
+    Nst_SeqObj *res = SEQ(nst_array_new(2));
+    res->objs[0] = nst_int_new(x / y);
+    res->objs[1] = nst_int_new(x % y);
 
     return OBJ(res);
 }
@@ -151,42 +151,42 @@ NST_FUNC_SIGN(sin_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_new_real(sin(n));
+    return nst_real_new(sin(n));
 }
 
 NST_FUNC_SIGN(cos_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_new_real(cos(n));
+    return nst_real_new(cos(n));
 }
 
 NST_FUNC_SIGN(tan_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_new_real(tan(n));
+    return nst_real_new(tan(n));
 }
 
 NST_FUNC_SIGN(asin_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_new_real(asin(n));
+    return nst_real_new(asin(n));
 }
 
 NST_FUNC_SIGN(acos_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_new_real(acos(n));
+    return nst_real_new(acos(n));
 }
 
 NST_FUNC_SIGN(atan_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_new_real(atan(n));
+    return nst_real_new(atan(n));
 }
 
 NST_FUNC_SIGN(atan2_)
@@ -194,49 +194,49 @@ NST_FUNC_SIGN(atan2_)
     Nst_Real x;
     Nst_Real y;
     NST_DEF_EXTRACT("NN", &y, &x);
-    return nst_new_real(atan2(y, x));
+    return nst_real_new(atan2(y, x));
 }
 
 NST_FUNC_SIGN(sinh_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_new_real(sinh(n));
+    return nst_real_new(sinh(n));
 }
 
 NST_FUNC_SIGN(cosh_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_new_real(cosh(n));
+    return nst_real_new(cosh(n));
 }
 
 NST_FUNC_SIGN(tanh_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_new_real(tanh(n));
+    return nst_real_new(tanh(n));
 }
 
 NST_FUNC_SIGN(asinh_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_new_real(asinh(n));
+    return nst_real_new(asinh(n));
 }
 
 NST_FUNC_SIGN(acosh_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_new_real(acosh(n));
+    return nst_real_new(acosh(n));
 }
 
 NST_FUNC_SIGN(atanh_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_new_real(atanh(n));
+    return nst_real_new(atanh(n));
 }
 
 NST_FUNC_SIGN(dist_2d_)
@@ -316,7 +316,7 @@ NST_FUNC_SIGN(dist_2d_)
 
     // sqrt((x1 - x2)^2 + (y1 - y2)^2)
     Nst_Real c2 = (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2);
-    return nst_new_real(sqrt(c2));
+    return nst_real_new(sqrt(c2));
 }
 
 NST_FUNC_SIGN(dist_3d_)
@@ -429,7 +429,7 @@ NST_FUNC_SIGN(dist_3d_)
     Nst_Real d2 = (x1 - x2)*(x1 - x2)
                 + (y1 - y2)*(y1 - y2)
                 + (z1 - z2)*(z1 - z2);
-    return nst_new_real(sqrt(d2));
+    return nst_real_new(sqrt(d2));
 }
 
 NST_FUNC_SIGN(dist_nd_)
@@ -490,7 +490,7 @@ NST_FUNC_SIGN(dist_nd_)
         tot += (t1 - t2) * (t1 - t2);
     }
 
-    return nst_new_real(sqrt(tot));
+    return nst_real_new(sqrt(tot));
 }
 
 NST_FUNC_SIGN(deg_)
@@ -499,7 +499,7 @@ NST_FUNC_SIGN(deg_)
 
     NST_DEF_EXTRACT("N", &n);
     // 57.29577951308232 = 180 / PI
-    return nst_new_real(n * 57.29577951308232);
+    return nst_real_new(n * 57.29577951308232);
 }
 
 NST_FUNC_SIGN(rad_)
@@ -508,7 +508,7 @@ NST_FUNC_SIGN(rad_)
 
     NST_DEF_EXTRACT("N", &n);
     // 0.017453292519943295 = PI / 180
-    return nst_new_real(n * 0.017453292519943295);
+    return nst_real_new(n * 0.017453292519943295);
 }
 
 NST_FUNC_SIGN(min_)
@@ -565,7 +565,7 @@ NST_FUNC_SIGN(min_seq_)
             return nullptr;
         }
 
-        if ( res == nst_c.b_true )
+        if ( res == nst_c.Bool_true )
         {
             min_obj = seq->objs[i];
         }
@@ -599,7 +599,7 @@ NST_FUNC_SIGN(max_seq_)
             return nullptr;
         }
 
-        if ( res == nst_c.b_true )
+        if ( res == nst_c.Bool_true )
         {
             max_obj = seq->objs[i];
         }
@@ -648,9 +648,9 @@ NST_FUNC_SIGN(frexp_)
     NST_DEF_EXTRACT("r", &n);
 
     int num;
-    Nst_SeqObj *arr = SEQ(nst_new_array(2));
-    arr->objs[0] = nst_new_real(frexp(n, &num));
-    arr->objs[1] = nst_new_int(num);
+    Nst_SeqObj *arr = SEQ(nst_array_new(2));
+    arr->objs[0] = nst_real_new(frexp(n, &num));
+    arr->objs[1] = nst_int_new(num);
 
     return OBJ(arr);
 }
@@ -662,7 +662,7 @@ NST_FUNC_SIGN(ldexp_)
 
     NST_DEF_EXTRACT("ri", &m, &e);
 
-    return nst_new_real(ldexp(m, (int)e));
+    return nst_real_new(ldexp(m, (int)e));
 }
 
 NST_FUNC_SIGN(map_)
@@ -677,10 +677,10 @@ NST_FUNC_SIGN(map_)
 
     if ( min1 == max1 )
     {
-        return nst_new_real(min2);
+        return nst_real_new(min2);
     }
 
-    return nst_new_real((val - min1) / (max1 - min1) * (max2 - min2) + min2);
+    return nst_real_new((val - min1) / (max1 - min1) * (max2 - min2) + min2);
 }
 
 NST_FUNC_SIGN(clamp_)
@@ -691,7 +691,7 @@ NST_FUNC_SIGN(clamp_)
 
     NST_DEF_EXTRACT("NNN", &val, &min, &max);
 
-    return nst_new_real(min > val ? min : max < val ? max : val);
+    return nst_real_new(min > val ? min : max < val ? max : val);
 }
 
 template <typename T>
@@ -794,7 +794,7 @@ NST_FUNC_SIGN(gcd_)
 
     if ( args[0]->type == nst_t.Real || args[1]->type == nst_t.Real )
     {
-        return nst_new_real(gcd_real(n1, n2));
+        return nst_real_new(gcd_real(n1, n2));
     }
     else if ( args[0]->type == nst_t.Int || args[1]->type == nst_t.Int )
     {
@@ -819,13 +819,13 @@ NST_FUNC_SIGN(gcd_)
             n2_int = (Nst_Int)AS_BYTE(args[1]);
         }
 
-        return nst_new_int(gcd_int<Nst_Int>(n1_int, n2_int));
+        return nst_int_new(gcd_int<Nst_Int>(n1_int, n2_int));
     }
     else
     {
         Nst_Byte n1_byte = AS_BYTE(args[0]);
         Nst_Byte n2_byte = AS_BYTE(args[1]);
-        return nst_new_byte(gcd_int<Nst_Byte>(n1_byte, n2_byte));
+        return nst_byte_new(gcd_int<Nst_Byte>(n1_byte, n2_byte));
     }
 }
 
@@ -872,7 +872,7 @@ NST_FUNC_SIGN(gcd_seq_)
          objs[0]->type != nst_t.Real &&
          objs[0]->type != nst_t.Byte )
     {
-        NST_SET_TYPE_ERROR(_nst_format_error(
+        NST_SET_TYPE_ERROR(nst_format_error(
             "expected type 'Byte', 'Int' or 'Real', but object at index %zi is of type '%s'",
             "us",
             0, TYPE_NAME(objs[0])));
@@ -889,7 +889,7 @@ NST_FUNC_SIGN(gcd_seq_)
              objs[i]->type != nst_t.Real &&
              objs[i]->type != nst_t.Byte )
         {
-            NST_SET_TYPE_ERROR(_nst_format_error(
+            NST_SET_TYPE_ERROR(nst_format_error(
                 "expected type 'Byte', 'Int' or 'Real', but object at index %zi is of type '%s'",
                 "us",
                 i, TYPE_NAME(objs[i])));
@@ -928,7 +928,7 @@ NST_FUNC_SIGN(lcm_seq_)
         objs[0]->type != nst_t.Real &&
         objs[0]->type != nst_t.Byte )
     {
-        NST_SET_TYPE_ERROR(_nst_format_error(
+        NST_SET_TYPE_ERROR(nst_format_error(
             "expected type 'Byte', 'Int' or 'Real', but object at index %zi is of type '%s'",
             "us",
             0, TYPE_NAME(objs[0])));
@@ -945,7 +945,7 @@ NST_FUNC_SIGN(lcm_seq_)
             objs[i]->type != nst_t.Real &&
             objs[i]->type != nst_t.Byte )
         {
-            NST_SET_TYPE_ERROR(_nst_format_error(
+            NST_SET_TYPE_ERROR(nst_format_error(
                 "expected type 'Byte', 'Int' or 'Real', but object at index %zi is of type '%s'",
                 "us",
                 i, TYPE_NAME(objs[i])));
@@ -987,5 +987,5 @@ NST_FUNC_SIGN(hypot_)
 
     NST_DEF_EXTRACT("NN", &c1, &c2);
 
-    return nst_new_real(sqrt(c1 * c1 + c2 * c2));
+    return nst_real_new(sqrt(c1 * c1 + c2 * c2));
 }

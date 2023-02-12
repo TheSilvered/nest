@@ -2,7 +2,7 @@
 #include "var_table.h"
 #include "global_consts.h"
 
-Nst_VarTable *nst_new_var_table(Nst_MapObj *global_table,
+Nst_VarTable *nst_vt_new(Nst_MapObj *global_table,
                                 Nst_StrObj *cwd,
                                 Nst_SeqObj *args)
 {
@@ -13,13 +13,13 @@ Nst_VarTable *nst_new_var_table(Nst_MapObj *global_table,
     }
 
     vt->global_table = global_table;
-    Nst_MapObj *vars = MAP(nst_new_map());
+    Nst_MapObj *vars = MAP(nst_map_new());
     vt->vars = vars;
 
     nst_map_set(vars, nst_s.o__vars_, vars);
     if ( global_table == NULL )
     {
-        nst_map_set(vars, nst_s.o__globals_, nst_c.null);
+        nst_map_set(vars, nst_s.o__globals_, nst_c.Null_null);
     }
     else
     {
@@ -42,9 +42,9 @@ Nst_VarTable *nst_new_var_table(Nst_MapObj *global_table,
     nst_map_set(vars, nst_s.t_Byte,   nst_t.Byte);
     nst_map_set(vars, nst_s.t_IOFile, nst_t.IOFile);
 
-    nst_map_set(vars, nst_s.c_true,  nst_c.b_true);
-    nst_map_set(vars, nst_s.c_false, nst_c.b_false);
-    nst_map_set(vars, nst_s.c_null,  nst_c.null);
+    nst_map_set(vars, nst_s.c_true,  nst_c.Bool_true);
+    nst_map_set(vars, nst_s.c_false, nst_c.Bool_false);
+    nst_map_set(vars, nst_s.c_null,  nst_c.Null_null);
 
     nst_map_set(vars, nst_s.o__cwd_, cwd);
     nst_map_set(vars, nst_s.o__args_, args);
@@ -52,7 +52,7 @@ Nst_VarTable *nst_new_var_table(Nst_MapObj *global_table,
     return vt;
 }
 
-Nst_Obj *_nst_get_val(Nst_VarTable *vt, Nst_Obj *name)
+Nst_Obj *_nst_vt_get(Nst_VarTable *vt, Nst_Obj *name)
 {
     Nst_Obj *val = _nst_map_get(vt->vars, name);
 
@@ -63,13 +63,13 @@ Nst_Obj *_nst_get_val(Nst_VarTable *vt, Nst_Obj *name)
 
     if ( val == NULL )
     {
-        nst_inc_ref(nst_c.null);
-        return nst_c.null;
+        nst_inc_ref(nst_c.Null_null);
+        return nst_c.Null_null;
     }
     return val;
 }
 
-void _nst_set_val(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val)
+void _nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val)
 {
     nst_map_set(vt->vars, name, val);
 }

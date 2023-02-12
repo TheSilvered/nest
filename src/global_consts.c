@@ -9,25 +9,25 @@ static Nst_StdStreams local_nst_io;
 
 static int close_std_stream(void *f);
 
-void _nst_init_types()
+void _nst_types_init()
 {
     nst_t.Type   = NULL;
-    nst_t.Type   = nst_new_type_obj("Type",   4);
-    nst_t.Int    = nst_new_type_obj("Int",    3);
-    nst_t.Real   = nst_new_type_obj("Real",   4);
-    nst_t.Bool   = nst_new_type_obj("Bool",   4);
-    nst_t.Null   = nst_new_type_obj("Null",   4);
-    nst_t.Str    = nst_new_type_obj("Str",    3);
-    nst_t.Array  = nst_new_type_obj("Array",  5);
-    nst_t.Vector = nst_new_type_obj("Vector", 6);
-    nst_t.Map    = nst_new_type_obj("Map",    3);
-    nst_t.Func   = nst_new_type_obj("Func",   4);
-    nst_t.Iter   = nst_new_type_obj("Iter",   4);
-    nst_t.Byte   = nst_new_type_obj("Byte",   4);
-    nst_t.IOFile = nst_new_type_obj("IOFile", 6);
+    nst_t.Type   = nst_type_new("Type",   4);
+    nst_t.Int    = nst_type_new("Int",    3);
+    nst_t.Real   = nst_type_new("Real",   4);
+    nst_t.Bool   = nst_type_new("Bool",   4);
+    nst_t.Null   = nst_type_new("Null",   4);
+    nst_t.Str    = nst_type_new("Str",    3);
+    nst_t.Array  = nst_type_new("Array",  5);
+    nst_t.Vector = nst_type_new("Vector", 6);
+    nst_t.Map    = nst_type_new("Map",    3);
+    nst_t.Func   = nst_type_new("Func",   4);
+    nst_t.Iter   = nst_type_new("Iter",   4);
+    nst_t.Byte   = nst_type_new("Byte",   4);
+    nst_t.IOFile = nst_type_new("IOFile", 6);
 }
 
-void _nst_del_types()
+void _nst_types_del()
 {
     nst_dec_ref(nst_t.Type);
     nst_dec_ref(nst_t.Int);
@@ -44,44 +44,44 @@ void _nst_del_types()
     nst_dec_ref(nst_t.IOFile);
 }
 
-void _nst_init_strs()
+void _nst_strs_init()
 {
-    nst_s.t_Type   = STR(_nst_copy_string(nst_t.Type));
-    nst_s.t_Int    = STR(_nst_copy_string(nst_t.Int));
-    nst_s.t_Real   = STR(_nst_copy_string(nst_t.Real));
-    nst_s.t_Bool   = STR(_nst_copy_string(nst_t.Bool));
-    nst_s.t_Null   = STR(_nst_copy_string(nst_t.Null));
-    nst_s.t_Str    = STR(_nst_copy_string(nst_t.Str));
-    nst_s.t_Array  = STR(_nst_copy_string(nst_t.Array));
-    nst_s.t_Vector = STR(_nst_copy_string(nst_t.Vector));
-    nst_s.t_Map    = STR(_nst_copy_string(nst_t.Map));
-    nst_s.t_Func   = STR(_nst_copy_string(nst_t.Func));
-    nst_s.t_Iter   = STR(_nst_copy_string(nst_t.Iter));
-    nst_s.t_Byte   = STR(_nst_copy_string(nst_t.Byte));
-    nst_s.t_IOFile = STR(_nst_copy_string(nst_t.IOFile));
+    nst_s.t_Type   = STR(_nst_string_copy(nst_t.Type));
+    nst_s.t_Int    = STR(_nst_string_copy(nst_t.Int));
+    nst_s.t_Real   = STR(_nst_string_copy(nst_t.Real));
+    nst_s.t_Bool   = STR(_nst_string_copy(nst_t.Bool));
+    nst_s.t_Null   = STR(_nst_string_copy(nst_t.Null));
+    nst_s.t_Str    = STR(_nst_string_copy(nst_t.Str));
+    nst_s.t_Array  = STR(_nst_string_copy(nst_t.Array));
+    nst_s.t_Vector = STR(_nst_string_copy(nst_t.Vector));
+    nst_s.t_Map    = STR(_nst_string_copy(nst_t.Map));
+    nst_s.t_Func   = STR(_nst_string_copy(nst_t.Func));
+    nst_s.t_Iter   = STR(_nst_string_copy(nst_t.Iter));
+    nst_s.t_Byte   = STR(_nst_string_copy(nst_t.Byte));
+    nst_s.t_IOFile = STR(_nst_string_copy(nst_t.IOFile));
 
-    nst_s.c_true  = STR(nst_new_cstring("true",  4, false));
-    nst_s.c_false = STR(nst_new_cstring("false", 5, false));
-    nst_s.c_null  = STR(nst_new_cstring("null",  4, false));
+    nst_s.c_true  = STR(nst_string_new_c("true",  4, false));
+    nst_s.c_false = STR(nst_string_new_c("false", 5, false));
+    nst_s.c_null  = STR(nst_string_new_c("null",  4, false));
 
-    nst_s.e_SyntaxError = STR(nst_new_cstring("Syntax Error", 12, false));
-    nst_s.e_MemoryError = STR(nst_new_cstring("Memory Error", 12, false));
-    nst_s.e_ValueError  = STR(nst_new_cstring("Value Error",  11, false));
-    nst_s.e_TypeError   = STR(nst_new_cstring("Type Error",   10, false));
-    nst_s.e_CallError   = STR(nst_new_cstring("Call Error",   10, false));
-    nst_s.e_MathError   = STR(nst_new_cstring("Math Error",   10, false));
-    nst_s.e_ImportError = STR(nst_new_cstring("Import Error", 12, false));
+    nst_s.e_SyntaxError = STR(nst_string_new_c("Syntax Error", 12, false));
+    nst_s.e_MemoryError = STR(nst_string_new_c("Memory Error", 12, false));
+    nst_s.e_ValueError  = STR(nst_string_new_c("Value Error",  11, false));
+    nst_s.e_TypeError   = STR(nst_string_new_c("Type Error",   10, false));
+    nst_s.e_CallError   = STR(nst_string_new_c("Call Error",   10, false));
+    nst_s.e_MathError   = STR(nst_string_new_c("Math Error",   10, false));
+    nst_s.e_ImportError = STR(nst_string_new_c("Import Error", 12, false));
 
-    nst_s.o__vars_    = STR(nst_new_cstring("_vars_",    6, false));
-    nst_s.o__globals_ = STR(nst_new_cstring("_globals_", 9, false));
-    nst_s.o__args_    = STR(nst_new_cstring("_args_",    6, false));
-    nst_s.o__cwd_     = STR(nst_new_cstring("_cwd_",     5, false));
+    nst_s.o__vars_    = STR(nst_string_new_c("_vars_",    6, false));
+    nst_s.o__globals_ = STR(nst_string_new_c("_globals_", 9, false));
+    nst_s.o__args_    = STR(nst_string_new_c("_args_",    6, false));
+    nst_s.o__cwd_     = STR(nst_string_new_c("_cwd_",     5, false));
 
     nst_s.o_failed_alloc =
-        STR(nst_new_cstring("failed allocation", 17, false));
+        STR(nst_string_new_c("failed allocation", 17, false));
 }
 
-void _nst_del_strs()
+void _nst_strs_del()
 {
     nst_dec_ref(nst_s.t_Type);
     nst_dec_ref(nst_s.t_Int);
@@ -116,25 +116,25 @@ void _nst_del_strs()
     nst_dec_ref(nst_s.o_failed_alloc);
 }
 
-void _nst_init_consts()
+void _nst_consts_init()
 {
-    nst_c.b_true  = nst_new_bool(NST_TRUE);
-    nst_c.b_false = nst_new_bool(NST_FALSE);
-    nst_c.null    = _nst_alloc_obj(sizeof(Nst_Obj), nst_t.Null, NULL);
-    nst_c.Int_0   = nst_new_int(0);
-    nst_c.Int_1   = nst_new_int(1);
-    nst_c.Int_neg1= nst_new_int(-1);
-    nst_c.Real_0  = nst_new_real(0.0);
-    nst_c.Real_1  = nst_new_real(1.0);
-    nst_c.Byte_0  = nst_new_byte(0);
-    nst_c.Byte_1  = nst_new_byte(1);
+    nst_c.Bool_true  = nst_bool_new(NST_TRUE);
+    nst_c.Bool_false = nst_bool_new(NST_FALSE);
+    nst_c.Null_null    = _nst_obj_alloc(sizeof(Nst_Obj), nst_t.Null, NULL);
+    nst_c.Int_0   = nst_int_new(0);
+    nst_c.Int_1   = nst_int_new(1);
+    nst_c.Int_neg1= nst_int_new(-1);
+    nst_c.Real_0  = nst_real_new(0.0);
+    nst_c.Real_1  = nst_real_new(1.0);
+    nst_c.Byte_0  = nst_byte_new(0);
+    nst_c.Byte_1  = nst_byte_new(1);
 }
 
-void _nst_del_consts()
+void _nst_consts_del()
 {
-    nst_dec_ref(nst_c.b_true);
-    nst_dec_ref(nst_c.b_false);
-    nst_dec_ref(nst_c.null);
+    nst_dec_ref(nst_c.Bool_true);
+    nst_dec_ref(nst_c.Bool_false);
+    nst_dec_ref(nst_c.Null_null);
     nst_dec_ref(nst_c.Int_0);
     nst_dec_ref(nst_c.Int_1);
     nst_dec_ref(nst_c.Int_neg1);
@@ -144,20 +144,20 @@ void _nst_del_consts()
     nst_dec_ref(nst_c.Byte_1);
 }
 
-void _nst_init_streams()
+void _nst_streams_init()
 {
     nst_io = &local_nst_io;
 
-    local_nst_io.in  = IOFILE(nst_new_true_file(stdin,  false, true, false));
-    local_nst_io.out = IOFILE(nst_new_true_file(stdout, false, false, true));
-    local_nst_io.err = IOFILE(nst_new_true_file(stderr, false, false, true));
+    local_nst_io.in  = IOFILE(nst_iof_new(stdin,  false, true, false));
+    local_nst_io.out = IOFILE(nst_iof_new(stdout, false, false, true));
+    local_nst_io.err = IOFILE(nst_iof_new(stderr, false, false, true));
 
     local_nst_io.in ->close_f = close_std_stream;
     local_nst_io.out->close_f = close_std_stream;
     local_nst_io.err->close_f = close_std_stream;
 }
 
-void _nst_del_streams()
+void _nst_streams_del()
 {
     nst_dec_ref(nst_io->in);
     nst_dec_ref(nst_io->out);

@@ -69,9 +69,9 @@ Nst_TypeObjs;
 
 typedef struct _Nst_Consts
 {
-    Nst_Obj *b_true;
-    Nst_Obj *b_false;
-    Nst_Obj *null;
+    Nst_Obj *Bool_true;
+    Nst_Obj *Bool_false;
+    Nst_Obj *Null_null;
     Nst_Obj *Int_0;
     Nst_Obj *Int_1;
     Nst_Obj *Int_neg1;
@@ -91,24 +91,24 @@ typedef struct _Nst_StdStreams
 Nst_StdStreams;
 
 // Creates the objects inside nst_t
-void _nst_init_types();
+void _nst_types_init();
 // Deletes the objects inside nst_t
-void _nst_del_types();
+void _nst_types_del();
 
 // Creates the objects inside nst_s
-void _nst_init_strs();
+void _nst_strs_init();
 // Deletes the objects inside nst_s
-void _nst_del_strs();
+void _nst_strs_del();
 
 // Creates the objects inside nst_c
-void _nst_init_consts();
+void _nst_consts_init();
 // Deletes the objects inside nst_c
-void _nst_del_consts();
+void _nst_consts_del();
 
 // Creates the objects inside nst_io
-void _nst_init_streams();
+void _nst_streams_init();
 // Deletes the objects inside nst_io
-void _nst_del_streams();
+void _nst_streams_del();
 
 extern Nst_TypeObjs nst_t;
 extern Nst_StrConsts nst_s;

@@ -9,11 +9,11 @@
 #include "var_table.h"
 
 // Pushes a function on the call stack
-#define nst_push_func(f_stack, func, start, end, vt, idx) \
-        _nst_push_func(f_stack, FUNC(func), start, end, vt, idx)
+#define nst_fstack_push(f_stack, func, start, end, vt, idx) \
+        _nst_fstack_push(f_stack, FUNC(func), start, end, vt, idx)
 // Push a value on the value stack
 // returns false on failing to reallocate the memory
-#define nst_push_val(v_stack, val) _nst_push_val(v_stack, OBJ(val))
+#define nst_vstack_push(v_stack, val) _nst_vstack_push(v_stack, OBJ(val))
 
 #ifdef __cplusplus
 extern "C" {
@@ -62,45 +62,45 @@ typedef struct _Nst_CatchStack
 Nst_CatchStack;
 
 // New value stack on the heap
-Nst_ValueStack *nst_new_val_stack();
-bool _nst_push_val(Nst_ValueStack *v_stack, Nst_Obj *obj);
+Nst_ValueStack *nst_vstack_new();
+bool _nst_vstack_push(Nst_ValueStack *v_stack, Nst_Obj *obj);
 // Pop a value from the value stack and return it
-Nst_Obj *nst_pop_val(Nst_ValueStack *v_stack);
+Nst_Obj *nst_vstack_pop(Nst_ValueStack *v_stack);
 // Returns the top value of the stack
-Nst_Obj *nst_peek_val(Nst_ValueStack *v_stack);
+Nst_Obj *nst_vstack_peek(Nst_ValueStack *v_stack);
 // Duplicates the top value of the stack
-bool nst_dup_val(Nst_ValueStack *v_stack);
+bool nst_vstack_dup(Nst_ValueStack *v_stack);
 // Destroys the value stack
-void nst_destroy_v_stack(Nst_ValueStack *v_stack);
+void nst_vstack_destroy(Nst_ValueStack *v_stack);
 
 // New call stack on the heap
-Nst_CallStack *nst_new_call_stack();
-bool _nst_push_func(Nst_CallStack *f_stack,
-                    Nst_FuncObj   *func,
-                    Nst_Pos        call_start,
-                    Nst_Pos        call_end,
-                    Nst_VarTable  *vt,
-                    Nst_Int        idx);
+Nst_CallStack *nst_fstack_new();
+bool _nst_fstack_push(Nst_CallStack *f_stack,
+                      Nst_FuncObj   *func,
+                      Nst_Pos        call_start,
+                      Nst_Pos        call_end,
+                      Nst_VarTable  *vt,
+                      Nst_Int        idx);
 // Pops a function from the call stack
-Nst_FuncCall nst_pop_func(Nst_CallStack *f_stack);
+Nst_FuncCall nst_fstack_pop(Nst_CallStack *f_stack);
 // Returns the top function in the call stack
-Nst_FuncCall nst_peek_func(Nst_CallStack *f_stack);
+Nst_FuncCall nst_fstack_peek(Nst_CallStack *f_stack);
 // Destroys the call stack
-void nst_destroy_f_stack(Nst_CallStack *f_stack);
+void nst_fstack_destroy(Nst_CallStack *f_stack);
 
 // New catch stack on the heap
-Nst_CatchStack *nst_new_catch_stack();
+Nst_CatchStack *nst_cstack_new();
 // Pushes a value to the catch stack
-bool nst_push_catch(Nst_CatchStack *c_stack,
-                    Nst_Int         inst_idx,
-                    size_t          v_stack_size,
-                    size_t          f_stack_size);
+bool nst_cstack_push(Nst_CatchStack *c_stack,
+                     Nst_Int         inst_idx,
+                     size_t          v_stack_size,
+                     size_t          f_stack_size);
 // Peeks the top value of the catch stack
-Nst_CatchFrame nst_peek_catch(Nst_CatchStack *c_stack);
+Nst_CatchFrame nst_cstack_peek(Nst_CatchStack *c_stack);
 // Returns the top value of the catch stack
-Nst_CatchFrame nst_pop_catch(Nst_CatchStack *c_stack);
+Nst_CatchFrame nst_cstack_pop(Nst_CatchStack *c_stack);
 // Destroys the catch stack
-void nst_destroy_c_stack(Nst_CatchStack *c_stack);
+void nst_cstack_destroy(Nst_CatchStack *c_stack);
 
 #ifdef __cplusplus
 }

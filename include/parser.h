@@ -11,7 +11,7 @@ extern "C" {
 #endif // !__cplusplus
 
 // Parses the token list
-Nst_Node *nst_parse(LList *tokens, Nst_Error *error);
+Nst_Node *nst_parse(Nst_LList *tokens, Nst_Error *error);
 // Prints the AST like using the -a flag
 void nst_print_ast(Nst_Node *ast);
 

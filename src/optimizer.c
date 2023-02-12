@@ -25,7 +25,7 @@ Nst_Node *nst_optimize_ast(Nst_Node *ast, Nst_Error *error)
 
     if ( error->occurred )
     {
-        nst_destroy_node(ast);
+        nst_node_destroy(ast);
         return NULL;
     }
 
@@ -53,7 +53,7 @@ static void ast_optimize_node(Nst_Node *node, Nst_Error *error)
 
 static void ast_optimize_node_nodes(Nst_Node *node, Nst_Error *error)
 {
-    for ( ITER_LLIST(n, node->nodes) )
+    for ( NST_LLIST_ITER(n, node->nodes) )
     {
         ast_optimize_node(NODE(n->value), error);
         if ( error->occurred )
@@ -65,7 +65,7 @@ static void ast_optimize_node_nodes(Nst_Node *node, Nst_Error *error)
 
 static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
 {
-    if ( T_IN_COMP_OP(HEAD_TOK->type) )
+    if ( NST_IS_COMP_OP(HEAD_TOK->type) )
     {
         ast_optimize_comp_op(node, error);
         return;
@@ -120,19 +120,19 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
         return;
     }
 
-    nst_destroy_node(NODE(LList_pop(node->nodes)));
-    nst_destroy_node(NODE(LList_pop(node->nodes)));
-    nst_destroy_token(TOK(LList_pop(node->tokens)));
+    nst_node_destroy(NODE(nst_llist_pop(node->nodes)));
+    nst_node_destroy(NODE(nst_llist_pop(node->nodes)));
+    nst_token_destroy(TOK(nst_llist_pop(node->tokens)));
 
     node->type = NST_NT_VALUE;
 
-    Nst_LexerToken *new_tok = nst_new_token_value(
+    Nst_Tok *new_tok = nst_tok_new_value(
         node->start,
         node->end,
         NST_TT_VALUE,
         res);
 
-    LList_append(node->tokens, new_tok, true);
+    nst_llist_append(node->tokens, new_tok, true);
 }
 
 static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
@@ -149,7 +149,7 @@ static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
         return;
     }
 
-    for ( ITER_LLIST(n, node->nodes) )
+    for ( NST_LLIST_ITER(n, node->nodes) )
     {
         if (NODE(n->value)->type != NST_NT_VALUE)
         {
@@ -157,7 +157,7 @@ static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
         }
     }
 
-    for ( ITER_LLIST(n, node->nodes) )
+    for ( NST_LLIST_ITER(n, node->nodes) )
     {
         if ( n->next == NULL )
         {
@@ -178,7 +178,7 @@ static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
         default: return;
         }
 
-        if ( res == nst_c.b_false )
+        if ( res == nst_c.Bool_false )
         {
             break;
         }
@@ -198,18 +198,18 @@ static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
         }
     }
 
-    LList_empty(node->nodes, (LList_item_destructor)nst_destroy_node);
-    nst_destroy_token(TOK(LList_pop(node->tokens)));
+    nst_llist_empty(node->nodes, (nst_llist_destructor)nst_node_destroy);
+    nst_token_destroy(TOK(nst_llist_pop(node->tokens)));
 
     node->type = NST_NT_VALUE;
 
-    Nst_LexerToken *new_tok = nst_new_token_value(
+    Nst_Tok *new_tok = nst_tok_new_value(
         node->start,
         node->end,
         NST_TT_VALUE,
         res);
 
-    LList_append(node->tokens, new_tok, true);
+    nst_llist_append(node->tokens, new_tok, true);
 }
 
 static void ast_optimize_local_op(Nst_Node *node, Nst_Error *error)
@@ -252,14 +252,14 @@ static void ast_optimize_local_op(Nst_Node *node, Nst_Error *error)
         return;
     }
 
-    nst_destroy_node(NODE(LList_pop(node->nodes)));
-    nst_destroy_token(TOK(LList_pop(node->tokens)));
+    nst_node_destroy(NODE(nst_llist_pop(node->nodes)));
+    nst_token_destroy(TOK(nst_llist_pop(node->tokens)));
 
     node->type = NST_NT_VALUE;
 
-    LList_append(
+    nst_llist_append(
         node->tokens,
-        nst_new_token_value(
+        nst_tok_new_value(
             node->start,
             node->end,
             NST_TT_VALUE,
@@ -270,11 +270,11 @@ static void ast_optimize_local_op(Nst_Node *node, Nst_Error *error)
 
 static void ast_optimize_long_s(Nst_Node *node, Nst_Error *error)
 {
-    LList *nodes = node->nodes;
-    LLNode *prev_valid_node = NULL;
+    Nst_LList *nodes = node->nodes;
+    Nst_LLNode *prev_valid_node = NULL;
     Nst_Node *curr_node;
 
-    for ( ITER_LLIST(n, node->nodes) )
+    for ( NST_LLIST_ITER(n, node->nodes) )
     {
         ast_optimize_node(NODE(n->value), error);
         if ( error->occurred )
@@ -308,7 +308,7 @@ static void ast_optimize_long_s(Nst_Node *node, Nst_Error *error)
             }
         }
 
-        nst_destroy_node(NODE(n->value));
+        nst_node_destroy(NODE(n->value));
         free(n);
 
         if ( prev_valid_node == NULL )
@@ -327,30 +327,30 @@ static void ast_optimize_long_s(Nst_Node *node, Nst_Error *error)
     }
 }
 
-static bool can_optimize_consts(Nst_InstructionList *bc);
-static bool is_accessed(Nst_InstructionList *bc, Nst_StrObj *name);
-static bool has_assignments(Nst_InstructionList *bc, Nst_StrObj *name);
-static bool has_jumps_to(Nst_InstructionList *bc,
+static bool can_optimize_consts(Nst_InstList *bc);
+static bool is_accessed(Nst_InstList *bc, Nst_StrObj *name);
+static bool has_assignments(Nst_InstList *bc, Nst_StrObj *name);
+static bool has_jumps_to(Nst_InstList *bc,
                          Nst_Int idx,
                          Nst_Int avoid_start,
                          Nst_Int avoid_end);
-static void replace_access(Nst_InstructionList *bc,
+static void replace_access(Nst_InstList *bc,
                            Nst_StrObj          *name,
                            Nst_Obj             *val);
-static void optimize_const(Nst_InstructionList *bc,
+static void optimize_const(Nst_InstList *bc,
                            const char          *name,
                            Nst_Obj             *val);
-static void remove_push_pop(Nst_InstructionList *bc);
-static void remove_assign_pop(Nst_InstructionList *bc);
-static void remove_assign_loc_get_val(Nst_InstructionList *bc);
-static void remove_push_check(Nst_InstructionList *bc, Nst_Error *error);
-static void remove_push_jumpif(Nst_InstructionList *bc);
-static void remove_inst(Nst_InstructionList *bc, Nst_Int idx);
-static void optimize_funcs(Nst_InstructionList *bc, Nst_Error *error);
-static void remove_dead_code(Nst_InstructionList *bc);
-static void optimize_chained_jumps(Nst_InstructionList *bc);
+static void remove_push_pop(Nst_InstList *bc);
+static void remove_assign_pop(Nst_InstList *bc);
+static void remove_assign_loc_get_val(Nst_InstList *bc);
+static void remove_push_check(Nst_InstList *bc, Nst_Error *error);
+static void remove_push_jumpif(Nst_InstList *bc);
+static void remove_inst(Nst_InstList *bc, Nst_Int idx);
+static void optimize_funcs(Nst_InstList *bc, Nst_Error *error);
+static void remove_dead_code(Nst_InstList *bc);
+static void optimize_chained_jumps(Nst_InstList *bc);
 
-Nst_InstructionList *nst_optimize_bytecode(Nst_InstructionList *bc,
+Nst_InstList *nst_optimize_bytecode(Nst_InstList *bc,
                                            bool optimize_builtins,
                                            Nst_Error *error)
 {
@@ -369,9 +369,9 @@ Nst_InstructionList *nst_optimize_bytecode(Nst_InstructionList *bc,
         optimize_const(bc, "Iter",   OBJ(nst_t.Iter));
         optimize_const(bc, "Byte",   OBJ(nst_t.Byte));
         optimize_const(bc, "IOFile", OBJ(nst_t.IOFile));
-        optimize_const(bc, "true",   OBJ(nst_c.b_true ));
-        optimize_const(bc, "false",  OBJ(nst_c.b_false));
-        optimize_const(bc, "null",   OBJ(nst_c.null ));
+        optimize_const(bc, "true",   OBJ(nst_c.Bool_true ));
+        optimize_const(bc, "false",  OBJ(nst_c.Bool_false));
+        optimize_const(bc, "null",   OBJ(nst_c.Null_null ));
     }
 
     Nst_Int initial_size;
@@ -381,7 +381,7 @@ Nst_InstructionList *nst_optimize_bytecode(Nst_InstructionList *bc,
         remove_push_check(bc, error);
         if ( error->occurred )
         {
-            nst_destroy_inst_list(bc);
+            nst_inst_list_destroy(bc);
             return NULL;
         }
 
@@ -395,12 +395,12 @@ Nst_InstructionList *nst_optimize_bytecode(Nst_InstructionList *bc,
         optimize_funcs(bc, error);
         if ( error->occurred )
         {
-            nst_destroy_inst_list(bc);
+            nst_inst_list_destroy(bc);
             return NULL;
         }
 
         Nst_Int size = bc->total_size;
-        Nst_Instruction *inst_list = bc->instructions;
+        Nst_Inst *inst_list = bc->instructions;
         for ( Nst_Int i = 0; i < size; i++ )
         {
             if ( inst_list[i].id == NST_IC_NO_OP )
@@ -416,7 +416,7 @@ Nst_InstructionList *nst_optimize_bytecode(Nst_InstructionList *bc,
     return bc;
 }
 
-static bool can_optimize_consts(Nst_InstructionList *bc)
+static bool can_optimize_consts(Nst_InstList *bc)
 {
     // if _vars_, _globals_, *._vars_, *._globals_ are set to other
     // variables explicitly (_vars_ = x) or implicitly (_vars_ @x)
@@ -432,7 +432,7 @@ static bool can_optimize_consts(Nst_InstructionList *bc)
     return true;
 }
 
-static bool is_accessed(Nst_InstructionList *bc, Nst_StrObj *name)
+static bool is_accessed(Nst_InstList *bc, Nst_StrObj *name)
 {
     // if the name is followed by any number of LOCAL_OP, TYPE_CHECK,
     // HASH_CHECK and then POP_VAL, JUMPIF_T or JUMPIF_F
@@ -440,13 +440,13 @@ static bool is_accessed(Nst_InstructionList *bc, Nst_StrObj *name)
     // it is not counted as an access
 
     Nst_Int size = bc->total_size;
-    Nst_Instruction *inst_list = bc->instructions;
+    Nst_Inst *inst_list = bc->instructions;
 
     for ( Nst_Int i = 0; i < size; i++ )
     {
         if ( inst_list[i].id == NST_IC_PUSH_VAL &&
              inst_list[i].val->type == nst_t.Str &&
-             nst_compare_strings(STR(inst_list[i].val), name) == 0 )
+             nst_string_compare(STR(inst_list[i].val), name) == 0 )
         {
             if ( inst_list[++i].id == NST_IC_OP_EXTRACT )
             {
@@ -456,7 +456,7 @@ static bool is_accessed(Nst_InstructionList *bc, Nst_StrObj *name)
         }
 
         if ( inst_list[i].id != NST_IC_GET_VAL ||
-             nst_compare_strings(STR(inst_list[i].val), name) != 0 )
+             nst_string_compare(STR(inst_list[i].val), name) != 0 )
             continue;
 
         if ( inst_list[i + 1].id == NST_IC_LOCAL_OP   ||
@@ -490,7 +490,7 @@ static bool is_accessed(Nst_InstructionList *bc, Nst_StrObj *name)
         }
     }
 
-    for ( ITER_LLIST(n, bc->functions) )
+    for ( NST_LLIST_ITER(n, bc->functions) )
     {
         if ( is_accessed(FUNC(n->value)->body.bytecode, name) )
         {
@@ -501,19 +501,19 @@ static bool is_accessed(Nst_InstructionList *bc, Nst_StrObj *name)
     return false;
 }
 
-static bool has_assignments(Nst_InstructionList *bc, Nst_StrObj *name)
+static bool has_assignments(Nst_InstList *bc, Nst_StrObj *name)
 {
     Nst_Int size = bc->total_size;
-    Nst_Instruction *inst_list = bc->instructions;
+    Nst_Inst *inst_list = bc->instructions;
 
     for ( Nst_Int i = 0; i < size; i++ )
     {
         if ( i > 0 && inst_list[i].id == NST_IC_SET_CONT_VAL )
         {
-            Nst_Instruction prev_inst = inst_list[i - 1];
+            Nst_Inst prev_inst = inst_list[i - 1];
             if ( prev_inst.id == NST_IC_PUSH_VAL &&
                  prev_inst.val->type == nst_t.Str &&
-                 nst_compare_strings(name, STR(prev_inst.val)) == 0 )
+                 nst_string_compare(name, STR(prev_inst.val)) == 0 )
                 return true;
         }
 
@@ -521,13 +521,13 @@ static bool has_assignments(Nst_InstructionList *bc, Nst_StrObj *name)
              inst_list[i].id != NST_IC_SET_VAL_LOC )
             continue;
 
-        if ( nst_compare_strings(name, STR(inst_list[i].val)) == 0 )
+        if ( nst_string_compare(name, STR(inst_list[i].val)) == 0 )
         {
             return true;
         }
     }
 
-    for ( ITER_LLIST(n, bc->functions) )
+    for ( NST_LLIST_ITER(n, bc->functions) )
     {
         if (has_assignments(FUNC(n->value)->body.bytecode, name))
             return true;
@@ -536,12 +536,12 @@ static bool has_assignments(Nst_InstructionList *bc, Nst_StrObj *name)
     return false;
 }
 
-static void replace_access(Nst_InstructionList *bc,
+static void replace_access(Nst_InstList *bc,
                            Nst_StrObj          *name,
                            Nst_Obj             *val)
 {
     Nst_Int size = bc->total_size;
-    Nst_Instruction *inst_list = bc->instructions;
+    Nst_Inst *inst_list = bc->instructions;
 
     for ( Nst_Int i = 0; i < size; i++ )
     {
@@ -550,7 +550,7 @@ static void replace_access(Nst_InstructionList *bc,
             continue;
         }
 
-        if ( nst_compare_strings(name, STR(inst_list[i].val)) == 0 )
+        if ( nst_string_compare(name, STR(inst_list[i].val)) == 0 )
         {
             inst_list[i].id = NST_IC_PUSH_VAL;
             nst_dec_ref(inst_list[i].val);
@@ -558,17 +558,17 @@ static void replace_access(Nst_InstructionList *bc,
         }
     }
 
-    for ( ITER_LLIST(n, bc->functions) )
+    for ( NST_LLIST_ITER(n, bc->functions) )
     {
         replace_access(FUNC(n->value)->body.bytecode, name, val);
     }
 }
 
-static void optimize_const(Nst_InstructionList *bc,
+static void optimize_const(Nst_InstList *bc,
                            const char          *name,
                            Nst_Obj             *val)
 {
-    Nst_StrObj *str_obj = STR(nst_new_cstring_raw(name, false));
+    Nst_StrObj *str_obj = STR(nst_string_new_c_raw(name, false));
     if ( has_assignments(bc, str_obj) )
     {
         goto end;
@@ -580,14 +580,14 @@ end:
     nst_dec_ref(str_obj);
 }
 
-static bool has_jumps_to(Nst_InstructionList *bc,
+static bool has_jumps_to(Nst_InstList *bc,
                          Nst_Int idx,
                          Nst_Int avoid_start,
                          Nst_Int avoid_end)
 {
     Nst_Int size = bc->total_size;
-    Nst_Instruction *inst_list = bc->instructions;
-    Nst_Instruction inst;
+    Nst_Inst *inst_list = bc->instructions;
+    Nst_Inst inst;
 
     for ( Nst_Int i = 0; i < size; i++ )
     {
@@ -606,10 +606,10 @@ static bool has_jumps_to(Nst_InstructionList *bc,
     return false;
 }
 
-static void remove_push_pop(Nst_InstructionList *bc)
+static void remove_push_pop(Nst_InstList *bc)
 {
     Nst_Int size = bc->total_size;
-    Nst_Instruction *inst_list = bc->instructions;
+    Nst_Inst *inst_list = bc->instructions;
     bool expect_pop = false;
 
     for ( Nst_Int i = 0; i < size; i++ )
@@ -636,10 +636,10 @@ static void remove_push_pop(Nst_InstructionList *bc)
     }
 }
 
-static void remove_assign_pop(Nst_InstructionList *bc)
+static void remove_assign_pop(Nst_InstList *bc)
 {
     Nst_Int size = bc->total_size;
-    Nst_Instruction *inst_list = bc->instructions;
+    Nst_Inst *inst_list = bc->instructions;
     bool expect_pop = false;
 
     for ( Nst_Int i = 0; i < size; i++ )
@@ -673,10 +673,10 @@ static void remove_assign_pop(Nst_InstructionList *bc)
     }
 }
 
-static void remove_assign_loc_get_val(Nst_InstructionList* bc)
+static void remove_assign_loc_get_val(Nst_InstList* bc)
 {
     Nst_Int size = bc->total_size;
-    Nst_Instruction *inst_list = bc->instructions;
+    Nst_Inst *inst_list = bc->instructions;
     bool expect_get_val = false;
     Nst_StrObj *expected_name = NULL;
 
@@ -691,7 +691,7 @@ static void remove_assign_loc_get_val(Nst_InstructionList* bc)
         else if ( !expect_get_val ||
                   inst_list[i].id != NST_IC_GET_VAL ||
                   has_jumps_to(bc, i, -1, -1) ||
-                  nst_compare_strings(
+                  nst_string_compare(
                       expected_name,
                       STR(inst_list[i].val)) != 0)
         {
@@ -700,7 +700,7 @@ static void remove_assign_loc_get_val(Nst_InstructionList* bc)
             continue;
         }
 
-        if ( nst_compare_strings(expected_name, STR(inst_list[i].val)) != 0 )
+        if ( nst_string_compare(expected_name, STR(inst_list[i].val)) != 0 )
         {
             expect_get_val = false;
             expected_name = NULL;
@@ -717,10 +717,10 @@ static void remove_assign_loc_get_val(Nst_InstructionList* bc)
     }
 }
 
-static void remove_push_check(Nst_InstructionList *bc, Nst_Error *error)
+static void remove_push_check(Nst_InstList *bc, Nst_Error *error)
 {
     Nst_Int size = bc->total_size;
-    Nst_Instruction *inst_list = bc->instructions;
+    Nst_Inst *inst_list = bc->instructions;
     bool was_push = false;
 
     for ( Nst_Int i = 0; i < size; i++ )
@@ -748,7 +748,7 @@ static void remove_push_check(Nst_InstructionList *bc, Nst_Error *error)
                     error,
                     inst_list[i].start,
                     inst_list[i].end,
-                    _nst_format_error(
+                    nst_format_error(
                         _NST_EM_EXPECTED_TYPES,
                         "ss",
                         STR(inst_list[i].val)->value,
@@ -759,14 +759,14 @@ static void remove_push_check(Nst_InstructionList *bc, Nst_Error *error)
         }
         else
         {
-            nst_hash_obj(inst_list[i - 1].val);
+            nst_obj_hash(inst_list[i - 1].val);
             if ( inst_list[i - 1].val->hash == -1 )
             {
                 _NST_SET_TYPE_ERROR(
                     error,
                     inst_list[i].start,
                     inst_list[i].end,
-                    _nst_format_error(
+                    nst_format_error(
                         _NST_EM_UNHASHABLE_TYPE,
                         "s",
                         TYPE_NAME(inst_list[i - 1].val)));
@@ -786,10 +786,10 @@ static void remove_push_check(Nst_InstructionList *bc, Nst_Error *error)
     return;
 }
 
-static void remove_push_jumpif(Nst_InstructionList *bc)
+static void remove_push_jumpif(Nst_InstList *bc)
 {
     Nst_Int size = bc->total_size;
-    Nst_Instruction *inst_list = bc->instructions;
+    Nst_Inst *inst_list = bc->instructions;
     bool expect_jumpif = false;
 
     for ( Nst_Int i = 0; i < size; i++ )
@@ -810,8 +810,8 @@ static void remove_push_jumpif(Nst_InstructionList *bc)
         }
 
         Nst_Obj *cond = nst_obj_cast(inst_list[i - 1].val, nst_t.Bool, NULL);
-        if ( (cond == nst_c.b_true && inst_list[i].id == NST_IC_JUMPIF_T) ||
-                (cond == nst_c.b_false && inst_list[i].id == NST_IC_JUMPIF_F) )
+        if ( (cond == nst_c.Bool_true && inst_list[i].id == NST_IC_JUMPIF_T) ||
+                (cond == nst_c.Bool_false && inst_list[i].id == NST_IC_JUMPIF_F) )
         {
             inst_list[i].id = NST_IC_JUMP;
         }
@@ -829,10 +829,10 @@ static void remove_push_jumpif(Nst_InstructionList *bc)
     }
 }
 
-static void remove_inst(Nst_InstructionList *bc, Nst_Int idx)
+static void remove_inst(Nst_InstList *bc, Nst_Int idx)
 {
     Nst_Int size = bc->total_size;
-    Nst_Instruction *inst_list = bc->instructions;
+    Nst_Inst *inst_list = bc->instructions;
 
     if ( idx < 0 || idx >= size )
     {
@@ -856,9 +856,9 @@ static void remove_inst(Nst_InstructionList *bc, Nst_Int idx)
     }
 }
 
-static void optimize_funcs(Nst_InstructionList *bc, Nst_Error *error)
+static void optimize_funcs(Nst_InstList *bc, Nst_Error *error)
 {
-    for ( ITER_LLIST(n, bc->functions) )
+    for ( NST_LLIST_ITER(n, bc->functions) )
     {
         nst_optimize_bytecode(FUNC(n->value)->body.bytecode, false, error);
 
@@ -869,10 +869,10 @@ static void optimize_funcs(Nst_InstructionList *bc, Nst_Error *error)
     }
 }
 
-static void remove_dead_code(Nst_InstructionList *bc)
+static void remove_dead_code(Nst_InstList *bc)
 {
     Nst_Int size = bc->total_size;
-    Nst_Instruction *inst_list = bc->instructions;
+    Nst_Inst *inst_list = bc->instructions;
 
     for ( Nst_Int i = 0; i < size; i++ )
     {
@@ -915,10 +915,10 @@ static void remove_dead_code(Nst_InstructionList *bc)
     }
 }
 
-static void optimize_chained_jumps(Nst_InstructionList* bc)
+static void optimize_chained_jumps(Nst_InstList* bc)
 {
     Nst_Int size = bc->total_size;
-    Nst_Instruction *inst_list = bc->instructions;
+    Nst_Inst *inst_list = bc->instructions;
 
     for ( Nst_Int i = 0; i < size; i++ )
     {

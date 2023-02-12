@@ -6,7 +6,7 @@
 #include "ggc.h"
 #include "str.h"
 
-Nst_Obj *_nst_alloc_obj(size_t              size,
+Nst_Obj *_nst_obj_alloc(size_t              size,
                         struct _Nst_StrObj *type,
                         void (*destructor)(void *))
 {
@@ -37,9 +37,9 @@ Nst_Obj *_nst_alloc_obj(size_t              size,
     return obj;
 }
 
-void _nst_destroy_obj(Nst_Obj *obj)
+void _nst_obj_destroy(Nst_Obj *obj)
 {
-    if ( !NST_HAS_FLAG(obj, NST_FLAG_GGC_IS_SUPPORTED) )
+    if ( !NST_FLAG_HAS(obj, NST_FLAG_GGC_IS_SUPPORTED) )
     {
         if ( obj->destructor != NULL )
         {
@@ -54,7 +54,7 @@ void _nst_destroy_obj(Nst_Obj *obj)
         return;
     }
 
-    if ( NST_HAS_FLAG(obj, NST_FLAG_GGC_DELETED) )
+    if ( NST_FLAG_HAS(obj, NST_FLAG_GGC_DELETED) )
     {
         return;
     }
@@ -70,9 +70,9 @@ void _nst_destroy_obj(Nst_Obj *obj)
     }
 
     // if the object is being deleted by the garbage collector
-    if ( NST_HAS_FLAG(obj, NST_FLAG_GGC_UNREACHABLE) )
+    if ( NST_FLAG_HAS(obj, NST_FLAG_GGC_UNREACHABLE) )
     {
-        NST_SET_FLAG(obj, NST_FLAG_GGC_DELETED);
+        NST_FLAG_SET(obj, NST_FLAG_GGC_DELETED);
         return;
     }
 
@@ -116,6 +116,6 @@ void _nst_dec_ref(Nst_Obj *obj)
     obj->ref_count--;
     if ( obj->ref_count <= 0 || (obj == OBJ(obj->type) && obj->ref_count == 1) )
     {
-        _nst_destroy_obj(obj);
+        _nst_obj_destroy(obj);
     }
 }

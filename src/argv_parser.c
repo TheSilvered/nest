@@ -41,7 +41,7 @@
     "Run 'nest --help' for more information\n"
 
 #define VERSION_MESSAGE \
-    "Using Nest version: " NEST_VERSION
+    "Using Nest version: " NST_VERSION
 
 int nst_parse_args(int argc, char **argv,
                    bool  *print_tokens,

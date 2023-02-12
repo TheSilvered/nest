@@ -8,7 +8,7 @@ static bool lib_init_ = false;
 
 bool lib_init()
 {
-    if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
+    if ( (func_list_ = nst_func_list_new(FUNC_COUNT)) == nullptr )
     {
         return false;
     }
@@ -52,20 +52,20 @@ NST_FUNC_SIGN(count_)
     Nst_IntObj *step;
     NST_SET_DEF(
         step_obj, step,
-        (Nst_IntObj *)nst_new_int(1),
+        (Nst_IntObj *)nst_int_new(1),
         (Nst_IntObj *)nst_inc_ref(step_obj));
 
     // Layout: [idx, start, step]
-    Nst_Obj *arr = nst_new_array(3);
-    SEQ(arr)->objs[0] = nst_new_int(0);
-    nst_set_value_seq(arr, 1, args[0]);
-    nst_set_value_seq(arr, 2, step);
+    Nst_Obj *arr = nst_array_new(3);
+    SEQ(arr)->objs[0] = nst_int_new(0);
+    nst_seq_set(arr, 1, args[0]);
+    nst_seq_set(arr, 2, step);
     nst_dec_ref(step);
 
-    return nst_new_iter(
-        FUNC(nst_new_cfunc(1, count_start)),
-        FUNC(nst_new_cfunc(1, count_is_done)),
-        FUNC(nst_new_cfunc(1, count_get_val)),
+    return nst_iter_new(
+        FUNC(nst_func_new_c(1, count_start)),
+        FUNC(nst_func_new_c(1, count_is_done)),
+        FUNC(nst_func_new_c(1, count_get_val)),
         arr);
 }
 
@@ -76,14 +76,14 @@ NST_FUNC_SIGN(cycle_)
     NST_DEF_EXTRACT("S", &seq);
 
     // Layout: [idx, seq]
-    Nst_SeqObj *arr = SEQ(nst_new_array(2));
-    arr->objs[0] = nst_new_int(0);
+    Nst_SeqObj *arr = SEQ(nst_array_new(2));
+    arr->objs[0] = nst_int_new(0);
     arr->objs[1] = seq;
 
-    return nst_new_iter(
-        FUNC(nst_new_cfunc(1, cycle_start)),
-        FUNC(nst_new_cfunc(1, cycle_is_done)),
-        FUNC(nst_new_cfunc(1, cycle_get_val)),
+    return nst_iter_new(
+        FUNC(nst_func_new_c(1, cycle_start)),
+        FUNC(nst_func_new_c(1, cycle_is_done)),
+        FUNC(nst_func_new_c(1, cycle_get_val)),
         OBJ(arr));
 }
 
@@ -95,15 +95,15 @@ NST_FUNC_SIGN(repeat_)
     NST_DEF_EXTRACT("oi", &ob, &times);
 
     // Layout: [count, item, max_times]
-    Nst_Obj *arr = nst_new_array(3);
-    SEQ(arr)->objs[0] = nst_new_int(0);
-    nst_set_value_seq(arr, 1, args[0]);
-    nst_set_value_seq(arr, 2, args[1]);
+    Nst_Obj *arr = nst_array_new(3);
+    SEQ(arr)->objs[0] = nst_int_new(0);
+    nst_seq_set(arr, 1, args[0]);
+    nst_seq_set(arr, 2, args[1]);
 
-    return nst_new_iter(
-        FUNC(nst_new_cfunc(1, repeat_start)),
-        FUNC(nst_new_cfunc(1, repeat_is_done)),
-        FUNC(nst_new_cfunc(1, repeat_get_val)),
+    return nst_iter_new(
+        FUNC(nst_func_new_c(1, repeat_start)),
+        FUNC(nst_func_new_c(1, repeat_is_done)),
+        FUNC(nst_func_new_c(1, repeat_get_val)),
         arr);
 }
 
@@ -114,16 +114,16 @@ NST_FUNC_SIGN(chain_)
     NST_DEF_EXTRACT("R", &iter);
 
     // Layout: [main_iter, local_seq, val, is_done]
-    Nst_SeqObj *arr = SEQ(nst_new_array(4));
+    Nst_SeqObj *arr = SEQ(nst_array_new(4));
     arr->objs[0] = iter;
-    arr->objs[1] = nst_inc_ref(nst_c.null);
-    arr->objs[2] = nst_inc_ref(nst_c.null);
-    arr->objs[3] = nst_inc_ref(nst_c.b_false);
+    arr->objs[1] = nst_inc_ref(nst_c.Null_null);
+    arr->objs[2] = nst_inc_ref(nst_c.Null_null);
+    arr->objs[3] = nst_inc_ref(nst_c.Bool_false);
 
-    return nst_new_iter(
-        FUNC(nst_new_cfunc(1, chain_start)),
-        FUNC(nst_new_cfunc(1, chain_is_done)),
-        FUNC(nst_new_cfunc(1, chain_get_val)),
+    return nst_iter_new(
+        FUNC(nst_func_new_c(1, chain_start)),
+        FUNC(nst_func_new_c(1, chain_is_done)),
+        FUNC(nst_func_new_c(1, chain_get_val)),
         OBJ(arr));
 }
 
@@ -135,15 +135,15 @@ NST_FUNC_SIGN(zip_)
     NST_DEF_EXTRACT("SS", &seq1, &seq2);
 
     // Layout: [idx, seq1, seq2]
-    Nst_SeqObj *arr = SEQ(nst_new_array(3));
-    arr->objs[0] = nst_new_int(0);
+    Nst_SeqObj *arr = SEQ(nst_array_new(3));
+    arr->objs[0] = nst_int_new(0);
     arr->objs[1] = seq1;
     arr->objs[2] = seq2;
 
-    return nst_new_iter(
-        FUNC(nst_new_cfunc(1, zip_start)),
-        FUNC(nst_new_cfunc(1, zip_is_done)),
-        FUNC(nst_new_cfunc(1, zip_get_val)),
+    return nst_iter_new(
+        FUNC(nst_func_new_c(1, zip_start)),
+        FUNC(nst_func_new_c(1, zip_is_done)),
+        FUNC(nst_func_new_c(1, zip_get_val)),
         OBJ(arr));
 }
 
@@ -167,7 +167,7 @@ NST_FUNC_SIGN(zipn_)
              objs[i]->type != nst_t.Vector &&
              objs[i]->type != nst_t.Str )
         {
-            NST_SET_TYPE_ERROR(_nst_format_error(
+            NST_SET_TYPE_ERROR(nst_format_error(
                 "all objects in the sequence must be of type 'Array', 'Vector'"
                 " or 'Str' but the object at index %zi was type '%s'",
                 "us",
@@ -177,8 +177,8 @@ NST_FUNC_SIGN(zipn_)
     }
 
     // Layout: [idx, seq1, seq2, ...]
-    Nst_SeqObj *arr = SEQ(nst_new_array(seq->len + 1));
-    arr->objs[0] = nst_new_int(0);
+    Nst_SeqObj *arr = SEQ(nst_array_new(seq->len + 1));
+    arr->objs[0] = nst_int_new(0);
 
     for ( size_t i = 0, n = seq->len; i < n; i++ )
     {
@@ -193,10 +193,10 @@ NST_FUNC_SIGN(zipn_)
         }
     }
 
-    return nst_new_iter(
-        FUNC(nst_new_cfunc(1, zipn_start)),
-        FUNC(nst_new_cfunc(1, zipn_is_done)),
-        FUNC(nst_new_cfunc(1, zipn_get_val)),
+    return nst_iter_new(
+        FUNC(nst_func_new_c(1, zipn_start)),
+        FUNC(nst_func_new_c(1, zipn_is_done)),
+        FUNC(nst_func_new_c(1, zipn_get_val)),
         OBJ(arr));
 }
 
@@ -213,16 +213,16 @@ NST_FUNC_SIGN(enumerate_)
     NST_SET_DEF(step_ob,  step,  1, AS_INT(step_ob ));
 
     // Layout: [idx, iterator, start, step]
-    Nst_SeqObj *arr = SEQ(nst_new_array(4));
-    arr->objs[0] = nst_new_int(0);
+    Nst_SeqObj *arr = SEQ(nst_array_new(4));
+    arr->objs[0] = nst_int_new(0);
     arr->objs[1] = ob;
-    arr->objs[2] = nst_new_int(start);
-    arr->objs[3] = nst_new_int(step);
+    arr->objs[2] = nst_int_new(start);
+    arr->objs[3] = nst_int_new(step);
 
-    return nst_new_iter(
-        FUNC(nst_new_cfunc(1, enumerate_start)),
-        FUNC(nst_new_cfunc(1, enumerate_is_done)),
-        FUNC(nst_new_cfunc(1, enumerate_get_val)),
+    return nst_iter_new(
+        FUNC(nst_func_new_c(1, enumerate_start)),
+        FUNC(nst_func_new_c(1, enumerate_is_done)),
+        FUNC(nst_func_new_c(1, enumerate_get_val)),
         OBJ(arr));
 }
 
@@ -233,14 +233,14 @@ NST_FUNC_SIGN(keys_)
     NST_DEF_EXTRACT("m", &map);
 
     // Layout: [idx, map]
-    Nst_SeqObj *arr = SEQ(nst_new_array(2));
-    arr->objs[0] = nst_new_int(0);
-    nst_set_value_seq(arr, 1, args[0]);
+    Nst_SeqObj *arr = SEQ(nst_array_new(2));
+    arr->objs[0] = nst_int_new(0);
+    nst_seq_set(arr, 1, args[0]);
 
-    return nst_new_iter(
-        FUNC(nst_new_cfunc(1, kvi_start)),
-        FUNC(nst_new_cfunc(1, kvi_is_done)),
-        FUNC(nst_new_cfunc(1, keys_get_val)),
+    return nst_iter_new(
+        FUNC(nst_func_new_c(1, kvi_start)),
+        FUNC(nst_func_new_c(1, kvi_is_done)),
+        FUNC(nst_func_new_c(1, keys_get_val)),
         OBJ(arr));
 }
 
@@ -251,14 +251,14 @@ NST_FUNC_SIGN(values_)
     NST_DEF_EXTRACT("m", &map);
 
     // Layout: [idx, map]
-    Nst_SeqObj *arr = SEQ(nst_new_array(2));
-    arr->objs[0] = nst_new_int(0);
-    nst_set_value_seq(arr, 1, args[0]);
+    Nst_SeqObj *arr = SEQ(nst_array_new(2));
+    arr->objs[0] = nst_int_new(0);
+    nst_seq_set(arr, 1, args[0]);
 
-    return nst_new_iter(
-        FUNC(nst_new_cfunc(1, kvi_start)),
-        FUNC(nst_new_cfunc(1, kvi_is_done)),
-        FUNC(nst_new_cfunc(1, values_get_val)),
+    return nst_iter_new(
+        FUNC(nst_func_new_c(1, kvi_start)),
+        FUNC(nst_func_new_c(1, kvi_is_done)),
+        FUNC(nst_func_new_c(1, values_get_val)),
         OBJ(arr));
 }
 
@@ -269,14 +269,14 @@ NST_FUNC_SIGN(items_)
     NST_DEF_EXTRACT("m", &map);
 
     // Layout: [idx, map]
-    Nst_SeqObj *arr = SEQ(nst_new_array(2));
-    arr->objs[0] = nst_new_int(0);
-    nst_set_value_seq(arr, 1, args[0]);
+    Nst_SeqObj *arr = SEQ(nst_array_new(2));
+    arr->objs[0] = nst_int_new(0);
+    nst_seq_set(arr, 1, args[0]);
 
-    return nst_new_iter(
-        FUNC(nst_new_cfunc(1, kvi_start)),
-        FUNC(nst_new_cfunc(1, kvi_is_done)),
-        FUNC(nst_new_cfunc(1, items_get_val)),
+    return nst_iter_new(
+        FUNC(nst_func_new_c(1, kvi_start)),
+        FUNC(nst_func_new_c(1, kvi_is_done)),
+        FUNC(nst_func_new_c(1, items_get_val)),
         OBJ(arr));
 }
 
@@ -287,14 +287,14 @@ NST_FUNC_SIGN(reversed_)
     NST_DEF_EXTRACT("S", &seq);
 
     // Layout: [idx, seq]
-    Nst_SeqObj *arr = SEQ(nst_new_array(2));
-    arr->objs[0] = nst_new_int(0);
+    Nst_SeqObj *arr = SEQ(nst_array_new(2));
+    arr->objs[0] = nst_int_new(0);
     arr->objs[1] = seq;
 
-    return nst_new_iter(
-        FUNC(nst_new_cfunc(1, reversed_start)),
-        FUNC(nst_new_cfunc(1, reversed_is_done)),
-        FUNC(nst_new_cfunc(1, reversed_get_val)),
+    return nst_iter_new(
+        FUNC(nst_func_new_c(1, reversed_start)),
+        FUNC(nst_func_new_c(1, reversed_is_done)),
+        FUNC(nst_func_new_c(1, reversed_get_val)),
         OBJ(arr));
 }
 

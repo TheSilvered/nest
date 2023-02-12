@@ -13,7 +13,7 @@ static int32_t hash_int(Nst_IntObj *num);
 static int32_t hash_byte(Nst_ByteObj *byte);
 static int32_t hash_ptr(void *ptr);
 
-int32_t nst_hash_obj(Nst_Obj *obj)
+int32_t nst_obj_hash(Nst_Obj *obj)
 {
     // Hashing floats can lead to unpredictable behaviour
     // caused by floating point imprecision. Because of this

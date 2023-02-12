@@ -1,9 +1,9 @@
 #include "instructions.h"
 
-Nst_Instruction *nst_new_inst_empty(int id, Nst_Int int_val)
+Nst_Inst *nst_new_inst_empty(Nst_InstID id, Nst_Int int_val)
 {
-    Nst_Instruction *inst =
-        (Nst_Instruction *)malloc(sizeof(Nst_Instruction));
+    Nst_Inst *inst =
+        (Nst_Inst *)malloc(sizeof(Nst_Inst));
     if ( inst == NULL )
     {
         return NULL;
@@ -18,10 +18,10 @@ Nst_Instruction *nst_new_inst_empty(int id, Nst_Int int_val)
     return inst;
 }
 
-Nst_Instruction *nst_new_inst_pos(int id, Nst_Pos start, Nst_Pos end)
+Nst_Inst *nst_new_inst_pos(Nst_InstID id, Nst_Pos start, Nst_Pos end)
 {
-    Nst_Instruction *inst =
-        (Nst_Instruction *)malloc(sizeof(Nst_Instruction));
+    Nst_Inst *inst =
+        (Nst_Inst *)malloc(sizeof(Nst_Inst));
     if ( inst == NULL )
     {
         return NULL;
@@ -36,13 +36,13 @@ Nst_Instruction *nst_new_inst_pos(int id, Nst_Pos start, Nst_Pos end)
     return inst;
 }
 
-Nst_Instruction *_nst_new_inst_val(int id,
-                                          Nst_Obj *val,
-                                          Nst_Pos start,
-                                          Nst_Pos end)
+Nst_Inst *_nst_new_inst_val(Nst_InstID id,
+                            Nst_Obj   *val,
+                            Nst_Pos    start,
+                            Nst_Pos    end)
 {
-    Nst_Instruction *inst =
-        (Nst_Instruction*)malloc(sizeof(Nst_Instruction));
+    Nst_Inst *inst =
+        (Nst_Inst*)malloc(sizeof(Nst_Inst));
     if ( inst == NULL )
     {
         return NULL;
@@ -57,13 +57,13 @@ Nst_Instruction *_nst_new_inst_val(int id,
     return inst;
 }
 
-Nst_Instruction *nst_new_inst_int(int id,
-                                         Nst_Int int_val,
-                                         Nst_Pos start,
-                                         Nst_Pos end)
+Nst_Inst *nst_new_inst_int(Nst_InstID id,
+                           Nst_Int    int_val,
+                           Nst_Pos    start,
+                           Nst_Pos    end)
 {
-    Nst_Instruction *inst =
-        (Nst_Instruction *)malloc(sizeof(Nst_Instruction));
+    Nst_Inst *inst =
+        (Nst_Inst *)malloc(sizeof(Nst_Inst));
     if ( inst == NULL )
     {
         return NULL;
@@ -78,7 +78,7 @@ Nst_Instruction *nst_new_inst_int(int id,
     return inst;
 }
 
-void nst_destroy_inst(Nst_Instruction *inst)
+void nst_inst_destroy(Nst_Inst *inst)
 {
     if ( inst->val != NULL )
     {
@@ -87,9 +87,9 @@ void nst_destroy_inst(Nst_Instruction *inst)
     free(inst);
 }
 
-void nst_destroy_inst_list(Nst_InstructionList *inst_list)
+void nst_inst_list_destroy(Nst_InstList *inst_list)
 {
-    Nst_Instruction *instructions = inst_list->instructions;
+    Nst_Inst *instructions = inst_list->instructions;
     for ( Nst_Int i = 0, n = inst_list->total_size; i < n; i++ )
     {
         if ( instructions[i].val != NULL )
@@ -99,6 +99,6 @@ void nst_destroy_inst_list(Nst_InstructionList *inst_list)
     }
 
     free(instructions);
-    LList_destroy(inst_list->functions, NULL);
+    nst_llist_destroy(inst_list->functions, NULL);
     free(inst_list);
 }

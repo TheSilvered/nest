@@ -3,7 +3,7 @@
 #include "json_lexer.h"
 
 #define SET_INVALID_ESCAPE_ERROR \
-    NST_SET_SYNTAX_ERROR(_nst_format_error( \
+    NST_SET_SYNTAX_ERROR(nst_format_error( \
         "JSON: invalid string escape, file \"%s\", line %lli, column %lli", \
         "sii", \
         state.pos.text->path, \
@@ -11,7 +11,7 @@
         (Nst_Int)state.pos.col))
 
 #define SET_INVALID_VALUE_ERROR \
-    NST_SET_SYNTAX_ERROR(_nst_format_error( \
+    NST_SET_SYNTAX_ERROR(nst_format_error( \
         "JSON: invalid value, file \"%s\", line %lli, column %lli", \
         "sii", \
         state.pos.text->path, \
@@ -20,6 +20,12 @@
 
 #define IS_HEX(ch) ( (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') )
 #define HEX_TO_INT(ch) ( ch <= '9' ? ch - '0' : ch - 'a' + 10 )
+
+#define tok_new_noval(start, end, type) \
+    nst_tok_new_noval(start, end, (Nst_TokType)type)
+#define tok_new_noend(start, type) nst_tok_new_noend(start, (Nst_TokType)type)
+#define tok_new_value(start, end, type, value) \
+    nst_tok_new_value(start, end, (Nst_TokType)type, value)
 
 bool comments = false;
 
@@ -60,12 +66,12 @@ static void go_back()
     state.ch = state.pos.text->text[state.idx];
 }
 
-static Nst_LexerToken *parse_json_str(Nst_OpErr *err);
-static Nst_LexerToken *parse_json_num(Nst_OpErr *err);
-static Nst_LexerToken *parse_json_val(Nst_OpErr *err);
+static Nst_Tok *parse_json_str(Nst_OpErr *err);
+static Nst_Tok *parse_json_num(Nst_OpErr *err);
+static Nst_Tok *parse_json_val(Nst_OpErr *err);
 static bool ignore_comment(Nst_OpErr *err);
 
-LList *json_tokenize(char      *path,
+Nst_LList *json_tokenize(char      *path,
                      char      *text,
                      size_t     text_len,
                      bool       fix_encoding,
@@ -92,7 +98,7 @@ LList *json_tokenize(char      *path,
         }
     }
 
-    LList *tokens = LList_new();
+    Nst_LList *tokens = nst_llist_new();
     if ( text_len == 0 )
     {
         return tokens;
@@ -106,7 +112,7 @@ LList *json_tokenize(char      *path,
     state.path = path;
     state.ch = *text;
 
-    Nst_LexerToken *tok = nullptr;
+    Nst_Tok *tok = nullptr;
 
     while ( state.idx < state.len )
     {
@@ -119,22 +125,22 @@ LList *json_tokenize(char      *path,
             advance();
             continue;
         case '[':
-            tok = nst_new_token_noval(state.pos, state.pos, JSON_LBRACKET);
+            tok = tok_new_noval(state.pos, state.pos, JSON_LBRACKET);
             break;
         case ']':
-            tok = nst_new_token_noval(state.pos, state.pos, JSON_RBRACKET);
+            tok = tok_new_noval(state.pos, state.pos, JSON_RBRACKET);
             break;
         case '{':
-            tok = nst_new_token_noval(state.pos, state.pos, JSON_LBRACE);
+            tok = tok_new_noval(state.pos, state.pos, JSON_LBRACE);
             break;
         case '}':
-            tok = nst_new_token_noval(state.pos, state.pos, JSON_RBRACE);
+            tok = tok_new_noval(state.pos, state.pos, JSON_RBRACE);
             break;
         case ',':
-            tok = nst_new_token_noval(state.pos, state.pos, JSON_COMMA);
+            tok = tok_new_noval(state.pos, state.pos, JSON_COMMA);
             break;
         case ':':
-            tok = nst_new_token_noval(state.pos, state.pos, JSON_COLON);
+            tok = tok_new_noval(state.pos, state.pos, JSON_COLON);
             break;
         case '"':
             tok = parse_json_str(err);
@@ -167,7 +173,7 @@ LList *json_tokenize(char      *path,
                 tok = nullptr;
             }
         default:
-            NST_SET_SYNTAX_ERROR(_nst_format_error(
+            NST_SET_SYNTAX_ERROR(nst_format_error(
                 "JSON: invalid character, file \"%s\", line %lli, column %lli",
                 "sii",
                 path, (Nst_Int)state.pos.line, (Nst_Int)state.pos.col));
@@ -176,17 +182,17 @@ LList *json_tokenize(char      *path,
 
         if ( tok == nullptr )
         {
-            LList_destroy(tokens, (LList_item_destructor)nst_destroy_token);
+            nst_llist_destroy(tokens, (nst_llist_destructor)nst_token_destroy);
             return nullptr;
         }
-        LList_append(tokens, tok, true);
+        nst_llist_append(tokens, tok, true);
         advance();
     }
-    LList_append(tokens, nst_new_token_noend(state.pos, JSON_EOF), false);
+    nst_llist_append(tokens, tok_new_noend(state.pos, JSON_EOF), false);
     return tokens;
 }
 
-static Nst_LexerToken *parse_json_str(Nst_OpErr *err)
+static Nst_Tok *parse_json_str(Nst_OpErr *err)
 {
     Nst_Pos start = nst_copy_pos(state.pos);
     Nst_Pos escape_start = nst_copy_pos(state.pos);
@@ -228,7 +234,7 @@ static Nst_LexerToken *parse_json_str(Nst_OpErr *err)
             if ( (unsigned char)state.ch < ' ' )
             {
                 free(end_str);
-                NST_SET_SYNTAX_ERROR(_nst_format_error(
+                NST_SET_SYNTAX_ERROR(nst_format_error(
                     "JSON: invalid character, file \"%s\", line %lli, column %lli",
                     "sii",
                     state.pos.text->path,
@@ -334,13 +340,13 @@ static Nst_LexerToken *parse_json_str(Nst_OpErr *err)
 
     end_str[str_len] = '\0';
 
-    Nst_StrObj *val_obj = STR(nst_new_string(end_str, str_len, true));
-    nst_hash_obj(OBJ(val_obj));
+    Nst_StrObj *val_obj = STR(nst_string_new(end_str, str_len, true));
+    nst_obj_hash(OBJ(val_obj));
 
-    return nst_new_token_value(start, state.pos, JSON_VALUE, OBJ(val_obj));
+    return tok_new_value(start, state.pos, JSON_VALUE, OBJ(val_obj));
 }
 
-static Nst_LexerToken *parse_json_num(Nst_OpErr *err)
+static Nst_Tok *parse_json_num(Nst_OpErr *err)
 {
     char *start_idx = state.pos.text->text + state.idx;
     Nst_Pos start = nst_copy_pos(state.pos);
@@ -381,7 +387,7 @@ static Nst_LexerToken *parse_json_num(Nst_OpErr *err)
         Nst_Int value = strtoll(start_idx, nullptr, 10);
         if ( errno == ERANGE )
         {
-            NST_SET_MEMORY_ERROR(_nst_format_error(
+            NST_SET_MEMORY_ERROR(nst_format_error(
                 "JSON: number too big, file \"%s\", line %lli, column %lli",
                 "sii",
                 state.path,
@@ -389,11 +395,11 @@ static Nst_LexerToken *parse_json_num(Nst_OpErr *err)
                 (Nst_Int)state.pos.col));
             return nullptr;
         }
-        return nst_new_token_value(
+        return tok_new_value(
             start,
             state.pos,
             JSON_VALUE,
-            nst_new_int(value));
+            nst_int_new(value));
     }
     else
     {
@@ -405,7 +411,7 @@ float_ltrl:
     if ( state.ch != '.' && state.ch != 'e' && state.ch != 'E' )
     {
         go_back();
-        return nst_new_token_value(
+        return tok_new_value(
             start,
             state.pos,
             JSON_VALUE,
@@ -452,15 +458,15 @@ float_ltrl:
 
     {
         Nst_Real value = strtod(start_idx, nullptr);
-        return nst_new_token_value(
+        return tok_new_value(
             start,
             state.pos,
             JSON_VALUE,
-            nst_new_real(value)); 
+            nst_real_new(value)); 
     }
 }
 
-static Nst_LexerToken *parse_json_val(Nst_OpErr *err)
+static Nst_Tok *parse_json_val(Nst_OpErr *err)
 {
     Nst_Pos start = nst_copy_pos(state.pos);
     char *text = state.pos.text->text + state.idx;
@@ -480,11 +486,11 @@ static Nst_LexerToken *parse_json_val(Nst_OpErr *err)
         advance();
         advance();
         advance();
-        return nst_new_token_value(
+        return tok_new_value(
             start,
             state.pos,
             JSON_VALUE,
-            nst_inc_ref(nst_c.b_true));
+            nst_inc_ref(nst_c.Bool_true));
     case 'f':
         if ( state.idx + 4 >= state.len )
         {
@@ -502,11 +508,11 @@ static Nst_LexerToken *parse_json_val(Nst_OpErr *err)
         advance();
         advance();
         advance();
-        return nst_new_token_value(
+        return tok_new_value(
             start,
             state.pos,
             JSON_VALUE,
-            nst_inc_ref(nst_c.b_false));
+            nst_inc_ref(nst_c.Bool_false));
     default:
         if ( state.idx + 3 >= state.len )
         {
@@ -522,11 +528,11 @@ static Nst_LexerToken *parse_json_val(Nst_OpErr *err)
         advance();
         advance();
         advance();
-        return nst_new_token_value(
+        return tok_new_value(
             start,
             state.pos,
             JSON_VALUE,
-            nst_inc_ref(nst_c.null));
+            nst_inc_ref(nst_c.Null_null));
     }
 }
 

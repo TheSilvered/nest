@@ -6,50 +6,41 @@
 #include "error.h" // Pos
 #include "obj.h"
 
-#define T_IN_STACK_OP(token_type) \
-    ( token_type >= NST_TT_ADD && token_type <= NST_TT_LTE )
-#define T_IN_NUM_OP(token_type) \
-    ( token_type >= NST_TT_ADD && token_type <= NST_TT_RSHIFT )
-#define T_IN_COND_OP(token_type) \
-    ( token_type >= NST_TT_L_AND && token_type <= NST_TT_L_XOR )
-#define T_IN_COMP_OP(token_type) \
-    ( token_type >= NST_TT_GT && token_type <= NST_TT_LTE )
-#define T_IN_LOCAL_STACK_OP(token_type) \
-    ( token_type >= NST_TT_CAST && token_type <= NST_TT_RANGE )
-#define T_IN_ASSIGNMENT(token_type) \
-    ( token_type >= NST_TT_ASSIGN && token_type <= NST_TT_CONCAT_A )
-#define T_IN_LOCAL_OP(token_type) \
-    ( token_type >= NST_TT_LEN && token_type <= NST_TT_TYPEOF )
-#define T_IN_ATOM(token_type) \
-    ( token_type >= NST_TT_LEN && token_type <= NST_TT_L_VBRACE )
-#define T_IN_VALUE(token_type) \
-    ( token_type == NST_TT_IDENT || token_type == NST_TT_VALUE )
-#define T_IN_EXPR_END(token_type) \
-    ( token_type >= NST_TT_L_BRACKET && token_type <= NST_TT_EOFILE )
-#define T_IN_EXPR_END_W_BREAK(token_type) \
-    ( (token_type >= NST_TT_L_BRACKET && token_type <= NST_TT_EOFILE) || \
-      token_type == NST_TT_BREAK )
+#define NST_IS_STACK_OP(token_type) \
+    ( (token_type) >= NST_TT_ADD && (token_type) <= NST_TT_LTE )
+#define NST_IS_NUM_OP(token_type) \
+    ( (token_type) >= NST_TT_ADD && (token_type) <= NST_TT_RSHIFT )
+#define NST_IS_COND_OP(token_type) \
+    ( (token_type) >= NST_TT_L_AND && (token_type) <= NST_TT_L_XOR )
+#define NST_IS_COMP_OP(token_type) \
+    ( (token_type) >= NST_TT_GT && (token_type) <= NST_TT_LTE )
+#define NST_IS_LOCAL_STACK_OP(token_type) \
+    ( (token_type) >= NST_TT_CAST && (token_type) <= NST_TT_RANGE )
+#define NST_IS_ASSIGNMENT(token_type) \
+    ( (token_type) >= NST_TT_ASSIGN && (token_type) <= NST_TT_CONCAT_A )
+#define NST_IS_LOCAL_OP(token_type) \
+    ( (token_type) >= NST_TT_LEN && (token_type) <= NST_TT_TYPEOF )
+#define NST_IS_ATOM(token_type) \
+    ( (token_type) >= NST_TT_LEN && (token_type) <= NST_TT_L_VBRACE )
+#define NST_IS_VALUE(token_type) \
+    ( (token_type) == NST_TT_IDENT || (token_type) == NST_TT_VALUE )
+#define NST_IS_EXPR_END(token_type) \
+    ( (token_type) >= NST_TT_L_BRACKET && (token_type) <= NST_TT_EOFILE )
+#define NST_IS_EXPR_END_W_BREAK(token_type) \
+    ( ((token_type) >= NST_TT_L_BRACKET && (token_type) <= NST_TT_EOFILE) || \
+      (token_type) == NST_TT_BREAK )
 
 // the assignment tokens are in the same order as the stack op tokens
 #define ASSIGMENT_TO_STACK_OP(token_type) \
-    ( token_type - NST_TT_ADD_A )
+    ((Nst_TokType)( (token_type) - NST_TT_ADD_A ))
 
-#define TOK(expr) ((Nst_LexerToken *)(expr))
+#define TOK(expr) ((Nst_Tok *)(expr))
 
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct _Nst_LexerToken
-{
-    Nst_Pos start;
-    Nst_Pos end;
-    int type;
-    Nst_Obj *value;
-}
-Nst_LexerToken;
-
-enum Nst_TokenTypes
+typedef enum _Nst_TokenType
 {
     NST_TT_ADD,       // + + stack-op start, num-op start
     NST_TT_SUB,       // | |
@@ -129,25 +120,35 @@ enum Nst_TokenTypes
     NST_TT_BREAK,
     NST_TT_CONTINUE,
     NST_TT_TRY
-};
+}
+Nst_TokType;
+
+typedef struct _Nst_Tok
+{
+    Nst_Pos start;
+    Nst_Pos end;
+    Nst_TokType type;
+    Nst_Obj *value;
+}
+Nst_Tok;
 
 // Creates a new token with a value
-Nst_LexerToken *nst_new_token_value(Nst_Pos  start,
-                                    Nst_Pos  end,
-                                    int      type,
-                                    Nst_Obj *value);
+Nst_Tok *nst_tok_new_value(Nst_Pos     start,
+                             Nst_Pos     end,
+                             Nst_TokType type,
+                             Nst_Obj    *value);
 // Creates a new tokens with only a type
-Nst_LexerToken *nst_new_token_noval(Nst_Pos start, Nst_Pos end, int type);
+Nst_Tok *nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type);
 // Creates a new token where start and end are the same
-Nst_LexerToken *nst_new_token_noend(Nst_Pos start, int type);
-void nst_destroy_token(Nst_LexerToken *token);
+Nst_Tok *nst_tok_new_noend(Nst_Pos start, Nst_TokType type);
+void nst_token_destroy(Nst_Tok *token);
 
 // Returns the corresponding token id from a string literal
 // Ex nst_str_to_tok("+") -> NST_TT_ADD == 0
-int nst_str_to_tok(char *str);
+Nst_TokType nst_tok_from_str(char *str);
 
 // Prints a token like the tokens when using the -t flag
-void nst_print_token(Nst_LexerToken *token);
+void nst_print_tok(Nst_Tok *token);
 
 #ifdef __cplusplus
 }

@@ -131,7 +131,7 @@ Nst_OpErr;
 typedef struct _Nst_Traceback
 {
     Nst_Error error;
-    LList *positions;
+    Nst_LList *positions;
 }
 Nst_Traceback;
 
@@ -151,7 +151,7 @@ void nst_print_traceback(Nst_Traceback tb);
 //   s: char *,
 //   u: size_t,
 //   i: Nst_Int
-Nst_StrObj *_nst_format_error(const char *format, const char *format_args, ...);
+Nst_StrObj *nst_format_error(const char *format, const char *format_args, ...);
 
 // Frees a heap allocated text source
 void nst_free_src_text(Nst_SourceText *text);

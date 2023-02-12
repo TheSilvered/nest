@@ -21,7 +21,7 @@ static Nst_MapObj *CPO = nullptr;
 
 bool lib_init()
 {
-    if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
+    if ( (func_list_ = nst_func_list_new(FUNC_COUNT)) == nullptr )
     {
         return false;
     }
@@ -75,7 +75,7 @@ Nst_StrObj *heap_str(std::string str)
     char *heap_s = new char[str.length() + 1];
     memcpy(heap_s, str.c_str(), str.length());
     heap_s[str.length()] = 0;
-    return STR(nst_new_string(heap_s, str.length(), true));
+    return STR(nst_string_new(heap_s, str.length(), true));
 }
 
 NST_FUNC_SIGN(isdir_)
@@ -102,7 +102,7 @@ NST_FUNC_SIGN(mkdir_)
     }
     else
     {
-        return nst_new_int(ec.value());
+        return nst_int_new(ec.value());
     }
 }
 
@@ -122,7 +122,7 @@ NST_FUNC_SIGN(mkdirs_)
     }
     else
     {
-        return nst_new_int(ec.value());
+        return nst_int_new(ec.value());
     }
 }
 
@@ -148,7 +148,7 @@ NST_FUNC_SIGN(rmdir_)
     }
     else
     {
-        return nst_new_int(ec.value());
+        return nst_int_new(ec.value());
     }
 }
 
@@ -174,7 +174,7 @@ NST_FUNC_SIGN(rmdir_recursive_)
     }
     else
     {
-        return nst_new_int(ec.value());
+        return nst_int_new(ec.value());
     }
 }
 
@@ -220,7 +220,7 @@ NST_FUNC_SIGN(rmfile_)
     }
     else
     {
-        return nst_new_int(ec.value());
+        return nst_int_new(ec.value());
     }
 }
 
@@ -250,7 +250,7 @@ NST_FUNC_SIGN(copy_)
     }
     else
     {
-        return nst_new_int(ec.value());
+        return nst_int_new(ec.value());
     }
 }
 
@@ -272,7 +272,7 @@ NST_FUNC_SIGN(rename_)
     }
     else
     {
-        return nst_new_int(ec.value());
+        return nst_int_new(ec.value());
     }
 }
 
@@ -289,13 +289,13 @@ NST_FUNC_SIGN(list_dir_)
         return nullptr;
     }
 
-    Nst_SeqObj *vector = SEQ(nst_new_vector(0));
+    Nst_SeqObj *vector = SEQ(nst_vector_new(0));
 
     for ( fs::directory_entry const &entry
         : fs::directory_iterator{ path->value } )
     {
         Nst_StrObj *str =  heap_str(entry.path().string());
-        nst_append_value_vector(vector, OBJ(str));
+        nst_vector_append(vector, OBJ(str));
         nst_dec_ref(str);
     }
 
@@ -315,13 +315,13 @@ NST_FUNC_SIGN(list_dir_recursive_)
         return nullptr;
     }
 
-    Nst_SeqObj *vector = SEQ(nst_new_vector(0));
+    Nst_SeqObj *vector = SEQ(nst_vector_new(0));
 
     for ( fs::directory_entry const &entry
         : fs::recursive_directory_iterator{ path->value } )
     {
         Nst_StrObj *str =  heap_str(entry.path().string());
-        nst_append_value_vector(vector, OBJ(str));
+        nst_vector_append(vector, OBJ(str));
         nst_dec_ref(str);
     }
 
@@ -457,7 +457,7 @@ NST_FUNC_SIGN(join_)
 #endif
     }
 
-    return nst_new_string(new_str, new_len, true);
+    return nst_string_new(new_str, new_len, true);
 }
 
 NST_FUNC_SIGN(path_)
@@ -494,28 +494,28 @@ NST_FUNC_SIGN(_get_copy_options_)
         return nst_inc_ref(CPO);
     }
 
-    Nst_MapObj *options = MAP(nst_new_map());
+    Nst_MapObj *options = MAP(nst_map_new());
 
     Nst_Obj *none_opt =
-        nst_new_int((Nst_Int)fs::copy_options::none);
+        nst_int_new((Nst_Int)fs::copy_options::none);
     Nst_Obj *skip_opt =
-        nst_new_int((Nst_Int)fs::copy_options::skip_existing);
+        nst_int_new((Nst_Int)fs::copy_options::skip_existing);
     Nst_Obj *overwrite_opt =
-        nst_new_int((Nst_Int)fs::copy_options::overwrite_existing);
+        nst_int_new((Nst_Int)fs::copy_options::overwrite_existing);
     Nst_Obj *update_opt =
-        nst_new_int((Nst_Int)fs::copy_options::update_existing);
+        nst_int_new((Nst_Int)fs::copy_options::update_existing);
     Nst_Obj *recursive_opt =
-        nst_new_int((Nst_Int)fs::copy_options::recursive);
+        nst_int_new((Nst_Int)fs::copy_options::recursive);
     Nst_Obj *copy_symlinks_opt =
-        nst_new_int((Nst_Int)fs::copy_options::copy_symlinks);
+        nst_int_new((Nst_Int)fs::copy_options::copy_symlinks);
     Nst_Obj *skip_symlinks_opt =
-        nst_new_int((Nst_Int)fs::copy_options::skip_symlinks);
+        nst_int_new((Nst_Int)fs::copy_options::skip_symlinks);
     Nst_Obj *dirs_only_opt =
-        nst_new_int((Nst_Int)fs::copy_options::directories_only);
+        nst_int_new((Nst_Int)fs::copy_options::directories_only);
     Nst_Obj *make_symlinks_opt =
-        nst_new_int((Nst_Int)fs::copy_options::create_symlinks);
+        nst_int_new((Nst_Int)fs::copy_options::create_symlinks);
     Nst_Obj *make_hard_links_opt =
-        nst_new_int((Nst_Int)fs::copy_options::create_hard_links);
+        nst_int_new((Nst_Int)fs::copy_options::create_hard_links);
 
     nst_map_set_str(options, "none",            none_opt);
     nst_map_set_str(options, "skip",            skip_opt);

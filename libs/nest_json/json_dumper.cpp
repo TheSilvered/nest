@@ -43,7 +43,7 @@ Nst_Obj *json_dump(Nst_Obj *obj, int indent, Nst_OpErr *err)
 
     str_buf[str_len] = 0;
     fit_buf();
-    return nst_new_string(str_buf, str_len, true);
+    return nst_string_new(str_buf, str_len, true);
 }
 
 static void expand_to(size_t size_to_reach, Nst_OpErr *err)
@@ -113,21 +113,21 @@ static void dump_obj(Nst_Obj *obj, int indent, Nst_OpErr *err)
     {
         dump_seq(SEQ(obj), indent, err);
     }
-    else if ( obj == nst_c.null )
+    else if ( obj == nst_c.Null_null )
     {
         append_buf("null", 4, err);
     }
-    else if ( obj == nst_c.b_true )
+    else if ( obj == nst_c.Bool_true )
     {
         append_buf("true", 4, err);
     }
-    else if ( obj == nst_c.b_false )
+    else if ( obj == nst_c.Bool_false )
     {
         append_buf("false", 5, err);
     }
     else
     {
-        NST_SET_TYPE_ERROR(_nst_format_error(
+        NST_SET_TYPE_ERROR(nst_format_error(
             "JSON: an object of type %s is not serializable", "s",
             TYPE_NAME(obj)));
         FAIL;

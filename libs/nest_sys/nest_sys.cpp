@@ -29,7 +29,7 @@ static Nst_StrObj *platform_obj;
 
 bool lib_init()
 {
-    if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
+    if ( (func_list_ = nst_func_list_new(FUNC_COUNT)) == nullptr )
     {
         return false;
     }
@@ -53,12 +53,12 @@ bool lib_init()
 
     lib_init_ = true;
 
-    version_obj = STR(nst_new_cstring_raw(NEST_VERSION, false));
+    version_obj = STR(nst_string_new_c_raw(NST_VERSION, false));
 
 #if defined(_WIN32) || defined(WIN32)
-    platform_obj = STR(nst_new_cstring("windows", 7, false));
+    platform_obj = STR(nst_string_new_c("windows", 7, false));
 #else
-    platform_obj = STR(nst_new_cstring("linux", 5, false));
+    platform_obj = STR(nst_string_new_c("linux", 5, false));
 #endif
 
     return true;
@@ -78,7 +78,7 @@ NST_FUNC_SIGN(system_)
 {
     Nst_StrObj *command;
     NST_DEF_EXTRACT("s", &command);
-    return nst_new_int(system(command->value));
+    return nst_int_new(system(command->value));
 }
 
 NST_FUNC_SIGN(exit_)
@@ -88,7 +88,7 @@ NST_FUNC_SIGN(exit_)
     NST_DEF_EXTRACT("?i", &status);
     Nst_Int code;
 
-    if ( status == nst_c.null )
+    if ( status == nst_c.Null_null )
     {
         code = 0;
     }
@@ -97,11 +97,11 @@ NST_FUNC_SIGN(exit_)
         code = AS_INT(status);
     }
 
-    nst_free_state();
-    _nst_del_types();
-    _nst_del_strs();
-    _nst_del_consts();
-    _nst_del_streams();
+    nst_state_free();
+    _nst_types_del();
+    _nst_strs_del();
+    _nst_consts_del();
+    _nst_streams_del();
     exit((int)code);
 
     return nullptr;
@@ -120,22 +120,22 @@ NST_FUNC_SIGN(getenv_)
         NST_RETURN_NULL;
     }
 
-    return nst_new_cstring_raw(env_name, false);
+    return nst_string_new_c_raw(env_name, false);
 }
 
 NST_FUNC_SIGN(get_ref_count_)
 {
-    return nst_new_int(args[0]->ref_count);
+    return nst_int_new(args[0]->ref_count);
 }
 
 NST_FUNC_SIGN(get_addr_)
 {
-    return nst_new_int((size_t)args[0]);
+    return nst_int_new((size_t)args[0]);
 }
 
 NST_FUNC_SIGN(hash_)
 {
-    return nst_new_int(nst_hash_obj(args[0]));
+    return nst_int_new(nst_obj_hash(args[0]));
 }
 
 NST_FUNC_SIGN(_set_cwd_)
@@ -153,7 +153,7 @@ NST_FUNC_SIGN(_set_cwd_)
 NST_FUNC_SIGN(_get_cwd_)
 {
     char *cwd = new char[PATH_MAX];
-    return nst_new_cstring_raw(_getcwd(cwd, PATH_MAX), true);
+    return nst_string_new_c_raw(_getcwd(cwd, PATH_MAX), true);
 }
 
 NST_FUNC_SIGN(_get_version_)

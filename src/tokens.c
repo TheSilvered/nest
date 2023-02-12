@@ -7,12 +7,12 @@
 #include "obj_ops.h"
 
 
-Nst_LexerToken *nst_new_token_value(Nst_Pos  start,
-                                    Nst_Pos  end,
-                                    int      type,
-                                    Nst_Obj *value)
+Nst_Tok *nst_tok_new_value(Nst_Pos     start,
+                             Nst_Pos     end,
+                             Nst_TokType type,
+                             Nst_Obj    *value)
 {
-    Nst_LexerToken *token = TOK(malloc(sizeof(Nst_LexerToken)));
+    Nst_Tok *token = TOK(malloc(sizeof(Nst_Tok)));
     if ( token == NULL )
     {
         errno = ENOMEM;
@@ -27,9 +27,9 @@ Nst_LexerToken *nst_new_token_value(Nst_Pos  start,
     return token;
 }
 
-Nst_LexerToken *nst_new_token_noval(Nst_Pos start, Nst_Pos end, int type)
+Nst_Tok *nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type)
 {
-    Nst_LexerToken *token = TOK(malloc(sizeof(Nst_LexerToken)));
+    Nst_Tok *token = TOK(malloc(sizeof(Nst_Tok)));
     if ( token == NULL )
     {
         errno = ENOMEM;
@@ -44,9 +44,9 @@ Nst_LexerToken *nst_new_token_noval(Nst_Pos start, Nst_Pos end, int type)
     return token;
 }
 
-Nst_LexerToken *nst_new_token_noend(Nst_Pos start, int type)
+Nst_Tok *nst_tok_new_noend(Nst_Pos start, Nst_TokType type)
 {
-    Nst_LexerToken *token = TOK(malloc(sizeof(Nst_LexerToken)));
+    Nst_Tok *token = TOK(malloc(sizeof(Nst_Tok)));
     if ( token == NULL )
     {
         errno = ENOMEM;
@@ -61,7 +61,7 @@ Nst_LexerToken *nst_new_token_noend(Nst_Pos start, int type)
     return token;
 }
 
-void nst_destroy_token(Nst_LexerToken *token)
+void nst_token_destroy(Nst_Tok *token)
 {
     if ( token == NULL )
     {
@@ -75,7 +75,7 @@ void nst_destroy_token(Nst_LexerToken *token)
     free(token);
 }
 
-int nst_str_to_tok(char *str)
+Nst_TokType nst_tok_from_str(char *str)
 {
     if ( str[1] == '\0' )
     {
@@ -108,7 +108,7 @@ int nst_str_to_tok(char *str)
         case '}': return NST_TT_R_BRACE;
         case ',': return NST_TT_COMMA;
         case '$': return NST_TT_LEN;
-        default: return -1;
+        default: return (Nst_TokType)-1;
         }
     }
 
@@ -289,7 +289,7 @@ int nst_str_to_tok(char *str)
             }
             break;
         }
-        return -1;
+        return (Nst_TokType)-1;
     }
 
     if ( str[0] == '>' )
@@ -333,7 +333,7 @@ int nst_str_to_tok(char *str)
     {
         if ( str[1] != '.' )
         {
-            return -1;
+            return (Nst_TokType)-1;
         }
         if ( str[2] == '?' )
         {
@@ -359,10 +359,10 @@ int nst_str_to_tok(char *str)
         }
     }
 
-    return -1;
+    return (Nst_TokType)-1;
 }
 
-void nst_print_token(Nst_LexerToken *token)
+void nst_print_tok(Nst_Tok *token)
 {
     printf(
         "(%02li:%02li, %02li:%02li | ",

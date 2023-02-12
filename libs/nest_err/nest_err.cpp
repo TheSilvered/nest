@@ -8,7 +8,7 @@ static bool lib_init_ = false;
 
 bool lib_init()
 {
-    if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
+    if ( (func_list_ = nst_func_list_new(FUNC_COUNT)) == nullptr )
     {
         return false;
     }
@@ -38,16 +38,16 @@ Nst_Obj *make_pos(Nst_Pos start, Nst_Pos end)
         return nullptr;
     }
 
-    Nst_Obj *map = nst_new_map();
+    Nst_Obj *map = nst_map_new();
 
-    Nst_Obj *arr1 = nst_new_array(2);
-    Nst_Obj *arr2 = nst_new_array(2);
-    Nst_Obj *file_str = nst_new_cstring_raw(start.text->path, false);
+    Nst_Obj *arr1 = nst_array_new(2);
+    Nst_Obj *arr2 = nst_array_new(2);
+    Nst_Obj *file_str = nst_string_new_c_raw(start.text->path, false);
 
-    SEQ(arr1)->objs[0] = nst_new_int(start.line);
-    SEQ(arr1)->objs[1] = nst_new_int(start.col);
-    SEQ(arr2)->objs[0] = nst_new_int(end.line);
-    SEQ(arr2)->objs[1] = nst_new_int(end.col);
+    SEQ(arr1)->objs[0] = nst_int_new(start.line);
+    SEQ(arr1)->objs[1] = nst_int_new(start.col);
+    SEQ(arr2)->objs[0] = nst_int_new(end.line);
+    SEQ(arr2)->objs[1] = nst_int_new(end.col);
 
     nst_map_set_str(map, "file", file_str);
     nst_map_set_str(map, "start", arr1);
@@ -62,10 +62,10 @@ Nst_Obj *make_pos(Nst_Pos start, Nst_Pos end)
 
 Nst_Obj *success(Nst_Obj *val)
 {
-    Nst_Obj *map = nst_new_map();
+    Nst_Obj *map = nst_map_new();
     nst_map_set_str(map, "value", val);
-    nst_map_set_str(map, "error", nst_c.null);
-    nst_map_set_str(map, "traceback", nst_c.null);
+    nst_map_set_str(map, "error", nst_c.Null_null);
+    nst_map_set_str(map, "traceback", nst_c.Null_null);
     nst_dec_ref(val);
 
     return map;
@@ -73,13 +73,13 @@ Nst_Obj *success(Nst_Obj *val)
 
 Nst_Obj *failure(Nst_OpErr *err)
 {
-    Nst_Obj *map = nst_new_map();
-    Nst_Obj *error_map = nst_new_map();
+    Nst_Obj *map = nst_map_new();
+    Nst_Obj *error_map = nst_map_new();
     Nst_Obj *error_name_str;
     Nst_Obj *error_message_str;
     Nst_Obj *error_pos;
     Nst_Obj *error_traceback;
-    nst_map_set_str(map, "value", nst_c.null);
+    nst_map_set_str(map, "value", nst_c.Null_null);
 
     if ( nst_state.traceback->error.occurred )
     {
@@ -91,12 +91,12 @@ Nst_Obj *failure(Nst_OpErr *err)
         error_pos = make_pos(error.start, error.end);
 
         error_traceback =
-            nst_new_array(nst_state.traceback->positions->size / 2);
+            nst_array_new(nst_state.traceback->positions->size / 2);
 
-        LList *positions = nst_state.traceback->positions;
+        Nst_LList *positions = nst_state.traceback->positions;
         Nst_Int skipped = 0;
-        LLNode *n1 = positions->head;
-        LLNode *n2 = n1 == nullptr ? n1 : n1->next;
+        Nst_LLNode *n1 = positions->head;
+        Nst_LLNode *n2 = n1 == nullptr ? n1 : n1->next;
         for ( size_t i = 0; n1 != nullptr; i++ )
         {
             Nst_Obj *pos = make_pos(*(Nst_Pos *)n1->value,
@@ -115,15 +115,15 @@ Nst_Obj *failure(Nst_OpErr *err)
             SEQ(error_traceback)->objs[i - skipped] = pos;
         }
 
-        LList_empty(positions, free);
+        nst_llist_empty(positions, free);
         nst_state.traceback->error.occurred = false;
     }
     else
     {
         error_name_str = OBJ(err->name);
         error_message_str = OBJ(err->message);
-        error_pos = nst_inc_ref(nst_c.null);
-        error_traceback = nst_inc_ref(nst_c.null);
+        error_pos = nst_inc_ref(nst_c.Null_null);
+        error_traceback = nst_inc_ref(nst_c.Null_null);
     }
 
     nst_map_set_str(error_map, "name", error_name_str);
@@ -150,7 +150,7 @@ NST_FUNC_SIGN(try_)
 
     if ( func_args->len != func->arg_num )
     {
-        NST_SET_CALL_ERROR(_nst_format_error(
+        NST_SET_CALL_ERROR(nst_format_error(
             "the function expected %zi arguments but the %s had length %zi",
             "usu",
             func->arg_num, TYPE_NAME(func_args), func_args->len));
@@ -172,7 +172,7 @@ NST_FUNC_SIGN(try_)
 
 NST_FUNC_SIGN(_get_err_names_)
 {
-    Nst_SeqObj *names = SEQ(nst_new_array(7));
+    Nst_SeqObj *names = SEQ(nst_array_new(7));
     names->objs[0] = nst_inc_ref(nst_s.e_SyntaxError);
     names->objs[1] = nst_inc_ref(nst_s.e_ValueError);
     names->objs[2] = nst_inc_ref(nst_s.e_TypeError);

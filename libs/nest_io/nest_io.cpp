@@ -16,7 +16,7 @@ static Nst_Obj *stderr_obj;
 
 bool lib_init()
 {
-    if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
+    if ( (func_list_ = nst_func_list_new(FUNC_COUNT)) == nullptr )
     {
         return false;
     }
@@ -46,9 +46,9 @@ bool lib_init()
 #error FUNC_COUNT does not match the number of lines
 #endif
 
-    stdin_obj  = nst_new_true_file(stdin,  false, true, false);
-    stdout_obj = nst_new_true_file(stdout, false, false, true);
-    stderr_obj = nst_new_true_file(stderr, false, false, true);
+    stdin_obj  = nst_iof_new(stdin,  false, true, false);
+    stdout_obj = nst_iof_new(stdout, false, false, true);
+    stderr_obj = nst_iof_new(stderr, false, false, true);
 
     lib_init_ = true;
     return true;
@@ -237,10 +237,10 @@ NST_FUNC_SIGN(open_)
     Nst_IOFile file_ptr = fopen(file_name, file_mode);
     if ( file_ptr == nullptr )
     {
-        return nst_inc_ref(nst_c.null);
+        return nst_inc_ref(nst_c.Null_null);
     }
 
-    return nst_new_true_file(file_ptr, is_bin, can_read, can_write);
+    return nst_iof_new(file_ptr, is_bin, can_read, can_write);
 }
 
 NST_FUNC_SIGN(virtual_iof_)
@@ -257,7 +257,7 @@ NST_FUNC_SIGN(virtual_iof_)
     f->size = 0;
     f->ptr = 0;
 
-    return nst_new_fake_file((void *)f, bin, true, true,
+    return nst_iof_new_fake((void *)f, bin, true, true,
                              (Nst_IOFile_read_f)virtual_iof_read_f,
                              (Nst_IOFile_write_f)virtual_iof_write_f,
                              (Nst_IOFile_flush_f)virtual_iof_flush_f,
@@ -280,9 +280,9 @@ NST_FUNC_SIGN(close_)
 
     f->close_f(f->value);
     f->value = nullptr;
-    NST_SET_FLAG(f, NST_FLAG_IOFILE_IS_CLOSED);
+    NST_FLAG_SET(f, NST_FLAG_IOFILE_IS_CLOSED);
 
-    return nst_inc_ref(nst_c.null);
+    return nst_inc_ref(nst_c.Null_null);
 }
 
 NST_FUNC_SIGN(write_)
@@ -317,7 +317,7 @@ NST_FUNC_SIGN(write_)
     f->write_f(str->value, sizeof(char), str->len, f->value);
 
     nst_dec_ref(str_to_write);
-    return nst_inc_ref(nst_c.null);
+    return nst_inc_ref(nst_c.Null_null);
 }
 
 NST_FUNC_SIGN(write_bytes_)
@@ -362,7 +362,7 @@ NST_FUNC_SIGN(write_bytes_)
     f->write_f(bytes, sizeof(char), seq_len, f->value);
 
     delete[] bytes;
-    return nst_inc_ref(nst_c.null);
+    return nst_inc_ref(nst_c.Null_null);
 }
 
 NST_FUNC_SIGN(read_)
@@ -410,7 +410,7 @@ NST_FUNC_SIGN(read_)
         f->value);
     buffer[read_bytes] = 0;
 
-    return nst_new_string(buffer, read_bytes, true);
+    return nst_string_new(buffer, read_bytes, true);
 }
 
 NST_FUNC_SIGN(read_bytes_)
@@ -457,11 +457,11 @@ NST_FUNC_SIGN(read_bytes_)
         (size_t)bytes_to_read,
         f->value);
 
-    Nst_SeqObj *bytes_array = SEQ(nst_new_array(read_bytes));
+    Nst_SeqObj *bytes_array = SEQ(nst_array_new(read_bytes));
 
     for ( size_t i = 0; i < read_bytes; i++ )
     {
-        bytes_array->objs[i] = nst_new_byte(buffer[i]);
+        bytes_array->objs[i] = nst_byte_new(buffer[i]);
     }
 
     delete[] buffer;
@@ -480,7 +480,7 @@ NST_FUNC_SIGN(file_size_)
         return nullptr;
     }
 
-    return nst_new_int(get_file_size(f));
+    return nst_int_new(get_file_size(f));
 }
 
 NST_FUNC_SIGN(get_fptr_)
@@ -495,7 +495,7 @@ NST_FUNC_SIGN(get_fptr_)
         return nullptr;
     }
 
-    return nst_new_int(f->tell_f(f->value));
+    return nst_int_new(f->tell_f(f->value));
 }
 
 NST_FUNC_SIGN(move_fptr_)
@@ -542,7 +542,7 @@ NST_FUNC_SIGN(move_fptr_)
 
     f->seek_f(f->value, (long)offset, (int)start);
 
-    return nst_inc_ref(nst_c.null);
+    return nst_inc_ref(nst_c.Null_null);
 }
 
 NST_FUNC_SIGN(flush_)
@@ -558,7 +558,7 @@ NST_FUNC_SIGN(flush_)
     }
 
     f->flush_f(f->value);
-    return nst_inc_ref(nst_c.null);
+    return nst_inc_ref(nst_c.Null_null);
 }
 
 NST_FUNC_SIGN(get_flags_)
@@ -573,7 +573,7 @@ NST_FUNC_SIGN(get_flags_)
     flags[2] = NST_IOF_IS_BIN(f)    ? 'b' : '-';
     flags[3] = 0;
 
-    return nst_new_string(flags,  3, true);
+    return nst_string_new(flags,  3, true);
 }
 
 NST_FUNC_SIGN(_set_stdin_)

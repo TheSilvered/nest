@@ -29,10 +29,10 @@ typedef struct _Nst_ExecutionState
     Nst_ValueStack *v_stack; // Value stack
     Nst_CallStack  *f_stack; // Call stack
     Nst_CatchStack *c_stack; // Catch stack
-    LList *loaded_libs; // C imports list
-    LList *lib_paths; // Import stack
+    Nst_LList *loaded_libs; // C imports list
+    Nst_LList *lib_paths; // Import stack
     Nst_MapObj *lib_handles; // Maps of the libraries
-    LList *lib_srcs;
+    Nst_LList *lib_srcs;
 }
 Nst_ExecutionState;
 
@@ -61,7 +61,7 @@ Nst_Obj *nst_run_func_context(Nst_FuncObj *func,
 size_t nst_get_full_path(char *file_path, char **buf, char **file_part);
 
 // Frees all the variables inside nst_state
-void nst_free_state();
+void nst_state_free();
 
 // The state of the interpreter
 extern Nst_ExecutionState nst_state;

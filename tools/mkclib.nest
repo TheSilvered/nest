@@ -478,7 +478,7 @@ static bool lib_init_ = false;
 
 bool lib_init()
 {
-    if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
+    if ( (func_list_ = nst_func_list_new(FUNC_COUNT)) == nullptr )
     {
         return false;
     }
@@ -505,7 +505,7 @@ NST_FUNC_SIGN(add)
 {
     Nst_Int a, b;
     NST_DEF_EXTRACT(\"ii\", &a, &b);
-    return nst_new_int(a + b);
+    return nst_int_new(a + b);
 }
 " >< = name_cpp_content
 

@@ -92,7 +92,7 @@ static inline void call_objs_destructor(Nst_GGCList *gen)
 {
     for ( Nst_GGCObj *ob = gen->head; ob != NULL; ob = ob->ggc_next )
     {
-        nst_destroy_obj(ob);
+        nst_obj_destroy(ob);
     }
 }
 
@@ -111,7 +111,7 @@ static inline void set_unreachable(Nst_GGCList *gen)
 {
     for ( Nst_GGCObj *ob = gen->head; ob != NULL; ob = ob->ggc_next )
     {
-        NST_SET_FLAG(ob, NST_FLAG_GGC_UNREACHABLE);
+        NST_FLAG_SET(ob, NST_FLAG_GGC_UNREACHABLE);
     }
 }
 
@@ -123,10 +123,10 @@ static inline void traverse_gen(Nst_GGCList *gen)
     }
 }
 
-void nst_collect_gen(Nst_GGCList *gen,
-                     Nst_GGCList *other_gen1,
-                     Nst_GGCList *other_gen2,
-                     Nst_GGCList *other_gen3)
+void nst_ggc_collect_gen(Nst_GGCList *gen,
+                         Nst_GGCList *other_gen1,
+                         Nst_GGCList *other_gen2,
+                         Nst_GGCList *other_gen3)
 {
     // Unreachable values
     Nst_GGCList uv = {
@@ -140,22 +140,22 @@ void nst_collect_gen(Nst_GGCList *gen,
 
     for ( ob = gen->head; ob != NULL; ob = ob->ggc_next )
     {
-        NST_UNSET_FLAG(ob, NST_FLAG_GGC_REACHABLE
+        NST_FLAG_DEL(ob, NST_FLAG_GGC_REACHABLE
                          | NST_FLAG_GGC_UNREACHABLE
                          | NST_FLAG_GGC_DELETED );
     }
 
     // All objects in the variable tables are reachable
-    NST_SET_FLAG((*nst_state.vt)->vars, NST_FLAG_GGC_REACHABLE);
-    nst_traverse_map((*nst_state.vt)->vars);
+    NST_FLAG_SET((*nst_state.vt)->vars, NST_FLAG_GGC_REACHABLE);
+    _nst_map_traverse((*nst_state.vt)->vars);
     for ( size_t i = 0, n = nst_state.f_stack->current_size; i < n; i++ )
     {
         Nst_VarTable *vt = nst_state.f_stack->stack[i].vt;
         if ( vt != NULL )
         {
-            nst_traverse_map(vt->vars);
-            NST_UNSET_FLAG(vt->vars, NST_FLAG_GGC_UNREACHABLE);
-            NST_SET_FLAG(vt->vars, NST_FLAG_GGC_REACHABLE);
+            _nst_map_traverse(vt->vars);
+            NST_FLAG_DEL(vt->vars, NST_FLAG_GGC_UNREACHABLE);
+            NST_FLAG_SET(vt->vars, NST_FLAG_GGC_REACHABLE);
         }
     }
 
@@ -165,24 +165,24 @@ void nst_collect_gen(Nst_GGCList *gen,
     traverse_gen(other_gen3);
 
     // The argv array is reachable too
-    NST_UNSET_FLAG(nst_state.argv, NST_FLAG_GGC_UNREACHABLE);
-    NST_SET_FLAG(nst_state.argv, NST_FLAG_GGC_REACHABLE);
-    nst_traverse_seq(nst_state.argv);
+    NST_FLAG_DEL(nst_state.argv, NST_FLAG_GGC_UNREACHABLE);
+    NST_FLAG_SET(nst_state.argv, NST_FLAG_GGC_REACHABLE);
+    nst_seq_traverse(nst_state.argv);
 
     // And the same goes for the lib handles
-    NST_UNSET_FLAG(nst_state.lib_handles, NST_FLAG_GGC_UNREACHABLE);
-    NST_SET_FLAG(nst_state.lib_handles, NST_FLAG_GGC_REACHABLE);
-    nst_traverse_map(nst_state.lib_handles);
+    NST_FLAG_DEL(nst_state.lib_handles, NST_FLAG_GGC_UNREACHABLE);
+    NST_FLAG_SET(nst_state.lib_handles, NST_FLAG_GGC_REACHABLE);
+    _nst_map_traverse(nst_state.lib_handles);
 
     // Move unreachable objects to `unreachable_values`
     for ( ob = gen->head; ob != NULL; )
     {
-        if ( NST_HAS_FLAG(ob, NST_FLAG_GGC_REACHABLE) )
+        if ( NST_FLAG_HAS(ob, NST_FLAG_GGC_REACHABLE) )
         {
             ob = ob->ggc_next;
             continue;
         }
-        NST_SET_FLAG(ob, NST_FLAG_GGC_UNREACHABLE);
+        NST_FLAG_SET(ob, NST_FLAG_GGC_UNREACHABLE);
         new_ob = ob->ggc_next;
         move_obj(ob, gen, &uv);
         ob = new_ob;
@@ -214,9 +214,9 @@ void nst_collect_gen(Nst_GGCList *gen,
         // Move objects reached back into the reachable objects to be traversed
         for ( ob = uv.head; ob != NULL; )
         {
-            if ( NST_HAS_FLAG(ob, NST_FLAG_GGC_REACHABLE) )
+            if ( NST_FLAG_HAS(ob, NST_FLAG_GGC_REACHABLE) )
             {
-                NST_UNSET_FLAG(ob, NST_FLAG_GGC_UNREACHABLE);
+                NST_FLAG_DEL(ob, NST_FLAG_GGC_UNREACHABLE);
             }
             else
             {
@@ -245,7 +245,7 @@ void nst_collect_gen(Nst_GGCList *gen,
     free_obj_memory(&uv);
 }
 
-void nst_delete_objects(Nst_GarbageCollector *ggc)
+void nst_ggc_delete_objs(Nst_GarbageCollector *ggc)
 {
     set_unreachable(&ggc->gen1);
     set_unreachable(&ggc->gen2);
@@ -263,7 +263,7 @@ void nst_delete_objects(Nst_GarbageCollector *ggc)
     free_obj_memory(&ggc->old_gen);
 }
 
-void nst_collect()
+void nst_ggc_collect()
 {
     Nst_GarbageCollector *ggc = nst_state.ggc;
     size_t old_gen_size = ggc->old_gen.size;
@@ -272,7 +272,7 @@ void nst_collect()
     if ( old_gen_size > NST_OLD_GEN_MIN &&
          ggc->old_gen_pending >= (Nst_Int)old_gen_size >> 2 )
     {
-        nst_collect_gen(&ggc->old_gen, &ggc->gen1, &ggc->gen2, &ggc->gen3);
+        nst_ggc_collect_gen(&ggc->old_gen, &ggc->gen1, &ggc->gen2, &ggc->gen3);
         ggc->old_gen_pending = 0;
     }
 
@@ -282,7 +282,7 @@ void nst_collect()
     // Collect the generations if they are over their maximum value
     if ( ggc->gen1.size > NST_GEN1_MAX )
     {
-        nst_collect_gen(&ggc->gen1, &ggc->gen2, &ggc->gen3, &ggc->old_gen);
+        nst_ggc_collect_gen(&ggc->gen1, &ggc->gen2, &ggc->gen3, &ggc->old_gen);
         has_collected_gen1 = true;
     }
 
@@ -290,7 +290,7 @@ void nst_collect()
          (has_collected_gen1 &&
           ggc->gen1.size + ggc->gen2.size > NST_GEN2_MAX) )
     {
-        nst_collect_gen(&ggc->gen2, &ggc->gen1, &ggc->gen3, &ggc->old_gen);
+        nst_ggc_collect_gen(&ggc->gen2, &ggc->gen1, &ggc->gen3, &ggc->old_gen);
         has_collected_gen2 = true;
     }
 
@@ -298,7 +298,7 @@ void nst_collect()
          (has_collected_gen2 &&
           ggc->gen2.size + ggc->gen3.size > NST_GEN3_MAX) )
     {
-        nst_collect_gen(&ggc->gen3, &ggc->gen1, &ggc->gen2, &ggc->old_gen);
+        nst_ggc_collect_gen(&ggc->gen3, &ggc->gen1, &ggc->gen2, &ggc->old_gen);
         ggc->old_gen_pending += ggc->gen3.size;
         move_list(&ggc->gen3, &ggc->old_gen);
     }
@@ -337,7 +337,7 @@ void nst_collect()
     }
 }
 
-void nst_add_tracked_object(Nst_GGCObj *obj)
+void nst_ggc_track_obj(Nst_GGCObj *obj)
 {
     Nst_GarbageCollector *ggc = nst_state.ggc;
 
@@ -365,7 +365,7 @@ void nst_add_tracked_object(Nst_GGCObj *obj)
 
         if ( ggc->gen1.size > NST_GEN1_MAX )
         {
-            nst_collect();
+            nst_ggc_collect();
         }
     }
 }

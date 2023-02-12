@@ -15,7 +15,7 @@
 
 // To add after NST_OBJ_HEAD and before any arguments, adds support for the GGC
 // to the object
-#define NST_GGC_SUPPORT \
+#define NST_GGC_HEAD \
     struct _Nst_GGCObj *ggc_next; \
     struct _Nst_GGCObj *ggc_prev; \
     struct _Nst_GGCList *ggc_list; \
@@ -23,14 +23,14 @@
     void (* track_func)(Nst_Obj *)
 
 // To use when creating a new object that supports the GGC
-#define NST_GGC_SUPPORT_INIT(obj, trav_func, track_function) \
+#define NST_GGC_OBJ_INIT(obj, trav_func, track_function) \
     do { \
         obj->ggc_prev = NULL; \
         obj->ggc_next = NULL; \
         obj->ggc_list = NULL; \
         obj->traverse_func = (void (*)(Nst_Obj *))(trav_func); \
         obj->track_func = (void (*)(Nst_Obj *))(track_function); \
-        NST_SET_FLAG(obj, NST_FLAG_GGC_IS_SUPPORTED); \
+        NST_FLAG_SET(obj, NST_FLAG_GGC_IS_SUPPORTED); \
     } while (0)
 
 #ifdef __cplusplus
@@ -42,7 +42,7 @@ struct _Nst_GGCList;
 typedef struct _Nst_GGCObj
 {
     NST_OBJ_HEAD;
-    NST_GGC_SUPPORT;
+    NST_GGC_HEAD;
 }
 Nst_GGCObj;
 
@@ -65,25 +65,26 @@ typedef struct _Nst_GarbageCollector
 Nst_GarbageCollector;
 
 // Collects the object of a generation
-void nst_collect_gen(Nst_GGCList *gen,
-                     Nst_GGCList *other_gen1,
-                     Nst_GGCList *other_gen2,
-                     Nst_GGCList *other_gen3);
+void nst_ggc_collect_gen(Nst_GGCList *gen,
+                         Nst_GGCList *other_gen1,
+                         Nst_GGCList *other_gen2,
+                         Nst_GGCList *other_gen3);
 // Runs a collection, does not guaratee to collect all generations
-void nst_collect(void);
+void nst_ggc_collect(void);
 // Adds an object to the tracked objects by the garbage collector
-void nst_add_tracked_object(Nst_GGCObj *obj);
+void nst_ggc_track_obj(Nst_GGCObj *obj);
 // Deletes the objects still present in the GGC at program end
 // This function should never be called
-void nst_delete_objects(Nst_GarbageCollector *ggc);
+void nst_ggc_delete_objs(Nst_GarbageCollector *ggc);
 
-enum Nst_GGCFlags
+typedef enum _Nst_GGCFlag
 {
     NST_FLAG_GGC_REACHABLE    = 0b10000000,
     NST_FLAG_GGC_UNREACHABLE  = 0b01000000,
     NST_FLAG_GGC_DELETED      = 0b00100000,
     NST_FLAG_GGC_IS_SUPPORTED = 0b00010000
-};
+}
+Nst_GGCFlag;
 
 #ifdef __cplusplus
 }

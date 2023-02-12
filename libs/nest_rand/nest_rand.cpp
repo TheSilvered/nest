@@ -18,7 +18,7 @@ bool lib_init()
 {
     using namespace std::chrono;
 
-    if ( (func_list_ = nst_new_func_list(FUNC_COUNT)) == nullptr )
+    if ( (func_list_ = nst_func_list_new(FUNC_COUNT)) == nullptr )
     {
         return false;
     }
@@ -51,7 +51,7 @@ Nst_FuncDeclr *get_func_ptrs()
 
 NST_FUNC_SIGN(random_)
 {
-    return nst_new_int(rand_num());
+    return nst_int_new(rand_num());
 }
 
 NST_FUNC_SIGN(rand_int_)
@@ -67,12 +67,12 @@ NST_FUNC_SIGN(rand_int_)
         return nullptr;
     }
 
-    return nst_new_int(rand_range(min, max));
+    return nst_int_new(rand_range(min, max));
 }
 
 NST_FUNC_SIGN(rand_perc_)
 {
-    return nst_new_real(
+    return nst_real_new(
         (long double)uint64_t(rand_num()) / (long double)ULLONG_MAX);
 }
 
@@ -82,7 +82,7 @@ NST_FUNC_SIGN(choice_)
 
     NST_DEF_EXTRACT("S", &seq);
 
-    Nst_Obj *val = nst_get_value_seq(SEQ(seq), rand_num() % SEQ(seq)->len);
+    Nst_Obj *val = nst_seq_get(SEQ(seq), rand_num() % SEQ(seq)->len);
     nst_dec_ref(seq);
     return val;
 }

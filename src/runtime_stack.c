@@ -39,7 +39,7 @@ static void shrink_stack(GenericStack *g_stack,
     g_stack->stack = new_stack;
 }
 
-Nst_ValueStack *nst_new_val_stack()
+Nst_ValueStack *nst_vstack_new()
 {
     Nst_ValueStack *v_stack = (Nst_ValueStack *)malloc(sizeof(Nst_ValueStack));
     Nst_Obj **objs = (Nst_Obj **)malloc(V_STACK_MIN_SIZE * sizeof(Nst_Obj *));
@@ -55,7 +55,7 @@ Nst_ValueStack *nst_new_val_stack()
     return v_stack;
 }
 
-bool _nst_push_val(Nst_ValueStack *v_stack, Nst_Obj *obj)
+bool _nst_vstack_push(Nst_ValueStack *v_stack, Nst_Obj *obj)
 {
     size_t max_size = v_stack->max_size;
     if ( v_stack->current_size == max_size )
@@ -77,7 +77,7 @@ bool _nst_push_val(Nst_ValueStack *v_stack, Nst_Obj *obj)
     return true;
 }
 
-Nst_Obj *nst_pop_val(Nst_ValueStack *v_stack)
+Nst_Obj *nst_vstack_pop(Nst_ValueStack *v_stack)
 {
     if ( v_stack->current_size == 0 )
     {
@@ -90,7 +90,7 @@ Nst_Obj *nst_pop_val(Nst_ValueStack *v_stack)
     return val;
 }
 
-Nst_Obj *nst_peek_val(Nst_ValueStack *v_stack)
+Nst_Obj *nst_vstack_peek(Nst_ValueStack *v_stack)
 {
     if ( v_stack->current_size == 0 )
     {
@@ -100,16 +100,16 @@ Nst_Obj *nst_peek_val(Nst_ValueStack *v_stack)
     return v_stack->stack[v_stack->current_size - 1];
 }
 
-bool nst_dup_val(Nst_ValueStack *v_stack)
+bool nst_vstack_dup(Nst_ValueStack *v_stack)
 {
     if ( v_stack->current_size != 0 )
     {
-        return nst_push_val(v_stack, nst_peek_val(v_stack));
+        return nst_vstack_push(v_stack, nst_vstack_peek(v_stack));
     }
     return true;
 }
 
-void nst_destroy_v_stack(Nst_ValueStack *v_stack)
+void nst_vstack_destroy(Nst_ValueStack *v_stack)
 {
     for ( Nst_Int i = 0; i < (Nst_Int)v_stack->current_size; i++ )
     {
@@ -123,7 +123,7 @@ void nst_destroy_v_stack(Nst_ValueStack *v_stack)
     free(v_stack);
 }
 
-Nst_CallStack *nst_new_call_stack()
+Nst_CallStack *nst_fstack_new()
 {
     Nst_CallStack *f_stack = (Nst_CallStack *)malloc(sizeof(Nst_CallStack));
     Nst_FuncCall *calls = (Nst_FuncCall *)malloc(
@@ -140,12 +140,12 @@ Nst_CallStack *nst_new_call_stack()
     return f_stack;
 }
 
-bool _nst_push_func(Nst_CallStack *f_stack,
-                    Nst_FuncObj   *func,
-                    Nst_Pos        call_start,
-                    Nst_Pos        call_end,
-                    Nst_VarTable  *vt,
-                    Nst_Int        idx)
+bool _nst_fstack_push(Nst_CallStack *f_stack,
+                      Nst_FuncObj   *func,
+                      Nst_Pos        call_start,
+                      Nst_Pos        call_end,
+                      Nst_VarTable  *vt,
+                      Nst_Int        idx)
 {
     size_t max_size = f_stack->max_size;
 
@@ -176,7 +176,7 @@ bool _nst_push_func(Nst_CallStack *f_stack,
     return true;
 }
 
-Nst_FuncCall nst_pop_func(Nst_CallStack *f_stack)
+Nst_FuncCall nst_fstack_pop(Nst_CallStack *f_stack)
 {
     Nst_FuncCall call = {
         NULL,
@@ -197,7 +197,7 @@ Nst_FuncCall nst_pop_func(Nst_CallStack *f_stack)
     return call;
 }
 
-Nst_FuncCall nst_peek_func(Nst_CallStack *f_stack)
+Nst_FuncCall nst_fstack_peek(Nst_CallStack *f_stack)
 {
     if ( f_stack->current_size == 0 )
     {
@@ -214,7 +214,7 @@ Nst_FuncCall nst_peek_func(Nst_CallStack *f_stack)
     return f_stack->stack[f_stack->current_size - 1];
 }
 
-void nst_destroy_f_stack(Nst_CallStack *f_stack)
+void nst_fstack_destroy(Nst_CallStack *f_stack)
 {
     for ( Nst_Int i = 0; i < (Nst_Int)f_stack->current_size; i++ )
     {
@@ -234,7 +234,7 @@ void nst_destroy_f_stack(Nst_CallStack *f_stack)
     free(f_stack);
 }
 
-Nst_CatchStack *nst_new_catch_stack()
+Nst_CatchStack *nst_cstack_new()
 {
     Nst_CatchStack *c_stack = (Nst_CatchStack *)malloc(sizeof(Nst_CatchStack));
     Nst_CatchFrame *frames = (Nst_CatchFrame *)malloc(
@@ -251,7 +251,7 @@ Nst_CatchStack *nst_new_catch_stack()
     return c_stack;
 }
 
-bool nst_push_catch(Nst_CatchStack *c_stack,
+bool nst_cstack_push(Nst_CatchStack *c_stack,
                     Nst_Int         inst_idx,
                     size_t          v_stack_size,
                     size_t          f_stack_size)
@@ -278,7 +278,7 @@ bool nst_push_catch(Nst_CatchStack *c_stack,
     return true;
 }
 
-Nst_CatchFrame nst_peek_catch(Nst_CatchStack *c_stack)
+Nst_CatchFrame nst_cstack_peek(Nst_CatchStack *c_stack)
 {
     if ( c_stack->current_size == 0 )
     {
@@ -289,7 +289,7 @@ Nst_CatchFrame nst_peek_catch(Nst_CatchStack *c_stack)
     return c_stack->stack[c_stack->current_size - 1];
 }
 
-Nst_CatchFrame nst_pop_catch(Nst_CatchStack *c_stack)
+Nst_CatchFrame nst_cstack_pop(Nst_CatchStack *c_stack)
 {
     Nst_CatchFrame frame = { 0, 0, -1 };
     if ( c_stack->current_size == 0 )
@@ -305,7 +305,7 @@ Nst_CatchFrame nst_pop_catch(Nst_CatchStack *c_stack)
     return frame;
 }
 
-void nst_destroy_c_stack(Nst_CatchStack *c_stack)
+void nst_cstack_destroy(Nst_CatchStack *c_stack)
 {
     free(c_stack->stack);
     free(c_stack);

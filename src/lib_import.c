@@ -8,13 +8,13 @@
 #include "global_consts.h"
 
 #define SET_TYPE_ERROR(type) { \
-    NST_SET_TYPE_ERROR(_nst_format_error( \
+    NST_SET_TYPE_ERROR(nst_format_error( \
         _NST_EM_WRONG_TYPE_FOR_ARG(type), \
         "us", \
         idx + 1, TYPE_NAME(ob))); \
     return false; }
 
-Nst_FuncDeclr *nst_new_func_list(size_t count)
+Nst_FuncDeclr *nst_func_list_new(size_t count)
 {
     return (Nst_FuncDeclr *)calloc(count + 1, sizeof(Nst_FuncDeclr));
 }
@@ -133,7 +133,7 @@ static bool extract_builtin_type(const char type,
         {
             SET_TYPE_ERROR("Null");
         }
-        *(Nst_NullObj **)arg = nst_c.null;
+        *(Nst_NullObj **)arg = nst_c.Null_null;
         break;
     case 's':
         if ( ob->type != nst_t.Str )
@@ -324,7 +324,7 @@ bool nst_extract_arg_values(const char *types,
             i++;
             if ( ob->type == nst_t.Null )
             {
-                *(void**)arg = nst_c.null;
+                *(void**)arg = nst_c.Null_null;
             }
             else
             {
@@ -347,7 +347,7 @@ bool nst_extract_arg_values(const char *types,
             }
             else
             {
-                NST_SET_TYPE_ERROR(_nst_format_error(
+                NST_SET_TYPE_ERROR(nst_format_error(
                     _NST_EM_WRONG_TYPE_FOR_ARG2,
                     "sus",
                     custom_type->value, arg_idx + 1, TYPE_NAME(ob)));

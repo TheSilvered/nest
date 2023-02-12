@@ -21,7 +21,7 @@ EXPORT void free_lib();
 typedef struct _CoroutineObj
 {
     NST_OBJ_HEAD;
-    NST_GGC_SUPPORT;
+    NST_GGC_HEAD;
     Nst_FuncObj *func;
     Nst_MapObj *vars;
     Nst_MapObj *globals;

@@ -12,24 +12,30 @@
 #define VECTOR_GROWTH_RATIO 1.8f
 #define SEQ(ptr)  ((Nst_SeqObj *)(ptr))
 
-// Resizes the vector if it is full, callled automatically with
-// nst_append_value_vector, nst_rem_value_vector and nst_pop_value_vector
-#define nst_resize_vector(vect) _nst_resize_vector(SEQ(vect))
-// Appends a value to the end of a vector
-#define nst_append_value_vector(vect, val) \
-    _nst_append_value_vector(SEQ(vect), OBJ(val))
 // Sets a value at index `idx` of `seq`, this cannot be called if there
 // is no valid object at `idx`
-#define nst_set_value_seq(seq, idx, val) \
-    _nst_set_value_seq(SEQ(seq), idx, OBJ(val))
-// Removes the firs occurence of `val` in `vect`
-#define nst_rem_value_vector(vect, val) \
-    _nst_rem_value_vector(SEQ(vect), OBJ(val))
-// Pops `quantity` values from the end of `vect` and returns the last one popped
-#define nst_pop_value_vector(vect, quantity) \
-    _nst_pop_value_vector(SEQ(vect), quantity)
+#define nst_seq_set(seq, idx, val) \
+    _nst_seq_set(SEQ(seq), idx, OBJ(val))
 // Returns the value at index `idx` of `seq` increasing the reference count
-#define nst_get_value_seq(seq, idx) _nst_get_value_seq(SEQ(seq), idx)
+#define nst_seq_get(seq, idx) _nst_seq_get(SEQ(seq), idx)
+
+#define nst_vector_set nst_seq_set
+#define nst_vector_get nst_seq_get
+#define nst_array_set nst_seq_set
+#define nst_array_get nst_seq_get
+
+// Resizes the vector if it is full, callled automatically with
+// nst_append_value_vector, nst_rem_value_vector and nst_pop_value_vector
+#define nst_vector_resize(vect) _nst_vector_resize(SEQ(vect))
+// Appends a value to the end of a vector
+#define nst_vector_append(vect, val) \
+    _nst_vector_append(SEQ(vect), OBJ(val))
+// Removes the firs occurence of `val` in `vect`
+#define nst_vector_remove(vect, val) \
+    _nst_vector_remove(SEQ(vect), OBJ(val))
+// Pops `quantity` values from the end of `vect` and returns the last one popped
+#define nst_vector_pop(vect, quantity) \
+    _nst_vector_pop(SEQ(vect), quantity)
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,7 +44,7 @@ extern "C" {
 typedef struct _Nst_SeqObj
 {
     NST_OBJ_HEAD;
-    NST_GGC_SUPPORT;
+    NST_GGC_HEAD;
     Nst_Obj **objs;
     size_t len;
     size_t size;
@@ -49,18 +55,20 @@ typedef Nst_SeqObj Nst_ArrayObj;
 typedef Nst_SeqObj Nst_VectorObj;
 
 // Creates a new array of length `len`, the objects must be set manually inside
-Nst_Obj *nst_new_array(size_t len);
+Nst_Obj *nst_array_new(size_t len);
 // Creates a new vector of lenght `len`, the objects must be set manually inside
-Nst_Obj *nst_new_vector(size_t len);
-void nst_destroy_seq(Nst_SeqObj *seq);
-void nst_traverse_seq(Nst_SeqObj *seq);
-void nst_track_seq(Nst_SeqObj *seq);
-void _nst_resize_vector(Nst_SeqObj *vect);
-void _nst_append_value_vector(Nst_SeqObj *vect, Nst_Obj *val);
-bool _nst_set_value_seq(Nst_SeqObj *seq, int64_t idx, Nst_Obj *val);
-Nst_Obj *_nst_rem_value_vector(Nst_SeqObj *vect, Nst_Obj *val);
-Nst_Obj *_nst_pop_value_vector(Nst_SeqObj *vect, size_t quantity);
-Nst_Obj *_nst_get_value_seq(Nst_SeqObj *seq, int64_t idx);
+Nst_Obj *nst_vector_new(size_t len);
+void nst_seq_destroy(Nst_SeqObj *seq);
+void nst_seq_traverse(Nst_SeqObj *seq);
+void nst_seq_track(Nst_SeqObj *seq);
+
+bool _nst_seq_set(Nst_SeqObj *seq, int64_t idx, Nst_Obj *val);
+Nst_Obj *_nst_seq_get(Nst_SeqObj *seq, int64_t idx);
+
+void _nst_vector_resize(Nst_SeqObj *vect);
+void _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val);
+Nst_Obj *_nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val);
+Nst_Obj *_nst_vector_pop(Nst_SeqObj *vect, size_t quantity);
 
 #ifdef __cplusplus
 }

@@ -68,17 +68,17 @@ static LexerCursor cursor;
 
 static inline void advance();
 static inline void go_back();
-static void make_symbol(Nst_LexerToken **tok, Nst_Error *error);
-static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error);
-static void make_ident(Nst_LexerToken **tok, Nst_Error *error);
-static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error);
+static void make_symbol(Nst_Tok **tok, Nst_Error *error);
+static void make_num_literal(Nst_Tok **tok, Nst_Error *error);
+static void make_ident(Nst_Tok **tok, Nst_Error *error);
+static void make_str_literal(Nst_Tok **tok, Nst_Error *error);
 static void parse_first_line(char  *text,
                              size_t len,
                              int   *opt_level,
                              bool  *force_cp1252,
                              bool  *no_default);
 
-LList *nst_ftokenize(char           *filename,
+Nst_LList *nst_tokenizef(char           *filename,
                      bool            force_cp1252,
                      int            *opt_level,
                      bool           *no_default,
@@ -129,10 +129,10 @@ LList *nst_ftokenize(char           *filename,
     return nst_tokenize(src_text, error);
 }
 
-LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
+Nst_LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
 {
-    Nst_LexerToken *tok = NULL;
-    LList *tokens = LList_new();
+    Nst_Tok *tok = NULL;
+    Nst_LList *tokens = nst_llist_new();
 
     cursor.idx = -1;
     cursor.ch = ' ';
@@ -169,7 +169,7 @@ LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
         }
         else if ( cursor.ch == '\n' )
         {
-            tok = nst_new_token_noend(nst_copy_pos(cursor.pos), NST_TT_ENDL);
+            tok = nst_tok_new_noend(nst_copy_pos(cursor.pos), NST_TT_ENDL);
         }
         else if ( cursor.ch == '\\' )
         {
@@ -188,21 +188,21 @@ LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
         {
             if ( tok != NULL )
             {
-                nst_destroy_token(tok);
+                nst_token_destroy(tok);
             }
-            LList_destroy(tokens, (LList_item_destructor)nst_destroy_token);
+            nst_llist_destroy(tokens, (nst_llist_destructor)nst_token_destroy);
             return NULL;
         }
 
         if ( tok != NULL )
         {
-            LList_append(tokens, tok, true);
+            nst_llist_append(tokens, tok, true);
         }
         tok = NULL;
         advance();
     }
 
-    LList_append(tokens, nst_new_token_noend(cursor.pos, NST_TT_EOFILE), true);
+    nst_llist_append(tokens, nst_tok_new_noend(cursor.pos, NST_TT_EOFILE), true);
     return tokens;
 }
 
@@ -243,7 +243,7 @@ inline static void go_back()
     }
 }
 
-static void make_symbol(Nst_LexerToken **tok, Nst_Error *error)
+static void make_symbol(Nst_Tok **tok, Nst_Error *error)
 {
     Nst_Pos start = nst_copy_pos(cursor.pos);
     char symbol[4] = { cursor.ch, 0, 0, 0 };
@@ -340,7 +340,7 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error *error)
         go_back();
     }
 
-    int token_type = nst_str_to_tok(symbol);
+    Nst_TokType token_type = nst_tok_from_str(symbol);
 
     while ( token_type == -1 )
     {
@@ -355,13 +355,13 @@ static void make_symbol(Nst_LexerToken **tok, Nst_Error *error)
             symbol[1] = '\0';
         }
 
-        token_type = nst_str_to_tok(symbol);
+        token_type = nst_tok_from_str(symbol);
     }
 
-    *tok = nst_new_token_noval(start, nst_copy_pos(cursor.pos), token_type);
+    *tok = nst_tok_new_noval(start, nst_copy_pos(cursor.pos), token_type);
 }
 
-static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
+static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
 {
     char *start_p = cursor.text + cursor.idx;
     Nst_Pos start = nst_copy_pos(cursor.pos);
@@ -402,11 +402,11 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
         if ( !CH_IS_BIN(cursor.ch) )
         {
             go_back();
-            *tok = nst_new_token_value(
+            *tok = nst_tok_new_value(
                 start,
                 cursor.pos,
                 NST_TT_VALUE,
-                nst_new_byte(0));
+                nst_byte_new(0));
             return;
         }
         ltrl_size += 2;
@@ -546,11 +546,11 @@ static void make_num_literal(Nst_LexerToken **tok, Nst_Error *error)
         {
             val = -val;
         }
-        *tok = nst_new_token_value(
+        *tok = nst_tok_new_value(
             start,
             cursor.pos,
             NST_TT_VALUE,
-            nst_new_byte(val & 0xff));
+            nst_byte_new(val & 0xff));
         return;
     }
     default:
@@ -634,11 +634,11 @@ end:
 
     if ( is_real )
     {
-        res = nst_parse_real(&s, &err);
+        res = nst_string_parse_real(&s, &err);
     }
     else
     {
-        res = nst_parse_int(&s, 0, &err);
+        res = nst_string_parse_int(&s, 0, &err);
 
         advance();
         if ( cursor.ch == 'b' || cursor.ch == 'B' )
@@ -650,12 +650,12 @@ end:
                 ltrl[ltrl_size + 1] = 'b';
                 ltrl[ltrl_size + 2] = '\0';
                 s.len++;
-                res = nst_parse_byte(&s, &err);
+                res = nst_string_parse_byte(&s, &err);
             }
             else
             {
                 CHECK_ERR;
-                Nst_Obj *new_res = nst_new_byte(AS_INT(res) & 0xff);
+                Nst_Obj *new_res = nst_byte_new(AS_INT(res) & 0xff);
                 nst_dec_ref(res);
                 res = new_res;
             }
@@ -668,10 +668,10 @@ end:
     }
 
     CHECK_ERR;
-    *tok = nst_new_token_value(start, end, NST_TT_VALUE, res);
+    *tok = nst_tok_new_value(start, end, NST_TT_VALUE, res);
 }
 
-static void make_ident(Nst_LexerToken **tok, Nst_Error *error)
+static void make_ident(Nst_Tok **tok, Nst_Error *error)
 {
     Nst_Pos start = nst_copy_pos(cursor.pos);
 
@@ -699,13 +699,13 @@ static void make_ident(Nst_LexerToken **tok, Nst_Error *error)
     str[str_len] = '\0';
 
     Nst_Pos end = nst_copy_pos(cursor.pos);
-    Nst_StrObj *val_obj = STR(nst_new_cstring_raw(str, true));
-    nst_hash_obj(OBJ(val_obj));
+    Nst_StrObj *val_obj = STR(nst_string_new_c_raw(str, true));
+    nst_obj_hash(OBJ(val_obj));
 
-    *tok = nst_new_token_value(start, end, NST_TT_IDENT, OBJ(val_obj));
+    *tok = nst_tok_new_value(start, end, NST_TT_IDENT, OBJ(val_obj));
 }
 
-static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
+static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
 {
     Nst_Pos start = nst_copy_pos(cursor.pos);
     Nst_Pos escape_start = nst_copy_pos(cursor.pos);
@@ -921,10 +921,10 @@ static void make_str_literal(Nst_LexerToken **tok, Nst_Error *error)
 
     end_str[str_len] = '\0';
 
-    Nst_StrObj *val_obj = STR(nst_new_string(end_str, str_len, true));
-    nst_hash_obj(OBJ(val_obj));
+    Nst_StrObj *val_obj = STR(nst_string_new(end_str, str_len, true));
+    nst_obj_hash(OBJ(val_obj));
 
-    *tok = nst_new_token_value(start, cursor.pos, NST_TT_VALUE, OBJ(val_obj));
+    *tok = nst_tok_new_value(start, cursor.pos, NST_TT_VALUE, OBJ(val_obj));
 }
 
 void nst_add_lines(Nst_SourceText* text)

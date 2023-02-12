@@ -18,7 +18,7 @@
         (error)->start = e_start; \
         (error)->end = e_end; \
         (error)->name = STR(nst_inc_ref(e_name)); \
-        (error)->message = STR(nst_new_cstring_raw((const char *)(msg), false)); \
+        (error)->message = STR(nst_string_new_c_raw((const char *)(msg), false)); \
     } while ( 0 )
 
 #define _NST_SET_SYNTAX_ERROR(error, e_start, e_end, msg) \

@@ -11,14 +11,14 @@ extern "C" {
 #endif // !__cplusplus
 
 // Returns an LList of tokens given the path to a file
-LList *nst_ftokenize(char           *filename,
+Nst_LList *nst_tokenizef(char           *filename,
                      bool            force_cp1252,
                      int            *opt_level,
                      bool           *no_default,
                      Nst_SourceText *src_text,
                      Nst_Error      *error);
 // Returns an LList of tokens given the text, it's length and a filename
-LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error);
+Nst_LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error);
 
 void nst_add_lines(Nst_SourceText *text);
 void nst_normalize_encoding(Nst_SourceText *text,
