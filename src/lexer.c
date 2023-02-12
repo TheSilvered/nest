@@ -9,6 +9,7 @@
 #include "nst_types.h"
 #include "tokens.h"
 #include "interpreter.h"
+#include "encoding.h"
 
 #define START_CH_SIZE 8 * sizeof(char)
 
@@ -161,8 +162,10 @@ Nst_LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
         {
             make_symbol(&tok, error);
         }
-        else if ( CH_IS_ALPHA(cursor.ch))
+        else if ( CH_IS_ALPHA(cursor.ch) || cursor.ch >= 0b10000000 )
+        {
             make_ident(&tok, error);
+        }
         else if ( cursor.ch == '"' || cursor.ch == '\'' )
         {
             make_str_literal(&tok, error);
@@ -680,11 +683,19 @@ static void make_ident(Nst_Tok **tok, Nst_Error *error)
     size_t str_len = 1;
     advance();
 
-    while ( cursor.idx < (long) cursor.len &&
-            (CH_IS_ALPHA(cursor.ch) || CH_IS_DEC(cursor.ch)) )
+    while ( cursor.idx < (long)cursor.len &&
+            (CH_IS_ALPHA(cursor.ch) ||
+             CH_IS_DEC(cursor.ch)   ||
+             (unsigned char)cursor.ch >= 0b10000000) )
     {
-        str_len++;
-        advance();
+        int res = nst_check_utf8_bytes(
+            (unsigned char *)cursor.text + cursor.idx,
+            (size_t)(cursor.text - cursor.idx));
+        str_len += res;
+        for ( int i = 0; i < res; i++ )
+        {
+            advance();
+        }
     }
     go_back();
 
@@ -847,12 +858,16 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
                 end_str[str_len++] = 0b10000000 | (char)(num >> 6 & 0x3f);
                 end_str[str_len++] = 0b10000000 | (char)(num & 0x3f);
             }
-            else
+            else if ( num <= 0x10ffff )
             {
                 end_str[str_len++] = 0b11110000 | (char)(num >> 18);
                 end_str[str_len++] = 0b10000000 | (char)(num >> 12 & 0x3f);
                 end_str[str_len++] = 0b10000000 | (char)(num >> 6 & 0x3f);
                 end_str[str_len++] = 0b10000000 | (char)(num & 0x3f);
+            }
+            else
+            {
+                SET_INVALID_ESCAPE_ERROR;
             }
             break;
         }
@@ -1093,205 +1108,6 @@ fix_encoding:
     text->len = utf8_ptr - new_text;
     free(text->text);
     text->text = new_text;
-}
-
-int nst_check_utf8_bytes(unsigned char *byte, size_t len)
-{
-    int n = 0;
-
-    if ( *byte <= 0b01111111 )
-    {
-        return 1;
-    }
-    else if ( *byte >= 0b11110000 && *byte <= 0b11110111 )
-    {
-        if ( len < 4 )
-        {
-            return -1;
-        }
-        n = 3;
-    }
-    else if ( *byte >= 0b11100000 && *byte <= 0b11101111 )
-    {
-        if ( len < 3 )
-        {
-            return -1;
-        }
-        n = 2;
-    }
-    else if ( *byte >= 0b11000000 && *byte <= 0b11011111 )
-    {
-        if ( len < 2 )
-        {
-            return -1;
-        }
-        n = 1;
-    }
-    else
-    {
-        return -1;
-    }
-
-    for ( int i = 0; i < n; i++ )
-    {
-        if ( *(++byte) < 0b10000000 || *byte > 0b10111111 )
-        {
-            return -1;
-        }
-    }
-    return n + 1;
-}
-
-int nst_cp1252_to_utf8(char *str, char byte)
-{
-    if ( (unsigned char)byte <= 0x7f )
-    {
-        *str = byte;
-        return 1;
-    }
-
-    unsigned char b1, b2, b3;
-    switch ( (unsigned char)byte )
-    {
-    case 0x80: b1 = 0xe2; b2 = 0x82; b3 = 0xac; break;
-    case 0x81: return -1;
-    case 0x82: b1 = 0xe2; b2 = 0x80; b3 = 0x9a; break;
-    case 0x83: b1 = 0xc6; b2 = 0x92; b3 = 0x00; break;
-    case 0x84: b1 = 0xe2; b2 = 0x80; b3 = 0x9e; break;
-    case 0x85: b1 = 0xe2; b2 = 0x80; b3 = 0xa6; break;
-    case 0x86: b1 = 0xe2; b2 = 0x80; b3 = 0xa0; break;
-    case 0x87: b1 = 0xe2; b2 = 0x80; b3 = 0xa1; break;
-    case 0x88: b1 = 0xcb; b2 = 0x86; b3 = 0x00; break;
-    case 0x89: b1 = 0xe2; b2 = 0x80; b3 = 0xb0; break;
-    case 0x8a: b1 = 0xc5; b2 = 0xa0; b3 = 0x00; break;
-    case 0x8b: b1 = 0xe2; b2 = 0x80; b3 = 0xb9; break;
-    case 0x8c: b1 = 0xc5; b2 = 0x92; b3 = 0x00; break;
-    case 0x8d: return -1;
-    case 0x8e: b1 = 0xc5; b2 = 0xbd; b3 = 0x00; break;
-    case 0x8f: return -1;
-    case 0x90: return -1;
-    case 0x91: b1 = 0xe2; b2 = 0x80; b3 = 0x98; break;
-    case 0x92: b1 = 0xe2; b2 = 0x80; b3 = 0x99; break;
-    case 0x93: b1 = 0xe2; b2 = 0x80; b3 = 0x9c; break;
-    case 0x94: b1 = 0xe2; b2 = 0x80; b3 = 0x9d; break;
-    case 0x95: b1 = 0xe2; b2 = 0x80; b3 = 0xa2; break;
-    case 0x96: b1 = 0xe2; b2 = 0x80; b3 = 0x93; break;
-    case 0x97: b1 = 0xe2; b2 = 0x80; b3 = 0x94; break;
-    case 0x98: b1 = 0xcb; b2 = 0x9c; b3 = 0x00; break;
-    case 0x99: b1 = 0xe2; b2 = 0x84; b3 = 0xa2; break;
-    case 0x9a: b1 = 0xc5; b2 = 0xa1; b3 = 0x00; break;
-    case 0x9b: b1 = 0xe2; b2 = 0x80; b3 = 0xba; break;
-    case 0x9c: b1 = 0xc5; b2 = 0x93; b3 = 0x00; break;
-    case 0x9d: return -1;
-    case 0x9e: b1 = 0xc5; b2 = 0xbe; b3 = 0x00; break;
-    case 0x9f: b1 = 0xc5; b2 = 0xb8; b3 = 0x00; break;
-    case 0xa0: b1 = 0xc2; b2 = 0xa0; b3 = 0x00; break;
-    case 0xa1: b1 = 0xc2; b2 = 0xa1; b3 = 0x00; break;
-    case 0xa2: b1 = 0xc2; b2 = 0xa2; b3 = 0x00; break;
-    case 0xa3: b1 = 0xc2; b2 = 0xa3; b3 = 0x00; break;
-    case 0xa4: b1 = 0xc2; b2 = 0xa4; b3 = 0x00; break;
-    case 0xa5: b1 = 0xc2; b2 = 0xa5; b3 = 0x00; break;
-    case 0xa6: b1 = 0xc2; b2 = 0xa6; b3 = 0x00; break;
-    case 0xa7: b1 = 0xc2; b2 = 0xa7; b3 = 0x00; break;
-    case 0xa8: b1 = 0xc2; b2 = 0xa8; b3 = 0x00; break;
-    case 0xa9: b1 = 0xc2; b2 = 0xa9; b3 = 0x00; break;
-    case 0xaa: b1 = 0xc2; b2 = 0xaa; b3 = 0x00; break;
-    case 0xab: b1 = 0xc2; b2 = 0xab; b3 = 0x00; break;
-    case 0xac: b1 = 0xc2; b2 = 0xac; b3 = 0x00; break;
-    case 0xad: b1 = 0xc2; b2 = 0xad; b3 = 0x00; break;
-    case 0xae: b1 = 0xc2; b2 = 0xae; b3 = 0x00; break;
-    case 0xaf: b1 = 0xc2; b2 = 0xaf; b3 = 0x00; break;
-    case 0xb0: b1 = 0xc2; b2 = 0xb0; b3 = 0x00; break;
-    case 0xb1: b1 = 0xc2; b2 = 0xb1; b3 = 0x00; break;
-    case 0xb2: b1 = 0xc2; b2 = 0xb2; b3 = 0x00; break;
-    case 0xb3: b1 = 0xc2; b2 = 0xb3; b3 = 0x00; break;
-    case 0xb4: b1 = 0xc2; b2 = 0xb4; b3 = 0x00; break;
-    case 0xb5: b1 = 0xc2; b2 = 0xb5; b3 = 0x00; break;
-    case 0xb6: b1 = 0xc2; b2 = 0xb6; b3 = 0x00; break;
-    case 0xb7: b1 = 0xc2; b2 = 0xb7; b3 = 0x00; break;
-    case 0xb8: b1 = 0xc2; b2 = 0xb8; b3 = 0x00; break;
-    case 0xb9: b1 = 0xc2; b2 = 0xb9; b3 = 0x00; break;
-    case 0xba: b1 = 0xc2; b2 = 0xba; b3 = 0x00; break;
-    case 0xbb: b1 = 0xc2; b2 = 0xbb; b3 = 0x00; break;
-    case 0xbc: b1 = 0xc2; b2 = 0xbc; b3 = 0x00; break;
-    case 0xbd: b1 = 0xc2; b2 = 0xbd; b3 = 0x00; break;
-    case 0xbe: b1 = 0xc2; b2 = 0xbe; b3 = 0x00; break;
-    case 0xbf: b1 = 0xc2; b2 = 0xbf; b3 = 0x00; break;
-    case 0xc0: b1 = 0xc3; b2 = 0x80; b3 = 0x00; break;
-    case 0xc1: b1 = 0xc3; b2 = 0x81; b3 = 0x00; break;
-    case 0xc2: b1 = 0xc3; b2 = 0x82; b3 = 0x00; break;
-    case 0xc3: b1 = 0xc3; b2 = 0x83; b3 = 0x00; break;
-    case 0xc4: b1 = 0xc3; b2 = 0x84; b3 = 0x00; break;
-    case 0xc5: b1 = 0xc3; b2 = 0x85; b3 = 0x00; break;
-    case 0xc6: b1 = 0xc3; b2 = 0x86; b3 = 0x00; break;
-    case 0xc7: b1 = 0xc3; b2 = 0x87; b3 = 0x00; break;
-    case 0xc8: b1 = 0xc3; b2 = 0x88; b3 = 0x00; break;
-    case 0xc9: b1 = 0xc3; b2 = 0x89; b3 = 0x00; break;
-    case 0xca: b1 = 0xc3; b2 = 0x8a; b3 = 0x00; break;
-    case 0xcb: b1 = 0xc3; b2 = 0x8b; b3 = 0x00; break;
-    case 0xcc: b1 = 0xc3; b2 = 0x8c; b3 = 0x00; break;
-    case 0xcd: b1 = 0xc3; b2 = 0x8d; b3 = 0x00; break;
-    case 0xce: b1 = 0xc3; b2 = 0x8e; b3 = 0x00; break;
-    case 0xcf: b1 = 0xc3; b2 = 0x8f; b3 = 0x00; break;
-    case 0xd0: b1 = 0xc3; b2 = 0x90; b3 = 0x00; break;
-    case 0xd1: b1 = 0xc3; b2 = 0x91; b3 = 0x00; break;
-    case 0xd2: b1 = 0xc3; b2 = 0x92; b3 = 0x00; break;
-    case 0xd3: b1 = 0xc3; b2 = 0x93; b3 = 0x00; break;
-    case 0xd4: b1 = 0xc3; b2 = 0x94; b3 = 0x00; break;
-    case 0xd5: b1 = 0xc3; b2 = 0x95; b3 = 0x00; break;
-    case 0xd6: b1 = 0xc3; b2 = 0x96; b3 = 0x00; break;
-    case 0xd7: b1 = 0xc3; b2 = 0x97; b3 = 0x00; break;
-    case 0xd8: b1 = 0xc3; b2 = 0x98; b3 = 0x00; break;
-    case 0xd9: b1 = 0xc3; b2 = 0x99; b3 = 0x00; break;
-    case 0xda: b1 = 0xc3; b2 = 0x9a; b3 = 0x00; break;
-    case 0xdb: b1 = 0xc3; b2 = 0x9b; b3 = 0x00; break;
-    case 0xdc: b1 = 0xc3; b2 = 0x9c; b3 = 0x00; break;
-    case 0xdd: b1 = 0xc3; b2 = 0x9d; b3 = 0x00; break;
-    case 0xde: b1 = 0xc3; b2 = 0x9e; b3 = 0x00; break;
-    case 0xdf: b1 = 0xc3; b2 = 0x9f; b3 = 0x00; break;
-    case 0xe0: b1 = 0xc3; b2 = 0xa0; b3 = 0x00; break;
-    case 0xe1: b1 = 0xc3; b2 = 0xa1; b3 = 0x00; break;
-    case 0xe2: b1 = 0xc3; b2 = 0xa2; b3 = 0x00; break;
-    case 0xe3: b1 = 0xc3; b2 = 0xa3; b3 = 0x00; break;
-    case 0xe4: b1 = 0xc3; b2 = 0xa4; b3 = 0x00; break;
-    case 0xe5: b1 = 0xc3; b2 = 0xa5; b3 = 0x00; break;
-    case 0xe6: b1 = 0xc3; b2 = 0xa6; b3 = 0x00; break;
-    case 0xe7: b1 = 0xc3; b2 = 0xa7; b3 = 0x00; break;
-    case 0xe8: b1 = 0xc3; b2 = 0xa8; b3 = 0x00; break;
-    case 0xe9: b1 = 0xc3; b2 = 0xa9; b3 = 0x00; break;
-    case 0xea: b1 = 0xc3; b2 = 0xaa; b3 = 0x00; break;
-    case 0xeb: b1 = 0xc3; b2 = 0xab; b3 = 0x00; break;
-    case 0xec: b1 = 0xc3; b2 = 0xac; b3 = 0x00; break;
-    case 0xed: b1 = 0xc3; b2 = 0xad; b3 = 0x00; break;
-    case 0xee: b1 = 0xc3; b2 = 0xae; b3 = 0x00; break;
-    case 0xef: b1 = 0xc3; b2 = 0xaf; b3 = 0x00; break;
-    case 0xf0: b1 = 0xc3; b2 = 0xb0; b3 = 0x00; break;
-    case 0xf1: b1 = 0xc3; b2 = 0xb1; b3 = 0x00; break;
-    case 0xf2: b1 = 0xc3; b2 = 0xb2; b3 = 0x00; break;
-    case 0xf3: b1 = 0xc3; b2 = 0xb3; b3 = 0x00; break;
-    case 0xf4: b1 = 0xc3; b2 = 0xb4; b3 = 0x00; break;
-    case 0xf5: b1 = 0xc3; b2 = 0xb5; b3 = 0x00; break;
-    case 0xf6: b1 = 0xc3; b2 = 0xb6; b3 = 0x00; break;
-    case 0xf7: b1 = 0xc3; b2 = 0xb7; b3 = 0x00; break;
-    case 0xf8: b1 = 0xc3; b2 = 0xb8; b3 = 0x00; break;
-    case 0xf9: b1 = 0xc3; b2 = 0xb9; b3 = 0x00; break;
-    case 0xfa: b1 = 0xc3; b2 = 0xba; b3 = 0x00; break;
-    case 0xfb: b1 = 0xc3; b2 = 0xbb; b3 = 0x00; break;
-    case 0xfc: b1 = 0xc3; b2 = 0xbc; b3 = 0x00; break;
-    case 0xfd: b1 = 0xc3; b2 = 0xbd; b3 = 0x00; break;
-    case 0xfe: b1 = 0xc3; b2 = 0xbe; b3 = 0x00; break;
-    case 0xff: b1 = 0xc3; b2 = 0xbf; b3 = 0x00; break;
-    default: return -1;
-    }
-
-    *str++ = b1;
-    *str++ = b2;
-    if ( b3 == 0 )
-    {
-        return 2;
-    }
-    *str = b3;
-    return 3;
 }
 
 static void parse_first_line(char  *text,

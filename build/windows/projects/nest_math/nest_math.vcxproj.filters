@@ -108,6 +108,9 @@
     <ClInclude Include="..\..\..\..\include\var_table.h">
       <Filter>Nest Source</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\include\encoding.h">
+      <Filter>Nest Source</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp">
@@ -192,6 +195,9 @@
       <Filter>Nest Source</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\nest.c">
+      <Filter>Nest Source</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\encoding.c">
       <Filter>Nest Source</Filter>
     </ClCompile>
   </ItemGroup>

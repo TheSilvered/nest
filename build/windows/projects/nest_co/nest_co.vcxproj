@@ -153,6 +153,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\include\argv_parser.h" />
     <ClInclude Include="..\..\..\..\include\compiler.h" />
+    <ClInclude Include="..\..\..\..\include\encoding.h" />
     <ClInclude Include="..\..\..\..\include\error.h" />
     <ClInclude Include="..\..\..\..\include\error_internal.h" />
     <ClInclude Include="..\..\..\..\include\function.h" />
@@ -184,6 +185,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\src\argv_parser.c" />
+    <ClCompile Include="..\..\..\..\src\encoding.c" />
     <ClCompile Include="..\..\..\..\src\global_consts.c" />
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp" />
     <ClCompile Include="..\..\..\..\src\compiler.c" />

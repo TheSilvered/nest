@@ -10,7 +10,7 @@ EXE_x86_DIR=../linux_release/x86
 DBG_DIR=../linux_debug
 
 LIB_SRCS=../../../libs/nest_math/nest_math.cpp
-SRCS := $(filter-out nest.c argv_parser.c, $(wildcard $(SRC_DIR)/*.c))
+SRCS := $(filter-out $(SRC_DIR)/nest.c $(SRC_DIR)/argv_parser.c, $(wildcard $(SRC_DIR)/*.c))
 DBG_TARGET := $(DBG_DIR)/$(EXE_NAME)
 EXE_x64_TARGET := $(EXE_x64_DIR)/$(EXE_NAME)
 EXE_x86_TARGET := $(EXE_x86_DIR)/$(EXE_NAME)

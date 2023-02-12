@@ -147,6 +147,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\..\include\encoding.h" />
     <ClInclude Include="..\..\..\..\libs\dll\framework.h" />
     <ClInclude Include="..\..\..\..\libs\nest_utf8\nest_utf8.h" />
     <ClInclude Include="..\..\..\..\include\argv_parser.h" />
@@ -183,6 +184,7 @@
     <ClCompile Include="..\..\..\..\libs\nest_utf8\nest_utf8.cpp" />
     <ClCompile Include="..\..\..\..\src\argv_parser.c" />
     <ClCompile Include="..\..\..\..\src\compiler.c" />
+    <ClCompile Include="..\..\..\..\src\encoding.c" />
     <ClCompile Include="..\..\..\..\src\error.c" />
     <ClCompile Include="..\..\..\..\src\function.c" />
     <ClCompile Include="..\..\..\..\src\ggc.c" />

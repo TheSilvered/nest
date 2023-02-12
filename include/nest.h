@@ -34,5 +34,6 @@
 #include "parser.h"
 #include "compiler.h"
 #include "optimizer.h"
+#include "encoding.h"
 
 #endif //!NEST_H
