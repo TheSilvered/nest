@@ -3,6 +3,7 @@
 { 1, 2, 3, 4, 5 } = arr
 
 ?::arr Array @test.assert_eq
+?::{,} Array @test.assert_eq
 $arr 5 @test.assert_eq
 arr.0 1 @test.assert_eq
 arr.1 2 @test.assert_eq
@@ -14,6 +15,9 @@ arr.-2 4 @test.assert_eq
 arr.-3 3 @test.assert_eq
 arr.-4 2 @test.assert_eq
 arr.-5 1 @test.assert_eq
+
+##a i [a.(i)] { arr, 5 } @test.assert_raises_error
+##a i [a.(i)] { arr, -6 } @test.assert_raises_error
 
 10 = arr.0
 arr.0 10 @test.assert_eq
@@ -27,14 +31,15 @@ arr_2d.0 .0 1 @test.assert_eq
 arr_2d.0 { 1, 2 } @test.assert_eq
 
 { 1, 2 } <{ 1, 2 }> @test.assert_eq
-{ 1, 2 } { 1, 2 } @test.assert_eq
+{ 1, 2 }  { 1, 2 }  @test.assert_eq
 { 1, 2 } <{ 1, 2, 3 }> @test.assert_ne
-{ 1, 2 } { 1, 2, 3 } @test.assert_ne
+{ 1, 2 }  { 1, 2, 3 }  @test.assert_ne
 
 { 10;5 } { 10, 10, 10, 10, 10 } @test.assert_eq
 
-Str :: { 1, 2, 3 } '{ 1, 2, 3 }' @test.assert_eq
-Array :: <{}> @test.assert_false
+{,} @test.assert_false
 { 1 } @test.assert_true
-?::(Vector :: { 1, 2, 3 }) Vector @test.assert_eq
-Map :: { { 'a', 1 }, { 'b', 2 } } { 'a': 1, 'b': 2 } @test.assert_eq
+
+Array :: 'abc' { 'a', 'b', 'c' } @test.assert_eq
+Array :: <{ 1, 2, 3 }> { 1, 2, 3 } @test.assert_eq
+Array :: { 'a': 1, 'b': 2 } { { 'a', 1 }, { 'b', 2 } } @test.assert_eq

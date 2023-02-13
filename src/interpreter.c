@@ -1000,7 +1000,7 @@ static inline void exe_op_call(Nst_Inst *inst)
                 (size_t)arg_num * sizeof(Nst_Obj *));
             args = stack_args;
         }
-        else if ( arg_num == 0 )
+        else if ( tot_args == 0 )
         {
             args = NULL;
         }

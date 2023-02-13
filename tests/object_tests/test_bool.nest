@@ -1,10 +1,9 @@
-|#| '../test_lib.nest' = test
+-- |#| '../test_lib.nest' = test
+|#| 'E:/C++/nest/tests/test_lib.nest' = test
+|#| 'stdio.nest' = io
 
-true @test.assert_true
+true  @test.assert_true
 false @test.assert_false
-
-Str :: true 'true' @test.assert_eq
-Str :: false 'false' @test.assert_eq
 
 0 0 == @test.assert_true
 0 1 == @test.assert_false
@@ -14,3 +13,28 @@ Str :: false 'false' @test.assert_eq
 1 0 < @test.assert_false
 1 0 > @test.assert_true
 0 1 > @test.assert_false
+
+@io.virtual_iof = f
+
+Bool :: 0 @test.assert_false
+Bool :: 1 @test.assert_true
+Bool :: 0.0 @test.assert_false
+Bool :: 1.0 @test.assert_true
+Bool :: null @test.assert_false
+Bool :: '' @test.assert_false
+Bool :: 'a' @test.assert_true
+Bool :: {,} @test.assert_false
+Bool :: { 0 } @test.assert_true
+Bool :: <{}> @test.assert_false
+Bool :: <{ 0 }> @test.assert_true
+Bool :: {} @test.assert_false
+Bool :: { 'a': 1 } @test.assert_true
+Bool :: ## [] @test.assert_true
+Bool :: (0 -> 1) @test.assert_true
+Bool :: 0b @test.assert_false
+Bool :: 1b @test.assert_true
+Bool :: f @test.assert_true
+Bool :: Type @test.assert_true
+
+f @io.close
+Bool :: f @test.assert_false
