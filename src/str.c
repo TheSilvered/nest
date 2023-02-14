@@ -523,11 +523,11 @@ Nst_Obj *nst_string_parse_byte(Nst_StrObj *str, struct _Nst_OpErr *err)
         {
             ch_val = ch - '0';
         }
-        else if ( ch >= 'a' && ch <= 'z' && base == 16 )
+        else if ( ch >= 'a' && ch <= 'f' && base == 16 )
         {
             ch_val = ch - 'a' + 10;
         }
-        else if ( ch >= 'A' && ch <= 'Z' && base == 16 )
+        else if ( ch >= 'A' && ch <= 'F' && base == 16 )
         {
             ch_val = ch - 'A' + 10;
         }
@@ -540,6 +540,12 @@ Nst_Obj *nst_string_parse_byte(Nst_StrObj *str, struct _Nst_OpErr *err)
         {
             break;
         }
+
+        if ( ch_val >= base )
+        {
+            RETURN_BYTE_ERR;
+        }
+
         num *= base;
         num += ch_val;
         num %= 256;
@@ -550,7 +556,11 @@ Nst_Obj *nst_string_parse_byte(Nst_StrObj *str, struct _Nst_OpErr *err)
     {
         RETURN_BYTE_ERR;
     }
-    ch = *++s;
+    else if ( base != 16 )
+    {
+        ch = *++s;
+    }
+
     while ( IS_WHITESPACE(ch) )
     {
         ch = *++s;

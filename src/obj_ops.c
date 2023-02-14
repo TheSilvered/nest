@@ -1651,23 +1651,39 @@ Nst_Obj *_nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step, Nst_OpErr 
 Nst_Obj *_nst_obj_neg(Nst_Obj *ob, Nst_OpErr *err)
 {
     if ( ob->type == nst_t.Int )
+    {
         return nst_int_new(-AS_INT(ob));
+    }
     else if ( ob->type == nst_t.Real )
+    {
         return nst_real_new(-AS_REAL(ob));
+    }
     else
-        RETURN_LOCAL_OP_TYPE_ERROR("-");
+        RETURN_LOCAL_OP_TYPE_ERROR("-:");
 }
 
 Nst_Obj *_nst_obj_len(Nst_Obj *ob, Nst_OpErr *err)
 {
     if ( ob->type == nst_t.Str )
+    {
         return nst_int_new(STR(ob)->len);
+    }
     else if ( ob->type == nst_t.Map )
+    {
         return nst_int_new(MAP(ob)->item_count);
+    }
     else if ( IS_SEQ(ob) )
+    {
         return nst_int_new(SEQ(ob)->len);
+    }
+    else if ( ob->type == nst_t.Func )
+    {
+        return nst_int_new(FUNC(ob)->arg_num);
+    }
     else
+    {
         RETURN_LOCAL_OP_TYPE_ERROR("$");
+    }
 }
 
 Nst_Obj *_nst_obj_bwnot(Nst_Obj *ob, Nst_OpErr *err)
