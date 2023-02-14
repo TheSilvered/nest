@@ -162,7 +162,7 @@ Nst_LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
         {
             make_symbol(&tok, error);
         }
-        else if ( CH_IS_ALPHA(cursor.ch) || cursor.ch >= 0b10000000 )
+        else if ( CH_IS_ALPHA(cursor.ch) || (unsigned char)cursor.ch >= 0b10000000 )
         {
             make_ident(&tok, error);
         }
@@ -634,6 +634,7 @@ end:
     ltrl[ltrl_size + 1] = '\0';
     s.value = ltrl;
     s.len = ltrl_size + 1;
+    end = cursor.pos;
 
     if ( is_real )
     {
@@ -642,7 +643,6 @@ end:
     else
     {
         res = nst_string_parse_int(&s, 0, &err);
-
         advance();
         if ( cursor.ch == 'b' || cursor.ch == 'B' )
         {
@@ -680,8 +680,7 @@ static void make_ident(Nst_Tok **tok, Nst_Error *error)
 
     char *str;
     char *str_start = cursor.text + cursor.idx;
-    size_t str_len = 1;
-    advance();
+    size_t str_len = 0;
 
     while ( cursor.idx < (long)cursor.len &&
             (CH_IS_ALPHA(cursor.ch) ||

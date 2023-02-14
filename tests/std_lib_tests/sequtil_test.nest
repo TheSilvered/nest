@@ -33,3 +33,7 @@ v @sequ.empty <{ }> @test.assert_eq
 { false, false, true  } @sequ.any @test.assert_true
 { false, false, true  } @sequ.all @test.assert_false
 { true,  true,  true  } @sequ.any @test.assert_true
+
+{ 1, 2, 3, 1, 1 } 1 @sequ.count 3 @test.assert_eq
+'hello' 'l' @sequ.count 2 @test.assert_eq
+'hello' 'a' @sequ.count 0 @test.assert_eq

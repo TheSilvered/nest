@@ -6,6 +6,7 @@
 #include "error.h"
 #include "simple_types.h"
 #include "global_consts.h"
+#include "encoding.h"
 
 #define INT_CH_COUNT 21
 
@@ -143,7 +144,11 @@ static void print_line(Nst_Pos *pos,
     int lineno_len = 0;
     long lineno = pos->line;
     char *text = pos->text->lines[lineno];
+    char *start = pos->text->text;
+    size_t tot_len = pos->text->len;
     long indent = get_indent(pos->text, lineno) - keep_indent;
+    int spaces = 0;
+    int carets = 0;
 
     if ( keep_indent == -1 )
     {
@@ -181,6 +186,15 @@ static void print_line(Nst_Pos *pos,
 
     for ( long i = keep_indent; text[i] != '\n' && text[i] != '\0'; i++ )
     {
+        if ( i < start_col )
+        {
+            spaces++;
+        }
+        else if ( i <= end_col )
+        {
+            carets++;
+        }
+
         if ( i == start_col && use_color )
         {
             PRINT(C_RED, C_LEN);
@@ -193,8 +207,29 @@ static void print_line(Nst_Pos *pos,
         {
             PRINT(C_RES, R_LEN);
         }
+
+        int res = nst_check_utf8_bytes(
+            (unsigned char *)text + i,
+            tot_len - (start - text));
+        if ( res == 1 || res == -1 )
+        {
+            continue;
+        }
+        if ( i < start_col )
+        {
+            spaces -= res - 1;
+        }
+        else if ( i <= end_col )
+        {
+            carets -= res - 1;
+        }
     }
     err_putc('\n');
+
+    if ( start_col == line_length )
+    {
+        carets++;
+    }
 
     if ( end_col == -1 )
     {
@@ -220,16 +255,16 @@ static void print_line(Nst_Pos *pos,
     {
         print_repeat(' ', lineno_len);
         PRINT(C_RES "  | " C_RED, R_LEN + 4 + C_LEN);
-        print_repeat(' ', start_col);
-        print_repeat('^', end_col - start_col + 1);
+        print_repeat(' ', spaces);
+        print_repeat('^', carets);
         PRINT(C_RES "\n", R_LEN + 1);
     }
     else
     {
         print_repeat(' ', lineno_len);
         PRINT("  | ", 4);
-        print_repeat(' ', start_col);
-        print_repeat('^', end_col - start_col + 1);
+        print_repeat(' ', spaces);
+        print_repeat('^', carets);
         PRINT("\n", 1);
     }
 }
