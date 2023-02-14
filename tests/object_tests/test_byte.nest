@@ -9,6 +9,7 @@
   { ?::0b0b, Byte },
   { Byte :: 'A', Byte :: '65b' },
   { Byte :: '0h41', Byte :: '0b0100_0001b' },
+  { Byte :: '0o101b', Byte :: '65B' },
   { 10b 10b +, 20b },
   { 20b 10b -, 10b },
   { 30b 30b *, 132b },
@@ -16,6 +17,6 @@
   { 5b 2b ^, 25b },
   { Str :: 65b, 'A' } } = eq_tests
 
-... Iter :: eq_tests := i [
-    i.0 i.1 @test.assert_eq
+... Iter :: eq_tests := { a, b } [
+    a b @test.assert_eq
 ]

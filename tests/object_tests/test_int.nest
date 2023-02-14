@@ -31,21 +31,21 @@
 
 { 1, -1, 9223372036854775807, -9223372036854775808 } = true_tests
 
-... Iter :: eq_tests := i [
-  i.0 i.1 @test.assert_eq
+... Iter :: eq_tests := { a, b } [
+    a b @test.assert_eq
 ]
 
-... Iter :: ne_tests := i [
-  i.0 i.1 @test.assert_ne
+... Iter :: ne_tests := { a, b } [
+    a b @test.assert_ne
 ]
 
 ... Iter :: true_tests := i [
-  Bool :: i @test.assert_true
+    Bool :: i @test.assert_true
 ]
 
 Bool :: 0 @test.assert_false
 
 -1 @sys.hash -2 @test.assert_eq
 ... 0 -> 100 := i [
-  i @sys.hash i @test.assert_eq
+    i @sys.hash i @test.assert_eq
 ]

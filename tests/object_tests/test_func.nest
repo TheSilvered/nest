@@ -38,3 +38,4 @@ true @f7 'Hello' @test.assert_eq
 false @f7 null @test.assert_eq
 
 ?::f1 Func @test.assert_eq
+$f6 3 @test.assert_eq

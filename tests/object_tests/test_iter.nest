@@ -10,11 +10,16 @@ s '02468' @test.assert_eq
 
 <{ }> = v
 
-{ '_start_':   ##_self [0 = _self.idx],
-  '_is_done_': ##_self => _self.idx $_self.seq >=,
-  '_get_val_': ##_self => { _self.idx = i, 1 += _self.idx, _self.seq.(i) }.2,
-  'idx': 0,
-  'seq': { 'a', 'b', 'c', 'd', 'e' } } = iter_map
+{
+    '_start_':   ##_self [0 = _self.idx],
+    '_is_done_': ##_self => _self.idx $_self.seq >=,
+    '_get_val_': ##_self [
+        _self.idx = i
+        1 += _self.idx
+        => _self.seq.(i)
+    ],
+    'idx': 0,
+    'seq': { 'a', 'b', 'c', 'd', 'e' } } = iter_map
 
 ... Iter :: iter_map := i [
     v i +

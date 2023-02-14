@@ -552,7 +552,7 @@ Nst_Obj *nst_string_parse_byte(Nst_StrObj *str, struct _Nst_OpErr *err)
         ch = *++s;
     }
     num *= sign;
-    if ( base != 16 && ch != 'b' )
+    if ( base != 16 && ch != 'b' && ch != 'B' )
     {
         RETURN_BYTE_ERR;
     }
