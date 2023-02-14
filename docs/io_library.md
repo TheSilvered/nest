@@ -24,12 +24,16 @@ The file modes are:
 | `a+`           | read and append, keeping the contents         |
 | `ab+` or `a+b` | read and append bytes, keeping the contents   |
 
-### `[binary: Bool?] @virtual_iof`
+### `[binary: Bool?, buffer_size: Int?] @virtual_iof`
 
 Creates a virtual `IOFile` object that works like a normal file but is not an
 actual file.  
 `binary` specifies if the file should use `write` and `read` or `write_bytes` ad
 `read_bytes`. If set to `null` it is interpreted as false.
+
+`buffer_size` specifies the number of bytes the buffer can hold before the file
+is resized. Reading the file when the buffer is not empty will not read the
+contents of the buffer. To empty it use `flush`.
 
 ### `[file: IOFile] @close`
 
@@ -94,7 +98,7 @@ Flushes the output buffer of a file.
 
 ### `[file: IOFile] @get_flags`
 
-Returns a 3-characted string where the first character is `r` if the file can
+Returns a 3-character string where the first character is `r` if the file can
 be read and `-` otherwise, the second one is `w` if the file can be written and
 `-` otherwise and the last one `b` if the file is opened in binary mode and
 `-` if it is opened normally.
@@ -114,6 +118,13 @@ f2 @io.close
 >>> (f3 @io.get_flags '\n' ><) --> 'r-b'
 f3 @io.close
 ```
+
+### `[object: Any, flush: Bool?, file: IOFile?] @io.println`
+
+Will print `object` like `>>>` followed by a newline.  
+`flush` specifies if the file must be flushed and is `false` by default.  
+`file` is the file where the object should be printed, stdout by default. If it
+is closed an error will be thrown.
 
 ### `[file: IOFile] @_set_stdin`
 

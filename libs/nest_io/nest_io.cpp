@@ -35,7 +35,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_fptr_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(flush_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_flags_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(println_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(println_, 3);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_set_stdin_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_set_stdout_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_set_stderr_, 1);
@@ -605,14 +605,23 @@ NST_FUNC_SIGN(println_)
 {
     Nst_Obj *obj;
     Nst_Obj *flush;
-    NST_DEF_EXTRACT("oo", &obj, &flush);
+    Nst_Obj *file_obj;
+    NST_DEF_EXTRACT("o?b?F", &obj, &flush, &file_obj);
+    Nst_IOFileObj *file;
+    NST_SET_DEF(file_obj, file, nst_io->out, IOFILE(file_obj));
+
+    if ( NST_IOF_IS_CLOSED(file) )
+    {
+        SET_FILE_CLOSED_ERROR;
+        return nullptr;
+    }
 
     Nst_StrObj *s_obj = STR(nst_obj_cast(obj, nst_t.Str, nullptr));
-    nst_println((const char *)s_obj->value, s_obj->len);
+    nst_fprintln(file, (const char *)s_obj->value, s_obj->len);
 
     if ( nst_obj_cast(flush, nst_t.Bool, nullptr) == nst_c.Bool_true )
     {
-        nst_flush();
+        nst_fflush(file);
         nst_dec_ref(nst_c.Bool_true);
     }
     else
