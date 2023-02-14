@@ -604,5 +604,6 @@ NST_FUNC_SIGN(count_)
         }
         nst_dec_ref(res);
     }
+    nst_dec_ref(seq);
     return nst_int_new(count);
 }

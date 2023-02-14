@@ -64,3 +64,7 @@ Returns true if any of the elements of `seq` casted to a boolean is true.
 ### `[seq: Array|Vector] @all`
 
 Returns true if all the elements of `seq` casted to a boolean are true.
+
+### `[seq: Str|Array|Vector, object: Any] @count`
+
+Returns the number of times `object` appears inside `seq`.
