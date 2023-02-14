@@ -1,5 +1,4 @@
--- |#| '../test_lib.nest' = test
-|#| 'E:/C++/nest/tests/test_lib.nest' = test
+|#| '../test_lib.nest' = test
 |#| 'stdio.nest' = io
 
 true  @test.assert_true

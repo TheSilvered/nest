@@ -38,6 +38,7 @@ NST_FUNC_SIGN(get_fptr_);
 NST_FUNC_SIGN(move_fptr_);
 NST_FUNC_SIGN(flush_);
 NST_FUNC_SIGN(get_flags_);
+NST_FUNC_SIGN(println_);
 NST_FUNC_SIGN(_set_stdin_);
 NST_FUNC_SIGN(_set_stdout_);
 NST_FUNC_SIGN(_set_stderr_);

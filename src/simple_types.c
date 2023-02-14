@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <stdarg.h>
 #include "simple_types.h"
 #include "global_consts.h"
 
@@ -35,7 +36,7 @@ Nst_Obj *nst_iof_new(Nst_IOFile value, bool bin, bool read, bool write)
     Nst_IOFileObj *obj = IOFILE(nst_obj_alloc(
         sizeof(Nst_IOFileObj),
         nst_t.IOFile,
-        nst_destroy_iofile));
+        _nst_destroy_iofile));
     if ( obj == NULL )
     {
         return NULL;
@@ -77,7 +78,7 @@ Nst_Obj *nst_iof_new_fake(void *value,
     Nst_IOFileObj *obj = IOFILE(nst_obj_alloc(
         sizeof(Nst_IOFileObj),
         nst_t.IOFile,
-        nst_destroy_iofile));
+        _nst_destroy_iofile));
     if ( obj == NULL ) return NULL;
 
     obj->value = (Nst_IOFile)value;
@@ -104,11 +105,88 @@ Nst_Obj *nst_iof_new_fake(void *value,
     return OBJ(obj);
 }
 
-void nst_destroy_iofile(Nst_IOFileObj *obj)
+void _nst_destroy_iofile(Nst_IOFileObj *obj)
 {
     if ( !NST_IOF_IS_CLOSED(obj) )
     {
         obj->flush_f(obj->value);
         obj->close_f(obj->value);
     }
+}
+
+ptrdiff_t nst_print(const char *buf, ptrdiff_t len)
+{
+    return nst_fprint(nst_io->out, buf, len);
+}
+
+ptrdiff_t nst_println(const char *buf, ptrdiff_t len)
+{
+    return nst_fprintln(nst_io->out, buf, len);
+}
+/*
+ptrdiff_t nst_printf(const char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    return nst_fvprintf(nst_io->out, fmt, args);
+}
+*/
+ptrdiff_t nst_fprint(Nst_IOFileObj *f, const char *buf, ptrdiff_t len)
+{
+    if ( NST_IOF_IS_CLOSED(f) )
+    {
+        return -1;
+    }
+    if ( len == -1 )
+    {
+        len = strlen(buf);
+    }
+    
+    return f->write_f((void *)buf, 1, (size_t)len, f->value);;
+}
+
+ptrdiff_t nst_fprintln(Nst_IOFileObj *f, const char *buf, ptrdiff_t len)
+{
+    if ( NST_IOF_IS_CLOSED(f) )
+    {
+        return -1;
+    }
+    if ( len == -1 )
+    {
+        len = strlen(buf);
+    }
+    size_t a = f->write_f((void *)buf, 1, (size_t)len, f->value);
+    size_t b = f->write_f((void *)"\n", 1, 1, f->value);
+    return a + b;
+}
+/*
+ptrdiff_t nst_fprintf(Nst_IOFileObj *f, const char *fmt, ...)
+{
+    va_list args;
+    va_start(args, fmt);
+    return nst_fvprintf(f, fmt, args);
+}
+
+ptrdiff_t nst_fvprintf(Nst_IOFileObj *f, const char *fmt, va_list args)
+{
+    if ( NST_IOF_IS_CLOSED(f) )
+    {
+        return -1;
+    }
+
+    char *buf;
+}
+*/
+int nst_flush()
+{
+    return nst_fflush(nst_io->out);
+}
+
+int nst_fflush(Nst_IOFileObj *f)
+{
+    if ( NST_IOF_IS_CLOSED(f) )
+    {
+        return -1;
+    }
+    return f->flush_f(f->value);
 }

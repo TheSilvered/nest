@@ -6,6 +6,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stddef.h>
 #include "obj.h"
 
 #define NST_TRUE 1
@@ -94,7 +95,18 @@ Nst_Obj *nst_iof_new_fake(void *value,
                           Nst_IOFile_seek_f  seek_f,
                           Nst_IOFile_close_f close_f);
 
-void nst_destroy_iofile(Nst_IOFileObj *obj);
+void _nst_destroy_iofile(Nst_IOFileObj *obj);
+
+ptrdiff_t nst_print(const char *buf, ptrdiff_t len);
+ptrdiff_t nst_println(const char *buf, ptrdiff_t len);
+// ptrdiff_t nst_printf(const char *fmt, ...);
+ptrdiff_t nst_fprint(Nst_IOFileObj *f, const char *buf, ptrdiff_t len);
+ptrdiff_t nst_fprintln(Nst_IOFileObj *f, const char *buf, ptrdiff_t len);
+// ptrdiff_t nst_fprintf(Nst_IOFileObj *f, const char *buf, ...);
+// ptrdiff_t nst_fvprintf(Nst_IOFileObj *f, const char *buf, va_list args);
+
+int nst_flush();
+int nst_fflush(Nst_IOFileObj *f);
 
 #ifdef __cplusplus
 }

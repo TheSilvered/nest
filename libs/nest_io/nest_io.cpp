@@ -3,7 +3,7 @@
 #include <cerrno>
 #include "nest_io.h"
 
-#define FUNC_COUNT 18
+#define FUNC_COUNT 19
 
 #define SET_FILE_CLOSED_ERROR \
     NST_SET_RAW_VALUE_ERROR("the given file given was previously closed")
@@ -35,6 +35,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_fptr_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(flush_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_flags_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(println_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_set_stdin_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_set_stdout_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_set_stderr_, 1);
@@ -574,6 +575,28 @@ NST_FUNC_SIGN(get_flags_)
     flags[3] = 0;
 
     return nst_string_new(flags,  3, true);
+}
+
+NST_FUNC_SIGN(println_)
+{
+    Nst_Obj *obj;
+    Nst_Obj *flush;
+    NST_DEF_EXTRACT("oo", &obj, &flush);
+
+    Nst_StrObj *s_obj = STR(nst_obj_cast(obj, nst_t.Str, nullptr));
+    nst_println((const char *)s_obj->value, s_obj->len);
+
+    if ( nst_obj_cast(flush, nst_t.Bool, nullptr) == nst_c.Bool_true )
+    {
+        nst_flush();
+        nst_dec_ref(nst_c.Bool_true);
+    }
+    else
+    {
+        nst_dec_ref(nst_c.Bool_false);
+    }
+
+    NST_RETURN_NULL;
 }
 
 NST_FUNC_SIGN(_set_stdin_)
