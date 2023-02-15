@@ -658,7 +658,7 @@ variable to be assigned.
 This for loop prints the numbers one through ten:
 
 ```text
-... 1->11 := i [
+... 1 -> 11 := i [
     >>> (i '\n' ><)
 ]
 ```

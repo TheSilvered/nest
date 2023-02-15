@@ -59,17 +59,39 @@ If `char` is `null` a space will be used instead.
 
 ```text
 |#| 'stdsutil.nest' = su
-'hello' 11 '.' @su.center --> '...hello...'
-'hello' 10 @su.center --> '  hello   '
+'hello' 11 '*' @su.center --> '***hello***'
+'hello' 10 '.' @su.center --> '..hello...'
 ```
 
 ### `[string: Str] @to_upper`
 
 A new string is returned with all the letters uppercase.
 
+```text
+|#| 'stdsutil.nest' = su
+'Hello' @su.to_upper --> 'HELLO'
+```
+
 ### `[string: Str] @to_lower`
 
 A new string is returned with all the letters lowercase.
+
+```text
+|#| 'stdsutil.nest' = su
+'Hello' @su.to_lower --> 'hello'
+```
+
+### `[string: Str] @to_title`
+
+A new string is returned with the first letter of every word uppercase and all
+the others lowercase. A word is defined as a piece of text surrounded by
+whitespace.
+
+```text
+|#| 'stdsutil.nest' = su
+'this is a sentence' @su.to_title --> 'This Is A Sentence'
+"it's three words" @su.to_title --> "It's Three Words"
+```
 
 ### `[string: Str] @is_upper`
 
@@ -80,6 +102,11 @@ ignored.
 
 Returns whether all the letters in `string` are lowercase, any punctuation is
 ignored.
+
+### `[string: Str] @is_title`
+
+Returns whether all the words in `string` have the first letter uppercase and
+the others lowercase.
 
 ### `[string: Str] @is_alpha`
 

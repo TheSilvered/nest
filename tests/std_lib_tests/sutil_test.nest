@@ -19,8 +19,10 @@
 
 'HELLO.:()' @su.is_upper @test.assert_true
 'hello.:()' @su.is_lower @test.assert_true
+'Hello.:()' @su.is_title @test.assert_true
 'Hello.:()' @su.is_upper @test.assert_false
 'hELLO.:()' @su.is_lower @test.assert_false
+'HellO.:()' @su.is_title @test.assert_false
 
 'Hello.:()' @su.to_upper 'HELLO.:()' @test.assert_eq
 'hELLO.:()' @su.to_lower 'hello.:()' @test.assert_eq

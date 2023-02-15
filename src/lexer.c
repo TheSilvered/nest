@@ -296,7 +296,6 @@ static void make_symbol(Nst_Tok **tok, Nst_Error *error)
 
         while ( !CUR_AT_END )
         {
-            advance();
             if ( can_close && cursor.ch == '-' )
             {
                 advance();
@@ -305,6 +304,7 @@ static void make_symbol(Nst_Tok **tok, Nst_Error *error)
             }
 
             can_close = cursor.ch == '/';
+            advance();
         }
 
         go_back();
