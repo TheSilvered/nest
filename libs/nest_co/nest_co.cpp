@@ -131,12 +131,12 @@ static NST_FUNC_SIGN(generator_get_val)
     return return_ob;
 }
 
-Nst_Obj *new_coroutine(Nst_FuncObj *func)
+Nst_Obj *coroutine_new(Nst_FuncObj *func)
 {
     CoroutineObj *co = (CoroutineObj *)nst_obj_alloc(
         sizeof(CoroutineObj),
         t_Coroutine,
-        destroy_coroutine);
+        coroutine_destroy);
 
     co->func = func;
     co->vars = NULL;
@@ -149,12 +149,12 @@ Nst_Obj *new_coroutine(Nst_FuncObj *func)
     NST_FLAG_SET(co, FLAG_CO_SUSPENDED);
     NST_FLAG_SET(func, FLAG_FUNC_IS_CO);
 
-    NST_GGC_OBJ_INIT(co, traverse_coroutine, track_coroutine);
+    NST_GGC_OBJ_INIT(co, coroutine_traverse, coroutine_track);
 
     return OBJ(co);
 }
 
-void traverse_coroutine(CoroutineObj *co)
+void coroutine_traverse(CoroutineObj *co)
 {
     NST_FLAG_SET(co->func, NST_FLAG_GGC_REACHABLE);
 
@@ -175,7 +175,7 @@ void traverse_coroutine(CoroutineObj *co)
     NST_FLAG_SET(co->globals, NST_FLAG_GGC_REACHABLE);
 }
 
-void track_coroutine(CoroutineObj *co)
+void coroutine_track(CoroutineObj *co)
 {
     nst_ggc_track_obj((Nst_GGCObj *)co->func);
 
@@ -197,7 +197,7 @@ void track_coroutine(CoroutineObj *co)
     nst_ggc_track_obj((Nst_GGCObj *)co->globals);
 }
 
-void destroy_coroutine(CoroutineObj *co)
+void coroutine_destroy(CoroutineObj *co)
 {
     nst_dec_ref(co->func);
 
@@ -239,7 +239,7 @@ NST_FUNC_SIGN(create_)
     }
 
     nst_inc_ref(func);
-    return new_coroutine(func);
+    return coroutine_new(func);
 }
 
 NST_FUNC_SIGN(call_)

@@ -46,10 +46,10 @@ enum CoroutineFlags
     FLAG_FUNC_IS_CO   = 0b1000
 };
 
-Nst_Obj *new_coroutine(Nst_FuncObj *func);
-void traverse_coroutine(CoroutineObj *co);
-void track_coroutine(CoroutineObj *co);
-void destroy_coroutine(CoroutineObj *co);
+Nst_Obj *coroutine_new(Nst_FuncObj *func);
+void coroutine_traverse(CoroutineObj *co);
+void coroutine_track(CoroutineObj *co);
+void coroutine_destroy(CoroutineObj *co);
 
 NST_FUNC_SIGN(create_);
 NST_FUNC_SIGN(call_);
@@ -57,10 +57,6 @@ NST_FUNC_SIGN(pause_);
 NST_FUNC_SIGN(get_state_);
 NST_FUNC_SIGN(generator_);
 NST_FUNC_SIGN(_get_co_type_obj_);
-
-// Here you can put your function signatures
-// They must always be `NST_FUNC_SIGN(func_name);`
-// replace func_name with your function's name
 
 #ifdef __cplusplus
 }

@@ -167,7 +167,7 @@ void nst_ggc_collect_gen(Nst_GGCList *gen,
     // The argv array is reachable too
     NST_FLAG_DEL(nst_state.argv, NST_FLAG_GGC_UNREACHABLE);
     NST_FLAG_SET(nst_state.argv, NST_FLAG_GGC_REACHABLE);
-    nst_seq_traverse(nst_state.argv);
+    _nst_seq_traverse(nst_state.argv);
 
     // And the same goes for the lib handles
     NST_FLAG_DEL(nst_state.lib_handles, NST_FLAG_GGC_UNREACHABLE);

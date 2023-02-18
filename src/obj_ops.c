@@ -1717,9 +1717,8 @@ Nst_Obj *_nst_obj_stdout(Nst_Obj *ob, Nst_OpErr *err)
 
     Nst_Obj *str = nst_obj_cast(ob, nst_t.Str, err);
 
-    nst_io->out->write_f(STR(str)->value, sizeof(char), STR(str)->len, nst_io->out->value);
+    nst_print((const char *)STR(str)->value, STR(str)->len);
 
-    nst_io->out->flush_f(nst_io->out->value);
     nst_dec_ref(str);
     return nst_inc_ref(ob);
 }

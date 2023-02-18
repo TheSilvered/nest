@@ -8,8 +8,8 @@
 #include "llist.h"
 #include "ggc.h"
 
-#define VECTOR_MIN_SIZE 8
-#define VECTOR_GROWTH_RATIO 1.8f
+#define _NST_VECTOR_MIN_SIZE 8
+#define _NST_VECTOR_GROWTH_RATIO 1.8f
 #define SEQ(ptr)  ((Nst_SeqObj *)(ptr))
 
 // Sets a value at index `idx` of `seq`, this cannot be called if there
@@ -58,9 +58,9 @@ typedef Nst_SeqObj Nst_VectorObj;
 Nst_Obj *nst_array_new(size_t len);
 // Creates a new vector of lenght `len`, the objects must be set manually inside
 Nst_Obj *nst_vector_new(size_t len);
-void nst_seq_destroy(Nst_SeqObj *seq);
-void nst_seq_traverse(Nst_SeqObj *seq);
-void nst_seq_track(Nst_SeqObj *seq);
+void _nst_seq_destroy(Nst_SeqObj *seq);
+void _nst_seq_traverse(Nst_SeqObj *seq);
+void _nst_seq_track(Nst_SeqObj *seq);
 
 bool _nst_seq_set(Nst_SeqObj *seq, int64_t idx, Nst_Obj *val);
 Nst_Obj *_nst_seq_get(Nst_SeqObj *seq, int64_t idx);

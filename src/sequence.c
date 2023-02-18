@@ -11,7 +11,7 @@ static Nst_Obj *new_seq(size_t len, size_t size, Nst_TypeObj *type)
     Nst_SeqObj *seq = SEQ(nst_obj_alloc(
         sizeof(Nst_SeqObj),
         type,
-        nst_seq_destroy));
+        _nst_seq_destroy));
     Nst_Obj **objs = (Nst_Obj **)calloc(size, sizeof(Nst_Obj *));
 
     if ( seq == NULL || objs == NULL )
@@ -24,7 +24,7 @@ static Nst_Obj *new_seq(size_t len, size_t size, Nst_TypeObj *type)
     seq->size = size;
     seq->objs = objs;
 
-    NST_GGC_OBJ_INIT(seq, nst_seq_traverse, nst_seq_track);
+    NST_GGC_OBJ_INIT(seq, _nst_seq_traverse, _nst_seq_track);
 
     return OBJ(seq);
 }
@@ -36,17 +36,17 @@ Nst_Obj *nst_array_new(size_t len)
 
 Nst_Obj *nst_vector_new(size_t len)
 {
-    size_t size = (size_t)(len * VECTOR_GROWTH_RATIO);
+    size_t size = (size_t)(len * _NST_VECTOR_GROWTH_RATIO);
 
-    if ( size < VECTOR_MIN_SIZE )
+    if ( size < _NST_VECTOR_MIN_SIZE )
     {
-        size = VECTOR_MIN_SIZE;
+        size = _NST_VECTOR_MIN_SIZE;
     }
 
     return new_seq(len, size, nst_t.Vector);
 }
 
-void nst_seq_destroy(Nst_SeqObj *seq)
+void _nst_seq_destroy(Nst_SeqObj *seq)
 {
     Nst_Obj **objs = seq->objs;
     for ( size_t i = 0, n = seq->len; i < n; i++ )
@@ -57,7 +57,7 @@ void nst_seq_destroy(Nst_SeqObj *seq)
     free(objs);
 }
 
-void nst_seq_traverse(Nst_SeqObj *seq)
+void _nst_seq_traverse(Nst_SeqObj *seq)
 {
     Nst_Obj **objs = seq->objs;
     for ( size_t i = 0, n = seq->len; i < n; i++ )
@@ -66,7 +66,7 @@ void nst_seq_traverse(Nst_SeqObj *seq)
     }
 }
 
-void nst_seq_track(Nst_SeqObj* seq)
+void _nst_seq_track(Nst_SeqObj* seq)
 {
     Nst_Obj **objs = seq->objs;
     for ( size_t i = 0, n = seq->len; i < n; i++ )
@@ -88,17 +88,17 @@ void _nst_vector_resize(Nst_SeqObj *vect)
 
     if ( size == len )
     {
-        new_size = (size_t)(len * VECTOR_GROWTH_RATIO);
+        new_size = (size_t)(len * _NST_VECTOR_GROWTH_RATIO);
     }
     else if ( size >> 2 >= len ) // if it's three quarters empty or less
     {
-        new_size = (size_t)(size / VECTOR_GROWTH_RATIO);
-        if ( new_size < VECTOR_MIN_SIZE )
+        new_size = (size_t)(size / _NST_VECTOR_GROWTH_RATIO);
+        if ( new_size < _NST_VECTOR_MIN_SIZE )
         {
-            new_size = VECTOR_MIN_SIZE;
+            new_size = _NST_VECTOR_MIN_SIZE;
         }
 
-        if ( size == VECTOR_MIN_SIZE )
+        if ( size == _NST_VECTOR_MIN_SIZE )
         {
             return;
         }
@@ -139,9 +139,7 @@ void _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val)
         return;
     }
 
-    nst_inc_ref(val);
-    vect->objs[vect->len] = val;
-    vect->len++;
+    vect->objs[vect->len++] = nst_inc_ref(val);;
 
     if ( NST_OBJ_IS_TRACKED(vect) &&
          NST_FLAG_HAS(val, NST_FLAG_GGC_IS_SUPPORTED) )
@@ -190,8 +188,7 @@ Nst_Obj *_nst_seq_get(Nst_SeqObj *seq, int64_t idx)
         return NULL;
     }
 
-    nst_inc_ref(seq->objs[idx]);
-    return seq->objs[idx];
+    return nst_inc_ref(seq->objs[idx]);
 }
 
 Nst_Obj *_nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val)
@@ -252,8 +249,7 @@ Nst_Obj *_nst_vector_pop(Nst_SeqObj *vect, size_t quantity)
 
     if ( last_obj == NULL )
     {
-        nst_inc_ref(nst_c.Null_null);
-        return nst_c.Null_null;
+        NST_RETURN_NULL;
     }
     else
     {
