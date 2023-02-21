@@ -11,7 +11,7 @@
             json.load_f { path } @test.assert_raises_error
         ] ? 'i' [
             -- just tests that the program does not crash
-            ?? path @json.load_f ?! e >>> (e '\n' ><)
+            ?? path @json.load_f ?! e []
         ]
     ]
 ]

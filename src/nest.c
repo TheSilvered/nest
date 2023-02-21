@@ -7,7 +7,11 @@
 #include <windows.h>
 #endif
 
-#define EXIT(code) \
+#ifdef _EXIT
+#undef _EXIT
+#endif
+
+#define _EXIT(code) \
     do { \
     _nst_consts_del(); \
     _nst_strs_del(); \
@@ -19,7 +23,22 @@
         free(src_text.path); \
     } \
     return code; \
-    } while (0)
+    } while ( 0 )
+
+#if defined(_WIN32) || defined(WIN32)
+
+#define EXIT(code) \
+    do { \
+        free(argv); \
+        free(argv_content); \
+        _EXIT(code); \
+    } while ( 0 )
+
+#else
+
+#define EXIT _EXIT
+
+#endif
 
 #define ERROR_EXIT \
     do { \
@@ -27,13 +46,72 @@
     nst_dec_ref(error.name); \
     nst_dec_ref(error.message); \
     EXIT(1); \
-    } while (0)
+    } while ( 0 )
 
-int main(int argc, char **argv)
-{
 #if defined(_WIN32) || defined(WIN32)
+
+int wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv, i8 **argv_content)
+{
+    usize tot_size = 0;
+    for ( i32 i = 0; i < argc; i++ )
+    {
+        tot_size += (wcslen(wargv[i])) * 3 + 1;
+    }
+    i8 **local_argv = (i8 **)malloc(argc * sizeof(i8 *));
+    i8 *local_argv_content = (i8 *)malloc(tot_size * sizeof(i8));
+
+    if ( local_argv == NULL || local_argv_content == NULL )
+    {
+        free(local_argv);
+        free(local_argv_content);
+        puts("Failed allocation while converting argv");
+        return -1;
+    }
+
+    i8 *argv_ptr = local_argv_content;
+
+    for ( i32 i = 0; i < argc; i++ )
+    {
+        wchar_t *warg = wargv[i];
+        local_argv[i] = argv_ptr;
+
+        for ( usize j = 0, n = wcslen(warg); j < n; j++ )
+        {
+            usize ch_len = nst_check_utf16_bytes(warg + j, n - j);
+            if ( ch_len == -1 )
+            {
+                free(local_argv);
+                free(local_argv_content);
+                puts("Invalid argv enconding");
+                return -1;
+            }
+            argv_ptr += nst_utf16_to_utf8(argv_ptr, warg + j, n - j);
+            j += ch_len - 1;
+        }
+        *argv_ptr++ = '\0';
+    }
+    *argv = local_argv;
+    *argv_content = local_argv_content;
+
+    return 0;
+}
+
+int wmain(int argc, wchar_t **wargv)
+{
     SetErrorMode(SEM_FAILCRITICALERRORS);
     SetConsoleOutputCP(CP_UTF8);
+
+    char **argv;
+    char *argv_content;
+
+    if ( wargv_to_argv(argc, wargv, &argv, &argv_content) )
+    {
+        return -1;
+    }
+
+#else
+int main(int argc, char **argv)
+{
 #endif
 
 #ifdef _DEBUG

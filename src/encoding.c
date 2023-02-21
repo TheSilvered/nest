@@ -72,7 +72,7 @@ i32 nst_utf16_to_utf8(i8 *out_str, u16 *in_str, usize in_str_len)
         return -1;
     }
 
-    i32 n;
+    u32 n;
     if ( *in_str <= 0xd7ff )
     {
         n = *in_str;
@@ -90,25 +90,25 @@ i32 nst_utf16_to_utf8(i8 *out_str, u16 *in_str, usize in_str_len)
     }
     else if ( n <= 0x7ff )
     {
-        *out_str++ = (i8)n >> 6;
-        *out_str   = (i8)n & 0x3f;
+        *out_str++ = 0b11000000 | (i8)(n >> 6);
+        *out_str   = 0b10000000 | (i8)(n & 0x3f);
         return 2;
     }
     else if ( n <= 0xffff )
     {
-        *out_str++ = (i8)n >> 12;
-        *out_str++ = (i8)(n >> 6) & 0x3f;
-        *out_str   = (i8)n & 0x3f;
+        *out_str++ = 0b11100000 | (i8)(n >> 12);
+        *out_str++ = 0b10000000 | (i8)(n >> 6 & 0x3f);
+        *out_str   = 0b10000000 | (i8)(n & 0x3f);
         return 3;
     }
     else if ( n > 0x10ffff )
     {
         return -1;
     }
-    *out_str++ = (i8)n >> 18;
-    *out_str++ = (i8)(n >> 12) & 0x3f;
-    *out_str++ = (i8)(n >> 6) & 0x3f;
-    *out_str   = (i8)n & 0x3f;
+    *out_str++ = 0b11110000 | (i8)(n >> 18);
+    *out_str++ = 0b10000000 | (i8)(n >> 12 & 0x3f);
+    *out_str++ = 0b10000000 | (i8)(n >> 6 & 0x3f);
+    *out_str   = 0b10000000 | (i8)(n & 0x3f);
     return 4;
 }
 
