@@ -9,8 +9,8 @@
 #define IS_JUMP(inst) ( (inst >= NST_IC_JUMP && inst <= NST_IC_JUMPIF_ZERO) \
                       || inst == NST_IC_PUSH_CATCH )
 // Creates a new instruction on the heap with positions and a value
-#define nst_new_inst_val(id, val, start, end) \
-    _nst_new_inst_val(id, OBJ(val), start, end)
+#define nst_inst_new_val(id, val, start, end) \
+    _nst_inst_new_val(id, OBJ(val), start, end)
 
 #ifdef __cplusplus
 extern "C" {
@@ -87,16 +87,14 @@ typedef struct _Nst_InstList
 }
 Nst_InstList;
 
-// Creates a new instruction on the heap with no position
-Nst_Inst *nst_new_inst_empty(Nst_InstID id, Nst_Int int_val);
 // Creates a new instruction on the heap with positions
-Nst_Inst *nst_new_inst_pos(Nst_InstID id, Nst_Pos start, Nst_Pos end);
-Nst_Inst *_nst_new_inst_val(Nst_InstID     id,
+Nst_Inst *nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end);
+Nst_Inst *_nst_inst_new_val(Nst_InstID     id,
                             Nst_Obj       *val,
                             Nst_Pos        start,
                             Nst_Pos        end);
 // Creates a new instruction on the heap with positions and an integer value
-Nst_Inst *nst_new_inst_int(Nst_InstID id,
+Nst_Inst *nst_inst_new_int(Nst_InstID id,
                            Nst_Int    int_val,
                            Nst_Pos    start,
                            Nst_Pos    end);

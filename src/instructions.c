@@ -1,25 +1,7 @@
 #include <stdlib.h>
 #include "instructions.h"
 
-Nst_Inst *nst_new_inst_empty(Nst_InstID id, Nst_Int int_val)
-{
-    Nst_Inst *inst =
-        (Nst_Inst *)malloc(sizeof(Nst_Inst));
-    if ( inst == NULL )
-    {
-        return NULL;
-    }
-
-    inst->id = id;
-    inst->int_val = int_val;
-    inst->val = NULL;
-    inst->start = nst_no_pos();
-    inst->end = nst_no_pos();
-
-    return inst;
-}
-
-Nst_Inst *nst_new_inst_pos(Nst_InstID id, Nst_Pos start, Nst_Pos end)
+Nst_Inst *nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end)
 {
     Nst_Inst *inst =
         (Nst_Inst *)malloc(sizeof(Nst_Inst));
@@ -37,7 +19,7 @@ Nst_Inst *nst_new_inst_pos(Nst_InstID id, Nst_Pos start, Nst_Pos end)
     return inst;
 }
 
-Nst_Inst *_nst_new_inst_val(Nst_InstID id,
+Nst_Inst *_nst_inst_new_val(Nst_InstID id,
                             Nst_Obj   *val,
                             Nst_Pos    start,
                             Nst_Pos    end)
@@ -58,7 +40,7 @@ Nst_Inst *_nst_new_inst_val(Nst_InstID id,
     return inst;
 }
 
-Nst_Inst *nst_new_inst_int(Nst_InstID id,
+Nst_Inst *nst_inst_new_int(Nst_InstID id,
                            Nst_Int    int_val,
                            Nst_Pos    start,
                            Nst_Pos    end)

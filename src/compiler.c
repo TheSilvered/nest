@@ -213,7 +213,7 @@ static void compile_long_s(Nst_Node *node)
 
         if ( NODE_RETUNS_VALUE(NODE(cursor->value)->type) )
         {
-            Nst_Inst *inst = nst_new_inst_empty(NST_IC_POP_VAL, 0);
+            Nst_Inst *inst = nst_inst_new(NST_IC_POP_VAL, node->start, node->end);
             ADD_INST(inst);
         }
     }
@@ -232,7 +232,7 @@ static void compile_while_l(Nst_Node *node)
     */
 
     Nst_Inst *inst;
-    Nst_Inst *jump_cond_start = nst_new_inst_empty(NST_IC_JUMP, 0);
+    Nst_Inst *jump_cond_start = nst_inst_new(NST_IC_JUMP, node->start, node->end);
     ADD_INST(jump_cond_start);
     Nst_LLNode *body_start = c_state.inst_ls->tail;
 
@@ -247,7 +247,12 @@ static void compile_while_l(Nst_Node *node)
     body_start = body_start->next;
     body_end = body_end->next;
 
-    inst = nst_new_inst_empty(NST_IC_JUMPIF_T, body_start_idx);
+    inst = nst_inst_new_int(
+        NST_IC_JUMPIF_T,
+        body_start_idx,
+        node->start,
+        node->end);
+
     ADD_INST(inst);
 
     for ( Nst_LLNode *cursor = body_start;
@@ -304,7 +309,7 @@ static void compile_dowhile_l(Nst_Node *node)
     }
     body_end = body_end->next;
 
-    inst = nst_new_inst_empty(NST_IC_JUMPIF_T, body_start_idx);
+    inst = nst_inst_new_int(NST_IC_JUMPIF_T, body_start_idx, node->start, node->end);
     ADD_INST(inst);
 
     for ( Nst_LLNode *cursor = body_start;
@@ -351,37 +356,37 @@ static void compile_for_l(Nst_Node *node)
     Nst_Inst *inst;
     compile_node(HEAD_NODE);
 
-    inst = nst_new_inst_val(
+    inst = nst_inst_new_val(
         NST_IC_TYPE_CHECK,
         nst_t.Int,
         INST(c_state.inst_ls->tail->value)->start,
         INST(c_state.inst_ls->tail->value)->end);
     ADD_INST(inst);
 
-    inst = nst_new_inst_empty(NST_IC_NEW_OBJ, 0);
+    inst = nst_inst_new(NST_IC_NEW_OBJ, node->start, node->end);
     ADD_INST(inst);
 
     Nst_Int cond_start_idx = CURR_LEN;
     Nst_Inst *jump_body_end_idx =
-        nst_new_inst_empty(NST_IC_JUMPIF_ZERO, 0);
+        nst_inst_new(NST_IC_JUMPIF_ZERO, node->start, node->end);
     ADD_INST(jump_body_end_idx);
     Nst_LLNode *body_start = c_state.inst_ls->tail;
 
     inc_loop_id();
     compile_node(TAIL_NODE); // body
     Nst_Int body_end_idx = CURR_LEN;
-    inst = nst_new_inst_empty(NST_IC_DEC_INT, 0);
+    inst = nst_inst_new(NST_IC_DEC_INT, node->start, node->end);
     ADD_INST(inst);
     Nst_LLNode *body_end = c_state.inst_ls->tail;
 
-    inst = nst_new_inst_empty(NST_IC_JUMP, cond_start_idx);
+    inst = nst_inst_new_int(NST_IC_JUMP, cond_start_idx, node->start, node->end);
     ADD_INST(inst);
     Nst_Int loop_end_idx = CURR_LEN;
     jump_body_end_idx->int_val = loop_end_idx;
 
-    inst = nst_new_inst_empty(NST_IC_POP_VAL, 0);
+    inst = nst_inst_new(NST_IC_POP_VAL, node->start, node->end);
     ADD_INST(inst);
-    inst = nst_new_inst_empty(NST_IC_POP_VAL, 0);
+    inst = nst_inst_new(NST_IC_POP_VAL, node->start, node->end);
     ADD_INST(inst);
 
     for ( body_start = body_start->next;
@@ -429,7 +434,7 @@ static void compile_for_as_l(Nst_Node *node)
 
     Nst_Inst *inst;
     compile_node(HEAD_NODE);
-    inst = nst_new_inst_val(
+    inst = nst_inst_new_val(
         NST_IC_TYPE_CHECK,
         nst_t.Iter,
         HEAD_NODE->start,
@@ -437,26 +442,26 @@ static void compile_for_as_l(Nst_Node *node)
     ADD_INST(inst);
 
     // Initialization
-    inst = nst_new_inst_int(
+    inst = nst_inst_new_int(
         NST_IC_FOR_START, 1,
         HEAD_NODE->start,
         HEAD_NODE->end);
     ADD_INST(inst);
-    inst = nst_new_inst_empty(NST_IC_POP_VAL, 0);
+    inst = nst_inst_new(NST_IC_POP_VAL, node->start, node->end);
     ADD_INST(inst);
 
     // Condition
     Nst_Int cond_start_idx = CURR_LEN;
-    inst = nst_new_inst_int(
+    inst = nst_inst_new_int(
         NST_IC_FOR_IS_DONE, 1,
         HEAD_NODE->start,
         HEAD_NODE->end);
     ADD_INST(inst);
-    Nst_Inst *jump_body_end = nst_new_inst_empty(NST_IC_JUMPIF_T, 0);
+    Nst_Inst *jump_body_end = nst_inst_new(NST_IC_JUMPIF_T, node->start, node->end);
     ADD_INST(jump_body_end);
 
     // Setting variable
-    inst = nst_new_inst_int(
+    inst = nst_inst_new_int(
         NST_IC_FOR_GET_VAL, 1,
         HEAD_NODE->start,
         HEAD_NODE->end);
@@ -472,12 +477,12 @@ static void compile_for_as_l(Nst_Node *node)
     Nst_Int loop_advance = CURR_LEN;
     body_start = body_start->next;
     Nst_LLNode *body_end = c_state.inst_ls->tail;
-    inst = nst_new_inst_empty(NST_IC_JUMP, cond_start_idx);
+    inst = nst_inst_new_int(NST_IC_JUMP, cond_start_idx, node->start, node->end);
     ADD_INST(inst);
 
     Nst_Int body_end_idx = CURR_LEN;
     jump_body_end->int_val = body_end_idx;
-    inst = nst_new_inst_empty(NST_IC_POP_VAL, 0);
+    inst = nst_inst_new(NST_IC_POP_VAL, node->start, node->end);
     ADD_INST(inst);
 
     for ( Nst_LLNode *cursor = body_start;
@@ -530,7 +535,7 @@ static void compile_if_e(Nst_Node *node)
 
     Nst_Inst *inst;
     Nst_Inst *jump_if_false =
-        nst_new_inst_empty(NST_IC_JUMPIF_F, 0);
+        nst_inst_new(NST_IC_JUMPIF_F, node->start, node->end);
     ADD_INST(jump_if_false);
 
     Nst_Node *second_node = SECOND_NODE;
@@ -541,7 +546,7 @@ static void compile_if_e(Nst_Node *node)
     compile_node(second_node); // Body if true
     if ( !both_are_null && !NODE_RETUNS_VALUE(second_node->type) )
     {
-        inst = nst_new_inst_val(
+        inst = nst_inst_new_val(
             NST_IC_PUSH_VAL,
             nst_c.Null_null,
             nst_no_pos(),
@@ -549,7 +554,7 @@ static void compile_if_e(Nst_Node *node)
         ADD_INST(inst);
     }
 
-    Nst_Inst *jump_at_end = nst_new_inst_empty(NST_IC_JUMP, 0);
+    Nst_Inst *jump_at_end = nst_inst_new(NST_IC_JUMP, node->start, node->end);
     ADD_INST(jump_at_end);
     jump_if_false->int_val = CURR_LEN;
 
@@ -560,7 +565,7 @@ static void compile_if_e(Nst_Node *node)
             jump_at_end->int_val = CURR_LEN;
         }
 
-        inst = nst_new_inst_val(
+        inst = nst_inst_new_val(
             NST_IC_PUSH_VAL,
             nst_c.Null_null,
             nst_no_pos(),
@@ -578,7 +583,7 @@ static void compile_if_e(Nst_Node *node)
 
         if ( !NODE_RETUNS_VALUE(TAIL_NODE->type) )
         {
-            inst = nst_new_inst_val(
+            inst = nst_inst_new_val(
                 NST_IC_PUSH_VAL,
                 nst_c.Null_null,
                 nst_no_pos(),
@@ -615,7 +620,7 @@ static void compile_func_declr(Nst_Node *node)
         func->args[i++] = nst_inc_ref(TOK(n->value)->value);
     }
 
-    Nst_Inst *inst = nst_new_inst_val(
+    Nst_Inst *inst = nst_inst_new_val(
         NST_IC_PUSH_VAL,
         OBJ(func),
         nst_no_pos(),
@@ -623,7 +628,7 @@ static void compile_func_declr(Nst_Node *node)
     ADD_INST(inst);
     nst_dec_ref(func);
 
-    inst = nst_new_inst_val(
+    inst = nst_inst_new_val(
         NST_IC_SET_VAL_LOC,
         HEAD_TOK->value,
         nst_no_pos(),
@@ -653,7 +658,7 @@ static void compile_lambda(Nst_Node *node)
         func->args[i++] = nst_inc_ref(TOK(n->value)->value);
     }
 
-    Nst_Inst *inst = nst_new_inst_val(
+    Nst_Inst *inst = nst_inst_new_val(
         NST_IC_PUSH_VAL,
         OBJ(func),
         node->start,
@@ -674,7 +679,7 @@ static void compile_return_s(Nst_Node *node)
     */
 
     compile_node(HEAD_NODE);
-    Nst_Inst *inst = nst_new_inst_empty(NST_IC_RETURN_VAL, 0);
+    Nst_Inst *inst = nst_inst_new(NST_IC_RETURN_VAL, node->start, node->end);
     ADD_INST(inst);
 }
 
@@ -704,7 +709,7 @@ static void compile_stack_op(Nst_Node *node)
 
     compile_node(TAIL_NODE);
 
-    Nst_Inst *inst = nst_new_inst_int(
+    Nst_Inst *inst = nst_inst_new_int(
         NST_IC_STACK_OP,
         HEAD_TOK->type,
         node->start,
@@ -752,25 +757,25 @@ static void compile_comp_op(Nst_Node *node)
           n = n->next )
     {
         compile_node(NODE(n->value));
-        inst = nst_new_inst_empty(NST_IC_DUP, 0);
+        inst = nst_inst_new(NST_IC_DUP, node->start, node->end);
         ADD_INST(inst);
-        inst = nst_new_inst_empty(NST_IC_ROT, 3);
+        inst = nst_inst_new_int(NST_IC_ROT, 3, node->start, node->end);
         ADD_INST(inst);
-        inst = nst_new_inst_int(NST_IC_STACK_OP, op_id, node->start, node->end);
+        inst = nst_inst_new_int(NST_IC_STACK_OP, op_id, node->start, node->end);
         ADD_INST(inst);
-        inst = nst_new_inst_empty(NST_IC_DUP, 0);
+        inst = nst_inst_new(NST_IC_DUP, node->start, node->end);
         ADD_INST(inst);
-        inst = nst_new_inst_empty(NST_IC_JUMPIF_F, 0);
+        inst = nst_inst_new(NST_IC_JUMPIF_F, node->start, node->end);
         nst_llist_append(fix_jumps, inst, false);
         ADD_INST(inst);
-        inst = nst_new_inst_empty(NST_IC_POP_VAL, 0);
+        inst = nst_inst_new(NST_IC_POP_VAL, node->start, node->end);
         ADD_INST(inst);
     }
 
     compile_node(TAIL_NODE);
-    inst = nst_new_inst_int(NST_IC_STACK_OP, op_id, node->start, node->end);
+    inst = nst_inst_new_int(NST_IC_STACK_OP, op_id, node->start, node->end);
     ADD_INST(inst);
-    inst = nst_new_inst_empty(NST_IC_JUMP, CURR_LEN + 3);
+    inst = nst_inst_new_int(NST_IC_JUMP, CURR_LEN + 3, node->start, node->end);
     ADD_INST(inst);
 
     for ( NST_LLIST_ITER(n, fix_jumps) )
@@ -778,9 +783,9 @@ static void compile_comp_op(Nst_Node *node)
         ((Nst_Inst*)n->value)->int_val = CURR_LEN;
     }
 
-    inst = nst_new_inst_empty(NST_IC_ROT, 2);
+    inst = nst_inst_new_int(NST_IC_ROT, 2, node->start, node->end);
     ADD_INST(inst);
-    inst = nst_new_inst_empty(NST_IC_POP_VAL, 0);
+    inst = nst_inst_new(NST_IC_POP_VAL, node->start, node->end);
     ADD_INST(inst);
 }
 
@@ -809,21 +814,21 @@ static void compile_lg_op(Nst_Node *node)
     Nst_Inst *inst;
     Nst_Inst *jump_to_end;
 
-    inst = nst_new_inst_empty(NST_IC_DUP, 0);
+    inst = nst_inst_new(NST_IC_DUP, node->start, node->end);
     ADD_INST(inst);
 
     if ( HEAD_TOK->type == NST_TT_L_AND )
     {
-        jump_to_end = nst_new_inst_empty(NST_IC_JUMPIF_F, 0);
+        jump_to_end = nst_inst_new(NST_IC_JUMPIF_F, node->start, node->end);
         ADD_INST(jump_to_end);
     }
     else
     {
-        jump_to_end = nst_new_inst_empty(NST_IC_JUMPIF_T, 0);
+        jump_to_end = nst_inst_new(NST_IC_JUMPIF_T, node->start, node->end);
         ADD_INST(jump_to_end);
     }
 
-    inst = nst_new_inst_empty(NST_IC_POP_VAL, 0);
+    inst = nst_inst_new(NST_IC_POP_VAL, node->start, node->end);
     ADD_INST(inst);
 
     compile_node(TAIL_NODE);
@@ -866,7 +871,7 @@ static void compile_local_stack_op(Nst_Node *node)
     if ( tok_type == NST_TT_RANGE )
     {
         compile_node(HEAD_NODE);
-        inst = nst_new_inst_val(
+        inst = nst_inst_new_val(
             NST_IC_TYPE_CHECK,
             nst_t.Int,
             HEAD_NODE->start,
@@ -876,7 +881,7 @@ static void compile_local_stack_op(Nst_Node *node)
         if ( node->nodes->size == 3 )
         {
             compile_node(SECOND_NODE);
-            inst = nst_new_inst_val(
+            inst = nst_inst_new_val(
                 NST_IC_TYPE_CHECK,
                 nst_t.Int,
                 HEAD_NODE->start,
@@ -885,14 +890,14 @@ static void compile_local_stack_op(Nst_Node *node)
         }
 
         compile_node(TAIL_NODE);
-        inst = nst_new_inst_val(
+        inst = nst_inst_new_val(
             NST_IC_TYPE_CHECK,
             nst_t.Int,
             HEAD_NODE->start,
             HEAD_NODE->end);
         ADD_INST(inst);
 
-        inst = nst_new_inst_int(
+        inst = nst_inst_new_int(
             NST_IC_OP_RANGE,
             node->nodes->size,
             node->start,
@@ -902,7 +907,7 @@ static void compile_local_stack_op(Nst_Node *node)
     else if ( tok_type == NST_TT_CAST )
     {
         compile_node(HEAD_NODE);
-        inst = nst_new_inst_val(
+        inst = nst_inst_new_val(
             NST_IC_TYPE_CHECK,
             nst_t.Type,
             HEAD_NODE->start,
@@ -910,7 +915,7 @@ static void compile_local_stack_op(Nst_Node *node)
         ADD_INST(inst);
 
         compile_node(TAIL_NODE);
-        inst = nst_new_inst_int(NST_IC_OP_CAST, 0, node->start, node->end);
+        inst = nst_inst_new_int(NST_IC_OP_CAST, 0, node->start, node->end);
         ADD_INST(inst);
     }
     else if ( tok_type == NST_TT_CALL || tok_type == NST_TT_SEQ_CALL )
@@ -920,13 +925,13 @@ static void compile_local_stack_op(Nst_Node *node)
             compile_node(NODE(n->value));
         }
 
-        inst = nst_new_inst_val(
+        inst = nst_inst_new_val(
             NST_IC_TYPE_CHECK,
             nst_t.Func,
             node->start,
             node->end);
         ADD_INST(inst);
-        inst = nst_new_inst_int(
+        inst = nst_inst_new_int(
             NST_IC_OP_CALL,
             tok_type == NST_TT_CALL ? node->nodes->size - 1 : -1,
             node->start, node->end);
@@ -936,14 +941,14 @@ static void compile_local_stack_op(Nst_Node *node)
     else if ( tok_type == NST_TT_THROW )
     {
         compile_node(HEAD_NODE);
-        inst = nst_new_inst_val(NST_IC_TYPE_CHECK, nst_t.Str, HEAD_NODE->start, HEAD_NODE->end);
+        inst = nst_inst_new_val(NST_IC_TYPE_CHECK, nst_t.Str, HEAD_NODE->start, HEAD_NODE->end);
         ADD_INST(inst);
 
         compile_node(TAIL_NODE);
-        inst = nst_new_inst_val(NST_IC_TYPE_CHECK, nst_t.Str, TAIL_NODE->start, TAIL_NODE->end);
+        inst = nst_inst_new_val(NST_IC_TYPE_CHECK, nst_t.Str, TAIL_NODE->start, TAIL_NODE->end);
         ADD_INST(inst);
 
-        inst = nst_new_inst_int(NST_IC_THROW_ERR, 0, node->start, node->end);
+        inst = nst_inst_new_int(NST_IC_THROW_ERR, 0, node->start, node->end);
         ADD_INST(inst);
     }
 }
@@ -976,13 +981,13 @@ static void compile_local_op(Nst_Node *node)
     if ( HEAD_TOK->type == NST_TT_LOC_CALL )
     {
         compile_node(HEAD_NODE);
-        inst = nst_new_inst_val(
+        inst = nst_inst_new_val(
             NST_IC_TYPE_CHECK,
             nst_t.Func,
             node->start,
             node->end);
         ADD_INST(inst);
-        inst = nst_new_inst_int(
+        inst = nst_inst_new_int(
             NST_IC_OP_CALL,
             node->nodes->size - 1,
             node->start,
@@ -995,13 +1000,13 @@ static void compile_local_op(Nst_Node *node)
 
     if ( HEAD_TOK->type == NST_TT_IMPORT )
     {
-        inst = nst_new_inst_val(
+        inst = nst_inst_new_val(
             NST_IC_TYPE_CHECK,
             nst_t.Str,
             node->start,
             node->end);
         ADD_INST(inst);
-        inst = nst_new_inst_int(
+        inst = nst_inst_new_int(
             NST_IC_OP_IMPORT, 0,
             node->start,
             node->end);
@@ -1009,7 +1014,7 @@ static void compile_local_op(Nst_Node *node)
         return;
     }
 
-    inst = nst_new_inst_int(
+    inst = nst_inst_new_int(
         NST_IC_LOCAL_OP,
         HEAD_TOK->type,
         HEAD_NODE->start,
@@ -1040,22 +1045,22 @@ static void compile_arr_or_vect_lit(Nst_Node *node)
 
     if ( node->tokens->size != 0 )
     {
-        inst = nst_new_inst_val(
+        inst = nst_inst_new_val(
             NST_IC_TYPE_CHECK,
             nst_t.Int,
             TAIL_NODE->start,
             TAIL_NODE->end);
         ADD_INST(inst);
-        inst = nst_new_inst_empty(
+        inst = nst_inst_new_int(
             node->type == NST_NT_ARR_LIT ? NST_IC_MAKE_ARR_REP
                                          : NST_IC_MAKE_VEC_REP,
-            node->nodes->size);
+            node->nodes->size, node->start, node->end);
     }
     else
     {
-        inst = nst_new_inst_empty(
+        inst = nst_inst_new_int(
             node->type == NST_NT_ARR_LIT ? NST_IC_MAKE_ARR : NST_IC_MAKE_VEC,
-            node->nodes->size);
+            node->nodes->size, node->start, node->end);
     }
 
     ADD_INST(inst);
@@ -1079,7 +1084,7 @@ static void compile_map_lit(Nst_Node *node)
 
         if ( is_key )
         {
-            inst = nst_new_inst_int(
+            inst = nst_inst_new_int(
                 NST_IC_HASH_CHECK,
                 0,
                 NODE(n->value)->start,
@@ -1089,7 +1094,7 @@ static void compile_map_lit(Nst_Node *node)
         is_key = !is_key;
     }
 
-    inst = nst_new_inst_empty(NST_IC_MAKE_MAP, node->nodes->size);
+    inst = nst_inst_new_int(NST_IC_MAKE_MAP, node->nodes->size, node->start, node->end);
     ADD_INST(inst);
 }
 
@@ -1100,7 +1105,7 @@ static void compile_value(Nst_Node *node)
 
     PUSH_VAL value
     */
-    Nst_Inst *inst = nst_new_inst_val(
+    Nst_Inst *inst = nst_inst_new_val(
         NST_IC_PUSH_VAL,
         HEAD_TOK->value,
         node->start,
@@ -1115,7 +1120,7 @@ static void compile_access(Nst_Node *node)
 
     GET_VAL var_name
     */
-    Nst_Inst *inst = nst_new_inst_val(
+    Nst_Inst *inst = nst_inst_new_val(
         NST_IC_GET_VAL,
         HEAD_TOK->value,
         node->start,
@@ -1135,7 +1140,7 @@ static void compile_extract_e(Nst_Node *node)
     compile_node(HEAD_NODE); // Container
     compile_node(TAIL_NODE); // Value
 
-    Nst_Inst *inst = nst_new_inst_pos(
+    Nst_Inst *inst = nst_inst_new(
         NST_IC_OP_EXTRACT,
         node->start,
         node->end);
@@ -1162,7 +1167,7 @@ static void compile_assign_e(Nst_Node *node)
 
     if ( TAIL_NODE->type == NST_NT_ACCESS )
     {
-        inst = nst_new_inst_val(
+        inst = nst_inst_new_val(
             NST_IC_SET_VAL,
             TOK(TAIL_NODE->tokens->head->value)->value,
             node->start,
@@ -1174,7 +1179,7 @@ static void compile_assign_e(Nst_Node *node)
         compile_node(NODE(TAIL_NODE->nodes->head->value)); // Container
         compile_node(NODE(TAIL_NODE->nodes->tail->value)); // Index
 
-        inst = nst_new_inst_pos(
+        inst = nst_inst_new(
             NST_IC_SET_CONT_VAL,
             node->start,
             node->end);
@@ -1182,7 +1187,7 @@ static void compile_assign_e(Nst_Node *node)
     }
     else
     {
-        inst = nst_new_inst_empty(NST_IC_DUP, 0);
+        inst = nst_inst_new(NST_IC_DUP, node->start, node->end);
         ADD_INST(inst);
         compile_unpacking_assign_e(TAIL_NODE, HEAD_NODE->start, HEAD_NODE->end);
     }
@@ -1228,7 +1233,7 @@ static void compile_unpacking_assign_e(Nst_Node *node, Nst_Pos v_start, Nst_Pos 
             nodes->tail->next = list_head;
             nodes->tail = list_tail;
 
-            inst = nst_new_inst_int(
+            inst = nst_inst_new_int(
                 NST_IC_UNPACK_SEQ,
                 curr_node->nodes->size,
                 v_start,
@@ -1236,7 +1241,7 @@ static void compile_unpacking_assign_e(Nst_Node *node, Nst_Pos v_start, Nst_Pos 
         }
         else if ( curr_node->type == NST_NT_ACCESS )
         {
-            inst = nst_new_inst_val(
+            inst = nst_inst_new_val(
                 NST_IC_SET_VAL_LOC,
                 TOK(curr_node->tokens->head->value)->value,
                 curr_node->start,
@@ -1247,7 +1252,7 @@ static void compile_unpacking_assign_e(Nst_Node *node, Nst_Pos v_start, Nst_Pos 
             compile_node(NODE(curr_node->nodes->head->value)); // Container
             compile_node(NODE(curr_node->nodes->tail->value)); // Index
 
-            inst = nst_new_inst_pos(
+            inst = nst_inst_new(
                 NST_IC_SET_CONT_LOC,
                 curr_node->start,
                 curr_node->end);
@@ -1266,7 +1271,7 @@ static void compile_continue_s(Nst_Node *node)
 
     JUMP loop_id - replaced later with the loop's start
     */
-    Nst_Inst *inst = nst_new_inst_int(
+    Nst_Inst *inst = nst_inst_new_int(
         NST_IC_JUMP,
         c_state.loop_id,
         node->start,
@@ -1282,7 +1287,7 @@ static void compile_break_s(Nst_Node *node)
 
     JUMP loop_id - replaced later with the loop's end
     */
-    Nst_Inst *inst = nst_new_inst_int(
+    Nst_Inst *inst = nst_inst_new_int(
         NST_IC_JUMP,
         c_state.loop_id - 1,
         node->start,
@@ -1332,21 +1337,21 @@ static void compile_switch_s(Nst_Node *node)
             break;
         }
 
-        inst = nst_new_inst_empty(NST_IC_DUP, 0);
+        inst = nst_inst_new(NST_IC_DUP, node->start, node->end);
         ADD_INST(inst);
         compile_node(NODE(n->value));
         n = n->next;
-        inst = nst_new_inst_empty(NST_IC_STACK_OP, NST_TT_EQ);
+        inst = nst_inst_new_int(NST_IC_STACK_OP, NST_TT_EQ, node->start, node->end);
         ADD_INST(inst);
         Nst_Inst *jump_body_end =
-            nst_new_inst_empty(NST_IC_JUMPIF_F, 0);
+            nst_inst_new(NST_IC_JUMPIF_F, node->start, node->end);
         ADD_INST(jump_body_end);
         Nst_LLNode *body_start = c_state.inst_ls->tail;
 
         inc_loop_id();
         Nst_Int next_body_start = CURR_LEN;
         compile_node(NODE(n->value));
-        inst = nst_new_inst_empty(NST_IC_JUMP, 0);
+        inst = nst_inst_new(NST_IC_JUMP, node->start, node->end);
         ADD_INST(inst);
         nst_llist_append(jumps_to_switch_end, inst, false);
         jump_body_end->int_val = CURR_LEN;
@@ -1415,7 +1420,7 @@ static void compile_switch_s(Nst_Node *node)
           cursor = cursor->next )
         INST(cursor->value)->int_val = CURR_LEN;
 
-    inst = nst_new_inst_empty(NST_IC_POP_VAL, 0);
+    inst = nst_inst_new(NST_IC_POP_VAL, node->start, node->end);
     ADD_INST(inst);
     nst_llist_destroy(jumps_to_switch_end, NULL);
 }
@@ -1438,31 +1443,31 @@ static void compile_try_catch_s(Nst_Node* node)
 
     Nst_Inst *inst;
     Nst_Inst *push_catch =
-        nst_new_inst_empty(NST_IC_PUSH_CATCH, 0);
+        nst_inst_new(NST_IC_PUSH_CATCH, node->start, node->end);
     ADD_INST(push_catch);
     compile_node(HEAD_NODE);
 
     if ( NODE_RETUNS_VALUE(HEAD_NODE->type) )
     {
-        inst = nst_new_inst_empty(NST_IC_POP_VAL, 0);
+        inst = nst_inst_new(NST_IC_POP_VAL, node->start, node->end);
         ADD_INST(inst);
     }
 
-    inst = nst_new_inst_empty(NST_IC_POP_CATCH, 0);
+    inst = nst_inst_new(NST_IC_POP_CATCH, node->start, node->end);
     ADD_INST(inst);
 
     // The code inside this jump will never be optimized since NST_IC_PUSH_CATCH,
     // that is considered a jump, refers to NST_IC_SAVE_ERROR that is inside the
     // block
-    Nst_Inst *jump_catch_end = nst_new_inst_empty(NST_IC_JUMP, 0);
+    Nst_Inst *jump_catch_end = nst_inst_new(NST_IC_JUMP, node->start, node->end);
     ADD_INST(jump_catch_end);
     push_catch->int_val = CURR_LEN;
 
-    inst = nst_new_inst_empty(NST_IC_SAVE_ERROR, 0);
+    inst = nst_inst_new(NST_IC_SAVE_ERROR, node->start, node->end);
     ADD_INST(inst);
-    inst = nst_new_inst_empty(NST_IC_POP_CATCH, 0);
+    inst = nst_inst_new(NST_IC_POP_CATCH, node->start, node->end);
     ADD_INST(inst);
-    inst = nst_new_inst_val(
+    inst = nst_inst_new_val(
         NST_IC_SET_VAL_LOC,
         HEAD_TOK->value,
         HEAD_TOK->start,
@@ -1471,7 +1476,7 @@ static void compile_try_catch_s(Nst_Node* node)
     compile_node(TAIL_NODE);
     if ( NODE_RETUNS_VALUE(TAIL_NODE->type) )
     {
-        inst = nst_new_inst_empty(NST_IC_POP_VAL, 0);
+        inst = nst_inst_new(NST_IC_POP_VAL, node->start, node->end);
         ADD_INST(inst);
     }
     jump_catch_end->int_val = CURR_LEN;
@@ -1480,33 +1485,87 @@ static void compile_try_catch_s(Nst_Node* node)
 void nst_print_bytecode(Nst_InstList *ls, i32 indent)
 {
     usize tot_size = ls->total_size;
-    int i_len = 1; // maximum length of the index in a string
+    int idx_width = 1;
+    int max_col = 0;
+    int max_row = 0;
+    Nst_Int max_int = 0;
+    int col_width = 1;
+    int row_width = 1;
+    int int_width = 1;
+
+    for ( usize i = 0, n = ls->total_size; i < n; i++ )
+    {
+        Nst_Inst inst = ls->instructions[i];
+        if ( inst.int_val > max_int )
+        {
+            max_int = inst.int_val;
+        }
+        if ( inst.start.col > max_col )
+        {
+            max_col = inst.start.col;
+        }
+        if ( inst.start.line > max_row )
+        {
+            max_row = inst.start.line;
+        }
+    }
 
     while ( tot_size >= 10 )
     {
         tot_size /= 10;
-        ++i_len;
+        ++idx_width;
     }
 
-    i_len = i_len < 3 ? 3 : i_len;
+    while ( max_col >= 10 )
+    {
+        max_col /= 10;
+        ++col_width;
+    }
+
+    while ( max_row >= 10 )
+    {
+        max_row /= 10;
+        ++row_width;
+    }
+
+    while ( max_int >= 10 )
+    {
+        max_int /= 10;
+        ++int_width;
+    }
+
+    idx_width = idx_width < 3 ? 3 : idx_width;
+    col_width = col_width < 3 ? 3 : col_width;
+    row_width = row_width < 3 ? 3 : row_width;
+    int_width = int_width < 3 ? 3 : int_width;
 
     for ( i32 i = 0; i < indent; i++ )
     {
         PRINT("    ", 4);
     }
-    for ( i32 i = 3; i < i_len;  i++ )
+
+    for ( i32 i = 3; i < idx_width;  i++ )
     {
         putchar(' ');
     }
+    PRINT(" Idx |", 6);
 
-    PRINT(" Idx |   Pos   |  Instruction  | ", 33);
-
-    for ( i32 i = 3; i < i_len; i++ )
+    for ( i32 i = 3; i < row_width; i++ )
     {
         putchar(' ');
     }
+    PRINT("   Pos   ", 9);
+    for ( i32 i = 3; i < col_width; i++ )
+    {
+        putchar(' ');
+    }
+    PRINT("|  Instruction  |", 17);
 
-    PRINT("Int | Object\n", 13);
+    for ( i32 i = 3; i < int_width;  i++ )
+    {
+        putchar(' ');
+    }
+    PRINT(" Int | Object\n", 14);
 
     for ( usize i = 0, n = ls->total_size; i < n; i++ )
     {
@@ -1516,18 +1575,13 @@ void nst_print_bytecode(Nst_InstList *ls, i32 indent)
         {
             printf("    ");
         }
-        if ( inst.start.text == NULL )
-        {
-            printf(" %*zi |         | ", i_len, i);
-        }
-        else
-        {
-            printf(
-                " %*zi | %3li:%-3li | ",
-                i_len, i,
-                inst.start.line + 1,
-                inst.start.col + 1);
-        }
+        printf(
+            " %*zi | %*li:%-*li | ",
+            idx_width, i,
+            row_width,
+            inst.start.line + 1,
+            col_width,
+            inst.start.col + 1);
 
         switch ( inst.id )
         {
@@ -1577,7 +1631,7 @@ void nst_print_bytecode(Nst_InstList *ls, i32 indent)
         if ( inst.id == NST_IC_NO_OP )
         {
             PRINT(" | ", 3);
-            for ( i32 j = 0; j < i_len; j++ )
+            for ( i32 j = 0; j < idx_width; j++ )
             {
                 putchar(' ');
             }
@@ -1594,12 +1648,12 @@ void nst_print_bytecode(Nst_InstList *ls, i32 indent)
              inst.id == NST_IC_MAKE_MAP ||
              inst.int_val != 0 )
         {
-            printf(" | %*lli |", i_len > 3 ? i_len : 3, inst.int_val);
+            printf(" | %*lli |", idx_width > 3 ? idx_width : 3, inst.int_val);
         }
         else
         {
             PRINT(" | ", 3);
-            for ( i32 j = 0; j < i_len; j++ )
+            for ( i32 j = 0; j < idx_width; j++ )
             {
                 putchar(' ');
             }

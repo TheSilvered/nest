@@ -1008,7 +1008,7 @@ void nst_add_lines(Nst_SourceText* text)
 
         if ( line_count % 100 == 0 )
         {
-            void *temp = realloc(starts, i + 100);
+            void *temp = realloc(starts, (i + 100) * sizeof(i8 *));
             if ( temp == NULL )
             {
                 free(starts);

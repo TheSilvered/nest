@@ -18,7 +18,9 @@
         "function.h": "c",
         "llist.h": "c",
         "errno.h": "c",
-        "error.h": "c"
+        "error.h": "c",
+        "optional": "c",
+        "system_error": "c"
     },
     "editor.cursorSmoothCaretAnimation": "on",
     "editor.smoothScrolling": true,
