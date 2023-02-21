@@ -1,10 +1,9 @@
 /* Nodes of the AST */
 
-#ifndef Nst_NODES_H
-#define Nst_NODES_H
+#ifndef NODES_H
+#define NODES_H
 
 #include "error.h"
-#include "llist.h"
 
 #define NODE(expr) ((Nst_Node *)(expr))
 #define NODE_RETUNS_VALUE(node_type) (node_type >= NST_NT_STACK_OP)
@@ -78,4 +77,4 @@ void nst_node_destroy(Nst_Node *node);
 }
 #endif // !__cplusplus
 
-#endif // !Nst_NODES_H
+#endif // !NODES_H

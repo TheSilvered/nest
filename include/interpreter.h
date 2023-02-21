@@ -3,15 +3,7 @@
 #ifndef INTERPRETER_H
 #define INTERPRETER_H
 
-#include "error.h"
-#include "str.h"
-#include "map.h"
-#include "simple_types.h"
-#include "llist.h"
-#include "var_table.h"
-#include "compiler.h"
 #include "runtime_stack.h"
-#include "ggc.h"
 
 #ifdef __cplusplus
 extern "C" {

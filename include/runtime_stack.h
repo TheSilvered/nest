@@ -1,10 +1,8 @@
 /* Runtime value and call stack interface */
 
-#ifndef RUNTIME_STACK
-#define RUNTIME_STACK
+#ifndef RUNTIME_STACK_H
+#define RUNTIME_STACK_H
 
-#include "obj.h"
-#include "error.h"
 #include "function.h"
 #include "var_table.h"
 
@@ -106,4 +104,4 @@ void nst_cstack_destroy(Nst_CatchStack *c_stack);
 }
 #endif // !__cplusplus
 
-#endif // !RUNTIME_STACK
+#endif // !RUNTIME_STACK_H

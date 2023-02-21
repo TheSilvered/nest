@@ -16,7 +16,6 @@ Functions that are guaranteed to not return an error:
 */
 
 #include "error.h"
-#include "obj.h"
 
 // operator ==
 #define nst_obj_eq(ob1, ob2, err) _nst_obj_eq(OBJ(ob1), OBJ(ob2), err)

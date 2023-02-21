@@ -3,8 +3,6 @@
 #ifndef GGC_H
 #define GGC_H
 
-#include "typedefs.h"
-#include "obj.h"
 #include "simple_types.h"
 
 #define NST_GEN1_MAX 700

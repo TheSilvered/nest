@@ -3,10 +3,7 @@
 #ifndef SYMPLE_TYPES_H
 #define SYMPLE_TYPES_H
 
-#include <stdint.h>
 #include <stdio.h>
-#include <stdlib.h>
-#include <stddef.h>
 #include "obj.h"
 
 #define NST_TRUE 1

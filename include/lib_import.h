@@ -3,7 +3,6 @@
 #ifndef LIB_IMPORT_H
 #define LIB_IMPORT_H
 
-#include "error.h"
 #include "interpreter.h"
 #include "global_consts.h"
 

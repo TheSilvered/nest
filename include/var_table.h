@@ -4,8 +4,6 @@
 #define VAR_TABLE_H
 
 #include "map.h"
-#include "obj.h"
-#include "str.h"
 #include "sequence.h"
 
 // Returns a value from the variable table

@@ -3,12 +3,8 @@
 #ifndef FUNCTION_H
 #define FUNCTION_H
 
-#include "nodes.h"
-#include "obj.h"
-#include "str.h"
 #include "compiler.h"
 #include "map.h"
-#include "ggc.h"
 
 #define FUNC(ptr) ((Nst_FuncObj *)(ptr))
 // Sets mod_globals for the function

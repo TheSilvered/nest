@@ -1,10 +1,8 @@
 /* Lexer & Tokenizer for the code */
 
-#ifndef Nst_LEXER_H
-#define Nst_LEXER_H
+#ifndef LEXER_H
+#define LEXER_H
 
-#include "typedefs.h"
-#include "llist.h"
 #include "error.h"
 
 #ifdef __cplusplus
@@ -30,4 +28,4 @@ void nst_normalize_encoding(Nst_SourceText *text,
 }
 #endif // !__cplusplus
 
-#endif // !Nst_LEXER_H
+#endif // !LEXER_H

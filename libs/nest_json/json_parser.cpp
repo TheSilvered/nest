@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include "json_lexer.h"
 #include "json_parser.h"
 

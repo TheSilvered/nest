@@ -1,10 +1,9 @@
 /* Tokens for the lexer */
 
-#ifndef Nst_TOKENS_H
-#define Nst_TOKENS_H
+#ifndef TOKENS_H
+#define TOKENS_H
 
-#include "error.h" // Pos
-#include "obj.h"
+#include "error.h"
 
 #define NST_IS_STACK_OP(token_type) \
     ( (token_type) >= NST_TT_ADD && (token_type) <= NST_TT_LTE )
@@ -154,4 +153,4 @@ void nst_print_tok(Nst_Tok *token);
 }
 #endif // !__cplusplus
 
-#endif // !Nst_TOKENS_H
+#endif // !TOKENS_H

@@ -3,8 +3,6 @@
 #ifndef MAP_H
 #define MAP_H
 
-#include <stdbool.h>
-#include <stdint.h>
 #include "str.h"
 #include "ggc.h"
 

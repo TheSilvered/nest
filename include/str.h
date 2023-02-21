@@ -3,7 +3,6 @@
 #ifndef STR_H
 #define STR_H
 
-// #include <string.h>
 #include "obj.h"
 
 #define STR(ptr) ((Nst_StrObj *)(ptr))

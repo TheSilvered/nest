@@ -3,7 +3,6 @@
 #ifndef OPTIMIZER_H
 #define OPTIMIZER_H
 
-#include "nodes.h"
 #include "compiler.h"
 
 #ifdef __cplusplus

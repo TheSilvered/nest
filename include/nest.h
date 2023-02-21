@@ -21,25 +21,16 @@
   #define NST_VERSION _NST_VERSION_BASE
 #endif
 
-#include "error.h"
-#include "hash.h"
-#include "interpreter.h"
-#include "lib_import.h"
-#include "llist.h"
-#include "map.h"
-#include "sequence.h"
-#include "function.h"
-#include "str.h"
 #include "iter.h"
-#include "simple_types.h"
+
+#include "hash.h"
 #include "obj_ops.h"
-#include "global_consts.h"
 #include "tokens.h"
 #include "lexer.h"
 #include "parser.h"
-#include "compiler.h"
 #include "optimizer.h"
 #include "encoding.h"
-#include "typedefs.h"
+#include "argv_parser.h"
+#include "error_internal.h"
 
 #endif //!NEST_H

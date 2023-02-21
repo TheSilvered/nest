@@ -3,10 +3,6 @@
 #ifndef ITER_H
 #define ITER_H
 
-#include "error.h"
-#include "obj.h"
-#include "ggc.h"
-#include "function.h"
 #include "lib_import.h"
 
 #define ITER(ptr) ((Nst_IterObj *)(ptr))

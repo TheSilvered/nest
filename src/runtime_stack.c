@@ -1,4 +1,5 @@
 #include <assert.h>
+#include <stdlib.h>
 #include "runtime_stack.h"
 
 #define V_STACK_MIN_SIZE 32

@@ -3,7 +3,6 @@
 #ifndef HASH_H
 #define HASH_H
 
-#include "typedefs.h"
 #include "obj.h"
 
 #ifdef __cplusplus

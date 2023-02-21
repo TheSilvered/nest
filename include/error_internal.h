@@ -1,5 +1,5 @@
-#ifndef SET_ERROR_INTERNAL_H
-#define SET_ERROR_INTERNAL_H
+#ifndef ERROR_INTERNAL_H
+#define ERROR_INTERNAL_H
 
 #include "error.h"
 
@@ -67,4 +67,4 @@
     _NST_SET_ERROR(error, e_start, e_end, \
                    nst_s.e_MemoryError, nst_s.o_failed_alloc)
 
-#endif // !SET_ERROR_INTERNAL
+#endif // !ERROR_INTERNAL_H

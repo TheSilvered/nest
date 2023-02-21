@@ -1,4 +1,5 @@
 #include <errno.h>
+#include <stdlib.h>
 #include "optimizer.h"
 #include "obj_ops.h"
 #include "tokens.h"

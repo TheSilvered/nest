@@ -3,7 +3,6 @@
 #ifndef OBJ_H
 #define OBJ_H
 
-#include <stdlib.h>
 #include "typedefs.h"
 
 #define OBJ(obj) ((Nst_Obj *)(obj))

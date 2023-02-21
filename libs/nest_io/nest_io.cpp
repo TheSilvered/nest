@@ -1,6 +1,7 @@
 #include <cstdio>
 #include <cstring>
 #include <cerrno>
+#include <cstdlib>
 #include "nest_io.h"
 
 #define FUNC_COUNT 19
@@ -43,7 +44,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_stdout_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_stderr_, 0);
 
-#if __LINE__ - FUNC_COUNT != 27
+#if __LINE__ - FUNC_COUNT != 28
 #error FUNC_COUNT does not match the number of lines
 #endif
 

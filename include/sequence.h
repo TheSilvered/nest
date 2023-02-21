@@ -3,9 +3,6 @@
 #ifndef SEQUENCE_H
 #define SEQUENCE_H
 
-#include <stdint.h>
-#include "obj.h"
-#include "llist.h"
 #include "ggc.h"
 
 #define _NST_VECTOR_MIN_SIZE 8

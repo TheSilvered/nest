@@ -3,7 +3,6 @@
 #ifndef ERROR_H
 #define ERROR_H
 
-#include "typedefs.h"
 #include "str.h"
 #include "llist.h"
 

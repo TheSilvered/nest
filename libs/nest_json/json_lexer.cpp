@@ -1,5 +1,6 @@
 #include <cctype>
 #include <cerrno>
+#include <cstdlib>
 #include "json_lexer.h"
 
 #define SET_INVALID_ESCAPE_ERROR \
