@@ -32,10 +32,10 @@ bool comments = false;
 typedef struct _LexerState
 {
     Nst_Pos pos;
-    size_t idx;
-    size_t len;
-    char *path;
-    char ch;
+    usize idx;
+    usize len;
+    i8 *path;
+    i8 ch;
 }
 LexerState;
 
@@ -71,11 +71,11 @@ static Nst_Tok *parse_json_num(Nst_OpErr *err);
 static Nst_Tok *parse_json_val(Nst_OpErr *err);
 static bool ignore_comment(Nst_OpErr *err);
 
-Nst_LList *json_tokenize(char      *path,
-                     char      *text,
-                     size_t     text_len,
-                     bool       fix_encoding,
-                     Nst_OpErr *err)
+Nst_LList *json_tokenize(i8        *path,
+                         i8        *text,
+                         usize      text_len,
+                         bool       fix_encoding,
+                         Nst_OpErr *err)
 {
     Nst_SourceText src_text = {
         .text = text,
@@ -99,9 +99,11 @@ Nst_LList *json_tokenize(char      *path,
     }
 
     Nst_LList *tokens = nst_llist_new();
+    Nst_Tok *tok = nullptr;
+
     if ( text_len == 0 )
     {
-        return tokens;
+        goto end;
     }
 
     state.pos.text = &src_text;
@@ -111,8 +113,6 @@ Nst_LList *json_tokenize(char      *path,
     state.len = src_text.len;
     state.path = path;
     state.ch = *text;
-
-    Nst_Tok *tok = nullptr;
 
     while ( state.idx < state.len )
     {
@@ -188,6 +188,7 @@ Nst_LList *json_tokenize(char      *path,
         nst_llist_append(tokens, tok, true);
         advance();
     }
+end:
     nst_llist_append(tokens, tok_new_noend(state.pos, JSON_EOF), false);
     return tokens;
 }
@@ -198,8 +199,8 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
     Nst_Pos escape_start = nst_copy_pos(state.pos);
     bool escape = false;
 
-    char *end_str = (char *)malloc(8);
-    char *end_str_realloc = nullptr;
+    i8 *end_str = (i8 *)malloc(8);
+    i8 *end_str_realloc = nullptr;
 
     if ( end_str == nullptr )
     {
@@ -207,31 +208,31 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
         return nullptr;
     }
 
-    size_t str_len = 0;
-    size_t chunk_size = 8;
+    usize str_len = 0;
+    usize chunk_size = 8;
 
     advance();
 
     while ( state.idx < state.len && (state.ch != '"' || escape))
     {
-        if ( str_len + 3 == chunk_size )
+        if ( str_len + 3 >= chunk_size )
         {
-            chunk_size = (size_t)(chunk_size * 1.5);
-            end_str_realloc = (char *)realloc(
+            chunk_size = (usize)(chunk_size * 1.5);
+            end_str_realloc = (i8 *)realloc(
                 end_str,
-                sizeof(char) * chunk_size);
+                sizeof(i8) * chunk_size);
             if ( end_str_realloc == nullptr )
             {
                 free(end_str);
                 NST_FAILED_ALLOCATION;
-                return nullptr;;
+                return nullptr;
             }
             end_str = end_str_realloc;
         }
 
         if ( !escape )
         {
-            if ( (unsigned char)state.ch < ' ' )
+            if ( (u8)state.ch < ' ' )
             {
                 free(end_str);
                 NST_SET_SYNTAX_ERROR(nst_format_error(
@@ -271,20 +272,24 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
             advance();
             if ( state.idx + 3 >= state.len )
             {
+                free(end_str);
                 SET_INVALID_ESCAPE_ERROR;
+                return nullptr;
             }
 
-            char ch1 = (char)tolower(state.ch);
+            i8 ch1 = (i8)tolower(state.ch);
             advance();
-            char ch2 = (char)tolower(state.ch);
+            i8 ch2 = (i8)tolower(state.ch);
             advance();
-            char ch3 = (char)tolower(state.ch);
+            i8 ch3 = (i8)tolower(state.ch);
             advance();
-            char ch4 = (char)tolower(state.ch);
+            i8 ch4 = (i8)tolower(state.ch);
 
             if ( !IS_HEX(ch1) || !IS_HEX(ch2) || !IS_HEX(ch3) || !IS_HEX(ch4) )
             {
+                free(end_str);
                 SET_INVALID_ESCAPE_ERROR;
+                return nullptr;
             }
 
             ch1 = HEX_TO_INT(ch1);
@@ -292,28 +297,29 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
             ch3 = HEX_TO_INT(ch3);
             ch4 = HEX_TO_INT(ch4);
 
-            int num = (ch1 << 12) + (ch2 << 8) + (ch3 << 4) + ch4;
+            i32 num = (ch1 << 12) + (ch2 << 8) + (ch3 << 4) + ch4;
 
             if ( num <= 0x7f )
             {
-                end_str[str_len++] = (char)num;
+                end_str[str_len++] = (i8)num;
             }
             else if ( num <= 0x7ff )
             {
-                end_str[str_len++] = 0b11000000 | (char)(num >> 6);
-                end_str[str_len++] = 0b10000000 | (char)(num & 0x3f);
+                end_str[str_len++] = 0b11000000 | (i8)(num >> 6);
+                end_str[str_len++] = 0b10000000 | (i8)(num & 0x3f);
             }
             else
             {
-                end_str[str_len++] = 0b11100000 | (char)(num >> 12);
-                end_str[str_len++] = 0b10000000 | (char)(num >> 6 & 0x3f);
-                end_str[str_len++] = 0b10000000 | (char)(num & 0x3f);
+                end_str[str_len++] = 0b11100000 | (i8)(num >> 12);
+                end_str[str_len++] = 0b10000000 | (i8)(num >> 6 & 0x3f);
+                end_str[str_len++] = 0b10000000 | (i8)(num & 0x3f);
             }
             break;
         }
         default:
             free(end_str);
             SET_INVALID_ESCAPE_ERROR;
+            return nullptr;
         }
 
         escape = false;
@@ -329,9 +335,9 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
 
     if ( str_len < chunk_size )
     {
-        end_str_realloc = (char*)realloc(
+        end_str_realloc = (i8*)realloc(
             end_str,
-            sizeof(char) * (str_len + 1));
+            sizeof(i8) * (str_len + 1));
     }
     if ( end_str_realloc != nullptr )
     {
@@ -348,7 +354,7 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
 
 static Nst_Tok *parse_json_num(Nst_OpErr *err)
 {
-    char *start_idx = state.pos.text->text + state.idx;
+    i8 *start_idx = state.pos.text->text + state.idx;
     Nst_Pos start = nst_copy_pos(state.pos);
     if ( state.ch == '-' )
     {
@@ -383,7 +389,7 @@ static Nst_Tok *parse_json_num(Nst_OpErr *err)
             goto float_ltrl;
         }
         go_back();
-
+        errno = 0;
         Nst_Int value = strtoll(start_idx, nullptr, 10);
         if ( errno == ERANGE )
         {
@@ -469,7 +475,7 @@ float_ltrl:
 static Nst_Tok *parse_json_val(Nst_OpErr *err)
 {
     Nst_Pos start = nst_copy_pos(state.pos);
-    char *text = state.pos.text->text + state.idx;
+    i8 *text = state.pos.text->text + state.idx;
     switch ( state.ch )
     {
     case 't':

@@ -22,7 +22,7 @@ bool lib_init()
         return false;
     }
 
-    size_t idx = 0;
+    usize idx = 0;
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(time_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(time_ns_, 0);
@@ -62,7 +62,7 @@ static Nst_Int get_year_day_c(tm *t)
     Nst_Int m = t->tm_mon;
     Nst_Int d = t->tm_mday;
 
-    int days_per_moth[] = {   0,   0,  31,  59,  90, 120, 151,
+    i32 days_per_moth[] = {   0,   0,  31,  59,  90, 120, 151,
                             181, 212, 243, 273, 304, 334       };
 
     Nst_Int day_of_the_year = days_per_moth[m] + d;

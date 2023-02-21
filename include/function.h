@@ -22,7 +22,7 @@ extern "C" {
 typedef union _FuncBody
 {
     Nst_InstList *bytecode;
-    Nst_Obj *(*c_func)(size_t arg_num, Nst_Obj **args, Nst_OpErr *err);
+    Nst_Obj *(*c_func)(usize arg_num, Nst_Obj **args, Nst_OpErr *err);
 }
 FuncBody;
 
@@ -32,18 +32,18 @@ typedef struct _Nst_FuncObj
     NST_GGC_HEAD;
     FuncBody body;
     Nst_Obj **args;
-    size_t arg_num;
+    usize arg_num;
     Nst_MapObj *mod_globals;
 }
 Nst_FuncObj;
 
 // Creates a new function objects that accepts `arg_num` args
 // The function's `args` must be set manually
-Nst_Obj *nst_func_new(size_t arg_num, Nst_InstList *bytecode);
+Nst_Obj *nst_func_new(usize arg_num, Nst_InstList *bytecode);
 // Creates a new function object that is a wrapper of a C function
-Nst_Obj *nst_func_new_c(size_t arg_num, Nst_Obj *(*cbody)(size_t     arg_num,
-                                                          Nst_Obj  **args,
-                                                          Nst_OpErr *err));
+Nst_Obj *nst_func_new_c(usize arg_num, Nst_Obj *(*cbody)(usize     arg_num,
+                                                         Nst_Obj  **args,
+                                                         Nst_OpErr *err));
 void _nst_func_set_vt(Nst_FuncObj *func, Nst_MapObj *map);
 
 // traverse function for Nst_FuncObj, needed for the GGC

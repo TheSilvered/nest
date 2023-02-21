@@ -41,11 +41,11 @@ extern "C" {
 
 typedef struct _Nst_MapNode
 {
-    int32_t hash;
+    i32 hash;
     Nst_Obj *key;
     Nst_Obj *value;
-    int next_idx;
-    int prev_idx;
+    i32 next_idx;
+    i32 prev_idx;
 }
 Nst_MapNode;
 
@@ -53,12 +53,12 @@ typedef struct _Nst_MapObj
 {
     NST_OBJ_HEAD;
     NST_GGC_HEAD;
-    size_t size;
-    size_t item_count;
-    size_t mask;
+    usize size;
+    usize item_count;
+    usize mask;
     Nst_MapNode *nodes;
-    int head_idx;
-    int tail_idx;
+    i32 head_idx;
+    i32 tail_idx;
 }
 Nst_MapObj;
 
@@ -72,14 +72,14 @@ void _nst_map_destroy(Nst_MapObj *map);
 void _nst_map_traverse(Nst_MapObj *map);
 void _nst_map_track(Nst_MapObj *map);
 
-int _nst_map_get_next_idx(int curr_idx, Nst_MapObj *map);
+i32 _nst_map_get_next_idx(i32 curr_idx, Nst_MapObj *map);
 // Resizes the node array if necessary
 // `force_item_reset` forces all the items in the map to be re-inserted
 void _nst_map_resize(Nst_MapObj *map, bool force_item_reset);
 
-void _nst_map_set_str(Nst_MapObj *map, const char *key, Nst_Obj *value);
-Nst_Obj *_nst_map_get_str(Nst_MapObj *map, const char *key);
-Nst_Obj *_nst_map_drop_str(Nst_MapObj *map, const char *key);
+void _nst_map_set_str(Nst_MapObj *map, const i8 *key, Nst_Obj *value);
+Nst_Obj *_nst_map_get_str(Nst_MapObj *map, const i8 *key);
+Nst_Obj *_nst_map_drop_str(Nst_MapObj *map, const i8 *key);
 
 #ifdef __cplusplus
 }

@@ -34,24 +34,24 @@
 extern "C" {
 #endif // !__cplusplus
 
-NST_SIMPLE_TYPE_STRUCT(long long, Nst_Int);
-NST_SIMPLE_TYPE_STRUCT(double, Nst_Real);
-NST_SIMPLE_TYPE_STRUCT(char, Nst_Bool);
-NST_SIMPLE_TYPE_STRUCT(unsigned char, Nst_Byte);
+NST_SIMPLE_TYPE_STRUCT(i64, Nst_Int);
+NST_SIMPLE_TYPE_STRUCT(f64, Nst_Real);
+NST_SIMPLE_TYPE_STRUCT(i8,  Nst_Bool);
+NST_SIMPLE_TYPE_STRUCT(u8,  Nst_Byte);
 
 typedef FILE *Nst_IOFile;
-typedef size_t (*Nst_IOFile_read_f) (void  *buf,
-                                     size_t size,
-                                     size_t count,
-                                     void  *f_value);
-typedef size_t (*Nst_IOFile_write_f)(void  *buf,
-                                     size_t size,
-                                     size_t count,
-                                     void  *f_value);
-typedef int    (*Nst_IOFile_flush_f)(void *f_value);
-typedef long   (*Nst_IOFile_tell_f) (void *f_value);
-typedef int    (*Nst_IOFile_seek_f) (void *f_value, long offset, int origin);
-typedef int    (*Nst_IOFile_close_f)(void *f_value);
+typedef usize (*Nst_IOFile_read_f) (void  *buf,
+                                    usize size,
+                                    usize count,
+                                    void  *f_value);
+typedef usize (*Nst_IOFile_write_f)(void  *buf,
+                                    usize size,
+                                    usize count,
+                                    void  *f_value);
+typedef i32   (*Nst_IOFile_flush_f)(void *f_value);
+typedef i32   (*Nst_IOFile_tell_f) (void *f_value);
+typedef i32   (*Nst_IOFile_seek_f) (void *f_value, i32 offset, i32 origin);
+typedef i32   (*Nst_IOFile_close_f)(void *f_value);
 
 typedef struct _Nst_IOFileObj
 {
@@ -97,16 +97,16 @@ Nst_Obj *nst_iof_new_fake(void *value,
 
 void _nst_destroy_iofile(Nst_IOFileObj *obj);
 
-ptrdiff_t nst_print(const char *buf, ptrdiff_t len);
-ptrdiff_t nst_println(const char *buf, ptrdiff_t len);
-// ptrdiff_t nst_printf(const char *fmt, ...);
-ptrdiff_t nst_fprint(Nst_IOFileObj *f, const char *buf, ptrdiff_t len);
-ptrdiff_t nst_fprintln(Nst_IOFileObj *f, const char *buf, ptrdiff_t len);
-// ptrdiff_t nst_fprintf(Nst_IOFileObj *f, const char *buf, ...);
-// ptrdiff_t nst_fvprintf(Nst_IOFileObj *f, const char *buf, va_list args);
+isize nst_print(const i8 *buf, isize len);
+isize nst_println(const i8 *buf, isize len);
+// isize nst_printf(const i8 *fmt, ...);
+isize nst_fprint(Nst_IOFileObj *f, const i8 *buf, isize len);
+isize nst_fprintln(Nst_IOFileObj *f, const i8 *buf, isize len);
+// isize nst_fprintf(Nst_IOFileObj *f, const i8 *buf, ...);
+// isize nst_fvprintf(Nst_IOFileObj *f, const i8 *buf, va_list args);
 
-int nst_flush();
-int nst_fflush(Nst_IOFileObj *f);
+i32 nst_flush();
+i32 nst_fflush(Nst_IOFileObj *f);
 
 #ifdef __cplusplus
 }

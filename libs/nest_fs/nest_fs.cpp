@@ -11,6 +11,8 @@
 
 #include <filesystem>
 #include <cerrno>
+#include <cstring>
+
 #define FUNC_COUNT 20
 
 namespace fs = std::filesystem;
@@ -26,7 +28,7 @@ bool lib_init()
         return false;
     }
 
-    size_t idx = 0;
+    usize idx = 0;
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(isdir_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(mkdir_, 1);
@@ -49,7 +51,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(extension_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_copy_options_, 0);
 
-#if __LINE__ - FUNC_COUNT != 32
+#if __LINE__ - FUNC_COUNT != 34
 #error FUNC_COUNT does not match the number of lines
 #endif
 
@@ -72,7 +74,7 @@ void free_lib()
 
 Nst_StrObj *heap_str(std::string str)
 {
-    char *heap_s = new char[str.length() + 1];
+    i8 *heap_s = new i8[str.length() + 1];
     memcpy(heap_s, str.c_str(), str.length());
     heap_s[str.length()] = 0;
     return STR(nst_string_new(heap_s, str.length(), true));
@@ -404,10 +406,10 @@ NST_FUNC_SIGN(join_)
 
     NST_DEF_EXTRACT("ss", &path_1, &path_2);
 
-    char *p1 = path_1->value;
-    char *p2 = path_2->value;
-    size_t p1_len = path_1->len;
-    size_t p2_len = path_2->len;
+    i8 *p1 = path_1->value;
+    i8 *p2 = path_2->value;
+    usize p1_len = path_1->len;
+    usize p2_len = path_2->len;
 
     if ( p2_len == 0 )
     {
@@ -419,7 +421,7 @@ NST_FUNC_SIGN(join_)
         return nst_inc_ref(path_2);
     }
 
-    size_t new_len = p1_len + p2_len;
+    usize new_len = p1_len + p2_len;
     bool add_slash = false;
 
     if ( p1[p1_len - 1] != '/' && p1[p1_len - 1] != '\\' )
@@ -428,7 +430,7 @@ NST_FUNC_SIGN(join_)
         add_slash = true;
     }
 
-    char *new_str = new char[new_len + 1];
+    i8 *new_str = new i8[new_len + 1];
     memcpy(new_str, p1, p1_len);
 
     if ( add_slash )
@@ -442,7 +444,7 @@ NST_FUNC_SIGN(join_)
     memcpy(new_str + p1_len + (add_slash ? 1 : 0), p2, p2_len);
     new_str[new_len] = 0;
 
-    for ( size_t i = 0; i < new_len; i++ )
+    for ( usize i = 0; i < new_len; i++ )
     {
 #if defined(_WIN32) || defined(WIN32)
         if ( new_str[i] == '/' )

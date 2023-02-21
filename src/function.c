@@ -3,7 +3,7 @@
 #include "function.h"
 #include "global_consts.h"
 
-Nst_Obj *nst_func_new(size_t arg_num, Nst_InstList *bytecode)
+Nst_Obj *nst_func_new(usize arg_num, Nst_InstList *bytecode)
 {
     Nst_FuncObj *func = FUNC(nst_obj_alloc(
         sizeof(Nst_FuncObj),
@@ -26,9 +26,9 @@ Nst_Obj *nst_func_new(size_t arg_num, Nst_InstList *bytecode)
     return OBJ(func);
 }
 
-Nst_Obj *nst_func_new_c(size_t arg_num, Nst_Obj *(*cbody)(size_t     arg_num,
-                                                          Nst_Obj  **args,
-                                                          Nst_OpErr *err))
+Nst_Obj *nst_func_new_c(usize arg_num, Nst_Obj *(*cbody)(usize     arg_num,
+                                                         Nst_Obj  **args,
+                                                         Nst_OpErr *err))
 {
     Nst_FuncObj *func = FUNC(nst_obj_alloc(
         sizeof(Nst_FuncObj),
@@ -74,7 +74,7 @@ void _nst_func_destroy(Nst_FuncObj *func)
 {
     if ( func->args != NULL )
     {
-        for ( size_t i = 0, n = func->arg_num; i < n; i++ )
+        for ( usize i = 0, n = func->arg_num; i < n; i++ )
         {
             nst_dec_ref(func->args[i]);
         }

@@ -76,7 +76,7 @@ void _nst_iter_traverse(Nst_IterObj* iter)
     NST_FLAG_SET(iter->value,   NST_FLAG_GGC_REACHABLE);
 }
 
-int _nst_iter_start(Nst_IterObj *iter, Nst_OpErr *err)
+i32 _nst_iter_start(Nst_IterObj *iter, Nst_OpErr *err)
 {
     Nst_Obj *result = nst_call_func(iter->start, &iter->value, err);
 
@@ -89,7 +89,7 @@ int _nst_iter_start(Nst_IterObj *iter, Nst_OpErr *err)
     return 0;
 }
 
-int _nst_iter_is_done(Nst_IterObj *iter, Nst_OpErr *err)
+i32 _nst_iter_is_done(Nst_IterObj *iter, Nst_OpErr *err)
 {
     Nst_Obj *result = nst_call_func(iter->is_done, &iter->value, err);
 
@@ -162,7 +162,7 @@ NST_FUNC_SIGN(nst_iter_seq_is_done)
 {
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
-    size_t seq_len = SEQ(objs[1])->len;
+    usize seq_len = SEQ(objs[1])->len;
 
     if ( seq_len == 0 || AS_INT(objs[0]) >= (Nst_Int)seq_len )
     {
@@ -178,7 +178,7 @@ NST_FUNC_SIGN(nst_iter_seq_get_val)
 {
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_SeqObj *seq = SEQ(val->objs[1]);
-    size_t idx = (size_t)AS_INT(val->objs[0]);
+    usize idx = (usize)AS_INT(val->objs[0]);
 
     if ( seq->len < idx )
     {
@@ -208,7 +208,7 @@ NST_FUNC_SIGN(nst_iter_str_is_done)
 {
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
-    size_t str_len = STR(objs[1])->len;
+    usize str_len = STR(objs[1])->len;
 
     if ( str_len == 0 || AS_INT(objs[0]) >= (Nst_Int)str_len )
     {
@@ -225,7 +225,7 @@ NST_FUNC_SIGN(nst_iter_str_get_val)
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
     Nst_StrObj *str = STR(objs[1]);
-    size_t idx = (size_t)AS_INT(objs[0]);
+    usize idx = (usize)AS_INT(objs[0]);
 
     if ( idx >= str->len )
     {

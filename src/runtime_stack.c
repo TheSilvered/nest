@@ -8,14 +8,14 @@
 typedef struct _GenericStack
 {
     void *stack;
-    size_t current_size;
-    size_t max_size;
+    usize current_size;
+    usize max_size;
 }
 GenericStack;
 
 static void shrink_stack(GenericStack *g_stack,
-                         size_t        min_size,
-                         size_t        unit_size)
+                         usize         min_size,
+                         usize         unit_size)
 {
     if ( g_stack->max_size <= min_size )
     {
@@ -57,7 +57,7 @@ Nst_ValueStack *nst_vstack_new()
 
 bool _nst_vstack_push(Nst_ValueStack *v_stack, Nst_Obj *obj)
 {
-    size_t max_size = v_stack->max_size;
+    usize max_size = v_stack->max_size;
     if ( v_stack->current_size == max_size )
     {
         Nst_Obj **new_objs = (Nst_Obj **)realloc(
@@ -147,7 +147,7 @@ bool _nst_fstack_push(Nst_CallStack *f_stack,
                       Nst_VarTable  *vt,
                       Nst_Int        idx)
 {
-    size_t max_size = f_stack->max_size;
+    usize max_size = f_stack->max_size;
 
     if ( f_stack->current_size == max_size )
     {
@@ -253,10 +253,10 @@ Nst_CatchStack *nst_cstack_new()
 
 bool nst_cstack_push(Nst_CatchStack *c_stack,
                     Nst_Int         inst_idx,
-                    size_t          v_stack_size,
-                    size_t          f_stack_size)
+                    usize           v_stack_size,
+                    usize           f_stack_size)
 {
-    size_t max_size = c_stack->max_size;
+    usize max_size = c_stack->max_size;
 
     if ( c_stack->current_size == max_size )
     {

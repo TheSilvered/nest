@@ -2,6 +2,7 @@
 #define GLOBAL_CONSTS_H
 
 #include "str.h"
+#include "simple_types.h"
 
 #ifdef __cplusplus
 extern "C" {

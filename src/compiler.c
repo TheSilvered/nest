@@ -19,11 +19,11 @@
 
 #define ADD_INST(instruction) nst_llist_append(c_state.inst_ls, instruction, true)
 
-#define PRINT(str, size) fwrite(str, sizeof(char), size, stdout)
+#define PRINT(str, size) fwrite(str, sizeof(i8), size, stdout)
 
 typedef struct
 {
-    int loop_id;
+    i32 loop_id;
     Nst_LList *inst_ls;
 }
 CompileState;
@@ -41,8 +41,8 @@ static void dec_loop_id()
 }
 
 static Nst_InstList *compile_internal(Nst_Node *node,
-                                             bool      is_func,
-                                             bool      is_module);
+                                      bool      is_func,
+                                      bool      is_module);
 static void compile_node(Nst_Node *node);
 static void compile_long_s(Nst_Node *node);
 static void compile_while_l(Nst_Node *node);
@@ -114,7 +114,7 @@ static Nst_InstList *compile_internal(Nst_Node *code,
 
     Nst_LList *funcs = nst_llist_new();
     inst_list->functions = funcs;
-    size_t i = 0;
+    usize i = 0;
     Nst_Inst *inst;
     for ( Nst_LLNode *n = c_state.inst_ls->head;
           n != NULL;
@@ -605,7 +605,7 @@ static void compile_func_declr(Nst_Node *node)
     SET_VAL_LOC name
     */
 
-    int prev_loop_id = c_state.loop_id;
+    i32 prev_loop_id = c_state.loop_id;
     Nst_LList *prev_inst_ls = c_state.inst_ls;
     Nst_FuncObj *func = FUNC(nst_func_new(
         node->tokens->size - 1,
@@ -613,7 +613,7 @@ static void compile_func_declr(Nst_Node *node)
     c_state.loop_id = prev_loop_id;
     c_state.inst_ls = prev_inst_ls;
 
-    size_t i = 0;
+    usize i = 0;
     for ( Nst_LLNode *n = node->tokens->head->next; n != NULL; n = n->next )
     {
         func->args[i++] = nst_inc_ref(TOK(n->value)->value);
@@ -643,7 +643,7 @@ static void compile_lambda(Nst_Node *node)
     PUSH_VAL lambda function
     */
 
-    int prev_loop_id = c_state.loop_id;
+    i32 prev_loop_id = c_state.loop_id;
     Nst_LList *prev_inst_ls = c_state.inst_ls;
     Nst_FuncObj *func = FUNC(nst_func_new(
         node->tokens->size,
@@ -651,7 +651,7 @@ static void compile_lambda(Nst_Node *node)
     c_state.loop_id = prev_loop_id;
     c_state.inst_ls = prev_inst_ls;
 
-    size_t i = 0;
+    usize i = 0;
     for ( Nst_LLNode *n = node->tokens->head; n != NULL; n = n->next )
     {
         func->args[i++] = nst_inc_ref(TOK(n->value)->value);
@@ -746,7 +746,7 @@ static void compile_comp_op(Nst_Node *node)
     */
 
     Nst_Inst *inst;
-    int op_id = HEAD_TOK->type;
+    i32 op_id = HEAD_TOK->type;
 
     compile_node(HEAD_NODE);
     Nst_LList *fix_jumps = nst_llist_new();
@@ -864,7 +864,7 @@ static void compile_local_stack_op(Nst_Node *node)
     OP_CALL - arg num or -1 for SEQ_CALL
     */
 
-    int tok_type = HEAD_TOK->type;
+    i32 tok_type = HEAD_TOK->type;
     Nst_Inst *inst;
 
     if ( tok_type == NST_TT_RANGE )
@@ -1481,9 +1481,9 @@ static void compile_try_catch_s(Nst_Node* node)
     jump_catch_end->int_val = CURR_LEN;
 }
 
-void nst_print_bytecode(Nst_InstList *ls, int indent)
+void nst_print_bytecode(Nst_InstList *ls, i32 indent)
 {
-    size_t tot_size = ls->total_size;
+    usize tot_size = ls->total_size;
     int i_len = 1; // maximum length of the index in a string
 
     while ( tot_size >= 10 )
@@ -1494,29 +1494,29 @@ void nst_print_bytecode(Nst_InstList *ls, int indent)
 
     i_len = i_len < 3 ? 3 : i_len;
 
-    for ( int i = 0; i < indent; i++ )
+    for ( i32 i = 0; i < indent; i++ )
     {
         PRINT("    ", 4);
     }
-    for ( int i = 3; i < i_len;  i++ )
+    for ( i32 i = 3; i < i_len;  i++ )
     {
         putchar(' ');
     }
 
     PRINT(" Idx |   Pos   |  Instruction  | ", 33);
 
-    for ( int i = 3; i < i_len; i++ )
+    for ( i32 i = 3; i < i_len; i++ )
     {
         putchar(' ');
     }
 
     PRINT("Int | Object\n", 13);
 
-    for ( size_t i = 0, n = ls->total_size; i < n; i++ )
+    for ( usize i = 0, n = ls->total_size; i < n; i++ )
     {
         Nst_Inst inst = ls->instructions[i];
 
-        for ( int j = 0; j < indent; j++ )
+        for ( i32 j = 0; j < indent; j++ )
         {
             printf("    ");
         }
@@ -1581,7 +1581,7 @@ void nst_print_bytecode(Nst_InstList *ls, int indent)
         if ( inst.id == NST_IC_NO_OP )
         {
             PRINT(" | ", 3);
-            for ( int j = 0; j < i_len; j++ )
+            for ( i32 j = 0; j < i_len; j++ )
             {
                 putchar(' ');
             }
@@ -1603,7 +1603,7 @@ void nst_print_bytecode(Nst_InstList *ls, int indent)
         else
         {
             PRINT(" | ", 3);
-            for ( int j = 0; j < i_len; j++ )
+            for ( i32 j = 0; j < i_len; j++ )
             {
                 putchar(' ');
             }
@@ -1614,13 +1614,13 @@ void nst_print_bytecode(Nst_InstList *ls, int indent)
         {
             printf(" (%s) ", TYPE_NAME(inst.val));
             Nst_StrObj* s = STR(_nst_repr_str_cast(inst.val));
-            fwrite(s->value, sizeof(char), s->len, stdout);
+            fwrite(s->value, sizeof(i8), s->len, stdout);
             nst_dec_ref(s);
 
             if ( inst.val->type == nst_t.Func )
             {
                 PRINT("\n\n", 2);
-                for ( int j = 0; j < indent + 1; j++ )
+                for ( i32 j = 0; j < indent + 1; j++ )
                 {
                     PRINT("    ", 4);
                 }

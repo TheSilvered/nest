@@ -13,7 +13,7 @@ bool lib_init()
     if ( (func_list_ = nst_func_list_new(FUNC_COUNT)) == nullptr )
         return false;
 
-    size_t idx = 0;
+    usize idx = 0;
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(load_s_,      1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(load_f_,      1);
@@ -41,7 +41,7 @@ NST_FUNC_SIGN(load_s_)
     NST_DEF_EXTRACT("s", &str);
 
     Nst_LList *tokens = json_tokenize(
-        (char *)"<Str>",
+        (i8 *)"<Str>",
         str->value, str->len,
         false, err);
     if ( tokens == nullptr )
@@ -49,7 +49,7 @@ NST_FUNC_SIGN(load_s_)
         return nullptr;
     }
 
-    Nst_Obj *value = json_parse((char *)"<Str>", tokens, err);
+    Nst_Obj *value = json_parse((i8 *)"<Str>", tokens, err);
     return value;
 }
 
@@ -66,11 +66,11 @@ NST_FUNC_SIGN(load_f_)
     }
 
     fseek(f, 0, SEEK_END);
-    size_t buf_size = (size_t)ftell(f);
+    usize buf_size = (usize)ftell(f);
     fseek(f, 0, SEEK_SET);
 
-    char *buf = new char[buf_size + 1];
-    size_t len = fread(buf, sizeof(char), buf_size, f);
+    i8 *buf = new i8[buf_size + 1];
+    usize len = fread(buf, sizeof(i8), buf_size, f);
     buf[len] = 0;
     Nst_LList *tokens = json_tokenize(path->value, buf, len, true, err);
     if ( tokens == nullptr )
@@ -91,7 +91,7 @@ NST_FUNC_SIGN(dump_s_)
     Nst_Int indent;
     NST_SET_DEF(indent_obj, indent, 0, AS_INT(indent_obj));
 
-    return json_dump(obj, (int)indent, err);
+    return json_dump(obj, (i32)indent, err);
 }
 
 NST_FUNC_SIGN(dump_f_)
@@ -111,13 +111,13 @@ NST_FUNC_SIGN(dump_f_)
         return nullptr;
     }
 
-    Nst_Obj *res = json_dump(obj, (int)indent, err);
+    Nst_Obj *res = json_dump(obj, (i32)indent, err);
     if ( res == nullptr )
     {
         fclose(f);
         return nullptr;
     }
-    fwrite(STR(res)->value, sizeof(char), STR(res)->len, f);
+    fwrite(STR(res)->value, sizeof(i8), STR(res)->len, f);
     fclose(f);
     NST_RETURN_NULL;
 }

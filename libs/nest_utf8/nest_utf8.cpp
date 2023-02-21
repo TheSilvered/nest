@@ -1,3 +1,4 @@
+#include <cstring>
 #include "nest_utf8.h"
 
 #define FUNC_COUNT 4
@@ -15,14 +16,14 @@ bool lib_init()
         return false;
     }
 
-    size_t idx = 0;
+    usize idx = 0;
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(is_valid_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_len_,  1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_at_,   2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(to_iter_,  1);
 
-#if __LINE__ - FUNC_COUNT != 21
+#if __LINE__ - FUNC_COUNT != 22
 #error
 #endif
 
@@ -45,7 +46,7 @@ NST_FUNC_SIGN(utf8_iter_start)
 NST_FUNC_SIGN(utf8_iter_is_done)
 {
     Nst_Obj **objs = SEQ(args[0])->objs;
-    NST_RETURN_COND((size_t)AS_INT(objs[0]) >= STR(objs[1])->len);
+    NST_RETURN_COND((usize)AS_INT(objs[0]) >= STR(objs[1])->len);
 }
 
 NST_FUNC_SIGN(utf8_iter_get_val)
@@ -53,25 +54,25 @@ NST_FUNC_SIGN(utf8_iter_get_val)
     Nst_Obj **objs = SEQ(args[0])->objs;
     Nst_IntObj *idx = (Nst_IntObj *)objs[0];
     Nst_StrObj *str = (Nst_StrObj *)objs[1];
-    size_t s_len = str->len;
+    usize s_len = str->len;
     Nst_Int val = idx->value;
 
-    if ( (size_t)val >= s_len )
+    if ( (usize)val >= s_len )
     {
         NST_SET_VALUE_ERROR(nst_format_error(
             _NST_EM_INDEX_OUT_OF_BOUNDS("Str"),
             "iu",
             val, s_len));
     }
-    int res = nst_check_utf8_bytes(
-        (unsigned char *)str->value + val,
-        s_len - (size_t)val);
+    i32 res = nst_check_utf8_bytes(
+        (u8 *)str->value + val,
+        s_len - (usize)val);
     if ( res == -1 )
     {
         SET_INVALID_UTF8;
         return nullptr;
     }
-    char *new_s = new char[res + 1];
+    i8 *new_s = new i8[res + 1];
     memcpy(new_s, str->value + val, res);
     new_s[res] = '\0';
     idx->value += res;
@@ -83,10 +84,10 @@ NST_FUNC_SIGN(is_valid_)
 {
     Nst_StrObj *str;
     NST_DEF_EXTRACT("s", &str);
-    unsigned char *s = (unsigned char *)str->value;
-    for ( size_t i = 0, n = str->len; i < n; )
+    u8 *s = (u8 *)str->value;
+    for ( usize i = 0, n = str->len; i < n; )
     {
-        int res = nst_check_utf8_bytes(s + i, n - i);
+        i32 res = nst_check_utf8_bytes(s + i, n - i);
         if ( res == -1 )
         {
             NST_RETURN_FALSE;
@@ -102,12 +103,12 @@ NST_FUNC_SIGN(get_len_)
     Nst_StrObj *str;
     NST_DEF_EXTRACT("s", &str);
 
-    unsigned char *s = (unsigned char *)str->value;
-    size_t len = 0;
+    u8 *s = (u8 *)str->value;
+    usize len = 0;
 
-    for ( size_t i = 0, n = str->len; i < n; len++ )
+    for ( usize i = 0, n = str->len; i < n; len++ )
     {
-        int res = nst_check_utf8_bytes(s + i, n - i);
+        i32 res = nst_check_utf8_bytes(s + i, n - i);
         if ( res == -1 )
         {
             SET_INVALID_UTF8;
@@ -125,12 +126,12 @@ NST_FUNC_SIGN(get_at_)
     Nst_Int idx;
     NST_DEF_EXTRACT("si", &str, &idx);
 
-    unsigned char *s = (unsigned char *)str->value;
-    size_t u_len = 0;
-    size_t s_len = str->len;
+    u8 *s = (u8 *)str->value;
+    usize u_len = 0;
+    usize s_len = str->len;
     Nst_Int curr_idx = 0;
-    size_t i = 0;
-    int res;
+    usize i = 0;
+    i32 res;
 
     for ( ; i < s_len && curr_idx < idx; curr_idx++, u_len++ )
     {
@@ -159,7 +160,7 @@ NST_FUNC_SIGN(get_at_)
         return nullptr;
     }
 
-    char *new_s = new char[res + 1];
+    i8 *new_s = new i8[res + 1];
     memcpy(new_s, s + i, res);
     new_s[res] = '\0';
     return nst_string_new(new_s, res, true);

@@ -75,7 +75,7 @@
     <ClInclude Include="..\..\..\..\include\nodes.h">
       <Filter>Nest source</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\nst_types.h">
+    <ClInclude Include="..\..\..\..\include\typedefs.h">
       <Filter>Nest source</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\obj.h">

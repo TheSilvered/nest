@@ -3,9 +3,8 @@
 #ifndef OBJ_H
 #define OBJ_H
 
-#include <stdbool.h>
-#include <stdint.h>
 #include <stdlib.h>
+#include "typedefs.h"
 
 #define OBJ(obj) ((Nst_Obj *)(obj))
 
@@ -26,11 +25,11 @@
 // flags can support up to 4 flags
 // the top 4 are reserved for the garbage collector
 #define NST_OBJ_HEAD \
-    int ref_count; \
+    i32 ref_count; \
     struct _Nst_StrObj *type; \
     void (*destructor)(void *); \
-    int32_t hash; \
-    unsigned char flags
+    i32 hash; \
+    u8 flags
 
 #ifdef __cplusplus
 extern "C" {
@@ -48,7 +47,7 @@ typedef void (*Nst_ObjDestructor)(void *);
 
 typedef Nst_Obj Nst_NullObj;
 
-Nst_Obj *_nst_obj_alloc(size_t              size,
+Nst_Obj *_nst_obj_alloc(usize               size,
                         struct _Nst_StrObj *type,
                         void (*destructor)(void *));
 void _nst_obj_destroy(Nst_Obj *obj);

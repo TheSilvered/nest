@@ -46,8 +46,8 @@ typedef struct _Nst_SeqObj
     NST_OBJ_HEAD;
     NST_GGC_HEAD;
     Nst_Obj **objs;
-    size_t len;
-    size_t size;
+    usize len;
+    usize size;
 }
 Nst_SeqObj; // vector or array
 
@@ -55,20 +55,20 @@ typedef Nst_SeqObj Nst_ArrayObj;
 typedef Nst_SeqObj Nst_VectorObj;
 
 // Creates a new array of length `len`, the objects must be set manually inside
-Nst_Obj *nst_array_new(size_t len);
+Nst_Obj *nst_array_new(usize len);
 // Creates a new vector of lenght `len`, the objects must be set manually inside
-Nst_Obj *nst_vector_new(size_t len);
+Nst_Obj *nst_vector_new(usize len);
 void _nst_seq_destroy(Nst_SeqObj *seq);
 void _nst_seq_traverse(Nst_SeqObj *seq);
 void _nst_seq_track(Nst_SeqObj *seq);
 
-bool _nst_seq_set(Nst_SeqObj *seq, int64_t idx, Nst_Obj *val);
-Nst_Obj *_nst_seq_get(Nst_SeqObj *seq, int64_t idx);
+bool _nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val);
+Nst_Obj *_nst_seq_get(Nst_SeqObj *seq, i64 idx);
 
 void _nst_vector_resize(Nst_SeqObj *vect);
 void _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val);
 Nst_Obj *_nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val);
-Nst_Obj *_nst_vector_pop(Nst_SeqObj *vect, size_t quantity);
+Nst_Obj *_nst_vector_pop(Nst_SeqObj *vect, usize quantity);
 
 #ifdef __cplusplus
 }

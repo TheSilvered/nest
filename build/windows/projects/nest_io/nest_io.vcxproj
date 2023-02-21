@@ -169,7 +169,7 @@
     <ClInclude Include="..\..\..\..\include\map.h" />
     <ClInclude Include="..\..\..\..\include\nest.h" />
     <ClInclude Include="..\..\..\..\include\nodes.h" />
-    <ClInclude Include="..\..\..\..\include\nst_types.h" />
+    <ClInclude Include="..\..\..\..\include\typedefs.h" />
     <ClInclude Include="..\..\..\..\include\obj.h" />
     <ClInclude Include="..\..\..\..\include\obj_ops.h" />
     <ClInclude Include="..\..\..\..\include\optimizer.h" />

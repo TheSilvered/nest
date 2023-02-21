@@ -34,7 +34,7 @@ bool lib_init()
         return false;
     }
 
-    size_t idx = 0;
+    usize idx = 0;
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(system_,        1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(exit_,          1);
@@ -102,7 +102,7 @@ NST_FUNC_SIGN(exit_)
     _nst_strs_del();
     _nst_consts_del();
     _nst_streams_del();
-    exit((int)code);
+    exit((i32)code);
 
     return nullptr;
 }
@@ -113,7 +113,7 @@ NST_FUNC_SIGN(getenv_)
 
     NST_DEF_EXTRACT("s", &name);
 
-    char *env_name = getenv(name->value);
+    i8 *env_name = getenv(name->value);
 
     if ( env_name == nullptr )
     {
@@ -130,7 +130,7 @@ NST_FUNC_SIGN(get_ref_count_)
 
 NST_FUNC_SIGN(get_addr_)
 {
-    return nst_int_new((size_t)args[0]);
+    return nst_int_new((usize)args[0]);
 }
 
 NST_FUNC_SIGN(hash_)
@@ -152,7 +152,7 @@ NST_FUNC_SIGN(_set_cwd_)
 
 NST_FUNC_SIGN(_get_cwd_)
 {
-    char *cwd = new char[PATH_MAX];
+    i8 *cwd = new i8[PATH_MAX];
     return nst_string_new_c_raw(_getcwd(cwd, PATH_MAX), true);
 }
 

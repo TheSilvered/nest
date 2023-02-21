@@ -134,9 +134,9 @@ Nst_Tok;
 
 // Creates a new token with a value
 Nst_Tok *nst_tok_new_value(Nst_Pos     start,
-                             Nst_Pos     end,
-                             Nst_TokType type,
-                             Nst_Obj    *value);
+                           Nst_Pos     end,
+                           Nst_TokType type,
+                           Nst_Obj    *value);
 // Creates a new tokens with only a type
 Nst_Tok *nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type);
 // Creates a new token where start and end are the same
@@ -145,7 +145,7 @@ void nst_token_destroy(Nst_Tok *token);
 
 // Returns the corresponding token id from a string literal
 // Ex nst_str_to_tok("+") -> NST_TT_ADD == 0
-Nst_TokType nst_tok_from_str(char *str);
+Nst_TokType nst_tok_from_str(i8 *str);
 
 // Prints a token like the tokens when using the -t flag
 void nst_print_tok(Nst_Tok *token);

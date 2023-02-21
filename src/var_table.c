@@ -3,8 +3,8 @@
 #include "global_consts.h"
 
 Nst_VarTable *nst_vt_new(Nst_MapObj *global_table,
-                                Nst_StrObj *cwd,
-                                Nst_SeqObj *args)
+                         Nst_StrObj *cwd,
+                         Nst_SeqObj *args)
 {
     Nst_VarTable *vt = (Nst_VarTable *)malloc(sizeof(Nst_VarTable));
     if ( vt == NULL )

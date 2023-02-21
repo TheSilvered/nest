@@ -81,7 +81,7 @@ Nst_Inst;
 
 typedef struct _Nst_InstList
 {
-    size_t total_size;
+    usize total_size;
     Nst_Inst *instructions;
     Nst_LList *functions; // all the functions declared inside the bytecode
 }

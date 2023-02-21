@@ -2,16 +2,28 @@
 #include "json_parser.h"
 
 bool trailing_commas = false;
-static char *file_path; // the text of the position cannot be used
+static i8 *file_path; // the text of the position cannot be used
+static i32 recursion_level;
+
+#define INC_RECURSION_LVL \
+    do { \
+        recursion_level++; \
+        if ( recursion_level > 1500 ) \
+        { \
+            NST_SET_RAW_MEMORY_ERROR("over 1500 recursive calls, parsing failed"); \
+            return nullptr; \
+        } \
+    } while ( 0 )
+#define DEC_RECURSION_LVL recursion_level--
 
 static Nst_Obj *parse_value(Nst_LList *tokens, Nst_OpErr *err);
 static Nst_Obj *parse_object(Nst_LList *tokens, Nst_OpErr *err);
 static Nst_Obj *parse_array(Nst_LList *tokens, Nst_OpErr *err);
 
-Nst_Obj *json_parse(char *path, Nst_LList *tokens, Nst_OpErr *err)
+Nst_Obj *json_parse(i8 *path, Nst_LList *tokens, Nst_OpErr *err)
 {
     file_path = path;
-
+    recursion_level = 0;
     Nst_Obj *res = parse_value(tokens, err);
     if ( res == nullptr )
     {
@@ -30,6 +42,7 @@ Nst_Obj *json_parse(char *path, Nst_LList *tokens, Nst_OpErr *err)
 
 static Nst_Obj *parse_value(Nst_LList *tokens, Nst_OpErr *err)
 {
+    INC_RECURSION_LVL;
     Nst_Tok *tok = TOK(nst_llist_pop(tokens));
 
     switch ( tok->type )
@@ -51,10 +64,12 @@ static Nst_Obj *parse_value(Nst_LList *tokens, Nst_OpErr *err)
         nst_token_destroy(tok);
         return nullptr;
     }
+    DEC_RECURSION_LVL;
 }
 
 static Nst_Obj *parse_object(Nst_LList *tokens, Nst_OpErr *err)
 {
+    INC_RECURSION_LVL;
     Nst_MapObj *map = MAP(nst_map_new());
     Nst_Tok *tok = TOK(nst_llist_pop(tokens));
 
@@ -126,10 +141,12 @@ static Nst_Obj *parse_object(Nst_LList *tokens, Nst_OpErr *err)
             return OBJ(map);
         }
     }
+    DEC_RECURSION_LVL;
 }
 
 static Nst_Obj *parse_array(Nst_LList *tokens, Nst_OpErr *err)
 {
+    INC_RECURSION_LVL;
     Nst_VectorObj *vec = SEQ(nst_vector_new(0));
     Nst_Tok *tok = TOK(nst_llist_peek_front(tokens));
 
@@ -181,7 +198,7 @@ static Nst_Obj *parse_array(Nst_LList *tokens, Nst_OpErr *err)
 end:
     vec->type = TYPE(nst_inc_ref(nst_t.Array));
     nst_dec_ref(nst_t.Vector);
-    if ( vec->len < vec->size )
+    if ( vec->len < vec->size && vec->len != 0 )
     {
         Nst_Obj **new_objs = (Nst_Obj **)realloc(
             vec->objs,
@@ -193,4 +210,5 @@ end:
         }
     }
     return OBJ(vec);
+    DEC_RECURSION_LVL;
 }

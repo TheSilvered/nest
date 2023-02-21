@@ -26,7 +26,12 @@
 #include "interpreter.h"
 #include "lib_import.h"
 #include "llist.h"
-#include "nst_types.h"
+#include "map.h"
+#include "sequence.h"
+#include "function.h"
+#include "str.h"
+#include "iter.h"
+#include "simple_types.h"
 #include "obj_ops.h"
 #include "global_consts.h"
 #include "tokens.h"
@@ -35,5 +40,6 @@
 #include "compiler.h"
 #include "optimizer.h"
 #include "encoding.h"
+#include "typedefs.h"
 
 #endif //!NEST_H

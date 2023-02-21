@@ -1,4 +1,5 @@
 #include <cmath>
+#include <cstring>
 #include "json_dumper.h"
 
 #if !defined(_WIN32) && !defined(WIN32)
@@ -10,27 +11,39 @@
 
 #define EXCEPT_ERROR if ( str_buf == nullptr ) return
 #define FAIL do { delete[] str_buf; str_buf = nullptr; return; } while ( 0 )
+#define INC_RECURSION_LVL \
+    do { \
+        recursion_level++; \
+        if ( recursion_level > 1500 ) \
+        { \
+            NST_SET_RAW_MEMORY_ERROR("over 1500 recursive calls, dump failed"); \
+            FAIL; \
+        } \
+    } while ( 0 )
+#define DEC_RECURSION_LVL recursion_level--
 
-static void expand_to(size_t size_to_reach, Nst_OpErr *err);
-static void expand_by(size_t size_to_add, Nst_OpErr *err);
-static void append_buf(const char *str, size_t len, Nst_OpErr *err);
+static void expand_to(usize size_to_reach, Nst_OpErr *err);
+static void expand_by(usize size_to_add, Nst_OpErr *err);
+static void append_buf(const i8 *str, usize len, Nst_OpErr *err);
 static void fit_buf();
-static void dump_obj(Nst_Obj *obj, int indent, Nst_OpErr *err);
+static void dump_obj(Nst_Obj *obj, i32 indent, Nst_OpErr *err);
 static void dump_str(Nst_StrObj *str, Nst_OpErr *err);
 static void dump_num(Nst_Obj *number, Nst_OpErr *err);
-static void dump_seq(Nst_SeqObj *seq, int indent, Nst_OpErr *err);
-static void dump_map(Nst_MapObj *map, int indent, Nst_OpErr *err);
-static void add_comma(int indent, Nst_OpErr *err);
-static void add_indent(int indent, Nst_OpErr *err);
+static void dump_seq(Nst_SeqObj *seq, i32 indent, Nst_OpErr *err);
+static void dump_map(Nst_MapObj *map, i32 indent, Nst_OpErr *err);
+static void add_comma(i32 indent, Nst_OpErr *err);
+static void add_indent(i32 indent, Nst_OpErr *err);
 
-static char *str_buf;
-static size_t buf_size;
-static size_t str_len;
-static int indent_level;
+static i8 *str_buf;
+static usize buf_size;
+static usize str_len;
+static i32 indent_level;
+static i32 recursion_level;
 
-Nst_Obj *json_dump(Nst_Obj *obj, int indent, Nst_OpErr *err)
+Nst_Obj *json_dump(Nst_Obj *obj, i32 indent, Nst_OpErr *err)
 {
-    str_buf = new char[255];
+    recursion_level = 0;
+    str_buf = new i8[255];
     buf_size = 255;
     str_len = 0;
     indent_level = 0;
@@ -46,15 +59,15 @@ Nst_Obj *json_dump(Nst_Obj *obj, int indent, Nst_OpErr *err)
     return nst_string_new(str_buf, str_len, true);
 }
 
-static void expand_to(size_t size_to_reach, Nst_OpErr *err)
+static void expand_to(usize size_to_reach, Nst_OpErr *err)
 {
     if ( buf_size >= size_to_reach )
     {
         return;
     }
 
-    size_t new_size = size_t(size_to_reach * 1.5);
-    char *new_buf = (char *)realloc(str_buf, new_size);
+    usize new_size = usize(size_to_reach * 1.5);
+    i8 *new_buf = (i8 *)realloc(str_buf, new_size);
     if ( new_buf == nullptr )
     {
         NST_FAILED_ALLOCATION;
@@ -65,12 +78,12 @@ static void expand_to(size_t size_to_reach, Nst_OpErr *err)
     buf_size = new_size;
 }
 
-static void expand_by(size_t size_to_add, Nst_OpErr *err)
+static void expand_by(usize size_to_add, Nst_OpErr *err)
 {
     expand_to(str_len + size_to_add + 1, err);
 }
 
-static void append_buf(const char *str, size_t len, Nst_OpErr *err)
+static void append_buf(const i8 *str, usize len, Nst_OpErr *err)
 {
     if ( len == 0 )
     {
@@ -85,7 +98,7 @@ static void append_buf(const char *str, size_t len, Nst_OpErr *err)
 
 static void fit_buf()
 {
-    char *new_buf = (char *)realloc(str_buf, size_t(str_len + 1));
+    i8 *new_buf = (i8 *)realloc(str_buf, usize(str_len + 1));
     if ( new_buf != nullptr )
     {
         str_buf = new_buf;
@@ -93,8 +106,9 @@ static void fit_buf()
     }
 }
 
-static void dump_obj(Nst_Obj *obj, int indent, Nst_OpErr *err)
+static void dump_obj(Nst_Obj *obj, i32 indent, Nst_OpErr *err)
 {
+    INC_RECURSION_LVL;
     if ( obj->type == nst_t.Str )
     {
         dump_str(STR(obj), err);
@@ -132,20 +146,20 @@ static void dump_obj(Nst_Obj *obj, int indent, Nst_OpErr *err)
             TYPE_NAME(obj)));
         FAIL;
     }
+    DEC_RECURSION_LVL;
 }
-
-typedef unsigned char uc;
 
 static void dump_str(Nst_StrObj *str, Nst_OpErr *err)
 {
-    size_t unicode_bytes = 0;
-    char *s_val = str->value;
-    size_t s_len = str->len;
-    const char *hex_digits = "0123456789abcdef";
+    INC_RECURSION_LVL;
+    usize unicode_bytes = 0;
+    i8 *s_val = str->value;
+    usize s_len = str->len;
+    const i8 *hex_digits = "0123456789abcdef";
 
-    for ( size_t i = 0; i < s_len; i++ )
+    for ( usize i = 0; i < s_len; i++ )
     {
-        int res = nst_check_utf8_bytes((uc *)s_val + i, s_len - i);
+        i32 res = nst_check_utf8_bytes((u8 *)s_val + i, s_len - i);
         if ( res != 1 )
         {
             unicode_bytes++;
@@ -160,9 +174,9 @@ static void dump_str(Nst_StrObj *str, Nst_OpErr *err)
     EXCEPT_ERROR;
 
     str_buf[str_len++] = '"';
-    for ( size_t i = 0; i < s_len; i++ )
+    for ( usize i = 0; i < s_len; i++ )
     {
-        int res = nst_check_utf8_bytes((uc *)s_val + i, s_len - i);
+        i32 res = nst_check_utf8_bytes((u8 *)s_val + i, s_len - i);
         switch ( res )
         {
         case 1:
@@ -170,25 +184,25 @@ static void dump_str(Nst_StrObj *str, Nst_OpErr *err)
             break;
         case -1:
             append_buf("\\u00", 4, err);
-            str_buf[str_len++] = hex_digits[(uc)(s_val[i]) >> 4];
-            str_buf[str_len++] = hex_digits[(uc)(s_val[i]) & 0xf];
+            str_buf[str_len++] = hex_digits[(u8)(s_val[i]) >> 4];
+            str_buf[str_len++] = hex_digits[(u8)(s_val[i]) & 0xf];
             break;
         case 2:
             append_buf("\\u0", 3, err);
-            str_buf[str_len++] = hex_digits[(uc)(s_val[i]) >> 2 & 0xf];
-            str_buf[str_len++] = hex_digits[(((uc)(s_val[i]) & 0x3) << 2)
-                                          + (((uc)(s_val[i + 1]) >> 4) & 0x3)];
+            str_buf[str_len++] = hex_digits[(u8)(s_val[i]) >> 2 & 0xf];
+            str_buf[str_len++] = hex_digits[(((u8)(s_val[i]) & 0x3) << 2)
+                                          + (((u8)(s_val[i + 1]) >> 4) & 0x3)];
             i++;
-            str_buf[str_len++] = hex_digits[(uc)(s_val[i]) & 0xf];
+            str_buf[str_len++] = hex_digits[(u8)(s_val[i]) & 0xf];
             break;
         case 3:
             append_buf("\\u", 2, err);
-            str_buf[str_len++] = hex_digits[(uc)(s_val[i++]) & 0xf];
-            str_buf[str_len++] = hex_digits[((uc)(s_val[i]) >> 2) & 0xf];
-            str_buf[str_len++] = hex_digits[(((uc)(s_val[i]) & 0x3) << 2)
-                                          + (((uc)(s_val[i + 1]) >> 4) & 0x3)];
+            str_buf[str_len++] = hex_digits[(u8)(s_val[i++]) & 0xf];
+            str_buf[str_len++] = hex_digits[((u8)(s_val[i]) >> 2) & 0xf];
+            str_buf[str_len++] = hex_digits[(((u8)(s_val[i]) & 0x3) << 2)
+                                          + (((u8)(s_val[i + 1]) >> 4) & 0x3)];
             i++;
-            str_buf[str_len++] = hex_digits[(uc)(s_val[i]) & 0xf];
+            str_buf[str_len++] = hex_digits[(u8)(s_val[i]) & 0xf];
             break;
         case 4:
             NST_SET_RAW_VALUE_ERROR(
@@ -197,21 +211,23 @@ static void dump_str(Nst_StrObj *str, Nst_OpErr *err)
         }
     }
     str_buf[str_len++] = '"';
+    DEC_RECURSION_LVL;
 }
 
 static void dump_num(Nst_Obj *number, Nst_OpErr *err)
 {
+    INC_RECURSION_LVL;
     if ( number->type == nst_t.Byte )
     {
-        char loc_buf[4];
+        i8 loc_buf[4];
         sprintf(loc_buf, "%i", AS_BYTE(number));
-        append_buf((const char *)loc_buf, 0, err);
+        append_buf((const i8 *)loc_buf, 0, err);
     }
     else if ( number->type == nst_t.Int )
     {
-        char loc_buf[21];
+        i8 loc_buf[21];
         sprintf(loc_buf, "%lli", AS_INT(number));
-        append_buf((const char *)loc_buf, 0, err);
+        append_buf((const i8 *)loc_buf, 0, err);
     }
     else
     {
@@ -222,10 +238,10 @@ static void dump_num(Nst_Obj *number, Nst_OpErr *err)
                 "JSON: cannot serialize infinities or NaNs");
             FAIL;
         }
-        char loc_buf[26];
+        i8 loc_buf[26];
         sprintf(loc_buf, "%.16lg", val);
-        size_t len = strlen(loc_buf);
-        for ( size_t i = 0; i < len; i++ )
+        usize len = strlen(loc_buf);
+        for ( usize i = 0; i < len; i++ )
         {
             if ( loc_buf[i] == '.' || loc_buf[i] == 'e' )
             {
@@ -235,18 +251,19 @@ static void dump_num(Nst_Obj *number, Nst_OpErr *err)
         loc_buf[len++] = '.';
         loc_buf[len++] = '0';
     finish:
-        append_buf((const char *)loc_buf, len, err);
+        append_buf((const i8 *)loc_buf, len, err);
     }
+    DEC_RECURSION_LVL;
 }
 
-static void dump_seq(Nst_SeqObj *seq, int indent, Nst_OpErr *err)
+static void dump_seq(Nst_SeqObj *seq, i32 indent, Nst_OpErr *err)
 {
     if ( seq->len == 0 )
     {
         append_buf("[]", 2, err);
         return;
     }
-
+    INC_RECURSION_LVL;
     append_buf("[", 1, err);
     EXCEPT_ERROR;
     indent_level++;
@@ -256,19 +273,20 @@ static void dump_seq(Nst_SeqObj *seq, int indent, Nst_OpErr *err)
         expand_by(indent * indent_level + 1, err);
         EXCEPT_ERROR;
         str_buf[str_len++] = '\n';
-        for ( int i = 0; i < indent * indent_level; i++ )
+        for ( i8 i = 0; i < indent * indent_level; i++ )
         {
             str_buf[str_len++] = ' ';
         }
     }
 
-    for ( size_t i = 0, n = seq->len; i < n; i++ )
+    for ( usize i = 0, n = seq->len; i < n; i++ )
     {
         dump_obj(seq->objs[i], indent, err);
         EXCEPT_ERROR;
 
         if ( i + 1 == n )
         {
+            DEC_RECURSION_LVL;
             indent_level--;
             expand_by(1, err);
             EXCEPT_ERROR;
@@ -291,14 +309,14 @@ static void dump_seq(Nst_SeqObj *seq, int indent, Nst_OpErr *err)
     }
 }
 
-static void dump_map(Nst_MapObj *map, int indent, Nst_OpErr *err)
+static void dump_map(Nst_MapObj *map, i32 indent, Nst_OpErr *err)
 {
     if ( map->item_count == 0 )
     {
         append_buf("{}", 2, err);
         return;
     }
-
+    INC_RECURSION_LVL;
     append_buf("{", 1, err);
     EXCEPT_ERROR;
     indent_level++;
@@ -308,16 +326,16 @@ static void dump_map(Nst_MapObj *map, int indent, Nst_OpErr *err)
         expand_by(indent * indent_level + 1, err);
         EXCEPT_ERROR;
         str_buf[str_len++] = '\n';
-        for ( int i = 0; i < indent * indent_level; i++ )
+        for ( i8 i = 0; i < indent * indent_level; i++ )
         {
             str_buf[str_len++] = ' ';
         }
     }
 
-    size_t count = 0;
-    size_t tot = map->item_count;
+    usize count = 0;
+    usize tot = map->item_count;
     Nst_MapNode *nodes = map->nodes;
-    for ( int i = nst_map_get_next_idx(-1, map);
+    for ( i32 i = nst_map_get_next_idx(-1, map);
           i != -1;
           i = nst_map_get_next_idx(i, map) )
     {
@@ -348,6 +366,7 @@ static void dump_map(Nst_MapObj *map, int indent, Nst_OpErr *err)
 
         if ( count == tot )
         {
+            DEC_RECURSION_LVL;
             indent_level--;
             if ( indent < 1 )
             {
@@ -370,8 +389,9 @@ static void dump_map(Nst_MapObj *map, int indent, Nst_OpErr *err)
     }
 }
 
-static void add_comma(int indent, Nst_OpErr *err)
+static void add_comma(i32 indent, Nst_OpErr *err)
 {
+    INC_RECURSION_LVL;
     if ( indent == -1 )
     {
         expand_by(1, err);
@@ -392,14 +412,17 @@ static void add_comma(int indent, Nst_OpErr *err)
         add_indent(indent, err);
         EXCEPT_ERROR;
     }
+    DEC_RECURSION_LVL;
 }
 
-static void add_indent(int indent, Nst_OpErr *err)
+static void add_indent(i32 indent, Nst_OpErr *err)
 {
+    INC_RECURSION_LVL;
     expand_by(indent * indent_level, err);
     EXCEPT_ERROR;
-    for ( int i = 0; i < indent * indent_level; i++ )
+    for ( i32 i = 0; i < indent * indent_level; i++ )
     {
         str_buf[str_len++] = ' ';
     }
+    DEC_RECURSION_LVL;
 }

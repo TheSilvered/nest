@@ -120,7 +120,7 @@ NST_FUNC_SIGN(chain_start)
         {
             return nullptr;
         }
-        int res = nst_iter_is_done(main_iter, err);
+        i32 res = nst_iter_is_done(main_iter, err);
         if ( res == -1 )
         {
             return nullptr;
@@ -165,7 +165,7 @@ NST_FUNC_SIGN(chain_get_val)
     Nst_Obj *return_ob = nst_inc_ref(objs[2]);
     Nst_Obj *val = nst_inc_ref(nst_c.Null_null);
 
-    int res = nst_iter_is_done(local_iter, err);
+    i32 res = nst_iter_is_done(local_iter, err);
     if ( res == -1 )
     {
         return nullptr;
@@ -183,7 +183,7 @@ NST_FUNC_SIGN(chain_get_val)
     nst_dec_ref(val);
     do
     {
-        int res = nst_iter_is_done(main_iter, err);
+        i32 res = nst_iter_is_done(main_iter, err);
         if ( res == -1 )
         {
             return nullptr;
@@ -296,7 +296,7 @@ NST_FUNC_SIGN(zipn_is_done)
     Nst_Obj **objs = SEQ(args[0])->objs;
     Nst_Int idx = AS_INT(objs[0]);
 
-    for ( size_t i = 1, n = SEQ(args[0])->len; i < n; i++ )
+    for ( usize i = 1, n = SEQ(args[0])->len; i < n; i++ )
     {
         if ( idx >= (Nst_Int)SEQ(objs[i])->len )
         {
@@ -312,7 +312,7 @@ NST_FUNC_SIGN(zipn_get_val)
     Nst_Obj **objs = SEQ(args[0])->objs;
     Nst_Int idx = AS_INT(objs[0]);
 
-    for ( size_t i = 1, n = SEQ(args[0])->len; i < n; i++ )
+    for ( usize i = 1, n = SEQ(args[0])->len; i < n; i++ )
     {
         if ( idx >= (Nst_Int)SEQ(objs[i])->len )
         {
@@ -329,7 +329,7 @@ NST_FUNC_SIGN(zipn_get_val)
     }
 
     Nst_SeqObj *arr = SEQ(nst_array_new(SEQ(args[0])->len - 1));
-    for ( size_t i = 1, n = SEQ(args[0])->len; i < n; i++ )
+    for ( usize i = 1, n = SEQ(args[0])->len; i < n; i++ )
     {
         nst_seq_set(arr, i - 1, SEQ(objs[i])->objs[idx]);
     }
@@ -403,7 +403,7 @@ NST_FUNC_SIGN(keys_get_val)
     }
 
     Nst_MapNode node = MAP(objs[1])->nodes[AS_INT(objs[0])];
-    AS_INT(objs[0]) = nst_map_get_next_idx((int)AS_INT(objs[0]), MAP(objs[1]));
+    AS_INT(objs[0]) = nst_map_get_next_idx((i32)AS_INT(objs[0]), MAP(objs[1]));
     return nst_inc_ref(node.key);
 }
 
@@ -417,7 +417,7 @@ NST_FUNC_SIGN(values_get_val)
     }
 
     Nst_MapNode node = MAP(objs[1])->nodes[AS_INT(objs[0])];
-    AS_INT(objs[0]) = nst_map_get_next_idx((int)AS_INT(objs[0]), MAP(objs[1]));
+    AS_INT(objs[0]) = nst_map_get_next_idx((i32)AS_INT(objs[0]), MAP(objs[1]));
     return nst_inc_ref(node.value);
 }
 
@@ -438,7 +438,7 @@ NST_FUNC_SIGN(items_get_val)
         nst_seq_set(arr, 0, node.key);
         nst_seq_set(arr, 1, node.value);
     }
-    AS_INT(objs[0]) = nst_map_get_next_idx((int)AS_INT(objs[0]), MAP(objs[1]));
+    AS_INT(objs[0]) = nst_map_get_next_idx((i32)AS_INT(objs[0]), MAP(objs[1]));
     return OBJ(arr);
 }
 

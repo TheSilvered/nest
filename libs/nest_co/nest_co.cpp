@@ -17,7 +17,7 @@ bool lib_init()
         return false;
     }
 
-    size_t idx = 0;
+    usize idx = 0;
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(create_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(call_, 2);
@@ -68,7 +68,7 @@ static NST_FUNC_SIGN(generator_start)
     if ( NST_FLAG_HAS(co, FLAG_CO_PAUSED) )
     {
         // Reset the state of the coroutine to start from the beginning
-        for ( size_t i = 0, n = co->stack_size; i < n; i++ )
+        for ( usize i = 0, n = co->stack_size; i < n; i++ )
         {
             nst_dec_ref(co->stack[i]);
         }
@@ -163,7 +163,7 @@ void coroutine_traverse(CoroutineObj *co)
         return;
     }
 
-    for ( size_t i = 0, n = co->stack_size; i < n; i++ )
+    for ( usize i = 0, n = co->stack_size; i < n; i++ )
     {
         if ( co->stack[i] != NULL )
         {
@@ -184,7 +184,7 @@ void coroutine_track(CoroutineObj *co)
         return;
     }
 
-    for ( size_t i = 0, n = co->stack_size; i < n; i++ )
+    for ( usize i = 0, n = co->stack_size; i < n; i++ )
     {
         if ( co->stack[i] != nullptr &&
              NST_FLAG_HAS(co->stack[i], NST_FLAG_GGC_IS_SUPPORTED))
@@ -217,7 +217,7 @@ void coroutine_destroy(CoroutineObj *co)
         nst_dec_ref(co->globals);
     }
 
-    for ( size_t i = 0, n = co->stack_size; i < n; i++ )
+    for ( usize i = 0, n = co->stack_size; i < n; i++ )
     {
         if ( co->stack[i] != nullptr)
             nst_dec_ref(co->stack[i]);
@@ -288,7 +288,7 @@ NST_FUNC_SIGN(call_)
     if ( is_paused )
     {
         nst_vstack_push(nst_state.v_stack, nullptr);
-        for ( size_t i = 0, n = co->stack_size; i < n; i++ )
+        for ( usize i = 0, n = co->stack_size; i < n; i++ )
         {
             nst_vstack_push(nst_state.v_stack, co->stack[i]);
             nst_dec_ref(co->stack[i]);
@@ -366,7 +366,7 @@ NST_FUNC_SIGN(pause_)
     *nst_state.vt = call.vt;
     *nst_state.idx = call.idx;
 
-    size_t stack_size = 0;
+    usize stack_size = 0;
     Nst_Obj **v_stack_objs = nst_state.v_stack->stack;
     for ( Nst_Int i = (Nst_Int)nst_state.v_stack->current_size - 1;
           i >= 0;
@@ -381,7 +381,7 @@ NST_FUNC_SIGN(pause_)
 
     co->stack = new Nst_Obj *[stack_size];
 
-    for ( size_t i = stack_size; i > 0; i-- )
+    for ( usize i = stack_size; i > 0; i-- )
     {
         co->stack[i - 1] = nst_vstack_pop(nst_state.v_stack);
     }

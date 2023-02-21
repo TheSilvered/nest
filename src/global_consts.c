@@ -7,7 +7,7 @@ Nst_StdStreams *nst_io;
 
 static Nst_StdStreams local_nst_io;
 
-static int close_std_stream(void *f);
+static i32 close_std_stream(void *f);
 
 void _nst_types_init()
 {
@@ -168,4 +168,4 @@ void _nst_streams_del()
 #pragma warning( disable: 4100 )
 #endif
 
-static int close_std_stream(void *f) { return 0; }
+static i32 close_std_stream(void *f) { return 0; }

@@ -4,7 +4,7 @@
 #include <stdio.h>
 #include <errno.h>
 #include "obj_ops.h"
-#include "nst_types.h"
+#include "iter.h"
 #include "interpreter.h"
 #include "lib_import.h"
 #include "map.h"
@@ -160,7 +160,7 @@ static Nst_Obj *seq_eq(Nst_SeqObj *seq1, Nst_SeqObj *seq2, Nst_LList *containers
     Nst_Obj *ob1 = NULL;
     Nst_Obj *ob2 = NULL;
     Nst_Obj *result = NULL;
-    for (size_t i = 0, n = seq1->len; i < n; i++)
+    for ( usize i = 0, n = seq1->len; i < n; i++ )
     {
         ob1 = seq1->objs[i];
         ob2 = seq2->objs[i];
@@ -216,7 +216,7 @@ static Nst_Obj* map_eq(Nst_MapObj* map1, Nst_MapObj* map2, Nst_LList* containers
     Nst_Obj *ob1 = NULL;
     Nst_Obj *ob2 = NULL;
     Nst_Obj *result = NULL;
-    for ( int i = nst_map_get_next_idx(-1, map1);
+    for ( i32 i = nst_map_get_next_idx(-1, map1);
           i != -1;
           i = nst_map_get_next_idx(i, map1) )
     {
@@ -497,11 +497,11 @@ Nst_Obj *_nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     if ( ob1->type == nst_t.Vector && ob2->type == nst_t.Int )
     {
         Nst_SeqObj *vect = SEQ(ob1);
-        size_t max_ob = vect->len;
+        usize max_ob = vect->len;
 
         for ( Nst_Int i = 0, n = AS_INT(ob2) - 1; i < n; i++ )
         {
-            for ( size_t j = 0; j < max_ob; j++ )
+            for ( usize j = 0; j < max_ob; j++ )
             {
                 nst_vector_append(vect, vect->objs[j]);
             }
@@ -552,7 +552,7 @@ Nst_Obj *_nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ob1->type == nst_t.Vector && ob2->type == nst_t.Int )
     {
-        return nst_vector_pop(ob1, (size_t)AS_INT(ob2));
+        return nst_vector_pop(ob1, (usize)AS_INT(ob2));
     }
     else if ( ARE_TYPE(nst_t.Byte) )
     {
@@ -893,12 +893,12 @@ Nst_Obj* _nst_repr_str_cast(Nst_Obj* ob)
     }
     else if ( ob_t == nst_t.Byte )
     {
-        char *str = (char*)calloc(5, sizeof(char));
+        i8 *str = (i8*)calloc(5, sizeof(i8));
         CHECK_BUFFER(str);
 
-        sprintf(str, "%ib", (int)AS_BYTE(ob));
+        sprintf(str, "%lib", (i32)AS_BYTE(ob));
 
-        return nst_string_new_c_raw((const char *)str, true);
+        return nst_string_new_c_raw((const i8 *)str, true);
     }
     else
     {
@@ -939,12 +939,12 @@ Nst_Obj *_nst_obj_str_cast_seq(Nst_Obj *seq_obj, Nst_LList *all_objs)
 
     nst_llist_push(all_objs, seq_obj, false);
 
-    size_t len = SEQ(seq_obj)->len;
-    size_t str_len = 0;
+    usize len = SEQ(seq_obj)->len;
+    usize str_len = 0;
     Nst_Obj *val = NULL;
 
-    char *str = (char *)malloc(sizeof(char) * (is_vect ? 6 : 4));
-    char *realloc_str = NULL;
+    i8 *str = (i8 *)malloc(sizeof(i8) * (is_vect ? 6 : 4));
+    i8 *realloc_str = NULL;
     CHECK_BUFFER(str);
 
     if ( is_vect )
@@ -961,7 +961,7 @@ Nst_Obj *_nst_obj_str_cast_seq(Nst_Obj *seq_obj, Nst_LList *all_objs)
         str_len = 2;
     }
 
-    for ( size_t i = 0; i < len; i++ )
+    for ( usize i = 0; i < len; i++ )
     {
         val = SEQ(seq_obj)->objs[i];
 
@@ -978,7 +978,7 @@ Nst_Obj *_nst_obj_str_cast_seq(Nst_Obj *seq_obj, Nst_LList *all_objs)
             val = _nst_repr_str_cast(val);
         }
 
-        realloc_str = (char *)realloc(
+        realloc_str = (i8 *)realloc(
             str,
             str_len
              + STR(val)->len
@@ -1022,7 +1022,7 @@ Nst_Obj *_nst_obj_str_cast_map(Nst_Obj *map_obj, Nst_LList *all_objs)
     {
         if ( map_obj == n->value )
         {
-            return nst_string_new((char*)"{.}", 3, false);
+            return nst_string_new((i8 *)"{.}", 3, false);
         }
     }
 
@@ -1033,21 +1033,21 @@ Nst_Obj *_nst_obj_str_cast_map(Nst_Obj *map_obj, Nst_LList *all_objs)
 
     nst_llist_push(all_objs, map_obj, false);
 
-    size_t str_len = 2;
+    usize str_len = 2;
     Nst_Obj *key = NULL;
     Nst_Obj *val = NULL;
 
-    char *str = (char *)malloc(sizeof(char) * 4);
-    char *realloc_str = NULL;
+    i8 *str = (i8 *)malloc(sizeof(i8) * 4);
+    i8 *realloc_str = NULL;
     CHECK_BUFFER(str);
 
     str[0] = '{';
     str[1] = ' ';
 
     Nst_MapObj *map = MAP(map_obj);
-    int idx = -1;
-    size_t tot = map->item_count;
-    size_t count = 0;
+    i32 idx = -1;
+    usize tot = map->item_count;
+    usize count = 0;
 
     while ( count++ < tot )
     {
@@ -1078,7 +1078,7 @@ Nst_Obj *_nst_obj_str_cast_map(Nst_Obj *map_obj, Nst_LList *all_objs)
             val = _nst_repr_str_cast(val);
         }
 
-        realloc_str = (char *)realloc(str, str_len + STR(key)->len + STR(val)->len + 5);
+        realloc_str = (i8 *)realloc(str, str_len + STR(key)->len + STR(val)->len + 5);
         CHECK_BUFFER(realloc_str);
         str = realloc_str;
         memcpy(str + str_len, STR(key)->value, STR(key)->len);
@@ -1125,17 +1125,17 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
     {
         if ( ob_t == nst_t.Int )
         {
-            char *buffer = (char *)malloc(MAX_INT_CHAR_COUNT * sizeof(char));
+            i8 *buffer = (i8 *)malloc(MAX_INT_CHAR_COUNT * sizeof(i8));
             CHECK_BUFFER(buffer);
-            int len = sprintf(buffer, "%lli", AS_INT(ob));
+            i32 len = sprintf(buffer, "%lli", AS_INT(ob));
             return nst_string_new(buffer, len, true);
         }
         else if ( ob_t == nst_t.Real )
         {
-            char *buffer = (char *)malloc(MAX_REAL_CHAR_COUNT * sizeof(char));
+            i8 *buffer = (i8 *)malloc(MAX_REAL_CHAR_COUNT * sizeof(i8));
             CHECK_BUFFER(buffer);
-            int len = sprintf(buffer, "%." REAL_PRECISION "lg", AS_REAL(ob));
-            for ( int i = 0; i < len; i++ )
+            i32 len = sprintf(buffer, "%." REAL_PRECISION "lg", AS_REAL(ob));
+            for ( i32 i = 0; i < len; i++ )
             {
                 if ( buffer[i] == '.' || buffer[i] == 'e' )
                 {
@@ -1218,7 +1218,7 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
         }
         else if ( ob_t == nst_t.Byte )
         {
-            char *str = (char *)calloc(2, sizeof(char));
+            i8 *str = (i8 *)calloc(2, sizeof(i8));
             CHECK_BUFFER(str);
             str[0] = AS_BYTE(ob);
 
@@ -1244,7 +1244,7 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
         }
         else if ( ob_t == nst_t.IOFile )
         {
-            char *buffer = (char *)malloc(sizeof(char) * 14);
+            i8 *buffer = (i8 *)malloc(sizeof(i8) * 14);
             CHECK_BUFFER(buffer);
             memcpy(buffer, "<IOFile --- >", 14);
             if ( NST_IOF_CAN_READ(ob) )  buffer[8] = 'r';
@@ -1254,9 +1254,9 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
         }
         else if ( ob_t == nst_t.Func )
         {
-            char *buffer = (char *)malloc(sizeof(char) * (13 + MAX_INT_CHAR_COUNT));
+            i8 *buffer = (i8 *)malloc(sizeof(i8) * (13 + MAX_INT_CHAR_COUNT));
             CHECK_BUFFER(buffer);
-            int len;
+            i32 len;
 
             if ( FUNC(ob)->arg_num  == 1 )
             {
@@ -1269,9 +1269,9 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
         }
         else
         {
-            char *buffer = (char *)malloc(sizeof(char) * (STR(ob->type)->len + 12 + MAX_INT_CHAR_COUNT));
+            i8 *buffer = (i8 *)malloc(sizeof(i8) * (STR(ob->type)->len + 12 + MAX_INT_CHAR_COUNT));
             CHECK_BUFFER(buffer);
-            int len = sprintf(buffer, "<%s object at 0x%p>", STR(ob->type)->value, ob);
+            i32 len = sprintf(buffer, "<%s object at 0x%p>", STR(ob->type)->value, ob);
             return nst_string_new(buffer, len, true);
         }
     }
@@ -1389,22 +1389,22 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
         bool is_vect = type == nst_t.Vector;
         if ( ob_t == nst_t.Array || ob_t == nst_t.Vector )
         {
-            size_t seq_len = SEQ(ob)->len;
+            usize seq_len = SEQ(ob)->len;
             Nst_SeqObj *seq = is_vect ? SEQ(nst_vector_new(seq_len))
                                       : SEQ(nst_array_new(seq_len));
 
-            for ( size_t i = 0; i < seq_len; i++ )
+            for ( usize i = 0; i < seq_len; i++ )
                 nst_seq_set(seq, i, SEQ(ob)->objs[i]);
 
             return OBJ(seq);
         }
         else if ( ob_t == nst_t.Str )
         {
-            size_t str_len = STR(ob)->len;
+            usize str_len = STR(ob)->len;
             Nst_SeqObj *seq = is_vect ? SEQ(nst_vector_new(str_len))
                                       : SEQ(nst_array_new(str_len));
 
-            for ( size_t i = 0; i < str_len; i++ )
+            for ( usize i = 0; i < str_len; i++ )
                 seq->objs[i] = nst_string_get(ob, i);
             return OBJ(seq);
         }
@@ -1421,7 +1421,7 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
 
             while ( true )
             {
-                int is_done = nst_iter_is_done(iter, err);
+                i32 is_done = nst_iter_is_done(iter, err);
                 if ( is_done == -1 )
                 {
                     nst_dec_ref(seq);
@@ -1436,14 +1436,14 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
                     nst_dec_ref(seq);
                     return NULL;
                 }
-                
                 nst_vector_append(seq, result);
                 nst_dec_ref(result);
             }
 
             if ( is_vect )
+            {
                 return OBJ(seq);
-            
+            }
             Nst_Obj **new_objs = (Nst_Obj **)realloc(seq->objs, seq->len * sizeof(Nst_Obj *));
             if ( new_objs != NULL )
             {
@@ -1458,12 +1458,12 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
         else if ( ob_t == nst_t.Map )
         {
             Nst_MapObj *map = MAP(ob);
-            size_t seq_len = map->item_count;
+            usize seq_len = map->item_count;
             Nst_SeqObj *seq = is_vect ? SEQ(nst_vector_new(seq_len))
                                       : SEQ(nst_array_new(seq_len));
 
-            size_t seq_i = 0;
-            for ( int i = nst_map_get_next_idx(-1, map);
+            usize seq_i = 0;
+            for ( i32 i = nst_map_get_next_idx(-1, map);
                   i != -1;
                   i = nst_map_get_next_idx(i, map) )
             {
@@ -1486,7 +1486,7 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
             Nst_Obj **objs = seq->objs;
             Nst_MapObj *map = MAP(nst_map_new());
 
-            for ( size_t i = 0, n = seq->len; i < n; i++ )
+            for ( usize i = 0, n = seq->len; i < n; i++ )
             {
                 if ( objs[i]->type != nst_t.Array && objs[i]->type != nst_t.Vector )
                 {
@@ -1531,11 +1531,11 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
                 return NULL;
             }
 
-            size_t iter_count = 1;
+            usize iter_count = 1;
 
             while ( true )
             {
-                int is_done = nst_iter_is_done(iter, err);
+                i32 is_done = nst_iter_is_done(iter, err);
                 if ( is_done == -1 )
                 {
                     nst_dec_ref(map);
@@ -1599,13 +1599,13 @@ Nst_Obj *_nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     Nst_StrObj *nst_s1 = STR(ob1);
     Nst_StrObj *nst_s2 = STR(ob2);
 
-    char *s1 = nst_s1->value;
-    char *s2 = nst_s2->value;
-    size_t len1 = nst_s1->len;
-    size_t len2 = nst_s2->len;
-    size_t tot_len = len1 + len2;
+    i8 *s1 = nst_s1->value;
+    i8 *s2 = nst_s2->value;
+    usize len1 = nst_s1->len;
+    usize len2 = nst_s2->len;
+    usize tot_len = len1 + len2;
 
-    char *buffer = (char *)malloc(sizeof(char) * (tot_len + 1));
+    i8 *buffer = (i8 *)malloc(sizeof(i8) * (tot_len + 1));
 
     CHECK_BUFFER(buffer);
 
@@ -1717,16 +1717,16 @@ Nst_Obj *_nst_obj_stdout(Nst_Obj *ob, Nst_OpErr *err)
 
     Nst_Obj *str = nst_obj_cast(ob, nst_t.Str, err);
 
-    nst_print((const char *)STR(str)->value, STR(str)->len);
+    nst_print((const i8 *)STR(str)->value, STR(str)->len);
 
     nst_dec_ref(str);
     return nst_inc_ref(ob);
 }
 
-static inline char get_one_char()
+static inline i8 get_one_char()
 {
-    char ch;
-    size_t chars_read = nst_io->in->read_f(&ch, sizeof(char), 1, nst_io->in->value);
+    i8 ch;
+    usize chars_read = nst_io->in->read_f(&ch, sizeof(i8), 1, nst_io->in->value);
     if ( chars_read == 1 )
         return ch;
     else
@@ -1743,12 +1743,12 @@ Nst_Obj *_nst_obj_stdin(Nst_Obj *ob, Nst_OpErr *err)
     fflush(stdout);
     nst_dec_ref(ob);
 
-    char *buffer = (char *)malloc(4);
+    i8 *buffer = (i8 *)malloc(4);
     CHECK_BUFFER(buffer);
 
-    size_t buffer_size = 4;
-    size_t i = 0;
-    char ch = get_one_char();
+    usize buffer_size = 4;
+    usize i = 0;
+    i8 ch = get_one_char();
 
     while ( ch != '\n' )
     {
@@ -1759,7 +1759,7 @@ Nst_Obj *_nst_obj_stdin(Nst_Obj *ob, Nst_OpErr *err)
 
         if ( buffer_size == i + 2 )
         {
-            char *new_buffer = (char *)realloc(buffer, buffer_size *= 2);
+            i8 *new_buffer = (i8 *)realloc(buffer, buffer_size *= 2);
             if ( new_buffer == NULL )
             {
                 free(buffer);
@@ -1773,7 +1773,7 @@ Nst_Obj *_nst_obj_stdin(Nst_Obj *ob, Nst_OpErr *err)
         ch = get_one_char();
     }
     buffer[i] = '\0';
-    char *new_buffer = (char *)realloc(buffer, i + 1);
+    i8 *new_buffer = (i8 *)realloc(buffer, i + 1);
     if ( new_buffer == NULL )
     {
         free(buffer);
@@ -1796,8 +1796,8 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         return NULL;
     }
 
-    char *file_name = STR(ob)->value;
-    size_t file_name_len = STR(ob)->len;
+    i8 *file_name = STR(ob)->value;
+    usize file_name_len = STR(ob)->len;
     bool c_import = false;
 
     if ( STR(ob)->len > 6 &&
@@ -1953,7 +1953,7 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
     // Populate the function map
     Nst_MapObj *func_map = MAP(nst_map_new());
 
-    for ( size_t i = 0;; i++ )
+    for ( usize i = 0;; i++ )
     {
         Nst_FuncDeclr func = func_ptrs[i];
         if ( func.func_ptr == NULL )
@@ -1973,10 +1973,10 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
     return OBJ(func_map);
 }
 
-Nst_StrObj *_nst_get_import_path(char *initial_path, size_t path_len)
+Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len)
 {
-    char *file_path;
-    size_t new_len = nst_get_full_path(initial_path, &file_path, NULL);
+    i8 *file_path;
+    usize new_len = nst_get_full_path(initial_path, &file_path, NULL);
     Nst_IOFile file;
 
     if ( file_path != NULL && (file = fopen(file_path, "r")) != NULL )
@@ -1991,12 +1991,12 @@ Nst_StrObj *_nst_get_import_path(char *initial_path, size_t path_len)
 #if defined(_WIN32) || defined(WIN32)
  #ifdef _DEBUG
 
-    size_t root_len = strlen(__FILE__) - 13;
-    size_t nest_file_len = 17;
-    const char *obj_ops_path = __FILE__;
-    const char* nest_files = "libs/_nest_files/";
-    size_t full_size = path_len + nest_file_len + root_len;
-    file_path = (char *)malloc((full_size + 1) * sizeof(char));
+    usize root_len = strlen(__FILE__) - 13;
+    usize nest_file_len = 17;
+    const i8 *obj_ops_path = __FILE__;
+    const i8 *nest_files = "libs/_nest_files/";
+    usize full_size = path_len + nest_file_len + root_len;
+    file_path = (i8 *)malloc((full_size + 1) * sizeof(i8));
     memcpy(file_path, obj_ops_path, root_len);
     memcpy(file_path + root_len, nest_files, nest_file_len);
     memcpy(file_path + root_len + nest_file_len, initial_path, path_len);
@@ -2004,19 +2004,19 @@ Nst_StrObj *_nst_get_import_path(char *initial_path, size_t path_len)
  #else
     // In Windows the standard library is stored in %LOCALAPPDATA%/Programs/nest/nest_libs
 
-    char *appdata = getenv("LOCALAPPDATA");
+    i8 *appdata = getenv("LOCALAPPDATA");
     if ( appdata == NULL )
         return NULL;
 
-    size_t appdata_len = strlen(appdata);
-    file_path = (char *)malloc((appdata_len + path_len + 26) * sizeof(char));
+    usize appdata_len = strlen(appdata);
+    file_path = (i8 *)malloc((appdata_len + path_len + 26) * sizeof(i8));
     if ( !file_path ) return NULL;
     sprintf(file_path, "%s/Programs/nest/nest_libs/%s", appdata, initial_path);
  #endif
 #else
 
     // In UNIX the standard library is stored in /usr/lib/nest
-    file_path = (char *)malloc((path_len + 15) * sizeof(char));
+    file_path = (i8 *)malloc((path_len + 15) * sizeof(i8));
     if ( !file_path ) return NULL;
     sprintf(file_path, "/usr/lib/nest/%s", initial_path);
 
@@ -2029,7 +2029,7 @@ Nst_StrObj *_nst_get_import_path(char *initial_path, size_t path_len)
     }
     fclose(file);
 
-    char *abs_path;
+    i8 *abs_path;
     new_len = nst_get_full_path(file_path, &abs_path, NULL);
     free(file_path);
     return STR(nst_string_new(abs_path, new_len, true));

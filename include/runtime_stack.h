@@ -22,8 +22,8 @@ extern "C" {
 typedef struct _Nst_ValueStack
 {
     Nst_Obj **stack;
-    size_t current_size;
-    size_t max_size;
+    usize current_size;
+    usize max_size;
 }
 Nst_ValueStack;
 
@@ -40,15 +40,15 @@ Nst_FuncCall;
 typedef struct _Nst_CallStack
 {
     Nst_FuncCall *stack;
-    size_t current_size;
-    size_t max_size;
+    usize current_size;
+    usize max_size;
 }
 Nst_CallStack;
 
 typedef struct _Nst_CatchFrame
 {
-    size_t f_stack_size;
-    size_t v_stack_size;
+    usize f_stack_size;
+    usize v_stack_size;
     Nst_Int inst_idx;
 }
 Nst_CatchFrame;
@@ -56,8 +56,8 @@ Nst_CatchFrame;
 typedef struct _Nst_CatchStack
 {
     Nst_CatchFrame *stack;
-    size_t current_size;
-    size_t max_size;
+    usize current_size;
+    usize max_size;
 }
 Nst_CatchStack;
 
@@ -93,8 +93,8 @@ Nst_CatchStack *nst_cstack_new();
 // Pushes a value to the catch stack
 bool nst_cstack_push(Nst_CatchStack *c_stack,
                      Nst_Int         inst_idx,
-                     size_t          v_stack_size,
-                     size_t          f_stack_size);
+                     usize           v_stack_size,
+                     usize           f_stack_size);
 // Peeks the top value of the catch stack
 Nst_CatchFrame nst_cstack_peek(Nst_CatchStack *c_stack);
 // Returns the top value of the catch stack

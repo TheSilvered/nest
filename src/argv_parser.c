@@ -1,3 +1,4 @@
+#include <string.h>
 #include "argv_parser.h"
 #include "nest.h"
 
@@ -43,18 +44,18 @@
 #define VERSION_MESSAGE \
     "Using Nest version: " NST_VERSION
 
-int nst_parse_args(int argc, char **argv,
-                   bool  *print_tokens,
-                   bool  *print_ast,
-                   bool  *print_bytecode,
-                   bool  *force_execution,
-                   bool  *monochrome,
-                   bool  *force_cp1252,
-                   bool  *no_default,
-                   int   *opt_level,
-                   char **command,
-                   char **filename,
-                   int   *args_start)
+i32 nst_parse_args(i32 argc, i8 **argv,
+                   bool *print_tokens,
+                   bool *print_ast,
+                   bool *print_bytecode,
+                   bool *force_execution,
+                   bool *monochrome,
+                   bool *force_cp1252,
+                   bool *no_default,
+                   i32  *opt_level,
+                   i8  **command,
+                   i8  **filename,
+                   i32  *args_start)
 {
     *print_tokens = false;
     *print_ast = false;
@@ -74,11 +75,11 @@ int nst_parse_args(int argc, char **argv,
         return -1;
     }
 
-    int i = 1;
+    i32 i = 1;
     for ( ; i < argc; i++ )
     {
-        char *arg = argv[i];
-        int arg_len = (int)strlen(arg);
+        i8 *arg = argv[i];
+        i32 arg_len = (i32)strlen(arg);
 
         if ( arg[0] == '-' )
         {
@@ -89,7 +90,7 @@ int nst_parse_args(int argc, char **argv,
                 return -1;
             }
 
-            for ( int j = 1; j < (int)arg_len; j++)
+            for ( i32 j = 1; j < (i32)arg_len; j++)
             {
                 switch ( arg[j] )
                 {
@@ -123,17 +124,17 @@ int nst_parse_args(int argc, char **argv,
                     }
 
                     {
-                        int level = arg[j + 1] - '0';
+                        i32 level = arg[j + 1] - '0';
 
                         if ( level < 0 || level > 3)
                         {
-                            printf("Invalid option: -O%c\n", (char)(level + '0'));
+                            printf("Invalid option: -O%c\n", (i8)(level + '0'));
                             printf("\n" USAGE_MESSAGE);
                             return -1;
                         }
 
                         *opt_level = level;
-                        j = (int)arg_len;
+                        j = (i32)arg_len;
                     }
                     break;
 
@@ -219,7 +220,7 @@ int nst_parse_args(int argc, char **argv,
                         return -1;
                     }
 
-                    j = (int)arg_len;
+                    j = (i32)arg_len;
                     break;
 
                 default:

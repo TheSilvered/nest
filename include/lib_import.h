@@ -74,7 +74,7 @@
 
 // Function signature for Nest function
 #define NST_FUNC_SIGN(name) \
-    Nst_Obj *name(size_t arg_num, Nst_Obj **args, Nst_OpErr *err)
+    Nst_Obj *name(usize arg_num, Nst_Obj **args, Nst_OpErr *err)
 
 // Default call to nst_extract_arg_values
 #define NST_DEF_EXTRACT(ltrl, ...) \
@@ -97,13 +97,13 @@ extern "C" {
 typedef struct _Nst_FuncDeclr
 {
     NST_FUNC_SIGN((*func_ptr));
-    size_t arg_num;
+    usize arg_num;
     Nst_StrObj *name;
 }
 Nst_FuncDeclr;
 
 // Allocates the function list of the module
-Nst_FuncDeclr *nst_func_list_new(size_t count);
+Nst_FuncDeclr *nst_func_list_new(usize count);
 // Extracts the C values from the arguments
 // `types` is a string of letters for the types, check the full usage in
 // src/lib_import.c
@@ -111,10 +111,10 @@ Nst_FuncDeclr *nst_func_list_new(size_t count);
 // `args`: the arguments themselves
 // `err`: the `err` argument of the function
 // ...: the pointers to store the values in or the custom types
-bool nst_extract_arg_values(const char *types,
-                            size_t      arg_num,
-                            Nst_Obj   **args,
-                            Nst_OpErr  *err,
+bool nst_extract_arg_values(const i8  *types,
+                            usize      arg_num,
+                            Nst_Obj  **args,
+                            Nst_OpErr *err,
                             ...);
 
 #ifdef __cplusplus

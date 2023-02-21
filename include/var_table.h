@@ -26,8 +26,8 @@ Nst_VarTable;
 
 // Creates a new variable table
 Nst_VarTable *nst_vt_new(Nst_MapObj *global_table,
-                                Nst_StrObj *cwd,
-                                Nst_SeqObj *args);
+                         Nst_StrObj *cwd,
+                         Nst_SeqObj *args);
 Nst_Obj *_nst_vt_get(Nst_VarTable *vt, Nst_Obj *name);
 void _nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val);
 #ifdef __cplusplus

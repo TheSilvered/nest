@@ -13,7 +13,7 @@ bool lib_init()
         return false;
     }
 
-    size_t idx = 0;
+    usize idx = 0;
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(try_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_err_names_, 0);
@@ -97,7 +97,7 @@ Nst_Obj *failure(Nst_OpErr *err)
         Nst_Int skipped = 0;
         Nst_LLNode *n1 = positions->head;
         Nst_LLNode *n2 = n1 == nullptr ? n1 : n1->next;
-        for ( size_t i = 0; n1 != nullptr; i++ )
+        for ( usize i = 0; n1 != nullptr; i++ )
         {
             Nst_Obj *pos = make_pos(*(Nst_Pos *)n1->value,
                                     *(Nst_Pos *)n2->value);

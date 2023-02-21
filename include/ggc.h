@@ -3,6 +3,7 @@
 #ifndef GGC_H
 #define GGC_H
 
+#include "typedefs.h"
 #include "obj.h"
 #include "simple_types.h"
 
@@ -50,7 +51,7 @@ typedef struct _Nst_GGCList
 {
     Nst_GGCObj *head;
     Nst_GGCObj *tail;
-    size_t size;
+    usize size;
 }
 Nst_GGCList;
 

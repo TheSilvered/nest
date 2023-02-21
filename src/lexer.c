@@ -6,12 +6,12 @@
 #include "error_internal.h"
 #include "hash.h"
 #include "lexer.h"
-#include "nst_types.h"
+#include "global_consts.h"
 #include "tokens.h"
 #include "interpreter.h"
 #include "encoding.h"
 
-#define START_CH_SIZE 8 * sizeof(char)
+#define START_CH_SIZE 8 * sizeof(i8)
 
 #define SET_INVALID_ESCAPE_ERROR do { \
     free(end_str); \
@@ -22,7 +22,7 @@
         _NST_EM_INVALID_ESCAPE); \
     return; } while (0)
 
-#define CUR_AT_END (cursor.idx >= (long)cursor.len)
+#define CUR_AT_END (cursor.idx >= (i32)cursor.len)
 
 #define CH_IS_DEC(ch) (ch >= '0' && ch <= '9')
 #define CH_IS_BIN(ch) (ch == '0' || ch == '1')
@@ -57,12 +57,12 @@
     }
 
 typedef struct LexerCursor {
-    char *text;
-    size_t len;
+    i8 *text;
+    usize len;
     Nst_Pos pos;
-    long prev_line_len;
-    long idx;
-    char ch;
+    i32 prev_line_len;
+    i32 idx;
+    i8 ch;
 } LexerCursor;
 
 static LexerCursor cursor;
@@ -73,18 +73,18 @@ static void make_symbol(Nst_Tok **tok, Nst_Error *error);
 static void make_num_literal(Nst_Tok **tok, Nst_Error *error);
 static void make_ident(Nst_Tok **tok, Nst_Error *error);
 static void make_str_literal(Nst_Tok **tok, Nst_Error *error);
-static void parse_first_line(char  *text,
-                             size_t len,
-                             int   *opt_level,
-                             bool  *force_cp1252,
-                             bool  *no_default);
+static void parse_first_line(i8   *text,
+                             usize len,
+                             i32  *opt_level,
+                             bool *force_cp1252,
+                             bool *no_default);
 
-Nst_LList *nst_tokenizef(char           *filename,
-                     bool            force_cp1252,
-                     int            *opt_level,
-                     bool           *no_default,
-                     Nst_SourceText *src_text,
-                     Nst_Error      *error)
+Nst_LList *nst_tokenizef(i8           *filename,
+                         bool            force_cp1252,
+                         i32            *opt_level,
+                         bool           *no_default,
+                         Nst_SourceText *src_text,
+                         Nst_Error      *error)
 {
     *opt_level = 3;
     *no_default = false;
@@ -97,21 +97,21 @@ Nst_LList *nst_tokenizef(char           *filename,
     }
 
     fseek(file, 0, SEEK_END);
-    size_t size = ftell(file);
+    usize size = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    char *text = (char *)calloc(size + 1, sizeof(char));
+    i8 *text = (i8 *)calloc(size + 1, sizeof(i8));
     if ( text == NULL )
     {
         printf("Ran out of memory while reading the file\n");
         return NULL;
     }
 
-    size_t str_len = fread(text, sizeof(char), size + 1, file);
+    usize str_len = fread(text, sizeof(i8), size + 1, file);
     fclose(file);
     text[str_len] = '\0';
 
-    char *full_path;
+    i8 *full_path;
     nst_get_full_path(filename, &full_path, NULL);
 
     src_text->text = text;
@@ -162,7 +162,7 @@ Nst_LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
         {
             make_symbol(&tok, error);
         }
-        else if ( CH_IS_ALPHA(cursor.ch) || (unsigned char)cursor.ch >= 0b10000000 )
+        else if ( CH_IS_ALPHA(cursor.ch) || (u8)cursor.ch >= 0b10000000 )
         {
             make_ident(&tok, error);
         }
@@ -214,7 +214,7 @@ inline static void advance()
     cursor.idx++;
     cursor.pos.col++;
 
-    if ( cursor.idx > (long) cursor.len )
+    if ( cursor.idx > (i32) cursor.len )
     {
         cursor.ch = '\0';
         return;
@@ -249,7 +249,7 @@ inline static void go_back()
 static void make_symbol(Nst_Tok **tok, Nst_Error *error)
 {
     Nst_Pos start = nst_copy_pos(cursor.pos);
-    char symbol[4] = { cursor.ch, 0, 0, 0 };
+    i8 symbol[4] = { cursor.ch, 0, 0, 0 };
     advance();
     if ( !CUR_AT_END && CH_IS_SYMBOL(cursor.ch) )
     {
@@ -366,12 +366,12 @@ static void make_symbol(Nst_Tok **tok, Nst_Error *error)
 
 static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
 {
-    char *start_p = cursor.text + cursor.idx;
+    i8 *start_p = cursor.text + cursor.idx;
     Nst_Pos start = nst_copy_pos(cursor.pos);
     Nst_Pos end = start;
 
-    size_t ltrl_size = 0;
-    char *ltrl = NULL;
+    usize ltrl_size = 0;
+    i8 *ltrl = NULL;
     bool neg = false;
     bool is_real = false;
     Nst_StrObj s;
@@ -509,8 +509,8 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
                 _NST_EM_BAD_BYTE_LITERAL);
             return;
         }
-        char ch1 = 0;
-        char ch2 = 0;
+        i8 ch1 = 0;
+        i8 ch2 = 0;
         do
         {
             if ( cursor.ch == '_' )
@@ -544,7 +544,7 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
             return;
         }
         go_back();
-        int val = (int)ch2 + (int)ch1 * 16;
+        i32 val = (i32)ch2 + (i32)ch1 * 16;
         if ( neg )
         {
             val = -val;
@@ -623,7 +623,7 @@ dec_num:
     go_back();
 
 end:
-    ltrl = (char *)malloc(ltrl_size + 3);
+    ltrl = (i8 *)malloc(ltrl_size + 3);
     if ( ltrl == NULL )
     {
         _NST_FAILED_ALLOCATION(error, start, cursor.pos);
@@ -678,27 +678,27 @@ static void make_ident(Nst_Tok **tok, Nst_Error *error)
 {
     Nst_Pos start = nst_copy_pos(cursor.pos);
 
-    char *str;
-    char *str_start = cursor.text + cursor.idx;
-    size_t str_len = 0;
+    i8 *str;
+    i8 *str_start = cursor.text + cursor.idx;
+    usize str_len = 0;
 
-    while ( cursor.idx < (long)cursor.len &&
+    while ( cursor.idx < (i32)cursor.len &&
             (CH_IS_ALPHA(cursor.ch) ||
              CH_IS_DEC(cursor.ch)   ||
-             (unsigned char)cursor.ch >= 0b10000000) )
+             (u8)cursor.ch >= 0b10000000) )
     {
-        int res = nst_check_utf8_bytes(
-            (unsigned char *)cursor.text + cursor.idx,
-            (size_t)(cursor.text - cursor.idx));
+        i32 res = nst_check_utf8_bytes(
+            (u8 *)cursor.text + cursor.idx,
+            (usize)(cursor.text - cursor.idx));
         str_len += res;
-        for ( int i = 0; i < res; i++ )
+        for ( i32 i = 0; i < res; i++ )
         {
             advance();
         }
     }
     go_back();
 
-    str = (char *)malloc(str_len + 1);
+    str = (i8 *)malloc(str_len + 1);
 
     if ( str == NULL )
     {
@@ -719,12 +719,12 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
 {
     Nst_Pos start = nst_copy_pos(cursor.pos);
     Nst_Pos escape_start = nst_copy_pos(cursor.pos);
-    char closing_ch = cursor.ch;
+    i8 closing_ch = cursor.ch;
     bool allow_multiline = cursor.ch == '"';
     bool escape = false;
 
-    char *end_str = (char *)malloc(START_CH_SIZE);
-    char *end_str_realloc = NULL;
+    i8 *end_str = (i8 *)malloc(START_CH_SIZE);
+    i8 *end_str_realloc = NULL;
 
     if ( end_str == NULL )
     {
@@ -732,22 +732,22 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
         return;
     }
 
-    size_t str_len = 0;
-    size_t chunk_size = START_CH_SIZE;
+    usize str_len = 0;
+    usize chunk_size = START_CH_SIZE;
 
     advance(); // still on the opening character
 
     // while there is text to add and (the string has not ended or
     // the end is inside and escape)
-    while ( cursor.idx < (long) cursor.len &&
+    while ( cursor.idx < (i32) cursor.len &&
             (cursor.ch != closing_ch || escape) )
     {
         if ( str_len + 4 == chunk_size )
         {
-            chunk_size = (size_t)(chunk_size * 1.5);
-            end_str_realloc = (char *)realloc(
+            chunk_size = (usize)(chunk_size * 1.5);
+            end_str_realloc = (i8 *)realloc(
                 end_str,
-                sizeof(char) * chunk_size);
+                sizeof(i8) * chunk_size);
             if ( end_str_realloc == NULL )
             {
                 free(end_str);
@@ -798,22 +798,22 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
         case 'v': end_str[str_len++] = '\v'; break;
         case 'x':
         {
-            if ( (size_t)cursor.idx + 2 >= cursor.len )
+            if ( (usize)cursor.idx + 2 >= cursor.len )
             {
                 SET_INVALID_ESCAPE_ERROR;
             }
 
             advance();
-            char ch1 = (char)tolower(cursor.ch);
+            i8 ch1 = (i8)tolower(cursor.ch);
             advance();
-            char ch2 = (char)tolower(cursor.ch);
+            i8 ch2 = (i8)tolower(cursor.ch);
 
             if ( !CH_IS_HEX(ch1) || !CH_IS_HEX(ch2) )
             {
                 SET_INVALID_ESCAPE_ERROR;
             }
 
-            char result = ((ch1 > '9' ? ch1 - 'a' + 10 : ch1 - '0') << 4) +
+            i8 result = ((ch1 > '9' ? ch1 - 'a' + 10 : ch1 - '0') << 4) +
                             (ch2 > '9' ? ch2 - 'a' + 10 : ch2 - '0');
 
             end_str[str_len++] = result;
@@ -822,17 +822,17 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
         case 'u':
         case 'U':
         {
-            int size = cursor.ch == 'U' ? 8 : 4;
-            if ( (size_t)cursor.idx + size >= cursor.len )
+            i32 size = cursor.ch == 'U' ? 8 : 4;
+            if ( (usize)cursor.idx + size >= cursor.len )
             {
                 SET_INVALID_ESCAPE_ERROR;
             }
 
-            int num = 0;
-            for ( int i = 0; i < size; i++ )
+            i32 num = 0;
+            for ( i32 i = 0; i < size; i++ )
             {
                 advance();
-                char ch = (char)tolower(cursor.ch);
+                i8 ch = (i8)tolower(cursor.ch);
                 if ( !CH_IS_HEX(ch) )
                 {
                     SET_INVALID_ESCAPE_ERROR;
@@ -844,25 +844,25 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
 
             if ( num <= 0x7f )
             {
-                end_str[str_len++] = (char)num;
+                end_str[str_len++] = (i8)num;
             }
             else if ( num <= 0x7ff )
             {
-                end_str[str_len++] = 0b11000000 | (char)(num >> 6);
-                end_str[str_len++] = 0b10000000 | (char)(num & 0x3f);
+                end_str[str_len++] = 0b11000000 | (i8)(num >> 6);
+                end_str[str_len++] = 0b10000000 | (i8)(num & 0x3f);
             }
             else if ( num <= 0xffff )
             {
-                end_str[str_len++] = 0b11100000 | (char)(num >> 12);
-                end_str[str_len++] = 0b10000000 | (char)(num >> 6 & 0x3f);
-                end_str[str_len++] = 0b10000000 | (char)(num & 0x3f);
+                end_str[str_len++] = 0b11100000 | (i8)(num >> 12);
+                end_str[str_len++] = 0b10000000 | (i8)(num >> 6 & 0x3f);
+                end_str[str_len++] = 0b10000000 | (i8)(num & 0x3f);
             }
             else if ( num <= 0x10ffff )
             {
-                end_str[str_len++] = 0b11110000 | (char)(num >> 18);
-                end_str[str_len++] = 0b10000000 | (char)(num >> 12 & 0x3f);
-                end_str[str_len++] = 0b10000000 | (char)(num >> 6 & 0x3f);
-                end_str[str_len++] = 0b10000000 | (char)(num & 0x3f);
+                end_str[str_len++] = 0b11110000 | (i8)(num >> 18);
+                end_str[str_len++] = 0b10000000 | (i8)(num >> 12 & 0x3f);
+                end_str[str_len++] = 0b10000000 | (i8)(num >> 6 & 0x3f);
+                end_str[str_len++] = 0b10000000 | (i8)(num & 0x3f);
             }
             else
             {
@@ -879,7 +879,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
         case '6':
         case '7':
         {
-            char ch1 = cursor.ch - '0';
+            i8 ch1 = cursor.ch - '0';
 
             advance();
             if ( !CH_IS_OCT(cursor.ch) )
@@ -888,7 +888,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
                 go_back();
                 break;
             }
-            char ch2 = cursor.ch - '0';
+            i8 ch2 = cursor.ch - '0';
 
             advance();
             if ( !CH_IS_OCT(cursor.ch) )
@@ -897,7 +897,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
                 go_back();
                 break;
             }
-            char ch3 = cursor.ch - '0';
+            i8 ch3 = cursor.ch - '0';
             end_str[str_len++] = (ch1 << 6) + (ch2 << 3) + ch3;
             break;
         }
@@ -926,7 +926,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
 
     if ( str_len + 20 < chunk_size )
     {
-        end_str_realloc = (char *)realloc(end_str, str_len + 1);
+        end_str_realloc = (i8 *)realloc(end_str, str_len + 1);
         if ( end_str_realloc != NULL )
         {
             end_str = end_str_realloc;
@@ -943,8 +943,8 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
 
 void nst_add_lines(Nst_SourceText* text)
 {
-    char *text_p = text->text;
-    char **starts = (char **)calloc(100, sizeof(char *));
+    i8 *text_p = text->text;
+    i8 **starts = (i8 **)calloc(100, sizeof(i8 *));
     if ( starts == NULL )
     {
         text->lines = NULL;
@@ -953,7 +953,7 @@ void nst_add_lines(Nst_SourceText* text)
     }
 
     starts[0] = text_p;
-    size_t line_count = 1;
+    usize line_count = 1;
 
     // normalize line endings
 
@@ -961,7 +961,7 @@ void nst_add_lines(Nst_SourceText* text)
     // if the file only contains \r, it is replaced with \n
 
     bool remove_r = false;
-    for ( size_t i = 0, n = text->len; i < n; i++ )
+    for ( usize i = 0, n = text->len; i < n; i++ )
     {
         if ( text_p[i] == '\n' )
         {
@@ -970,8 +970,8 @@ void nst_add_lines(Nst_SourceText* text)
         }
     }
 
-    size_t offset = 0;
-    for ( size_t i = 0, n = text->len; i < n; i++ )
+    usize offset = 0;
+    for ( usize i = 0, n = text->len; i < n; i++ )
     {
         if ( text_p[i] != '\r' )
         {
@@ -991,7 +991,7 @@ void nst_add_lines(Nst_SourceText* text)
     text->text[text->len] = '\0';
 
     // now all lines end with \n
-    for ( size_t i = 0, n = text->len; i < n; i++ )
+    for ( usize i = 0, n = text->len; i < n; i++ )
     {
         if ( text_p[i] != '\n' )
         {
@@ -1016,7 +1016,7 @@ void nst_add_lines(Nst_SourceText* text)
                 text->line_count = 0;
                 return;
             }
-            starts = (char **)temp;
+            starts = (i8 **)temp;
         }
 
         starts[line_count - 1] = text_p + i + 1;
@@ -1030,10 +1030,10 @@ void nst_normalize_encoding(Nst_SourceText *text,
                             bool            is_cp1252,
                             Nst_Error      *error)
 {
-    unsigned char *text_p = (unsigned char *)text->text;
-    size_t ch_count = 0;
-    size_t i = 0;
-    size_t n = text->len;
+    u8 *text_p = (u8 *)text->text;
+    usize ch_count = 0;
+    usize i = 0;
+    usize n = text->len;
 
     if ( is_cp1252 )
     {
@@ -1044,7 +1044,7 @@ void nst_normalize_encoding(Nst_SourceText *text,
     {
         if ( text_p[i] > 0x7f )
         {
-            int offset = nst_check_utf8_bytes(text_p + i, n - i);
+            i32 offset = nst_check_utf8_bytes(text_p + i, n - i);
             if ( offset == -1 )
             {
                 ch_count++;
@@ -1066,15 +1066,15 @@ fix_encoding:
         }
     }
 
-    char *new_text = (char *)calloc(n + ch_count * 3 + 1, sizeof(char));
+    i8 *new_text = (i8 *)calloc(n + ch_count * 3 + 1, sizeof(i8));
     if ( new_text == NULL )
     {
         return;
     }
 
-    char *utf8_ptr = new_text;
-    long line = 0;
-    long col = 0;
+    i8 *utf8_ptr = new_text;
+    i32 line = 0;
+    i32 col = 0;
     for ( i = 0; i < n; i++ )
     {
         if ( text_p[i] <= 0x7f )
@@ -1088,7 +1088,7 @@ fix_encoding:
             *utf8_ptr++ = text_p[i];
             continue;
         }
-        int offset = nst_cp1252_to_utf8(utf8_ptr, text_p[i]);
+        i32 offset = nst_cp1252_to_utf8(utf8_ptr, text_p[i]);
 
         if ( offset == -1 )
         {
@@ -1109,9 +1109,9 @@ fix_encoding:
     text->text = new_text;
 }
 
-static void parse_first_line(char  *text,
-                             size_t len,
-                             int   *opt_level,
+static void parse_first_line(i8  *text,
+                             usize len,
+                             i32   *opt_level,
                              bool  *force_cp1252,
                              bool  *no_default)
 {
@@ -1120,8 +1120,8 @@ static void parse_first_line(char  *text,
         return;
     }
 
-    char curr_opt[13];
-    size_t i = 0;
+    i8 curr_opt[13];
+    usize i = 0;
     text += 3;
     len -= 3;
 

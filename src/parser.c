@@ -143,7 +143,7 @@ static Nst_Node *parse_long_statement()
 static Nst_Node *parse_statement()
 {
     skip_blank();
-    int tok_type = TOK(nst_llist_peek_front(tokens))->type;
+    i32 tok_type = TOK(nst_llist_peek_front(tokens))->type;
 
     if ( tok_type == NST_TT_L_BRACKET )
     {
@@ -677,7 +677,7 @@ static Nst_Node *parse_expr(bool break_as_end)
 {
     Nst_Node *node = NULL;
     Nst_Pos start = TOK(nst_llist_peek_front(tokens))->start;
-    int token_type = TOK(nst_llist_peek_front(tokens))->type;
+    i32 token_type = TOK(nst_llist_peek_front(tokens))->type;
 
     if ( break_as_end )
     {
@@ -763,7 +763,7 @@ static Nst_Node *fix_expr(Nst_Node *expr)
     }
 
     // writing 1 2 3 4 + becomes 1 2 + 3 + 4 +
-    for ( size_t i = 0, n = expr->nodes->size - 2; i < n; i++ )
+    for ( usize i = 0, n = expr->nodes->size - 2; i < n; i++ )
     {
         // get the positions
         Nst_Pos start = curr_node->start;
@@ -772,7 +772,7 @@ static Nst_Node *fix_expr(Nst_Node *expr)
         SAFE_LLIST_CREATE(new_nodes);
         SAFE_LLIST_CREATE(new_tokens);
         // move the nodes except for the last one
-        for ( size_t j = 0, m = curr_node->nodes->size - 1; j < m; j++ )
+        for ( usize j = 0, m = curr_node->nodes->size - 1; j < m; j++ )
         {
             nst_llist_append(new_nodes, nst_llist_pop(curr_node->nodes), true);
         }
@@ -1331,7 +1331,7 @@ static Nst_Node *parse_arr_or_map_literal()
     skip_blank();
 
     bool is_map = false;
-    size_t count = 0;
+    usize count = 0;
 
     if ( TOK(nst_llist_peek_front(tokens))->type == NST_TT_R_BRACE )
     {
@@ -1351,7 +1351,7 @@ static Nst_Node *parse_arr_or_map_literal()
         skip_blank();
         tok = TOK(nst_llist_pop(tokens));
         Nst_Pos end = tok->end;
-        int type = tok->type;
+        i32 type = tok->type;
         nst_token_destroy(tok);
 
         if ( type != NST_TT_R_BRACE )
@@ -1533,7 +1533,10 @@ static Nst_Node *parse_try_catch()
         node_tokens);
 }
 
-static void _print_ast(Nst_Node *node, Nst_Tok *tok, int lvl, Nst_LList *is_last)
+static void _print_ast(Nst_Node  *node,
+                       Nst_Tok   *tok,
+                       i32        lvl,
+                       Nst_LList *is_last)
 {
     Nst_LLNode *cursor = NULL;
 
@@ -1606,8 +1609,8 @@ static void _print_ast(Nst_Node *node, Nst_Tok *tok, int lvl, Nst_LList *is_last
         node->end.line,
         node->end.col);
 
-    size_t tot_len = node->nodes->size + node->tokens->size - 1;
-    size_t idx = 0;
+    usize tot_len = node->nodes->size + node->tokens->size - 1;
+    usize idx = 0;
 
     Nst_LLNode *prev_tail = is_last->tail;
     bool *last = (bool *)malloc(sizeof(bool));

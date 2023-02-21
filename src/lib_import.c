@@ -3,7 +3,7 @@
 #include <string.h>
 #include "error.h"
 #include "lib_import.h"
-#include "nst_types.h"
+#include "iter.h"
 #include "obj_ops.h"
 #include "global_consts.h"
 
@@ -14,13 +14,13 @@
         idx + 1, TYPE_NAME(ob))); \
     return false; }
 
-Nst_FuncDeclr *nst_func_list_new(size_t count)
+Nst_FuncDeclr *nst_func_list_new(usize count)
 {
     return (Nst_FuncDeclr *)calloc(count + 1, sizeof(Nst_FuncDeclr));
 }
 
-static bool extract_builtin_type(const char type,
-                                 int        idx,
+static bool extract_builtin_type(const i8   type,
+                                 i32        idx,
                                  Nst_OpErr *err,
                                  Nst_Obj   *ob,
                                  void      *arg,
@@ -246,10 +246,10 @@ static bool extract_builtin_type(const char type,
     return true;
 }
 
-bool nst_extract_arg_values(const char *types,
-                            size_t      arg_num,
-                            Nst_Obj   **args,
-                            Nst_OpErr  *err,
+bool nst_extract_arg_values(const i8  *types,
+                            usize      arg_num,
+                            Nst_Obj  **args,
+                            Nst_OpErr *err,
                             ...)
 {
     /*
@@ -297,10 +297,10 @@ bool nst_extract_arg_values(const char *types,
     va_start(arglist, err);
     void *arg;
     Nst_Obj *ob;
-    unsigned int arg_idx = 0;
+    u32 arg_idx = 0;
     bool succeded = true;
 
-    for ( size_t i = 0, n = strlen(types); i < n; i++ )
+    for ( usize i = 0, n = strlen(types); i < n; i++ )
     {
         if ( arg_idx >= arg_num )
         {

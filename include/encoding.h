@@ -1,14 +1,14 @@
 #ifndef ENCODING_H
 #define ENCODING_H
 
-#include <stddef.h>
+#include "typedefs.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
-int nst_check_utf8_bytes(unsigned char *byte, size_t len);
-int nst_cp1252_to_utf8(char *str, char byte);
+i32 nst_check_utf8_bytes(u8 *byte, usize len);
+i32 nst_cp1252_to_utf8(i8 *str, i8 byte);
 
 #ifdef __cplusplus
 }

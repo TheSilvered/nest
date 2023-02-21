@@ -81,7 +81,7 @@
 
 Nst_ExecutionState nst_state;
 
-static void complete_function(size_t final_stack_size);
+static void complete_function(usize final_stack_size);
 static void close_c_lib(C_LIB_TYPE handle);
 
 static inline void run_instruction(Nst_Inst *inst);
@@ -123,17 +123,17 @@ static inline void exe_pop_catch();
 static inline void exe_save_error();
 static inline void exe_unpack_seq(Nst_Inst *inst);
 
-static Nst_SeqObj *make_argv(int argc, char **argv, char *filename);
-static Nst_StrObj *make_cwd(char *file_path);
+static Nst_SeqObj *make_argv(i32 argc, i8 **argv, i8 *filename);
+static Nst_StrObj *make_cwd(i8 *file_path);
 
-int nst_run(Nst_FuncObj *main_func,
-            int          argc,
-            char       **argv,
-            char        *filename,
-            int          opt_level,
+i32 nst_run(Nst_FuncObj *main_func,
+            i32          argc,
+            i8         **argv,
+            i8          *filename,
+            i32          opt_level,
             bool         no_default)
 {
-    char *cwd_buf = (char *)malloc(sizeof(char) * PATH_MAX);
+    i8 *cwd_buf = (i8 *)malloc(sizeof(i8) * PATH_MAX);
     if ( cwd_buf == NULL )
     {
         return -1;
@@ -164,7 +164,7 @@ int nst_run(Nst_FuncObj *main_func,
     Nst_SeqObj *argv_obj = make_argv(
         argc,
         argv,
-        filename == NULL ? (char *)"-c" : filename);
+        filename == NULL ? (i8 *)"-c" : filename);
     Nst_VarTable *vt = nst_vt_new(
         no_default ? MAP(nst_c.Null_null) : NULL,
         cwd,
@@ -193,8 +193,8 @@ int nst_run(Nst_FuncObj *main_func,
 
     if ( filename != NULL )
     {
-        char *path_main_file = NULL;
-        size_t path_len = nst_get_full_path(filename, &path_main_file, NULL);
+        i8 *path_main_file = NULL;
+        usize path_len = nst_get_full_path(filename, &path_main_file, NULL);
 
         nst_llist_append(
             nst_state.lib_paths,
@@ -258,7 +258,7 @@ static inline void destroy_call(Nst_FuncCall *call, Nst_Int offset)
     *nst_state.idx = call->idx + offset;
 }
 
-static void complete_function(size_t final_stack_size)
+static void complete_function(usize final_stack_size)
 {
     if ( nst_state.f_stack->current_size == 0 )
     {
@@ -286,7 +286,7 @@ static void complete_function(size_t final_stack_size)
 
         Nst_Inst *inst =
             curr_inst_ls->instructions + *nst_state.idx;
-        int inst_id = inst->id;
+        i32 inst_id = inst->id;
         run_instruction(inst);
 
         if ( ERROR_OCCURRED )
@@ -294,7 +294,7 @@ static void complete_function(size_t final_stack_size)
             Nst_CatchFrame top_catch = nst_cstack_peek(nst_state.c_stack);
             Nst_Obj *obj;
 
-            size_t end_size = top_catch.f_stack_size;
+            usize end_size = top_catch.f_stack_size;
             if ( end_size < final_stack_size )
             {
                 end_size = final_stack_size;
@@ -340,14 +340,14 @@ static void complete_function(size_t final_stack_size)
     }
 }
 
-int nst_run_module(char *filename, Nst_SourceText *lib_src)
+i32 nst_run_module(i8 *filename, Nst_SourceText *lib_src)
 {
     // Compile and optimize the imported module
 
-    int opt_level = *nst_state.opt_level;
+    i32 opt_level = *nst_state.opt_level;
     Nst_Error error = { false, nst_no_pos(), nst_no_pos(), NULL, NULL };
 
-    int file_opt_lvl;
+    i32 file_opt_lvl;
     bool no_default;
 
     // The file is guaranteed to exist
@@ -419,7 +419,7 @@ int nst_run_module(char *filename, Nst_SourceText *lib_src)
     Nst_StrObj *path_str = make_cwd(filename);
     *nst_state.curr_path = path_str;
 
-    int res = _chdir(path_str->value);
+    i32 res = _chdir(path_str->value);
     assert(res == 0);
 
     nst_vstack_push(nst_state.v_stack, NULL);
@@ -495,7 +495,7 @@ Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err)
         new_vt = nst_vt_new((*nst_state.vt)->global_table, NULL, NULL);
     }
 
-    for ( size_t i = 0, n = func->arg_num; i < n; i++ )
+    for ( usize i = 0, n = func->arg_num; i < n; i++ )
     {
         nst_vt_set(new_vt, func->args[i], args[i]);
     }
@@ -630,7 +630,7 @@ static inline void exe_for_inst(Nst_Inst *inst,
     {
         Nst_OpErr err = { NULL, NULL };
         Nst_Obj *res = func->body.c_func(
-            (size_t)inst->int_val,
+            (usize)inst->int_val,
             &iter->value,
             &err);
 
@@ -983,12 +983,12 @@ static inline void exe_op_call(Nst_Inst *inst)
             memcpy(
                 stack_args,
                 args_seq->objs,
-                (size_t)arg_num * sizeof(Nst_Obj *));
+                (usize)arg_num * sizeof(Nst_Obj *));
             args = stack_args;
         }
         else if ( is_seq_call )
         {
-            args = (Nst_Obj **)malloc((size_t)(sizeof(Nst_Obj *) * tot_args));
+            args = (Nst_Obj **)malloc((usize)(sizeof(Nst_Obj *) * tot_args));
             if ( args == NULL )
             {
                 return;
@@ -997,7 +997,7 @@ static inline void exe_op_call(Nst_Inst *inst)
             memcpy(
                 stack_args,
                 args_seq->objs,
-                (size_t)arg_num * sizeof(Nst_Obj *));
+                (usize)arg_num * sizeof(Nst_Obj *));
             args = stack_args;
         }
         else if ( tot_args == 0 )
@@ -1014,7 +1014,7 @@ static inline void exe_op_call(Nst_Inst *inst)
         }
         else
         {
-            args = (Nst_Obj **)malloc((size_t)(sizeof(Nst_Obj *) * tot_args));
+            args = (Nst_Obj **)malloc((usize)(sizeof(Nst_Obj *) * tot_args));
             if ( args == NULL )
             {
                 return;
@@ -1032,7 +1032,7 @@ static inline void exe_op_call(Nst_Inst *inst)
             args[arg_num + i] = nst_inc_ref(nst_c.Null_null);
         }
 
-        Nst_Obj *res = func->body.c_func((size_t)tot_args, args, &err);
+        Nst_Obj *res = func->body.c_func((usize)tot_args, args, &err);
 
         if ( !is_seq_call )
         {
@@ -1465,7 +1465,7 @@ static inline void exe_rot(Nst_Inst *inst)
     CHECK_V_STACK_SIZE(inst->int_val);
 
     Nst_Obj *obj = nst_vstack_peek(nst_state.v_stack);
-    size_t stack_size = nst_state.v_stack->current_size - 1;
+    usize stack_size = nst_state.v_stack->current_size - 1;
     Nst_Obj **stack = nst_state.v_stack->stack;
     for ( Nst_Int i = 1, n = inst->int_val; i < n; i++ )
     {
@@ -1479,8 +1479,8 @@ static inline void exe_make_seq(Nst_Inst *inst)
 {
     Nst_Int seq_size = inst->int_val;
     Nst_Obj *seq = inst->id == NST_IC_MAKE_ARR
-        ? nst_array_new((size_t)seq_size)
-        : nst_vector_new((size_t)seq_size);
+        ? nst_array_new((usize)seq_size)
+        : nst_vector_new((usize)seq_size);
     CHECK_V_STACK_SIZE(seq_size);
 
     for ( Nst_Int i = 1; i <= seq_size; i++ )
@@ -1504,8 +1504,8 @@ static inline void exe_make_seq_rep(Nst_Inst *inst)
     Nst_Int size = AS_INT(size_obj);
     nst_dec_ref(size_obj);
     Nst_Obj *seq = inst->id == NST_IC_MAKE_ARR_REP
-        ? nst_array_new((size_t)size)
-        : nst_vector_new((size_t)size);
+        ? nst_array_new((usize)size)
+        : nst_vector_new((usize)size);
 
     for ( Nst_Int i = 1; i <= size; i++ )
     {
@@ -1522,7 +1522,7 @@ static inline void exe_make_map(Nst_Inst *inst)
     Nst_Int map_size = inst->int_val;
     Nst_Obj *map = nst_map_new();
     CHECK_V_STACK_SIZE(map_size);
-    size_t stack_size = nst_state.v_stack->current_size;
+    usize stack_size = nst_state.v_stack->current_size;
     Nst_Obj **v_stack = nst_state.v_stack->stack;
 
     for ( Nst_Int i = 0; i < map_size; i++ )
@@ -1534,7 +1534,7 @@ static inline void exe_make_map(Nst_Inst *inst)
         nst_dec_ref(val);
         nst_dec_ref(key);
     }
-    nst_state.v_stack->current_size -= (size_t)map_size;
+    nst_state.v_stack->current_size -= (usize)map_size;
     nst_vstack_push(nst_state.v_stack, map);
     nst_dec_ref(map);
 }
@@ -1616,9 +1616,9 @@ static inline void exe_unpack_seq(Nst_Inst* inst)
     nst_dec_ref(seq);
 }
 
-size_t nst_get_full_path(char *file_path, char **buf, char **file_part)
+usize nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part)
 {
-    char *path = (char *)malloc(sizeof(char) * PATH_MAX);
+    i8 *path = (i8 *)malloc(sizeof(i8) * PATH_MAX);
     if ( path == NULL )
     {
         return 0;
@@ -1638,7 +1638,7 @@ size_t nst_get_full_path(char *file_path, char **buf, char **file_part)
     if ( path_len > PATH_MAX )
     {
         free(path);
-        path = (char *)malloc(sizeof(char) * path_len);
+        path = (i8 *)malloc(sizeof(i8) * path_len);
         if ( path == NULL )
         {
             return 0;
@@ -1658,7 +1658,7 @@ size_t nst_get_full_path(char *file_path, char **buf, char **file_part)
 
 #else
 
-    char *result = realpath(file_path, path);
+    i8 *result = realpath(file_path, path);
 
     if ( result == NULL )
     {
@@ -1686,7 +1686,7 @@ size_t nst_get_full_path(char *file_path, char **buf, char **file_part)
 #endif
 }
 
-static Nst_SeqObj *make_argv(int argc, char **argv, char *filename)
+static Nst_SeqObj *make_argv(i32 argc, i8 **argv, i8 *filename)
 {
     Nst_SeqObj *args = SEQ(nst_array_new(argc + 1));
 
@@ -1694,7 +1694,7 @@ static Nst_SeqObj *make_argv(int argc, char **argv, char *filename)
     nst_seq_set(args, 0, val);
     nst_dec_ref(val);
 
-    for ( int i = 0; i < argc; i++ )
+    for ( i32 i = 0; i < argc; i++ )
     {
         val = nst_string_new_c_raw(argv[i], false);
         nst_seq_set(args, i + 1, val);
@@ -1704,10 +1704,10 @@ static Nst_SeqObj *make_argv(int argc, char **argv, char *filename)
     return args;
 }
 
-static Nst_StrObj *make_cwd(char *file_path)
+static Nst_StrObj *make_cwd(i8 *file_path)
 {
-    char *path = NULL;
-    char *file_part = NULL;
+    i8 *path = NULL;
+    i8 *file_part = NULL;
 
     nst_get_full_path(file_path, &path, &file_part);
 

@@ -23,7 +23,7 @@ bool lib_init()
         return false;
     }
 
-    size_t idx = 0;
+    usize idx = 0;
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(random_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(rand_int_, 2);
@@ -72,8 +72,7 @@ NST_FUNC_SIGN(rand_int_)
 
 NST_FUNC_SIGN(rand_perc_)
 {
-    return nst_real_new(
-        (long double)uint64_t(rand_num()) / (long double)ULLONG_MAX);
+    return nst_real_new(f64(i64(rand_num())) / f64(ULLONG_MAX));
 }
 
 NST_FUNC_SIGN(choice_)
@@ -93,12 +92,12 @@ NST_FUNC_SIGN(shuffle_)
 
     NST_DEF_EXTRACT("A", &seq);
 
-    size_t seq_len = seq->len;
+    usize seq_len = seq->len;
     Nst_Obj **objs = seq->objs;
 
-    for ( size_t i = 0; i + 1 < seq_len; i++ )
+    for ( usize i = 0; i + 1 < seq_len; i++ )
     {
-        size_t idx = size_t(rand_range(i, seq_len));
+        usize idx = usize(rand_range(i, seq_len));
         Nst_Obj *obj = objs[i];
         objs[i] = objs[idx];
         objs[idx] = obj;

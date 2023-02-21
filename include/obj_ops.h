@@ -144,7 +144,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err);
 
 // returns the path of the library to import or NULL if it cannot be found
 // the path is heap allocated so it will require to be freed
-Nst_StrObj *_nst_get_import_path(char *initial_path, size_t path_len);
+Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len);
 
 #ifdef __cplusplus
 }

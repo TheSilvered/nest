@@ -18,7 +18,7 @@ bool lib_init()
         return false;
     }
 
-    size_t idx = 0;
+    usize idx = 0;
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(floor_,  1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(ceil_,   1);
@@ -448,7 +448,7 @@ NST_FUNC_SIGN(dist_nd_)
 
     Nst_Obj **objs1 = p1->objs;
     Nst_Obj **objs2 = p2->objs;
-    size_t len = p1->len;
+    usize len = p1->len;
 
     Nst_Obj *obj1;
     Nst_Obj *obj2;
@@ -456,7 +456,7 @@ NST_FUNC_SIGN(dist_nd_)
     Nst_Real t2 = 0;
     Nst_Real tot = 0;
 
-    for ( size_t i = 0; i < len; i++ )
+    for ( usize i = 0; i < len; i++ )
     {
         obj1 = objs1[i];
         obj2 = objs2[i];
@@ -547,7 +547,7 @@ NST_FUNC_SIGN(min_seq_)
 
     NST_DEF_EXTRACT("A", &seq);
 
-    size_t seq_len = seq->len;
+    usize seq_len = seq->len;
 
     if ( seq_len == 0 )
     {
@@ -557,7 +557,7 @@ NST_FUNC_SIGN(min_seq_)
 
     Nst_Obj *min_obj = seq->objs[0];
 
-    for ( size_t i = 1; i < seq_len; i++)
+    for ( usize i = 1; i < seq_len; i++)
     {
         Nst_Obj *res = nst_obj_lt(seq->objs[i], min_obj, err);
         if ( res == nullptr )
@@ -581,7 +581,7 @@ NST_FUNC_SIGN(max_seq_)
 
     NST_DEF_EXTRACT("A", &seq);
 
-    size_t seq_len = seq->len;
+    usize seq_len = seq->len;
 
     if ( seq_len == 0 )
     {
@@ -591,7 +591,7 @@ NST_FUNC_SIGN(max_seq_)
 
     Nst_Obj *max_obj = seq->objs[0];
 
-    for ( size_t i = 1; i < seq_len; i++ )
+    for ( usize i = 1; i < seq_len; i++ )
     {
         Nst_Obj *res = nst_obj_gt(seq->objs[i], max_obj, err);
         if ( res == nullptr )
@@ -623,7 +623,7 @@ NST_FUNC_SIGN(sum_seq_)
     Nst_Obj *tot = nst_inc_ref(nst_c.Byte_0);
     Nst_Obj *new_tot = nullptr;
 
-    for (size_t i = 0, n = seq->len; i < n; i++)
+    for (usize i = 0, n = seq->len; i < n; i++)
     {
         new_tot = nst_obj_add(tot, seq->objs[i], err);
         nst_dec_ref(tot);
@@ -662,7 +662,7 @@ NST_FUNC_SIGN(ldexp_)
 
     NST_DEF_EXTRACT("ri", &m, &e);
 
-    return nst_real_new(ldexp(m, (int)e));
+    return nst_real_new(ldexp(m, (i32)e));
 }
 
 NST_FUNC_SIGN(map_)
@@ -883,7 +883,7 @@ NST_FUNC_SIGN(gcd_seq_)
     Nst_Obj *curr = nullptr;
     Nst_Obj *gcd_args[2] = { prev, nullptr };
 
-    for ( size_t i = 1, n = seq->len; i < n; i++ )
+    for ( usize i = 1, n = seq->len; i < n; i++ )
     {
         if ( objs[i]->type != nst_t.Int &&
              objs[i]->type != nst_t.Real &&
@@ -939,7 +939,7 @@ NST_FUNC_SIGN(lcm_seq_)
     Nst_Obj *curr = nullptr;
     Nst_Obj *lcm_args[2] = { prev, nullptr };
 
-    for ( size_t i = 1, n = seq->len; i < n; i++ )
+    for ( usize i = 1, n = seq->len; i < n; i++ )
     {
         if ( objs[i]->type != nst_t.Int &&
             objs[i]->type != nst_t.Real &&

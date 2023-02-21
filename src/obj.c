@@ -2,11 +2,10 @@
 #include <errno.h>
 #include "obj.h"
 #include "map.h"
-#include "nst_types.h"
 #include "ggc.h"
 #include "str.h"
 
-Nst_Obj *_nst_obj_alloc(size_t              size,
+Nst_Obj *_nst_obj_alloc(usize               size,
                         struct _Nst_StrObj *type,
                         void (*destructor)(void *))
 {

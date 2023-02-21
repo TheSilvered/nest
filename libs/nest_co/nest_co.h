@@ -26,12 +26,12 @@ typedef struct _CoroutineObj
     Nst_MapObj *vars;
     Nst_MapObj *globals;
     Nst_Obj **stack;
-    size_t stack_size;
+    usize stack_size;
     Nst_Int idx;
 
     // If the function of the coroutine is called without co.call, this and the
     // size of the call stack when pausing won't match
-    size_t call_stack_size;
+    usize call_stack_size;
 }
 CoroutineObj;
 

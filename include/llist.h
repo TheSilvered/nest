@@ -3,8 +3,7 @@
 #ifndef LLIST_H
 #define LLIST_H
 
-#include <stdbool.h>
-#include <stddef.h>
+#include "typedefs.h"
 
 // Initialize a for loop on a list
 #define NST_LLIST_ITER(node, llist) \
@@ -28,7 +27,7 @@ typedef struct
 {
     Nst_LLNode *head;
     Nst_LLNode *tail;
-    size_t size;
+    usize size;
 }
 Nst_LList;
 

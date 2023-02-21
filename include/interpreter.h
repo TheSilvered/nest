@@ -25,7 +25,7 @@ typedef struct _Nst_ExecutionState
     Nst_GarbageCollector *ggc; // Generational garbage collector
     Nst_StrObj **curr_path; // Current working directory
     Nst_SeqObj *argv;
-    int *opt_level; // Optimization level for importing libraries
+    i32 *opt_level; // Optimization level for importing libraries
     Nst_ValueStack *v_stack; // Value stack
     Nst_CallStack  *f_stack; // Call stack
     Nst_CatchStack *c_stack; // Catch stack
@@ -37,14 +37,14 @@ typedef struct _Nst_ExecutionState
 Nst_ExecutionState;
 
 // Runs the main program, must never be called
-int nst_run(Nst_FuncObj *main_func,
-            int          argc,
-            char       **argv,
-            char        *filename,
-            int          opt_lvl,
+i32 nst_run(Nst_FuncObj *main_func,
+            i32          argc,
+            i8         **argv,
+            i8          *filename,
+            i32          opt_lvl,
             bool         no_default);
 // Runs an external Nest file, returns -1 on fail and 0 on success
-int nst_run_module(char *file_name, Nst_SourceText *lib_src);
+i32 nst_run_module(i8 *file_name, Nst_SourceText *lib_src);
 // Calls a Nst_FuncObj, it can be both a C function or a bytecode function
 Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err);
 /* Calls a function that has NOT a C body with the given start indexand var table.
@@ -58,7 +58,7 @@ Nst_Obj *nst_run_func_context(Nst_FuncObj *func,
 // `buf` is the pointer where the full path is stored, the memory is allocated
 // by the function
 // `file_part` is the pointer where the filename begins
-size_t nst_get_full_path(char *file_path, char **buf, char **file_part);
+usize nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part);
 
 // Frees all the variables inside nst_state
 void nst_state_free();

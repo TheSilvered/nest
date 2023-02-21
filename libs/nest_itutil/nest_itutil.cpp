@@ -13,7 +13,7 @@ bool lib_init()
         return false;
     }
 
-    size_t idx = 0;
+    usize idx = 0;
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(count_,        2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(cycle_,        1);
@@ -161,7 +161,7 @@ NST_FUNC_SIGN(zipn_)
 
     Nst_Obj **objs = seq->objs;
 
-    for ( size_t i = 0, n = seq->len; i < n; i++ )
+    for ( usize i = 0, n = seq->len; i < n; i++ )
     {
         if ( objs[i]->type != nst_t.Array &&
              objs[i]->type != nst_t.Vector &&
@@ -180,7 +180,7 @@ NST_FUNC_SIGN(zipn_)
     Nst_SeqObj *arr = SEQ(nst_array_new(seq->len + 1));
     arr->objs[0] = nst_int_new(0);
 
-    for ( size_t i = 0, n = seq->len; i < n; i++ )
+    for ( usize i = 0, n = seq->len; i < n; i++ )
     {
         if ( objs[i]->type == nst_t.Array || objs[i]->type == nst_t.Vector )
         {

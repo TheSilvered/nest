@@ -3,8 +3,7 @@
 #ifndef ERROR_H
 #define ERROR_H
 
-#include <stddef.h>
-#include <stdint.h>
+#include "typedefs.h"
 #include "str.h"
 #include "llist.h"
 
@@ -95,18 +94,18 @@ extern "C" {
 
 typedef struct _Nst_SourceText
 {
-    char *text;
-    char *path;
-    char **lines;
-    size_t len;
-    size_t line_count;
+    i8 *text;
+    i8 *path;
+    i8 **lines;
+    usize len;
+    usize line_count;
 }
 Nst_SourceText;
 
 typedef struct _Nst_Pos
 {
-    long line;
-    long col;
+    i32 line;
+    i32 col;
     Nst_SourceText *text;
 }
 Nst_Pos;
@@ -148,10 +147,10 @@ void nst_print_traceback(Nst_Traceback tb);
 
 // Allocates a string on the heap and prints the format
 // format_args is the type of the arguments passed, can be:
-//   s: char *,
-//   u: size_t,
-//   i: Nst_Int
-Nst_StrObj *nst_format_error(const char *format, const char *format_args, ...);
+//   s: i8 *,
+//   u: usize,
+//   i: i64
+Nst_StrObj *nst_format_error(const i8 *format, const i8 *format_args, ...);
 
 // Frees a heap allocated text source
 void nst_free_src_text(Nst_SourceText *text);

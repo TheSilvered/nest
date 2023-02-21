@@ -84,7 +84,7 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
         return;
     }
 
-    int op_tok = HEAD_TOK->type;
+    i32 op_tok = HEAD_TOK->type;
     Nst_OpErr err = { NULL, NULL };
     Nst_Obj *ob1 = TOK(HEAD_NODE->tokens->head->value)->value;
     Nst_Obj *ob2 = TOK(TAIL_NODE->tokens->head->value)->value;
@@ -138,7 +138,7 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
 static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
 {
     Nst_Obj *res = NULL;
-    int op_tok = HEAD_TOK->type;
+    i32 op_tok = HEAD_TOK->type;
     Nst_OpErr err = { NULL, NULL };
     Nst_Obj *ob1 = NULL;
     Nst_Obj *ob2 = NULL;
@@ -226,7 +226,7 @@ static void ast_optimize_local_op(Nst_Node *node, Nst_Error *error)
         return;
     }
 
-    int op_tok = HEAD_TOK->type;
+    i32 op_tok = HEAD_TOK->type;
     Nst_OpErr err = { NULL, NULL };
     Nst_Obj *ob = TOK(HEAD_NODE->tokens->head->value)->value;
     Nst_Obj *res = NULL;
@@ -331,15 +331,15 @@ static bool can_optimize_consts(Nst_InstList *bc);
 static bool is_accessed(Nst_InstList *bc, Nst_StrObj *name);
 static bool has_assignments(Nst_InstList *bc, Nst_StrObj *name);
 static bool has_jumps_to(Nst_InstList *bc,
-                         Nst_Int idx,
-                         Nst_Int avoid_start,
-                         Nst_Int avoid_end);
+                         Nst_Int       idx,
+                         Nst_Int       avoid_start,
+                         Nst_Int       avoid_end);
 static void replace_access(Nst_InstList *bc,
-                           Nst_StrObj          *name,
-                           Nst_Obj             *val);
+                           Nst_StrObj   *name,
+                           Nst_Obj      *val);
 static void optimize_const(Nst_InstList *bc,
-                           const char          *name,
-                           Nst_Obj             *val);
+                           const i8     *name,
+                           Nst_Obj      *val);
 static void remove_push_pop(Nst_InstList *bc);
 static void remove_assign_pop(Nst_InstList *bc);
 static void remove_assign_loc_get_val(Nst_InstList *bc);
@@ -351,8 +351,8 @@ static void remove_dead_code(Nst_InstList *bc);
 static void optimize_chained_jumps(Nst_InstList *bc);
 
 Nst_InstList *nst_optimize_bytecode(Nst_InstList *bc,
-                                           bool optimize_builtins,
-                                           Nst_Error *error)
+                                    bool optimize_builtins,
+                                    Nst_Error *error)
 {
     if ( optimize_builtins && can_optimize_consts(bc) )
     {
@@ -537,8 +537,8 @@ static bool has_assignments(Nst_InstList *bc, Nst_StrObj *name)
 }
 
 static void replace_access(Nst_InstList *bc,
-                           Nst_StrObj          *name,
-                           Nst_Obj             *val)
+                           Nst_StrObj   *name,
+                           Nst_Obj      *val)
 {
     Nst_Int size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;
@@ -565,8 +565,8 @@ static void replace_access(Nst_InstList *bc,
 }
 
 static void optimize_const(Nst_InstList *bc,
-                           const char          *name,
-                           Nst_Obj             *val)
+                           const i8     *name,
+                           Nst_Obj      *val)
 {
     Nst_StrObj *str_obj = STR(nst_string_new_c_raw(name, false));
     if ( has_assignments(bc, str_obj) )
@@ -581,9 +581,9 @@ end:
 }
 
 static bool has_jumps_to(Nst_InstList *bc,
-                         Nst_Int idx,
-                         Nst_Int avoid_start,
-                         Nst_Int avoid_end)
+                         Nst_Int       idx,
+                         Nst_Int       avoid_start,
+                         Nst_Int       avoid_end)
 {
     Nst_Int size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;

@@ -7,6 +7,7 @@
 #include "error.h"
 #include "lib_import.h"
 #include "lexer.h"
+#include "encoding.h"
 
 #define IS_WHITESPACE(ch) \
         (ch == ' '  || \
@@ -38,17 +39,17 @@
     } \
     } while ( 0 )
 
-Nst_Obj *nst_string_new_c_raw(const char *val, bool allocated)
+Nst_Obj *nst_string_new_c_raw(const i8 *val, bool allocated)
 {
-    return nst_string_new((char *)val, strlen(val), allocated);
+    return nst_string_new((i8 *)val, strlen(val), allocated);
 }
 
-Nst_Obj *nst_string_new_c(const char *val, size_t len, bool allocated)
+Nst_Obj *nst_string_new_c(const i8 *val, usize len, bool allocated)
 {
-    return nst_string_new((char *)val, len, allocated);
+    return nst_string_new((i8 *)val, len, allocated);
 }
 
-Nst_Obj *nst_string_new(char *val, size_t len, bool allocated)
+Nst_Obj *nst_string_new(i8 *val, usize len, bool allocated)
 {
     Nst_StrObj *str = STR(nst_obj_alloc(
         sizeof(Nst_StrObj),
@@ -69,7 +70,7 @@ Nst_Obj *nst_string_new(char *val, size_t len, bool allocated)
     return OBJ(str);
 }
 
-Nst_TypeObj *nst_type_new(const char *val, size_t len)
+Nst_TypeObj *nst_type_new(const i8 *val, usize len)
 {
     Nst_TypeObj *str = STR(nst_obj_alloc(
         sizeof(Nst_StrObj),
@@ -81,14 +82,14 @@ Nst_TypeObj *nst_type_new(const char *val, size_t len)
     }
 
     str->len = len;
-    str->value = (char *)val;
+    str->value = (i8 *)val;
 
     return str;
 }
 
 Nst_Obj *_nst_string_copy(Nst_StrObj *src)
 {
-    char *buffer = (char *)malloc(sizeof(char) * (src->len + 1));
+    i8 *buffer = (i8 *)malloc(sizeof(i8) * (src->len + 1));
     if ( buffer == NULL )
     {
         errno = ENOMEM;
@@ -100,23 +101,23 @@ Nst_Obj *_nst_string_copy(Nst_StrObj *src)
     return nst_string_new(buffer, src->len, true);
 }
 
-static int is_unicode_escape(unsigned char b1, unsigned char b2)
+static i32 is_unicode_escape(u8 b1, u8 b2)
 {
-    int v = ((b1 & 0x1f) << 6) + (b2 & 0x3f);
+    i32 v = ((b1 & 0x1f) << 6) + (b2 & 0x3f);
     return v >= 0x80 && v <= 0x9f ? v : 0;
 }
 
 Nst_Obj *_nst_string_repr(Nst_StrObj *src)
 {
-    const char *hex_chars = "0123456789abcdef";
-    unsigned char *orig = (unsigned char *)src->value;
-    size_t l = src->len;
-    size_t new_size = 2;
-    int double_quotes_count = 0;
-    int single_quotes_count = 0;
+    const i8 *hex_chars = "0123456789abcdef";
+    u8 *orig = (u8 *)src->value;
+    usize l = src->len;
+    usize new_size = 2;
+    i32 double_quotes_count = 0;
+    i32 single_quotes_count = 0;
     bool using_doub = false;
 
-    for ( size_t i = 0; i < l; i++ )
+    for ( usize i = 0; i < l; i++ )
     {
         switch ( orig[i] )
         {
@@ -143,7 +144,7 @@ Nst_Obj *_nst_string_repr(Nst_StrObj *src)
             }
             else
             {
-                int res = nst_check_utf8_bytes(orig + i, l - i);
+                i32 res = nst_check_utf8_bytes(orig + i, l - i);
                 if ( res == -1 )
                 {
                     new_size += 4;
@@ -174,7 +175,7 @@ Nst_Obj *_nst_string_repr(Nst_StrObj *src)
         new_size += double_quotes_count;
     }
 
-    char *new_str = (char *)malloc(sizeof(char) * (new_size + 1));
+    i8 *new_str = (i8 *)malloc(sizeof(i8) * (new_size + 1));
     if ( new_str == NULL )
     {
         errno = ENOMEM;
@@ -183,8 +184,8 @@ Nst_Obj *_nst_string_repr(Nst_StrObj *src)
 
     *new_str = using_doub ? '"' : '\'';
 
-    size_t i = 1;
-    for ( size_t j = 0; j < l; j++ )
+    usize i = 1;
+    for ( usize j = 0; j < l; j++ )
     {
         switch ( orig[j] )
         {
@@ -212,7 +213,7 @@ Nst_Obj *_nst_string_repr(Nst_StrObj *src)
             new_str[i++] = '"';
             break;
         default:
-            if ( isprint((unsigned char)orig[j]) )
+            if ( isprint((u8)orig[j]) )
             {
                 new_str[i++] = orig[j];
             }
@@ -221,12 +222,12 @@ Nst_Obj *_nst_string_repr(Nst_StrObj *src)
             {
                 new_str[i++] = '\\';
                 new_str[i++] = 'x';
-                new_str[i++] = hex_chars[(unsigned char)orig[j] >> 4];
-                new_str[i++] = hex_chars[(unsigned char)orig[j] & 0xf];
+                new_str[i++] = hex_chars[(u8)orig[j] >> 4];
+                new_str[i++] = hex_chars[(u8)orig[j] & 0xf];
             }
             else
             {
-                int res = nst_check_utf8_bytes(orig + j, l - j);
+                i32 res = nst_check_utf8_bytes(orig + j, l - j);
                 if ( res == 2 && is_unicode_escape(orig[j], orig[j + 1]) )
                 {
                     res = is_unicode_escape(orig[j], orig[j + 1]);
@@ -255,19 +256,19 @@ Nst_Obj *_nst_string_repr(Nst_StrObj *src)
     return nst_string_new(new_str, new_size, true);
 }
 
-Nst_Obj *_nst_string_get(Nst_StrObj *str, Nst_Int idx)
+Nst_Obj *_nst_string_get(Nst_StrObj *str, i64 idx)
 {
     if ( idx < 0 )
     {
         idx += str->len;
     }
 
-    if ( idx < 0 || idx >= (int64_t)str->len )
+    if ( idx < 0 || idx >= (i64)str->len )
     {
         return NULL;
     }
 
-    char *ch = (char *)malloc(2 * sizeof(char));
+    i8 *ch = (i8 *)malloc(2 * sizeof(i8));
     if ( ch == NULL )
     {
         errno = ENOMEM;
@@ -292,13 +293,13 @@ void _nst_string_destroy(Nst_StrObj *str)
     }
 }
 
-Nst_Obj *nst_string_parse_int(Nst_StrObj *str, int base, struct _Nst_OpErr *err)
+Nst_Obj *nst_string_parse_int(Nst_StrObj *str, i32 base, struct _Nst_OpErr *err)
 {
-    char *s = str->value;
-    char *end = s + str->len;
-    char ch;
-    int ch_val;
-    int sign = 1;
+    i8 *s = str->value;
+    i8 *end = s + str->len;
+    i8 ch;
+    i32 ch_val;
+    i32 sign = 1;
     Nst_Int num = 0;
     Nst_Int cut_off = 0;
     Nst_Int cut_lim = 0;
@@ -437,13 +438,13 @@ Nst_Obj *nst_string_parse_byte(Nst_StrObj *str, struct _Nst_OpErr *err)
         return nst_byte_new(str->value[0]);
     }
 
-    char* s = str->value;
-    char* end = s + str->len;
-    char ch = *s;
-    int num = 0;
-    int ch_val = 0;
-    int sign = 1;
-    int base = 10;
+    i8* s = str->value;
+    i8* end = s + str->len;
+    i8 ch = *s;
+    i32 num = 0;
+    i32 ch_val = 0;
+    i32 sign = 1;
+    i32 base = 10;
 
     if ( s == end )
     {
@@ -578,12 +579,12 @@ Nst_Obj *nst_string_parse_real(Nst_StrObj *str, struct _Nst_OpErr *err)
 
     // strtod accepts also things like .5, 1e2, -1., ecc. that I do not
     // so I need to check if the literal is valid first
-    char *s = str->value;
-    char *end = s + str->len;
-    char *start = s;
-    size_t len = 0;
-    char ch = *s;
-    char *buf;
+    i8 *s = str->value;
+    i8 *end = s + str->len;
+    i8 *start = s;
+    usize len = 0;
+    i8 ch = *s;
+    i8 *buf;
     Nst_Real res;
 
     if ( s == end )
@@ -672,7 +673,7 @@ Nst_Obj *nst_string_parse_real(Nst_StrObj *str, struct _Nst_OpErr *err)
         RETURN_REAL_ERR;
     }
 end:
-    buf = (char *)malloc(len + 1);
+    buf = (i8 *)malloc(len + 1);
     if ( buf == NULL )
     {
         NST_FAILED_ALLOCATION;
@@ -692,18 +693,18 @@ end:
     return nst_real_new(res);
 }
 
-int nst_string_compare(Nst_StrObj *str1, Nst_StrObj *str2)
+i32 nst_string_compare(Nst_StrObj *str1, Nst_StrObj *str2)
 {
-    char *p1 = str1->value;
-    char *p2 = str2->value;
-    char *end1 = p1 + str1->len;
-    char *end2 = p2 + str2->len;
+    i8 *p1 = str1->value;
+    i8 *p2 = str2->value;
+    i8 *end1 = p1 + str1->len;
+    i8 *end2 = p2 + str2->len;
 
     while ( p1 != end1 && p2 != end2 )
     {
         if ( *p1 != *p2 )
         {
-            return (int)(*p1 - *p2);
+            return (i32)(*p1 - *p2);
         }
         else
         {
@@ -712,15 +713,15 @@ int nst_string_compare(Nst_StrObj *str1, Nst_StrObj *str2)
         }
     }
 
-    return (int)((Nst_Int)str1->len - (Nst_Int)str2->len);
+    return (i32)((Nst_Int)str1->len - (Nst_Int)str2->len);
 }
 
-char *nst_string_find(char *s1, size_t l1, char *s2, size_t l2)
+i8 *nst_string_find(i8 *s1, usize l1, i8 *s2, usize l2)
 {
-    char *end1 = s1 + l1;
-    char *end2 = s2 + l2;
-    char *p1 = NULL;
-    char *p2 = NULL;
+    i8 *end1 = s1 + l1;
+    i8 *end2 = s2 + l2;
+    i8 *p1 = NULL;
+    i8 *p2 = NULL;
 
     while (s1 != end1)
     {

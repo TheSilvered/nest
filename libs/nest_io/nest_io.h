@@ -20,12 +20,12 @@ EXPORT void free_lib();
 
 typedef struct _VirtualIOFile_data
 {
-    size_t ptr;
-    size_t size;
-    char *data;
-    char *buf;
-    size_t buf_size;
-    size_t curr_buf_size;
+    usize ptr;
+    usize size;
+    i8 *data;
+    i8 *buf;
+    usize buf_size;
+    usize curr_buf_size;
 }
 VirtualIOFile_data;
 

@@ -1,8 +1,8 @@
 #include "encoding.h"
 
-int nst_check_utf8_bytes(unsigned char *byte, size_t len)
+i32 nst_check_utf8_bytes(u8 *byte, usize len)
 {
-    int n = 0;
+    i32 n = 0;
 
     if ( *byte <= 0b01111111 )
     {
@@ -37,7 +37,7 @@ int nst_check_utf8_bytes(unsigned char *byte, size_t len)
         return -1;
     }
 
-    for ( int i = 0; i < n; i++ )
+    for ( i32 i = 0; i < n; i++ )
     {
         if ( *(++byte) < 0b10000000 || *byte > 0b10111111 )
         {
@@ -47,7 +47,7 @@ int nst_check_utf8_bytes(unsigned char *byte, size_t len)
     return n + 1;
 }
 
-int nst_check_utf16_bytes(wchar_t *byte, size_t len)
+i32 nst_check_utf16_bytes(u16 *byte, usize len)
 {
     if ( *byte <= 0xd7ff )
     {
@@ -65,14 +65,14 @@ int nst_check_utf16_bytes(wchar_t *byte, size_t len)
     return 2;
 }
 
-int nst_utf16_to_utf8(char *out_str, wchar_t *in_str, size_t in_str_len)
+i32 nst_utf16_to_utf8(i8 *out_str, u16 *in_str, usize in_str_len)
 {
     if ( nst_check_utf16_bytes(in_str, in_str_len) == -1 )
     {
         return -1;
     }
 
-    int n;
+    i32 n;
     if ( *in_str <= 0xd7ff )
     {
         n = *in_str;
@@ -85,43 +85,43 @@ int nst_utf16_to_utf8(char *out_str, wchar_t *in_str, size_t in_str_len)
 
     if ( n <= 0x7f )
     {
-        *out_str = (char)n;
+        *out_str = (i8)n;
         return 1;
     }
     else if ( n <= 0x7ff )
     {
-        *out_str++ = (char)n >> 6;
-        *out_str   = (char)n & 0x3f;
+        *out_str++ = (i8)n >> 6;
+        *out_str   = (i8)n & 0x3f;
         return 2;
     }
     else if ( n <= 0xffff )
     {
-        *out_str++ = (char)n >> 12;
-        *out_str++ = (char)(n >> 6) & 0x3f;
-        *out_str   = (char)n & 0x3f;
+        *out_str++ = (i8)n >> 12;
+        *out_str++ = (i8)(n >> 6) & 0x3f;
+        *out_str   = (i8)n & 0x3f;
         return 3;
     }
     else if ( n > 0x10ffff )
     {
         return -1;
     }
-    *out_str++ = (char)n >> 18;
-    *out_str++ = (char)(n >> 12) & 0x3f;
-    *out_str++ = (char)(n >> 6) & 0x3f;
-    *out_str   = (char)n & 0x3f;
+    *out_str++ = (i8)n >> 18;
+    *out_str++ = (i8)(n >> 12) & 0x3f;
+    *out_str++ = (i8)(n >> 6) & 0x3f;
+    *out_str   = (i8)n & 0x3f;
     return 4;
 }
 
-int nst_cp1252_to_utf8(char *str, char byte)
+i32 nst_cp1252_to_utf8(i8 *str, i8 byte)
 {
-    unsigned char b = (unsigned char)byte;
+    u8 b = (u8)byte;
     if ( b <= 0x7f )
     {
         *str = byte;
         return 1;
     }
 
-    unsigned char b1, b2, b3;
+    u8 b1, b2, b3;
     switch ( b )
     {
     case 0x80: b1 = 0xe2; b2 = 0x82; b3 = 0xac; break;

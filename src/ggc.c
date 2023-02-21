@@ -148,7 +148,7 @@ void nst_ggc_collect_gen(Nst_GGCList *gen,
     // All objects in the variable tables are reachable
     NST_FLAG_SET((*nst_state.vt)->vars, NST_FLAG_GGC_REACHABLE);
     _nst_map_traverse((*nst_state.vt)->vars);
-    for ( size_t i = 0, n = nst_state.f_stack->current_size; i < n; i++ )
+    for ( usize i = 0, n = nst_state.f_stack->current_size; i < n; i++ )
     {
         Nst_VarTable *vt = nst_state.f_stack->stack[i].vt;
         if ( vt != NULL )
@@ -189,7 +189,7 @@ void nst_ggc_collect_gen(Nst_GGCList *gen,
     }
 
     // previous unreachable_values size
-    size_t prev_uv_size = 0;
+    usize prev_uv_size = 0;
 
     // last traversed value in `gen`
     Nst_GGCObj *traversed_end = gen->head;
@@ -266,7 +266,7 @@ void nst_ggc_delete_objs(Nst_GarbageCollector *ggc)
 void nst_ggc_collect()
 {
     Nst_GarbageCollector *ggc = nst_state.ggc;
-    size_t old_gen_size = ggc->old_gen.size;
+    usize old_gen_size = ggc->old_gen.size;
     // if the number of objects never checked in the old generation
     // is more than 25% and there are at least 10 objects
     if ( old_gen_size > NST_OLD_GEN_MIN &&

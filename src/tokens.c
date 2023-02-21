@@ -2,15 +2,14 @@
 #include <string.h>
 #include <errno.h>
 #include <stdio.h>
-#include "nst_types.h"
 #include "tokens.h"
 #include "obj_ops.h"
 
 
 Nst_Tok *nst_tok_new_value(Nst_Pos     start,
-                             Nst_Pos     end,
-                             Nst_TokType type,
-                             Nst_Obj    *value)
+                           Nst_Pos     end,
+                           Nst_TokType type,
+                           Nst_Obj    *value)
 {
     Nst_Tok *token = TOK(malloc(sizeof(Nst_Tok)));
     if ( token == NULL )
@@ -75,7 +74,7 @@ void nst_token_destroy(Nst_Tok *token)
     free(token);
 }
 
-Nst_TokType nst_tok_from_str(char *str)
+Nst_TokType nst_tok_from_str(i8 *str)
 {
     if ( str[1] == '\0' )
     {
@@ -457,7 +456,7 @@ void nst_print_tok(Nst_Tok *token)
         printf(" - ");
 
         Nst_StrObj* s = STR(_nst_repr_str_cast(token->value));
-        fwrite(s->value, sizeof(char), s->len, stdout);
+        fwrite(s->value, sizeof(i8), s->len, stdout);
         nst_dec_ref(s);
     }
 

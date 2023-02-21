@@ -21,6 +21,7 @@ Nst_Node *nst_node_new_tokens(Nst_Pos      start,
     node->type = type;
     node->tokens = tokens;
 
+    errno = 0;
     Nst_LList *nodes = nst_llist_new();
     if ( errno == ENOMEM )
     {

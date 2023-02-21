@@ -1,3 +1,4 @@
+#include <string.h>
 #include "argv_parser.h"
 #include "nest.h"
 
@@ -37,7 +38,7 @@ int main(int argc, char **argv)
 #ifdef _DEBUG
     puts("**USING DEBUG BUILD - " NST_VERSION "**");
 
-    for ( size_t i = 0, n = strlen(NST_VERSION) + 24; i < n; i++ )
+    for ( usize i = 0, n = strlen(NST_VERSION) + 24; i < n; i++ )
     {
         putc('-', stdout);
     }
@@ -52,12 +53,12 @@ int main(int argc, char **argv)
     bool monochrome;
     bool force_cp1252;
     bool no_default;
-    int opt_level;
-    char *command;
-    char *filename;
-    int args_start;
+    i32 opt_level;
+    i8 *command;
+    i8 *filename;
+    i32 args_start;
 
-    int parse_result = nst_parse_args(
+    i32 parse_result = nst_parse_args(
         argc, argv,
         &print_tokens,
         &print_tree,
@@ -93,7 +94,7 @@ int main(int argc, char **argv)
 
     if ( filename != NULL )
     {
-        int spec_opt_lvl;
+        i32 spec_opt_lvl;
         bool spec_no_def;
         tokens = nst_tokenizef(
             filename,
@@ -114,7 +115,7 @@ int main(int argc, char **argv)
     }
     else
     {
-        src_text.path = (char *)"<command>";
+        src_text.path = (i8 *)"<command>";
         src_text.len = strlen(command);
         src_text.text = command;
         src_text.line_count = 1;
@@ -204,7 +205,7 @@ int main(int argc, char **argv)
 
     Nst_FuncObj *main_func = FUNC(nst_func_new(0, inst_ls));
 
-    int exe_result = nst_run(
+    i32 exe_result = nst_run(
         main_func,
         argc - args_start,
         argv + args_start,

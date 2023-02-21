@@ -10,6 +10,17 @@
         "utility": "c",
         "xmemory0": "c",
         "xtr1common": "c",
-        "xutility": "c"
-    }
+        "xutility": "c",
+        "global_consts.h": "c",
+        "str.h": "c",
+        "simple_types.h": "c",
+        "tokens.h": "c",
+        "function.h": "c",
+        "llist.h": "c",
+        "errno.h": "c"
+    },
+    "editor.cursorSmoothCaretAnimation": "on",
+    "editor.smoothScrolling": true,
+    "workbench.list.smoothScrolling": true,
+    "terminal.integrated.smoothScrolling": true
 }

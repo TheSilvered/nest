@@ -43,8 +43,8 @@ void _nst_iter_destroy(Nst_IterObj *iter);
 void _nst_iter_traverse(Nst_IterObj *iter);
 void _nst_iter_track(Nst_IterObj *iter);
 
-int _nst_iter_start(Nst_IterObj *iter, Nst_OpErr *err);
-int _nst_iter_is_done(Nst_IterObj *iter, Nst_OpErr *err);
+i32 _nst_iter_start(Nst_IterObj *iter, Nst_OpErr *err);
+i32 _nst_iter_is_done(Nst_IterObj *iter, Nst_OpErr *err);
 Nst_Obj *_nst_iter_get_val(Nst_IterObj *iter, Nst_OpErr *err);
 
 // Functions for the range iterator
