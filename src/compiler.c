@@ -1,11 +1,7 @@
 #include <stdlib.h>
-#include "compiler.h"
-#include "llist.h"
 #include "tokens.h"
-#include "simple_types.h"
-#include "str.h"
 #include "function.h"
-#include "obj_ops.h" // _nst_repr_str_cast
+#include "obj_ops.h"
 #include "global_consts.h"
 
 #define HEAD_NODE (NODE(node->nodes->head->value))

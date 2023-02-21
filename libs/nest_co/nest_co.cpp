@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include "nest_co.h"
 
 #define FUNC_COUNT 6
@@ -26,7 +27,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(generator_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_co_type_obj_, 0);
 
-#if __LINE__ - FUNC_COUNT != 23
+#if __LINE__ - FUNC_COUNT != 24
 #error FUNC_COUNT does not match the number of lines
 #endif
 
@@ -73,7 +74,7 @@ static NST_FUNC_SIGN(generator_start)
             nst_dec_ref(co->stack[i]);
         }
 
-        delete[] co->stack;
+        free(co->stack);
         nst_dec_ref(co->vars);
         nst_dec_ref(co->globals);
 
@@ -223,7 +224,7 @@ void coroutine_destroy(CoroutineObj *co)
             nst_dec_ref(co->stack[i]);
     }
 
-    delete[] co->stack;
+    free(co->stack);
 }
 
 NST_FUNC_SIGN(create_)
@@ -293,7 +294,7 @@ NST_FUNC_SIGN(call_)
             nst_vstack_push(nst_state.v_stack, co->stack[i]);
             nst_dec_ref(co->stack[i]);
         }
-        delete[] co->stack;
+        free(co->stack);
         // emulates the return value of co.pause
         nst_vstack_push(nst_state.v_stack, nst_c.Null_null);
         result = nst_run_func_context(
@@ -359,7 +360,7 @@ NST_FUNC_SIGN(pause_)
     co->vars = (*nst_state.vt)->vars;
     co->globals = (*nst_state.vt)->global_table;
     co->idx = *nst_state.idx;
-    delete *nst_state.vt;
+    free(*nst_state.vt);
 
     nst_dec_ref(call.func);
 
@@ -379,7 +380,7 @@ NST_FUNC_SIGN(pause_)
         stack_size++;
     }
 
-    co->stack = new Nst_Obj *[stack_size];
+    co->stack = (Nst_Obj **)malloc(stack_size * sizeof(Nst_Obj *));
 
     for ( usize i = stack_size; i > 0; i-- )
     {

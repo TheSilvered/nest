@@ -8,7 +8,7 @@
 #include "lexer.h"
 #include "global_consts.h"
 #include "tokens.h"
-#include "interpreter.h"
+#include "interpreter.h" // nst_get_full_path
 #include "encoding.h"
 
 #define START_CH_SIZE 8 * sizeof(i8)

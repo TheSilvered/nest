@@ -72,9 +72,15 @@ void free_lib()
     }
 }
 
-Nst_StrObj *heap_str(std::string str)
+Nst_StrObj *heap_str(std::string str, Nst_OpErr *err)
 {
-    i8 *heap_s = new i8[str.length() + 1];
+    i8 *heap_s = (i8 *)malloc((str.length() + 1) * sizeof(i8));
+    if ( heap_s == nullptr )
+    {
+        NST_FAILED_ALLOCATION;
+        return nullptr;
+    }
+
     memcpy(heap_s, str.c_str(), str.length());
     heap_s[str.length()] = 0;
     return STR(nst_string_new(heap_s, str.length(), true));
@@ -296,7 +302,11 @@ NST_FUNC_SIGN(list_dir_)
     for ( fs::directory_entry const &entry
         : fs::directory_iterator{ path->value } )
     {
-        Nst_StrObj *str =  heap_str(entry.path().string());
+        Nst_StrObj *str = heap_str(entry.path().string(), err);
+        if ( str == nullptr )
+        {
+            return nullptr;
+        }
         nst_vector_append(vector, OBJ(str));
         nst_dec_ref(str);
     }
@@ -322,7 +332,11 @@ NST_FUNC_SIGN(list_dir_recursive_)
     for ( fs::directory_entry const &entry
         : fs::recursive_directory_iterator{ path->value } )
     {
-        Nst_StrObj *str =  heap_str(entry.path().string());
+        Nst_StrObj *str =  heap_str(entry.path().string(), err);
+        if ( str == nullptr )
+        {
+            return nullptr;
+        }
         nst_vector_append(vector, OBJ(str));
         nst_dec_ref(str);
     }
@@ -341,7 +355,7 @@ NST_FUNC_SIGN(absolute_path_)
 
     if ( ec.value() == 0 )
     {
-        return OBJ(heap_str(result.string()));
+        return OBJ(heap_str(result.string(), err));
     }
     else
     {
@@ -360,7 +374,7 @@ NST_FUNC_SIGN(canonical_path_)
 
     if ( ec.value() == 0 )
     {
-        return OBJ(heap_str(result.string()));
+        return OBJ(heap_str(result.string(), err));
     }
     else
     {
@@ -380,7 +394,7 @@ NST_FUNC_SIGN(relative_path_)
 
     if ( ec.value() == 0 )
     {
-        return OBJ(heap_str(result.string()));
+        return OBJ(heap_str(result.string(), err));
     }
     else
     {
@@ -430,7 +444,13 @@ NST_FUNC_SIGN(join_)
         add_slash = true;
     }
 
-    i8 *new_str = new i8[new_len + 1];
+    i8 *new_str = (i8 *)malloc((new_len + 1) * sizeof(i8));
+    if ( new_str == nullptr )
+    {
+        NST_FAILED_ALLOCATION;
+        return nullptr;
+    }
+
     memcpy(new_str, p1, p1_len);
 
     if ( add_slash )
@@ -468,7 +488,7 @@ NST_FUNC_SIGN(path_)
 
     NST_DEF_EXTRACT("s", &path);
 
-    return OBJ(heap_str(fs::path(path->value).parent_path().string()));
+    return OBJ(heap_str(fs::path(path->value).parent_path().string(), err));
 }
 
 NST_FUNC_SIGN(filename_)
@@ -477,7 +497,7 @@ NST_FUNC_SIGN(filename_)
 
     NST_DEF_EXTRACT("s", &path);
 
-    return OBJ(heap_str(fs::path(path->value).filename().string()));
+    return OBJ(heap_str(fs::path(path->value).filename().string(), err));
 }
 
 NST_FUNC_SIGN(extension_)
@@ -486,7 +506,7 @@ NST_FUNC_SIGN(extension_)
 
     NST_DEF_EXTRACT("s", &path);
 
-    return OBJ(heap_str(fs::path(path->value).extension().string()));
+    return OBJ(heap_str(fs::path(path->value).extension().string(), err));
 }
 
 NST_FUNC_SIGN(_get_copy_options_)

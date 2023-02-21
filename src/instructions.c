@@ -1,5 +1,5 @@
-#include "instructions.h"
 #include <stdlib.h>
+#include "instructions.h"
 
 Nst_Inst *nst_new_inst_empty(Nst_InstID id, Nst_Int int_val)
 {

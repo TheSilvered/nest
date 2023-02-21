@@ -10,7 +10,7 @@
 #endif
 
 #define EXCEPT_ERROR if ( str_buf == nullptr ) return
-#define FAIL do { delete[] str_buf; str_buf = nullptr; return; } while ( 0 )
+#define FAIL do { free(str_buf); str_buf = nullptr; return; } while ( 0 )
 #define INC_RECURSION_LVL \
     do { \
         recursion_level++; \
@@ -43,7 +43,7 @@ static i32 recursion_level;
 Nst_Obj *json_dump(Nst_Obj *obj, i32 indent, Nst_OpErr *err)
 {
     recursion_level = 0;
-    str_buf = new i8[255];
+    str_buf = (i8 *)malloc(255 * sizeof(i8));
     buf_size = 255;
     str_len = 0;
     indent_level = 0;

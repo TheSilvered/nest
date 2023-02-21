@@ -1,11 +1,6 @@
 #include <errno.h>
 #include <stdlib.h>
 #include "iter.h"
-#include "lib_import.h"
-#include "sequence.h"
-#include "simple_types.h"
-#include "str.h"
-#include "global_consts.h"
 #include "obj_ops.h"
 
 Nst_Obj *nst_iter_new(Nst_FuncObj *start,

@@ -1,17 +1,14 @@
 #include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
-#include "interpreter.h"
 #include "error_internal.h"
 #include "obj_ops.h"
 #include "hash.h"
 #include "tokens.h"
 #include "iter.h"
-#include "compiler.h"
 #include "optimizer.h"
 #include "parser.h"
 #include "lexer.h"
-#include "global_consts.h"
 
 #if defined(_WIN32) || defined(WIN32)
 

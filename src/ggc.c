@@ -1,6 +1,5 @@
-#include "ggc.h"
-#include "interpreter.h"
 #include <stdlib.h>
+#include "interpreter.h"
 
 #define REACHABLE(ob) ((ob)->flags & NST_FLAG_GCC_REACHABLE)
 #define UNREACHABLE(ob) ((ob)->flags & NST_FLAG_GCC_UNREACHABLE)

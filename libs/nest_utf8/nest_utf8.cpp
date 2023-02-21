@@ -1,4 +1,5 @@
 #include <cstring>
+#include <cstdlib>
 #include "nest_utf8.h"
 
 #define FUNC_COUNT 4
@@ -23,7 +24,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_at_,   2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(to_iter_,  1);
 
-#if __LINE__ - FUNC_COUNT != 22
+#if __LINE__ - FUNC_COUNT != 23
 #error
 #endif
 
@@ -72,7 +73,13 @@ NST_FUNC_SIGN(utf8_iter_get_val)
         SET_INVALID_UTF8;
         return nullptr;
     }
-    i8 *new_s = new i8[res + 1];
+    i8 *new_s = (i8 *)malloc((res + 1) * sizeof(i8));
+    if ( new_s == nullptr )
+    {
+        NST_FAILED_ALLOCATION;
+        return nullptr;
+    }
+
     memcpy(new_s, str->value + val, res);
     new_s[res] = '\0';
     idx->value += res;
@@ -160,7 +167,12 @@ NST_FUNC_SIGN(get_at_)
         return nullptr;
     }
 
-    i8 *new_s = new i8[res + 1];
+    i8 *new_s = (i8 *)malloc((res + 1) * sizeof(i8));
+    if ( new_s == nullptr )
+    {
+        NST_FAILED_ALLOCATION;
+        return nullptr;
+    }
     memcpy(new_s, s + i, res);
     new_s[res] = '\0';
     return nst_string_new(new_s, res, true);

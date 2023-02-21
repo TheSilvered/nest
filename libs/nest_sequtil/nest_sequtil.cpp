@@ -250,7 +250,12 @@ NST_FUNC_SIGN(slice_)
     }
     else
     {
-        i8 *buf = new i8[new_size + 1];
+        i8 *buf = (i8 *)malloc((new_size + 1) * sizeof(i8));
+        if ( buf == nullptr )
+        {
+            NST_FAILED_ALLOCATION;
+            return nullptr;
+        }
 
         for ( usize i = 0; i < new_size; i++ )
         {
@@ -328,13 +333,21 @@ bool insertion_sort(Nst_SeqObj *seq,
 }
 
 // Merge function merges the sorted runs
-void merge(Nst_SeqObj *seq, usize l, usize m, usize r)
+void merge(Nst_SeqObj *seq, usize l, usize m, usize r, Nst_OpErr *err)
 {
     usize len1 = m - l + 1;
     usize len2 = r - m;
 
-    Nst_Obj **left  = new Nst_Obj *[len1];
-    Nst_Obj **right = new Nst_Obj *[len2];
+    Nst_Obj **left  = (Nst_Obj **)malloc(len1 * sizeof(Nst_Obj *));
+    Nst_Obj **right = (Nst_Obj **)malloc(len2 * sizeof(Nst_Obj *));
+
+    if ( left == nullptr || right == nullptr )
+    {
+        free(left);
+        free(right);
+        NST_FAILED_ALLOCATION;
+        return;
+    }
 
     for ( usize i = 0; i < len1; i++ )
     {
@@ -373,8 +386,8 @@ void merge(Nst_SeqObj *seq, usize l, usize m, usize r)
     while ( j < len2 )
         seq->objs[k++] = right[j++];
 
-    delete[] left;
-    delete[] right;
+    free(left);
+    free(right);
 }
 
 NST_FUNC_SIGN(sort_)
@@ -404,7 +417,12 @@ NST_FUNC_SIGN(sort_)
 
             if ( mid < right )
             {
-                merge(seq, left, mid, right);
+                merge(seq, left, mid, right, err);
+            }
+
+            if ( err->name != nullptr )
+            {
+                return nullptr;
             }
         }
     }

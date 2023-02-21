@@ -1,3 +1,4 @@
+#include <cstdlib>
 #include "nest_json.h"
 #include "json_lexer.h"
 #include "json_parser.h"
@@ -22,7 +23,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(set_options_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_options_, 0);
 
-#if __LINE__ - FUNC_COUNT != 19
+#if __LINE__ - FUNC_COUNT != 20
 #error FUNC_COUNT does not match the number of lines
 #endif
 
@@ -69,7 +70,13 @@ NST_FUNC_SIGN(load_f_)
     usize buf_size = (usize)ftell(f);
     fseek(f, 0, SEEK_SET);
 
-    i8 *buf = new i8[buf_size + 1];
+    i8 *buf = (i8 *)malloc((buf_size + 1) * sizeof(i8));
+    if ( buf == nullptr )
+    {
+        NST_FAILED_ALLOCATION;
+        return nullptr;
+    }
+
     usize len = fread(buf, sizeof(i8), buf_size, f);
     buf[len] = 0;
     Nst_LList *tokens = json_tokenize(path->value, buf, len, true, err);

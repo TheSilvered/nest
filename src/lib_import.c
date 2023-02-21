@@ -1,11 +1,9 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include "error.h"
 #include "lib_import.h"
 #include "iter.h"
 #include "obj_ops.h"
-#include "global_consts.h"
 
 #define SET_TYPE_ERROR(type) { \
     NST_SET_TYPE_ERROR(nst_format_error( \
