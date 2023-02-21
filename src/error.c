@@ -362,6 +362,7 @@ static void print_position(Nst_Pos start, Nst_Pos end)
 
 void nst_print_error(Nst_Error err)
 {
+    nst_flush();
     if ( !NST_IOF_IS_CLOSED(nst_io->out) )
     {
         nst_io->out->flush_f(nst_io->out->value);
@@ -410,6 +411,7 @@ static inline void print_rep_count(i32 count)
 
 void nst_print_traceback(Nst_Traceback tb)
 {
+    nst_flush();
     assert(tb.positions->size % 2 == 0);
     set_error_stream();
 

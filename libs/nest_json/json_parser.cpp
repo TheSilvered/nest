@@ -61,7 +61,7 @@ static Nst_Obj *parse_value(Nst_LList *tokens, Nst_OpErr *err)
         nst_token_destroy(tok);
         return parse_object(tokens, err);
     default:
-        JSON_SYNTAX_ERROR("unexpected token", file_path, tok->start);
+        JSON_SYNTAX_ERROR("expected value", file_path, tok->start);
         nst_token_destroy(tok);
         return nullptr;
     }
@@ -189,7 +189,7 @@ static Nst_Obj *parse_array(Nst_LList *tokens, Nst_OpErr *err)
         }
 
         tok = TOK(nst_llist_peek_front(tokens));
-        if ( (JSONTokenType)tok->type == JSON_RBRACKET )
+        if ( (JSONTokenType)tok->type == JSON_RBRACKET && trailing_commas )
         {
             nst_token_destroy(TOK(nst_llist_pop(tokens)));
             goto end;

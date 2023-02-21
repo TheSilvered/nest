@@ -1,5 +1,20 @@
 |#| '../test_lib.nest' = test
 |#| 'stdjson.nest' = json
+|#| 'stdfs.nest' = fs
+0 @json.set_options
+
+... Iter :: ('test_files/json_files' @fs.list_dir) := path [
+    |> (path @fs.filename).0 [
+          ? 'y' [
+            path @json.load_f
+        ] ? 'n' [
+            json.load_f { path } @test.assert_raises_error
+        ] ? 'i' [
+            -- just tests that the program does not crash
+            ?? path @json.load_f ?! e >>> (e '\n' ><)
+        ]
+    ]
+]
 
 {
     "string": "hello",
