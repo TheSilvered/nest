@@ -19,10 +19,10 @@ Nst_LList *nst_tokenizef(i8             *filename,
 // Returns an LList of tokens given the text, it's length and a filename
 Nst_LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error);
 
-void nst_add_lines(Nst_SourceText *text);
-void nst_normalize_encoding(Nst_SourceText *text,
-                            bool            is_cp1252,
-                            Nst_Error      *error);
+void nst_add_lines(Nst_SourceText *text, i32 start_offset);
+i32 nst_normalize_encoding(Nst_SourceText *text,
+                           bool            is_cp1252,
+                           Nst_Error      *error);
 
 #ifdef __cplusplus
 }

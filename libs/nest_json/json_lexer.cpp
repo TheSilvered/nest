@@ -89,9 +89,9 @@ Nst_LList *json_tokenize(i8        *path,
 
     if ( fix_encoding )
     {
-        nst_add_lines(&src_text);
-        nst_normalize_encoding(&src_text, false, &error);
-        if (error.occurred)
+        i32 start_offset = nst_normalize_encoding(&src_text, false, &error);
+        nst_add_lines(&src_text, start_offset);
+        if ( error.occurred || start_offset == -1 )
         {
             err->name = error.name;
             err->message = error.message;

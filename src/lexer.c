@@ -120,14 +120,19 @@ Nst_LList *nst_tokenizef(i8           *filename,
 
     parse_first_line(text, str_len, opt_level, &force_cp1252, no_default);
 
-    nst_normalize_encoding(src_text, force_cp1252, error);
-    nst_add_lines(src_text);
-    if ( error->occurred )
+    i32 text_offset = nst_normalize_encoding(src_text, force_cp1252, error);
+    nst_add_lines(src_text, text_offset);
+    if ( error->occurred || text_offset == -1 )
     {
         return NULL;
     }
 
-    return nst_tokenize(src_text, error);
+    src_text->text += text_offset;
+    src_text->len  -= text_offset;
+    Nst_LList *tokens = nst_tokenize(src_text, error);
+    src_text->text -= text_offset;
+    src_text->len  += text_offset;
+    return tokens;
 }
 
 Nst_LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
@@ -941,8 +946,13 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
     *tok = nst_tok_new_value(start, cursor.pos, NST_TT_VALUE, OBJ(val_obj));
 }
 
-void nst_add_lines(Nst_SourceText* text)
+void nst_add_lines(Nst_SourceText* text, i32 start_offset)
 {
+    if ( start_offset < 0 )
+    {
+        start_offset = 0;
+    }
+
     i8 *text_p = text->text;
     i8 **starts = (i8 **)calloc(100, sizeof(i8 *));
     if ( starts == NULL )
@@ -952,7 +962,7 @@ void nst_add_lines(Nst_SourceText* text)
         return;
     }
 
-    starts[0] = text_p;
+    starts[0] = text_p + start_offset;
     usize line_count = 1;
 
     // normalize line endings
@@ -1026,18 +1036,29 @@ void nst_add_lines(Nst_SourceText* text)
     text->line_count = line_count;
 }
 
-void nst_normalize_encoding(Nst_SourceText *text,
-                            bool            is_cp1252,
-                            Nst_Error      *error)
+i32 nst_normalize_encoding(Nst_SourceText *text,
+                           bool            is_cp1252,
+                           Nst_Error      *error)
 {
     u8 *text_p = (u8 *)text->text;
     usize ch_count = 0;
     usize i = 0;
     usize n = text->len;
+    bool skipped_bom = false;
 
     if ( is_cp1252 )
     {
         goto fix_encoding;
+    }
+
+    if ( n >= 3 &&
+         text_p[0] == (u8)'\xef' &&
+         text_p[1] == (u8)'\xbb' && 
+         text_p[2] == (u8)'\xbf' )
+    {
+        text_p += 3;
+        n -= 3;
+        skipped_bom = true;
     }
 
     for ( ; i < n; i++ )
@@ -1055,9 +1076,15 @@ void nst_normalize_encoding(Nst_SourceText *text,
             ch_count += offset;
         }
     }
-    return;
+    return skipped_bom ? 3 : 0;
 
 fix_encoding:
+    if ( skipped_bom )
+    {
+        text_p -= 3;
+        n += 3;
+    }
+
     for ( ; i < n; i++ )
     {
         if ( text_p[i] > 0x7f )
@@ -1069,11 +1096,14 @@ fix_encoding:
     i8 *new_text = (i8 *)calloc(n + ch_count * 3 + 1, sizeof(i8));
     if ( new_text == NULL )
     {
-        return;
+        Nst_Pos pos = { 1, 0, text };
+        _NST_FAILED_ALLOCATION(error, pos, pos);
+        return -1;
     }
 
     i8 *utf8_ptr = new_text;
     i32 line = 0;
+    bool skip_line_feed = false;
     i32 col = 0;
     for ( i = 0; i < n; i++ )
     {
@@ -1081,7 +1111,16 @@ fix_encoding:
         {
             if ( text_p[i] == '\n' )
             {
+                if ( !skip_line_feed )
+                {
+                    line++;
+                }
+                col = 0;
+            }
+            else if ( text_p[i] == '\r' )
+            {
                 line++;
+                skip_line_feed = true;
                 col = 0;
             }
 
@@ -1098,7 +1137,7 @@ fix_encoding:
                 error,
                 pos, pos,
                 "invalid cp1252 byte found");
-            return;
+            return -1;
         }
 
         utf8_ptr += offset;
@@ -1107,6 +1146,7 @@ fix_encoding:
     text->len = utf8_ptr - new_text;
     free(text->text);
     text->text = new_text;
+    return 0;
 }
 
 static void parse_first_line(i8  *text,
