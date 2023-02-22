@@ -30,10 +30,10 @@
       (token_type) == NST_TT_BREAK )
 
 // the assignment tokens are in the same order as the stack op tokens
-#define ASSIGMENT_TO_STACK_OP(token_type) \
-    ((Nst_TokType)( (token_type) - NST_TT_ADD_A ))
+#define NST_ASSIGMENT_TO_STACK_OP(token_type) \
+    ((Nst_TokType)((token_type) - NST_TT_ADD_A))
 
-#define TOK(expr) ((Nst_Tok *)(expr))
+#define NST_TOK(expr) ((Nst_Tok *)(expr))
 
 #ifdef __cplusplus
 extern "C" {

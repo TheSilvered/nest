@@ -34,7 +34,7 @@ Nst_Obj *json_parse(i8 *path, Nst_LList *tokens, Nst_OpErr *err)
     if ( tokens->size != 1 )
     {
         nst_dec_ref(res);
-        Nst_Pos err_pos = TOK(tokens->head)->start;
+        Nst_Pos err_pos = NST_TOK(tokens->head)->start;
         JSON_SYNTAX_ERROR("unexpected token", file_path, err_pos);
         return nullptr;
     }
@@ -44,7 +44,7 @@ Nst_Obj *json_parse(i8 *path, Nst_LList *tokens, Nst_OpErr *err)
 static Nst_Obj *parse_value(Nst_LList *tokens, Nst_OpErr *err)
 {
     INC_RECURSION_LVL;
-    Nst_Tok *tok = TOK(nst_llist_pop(tokens));
+    Nst_Tok *tok = NST_TOK(nst_llist_pop(tokens));
 
     switch ( tok->type )
     {
@@ -72,7 +72,7 @@ static Nst_Obj *parse_object(Nst_LList *tokens, Nst_OpErr *err)
 {
     INC_RECURSION_LVL;
     Nst_MapObj *map = MAP(nst_map_new());
-    Nst_Tok *tok = TOK(nst_llist_pop(tokens));
+    Nst_Tok *tok = NST_TOK(nst_llist_pop(tokens));
 
     if ( (JSONTokenType)tok->type == JSON_RBRACE )
     {
@@ -93,7 +93,7 @@ static Nst_Obj *parse_object(Nst_LList *tokens, Nst_OpErr *err)
 
         Nst_Obj *key = nst_inc_ref(tok->value);
         nst_token_destroy(tok);
-        tok = TOK(nst_llist_pop(tokens));
+        tok = NST_TOK(nst_llist_pop(tokens));
 
         if ( (JSONTokenType)tok->type != JSON_COLON )
         {
@@ -117,7 +117,7 @@ static Nst_Obj *parse_object(Nst_LList *tokens, Nst_OpErr *err)
         nst_map_set(map, key, val);
         nst_dec_ref(key);
 
-        tok = TOK(nst_llist_pop(tokens));
+        tok = NST_TOK(nst_llist_pop(tokens));
         if ( (JSONTokenType)tok->type == JSON_RBRACE )
         {
             nst_token_destroy(tok);
@@ -126,7 +126,7 @@ static Nst_Obj *parse_object(Nst_LList *tokens, Nst_OpErr *err)
         else if ( (JSONTokenType)tok->type == JSON_COMMA )
         {
             nst_token_destroy(tok);
-            tok = TOK(nst_llist_pop(tokens));
+            tok = NST_TOK(nst_llist_pop(tokens));
         }
         else
         {
@@ -149,11 +149,11 @@ static Nst_Obj *parse_array(Nst_LList *tokens, Nst_OpErr *err)
 {
     INC_RECURSION_LVL;
     Nst_VectorObj *vec = SEQ(nst_vector_new(0));
-    Nst_Tok *tok = TOK(nst_llist_peek_front(tokens));
+    Nst_Tok *tok = NST_TOK(nst_llist_peek_front(tokens));
 
     if ( (JSONTokenType)tok->type == JSON_RBRACKET )
     {
-        nst_token_destroy(TOK(nst_llist_pop(tokens)));
+        nst_token_destroy(NST_TOK(nst_llist_pop(tokens)));
         goto end;
     }
 
@@ -170,7 +170,7 @@ static Nst_Obj *parse_array(Nst_LList *tokens, Nst_OpErr *err)
         nst_vector_append(vec, val);
         nst_dec_ref(val);
 
-        tok = TOK(nst_llist_pop(tokens));
+        tok = NST_TOK(nst_llist_pop(tokens));
         if ( (JSONTokenType)tok->type == JSON_RBRACKET )
         {
             nst_token_destroy(tok);
@@ -188,10 +188,10 @@ static Nst_Obj *parse_array(Nst_LList *tokens, Nst_OpErr *err)
             return nullptr;
         }
 
-        tok = TOK(nst_llist_peek_front(tokens));
+        tok = NST_TOK(nst_llist_peek_front(tokens));
         if ( (JSONTokenType)tok->type == JSON_RBRACKET && trailing_commas )
         {
-            nst_token_destroy(TOK(nst_llist_pop(tokens)));
+            nst_token_destroy(NST_TOK(nst_llist_pop(tokens)));
             goto end;
         }
     }

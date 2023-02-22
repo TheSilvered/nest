@@ -11,7 +11,7 @@ Nst_Tok *nst_tok_new_value(Nst_Pos     start,
                            Nst_TokType type,
                            Nst_Obj    *value)
 {
-    Nst_Tok *token = TOK(malloc(sizeof(Nst_Tok)));
+    Nst_Tok *token = NST_TOK(malloc(sizeof(Nst_Tok)));
     if ( token == NULL )
     {
         errno = ENOMEM;
@@ -28,7 +28,7 @@ Nst_Tok *nst_tok_new_value(Nst_Pos     start,
 
 Nst_Tok *nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type)
 {
-    Nst_Tok *token = TOK(malloc(sizeof(Nst_Tok)));
+    Nst_Tok *token = NST_TOK(malloc(sizeof(Nst_Tok)));
     if ( token == NULL )
     {
         errno = ENOMEM;
@@ -45,7 +45,7 @@ Nst_Tok *nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type)
 
 Nst_Tok *nst_tok_new_noend(Nst_Pos start, Nst_TokType type)
 {
-    Nst_Tok *token = TOK(malloc(sizeof(Nst_Tok)));
+    Nst_Tok *token = NST_TOK(malloc(sizeof(Nst_Tok)));
     if ( token == NULL )
     {
         errno = ENOMEM;

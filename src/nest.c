@@ -137,7 +137,7 @@ int main(int argc, char **argv)
     i8 *filename;
     i32 args_start;
 
-    i32 parse_result = nst_parse_args(
+    i32 parse_result = _nst_parse_args(
         argc, argv,
         &print_tokens,
         &print_tree,
@@ -218,7 +218,7 @@ int main(int argc, char **argv)
     {
         for ( Nst_LLNode *n = tokens->head; n != NULL; n = n->next )
         {
-            nst_print_tok(TOK(n->value));
+            nst_print_tok(NST_TOK(n->value));
             printf("\n");
         }
 

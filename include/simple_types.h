@@ -20,21 +20,34 @@
 #define NST_IOF_CAN_WRITE(f) NST_FLAG_HAS(f, NST_FLAG_IOFILE_CAN_WRITE)
 #define NST_IOF_CAN_READ(f)  NST_FLAG_HAS(f, NST_FLAG_IOFILE_CAN_READ)
 
-#define NST_SIMPLE_TYPE_STRUCT(type, alias) \
-    typedef type alias; \
-    typedef struct _ ## alias ## Obj {  \
-        NST_OBJ_HEAD; \
-        alias value; \
-    } alias ## Obj
-
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
-NST_SIMPLE_TYPE_STRUCT(i64, Nst_Int);
-NST_SIMPLE_TYPE_STRUCT(f64, Nst_Real);
-NST_SIMPLE_TYPE_STRUCT(i8,  Nst_Bool);
-NST_SIMPLE_TYPE_STRUCT(u8,  Nst_Byte);
+typedef i64 Nst_Int;
+typedef f64 Nst_Real;
+typedef i8 Nst_Bool;
+typedef u8 Nst_Byte;
+
+typedef struct _Nst_IntObj {
+    NST_OBJ_HEAD;
+    Nst_Int value;
+} Nst_IntObj;
+
+typedef struct _Nst_RealObj {
+    NST_OBJ_HEAD;
+    Nst_Real value;
+} Nst_RealObj;
+
+typedef struct _Nst_BoolObj {
+    NST_OBJ_HEAD;
+    Nst_Bool value;
+} Nst_BoolObj;
+
+typedef struct _Nst_ByteObj {
+    NST_OBJ_HEAD;
+    Nst_Byte value;
+} Nst_ByteObj;
 
 typedef FILE *Nst_IOFile;
 typedef usize (*Nst_IOFile_read_f) (void  *buf,

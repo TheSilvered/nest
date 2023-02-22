@@ -7,7 +7,9 @@
 
 #define _NST_VECTOR_MIN_SIZE 8
 #define _NST_VECTOR_GROWTH_RATIO 1.8f
-#define SEQ(ptr)  ((Nst_SeqObj *)(ptr))
+#define SEQ(ptr) ((Nst_SeqObj *)(ptr))
+#define ARRAY(ptr) ((Nst_SeqObj *)(ptr))
+#define VECTOR(ptr) ((Nst_SeqObj *)(ptr))
 
 // Sets a value at index `idx` of `seq`, this cannot be called if there
 // is no valid object at `idx`

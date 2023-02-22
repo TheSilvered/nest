@@ -10,7 +10,9 @@
 #define NST_GEN3_MAX 10
 #define NST_OLD_GEN_MIN 100
 
-#define NST_OBJ_IS_TRACKED(obj) ((Nst_GGCObj *)(obj)->ggc_list != NULL)
+#define GGC_OBJ(obj) ((Nst_GGCObj *)(obj))
+
+#define NST_OBJ_IS_TRACKED(obj) (GGC_OBJ(obj)->ggc_list != NULL)
 
 // To add after NST_OBJ_HEAD and before any arguments, adds support for the GGC
 // to the object

@@ -6,8 +6,8 @@
 #include "simple_types.h"
 #include "error.h"
 
-#define IS_JUMP(inst) ( (inst >= NST_IC_JUMP && inst <= NST_IC_JUMPIF_ZERO) \
-                      || inst == NST_IC_PUSH_CATCH )
+#define NST_INST_IS_JUMP(inst) ( (inst >= NST_IC_JUMP && inst <= NST_IC_JUMPIF_ZERO) \
+                                 || inst == NST_IC_PUSH_CATCH )
 // Creates a new instruction on the heap with positions and a value
 #define nst_inst_new_val(id, val, start, end) \
     _nst_inst_new_val(id, OBJ(val), start, end)

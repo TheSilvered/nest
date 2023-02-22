@@ -43,18 +43,18 @@
 #define VERSION_MESSAGE \
     "Using Nest version: " NST_VERSION
 
-i32 nst_parse_args(i32 argc, i8 **argv,
-                   bool *print_tokens,
-                   bool *print_ast,
-                   bool *print_bytecode,
-                   bool *force_execution,
-                   bool *monochrome,
-                   bool *force_cp1252,
-                   bool *no_default,
-                   i32  *opt_level,
-                   i8  **command,
-                   i8  **filename,
-                   i32  *args_start)
+i32 _nst_parse_args(i32 argc, i8 **argv,
+                    bool *print_tokens,
+                    bool *print_ast,
+                    bool *print_bytecode,
+                    bool *force_execution,
+                    bool *monochrome,
+                    bool *force_cp1252,
+                    bool *no_default,
+                    i32  *opt_level,
+                    i8  **command,
+                    i8  **filename,
+                    i32  *args_start)
 {
     *print_tokens = false;
     *print_ast = false;

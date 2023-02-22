@@ -75,7 +75,7 @@ void _nst_obj_destroy(Nst_Obj *obj)
         return;
     }
 
-    Nst_GGCObj *ggc_obj = (Nst_GGCObj *)obj;
+    Nst_GGCObj *ggc_obj = GGC_OBJ(obj);
     Nst_GGCList *ls = ggc_obj->ggc_list;
 
     if ( ls != NULL )

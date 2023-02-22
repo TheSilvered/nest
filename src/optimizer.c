@@ -7,11 +7,11 @@
 #include "iter.h"
 #include "hash.h"
 
-#define HEAD_NODE NODE(node->nodes->head->value)
-#define TAIL_NODE NODE(node->nodes->tail->value)
+#define HEAD_NODE NST_NODE(node->nodes->head->value)
+#define TAIL_NODE NST_NODE(node->nodes->tail->value)
 
-#define HEAD_TOK TOK(node->tokens->head->value)
-#define TAIL_TOK TOK(node->tokens->tail->value)
+#define HEAD_TOK NST_TOK(node->tokens->head->value)
+#define TAIL_TOK NST_TOK(node->tokens->tail->value)
 
 static void ast_optimize_node(Nst_Node *node, Nst_Error *error);
 static void ast_optimize_node_nodes(Nst_Node *node, Nst_Error *error);
@@ -56,7 +56,7 @@ static void ast_optimize_node_nodes(Nst_Node *node, Nst_Error *error)
 {
     for ( NST_LLIST_ITER(n, node->nodes) )
     {
-        ast_optimize_node(NODE(n->value), error);
+        ast_optimize_node(NST_NODE(n->value), error);
         if ( error->occurred )
         {
             return;
@@ -87,8 +87,8 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
 
     i32 op_tok = HEAD_TOK->type;
     Nst_OpErr err = { NULL, NULL };
-    Nst_Obj *ob1 = TOK(HEAD_NODE->tokens->head->value)->value;
-    Nst_Obj *ob2 = TOK(TAIL_NODE->tokens->head->value)->value;
+    Nst_Obj *ob1 = NST_TOK(HEAD_NODE->tokens->head->value)->value;
+    Nst_Obj *ob2 = NST_TOK(TAIL_NODE->tokens->head->value)->value;
     Nst_Obj *res = NULL;
 
     switch ( op_tok )
@@ -121,9 +121,9 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
         return;
     }
 
-    nst_node_destroy(NODE(nst_llist_pop(node->nodes)));
-    nst_node_destroy(NODE(nst_llist_pop(node->nodes)));
-    nst_token_destroy(TOK(nst_llist_pop(node->tokens)));
+    nst_node_destroy(NST_NODE(nst_llist_pop(node->nodes)));
+    nst_node_destroy(NST_NODE(nst_llist_pop(node->nodes)));
+    nst_token_destroy(NST_TOK(nst_llist_pop(node->tokens)));
 
     node->type = NST_NT_VALUE;
 
@@ -152,7 +152,7 @@ static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
 
     for ( NST_LLIST_ITER(n, node->nodes) )
     {
-        if (NODE(n->value)->type != NST_NT_VALUE)
+        if (NST_NODE(n->value)->type != NST_NT_VALUE)
         {
             return;
         }
@@ -165,8 +165,8 @@ static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
             break;
         }
 
-        ob1 = TOK(NODE(n->value)->tokens->head->value)->value;
-        ob2 = TOK(NODE(n->next->value)->tokens->head->value)->value;
+        ob1 = NST_TOK(NST_NODE(n->value)->tokens->head->value)->value;
+        ob2 = NST_TOK(NST_NODE(n->next->value)->tokens->head->value)->value;
 
         switch ( op_tok )
         {
@@ -200,7 +200,7 @@ static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
     }
 
     nst_llist_empty(node->nodes, (nst_llist_destructor)nst_node_destroy);
-    nst_token_destroy(TOK(nst_llist_pop(node->tokens)));
+    nst_token_destroy(NST_TOK(nst_llist_pop(node->tokens)));
 
     node->type = NST_NT_VALUE;
 
@@ -229,7 +229,7 @@ static void ast_optimize_local_op(Nst_Node *node, Nst_Error *error)
 
     i32 op_tok = HEAD_TOK->type;
     Nst_OpErr err = { NULL, NULL };
-    Nst_Obj *ob = TOK(HEAD_NODE->tokens->head->value)->value;
+    Nst_Obj *ob = NST_TOK(HEAD_NODE->tokens->head->value)->value;
     Nst_Obj *res = NULL;
 
     switch ( op_tok )
@@ -253,8 +253,8 @@ static void ast_optimize_local_op(Nst_Node *node, Nst_Error *error)
         return;
     }
 
-    nst_node_destroy(NODE(nst_llist_pop(node->nodes)));
-    nst_token_destroy(TOK(nst_llist_pop(node->tokens)));
+    nst_node_destroy(NST_NODE(nst_llist_pop(node->nodes)));
+    nst_token_destroy(NST_TOK(nst_llist_pop(node->tokens)));
 
     node->type = NST_NT_VALUE;
 
@@ -277,13 +277,13 @@ static void ast_optimize_long_s(Nst_Node *node, Nst_Error *error)
 
     for ( NST_LLIST_ITER(n, node->nodes) )
     {
-        ast_optimize_node(NODE(n->value), error);
+        ast_optimize_node(NST_NODE(n->value), error);
         if ( error->occurred )
         {
             return;
         }
 
-        curr_node = NODE(n->value);
+        curr_node = NST_NODE(n->value);
 
         if ( curr_node->type != NST_NT_VALUE &&
              curr_node->type != NST_NT_ACCESS )
@@ -309,7 +309,7 @@ static void ast_optimize_long_s(Nst_Node *node, Nst_Error *error)
             }
         }
 
-        nst_node_destroy(NODE(n->value));
+        nst_node_destroy(NST_NODE(n->value));
         free(n);
 
         if ( prev_valid_node == NULL )
@@ -598,7 +598,7 @@ static bool has_jumps_to(Nst_InstList *bc,
         }
 
         inst = inst_list[i];
-        if ( IS_JUMP(inst.id) && inst.int_val == idx )
+        if ( NST_INST_IS_JUMP(inst.id) && inst.int_val == idx )
         {
             return true;
         }
@@ -801,7 +801,7 @@ static void remove_push_jumpif(Nst_InstList *bc)
             continue;
         }
         else if ( !expect_jumpif ||
-                  !IS_JUMP(inst_list[i].id) ||
+                  !NST_INST_IS_JUMP(inst_list[i].id) ||
                   inst_list[i].id == NST_IC_JUMP ||
                   inst_list[i].id == NST_IC_JUMPIF_ZERO ||
                   has_jumps_to(bc, i, -1, -1) )
@@ -850,7 +850,7 @@ static void remove_inst(Nst_InstList *bc, Nst_Int idx)
 
     for ( Nst_Int i = 0; i < size; i++ )
     {
-        if ( IS_JUMP(inst_list[i].id) && inst_list[i].int_val > idx )
+        if ( NST_INST_IS_JUMP(inst_list[i].id) && inst_list[i].int_val > idx )
         {
             --inst_list[i].int_val;
         }
@@ -923,7 +923,7 @@ static void optimize_chained_jumps(Nst_InstList* bc)
 
     for ( Nst_Int i = 0; i < size; i++ )
     {
-        if ( !IS_JUMP(inst_list[i].id) )
+        if ( !NST_INST_IS_JUMP(inst_list[i].id) )
         {
             continue;
         }

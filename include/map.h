@@ -7,7 +7,7 @@
 #include "ggc.h"
 
 // Must be a power of 2
-#define MAP_MIN_SIZE 32
+#define _NST_MAP_MIN_SIZE 32
 #define MAP(ptr) ((Nst_MapObj *)(ptr))
 
 // Sets `key` and `value` in `map`, if the key is not hashable retunrs false

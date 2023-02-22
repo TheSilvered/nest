@@ -5,8 +5,8 @@
 
 #include "error.h"
 
-#define NODE(expr) ((Nst_Node *)(expr))
-#define NODE_RETUNS_VALUE(node_type) (node_type >= NST_NT_STACK_OP)
+#define NST_NODE(expr) ((Nst_Node *)(expr))
+#define NST_NODE_RETUNS_VALUE(node_type) (node_type >= NST_NT_STACK_OP)
 
 #ifdef __cplusplus
 extern "C" {

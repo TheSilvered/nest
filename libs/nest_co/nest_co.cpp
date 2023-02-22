@@ -178,7 +178,7 @@ void coroutine_traverse(CoroutineObj *co)
 
 void coroutine_track(CoroutineObj *co)
 {
-    nst_ggc_track_obj((Nst_GGCObj *)co->func);
+    nst_ggc_track_obj(GGC_OBJ(co->func));
 
     if ( !NST_FLAG_HAS(co, FLAG_CO_PAUSED) )
     {
@@ -194,8 +194,8 @@ void coroutine_track(CoroutineObj *co)
         }
     }
 
-    nst_ggc_track_obj((Nst_GGCObj *)co->vars);
-    nst_ggc_track_obj((Nst_GGCObj *)co->globals);
+    nst_ggc_track_obj(GGC_OBJ(co->vars));
+    nst_ggc_track_obj(GGC_OBJ(co->globals));
 }
 
 void coroutine_destroy(CoroutineObj *co)

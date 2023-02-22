@@ -63,9 +63,9 @@
 
 #define CHANGE_VT(new_vt) do { \
     *nst_state.vt = new_vt; \
-    nst_ggc_track_obj((Nst_GGCObj *)(*nst_state.vt)->vars); \
+    nst_ggc_track_obj(GGC_OBJ((*nst_state.vt)->vars)); \
     if ( (*nst_state.vt)->global_table != NULL ) \
-        nst_ggc_track_obj((Nst_GGCObj *)(*nst_state.vt)->global_table); \
+        nst_ggc_track_obj(GGC_OBJ((*nst_state.vt)->global_table)); \
     } while ( 0 )
 
 #define ERROR_OCCURRED (nst_state.traceback->error.occurred)
@@ -208,7 +208,7 @@ i32 nst_run(Nst_FuncObj *main_func,
         0);
 
     nst_func_set_vt(main_func, vt->vars);
-    nst_ggc_track_obj((Nst_GGCObj *)vt->vars);
+    nst_ggc_track_obj(GGC_OBJ(vt->vars));
 
     complete_function(0);
 
