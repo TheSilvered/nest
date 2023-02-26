@@ -19,11 +19,11 @@ x86_TARGET := $(x86_DIR)/$(EXE_NAME)
 
 $(x64_TARGET): $(SRCS)
 	mkdir -p $(x64_DIR)
-	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -O3          -o $(x64_TARGET)
+	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -O3 -o $(x64_TARGET)
 
 x86: $(SRCS)
 	mkdir -p $(x86_DIR)
-	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -O3 -m32     -o $(x86_TARGET)
+	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -O3 -m32 -o $(x86_TARGET)
 
 debug: $(SRCS)
 	mkdir -p $(DBG_DIR)

@@ -27,7 +27,7 @@ $(x64_TARGET): $(SRCS) $(NEST_LIB_x64)
 
 x86: $(SRCS) $(NEST_LIB_x86)
 	mkdir -p $(x86_DIR)
-	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -O3 -m32 -o $(EXE_x86_TARGET)
+	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -O3 -m32 -o $(x86_TARGET)
 
 debug: $(SRCS) $(NEST_LIB_DBG)
 	mkdir -p $(DBG_DIR)
