@@ -3,19 +3,12 @@
 
 #include "nest.h"
 
-#if defined(_WIN32) || defined(WIN32)
-#define EXPORT __declspec(dllexport)
-#else
-#define EXPORT
-#endif
-
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
 EXPORT bool lib_init();
 EXPORT Nst_FuncDeclr *get_func_ptrs();
-EXPORT NST_INIT_LIB_OBJ_FUNC;
 
 NST_FUNC_SIGN(time_);
 NST_FUNC_SIGN(time_ns_);
@@ -35,6 +28,7 @@ NST_FUNC_SIGN(gmt_clock_time_);
 NST_FUNC_SIGN(clock_datetime_);
 NST_FUNC_SIGN(gmt_clock_datetime_);
 NST_FUNC_SIGN(sleep_);
+NST_FUNC_SIGN(sleep_ms_);
 
 #ifdef __cplusplus
 }

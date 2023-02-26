@@ -83,7 +83,7 @@ static Nst_Obj *parse_object(Nst_LList *tokens, Nst_OpErr *err)
     while ( true )
     {
         if ( (JSONTokenType)tok->type != JSON_VALUE ||
-             tok->value->type != nst_t.Str )
+             tok->value->type != nst_type()->Str )
         {
             JSON_SYNTAX_ERROR("expected string", file_path, tok->start);
             nst_token_destroy(tok);
@@ -197,8 +197,8 @@ static Nst_Obj *parse_array(Nst_LList *tokens, Nst_OpErr *err)
     }
 
 end:
-    vec->type = TYPE(nst_inc_ref(nst_t.Array));
-    nst_dec_ref(nst_t.Vector);
+    vec->type = TYPE(nst_inc_ref(nst_type()->Array));
+    nst_dec_ref(nst_type()->Vector);
     if ( vec->len < vec->size && vec->len != 0 )
     {
         Nst_Obj **new_objs = (Nst_Obj **)realloc(

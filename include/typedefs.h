@@ -6,20 +6,34 @@
 #include <stdbool.h>
 #include <stddef.h>
 
-typedef char i8;
-typedef short i16;
-typedef long  i32;
-typedef long long i64;
+#if defined(_WIN32) || defined(WIN32)
+#define EXPORT __declspec(dllexport)
+#else
+#define EXPORT
+#endif
 
-typedef unsigned char  u8;
-typedef unsigned short u16;
-typedef unsigned long  u32;
-typedef unsigned long long u64;
+#ifdef __cplusplus
+extern "C" {
+#endif
 
-typedef float f32;
-typedef double f64;
+EXPORT typedef char i8;
+EXPORT typedef short i16;
+EXPORT typedef long  i32;
+EXPORT typedef long long i64;
 
-typedef size_t usize;
-typedef ptrdiff_t isize;
+EXPORT typedef unsigned char  u8;
+EXPORT typedef unsigned short u16;
+EXPORT typedef unsigned long  u32;
+EXPORT typedef unsigned long long u64;
+
+EXPORT typedef float f32;
+EXPORT typedef double f64;
+
+EXPORT typedef size_t usize;
+EXPORT typedef ptrdiff_t isize;
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // !TYPEDEFS_H

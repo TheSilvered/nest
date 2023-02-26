@@ -88,7 +88,7 @@ NST_FUNC_SIGN(exit_)
     NST_DEF_EXTRACT("?i", &status);
     Nst_Int code;
 
-    if ( status == nst_c.Null_null )
+    if ( status == nst_null() )
     {
         code = 0;
     }

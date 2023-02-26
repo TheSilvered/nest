@@ -422,7 +422,7 @@ float_ltrl:
             start,
             state.pos,
             JSON_VALUE,
-            nst_inc_ref(nst_c.Int_0));
+            nst_inc_ref(nst_const()->Int_0));
     }
 
     if ( state.ch == '.' )
@@ -497,7 +497,7 @@ static Nst_Tok *parse_json_val(Nst_OpErr *err)
             start,
             state.pos,
             JSON_VALUE,
-            nst_inc_ref(nst_c.Bool_true));
+            nst_inc_ref(nst_true()));
     case 'f':
         if ( state.idx + 4 >= state.len )
         {
@@ -519,7 +519,7 @@ static Nst_Tok *parse_json_val(Nst_OpErr *err)
             start,
             state.pos,
             JSON_VALUE,
-            nst_inc_ref(nst_c.Bool_false));
+            nst_inc_ref(nst_false()));
     default:
         if ( state.idx + 3 >= state.len )
         {
@@ -539,7 +539,7 @@ static Nst_Tok *parse_json_val(Nst_OpErr *err)
             start,
             state.pos,
             JSON_VALUE,
-            nst_inc_ref(nst_c.Null_null));
+            nst_inc_ref(nst_null()));
     }
 }
 

@@ -1722,3 +1722,8 @@ static void close_c_lib(C_LIB_TYPE handle)
     }
     dlclose(handle);
 }
+
+Nst_ExecutionState *nst_get_state()
+{
+    return &nst_state;
+}

@@ -3,6 +3,7 @@
 |#| 'stdsutil.nest' = su
 |#| 'stdsys.nest' = sys
 |#| 'test_lib.nest' = test
+|#| 'stdtime.nest' = dt
 
 -- Creates or clears the log file
 'test_output.txt' 'w' @io.open = test.log_file
@@ -21,14 +22,12 @@
                 |#| test_path
             ]
             ?! e [
-                >>> name
-                >>> '\n'
+                name true @io.println
                 ..
             ]
             'Assertion Error' !! ('the file ' name ' should raise an error' ><)
         ]
-        >>> name
-        >>> '\n'
+        name true @io.println
     ]
 ]
 

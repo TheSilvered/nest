@@ -24,46 +24,46 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef i64 Nst_Int;
-typedef f64 Nst_Real;
-typedef i8 Nst_Bool;
-typedef u8 Nst_Byte;
+EXPORT typedef i64 Nst_Int;
+EXPORT typedef f64 Nst_Real;
+EXPORT typedef i8 Nst_Bool;
+EXPORT typedef u8 Nst_Byte;
 
-typedef struct _Nst_IntObj {
+EXPORT typedef struct _Nst_IntObj {
     NST_OBJ_HEAD;
     Nst_Int value;
 } Nst_IntObj;
 
-typedef struct _Nst_RealObj {
+EXPORT typedef struct _Nst_RealObj {
     NST_OBJ_HEAD;
     Nst_Real value;
 } Nst_RealObj;
 
-typedef struct _Nst_BoolObj {
+EXPORT typedef struct _Nst_BoolObj {
     NST_OBJ_HEAD;
     Nst_Bool value;
 } Nst_BoolObj;
 
-typedef struct _Nst_ByteObj {
+EXPORT typedef struct _Nst_ByteObj {
     NST_OBJ_HEAD;
     Nst_Byte value;
 } Nst_ByteObj;
 
-typedef FILE *Nst_IOFile;
-typedef usize (*Nst_IOFile_read_f) (void  *buf,
-                                    usize size,
-                                    usize count,
-                                    void  *f_value);
-typedef usize (*Nst_IOFile_write_f)(void  *buf,
-                                    usize size,
-                                    usize count,
-                                    void  *f_value);
-typedef i32   (*Nst_IOFile_flush_f)(void *f_value);
-typedef i32   (*Nst_IOFile_tell_f) (void *f_value);
-typedef i32   (*Nst_IOFile_seek_f) (void *f_value, i32 offset, i32 origin);
-typedef i32   (*Nst_IOFile_close_f)(void *f_value);
+EXPORT typedef FILE *Nst_IOFile;
+EXPORT typedef usize (*Nst_IOFile_read_f) (void  *buf,
+                                           usize size,
+                                           usize count,
+                                           void  *f_value);
+EXPORT typedef usize (*Nst_IOFile_write_f)(void  *buf,
+                                           usize size,
+                                           usize count,
+                                           void  *f_value);
+EXPORT typedef i32   (*Nst_IOFile_flush_f)(void *f_value);
+EXPORT typedef i32   (*Nst_IOFile_tell_f) (void *f_value);
+EXPORT typedef i32   (*Nst_IOFile_seek_f) (void *f_value, i32 offset, i32 origin);
+EXPORT typedef i32   (*Nst_IOFile_close_f)(void *f_value);
 
-typedef struct _Nst_IOFileObj
+EXPORT typedef struct _Nst_IOFileObj
 {
     NST_OBJ_HEAD;
     Nst_IOFile value;
@@ -76,7 +76,7 @@ typedef struct _Nst_IOFileObj
 }
 Nst_IOFileObj;
 
-typedef enum _Nst_IOFileFlag
+EXPORT typedef enum _Nst_IOFileFlag
 {
     NST_FLAG_IOFILE_IS_CLOSED = 0b0001,
     NST_FLAG_IOFILE_IS_BIN    = 0b0010,
@@ -86,16 +86,17 @@ typedef enum _Nst_IOFileFlag
 Nst_IOFileFlag;
 
 // Creates a new Int object
-Nst_Obj *nst_int_new(Nst_Int value);
+EXPORT Nst_Obj *nst_int_new(Nst_Int value);
 // Creates a new Real object
-Nst_Obj *nst_real_new(Nst_Real value);
+EXPORT Nst_Obj *nst_real_new(Nst_Real value);
 // Creates a new Bool object
-Nst_Obj *nst_bool_new(Nst_Bool value);
+EXPORT Nst_Obj *nst_bool_new(Nst_Bool value);
 // Creates a new Byte object
-Nst_Obj *nst_byte_new(Nst_Byte value);
+EXPORT Nst_Obj *nst_byte_new(Nst_Byte value);
 // Creates a new IOFile object, bin: is opened in binary format,
 // read: supports reading, write: supports writing
-Nst_Obj *nst_iof_new(Nst_IOFile value, bool bin, bool read, bool write);
+EXPORT Nst_Obj *nst_iof_new(Nst_IOFile value, bool bin, bool read, bool write);
+EXPORT
 Nst_Obj *nst_iof_new_fake(void *value,
                           bool bin, bool read, bool write,
                           Nst_IOFile_read_f  read_f,
@@ -105,18 +106,18 @@ Nst_Obj *nst_iof_new_fake(void *value,
                           Nst_IOFile_seek_f  seek_f,
                           Nst_IOFile_close_f close_f);
 
-void _nst_destroy_iofile(Nst_IOFileObj *obj);
+EXPORT void _nst_destroy_iofile(Nst_IOFileObj *obj);
 
-isize nst_print(const i8 *buf, isize len);
-isize nst_println(const i8 *buf, isize len);
+EXPORT isize nst_print(const i8 *buf, isize len);
+EXPORT isize nst_println(const i8 *buf, isize len);
 // isize nst_printf(const i8 *fmt, ...);
-isize nst_fprint(Nst_IOFileObj *f, const i8 *buf, isize len);
-isize nst_fprintln(Nst_IOFileObj *f, const i8 *buf, isize len);
+EXPORT isize nst_fprint(Nst_IOFileObj *f, const i8 *buf, isize len);
+EXPORT isize nst_fprintln(Nst_IOFileObj *f, const i8 *buf, isize len);
 // isize nst_fprintf(Nst_IOFileObj *f, const i8 *buf, ...);
 // isize nst_fvprintf(Nst_IOFileObj *f, const i8 *buf, va_list args);
 
-i32 nst_flush();
-i32 nst_fflush(Nst_IOFileObj *f);
+EXPORT i32 nst_flush();
+EXPORT i32 nst_fflush(Nst_IOFileObj *f);
 
 #ifdef __cplusplus
 }

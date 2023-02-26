@@ -36,23 +36,24 @@ extern "C" {
 
 struct _Nst_StrObj;
 
-typedef struct _Nst_Obj
+EXPORT typedef struct _Nst_Obj
 {
     NST_OBJ_HEAD;
 }
 Nst_Obj;
 
-typedef void (*Nst_ObjDestructor)(void *);
+EXPORT typedef void (*Nst_ObjDestructor)(void *);
 
-typedef Nst_Obj Nst_NullObj;
+EXPORT typedef Nst_Obj Nst_NullObj;
 
+EXPORT
 Nst_Obj *_nst_obj_alloc(usize               size,
                         struct _Nst_StrObj *type,
                         void (*destructor)(void *));
-void _nst_obj_destroy(Nst_Obj *obj);
+EXPORT void _nst_obj_destroy(Nst_Obj *obj);
 
-Nst_Obj *_nst_inc_ref(Nst_Obj *obj);
-void _nst_dec_ref(Nst_Obj *obj);
+EXPORT Nst_Obj *_nst_inc_ref(Nst_Obj *obj);
+EXPORT void _nst_dec_ref(Nst_Obj *obj);
 
 #ifdef __cplusplus
 }

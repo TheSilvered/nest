@@ -78,7 +78,7 @@ NST_FUNC_SIGN(lfind_)
 
     if ( sub == nullptr )
     {
-        return nst_inc_ref(nst_c.Int_neg1);
+        return nst_inc_ref(nst_const()->Int_neg1);
     }
     else
     {
@@ -124,7 +124,7 @@ NST_FUNC_SIGN(rfind_)
         }
     }
 
-    return nst_inc_ref(nst_c.Int_neg1);
+    return nst_inc_ref(nst_const()->Int_neg1);
 }
 
 NST_FUNC_SIGN(starts_with_)
@@ -291,7 +291,7 @@ NST_FUNC_SIGN(ljust_)
 
     i8 just_ch;
 
-    if ( just_char == nst_c.Null_null )
+    if ( just_char == nst_null() )
     {
         just_ch = ' ';
     }
@@ -336,7 +336,7 @@ NST_FUNC_SIGN(rjust_)
 
     i8 just_ch;
 
-    if ( just_char == nst_c.Null_null )
+    if ( just_char == nst_null() )
     {
         just_ch = ' ';
     }
@@ -381,7 +381,7 @@ NST_FUNC_SIGN(center_)
 
     i8 just_ch;
 
-    if ( just_char == nst_c.Null_null )
+    if ( just_char == nst_null() )
     {
         just_ch = ' ';
     }
@@ -762,7 +762,7 @@ NST_FUNC_SIGN(bytearray_to_str_)
 
     for ( usize i = 0; i < len; i++ )
     {
-        if ( objs[i]->type != nst_t.Byte )
+        if ( objs[i]->type != nst_type()->Byte )
         {
             NST_SET_TYPE_ERROR(nst_format_error(
                 "expected only type 'Byte', got type '%s' instead",
@@ -815,7 +815,7 @@ NST_FUNC_SIGN(join_)
     usize str_len;
     i8 *str_val;
 
-    if ( opt_str == nst_c.Null_null )
+    if ( opt_str == nst_null() )
     {
         str_len = 1;
         str_val = (i8 *)" ";
@@ -837,7 +837,7 @@ NST_FUNC_SIGN(join_)
 
     for ( usize i = 0; i < len; i++ )
     {
-        objs[i] = nst_obj_cast(seq->objs[i], nst_t.Str, nullptr);
+        objs[i] = nst_obj_cast(seq->objs[i], nst_type()->Str, nullptr);
         tot_len += STR(objs[i])->len;
     }
 
@@ -879,7 +879,7 @@ NST_FUNC_SIGN(split_)
     usize sub_len;
     bool rm_spaces = false;
 
-    if ( opt_substr == nst_c.Null_null )
+    if ( opt_substr == nst_null() )
     {
         sub = (i8 *)" ";
         sub_len = 1;
@@ -1066,7 +1066,7 @@ NST_FUNC_SIGN(hex_)
     NST_DEF_EXTRACT("i?b", &n, &upper_obj);
 
     const i8 *digits;
-    if ( upper_obj->type == nst_t.Null || !AS_BOOL(upper_obj) )
+    if ( upper_obj == nst_null() || !AS_BOOL(upper_obj) )
     {
         digits = "0123456789abcdef";
     }

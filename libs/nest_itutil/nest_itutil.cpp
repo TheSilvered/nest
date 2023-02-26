@@ -116,9 +116,9 @@ NST_FUNC_SIGN(chain_)
     // Layout: [main_iter, local_seq, val, is_done]
     Nst_SeqObj *arr = SEQ(nst_array_new(4));
     arr->objs[0] = iter;
-    arr->objs[1] = nst_inc_ref(nst_c.Null_null);
-    arr->objs[2] = nst_inc_ref(nst_c.Null_null);
-    arr->objs[3] = nst_inc_ref(nst_c.Bool_false);
+    arr->objs[1] = nst_inc_ref(nst_null());
+    arr->objs[2] = nst_inc_ref(nst_null());
+    arr->objs[3] = nst_inc_ref(nst_false());
 
     return nst_iter_new(
         FUNC(nst_func_new_c(1, chain_start)),
@@ -163,9 +163,9 @@ NST_FUNC_SIGN(zipn_)
 
     for ( usize i = 0, n = seq->len; i < n; i++ )
     {
-        if ( objs[i]->type != nst_t.Array &&
-             objs[i]->type != nst_t.Vector &&
-             objs[i]->type != nst_t.Str )
+        if ( objs[i]->type != nst_type()->Array &&
+             objs[i]->type != nst_type()->Vector &&
+             objs[i]->type != nst_type()->Str )
         {
             NST_SET_TYPE_ERROR(nst_format_error(
                 "all objects in the sequence must be of type 'Array', 'Vector'"
@@ -182,14 +182,14 @@ NST_FUNC_SIGN(zipn_)
 
     for ( usize i = 0, n = seq->len; i < n; i++ )
     {
-        if ( objs[i]->type == nst_t.Array || objs[i]->type == nst_t.Vector )
+        if ( objs[i]->type == nst_type()->Array || objs[i]->type == nst_type()->Vector )
         {
             arr->objs[i + 1] = nst_inc_ref(objs[i]);
         }
         else
         {
             // casting a string to an array always succedes
-            arr->objs[i + 1] = nst_obj_cast(objs[i], nst_t.Array, nullptr);
+            arr->objs[i + 1] = nst_obj_cast(objs[i], nst_type()->Array, nullptr);
         }
     }
 

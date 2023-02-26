@@ -260,7 +260,7 @@ NST_FUNC_SIGN(open_)
     Nst_IOFile file_ptr = fopen(file_name, file_mode);
     if ( file_ptr == nullptr )
     {
-        return nst_inc_ref(nst_c.Null_null);
+        NST_RETURN_NULL;
     }
 
     return nst_iof_new(file_ptr, is_bin, can_read, can_write);
@@ -326,7 +326,7 @@ NST_FUNC_SIGN(close_)
     f->value = nullptr;
     NST_FLAG_SET(f, NST_FLAG_IOFILE_IS_CLOSED);
 
-    return nst_inc_ref(nst_c.Null_null);
+    NST_RETURN_NULL;
 }
 
 NST_FUNC_SIGN(write_)
@@ -353,7 +353,7 @@ NST_FUNC_SIGN(write_)
     }
 
     // casting to a string never returns an error
-    Nst_Obj *str_to_write = nst_obj_cast(value_to_write, nst_t.Str, nullptr);
+    Nst_Obj *str_to_write = nst_obj_cast(value_to_write, nst_type()->Str, nullptr);
     Nst_StrObj *str = STR(str_to_write);
     usize res = f->write_f(str->value, sizeof(i8), str->len, f->value);
 
@@ -395,7 +395,7 @@ NST_FUNC_SIGN(write_bytes_)
 
     for ( usize i = 0; i < seq_len; i++ )
     {
-        if ( objs[i]->type != nst_t.Byte )
+        if ( objs[i]->type != nst_type()->Byte )
         {
             free(bytes);
             NST_SET_RAW_TYPE_ERROR("expected 'Byte'");
@@ -600,7 +600,7 @@ NST_FUNC_SIGN(move_fptr_)
 
     f->seek_f(f->value, (i32)offset, (i32)start);
 
-    return nst_inc_ref(nst_c.Null_null);
+    NST_RETURN_NULL;
 }
 
 NST_FUNC_SIGN(flush_)
@@ -647,7 +647,7 @@ NST_FUNC_SIGN(println_)
     Nst_Obj *file_obj;
     NST_DEF_EXTRACT("o?b?F", &obj, &flush, &file_obj);
     Nst_IOFileObj *file;
-    NST_SET_DEF(file_obj, file, nst_io->out, IOFILE(file_obj));
+    NST_SET_DEF(file_obj, file, nst_stdio()->out, IOFILE(file_obj));
 
     if ( NST_IOF_IS_CLOSED(file) )
     {
@@ -655,17 +655,17 @@ NST_FUNC_SIGN(println_)
         return nullptr;
     }
 
-    Nst_StrObj *s_obj = STR(nst_obj_cast(obj, nst_t.Str, nullptr));
+    Nst_StrObj *s_obj = STR(nst_obj_cast(obj, nst_type()->Str, nullptr));
     nst_fprintln(file, (const i8 *)s_obj->value, s_obj->len);
 
-    if ( nst_obj_cast(flush, nst_t.Bool, nullptr) == nst_c.Bool_true )
+    if ( nst_obj_cast(flush, nst_type()->Bool, nullptr) == nst_true() )
     {
         nst_fflush(file);
-        nst_dec_ref(nst_c.Bool_true);
+        nst_dec_ref(nst_true());
     }
     else
     {
-        nst_dec_ref(nst_c.Bool_false);
+        nst_dec_ref(nst_false());
     }
 
     NST_RETURN_NULL;
@@ -689,14 +689,14 @@ NST_FUNC_SIGN(_set_stdin_)
         return nullptr;
     }
 
-    if ( f == nst_io->in )
+    if ( f == nst_stdio()->in )
     {
         NST_RETURN_NULL;
     }
 
-    nst_dec_ref(nst_io->in);
+    nst_dec_ref(nst_stdio()->in);
     nst_dec_ref(stdin_obj);
-    nst_io->in = IOFILE(nst_inc_ref(f));
+    nst_stdio()->in = IOFILE(nst_inc_ref(f));
     stdin_obj  = nst_inc_ref(f);
     NST_RETURN_NULL;
 }
@@ -719,14 +719,14 @@ NST_FUNC_SIGN(_set_stdout_)
         return nullptr;
     }
 
-    if ( f == nst_io->out )
+    if ( f == nst_stdio()->out )
     {
         NST_RETURN_NULL;
     }
 
-    nst_dec_ref(nst_io->out);
+    nst_dec_ref(nst_stdio()->out);
     nst_dec_ref(stdout_obj);
-    nst_io->out = IOFILE(nst_inc_ref(f));
+    nst_stdio()->out = IOFILE(nst_inc_ref(f));
     stdout_obj  = nst_inc_ref(f);
     NST_RETURN_NULL;
 }
@@ -749,14 +749,14 @@ NST_FUNC_SIGN(_set_stderr_)
         return nullptr;
     }
 
-    if ( f == nst_io->err )
+    if ( f == nst_stdio()->err )
     {
         NST_RETURN_NULL;
     }
 
-    nst_dec_ref(nst_io->err);
+    nst_dec_ref(nst_stdio()->err);
     nst_dec_ref(stderr_obj);
-    nst_io->err = IOFILE(nst_inc_ref(f));
+    nst_stdio()->err = IOFILE(nst_inc_ref(f));
     stderr_obj  = nst_inc_ref(f);
     NST_RETURN_NULL;
 }

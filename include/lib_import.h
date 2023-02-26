@@ -6,20 +6,6 @@
 #include "interpreter.h"
 #include "global_consts.h"
 
-#define NST_INIT_LIB_OBJ_FUNC \
-    void init_lib_obj(Nst_TypeObjs       main_t, \
-                      Nst_StrConsts      main_s, \
-                      Nst_Consts         main_c, \
-                      Nst_StdStreams    *main_io, \
-                      Nst_ExecutionState main_state) \
-    { \
-        nst_t = main_t; \
-        nst_s = main_s; \
-        nst_c = main_c; \
-        nst_io = main_io; \
-        nst_state = main_state; \
-    }
-
 #define NST_MAKE_FUNCDECLR(func_ptr, argc) \
     { \
         func_ptr, \
@@ -44,32 +30,32 @@
     err->message = STR(nst_string_new_c_raw(err_msg, false)); \
     } while ( 0 )
 
-#define NST_SET_SYNTAX_ERROR(msg) NST_SET_ERROR(nst_s.e_SyntaxError, msg)
-#define NST_SET_MEMORY_ERROR(msg) NST_SET_ERROR(nst_s.e_MemoryError, msg)
-#define NST_SET_TYPE_ERROR(msg)   NST_SET_ERROR(nst_s.e_TypeError,   msg)
-#define NST_SET_VALUE_ERROR(msg)  NST_SET_ERROR(nst_s.e_ValueError,  msg)
-#define NST_SET_MATH_ERROR(msg)   NST_SET_ERROR(nst_s.e_MathError,   msg)
-#define NST_SET_CALL_ERROR(msg)   NST_SET_ERROR(nst_s.e_CallError,   msg)
-#define NST_SET_IMPORT_ERROR(msg) NST_SET_ERROR(nst_s.e_ImportError, msg)
+#define NST_SET_SYNTAX_ERROR(msg) NST_SET_ERROR(nst_str()->e_SyntaxError, msg)
+#define NST_SET_MEMORY_ERROR(msg) NST_SET_ERROR(nst_str()->e_MemoryError, msg)
+#define NST_SET_TYPE_ERROR(msg)   NST_SET_ERROR(nst_str()->e_TypeError,   msg)
+#define NST_SET_VALUE_ERROR(msg)  NST_SET_ERROR(nst_str()->e_ValueError,  msg)
+#define NST_SET_MATH_ERROR(msg)   NST_SET_ERROR(nst_str()->e_MathError,   msg)
+#define NST_SET_CALL_ERROR(msg)   NST_SET_ERROR(nst_str()->e_CallError,   msg)
+#define NST_SET_IMPORT_ERROR(msg) NST_SET_ERROR(nst_str()->e_ImportError, msg)
 
 #define NST_SET_RAW_SYNTAX_ERROR(msg) NST_SET_RAW_ERROR(nst_s.e_SyntaxError, msg)
-#define NST_SET_RAW_MEMORY_ERROR(msg) NST_SET_RAW_ERROR(nst_s.e_MemoryError, msg)
-#define NST_SET_RAW_TYPE_ERROR(msg)   NST_SET_RAW_ERROR(nst_s.e_TypeError,   msg)
-#define NST_SET_RAW_VALUE_ERROR(msg)  NST_SET_RAW_ERROR(nst_s.e_ValueError,  msg)
-#define NST_SET_RAW_MATH_ERROR(msg)   NST_SET_RAW_ERROR(nst_s.e_MathError,   msg)
-#define NST_SET_RAW_CALL_ERROR(msg)   NST_SET_RAW_ERROR(nst_s.e_CallError,   msg)
-#define NST_SET_RAW_IMPORT_ERROR(msg) NST_SET_RAW_ERROR(nst_s.e_ImportError, msg)
+#define NST_SET_RAW_MEMORY_ERROR(msg) NST_SET_RAW_ERROR(nst_str()->e_MemoryError, msg)
+#define NST_SET_RAW_TYPE_ERROR(msg)   NST_SET_RAW_ERROR(nst_str()->e_TypeError,   msg)
+#define NST_SET_RAW_VALUE_ERROR(msg)  NST_SET_RAW_ERROR(nst_str()->e_ValueError,  msg)
+#define NST_SET_RAW_MATH_ERROR(msg)   NST_SET_RAW_ERROR(nst_str()->e_MathError,   msg)
+#define NST_SET_RAW_CALL_ERROR(msg)   NST_SET_RAW_ERROR(nst_str()->e_CallError,   msg)
+#define NST_SET_RAW_IMPORT_ERROR(msg) NST_SET_RAW_ERROR(nst_str()->e_ImportError, msg)
 
 #define NST_FAILED_ALLOCATION \
-    NST_SET_ERROR(nst_s.e_MemoryError, nst_s.o_failed_alloc)
+    NST_SET_ERROR(nst_str()->e_MemoryError, nst_str()->o_failed_alloc)
 
-#define NST_RETURN_TRUE return nst_inc_ref(nst_c.Bool_true)
-#define NST_RETURN_FALSE return nst_inc_ref(nst_c.Bool_false)
-#define NST_RETURN_NULL return nst_inc_ref(nst_c.Null_null)
-#define NST_RETURN_ZERO return nst_inc_ref(nst_c.Int_0)
-#define NST_RETURN_ONE return nst_inc_ref(nst_c.Int_1)
+#define NST_RETURN_TRUE return nst_inc_ref(nst_true())
+#define NST_RETURN_FALSE return nst_inc_ref(nst_false())
+#define NST_RETURN_NULL return nst_inc_ref(nst_null())
+#define NST_RETURN_ZERO return nst_inc_ref(nst_const()->Int_0)
+#define NST_RETURN_ONE return nst_inc_ref(nst_const()->Int_1)
 #define NST_RETURN_COND(cond) \
-    return (cond) ? nst_inc_ref(nst_c.Bool_true) : nst_inc_ref(nst_c.Bool_false)
+    return (cond) ? nst_inc_ref(nst_true()) : nst_inc_ref(nst_false())
 
 // Function signature for Nest function
 #define NST_FUNC_SIGN(name) \
@@ -83,7 +69,7 @@
 // Sets 'var' to 'def_val' if obj is null and to 'val' otherwise
 #define NST_SET_DEF(obj, var, def_val, val) \
     do { \
-    if ( (obj) == nst_c.Null_null ) \
+    if ( (obj) == nst_null() ) \
        var = (def_val); \
     else \
         var = (val); \
@@ -93,7 +79,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct _Nst_FuncDeclr
+EXPORT typedef struct _Nst_FuncDeclr
 {
     NST_FUNC_SIGN((*func_ptr));
     usize arg_num;
@@ -102,7 +88,7 @@ typedef struct _Nst_FuncDeclr
 Nst_FuncDeclr;
 
 // Allocates the function list of the module
-Nst_FuncDeclr *nst_func_list_new(usize count);
+EXPORT Nst_FuncDeclr *nst_func_list_new(usize count);
 // Extracts the C values from the arguments
 // `types` is a string of letters for the types, check the full usage in
 // src/lib_import.c
@@ -110,6 +96,7 @@ Nst_FuncDeclr *nst_func_list_new(usize count);
 // `args`: the arguments themselves
 // `err`: the `err` argument of the function
 // ...: the pointers to store the values in or the custom types
+EXPORT
 bool nst_extract_arg_values(const i8  *types,
                             usize      arg_num,
                             Nst_Obj  **args,

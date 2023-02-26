@@ -91,7 +91,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct _Nst_SourceText
+EXPORT typedef struct _Nst_SourceText
 {
     i8 *text;
     i8 *path;
@@ -101,7 +101,7 @@ typedef struct _Nst_SourceText
 }
 Nst_SourceText;
 
-typedef struct _Nst_Pos
+EXPORT typedef struct _Nst_Pos
 {
     i32 line;
     i32 col;
@@ -109,7 +109,7 @@ typedef struct _Nst_Pos
 }
 Nst_Pos;
 
-typedef struct _Nst_Error
+EXPORT typedef struct _Nst_Error
 {
     bool occurred;
     Nst_Pos start;
@@ -119,14 +119,14 @@ typedef struct _Nst_Error
 }
 Nst_Error;
 
-typedef struct _Nst_OpErr
+EXPORT typedef struct _Nst_OpErr
 {
     Nst_StrObj *name;
     Nst_StrObj *message;
 }
 Nst_OpErr;
 
-typedef struct _Nst_Traceback
+EXPORT typedef struct _Nst_Traceback
 {
     Nst_Error error;
     Nst_LList *positions;
@@ -134,22 +134,22 @@ typedef struct _Nst_Traceback
 Nst_Traceback;
 
 // Sets how the error message is printed (with or without ANSI color escapes)
-void nst_set_color(bool color);
+EXPORT void nst_set_color(bool color);
 // Creates a new Nst_Pos on the stack
-Nst_Pos nst_copy_pos(Nst_Pos pos);
+EXPORT Nst_Pos nst_copy_pos(Nst_Pos pos);
 // An Nst_Pos that is empty, (col=0, line=0, filename=NULL, text=NULL, text_len=0)
-Nst_Pos nst_no_pos();
+EXPORT Nst_Pos nst_no_pos();
 // Prints a formatted Nst_Error
-void nst_print_error(Nst_Error err);
+EXPORT void nst_print_error(Nst_Error err);
 // Prints a formatted Nst_Trackeback
-void nst_print_traceback(Nst_Traceback tb);
+EXPORT void nst_print_traceback(Nst_Traceback tb);
 
 // Allocates a string on the heap and prints the format
 // format_args is the type of the arguments passed, can be:
 //   s: i8 *,
 //   u: usize,
 //   i: i64
-Nst_StrObj *nst_format_error(const i8 *format, const i8 *format_args, ...);
+EXPORT Nst_StrObj *nst_format_error(const i8 *format, const i8 *format_args, ...);
 
 // Frees a heap allocated text source
 void nst_free_src_text(Nst_SourceText *text);

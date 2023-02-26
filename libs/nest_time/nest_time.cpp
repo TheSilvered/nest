@@ -8,7 +8,7 @@
 #include <unistd.h>
 #endif
 
-#define FUNC_COUNT 18
+#define FUNC_COUNT 19
 
 using namespace std::chrono;
 
@@ -42,6 +42,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(clock_datetime_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(gmt_clock_datetime_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(sleep_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(sleep_ms_, 1);
 
 #if __LINE__ - FUNC_COUNT != 28
 #error FUNC_COUNT does not match the number of lines
@@ -255,5 +256,19 @@ NST_FUNC_SIGN(sleep_)
 #else
     usleep(useconds_t(time * 1000000));
 #endif
-    return nst_inc_ref(nst_c.Null_null);
+    NST_RETURN_NULL;
+}
+
+NST_FUNC_SIGN(sleep_ms_)
+{
+    Nst_Int time;
+
+    NST_DEF_EXTRACT("l", &time);
+
+#if defined(_WIN32) || defined(WIN32)
+    Sleep(DWORD(time));
+#else
+    usleep(useconds_t(time * 1000));
+#endif
+    NST_RETURN_NULL;
 }

@@ -20,7 +20,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct _Nst_IterObj
+EXPORT typedef struct _Nst_IterObj
 {
     NST_OBJ_HEAD;
     NST_GGC_HEAD;
@@ -31,35 +31,36 @@ typedef struct _Nst_IterObj
 }
 Nst_IterObj;
 
+EXPORT
 Nst_Obj *nst_iter_new(Nst_FuncObj *start,
                       Nst_FuncObj *is_done,
                       Nst_FuncObj *get_val,
                       Nst_Obj     *value);
-void _nst_iter_destroy(Nst_IterObj *iter);
-void _nst_iter_traverse(Nst_IterObj *iter);
-void _nst_iter_track(Nst_IterObj *iter);
+EXPORT void _nst_iter_destroy(Nst_IterObj *iter);
+EXPORT void _nst_iter_traverse(Nst_IterObj *iter);
+EXPORT void _nst_iter_track(Nst_IterObj *iter);
 
-i32 _nst_iter_start(Nst_IterObj *iter, Nst_OpErr *err);
-i32 _nst_iter_is_done(Nst_IterObj *iter, Nst_OpErr *err);
-Nst_Obj *_nst_iter_get_val(Nst_IterObj *iter, Nst_OpErr *err);
+EXPORT i32 _nst_iter_start(Nst_IterObj *iter, Nst_OpErr *err);
+EXPORT i32 _nst_iter_is_done(Nst_IterObj *iter, Nst_OpErr *err);
+EXPORT Nst_Obj *_nst_iter_get_val(Nst_IterObj *iter, Nst_OpErr *err);
 
 // Functions for the range iterator
 
-NST_FUNC_SIGN(nst_iter_range_start);
-NST_FUNC_SIGN(nst_iter_range_is_done);
-NST_FUNC_SIGN(nst_iter_range_get_val);
+EXPORT NST_FUNC_SIGN(nst_iter_range_start);
+EXPORT NST_FUNC_SIGN(nst_iter_range_is_done);
+EXPORT NST_FUNC_SIGN(nst_iter_range_get_val);
 
 // Functions for the sequence iterator
 
-NST_FUNC_SIGN(nst_iter_seq_start);
-NST_FUNC_SIGN(nst_iter_seq_is_done);
-NST_FUNC_SIGN(nst_iter_seq_get_val);
+EXPORT NST_FUNC_SIGN(nst_iter_seq_start);
+EXPORT NST_FUNC_SIGN(nst_iter_seq_is_done);
+EXPORT NST_FUNC_SIGN(nst_iter_seq_get_val);
 
 // Functions for the string iterator
 
-NST_FUNC_SIGN(nst_iter_str_start);
-NST_FUNC_SIGN(nst_iter_str_is_done);
-NST_FUNC_SIGN(nst_iter_str_get_val);
+EXPORT NST_FUNC_SIGN(nst_iter_str_start);
+EXPORT NST_FUNC_SIGN(nst_iter_str_is_done);
+EXPORT NST_FUNC_SIGN(nst_iter_str_get_val);
 
 #ifdef __cplusplus
 }

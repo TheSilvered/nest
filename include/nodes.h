@@ -12,7 +12,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef enum _Nst_NodeType
+EXPORT typedef enum _Nst_NodeType
 {
     NST_NT_LONG_S,
     NST_NT_WHILE_L,
@@ -42,7 +42,7 @@ typedef enum _Nst_NodeType
 }
 Nst_NodeType;
 
-typedef struct _Nst_Node
+EXPORT typedef struct _Nst_Node
 {
     Nst_Pos start;
     Nst_Pos end;
@@ -53,25 +53,28 @@ typedef struct _Nst_Node
 Nst_Node;
 
 // New node on the heap with only a list of tokens
+EXPORT
 Nst_Node *nst_node_new_tokens(Nst_Pos      start,
                               Nst_Pos      end,
                               Nst_NodeType type,
                               Nst_LList   *tokens);
 // New node on the heap with only a list of nodes
+EXPORT
 Nst_Node *nst_node_new_nodes(Nst_Pos      start,
                              Nst_Pos      end,
                              Nst_NodeType type,
                              Nst_LList   *nodes);
 // New node on the heap with both a list of nodes an tokens
+EXPORT
 Nst_Node *nst_node_new_full(Nst_Pos      start,
                             Nst_Pos      end,
                             Nst_NodeType type,
                             Nst_LList   *nodes,
                             Nst_LList   *tokens);
 // New node with no lists
-Nst_Node *nst_node_new_empty(Nst_Pos start, Nst_Pos end, Nst_NodeType type);
+EXPORT Nst_Node *nst_node_new_empty(Nst_Pos start, Nst_Pos end, Nst_NodeType type);
 // Destroy a token and its children
-void nst_node_destroy(Nst_Node *node);
+EXPORT void nst_node_destroy(Nst_Node *node);
 
 #ifdef __cplusplus
 }

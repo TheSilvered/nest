@@ -164,6 +164,41 @@ void _nst_streams_del()
     nst_dec_ref(nst_io->err);
 }
 
+Nst_Obj *nst_true()
+{
+    return nst_c.Bool_true;
+}
+
+Nst_Obj *nst_false()
+{
+    return nst_c.Bool_false;
+}
+
+Nst_Obj *nst_null()
+{
+    return nst_c.Null_null;
+}
+
+const Nst_TypeObjs *nst_type()
+{
+    return &nst_t;
+}
+
+const Nst_StrConsts *nst_str()
+{
+    return &nst_s;
+}
+
+const Nst_Consts *nst_const()
+{
+    return &nst_c;
+}
+
+Nst_StdStreams *nst_stdio()
+{
+    return nst_io;
+}
+
 #if defined(_WIN32) || defined(WIN32)
 #pragma warning( disable: 4100 )
 #endif

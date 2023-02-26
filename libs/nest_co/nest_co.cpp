@@ -91,7 +91,7 @@ static NST_FUNC_SIGN(generator_start)
 
     if ( NST_FLAG_HAS(co, FLAG_CO_ENDED) )
     {
-        nst_seq_set(args[0], 3, nst_c.Bool_true);
+        nst_seq_set(args[0], 3, nst_true());
     }
     else
     {
@@ -121,7 +121,7 @@ static NST_FUNC_SIGN(generator_get_val)
 
     if ( NST_FLAG_HAS(co, FLAG_CO_ENDED) )
     {
-        nst_seq_set(args[0], 3, nst_c.Bool_true);
+        nst_seq_set(args[0], 3, nst_true());
     }
     else
     {
@@ -250,7 +250,7 @@ NST_FUNC_SIGN(call_)
 
     NST_DEF_EXTRACT("?A#", &co_args, t_Coroutine, &co);
 
-    if ( co_args == nst_c.Null_null )
+    if ( co_args == nst_null() )
     {
         co_args = nst_array_new(0);
     }
@@ -283,20 +283,22 @@ NST_FUNC_SIGN(call_)
     NST_FLAG_DEL(co, FLAG_CO_PAUSED);
     NST_FLAG_DEL(co, FLAG_CO_ENDED);
     NST_FLAG_SET(co, FLAG_CO_RUNNING);
-    co->call_stack_size = nst_state.f_stack->current_size;
+
+    Nst_ExecutionState *state = nst_get_state();
+    co->call_stack_size = state->f_stack->current_size;
 
     Nst_Obj *result = nullptr;
     if ( is_paused )
     {
-        nst_vstack_push(nst_state.v_stack, nullptr);
+        nst_vstack_push(state->v_stack, nullptr);
         for ( usize i = 0, n = co->stack_size; i < n; i++ )
         {
-            nst_vstack_push(nst_state.v_stack, co->stack[i]);
+            nst_vstack_push(state->v_stack, co->stack[i]);
             nst_dec_ref(co->stack[i]);
         }
         free(co->stack);
         // emulates the return value of co.pause
-        nst_vstack_push(nst_state.v_stack, nst_c.Null_null);
+        nst_vstack_push(state->v_stack, nst_null());
         result = nst_run_func_context(
             co->func,
             co->idx + 1,
@@ -338,8 +340,8 @@ NST_FUNC_SIGN(pause_)
     Nst_Obj *return_value;
 
     NST_DEF_EXTRACT("#o", t_Coroutine, &co, &return_value);
-
-    Nst_FuncCall call = nst_fstack_peek(nst_state.f_stack);
+    Nst_ExecutionState *state = nst_get_state();
+    Nst_FuncCall call = nst_fstack_peek(state->f_stack);
     if ( call.func != co->func )
     {
         NST_SET_RAW_CALL_ERROR(
@@ -347,7 +349,7 @@ NST_FUNC_SIGN(pause_)
         return nullptr;
     }
 
-    if ( nst_state.f_stack->current_size - 1 != co->call_stack_size ||
+    if ( state->f_stack->current_size - 1 != co->call_stack_size ||
          !NST_FLAG_HAS(co, FLAG_CO_RUNNING) )
     {
         NST_SET_RAW_CALL_ERROR("the function was not called with 'call'");
@@ -355,21 +357,21 @@ NST_FUNC_SIGN(pause_)
     }
 
     // Now I'm sure that the function was called with co.call
-    call = nst_fstack_pop(nst_state.f_stack);
+    call = nst_fstack_pop(state->f_stack);
 
-    co->vars = (*nst_state.vt)->vars;
-    co->globals = (*nst_state.vt)->global_table;
-    co->idx = *nst_state.idx;
-    free(*nst_state.vt);
+    co->vars = (*state->vt)->vars;
+    co->globals = (*state->vt)->global_table;
+    co->idx = *state->idx;
+    free(*state->vt);
 
     nst_dec_ref(call.func);
 
-    *nst_state.vt = call.vt;
-    *nst_state.idx = call.idx;
+    *state->vt = call.vt;
+    *state->idx = call.idx;
 
     usize stack_size = 0;
-    Nst_Obj **v_stack_objs = nst_state.v_stack->stack;
-    for ( Nst_Int i = (Nst_Int)nst_state.v_stack->current_size - 1;
+    Nst_Obj **v_stack_objs = state->v_stack->stack;
+    for ( Nst_Int i = (Nst_Int)state->v_stack->current_size - 1;
           i >= 0;
           i-- )
     {
@@ -384,10 +386,10 @@ NST_FUNC_SIGN(pause_)
 
     for ( usize i = stack_size; i > 0; i-- )
     {
-        co->stack[i - 1] = nst_vstack_pop(nst_state.v_stack);
+        co->stack[i - 1] = nst_vstack_pop(state->v_stack);
     }
 
-    nst_vstack_pop(nst_state.v_stack); // remove NULL from the stack
+    nst_vstack_pop(state->v_stack); // remove NULL from the stack
 
     NST_FLAG_DEL(co, FLAG_CO_SUSPENDED);
     NST_FLAG_DEL(co, FLAG_CO_RUNNING);
@@ -425,8 +427,8 @@ NST_FUNC_SIGN(generator_)
     Nst_SeqObj *arr = SEQ(nst_array_new(4));
     arr->objs[0] = nst_array_new(1);
     arr->objs[1] = nst_inc_ref(co);
-    arr->objs[2] = nst_inc_ref(nst_c.Null_null);
-    arr->objs[3] = nst_inc_ref(nst_c.Bool_false);
+    arr->objs[2] = nst_inc_ref(nst_null());
+    arr->objs[3] = nst_inc_ref(nst_false());
 
     SEQ(arr->objs[0])->objs[0] = nst_inc_ref(co);
 

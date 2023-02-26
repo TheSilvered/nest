@@ -10,8 +10,9 @@
 // * -1 fail
 // * 0 success
 // * 1 success, stop the program (retured when an info message is printed)
+EXPORT
 i32 _nst_parse_args(i32 argc, i8 **argv,
-                    bool *print_tokens,
+                     bool *print_tokens,
                     bool *print_ast,
                     bool *print_bytecode,
                     bool *force_execution,

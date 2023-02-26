@@ -98,10 +98,10 @@ NST_FUNC_SIGN(chain_start)
         {
             return nullptr;
         }
-        nst_seq_set(args[0], 3, nst_c.Bool_true);
+        nst_seq_set(args[0], 3, nst_true());
         NST_RETURN_NULL;
     }
-    Nst_IterObj *local_iter = ITER(nst_obj_cast(local_val, nst_t.Iter, err));
+    Nst_IterObj *local_iter = ITER(nst_obj_cast(local_val, nst_type()->Iter, err));
     nst_dec_ref(local_val);
     if ( local_iter == nullptr )
     {
@@ -127,7 +127,7 @@ NST_FUNC_SIGN(chain_start)
         }
         else if ( res )
         {
-            nst_seq_set(args[0], 3, nst_c.Bool_true);
+            nst_seq_set(args[0], 3, nst_true());
             NST_RETURN_NULL;
         }
 
@@ -136,7 +136,7 @@ NST_FUNC_SIGN(chain_start)
         {
             return nullptr;
         }
-        local_iter = ITER(nst_obj_cast(local_val, nst_t.Iter, err));
+        local_iter = ITER(nst_obj_cast(local_val, nst_type()->Iter, err));
         nst_dec_ref(local_val);
         if ( local_iter == nullptr )
         {
@@ -163,7 +163,7 @@ NST_FUNC_SIGN(chain_get_val)
     Nst_IterObj *main_iter = ITER(objs[0]);
     Nst_IterObj *local_iter = ITER(objs[1]);
     Nst_Obj *return_ob = nst_inc_ref(objs[2]);
-    Nst_Obj *val = nst_inc_ref(nst_c.Null_null);
+    Nst_Obj *val = nst_inc_ref(nst_null());
 
     i32 res = nst_iter_is_done(local_iter, err);
     if ( res == -1 )
@@ -190,8 +190,8 @@ NST_FUNC_SIGN(chain_get_val)
         }
         else if ( res )
         {
-            nst_seq_set(args[0], 3, nst_c.Bool_true);
-            val = nst_inc_ref(nst_c.Null_null);
+            nst_seq_set(args[0], 3, nst_true());
+            val = nst_inc_ref(nst_null());
             goto end;
         }
 
@@ -200,7 +200,7 @@ NST_FUNC_SIGN(chain_get_val)
         {
             return nullptr;
         }
-        local_iter = ITER(nst_obj_cast(local_val, nst_t.Iter, err));
+        local_iter = ITER(nst_obj_cast(local_val, nst_type()->Iter, err));
         nst_dec_ref(local_val);
         if ( local_iter == nullptr )
         {
@@ -253,7 +253,7 @@ NST_FUNC_SIGN(zip_get_val)
     if ( idx >= (Nst_Int)SEQ(objs[1])->len )
     {
         NST_SET_VALUE_ERROR(nst_format_error(
-            SEQ(objs[1])->type == nst_t.Array
+            SEQ(objs[1])->type == nst_type()->Array
                 ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
                 : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
             "iu",
@@ -265,7 +265,7 @@ NST_FUNC_SIGN(zip_get_val)
     else if ( idx >= (Nst_Int)SEQ(objs[2])->len )
     {
         NST_SET_VALUE_ERROR(nst_format_error(
-            SEQ(objs[2])->type == nst_t.Array
+            SEQ(objs[2])->type == nst_type()->Array
                 ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
                 : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
             "iu",
@@ -317,7 +317,7 @@ NST_FUNC_SIGN(zipn_get_val)
         if ( idx >= (Nst_Int)SEQ(objs[i])->len )
         {
             NST_SET_VALUE_ERROR(nst_format_error(
-                SEQ(objs[i])->type == nst_t.Array
+                SEQ(objs[i])->type == nst_type()->Array
                     ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
                     : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
                 "iu",
@@ -430,8 +430,8 @@ NST_FUNC_SIGN(items_get_val)
 
     if ( AS_INT(objs[0]) == -1 )
     {
-        nst_seq_set(arr, 0, nst_c.Null_null);
-        nst_seq_set(arr, 1, nst_c.Null_null);
+        nst_seq_set(arr, 0, nst_null());
+        nst_seq_set(arr, 1, nst_null());
     }
     else
     {
@@ -468,7 +468,7 @@ NST_FUNC_SIGN(reversed_get_val)
     if ( res == nullptr )
     {
         NST_SET_VALUE_ERROR(nst_format_error(
-            SEQ(objs[1])->type == nst_t.Array
+            SEQ(objs[1])->type == nst_type()->Array
                 ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
                 : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
             "iu",

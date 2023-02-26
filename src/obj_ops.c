@@ -1898,20 +1898,6 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
         return NULL;
     }
 
-    void (*init_lib_obj)(OBJ_INIT_FARGS)
-        = (void (*)(OBJ_INIT_FARGS))dlsym(lib, "init_lib_obj");
-
-    if ( init_lib_obj == NULL )
-    {
-        nst_llist_pop(nst_state.lib_paths);
-        nst_dec_ref(file_path);
-        NST_SET_RAW_IMPORT_ERROR(_NST_EM_NO_LIB_FUNC("init_lib_obj"));
-        return NULL;
-    }
-
-    // Link the global variables
-    init_lib_obj(nst_t, nst_s, nst_c, nst_io, nst_state);
-
     // Initialize library
     bool (*lib_init)() = (bool (*)())dlsym(lib, "lib_init");
     if ( lib_init == NULL )

@@ -109,33 +109,33 @@ static void fit_buf()
 static void dump_obj(Nst_Obj *obj, i32 indent, Nst_OpErr *err)
 {
     INC_RECURSION_LVL;
-    if ( obj->type == nst_t.Str )
+    if ( obj->type == nst_type()->Str )
     {
         dump_str(STR(obj), err);
     }
-    else if ( obj->type == nst_t.Int  ||
-              obj->type == nst_t.Real ||
-              obj->type == nst_t.Byte )
+    else if ( obj->type == nst_type()->Int  ||
+              obj->type == nst_type()->Real ||
+              obj->type == nst_type()->Byte )
     {
         dump_num(obj, err);
     }
-    else if ( obj->type == nst_t.Map )
+    else if ( obj->type == nst_type()->Map )
     {
         dump_map(MAP(obj), indent, err);
     }
-    else if ( obj->type == nst_t.Array || obj->type == nst_t.Vector )
+    else if ( obj->type == nst_type()->Array || obj->type == nst_type()->Vector )
     {
         dump_seq(SEQ(obj), indent, err);
     }
-    else if ( obj == nst_c.Null_null )
+    else if ( obj == nst_null() )
     {
         append_buf("null", 4, err);
     }
-    else if ( obj == nst_c.Bool_true )
+    else if ( obj == nst_true() )
     {
         append_buf("true", 4, err);
     }
-    else if ( obj == nst_c.Bool_false )
+    else if ( obj == nst_false() )
     {
         append_buf("false", 5, err);
     }
@@ -217,13 +217,13 @@ static void dump_str(Nst_StrObj *str, Nst_OpErr *err)
 static void dump_num(Nst_Obj *number, Nst_OpErr *err)
 {
     INC_RECURSION_LVL;
-    if ( number->type == nst_t.Byte )
+    if ( number->type == nst_type()->Byte )
     {
         i8 loc_buf[4];
         sprintf(loc_buf, "%i", AS_BYTE(number));
         append_buf((const i8 *)loc_buf, 0, err);
     }
-    else if ( number->type == nst_t.Int )
+    else if ( number->type == nst_type()->Int )
     {
         i8 loc_buf[21];
         sprintf(loc_buf, "%lli", AS_INT(number));
@@ -342,7 +342,7 @@ static void dump_map(Nst_MapObj *map, i32 indent, Nst_OpErr *err)
         count++;
         Nst_Obj *key = nodes[i].key;
         Nst_Obj *value = nodes[i].value;
-        if ( key->type != nst_t.Str )
+        if ( key->type != nst_type()->Str )
         {
             NST_SET_RAW_TYPE_ERROR("JSON: all keys of a map must be strings");
             FAIL;

@@ -64,8 +64,8 @@ Nst_Obj *success(Nst_Obj *val)
 {
     Nst_Obj *map = nst_map_new();
     nst_map_set_str(map, "value", val);
-    nst_map_set_str(map, "error", nst_c.Null_null);
-    nst_map_set_str(map, "traceback", nst_c.Null_null);
+    nst_map_set_str(map, "error", nst_null());
+    nst_map_set_str(map, "traceback", nst_null());
     nst_dec_ref(val);
 
     return map;
@@ -79,11 +79,12 @@ Nst_Obj *failure(Nst_OpErr *err)
     Nst_Obj *error_message_str;
     Nst_Obj *error_pos;
     Nst_Obj *error_traceback;
-    nst_map_set_str(map, "value", nst_c.Null_null);
+    Nst_ExecutionState *state = nst_get_state();
+    nst_map_set_str(map, "value", nst_null());
 
-    if ( nst_state.traceback->error.occurred )
+    if ( state->traceback->error.occurred )
     {
-        Nst_Error error = nst_state.traceback->error;
+        Nst_Error error = state->traceback->error;
         // I do not change the ref count as the strings are just moved
         // from the error to the map
         error_name_str = OBJ(error.name);
@@ -91,9 +92,9 @@ Nst_Obj *failure(Nst_OpErr *err)
         error_pos = make_pos(error.start, error.end);
 
         error_traceback =
-            nst_array_new(nst_state.traceback->positions->size / 2);
+            nst_array_new(state->traceback->positions->size / 2);
 
-        Nst_LList *positions = nst_state.traceback->positions;
+        Nst_LList *positions = state->traceback->positions;
         Nst_Int skipped = 0;
         Nst_LLNode *n1 = positions->head;
         Nst_LLNode *n2 = n1 == nullptr ? n1 : n1->next;
@@ -116,14 +117,14 @@ Nst_Obj *failure(Nst_OpErr *err)
         }
 
         nst_llist_empty(positions, free);
-        nst_state.traceback->error.occurred = false;
+        state->traceback->error.occurred = false;
     }
     else
     {
         error_name_str = OBJ(err->name);
         error_message_str = OBJ(err->message);
-        error_pos = nst_inc_ref(nst_c.Null_null);
-        error_traceback = nst_inc_ref(nst_c.Null_null);
+        error_pos = nst_inc_ref(nst_null());
+        error_traceback = nst_inc_ref(nst_null());
     }
 
     nst_map_set_str(error_map, "name", error_name_str);
@@ -173,13 +174,13 @@ NST_FUNC_SIGN(try_)
 NST_FUNC_SIGN(_get_err_names_)
 {
     Nst_SeqObj *names = SEQ(nst_array_new(7));
-    names->objs[0] = nst_inc_ref(nst_s.e_SyntaxError);
-    names->objs[1] = nst_inc_ref(nst_s.e_ValueError);
-    names->objs[2] = nst_inc_ref(nst_s.e_TypeError);
-    names->objs[3] = nst_inc_ref(nst_s.e_CallError);
-    names->objs[4] = nst_inc_ref(nst_s.e_MemoryError);
-    names->objs[5] = nst_inc_ref(nst_s.e_MathError);
-    names->objs[6] = nst_inc_ref(nst_s.e_ImportError);
+    names->objs[0] = nst_inc_ref(nst_str()->e_SyntaxError);
+    names->objs[1] = nst_inc_ref(nst_str()->e_ValueError);
+    names->objs[2] = nst_inc_ref(nst_str()->e_TypeError);
+    names->objs[3] = nst_inc_ref(nst_str()->e_CallError);
+    names->objs[4] = nst_inc_ref(nst_str()->e_MemoryError);
+    names->objs[5] = nst_inc_ref(nst_str()->e_MathError);
+    names->objs[6] = nst_inc_ref(nst_str()->e_ImportError);
 
     return OBJ(names);
 }

@@ -10,7 +10,7 @@ extern "C" {
 
 // the nomenclature is [group]_[value of the strings without spaces] t_ is
 // for types, c_ is for constants, e_ is for error names and o_ is for other
-typedef struct _Nst_StrConsts
+EXPORT typedef struct _Nst_StrConsts
 {
     // Type strings
     Nst_StrObj *t_Type;
@@ -50,7 +50,7 @@ typedef struct _Nst_StrConsts
 }
 Nst_StrConsts;
 
-typedef struct _Nst_TypeObjs
+EXPORT typedef struct _Nst_TypeObjs
 {
     Nst_TypeObj *Type;
     Nst_TypeObj *Int;
@@ -68,7 +68,7 @@ typedef struct _Nst_TypeObjs
 }
 Nst_TypeObjs;
 
-typedef struct _Nst_Consts
+EXPORT typedef struct _Nst_Consts
 {
     Nst_Obj *Bool_true;
     Nst_Obj *Bool_false;
@@ -83,7 +83,7 @@ typedef struct _Nst_Consts
 }
 Nst_Consts;
 
-typedef struct _Nst_StdStreams
+EXPORT typedef struct _Nst_StdStreams
 {
     Nst_IOFileObj *in;
     Nst_IOFileObj *out;
@@ -92,24 +92,33 @@ typedef struct _Nst_StdStreams
 Nst_StdStreams;
 
 // Creates the objects inside nst_t
-void _nst_types_init();
+EXPORT void _nst_types_init();
 // Deletes the objects inside nst_t
-void _nst_types_del();
+EXPORT void _nst_types_del();
 
 // Creates the objects inside nst_s
-void _nst_strs_init();
+EXPORT void _nst_strs_init();
 // Deletes the objects inside nst_s
-void _nst_strs_del();
+EXPORT void _nst_strs_del();
 
 // Creates the objects inside nst_c
-void _nst_consts_init();
+EXPORT void _nst_consts_init();
 // Deletes the objects inside nst_c
-void _nst_consts_del();
+EXPORT void _nst_consts_del();
 
 // Creates the objects inside nst_io
-void _nst_streams_init();
+EXPORT void _nst_streams_init();
 // Deletes the objects inside nst_io
-void _nst_streams_del();
+EXPORT void _nst_streams_del();
+
+EXPORT Nst_Obj *nst_true();
+EXPORT Nst_Obj *nst_false();
+EXPORT Nst_Obj *nst_null();
+
+EXPORT const Nst_TypeObjs *nst_type();
+EXPORT const Nst_StrConsts *nst_str();
+EXPORT const Nst_Consts *nst_const();
+EXPORT Nst_StdStreams *nst_stdio();
 
 extern Nst_TypeObjs nst_t;
 extern Nst_StrConsts nst_s;

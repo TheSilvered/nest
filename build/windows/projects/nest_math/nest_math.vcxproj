@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -86,6 +86,8 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalLibraryDirectories>..\nest\x64\Debug;..\nest\Debug;..\x64\Release;..\nest\Release</AdditionalLibraryDirectories>
+      <AdditionalDependencies>interpreter_dll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -108,6 +110,8 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalLibraryDirectories>..\nest\x64\Debug;..\nest\Debug;..\x64\Release;..\nest\Release</AdditionalLibraryDirectories>
+      <AdditionalDependencies>interpreter_dll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
@@ -126,6 +130,8 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalLibraryDirectories>..\nest\x64\Debug;..\nest\Debug;..\x64\Release;..\nest\Release</AdditionalLibraryDirectories>
+      <AdditionalDependencies>interpreter_dll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -148,69 +154,15 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalLibraryDirectories>..\nest\x64\Debug;..\nest\Debug;..\x64\Release;..\nest\Release</AdditionalLibraryDirectories>
+      <AdditionalDependencies>interpreter_dll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\include\argv_parser.h" />
-    <ClInclude Include="..\..\..\..\include\compiler.h" />
-    <ClInclude Include="..\..\..\..\include\encoding.h" />
-    <ClInclude Include="..\..\..\..\include\error.h" />
-    <ClInclude Include="..\..\..\..\include\error_internal.h" />
-    <ClInclude Include="..\..\..\..\include\function.h" />
-    <ClInclude Include="..\..\..\..\include\ggc.h" />
-    <ClInclude Include="..\..\..\..\include\global_consts.h" />
-    <ClInclude Include="..\..\..\..\include\hash.h" />
-    <ClInclude Include="..\..\..\..\include\instructions.h" />
-    <ClInclude Include="..\..\..\..\include\interpreter.h" />
-    <ClInclude Include="..\..\..\..\include\iter.h" />
-    <ClInclude Include="..\..\..\..\include\lexer.h" />
-    <ClInclude Include="..\..\..\..\include\lib_import.h" />
-    <ClInclude Include="..\..\..\..\include\llist.h" />
-    <ClInclude Include="..\..\..\..\include\map.h" />
-    <ClInclude Include="..\..\..\..\include\nest.h" />
-    <ClInclude Include="..\..\..\..\include\nodes.h" />
-    <ClInclude Include="..\..\..\..\include\typedefs.h" />
-    <ClInclude Include="..\..\..\..\include\obj.h" />
-    <ClInclude Include="..\..\..\..\include\obj_ops.h" />
-    <ClInclude Include="..\..\..\..\include\optimizer.h" />
-    <ClInclude Include="..\..\..\..\include\parser.h" />
-    <ClInclude Include="..\..\..\..\include\runtime_stack.h" />
-    <ClInclude Include="..\..\..\..\include\sequence.h" />
-    <ClInclude Include="..\..\..\..\include\simple_types.h" />
-    <ClInclude Include="..\..\..\..\include\str.h" />
-    <ClInclude Include="..\..\..\..\include\tokens.h" />
-    <ClInclude Include="..\..\..\..\include\var_table.h" />
     <ClInclude Include="..\..\..\..\libs\dll\framework.h" />
     <ClInclude Include="..\..\..\..\libs\nest_math\nest_math.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\src\argv_parser.c" />
-    <ClCompile Include="..\..\..\..\src\compiler.c" />
-    <ClCompile Include="..\..\..\..\src\encoding.c" />
-    <ClCompile Include="..\..\..\..\src\error.c" />
-    <ClCompile Include="..\..\..\..\src\function.c" />
-    <ClCompile Include="..\..\..\..\src\ggc.c" />
-    <ClCompile Include="..\..\..\..\src\global_consts.c" />
-    <ClCompile Include="..\..\..\..\src\hash.c" />
-    <ClCompile Include="..\..\..\..\src\instructions.c" />
-    <ClCompile Include="..\..\..\..\src\interpreter.c" />
-    <ClCompile Include="..\..\..\..\src\iter.c" />
-    <ClCompile Include="..\..\..\..\src\lexer.c" />
-    <ClCompile Include="..\..\..\..\src\lib_import.c" />
-    <ClCompile Include="..\..\..\..\src\llist.c" />
-    <ClCompile Include="..\..\..\..\src\map.c" />
-    <ClCompile Include="..\..\..\..\src\nest.c" />
-    <ClCompile Include="..\..\..\..\src\nodes.c" />
-    <ClCompile Include="..\..\..\..\src\obj.c" />
-    <ClCompile Include="..\..\..\..\src\obj_ops.c" />
-    <ClCompile Include="..\..\..\..\src\optimizer.c" />
-    <ClCompile Include="..\..\..\..\src\parser.c" />
-    <ClCompile Include="..\..\..\..\src\runtime_stack.c" />
-    <ClCompile Include="..\..\..\..\src\sequence.c" />
-    <ClCompile Include="..\..\..\..\src\simple_types.c" />
-    <ClCompile Include="..\..\..\..\src\str.c" />
-    <ClCompile Include="..\..\..\..\src\tokens.c" />
-    <ClCompile Include="..\..\..\..\src\var_table.c" />
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp" />
     <ClCompile Include="..\..\..\..\libs\nest_math\nest_math.cpp" />
   </ItemGroup>

@@ -40,14 +40,14 @@ extern "C" {
 
 struct _Nst_GGCList;
 
-typedef struct _Nst_GGCObj
+EXPORT typedef struct _Nst_GGCObj
 {
     NST_OBJ_HEAD;
     NST_GGC_HEAD;
 }
 Nst_GGCObj;
 
-typedef struct _Nst_GGCList
+EXPORT typedef struct _Nst_GGCList
 {
     Nst_GGCObj *head;
     Nst_GGCObj *tail;
@@ -55,7 +55,7 @@ typedef struct _Nst_GGCList
 }
 Nst_GGCList;
 
-typedef struct _Nst_GarbageCollector
+EXPORT typedef struct _Nst_GarbageCollector
 {
     Nst_GGCList gen1;
     Nst_GGCList gen2;
@@ -66,19 +66,20 @@ typedef struct _Nst_GarbageCollector
 Nst_GarbageCollector;
 
 // Collects the object of a generation
+EXPORT
 void nst_ggc_collect_gen(Nst_GGCList *gen,
                          Nst_GGCList *other_gen1,
                          Nst_GGCList *other_gen2,
                          Nst_GGCList *other_gen3);
 // Runs a collection, does not guaratee to collect all generations
-void nst_ggc_collect(void);
+EXPORT void nst_ggc_collect(void);
 // Adds an object to the tracked objects by the garbage collector
-void nst_ggc_track_obj(Nst_GGCObj *obj);
+EXPORT void nst_ggc_track_obj(Nst_GGCObj *obj);
 // Deletes the objects still present in the GGC at program end
 // This function should never be called
-void nst_ggc_delete_objs(Nst_GarbageCollector *ggc);
+EXPORT void nst_ggc_delete_objs(Nst_GarbageCollector *ggc);
 
-typedef enum _Nst_GGCFlag
+EXPORT typedef enum _Nst_GGCFlag
 {
     NST_FLAG_GGC_REACHABLE    = 0b10000000,
     NST_FLAG_GGC_UNREACHABLE  = 0b01000000,

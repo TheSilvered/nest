@@ -1,4 +1,4 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8"?>
 <Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup Label="ProjectConfigurations">
     <ProjectConfiguration Include="Debug|Win32">
@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{D54767B6-7BB7-4B3C-9779-E3C2A41FC4B3}</ProjectGuid>
-    <RootNamespace>nestjson</RootNamespace>
+    <ProjectGuid>{36221dfb-a5c4-4712-bd34-134f9a6daa20}</ProjectGuid>
+    <RootNamespace>maininterpreter</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -74,7 +74,7 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;NESTTIME_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;MAININTERPRETER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -86,8 +86,6 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>..\nest\x64\Debug;..\nest\Debug;..\x64\Release;..\nest\Release</AdditionalLibraryDirectories>
-      <AdditionalDependencies>interpreter_dll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -96,7 +94,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;NESTTIME_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;MAININTERPRETER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -110,15 +108,13 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>..\nest\x64\Debug;..\nest\Debug;..\x64\Release;..\nest\Release</AdditionalLibraryDirectories>
-      <AdditionalDependencies>interpreter_dll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;NESTTIME_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;MAININTERPRETER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -130,8 +126,6 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>..\nest\x64\Debug;..\nest\Debug;..\x64\Release;..\nest\Release</AdditionalLibraryDirectories>
-      <AdditionalDependencies>interpreter_dll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -140,7 +134,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;NESTTIME_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;MAININTERPRETER_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -154,26 +148,67 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>..\nest\x64\Debug;..\nest\Debug;..\x64\Release;..\nest\Release</AdditionalLibraryDirectories>
-      <AdditionalDependencies>interpreter_dll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\libs\dll\framework.h" />
-    <ClInclude Include="..\..\..\..\libs\nest_json\json_dumper.h" />
-    <ClInclude Include="..\..\..\..\libs\nest_json\json_lexer.h" />
-    <ClInclude Include="..\..\..\..\libs\nest_json\json_parser.h" />
-    <ClInclude Include="..\..\..\..\libs\nest_json\nest_json.h" />
+    <ClInclude Include="..\..\..\..\include\argv_parser.h" />
+    <ClInclude Include="..\..\..\..\include\compiler.h" />
+    <ClInclude Include="..\..\..\..\include\encoding.h" />
+    <ClInclude Include="..\..\..\..\include\error.h" />
+    <ClInclude Include="..\..\..\..\include\error_internal.h" />
+    <ClInclude Include="..\..\..\..\include\function.h" />
+    <ClInclude Include="..\..\..\..\include\ggc.h" />
+    <ClInclude Include="..\..\..\..\include\global_consts.h" />
+    <ClInclude Include="..\..\..\..\include\hash.h" />
+    <ClInclude Include="..\..\..\..\include\instructions.h" />
+    <ClInclude Include="..\..\..\..\include\interpreter.h" />
+    <ClInclude Include="..\..\..\..\include\iter.h" />
+    <ClInclude Include="..\..\..\..\include\lexer.h" />
+    <ClInclude Include="..\..\..\..\include\lib_import.h" />
+    <ClInclude Include="..\..\..\..\include\llist.h" />
+    <ClInclude Include="..\..\..\..\include\map.h" />
+    <ClInclude Include="..\..\..\..\include\nest.h" />
+    <ClInclude Include="..\..\..\..\include\nodes.h" />
+    <ClInclude Include="..\..\..\..\include\obj.h" />
+    <ClInclude Include="..\..\..\..\include\obj_ops.h" />
+    <ClInclude Include="..\..\..\..\include\optimizer.h" />
+    <ClInclude Include="..\..\..\..\include\parser.h" />
+    <ClInclude Include="..\..\..\..\include\runtime_stack.h" />
+    <ClInclude Include="..\..\..\..\include\sequence.h" />
+    <ClInclude Include="..\..\..\..\include\simple_types.h" />
+    <ClInclude Include="..\..\..\..\include\str.h" />
+    <ClInclude Include="..\..\..\..\include\tokens.h" />
+    <ClInclude Include="..\..\..\..\include\typedefs.h" />
+    <ClInclude Include="..\..\..\..\include\var_table.h" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\libs\nest_json\json_dumper.cpp" />
-    <ClCompile Include="..\..\..\..\libs\nest_json\json_lexer.cpp" />
-    <ClCompile Include="..\..\..\..\libs\nest_json\json_parser.cpp" />
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp" />
-    <ClCompile Include="..\..\..\..\libs\nest_json\nest_json.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\..\..\..\libs\_nest_files\stdjson.nest" />
+    <ClCompile Include="..\..\..\..\src\argv_parser.c" />
+    <ClCompile Include="..\..\..\..\src\compiler.c" />
+    <ClCompile Include="..\..\..\..\src\encoding.c" />
+    <ClCompile Include="..\..\..\..\src\error.c" />
+    <ClCompile Include="..\..\..\..\src\function.c" />
+    <ClCompile Include="..\..\..\..\src\ggc.c" />
+    <ClCompile Include="..\..\..\..\src\global_consts.c" />
+    <ClCompile Include="..\..\..\..\src\hash.c" />
+    <ClCompile Include="..\..\..\..\src\instructions.c" />
+    <ClCompile Include="..\..\..\..\src\interpreter.c" />
+    <ClCompile Include="..\..\..\..\src\iter.c" />
+    <ClCompile Include="..\..\..\..\src\lexer.c" />
+    <ClCompile Include="..\..\..\..\src\lib_import.c" />
+    <ClCompile Include="..\..\..\..\src\llist.c" />
+    <ClCompile Include="..\..\..\..\src\map.c" />
+    <ClCompile Include="..\..\..\..\src\nodes.c" />
+    <ClCompile Include="..\..\..\..\src\obj.c" />
+    <ClCompile Include="..\..\..\..\src\obj_ops.c" />
+    <ClCompile Include="..\..\..\..\src\optimizer.c" />
+    <ClCompile Include="..\..\..\..\src\parser.c" />
+    <ClCompile Include="..\..\..\..\src\runtime_stack.c" />
+    <ClCompile Include="..\..\..\..\src\sequence.c" />
+    <ClCompile Include="..\..\..\..\src\simple_types.c" />
+    <ClCompile Include="..\..\..\..\src\str.c" />
+    <ClCompile Include="..\..\..\..\src\tokens.c" />
+    <ClCompile Include="..\..\..\..\src\var_table.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

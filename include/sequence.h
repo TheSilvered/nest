@@ -40,7 +40,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct _Nst_SeqObj
+EXPORT typedef struct _Nst_SeqObj
 {
     NST_OBJ_HEAD;
     NST_GGC_HEAD;
@@ -50,24 +50,24 @@ typedef struct _Nst_SeqObj
 }
 Nst_SeqObj; // vector or array
 
-typedef Nst_SeqObj Nst_ArrayObj;
-typedef Nst_SeqObj Nst_VectorObj;
+EXPORT typedef Nst_SeqObj Nst_ArrayObj;
+EXPORT typedef Nst_SeqObj Nst_VectorObj;
 
 // Creates a new array of length `len`, the objects must be set manually inside
-Nst_Obj *nst_array_new(usize len);
+EXPORT Nst_Obj *nst_array_new(usize len);
 // Creates a new vector of lenght `len`, the objects must be set manually inside
-Nst_Obj *nst_vector_new(usize len);
-void _nst_seq_destroy(Nst_SeqObj *seq);
-void _nst_seq_traverse(Nst_SeqObj *seq);
-void _nst_seq_track(Nst_SeqObj *seq);
+EXPORT Nst_Obj *nst_vector_new(usize len);
+EXPORT void _nst_seq_destroy(Nst_SeqObj *seq);
+EXPORT void _nst_seq_traverse(Nst_SeqObj *seq);
+EXPORT void _nst_seq_track(Nst_SeqObj *seq);
 
-bool _nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val);
-Nst_Obj *_nst_seq_get(Nst_SeqObj *seq, i64 idx);
+EXPORT bool _nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val);
+EXPORT Nst_Obj *_nst_seq_get(Nst_SeqObj *seq, i64 idx);
 
-void _nst_vector_resize(Nst_SeqObj *vect);
-void _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val);
-Nst_Obj *_nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val);
-Nst_Obj *_nst_vector_pop(Nst_SeqObj *vect, usize quantity);
+EXPORT void _nst_vector_resize(Nst_SeqObj *vect);
+EXPORT void _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val);
+EXPORT Nst_Obj *_nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val);
+EXPORT Nst_Obj *_nst_vector_pop(Nst_SeqObj *vect, usize quantity);
 
 #ifdef __cplusplus
 }
