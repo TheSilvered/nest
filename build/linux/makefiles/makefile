@@ -22,11 +22,11 @@ NEST_LIB_x86 := $(x86_DIR)/libnest.so
 .PHONY: debug x86 clean # all all-debug all-x86
 
 $(x64_TARGET): $(SRCS) $(NEST_LIB_x64)
-	mkdir -p $(EXE_x64_DIR)
+	mkdir -p $(x64_DIR)
 	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -O3 -o $(x64_TARGET)
 
 x86: $(SRCS) $(NEST_LIB_x86)
-	mkdir -p $(EXE_x86_DIR)
+	mkdir -p $(x86_DIR)
 	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -O3 -m32 -o $(EXE_x86_TARGET)
 
 debug: $(SRCS) $(NEST_LIB_DBG)
