@@ -138,15 +138,15 @@ DBG_FLAGS=-D_DEBUG -g -O0
 EXE_NAME=" name ".so
 
 SRC_DIR=" name "/nest_source
-EXE_x64_DIR=linux_release/x64
-EXE_x86_DIR=linux_release/x86
+x64_DIR=linux_release/x64
+x86_DIR=linux_release/x86
 DBG_DIR=linux_debug
 
 LIB_SRCS=" name "/" name ".cpp
 SRCS := $(filter-out nest.c argv_parser.c, $(wildcard $(SRC_DIR)/*.c))
 DBG_TARGET := $(DBG_DIR)/$(EXE_NAME)
-EXE_x64_TARGET := $(EXE_x64_DIR)/$(EXE_NAME)
-EXE_x86_TARGET := $(EXE_x86_DIR)/$(EXE_NAME)
+x64_TARGET := $(x64_DIR)/$(EXE_NAME)
+x86_TARGET := $(x86_DIR)/$(EXE_NAME)
 
 .PHONY: debug x86
 
@@ -445,19 +445,12 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 
 #include \"nest.h\"
 
-#if defined(_WIN32) || defined(WIN32)
-#define EXPORT __declspec(dllexport)
-#else
-#define EXPORT
-#endif
-
 #ifdef __cplusplus
 extern \"C\" {
 #endif // !__cplusplus
 
 EXPORT bool lib_init();
 EXPORT Nst_FuncDeclr *get_func_ptrs();
-EXPORT NST_INIT_LIB_OBJ_FUNC;
 // EXPORT void free_lib();
 
 NST_FUNC_SIGN(add);

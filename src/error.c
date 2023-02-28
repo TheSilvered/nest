@@ -535,8 +535,9 @@ Nst_StrObj *nst_format_error(const i8 *format, const i8 *format_args, ...)
     va_start(args, format_args);
     vsprintf(buffer, format, args);
     va_end(args);
-
-    return STR(nst_string_new_c_raw((const i8 *)buffer, true));
+    Nst_Obj *str = nst_string_new_c_raw((const i8 *)buffer, true);
+    str->ref_count = 0;
+    return STR(str);
 }
 
 void nst_free_src_text(Nst_SourceText *text)
@@ -548,5 +549,6 @@ void nst_free_src_text(Nst_SourceText *text)
 
     free(text->text);
     free(text->lines);
+    free(text->path);
     free(text);
 }

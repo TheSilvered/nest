@@ -16,6 +16,7 @@
     _nst_strs_del(); \
     _nst_types_del(); \
     _nst_streams_del(); \
+    _nst_unload_libs(); \
     if ( filename != NULL ) { \
         free(src_text.text); \
         free(src_text.lines); \

@@ -9,7 +9,13 @@ x64_DIR = ../linux_release/x64
 x86_DIR = ../linux_release/x86
 DBG_DIR = ../linux_debug
 
-CLINKS = -lm -ldl -L$(DBG_DIR) -L$(x64_DIR) -L$(x86_DIR) -lnest
+CLINKS = -lm -ldl -lnest
+CLINK_DIR_DBG := -L$(DBG_DIR)
+CLINK_DIR_x86 := -L$(x86_DIR)
+CLINK_DIR_x64 := -L$(x64_DIR)
+CLINKS_DBG := $(CLINK_DIR_DBG) $(CLINKS)
+CLINKS_x86 := $(CLINK_DIR_x86) $(CLINKS)
+CLINKS_x64 := $(CLINK_DIR_x64) $(CLINKS)
 
 SRCS := $(wildcard ../../../libs/nest_$(LIB_NAME)/*.cpp)
 DBG_TARGET := $(DBG_DIR)/$(OUT_FILE)
@@ -23,15 +29,15 @@ NEST_LIB_x86 := $(x86_DIR)/libnest.so
 
 $(x64_TARGET): $(SRCS) $(NEST_LIB_x64)
 	mkdir -p $(x64_DIR)
-	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -O3 -o $(x64_TARGET)
+	$(CC) $(CFLAGS) $(SRCS) $(CLINKS_x64) -O3 -o $(x64_TARGET)
 
 x86: $(SRCS) $(NEST_LIB_x86)
 	mkdir -p $(x86_DIR)
-	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -O3 -m32 -o $(x86_TARGET)
+	$(CC) $(CFLAGS) $(SRCS) $(CLINKS_x86) -O3 -m32 -o $(x86_TARGET)
 
 debug: $(SRCS) $(NEST_LIB_DGB)
 	mkdir -p $(DBG_DIR)
-	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) $(DBG_FLAGS) -o $(DBG_TARGET)
+	$(CC) $(CFLAGS) $(SRCS) $(CLINKS_DBG) $(DBG_FLAGS) -o $(DBG_TARGET)
 
 $(NEST_LIB_x64):
 	make -f libnest.mk

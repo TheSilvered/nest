@@ -102,6 +102,7 @@ NST_FUNC_SIGN(exit_)
     _nst_strs_del();
     _nst_consts_del();
     _nst_streams_del();
+    _nst_unload_libs();
     exit((i32)code);
 
     return nullptr;

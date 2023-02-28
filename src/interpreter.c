@@ -16,7 +16,7 @@
 #include <direct.h>
 
 #define dlclose FreeLibrary
-#define dlsym GetProcAddress
+#define dlsym(lib, name) GetProcAddress((HMODULE)lib, name)
 #define PATH_MAX MAX_PATH
 
 #define C_LIB_TYPE HMODULE
@@ -79,7 +79,6 @@
 Nst_ExecutionState nst_state;
 
 static void complete_function(usize final_stack_size);
-static void close_c_lib(C_LIB_TYPE handle);
 
 static inline void run_instruction(Nst_Inst *inst);
 static inline void exe_pop_val();
@@ -171,7 +170,7 @@ i32 nst_run(Nst_FuncObj *main_func,
     {
         nst_dec_ref(nst_c.Null_null);
         vt->global_table = NULL;
-        nst_map_drop(vt->vars, nst_s.o__globals_);
+        nst_dec_ref(nst_map_drop(vt->vars, nst_s.o__globals_));
     }
 
     nst_state.traceback = &tb;
@@ -232,11 +231,23 @@ void nst_state_free()
     nst_vstack_destroy(nst_state.v_stack);
     nst_fstack_destroy(nst_state.f_stack);
     nst_cstack_destroy(nst_state.c_stack);
-    nst_llist_destroy(nst_state.loaded_libs, (nst_llist_destructor)close_c_lib);
     nst_llist_destroy(nst_state.lib_paths, (nst_llist_destructor)_nst_dec_ref);
     nst_dec_ref(nst_state.lib_handles);
     nst_llist_destroy(nst_state.lib_srcs, (nst_llist_destructor)nst_free_src_text);
+    for ( NST_LLIST_ITER(lib, nst_state.loaded_libs) )
+    {
+        void (*free_lib_func)() = (void (*)())dlsym(lib->value, "free_lib");
+        if ( free_lib_func != NULL )
+        {
+            free_lib_func();
+        }
+    }
     nst_ggc_delete_objs(nst_state.ggc);
+}
+
+void _nst_unload_libs()
+{
+    nst_llist_destroy(nst_state.loaded_libs, (nst_llist_destructor)dlclose);
 }
 
 static inline void destroy_call(Nst_FuncCall *call, Nst_Int offset)
@@ -437,7 +448,7 @@ i32 nst_run_module(i8 *filename, Nst_SourceText *lib_src)
     {
         nst_dec_ref(nst_c.Null_null);
         vt->global_table = NULL;
-        nst_map_drop(vt->vars, nst_s.o__globals_);
+        nst_dec_ref(nst_map_drop(vt->vars, nst_s.o__globals_));
     }
 
     CHANGE_VT(vt);
@@ -1033,9 +1044,16 @@ static inline void exe_op_call(Nst_Inst *inst)
 
         if ( !is_seq_call )
         {
-            for ( Nst_Int i = 0; i < arg_num; i++ )
+            for ( Nst_Int i = 0; i < tot_args; i++ )
             {
                 nst_dec_ref(args[i]);
+            }
+        }
+        else
+        {
+            for ( Nst_Int i = 0; i < null_args; i++ )
+            {
+                nst_dec_ref(args[arg_num + i]);
             }
         }
 
@@ -1711,16 +1729,6 @@ static Nst_StrObj *make_cwd(i8 *file_path)
     *(file_part - 1) = 0;
 
     return STR(nst_string_new(path, file_part - path - 1, true));
-}
-
-static void close_c_lib(C_LIB_TYPE handle)
-{
-    void (*free_lib_func)() = (void (*)())dlsym(handle, "free_lib");
-    if ( free_lib_func != NULL )
-    {
-        free_lib_func();
-    }
-    dlclose(handle);
 }
 
 Nst_ExecutionState *nst_get_state()

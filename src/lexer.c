@@ -79,7 +79,7 @@ static void parse_first_line(i8   *text,
                              bool *force_cp1252,
                              bool *no_default);
 
-Nst_LList *nst_tokenizef(i8           *filename,
+Nst_LList *nst_tokenizef(i8             *filename,
                          bool            force_cp1252,
                          i32            *opt_level,
                          bool           *no_default,
@@ -677,6 +677,7 @@ end:
 
     CHECK_ERR;
     *tok = nst_tok_new_value(start, end, NST_TT_VALUE, res);
+    free(ltrl);
 }
 
 static void make_ident(Nst_Tok **tok, Nst_Error *error)
@@ -1155,6 +1156,15 @@ static void parse_first_line(i8  *text,
                              bool  *force_cp1252,
                              bool  *no_default)
 {
+    if ( len >= 3 &&
+         text[0] == '\xef' &&
+         text[1] == '\xbb' && 
+         text[2] == '\xbf' )
+    {
+        text += 3;
+        len -= 3;
+    }
+
     if ( len < 3 || text[0] != '-' || text[1] != '-' || text[2] != '$' )
     {
         return;

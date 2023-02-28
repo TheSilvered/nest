@@ -54,8 +54,11 @@ Nst_Obj *nst_run_func_context(Nst_FuncObj *func,
 // `file_part` is the pointer where the filename begins
 EXPORT usize nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part);
 
-// Frees all the variables inside nst_state
+// Frees all the variables inside nst_state except for loaded_libs
 EXPORT void nst_state_free();
+
+// Frees loaded_libs, must be called after _nst_streams_del
+EXPORT void _nst_unload_libs();
 
 // The state of the interpreter
 extern Nst_ExecutionState nst_state;

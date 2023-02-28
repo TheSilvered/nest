@@ -73,11 +73,13 @@ NST_FUNC_SIGN(load_f_)
     i8 *buf = (i8 *)malloc((buf_size + 1) * sizeof(i8));
     if ( buf == nullptr )
     {
+        fclose(f);
         NST_FAILED_ALLOCATION;
         return nullptr;
     }
 
     usize len = fread(buf, sizeof(i8), buf_size, f);
+    fclose(f);
     buf[len] = 0;
     Nst_LList *tokens = json_tokenize(path->value, buf, len, true, err);
     if ( tokens == nullptr )
@@ -126,6 +128,7 @@ NST_FUNC_SIGN(dump_f_)
     }
     fwrite(STR(res)->value, sizeof(i8), STR(res)->len, f);
     fclose(f);
+    nst_dec_ref(res);
     NST_RETURN_NULL;
 }
 

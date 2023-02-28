@@ -3,7 +3,6 @@
 |#| 'stdsutil.nest' = su
 |#| 'stdsys.nest' = sys
 |#| 'test_lib.nest' = test
-|#| 'stdtime.nest' = dt
 
 -- Creates or clears the log file
 'test_output.txt' 'w' @io.open = test.log_file

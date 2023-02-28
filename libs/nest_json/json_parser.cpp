@@ -28,6 +28,7 @@ Nst_Obj *json_parse(i8 *path, Nst_LList *tokens, Nst_OpErr *err)
     Nst_Obj *res = parse_value(tokens, err);
     if ( res == nullptr )
     {
+        nst_llist_destroy(tokens, (nst_llist_destructor)nst_token_destroy);
         return nullptr;
     }
 
@@ -36,8 +37,10 @@ Nst_Obj *json_parse(i8 *path, Nst_LList *tokens, Nst_OpErr *err)
         nst_dec_ref(res);
         Nst_Pos err_pos = NST_TOK(tokens->head)->start;
         JSON_SYNTAX_ERROR("unexpected token", file_path, err_pos);
+        nst_llist_destroy(tokens, (nst_llist_destructor)nst_token_destroy);
         return nullptr;
     }
+    nst_llist_destroy(tokens, (nst_llist_destructor)nst_token_destroy);
     return res;
 }
 
@@ -116,6 +119,7 @@ static Nst_Obj *parse_object(Nst_LList *tokens, Nst_OpErr *err)
 
         nst_map_set(map, key, val);
         nst_dec_ref(key);
+        nst_dec_ref(val);
 
         tok = NST_TOK(nst_llist_pop(tokens));
         if ( (JSONTokenType)tok->type == JSON_RBRACE )

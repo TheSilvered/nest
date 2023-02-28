@@ -1827,7 +1827,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         if ( nst_string_compare(file_path, STR(n->value)) == 0 )
         {
             nst_llist_pop(nst_state.lib_paths);
-            free(file_path);
+            nst_dec_ref(file_path);
             NST_SET_RAW_IMPORT_ERROR(_NST_EM_CIRC_IMPORT);
             return NULL;
         }
@@ -1851,6 +1851,7 @@ static void add_to_handle_map(Nst_StrObj     *path,
 {
     nst_llist_push(nst_state.lib_srcs, src_txt, true);
     nst_map_set(nst_state.lib_handles, path, map);
+    nst_dec_ref(path);
 }
 
 static Nst_Obj *import_nest_lib(Nst_StrObj *file_path)
@@ -1952,7 +1953,7 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
         nst_dec_ref(func_obj);
     }
     free(func_ptrs);
-    nst_llist_append(nst_state.loaded_libs, lib, false);
+    nst_llist_append(nst_state.loaded_libs, lib, true);
 
     add_to_handle_map(file_path, func_map, NULL);
     nst_llist_pop(nst_state.lib_paths);

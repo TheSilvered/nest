@@ -120,14 +120,14 @@ void _nst_consts_init()
 {
     nst_c.Bool_true  = nst_bool_new(NST_TRUE);
     nst_c.Bool_false = nst_bool_new(NST_FALSE);
-    nst_c.Null_null    = _nst_obj_alloc(sizeof(Nst_Obj), nst_t.Null, NULL);
-    nst_c.Int_0   = nst_int_new(0);
-    nst_c.Int_1   = nst_int_new(1);
-    nst_c.Int_neg1= nst_int_new(-1);
-    nst_c.Real_0  = nst_real_new(0.0);
-    nst_c.Real_1  = nst_real_new(1.0);
-    nst_c.Byte_0  = nst_byte_new(0);
-    nst_c.Byte_1  = nst_byte_new(1);
+    nst_c.Null_null  = _nst_obj_alloc(sizeof(Nst_Obj), nst_t.Null, NULL);
+    nst_c.Int_0    = nst_int_new(0);
+    nst_c.Int_1    = nst_int_new(1);
+    nst_c.Int_neg1 = nst_int_new(-1);
+    nst_c.Real_0   = nst_real_new(0.0);
+    nst_c.Real_1   = nst_real_new(1.0);
+    nst_c.Byte_0   = nst_byte_new(0);
+    nst_c.Byte_1   = nst_byte_new(1);
 }
 
 void _nst_consts_del()

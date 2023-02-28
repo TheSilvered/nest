@@ -1,5 +1,6 @@
 |#| '../test_lib.nest' = test
 |#| 'stderr.nest' = err
+|#| 'stdfs.nest' = fs
 
 #f [
     'Error' !! 'f'
@@ -9,6 +10,6 @@ f {,} @err.try = res
 res.value null @test.assert_eq
 res.error.name 'Error' @test.assert_eq
 res.error.message 'f' @test.assert_eq
-res.error.pos.start { 4, 4 } @test.assert_eq
-res.error.pos.end { 4, 17 } @test.assert_eq
--- can't check the file path
+res.error.pos.start { 5, 4 } @test.assert_eq
+res.error.pos.end { 5, 17 } @test.assert_eq
+res.error.pos.file @fs.filename 'err_test.nest' @test.assert_eq

@@ -95,6 +95,8 @@ Nst_LList *json_tokenize(i8        *path,
         {
             err->name = error.name;
             err->message = error.message;
+            free(src_text.text);
+            free(src_text.lines);
             return nullptr;
         }
     }
@@ -113,7 +115,7 @@ Nst_LList *json_tokenize(i8        *path,
     state.idx = 0;
     state.len = src_text.len;
     state.path = path;
-    state.ch = *text;
+    state.ch = *src_text.text;
 
     while ( state.idx < state.len )
     {
@@ -173,6 +175,7 @@ Nst_LList *json_tokenize(i8        *path,
             {
                 tok = nullptr;
             }
+            break;
         default:
             NST_SET_SYNTAX_ERROR(nst_format_error(
                 "JSON: invalid character, file \"%s\", line %lli, column %lli",
@@ -184,13 +187,23 @@ Nst_LList *json_tokenize(i8        *path,
         if ( tok == nullptr )
         {
             nst_llist_destroy(tokens, (nst_llist_destructor)nst_token_destroy);
+            if ( fix_encoding )
+            {
+                free(src_text.text);
+            }
+            free(src_text.lines);
             return nullptr;
         }
         nst_llist_append(tokens, tok, true);
         advance();
     }
 end:
-    nst_llist_append(tokens, tok_new_noend(state.pos, JSON_EOF), false);
+    nst_llist_append(tokens, tok_new_noend(state.pos, JSON_EOF), true);
+    if ( fix_encoding )
+    {
+        free(src_text.text);
+    }
+    free(src_text.lines);
     return tokens;
 }
 
@@ -334,7 +347,7 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
         return nullptr;
     }
 
-    if ( str_len < chunk_size )
+    if ( str_len + 20 < chunk_size )
     {
         end_str_realloc = (i8*)realloc(
             end_str,
@@ -348,7 +361,6 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
     end_str[str_len] = '\0';
 
     Nst_StrObj *val_obj = STR(nst_string_new(end_str, str_len, true));
-    nst_obj_hash(OBJ(val_obj));
 
     return tok_new_value(start, state.pos, JSON_VALUE, OBJ(val_obj));
 }
