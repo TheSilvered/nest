@@ -380,6 +380,8 @@ i32 nst_run_module(i8 *filename, Nst_SourceText *lib_src)
             error.end,
             error.name,
             error.message);
+        nst_dec_ref(error.name);
+        nst_dec_ref(error.message);
         return -1;
     }
 
@@ -397,6 +399,8 @@ i32 nst_run_module(i8 *filename, Nst_SourceText *lib_src)
             error.end,
             error.name,
             error.message);
+        nst_dec_ref(error.name);
+        nst_dec_ref(error.message);
         return -1;
     }
 
@@ -416,6 +420,8 @@ i32 nst_run_module(i8 *filename, Nst_SourceText *lib_src)
             error.end,
             error.name,
             error.message);
+        nst_dec_ref(error.name);
+        nst_dec_ref(error.message);
         return -1;
     }
 
@@ -856,6 +862,7 @@ static inline void exe_set_cont_val(Nst_Inst *inst)
 
             nst_dec_ref(cont);
             nst_dec_ref(idx);
+            nst_dec_ref(val);
             return;
         }
 
@@ -878,6 +885,7 @@ static inline void exe_set_cont_val(Nst_Inst *inst)
 
         nst_dec_ref(cont);
         nst_dec_ref(idx);
+        nst_dec_ref(val);
     }
     else if ( cont->type == nst_t.Map )
     {
@@ -896,6 +904,7 @@ static inline void exe_set_cont_val(Nst_Inst *inst)
 
         nst_dec_ref(cont);
         nst_dec_ref(idx);
+        nst_dec_ref(val);
     }
     else
     {
@@ -907,6 +916,9 @@ static inline void exe_set_cont_val(Nst_Inst *inst)
                 _NST_EM_EXPECTED_TYPE("Array', 'Vector', or 'Map"),
                 "s",
                 TYPE_NAME(cont)));
+        nst_dec_ref(cont);
+        nst_dec_ref(idx);
+        nst_dec_ref(val);
     }
 }
 

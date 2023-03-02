@@ -111,6 +111,7 @@ static Nst_Node *parse_long_statement()
         node = parse_statement();
         if ( p_state.error->occurred )
         {
+            nst_llist_destroy(nodes, (nst_llist_destructor)nst_node_destroy);
             return NULL;
         }
         else if ( node != NULL )
@@ -119,6 +120,7 @@ static Nst_Node *parse_long_statement()
         }
         if ( errno == ENOMEM )
         {
+            nst_llist_destroy(nodes, (nst_llist_destructor)nst_node_destroy);
             return NULL;
         }
         skip_blank();
@@ -161,6 +163,7 @@ static Nst_Node *parse_statement()
         if ( close_bracket->type != NST_TT_R_BRACKET )
         {
             nst_token_destroy(close_bracket);
+            nst_node_destroy(node);
             RETURN_ERROR(start, start, _NST_EM_MISSING_BRACKET);
         }
         nst_token_destroy(close_bracket);
@@ -337,17 +340,16 @@ static Nst_Node *parse_for_loop()
     nst_token_destroy(tok);
 
     Nst_NodeType node_type = NST_NT_FOR_L;
-    SAFE_LLIST_CREATE(nodes);
 
     skip_blank();
     Nst_Node *range = parse_expr(false);
 
     if ( p_state.error->occurred )
     {
-        nst_llist_destroy(nodes, NULL);
         return NULL;
     }
 
+    SAFE_LLIST_CREATE(nodes);
     nst_llist_append(nodes, range, true);
 
     if ( NST_TOK(nst_llist_peek_front(tokens))->type == NST_TT_AS )
@@ -360,7 +362,7 @@ static Nst_Node *parse_for_loop()
             Nst_Pos err_start = NST_TOK(nst_llist_peek_front(tokens))->start;
             Nst_Pos err_end = NST_TOK(nst_llist_peek_front(tokens))->end;
             nst_llist_destroy(nodes, (nst_llist_destructor)nst_node_destroy);
-            RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_IDENT_OR_EXTR);
+            return NULL;
         }
         nst_llist_append(nodes, name_node, true);
         node_type = NST_NT_FOR_AS_L;
@@ -372,7 +374,7 @@ static Nst_Node *parse_for_loop()
 
     if ( NST_TOK(nst_llist_peek_front(tokens))->type != NST_TT_L_BRACKET )
     {
-        nst_node_destroy(range);
+        nst_llist_destroy(nodes, (nst_llist_destructor)nst_node_destroy);
         RETURN_ERROR(err_pos, err_pos, _NST_EM_EXPECTED_BRACKET);
     }
 
@@ -475,6 +477,7 @@ static Nst_Node *parse_switch_statement()
         err_start = tok->start;
         err_end = tok->end;
         nst_token_destroy(tok);
+        nst_llist_destroy(nodes, (nst_llist_destructor)nst_node_destroy);
         RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_BRACKET);
     }
     nst_token_destroy(tok);
@@ -492,6 +495,7 @@ static Nst_Node *parse_switch_statement()
             err_start = tok->start;
             err_end = tok->end;
             nst_token_destroy(tok);
+            nst_llist_destroy(nodes, (nst_llist_destructor)nst_node_destroy);
             RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_IF);
         }
         nst_token_destroy(tok);
@@ -844,6 +848,7 @@ static Nst_Node *parse_stack_op(Nst_Node *value, Nst_Pos start)
         node = parse_local_stack_op(new_nodes, start);
         if ( p_state.error->occurred )
         {
+            nst_llist_destroy(new_nodes, (nst_llist_destructor)nst_node_destroy);
             return NULL;
         }
         is_local_stack_op = true;
@@ -901,6 +906,7 @@ static Nst_Node *parse_stack_op(Nst_Node *value, Nst_Pos start)
             node = parse_local_stack_op(new_node_nodes, start);
             if ( p_state.error->occurred )
             {
+                nst_llist_destroy(new_node_nodes, (nst_llist_destructor)nst_node_destroy);
                 return NULL;
             }
         }
@@ -927,6 +933,7 @@ static Nst_Node *parse_local_stack_op(Nst_LList *nodes, Nst_Pos start)
 
     if ( tok->type == NST_TT_CAST && nodes->size != 1 )
     {
+        nst_token_destroy(tok);
         RETURN_ERROR(
             NST_NODE(nst_llist_peek_front(nodes))->start,
             NST_NODE(nst_llist_peek_back(nodes))->end,
@@ -936,6 +943,7 @@ static Nst_Node *parse_local_stack_op(Nst_LList *nodes, Nst_Pos start)
               nodes->size != 1          &&
               nodes->size != 2 )
     {
+        nst_token_destroy(tok);
         RETURN_ERROR(
             NST_NODE(nst_llist_peek_front(nodes))->start,
             NST_NODE(nst_llist_peek_back(nodes))->end,
@@ -943,6 +951,7 @@ static Nst_Node *parse_local_stack_op(Nst_LList *nodes, Nst_Pos start)
     }
     else if ( tok->type == NST_TT_THROW && nodes->size != 1 )
     {
+        nst_token_destroy(tok);
         RETURN_ERROR(
             NST_NODE(nst_llist_peek_front(nodes))->start,
             NST_NODE(nst_llist_peek_back(nodes))->end,
@@ -950,6 +959,7 @@ static Nst_Node *parse_local_stack_op(Nst_LList *nodes, Nst_Pos start)
     }
     else if ( tok->type == NST_TT_SEQ_CALL && nodes->size != 1 )
     {
+        nst_token_destroy(tok);
         RETURN_ERROR(
             NST_NODE(nst_llist_peek_front(nodes))->start,
             NST_NODE(nst_llist_peek_back(nodes))->end,
@@ -1173,6 +1183,7 @@ static Nst_Node *parse_atom()
         if ( tok->type != NST_TT_R_PAREN )
         {
             nst_node_destroy(expr);
+            nst_token_destroy(tok);
             RETURN_ERROR(start, err_end, _NST_EM_MISSING_PAREN);
         }
 
@@ -1207,7 +1218,12 @@ static Nst_Node *parse_atom()
     {
         nst_llist_push(tokens, tok, true);
         SAFE_LLIST_CREATE(nodes);
-        return parse_local_stack_op(nodes, tok->start);
+        Nst_Node *call = parse_local_stack_op(nodes, tok->start);
+        if ( call == NULL )
+        {
+            nst_llist_destroy(nodes, (nst_llist_destructor)nst_node_destroy);
+        }
+        return call;
     }
     else if ( tok->type == NST_TT_L_VBRACE )
     {
@@ -1228,6 +1244,7 @@ static Nst_Node *parse_atom()
     {
         Nst_Pos err_start = tok->start;
         Nst_Pos err_end = tok->end;
+        nst_token_destroy(tok);
         RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_VALUE);
     }
 }
@@ -1273,6 +1290,9 @@ static Nst_Node *parse_vector_literal()
             if ( p_state.error->occurred )
             {
                 nst_llist_destroy(nodes, (nst_llist_destructor)nst_node_destroy);
+                nst_llist_destroy(
+                    node_tokens,
+                    (nst_llist_destructor)nst_token_destroy);
                 return NULL;
             }
             nst_llist_append(nodes, value, true);
@@ -1341,8 +1361,6 @@ static Nst_Node *parse_arr_or_map_literal()
         return nst_node_new_empty(start, end, NST_NT_MAP_LIT);
     }
 
-    SAFE_LLIST_CREATE(nodes);
-
     skip_blank();
 
     if ( NST_TOK(nst_llist_peek_front(tokens))->type == NST_TT_COMMA )
@@ -1358,9 +1376,10 @@ static Nst_Node *parse_arr_or_map_literal()
         {
             RETURN_ERROR(start, end, _NST_EM_EXPECTED_BRACE);
         }
-
         return nst_node_new_empty(start, end, NST_NT_ARR_LIT);
     }
+
+    SAFE_LLIST_CREATE(nodes);
 
     while ( true )
     {
@@ -1405,6 +1424,9 @@ static Nst_Node *parse_arr_or_map_literal()
             if ( p_state.error->occurred )
             {
                 nst_llist_destroy(nodes, (nst_llist_destructor)nst_node_destroy);
+                nst_llist_destroy(
+                    node_tokens,
+                    (nst_llist_destructor)nst_token_destroy);
                 return NULL;
             }
             nst_llist_append(nodes, value, true);
@@ -1495,6 +1517,7 @@ static Nst_Node *parse_try_catch()
         Nst_Pos err_start = tok->start;
         Nst_Pos err_end = tok->end;
         nst_token_destroy(tok);
+        nst_node_destroy(try_block);
         RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_CATCH);
     }
     nst_token_destroy(tok);
@@ -1507,6 +1530,7 @@ static Nst_Node *parse_try_catch()
         Nst_Pos err_start = name_tok->start;
         Nst_Pos err_end = name_tok->end;
         nst_token_destroy(name_tok);
+        nst_node_destroy(try_block);
         RETURN_ERROR(err_start, err_end, _NST_EM_EXPECTED_IDENT);
     }
 
@@ -1515,6 +1539,8 @@ static Nst_Node *parse_try_catch()
     Nst_Node *catch_block = parse_statement();
     if ( p_state.error->occurred )
     {
+        nst_token_destroy(name_tok);
+        nst_node_destroy(try_block);
         return NULL;
     }
 

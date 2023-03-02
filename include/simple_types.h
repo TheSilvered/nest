@@ -106,7 +106,7 @@ Nst_Obj *nst_iof_new_fake(void *value,
                           Nst_IOFile_seek_f  seek_f,
                           Nst_IOFile_close_f close_f);
 
-EXPORT void _nst_destroy_iofile(Nst_IOFileObj *obj);
+EXPORT void _nst_iofile_destroy(Nst_IOFileObj *obj);
 
 EXPORT isize nst_print(const i8 *buf, isize len);
 EXPORT isize nst_println(const i8 *buf, isize len);

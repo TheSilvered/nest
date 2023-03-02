@@ -37,7 +37,7 @@ Nst_Obj *nst_iof_new(Nst_IOFile value, bool bin, bool read, bool write)
     Nst_IOFileObj *obj = IOFILE(nst_obj_alloc(
         sizeof(Nst_IOFileObj),
         nst_t.IOFile,
-        _nst_destroy_iofile));
+        _nst_iofile_destroy));
     if ( obj == NULL )
     {
         return NULL;
@@ -79,7 +79,7 @@ Nst_Obj *nst_iof_new_fake(void *value,
     Nst_IOFileObj *obj = IOFILE(nst_obj_alloc(
         sizeof(Nst_IOFileObj),
         nst_t.IOFile,
-        _nst_destroy_iofile));
+        _nst_iofile_destroy));
     if ( obj == NULL ) return NULL;
 
     obj->value   = (Nst_IOFile)value;
@@ -106,7 +106,7 @@ Nst_Obj *nst_iof_new_fake(void *value,
     return OBJ(obj);
 }
 
-void _nst_destroy_iofile(Nst_IOFileObj *obj)
+void _nst_iofile_destroy(Nst_IOFileObj *obj)
 {
     if ( !NST_IOF_IS_CLOSED(obj) )
     {

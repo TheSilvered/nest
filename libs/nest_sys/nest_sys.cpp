@@ -72,6 +72,7 @@ Nst_FuncDeclr *get_func_ptrs()
 void free_lib()
 {
     nst_dec_ref(version_obj);
+    nst_dec_ref(platform_obj);
 }
 
 NST_FUNC_SIGN(system_)

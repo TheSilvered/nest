@@ -1835,7 +1835,10 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
 
     Nst_Obj *func_map = nst_map_get(nst_state.lib_handles, file_path);
     if ( func_map != NULL )
+    {
+        nst_dec_ref(file_path);
         return func_map;
+    }
 
     nst_llist_push(nst_state.lib_paths, file_path, false);
 
@@ -1869,6 +1872,7 @@ static Nst_Obj *import_nest_lib(Nst_StrObj *file_path)
     {
         nst_llist_push(nst_state.lib_srcs, lib_src, true);
         nst_llist_pop(nst_state.lib_paths);
+        nst_dec_ref(file_path);
         return NULL;
     }
 

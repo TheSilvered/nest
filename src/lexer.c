@@ -644,6 +644,7 @@ end:
     if ( is_real )
     {
         res = nst_string_parse_real(&s, &err);
+        free(ltrl);
     }
     else
     {
@@ -659,9 +660,11 @@ end:
                 ltrl[ltrl_size + 2] = '\0';
                 s.len++;
                 res = nst_string_parse_byte(&s, &err);
+                free(ltrl);
             }
             else
             {
+                free(ltrl);
                 CHECK_ERR;
                 Nst_Obj *new_res = nst_byte_new(AS_INT(res) & 0xff);
                 nst_dec_ref(res);
@@ -671,13 +674,13 @@ end:
         }
         else
         {
+            free(ltrl);
             go_back();
         }
     }
 
     CHECK_ERR;
     *tok = nst_tok_new_value(start, end, NST_TT_VALUE, res);
-    free(ltrl);
 }
 
 static void make_ident(Nst_Tok **tok, Nst_Error *error)

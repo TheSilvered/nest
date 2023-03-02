@@ -391,6 +391,7 @@ void nst_print_error(Nst_Error err)
     {
         free(printf_buf);
     }
+    nst_dec_ref(err_stream);
 }
 
 static inline void print_rep_count(i32 count)
@@ -489,6 +490,7 @@ void nst_print_traceback(Nst_Traceback tb)
     {
         free(printf_buf);
     }
+    nst_dec_ref(err_stream);
 }
 
 Nst_StrObj *nst_format_error(const i8 *format, const i8 *format_args, ...)

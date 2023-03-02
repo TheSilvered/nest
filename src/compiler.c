@@ -122,7 +122,7 @@ static Nst_InstList *compile_internal(Nst_Node *code,
              inst->val != NULL &&
              inst->val->type == nst_t.Func )
         {
-            nst_llist_append(funcs, inst->val, false);
+            nst_llist_append(funcs, inst->val, true);
             nst_inc_ref(inst->val);
         }
 

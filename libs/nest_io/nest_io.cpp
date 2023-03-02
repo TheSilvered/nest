@@ -667,7 +667,7 @@ NST_FUNC_SIGN(println_)
     {
         nst_dec_ref(nst_false());
     }
-
+    nst_dec_ref(s_obj);
     NST_RETURN_NULL;
 }
 
