@@ -31,11 +31,13 @@ $(x64_TARGET): $(SRCS) $(NEST_LIB_x64)
 	mkdir -p $(x64_DIR)
 	$(CC) $(CFLAGS) $(SRCS) $(CLINKS_x64) -O3 -o $(x64_TARGET)
 
-x86: $(SRCS) $(NEST_LIB_x86)
+x86: $(x86_TARGET);
+$(x86_TARGET): $(SRCS) $(NEST_LIB_x86)
 	mkdir -p $(x86_DIR)
 	$(CC) $(CFLAGS) $(SRCS) $(CLINKS_x86) -O3 -m32 -o $(x86_TARGET)
 
-debug: $(SRCS) $(NEST_LIB_DGB)
+debug: $(DBG_TARGET);
+$(DBG_TARGET): $(SRCS) $(NEST_LIB_DBG)
 	mkdir -p $(DBG_DIR)
 	$(CC) $(CFLAGS) $(SRCS) $(CLINKS_DBG) $(DBG_FLAGS) -o $(DBG_TARGET)
 

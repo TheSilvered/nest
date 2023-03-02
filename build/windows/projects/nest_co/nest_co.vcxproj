@@ -87,7 +87,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>..\nest\x64\Debug;..\nest\Debug;..\x64\Release;..\nest\Release</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\nest\Debug</AdditionalLibraryDirectories>
       <AdditionalDependencies>interpreter_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -112,7 +112,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>..\nest\x64\Debug;..\nest\Debug;..\x64\Release;..\nest\Release</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\nest\Release</AdditionalLibraryDirectories>
       <AdditionalDependencies>interpreter_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -133,7 +133,7 @@
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>..\nest\x64\Debug;..\nest\Debug;..\x64\Release;..\nest\Release</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\nest\x64\Debug</AdditionalLibraryDirectories>
       <AdditionalDependencies>interpreter_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -158,7 +158,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalLibraryDirectories>..\nest\x64\Debug;..\nest\Debug;..\x64\Release;..\nest\Release</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>..\nest\x64\Release</AdditionalLibraryDirectories>
       <AdditionalDependencies>interpreter_dll.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>

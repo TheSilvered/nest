@@ -359,8 +359,6 @@ static Nst_Node *parse_for_loop()
 
         if ( p_state.error->occurred )
         {
-            Nst_Pos err_start = NST_TOK(nst_llist_peek_front(tokens))->start;
-            Nst_Pos err_end = NST_TOK(nst_llist_peek_front(tokens))->end;
             nst_llist_destroy(nodes, (nst_llist_destructor)nst_node_destroy);
             return NULL;
         }

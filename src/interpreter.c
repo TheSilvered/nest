@@ -212,15 +212,25 @@ i32 nst_run(Nst_FuncObj *main_func,
     complete_function(0);
 
     nst_dec_ref(main_func);
+    int exit_code = 0;
     if ( ERROR_OCCURRED )
     {
-        nst_print_traceback(*nst_state.traceback);
+        if ( OBJ(nst_state.traceback->error.name) != nst_c.Null_null )
+        {
+            nst_print_traceback(*nst_state.traceback);
+            exit_code = 1;
+        }
+        else
+        {
+            exit_code = AS_INT(nst_state.traceback->error.message);
+        }
+
         nst_dec_ref(nst_state.traceback->error.name);
         nst_dec_ref(nst_state.traceback->error.message);
     }
 
     nst_state_free();
-    return ERROR_OCCURRED ? 1 : 0;
+    return exit_code;
 }
 
 void nst_state_free()

@@ -84,28 +84,20 @@ NST_FUNC_SIGN(system_)
 
 NST_FUNC_SIGN(exit_)
 {
-    Nst_Obj *status;
+    Nst_Obj *exit_code_obj;
 
-    NST_DEF_EXTRACT("?i", &status);
-    Nst_Int code;
+    NST_DEF_EXTRACT("?i", &exit_code_obj);
 
-    if ( status == nst_null() )
+    if ( exit_code_obj == nst_null() )
     {
-        code = 0;
+        exit_code_obj = nst_inc_ref(nst_const()->Int_0);
     }
     else
     {
-        code = AS_INT(status);
+        nst_inc_ref(exit_code_obj);
     }
 
-    nst_state_free();
-    _nst_types_del();
-    _nst_strs_del();
-    _nst_consts_del();
-    _nst_streams_del();
-    _nst_unload_libs();
-    exit((i32)code);
-
+    NST_SET_ERROR(nst_null(), exit_code_obj);
     return nullptr;
 }
 

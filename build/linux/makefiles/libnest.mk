@@ -21,10 +21,12 @@ $(x64_TARGET): $(SRCS)
 	mkdir -p $(x64_DIR)
 	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -O3 -o $(x64_TARGET)
 
-x86: $(SRCS)
+x86: $(x86_TARGET);
+$(x86_TARGET): $(SRCS)
 	mkdir -p $(x86_DIR)
 	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -O3 -m32 -o $(x86_TARGET)
 
-debug: $(SRCS)
+debug: $(DBG_TARGET);
+$(DBG_TARGET): $(SRCS)
 	mkdir -p $(DBG_DIR)
 	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) $(DBG_FLAGS) -o $(DBG_TARGET)
