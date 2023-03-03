@@ -12,14 +12,27 @@ Returns the time since the epoch in nanoseconds.
 
 ### `[] @high_res_time`
 
-Returns the current time with the highest resolution available in seconds. This
-value has meaning only when compared with other values from the same function.
+Returns a timestamp with the highest resolution available in seconds. This value
+has meaning only when compared with other values from the same function.
 
 ### `[] @high_res_time_ns`
 
-Returns the current time with the highest resolution available in nanoseconds.
-This value has meaning only when compared with other values from the same
+Returns a timestamp with the highest resolution available in nanoseconds. This
+value has meaning only when compared with other values from the same function.
+
+### `[] @monotonic_time`
+
+Returns a timestamp such that any later timestamps will be always equal or
+greater. This can be for example the time since startup and similarly to
+high_res_time has only meaning when compared with other timestamps from the same
 function.
+
+### `[] @monotonic_time_ns`
+
+Returns a timestamp in nanoseconds such that any later timestamps will be always
+equal or greater. This can be for example the time since startup and similarly
+to high_res_time_ns has only meaning when compared with other timestamps from
+the same function.
 
 ### `[] @year_day`
 
@@ -81,6 +94,10 @@ between `date` and `gmt_clock_datetime`.
 ### `[seconds: Int|Real] @sleep`
 
 Pauses the execution for `seconds` seconds.
+
+### `[milliseconds: Int|Real] @sleep_ms`
+
+Pauses the execution for `milliseconds` milliseconds.
 
 ## Constants
 

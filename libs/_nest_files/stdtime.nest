@@ -6,6 +6,8 @@ __dt.time_               = time
 __dt.time_ns_            = time_ns
 __dt.high_res_time_      = high_res_time
 __dt.high_res_time_ns_   = high_res_time_ns
+__dt.monotonic_time_     = monotonic_time
+__dt.monotonic_time_ns_  = monotonic_time_ns
 __dt.year_day_           = year_day
 __dt.week_day_           = week_day
 __dt.day_                = day
@@ -20,6 +22,7 @@ __dt.gmt_clock_time_     = gmt_clock_time
 __dt.clock_datetime_     = clock_datetime
 __dt.gmt_clock_datetime_ = gmt_clock_datetime
 __dt.sleep_              = sleep
+__dt.sleep_ms_           = sleep_ms
 
 { 1: 'January',
   2: 'February',

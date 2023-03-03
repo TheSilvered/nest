@@ -8,7 +8,7 @@
 #include <unistd.h>
 #endif
 
-#define FUNC_COUNT 19
+#define FUNC_COUNT 21
 
 using namespace std::chrono;
 
@@ -28,6 +28,8 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(time_ns_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(high_res_time_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(high_res_time_ns_, 0);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(monotonic_time_, 0);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(monotonic_time_ns_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(year_day_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(week_day_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(day_, 0);
@@ -142,6 +144,18 @@ NST_FUNC_SIGN(high_res_time_ns_)
 {
     return nst_int_new(Nst_Int(duration_cast<nanoseconds>(
         high_resolution_clock::now().time_since_epoch()).count()));
+}
+
+NST_FUNC_SIGN(monotonic_time_)
+{
+    return nst_real_new(duration<Nst_Real>(
+        steady_clock::now().time_since_epoch()).count());
+}
+
+NST_FUNC_SIGN(monotonic_time_ns_)
+{
+    return nst_int_new(Nst_Int(duration_cast<nanoseconds>(
+        steady_clock::now().time_since_epoch()).count()));
 }
 
 NST_FUNC_SIGN(year_day_)
