@@ -27,6 +27,7 @@ ChangesEnvironment=yes
 
 [Files]
 Source: "..\{#arch}\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\{#arch}\interpreter_dll.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\{#arch}\nest_libs\*"; DestDir: "{app}\nest_libs"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Tasks]

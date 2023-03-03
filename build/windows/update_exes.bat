@@ -10,6 +10,12 @@ IF NOT EXIST .\x86\nest_libs MKDIR .\x86\nest_libs
 COPY projects\nest\x64\Release\nest.exe x64\nest.exe /Y
 COPY projects\nest\Release\nest.exe x86\nest.exe /Y
 
+:: Interpreter DLL
+:: ===============
+
+COPY projects\nest\x64\Release\interpreter_dll.dll x64\interpreter_dll.dll /Y
+COPY projects\nest\Release\interpreter_dll.dll x86\interpreter_dll.dll /Y
+
 :: Standard Library
 :: ================
 
