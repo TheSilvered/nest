@@ -15,7 +15,7 @@ bool lib_init()
 
     usize idx = 0;
 
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(try_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(try_, 3);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_err_names_, 0);
 
 #if __LINE__ - FUNC_COUNT != 19
@@ -71,7 +71,7 @@ Nst_Obj *success(Nst_Obj *val)
     return map;
 }
 
-Nst_Obj *failure(Nst_OpErr *err)
+Nst_Obj *failure(Nst_OpErr *err, bool catch_exit)
 {
     Nst_Obj *map = nst_map_new();
     Nst_Obj *error_map = nst_map_new();
@@ -85,12 +85,17 @@ Nst_Obj *failure(Nst_OpErr *err)
     if ( state->traceback->error.occurred )
     {
         Nst_Error error = state->traceback->error;
-        // I do not change the ref count as the strings are just moved
-        // from the error to the map
         error_name_str = OBJ(error.name);
         error_message_str = OBJ(error.message);
-        error_pos = make_pos(error.start, error.end);
 
+        if ( OBJ(error_name_str) == nst_null() && !catch_exit )
+        {
+            nst_dec_ref(map);
+            nst_dec_ref(error_map);
+            return nullptr;
+        }
+
+        error_pos = make_pos(error.start, error.end);
         error_traceback =
             nst_array_new(state->traceback->positions->size / 2);
 
@@ -123,6 +128,14 @@ Nst_Obj *failure(Nst_OpErr *err)
     {
         error_name_str = OBJ(err->name);
         error_message_str = OBJ(err->message);
+
+        if ( OBJ(error_name_str) == nst_null() && !catch_exit )
+        {
+            nst_dec_ref(map);
+            nst_dec_ref(error_map);
+            return nullptr;
+        }
+
         error_pos = nst_inc_ref(nst_null());
         error_traceback = nst_inc_ref(nst_null());
     }
@@ -146,8 +159,11 @@ NST_FUNC_SIGN(try_)
 {
     Nst_FuncObj *func;
     Nst_SeqObj *func_args;
+    Nst_Obj *catch_exit_obj;
 
-    NST_DEF_EXTRACT("fA", &func, &func_args);
+    NST_DEF_EXTRACT("fA?b", &func, &func_args, &catch_exit_obj);
+    bool catch_exit;
+    NST_SET_DEF(catch_exit_obj, catch_exit, false, AS_BOOL(catch_exit_obj));
 
     if ( func_args->len != func->arg_num )
     {
@@ -167,7 +183,7 @@ NST_FUNC_SIGN(try_)
     }
     else
     {
-        return failure(err);
+        return failure(err, catch_exit);
     }
 }
 

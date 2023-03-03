@@ -222,7 +222,7 @@ i32 nst_run(Nst_FuncObj *main_func,
         }
         else
         {
-            exit_code = AS_INT(nst_state.traceback->error.message);
+            exit_code = (int)AS_INT(nst_state.traceback->error.message);
         }
 
         nst_dec_ref(nst_state.traceback->error.name);
@@ -310,6 +310,13 @@ static void complete_function(usize final_stack_size)
         if ( ERROR_OCCURRED )
         {
             Nst_CatchFrame top_catch = nst_cstack_peek(nst_state.c_stack);
+            if ( OBJ(nst_state.traceback->error.name) == nst_c.Null_null )
+            {
+                top_catch.f_stack_size = 0;
+                top_catch.v_stack_size = 0;
+                top_catch.inst_idx = -1;
+            }
+
             Nst_Obj *obj;
 
             usize end_size = top_catch.f_stack_size;
