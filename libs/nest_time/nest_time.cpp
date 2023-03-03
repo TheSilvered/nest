@@ -195,7 +195,7 @@ NST_FUNC_SIGN(year_)
     time_t raw_time;
     time(&raw_time);
     tm *t = localtime(&raw_time);
-    return nst_int_new(t->tm_year);
+    return nst_int_new(t->tm_year + 1900);
 }
 
 NST_FUNC_SIGN(date_)
