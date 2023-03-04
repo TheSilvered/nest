@@ -1833,11 +1833,11 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         }
     }
 
-    Nst_Obj *func_map = nst_map_get(nst_state.lib_handles, file_path);
-    if ( func_map != NULL )
+    Nst_Obj *obj_map = nst_map_get(nst_state.lib_handles, file_path);
+    if ( obj_map != NULL )
     {
         nst_dec_ref(file_path);
-        return func_map;
+        return obj_map;
     }
 
     nst_llist_push(nst_state.lib_paths, file_path, false);
@@ -1922,7 +1922,8 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
     }
 
     // Get function pointers
-    Nst_FuncDeclr *(*get_func_ptrs)() = (Nst_FuncDeclr *(*)())dlsym(lib, "get_func_ptrs");
+    Nst_DeclrList *(*get_func_ptrs)() =
+        (Nst_DeclrList *(*)())dlsym(lib, "get_func_ptrs");
     if ( get_func_ptrs == NULL )
     {
         nst_llist_pop(nst_state.lib_paths);
@@ -1931,9 +1932,9 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
         return NULL;
     }
 
-    Nst_FuncDeclr *func_ptrs = get_func_ptrs();
+    Nst_DeclrList *obj_ptrs = get_func_ptrs();
 
-    if ( func_ptrs == NULL )
+    if ( obj_ptrs == NULL )
     {
         nst_llist_pop(nst_state.lib_paths);
         nst_dec_ref(file_path);
@@ -1942,26 +1943,30 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
     }
 
     // Populate the function map
-    Nst_MapObj *func_map = MAP(nst_map_new());
+    Nst_MapObj *obj_map = MAP(nst_map_new());
 
-    for ( usize i = 0;; i++ )
+    for ( usize i = 0, n = obj_ptrs->obj_count; i < n; i++ )
     {
-        Nst_FuncDeclr func = func_ptrs[i];
-        if ( func.func_ptr == NULL )
-            break;
+        Nst_ObjDeclr obj_declr = obj_ptrs->objs[i];
+        Nst_Obj *obj;
+        if ( obj_declr.arg_num >= 0 )
+        {
+            obj = nst_func_new_c(obj_declr.arg_num, obj_declr.ptr.func);
+        }
+        else
+        {
+            obj = nst_inc_ref(obj_declr.ptr.obj);
+        }
 
-        Nst_Obj *func_obj = nst_func_new_c(func.arg_num, func.func_ptr);
-
-        nst_map_set(func_map, func.name, func_obj);
-        nst_dec_ref(func.name);
-        nst_dec_ref(func_obj);
+        nst_map_set(obj_map, obj_declr.name, obj);
+        nst_dec_ref(obj_declr.name);
+        nst_dec_ref(obj);
     }
-    free(func_ptrs);
     nst_llist_append(nst_state.loaded_libs, lib, true);
 
-    add_to_handle_map(file_path, func_map, NULL);
+    add_to_handle_map(file_path, obj_map, NULL);
     nst_llist_pop(nst_state.lib_paths);
-    return OBJ(func_map);
+    return OBJ(obj_map);
 }
 
 Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len)

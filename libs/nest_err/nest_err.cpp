@@ -3,32 +3,28 @@
 
 #define FUNC_COUNT 2
 
-static Nst_FuncDeclr *func_list_;
+static Nst_ObjDeclr func_list_[FUNC_COUNT];
+static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
 static bool lib_init_ = false;
 
 bool lib_init()
 {
-    if ( (func_list_ = nst_func_list_new(FUNC_COUNT)) == nullptr )
-    {
-        return false;
-    }
-
     usize idx = 0;
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(try_, 3);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_err_names_, 0);
 
-#if __LINE__ - FUNC_COUNT != 19
-#error FUNC_COUNT does not match the number of lines
+#if __LINE__ - FUNC_COUNT != 15
+#error
 #endif
 
     lib_init_ = true;
     return true;
 }
 
-Nst_FuncDeclr *get_func_ptrs()
+Nst_DeclrList *get_func_ptrs()
 {
-    return lib_init_ ? func_list_ : nullptr;
+    return lib_init_ ? &obj_list_ : nullptr;
 }
 
 Nst_Obj *make_pos(Nst_Pos start, Nst_Pos end)
@@ -162,8 +158,7 @@ NST_FUNC_SIGN(try_)
     Nst_Obj *catch_exit_obj;
 
     NST_DEF_EXTRACT("fA?b", &func, &func_args, &catch_exit_obj);
-    bool catch_exit;
-    NST_SET_DEF(catch_exit_obj, catch_exit, false, AS_BOOL(catch_exit_obj));
+    bool catch_exit = NST_DEF_VAL(catch_exit_obj, AS_BOOL(catch_exit_obj), false);
 
     if ( func_args->len != func->arg_num )
     {

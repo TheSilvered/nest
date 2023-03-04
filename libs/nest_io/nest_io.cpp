@@ -9,7 +9,8 @@
 #define SET_FILE_CLOSED_ERROR \
     NST_SET_RAW_VALUE_ERROR("the given file given was previously closed")
 
-static Nst_FuncDeclr *func_list_;
+static Nst_ObjDeclr func_list_[FUNC_COUNT];
+static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
 static bool lib_init_ = false;
 static Nst_Obj *stdin_obj;
 static Nst_Obj *stdout_obj;
@@ -17,11 +18,6 @@ static Nst_Obj *stderr_obj;
 
 bool lib_init()
 {
-    if ( (func_list_ = nst_func_list_new(FUNC_COUNT)) == nullptr )
-    {
-        return false;
-    }
-
     usize idx = 0;
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(open_, 2);
@@ -44,8 +40,8 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_stdout_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_stderr_, 0);
 
-#if __LINE__ - FUNC_COUNT != 28
-#error FUNC_COUNT does not match the number of lines
+#if __LINE__ - FUNC_COUNT != 24
+#error
 #endif
 
     stdin_obj  = nst_iof_new(stdin,  false, true, false);
@@ -56,9 +52,9 @@ bool lib_init()
     return true;
 }
 
-Nst_FuncDeclr *get_func_ptrs()
+Nst_DeclrList *get_func_ptrs()
 {
-    return lib_init_ ? func_list_ : nullptr;
+    return lib_init_ ? &obj_list_ : nullptr;
 }
 
 void free_lib()
@@ -273,10 +269,8 @@ NST_FUNC_SIGN(virtual_iof_)
 
     NST_DEF_EXTRACT("?b?i", &bin_obj, &buf_size_obj);
 
-    Nst_Bool bin;
-    Nst_Int buf_size;
-    NST_SET_DEF(bin_obj, bin, false, AS_BOOL(bin_obj));
-    NST_SET_DEF(buf_size_obj, buf_size, 128, AS_INT(buf_size_obj));
+    Nst_Bool bin = NST_DEF_VAL(bin_obj, AS_BOOL(bin_obj), false);
+    Nst_Int buf_size = NST_DEF_VAL(buf_size_obj, AS_INT(buf_size_obj), 128);
 
     VirtualIOFile_data *f = (VirtualIOFile_data *)malloc(sizeof(VirtualIOFile_data));
     if ( f == nullptr )
@@ -417,11 +411,10 @@ NST_FUNC_SIGN(read_)
     Nst_Obj *bytes_to_read_obj;
 
     NST_DEF_EXTRACT("F?i", &f, &bytes_to_read_obj);
-    Nst_Int bytes_to_read;
-    NST_SET_DEF(
+    Nst_Int bytes_to_read = NST_DEF_VAL(
         bytes_to_read_obj,
-        bytes_to_read,
-        -1, AS_INT(bytes_to_read_obj));
+        AS_INT(bytes_to_read_obj),
+        -1);
 
     if ( NST_IOF_IS_CLOSED(f) )
     {
@@ -471,11 +464,10 @@ NST_FUNC_SIGN(read_bytes_)
     Nst_Obj *bytes_to_read_obj;
 
     NST_DEF_EXTRACT("F?i", &f, &bytes_to_read_obj);
-    Nst_Int bytes_to_read;
-    NST_SET_DEF(
+    Nst_Int bytes_to_read = NST_DEF_VAL(
         bytes_to_read_obj,
-        bytes_to_read,
-        -1, AS_INT(bytes_to_read_obj));
+        AS_INT(bytes_to_read_obj),
+        -1);
 
     if ( NST_IOF_IS_CLOSED(f) )
     {
@@ -646,8 +638,7 @@ NST_FUNC_SIGN(println_)
     Nst_Obj *flush;
     Nst_Obj *file_obj;
     NST_DEF_EXTRACT("o?b?F", &obj, &flush, &file_obj);
-    Nst_IOFileObj *file;
-    NST_SET_DEF(file_obj, file, nst_stdio()->out, IOFILE(file_obj));
+    Nst_IOFileObj *file = NST_DEF_VAL(file_obj, IOFILE(file_obj), nst_stdio()->out);
 
     if ( NST_IOF_IS_CLOSED(file) )
     {

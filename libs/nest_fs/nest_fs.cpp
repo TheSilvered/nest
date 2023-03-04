@@ -17,17 +17,13 @@
 
 namespace fs = std::filesystem;
 
-static Nst_FuncDeclr *func_list_;
+static Nst_ObjDeclr func_list_[FUNC_COUNT];
+static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
 static bool lib_init_ = false;
 static Nst_MapObj *CPO = nullptr;
 
 bool lib_init()
 {
-    if ( (func_list_ = nst_func_list_new(FUNC_COUNT)) == nullptr )
-    {
-        return false;
-    }
-
     usize idx = 0;
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(isdir_, 1);
@@ -51,17 +47,17 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(extension_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_copy_options_, 0);
 
-#if __LINE__ - FUNC_COUNT != 34
-#error FUNC_COUNT does not match the number of lines
+#if __LINE__ - FUNC_COUNT != 30
+#error
 #endif
 
     lib_init_ = true;
     return true;
 }
 
-Nst_FuncDeclr *get_func_ptrs()
+Nst_DeclrList *get_func_ptrs()
 {
-    return lib_init_ ? func_list_ : nullptr;
+    return lib_init_ ? &obj_list_ : nullptr;
 }
 
 void free_lib()
@@ -240,15 +236,12 @@ NST_FUNC_SIGN(copy_)
 
     NST_DEF_EXTRACT("ss?i", &path_from, &path_to, &options);
 
-    fs::copy_options cp_options;
-    NST_SET_DEF(
+    fs::copy_options cp_options = NST_DEF_VAL(
         options,
-        cp_options,
-        fs::copy_options::none,
-        (fs::copy_options)AS_INT(options));
+        (fs::copy_options)AS_INT(options),
+        fs::copy_options::none);
 
     std::error_code ec;
-
     fs::copy(path_from->value, path_to->value, cp_options, ec);
 
     if ( ec.value() == ERROR_PATH_NOT_FOUND )

@@ -3,16 +3,12 @@
 
 #define FUNC_COUNT 14
 
-static Nst_FuncDeclr *func_list_;
+static Nst_ObjDeclr func_list_[FUNC_COUNT];
+static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
 static bool lib_init_ = false;
 
 bool lib_init()
 {
-    if ( (func_list_ = nst_func_list_new(FUNC_COUNT)) == nullptr )
-    {
-        return false;
-    }
-
     usize idx = 0;
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(count_,        2);
@@ -30,17 +26,17 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(iter_is_done_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(iter_get_val_, 1);
 
-#if __LINE__ - FUNC_COUNT != 19
-#error FUNC_COUNT does not match the number of lines
+#if __LINE__ - FUNC_COUNT != 15
+#error
 #endif
 
     lib_init_ = true;
     return true;
 }
 
-Nst_FuncDeclr *get_func_ptrs()
+Nst_DeclrList *get_func_ptrs()
 {
-    return lib_init_ ? func_list_ : nullptr;
+    return lib_init_ ? &obj_list_ : nullptr;
 }
 
 NST_FUNC_SIGN(count_)
@@ -49,11 +45,10 @@ NST_FUNC_SIGN(count_)
     Nst_Obj *step_obj;
 
     NST_DEF_EXTRACT("i?i", &start, &step_obj);
-    Nst_IntObj *step;
-    NST_SET_DEF(
-        step_obj, step,
-        (Nst_IntObj *)nst_int_new(1),
-        (Nst_IntObj *)nst_inc_ref(step_obj));
+    Nst_IntObj *step = NST_DEF_VAL(
+        step_obj,
+        (Nst_IntObj *)nst_inc_ref(step_obj),
+        (Nst_IntObj *)nst_int_new(1));
 
     // Layout: [idx, start, step]
     Nst_Obj *arr = nst_array_new(3);
@@ -206,11 +201,9 @@ NST_FUNC_SIGN(enumerate_)
     Nst_Obj *start_ob;
     Nst_Obj *step_ob;
 
-    Nst_Int start, step;
-
     NST_DEF_EXTRACT("R?i?i", &ob, &start_ob, &step_ob);
-    NST_SET_DEF(start_ob, start, 0, AS_INT(start_ob));
-    NST_SET_DEF(step_ob,  step,  1, AS_INT(step_ob ));
+    Nst_Int start = NST_DEF_VAL(start_ob, AS_INT(start_ob), 0);
+    Nst_Int step = NST_DEF_VAL(start_ob, AS_INT(start_ob), 1);
 
     // Layout: [idx, iterator, start, step]
     Nst_SeqObj *arr = SEQ(nst_array_new(4));

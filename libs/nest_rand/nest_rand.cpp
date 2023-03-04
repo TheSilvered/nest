@@ -5,7 +5,8 @@
 
 #define FUNC_COUNT 6
 
-static Nst_FuncDeclr *func_list_;
+static Nst_ObjDeclr func_list_[FUNC_COUNT];
+static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
 static bool lib_init_ = false;
 static std::mt19937_64 rand_num;
 
@@ -17,12 +18,6 @@ static inline Nst_Int rand_range(Nst_Int min, Nst_Int max)
 bool lib_init()
 {
     using namespace std::chrono;
-
-    if ( (func_list_ = nst_func_list_new(FUNC_COUNT)) == nullptr )
-    {
-        return false;
-    }
-
     usize idx = 0;
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(random_, 0);
@@ -32,8 +27,8 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(shuffle_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(seed_, 1);
 
-#if __LINE__ - FUNC_COUNT != 29
-#error FUNC_COUNT does not match the number of lines
+#if __LINE__ - FUNC_COUNT != 24
+#error
 #endif
 
     rand_num.seed(duration_cast<nanoseconds>(
@@ -44,9 +39,9 @@ bool lib_init()
     return true;
 }
 
-Nst_FuncDeclr *get_func_ptrs()
+Nst_DeclrList *get_func_ptrs()
 {
-    return lib_init_ ? func_list_ : nullptr;
+    return lib_init_ ? &obj_list_ : nullptr;
 }
 
 NST_FUNC_SIGN(random_)

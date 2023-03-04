@@ -14,5 +14,7 @@ __sequ.contains_  = contains
 __sequ.any_       = any
 __sequ.all_       = all
 __sequ.count_     = count
+__sequ.lscan_     = lscan
+__sequ.rscan_     = rscan
 
 _vars_ '__sequ' '_vars_' -

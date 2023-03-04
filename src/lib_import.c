@@ -12,11 +12,6 @@
         idx + 1, TYPE_NAME(ob))); \
     return false; }
 
-Nst_FuncDeclr *nst_func_list_new(usize count)
-{
-    return (Nst_FuncDeclr *)calloc(count + 1, sizeof(Nst_FuncDeclr));
-}
-
 static bool extract_builtin_type(const i8   type,
                                  i32        idx,
                                  Nst_OpErr *err,

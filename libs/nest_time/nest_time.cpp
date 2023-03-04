@@ -12,16 +12,12 @@
 
 using namespace std::chrono;
 
-static Nst_FuncDeclr *func_list_;
+static Nst_ObjDeclr func_list_[FUNC_COUNT];
+static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
 static bool lib_init_ = false;
 
 bool lib_init()
 {
-    if ( (func_list_ = nst_func_list_new(FUNC_COUNT)) == nullptr )
-    {
-        return false;
-    }
-
     usize idx = 0;
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(time_, 0);
@@ -46,17 +42,17 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(sleep_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(sleep_ms_, 1);
 
-#if __LINE__ - FUNC_COUNT != 28
-#error FUNC_COUNT does not match the number of lines
+#if __LINE__ - FUNC_COUNT != 24
+#error
 #endif
 
     lib_init_ = true;
     return true;
 }
 
-Nst_FuncDeclr *get_func_ptrs()
+Nst_DeclrList *get_func_ptrs()
 {
-    return lib_init_ ? func_list_ : nullptr;
+    return lib_init_ ? &obj_list_ : nullptr;
 }
 
 static Nst_Int get_year_day_c(tm *t)

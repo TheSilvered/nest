@@ -8,7 +8,7 @@ extern "C" {
 #endif // !__cplusplus
 
 EXPORT bool lib_init();
-EXPORT Nst_FuncDeclr *get_func_ptrs();
+EXPORT Nst_DeclrList *get_func_ptrs();
 EXPORT void free_lib();
 
 NST_FUNC_SIGN(isdir_);

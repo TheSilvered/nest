@@ -13,11 +13,25 @@
         STR(nst_string_new_c_raw(#func_ptr, false)) \
     }
 
-#define NST_MAKE_NAMED_FUNCDECLR(func_ptr, argc, name) \
+#define NST_MAKE_NAMED_FUNCDECLR(func_ptr, argc, func_name) \
     { \
         func_ptr, \
         argc, \
-        STR(nst_string_new_c_raw(name, false)) \
+        STR(nst_string_new_c_raw(func_name, false)) \
+    }
+
+#define NST_MAKE_OBJDECLR(obj_ptr) \
+    { \
+        OBJ(obj_ptr), \
+        -1, \
+        STR(nst_string_new_c_raw(#obj_ptr, false)) \
+    }
+
+#define NST_MAKE_NAMED_OBJDECLR(obj_ptr, obj_name) \
+    { \
+        OBJ(obj_ptr), \
+        -1, \
+        STR(nst_string_new_c_raw(obj_name, false)) \
     }
 
 #define NST_SET_ERROR(err_name, err_msg) do { \
@@ -66,29 +80,32 @@
     if ( !nst_extract_arg_values(ltrl, arg_num, args, err, __VA_ARGS__) ) \
         return NULL
 
-// Sets 'var' to 'def_val' if obj is null and to 'val' otherwise
-#define NST_SET_DEF(obj, var, def_val, val) \
-    do { \
-    if ( (obj) == nst_null() ) \
-       var = (def_val); \
-    else \
-        var = (val); \
-    } while ( 0 )
+// Sets 'def_val' if 'obj' is null else 'val'
+#define NST_DEF_VAL(obj, val, def_val) \
+    ((obj) == nst_null() ? (def_val) : (val))
 
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
-EXPORT typedef struct _Nst_FuncDeclr
+EXPORT typedef struct _Nst_ObjDeclr
 {
-    NST_FUNC_SIGN((*func_ptr));
-    usize arg_num;
+    union {
+        NST_FUNC_SIGN((*func));
+        Nst_Obj *obj;
+    } ptr;
+    isize arg_num;
     Nst_StrObj *name;
 }
-Nst_FuncDeclr;
+Nst_ObjDeclr;
 
-// Allocates the function list of the module
-EXPORT Nst_FuncDeclr *nst_func_list_new(usize count);
+EXPORT typedef struct _Nst_DeclrList
+{
+    Nst_ObjDeclr *objs;
+    usize obj_count;
+}
+Nst_DeclrList;
+
 // Extracts the C values from the arguments
 // `types` is a string of letters for the types, check the full usage in
 // src/lib_import.c

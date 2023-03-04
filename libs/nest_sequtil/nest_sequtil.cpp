@@ -1,22 +1,18 @@
 #include <cmath>
 #include "nest_sequtil.h"
 
-#define FUNC_COUNT 12
+#define FUNC_COUNT 14
 #define RUN 32
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
 #define MIN(a,b) ((a) < (b) ? (a) : (b))
 
-static Nst_FuncDeclr *func_list_;
+static Nst_ObjDeclr func_list_[FUNC_COUNT];
+static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
 static bool lib_init_ = false;
 
 bool lib_init()
 {
-    if ( (func_list_ = nst_func_list_new(FUNC_COUNT)) == nullptr )
-    {
-        return false;
-    }
-
     usize idx = 0;
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(map_, 2);
@@ -31,18 +27,20 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(any_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(all_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(count_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(lscan_, 4);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(rscan_, 4);
 
-#if __LINE__ - FUNC_COUNT != 23
-#error FUNC_COUNT does not match the number of lines
+#if __LINE__ - FUNC_COUNT != 19
+#error
 #endif
 
     lib_init_ = true;
     return true;
 }
 
-Nst_FuncDeclr *get_func_ptrs()
+Nst_DeclrList *get_func_ptrs()
 {
-    return lib_init_ ? func_list_ : nullptr;
+    return lib_init_ ? &obj_list_ : nullptr;
 }
 
 NST_FUNC_SIGN(map_)
@@ -169,11 +167,9 @@ NST_FUNC_SIGN(slice_)
 
     NST_DEF_EXTRACT("S?i?i?i", &seq, &start_obj, &stop_obj, &step_obj);
 
-    Nst_Int start, stop, step;
-
-    NST_SET_DEF(step_obj, step, 1, AS_INT(step_obj));
-    NST_SET_DEF(start_obj, start, step > 0 ? 0 : seq->len, AS_INT(start_obj));
-    NST_SET_DEF(stop_obj, stop, step > 0 ? seq->len : -1, AS_INT(stop_obj));
+    Nst_Int step  = NST_DEF_VAL(step_obj,  AS_INT(step_obj), 1);
+    Nst_Int start = NST_DEF_VAL(start_obj, AS_INT(start_obj), step > 0 ? 0 : seq->len);
+    Nst_Int stop  = NST_DEF_VAL(stop_obj,  AS_INT(stop_obj), step > 0 ? seq->len : -1);
 
     usize seq_len = seq->len;
     Nst_TypeObj *seq_type = args[0]->type;
@@ -625,4 +621,94 @@ NST_FUNC_SIGN(count_)
     }
     nst_dec_ref(seq);
     return nst_int_new(count);
+}
+
+NST_FUNC_SIGN(lscan_)
+{
+    Nst_SeqObj *seq;
+    Nst_FuncObj *func;
+    Nst_Obj *prev_val;
+    Nst_Obj *max_items_obj;
+
+    NST_DEF_EXTRACT("Sfo?i", &seq, &func, &prev_val, &max_items_obj);
+    Nst_Int max_items = NST_DEF_VAL(max_items_obj, AS_INT(max_items_obj), seq->len + 1);
+
+    if ( func->arg_num != 2 )
+    {
+        NST_SET_RAW_VALUE_ERROR("the function must take exactly one argument");
+        return nullptr;
+    }
+
+    if ( max_items < 0 )
+    {
+        NST_SET_RAW_VALUE_ERROR("the maximum item count must be greater or equal to zero");
+        return nullptr;
+    }
+
+    if ( max_items > (Nst_Int)seq->len + 1 )
+    {
+        max_items = seq->len + 1;
+    }
+
+    Nst_SeqObj *new_seq = seq->type == nst_type()->Array ?
+        SEQ(nst_array_new(max_items)) : SEQ(nst_vector_new(max_items));
+    if ( max_items == 0 )
+    {
+        return OBJ(new_seq);
+    }
+
+    nst_inc_ref(prev_val);
+    nst_seq_set(new_seq, 0, prev_val);
+
+    Nst_Obj *func_args[2];
+
+    for ( Nst_Int i = 1; i < max_items; i++ )
+    {
+        func_args[0] = prev_val;
+        func_args[1] = seq->objs[i - 1];
+        Nst_Obj *new_val = nst_call_func(func, func_args, err);
+        if ( new_val == nullptr )
+        {
+            nst_dec_ref(prev_val);
+            new_seq->len = i;
+            nst_dec_ref(new_seq);
+            return nullptr;
+        }
+        nst_seq_set(new_seq, i, new_val);
+        nst_dec_ref(prev_val);
+        prev_val = new_val;
+    }
+    nst_dec_ref(prev_val);
+
+    return OBJ(new_seq);
+}
+
+NST_FUNC_SIGN(rscan_)
+{
+    Nst_SeqObj *seq;
+    Nst_Obj *_;
+    Nst_Obj *max_items_obj;
+
+    NST_DEF_EXTRACT("Sfo?i", &seq, &_, &_, &max_items_obj);
+    Nst_Int max_items = NST_DEF_VAL(max_items_obj, AS_INT(max_items_obj), seq->len + 1);
+    if ( max_items > (Nst_Int)seq->len + 1 )
+    {
+        max_items = seq->len + 1;
+    }
+
+    Nst_Obj *new_seq = lscan_(4, args, err);
+    if ( new_seq == nullptr )
+    {
+        return nullptr;
+    }
+
+    Nst_Obj **objs = SEQ(new_seq)->objs;
+    for ( Nst_Int i = 0, n = max_items / 2; i < n; i++ )
+    {
+        Nst_Obj *temp = objs[i];
+        objs[i] = objs[max_items - i - 1];
+        objs[max_items - i - 1] = temp;
+    }
+
+    return OBJ(new_seq);
 }
