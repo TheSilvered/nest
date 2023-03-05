@@ -78,9 +78,9 @@ Nst_Obj *failure(Nst_OpErr *err, bool catch_exit)
     Nst_ExecutionState *state = nst_get_state();
     nst_map_set_str(map, "value", nst_null());
 
-    if ( state->traceback->error.occurred )
+    if ( state->traceback.error.occurred )
     {
-        Nst_Error error = state->traceback->error;
+        Nst_Error error = state->traceback.error;
         error_name_str = OBJ(error.name);
         error_message_str = OBJ(error.message);
 
@@ -93,9 +93,9 @@ Nst_Obj *failure(Nst_OpErr *err, bool catch_exit)
 
         error_pos = make_pos(error.start, error.end);
         error_traceback =
-            nst_array_new(state->traceback->positions->size / 2);
+            nst_array_new(state->traceback.positions->size / 2);
 
-        Nst_LList *positions = state->traceback->positions;
+        Nst_LList *positions = state->traceback.positions;
         Nst_Int skipped = 0;
         Nst_LLNode *n1 = positions->head;
         Nst_LLNode *n2 = n1 == nullptr ? n1 : n1->next;
@@ -118,7 +118,7 @@ Nst_Obj *failure(Nst_OpErr *err, bool catch_exit)
         }
 
         nst_llist_empty(positions, free);
-        state->traceback->error.occurred = false;
+        state->traceback.error.occurred = false;
     }
     else
     {

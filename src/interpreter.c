@@ -41,12 +41,12 @@
             break; \
         positions[0] = start_pos; \
         positions[1] = end_pos; \
-        nst_llist_push(nst_state.traceback->positions, positions + 1, false); \
-        nst_llist_push(nst_state.traceback->positions, positions,     true); \
+        nst_llist_push(nst_state.traceback.positions, positions + 1, false); \
+        nst_llist_push(nst_state.traceback.positions, positions,     true); \
     } while ( 0 )
 
 #define SET_OP_ERROR(start_pos, end_pos, op_err) do { \
-        if ( nst_state.traceback->error.occurred ) \
+        if ( nst_state.traceback.error.occurred ) \
         { \
             ADD_POSITIONS(start_pos, end_pos);\
             break; \
@@ -62,14 +62,14 @@
     } while ( 0 )
 
 #define CHANGE_VT(new_vt) do { \
-    *nst_state.vt = new_vt; \
-    nst_ggc_track_obj(GGC_OBJ((*nst_state.vt)->vars)); \
-    if ( (*nst_state.vt)->global_table != NULL ) \
-        nst_ggc_track_obj(GGC_OBJ((*nst_state.vt)->global_table)); \
+    nst_state.vt = new_vt; \
+    nst_ggc_track_obj(GGC_OBJ(nst_state.vt->vars)); \
+    if ( nst_state.vt->global_table != NULL ) \
+        nst_ggc_track_obj(GGC_OBJ(nst_state.vt->global_table)); \
     } while ( 0 )
 
-#define ERROR_OCCURRED (nst_state.traceback->error.occurred)
-#define GLOBAL_ERROR (&(nst_state.traceback->error))
+#define ERROR_OCCURRED (nst_state.traceback.error.occurred)
+#define GLOBAL_ERROR (&(nst_state.traceback.error))
 
 #define CHECK_V_STACK assert(nst_state.v_stack->current_size != 0)
 #define CHECK_V_STACK_SIZE(size) \
@@ -135,50 +135,46 @@ i32 nst_run(Nst_FuncObj *main_func,
         return -1;
     }
 
-    Nst_Traceback tb;
-    tb.error.start = nst_no_pos();
-    tb.error.end = nst_no_pos();
-    tb.error.name = NULL;
-    tb.error.message = NULL;
-    tb.error.occurred = false;
-    tb.positions = nst_llist_new();
-    Nst_Int idx = 0;
+    nst_state.traceback.error.start = nst_no_pos();
+    nst_state.traceback.error.end = nst_no_pos();
+    nst_state.traceback.error.name = NULL;
+    nst_state.traceback.error.message = NULL;
+    nst_state.traceback.error.occurred = false;
+    nst_state.traceback.positions = nst_llist_new();
 
     // Create the garbage collector
     Nst_GGCList gen1 = { NULL, NULL, 0 };
     Nst_GGCList gen2 = { NULL, NULL, 0 };
     Nst_GGCList gen3 = { NULL, NULL, 0 };
     Nst_GGCList old_gen = { NULL, NULL, 0 };
-    Nst_GarbageCollector ggc = { gen1, gen2, gen3, old_gen, 0 };
+    nst_state.ggc.gen1 = gen1;
+    nst_state.ggc.gen2 = gen2;
+    nst_state.ggc.gen3 = gen3;
+    nst_state.ggc.old_gen = old_gen;
+    nst_state.ggc.old_gen_pending = 0;
 
-    // make_argv creates a tracked object
-    nst_state.ggc = &ggc;
-
-    Nst_StrObj *cwd = STR(nst_string_new_c_raw(
+    nst_state.curr_path = STR(nst_string_new_c_raw(
         _getcwd(cwd_buf, PATH_MAX),
         true));
     Nst_SeqObj *argv_obj = make_argv(
         argc,
         argv,
         filename == NULL ? (i8 *)"-c" : filename);
-    Nst_VarTable *vt = nst_vt_new(
+    nst_state.vt = nst_vt_new(
         no_default ? MAP(nst_c.Null_null) : NULL,
-        cwd,
+        nst_state.curr_path,
         argv_obj);
 
     if ( no_default )
     {
         nst_dec_ref(nst_c.Null_null);
-        vt->global_table = NULL;
-        nst_dec_ref(nst_map_drop(vt->vars, nst_s.o__globals_));
+        nst_state.vt->global_table = NULL;
+        nst_dec_ref(nst_map_drop(nst_state.vt->vars, nst_s.o__globals_));
     }
 
-    nst_state.traceback = &tb;
-    nst_state.vt = &vt;
-    nst_state.idx = &idx;
-    nst_state.curr_path = &cwd;
+    nst_state.idx = 0;
     nst_state.argv = argv_obj;
-    nst_state.opt_level = &opt_level;
+    nst_state.opt_level = opt_level;
     nst_state.v_stack = nst_vstack_new();
     nst_state.f_stack = nst_fstack_new();
     nst_state.c_stack = nst_cstack_new();
@@ -206,8 +202,8 @@ i32 nst_run(Nst_FuncObj *main_func,
         NULL,
         0);
 
-    nst_func_set_vt(main_func, vt->vars);
-    nst_ggc_track_obj(GGC_OBJ(vt->vars));
+    nst_func_set_vt(main_func, nst_state.vt->vars);
+    nst_ggc_track_obj(GGC_OBJ(nst_state.vt->vars));
 
     complete_function(0);
 
@@ -215,18 +211,18 @@ i32 nst_run(Nst_FuncObj *main_func,
     int exit_code = 0;
     if ( ERROR_OCCURRED )
     {
-        if ( OBJ(nst_state.traceback->error.name) != nst_c.Null_null )
+        if ( OBJ(nst_state.traceback.error.name) != nst_c.Null_null )
         {
-            nst_print_traceback(*nst_state.traceback);
+            nst_print_traceback(nst_state.traceback);
             exit_code = 1;
         }
         else
         {
-            exit_code = (int)AS_INT(nst_state.traceback->error.message);
+            exit_code = (int)AS_INT(nst_state.traceback.error.message);
         }
 
-        nst_dec_ref(nst_state.traceback->error.name);
-        nst_dec_ref(nst_state.traceback->error.message);
+        nst_dec_ref(nst_state.traceback.error.name);
+        nst_dec_ref(nst_state.traceback.error.message);
     }
 
     nst_state_free();
@@ -235,8 +231,8 @@ i32 nst_run(Nst_FuncObj *main_func,
 
 void nst_state_free()
 {
-    nst_llist_destroy(nst_state.traceback->positions, free);
-    nst_dec_ref(*nst_state.curr_path);
+    nst_llist_destroy(nst_state.traceback.positions, free);
+    nst_dec_ref(nst_state.curr_path);
     nst_dec_ref(nst_state.argv);
     nst_vstack_destroy(nst_state.v_stack);
     nst_fstack_destroy(nst_state.f_stack);
@@ -252,7 +248,7 @@ void nst_state_free()
             free_lib_func();
         }
     }
-    nst_ggc_delete_objs(nst_state.ggc);
+    nst_ggc_delete_objs(&nst_state.ggc);
 }
 
 void _nst_unload_libs()
@@ -262,18 +258,18 @@ void _nst_unload_libs()
 
 static inline void destroy_call(Nst_FuncCall *call, Nst_Int offset)
 {
-    nst_dec_ref(nst_map_drop_str((*nst_state.vt)->vars, "_vars_"));
-    nst_dec_ref((*nst_state.vt)->vars);
-    if ( (*nst_state.vt)->global_table != NULL )
+    nst_dec_ref(nst_map_drop_str(nst_state.vt->vars, "_vars_"));
+    nst_dec_ref(nst_state.vt->vars);
+    if ( nst_state.vt->global_table != NULL )
     {
-        nst_dec_ref((*nst_state.vt)->global_table);
+        nst_dec_ref(nst_state.vt->global_table);
     }
-    free(*nst_state.vt);
+    free(nst_state.vt);
 
     nst_dec_ref(call->func);
 
-    *nst_state.vt = call->vt;
-    *nst_state.idx = call->idx + offset;
+    nst_state.vt = call->vt;
+    nst_state.idx = call->idx + offset;
 }
 
 static void complete_function(usize final_stack_size)
@@ -287,10 +283,10 @@ static void complete_function(usize final_stack_size)
         nst_fstack_peek(nst_state.f_stack).func->body.bytecode;
 
     for ( ; nst_state.f_stack->current_size > final_stack_size;
-          (*nst_state.idx)++ )
+          nst_state.idx++ )
     {
         assert(curr_inst_ls != NULL);
-        if ( *nst_state.idx >= (Nst_Int)curr_inst_ls->total_size )
+        if ( nst_state.idx >= (Nst_Int)curr_inst_ls->total_size )
         {
             // Free the function call
             Nst_FuncCall call = nst_fstack_pop(nst_state.f_stack);
@@ -302,15 +298,14 @@ static void complete_function(usize final_stack_size)
             continue;
         }
 
-        Nst_Inst *inst =
-            curr_inst_ls->instructions + *nst_state.idx;
+        Nst_Inst *inst = curr_inst_ls->instructions + nst_state.idx;
         i32 inst_id = inst->id;
         run_instruction(inst);
 
         if ( ERROR_OCCURRED )
         {
             Nst_CatchFrame top_catch = nst_cstack_peek(nst_state.c_stack);
-            if ( OBJ(nst_state.traceback->error.name) == nst_c.Null_null )
+            if ( OBJ(nst_state.traceback.error.name) == nst_c.Null_null )
             {
                 top_catch.f_stack_size = 0;
                 top_catch.v_stack_size = 0;
@@ -354,7 +349,7 @@ static void complete_function(usize final_stack_size)
                     nst_dec_ref(obj);
                 }
             }
-            *nst_state.idx = top_catch.inst_idx - 1;
+            nst_state.idx = top_catch.inst_idx - 1;
             curr_inst_ls = nst_fstack_peek(nst_state.f_stack).func->body.bytecode;
         }
 
@@ -369,7 +364,7 @@ i32 nst_run_module(i8 *filename, Nst_SourceText *lib_src)
 {
     // Compile and optimize the imported module
 
-    i32 opt_level = *nst_state.opt_level;
+    i32 opt_level = nst_state.opt_level;
     Nst_Error error = { false, nst_no_pos(), nst_no_pos(), NULL, NULL };
 
     i32 file_opt_lvl;
@@ -445,10 +440,10 @@ i32 nst_run_module(i8 *filename, Nst_SourceText *lib_src)
     Nst_FuncObj *mod_func = FUNC(nst_func_new(0, inst_ls));
 
     // Change the cwd
-    Nst_StrObj *prev_path = *nst_state.curr_path;
+    Nst_StrObj *prev_path = nst_state.curr_path;
 
     Nst_StrObj *path_str = make_cwd(filename);
-    *nst_state.curr_path = path_str;
+    nst_state.curr_path = path_str;
 
     i32 res = _chdir(path_str->value);
     assert(res == 0);
@@ -459,9 +454,9 @@ i32 nst_run_module(i8 *filename, Nst_SourceText *lib_src)
         mod_func,
         nst_no_pos(),
         nst_no_pos(),
-        *nst_state.vt,
-        *nst_state.idx - 1);
-    *nst_state.idx = 0;
+        nst_state.vt,
+        nst_state.idx - 1);
+    nst_state.idx = 0;
     Nst_VarTable *vt = nst_vt_new(
         no_default ? MAP(nst_c.Null_null) : NULL,
         path_str,
@@ -476,10 +471,10 @@ i32 nst_run_module(i8 *filename, Nst_SourceText *lib_src)
 
     CHANGE_VT(vt);
 
-    nst_func_set_vt(mod_func, (*nst_state.vt)->vars);
+    nst_func_set_vt(mod_func, nst_state.vt->vars);
 
     complete_function(nst_state.f_stack->current_size - 1);
-    *nst_state.curr_path = prev_path;
+    nst_state.curr_path = prev_path;
     nst_dec_ref(path_str);
     nst_dec_ref(mod_func);
 
@@ -509,21 +504,21 @@ Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err)
         func,
         nst_no_pos(),
         nst_no_pos(),
-        *nst_state.vt,
-        *nst_state.idx - 1);
+        nst_state.vt,
+        nst_state.idx - 1);
 
     Nst_VarTable *new_vt;
     if ( func->mod_globals != NULL )
     {
         new_vt = nst_vt_new(func->mod_globals, NULL, NULL);
     }
-    else if ( (*nst_state.vt)->global_table == NULL )
+    else if ( nst_state.vt->global_table == NULL )
     {
-        new_vt = nst_vt_new((*nst_state.vt)->vars, NULL, NULL);
+        new_vt = nst_vt_new(nst_state.vt->vars, NULL, NULL);
     }
     else
     {
-        new_vt = nst_vt_new((*nst_state.vt)->global_table, NULL, NULL);
+        new_vt = nst_vt_new(nst_state.vt->global_table, NULL, NULL);
     }
 
     for ( usize i = 0, n = func->arg_num; i < n; i++ )
@@ -531,7 +526,7 @@ Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err)
         nst_vt_set(new_vt, func->args[i], args[i]);
     }
 
-    *nst_state.idx = 0;
+    nst_state.idx = 0;
     CHANGE_VT(new_vt);
     complete_function(nst_state.f_stack->current_size - 1);
 
@@ -555,8 +550,8 @@ Nst_Obj *nst_run_func_context(Nst_FuncObj *func,
         func,
         nst_no_pos(),
         nst_no_pos(),
-        *nst_state.vt,
-        *nst_state.idx - 1);
+        nst_state.vt,
+        nst_state.idx - 1);
 
     Nst_VarTable *new_vt = (Nst_VarTable *)malloc(sizeof(Nst_VarTable));
     if ( new_vt == NULL )
@@ -572,14 +567,14 @@ Nst_Obj *nst_run_func_context(Nst_FuncObj *func,
         {
             new_vt->global_table = MAP(nst_inc_ref(func->mod_globals));
         }
-        else if ( (*nst_state.vt)->global_table == NULL )
+        else if ( nst_state.vt->global_table == NULL )
         {
-            new_vt->global_table = MAP(nst_inc_ref((*nst_state.vt)->vars));
+            new_vt->global_table = MAP(nst_inc_ref(nst_state.vt->vars));
         }
         else
         {
             new_vt->global_table =
-                MAP(nst_inc_ref((*nst_state.vt)->global_table));
+                MAP(nst_inc_ref(nst_state.vt->global_table));
         }
     }
     else
@@ -587,7 +582,7 @@ Nst_Obj *nst_run_func_context(Nst_FuncObj *func,
         new_vt->global_table = MAP(nst_inc_ref(globals));
     }
     CHANGE_VT(new_vt);
-    *nst_state.idx = idx;
+    nst_state.idx = idx;
     complete_function(nst_state.f_stack->current_size - 1);
 
     if ( ERROR_OCCURRED )
@@ -716,7 +711,7 @@ static inline void exe_return_val()
     }
 
     nst_vstack_push(nst_state.v_stack, result);
-    *nst_state.idx = nst_fstack_peek(nst_state.f_stack)
+    nst_state.idx = nst_fstack_peek(nst_state.f_stack)
         .func->body
         .bytecode->total_size;
     nst_dec_ref(result);
@@ -724,7 +719,7 @@ static inline void exe_return_val()
 
 static inline void exe_return_vars()
 {
-    Nst_MapObj *vars = (*nst_state.vt)->vars;
+    Nst_MapObj *vars = nst_state.vt->vars;
     Nst_Obj *obj = nst_vstack_pop(nst_state.v_stack);
 
     while ( obj != NULL )
@@ -734,7 +729,7 @@ static inline void exe_return_vars()
     }
 
     nst_vstack_push(nst_state.v_stack, vars);
-    *nst_state.idx = nst_fstack_peek(nst_state.f_stack)
+    nst_state.idx = nst_fstack_peek(nst_state.f_stack)
         .func->body
         .bytecode->total_size;
 }
@@ -743,7 +738,7 @@ static inline void exe_set_val_loc(Nst_Inst *inst)
 {
     CHECK_V_STACK;
     Nst_Obj *val = nst_vstack_pop(nst_state.v_stack);
-    nst_vt_set(*nst_state.vt, inst->val, val);
+    nst_vt_set(nst_state.vt, inst->val, val);
     nst_dec_ref(val);
 }
 
@@ -756,7 +751,7 @@ static inline void exe_set_cont_loc(Nst_Inst *inst)
 
 static inline void exe_jump(Nst_Inst *inst)
 {
-    *nst_state.idx = inst->int_val - 1;
+    nst_state.idx = inst->int_val - 1;
 }
 
 static inline void exe_jumpif_t(Nst_Inst *inst)
@@ -768,7 +763,7 @@ static inline void exe_jumpif_t(Nst_Inst *inst)
 
     if ( result == nst_c.Bool_true )
     {
-        *nst_state.idx = inst->int_val - 1;
+        nst_state.idx = inst->int_val - 1;
     }
     nst_dec_ref(result);
 }
@@ -782,7 +777,7 @@ static inline void exe_jumpif_f(Nst_Inst *inst)
 
     if ( result == nst_c.Bool_false )
     {
-        *nst_state.idx = inst->int_val - 1;
+        nst_state.idx = inst->int_val - 1;
     }
     nst_dec_ref(result);
 }
@@ -793,7 +788,7 @@ static inline void exe_jumpif_zero(Nst_Inst *inst)
     Nst_Obj *val = nst_vstack_peek(nst_state.v_stack);
     if ( AS_INT(val) == 0 )
     {
-        *nst_state.idx = inst->int_val - 1;
+        nst_state.idx = inst->int_val - 1;
     }
 }
 
@@ -833,14 +828,14 @@ static inline void exe_set_val(Nst_Inst *inst)
 {
     CHECK_V_STACK;
     nst_vt_set(
-        *nst_state.vt,
+        nst_state.vt,
         inst->val,
         nst_vstack_peek(nst_state.v_stack));
 }
 
 static inline void exe_get_val(Nst_Inst *inst)
 {
-    Nst_Obj *obj = nst_vt_get(*nst_state.vt, inst->val);
+    Nst_Obj *obj = nst_vt_get(nst_state.vt, inst->val);
     if ( obj == NULL )
     {
         nst_vstack_push(nst_state.v_stack, nst_c.Null_null);
@@ -1110,9 +1105,9 @@ static inline void exe_op_call(Nst_Inst *inst)
         func,
         inst->start,
         inst->end,
-        *nst_state.vt,
-        *nst_state.idx);
-    *nst_state.idx = -1;
+        nst_state.vt,
+        nst_state.idx);
+    nst_state.idx = -1;
     nst_dec_ref(func);
 
     if ( !res )
@@ -1132,13 +1127,13 @@ static inline void exe_op_call(Nst_Inst *inst)
     {
         new_vt = nst_vt_new(func->mod_globals, NULL, NULL);
     }
-    else if ( (*nst_state.vt)->global_table == NULL )
+    else if ( nst_state.vt->global_table == NULL )
     {
-        new_vt = nst_vt_new((*nst_state.vt)->vars, NULL, NULL);
+        new_vt = nst_vt_new(nst_state.vt->vars, NULL, NULL);
     }
     else
     {
-        new_vt = nst_vt_new((*nst_state.vt)->global_table, NULL, NULL);
+        new_vt = nst_vt_new(nst_state.vt->global_table, NULL, NULL);
     }
 
     for ( Nst_Int i = 0; i < arg_num; i++ )
@@ -1604,11 +1599,11 @@ static inline void exe_save_error()
     nst_map_set_str(err_map, "name", GLOBAL_ERROR->name);
     nst_map_set_str(err_map, "message", GLOBAL_ERROR->message);
 
-    nst_state.traceback->error.occurred = false;
+    nst_state.traceback.error.occurred = false;
     nst_dec_ref(GLOBAL_ERROR->name);
     nst_dec_ref(GLOBAL_ERROR->message);
 
-    nst_llist_empty(nst_state.traceback->positions, free);
+    nst_llist_empty(nst_state.traceback.positions, free);
 
     nst_vstack_push(nst_state.v_stack, err_map);
     nst_dec_ref(err_map);

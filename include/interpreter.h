@@ -11,13 +11,13 @@ extern "C" {
 
 EXPORT typedef struct _Nst_ExecutionState
 {
-    Nst_Traceback *traceback;
-    Nst_VarTable **vt;
-    Nst_Int *idx; // Instruction index
-    Nst_GarbageCollector *ggc; // Generational garbage collector
-    Nst_StrObj **curr_path; // Current working directory
+    Nst_Traceback traceback;
+    Nst_VarTable *vt;
+    Nst_Int idx; // Instruction index
+    Nst_GarbageCollector ggc; // Generational garbage collector
+    Nst_StrObj *curr_path; // Current working directory
     Nst_SeqObj *argv;
-    i32 *opt_level; // Optimization level for importing libraries
+    i32 opt_level; // Optimization level for importing libraries
     Nst_ValueStack *v_stack; // Value stack
     Nst_CallStack  *f_stack; // Call stack
     Nst_CatchStack *c_stack; // Catch stack

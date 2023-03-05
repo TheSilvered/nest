@@ -355,15 +355,15 @@ NST_FUNC_SIGN(pause_)
     // Now I'm sure that the function was called with co.call
     call = nst_fstack_pop(state->f_stack);
 
-    co->vars = (*state->vt)->vars;
-    co->globals = (*state->vt)->global_table;
-    co->idx = *state->idx;
-    free(*state->vt);
+    co->vars = state->vt->vars;
+    co->globals = state->vt->global_table;
+    co->idx = state->idx;
+    free(state->vt);
 
     nst_dec_ref(call.func);
 
-    *state->vt = call.vt;
-    *state->idx = call.idx;
+    state->vt = call.vt;
+    state->idx = call.idx;
 
     usize stack_size = 0;
     Nst_Obj **v_stack_objs = state->v_stack->stack;
