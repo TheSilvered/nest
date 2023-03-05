@@ -24,6 +24,7 @@ Compression=lzma
 SolidCompression=yes
 WizardStyle=modern
 ChangesEnvironment=yes
+SetupIconFile=..\icons\nest_installer_icon.ico
 
 [Files]
 Source: "..\{#arch}\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
