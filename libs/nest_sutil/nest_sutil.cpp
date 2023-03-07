@@ -861,7 +861,7 @@ NST_FUNC_SIGN(join_)
         memcpy(new_str + str_idx, str_val, str_len);
         str_idx += str_len;
     }
-
+    nst_free(objs);
     new_str[tot_len] = '\0';
     return nst_string_new(new_str, tot_len, true);
 }

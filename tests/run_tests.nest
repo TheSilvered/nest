@@ -7,26 +7,40 @@
 -- Creates or clears the log file
 'test_output.txt' 'w' @io.open = test.log_file
 
+($_args_ 1 >) (_args_.1 '--force-color' ==) && (sys.PLATFORM 'linux' ==) || ? [
+    '\e[31m' = C_RED
+    '\e[32m' = C_GREEN
+    '\e[0m' = C_RESET
+] : [
+    '' = C_RED
+    '' = C_GREEN
+    '' = C_RESET
+]
+
+#run_test name path [
+    !(name 'test_e_' @su.starts_with) ?
+        |#| path
+    : [
+        ?? |#| path
+        ?! e =>
+        'Assertion Error' !! ('the file ' name ' should raise an error' ><)
+    ]
+]
+
 #run_tests dir [
     ... Iter :: (dir @fs.list_dir_recursive) := test_path [
         test_path @fs.extension '.nest' != ? ..
-
         test_path @fs.filename = name
+        !(name 'test_' @su.starts_with) ? ..
 
-        !(name 'e_' @su.starts_with) ?
-            |#| test_path
-        : [
-            ?? [
-                -- runs the file
-                |#| test_path
-            ]
-            ?! e [
-                name true @io.println
-                ..
-            ]
-            'Assertion Error' !! ('the file ' name ' should raise an error' ><)
+        ?? name test_path @run_test
+        ?! e [
+            name C_RED ' FAILED' C_RESET ': ' e.name ' - ' e.message >< \
+            true \
+                @io.println
+            ..
         ]
-        name true @io.println
+        name C_GREEN ' PASSED' C_RESET >< true @io.println
     ]
 ]
 

@@ -6,7 +6,7 @@
 -- if the file already exists the test will fail
 'stdfs_file_copied' @fs.isfile ? 'stdfs_file_copied' @fs.rmfile
 
-'fs_test.nest' @fs.isfile @test.assert_true
+'test_fs.nest' @fs.isfile @test.assert_true
 'test_files' @fs.isdir @test.assert_true
 
 'dir' @fs.mkdir
