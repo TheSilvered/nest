@@ -6,15 +6,15 @@
 test.log_file @io.close
 
 sys.PLATFORM 'windows' == ?
-    'echo written with echo>> ..\\test_output.txt' @sys.system
+    'echo sys.system: written with echo>> ..\\test_output.txt' @sys.system
 :
-    'echo "written with echo" >> ../test_output.txt' @sys.system
+    'echo "sys.system: written with echo" >> ../test_output.txt' @sys.system
 '../test_output.txt' 'a+' @io.open = test.log_file
 
 'sys.getenv (appdata): ' ('APPDATA' @sys.getenv) >< @test.println
 'sys.getenv (home): ' ('HOME' @sys.getenv) >< @test.println
 'Hello' @sys.get_ref_count 2 @test.assert_eq
-'get_addr: 0x'(10 @sys.get_addr @su.hex 16 '0' @su.rjust) >< @test.println
+'sys.get_addr: 0x'(10 @sys.get_addr @su.hex 16 '0' @su.rjust) >< @test.println
 10 @sys.hash 10 @test.assert_eq
 -1 @sys.hash -2 @test.assert_eq
 ?::sys.VERSION Str @test.assert_eq

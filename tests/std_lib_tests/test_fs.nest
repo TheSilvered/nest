@@ -16,7 +16,8 @@
 'dir/stdfs_file' 'stdfs_file_copied' fs.CPO.make_hard_links @fs.copy
 'dir/stdfs_file' 'link' fs.CPO.make_symlinks @fs.copy = res -- needs admin
 
-'dir/stdfs_file' @fs.absolute_path = abs_path @test.println
+'fs.absolute_path: ' ('dir/stdfs_file' @fs.absolute_path = abs_path) >< \
+    @test.println
 (abs_path.0 '/' ==) (abs_path.1 ':' ==) || @test.assert_true
 'stdfs_file_copied' 'dir/stdfs_file' @fs.equivalent @test.assert_true
 
