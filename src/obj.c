@@ -1,18 +1,16 @@
-#include <stdlib.h>
-#include <errno.h>
 #include "obj.h"
 #include "map.h"
 #include "ggc.h"
 #include "str.h"
+#include "mem.h"
 
 Nst_Obj *_nst_obj_alloc(usize               size,
                         struct _Nst_StrObj *type,
                         void (*destructor)(void *))
 {
-    Nst_Obj *obj = OBJ(malloc(size));
+    Nst_Obj *obj = OBJ(nst_malloc(1, size));
     if ( obj == NULL )
     {
-        errno = ENOMEM;
         return NULL;
     }
 
@@ -49,7 +47,7 @@ void _nst_obj_destroy(Nst_Obj *obj)
             nst_dec_ref(obj->type);
         }
 
-        free(obj);
+        nst_free(obj);
         return;
     }
 
@@ -101,7 +99,7 @@ void _nst_obj_destroy(Nst_Obj *obj)
         ls->size--;
     }
 
-    free(obj);
+    nst_free(obj);
 }
 
 Nst_Obj *_nst_inc_ref(Nst_Obj *obj)

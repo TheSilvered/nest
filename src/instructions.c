@@ -1,10 +1,9 @@
-#include <stdlib.h>
+#include "mem.h"
 #include "instructions.h"
 
 Nst_Inst *nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end)
 {
-    Nst_Inst *inst =
-        (Nst_Inst *)malloc(sizeof(Nst_Inst));
+    Nst_Inst *inst = (Nst_Inst *)nst_malloc(1, sizeof(Nst_Inst));
     if ( inst == NULL )
     {
         return NULL;
@@ -24,8 +23,7 @@ Nst_Inst *_nst_inst_new_val(Nst_InstID id,
                             Nst_Pos    start,
                             Nst_Pos    end)
 {
-    Nst_Inst *inst =
-        (Nst_Inst*)malloc(sizeof(Nst_Inst));
+    Nst_Inst *inst = (Nst_Inst*)nst_malloc(1, sizeof(Nst_Inst));
     if ( inst == NULL )
     {
         return NULL;
@@ -45,8 +43,7 @@ Nst_Inst *nst_inst_new_int(Nst_InstID id,
                            Nst_Pos    start,
                            Nst_Pos    end)
 {
-    Nst_Inst *inst =
-        (Nst_Inst *)malloc(sizeof(Nst_Inst));
+    Nst_Inst *inst = (Nst_Inst *)nst_malloc(1, sizeof(Nst_Inst));
     if ( inst == NULL )
     {
         return NULL;
@@ -67,7 +64,7 @@ void nst_inst_destroy(Nst_Inst *inst)
     {
         nst_dec_ref(inst->val);
     }
-    free(inst);
+    nst_free(inst);
 }
 
 void nst_inst_list_destroy(Nst_InstList *inst_list)
@@ -81,9 +78,9 @@ void nst_inst_list_destroy(Nst_InstList *inst_list)
         }
     }
 
-    free(instructions);
+    nst_free(instructions);
     nst_llist_destroy(
         inst_list->functions,
-        (nst_llist_destructor)_nst_dec_ref);
-    free(inst_list);
+        (Nst_LListDestructor)_nst_dec_ref);
+    nst_free(inst_list);
 }

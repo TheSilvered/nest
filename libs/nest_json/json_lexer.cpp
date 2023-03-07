@@ -95,8 +95,8 @@ Nst_LList *json_tokenize(i8        *path,
         {
             err->name = error.name;
             err->message = error.message;
-            free(src_text.text);
-            free(src_text.lines);
+            nst_free(src_text.text);
+            nst_free(src_text.lines);
             return nullptr;
         }
     }
@@ -186,12 +186,12 @@ Nst_LList *json_tokenize(i8        *path,
 
         if ( tok == nullptr )
         {
-            nst_llist_destroy(tokens, (nst_llist_destructor)nst_token_destroy);
+            nst_llist_destroy(tokens, (Nst_LListDestructor)nst_token_destroy);
             if ( fix_encoding )
             {
-                free(src_text.text);
+                nst_free(src_text.text);
             }
-            free(src_text.lines);
+            nst_free(src_text.lines);
             return nullptr;
         }
         nst_llist_append(tokens, tok, true);
@@ -201,9 +201,9 @@ end:
     nst_llist_append(tokens, tok_new_noend(state.pos, JSON_EOF), true);
     if ( fix_encoding )
     {
-        free(src_text.text);
+        nst_free(src_text.text);
     }
-    free(src_text.lines);
+    nst_free(src_text.lines);
     return tokens;
 }
 
@@ -213,7 +213,7 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
     Nst_Pos escape_start = nst_copy_pos(state.pos);
     bool escape = false;
 
-    i8 *end_str = (i8 *)malloc(8);
+    i8 *end_str = (i8 *)nst_malloc(8, sizeof(i8));
     i8 *end_str_realloc = nullptr;
 
     if ( end_str == nullptr )
@@ -232,12 +232,13 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
         if ( str_len + 3 >= chunk_size )
         {
             chunk_size = (usize)(chunk_size * 1.5);
-            end_str_realloc = (i8 *)realloc(
+            end_str_realloc = (i8 *)nst_realloc(
                 end_str,
-                sizeof(i8) * chunk_size);
+                chunk_size,
+                sizeof(i8));
             if ( end_str_realloc == nullptr )
             {
-                free(end_str);
+                nst_free(end_str);
                 NST_FAILED_ALLOCATION;
                 return nullptr;
             }
@@ -248,7 +249,7 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
         {
             if ( (u8)state.ch < ' ' )
             {
-                free(end_str);
+                nst_free(end_str);
                 NST_SET_SYNTAX_ERROR(nst_format_error(
                     "JSON: invalid character, file \"%s\", line %lli, column %lli",
                     "sii",
@@ -286,7 +287,7 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
             advance();
             if ( state.idx + 3 >= state.len )
             {
-                free(end_str);
+                nst_free(end_str);
                 SET_INVALID_ESCAPE_ERROR;
                 return nullptr;
             }
@@ -301,7 +302,7 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
 
             if ( !IS_HEX(ch1) || !IS_HEX(ch2) || !IS_HEX(ch3) || !IS_HEX(ch4) )
             {
-                free(end_str);
+                nst_free(end_str);
                 SET_INVALID_ESCAPE_ERROR;
                 return nullptr;
             }
@@ -331,7 +332,7 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
             break;
         }
         default:
-            free(end_str);
+            nst_free(end_str);
             SET_INVALID_ESCAPE_ERROR;
             return nullptr;
         }
@@ -343,15 +344,16 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
     if ( state.ch != '"' )
     {
         JSON_SYNTAX_ERROR("open string", state.path, state.pos);
-        free(end_str);
+        nst_free(end_str);
         return nullptr;
     }
 
     if ( str_len + 20 < chunk_size )
     {
-        end_str_realloc = (i8*)realloc(
+        end_str_realloc = (i8*)nst_realloc(
             end_str,
-            sizeof(i8) * (str_len + 1));
+            str_len + 1,
+            sizeof(i8));
     }
     if ( end_str_realloc != nullptr )
     {

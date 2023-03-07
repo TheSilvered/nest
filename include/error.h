@@ -152,7 +152,7 @@ EXPORT void nst_print_traceback(Nst_Traceback tb);
 EXPORT Nst_StrObj *nst_format_error(const i8 *format, const i8 *format_args, ...);
 
 // Frees a heap allocated text source
-void nst_free_src_text(Nst_SourceText *text);
+EXPORT void nst_free_src_text(Nst_SourceText *text);
 
 #ifdef __cplusplus
 }

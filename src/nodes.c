@@ -1,18 +1,17 @@
-#include <stdlib.h>
 #include <errno.h>
 #include "nodes.h"
 #include "tokens.h"
+#include "mem.h"
 
 Nst_Node *nst_node_new_tokens(Nst_Pos      start,
                               Nst_Pos      end,
                               Nst_NodeType type,
                               Nst_LList   *tokens)
 {
-    Nst_Node *node = (Nst_Node *)malloc(sizeof(Nst_Node));
+    Nst_Node *node = (Nst_Node *)nst_malloc(1, sizeof(Nst_Node));
 
     if ( node == NULL )
     {
-        errno = ENOMEM;
         return NULL;
     }
 
@@ -25,7 +24,7 @@ Nst_Node *nst_node_new_tokens(Nst_Pos      start,
     Nst_LList *nodes = nst_llist_new();
     if ( errno == ENOMEM )
     {
-        free(node);
+        nst_free(node);
         return NULL;
     }
 
@@ -38,11 +37,10 @@ Nst_Node *nst_node_new_nodes(Nst_Pos      start,
                              Nst_NodeType type,
                              Nst_LList   *nodes)
 {
-    Nst_Node *node = (Nst_Node *)malloc(sizeof(Nst_Node));
+    Nst_Node *node = (Nst_Node *)nst_malloc(1, sizeof(Nst_Node));
 
     if ( node == NULL )
     {
-        errno = ENOMEM;
         return NULL;
     }
 
@@ -54,7 +52,7 @@ Nst_Node *nst_node_new_nodes(Nst_Pos      start,
     Nst_LList *tokens = nst_llist_new();
     if ( errno == ENOMEM )
     {
-        free(node);
+        nst_free(node);
         return NULL;
     }
 
@@ -68,11 +66,10 @@ Nst_Node *nst_node_new_full(Nst_Pos      start,
                             Nst_LList   *nodes,
                             Nst_LList   *tokens)
 {
-    Nst_Node *node = (Nst_Node *)malloc(sizeof(Nst_Node));
+    Nst_Node *node = (Nst_Node *)nst_malloc(1, sizeof(Nst_Node));
 
     if ( node == NULL )
     {
-        errno = ENOMEM;
         return NULL;
     }
 
@@ -86,11 +83,10 @@ Nst_Node *nst_node_new_full(Nst_Pos      start,
 
 Nst_Node *nst_node_new_empty(Nst_Pos start, Nst_Pos end, Nst_NodeType type)
 {
-    Nst_Node *node = (Nst_Node *)malloc(sizeof(Nst_Node));
+    Nst_Node *node = (Nst_Node *)nst_malloc(1, sizeof(Nst_Node));
 
     if ( node == NULL )
     {
-        errno = ENOMEM;
         return NULL;
     }
 
@@ -101,7 +97,7 @@ Nst_Node *nst_node_new_empty(Nst_Pos start, Nst_Pos end, Nst_NodeType type)
     Nst_LList *nodes = nst_llist_new();
     if ( errno == ENOMEM )
     {
-        free(node);
+        nst_free(node);
         return NULL;
     }
 
@@ -125,8 +121,8 @@ void nst_node_destroy(Nst_Node *node)
         return;
     }
 
-    nst_llist_destroy(node->tokens, (nst_llist_destructor)nst_token_destroy);
-    nst_llist_destroy(node->nodes, (nst_llist_destructor)nst_node_destroy);
+    nst_llist_destroy(node->tokens, (Nst_LListDestructor)nst_token_destroy);
+    nst_llist_destroy(node->nodes, (Nst_LListDestructor)nst_node_destroy);
 
-    free(node);
+    nst_free(node);
 }

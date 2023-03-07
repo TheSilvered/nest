@@ -18,11 +18,10 @@
     #define NST_VERSION _NST_VERSION_BASE " x86"
   #endif
 #else
-  #define NST_VERSION _NST_VERSION_BASE
+  #define NST_VERSION _NST_VERSION_BASE " x??"
 #endif
 
 #include "iter.h"
-
 #include "hash.h"
 #include "obj_ops.h"
 #include "tokens.h"
@@ -32,5 +31,6 @@
 #include "encoding.h"
 #include "argv_parser.h"
 #include "error_internal.h"
+#include "mem.h"
 
 #endif //!NEST_H

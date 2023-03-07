@@ -1,8 +1,8 @@
-#include <stdlib.h>
 #include "tokens.h"
 #include "function.h"
 #include "obj_ops.h"
 #include "global_consts.h"
+#include "mem.h"
 
 #define HEAD_NODE (NST_NODE(node->nodes->head->value))
 #define TAIL_NODE (NST_NODE(node->nodes->tail->value))
@@ -80,7 +80,7 @@ static Nst_InstList *compile_internal(Nst_Node *code,
     c_state.loop_id = 0;
     c_state.inst_ls = nst_llist_new();
     Nst_InstList *inst_list =
-        (Nst_InstList *)malloc(sizeof(Nst_InstList));
+        (Nst_InstList *)nst_malloc(1, sizeof(Nst_InstList));
     if ( inst_list == NULL )
     {
         return NULL;
@@ -99,12 +99,13 @@ static Nst_InstList *compile_internal(Nst_Node *code,
     {
         inst_list->total_size = c_state.inst_ls->size + (add_return ? 2 : 0);
     }
-    inst_list->instructions = (Nst_Inst *)malloc(
-        inst_list->total_size * sizeof(Nst_Inst));
+    inst_list->instructions = (Nst_Inst *)nst_malloc(
+        inst_list->total_size,
+        sizeof(Nst_Inst));
     if ( inst_list->instructions == NULL )
     {
-        free(inst_list);
-        nst_llist_destroy(c_state.inst_ls, free);
+        nst_free(inst_list);
+        nst_llist_destroy(c_state.inst_ls, nst_free);
         return NULL;
     }
 
@@ -157,7 +158,7 @@ static Nst_InstList *compile_internal(Nst_Node *code,
     }
 
     // Using free to not decrease the references of the objects
-    nst_llist_destroy(c_state.inst_ls, free);
+    nst_llist_destroy(c_state.inst_ls, nst_free);
     if ( !is_func )
     {
         nst_node_destroy(code);

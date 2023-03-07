@@ -18,9 +18,9 @@
     _nst_streams_del(); \
     _nst_unload_libs(); \
     if ( filename != NULL ) { \
-        free(src_text.text); \
-        free(src_text.lines); \
-        free(src_text.path); \
+        nst_free(src_text.text); \
+        nst_free(src_text.lines); \
+        nst_free(src_text.path); \
     } \
     return code; \
     } while ( 0 )
@@ -29,8 +29,8 @@
 
 #define EXIT(code) \
     do { \
-        free(argv); \
-        free(argv_content); \
+        nst_free(argv); \
+        nst_free(argv_content); \
         _EXIT(code); \
     } while ( 0 )
 
@@ -57,13 +57,13 @@ int wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv, i8 **argv_content)
     {
         tot_size += (wcslen(wargv[i])) * 3 + 1;
     }
-    i8 **local_argv = (i8 **)malloc(argc * sizeof(i8 *));
-    i8 *local_argv_content = (i8 *)malloc(tot_size * sizeof(i8));
+    i8 **local_argv = (i8 **)nst_malloc(argc, sizeof(i8 *));
+    i8 *local_argv_content = (i8 *)nst_malloc(tot_size, sizeof(i8));
 
     if ( local_argv == NULL || local_argv_content == NULL )
     {
-        free(local_argv);
-        free(local_argv_content);
+        nst_free(local_argv);
+        nst_free(local_argv_content);
         puts("Failed allocation while converting argv");
         return -1;
     }
@@ -80,8 +80,8 @@ int wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv, i8 **argv_content)
             usize ch_len = nst_check_utf16_bytes(warg + j, n - j);
             if ( ch_len == -1 )
             {
-                free(local_argv);
-                free(local_argv_content);
+                nst_free(local_argv);
+                nst_free(local_argv_content);
                 puts("Invalid argv enconding");
                 return -1;
             }
@@ -224,7 +224,7 @@ int main(int argc, char **argv)
 
         if ( !force_exe && !print_tree && !print_bc )
         {
-            nst_llist_destroy(tokens, (nst_llist_destructor)nst_token_destroy);
+            nst_llist_destroy(tokens, (Nst_LListDestructor)nst_token_destroy);
             EXIT(0);
         }
     }

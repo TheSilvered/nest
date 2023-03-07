@@ -167,6 +167,7 @@
     <ClInclude Include="..\..\..\..\include\lib_import.h" />
     <ClInclude Include="..\..\..\..\include\llist.h" />
     <ClInclude Include="..\..\..\..\include\map.h" />
+    <ClInclude Include="..\..\..\..\include\mem.h" />
     <ClInclude Include="..\..\..\..\include\nest.h" />
     <ClInclude Include="..\..\..\..\include\nodes.h" />
     <ClInclude Include="..\..\..\..\include\obj.h" />
@@ -198,6 +199,7 @@
     <ClCompile Include="..\..\..\..\src\lib_import.c" />
     <ClCompile Include="..\..\..\..\src\llist.c" />
     <ClCompile Include="..\..\..\..\src\map.c" />
+    <ClCompile Include="..\..\..\..\src\mem.c" />
     <ClCompile Include="..\..\..\..\src\nodes.c" />
     <ClCompile Include="..\..\..\..\src\obj.c" />
     <ClCompile Include="..\..\..\..\src\obj_ops.c" />

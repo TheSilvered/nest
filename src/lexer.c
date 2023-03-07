@@ -1,8 +1,8 @@
 #include <ctype.h>
 #include <errno.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
+#include "mem.h"
 #include "error_internal.h"
 #include "hash.h"
 #include "lexer.h"
@@ -14,7 +14,7 @@
 #define START_CH_SIZE 8 * sizeof(i8)
 
 #define SET_INVALID_ESCAPE_ERROR do { \
-    free(end_str); \
+    nst_free(end_str); \
     _NST_SET_RAW_SYNTAX_ERROR( \
         error, \
         escape_start, \
@@ -100,7 +100,7 @@ Nst_LList *nst_tokenizef(i8             *filename,
     usize size = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    i8 *text = (i8 *)calloc(size + 1, sizeof(i8));
+    i8 *text = (i8 *)nst_calloc(size + 1, sizeof(i8), NULL);
     if ( text == NULL )
     {
         printf("Ran out of memory while reading the file\n");
@@ -198,7 +198,7 @@ Nst_LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
             {
                 nst_token_destroy(tok);
             }
-            nst_llist_destroy(tokens, (nst_llist_destructor)nst_token_destroy);
+            nst_llist_destroy(tokens, (Nst_LListDestructor)nst_token_destroy);
             return NULL;
         }
 
@@ -628,7 +628,7 @@ dec_num:
     go_back();
 
 end:
-    ltrl = (i8 *)malloc(ltrl_size + 3);
+    ltrl = (i8 *)nst_malloc(ltrl_size + 3, sizeof(u8));
     if ( ltrl == NULL )
     {
         _NST_FAILED_ALLOCATION(error, start, cursor.pos);
@@ -644,7 +644,7 @@ end:
     if ( is_real )
     {
         res = nst_string_parse_real(&s, &err);
-        free(ltrl);
+        nst_free(ltrl);
     }
     else
     {
@@ -660,11 +660,11 @@ end:
                 ltrl[ltrl_size + 2] = '\0';
                 s.len++;
                 res = nst_string_parse_byte(&s, &err);
-                free(ltrl);
+                nst_free(ltrl);
             }
             else
             {
-                free(ltrl);
+                nst_free(ltrl);
                 CHECK_ERR;
                 Nst_Obj *new_res = nst_byte_new(AS_INT(res) & 0xff);
                 nst_dec_ref(res);
@@ -674,7 +674,7 @@ end:
         }
         else
         {
-            free(ltrl);
+            nst_free(ltrl);
             go_back();
         }
     }
@@ -707,7 +707,7 @@ static void make_ident(Nst_Tok **tok, Nst_Error *error)
     }
     go_back();
 
-    str = (i8 *)malloc(str_len + 1);
+    str = (i8 *)nst_malloc(str_len + 1, sizeof(u8));
 
     if ( str == NULL )
     {
@@ -732,12 +732,11 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
     bool allow_multiline = cursor.ch == '"';
     bool escape = false;
 
-    i8 *end_str = (i8 *)malloc(START_CH_SIZE);
+    i8 *end_str = (i8 *)nst_malloc(START_CH_SIZE, sizeof(u8));
     i8 *end_str_realloc = NULL;
 
     if ( end_str == NULL )
     {
-        errno = ENOMEM;
         return;
     }
 
@@ -754,12 +753,13 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
         if ( str_len + 4 == chunk_size )
         {
             chunk_size = (usize)(chunk_size * 1.5);
-            end_str_realloc = (i8 *)realloc(
+            end_str_realloc = (i8 *)nst_realloc(
                 end_str,
-                sizeof(i8) * chunk_size);
+                chunk_size,
+                sizeof(i8));
             if ( end_str_realloc == NULL )
             {
-                free(end_str);
+                nst_free(end_str);
                 _NST_FAILED_ALLOCATION(error, cursor.pos, cursor.pos);
                 return;
             }
@@ -770,7 +770,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
         {
             if ( cursor.ch == '\n' && !allow_multiline )
             {
-                free(end_str);
+                nst_free(end_str);
                 _NST_SET_RAW_SYNTAX_ERROR(
                     error,
                     cursor.pos,
@@ -924,7 +924,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
 
     if ( cursor.ch != closing_ch )
     {
-        free(end_str);
+        nst_free(end_str);
         _NST_SET_RAW_SYNTAX_ERROR(
             error,
             start,
@@ -935,7 +935,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
 
     if ( str_len + 20 < chunk_size )
     {
-        end_str_realloc = (i8 *)realloc(end_str, str_len + 1);
+        end_str_realloc = (i8 *)nst_realloc(end_str, str_len + 1, sizeof(i8));
         if ( end_str_realloc != NULL )
         {
             end_str = end_str_realloc;
@@ -958,7 +958,7 @@ void nst_add_lines(Nst_SourceText* text, i32 start_offset)
     }
 
     i8 *text_p = text->text;
-    i8 **starts = (i8 **)calloc(100, sizeof(i8 *));
+    i8 **starts = (i8 **)nst_calloc(100, sizeof(i8 *), NULL);
     if ( starts == NULL )
     {
         text->lines = NULL;
@@ -1022,10 +1022,10 @@ void nst_add_lines(Nst_SourceText* text, i32 start_offset)
 
         if ( line_count % 100 == 0 )
         {
-            void *temp = realloc(starts, (i + 100) * sizeof(i8 *));
+            void *temp = nst_realloc(starts, i + 100, sizeof(i8 *));
             if ( temp == NULL )
             {
-                free(starts);
+                nst_free(starts);
                 text->lines = NULL;
                 text->line_count = 0;
                 return;
@@ -1097,7 +1097,7 @@ fix_encoding:
         }
     }
 
-    i8 *new_text = (i8 *)calloc(n + ch_count * 3 + 1, sizeof(i8));
+    i8 *new_text = (i8 *)nst_calloc(n + ch_count * 3 + 1, sizeof(i8), NULL);
     if ( new_text == NULL )
     {
         Nst_Pos pos = { 1, 0, text };
@@ -1135,7 +1135,7 @@ fix_encoding:
 
         if ( offset == -1 )
         {
-            free(new_text);
+            nst_free(new_text);
             Nst_Pos pos = { line, col, text };
             _NST_SET_RAW_VALUE_ERROR(
                 error,
@@ -1148,7 +1148,7 @@ fix_encoding:
         col++;
     }
     text->len = utf8_ptr - new_text;
-    free(text->text);
+    nst_free(text->text);
     text->text = new_text;
     return 0;
 }

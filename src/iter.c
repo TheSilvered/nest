@@ -14,7 +14,6 @@ Nst_Obj *nst_iter_new(Nst_FuncObj *start,
         _nst_iter_destroy));
     if ( iter == NULL )
     {
-        errno = ENOMEM;
         return NULL;
     }
 

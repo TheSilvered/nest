@@ -7,11 +7,11 @@
 #define ERROR_PATH_NOT_FOUND ENOENT
 #endif
 
-#include "nest_fs.h"
-
 #include <filesystem>
 #include <cerrno>
 #include <cstring>
+
+#include "nest_fs.h"
 
 #define FUNC_COUNT 20
 
@@ -70,7 +70,7 @@ void free_lib()
 
 Nst_StrObj *heap_str(std::string str, Nst_OpErr *err)
 {
-    i8 *heap_s = (i8 *)malloc((str.length() + 1) * sizeof(i8));
+    i8 *heap_s = (i8 *)nst_malloc((str.length() + 1), sizeof(i8));
     if ( heap_s == nullptr )
     {
         NST_FAILED_ALLOCATION;
@@ -437,7 +437,7 @@ NST_FUNC_SIGN(join_)
         add_slash = true;
     }
 
-    i8 *new_str = (i8 *)malloc((new_len + 1) * sizeof(i8));
+    i8 *new_str = (i8 *)nst_malloc((new_len + 1), sizeof(i8));
     if ( new_str == nullptr )
     {
         NST_FAILED_ALLOCATION;

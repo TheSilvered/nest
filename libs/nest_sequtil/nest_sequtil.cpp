@@ -71,8 +71,8 @@ NST_FUNC_SIGN(map_)
             {
                 nst_dec_ref(new_seq->objs[j]);
             }
-            free(new_seq->objs);
-            free(new_seq);
+            nst_free(new_seq->objs);
+            nst_free(new_seq);
             return nullptr;
         }
 
@@ -247,7 +247,7 @@ NST_FUNC_SIGN(slice_)
     }
     else
     {
-        i8 *buf = (i8 *)malloc((new_size + 1) * sizeof(i8));
+        i8 *buf = (i8 *)nst_malloc(new_size + 1, sizeof(i8));
         if ( buf == nullptr )
         {
             NST_FAILED_ALLOCATION;
@@ -335,13 +335,13 @@ void merge(Nst_SeqObj *seq, usize l, usize m, usize r, Nst_OpErr *err)
     usize len1 = m - l + 1;
     usize len2 = r - m;
 
-    Nst_Obj **left  = (Nst_Obj **)malloc(len1 * sizeof(Nst_Obj *));
-    Nst_Obj **right = (Nst_Obj **)malloc(len2 * sizeof(Nst_Obj *));
+    Nst_Obj **left  = (Nst_Obj **)nst_malloc(len1, sizeof(Nst_Obj *));
+    Nst_Obj **right = (Nst_Obj **)nst_malloc(len2, sizeof(Nst_Obj *));
 
     if ( left == nullptr || right == nullptr )
     {
-        free(left);
-        free(right);
+        nst_free(left);
+        nst_free(right);
         NST_FAILED_ALLOCATION;
         return;
     }
@@ -383,8 +383,8 @@ void merge(Nst_SeqObj *seq, usize l, usize m, usize r, Nst_OpErr *err)
     while ( j < len2 )
         seq->objs[k++] = right[j++];
 
-    free(left);
-    free(right);
+    nst_free(left);
+    nst_free(right);
 }
 
 NST_FUNC_SIGN(sort_)
@@ -482,9 +482,10 @@ NST_FUNC_SIGN(filter_)
 
     if ( seq->type == nst_type()->Array )
     {
-        Nst_Obj **new_objs = (Nst_Obj **)realloc(
+        Nst_Obj **new_objs = (Nst_Obj **)nst_realloc(
             new_seq->objs,
-            sizeof(Nst_Obj *) * new_seq->len);
+            new_seq->len,
+            sizeof(Nst_Obj *));
         if ( new_objs != nullptr )
         {
             new_seq->objs = new_objs;

@@ -142,7 +142,7 @@ NST_FUNC_SIGN(_set_cwd_)
 
 NST_FUNC_SIGN(_get_cwd_)
 {
-    i8 *cwd = (i8 *)malloc(PATH_MAX * sizeof(i8));
+    i8 *cwd = (i8 *)nst_malloc(PATH_MAX, sizeof(i8));
     if ( cwd == nullptr )
     {
         NST_FAILED_ALLOCATION;

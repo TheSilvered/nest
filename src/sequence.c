@@ -1,7 +1,6 @@
-#include <stdlib.h>
 #include <errno.h>
 #include <assert.h>
-
+#include "mem.h"
 #include "sequence.h"
 #include "obj_ops.h"
 #include "lib_import.h"
@@ -12,11 +11,10 @@ static Nst_Obj *new_seq(usize len, usize size, Nst_TypeObj *type)
         sizeof(Nst_SeqObj),
         type,
         _nst_seq_destroy));
-    Nst_Obj **objs = (Nst_Obj **)calloc(size, sizeof(Nst_Obj *));
+    Nst_Obj **objs = (Nst_Obj **)nst_calloc(size, sizeof(Nst_Obj *), NULL);
 
     if ( seq == NULL || objs == NULL )
     {
-        errno = ENOMEM;
         return NULL;
     }
 
@@ -54,7 +52,7 @@ void _nst_seq_destroy(Nst_SeqObj *seq)
         nst_dec_ref(objs[i]);
     }
 
-    free(objs);
+    nst_free(objs);
 }
 
 void _nst_seq_traverse(Nst_SeqObj *seq)
@@ -108,13 +106,13 @@ void _nst_vector_resize(Nst_SeqObj *vect)
         return;
     }
 
-    Nst_Obj **new_objs = (Nst_Obj **)realloc(
+    Nst_Obj **new_objs = (Nst_Obj **)nst_realloc(
         vect->objs,
-        new_size * sizeof(Nst_Obj *));
+        new_size,
+        sizeof(Nst_Obj *));
 
     if ( new_objs == NULL )
     {
-        errno = ENOMEM;
         return;
     }
 

@@ -113,10 +113,12 @@ static usize virtual_iof_write_f(void               *buf,
     else
     {
         usize tot_bytes = byte_count + f->curr_buf_size;
-        i8 *new_data = (i8 *)realloc(f->data, (usize)f->ptr + tot_bytes);
+        i8 *new_data = (i8 *)nst_realloc(
+            f->data,
+            (usize)f->ptr + tot_bytes,
+            sizeof(i8));
         if ( new_data == NULL )
         {
-            errno = ENOMEM;
             return 0;
         }
         f->size = (usize)f->ptr + tot_bytes;
@@ -133,7 +135,10 @@ static usize virtual_iof_write_f(void               *buf,
 static i32 virtual_iof_flush_f(VirtualIOFile_data *f)
 {
     usize byte_count = f->curr_buf_size;
-    i8 *new_data = (i8 *)realloc(f->data, (usize)f->ptr + byte_count);
+    i8 *new_data = (i8 *)nst_realloc(
+        f->data,
+        (usize)f->ptr + byte_count,
+        sizeof(i8));
     if ( new_data == NULL )
     {
         errno = ENOMEM;
@@ -181,9 +186,9 @@ static i32 virtual_iof_seek_f(VirtualIOFile_data *f, i32 offset, i32 start)
 
 static i32 virtual_iof_close_f(VirtualIOFile_data *f)
 {
-    free(f->data);
-    free(f->buf);
-    free(f);
+    nst_free(f->data);
+    nst_free(f->buf);
+    nst_free(f);
     return 0;
 }
 
@@ -272,25 +277,26 @@ NST_FUNC_SIGN(virtual_iof_)
     Nst_Bool bin = NST_DEF_VAL(bin_obj, AS_BOOL(bin_obj), false);
     Nst_Int buf_size = NST_DEF_VAL(buf_size_obj, AS_INT(buf_size_obj), 128);
 
-    VirtualIOFile_data *f = (VirtualIOFile_data *)malloc(sizeof(VirtualIOFile_data));
+    VirtualIOFile_data *f =
+        (VirtualIOFile_data *)nst_malloc(1, sizeof(VirtualIOFile_data));
     if ( f == nullptr )
     {
         NST_FAILED_ALLOCATION;
         return nullptr;
     }
 
-    f->data = (i8 *)malloc(sizeof(i8));
+    f->data = (i8 *)nst_malloc(1, sizeof(i8));
     f->size = 0;
     f->ptr = 0;
-    f->buf = (i8 *)malloc(buf_size * sizeof(i8));
+    f->buf = (i8 *)nst_malloc(buf_size, sizeof(i8));
     f->buf_size = buf_size;
     f->curr_buf_size = 0;
 
     if ( f->data == nullptr || f->buf == nullptr )
     {
-        free(f->data);
-        free(f->buf);
-        free(f);
+        nst_free(f->data);
+        nst_free(f->buf);
+        nst_free(f);
         NST_FAILED_ALLOCATION;
         return nullptr;
     }
@@ -380,7 +386,7 @@ NST_FUNC_SIGN(write_bytes_)
 
     usize seq_len = seq->len;
     Nst_Obj **objs = seq->objs;
-    i8 *bytes = (i8 *)malloc((seq_len + 1) * sizeof(i8));
+    i8 *bytes = (i8 *)nst_malloc((seq_len + 1), sizeof(i8));
     if ( bytes == nullptr )
     {
         NST_FAILED_ALLOCATION;
@@ -391,7 +397,7 @@ NST_FUNC_SIGN(write_bytes_)
     {
         if ( objs[i]->type != nst_type()->Byte )
         {
-            free(bytes);
+            nst_free(bytes);
             NST_SET_RAW_TYPE_ERROR("expected 'Byte'");
             return nullptr;
         }
@@ -401,7 +407,7 @@ NST_FUNC_SIGN(write_bytes_)
 
     usize res = f->write_f(bytes, sizeof(i8), seq_len, f->value);
 
-    free(bytes);
+    nst_free(bytes);
     return nst_int_new(res);
 }
 
@@ -441,7 +447,7 @@ NST_FUNC_SIGN(read_)
         bytes_to_read = max_size;
     }
 
-    i8 *buffer = (i8 *)malloc((bytes_to_read + 1) * sizeof(i8));
+    i8 *buffer = (i8 *)nst_malloc((bytes_to_read + 1), sizeof(i8));
     if ( buffer == nullptr )
     {
         NST_FAILED_ALLOCATION;
@@ -494,7 +500,7 @@ NST_FUNC_SIGN(read_bytes_)
         bytes_to_read = max_size;
     }
 
-    i8 *buffer = (i8 *)malloc(bytes_to_read * sizeof(i8));
+    i8 *buffer = (i8 *)nst_malloc(bytes_to_read, sizeof(i8));
     if ( buffer == nullptr )
     {
         NST_FAILED_ALLOCATION;
@@ -514,7 +520,7 @@ NST_FUNC_SIGN(read_bytes_)
         bytes_array->objs[i] = nst_byte_new(buffer[i]);
     }
 
-    free(buffer);
+    nst_free(buffer);
     return OBJ(bytes_array);
 }
 
@@ -617,7 +623,7 @@ NST_FUNC_SIGN(get_flags_)
 
     NST_DEF_EXTRACT("F", &f);
 
-    i8 *flags = (i8 *)malloc(4 * sizeof(i8));
+    i8 *flags = (i8 *)nst_malloc(4, sizeof(i8));
     if (flags == nullptr)
     {
         NST_FAILED_ALLOCATION;

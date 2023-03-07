@@ -1,7 +1,7 @@
 #include <errno.h>
-#include <stdlib.h>
 #include "function.h"
 #include "global_consts.h"
+#include "mem.h"
 
 Nst_Obj *nst_func_new(usize arg_num, Nst_InstList *bytecode)
 {
@@ -9,10 +9,9 @@ Nst_Obj *nst_func_new(usize arg_num, Nst_InstList *bytecode)
         sizeof(Nst_FuncObj),
         nst_t.Func,
         _nst_func_destroy));
-    Nst_Obj **args = (Nst_Obj **)malloc(sizeof(Nst_Obj *) * arg_num);
+    Nst_Obj **args = (Nst_Obj **)nst_malloc(arg_num, sizeof(Nst_Obj *));
     if ( func == NULL || args == NULL )
     {
-        errno = ENOMEM;
         return NULL;
     }
 
@@ -37,7 +36,6 @@ Nst_Obj *nst_func_new_c(usize arg_num, Nst_Obj *(*cbody)(usize     arg_num,
     Nst_Obj **args = NULL;
     if ( func == NULL )
     {
-        errno = ENOMEM;
         return NULL;
     }
 
@@ -78,7 +76,7 @@ void _nst_func_destroy(Nst_FuncObj *func)
         {
             nst_dec_ref(func->args[i]);
         }
-        free(func->args);
+        nst_free(func->args);
     }
     if ( !NST_FLAG_HAS(func, NST_FLAG_FUNC_IS_C) )
     {

@@ -4,17 +4,16 @@
 #include <stdio.h>
 #include "tokens.h"
 #include "obj_ops.h"
-
+#include "mem.h"
 
 Nst_Tok *nst_tok_new_value(Nst_Pos     start,
                            Nst_Pos     end,
                            Nst_TokType type,
                            Nst_Obj    *value)
 {
-    Nst_Tok *token = NST_TOK(malloc(sizeof(Nst_Tok)));
+    Nst_Tok *token = NST_TOK(nst_malloc(1, sizeof(Nst_Tok)));
     if ( token == NULL )
     {
-        errno = ENOMEM;
         return NULL;
     }
 
@@ -28,10 +27,9 @@ Nst_Tok *nst_tok_new_value(Nst_Pos     start,
 
 Nst_Tok *nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type)
 {
-    Nst_Tok *token = NST_TOK(malloc(sizeof(Nst_Tok)));
+    Nst_Tok *token = NST_TOK(nst_malloc(1, sizeof(Nst_Tok)));
     if ( token == NULL )
     {
-        errno = ENOMEM;
         return NULL;
     }
 
@@ -45,10 +43,9 @@ Nst_Tok *nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type)
 
 Nst_Tok *nst_tok_new_noend(Nst_Pos start, Nst_TokType type)
 {
-    Nst_Tok *token = NST_TOK(malloc(sizeof(Nst_Tok)));
+    Nst_Tok *token = NST_TOK(nst_malloc(1, sizeof(Nst_Tok)));
     if ( token == NULL )
     {
-        errno = ENOMEM;
         return NULL;
     }
 
@@ -71,7 +68,7 @@ void nst_token_destroy(Nst_Tok *token)
     {
         nst_dec_ref(token->value);
     }
-    free(token);
+    nst_free(token);
 }
 
 Nst_TokType nst_tok_from_str(i8 *str)

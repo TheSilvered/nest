@@ -1,8 +1,8 @@
-#include <errno.h>
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
 #include <ctype.h>
+#include "mem.h"
 #include "str.h"
 #include "error.h"
 #include "lib_import.h"
@@ -89,10 +89,9 @@ Nst_TypeObj *nst_type_new(const i8 *val, usize len)
 
 Nst_Obj *_nst_string_copy(Nst_StrObj *src)
 {
-    i8 *buffer = (i8 *)malloc(sizeof(i8) * (src->len + 1));
+    i8 *buffer = (i8 *)nst_malloc(src->len + 1, sizeof(i8));
     if ( buffer == NULL )
     {
-        errno = ENOMEM;
         return NULL;
     }
 
@@ -175,10 +174,9 @@ Nst_Obj *_nst_string_repr(Nst_StrObj *src)
         new_size += double_quotes_count;
     }
 
-    i8 *new_str = (i8 *)malloc(sizeof(i8) * (new_size + 1));
+    i8 *new_str = (i8 *)nst_malloc(new_size + 1, sizeof(i8));
     if ( new_str == NULL )
     {
-        errno = ENOMEM;
         return NULL;
     }
 
@@ -268,10 +266,9 @@ Nst_Obj *_nst_string_get(Nst_StrObj *str, i64 idx)
         return NULL;
     }
 
-    i8 *ch = (i8 *)malloc(2 * sizeof(i8));
+    i8 *ch = (i8 *)nst_malloc(2, sizeof(i8));
     if ( ch == NULL )
     {
-        errno = ENOMEM;
         return NULL;
     }
 
@@ -289,7 +286,7 @@ void _nst_string_destroy(Nst_StrObj *str)
     }
     if ( NST_STR_IS_ALLOC(str) )
     {
-        free(str->value);
+        nst_free(str->value);
     }
 }
 
@@ -586,6 +583,7 @@ Nst_Obj *nst_string_parse_real(Nst_StrObj *str, struct _Nst_OpErr *err)
     i8 ch = *s;
     i8 *buf;
     Nst_Real res;
+    bool contains_underscores = false;
 
     if ( s == end )
     {
@@ -614,6 +612,10 @@ Nst_Obj *nst_string_parse_real(Nst_StrObj *str, struct _Nst_OpErr *err)
     {
         ch = *++s;
         len++;
+        if ( ch == '_' )
+        {
+            contains_underscores = true;
+        }
     }
 
     if ( ch != '.' )
@@ -639,6 +641,11 @@ Nst_Obj *nst_string_parse_real(Nst_StrObj *str, struct _Nst_OpErr *err)
     {
         ch = *++s;
         len++;
+
+        if ( ch == '_' )
+        {
+            contains_underscores = true;
+        }
     }
 
     if ( ch == 'e' || ch == 'E' )
@@ -661,6 +668,10 @@ Nst_Obj *nst_string_parse_real(Nst_StrObj *str, struct _Nst_OpErr *err)
         {
             ch = *++s;
             len++;
+            if ( ch == '_' )
+            {
+                contains_underscores = true;
+            }
         }
     }
 
@@ -673,23 +684,33 @@ Nst_Obj *nst_string_parse_real(Nst_StrObj *str, struct _Nst_OpErr *err)
         RETURN_REAL_ERR;
     }
 end:
-    buf = (i8 *)malloc(len + 1);
-    if ( buf == NULL )
+    if ( contains_underscores )
     {
-        NST_FAILED_ALLOCATION;
-        return NULL;
-    }
-    s = buf;
-    while ( len-- )
-    {
-        if ( (ch = *start++) != '_' )
+        buf = (i8 *)nst_malloc(len + 1, sizeof(i8));
+        if ( buf == NULL )
         {
-            *s++ = ch;
+            NST_FAILED_ALLOCATION;
+            return NULL;
         }
+        s = buf;
+        while ( len-- )
+        {
+            if ( (ch = *start++) != '_' )
+            {
+                *s++ = ch;
+            }
+        }
+        *s = '\0';
     }
-    *s = '\0';
+    else
+    {
+        buf = start;
+    }
     res = strtod(buf, NULL);
-    free(buf);
+    if ( contains_underscores )
+    {
+        nst_free(buf);
+    }
     return nst_real_new(res);
 }
 

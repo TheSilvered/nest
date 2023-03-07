@@ -1,6 +1,5 @@
 #include <assert.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include <string.h>
 #include <stdarg.h>
 #include "error.h"
@@ -8,6 +7,12 @@
 #include "global_consts.h"
 #include "encoding.h"
 
+#if defined(_WIN32) || defined(WIN32)
+#include <windows.h>
+#endif
+
+#include <errno.h>
+#include "mem.h"
 #define INT_CH_COUNT 21
 
 #define PRINT(str, len) \
@@ -55,7 +60,7 @@ static inline void err_printf(const i8 *format, i32 size, ...)
 
     if ( buf_size == 0 )
     {
-        printf_buf = (i8 *)calloc(size + 1, sizeof(i8));
+        printf_buf = (i8 *)nst_calloc(size + 1, sizeof(i8), NULL);
         if ( printf_buf == NULL )
         {
             return;
@@ -64,7 +69,7 @@ static inline void err_printf(const i8 *format, i32 size, ...)
     }
     else if ( buf_size < (usize)size + 1 )
     {
-        i8 *new_buf = (i8 *)realloc(printf_buf, size + 1);
+        i8 *new_buf = (i8 *)nst_realloc(printf_buf, size + 1, sizeof(i8));
         if ( new_buf == NULL )
         {
             return;
@@ -389,7 +394,7 @@ void nst_print_error(Nst_Error err)
 
     if ( buf_size != 0 )
     {
-        free(printf_buf);
+        nst_free(printf_buf);
     }
     nst_dec_ref(err_stream);
 }
@@ -488,7 +493,7 @@ void nst_print_traceback(Nst_Traceback tb)
     err_stream->flush_f(err_stream->value);
     if ( buf_size != 0 )
     {
-        free(printf_buf);
+        nst_free(printf_buf);
     }
     nst_dec_ref(err_stream);
 }
@@ -528,7 +533,7 @@ Nst_StrObj *nst_format_error(const i8 *format, const i8 *format_args, ...)
         ++arg_ptr;
     }
 
-    i8 *buffer = (i8 *)calloc(tot_size + 1, sizeof(i8));
+    i8 *buffer = (i8 *)nst_calloc(tot_size + 1, sizeof(i8), NULL);
     if (buffer == NULL)
     {
         return NULL;
@@ -549,8 +554,8 @@ void nst_free_src_text(Nst_SourceText *text)
         return;
     }
 
-    free(text->text);
-    free(text->lines);
-    free(text->path);
-    free(text);
+    nst_free(text->text);
+    nst_free(text->lines);
+    nst_free(text->path);
+    nst_free(text);
 }

@@ -31,7 +31,7 @@ EXPORT typedef struct
 }
 Nst_LList;
 
-EXPORT typedef void (*nst_llist_destructor)(void *);
+EXPORT typedef void (*Nst_LListDestructor)(void *);
 
 // Adds an element to the front
 EXPORT void nst_llist_push(Nst_LList *llist, void *value, bool allocated);

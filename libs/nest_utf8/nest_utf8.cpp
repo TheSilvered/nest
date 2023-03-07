@@ -69,7 +69,7 @@ NST_FUNC_SIGN(utf8_iter_get_val)
         SET_INVALID_UTF8;
         return nullptr;
     }
-    i8 *new_s = (i8 *)malloc((res + 1) * sizeof(i8));
+    i8 *new_s = (i8 *)nst_malloc(res + 1, sizeof(i8));
     if ( new_s == nullptr )
     {
         NST_FAILED_ALLOCATION;
@@ -163,7 +163,7 @@ NST_FUNC_SIGN(get_at_)
         return nullptr;
     }
 
-    i8 *new_s = (i8 *)malloc((res + 1) * sizeof(i8));
+    i8 *new_s = (i8 *)nst_malloc(res + 1, sizeof(i8));
     if ( new_s == nullptr )
     {
         NST_FAILED_ALLOCATION;

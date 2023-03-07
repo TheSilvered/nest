@@ -70,7 +70,7 @@ static NST_FUNC_SIGN(generator_start)
             nst_dec_ref(co->stack[i]);
         }
 
-        free(co->stack);
+        nst_free(co->stack);
         nst_dec_ref(co->vars);
         nst_dec_ref(co->globals);
 
@@ -220,7 +220,7 @@ void coroutine_destroy(CoroutineObj *co)
             nst_dec_ref(co->stack[i]);
     }
 
-    free(co->stack);
+    nst_free(co->stack);
 }
 
 NST_FUNC_SIGN(create_)
@@ -292,7 +292,7 @@ NST_FUNC_SIGN(call_)
             nst_vstack_push(state->v_stack, co->stack[i]);
             nst_dec_ref(co->stack[i]);
         }
-        free(co->stack);
+        nst_free(co->stack);
         // emulates the return value of co.pause
         nst_vstack_push(state->v_stack, nst_null());
         result = nst_run_func_context(
@@ -358,7 +358,7 @@ NST_FUNC_SIGN(pause_)
     co->vars = state->vt->vars;
     co->globals = state->vt->global_table;
     co->idx = state->idx;
-    free(state->vt);
+    nst_free(state->vt);
 
     nst_dec_ref(call.func);
 
@@ -378,7 +378,7 @@ NST_FUNC_SIGN(pause_)
         stack_size++;
     }
 
-    co->stack = (Nst_Obj **)malloc(stack_size * sizeof(Nst_Obj *));
+    co->stack = (Nst_Obj **)nst_malloc(stack_size, sizeof(Nst_Obj *));
 
     for ( usize i = stack_size; i > 0; i-- )
     {

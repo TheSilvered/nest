@@ -28,7 +28,7 @@ Nst_Obj *json_parse(i8 *path, Nst_LList *tokens, Nst_OpErr *err)
     Nst_Obj *res = parse_value(tokens, err);
     if ( res == nullptr )
     {
-        nst_llist_destroy(tokens, (nst_llist_destructor)nst_token_destroy);
+        nst_llist_destroy(tokens, (Nst_LListDestructor)nst_token_destroy);
         return nullptr;
     }
 
@@ -37,10 +37,10 @@ Nst_Obj *json_parse(i8 *path, Nst_LList *tokens, Nst_OpErr *err)
         nst_dec_ref(res);
         Nst_Pos err_pos = NST_TOK(tokens->head)->start;
         JSON_SYNTAX_ERROR("unexpected token", file_path, err_pos);
-        nst_llist_destroy(tokens, (nst_llist_destructor)nst_token_destroy);
+        nst_llist_destroy(tokens, (Nst_LListDestructor)nst_token_destroy);
         return nullptr;
     }
-    nst_llist_destroy(tokens, (nst_llist_destructor)nst_token_destroy);
+    nst_llist_destroy(tokens, (Nst_LListDestructor)nst_token_destroy);
     return res;
 }
 
@@ -205,9 +205,10 @@ end:
     nst_dec_ref(nst_type()->Vector);
     if ( vec->len < vec->size && vec->len != 0 )
     {
-        Nst_Obj **new_objs = (Nst_Obj **)realloc(
+        Nst_Obj **new_objs = (Nst_Obj **)nst_realloc(
             vec->objs,
-            vec->len * sizeof(Nst_Obj *));
+            vec->len,
+            sizeof(Nst_Obj *));
         if ( new_objs != nullptr )
         {
             vec->objs = new_objs;

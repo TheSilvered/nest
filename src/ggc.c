@@ -1,4 +1,4 @@
-#include <stdlib.h>
+#include "mem.h"
 #include "interpreter.h"
 
 #define REACHABLE(ob) ((ob)->flags & NST_FLAG_GCC_REACHABLE)
@@ -102,7 +102,7 @@ static inline void free_obj_memory(Nst_GGCList *gen)
     for ( Nst_GGCObj *ob = gen->head; ob != NULL; )
     {
         new_ob = ob->ggc_next;
-        free(ob);
+        nst_free(ob);
         ob = new_ob;
     }
 }

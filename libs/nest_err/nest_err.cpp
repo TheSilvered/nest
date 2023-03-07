@@ -117,7 +117,7 @@ Nst_Obj *failure(Nst_OpErr *err, bool catch_exit)
             SEQ(error_traceback)->objs[i - skipped] = pos;
         }
 
-        nst_llist_empty(positions, free);
+        nst_llist_empty(positions, nst_free);
         state->traceback.error.occurred = false;
     }
     else

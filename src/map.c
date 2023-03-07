@@ -1,7 +1,7 @@
 #include <errno.h>
 #include <math.h>
-#include <stdlib.h>
 #include <assert.h>
+#include "mem.h"
 #include "map.h"
 #include "hash.h"
 #include "lib_import.h"
@@ -16,16 +16,18 @@ Nst_Obj *nst_map_new()
         _nst_map_destroy));
     if ( map == NULL )
     {
-        errno = ENOMEM;
         return NULL;
     }
 
     map->item_count = 0;
-    map->nodes = (Nst_MapNode *)calloc(_NST_MAP_MIN_SIZE, sizeof(Nst_MapNode));
+    map->nodes = (Nst_MapNode *)nst_calloc(
+        _NST_MAP_MIN_SIZE,
+        sizeof(Nst_MapNode),
+        NULL);
 
     if ( map->nodes == NULL )
     {
-        free(map);
+        nst_free(map);
         return NULL;
     }
 
@@ -111,12 +113,11 @@ void _nst_map_resize(Nst_MapObj *map, bool force_item_reset)
     }
     map->mask = size - 1;
     map->size = size;
-    map->nodes = (Nst_MapNode *)calloc(size, sizeof(Nst_MapNode));
+    map->nodes = (Nst_MapNode *)nst_calloc(size, sizeof(Nst_MapNode), NULL);
     if ( map->nodes == NULL )
     {
         map->nodes = old_nodes;
         _nst_map_destroy(map);
-        errno = ENOMEM;
         return;
     }
 
@@ -144,7 +145,7 @@ void _nst_map_resize(Nst_MapObj *map, bool force_item_reset)
     }
     map->tail_idx = prev_idx;
 
-    free(old_nodes);
+    nst_free(old_nodes);
 }
 
 bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
@@ -396,7 +397,7 @@ void _nst_map_destroy(Nst_MapObj *map)
         nst_dec_ref(map->nodes[i].value);
     }
 
-    free(map->nodes);
+    nst_free(map->nodes);
 }
 
 void _nst_map_set_str(Nst_MapObj *map, const i8 *key, Nst_Obj *value)

@@ -1,5 +1,5 @@
 #include <errno.h>
-#include <stdlib.h>
+#include "mem.h"
 #include "optimizer.h"
 #include "obj_ops.h"
 #include "tokens.h"
@@ -199,7 +199,7 @@ static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
         }
     }
 
-    nst_llist_empty(node->nodes, (nst_llist_destructor)nst_node_destroy);
+    nst_llist_empty(node->nodes, (Nst_LListDestructor)nst_node_destroy);
     nst_token_destroy(NST_TOK(nst_llist_pop(node->tokens)));
 
     node->type = NST_NT_VALUE;
@@ -310,7 +310,7 @@ static void ast_optimize_long_s(Nst_Node *node, Nst_Error *error)
         }
 
         nst_node_destroy(NST_NODE(n->value));
-        free(n);
+        nst_free(n);
 
         if ( prev_valid_node == NULL )
         {
