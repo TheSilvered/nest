@@ -4,17 +4,21 @@
 |#| 'stdsys.nest' = sys
 
 -- if the file already exists the test will fail
-'stdfs_file_copied' @fs.isfile ? 'stdfs_file_copied' @fs.rmfile
+'stdfs_file_copied' @fs.is_file ? 'stdfs_file_copied' @fs.remove_file
 
-'test_fs.nest' @fs.isfile @test.assert_true
-'test_files' @fs.isdir @test.assert_true
+'test_fs.nest' @fs.is_file @test.assert_true
+'test_files' @fs.is_dir @test.assert_true
 
-'dir' @fs.mkdir
-'dir_1/dir2' @fs.mkdirs
+'dir' @fs.make_dir
+'dir_1/dir2' @fs.make_dirs
 'stdfs_file' 'w' @io.open @io.close -- creates a file
 'stdfs_file' 'dir/stdfs_file' @fs.rename
 'dir/stdfs_file' 'stdfs_file_copied' fs.CPO.make_hard_links @fs.copy
-'dir/stdfs_file' 'link' fs.CPO.make_symlinks @fs.copy = res -- needs admin
+?? 'dir/stdfs_file' 'link' fs.CPO.make_symlinks @fs.copy
+?! e [
+    0 = res
+    'fs - failed to create symlink' @test.println
+]
 
 'fs.absolute_path: ' ('dir/stdfs_file' @fs.absolute_path = abs_path) >< \
     @test.println
@@ -22,8 +26,8 @@
 'stdfs_file_copied' 'dir/stdfs_file' @fs.equivalent @test.assert_true
 
 sys.PLATFORM 'windows' == ? [
-    'dir_1' @fs.list_dir { 'dir_1\\dir2' } @test.assert_eq
-    'dir_1' @fs.list_dir_recursive { 'dir_1\\dir2' } @test.assert_eq
+    'dir_1' @fs.list_dir  { 'dir_1\\dir2' } @test.assert_eq
+    'dir_1' @fs.list_dirs { 'dir_1\\dir2' } @test.assert_eq
 
     'a' 'b' @fs.join 'a\\b' @test.assert_eq
     'a' '\\b' @fs.join '\\b' @test.assert_eq
@@ -31,7 +35,7 @@ sys.PLATFORM 'windows' == ? [
     'a/b/c' 'C:\\d/e/f' @fs.join 'C:\\d/e/f' @test.assert_eq
     'a/b/c/' 'd\\e\\f' @fs.join 'a\\b\\c\\d\\e\\f' @test.assert_eq
 
-    res 0 == ? 'link' @fs.canonical_path abs_path @test.assert_eq
+    res null == ? 'link' @fs.canonical_path abs_path @test.assert_eq
 
     'a/c' 'a/b/d' @fs.relative_path '..\\..\\c' @test.assert_eq
 ] : [
@@ -43,16 +47,16 @@ sys.PLATFORM 'windows' == ? [
     'a/b/c' 'C:\\d/e/f' @fs.join 'C:\\d/e/f' @test.assert_eq
     'a/b/c/' 'd\\e\\f' @fs.join 'a/b/c/d/e/f' @test.assert_eq
 
-    res 0 == ? 'link' @fs.canonical_path abs_path @test.assert_eq
+    res null == ? 'link' @fs.canonical_path abs_path @test.assert_eq
 
     'a/c' 'a/b/d' @fs.relative_path '../../c' @test.assert_eq
 ]
 
-'stdfs_file_copied' @fs.rmfile
-res 0 == ? 'link' @fs.rmfile
-'dir/stdfs_file' @fs.rmfile
-'dir' @fs.rmdir
-'dir_1' @fs.rmdir_recursive
+'stdfs_file_copied' @fs.remove_file
+res null == ? 'link' @fs.remove_file
+'dir/stdfs_file' @fs.remove_file
+'dir' @fs.remove_dir
+'dir_1' @fs.remove_dirs
 'dir/subdir/file.txt' @fs.path 'dir/subdir' @test.assert_eq
 'dir/subdir/file.txt' @fs.filename 'file.txt' @test.assert_eq
 'dir/subdir/file.txt' @fs.extension '.txt' @test.assert_eq

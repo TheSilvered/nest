@@ -3,13 +3,20 @@
 |#| 'stdio.nest' = io
 |#| 'stdsutil.nest' = su
 
-test.log_file @io.close
+test.log_file io.STDOUT == ? [
+    sys.PLATFORM 'windows' == ?
+        'echo sys.system: written with echo' @sys.system
+    :
+        'echo "sys.system: written with echo"' @sys.system
+] : [
+    test.log_file @io.close
 
-sys.PLATFORM 'windows' == ?
-    'echo sys.system: written with echo>> ..\\test_output.txt' @sys.system
-:
-    'echo "sys.system: written with echo" >> ../test_output.txt' @sys.system
-'../test_output.txt' 'a+' @io.open = test.log_file
+    sys.PLATFORM 'windows' == ?
+        'echo sys.system: written with echo>> ..\\test_output.txt' @sys.system
+    :
+        'echo "sys.system: written with echo" >> ../test_output.txt' @sys.system
+    '../test_output.txt' 'a+' @io.open = test.log_file
+]
 
 'sys.getenv (appdata): ' ('APPDATA' @sys.getenv) >< @test.println
 'sys.getenv (home): ' ('HOME' @sys.getenv) >< @test.println

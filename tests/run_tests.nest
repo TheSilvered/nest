@@ -17,6 +17,8 @@
     '' = C_RESET
 ]
 
+0 = failed_tests
+
 #run_test name path [
     !(name 'test_e_' @su.starts_with) ?
         |#| path
@@ -28,7 +30,7 @@
 ]
 
 #run_tests dir [
-    ... Iter :: (dir @fs.list_dir_recursive) := test_path [
+    ... Iter :: (dir @fs.list_dirs) := test_path [
         test_path @fs.extension '.nest' != ? ..
         test_path @fs.filename = name
         !(name 'test_' @su.starts_with) ? ..
@@ -38,6 +40,7 @@
             name C_RED ' FAILED' C_RESET ': ' e.name ' - ' e.message >< \
             true \
                 @io.println
+            1 += failed_tests
             ..
         ]
         name C_GREEN ' PASSED' C_RESET >< true @io.println
@@ -56,3 +59,5 @@ sys.PLATFORM 'windows' == ? [
 
 test.log_file @io.flush
 test.log_file @io.close
+
+failed_tests @sys.exit

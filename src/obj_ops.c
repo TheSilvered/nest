@@ -1969,11 +1969,11 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
         Nst_Obj *obj;
         if ( obj_declr.arg_num >= 0 )
         {
-            obj = nst_func_new_c(obj_declr.arg_num, obj_declr.ptr.func);
+            obj = nst_func_new_c(obj_declr.arg_num, obj_declr.ptr);
         }
         else
         {
-            obj = nst_inc_ref(obj_declr.ptr.obj);
+            obj = nst_inc_ref(obj_declr.ptr);
         }
 
         nst_map_set(obj_map, obj_declr.name, obj);

@@ -8,28 +8,28 @@
 
 #define NST_MAKE_FUNCDECLR(func_ptr, argc) \
     { \
-        func_ptr, \
+        (void *)(func_ptr), \
         argc, \
         STR(nst_string_new_c_raw(#func_ptr, false)) \
     }
 
 #define NST_MAKE_NAMED_FUNCDECLR(func_ptr, argc, func_name) \
     { \
-        func_ptr, \
+        (void *)(func_ptr), \
         argc, \
         STR(nst_string_new_c_raw(func_name, false)) \
     }
 
 #define NST_MAKE_OBJDECLR(obj_ptr) \
     { \
-        OBJ(obj_ptr), \
+        (void *)(obj_ptr), \
         -1, \
         STR(nst_string_new_c_raw(#obj_ptr, false)) \
     }
 
 #define NST_MAKE_NAMED_OBJDECLR(obj_ptr, obj_name) \
     { \
-        OBJ(obj_ptr), \
+        (void *)(obj_ptr), \
         -1, \
         STR(nst_string_new_c_raw(obj_name, false)) \
     }
@@ -90,10 +90,7 @@ extern "C" {
 
 EXPORT typedef struct _Nst_ObjDeclr
 {
-    union {
-        NST_FUNC_SIGN((*func));
-        Nst_Obj *obj;
-    } ptr;
+    void *ptr;
     isize arg_num;
     Nst_StrObj *name;
 }
