@@ -2,7 +2,7 @@
 |#| 'stdfs.nest' = fs
 |#| 'stdio.nest' = io
 |#| 'stdsys.nest' = sys
-'a' !! 'b'
+
 -- if the file already exists the test will fail
 'stdfs_file_copied' @fs.is_file ? 'stdfs_file_copied' @fs.remove_file
 
