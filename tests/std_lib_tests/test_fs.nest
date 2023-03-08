@@ -40,7 +40,7 @@ sys.PLATFORM 'windows' == ? [
     'a/c' 'a/b/d' @fs.relative_path '..\\..\\c' @test.assert_eq
 ] : [
     'dir_1' @fs.list_dir { 'dir_1/dir2' } @test.assert_eq
-    'dir_1' @fs.list_dir_recursive { 'dir_1/dir2' } @test.assert_eq
+    'dir_1' @fs.list_dirs { 'dir_1/dir2' } @test.assert_eq
     'a' 'b' @fs.join 'a/b' @test.assert_eq
     'a' '\\b' @fs.join '\\b' @test.assert_eq
     'a/b/c' 'd/e/f' @fs.join 'a/b/c/d/e/f' @test.assert_eq
@@ -53,7 +53,7 @@ sys.PLATFORM 'windows' == ? [
 ]
 
 'stdfs_file_copied' @fs.remove_file
-res null == ? 'link' @fs.remove_file
+'link' @fs.is_file ? 'link' @fs.remove_file
 'dir/stdfs_file' @fs.remove_file
 'dir' @fs.remove_dir
 'dir_1' @fs.remove_dirs
