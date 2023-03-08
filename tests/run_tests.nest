@@ -40,7 +40,7 @@
             name C_RED ' FAILED' C_RESET ': ' e.name ' - ' e.message >< \
             true \
                 @io.println
-            1 += failed_tests
+            1 += _globals_.failed_tests
             ..
         ]
         name C_GREEN ' PASSED' C_RESET >< true @io.println
