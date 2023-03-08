@@ -1901,21 +1901,7 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
         nst_llist_pop(nst_state.lib_paths);
         nst_dec_ref(file_path);
 #if defined(_WIN32) || defined(WIN32)
-        i8 *message_str;
-        usize size = FormatMessageA(
-            FORMAT_MESSAGE_ALLOCATE_BUFFER |
-            FORMAT_MESSAGE_FROM_SYSTEM     |
-            FORMAT_MESSAGE_IGNORE_INSERTS,
-            NULL, GetLastError(), 1033, (LPSTR)&message_str, 0, NULL);
-        if ( size == 0 )
-        {
-            NST_SET_RAW_IMPORT_ERROR(_NST_EM_FILE_NOT_DLL);
-        }
-        else
-        {
-            NST_SET_RAW_IMPORT_ERROR(message_str);
-        }
-        LocalFree(message_str);
+        NST_SET_RAW_IMPORT_ERROR(_NST_EM_FILE_NOT_DLL);
 #else
         NST_SET_RAW_IMPORT_ERROR(dlerror());
 #endif
