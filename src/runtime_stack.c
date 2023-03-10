@@ -6,17 +6,9 @@
 #define F_STACK_MIN_SIZE 125
 #define C_STACK_MIN_SIZE 4
 
-typedef struct _GenericStack
-{
-    void *stack;
-    usize current_size;
-    usize max_size;
-}
-GenericStack;
-
-static void shrink_stack(GenericStack *g_stack,
-                         usize         min_size,
-                         usize         unit_size)
+void nst_stack_shrink(Nst_GenericStack *g_stack,
+                      usize             min_size,
+                      usize             unit_size)
 {
     if ( g_stack->max_size <= min_size )
     {
@@ -40,39 +32,52 @@ static void shrink_stack(GenericStack *g_stack,
     g_stack->stack = new_stack;
 }
 
-Nst_ValueStack *nst_vstack_new()
+Nst_GenericStack *nst_stack_new(usize unit_size, usize starting_size)
 {
-    Nst_ValueStack *v_stack =
-        (Nst_ValueStack *)nst_malloc(1, sizeof(Nst_ValueStack));
-    Nst_Obj **objs = (Nst_Obj **)nst_malloc(V_STACK_MIN_SIZE, sizeof(Nst_Obj *));
-    if ( v_stack == NULL || objs == NULL )
+    Nst_GenericStack *g_stack =
+        (Nst_GenericStack *)nst_malloc(1, sizeof(Nst_GenericStack));
+    void *stack = nst_malloc(starting_size, unit_size);
+
+    g_stack->stack = stack;
+    g_stack->current_size = 0;
+    g_stack->max_size = starting_size;
+
+    return g_stack;
+}
+
+bool nst_stack_expand(Nst_GenericStack *g_stack, usize unit_size)
+{
+    if ( g_stack->current_size < g_stack->max_size )
     {
-        return NULL;
+        return true;
     }
 
-    v_stack->stack = objs;
-    v_stack->current_size = 0;
-    v_stack->max_size = V_STACK_MIN_SIZE;
+    void *new_stack = nst_realloc(
+        g_stack->stack,
+        g_stack->max_size * 2,
+        unit_size);
 
-    return v_stack;
+    if ( new_stack == NULL )
+    {
+        return false;
+    }
+
+    g_stack->stack = new_stack;
+    g_stack->max_size *= 2;
+
+    return true;
+}
+
+Nst_ValueStack *nst_vstack_new()
+{
+    return (Nst_ValueStack *)nst_stack_new(sizeof(Nst_Obj *), V_STACK_MIN_SIZE);
 }
 
 bool _nst_vstack_push(Nst_ValueStack *v_stack, Nst_Obj *obj)
 {
-    usize max_size = v_stack->max_size;
-    if ( v_stack->current_size == max_size )
+    if ( !nst_stack_expand((Nst_GenericStack *)v_stack, sizeof(Nst_Obj *)) )
     {
-        Nst_Obj **new_objs = (Nst_Obj **)nst_realloc(
-            v_stack->stack,
-            max_size * 2,
-            sizeof(Nst_Obj *));
-        if ( new_objs == NULL )
-        {
-            return false;
-        }
-
-        v_stack->stack = new_objs;
-        v_stack->max_size = max_size * 2;
+        return false;
     }
 
     v_stack->stack[v_stack->current_size++] =
@@ -88,7 +93,7 @@ Nst_Obj *nst_vstack_pop(Nst_ValueStack *v_stack)
     }
 
     Nst_Obj *val = v_stack->stack[--v_stack->current_size];
-    shrink_stack((GenericStack *)v_stack, V_STACK_MIN_SIZE, sizeof(Nst_Obj *));
+    nst_stack_shrink((Nst_GenericStack *)v_stack, V_STACK_MIN_SIZE, sizeof(Nst_Obj *));
 
     return val;
 }
@@ -128,21 +133,7 @@ void nst_vstack_destroy(Nst_ValueStack *v_stack)
 
 Nst_CallStack *nst_fstack_new()
 {
-    Nst_CallStack *f_stack =
-        (Nst_CallStack *)nst_malloc(1, sizeof(Nst_CallStack));
-    Nst_FuncCall *calls = (Nst_FuncCall *)nst_malloc(
-        F_STACK_MIN_SIZE,
-        sizeof(Nst_FuncCall));
-    if ( f_stack == NULL || calls == NULL )
-    {
-        return NULL;
-    }
-
-    f_stack->stack = calls;
-    f_stack->current_size = 0;
-    f_stack->max_size = F_STACK_MIN_SIZE;
-
-    return f_stack;
+    return (Nst_CallStack *)nst_stack_new(sizeof(Nst_FuncCall), F_STACK_MIN_SIZE);
 }
 
 bool _nst_fstack_push(Nst_CallStack *f_stack,
@@ -154,24 +145,14 @@ bool _nst_fstack_push(Nst_CallStack *f_stack,
 {
     usize max_size = f_stack->max_size;
 
-    if ( f_stack->current_size == max_size )
+    if ( f_stack->current_size == max_size && max_size == 1000 )
     {
-        if ( max_size == 1000 )
-        {
-            return false;
-        }
+        return false;
+    }
 
-        Nst_FuncCall *new_calls = (Nst_FuncCall *)nst_realloc(
-            f_stack->stack,
-            max_size * 2,
-            sizeof(Nst_FuncCall));
-        if ( new_calls == NULL )
-        {
-            return false;
-        }
-
-        f_stack->stack = new_calls;
-        f_stack->max_size = max_size * 2;
+    if ( !nst_stack_expand((Nst_GenericStack *)f_stack, sizeof(Nst_FuncCall)) )
+    {
+        return false;
     }
 
     f_stack->stack[f_stack->current_size].func = FUNC(nst_inc_ref(func));
@@ -196,8 +177,8 @@ Nst_FuncCall nst_fstack_pop(Nst_CallStack *f_stack)
     }
 
     call = f_stack->stack[--f_stack->current_size];
-    shrink_stack(
-        (GenericStack *)f_stack,
+    nst_stack_shrink(
+        (Nst_GenericStack *)f_stack,
         F_STACK_MIN_SIZE,
         sizeof(Nst_FuncCall));
     return call;
@@ -242,21 +223,7 @@ void nst_fstack_destroy(Nst_CallStack *f_stack)
 
 Nst_CatchStack *nst_cstack_new()
 {
-    Nst_CatchStack *c_stack =
-        (Nst_CatchStack *)nst_malloc(1, sizeof(Nst_CatchStack));
-    Nst_CatchFrame *frames = (Nst_CatchFrame *)nst_malloc(
-        C_STACK_MIN_SIZE,
-        sizeof(Nst_CatchFrame));
-    if ( c_stack == NULL || frames == NULL )
-    {
-        return NULL;
-    }
-
-    c_stack->stack = frames;
-    c_stack->current_size = 0;
-    c_stack->max_size = C_STACK_MIN_SIZE;
-
-    return c_stack;
+    return (Nst_CatchStack *)nst_stack_new(sizeof(Nst_CatchFrame), C_STACK_MIN_SIZE);
 }
 
 bool nst_cstack_push(Nst_CatchStack *c_stack,
@@ -264,22 +231,11 @@ bool nst_cstack_push(Nst_CatchStack *c_stack,
                     usize           v_stack_size,
                     usize           f_stack_size)
 {
-    usize max_size = c_stack->max_size;
-
-    if ( c_stack->current_size == max_size )
+    if ( !nst_stack_expand((Nst_GenericStack *)c_stack, sizeof(Nst_CatchFrame)) )
     {
-        Nst_CatchFrame *new_frames = (Nst_CatchFrame *)nst_realloc(
-            c_stack->stack,
-            max_size * 2,
-            sizeof(Nst_CatchFrame));
-        if ( new_frames == NULL )
-        {
-            return false;
-        }
-
-        c_stack->stack = new_frames;
-        c_stack->max_size = max_size * 2;
+        return false;
     }
+
 
     c_stack->stack[c_stack->current_size].f_stack_size = f_stack_size;
     c_stack->stack[c_stack->current_size].v_stack_size = v_stack_size;
@@ -307,8 +263,8 @@ Nst_CatchFrame nst_cstack_pop(Nst_CatchStack *c_stack)
     }
 
     frame = c_stack->stack[--c_stack->current_size];
-    shrink_stack(
-        (GenericStack *)c_stack,
+    nst_stack_shrink(
+        (Nst_GenericStack *)c_stack,
         C_STACK_MIN_SIZE,
         sizeof(Nst_CatchFrame));
     return frame;

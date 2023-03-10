@@ -59,6 +59,14 @@ EXPORT typedef struct _Nst_CatchStack
 }
 Nst_CatchStack;
 
+EXPORT typedef struct _Nst_GenericStack
+{
+    void *stack;
+    usize current_size;
+    usize max_size;
+}
+Nst_GenericStack;
+
 // New value stack on the heap
 EXPORT Nst_ValueStack *nst_vstack_new();
 EXPORT bool _nst_vstack_push(Nst_ValueStack *v_stack, Nst_Obj *obj);
@@ -101,6 +109,16 @@ EXPORT Nst_CatchFrame nst_cstack_peek(Nst_CatchStack *c_stack);
 EXPORT Nst_CatchFrame nst_cstack_pop(Nst_CatchStack *c_stack);
 // Destroys the catch stack
 EXPORT void nst_cstack_destroy(Nst_CatchStack *c_stack);
+
+// Creates a new runtime stack
+EXPORT Nst_GenericStack *nst_stack_new(usize unit_size, usize starting_size);
+// Expands a generic stack
+EXPORT bool nst_stack_expand(Nst_GenericStack *g_stack, usize unit_size);
+// Shrinks a runtime stack
+EXPORT
+void nst_stack_shrink(Nst_GenericStack *g_stack,
+                      usize             min_size,
+                      usize             unit_size);
 
 #ifdef __cplusplus
 }

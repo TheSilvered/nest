@@ -1,9 +1,9 @@
 |#| '../test_lib.nest' = test
 |#| 'stdco.nest' = co
 
-#f self a b [
+#f a b [
     a b + = v
-    self v @co.pause
+    v @co.pause
     => 3 v +
 ]
 
@@ -11,31 +11,31 @@ f @co.create = f_co
 co.create { co.create } @test.assert_raises_error -- coroutine from a C function
 
 f_co @co.get_state co.STATE.suspended @test.assert_eq
-{ f_co, 1, 2 } f_co @co.call 3 @test.assert_eq
+{ 1, 2 } f_co @co.call 3 @test.assert_eq
 
 f_co @co.get_state co.STATE.paused @test.assert_eq
 null f_co @co.call 6 @test.assert_eq
 
 f_co @co.get_state co.STATE.ended @test.assert_eq
 
-f { f_co, 1, 2 } @test.assert_raises_error
+f { 1, 2 } @test.assert_raises_error
 
 #g self [
-    self 1 @co.pause
-    self 2 @co.pause
-    self 3 @co.pause
+    1 @co.pause
+    2 @co.pause
+    3 @co.pause
 ]
 
 g @co.create = g_co
 
 Array :: (g_co @co.generator) { 1, 2, 3 } @test.assert_eq
 
-## self [
-    self @h
+## [
+    @h
 ] @co.create = bad_co
 
-#h coroutine [
-    coroutine @co.pause
+#h [
+    @co.pause
 ]
 
-co.call { { bad_co }, bad_co } @test.assert_raises_error
+co.call { {,}, bad_co } @test.assert_raises_error
