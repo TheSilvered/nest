@@ -11,10 +11,17 @@ A programming language with no keywords.
 - Dynamically typed
 - Memory safe
 - Interpreted
-- Function-oriented
-- Has named variables
 - Has hash maps, vectors and arrays built in
 - Can be expanded with C/C++
+- Aimed at being consistent within its design
+
+**This programming laguage is still in early development and is heavely unstable.
+The beta versions are not properly tested and might crash unexpectedly.**
+
+## Planned features
+
+- Regular expressions in the standard library
+- A custom graphics and UI standard library built on top of SDL2
 
 ## Installation
 
