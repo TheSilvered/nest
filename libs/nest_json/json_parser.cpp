@@ -74,7 +74,7 @@ static Nst_Obj *parse_value(Nst_LList *tokens, Nst_OpErr *err)
 static Nst_Obj *parse_object(Nst_LList *tokens, Nst_OpErr *err)
 {
     INC_RECURSION_LVL;
-    Nst_MapObj *map = MAP(nst_map_new());
+    Nst_MapObj *map = MAP(nst_map_new(err));
     Nst_Tok *tok = NST_TOK(nst_llist_pop(tokens));
 
     if ( (JSONTokenType)tok->type == JSON_RBRACE )
@@ -117,7 +117,7 @@ static Nst_Obj *parse_object(Nst_LList *tokens, Nst_OpErr *err)
             return nullptr;
         }
 
-        nst_map_set(map, key, val);
+        nst_map_set(map, key, val, err);
         nst_dec_ref(key);
         nst_dec_ref(val);
 
@@ -152,7 +152,7 @@ static Nst_Obj *parse_object(Nst_LList *tokens, Nst_OpErr *err)
 static Nst_Obj *parse_array(Nst_LList *tokens, Nst_OpErr *err)
 {
     INC_RECURSION_LVL;
-    Nst_VectorObj *vec = SEQ(nst_vector_new(0));
+    Nst_VectorObj *vec = SEQ(nst_vector_new(0, err));
     Nst_Tok *tok = NST_TOK(nst_llist_peek_front(tokens));
 
     if ( (JSONTokenType)tok->type == JSON_RBRACKET )
@@ -171,7 +171,7 @@ static Nst_Obj *parse_array(Nst_LList *tokens, Nst_OpErr *err)
             return nullptr;
         }
 
-        nst_vector_append(vec, val);
+        nst_vector_append(vec, val, err);
         nst_dec_ref(val);
 
         tok = NST_TOK(nst_llist_pop(tokens));
@@ -208,7 +208,7 @@ end:
         Nst_Obj **new_objs = (Nst_Obj **)nst_realloc(
             vec->objs,
             vec->len,
-            sizeof(Nst_Obj *));
+            sizeof(Nst_Obj *), 0, err);
         if ( new_objs != nullptr )
         {
             vec->objs = new_objs;

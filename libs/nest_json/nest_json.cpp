@@ -13,6 +13,7 @@ static bool lib_init_ = false;
 bool lib_init()
 {
     usize idx = 0;
+    Nst_OpErr err = { nullptr, nullptr };
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(load_s_,      1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(load_f_,      1);
@@ -21,12 +22,12 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(set_options_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_options_, 0);
 
-#if __LINE__ - FUNC_COUNT != 18
+#if __LINE__ - FUNC_COUNT != 19
 #error
 #endif
 
-    lib_init_ = true;
-    return true;
+    lib_init_ = err.name == nullptr;
+    return lib_init_;
 }
 
 Nst_DeclrList *get_func_ptrs()
@@ -68,11 +69,10 @@ NST_FUNC_SIGN(load_f_)
     usize buf_size = (usize)ftell(f);
     fseek(f, 0, SEEK_SET);
 
-    i8 *buf = (i8 *)nst_malloc((buf_size + 1), sizeof(i8));
+    i8 *buf = (i8 *)nst_malloc((buf_size + 1), sizeof(i8), err);
     if ( buf == nullptr )
     {
         fclose(f);
-        NST_FAILED_ALLOCATION;
         return nullptr;
     }
 
@@ -144,5 +144,5 @@ NST_FUNC_SIGN(get_options_)
     Nst_Int val = 0;
     val |= comments        ? 0b01 : 0;
     val |= trailing_commas ? 0b10 : 0;
-    return nst_int_new(val);
+    return nst_int_new(val, err);
 }

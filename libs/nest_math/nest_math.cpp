@@ -15,6 +15,7 @@ static bool lib_init_ = false;
 bool lib_init()
 {
     usize idx = 0;
+    Nst_OpErr err = { nullptr, nullptr };
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(floor_,  1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(ceil_,   1);
@@ -59,12 +60,12 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(abs_,    1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(hypot_,  2);
 
-#if __LINE__ - FUNC_COUNT != 20
+#if __LINE__ - FUNC_COUNT != 21
 #error
 #endif
 
-    lib_init_ = true;
-    return true;
+    lib_init_ = err.name == nullptr;
+    return lib_init_;
 }
 
 Nst_DeclrList *get_func_ptrs()
@@ -76,35 +77,35 @@ NST_FUNC_SIGN(floor_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_int_new((Nst_Int)n);
+    return nst_int_new((Nst_Int)n, err);
 }
 
 NST_FUNC_SIGN(ceil_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_int_new((Nst_Int)ceil(n));
+    return nst_int_new((Nst_Int)ceil(n), err);
 }
 
 NST_FUNC_SIGN(round_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_int_new((Nst_Int)round(n));
+    return nst_int_new((Nst_Int)round(n), err);
 }
 
 NST_FUNC_SIGN(exp_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(exp(n));
+    return nst_real_new(exp(n), err);
 }
 
 NST_FUNC_SIGN(log_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(log(n));
+    return nst_real_new(log(n), err);
 }
 
 NST_FUNC_SIGN(logn_)
@@ -112,21 +113,21 @@ NST_FUNC_SIGN(logn_)
     Nst_Real n;
     Nst_Real base;
     NST_DEF_EXTRACT("NN", &n, &base);
-    return nst_real_new(log(n) / log(base));
+    return nst_real_new(log(n) / log(base), err);
 }
 
 NST_FUNC_SIGN(log2_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(log2(n));
+    return nst_real_new(log2(n), err);
 }
 
 NST_FUNC_SIGN(log10_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(log10(n));
+    return nst_real_new(log10(n), err);
 }
 
 NST_FUNC_SIGN(divmod_)
@@ -136,9 +137,9 @@ NST_FUNC_SIGN(divmod_)
 
     NST_DEF_EXTRACT("ii", &x, &y);
 
-    Nst_SeqObj *res = SEQ(nst_array_new(2));
-    res->objs[0] = nst_int_new(x / y);
-    res->objs[1] = nst_int_new(x % y);
+    Nst_SeqObj *res = SEQ(nst_array_new(2, err));
+    res->objs[0] = nst_int_new(x / y, err);
+    res->objs[1] = nst_int_new(x % y, err);
 
     return OBJ(res);
 }
@@ -147,42 +148,42 @@ NST_FUNC_SIGN(sin_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(sin(n));
+    return nst_real_new(sin(n), err);
 }
 
 NST_FUNC_SIGN(cos_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(cos(n));
+    return nst_real_new(cos(n), err);
 }
 
 NST_FUNC_SIGN(tan_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(tan(n));
+    return nst_real_new(tan(n), err);
 }
 
 NST_FUNC_SIGN(asin_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(asin(n));
+    return nst_real_new(asin(n), err);
 }
 
 NST_FUNC_SIGN(acos_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(acos(n));
+    return nst_real_new(acos(n), err);
 }
 
 NST_FUNC_SIGN(atan_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(atan(n));
+    return nst_real_new(atan(n), err);
 }
 
 NST_FUNC_SIGN(atan2_)
@@ -190,49 +191,49 @@ NST_FUNC_SIGN(atan2_)
     Nst_Real x;
     Nst_Real y;
     NST_DEF_EXTRACT("NN", &y, &x);
-    return nst_real_new(atan2(y, x));
+    return nst_real_new(atan2(y, x), err);
 }
 
 NST_FUNC_SIGN(sinh_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(sinh(n));
+    return nst_real_new(sinh(n), err);
 }
 
 NST_FUNC_SIGN(cosh_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(cosh(n));
+    return nst_real_new(cosh(n), err);
 }
 
 NST_FUNC_SIGN(tanh_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(tanh(n));
+    return nst_real_new(tanh(n), err);
 }
 
 NST_FUNC_SIGN(asinh_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(asinh(n));
+    return nst_real_new(asinh(n), err);
 }
 
 NST_FUNC_SIGN(acosh_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(acosh(n));
+    return nst_real_new(acosh(n), err);
 }
 
 NST_FUNC_SIGN(atanh_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(atanh(n));
+    return nst_real_new(atanh(n), err);
 }
 
 NST_FUNC_SIGN(dist_2d_)
@@ -315,7 +316,7 @@ NST_FUNC_SIGN(dist_2d_)
 
     // sqrt((x1 - x2)^2 + (y1 - y2)^2)
     Nst_Real c2 = (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2);
-    return nst_real_new(sqrt(c2));
+    return nst_real_new(sqrt(c2), err);
 }
 
 NST_FUNC_SIGN(dist_3d_)
@@ -431,7 +432,7 @@ NST_FUNC_SIGN(dist_3d_)
     Nst_Real d2 = (x1 - x2)*(x1 - x2)
                 + (y1 - y2)*(y1 - y2)
                 + (z1 - z2)*(z1 - z2);
-    return nst_real_new(sqrt(d2));
+    return nst_real_new(sqrt(d2), err);
 }
 
 NST_FUNC_SIGN(dist_nd_)
@@ -492,7 +493,7 @@ NST_FUNC_SIGN(dist_nd_)
         tot += (t1 - t2) * (t1 - t2);
     }
 
-    return nst_real_new(sqrt(tot));
+    return nst_real_new(sqrt(tot), err);
 }
 
 NST_FUNC_SIGN(deg_)
@@ -501,7 +502,7 @@ NST_FUNC_SIGN(deg_)
 
     NST_DEF_EXTRACT("N", &n);
     // 57.29577951308232 = 180 / PI
-    return nst_real_new(n * 57.29577951308232);
+    return nst_real_new(n * 57.29577951308232, err);
 }
 
 NST_FUNC_SIGN(rad_)
@@ -510,7 +511,7 @@ NST_FUNC_SIGN(rad_)
 
     NST_DEF_EXTRACT("N", &n);
     // 0.017453292519943295 = PI / 180
-    return nst_real_new(n * 0.017453292519943295);
+    return nst_real_new(n * 0.017453292519943295, err);
 }
 
 NST_FUNC_SIGN(min_)
@@ -650,9 +651,9 @@ NST_FUNC_SIGN(frexp_)
     NST_DEF_EXTRACT("r", &n);
 
     int num;
-    Nst_SeqObj *arr = SEQ(nst_array_new(2));
-    arr->objs[0] = nst_real_new(frexp(n, &num));
-    arr->objs[1] = nst_int_new(num);
+    Nst_SeqObj *arr = SEQ(nst_array_new(2, err));
+    arr->objs[0] = nst_real_new(frexp(n, &num), err);
+    arr->objs[1] = nst_int_new(num, err);
 
     return OBJ(arr);
 }
@@ -664,7 +665,7 @@ NST_FUNC_SIGN(ldexp_)
 
     NST_DEF_EXTRACT("ri", &m, &e);
 
-    return nst_real_new(ldexp(m, (i32)e));
+    return nst_real_new(ldexp(m, (i32)e), err);
 }
 
 NST_FUNC_SIGN(map_)
@@ -679,10 +680,10 @@ NST_FUNC_SIGN(map_)
 
     if ( min1 == max1 )
     {
-        return nst_real_new(min2);
+        return nst_real_new(min2, err);
     }
 
-    return nst_real_new((val - min1) / (max1 - min1) * (max2 - min2) + min2);
+    return nst_real_new((val - min1) / (max1 - min1) * (max2 - min2) + min2, err);
 }
 
 NST_FUNC_SIGN(clamp_)
@@ -693,7 +694,7 @@ NST_FUNC_SIGN(clamp_)
 
     NST_DEF_EXTRACT("NNN", &val, &min, &max);
 
-    return nst_real_new(min > val ? min : max < val ? max : val);
+    return nst_real_new(min > val ? min : max < val ? max : val, err);
 }
 
 template <typename T>
@@ -796,7 +797,7 @@ NST_FUNC_SIGN(gcd_)
 
     if ( args[0]->type == nst_type()->Real || args[1]->type == nst_type()->Real )
     {
-        return nst_real_new(gcd_real(n1, n2));
+        return nst_real_new(gcd_real(n1, n2), err);
     }
     else if ( args[0]->type == nst_type()->Int || args[1]->type == nst_type()->Int )
     {
@@ -821,13 +822,13 @@ NST_FUNC_SIGN(gcd_)
             n2_int = (Nst_Int)AS_BYTE(args[1]);
         }
 
-        return nst_int_new(gcd_int<Nst_Int>(n1_int, n2_int));
+        return nst_int_new(gcd_int<Nst_Int>(n1_int, n2_int), err);
     }
     else
     {
         Nst_Byte n1_byte = AS_BYTE(args[0]);
         Nst_Byte n2_byte = AS_BYTE(args[1]);
-        return nst_byte_new(gcd_int<Nst_Byte>(n1_byte, n2_byte));
+        return nst_byte_new(gcd_int<Nst_Byte>(n1_byte, n2_byte), err);
     }
 }
 
@@ -989,5 +990,5 @@ NST_FUNC_SIGN(hypot_)
 
     NST_DEF_EXTRACT("NN", &c1, &c2);
 
-    return nst_real_new(sqrt(c1 * c1 + c2 * c2));
+    return nst_real_new(sqrt(c1 * c1 + c2 * c2), err);
 }

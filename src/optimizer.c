@@ -108,22 +108,17 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
     case NST_TT_L_AND:  res = nst_obj_lgand(ob1, ob2, &err); break;
     case NST_TT_L_OR:   res = nst_obj_lgor(ob1, ob2, &err);  break;
     case NST_TT_L_XOR:  res = nst_obj_lgxor(ob1, ob2, &err); break;
-    default: return;
     }
 
     if ( res == NULL )
     {
-        if ( errno == ENOMEM )
-        {
-            return;
-        }
-        _NST_SET_ERROR(error, node->start, node->end, err.name, err.message);
+        _NST_SET_ERROR_FROM_OP_ERR(error, &err, node->start, node->end);
         return;
     }
 
     nst_node_destroy(NST_NODE(nst_llist_pop(node->nodes)));
     nst_node_destroy(NST_NODE(nst_llist_pop(node->nodes)));
-    nst_token_destroy(NST_TOK(nst_llist_pop(node->tokens)));
+    nst_token_destroy(NST_TOK(nst_llist_peek_front(node->tokens)));
 
     node->type = NST_NT_VALUE;
 
@@ -131,9 +126,16 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
         node->start,
         node->end,
         NST_TT_VALUE,
-        res);
+        res,
+        &err);
 
-    nst_llist_append(node->tokens, new_tok, true);
+    if ( new_tok == NULL )
+    {
+        _NST_SET_ERROR_FROM_OP_ERR(error, &err, node->start, node->end);
+        nst_dec_ref(res);
+        return;
+    }
+    node->tokens->head->value = new_tok;
 }
 
 static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
@@ -185,22 +187,13 @@ static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
         }
         else if ( res == NULL )
         {
-            if ( errno == ENOMEM )
-            {
-                return;
-            }
-            _NST_SET_ERROR(
-                error,
-                node->start,
-                node->end,
-                err.name,
-                err.message);
+            _NST_SET_ERROR_FROM_OP_ERR(error, &err, node->start, node->end);
             return;
         }
     }
 
     nst_llist_empty(node->nodes, (Nst_LListDestructor)nst_node_destroy);
-    nst_token_destroy(NST_TOK(nst_llist_pop(node->tokens)));
+    nst_token_destroy(NST_TOK(nst_llist_peek_front(node->tokens)));
 
     node->type = NST_NT_VALUE;
 
@@ -208,9 +201,16 @@ static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
         node->start,
         node->end,
         NST_TT_VALUE,
-        res);
+        res,
+        &err);
 
-    nst_llist_append(node->tokens, new_tok, true);
+    if ( new_tok == NULL )
+    {
+        _NST_SET_ERROR_FROM_OP_ERR(error, &err, node->start, node->end);
+        nst_dec_ref(res);
+        return;
+    }
+    node->tokens->head->value = new_tok;
 }
 
 static void ast_optimize_local_op(Nst_Node *node, Nst_Error *error)
@@ -244,29 +244,29 @@ static void ast_optimize_local_op(Nst_Node *node, Nst_Error *error)
 
     if ( res == NULL )
     {
-        if ( errno == ENOMEM )
-        {
-            return;
-        }
-
-        _NST_SET_ERROR(error, node->start, node->end, err.name, err.message);
+        _NST_SET_ERROR_FROM_OP_ERR(error, &err, node->start, node->end);
         return;
     }
 
     nst_node_destroy(NST_NODE(nst_llist_pop(node->nodes)));
-    nst_token_destroy(NST_TOK(nst_llist_pop(node->tokens)));
+    nst_token_destroy(NST_TOK(nst_llist_peek_front(node->tokens)));
 
     node->type = NST_NT_VALUE;
 
-    nst_llist_append(
-        node->tokens,
-        nst_tok_new_value(
-            node->start,
-            node->end,
-            NST_TT_VALUE,
-            res
-        ),
-        true);
+    Nst_Tok *new_tok = nst_tok_new_value(
+        node->start,
+        node->end,
+        NST_TT_VALUE,
+        res,
+        &err);
+
+    if ( new_tok == NULL )
+    {
+        _NST_SET_ERROR_FROM_OP_ERR(error, &err, node->start, node->end);
+        nst_dec_ref(res);
+        return;
+    }
+    node->tokens->head->value = new_tok;
 }
 
 static void ast_optimize_long_s(Nst_Node *node, Nst_Error *error)
@@ -569,7 +569,12 @@ static void optimize_const(Nst_InstList *bc,
                            const i8     *name,
                            Nst_Obj      *val)
 {
-    Nst_StrObj *str_obj = STR(nst_string_new_c_raw(name, false));
+    Nst_StrObj *str_obj = STR(nst_string_new_c_raw(name, false, NULL));
+    if ( str_obj == NULL )
+    {
+        return;
+    }
+
     if ( has_assignments(bc, str_obj) )
     {
         goto end;

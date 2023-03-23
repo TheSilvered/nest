@@ -22,11 +22,11 @@
 #define IS_HEX(ch) ( (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') )
 #define HEX_TO_INT(ch) ( ch <= '9' ? ch - '0' : ch - 'a' + 10 )
 
-#define tok_new_noval(start, end, type) \
-    nst_tok_new_noval(start, end, (Nst_TokType)type)
-#define tok_new_noend(start, type) nst_tok_new_noend(start, (Nst_TokType)type)
-#define tok_new_value(start, end, type, value) \
-    nst_tok_new_value(start, end, (Nst_TokType)type, value)
+#define tok_new_noval(start, end, type, err) \
+    nst_tok_new_noval(start, end, (Nst_TokType)type, err)
+#define tok_new_noend(start, type, err) nst_tok_new_noend(start, (Nst_TokType)type, err)
+#define tok_new_value(start, end, type, value, err) \
+    nst_tok_new_value(start, end, (Nst_TokType)type, value, err)
 
 bool comments = false;
 
@@ -101,7 +101,7 @@ Nst_LList *json_tokenize(i8        *path,
         }
     }
 
-    Nst_LList *tokens = nst_llist_new();
+    Nst_LList *tokens = nst_llist_new(err);
     Nst_Tok *tok = nullptr;
 
     if ( text_len == 0 )
@@ -128,22 +128,22 @@ Nst_LList *json_tokenize(i8        *path,
             advance();
             continue;
         case '[':
-            tok = tok_new_noval(state.pos, state.pos, JSON_LBRACKET);
+            tok = tok_new_noval(state.pos, state.pos, JSON_LBRACKET, err);
             break;
         case ']':
-            tok = tok_new_noval(state.pos, state.pos, JSON_RBRACKET);
+            tok = tok_new_noval(state.pos, state.pos, JSON_RBRACKET, err);
             break;
         case '{':
-            tok = tok_new_noval(state.pos, state.pos, JSON_LBRACE);
+            tok = tok_new_noval(state.pos, state.pos, JSON_LBRACE, err);
             break;
         case '}':
-            tok = tok_new_noval(state.pos, state.pos, JSON_RBRACE);
+            tok = tok_new_noval(state.pos, state.pos, JSON_RBRACE, err);
             break;
         case ',':
-            tok = tok_new_noval(state.pos, state.pos, JSON_COMMA);
+            tok = tok_new_noval(state.pos, state.pos, JSON_COMMA, err);
             break;
         case ':':
-            tok = tok_new_noval(state.pos, state.pos, JSON_COLON);
+            tok = tok_new_noval(state.pos, state.pos, JSON_COLON, err);
             break;
         case '"':
             tok = parse_json_str(err);
@@ -194,11 +194,11 @@ Nst_LList *json_tokenize(i8        *path,
             nst_free(src_text.lines);
             return nullptr;
         }
-        nst_llist_append(tokens, tok, true);
+        nst_llist_append(tokens, tok, true, err);
         advance();
     }
 end:
-    nst_llist_append(tokens, tok_new_noend(state.pos, JSON_EOF), true);
+    nst_llist_append(tokens, tok_new_noend(state.pos, JSON_EOF, err), true, err);
     if ( fix_encoding )
     {
         nst_free(src_text.text);
@@ -213,12 +213,11 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
     Nst_Pos escape_start = nst_copy_pos(state.pos);
     bool escape = false;
 
-    i8 *end_str = (i8 *)nst_malloc(8, sizeof(i8));
+    i8 *end_str = (i8 *)nst_malloc(8, sizeof(i8), err);
     i8 *end_str_realloc = nullptr;
 
     if ( end_str == nullptr )
     {
-        NST_FAILED_ALLOCATION;
         return nullptr;
     }
 
@@ -235,11 +234,10 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
             end_str_realloc = (i8 *)nst_realloc(
                 end_str,
                 chunk_size,
-                sizeof(i8));
+                sizeof(i8), 0, err);
             if ( end_str_realloc == nullptr )
             {
                 nst_free(end_str);
-                NST_FAILED_ALLOCATION;
                 return nullptr;
             }
             end_str = end_str_realloc;
@@ -350,21 +348,17 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
 
     if ( str_len + 20 < chunk_size )
     {
-        end_str_realloc = (i8*)nst_realloc(
+        end_str = (i8*)nst_realloc(
             end_str,
             str_len + 1,
-            sizeof(i8));
-    }
-    if ( end_str_realloc != nullptr )
-    {
-        end_str = end_str_realloc;
+            sizeof(i8), chunk_size, nullptr);
     }
 
     end_str[str_len] = '\0';
 
-    Nst_StrObj *val_obj = STR(nst_string_new(end_str, str_len, true));
+    Nst_StrObj *val_obj = STR(nst_string_new(end_str, str_len, true, err));
 
-    return tok_new_value(start, state.pos, JSON_VALUE, OBJ(val_obj));
+    return tok_new_value(start, state.pos, JSON_VALUE, OBJ(val_obj), err);
 }
 
 static Nst_Tok *parse_json_num(Nst_OpErr *err)
@@ -420,7 +414,7 @@ static Nst_Tok *parse_json_num(Nst_OpErr *err)
             start,
             state.pos,
             JSON_VALUE,
-            nst_int_new(value));
+            nst_int_new(value, err), err);
     }
     else
     {
@@ -436,7 +430,7 @@ float_ltrl:
             start,
             state.pos,
             JSON_VALUE,
-            nst_inc_ref(nst_const()->Int_0));
+            nst_inc_ref(nst_const()->Int_0), err);
     }
 
     if ( state.ch == '.' )
@@ -483,7 +477,7 @@ float_ltrl:
             start,
             state.pos,
             JSON_VALUE,
-            nst_real_new(value)); 
+            nst_real_new(value, err), err); 
     }
 }
 
@@ -511,7 +505,7 @@ static Nst_Tok *parse_json_val(Nst_OpErr *err)
             start,
             state.pos,
             JSON_VALUE,
-            nst_inc_ref(nst_true()));
+            nst_inc_ref(nst_true()), err);
     case 'f':
         if ( state.idx + 4 >= state.len )
         {
@@ -533,7 +527,7 @@ static Nst_Tok *parse_json_val(Nst_OpErr *err)
             start,
             state.pos,
             JSON_VALUE,
-            nst_inc_ref(nst_false()));
+            nst_inc_ref(nst_false()), err);
     default:
         if ( state.idx + 3 >= state.len )
         {
@@ -553,7 +547,7 @@ static Nst_Tok *parse_json_val(Nst_OpErr *err)
             start,
             state.pos,
             JSON_VALUE,
-            nst_inc_ref(nst_null()));
+            nst_inc_ref(nst_null()), err);
     }
 }
 

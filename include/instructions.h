@@ -9,8 +9,8 @@
 #define NST_INST_IS_JUMP(inst) ( (inst >= NST_IC_JUMP && inst <= NST_IC_JUMPIF_ZERO) \
                                  || inst == NST_IC_PUSH_CATCH )
 // Creates a new instruction on the heap with positions and a value
-#define nst_inst_new_val(id, val, start, end) \
-    _nst_inst_new_val(id, OBJ(val), start, end)
+#define nst_inst_new_val(id, val, start, end, err) \
+    _nst_inst_new_val(id, OBJ(val), start, end, err)
 
 #ifdef __cplusplus
 extern "C" {
@@ -88,18 +88,18 @@ EXPORT typedef struct _Nst_InstList
 Nst_InstList;
 
 // Creates a new instruction on the heap with positions
-EXPORT Nst_Inst *nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end);
-EXPORT
-Nst_Inst *_nst_inst_new_val(Nst_InstID     id,
-                            Nst_Obj       *val,
-                            Nst_Pos        start,
-                            Nst_Pos        end);
+EXPORT Nst_Inst *nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end, Nst_OpErr *err);
+EXPORT Nst_Inst *_nst_inst_new_val(Nst_InstID id,
+                                   Nst_Obj   *val,
+                                   Nst_Pos    start,
+                                   Nst_Pos    end,
+                                   Nst_OpErr *err);
 // Creates a new instruction on the heap with positions and an integer value
-EXPORT
-Nst_Inst *nst_inst_new_int(Nst_InstID id,
-                           Nst_Int    int_val,
-                           Nst_Pos    start,
-                           Nst_Pos    end);
+EXPORT Nst_Inst *nst_inst_new_int(Nst_InstID id,
+                                  Nst_Int    int_val,
+                                  Nst_Pos    start,
+                                  Nst_Pos    end,
+                                  Nst_OpErr *err);
 
 // Destroys an instruction allocated on the heap
 EXPORT void nst_inst_destroy(Nst_Inst *inst);

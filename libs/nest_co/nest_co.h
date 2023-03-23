@@ -44,7 +44,7 @@ enum CoroutineFlags
     FLAG_FUNC_IS_CO   = 0b1000
 };
 
-Nst_Obj *coroutine_new(Nst_FuncObj *func);
+Nst_Obj *coroutine_new(Nst_FuncObj *func, Nst_OpErr *err);
 void coroutine_traverse(CoroutineObj *co);
 void coroutine_track(CoroutineObj *co);
 void coroutine_destroy(CoroutineObj *co);

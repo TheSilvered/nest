@@ -3,13 +3,14 @@
 #include "global_consts.h"
 #include "mem.h"
 
-Nst_Obj *nst_func_new(usize arg_num, Nst_InstList *bytecode)
+Nst_Obj *nst_func_new(usize arg_num, Nst_InstList *bytecode, Nst_OpErr *err)
 {
     Nst_FuncObj *func = FUNC(nst_obj_alloc(
         sizeof(Nst_FuncObj),
         nst_t.Func,
-        _nst_func_destroy));
-    Nst_Obj **args = (Nst_Obj **)nst_malloc(arg_num, sizeof(Nst_Obj *));
+        _nst_func_destroy,
+        err));
+    Nst_Obj **args = (Nst_Obj **)nst_malloc(arg_num, sizeof(Nst_Obj *), err);
     if ( func == NULL || args == NULL )
     {
         return NULL;
@@ -25,14 +26,17 @@ Nst_Obj *nst_func_new(usize arg_num, Nst_InstList *bytecode)
     return OBJ(func);
 }
 
-Nst_Obj *nst_func_new_c(usize arg_num, Nst_Obj *(*cbody)(usize     arg_num,
-                                                         Nst_Obj  **args,
-                                                         Nst_OpErr *err))
+Nst_Obj *nst_func_new_c(usize arg_num,
+                        Nst_Obj *(*cbody)(usize     arg_num,
+                                          Nst_Obj  **args,
+                                          Nst_OpErr *err),
+                        Nst_OpErr *err)
 {
     Nst_FuncObj *func = FUNC(nst_obj_alloc(
         sizeof(Nst_FuncObj),
         nst_t.Func,
-        _nst_func_destroy));
+        _nst_func_destroy,
+        err));
     Nst_Obj **args = NULL;
     if ( func == NULL )
     {

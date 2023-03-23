@@ -1,9 +1,9 @@
 #include "mem.h"
 #include "instructions.h"
 
-Nst_Inst *nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end)
+Nst_Inst *nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end, Nst_OpErr *err)
 {
-    Nst_Inst *inst = (Nst_Inst *)nst_malloc(1, sizeof(Nst_Inst));
+    Nst_Inst *inst = (Nst_Inst *)nst_malloc(1, sizeof(Nst_Inst), err);
     if ( inst == NULL )
     {
         return NULL;
@@ -21,9 +21,10 @@ Nst_Inst *nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end)
 Nst_Inst *_nst_inst_new_val(Nst_InstID id,
                             Nst_Obj   *val,
                             Nst_Pos    start,
-                            Nst_Pos    end)
+                            Nst_Pos    end,
+                            Nst_OpErr *err)
 {
-    Nst_Inst *inst = (Nst_Inst*)nst_malloc(1, sizeof(Nst_Inst));
+    Nst_Inst *inst = (Nst_Inst*)nst_malloc(1, sizeof(Nst_Inst), err);
     if ( inst == NULL )
     {
         return NULL;
@@ -41,9 +42,10 @@ Nst_Inst *_nst_inst_new_val(Nst_InstID id,
 Nst_Inst *nst_inst_new_int(Nst_InstID id,
                            Nst_Int    int_val,
                            Nst_Pos    start,
-                           Nst_Pos    end)
+                           Nst_Pos    end,
+                           Nst_OpErr *err)
 {
-    Nst_Inst *inst = (Nst_Inst *)nst_malloc(1, sizeof(Nst_Inst));
+    Nst_Inst *inst = (Nst_Inst *)nst_malloc(1, sizeof(Nst_Inst), err);
     if ( inst == NULL )
     {
         return NULL;

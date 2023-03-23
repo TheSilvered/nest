@@ -23,12 +23,9 @@
 #define nst_array_set nst_seq_set
 #define nst_array_get nst_seq_get
 
-// Resizes the vector if it is full, callled automatically with
-// nst_append_value_vector, nst_rem_value_vector and nst_pop_value_vector
-#define nst_vector_resize(vect) _nst_vector_resize(SEQ(vect))
 // Appends a value to the end of a vector
-#define nst_vector_append(vect, val) \
-    _nst_vector_append(SEQ(vect), OBJ(val))
+#define nst_vector_append(vect, val, err) \
+    _nst_vector_append(SEQ(vect), OBJ(val), err)
 // Removes the firs occurence of `val` in `vect`
 #define nst_vector_remove(vect, val) \
     _nst_vector_remove(SEQ(vect), OBJ(val))
@@ -54,9 +51,9 @@ EXPORT typedef Nst_SeqObj Nst_ArrayObj;
 EXPORT typedef Nst_SeqObj Nst_VectorObj;
 
 // Creates a new array of length `len`, the objects must be set manually inside
-EXPORT Nst_Obj *nst_array_new(usize len);
+EXPORT Nst_Obj *nst_array_new(usize len, Nst_OpErr *err);
 // Creates a new vector of lenght `len`, the objects must be set manually inside
-EXPORT Nst_Obj *nst_vector_new(usize len);
+EXPORT Nst_Obj *nst_vector_new(usize len, Nst_OpErr *err);
 EXPORT void _nst_seq_destroy(Nst_SeqObj *seq);
 EXPORT void _nst_seq_traverse(Nst_SeqObj *seq);
 EXPORT void _nst_seq_track(Nst_SeqObj *seq);
@@ -64,8 +61,8 @@ EXPORT void _nst_seq_track(Nst_SeqObj *seq);
 EXPORT bool _nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val);
 EXPORT Nst_Obj *_nst_seq_get(Nst_SeqObj *seq, i64 idx);
 
-EXPORT void _nst_vector_resize(Nst_SeqObj *vect);
-EXPORT void _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val);
+EXPORT void _nst_vector_resize(Nst_SeqObj *vect, Nst_OpErr *err);
+EXPORT void _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val, Nst_OpErr *err);
 EXPORT Nst_Obj *_nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val);
 EXPORT Nst_Obj *_nst_vector_pop(Nst_SeqObj *vect, usize quantity);
 

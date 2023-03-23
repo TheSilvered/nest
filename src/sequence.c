@@ -5,13 +5,14 @@
 #include "obj_ops.h"
 #include "lib_import.h"
 
-static Nst_Obj *new_seq(usize len, usize size, Nst_TypeObj *type)
+static Nst_Obj *new_seq(usize len, usize size, Nst_TypeObj *type, Nst_OpErr *err)
 {
     Nst_SeqObj *seq = SEQ(nst_obj_alloc(
         sizeof(Nst_SeqObj),
         type,
-        _nst_seq_destroy));
-    Nst_Obj **objs = (Nst_Obj **)nst_calloc(size, sizeof(Nst_Obj *), NULL);
+        _nst_seq_destroy,
+        err));
+    Nst_Obj **objs = (Nst_Obj **)nst_calloc(size, sizeof(Nst_Obj *), NULL, err);
 
     if ( seq == NULL || objs == NULL )
     {
@@ -27,12 +28,12 @@ static Nst_Obj *new_seq(usize len, usize size, Nst_TypeObj *type)
     return OBJ(seq);
 }
 
-Nst_Obj *nst_array_new(usize len)
+Nst_Obj *nst_array_new(usize len, Nst_OpErr *err)
 {
-    return new_seq(len, len, nst_t.Array);
+    return new_seq(len, len, nst_t.Array, err);
 }
 
-Nst_Obj *nst_vector_new(usize len)
+Nst_Obj *nst_vector_new(usize len, Nst_OpErr *err)
 {
     usize size = (usize)(len * _NST_VECTOR_GROWTH_RATIO);
 
@@ -41,7 +42,7 @@ Nst_Obj *nst_vector_new(usize len)
         size = _NST_VECTOR_MIN_SIZE;
     }
 
-    return new_seq(len, size, nst_t.Vector);
+    return new_seq(len, size, nst_t.Vector, err);
 }
 
 void _nst_seq_destroy(Nst_SeqObj *seq)
@@ -76,7 +77,7 @@ void _nst_seq_track(Nst_SeqObj* seq)
     }
 }
 
-void _nst_vector_resize(Nst_SeqObj *vect)
+void _nst_vector_resize(Nst_SeqObj *vect, Nst_OpErr *err)
 {
     usize len = vect->len;
     usize size = vect->size;
@@ -109,7 +110,9 @@ void _nst_vector_resize(Nst_SeqObj *vect)
     Nst_Obj **new_objs = (Nst_Obj **)nst_realloc(
         vect->objs,
         new_size,
-        sizeof(Nst_Obj *));
+        sizeof(Nst_Obj *),
+        size,
+        err);
 
     if ( new_objs == NULL )
     {
@@ -125,19 +128,18 @@ void _nst_vector_resize(Nst_SeqObj *vect)
     vect->objs = new_objs;
 }
 
-void _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val)
+void _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val, Nst_OpErr *err)
 {
     if ( vect->size == vect->len )
     {
-        _nst_vector_resize(vect);
+        _nst_vector_resize(vect, err);
     }
-
-    if ( errno == ENOMEM )
+    if ( NST_ERROR_OCCURRED )
     {
         return;
     }
 
-    vect->objs[vect->len++] = nst_inc_ref(val);;
+    vect->objs[vect->len++] = nst_inc_ref(val);
 
     if ( NST_OBJ_IS_TRACKED(vect) &&
          NST_FLAG_HAS(val, NST_FLAG_GGC_IS_SUPPORTED) )
@@ -220,7 +222,7 @@ Nst_Obj *_nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val)
     }
 
     vect->len--;
-    _nst_vector_resize(vect);
+    _nst_vector_resize(vect, NULL);
 
     NST_RETURN_TRUE;
 }
@@ -244,6 +246,8 @@ Nst_Obj *_nst_vector_pop(Nst_SeqObj *vect, usize quantity)
         last_obj = vect->objs[n - i];
         vect->len--;
     }
+
+    _nst_vector_resize(vect, NULL);
 
     if ( last_obj == NULL )
     {

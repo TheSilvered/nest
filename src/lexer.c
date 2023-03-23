@@ -42,19 +42,13 @@
                            ch == '!' || ch == '['  || \
                            ch == ']' || ch == '^' )
 
-#define CHECK_ERR \
-    if ( res == NULL ) \
+#define SET_ERROR_IF_OP_ERR(cond, ...) do { \
+    if ( (cond) || lexer_err.name != NULL ) \
     { \
-        _NST_SET_ERROR( \
-            error, \
-            start, \
-            cursor.pos, \
-            err.name, \
-            err.message); \
-        nst_dec_ref(err.name); \
-        nst_dec_ref(err.message); \
+        _NST_SET_ERROR_FROM_OP_ERR(error, &lexer_err, cursor.pos, cursor.pos); \
+        __VA_ARGS__ \
         return; \
-    }
+    } } while ( 0 )
 
 typedef struct LexerCursor {
     i8 *text;
@@ -66,6 +60,7 @@ typedef struct LexerCursor {
 } LexerCursor;
 
 static LexerCursor cursor;
+static Nst_OpErr lexer_err = { NULL, NULL };
 
 static inline void advance();
 static inline void go_back();
@@ -92,7 +87,9 @@ Nst_LList *nst_tokenizef(i8             *filename,
     FILE *file = fopen(filename, "rb");
     if ( file == NULL )
     {
-        printf("File \"%s\" not found\n", filename);
+        nst_fprint(nst_io->err, "File \"", -1);
+        nst_fprint(nst_io->err, (const i8 *)filename, -1);
+        nst_fprintln(nst_io->err, "\" not found", -1);
         return NULL;
     }
 
@@ -100,10 +97,10 @@ Nst_LList *nst_tokenizef(i8             *filename,
     usize size = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    i8 *text = (i8 *)nst_calloc(size + 1, sizeof(i8), NULL);
+    i8 *text = (i8 *)nst_raw_calloc(size + 1, sizeof(i8));
     if ( text == NULL )
     {
-        printf("Ran out of memory while reading the file\n");
+        nst_fprint(nst_io->err, "Memory allocation failed\n", -1);
         return NULL;
     }
 
@@ -112,7 +109,12 @@ Nst_LList *nst_tokenizef(i8             *filename,
     text[str_len] = '\0';
 
     i8 *full_path;
-    nst_get_full_path(filename, &full_path, NULL);
+    nst_get_full_path(filename, &full_path, NULL, NULL);
+    if ( full_path == NULL )
+    {
+        nst_fprint(nst_io->err, "Memory allocation failed\n", -1);
+        return NULL;
+    }
 
     src_text->text = text;
     src_text->len = str_len;
@@ -138,7 +140,7 @@ Nst_LList *nst_tokenizef(i8             *filename,
 Nst_LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
 {
     Nst_Tok *tok = NULL;
-    Nst_LList *tokens = nst_llist_new();
+    Nst_LList *tokens = nst_llist_new(&lexer_err);
 
     cursor.idx = -1;
     cursor.ch = ' ';
@@ -147,6 +149,12 @@ Nst_LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
     cursor.pos.col = -1;
     cursor.pos.line = 0;
     cursor.pos.text = text;
+
+    if (tokens == NULL)
+    {
+        _NST_SET_ERROR_FROM_OP_ERR(error, &lexer_err, cursor.pos, cursor.pos);
+        return NULL;
+    }
 
     advance();
 
@@ -177,7 +185,11 @@ Nst_LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
         }
         else if ( cursor.ch == '\n' )
         {
-            tok = nst_tok_new_noend(nst_copy_pos(cursor.pos), NST_TT_ENDL);
+            tok = nst_tok_new_noend(nst_copy_pos(cursor.pos), NST_TT_ENDL, &lexer_err);
+            if (tokens == NULL)
+            {
+                _NST_SET_ERROR_FROM_OP_ERR(error, &lexer_err, cursor.pos, cursor.pos);
+            }
         }
         else if ( cursor.ch == '\\' )
         {
@@ -204,13 +216,27 @@ Nst_LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
 
         if ( tok != NULL )
         {
-            nst_llist_append(tokens, tok, true);
+            nst_llist_append(tokens, tok, true, &lexer_err);
         }
         tok = NULL;
         advance();
     }
 
-    nst_llist_append(tokens, nst_tok_new_noend(cursor.pos, NST_TT_EOFILE), true);
+    tok = nst_tok_new_noend(cursor.pos, NST_TT_EOFILE, &lexer_err);
+    if ( tok == NULL )
+    {
+        _NST_SET_ERROR_FROM_OP_ERR(error, &lexer_err, cursor.pos, cursor.pos);
+        nst_llist_destroy(tokens, (Nst_LListDestructor)nst_token_destroy);
+        return NULL;
+    }
+    nst_llist_append(tokens, tok, true, &lexer_err);
+    if ( lexer_err.name != NULL )
+    {
+        _NST_SET_ERROR_FROM_OP_ERR(error, &lexer_err, cursor.pos, cursor.pos);
+        nst_llist_destroy(tokens, (Nst_LListDestructor)nst_token_destroy);
+        return NULL;
+    }
+
     return tokens;
 }
 
@@ -366,7 +392,8 @@ static void make_symbol(Nst_Tok **tok, Nst_Error *error)
         token_type = nst_tok_from_str(symbol);
     }
 
-    *tok = nst_tok_new_noval(start, nst_copy_pos(cursor.pos), token_type);
+    *tok = nst_tok_new_noval(start, nst_copy_pos(cursor.pos), token_type, &lexer_err);
+    SET_ERROR_IF_OP_ERR(*tok == NULL);
 }
 
 static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
@@ -381,7 +408,6 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
     bool is_real = false;
     Nst_StrObj s;
     Nst_Obj *res;
-    Nst_OpErr err = { NULL, NULL };
 
     if ( cursor.ch == '-' || cursor.ch == '+' )
     {
@@ -410,11 +436,10 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
         if ( !CH_IS_BIN(cursor.ch) )
         {
             go_back();
-            *tok = nst_tok_new_value(
-                start,
-                cursor.pos,
-                NST_TT_VALUE,
-                nst_byte_new(0));
+            Nst_Obj *val = nst_byte_new(0, &lexer_err);
+            SET_ERROR_IF_OP_ERR(val == NULL);
+            *tok = nst_tok_new_value(start, cursor.pos, NST_TT_VALUE, val, &lexer_err);
+            SET_ERROR_IF_OP_ERR(*tok == NULL, nst_dec_ref(val););
             return;
         }
         ltrl_size += 2;
@@ -554,11 +579,10 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
         {
             val = -val;
         }
-        *tok = nst_tok_new_value(
-            start,
-            cursor.pos,
-            NST_TT_VALUE,
-            nst_byte_new(val & 0xff));
+        Nst_Obj *obj = nst_byte_new(0, &lexer_err);
+        SET_ERROR_IF_OP_ERR(obj == NULL);
+        *tok = nst_tok_new_value(start, cursor.pos, NST_TT_VALUE, obj, &lexer_err);
+        SET_ERROR_IF_OP_ERR(*tok == NULL, nst_dec_ref(obj););
         return;
     }
     default:
@@ -628,12 +652,8 @@ dec_num:
     go_back();
 
 end:
-    ltrl = (i8 *)nst_malloc(ltrl_size + 3, sizeof(u8));
-    if ( ltrl == NULL )
-    {
-        _NST_FAILED_ALLOCATION(error, start, cursor.pos);
-        return;
-    }
+    ltrl = (i8 *)nst_malloc(ltrl_size + 3, sizeof(u8), &lexer_err);
+    SET_ERROR_IF_OP_ERR(ltrl == NULL);
     ltrl[0] = neg ? '-' : '+';
     memcpy(ltrl + 1, start_p, ltrl_size);
     ltrl[ltrl_size + 1] = '\0';
@@ -643,30 +663,30 @@ end:
 
     if ( is_real )
     {
-        res = nst_string_parse_real(&s, &err);
+        res = nst_string_parse_real(&s, &lexer_err);
         nst_free(ltrl);
     }
     else
     {
-        res = nst_string_parse_int(&s, 0, &err);
+        res = nst_string_parse_int(&s, 0, &lexer_err);
         advance();
         if ( cursor.ch == 'b' || cursor.ch == 'B' )
         {
-            if ( res == NULL && err.name == nst_s.e_MemoryError )
+            if ( res == NULL && lexer_err.name == nst_s.e_MemoryError )
             {
-                nst_dec_ref(err.name);
-                nst_dec_ref(err.message);
+                nst_dec_ref(lexer_err.name);
+                nst_dec_ref(lexer_err.message);
                 ltrl[ltrl_size + 1] = 'b';
                 ltrl[ltrl_size + 2] = '\0';
                 s.len++;
-                res = nst_string_parse_byte(&s, &err);
+                res = nst_string_parse_byte(&s, &lexer_err);
                 nst_free(ltrl);
             }
             else
             {
                 nst_free(ltrl);
-                CHECK_ERR;
-                Nst_Obj *new_res = nst_byte_new(AS_INT(res) & 0xff);
+                SET_ERROR_IF_OP_ERR(res == NULL);
+                Nst_Obj *new_res = nst_byte_new(AS_INT(res) & 0xff, &lexer_err);
                 nst_dec_ref(res);
                 res = new_res;
             }
@@ -679,8 +699,9 @@ end:
         }
     }
 
-    CHECK_ERR;
-    *tok = nst_tok_new_value(start, end, NST_TT_VALUE, res);
+    SET_ERROR_IF_OP_ERR(res == NULL);
+    *tok = nst_tok_new_value(start, end, NST_TT_VALUE, res, &lexer_err);
+    SET_ERROR_IF_OP_ERR(*tok == NULL);
 }
 
 static void make_ident(Nst_Tok **tok, Nst_Error *error)
@@ -707,7 +728,8 @@ static void make_ident(Nst_Tok **tok, Nst_Error *error)
     }
     go_back();
 
-    str = (i8 *)nst_malloc(str_len + 1, sizeof(u8));
+    str = (i8 *)nst_malloc(str_len + 1, sizeof(u8), &lexer_err);
+    SET_ERROR_IF_OP_ERR(str == NULL);
 
     if ( str == NULL )
     {
@@ -718,10 +740,12 @@ static void make_ident(Nst_Tok **tok, Nst_Error *error)
     str[str_len] = '\0';
 
     Nst_Pos end = nst_copy_pos(cursor.pos);
-    Nst_StrObj *val_obj = STR(nst_string_new_c_raw(str, true));
+    Nst_StrObj *val_obj = STR(nst_string_new_c_raw(str, true, &lexer_err));
+    SET_ERROR_IF_OP_ERR(val_obj == NULL, nst_free(str););
     nst_obj_hash(OBJ(val_obj));
 
-    *tok = nst_tok_new_value(start, end, NST_TT_IDENT, OBJ(val_obj));
+    *tok = nst_tok_new_value(start, end, NST_TT_IDENT, OBJ(val_obj), &lexer_err);
+    SET_ERROR_IF_OP_ERR(val_obj == NULL, nst_dec_ref(val_obj););
 }
 
 static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
@@ -732,13 +756,9 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
     bool allow_multiline = cursor.ch == '"';
     bool escape = false;
 
-    i8 *end_str = (i8 *)nst_malloc(START_CH_SIZE, sizeof(u8));
+    i8 *end_str = (i8 *)nst_malloc(START_CH_SIZE, sizeof(u8), &lexer_err);
     i8 *end_str_realloc = NULL;
-
-    if ( end_str == NULL )
-    {
-        return;
-    }
+    SET_ERROR_IF_OP_ERR(end_str == NULL);
 
     usize str_len = 0;
     usize chunk_size = START_CH_SIZE;
@@ -756,13 +776,9 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
             end_str_realloc = (i8 *)nst_realloc(
                 end_str,
                 chunk_size,
-                sizeof(i8));
-            if ( end_str_realloc == NULL )
-            {
-                nst_free(end_str);
-                _NST_FAILED_ALLOCATION(error, cursor.pos, cursor.pos);
-                return;
-            }
+                sizeof(i8),
+                0, &lexer_err);
+            SET_ERROR_IF_OP_ERR(end_str_realloc == NULL, nst_free(end_str););
             end_str = end_str_realloc;
         }
 
@@ -935,19 +951,21 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
 
     if ( str_len + 20 < chunk_size )
     {
-        end_str_realloc = (i8 *)nst_realloc(end_str, str_len + 1, sizeof(i8));
-        if ( end_str_realloc != NULL )
-        {
-            end_str = end_str_realloc;
-        }
+        end_str = (i8 *)nst_realloc(
+            end_str,
+            str_len + 1,
+            sizeof(i8),
+            chunk_size, NULL);
     }
 
     end_str[str_len] = '\0';
 
-    Nst_StrObj *val_obj = STR(nst_string_new(end_str, str_len, true));
+    Nst_StrObj *val_obj = STR(nst_string_new(end_str, str_len, true, &lexer_err));
+    SET_ERROR_IF_OP_ERR(val_obj == NULL, nst_free(end_str););
     nst_obj_hash(OBJ(val_obj));
 
-    *tok = nst_tok_new_value(start, cursor.pos, NST_TT_VALUE, OBJ(val_obj));
+    *tok = nst_tok_new_value(start, cursor.pos, NST_TT_VALUE, OBJ(val_obj), &lexer_err);
+    SET_ERROR_IF_OP_ERR(*tok == NULL, nst_dec_ref(val_obj););
 }
 
 void nst_add_lines(Nst_SourceText* text, i32 start_offset)
@@ -958,7 +976,7 @@ void nst_add_lines(Nst_SourceText* text, i32 start_offset)
     }
 
     i8 *text_p = text->text;
-    i8 **starts = (i8 **)nst_calloc(100, sizeof(i8 *), NULL);
+    i8 **starts = (i8 **)nst_raw_calloc(100, sizeof(i8 *));
     if ( starts == NULL )
     {
         text->lines = NULL;
@@ -1022,7 +1040,7 @@ void nst_add_lines(Nst_SourceText* text, i32 start_offset)
 
         if ( line_count % 100 == 0 )
         {
-            void *temp = nst_realloc(starts, i + 100, sizeof(i8 *));
+            void *temp = nst_raw_realloc(starts, i + 100);
             if ( temp == NULL )
             {
                 nst_free(starts);
@@ -1097,7 +1115,7 @@ fix_encoding:
         }
     }
 
-    i8 *new_text = (i8 *)nst_calloc(n + ch_count * 3 + 1, sizeof(i8), NULL);
+    i8 *new_text = (i8 *)nst_raw_calloc(n + ch_count * 3 + 1, sizeof(i8));
     if ( new_text == NULL )
     {
         Nst_Pos pos = { 1, 0, text };

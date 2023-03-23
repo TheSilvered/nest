@@ -19,6 +19,7 @@ static Nst_Obj *stderr_obj;
 bool lib_init()
 {
     usize idx = 0;
+    Nst_OpErr err = { nullptr, nullptr };
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(open_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(virtual_iof_, 2);
@@ -40,16 +41,16 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_stdout_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_stderr_, 0);
 
-#if __LINE__ - FUNC_COUNT != 24
+#if __LINE__ - FUNC_COUNT != 25
 #error
 #endif
 
-    stdin_obj  = nst_iof_new(stdin,  false, true, false);
-    stdout_obj = nst_iof_new(stdout, false, false, true);
-    stderr_obj = nst_iof_new(stderr, false, false, true);
+    stdin_obj  = nst_iof_new(stdin,  false, true, false, &err);
+    stdout_obj = nst_iof_new(stdout, false, false, true, &err);
+    stderr_obj = nst_iof_new(stderr, false, false, true, &err);
 
-    lib_init_ = true;
-    return true;
+    lib_init_ = err.name == nullptr;
+    return lib_init_;
 }
 
 Nst_DeclrList *get_func_ptrs()
@@ -116,7 +117,8 @@ static usize virtual_iof_write_f(void               *buf,
         i8 *new_data = (i8 *)nst_realloc(
             f->data,
             (usize)f->ptr + tot_bytes,
-            sizeof(i8));
+            sizeof(i8),
+            0, nullptr);
         if ( new_data == NULL )
         {
             return 0;
@@ -138,7 +140,8 @@ static i32 virtual_iof_flush_f(VirtualIOFile_data *f)
     i8 *new_data = (i8 *)nst_realloc(
         f->data,
         (usize)f->ptr + byte_count,
-        sizeof(i8));
+        sizeof(i8),
+        0, nullptr);
     if ( new_data == NULL )
     {
         errno = ENOMEM;
@@ -264,7 +267,7 @@ NST_FUNC_SIGN(open_)
         NST_RETURN_NULL;
     }
 
-    return nst_iof_new(file_ptr, is_bin, can_read, can_write);
+    return nst_iof_new(file_ptr, is_bin, can_read, can_write, nullptr);
 }
 
 NST_FUNC_SIGN(virtual_iof_)
@@ -278,17 +281,16 @@ NST_FUNC_SIGN(virtual_iof_)
     Nst_Int buf_size = NST_DEF_VAL(buf_size_obj, AS_INT(buf_size_obj), 128);
 
     VirtualIOFile_data *f =
-        (VirtualIOFile_data *)nst_malloc(1, sizeof(VirtualIOFile_data));
+        (VirtualIOFile_data *)nst_malloc(1, sizeof(VirtualIOFile_data), err);
     if ( f == nullptr )
     {
-        NST_FAILED_ALLOCATION;
         return nullptr;
     }
 
-    f->data = (i8 *)nst_malloc(1, sizeof(i8));
+    f->data = (i8 *)nst_malloc(1, sizeof(i8), err);
     f->size = 0;
     f->ptr = 0;
-    f->buf = (i8 *)nst_malloc(buf_size, sizeof(i8));
+    f->buf = (i8 *)nst_malloc(buf_size, sizeof(i8), err);
     f->buf_size = buf_size;
     f->curr_buf_size = 0;
 
@@ -307,7 +309,7 @@ NST_FUNC_SIGN(virtual_iof_)
                              (Nst_IOFile_flush_f)virtual_iof_flush_f,
                              (Nst_IOFile_tell_f)virtual_iof_tell_f,
                              (Nst_IOFile_seek_f)virtual_iof_seek_f,
-                             (Nst_IOFile_close_f)virtual_iof_close_f);
+                             (Nst_IOFile_close_f)virtual_iof_close_f, err);
 }
 
 NST_FUNC_SIGN(close_)
@@ -358,7 +360,7 @@ NST_FUNC_SIGN(write_)
     usize res = f->write_f(str->value, sizeof(i8), str->len, f->value);
 
     nst_dec_ref(str_to_write);
-    return nst_int_new(res);
+    return nst_int_new(res, err);
 }
 
 NST_FUNC_SIGN(write_bytes_)
@@ -386,10 +388,9 @@ NST_FUNC_SIGN(write_bytes_)
 
     usize seq_len = seq->len;
     Nst_Obj **objs = seq->objs;
-    i8 *bytes = (i8 *)nst_malloc((seq_len + 1), sizeof(i8));
+    i8 *bytes = (i8 *)nst_malloc((seq_len + 1), sizeof(i8), err);
     if ( bytes == nullptr )
     {
-        NST_FAILED_ALLOCATION;
         return nullptr;
     }
 
@@ -408,7 +409,7 @@ NST_FUNC_SIGN(write_bytes_)
     usize res = f->write_f(bytes, sizeof(i8), seq_len, f->value);
 
     nst_free(bytes);
-    return nst_int_new(res);
+    return nst_int_new(res, err);
 }
 
 NST_FUNC_SIGN(read_)
@@ -447,7 +448,7 @@ NST_FUNC_SIGN(read_)
         bytes_to_read = max_size;
     }
 
-    i8 *buffer = (i8 *)nst_malloc((bytes_to_read + 1), sizeof(i8));
+    i8 *buffer = (i8 *)nst_malloc((bytes_to_read + 1), sizeof(i8), err);
     if ( buffer == nullptr )
     {
         NST_FAILED_ALLOCATION;
@@ -461,7 +462,7 @@ NST_FUNC_SIGN(read_)
         f->value);
     buffer[read_bytes] = 0;
 
-    return nst_string_new(buffer, read_bytes, true);
+    return nst_string_new(buffer, read_bytes, true, err);
 }
 
 NST_FUNC_SIGN(read_bytes_)
@@ -500,7 +501,7 @@ NST_FUNC_SIGN(read_bytes_)
         bytes_to_read = max_size;
     }
 
-    i8 *buffer = (i8 *)nst_malloc(bytes_to_read, sizeof(i8));
+    i8 *buffer = (i8 *)nst_malloc(bytes_to_read, sizeof(i8), err);
     if ( buffer == nullptr )
     {
         NST_FAILED_ALLOCATION;
@@ -513,11 +514,11 @@ NST_FUNC_SIGN(read_bytes_)
         (usize)bytes_to_read,
         f->value);
 
-    Nst_SeqObj *bytes_array = SEQ(nst_array_new(read_bytes));
+    Nst_SeqObj *bytes_array = SEQ(nst_array_new(read_bytes, err));
 
     for ( usize i = 0; i < read_bytes; i++ )
     {
-        bytes_array->objs[i] = nst_byte_new(buffer[i]);
+        bytes_array->objs[i] = nst_byte_new(buffer[i], err);
     }
 
     nst_free(buffer);
@@ -536,7 +537,7 @@ NST_FUNC_SIGN(file_size_)
         return nullptr;
     }
 
-    return nst_int_new(get_file_size(f));
+    return nst_int_new(get_file_size(f), err);
 }
 
 NST_FUNC_SIGN(get_fptr_)
@@ -551,7 +552,7 @@ NST_FUNC_SIGN(get_fptr_)
         return nullptr;
     }
 
-    return nst_int_new(f->tell_f(f->value));
+    return nst_int_new(f->tell_f(f->value), err);
 }
 
 NST_FUNC_SIGN(move_fptr_)
@@ -614,7 +615,7 @@ NST_FUNC_SIGN(flush_)
     }
 
     i32 res = f->flush_f(f->value);
-    return nst_int_new(res);
+    return nst_int_new(res, err);
 }
 
 NST_FUNC_SIGN(get_flags_)
@@ -623,10 +624,9 @@ NST_FUNC_SIGN(get_flags_)
 
     NST_DEF_EXTRACT("F", &f);
 
-    i8 *flags = (i8 *)nst_malloc(4, sizeof(i8));
+    i8 *flags = (i8 *)nst_malloc(4, sizeof(i8), err);
     if (flags == nullptr)
     {
-        NST_FAILED_ALLOCATION;
         return nullptr;
     }
 
@@ -635,7 +635,7 @@ NST_FUNC_SIGN(get_flags_)
     flags[2] = NST_IOF_IS_BIN(f)    ? 'b' : '-';
     flags[3] = 0;
 
-    return nst_string_new(flags,  3, true);
+    return nst_string_new(flags,  3, true, err);
 }
 
 NST_FUNC_SIGN(println_)

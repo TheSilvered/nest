@@ -52,7 +52,7 @@ Nst_Obj *nst_run_func_context(Nst_FuncObj *func,
 // `buf` is the pointer where the full path is stored, the memory is allocated
 // by the function
 // `file_part` is the pointer where the filename begins
-EXPORT usize nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part);
+EXPORT usize nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part, Nst_OpErr *err);
 
 // Frees all the variables inside nst_state except for loaded_libs
 EXPORT void nst_state_free();

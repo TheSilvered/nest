@@ -7,6 +7,10 @@
 #include <stddef.h>
 
 #if defined(_WIN32) || defined(WIN32)
+#define WINDOWS
+#endif
+
+#ifdef WINDOWS
 #define EXPORT __declspec(dllexport)
 #else
 #define EXPORT

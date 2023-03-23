@@ -132,15 +132,15 @@ EXPORT typedef struct _Nst_Tok
 Nst_Tok;
 
 // Creates a new token with a value
-EXPORT
-Nst_Tok *nst_tok_new_value(Nst_Pos     start,
-                           Nst_Pos     end,
-                           Nst_TokType type,
-                           Nst_Obj    *value);
+EXPORT Nst_Tok *nst_tok_new_value(Nst_Pos     start,
+                                  Nst_Pos     end,
+                                  Nst_TokType type,
+                                  Nst_Obj    *value,
+                                  Nst_OpErr  *err);
 // Creates a new tokens with only a type
-EXPORT Nst_Tok *nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type);
+EXPORT Nst_Tok *nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type, Nst_OpErr *err);
 // Creates a new token where start and end are the same
-EXPORT Nst_Tok *nst_tok_new_noend(Nst_Pos start, Nst_TokType type);
+EXPORT Nst_Tok *nst_tok_new_noend(Nst_Pos start, Nst_TokType type, Nst_OpErr *err);
 EXPORT void nst_token_destroy(Nst_Tok *token);
 
 // Returns the corresponding token id from a string literal

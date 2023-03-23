@@ -52,27 +52,15 @@ EXPORT typedef struct _Nst_Node
 }
 Nst_Node;
 
-// New node on the heap with only a list of tokens
-EXPORT
-Nst_Node *nst_node_new_tokens(Nst_Pos      start,
-                              Nst_Pos      end,
-                              Nst_NodeType type,
-                              Nst_LList   *tokens);
-// New node on the heap with only a list of nodes
-EXPORT
-Nst_Node *nst_node_new_nodes(Nst_Pos      start,
-                             Nst_Pos      end,
-                             Nst_NodeType type,
-                             Nst_LList   *nodes);
-// New node on the heap with both a list of nodes an tokens
-EXPORT
-Nst_Node *nst_node_new_full(Nst_Pos      start,
-                            Nst_Pos      end,
-                            Nst_NodeType type,
-                            Nst_LList   *nodes,
-                            Nst_LList   *tokens);
-// New node with no lists
-EXPORT Nst_Node *nst_node_new_empty(Nst_Pos start, Nst_Pos end, Nst_NodeType type);
+// New node on the heap
+EXPORT Nst_Node *nst_node_new(Nst_NodeType type, Nst_OpErr *err);
+// New node on the heap with a position
+EXPORT Nst_Node *nst_node_new_pos(Nst_NodeType type,
+                                  Nst_Pos start,
+                                  Nst_Pos end,
+                                  Nst_OpErr *err);
+// Sets the position of a node
+EXPORT void nst_node_set_pos(Nst_Node *node, Nst_Pos start, Nst_Pos end);
 // Destroy a token and its children
 EXPORT void nst_node_destroy(Nst_Node *node);
 

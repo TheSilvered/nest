@@ -10,39 +10,47 @@
     { \
         (void *)(func_ptr), \
         argc, \
-        STR(nst_string_new_c_raw(#func_ptr, false)) \
+        STR(nst_string_new_c_raw(#func_ptr, false, &err)) \
     }
 
 #define NST_MAKE_NAMED_FUNCDECLR(func_ptr, argc, func_name) \
     { \
         (void *)(func_ptr), \
         argc, \
-        STR(nst_string_new_c_raw(func_name, false)) \
+        STR(nst_string_new_c_raw(func_name, false, &err)) \
     }
 
 #define NST_MAKE_OBJDECLR(obj_ptr) \
     { \
         (void *)(obj_ptr), \
         -1, \
-        STR(nst_string_new_c_raw(#obj_ptr, false)) \
+        STR(nst_string_new_c_raw(#obj_ptr, false, &err)) \
     }
 
 #define NST_MAKE_NAMED_OBJDECLR(obj_ptr, obj_name) \
     { \
         (void *)(obj_ptr), \
         -1, \
-        STR(nst_string_new_c_raw(obj_name, false)) \
+        STR(nst_string_new_c_raw(obj_name, false, &err)) \
     }
 
 #define NST_SET_ERROR(err_name, err_msg) do { \
+    if ( err != NULL ) { \
     err->name = STR(nst_inc_ref(err_name)); \
-    err->message = STR(nst_inc_ref(err_msg)); \
-    } while ( 0 )
+    err->message = STR(err_msg); \
+    }} while ( 0 )
 
 #define NST_SET_RAW_ERROR(err_name, err_msg) do { \
+    if ( err != NULL ) { \
+        if ( NST_ERROR_OCCURRED ) { \
+            nst_dec_ref(err->name); \
+            if ( err->message != NULL ) \
+                nst_dec_ref(err->message); \
+        } \
+    err->message = NULL; \
     err->name = STR(nst_inc_ref(err_name)); \
-    err->message = STR(nst_string_new_c_raw(err_msg, false)); \
-    } while ( 0 )
+    err->message = STR(nst_string_new_c_raw(err_msg, false, err)); \
+    }} while ( 0 )
 
 #define NST_SET_SYNTAX_ERROR(msg) NST_SET_ERROR(nst_str()->e_SyntaxError, msg)
 #define NST_SET_MEMORY_ERROR(msg) NST_SET_ERROR(nst_str()->e_MemoryError, msg)
@@ -61,7 +69,7 @@
 #define NST_SET_RAW_IMPORT_ERROR(msg) NST_SET_RAW_ERROR(nst_str()->e_ImportError, msg)
 
 #define NST_FAILED_ALLOCATION \
-    NST_SET_ERROR(nst_str()->e_MemoryError, nst_str()->o_failed_alloc)
+    NST_SET_ERROR(nst_str()->e_MemoryError, nst_inc_ref(nst_str()->o_failed_alloc))
 
 #define NST_RETURN_TRUE return nst_inc_ref(nst_true())
 #define NST_RETURN_FALSE return nst_inc_ref(nst_false())
@@ -83,6 +91,14 @@
 // Sets 'def_val' if 'obj' is null else 'val'
 #define NST_DEF_VAL(obj, val, def_val) \
     ((obj) == nst_null() ? (def_val) : (val))
+
+#define NST_ERROR_OCCURRED (err != NULL && err->name != NULL)
+
+#define NST_RETURN_NEW_STR(val, len) do { \
+    Nst_Obj *_s_ = nst_string_new(val, len, true, err); \
+    if ( _s_ == NULL ) nst_free(val); \
+    return _s_; \
+    } while (0)
 
 #ifdef __cplusplus
 extern "C" {

@@ -11,11 +11,11 @@
 #define NST_STR_IS_ALLOC(str) ((str)->flags & NST_FLAG_STR_IS_ALLOC)
 
 // Creates a copy of the string
-#define nst_string_copy(src) _nst_string_copy(STR(src))
+#define nst_string_copy(src, err) _nst_string_copy(STR(src), err)
 // Creates new string that is the representation of `src`
-#define nst_string_repr(src) _nst_string_repr(STR(src))
+#define nst_string_repr(src, err) _nst_string_repr(STR(src), err)
 // Creates a one-character string with the character at `idx` of idx
-#define nst_string_get(str, idx) _nst_string_get(STR(str), idx)
+#define nst_string_get(str, idx, err) _nst_string_get(STR(str), idx, err)
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,18 +34,18 @@ Nst_StrObj;
 EXPORT typedef Nst_StrObj Nst_TypeObj;
 
 // Creates a new string from a C string of unknown lenght
-EXPORT Nst_Obj *nst_string_new_c_raw(const i8 *val, bool allocated);
+EXPORT Nst_Obj *nst_string_new_c_raw(const i8 *val, bool allocated, struct _Nst_OpErr *err);
 // Creates a string from a string literal
-EXPORT Nst_Obj *nst_string_new_c(const i8 *val, usize len, bool allocated);
+EXPORT Nst_Obj *nst_string_new_c(const i8 *val, usize len, bool allocated, struct _Nst_OpErr *err);
 // Creates a new string from a i8 * of known lenght
-EXPORT Nst_Obj *nst_string_new(i8 *val, usize len, bool allocated);
+EXPORT Nst_Obj *nst_string_new(i8 *val, usize len, bool allocated, struct _Nst_OpErr *err);
 
 // Creates a new Type object
-EXPORT Nst_TypeObj *nst_type_new(const i8 *val, usize len);
+EXPORT Nst_TypeObj *nst_type_new(const i8 *val, usize len, struct _Nst_OpErr *err);
 
-EXPORT Nst_Obj *_nst_string_copy(Nst_StrObj *src);
-EXPORT Nst_Obj *_nst_string_repr(Nst_StrObj *src);
-EXPORT Nst_Obj *_nst_string_get(Nst_StrObj *str, i64 idx);
+EXPORT Nst_Obj *_nst_string_copy(Nst_StrObj *src, struct _Nst_OpErr *err);
+EXPORT Nst_Obj *_nst_string_repr(Nst_StrObj *src, struct _Nst_OpErr *err);
+EXPORT Nst_Obj *_nst_string_get(Nst_StrObj *str, i64 idx, struct _Nst_OpErr *err);
 
 // Parses a Nst_IntObj from a string, any NUL character in the middle does not
 // intefere with the parsing

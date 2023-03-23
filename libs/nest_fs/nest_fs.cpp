@@ -1,4 +1,4 @@
-#if defined(_WIN32) || defined(WIN32)
+#ifdef WINDOWS
 #include <winerror.h>
 #else
 // This error does not get thrown on UNIX
@@ -24,28 +24,29 @@ static Nst_MapObj *CPO_ = nullptr;
 
 bool lib_init()
 {
-    CPO_ = MAP(nst_map_new());
-    Nst_Obj *none_opt            = nst_int_new((Nst_Int)fs::copy_options::none);
-    Nst_Obj *skip_opt            = nst_int_new((Nst_Int)fs::copy_options::skip_existing);
-    Nst_Obj *overwrite_opt       = nst_int_new((Nst_Int)fs::copy_options::overwrite_existing);
-    Nst_Obj *update_opt          = nst_int_new((Nst_Int)fs::copy_options::update_existing);
-    Nst_Obj *recursive_opt       = nst_int_new((Nst_Int)fs::copy_options::recursive);
-    Nst_Obj *copy_symlinks_opt   = nst_int_new((Nst_Int)fs::copy_options::copy_symlinks);
-    Nst_Obj *skip_symlinks_opt   = nst_int_new((Nst_Int)fs::copy_options::skip_symlinks);
-    Nst_Obj *dirs_only_opt       = nst_int_new((Nst_Int)fs::copy_options::directories_only);
-    Nst_Obj *make_symlinks_opt   = nst_int_new((Nst_Int)fs::copy_options::create_symlinks);
-    Nst_Obj *make_hard_links_opt = nst_int_new((Nst_Int)fs::copy_options::create_hard_links);
+    Nst_OpErr err = { nullptr, nullptr };
+    CPO_ = MAP(nst_map_new(&err));
+    Nst_Obj *none_opt            = nst_int_new((Nst_Int)fs::copy_options::none, &err);
+    Nst_Obj *skip_opt            = nst_int_new((Nst_Int)fs::copy_options::skip_existing, &err);
+    Nst_Obj *overwrite_opt       = nst_int_new((Nst_Int)fs::copy_options::overwrite_existing, &err);
+    Nst_Obj *update_opt          = nst_int_new((Nst_Int)fs::copy_options::update_existing, &err);
+    Nst_Obj *recursive_opt       = nst_int_new((Nst_Int)fs::copy_options::recursive, &err);
+    Nst_Obj *copy_symlinks_opt   = nst_int_new((Nst_Int)fs::copy_options::copy_symlinks, &err);
+    Nst_Obj *skip_symlinks_opt   = nst_int_new((Nst_Int)fs::copy_options::skip_symlinks, &err);
+    Nst_Obj *dirs_only_opt       = nst_int_new((Nst_Int)fs::copy_options::directories_only, &err);
+    Nst_Obj *make_symlinks_opt   = nst_int_new((Nst_Int)fs::copy_options::create_symlinks, &err);
+    Nst_Obj *make_hard_links_opt = nst_int_new((Nst_Int)fs::copy_options::create_hard_links, &err);
 
-    nst_map_set_str(CPO_, "none",            none_opt);
-    nst_map_set_str(CPO_, "skip",            skip_opt);
-    nst_map_set_str(CPO_, "overwrite",       overwrite_opt);
-    nst_map_set_str(CPO_, "update",          update_opt);
-    nst_map_set_str(CPO_, "recursive",       recursive_opt);
-    nst_map_set_str(CPO_, "copy_symlinks",   copy_symlinks_opt);
-    nst_map_set_str(CPO_, "skip_symlinks",   skip_symlinks_opt);
-    nst_map_set_str(CPO_, "dirs_only",       dirs_only_opt);
-    nst_map_set_str(CPO_, "make_symlinks",   make_symlinks_opt);
-    nst_map_set_str(CPO_, "make_hard_links", make_hard_links_opt);
+    nst_map_set_str(CPO_, "none",            none_opt, &err);
+    nst_map_set_str(CPO_, "skip",            skip_opt, &err);
+    nst_map_set_str(CPO_, "overwrite",       overwrite_opt, &err);
+    nst_map_set_str(CPO_, "update",          update_opt, &err);
+    nst_map_set_str(CPO_, "recursive",       recursive_opt, &err);
+    nst_map_set_str(CPO_, "copy_symlinks",   copy_symlinks_opt, &err);
+    nst_map_set_str(CPO_, "skip_symlinks",   skip_symlinks_opt, &err);
+    nst_map_set_str(CPO_, "dirs_only",       dirs_only_opt, &err);
+    nst_map_set_str(CPO_, "make_symlinks",   make_symlinks_opt, &err);
+    nst_map_set_str(CPO_, "make_hard_links", make_hard_links_opt, &err);
 
     nst_dec_ref(none_opt);
     nst_dec_ref(skip_opt);
@@ -82,12 +83,12 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_copy_options_, 0);
     func_list_[idx++] = NST_MAKE_OBJDECLR(CPO_);
 
-#if __LINE__ - FUNC_COUNT != 64
+#if __LINE__ - FUNC_COUNT != 65
 #error
 #endif
 
-    lib_init_ = true;
-    return true;
+    lib_init_ = err.name == nullptr;
+    return lib_init_;
 }
 
 Nst_DeclrList *get_func_ptrs()
@@ -102,23 +103,22 @@ void free_lib()
 
 static Nst_StrObj *heap_str(std::string str, Nst_OpErr *err)
 {
-    i8 *heap_s = (i8 *)nst_malloc((str.length() + 1), sizeof(i8));
+    i8 *heap_s = (i8 *)nst_malloc((str.length() + 1), sizeof(i8), err);
     if ( heap_s == nullptr )
     {
-        NST_FAILED_ALLOCATION;
         return nullptr;
     }
 
     memcpy(heap_s, str.c_str(), str.length());
     heap_s[str.length()] = 0;
-    return STR(nst_string_new(heap_s, str.length(), true));
+    return STR(nst_string_new(heap_s, str.length(), true, err));
 }
 
 static Nst_Obj *throw_system_error(std::error_code ec, Nst_OpErr *err)
 {
-    i8 *err_buf = (i8 *)nst_malloc(33, sizeof(i8));
+    i8 *err_buf = (i8 *)nst_malloc(33, sizeof(i8), err);
     sprintf(err_buf, "System Error %d", ec.value());
-    err->name = STR(nst_string_new_c_raw((const i8 *)err_buf, true));
+    err->name = STR(nst_string_new_c_raw((const i8 *)err_buf, true, err));
     err->message = heap_str(ec.message(), err);
     return NULL;
 }
@@ -348,7 +348,7 @@ NST_FUNC_SIGN(list_dir_)
         return throw_system_error(ec, err);
     }
 
-    Nst_SeqObj *vector = SEQ(nst_vector_new(0));
+    Nst_SeqObj *vector = SEQ(nst_vector_new(0, err));
 
     for ( fs::directory_entry const &entry
         : fs::directory_iterator{ path->value } )
@@ -358,7 +358,7 @@ NST_FUNC_SIGN(list_dir_)
         {
             return nullptr;
         }
-        nst_vector_append(vector, OBJ(str));
+        nst_vector_append(vector, OBJ(str), err);
         nst_dec_ref(str);
     }
 
@@ -382,7 +382,7 @@ NST_FUNC_SIGN(list_dirs_)
         return throw_system_error(ec, err);
     }
 
-    Nst_SeqObj *vector = SEQ(nst_vector_new(0));
+    Nst_SeqObj *vector = SEQ(nst_vector_new(0, err));
 
     for ( fs::directory_entry const &entry
         : fs::recursive_directory_iterator{ path->value } )
@@ -392,7 +392,7 @@ NST_FUNC_SIGN(list_dirs_)
         {
             return nullptr;
         }
-        nst_vector_append(vector, OBJ(str));
+        nst_vector_append(vector, OBJ(str), err);
         nst_dec_ref(str);
     }
 
@@ -499,7 +499,7 @@ NST_FUNC_SIGN(join_)
         add_slash = true;
     }
 
-    i8 *new_str = (i8 *)nst_malloc((new_len + 1), sizeof(i8));
+    i8 *new_str = (i8 *)nst_malloc((new_len + 1), sizeof(i8), err);
     if ( new_str == nullptr )
     {
         NST_FAILED_ALLOCATION;
@@ -510,7 +510,7 @@ NST_FUNC_SIGN(join_)
 
     if ( add_slash )
     {
-#if defined(_WIN32) || defined(WIN32)
+#ifdef WINDOWS
         new_str[p1_len] = '\\';
 #else
         new_str[p1_len] = '/';
@@ -521,7 +521,7 @@ NST_FUNC_SIGN(join_)
 
     for ( usize i = 0; i < new_len; i++ )
     {
-#if defined(_WIN32) || defined(WIN32)
+#ifdef WINDOWS
         if ( new_str[i] == '/' )
         {
             new_str[i] = '\\';
@@ -534,7 +534,7 @@ NST_FUNC_SIGN(join_)
 #endif
     }
 
-    return nst_string_new(new_str, new_len, true);
+    return nst_string_new(new_str, new_len, true, err);
 }
 
 NST_FUNC_SIGN(path_)

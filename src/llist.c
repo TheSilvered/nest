@@ -2,9 +2,11 @@
 #include "mem.h"
 #include "llist.h"
 
-static inline Nst_LLNode *LLNode_new(void *value, bool allocated)
+static inline Nst_LLNode *LLNode_new(void *value,
+                                     bool allocated,
+                                     struct _Nst_OpErr *err)
 {
-    Nst_LLNode *node = (Nst_LLNode *)nst_malloc(1, sizeof(Nst_LLNode));
+    Nst_LLNode *node = (Nst_LLNode *)nst_malloc(1, sizeof(Nst_LLNode), err);
     if ( node == NULL )
     {
         return NULL;
@@ -15,12 +17,15 @@ static inline Nst_LLNode *LLNode_new(void *value, bool allocated)
     return node;
 }
 
-void nst_llist_push(Nst_LList *llist, void *value, bool allocated)
+bool nst_llist_push(Nst_LList *llist,
+                    void *value,
+                    bool allocated,
+                    struct _Nst_OpErr *err)
 {
-    Nst_LLNode *node = LLNode_new(value, allocated);
+    Nst_LLNode *node = LLNode_new(value, allocated, err);
     if ( node == NULL )
     {
-        return;
+        return false;
     }
 
     node->next = llist->head;
@@ -31,14 +36,18 @@ void nst_llist_push(Nst_LList *llist, void *value, bool allocated)
         llist->tail = node;
     }
     llist->size++;
+    return true;
 }
 
-void nst_llist_append(Nst_LList *llist, void *value, bool allocated)
+bool nst_llist_append(Nst_LList *llist,
+                      void *value,
+                      bool allocated,
+                      struct _Nst_OpErr *err)
 {
-    Nst_LLNode *node = LLNode_new(value, allocated);
+    Nst_LLNode *node = LLNode_new(value, allocated, err);
     if ( node == NULL )
     {
-        return;
+        return false;
     }
 
     if ( llist->tail != NULL )
@@ -53,6 +62,7 @@ void nst_llist_append(Nst_LList *llist, void *value, bool allocated)
         llist->head = node;
     }
     llist->size++;
+    return true;
 }
 
 void *nst_llist_pop(Nst_LList *llist)
@@ -76,9 +86,9 @@ void *nst_llist_pop(Nst_LList *llist)
     return value;
 }
 
-Nst_LList *nst_llist_new()
+Nst_LList *nst_llist_new(struct _Nst_OpErr *err)
 {
-    Nst_LList *llist = (Nst_LList *)nst_malloc(1, sizeof(Nst_LList));
+    Nst_LList *llist = (Nst_LList *)nst_malloc(1, sizeof(Nst_LList), err);
     if ( llist == NULL )
     {
         return NULL;
@@ -135,4 +145,67 @@ void nst_llist_empty(Nst_LList *llist, void (*item_destroy_func)(void *))
     }
     llist->head = NULL;
     llist->tail = NULL;
+}
+
+void nst_llist_move_nodes(Nst_LList *from, Nst_LList *to)
+{
+    if ( to->size == 0 )
+    {
+        to->head = from->head;
+        to->tail = from->tail;
+        to->size = from->size;
+    }
+    else
+    {
+        to->tail->next = from->head;
+        to->tail = from->tail;
+        to->size += from->size;
+    }
+
+    from->head = NULL;
+    from->tail = NULL;
+    from->size = 0;
+}
+
+void nst_llist_push_llnode(Nst_LList *llist, Nst_LLNode *node)
+{
+    node->next = llist->head;
+    llist->head = node;
+    llist->size++;
+    if ( llist->size == 1 )
+    {
+        llist->tail = node;
+    }
+}
+
+void nst_llist_append_llnode(Nst_LList *llist, Nst_LLNode *node)
+{
+    node->next = NULL;
+    if ( llist->size > 0 )
+    {
+        llist->tail->next = node;
+    }
+    else
+    {
+        llist->head = node;
+    }
+    llist->tail = node;
+    llist->size++;
+}
+
+Nst_LLNode *nst_llist_pop_llnode(Nst_LList *llist)
+{
+    if ( llist->size == 0 )
+    {
+        return NULL;
+    }
+    Nst_LLNode *node = llist->head;
+    llist->head = node->next;
+    llist->size--;
+    if ( llist->size == 0 )
+    {
+        llist->tail = NULL;
+    }
+    node->next = NULL;
+    return node;
 }

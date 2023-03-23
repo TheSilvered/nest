@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "nest.h"
 
-#if defined(_WIN32) || defined(WIN32)
+#ifdef WINDOWS
 #include <windows.h>
 #endif
 
@@ -12,10 +12,7 @@
 
 #define _EXIT(code) \
     do { \
-    _nst_consts_del(); \
-    _nst_strs_del(); \
-    _nst_types_del(); \
-    _nst_streams_del(); \
+    _nst_del_objects(); \
     _nst_unload_libs(); \
     if ( filename != NULL ) { \
         nst_free(src_text.text); \
@@ -25,7 +22,7 @@
     return code; \
     } while ( 0 )
 
-#if defined(_WIN32) || defined(WIN32)
+#ifdef WINDOWS
 
 #define EXIT(code) \
     do { \
@@ -48,7 +45,7 @@
     EXIT(1); \
     } while ( 0 )
 
-#if defined(_WIN32) || defined(WIN32)
+#ifdef WINDOWS
 
 int wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv, i8 **argv_content)
 {
@@ -57,8 +54,8 @@ int wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv, i8 **argv_content)
     {
         tot_size += (wcslen(wargv[i])) * 3 + 1;
     }
-    i8 **local_argv = (i8 **)nst_malloc(argc, sizeof(i8 *));
-    i8 *local_argv_content = (i8 *)nst_malloc(tot_size, sizeof(i8));
+    i8 **local_argv = (i8 **)nst_malloc(argc, sizeof(i8 *), NULL);
+    i8 *local_argv_content = (i8 *)nst_malloc(tot_size, sizeof(i8), NULL);
 
     if ( local_argv == NULL || local_argv_content == NULL )
     {
@@ -162,10 +159,15 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    _nst_types_init();
-    _nst_strs_init();
-    _nst_consts_init();
-    _nst_streams_init();
+    if (!_nst_init_objects())
+    {
+#ifdef WINDOWS
+        nst_free(argv);
+        nst_free(argv_content);
+#endif
+        printf("Failed allocation\n");
+        return -1;
+    }
 
     Nst_LList *tokens;
     Nst_Error error = { false, nst_no_pos(), nst_no_pos(), NULL, NULL };
@@ -255,19 +257,18 @@ int main(int argc, char **argv)
     }
 
     // nst_compile never fails
-    Nst_InstList *inst_ls = nst_compile(ast, false);
+    Nst_InstList *inst_ls = nst_compile(ast, false, &error);
 
-    if ( opt_level >= 2 )
+    if ( opt_level >= 2 && inst_ls != NULL )
     {
         inst_ls = nst_optimize_bytecode(
             inst_ls,
             opt_level == 3 && !no_default,
             &error);
-
-        if ( inst_ls == NULL )
-        {
-            ERROR_EXIT;
-        }
+    }
+    if ( inst_ls == NULL )
+    {
+        ERROR_EXIT;
     }
 
     if ( print_bc )
@@ -282,7 +283,7 @@ int main(int argc, char **argv)
         }
     }
 
-    Nst_FuncObj *main_func = FUNC(nst_func_new(0, inst_ls));
+    Nst_FuncObj *main_func = FUNC(nst_func_new(0, inst_ls, NULL));
 
     i32 exe_result = nst_run(
         main_func,

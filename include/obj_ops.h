@@ -121,11 +121,13 @@ EXPORT Nst_Obj *_nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err);
 
 // Casts an object to a string that does not contain unprintable characters
 // and that usually a valid literal for the value
-EXPORT Nst_Obj *_nst_repr_str_cast(Nst_Obj *ob);
+EXPORT Nst_Obj *_nst_repr_str_cast(Nst_Obj *ob, Nst_OpErr *err);
 // Internal cast from sequence to Str
-EXPORT Nst_Obj *_nst_obj_str_cast_seq(Nst_Obj *seq_obj, Nst_LList *all_objs);
+EXPORT Nst_Obj *_nst_obj_str_cast_seq(Nst_Obj *seq_obj,
+                                      Nst_LList *all_objs,
+                                      Nst_OpErr *err);
 // Internal cast from Map to Str
-EXPORT Nst_Obj *_nst_obj_str_cast_map(Nst_Obj *map_obj, Nst_LList *all_objs);
+EXPORT Nst_Obj *_nst_obj_str_cast_map(Nst_Obj *map_obj, Nst_LList *all_objs, Nst_OpErr *err);
 EXPORT Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err);
 EXPORT Nst_Obj *_nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err);
 EXPORT Nst_Obj *_nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step, Nst_OpErr *err);
@@ -143,7 +145,7 @@ EXPORT Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err);
 
 // returns the path of the library to import or NULL if it cannot be found
 // the path is heap allocated so it will require to be freed
-EXPORT Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len);
+EXPORT Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len, Nst_OpErr *err);
 
 #ifdef __cplusplus
 }

@@ -16,7 +16,7 @@ NST_FUNC_SIGN(count_is_done)
 NST_FUNC_SIGN(count_get_val)
 {
     Nst_Obj **objs = SEQ(args[0])->objs;
-    Nst_Obj *ob = nst_int_new(AS_INT(objs[0]));
+    Nst_Obj *ob = nst_int_new(AS_INT(objs[0]), err);
     AS_INT(objs[0]) += AS_INT(objs[2]);
     return ob;
 }
@@ -275,7 +275,7 @@ NST_FUNC_SIGN(zip_get_val)
         return nullptr;
     }
 
-    Nst_SeqObj *arr = SEQ(nst_array_new(2));
+    Nst_SeqObj *arr = SEQ(nst_array_new(2, err));
     nst_seq_set(arr, 0, SEQ(objs[1])->objs[idx]);
     nst_seq_set(arr, 1, SEQ(objs[2])->objs[idx]);
     AS_INT(objs[0]) += 1;
@@ -328,7 +328,7 @@ NST_FUNC_SIGN(zipn_get_val)
         }
     }
 
-    Nst_SeqObj *arr = SEQ(nst_array_new(SEQ(args[0])->len - 1));
+    Nst_SeqObj *arr = SEQ(nst_array_new(SEQ(args[0])->len - 1, err));
     for ( usize i = 1, n = SEQ(args[0])->len; i < n; i++ )
     {
         nst_seq_set(arr, i - 1, SEQ(objs[i])->objs[idx]);
@@ -368,8 +368,8 @@ NST_FUNC_SIGN(enumerate_get_val)
         return nullptr;
     }
 
-    Nst_SeqObj *arr = SEQ(nst_array_new(2));
-    arr->objs[0] = nst_int_new(idx);
+    Nst_SeqObj *arr = SEQ(nst_array_new(2, err));
+    arr->objs[0] = nst_int_new(idx, err);
     arr->objs[1] = res;
     AS_INT(objs[0]) += AS_INT(objs[3]);
     return OBJ(arr);
@@ -426,7 +426,7 @@ NST_FUNC_SIGN(items_get_val)
     Nst_Obj **objs = SEQ(args[0])->objs;
     Nst_MapNode node = MAP(objs[1])->nodes[AS_INT(objs[0])];
 
-    Nst_SeqObj *arr = SEQ(nst_array_new(2));
+    Nst_SeqObj *arr = SEQ(nst_array_new(2, err));
 
     if ( AS_INT(objs[0]) == -1 )
     {

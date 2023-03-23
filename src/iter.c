@@ -6,12 +6,14 @@
 Nst_Obj *nst_iter_new(Nst_FuncObj *start,
                       Nst_FuncObj *is_done,
                       Nst_FuncObj *get_val,
-                      Nst_Obj     *value)
+                      Nst_Obj     *value,
+                      Nst_OpErr   *err)
 {
     Nst_IterObj *iter = ITER(nst_obj_alloc(
         sizeof(Nst_IterObj),
         nst_t.Iter,
-        _nst_iter_destroy));
+        _nst_iter_destroy,
+        err));
     if ( iter == NULL )
     {
         return NULL;
@@ -108,7 +110,7 @@ Nst_Obj *_nst_iter_get_val(Nst_IterObj *iter, Nst_OpErr *err)
     return nst_call_func(iter->get_val, &iter->value, err);
 }
 
-#if defined(_WIN32) || defined(WIN32)
+#ifdef WINDOWS
 #pragma warning( disable: 4100 )
 #endif
 
@@ -140,7 +142,7 @@ NST_FUNC_SIGN(nst_iter_range_is_done)
 NST_FUNC_SIGN(nst_iter_range_get_val)
 {
     Nst_SeqObj *val = SEQ(args[0]);
-    Nst_Obj *ob = nst_int_new(AS_INT(val->objs[0]));
+    Nst_Obj *ob = nst_int_new(AS_INT(val->objs[0]), err);
     AS_INT(val->objs[0]) += AS_INT(val->objs[3]);
     return ob;
 }
@@ -231,7 +233,7 @@ NST_FUNC_SIGN(nst_iter_str_get_val)
 
         return NULL;
     }
-    Nst_Obj *ob = nst_string_get(objs[1], AS_INT(objs[0]));
+    Nst_Obj *ob = nst_string_get(objs[1], AS_INT(objs[0]), err);
     AS_INT(val->objs[0]) += 1;
     return ob;
 }

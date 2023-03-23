@@ -2,12 +2,12 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
-#include "error.h"
 #include "simple_types.h"
+#include "error.h"
 #include "global_consts.h"
 #include "encoding.h"
 
-#if defined(_WIN32) || defined(WIN32)
+#ifdef WINDOWS
 #include <windows.h>
 #endif
 
@@ -16,11 +16,8 @@
 #define INT_CH_COUNT 21
 
 #define PRINT(str, len) \
-    err_stream->write_f(\
-        (void *)str, \
-        sizeof(i8), \
-        (usize)len, \
-        err_stream->value)
+    use_stderr ? fwrite((void *)str, sizeof(i8), (usize)len, stderr) : \
+    err_stream->write_f((void *)str, sizeof(i8), (usize)len, err_stream->value)
 
 #define C_RED "\x1b[31m"
 #define C_GRN "\x1b[32m"
@@ -32,6 +29,7 @@
 #define C_LEN 5
 
 static bool use_color = true;
+static bool use_stderr = false;
 static Nst_IOFileObj *err_stream = NULL;
 static i8 *printf_buf = NULL;
 static usize buf_size = 0;
@@ -47,7 +45,7 @@ static inline void set_error_stream()
     if ( NST_IOF_IS_CLOSED(err_stream) )
     {
         nst_dec_ref(err_stream);
-        err_stream = IOFILE(nst_iof_new(stderr, false, false, true));
+        use_stderr = true;
         fprintf(stderr, "Cannot use @@io._get_stderr, using initial stderr\n");
         fflush(stderr);
     }
@@ -60,7 +58,7 @@ static inline void err_printf(const i8 *format, i32 size, ...)
 
     if ( buf_size == 0 )
     {
-        printf_buf = (i8 *)nst_calloc(size + 1, sizeof(i8), NULL);
+        printf_buf = (i8 *)nst_calloc(size + 1, sizeof(i8), NULL, NULL);
         if ( printf_buf == NULL )
         {
             return;
@@ -69,7 +67,7 @@ static inline void err_printf(const i8 *format, i32 size, ...)
     }
     else if ( buf_size < (usize)size + 1 )
     {
-        i8 *new_buf = (i8 *)nst_realloc(printf_buf, size + 1, sizeof(i8));
+        i8 *new_buf = (i8 *)nst_realloc(printf_buf, size + 1, sizeof(i8), 0, NULL);
         if ( new_buf == NULL )
         {
             return;
@@ -105,7 +103,7 @@ Nst_Pos nst_no_pos()
     return new_pos;
 }
 
-#if defined(_WIN32) || defined(WIN32)
+#ifdef WINDOWS
 #pragma warning( disable: 4100 )
 #endif
 
@@ -533,17 +531,21 @@ Nst_StrObj *nst_format_error(const i8 *format, const i8 *format_args, ...)
         ++arg_ptr;
     }
 
-    i8 *buffer = (i8 *)nst_calloc(tot_size + 1, sizeof(i8), NULL);
-    if (buffer == NULL)
+    i8 *buffer = (i8 *)nst_calloc(tot_size + 1, sizeof(i8), NULL, NULL);
+    if ( buffer == NULL )
     {
-        return NULL;
+        return STR(nst_inc_ref(nst_s.o_failed_alloc));
     }
 
     va_start(args, format_args);
     vsprintf(buffer, format, args);
     va_end(args);
-    Nst_Obj *str = nst_string_new_c_raw((const i8 *)buffer, true);
-    str->ref_count = 0;
+    Nst_Obj *str = nst_string_new_c_raw((const i8 *)buffer, true, NULL);
+    if ( str == NULL )
+    {
+        nst_free(buffer);
+        return STR(nst_inc_ref(nst_s.o_failed_alloc));
+    }
     return STR(str);
 }
 

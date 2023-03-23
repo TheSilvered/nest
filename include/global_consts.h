@@ -1,7 +1,7 @@
 #ifndef GLOBAL_CONSTS_H
 #define GLOBAL_CONSTS_H
 
-#include "str.h"
+#include "error.h"
 #include "simple_types.h"
 
 #ifdef __cplusplus
@@ -91,25 +91,8 @@ EXPORT typedef struct _Nst_StdStreams
 }
 Nst_StdStreams;
 
-// Creates the objects inside nst_t
-EXPORT void _nst_types_init();
-// Deletes the objects inside nst_t
-EXPORT void _nst_types_del();
-
-// Creates the objects inside nst_s
-EXPORT void _nst_strs_init();
-// Deletes the objects inside nst_s
-EXPORT void _nst_strs_del();
-
-// Creates the objects inside nst_c
-EXPORT void _nst_consts_init();
-// Deletes the objects inside nst_c
-EXPORT void _nst_consts_del();
-
-// Creates the objects inside nst_io
-EXPORT void _nst_streams_init();
-// Deletes the objects inside nst_io
-EXPORT void _nst_streams_del();
+EXPORT bool _nst_init_objects();
+EXPORT void _nst_del_objects();
 
 EXPORT Nst_Obj *nst_true();
 EXPORT Nst_Obj *nst_false();

@@ -43,7 +43,7 @@ static i32 recursion_level;
 Nst_Obj *json_dump(Nst_Obj *obj, i32 indent, Nst_OpErr *err)
 {
     recursion_level = 0;
-    str_buf = (i8 *)nst_malloc(255, sizeof(i8));
+    str_buf = (i8 *)nst_malloc(255, sizeof(i8), err);
     buf_size = 255;
     str_len = 0;
     indent_level = 0;
@@ -56,7 +56,7 @@ Nst_Obj *json_dump(Nst_Obj *obj, i32 indent, Nst_OpErr *err)
 
     str_buf[str_len] = 0;
     fit_buf();
-    return nst_string_new(str_buf, str_len, true);
+    return nst_string_new(str_buf, str_len, true, err);
 }
 
 static void expand_to(usize size_to_reach, Nst_OpErr *err)
@@ -67,10 +67,9 @@ static void expand_to(usize size_to_reach, Nst_OpErr *err)
     }
 
     usize new_size = usize(size_to_reach * 1.5);
-    i8 *new_buf = (i8 *)nst_realloc(str_buf, new_size, sizeof(i8));
+    i8 *new_buf = (i8 *)nst_realloc(str_buf, new_size, sizeof(i8), 0, err);
     if ( new_buf == nullptr )
     {
-        NST_FAILED_ALLOCATION;
         FAIL;
     }
 
@@ -98,7 +97,11 @@ static void append_buf(const i8 *str, usize len, Nst_OpErr *err)
 
 static void fit_buf()
 {
-    i8 *new_buf = (i8 *)nst_realloc(str_buf, usize(str_len + 1), sizeof(i8));
+    i8 *new_buf = (i8 *)nst_realloc(
+        str_buf,
+        usize(str_len + 1),
+        sizeof(i8),
+        0, nullptr);
     if ( new_buf != nullptr )
     {
         str_buf = new_buf;

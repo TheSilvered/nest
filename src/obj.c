@@ -6,9 +6,10 @@
 
 Nst_Obj *_nst_obj_alloc(usize               size,
                         struct _Nst_StrObj *type,
-                        void (*destructor)(void *))
+                        void (*destructor)(void *),
+                        struct _Nst_OpErr *err)
 {
-    Nst_Obj *obj = OBJ(nst_malloc(1, size));
+    Nst_Obj *obj = OBJ(nst_malloc(1, size, err));
     if ( obj == NULL )
     {
         return NULL;
@@ -19,7 +20,7 @@ Nst_Obj *_nst_obj_alloc(usize               size,
     obj->hash = -1;
     obj->flags = 0;
 
-    // the type of the type object is itself
+    // the type of the object is itself
     if ( type == NULL )
     {
         obj->type = TYPE(obj);

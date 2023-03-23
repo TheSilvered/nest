@@ -1,11 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "mem.h"
-
-#undef malloc
-#undef calloc
-#undef realloc
-#undef free
+#include "lib_import.h"
 
 #if defined(_DEBUG) && !defined(NST_NO_ALLOC_COUNT)
 #define COUNT_ALLOC
@@ -18,17 +14,29 @@ static i32 allocation_count = 0;
 void *nst_raw_malloc(usize size)
 {
 #ifdef COUNT_ALLOC
-    allocation_count++;
-#endif
+    void *ptr = malloc(size);
+    if ( ptr != NULL )
+    {
+        allocation_count++;
+    }
+    return ptr;
+#else
     return malloc(size);
+#endif
 }
 
 void *nst_raw_calloc(usize count, usize size)
 {
 #ifdef COUNT_ALLOC
-    allocation_count++;
-#endif
+    void *ptr = calloc(count, size);
+    if ( ptr != NULL )
+    {
+        allocation_count++;
+    }
+    return ptr;
+#else
     return calloc(count, size);
+#endif
 }
 
 void *nst_raw_realloc(void *block, usize size)
@@ -36,66 +44,81 @@ void *nst_raw_realloc(void *block, usize size)
     return realloc(block, size);
 }
 
-void *nst_malloc(usize count, usize size)
+void *nst_malloc(usize count, usize size, Nst_OpErr *err)
 {
-    return nst_raw_malloc(count * size);
+    void *ptr = nst_raw_malloc(count * size);
+    if ( ptr == NULL )
+    {
+        NST_FAILED_ALLOCATION;
+    }
+    return ptr;
 }
 
-void *nst_calloc(usize count, usize size, void *init_value)
+void *nst_calloc(usize count, usize size, void *init_value, Nst_OpErr *err)
 {
     u8 *block = (u8 *)nst_raw_malloc(count * size);
 
     if ( block == NULL )
     {
+        NST_FAILED_ALLOCATION;
         return NULL;
+    }
+    if ( init_value == NULL )
+    {
+        memset(block, 0, count * size);
+        return (void *)block;
     }
 
     for ( usize i = 0; i < count; i++ )
     {
-        if ( init_value == NULL )
-        {
-            memset(block + (i * size), 0, size);
-        }
-        else
-        {
-            memcpy(block + (i * size), (u8 *)init_value, size);
-        }
+        memcpy(block + (i * size), (u8 *)init_value, size);
     }
     return (void *)block;
 }
 
-void *nst_realloc(void *prev_block, usize new_count, usize size)
+void *nst_realloc(void *prev_block,
+                  usize new_count,
+                  usize size,
+                  usize prev_count,
+                  Nst_OpErr *err)
 {
-    return nst_raw_realloc(prev_block, new_count * size);
+    void *block = nst_raw_realloc(prev_block, new_count * size);
+    if ( block == NULL && new_count > prev_count )
+    {
+        NST_FAILED_ALLOCATION;
+        return NULL;
+    }
+    return block ? block : prev_block;
 }
 
 void *nst_crealloc(void *prev_block,
                    usize new_count,
                    usize size,
                    usize prev_count,
-                   void *init_value)
+                   void *init_value,
+                   Nst_OpErr *err)
 {
     u8 *block = (u8 *)nst_raw_realloc(prev_block, new_count * size);
-    if ( block == NULL )
+    if ( block == NULL && new_count > prev_count )
     {
+        NST_FAILED_ALLOCATION;
         return NULL;
     }
 
     if ( new_count <= prev_count )
     {
+        return block ? (void *)block : prev_block;
+    }
+
+    if ( init_value == NULL )
+    {
+        memset(block + (prev_count * size), 0, (new_count - prev_count) * size);
         return (void *)block;
     }
 
     for ( usize i = prev_count; i < new_count; i++ )
     {
-        if ( init_value == NULL )
-        {
-            memset(block + (i * size), 0, size);
-        }
-        else
-        {
-            memcpy(block + (i * size), (u8 *)init_value, size);
-        }
+        memcpy(block + (i * size), (u8 *)init_value, size);
     }
     return (void *)block;
 }
@@ -103,7 +126,10 @@ void *nst_crealloc(void *prev_block,
 void nst_free(void *block)
 {
 #ifdef COUNT_ALLOC
-    allocation_count--;
+    if ( block != NULL )
+    {
+        allocation_count--;
+    }
 #endif
     free(block);
 }

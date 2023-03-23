@@ -4,7 +4,7 @@
 #define SYMPLE_TYPES_H
 
 #include <stdio.h>
-#include "obj.h"
+#include "error.h"
 
 #define NST_TRUE 1
 #define NST_FALSE 0
@@ -86,16 +86,16 @@ EXPORT typedef enum _Nst_IOFileFlag
 Nst_IOFileFlag;
 
 // Creates a new Int object
-EXPORT Nst_Obj *nst_int_new(Nst_Int value);
+EXPORT Nst_Obj *nst_int_new(Nst_Int value, Nst_OpErr *err);
 // Creates a new Real object
-EXPORT Nst_Obj *nst_real_new(Nst_Real value);
+EXPORT Nst_Obj *nst_real_new(Nst_Real value, Nst_OpErr *err);
 // Creates a new Bool object
-EXPORT Nst_Obj *nst_bool_new(Nst_Bool value);
+EXPORT Nst_Obj *nst_bool_new(Nst_Bool value, Nst_OpErr *err);
 // Creates a new Byte object
-EXPORT Nst_Obj *nst_byte_new(Nst_Byte value);
+EXPORT Nst_Obj *nst_byte_new(Nst_Byte value, Nst_OpErr *err);
 // Creates a new IOFile object, bin: is opened in binary format,
 // read: supports reading, write: supports writing
-EXPORT Nst_Obj *nst_iof_new(Nst_IOFile value, bool bin, bool read, bool write);
+EXPORT Nst_Obj *nst_iof_new(Nst_IOFile value, bool bin, bool read, bool write, Nst_OpErr *err);
 EXPORT
 Nst_Obj *nst_iof_new_fake(void *value,
                           bool bin, bool read, bool write,
@@ -104,7 +104,8 @@ Nst_Obj *nst_iof_new_fake(void *value,
                           Nst_IOFile_flush_f flush_f,
                           Nst_IOFile_tell_f  tell_f,
                           Nst_IOFile_seek_f  seek_f,
-                          Nst_IOFile_close_f close_f);
+                          Nst_IOFile_close_f close_f,
+                          Nst_OpErr *err);
 
 EXPORT void _nst_iofile_destroy(Nst_IOFileObj *obj);
 

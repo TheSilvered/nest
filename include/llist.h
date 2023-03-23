@@ -31,12 +31,20 @@ EXPORT typedef struct
 }
 Nst_LList;
 
+struct _Nst_OpErr;
+
 EXPORT typedef void (*Nst_LListDestructor)(void *);
 
 // Adds an element to the front
-EXPORT void nst_llist_push(Nst_LList *llist, void *value, bool allocated);
+EXPORT bool nst_llist_push(Nst_LList *llist,
+                           void *value,
+                           bool allocated,
+                           struct _Nst_OpErr *err);
 // Adds an element to the back
-EXPORT void nst_llist_append(Nst_LList *llist, void *value, bool allocated);
+EXPORT bool nst_llist_append(Nst_LList *llist,
+                             void *value,
+                             bool allocated,
+                             struct _Nst_OpErr *err);
 // Removes and returns an element from the front
 EXPORT void *nst_llist_pop(Nst_LList *llist);
 // Returns the value from the head node
@@ -44,8 +52,12 @@ EXPORT void *nst_llist_peek_front(Nst_LList *llist);
 // Returns the value from the tail node
 EXPORT void *nst_llist_peek_back(Nst_LList *llist);
 
+EXPORT void nst_llist_push_llnode(Nst_LList *llist, Nst_LLNode *node);
+EXPORT void nst_llist_append_llnode(Nst_LList *llist, Nst_LLNode *node);
+EXPORT Nst_LLNode *nst_llist_pop_llnode(Nst_LList *llist);
+
 // Creates a new LList on the heap
-EXPORT Nst_LList *nst_llist_new();
+EXPORT Nst_LList *nst_llist_new(struct _Nst_OpErr *err);
 // Frees the list and all the values inside the nodes.
 // The value of the node is passed to 'item_destroy_func' when 'allocated' is true
 // When 'allocated' is true but 'item_destroy_func' is NULL, the value is not freed
@@ -53,6 +65,8 @@ EXPORT void nst_llist_destroy(Nst_LList *llist, void (*item_destroy_func)(void *
 // Frees all the values inside the list but mantains the list
 // If 'item_destroy_func' is NULL and 'allocated' is true, the item is not freed
 EXPORT void nst_llist_empty(Nst_LList *llist, void (*item_destroy_func)(void *));
+// Moves the contents of one llist to another
+EXPORT void nst_llist_move_nodes(Nst_LList *from, Nst_LList *to);
 
 #ifdef __cplusplus
 }

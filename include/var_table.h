@@ -9,7 +9,7 @@
 // Returns a value from the variable table
 #define nst_vt_get(vt, name) _nst_vt_get(vt, OBJ(name))
 // Sets a value in the variable table
-#define nst_vt_set(vt, name, val) _nst_vt_set(vt, OBJ(name), OBJ(val))
+#define nst_vt_set(vt, name, val, err) _nst_vt_set(vt, OBJ(name), OBJ(val), err)
 
 #ifdef __cplusplus
 extern "C" {
@@ -26,9 +26,10 @@ Nst_VarTable;
 EXPORT
 Nst_VarTable *nst_vt_new(Nst_MapObj *global_table,
                          Nst_StrObj *cwd,
-                         Nst_SeqObj *args);
+                         Nst_SeqObj *args,
+                         Nst_OpErr  *err);
 EXPORT Nst_Obj *_nst_vt_get(Nst_VarTable *vt, Nst_Obj *name);
-EXPORT void _nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val);
+EXPORT void _nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val, Nst_OpErr *err);
 #ifdef __cplusplus
 }
 #endif // !__cplusplus

@@ -3,7 +3,7 @@
 #ifndef MAP_H
 #define MAP_H
 
-#include "str.h"
+#include "error.h"
 #include "ggc.h"
 
 // Must be a power of 2
@@ -11,7 +11,7 @@
 #define MAP(ptr) ((Nst_MapObj *)(ptr))
 
 // Sets `key` and `value` in `map`, if the key is not hashable retunrs false
-#define nst_map_set(map, key, value) _nst_map_set(MAP(map), OBJ(key), OBJ(value))
+#define nst_map_set(map, key, value, err) _nst_map_set(MAP(map), OBJ(key), OBJ(value), err)
 // Gets the value at `key`, returns NULL if the key is unhashable or
 // the object does not exist
 #define nst_map_get(map, key) _nst_map_get(MAP(map), OBJ(key))
@@ -26,12 +26,12 @@
     _nst_map_get_next_idx(curr_idx, MAP(map))
 
 // Sets a value in the map with the key that is a string
-#define nst_map_set_str(map, key, value) \
-    _nst_map_set_str(MAP(map), key, OBJ(value))
+#define nst_map_set_str(map, key, value, err) \
+    _nst_map_set_str(MAP(map), key, OBJ(value), err)
 // Gets a value in the map with the key that is a string
-#define nst_map_get_str(map, key) _nst_map_get_str(MAP(map), key)
+#define nst_map_get_str(map, key, err) _nst_map_get_str(MAP(map), key, err)
 // Drops a value in the map with the key that is a string
-#define nst_map_drop_str(map, key) _nst_map_drop_str(MAP(map), key)
+#define nst_map_drop_str(map, key, err) _nst_map_drop_str(MAP(map), key, err)
 
 #ifdef __cplusplus
 extern "C" {
@@ -61,8 +61,8 @@ EXPORT typedef struct _Nst_MapObj
 Nst_MapObj;
 
 // Creates a new empty map
-EXPORT Nst_Obj *nst_map_new();
-EXPORT bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value);
+EXPORT Nst_Obj *nst_map_new(Nst_OpErr *err);
+EXPORT bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value, Nst_OpErr *err);
 EXPORT Nst_Obj *_nst_map_get(Nst_MapObj *map, Nst_Obj *key);
 EXPORT Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key);
 
@@ -73,11 +73,11 @@ EXPORT void _nst_map_track(Nst_MapObj *map);
 EXPORT i32 _nst_map_get_next_idx(i32 curr_idx, Nst_MapObj *map);
 // Resizes the node array if necessary
 // `force_item_reset` forces all the items in the map to be re-inserted
-EXPORT void _nst_map_resize(Nst_MapObj *map, bool force_item_reset);
+EXPORT void _nst_map_resize(Nst_MapObj *map, bool force_item_reset, Nst_OpErr *err);
 
-EXPORT void _nst_map_set_str(Nst_MapObj *map, const i8 *key, Nst_Obj *value);
-EXPORT Nst_Obj *_nst_map_get_str(Nst_MapObj *map, const i8 *key);
-EXPORT Nst_Obj *_nst_map_drop_str(Nst_MapObj *map, const i8 *key);
+EXPORT void _nst_map_set_str(Nst_MapObj *map, const i8 *key, Nst_Obj *value, Nst_OpErr *err);
+EXPORT Nst_Obj *_nst_map_get_str(Nst_MapObj *map, const i8 *key, Nst_OpErr *err);
+EXPORT Nst_Obj *_nst_map_drop_str(Nst_MapObj *map, const i8 *key, Nst_OpErr *err);
 
 #ifdef __cplusplus
 }

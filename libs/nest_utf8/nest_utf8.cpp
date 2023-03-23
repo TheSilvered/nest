@@ -14,18 +14,19 @@ static bool lib_init_ = false;
 bool lib_init()
 {
     usize idx = 0;
+    Nst_OpErr err = { nullptr, nullptr };
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(is_valid_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_len_,  1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_at_,   2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(to_iter_,  1);
 
-#if __LINE__ - FUNC_COUNT != 19
+#if __LINE__ - FUNC_COUNT != 20
 #error
 #endif
 
-    lib_init_ = true;
-    return true;
+    lib_init_ = err.name == nullptr;
+    return lib_init_;
 }
 
 Nst_DeclrList *get_func_ptrs()
@@ -69,10 +70,9 @@ NST_FUNC_SIGN(utf8_iter_get_val)
         SET_INVALID_UTF8;
         return nullptr;
     }
-    i8 *new_s = (i8 *)nst_malloc(res + 1, sizeof(i8));
+    i8 *new_s = (i8 *)nst_malloc(res + 1, sizeof(i8), err);
     if ( new_s == nullptr )
     {
-        NST_FAILED_ALLOCATION;
         return nullptr;
     }
 
@@ -80,7 +80,7 @@ NST_FUNC_SIGN(utf8_iter_get_val)
     new_s[res] = '\0';
     idx->value += res;
 
-    return nst_string_new(new_s, res, true);
+    return nst_string_new(new_s, res, true, err);
 }
 
 NST_FUNC_SIGN(is_valid_)
@@ -120,7 +120,7 @@ NST_FUNC_SIGN(get_len_)
         i += res;
     }
 
-    return nst_int_new(len);
+    return nst_int_new(len, err);
 }
 
 NST_FUNC_SIGN(get_at_)
@@ -163,7 +163,7 @@ NST_FUNC_SIGN(get_at_)
         return nullptr;
     }
 
-    i8 *new_s = (i8 *)nst_malloc(res + 1, sizeof(i8));
+    i8 *new_s = (i8 *)nst_malloc(res + 1, sizeof(i8), err);
     if ( new_s == nullptr )
     {
         NST_FAILED_ALLOCATION;
@@ -171,7 +171,7 @@ NST_FUNC_SIGN(get_at_)
     }
     memcpy(new_s, s + i, res);
     new_s[res] = '\0';
-    return nst_string_new(new_s, res, true);
+    return nst_string_new(new_s, res, true, err);
 }
 
 NST_FUNC_SIGN(to_iter_)
@@ -181,13 +181,13 @@ NST_FUNC_SIGN(to_iter_)
     NST_DEF_EXTRACT("s", &str);
 
     // Layout: [idx, str]
-    Nst_SeqObj *arr = SEQ(nst_array_new(2));
-    arr->objs[0] = nst_int_new(0);
+    Nst_SeqObj *arr = SEQ(nst_array_new(2, err));
+    arr->objs[0] = nst_int_new(0, err);
     arr->objs[1] = nst_inc_ref(str);
 
     return nst_iter_new(
-        FUNC(nst_func_new_c(1, utf8_iter_start)),
-        FUNC(nst_func_new_c(1, utf8_iter_is_done)),
-        FUNC(nst_func_new_c(1, utf8_iter_get_val)),
-        OBJ(arr));
+        FUNC(nst_func_new_c(1, utf8_iter_start, err)),
+        FUNC(nst_func_new_c(1, utf8_iter_is_done, err)),
+        FUNC(nst_func_new_c(1, utf8_iter_get_val, err)),
+        OBJ(arr), err);
 }
