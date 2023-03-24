@@ -17,8 +17,10 @@ false @test.assert_false
 
 Bool :: 0 @test.assert_false
 Bool :: 1 @test.assert_true
+Bool :: -1 @test.assert_true
 Bool :: 0.0 @test.assert_false
 Bool :: 1.0 @test.assert_true
+Bool :: -1.0 @test.assert_true
 Bool :: null @test.assert_false
 Bool :: '' @test.assert_false
 Bool :: 'a' @test.assert_true

@@ -329,7 +329,6 @@ bool insertion_sort(Nst_SeqObj *seq,
     return true;
 }
 
-// Merge function merges the sorted runs
 void merge(Nst_SeqObj *seq, usize l, usize m, usize r, Nst_OpErr *err)
 {
     usize len1 = m - l + 1;
@@ -342,7 +341,6 @@ void merge(Nst_SeqObj *seq, usize l, usize m, usize r, Nst_OpErr *err)
     {
         nst_free(left);
         nst_free(right);
-        NST_FAILED_ALLOCATION;
         return;
     }
 
@@ -361,7 +359,7 @@ void merge(Nst_SeqObj *seq, usize l, usize m, usize r, Nst_OpErr *err)
 
     while ( i < len1 && j < len2 )
     {
-        // all objects passed through nst_obj_gt, no errors can occur
+        // all objects have already been through nst_obj_gt, no errors can occur
         if ( nst_obj_le(left[i], right[j], nullptr) == nst_true() )
         {
             seq->objs[k] = left[i];
@@ -637,13 +635,13 @@ NST_FUNC_SIGN(lscan_)
 
     if ( func->arg_num != 2 )
     {
-        NST_SET_RAW_VALUE_ERROR("the function must take exactly one argument");
+        NST_SET_RAW_VALUE_ERROR("the function must take exactly two argument");
         return nullptr;
     }
 
     if ( max_items < 0 )
     {
-        NST_SET_RAW_VALUE_ERROR("the maximum item count must be greater or equal to zero");
+        NST_SET_RAW_VALUE_ERROR("the maximum item count must be greater than or equal to zero");
         return nullptr;
     }
 
@@ -688,29 +686,63 @@ NST_FUNC_SIGN(lscan_)
 NST_FUNC_SIGN(rscan_)
 {
     Nst_SeqObj *seq;
-    Nst_Obj *_;
+    Nst_FuncObj *func;
+    Nst_Obj *prev_val;
     Nst_Obj *max_items_obj;
 
-    NST_DEF_EXTRACT("Sfo?i", &seq, &_, &_, &max_items_obj);
+    NST_DEF_EXTRACT("Sfo?i", &seq, &func, &prev_val, &max_items_obj);
     Nst_Int max_items = NST_DEF_VAL(max_items_obj, AS_INT(max_items_obj), seq->len + 1);
+
+    if ( func->arg_num != 2 )
+    {
+        NST_SET_RAW_VALUE_ERROR("the function must take exactly two argument");
+        return nullptr;
+    }
+
+    if ( max_items < 0 )
+    {
+        NST_SET_RAW_VALUE_ERROR("the maximum item count must be greater than or equal to zero");
+        return nullptr;
+    }
+
     if ( max_items > (Nst_Int)seq->len + 1 )
     {
         max_items = seq->len + 1;
     }
 
-    Nst_Obj *new_seq = lscan_(4, args, err);
-    if ( new_seq == nullptr )
+    Nst_SeqObj *new_seq = seq->type == nst_type()->Array ?
+        SEQ(nst_array_new(max_items, err)) : SEQ(nst_vector_new(max_items, err));
+    if ( max_items == 0 )
     {
-        return nullptr;
+        return OBJ(new_seq);
     }
 
-    Nst_Obj **objs = SEQ(new_seq)->objs;
-    for ( Nst_Int i = 0, n = max_items / 2; i < n; i++ )
+    nst_inc_ref(prev_val);
+    nst_seq_set(new_seq, max_items - 1, prev_val);
+
+    Nst_Obj *func_args[2];
+
+    for ( Nst_Int i = max_items - 2; i >= 0; i-- )
     {
-        Nst_Obj *temp = objs[i];
-        objs[i] = objs[max_items - i - 1];
-        objs[max_items - i - 1] = temp;
+        func_args[0] = prev_val;
+        func_args[1] = seq->objs[i];
+        Nst_Obj *new_val = nst_call_func(func, func_args, err);
+        if ( new_val == nullptr )
+        {
+            nst_dec_ref(prev_val);
+            for ( Nst_Int j = max_items - 1; j > i; j-- )
+            {
+                nst_dec_ref(new_seq->objs[max_items - j - 1]);
+            }
+            new_seq->len = 0;
+            nst_dec_ref(new_seq);
+            return nullptr;
+        }
+        nst_seq_set(new_seq, i, new_val);
+        nst_dec_ref(prev_val);
+        prev_val = new_val;
     }
+    nst_dec_ref(prev_val);
 
     return OBJ(new_seq);
 }

@@ -39,17 +39,13 @@ NST_FUNC_SIGN(deg_);
 NST_FUNC_SIGN(rad_);
 NST_FUNC_SIGN(min_);
 NST_FUNC_SIGN(max_);
-NST_FUNC_SIGN(min_seq_);
-NST_FUNC_SIGN(max_seq_);
-NST_FUNC_SIGN(sum_seq_);
+NST_FUNC_SIGN(sum_);
 NST_FUNC_SIGN(frexp_);
 NST_FUNC_SIGN(ldexp_);
 NST_FUNC_SIGN(map_);
 NST_FUNC_SIGN(clamp_);
 NST_FUNC_SIGN(gcd_);
 NST_FUNC_SIGN(lcm_);
-NST_FUNC_SIGN(gcd_seq_);
-NST_FUNC_SIGN(lcm_seq_);
 NST_FUNC_SIGN(abs_);
 NST_FUNC_SIGN(hypot_);
 

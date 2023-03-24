@@ -464,3 +464,4 @@ tests/test_output.txt
 *.tar.gz
 tests/_test.nest
 docs/prev_docs/
+build/linux/_update_tests.sh

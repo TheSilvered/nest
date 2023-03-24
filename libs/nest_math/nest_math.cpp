@@ -1,7 +1,7 @@
 #include <cmath>
 #include "nest_math.h"
 
-#define FUNC_COUNT 42
+#define FUNC_COUNT 38
 #define COORD_TYPE_ERROR do { \
         NST_SET_RAW_VALUE_ERROR( \
             "all coordinates must be of type 'Real' or 'Int'"); \
@@ -46,17 +46,13 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(rad_,    1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(min_,    2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(max_,    2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(min_seq_,1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(max_seq_,1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(sum_seq_,1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(sum_,    1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(frexp_,  1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(ldexp_,  2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(map_,    5);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(clamp_,  3);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(gcd_,    2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(lcm_,    2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(gcd_seq_,1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(lcm_seq_,1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(abs_,    1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(hypot_,  2);
 
@@ -516,103 +512,113 @@ NST_FUNC_SIGN(rad_)
 
 NST_FUNC_SIGN(min_)
 {
-    Nst_Real a;
-    Nst_Real b;
+    Nst_Obj *ob_a;
+    Nst_Obj *ob_b;
+    NST_DEF_EXTRACT("oo", &ob_a, &ob_b);
 
-    if ( !nst_extract_arg_values("NN", arg_num, args, err, &a, &b))
-        return nullptr;
-
-    if ( b < a )
+    Nst_Obj *res;
+    if ( ob_b == nst_null() &&
+        (ob_a->type == nst_type()->Array || ob_a->type == nst_type()->Vector))
     {
-        return nst_inc_ref(args[1]);
+        Nst_SeqObj *seq = SEQ(ob_a);
+        usize seq_len = seq->len;
+
+        if ( seq_len == 0 )
+        {
+            NST_SET_RAW_VALUE_ERROR("sequence length is zero");
+            return nullptr;
+        }
+
+        Nst_Obj *min_obj = seq->objs[0];
+
+        for ( usize i = 1; i < seq_len; i++)
+        {
+            res = nst_obj_lt(seq->objs[i], min_obj, err);
+            if ( res == nullptr )
+            {
+                return nullptr;
+            }
+
+            if ( res == nst_true() )
+            {
+                min_obj = seq->objs[i];
+            }
+            nst_dec_ref(res);
+        }
+
+        return nst_inc_ref(min_obj);
     }
-    return nst_inc_ref(args[0]);
+
+    res = nst_obj_lt(ob_b, ob_a, err);
+    if ( res == nullptr )
+    {
+        return nullptr;
+    }
+
+    if ( res == nst_true() )
+    {
+        nst_dec_ref(res);
+        return nst_inc_ref(ob_b);
+    }
+    nst_dec_ref(res);
+    return nst_inc_ref(ob_a);
 }
 
 NST_FUNC_SIGN(max_)
 {
-    Nst_Real a;
-    Nst_Real b;
+    Nst_Obj *ob_a;
+    Nst_Obj *ob_b;
+    NST_DEF_EXTRACT("oo", &ob_a, &ob_b);
 
-    if ( !nst_extract_arg_values("NN", arg_num, args, err, &a, &b))
-        return nullptr;
-
-    if ( b > a )
+    Nst_Obj *res;
+    if ( ob_b == nst_null() &&
+        (ob_a->type == nst_type()->Array || ob_a->type == nst_type()->Vector))
     {
-        return nst_inc_ref(args[1]);
-    }
-    return nst_inc_ref(args[0]);
-}
+        Nst_SeqObj *seq = SEQ(ob_a);
+        usize seq_len = seq->len;
 
-NST_FUNC_SIGN(min_seq_)
-{
-    Nst_SeqObj *seq;
-
-    NST_DEF_EXTRACT("A", &seq);
-
-    usize seq_len = seq->len;
-
-    if ( seq_len == 0 )
-    {
-        NST_SET_RAW_VALUE_ERROR("sequence length is zero");
-        return nullptr;
-    }
-
-    Nst_Obj *min_obj = seq->objs[0];
-
-    for ( usize i = 1; i < seq_len; i++)
-    {
-        Nst_Obj *res = nst_obj_lt(seq->objs[i], min_obj, err);
-        if ( res == nullptr )
+        if ( seq_len == 0 )
         {
+            NST_SET_RAW_VALUE_ERROR("sequence length is zero");
             return nullptr;
         }
 
-        if ( res == nst_true() )
+        Nst_Obj *max_obj = seq->objs[0];
+
+        for ( usize i = 1; i < seq_len; i++)
         {
-            min_obj = seq->objs[i];
+            res = nst_obj_gt(seq->objs[i], max_obj, err);
+            if ( res == nullptr )
+            {
+                return nullptr;
+            }
+
+            if ( res == nst_true() )
+            {
+                max_obj = seq->objs[i];
+            }
+            nst_dec_ref(res);
         }
-        nst_dec_ref(res);
+
+        return nst_inc_ref(max_obj);
     }
 
-    return nst_inc_ref(min_obj);
-}
-
-NST_FUNC_SIGN(max_seq_)
-{
-    Nst_SeqObj *seq;
-
-    NST_DEF_EXTRACT("A", &seq);
-
-    usize seq_len = seq->len;
-
-    if ( seq_len == 0 )
+    res = nst_obj_gt(ob_b, ob_a, err);
+    if ( res == nullptr )
     {
-        NST_SET_RAW_VALUE_ERROR("the sequence has a length of zero");
         return nullptr;
     }
 
-    Nst_Obj *max_obj = seq->objs[0];
-
-    for ( usize i = 1; i < seq_len; i++ )
+    if ( res == nst_true() )
     {
-        Nst_Obj *res = nst_obj_gt(seq->objs[i], max_obj, err);
-        if ( res == nullptr )
-        {
-            return nullptr;
-        }
-
-        if ( res == nst_true() )
-        {
-            max_obj = seq->objs[i];
-        }
         nst_dec_ref(res);
+        return nst_inc_ref(ob_b);
     }
-
-    return nst_inc_ref(max_obj);
+    nst_dec_ref(res);
+    return nst_inc_ref(ob_a);
 }
 
-NST_FUNC_SIGN(sum_seq_)
+NST_FUNC_SIGN(sum_)
 {
     Nst_SeqObj *seq;
 
@@ -788,82 +794,8 @@ static inline Nst_Real gcd_real(Nst_Real a, Nst_Real b)
     }
 }
 
-NST_FUNC_SIGN(gcd_)
+Nst_Obj *gcd_or_lcm_seq(Nst_SeqObj *seq, NST_FUNC_SIGN((*func)), Nst_OpErr *err)
 {
-    Nst_Real n1;
-    Nst_Real n2;
-
-    NST_DEF_EXTRACT("NN", &n1, &n2);
-
-    if ( args[0]->type == nst_type()->Real || args[1]->type == nst_type()->Real )
-    {
-        return nst_real_new(gcd_real(n1, n2), err);
-    }
-    else if ( args[0]->type == nst_type()->Int || args[1]->type == nst_type()->Int )
-    {
-        Nst_Int n1_int;
-        Nst_Int n2_int;
-
-        if ( args[0]->type == nst_type()->Int )
-        {
-            n1_int = AS_INT(args[0]);
-        }
-        else
-        {
-            n1_int = (Nst_Int)AS_BYTE(args[0]);
-        }
-
-        if ( args[1]->type == nst_type()->Int )
-        {
-            n2_int = AS_INT(args[1]);
-        }
-        else
-        {
-            n2_int = (Nst_Int)AS_BYTE(args[1]);
-        }
-
-        return nst_int_new(gcd_int<Nst_Int>(n1_int, n2_int), err);
-    }
-    else
-    {
-        Nst_Byte n1_byte = AS_BYTE(args[0]);
-        Nst_Byte n2_byte = AS_BYTE(args[1]);
-        return nst_byte_new(gcd_int<Nst_Byte>(n1_byte, n2_byte), err);
-    }
-}
-
-NST_FUNC_SIGN(lcm_)
-{
-    Nst_Real n1;
-    Nst_Real n2;
-
-    NST_DEF_EXTRACT("NN", &n1, &n2);
-
-    Nst_Obj *numerator = nst_obj_mul(args[0], args[1], nullptr);
-
-    if ( (numerator->type == nst_type()->Int  && AS_INT(numerator)  == 0)   ||
-         (numerator->type == nst_type()->Real && AS_REAL(numerator) == 0.0) ||
-         (numerator->type == nst_type()->Byte && AS_BYTE(numerator) == 0) )
-        return numerator;
-
-    Nst_Obj *denominator = gcd_(2, args, err);
-    if ( denominator == nullptr )
-    {
-        return nullptr;
-    }
-
-    Nst_Obj *result = nst_obj_div(numerator, denominator, err);
-    nst_dec_ref(numerator);
-    nst_dec_ref(denominator);
-
-    return result;
-}
-
-NST_FUNC_SIGN(gcd_seq_)
-{
-    Nst_SeqObj *seq;
-    NST_DEF_EXTRACT("A", &seq);
-
     if ( seq->len == 0 )
     {
         NST_RETURN_ZERO;
@@ -901,7 +833,7 @@ NST_FUNC_SIGN(gcd_seq_)
         }
         gcd_args[0] = prev;
         gcd_args[1] = objs[i];
-        curr = gcd_(2, gcd_args, err);
+        curr = func(2, gcd_args, err);
         nst_dec_ref(prev);
 
         if ( curr == nullptr )
@@ -915,60 +847,142 @@ NST_FUNC_SIGN(gcd_seq_)
     return prev;
 }
 
-NST_FUNC_SIGN(lcm_seq_)
+NST_FUNC_SIGN(gcd_)
 {
-    Nst_SeqObj *seq;
-    NST_DEF_EXTRACT("A", &seq);
+    Nst_Obj *ob1;
+    Nst_Obj *ob2;
 
-    if ( seq->len == 0 )
+    NST_DEF_EXTRACT("oo", &ob1, &ob2);
+
+    Nst_TypeObj *type_real = nst_type()->Real;
+    Nst_TypeObj *type_int  = nst_type()->Int;
+    Nst_TypeObj *type_byte = nst_type()->Byte;
+
+    if ( (ob1->type == nst_type()->Array || ob1->type == nst_type()->Vector) &&
+         ob2 == nst_null() )
     {
-        NST_RETURN_ZERO;
+        return gcd_or_lcm_seq(SEQ(ob1), gcd_, err);
     }
-
-    Nst_Obj **objs = seq->objs;
-
-    if ( objs[0]->type != nst_type()->Int &&
-         objs[0]->type != nst_type()->Real &&
-         objs[0]->type != nst_type()->Byte )
+    
+    if ( (ob1->type != type_real &&
+          ob1->type != type_int  &&
+          ob1->type != type_byte) ||
+         (ob2->type != type_real &&
+          ob2->type != type_int  &&
+          ob2->type != type_byte) )
     {
         NST_SET_TYPE_ERROR(nst_format_error(
-            "expected type 'Byte', 'Int' or 'Real', but object at index %zi is of type '%s'",
-            "us",
-            0, TYPE_NAME(objs[0])));
+            "the two objects must a sequence and null or two numbers, got '%s', '%s'",
+            "ss",
+            TYPE_NAME(ob1), TYPE_NAME(ob2)
+        ));
         return nullptr;
     }
 
-    Nst_Obj *prev = nst_inc_ref(objs[0]);
-    Nst_Obj *curr = nullptr;
-    Nst_Obj *lcm_args[2] = { prev, nullptr };
-
-    for ( usize i = 1, n = seq->len; i < n; i++ )
+    if ( ob1->type == type_real || ob2->type == type_real )
     {
-        if ( objs[i]->type != nst_type()->Int &&
-             objs[i]->type != nst_type()->Real &&
-             objs[i]->type != nst_type()->Byte )
-        {
-            NST_SET_TYPE_ERROR(nst_format_error(
-                "expected type 'Byte', 'Int' or 'Real', but object at index %zi is of type '%s'",
-                "us",
-                i, TYPE_NAME(objs[i])));
-            nst_dec_ref(prev);
-            return nullptr;
-        }
-        lcm_args[0] = prev;
-        lcm_args[1] = objs[i];
-        curr = lcm_(2, lcm_args, err);
-        nst_dec_ref(prev);
+        Nst_Real n1, n2;
+        if ( ob1->type == type_real )
+            n1 = AS_REAL(ob1);
+        else if ( ob1->type == type_int )
+            n1 = (Nst_Real)AS_INT(ob1);
+        else
+            n1 = (Nst_Real)AS_BYTE(ob1);
 
-        if ( curr == nullptr )
+        if ( ob2->type == type_real )
+            n2 = AS_REAL(ob2);
+        else if ( ob2->type == type_int )
+            n2 = (Nst_Real)AS_INT(ob2);
+        else
+            n2 = (Nst_Real)AS_BYTE(ob2);
+
+        return nst_real_new(gcd_real(n1, n2), err);
+    }
+    else if ( ob1->type == type_int || ob2->type == type_int )
+    {
+        Nst_Int n1_int;
+        Nst_Int n2_int;
+
+        if ( ob1->type == type_int )
         {
-            return nullptr;
+            n1_int = AS_INT(ob1);
+        }
+        else
+        {
+            n1_int = (Nst_Int)AS_BYTE(ob1);
         }
 
-        prev = curr;
+        if ( ob2->type == type_int )
+        {
+            n2_int = AS_INT(ob2);
+        }
+        else
+        {
+            n2_int = (Nst_Int)AS_BYTE(ob2);
+        }
+
+        return nst_int_new(gcd_int(n1_int, n2_int), err);
+    }
+    else
+    {
+        Nst_Byte n1_byte = AS_BYTE(ob1);
+        Nst_Byte n2_byte = AS_BYTE(ob2);
+        return nst_byte_new(gcd_int(n1_byte, n2_byte), err);
+    }
+}
+
+NST_FUNC_SIGN(lcm_)
+{
+    Nst_Obj *ob1;
+    Nst_Obj *ob2;
+
+    NST_DEF_EXTRACT("oo", &ob1, &ob2);
+
+    Nst_TypeObj *type_real = nst_type()->Real;
+    Nst_TypeObj *type_int  = nst_type()->Int;
+    Nst_TypeObj *type_byte = nst_type()->Byte;
+
+    if ( (ob1->type == nst_type()->Array || ob1->type == nst_type()->Vector) &&
+        ob2 == nst_null() )
+    {
+        return gcd_or_lcm_seq(SEQ(ob1), lcm_, err);
     }
 
-    return prev;
+    if ( (ob1->type != type_real &&
+        ob1->type != type_int  &&
+        ob1->type != type_byte) ||
+        (ob2->type != type_real &&
+            ob2->type != type_int  &&
+            ob2->type != type_byte) )
+    {
+        NST_SET_TYPE_ERROR(nst_format_error(
+            "the two objects must a sequence and null or two numbers, got '%s', '%s'",
+            "ss",
+            TYPE_NAME(ob1), TYPE_NAME(ob2)
+        ));
+        return nullptr;
+    }
+
+    Nst_Obj *numerator = nst_obj_mul(ob1, ob2, nullptr);
+
+    if ( (numerator->type == type_int  && AS_INT(numerator)  == 0)   ||
+         (numerator->type == type_real && AS_REAL(numerator) == 0.0) ||
+         (numerator->type == type_byte && AS_BYTE(numerator) == 0) )
+    {
+        return numerator;
+    }
+
+    Nst_Obj *denominator = gcd_(2, args, err);
+    if ( denominator == nullptr )
+    {
+        return nullptr;
+    }
+
+    Nst_Obj *result = nst_obj_div(numerator, denominator, err);
+    nst_dec_ref(numerator);
+    nst_dec_ref(denominator);
+
+    return result;
 }
 
 NST_FUNC_SIGN(abs_)
