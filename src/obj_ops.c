@@ -563,7 +563,7 @@ Nst_Obj *_nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 
         Nst_SeqObj *vect = SEQ(ob1);
         usize v_len = vect->len;
-        usize new_size = AS_INT(ob2) * v_len;
+        usize new_size = (usize)AS_INT(ob2) * v_len;
         Nst_Obj **new_objs = nst_realloc(vect->objs, new_size, sizeof(Nst_Obj *), 0, err);
         if ( new_objs == NULL )
         {

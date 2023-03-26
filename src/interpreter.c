@@ -1143,7 +1143,7 @@ static inline void exe_op_call(Nst_Inst *inst)
         }
         else if ( is_seq_call )
         {
-            args = (Nst_Obj **)nst_malloc(tot_args, sizeof(Nst_Obj *), NULL);
+            args = (Nst_Obj **)nst_malloc((usize)tot_args, sizeof(Nst_Obj *), NULL);
             if ( args == NULL )
             {
                 _NST_FAILED_ALLOCATION(GLOBAL_ERROR, inst->start, inst->end);
@@ -1170,7 +1170,7 @@ static inline void exe_op_call(Nst_Inst *inst)
         }
         else
         {
-            args = (Nst_Obj **)nst_malloc(tot_args, sizeof(Nst_Obj *), NULL);
+            args = (Nst_Obj **)nst_malloc((usize)tot_args, sizeof(Nst_Obj *), NULL);
             if ( args == NULL )
             {
                 _NST_FAILED_ALLOCATION(GLOBAL_ERROR, inst->start, inst->end);

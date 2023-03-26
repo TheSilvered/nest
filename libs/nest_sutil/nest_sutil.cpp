@@ -301,7 +301,7 @@ NST_FUNC_SIGN(ljust_)
         just_ch = *STR(just_char)->value;
     }
 
-    i8 *new_str = (i8 *)nst_malloc(just_len + 1, sizeof(i8), err);
+    i8 *new_str = (i8 *)nst_malloc((usize)just_len + 1, sizeof(i8), err);
     if ( new_str == nullptr )
     {
         return nullptr;
@@ -345,7 +345,7 @@ NST_FUNC_SIGN(rjust_)
         just_ch = *STR(just_char)->value;
     }
 
-    i8 *new_str = (i8 *)nst_malloc(just_len + 1, sizeof(i8), err);
+    i8 *new_str = (i8 *)nst_malloc((usize)just_len + 1, sizeof(i8), err);
     if ( new_str == nullptr )
     {
         return nullptr;
@@ -389,7 +389,7 @@ NST_FUNC_SIGN(center_)
         just_ch = *STR(just_char)->value;
     }
 
-    i8 *new_str = (i8 *)nst_malloc(just_len + 1, sizeof(i8), err);
+    i8 *new_str = (i8 *)nst_malloc((usize)just_len + 1, sizeof(i8), err);
     if ( new_str == nullptr )
     {
         return nullptr;
@@ -995,7 +995,7 @@ NST_FUNC_SIGN(bin_)
 
     Nst_Int str_len = highest_bit(n) + 1;
 
-    i8 *buf = (i8 *)nst_malloc(str_len, sizeof(i8), err);
+    i8 *buf = (i8 *)nst_malloc((usize)str_len, sizeof(i8), err);
     if ( buf == nullptr )
     {
         NST_FAILED_ALLOCATION;
@@ -1034,7 +1034,7 @@ NST_FUNC_SIGN(oct_)
         str_len += 1;
     }
 
-    i8 *buf = (i8 *)nst_malloc(str_len, sizeof(i8), err);
+    i8 *buf = (i8 *)nst_malloc((usize)str_len, sizeof(i8), err);
     if ( buf == nullptr )
     {
         NST_FAILED_ALLOCATION;
@@ -1078,7 +1078,7 @@ NST_FUNC_SIGN(hex_)
         str_len += 1;
     }
 
-    i8 *buf = (i8 *)nst_malloc(str_len, sizeof(i8), err);
+    i8 *buf = (i8 *)nst_malloc((usize)str_len, sizeof(i8), err);
     if ( buf == nullptr )
     {
         NST_FAILED_ALLOCATION;

@@ -73,7 +73,7 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nest_utf8", "..\nest_utf8\n
 		{36221DFB-A5C4-4712-BD34-134F9A6DAA20} = {36221DFB-A5C4-4712-BD34-134F9A6DAA20}
 	EndProjectSection
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "interpreter_dll", "..\interpreter_dll\interpreter_dll.vcxproj", "{36221DFB-A5C4-4712-BD34-134F9A6DAA20}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "libnest", "..\libnest\libnest.vcxproj", "{36221DFB-A5C4-4712-BD34-134F9A6DAA20}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

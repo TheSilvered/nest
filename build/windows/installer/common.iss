@@ -5,6 +5,9 @@
 #define MyAppAssocName "Nest File"
 #define MyAppAssocExt ".nest"
 #define MyAppAssocKey StringChange(MyAppAssocName, " ", "") + MyAppAssocExt
+#define MyLibAssocName "Nest C Library"
+#define MyLibAssocExt ".cnest"
+#define MyLibAssocKey StringChange(MyLibAssocName, " ", "") + MyLibAssocExt
 
 [Setup]
 AppId={{90CC9EB3-3160-4D79-B767-3123B661A530}
@@ -28,7 +31,7 @@ SetupIconFile=..\icons\nest_installer_icon.ico
 
 [Files]
 Source: "..\{#arch}\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
-Source: "..\{#arch}\interpreter_dll.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\{#arch}\libnest.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\{#arch}\nest_libs\*"; DestDir: "{app}\nest_libs"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Tasks]
@@ -43,6 +46,12 @@ Root: HKA; Subkey: "Software\Classes\{#MyAppAssocKey}"; ValueType: string; Value
 Root: HKA; Subkey: "Software\Classes\{#MyAppAssocKey}\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"
 Root: HKA; Subkey: "Software\Classes\{#MyAppAssocKey}\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
 Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeName}\SupportedTypes"; ValueType: string; ValueName: "{#MyAppAssocExt}"; ValueData: ""
+
+Root: HKA; Subkey: "Software\Classes\{#MyLibAssocExt}\OpenWithProgids"; ValueType: string; ValueName: "{#MyLibAssocKey}"; ValueData: ""; Flags: uninsdeletevalue
+Root: HKA; Subkey: "Software\Classes\{#MyLibAssocKey}"; ValueType: string; ValueName: ""; ValueData: "{#MyLibAssocName}"; Flags: uninsdeletekey
+Root: HKA; Subkey: "Software\Classes\{#MyLibAssocKey}\DefaultIcon"; ValueType: string; ValueName: ""; ValueData: "{app}\{#MyAppExeName},0"
+Root: HKA; Subkey: "Software\Classes\{#MyLibAssocKey}\shell\open\command"; ValueType: string; ValueName: ""; ValueData: """{app}\{#MyAppExeName}"" ""%1"""
+Root: HKA; Subkey: "Software\Classes\Applications\{#MyAppExeName}\SupportedTypes"; ValueType: string; ValueName: "{#MyLibAssocExt}"; ValueData: ""
 
 [Icons]
 Name: "{group}\{#MyAppName}"; Filename: "{app}\{#MyAppExeName}"

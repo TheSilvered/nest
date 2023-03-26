@@ -650,8 +650,9 @@ NST_FUNC_SIGN(lscan_)
         max_items = seq->len + 1;
     }
 
-    Nst_SeqObj *new_seq = seq->type == nst_type()->Array ?
-        SEQ(nst_array_new(max_items, err)) : SEQ(nst_vector_new(max_items, err));
+    Nst_SeqObj *new_seq = seq->type == nst_type()->Array
+        ? SEQ(nst_array_new((usize)max_items, err))
+        : SEQ(nst_vector_new((usize)max_items, err));
     if ( max_items == 0 )
     {
         return OBJ(new_seq);
@@ -670,7 +671,7 @@ NST_FUNC_SIGN(lscan_)
         if ( new_val == nullptr )
         {
             nst_dec_ref(prev_val);
-            new_seq->len = i;
+            new_seq->len = (usize)i;
             nst_dec_ref(new_seq);
             return nullptr;
         }
@@ -710,8 +711,9 @@ NST_FUNC_SIGN(rscan_)
         max_items = seq->len + 1;
     }
 
-    Nst_SeqObj *new_seq = seq->type == nst_type()->Array ?
-        SEQ(nst_array_new(max_items, err)) : SEQ(nst_vector_new(max_items, err));
+    Nst_SeqObj *new_seq = seq->type == nst_type()->Array
+        ? SEQ(nst_array_new((usize)max_items, err))
+        : SEQ(nst_vector_new((usize)max_items, err));
     if ( max_items == 0 )
     {
         return OBJ(new_seq);

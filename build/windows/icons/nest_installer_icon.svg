@@ -27,9 +27,9 @@
      inkscape:deskcolor="#d1d1d1"
      inkscape:document-units="mm"
      showgrid="false"
-     inkscape:zoom="1.4142136"
-     inkscape:cx="302.99526"
-     inkscape:cy="335.16862"
+     inkscape:zoom="1"
+     inkscape:cx="127"
+     inkscape:cy="378.99999"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
      inkscape:window-x="-8"
@@ -44,7 +44,7 @@
      id="layer1">
     <path
        sodipodi:type="star"
-       style="fill:#ffffff;fill-opacity:1;stroke:#648de5;stroke-width:7.937;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#648de5;fill-opacity:1;stroke:#648de5;stroke-width:7.937;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
        id="path234"
        inkscape:flatsided="true"
        sodipodi:sides="6"
@@ -57,13 +57,24 @@
        inkscape:rounded="0"
        inkscape:randomized="0"
        d="M 98.522314,108.19542 49.010152,120.15083 13.900382,83.249745 28.302774,34.393249 77.814936,22.437839 112.92471,59.338924 Z"
-       transform="translate(39.10051,18.924911)" />
+       transform="translate(32.833498,12.957857)"
+       inkscape:export-filename="nest_installer_icon64.png"
+       inkscape:export-xdpi="14.985366"
+       inkscape:export-ydpi="14.985366" />
     <path
        id="path497"
-       style="fill:#648de5;fill-opacity:1;stroke-width:0.239825"
-       inkscape:transform-center-x="-3.3868704e-06"
-       inkscape:transform-center-y="4.1374537"
-       d="m 98.018752,57.31893 c -3.03101,0 -3.883484,0.852477 -3.883484,3.883489 V 98.294726 H 79.386299 l 11.563118,12.412164 11.563633,12.41267 11.56364,-12.41267 11.56312,-12.412164 H 110.89084 V 61.202419 c 0,-3.031012 -0.85299,-3.883489 -3.884,-3.883489 z"
+       style="fill:#ffffff;fill-opacity:1;stroke-width:0.257286"
+       inkscape:transform-center-x="-4.8868704e-06"
+       inkscape:transform-center-y="4.4386897"
+       d="m 91.42452,48.956492 c -3.25169,0 -4.16623,0.914544 -4.16623,4.166236 V 92.915627 H 71.435488 l 12.404997,13.315863 12.405551,13.3164 12.405564,-13.3164 12.405,-13.315863 H 105.23379 V 53.122728 c 0,-3.251692 -0.91509,-4.166236 -4.16678,-4.166236 z"
        sodipodi:nodetypes="sscccccccsss" />
+    <rect
+       style="fill:#fffffd;fill-opacity:0;stroke:none;stroke-width:7.6032"
+       id="rect901"
+       width="108.47917"
+       height="108.47917"
+       x="42.006458"
+       y="30.012606"
+       ry="5.2410483" />
   </g>
 </svg>

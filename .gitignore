@@ -426,6 +426,7 @@ FodyWeavers.xsd
 *.so
 *.so.*
 *.dylib
+*.cnest
 
 # Executables
 *.exe

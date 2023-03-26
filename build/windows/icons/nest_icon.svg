@@ -28,8 +28,8 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="1"
-     inkscape:cx="161"
-     inkscape:cy="346"
+     inkscape:cx="136"
+     inkscape:cy="364"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
      inkscape:window-x="-8"
@@ -44,7 +44,7 @@
      id="layer1">
     <path
        sodipodi:type="star"
-       style="fill:#fefefe;fill-opacity:1;stroke:#648de5;stroke-width:7.9375;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
+       style="fill:#648de5;fill-opacity:1;stroke:#648de5;stroke-width:7.9375;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
        id="path234"
        inkscape:flatsided="true"
        sodipodi:sides="6"
@@ -57,17 +57,28 @@
        inkscape:rounded="0"
        inkscape:randomized="0"
        d="M 98.522314,108.19542 49.010152,120.15083 13.900382,83.249745 28.302774,34.393249 77.814936,22.437839 112.92471,59.338924 Z"
-       transform="translate(39.10051,18.924911)" />
+       transform="translate(39.245808,18.664009)"
+       inkscape:export-filename="nest_icon48.png"
+       inkscape:export-xdpi="11.239024"
+       inkscape:export-ydpi="11.239024" />
     <g
        aria-label="n"
        id="text1243"
-       style="font-weight:bold;font-size:73.9254px;font-family:'Courier New';-inkscape-font-specification:'Courier New, Bold';fill:#648de5;stroke-width:7.9375;stroke-linecap:round;stroke-linejoin:round;fill-rule:nonzero;fill-opacity:1"
-       transform="matrix(1.3450579,0,0,1.3450579,-35.372938,-31.130865)">
+       style="font-weight:bold;font-size:73.9254px;font-family:'Courier New';-inkscape-font-specification:'Courier New, Bold';fill:#fffffd;fill-opacity:1;fill-rule:nonzero;stroke-width:7.9375;stroke-linecap:round;stroke-linejoin:round"
+       transform="matrix(1.6217045,0,0,1.6217045,-63.587528,-56.350615)">
       <path
          d="m 96.554279,76.815352 c 1.347599,-1.155085 2.827551,-2.021398 4.439851,-2.59894 1.63637,-0.577543 3.4051,-0.866314 5.30617,-0.866314 4.37969,0 7.84495,1.359631 10.39576,4.078892 2.0214,2.165783 3.0321,5.005366 3.0321,8.518747 0,8.486886 -0.0129,8.486679 -0.0129,17.470653 0,3.66456 5.8e-4,3.65138 -3.70352,3.65138 -3.7041,0 -3.70352,-0.0121 -3.70352,-3.68748 0,-9.187908 0.0202,-9.191751 0.0202,-17.651141 0,-1.612305 -0.43316,-2.791454 -1.29947,-3.537446 -1.13102,-0.96257 -2.82755,-1.443855 -5.08959,-1.443855 -1.70857,0 -3.21258,0.3369 -4.51205,1.010699 -1.11737,0.569224 -2.502547,1.711018 -4.155543,3.425383 -0.603981,0.593725 -0.720628,1.252557 -0.716421,2.042211 0.0071,7.503577 0.02349,6.253401 0.02349,16.190239 0,3.67181 -0.0058,3.67001 -3.711522,3.67001 -3.705704,0 -3.710629,0.0263 -3.713926,-3.70611 0,-5.312019 3e-4,-7.967413 6e-4,-10.674336 3e-4,-2.706923 -0.02279,-5.48191 -0.02279,-11.00004 -3.835594,0 -3.833251,-0.01259 -3.833251,-3.678006 0,-3.665412 0.0035,-3.673355 4.217601,-3.705217 l 4.584484,1.3e-5 c 2.453331,0 2.454247,0.03024 2.454247,2.490658 z"
          id="path1245"
          sodipodi:nodetypes="ccsccczcccscccczcsczccc"
-         style="fill-rule:nonzero;fill:#648de5;fill-opacity:1" />
+         style="fill:#fffffd;fill-opacity:1;fill-rule:nonzero" />
     </g>
+    <rect
+       style="fill:#fffffd;fill-opacity:0;stroke:none;stroke-width:7.6032"
+       id="rect901"
+       width="108.47917"
+       height="108.47917"
+       x="48.418766"
+       y="35.718758"
+       ry="5.2410483" />
   </g>
 </svg>

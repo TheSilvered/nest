@@ -3,10 +3,10 @@ cp ../../libs/_nest_files/* ./linux_libs
 
 if [ "$#" -eq 1 ] && [ "$1" = "py" ]; then
     for i in ./linux_libs/*; do
-        python3 ../update_nest_file.py "${i}" so
+        python3 ../update_nest_file.py "${i}"
     done
 else
     for i in ./linux_libs/*; do
-        nest ../update_nest_file.nest "${i}" so
+        nest ../update_nest_file.nest "${i}"
     done
 fi

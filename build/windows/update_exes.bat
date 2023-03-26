@@ -13,8 +13,8 @@ COPY projects\nest\Release\nest.exe x86\nest.exe /Y
 :: Interpreter DLL
 :: ===============
 
-COPY projects\nest\x64\Release\interpreter_dll.dll x64\interpreter_dll.dll /Y
-COPY projects\nest\Release\interpreter_dll.dll x86\interpreter_dll.dll /Y
+COPY projects\nest\x64\Release\libnest.dll x64\libnest.dll /Y
+COPY projects\nest\Release\libnest.dll x86\libnest.dll /Y
 
 :: Standard Library
 :: ================
@@ -32,6 +32,7 @@ FOR %%G IN (x64\nest_libs\*.dll) DO (
     SET fpath=%%G
     SET fpath=!fpath:nest_=std!
     SET fpath=!fpath:stdlibs=nest_libs!
+    SET fpath=!fpath:.dll=.cnest!
     MOVE %%G !fpath!
 )
 
@@ -39,6 +40,7 @@ FOR %%G IN (x86\nest_libs\*.dll) DO (
     SET fpath=%%G
     SET fpath=!fpath:nest_=std!
     SET fpath=!fpath:stdlibs=nest_libs!
+    SET fpath=!fpath:.dll=.cnest!
     MOVE %%G !fpath!
 )
 
@@ -46,11 +48,11 @@ FOR %%G IN (x86\nest_libs\*.dll) DO (
 :: =================
 
 IF "%1" == "py" (
-    FOR %%G IN (x64\nest_libs\std*.nest) DO py ..\update_nest_file.py %%G dll
-    FOR %%G IN (x86\nest_libs\std*.nest) DO py ..\update_nest_file.py %%G dll
+    FOR %%G IN (x64\nest_libs\std*.nest) DO py ..\update_nest_file.py %%G
+    FOR %%G IN (x86\nest_libs\std*.nest) DO py ..\update_nest_file.py %%G
 ) ELSE (
-    FOR %%G IN (x64\nest_libs\std*.nest) DO nest ..\update_nest_file.nest %%G dll
-    FOR %%G IN (x86\nest_libs\std*.nest) DO nest ..\update_nest_file.nest %%G dll
+    FOR %%G IN (x64\nest_libs\std*.nest) DO nest ..\update_nest_file.nest %%G
+    FOR %%G IN (x86\nest_libs\std*.nest) DO nest ..\update_nest_file.nest %%G
 )
 
 ENDLOCAL

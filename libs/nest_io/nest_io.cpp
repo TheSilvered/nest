@@ -290,8 +290,8 @@ NST_FUNC_SIGN(virtual_iof_)
     f->data = (i8 *)nst_malloc(1, sizeof(i8), err);
     f->size = 0;
     f->ptr = 0;
-    f->buf = (i8 *)nst_malloc(buf_size, sizeof(i8), err);
-    f->buf_size = buf_size;
+    f->buf = (i8 *)nst_malloc((usize)buf_size, sizeof(i8), err);
+    f->buf_size = (usize)buf_size;
     f->curr_buf_size = 0;
 
     if ( f->data == nullptr || f->buf == nullptr )
@@ -448,7 +448,7 @@ NST_FUNC_SIGN(read_)
         bytes_to_read = max_size;
     }
 
-    i8 *buffer = (i8 *)nst_malloc((bytes_to_read + 1), sizeof(i8), err);
+    i8 *buffer = (i8 *)nst_malloc((usize)bytes_to_read + 1, sizeof(i8), err);
     if ( buffer == nullptr )
     {
         NST_FAILED_ALLOCATION;
@@ -501,7 +501,7 @@ NST_FUNC_SIGN(read_bytes_)
         bytes_to_read = max_size;
     }
 
-    i8 *buffer = (i8 *)nst_malloc(bytes_to_read, sizeof(i8), err);
+    i8 *buffer = (i8 *)nst_malloc((usize)bytes_to_read, sizeof(i8), err);
     if ( buffer == nullptr )
     {
         NST_FAILED_ALLOCATION;

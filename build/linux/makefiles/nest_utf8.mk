@@ -3,7 +3,7 @@ LIB_NAME = utf8
 CC = g++
 CFLAGS = -I../../../include -Wall -shared -fPIC -rdynamic -std=c++2a
 DBG_FLAGS = -D_DEBUG -g -O0
-OUT_FILE = std$(LIB_NAME).so
+OUT_FILE = std$(LIB_NAME).cnest
 
 x64_DIR = ../linux_release/x64
 x86_DIR = ../linux_release/x86
