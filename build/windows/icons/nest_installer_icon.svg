@@ -2,9 +2,9 @@
 <!-- Created with Inkscape (http://www.inkscape.org/) -->
 
 <svg
-   width="210mm"
-   height="297mm"
-   viewBox="0 0 210 297"
+   width="108.47917mm"
+   height="108.47917mm"
+   viewBox="0 0 108.47917 108.47917"
    version="1.1"
    id="svg5"
    inkscape:export-filename="nest_installer_icon.png"
@@ -28,8 +28,8 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="1"
-     inkscape:cx="127"
-     inkscape:cy="378.99999"
+     inkscape:cx="-32"
+     inkscape:cy="266"
      inkscape:window-width="1920"
      inkscape:window-height="1009"
      inkscape:window-x="-8"
@@ -41,7 +41,8 @@
   <g
      inkscape:label="Livello 1"
      inkscape:groupmode="layer"
-     id="layer1">
+     id="layer1"
+     transform="translate(-42.006458,-30.012606)">
     <path
        sodipodi:type="star"
        style="fill:#648de5;fill-opacity:1;stroke:#648de5;stroke-width:7.937;stroke-linecap:round;stroke-linejoin:round;stroke-dasharray:none;stroke-opacity:1"
