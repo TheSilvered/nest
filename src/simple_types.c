@@ -118,79 +118,66 @@ void _nst_iofile_destroy(Nst_IOFileObj *obj)
     }
 }
 
-isize nst_print(const i8 *buf, isize len)
-{
-    return nst_fprint(nst_io->out, buf, len);
-}
-
-isize nst_println(const i8 *buf, isize len)
-{
-    return nst_fprintln(nst_io->out, buf, len);
-}
-/*
-ptrdiff_t nst_printf(const i8 *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    return nst_fvprintf(nst_io->out, fmt, args);
-}
-*/
-isize nst_fprint(Nst_IOFileObj *f, const i8 *buf, isize len)
+usize nst_fread(void  *buf,
+                usize size,
+                usize count,
+                Nst_IOFileObj *f)
 {
     if ( NST_IOF_IS_CLOSED(f) )
     {
-        return -1;
+        return 0;
     }
-    if ( len == -1 )
-    {
-        len = strlen(buf);
-    }
-    
-    return f->write_f((void *)buf, 1, (size_t)len, f->value);;
+    return f->read_f(buf, size, count, f->value);
 }
 
-isize nst_fprintln(Nst_IOFileObj *f, const i8 *buf, isize len)
+usize nst_fwrite(void  *buf,
+                 usize size,
+                 usize count,
+                 Nst_IOFileObj *f)
 {
     if ( NST_IOF_IS_CLOSED(f) )
     {
-        return -1;
+        return 0;
     }
-    if ( len == -1 )
-    {
-        len = strlen(buf);
-    }
-    size_t a = f->write_f((void *)buf, 1, (size_t)len, f->value);
-    size_t b = f->write_f((void *)"\n", 1, 1, f->value);
-    return a + b;
-}
-/*
-isize nst_fprintf(Nst_IOFileObj *f, const i8 *fmt, ...)
-{
-    va_list args;
-    va_start(args, fmt);
-    return nst_fvprintf(f, fmt, args);
-}
-
-isize nst_fvprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args)
-{
-    if ( NST_IOF_IS_CLOSED(f) )
-    {
-        return -1;
-    }
-
-    char *buf;
-}
-*/
-i32 nst_flush()
-{
-    return nst_fflush(nst_io->out);
+    return f->write_f(buf, size, count, f->value);
 }
 
 i32 nst_fflush(Nst_IOFileObj *f)
 {
     if ( NST_IOF_IS_CLOSED(f) )
     {
-        return -1;
+        return EOF;
     }
     return f->flush_f(f->value);
+}
+
+i32 nst_ftell(Nst_IOFileObj *f)
+{
+    if ( NST_IOF_IS_CLOSED(f) )
+    {
+        return 0;
+    }
+    return f->tell_f(f->value);
+}
+
+i32 nst_fseek(Nst_IOFileObj *f, i32 offset, i32 origin)
+{
+    if ( NST_IOF_IS_CLOSED(f) )
+    {
+        return 0;
+    }
+    return f->seek_f(f->value, offset, origin);
+}
+
+i32 nst_fclose(Nst_IOFileObj *f)
+{
+    if ( NST_IOF_IS_CLOSED(f) )
+    {
+        return EOF;
+    }
+
+    f->close_f(f->value);
+    f->value = NULL;
+    NST_FLAG_SET(f, NST_FLAG_IOFILE_IS_CLOSED);
+    return 0;
 }

@@ -92,7 +92,7 @@ Parses the command-line arguments given to the program.
 
 - `-1` is returned if the parsing failed
 - `0` is returned if the parsing succeded and the program can run
-- `1` is returned if the parsing succeded and the program should stop because an
+- `1` is returned if the parsing succeded and the program should stop because a
   message was printed.
 
 ## `compiler.h`
@@ -102,7 +102,7 @@ Parses the command-line arguments given to the program.
 **Synopsis**:
 
 ```c
-Nst_InstList *nst_compile(Nst_Node *ast, bool is_module)
+Nst_InstList *nst_compile(Nst_Node *ast, bool is_module, Nst_Error *error)
 ```
 
 **Description**:

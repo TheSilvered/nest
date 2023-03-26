@@ -9,6 +9,7 @@
 #include "map.h"
 #include "error.h"
 #include "lib_import.h"
+#include "format.h"
 
 #ifdef WINDOWS
 
@@ -2002,11 +2003,13 @@ Nst_Obj *_nst_obj_lgnot(Nst_Obj *ob, Nst_OpErr *err)
 Nst_Obj *_nst_obj_stdout(Nst_Obj *ob, Nst_OpErr *err)
 {
     if ( NST_IOF_IS_CLOSED(nst_io->out) )
+    {
         return nst_inc_ref(ob);
+    }
 
     Nst_Obj *str = nst_obj_cast(ob, nst_t.Str, err);
 
-    nst_print((const i8 *)STR(str)->value, STR(str)->len);
+    nst_fwrite(STR(str)->value, sizeof(i8), STR(str)->len, nst_io->out);
 
     nst_dec_ref(str);
     return nst_inc_ref(ob);

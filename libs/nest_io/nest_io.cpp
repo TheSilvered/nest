@@ -653,7 +653,7 @@ NST_FUNC_SIGN(println_)
     }
 
     Nst_StrObj *s_obj = STR(nst_obj_cast(obj, nst_type()->Str, nullptr));
-    nst_fprintln(file, (const i8 *)s_obj->value, s_obj->len);
+    nst_fprintln(file, (const i8 *)s_obj->value);
 
     if ( nst_obj_cast(flush, nst_type()->Bool, nullptr) == nst_true() )
     {

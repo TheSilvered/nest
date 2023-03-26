@@ -105,6 +105,9 @@
     <ClInclude Include="..\..\..\..\include\mem.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\include\format.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp">
@@ -189,6 +192,9 @@
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\mem.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\format.c">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>

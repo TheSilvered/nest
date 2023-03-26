@@ -6,6 +6,7 @@
 #include "error.h"
 #include "global_consts.h"
 #include "encoding.h"
+#include "format.h"
 
 #ifdef WINDOWS
 #include <windows.h>
@@ -14,10 +15,6 @@
 #include <errno.h>
 #include "mem.h"
 #define INT_CH_COUNT 21
-
-#define PRINT(str, len) \
-    use_stderr ? fwrite((void *)str, sizeof(i8), (usize)len, stderr) : \
-    err_stream->write_f((void *)str, sizeof(i8), (usize)len, err_stream->value)
 
 #define C_RED "\x1b[31m"
 #define C_GRN "\x1b[32m"
@@ -49,36 +46,6 @@ static inline void set_error_stream()
         fprintf(stderr, "Cannot use @@io._get_stderr, using initial stderr\n");
         fflush(stderr);
     }
-}
-
-static inline void err_printf(const i8 *format, i32 size, ...)
-{
-    va_list args;
-    va_start(args, size);
-
-    if ( buf_size == 0 )
-    {
-        printf_buf = (i8 *)nst_calloc(size + 1, sizeof(i8), NULL, NULL);
-        if ( printf_buf == NULL )
-        {
-            return;
-        }
-        buf_size = (usize)size + 1;
-    }
-    else if ( buf_size < (usize)size + 1 )
-    {
-        i8 *new_buf = (i8 *)nst_realloc(printf_buf, size + 1, sizeof(i8), 0, NULL);
-        if ( new_buf == NULL )
-        {
-            return;
-        }
-        printf_buf = new_buf;
-        buf_size = (usize)size + 1;
-    }
-
-    vsprintf(printf_buf, format, args);
-    err_stream->write_f(printf_buf, sizeof(i8),
-                        strlen(printf_buf), err_stream->value);
 }
 
 static inline void err_putc(i8 ch)
@@ -177,14 +144,11 @@ static void print_line(Nst_Pos *pos,
 
     if ( use_color )
     {
-        err_printf(
-            C_CYN " %*li" C_RES " | ",
-            C_LEN + R_LEN + lineno_len + 4,
-            lineno_len, lineno + 1);
+        nst_fprintf(err_stream, C_CYN " %*li" C_RES " | ", lineno_len, lineno + 1);
     }
     else
     {
-        err_printf(" %*li | ", lineno_len + 4, lineno_len, lineno + 1);
+        nst_fprintf(err_stream, " %*li | ", lineno_len, lineno + 1);
     }
 
     for ( i32 i = keep_indent; text[i] != '\n' && text[i] != '\0'; i++ )
@@ -200,7 +164,7 @@ static void print_line(Nst_Pos *pos,
 
         if ( i == start_col && use_color )
         {
-            PRINT(C_RED, C_LEN);
+            nst_fprint(err_stream, C_RED);
         }
 
         err_putc(text[i]);
@@ -208,7 +172,7 @@ static void print_line(Nst_Pos *pos,
 
         if ( use_color && i == end_col )
         {
-            PRINT(C_RES, R_LEN);
+            nst_fprint(err_stream, C_RES);
         }
 
         i32 res = nst_check_utf8_bytes(
@@ -249,7 +213,7 @@ static void print_line(Nst_Pos *pos,
     {
         if ( use_color )
         {
-            PRINT(C_RES, R_LEN);
+            nst_fprint(err_stream, C_RES);
         }
         return;
     }
@@ -257,18 +221,18 @@ static void print_line(Nst_Pos *pos,
     if ( use_color )
     {
         print_repeat(' ', lineno_len);
-        PRINT(C_RES "  | " C_RED, R_LEN + 4 + C_LEN);
+        nst_fprint(err_stream, C_RES "  | " C_RED);
         print_repeat(' ', spaces);
         print_repeat('^', carets);
-        PRINT(C_RES "\n", R_LEN + 1);
+        nst_fprint(err_stream, C_RES "\n");
     }
     else
     {
         print_repeat(' ', lineno_len);
-        PRINT("  | ", 4);
+        nst_fprint(err_stream, "  | ");
         print_repeat(' ', spaces);
         print_repeat('^', carets);
-        PRINT("\n", 1);
+        nst_fprint(err_stream, "\n");
     }
 }
 
@@ -283,34 +247,27 @@ static void print_position(Nst_Pos start, Nst_Pos end)
 
     if ( use_color )
     {
-        err_printf(
-            "File " C_GRN "\"%s\"" C_RES " at ",
-            C_LEN + R_LEN + 11 + (i32)strlen(start.text->path),
-            start.text->path);
+        nst_fprintf(err_stream, "File " C_GRN "\"%s\"" C_RES " at ", start.text->path);
     }
     else
     {
-        err_printf(
-            "File \"%s\" at ",
-            11 + (i32)strlen(start.text->path),
-            start.text->path);
+        nst_fprintf(err_stream, "File \"%s\" at ", start.text->path);
     }
 
     if ( start.line != end.line )
     {
         if ( use_color )
         {
-            err_printf(
+            nst_fprintf(err_stream, 
                 "lines " C_CYN "%li" C_RES " to " C_CYN "%li" C_RES,
-                C_LEN * 2 + R_LEN * 2 + INT_CH_COUNT * 2 + 10,
                 start.line + 1,
                 end.line + 1);
         }
         else
         {
-            err_printf(
+            nst_fprintf(
+                err_stream,
                 "lines %li to %li",
-                INT_CH_COUNT * 2 + 10,
                 start.line + 1,
                 end.line + 1);
         }
@@ -319,17 +276,14 @@ static void print_position(Nst_Pos start, Nst_Pos end)
     {
         if ( use_color )
         {
-            err_printf(
-                "line " C_CYN "%li" C_RES,
-                C_LEN + R_LEN + INT_CH_COUNT + 5,
-                start.line + 1);
+            nst_fprintf(err_stream, "line " C_CYN "%li" C_RES, start.line + 1);
         }
         else
         {
-            err_printf("line %li", INT_CH_COUNT + 5, start.line + 1);
+            nst_fprintf(err_stream, "line %li", start.line + 1);
         }
     }
-    PRINT(":\n", 2);
+    nst_fprint(err_stream, ":\n");
 
     if ( start.line == end.line )
     {
@@ -365,27 +319,22 @@ static void print_position(Nst_Pos start, Nst_Pos end)
 
 void nst_print_error(Nst_Error err)
 {
-    nst_flush();
-    if ( !NST_IOF_IS_CLOSED(nst_io->out) )
-    {
-        nst_io->out->flush_f(nst_io->out->value);
-    }
-
+    nst_fflush(nst_io->out);
     set_error_stream();
     print_position(err.start, err.end);
 
     if ( use_color )
     {
-        err_printf(
+        nst_fprintf(
+            err_stream,
             C_YEL "%s" C_RES " - %s\n",
-            (i32)err.name->len + (i32)err.message->len + C_LEN + R_LEN + 4,
             err.name->value, err.message->value);
     }
     else
     {
-        err_printf(
+        nst_fprintf(
+            err_stream,
             "%s - %s\n",
-            (i32)err.name->len + (i32)err.message->len + 4,
             err.name->value, err.message->value);
     }
     err_stream->flush_f(err_stream->value);
@@ -401,21 +350,23 @@ static inline void print_rep_count(i32 count)
 {
     if ( use_color )
     {
-        err_printf(
+        nst_fprintf(
+            err_stream,
             C_RED "-- Previous position repeated %i more times --\n" C_RES,
-            C_LEN + R_LEN + INT_CH_COUNT + 45, count);
+            count);
     }
     else
     {
-        err_printf(
+        nst_fprintf(
+            err_stream,
             "-- Previous position repeated %i more times --\n",
-            INT_CH_COUNT + 45, count);
+            count);
     }
 }
 
 void nst_print_traceback(Nst_Traceback tb)
 {
-    nst_flush();
+    nst_fflush(nst_io->out);
     assert(tb.positions->size % 2 == 0);
     set_error_stream();
 
@@ -475,16 +426,16 @@ void nst_print_traceback(Nst_Traceback tb)
 
     if ( use_color )
     {
-        err_printf(
+        nst_fprintf(
+            err_stream,
             C_YEL "%s" C_RES " - %s\n",
-            (i32)tb.error.name->len + (i32)tb.error.message->len + C_LEN + R_LEN + 4,
             tb.error.name->value, tb.error.message->value);
     }
     else
     {
-        err_printf(
+        nst_fprintf(
+            err_stream,
             "%s - %s\n",
-            (i32)tb.error.name->len + (i32)tb.error.message->len + 4,
             tb.error.name->value, tb.error.message->value);
     }
 

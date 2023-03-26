@@ -109,16 +109,18 @@ Nst_Obj *nst_iof_new_fake(void *value,
 
 EXPORT void _nst_iofile_destroy(Nst_IOFileObj *obj);
 
-EXPORT isize nst_print(const i8 *buf, isize len);
-EXPORT isize nst_println(const i8 *buf, isize len);
-// isize nst_printf(const i8 *fmt, ...);
-EXPORT isize nst_fprint(Nst_IOFileObj *f, const i8 *buf, isize len);
-EXPORT isize nst_fprintln(Nst_IOFileObj *f, const i8 *buf, isize len);
-// isize nst_fprintf(Nst_IOFileObj *f, const i8 *buf, ...);
-// isize nst_fvprintf(Nst_IOFileObj *f, const i8 *buf, va_list args);
-
-EXPORT i32 nst_flush();
+EXPORT usize nst_fread(void  *buf,
+                       usize size,
+                       usize count,
+                       Nst_IOFileObj *f);
+EXPORT usize nst_fwrite(void  *buf,
+                        usize size,
+                        usize count,
+                        Nst_IOFileObj *f);
 EXPORT i32 nst_fflush(Nst_IOFileObj *f);
+EXPORT i32 nst_ftell(Nst_IOFileObj *f);
+EXPORT i32 nst_fseek(Nst_IOFileObj *f, i32 offset, i32 origin);
+EXPORT i32 nst_fclose(Nst_IOFileObj *f);
 
 #ifdef __cplusplus
 }

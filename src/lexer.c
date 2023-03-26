@@ -10,6 +10,7 @@
 #include "tokens.h"
 #include "interpreter.h" // nst_get_full_path
 #include "encoding.h"
+#include "format.h"
 
 #define START_CH_SIZE 8 * sizeof(i8)
 
@@ -87,9 +88,9 @@ Nst_LList *nst_tokenizef(i8             *filename,
     FILE *file = fopen(filename, "rb");
     if ( file == NULL )
     {
-        nst_fprint(nst_io->err, "File \"", -1);
-        nst_fprint(nst_io->err, (const i8 *)filename, -1);
-        nst_fprintln(nst_io->err, "\" not found", -1);
+        nst_fprint(nst_io->err, "File \"");
+        nst_fprint(nst_io->err, (const i8 *)filename);
+        nst_fprintln(nst_io->err, "\" not found");
         return NULL;
     }
 
@@ -100,7 +101,7 @@ Nst_LList *nst_tokenizef(i8             *filename,
     i8 *text = (i8 *)nst_raw_calloc(size + 1, sizeof(i8));
     if ( text == NULL )
     {
-        nst_fprint(nst_io->err, "Memory allocation failed\n", -1);
+        nst_fprint(nst_io->err, "Memory allocation failed\n");
         return NULL;
     }
 
@@ -112,7 +113,7 @@ Nst_LList *nst_tokenizef(i8             *filename,
     nst_get_full_path(filename, &full_path, NULL, NULL);
     if ( full_path == NULL )
     {
-        nst_fprint(nst_io->err, "Memory allocation failed\n", -1);
+        nst_fprint(nst_io->err, "Memory allocation failed\n");
         return NULL;
     }
 
