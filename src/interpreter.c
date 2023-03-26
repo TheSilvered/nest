@@ -1631,7 +1631,15 @@ static inline void exe_new_obj()
 {
     CHECK_V_STACK;
     Nst_Obj *obj = nst_vstack_peek(nst_state.v_stack);
-    Nst_Obj *new_obj = nst_int_new(AS_INT(obj), NULL);
+    Nst_Obj *new_obj = nst_int_new(AS_INT(obj), &main_err);
+    if ( main_err.name != NULL )
+    {
+        Nst_Inst inst = nst_fstack_peek(nst_state.f_stack)
+            .func->body
+            .bytecode->instructions[nst_state.idx];
+        _NST_SET_ERROR_FROM_OP_ERR(GLOBAL_ERROR, &main_err, inst.start, inst.end);
+        return;
+    }
     nst_vstack_push(nst_state.v_stack, new_obj);
     nst_dec_ref(new_obj);
 }
@@ -1713,7 +1721,12 @@ static inline void exe_make_seq_rep(Nst_Inst *inst)
 static inline void exe_make_map(Nst_Inst *inst)
 {
     Nst_Int map_size = inst->int_val;
-    Nst_Obj *map = nst_map_new(NULL);
+    Nst_Obj *map = nst_map_new(&main_err);
+    if ( main_err.name != NULL )
+    {
+        _NST_SET_ERROR_FROM_OP_ERR(GLOBAL_ERROR, &main_err, inst->start, inst->end);
+        return;
+    }
     CHECK_V_STACK_SIZE(map_size);
     usize stack_size = nst_state.v_stack->current_size;
     Nst_Obj **v_stack = nst_state.v_stack->stack;
@@ -1723,7 +1736,12 @@ static inline void exe_make_map(Nst_Inst *inst)
         Nst_Obj *key = v_stack[stack_size - map_size + i];
         i++;
         Nst_Obj *val = v_stack[stack_size - map_size + i];
-        nst_map_set(map, key, val, NULL);
+        nst_map_set(map, key, val, &main_err);
+        if ( main_err.name != NULL )
+        {
+            _NST_SET_ERROR_FROM_OP_ERR(GLOBAL_ERROR, &main_err, inst->start, inst->end);
+            return;
+        }
         nst_dec_ref(val);
         nst_dec_ref(key);
     }
