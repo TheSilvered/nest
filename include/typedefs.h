@@ -10,6 +10,12 @@
 #define WINDOWS
 #endif
 
+#if defined(_WIN64) || defined(__x86_64__) || defined(__ppc64__)
+#define ARCH_x64
+#else
+#define ARCH_x86
+#endif
+
 #ifdef WINDOWS
 #define EXPORT __declspec(dllexport)
 #else

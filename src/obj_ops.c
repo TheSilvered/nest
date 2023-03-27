@@ -1380,11 +1380,16 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
         else
         {
             i8 *buffer = (i8 *)nst_malloc(
-                STR(ob->type)->len + 12 + MAX_INT_CHAR_COUNT,
+                STR(ob->type)->len + 16 + (i32)sizeof(usize) * 2,
                 sizeof(i8),
                 err);
             CHECK_BUFFER(buffer);
-            i32 len = sprintf(buffer, "<%s object at 0x%p>", STR(ob->type)->value, ob);
+            i32 len = sprintf(
+                buffer,
+                "<%s object at 0x%0*zX>",
+                STR(ob->type)->value,
+                (int)sizeof(usize) * 2,
+                (usize)ob);
             NST_RETURN_NEW_STR(buffer, len);
         }
     }
