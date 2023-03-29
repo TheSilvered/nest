@@ -1,4 +1,10 @@
-# Coroutine library (`stdco.nest` - `co`)
+# Coroutine library
+
+## Importing
+
+```text
+|#| 'stdco.nest' = co
+```
 
 ## Functions
 

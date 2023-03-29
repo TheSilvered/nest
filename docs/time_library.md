@@ -1,4 +1,10 @@
-# Time and date library (`stdtime.nest` - `dt`)
+# Time and date library
+
+## Importing
+
+```text
+|#| 'stdtime.nest' = dt
+```
 
 ## Functions
 

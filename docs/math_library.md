@@ -1,4 +1,10 @@
-# Math library (`stdmath.nest` - `math`)
+# Math library
+
+## Importing
+
+```text
+|#| 'stdmath.nest' = math
+```
 
 If an argument is annotated with `Number`, it is equivalent to `Byte|Int|Real`.
 

@@ -1,4 +1,10 @@
-# Filesystem library (`stdfs.nest` - `fs`)
+# Filesystem library
+
+## Importing
+
+```text
+|#| 'stdfs.nest' = fs
+```
 
 ## Functions
 

@@ -1,4 +1,10 @@
-# String utilities library (`stdsutil.nest` - `su`)
+# String utilities library
+
+## Importing
+
+```text
+|#| 'stdsutil.nest' = su
+```
 
 ## Functions
 

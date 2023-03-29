@@ -1,4 +1,4 @@
-# General nest syntax
+# General Nest syntax
 
 ## Comments
 

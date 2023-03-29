@@ -1,4 +1,10 @@
-# Random library (`stdrand.nest` - `rand`)
+# Random library
+
+## Importing
+
+```text
+|#| 'stdrand.nest' = rand
+```
 
 ## Functions
 

@@ -5,13 +5,13 @@ Nest is a silly programming language, mostly for the syntax. It is a project of 
 
 For example let's take `truth_machine.nest` in `examples/`:
 
-```
+```text
 <<<'' '1' == ? ?.. >>> 1 []
 ```
 
 This is certainly quite poorly formatted and hard to read to first things firts let's make it more legible:
 
-```
+```text
 <<<'' '1' == ? [
     ?.. >>> 1 [
     ]
@@ -20,7 +20,7 @@ This is certainly quite poorly formatted and hard to read to first things firts 
 
 OK, now it is a little more clear and you can probably already understand which is the if statement (or actually expression) and which is the while loop, but if it is not obvious, using some variables should help.
 
-```
+```text
 <<<'' = user_input
 user_input '1' == ? [
     ?.. true [

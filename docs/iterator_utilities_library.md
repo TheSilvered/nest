@@ -1,4 +1,10 @@
-# Iterator utilities library (`stditutil.nest` - `itu`)
+# Iterator utilities library
+
+## Importing
+
+```text
+|#| 'stditutil.nest' = itu
+```
 
 ## Functions
 

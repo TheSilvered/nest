@@ -1,4 +1,10 @@
-# Sequence utilities library (`stdsequtil.nest` - `sequ`)
+# Sequence utilities library
+
+## Importing
+
+```text
+|#| 'stdsequtil.nest' = sequ
+```
 
 ## Functions
 

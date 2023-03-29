@@ -1,4 +1,10 @@
-# JSON library (`stdjson.nest` - `json`)
+# JSON library
+
+## Importing
+
+```text
+|#| 'stdjson.nest' = json
+```
 
 JSON to Nest type correlations:
 

@@ -1,4 +1,13 @@
-# System library (`stdsys.nest` - `sys`)
+# System library
+
+## Importing
+
+```text
+|#| 'stdsys.nest' = sys
+
+-- To access _raw_exit_ use the following
+|#| '__C__:stdsys.cnest' = __sys
+```
 
 ## Functions
 

@@ -1,2 +1,4 @@
 site_name: Nest Docs
-theme: readthedocs
+theme:
+  name: material
+  highlightjs: true

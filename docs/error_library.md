@@ -1,4 +1,10 @@
-# Error library (`stderr.nest` - `err`)
+# Error library
+
+## Importing
+
+```text
+|#| 'stderr.nest' = err
+```
 
 ## Functions
 

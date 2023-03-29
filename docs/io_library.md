@@ -1,4 +1,10 @@
-# Input/output library (`stdio.nest` - `io`)
+# Input-output library
+
+## Importing
+
+```text
+|#| 'stdio.nest' = io
+```
 
 ## Functions
 
