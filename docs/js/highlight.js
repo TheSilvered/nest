@@ -45,7 +45,7 @@ hljs.registerLanguage("nest", hljs => {
   return {
     name: "Nest",
     keywords: {
-        $pattern: /[\?\.\.;\|>#!]+|\w+/,
+        $pattern: /[\?\.\.;\|><#!]+|\w+/,
         keyword: ["?..", "..?", "...", "..", ";", "??", "?!", "?", ":", "#", "##"],
         built_in: ["_vars_", "_globals_", "_cwd_", "_args_", ">>>", "<<<", "|#|"],
         literal: ["true", "false", "null"],
