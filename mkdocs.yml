@@ -1,4 +1,4 @@
-site_name: Nest Docs
+site_name: Nest Documentation
 theme:
   name: material
   highlightjs: true
