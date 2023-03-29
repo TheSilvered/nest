@@ -14,7 +14,7 @@ mkdocstrings[python]
 mkdocstrings-python
 packaging
 pymdown-extensions
-pyparsin
+pyparsing
 python-dateutil
 pyyaml
 pyyaml-env-tag
