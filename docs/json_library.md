@@ -2,7 +2,7 @@
 
 ## Importing
 
-```text
+```nest
 |#| 'stdjson.nest' = json
 ```
 
@@ -66,7 +66,7 @@ To set more than one option you can use the `|` operator. The options given are
 set to true and the ones omitted are set to false. Setting `options` to zero
 disables everything. Every option is disabled by default.
 
-```text
+```nest
 |#| 'stdjson.nest' = json
 json.OPTIONS.allow_comments \
 json.OPTIONS.allow_trailing_commas | @json.set_options
@@ -76,7 +76,7 @@ json.OPTIONS.allow_trailing_commas | @json.set_options
 
 Returns the options set with `set_options`.
 
-```text
+```nest
 |#| 'stdjson.nest' = json
 -- allows comments without disabling trailing commas if it is enabled
 @@json.get_options json.OPTIONS.allow_comments | @json.set_options

@@ -2,7 +2,7 @@
 
 ## Importing
 
-```text
+```nest
 |#| 'stdsutil.nest' = su
 ```
 
@@ -63,7 +63,7 @@ centered it will be closer to the left side.
 If `length` is smaller than or equal to `$string`, the string itself is returned.
 If `char` is `null` a space will be used instead.
 
-```text
+```nest
 |#| 'stdsutil.nest' = su
 'hello' 11 '*' @su.center --> '***hello***'
 'hello' 10 '.' @su.center --> '..hello...'
@@ -73,7 +73,7 @@ If `char` is `null` a space will be used instead.
 
 A new string is returned with all the letters uppercase.
 
-```text
+```nest
 |#| 'stdsutil.nest' = su
 'Hello' @su.to_upper --> 'HELLO'
 ```
@@ -82,7 +82,7 @@ A new string is returned with all the letters uppercase.
 
 A new string is returned with all the letters lowercase.
 
-```text
+```nest
 |#| 'stdsutil.nest' = su
 'Hello' @su.to_lower --> 'hello'
 ```
@@ -93,7 +93,7 @@ A new string is returned with the first letter of every word uppercase and all
 the others lowercase. A word is defined as a piece of text surrounded by
 whitespace.
 
-```text
+```nest
 |#| 'stdsutil.nest' = su
 'this is a sentence' @su.to_title --> 'This Is A Sentence'
 "it's three words" @su.to_title --> "It's Three Words"
@@ -169,7 +169,7 @@ vector with all the resulting strings.
 If `separator` is `null`, the string is split using spaces. One or more
 continuous space character count as one space.
 
-```text
+```nest
 |#| 'stdsutil.nest' = su
 'a  b' @su.split --> <{ 'a', 'b' }>
 'a  b' ' ' @su.split --> <{ 'a', '', 'b' }>
@@ -183,7 +183,7 @@ the corresponding prefix (`0b`, `0o` or `0x`) is ignored. If set to 0 it will
 use base 10 unless it finds one of the specified prefixes.  
 Setting `base` to `null` is the same as setting it to `0`.
 
-```text
+```nest
 |#| 'stdsutil.nest' = su
 
 '0xff' @su.parse_int --> 255

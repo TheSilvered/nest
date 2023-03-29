@@ -2,7 +2,7 @@
 
 ## Importing
 
-```text
+```nest
 |#| 'stdfs.nest' = fs
 ```
 
@@ -83,7 +83,7 @@ is an absolute path but not vice-versa.
 
 Returns a relative path to `path` using `base` as the starting point.
 
-```text
+```nest
 |#| 'stdfs.nest' = fs
 
 '/a/c' '/a/b/d' @fs.relative_path --> '../../c'
@@ -105,7 +105,7 @@ and on Linux `\` becomes `/`.
 
 Returns only the folder path where `path` points to a file.
 
-```text
+```nest
 |#| 'stdfs.nest' = fs
 
 'dir/subdir/file.txt' @fs.path --> 'dir/subdir'
@@ -115,7 +115,7 @@ Returns only the folder path where `path` points to a file.
 
 Returns the name of the file `path` points to.
 
-```text
+```nest
 |#| 'stdfs.nest' = fs
 
 'dir/subdir/file.txt' @fs.filename --> 'file.txt'
@@ -125,7 +125,7 @@ Returns the name of the file `path` points to.
 
 Returns the extension of the file pointed to by `path`.
 
-```text
+```nest
 |#| 'stdfs.nest' = fs
 
 'dir/subdir/file.txt' @fs.extension --> '.txt'
@@ -153,7 +153,7 @@ Its members are:
 
 To join more options you can use the bit-wise or operator `|`.
 
-```text
+```nest
 |#| 'stdfs.nest' = fs
 
 fs.CPO.recursive fs.CPO.make_hard_links | = options

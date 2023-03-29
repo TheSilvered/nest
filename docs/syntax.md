@@ -9,7 +9,7 @@ to the next line.
 
 Block comments start with `-/` and end with `/-`
 
-```text
+```nest
 -- This is a single line comment
 -- This is another single line comment \
    that has the line-feed escaped
@@ -36,12 +36,13 @@ have any combination of the following space-separated arguments:
 In this example the file will be read using CP1252, only simple expressions are
 optimized and no predefined variables are added.
 
-```text
+```nest
 --$ --no-default --cp1252 -O1
 ```
 
-> NOTE: when specifying various optimization levels only the last one is
-> considered, any invalid argument is ignored
+!!!note
+    any invalid argument is ignored and when specifying various optimization
+    levels only the last one is considered
 
 ## Value literals
 
@@ -60,7 +61,7 @@ Both integer and real literals can be prefixed with a minus `-` to make them
 negative. There can also be a plus sign `+` before the number but that does not
 change its sign.
 
-```text
+```nest
 -- Integer literals
 10
 -123
@@ -91,7 +92,7 @@ a lowercase `b` or an uppercase one `B`. If the integer is written with an
 hexadecimal literal, since adding a `b` at the end would be counted as digit,
 you start with `0h` instead.
 
-```text
+```nest
 -- Byte literals
 10b
 256b -- equivalent to 0b
@@ -103,7 +104,7 @@ you start with `0h` instead.
 Decimal, binary and octal byte literals can be followed by a word or by another
 literal but that could cause confusion, so it is better to keep a space.
 
-```text
+```nest
 10bab -- split into '10b' and 'ab'
 0b0b0 -- split into '0b' (from '0b0b') and '0'
 00b10 -- split into '0b' (from '00b') and '10'
@@ -141,26 +142,29 @@ are all the valid escape sequences:
 | `\uhhhh` | -         | Any BMP Unicode character |
 | `\Uhhhhhhhh` | -     | Any Unicode character     |
 
-> NOTE: `h` represents a hexadecimal byte (`0-9`, `a-f` or `A-F`) and `n` an
-> octal one (`0-7`)  
-> NOTE: octal escapes can have either one, two or three digits: `\0`, `\12` and
-> `\012` are all valid
+!!!note
+    `h` represents a hexadecimal byte (`0-9`, `a-f` or `A-F`) and `n` an
+    octal one (`0-7`)  
+!!!note
+    octal escapes can have either one, two or three digits: `\0`, `\12` and
+    `\012` are all valid
 
 ### Array literals
 
 Array literals start and end with curly braces (`{` and `}`) and contain various
 expressions separated by a comma.
 
-```text
+```nest
 { 1, 2, 3, 4 }
 ```
 
-> NOTE: writing `{}` creates an empty map, not an empty array. To create an
-> empty array you can write `{,}`
+!!!note
+    writing `{}` creates an empty map, not an empty array. To create an
+    empty array you can write `{,}`
 
 You can also create an array with all of the same value like this:
 
-```text
+```nest
 { 10;30 } --> array of length 30, with all values that are 10
 ```
 
@@ -168,7 +172,7 @@ This puts the same object in all slots of the array meaning that if an
 object can change values inside of itself (array, vector or map) the values of
 all objects will change:
 
-```text
+```nest
 { { 1, 2 };2 } = a --> 'a' is equal to { { 1, 2 }, { 1, 2 } }
 3 = a.0 .0 --> 'a' is now equal to { { 3, 2 }, { 3, 2 } }
 ```
@@ -178,14 +182,14 @@ all objects will change:
 Vector literals start with `<{` and end with `}>` and inside have various
 expressions separated by a comma.
 
-```text
+```nest
 <{ 1, 2, 3, 4 }>
 ```
 
 Just like arrays, vectors also have a smaller syntax to fill all slots with the
 same value:
 
-```text
+```nest
 <{ 10;30 }> --> vector of length 30, with all values that are 10
 ```
 
@@ -193,7 +197,7 @@ same value:
 
 Map literals start with `{` and end with `}` and inside have key-value pairs.
 
-```text
+```nest
 { 'key_1': 1, 'key_2': 2 }
 ```
 
@@ -209,7 +213,7 @@ A lambda can return the value of a single expression by following the parameters
 with `=>` or contain multiple statements with a block of code, delimited by `[`
 and `]`.
 
-```text
+```nest
 ##a b => a b + --> this lambda adds 'a' and 'b', returning their value
 
 -- This lambda also prints the operation
@@ -245,7 +249,8 @@ See also [function declarations](#function-declaration) and the
 - `_vars_`: a table containing the variables of the local scope
 - `_globals_`: a table containing the variables of the global scope
 
-> NOTE: the value of `_globals_` in the global scope is `null`
+!!!note
+    the value of `_globals_` in the global scope is `null`
 
 ## Expressions
 
@@ -282,7 +287,7 @@ The stack operators in Nest are:
 To perform an operation with these operators you can write all the operands
 followed by the operator:
 
-```text
+```nest
 1 2 3 +
 2 8 ^
 ```
@@ -290,7 +295,7 @@ followed by the operator:
 To prioritize certain operations or to limit the number of operands of an
 operator, you can use parenthesis:
 
-```text
+```nest
 (3 2 ^) (4 2 ^) + 0.5 ^
 ```
 
@@ -302,13 +307,14 @@ all the results to see if they are all true.
 
 The following two expressions are equal but the first one is more concise:
 
-```text
+```nest
 1 2 3 4 <
 (1 2 <) (2 3 <) (3 4 <) &&
 ```
 
-> NOTE: writing `a b c !=` does not mean that all three values are different
-> from each other, it only means that adjacent ones are.
+!!!note
+    writing `a b c !=` does not mean that all three values are different
+    from each other, it only means that adjacent ones are.
 
 The operators `+`, `-`, `*` and `/` have a different meaning when operating in
 vectors.
@@ -325,7 +331,7 @@ the vector itself.
 The `/` operator pops a number of values from the end and returns the last value
 popped.
 
-```text
+```nest
 >>> (<{ 1, 2, 3 }> 2 + '\n' ><) --> <{ 1, 2, 3, 2 }>
 >>> (<{ 1, 2, 3 }> 2 - '\n' ><) --> <{ 1, 3 }>
 >>> (<{ 1, 2, 3 }> 2 * '\n' ><) --> <{ 1, 2, 3, 1, 2, 3 }>
@@ -335,7 +341,7 @@ popped.
 The operator `-` behaves differently with maps too. It will remove a key from a
 map and return the map itself.
 
-```text
+```nest
 { 'a': 1, 'b': 2 } = m
 >>> (m 'a' - '\n' ><) --> { 'b': 2 }
 >>> (m 'j' - '\n' ><) --> { 'b': 2 } removing a key that does not exist does not
@@ -362,7 +368,7 @@ The local operators in Nest are:
 To operate with these operators you can write the operator followed by its
 operand:
 
-```text
+```nest
 >>> 'Hello, world!\n'
 ```
 
@@ -389,7 +395,7 @@ the others to the left.
 
 Here the number `10` is casted to a `Byte` object:
 
-```text
+```nest
 Byte :: 10
 ```
 
@@ -427,14 +433,14 @@ the last argument.
 
 Here the function `func` is called with three arguments:
 
-```text
+```nest
 1 2 3 @func
 ```
 
 `*@` calls a function as well but you can have the arguments inside a vector or
 an array:
 
-```text
+```nest
 { 1, 2, 3 } *@func
 ```
 
@@ -449,7 +455,7 @@ range should end.
 
 This creates a range of even numbers from 10 (included) to 20 (excluded):
 
-```text
+```nest
 2 10 -> 20
 ```
 
@@ -460,11 +466,11 @@ the last one the message that is printed along with the error.
 
 Here is what would be printed when using this operator in `example.nest`.
 
-```text title="example.nest"
+```nest title="example.nest"
 'This Is The Name' !! 'this is the message'
 ```
 
-```text title="Output"
+```nest title="Output"
 > nest example.nest
 
 File "example.nest" at line 2:
@@ -476,7 +482,7 @@ This Is The Name - this is the message
 
 The syntax of the if expression is the following:
 
-```text
+```nest
 condition ?
     -- condition is true
 :
@@ -490,7 +496,7 @@ evaluates to `null`.
 
 If you want to execute multiple expressions or statements you can use brackets:
 
-```text
+```nest
 a b == ? [
     -- code block here
 ] : [
@@ -500,7 +506,7 @@ a b == ? [
 
 When using a code block the expression evaluates to `null`:
 
-```text
+```nest
 (true ? [ true ] : false) = val
 ```
 
@@ -516,7 +522,7 @@ To write an assignment expression you write the value, followed by an equal sign
 comparison operator) and end with the name of the variable or an access to an
 element in an array, vector or map.
 
-```text
+```nest
 10 = a -- assigns the value 10 to the variable 'a'
 ```
 
@@ -526,19 +532,19 @@ There is another kind of assignment in Nest: the unpacking assignment.
 An unpacking assignment takes a vector or an array and splits its contents into
 the variables.
 
-```text
+```nest
 { 1, 2 } = { a, b } --> now 'a' is 1 and 'b' is 2
 ```
 
 It can also be nested:
 
-```text
+```nest
 { 1, { 2, 3 } } = { a, { b, c } } --> now 'a' is 1, 'b' is 2 and 'c' is 3
 ```
 
 And can be used in for-as loops:
 
-```text
+```nest
 |#| 'stditutil.nest' = itu
 { 'a', 'b', 'c' } = arr
 
@@ -549,13 +555,14 @@ And can be used in for-as loops:
 
 This program outputs:
 
-```text
+```nest
 1 a
 2 b
 3 c
 ```
 
-> NOTE: when using this assignment you cannot use compound assignments.
+!!!note
+    when using this assignment you cannot use compound assignments.
 
 ### Access operator
 
@@ -574,7 +581,7 @@ of the array or vector.
 You can use also negative integers where `-1` is the last element, `-2` is the
 second to last element etc.
 
-```text
+```nest
 { 1, 2, 3 } = arr
 arr.0 --> 1
 arr. -1 --> 3
@@ -583,7 +590,7 @@ arr. -1 --> 3
 If you need to index based on a variable you must use parenthesis otherwise the
 variable name is treated like a string.
 
-```text
+```nest
 { 1, 2, 3 } = arr
 2 = idx
 
@@ -595,7 +602,7 @@ To index multiple-dimension arrays or vectors you cannot chain multiple
 extractions since a real number literal would be formed. To prevent this you can
 either put parenthesis around the integer or put a space before the dot.
 
-```text
+```nest
 {{ 1, 2 },
  { 3, 4 }} = arr
 
@@ -609,7 +616,7 @@ arr.1.0 --> ERROR: cannot index an array with '1.0'
 To index a map you put the key of the value after the dot. If a key is a string
 that is also a valid variable name you can put the name without any quotes.
 
-```text
+```nest
 { 'key_1': 2, 'invalid var': 10 } = map
 
 map.key_1 --> 10
@@ -619,8 +626,8 @@ map.'invalid var' --> 10
 map.not_a_key --> null
 ```
 
-> NOTE: if you try to index a key that is not in the map the result will be
-> `null`
+!!!note
+    if you try to index a key that is not in the map the result will be `null`
 
 ## Statements
 
@@ -628,7 +635,7 @@ map.not_a_key --> null
 
 The for loop has the following syntax:
 
-```text
+```nest
 ... times_to_repeat [
     -- code
 ]
@@ -641,7 +648,7 @@ iterator and assign a variable, use a for-as loop.
 
 The for-as loop has the following syntax:
 
-```text
+```nest
 ... iterator := var_name [
     -- code
 ]
@@ -652,7 +659,7 @@ variable to be assigned.
 
 This for loop prints the numbers one through ten:
 
-```text
+```nest
 ... 1 -> 11 := i [
     >>> (i '\n' ><)
 ]
@@ -662,7 +669,7 @@ This for loop prints the numbers one through ten:
 
 The while loop has the following syntax:
 
-```text
+```nest
 ?.. condition [
     -- code
 ]
@@ -670,7 +677,7 @@ The while loop has the following syntax:
 
 The do-while loop has the following syntax:
 
-```text
+```nest
 ..? condition [
     -- code
 ]
@@ -684,7 +691,7 @@ execute the code once before checking the condition.
 A function declaration is a hash followed by the name of the function and the
 name of its arguments:
 
-```text
+```nest
 #func_name arg1 arg2 arg3 [
     -- code
 ]
@@ -693,13 +700,13 @@ name of its arguments:
 As with [lambdas](#anonymous-functions-lambdas), functions can also contain only
 one expression and return its value:
 
-```text
+```nest
 #func_name arg1 arg2 => -/ expression /-
 ```
 
 When calling a function the arguments are taken from left to right:
 
-```text
+```nest
 #print_args a b c [
     >>> (a ' ' b ' ' c '\n' ><)
 ]
@@ -718,7 +725,7 @@ function, `null` is returned.
 
 The switch statement has the following syntax:
 
-```text
+```nest
 |> expression [
     ? case_1 [
         -- code executed if expression is equal to case_1
@@ -753,7 +760,7 @@ default:
 }
 ```
 
-```text
+```nest
 -- Nest
 |> 10 [
     ? 5 [
@@ -774,7 +781,7 @@ default:
 
 The try-catch statement has the following syntax:
 
-```text
+```nest
 ??
     -- try block
 ?! error_var
@@ -783,7 +790,7 @@ The try-catch statement has the following syntax:
 
 If you want multiple statements you can use brackets:
 
-```text
+```nest
 ?? [
     -- try block
 ] ?! error_var [
@@ -799,7 +806,8 @@ If an error occurs, it will be stored inside `error_var` as a map with two keys:
 - `name`: the name of the error
 - `message`: the message of the error
 
-> NOTE: you can call `error_var` with any valid variable name
+!!!note
+    you can call `error_var` with any valid variable name
 
 If you want to also get the position and traceback of the error you can use the
 `try` function of the `stderr` library.

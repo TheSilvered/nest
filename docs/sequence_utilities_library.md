@@ -2,7 +2,7 @@
 
 ## Importing
 
-```text
+```nest
 |#| 'stdsequtil.nest' = sequ
 ```
 

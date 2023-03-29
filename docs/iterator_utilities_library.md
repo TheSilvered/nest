@@ -2,7 +2,7 @@
 
 ## Importing
 
-```text
+```nest
 |#| 'stditutil.nest' = itu
 ```
 
@@ -12,7 +12,7 @@
 
 Counts indefinitely from `start`, advancing by `step`.
 
-```text
+```nest
 |#| 'stditutil.nest' = itu
 
 0 2 @itu.count --> 0, 2, 4, 6, 8, ...
@@ -23,7 +23,7 @@ Counts indefinitely from `start`, advancing by `step`.
 Cycles through the elements of the given object restarting from the first when
 the sequence ends.
 
-```text
+```nest
 |#| 'stditutil.nest' = itu
 
 'Hi!' @itu.cycle --> 'H', 'i', '!', 'H', 'i', ...
@@ -33,7 +33,7 @@ the sequence ends.
 
 Repeats the first argument a certain number of times.
 
-```text
+```nest
 |#| 'stditutil.nest' = itu
 
 'Hi!' 3 @itu.repeat --> 'Hi!', 'Hi!', 'Hi!'
@@ -44,7 +44,7 @@ Repeats the first argument a certain number of times.
 Chains any number of `Str`, `Array`, `Vector` or `Iter` objects iterating over
 their elements:
 
-```text
+```nest
 |#| 'stditutil.nest' = itu
 
 { 'Hi!', { 1, 2, 3 } } @itu.chain --> 'H', 'i', '!', 1, 2, 3
@@ -55,7 +55,7 @@ their elements:
 Returns a 2-element array with an object from the same index of the two
 sequences. It stops when the shortest sequence ends.
 
-```text
+```nest
 |#| 'stditutil.nest' = itu
 
 'Hi!' { 1, 2, 3 } @itu.zip --> { 'H', 1 }, { 'i', 2 }, { 'i', 3 }
@@ -69,7 +69,7 @@ Returns a n-element array (where n is the length of `sequences`) with an object
 from the same index of each sequence in `sequences`. It stops when the shortest
 sequence ends.
 
-```text
+```nest
 |#| 'stditutil.nest' = itu
 
 { 'Hi!', { 1, 2, 3 }, <{ 9, 8, 7, 6 }> } @itu.zipn --> { 'H', 1, 9 }, { 'i', 2, 8 }, { 'i', 3, 7 }
@@ -85,7 +85,7 @@ Start by default is `0` and step `1`.
 If `iterator` is a `Str`, `Array` or `Vector` it is automatically casted to an
 `Iter`.
 
-```text
+```nest
 |#| 'stditutil.nest' = itu
 
 'Hi!' @itu.enumerate --> { 0, 'H' }, { 1, 'i' }, { 2, '!' }
@@ -98,7 +98,7 @@ If `iterator` is a `Str`, `Array` or `Vector` it is automatically casted to an
 Returns all the keys in a map, the order is not the one in which you put the
 objects in.
 
-```text
+```nest
 |#| 'stditutil.nest' = itu
 
 { 'key_1': 1, 'key_2': 2 } @itu.keys --> 'key_1', 'key_2'
@@ -110,7 +110,7 @@ objects in.
 Returns all the values in a map, the order is not the one in which you put the
 objects in.
 
-```text
+```nest
 |#| 'stditutil.nest' = itu
 
 { 'key_1': 1, 'key_2': 2 } @itu.values --> 1, 2
@@ -122,7 +122,7 @@ objects in.
 Returns all the key-value pairs in a map, the order is not the one in which you
 put the objects in.
 
-```text
+```nest
 |#| 'stditutil.nest' = itu
 
 { 'key_1': 1, 'key_2': 2 } @itu.items --> { 'key_1', 1 }, { 'key_2', 2 }
@@ -133,7 +133,7 @@ put the objects in.
 
 Returns the elements of a sequence in reverse order, from the last to the first.
 
-```text
+```nest
 |#| 'stditutil.nest' = itu
 
 'Hi!' @itu.reverse --> '!', 'i', 'H'

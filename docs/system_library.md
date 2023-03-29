@@ -2,7 +2,7 @@
 
 ## Importing
 
-```text
+```nest
 |#| 'stdsys.nest' = sys
 
 -- To access _raw_exit_ use the following

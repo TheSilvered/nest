@@ -2,7 +2,7 @@
 
 ## Importing
 
-```text
+```nest
 |#| 'stderr.nest' = err
 ```
 

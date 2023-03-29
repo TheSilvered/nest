@@ -2,7 +2,7 @@
 
 ## Importing
 
-```text
+```nest
 |#| 'stdio.nest' = io
 ```
 
@@ -51,7 +51,7 @@ operation with it.
 Writes to a file opened in `w`, `a`, `r+`, `w+` or `a+`. `content` is casted
 to a string before being written.
 
-```text
+```nest
 |#| 'stdio.nest' = io
 
 'a.txt' 'w' @io.open = f
@@ -109,7 +109,7 @@ be read and `-` otherwise, the second one is `w` if the file can be written and
 `-` otherwise and the last one `b` if the file is opened in binary mode and
 `-` if it is opened normally.
 
-```text
+```nest
 |#| 'stdio.nest' = io
 
 'a.txt' 'w' @io.open = f1

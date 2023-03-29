@@ -2,7 +2,7 @@
 
 ## Importing
 
-```text
+```nest
 |#| 'stdco.nest' = co
 ```
 
@@ -12,7 +12,7 @@
 
 Creates a `Coroutine` object from `function`.
 
-```text
+```nest
 |#| 'stdco.nest' = co
 
 #f self [
@@ -30,7 +30,7 @@ Calls the function of `co` with `args`. If the coroutine is paused, the
 arguments are completely ignored and if it is running, the function throws an
 error.
 
-```text
+```nest
 { f_co } f_co @co.call --> 'Hello,'
 <{}> f_co @co.call --> ' world!\n'
 ```
@@ -40,7 +40,7 @@ error.
 Pauses `co` which must be the top function on the call stack and must have been
 called with `call`, and returns `return_value`
 
-```text
+```nest
 |#| 'stdco.nest' = co
 
 #print_state coroutine [
@@ -68,7 +68,7 @@ Returns the current state of the coroutine.
 To get the name of the state use the [`STR_STATE`](#str_state) map.  
 To check the state use the [`STATE`](#state) map.
 
-```text
+```nest
 |#| 'stdco.nest`
 
 -/ Prints the current state of a given coroutine /-
@@ -93,7 +93,7 @@ new value is yielded by the iterator. The return value is ignored.
 The function of the coroutine must take exactly one argument that is the
 coroutine itself.
 
-```text
+```nest
 |#| 'stdco.nest' = co
 
 #f self [
@@ -111,7 +111,7 @@ f @co.create = f_co
 
 this program outputs:
 
-```text
+```nest
 1
 2
 3
