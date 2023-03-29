@@ -460,16 +460,11 @@ the last one the message that is printed along with the error.
 
 Here is what would be printed when using this operator in `example.nest`.
 
-This is the file:
-
-```text
--- file example.nest
+```text title="example.nest"
 'This Is The Name' !! 'this is the message'
 ```
 
-This is the output of the program:
-
-```text
+```text title="Output"
 > nest example.nest
 
 File "example.nest" at line 2:
