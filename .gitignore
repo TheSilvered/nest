@@ -457,6 +457,9 @@ linux_debug/
 linux_libs/
 linux_archives/
 
+#MkDocs build
+site/
+
 # Test output
 tests/test_output.txt
 
