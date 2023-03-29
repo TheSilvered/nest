@@ -80,7 +80,7 @@ Returns the options set with `set_options`.
     >>> 'Trailing commas are allowed\n'
 ```
 
-## CONSTANTS
+## Constants
 
 ### `OPTIONS`
 
