@@ -2,3 +2,29 @@ site_name: Nest Docs
 theme:
   name: material
   highlightjs: true
+markdown_extensions:
+  - pymdownx.highlight:
+      anchor_linenums: true
+      line_spans: __span
+      pygments_lang_class: true
+  - pymdownx.inlinehilite
+  - pymdownx.snippets
+  - pymdownx.superfences
+nav:
+  - Introduction: index.md
+  - General syntax: syntax.md
+  - Built-in libraries:
+    - Coroutine Library: coroutine_library.md
+    - Error library: error_library.md
+    - Filesystem library: filesystem_library.md
+    - Input-output library: io_library.md
+    - Iterator utilities library: iterator_utilities_library.md
+    - JSON library: json_library.md
+    - Math library: math_library.md
+    - Random library: random_library.md
+    - Sequence utilities library: sequence_utilities_library.md
+    - String utilities library: string_utilities_library.md
+    - System library: system_library.md
+    - Time and date library: time_library.md
+    - UTF-8 library: utf8_library.md
+  - C ABI: c_abi.md
