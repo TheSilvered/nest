@@ -6,9 +6,8 @@ theme:
     - content.code.copy
 markdown_extensions:
   - pymdownx.highlight:
-      anchor_linenums: true
-      line_spans: __span
-      use_pygments: true
+      linenums: true
+      use_pygments: false
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
@@ -37,3 +36,5 @@ extra_javascript:
   - js/highlight.js
 extra_css:
   - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/atom-one-light.min.css
+  - https://fonts.googleapis.com/css?family=Fira Code
+  - css/font.css

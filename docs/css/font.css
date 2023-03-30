@@ -1,0 +1,7 @@
+.hljs {
+    font-family: 'Fira Code';
+    font-feature-settings: "liga" 1;
+}
+.hljs-params {
+    color: #36464e;
+}

@@ -466,11 +466,13 @@ the last one the message that is printed along with the error.
 
 Here is what would be printed when using this operator in `example.nest`.
 
-```nest title="example.nest"
+```nest
 'This Is The Name' !! 'this is the message'
 ```
 
-```nest title="Output"
+Output:
+
+```nest
 > nest example.nest
 
 File "example.nest" at line 2:

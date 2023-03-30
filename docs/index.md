@@ -3,9 +3,9 @@
 ## What is Nest and the philosophy behind it
 Nest is a silly programming language, mostly for the syntax. It is a project of mine to experiment with the concept of using exclusively punctuation to code, removing all those keywords that make it apparently legible. This is why Nest code looks incredibly cryptic at first, but with a trained eye, I believe that the programming experience is not that different from the one you would have with any other language such as Python.
 
-For example let's look at this program:
+For example let's look at examples/truth_machine.nest:
 
-```nest title="examples/truth_machine.nest" linenums="1"
+```nest
 -- Assuming the input is either 1 or 0, if the input is 0, stop the program,
 -- if the input is one, print '1' indefinitely
 <<<'' '1' == ? ?.. >>> 1 []
@@ -13,7 +13,7 @@ For example let's look at this program:
 
 This is certainly quite poorly formatted and hard to read to first things firts let's make it more legible:
 
-```nest linenums="1"
+```nest
 <<<'' '1' == ? [
     ?.. >>> 1 [
     ]
@@ -22,7 +22,7 @@ This is certainly quite poorly formatted and hard to read to first things firts 
 
 OK, now it is a little more clear and you can probably already understand which is the if statement (or actually expression) and which is the while loop, but if it is not obvious, using some variables should help.
 
-```nest linenums="1"
+```nest
 <<<'' = user_input
 user_input '1' == ? [
     ?.. true [

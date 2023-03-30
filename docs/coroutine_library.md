@@ -69,7 +69,7 @@ To get the name of the state use the [`STR_STATE`](#str_state) map.
 To check the state use the [`STATE`](#state) map.
 
 ```nest
-|#| 'stdco.nest`
+|#| 'stdco.nest'
 
 -/ Prints the current state of a given coroutine /-
 #print_state coroutine [
