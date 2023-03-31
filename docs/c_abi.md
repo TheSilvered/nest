@@ -31,20 +31,20 @@ function: `nst_map_get(map, key)`.
 Instead of using standard C types, the file `typedefs.h` defines some clearer
 types inspired by Rust:
 
-| Type name | C Equivalent           |
-| --------- | ---------------------- |
-| i8        | char                   |
-| u8        | unsigned char          |
-| i16       | short                  |
-| u16       | unsigned short         |
-| i32       | long int               |
-| u32       | unsigend long int      |
-| i64       | long long int          |
-| i64       | unsigned long long int |
-| f32       | float                  |
-| f64       | double                 |
-| usize     | size_t                 |
-| isize     | ptrdiff_t              |
+| Type name | C Equivalent         |
+| --------- | -------------------- |
+| `i8`      | `char`               |
+| `u8`      | `unsigned char`      |
+| `i16`     | `short`              |
+| `u16`     | `unsigned short`     |
+| `i32`     | `long`               |
+| `u32`     | `unsigend long`      |
+| `i64`     | `long long`          |
+| `i64`     | `unsigned long long` |
+| `f32`     | `float`              |
+| `f64`     | `double`             |
+| `usize`   | `size_t`             |
+| `isize`   | `ptrdiff_t`          |
 
 
 ## `argv_parser.h`

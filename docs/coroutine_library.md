@@ -8,37 +8,130 @@
 
 ## Functions
 
-### `[function: Func] @create`
+### `@create`
+
+**Synopsis**:
+
+`[function: Func] @create -> Coroutine`
+
+**Description**:
 
 Creates a `Coroutine` object from `function`.
+
+**Arguments**:
+
+- `function`: the function to turn into a coroutine, it must be written in Nest
+
+**Return value**:
+
+The function returns a `Coroutine` object or throws an error if the given
+function was written in C or C++.
+
+**Example**:
 
 ```nest
 |#| 'stdco.nest' = co
 
-#f self [
+#func [
     >>> 'Hello,'
-    self null @co.pause
+    null @co.pause
     >>> ' world!\n'
 ]
 
-f @co.create = f_co
+func @co.create = func_co
 ```
 
-### `[args: Array|Vector, co: Coroutine] @call`
+### `@call`
 
-Calls the function of `co` with `args`. If the coroutine is paused, the
-arguments are completely ignored and if it is running, the function throws an
-error.
+**Synopsis**:
+
+`[args: Array|Vector|null, co: Coroutine] @call -> Any`
+
+**Description**:
+Calls the coroutine passing the arguments given. If the coroutine is paused the
+arguments are ignored, if it is suspended or has ended the arguments are
+required. If the coroutine is running an error is thrown since coroutines cannot
+be recursive.
+
+**Arguments**:
+
+- `args`: the arguments passed to the function of the coroutine, this argument
+  is ignored if it is paused
+- `co`: the coroutine to be called
+
+**Return value**:
+
+The function returns either the value passed to `pause` when the coroutine was
+paused or the value that was returned by the function.
+
+**Example**:
 
 ```nest
-{ f_co } f_co @co.call --> 'Hello,'
-<{}> f_co @co.call --> ' world!\n'
+|#| 'stdco.nest' = co
+
+## [
+    1 @co.pause
+    => 2
+] @co.create = my_corotuine
+
+>>> ({,} my_coroutine @co.call '\n' ><) --> 1
+>>> (null my_coroutine @co.call '\n' ><) --> 2
 ```
 
-### `[co: Coroutine, return_value: Any] @pause`
+### `@pause`
 
-Pauses `co` which must be the top function on the call stack and must have been
-called with `call`, and returns `return_value`
+**Synopsis**:
+
+`[return_value: Any] @pause -> null`
+
+**Description**:
+
+Pauses the current coroutine and makes it return `return_value`. If the
+coroutine was not called with `call` or if it is used outside of a coroutine an
+error is thrown.
+
+**Arguments**:
+
+- `return_value`: the value that is returned by `call` when the coroutine pauses.
+
+**Example**:
+
+```nest
+|#| 'stdco.nest' = co
+
+#func [
+    >>> 'Hello,'
+    10 @co.pause
+    >>> ' world!\n'
+]
+func @co.create = func_co
+
+{,} func_co @co.call = value_returned --> Hello,
+null func_co @co.call --> world!
+>>> (value_returned '\n' ><) --> 10
+```
+
+### `@get_state`
+
+**Synopsis**:
+
+`[co: Coroutine] @get_state -> Int`
+
+**Description**:
+
+Returns the current state of the coroutine, either suspended, running, paused or
+ended. To get the state as a string use the return value of this function to
+index the [STR_STATE](#str_state) map
+
+**Arguments**:
+
+- `co`: the coroutine to get the state of
+
+**Return value**:
+
+The ID of the current state of the coroutine. This function does throw any errors.
+
+**Example**:
 
 ```nest
 |#| 'stdco.nest' = co
@@ -58,48 +151,40 @@ f @co.create = f_co
 f_co @print_state --> suspended
 { f_co } f_co @co.call
 f_co @print_state --> paused
-<{}> f_co @co.call
+null f_co @co.call
 f_co @print_state --> ended
 ```
 
-### `[co: Coroutine] @get_state`
+### `@generator`
 
-Returns the current state of the coroutine.  
-To get the name of the state use the [`STR_STATE`](#str_state) map.  
-To check the state use the [`STATE`](#state) map.
+**Synopsis**:
 
-```nest
-|#| 'stdco.nest'
+`[co: Coroutine] @generator -> Iter`
 
--/ Prints the current state of a given coroutine /-
-#print_state coroutine [
-    coroutine @co.get_state = co_state
-    co.STR_STATE.(co_state) = state_name
-    >>> (state_name '\n' ><)
-]
+**Description**:
 
--/ Checks if the coroutine has ended /-
-#has_ended coroutine [
-    coroutine @co.get_state = co_state
-    => co.STATE.ended co_state ==
-]
-```
-
-### `[co: Coroutine] @generator`
-
-Creates an `Iter` object given a coroutine and each time `pause` is called, a
-new value is yielded by the iterator. The return value is ignored.
+Creates an `Iter` object given a coroutine and each time `pause` is called, the
+return value is yielded by the iterator. The return value of the function is
+ignored.
 
 The function of the coroutine must take exactly one argument that is the
 coroutine itself.
+
+**Arguments**:
+
+- `co`: the coroutine to turn into an iterator
+
+**Return value**:
+
+The function returns the iterator created from the coroutine.
 
 ```nest
 |#| 'stdco.nest' = co
 
 #f self [
-    self 1 @co.pause
-    self 2 @co.pause
-    self 3 @co.pause
+    1 @co.pause
+    2 @co.pause
+    3 @co.pause
 ]
 
 f @co.create = f_co

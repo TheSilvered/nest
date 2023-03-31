@@ -373,9 +373,9 @@ NST_FUNC_SIGN(pause_)
     NST_DEF_EXTRACT("o", &return_value);
     Nst_ExecutionState *state = nst_get_state();
     Nst_FuncCall call = nst_fstack_peek(state->f_stack);
-    
+
     CoroutineObj *co = co_c_stack_peek();
-    
+
     if ( co == nullptr || call.func != co->func )
     {
         NST_SET_RAW_CALL_ERROR(

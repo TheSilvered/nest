@@ -14,6 +14,8 @@ A programming language with no keywords.
 - Has hash maps, vectors and arrays built in
 - Can be expanded with C/C++
 - Aimed at being consistent within its design
+- the standard library includes coroutines, a JSON parser and various other
+  helper functions
 
 **This programming laguage is still in early development and is heavely unstable.
 The beta versions are not properly tested and might crash unexpectedly.**

@@ -37,4 +37,4 @@ extra_javascript:
 extra_css:
   - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/atom-one-light.min.css
   - https://fonts.googleapis.com/css?family=Fira Code
-  - css/font.css
+  - css/styles.css

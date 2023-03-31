@@ -1,0 +1,16 @@
+.hljs {
+    font-family: 'Fira Code';
+    font-feature-settings: "liga" 1;
+}
+.hljs-params {
+    color: #36464e;
+}
+
+td {
+    padding: 0.3em 1.25em !important;
+}
+
+.md-nav {
+    font-family: 'Fira Code';
+    font-feature-settings: "liga" 1;
+}

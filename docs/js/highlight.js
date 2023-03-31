@@ -53,11 +53,13 @@ hljs.registerLanguage("nest", hljs => {
   const func_call = {
     className: "keyword",
     begin: "@|@@",
-    end: '\\s',
+    end: "[^A-Za-z0-9_.]",
+    excludeEnd: !0,
     relevance: 10,
     contains: [{
       begin: "[A-Za-z_]\\w*",
-      end: "\\.|\\s",
+      end: "\\.|\\s|[^A-Za-z0-9_]",
+      excludeEnd: !0,
       className: "title"
     }]
   };
