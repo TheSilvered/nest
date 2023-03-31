@@ -45,7 +45,7 @@ func @co.create = func_co
 
 **Synopsis**:
 
-`[args: Array|Vector|null, co: Coroutine] @call -> Any`
+`[co: Coroutine, args: Array|Vector|null] @call -> Any`
 
 **Description**:
 Calls the coroutine passing the arguments given. If the coroutine is paused the
@@ -55,9 +55,9 @@ be recursive.
 
 **Arguments**:
 
+- `co`: the coroutine to be called
 - `args`: the arguments passed to the function of the coroutine, this argument
   is ignored if it is paused
-- `co`: the coroutine to be called
 
 **Return value**:
 
@@ -74,8 +74,8 @@ paused or the value that was returned by the function.
     => 2
 ] @co.create = my_corotuine
 
->>> ({,} my_coroutine @co.call '\n' ><) --> 1
->>> (null my_coroutine @co.call '\n' ><) --> 2
+>>> (my_coroutine {,} @co.call '\n' ><) --> 1
+>>> (my_coroutine @co.call '\n' ><) --> 2
 ```
 
 ### `@pause`
@@ -106,8 +106,8 @@ error is thrown.
 ]
 func @co.create = func_co
 
-{,} func_co @co.call = value_returned --> Hello,
-null func_co @co.call --> world!
+func_co {,} @co.call = value_returned --> Hello,
+func_co @co.call --> world!
 >>> (value_returned '\n' ><) --> 10
 ```
 
@@ -142,16 +142,16 @@ The ID of the current state of the coroutine. This function does throw any error
 
 #f self [
     self @print_state --> running
-    self null @co.pause
+    @co.pause
     self @print_state --> running
 ]
 
 f @co.create = f_co
 
 f_co @print_state --> suspended
-{ f_co } f_co @co.call
+f_co { f_co } @co.call
 f_co @print_state --> paused
-null f_co @co.call
+f_co @co.call
 f_co @print_state --> ended
 ```
 

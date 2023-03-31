@@ -94,7 +94,7 @@ static CoroutineObj *co_c_stack_peek()
 static NST_FUNC_SIGN(generator_start)
 {
     Nst_Obj **objs = SEQ(args[0])->objs;
-    CoroutineObj *co = (CoroutineObj *)(objs[1]);
+    CoroutineObj *co = (CoroutineObj *)(objs[0]);
 
     if ( NST_FLAG_HAS(co, FLAG_CO_PAUSED) )
     {
@@ -141,7 +141,7 @@ static NST_FUNC_SIGN(generator_get_val)
 {
     Nst_Obj *return_ob = nst_inc_ref(SEQ(args[0])->objs[2]);
 
-    CoroutineObj *co = (CoroutineObj *)(SEQ(args[0])->objs[1]);
+    CoroutineObj *co = (CoroutineObj *)(SEQ(args[0])->objs[0]);
     Nst_Obj *obj = call_(2, SEQ(args[0])->objs, err);
 
     if ( obj == nullptr )
@@ -275,10 +275,10 @@ NST_FUNC_SIGN(create_)
 
 NST_FUNC_SIGN(call_)
 {
-    Nst_Obj *co_args;
     CoroutineObj *co;
+    Nst_Obj *co_args;
 
-    NST_DEF_EXTRACT("?A#", &co_args, t_Coroutine, &co);
+    NST_DEF_EXTRACT("#?A", t_Coroutine, &co, &co_args);
 
     if ( co_args == nst_null() )
     {
@@ -459,12 +459,12 @@ NST_FUNC_SIGN(generator_)
 
     // layout co_args, co, obj, is_done
     Nst_SeqObj *arr = SEQ(nst_array_new(4, err));
-    arr->objs[0] = nst_array_new(1, err);
-    arr->objs[1] = nst_inc_ref(co);
+    arr->objs[0] = nst_inc_ref(co);
+    arr->objs[1] = nst_array_new(1, err);
     arr->objs[2] = nst_inc_ref(nst_null());
     arr->objs[3] = nst_inc_ref(nst_false());
 
-    SEQ(arr->objs[0])->objs[0] = nst_inc_ref(co);
+    SEQ(arr->objs[1])->objs[0] = nst_inc_ref(co);
 
     return nst_iter_new(
         FUNC(nst_func_new_c(1, generator_start, err)),

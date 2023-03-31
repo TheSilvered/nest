@@ -8,9 +8,23 @@
 
 ## Functions
 
-### `[func: Func, args: Array|Vector] @try`
+### `@try`
 
-Calls `func` passing `args` as the arguments.
+**Synopsis**:
+
+`[func: Func, args: Array|Vector] @try -> Map`
+
+**Description**:
+
+Calls `func` passing `args` as the arguments and catching any erros that occur.
+
+**Arguments**:
+
+- `func`: the function to be called
+- `args`: the arguments to be passed to the function
+
+**Return value**:
+
 It returns a map containing `value`, `error` and `traceback`.
 `value` is the value returned by the function or `null` if an error occurred.
 `error` is `null` if everything was successful otherwise it is a map containing
@@ -24,8 +38,43 @@ A position is a map that contains 3 keys:
   second being the column of the start of the interested expression
 - `end` is also an array with the line and column of the end of the expression
 
-> Note that the lines start from 0 and the columns from 1 and the end position
-> is inclusive.
+!!!note
+  the lines start from 0 and the columns from 1 and the end position is inclusive.
+
+**Example**:
+
+The file `example.nest` contains this code:
+```nest
+|#| 'stderr.nest' = err
+
+#f ["Random Error" !! "hello this is a message"]
+#g [@f]
+>>> (g {,} @err.try)
+```
+
+The formatted output looks like this:
+
+```nest
+{
+    'value': null,
+    'error': {
+        'name': 'Random Error',
+        'message': 'hello this is a message',
+        'pos': {
+            'file': 'example.nest',
+            'start': { 2, 4 },
+            'end': { 2, 46 }
+        }
+    },
+    'traceback': {
+        {
+            'file': 'example.nest',
+            'start': { 3, 4 },
+            'end': { 3, 5 }
+        }
+    }
+}
+```
 
 ## Constants
 
