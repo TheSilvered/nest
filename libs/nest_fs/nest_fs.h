@@ -27,7 +27,7 @@ NST_FUNC_SIGN(canonical_path_);
 NST_FUNC_SIGN(relative_path_);
 NST_FUNC_SIGN(equivalent_);
 NST_FUNC_SIGN(join_);
-NST_FUNC_SIGN(path_);
+NST_FUNC_SIGN(parent_path_);
 NST_FUNC_SIGN(filename_);
 NST_FUNC_SIGN(extension_);
 NST_FUNC_SIGN(_get_copy_options_);

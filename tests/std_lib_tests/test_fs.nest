@@ -57,6 +57,6 @@ sys.PLATFORM 'windows' == ? [
 'dir/stdfs_file' @fs.remove_file
 'dir' @fs.remove_dir
 'dir_1' @fs.remove_dirs
-'dir/subdir/file.txt' @fs.path 'dir/subdir' @test.assert_eq
+'dir/subdir/file.txt' @fs.parent_path 'dir/subdir' @test.assert_eq
 'dir/subdir/file.txt' @fs.filename 'file.txt' @test.assert_eq
 'dir/subdir/file.txt' @fs.extension '.txt' @test.assert_eq

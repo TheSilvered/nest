@@ -77,7 +77,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(relative_path_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(equivalent_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(join_, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(path_, 1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(parent_path_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(filename_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(extension_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_copy_options_, 0);
@@ -537,7 +537,7 @@ NST_FUNC_SIGN(join_)
     return nst_string_new(new_str, new_len, true, err);
 }
 
-NST_FUNC_SIGN(path_)
+NST_FUNC_SIGN(parent_path_)
 {
     Nst_StrObj *path;
 

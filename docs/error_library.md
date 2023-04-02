@@ -76,31 +76,45 @@ The formatted output looks like this:
 }
 ```
 
+---
+
 ## Constants
 
 ### `SYNTAX_ERROR`
 
 This is the string used by Nest when throwing syntax errors.
 
+---
+
 ### `VALUE_ERROR`
 
 This is the string used by Nest when throwing value errors.
+
+---
 
 ### `TYPE_ERROR`
 
 This is the string used by Nest when throwing type errors.
 
+---
+
 ### `CALL_ERROR`
 
 This is the string used by Nest when throwing call errors.
+
+---
 
 ### `MEMORY_ERROR`
 
 This is the string used by Nest when throwing memory errors.
 
+---
+
 ### `MATH_ERROR`
 
 This is the string used by Nest when throwing math errors.
+
+---
 
 ### `IMPORT_ERROR`
 

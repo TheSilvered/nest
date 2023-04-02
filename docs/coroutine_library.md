@@ -41,6 +41,8 @@ function was written in C or C++.
 func @co.create = func_co
 ```
 
+---
+
 ### `@call`
 
 **Synopsis**:
@@ -78,6 +80,8 @@ paused or the value that was returned by the function.
 >>> (my_coroutine @co.call '\n' ><) --> 2
 ```
 
+---
+
 ### `@pause`
 
 **Synopsis**:
@@ -110,6 +114,8 @@ func_co {,} @co.call = value_returned --> Hello,
 func_co @co.call --> world!
 >>> (value_returned '\n' ><) --> 10
 ```
+
+---
 
 ### `@get_state`
 
@@ -154,6 +160,8 @@ f_co @print_state --> paused
 f_co @co.call
 f_co @print_state --> ended
 ```
+
+---
 
 ### `@generator`
 
@@ -202,11 +210,15 @@ this program outputs:
 3
 ```
 
+---
+
 ## Constants
 
 ### `Coroutine`
 
 The coroutine type.
+
+---
 
 ### `STATE`
 
@@ -218,6 +230,8 @@ The possible states of a coroutine.
 | `running`   | the coroutine is running                                 |
 | `paused`    | the coroutine was paused                                 |
 | `ended`     | the coroutine ended either with an error or successfully |
+
+---
 
 ### `STR_STATE`
 
