@@ -101,9 +101,8 @@ NST_FUNC_SIGN(insert_at_)
 
     if ( new_idx < 0 || new_idx >= (Nst_Int)vect->len )
     {
-        NST_SET_VALUE_ERROR(nst_format_error(
+        NST_SET_VALUE_ERROR(nst_sprintf(
             _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
-            "iu",
             idx,
             vect->len));
 
@@ -139,9 +138,8 @@ NST_FUNC_SIGN(remove_at_)
 
     if ( new_idx < 0 || new_idx >= (Nst_Int)vect->len )
     {
-        NST_SET_VALUE_ERROR(nst_format_error(
+        NST_SET_VALUE_ERROR(nst_sprintf(
             _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
-            "iu",
             idx,
             vect->len));
 
@@ -552,9 +550,8 @@ NST_FUNC_SIGN(contains_)
     }
     else
     {
-        NST_SET_TYPE_ERROR(nst_format_error(
+        NST_SET_TYPE_ERROR(nst_sprintf(
             _NST_EM_WRONG_TYPE_FOR_ARG("Array', 'Vector', 'Map' or 'Str"),
-            "us",
             1, TYPE_NAME(container)));
         return nullptr;
     }

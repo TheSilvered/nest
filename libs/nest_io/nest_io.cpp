@@ -262,7 +262,8 @@ NST_FUNC_SIGN(open_)
     Nst_IOFile file_ptr = fopen(file_name, file_mode);
     if ( file_ptr == nullptr )
     {
-        NST_RETURN_NULL;
+        NST_SET_VALUE_ERROR(nst_sprintf("file '%s' not found", file_name));
+        return nullptr;
     }
 
     return nst_iof_new(file_ptr, is_bin, can_read, can_write, nullptr);

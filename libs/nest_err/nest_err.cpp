@@ -163,9 +163,8 @@ NST_FUNC_SIGN(try_)
 
     if ( func_args->len != func->arg_num )
     {
-        NST_SET_CALL_ERROR(nst_format_error(
+        NST_SET_CALL_ERROR(nst_sprintf(
             "the function expected %zi arguments but the %s had length %zi",
-            "usu",
             func->arg_num, TYPE_NAME(func_args), func_args->len));
 
         return nullptr;

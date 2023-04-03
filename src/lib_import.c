@@ -4,11 +4,11 @@
 #include "lib_import.h"
 #include "iter.h"
 #include "obj_ops.h"
+#include "format.h"
 
 #define SET_TYPE_ERROR(type) { \
-    NST_SET_TYPE_ERROR(nst_format_error( \
+    NST_SET_TYPE_ERROR(nst_sprintf( \
         _NST_EM_WRONG_TYPE_FOR_ARG(type), \
-        "us", \
         idx + 1, TYPE_NAME(ob))); \
     return false; }
 
@@ -335,9 +335,8 @@ bool nst_extract_arg_values(const i8  *types,
             }
             else
             {
-                NST_SET_TYPE_ERROR(nst_format_error(
+                NST_SET_TYPE_ERROR(nst_sprintf(
                     _NST_EM_WRONG_TYPE_FOR_ARG2,
-                    "sus",
                     custom_type->value, arg_idx + 1, TYPE_NAME(ob)));
                 succeded = false;
                 goto end;

@@ -9,6 +9,7 @@
 #include "optimizer.h"
 #include "parser.h"
 #include "lexer.h"
+#include "format.h"
 
 #ifdef WINDOWS
 
@@ -913,8 +914,8 @@ static inline void exe_type_check(Nst_Inst *inst)
             GLOBAL_ERROR,
             inst->start,
             inst->end,
-            nst_format_error(
-                _NST_EM_EXPECTED_TYPES, "ss",
+            nst_sprintf(
+                _NST_EM_EXPECTED_TYPES,
                 STR(inst->val)->value,
                 TYPE_NAME(obj)));
     }
@@ -931,7 +932,7 @@ static inline void exe_hash_check(Nst_Inst *inst)
             GLOBAL_ERROR,
             inst->start,
             inst->end,
-            nst_format_error(_NST_EM_UNHASHABLE_TYPE, "s", TYPE_NAME(obj)));
+            nst_sprintf(_NST_EM_UNHASHABLE_TYPE, TYPE_NAME(obj)));
     }
 }
 
@@ -983,9 +984,8 @@ static inline void exe_set_cont_val(Nst_Inst *inst)
                 GLOBAL_ERROR,
                 inst->start,
                 inst->end,
-                nst_format_error(
+                nst_sprintf(
                     _NST_EM_EXPECTED_TYPE("Int"),
-                    "s",
                     TYPE_NAME(idx)));
 
             nst_dec_ref(cont);
@@ -1002,11 +1002,10 @@ static inline void exe_set_cont_val(Nst_Inst *inst)
                 GLOBAL_ERROR,
                 inst->start,
                 inst->end,
-                nst_format_error(
+                nst_sprintf(
                     cont->type == nst_t.Array ?
                         _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
                       : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
-                    "iu",
                     AS_INT(idx),
                     SEQ(cont)->len));
         }
@@ -1032,9 +1031,8 @@ static inline void exe_set_cont_val(Nst_Inst *inst)
                 GLOBAL_ERROR,
                 inst->start,
                 inst->end,
-                nst_format_error(
+                nst_sprintf(
                     _NST_EM_UNHASHABLE_TYPE,
-                    "s",
                     TYPE_NAME(idx)));
         }
 
@@ -1048,9 +1046,8 @@ static inline void exe_set_cont_val(Nst_Inst *inst)
             GLOBAL_ERROR,
             inst->start,
             inst->end,
-            nst_format_error(
+            nst_sprintf(
                 _NST_EM_EXPECTED_TYPE("Array', 'Vector', or 'Map"),
-                "s",
                 TYPE_NAME(cont)));
         nst_dec_ref(cont);
         nst_dec_ref(idx);
@@ -1083,9 +1080,8 @@ static inline void exe_op_call(Nst_Inst *inst)
                 GLOBAL_ERROR,
                 inst->start,
                 inst->end,
-                nst_format_error(
+                nst_sprintf(
                     _NST_EM_EXPECTED_TYPE("Array' or 'Vector"),
-                    "s",
                     TYPE_NAME(args_seq)));
 
             nst_dec_ref(args_seq);
@@ -1106,8 +1102,8 @@ static inline void exe_op_call(Nst_Inst *inst)
             GLOBAL_ERROR,
             inst->start,
             inst->end,
-            nst_format_error(
-                _NST_EM_WRONG_ARG_NUM, "usis",
+            nst_sprintf(
+                _NST_EM_WRONG_ARG_NUM,
                 func->arg_num, func->arg_num == 1 ? "" : "s",
                 arg_num, arg_num == 1 ? "was" : "were"));
 
@@ -1494,9 +1490,8 @@ static inline void exe_op_extract(Nst_Inst *inst)
                 GLOBAL_ERROR,
                 inst->start,
                 inst->end,
-                nst_format_error(
+                nst_sprintf(
                     _NST_EM_EXPECTED_TYPE("Int"),
-                    "s",
                     TYPE_NAME(idx)));
 
             nst_dec_ref(cont);
@@ -1512,11 +1507,10 @@ static inline void exe_op_extract(Nst_Inst *inst)
                 GLOBAL_ERROR,
                 inst->start,
                 inst->end,
-                nst_format_error(
+                nst_sprintf(
                     cont->type == nst_t.Array ?
                         _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
                       : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
-                    "iu",
                     AS_INT(idx),
                     SEQ(cont)->len));
 
@@ -1543,9 +1537,8 @@ static inline void exe_op_extract(Nst_Inst *inst)
                     GLOBAL_ERROR,
                     inst->start,
                     inst->start,
-                    nst_format_error(
+                    nst_sprintf(
                         _NST_EM_UNHASHABLE_TYPE,
-                        "s",
                         TYPE_NAME(idx)));
             }
 
@@ -1566,9 +1559,8 @@ static inline void exe_op_extract(Nst_Inst *inst)
                 GLOBAL_ERROR,
                 inst->start,
                 inst->end,
-                nst_format_error(
+                nst_sprintf(
                     _NST_EM_EXPECTED_TYPE("Int"),
-                    "s",
                     TYPE_NAME(idx)));
 
             nst_dec_ref(cont);
@@ -1584,9 +1576,8 @@ static inline void exe_op_extract(Nst_Inst *inst)
                 GLOBAL_ERROR,
                 inst->start,
                 inst->end,
-                nst_format_error(
+                nst_sprintf(
                     _NST_EM_INDEX_OUT_OF_BOUNDS("Str"),
-                    "iu",
                     AS_INT(idx),
                     STR(cont)->len));
 
@@ -1605,9 +1596,8 @@ static inline void exe_op_extract(Nst_Inst *inst)
             GLOBAL_ERROR,
             inst->start,
             inst->end,
-            nst_format_error(
+            nst_sprintf(
                 _NST_EM_EXPECTED_TYPE("Array', 'Vector', 'Map' or 'Str"),
-                "s",
                 TYPE_NAME(cont)));
 
         nst_dec_ref(idx);
@@ -1799,9 +1789,9 @@ static inline void exe_unpack_seq(Nst_Inst* inst)
             GLOBAL_ERROR,
             inst->start,
             inst->end,
-            nst_format_error(
+            nst_sprintf(
                 _NST_EM_EXPECTED_TYPE("Array' or 'Vector"),
-                "s", TYPE_NAME(seq)));
+                TYPE_NAME(seq)));
         nst_dec_ref(seq);
         return;
     }
@@ -1812,9 +1802,9 @@ static inline void exe_unpack_seq(Nst_Inst* inst)
             GLOBAL_ERROR,
             inst->start,
             inst->end,
-            nst_format_error(
+            nst_sprintf(
                 _NST_EM_WRONG_UNPACK_LENGTH,
-                "iu", inst->int_val, seq->len));
+                inst->int_val, seq->len));
         nst_dec_ref(seq);
         return;
     }

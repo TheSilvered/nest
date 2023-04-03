@@ -447,59 +447,6 @@ void nst_print_traceback(Nst_Traceback tb)
     nst_dec_ref(err_stream);
 }
 
-Nst_StrObj *nst_format_error(const i8 *format, const i8 *format_args, ...)
-{
-    /*
-    Format args types:
-        s: i8 *
-        u: usize
-        i: i64
-    */
-
-    va_list args;
-    va_start(args, format_args);
-
-    usize tot_size = strlen(format);
-    i8 *arg_ptr = (i8 *)format_args;
-    while ( *arg_ptr )
-    {
-        switch ( *arg_ptr )
-        {
-        case 's':
-            tot_size += strlen(va_arg(args, i8 *));
-            break;
-        case 'u':
-            va_arg(args, usize);
-            tot_size += INT_CH_COUNT;
-            break;
-        case 'i':
-            va_arg(args, Nst_Int);
-            tot_size += INT_CH_COUNT;
-            break;
-        default:
-            break;
-        }
-        ++arg_ptr;
-    }
-
-    i8 *buffer = (i8 *)nst_calloc(tot_size + 1, sizeof(i8), NULL, NULL);
-    if ( buffer == NULL )
-    {
-        return STR(nst_inc_ref(nst_s.o_failed_alloc));
-    }
-
-    va_start(args, format_args);
-    vsprintf(buffer, format, args);
-    va_end(args);
-    Nst_Obj *str = nst_string_new_c_raw((const i8 *)buffer, true, NULL);
-    if ( str == NULL )
-    {
-        nst_free(buffer);
-        return STR(nst_inc_ref(nst_s.o_failed_alloc));
-    }
-    return STR(str);
-}
-
 void nst_free_src_text(Nst_SourceText *text)
 {
     if ( text == NULL )

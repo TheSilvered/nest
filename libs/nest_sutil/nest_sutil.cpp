@@ -757,9 +757,8 @@ NST_FUNC_SIGN(bytearray_to_str_)
     {
         if ( objs[i]->type != nst_type()->Byte )
         {
-            NST_SET_TYPE_ERROR(nst_format_error(
+            NST_SET_TYPE_ERROR(nst_sprintf(
                 "expected only type 'Byte', got type '%s' instead",
-                "s",
                 TYPE_NAME(objs[i])));
             nst_free(new_str);
             return nullptr;

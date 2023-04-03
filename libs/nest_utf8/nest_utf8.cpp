@@ -57,9 +57,8 @@ NST_FUNC_SIGN(utf8_iter_get_val)
 
     if ( (usize)val >= s_len )
     {
-        NST_SET_VALUE_ERROR(nst_format_error(
-            _NST_EM_INDEX_OUT_OF_BOUNDS("Str"),
-            "iu",
+        NST_SET_VALUE_ERROR(nst_sprintf(
+            _NST_EM_INDEX_OUT_OF_BOUNDS("Str (Unicode)"),
             val, s_len));
     }
     i32 res = nst_check_utf8_bytes(
@@ -149,9 +148,8 @@ NST_FUNC_SIGN(get_at_)
 
     if ( curr_idx < idx || i == s_len )
     {
-        NST_SET_VALUE_ERROR(nst_format_error(
+        NST_SET_VALUE_ERROR(nst_sprintf(
             _NST_EM_INDEX_OUT_OF_BOUNDS("Str (Unicode)"),
-            "iu",
             idx, u_len));
         return nullptr;
     }

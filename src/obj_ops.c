@@ -45,25 +45,22 @@ typedef void * lib_t;
 #define ARE_TYPE(nst_type) ( ob1->type == nst_type && ob2->type == nst_type )
 
 #define RETURN_STACK_OP_TYPE_ERROR(operand) do { \
-    NST_SET_TYPE_ERROR(nst_format_error( \
+    NST_SET_TYPE_ERROR(nst_sprintf( \
         "invalid types '%s' and '%s' for '" operand "'", \
-        "ss", \
         TYPE_NAME(ob1), TYPE_NAME(ob2))); \
     return NULL; \
     } while ( 0 )
 
 #define RETURN_CAST_TYPE_ERROR do { \
-    NST_SET_TYPE_ERROR(nst_format_error( \
+    NST_SET_TYPE_ERROR(nst_sprintf( \
         _NST_EM_INVALID_CASTING, \
-        "ss", \
         TYPE_NAME(ob), STR(type)->value)); \
     return NULL; \
     } while ( 0 )
 
 #define RETURN_LOCAL_OP_TYPE_ERROR(operand) do { \
-    NST_SET_TYPE_ERROR(nst_format_error( \
+    NST_SET_TYPE_ERROR(nst_sprintf( \
         _NST_EM_INVALID_OPERAND_TYPE(operand), \
-        "s", \
         TYPE_NAME(ob))); \
     return NULL; \
     } while ( 0 )
@@ -508,9 +505,8 @@ Nst_Obj *_nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         Nst_Obj *res = nst_map_drop(ob1, ob2);
         if ( res == NULL )
         {
-            NST_SET_TYPE_ERROR(nst_format_error(
+            NST_SET_TYPE_ERROR(nst_sprintf(
                 _NST_EM_UNHASHABLE_TYPE,
-                "s",
                 TYPE_NAME(ob2)));
             return NULL;
         }
@@ -1752,9 +1748,8 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
             {
                 if ( objs[i]->type != nst_t.Array && objs[i]->type != nst_t.Vector )
                 {
-                    NST_SET_TYPE_ERROR(nst_format_error(
+                    NST_SET_TYPE_ERROR(nst_sprintf(
                         _NST_EM_MAP_TO_SEQ_TYPE_ERR("index"),
-                        "su",
                         TYPE_NAME(objs[i]), i));
                     nst_dec_ref(map);
                     return NULL;
@@ -1762,9 +1757,8 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
 
                 if ( SEQ(objs[i])->len != 2 )
                 {
-                    NST_SET_TYPE_ERROR(nst_format_error(
+                    NST_SET_TYPE_ERROR(nst_sprintf(
                         _NST_EM_MAP_TO_SEQ_LEN_ERR("index"),
-                        "uu",
                         SEQ(objs[i])->len, i));
                     nst_dec_ref(map);
                     return NULL;
@@ -1772,9 +1766,8 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
 
                 if ( !nst_map_set(map, SEQ(objs[i])->objs[0], SEQ(objs[i])->objs[1], err) )
                 {
-                    NST_SET_TYPE_ERROR(nst_format_error(
-                        _NST_EM_MAP_TO_SEQ_HASH("index"),
-                        "u", i));
+                    NST_SET_TYPE_ERROR(nst_sprintf(
+                        _NST_EM_MAP_TO_SEQ_HASH("index"), i));
                     nst_dec_ref(map);
                     return NULL;
                 }
@@ -1818,9 +1811,8 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
 
                 if (result->type != nst_t.Array && result->type != nst_t.Vector)
                 {
-                    NST_SET_TYPE_ERROR(nst_format_error(
+                    NST_SET_TYPE_ERROR(nst_sprintf(
                         _NST_EM_MAP_TO_SEQ_TYPE_ERR("iteration"),
-                        "su",
                         TYPE_NAME(result), iter_count));
                     nst_dec_ref(map);
                     return NULL;
@@ -1828,9 +1820,8 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
 
                 if (result->len != 2)
                 {
-                    NST_SET_TYPE_ERROR(nst_format_error(
+                    NST_SET_TYPE_ERROR(nst_sprintf(
                         _NST_EM_MAP_TO_SEQ_LEN_ERR("iteration"),
-                        "uu",
                         result->len, iter_count));
                     nst_dec_ref(map);
                     return NULL;
@@ -1838,9 +1829,9 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
 
                 if (!nst_map_set(map, result->objs[0], result->objs[1], err))
                 {
-                    NST_SET_TYPE_ERROR(nst_format_error(
+                    NST_SET_TYPE_ERROR(nst_sprintf(
                         _NST_EM_MAP_TO_SEQ_HASH("iteration"),
-                        "u", iter_count));
+                        iter_count));
                     nst_dec_ref(map);
                     return NULL;
                 }
@@ -2086,9 +2077,8 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
 {
     if ( ob->type != nst_t.Str )
     {
-        NST_SET_TYPE_ERROR(nst_format_error(
+        NST_SET_TYPE_ERROR(nst_sprintf(
             _NST_EM_EXPECTED_TYPE("Str"),
-            "s",
             TYPE_NAME(ob)
         ));
         return NULL;
@@ -2111,9 +2101,8 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
     Nst_StrObj *import_path = _nst_get_import_path(file_name, file_name_len, err);
     if ( import_path == NULL )
     {
-        NST_SET_VALUE_ERROR(nst_format_error(
+        NST_SET_VALUE_ERROR(nst_sprintf(
             _NST_EM_FILE_NOT_FOUND,
-            "s",
             file_name
         ));
         return NULL;

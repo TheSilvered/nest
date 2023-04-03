@@ -6,6 +6,7 @@
 #include "error_internal.h"
 #include "iter.h"
 #include "hash.h"
+#include "format.h"
 
 #define HEAD_NODE NST_NODE(node->nodes->head->value)
 #define TAIL_NODE NST_NODE(node->nodes->tail->value)
@@ -754,9 +755,8 @@ static void remove_push_check(Nst_InstList *bc, Nst_Error *error)
                     error,
                     inst_list[i].start,
                     inst_list[i].end,
-                    nst_format_error(
+                    nst_sprintf(
                         _NST_EM_EXPECTED_TYPES,
-                        "ss",
                         STR(inst_list[i].val)->value,
                         TYPE_NAME(inst_list[i - 1].val)));
 
@@ -772,9 +772,8 @@ static void remove_push_check(Nst_InstList *bc, Nst_Error *error)
                     error,
                     inst_list[i].start,
                     inst_list[i].end,
-                    nst_format_error(
+                    nst_sprintf(
                         _NST_EM_UNHASHABLE_TYPE,
-                        "s",
                         TYPE_NAME(inst_list[i - 1].val)));
 
                 return;

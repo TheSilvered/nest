@@ -144,13 +144,6 @@ EXPORT void nst_print_error(Nst_Error err);
 // Prints a formatted Nst_Trackeback
 EXPORT void nst_print_traceback(Nst_Traceback tb);
 
-// Allocates a string on the heap and prints the format
-// format_args is the type of the arguments passed, can be:
-//   s: i8 *,
-//   u: usize,
-//   i: i64
-EXPORT Nst_StrObj *nst_format_error(const i8 *format, const i8 *format_args, ...);
-
 // Frees a heap allocated text source
 EXPORT void nst_free_src_text(Nst_SourceText *text);
 

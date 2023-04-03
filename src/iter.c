@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include "iter.h"
 #include "obj_ops.h"
+#include "format.h"
 
 Nst_Obj *nst_iter_new(Nst_FuncObj *start,
                       Nst_FuncObj *is_done,
@@ -178,10 +179,9 @@ NST_FUNC_SIGN(nst_iter_seq_get_val)
 
     if ( seq->len < idx )
     {
-        NST_SET_VALUE_ERROR(nst_format_error(
+        NST_SET_VALUE_ERROR(nst_sprintf(
             seq->type == nst_t.Array ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
                                      : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
-            "iu",
             idx,
             seq->len));
 
@@ -225,9 +225,8 @@ NST_FUNC_SIGN(nst_iter_str_get_val)
 
     if ( idx >= str->len )
     {
-        NST_SET_VALUE_ERROR(nst_format_error(
+        NST_SET_VALUE_ERROR(nst_sprintf(
             _NST_EM_INDEX_OUT_OF_BOUNDS("Str"),
-            "iu",
             idx,
             str->len));
 

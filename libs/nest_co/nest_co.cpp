@@ -292,8 +292,8 @@ NST_FUNC_SIGN(call_)
     if ( !NST_FLAG_HAS(co, FLAG_CO_PAUSED) &&
          co->func->arg_num != SEQ(co_args)->len )
     {
-        NST_SET_CALL_ERROR(nst_format_error(
-            _NST_EM_WRONG_ARG_NUM, "usis",
+        NST_SET_CALL_ERROR(nst_sprintf(
+            _NST_EM_WRONG_ARG_NUM,
             co->func->arg_num, co->func->arg_num == 1 ? "" : "s",
             SEQ(co_args)->len, SEQ(co_args)->len == 1 ? "was" : "were"));
         nst_dec_ref(co_args);

@@ -144,8 +144,8 @@ static void dump_obj(Nst_Obj *obj, i32 indent, Nst_OpErr *err)
     }
     else
     {
-        NST_SET_TYPE_ERROR(nst_format_error(
-            "JSON: an object of type %s is not serializable", "s",
+        NST_SET_TYPE_ERROR(nst_sprintf(
+            "JSON: an object of type %s is not serializable",
             TYPE_NAME(obj)));
         FAIL;
     }

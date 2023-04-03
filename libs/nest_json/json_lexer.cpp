@@ -4,17 +4,15 @@
 #include "json_lexer.h"
 
 #define SET_INVALID_ESCAPE_ERROR \
-    NST_SET_SYNTAX_ERROR(nst_format_error( \
+    NST_SET_SYNTAX_ERROR(nst_sprintf( \
         "JSON: invalid string escape, file \"%s\", line %lli, column %lli", \
-        "sii", \
         state.pos.text->path, \
         (Nst_Int)state.pos.line, \
         (Nst_Int)state.pos.col))
 
 #define SET_INVALID_VALUE_ERROR \
-    NST_SET_SYNTAX_ERROR(nst_format_error( \
+    NST_SET_SYNTAX_ERROR(nst_sprintf( \
         "JSON: invalid value, file \"%s\", line %lli, column %lli", \
-        "sii", \
         state.pos.text->path, \
         (Nst_Int)state.pos.line, \
         (Nst_Int)state.pos.col))
@@ -177,9 +175,8 @@ Nst_LList *json_tokenize(i8        *path,
             }
             break;
         default:
-            NST_SET_SYNTAX_ERROR(nst_format_error(
+            NST_SET_SYNTAX_ERROR(nst_sprintf(
                 "JSON: invalid character, file \"%s\", line %lli, column %lli",
-                "sii",
                 path, (Nst_Int)state.pos.line, (Nst_Int)state.pos.col));
             tok = nullptr;
         }
@@ -248,9 +245,8 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
             if ( (u8)state.ch < ' ' )
             {
                 nst_free(end_str);
-                NST_SET_SYNTAX_ERROR(nst_format_error(
+                NST_SET_SYNTAX_ERROR(nst_sprintf(
                     "JSON: invalid character, file \"%s\", line %lli, column %lli",
-                    "sii",
                     state.pos.text->path,
                     (Nst_Int)state.pos.line,
                     (Nst_Int)state.pos.col));
@@ -402,9 +398,8 @@ static Nst_Tok *parse_json_num(Nst_OpErr *err)
         Nst_Int value = strtoll(start_idx, nullptr, 10);
         if ( errno == ERANGE )
         {
-            NST_SET_MEMORY_ERROR(nst_format_error(
+            NST_SET_MEMORY_ERROR(nst_sprintf(
                 "JSON: number too big, file \"%s\", line %lli, column %lli",
-                "sii",
                 state.path,
                 (Nst_Int)state.pos.line,
                 (Nst_Int)state.pos.col));

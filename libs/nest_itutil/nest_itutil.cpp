@@ -163,10 +163,9 @@ NST_FUNC_SIGN(zipn_)
              objs[i]->type != nst_type()->Vector &&
              objs[i]->type != nst_type()->Str )
         {
-            NST_SET_TYPE_ERROR(nst_format_error(
+            NST_SET_TYPE_ERROR(nst_sprintf(
                 "all objects in the sequence must be of type 'Array', 'Vector'"
                 " or 'Str' but the object at index %zi was type '%s'",
-                "us",
                 i, TYPE_NAME(objs[i])));
             return nullptr;
         }

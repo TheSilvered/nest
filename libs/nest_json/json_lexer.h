@@ -6,9 +6,8 @@
 extern bool comments;
 
 #define JSON_SYNTAX_ERROR(msg, path, pos) \
-    NST_SET_SYNTAX_ERROR(nst_format_error( \
+    NST_SET_SYNTAX_ERROR(nst_sprintf( \
         "JSON: " msg ", file \"%s\", line %lli, column %lli", \
-        "sii", \
         path, (Nst_Int)(pos).line, (Nst_Int)(pos).col));
 
 typedef enum _JSONTokenType

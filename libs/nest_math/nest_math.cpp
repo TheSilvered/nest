@@ -807,9 +807,8 @@ Nst_Obj *gcd_or_lcm_seq(Nst_SeqObj *seq, NST_FUNC_SIGN((*func)), Nst_OpErr *err)
          objs[0]->type != nst_type()->Real &&
          objs[0]->type != nst_type()->Byte )
     {
-        NST_SET_TYPE_ERROR(nst_format_error(
+        NST_SET_TYPE_ERROR(nst_sprintf(
             "expected type 'Byte', 'Int' or 'Real', but object at index %zi is of type '%s'",
-            "us",
             0, TYPE_NAME(objs[0])));
         return nullptr;
     }
@@ -824,9 +823,8 @@ Nst_Obj *gcd_or_lcm_seq(Nst_SeqObj *seq, NST_FUNC_SIGN((*func)), Nst_OpErr *err)
              objs[i]->type != nst_type()->Real &&
              objs[i]->type != nst_type()->Byte )
         {
-            NST_SET_TYPE_ERROR(nst_format_error(
+            NST_SET_TYPE_ERROR(nst_sprintf(
                 "expected type 'Byte', 'Int' or 'Real', but object at index %zi is of type '%s'",
-                "us",
                 i, TYPE_NAME(objs[i])));
             nst_dec_ref(prev);
             return nullptr;
@@ -871,9 +869,8 @@ NST_FUNC_SIGN(gcd_)
           ob2->type != type_int  &&
           ob2->type != type_byte) )
     {
-        NST_SET_TYPE_ERROR(nst_format_error(
+        NST_SET_TYPE_ERROR(nst_sprintf(
             "the two objects must a sequence and null or two numbers, got '%s', '%s'",
-            "ss",
             TYPE_NAME(ob1), TYPE_NAME(ob2)
         ));
         return nullptr;
@@ -955,9 +952,8 @@ NST_FUNC_SIGN(lcm_)
             ob2->type != type_int  &&
             ob2->type != type_byte) )
     {
-        NST_SET_TYPE_ERROR(nst_format_error(
+        NST_SET_TYPE_ERROR(nst_sprintf(
             "the two objects must a sequence and null or two numbers, got '%s', '%s'",
-            "ss",
             TYPE_NAME(ob1), TYPE_NAME(ob2)
         ));
         return nullptr;

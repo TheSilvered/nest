@@ -163,7 +163,7 @@ static isize get_seq_size(const i8 **fmt, va_list *args)
         break;
     case 'l':
         (*fmt)++;
-        if ( **fmt == 'h' )
+        if ( **fmt == 'l' )
         {
             int_size = sizeof(long long int);
             (*fmt)++;
