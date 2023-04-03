@@ -21,7 +21,7 @@ NST_FUNC_SIGN(_set_cwd_);
 NST_FUNC_SIGN(_get_cwd_);
 NST_FUNC_SIGN(_get_version_);
 NST_FUNC_SIGN(_get_platform_);
-NST_FUNC_SIGN(_raw_exit_);
+NST_FUNC_SIGN(_raw_exit);
 
 #ifdef __cplusplus
 }

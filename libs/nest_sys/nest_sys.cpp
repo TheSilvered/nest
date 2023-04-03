@@ -50,7 +50,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_cwd_,      0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_version_,  0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_platform_, 0);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(_raw_exit_,     1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(_raw_exit,      1);
     func_list_[idx++] = NST_MAKE_NAMED_OBJDECLR(is_debug, "_DEBUG");
 
 #if __LINE__ - FUNC_COUNT != 44
@@ -170,7 +170,7 @@ NST_FUNC_SIGN(_get_platform_)
     return nst_inc_ref(platform_obj);
 }
 
-NST_FUNC_SIGN(_raw_exit_)
+NST_FUNC_SIGN(_raw_exit)
 {
     Nst_Obj *exit_code_obj;
 

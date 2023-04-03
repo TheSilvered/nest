@@ -22,7 +22,7 @@ bool lib_init()
     Nst_OpErr err = { nullptr, nullptr };
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(open_, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(virtual_iof_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(virtual_file_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(close_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(write_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(write_bytes_, 2);
@@ -198,18 +198,16 @@ static i32 virtual_iof_close_f(VirtualIOFile_data *f)
 NST_FUNC_SIGN(open_)
 {
     Nst_StrObj *file_name_str;
-    Nst_StrObj *file_mode_str;
-
-    NST_DEF_EXTRACT("ss", &file_name_str, &file_mode_str);
+    Nst_Obj *file_mode_str;
+    NST_DEF_EXTRACT("s?s", &file_name_str, &file_mode_str);
 
     i8 *file_name = file_name_str->value;
-    i8 *file_mode = file_mode_str->value;
+    i8 *file_mode = NST_DEF_VAL(file_mode_str, STR(file_mode_str)->value, (i8 *)"r");
+    usize file_mode_len = NST_DEF_VAL(file_mode_str, STR(file_mode_str)->len, 1);
 
     bool is_bin = false;
     bool can_read = false;
     bool can_write = false;
-
-    usize file_mode_len = file_mode_str->len;
 
     if ( file_mode_len < 1 || file_mode_len > 3 )
     {
@@ -270,7 +268,7 @@ NST_FUNC_SIGN(open_)
     return nst_iof_new(file_ptr, is_bin, can_read, can_write, nullptr);
 }
 
-NST_FUNC_SIGN(virtual_iof_)
+NST_FUNC_SIGN(virtual_file_)
 {
     Nst_Obj *bin_obj;
     Nst_Obj *buf_size_obj;

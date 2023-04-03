@@ -13,7 +13,7 @@ false @test.assert_false
 1 0 > @test.assert_true
 0 1 > @test.assert_false
 
-@io.virtual_iof = f
+@io.virtual_file = f
 
 Bool :: 0 @test.assert_false
 Bool :: 1 @test.assert_true

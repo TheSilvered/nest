@@ -10,7 +10,7 @@ td {
     padding: 0.3em 1.25em !important;
 }
 
-.md-nav {
+.md-nav__item:not(.md-nav__item--nested) > .md-nav {
     font-family: 'Fira Code';
     font-feature-settings: "liga" 1;
 }

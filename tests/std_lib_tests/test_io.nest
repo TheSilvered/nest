@@ -41,19 +41,19 @@ f @read_whole_file 'Hello, world!\n' @test.assert_eq
 
 f @io.close
 
-false @io.virtual_iof = f
+false @io.virtual_file = f
 f 'Hello' @io.write
 f @io.flush 5 @test.assert_eq
 f @read_whole_file 'Hello' @test.assert_eq
 f @io.get_flags 'rw-' @test.assert_eq
 f @io.close
 
-true @io.virtual_iof = f
+true @io.virtual_file = f
 f @io.get_flags 'rwb' @test.assert_eq
 f @io.close
 
-false 10 @io.virtual_iof = f1
-false  0 @io.virtual_iof = f2
+false 10 @io.virtual_file = f1
+false  0 @io.virtual_file = f2
 'abc' false f1 @io.println
 'abc' false f2 @io.println
 f1 @read_whole_file '' @test.assert_eq

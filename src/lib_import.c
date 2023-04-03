@@ -292,6 +292,7 @@ bool nst_extract_arg_values(const i8  *types,
     Nst_Obj *ob;
     u32 arg_idx = 0;
     bool succeded = true;
+    bool use_objects;
 
     for ( usize i = 0, n = strlen(types); i < n; i++ )
     {
@@ -304,32 +305,26 @@ bool nst_extract_arg_values(const i8  *types,
 
         arg = va_arg(arglist, void *);
         ob = args[arg_idx];
+        use_objects = false;
 
-        switch (types[i])
+        if ( types[i] == '?' )
         {
-        case '?':
             if ( i + 1 == n ) // if it is the last character
             {
                 NST_SET_RAW_VALUE_ERROR(_NST_EM_INVALID_TYPE_LETTER);
                 succeded = false;
                 goto end;
             }
+            use_objects = true;
             i++;
             if ( ob->type == nst_t.Null )
             {
                 *(void**)arg = nst_c.Null_null;
+                goto next_arg;
             }
-            else
-            {
-                if ( !extract_builtin_type(types[i], arg_idx,
-                                           err, ob, arg, true) )
-                {
-                    succeded = false;
-                    goto end;
-                }
-            }
-            break;
-        case '#':
+        }
+
+        if ( types[i] == '#' )
         {
             Nst_TypeObj *custom_type = TYPE(arg);
             arg = va_arg(arglist, void *);
@@ -347,16 +342,16 @@ bool nst_extract_arg_values(const i8  *types,
                 succeded = false;
                 goto end;
             }
-            break;
+            goto next_arg;
         }
-        default:
-            if ( !extract_builtin_type(types[i], arg_idx,
-                                       err, ob, arg, false) )
-            {
-                succeded = false;
-                goto end;
-            }
+
+        if ( !extract_builtin_type(types[i], arg_idx, err, ob, arg, use_objects) )
+        {
+            succeded = false;
+            goto end;
         }
+
+    next_arg:
         arg_idx++;
     }
 

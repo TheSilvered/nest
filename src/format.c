@@ -51,11 +51,9 @@ static int get_f_size(f64 val)
     }
 }
 
-static isize get_seq_size(const i8 **fmt, va_list orig_args)
+static isize get_seq_size(const i8 **fmt, va_list *args)
 {
     (*fmt)++;
-    va_list args;
-    va_copy(args, orig_args);
 
     bool alternate_form = false;
     bool prepend_sign   = false;
@@ -131,7 +129,7 @@ static isize get_seq_size(const i8 **fmt, va_list orig_args)
     }
     else if ( **fmt == '*' )
     {
-        width = va_arg(args, int);
+        width = va_arg(*args, int);
         (*fmt)++;
     }
 
@@ -146,7 +144,7 @@ static isize get_seq_size(const i8 **fmt, va_list orig_args)
         }
         else if ( **fmt == '*' )
         {
-            precision = va_arg(args, int);
+            precision = va_arg(*args, int);
             (*fmt)++;
         }
     }
@@ -212,19 +210,19 @@ static isize get_seq_size(const i8 **fmt, va_list orig_args)
         {
         case 1:
             total_size = I8__MAX_DEC_LEN;
-            va_arg(args, int);
+            va_arg(*args, int);
             break;
         case 2:
             total_size = I16_MAX_DEC_LEN;
-            va_arg(args, int);
+            va_arg(*args, int);
             break;
         case 4:
             total_size = I32_MAX_DEC_LEN;
-            va_arg(args, i32);
+            va_arg(*args, i32);
             break;
         case 8:
             total_size = I64_MAX_DEC_LEN;
-            va_arg(args, i64);
+            va_arg(*args, i64);
             break;
         }
         total_size = MAX(width, (isize)total_size);
@@ -245,19 +243,19 @@ static isize get_seq_size(const i8 **fmt, va_list orig_args)
         {
         case 1:
             total_size = I8__MAX_HEX_LEN;
-            va_arg(args, int);
+            va_arg(*args, int);
             break;
         case 2:
             total_size = I16_MAX_HEX_LEN;
-            va_arg(args, int);
+            va_arg(*args, int);
             break;
         case 4:
             total_size = I32_MAX_HEX_LEN;
-            va_arg(args, i32);
+            va_arg(*args, i32);
             break;
         case 8:
             total_size = I64_MAX_HEX_LEN;
-            va_arg(args, i64);
+            va_arg(*args, i64);
             break;
         }
         if ( alternate_form )
@@ -281,19 +279,19 @@ static isize get_seq_size(const i8 **fmt, va_list orig_args)
         {
         case 1:
             total_size = I8__MAX_OCT_LEN;
-            va_arg(args, int);
+            va_arg(*args, int);
             break;
         case 2:
             total_size = I16_MAX_OCT_LEN;
-            va_arg(args, int);
+            va_arg(*args, int);
             break;
         case 4:
             total_size = I32_MAX_OCT_LEN;
-            va_arg(args, i32);
+            va_arg(*args, i32);
             break;
         case 8:
             total_size = I64_MAX_OCT_LEN;
-            va_arg(args, i64);
+            va_arg(*args, i64);
             break;
         }
         if ( alternate_form )
@@ -318,7 +316,7 @@ static isize get_seq_size(const i8 **fmt, va_list orig_args)
         {
             return -1;
         }
-        i8 *str = va_arg(args, i8 *);
+        i8 *str = va_arg(*args, i8 *);
         total_size = strlen(str);
         if ( precision >= 0 )
         {
@@ -333,7 +331,7 @@ static isize get_seq_size(const i8 **fmt, va_list orig_args)
         {
             return -1;
         }
-        va_arg(args, void *);
+        va_arg(*args, void *);
         total_size = MAX(PTR_MAX_LEN, width);
         (*fmt)++;
         return total_size;
@@ -354,7 +352,7 @@ static isize get_seq_size(const i8 **fmt, va_list orig_args)
 
         total_size = precision + E_EXTRA_SIZE;
         total_size = MAX((isize)total_size, width);
-        va_arg(args, f64);
+        va_arg(*args, f64);
         (*fmt)++;
         return total_size;
     case 'g':
@@ -374,7 +372,7 @@ static isize get_seq_size(const i8 **fmt, va_list orig_args)
 
         total_size = precision + G_EXTRA_SIZE;
         total_size = MAX((isize)total_size, width);
-        va_arg(args, f64);
+        va_arg(*args, f64);
         (*fmt)++;
         return total_size;
     case 'f':
@@ -393,7 +391,7 @@ static isize get_seq_size(const i8 **fmt, va_list orig_args)
         }
         double val;
 
-        val = va_arg(args, f64);
+        val = va_arg(*args, f64);
 
         total_size = precision + get_f_size(val) + 2;
         total_size = MAX((isize)total_size, width);
@@ -405,9 +403,11 @@ static isize get_seq_size(const i8 **fmt, va_list orig_args)
     return -1;
 }
 
-static isize get_max_size_printf(const i8 *fmt, va_list args)
+static isize get_max_size_printf(const i8 *fmt, va_list orig_args)
 {
     usize tot_size = strlen(fmt);
+    va_list args;
+    va_copy(args, orig_args);
 
     while (*fmt != '\0')
     {
@@ -416,7 +416,7 @@ static isize get_max_size_printf(const i8 *fmt, va_list args)
             fmt++;
             continue;
         }
-        isize seq_size = get_seq_size(&fmt, args);
+        isize seq_size = get_seq_size(&fmt, &args);
         if ( seq_size < 0 )
         {
             return -1;
