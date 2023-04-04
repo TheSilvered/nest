@@ -1,3 +1,6 @@
+const el = document.querySelector(".md-sidebar--primary > .md-sidebar__scrollwrap");
+el.setAttribute("data-ea-publisher", "")
+
 hljs.registerLanguage("nest", hljs => {
   const kw = {
     $pattern: /[?..;><#!:=>]+|\w+/,

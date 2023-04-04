@@ -35,6 +35,6 @@ extra_javascript:
   - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js
   - js/highlight.js
 extra_css:
-  - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-light.min.css
+  - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css
   - https://fonts.googleapis.com/css?family=Fira Code
   - css/styles.css
