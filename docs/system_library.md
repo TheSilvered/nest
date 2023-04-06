@@ -5,7 +5,7 @@
 ```nest
 |#| 'stdsys.nest' = sys
 
--- To access _raw_exit_ use the following
+-- To access _raw_exit use the following
 |#| '__C__:stdsys.cnest' = __sys
 ```
 

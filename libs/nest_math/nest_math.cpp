@@ -861,7 +861,7 @@ NST_FUNC_SIGN(gcd_)
     {
         return gcd_or_lcm_seq(SEQ(ob1), gcd_, err);
     }
-    
+
     if ( (ob1->type != type_real &&
           ob1->type != type_int  &&
           ob1->type != type_byte) ||
