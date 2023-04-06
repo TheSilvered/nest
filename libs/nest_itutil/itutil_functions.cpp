@@ -228,55 +228,59 @@ end:
 NST_FUNC_SIGN(zip_start)
 {
     Nst_Obj **objs = SEQ(args[0])->objs;
-    AS_INT(objs[0]) = 0;
+    if ( nst_iter_start(objs[0], err) || nst_iter_start(objs[1], err) )
+    {
+        return nullptr;
+    }
     NST_RETURN_NULL;
 }
 
 NST_FUNC_SIGN(zip_is_done)
 {
     Nst_Obj **objs = SEQ(args[0])->objs;
-    Nst_Int idx = AS_INT(objs[0]);
 
-    if ( idx >= (Nst_Int)SEQ(objs[1])->len ||
-         idx >= (Nst_Int)SEQ(objs[2])->len )
+    i32 res = nst_iter_is_done(objs[0], err);
+    if ( res == -1 )
+    {
+        return nullptr;
+    }
+    else if ( res )
     {
         NST_RETURN_TRUE;
     }
+
+    res = nst_iter_is_done(objs[1], err);
+    if ( res == -1 )
+    {
+        return nullptr;
+    }
+    else if ( res )
+    {
+        NST_RETURN_TRUE;
+    }
+
     NST_RETURN_FALSE;
 }
 
 NST_FUNC_SIGN(zip_get_val)
 {
     Nst_Obj **objs = SEQ(args[0])->objs;
-    Nst_Int idx = AS_INT(objs[0]);
 
-    if ( idx >= (Nst_Int)SEQ(objs[1])->len )
+    Nst_Obj *ob1 = nst_iter_get_val(objs[0], err);
+    if ( ob1 == nullptr )
     {
-        NST_SET_VALUE_ERROR(nst_sprintf(
-            SEQ(objs[1])->type == nst_type()->Array
-                ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
-                : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
-            idx,
-            SEQ(objs[1])->len));
-
         return nullptr;
     }
-    else if ( idx >= (Nst_Int)SEQ(objs[2])->len )
+    Nst_Obj *ob2 = nst_iter_get_val(objs[1], err);
+    if ( ob2 == nullptr )
     {
-        NST_SET_VALUE_ERROR(nst_sprintf(
-            SEQ(objs[2])->type == nst_type()->Array
-                ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
-                : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
-            idx,
-            SEQ(objs[2])->len));
-
+        nst_dec_ref(ob1);
         return nullptr;
     }
 
     Nst_SeqObj *arr = SEQ(nst_array_new(2, err));
-    nst_seq_set(arr, 0, SEQ(objs[1])->objs[idx]);
-    nst_seq_set(arr, 1, SEQ(objs[2])->objs[idx]);
-    AS_INT(objs[0]) += 1;
+    arr->objs[0] = ob1;
+    arr->objs[1] = ob2;
     return OBJ(arr);
 }
 
@@ -285,18 +289,28 @@ NST_FUNC_SIGN(zip_get_val)
 NST_FUNC_SIGN(zipn_start)
 {
     Nst_Obj **objs = SEQ(args[0])->objs;
-    AS_INT(objs[0]) = 0;
+    for ( usize i = 0, n = (usize)AS_INT(objs[0]); i < n; i++ )
+    {
+        if ( nst_iter_start(objs[i + 1], err) )
+        {
+            return nullptr;
+        }
+    }
     NST_RETURN_NULL;
 }
 
 NST_FUNC_SIGN(zipn_is_done)
 {
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    Nst_Int idx = AS_INT(objs[0]);
+    Nst_Obj **objs = SEQ(args[0])->objs;    
 
-    for ( usize i = 1, n = SEQ(args[0])->len; i < n; i++ )
+    for ( usize i = 0, n = (usize)AS_INT(objs[0]); i < n; i++ )
     {
-        if ( idx >= (Nst_Int)SEQ(objs[i])->len )
+        i32 res = nst_iter_is_done(objs[i + 1], err);
+        if ( res == -1 )
+        {
+            return nullptr;
+        }
+        else if ( res == 1 )
         {
             NST_RETURN_TRUE;
         }
@@ -308,29 +322,20 @@ NST_FUNC_SIGN(zipn_is_done)
 NST_FUNC_SIGN(zipn_get_val)
 {
     Nst_Obj **objs = SEQ(args[0])->objs;
-    Nst_Int idx = AS_INT(objs[0]);
 
-    for ( usize i = 1, n = SEQ(args[0])->len; i < n; i++ )
+    Nst_SeqObj *arr = SEQ(nst_array_new((usize)AS_INT(objs[0]), err));
+    for ( usize i = 0, n = (usize)AS_INT(objs[0]); i < n; i++ )
     {
-        if ( idx >= (Nst_Int)SEQ(objs[i])->len )
+        Nst_Obj *res = nst_iter_get_val(objs[i + 1], err);
+        if ( res == nullptr )
         {
-            NST_SET_VALUE_ERROR(nst_sprintf(
-                SEQ(objs[i])->type == nst_type()->Array
-                    ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
-                    : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
-                idx,
-                SEQ(objs[i])->len));
-
+            arr->len = i;
+            nst_dec_ref(arr);
             return nullptr;
         }
+        arr->objs[i] = res;
     }
 
-    Nst_SeqObj *arr = SEQ(nst_array_new(SEQ(args[0])->len - 1, err));
-    for ( usize i = 1, n = SEQ(args[0])->len; i < n; i++ )
-    {
-        nst_seq_set(arr, i - 1, SEQ(objs[i])->objs[idx]);
-    }
-    AS_INT(objs[0]) += 1;
     return OBJ(arr);
 }
 

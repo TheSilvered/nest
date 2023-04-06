@@ -1,7 +1,7 @@
 #include "nest_itutil.h"
 #include "itutil_functions.h"
 
-#define FUNC_COUNT 14
+#define FUNC_COUNT 13
 
 static Nst_ObjDeclr func_list_[FUNC_COUNT];
 static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
@@ -17,7 +17,6 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(repeat_,       2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(chain_,        1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(zip_,          2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(zipn_,         1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(enumerate_,    3);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(keys_,         1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(values_,       1);
@@ -123,31 +122,12 @@ NST_FUNC_SIGN(chain_)
         OBJ(arr), err);
 }
 
-NST_FUNC_SIGN(zip_)
+Nst_Obj *zipn_(Nst_SeqObj *seq, Nst_OpErr *err)
 {
-    Nst_Obj *seq1;
-    Nst_Obj *seq2;
-
-    NST_DEF_EXTRACT("SS", &seq1, &seq2);
-
-    // Layout: [idx, seq1, seq2]
-    Nst_SeqObj *arr = SEQ(nst_array_new(3, err));
-    arr->objs[0] = nst_int_new(0, err);
-    arr->objs[1] = seq1;
-    arr->objs[2] = seq2;
-
-    return nst_iter_new(
-        FUNC(nst_func_new_c(1, zip_start, err)),
-        FUNC(nst_func_new_c(1, zip_is_done, err)),
-        FUNC(nst_func_new_c(1, zip_get_val, err)),
-        OBJ(arr), err);
-}
-
-NST_FUNC_SIGN(zipn_)
-{
-    Nst_SeqObj *seq;
-
-    NST_DEF_EXTRACT("A", &seq);
+    if ( !nst_extract_arg_values("A", 1, (Nst_Obj **)&seq, err, &seq) )
+    {
+        return nullptr;
+    }
 
     if ( seq->len < 2 )
     {
@@ -159,39 +139,66 @@ NST_FUNC_SIGN(zipn_)
 
     for ( usize i = 0, n = seq->len; i < n; i++ )
     {
-        if ( objs[i]->type != nst_type()->Array &&
+        if ( objs[i]->type != nst_type()->Array  &&
              objs[i]->type != nst_type()->Vector &&
-             objs[i]->type != nst_type()->Str )
+             objs[i]->type != nst_type()->Str    &&
+             objs[i]->type != nst_type()->Iter      )
         {
             NST_SET_TYPE_ERROR(nst_sprintf(
-                "all objects in the sequence must be of type 'Array', 'Vector'"
-                " or 'Str' but the object at index %zi was type '%s'",
+                "all objects in the sequence must be of type 'Array', 'Vector',"
+                "'Str' or 'Iter' but the object at index %zi was type '%s'",
                 i, TYPE_NAME(objs[i])));
             return nullptr;
         }
     }
 
-    // Layout: [idx, seq1, seq2, ...]
+    // Layout: [count, iter1, iter2, ...]
     Nst_SeqObj *arr = SEQ(nst_array_new(seq->len + 1, err));
-    arr->objs[0] = nst_int_new(0, err);
+    arr->objs[0] = nst_int_new(seq->len, err);
 
     for ( usize i = 0, n = seq->len; i < n; i++ )
     {
-        if ( objs[i]->type == nst_type()->Array || objs[i]->type == nst_type()->Vector )
-        {
-            arr->objs[i + 1] = nst_inc_ref(objs[i]);
-        }
-        else
-        {
-            // casting a string to an array always succedes
-            arr->objs[i + 1] = nst_obj_cast(objs[i], nst_type()->Array, nullptr);
-        }
+        arr->objs[i + 1] = nst_obj_cast(objs[i], nst_type()->Iter, err);
     }
 
     return nst_iter_new(
         FUNC(nst_func_new_c(1, zipn_start, err)),
         FUNC(nst_func_new_c(1, zipn_is_done, err)),
         FUNC(nst_func_new_c(1, zipn_get_val, err)),
+        OBJ(arr), err);
+}
+
+NST_FUNC_SIGN(zip_)
+{
+    Nst_Obj *seq1;
+    Nst_Obj *seq2;
+
+    NST_DEF_EXTRACT("o?R", &seq1, &seq2);
+
+    if ( seq2 == nst_null() )
+    {
+        return zipn_((Nst_SeqObj *)seq1, err);
+    }
+
+    if ( seq1->type != nst_type()->Array && seq1->type != nst_type()->Vector &&
+         seq1->type != nst_type()->Str   && seq1->type != nst_type()->Iter )
+    {
+        NST_SET_TYPE_ERROR(nst_sprintf(
+            _NST_EM_WRONG_TYPE_FOR_ARG("Iter', 'Array', 'Vector' or 'String"),
+            1, TYPE_NAME(seq1)));
+        return nullptr;
+    }
+    seq1 = nst_obj_cast(seq1, nst_type()->Iter, err);
+
+    // Layout: [iter1, iter2]
+    Nst_SeqObj *arr = SEQ(nst_array_new(2, err));
+    arr->objs[0] = seq1;
+    arr->objs[1] = seq2;
+
+    return nst_iter_new(
+        FUNC(nst_func_new_c(1, zip_start, err)),
+        FUNC(nst_func_new_c(1, zip_is_done, err)),
+        FUNC(nst_func_new_c(1, zip_get_val, err)),
         OBJ(arr), err);
 }
 
