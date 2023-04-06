@@ -17,6 +17,13 @@ td {
 
 .md-typeset pre>code {
     box-shadow: 0px 10px 10px 2px #12131d;
+    transition: box-shadow 0.2s ease-out;
+}
+
+.md-typeset pre>code:hover {
+    box-shadow: 0px 0px 20px -5px var(--md-primary-fg-color--dark);
+    transition: box-shadow 0.2s ease-out;
+    border-color: var(--md-primary-fg-color);
 }
 
 .md-typeset code {
@@ -24,6 +31,40 @@ td {
     border-style: solid;
     border-width: 1px;
     border-radius: 5px;
+}
+
+.md-typeset .admonition {
+    border-radius: 5px;
+    box-shadow: 0px 10px 10px 2px #12131d;
+    transition: box-shadow 0.2s ease-out;
+    background-color: #1c1f36;
+}
+
+.md-typeset .admonition.note {
+    border-color: #0000;
+    transition: border-color 0.2s ease-out;
+}
+
+.md-typeset .admonition.note:hover {
+    box-shadow: 0px 0px 20px -5px #448aff;
+    border-color: #448aff;
+    transition: box-shadow 0.2s ease-out;
+}
+
+.md-typeset .admonition.warning {
+    border-color: #0000;
+    transition: border-color 0.2s ease-out;
+}
+
+.md-typeset .admonition.warning:hover {
+    box-shadow: 0px 0px 20px -5px #ff9100;
+    border-color: #ff9100;
+    transition: box-shadow 0.2s ease-out;
+}
+
+[dir=ltr] .md-typeset .admonition-title, [dir=ltr] .md-typeset summary, [dir=rtl] .md-typeset .admonition-title, [dir=rtl] .md-typeset summary {
+    border-radius: 5px;
+    border-top-right-radius: 5px;
 }
 
 :root {
@@ -70,8 +111,8 @@ td {
     --md-typeset-kbd-color: #fafafa;
     --md-typeset-kbd-accent-color: #fff;
     --md-typeset-kbd-border-color: #b8b8b8;
-    --md-typeset-table-color: #0000001f;
-    --md-typeset-table-color--light: rgba(0,0,0,.035);
+    --md-typeset-table-color: #ffffff1f;
+    --md-typeset-table-color--light: #2b5cc41f;
     --md-admonition-fg-color: var(--md-default-fg-color);
     --md-admonition-bg-color: var(--md-default-bg-color);
     --md-warning-fg-color: #000000de;
@@ -87,5 +128,5 @@ td {
 }
 
 [data-ea-publisher] {
-    margin-top: 3em;
+    margin-top: 3em;z
 }

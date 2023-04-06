@@ -26,7 +26,7 @@ JSONTokenType;
 Nst_LList *json_tokenize(i8        *path,
                          i8        *text,
                          usize      text_len,
-                         bool       fix_encoding,
+                         bool       readonly_text,
                          Nst_OpErr *err);
 
 #endif // !JSON_LEXER_H

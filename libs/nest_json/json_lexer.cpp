@@ -1,6 +1,7 @@
 #include <cctype>
 #include <cerrno>
 #include <cstdlib>
+#include <cstring>
 #include "json_lexer.h"
 
 #define SET_INVALID_ESCAPE_ERROR \
@@ -73,7 +74,7 @@ static bool ignore_comment(Nst_OpErr *err);
 Nst_LList *json_tokenize(i8        *path,
                          i8        *text,
                          usize      text_len,
-                         bool       fix_encoding,
+                         bool       readonly_text,
                          Nst_OpErr *err)
 {
     Nst_SourceText src_text = {
@@ -85,18 +86,26 @@ Nst_LList *json_tokenize(i8        *path,
         .occurred = false
     };
 
-    if ( fix_encoding )
+    if ( readonly_text )
     {
-        i32 start_offset = nst_normalize_encoding(&src_text, false, &error);
-        nst_add_lines(&src_text, start_offset);
-        if ( error.occurred || start_offset == -1 )
+        i8 *text_copy = (i8 *)nst_malloc(text_len, sizeof(i8), err);
+        if ( text_copy == nullptr )
         {
-            err->name = error.name;
-            err->message = error.message;
-            nst_free(src_text.text);
-            nst_free(src_text.lines);
             return nullptr;
         }
+        memcpy(text_copy, text, text_len);
+        src_text.text = text_copy;
+    }
+
+    i32 start_offset = nst_normalize_encoding(&src_text, false, &error);
+    nst_add_lines(&src_text, start_offset);
+    if ( error.occurred || start_offset == -1 )
+    {
+        err->name = error.name;
+        err->message = error.message;
+        nst_free(src_text.text);
+        nst_free(src_text.lines);
+        return nullptr;
     }
 
     Nst_LList *tokens = nst_llist_new(err);
@@ -184,10 +193,7 @@ Nst_LList *json_tokenize(i8        *path,
         if ( tok == nullptr )
         {
             nst_llist_destroy(tokens, (Nst_LListDestructor)nst_token_destroy);
-            if ( fix_encoding )
-            {
-                nst_free(src_text.text);
-            }
+            nst_free(src_text.text);
             nst_free(src_text.lines);
             return nullptr;
         }
@@ -196,10 +202,7 @@ Nst_LList *json_tokenize(i8        *path,
     }
 end:
     nst_llist_append(tokens, tok_new_noend(state.pos, JSON_EOF, err), true, err);
-    if ( fix_encoding )
-    {
-        nst_free(src_text.text);
-    }
+    nst_free(src_text.text);
     nst_free(src_text.lines);
     return tokens;
 }

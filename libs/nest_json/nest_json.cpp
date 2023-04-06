@@ -43,7 +43,7 @@ NST_FUNC_SIGN(load_s_)
     Nst_LList *tokens = json_tokenize(
         (i8 *)"<Str>",
         str->value, str->len,
-        false, err);
+        true, err);
     if ( tokens == nullptr )
     {
         return nullptr;
@@ -79,7 +79,7 @@ NST_FUNC_SIGN(load_f_)
     usize len = fread(buf, sizeof(i8), buf_size, f);
     fclose(f);
     buf[len] = 0;
-    Nst_LList *tokens = json_tokenize(path->value, buf, len, true, err);
+    Nst_LList *tokens = json_tokenize(path->value, buf, len, false, err);
     if ( tokens == nullptr )
     {
         return nullptr;
