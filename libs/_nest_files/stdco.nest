@@ -2,14 +2,14 @@
 
 |#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_co.dll' = __co
 
-__co.create_    = create
 __co.call_      = call
-__co.pause_     = pause
-__co.get_state_ = get_state
+__co.create_    = create
 __co.generator_ = generator
+__co.get_state_ = get_state
+__co.pause_     = pause
 
-@__co._get_co_type_obj_ = Coroutine
 __co._get_co_type_obj_ = _get_co_type_obj
+@__co._get_co_type_obj_ = Coroutine
 
 { 'suspended': 0b0001,
   'running':   0b0010,

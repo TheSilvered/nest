@@ -2,32 +2,32 @@
 
 |#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_io.dll' = __io
 
-__io.open_        = open
-__io.virtual_file_= virtual_file
 __io.close_       = close
-__io.write_       = write
-__io.write_bytes_ = write_bytes
-__io.read_        = read
-__io.read_bytes_  = read_bytes
 __io.file_size_   = file_size
-__io.move_fptr_   = move_fptr
-__io.get_fptr_    = get_fptr
 __io.flush_       = flush
 __io.get_flags_   = get_flags
+__io.get_fptr_    = get_fptr
+__io.move_fptr_   = move_fptr
+__io.open_        = open
 __io.println_     = println
-__io._set_stdin_  = _set_stdin
-__io._set_stdout_ = _set_stdout
-__io._set_stderr_ = _set_stderr
+__io.read_        = read
+__io.read_bytes_  = read_bytes
+__io.virtual_file_= virtual_file
+__io.write_       = write
+__io.write_bytes_ = write_bytes
 __io._get_stdin_  = _get_stdin
-__io._get_stdout_ = _get_stdout
 __io._get_stderr_ = _get_stderr
-
-@__io._get_stdin_  = STDIN
-@__io._get_stdout_ = STDOUT
-@__io._get_stderr_ = STDERR
+__io._get_stdout_ = _get_stdout
+__io._set_stdin_  = _set_stdin
+__io._set_stderr_ = _set_stderr
+__io._set_stdout_ = _set_stdout
 
 0 = FROM_START = FROM_SET
 1 = FROM_CUR
 2 = FROM_END
+
+@__io._get_stdin_  = STDIN
+@__io._get_stderr_ = STDERR
+@__io._get_stdout_ = STDOUT
 
 _vars_ '__io' '_vars_' -

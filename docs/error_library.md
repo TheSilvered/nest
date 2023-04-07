@@ -80,23 +80,9 @@ The formatted output looks like this:
 
 ## Constants
 
-### `SYNTAX_ERROR`
-
-This is the string used by Nest when throwing syntax errors.
-
----
-
-### `VALUE_ERROR`
-
-This is the string used by Nest when throwing value errors.
-
----
-
-### `TYPE_ERROR`
-
-This is the string used by Nest when throwing type errors.
-
----
+!!!note
+    The messages used inside the interpreter are not available as they are not
+    created in advance.
 
 ### `CALL_ERROR`
 
@@ -104,9 +90,9 @@ This is the string used by Nest when throwing call errors.
 
 ---
 
-### `MEMORY_ERROR`
+### `IMPORT_ERROR`
 
-This is the string used by Nest when throwing memory errors.
+This is the string used by Nest when throwing import errors.
 
 ---
 
@@ -116,9 +102,24 @@ This is the string used by Nest when throwing math errors.
 
 ---
 
-### `IMPORT_ERROR`
+### `MEMORY_ERROR`
 
-This is the string used by Nest when throwing import errors.
+This is the string used by Nest when throwing memory errors.
 
-> The messages used inside the interpreter are not available as they are not
-> created in advance.
+---
+
+### `SYNTAX_ERROR`
+
+This is the string used by Nest when throwing syntax errors.
+
+---
+
+### `TYPE_ERROR`
+
+This is the string used by Nest when throwing type errors.
+
+---
+
+### `VALUE_ERROR`
+
+This is the string used by Nest when throwing value errors.

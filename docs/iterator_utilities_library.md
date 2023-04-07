@@ -8,6 +8,29 @@
 
 ## Functions
 
+### `@chain`
+
+**Synopsis**:
+
+`[sequence: Iter|Array|Vector|Str] @chain -> Iter`
+
+**Return value**:
+
+The function returns an iterator that chains the objects inside of the elements
+inside of the sequence.
+
+**Example**:
+
+```nest
+|#| 'stditutil.nest' = itu
+
+{ 'Hi!', 1 -> 4 } @itu.chain --> 'H', 'i', '!', 1, 2, 3
+'Hi!' @itu.chain --> 'H', 'i', '!' this is the same as { 'H', 'i', '!'} @itu.chain
+'Hi!' @itu.enumerate @itu.chain --> 0, 'H', 1, 'i', 2, '!'
+```
+
+---
+
 ### `@count`
 
 **Synopsis**:
@@ -50,6 +73,114 @@ object restarting from the first when the sequence ends.
 
 ---
 
+### `@enumerate`
+
+**Synopsis**:
+
+`[iterator: Str|Array|Vector|Iter, start: Int?, step: Int?] @enumerate -> Iter`
+
+**Return value**:
+
+Returns a 2-element array where the first element is the object returned by
+the `iterator` and the second is the index of the current iteration. The latter
+by default starts from 0 with a step of 1 but this behaviour can be changed by
+passing the additional arguments.
+
+If `iterator` is a `Str`, `Array` or `Vector` it is automatically casted to an
+`Iter`.
+
+**Example**:
+
+```nest
+|#| 'stditutil.nest' = itu
+
+'Hi!' @itu.enumerate --> { 0, 'H' }, { 1, 'i' }, { 2, '!' }
+'Hi!' 5 -1 @itu.enumerate --> { 5, 'H' }, { 4, 'i' }, { 3, '!' }
+'Hi!' @itu.reversed @itu.enumerate --> { 0, '!' }, { 1, 'i' }, { 2, 'H' }
+```
+
+---
+
+### `@items`
+
+**Synopsis**:
+
+`[map: Map] @items -> Iter`
+
+**Return value**:
+
+Returns all the key-value pairs in a map, the order is not the one in which you
+put the objects in.
+
+**Example**:
+
+```nest
+|#| 'stditutil.nest' = itu
+
+{ 'key_1': 1, 'key_2': 2 } @itu.items --> { 'key_1', 1 }, { 'key_2', 2 }
+{ 'key_2': 2, 'key_1': 1 } @itu.items --> { 'key_2', 2 }, { 'key_1', 1 }
+```
+
+---
+
+### `@iter_is_done`
+
+**Synopsis**:
+
+`[iter: Iter] @iter_is_done`
+
+**Description**:
+
+Calls the `_is_done_` function of an iterator.
+
+---
+
+### `@iter_get_val`
+
+**Synopsis**:
+
+`[iter: Iter] @iter_get_val`
+
+**Description**:
+
+Calls the `_get_val_` function of an iterator.
+
+---
+
+### `@iter_start`
+
+**Synopsis**:
+
+`[iter: Iter] @iter_start`
+
+**Description**:
+
+Calls the `_start_` function of an iterator.
+
+---
+
+### `@keys`
+
+**Synopsis**:
+
+`[map: Map] @keys -> Iter`
+
+**Return value**:
+
+Returns all the keys in a map, the order is not the one in which you put the
+objects in.
+
+**Example**:
+
+```nest
+|#| 'stditutil.nest' = itu
+
+{ 'key_1': 1, 'key_2': 2 } @itu.keys --> 'key_1', 'key_2'
+{ 'key_2': 2, 'key_1': 1 } @itu.keys --> 'key_2', 'key_1'
+```
+
+---
+
 ### `@repeat`
 
 
@@ -70,25 +201,44 @@ specified by `times`.
 
 ---
 
-### `@chain`
+### `@reversed`
 
 **Synopsis**:
 
-`[sequence: Iter|Array|Vector|Str] @chain -> Iter`
+`[sequence: Str|Array|Vector] @reversed -> Iter`
 
 **Return value**:
 
-The function returns an iterator that chains the objects inside of the elements
-inside of the sequence.
+Returns the elements of a sequence in reverse order, from the last to the first.
 
 **Example**:
 
 ```nest
 |#| 'stditutil.nest' = itu
 
-{ 'Hi!', 1 -> 4 } @itu.chain --> 'H', 'i', '!', 1, 2, 3
-'Hi!' @itu.chain --> 'H', 'i', '!' this is the same as { 'H', 'i', '!'} @itu.chain
-'Hi!' @itu.enumerate @itu.chain --> 0, 'H', 1, 'i', 2, '!'
+'Hi!' @itu.reversed --> '!', 'i', 'H'
+```
+
+---
+
+### `@values`
+
+**Synopsis**:
+
+`[map: Map] @values -> Iter`
+
+**Return value**:
+
+Returns all the values in a map, the order is not the one in which you put the
+objects in.
+
+**Example**:
+
+```nest
+|#| 'stditutil.nest' = itu
+
+{ 'key_1': 1, 'key_2': 2 } @itu.values --> 1, 2
+{ 'key_2': 2, 'key_1': 1 } @itu.values --> 2, 1
 ```
 
 ---
@@ -122,153 +272,3 @@ is reached.
 'Hi!' { 1, 2, 3 } @itu.zip --> { 'H', 1 }, { 'i', 2 }, { 'i', 3 }
 { 'Hi!', { 1, 2, 3 }, <{ 9, 8, 7, 6 }> } @itu.zip --> { 'H', 1, 9 }, { 'i', 2, 8 }, { 'i', 3, 7 }
 ```
-
----
-
-### `@enumerate`
-
-**Synopsis**:
-
-`[iterator: Str|Array|Vector|Iter, start: Int?, step: Int?] @enumerate -> Iter`
-
-**Return value**:
-
-Returns a 2-element array where the first element is the object returned by
-the `iterator` and the second is the index of the current iteration. The latter
-by default starts from 0 with a step of 1 but this behaviour can be changed by
-passing the additional arguments.
-
-If `iterator` is a `Str`, `Array` or `Vector` it is automatically casted to an
-`Iter`.
-
-**Example**:
-
-```nest
-|#| 'stditutil.nest' = itu
-
-'Hi!' @itu.enumerate --> { 0, 'H' }, { 1, 'i' }, { 2, '!' }
-'Hi!' 5 -1 @itu.enumerate --> { 5, 'H' }, { 4, 'i' }, { 3, '!' }
-'Hi!' @itu.reversed @itu.enumerate --> { 0, '!' }, { 1, 'i' }, { 2, 'H' }
-```
-
----
-
-### `@keys`
-
-**Synopsis**:
-
-`[map: Map] @keys -> Iter`
-
-**Return value**:
-
-Returns all the keys in a map, the order is not the one in which you put the
-objects in.
-
-**Example**:
-
-```nest
-|#| 'stditutil.nest' = itu
-
-{ 'key_1': 1, 'key_2': 2 } @itu.keys --> 'key_1', 'key_2'
-{ 'key_2': 2, 'key_1': 1 } @itu.keys --> 'key_2', 'key_1'
-```
-
----
-
-### `@values`
-
-**Synopsis**:
-
-`[map: Map] @values -> Iter`
-
-**Return value**:
-
-Returns all the values in a map, the order is not the one in which you put the
-objects in.
-
-**Example**:
-
-```nest
-|#| 'stditutil.nest' = itu
-
-{ 'key_1': 1, 'key_2': 2 } @itu.values --> 1, 2
-{ 'key_2': 2, 'key_1': 1 } @itu.values --> 2, 1
-```
-
----
-
-### `@items`
-
-**Synopsis**:
-
-`[map: Map] @items -> Iter`
-
-**Return value**:
-
-Returns all the key-value pairs in a map, the order is not the one in which you
-put the objects in.
-
-**Example**:
-
-```nest
-|#| 'stditutil.nest' = itu
-
-{ 'key_1': 1, 'key_2': 2 } @itu.items --> { 'key_1', 1 }, { 'key_2', 2 }
-{ 'key_2': 2, 'key_1': 1 } @itu.items --> { 'key_2', 2 }, { 'key_1', 1 }
-```
-
----
-
-### `@reverse`
-
-**Synopsis**:
-
-`[sequence: Str|Array|Vector] @reverse -> Iter`
-
-**Return value**:
-
-Returns the elements of a sequence in reverse order, from the last to the first.
-
-**Example**:
-
-```nest
-|#| 'stditutil.nest' = itu
-
-'Hi!' @itu.reverse --> '!', 'i', 'H'
-```
-
----
-
-### `@iter_start`
-
-**Synopsis**:
-
-`[iter: Iter] @iter_start`
-
-**Description**:
-
-Calls the `_start_` function of an iterator.
-
----
-
-### `@iter_get_val`
-
-**Synopsis**:
-
-`[iter: Iter] @iter_get_val`
-
-**Description**:
-
-Calls the `_get_val_` function of an iterator.
-
----
-
-### `@iter_is_done`
-
-**Synopsis**:
-
-`[iter: Iter] @iter_is_done`
-
-**Description**:
-
-Calls the `_is_done_` function of an iterator.

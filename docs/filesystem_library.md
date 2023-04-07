@@ -8,122 +8,37 @@
 
 ## Functions
 
-### `@is_dir`
+### `@absolute_path`
 
 **Synopsis**:
 
-`[path: Str] @is_dir -> Bool`
+`[path: Str] @absolute_path -> Str`
 
 **Description**:
 
-Checks if a directory exists at `path`.
+Returns the absolute path of a file or directory.
 
 **Arguments**:
 
-- `path`: the path of the directory to check
+- `path`: the relative path to expand
 
 ---
 
-### `@make_dir`
+### `@canonical_path`
 
 **Synopsis**:
 
-`[path: Str] @make_dir -> null`
+`[path: Str] @canonical_path -> Str`
 
 **Description**:
 
-Creates a new directory at `path`, succeeds even if the directory exists. An
-error is thrown if any parent directory does not exist or a system error occurs.
+Returns the canonical path of a file or directory. A canonical path is an
+absolute path that does not point to a link. This means that any canonical path
+is an absolute path but not vice-versa.
 
 **Arguments**:
 
-- `path`: the path of the directory to create
-
----
-
-### `@make_dirs`
-
-**Synopsis**:
-
-`[path: Str] @make_dirs -> null`
-
-**Description**:
-
-Creates a directory at `path`, and the parent directories if needed, succeeds
-even if the directory already exists. An error is thrown only if a system error
-occurs.
-
-**Arguments**:
-
-- `path`: the path of the directories to create
-
----
-
-### `@remove_dir`
-
-**Synopsis**:
-
-`[path: Str] @remove_dir -> null`
-
-**Description**:
-
-Removes a directory at `path` which must be empty. An error is thrown if the
-directory contains any sub directories or files, the path does not point to a
-valid directory or if a system error occurs.
-
-**Arguments**:
-
-- `path`: the path of the directory to delete
-
----
-
-### `@remove_dirs`
-
-**Synopsis**:
-
-`[path: Str] @remove_dirs -> null`
-
-**Description**:
-
-Removes a directory at `path` and all of its contents, throws an error if the
-directory does not exist or a system error occurs.
-
-**Arguments**:
-
-- `path`: the path of the directory to delete
-
----
-
-### `@is_file`
-
-**Synopsis**:
-
-`[path: Str] @is_file -> Bool`
-
-**Description**:
-
-Checks if a file exists at `path`.
-
-**Arguments**:
-
-- `path`: the path of the file to check
-
----
-
-### `@remove_file`
-
-**Synopsis**:
-
-`[path: Str] @remove_file -> null`
-
-**Description**:
-
-Removes a file at `path`, throws an error if the file does not exist or a system
-error occurs.
-
-**Arguments**:
-
-- `path`: the path of the file to delete
+- `path`: the relative path to expand
 
 ---
 
@@ -149,21 +64,126 @@ or if a system error occurs.
 
 ---
 
-### `@rename`
+### `@equivalent`
 
 **Synopsis**:
 
-`[old_path: Str, new_path: Str] @rename -> null`
+`[path_1: Str, path_2: Str] @equivalent -> Bool`
 
 **Description**:
 
-Renames or moves a file or a directory. Throws an error if `old_path` does not
-exist or if a system error occurs.
+Returns true if the two paths point to the same file and false otherwise. This
+returns true even when the two paths are different but are hard links to the
+same file.
 
 **Arguments**:
 
-- `old_path`: the old path of the element
-- `new_path`: the path the element should be moved to
+- `path_1`: the path of the first file
+- `path_2`: the path of the second file
+
+---
+
+### `@extension`
+
+**Synopsis**:
+
+`[path: Str] @extension -> Str`
+
+**Description**:
+
+Returns the extension of the file pointed to by `path`.
+
+**Arguments**:
+
+- `path`: the path of a file
+
+```nest
+|#| 'stdfs.nest' = fs
+
+'dir/subdir/file.txt' @fs.extension --> '.txt'
+'dir/subdir/file.tar.gz' @fs.extension --> '.gz'
+'dir/subdir/file' @fs.extension --> ''
+'dir/subdir/subdir2' @fs.extension --> ''
+'dir/subdir/subdir2/' @fs.extension --> ''
+```
+
+---
+
+### `@filename`
+
+**Synopsis**:
+
+`[path: Str] @filename -> Str`
+
+**Description**:
+
+Returns the name of the file `path` points to.
+
+**Arguments**:
+
+- `path`: the path of a file
+
+**Example**:
+
+```nest
+|#| 'stdfs.nest' = fs
+
+'dir/subdir/file.txt' @fs.filename --> 'file.txt'
+'dir/subdir/subdir2'  @fs.filename --> 'subdir2'
+'dir/subdir/subdir2/' @fs.filename --> ''
+```
+
+---
+
+### `@is_dir`
+
+**Synopsis**:
+
+`[path: Str] @is_dir -> Bool`
+
+**Description**:
+
+Checks if a directory exists at `path`.
+
+**Arguments**:
+
+- `path`: the path of the directory to check
+
+---
+
+### `@is_file`
+
+**Synopsis**:
+
+`[path: Str] @is_file -> Bool`
+
+**Description**:
+
+Checks if a file exists at `path`.
+
+**Arguments**:
+
+- `path`: the path of the file to check
+
+---
+
+### `@join`
+
+**Synopsis**:
+
+`[path_1: Str, path_2: Str] @join -> Str`
+
+**Description**:
+
+Joins two paths by adding, if needed, a slash between them.  
+If `path_2` is an absolute path it is returned without any modifications.  
+This function normalizes the slashes after joining: on Windows `/` becomes `\`
+and on Linux `\` becomes `/`.
+
+**Arguments**:
+
+- `path_1`: the first path
+- `path_2`: the path to append to `path_1`
 
 ---
 
@@ -203,101 +223,38 @@ or a system error occurs.
 
 ---
 
-### `@absolute_path`
+### `@make_dir`
 
 **Synopsis**:
 
-`[path: Str] @absolute_path -> Str`
+`[path: Str] @make_dir -> null`
 
 **Description**:
 
-Returns the absolute path of a file or directory.
+Creates a new directory at `path`, succeeds even if the directory exists. An
+error is thrown if any parent directory does not exist or a system error occurs.
 
 **Arguments**:
 
-- `path`: the relative path to expand
+- `path`: the path of the directory to create
 
 ---
 
-### `@canonical_path`
+### `@make_dirs`
 
 **Synopsis**:
 
-`[path: Str] @canonical_path -> Str`
+`[path: Str] @make_dirs -> null`
 
 **Description**:
 
-Returns the canonical path of a file or directory. A canonical path is an
-absolute path that does not point to a link. This means that any canonical path
-is an absolute path but not vice-versa.
+Creates a directory at `path`, and the parent directories if needed, succeeds
+even if the directory already exists. An error is thrown only if a system error
+occurs.
 
 **Arguments**:
 
-- `path`: the relative path to expand
-
----
-
-### `@relative_path`
-
-**Synopsis**:
-
-`[path: Str, base: Str] @relative_path -> Str`
-
-**Description**:
-
-Returns a relative path to `path` using `base` as the starting point.
-
-**Arguments**:
-
-- `path`: the directory to reach
-- `base`: the starting directory
-
-**Example**:
-
-```nest
-|#| 'stdfs.nest' = fs
-
-'/a/c' '/a/b/d' @fs.relative_path --> '../../c'
-```
-
----
-
-### `@equivalent`
-
-**Synopsis**:
-
-`[path_1: Str, path_2: Str] @equivalent -> Bool`
-
-**Description**:
-
-Returns true if the two paths point to the same file and false otherwise. This
-returns true even when the two paths are different but are hard links to the
-same file.
-
-**Arguments**:
-
-- `path_1`: the path of the first file
-- `path_2`: the path of the second file
-
----
-
-### `@join`
-
-**Synopsis**:
-
-`[path_1: Str, path_2: Str] @join -> Str`
-
-**Description**:
-
-Joins two paths by adding, if needed, a slash between them.  
-If `path_2` is an absolute path it is returned without any modifications.  
-This function normalizes the slashes after joining: on Windows `/` becomes `\`
-and on Linux `\` becomes `/`.
-
-**Arguments**:
-
-- `path_1`: the first path
-- `path_2`: the path to append to `path_1`
+- `path`: the path of the directories to create
 
 ---
 
@@ -327,55 +284,98 @@ Returns the path of the directory where the element is contained.
 
 ---
 
-### `@filename`
+### `@relative_path`
 
 **Synopsis**:
 
-`[path: Str] @filename -> Str`
+`[path: Str, base: Str] @relative_path -> Str`
 
 **Description**:
 
-Returns the name of the file `path` points to.
+Returns a relative path to `path` using `base` as the starting point.
 
 **Arguments**:
 
-- `path`: the path of a file
+- `path`: the directory to reach
+- `base`: the starting directory
 
 **Example**:
 
 ```nest
 |#| 'stdfs.nest' = fs
 
-'dir/subdir/file.txt' @fs.filename --> 'file.txt'
-'dir/subdir/subdir2'  @fs.filename --> 'subdir2'
-'dir/subdir/subdir2/' @fs.filename --> ''
+'/a/c' '/a/b/d' @fs.relative_path --> '../../c'
 ```
 
 ---
 
-### `@extension`
+### `@remove_dir`
 
 **Synopsis**:
 
-`[path: Str] @extension -> Str`
+`[path: Str] @remove_dir -> null`
 
 **Description**:
 
-Returns the extension of the file pointed to by `path`.
+Removes a directory at `path` which must be empty. An error is thrown if the
+directory contains any sub directories or files, the path does not point to a
+valid directory or if a system error occurs.
 
 **Arguments**:
 
-- `path`: the path of a file
+- `path`: the path of the directory to delete
 
-```nest
-|#| 'stdfs.nest' = fs
+---
 
-'dir/subdir/file.txt' @fs.extension --> '.txt'
-'dir/subdir/file.tar.gz' @fs.extension --> '.gz'
-'dir/subdir/file' @fs.extension --> ''
-'dir/subdir/subdir2' @fs.extension --> ''
-'dir/subdir/subdir2/' @fs.extension --> ''
-```
+### `@remove_dirs`
+
+**Synopsis**:
+
+`[path: Str] @remove_dirs -> null`
+
+**Description**:
+
+Removes a directory at `path` and all of its contents, throws an error if the
+directory does not exist or a system error occurs.
+
+**Arguments**:
+
+- `path`: the path of the directory to delete
+
+---
+
+### `@remove_file`
+
+**Synopsis**:
+
+`[path: Str] @remove_file -> null`
+
+**Description**:
+
+Removes a file at `path`, throws an error if the file does not exist or a system
+error occurs.
+
+**Arguments**:
+
+- `path`: the path of the file to delete
+
+---
+
+### `@rename`
+
+**Synopsis**:
+
+`[old_path: Str, new_path: Str] @rename -> null`
+
+**Description**:
+
+Renames or moves a file or a directory. Throws an error if `old_path` does not
+exist or if a system error occurs.
+
+**Arguments**:
+
+- `old_path`: the old path of the element
+- `new_path`: the path the element should be moved to
 
 ---
 

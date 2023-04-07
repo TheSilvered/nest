@@ -37,7 +37,15 @@ In practice no one would write such odd code but in the examples it highlights t
 ```c
 #include <stdio.h>
 
-int main(void){int n; scanf("%d", &n); if (n == 1) while (printf("1"));
+int main(void)
+{
+    int n;
+    scanf("%d", &n);
+    if (n == 1)
+        while (printf("1"))
+            ;
+    return 0;
+}
 ```
 
 It just doesn't look as good, that is why the example is written the way it is: to show how beautifully misterious Nest looks and feels.

@@ -2,11 +2,11 @@
 
 |#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_rand.dll' = __rand
 
+__rand.choice_    = choice
 __rand.random_    = random
 __rand.rand_int_  = rand_int
 __rand.rand_perc_ = rand_perc
-__rand.choice_    = choice
-__rand.shuffle_   = shuffle
 __rand.seed_      = seed
+__rand.shuffle_   = shuffle
 
 _vars_ '__rand' '_vars_' -

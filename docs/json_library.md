@@ -38,69 +38,23 @@ Nest to JSON type correlations:
 
 ## Functions
 
-### `@load_s`
+### `@dump_f`
 
 **Synopsis**:
 
-`[string: Str] @load_s -> Any`
+`[path: Str, object: Any, indent: Int?] @dump_f -> null`
 
 **Description**:
 
-Parses the contents of `string` as JSON data.
+Writes to the file at `path` the serialization to JSON of `object`. This
+function overwrites any existing content on the file.  
+`indent` works exactly like it does in [`dump_s`](#dump_s).
 
 **Arguments**:
 
-- `string`: the string to parse
-
-**Return value**:
-
-The function returns the parsed data as a Nest object according to the
-[table above](#type-correlations).
-
-**Example**:
-
-```nest
-|#| 'stdjson.nest' = json
-
->>> ('[1, 2, 3, 4]' @json.load_s '\n' ><) --> <{ 1, 2, 3, 4 }>
-```
-
----
-
-### `@load_f`
-
-**Synopsis**:
-
-`[path: Str] @load_f -> Any`
-
-**Description**:
-
-Opens the file at `path`, reads its content and parses is as json data.
-
-**Arguments**:
-
-- `path`: the path to the file to open
-
-**Return value**:
-
-The function returns the parsed data as a Nest object according to the
-[table above](#type-correlations).
-
-**Example**:
-
-The file `example.json`:
-
-```json
-[1, 2, 3, 4]
-```
-
-The code:
-
-```nest
-|#| 'stdjson.nest' = json
-
->>> ('example.json' @json.load_s '\n' ><) --> <{ 1, 2, 3, 4 }>
-```
+- `path`: the path of the file to write the contents to
+- `indent`: the indentation to use to format the file, see the argument with the
+            same name in [`dump_s`](#dump_s) for specifications.
 
 ---
 
@@ -161,23 +115,96 @@ Output:
 
 ---
 
-### `@dump_f`
+### `@get_options`
 
 **Synopsis**:
 
-`[path: Str, object: Any, indent: Int?] @dump_f -> null`
+`[] @get_options -> Int`
+
+**Return value**:
+
+Returns the options set with `set_options`. To check if a given option is
+enabled use a bit-wise and (`&`) between it and all the return value of this
+function.
+
+**Example**:
+
+```nest
+|#| 'stdjson.nest' = json
+
+-- allows comments without disabling allow_trailing_commas if it is enabled
+@@json.get_options json.OPTIONS.allow_comments | @json.set_options
+
+-- checks if trailing commas are allowed
+@@json.get_options json.OPTIONS.allow_trailing_commas & ?
+    >>> 'Trailing commas are allowed\n'
+```
+
+---
+
+### `@load_f`
+
+**Synopsis**:
+
+`[path: Str] @load_f -> Any`
 
 **Description**:
 
-Writes to the file at `path` the serialization to JSON of `object`. This
-function overwrites any existing content on the file.  
-`indent` works exactly like it does in [`dump_s`](#dump_s).
+Opens the file at `path`, reads its content and parses is as json data.
 
 **Arguments**:
 
-- `path`: the path of the file to write the contents to
-- `indent`: the indentation to use to format the file, see the argument with the
-            same name in [`dump_s`](#dump_s) for specifications.
+- `path`: the path to the file to open
+
+**Return value**:
+
+The function returns the parsed data as a Nest object according to the
+[table above](#type-correlations).
+
+**Example**:
+
+The file `example.json`:
+
+```json
+[1, 2, 3, 4]
+```
+
+The code:
+
+```nest
+|#| 'stdjson.nest' = json
+
+>>> ('example.json' @json.load_s '\n' ><) --> <{ 1, 2, 3, 4 }>
+```
+
+---
+
+### `@load_s`
+
+**Synopsis**:
+
+`[string: Str] @load_s -> Any`
+
+**Description**:
+
+Parses the contents of `string` as JSON data.
+
+**Arguments**:
+
+- `string`: the string to parse
+
+**Return value**:
+
+The function returns the parsed data as a Nest object according to the
+[table above](#type-correlations).
+
+**Example**:
+
+```nest
+|#| 'stdjson.nest' = json
+
+>>> ('[1, 2, 3, 4]' @json.load_s '\n' ><) --> <{ 1, 2, 3, 4 }>
+```
 
 ---
 
@@ -202,33 +229,6 @@ everything. Every option is disabled by default.
     json.OPTIONS.allow_comments \
     json.OPTIONS.allow_trailing_commas | \
 @json.set_options
-```
-
----
-
-### `@get_options`
-
-**Synopsis**:
-
-`[] @get_options -> Int`
-
-**Return value**:
-
-Returns the options set with `set_options`. To check if a given option is
-enabled use a bit-wise and (`&`) between it and all the return value of this
-function.
-
-**Example**:
-
-```nest
-|#| 'stdjson.nest' = json
-
--- allows comments without disabling allow_trailing_commas if it is enabled
-@@json.get_options json.OPTIONS.allow_comments | @json.set_options
-
--- checks if trailing commas are allowed
-@@json.get_options json.OPTIONS.allow_trailing_commas & ?
-    >>> 'Trailing commas are allowed\n'
 ```
 
 ---

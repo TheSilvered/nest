@@ -5,13 +5,12 @@
 __err.try_ = try
 __err._get_err_names_ = _get_err_names
 
-@__err._get_err_names_ = __names
-__names.0 = SYNTAX_ERROR
-__names.1 = VALUE_ERROR
-__names.2 = TYPE_ERROR
-__names.3 = CALL_ERROR
-__names.4 = MEMORY_ERROR
-__names.5 = MATH_ERROR
-__names.6 = IMPORT_ERROR
+@__err._get_err_names_ = { SYNTAX_ERROR,
+                           VALUE_ERROR,
+                           TYPE_ERROR,
+                           CALL_ERROR,
+                           MEMORY_ERROR,
+                           MATH_ERROR,
+                           IMPORT_ERROR }
 
-_vars_ '__err' '__names' '_vars_' -
+_vars_ '__err' '_vars_' -

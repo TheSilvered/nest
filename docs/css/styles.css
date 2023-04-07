@@ -120,8 +120,8 @@ td {
     --md-footer-fg-color: #fff;
     --md-footer-fg-color--light: #ffffffb3;
     --md-footer-fg-color--lighter: #ffffff73;
-    --md-footer-bg-color: #000000de;
-    --md-footer-bg-color--dark: #00000052;
+    --md-footer-bg-color: #12131d;
+    --md-footer-bg-color--dark: #12131d;
     --md-shadow-z1: 0 0.2rem 0.5rem #0000000d,0 0 0.05rem #0000001a;
     --md-shadow-z2: 0 0.2rem 0.5rem #0000001a,0 0 0.05rem #00000040;
     --md-shadow-z3: 0 0.2rem 0.5rem #0003,0 0 0.05rem #00000059;

@@ -2,27 +2,27 @@
 
 |#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_time.dll' = __dt
 
-__dt.time_               = time
-__dt.time_ns_            = time_ns
+__dt.clock_datetime_     = clock_datetime
+__dt.clock_time_         = clock_time
+__dt.date_               = date
+__dt.day_                = day
+__dt.gmt_clock_datetime_ = gmt_clock_datetime
+__dt.gmt_clock_time_     = gmt_clock_time
 __dt.high_res_time_      = high_res_time
 __dt.high_res_time_ns_   = high_res_time_ns
+__dt.hours_              = hours
+__dt.minutes_            = minutes
 __dt.monotonic_time_     = monotonic_time
 __dt.monotonic_time_ns_  = monotonic_time_ns
-__dt.year_day_           = year_day
-__dt.week_day_           = week_day
-__dt.day_                = day
 __dt.month_              = month
-__dt.year_               = year
-__dt.date_               = date
 __dt.seconds_            = seconds
-__dt.minutes_            = minutes
-__dt.hours_              = hours
-__dt.clock_time_         = clock_time
-__dt.gmt_clock_time_     = gmt_clock_time
-__dt.clock_datetime_     = clock_datetime
-__dt.gmt_clock_datetime_ = gmt_clock_datetime
 __dt.sleep_              = sleep
 __dt.sleep_ms_           = sleep_ms
+__dt.time_               = time
+__dt.time_ns_            = time_ns
+__dt.week_day_           = week_day
+__dt.year_               = year
+__dt.year_day_           = year_day
 
 { 1: 'January',
   2: 'February',
