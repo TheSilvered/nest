@@ -207,7 +207,7 @@ NST_FUNC_SIGN(slice_)
         stop = seq_len;
     }
 
-    usize new_size = (usize)((stop - start) / step);
+    isize new_size = (isize)((stop - start) / step);
 
     if ( (stop - start) % step != 0 )
     {
@@ -236,7 +236,7 @@ NST_FUNC_SIGN(slice_)
             seq_type == nst_type()->Array ? nst_array_new(new_size, err)
                                           : nst_vector_new(new_size, err);
 
-        for ( usize i = 0; i < new_size; i++ )
+        for ( isize i = 0; i < new_size; i++ )
         {
             nst_seq_set(new_seq, i, seq->objs[i * step + start]);
         }
@@ -252,7 +252,7 @@ NST_FUNC_SIGN(slice_)
             return nullptr;
         }
 
-        for ( usize i = 0; i < new_size; i++ )
+        for ( isize i = 0; i < new_size; i++ )
         {
             buf[i] = STR(seq->objs[i * step + start])->value[0];
         }
