@@ -1156,7 +1156,7 @@ static Nst_Node *parse_assignment(Nst_Node *value)
     SET_ERROR_IF_OP_ERR(
         nst_node_destroy(value);
         nst_node_destroy(name););
-    nst_llist_append(assignment_node->nodes, value, false, &parser_err);
+    nst_llist_append(assignment_node->nodes, value, true, &parser_err);
     SET_ERROR_IF_OP_ERR(
         nst_node_destroy(value);
         nst_node_destroy(name);

@@ -63,8 +63,8 @@ void free_lib()
     {
         nst_dec_ref(co_c_stack->stack[i]);
     }
-    free(co_c_stack->stack);
-    free(co_c_stack);
+    nst_free(co_c_stack->stack);
+    nst_free(co_c_stack);
 }
 
 static void co_c_stack_push(CoroutineObj *co)

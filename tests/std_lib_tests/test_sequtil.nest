@@ -12,6 +12,8 @@ v <{ 1, 2, 3, 4, 5 }> @test.assert_eq
 'hceilaloo' 1 8 2 @sequ.slice 'ciao' @test.assert_eq
 'abcde' 3 0 -1 @sequ.slice 'dcb' @test.assert_eq
 'abcde' null null -1 @sequ.slice 'edcba' @test.assert_eq
+{ 1, 2, 3, 4 } 10 0 @sequ.slice {,} @test.assert_eq
+
 <{ 1, 2, 3 }> <{ 4, 5, 6 }> @sequ.merge <{ 1, 2, 3, 4, 5, 6 }> @test.assert_eq
 ?::(<{ 1, 2, 3 }>  { 4, 5, 6 }  @sequ.merge) Vector @test.assert_eq
 ?::( { 1, 2, 3 }   { 4, 5, 6 }  @sequ.merge) Array  @test.assert_eq
@@ -35,5 +37,23 @@ v @sequ.empty <{ }> @test.assert_eq
 { true,  true,  true  } @sequ.any @test.assert_true
 
 { 1, 2, 3, 1, 1 } 1 @sequ.count 3 @test.assert_eq
-'hello' 'l' @sequ.count 2 @test.assert_eq
-'hello' 'a' @sequ.count 0 @test.assert_eq
+'babbabbaba' 'bab' @sequ.count 3 @test.assert_eq
+'babbabbaba' 'ba' @sequ.count 4 @test.assert_eq
+'babbabbaba' 'b' @sequ.count 6 @test.assert_eq
+'babbabbaba' 'a' @sequ.count 4 @test.assert_eq
+'babbabbaba' '' @sequ.count 0 @test.assert_eq
+'babbabbaba' 'z' @sequ.count 0 @test.assert_eq
+'babbabbaba' 'babbabbaba' @sequ.count 1 @test.assert_eq
+'babbabbaba' 'babbabbabaasd' @sequ.count 0 @test.assert_eq
+'babbabbaba' 10 @sequ.count 0 @test.assert_eq
+
+{ 1, 2, 3, 4 } (##a b => a b +) 0 @sequ.lscan { 0, 1, 3, 6, 10 } @test.assert_eq
+{ 1, 2, 3, 4 } (##a b => a b +) 0 @sequ.rscan { 10, 9, 7, 4, 0 } @test.assert_eq
+{ 1, 2, 3, 4 } (##a b => a b +) 3 @sequ.lscan { 3, 4, 6, 9, 13 } @test.assert_eq
+{ 1, 2, 3, 4 } (##a b => a b +) 3 @sequ.rscan { 13, 12, 10, 7, 3 } @test.assert_eq
+{ 1, 2, 3, 4 } (##a b => a b +) 3 2 @sequ.lscan { 3, 4 } @test.assert_eq
+{ 1, 2, 3, 4 } (##a b => a b +) 3 2 @sequ.rscan { 7, 3 } @test.assert_eq
+'hi' (##a b => a b ><) '' @sequ.lscan { '', 'h', 'hi' } @test.assert_eq
+'hi' (##a b => a b ><) '' @sequ.rscan { 'hi', 'i', '' } @test.assert_eq
+'hi' (##a b => a b ><) '' 2 @sequ.lscan { '', 'h' } @test.assert_eq
+'hi' (##a b => a b ><) '' 2 @sequ.rscan { 'i', '' } @test.assert_eq

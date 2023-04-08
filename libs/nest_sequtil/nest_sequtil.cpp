@@ -541,8 +541,13 @@ NST_FUNC_SIGN(contains_)
             NST_RETURN_TRUE;
         }
     }
-    else if ( container->type == nst_type()->Str && object->type == nst_type()->Str )
+    else if ( container->type == nst_type()->Str )
     {
+        if ( object->type != nst_type()->Str )
+        {
+            NST_RETURN_FALSE;
+        }
+
         i8 *res = nst_string_find(
             STR(container)->value, STR(container)->len,
             STR(object)->value, STR(object)->len);
@@ -601,23 +606,63 @@ NST_FUNC_SIGN(all_)
 
 NST_FUNC_SIGN(count_)
 {
-    Nst_SeqObj *seq;
+    Nst_Obj *container;
     Nst_Obj *obj;
 
-    NST_DEF_EXTRACT("So", &seq, &obj);
+    NST_DEF_EXTRACT("oo", &container, &obj);
     usize count = 0;
 
-    for ( usize i = 0, n = seq->len; i < n; i++ )
+    if ( container->type == nst_type()->Array || container->type == nst_type()->Vector )
     {
-        Nst_Obj *res = nst_obj_eq(obj, seq->objs[i], nullptr);
-        if ( res == nst_true() )
+        Nst_SeqObj *seq = SEQ(container);
+
+        for ( usize i = 0, n = seq->len; i < n; i++ )
         {
+            if ( nst_obj_eq(seq->objs[i], obj, nullptr) == nst_true() )
+            {
+                nst_dec_ref(nst_true());
+                count++;
+            }
+            else
+            {
+                nst_dec_ref(nst_false());
+            }
+        }
+
+        return nst_int_new(count, err);
+    }
+    else if ( container->type == nst_type()->Str )
+    {
+        if ( obj->type != nst_type()->Str || STR(obj)->len == 0 )
+        {
+            NST_RETURN_ZERO;
+        }
+
+        i8 *str = STR(container)->value;
+        usize str_len = STR(container)->len;
+        i8 *sub = STR(obj)->value;
+        usize sub_len = STR(obj)->len;
+
+        while ( true )
+        {
+            i8 *res = nst_string_find(str, str_len, sub, sub_len);
+            if ( res == nullptr )
+            {
+                break;
+            }
+            str_len -= str - res + sub_len;
+            str = res + sub_len;
             count++;
         }
-        nst_dec_ref(res);
+        return nst_int_new(count, err);
     }
-    nst_dec_ref(seq);
-    return nst_int_new(count, err);
+    else
+    {
+        NST_SET_TYPE_ERROR(nst_sprintf(
+            _NST_EM_WRONG_TYPE_FOR_ARG("Array', 'Vector' or 'Str"),
+            1, TYPE_NAME(container)));
+        return nullptr;
+    }
 }
 
 NST_FUNC_SIGN(lscan_)
@@ -633,12 +678,14 @@ NST_FUNC_SIGN(lscan_)
     if ( func->arg_num != 2 )
     {
         NST_SET_RAW_VALUE_ERROR("the function must take exactly two argument");
+        nst_dec_ref(seq);
         return nullptr;
     }
 
     if ( max_items < 0 )
     {
         NST_SET_RAW_VALUE_ERROR("the maximum item count must be greater than or equal to zero");
+        nst_dec_ref(seq);
         return nullptr;
     }
 
@@ -652,6 +699,7 @@ NST_FUNC_SIGN(lscan_)
         : SEQ(nst_vector_new((usize)max_items, err));
     if ( max_items == 0 )
     {
+        nst_dec_ref(seq);
         return OBJ(new_seq);
     }
 
@@ -670,6 +718,7 @@ NST_FUNC_SIGN(lscan_)
             nst_dec_ref(prev_val);
             new_seq->len = (usize)i;
             nst_dec_ref(new_seq);
+            nst_dec_ref(seq);
             return nullptr;
         }
         nst_seq_set(new_seq, i, new_val);
@@ -677,7 +726,7 @@ NST_FUNC_SIGN(lscan_)
         prev_val = new_val;
     }
     nst_dec_ref(prev_val);
-
+    nst_dec_ref(seq);
     return OBJ(new_seq);
 }
 
@@ -694,18 +743,22 @@ NST_FUNC_SIGN(rscan_)
     if ( func->arg_num != 2 )
     {
         NST_SET_RAW_VALUE_ERROR("the function must take exactly two argument");
+        nst_dec_ref(seq);
         return nullptr;
     }
 
     if ( max_items < 0 )
     {
         NST_SET_RAW_VALUE_ERROR("the maximum item count must be greater than or equal to zero");
+        nst_dec_ref(seq);
         return nullptr;
     }
 
-    if ( max_items > (Nst_Int)seq->len + 1 )
+    Nst_Int seq_len = (Nst_Int)seq->len;
+
+    if ( max_items > seq_len + 1 )
     {
-        max_items = seq->len + 1;
+        max_items = seq_len + 1;
     }
 
     Nst_SeqObj *new_seq = seq->type == nst_type()->Array
@@ -713,6 +766,7 @@ NST_FUNC_SIGN(rscan_)
         : SEQ(nst_vector_new((usize)max_items, err));
     if ( max_items == 0 )
     {
+        nst_dec_ref(seq);
         return OBJ(new_seq);
     }
 
@@ -723,8 +777,8 @@ NST_FUNC_SIGN(rscan_)
 
     for ( Nst_Int i = max_items - 2; i >= 0; i-- )
     {
-        func_args[0] = prev_val;
-        func_args[1] = seq->objs[i];
+        func_args[0] = seq->objs[i + seq_len - max_items + 1];
+        func_args[1] = prev_val;
         Nst_Obj *new_val = nst_call_func(func, func_args, err);
         if ( new_val == nullptr )
         {
@@ -735,6 +789,7 @@ NST_FUNC_SIGN(rscan_)
             }
             new_seq->len = 0;
             nst_dec_ref(new_seq);
+            nst_dec_ref(seq);
             return nullptr;
         }
         nst_seq_set(new_seq, i, new_val);
@@ -742,6 +797,6 @@ NST_FUNC_SIGN(rscan_)
         prev_val = new_val;
     }
     nst_dec_ref(prev_val);
-
+    nst_dec_ref(seq);
     return OBJ(new_seq);
 }

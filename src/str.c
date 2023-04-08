@@ -745,6 +745,11 @@ i8 *nst_string_find(i8 *s1, usize l1, i8 *s2, usize l2)
     i8 *p1 = NULL;
     i8 *p2 = NULL;
 
+    if ( l2 > l1 )
+    {
+        return NULL;
+    }
+
     while (s1 != end1)
     {
         p1 = s1++;
