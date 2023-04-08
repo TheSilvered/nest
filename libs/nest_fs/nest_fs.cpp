@@ -181,7 +181,9 @@ NST_FUNC_SIGN(remove_dir_)
 
     if ( !fs::is_directory(path->value) )
     {
-        NST_SET_RAW_VALUE_ERROR("directory path not found");
+        NST_SET_VALUE_ERROR(nst_sprintf(
+            "directory '%.4096s' not found",
+            path->value));
         return nullptr;
     }
 
@@ -207,7 +209,9 @@ NST_FUNC_SIGN(remove_dirs_)
 
     if ( !fs::is_directory(path->value) )
     {
-        NST_SET_RAW_VALUE_ERROR("directory path not found");
+        NST_SET_VALUE_ERROR(nst_sprintf(
+            "directory '%.4096s' not found",
+            path->value));
         return nullptr;
     }
 
@@ -249,11 +253,13 @@ NST_FUNC_SIGN(remove_file_)
     NST_DEF_EXTRACT("s", &path);
 
     std::error_code ec;
-    // if it's not a file
+
     if ( !fs::is_regular_file(path->value, ec) &&
          !fs::is_other(path->value, ec) )
     {
-        NST_SET_RAW_VALUE_ERROR("file not found");
+        NST_SET_VALUE_ERROR(nst_sprintf(
+            "file '%.4096s' not found",
+            path->value));
         return nullptr;
     }
 
@@ -292,7 +298,10 @@ NST_FUNC_SIGN(copy_)
 
     if ( ec.value() == ERROR_PATH_NOT_FOUND )
     {
-        NST_SET_RAW_VALUE_ERROR("file not found");
+        NST_SET_VALUE_ERROR(nst_sprintf(
+            "file '%.100s' or directory '%.4096s' not found",
+            path_from->value,
+            path_to->value));
         return nullptr;
     }
     else if ( ec.value() == 0 )
@@ -318,7 +327,10 @@ NST_FUNC_SIGN(rename_)
 
     if ( ec.value() == ERROR_PATH_NOT_FOUND )
     {
-        NST_SET_RAW_VALUE_ERROR("file not found");
+        NST_SET_VALUE_ERROR(nst_sprintf(
+            "file '%.100s' or directory '%.4096s' not found",
+            old_path->value,
+            new_path->value));
         return nullptr;
     }
     else if ( ec.value() == 0 )
@@ -340,7 +352,9 @@ NST_FUNC_SIGN(list_dir_)
     std::error_code ec;
     if ( !fs::is_directory(path->value, ec) )
     {
-        NST_SET_RAW_VALUE_ERROR("directory path not found");
+        NST_SET_VALUE_ERROR(nst_sprintf(
+            "directory '%.4096s' not found",
+            path->value));
         return nullptr;
     }
     if ( ec.value() != 0 )
@@ -374,7 +388,9 @@ NST_FUNC_SIGN(list_dirs_)
     std::error_code ec;
     if ( !fs::is_directory(path->value, ec) )
     {
-        NST_SET_RAW_VALUE_ERROR("directory path not found");
+        NST_SET_VALUE_ERROR(nst_sprintf(
+            "directory '%.4096s' not found",
+            path->value));
         return nullptr;
     }
     if ( ec.value() != 0 )

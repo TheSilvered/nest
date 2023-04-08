@@ -384,7 +384,7 @@ static void complete_function(usize final_stack_size)
                  inst_id == NST_IC_FOR_IS_DONE ||
                  inst_id == NST_IC_FOR_GET_VAL )
             {
-                curr_inst_ls = 
+                curr_inst_ls =
                     nst_fstack_peek(nst_state.f_stack).func->body.bytecode;
             }
             continue;

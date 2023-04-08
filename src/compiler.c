@@ -850,7 +850,7 @@ static void compile_comp_op(Nst_Node *node)
     /*
     Comparison operator bytecode
 
-         [VALUE 1]            
+         [VALUE 1]
          [VALUE 2]            -+
          DUP                   |
          ROT 3                 |

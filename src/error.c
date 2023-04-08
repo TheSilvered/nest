@@ -258,7 +258,7 @@ static void print_position(Nst_Pos start, Nst_Pos end)
     {
         if ( use_color )
         {
-            nst_fprintf(err_stream, 
+            nst_fprintf(err_stream,
                 "lines " C_CYN "%li" C_RES " to " C_CYN "%li" C_RES,
                 start.line + 1,
                 end.line + 1);

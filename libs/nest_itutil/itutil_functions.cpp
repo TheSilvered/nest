@@ -301,7 +301,7 @@ NST_FUNC_SIGN(zipn_start)
 
 NST_FUNC_SIGN(zipn_is_done)
 {
-    Nst_Obj **objs = SEQ(args[0])->objs;    
+    Nst_Obj **objs = SEQ(args[0])->objs;
 
     for ( usize i = 0, n = (usize)AS_INT(objs[0]); i < n; i++ )
     {

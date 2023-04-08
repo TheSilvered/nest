@@ -32,7 +32,8 @@ Returns the Unicode character at `index` in `string`. Negative indices do not
 work unlike normal extraction operations.
 
 !!!note
-    Similarly to `get_len` this function operates in linear time
+    This function operates in linear time, its result should be stored in
+    a variable rather than calling it each time.
 
 ---
 
@@ -48,8 +49,7 @@ Returns the Unicode length of `string`. If it is not valid UTF-8 an error is
 thrown.
 
 !!!note
-    This function operates in linear time, its result should be stored in
-    a variable rather than calling it each time
+    Similarly to `get_at` this function operates in linear time.
 
 ---
 

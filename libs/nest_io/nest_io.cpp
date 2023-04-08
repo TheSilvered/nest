@@ -262,7 +262,7 @@ NST_FUNC_SIGN(open_)
     Nst_IOFile file_ptr = fopen(file_name, file_mode);
     if ( file_ptr == nullptr )
     {
-        NST_SET_VALUE_ERROR(nst_sprintf("file '%s' not found", file_name));
+        NST_SET_VALUE_ERROR(nst_sprintf("file '%.4096s' not found", file_name));
         return nullptr;
     }
 
@@ -298,7 +298,6 @@ NST_FUNC_SIGN(virtual_file_)
         nst_free(f->data);
         nst_free(f->buf);
         nst_free(f);
-        NST_FAILED_ALLOCATION;
         return nullptr;
     }
 

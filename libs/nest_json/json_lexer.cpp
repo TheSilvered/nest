@@ -475,7 +475,7 @@ float_ltrl:
             start,
             state.pos,
             JSON_VALUE,
-            nst_real_new(value, err), err); 
+            nst_real_new(value, err), err);
     }
 }
 

@@ -501,7 +501,7 @@ Nst_Obj *nst_vsprintf(const i8 *fmt, va_list args)
         nst_free(buf);
         return NULL;
     }
-    
+
     Nst_Obj *str = nst_string_new(buf, len, true, NULL);
     if ( str == NULL )
     {

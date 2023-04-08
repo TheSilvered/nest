@@ -598,7 +598,7 @@ static Nst_Node *parse_func_def_or_lambda()
     Nst_Node *func_node = nst_node_new(
         is_lambda ? NST_NT_LAMBDA : NST_NT_FUNC_DECLR,
         &parser_err);
-    
+
     skip_blank();
     while ( NST_TOK(nst_llist_peek_front(tokens))->type == NST_TT_IDENT )
     {
@@ -1393,7 +1393,7 @@ static Nst_Node *parse_arr_or_map_literal()
     Nst_Pos start = tok->start;
     bool is_map = false;
     usize count = 0;
-    
+
     nst_token_destroy(tok);
     skip_blank();
 

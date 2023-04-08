@@ -106,7 +106,7 @@ static MatchType *compile_type_match(const i8  *types,
     Multiple types per argument:
      To have multiple possible types an argument can be you can use a pipe (|)
      between them.
-    
+
     Automatic type casting:
      After the type specified you can add : or _ followed by exactly one letter.
      : is a cast between Nest objects, _ is a cast to a C type. When using the
@@ -122,7 +122,7 @@ static MatchType *compile_type_match(const i8  *types,
                    optional Array or Vector that, if it exists, should contain
                    only objects of a custom type or integers.
     */
-    
+
     MatchType *match_type = (MatchType *)nst_malloc(1, sizeof(MatchType), err);
     if ( match_type == NULL )
     {

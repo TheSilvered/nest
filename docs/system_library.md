@@ -129,6 +129,10 @@ function is called.
 This function cannot be accessed by importing the normal system library, you
 need to import the C source instead.
 
+!!!warning
+    This function exits the process early rather than ending it with a special
+    error that lets Nest free properly any allocated memory.
+
 ---
 
 ## Constants

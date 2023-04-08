@@ -1076,7 +1076,7 @@ i32 nst_normalize_encoding(Nst_SourceText *text,
 
     if ( n >= 3 &&
          text_p[0] == (u8)'\xef' &&
-         text_p[1] == (u8)'\xbb' && 
+         text_p[1] == (u8)'\xbb' &&
          text_p[2] == (u8)'\xbf' )
     {
         text_p += 3;
@@ -1180,7 +1180,7 @@ static void parse_first_line(i8  *text,
 {
     if ( len >= 3 &&
          text[0] == '\xef' &&
-         text[1] == '\xbb' && 
+         text[1] == '\xbb' &&
          text[2] == '\xbf' )
     {
         text += 3;
