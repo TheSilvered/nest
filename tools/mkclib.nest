@@ -5,7 +5,7 @@
 |#| 'stdsutil.nest' = su
 
 #fail [
-    >>> 'Usage: nest mkclib.nest [new <name>|update] <path>\n'
+    'Usage: nest mkclib.nest [new <name>|update] <path>' @io.println
     1 @sys.exit
 ]
 
@@ -31,73 +31,111 @@ Iter :: {
         'windows/projects/nest',
         'Debug',
         {
-            'interpreter_dll.lib',
-            'interpreter_dll.dll'
-        }
+            'libnest.lib',
+            'libnest.dll'
+        },
+        'Windows x86 Debug'
     },
     {
         'windows/projects/nest',
         'Release',
         {
-            'interpreter_dll.lib',
-            'interpreter_dll.dll'
-        }
+            'libnest.lib',
+            'libnest.dll'
+        },
+        'Windows x86 Release'
     },
     {
         'windows/projects/nest',
         'x64/Debug',
         {
-            'interpreter_dll.lib',
-            'interpreter_dll.dll'
-        }
+            'libnest.lib',
+            'libnest.dll'
+        },
+        'Windows x64 Debug'
     },
     {
         'windows/projects/nest',
         'x64/Release',
         {
-            'interpreter_dll.lib',
-            'interpreter_dll.dll'
-        }
+            'libnest.lib',
+            'libnest.dll'
+        },
+        'Windows x64 Release'
     },
-    { 'linux', 'linux_debug', { 'libnest.so' } },
-    { 'linux', 'linux_release/x86', { 'libnest.so' } },
-    { 'linux', 'linux_release/x64', { 'libnest.so' } }
+    {
+        'linux',
+        'linux_debug',
+        { 'libnest.so' },
+        'Linux x64/x86 Debug'
+    },
+    {
+        'linux',
+        'linux_release/x86',
+        { 'libnest.so' },
+        'Linux x86 Release'
+    },
+    {
+        'linux',
+        'linux_release/x64',
+        { 'libnest.so' },
+        'Linux x64 Release'
+    }
 } = configs
 
 _args_.1 'update' == ? [
     path 'nest_source' @fs.join = header_path
     path = build_path
-] : [
-    name ' ' '_' @su.replace_substr = name
-    !(name (su.LETTERS su.DIGITS '_' ><) @su.is_charset) ? [
-        >>> 'Invalid name\n'
+
+    (!(path 'Debug'             @fs.join @fs.is_dir)) \
+    (!(path 'linux_debug'       @fs.join @fs.is_dir)) \
+    (!(path 'linux_release/x64' @fs.join @fs.is_dir)) \
+    (!(path 'linux_release/x86' @fs.join @fs.is_dir)) \
+    (!(path 'nest_source'       @fs.join @fs.is_dir)) \
+    (!(path 'Release'           @fs.join @fs.is_dir)) \
+    (!(path 'x64/Debug'         @fs.join @fs.is_dir)) \
+    (!(path 'x64/Release'       @fs.join @fs.is_dir)) || ? [
+        'The selected directory does not contain a Nest library' @io.println
         1 @sys.exit
     ]
+] : [
+    name ' ' '_' @su.replace_substr \
+         '-' '_' @su.replace_substr = name
+    !(name (su.LETTERS su.DIGITS '_' ><) @su.is_charset) ? [
+        "Invalid name '" name "'" >< @io.println
+        1 @sys.exit
+    ]
+    name @su.to_lower = name
     path (name '/nest_source' ><) @fs.join = header_path
     path name @fs.join = build_path
 
-    header_path @fs.mkdirs
-    ... configs := { _, config, _ } [
-        build_path '/' config >< @fs.mkdirs
+    header_path @fs.make_dirs
+    ... configs := { _, config, _, _ } [
+        build_path '/' config >< @fs.make_dirs
     ]
 ]
 
 ... headers := header_file [
     header_file header_path fs.CPO.overwrite @fs.copy
 ]
+'Copied headers' @io.println
 
-... configs := { config_path, config, config_files } [
+... configs := { config_path, config, config_files, config_name } [
     '../build/' config_path '/' config >< = config_path
-
+    false = failed
     ... Iter :: config_files := file [
         config_path '/' file >< = file_path
-        !(file_path @fs.isfile) ? [
-            >>> ('"' file_path '" could not be found\n' ><)
-            >>> ('  To add it build ' (config) ' and update the library\n' ><)
-            ;
+        !(file_path @fs.is_file) ? [
+            "'" file_path "' could not be found" >< @io.println
+            true = failed
+            ..
         ]
         file_path (build_path '/' config ><) fs.CPO.overwrite @fs.copy
     ]
+    failed ?
+        '  To add the file(s) build ' config_name ' and update the library' >< @io.println
+    :
+        'Updated ' config_name >< @io.println
 ]
 
 _args_.1 'update' == ?
@@ -178,6 +216,7 @@ EndGlobal
 name '.sln' >< 'w' @io.open = sln_file
 sln_file sln_content @io.write
 sln_file @io.close
+"Created '" name ".sln'" >< @io.println
 
 ----------------------------------- makefile -----------------------------------
 
@@ -186,7 +225,7 @@ sln_file @io.close
 CC=g++
 CFLAGS=-Inest_source -Wall -shared -fPIC -rdynamic -std=c++2a
 DBG_FLAGS=-D_DEBUG -g -O0
-OUT_FILE=$(LIB_NAME).so
+OUT_FILE=$(LIB_NAME).cnest
 
 x64_DIR = linux_release/x64
 x86_DIR = linux_release/x86
@@ -204,9 +243,6 @@ SRCS := $(filter-out $(LIB_NAME)/dllmain.cpp, $(wildcard $(LIB_NAME)/*.c*))
 DBG_TARGET := $(DBG_DIR)/$(OUT_FILE)
 x64_TARGET := $(x64_DIR)/$(OUT_FILE)
 x86_TARGET := $(x86_DIR)/$(OUT_FILE)
-NEST_LIB_DBG := $(DBG_DIR)/libnest.so
-NEST_LIB_x64 := $(x64_DIR)/libnest.so
-NEST_LIB_x86 := $(x86_DIR)/libnest.so
 
 .PHONY: debug x86
 
@@ -228,10 +264,27 @@ $(DBG_TARGET): $(SRCS)
 'makefile' 'w' @io.open = makefile
 makefile makefile_content @io.write
 makefile @io.close
+"Created 'makefile'" >< @io.println
+
+---------------------------------- .nest file ----------------------------------
+
+"--$ --no-default
+
+|#| '__C__:" name ".cnest' = __" name "
+
+__" name ".add = add
+
+_vars_ '__" name "' '_vars_' -
+" >< = nest_content
+
+name '.nest' >< 'w' @io.open = nest_file
+nest_file nest_content @io.write
+nest_file @io.close
+"Created '" name ".nest'" >< @io.println
 
 -------------------------------- .vcxproj file ---------------------------------
 
-name @fs.mkdir
+name @fs.make_dir
 name @sys._set_cwd
 
 @create_guid = proj_guid
@@ -325,7 +378,7 @@ name '_' '' @su.replace_substr = root_namespace
             <GenerateDebugInformation>true</GenerateDebugInformation>
             <EnableUAC>false</EnableUAC>
             <AdditionalLibraryDirectories>..\\Debug</AdditionalLibraryDirectories>
-            <AdditionalDependencies>interpreter_dll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+            <AdditionalDependencies>libnest.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
         </Link>
     </ItemDefinitionGroup>
     <ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|Win32'\">
@@ -348,7 +401,7 @@ name '_' '' @su.replace_substr = root_namespace
             <GenerateDebugInformation>true</GenerateDebugInformation>
             <EnableUAC>false</EnableUAC>
             <AdditionalLibraryDirectories>..\\Release</AdditionalLibraryDirectories>
-            <AdditionalDependencies>interpreter_dll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+            <AdditionalDependencies>libnest.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
         </Link>
     </ItemDefinitionGroup>
     <ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|x64'\">
@@ -367,7 +420,7 @@ name '_' '' @su.replace_substr = root_namespace
             <GenerateDebugInformation>true</GenerateDebugInformation>
             <EnableUAC>false</EnableUAC>
             <AdditionalLibraryDirectories>..\\x64\\Debug</AdditionalLibraryDirectories>
-            <AdditionalDependencies>interpreter_dll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+            <AdditionalDependencies>libnest.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
         </Link>
     </ItemDefinitionGroup>
     <ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|x64'\">
@@ -390,7 +443,7 @@ name '_' '' @su.replace_substr = root_namespace
             <GenerateDebugInformation>true</GenerateDebugInformation>
             <EnableUAC>false</EnableUAC>
             <AdditionalLibraryDirectories>..\\x64\\Release</AdditionalLibraryDirectories>
-            <AdditionalDependencies>interpreter_dll.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
+            <AdditionalDependencies>libnest.lib;$(CoreLibraryDependencies);%(AdditionalDependencies)</AdditionalDependencies>
         </Link>
     </ItemDefinitionGroup>
     <ItemGroup>
@@ -410,6 +463,7 @@ name '_' '' @su.replace_substr = root_namespace
 name '.vcxproj' >< 'w' @io.open = proj_file
 proj_file proj_content @io.write
 proj_file @io.close
+"Created '" name ".vcxproj'" >< @io.println
 
 ---------------------------- .vcxproj.filters file -----------------------------
 
@@ -451,6 +505,9 @@ proj_file @io.close
 name '.vcxproj.filters' >< 'w' @io.open = filters_file
 filters_file filters_content @io.write
 filters_file @io.close
+"Created '" name ".vcxproj.filters'" >< @io.println
+
+--------------------------------------------------------------------------------
 
 "#include \"framework.h\"
 
@@ -504,16 +561,17 @@ static bool lib_init_ = false;
 bool lib_init()
 {
     usize idx = 0;
+    Nst_OpErr err = { nullptr, nullptr };
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(add, 2);
 
-#if __LINE__ - FUNC_COUNT != 18 // keep this number as the line after the first
+#if __LINE__ - FUNC_COUNT != 15 // keep this number as the line after the first
                                 // func_list_[idx++] = ...
 #error
 #endif
 
-    lib_init_ = true;
-    return true;
+    lib_init_ = err.name == nullptr;
+    return lib_init_;
 }
 
 Nst_DeclrList *get_func_ptrs()
@@ -525,22 +583,28 @@ NST_FUNC_SIGN(add)
 {
     Nst_Int a, b;
     NST_DEF_EXTRACT(\"ii\", &a, &b);
-    return nst_int_new(a + b);
+    return nst_int_new(a + b, err);
 }
 " >< = name_cpp_content
 
 'dllmain.cpp' 'w' @io.open = dllmain_file
 dllmain_file dllmain_content @io.write
 dllmain_file @io.close
+"Created 'dllmain.cpp'" @io.println
 
 'framework.h' 'w' @io.open = framework_file
 framework_file framework_h_content @io.write
 framework_file @io.close
+"Created 'framework.h'" @io.println
 
 name '.h' >< 'w' @io.open = name_h_file
 name_h_file name_h_content @io.write
 name_h_file @io.close
+"Created '" name ".h'" >< @io.println
 
 name '.cpp' >< 'w' @io.open = name_cpp_file
 name_cpp_file name_cpp_content @io.write
 name_cpp_file @io.close
+"Created '" name ".cpp'" >< @io.println
+
+name @su.repr ' created succesfully!' >< @io.println
