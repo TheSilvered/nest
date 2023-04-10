@@ -549,13 +549,13 @@ Hexadecimal digit characters (`0-9a-fA-F`).
 
 ### `LETTERS`
 
-The letter characters both uppercase (`A-Z`) and lowercase (`a-z`).
+Ascii letter characters both uppercase (`A-Z`) and lowercase (`a-z`).
 
 ---
 
 ### `LOWERCASE_LETTERS`
 
-The lowercase letter characters (`a-z`).
+Lowercase ascii letter characters (`a-z`).
 
 ---
 
@@ -567,16 +567,16 @@ Octal digit characters (`0-7`).
 
 ### `PRINTABLE`
 
-All the printable characters (`\x20-\x7e`).
+Printable characters (`\x20-\x7e`).
 
 ---
 
 ### `PUNCTUATION`
 
-All punctuation characters.
+Punctuation characters.
 
 ---
 
 ### `UPPERCASE_LETTERS`
 
-The uppercase letter characters (`A-A`).
+Uppercase ascii letter characters (`A-Z`).
