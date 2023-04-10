@@ -130,3 +130,22 @@ td {
 [data-ea-publisher] {
     margin-top: 3em;z
 }
+
+:root {
+    color-scheme: dark;
+}
+
+::-webkit-scrollbar {
+    height: 4px !important;
+    width: 4px !important;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: var(--md-default-fg-color--lighter);
+    border-radius: 2px !important;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--md-accent-fg-color)
+    border-radius: 2px !important;
+}
