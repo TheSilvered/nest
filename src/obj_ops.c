@@ -1928,7 +1928,11 @@ Nst_Obj *_nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step, Nst_OpErr 
 // Local operations
 Nst_Obj *_nst_obj_neg(Nst_Obj *ob, Nst_OpErr *err)
 {
-    if ( ob->type == nst_t.Int )
+    if ( ob->type == nst_t.Byte )
+    {
+        return nst_byte_new(-AS_BYTE(ob), err);
+    }
+    else if ( ob->type == nst_t.Int )
     {
         return nst_int_new(-AS_INT(ob), err);
     }

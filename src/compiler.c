@@ -89,10 +89,10 @@ static void compile_break_s(Nst_Node *node);
 static void compile_switch_s(Nst_Node *node);
 static void compile_try_catch_s(Nst_Node *node);
 
-Nst_InstList *nst_compile(Nst_Node *code, bool is_module, Nst_Error *error)
+Nst_InstList *nst_compile(Nst_Node *ast, bool is_module, Nst_Error *error)
 {
     c_state.error = error;
-    return compile_internal(code, false, is_module);
+    return compile_internal(ast, false, is_module);
 }
 
 static Nst_InstList *compile_internal(Nst_Node *node,

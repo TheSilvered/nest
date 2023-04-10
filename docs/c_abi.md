@@ -501,41 +501,6 @@ Prints an traceback to standard error formatting it and then frees it.
 
 ---
 
-### `nst_format_error`
-
-**Synopsis**:
-
-```better-c
-Nst_StrObj *nst_format_error(const i8 *format, const i8 *format_args, ...)
-```
-
-**Description**:
-
-Creates a new string object formatting it similarly to a printf string.
-
-**Arguments**:
-
-- `[in] format` the format string to use as a template for the final string, the
-  only formats allowed are `%s`, `%zi` and `%lli`
-- `[in] format_args` a string where each character symbolizes the type of the
-  corresponding format.  
-  `s` is used for `%s`  
-  `u` is used for `%zi`  
-  `i` is used for `%lli`
-
-```better-c
-// Here an error is thrown using nst_format_error, assuming that th type of
-// `number` is Nst_Int
-NST_SET_VALUE_ERROR(
-  nst_format_error("Invalid number %lli", "i", number));
-```
-
-**Return value**:
-
-Returns the generated string.
-
----
-
 ### `nst_free_src_text`
 
 **Synopsis**:
