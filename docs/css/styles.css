@@ -146,6 +146,6 @@ td {
 }
 
 ::-webkit-scrollbar-thumb:hover {
-    background-color: var(--md-accent-fg-color)
+    background-color: var(--md-accent-fg-color);
     border-radius: 2px !important;
 }

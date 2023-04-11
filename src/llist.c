@@ -2,8 +2,8 @@
 #include "mem.h"
 #include "llist.h"
 
-static inline Nst_LLNode *LLNode_new(void *value,
-                                     bool allocated,
+static inline Nst_LLNode *LLNode_new(void              *value,
+                                     bool               allocated,
                                      struct _Nst_OpErr *err)
 {
     Nst_LLNode *node = (Nst_LLNode *)nst_malloc(1, sizeof(Nst_LLNode), err);
@@ -17,9 +17,9 @@ static inline Nst_LLNode *LLNode_new(void *value,
     return node;
 }
 
-bool nst_llist_push(Nst_LList *llist,
-                    void *value,
-                    bool allocated,
+bool nst_llist_push(Nst_LList         *llist,
+                    void              *value,
+                    bool               allocated,
                     struct _Nst_OpErr *err)
 {
     Nst_LLNode *node = LLNode_new(value, allocated, err);

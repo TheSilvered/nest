@@ -17,20 +17,26 @@ nav:
   - Introduction: index.md
   - General syntax: syntax.md
   - Built-in libraries:
-    - Coroutine Library: coroutine_library.md
-    - Error library: error_library.md
-    - Filesystem library: filesystem_library.md
-    - Input-output library: io_library.md
-    - Iterator utilities library: iterator_utilities_library.md
-    - JSON library: json_library.md
-    - Math library: math_library.md
-    - Random library: random_library.md
-    - Sequence utilities library: sequence_utilities_library.md
-    - String utilities library: string_utilities_library.md
-    - System library: system_library.md
-    - Time and date library: time_library.md
-    - UTF-8 library: utf8_library.md
-  - C ABI: c_abi.md
+    - libs/coroutine_library.md
+    - libs/error_library.md
+    - libs/filesystem_library.md
+    - libs/io_library.md
+    - libs/iterator_utilities_library.md
+    - libs/json_library.md
+    - libs/math_library.md
+    - libs/random_library.md
+    - libs/sequence_utilities_library.md
+    - libs/string_utilities_library.md
+    - libs/system_library.md
+    - libs/time_library.md
+    - libs/utf8_library.md
+  - C ABI:
+    - c_abi/c_abi.md
+    - argv_parser.h: c_abi/c_abi-argv_parser.md
+    - compiler.h: c_abi/c_abi-compiler.md
+    - encoding.h: c_abi/c_abi-encoding.md
+    - error.h: c_abi/c_abi-error.md
+    - error_internal.h: c_abi/c_abi-error_internal.md
 extra_javascript:
   - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js
   - js/highlight.js

@@ -246,7 +246,7 @@ inline static void advance()
     cursor.idx++;
     cursor.pos.col++;
 
-    if ( cursor.idx > (i32) cursor.len )
+    if ( cursor.idx > (i32)cursor.len )
     {
         cursor.ch = '\0';
         return;
@@ -614,7 +614,7 @@ dec_num:
             start,
             cursor.pos,
             _NST_EM_BAD_REAL_LITERAL);
-            return;
+        return;
     }
     do
     {
@@ -732,11 +732,6 @@ static void make_ident(Nst_Tok **tok, Nst_Error *error)
     str = (i8 *)nst_malloc(str_len + 1, sizeof(u8), &lexer_err);
     SET_ERROR_IF_OP_ERR(str == NULL);
 
-    if ( str == NULL )
-    {
-        _NST_FAILED_ALLOCATION(error, start, cursor.pos);
-        return;
-    }
     memcpy(str, str_start, str_len);
     str[str_len] = '\0';
 
