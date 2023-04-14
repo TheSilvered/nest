@@ -37,6 +37,7 @@ nav:
     - encoding.h: c_abi/c_abi-encoding.md
     - error.h: c_abi/c_abi-error.md
     - error_internal.h: c_abi/c_abi-error_internal.md
+    - format.h: c_abi/c_abi-format.md
 extra_javascript:
   - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js
   - js/highlight.js

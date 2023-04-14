@@ -10,7 +10,7 @@ extern "C" {
 /*
 Format placeholder specification:
 
-NOTE: if an invalid sequence is invalid the function fails and nothing is printed
+NOTE: if a sequence is invalid the function fails and nothing is printed
 
 Format placeholder regex:
 %([+- 0'#]*(\d*|\*)?(.(\d*|\*))?(h|hh|l|ll|z|j|t)?[diufFgGeExXopcs]|%)
@@ -24,7 +24,7 @@ Flags:
 - '+': always print the sign on signed numeric types (by default '+' is not
        printed but '-' is)
 - ' ': prepend a space on positive signed numbers
-- '0': when a width is specifies any extra space is padded with '0' instead of
+- '0': when a width is specified any extra space is padded with '0' instead of
        ' ' for numeric types
 - '\'': use an apostrophe as the thousand separator
 - '#': alternate form
@@ -83,8 +83,6 @@ Type:
 - p: prints a void *
 
 NOTE: a, A and n are not supported
-NOTE: when not specifying a length f, F, e, E, g and G expect float arguments,
-      not doubles
 */
 
 EXPORT isize nst_print(const i8 *buf);
@@ -92,8 +90,8 @@ EXPORT isize nst_println(const i8 *buf);
 EXPORT isize nst_printf(const i8 *fmt, ...);
 EXPORT isize nst_fprint(Nst_IOFileObj *f, const i8 *buf);
 EXPORT isize nst_fprintln(Nst_IOFileObj *f, const i8 *buf);
-EXPORT isize nst_fprintf(Nst_IOFileObj *f, const i8 *buf, ...);
-EXPORT isize nst_vfprintf(Nst_IOFileObj *f, const i8 *buf, va_list args);
+EXPORT isize nst_fprintf(Nst_IOFileObj *f, const i8 *fmt, ...);
+EXPORT isize nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args);
 EXPORT Nst_Obj *nst_sprintf(const i8 *fmt, ...);
 EXPORT Nst_Obj *nst_vsprintf(const i8 *fmt, va_list args);
 
