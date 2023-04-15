@@ -39,7 +39,7 @@ A position is a map that contains 3 keys:
 - `end` is also an array with the line and column of the end of the expression
 
 !!!note
-  the lines start from 0 and the columns from 1 and the end position is inclusive.
+    the lines start from 0 and the columns from 1 and the end position is inclusive.
 
 **Example**:
 

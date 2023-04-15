@@ -15,18 +15,18 @@
 extern "C" {
 #endif // !__cplusplus
 
-EXPORT typedef union _FuncBody
+EXPORT typedef union _Nst_FuncBody
 {
     Nst_InstList *bytecode;
     Nst_Obj *(*c_func)(usize arg_num, Nst_Obj **args, Nst_OpErr *err);
 }
-FuncBody;
+Nst_FuncBody;
 
 EXPORT typedef struct _Nst_FuncObj
 {
     NST_OBJ_HEAD;
     NST_GGC_HEAD;
-    FuncBody body;
+    Nst_FuncBody body;
     Nst_Obj **args;
     usize arg_num;
     Nst_MapObj *mod_globals;
@@ -50,10 +50,11 @@ EXPORT void _nst_func_track(Nst_FuncObj *func);
 // destroy function for Nst_Func_Obj
 EXPORT void _nst_func_destroy(Nst_FuncObj *func);
 
-enum Nst_FuncFlags
+EXPORT typedef enum _Nst_FuncFlags
 {
     NST_FLAG_FUNC_IS_C = 0b1
-};
+}
+Nst_FuncFlags;
 
 #ifdef __cplusplus
 }

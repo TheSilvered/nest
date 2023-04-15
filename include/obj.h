@@ -21,7 +21,7 @@
 #define NST_FLAG_DEL(obj, flag) ((obj)->flags &= ~(flag))
 #define NST_FLAG_HAS(obj, flag) ((obj)->flags & (flag))
 
-// flags can support up to 4 flags
+// only the lower 4 bits of 'flags' can be used
 // the top 4 are reserved for the garbage collector
 #define NST_OBJ_HEAD \
     i32 ref_count; \

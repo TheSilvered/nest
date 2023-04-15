@@ -1,5 +1,7 @@
 # `format.h`
 
+The header containing the function for creating and printing formatted strings.
+
 !!!warning
     Any funtion that uses a format string will fail to write if an invalid
     placeholder is found.
