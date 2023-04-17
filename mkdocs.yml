@@ -40,29 +40,29 @@ nav:
     - format.h: c_abi/c_abi-format.md
     - function.h: c_abi/c_abi-function.md
     - ggc.h: c_abi/c_abi-ggc.md
-    - global_consts.h: c_abi\c_abi-global_consts.md
-    - hash.h: c_abi\c_abi-hash.md
-    - instructions.h: c_abi\c_abi-instructions.md
-    - interpreter.h: c_abi\c_abi-interpreter.md
-    - iter.h: c_abi\c_abi-iter.md
-    - lexer.h: c_abi\c_abi-lexer.md
-    - lib_import.h: c_abi\c_abi-lib_import.md
-    - llist.h: c_abi\c_abi-llist.md
-    - map.h: c_abi\c_abi-map.md
-    - mem.h: c_abi\c_abi-mem.md
-    - nest.h: c_abi\c_abi-nest.md
-    - nodes.h: c_abi\c_abi-nodes.md
-    - obj.h: c_abi\c_abi-obj.md
-    - obj_ops.h: c_abi\c_abi-obj_ops.md
-    - optimizer.h: c_abi\c_abi-optimizer.md
-    - parser.h: c_abi\c_abi-parser.md
-    - runtime_stack.h: c_abi\c_abi-runtime_stack.md
-    - sequence.h: c_abi\c_abi-sequence.md
-    - simple_types.h: c_abi\c_abi-simple_types.md
-    - str.h: c_abi\c_abi-str.md
-    - tokens.h: c_abi\c_abi-tokens.md
-    - typedefs.h: c_abi\c_abi-typedefs.md
-    - var_table.h: c_abi\c_abi-var_table.md
+    - global_consts.h: c_abi/c_abi-global_consts.md
+    - hash.h: c_abi/c_abi-hash.md
+    - instructions.h: c_abi/c_abi-instructions.md
+    - interpreter.h: c_abi/c_abi-interpreter.md
+    - iter.h: c_abi/c_abi-iter.md
+    - lexer.h: c_abi/c_abi-lexer.md
+    - lib_import.h: c_abi/c_abi-lib_import.md
+    - llist.h: c_abi/c_abi-llist.md
+    - map.h: c_abi/c_abi-map.md
+    - mem.h: c_abi/c_abi-mem.md
+    - nest.h: c_abi/c_abi-nest.md
+    - nodes.h: c_abi/c_abi-nodes.md
+    - obj.h: c_abi/c_abi-obj.md
+    - obj_ops.h: c_abi/c_abi-obj_ops.md
+    - optimizer.h: c_abi/c_abi-optimizer.md
+    - parser.h: c_abi/c_abi-parser.md
+    - runtime_stack.h: c_abi/c_abi-runtime_stack.md
+    - sequence.h: c_abi/c_abi-sequence.md
+    - simple_types.h: c_abi/c_abi-simple_types.md
+    - str.h: c_abi/c_abi-str.md
+    - tokens.h: c_abi/c_abi-tokens.md
+    - typedefs.h: c_abi/c_abi-typedefs.md
+    - var_table.h: c_abi/c_abi-var_table.md
 extra_javascript:
   - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js
   - js/highlight.js
