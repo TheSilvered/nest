@@ -55,15 +55,15 @@ Nst_Obj *nst_run_func_context(Nst_FuncObj *func,
 EXPORT usize nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part, Nst_OpErr *err);
 
 // Frees all the variables inside nst_state except for loaded_libs
-EXPORT void nst_state_free();
+EXPORT void nst_state_free(void);
 
 // Frees loaded_libs, must be called after _nst_streams_del
-EXPORT void _nst_unload_libs();
+EXPORT void _nst_unload_libs(void);
 
 // The state of the interpreter
 extern Nst_ExecutionState nst_state;
 
-EXPORT Nst_ExecutionState *nst_get_state();
+EXPORT Nst_ExecutionState *nst_get_state(void);
 
 #ifdef __cplusplus
 }

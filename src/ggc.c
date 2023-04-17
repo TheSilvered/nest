@@ -360,12 +360,12 @@ void nst_ggc_track_obj(Nst_GGCObj *obj)
         ggc->gen1.tail->ggc_next = obj;
         ggc->gen1.tail = obj;
         ggc->gen1.size++;
+    }
 
-        obj->track_func(OBJ(obj));
+    obj->track_func(OBJ(obj));
 
-        if ( ggc->gen1.size > NST_GEN1_MAX )
-        {
-            nst_ggc_collect();
-        }
+    if ( ggc->gen1.size > NST_GEN1_MAX )
+    {
+        nst_ggc_collect();
     }
 }

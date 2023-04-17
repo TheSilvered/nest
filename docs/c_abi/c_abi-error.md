@@ -198,7 +198,7 @@ Returns the copied position.
 **Synopsis**:
 
 ```better-c
-Nst_Pos nst_no_pos()
+Nst_Pos nst_no_pos(void)
 ```
 
 **Description**:

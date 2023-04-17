@@ -91,17 +91,17 @@ EXPORT typedef struct _Nst_StdStreams
 }
 Nst_StdStreams;
 
-EXPORT bool _nst_init_objects();
-EXPORT void _nst_del_objects();
+EXPORT bool _nst_init_objects(void);
+EXPORT void _nst_del_objects(void);
 
-EXPORT Nst_Obj *nst_true();
-EXPORT Nst_Obj *nst_false();
-EXPORT Nst_Obj *nst_null();
+EXPORT Nst_Obj *nst_true(void);
+EXPORT Nst_Obj *nst_false(void);
+EXPORT Nst_Obj *nst_null(void);
 
-EXPORT const Nst_TypeObjs *nst_type();
-EXPORT const Nst_StrConsts *nst_str();
-EXPORT const Nst_Consts *nst_const();
-EXPORT Nst_StdStreams *nst_stdio();
+EXPORT const Nst_TypeObjs *nst_type(void);
+EXPORT const Nst_StrConsts *nst_str(void);
+EXPORT const Nst_Consts *nst_const(void);
+EXPORT Nst_StdStreams *nst_stdio(void);
 
 extern Nst_TypeObjs nst_t;
 extern Nst_StrConsts nst_s;

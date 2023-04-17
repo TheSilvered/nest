@@ -138,7 +138,7 @@ EXPORT void nst_set_color(bool color);
 // Creates a new Nst_Pos on the stack
 EXPORT Nst_Pos nst_copy_pos(Nst_Pos pos);
 // An Nst_Pos that is empty, (col=0, line=0, filename=NULL, text=NULL, text_len=0)
-EXPORT Nst_Pos nst_no_pos();
+EXPORT Nst_Pos nst_no_pos(void);
 // Prints a formatted Nst_Error
 EXPORT void nst_print_error(Nst_Error err);
 // Prints a formatted Nst_Trackeback
