@@ -25,14 +25,14 @@ EXPORT typedef enum _Nst_InstID
     NST_IC_FOR_GET_VAL,
     NST_IC_RETURN_VAL,
     NST_IC_RETURN_VARS, // Returns the var table
-    NST_IC_SET_VAL_LOC, // Assigns the value without leaving ot on the stack
+    NST_IC_SET_VAL_LOC, // Assigns the value without leaving on on the stack
     NST_IC_SET_CONT_LOC, // Assigns the value of a sequence without leaving it
                          // on the stack
-    NST_IC_JUMP, // Jump to an index in the instuction array
-    NST_IC_JUMPIF_T, // Jump to an index in the instuction array if the top
-                     // value is nst_c.b_true, consumes the value
-    NST_IC_JUMPIF_F, // Jump to an index in the instuction array if the top
-                     // value is nst_c.b_false, consumes the value
+    NST_IC_JUMP, // Jump to an index in the instruction array
+    NST_IC_JUMPIF_T, // Jump to an index in the instruction array if the top
+                     // value is truthy, consumes the value
+    NST_IC_JUMPIF_F, // Jump to an index in the instruction array if the top
+                     // value is falsy, consumes the value
     NST_IC_JUMPIF_ZERO, // Jumps if the top item is an integer and is zero
     NST_IC_TYPE_CHECK, // Checks the type of the top value on the stack
     NST_IC_HASH_CHECK, // Checks the type on top of the stack is hashable
@@ -40,7 +40,7 @@ EXPORT typedef enum _Nst_InstID
     NST_IC_PUSH_CATCH, // pushes the start index of a catch block
     NST_IC_POP_CATCH, // pops the top index in the catch stack
 
-    // These instruction push a value on the value stack
+    // These instruction push a value on the stack
     NST_IC_SET_VAL, // Sets a value in the current var table
     NST_IC_GET_VAL, // Gets a value in the current var table
     NST_IC_PUSH_VAL, // Push a value onto the value stack
@@ -103,7 +103,7 @@ EXPORT Nst_Inst *nst_inst_new_int(Nst_InstID id,
 
 // Destroys an instruction allocated on the heap
 EXPORT void nst_inst_destroy(Nst_Inst *inst);
-// Destroys an insturction list
+// Destroys an instruction list
 EXPORT void nst_inst_list_destroy(Nst_InstList *inst_list);
 
 #ifdef __cplusplus
