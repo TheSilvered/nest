@@ -117,3 +117,41 @@ types inspired by Rust:
       err
   );
   ```
+
+## Undocumented files
+
+- `iter.h`
+- `lexer.h`
+- `lib_import.h`
+- `llist.h`
+- `map.h`
+- `nodes.h`
+- `obj.h`
+- `obj_ops.h`
+- `runtime_stack.h`
+- `sequence.h`
+- `simple_types.h`
+- `str.h`
+- `tokens.h`
+- `var_table.h`
+
+## Documented files
+
+- `argv_parser.h`
+- `compiler.h`
+- `encoding.h`
+- `error.h`
+- `error_internal.h`
+- `format.h`
+- `function.h`
+- `ggc.h`
+- `global_consts.h`
+- `hash.h`
+- `instructions.h`
+- `interpreter.h`
+- `mem.h`
+- `nest.h`
+- `optimizer.h`
+- `parser.h`
+- `typedefs.h`
+

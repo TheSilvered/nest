@@ -1,79 +1,21 @@
 # `nest.h`
 
-This header contains
+This includes all the other headers and defines some macros.
 
 ## Macros
 
-### `macro`
-
-**Synopsis**:
-
-```better-c
-```
+### `_NST_VERSION_BASE`
 
 **Description**:
 
-
-
-**Arguments**:
-
-- `arg`:
+The current version of Nest as a string, such as `beta-0.12.0`.
 
 ---
 
-## Structs
-
-### `struct`
-
-**Synopsis**:
-
-```better-c
-```
+### `NST_VERSION`
 
 **Description**:
 
-
-
-**Fields**:
-
-- `field`:
-
----
-
-## Functions
-
-### `function`
-
-**Synopsis**:
-
-```better-c
-```
-
-**Description**:
-
-
-
-**Arguments**:
-
-- `arg`:
-
-**Return value**:
-
----
-
-## Enums
-
-### `enum`
-
-**Synopsis**:
-
-```better-c
-```
-
-**Description**:
-
-
-
-**Fields**:
-
-- `field`:
+The current version of Nest as a string that also includes the architecture of
+the platform, such as `beta-0.12.0 x64`. If the architecture cannot be
+determined `x??` is used.

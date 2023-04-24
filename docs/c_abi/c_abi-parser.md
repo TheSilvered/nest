@@ -1,79 +1,42 @@
 # `parser.h`
 
-This header contains
-
-## Macros
-
-### `macro`
-
-**Synopsis**:
-
-```better-c
-```
-
-**Description**:
-
-
-
-**Arguments**:
-
-- `arg`:
-
----
-
-## Structs
-
-### `struct`
-
-**Synopsis**:
-
-```better-c
-```
-
-**Description**:
-
-
-
-**Fields**:
-
-- `field`:
-
----
+This header contains the functions used to parse and print the AST of a sequence
+of tokens.
 
 ## Functions
 
-### `function`
+### `nst_parse`
 
 **Synopsis**:
 
 ```better-c
+Nst_Node *nst_parse(Nst_LList *tokens, Nst_Error *error)
 ```
 
 **Description**:
 
-
+Creates the abstract syntax tree from a list of tokens.
 
 **Arguments**:
 
-- `arg`:
+- `tokens`: the tokens to parse
+- `error`: the error that occured
 
 **Return value**:
 
+The function returns the AST or `NULL` if it fails. The token list is always
+freed.
+
 ---
 
-## Enums
-
-### `enum`
+### `nst_print_ast`
 
 **Synopsis**:
 
 ```better-c
+void nst_print_ast(Nst_Node *ast)
 ```
 
 **Description**:
 
-
-
-**Fields**:
-
-- `field`:
+Prints the abstract syntax tree to stdout.

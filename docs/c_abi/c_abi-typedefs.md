@@ -1,79 +1,36 @@
 # `typedefs.h`
 
-This header contains
+This header defines some useful macros for platform-depended code and declares
+the type aliases mentioned in the introduction.
 
 ## Macros
 
-### `macro`
-
-**Synopsis**:
-
-```better-c
-```
+### `WINDOWS`
 
 **Description**:
 
-
-
-**Arguments**:
-
-- `arg`:
+Defined if the platform is MS Windows at compile-time.
 
 ---
 
-## Structs
-
-### `struct`
-
-**Synopsis**:
-
-```better-c
-```
+### `ARCH_x64`
 
 **Description**:
 
-
-
-**Fields**:
-
-- `field`:
+Defined if the architecture is 64 bits.
 
 ---
 
-## Functions
-
-### `function`
-
-**Synopsis**:
-
-```better-c
-```
+### `ARCH_x86`
 
 **Description**:
 
-
-
-**Arguments**:
-
-- `arg`:
-
-**Return value**:
+Defined if the architecture is 32 bits.
 
 ---
 
-## Enums
-
-### `enum`
-
-**Synopsis**:
-
-```better-c
-```
+### `EXPORT`
 
 **Description**:
 
-
-
-**Fields**:
-
-- `field`:
+On Windows, makes DLLs export the function, on Linux it does nothing.
