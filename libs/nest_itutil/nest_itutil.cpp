@@ -124,7 +124,7 @@ NST_FUNC_SIGN(chain_)
 
 Nst_Obj *zipn_(Nst_SeqObj *seq, Nst_OpErr *err)
 {
-    if ( !nst_extract_arg_values("A", 1, (Nst_Obj **)&seq, err, &seq) )
+    if ( !nst_extract_arg_values("A.I|a|v|s", 1, (Nst_Obj **)&seq, err, &seq) )
     {
         return nullptr;
     }
@@ -136,21 +136,6 @@ Nst_Obj *zipn_(Nst_SeqObj *seq, Nst_OpErr *err)
     }
 
     Nst_Obj **objs = seq->objs;
-
-    for ( usize i = 0, n = seq->len; i < n; i++ )
-    {
-        if ( objs[i]->type != nst_type()->Array  &&
-             objs[i]->type != nst_type()->Vector &&
-             objs[i]->type != nst_type()->Str    &&
-             objs[i]->type != nst_type()->Iter      )
-        {
-            NST_SET_TYPE_ERROR(nst_sprintf(
-                "all objects in the sequence must be of type 'Array', 'Vector',"
-                "'Str' or 'Iter' but the object at index %zi was type '%s'",
-                i, TYPE_NAME(objs[i])));
-            return nullptr;
-        }
-    }
 
     // Layout: [count, iter1, iter2, ...]
     Nst_SeqObj *arr = SEQ(nst_array_new(seq->len + 1, err));
@@ -173,21 +158,13 @@ NST_FUNC_SIGN(zip_)
     Nst_Obj *seq1;
     Nst_Obj *seq2;
 
-    NST_DEF_EXTRACT("o?R", &seq1, &seq2);
+    NST_DEF_EXTRACT("I|a|v|s?R", &seq1, &seq2);
 
     if ( seq2 == nst_null() )
     {
         return zipn_((Nst_SeqObj *)seq1, err);
     }
 
-    if ( seq1->type != nst_type()->Array && seq1->type != nst_type()->Vector &&
-         seq1->type != nst_type()->Str   && seq1->type != nst_type()->Iter )
-    {
-        NST_SET_TYPE_ERROR(nst_sprintf(
-            _NST_EM_WRONG_TYPE_FOR_ARG("Iter', 'Array', 'Vector' or 'String"),
-            1, TYPE_NAME(seq1)));
-        return nullptr;
-    }
     seq1 = nst_obj_cast(seq1, nst_type()->Iter, err);
 
     // Layout: [iter1, iter2]

@@ -742,7 +742,7 @@ NST_FUNC_SIGN(bytearray_to_str_)
 {
     Nst_SeqObj *seq;
 
-    NST_DEF_EXTRACT("A", &seq);
+    NST_DEF_EXTRACT("A.B", &seq);
 
     usize len = seq->len;
     i8 *new_str = (i8 *)nst_malloc(len + 1, sizeof(i8), err);
@@ -755,15 +755,6 @@ NST_FUNC_SIGN(bytearray_to_str_)
 
     for ( usize i = 0; i < len; i++ )
     {
-        if ( objs[i]->type != nst_type()->Byte )
-        {
-            NST_SET_TYPE_ERROR(nst_sprintf(
-                "expected only type 'Byte', got type '%s' instead",
-                TYPE_NAME(objs[i])));
-            nst_free(new_str);
-            return nullptr;
-        }
-
         new_str[i] = AS_BYTE(objs[i]);
     }
 

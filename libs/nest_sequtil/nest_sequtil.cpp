@@ -501,7 +501,7 @@ NST_FUNC_SIGN(contains_)
     Nst_Obj *container;
     Nst_Obj *object;
 
-    NST_DEF_EXTRACT("oo", &container, &object);
+    NST_DEF_EXTRACT("a|v|m|so", &container, &object);
 
     if ( container->type == nst_type()->Array || container->type == nst_type()->Vector )
     {
@@ -541,7 +541,7 @@ NST_FUNC_SIGN(contains_)
             NST_RETURN_TRUE;
         }
     }
-    else if ( container->type == nst_type()->Str )
+    else
     {
         if ( object->type != nst_type()->Str )
         {
@@ -552,13 +552,6 @@ NST_FUNC_SIGN(contains_)
             STR(container)->value, STR(container)->len,
             STR(object)->value, STR(object)->len);
         NST_RETURN_COND(res != nullptr);
-    }
-    else
-    {
-        NST_SET_TYPE_ERROR(nst_sprintf(
-            _NST_EM_WRONG_TYPE_FOR_ARG("Array', 'Vector', 'Map' or 'Str"),
-            1, TYPE_NAME(container)));
-        return nullptr;
     }
 }
 
@@ -609,7 +602,7 @@ NST_FUNC_SIGN(count_)
     Nst_Obj *container;
     Nst_Obj *obj;
 
-    NST_DEF_EXTRACT("oo", &container, &obj);
+    NST_DEF_EXTRACT("a|v|so", &container, &obj);
     usize count = 0;
 
     if ( container->type == nst_type()->Array || container->type == nst_type()->Vector )
@@ -631,7 +624,7 @@ NST_FUNC_SIGN(count_)
 
         return nst_int_new(count, err);
     }
-    else if ( container->type == nst_type()->Str )
+    else
     {
         if ( obj->type != nst_type()->Str || STR(obj)->len == 0 )
         {
@@ -655,13 +648,6 @@ NST_FUNC_SIGN(count_)
             count++;
         }
         return nst_int_new(count, err);
-    }
-    else
-    {
-        NST_SET_TYPE_ERROR(nst_sprintf(
-            _NST_EM_WRONG_TYPE_FOR_ARG("Array', 'Vector' or 'Str"),
-            1, TYPE_NAME(container)));
-        return nullptr;
     }
 }
 

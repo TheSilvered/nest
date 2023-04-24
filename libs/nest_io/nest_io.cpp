@@ -366,7 +366,7 @@ NST_FUNC_SIGN(write_bytes_)
     Nst_IOFileObj *f;
     Nst_SeqObj *seq;
 
-    NST_DEF_EXTRACT("FA", &f, &seq);
+    NST_DEF_EXTRACT("FA.B", &f, &seq);
 
     if ( NST_IOF_IS_CLOSED(f) )
     {
@@ -394,13 +394,6 @@ NST_FUNC_SIGN(write_bytes_)
 
     for ( usize i = 0; i < seq_len; i++ )
     {
-        if ( objs[i]->type != nst_type()->Byte )
-        {
-            nst_free(bytes);
-            NST_SET_RAW_TYPE_ERROR("expected 'Byte'");
-            return nullptr;
-        }
-
         bytes[i] = AS_BYTE(objs[i]);
     }
 

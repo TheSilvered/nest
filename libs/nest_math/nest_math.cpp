@@ -237,7 +237,7 @@ NST_FUNC_SIGN(dist_2d_)
     Nst_SeqObj *p1;
     Nst_SeqObj *p2;
 
-    NST_DEF_EXTRACT("AA", &p1, &p2);
+    NST_DEF_EXTRACT("A.i|rA.i|r", &p1, &p2);
 
     if ( p1->len != 2 || p2->len != 2 )
     {
@@ -256,58 +256,41 @@ NST_FUNC_SIGN(dist_2d_)
     Nst_Obj *p2y_obj = p2->objs[1];
 
     Nst_TypeObj *int_type = nst_type()->Int;
-    Nst_TypeObj *real_type = nst_type()->Real;
 
     if ( p1x_obj->type == int_type )
     {
         x1 = (Nst_Real)AS_INT(p1x_obj);
     }
-    else if ( p1x_obj->type == real_type )
-    {
-        x1 = AS_REAL(p1x_obj);
-    }
     else
     {
-        COORD_TYPE_ERROR;
+        x1 = AS_REAL(p1x_obj);
     }
 
     if ( p1y_obj->type == int_type )
     {
         y1 = (Nst_Real)AS_INT(p1y_obj);
     }
-    else if ( p1y_obj->type == real_type )
-    {
-        y1 = AS_REAL(p1y_obj);
-    }
     else
     {
-        COORD_TYPE_ERROR;
+        y1 = AS_REAL(p1y_obj);
     }
 
     if ( p2x_obj->type == int_type  )
     {
         x2 = (Nst_Real)AS_INT(p2x_obj);
     }
-    else if ( p2x_obj->type == real_type )
-    {
-        x2 = AS_REAL(p2x_obj);
-    }
     else
     {
-        COORD_TYPE_ERROR;
+        x2 = AS_REAL(p2x_obj);
     }
 
     if ( p2y_obj->type == int_type  )
     {
         y2 = (Nst_Real)AS_INT(p2y_obj);
     }
-    else if ( p2y_obj->type == real_type )
-    {
-        y2 = AS_REAL(p2y_obj);
-    }
     else
     {
-        COORD_TYPE_ERROR;
+        y2 = AS_REAL(p2y_obj);
     }
 
     // sqrt((x1 - x2)^2 + (y1 - y2)^2)
@@ -320,7 +303,7 @@ NST_FUNC_SIGN(dist_3d_)
     Nst_SeqObj *p1;
     Nst_SeqObj *p2;
 
-    NST_DEF_EXTRACT("AA", &p1, &p2);
+    NST_DEF_EXTRACT("A.i|rA.i|r", &p1, &p2);
 
     if ( p1->len != 3 || p2->len != 3 )
     {
@@ -344,84 +327,59 @@ NST_FUNC_SIGN(dist_3d_)
     Nst_Obj *p2z_obj = p2->objs[2];
 
     Nst_TypeObj *int_type = nst_type()->Int;
-    Nst_TypeObj *real_type = nst_type()->Real;
 
     if ( p1x_obj->type == int_type )
     {
         x1 = (Nst_Real)AS_INT(p1x_obj);
     }
-    else if ( p1x_obj->type == real_type )
-    {
-        x1 = AS_REAL(p1x_obj);
-    }
     else
     {
-        COORD_TYPE_ERROR;
+        x1 = AS_REAL(p1x_obj);
     }
 
     if ( p1y_obj->type == int_type )
     {
         y1 = (Nst_Real)AS_INT(p1y_obj);
     }
-    else if ( p1y_obj->type == real_type )
-    {
-        y1 = AS_REAL(p1y_obj);
-    }
     else
     {
-        COORD_TYPE_ERROR;
+        y1 = AS_REAL(p1y_obj);
     }
 
     if ( p1z_obj->type == int_type )
     {
         z1 = (Nst_Real)AS_INT(p1z_obj);
     }
-    else if ( p1z_obj->type == real_type )
-    {
-        z1 = AS_REAL(p1z_obj);
-    }
     else
     {
-        COORD_TYPE_ERROR;
+        z1 = AS_REAL(p1z_obj);
     }
 
     if ( p2x_obj->type == int_type )
     {
         x2 = (Nst_Real)AS_INT(p2x_obj);
     }
-    else if ( p2x_obj->type == real_type )
-    {
-        x2 = AS_REAL(p2x_obj);
-    }
     else
     {
-        COORD_TYPE_ERROR;
+        x2 = AS_REAL(p2x_obj);
     }
 
     if ( p2y_obj->type == int_type )
     {
         y2 = (Nst_Real)AS_INT(p2y_obj);
     }
-    else if ( p2y_obj->type == real_type )
-    {
-        y2 = AS_REAL(p2y_obj);
-    }
     else
     {
-        COORD_TYPE_ERROR;
+        y2 = AS_REAL(p2y_obj);
     }
 
     if ( p2z_obj->type == int_type )
     {
         z2 = (Nst_Real)AS_INT(p2z_obj);
     }
-    else if ( p2z_obj->type == real_type )
-    {
-        z2 = AS_REAL(p2z_obj);
-    }
     else
     {
-        COORD_TYPE_ERROR;
+        z2 = AS_REAL(p2z_obj);
     }
 
     // sqrt((x1 - x2)^2 + (y1 - y2)^2 + (z1 - z2)^2)
@@ -436,7 +394,7 @@ NST_FUNC_SIGN(dist_nd_)
     Nst_SeqObj *p1;
     Nst_SeqObj *p2;
 
-    NST_DEF_EXTRACT("AA", &p1, &p2);
+    NST_DEF_EXTRACT("A.i|rA.i|r", &p1, &p2);
 
     if ( p1->len != p2->len )
     {
@@ -464,26 +422,18 @@ NST_FUNC_SIGN(dist_nd_)
         {
             t1 = (Nst_Real)AS_INT(obj1);
         }
-        else if ( obj1->type == nst_type()->Real )
+        else
         {
             t1 = AS_REAL(obj1);
         }
-        else
-        {
-            COORD_TYPE_ERROR;
-        }
 
-        if      ( obj2->type == nst_type()->Int  )
+        if ( obj2->type == nst_type()->Int  )
         {
             t2 = (Nst_Real)AS_INT(obj2);
         }
-        else if ( obj2->type == nst_type()->Real )
-        {
-            t2 = AS_REAL(obj2);
-        }
         else
         {
-            COORD_TYPE_ERROR;
+            t2 = AS_REAL(obj2);
         }
 
         tot += (t1 - t2) * (t1 - t2);
@@ -802,33 +752,12 @@ Nst_Obj *gcd_or_lcm_seq(Nst_SeqObj *seq, NST_FUNC_SIGN((*func)), Nst_OpErr *err)
     }
 
     Nst_Obj **objs = seq->objs;
-
-    if ( objs[0]->type != nst_type()->Int &&
-         objs[0]->type != nst_type()->Real &&
-         objs[0]->type != nst_type()->Byte )
-    {
-        NST_SET_TYPE_ERROR(nst_sprintf(
-            "expected type 'Byte', 'Int' or 'Real', but object at index %zi is of type '%s'",
-            0, TYPE_NAME(objs[0])));
-        return nullptr;
-    }
-
     Nst_Obj *prev = nst_inc_ref(objs[0]);
     Nst_Obj *curr = nullptr;
     Nst_Obj *gcd_args[2] = { prev, nullptr };
 
     for ( usize i = 1, n = seq->len; i < n; i++ )
     {
-        if ( objs[i]->type != nst_type()->Int &&
-             objs[i]->type != nst_type()->Real &&
-             objs[i]->type != nst_type()->Byte )
-        {
-            NST_SET_TYPE_ERROR(nst_sprintf(
-                "expected type 'Byte', 'Int' or 'Real', but object at index %zi is of type '%s'",
-                i, TYPE_NAME(objs[i])));
-            nst_dec_ref(prev);
-            return nullptr;
-        }
         gcd_args[0] = prev;
         gcd_args[1] = objs[i];
         curr = func(2, gcd_args, err);
@@ -850,27 +779,31 @@ NST_FUNC_SIGN(gcd_)
     Nst_Obj *ob1;
     Nst_Obj *ob2;
 
-    NST_DEF_EXTRACT("oo", &ob1, &ob2);
+    NST_DEF_EXTRACT("i|r|B|A.i|r|Bi|r|B|n", &ob1, &ob2);
 
     Nst_TypeObj *type_real = nst_type()->Real;
     Nst_TypeObj *type_int  = nst_type()->Int;
-    Nst_TypeObj *type_byte = nst_type()->Byte;
 
-    if ( (ob1->type == nst_type()->Array || ob1->type == nst_type()->Vector) &&
-         ob2 == nst_null() )
+    if ( (ob1->type == nst_type()->Array || ob1->type == nst_type()->Vector) )
     {
-        return gcd_or_lcm_seq(SEQ(ob1), gcd_, err);
+        if ( ob2 == nst_null() )
+        {
+            return gcd_or_lcm_seq(SEQ(ob1), gcd_, err);
+        }
+        else
+        {
+            NST_SET_TYPE_ERROR(nst_sprintf(
+                "the two objects must a sequence and null or two numbers, got '%s' and '%s'",
+                TYPE_NAME(ob1), TYPE_NAME(ob2)
+            ));
+            return nullptr;
+        }
     }
 
-    if ( (ob1->type != type_real &&
-          ob1->type != type_int  &&
-          ob1->type != type_byte) ||
-         (ob2->type != type_real &&
-          ob2->type != type_int  &&
-          ob2->type != type_byte) )
+    if ( ob2 == nst_null() )
     {
         NST_SET_TYPE_ERROR(nst_sprintf(
-            "the two objects must a sequence and null or two numbers, got '%s', '%s'",
+            "the two objects must a sequence and null or two numbers, got '%s' and '%s'",
             TYPE_NAME(ob1), TYPE_NAME(ob2)
         ));
         return nullptr;
@@ -933,27 +866,32 @@ NST_FUNC_SIGN(lcm_)
     Nst_Obj *ob1;
     Nst_Obj *ob2;
 
-    NST_DEF_EXTRACT("oo", &ob1, &ob2);
+    NST_DEF_EXTRACT("i|r|B|A.i|r|Bi|r|B|n", &ob1, &ob2);
 
     Nst_TypeObj *type_real = nst_type()->Real;
     Nst_TypeObj *type_int  = nst_type()->Int;
     Nst_TypeObj *type_byte = nst_type()->Byte;
 
-    if ( (ob1->type == nst_type()->Array || ob1->type == nst_type()->Vector) &&
-        ob2 == nst_null() )
+    if ( (ob1->type == nst_type()->Array || ob1->type == nst_type()->Vector) )
     {
-        return gcd_or_lcm_seq(SEQ(ob1), lcm_, err);
+        if ( ob2 == nst_null() )
+        {
+            return gcd_or_lcm_seq(SEQ(ob1), lcm_, err);
+        }
+        else
+        {
+            NST_SET_TYPE_ERROR(nst_sprintf(
+                "the two objects must a sequence and null or two numbers, got '%s' and '%s'",
+                TYPE_NAME(ob1), TYPE_NAME(ob2)
+            ));
+            return nullptr;
+        }
     }
 
-    if ( (ob1->type != type_real &&
-        ob1->type != type_int  &&
-        ob1->type != type_byte) ||
-        (ob2->type != type_real &&
-            ob2->type != type_int  &&
-            ob2->type != type_byte) )
+    if ( ob2 == nst_null() )
     {
         NST_SET_TYPE_ERROR(nst_sprintf(
-            "the two objects must a sequence and null or two numbers, got '%s', '%s'",
+            "the two objects must a sequence and null or two numbers, got '%s' and '%s'",
             TYPE_NAME(ob1), TYPE_NAME(ob2)
         ));
         return nullptr;

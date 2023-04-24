@@ -7,14 +7,6 @@
 #include "format.h"
 #include "mem.h"
 
-#define SET_TYPE_ERROR(type) { \
-    NST_SET_TYPE_ERROR(nst_sprintf( \
-        _NST_EM_WRONG_TYPE_FOR_ARG(type), \
-        idx + 1, TYPE_NAME(ob))); \
-    return false; }
-
-#if 0
-
 /*
 
 Bit meaning of accepted_types:
@@ -32,8 +24,8 @@ Setting both B and C to 0 means accept anything
 typedef struct _MatchType
 {
     u16 accepted_types;
-    Nst_Obj *custom_types[3];
-    Nst_Obj *final_type;
+    Nst_TypeObj *custom_types[3];
+    Nst_TypeObj *final_type;
     struct _MatchType *seq_match;
 }
 MatchType;
@@ -58,10 +50,11 @@ enum BuiltinIdx
     Nst_IntCast   = 1,
     Nst_RealCast  = 2,
     Nst_ByteCast  = 3,
-    Nst_StrCast   = 4
+    Nst_BoolCast  = 4,
+    Nst_StrCast   = 5
 };
 
-static MatchType *compile_type_match(const i8  *types,
+static MatchType *compile_type_match(i8        *types,
                                      i8       **type_end,
                                      va_list   *args,
                                      bool       allow_auto_casting,
@@ -111,7 +104,14 @@ static MatchType *compile_type_match(const i8  *types,
      After the type specified you can add : or _ followed by exactly one letter.
      : is a cast between Nest objects, _ is a cast to a C type. When using the
      latter there cannot be any optional or custom types and it is restricted to
-     only these types after the underscore: i, r, B or s.
+     only these types after the underscore: i, r, b, B or s.
+
+    Implicit casting:
+     If a type is specified as only one of i, r, b or B it automatically becomes
+     i_i, r_r, b_b or B_B if it is not used to check the contents of a sequence
+     To get the object itself use i:i, r:r, b:b, B:B and then immediatly
+     decrease the reference (it is safe in this case since no new objects are
+     created)
 
     Sequence type checking:
      You can additionally check the types present inside the matched sequence
@@ -128,18 +128,28 @@ static MatchType *compile_type_match(const i8  *types,
     {
         return NULL;
     }
+    match_type->final_type = NULL;
+    match_type->seq_match = NULL;
+    match_type->custom_types[0] = NULL;
+    match_type->custom_types[1] = NULL;
+    match_type->custom_types[2] = NULL;
 
     bool allow_optional = true;
     bool allow_or = false;
     bool match_any = false;
     int custom_type_count = 0;
-    Nst_Obj *custom_type = NULL;
+    Nst_TypeObj *custom_type = NULL;
     i8 *t = (i8 *)types;
     u16 accepted_types = 0;
 
     while ( true )
     {
-        switch ( *t++ )
+        if ( allow_or && *t != '|' )
+        {
+            break;
+        }
+
+        switch ( *t )
         {
         case 't':
             accepted_types |= Nst_TypeIdx;
@@ -189,14 +199,14 @@ static MatchType *compile_type_match(const i8  *types,
             accepted_types |= Nst_IntIdx;
             accepted_types |= Nst_ByteIdx;
             accepted_types |= Nst_CastC;
-            match_type->final_type = (Nst_Obj *)Nst_IntCast;
+            match_type->final_type = (Nst_TypeObj *)Nst_IntCast;
             goto normal_type;
         case 'N':
             accepted_types |= Nst_IntIdx;
             accepted_types |= Nst_ByteIdx;
             accepted_types |= Nst_RealIdx;
             accepted_types |= Nst_CastC;
-            match_type->final_type = (Nst_Obj *)Nst_RealCast;
+            match_type->final_type = (Nst_TypeObj *)Nst_RealCast;
             goto normal_type;
         case 'A':
             accepted_types |= Nst_ArrayIdx;
@@ -223,7 +233,7 @@ static MatchType *compile_type_match(const i8  *types,
                 free(match_type);
                 return NULL;
             }
-            custom_type = va_arg(args, void *);
+            custom_type = va_arg(*args, Nst_TypeObj *);
             match_type->custom_types[custom_type_count] = custom_type;
             custom_type_count++;
             goto normal_type;
@@ -237,6 +247,8 @@ static MatchType *compile_type_match(const i8  *types,
             }
             accepted_types |= Nst_NullIdx;
             allow_optional = false;
+            allow_or = false;
+            t++;
             continue;
         case '|':
             if ( !allow_or )
@@ -245,11 +257,12 @@ static MatchType *compile_type_match(const i8  *types,
                 free(match_type);
                 return NULL;
             }
-            allow_optional = false;
+            allow_optional = true;
             allow_or = false;
+            t++;
             continue;
         }
-        if ( t == types + 1 )
+        if ( !allow_or )
         {
             NST_SET_RAW_VALUE_ERROR(_NST_EM_INVALID_TYPE_LETTER);
             free(match_type);
@@ -263,6 +276,7 @@ static MatchType *compile_type_match(const i8  *types,
     normal_type:
         allow_optional = false;
         allow_or = true;
+        t++;
     }
 
     if ( *t == '_' )
@@ -279,16 +293,19 @@ static MatchType *compile_type_match(const i8  *types,
         switch (*t++)
         {
         case 'i':
-            match_type->final_type = Nst_IntCast;
+            match_type->final_type = (Nst_TypeObj *)Nst_IntCast;
             break;
         case 'r':
-            match_type->final_type = Nst_RealCast;
+            match_type->final_type = (Nst_TypeObj *)Nst_RealCast;
+            break;
+        case 'b':
+            match_type->final_type = (Nst_TypeObj *)Nst_BoolCast;
             break;
         case 'B':
-            match_type->final_type = Nst_ByteCast;
+            match_type->final_type = (Nst_TypeObj *)Nst_ByteCast;
             break;
         case 's':
-            match_type->final_type = Nst_StrCast;
+            match_type->final_type = (Nst_TypeObj *)Nst_StrCast;
             break;
         default:
             NST_SET_RAW_VALUE_ERROR(_NST_EM_INVALID_TYPE_LETTER);
@@ -352,6 +369,29 @@ static MatchType *compile_type_match(const i8  *types,
             return NULL;
         }
     }
+    else if ( *t != '.' && allow_auto_casting )
+    {
+        if ( accepted_types == Nst_IntIdx )
+        {
+            match_type->final_type = (Nst_TypeObj *)Nst_IntCast;
+            accepted_types |= Nst_CastC;
+        }
+        else if ( accepted_types == Nst_RealIdx )
+        {
+            match_type->final_type = (Nst_TypeObj *)Nst_RealCast;
+            accepted_types |= Nst_CastC;
+        }
+        else if ( accepted_types == Nst_ByteIdx )
+        {
+            match_type->final_type = (Nst_TypeObj *)Nst_ByteCast;
+            accepted_types |= Nst_CastC;
+        }
+        else if ( accepted_types == Nst_BoolIdx )
+        {
+            match_type->final_type = (Nst_TypeObj *)Nst_BoolCast;
+            accepted_types |= Nst_CastC;
+        }
+    }
 
     if ( *t == '.' )
     {
@@ -372,6 +412,7 @@ static MatchType *compile_type_match(const i8  *types,
     else
     {
         *type_end = t;
+        match_type->seq_match = NULL;
     }
 
     if ( match_any )
@@ -393,19 +434,18 @@ static bool check_type(MatchType *type,
                        void      *arg)
 {
     // Any object is type-checked, casted and content-checked in this order
-
     u16 accepted_types = type->accepted_types;
     Nst_TypeObj *ob_t = ob->type;
-    Nst_Obj *final_type = type->final_type;
+    Nst_TypeObj *final_type = type->final_type;
 
     if ( accepted_types & Nst_NullIdx && ob == nst_c.Null_null )
     {
-        *(void **)arg = NULL;
+        *(Nst_Obj **)arg = nst_c.Null_null;
         return true;
     }
 
     // If any object is accepted
-    if ( accepted_types == accepted_types & Nst_CastC )
+    if ( accepted_types == (accepted_types & Nst_CastC) )
     {
         goto cast_obj;
     }
@@ -436,7 +476,7 @@ static bool check_type(MatchType *type,
     }
 
     // Now, only if the object's type is custom it can be accepted
-    for (int i = accepted_types >> 136 & 0b11; i > 0; i--)
+    for (int i = accepted_types >> 13 & 0b11; i > 0; i--)
     {
         if ( ob_t == type->custom_types[i - 1] )
         {
@@ -472,7 +512,7 @@ cast_obj:
         goto content_check;
     }
 
-    if ( (int)final_type == Nst_IntCast )
+    if ( (usize)final_type == Nst_IntCast )
     {
         Nst_Obj *res = nst_obj_cast(ob, nst_t.Int, err);
         if ( res == NULL )
@@ -483,7 +523,7 @@ cast_obj:
         nst_dec_ref(res);
         return true;
     }
-    else if ( (int)final_type == Nst_RealCast )
+    else if ( (usize)final_type == Nst_RealCast )
     {
         Nst_Obj *res = nst_obj_cast(ob, nst_t.Real, err);
         if ( res == NULL )
@@ -494,7 +534,7 @@ cast_obj:
         nst_dec_ref(res);
         return true;
     }
-    else if ( (int)final_type == Nst_ByteCast )
+    else if ( (usize)final_type == Nst_ByteCast )
     {
         Nst_Obj *res = nst_obj_cast(ob, nst_t.Real, err);
         if ( res == NULL )
@@ -505,7 +545,18 @@ cast_obj:
         nst_dec_ref(res);
         return true;
     }
-    else if ( (int)final_type == Nst_StrCast )
+    else if ( (usize)final_type == Nst_BoolCast )
+    {
+        Nst_Obj *res = nst_obj_cast(ob, nst_t.Bool, err);
+        if ( res == NULL )
+        {
+            return false;
+        }
+        *(Nst_Bool *)arg = AS_BOOL(res);
+        nst_dec_ref(res);
+        return true;
+    }
+    else if ( (usize)final_type == Nst_StrCast )
     {
         Nst_Obj *res = nst_obj_cast(ob, nst_t.Str, err);
         if ( res == NULL )
@@ -531,17 +582,19 @@ cast_obj:
 content_check:
     if ( type->seq_match == NULL )
     {
+        *(Nst_Obj **)arg = ob;
         return true;
     }
 
     if ( ob->type != nst_t.Array && ob->type != nst_t.Vector )
     {
+        *(Nst_Obj **)arg = ob;
         return true;
     }
 
     for (usize i = 0, n = SEQ(ob)->len; i < n; i++)
     {
-        if ( !check_type(type->seq_match, err, ob, arg) )
+        if ( !check_type(type->seq_match, err, SEQ(ob)->objs[i], arg) )
         {
             if ( final_type != NULL )
             {
@@ -550,237 +603,195 @@ content_check:
             return false;
         }
     }
+    *(Nst_Obj **)arg = ob;
+    return true;
 }
 
-#else
-
-// ---------------------------- Older type checks --------------------------- //
-
-static bool extract_builtin_type(const i8   type,
-                                 i32        idx,
-                                 Nst_OpErr *err,
-                                 Nst_Obj   *ob,
-                                 void      *arg,
-                                 bool       always_use_objects)
+static bool expand_buf(i8 **buf, usize buf_len, usize *buf_size, usize amount)
 {
-    switch (type)
+    if ( *buf_size - buf_len - 1 >= amount )
     {
-    case 't':
-        if ( ob->type != nst_t.Type )
-        {
-            SET_TYPE_ERROR("Type");
-        }
-        *(Nst_StrObj **)arg = STR(ob);
-        break;
-    case 'i':
-        if ( ob->type != nst_t.Int )
-        {
-            SET_TYPE_ERROR("Int");
-        }
-
-        if ( always_use_objects )
-        {
-            *(Nst_IntObj**)arg = (Nst_IntObj*)ob;
-        }
-        else
-        {
-            *(Nst_Int*)arg = AS_INT(ob);
-        }
-        break;
-    case 'l':
-        if ( ob->type != nst_t.Int && ob->type == nst_t.Byte )
-        {
-            SET_TYPE_ERROR("Int");
-        }
-
-        if ( always_use_objects )
-        {
-            *(void**)arg = ob;
-        }
-        else
-        {
-            if ( ob->type == nst_t.Int )
-            {
-                *(Nst_Int*)arg = AS_INT(ob);
-            }
-            else if ( ob->type == nst_t.Byte )
-            {
-                *(Nst_Int*)arg = (Nst_Int)AS_BYTE(ob);
-            }
-        }
-        break;
-    case 'r':
-        if ( ob->type != nst_t.Real )
-        {
-            SET_TYPE_ERROR("Real");
-        }
-
-        if ( always_use_objects )
-        {
-            *(Nst_RealObj**)arg = (Nst_RealObj*)ob;
-        }
-        else
-        {
-            *(Nst_Real*)arg = AS_REAL(ob);
-        }
-        break;
-    case 'N':
-        if ( ob->type != nst_t.Real && ob->type != nst_t.Int )
-        {
-            SET_TYPE_ERROR("Real', 'Int' or 'Byte");
-        }
-
-        if ( always_use_objects )
-        {
-            *(void**)arg = ob;
-        }
-        else
-        {
-            if ( ob->type == nst_t.Real )
-            {
-                *(Nst_Real*)arg = AS_REAL(ob);
-            }
-            else if ( ob->type == nst_t.Int )
-            {
-                *(Nst_Real*)arg = (Nst_Real)AS_INT(ob);
-            }
-            else
-            {
-                *(Nst_Real*)arg = (Nst_Real)AS_BYTE(ob);
-            }
-        }
-        break;
-    case 'b':
-        if ( ob->type != nst_t.Bool )
-        {
-            SET_TYPE_ERROR("Bool");
-        }
-
-        if ( always_use_objects )
-        {
-            *(Nst_BoolObj**)arg = (Nst_BoolObj*)ob;
-        }
-        else
-        {
-            *(Nst_Bool*)arg = AS_BOOL(ob);
-        }
-        break;
-    case 'n':
-        if ( ob->type != nst_t.Null )
-        {
-            SET_TYPE_ERROR("Null");
-        }
-        *(Nst_NullObj **)arg = nst_c.Null_null;
-        break;
-    case 's':
-        if ( ob->type != nst_t.Str )
-        {
-            SET_TYPE_ERROR("Str");
-        }
-        *(Nst_StrObj **)arg = STR(ob);
-        break;
-    case 'v':
-        if ( ob->type != nst_t.Vector )
-        {
-            SET_TYPE_ERROR("Vector");
-        }
-        *(Nst_SeqObj **)arg = SEQ(ob);
-        break;
-    case 'a':
-        if ( ob->type != nst_t.Array )
-        {
-            SET_TYPE_ERROR("Array");
-        }
-        *(Nst_SeqObj **)arg = SEQ(ob);
-        break;
-    case 'A':
-        if ( ob->type != nst_t.Array && ob->type != nst_t.Vector )
-        {
-            SET_TYPE_ERROR("Array' or 'Vector");
-        }
-        *(Nst_SeqObj **)arg = SEQ(ob);
-        break;
-    case 'S':
-        if ( ob->type != nst_t.Array  &&
-            ob->type != nst_t.Vector &&
-            ob->type != nst_t.Str )
-            SET_TYPE_ERROR("Array', 'Vector' or 'String");
-        if ( ob->type == nst_t.Str )
-        {
-            *(Nst_Obj**)arg = nst_obj_cast(ob, nst_t.Array, err);
-        }
-        else
-        {
-            *(Nst_Obj**)arg = nst_inc_ref(ob);
-        }
-        break;
-    case 'm':
-        if ( ob->type != nst_t.Map )
-        {
-            SET_TYPE_ERROR("Map");
-        }
-        *(Nst_MapObj **)arg = MAP(ob);
-        break;
-    case 'f':
-        if ( ob->type != nst_t.Func )
-        {
-            SET_TYPE_ERROR("Func");
-        }
-        *(Nst_FuncObj **)arg = FUNC(ob);
-        break;
-    case 'I':
-        if ( ob->type != nst_t.Iter )
-        {
-            SET_TYPE_ERROR("Iter");
-        }
-        *(Nst_IterObj **)arg = ITER(ob);
-        break;
-    case 'R':
-        if ( ob->type != nst_t.Iter   &&
-            ob->type != nst_t.Array  &&
-            ob->type != nst_t.Vector &&
-            ob->type != nst_t.Str)
-        {
-            SET_TYPE_ERROR("Iter', 'Array', 'Vector' or 'String");
-        }
-        if ( ob->type != nst_t.Iter )
-        {
-            *(Nst_Obj**)arg = nst_obj_cast(ob, nst_t.Iter, err);
-        }
-        else
-        {
-            *(Nst_Obj**)arg = nst_inc_ref(ob);
-        }
-        break;
-    case 'B':
-        if ( ob->type != nst_t.Byte )
-        {
-            SET_TYPE_ERROR("Byte");
-        }
-        if ( always_use_objects )
-        {
-            *(Nst_ByteObj**)arg = (Nst_ByteObj*)ob;
-        }
-        else
-        {
-            *(Nst_Byte*)arg = AS_BYTE(ob);
-        }
-        break;
-    case 'F':
-        if ( ob->type != nst_t.IOFile )
-        {
-            SET_TYPE_ERROR("IOFile");
-        }
-        *(Nst_IOFileObj **)arg = IOFILE(ob);
-        break;
-    case 'o':
-        *(Nst_Obj **)arg = ob;
-        break;
-    default:
-        NST_SET_RAW_VALUE_ERROR(_NST_EM_INVALID_TYPE_LETTER);
+        return true;
+    }
+    i8 *temp = (i8 *)nst_realloc(*buf, *buf_size + amount + 1, sizeof(i8), 0, NULL);
+    if ( temp == NULL )
+    {
+        free(*buf);
         return false;
     }
+    *buf = temp;
+    *buf_size += amount + 1;
     return true;
+}
+
+static bool append_type(Nst_TypeObj *type,
+                        i8 **buf,
+                        usize *buf_len,
+                        usize *buf_size,
+                        usize tot_types)
+{
+    i32 extra_bytes = 0;
+    switch ( tot_types )
+    {
+    case 0: extra_bytes = 1; break;
+    case 1: extra_bytes = 4; break;
+    default: extra_bytes = 2; break;
+    }
+
+    if ( !expand_buf(buf, *buf_len, buf_size, type->len + extra_bytes + 2) )
+    {
+        return false;
+    }
+    (*buf + *buf_len)[0] = '\'';
+    memcpy(*buf + *buf_len + 1, type->value, type->len);
+    *buf_len += type->len + 2;
+    (*buf + *buf_len)[-1] = '\'';
+    if ( extra_bytes == 2 )
+    {
+        (*buf + *buf_len)[0] = ',';
+        (*buf + *buf_len)[1] = ' ';
+        *buf_len += 2;
+    }
+    else if ( extra_bytes == 4 )
+    {
+        (*buf + *buf_len)[0] = ' ';
+        (*buf + *buf_len)[1] = 'o';
+        (*buf + *buf_len)[2] = 'r';
+        (*buf + *buf_len)[3] = ' ';
+        *buf_len += 4;
+    }
+    else
+    {
+        (*buf + *buf_len)[0] = ' ';
+        *buf_len += 1;
+    }
+    return true;
+}
+
+static bool append_types(MatchType *type, i8 **buf, usize *buf_len, usize *buf_size)
+{
+    u16 accepted_types = type->accepted_types;
+    usize tot_types = 0;
+    Nst_TypeObj *type_str;
+    for ( u16 i = 0; i < 13; i++ )
+    {
+        if ( ((accepted_types >> i) & 1) != 0 && i != 5 )
+        {
+            tot_types++;
+        }
+    }
+    tot_types += accepted_types >> 13 & 0b11;
+
+    for ( u16 i = 0; i < 13; i++ )
+    {
+        if ( ((accepted_types >> i) & 1) == 0 || i == 5 )
+        {
+            continue;
+        }
+        tot_types--;
+        switch ( i )
+        {
+        case 0: type_str = nst_t.Int; break;
+        case 1: type_str = nst_t.Real; break;
+        case 2: type_str = nst_t.Byte; break;
+        case 3: type_str = nst_t.Bool; break;
+        case 4: type_str = nst_t.Str; break;
+        case 6: type_str = nst_t.Array; break;
+        case 7: type_str = nst_t.Vector; break;
+        case 8: type_str = nst_t.Map; break;
+        case 9: type_str = nst_t.Iter; break;
+        case 10: type_str = nst_t.IOFile; break;
+        case 11: type_str = nst_t.Func; break;
+        default: type_str = nst_t.Type; break;
+        }
+        if ( !append_type(type_str, buf, buf_len, buf_size, tot_types) )
+        {
+            return false;
+        }
+    }
+
+    for ( u16 i = 0, n = accepted_types >> 13 & 0b11; i < n; i++ )
+    {
+        type_str = type->custom_types[i];
+        tot_types--;
+        if ( !append_type(type_str, buf, buf_len, buf_size, tot_types) )
+        {
+            return false;
+        }
+    }
+
+    if ( type->seq_match != NULL )
+    {
+        const i8 *msg = "containing only ";
+        if ( !expand_buf(buf, *buf_len, buf_size, 16) )
+        {
+            return false;
+        }
+        memcpy(*buf + *buf_len, msg, 16);
+        *buf_len += 16;
+        return append_types(type->seq_match, buf, buf_len, buf_size);
+    }
+    return true;
+}
+
+static Nst_StrObj *make_err_str(MatchType *type, Nst_Obj *ob, usize idx)
+{
+    i8 *buf = (i8 *)nst_malloc(256, sizeof(i8), NULL);
+    if ( buf == NULL )
+    {
+        return NULL;
+    }
+    usize buf_size = 256;
+    usize buf_len = 0;
+
+    if ( type->accepted_types & Nst_NullIdx )
+    {
+        const i8 *msg = "expected optional type ";
+        memcpy(buf, msg, 23);
+        buf_len = 23;
+    }
+    else
+    {
+        const i8 *msg = "expected type ";
+        memcpy(buf, msg, 14);
+        buf_len = 14;
+    }
+
+    if ( !append_types(type, &buf, &buf_len, &buf_size) )
+    {
+        return NULL;
+    }
+    const i8 *final_msg = "at index but got type '' instead";
+
+    if ( !expand_buf(&buf, buf_len, &buf_size, 43 + ob->type->len) )
+    {
+        return NULL;
+    }
+
+    memcpy(buf + buf_len, final_msg, 9);
+    buf_len += 9;
+    buf_len += sprintf(buf + buf_len, "%zi", idx);
+    memcpy(buf + buf_len, final_msg + 8, 15);
+    buf_len += 15;
+    memcpy(buf + buf_len, ob->type->value, ob->type->len);
+    buf_len += ob->type->len;
+    strcpy(buf + buf_len, final_msg + 23);
+    buf_len += 9;
+    Nst_StrObj *str = STR(nst_string_new(buf, buf_len, true, NULL));
+    if ( str == NULL )
+    {
+        nst_free(buf);
+    }
+    return str;
+}
+
+static void free_type_match(MatchType *type)
+{
+    if ( type->seq_match )
+    {
+        free_type_match(type->seq_match);
+    }
+    nst_free(type);
 }
 
 bool nst_extract_arg_values(const i8  *types,
@@ -789,124 +800,48 @@ bool nst_extract_arg_values(const i8  *types,
                             Nst_OpErr *err,
                             ...)
 {
-    /*
-    Usage of the 'types' argument:
-
-    The following characters denote a specific type for the argument:
-    't': type
-    'i': integer
-    'l': integer or byte, always returns an int
-    'r': real
-    'N': real, integer or byte, always returns a real
-    'b': bool
-    'n': null
-    's': string
-    'v': vector
-    'a': array
-    'A': array or vector
-    'S': array, vector or string, always returns a Nst_SeqObj *
-    'm': map
-    'f': func
-    'I': iter
-    'R': iter, array, vector or str returns always an iter
-    'B': byte
-    'F': file
-    'o': any object
-
-    If one of the above characters is preceded by '?' it means that the value
-    is optional and may be null. When using this option the pointer to store
-    the value in should always be a pointer to Nst_Obj *.
-
-    If the character is '#' this means that you need to provide the type
-    yourself before the pointer to store the value.
-
-    Examples:
-        Nst_Obj *num;
-        NST_D_EXTRACT("?N", &num); // num can be of type Null, Byte, Int or Real
-
-        CoroutineObj *co;
-        NST_D_EXTRACT('#', t_Coroutine, &co); // the function will succede if
-                                              // the type of the first argument
-                                              // is t_Coroutine
-    */
-
-    va_list arglist;
-    va_start(arglist, err);
-    void *arg;
+    va_list args_list;
+    va_start(args_list, err);
+    i8 *type_end = (i8 *)types;
+    MatchType *type;
     Nst_Obj *ob;
-    u32 arg_idx = 0;
-    bool succeded = true;
-    bool use_objects;
+    void *arg;
+    usize ob_idx = 0;
 
-    for ( usize i = 0, n = strlen(types); i < n; i++ )
+    do
     {
-        if ( arg_idx >= arg_num )
+        type = compile_type_match(type_end, &type_end, &args_list, true, err);
+        if ( type == NULL )
         {
-            NST_SET_RAW_VALUE_ERROR(_NST_EM_ARG_NUM_DOESNT_MATCH);
-            succeded = false;
-            goto end;
+            va_end(args_list);
+            return false;
         }
 
-        arg = va_arg(arglist, void *);
-        ob = args[arg_idx];
-        use_objects = false;
-
-        if ( types[i] == '?' )
+        ob = args[ob_idx++];
+        arg = va_arg(args_list, void *);
+        if ( !check_type(type, err, ob, arg) )
         {
-            if ( i + 1 == n ) // if it is the last character
+            Nst_StrObj *err_message = make_err_str(type, ob, ob_idx);
+            if ( err_message == NULL )
             {
-                NST_SET_RAW_VALUE_ERROR(_NST_EM_INVALID_TYPE_LETTER);
-                succeded = false;
-                goto end;
-            }
-            use_objects = true;
-            i++;
-            if ( ob->type == nst_t.Null )
-            {
-                *(void**)arg = nst_c.Null_null;
-                goto next_arg;
-            }
-        }
-
-        if ( types[i] == '#' )
-        {
-            Nst_TypeObj *custom_type = TYPE(arg);
-            arg = va_arg(arglist, void *);
-
-            if ( ob->type == custom_type )
-            {
-                *(void**)arg = ob;
+                NST_FAILED_ALLOCATION;
             }
             else
             {
-                NST_SET_TYPE_ERROR(nst_sprintf(
-                    _NST_EM_WRONG_TYPE_FOR_ARG2,
-                    custom_type->value, arg_idx + 1, TYPE_NAME(ob)));
-                succeded = false;
-                goto end;
+                NST_SET_ERROR(nst_s.e_TypeError, err_message);
             }
-            goto next_arg;
+            va_end(args_list);
+            return false;
         }
-
-        if ( !extract_builtin_type(types[i], arg_idx, err, ob, arg, use_objects) )
-        {
-            succeded = false;
-            goto end;
-        }
-
-    next_arg:
-        arg_idx++;
+        free_type_match(type);
     }
+    while ( *type_end != '\0' );
+    va_end(args_list);
 
-    if ( arg_idx != arg_num )
+    if ( ob_idx != arg_num )
     {
-        NST_SET_RAW_VALUE_ERROR(_NST_EM_ARG_NUM_DOESNT_MATCH);
-        succeded = false;
+        NST_SET_RAW_VALUE_ERROR(_NST_EM_INVALID_TYPE_LETTER);
+        return false;
     }
-
-end:
-    va_end(arglist);
-    return succeded;
+    return true;
 }
-
-#endif
