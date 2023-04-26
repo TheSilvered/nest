@@ -81,13 +81,12 @@ EXPORT void nst_vstack_destroy(Nst_ValueStack *v_stack);
 
 // New call stack on the heap
 EXPORT Nst_CallStack *nst_fstack_new(Nst_OpErr *err);
-EXPORT
-bool _nst_fstack_push(Nst_CallStack *f_stack,
-                      Nst_FuncObj   *func,
-                      Nst_Pos        call_start,
-                      Nst_Pos        call_end,
-                      Nst_VarTable  *vt,
-                      Nst_Int        idx);
+EXPORT bool _nst_fstack_push(Nst_CallStack *f_stack,
+                             Nst_FuncObj   *func,
+                             Nst_Pos        call_start,
+                             Nst_Pos        call_end,
+                             Nst_VarTable  *vt,
+                             Nst_Int        idx);
 // Pops a function from the call stack
 EXPORT Nst_FuncCall nst_fstack_pop(Nst_CallStack *f_stack);
 // Returns the top function in the call stack
@@ -98,11 +97,10 @@ EXPORT void nst_fstack_destroy(Nst_CallStack *f_stack);
 // New catch stack on the heap
 EXPORT Nst_CatchStack *nst_cstack_new(Nst_OpErr *err);
 // Pushes a value to the catch stack
-EXPORT
-bool nst_cstack_push(Nst_CatchStack *c_stack,
-                     Nst_Int         inst_idx,
-                     usize           v_stack_size,
-                     usize           f_stack_size);
+EXPORT bool nst_cstack_push(Nst_CatchStack *c_stack,
+                            Nst_Int         inst_idx,
+                            usize           v_stack_size,
+                            usize           f_stack_size);
 // Peeks the top value of the catch stack
 EXPORT Nst_CatchFrame nst_cstack_peek(Nst_CatchStack *c_stack);
 // Returns the top value of the catch stack
@@ -111,14 +109,15 @@ EXPORT Nst_CatchFrame nst_cstack_pop(Nst_CatchStack *c_stack);
 EXPORT void nst_cstack_destroy(Nst_CatchStack *c_stack);
 
 // Creates a new runtime stack
-EXPORT Nst_GenericStack *nst_stack_new(usize unit_size, usize starting_size, Nst_OpErr *err);
+EXPORT Nst_GenericStack *nst_stack_new(usize      unit_size,
+                                       usize      starting_size,
+                                       Nst_OpErr *err);
 // Expands a generic stack
 EXPORT bool nst_stack_expand(Nst_GenericStack *g_stack, usize unit_size);
 // Shrinks a runtime stack
-EXPORT
-void nst_stack_shrink(Nst_GenericStack *g_stack,
-                      usize             min_size,
-                      usize             unit_size);
+EXPORT void nst_stack_shrink(Nst_GenericStack *g_stack,
+                             usize             min_size,
+                             usize             unit_size);
 
 #ifdef __cplusplus
 }

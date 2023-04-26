@@ -31,12 +31,11 @@ EXPORT typedef struct _Nst_IterObj
 }
 Nst_IterObj;
 
-EXPORT
-Nst_Obj *nst_iter_new(Nst_FuncObj *start,
-                      Nst_FuncObj *is_done,
-                      Nst_FuncObj *get_val,
-                      Nst_Obj     *value,
-                      Nst_OpErr   *err);
+EXPORT Nst_Obj *nst_iter_new(Nst_FuncObj *start,
+                             Nst_FuncObj *is_done,
+                             Nst_FuncObj *get_val,
+                             Nst_Obj     *value,
+                             Nst_OpErr   *err);
 EXPORT void _nst_iter_destroy(Nst_IterObj *iter);
 EXPORT void _nst_iter_traverse(Nst_IterObj *iter);
 EXPORT void _nst_iter_track(Nst_IterObj *iter);

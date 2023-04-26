@@ -29,24 +29,22 @@ EXPORT typedef struct _Nst_ExecutionState
 Nst_ExecutionState;
 
 // Runs the main program, must never be called
-EXPORT
-i32 nst_run(Nst_FuncObj *main_func,
-            i32          argc,
-            i8         **argv,
-            i8          *filename,
-            i32          opt_lvl,
-            bool         no_default);
+EXPORT i32 nst_run(Nst_FuncObj *main_func,
+                   i32          argc,
+                   i8         **argv,
+                   i8          *filename,
+                   i32          opt_lvl,
+                   bool         no_default);
 // Runs an external Nest file, returns -1 on fail and 0 on success
 EXPORT i32 nst_run_module(i8 *file_name, Nst_SourceText *lib_src);
 // Calls a Nst_FuncObj, it can be both a C function or a bytecode function
 EXPORT Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err);
 /* Calls a function that has NOT a C body with the given start indexand var table.
 The NULL value MUST be added on the stack manually */
-EXPORT
-Nst_Obj *nst_run_func_context(Nst_FuncObj *func,
-                              Nst_Int      idx,
-                              Nst_MapObj  *vars,
-                              Nst_MapObj  *globals);
+EXPORT Nst_Obj *nst_run_func_context(Nst_FuncObj *func,
+                                     Nst_Int      idx,
+                                     Nst_MapObj  *vars,
+                                     Nst_MapObj  *globals);
 // Returns the full path of a file
 // `file_path` is the relative path of the file
 // `buf` is the pointer where the full path is stored, the memory is allocated

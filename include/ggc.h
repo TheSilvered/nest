@@ -66,11 +66,10 @@ EXPORT typedef struct _Nst_GarbageCollector
 Nst_GarbageCollector;
 
 // Collects the object of a generation
-EXPORT
-void nst_ggc_collect_gen(Nst_GGCList *gen,
-                         Nst_GGCList *other_gen1,
-                         Nst_GGCList *other_gen2,
-                         Nst_GGCList *other_gen3);
+EXPORT void nst_ggc_collect_gen(Nst_GGCList *gen,
+                                Nst_GGCList *other_gen1,
+                                Nst_GGCList *other_gen2,
+                                Nst_GGCList *other_gen3);
 // Runs a collection, does not guaratee to collect all generations
 EXPORT void nst_ggc_collect(void);
 // Adds an object to the tracked objects by the garbage collector

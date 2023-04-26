@@ -96,16 +96,15 @@ EXPORT Nst_Obj *nst_byte_new(Nst_Byte value, Nst_OpErr *err);
 // Creates a new IOFile object, bin: is opened in binary format,
 // read: supports reading, write: supports writing
 EXPORT Nst_Obj *nst_iof_new(Nst_IOFile value, bool bin, bool read, bool write, Nst_OpErr *err);
-EXPORT
-Nst_Obj *nst_iof_new_fake(void *value,
-                          bool bin, bool read, bool write,
-                          Nst_IOFile_read_f  read_f,
-                          Nst_IOFile_write_f write_f,
-                          Nst_IOFile_flush_f flush_f,
-                          Nst_IOFile_tell_f  tell_f,
-                          Nst_IOFile_seek_f  seek_f,
-                          Nst_IOFile_close_f close_f,
-                          Nst_OpErr *err);
+EXPORT Nst_Obj *nst_iof_new_fake(void *value,
+                                 bool bin, bool read, bool write,
+                                 Nst_IOFile_read_f  read_f,
+                                 Nst_IOFile_write_f write_f,
+                                 Nst_IOFile_flush_f flush_f,
+                                 Nst_IOFile_tell_f  tell_f,
+                                 Nst_IOFile_seek_f  seek_f,
+                                 Nst_IOFile_close_f close_f,
+                                 Nst_OpErr *err);
 
 EXPORT void _nst_iofile_destroy(Nst_IOFileObj *obj);
 

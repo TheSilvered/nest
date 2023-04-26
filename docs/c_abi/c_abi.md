@@ -120,7 +120,6 @@ types inspired by Rust:
 
 ## Undocumented files
 
-- `lexer.h`
 - `lib_import.h`
 - `llist.h`
 - `map.h`
@@ -149,6 +148,7 @@ types inspired by Rust:
 - `instructions.h`
 - `interpreter.h`
 - `iter.h`
+- `lexer.h`
 - `mem.h`
 - `nest.h`
 - `optimizer.h`

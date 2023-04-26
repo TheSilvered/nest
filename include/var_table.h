@@ -15,7 +15,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-    EXPORT typedef struct _Nst_VarTable
+EXPORT typedef struct _Nst_VarTable
 {
     Nst_MapObj *vars;
     Nst_MapObj *global_table;
@@ -23,11 +23,10 @@ extern "C" {
 Nst_VarTable;
 
 // Creates a new variable table
-EXPORT
-Nst_VarTable *nst_vt_new(Nst_MapObj *global_table,
-                         Nst_StrObj *cwd,
-                         Nst_SeqObj *args,
-                         Nst_OpErr  *err);
+EXPORT Nst_VarTable *nst_vt_new(Nst_MapObj *global_table,
+                                Nst_StrObj *cwd,
+                                Nst_SeqObj *args,
+                                Nst_OpErr  *err);
 EXPORT Nst_Obj *_nst_vt_get(Nst_VarTable *vt, Nst_Obj *name);
 EXPORT void _nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val, Nst_OpErr *err);
 #ifdef __cplusplus

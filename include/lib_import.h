@@ -126,12 +126,11 @@ Nst_DeclrList;
 // `args`: the arguments themselves
 // `err`: the `err` argument of the function
 // ...: the pointers to store the values in or the custom types
-EXPORT
-bool nst_extract_arg_values(const i8  *types,
-                            usize      arg_num,
-                            Nst_Obj  **args,
-                            Nst_OpErr *err,
-                            ...);
+EXPORT bool nst_extract_arg_values(const i8  *types,
+                                   usize      arg_num,
+                                   Nst_Obj  **args,
+                                   Nst_OpErr *err,
+                                   ...);
 
 #ifdef __cplusplus
 }
