@@ -22,9 +22,6 @@
 #define C_CYN "\x1b[96m"
 #define C_RES "\x1b[0m"
 
-#define R_LEN 4
-#define C_LEN 5
-
 static bool use_color = true;
 static bool use_stderr = false;
 static Nst_IOFileObj *err_stream = NULL;

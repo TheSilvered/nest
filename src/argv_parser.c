@@ -1,6 +1,10 @@
 #include <string.h>
 #include "nest.h"
 
+#ifdef WINDOWS
+#include "windows.h"
+#endif
+
 #define HELP_MESSAGE \
     "USAGE: nest [options] [filename | -c command] [args]\n" \
     "\n" \
@@ -252,3 +256,99 @@ i32 _nst_parse_args(i32 argc, i8 **argv,
 
     return 0;
 }
+
+#ifdef WINDOWS
+
+bool _nst_wargv_to_argv(int       argc,
+                        wchar_t **wargv,
+                        i8     ***argv,
+                        i8      **argv_content)
+{
+    usize tot_size = 0;
+    for ( i32 i = 0; i < argc; i++ )
+    {
+        tot_size += (wcslen(wargv[i])) * 3 + 1;
+    }
+    i8 **local_argv = (i8 **)nst_malloc(argc, sizeof(i8 *), NULL);
+    i8 *local_argv_content = (i8 *)nst_malloc(tot_size, sizeof(i8), NULL);
+
+    if ( local_argv == NULL || local_argv_content == NULL )
+    {
+        nst_free(local_argv);
+        nst_free(local_argv_content);
+        puts("Failed allocation while converting argv");
+        return false;
+    }
+
+    i8 *argv_ptr = local_argv_content;
+
+    for ( i32 i = 0; i < argc; i++ )
+    {
+        wchar_t *warg = wargv[i];
+        local_argv[i] = argv_ptr;
+
+        for ( usize j = 0, n = wcslen(warg); j < n; j++ )
+        {
+            usize ch_len = nst_check_utf16_bytes(warg + j, n - j);
+            if ( ch_len == -1 )
+            {
+                nst_free(local_argv);
+                nst_free(local_argv_content);
+                puts("Invalid argv enconding");
+                return false;
+            }
+            argv_ptr += nst_utf16_to_utf8(argv_ptr, warg + j, n - j);
+            j += ch_len - 1;
+        }
+        *argv_ptr++ = '\0';
+    }
+    *argv = local_argv;
+    *argv_content = local_argv_content;
+
+    return true;
+}
+
+void _nst_set_console_mode()
+{
+    SetErrorMode(SEM_FAILCRITICALERRORS);
+    SetConsoleOutputCP(CP_UTF8);
+
+    HANDLE stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
+    if ( stdout_handle == INVALID_HANDLE_VALUE )
+    {
+        return;
+    }
+    HANDLE stdin_handle = GetStdHandle(STD_INPUT_HANDLE);
+    if ( stdin_handle == INVALID_HANDLE_VALUE )
+    {
+        return;
+    }
+
+    DWORD stdout_prev_mode = 0;
+    DWORD stdin_prev_mode = 0;
+    if (!GetConsoleMode(stdout_handle, &stdout_prev_mode))
+    {
+        return;
+    }
+    if (!GetConsoleMode(stdin_handle, &stdin_prev_mode))
+    {
+        return;
+    }
+
+    DWORD stdout_new_mode = ENABLE_VIRTUAL_TERMINAL_PROCESSING
+                          | DISABLE_NEWLINE_AUTO_RETURN;
+    DWORD stdin_new_mode = ENABLE_VIRTUAL_TERMINAL_INPUT;
+
+    DWORD stdout_mode = stdout_prev_mode | stdout_new_mode;
+    if ( !SetConsoleMode(stdout_handle, stdout_mode) )
+    {
+        stdout_new_mode = ENABLE_VIRTUAL_TERMINAL_PROCESSING;
+        stdout_mode = stdout_new_mode | stdout_new_mode;
+        SetConsoleMode(stdout_handle, stdout_mode);
+    }
+
+    DWORD dwInMode = stdin_prev_mode | stdin_new_mode;
+    SetConsoleMode(stdin_handle, dwInMode);
+}
+
+#endif // !WINDOWS

@@ -18,13 +18,15 @@ A programming language with no keywords.
 - the standard library includes coroutines, a JSON parser and various other
   helper functions
 
-**This programming laguage is still in early development and is heavely unstable.
+**This programming language is still in early development and is heavily unstable.
 The beta versions are not properly tested and might crash unexpectedly.**
 
 ### Planned features
 
 - Regular expressions in the standard library
 - A custom graphics and UI standard library built on top of SDL2
+- Unicode built-in strings
+- Correct encoding/decoding in I/O
 
 ## Documentation
 

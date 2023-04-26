@@ -79,8 +79,9 @@ i32 nst_utf16_to_utf8(i8 *out_str, u16 *in_str, usize in_str_len)
     }
     else
     {
-        n  = (*in_str++ & 0x3ff) + 0xd800;
+        n  = (*in_str++ & 0x3ff) << 10;
         n += (*in_str   & 0x3ff);
+        n += 0x10000;
     }
 
     if ( n <= 0x7f )

@@ -2,15 +2,27 @@
 #include <cstring>
 #include "json_dumper.h"
 
-#if !defined(_WIN32) && !defined(WIN32)
+#ifndef WINDOWS
 
 #define isinf std::isinf
 #define isnan std::isnan
 
 #endif
 
-#define EXCEPT_ERROR if ( str_buf == nullptr ) return
-#define FAIL do { nst_free(str_buf); str_buf = nullptr; return; } while ( 0 )
+#define EXCEPT_ERROR \
+    do { \
+        if ( NST_ERROR_OCCURRED ) \
+        { \
+            FAIL; \
+        } \
+    } while ( 0 )
+
+#define FAIL \
+    do { \
+        nst_buffer_destroy(&str_buf); \
+        return; \
+    } while ( 0 )
+
 #define INC_RECURSION_LVL \
     do { \
         recursion_level++; \
@@ -22,10 +34,6 @@
     } while ( 0 )
 #define DEC_RECURSION_LVL recursion_level--
 
-static void expand_to(usize size_to_reach, Nst_OpErr *err);
-static void expand_by(usize size_to_add, Nst_OpErr *err);
-static void append_buf(const i8 *str, usize len, Nst_OpErr *err);
-static void fit_buf();
 static void dump_obj(Nst_Obj *obj, i32 indent, Nst_OpErr *err);
 static void dump_str(Nst_StrObj *str, Nst_OpErr *err);
 static void dump_num(Nst_Obj *number, Nst_OpErr *err);
@@ -34,79 +42,25 @@ static void dump_map(Nst_MapObj *map, i32 indent, Nst_OpErr *err);
 static void add_comma(i32 indent, Nst_OpErr *err);
 static void add_indent(i32 indent, Nst_OpErr *err);
 
-static i8 *str_buf;
-static usize buf_size;
-static usize str_len;
+static Nst_Buffer str_buf;
 static i32 indent_level;
 static i32 recursion_level;
 
 Nst_Obj *json_dump(Nst_Obj *obj, i32 indent, Nst_OpErr *err)
 {
     recursion_level = 0;
-    str_buf = (i8 *)nst_malloc(255, sizeof(i8), err);
-    buf_size = 255;
-    str_len = 0;
-    indent_level = 0;
-
-    dump_obj(obj, indent, err);
-    if ( str_buf == nullptr )
+    if ( !nst_buffer_init(&str_buf, 255, err) )
     {
         return nullptr;
     }
 
-    str_buf[str_len] = 0;
-    fit_buf();
-    return nst_string_new(str_buf, str_len, true, err);
-}
-
-static void expand_to(usize size_to_reach, Nst_OpErr *err)
-{
-    if ( buf_size >= size_to_reach )
+    dump_obj(obj, indent, err);
+    if ( NST_ERROR_OCCURRED )
     {
-        return;
+        return nullptr;
     }
 
-    usize new_size = usize(size_to_reach * 1.5);
-    i8 *new_buf = (i8 *)nst_realloc(str_buf, new_size, sizeof(i8), 0, err);
-    if ( new_buf == nullptr )
-    {
-        FAIL;
-    }
-
-    str_buf = new_buf;
-    buf_size = new_size;
-}
-
-static void expand_by(usize size_to_add, Nst_OpErr *err)
-{
-    expand_to(str_len + size_to_add + 1, err);
-}
-
-static void append_buf(const i8 *str, usize len, Nst_OpErr *err)
-{
-    if ( len == 0 )
-    {
-        len = strlen(str);
-    }
-
-    expand_by(len, err);
-    EXCEPT_ERROR;
-    memcpy(str_buf + str_len, str, len);
-    str_len += len;
-}
-
-static void fit_buf()
-{
-    i8 *new_buf = (i8 *)nst_realloc(
-        str_buf,
-        usize(str_len + 1),
-        sizeof(i8),
-        0, nullptr);
-    if ( new_buf != nullptr )
-    {
-        str_buf = new_buf;
-        buf_size = str_len + 1;
-    }
+    return OBJ(nst_buffer_to_string(&str_buf, err));
 }
 
 static void dump_obj(Nst_Obj *obj, i32 indent, Nst_OpErr *err)
@@ -132,15 +86,15 @@ static void dump_obj(Nst_Obj *obj, i32 indent, Nst_OpErr *err)
     }
     else if ( obj == nst_null() )
     {
-        append_buf("null", 4, err);
+        nst_buffer_append_c_str(&str_buf, "null", err);
     }
     else if ( obj == nst_true() )
     {
-        append_buf("true", 4, err);
+        nst_buffer_append_c_str(&str_buf, "true", err);
     }
     else if ( obj == nst_false() )
     {
-        append_buf("false", 5, err);
+        nst_buffer_append_c_str(&str_buf, "false", err);
     }
     else
     {
@@ -173,47 +127,64 @@ static void dump_str(Nst_StrObj *str, Nst_OpErr *err)
         }
     }
 
-    expand_by(s_len + unicode_bytes * 5 + 2, err);
+    nst_buffer_expand_by(&str_buf, s_len + unicode_bytes * 5 + 2, err);
     EXCEPT_ERROR;
 
-    str_buf[str_len++] = '"';
+    nst_buffer_append_char(&str_buf, '"', NULL);
     for ( usize i = 0; i < s_len; i++ )
     {
         i32 res = nst_check_utf8_bytes((u8 *)s_val + i, s_len - i);
         switch ( res )
         {
         case 1:
-            str_buf[str_len++] = s_val[i];
+            nst_buffer_append_char(&str_buf, s_val[i], NULL);
             break;
         case -1:
-            append_buf("\\u00", 4, err);
-            str_buf[str_len++] = hex_digits[(u8)(s_val[i]) >> 4];
-            str_buf[str_len++] = hex_digits[(u8)(s_val[i]) & 0xf];
+        {
+            nst_buffer_append_c_str(&str_buf, "\\u00", err);
+            u8 c1 = u8(s_val[i]) >> 4;
+            u8 c2 = u8(s_val[i]) & 0xf;
+            nst_buffer_append_char(&str_buf, hex_digits[c1], NULL);
+            nst_buffer_append_char(&str_buf, hex_digits[c2], NULL);
             break;
+        }
         case 2:
-            append_buf("\\u0", 3, err);
-            str_buf[str_len++] = hex_digits[(u8)(s_val[i]) >> 2 & 0xf];
-            str_buf[str_len++] = hex_digits[(((u8)(s_val[i]) & 0x3) << 2)
-                                          + (((u8)(s_val[i + 1]) >> 4) & 0x3)];
+        {
+            nst_buffer_append_c_str(&str_buf, "\\u0", err);
+            u8 c1 = u8(s_val[i]) >> 2 & 0xf;
+            u8 c2 = ((u8(s_val[i]) & 0x3) << 2)
+                  + ((u8(s_val[i + 1]) >> 4) & 0x3);
+            u8 c3 = u8(s_val[i + 1]) & 0xf;
             i++;
-            str_buf[str_len++] = hex_digits[(u8)(s_val[i]) & 0xf];
+
+            nst_buffer_append_char(&str_buf, hex_digits[c1], NULL);
+            nst_buffer_append_char(&str_buf, hex_digits[c2], NULL);
+            nst_buffer_append_char(&str_buf, hex_digits[c3], NULL);
             break;
+        }
         case 3:
-            append_buf("\\u", 2, err);
-            str_buf[str_len++] = hex_digits[(u8)(s_val[i++]) & 0xf];
-            str_buf[str_len++] = hex_digits[((u8)(s_val[i]) >> 2) & 0xf];
-            str_buf[str_len++] = hex_digits[(((u8)(s_val[i]) & 0x3) << 2)
-                                          + (((u8)(s_val[i + 1]) >> 4) & 0x3)];
+        {
+            nst_buffer_append_c_str(&str_buf, "\\u", err);
+            u8 c1 = u8(s_val[i++]) & 0xf;
+            u8 c2 = (u8(s_val[i]) >> 2) & 0xf;
+            u8 c3 = ((u8(s_val[i]) & 0x3) << 2)
+                  + ((u8(s_val[i + 1]) >> 4) & 0x3);
+            u8 c4 = (u8)(s_val[i + 1]) & 0xf;
             i++;
-            str_buf[str_len++] = hex_digits[(u8)(s_val[i]) & 0xf];
+
+            nst_buffer_append_char(&str_buf, hex_digits[c1], NULL);
+            nst_buffer_append_char(&str_buf, hex_digits[c2], NULL);
+            nst_buffer_append_char(&str_buf, hex_digits[c3], NULL);
+            nst_buffer_append_char(&str_buf, hex_digits[c4], NULL);
             break;
+        }
         case 4:
             NST_SET_RAW_VALUE_ERROR(
                 "JSON: cannot serialize characters above U+FFFF");
             FAIL;
         }
     }
-    str_buf[str_len++] = '"';
+    nst_buffer_append_char(&str_buf, '"', NULL);
     DEC_RECURSION_LVL;
 }
 
@@ -224,13 +195,13 @@ static void dump_num(Nst_Obj *number, Nst_OpErr *err)
     {
         i8 loc_buf[4];
         sprintf(loc_buf, "%i", AS_BYTE(number));
-        append_buf((const i8 *)loc_buf, 0, err);
+        nst_buffer_append_c_str(&str_buf, loc_buf, err);
     }
     else if ( number->type == nst_type()->Int )
     {
         i8 loc_buf[21];
         sprintf(loc_buf, "%lli", AS_INT(number));
-        append_buf((const i8 *)loc_buf, 0, err);
+        nst_buffer_append_c_str(&str_buf, loc_buf, err);
     }
     else
     {
@@ -241,7 +212,7 @@ static void dump_num(Nst_Obj *number, Nst_OpErr *err)
                 "JSON: cannot serialize infinities or NaNs");
             FAIL;
         }
-        i8 loc_buf[26];
+        i8 loc_buf[27];
         sprintf(loc_buf, "%.16lg", val);
         usize len = strlen(loc_buf);
         for ( usize i = 0; i < len; i++ )
@@ -253,8 +224,9 @@ static void dump_num(Nst_Obj *number, Nst_OpErr *err)
         }
         loc_buf[len++] = '.';
         loc_buf[len++] = '0';
+        loc_buf[len++] = '\0';
     finish:
-        append_buf((const i8 *)loc_buf, len, err);
+        nst_buffer_append_c_str(&str_buf, loc_buf, err);
     }
     DEC_RECURSION_LVL;
 }
@@ -263,22 +235,23 @@ static void dump_seq(Nst_SeqObj *seq, i32 indent, Nst_OpErr *err)
 {
     if ( seq->len == 0 )
     {
-        append_buf("[]", 2, err);
+        nst_buffer_append_c_str(&str_buf, "[]", err);
         return;
     }
     INC_RECURSION_LVL;
-    append_buf("[", 1, err);
+
+    nst_buffer_append_char(&str_buf, '[', err);
     EXCEPT_ERROR;
     indent_level++;
 
     if ( indent > 1 )
     {
-        expand_by(indent * indent_level + 1, err);
+        nst_buffer_expand_by(&str_buf, indent * indent_level + 1, err);
         EXCEPT_ERROR;
-        str_buf[str_len++] = '\n';
+        nst_buffer_append_char(&str_buf, '\n', err);
         for ( i8 i = 0; i < indent * indent_level; i++ )
         {
-            str_buf[str_len++] = ' ';
+            nst_buffer_append_char(&str_buf, ' ', err);
         }
     }
 
@@ -291,19 +264,19 @@ static void dump_seq(Nst_SeqObj *seq, i32 indent, Nst_OpErr *err)
         {
             DEC_RECURSION_LVL;
             indent_level--;
-            expand_by(1, err);
+            nst_buffer_expand_by(&str_buf, 1, err);
             EXCEPT_ERROR;
             if ( indent < 1 )
             {
-                str_buf[str_len++] = ']';
+                nst_buffer_append_char(&str_buf, ']', err);
                 return;
             }
-            str_buf[str_len++] = '\n';
+            nst_buffer_append_char(&str_buf, '\n', err);
             add_indent(indent, err);
             EXCEPT_ERROR;
-            expand_by(1, err);
+            nst_buffer_expand_by(&str_buf, 1, err);
             EXCEPT_ERROR;
-            str_buf[str_len++] = ']';
+            nst_buffer_append_char(&str_buf, ']', err);
             return;
         }
 
@@ -316,22 +289,22 @@ static void dump_map(Nst_MapObj *map, i32 indent, Nst_OpErr *err)
 {
     if ( map->item_count == 0 )
     {
-        append_buf("{}", 2, err);
+        nst_buffer_append_c_str(&str_buf, "{}", err);
         return;
     }
     INC_RECURSION_LVL;
-    append_buf("{", 1, err);
+    nst_buffer_append_char(&str_buf, '{', err);
     EXCEPT_ERROR;
     indent_level++;
 
     if ( indent > 1 )
     {
-        expand_by(indent * indent_level + 1, err);
+        nst_buffer_expand_by(&str_buf, indent * indent_level + 1, err);
         EXCEPT_ERROR;
-        str_buf[str_len++] = '\n';
+        nst_buffer_append_char(&str_buf, '\n', err);
         for ( i8 i = 0; i < indent * indent_level; i++ )
         {
-            str_buf[str_len++] = ' ';
+            nst_buffer_append_char(&str_buf, ' ', err);
         }
     }
 
@@ -356,11 +329,11 @@ static void dump_map(Nst_MapObj *map, i32 indent, Nst_OpErr *err)
 
         if ( indent == -1 )
         {
-            append_buf(":", 1, err);
+            nst_buffer_append_char(&str_buf, ':', err);
         }
         else
         {
-            append_buf(": ", 2, err);
+            nst_buffer_append_c_str(&str_buf, ": ", err);
         }
         EXCEPT_ERROR;
 
@@ -373,17 +346,17 @@ static void dump_map(Nst_MapObj *map, i32 indent, Nst_OpErr *err)
             indent_level--;
             if ( indent < 1 )
             {
-                append_buf("}", 1, err);
+                nst_buffer_append_char(&str_buf, '}', err);
                 return;
             }
             else
             {
-                append_buf("\n", 1, err);
+                nst_buffer_append_char(&str_buf, '\n', err);
                 EXCEPT_ERROR;
             }
             add_indent(indent, err);
             EXCEPT_ERROR;
-            append_buf("}", 1, err);
+            nst_buffer_append_char(&str_buf, '}', err);
             return;
         }
 
@@ -397,23 +370,22 @@ static void add_comma(i32 indent, Nst_OpErr *err)
     INC_RECURSION_LVL;
     if ( indent == -1 )
     {
-        expand_by(1, err);
+        nst_buffer_expand_by(&str_buf, 1, err);
     }
     else
     {
-        expand_by(2, err);
+        nst_buffer_expand_by(&str_buf, 2, err);
     }
     EXCEPT_ERROR;
-    str_buf[str_len++] = ',';
+    nst_buffer_append_char(&str_buf, ',', err);
     if ( indent == 0 )
     {
-        str_buf[str_len++] = ' ';
+        nst_buffer_append_char(&str_buf, ' ', err);
     }
     else if ( indent > 0 )
     {
-        str_buf[str_len++] = '\n';
+        nst_buffer_append_char(&str_buf, '\n', err);
         add_indent(indent, err);
-        EXCEPT_ERROR;
     }
     DEC_RECURSION_LVL;
 }
@@ -421,11 +393,11 @@ static void add_comma(i32 indent, Nst_OpErr *err)
 static void add_indent(i32 indent, Nst_OpErr *err)
 {
     INC_RECURSION_LVL;
-    expand_by(indent * indent_level, err);
+    nst_buffer_expand_by(&str_buf, indent * indent_level, err);
     EXCEPT_ERROR;
     for ( i32 i = 0; i < indent * indent_level; i++ )
     {
-        str_buf[str_len++] = ' ';
+        nst_buffer_append_char(&str_buf, ' ', err);
     }
     DEC_RECURSION_LVL;
 }

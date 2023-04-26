@@ -267,7 +267,7 @@ The stack operators in Nest are:
 - `*` multiplication
 - `/` division
 - `^` exponentiation
-- `%` reminder
+- `%` modulus
 - `><` concatenation
 - `&&` logical and
 - `||` logical or
@@ -281,8 +281,8 @@ The stack operators in Nest are:
 - `>=` greater than or equal to
 - `<` less than
 - `<=` less than or equal to
-- `==` equality
-- `!=` inequality
+- `==` equal to
+- `!=` not equal to
 
 To perform an operation with these operators you can write all the operands
 followed by the operator:
@@ -299,7 +299,7 @@ operator, you can use parenthesis:
 (3 2 ^) (4 2 ^) + 0.5 ^
 ```
 
-this expression is equal to the python expression `(3 ** 2 + 4 ** 2) ** 0.5`.
+this expression is equal to the python expression `(3**2 + 4**2) ** 0.5`.
 
 The comparison operators (`<`, `<=`, `>`, `>=`, `==` and `!=`) operate in a
 different way though. They check each pair of adjacent operands and then check
@@ -371,6 +371,10 @@ operand:
 ```nest
 >>> 'Hello, world!\n'
 ```
+
+This kind of operators have the highest precedence, this means that writing
+`>>> 'Hello ' name '!\n' ><` will be executed as `(>>> 'Hello ') name '!\n' ><`,
+to change the order you can use parenthesis: `>>> ('Hello ' name '!\n' ><)`
 
 ### Local-stack operators
 
@@ -475,8 +479,8 @@ Output:
 ```nest
 > nest example.nest
 
-File "example.nest" at line 2:
- 2 | 'This Is The Name' !! 'this is the message'
+File "example.nest" at line 1:
+ 1 | 'This Is The Name' !! 'this is the message'
 This Is The Name - this is the message
 ```
 
@@ -526,6 +530,7 @@ element in an array, vector or map.
 
 ```nest
 10 = a -- assigns the value 10 to the variable 'a'
+3 -= a -- decrements 'a' by 3, now it is 7
 ```
 
 ---

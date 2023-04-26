@@ -143,3 +143,106 @@ void nst_free(void *block)
 #endif
     free(block);
 }
+
+bool nst_buffer_init(Nst_Buffer *buf, usize initial_size, Nst_OpErr *err)
+{
+    i8 *data = nst_malloc(initial_size, sizeof(i8), err);
+    if ( data == NULL )
+    {
+        return false;
+    }
+    data[0] = '\0';
+    buf->data = data;
+    buf->size = initial_size;
+    buf->len = 0;
+    return true;
+}
+
+bool nst_buffer_expand_by(Nst_Buffer *buf, usize amount, Nst_OpErr *err)
+{
+    return nst_buffer_expand_to(buf, buf->len + amount + 1, err);
+}
+
+bool nst_buffer_expand_to(Nst_Buffer *buf, usize size, Nst_OpErr *err)
+{
+    if ( buf->size > size )
+    {
+        return true;
+    }
+
+    usize new_size = (usize)(size * 1.5);
+    i8 *new_data = (i8 *)nst_realloc(buf->data, new_size, sizeof(i8), 0, err);
+    if ( new_data == NULL )
+    {
+        return false;
+    }
+    buf->data = new_data;
+    buf->size = new_size;
+    return true;
+}
+
+void nst_buffer_fit(Nst_Buffer *buf)
+{
+    buf->data = nst_realloc(buf->data, buf->len + 1, sizeof(i8), buf->size, NULL);
+    buf->size = buf->len + 1;
+}
+
+bool nst_buffer_append(Nst_Buffer *buf, Nst_StrObj *str, Nst_OpErr *err)
+{
+    usize str_len = str->len;
+    if ( !nst_buffer_expand_by(buf, str_len, err) )
+    {
+        return false;
+    }
+    memcpy(buf->data + buf->len, str->value, str_len + 1);
+    buf->len += str_len;
+    return true;
+}
+
+bool nst_buffer_append_c_str(Nst_Buffer *buf, const i8 *str, Nst_OpErr *err)
+{
+    usize str_len = strlen(str);
+    if ( !nst_buffer_expand_by(buf, str_len, err) )
+    {
+        return false;
+    }
+    memcpy(buf->data + buf->len, str, str_len + 1);
+    buf->len += str_len;
+    return true;
+}
+
+bool nst_buffer_append_char(Nst_Buffer *buf, i8 ch, Nst_OpErr *err)
+{
+    if ( !nst_buffer_expand_by(buf, 1, err) )
+    {
+        return false;
+    }
+    buf->data[buf->len++] = ch;
+    buf->data[buf->len] = '\0';
+    return true;
+}
+
+Nst_StrObj *nst_buffer_to_string(Nst_Buffer *buf, Nst_OpErr *err)
+{
+    nst_buffer_fit(buf);
+    Nst_StrObj *str = STR(nst_string_new(buf->data, buf->len, true, err));
+    if ( str == NULL )
+    {
+        nst_free(buf->data);
+    }
+    buf->data = NULL;
+    buf->size = 0;
+    buf->len = 0;
+    return str;
+}
+
+void nst_buffer_destroy(Nst_Buffer *buf)
+{
+    if ( buf->data != NULL )
+    {
+        nst_free(buf->data);
+    }
+    buf->data = NULL;
+    buf->size = 0;
+    buf->len = 0;
+}

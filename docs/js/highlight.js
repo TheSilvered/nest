@@ -1,6 +1,6 @@
 const node = document.createElement("div");
 node.setAttribute("data-ea-publisher", "");
-const el = document.querySelector(".md-sidebar--primary > .md-sidebar__scrollwrap");
+const el = document.querySelector(".md-footer");
 el.appendChild(node);
 
 hljs.registerLanguage("nest", hljs => {

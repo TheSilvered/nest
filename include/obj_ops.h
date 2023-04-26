@@ -15,7 +15,8 @@ Functions that are guaranteed to not return an error:
     obj_cast when an object is casted to a string or a boolean
 */
 
-#include "error.h"
+#include "map.h"
+#include "sequence.h"
 
 // operator ==
 #define nst_obj_eq(ob1, ob2, err) _nst_obj_eq(OBJ(ob1), OBJ(ob2), err)
@@ -123,14 +124,19 @@ EXPORT Nst_Obj *_nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err);
 // and that usually a valid literal for the value
 EXPORT Nst_Obj *_nst_repr_str_cast(Nst_Obj *ob, Nst_OpErr *err);
 // Internal cast from sequence to Str
-EXPORT Nst_Obj *_nst_obj_str_cast_seq(Nst_Obj *seq_obj,
-                                      Nst_LList *all_objs,
-                                      Nst_OpErr *err);
+EXPORT Nst_Obj *_nst_obj_str_cast_seq(Nst_SeqObj *seq_obj,
+                                      Nst_LList  *all_objs,
+                                      Nst_OpErr  *err);
 // Internal cast from Map to Str
-EXPORT Nst_Obj *_nst_obj_str_cast_map(Nst_Obj *map_obj, Nst_LList *all_objs, Nst_OpErr *err);
+EXPORT Nst_Obj *_nst_obj_str_cast_map(Nst_MapObj *map_obj,
+                                      Nst_LList  *all_objs,
+                                      Nst_OpErr  *err);
 EXPORT Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err);
 EXPORT Nst_Obj *_nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err);
-EXPORT Nst_Obj *_nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step, Nst_OpErr *err);
+EXPORT Nst_Obj *_nst_obj_range(Nst_Obj   *start,
+                               Nst_Obj   *stop,
+                               Nst_Obj   *step,
+                               Nst_OpErr *err);
 
 // Local operations
 

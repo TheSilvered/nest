@@ -49,3 +49,51 @@ Parses the command-line arguments given to the program.
 - `0` is returned if the parsing succeded and the program can run
 - `1` is returned if the parsing succeded and the program should stop because a
   message was printed.
+
+---
+
+### `_nst_wargv_to_argv`
+
+_This function is available **only on Windows**_
+
+**Synopsis**:
+
+```better-c
+bool _nst_wargv_to_argv(int       argc,
+                        wchar_t **wargv,
+                        i8     ***argv,
+                        i8      **argv_content)
+```
+
+**Description**:
+
+This function turns Unicode Windows arguments into normal C strings encoded in
+UTF-8. Both `argv` and `argv_content` need to be freed.
+
+**Arguments**:
+
+- `[in] argc`: the number of command-line arguments
+- `[in] wargv`: the Unicode arguments
+- `[out] argv`: the pointer where to store the arguments, the memory is
+  allocated by the function
+- `[out] argv_content`: the pointer where to store the contents of the arguments,
+  the memory is allocated by the function
+
+**Return value**:
+
+The function returns `true` on success and `false` on failure.
+
+---
+
+### `_nst_set_console_mode`
+
+_This function is available **only on Windows**_
+
+**Synopsis**:
+
+```better-c
+void _nst_set_console_mode()
+```
+**Description**:
+
+Sets the console output to be UTF-8 and to intercept ANSI escape sequences.
