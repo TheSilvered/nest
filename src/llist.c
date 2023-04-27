@@ -137,7 +137,9 @@ void nst_llist_empty(Nst_LList *llist, void (*item_destroy_func)(void *))
     for ( Nst_LLNode *cursor = llist->head; cursor != NULL; )
     {
         if ( cursor->allocated && item_destroy_func != NULL )
+        {
             (*item_destroy_func)(cursor->value);
+        }
         prev = cursor;
         cursor = cursor->next;
         llist->size--;

@@ -23,7 +23,7 @@ EXPORT typedef struct _Nst_LLNnode
 }
 Nst_LLNode;
 
-EXPORT typedef struct
+EXPORT typedef struct _Nst_LList
 {
     Nst_LLNode *head;
     Nst_LLNode *tail;
@@ -36,14 +36,14 @@ struct _Nst_OpErr;
 EXPORT typedef void (*Nst_LListDestructor)(void *);
 
 // Adds an element to the front
-EXPORT bool nst_llist_push(Nst_LList *llist,
-                           void *value,
-                           bool allocated,
+EXPORT bool nst_llist_push(Nst_LList         *llist,
+                           void              *value,
+                           bool               allocated,
                            struct _Nst_OpErr *err);
 // Adds an element to the back
-EXPORT bool nst_llist_append(Nst_LList *llist,
-                             void *value,
-                             bool allocated,
+EXPORT bool nst_llist_append(Nst_LList         *llist,
+                             void              *value,
+                             bool               allocated,
                              struct _Nst_OpErr *err);
 // Removes and returns an element from the front
 EXPORT void *nst_llist_pop(Nst_LList *llist);
@@ -62,7 +62,7 @@ EXPORT Nst_LList *nst_llist_new(struct _Nst_OpErr *err);
 // The value of the node is passed to 'item_destroy_func' when 'allocated' is true
 // When 'allocated' is true but 'item_destroy_func' is NULL, the value is not freed
 EXPORT void nst_llist_destroy(Nst_LList *llist, void (*item_destroy_func)(void *));
-// Frees all the values inside the list but mantains the list
+// Frees all the values inside the list but maintains the list
 // If 'item_destroy_func' is NULL and 'allocated' is true, the item is not freed
 EXPORT void nst_llist_empty(Nst_LList *llist, void (*item_destroy_func)(void *));
 // Moves the contents of one llist to another
