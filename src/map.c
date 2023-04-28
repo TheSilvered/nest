@@ -91,7 +91,7 @@ static bool are_eq(Nst_Obj *ob1, Nst_Obj *ob2)
     }
 }
 
-void _nst_map_resize(Nst_MapObj *map, bool force_item_reset, Nst_OpErr *err)
+bool _nst_map_resize(Nst_MapObj *map, bool force_item_reset)
 {
     usize old_size = map->size;
     Nst_MapNode *old_nodes = map->nodes;
@@ -110,21 +110,14 @@ void _nst_map_resize(Nst_MapObj *map, bool force_item_reset, Nst_OpErr *err)
     }
     else
     {
-        return;
+        return true;
     }
 
-    map->nodes = (Nst_MapNode *)nst_calloc(size, sizeof(Nst_MapNode), NULL, err);
+    map->nodes = (Nst_MapNode *)nst_calloc(size, sizeof(Nst_MapNode), NULL, NULL);
     if ( map->nodes == NULL )
     {
-        if ( old_size > size && err != NULL )
-        {
-            nst_dec_ref(err->name);
-            nst_dec_ref(err->message);
-            err->name = NULL;
-            err->name = NULL;
-        }
         map->nodes = old_nodes;
-        return;
+        return old_size > size;
     }
     map->mask = size - 1;
     map->size = size;
@@ -154,9 +147,10 @@ void _nst_map_resize(Nst_MapObj *map, bool force_item_reset, Nst_OpErr *err)
     map->tail_idx = prev_idx;
 
     nst_free(old_nodes);
+    return true;
 }
 
-bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value, Nst_OpErr *err)
+bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
 {
     i32 hash = key->hash;
 
@@ -167,6 +161,11 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value, Nst_OpErr *err)
         {
             return false;
         }
+    }
+
+    if ( !_nst_map_resize(map, false) )
+    {
+        return false;
     }
 
     usize mask = map->mask;
@@ -243,8 +242,6 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value, Nst_OpErr *err)
     {
         nst_ggc_track_obj((Nst_GGCObj*)value);
     }
-
-    _nst_map_resize(map, false, err);
 
     return true;
 }
@@ -347,7 +344,7 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
             map->head_idx = curr_node.next_idx;
         }
 
-        _nst_map_resize(map, true, NULL);
+        _nst_map_resize(map, true);
         NST_RETURN_TRUE;
     }
 
@@ -389,7 +386,7 @@ Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
                 map->head_idx = curr_node.next_idx;
             }
 
-            _nst_map_resize(map, true, NULL);
+            _nst_map_resize(map, true);
             NST_RETURN_TRUE;
         }
     }
@@ -408,15 +405,20 @@ void _nst_map_destroy(Nst_MapObj *map)
     nst_free(map->nodes);
 }
 
-void _nst_map_set_str(Nst_MapObj *map, const i8 *key, Nst_Obj *value, Nst_OpErr *err)
+bool _nst_map_set_str(Nst_MapObj *map, const i8 *key, Nst_Obj *value, Nst_OpErr *err)
 {
     Nst_Obj *key_obj = nst_string_new_c_raw(key, false, err);
     if ( key_obj == NULL )
     {
-        return;
+        return false;
     }
-    nst_map_set(map, key_obj, value, err);
+    bool res = nst_map_set(map, key_obj, value);
     nst_dec_ref(key_obj);
+    if ( !res )
+    {
+        NST_FAILED_ALLOCATION;
+    }
+    return res;
 }
 
 Nst_Obj *_nst_map_get_str(Nst_MapObj *map, const i8 *key, Nst_OpErr *err)
@@ -479,5 +481,17 @@ i32 _nst_map_get_next_idx(i32 curr_idx, Nst_MapObj *map)
     else
     {
         return map->nodes[curr_idx].next_idx;
+    }
+}
+
+i32 _nst_map_get_prev_idx(i32 curr_idx, Nst_MapObj *map)
+{
+    if ( curr_idx == -1 )
+    {
+        return map->tail_idx;
+    }
+    else
+    {
+        return map->nodes[curr_idx].prev_idx;
     }
 }

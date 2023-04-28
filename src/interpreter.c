@@ -1016,7 +1016,7 @@ static inline void exe_set_cont_val(Nst_Inst *inst)
     }
     else if ( cont->type == nst_t.Map )
     {
-        bool res = nst_map_set(cont, idx, val, &main_err);
+        bool res = nst_map_set(cont, idx, val);
         if ( main_err.name != NULL )
         {
             SET_OP_ERROR(inst->start, inst->end);
@@ -1025,7 +1025,7 @@ static inline void exe_set_cont_val(Nst_Inst *inst)
             nst_dec_ref(val);
             return;
         }
-        if ( !res )
+        if ( !res && idx->hash != -1 )
         {
             _NST_SET_TYPE_ERROR(
                 GLOBAL_ERROR,
@@ -1034,6 +1034,10 @@ static inline void exe_set_cont_val(Nst_Inst *inst)
                 nst_sprintf(
                     _NST_EM_UNHASHABLE_TYPE,
                     TYPE_NAME(idx)));
+        }
+        else if ( !res )
+        {
+            _NST_FAILED_ALLOCATION(GLOBAL_ERROR, inst->start, inst->end);
         }
 
         nst_dec_ref(cont);
@@ -1726,10 +1730,13 @@ static inline void exe_make_map(Nst_Inst *inst)
         Nst_Obj *key = v_stack[stack_size - map_size + i];
         i++;
         Nst_Obj *val = v_stack[stack_size - map_size + i];
-        nst_map_set(map, key, val, &main_err);
-        if ( main_err.name != NULL )
+        bool res = nst_map_set(map, key, val);
+        if ( !nst_map_set(map, key, val) )
         {
-            _NST_SET_ERROR_FROM_OP_ERR(GLOBAL_ERROR, &main_err, inst->start, inst->end);
+            _NST_FAILED_ALLOCATION(GLOBAL_ERROR, inst->start, inst->end);
+            nst_dec_ref(val);
+            nst_dec_ref(key);
+            nst_dec_ref(map);
             return;
         }
         nst_dec_ref(val);

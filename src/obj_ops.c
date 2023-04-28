@@ -1728,7 +1728,7 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
                     return NULL;
                 }
 
-                if ( !nst_map_set(map, SEQ(objs[i])->objs[0], SEQ(objs[i])->objs[1], err) )
+                if ( !nst_map_set(map, SEQ(objs[i])->objs[0], SEQ(objs[i])->objs[1]) )
                 {
                     NST_SET_TYPE_ERROR(nst_sprintf(
                         _NST_EM_MAP_TO_SEQ_HASH("index"), i));
@@ -1794,7 +1794,7 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
                     return NULL;
                 }
 
-                if ( !nst_map_set(map, result->objs[0], result->objs[1], err) )
+                if ( !nst_map_set(map, result->objs[0], result->objs[1]) )
                 {
                     NST_SET_TYPE_ERROR(nst_sprintf(
                         _NST_EM_MAP_TO_SEQ_HASH("iteration"),
@@ -2105,7 +2105,10 @@ static void add_to_handle_map(Nst_StrObj     *path,
         nst_dec_ref(path);
         return;
     }
-    nst_map_set(nst_state.lib_handles, path, map, err);
+    if ( !nst_map_set(nst_state.lib_handles, path, map) )
+    {
+        NST_FAILED_ALLOCATION;
+    }
     nst_dec_ref(path);
 }
 
@@ -2219,15 +2222,17 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
             goto fail;
         }
 
-        nst_map_set(obj_map, obj_declr.name, obj, err);
-        nst_dec_ref(obj_declr.name);
-        nst_dec_ref(obj);
-
-        if ( NST_ERROR_OCCURRED )
+        if ( !nst_map_set(obj_map, obj_declr.name, obj) )
         {
+            NST_FAILED_ALLOCATION;
             nst_dec_ref(obj_map);
+            nst_dec_ref(obj_declr.name);
+            nst_dec_ref(obj);
             goto fail;
         }
+
+        nst_dec_ref(obj_declr.name);
+        nst_dec_ref(obj);
     }
     nst_llist_append(nst_state.loaded_libs, lib, true, err);
 

@@ -117,7 +117,7 @@ static Nst_Obj *parse_object(Nst_LList *tokens, Nst_OpErr *err)
             return nullptr;
         }
 
-        nst_map_set(map, key, val, err);
+        nst_map_set(map, key, val);
         nst_dec_ref(key);
         nst_dec_ref(val);
 
