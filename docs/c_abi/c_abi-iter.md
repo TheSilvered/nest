@@ -207,27 +207,27 @@ on failure.
 ```better-c
 // Functions for the iter object
 
-void _nst_iter_destroy(Nst_IterObj *iter);
-void _nst_iter_traverse(Nst_IterObj *iter);
-void _nst_iter_track(Nst_IterObj *iter);
+void _nst_iter_destroy(Nst_IterObj *iter)
+void _nst_iter_traverse(Nst_IterObj *iter)
+void _nst_iter_track(Nst_IterObj *iter)
 
 // Functions for the range iterator
 
-NST_FUNC_SIGN(nst_iter_range_start);
-NST_FUNC_SIGN(nst_iter_range_is_done);
-NST_FUNC_SIGN(nst_iter_range_get_val);
+NST_FUNC_SIGN(nst_iter_range_start)
+NST_FUNC_SIGN(nst_iter_range_is_done)
+NST_FUNC_SIGN(nst_iter_range_get_val)
 
 // Functions for the sequence iterator
 
-NST_FUNC_SIGN(nst_iter_seq_start);
-NST_FUNC_SIGN(nst_iter_seq_is_done);
-NST_FUNC_SIGN(nst_iter_seq_get_val);
+NST_FUNC_SIGN(nst_iter_seq_start)
+NST_FUNC_SIGN(nst_iter_seq_is_done)
+NST_FUNC_SIGN(nst_iter_seq_get_val)
 
 // Functions for the string iterator
 
-NST_FUNC_SIGN(nst_iter_str_start);
-NST_FUNC_SIGN(nst_iter_str_is_done);
-NST_FUNC_SIGN(nst_iter_str_get_val);
+NST_FUNC_SIGN(nst_iter_str_start)
+NST_FUNC_SIGN(nst_iter_str_is_done)
+NST_FUNC_SIGN(nst_iter_str_get_val)
 ```
 
 **Description**:
