@@ -120,7 +120,6 @@ types inspired by Rust:
 
 ## Undocumented files
 
-- `obj.h`
 - `obj_ops.h`
 - `runtime_stack.h`
 - `sequence.h`
@@ -151,6 +150,7 @@ types inspired by Rust:
 - `mem.h`
 - `nest.h`
 - `nodes.h`
+- `obj.h`
 - `optimizer.h`
 - `parser.h`
 - `typedefs.h`

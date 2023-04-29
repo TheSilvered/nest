@@ -469,7 +469,10 @@ between them.
 After the type specified you can add `:` or `_` followed by exactly one letter.
 `:` is a cast between Nest objects, `_` is a cast to a C type. When using the
 latter there cannot be any optional or custom types and it is restricted to
-only these types after the underscore: `i`, `r`, `b`, `B` or `s`.
+only these types after the underscore: `i`, `r`, `b` or `B`.
+
+If an object is casted to another Nest object, its reference count must be
+decreased when the function ends.
 
 **Implicit casting**
 
@@ -478,6 +481,15 @@ becomes `i_i`, `r_r`, `b_b` or `B_B` if it is not used to check the contents of
 a sequence. To get the object itself use `i:i`, `r:r`, `b:b`, `B:B` and then
 immediately decrease the reference (it is safe in this case since no new objects
 are created).
+
+```better-c
+Nst_IntObj *num;
+
+NST_DEF_EXTRACT("i:i", &num);
+nst_dec_ref(num);
+
+// here you can use 'num' normally
+```
 
 **Sequence type checking**
 

@@ -1730,7 +1730,6 @@ static inline void exe_make_map(Nst_Inst *inst)
         Nst_Obj *key = v_stack[stack_size - map_size + i];
         i++;
         Nst_Obj *val = v_stack[stack_size - map_size + i];
-        bool res = nst_map_set(map, key, val);
         if ( !nst_map_set(map, key, val) )
         {
             _NST_FAILED_ALLOCATION(GLOBAL_ERROR, inst->start, inst->end);

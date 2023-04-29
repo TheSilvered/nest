@@ -50,8 +50,7 @@ enum BuiltinIdx
     INT_C_CAST   = 1,
     REAL_C_CAST  = 2,
     BYTE_C_CAST  = 3,
-    BOOL_C_CAST  = 4,
-    STR_C_CAST   = 5
+    BOOL_C_CAST  = 4
 };
 
 static MatchType *compile_type_match(i8        *types,
@@ -104,7 +103,7 @@ static MatchType *compile_type_match(i8        *types,
      After the type specified you can add : or _ followed by exactly one letter.
      : is a cast between Nest objects, _ is a cast to a C type. When using the
      latter there cannot be any optional or custom types and it is restricted to
-     only these types after the underscore: i, r, b, B or s.
+     only these types after the underscore: i, r, b or B.
 
     Implicit casting:
      If a type is specified as only one of i, r, b or B it automatically becomes
@@ -303,9 +302,6 @@ static MatchType *compile_type_match(i8        *types,
             break;
         case 'B':
             match_type->final_type = (Nst_TypeObj *)BYTE_C_CAST;
-            break;
-        case 's':
-            match_type->final_type = (Nst_TypeObj *)STR_C_CAST;
             break;
         default:
             NST_SET_RAW_VALUE_ERROR(_NST_EM_INVALID_TYPE_LETTER);
@@ -553,28 +549,6 @@ cast_obj:
             return false;
         }
         *(Nst_Bool *)arg = AS_BOOL(res);
-        nst_dec_ref(res);
-        return true;
-    }
-    else if ( (usize)final_type == STR_C_CAST )
-    {
-        Nst_Obj *res = nst_obj_cast(ob, nst_t.Str, err);
-        if ( res == NULL )
-        {
-            return false;
-        }
-        if ( res->ref_count != 1 )
-        {
-            nst_dec_ref(res);
-            res = nst_string_copy(res, err);
-            if ( res == NULL )
-            {
-                return false;
-            }
-        }
-
-        NST_FLAG_DEL(res, NST_FLAG_STR_IS_ALLOC);
-        *(i8 **)arg = STR(res)->value;
         nst_dec_ref(res);
         return true;
     }
