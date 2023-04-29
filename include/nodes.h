@@ -56,9 +56,9 @@ Nst_Node;
 EXPORT Nst_Node *nst_node_new(Nst_NodeType type, Nst_OpErr *err);
 // New node on the heap with a position
 EXPORT Nst_Node *nst_node_new_pos(Nst_NodeType type,
-                                  Nst_Pos start,
-                                  Nst_Pos end,
-                                  Nst_OpErr *err);
+                                  Nst_Pos      start,
+                                  Nst_Pos      end,
+                                  Nst_OpErr   *err);
 // Sets the position of a node
 EXPORT void nst_node_set_pos(Nst_Node *node, Nst_Pos start, Nst_Pos end);
 // Destroy a token and its children
