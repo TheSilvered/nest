@@ -1,6 +1,6 @@
 # `obj.h`
 
-This header contains
+This header contains the core object functionality.
 
 ## Macros
 

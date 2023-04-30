@@ -1,6 +1,6 @@
 # `nodes.h`
 
-This header contains
+This header contains the structures and functions to handle AST nodes.
 
 ## Macros
 

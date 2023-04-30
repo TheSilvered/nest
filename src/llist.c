@@ -2,9 +2,9 @@
 #include "mem.h"
 #include "llist.h"
 
-static inline Nst_LLNode *LLNode_new(void              *value,
-                                     bool               allocated,
-                                     struct _Nst_OpErr *err)
+Nst_LLNode *nst_llnode_new(void              *value,
+                           bool               allocated,
+                           struct _Nst_OpErr *err)
 {
     Nst_LLNode *node = (Nst_LLNode *)nst_malloc(1, sizeof(Nst_LLNode), err);
     if ( node == NULL )
@@ -22,7 +22,7 @@ bool nst_llist_push(Nst_LList         *llist,
                     bool               allocated,
                     struct _Nst_OpErr *err)
 {
-    Nst_LLNode *node = LLNode_new(value, allocated, err);
+    Nst_LLNode *node = nst_llnode_new(value, allocated, err);
     if ( node == NULL )
     {
         return false;
@@ -44,7 +44,7 @@ bool nst_llist_append(Nst_LList *llist,
                       bool allocated,
                       struct _Nst_OpErr *err)
 {
-    Nst_LLNode *node = LLNode_new(value, allocated, err);
+    Nst_LLNode *node = nst_llnode_new(value, allocated, err);
     if ( node == NULL )
     {
         return false;
@@ -62,6 +62,33 @@ bool nst_llist_append(Nst_LList *llist,
         llist->head = node;
     }
     llist->size++;
+    return true;
+}
+
+bool nst_llist_insert(Nst_LList         *llist,
+                      void              *value,
+                      bool               allocated,
+                      Nst_LLNode        *node,
+                      struct _Nst_OpErr *err)
+{
+    Nst_LLNode *new_node = nst_llnode_new(value, allocated, err);
+    if ( new_node == NULL )
+    {
+        return false;
+    }
+
+    if ( !node )
+    {
+        nst_llist_push_llnode(llist, new_node);
+        return true;
+    }
+
+    new_node->next = node->next;
+    node->next = new_node;
+    if ( new_node->next == NULL )
+    {
+        llist->tail = new_node;
+    }
     return true;
 }
 

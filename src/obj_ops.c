@@ -159,8 +159,8 @@ Nst_Obj *_nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 
 static Nst_Obj *seq_eq(Nst_SeqObj *seq1,
                        Nst_SeqObj *seq2,
-                       Nst_LList *containers,
-                       Nst_OpErr *err)
+                       Nst_LList  *containers,
+                       Nst_OpErr  *err)
 {
     if (seq1->len != seq2->len)
         NST_RETURN_FALSE;
@@ -2273,7 +2273,7 @@ Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len, Nst_OpErr *er
 
 #ifdef WINDOWS
  #ifdef _DEBUG
-
+    // little hack to get the absolute path without using it explicitly
     usize root_len = strlen(__FILE__) - 13;
     usize nest_file_len = 17;
     const i8 *obj_ops_path = __FILE__;

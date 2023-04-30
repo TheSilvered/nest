@@ -114,6 +114,32 @@ The function returns the created list on success and `NULL` on failure.
 
 ---
 
+### `nst_llnode_new`
+
+**Synopsis**:
+
+```better-c
+Nst_LLNode *nst_llnode_new(void      *value,
+                           bool       allocated,
+                           Nst_OpErr *err)
+```
+
+**Description**:
+
+Creates a new `Nst_LLNode` on the heap.
+
+**Arguments**:
+
+- `[in] value`: the value of the node
+- `[in] allocated`: whether the value is allocated
+- `[out] err`: the error
+
+**Return value**:
+
+The function returns the created node on success and `NULL` on failure.
+
+---
+
 ### `nst_llist_push`
 
 **Synopsis**:
@@ -164,6 +190,37 @@ Appends an element to the back.
 - `[in] value`: the value to append
 - `[in] allocated`: whether the value needs to be freed when the list is
   destroyed
+- `[out] err`: the error
+
+**Return value**:
+
+The function returns `true` on success and `false` on failure.
+
+---
+
+### `nst_llist_insert`
+
+**Synopsis**:
+
+```better-c
+bool nst_llist_insert(Nst_LList  *llist,
+                      void       *value,
+                      bool        allocated,
+                      Nst_LLNode *node,
+                      Nst_OpErr  *err)
+```
+
+**Description**:
+
+Inserts an element in `llist` after `node`.
+
+**Arguments**:
+
+- `[inout] llist`: the list to add the element to
+- `[in] value`: the value to insert
+- `[in] allocated`: whether the value needs to be freed when the list is
+  destroyed
+- `[inout] node`: the node that should precede the inserted value
 - `[out] err`: the error
 
 **Return value**:
