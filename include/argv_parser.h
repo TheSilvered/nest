@@ -5,6 +5,10 @@
 
 #include "typedefs.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // Parses the command line arguments
 // Return values:
 // * -1 fail
@@ -15,7 +19,6 @@ EXPORT i32 _nst_parse_args(i32 argc, i8 **argv,
                            bool *print_ast,
                            bool *print_bytecode,
                            bool *force_execution,
-                           bool *monochrome,
                            bool *force_cp1252,
                            bool *no_default,
                            i32  *opt_level,
@@ -23,12 +26,18 @@ EXPORT i32 _nst_parse_args(i32 argc, i8 **argv,
                            i8  **filename,
                            i32  *args_start);
 
+EXPORT bool nst_supports_color(void);
+
 #ifdef WINDOWS
 EXPORT bool _nst_wargv_to_argv(int       argc,
                                wchar_t **wargv,
                                i8     ***argv,
                                i8      **argv_content);
-EXPORT void _nst_set_console_mode();
+EXPORT void _nst_set_console_mode(void);
 #endif // !WINDOWS
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif // !ARGV_PARSER_H

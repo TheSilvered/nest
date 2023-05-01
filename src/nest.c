@@ -79,7 +79,6 @@ int main(int argc, char **argv)
     bool print_tree;
     bool print_bc;
     bool force_exe;
-    bool monochrome;
     bool force_cp1252;
     bool no_default;
     i32 opt_level;
@@ -93,7 +92,6 @@ int main(int argc, char **argv)
         &print_tree,
         &print_bc,
         &force_exe,
-        &monochrome,
         &force_cp1252,
         &no_default,
         &opt_level,
@@ -101,7 +99,7 @@ int main(int argc, char **argv)
         &filename,
         &args_start);
 
-    nst_set_color(!monochrome);
+    nst_set_color(nst_supports_color());
 
     if ( parse_result == -1 )
     {

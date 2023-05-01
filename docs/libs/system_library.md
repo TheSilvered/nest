@@ -143,6 +143,12 @@ The current platform, can be either `windows` or `linux`.
 
 ---
 
+### `SUPPORTS_COLOR`
+
+Whether the console supports ANSI escape sequences.
+
+---
+
 ### `VERSION`
 
 The current version of Nest in form of a string such as `'0.12.0 x64'`.

@@ -47,12 +47,13 @@
 #define VERSION_MESSAGE \
     "Using Nest version: " NST_VERSION
 
+bool supports_color = true;
+
 i32 _nst_parse_args(i32 argc, i8 **argv,
                     bool *print_tokens,
                     bool *print_ast,
                     bool *print_bytecode,
                     bool *force_execution,
-                    bool *monochrome,
                     bool *force_cp1252,
                     bool *no_default,
                     i32  *opt_level,
@@ -64,7 +65,6 @@ i32 _nst_parse_args(i32 argc, i8 **argv,
     *print_ast = false;
     *print_bytecode = false;
     *force_execution = false;
-    *monochrome = false;
     *force_cp1252 = false;
     *no_default = false;
     *opt_level = 3;
@@ -101,8 +101,8 @@ i32 _nst_parse_args(i32 argc, i8 **argv,
                 case 'a': *print_ast       = true; break;
                 case 'b': *print_bytecode  = true; break;
                 case 'f': *force_execution = true; break;
-                case 'm': *monochrome      = true; break;
                 case 'D': *no_default      = true; break;
+                case 'm': supports_color   = false;break;
                 case 'h':
                 case '?':
                     printf(HELP_MESSAGE);
@@ -196,7 +196,7 @@ i32 _nst_parse_args(i32 argc, i8 **argv,
                     }
                     else if ( strcmp(arg, "--monochrome") == 0 )
                     {
-                        *monochrome = true;
+                        supports_color = false;
                     }
                     else if ( strcmp(arg, "--cp1252") == 0 )
                     {
@@ -255,6 +255,11 @@ i32 _nst_parse_args(i32 argc, i8 **argv,
     *args_start = ++i;
 
     return 0;
+}
+
+bool nst_supports_color()
+{
+    return supports_color;
 }
 
 #ifdef WINDOWS
@@ -316,11 +321,13 @@ void _nst_set_console_mode()
     HANDLE stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
     if ( stdout_handle == INVALID_HANDLE_VALUE )
     {
+        supports_color = false;
         return;
     }
     HANDLE stdin_handle = GetStdHandle(STD_INPUT_HANDLE);
     if ( stdin_handle == INVALID_HANDLE_VALUE )
     {
+        supports_color = false;
         return;
     }
 
@@ -328,10 +335,12 @@ void _nst_set_console_mode()
     DWORD stdin_prev_mode = 0;
     if (!GetConsoleMode(stdout_handle, &stdout_prev_mode))
     {
+        supports_color = false;
         return;
     }
     if (!GetConsoleMode(stdin_handle, &stdin_prev_mode))
     {
+        supports_color = false;
         return;
     }
 
@@ -344,11 +353,17 @@ void _nst_set_console_mode()
     {
         stdout_new_mode = ENABLE_VIRTUAL_TERMINAL_PROCESSING;
         stdout_mode = stdout_new_mode | stdout_new_mode;
-        SetConsoleMode(stdout_handle, stdout_mode);
+        if ( !SetConsoleMode(stdout_handle, stdout_mode) )
+        {
+            supports_color = false;
+        }
     }
 
-    DWORD dwInMode = stdin_prev_mode | stdin_new_mode;
-    SetConsoleMode(stdin_handle, dwInMode);
+    DWORD stdin_mode = stdin_prev_mode | stdin_new_mode;
+    if ( !SetConsoleMode(stdin_handle, stdin_mode) )
+    {
+        supports_color = false;
+    }
 }
 
 #endif // !WINDOWS

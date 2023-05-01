@@ -52,6 +52,21 @@ Parses the command-line arguments given to the program.
 
 ---
 
+### `nst_supports_color`
+
+**Synopsis**:
+
+```better-c
+bool nst_supports_color(void)
+```
+
+**Return value**:
+
+Returns `true` if the output supports color and `false` if it does not. When the
+`--monochrome` flag is used, this function returns `true`.
+
+---
+
 ### `_nst_wargv_to_argv`
 
 _This function is available **only on Windows**_
@@ -92,7 +107,7 @@ _This function is available **only on Windows**_
 **Synopsis**:
 
 ```better-c
-void _nst_set_console_mode()
+void _nst_set_console_mode(void)
 ```
 **Description**:
 

@@ -12,6 +12,7 @@ __sys._get_cwd_      = _get_cwd
 __sys._set_cwd_      = _set_cwd
 
 @__sys._get_platform_ = PLATFORM
+@__sys._get_color_    = SUPPORTS_COLOR
 @__sys._get_version_  = VERSION
 
 _vars_ '__sys' '_vars_' -

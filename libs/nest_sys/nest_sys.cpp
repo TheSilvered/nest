@@ -20,7 +20,7 @@
 
 #endif
 
-#define FUNC_COUNT 12
+#define FUNC_COUNT 13
 
 static Nst_ObjDeclr func_list_[FUNC_COUNT];
 static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
@@ -46,6 +46,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_ref_count_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_addr_,      1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(hash_,          1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_color_,    0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_set_cwd_,      1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_cwd_,      0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_version_,  0);
@@ -135,6 +136,11 @@ NST_FUNC_SIGN(get_addr_)
 NST_FUNC_SIGN(hash_)
 {
     return nst_int_new(nst_obj_hash(args[0]), err);
+}
+
+NST_FUNC_SIGN(_get_color_)
+{
+    NST_RETURN_COND(nst_supports_color());
 }
 
 NST_FUNC_SIGN(_set_cwd_)

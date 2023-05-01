@@ -2,12 +2,13 @@
 |#| 'stdio.nest' = io
 |#| 'stdsutil.nest' = su
 |#| 'stdsys.nest' = sys
+|#| 'stderr.nest' = err
 |#| 'test_lib.nest' = test
 
 -- Creates or clears the log file
 'test_output.txt' 'w' @io.open = test.log_file
 
-($_args_ 1 >) (_args_.1 '--force-color' ==) && (sys.PLATFORM 'linux' ==) || ? [
+sys.SUPPORTS_COLOR ? [
     '\e[31m' = C_RED
     '\e[32m' = C_GREEN
     '\e[0m' = C_RESET
@@ -35,15 +36,21 @@
         test_path @fs.filename = name
         !(name 'test_' @su.starts_with) ? ..
 
-        ?? name test_path @run_test
-        ?! e [
-            name C_RED ' FAILED' C_RESET ': ' e.name ' - ' e.message >< \
-            true \
-                @io.println
-            1 += _globals_.failed_tests
+        run_test { name, test_path } @err.try = res
+        >>> name
+
+        res.error null == ? [
+            C_GREEN ' PASSED' C_RESET >< true @io.println
             ..
         ]
-        name C_GREEN ' PASSED' C_RESET >< true @io.println
+
+        1 += _globals_.failed_tests
+
+        C_RED ' FAILED' C_RESET ': ' res.error.name ' - ' res.error.message >< = s
+
+        $res.traceback 0 != ?
+            '; line ' res.traceback.1 .start.0 ' column ' res.traceback.1 .start.1 ><= s
+        s true @io.println
     ]
 ]
 
