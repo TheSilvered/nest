@@ -22,6 +22,28 @@
 #define EXPORT
 #endif
 
+#ifndef NORETURN
+#if __STDC_VERSION__ >= 201112L
+#define NORETURN _Noreturn
+#elif defined(WINDOWS)
+#define NORETURN __declspec(noreturn)
+#elif defined(__GNUC__)
+#define NORETURN __attribute__((noreturn))
+#endif
+#endif
+
+#if !defined(WIN_FMT) && defined(WINDOWS)
+#define WIN_FMT _Printf_format_string_
+#else
+#define WIN_FMT
+#endif
+
+#if !defined(GNU_FMT) && defined(__GNUC__)
+#define GNU_FMT(m, n) __attribute__((format(printf,m,n)))
+#else
+#define GNU_FMT(m, n)
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

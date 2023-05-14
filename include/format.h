@@ -87,12 +87,12 @@ NOTE: a, A and n are not supported
 
 EXPORT isize nst_print(const i8 *buf);
 EXPORT isize nst_println(const i8 *buf);
-EXPORT isize nst_printf(const i8 *fmt, ...);
+EXPORT isize nst_printf(WIN_FMT const i8 *fmt, ...) GNU_FMT(1, 2);
 EXPORT isize nst_fprint(Nst_IOFileObj *f, const i8 *buf);
 EXPORT isize nst_fprintln(Nst_IOFileObj *f, const i8 *buf);
-EXPORT isize nst_fprintf(Nst_IOFileObj *f, const i8 *fmt, ...);
+EXPORT isize nst_fprintf(Nst_IOFileObj *f, WIN_FMT const i8 *fmt, ...) GNU_FMT(2, 3);
 EXPORT isize nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args);
-EXPORT Nst_Obj *nst_sprintf(const i8 *fmt, ...);
+EXPORT Nst_Obj *nst_sprintf(WIN_FMT const i8 *fmt, ...) GNU_FMT(1, 2);
 EXPORT Nst_Obj *nst_vsprintf(const i8 *fmt, va_list args);
 
 #ifdef __cplusplus

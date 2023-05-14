@@ -79,6 +79,11 @@ static usize virtual_iof_read_f(void               *buf,
                                 usize               e_count,
                                 VirtualIOFile_data *f)
 {
+    if ( f == nullptr )
+    {
+        return 0;
+    }
+
     usize byte_count = e_size * e_count;
     if ( byte_count == 0 || f->ptr >= f->size )
     {
@@ -88,11 +93,12 @@ static usize virtual_iof_read_f(void               *buf,
     if ( f->ptr + byte_count > f->size )
     {
         byte_count = f->size - (usize)f->ptr;
+        byte_count -= byte_count % e_size;
     }
 
     memcpy(buf, f->data + f->ptr, byte_count);
     f->ptr += (i32)byte_count;
-    return byte_count;
+    return byte_count / e_size;
 }
 
 static usize virtual_iof_write_f(void               *buf,
@@ -100,6 +106,11 @@ static usize virtual_iof_write_f(void               *buf,
                                  usize               e_count,
                                  VirtualIOFile_data *f)
 {
+    if ( f == nullptr )
+    {
+        return 0;
+    }
+
     usize byte_count = e_size * e_count;
     if ( byte_count == 0 || f->ptr > f->size )
     {
@@ -131,11 +142,16 @@ static usize virtual_iof_write_f(void               *buf,
         f->curr_buf_size = 0;
     }
 
-    return byte_count;
+    return e_count;
 }
 
 static i32 virtual_iof_flush_f(VirtualIOFile_data *f)
 {
+    if ( f == nullptr )
+    {
+        return EOF;
+    }
+
     usize byte_count = f->curr_buf_size;
     i8 *new_data = (i8 *)nst_realloc(
         f->data,
@@ -144,24 +160,33 @@ static i32 virtual_iof_flush_f(VirtualIOFile_data *f)
         0, nullptr);
     if ( new_data == NULL )
     {
-        errno = ENOMEM;
-        return 0;
+        return EOF;
     }
     f->size = (usize)f->ptr + byte_count;
     f->data = new_data;
     memcpy(f->data + f->ptr, f->buf, byte_count);
     f->ptr += byte_count;
     f->curr_buf_size = 0;
-    return (i32)byte_count;
+    return 0;
 }
 
 static i32 virtual_iof_tell_f(VirtualIOFile_data *f)
 {
+    if ( f == nullptr )
+    {
+        return -1;
+    }
+
     return (i32)f->ptr;
 }
 
 static i32 virtual_iof_seek_f(VirtualIOFile_data *f, i32 offset, i32 start)
 {
+    if ( f == nullptr )
+    {
+        return -1;
+    }
+
     isize new_pos;
     if ( start == SEEK_CUR )
     {
@@ -178,7 +203,6 @@ static i32 virtual_iof_seek_f(VirtualIOFile_data *f, i32 offset, i32 start)
 
     if ( new_pos < 0 )
     {
-        errno = EINVAL;
         return -1;
     }
 
@@ -189,6 +213,11 @@ static i32 virtual_iof_seek_f(VirtualIOFile_data *f, i32 offset, i32 start)
 
 static i32 virtual_iof_close_f(VirtualIOFile_data *f)
 {
+    if ( f == nullptr )
+    {
+        return -1;
+    }
+
     nst_free(f->data);
     nst_free(f->buf);
     nst_free(f);
@@ -322,9 +351,7 @@ NST_FUNC_SIGN(close_)
         return nullptr;
     }
 
-    f->close_f(f->value);
-    f->value = nullptr;
-    NST_FLAG_SET(f, NST_FLAG_IOFILE_IS_CLOSED);
+    nst_fclose(f);
 
     NST_RETURN_NULL;
 }
@@ -355,7 +382,7 @@ NST_FUNC_SIGN(write_)
     // casting to a string never returns an error
     Nst_Obj *str_to_write = nst_obj_cast(value_to_write, nst_type()->Str, nullptr);
     Nst_StrObj *str = STR(str_to_write);
-    usize res = f->write_f(str->value, sizeof(i8), str->len, f->value);
+    usize res = nst_fwrite(str->value, sizeof(i8), str->len, f);
 
     nst_dec_ref(str_to_write);
     return nst_int_new(res, err);
@@ -397,7 +424,7 @@ NST_FUNC_SIGN(write_bytes_)
         bytes[i] = AS_BYTE(objs[i]);
     }
 
-    usize res = f->write_f(bytes, sizeof(i8), seq_len, f->value);
+    usize res = nst_fwrite(bytes, sizeof(i8), seq_len, f);
 
     nst_free(bytes);
     return nst_int_new(res, err);
@@ -430,7 +457,7 @@ NST_FUNC_SIGN(read_)
         return nullptr;
     }
 
-    i32 start = f->tell_f(f->value);
+    i32 start = nst_ftell(f);
     i32 end = get_file_size(f);
 
     Nst_Int max_size = (Nst_Int)(end - start);
@@ -446,11 +473,11 @@ NST_FUNC_SIGN(read_)
         return nullptr;
     }
 
-    usize read_bytes = f->read_f(
+    usize read_bytes = nst_fread(
         buffer,
         sizeof(i8),
         (usize)bytes_to_read,
-        f->value);
+        f);
     buffer[read_bytes] = 0;
 
     return nst_string_new(buffer, read_bytes, true, err);
@@ -483,7 +510,7 @@ NST_FUNC_SIGN(read_bytes_)
         return nullptr;
     }
 
-    i32 start = f->tell_f(f->value);
+    i32 start = nst_ftell(f);
     i32 end = get_file_size(f);
 
     Nst_Int max_size = (Nst_Int)(end - start);
@@ -499,11 +526,11 @@ NST_FUNC_SIGN(read_bytes_)
         return nullptr;
     }
 
-    usize read_bytes = f->read_f(
+    usize read_bytes = nst_fread(
         buffer,
         sizeof(i8),
         (usize)bytes_to_read,
-        f->value);
+        f);
 
     Nst_SeqObj *bytes_array = SEQ(nst_array_new(read_bytes, err));
 
@@ -543,7 +570,7 @@ NST_FUNC_SIGN(get_fptr_)
         return nullptr;
     }
 
-    return nst_int_new(f->tell_f(f->value), err);
+    return nst_int_new(nst_ftell(f), err);
 }
 
 NST_FUNC_SIGN(move_fptr_)
@@ -579,7 +606,7 @@ NST_FUNC_SIGN(move_fptr_)
     }
     else
     {
-        end_pos = f->tell_f(f->value) + i32(offset);
+        end_pos = nst_ftell(f) + i32(offset);
     }
 
     if ( end_pos < 0 || end_pos > size )
@@ -588,7 +615,7 @@ NST_FUNC_SIGN(move_fptr_)
         return nullptr;
     }
 
-    f->seek_f(f->value, (i32)offset, (i32)start);
+    nst_fseek(f, (i32)offset, (i32)start);
 
     NST_RETURN_NULL;
 }
@@ -599,14 +626,19 @@ NST_FUNC_SIGN(flush_)
 
     NST_DEF_EXTRACT("F", &f);
 
-    if ( f == nullptr )
+    if ( NST_IOF_IS_CLOSED(f) )
     {
         SET_FILE_CLOSED_ERROR;
         return nullptr;
     }
 
-    i32 res = f->flush_f(f->value);
-    return nst_int_new(res, err);
+    i32 res = nst_fflush(f);
+    if ( res == EOF )
+    {
+        NST_SET_RAW_MEMORY_ERROR("failed to flush the file");
+        return nullptr;
+    }
+    NST_RETURN_NULL;
 }
 
 NST_FUNC_SIGN(get_flags_)

@@ -175,9 +175,9 @@ NST_FUNC_SIGN(nst_iter_seq_get_val)
 {
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_SeqObj *seq = SEQ(val->objs[1]);
-    usize idx = (usize)AS_INT(val->objs[0]);
+    Nst_Int idx = AS_INT(val->objs[0]);
 
-    if ( seq->len < idx )
+    if ( (Nst_Int)seq->len < idx )
     {
         NST_SET_VALUE_ERROR(nst_sprintf(
             seq->type == nst_t.Array ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
@@ -221,9 +221,9 @@ NST_FUNC_SIGN(nst_iter_str_get_val)
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
     Nst_StrObj *str = STR(objs[1]);
-    usize idx = (usize)AS_INT(objs[0]);
+    Nst_Int idx = AS_INT(objs[0]);
 
-    if ( idx >= str->len )
+    if ( idx >= (Nst_Int)str->len )
     {
         NST_SET_VALUE_ERROR(nst_sprintf(
             _NST_EM_INDEX_OUT_OF_BOUNDS("Str"),

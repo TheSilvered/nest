@@ -118,26 +118,26 @@ void _nst_iofile_destroy(Nst_IOFileObj *obj)
     }
 }
 
-usize nst_fread(void  *buf,
+isize nst_fread(void  *buf,
                 usize size,
                 usize count,
                 Nst_IOFileObj *f)
 {
-    if ( NST_IOF_IS_CLOSED(f) )
+    if ( NST_IOF_IS_CLOSED(f) || !NST_IOF_CAN_READ(f) )
     {
-        return 0;
+        return -1;
     }
     return f->read_f(buf, size, count, f->value);
 }
 
-usize nst_fwrite(void  *buf,
+isize nst_fwrite(void  *buf,
                  usize size,
                  usize count,
                  Nst_IOFileObj *f)
 {
-    if ( NST_IOF_IS_CLOSED(f) )
+    if ( NST_IOF_IS_CLOSED(f) || !NST_IOF_CAN_WRITE(f) )
     {
-        return 0;
+        return -1;
     }
     return f->write_f(buf, size, count, f->value);
 }
@@ -155,7 +155,7 @@ i32 nst_ftell(Nst_IOFileObj *f)
 {
     if ( NST_IOF_IS_CLOSED(f) )
     {
-        return 0;
+        return -1;
     }
     return f->tell_f(f->value);
 }
@@ -164,7 +164,7 @@ i32 nst_fseek(Nst_IOFileObj *f, i32 offset, i32 origin)
 {
     if ( NST_IOF_IS_CLOSED(f) )
     {
-        return 0;
+        return -1;
     }
     return f->seek_f(f->value, offset, origin);
 }

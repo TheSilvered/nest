@@ -777,7 +777,7 @@ Nst_Obj *_nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
     else
     {
-        RETURN_STACK_OP_TYPE_ERROR("%");
+        RETURN_STACK_OP_TYPE_ERROR("%%");
     }
 }
 

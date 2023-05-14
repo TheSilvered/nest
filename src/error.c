@@ -108,7 +108,7 @@ static void print_line(Nst_Pos *pos,
                        i32      max_line)
 {
     i32 line_length = 0;
-    i32 lineno_len = 0;
+    int lineno_len = 0;
     i32 lineno = pos->line;
     i8 *text = pos->text->lines[lineno];
     i8 *start = pos->text->text;
@@ -349,14 +349,14 @@ static inline void print_rep_count(i32 count)
     {
         nst_fprintf(
             err_stream,
-            C_RED "-- Previous position repeated %i more times --\n" C_RES,
+            C_RED "-- Previous position repeated %li more times --\n" C_RES,
             count);
     }
     else
     {
         nst_fprintf(
             err_stream,
-            "-- Previous position repeated %i more times --\n",
+            "-- Previous position repeated %li more times --\n",
             count);
     }
 }

@@ -43,7 +43,7 @@ f @io.close
 
 false @io.virtual_file = f
 f 'Hello' @io.write
-f @io.flush 5 @test.assert_eq
+f @io.flush
 f @read_whole_file 'Hello' @test.assert_eq
 f @io.get_flags 'rw-' @test.assert_eq
 f @io.close

@@ -29,25 +29,33 @@ EXPORT typedef f64 Nst_Real;
 EXPORT typedef i8 Nst_Bool;
 EXPORT typedef u8 Nst_Byte;
 
-EXPORT typedef struct _Nst_IntObj {
+EXPORT typedef struct _Nst_IntObj
+{
     NST_OBJ_HEAD;
     Nst_Int value;
-} Nst_IntObj;
+}
+Nst_IntObj;
 
-EXPORT typedef struct _Nst_RealObj {
+EXPORT typedef struct _Nst_RealObj
+{
     NST_OBJ_HEAD;
     Nst_Real value;
-} Nst_RealObj;
+}
+Nst_RealObj;
 
-EXPORT typedef struct _Nst_BoolObj {
+EXPORT typedef struct _Nst_BoolObj
+{
     NST_OBJ_HEAD;
     Nst_Bool value;
-} Nst_BoolObj;
+}
+Nst_BoolObj;
 
-EXPORT typedef struct _Nst_ByteObj {
+EXPORT typedef struct _Nst_ByteObj
+{
     NST_OBJ_HEAD;
     Nst_Byte value;
-} Nst_ByteObj;
+}
+Nst_ByteObj;
 
 EXPORT typedef FILE *Nst_IOFile;
 EXPORT typedef usize (*Nst_IOFile_read_f) (void  *buf,
@@ -95,7 +103,11 @@ EXPORT Nst_Obj *nst_bool_new(Nst_Bool value, Nst_OpErr *err);
 EXPORT Nst_Obj *nst_byte_new(Nst_Byte value, Nst_OpErr *err);
 // Creates a new IOFile object, bin: is opened in binary format,
 // read: supports reading, write: supports writing
-EXPORT Nst_Obj *nst_iof_new(Nst_IOFile value, bool bin, bool read, bool write, Nst_OpErr *err);
+EXPORT Nst_Obj *nst_iof_new(Nst_IOFile value,
+                            bool       bin,
+                            bool       read,
+                            bool       write,
+                            Nst_OpErr *err);
 EXPORT Nst_Obj *nst_iof_new_fake(void *value,
                                  bool bin, bool read, bool write,
                                  Nst_IOFile_read_f  read_f,
@@ -108,13 +120,13 @@ EXPORT Nst_Obj *nst_iof_new_fake(void *value,
 
 EXPORT void _nst_iofile_destroy(Nst_IOFileObj *obj);
 
-EXPORT usize nst_fread(void  *buf,
-                       usize size,
-                       usize count,
+EXPORT isize nst_fread(void          *buf,
+                       usize          size,
+                       usize          count,
                        Nst_IOFileObj *f);
-EXPORT usize nst_fwrite(void  *buf,
-                        usize size,
-                        usize count,
+EXPORT isize nst_fwrite(void          *buf,
+                        usize          size,
+                        usize          count,
                         Nst_IOFileObj *f);
 EXPORT i32 nst_fflush(Nst_IOFileObj *f);
 EXPORT i32 nst_ftell(Nst_IOFileObj *f);

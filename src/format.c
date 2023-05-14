@@ -70,6 +70,7 @@ static isize get_seq_size(const i8 **fmt, va_list *args)
 
     if ( **fmt == '%' )
     {
+        (*fmt)++;
         return 1;
     }
 
@@ -436,7 +437,7 @@ isize nst_println(const i8 *buf)
     return nst_fprintln(nst_io->out, buf);
 }
 
-ptrdiff_t nst_printf(const i8 *fmt, ...)
+isize nst_printf(WIN_FMT const i8 *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -465,14 +466,14 @@ isize nst_fprintln(Nst_IOFileObj *f, const i8 *buf)
     return a + b;
 }
 
-isize nst_fprintf(Nst_IOFileObj *f, const i8 *fmt, ...)
+isize nst_fprintf(Nst_IOFileObj *f, WIN_FMT const i8 *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
     return nst_vfprintf(f, fmt, args);
 }
 
-Nst_Obj *nst_sprintf(const i8 *fmt, ...)
+Nst_Obj *nst_sprintf(WIN_FMT const i8 *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
