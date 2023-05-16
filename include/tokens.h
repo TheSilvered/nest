@@ -26,8 +26,7 @@
 #define NST_IS_EXPR_END(token_type) \
     ( (token_type) >= NST_TT_L_BRACKET && (token_type) <= NST_TT_EOFILE )
 #define NST_IS_EXPR_END_W_BREAK(token_type) \
-    ( ((token_type) >= NST_TT_L_BRACKET && (token_type) <= NST_TT_EOFILE) || \
-      (token_type) == NST_TT_BREAK )
+    ( ((token_type) >= NST_TT_L_BRACKET && (token_type) <= NST_TT_BREAK) )
 
 // the assignment tokens are in the same order as the stack op tokens
 #define NST_ASSIGMENT_TO_STACK_OP(token_type) \
@@ -95,18 +94,19 @@ EXPORT typedef enum _Nst_TokenType
     NST_TT_L_PAREN,   // |
     NST_TT_L_BRACE,   // |
     NST_TT_L_VBRACE,  // - atom end
-    NST_TT_L_BRACKET, // + expr-end start
-    NST_TT_R_PAREN,   // |
-    NST_TT_R_BRACE,   // |
-    NST_TT_R_VBRACE,  // |
-    NST_TT_R_BRACKET, // |
-    NST_TT_IF,        // |
-    NST_TT_AS,        // |
-    NST_TT_ENDL,      // |
-    NST_TT_COMMA,     // |
-    NST_TT_COLON,     // |
-    NST_TT_CATCH,     // |
-    NST_TT_EOFILE,    // - expr-end end
+    NST_TT_L_BRACKET, // + + expr-end-w-break start, expr-end start
+    NST_TT_R_PAREN,   // | |
+    NST_TT_R_BRACE,   // | |
+    NST_TT_R_VBRACE,  // | |
+    NST_TT_R_BRACKET, // | |
+    NST_TT_IF,        // | |
+    NST_TT_AS,        // | |
+    NST_TT_ENDL,      // | |
+    NST_TT_COMMA,     // | |
+    NST_TT_COLON,     // | |
+    NST_TT_CATCH,     // | |
+    NST_TT_EOFILE,    // | - expr-end end
+    NST_TT_BREAK,     // - expr-end-w-break end
 
     // other tokens
     NST_TT_EXTRACT,
@@ -116,7 +116,6 @@ EXPORT typedef enum _Nst_TokenType
     NST_TT_FUNC,
     NST_TT_RETURN,
     NST_TT_SWITCH,
-    NST_TT_BREAK,
     NST_TT_CONTINUE,
     NST_TT_TRY
 }

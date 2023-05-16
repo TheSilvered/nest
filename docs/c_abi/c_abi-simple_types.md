@@ -1,6 +1,6 @@
 # `simple_types.h`
 
-This header contains
+This header defines the Nest int, real, byte and file objects.
 
 ## Macros
 

@@ -11,22 +11,23 @@ DBG_DIR = ../linux_debug
 CLINKS = -lm -ldl
 
 SRCS := $(filter-out $(SRC_DIR)/nest.c, $(wildcard $(SRC_DIR)/*.c))
+HEADERS := $(wildcard $(SRC_DIR)/*.h)
 DBG_TARGET := $(DBG_DIR)/$(EXE_NAME)
 x64_TARGET := $(x64_DIR)/$(EXE_NAME)
 x86_TARGET := $(x86_DIR)/$(EXE_NAME)
 
 .PHONY: debug x86
 
-$(x64_TARGET): $(SRCS)
+$(x64_TARGET): $(SRCS) $(HEADERS)
 	mkdir -p $(x64_DIR)
 	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -O3 -o $(x64_TARGET)
 
 x86: $(x86_TARGET);
-$(x86_TARGET): $(SRCS)
+$(x86_TARGET): $(SRCS) $(HEADERS)
 	mkdir -p $(x86_DIR)
 	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -O3 -m32 -o $(x86_TARGET)
 
 debug: $(DBG_TARGET);
-$(DBG_TARGET): $(SRCS)
+$(DBG_TARGET): $(SRCS) $(HEADERS)
 	mkdir -p $(DBG_DIR)
 	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) $(DBG_FLAGS) -o $(DBG_TARGET)

@@ -13,6 +13,8 @@ markdown_extensions:
   - pymdownx.superfences
   - pymdownx.details
   - admonition
+  - toc:
+      permalink: "#"
 nav:
   - Introduction: index.md
   - General syntax: syntax.md

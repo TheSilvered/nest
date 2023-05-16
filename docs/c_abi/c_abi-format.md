@@ -233,8 +233,8 @@ To print a literal `%` use `%%` instead.
 `%([+- 0'#]*(\d+|\*)?(.(\d+|\*))?(h|hh|l|ll|z|j|t)?[diufFgGeExXopcs]|%)`
 
 !!!note
-    This regex is not meant as a definitive specification; if it matches the
-    placeholder used, it can still be considered invalid.
+    This regex is not meant as a definitive specification; if the placeholder
+    matches this regex, it can still be considered invalid.
 
 **Flags field**:
 
@@ -244,12 +244,12 @@ To print a literal `%` use `%%` instead.
 - `[space]`: prepend a space on positive numbers
 - `0`: when a width is specified, any extra space is padded with `0` instead of
   spaces for numeric types
-- `\`: use an apostrophe as the thousand separator
+- `'`: use an apostrophe as the thousand separator
 - `#`: alternate form
-  - does not remove trailing zeroes from `g` and `G`
-  - always puts a decimal point in `f`, `F`, `e`, `E`, `g` and `G`
-  - adds the prefix `0x` to `x` and `0X` to `X`
-  - adds `0` to `o` if the number is not `0`
+    - does not remove trailing zeroes from `g` and `G`
+    - always puts a decimal point in `f`, `F`, `e`, `E`, `g` and `G`
+    - adds the prefix `0x` to `x` and `0X` to `X`
+    - adds `0` to `o` if the number is not `0`
 
 !!!note
     `+` and `[space]` or `-` and `0` cannot be used in the same sequence.

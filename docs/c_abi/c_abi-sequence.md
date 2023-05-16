@@ -1,6 +1,6 @@
 # `sequence.h`
 
-This header contains
+This header defines the Nest sequence object.
 
 ## Macros
 

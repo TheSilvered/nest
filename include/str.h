@@ -14,7 +14,7 @@
 #define nst_string_copy(src, err) _nst_string_copy(STR(src), err)
 // Creates new string that is the representation of `src`
 #define nst_string_repr(src, err) _nst_string_repr(STR(src), err)
-// Creates a one-character string with the character at `idx` of idx
+// Creates a one-character string with the character at `idx` of str
 #define nst_string_get(str, idx, err) _nst_string_get(STR(str), idx, err)
 
 #ifdef __cplusplus
