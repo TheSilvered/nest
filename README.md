@@ -27,7 +27,7 @@ The beta versions are not properly tested and might crash unexpectedly.**
 - A custom graphics and UI standard library built on top of SDL2
 - Unicode built-in strings
 - Correct encoding/decoding in I/O
-- Changing custom iterators
+- Better custom iterators
 
 ## Documentation
 
