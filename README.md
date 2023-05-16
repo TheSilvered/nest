@@ -31,7 +31,7 @@ The beta versions are not properly tested and might crash unexpectedly.**
 
 ## Documentation
 
-The documentation is hosted on ReadTheDocs and can be found [here](https://nest-docs.readthedocs.io/en/latest/).
+The documentation is hosted on ReadTheDocs and can be found [here](https://nest-docs.readthedocs.io/).
 
 ## Installation
 
