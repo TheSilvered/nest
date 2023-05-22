@@ -16,6 +16,15 @@ COPY projects\nest\Release\nest.exe x86\nest.exe /Y
 COPY projects\nest\x64\Release\libnest.dll x64\libnest.dll /Y
 COPY projects\nest\Release\libnest.dll x86\libnest.dll /Y
 
+:: SDL DLLs
+:: ========
+
+:: COPY ..\..\libs\nest_gui\SDL2\lib\x64\SDL2.dll x64\SDL2.dll /Y
+:: COPY ..\..\libs\nest_gui\SDL2\lib\x86\SDL2.dll x86\SDL2.dll /Y
+
+:: COPY ..\..\libs\nest_gui\SDL2\lib\x64\SDL2_ttf.dll x64\SDL2_ttf.dll /Y
+:: COPY ..\..\libs\nest_gui\SDL2\lib\x86\SDL2_ttf.dll x86\SDL2_ttf.dll /Y
+
 :: Standard Library
 :: ================
 

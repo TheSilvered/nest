@@ -2172,6 +2172,7 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
         nst_llist_pop(nst_state.lib_paths);
         nst_dec_ref(file_path);
         dlclose(lib);
+        NST_SET_RAW_IMPORT_ERROR(_NST_EM_LIB_INIT_FAILED);
         return NULL;
     }
 

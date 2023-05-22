@@ -1,7 +1,7 @@
 LIB_NAME = rand
 
 CC = g++
-CFLAGS = -I../../../include -Wall -shared -fPIC -rdynamic -std=c++2a
+CFLAGS = $(LIB_FLAGS) -I../../../include -Wall -shared -fPIC -rdynamic -std=c++2a
 DBG_FLAGS = -D_DEBUG -g -O0
 OUT_FILE = std$(LIB_NAME).cnest
 
@@ -9,7 +9,7 @@ x64_DIR = ../linux_release/x64
 x86_DIR = ../linux_release/x86
 DBG_DIR = ../linux_debug
 
-CLINKS = -lm -ldl -lnest
+CLINKS = -lm -ldl -lnest $(LIB_LINKS)
 CLINK_DIR_DBG := -L$(DBG_DIR)
 CLINK_DIR_x86 := -L$(x86_DIR)
 CLINK_DIR_x64 := -L$(x64_DIR)
