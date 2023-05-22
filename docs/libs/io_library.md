@@ -208,8 +208,8 @@ The function returns the content that it read as a string.
 
 Reads a number of bytes from a file opened in `rb`, `rb+`, `wb+` or `ab+` and
 returns an `Array` object. To convert the array to a string, use the
-[`bytearray_to_str`](string_utilities_library.md#sequence-arrayvector-bytearray_to_str)
-function in `stdsutil.nest`.  
+[`bytearray_to_str`](string_utilities_library.md#bytearray_to_str) function in
+`stdsutil.nest`.  
 If `size` is negative or `null` the whole file is read.
 
 **Arguments**:
@@ -291,7 +291,7 @@ f @io.close
 Writes to a binary file opened in `wb`, `ab`, `rb+`, `wb+` or `ab+`.  
 The second argument is an array or vector containing only `Byte` objects.  
 To create such vector from a string, use the
-[`str_to_bytearray`](string_utilities_library.md#string-str-str_to_bytearray)
+[`str_to_bytearray`](string_utilities_library.md#str_to_bytearray)
 function in `stdsutil.nest`.
 
 **Arguments**:
@@ -424,19 +424,19 @@ Used for `move_fptr`, puts the file pointer at the end of the file. The same as
 ### `STDIN`
 
 File object of the standard input stream, changing this constant does not change
-the stream used by `<<<`, use [`_set_stdin`](#file-iofile-_set_stdin) instead.
+the stream used by `<<<`, use [`_set_stdin`](#_set_stdin) instead.
 
 ---
 
 ### `STDERR`
 
 File object of the standard error stream, changing this constant does not change
-the actual error stream, use [`_set_stderr`](#file-iofile-_set_stderr) instead.
+the actual error stream, use [`_set_stderr`](#_set_stderr) instead.
 
 ---
 
 ### `STDOUT`
 
 File object of the standard output stream, changing this constant does not
-change the stream used by `>>>`, use [`_set_stdout`](#file-iofile-_set_stdout)
+change the stream used by `>>>`, use [`_set_stdout`](#_set_stdout)
 instead.

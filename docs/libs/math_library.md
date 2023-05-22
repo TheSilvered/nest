@@ -360,11 +360,11 @@ the exponent.
 
 ---
 
-### `@log`
+### `@ln`
 
 **Synopsis**:
 
-`[n: Byte|Int|Real] @log -> Real`
+`[n: Byte|Int|Real] @ln -> Real`
 
 **Description**:
 
@@ -372,40 +372,15 @@ Returns the natural logarithm of `n`.
 
 ---
 
-### `@logn`
+### `@log`
 
 **Synopsis**:
 
-`[n: Byte|Int|Real, m: Byte|Int|Real] @logn -> Real`
+`[n: Byte|Int|Real, m: Byte|Int|Real|null] @log -> Real`
 
 **Description**:
 
-Returns the logarithm of `n` with the base `m`, calculated with
-`(n @log) (m @log) /`.
-
----
-
-### `@log10`
-
-**Synopsis**:
-
-`[n: Byte|Int|Real] @log10 -> Real`
-
-**Description**:
-
-Returns the logarithm base 10 of `n`.
-
----
-
-### `@log2`
-
-**Synopsis**:
-
-`[n: Byte|Int|Real] @log2 -> Real`
-
-**Description**:
-
-Returns the logarithm base 2 of `n`.
+Returns the logarithm of `n` with base `m`. If `m` is `null` base `10` is used.
 
 ---
 

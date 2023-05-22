@@ -1,7 +1,7 @@
 #include <cmath>
 #include "nest_math.h"
 
-#define FUNC_COUNT 38
+#define FUNC_COUNT 36
 #define COORD_TYPE_ERROR do { \
         NST_SET_RAW_VALUE_ERROR( \
             "all coordinates must be of type 'Real' or 'Int'"); \
@@ -21,10 +21,8 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(ceil_,   1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(round_,  1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(exp_,    1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(log_,    1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(logn_,   2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(log2_,   1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(log10_,  1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(ln_,     1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(log_,    2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(divmod_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(sin_,    1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(cos_,    1);
@@ -97,33 +95,33 @@ NST_FUNC_SIGN(exp_)
     return nst_real_new(exp(n), err);
 }
 
-NST_FUNC_SIGN(log_)
+NST_FUNC_SIGN(ln_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
     return nst_real_new(log(n), err);
 }
 
-NST_FUNC_SIGN(logn_)
+NST_FUNC_SIGN(log_)
 {
     Nst_Real n;
-    Nst_Real base;
-    NST_DEF_EXTRACT("NN", &n, &base);
-    return nst_real_new(log(n) / log(base), err);
-}
+    Nst_Obj *base_obj;
+    NST_DEF_EXTRACT("N?N", &n, &base_obj);
 
-NST_FUNC_SIGN(log2_)
-{
-    Nst_Real n;
-    NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(log2(n), err);
-}
+    if ( base_obj == nst_null() )
+    {
+        return nst_real_new(log10(n), err);
+    }
+    Nst_Real base = AS_REAL(base_obj);
 
-NST_FUNC_SIGN(log10_)
-{
-    Nst_Real n;
-    NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(log10(n), err);
+    if ( base == 2.0 )
+    {
+        return nst_real_new(log2(n), err);
+    }
+    else
+    {
+        return nst_real_new(log(n) / log(base), err);
+    }
 }
 
 NST_FUNC_SIGN(divmod_)

@@ -238,7 +238,7 @@ everything. Every option is disabled by default.
 ### `OPTIONS`
 
 A map containing the options that can be enabled with
-[`set_options`](#options-int-set_options).
+[`set_options`](#set_options).
 
 - `allow_comments`: does not raise an error when a comment is found. Two types
   of comments are allowed: single-line comments that start with `//` and end
