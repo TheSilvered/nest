@@ -470,8 +470,5 @@ tests/_test.nest
 docs/prev_docs/
 build/linux/_update_tests.sh
 
-# !libs/nest_gui/SDL2/lib/**/*.dll
-# !libs/nest_gui/SDL2/lib/**/*.lib
-libs/nest_gui/
-build/windows/projects/nest_gui/
-libs/_nest_files/stdgui.nest
+!libs/nest_gui/SDL2/lib/**/*.dll
+!libs/nest_gui/SDL2/lib/**/*.lib

@@ -10,11 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Install GCC
-      run: |
-        sudo apt-get -y update
-        sudo apt-get -y upgrade
-        sudo apt-get -y install build-essential gcc-multilib g++-multilib
+    - name: Configure
+      run: ./configure.sh
     - name: Compile x64
       working-directory: ./build/linux/makefiles
       run: make all

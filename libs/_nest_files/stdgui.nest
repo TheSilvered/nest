@@ -1,0 +1,25 @@
+--$ --no-default
+
+|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_gui.dll' = __gui
+
+__gui.handle_events_ = handle_events
+__gui.set_window_ = set_window
+
+{ 'fullscreen': 0x00000001,
+  'shown': 0x00000004,
+  'hidden': 0x00000008,
+  'borderless': 0x00000010,
+  'resizable': 0x00000020,
+  'minimized': 0x00000040,
+  'maximized': 0x00000080,
+  'mouse_grabbed': 0x00000100,
+  'input_focus': 0x00000200,
+  'mouse_focus': 0x00000400,
+  'fullscreen_desktop': 0x00001001,
+  'mouse_capture': 0x00004000,
+  'always_on_top': 0x00008000,
+  'skip_taskbar': 0x00010000,
+  'keyboard_grabbed': 0x00100000,
+  'input_grabbed': 0x00000100 } = WINDOW_FLAGS
+
+_vars_ '__gui' '_vars_' -

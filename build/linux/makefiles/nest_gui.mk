@@ -1,7 +1,7 @@
 LIB_NAME = gui
 
-LIB_FLAGS := $(shell sdl2-config --cflags)
-LIB_LINKS := $(shell sdl2-config --libs)
+LIB_FLAGS := $(shell pkg-config --cflags sdl2 SDL2_ttf)
+LIB_LINKS := $(shell pkg-config --libs sdl2 SDL2_ttf)
 
 CC = g++
 CFLAGS = $(LIB_FLAGS) -I../../../include -Wall -shared -fPIC -rdynamic -std=c++2a
