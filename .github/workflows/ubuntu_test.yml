@@ -11,7 +11,7 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Configure
-      run: ./configure.sh
+      run: sudo bash ./configure.sh
     - name: Compile x64
       working-directory: ./build/linux/makefiles
       run: make all
