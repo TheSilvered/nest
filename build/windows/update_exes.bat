@@ -34,8 +34,8 @@ DEL x86\nest_libs\*.dll /Q
 COPY projects\nest\x64\Release\nest_*.dll x64\nest_libs /Y
 COPY projects\nest\Release\nest_*.dll x86\nest_libs /Y
 
-COPY ..\..\libs\_nest_files\std*.nest x64\nest_libs /Y
-COPY ..\..\libs\_nest_files\std*.nest x86\nest_libs /Y
+COPY ..\..\libs\_nest_files\* x64\nest_libs /Y
+COPY ..\..\libs\_nest_files\* x86\nest_libs /Y
 
 FOR %%G IN (x64\nest_libs\*.dll) DO (
     SET fpath=%%G

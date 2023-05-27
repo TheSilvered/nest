@@ -24,6 +24,15 @@
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_element.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_event.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_update.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_draw.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp">
@@ -35,9 +44,18 @@
     <ClCompile Include="..\..\..\..\libs\nest_gui\gui_element.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_event.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_update.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_draw.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\libs\_nest_files\stdgui.nest">
+    <None Include="..\..\..\..\libs\_nest_files\_stdgui.nest">
       <Filter>Resources</Filter>
     </None>
   </ItemGroup>

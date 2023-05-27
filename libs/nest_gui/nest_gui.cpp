@@ -2,6 +2,8 @@
 #include <SDL_ttf.h>
 #include <cstring>
 #include "nest_gui.h"
+#include "gui_event.h"
+#include "gui_update.h"
 
 #define FUNC_COUNT 3
 
@@ -9,7 +11,7 @@ static Nst_ObjDeclr func_list_[FUNC_COUNT];
 static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
 static bool lib_init_ = false;
 static Nst_StrObj *sdl_error_str;
-static GUI_App app = { nullptr, nullptr, nullptr, false };
+static GUI_App app;
 Nst_TypeObj *gui_element_type;
 
 bool lib_init()
@@ -18,15 +20,37 @@ bool lib_init()
     Nst_OpErr err = { nullptr, nullptr };
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(init_, 0);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(handle_events_, 0);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(loop_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(set_window_, 6);
 
-#if __LINE__ - FUNC_COUNT != 21
+#if __LINE__ - FUNC_COUNT != 23
 #error
 #endif
 
     sdl_error_str = STR(nst_string_new_c_raw("SDL Error", false, nullptr));
     gui_element_type = nst_type_new("GUI Element", 11, nullptr);
+
+    app.root = nullptr;
+    app.window = nullptr;
+    app.renderer = nullptr;
+
+    app.keep_open = false;
+    app.show_bounds = false;
+
+    app.regular_small = nullptr;
+    app.italic_small = nullptr;
+    app.bold_small = nullptr;
+    app.regular_medium = nullptr;
+    app.italic_medium = nullptr;
+    app.bold_medium = nullptr;
+    app.regular_big = nullptr;
+    app.italic_big = nullptr;
+    app.bold_big = nullptr;
+
+    app.bg_color = { 0, 0, 0, 255 };
+    app.fg_color = { 255, 255, 255, 255 };
+    app.bg_light_color = { 60, 60, 60, 255 };
+    app.fg_dimmed_color = { 160, 160, 160, 255 };
 
     lib_init_ = err.name == nullptr;
     return lib_init_;
@@ -90,40 +114,22 @@ NST_FUNC_SIGN(init_)
     NST_RETURN_NULL;
 }
 
-NST_FUNC_SIGN(handle_events_)
+NST_FUNC_SIGN(loop_)
 {
-    if ( !app.keep_open )
+    while ( app.keep_open )
     {
-        NST_RETURN_FALSE;
-    }
-
-    SDL_Event e;
-    while ( SDL_PollEvent(&e) )
-    {
-        if ( e.type == SDL_QUIT )
+        if ( !handle_events(&app, err) )
         {
-            app.keep_open = false;
+            return nullptr;
         }
+
+        update_elements(&app, err);
+        tick_elements(&app, err);
+
+        SDL_RenderPresent(app.renderer);
     }
 
-    gui_element_update_pos(app.root);
-    gui_element_update_size(app.root);
-
-    int x1 = app.root->rect.x;
-    int y1 = app.root->rect.y;
-    int x2 = x1 + app.root->rect.w - 1;
-    int y2 = y1 + app.root->rect.h - 1;
-
-    SDL_SetRenderDrawColor(app.renderer, 255, 255, 255, 255);
-    SDL_RenderClear(app.renderer);
-    SDL_SetRenderDrawColor(app.renderer, 255, 0, 255, 255);
-    SDL_RenderDrawLine(app.renderer, x1, y1, x2, y1);
-    SDL_RenderDrawLine(app.renderer, x2, y1, x2, y2);
-    SDL_RenderDrawLine(app.renderer, x2, y2, x1, y2);
-    SDL_RenderDrawLine(app.renderer, x1, y2, x1, y1);
-    SDL_RenderPresent(app.renderer);
-
-    NST_RETURN_TRUE;
+    NST_RETURN_NULL;
 }
 
 NST_FUNC_SIGN(set_window_)
@@ -159,10 +165,10 @@ NST_FUNC_SIGN(set_window_)
         return nullptr;
     }
 
-    GUI_Element *root = (GUI_Element *)gui_element_new(
+    GUI_Element *root = gui_element_new(
         GUI_ET_BASE,
         sizeof(GUI_Element),
-        0, 0,
+        10, 10,
         int(w), int(h),
         &app, err);
     if ( root == nullptr )
@@ -171,14 +177,49 @@ NST_FUNC_SIGN(set_window_)
         SDL_DestroyRenderer(app.renderer);
         return nullptr;
     }
+    root->handle_event_func = root_handle_event;
+    root->frame_update_func = root_update;
     app.root = root;
     gui_element_set_parent(root, root);
     gui_element_set_rel_size(
         root, nullptr,
         -1, -1,
         -1, -1,
-        1.0, 1.0,
-        0, 0);
+        0.0, 0.0,
+        -20, -20);
+
+    gui_element_set_padding(root, 10, 10, 10, 10);
+    gui_element_set_margin(root, 10, 10, 10, 10);
+
+    GUI_Element *test_child = gui_element_new(
+        GUI_ET_BASE,
+        sizeof(GUI_Element),
+        0, 0,
+        100, 100,
+        &app, err);
+    if ( test_child != nullptr )
+    {
+        gui_element_set_rel_pos(
+            test_child,
+            root,
+            GUI_MIDDLE,
+            GUI_CENTER,
+            GUI_MIDDLE,
+            GUI_CENTER);
+        gui_element_set_rel_size(
+            test_child,
+            root,
+            -1, -1,
+            -1, -1,
+            0.0, 0.0,
+            0, 0);
+
+        gui_element_set_margin(test_child, 5, 5, 5, 5);
+        gui_element_set_padding(test_child, 5, 5, 5, 5);
+
+        gui_element_add_child(root, test_child, err);
+        nst_dec_ref(test_child);
+    }
 
     app.keep_open = true;
     NST_RETURN_NULL;

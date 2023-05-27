@@ -1,12 +1,12 @@
 #include "gui_element.h"
 #include "nest_gui.h"
 
-Nst_Obj *gui_element_new(GUI_ElementType t,
-                         usize size,
-                         int x, int y,
-                         int w, int h,
-                         struct _GUI_App *app,
-                         Nst_OpErr *err)
+GUI_Element *gui_element_new(GUI_ElementType t,
+                             usize size,
+                             int x, int y,
+                             int w, int h,
+                             struct _GUI_App *app,
+                             Nst_OpErr *err)
 {
     GUI_Element *obj = (GUI_Element *)nst_obj_alloc(
         size,
@@ -32,12 +32,16 @@ Nst_Obj *gui_element_new(GUI_ElementType t,
     }
     obj->app = app;
 
+    obj->handle_event_func = nullptr;
+    obj->frame_update_func = nullptr;
+    obj->tick_update_func = nullptr;
+
     gui_element_set_margin(obj, 0, 0, 0, 0);
     gui_element_set_padding(obj, 0, 0, 0, 0);
 
     NST_GGC_OBJ_INIT(obj, gui_element_track, gui_element_traverse);
 
-    return OBJ(obj);
+    return obj;
 }
 
 void gui_element_destroy(GUI_Element *obj)
@@ -138,7 +142,9 @@ int gui_element_get_content_x(GUI_Element *obj, GUI_RelPosX pos)
     case GUI_LEFT:
         return obj->rect.x + obj->padding_left;
     case GUI_MIDDLE:
-        return obj->rect.x + (obj->rect.w >> 1);
+        return obj->rect.x
+             + obj->padding_left
+             + ((obj->rect.w - obj->padding_left - obj->padding_right) >> 1);
     default:
         return obj->rect.x + obj->rect.w - obj->padding_right;
     }
@@ -151,7 +157,9 @@ int gui_element_get_content_y(GUI_Element *obj, GUI_RelPosY pos)
     case GUI_TOP:
         return obj->rect.y + obj->padding_top;
     case GUI_CENTER:
-        return obj->rect.y + (obj->rect.h >> 1);
+        return obj->rect.y
+             + obj->padding_top
+             + ((obj->rect.h - obj->padding_top - obj->padding_bottom) >> 1);
     default:
         return obj->rect.y + obj->rect.h - obj->padding_bottom;
     }
@@ -165,10 +173,12 @@ void gui_element_set_x(GUI_Element *obj, GUI_RelPosX pos, int x)
         obj->rect.x = x + obj->margin_left;
         break;
     case GUI_MIDDLE:
-        obj->rect.x = x - (obj->rect.w >> 1);
+        obj->rect.x = x
+            + obj->margin_left
+            - ((obj->rect.w + obj->margin_left + obj->margin_right) >> 1);
         break;
     case GUI_RIGHT:
-        obj->rect.x = x - obj->rect.w - obj->margin_left;
+        obj->rect.x = x - obj->rect.w - obj->margin_right;
         break;
     default:
         obj->rect.x = x;
@@ -179,14 +189,16 @@ void gui_element_set_y(GUI_Element *obj, GUI_RelPosY pos, int y)
 {
     switch ( pos )
     {
-    case GUI_LEFT:
-        obj->rect.y = y + obj->margin_left;
+    case GUI_TOP:
+        obj->rect.y = y + obj->margin_top;
         break;
-    case GUI_MIDDLE:
-        obj->rect.y = y - (obj->rect.w >> 1);
+    case GUI_CENTER:
+        obj->rect.y = y
+            + obj->margin_top
+            - ((obj->rect.h + obj->margin_top + obj->margin_bottom) >> 1);
         break;
-    case GUI_RIGHT:
-        obj->rect.y = y - obj->rect.w - obj->margin_left;
+    case GUI_BOTTOM:
+        obj->rect.y = y - obj->rect.h - obj->margin_bottom;
         break;
     default:
         obj->rect.y = y;
@@ -315,7 +327,7 @@ void gui_element_update_size(GUI_Element *obj)
     }
     else
     {
-        p_h = obj->rect.y;
+        p_h = obj->rect.h;
     }
 
     i32 min_w = obj->rel_size.min_w;
@@ -341,6 +353,50 @@ void gui_element_update_size(GUI_Element *obj)
         p_h = max_h;
     }
 
+    if ( p_w < 0 ) p_w = 0;
+    if ( p_h < 0 ) p_h = 0;
+
     obj->rect.w = p_w;
     obj->rect.h = p_h;
+}
+
+SDL_Rect gui_element_get_margin_rect(GUI_Element *obj)
+{
+    SDL_Rect r = obj->rect;
+    r.x = r.x - obj->margin_left;
+    r.y = r.y - obj->margin_top;
+    r.w += obj->margin_left + obj->margin_right;
+    r.h += obj->margin_top + obj->margin_bottom;
+    if ( r.w < 0 || r.h < 0 )
+    {
+        r.w = 0;
+        r.h = 0;
+    }
+    return r;
+}
+
+SDL_Rect gui_element_get_padding_rect(GUI_Element *obj)
+{
+    SDL_Rect r = obj->rect;
+    r.x = r.x + obj->padding_left;
+    r.y = r.y + obj->padding_top;
+    r.w -= obj->padding_left + obj->padding_right;
+    r.h -= obj->padding_top + obj->padding_bottom;
+    if ( r.w < 0 || r.h < 0 )
+    {
+        r.w = 0;
+        r.h = 0;
+    }
+    return r;
+}
+
+bool gui_element_add_child(GUI_Element *parent, GUI_Element *child, Nst_OpErr *err)
+{
+    nst_vector_append(parent->children, child, err);
+    if ( NST_ERROR_OCCURRED )
+    {
+        return false;
+    }
+    gui_element_set_parent(child, parent);
+    return true;
 }

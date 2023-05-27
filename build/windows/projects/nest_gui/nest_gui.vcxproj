@@ -168,16 +168,22 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\libs\dll\framework.h" />
+    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_draw.h" />
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_element.h" />
+    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_event.h" />
+    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_update.h" />
     <ClInclude Include="..\..\..\..\libs\nest_gui\nest_gui.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp" />
+    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_draw.cpp" />
     <ClCompile Include="..\..\..\..\libs\nest_gui\gui_element.cpp" />
+    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_event.cpp" />
+    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_update.cpp" />
     <ClCompile Include="..\..\..\..\libs\nest_gui\nest_gui.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\libs\_nest_files\stdgui.nest" />
+    <None Include="..\..\..\..\libs\_nest_files\_stdgui.nest" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

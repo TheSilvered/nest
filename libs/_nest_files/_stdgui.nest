@@ -2,7 +2,9 @@
 
 |#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_gui.dll' = __gui
 
-__gui.handle_events_ = handle_events
+@__gui.init_
+
+__gui.loop_       = loop
 __gui.set_window_ = set_window
 
 { 'fullscreen': 0x00000001,

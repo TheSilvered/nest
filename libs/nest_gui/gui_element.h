@@ -24,8 +24,10 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef bool (*HandleEventFunc)(SDL_Event *, Nst_OpErr *);
-typedef void (*UpdateFunc)(Nst_OpErr *);
+struct _GUI_Element;
+
+typedef i32 (*HandleEventFunc)(SDL_Event *, struct _GUI_Element *, Nst_OpErr *);
+typedef bool (*UpdateFunc)(struct _GUI_Element *, Nst_OpErr *);
 
 typedef enum _GUI_Flags
 {
@@ -88,12 +90,12 @@ GUI_Element;
 
 extern Nst_TypeObj *gui_element_type;
 
-Nst_Obj *gui_element_new(GUI_ElementType t,
-                         usize size,
-                         int x, int y,
-                         int w, int h,
-                         struct _GUI_App *app,
-                         Nst_OpErr *err);
+GUI_Element *gui_element_new(GUI_ElementType t,
+                             usize size,
+                             int x, int y,
+                             int w, int h,
+                             struct _GUI_App *app,
+                             Nst_OpErr *err);
 void gui_element_destroy(GUI_Element *obj);
 void gui_element_track(GUI_Element *obj);
 void gui_element_traverse(GUI_Element *obj);
@@ -129,6 +131,10 @@ void gui_element_set_rel_size(GUI_Element *obj,
 void gui_element_update_pos(GUI_Element *obj);
 void gui_element_update_size(GUI_Element *obj);
 
+SDL_Rect gui_element_get_margin_rect(GUI_Element *obj);
+SDL_Rect gui_element_get_padding_rect(GUI_Element *obj);
+
+bool gui_element_add_child(GUI_Element *parent, GUI_Element *child, Nst_OpErr *err);
 
 #ifdef __cplusplus
 }

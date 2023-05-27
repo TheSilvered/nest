@@ -1,0 +1,20 @@
+#ifndef GUI_DRAW_H
+#define GUI_DRAW_H
+
+#include "nest_gui.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif // !__cplusplus
+
+void draw_rect(SDL_Renderer *renderer, SDL_Rect *rect);
+void draw_round_rect(SDL_Renderer *renderer,
+                     SDL_Rect *rect,
+                     int rtl, int rtr, int rbl, int rbr,
+                     u8 r, u8 g, u8 b, u8 a);
+
+#ifdef __cplusplus
+}
+#endif // !__cplusplus
+
+#endif // !GUI_DRAW_H

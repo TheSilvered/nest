@@ -64,7 +64,7 @@ all:
 	make -f nest_co.mk      __no_libnest_x64
 	make -f nest_err.mk     __no_libnest_x64
 	make -f nest_fs.mk      __no_libnest_x64
-	# make -f nest_gui.mk     __no_libnest_x64
+	make -f nest_gui.mk     __no_libnest_x64
 	make -f nest_io.mk      __no_libnest_x64
 	make -f nest_itutil.mk  __no_libnest_x64
 	make -f nest_json.mk    __no_libnest_x64
@@ -82,7 +82,7 @@ all-x86:
 	make -f nest_co.mk      __no_libnest_x86
 	make -f nest_err.mk     __no_libnest_x86
 	make -f nest_fs.mk      __no_libnest_x86
-	# make -f nest_gui.mk     __no_libnest_x86
+	make -f nest_gui.mk     __no_libnest_x86
 	make -f nest_io.mk      __no_libnest_x86
 	make -f nest_itutil.mk  __no_libnest_x86
 	make -f nest_json.mk    __no_libnest_x86
@@ -100,7 +100,7 @@ all-debug:
 	make -f nest_co.mk      __no_libnest_dbg
 	make -f nest_err.mk     __no_libnest_dbg
 	make -f nest_fs.mk      __no_libnest_dbg
-	# make -f nest_gui.mk     __no_libnest_dbg
+	make -f nest_gui.mk     __no_libnest_dbg
 	make -f nest_io.mk      __no_libnest_dbg
 	make -f nest_itutil.mk  __no_libnest_dbg
 	make -f nest_json.mk    __no_libnest_dbg
