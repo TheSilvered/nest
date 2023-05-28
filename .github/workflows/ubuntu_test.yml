@@ -11,13 +11,10 @@ jobs:
     steps:
     - uses: actions/checkout@v3
     - name: Configure
-      run: sudo bash ./configure.sh
-    - name: Compile x64
+      run: sudo bash ./configure.sh x64
+    - name: Compile
       working-directory: ./build/linux/makefiles
       run: make all
-    - name: Compile x86
-      working-directory: ./build/linux/makefiles
-      run: make all-x86
     - name: Install Nest
       run: |
         mkdir -p ./build/linux/linux_libs
@@ -26,8 +23,8 @@ jobs:
           python3 ./build/update_nest_file.py "${i}"
         done
         sudo mkdir -p "/usr/lib/nest"
-        sudo cp ./build/linux/linux_libs/std* /usr/lib/nest
-        sudo cp ./build/linux/linux_release/x64/std* /usr/lib/nest
+        sudo cp ./build/linux/linux_libs/* /usr/lib/nest
+        sudo cp ./build/linux/linux_release/x64/* /usr/lib/nest
         sudo cp ./build/linux/linux_release/x64/nest /usr/bin
         sudo cp ./build/linux/linux_release/x64/libnest.so /usr/lib
     - name: Run Tests
