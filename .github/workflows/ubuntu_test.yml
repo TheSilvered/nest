@@ -10,8 +10,8 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: Configure x64
-      run: sudo bash ./configure.sh
+    - name: Configure
+      run: sudo bash ./configure.sh x64
     - name: Compile x64
       working-directory: ./build/linux/makefiles
       run: make all
