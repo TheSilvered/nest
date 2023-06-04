@@ -4,6 +4,7 @@
 #include <string.h>
 #include "simple_types.h"
 #include "global_consts.h"
+#include "obj_ops.h"
 
 #define NEW_SYMPLE_TYPE(type, type_obj) \
     type *obj = (type *)nst_obj_alloc(sizeof(type), type_obj, NULL, err); \
@@ -180,4 +181,70 @@ i32 nst_fclose(Nst_IOFileObj *f)
     f->value = NULL;
     NST_FLAG_SET(f, NST_FLAG_IOFILE_IS_CLOSED);
     return 0;
+}
+
+u8 _nst_number_to_u8(Nst_Obj *number)
+{
+    return (u8)_nst_number_to_i64(number);
+}
+
+int _nst_number_to_int(Nst_Obj *number)
+{
+    return (int)_nst_number_to_i64(number);
+}
+
+i32 _nst_number_to_i32(Nst_Obj *number)
+{
+    return (i32)_nst_number_to_i64(number);
+}
+
+i64 _nst_number_to_i64(Nst_Obj *number)
+{
+    Nst_TypeObj *t = number->type;
+
+    if ( t == nst_t.Byte )
+    {
+        return (i64)AS_BYTE(number);
+    }
+    else if ( t == nst_t.Int )
+    {
+        return AS_INT(number);
+    }
+    else if ( t == nst_t.Real )
+    {
+        return (i64)AS_REAL(number);
+    }
+    return 0;
+}
+
+f32 _nst_number_to_f32(Nst_Obj *number)
+{
+    return (f32)_nst_number_to_f64(number);
+}
+
+f64 _nst_number_to_f64(Nst_Obj *number)
+{
+    Nst_TypeObj *t = number->type;
+
+    if ( t == nst_t.Byte )
+    {
+        return (f64)AS_BYTE(number);
+    }
+    else if ( t == nst_t.Int )
+    {
+        return (f64)AS_INT(number);
+    }
+    else if ( t == nst_t.Real )
+    {
+        return AS_REAL(number);
+    }
+    return 0.0;
+}
+
+Nst_Bool _nst_obj_to_bool(Nst_Obj *obj)
+{
+    Nst_Obj *bool_obj = nst_obj_cast(obj, nst_t.Bool, NULL);
+    Nst_Bool v = AS_BOOL(bool_obj);
+    nst_dec_ref(bool_obj);
+    return v;
 }

@@ -20,6 +20,14 @@
 #define NST_IOF_CAN_WRITE(f) NST_FLAG_HAS(f, NST_FLAG_IOFILE_CAN_WRITE)
 #define NST_IOF_CAN_READ(f)  NST_FLAG_HAS(f, NST_FLAG_IOFILE_CAN_READ)
 
+#define nst_number_to_u8(number) _nst_number_to_u8(OBJ(number))
+#define nst_number_to_int(number) _nst_number_to_int(OBJ(number))
+#define nst_number_to_i32(number) _nst_number_to_i32(OBJ(number))
+#define nst_number_to_i64(number) _nst_number_to_i64(OBJ(number))
+#define nst_number_to_f32(number) _nst_number_to_f32(OBJ(number))
+#define nst_number_to_f64(number) _nst_number_to_f64(OBJ(number))
+#define nst_obj_to_bool(obj) _nst_number_to_f64(OBJ(obj))
+
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
@@ -132,6 +140,14 @@ EXPORT i32 nst_fflush(Nst_IOFileObj *f);
 EXPORT i32 nst_ftell(Nst_IOFileObj *f);
 EXPORT i32 nst_fseek(Nst_IOFileObj *f, i32 offset, i32 origin);
 EXPORT i32 nst_fclose(Nst_IOFileObj *f);
+
+EXPORT u8  _nst_number_to_u8(Nst_Obj *number);
+EXPORT int _nst_number_to_int(Nst_Obj *number);
+EXPORT i32 _nst_number_to_i32(Nst_Obj *number);
+EXPORT i64 _nst_number_to_i64(Nst_Obj *number);
+EXPORT f32 _nst_number_to_f32(Nst_Obj *number);
+EXPORT f64 _nst_number_to_f64(Nst_Obj *number);
+EXPORT Nst_Bool _nst_obj_to_bool(Nst_Obj *obj);
 
 #ifdef __cplusplus
 }

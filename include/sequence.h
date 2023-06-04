@@ -61,8 +61,8 @@ EXPORT void _nst_seq_track(Nst_SeqObj *seq);
 EXPORT bool _nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val);
 EXPORT Nst_Obj *_nst_seq_get(Nst_SeqObj *seq, i64 idx);
 
-EXPORT void _nst_vector_resize(Nst_SeqObj *vect, Nst_OpErr *err);
-EXPORT void _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val, Nst_OpErr *err);
+EXPORT bool _nst_vector_resize(Nst_SeqObj *vect, Nst_OpErr *err);
+EXPORT bool _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val, Nst_OpErr *err);
 EXPORT Nst_Obj *_nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val);
 EXPORT Nst_Obj *_nst_vector_pop(Nst_SeqObj *vect, usize quantity);
 

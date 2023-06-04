@@ -618,8 +618,7 @@ Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err)
 
     for ( usize i = 0, n = func->arg_num; i < n; i++ )
     {
-        nst_vt_set(new_vt, func->args[i], args[i], err);
-        if ( NST_ERROR_OCCURRED )
+        if ( !nst_vt_set(new_vt, func->args[i], args[i], err) )
         {
             nst_dec_ref(new_vt->global_table);
             nst_map_drop(new_vt->vars, nst_s.o__vars_);
@@ -1016,28 +1015,14 @@ static inline void exe_set_cont_val(Nst_Inst *inst)
     }
     else if ( cont->type == nst_t.Map )
     {
-        bool res = nst_map_set(cont, idx, val);
-        if ( main_err.name != NULL )
+        bool res = nst_map_set(cont, idx, val, &main_err);
+        if ( !res )
         {
             SET_OP_ERROR(inst->start, inst->end);
             nst_dec_ref(cont);
             nst_dec_ref(idx);
             nst_dec_ref(val);
             return;
-        }
-        if ( !res && idx->hash != -1 )
-        {
-            _NST_SET_TYPE_ERROR(
-                GLOBAL_ERROR,
-                inst->start,
-                inst->end,
-                nst_sprintf(
-                    _NST_EM_UNHASHABLE_TYPE,
-                    TYPE_NAME(idx)));
-        }
-        else if ( !res )
-        {
-            _NST_FAILED_ALLOCATION(GLOBAL_ERROR, inst->start, inst->end);
         }
 
         nst_dec_ref(cont);
@@ -1730,9 +1715,9 @@ static inline void exe_make_map(Nst_Inst *inst)
         Nst_Obj *key = v_stack[stack_size - map_size + i];
         i++;
         Nst_Obj *val = v_stack[stack_size - map_size + i];
-        if ( !nst_map_set(map, key, val) )
+        if ( !nst_map_set(map, key, val, &main_err) )
         {
-            _NST_FAILED_ALLOCATION(GLOBAL_ERROR, inst->start, inst->end);
+            SET_OP_ERROR(inst->start, inst->end);
             nst_dec_ref(val);
             nst_dec_ref(key);
             nst_dec_ref(map);

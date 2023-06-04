@@ -77,7 +77,7 @@ void _nst_seq_track(Nst_SeqObj* seq)
     }
 }
 
-void _nst_vector_resize(Nst_SeqObj *vect, Nst_OpErr *err)
+bool _nst_vector_resize(Nst_SeqObj *vect, Nst_OpErr *err)
 {
     usize len = vect->len;
     usize size = vect->size;
@@ -99,12 +99,12 @@ void _nst_vector_resize(Nst_SeqObj *vect, Nst_OpErr *err)
 
         if ( size == _NST_VECTOR_MIN_SIZE )
         {
-            return;
+            return true;
         }
     }
     else
     {
-        return;
+        return true;
     }
 
     Nst_Obj **new_objs = (Nst_Obj **)nst_realloc(
@@ -116,7 +116,7 @@ void _nst_vector_resize(Nst_SeqObj *vect, Nst_OpErr *err)
 
     if ( new_objs == NULL )
     {
-        return;
+        return false;
     }
 
     for ( usize i = len; i < new_size; i++ )
@@ -126,17 +126,14 @@ void _nst_vector_resize(Nst_SeqObj *vect, Nst_OpErr *err)
 
     vect->size = new_size;
     vect->objs = new_objs;
+    return true;
 }
 
-void _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val, Nst_OpErr *err)
+bool _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val, Nst_OpErr *err)
 {
-    if ( vect->size == vect->len )
+    if ( !_nst_vector_resize(vect, err) )
     {
-        _nst_vector_resize(vect, err);
-    }
-    if ( NST_ERROR_OCCURRED )
-    {
-        return;
+        return false;
     }
 
     vect->objs[vect->len++] = nst_inc_ref(val);
@@ -146,6 +143,7 @@ void _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val, Nst_OpErr *err)
     {
         nst_ggc_track_obj((Nst_GGCObj*)val);
     }
+    return true;
 }
 
 bool _nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val)

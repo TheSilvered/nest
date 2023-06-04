@@ -18,13 +18,13 @@ jobs:
     - name: Install Nest
       run: |
         mkdir -p ./build/linux/linux_libs
-        cp ./libs/_nest_files/* ./build/linux/linux_libs
-        for i in ./build/linux/linux_libs/*; do
+        cp -r ./libs/_nest_files/* ./build/linux/linux_libs
+        for i in ./build/linux/linux_libs/*.nest; do
           python3 ./build/update_nest_file.py "${i}"
         done
-        sudo mkdir -p "/usr/lib/nest"
-        sudo cp ./build/linux/linux_libs/* /usr/lib/nest
-        sudo cp ./build/linux/linux_release/x64/* /usr/lib/nest
+        sudo mkdir -p /usr/lib/nest/
+        sudo cp -r ./build/linux/linux_libs/* /usr/lib/nest
+        sudo cp ./build/linux/linux_release/x64/*.cnest /usr/lib/nest
         sudo cp ./build/linux/linux_release/x64/nest /usr/bin
         sudo cp ./build/linux/linux_release/x64/libnest.so /usr/lib
     - name: Run Tests

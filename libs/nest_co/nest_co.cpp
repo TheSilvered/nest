@@ -239,7 +239,7 @@ void coroutine_destroy(CoroutineObj *co)
 
     if ( co->vars != NULL && !NST_FLAG_HAS(co->vars, NST_FLAG_GGC_DELETED) )
     {
-        nst_dec_ref(nst_map_drop_str(co->vars, "_vars_", nullptr));
+        nst_dec_ref(nst_map_drop_str(co->vars, "_vars_"));
         nst_dec_ref(co->vars);
     }
 

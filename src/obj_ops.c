@@ -10,6 +10,7 @@
 #include "error.h"
 #include "lib_import.h"
 #include "format.h"
+#include "hash.h"
 
 #ifdef WINDOWS
 
@@ -65,8 +66,6 @@ typedef void * lib_t;
     return NULL; \
     } while ( 0 )
 
-#define RETURN_MISSING_FUNC_ERROR(func) NST_SET_RAW_VALUE_ERROR(_NST_EM_MISSING_FUNC(func))
-
 #define CHECK_BUFFER(buf) do { \
         if ( buf == NULL ) \
         { \
@@ -88,7 +87,7 @@ static Nst_Obj *seq_eq(Nst_SeqObj *seq1,
                        Nst_OpErr *err);
 static Nst_Obj *import_nest_lib(Nst_StrObj *file_path, Nst_OpErr *err);
 static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err);
-static void add_to_handle_map(Nst_StrObj *path,
+static bool add_to_handle_map(Nst_StrObj *path,
                               Nst_MapObj *map,
                               Nst_SourceText *src_txt,
                               Nst_OpErr *err);
@@ -452,8 +451,7 @@ Nst_Obj *_nst_obj_add(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     if ( ob1->type == nst_t.Vector )
     {
-        nst_vector_append(ob1, ob2, err);
-        if ( NST_ERROR_OCCURRED )
+        if ( !nst_vector_append(ob1, ob2, err) )
         {
             return NULL;
         }
@@ -979,36 +977,40 @@ Nst_Obj *_nst_obj_str_cast_seq(Nst_SeqObj *seq_obj,
                                Nst_OpErr *err)
 {
     bool is_vect = seq_obj->type == nst_t.Vector;
+    const char *recursive;
+    const char *empty;
+    const char *open;
+    const char *close;
+
+    if ( is_vect )
+    {
+        recursive = "<{.}>";
+        empty = "<{}>";
+        open = "<{ ";
+        close = " }>";
+    }
+    else
+    {
+        recursive = "{.}";
+        empty = "{,}";
+        open = "{ ";
+        close = " }";
+    }
 
     for ( Nst_LLNode *n = all_objs->head; n != NULL; n = n->next )
     {
         if ( seq_obj == n->value )
         {
-            if ( is_vect )
-            {
-                return nst_string_new_c("<{.}>", 5, false, err);
-            }
-            else
-            {
-                return nst_string_new_c("{.}", 3, false, err);
-            }
+            return nst_string_new_c_raw(recursive, false, err);
         }
     }
 
     if ( seq_obj->len == 0 )
     {
-        if ( is_vect )
-        {
-            return nst_string_new_c("<{}>", 4, false, err);
-        }
-        else
-        {
-            return nst_string_new_c("{,}", 3, false, err);
-        }
+        return nst_string_new_c_raw(empty, false, err);
     }
 
-    nst_llist_push(all_objs, seq_obj, false, err);
-    if ( NST_ERROR_OCCURRED )
+    if ( !nst_llist_push(all_objs, seq_obj, false, err) )
     {
         return NULL;
     }
@@ -1021,14 +1023,7 @@ Nst_Obj *_nst_obj_str_cast_seq(Nst_SeqObj *seq_obj,
         return NULL;
     }
 
-    if ( is_vect )
-    {
-        nst_buffer_append_c_str(&buf, "<{ ", NULL);
-    }
-    else
-    {
-        nst_buffer_append_c_str(&buf, "{ ", NULL);
-    }
+    nst_buffer_append_c_str(&buf, open, NULL);
 
     for ( usize i = 0; i < seq_len; i++ )
     {
@@ -1047,7 +1042,7 @@ Nst_Obj *_nst_obj_str_cast_seq(Nst_SeqObj *seq_obj,
         {
             ob_str = STR(_nst_repr_str_cast(ob, err));
         }
-        if ( NST_ERROR_OCCURRED )
+        if ( ob_str == NULL )
         {
             nst_buffer_destroy(&buf);
             return NULL;
@@ -1071,16 +1066,7 @@ Nst_Obj *_nst_obj_str_cast_seq(Nst_SeqObj *seq_obj,
         }
     }
 
-    if ( is_vect )
-    {
-        nst_buffer_append_c_str(&buf, " }>", err);
-    }
-    else
-    {
-        nst_buffer_append_c_str(&buf, " }", err);
-    }
-
-    if ( NST_ERROR_OCCURRED )
+    if ( !nst_buffer_append_c_str(&buf, close, err) )
     {
         nst_buffer_destroy(&buf);
         return NULL;
@@ -1107,8 +1093,7 @@ Nst_Obj *_nst_obj_str_cast_map(Nst_MapObj *map_obj,
         return nst_string_new_c("{}", 2, false, err);
     }
 
-    nst_llist_push(all_objs, map_obj, false, err);
-    if ( NST_ERROR_OCCURRED )
+    if ( !nst_llist_push(all_objs, map_obj, false, err) )
     {
         return NULL;
     }
@@ -1131,6 +1116,12 @@ Nst_Obj *_nst_obj_str_cast_map(Nst_MapObj *map_obj,
         Nst_StrObj *key_str = STR(_nst_repr_str_cast(key, err));
         Nst_StrObj *val_str;
 
+        if ( key_str == NULL )
+        {
+            nst_buffer_destroy(&buf);
+            return NULL;
+        }
+
         if ( IS_SEQ(val) )
         {
             val_str = STR(_nst_obj_str_cast_seq(SEQ(val), all_objs, err));
@@ -1144,10 +1135,9 @@ Nst_Obj *_nst_obj_str_cast_map(Nst_MapObj *map_obj,
             val_str = STR(_nst_repr_str_cast(val, err));
         }
 
-        if ( NST_ERROR_OCCURRED )
+        if ( key_str == NULL )
         {
-            if ( key_str ) nst_dec_ref(key_str);
-            if ( val_str ) nst_dec_ref(val_str);
+            nst_dec_ref(key_str);
             nst_buffer_destroy(&buf);
             return NULL;
         }
@@ -1454,28 +1444,31 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
         if ( ob_t == nst_t.Str )
         {
             Nst_Obj *idx = nst_int_new(0, err);
+            if ( idx == NULL )
+            {
+                return NULL;
+            }
+
             Nst_SeqObj *data = SEQ(nst_array_new(2, err));
+            if ( data == NULL )
+            {
+                nst_dec_ref(idx);
+                return NULL;
+            }
+
             nst_seq_set(data, 0, idx);
             nst_seq_set(data, 1, ob);
             nst_dec_ref(idx);
-
-            if ( NST_ERROR_OCCURRED )
-            {
-                if ( idx  ) nst_dec_ref(idx);
-                if ( data ) nst_dec_ref(data);
-                return NULL;
-            }
 
             Nst_Obj *start_obj   = nst_func_new_c(1, nst_iter_str_start, err);
             Nst_Obj *is_done_obj = nst_func_new_c(1, nst_iter_str_is_done, err);
             Nst_Obj *get_val_obj = nst_func_new_c(1, nst_iter_str_get_val, err);
 
-            if ( NST_ERROR_OCCURRED )
+            if ( start_obj == NULL || is_done_obj == NULL || get_val_obj == NULL )
             {
                 if ( start_obj   ) nst_dec_ref(start_obj);
                 if ( is_done_obj ) nst_dec_ref(is_done_obj);
                 if ( get_val_obj ) nst_dec_ref(get_val_obj);
-                nst_dec_ref(idx);
                 nst_dec_ref(data);
                 return NULL;
             }
@@ -1490,28 +1483,31 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
         else if ( ob_t == nst_t.Array || ob_t == nst_t.Vector )
         {
             Nst_Obj *idx = nst_int_new(0, err);
+            if ( idx == NULL )
+            {
+                return NULL;
+            }
+
             Nst_SeqObj *data = SEQ(nst_array_new(2, err));
+            if ( data == NULL )
+            {
+                nst_dec_ref(idx);
+                return NULL;
+            }
+
             nst_seq_set(data, 0, idx);
             nst_seq_set(data, 1, ob);
             nst_dec_ref(idx);
-
-            if ( NST_ERROR_OCCURRED )
-            {
-                if ( idx  ) nst_dec_ref(idx);
-                if ( data ) nst_dec_ref(data);
-                return NULL;
-            }
 
             Nst_Obj *start_obj   = nst_func_new_c(1, nst_iter_seq_start, err);
             Nst_Obj *is_done_obj = nst_func_new_c(1, nst_iter_seq_is_done, err);
             Nst_Obj *get_val_obj = nst_func_new_c(1, nst_iter_seq_get_val, err);
 
-            if ( NST_ERROR_OCCURRED )
+            if ( start_obj == NULL || is_done_obj == NULL || get_val_obj == NULL )
             {
                 if ( start_obj   ) nst_dec_ref(start_obj);
                 if ( is_done_obj ) nst_dec_ref(is_done_obj);
                 if ( get_val_obj ) nst_dec_ref(get_val_obj);
-                nst_dec_ref(idx);
                 nst_dec_ref(data);
                 return NULL;
             }
@@ -1525,29 +1521,28 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
         }
         else if ( ob_t == nst_t.Map )
         {
-            Nst_Obj *start_obj   = nst_map_get_str(ob, "_start_", err);
-            Nst_Obj *is_done_obj = nst_map_get_str(ob, "_is_done_", err);
-            Nst_Obj *get_val_obj = nst_map_get_str(ob, "_get_val_", err);
-
-            if ( NST_ERROR_OCCURRED )
+            Nst_Obj *start_obj   = nst_map_get_str(ob, "_start_");
+            if ( start_obj == NULL )
             {
-                if ( start_obj ) nst_dec_ref(start_obj);
-                if ( is_done_obj ) nst_dec_ref(is_done_obj);
-                if ( get_val_obj ) nst_dec_ref(get_val_obj);
+                NST_SET_RAW_VALUE_ERROR(_NST_EM_MISSING_FUNC("_start_"));
                 return NULL;
             }
 
-            if ( start_obj == NULL )
-            {
-                RETURN_MISSING_FUNC_ERROR("_start_");
-            }
+            Nst_Obj *is_done_obj = nst_map_get_str(ob, "_is_done_");
             if ( is_done_obj == NULL )
             {
-                RETURN_MISSING_FUNC_ERROR("_is_done_");
+                NST_SET_RAW_VALUE_ERROR(_NST_EM_MISSING_FUNC("_is_done_"));
+                nst_dec_ref(start_obj);
+                return NULL;
             }
-            if ( get_val_obj == NULL )
+
+            Nst_Obj *get_val_obj = nst_map_get_str(ob, "_get_val_");
+            if ( is_done_obj == NULL )
             {
-                RETURN_MISSING_FUNC_ERROR("_get_val_");
+                NST_SET_RAW_VALUE_ERROR(_NST_EM_MISSING_FUNC("_get_val_"));
+                nst_dec_ref(start_obj);
+                nst_dec_ref(is_done_obj);
+                return NULL;
             }
 
             return nst_iter_new(
@@ -1638,8 +1633,8 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
                     nst_dec_ref(seq);
                     return NULL;
                 }
-                nst_vector_append(seq, result, err);
-                if ( NST_ERROR_OCCURRED )
+
+                if ( !nst_vector_append(seq, result, err) )
                 {
                     nst_dec_ref(seq);
                     return NULL;
@@ -1728,10 +1723,18 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
                     return NULL;
                 }
 
-                if ( !nst_map_set(map, SEQ(objs[i])->objs[0], SEQ(objs[i])->objs[1]) )
+                i32 hash = nst_obj_hash(SEQ(objs[i])->objs[0]);
+
+                if ( hash == -1 )
                 {
                     NST_SET_TYPE_ERROR(nst_sprintf(
                         _NST_EM_MAP_TO_SEQ_HASH("index"), i));
+                    nst_dec_ref(map);
+                    return NULL;
+                }
+
+                if ( !nst_map_set(map, SEQ(objs[i])->objs[0], SEQ(objs[i])->objs[1], err) )
+                {
                     nst_dec_ref(map);
                     return NULL;
                 }
@@ -1794,30 +1797,36 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
                     return NULL;
                 }
 
-                if ( !nst_map_set(map, result->objs[0], result->objs[1]) )
+                i32 hash = nst_obj_hash(result->objs[0]);
+
+                if ( hash == -1 )
                 {
                     NST_SET_TYPE_ERROR(nst_sprintf(
-                        _NST_EM_MAP_TO_SEQ_HASH("iteration"),
-                        iter_count));
+                        _NST_EM_MAP_TO_SEQ_HASH("index"), iter_count));
+                    nst_dec_ref(map);
+                    return NULL;
+                }
+
+                if ( !nst_map_set(map, result->objs[0], result->objs[1], err) )
+                {
                     nst_dec_ref(map);
                     return NULL;
                 }
                 nst_dec_ref(result);
-                if ( NST_ERROR_OCCURRED )
-                {
-                    nst_dec_ref(map);
-                    return NULL;
-                }
                 iter_count++;
             }
 
             return OBJ(map);
         }
         else
+        {
             RETURN_CAST_TYPE_ERROR;
+        }
     }
     else
+    {
         RETURN_CAST_TYPE_ERROR;
+    }
 }
 
 Nst_Obj *_nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
@@ -1877,7 +1886,7 @@ Nst_Obj *_nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step, Nst_OpErr 
     Nst_Obj *is_done_func = nst_func_new_c(1, nst_iter_range_is_done, err);
     Nst_Obj *get_val_func = nst_func_new_c(1, nst_iter_range_get_val, err);
 
-    if ( NST_ERROR_OCCURRED )
+    if ( start_func == NULL || is_done_func == NULL || get_val_func == NULL )
     {
         if ( start_func ) nst_dec_ref(start_func);
         if ( is_done_func ) nst_dec_ref(is_done_func);
@@ -2081,8 +2090,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         return obj_map;
     }
 
-    nst_llist_push(nst_state.lib_paths, import_path, false, err);
-    if ( NST_ERROR_OCCURRED )
+    if ( !nst_llist_push(nst_state.lib_paths, import_path, false, err) )
     {
         nst_dec_ref(import_path);
         return NULL;
@@ -2094,22 +2102,19 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         return import_c_lib(import_path, err);
 }
 
-static void add_to_handle_map(Nst_StrObj     *path,
+static bool add_to_handle_map(Nst_StrObj     *path,
                               Nst_MapObj     *map,
                               Nst_SourceText *src_txt,
                               Nst_OpErr      *err)
 {
-    nst_llist_push(nst_state.lib_srcs, src_txt, true, err);
-    if ( NST_ERROR_OCCURRED )
+    if ( !nst_llist_push(nst_state.lib_srcs, src_txt, true, err) )
     {
         nst_dec_ref(path);
-        return;
+        return false;
     }
-    if ( !nst_map_set(nst_state.lib_handles, path, map) )
-    {
-        NST_FAILED_ALLOCATION;
-    }
+    bool res = nst_map_set(nst_state.lib_handles, path, map, err);
     nst_dec_ref(path);
+    return res;
 }
 
 static Nst_Obj *import_nest_lib(Nst_StrObj *file_path, Nst_OpErr *err)
@@ -2134,7 +2139,11 @@ static Nst_Obj *import_nest_lib(Nst_StrObj *file_path, Nst_OpErr *err)
 
     Nst_MapObj *map = MAP(nst_vstack_pop(nst_state.v_stack));
 
-    add_to_handle_map(file_path, map, lib_src, err);
+    if ( !add_to_handle_map(file_path, map, lib_src, err) )
+    {
+        nst_dec_ref(map);
+        return NULL;
+    }
     nst_llist_pop(nst_state.lib_paths);
     return OBJ(map);
 }
@@ -2223,9 +2232,8 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
             goto fail;
         }
 
-        if ( !nst_map_set(obj_map, obj_declr.name, obj) )
+        if ( !nst_map_set(obj_map, obj_declr.name, obj, err) )
         {
-            NST_FAILED_ALLOCATION;
             nst_dec_ref(obj_map);
             nst_dec_ref(obj_declr.name);
             nst_dec_ref(obj);
@@ -2235,9 +2243,18 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
         nst_dec_ref(obj_declr.name);
         nst_dec_ref(obj);
     }
-    nst_llist_append(nst_state.loaded_libs, lib, true, err);
 
-    add_to_handle_map(file_path, obj_map, NULL, err);
+    if ( !nst_llist_append(nst_state.loaded_libs, lib, true, err) )
+    {
+        nst_dec_ref(obj_map);
+        return NULL;
+    }
+
+    if ( !add_to_handle_map(file_path, obj_map, NULL, err) )
+    {
+        nst_dec_ref(obj_map);
+        return NULL;
+    }
     nst_llist_pop(nst_state.lib_paths);
     return OBJ(obj_map);
 fail:

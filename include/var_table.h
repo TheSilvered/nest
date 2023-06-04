@@ -28,7 +28,7 @@ EXPORT Nst_VarTable *nst_vt_new(Nst_MapObj *global_table,
                                 Nst_SeqObj *args,
                                 Nst_OpErr  *err);
 EXPORT Nst_Obj *_nst_vt_get(Nst_VarTable *vt, Nst_Obj *name);
-EXPORT void _nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val, Nst_OpErr *err);
+EXPORT bool _nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val, Nst_OpErr *err);
 
 #ifdef __cplusplus
 }

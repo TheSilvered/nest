@@ -22,14 +22,14 @@ Nst_VarTable *nst_vt_new(Nst_MapObj *global_table,
     }
     vt->vars = vars;
     bool res = true;
-    res = res && nst_map_set(vars, nst_s.o__vars_, vars);
+    res = res && nst_map_set(vars, nst_s.o__vars_, vars, err);
     if ( global_table == NULL )
     {
-        res = res && nst_map_set(vars, nst_s.o__globals_, nst_c.Null_null);
+        res = res && nst_map_set(vars, nst_s.o__globals_, nst_c.Null_null, err);
     }
     else
     {
-        res = res && nst_map_set(vars, nst_s.o__globals_, global_table);
+        res = res && nst_map_set(vars, nst_s.o__globals_, global_table, err);
         if ( !res )
         {
             nst_dec_ref(vars);
@@ -41,26 +41,26 @@ Nst_VarTable *nst_vt_new(Nst_MapObj *global_table,
         return vt;
     }
 
-    res = res && nst_map_set(vars, nst_s.t_Type,   nst_t.Type);
-    res = res && nst_map_set(vars, nst_s.t_Int,    nst_t.Int);
-    res = res && nst_map_set(vars, nst_s.t_Real,   nst_t.Real);
-    res = res && nst_map_set(vars, nst_s.t_Bool,   nst_t.Bool);
-    res = res && nst_map_set(vars, nst_s.t_Null,   nst_t.Null);
-    res = res && nst_map_set(vars, nst_s.t_Str,    nst_t.Str);
-    res = res && nst_map_set(vars, nst_s.t_Array,  nst_t.Array);
-    res = res && nst_map_set(vars, nst_s.t_Vector, nst_t.Vector);
-    res = res && nst_map_set(vars, nst_s.t_Map,    nst_t.Map);
-    res = res && nst_map_set(vars, nst_s.t_Func,   nst_t.Func);
-    res = res && nst_map_set(vars, nst_s.t_Iter,   nst_t.Iter);
-    res = res && nst_map_set(vars, nst_s.t_Byte,   nst_t.Byte);
-    res = res && nst_map_set(vars, nst_s.t_IOFile, nst_t.IOFile);
+    res = res && nst_map_set(vars, nst_s.t_Type,   nst_t.Type, err);
+    res = res && nst_map_set(vars, nst_s.t_Int,    nst_t.Int, err);
+    res = res && nst_map_set(vars, nst_s.t_Real,   nst_t.Real, err);
+    res = res && nst_map_set(vars, nst_s.t_Bool,   nst_t.Bool, err);
+    res = res && nst_map_set(vars, nst_s.t_Null,   nst_t.Null, err);
+    res = res && nst_map_set(vars, nst_s.t_Str,    nst_t.Str, err);
+    res = res && nst_map_set(vars, nst_s.t_Array,  nst_t.Array, err);
+    res = res && nst_map_set(vars, nst_s.t_Vector, nst_t.Vector, err);
+    res = res && nst_map_set(vars, nst_s.t_Map,    nst_t.Map, err);
+    res = res && nst_map_set(vars, nst_s.t_Func,   nst_t.Func, err);
+    res = res && nst_map_set(vars, nst_s.t_Iter,   nst_t.Iter, err);
+    res = res && nst_map_set(vars, nst_s.t_Byte,   nst_t.Byte, err);
+    res = res && nst_map_set(vars, nst_s.t_IOFile, nst_t.IOFile, err);
 
-    res = res && nst_map_set(vars, nst_s.c_true,  nst_c.Bool_true);
-    res = res && nst_map_set(vars, nst_s.c_false, nst_c.Bool_false);
-    res = res && nst_map_set(vars, nst_s.c_null,  nst_c.Null_null);
+    res = res && nst_map_set(vars, nst_s.c_true,  nst_c.Bool_true, err);
+    res = res && nst_map_set(vars, nst_s.c_false, nst_c.Bool_false, err);
+    res = res && nst_map_set(vars, nst_s.c_null,  nst_c.Null_null, err);
 
-    res = res && nst_map_set(vars, nst_s.o__cwd_, cwd);
-    res = res && nst_map_set(vars, nst_s.o__args_, args);
+    res = res && nst_map_set(vars, nst_s.o__cwd_, cwd, err);
+    res = res && nst_map_set(vars, nst_s.o__args_, args, err);
 
     if ( !res )
     {
@@ -90,10 +90,11 @@ Nst_Obj *_nst_vt_get(Nst_VarTable *vt, Nst_Obj *name)
     return val;
 }
 
-void _nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val, Nst_OpErr *err)
+bool _nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val, Nst_OpErr *err)
 {
-    if ( !nst_map_set(vt->vars, name, val) )
+    if ( !nst_map_set(vt->vars, name, val, err) )
     {
-        NST_FAILED_ALLOCATION;
+        return false;
     }
+    return true;
 }
