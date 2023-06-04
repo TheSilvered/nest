@@ -21,7 +21,7 @@ GUI_Element *gui_element_new(GUI_ElementType t,
     obj->rect.y = y;
     obj->rect.w = w;
     obj->rect.h = h;
-    obj->el_type = GUI_ET_BASE;
+    obj->el_type = t;
 
     obj->parent = nullptr;
     obj->children = SEQ(nst_vector_new(0, err));
@@ -128,6 +128,7 @@ void gui_element_set_parent(GUI_Element *obj, GUI_Element *parent)
     }
 
     obj->parent = parent;
+    nst_inc_ref(parent);
 
     if ( NST_OBJ_IS_TRACKED(obj) )
     {
@@ -238,12 +239,14 @@ void gui_element_set_rel_pos(GUI_Element *obj,
 
 void gui_element_set_rel_size(GUI_Element *obj,
                               GUI_Element *element,
+                              GUI_RelSizeRect rel_size_rect,
                               i32 min_w, i32 min_h,
                               i32 max_w, i32 max_h,
                               f64 scale_x, f64 scale_y,
                               i32 diff_x, i32 diff_y)
 {
     NST_FLAG_SET(obj, GUI_FLAG_REL_SIZE);
+    obj->rel_size.rel_size_rect = rel_size_rect;
     obj->rel_size.min_w = min_w;
     obj->rel_size.min_h = min_h;
     obj->rel_size.max_w = max_w;
@@ -294,14 +297,27 @@ void gui_element_update_size(GUI_Element *obj)
     }
 
     int p_w, p_h;
-    if ( obj->rel_size.element == nullptr )
+    GUI_Element *rs_element = obj->rel_size.element;
+
+    if ( rs_element == nullptr )
     {
         SDL_GetWindowSize(obj->app->window, &p_w, &p_h);
     }
     else
     {
-        p_w = obj->rel_size.element->rect.w;
-        p_h = obj->rel_size.element->rect.h;
+        p_w = rs_element->rect.w;
+        p_h = rs_element->rect.h;
+
+        if ( obj->rel_size.rel_size_rect == GUI_RSR_MARGIN )
+        {
+            p_w += rs_element->margin_left + rs_element->margin_right;
+            p_h += rs_element->margin_top  + rs_element->margin_bottom;
+        }
+        else if ( obj->rel_size.rel_size_rect == GUI_RSR_PADDING )
+        {
+            p_w -= rs_element->padding_left + rs_element->padding_right;
+            p_h -= rs_element->padding_top  + rs_element->padding_bottom;
+        }
     }
 
     if ( obj->rel_size.diff_x != 0 )
@@ -399,4 +415,156 @@ bool gui_element_add_child(GUI_Element *parent, GUI_Element *child, Nst_OpErr *e
     }
     gui_element_set_parent(child, parent);
     return true;
+}
+
+TTF_Font *get_font(struct _GUI_App *app,
+                   GUI_FontSize     size,
+                   GUI_FontStyle    style,
+                   GUI_FontWeight   weight,
+                   Nst_OpErr       *err)
+{
+    TTF_Font *font;
+    TTF_Font **font_var;
+
+    switch ( size )
+    {
+    case GUI_FSZ_BIG:
+        switch ( weight )
+        {
+        case GUI_FW_BOLD:
+            switch( style )
+            {
+            case GUI_FST_ITALIC:
+                font_var = &app->bold_italic_big;
+                break;
+            default:
+                font_var = &app->bold_big;
+                break;
+            }
+            break;
+        default:
+            switch( style )
+            {
+            case GUI_FST_ITALIC:
+                font_var = &app->italic_big;
+                break;
+            default:
+                font_var = &app->regular_big;
+                break;
+            }
+            break;
+        }
+        break;
+    case GUI_FSZ_SMALL:
+        switch ( weight )
+        {
+        case GUI_FW_BOLD:
+            switch( style )
+            {
+            case GUI_FST_ITALIC:
+                font_var = &app->bold_italic_small;
+                break;
+            default:
+                font_var = &app->bold_small;
+                break;
+            }
+            break;
+        default:
+            switch( style )
+            {
+            case GUI_FST_ITALIC:
+                font_var = &app->italic_small;
+                break;
+            default:
+                font_var = &app->regular_small;
+                break;
+            }
+            break;
+        }
+        break;
+    default:
+        switch ( weight )
+        {
+        case GUI_FW_BOLD:
+            switch( style )
+            {
+            case GUI_FST_ITALIC:
+                font_var = &app->bold_italic_medium;
+                break;
+            default:
+                font_var = &app->bold_medium;
+                break;
+            }
+            break;
+        default:
+            switch( style )
+            {
+            case GUI_FST_ITALIC:
+                font_var = &app->italic_medium;
+                break;
+            default:
+                font_var = &app->regular_medium;
+                break;
+            }
+            break;
+        }
+        break;
+    }
+    font = *font_var;
+
+    if ( font != nullptr )
+    {
+        return font;
+    }
+
+    Nst_StrObj *font_path;
+
+    switch ( weight )
+    {
+    case GUI_FW_BOLD:
+        switch( style )
+        {
+        case GUI_FST_ITALIC:
+            font_path = _nst_get_import_path((i8 *)"font/osbi.ttf", 13, err);
+            break;
+        default:
+            font_path = _nst_get_import_path((i8 *)"font/osbr.ttf", 13, err);
+            break;
+        }
+        break;
+    default:
+        switch( style )
+        {
+        case GUI_FST_ITALIC:
+            font_path = _nst_get_import_path((i8 *)"font/osri.ttf", 13, err);
+            break;
+        default:
+            font_path = _nst_get_import_path((i8 *)"font/osrr.ttf", 13, err);
+            break;
+        }
+        break;
+    }
+    int ptsize;
+
+    if ( font_path == nullptr )
+    {
+        return nullptr;
+    }
+
+    switch ( size )
+    {
+    case GUI_FSZ_BIG:
+        ptsize = 18;
+        break;
+    case GUI_FSZ_SMALL:
+        ptsize = 13;
+        break;
+    default:
+        ptsize = 15;
+        break;
+    }
+
+    font = TTF_OpenFont(font_path->value, ptsize);
+    *font_var = font;
+    return font;
 }

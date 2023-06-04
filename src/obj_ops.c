@@ -2281,6 +2281,11 @@ Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len, Nst_OpErr *er
     const i8 *nest_files = "libs/_nest_files/";
     usize full_size = path_len + nest_file_len + root_len;
     file_path = (i8 *)nst_malloc((full_size + 1), sizeof(i8), err);
+    if ( file_path == NULL )
+    {
+        return NULL;
+    }
+
     memcpy(file_path, obj_ops_path, root_len);
     memcpy(file_path + root_len, nest_files, nest_file_len);
     memcpy(file_path + root_len + nest_file_len, initial_path, path_len);
@@ -2291,12 +2296,13 @@ Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len, Nst_OpErr *er
     i8 *appdata = getenv("LOCALAPPDATA");
     if ( appdata == NULL )
     {
+        NST_FAILED_ALLOCATION;
         return NULL;
     }
 
     usize appdata_len = strlen(appdata);
     file_path = (i8 *)nst_malloc(appdata_len + path_len + 26, sizeof(i8), err);
-    if ( !file_path )
+    if ( file_path == NULL )
     {
         return NULL;
     }
@@ -2306,7 +2312,7 @@ Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len, Nst_OpErr *er
 
     // In UNIX the standard library is stored in /usr/lib/nest
     file_path = (i8 *)nst_malloc(path_len + 15, sizeof(i8), err);
-    if ( !file_path )
+    if ( file_path == NULL )
     {
         return NULL;
     }
@@ -2316,6 +2322,7 @@ Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len, Nst_OpErr *er
 
     if ( (file = fopen(file_path, "r")) == NULL )
     {
+        NST_SET_VALUE_ERROR(nst_sprintf(_NST_EM_FILE_NOT_FOUND, file_path));
         nst_free(file_path);
         return NULL;
     }
@@ -2328,7 +2335,13 @@ Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len, Nst_OpErr *er
     {
         return NULL;
     }
-    return STR(nst_string_new(abs_path, new_len, true, err));
+    Nst_StrObj *str = STR(nst_string_new(abs_path, new_len, true, err));
+    if ( str == NULL )
+    {
+        nst_free(file_path);
+        return NULL;
+    }
+    return str;
 }
 
 #ifdef WINDOWS

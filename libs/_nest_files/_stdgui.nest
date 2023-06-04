@@ -4,8 +4,21 @@
 
 @__gui.init_
 
-__gui.loop_       = loop
-__gui.set_window_ = set_window
+__gui.loop_             = loop
+__gui.set_window_       = set_window
+__gui.label_            = label
+__gui.set_position_     = set_position
+__gui.set_rel_position_ = set_rel_position
+__gui.set_size_         = set_size
+__gui.set_rel_size_     = set_rel_size
+__gui.set_margins_      = set_margins
+__gui.set_padding_      = set_padding
+__gui.show_overflow_    = show_overflow
+__gui.auto_height_      = auto_height
+__gui.add_child_        = add_child
+__gui.get_root_         = get_root
+
+__gui._debug_view_ = _debug_view
 
 { 'fullscreen': 0x00000001,
   'shown': 0x00000004,
@@ -24,4 +37,17 @@ __gui.set_window_ = set_window
   'keyboard_grabbed': 0x00100000,
   'input_grabbed': 0x00000100 } = WINDOW_FLAGS
 
-_vars_ '__gui' '_vars_' -
+|#| 'stditutil.nest' = _itu
+
+#_enum arr => (?::{}) :: (arr 0 1 1 @_itu.enumerate)
+
+{ 'left', 'middle', 'right' } @_enum = REL_X
+{ 'top', 'center', 'bottom' } @_enum = REL_Y
+
+{ 'bold', 'regular' } @_enum = FONT_WEIGHT
+{ 'big', 'medium', 'small' } @_enum = FONT_SIZE
+{ 'regular', 'italic' } @_enum = FONT_STYLE
+
+{ 'padding', 'element', 'margin' } @_enum = SIZE_RECT
+
+_vars_ '__gui' '_vars_' '_enum' '_itu' -

@@ -317,7 +317,7 @@ static MatchType *compile_type_match(i8        *types,
             free(match_type);
             return NULL;
         }
-
+        t++;
         switch (*t++)
         {
         case 't':

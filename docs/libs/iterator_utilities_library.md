@@ -77,14 +77,16 @@ object restarting from the first when the sequence ends.
 
 **Synopsis**:
 
-`[iterator: Str|Array|Vector|Iter, start: Int?, step: Int?] @enumerate -> Iter`
+`[iterator: Str|Array|Vector|Iter, start: Int?, step: Int?, invert_order: Bool?] @enumerate -> Iter`
 
 **Return value**:
 
 Returns a 2-element array where the first element is the object returned by
-the `iterator` and the second is the index of the current iteration. The latter
-by default starts from 0 with a step of 1 but this behaviour can be changed by
-passing the additional arguments.
+the `iterator` and the second is the index of the current iteration. When
+`invert_order` is set to a truthy value the first element is the object and the
+second the iteration count.
+`start` by default is set to `0` and `step` to `1` but this behaviour can be
+changed by passing the additional arguments.
 
 If `iterator` is a `Str`, `Array` or `Vector` it is automatically casted to an
 `Iter`.
@@ -97,6 +99,7 @@ If `iterator` is a `Str`, `Array` or `Vector` it is automatically casted to an
 'Hi!' @itu.enumerate --> { 0, 'H' }, { 1, 'i' }, { 2, '!' }
 'Hi!' 5 -1 @itu.enumerate --> { 5, 'H' }, { 4, 'i' }, { 3, '!' }
 'Hi!' @itu.reversed @itu.enumerate --> { 0, '!' }, { 1, 'i' }, { 2, 'H' }
+'Hi!' 0 1 true @itu.enumerate --> { 'H', 0 }, { 'i', 1 }, { '!', 2 }
 ```
 
 ---

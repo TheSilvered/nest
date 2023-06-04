@@ -84,11 +84,5 @@ bool root_update(GUI_Element *el, Nst_OpErr *err)
     SDL_Color *bg_color = &el->app->bg_color;
     SDL_SetRenderDrawColor(renderer, bg_color->r, bg_color->g, bg_color->b, bg_color->a);
     SDL_RenderClear(renderer);
-
-    SDL_Color *fg_color = &el->app->fg_color;
-    // SDL_SetRenderDrawColor(renderer, fg_color->r, fg_color->g, fg_color->b, fg_color->a);
-
-    draw_round_rect(renderer, &el->rect, 10, 20, 30, 40, fg_color->r, fg_color->g, fg_color->b, 128);
-
     return true;
 }

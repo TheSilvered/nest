@@ -17,16 +17,10 @@ void draw_rect(SDL_Renderer *renderer, SDL_Rect *rect)
     int t = rect->y;
     int b = t + rect->h - 1;
 
-    // int mx = (l + r) / 2;
-    // int my = (t + b) / 2;
-
     SDL_RenderDrawLine(renderer, l, t, r, t);
     SDL_RenderDrawLine(renderer, r, t, r, b);
     SDL_RenderDrawLine(renderer, l, b, r, b);
     SDL_RenderDrawLine(renderer, l, t, l, b);
-
-    // SDL_RenderDrawLine(renderer, mx, my - 3, mx, my + 3);
-    // SDL_RenderDrawLine(renderer, mx - 3, my, mx + 3, my);
 }
 
 static int fix_radius(int min_side, int r)
@@ -36,24 +30,6 @@ static int fix_radius(int min_side, int r)
         return min_side / 2;
     }
     return r;
-}
-
-static int imin(int n1, int n2)
-{
-    if ( n2 < n1 )
-    {
-        return int(n2);
-    }
-    return int(n1);
-}
-
-static int imax(int n1, int n2)
-{
-    if ( n2 > n1 )
-    {
-        return int(n2);
-    }
-    return int(n1);
 }
 
 static void draw_angle_point(SDL_Renderer *renderer,

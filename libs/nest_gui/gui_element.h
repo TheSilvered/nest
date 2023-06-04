@@ -3,6 +3,7 @@
 
 #include "nest.h"
 #include <SDL.h>
+#include <SDL_ttf.h>
 
 #define GUI_ELEMENT_HEAD \
     NST_OBJ_HEAD; \
@@ -54,9 +55,18 @@ GUI_RelPosY;
 
 typedef enum _GUI_ElementType
 {
-    GUI_ET_BASE
+    GUI_ET_BASE,
+    GUI_ET_LABEL
 }
 GUI_ElementType;
+
+typedef enum _GUI_RelSizeRect
+{
+    GUI_RSR_PADDING,
+    GUI_RSR_ELEMENT,
+    GUI_RSR_MARGIN
+}
+GUI_RelSizeRect;
 
 struct _GUI_Element;
 
@@ -73,6 +83,7 @@ GUI_RelPos;
 typedef struct _GUI_RelSize
 {
     struct _GUI_Element *element;
+    GUI_RelSizeRect rel_size_rect;
     i32 min_w, min_h;
     i32 max_w, max_h;
     f64 scale_x, scale_y;
@@ -87,6 +98,28 @@ typedef struct _GUI_Element
     GUI_ELEMENT_HEAD;
 }
 GUI_Element;
+
+typedef enum _GUI_FontWeight
+{
+    GUI_FW_BOLD,
+    GUI_FW_REGULAR
+}
+GUI_FontWeight;
+
+typedef enum _GUI_FontSize
+{
+    GUI_FSZ_BIG,
+    GUI_FSZ_MEDIUM,
+    GUI_FSZ_SMALL
+}
+GUI_FontSize;
+
+typedef enum _GUI_FontStyle
+{
+    GUI_FST_REGULAR,
+    GUI_FST_ITALIC
+}
+GUI_FontStyle;
 
 extern Nst_TypeObj *gui_element_type;
 
@@ -123,6 +156,7 @@ void gui_element_set_rel_pos(GUI_Element *obj,
 
 void gui_element_set_rel_size(GUI_Element *obj,
                               GUI_Element *element,
+                              GUI_RelSizeRect rel_size_rect,
                               i32 min_w, i32 min_h,
                               i32 max_w, i32 max_h,
                               f64 scale_x, f64 scale_y,
@@ -135,6 +169,12 @@ SDL_Rect gui_element_get_margin_rect(GUI_Element *obj);
 SDL_Rect gui_element_get_padding_rect(GUI_Element *obj);
 
 bool gui_element_add_child(GUI_Element *parent, GUI_Element *child, Nst_OpErr *err);
+
+TTF_Font *get_font(struct _GUI_App *app,
+                   GUI_FontSize     size,
+                   GUI_FontStyle    style,
+                   GUI_FontWeight   weight,
+                   Nst_OpErr       *err);
 
 #ifdef __cplusplus
 }

@@ -8,6 +8,7 @@
   { { 1, 2, 3 } 'Hi' @itu.zip, "{ 1, 'H' }{ 2, 'i' }" },
   { { { 1, 2, 3 }, 'Hi', <{ 9, 8, 7, 6, 5 }> } @itu.zip, "{ 1, 'H', 9 }{ 2, 'i', 8 }" },
   { 'Hello' @itu.enumerate, "{ 0, 'H' }{ 1, 'e' }{ 2, 'l' }{ 3, 'l' }{ 4, 'o' }" },
+  { 'Hi!' 5 -1 @itu.enumerate, "{ 5, 'H' }{ 4, 'i' }{ 3, '!' }" },
   { m @itu.keys, 'abc' },
   { m @itu.values, '123' },
   { m @itu.items, "{ 'a', 1 }{ 'b', 2 }{ 'c', 3 }" },

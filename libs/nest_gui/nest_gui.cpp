@@ -4,8 +4,9 @@
 #include "nest_gui.h"
 #include "gui_event.h"
 #include "gui_update.h"
+#include "gui_label.h"
 
-#define FUNC_COUNT 3
+#define FUNC_COUNT 15
 
 static Nst_ObjDeclr func_list_[FUNC_COUNT];
 static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
@@ -22,8 +23,20 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(init_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(loop_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(set_window_, 6);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(label_, 5);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(set_position_, 3);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(set_rel_position_, 6);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(set_size_, 3);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(set_rel_size_, 9);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(set_margins_, 5);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(set_padding_, 5);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(show_overflow_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(auto_height_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(add_child_, 2);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(get_root_, 0);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(_debug_view_, 1);
 
-#if __LINE__ - FUNC_COUNT != 23
+#if __LINE__ - FUNC_COUNT != 24
 #error
 #endif
 
@@ -99,6 +112,24 @@ void set_sdl_error(Nst_OpErr *err)
     NST_SET_ERROR(sdl_error_str, msg);
 }
 
+int imin(int n1, int n2)
+{
+    if ( n2 < n1 )
+    {
+        return int(n2);
+    }
+    return int(n1);
+}
+
+int imax(int n1, int n2)
+{
+    if ( n2 > n1 )
+    {
+        return int(n2);
+    }
+    return int(n1);
+}
+
 NST_FUNC_SIGN(init_)
 {
     if ( SDL_WasInit(SDL_INIT_EVERYTHING) == SDL_INIT_EVERYTHING )
@@ -122,9 +153,14 @@ NST_FUNC_SIGN(loop_)
         {
             return nullptr;
         }
-
-        update_elements(&app, err);
-        tick_elements(&app, err);
+        if ( !update_elements(&app, err) )
+        {
+            return nullptr;
+        }
+        if ( !tick_elements(&app, err) )
+        {
+            return nullptr;
+        }
 
         SDL_RenderPresent(app.renderer);
     }
@@ -168,7 +204,7 @@ NST_FUNC_SIGN(set_window_)
     GUI_Element *root = gui_element_new(
         GUI_ET_BASE,
         sizeof(GUI_Element),
-        10, 10,
+        0, 0,
         int(w), int(h),
         &app, err);
     if ( root == nullptr )
@@ -183,44 +219,331 @@ NST_FUNC_SIGN(set_window_)
     gui_element_set_parent(root, root);
     gui_element_set_rel_size(
         root, nullptr,
+        GUI_RSR_ELEMENT,
         -1, -1,
         -1, -1,
-        0.0, 0.0,
-        -20, -20);
+        1.0, 1.0,
+        0, 0);
+    gui_element_set_padding(root, 5, 5, 5, 5);
 
-    gui_element_set_padding(root, 10, 10, 10, 10);
-    gui_element_set_margin(root, 10, 10, 10, 10);
-
-    GUI_Element *test_child = gui_element_new(
-        GUI_ET_BASE,
-        sizeof(GUI_Element),
+#if 0
+    GUI_Label *test_child = (GUI_Label *)gui_element_new(
+        GUI_ET_LABEL,
+        sizeof(GUI_Label),
         0, 0,
         100, 100,
         &app, err);
+
     if ( test_child != nullptr )
     {
         gui_element_set_rel_pos(
-            test_child,
+            (GUI_Element *)test_child,
             root,
             GUI_MIDDLE,
             GUI_CENTER,
             GUI_MIDDLE,
             GUI_CENTER);
         gui_element_set_rel_size(
-            test_child,
+            (GUI_Element *)test_child,
             root,
             -1, -1,
             -1, -1,
-            0.0, 0.0,
+            0.5, 0.0,
             0, 0);
 
-        gui_element_set_margin(test_child, 5, 5, 5, 5);
-        gui_element_set_padding(test_child, 5, 5, 5, 5);
+        gui_element_set_margin((GUI_Element *)test_child, 5, 5, 5, 5);
+        gui_element_set_padding((GUI_Element *)test_child, 5, 5, 5, 5);
 
-        gui_element_add_child(root, test_child, err);
+        gui_element_add_child(root, (GUI_Element *)test_child, err);
         nst_dec_ref(test_child);
+
+        test_child->text = (i8 *)"Lorem ipsum dolor sit amet, consectetur adipi"
+                                 "scing elit. Nulla ut turpis pretium, viverra "
+                                 "metus et, imperdiet leo. Maecenas tristique a"
+                                 "t libero sit amet tincidunt.";
+        test_child->text_len = 163;
+        test_child->font = get_font(&app, GUI_FSZ_MEDIUM, GUI_FST_REGULAR, GUI_FW_REGULAR);
+        test_child->color = { 0, 0, 0, 255 };
+        test_child->alignment = TTF_WRAPPED_ALIGN_LEFT;
+        test_child->texture = nullptr;
+        test_child->frame_update_func = UpdateFunc(gui_label_update);
     }
+#endif
 
     app.keep_open = true;
+    NST_RETURN_NULL;
+}
+
+NST_FUNC_SIGN(label_)
+{
+    Nst_StrObj *text;
+    Nst_SeqObj *color;
+    Nst_Obj *size_obj, *style_obj, *weight_obj;
+    u8 r, g, b, a;
+
+    NST_DEF_EXTRACT(
+        "s?i?i?i?A.i",
+        &text,
+        &size_obj, &style_obj, &weight_obj,
+        &color);
+
+    Nst_Int size   = NST_DEF_VAL(size_obj,   AS_INT(size_obj),   -1);
+    Nst_Int style  = NST_DEF_VAL(style_obj,  AS_INT(style_obj),  -1);
+    Nst_Int weight = NST_DEF_VAL(weight_obj, AS_INT(weight_obj), -1);
+
+    if ( OBJ(color) == nst_null() )
+    {
+        r = app.fg_color.r;
+        g = app.fg_color.g;
+        b = app.fg_color.b;
+        a = app.fg_color.a;
+    }
+    else if ( color->len == 3 )
+    {
+        r = u8(AS_INT(color->objs[0]));
+        g = u8(AS_INT(color->objs[1]));
+        b = u8(AS_INT(color->objs[2]));
+        a = 255;
+    }
+    else if ( color->len == 4 )
+    {
+        r = u8(AS_INT(color->objs[0]));
+        g = u8(AS_INT(color->objs[1]));
+        b = u8(AS_INT(color->objs[2]));
+        a = u8(AS_INT(color->objs[4]));
+    }
+    else
+    {
+        NST_SET_RAW_VALUE_ERROR("the color must be of length 3 or 4");
+        return nullptr;
+    }
+
+    TTF_Font *font = get_font(
+        &app,
+        (GUI_FontSize)size,
+        (GUI_FontStyle)style,
+        (GUI_FontWeight)weight,
+        err);
+    if ( font == nullptr )
+    {
+        return nullptr;
+    }
+
+    int w, h;
+    TTF_SizeUTF8(font, text->value, &w, &h);
+
+    GUI_Element *label = gui_label_new(
+        text, font,
+        { r, g, b, a },
+        0, 0, w, h,
+        &app, err);
+
+    if ( label == nullptr )
+    {
+        return nullptr;
+    }
+    gui_element_set_margin(label, 0, 0, 10, 0);
+    return OBJ(label);
+}
+
+NST_FUNC_SIGN(set_position_)
+{
+    GUI_Element *element;
+    Nst_Int x, y;
+    NST_DEF_EXTRACT("#ii", gui_element_type, &element, &x, &y);
+    element->rect.x = (int)x;
+    element->rect.y = (int)y;
+    if ( NST_FLAG_HAS(element, GUI_FLAG_REL_POS) )
+    {
+        NST_FLAG_DEL(element, GUI_FLAG_REL_POS);
+        nst_dec_ref(element->rel_pos.element);
+        element->rel_pos.element = nullptr;
+    }
+    NST_RETURN_NULL;
+}
+
+NST_FUNC_SIGN(set_rel_position_)
+{
+    GUI_Element *from_element, *to_element;
+    Nst_Int from_x, from_y, to_x, to_y;
+    Nst_Obj *to_x_obj, *to_y_obj;
+
+    NST_DEF_EXTRACT(
+        "?##ii?i?i",
+        gui_element_type, &from_element,
+        gui_element_type, &to_element,
+        &from_x, &from_y,
+        &to_x_obj, &to_y_obj);
+
+    to_x = NST_DEF_VAL(to_x_obj, AS_INT(to_x_obj), from_x);
+    to_y = NST_DEF_VAL(to_y_obj, AS_INT(to_y_obj), from_y);
+
+    if ( OBJ(from_element) == nst_null() )
+    {
+        nst_dec_ref(from_element);
+        from_element = nullptr;
+    }
+
+    gui_element_set_rel_pos(
+        to_element, from_element,
+        (GUI_RelPosX)from_x, (GUI_RelPosY)from_y,
+        (GUI_RelPosX)to_x,   (GUI_RelPosY)to_y);
+    NST_RETURN_NULL;
+}
+
+NST_FUNC_SIGN(set_size_)
+{
+    GUI_Element *element;
+    Nst_Int w, h;
+    NST_DEF_EXTRACT("#ii", gui_element_type, &element, &w, &h);
+    element->rect.w = (int)w;
+    element->rect.h = (int)h;
+    if ( NST_FLAG_HAS(element, GUI_FLAG_REL_SIZE) )
+    {
+        NST_FLAG_DEL(element, GUI_FLAG_REL_SIZE);
+        if ( element->rel_size.element != nullptr )
+        {
+            nst_dec_ref(element->rel_size.element);
+            element->rel_size.element = nullptr;
+        }
+    }
+    NST_RETURN_NULL;
+}
+
+NST_FUNC_SIGN(set_rel_size_)
+{
+    GUI_Element *from_element, *to_element;
+    Nst_Obj *size_x, *size_y;
+    Nst_Obj *min_w_obj, *min_h_obj, *max_w_obj, *max_h_obj;
+    Nst_Int min_w, min_h, max_w, max_h;
+    Nst_Obj *rsr_obj;
+
+    NST_DEF_EXTRACT(
+        "?##i|ri|r?i?i?i?i?i",
+        gui_element_type, &from_element,
+        gui_element_type, &to_element,
+        &size_x, &size_y,
+        &rsr_obj,
+        &min_w_obj, &min_h_obj, &max_w_obj, &max_h_obj);
+
+    if ( OBJ(from_element) == nst_null() )
+    {
+        nst_dec_ref(from_element);
+        from_element = nullptr;
+    }
+
+    min_w = NST_DEF_VAL(min_w_obj, AS_INT(min_w_obj), -1);
+    min_h = NST_DEF_VAL(min_h_obj, AS_INT(min_h_obj), -1);
+    max_w = NST_DEF_VAL(max_w_obj, AS_INT(max_w_obj), -1);
+    max_h = NST_DEF_VAL(max_h_obj, AS_INT(max_h_obj), -1);
+    Nst_Int rsr = NST_DEF_VAL(rsr_obj, AS_INT(rsr_obj), GUI_RSR_PADDING);
+
+    i32 diff_x = 0, diff_y = 0;
+    f64 scale_x = 0.0, scale_y = 0.0;
+
+    if ( size_x->type == nst_type()->Int )
+    {
+        diff_x = (i32)AS_INT(size_x);
+    }
+    else
+    {
+        scale_x = AS_REAL(size_x);
+    }
+
+    if ( size_y->type == nst_type()->Int )
+    {
+        diff_y = (i32)AS_INT(size_y);
+    }
+    else
+    {
+        scale_y = AS_REAL(size_y);
+    }
+
+    gui_element_set_rel_size(
+        to_element, from_element,
+        (GUI_RelSizeRect)rsr,
+        (int)min_w, (int)min_h, (int)max_w, (int)max_h,
+        scale_x, scale_y,
+        diff_x, diff_y);
+
+    NST_RETURN_NULL;
+}
+
+NST_FUNC_SIGN(set_margins_)
+{
+    GUI_Element *element;
+    Nst_Int l, r, t, b;
+    NST_DEF_EXTRACT("#iiii", gui_element_type, &element, &l, &r, &t, &b);
+
+    gui_element_set_margin(element, (i32)t, (i32)l, (i32)b, (i32)r);
+    NST_RETURN_NULL;
+}
+
+NST_FUNC_SIGN(set_padding_)
+{
+    GUI_Element *element;
+    Nst_Int l, r, t, b;
+    NST_DEF_EXTRACT("#iiii", gui_element_type, &element, &l, &r, &t, &b);
+
+    gui_element_set_padding(element, (i32)t, (i32)l, (i32)b, (i32)r);
+    NST_RETURN_NULL;
+}
+
+NST_FUNC_SIGN(show_overflow_)
+{
+    GUI_Element *element;
+    Nst_Bool overflow;
+
+    NST_DEF_EXTRACT("#o_b", gui_element_type, &element, &overflow);
+
+    if ( element->el_type == GUI_ET_LABEL )
+    {
+        ((GUI_Label *)element)->clip_text = !overflow;
+    }
+
+    NST_RETURN_NULL;
+}
+
+NST_FUNC_SIGN(auto_height_)
+{
+    GUI_Element *element;
+    Nst_Bool auto_height;
+
+    NST_DEF_EXTRACT("#o_b", gui_element_type, &element, &auto_height);
+
+    if ( element->el_type == GUI_ET_LABEL )
+    {
+        ((GUI_Label *)element)->auto_height = auto_height;
+    }
+
+    NST_RETURN_NULL;
+}
+
+NST_FUNC_SIGN(add_child_)
+{
+    GUI_Element *parent, *child;
+    NST_DEF_EXTRACT("##", gui_element_type, &parent, gui_element_type, &child);
+    if ( !gui_element_add_child(parent, child, err) )
+    {
+        return nullptr;
+    }
+    NST_RETURN_NULL;
+}
+
+NST_FUNC_SIGN(get_root_)
+{
+    if ( app.window == nullptr )
+    {
+        NST_SET_RAW_CALL_ERROR("'set_window' must be called before getting the root");
+        return nullptr;
+    }
+    return nst_inc_ref(app.root);
+}
+
+NST_FUNC_SIGN(_debug_view_)
+{
+    Nst_Bool show_view;
+    NST_DEF_EXTRACT("o_b", &show_view);
+    app.show_bounds = show_view;
     NST_RETURN_NULL;
 }

@@ -371,8 +371,17 @@ NST_FUNC_SIGN(enumerate_get_val)
     }
 
     Nst_SeqObj *arr = SEQ(nst_array_new(2, err));
-    arr->objs[0] = nst_int_new(idx, err);
-    arr->objs[1] = res;
+    if ( objs[4] == nst_true() )
+    {
+        arr->objs[0] = res;
+        arr->objs[1] = nst_int_new(idx, err);
+    }
+    else
+    {
+        arr->objs[0] = nst_int_new(idx, err);
+        arr->objs[1] = res;
+    }
+
     AS_INT(objs[0]) += AS_INT(objs[3]);
     return OBJ(arr);
 }

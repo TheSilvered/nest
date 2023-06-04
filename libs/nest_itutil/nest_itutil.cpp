@@ -17,7 +17,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(repeat_,       2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(chain_,        1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(zip_,          2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(enumerate_,    3);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(enumerate_,    4);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(keys_,         1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(values_,       1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(items_,        1);
@@ -184,17 +184,19 @@ NST_FUNC_SIGN(enumerate_)
     Nst_Obj *ob;
     Nst_Obj *start_ob;
     Nst_Obj *step_ob;
+    Nst_Obj *invert_order;
 
-    NST_DEF_EXTRACT("R?i?i", &ob, &start_ob, &step_ob);
+    NST_DEF_EXTRACT("R?i?io:b", &ob, &start_ob, &step_ob, &invert_order);
     Nst_Int start = NST_DEF_VAL(start_ob, AS_INT(start_ob), 0);
-    Nst_Int step = NST_DEF_VAL(start_ob, AS_INT(start_ob), 1);
+    Nst_Int step = NST_DEF_VAL(step_ob, AS_INT(step_ob), 1);
 
-    // Layout: [idx, iterator, start, step]
-    Nst_SeqObj *arr = SEQ(nst_array_new(4, err));
+    // Layout: [idx, iterator, start, step, invert_order]
+    Nst_SeqObj *arr = SEQ(nst_array_new(5, err));
     arr->objs[0] = nst_int_new(0, err);
     arr->objs[1] = ob;
     arr->objs[2] = nst_int_new(start, err);
     arr->objs[3] = nst_int_new(step, err);
+    arr->objs[4] = invert_order;
 
     return nst_iter_new(
         FUNC(nst_func_new_c(1, enumerate_start, err)),
