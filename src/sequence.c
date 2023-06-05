@@ -1,5 +1,7 @@
 #include <errno.h>
 #include <assert.h>
+#include <stdarg.h>
+#include <string.h>
 #include "mem.h"
 #include "sequence.h"
 #include "obj_ops.h"
@@ -256,4 +258,198 @@ Nst_Obj *_nst_vector_pop(Nst_SeqObj *vect, usize quantity)
         // Has already one more reference because it was in the vector
         return last_obj;
     }
+}
+
+void seq_create(usize len, Nst_Obj *seq, va_list args)
+{
+    if ( seq == NULL )
+    {
+        for ( usize i = 0; i < len; i++ )
+        {
+            Nst_Obj *arg = va_arg(args, Nst_Obj *);
+            nst_dec_ref(arg);
+        }
+        return;
+    }
+
+    Nst_Obj **objs = SEQ(seq)->objs;
+    for ( usize i = 0; i < len; i++ )
+    {
+        Nst_Obj *arg = va_arg(args, Nst_Obj *);
+        objs[i] = arg;
+    }
+}
+
+Nst_Obj *nst_vector_create(usize len, Nst_OpErr *err, ...)
+{
+    Nst_Obj *vector = nst_vector_new(len, err);
+    va_list args;
+    va_start(args, err);
+    seq_create(len, vector, args);
+    va_end(args);
+    return vector;
+}
+
+Nst_Obj *nst_array_create(usize len, Nst_OpErr *err, ...)
+{
+    Nst_Obj *array = nst_array_new(len, err);
+    va_list args;
+    va_start(args, err);
+    seq_create(len, array, args);
+    va_end(args);
+    return array;
+}
+
+Nst_Obj *seq_create_c(usize      len,
+                      Nst_Obj   *seq,
+                      const i8  *fmt,
+                      Nst_OpErr *err,
+                      va_list    args)
+{
+    if ( seq == NULL )
+    {
+        return NULL;
+    }
+
+    if ( strlen(fmt) != len )
+    {
+        if ( seq->type == nst_t.Vector )
+        {
+            NST_SET_RAW_VALUE_ERROR(
+                _NST_EM_ARG_NUM_DOESNT_MATCH("nst_vector_create_c"));
+        }
+        else
+        {
+            NST_SET_RAW_VALUE_ERROR(
+                _NST_EM_ARG_NUM_DOESNT_MATCH("nst_array_create_c"));
+        }
+        SEQ(seq)->len = 0;
+        nst_dec_ref(seq);
+        return NULL;
+    }
+
+    i8 *p = (i8 *)fmt;
+    usize i = 0;
+    Nst_Obj **objs = SEQ(seq)->objs;
+    while ( *p )
+    {
+        switch ( *p++ )
+        {
+        case 'I':
+        {
+            i64 value = va_arg(args, i64);
+            Nst_Obj *obj = nst_int_new(value, err);
+            if ( obj == NULL )
+            {
+                goto failed;
+            }
+            objs[i] = obj;
+            break;
+        }
+        case 'i':
+        {
+            i32 value = va_arg(args, i32);
+            Nst_Obj *obj = nst_int_new((i64)value, err);
+            if ( obj == NULL )
+            {
+                goto failed;
+            }
+            objs[i] = obj;
+            break;
+        }
+        case 'f':
+        case 'F':
+        {
+            f64 value = va_arg(args, f64);
+            Nst_Obj *obj = nst_real_new(value, err);
+            if ( obj == NULL )
+            {
+                goto failed;
+            }
+            objs[i] = obj;
+            break;
+        }
+        case 'b':
+        {
+            int value = va_arg(args, int);
+            if ( value )
+            {
+                objs[i] = nst_inc_ref(nst_c.Bool_true);
+            }
+            else
+            {
+                objs[i] = nst_inc_ref(nst_c.Bool_false);
+            }
+            break;
+        }
+        case 'B':
+        {
+            f64 value = va_arg(args, f64);
+            Nst_Obj *obj = nst_real_new(value, err);
+            if ( obj == NULL )
+            {
+                goto failed;
+            }
+            objs[i] = obj;
+            break;
+        }
+        case 'o':
+        {
+            Nst_Obj *obj = va_arg(args, Nst_Obj *);
+            objs[i] = obj;
+            break;
+        }
+        case 'O':
+        {
+            Nst_Obj *obj = va_arg(args, Nst_Obj *);
+            objs[i] = nst_inc_ref(obj);
+            break;
+        }
+        case 'n':
+        {
+            (void)va_arg(args, void *);
+            objs[i] = nst_inc_ref(nst_c.Null_null);
+            break;
+        }
+        default:
+            if ( seq->type == nst_t.Vector )
+            {
+                NST_SET_RAW_VALUE_ERROR(
+                    _NST_EM_INVALID_TYPE_LETTER("nst_vector_create_c"));
+            }
+            else
+            {
+                NST_SET_RAW_VALUE_ERROR(
+                    _NST_EM_INVALID_TYPE_LETTER("nst_array_create_c"));
+            }
+            goto failed;
+        }
+        i++;
+    }
+
+    return seq;
+failed:
+    SEQ(seq)->len = i;
+    nst_dec_ref(seq);
+    return NULL;
+}
+
+Nst_Obj *nst_vector_create_c(usize len, const i8 *fmt, Nst_OpErr *err, ...)
+{
+    Nst_Obj *vector = nst_vector_new(len, err);
+    va_list args;
+    va_start(args, err);
+    vector = seq_create_c(len, vector, fmt, err, args);
+    va_end(args);
+    return vector;
+}
+
+Nst_Obj *nst_array_create_c(usize len, const i8 *fmt, Nst_OpErr *err, ...)
+{
+    Nst_Obj *array = nst_array_new(len, err);
+    va_list args;
+    va_start(args, err);
+    array = seq_create_c(len, array, fmt, err, args);
+    va_end(args);
+    return array;
 }

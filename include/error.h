@@ -44,9 +44,9 @@
 #define _NST_EM_RANGE_STEP_ZERO "the step cannot be zero"
 #define _NST_EM_FILE_NOT_DLL "the file is not a valid DLL"
 #define _NST_EM_FILE_NOT_SO "the file is not a valid shared object"
-#define _NST_EM_ARG_NUM_DOESNT_MATCH "nst_extract_arg_values: the number of " \
-    "arguments and types does not match"
-#define _NST_EM_INVALID_TYPE_LETTER "nst_extract_arg_values: invalid type string"
+#define _NST_EM_ARG_NUM_DOESNT_MATCH(f) f ": the number of arguments and " \
+    "types does not match"
+#define _NST_EM_INVALID_TYPE_LETTER(f) f ": invalid type string"
 #define _NST_EM_RAN_OUT_OF_MEMORY "ran out of memory"
 #define _NST_EM_NEGATIVE_SIZE_FOR_SEQ "the length of the sequence cannot be negative"
 #define _NST_EM_CALL_STACK_SIZE_EXCEEDED "the maximum call stack size (1000 " \

@@ -184,14 +184,15 @@ NST_FUNC_SIGN(try_)
 
 NST_FUNC_SIGN(_get_err_names_)
 {
-    Nst_SeqObj *names = SEQ(nst_array_new(7, nullptr));
-    names->objs[0] = nst_inc_ref(nst_str()->e_SyntaxError);
-    names->objs[1] = nst_inc_ref(nst_str()->e_ValueError);
-    names->objs[2] = nst_inc_ref(nst_str()->e_TypeError);
-    names->objs[3] = nst_inc_ref(nst_str()->e_CallError);
-    names->objs[4] = nst_inc_ref(nst_str()->e_MemoryError);
-    names->objs[5] = nst_inc_ref(nst_str()->e_MathError);
-    names->objs[6] = nst_inc_ref(nst_str()->e_ImportError);
+    Nst_Obj *names = nst_array_create_c(
+        7, "OOOOOOO", err,
+        nst_str()->e_SyntaxError,
+        nst_str()->e_ValueError,
+        nst_str()->e_TypeError,
+        nst_str()->e_CallError,
+        nst_str()->e_MemoryError,
+        nst_str()->e_MathError,
+        nst_str()->e_ImportError);
 
-    return OBJ(names);
+    return names;
 }

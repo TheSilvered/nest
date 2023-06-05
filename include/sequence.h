@@ -54,6 +54,13 @@ EXPORT typedef Nst_SeqObj Nst_VectorObj;
 EXPORT Nst_Obj *nst_array_new(usize len, Nst_OpErr *err);
 // Creates a new vector of lenght `len`, the objects must be set manually inside
 EXPORT Nst_Obj *nst_vector_new(usize len, Nst_OpErr *err);
+
+EXPORT Nst_Obj *nst_vector_create(usize len, Nst_OpErr *err, ...);
+EXPORT Nst_Obj *nst_array_create(usize len, Nst_OpErr *err, ...);
+
+EXPORT Nst_Obj *nst_vector_create_c(usize len, const i8 *fmt, Nst_OpErr *err, ...);
+EXPORT Nst_Obj *nst_array_create_c(usize len, const i8 *fmt, Nst_OpErr *err, ...);
+
 EXPORT void _nst_seq_destroy(Nst_SeqObj *seq);
 EXPORT void _nst_seq_traverse(Nst_SeqObj *seq);
 EXPORT void _nst_seq_track(Nst_SeqObj *seq);

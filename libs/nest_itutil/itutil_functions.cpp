@@ -278,10 +278,7 @@ NST_FUNC_SIGN(zip_get_val)
         return nullptr;
     }
 
-    Nst_SeqObj *arr = SEQ(nst_array_new(2, err));
-    arr->objs[0] = ob1;
-    arr->objs[1] = ob2;
-    return OBJ(arr);
+    return nst_array_create(2, err, ob1, ob2);
 }
 
 // ---------------------------- Zip n sequences ---------------------------- //

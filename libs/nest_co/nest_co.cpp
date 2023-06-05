@@ -458,19 +458,15 @@ NST_FUNC_SIGN(generator_)
     NST_DEF_EXTRACT("#", t_Coroutine, &co);
 
     // layout co_args, co, obj, is_done
-    Nst_SeqObj *arr = SEQ(nst_array_new(4, err));
-    arr->objs[0] = nst_inc_ref(co);
-    arr->objs[1] = nst_array_new(1, err);
-    arr->objs[2] = nst_inc_ref(nst_null());
-    arr->objs[3] = nst_inc_ref(nst_false());
-
-    SEQ(arr->objs[1])->objs[0] = nst_inc_ref(co);
+    Nst_Obj *arr = nst_array_create_c(
+        4, "Oonb", err,
+        co, nst_array_create_c(1, "O", err, co), nullptr, false);
 
     return nst_iter_new(
         FUNC(nst_func_new_c(1, generator_start, err)),
         FUNC(nst_func_new_c(1, generator_is_done, err)),
         FUNC(nst_func_new_c(1, generator_get_val, err)),
-        OBJ(arr), err);
+        arr, err);
 }
 
 NST_FUNC_SIGN(_get_co_type_obj_)

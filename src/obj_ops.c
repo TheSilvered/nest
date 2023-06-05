@@ -101,23 +101,15 @@ Nst_Obj *_nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
     else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Int, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Int, err);
-        bool check = AS_INT(ob1) == AS_INT(ob2);
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        NST_RETURN_COND(check);
+        i64 v1 = nst_number_to_i64(ob1);
+        i64 v2 = nst_number_to_i64(ob2);
+        NST_RETURN_COND(v1 == v2);
     }
     else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Real, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Real, err);
-        bool check = fabsl(AS_REAL(ob1) - AS_REAL(ob2)) < REAL_EPSILON;
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        NST_RETURN_COND(check);
+        f64 v1 = nst_number_to_f64(ob1);
+        f64 v2 = nst_number_to_f64(ob2);
+        NST_RETURN_COND(fabs(v1 - v2) < REAL_EPSILON);
     }
     else if ( ARE_TYPE(nst_t.Str) )
     {
@@ -330,24 +322,15 @@ Nst_Obj *_nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
     else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Int, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Int, err);
-        bool check = AS_INT(ob1) > AS_INT(ob2);
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        NST_RETURN_COND(check);
+        i64 v1 = nst_number_to_i64(ob1);
+        i64 v2 = nst_number_to_i64(ob2);
+        NST_RETURN_COND(v1 > v2);
     }
     else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Real, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Real, err);
-        bool eq_check = fabsl(AS_REAL(ob1) - AS_REAL(ob2)) < REAL_EPSILON;
-        bool check = AS_REAL(ob1) > AS_REAL(ob2);
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        NST_RETURN_COND(check && !eq_check);
+        f64 v1 = nst_number_to_f64(ob1);
+        f64 v2 = nst_number_to_f64(ob2);
+        NST_RETURN_COND(v1 > v2 && !(fabs(v1 - v2) < REAL_EPSILON));
     }
     else
     {
@@ -361,30 +344,21 @@ Nst_Obj *_nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     {
         NST_RETURN_COND(nst_string_compare(STR(ob1), STR(ob2)) < 0);
     }
-    else if ( ARE_TYPE(nst_t.Byte))
+    else if ( ARE_TYPE(nst_t.Byte) )
     {
         NST_RETURN_COND(AS_BYTE(ob1) < AS_BYTE(ob2));
     }
     else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Int, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Int, err);
-        bool check = AS_INT(ob1) < AS_INT(ob2);
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        NST_RETURN_COND(check);
+        i64 v1 = nst_number_to_i64(ob1);
+        i64 v2 = nst_number_to_i64(ob2);
+        NST_RETURN_COND(v1 < v2);
     }
     else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Real, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Real, err);
-        bool eq_check = fabsl(AS_REAL(ob1) - AS_REAL(ob2)) < REAL_EPSILON;
-        bool check = AS_REAL(ob1) < AS_REAL(ob2);
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        NST_RETURN_COND(check && !eq_check);
+        f64 v1 = nst_number_to_f64(ob1);
+        f64 v2 = nst_number_to_f64(ob2);
+        NST_RETURN_COND(v1 < v2 && !(fabs(v1 - v2) < REAL_EPSILON));
     }
     else
     {
@@ -395,13 +369,13 @@ Nst_Obj *_nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 Nst_Obj *_nst_obj_ge(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 {
     Nst_Obj *res = nst_obj_eq(ob1, ob2, err);
-    if ( res == nst_c.Bool_true )
-    {
-        return nst_c.Bool_true;
-    }
-    else if ( res == NULL )
+    if ( res == NULL )
     {
         return NULL;
+    }
+    else if ( res == nst_c.Bool_true )
+    {
+        return nst_c.Bool_true;
     }
     else
     {
@@ -463,27 +437,15 @@ Nst_Obj *_nst_obj_add(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
     else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Int, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Int, err);
-
-        Nst_Obj *new_obj = nst_int_new(AS_INT(ob1) + AS_INT(ob2), err);
-
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        return new_obj;
+        i64 v1 = nst_number_to_i64(ob1);
+        i64 v2 = nst_number_to_i64(ob2);
+        return nst_int_new(v1 + v2, err);
     }
     else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Real, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Real, err);
-
-        Nst_Obj *new_obj = nst_real_new(AS_REAL(ob1) + AS_REAL(ob2), err);
-
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        return new_obj;
+        f64 v1 = nst_number_to_f64(ob1);
+        f64 v2 = nst_number_to_f64(ob2);
+        return nst_real_new(v1 + v2, err);
     }
     else
     {
@@ -518,27 +480,15 @@ Nst_Obj *_nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
     else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Int, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Int, err);
-
-        Nst_Obj *new_obj = nst_int_new(AS_INT(ob1) - AS_INT(ob2), err);
-
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        return new_obj;
+        i64 v1 = nst_number_to_i64(ob1);
+        i64 v2 = nst_number_to_i64(ob2);
+        return nst_int_new(v1 - v2, err);
     }
     else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Real, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Real, err);
-
-        Nst_Obj *new_obj = nst_real_new(AS_REAL(ob1) - AS_REAL(ob2), err);
-
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        return new_obj;
+        f64 v1 = nst_number_to_f64(ob1);
+        f64 v2 = nst_number_to_f64(ob2);
+        return nst_real_new(v1 - v2, err);
     }
     else
     {
@@ -579,27 +529,15 @@ Nst_Obj *_nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
     else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Int, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Int, err);
-
-        Nst_Obj *new_obj = nst_int_new(AS_INT(ob1) * AS_INT(ob2), err);
-
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        return new_obj;
+        i64 v1 = nst_number_to_i64(ob1);
+        i64 v2 = nst_number_to_i64(ob2);
+        return nst_int_new(v1 * v2, err);
     }
     else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Real, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Real, err);
-
-        Nst_Obj *new_obj = nst_real_new(AS_REAL(ob1) * AS_REAL(ob2), err);
-
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        return new_obj;
+        f64 v1 = nst_number_to_f64(ob1);
+        f64 v2 = nst_number_to_f64(ob2);
+        return nst_real_new(v1 * v2, err);
     }
     else
     {
@@ -625,39 +563,29 @@ Nst_Obj *_nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
     else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Int, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Int, err);
+        i64 v1 = nst_number_to_i64(ob1);
+        i64 v2 = nst_number_to_i64(ob2);
 
-        if ( AS_INT(ob2) == 0 )
+        if ( v2 == 0 )
         {
             NST_SET_RAW_MATH_ERROR(_NST_EM_DIVISION_BY_ZERO);
             return NULL;
         }
 
-        Nst_Obj *new_obj = nst_int_new(AS_INT(ob1) / AS_INT(ob2), err);
-
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        return new_obj;
+        return nst_int_new(v1 / v2, err);
     }
     else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Real, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Real, err);
+        f64 v1 = nst_number_to_f64(ob1);
+        f64 v2 = nst_number_to_f64(ob2);
 
-        if ( AS_REAL(ob2) == 0.0 )
+        if ( v2 == 0.0 )
         {
             NST_SET_RAW_MATH_ERROR(_NST_EM_DIVISION_BY_ZERO);
             return NULL;
         }
 
-        Nst_Obj *new_obj = nst_real_new(AS_REAL(ob1) / AS_REAL(ob2), err);
-
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        return new_obj;
+        return nst_real_new(v1 / v2, err);
     }
     else
     {
@@ -681,34 +609,31 @@ Nst_Obj *_nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
     else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Int, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Int, err);
+        i64 v1 = nst_number_to_i64(ob1);
+        i64 v2 = nst_number_to_i64(ob2);
 
-        Nst_Int res = 1;
-        Nst_Int num = AS_INT(ob1);
-
-        for ( Nst_Int i = 0, n = AS_INT(ob2); i < n; i++ )
+        if ( v2 < 0 )
         {
-            res *= num;
+            return nst_inc_ref(nst_c.Int_0);
+        }
+        else if ( v2 == 0 )
+        {
+            return nst_inc_ref(nst_c.Int_1);
         }
 
-        Nst_Obj *new_obj = nst_int_new(res, err);
+        Nst_Int res = 1;
 
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
+        for ( i64 i = 0; i < v2; i++ )
+        {
+            res *= v1;
+        }
 
-        return new_obj;
+        return nst_int_new(res, err);
     }
     else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Real, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Real, err);
-
-        Nst_Real v1 = AS_REAL(ob1);
-        Nst_Real v2 = AS_REAL(ob2);
-
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
+        f64 v1 = nst_number_to_f64(ob1);
+        f64 v2 = nst_number_to_f64(ob2);
 
         // any root of a negative number gives -nan as a result
         if ( v1 < 0 && floorl(v2) != v2 )
@@ -739,39 +664,29 @@ Nst_Obj *_nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
     else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Int, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Int, err);
+        i64 v1 = nst_number_to_i64(ob1);
+        i64 v2 = nst_number_to_i64(ob2);
 
-        if ( AS_INT(ob2) == 0 )
+        if ( v2 == 0 )
         {
             NST_SET_RAW_MATH_ERROR(_NST_EM_MODULO_BY_ZERO);
             return NULL;
         }
 
-        Nst_Obj *new_obj = nst_int_new(AS_INT(ob1) % AS_INT(ob2), err);
-
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        return new_obj;
+        return nst_int_new(v1 & v2, err);
     }
     else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Real, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Real, err);
+        f64 v1 = nst_number_to_f64(ob1);
+        f64 v2 = nst_number_to_f64(ob2);
 
-        if ( AS_REAL(ob2) == 0.0 )
+        if ( v2 == 0.0 )
         {
             NST_SET_RAW_MATH_ERROR(_NST_EM_MODULO_BY_ZERO);
             return NULL;
         }
 
-        Nst_Obj *new_obj = nst_real_new(fmod(AS_REAL(ob1), AS_REAL(ob2)), err);
-
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        return new_obj;
+        return nst_real_new(fmod(v1, v2), err);
     }
     else
     {
@@ -788,15 +703,9 @@ Nst_Obj *_nst_obj_bwor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
     else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Int, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Int, err);
-
-        Nst_Obj* new_obj = nst_int_new(AS_INT(ob1) | AS_INT(ob2), err);
-
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        return new_obj;
+        i64 v1 = nst_number_to_i64(ob1);
+        i64 v2 = nst_number_to_i64(ob2);
+        return nst_int_new(v1 | v2, err);
     }
     else
     {
@@ -812,15 +721,9 @@ Nst_Obj *_nst_obj_bwand(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
     else if (IS_INT(ob1) && IS_INT(ob2))
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Int, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Int, err);
-
-        Nst_Obj* new_obj = nst_int_new(AS_INT(ob1) & AS_INT(ob2), err);
-
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        return new_obj;
+        i64 v1 = nst_number_to_i64(ob1);
+        i64 v2 = nst_number_to_i64(ob2);
+        return nst_int_new(v1 & v2, err);
     }
     else
     {
@@ -836,15 +739,9 @@ Nst_Obj *_nst_obj_bwxor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
     else if (IS_INT(ob1) && IS_INT(ob2))
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Int, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Int, err);
-
-        Nst_Obj* new_obj = nst_int_new(AS_INT(ob1) ^ AS_INT(ob2), err);
-
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        return new_obj;
+        i64 v1 = nst_number_to_i64(ob1);
+        i64 v2 = nst_number_to_i64(ob2);
+        return nst_int_new(v1 ^ v2, err);
     }
     else
     {
@@ -860,15 +757,9 @@ Nst_Obj *_nst_obj_bwls(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
     else if (IS_INT(ob1) && IS_INT(ob2))
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Int, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Int, err);
-
-        Nst_Obj* new_obj = nst_int_new(AS_INT(ob1) << AS_INT(ob2), err);
-
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        return new_obj;
+        i64 v1 = nst_number_to_i64(ob1);
+        i64 v2 = nst_number_to_i64(ob2);
+        return nst_int_new(v1 << v2, err);
     }
     else
     {
@@ -884,15 +775,9 @@ Nst_Obj *_nst_obj_bwrs(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
     else if (IS_INT(ob1) && IS_INT(ob2))
     {
-        ob1 = nst_obj_cast(ob1, nst_t.Int, err);
-        ob2 = nst_obj_cast(ob2, nst_t.Int, err);
-
-        Nst_Obj* new_obj = nst_int_new(AS_INT(ob1) >> AS_INT(ob2), err);
-
-        nst_dec_ref(ob1);
-        nst_dec_ref(ob2);
-
-        return new_obj;
+        i64 v1 = nst_number_to_i64(ob1);
+        i64 v2 = nst_number_to_i64(ob2);
+        return nst_int_new(v1 >> v2, err);
     }
     else
     {
