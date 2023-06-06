@@ -164,8 +164,8 @@ static NST_FUNC_SIGN(generator_get_val)
 
 Nst_Obj *coroutine_new(Nst_FuncObj *func, Nst_OpErr *err)
 {
-    CoroutineObj *co = (CoroutineObj *)nst_obj_alloc(
-        sizeof(CoroutineObj),
+    CoroutineObj *co = nst_obj_alloc(
+        CoroutineObj,
         t_Coroutine,
         coroutine_destroy,
         err);
@@ -459,8 +459,8 @@ NST_FUNC_SIGN(generator_)
 
     // layout co_args, co, obj, is_done
     Nst_Obj *arr = nst_array_create_c(
-        4, "Oonb", err,
-        co, nst_array_create_c(1, "O", err, co), nullptr, false);
+        "Oonb", err,
+        co, nst_array_create_c("O", err, co), nullptr, false);
 
     return nst_iter_new(
         FUNC(nst_func_new_c(1, generator_start, err)),

@@ -9,11 +9,11 @@
 
 static Nst_Obj *new_seq(usize len, usize size, Nst_TypeObj *type, Nst_OpErr *err)
 {
-    Nst_SeqObj *seq = SEQ(nst_obj_alloc(
-        sizeof(Nst_SeqObj),
+    Nst_SeqObj *seq = nst_obj_alloc(
+        Nst_SeqObj,
         type,
         _nst_seq_destroy,
-        err));
+        err);
     Nst_Obj **objs = (Nst_Obj **)nst_calloc(size, sizeof(Nst_Obj *), NULL, err);
 
     if ( seq == NULL || objs == NULL )
@@ -311,23 +311,6 @@ Nst_Obj *seq_create_c(usize      len,
         return NULL;
     }
 
-    if ( strlen(fmt) != len )
-    {
-        if ( seq->type == nst_t.Vector )
-        {
-            NST_SET_RAW_VALUE_ERROR(
-                _NST_EM_ARG_NUM_DOESNT_MATCH("nst_vector_create_c"));
-        }
-        else
-        {
-            NST_SET_RAW_VALUE_ERROR(
-                _NST_EM_ARG_NUM_DOESNT_MATCH("nst_array_create_c"));
-        }
-        SEQ(seq)->len = 0;
-        nst_dec_ref(seq);
-        return NULL;
-    }
-
     i8 *p = (i8 *)fmt;
     usize i = 0;
     Nst_Obj **objs = SEQ(seq)->objs;
@@ -434,8 +417,9 @@ failed:
     return NULL;
 }
 
-Nst_Obj *nst_vector_create_c(usize len, const i8 *fmt, Nst_OpErr *err, ...)
+Nst_Obj *nst_vector_create_c(const i8 *fmt, Nst_OpErr *err, ...)
 {
+    usize len = strlen(fmt);
     Nst_Obj *vector = nst_vector_new(len, err);
     va_list args;
     va_start(args, err);
@@ -444,8 +428,9 @@ Nst_Obj *nst_vector_create_c(usize len, const i8 *fmt, Nst_OpErr *err, ...)
     return vector;
 }
 
-Nst_Obj *nst_array_create_c(usize len, const i8 *fmt, Nst_OpErr *err, ...)
+Nst_Obj *nst_array_create_c(const i8 *fmt, Nst_OpErr *err, ...)
 {
+    usize len = strlen(fmt);
     Nst_Obj *array = nst_array_new(len, err);
     va_list args;
     va_start(args, err);

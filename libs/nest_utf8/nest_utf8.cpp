@@ -179,13 +179,11 @@ NST_FUNC_SIGN(to_iter_)
     NST_DEF_EXTRACT("s", &str);
 
     // Layout: [idx, str]
-    Nst_SeqObj *arr = SEQ(nst_array_new(2, err));
-    arr->objs[0] = nst_int_new(0, err);
-    arr->objs[1] = nst_inc_ref(str);
+    Nst_Obj *arr = nst_array_create_c("iO", err, 0, str);
 
     return nst_iter_new(
         FUNC(nst_func_new_c(1, utf8_iter_start, err)),
         FUNC(nst_func_new_c(1, utf8_iter_is_done, err)),
         FUNC(nst_func_new_c(1, utf8_iter_get_val, err)),
-        OBJ(arr), err);
+        arr, err);
 }

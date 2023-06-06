@@ -12,11 +12,11 @@
 
 Nst_Obj *nst_map_new(Nst_OpErr *err)
 {
-    Nst_MapObj *map = MAP(nst_obj_alloc(
-        sizeof(Nst_MapObj),
+    Nst_MapObj *map = nst_obj_alloc(
+        Nst_MapObj,
         nst_t.Map,
         _nst_map_destroy,
-        err));
+        err);
     if ( map == NULL )
     {
         return NULL;

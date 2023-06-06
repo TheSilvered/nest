@@ -5,11 +5,11 @@
 
 Nst_Obj *nst_func_new(usize arg_num, Nst_InstList *bytecode, Nst_OpErr *err)
 {
-    Nst_FuncObj *func = FUNC(nst_obj_alloc(
-        sizeof(Nst_FuncObj),
+    Nst_FuncObj *func = nst_obj_alloc(
+        Nst_FuncObj,
         nst_t.Func,
         _nst_func_destroy,
-        err));
+        err);
     Nst_Obj **args = (Nst_Obj **)nst_malloc(arg_num, sizeof(Nst_Obj *), err);
     if ( func == NULL || args == NULL )
     {
@@ -32,11 +32,11 @@ Nst_Obj *nst_func_new_c(usize arg_num,
                                           Nst_OpErr *err),
                         Nst_OpErr *err)
 {
-    Nst_FuncObj *func = FUNC(nst_obj_alloc(
-        sizeof(Nst_FuncObj),
+    Nst_FuncObj *func = nst_obj_alloc(
+        Nst_FuncObj,
         nst_t.Func,
         _nst_func_destroy,
-        err));
+        err);
     Nst_Obj **args = NULL;
     if ( func == NULL )
     {

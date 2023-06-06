@@ -26,7 +26,7 @@
 #define nst_number_to_i64(number) _nst_number_to_i64(OBJ(number))
 #define nst_number_to_f32(number) _nst_number_to_f32(OBJ(number))
 #define nst_number_to_f64(number) _nst_number_to_f64(OBJ(number))
-#define nst_obj_to_bool(obj) _nst_number_to_f64(OBJ(obj))
+#define nst_obj_to_bool(obj) _nst_obj_to_bool(OBJ(obj))
 
 #ifdef __cplusplus
 extern "C" {

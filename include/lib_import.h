@@ -36,8 +36,16 @@
 
 #define NST_SET_ERROR(err_name, err_msg) do { \
     if ( err != NULL ) { \
-    err->name = STR(nst_inc_ref(err_name)); \
-    err->message = STR(err_msg); \
+        err->name = STR(nst_inc_ref(err_name)); \
+        err->message = STR(err_msg); \
+    }} while ( 0 )
+
+#define NST_UNSET_ERROR do { \
+    if ( err != NULL ) { \
+        if ( err->name != NULL ) nst_dec_ref(err->name); \
+        if ( err->message != NULL ) nst_dec_ref(err->message); \
+        err->name = NULL; \
+        err->message = NULL; \
     }} while ( 0 )
 
 #define NST_SET_RAW_ERROR(err_name, err_msg) do { \
@@ -47,9 +55,9 @@
             if ( err->message != NULL ) \
                 nst_dec_ref(err->message); \
         } \
-    err->message = NULL; \
-    err->name = STR(nst_inc_ref(err_name)); \
-    err->message = STR(nst_string_new_c_raw(err_msg, false, err)); \
+        err->message = NULL; \
+        err->name = STR(nst_inc_ref(err_name)); \
+        err->message = STR(nst_string_new_c_raw(err_msg, false, err)); \
     }} while ( 0 )
 
 #define NST_SET_SYNTAX_ERROR(msg) NST_SET_ERROR(nst_str()->e_SyntaxError, msg)

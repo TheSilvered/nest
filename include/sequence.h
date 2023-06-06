@@ -3,6 +3,7 @@
 #ifndef SEQUENCE_H
 #define SEQUENCE_H
 
+#include <stdarg.h>
 #include "ggc.h"
 
 #define _NST_VECTOR_MIN_SIZE 8
@@ -58,8 +59,8 @@ EXPORT Nst_Obj *nst_vector_new(usize len, Nst_OpErr *err);
 EXPORT Nst_Obj *nst_vector_create(usize len, Nst_OpErr *err, ...);
 EXPORT Nst_Obj *nst_array_create(usize len, Nst_OpErr *err, ...);
 
-EXPORT Nst_Obj *nst_vector_create_c(usize len, const i8 *fmt, Nst_OpErr *err, ...);
-EXPORT Nst_Obj *nst_array_create_c(usize len, const i8 *fmt, Nst_OpErr *err, ...);
+EXPORT Nst_Obj *nst_vector_create_c(const i8 *fmt, Nst_OpErr *err, ...);
+EXPORT Nst_Obj *nst_array_create_c(const i8 *fmt, Nst_OpErr *err, ...);
 
 EXPORT void _nst_seq_destroy(Nst_SeqObj *seq);
 EXPORT void _nst_seq_traverse(Nst_SeqObj *seq);

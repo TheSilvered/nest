@@ -51,7 +51,7 @@ NST_FUNC_SIGN(count_)
         (Nst_IntObj *)nst_int_new(1, err));
 
     // Layout: [idx, start, step]
-    Nst_Obj *arr = nst_array_create_c(3, "ioo", err, 0, start, step);
+    Nst_Obj *arr = nst_array_create_c("ioo", err, 0, start, step);
 
     return nst_iter_new(
         FUNC(nst_func_new_c(1, count_start, err)),
@@ -67,7 +67,7 @@ NST_FUNC_SIGN(cycle_)
     NST_DEF_EXTRACT("S", &seq);
 
     // Layout: [idx, seq]
-    Nst_Obj *arr = nst_array_create_c(2, "io", err, 0, seq);
+    Nst_Obj *arr = nst_array_create_c("io", err, 0, seq);
 
     return nst_iter_new(
         FUNC(nst_func_new_c(1, cycle_start, err)),
@@ -84,7 +84,7 @@ NST_FUNC_SIGN(repeat_)
     NST_DEF_EXTRACT("oi:i", &ob, &times);
 
     // Layout: [count, item, max_times]
-    Nst_Obj *arr = nst_array_create_c(3, "iOo", err, 0, ob, times);
+    Nst_Obj *arr = nst_array_create_c("iOo", err, 0, ob, times);
 
     return nst_iter_new(
         FUNC(nst_func_new_c(1, repeat_start, err)),
@@ -100,7 +100,7 @@ NST_FUNC_SIGN(chain_)
     NST_DEF_EXTRACT("R", &iter);
 
     // Layout: [main_iter, local_seq, val, is_done]
-    Nst_Obj *arr = nst_array_create_c(4, "onnb", err, iter, nullptr, nullptr, false);
+    Nst_Obj *arr = nst_array_create_c("onnb", err, iter, nullptr, nullptr, false);
     return nst_iter_new(
         FUNC(nst_func_new_c(1, chain_start, err)),
         FUNC(nst_func_new_c(1, chain_is_done, err)),
@@ -176,7 +176,7 @@ NST_FUNC_SIGN(enumerate_)
 
     // Layout: [idx, iterator, start, step, invert_order]
     Nst_Obj *arr = nst_array_create_c(
-        5, "ioiio", err,
+        "ioiio", err,
         0, ob, start, step, invert_order);
 
     return nst_iter_new(
@@ -192,7 +192,7 @@ NST_FUNC_SIGN(keys_)
     NST_DEF_EXTRACT("m", &map);
 
     // Layout: [idx, map]
-    Nst_Obj *arr = nst_array_create_c(2, "iO", err, 0, map);
+    Nst_Obj *arr = nst_array_create_c("iO", err, 0, map);
 
     return nst_iter_new(
         FUNC(nst_func_new_c(1, kvi_start, err)),
@@ -208,7 +208,7 @@ NST_FUNC_SIGN(values_)
     NST_DEF_EXTRACT("m", &map);
 
     // Layout: [idx, map]
-    Nst_Obj *arr = nst_array_create_c(2, "iO", err, 0, map);
+    Nst_Obj *arr = nst_array_create_c("iO", err, 0, map);
 
     return nst_iter_new(
         FUNC(nst_func_new_c(1, kvi_start, err)),
@@ -224,7 +224,7 @@ NST_FUNC_SIGN(items_)
     NST_DEF_EXTRACT("m", &map);
 
     // Layout: [idx, map]
-    Nst_Obj *arr = nst_array_create_c(2, "iO", err, 0, map);
+    Nst_Obj *arr = nst_array_create_c("iO", err, 0, map);
 
     return nst_iter_new(
         FUNC(nst_func_new_c(1, kvi_start, err)),
@@ -240,7 +240,7 @@ NST_FUNC_SIGN(reversed_)
     NST_DEF_EXTRACT("S", &seq);
 
     // Layout: [idx, seq]
-    Nst_Obj *arr = nst_array_create_c(2, "io", err, 0, seq);
+    Nst_Obj *arr = nst_array_create_c("io", err, 0, seq);
 
     return nst_iter_new(
         FUNC(nst_func_new_c(1, reversed_start, err)),

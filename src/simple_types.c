@@ -7,7 +7,7 @@
 #include "obj_ops.h"
 
 #define NEW_SYMPLE_TYPE(type, type_obj) \
-    type *obj = (type *)nst_obj_alloc(sizeof(type), type_obj, NULL, err); \
+    type *obj = nst_obj_alloc(type, type_obj, NULL, err); \
     if ( obj == NULL ) \
         return NULL; \
     obj->value = value; \
@@ -35,11 +35,11 @@ Nst_Obj *nst_bool_new(Nst_Bool value, Nst_OpErr *err)
 
 Nst_Obj *nst_iof_new(Nst_IOFile value, bool bin, bool read, bool write, Nst_OpErr *err)
 {
-    Nst_IOFileObj *obj = IOFILE(nst_obj_alloc(
-        sizeof(Nst_IOFileObj),
+    Nst_IOFileObj *obj = nst_obj_alloc(
+        Nst_IOFileObj,
         nst_t.IOFile,
         _nst_iofile_destroy,
-        err));
+        err);
     if ( obj == NULL )
     {
         return NULL;
@@ -79,11 +79,11 @@ Nst_Obj *nst_iof_new_fake(void *value,
                           Nst_IOFile_close_f close_f,
                           Nst_OpErr *err)
 {
-    Nst_IOFileObj *obj = IOFILE(nst_obj_alloc(
-        sizeof(Nst_IOFileObj),
+    Nst_IOFileObj *obj = nst_obj_alloc(
+        Nst_IOFileObj,
         nst_t.IOFile,
         _nst_iofile_destroy,
-        err));
+        err);
     if ( obj == NULL ) return NULL;
 
     obj->value   = (Nst_IOFile)value;

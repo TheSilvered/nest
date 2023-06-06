@@ -14,10 +14,10 @@
 // Call the object's destructor and deallocate its memory
 #define nst_obj_destroy(obj) _nst_obj_destroy(OBJ(obj))
 // Create a new object of size `size` on the heap
-#define nst_obj_alloc(size, type, destructor, err) \
-    _nst_obj_alloc( \
-        size, \
-        (struct _Nst_StrObj *)type, \
+#define nst_obj_alloc(type, type_obj, destructor, err) \
+    (type *)_nst_obj_alloc( \
+        sizeof(type), \
+        (struct _Nst_StrObj *)type_obj, \
         (Nst_ObjDestructor)(destructor), \
         err)
 

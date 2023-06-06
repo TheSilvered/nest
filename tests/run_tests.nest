@@ -3,6 +3,7 @@
 |#| 'stdsutil.nest' = su
 |#| 'stdsys.nest' = sys
 |#| 'stderr.nest' = err
+|#| 'stdsequtil.nest' = sequ
 |#| 'test_lib.nest' = test
 
 -- Creates or clears the log file
@@ -36,8 +37,8 @@ sys.SUPPORTS_COLOR ? [
         test_path @fs.filename = name
         !(name 'test_' @su.starts_with) ? ..
 
+        >>> ('Testing ' (name 5 -5 @sequ.slice) '... ' ><)
         run_test { name, test_path } @err.try = res
-        >>> name
 
         res.error null == ? [
             C_GREEN ' PASSED' C_RESET >< true @io.println

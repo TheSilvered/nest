@@ -429,19 +429,19 @@ static isize get_max_size_printf(const i8 *fmt, va_list orig_args)
 
 isize nst_print(const i8 *buf)
 {
-    return nst_fprint(nst_io->out, buf);
+    return nst_fprint(nst_io.out, buf);
 }
 
 isize nst_println(const i8 *buf)
 {
-    return nst_fprintln(nst_io->out, buf);
+    return nst_fprintln(nst_io.out, buf);
 }
 
 isize nst_printf(WIN_FMT const i8 *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    return nst_vfprintf(nst_io->out, fmt, args);
+    return nst_vfprintf(nst_io.out, fmt, args);
 }
 
 isize nst_fprint(Nst_IOFileObj *f, const i8 *buf)

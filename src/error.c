@@ -35,7 +35,7 @@ void nst_set_color(bool color)
 
 static inline void set_error_stream()
 {
-    err_stream = IOFILE(nst_inc_ref(nst_io->err));
+    err_stream = IOFILE(nst_inc_ref(nst_io.err));
     if ( NST_IOF_IS_CLOSED(err_stream) )
     {
         nst_dec_ref(err_stream);
@@ -316,7 +316,7 @@ static void print_position(Nst_Pos start, Nst_Pos end)
 
 void nst_print_error(Nst_Error err)
 {
-    nst_fflush(nst_io->out);
+    nst_fflush(nst_io.out);
     set_error_stream();
     print_position(err.start, err.end);
 
@@ -363,7 +363,7 @@ static inline void print_rep_count(i32 count)
 
 void nst_print_traceback(Nst_Traceback tb)
 {
-    nst_fflush(nst_io->out);
+    nst_fflush(nst_io.out);
     assert(tb.positions->size % 2 == 0);
     set_error_stream();
 

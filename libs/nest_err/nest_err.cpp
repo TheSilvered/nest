@@ -185,7 +185,7 @@ NST_FUNC_SIGN(try_)
 NST_FUNC_SIGN(_get_err_names_)
 {
     Nst_Obj *names = nst_array_create_c(
-        7, "OOOOOOO", err,
+        "OOOOOOO", err,
         nst_str()->e_SyntaxError,
         nst_str()->e_ValueError,
         nst_str()->e_TypeError,

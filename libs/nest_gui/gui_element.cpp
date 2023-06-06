@@ -8,10 +8,10 @@ GUI_Element *gui_element_new(GUI_ElementType t,
                              struct _GUI_App *app,
                              Nst_OpErr *err)
 {
-    GUI_Element *obj = (GUI_Element *)nst_obj_alloc(
+    GUI_Element *obj = (GUI_Element *)_nst_obj_alloc(
         size,
         gui_element_type,
-        gui_element_destroy,
+        (Nst_ObjDestructor)gui_element_destroy,
         err);
     if ( obj == nullptr )
     {

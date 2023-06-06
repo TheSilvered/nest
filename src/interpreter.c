@@ -1829,6 +1829,7 @@ usize nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part, Nst_OpErr *err)
     if ( path_len == 0 )
     {
         nst_free(path);
+        NST_SET_VALUE_ERROR(nst_sprintf(_NST_EM_FILE_NOT_FOUND, file_path));
         return 0;
     }
 
@@ -1845,6 +1846,7 @@ usize nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part, Nst_OpErr *err)
         if ( path_len == 0 )
         {
             nst_free(path);
+            NST_SET_VALUE_ERROR(nst_sprintf(_NST_EM_FILE_NOT_FOUND, file_path));
             return 0;
         }
     }

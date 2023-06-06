@@ -10,13 +10,17 @@ Nst_Obj *nst_iter_new(Nst_FuncObj *start,
                       Nst_Obj     *value,
                       Nst_OpErr   *err)
 {
-    Nst_IterObj *iter = ITER(nst_obj_alloc(
-        sizeof(Nst_IterObj),
+    Nst_IterObj *iter = nst_obj_alloc(
+        Nst_IterObj,
         nst_t.Iter,
         _nst_iter_destroy,
-        err));
+        err);
     if ( iter == NULL )
     {
+        nst_dec_ref(start);
+        nst_dec_ref(is_done);
+        nst_dec_ref(get_val);
+        nst_dec_ref(value);
         return NULL;
     }
 
@@ -29,7 +33,9 @@ Nst_Obj *nst_iter_new(Nst_FuncObj *start,
          NST_FLAG_HAS(is_done, NST_FLAG_GGC_IS_SUPPORTED) ||
          NST_FLAG_HAS(get_val, NST_FLAG_GGC_IS_SUPPORTED) ||
          NST_FLAG_HAS(value,   NST_FLAG_GGC_IS_SUPPORTED) )
+    {
         NST_GGC_OBJ_INIT(iter, _nst_iter_traverse, _nst_iter_track);
+    }
 
     return OBJ(iter);
 }

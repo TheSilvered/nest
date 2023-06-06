@@ -2,13 +2,15 @@
 #include "global_consts.h"
 #include "lib_import.h"
 #include "mem.h"
+#include "iter.h"
+
+#define safe_dec_ref(obj) do { if ( obj ) nst_dec_ref(obj); } while ( 0 )
 
 Nst_TypeObjs nst_t;
 Nst_StrConsts nst_s;
 Nst_Consts nst_c;
-Nst_StdStreams *nst_io;
-
-static Nst_StdStreams local_nst_io;
+Nst_StdStreams nst_io;
+Nst_IterFunctions nst_itf;
 
 static i32 close_std_stream(void *f);
 
@@ -125,15 +127,23 @@ bool _nst_init_objects()
     nst_c.Byte_0   = nst_byte_new(0, &err);
     nst_c.Byte_1   = nst_byte_new(1, &err);
 
-    nst_io = &local_nst_io;
+    nst_io.in  = IOFILE(nst_iof_new(stdin,  false, true, false, &err));
+    nst_io.out = IOFILE(nst_iof_new(stdout, false, false, true, &err));
+    nst_io.err = IOFILE(nst_iof_new(stderr, false, false, true, &err));
 
-    local_nst_io.in  = IOFILE(nst_iof_new(stdin,  false, true, false, &err));
-    local_nst_io.out = IOFILE(nst_iof_new(stdout, false, false, true, &err));
-    local_nst_io.err = IOFILE(nst_iof_new(stderr, false, false, true, &err));
+    nst_io.in ->close_f = close_std_stream;
+    nst_io.out->close_f = close_std_stream;
+    nst_io.err->close_f = close_std_stream;
 
-    local_nst_io.in ->close_f = close_std_stream;
-    local_nst_io.out->close_f = close_std_stream;
-    local_nst_io.err->close_f = close_std_stream;
+    nst_itf.range_start   = FUNC(nst_func_new_c(1, nst_iter_range_start,   &err));
+    nst_itf.range_is_done = FUNC(nst_func_new_c(1, nst_iter_range_is_done, &err));
+    nst_itf.range_get_val = FUNC(nst_func_new_c(1, nst_iter_range_get_val, &err));
+    nst_itf.str_start     = FUNC(nst_func_new_c(1, nst_iter_str_start,     &err));
+    nst_itf.str_is_done   = FUNC(nst_func_new_c(1, nst_iter_str_is_done,   &err));
+    nst_itf.str_get_val   = FUNC(nst_func_new_c(1, nst_iter_str_get_val,   &err));
+    nst_itf.seq_start     = FUNC(nst_func_new_c(1, nst_iter_seq_start,     &err));
+    nst_itf.seq_is_done   = FUNC(nst_func_new_c(1, nst_iter_seq_is_done,   &err));
+    nst_itf.seq_get_val   = FUNC(nst_func_new_c(1, nst_iter_seq_get_val,   &err));
 
     if ( err.name != NULL )
     {
@@ -147,66 +157,76 @@ bool _nst_init_objects()
 
 void _nst_del_objects()
 {
-    if ( nst_t.Type )   nst_dec_ref(nst_t.Type);
-    if ( nst_t.Int )    nst_dec_ref(nst_t.Int);
-    if ( nst_t.Real )   nst_dec_ref(nst_t.Real);
-    if ( nst_t.Bool )   nst_dec_ref(nst_t.Bool);
-    if ( nst_t.Null )   nst_dec_ref(nst_t.Null);
-    if ( nst_t.Str )    nst_dec_ref(nst_t.Str);
-    if ( nst_t.Array )  nst_dec_ref(nst_t.Array);
-    if ( nst_t.Vector ) nst_dec_ref(nst_t.Vector);
-    if ( nst_t.Map )    nst_dec_ref(nst_t.Map);
-    if ( nst_t.Func )   nst_dec_ref(nst_t.Func);
-    if ( nst_t.Iter )   nst_dec_ref(nst_t.Iter);
-    if ( nst_t.Byte )   nst_dec_ref(nst_t.Byte);
-    if ( nst_t.IOFile ) nst_dec_ref(nst_t.IOFile);
+    safe_dec_ref(nst_t.Type);
+    safe_dec_ref(nst_t.Int);
+    safe_dec_ref(nst_t.Real);
+    safe_dec_ref(nst_t.Bool);
+    safe_dec_ref(nst_t.Null);
+    safe_dec_ref(nst_t.Str);
+    safe_dec_ref(nst_t.Array);
+    safe_dec_ref(nst_t.Vector);
+    safe_dec_ref(nst_t.Map);
+    safe_dec_ref(nst_t.Func);
+    safe_dec_ref(nst_t.Iter);
+    safe_dec_ref(nst_t.Byte);
+    safe_dec_ref(nst_t.IOFile);
 
-    if ( nst_s.t_Type )   nst_dec_ref(nst_s.t_Type);
-    if ( nst_s.t_Int )    nst_dec_ref(nst_s.t_Int);
-    if ( nst_s.t_Real )   nst_dec_ref(nst_s.t_Real);
-    if ( nst_s.t_Bool )   nst_dec_ref(nst_s.t_Bool);
-    if ( nst_s.t_Null )   nst_dec_ref(nst_s.t_Null);
-    if ( nst_s.t_Str )    nst_dec_ref(nst_s.t_Str);
-    if ( nst_s.t_Array )  nst_dec_ref(nst_s.t_Array);
-    if ( nst_s.t_Vector ) nst_dec_ref(nst_s.t_Vector);
-    if ( nst_s.t_Map )    nst_dec_ref(nst_s.t_Map);
-    if ( nst_s.t_Func )   nst_dec_ref(nst_s.t_Func);
-    if ( nst_s.t_Iter )   nst_dec_ref(nst_s.t_Iter);
-    if ( nst_s.t_Byte )   nst_dec_ref(nst_s.t_Byte);
-    if ( nst_s.t_IOFile ) nst_dec_ref(nst_s.t_IOFile);
+    safe_dec_ref(nst_s.t_Type);
+    safe_dec_ref(nst_s.t_Int);
+    safe_dec_ref(nst_s.t_Real);
+    safe_dec_ref(nst_s.t_Bool);
+    safe_dec_ref(nst_s.t_Null);
+    safe_dec_ref(nst_s.t_Str);
+    safe_dec_ref(nst_s.t_Array);
+    safe_dec_ref(nst_s.t_Vector);
+    safe_dec_ref(nst_s.t_Map);
+    safe_dec_ref(nst_s.t_Func);
+    safe_dec_ref(nst_s.t_Iter);
+    safe_dec_ref(nst_s.t_Byte);
+    safe_dec_ref(nst_s.t_IOFile);
 
-    if ( nst_s.c_true )  nst_dec_ref(nst_s.c_true);
-    if ( nst_s.c_false ) nst_dec_ref(nst_s.c_false);
-    if ( nst_s.c_null )  nst_dec_ref(nst_s.c_null);
+    safe_dec_ref(nst_s.c_true);
+    safe_dec_ref(nst_s.c_false);
+    safe_dec_ref(nst_s.c_null);
 
-    if ( nst_s.e_SyntaxError ) nst_dec_ref(nst_s.e_SyntaxError);
-    if ( nst_s.e_MemoryError ) nst_dec_ref(nst_s.e_MemoryError);
-    if ( nst_s.e_ValueError )  nst_dec_ref(nst_s.e_ValueError);
-    if ( nst_s.e_TypeError )   nst_dec_ref(nst_s.e_TypeError);
-    if ( nst_s.e_CallError )   nst_dec_ref(nst_s.e_CallError);
-    if ( nst_s.e_MathError )   nst_dec_ref(nst_s.e_MathError);
-    if ( nst_s.e_ImportError ) nst_dec_ref(nst_s.e_ImportError);
+    safe_dec_ref(nst_s.e_SyntaxError);
+    safe_dec_ref(nst_s.e_MemoryError);
+    safe_dec_ref(nst_s.e_ValueError);
+    safe_dec_ref(nst_s.e_TypeError);
+    safe_dec_ref(nst_s.e_CallError);
+    safe_dec_ref(nst_s.e_MathError);
+    safe_dec_ref(nst_s.e_ImportError);
 
-    if ( nst_s.o__args_ )       nst_dec_ref(nst_s.o__args_);
-    if ( nst_s.o__cwd_ )        nst_dec_ref(nst_s.o__cwd_);
-    if ( nst_s.o__globals_ )    nst_dec_ref(nst_s.o__globals_);
-    if ( nst_s.o__vars_ )       nst_dec_ref(nst_s.o__vars_);
-    if ( nst_s.o_failed_alloc ) nst_dec_ref(nst_s.o_failed_alloc);
+    safe_dec_ref(nst_s.o__args_);
+    safe_dec_ref(nst_s.o__cwd_);
+    safe_dec_ref(nst_s.o__globals_);
+    safe_dec_ref(nst_s.o__vars_);
+    safe_dec_ref(nst_s.o_failed_alloc);
 
-    if ( nst_c.Bool_true )  nst_dec_ref(nst_c.Bool_true);
-    if ( nst_c.Bool_false ) nst_dec_ref(nst_c.Bool_false);
-    if ( nst_c.Null_null )  nst_dec_ref(nst_c.Null_null);
-    if ( nst_c.Int_0 )      nst_dec_ref(nst_c.Int_0);
-    if ( nst_c.Int_1 )      nst_dec_ref(nst_c.Int_1);
-    if ( nst_c.Int_neg1 )   nst_dec_ref(nst_c.Int_neg1);
-    if ( nst_c.Real_0 )     nst_dec_ref(nst_c.Real_0);
-    if ( nst_c.Real_1 )     nst_dec_ref(nst_c.Real_1);
-    if ( nst_c.Byte_0 )     nst_dec_ref(nst_c.Byte_0);
-    if ( nst_c.Byte_1 )     nst_dec_ref(nst_c.Byte_1);
+    safe_dec_ref(nst_c.Bool_true);
+    safe_dec_ref(nst_c.Bool_false);
+    safe_dec_ref(nst_c.Null_null);
+    safe_dec_ref(nst_c.Int_0);
+    safe_dec_ref(nst_c.Int_1);
+    safe_dec_ref(nst_c.Int_neg1);
+    safe_dec_ref(nst_c.Real_0);
+    safe_dec_ref(nst_c.Real_1);
+    safe_dec_ref(nst_c.Byte_0);
+    safe_dec_ref(nst_c.Byte_1);
 
-    if ( nst_io->in )  nst_dec_ref(nst_io->in);
-    if ( nst_io->out ) nst_dec_ref(nst_io->out);
-    if ( nst_io->err ) nst_dec_ref(nst_io->err);
+    safe_dec_ref(nst_io.in);
+    safe_dec_ref(nst_io.out);
+    safe_dec_ref(nst_io.err);
+
+    safe_dec_ref(nst_itf.range_start);
+    safe_dec_ref(nst_itf.range_is_done);
+    safe_dec_ref(nst_itf.range_get_val);
+    safe_dec_ref(nst_itf.str_start);
+    safe_dec_ref(nst_itf.str_is_done);
+    safe_dec_ref(nst_itf.str_get_val);
+    safe_dec_ref(nst_itf.seq_start);
+    safe_dec_ref(nst_itf.seq_is_done);
+    safe_dec_ref(nst_itf.seq_get_val);
 }
 
 Nst_Obj *nst_true()
@@ -239,9 +259,14 @@ const Nst_Consts *nst_const()
     return &nst_c;
 }
 
+const Nst_IterFunctions *nst_iter_func(void)
+{
+    return &nst_itf;
+}
+
 Nst_StdStreams *nst_stdio()
 {
-    return nst_io;
+    return &nst_io;
 }
 
 #ifdef WINDOWS

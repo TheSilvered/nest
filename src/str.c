@@ -51,11 +51,11 @@ Nst_Obj *nst_string_new_c(const i8 *val, usize len, bool allocated, struct _Nst_
 
 Nst_Obj *nst_string_new(i8 *val, usize len, bool allocated, struct _Nst_OpErr *err)
 {
-    Nst_StrObj *str = STR(nst_obj_alloc(
-        sizeof(Nst_StrObj),
+    Nst_StrObj *str = nst_obj_alloc(
+        Nst_StrObj,
         nst_t.Str,
         _nst_string_destroy,
-        err));
+        err);
     if ( str == NULL )
     {
         return NULL;
@@ -73,11 +73,11 @@ Nst_Obj *nst_string_new(i8 *val, usize len, bool allocated, struct _Nst_OpErr *e
 
 Nst_TypeObj *nst_type_new(const i8 *val, usize len, struct _Nst_OpErr *err)
 {
-    Nst_TypeObj *str = STR(nst_obj_alloc(
-        sizeof(Nst_StrObj),
+    Nst_TypeObj *str = nst_obj_alloc(
+        Nst_StrObj,
         nst_t.Type,
         _nst_string_destroy,
-        err));
+        err);
     if ( str == NULL )
     {
         return NULL;
