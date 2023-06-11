@@ -15,7 +15,7 @@
 #define START_CH_SIZE 8 * sizeof(i8)
 
 #define SET_INVALID_ESCAPE_ERROR do { \
-    nst_free(end_str); \
+    nst_buffer_destroy(&buf); \
     _NST_SET_RAW_SYNTAX_ERROR( \
         error, \
         escape_start, \
@@ -43,11 +43,10 @@
                            ch == '!' || ch == '['  || \
                            ch == ']' || ch == '^' )
 
-#define SET_ERROR_IF_OP_ERR(cond, ...) do { \
+#define SET_ERROR_IF_OP_ERR(cond) do { \
     if ( (cond) || lexer_err.name != NULL ) \
     { \
         _NST_SET_ERROR_FROM_OP_ERR(error, &lexer_err, cursor.pos, cursor.pos); \
-        __VA_ARGS__ \
         return; \
     } } while ( 0 )
 
@@ -440,7 +439,7 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
             Nst_Obj *val = nst_byte_new(0, &lexer_err);
             SET_ERROR_IF_OP_ERR(val == NULL);
             *tok = nst_tok_new_value(start, cursor.pos, NST_TT_VALUE, val, &lexer_err);
-            SET_ERROR_IF_OP_ERR(*tok == NULL, nst_dec_ref(val););
+            SET_ERROR_IF_OP_ERR(*tok == NULL);
             return;
         }
         ltrl_size += 2;
@@ -583,7 +582,7 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
         Nst_Obj *obj = nst_byte_new(0, &lexer_err);
         SET_ERROR_IF_OP_ERR(obj == NULL);
         *tok = nst_tok_new_value(start, cursor.pos, NST_TT_VALUE, obj, &lexer_err);
-        SET_ERROR_IF_OP_ERR(*tok == NULL, nst_dec_ref(obj););
+        SET_ERROR_IF_OP_ERR(*tok == NULL);
         return;
     }
     default:
@@ -737,11 +736,15 @@ static void make_ident(Nst_Tok **tok, Nst_Error *error)
 
     Nst_Pos end = nst_copy_pos(cursor.pos);
     Nst_StrObj *val_obj = STR(nst_string_new_c_raw(str, true, &lexer_err));
-    SET_ERROR_IF_OP_ERR(val_obj == NULL, nst_free(str););
+    if ( val_obj == NULL )
+    {
+        nst_free(str);
+        _NST_SET_ERROR_FROM_OP_ERR(error, &lexer_err, cursor.pos, cursor.pos);
+    }
     nst_obj_hash(OBJ(val_obj));
 
     *tok = nst_tok_new_value(start, end, NST_TT_IDENT, OBJ(val_obj), &lexer_err);
-    SET_ERROR_IF_OP_ERR(val_obj == NULL, nst_dec_ref(val_obj););
+    SET_ERROR_IF_OP_ERR(val_obj == NULL);
 }
 
 static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
@@ -752,12 +755,8 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
     bool allow_multiline = cursor.ch == '"';
     bool escape = false;
 
-    i8 *end_str = (i8 *)nst_malloc(START_CH_SIZE, sizeof(u8), &lexer_err);
-    i8 *end_str_realloc = NULL;
-    SET_ERROR_IF_OP_ERR(end_str == NULL);
-
-    usize str_len = 0;
-    usize chunk_size = START_CH_SIZE;
+    Nst_Buffer buf;
+    SET_ERROR_IF_OP_ERR(!nst_buffer_init(&buf, START_CH_SIZE, &lexer_err));
 
     advance(); // still on the opening character
 
@@ -766,23 +765,17 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
     while ( cursor.idx < (i32) cursor.len &&
             (cursor.ch != closing_ch || escape) )
     {
-        if ( str_len + 4 == chunk_size )
+        if ( !nst_buffer_expand_by(&buf, 4, &lexer_err) )
         {
-            chunk_size = (usize)(chunk_size * 1.5);
-            end_str_realloc = (i8 *)nst_realloc(
-                end_str,
-                chunk_size,
-                sizeof(i8),
-                0, &lexer_err);
-            SET_ERROR_IF_OP_ERR(end_str_realloc == NULL, nst_free(end_str););
-            end_str = end_str_realloc;
+            nst_buffer_destroy(&buf);
+            _NST_SET_ERROR_FROM_OP_ERR(error, &lexer_err, cursor.pos, cursor.pos);
         }
 
         if ( !escape )
         {
             if ( cursor.ch == '\n' && !allow_multiline )
             {
-                nst_free(end_str);
+                nst_buffer_destroy(&buf);
                 _NST_SET_RAW_SYNTAX_ERROR(
                     error,
                     cursor.pos,
@@ -797,7 +790,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
             }
             else
             {
-                end_str[str_len++] = cursor.ch;
+                nst_buffer_append_char(&buf, cursor.ch, NULL);
             }
             advance();
             continue;
@@ -806,17 +799,17 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
         // If there is an escape sequence
         switch ( cursor.ch )
         {
-        case '\'':end_str[str_len++] = '\''; break;
-        case '"': end_str[str_len++] = '"' ; break;
-        case '\\':end_str[str_len++] = '\\'; break;
-        case 'a': end_str[str_len++] = '\a'; break;
-        case 'b': end_str[str_len++] = '\b'; break;
-        case 'e': end_str[str_len++] ='\x1b';break;
-        case 'f': end_str[str_len++] = '\f'; break;
-        case 'n': end_str[str_len++] = '\n'; break;
-        case 'r': end_str[str_len++] = '\r'; break;
-        case 't': end_str[str_len++] = '\t'; break;
-        case 'v': end_str[str_len++] = '\v'; break;
+        case '\'':nst_buffer_append_char(&buf, '\'', NULL); break;
+        case '"': nst_buffer_append_char(&buf, '"' , NULL); break;
+        case '\\':nst_buffer_append_char(&buf, '\\', NULL); break;
+        case 'a': nst_buffer_append_char(&buf, '\a', NULL); break;
+        case 'b': nst_buffer_append_char(&buf, '\b', NULL); break;
+        case 'e': nst_buffer_append_char(&buf,'\x1b',NULL); break;
+        case 'f': nst_buffer_append_char(&buf, '\f', NULL); break;
+        case 'n': nst_buffer_append_char(&buf, '\n', NULL); break;
+        case 'r': nst_buffer_append_char(&buf, '\r', NULL); break;
+        case 't': nst_buffer_append_char(&buf, '\t', NULL); break;
+        case 'v': nst_buffer_append_char(&buf, '\v', NULL); break;
         case 'x':
         {
             if ( (usize)cursor.idx + 2 >= cursor.len )
@@ -837,7 +830,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
             i8 result = ((ch1 > '9' ? ch1 - 'a' + 10 : ch1 - '0') << 4) +
                             (ch2 > '9' ? ch2 - 'a' + 10 : ch2 - '0');
 
-            end_str[str_len++] = result;
+            nst_buffer_append_char(&buf, result, NULL);
             break;
         }
         case 'u':
@@ -863,32 +856,35 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
                 num += ch << (4 * (size - i - 1));
             }
 
+            i8 unicode_char[5] = { 0 };
+
             if ( num <= 0x7f )
             {
-                end_str[str_len++] = (i8)num;
+                unicode_char[0] = (i8)num;
             }
             else if ( num <= 0x7ff )
             {
-                end_str[str_len++] = 0b11000000 | (i8)(num >> 6);
-                end_str[str_len++] = 0b10000000 | (i8)(num & 0x3f);
+                unicode_char[0] = 0b11000000 | (i8)(num >> 6);
+                unicode_char[1] = 0b10000000 | (i8)(num & 0x3f);
             }
             else if ( num <= 0xffff )
             {
-                end_str[str_len++] = 0b11100000 | (i8)(num >> 12);
-                end_str[str_len++] = 0b10000000 | (i8)(num >> 6 & 0x3f);
-                end_str[str_len++] = 0b10000000 | (i8)(num & 0x3f);
+                unicode_char[0] = 0b11100000 | (i8)(num >> 12);
+                unicode_char[1] = 0b10000000 | (i8)(num >> 6 & 0x3f);
+                unicode_char[2] = 0b10000000 | (i8)(num & 0x3f);
             }
             else if ( num <= 0x10ffff )
             {
-                end_str[str_len++] = 0b11110000 | (i8)(num >> 18);
-                end_str[str_len++] = 0b10000000 | (i8)(num >> 12 & 0x3f);
-                end_str[str_len++] = 0b10000000 | (i8)(num >> 6 & 0x3f);
-                end_str[str_len++] = 0b10000000 | (i8)(num & 0x3f);
+                unicode_char[0] = 0b11110000 | (i8)(num >> 18);
+                unicode_char[1] = 0b10000000 | (i8)(num >> 12 & 0x3f);
+                unicode_char[2] = 0b10000000 | (i8)(num >> 6 & 0x3f);
+                unicode_char[3] = 0b10000000 | (i8)(num & 0x3f);
             }
             else
             {
                 SET_INVALID_ESCAPE_ERROR;
             }
+            nst_buffer_append_c_str(&buf, (const i8 *)unicode_char, NULL);
             break;
         }
         case '0':
@@ -905,7 +901,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
             advance();
             if ( !CH_IS_OCT(cursor.ch) )
             {
-                end_str[str_len++] = ch1;
+                nst_buffer_append_char(&buf, ch1, NULL);
                 go_back();
                 break;
             }
@@ -914,12 +910,12 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
             advance();
             if ( !CH_IS_OCT(cursor.ch) )
             {
-                end_str[str_len++] = (ch1 << 3) + ch2;
+                nst_buffer_append_char(&buf, (ch1 << 3) + ch2, NULL);
                 go_back();
                 break;
             }
             i8 ch3 = cursor.ch - '0';
-            end_str[str_len++] = (ch1 << 6) + (ch2 << 3) + ch3;
+            nst_buffer_append_char(&buf, (ch1 << 6) + (ch2 << 3) + ch3, NULL);
             break;
         }
         default:
@@ -936,7 +932,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
 
     if ( cursor.ch != closing_ch )
     {
-        nst_free(end_str);
+        nst_buffer_destroy(&buf);
         _NST_SET_RAW_SYNTAX_ERROR(
             error,
             start,
@@ -945,23 +941,12 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
         return;
     }
 
-    if ( str_len + 20 < chunk_size )
-    {
-        end_str = (i8 *)nst_realloc(
-            end_str,
-            str_len + 1,
-            sizeof(i8),
-            chunk_size, NULL);
-    }
+    Nst_Obj *val_obj = OBJ(nst_buffer_to_string(&buf, &lexer_err));
+    SET_ERROR_IF_OP_ERR(val_obj == NULL);
+    nst_obj_hash(val_obj);
 
-    end_str[str_len] = '\0';
-
-    Nst_StrObj *val_obj = STR(nst_string_new(end_str, str_len, true, &lexer_err));
-    SET_ERROR_IF_OP_ERR(val_obj == NULL, nst_free(end_str););
-    nst_obj_hash(OBJ(val_obj));
-
-    *tok = nst_tok_new_value(start, cursor.pos, NST_TT_VALUE, OBJ(val_obj), &lexer_err);
-    SET_ERROR_IF_OP_ERR(*tok == NULL, nst_dec_ref(val_obj););
+    *tok = nst_tok_new_value(start, cursor.pos, NST_TT_VALUE, val_obj, &lexer_err);
+    SET_ERROR_IF_OP_ERR(*tok == NULL);
 }
 
 void nst_add_lines(Nst_SourceText* text, i32 start_offset)

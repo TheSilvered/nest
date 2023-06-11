@@ -213,41 +213,27 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
     Nst_Pos escape_start = nst_copy_pos(state.pos);
     bool escape = false;
 
-    i8 *end_str = (i8 *)nst_malloc(8, sizeof(i8), err);
-    i8 *end_str_realloc = nullptr;
-
-    if ( end_str == nullptr )
+    Nst_Buffer buf;
+    if ( !nst_buffer_init(&buf, 8, err) )
     {
         return nullptr;
     }
-
-    usize str_len = 0;
-    usize chunk_size = 8;
 
     advance();
 
     while ( state.idx < state.len && (state.ch != '"' || escape))
     {
-        if ( str_len + 3 >= chunk_size )
+        if ( !nst_buffer_expand_by(&buf, 3, err) )
         {
-            chunk_size = (usize)(chunk_size * 1.5);
-            end_str_realloc = (i8 *)nst_realloc(
-                end_str,
-                chunk_size,
-                sizeof(i8), 0, err);
-            if ( end_str_realloc == nullptr )
-            {
-                nst_free(end_str);
-                return nullptr;
-            }
-            end_str = end_str_realloc;
+            nst_buffer_destroy(&buf);
+            return nullptr;
         }
 
         if ( !escape )
         {
             if ( (u8)state.ch < ' ' )
             {
-                nst_free(end_str);
+                nst_buffer_destroy(&buf);
                 NST_SET_SYNTAX_ERROR(nst_sprintf(
                     "JSON: invalid character, file \"%s\", line %lli, column %lli",
                     state.pos.text->path,
@@ -262,7 +248,7 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
             }
             else
             {
-                end_str[str_len++] = state.ch;
+                nst_buffer_append_char(&buf, state.ch, NULL);
             }
             advance();
             continue;
@@ -271,20 +257,20 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
         // If there is an escape sequence
         switch ( state.ch )
         {
-        case '"': end_str[str_len++] = '"' ; break;
-        case '\\':end_str[str_len++] = '\\'; break;
-        case '/': end_str[str_len++] = '/';  break;
-        case 'b': end_str[str_len++] = '\b'; break;
-        case 'f': end_str[str_len++] = '\f'; break;
-        case 'n': end_str[str_len++] = '\n'; break;
-        case 'r': end_str[str_len++] = '\r'; break;
-        case 't': end_str[str_len++] = '\t'; break;
+        case '"': nst_buffer_append_char(&buf, '"' , NULL); break;
+        case '\\':nst_buffer_append_char(&buf, '\\', NULL); break;
+        case '/': nst_buffer_append_char(&buf, '/',  NULL); break;
+        case 'b': nst_buffer_append_char(&buf, '\b', NULL); break;
+        case 'f': nst_buffer_append_char(&buf, '\f', NULL); break;
+        case 'n': nst_buffer_append_char(&buf, '\n', NULL); break;
+        case 'r': nst_buffer_append_char(&buf, '\r', NULL); break;
+        case 't': nst_buffer_append_char(&buf, '\t', NULL); break;
         case 'u':
         {
             advance();
             if ( state.idx + 3 >= state.len )
             {
-                nst_free(end_str);
+                nst_buffer_destroy(&buf);
                 SET_INVALID_ESCAPE_ERROR;
                 return nullptr;
             }
@@ -299,7 +285,7 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
 
             if ( !IS_HEX(ch1) || !IS_HEX(ch2) || !IS_HEX(ch3) || !IS_HEX(ch4) )
             {
-                nst_free(end_str);
+                nst_buffer_destroy(&buf);
                 SET_INVALID_ESCAPE_ERROR;
                 return nullptr;
             }
@@ -313,23 +299,23 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
 
             if ( num <= 0x7f )
             {
-                end_str[str_len++] = (i8)num;
+                nst_buffer_append_char(&buf, (i8)num, NULL);
             }
             else if ( num <= 0x7ff )
             {
-                end_str[str_len++] = 0b11000000 | (i8)(num >> 6);
-                end_str[str_len++] = 0b10000000 | (i8)(num & 0x3f);
+                nst_buffer_append_char(&buf, 0b11000000 | (i8)(num >> 6), NULL);
+                nst_buffer_append_char(&buf, 0b10000000 | (i8)(num & 0x3f), NULL);
             }
             else
             {
-                end_str[str_len++] = 0b11100000 | (i8)(num >> 12);
-                end_str[str_len++] = 0b10000000 | (i8)(num >> 6 & 0x3f);
-                end_str[str_len++] = 0b10000000 | (i8)(num & 0x3f);
+                nst_buffer_append_char(&buf, 0b11100000 | (i8)(num >> 12), NULL);
+                nst_buffer_append_char(&buf, 0b10000000 | (i8)(num >> 6 & 0x3f), NULL);
+                nst_buffer_append_char(&buf, 0b10000000 | (i8)(num & 0x3f), NULL);
             }
             break;
         }
         default:
-            nst_free(end_str);
+            nst_buffer_destroy(&buf);
             SET_INVALID_ESCAPE_ERROR;
             return nullptr;
         }
@@ -341,22 +327,11 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
     if ( state.ch != '"' )
     {
         JSON_SYNTAX_ERROR("open string", state.path, state.pos);
-        nst_free(end_str);
+        nst_buffer_destroy(&buf);
         return nullptr;
     }
 
-    if ( str_len + 20 < chunk_size )
-    {
-        end_str = (i8*)nst_realloc(
-            end_str,
-            str_len + 1,
-            sizeof(i8), chunk_size, nullptr);
-    }
-
-    end_str[str_len] = '\0';
-
-    Nst_StrObj *val_obj = STR(nst_string_new(end_str, str_len, true, err));
-
+    Nst_Obj *val_obj = OBJ(nst_buffer_to_string(&buf, err));
     return tok_new_value(start, state.pos, JSON_VALUE, OBJ(val_obj), err);
 }
 

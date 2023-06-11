@@ -643,7 +643,7 @@ NST_FUNC_SIGN(count_)
             {
                 break;
             }
-            str_len -= str - res + sub_len;
+            str_len -= res - str + sub_len;
             str = res + sub_len;
             count++;
         }

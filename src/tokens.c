@@ -10,11 +10,15 @@ Nst_Tok *nst_tok_new_value(Nst_Pos     start,
                            Nst_Pos     end,
                            Nst_TokType type,
                            Nst_Obj    *value,
-                           Nst_OpErr *err)
+                           Nst_OpErr  *err)
 {
     Nst_Tok *token = NST_TOK(nst_malloc(1, sizeof(Nst_Tok), err));
     if ( token == NULL )
     {
+        if ( value != NULL )
+        {
+            nst_dec_ref(value);
+        }
         return NULL;
     }
 

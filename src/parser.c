@@ -236,12 +236,12 @@ static Nst_Node *parse_statement()
         tok_type = NST_TOK(nst_llist_peek_front(tokens))->type;
         if ( NST_IS_EXPR_END(tok_type) )
         {
-            Nst_Tok *null_value = nst_tok_new_value(start, end,
-                                                    NST_TT_VALUE,
-                                                    nst_c.Null_null,
-                                                    &parser_err);
+            Nst_Tok *null_value = nst_tok_new_value(
+                start, end,
+                NST_TT_VALUE,
+                nst_inc_ref(nst_c.Null_null),
+                &parser_err);
             SET_ERROR_IF_OP_ERR();
-            nst_inc_ref(nst_c.Null_null);
             expr = nst_node_new_pos(
                 NST_NT_VALUE,
                 start,

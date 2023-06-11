@@ -3,12 +3,14 @@
 
 #f a b [
     a b + = v
+    co.call { f_co, { 1, 2 } } @test.assert_raises_error
     v @co.pause
     => 3 v +
 ]
 
 f @co.create = f_co
 co.create { co.create } @test.assert_raises_error -- coroutine from a C function
+co.create { '1' } @test.assert_raises_error
 
 f_co @co.get_state co.STATE.suspended @test.assert_eq
 f_co { 1, 2 } @co.call 3 @test.assert_eq
@@ -30,12 +32,8 @@ g @co.create = g_co
 
 Array :: (g_co @co.generator) { 1, 2, 3 } @test.assert_eq
 
-## [
-    @h
-] @co.create = bad_co
+## [@h] @co.create = bad_co
 
-#h [
-    @co.pause
-]
+#h [@co.pause]
 
 co.call { bad_co, {,} } @test.assert_raises_error

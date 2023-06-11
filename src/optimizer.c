@@ -133,7 +133,6 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
     if ( new_tok == NULL )
     {
         _NST_SET_ERROR_FROM_OP_ERR(error, &err, node->start, node->end);
-        nst_dec_ref(res);
         return;
     }
     node->tokens->head->value = new_tok;
@@ -208,7 +207,6 @@ static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
     if ( new_tok == NULL )
     {
         _NST_SET_ERROR_FROM_OP_ERR(error, &err, node->start, node->end);
-        nst_dec_ref(res);
         return;
     }
     node->tokens->head->value = new_tok;
@@ -264,7 +262,6 @@ static void ast_optimize_local_op(Nst_Node *node, Nst_Error *error)
     if ( new_tok == NULL )
     {
         _NST_SET_ERROR_FROM_OP_ERR(error, &err, node->start, node->end);
-        nst_dec_ref(res);
         return;
     }
     node->tokens->head->value = new_tok;
