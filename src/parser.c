@@ -335,7 +335,7 @@ static Nst_Node *parse_while_loop()
     Nst_Pos start = tok->start;
 
     Nst_Node *while_l_node = nst_node_new(
-        NST_TT_WHILE ? NST_NT_WHILE_L : NST_NT_DOWHILE_L, &parser_err);
+        tok->type == NST_TT_WHILE ? NST_NT_WHILE_L : NST_NT_DOWHILE_L, &parser_err);
     SET_ERROR_IF_OP_ERR();
 
     nst_token_destroy(tok);

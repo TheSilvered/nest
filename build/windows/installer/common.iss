@@ -32,13 +32,13 @@ SetupIconFile=..\icons\nest_installer_icon.ico
 [Files]
 Source: "..\{#arch}\{#MyAppExeName}"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\{#arch}\libnest.dll"; DestDir: "{app}"; Flags: ignoreversion
-// Source: "..\{#arch}\SDL2.dll"; DestDir: "{app}"; Flags: ignoreversion
-// Source: "..\{#arch}\SDL2_ttf.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\{#arch}\SDL2.dll"; DestDir: "{app}"; Flags: ignoreversion
+Source: "..\{#arch}\SDL2_ttf.dll"; DestDir: "{app}"; Flags: ignoreversion
 Source: "..\{#arch}\nest_libs\*"; DestDir: "{app}\nest_libs"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [Tasks]
-// Name: envPath; Description: "Add to PATH envirnoment variable (required for stdgui)"
-Name: envPath; Description: "Add to PATH envirnoment variable"
+Name: envPath; Description: "Add to PATH envirnoment variable (required for stdgui)"
+// Name: envPath; Description: "Add to PATH envirnoment variable"
 
 [Languages]
 Name: "english"; MessagesFile: "compiler:Default.isl"

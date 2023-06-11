@@ -671,7 +671,7 @@ Nst_Obj *_nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
             return NULL;
         }
 
-        return nst_int_new(v1 & v2, err);
+        return nst_int_new(v1 % v2, err);
     }
     else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {

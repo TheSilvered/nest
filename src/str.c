@@ -370,6 +370,7 @@ Nst_Obj *nst_string_parse_int(Nst_StrObj *str, i32 base, struct _Nst_OpErr *err)
             break;
         }
     }
+    ERR_IF_END(s, end, RETURN_INT_ERR);
     if ( base == 0 )
     {
         base = 10;
@@ -445,20 +446,13 @@ Nst_Obj *nst_string_parse_byte(Nst_StrObj *str, struct _Nst_OpErr *err)
     i32 sign = 1;
     i32 base = 10;
 
-    if ( s == end )
-    {
-        RETURN_BYTE_ERR;
-    }
+    ERR_IF_END(s, end, RETURN_BYTE_ERR);
 
     while ( IS_WHITESPACE(ch) )
     {
         ch = *++s;
     }
-
-    if ( s == end )
-    {
-        RETURN_BYTE_ERR;
-    }
+    ERR_IF_END(s, end, RETURN_BYTE_ERR);
 
     if ( ch == '-' )
     {
@@ -469,11 +463,7 @@ Nst_Obj *nst_string_parse_byte(Nst_StrObj *str, struct _Nst_OpErr *err)
     {
         ch = *++s;
     }
-
-    if ( s == end )
-    {
-        RETURN_BYTE_ERR;
-    }
+    ERR_IF_END(s, end, RETURN_BYTE_ERR);
 
     if ( ch == '0' )
     {
@@ -484,23 +474,6 @@ Nst_Obj *nst_string_parse_byte(Nst_StrObj *str, struct _Nst_OpErr *err)
         case 'B':
             base = 2;
             ch = *++s;
-
-            if ( IS_WHITESPACE(ch) )
-            {
-                while ( IS_WHITESPACE(ch) )
-                {
-                    ch = *++s;
-                }
-
-                if ( s == end )
-                {
-                    return nst_byte_new(0, err);
-                }
-                else
-                {
-                    RETURN_BYTE_ERR;
-                }
-            }
             break;
         case 'o':
         case 'O':
@@ -517,6 +490,7 @@ Nst_Obj *nst_string_parse_byte(Nst_StrObj *str, struct _Nst_OpErr *err)
         }
     }
 
+    bool has_digits = false;
     while ( true )
     {
         if ( ch >= '0' && ch <= '9' )
@@ -545,18 +519,24 @@ Nst_Obj *nst_string_parse_byte(Nst_StrObj *str, struct _Nst_OpErr *err)
         {
             RETURN_BYTE_ERR;
         }
-
+        has_digits = true;
         num *= base;
         num += ch_val;
         num %= 256;
         ch = *++s;
     }
     num *= sign;
-    if ( base != 16 && ch != 'b' && ch != 'B' )
+
+    if ( base != 2 && !has_digits )
     {
         RETURN_BYTE_ERR;
     }
-    else if ( base != 16 )
+
+    if ( (base != 2 || has_digits) && base != 16 && ch != 'b' && ch != 'B' )
+    {
+        RETURN_BYTE_ERR;
+    }
+    if ( (base != 2 || has_digits) && base != 16 )
     {
         ch = *++s;
     }

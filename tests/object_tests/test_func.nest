@@ -2,40 +2,97 @@
 
 1 = global_var
 
-#f1 []
+#empty_func []
 
-#f2 [ => 10 ]
+#expr_func => 10
 
-#f3 [ => global_var ]
-
-#f4 [
-    10 = global_var
+#global_var_1 => global_var
+#global_var_2 [
+    1 += global_var
+    => global_var
+]
+#global_var_3 [
+    1 += _globals_.global_var
     => global_var
 ]
 
-#f5 [
-    10 = _vars_._globals_.global_var
-    => global_var
+#args_1 arg [
+    => arg
 ]
 
-#f6 arg1 arg2 arg3 [
-    => { arg1, arg2, arg3 }
+#args_2 arg_1 arg_2 [
+    => arg_1 arg_2 +
 ]
 
-#f7 cond [
-    ?.. cond [
-        => 'Hello'
+#nested_return_1 arg [
+    arg ? => 1
+        : => 2
+]
+
+#nested_return_2 arg [
+    ... arg [ => 1 ]
+]
+
+#nested_return_3 arg [
+    ?.. arg [ => 1 ]
+]
+
+#nested_return_4 arg [
+    ..? arg [ => 1 ]
+]
+
+#nested_return_5 arg [
+    |> arg [
+        ? 10 [
+            => 1
+        ]
+        ? 20 [
+            => 2
+        ]
+        ? [
+            => 3
+        ]
     ]
 ]
 
-@f1 null @test.assert_eq
-@f2 10 @test.assert_eq
-@f3 global_var @test.assert_eq
-@f4 global_var @test.assert_ne
-@f5 global_var @test.assert_eq
-1 2 3 @f6 { 1, 2, 3 } @test.assert_eq
-true @f7 'Hello' @test.assert_eq
-false @f7 null @test.assert_eq
+#recursive_func [
+    @recursive_func
+]
 
-?::f1 Func @test.assert_eq
-$f6 3 @test.assert_eq
+@empty_func null @test.assert_eq
+@expr_func 10 @test.assert_eq
+@global_var_1 1 @test.assert_eq
+@global_var_2 2 @test.assert_eq
+global_var 1 @test.assert_eq
+@global_var_3 2 @test.assert_eq
+global_var 2 @test.assert_eq
+'arg1' @args_1 'arg1' @test.assert_eq
+@args_1 null @test.assert_eq
+{ 'arg1' } *@args_1 'arg1' @test.assert_eq
+{,} *@args_1 null @test.assert_eq
+{ 'arg1', 'arg2' } args_1 @test.assert_raises_error
+?? [
+    'arg1' 'arg2' @args_1
+    false = failed
+] ?! _ [
+    true = failed
+]
+
+!failed ? 'the function did not fail' @test._assertion_failed
+
+1 2 @args_2 3 @test.assert_eq
+4 5 @args_2 9 @test.assert_eq
+{ 4 } args_2 @test.assert_raises_error
+
+true @nested_return_1 1 @test.assert_eq
+false @nested_return_1 2 @test.assert_eq
+0 @nested_return_2 null @test.assert_eq
+1 @nested_return_2 1 @test.assert_eq
+true @nested_return_3 1 @test.assert_eq
+false @nested_return_3 null @test.assert_eq
+true @nested_return_4 1 @test.assert_eq
+false @nested_return_4 1 @test.assert_eq
+10 @nested_return_5 1 @test.assert_eq
+20 @nested_return_5 2 @test.assert_eq
+@nested_return_5 3 @test.assert_eq
+{,} recursive_func @test.assert_raises_error

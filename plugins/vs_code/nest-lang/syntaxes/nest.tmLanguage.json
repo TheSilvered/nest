@@ -177,7 +177,7 @@
 				{ "include": "#vect" },
 				{
 					"name": "constant.language.nest",
-					"match": "(_*\\d*[A-Z]{2,}[A-Z_0-9]*|[A-Z]\\b)"
+					"match": "([A-Z][A-Z0-9_]*|_+\\d*[A-Z][A-Z0-9_]*)"
 				},
 				{
 					"name": "variable.language.nest",
