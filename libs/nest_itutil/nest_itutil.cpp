@@ -79,9 +79,15 @@ NST_FUNC_SIGN(cycle_)
 NST_FUNC_SIGN(repeat_)
 {
     Nst_Obj *ob;
-    Nst_Int times;
+    Nst_Obj *times;
 
     NST_DEF_EXTRACT("oi:i", &ob, &times);
+
+    if ( AS_INT(times) < 0 )
+    {
+        NST_SET_RAW_VALUE_ERROR("cannot repeat a negative number of times");
+        return nullptr;
+    }
 
     // Layout: [count, item, max_times]
     Nst_Obj *arr = nst_array_create_c("iOo", err, 0, ob, times);

@@ -300,12 +300,11 @@ NST_FUNC_SIGN(open_)
 
 NST_FUNC_SIGN(virtual_file_)
 {
-    Nst_Obj *bin_obj;
+    bool bin;
     Nst_Obj *buf_size_obj;
 
-    NST_DEF_EXTRACT("?b?i", &bin_obj, &buf_size_obj);
+    NST_DEF_EXTRACT("o_b?i", &bin, &buf_size_obj);
 
-    Nst_Bool bin = NST_DEF_VAL(bin_obj, AS_BOOL(bin_obj), false);
     Nst_Int buf_size = NST_DEF_VAL(buf_size_obj, AS_INT(buf_size_obj), 128);
 
     VirtualIOFile_data *f =
@@ -664,9 +663,9 @@ NST_FUNC_SIGN(get_flags_)
 NST_FUNC_SIGN(println_)
 {
     Nst_Obj *obj;
-    Nst_Obj *flush;
+    bool flush;
     Nst_Obj *file_obj;
-    NST_DEF_EXTRACT("o?b?F", &obj, &flush, &file_obj);
+    NST_DEF_EXTRACT("oo_b?F", &obj, &flush, &file_obj);
     Nst_IOFileObj *file = NST_DEF_VAL(file_obj, IOFILE(file_obj), nst_stdio()->out);
 
     if ( NST_IOF_IS_CLOSED(file) )
@@ -678,14 +677,9 @@ NST_FUNC_SIGN(println_)
     Nst_StrObj *s_obj = STR(nst_obj_cast(obj, nst_type()->Str, nullptr));
     nst_fprintln(file, (const i8 *)s_obj->value);
 
-    if ( nst_obj_cast(flush, nst_type()->Bool, nullptr) == nst_true() )
+    if ( flush )
     {
         nst_fflush(file);
-        nst_dec_ref(nst_true());
-    }
-    else
-    {
-        nst_dec_ref(nst_false());
     }
     nst_dec_ref(s_obj);
     NST_RETURN_NULL;

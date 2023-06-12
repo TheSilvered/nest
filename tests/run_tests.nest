@@ -53,7 +53,7 @@ sys.SUPPORTS_COLOR ? [
         C_RED ' FAILED' C_RESET ': ' res.error.name ' - ' res.error.message >< = s
 
         $res.traceback 0 != ?
-            '; line ' res.traceback.1 .start.0 ' column ' res.traceback.1 .start.1 ><= s
+            '; line ' (res.traceback.1 .start.0 1 +) ' column ' (res.traceback.1 .start.1 1 +) ><= s
         s true @io.println
     ]
 ]

@@ -1,37 +1,54 @@
 |#| '../test_lib.nest' = test
 |#| 'stditutil.nest' = itu
 
-{ 'a': 1, 'b': 2, 'c': 3 } = m
-
-{ { 10 3 @itu.repeat, '101010' },
-  { { { 1, 2 }, Array :: 'Hi' } @itu.chain, '12Hi' },
-  { { 1, 2, 3 } 'Hi' @itu.zip, "{ 1, 'H' }{ 2, 'i' }" },
-  { { { 1, 2, 3 }, 'Hi', <{ 9, 8, 7, 6, 5 }> } @itu.zip, "{ 1, 'H', 9 }{ 2, 'i', 8 }" },
-  { 'Hello' @itu.enumerate, "{ 0, 'H' }{ 1, 'e' }{ 2, 'l' }{ 3, 'l' }{ 4, 'o' }" },
-  { 'Hi!' 5 -1 @itu.enumerate, "{ 5, 'H' }{ 4, 'i' }{ 3, '!' }" },
-  { m @itu.keys, 'abc' },
-  { m @itu.values, '123' },
-  { m @itu.items, "{ 'a', 1 }{ 'b', 2 }{ 'c', 3 }" },
-  { 'Hello' @itu.reversed, 'olleH' } } = iterators
-
-{ { 10 2 @itu.count, '101214161820', 5 },
-  { 'Hi!' @itu.cycle, 'Hi!Hi!H', 6 } } = infinite_iterators
-
-... Iter :: infinite_iterators := i [
-    '' = s
+#string_output iterator max_iterations [
+    null max_iterations == ? -1 = max_iterations
     0 = count
-
-    ... i.0 := j [
-        j ><= s
-
-        1 += count i.2 > ? ;
-    ]
-
-    s i.1 @test.assert_eq
-]
-
-... Iter :: iterators := i [
     '' = s
-    ... i.0 := j [ j ><= s ]
-    s i.1 @test.assert_eq
+    ... iterator := i [
+        i ><= s
+        1 += count
+        0 max_iterations count < ? => s
+    ]
+    => s
 ]
+
+10  2 @itu.count 5 @string_output '101214161820' @test.assert_eq
+ 4    @itu.count 5 @string_output '456789' @test.assert_eq
+-3    @itu.count 5 @string_output '-3-2-1012' @test.assert_eq
+-3 -1 @itu.count 5 @string_output '-3-4-5-6-7-8' @test.assert_eq
+
+'Hi!' @itu.cycle 6 @string_output 'Hi!Hi!H' @test.assert_eq
+{ 1, 2, 3 } @itu.cycle 6 @string_output '1231231' @test.assert_eq
+<{ 1, 2, 3 }> @itu.cycle 6 @string_output '1231231' @test.assert_eq
+
+10 3 @itu.repeat @string_output '101010' @test.assert_eq
+itu.repeat { 10, -2 } @test.assert_raises_error
+
+{ { 1, 2 }, 'Hi' } @itu.chain @string_output '12Hi' @test.assert_eq
+{ 3 -> 5, <{ 2, 3 }> } @itu.chain @string_output '3423' @test.assert_eq
+{ 3 -> 5 } @itu.chain @string_output '34' @test.assert_eq
+{,} @itu.chain @string_output '' @test.assert_eq
+'abc' @itu.enumerate @itu.chain @string_output '0a1b2c' @test.assert_eq
+string_output { { 1 } @itu.chain } @test.assert_raises_error
+string_output { { 'hi', 5.6 } @itu.chain } @test.assert_raises_error
+string_output { (0 -> 10) @itu.chain } @test.assert_raises_error
+
+{ 1, 2, 3 } 'Hi' @itu.zip @string_output "{ 1, 'H' }{ 2, 'i' }" @test.assert_eq
+(2 0 -> 100) <{ 'a', 'b', 'c' }> @itu.zip @string_output "{ 0, 'a' }{ 2, 'b' }{ 4, 'c' }" @test.assert_eq
+{ { 1, 2, 3 }, 'Hi', <{ 9, 8, 7, 6, 5 }> } @itu.zip @string_output "{ 1, 'H', 9 }{ 2, 'i', 8 }" @test.assert_eq
+{ 0 -> 3, 'Hello'} @itu.zip @string_output "{ 0, 'H' }{ 1, 'e' }{ 2, 'l' }" @test.assert_eq
+
+'Hello' @itu.enumerate @string_output "{ 0, 'H' }{ 1, 'e' }{ 2, 'l' }{ 3, 'l' }{ 4, 'o' }" @test.assert_eq
+'Hi!' 5 @itu.enumerate @string_output "{ 5, 'H' }{ 6, 'i' }{ 7, '!' }" @test.assert_eq
+'Hi!' 5 -1 @itu.enumerate @string_output "{ 5, 'H' }{ 4, 'i' }{ 3, '!' }" @test.assert_eq
+'Hi!' 5 -1 true @itu.enumerate @string_output "{ 'H', 5 }{ 'i', 4 }{ '!', 3 }" @test.assert_eq
+
+{ 'a': 1, 'b': 2, 'c': 3 } = m
+m @itu.keys @string_output 'abc' @test.assert_eq
+m @itu.values @string_output '123' @test.assert_eq
+m @itu.items @string_output "{ 'a', 1 }{ 'b', 2 }{ 'c', 3 }" @test.assert_eq
+
+'Hello' @itu.reversed @string_output 'olleH' @test.assert_eq
+{ 1, 2, 3 } @itu.reversed @string_output '321' @test.assert_eq
+<{ 1, 2, 3 }> @itu.reversed @string_output '321' @test.assert_eq
