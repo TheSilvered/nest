@@ -32,6 +32,13 @@ sys.SUPPORTS_COLOR ? [
     ]
 ]
 
+#error_location tb [
+    $tb 2 < ? => ''
+    tb.(1).start.(0) 1 + = line
+    tb.(1).start.(1) 1 + = column
+    => '; line ' line ' column ' column ><
+]
+
 #run_tests dir [
     C_BLUE '** Testing directory ' (dir @su.repr) ' **' C_RESET >< @io.println
 
@@ -51,9 +58,7 @@ sys.SUPPORTS_COLOR ? [
         1 += _globals_.failed_tests
 
         C_RED ' FAILED' C_RESET ': ' res.error.name ' - ' res.error.message >< = s
-
-        $res.traceback 0 != ?
-            '; line ' (res.traceback.1 .start.0 1 +) ' column ' (res.traceback.1 .start.1 1 +) ><= s
+        res.traceback @error_location ><= s
         s true @io.println
     ]
 ]
