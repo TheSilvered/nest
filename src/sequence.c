@@ -367,8 +367,8 @@ Nst_Obj *seq_create_c(usize      len,
         }
         case 'B':
         {
-            u8 value = va_arg(args, u8);
-            Nst_Obj *obj = nst_byte_new(value, err);
+            int value = va_arg(args, int);
+            Nst_Obj *obj = nst_byte_new((u8)value, err);
             if ( obj == NULL )
             {
                 goto failed;
