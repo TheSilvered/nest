@@ -146,6 +146,111 @@ Whether `f` has the `NST_FLAG_IOFILE_CAN_READ` flag set.
 
 ---
 
+### `nst_number_to_u8`
+
+**Synopsis**:
+
+```better-c
+nst_number_to_u8(number)
+```
+
+**Description**:
+
+Alias for [`_nst_number_to_u8`](#_nst_number_to_u8) that casts `number` to
+`Nst_Obj *`.
+
+---
+
+### `nst_number_to_int`
+
+**Synopsis**:
+
+```better-c
+nst_number_to_int(number)
+```
+
+**Description**:
+
+Alias for [`_nst_number_to_int`](#_nst_number_to_int) that casts `number` to
+`Nst_Obj *`.
+
+---
+
+### `nst_number_to_i32`
+
+**Synopsis**:
+
+```better-c
+nst_number_to_i32(number)
+```
+
+**Description**:
+
+Alias for [`_nst_number_to_i32`](#_nst_number_to_i32) that casts `number` to
+`Nst_Obj *`.
+
+---
+
+### `nst_number_to_i64`
+
+**Synopsis**:
+
+```better-c
+nst_number_to_i64(number)
+```
+
+**Description**:
+
+Alias for [`_nst_number_to_i64`](#_nst_number_to_i64) that casts `number` to
+`Nst_Obj *`.
+
+---
+
+### `nst_number_to_f32`
+
+**Synopsis**:
+
+```better-c
+nst_number_to_f32(number)
+```
+
+**Description**:
+
+Alias for [`_nst_number_to_f32`](#_nst_number_to_f32) that casts `number` to
+`Nst_Obj *`.
+
+---
+
+### `nst_number_to_f64`
+
+**Synopsis**:
+
+```better-c
+nst_number_to_f64(number)
+```
+
+**Description**:
+
+Alias for [`_nst_number_to_f64`](#_nst_number_to_f64) that casts `number` to
+`Nst_Obj *`.
+
+---
+
+### `nst_obj_to_bool`
+
+**Synopsis**:
+
+```better-c
+nst_obj_to_bool(obj)
+```
+
+**Description**:
+
+Alias for [`_nst_obj_to_bool`](#_nst_obj_to_bool) that casts `obj` to
+`Nst_Obj *`.
+
+---
+
 ## Structs
 
 ### `Nst_IntObj`
@@ -633,6 +738,138 @@ Closes a file setting the `NST_FLAG_IOFILE_IS_CLOSED` flag.
 **Return value**:
 
 The function returns `0` on success and `EOF` on failure.
+
+---
+
+### `_nst_number_to_u8`
+
+**Synopsis**:
+
+```better-c
+u8 _nst_number_to_u8(Nst_Obj *number)
+```
+
+**Arguments**:
+
+- `[in] number`: the object to get the value of
+
+**Return value**:
+
+Returns the value of `number` as a `u8`. If `number` is not a `Byte`, `Int` or
+`Real` object `0` is returned.
+
+---
+
+### `_nst_number_to_int`
+
+**Synopsis**:
+
+```better-c
+int _nst_number_to_int(Nst_Obj *number)
+```
+
+**Arguments**:
+
+- `[in] number`: the object to get the value of
+
+**Return value**:
+
+Returns the value of `number` as an `int`. If `number` is not a `Byte`, `Int` or
+`Real` object `0` is returned.
+
+---
+
+### `_nst_number_to_i32`
+
+**Synopsis**:
+
+```better-c
+i32 _nst_number_to_i32(Nst_Obj *number)
+```
+
+**Arguments**:
+
+- `[in] number`: the object to get the value of
+
+**Return value**:
+
+Returns the value of `number` as an `i32`. If `number` is not a `Byte`, `Int` or
+`Real` object `0` is returned.
+
+---
+
+### `_nst_number_to_i64`
+
+**Synopsis**:
+
+```better-c
+i64 _nst_number_to_i64(Nst_Obj *number)
+```
+
+**Arguments**:
+
+- `[in] number`: the object to get the value of
+
+**Return value**:
+
+Returns the value of `number` as an `i64`. If `number` is not a `Byte`, `Int` or
+`Real` object `0` is returned.
+
+---
+
+### `_nst_number_to_f32`
+
+**Synopsis**:
+
+```better-c
+f32 _nst_number_to_f32(Nst_Obj *number)
+```
+
+**Arguments**:
+
+- `[in] number`: the object to get the value of
+
+**Return value**:
+
+Returns the value of `number` as an `f32`. If `number` is not a `Byte`, `Int` or
+`Real` object `0` is returned.
+
+---
+
+### `_nst_number_to_f64`
+
+**Synopsis**:
+
+```better-c
+f64 _nst_number_to_f64(Nst_Obj *number)
+```
+
+**Arguments**:
+
+- `[in] number`: the object to get the value of
+
+**Return value**:
+
+Returns the value of `number` as an `f64`. If `number` is not a `Byte`, `Int` or
+`Real` object `0` is returned.
+
+---
+
+### `_nst_number_to_f64`
+
+**Synopsis**:
+
+```better-c
+Nst_Bool _nst_obj_to_bool(Nst_Obj *obj)
+```
+
+**Arguments**:
+
+- `[in] number`: the object to cast to a boolean
+
+**Return value**:
+
+Returns the value of the object casted to a boolean.
 
 ---
 
