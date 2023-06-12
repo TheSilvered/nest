@@ -17,6 +17,7 @@ sys.SUPPORTS_COLOR ? [
 ] : [
     '' = C_RED
     '' = C_GREEN
+    '' = C_BLUE
     '' = C_RESET
 ]
 

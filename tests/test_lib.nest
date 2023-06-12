@@ -42,6 +42,5 @@ io.STDOUT = log_file -- allows tests to be ran singularly
 ]
 
 #println s [
-    log_file (s '\n' ><) @io.write
-    log_file @io.flush
+    s true log_file @io.println
 ]

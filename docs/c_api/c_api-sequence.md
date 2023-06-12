@@ -264,7 +264,7 @@ The function returns the object or `NULL` if the index is outside the sequence.
 **Synopsis**:
 
 ```better-c
-void _nst_vector_resize(Nst_SeqObj *vect, Nst_OpErr *err)
+bool _nst_vector_resize(Nst_SeqObj *vect, Nst_OpErr *err)
 ```
 
 **Description**:
@@ -277,6 +277,11 @@ empty. The function is guaranteed to succeed when shrinking.
 - `[inout] vect`: the vector to expand
 - `[out] err`: the error
 
+**Return value**:
+
+The function returns `false` on failure and `true` on success. It is guaranteed
+to succeed when shrinking the vector.
+
 ---
 
 ### `_nst_vector_append`
@@ -284,7 +289,7 @@ empty. The function is guaranteed to succeed when shrinking.
 **Synopsis**:
 
 ```better-c
-void _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val, Nst_OpErr *err)
+bool _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val, Nst_OpErr *err)
 ```
 
 **Description**:
@@ -296,6 +301,10 @@ Appends a value to a vector.
 - `[inout] vect`: the vector to append the value to
 - `[in] val`: the value to append
 - `[out] err`: the error
+
+**Return value**:
+
+The function returns `false` on failure and `true` on success.
 
 ---
 

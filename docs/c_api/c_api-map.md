@@ -31,7 +31,7 @@ Casts `ptr` to `Nst_MapObj *`
 **Synopsis**:
 
 ```better-c
-nst_map_set(map, key, value)
+nst_map_set(map, key, value, err)
 ```
 
 **Description**:
@@ -121,7 +121,7 @@ Alias for [`_nst_map_set_str`](#_nst_map_set_str) that casts `map` to
 **Synopsis**:
 
 ```better-c
-nst_map_get_str(map, key, err)
+nst_map_get_str(map, key)
 ```
 
 **Description**:
@@ -136,7 +136,7 @@ Alias for [`_nst_map_get_str`](#_nst_map_get_str) that casts `map` to
 **Synopsis**:
 
 ```better-c
-nst_map_drop_str(map, key, err)
+nst_map_drop_str(map, key)
 ```
 
 **Description**:
@@ -241,7 +241,7 @@ The function returns the new map on success and `NULL` on failure.
 **Synopsis**:
 
 ```better-c
-bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
+bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value, Nst_OpErr *err)
 ```
 
 **Description**:
@@ -253,11 +253,12 @@ Inserts a new key-value pair in the map or updates the value of a key.
 - `[inout] map`: the map to insert the value into
 - `[in] key`: the key to add or update
 - `[in] value`: the value associated with the key
+- `[out] err`: the error
 
 **Return value**:
 
 The function returns `true` if the item was inserted in the map and `false`
-otherwise.
+otherwise. When `false` is returned, the error is set.
 
 ---
 
@@ -373,7 +374,7 @@ The function returns the next index or `-1` if it is the first node.
 **Synopsis**:
 
 ```better-c
-bool _nst_map_resize(Nst_MapObj *map, bool force_item_reset)
+bool _nst_map_resize(Nst_MapObj *map, bool force_item_reset, Nst_OpErr *err)
 ```
 
 **Description**:
@@ -385,6 +386,7 @@ the map to be re-inserted
 
 - `[inout] map`: the map to resize
 - `[in] force_item_reset`: whether to re-insert the items
+- `[out] err`: the error
 
 **Return value**:
 
@@ -426,7 +428,7 @@ is guaranteed to be set.
 **Synopsis**:
 
 ```better-c
-Nst_Obj *_nst_map_get_str(Nst_MapObj *map, const i8 *key, Nst_OpErr *err)
+Nst_Obj *_nst_map_get_str(Nst_MapObj *map, const i8 *key)
 ```
 
 **Description**:
@@ -437,12 +439,11 @@ Gets a value from a map creating the key from a C-style string.
 
 - `[in] map`: the map to get the value from
 - `[in] key`: the key associated to the value
-- `[out] err`: the error
 
 **Return value**:
 
-The function returns `NULL` if an error occurred or if the key was not inside
-the dictionary, and the value associated to the key on success.
+The function returns `NULL` if the key was not inside the dictionary, and the
+value associated to the key on success.
 
 ---
 
@@ -451,7 +452,7 @@ the dictionary, and the value associated to the key on success.
 **Synopsis**:
 
 ```better-c
-Nst_Obj *_nst_map_drop_str(Nst_MapObj *map, const i8 *key, Nst_OpErr *err)
+Nst_Obj *_nst_map_drop_str(Nst_MapObj *map, const i8 *key)
 ```
 
 **Description**:
@@ -462,12 +463,11 @@ Drops a key-value pair from a map creating the key from a C-style string.
 
 - `[inout] map`: the map to remove the pair from
 - `[in] key`: the key of the pair
-- `[out] err`: the error
 
 **Return value**:
 
-The function returns `NULL` if an error occurred or if the key was not inside
-the dictionary, and the value associated to the removed key on success.
+The function returns `NULL` if the key was not inside the dictionary, and the
+value associated to the removed key on success.
 
 ---
 
