@@ -27,7 +27,7 @@ NEST_LIB_x86 := $(x86_DIR)/libnest.so
 
 LIB_MAKEFILES = $(wildcard ./nest*.mk)
 
-.PHONY: debug x86 clean all all-debug all-x86 __no_libnest_x64 __no_libnest_x86 __no_libnest_dbg
+.PHONY: debug x86 clean all all-debug all-x86 __no_libnest_x64 __no_libnest_x86 __no_libnest_dbg help
 
 main:
 	make -f libnest.mk
@@ -111,3 +111,15 @@ all-debug:
 	make -f nest_sys.mk     __no_libnest_dbg
 	make -f nest_time.mk    __no_libnest_dbg
 	make -f nest_utf8.mk    __no_libnest_dbg
+
+help:
+	@echo "make            compile the main executable and libnest.so for 64 bit platforms"
+	@echo "make all        compile everything for 64 bit platforms"
+	@echo "make x86        compile the main executable and libnest.so for 32 bit platforms"
+	@echo "make all-x86    compile the everything for 32 bit platforms"
+	@echo "make debug      compile the main executable and libnest.so with debug symbols"
+	@echo "make all-debug  compile everything with debug symbols"
+	@echo ""
+	@echo "make __no_libnest_x64  compile the main executable for 64 bit platforms"
+	@echo "make __no_libnest_x86  compile the main executable for 32 bit platforms"
+	@echo "make __no_libnest_dbg  compile the main executable with debug symbols"

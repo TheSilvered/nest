@@ -100,6 +100,14 @@ name but not of the message.
 
 ---
 
+### `NST_UNSET_ERROR`
+
+**Description**:
+
+Clears the error setting both the name and the message to `NULL`.
+
+---
+
 ### `NST_SET_[error_name]_ERROR` macros
 
 **Synopsis**:

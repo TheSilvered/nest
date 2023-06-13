@@ -27,6 +27,7 @@ jobs:
         sudo cp ./build/linux/linux_release/x64/*.cnest /usr/lib/nest
         sudo cp ./build/linux/linux_release/x64/nest /usr/bin
         sudo cp ./build/linux/linux_release/x64/libnest.so /usr/lib
+        sudo ldconfig
     - name: Run Tests
       working-directory: ./tests
       run: |

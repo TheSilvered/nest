@@ -17,6 +17,7 @@ markdown_extensions:
       permalink: "#"
 nav:
   - Introduction: index.md
+  - Installation: installation.md
   - General syntax: syntax.md
   - Built-in libraries:
     - libs/coroutine_library.md
