@@ -1,51 +1,28 @@
 # Welcome to the Nest documentation!
 
-## What is Nest and the philosophy behind it
-Nest is a silly programming language, mostly for the syntax. It is a project of mine to experiment with the concept of using exclusively punctuation to code, removing all those keywords that make it apparently legible. This is why Nest code looks incredibly cryptic at first, but with a trained eye, I believe that the programming experience is not that different from the one you would have with any other language such as Python.
+## What is Nest
 
-For example let's look at examples/truth_machine.nest:
+Nest is a little programming language developed with the idea of creating a
+procedural language that has no keywords and that is actually usable.
 
-```nest
--- Assuming the input is either 1 or 0, if the input is 0, stop the program,
--- if the input is one, print '1' indefinitely
-<<<'' '1' == ? ?.. >>> 1 []
+In nest the keywords should represent what they do, for example `?..` is `while`
+and `..?` is `do-while`, each representing when the condition is checked.
+Another fitting example is the `import` operator `|#|` that resembles a written
+file.
+
+## Getting started
+
+To get started with Nest first check out the [installation](installation.md)
+documentation for installing it.
+
+After that is done you should be able through the command-line (or command
+prompt) to use Nest:
+
+```text
+$ nest
+USAGE: nest [options] [filename | -c command] [args]
+Run 'nest --help' for more information
 ```
 
-This is certainly quite poorly formatted and hard to read to first things firts let's make it more legible:
-
-```nest
-<<<'' '1' == ? [
-    ?.. >>> 1 [
-    ]
-]
-```
-
-OK, now it is a little more clear and you can probably already understand which is the if statement (or actually expression) and which is the while loop, but if it is not obvious, using some variables should help.
-
-```nest
-<<<'' = user_input
-user_input '1' == ? [
-    ?.. true [
-        >>> 1
-    ]
-]
-```
-
-Now, if you are already familiar with other programming languages, you can see that `<<<''` simply asks some input from the user, then it is checked for equality against `'1'` and if that comes out to be true, the program enters an infinite loop that prints ones. 
-In practice no one would write such odd code but in the examples it highlights the beauty of having no keywords. Take for example the equivalent C code:
-
-```c
-#include <stdio.h>
-
-int main(void)
-{
-    int n;
-    scanf("%d", &n);
-    if (n == 1)
-        while (printf("1"))
-            ;
-    return 0;
-}
-```
-
-It just doesn't look as good, that is why the example is written the way it is: to show how beautifully misterious Nest looks and feels.
+From here you can read the [general syntax](syntax.md) of Nest programs or start
+creating [your own C library](tutorials/c-lib-tutorial.md).

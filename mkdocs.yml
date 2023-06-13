@@ -19,6 +19,8 @@ nav:
   - Introduction: index.md
   - Installation: installation.md
   - General syntax: syntax.md
+  - Tutorials:
+    - tutorials/c-lib-tutorial.md
   - Built-in libraries:
     - libs/coroutine_library.md
     - libs/error_library.md

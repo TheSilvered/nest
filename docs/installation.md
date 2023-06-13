@@ -76,3 +76,33 @@ Now to install the compiled binaries run
 ```text
 $ sudo bash linux_install_x[ARCHITECTURE].sh
 ```
+
+## Plugins
+
+### VS Code
+
+To install the VSCode extension download `vs-code-extension-[VERSION].zip`,
+extract it into `%USERPROFILE%\.vscode\extensions` on Windows or into
+`~/.vscode/extensions` on Linux and reload the VS Code window.
+
+Currently VS Code supports only syntax highlighting and commenting with keyboard
+shortcuts, to run the Nest file you can install Code Runner and add
+`"nest": "cd $dir && nest -m $fileName"` inside `"code-runner.executorMap"` in
+`settings.json`.
+
+This method does not support input, to do that you can select the option to run
+Code Runner in the terminal and remove `-m` from the command.
+
+### Sublime Text
+
+To install the Sublime Text plugin download `sublime-text-plugin-[VERSION].zip`
+from the latest release and extract it into `%APPDATA%/SublimeText/Packages`
+on Windows or into `~/.config/sublime-text/Packages` on Linux.
+
+In Sublime Text, in addition to syntax highlighting you can also run a script
+with `CTRL + B` and you can comment and un-comment with the default keyboard
+shortcuts.
+
+Since Sublime Text does not support input from the user in the output panel,
+you have to run the file from a terminal emulator, to do that I suggest
+installing a plugin like `Terminus`.
