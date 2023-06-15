@@ -5,6 +5,10 @@
 
 #include "typedefs.h"
 
+#ifdef WINDOWS
+#include <windows.h>
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -34,6 +38,22 @@ EXPORT bool _nst_wargv_to_argv(int       argc,
                                i8     ***argv,
                                i8      **argv_content);
 EXPORT void _nst_set_console_mode(void);
+
+usize _nst_windows_stdin_read(i8 *buf, usize size, usize count, void *f_value);
+typedef struct _Nst_stdin_value
+{
+    HANDLE hd;
+    FILE *fp;
+    wchar_t buf[1024];
+    i8 ch[4];
+    i32 buf_size;
+    i32 buf_ptr;
+    i32 ch_idx;
+}
+Nst_stdin_value;
+
+extern Nst_stdin_value w_in;
+
 #endif // !WINDOWS
 
 #ifdef __cplusplus

@@ -3,6 +3,7 @@
 #include "lib_import.h"
 #include "mem.h"
 #include "iter.h"
+#include "argv_parser.h"
 
 #define safe_dec_ref(obj) do { if ( obj ) nst_dec_ref(obj); } while ( 0 )
 
@@ -134,6 +135,10 @@ bool _nst_init_objects()
     nst_io.in ->close_f = close_std_stream;
     nst_io.out->close_f = close_std_stream;
     nst_io.err->close_f = close_std_stream;
+
+#ifdef WINDOWS
+    nst_io.in->read_f = (Nst_IOFile_read_f)_nst_windows_stdin_read;
+#endif
 
     nst_itf.range_start   = FUNC(nst_func_new_c(1, nst_iter_range_start,   &err));
     nst_itf.range_is_done = FUNC(nst_func_new_c(1, nst_iter_range_is_done, &err));

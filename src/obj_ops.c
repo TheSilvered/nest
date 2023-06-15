@@ -1902,7 +1902,7 @@ static inline i8 get_one_char()
     if ( chars_read == 1 )
         return ch;
     else
-        return 0;
+        return '\n';
 }
 
 Nst_Obj *_nst_obj_stdin(Nst_Obj *ob, Nst_OpErr *err)
@@ -1923,7 +1923,7 @@ Nst_Obj *_nst_obj_stdin(Nst_Obj *ob, Nst_OpErr *err)
         return NULL;
     }
 
-    for ( i8 ch = get_one_char(); ch && ch != '\n'; ch = get_one_char() )
+    for ( i8 ch = get_one_char(); ch != '\n'; ch = get_one_char() )
     {
         if ( ch == '\r' )
         {

@@ -264,6 +264,8 @@ bool nst_supports_color()
 
 #ifdef WINDOWS
 
+Nst_stdin_value w_in;
+
 bool _nst_wargv_to_argv(int       argc,
                         wchar_t **wargv,
                         i8     ***argv,
@@ -317,6 +319,7 @@ void _nst_set_console_mode()
 {
     SetErrorMode(SEM_FAILCRITICALERRORS);
     SetConsoleOutputCP(CP_UTF8);
+    SetConsoleCP(CP_UTF8);
 
     HANDLE stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
     if ( stdout_handle == INVALID_HANDLE_VALUE )
@@ -324,29 +327,15 @@ void _nst_set_console_mode()
         supports_color = false;
         return;
     }
-    HANDLE stdin_handle = GetStdHandle(STD_INPUT_HANDLE);
-    if ( stdin_handle == INVALID_HANDLE_VALUE )
-    {
-        supports_color = false;
-        return;
-    }
 
     DWORD stdout_prev_mode = 0;
-    DWORD stdin_prev_mode = 0;
     if (!GetConsoleMode(stdout_handle, &stdout_prev_mode))
     {
         supports_color = false;
         return;
     }
-    if (!GetConsoleMode(stdin_handle, &stdin_prev_mode))
-    {
-        supports_color = false;
-        return;
-    }
 
-    DWORD stdout_new_mode = ENABLE_VIRTUAL_TERMINAL_PROCESSING
-                          | DISABLE_NEWLINE_AUTO_RETURN;
-    DWORD stdin_new_mode = ENABLE_VIRTUAL_TERMINAL_INPUT;
+    DWORD stdout_new_mode = ENABLE_VIRTUAL_TERMINAL_PROCESSING;
 
     DWORD stdout_mode = stdout_prev_mode | stdout_new_mode;
     if ( !SetConsoleMode(stdout_handle, stdout_mode) )
@@ -359,11 +348,84 @@ void _nst_set_console_mode()
         }
     }
 
-    DWORD stdin_mode = stdin_prev_mode | stdin_new_mode;
-    if ( !SetConsoleMode(stdin_handle, stdin_mode) )
+    HANDLE stdin_handle = GetStdHandle(STD_INPUT_HANDLE);
+    if ( stdin_handle == INVALID_HANDLE_VALUE )
     {
-        supports_color = false;
+        w_in.hd = NULL;
+        return;
     }
+    w_in.hd = stdin_handle;
+    w_in.fp = stdin;
+    w_in.buf_ptr = 0;
+    w_in.buf_size = 0;
+    w_in.ch_idx = 0;
+    w_in.ch[0] = 0;
+    w_in.ch[1] = 0;
+    w_in.ch[2] = 0;
+    w_in.ch[3] = 0;
+}
+
+static bool read_characters()
+{
+    DWORD len;
+    if ( !ReadConsoleW(w_in.hd, w_in.buf, 1024, &len, NULL) )
+    {
+        return false;
+    }
+    w_in.buf_size = (usize)len;
+    w_in.buf_ptr = 0;
+    return true;
+}
+
+static bool get_byte(i8 *out_ch)
+{
+    if ( w_in.ch_idx < 4 && w_in.ch[w_in.ch_idx] != 0 )
+    {
+        *out_ch = w_in.ch[w_in.ch_idx++];
+        return true;
+    }
+
+    if ( w_in.buf_ptr >= w_in.buf_size )
+    {
+        if ( !read_characters() )
+        {
+            return false;
+        }
+    }
+    i32 ch_len = nst_check_utf16_bytes(w_in.buf + w_in.buf_ptr, w_in.buf_size - w_in.buf_ptr);
+    if ( ch_len == -1 )
+    {
+        return false;
+    }
+
+    w_in.ch[0] = 0;
+    w_in.ch[1] = 0;
+    w_in.ch[2] = 0;
+    w_in.ch[3] = 0;
+    nst_utf16_to_utf8(w_in.ch, w_in.buf + w_in.buf_ptr, (usize)ch_len);
+    w_in.buf_ptr += ch_len;
+    w_in.ch_idx = 1;
+    *out_ch = w_in.ch[0];
+    return true;
+}
+
+usize _nst_windows_stdin_read(i8 *buf, usize size, usize count, void *f_value)
+{
+    if ( w_in.hd == NULL )
+    {
+        return fread(buf, size, count, (FILE *)f_value);
+    }
+    usize bytes = size * count;
+
+    for ( usize i = 0; i < bytes; i++ )
+    {
+        if ( !get_byte(buf) )
+        {
+            return i;
+        }
+        buf++;
+    }
+    return bytes;
 }
 
 #endif // !WINDOWS
