@@ -59,6 +59,7 @@
 #define _NST_EM_LIB_INIT_FAILED "the module failed to initialize"
 #define _NST_EM_COMPOUND_ASSIGMENT "cannot unpack values in a compound assigment"
 #define _NST_EM_BAD_INT_BASE "the base must be between 2 and 36"
+#define _NST_EM_INVALID_CPID "the encoding selected is not supported"
 
 #define _NST_EM_EXPECTED_TYPE(type) "expected type '" type "', got '%s' instead"
 #define _NST_EM_EXPECTED_TYPES "expected type '%s', got '%s' instead"
@@ -86,6 +87,8 @@
 #define _NST_EM_MAP_TO_SEQ_LEN_ERR(i) "expected a sequence of length 2, found " \
     "one of length %zi instead at " i " %zi"
 #define _NST_EM_MAP_TO_SEQ_HASH(i) "unhashable object found at " i " %zi"
+#define _NST_EM_INVALID_ENCODING "could not decode byte %ib for %s encoding"
+#define _NST_EM_INVALID_DECODING "could not decode code point U+%06X for %s encoding"
 
 #ifdef __cplusplus
 extern "C" {

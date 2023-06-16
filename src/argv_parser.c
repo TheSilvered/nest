@@ -264,7 +264,15 @@ bool nst_supports_color()
 
 #ifdef WINDOWS
 
-Nst_stdin_value w_in;
+struct {
+    HANDLE hd;
+    FILE *fp;
+    wchar_t buf[1024];
+    i8 ch[4];
+    i32 buf_size;
+    i32 buf_ptr;
+    i32 ch_idx;
+} w_in;
 
 bool _nst_wargv_to_argv(int       argc,
                         wchar_t **wargv,

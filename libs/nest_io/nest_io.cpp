@@ -244,14 +244,25 @@ NST_FUNC_SIGN(open_)
         return nullptr;
     }
 
+#ifdef WINDOWS
+    wchar_t bin_mode[4] = { 0, 'b', 0, 0 };
+#else
+    char bin_mode[4] = { 0, 'b', 0, 0 };
+#endif
+
     switch ( *file_mode )
     {
     case 'r':
         can_read = true;
+        bin_mode[0] = 'r';
         break;
     case 'a':
+        can_write = true;
+        bin_mode[0] = 'a';
+        break;
     case 'w':
         can_write = true;
+        bin_mode[0] = 'w';
         break;
     default:
         NST_SET_RAW_VALUE_ERROR("the file mode is not valid");
@@ -268,6 +279,7 @@ NST_FUNC_SIGN(open_)
         case '+':
             can_read = true;
             can_write = true;
+            bin_mode[2] = '+';
             break;
         default:
             NST_SET_RAW_VALUE_ERROR("the file mode is not valid");
@@ -279,6 +291,7 @@ NST_FUNC_SIGN(open_)
         is_bin = true;
         can_read = true;
         can_write = true;
+        bin_mode[2] = '+';
 
         if ( !(file_mode[1] == 'b' && file_mode[2] == '+') &&
              !(file_mode[1] == '+' && file_mode[2] == 'b') )
@@ -288,7 +301,18 @@ NST_FUNC_SIGN(open_)
         }
     }
 
-    Nst_IOFile file_ptr = fopen(file_name, file_mode);
+#ifdef WINDOWS
+    wchar_t *wide_filename = nst_char_to_wchar_t(file_name, file_name_str->len, err);
+    if ( wide_filename == nullptr )
+    {
+        return nullptr;
+    }
+
+    Nst_IOFile file_ptr = _wfopen(wide_filename, bin_mode);
+    nst_free(wide_filename);
+#else
+    Nst_IOFile file_ptr = fopen(file_name, bin_mode);
+#endif
     if ( file_ptr == nullptr )
     {
         NST_SET_VALUE_ERROR(nst_sprintf("file '%.4096s' not found", file_name));

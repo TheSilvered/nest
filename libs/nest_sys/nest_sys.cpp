@@ -7,16 +7,13 @@
 #include <direct.h>
 #include <windows.h>
 
-#define PATH_MAX MAX_PATH
+#define PATH_MAX 4096
 
 #else
 
 #include <unistd.h>
 #include <cerrno>
 #include <limits.h>
-
-#define _chdir chdir
-#define _getcwd getcwd
 
 #endif
 
@@ -54,7 +51,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_raw_exit,      1);
     func_list_[idx++] = NST_MAKE_NAMED_OBJDECLR(is_debug, "_DEBUG");
 
-#if __LINE__ - FUNC_COUNT != 44
+#if __LINE__ - FUNC_COUNT != 41
 #error
 #endif
 
@@ -85,7 +82,19 @@ NST_FUNC_SIGN(system_)
 {
     Nst_StrObj *command;
     NST_DEF_EXTRACT("s", &command);
+
+#ifdef WINDOWS
+    wchar_t *wide_command = nst_char_to_wchar_t(command->value, command->len, err);
+    if ( wide_command == nullptr )
+    {
+        return nullptr;
+    }
+    int command_result = _wsystem(wide_command);
+    nst_free(wide_command);
+    return nst_int_new(command_result, err);
+#else
     return nst_int_new(system(command->value), err);
+#endif
 }
 
 NST_FUNC_SIGN(exit_)
@@ -113,12 +122,30 @@ NST_FUNC_SIGN(getenv_)
 
     NST_DEF_EXTRACT("s", &name);
 
+#ifdef WINDOWS
+    wchar_t *wide_name = nst_char_to_wchar_t(name->value, name->len, err);
+    if ( wide_name == nullptr )
+    {
+        return nullptr;
+    }
+    wchar_t *wide_env_name = _wgetenv(wide_name);
+    nst_free(wide_name);
+    if ( wide_env_name == nullptr )
+    {
+        NST_RETURN_NULL;
+    }
+    i8 *env_name = nst_wchar_t_to_char(wide_env_name, 0, err);
+    if ( env_name == nullptr )
+    {
+        return nullptr;
+    }
+#else
     i8 *env_name = getenv(name->value);
-
     if ( env_name == nullptr )
     {
         NST_RETURN_NULL;
     }
+#endif
 
     return nst_string_new_c_raw(env_name, false, err);
 }
@@ -147,23 +174,70 @@ NST_FUNC_SIGN(_set_cwd_)
 {
     Nst_StrObj *new_cwd;
     NST_DEF_EXTRACT("s", &new_cwd);
-    if ( _chdir(new_cwd->value) == -1 )
+
+#ifdef WINDOWS
+    wchar_t *wide_cwd = nst_char_to_wchar_t(new_cwd->value, new_cwd->len, err);
+    if ( wide_cwd == nullptr )
+    {
+        return nullptr;
+    }
+
+    if ( _wchdir(wide_cwd) == -1 )
+    {
+        errno = 0;
+        nst_free(wide_cwd);
+        NST_SET_RAW_VALUE_ERROR("invalid path");
+    }
+    nst_free(wide_cwd);
+#else
+    if ( chdir(new_cwd->value) == -1 )
     {
         errno = 0;
         NST_SET_RAW_VALUE_ERROR("invalid path");
     }
+#endif
     NST_RETURN_NULL;
 }
 
 NST_FUNC_SIGN(_get_cwd_)
 {
+#ifdef WINDOWS
+    wchar_t *cwd = (wchar_t *)nst_malloc(PATH_MAX, sizeof(wchar_t), err);
+    if ( cwd == nullptr )
+    {
+        NST_FAILED_ALLOCATION;
+        return nullptr;
+    }
+    wchar_t *result = _wgetcwd(cwd, PATH_MAX);
+    if ( result == nullptr )
+    {
+        NST_FAILED_ALLOCATION;
+        nst_free(cwd);
+        return nullptr;
+    }
+    i8 *cwd_str = nst_wchar_t_to_char(cwd, 0, err);
+    nst_free(cwd);
+    if ( cwd_str == nullptr )
+    {
+        return nullptr;
+    }
+    return nst_string_new_c_raw((const i8*)cwd_str, true, err);
+#else
     i8 *cwd = (i8 *)nst_malloc(PATH_MAX, sizeof(i8), err);
     if ( cwd == nullptr )
     {
         NST_FAILED_ALLOCATION;
         return nullptr;
     }
-    return nst_string_new_c_raw(_getcwd(cwd, PATH_MAX), true, err);
+    i8 *result = getcwd(cwd, PATH_MAX);
+    if ( result == nullptr )
+    {
+        NST_FAILED_ALLOCATION;
+        nst_free(cwd);
+        return nullptr;
+    }
+    return nst_string_new_c_raw((const i8 *)result, true, err);
+#endif
 }
 
 NST_FUNC_SIGN(_get_version_)

@@ -10,6 +10,7 @@
 #include "parser.h"
 #include "lexer.h"
 #include "format.h"
+#include "encoding.h"
 
 #ifdef WINDOWS
 
@@ -18,7 +19,7 @@
 
 #define dlclose FreeLibrary
 #define dlsym(lib, name) GetProcAddress((HMODULE)lib, name)
-#define PATH_MAX MAX_PATH
+#define PATH_MAX 4096
 
 #define C_LIB_TYPE HMODULE
 
@@ -28,9 +29,6 @@
 #include <unistd.h>
 #include <limits.h>
 #include <string.h>
-
-#define _chdir chdir
-#define _getcwd getcwd
 
 #define C_LIB_TYPE void *
 
@@ -132,13 +130,6 @@ i32 nst_run(Nst_FuncObj *main_func,
             i32          opt_level,
             bool         no_default)
 {
-    i8 *cwd_buf = (i8 *)nst_malloc(PATH_MAX, sizeof(i8), NULL);
-    if ( cwd_buf == NULL )
-    {
-        fprintf(stderr, "Failed allocation\n");
-        return -1;
-    }
-
     nst_state.traceback.error.start = nst_no_pos();
     nst_state.traceback.error.end = nst_no_pos();
     nst_state.traceback.error.name = NULL;
@@ -147,7 +138,6 @@ i32 nst_run(Nst_FuncObj *main_func,
     nst_state.traceback.positions = nst_llist_new(NULL);
     if ( nst_state.traceback.positions == NULL )
     {
-        nst_free(cwd_buf);
         fprintf(stderr, "Failed allocation\n");
         return -1;
     }
@@ -163,9 +153,44 @@ i32 nst_run(Nst_FuncObj *main_func,
     nst_state.ggc.old_gen = old_gen;
     nst_state.ggc.old_gen_pending = 0;
 
-    nst_state.curr_path = STR(nst_string_new_c_raw(
-        _getcwd(cwd_buf, PATH_MAX),
-        true, NULL));
+#ifdef WINDOWS
+    wchar_t *wide_cwd = (wchar_t *)nst_malloc(PATH_MAX, sizeof(wchar_t), NULL);
+    if ( wide_cwd == NULL )
+    {
+        fprintf(stderr, "Failed allocation\n");
+        return -1;
+}
+    wchar_t *result = _wgetcwd(wide_cwd, PATH_MAX);
+    if ( result == NULL )
+    {
+        fprintf(stderr, "Failed allocation\n");
+        nst_free(wide_cwd);
+        return -1;
+    }
+    i8 *cwd_buf = nst_wchar_t_to_char(wide_cwd, 0, NULL);
+    nst_free(wide_cwd);
+    if ( cwd_buf == NULL )
+    {
+        fprintf(stderr, "Failed allocation\n");
+        return -1;
+    }
+    nst_state.curr_path = STR(nst_string_new_c_raw((const i8*)cwd_buf, true, NULL));
+#else
+    i8 *cwd_buf = (i8 *)nst_malloc(PATH_MAX, sizeof(i8), NULL);
+    if ( cwd_buf == NULL )
+    {
+        fprintf(stderr, "Failed allocation\n");
+        return -1;
+    }
+    i8 *cwd_result = getcwd(cwd_buf, PATH_MAX);
+    if ( cwd_result == NULL )
+    {
+        nst_free(cwd_buf);
+        fprintf(stderr, "Failed allocation\n");
+        return -1;
+    }
+    nst_state.curr_path = STR(nst_string_new_c_raw((const i8*)cwd_buf, true, NULL));
+#endif
     if ( nst_state.curr_path == NULL )
     {
         nst_free(cwd_buf);
@@ -521,8 +546,28 @@ i32 nst_run_module(i8 *filename, Nst_SourceText *lib_src)
     }
     nst_state.curr_path = path_str;
 
-    i32 res = _chdir(path_str->value);
+#ifdef WINDOWS
+    wchar_t *wide_cwd = nst_char_to_wchar_t(path_str->value, path_str->len, &main_err);
+    if ( wide_cwd == NULL )
+    {
+        nst_dec_ref(mod_func);
+        nst_dec_ref(path_str);
+        nst_state.curr_path = prev_path;
+        inst_ls = nst_fstack_peek(nst_state.f_stack).func->body.bytecode;
+        _NST_SET_ERROR_FROM_OP_ERR(
+            GLOBAL_ERROR,
+            &main_err,
+            inst_ls->instructions[nst_state.idx].start,
+            inst_ls->instructions[nst_state.idx].end);
+        return -1;
+    }
+    i32 res = _wchdir(wide_cwd);
+    nst_free(wide_cwd);
     assert(res == 0);
+#else
+    i32 res = chdir(path_str->value);
+    assert(res == 0);
+#endif
 
     nst_vstack_push(nst_state.v_stack, NULL);
     nst_fstack_push(
@@ -542,8 +587,6 @@ i32 nst_run_module(i8 *filename, Nst_SourceText *lib_src)
         nst_dec_ref(mod_func);
         nst_dec_ref(nst_state.curr_path);
         nst_state.curr_path = prev_path;
-        res = _chdir(nst_state.curr_path->value);
-        assert(res == 0);
         inst_ls = nst_fstack_peek(nst_state.f_stack).func->body.bytecode;
         _NST_SET_ERROR_FROM_OP_ERR(
             GLOBAL_ERROR,
@@ -569,8 +612,25 @@ i32 nst_run_module(i8 *filename, Nst_SourceText *lib_src)
     nst_dec_ref(path_str);
     nst_dec_ref(mod_func);
 
-    res = _chdir(prev_path->value);
+#ifdef WINDOWS
+    wide_cwd = nst_char_to_wchar_t(prev_path->value, prev_path->len, &main_err);
+    if ( wide_cwd == NULL )
+    {
+        inst_ls = nst_fstack_peek(nst_state.f_stack).func->body.bytecode;
+        _NST_SET_ERROR_FROM_OP_ERR(
+            GLOBAL_ERROR,
+            &main_err,
+            inst_ls->instructions[nst_state.idx].start,
+            inst_ls->instructions[nst_state.idx].end);
+        return -1;
+    }
+    res = _wchdir(wide_cwd);
+    nst_free(wide_cwd);
     assert(res == 0);
+#else
+    res = chdir(prev_path->value);
+    assert(res == 0);
+#endif
 
     if ( ERROR_OCCURRED )
     {
@@ -1816,45 +1876,81 @@ usize nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part, Nst_OpErr *err)
         *file_part = NULL;
     }
 
+#ifdef WINDOWS
+    wchar_t *wide_full_path = (wchar_t *)nst_malloc(PATH_MAX, sizeof(wchar_t), err);
+    if ( wide_full_path == NULL )
+    {
+        return 0;
+    }
+    wchar_t *wide_file_path = nst_char_to_wchar_t(file_path, 0, err);
+    if ( wide_file_path == NULL )
+    {
+        nst_free(wide_full_path);
+        return 0;
+    }
+
+    DWORD full_path_len = GetFullPathNameW(wide_file_path, PATH_MAX, wide_full_path, NULL);
+
+    if ( full_path_len == 0 )
+    {
+        nst_free(wide_full_path);
+        nst_free(wide_file_path);
+        NST_SET_VALUE_ERROR(nst_sprintf(_NST_EM_FILE_NOT_FOUND, file_path));
+        return 0;
+    }
+
+    if ( full_path_len > PATH_MAX )
+    {
+        nst_free(wide_full_path);
+        wide_full_path = (wchar_t *)nst_malloc(full_path_len + 1, sizeof(i8), err);
+        if ( wide_full_path == NULL )
+        {
+            nst_free(wide_file_path);
+            return 0;
+        }
+        full_path_len = GetFullPathNameW(wide_file_path, full_path_len + 1, wide_full_path, NULL);
+
+        if ( full_path_len == 0 )
+        {
+            nst_free(wide_full_path);
+            nst_free(wide_file_path);
+            NST_SET_VALUE_ERROR(nst_sprintf(_NST_EM_FILE_NOT_FOUND, file_path));
+            return 0;
+        }
+    }
+    nst_free(wide_file_path);
+
+    i8 *full_path = nst_wchar_t_to_char(wide_full_path, full_path_len, err);
+    nst_free(wide_full_path);
+    if ( full_path == NULL )
+    {
+        return 0;
+    }
+
+    if ( file_part != NULL )
+    {
+        *file_part = strrchr(full_path, '\\');
+
+        if ( *file_part == NULL )
+        {
+            *file_part = full_path;
+        }
+        else
+        {
+            (*file_part)++;
+        }
+    }
+
+    *buf = full_path;
+    return full_path_len;
+
+#else
+
     i8 *path = (i8 *)nst_malloc(PATH_MAX, sizeof(i8), err);
     if ( path == NULL )
     {
         return 0;
     }
-
-#ifdef WINDOWS
-
-    DWORD path_len = GetFullPathNameA(file_path, PATH_MAX, path, file_part);
-
-    if ( path_len == 0 )
-    {
-        nst_free(path);
-        NST_SET_VALUE_ERROR(nst_sprintf(_NST_EM_FILE_NOT_FOUND, file_path));
-        return 0;
-    }
-
-    if ( path_len > PATH_MAX )
-    {
-        nst_free(path);
-        path = (i8 *)nst_malloc(path_len, sizeof(i8), err);
-        if ( path == NULL )
-        {
-            return 0;
-        }
-        path_len = GetFullPathNameA(file_path, path_len, path, file_part);
-
-        if ( path_len == 0 )
-        {
-            nst_free(path);
-            NST_SET_VALUE_ERROR(nst_sprintf(_NST_EM_FILE_NOT_FOUND, file_path));
-            return 0;
-        }
-    }
-
-    *buf = path;
-    return path_len;
-
-#else
 
     i8 *result = realpath(file_path, path);
 
@@ -1868,7 +1964,7 @@ usize nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part, Nst_OpErr *err)
     {
         *file_part = strrchr(path, '/');
 
-        if ( !*file_part )
+        if ( *file_part == NULL )
         {
             *file_part = path;
         }
