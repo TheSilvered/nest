@@ -731,7 +731,7 @@ NST_FUNC_SIGN(filename_)
 
     NST_DEF_EXTRACT("s", &path);
 
-    return OBJ(heap_str(fs::path(path->value).filename(), err));
+    return OBJ(heap_str(utf8_path(path).filename(), err));
 }
 
 NST_FUNC_SIGN(extension_)
@@ -740,7 +740,7 @@ NST_FUNC_SIGN(extension_)
 
     NST_DEF_EXTRACT("s", &path);
 
-    return OBJ(heap_str(fs::path(path->value).extension(), err));
+    return OBJ(heap_str(utf8_path(path).extension(), err));
 }
 
 NST_FUNC_SIGN(_get_copy_options_)
