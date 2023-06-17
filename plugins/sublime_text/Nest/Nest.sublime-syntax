@@ -29,7 +29,7 @@ variables:
   illegal_num_literals: '({{real_illegal}}|{{hex_illegal}}|{{oct_illegal}}|{{bin_illegal}})'
 
   identifier: '[A-Za-z_][A-Za-z0-9_]*'
-  constant: '([A-Z][A-Z0-9_]*|_+\d*[A-Z][A-Z0-9_]*)'
+  constant: '([A-Z][A-Z0-9_]*\b|_+\d*[A-Z][A-Z0-9_]*\b)'
   lang_constants: '\b(true|false|null|_cwd_|_args_|_vars_|_globals_)\b'
   lang_types: '\b(Type|Int|Real|Bool|Null|Str|Array|Vector|Map|Func|Iter|Byte|IOfile)\b'
   lang_keywords: '(\?\.\.|\.\.\?|\.\.\.|\?\?|\?!|\?|:=|\.\.|;)'

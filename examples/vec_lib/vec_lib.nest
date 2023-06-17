@@ -1,0 +1,15 @@
+--$ --no-default
+
+|#| '__C__:vec_lib.cnest' = __vl
+
+__vl.Vec2_        = Vec2
+__vl.vec2_        = vec2
+__vl.vec2_to_str_ = vec2_to_str
+__vl.x_           = x
+__vl.y_           = y
+__vl.len_         = len
+__vl.dot_         = dot
+__vl.cross_       = cross
+__vl.normalized_  = normalized
+
+_vars_ '_vars_' '__vl' -

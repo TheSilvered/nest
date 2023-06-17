@@ -1,5 +1,7 @@
 # Welcome to the Nest documentation!
 
+[GitHub repository](https://github.com/TheSilvered/nest)
+
 ## What is Nest
 
 Nest is a little programming language developed with the idea of creating a
