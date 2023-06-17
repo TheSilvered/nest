@@ -7,7 +7,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef enum _Nst_CPID
+EXPORT typedef enum _Nst_CPID
 {
     NST_CP_ASCII,
     NST_CP_UTF8,
@@ -61,12 +61,12 @@ EXPORT i32 nst_1252_from_utf32(u32 ch, u8 *str);
 EXPORT i32 nst_cp1252_to_utf8(i8 *str, i8 byte);
 EXPORT i32 nst_utf16_to_utf8(i8 *out_str, u16 *in_str, usize in_str_len);
 
-EXPORT bool nst_translate_cp(Nst_CPID from_id,
-                             Nst_CPID to_id,
-                             void    *from_buf,
-                             usize    from_len,
-                             void   **to_buf,
-                             usize   *to_len,
+EXPORT bool nst_translate_cp(Nst_CP *from,
+                             Nst_CP *to,
+                             void   *from_buf,
+                             usize   from_len,
+                             void  **to_buf,
+                             usize  *to_len,
                              Nst_OpErr *err);
 
 EXPORT Nst_CP *nst_cp(Nst_CPID cpid);

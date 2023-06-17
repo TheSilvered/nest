@@ -380,16 +380,14 @@ i32 nst_cp1252_to_utf8(i8 *str, i8 byte)
     return nst_utf8_from_utf32(n, (u8 *)str);
 }
 
-bool nst_translate_cp(Nst_CPID from_id,
-                      Nst_CPID to_id,
-                      void    *from_buf,
-                      usize    from_len,
-                      void   **to_buf,
-                      usize   *to_len,
+bool nst_translate_cp(Nst_CP *from,
+                      Nst_CP *to,
+                      void   *from_buf,
+                      usize   from_len,
+                      void  **to_buf,
+                      usize  *to_len,
                       Nst_OpErr *err)
 {
-    Nst_CP *from = nst_cp(from_id);
-    Nst_CP *to   = nst_cp(to_id);
     if ( from == NULL || to == NULL )
     {
         NST_SET_RAW_VALUE_ERROR(_NST_EM_INVALID_CPID);
@@ -480,7 +478,7 @@ wchar_t *nst_char_to_wchar_t(i8 *str, usize len, Nst_OpErr *err)
     }
 
     bool res = nst_translate_cp(
-        NST_CP_UTF8, NST_CP_UTF16,
+        &nst_cp_utf8, &nst_cp_utf16,
         (void *)str, len, (void **)&out_str, NULL, err);
     if ( res == false )
     {
@@ -498,7 +496,7 @@ i8 *nst_wchar_t_to_char(wchar_t *str, usize len, Nst_OpErr *err)
     }
 
     bool res = nst_translate_cp(
-        NST_CP_UTF16, NST_CP_UTF8,
+        &nst_cp_utf16, &nst_cp_utf8,
         (void *)str, len, (void **)&out_str, NULL, err);
     if ( res == false )
     {

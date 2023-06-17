@@ -17,6 +17,7 @@ td {
 
 .md-typeset pre>code {
     box-shadow: 0px 10px 10px 2px #12131d;
+    line-height: 1.2;
     transition: box-shadow 0.2s ease-out;
 }
 

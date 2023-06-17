@@ -19,7 +19,7 @@ from the terminal.
 Once installed you can check that it is working by running this command:
 
 ```text
-PS C:\Users\user> nest -V
+PS C:\> nest -V
 Using Nest version: beta-0.12.1 x64
 ```
 
