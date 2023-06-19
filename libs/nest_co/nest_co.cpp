@@ -11,7 +11,7 @@ static Nst_Obj *state_suspended;
 static Nst_Obj *state_running;
 static Nst_Obj *state_paused;
 static Nst_Obj *state_ended;
-static CoroutineCallStack *co_c_stack;
+static CoroutineCallStack co_c_stack;
 
 bool lib_init()
 {
@@ -35,7 +35,7 @@ bool lib_init()
     state_running   = nst_int_new(FLAG_CO_RUNNING, &err);
     state_paused    = nst_int_new(FLAG_CO_PAUSED, &err);
     state_ended     = nst_int_new(FLAG_CO_ENDED, &err);
-    co_c_stack = (CoroutineCallStack *)nst_stack_new(sizeof(CoroutineObj *), 8, &err);
+    nst_stack_init((Nst_GenericStack *)&co_c_stack, sizeof(CoroutineObj *), 8, &err);
 
     lib_init_ = err.name == nullptr;
     return lib_init_;
@@ -59,36 +59,35 @@ void free_lib()
     nst_dec_ref(state_paused);
     nst_dec_ref(state_ended);
 
-    for ( usize i = 0, n = co_c_stack->current_size; i < n; i++ )
+    for ( usize i = 0, n = co_c_stack.current_size; i < n; i++ )
     {
-        nst_dec_ref(co_c_stack->stack[i]);
+        nst_dec_ref(co_c_stack.stack[i]);
     }
-    nst_free(co_c_stack->stack);
-    nst_free(co_c_stack);
+    nst_free(co_c_stack.stack);
 }
 
 static void co_c_stack_push(CoroutineObj *co)
 {
-    nst_stack_expand((Nst_GenericStack *)co_c_stack, sizeof(CoroutineObj *));
-    co_c_stack->stack[co_c_stack->current_size] = co;
-    co_c_stack->current_size++;
+    nst_stack_expand((Nst_GenericStack *)&co_c_stack, sizeof(CoroutineObj *));
+    co_c_stack.stack[co_c_stack.current_size] = co;
+    co_c_stack.current_size++;
     nst_inc_ref(co);
 }
 
 static void co_c_stack_pop()
 {
-    nst_dec_ref(co_c_stack->stack[co_c_stack->current_size - 1]);
-    co_c_stack->current_size--;
-    nst_stack_shrink((Nst_GenericStack *)co_c_stack, 8, sizeof(CoroutineObj *));
+    nst_dec_ref(co_c_stack.stack[co_c_stack.current_size - 1]);
+    co_c_stack.current_size--;
+    nst_stack_shrink((Nst_GenericStack *)&co_c_stack, 8, sizeof(CoroutineObj *));
 }
 
 static CoroutineObj *co_c_stack_peek()
 {
-    if ( co_c_stack->current_size == 0 )
+    if ( co_c_stack.current_size == 0 )
     {
         return nullptr;
     }
-    return co_c_stack->stack[co_c_stack->current_size - 1];
+    return co_c_stack.stack[co_c_stack.current_size - 1];
 }
 
 static NST_FUNC_SIGN(generator_start)
@@ -315,21 +314,21 @@ NST_FUNC_SIGN(call_)
     NST_FLAG_SET(co, FLAG_CO_RUNNING);
 
     Nst_ExecutionState *state = nst_get_state();
-    co->call_stack_size = state->f_stack->current_size;
+    co->call_stack_size = state->f_stack.current_size;
     co_c_stack_push(co);
 
     Nst_Obj *result = nullptr;
     if ( is_paused )
     {
-        nst_vstack_push(state->v_stack, nullptr);
+        nst_vstack_push(nullptr);
         for ( usize i = 0, n = co->stack_size; i < n; i++ )
         {
-            nst_vstack_push(state->v_stack, co->stack[i]);
+            nst_vstack_push(co->stack[i]);
             nst_dec_ref(co->stack[i]);
         }
         nst_free(co->stack);
         // emulates the return value of co.pause
-        nst_vstack_push(state->v_stack, nst_null());
+        nst_vstack_push(nst_null());
         result = nst_run_func_context(
             co->func,
             co->idx + 1,
@@ -372,7 +371,7 @@ NST_FUNC_SIGN(pause_)
 
     NST_DEF_EXTRACT("o", &return_value);
     Nst_ExecutionState *state = nst_get_state();
-    Nst_FuncCall call = nst_fstack_peek(state->f_stack);
+    Nst_FuncCall call = nst_fstack_peek();
 
     CoroutineObj *co = co_c_stack_peek();
 
@@ -383,7 +382,7 @@ NST_FUNC_SIGN(pause_)
         return nullptr;
     }
 
-    if ( state->f_stack->current_size - 1 != co->call_stack_size ||
+    if ( state->f_stack.current_size - 1 != co->call_stack_size ||
          !NST_FLAG_HAS(co, FLAG_CO_RUNNING) )
     {
         NST_SET_RAW_CALL_ERROR("the function was not called with 'call'");
@@ -391,7 +390,7 @@ NST_FUNC_SIGN(pause_)
     }
 
     // Now I'm sure that the function was called with co.call
-    call = nst_fstack_pop(state->f_stack);
+    call = nst_fstack_pop();
 
     co->vars = state->vt->vars;
     co->globals = state->vt->global_table;
@@ -404,8 +403,8 @@ NST_FUNC_SIGN(pause_)
     state->idx = call.idx;
 
     usize stack_size = 0;
-    Nst_Obj **v_stack_objs = state->v_stack->stack;
-    for ( Nst_Int i = (Nst_Int)state->v_stack->current_size - 1;
+    Nst_Obj **v_stack_objs = state->v_stack.stack;
+    for ( Nst_Int i = (Nst_Int)state->v_stack.current_size - 1;
           i >= 0;
           i-- )
     {
@@ -420,10 +419,10 @@ NST_FUNC_SIGN(pause_)
 
     for ( usize i = stack_size; i > 0; i-- )
     {
-        co->stack[i - 1] = nst_vstack_pop(state->v_stack);
+        co->stack[i - 1] = nst_vstack_pop();
     }
 
-    nst_vstack_pop(state->v_stack); // remove NULL from the stack
+    nst_vstack_pop(); // remove NULL from the stack
 
     NST_FLAG_DEL(co, FLAG_CO_SUSPENDED);
     NST_FLAG_DEL(co, FLAG_CO_RUNNING);
