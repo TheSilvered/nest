@@ -122,7 +122,7 @@ static MatchType *compile_type_match(i8        *types,
                    only objects of a custom type or integers.
     */
 
-    MatchType *match_type = (MatchType *)nst_malloc(1, sizeof(MatchType), err);
+    MatchType *match_type = nst_malloc_c(1, MatchType, err);
     if ( match_type == NULL )
     {
         return NULL;

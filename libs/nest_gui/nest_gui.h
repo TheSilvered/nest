@@ -14,6 +14,7 @@ typedef struct _GUI_App
     GUI_Element *root;
     SDL_Window *window;
     SDL_Renderer *renderer;
+    SDL_Rect clip_window;
     bool keep_open;
     bool show_bounds;
 
@@ -51,6 +52,7 @@ NST_FUNC_SIGN(init_);
 NST_FUNC_SIGN(loop_);
 NST_FUNC_SIGN(set_window_);
 NST_FUNC_SIGN(label_);
+NST_FUNC_SIGN(stack_layout_);
 NST_FUNC_SIGN(set_position_);
 NST_FUNC_SIGN(set_rel_position_);
 NST_FUNC_SIGN(set_size_);

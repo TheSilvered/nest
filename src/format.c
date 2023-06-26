@@ -488,7 +488,7 @@ Nst_Obj *nst_vsprintf(const i8 *fmt, va_list args)
         va_end(args);
         return NULL;
     }
-    i8 *buf = (i8 *)nst_calloc(buf_size, sizeof(i8), NULL, NULL);
+    i8 *buf = nst_calloc_c(buf_size, i8, NULL, NULL);
     if ( buf == NULL )
     {
         va_end(args);
@@ -525,7 +525,7 @@ isize nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args)
         va_end(args);
         return -1;
     }
-    i8 *buf = (i8 *)nst_calloc(buf_size, sizeof(i8), NULL, NULL);
+    i8 *buf = nst_calloc_c(buf_size, i8, NULL, NULL);
     if ( buf == NULL )
     {
         va_end(args);

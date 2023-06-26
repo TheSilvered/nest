@@ -3,7 +3,7 @@
 
 Nst_Inst *nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end, Nst_OpErr *err)
 {
-    Nst_Inst *inst = (Nst_Inst *)nst_malloc(1, sizeof(Nst_Inst), err);
+    Nst_Inst *inst = nst_malloc_c(1, Nst_Inst, err);
     if ( inst == NULL )
     {
         return NULL;
@@ -24,7 +24,7 @@ Nst_Inst *_nst_inst_new_val(Nst_InstID id,
                             Nst_Pos    end,
                             Nst_OpErr *err)
 {
-    Nst_Inst *inst = (Nst_Inst*)nst_malloc(1, sizeof(Nst_Inst), err);
+    Nst_Inst *inst = nst_malloc_c(1, Nst_Inst, err);
     if ( inst == NULL )
     {
         return NULL;
@@ -45,7 +45,7 @@ Nst_Inst *nst_inst_new_int(Nst_InstID id,
                            Nst_Pos    end,
                            Nst_OpErr *err)
 {
-    Nst_Inst *inst = (Nst_Inst *)nst_malloc(1, sizeof(Nst_Inst), err);
+    Nst_Inst *inst = nst_malloc_c(1, Nst_Inst, err);
     if ( inst == NULL )
     {
         return NULL;

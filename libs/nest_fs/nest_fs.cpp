@@ -114,7 +114,7 @@ void free_lib()
 
 static Nst_StrObj *heap_str(const i8 *str, usize len, Nst_OpErr *err)
 {
-    i8 *heap_s = (i8 *)nst_malloc((len + 1), sizeof(i8), err);
+    i8 *heap_s = nst_malloc_c(len + 1, i8, err);
     if ( heap_s == nullptr )
     {
         return nullptr;
@@ -138,9 +138,7 @@ static Nst_StrObj *heap_str(fs::path path, Nst_OpErr *err)
 
 static Nst_Obj *throw_system_error(std::error_code ec, Nst_OpErr *err)
 {
-    i8 *err_buf = (i8 *)nst_malloc(33, sizeof(i8), err);
-    sprintf(err_buf, "System Error %d", ec.value());
-    err->name = STR(nst_string_new_c_raw((const i8 *)err_buf, true, err));
+    err->name = STR(nst_sprintf("System Error %d", ec.value()));
     err->message = heap_str(ec.message(), err);
     return NULL;
 }
@@ -648,7 +646,7 @@ NST_FUNC_SIGN(join_)
         add_slash = true;
     }
 
-    i8 *new_str = (i8 *)nst_malloc((new_len + 1), sizeof(i8), err);
+    i8 *new_str = nst_malloc_c(new_len + 1, i8, err);
     if ( new_str == nullptr )
     {
         NST_FAILED_ALLOCATION;

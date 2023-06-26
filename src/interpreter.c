@@ -37,7 +37,7 @@
 #include "mem.h"
 
 #define ADD_POSITIONS(start_pos, end_pos) do { \
-    Nst_Pos *positions = (Nst_Pos *)nst_malloc(2, sizeof(Nst_Pos), NULL); \
+    Nst_Pos *positions = nst_malloc_c(2, Nst_Pos, NULL); \
     if ( positions == NULL ) \
         break; \
     positions[0] = start_pos; \
@@ -197,7 +197,7 @@ i32 nst_run(Nst_FuncObj *main_func,
     nst_state.ggc.old_gen_pending = 0;
 
 #ifdef WINDOWS
-    wchar_t *wide_cwd = (wchar_t *)nst_malloc(PATH_MAX, sizeof(wchar_t), NULL);
+    wchar_t *wide_cwd = nst_malloc_c(PATH_MAX, wchar_t, NULL);
     if ( wide_cwd == NULL )
     {
         fprintf(stderr, "Failed allocation\n");
@@ -219,7 +219,7 @@ i32 nst_run(Nst_FuncObj *main_func,
     }
     nst_state.curr_path = STR(nst_string_new_c_raw((const i8*)cwd_buf, true, NULL));
 #else
-    i8 *cwd_buf = (i8 *)nst_malloc(PATH_MAX, sizeof(i8), NULL);
+    i8 *cwd_buf = nst_malloc_c(PATH_MAX, i8, NULL);
     if ( cwd_buf == NULL )
     {
         fprintf(stderr, "Failed allocation\n");
@@ -520,7 +520,7 @@ i32 nst_run_module(i8 *filename, Nst_SourceText *lib_src)
     // The file is guaranteed to exist
     Nst_LList *tokens = nst_tokenizef(
         filename,
-        false,
+        NST_CP_UNKNOWN,
         &file_opt_lvl,
         &no_default,
         lib_src,
@@ -756,7 +756,7 @@ Nst_Obj *nst_run_func_context(Nst_FuncObj *func,
         nst_state.vt,
         nst_state.idx - 1);
 
-    Nst_VarTable *new_vt = (Nst_VarTable *)nst_malloc(1, sizeof(Nst_VarTable), &main_err);
+    Nst_VarTable *new_vt = nst_malloc_c(1, Nst_VarTable, &main_err);
     if ( new_vt == NULL )
     {
         _NST_SET_ERROR_FROM_OP_ERR(
@@ -1182,7 +1182,7 @@ static void exe_op_call(Nst_Inst *inst, Nst_InstID inst_id)
         }
         else if ( is_seq_call )
         {
-            args = (Nst_Obj **)nst_malloc((usize)tot_args, sizeof(Nst_Obj *), NULL);
+            args = nst_malloc_c((usize)tot_args, Nst_Obj *, NULL);
             if ( args == NULL )
             {
                 _NST_FAILED_ALLOCATION(GLOBAL_ERROR, inst->start, inst->end);
@@ -1209,7 +1209,7 @@ static void exe_op_call(Nst_Inst *inst, Nst_InstID inst_id)
         }
         else
         {
-            args = (Nst_Obj **)nst_malloc((usize)tot_args, sizeof(Nst_Obj *), NULL);
+            args = nst_malloc_c((usize)tot_args, Nst_Obj *, NULL);
             if ( args == NULL )
             {
                 _NST_FAILED_ALLOCATION(GLOBAL_ERROR, inst->start, inst->end);
@@ -1870,7 +1870,7 @@ usize nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part, Nst_OpErr *err)
     }
 
 #ifdef WINDOWS
-    wchar_t *wide_full_path = (wchar_t *)nst_malloc(PATH_MAX, sizeof(wchar_t), err);
+    wchar_t *wide_full_path = nst_malloc_c(PATH_MAX, wchar_t, err);
     if ( wide_full_path == NULL )
     {
         return 0;
@@ -1895,7 +1895,7 @@ usize nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part, Nst_OpErr *err)
     if ( full_path_len > PATH_MAX )
     {
         nst_free(wide_full_path);
-        wide_full_path = (wchar_t *)nst_malloc(full_path_len + 1, sizeof(i8), err);
+        wide_full_path = nst_malloc_c(full_path_len + 1, wchar_t, err);
         if ( wide_full_path == NULL )
         {
             nst_free(wide_file_path);
@@ -1939,7 +1939,7 @@ usize nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part, Nst_OpErr *err)
 
 #else
 
-    i8 *path = (i8 *)nst_malloc(PATH_MAX, sizeof(i8), err);
+    i8 *path = nst_malloc_c(PATH_MAX, i8, err);
     if ( path == NULL )
     {
         return 0;

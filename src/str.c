@@ -91,7 +91,7 @@ Nst_TypeObj *nst_type_new(const i8 *val, usize len, struct _Nst_OpErr *err)
 
 Nst_Obj *_nst_string_copy(Nst_StrObj *src, struct _Nst_OpErr *err)
 {
-    i8 *buffer = (i8 *)nst_malloc(src->len + 1, sizeof(i8), err);
+    i8 *buffer = nst_malloc_c(src->len + 1, i8, err);
     if ( buffer == NULL )
     {
         return NULL;
@@ -176,7 +176,7 @@ Nst_Obj *_nst_string_repr(Nst_StrObj *src, struct _Nst_OpErr *err)
         new_size += double_quotes_count;
     }
 
-    i8 *new_str = (i8 *)nst_malloc(new_size + 1, sizeof(i8), err);
+    i8 *new_str = nst_malloc_c(new_size + 1, i8, err);
     if ( new_str == NULL )
     {
         return NULL;
@@ -268,7 +268,7 @@ Nst_Obj *_nst_string_get(Nst_StrObj *str, i64 idx, struct _Nst_OpErr *err)
         return NULL;
     }
 
-    i8 *ch = (i8 *)nst_malloc(2, sizeof(i8), err);
+    i8 *ch = nst_malloc_c(2, i8, err);
     if ( ch == NULL )
     {
         return NULL;
@@ -668,7 +668,7 @@ Nst_Obj *nst_string_parse_real(Nst_StrObj *str, struct _Nst_OpErr *err)
 end:
     if ( contains_underscores )
     {
-        buf = (i8 *)nst_malloc(len + 1, sizeof(i8), err);
+        buf = nst_malloc_c(len + 1, i8, err);
         if ( buf == NULL )
         {
             return NULL;

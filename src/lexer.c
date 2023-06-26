@@ -68,14 +68,14 @@ static void make_symbol(Nst_Tok **tok, Nst_Error *error);
 static void make_num_literal(Nst_Tok **tok, Nst_Error *error);
 static void make_ident(Nst_Tok **tok, Nst_Error *error);
 static void make_str_literal(Nst_Tok **tok, Nst_Error *error);
-static void parse_first_line(i8   *text,
-                             usize len,
-                             i32  *opt_level,
-                             bool *force_cp1252,
-                             bool *no_default);
+static void parse_first_line(i8       *text,
+                             usize     len,
+                             i32      *opt_level,
+                             Nst_CPID *encoding,
+                             bool     *no_default);
 
 Nst_LList *nst_tokenizef(i8             *filename,
-                         bool            force_cp1252,
+                         Nst_CPID        encoding,
                          i32            *opt_level,
                          bool           *no_default,
                          Nst_SourceText *src_text,
@@ -120,20 +120,15 @@ Nst_LList *nst_tokenizef(i8             *filename,
     src_text->len = str_len;
     src_text->path = full_path;
 
-    parse_first_line(text, str_len, opt_level, &force_cp1252, no_default);
+    parse_first_line(text, str_len, opt_level, &encoding, no_default);
 
-    i32 text_offset = nst_normalize_encoding(src_text, force_cp1252, error);
-    nst_add_lines(src_text, text_offset);
-    if ( error->occurred || text_offset == -1 )
+    bool result = nst_normalize_encoding(src_text, encoding, error);
+    nst_add_lines(src_text);
+    if ( !result || error->occurred )
     {
         return NULL;
     }
-
-    src_text->text += text_offset;
-    src_text->len  -= text_offset;
     Nst_LList *tokens = nst_tokenize(src_text, error);
-    src_text->text -= text_offset;
-    src_text->len  += text_offset;
     return tokens;
 }
 
@@ -652,7 +647,7 @@ dec_num:
     go_back();
 
 end:
-    ltrl = (i8 *)nst_malloc(ltrl_size + 3, sizeof(u8), &lexer_err);
+    ltrl = nst_malloc_c(ltrl_size + 3, i8, &lexer_err);
     SET_ERROR_IF_OP_ERR(ltrl == NULL);
     ltrl[0] = neg ? '-' : '+';
     memcpy(ltrl + 1, start_p, ltrl_size);
@@ -728,7 +723,7 @@ static void make_ident(Nst_Tok **tok, Nst_Error *error)
     }
     go_back();
 
-    str = (i8 *)nst_malloc(str_len + 1, sizeof(u8), &lexer_err);
+    str = nst_malloc_c(str_len + 1, i8, &lexer_err);
     SET_ERROR_IF_OP_ERR(str == NULL);
 
     memcpy(str, str_start, str_len);
@@ -858,27 +853,9 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
 
             i8 unicode_char[5] = { 0 };
 
-            if ( num <= 0x7f )
+            if ( num <= 0x10ffff )
             {
-                unicode_char[0] = (i8)num;
-            }
-            else if ( num <= 0x7ff )
-            {
-                unicode_char[0] = 0b11000000 | (i8)(num >> 6);
-                unicode_char[1] = 0b10000000 | (i8)(num & 0x3f);
-            }
-            else if ( num <= 0xffff )
-            {
-                unicode_char[0] = 0b11100000 | (i8)(num >> 12);
-                unicode_char[1] = 0b10000000 | (i8)(num >> 6 & 0x3f);
-                unicode_char[2] = 0b10000000 | (i8)(num & 0x3f);
-            }
-            else if ( num <= 0x10ffff )
-            {
-                unicode_char[0] = 0b11110000 | (i8)(num >> 18);
-                unicode_char[1] = 0b10000000 | (i8)(num >> 12 & 0x3f);
-                unicode_char[2] = 0b10000000 | (i8)(num >> 6 & 0x3f);
-                unicode_char[3] = 0b10000000 | (i8)(num & 0x3f);
+                nst_utf8_from_utf32(num, (u8 *)unicode_char);
             }
             else
             {
@@ -949,13 +926,8 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
     SET_ERROR_IF_OP_ERR(*tok == NULL);
 }
 
-void nst_add_lines(Nst_SourceText* text, i32 start_offset)
+void nst_add_lines(Nst_SourceText* text)
 {
-    if ( start_offset < 0 )
-    {
-        start_offset = 0;
-    }
-
     i8 *text_p = text->text;
     i8 **starts = (i8 **)nst_raw_calloc(100, sizeof(i8 *));
     if ( starts == NULL )
@@ -965,7 +937,7 @@ void nst_add_lines(Nst_SourceText* text, i32 start_offset)
         return;
     }
 
-    starts[0] = text_p + start_offset;
+    starts[0] = text_p;
     usize line_count = 1;
 
     // normalize line endings
@@ -1039,140 +1011,105 @@ void nst_add_lines(Nst_SourceText* text, i32 start_offset)
     text->line_count = line_count;
 }
 
-i32 nst_normalize_encoding(Nst_SourceText *text,
-                           bool            is_cp1252,
-                           Nst_Error      *error)
+bool nst_normalize_encoding(Nst_SourceText *text,
+                            Nst_CPID        encoding,
+                            Nst_Error      *error)
 {
-    u8 *text_p = (u8 *)text->text;
-    usize ch_count = 0;
-    usize i = 0;
-    usize n = text->len;
-    bool skipped_bom = false;
-
-    if ( is_cp1252 )
+    i32 bom_size = 0;
+    if ( encoding == NST_CP_UNKNOWN )
     {
-        goto fix_encoding;
+        encoding = nst_detect_encoding(text->text, text->len, &bom_size);
+    }
+    else
+    {
+        nst_check_bom(text->text, text->len, &bom_size);
     }
 
-    if ( n >= 3 &&
-         text_p[0] == (u8)'\xef' &&
-         text_p[1] == (u8)'\xbb' &&
-         text_p[2] == (u8)'\xbf' )
+    Nst_CP *from = nst_cp(encoding);
+
+    Nst_Pos pos = { 0, 0, text };
+    Nst_Buffer buf;
+    if ( !nst_buffer_init(&buf, text->len + 40, &lexer_err) )
     {
-        text_p += 3;
-        n -= 3;
-        skipped_bom = true;
+        _NST_SET_ERROR_FROM_OP_ERR(error, &lexer_err, pos, pos);
+        return false;
     }
 
-    for ( ; i < n; i++ )
-    {
-        if ( text_p[i] > 0x7f )
-        {
-            i32 offset = nst_check_utf8_bytes(text_p + i, n - i);
-            if ( offset == -1 )
-            {
-                ch_count++;
-                i++;
-                goto fix_encoding;
-            }
-            i += offset - 1;
-            ch_count += offset;
-        }
-    }
-    return skipped_bom ? 3 : 0;
+    isize n = (isize)text->len - bom_size;
+    u8 *text_p = (u8 *)text->text + bom_size;
 
-fix_encoding:
-    if ( skipped_bom )
-    {
-        text_p -= 3;
-        n += 3;
-    }
-
-    for ( ; i < n; i++ )
-    {
-        if ( text_p[i] > 0x7f )
-        {
-            ch_count++;
-        }
-    }
-
-    i8 *new_text = (i8 *)nst_raw_calloc(n + ch_count * 3 + 1, sizeof(i8));
-    if ( new_text == NULL )
-    {
-        Nst_Pos pos = { 1, 0, text };
-        _NST_FAILED_ALLOCATION(error, pos, pos);
-        return -1;
-    }
-
-    i8 *utf8_ptr = new_text;
-    i32 line = 0;
     bool skip_line_feed = false;
-    i32 col = 0;
-    for ( i = 0; i < n; i++ )
+
+    for ( ; n > 0; )
     {
-        if ( text_p[i] <= 0x7f )
+        // Decode character
+        i32 ch_len = from->check_bytes(text_p, n);
+        if ( ch_len < 0 )
         {
-            if ( text_p[i] == '\n' )
-            {
-                if ( !skip_line_feed )
-                {
-                    line++;
-                }
-                col = 0;
-            }
-            else if ( text_p[i] == '\r' )
-            {
-                line++;
-                skip_line_feed = true;
-                col = 0;
-            }
-
-            *utf8_ptr++ = text_p[i];
-            continue;
+            nst_buffer_destroy(&buf);
+            _NST_SET_VALUE_ERROR(error, pos, pos, nst_sprintf(
+                _NST_EM_INVALID_ENCODING,
+                *text_p, from->name));
+            return false;
         }
-        i32 offset = nst_cp1252_to_utf8(utf8_ptr, text_p[i]);
+        usize ch_size = ch_len * from->ch_size;
+        u32 utf32_ch = from->to_utf32(text_p);
+        text_p += ch_size;
+        n -= ch_len;
 
-        if ( offset == -1 )
+        if ( utf32_ch == '\n' && !skip_line_feed )
         {
-            nst_free(new_text);
-            Nst_Pos pos = { line, col, text };
-            _NST_SET_RAW_VALUE_ERROR(
-                error,
-                pos, pos,
-                "invalid cp1252 byte found");
-            return -1;
+            pos.line++;
+            pos.col = 0;
+        }
+        if ( skip_line_feed )
+        {
+            skip_line_feed = false;
         }
 
-        utf8_ptr += offset;
-        col++;
+        if ( utf32_ch == '\r' )
+        {
+            pos.line++;
+            pos.col = 0;
+            skip_line_feed = true;
+        }
+
+        // Re-encode character
+        if ( !nst_buffer_expand_by(&buf, 5, &lexer_err) )
+        {
+            nst_buffer_destroy(&buf);
+            _NST_SET_ERROR_FROM_OP_ERR(error, &lexer_err, pos, pos);
+            return false;
+        }
+        ch_len = nst_cp_utf8.from_utf32(utf32_ch, buf.data + buf.len);
+        buf.len += ch_len;
+        pos.col++;
     }
-    text->len = utf8_ptr - new_text;
+    buf.data[buf.len] = 0;
+
     nst_free(text->text);
-    text->text = new_text;
-    return 0;
+    text->text = buf.data;
+    text->len = buf.len;
+    return true;
 }
 
-static void parse_first_line(i8  *text,
-                             usize len,
-                             i32   *opt_level,
-                             bool  *force_cp1252,
-                             bool  *no_default)
+static void parse_first_line(i8       *text,
+                             usize     len,
+                             i32      *opt_level,
+                             Nst_CPID *encoding,
+                             bool     *no_default)
 {
-    if ( len >= 3 &&
-         text[0] == '\xef' &&
-         text[1] == '\xbb' &&
-         text[2] == '\xbf' )
-    {
-        text += 3;
-        len -= 3;
-    }
+    i32 bom_size;
+    nst_check_bom(text, len, &bom_size);
+    text += bom_size;
+    len -= bom_size;
 
     if ( len < 3 || text[0] != '-' || text[1] != '-' || text[2] != '$' )
     {
         return;
     }
 
-    i8 curr_opt[13];
+    i8 curr_opt[27]; // max length: --encoding + '=' + 15 characters for the value
     usize i = 0;
     text += 3;
     len -= 3;
@@ -1181,7 +1118,7 @@ static void parse_first_line(i8  *text,
     {
         if ( *text != ' ' )
         {
-            if ( i < 12 )
+            if ( i < 26 )
             {
                 curr_opt[i] = *text;
             }
@@ -1193,7 +1130,7 @@ static void parse_first_line(i8  *text,
         text++;
         len--;
 
-        if ( i > 12 || i == 0 )
+        if ( i > 26 || i == 0 )
         {
             i = 0;
             continue;
@@ -1220,9 +1157,18 @@ static void parse_first_line(i8  *text,
         {
             *no_default = true;
         }
-        else if ( strcmp(curr_opt, "--cp1252") == 0 )
+        else if ( strncmp(curr_opt, "--encoding", 10) == 0 )
         {
-            *force_cp1252 = true;
+            if ( curr_opt[11] != '=' )
+            {
+                i = 0;
+                continue;
+            }
+            Nst_CPID new_encoding = nst_encoding_from_name(curr_opt + 11);
+            if ( new_encoding != NST_CP_UNKNOWN )
+            {
+                *encoding = new_encoding;
+            }
         }
         i = 0;
     }
@@ -1254,8 +1200,16 @@ static void parse_first_line(i8  *text,
     {
         *no_default = true;
     }
-    else if ( strcmp(curr_opt, "--cp1252") == 0 )
+    else if ( strncmp(curr_opt, "--encoding", 10) == 0 )
     {
-        *force_cp1252 = true;
+        if ( curr_opt[11] != '=' )
+        {
+            return;
+        }
+        Nst_CPID new_encoding = nst_encoding_from_name(curr_opt + 11);
+        if ( new_encoding != NST_CP_UNKNOWN )
+        {
+            *encoding = new_encoding;
+        }
     }
 }

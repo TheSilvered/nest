@@ -172,6 +172,7 @@
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_element.h" />
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_event.h" />
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_label.h" />
+    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_stack_layout.h" />
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_update.h" />
     <ClInclude Include="..\..\..\..\libs\nest_gui\nest_gui.h" />
   </ItemGroup>
@@ -181,6 +182,7 @@
     <ClCompile Include="..\..\..\..\libs\nest_gui\gui_element.cpp" />
     <ClCompile Include="..\..\..\..\libs\nest_gui\gui_event.cpp" />
     <ClCompile Include="..\..\..\..\libs\nest_gui\gui_label.cpp" />
+    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_stack_layout.cpp" />
     <ClCompile Include="..\..\..\..\libs\nest_gui\gui_update.cpp" />
     <ClCompile Include="..\..\..\..\libs\nest_gui\nest_gui.cpp" />
   </ItemGroup>

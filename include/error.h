@@ -60,6 +60,7 @@
 #define _NST_EM_COMPOUND_ASSIGMENT "cannot unpack values in a compound assigment"
 #define _NST_EM_BAD_INT_BASE "the base must be between 2 and 36"
 #define _NST_EM_INVALID_CPID "the encoding selected is not supported"
+#define _NST_EM_NULL_ARG(func, argn) func ": " argn " is NULL"
 
 #define _NST_EM_EXPECTED_TYPE(type) "expected type '" type "', got '%s' instead"
 #define _NST_EM_EXPECTED_TYPES "expected type '%s', got '%s' instead"

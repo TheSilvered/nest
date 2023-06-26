@@ -3,7 +3,7 @@
 #ifndef LEXER_H
 #define LEXER_H
 
-#include "error.h"
+#include "encoding.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -11,7 +11,7 @@ extern "C" {
 
 // Returns an LList of tokens given the path to a file
 EXPORT Nst_LList *nst_tokenizef(i8             *filename,
-                                bool            force_cp1252,
+                                Nst_CPID        encoding,
                                 i32            *opt_level,
                                 bool           *no_default,
                                 Nst_SourceText *src_text,
@@ -19,10 +19,10 @@ EXPORT Nst_LList *nst_tokenizef(i8             *filename,
 // Returns an LList of tokens given the text, it's length and a filename
 EXPORT Nst_LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error);
 
-EXPORT void nst_add_lines(Nst_SourceText *text, i32 start_offset);
-EXPORT i32 nst_normalize_encoding(Nst_SourceText *text,
-                                  bool            is_cp1252,
-                                  Nst_Error      *error);
+EXPORT void nst_add_lines(Nst_SourceText *text);
+EXPORT bool nst_normalize_encoding(Nst_SourceText *text,
+                                   Nst_CPID        encoding,
+                                   Nst_Error      *error);
 
 #ifdef __cplusplus
 }

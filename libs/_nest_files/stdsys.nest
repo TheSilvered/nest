@@ -2,6 +2,7 @@
 
 |#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_sys.dll' = __sys
 
+__sys.endianness_    = endianness
 __sys.exit_          = exit
 __sys.getenv_        = getenv
 __sys.get_addr_      = get_addr

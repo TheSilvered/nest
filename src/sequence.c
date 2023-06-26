@@ -14,7 +14,7 @@ static Nst_Obj *new_seq(usize len, usize size, Nst_TypeObj *type, Nst_OpErr *err
         type,
         _nst_seq_destroy,
         err);
-    Nst_Obj **objs = (Nst_Obj **)nst_calloc(size, sizeof(Nst_Obj *), NULL, err);
+    Nst_Obj **objs = nst_calloc_c(size, Nst_Obj *, NULL, err);
 
     if ( seq == NULL || objs == NULL )
     {
@@ -109,10 +109,10 @@ bool _nst_vector_resize(Nst_SeqObj *vect, Nst_OpErr *err)
         return true;
     }
 
-    Nst_Obj **new_objs = (Nst_Obj **)nst_realloc(
+    Nst_Obj **new_objs = nst_realloc_c(
         vect->objs,
         new_size,
-        sizeof(Nst_Obj *),
+        Nst_Obj *,
         size,
         err);
 

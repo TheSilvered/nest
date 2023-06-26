@@ -23,10 +23,7 @@ Nst_Obj *nst_map_new(Nst_OpErr *err)
     }
 
     map->item_count = 0;
-    map->nodes = (Nst_MapNode *)nst_calloc(
-        _NST_MAP_MIN_SIZE,
-        sizeof(Nst_MapNode),
-        NULL, err);
+    map->nodes = nst_calloc_c(_NST_MAP_MIN_SIZE, Nst_MapNode, NULL, err);
 
     if ( map->nodes == NULL )
     {
@@ -115,7 +112,7 @@ bool _nst_map_resize(Nst_MapObj *map, bool force_item_reset, Nst_OpErr *err)
         return true;
     }
 
-    map->nodes = (Nst_MapNode *)nst_calloc(size, sizeof(Nst_MapNode), NULL, err);
+    map->nodes = nst_calloc_c(size, Nst_MapNode, NULL, err);
     if ( map->nodes == NULL )
     {
         map->nodes = old_nodes;

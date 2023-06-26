@@ -69,7 +69,7 @@ NST_FUNC_SIGN(load_f_)
     usize buf_size = (usize)ftell(f);
     fseek(f, 0, SEEK_SET);
 
-    i8 *buf = (i8 *)nst_malloc((buf_size + 1), sizeof(i8), err);
+    i8 *buf = nst_malloc_c(buf_size + 1, i8, err);
     if ( buf == nullptr )
     {
         fclose(f);

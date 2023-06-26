@@ -1,7 +1,22 @@
 #ifndef GUI_LABEL_H
 #define GUI_LABEL_H
 
+#include <SDL_ttf.h>
 #include "nest_gui.h"
+#define NO_ALIGN_IMPL
+#ifndef TTF_WRAPPED_ALIGN_LEFT
+
+#define TTF_WRAPPED_ALIGN_LEFT 0
+#define TTF_WRAPPED_ALIGN_CENTER 1
+#define TTF_WRAPPED_ALIGN_RIGHT 2
+
+SDL_Surface *render_wrapped_aligned(TTF_Font *font,
+                                    i8       *text,
+                                    SDL_Color color,
+                                    int       wrap_lenght,
+                                    int       alignment);
+
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,9 +31,6 @@ typedef struct _GUI_Label
     SDL_Color color;
     int alignment;
     int texture_render_width;
-    int texture_w;
-    int texture_h;
-    bool clip_text;
     bool auto_height;
 }
 GUI_Label;

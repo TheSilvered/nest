@@ -32,7 +32,13 @@ static int fix_radius(int min_side, int r)
     return r;
 }
 
-static void draw_angle_point(SDL_Renderer *renderer,
+static void draw_point(SDL_Surface *surf, int x, int y, u8 r, u8 g, u8 b, u8 a)
+{
+    SDL_Rect rect = { x, y, 1, 1 };
+    SDL_FillRect(surf, &rect, (a << 24) + (r << 16) + (g << 8) + b);
+}
+
+static void draw_angle_point(SDL_Surface *surf,
                              int rad,
                              int i, int j, int x, int y,
                              u8 r, u8 g, u8 b, u8 a)
@@ -46,49 +52,48 @@ static void draw_angle_point(SDL_Renderer *renderer,
 
     if ( dist < rad*rad )
     {
-        SDL_SetRenderDrawColor(renderer, r, g, b, a);
-        SDL_RenderDrawPoint(renderer, x, y);
+        draw_point(surf, x, y, r, g, b, a);
     }
     else if ( dist < (rad+1)*(rad+1) )
     {
         u8 new_opacity = u8((1 - sqrt(dist) + rad) * a);
-        SDL_SetRenderDrawColor(renderer, r, g, b, new_opacity);
-        SDL_RenderDrawPoint(renderer, x, y);
+        draw_point(surf, x, y, r, g, b, new_opacity);
     }
 }
 
-void draw_round_rect(SDL_Renderer *renderer,
-                     SDL_Rect *rect,
-                     int rtl, int rtr, int rbl, int rbr,
-                     u8 r, u8 g, u8 b, u8 a)
+SDL_Texture *draw_round_rect(SDL_Renderer *renderer,
+                             SDL_Rect rect,
+                             int rtl, int rtr, int rbl, int rbr,
+                             u8 r, u8 g, u8 b, u8 a)
 {
-    if ( rect == nullptr )
+    SDL_Surface *surf = SDL_CreateRGBSurface(
+        0, rect.w, rect.h, 32,
+        0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+    SDL_Texture *texture;
+
+    if ( surf == nullptr )
     {
-        return;
+        return nullptr;
     }
 
-    if ( rect->w == 0 && rect->h == 0 )
+    if ( rect.w == 0 && rect.h == 0 )
     {
-        return;
+        texture = SDL_CreateTextureFromSurface(renderer, surf);
+        SDL_FreeSurface(surf);
+        return texture;
     }
 
-    int x = rect->x;
-    int y = rect->y;
-    int w = rect->w;
-    int h = rect->h;
-
-    i32 min_side = w;
-    if ( min_side > h )
+    i32 min_side = rect.w;
+    if ( min_side > rect.h )
     {
-        min_side = h;
+        min_side = rect.h;
     }
     rtl = fix_radius(min_side, rtl);
     rtr = fix_radius(min_side, rtr);
     rbl = fix_radius(min_side, rbl);
     rbr = fix_radius(min_side, rbr);
 
-    SDL_SetRenderDrawBlendMode(renderer, SDL_BLENDMODE_BLEND);
-    SDL_SetRenderDrawColor(renderer, r, g, b, a);
+    u32 color = (a << 24) + (r << 16) + (g << 8) + b;
 
     int max_l = imax(rtl, rbl);
     int max_r = imax(rtr, rbr);
@@ -96,20 +101,20 @@ void draw_round_rect(SDL_Renderer *renderer,
     int min_l = imin(rtl, rbl);
     int min_r = imin(rtr, rbr);
 
-    SDL_Rect cr = { x + max_l, y, w - max_r - max_l, h };
-    SDL_RenderFillRect(renderer, &cr);
+    SDL_Rect cr = { max_l, 0, rect.w - max_r - max_l, rect.h };
+    SDL_FillRect(surf, &cr, color);
 
-    cr = { x, y + rtl, min_l, h - rtl - rbl };
-    SDL_RenderFillRect(renderer, &cr);
+    cr = { 0, rtl, min_l, rect.h - rtl - rbl };
+    SDL_FillRect(surf, &cr, color);
 
-    cr = { x + min_l, y + (rtl == min_l ? 0 : rtl), max_l - min_l, h - (rtl == min_l ? rbl : rtl) };
-    SDL_RenderFillRect(renderer, &cr);
+    cr = {  min_l, rtl == min_l ? 0 : rtl, max_l - min_l, rect.h - (rtl == min_l ? rbl : rtl) };
+    SDL_FillRect(surf, &cr, color);
 
-    cr = { x + w - min_r, y + rtr, min_r, h - rtr - rbr };
-    SDL_RenderFillRect(renderer, &cr);
+    cr = { rect.w - min_r, rtr, min_r, rect.h - rtr - rbr };
+    SDL_FillRect(surf, &cr, color);
 
-    cr = { x + w - max_r, y + (rtr == min_r ? 0 : rtr), max_r - min_r, h - (rtr == min_r ? rbr : rtr) };
-    SDL_RenderFillRect(renderer, &cr);
+    cr = { rect.w - max_r, rtr == min_r ? 0 : rtr, max_r - min_r, rect.h - (rtr == min_r ? rbr : rtr) };
+    SDL_FillRect(surf, &cr, color);
 
     int max_rad = imax(max_l, max_r);
 
@@ -117,10 +122,35 @@ void draw_round_rect(SDL_Renderer *renderer,
     {
         for ( int j = 0; j < max_rad; j++ )
         {
-            draw_angle_point(renderer, rtl, i, j, x + i, y + j, r, g, b, a);
-            draw_angle_point(renderer, rtr, i, j, x + w - i - 1, y + j, r, g, b, a);
-            draw_angle_point(renderer, rbr, i, j, x + w - i - 1, y + h - j - 1, r, g, b, a);
-            draw_angle_point(renderer, rbl, i, j, x + i, y + h - j - 1, r, g, b, a);
+            draw_angle_point(surf, rtl, i, j, i, j, r, g, b, a);
+            draw_angle_point(surf, rtr, i, j, rect.w - i - 1, j, r, g, b, a);
+            draw_angle_point(surf, rbr, i, j, rect.w - i - 1, rect.h - j - 1, r, g, b, a);
+            draw_angle_point(surf, rbl, i, j, i, rect.h - j - 1, r, g, b, a);
         }
     }
+
+    texture = SDL_CreateTextureFromSurface(renderer, surf);
+    SDL_FreeSurface(surf);
+    return texture;
+}
+
+void draw_texture(GUI_App *app, int x, int y, SDL_Texture *texture, SDL_Rect *clip)
+{
+    int w, h;
+    SDL_QueryTexture(texture, nullptr, nullptr, &w, &h);
+    SDL_Rect texture_rect = { x, y, w, h };
+
+    if ( clip == nullptr )
+    {
+        SDL_RenderCopy(app->renderer, texture, NULL, &texture_rect);
+        return;
+    }
+
+    SDL_Rect dst_rect;
+    if ( !SDL_IntersectRect(clip, &texture_rect, &dst_rect) )
+    {
+        return;
+    }
+    SDL_Rect src_rect = { dst_rect.x - x, dst_rect.y - y, dst_rect.w, dst_rect.h };
+    SDL_RenderCopy(app->renderer, texture, &src_rect, &dst_rect);
 }

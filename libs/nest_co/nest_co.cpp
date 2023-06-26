@@ -415,7 +415,7 @@ NST_FUNC_SIGN(pause_)
         stack_size++;
     }
 
-    co->stack = (Nst_Obj **)nst_malloc(stack_size, sizeof(Nst_Obj *), err);
+    co->stack = nst_malloc_c(stack_size, Nst_Obj *, err);
 
     for ( usize i = stack_size; i > 0; i-- )
     {

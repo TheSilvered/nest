@@ -6,14 +6,47 @@
 
 #define nst_raw_free nst_free
 
+#define nst_malloc_c(count, type, err) \
+    ((type *)nst_malloc(count, sizeof(type), err))
+
+#define nst_calloc_c(count, type, init_value, err) \
+    ((type *)nst_calloc(count, sizeof(type), (void *)(init_value), err))
+
+#define nst_realloc_c(prev_block, new_count, type, prev_count, err) \
+    ((type *)nst_realloc( \
+        (void *)(prev_block), \
+        new_count, \
+        sizeof(type), \
+        prev_count, \
+        err))
+
+#define nst_crealloc_c(prev_block, new_count, type, prev_count, init_value, err) \
+    ((type *)nst_crealloc( \
+        (void *)(prev_block), \
+        new_count, \
+        sizeof(type), \
+        prev_count, \
+        (void *)(init_value), \
+        err))
+
 #ifdef __cplusplus
 extern "C" {
 #endif
+
+typedef struct _Nst_SizedBuffer
+{
+    usize len;
+    usize size;
+    usize unit_size;
+    void *data;
+}
+Nst_SizedBuffer;
 
 typedef struct _Nst_Buffer
 {
     usize len;
     usize size;
+    usize unit_size;
     i8 *data;
 }
 Nst_Buffer;
@@ -39,6 +72,13 @@ EXPORT void *nst_crealloc(void *prev_block,
                           void *init_value,
                           Nst_OpErr *err);
 EXPORT void nst_free(void *block);
+
+EXPORT bool nst_sbuffer_init(Nst_SizedBuffer *buf, usize unit_size, usize count, Nst_OpErr *err);
+EXPORT bool nst_sbuffer_expand_by(Nst_SizedBuffer *buf, usize amount, Nst_OpErr *err);
+EXPORT bool nst_sbuffer_expand_to(Nst_SizedBuffer *buf, usize count, Nst_OpErr *err);
+EXPORT void nst_sbuffer_fit(Nst_SizedBuffer *buf);
+EXPORT bool nst_sbuffer_append(Nst_SizedBuffer *buf, void *element, Nst_OpErr *err);
+EXPORT void nst_sbuffer_destroy(Nst_SizedBuffer *buf);
 
 EXPORT bool nst_buffer_init(Nst_Buffer *buf, usize initial_size, Nst_OpErr *err);
 EXPORT bool nst_buffer_expand_by(Nst_Buffer *buf, usize amount, Nst_OpErr *err);

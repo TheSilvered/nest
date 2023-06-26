@@ -205,10 +205,11 @@ end:
     nst_dec_ref(nst_type()->Vector);
     if ( vec->len < vec->size && vec->len != 0 )
     {
-        Nst_Obj **new_objs = (Nst_Obj **)nst_realloc(
+        Nst_Obj **new_objs = nst_realloc_c(
             vec->objs,
             vec->len,
-            sizeof(Nst_Obj *), 0, err);
+            Nst_Obj *,
+            0, err);
         if ( new_objs != nullptr )
         {
             vec->objs = new_objs;

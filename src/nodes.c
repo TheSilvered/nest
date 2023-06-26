@@ -5,8 +5,8 @@
 
 Nst_Node *nst_node_new(Nst_NodeType type, Nst_OpErr *err)
 {
-    Nst_Node *node = (Nst_Node *)nst_malloc(1, sizeof(Nst_Node), err);
-    Nst_LList *lists = (Nst_LList *)nst_malloc(2, sizeof(Nst_LList), err);
+    Nst_Node *node = nst_malloc_c(1, Nst_Node, err);
+    Nst_LList *lists = nst_malloc_c(2, Nst_LList, err);
     if ( node == NULL || lists == NULL )
     {
         if ( node ) nst_free(node);

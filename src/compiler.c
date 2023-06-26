@@ -114,9 +114,7 @@ static Nst_InstList *compile_internal(Nst_Node *node,
         return NULL;
     }
 
-    Nst_InstList *inst_list = (Nst_InstList *)nst_malloc(
-        1, sizeof(Nst_InstList),
-        &comp_err);
+    Nst_InstList *inst_list = nst_malloc_c(1, Nst_InstList, &comp_err);
     if ( inst_list == NULL )
     {
         _NST_SET_ERROR_FROM_OP_ERR(c_state.error, &comp_err, node->start, node->end);
@@ -135,9 +133,9 @@ static Nst_InstList *compile_internal(Nst_Node *node,
     {
         inst_list->total_size = c_state.inst_ls->size + (add_return ? 2 : 0);
     }
-    inst_list->instructions = (Nst_Inst *)nst_calloc(
+    inst_list->instructions = nst_calloc_c(
         inst_list->total_size,
-        sizeof(Nst_Inst), NULL,
+        Nst_Inst, NULL,
         &comp_err);
     if ( inst_list->instructions == NULL )
     {

@@ -79,7 +79,7 @@ int main(int argc, char **argv)
     bool print_tree;
     bool print_bc;
     bool force_exe;
-    bool force_cp1252;
+    Nst_CPID encoding;
     bool no_default;
     i32 opt_level;
     i8 *command;
@@ -92,7 +92,7 @@ int main(int argc, char **argv)
         &print_tree,
         &print_bc,
         &force_exe,
-        &force_cp1252,
+        &encoding,
         &no_default,
         &opt_level,
         &command,
@@ -130,7 +130,7 @@ int main(int argc, char **argv)
         bool spec_no_def;
         tokens = nst_tokenizef(
             filename,
-            force_cp1252,
+            encoding,
             &spec_opt_lvl,
             &spec_no_def,
             &src_text,

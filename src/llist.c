@@ -6,7 +6,7 @@ Nst_LLNode *nst_llnode_new(void              *value,
                            bool               allocated,
                            struct _Nst_OpErr *err)
 {
-    Nst_LLNode *node = (Nst_LLNode *)nst_malloc(1, sizeof(Nst_LLNode), err);
+    Nst_LLNode *node = nst_malloc_c(1, Nst_LLNode, err);
     if ( node == NULL )
     {
         return NULL;
@@ -115,7 +115,7 @@ void *nst_llist_pop(Nst_LList *llist)
 
 Nst_LList *nst_llist_new(struct _Nst_OpErr *err)
 {
-    Nst_LList *llist = (Nst_LList *)nst_malloc(1, sizeof(Nst_LList), err);
+    Nst_LList *llist = nst_malloc_c(1, Nst_LList, err);
     if ( llist == NULL )
     {
         return NULL;

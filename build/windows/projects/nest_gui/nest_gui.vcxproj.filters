@@ -36,6 +36,9 @@
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_label.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_stack_layout.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp">
@@ -57,6 +60,9 @@
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\libs\nest_gui\gui_label.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_stack_layout.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>

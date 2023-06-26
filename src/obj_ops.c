@@ -843,7 +843,7 @@ Nst_Obj* _nst_repr_str_cast(Nst_Obj* ob, Nst_OpErr *err)
     }
     else if ( ob_t == nst_t.Byte )
     {
-        i8 *str = (i8*)nst_calloc(5, sizeof(i8), NULL, err);
+        i8 *str = nst_calloc_c(5, i8, NULL, err);
         CHECK_BUFFER(str);
 
         sprintf(str, "%lib", (i32)AS_BYTE(ob));
@@ -1054,14 +1054,14 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob, Nst_OpErr *err)
 
     if ( ob_t == nst_t.Int )
     {
-        i8 *buffer = (i8 *)nst_malloc(MAX_INT_CHAR_COUNT, sizeof(i8), err);
+        i8 *buffer = nst_malloc_c(MAX_INT_CHAR_COUNT, i8, err);
         CHECK_BUFFER(buffer);
         i32 len = sprintf(buffer, "%lli", AS_INT(ob));
         NST_RETURN_NEW_STR(buffer, len);
     }
     else if ( ob_t == nst_t.Real )
     {
-        i8 *buffer = (i8 *)nst_malloc(MAX_REAL_CHAR_COUNT, sizeof(i8), err);
+        i8 *buffer = nst_malloc_c(MAX_REAL_CHAR_COUNT, i8, err);
         CHECK_BUFFER(buffer);
         i32 len = sprintf(buffer, "%." REAL_PRECISION "lg", AS_REAL(ob));
         for ( i32 i = 0; i < len; i++ )
@@ -1147,7 +1147,7 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob, Nst_OpErr *err)
     }
     else if ( ob_t == nst_t.Byte )
     {
-        i8 *str = (i8 *)nst_calloc(2, sizeof(i8), NULL, err);
+        i8 *str = nst_calloc_c(2, i8, NULL, err);
         CHECK_BUFFER(str);
         str[0] = AS_BYTE(ob);
         NST_RETURN_NEW_STR(str, 1);
@@ -1180,7 +1180,7 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob, Nst_OpErr *err)
     }
     else if ( ob_t == nst_t.IOFile )
     {
-        i8 *buffer = (i8 *)nst_malloc(14, sizeof(i8), err);
+        i8 *buffer = nst_malloc_c(14, i8, err);
         CHECK_BUFFER(buffer);
         memcpy(buffer, "<IOFile --- >", 14);
         if ( NST_IOF_CAN_READ(ob) )  buffer[8] = 'r';
@@ -1190,7 +1190,7 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob, Nst_OpErr *err)
     }
     else if ( ob_t == nst_t.Func )
     {
-        i8 *buffer = (i8 *)nst_malloc(13 + MAX_INT_CHAR_COUNT, sizeof(i8), err);
+        i8 *buffer = nst_malloc_c(13 + MAX_INT_CHAR_COUNT, i8, err);
         CHECK_BUFFER(buffer);
         i32 len;
 
@@ -1205,10 +1205,9 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob, Nst_OpErr *err)
     }
     else
     {
-        i8 *buffer = (i8 *)nst_malloc(
+        i8 *buffer = nst_malloc_c(
             STR(ob->type)->len + 16 + (i32)sizeof(usize) * 2,
-            sizeof(i8),
-            err);
+            i8, err);
         CHECK_BUFFER(buffer);
         i32 len = sprintf(
             buffer,
@@ -1402,10 +1401,10 @@ static Nst_Obj *iter_to_seq(Nst_Obj *ob, bool is_vect, Nst_OpErr *err)
     {
         return OBJ(seq);
     }
-    Nst_Obj **new_objs = (Nst_Obj **)nst_realloc(
+    Nst_Obj **new_objs = nst_realloc_c(
         seq->objs,
         seq->len,
-        sizeof(Nst_Obj *),
+        Nst_Obj *,
         seq->size,
         err);
     if ( new_objs != seq->objs )
@@ -1762,7 +1761,7 @@ Nst_Obj *_nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     usize len2 = nst_s2->len;
     usize tot_len = len1 + len2;
 
-    i8 *buffer = (i8 *)nst_malloc(tot_len + 1, sizeof(i8), err);
+    i8 *buffer = nst_malloc_c(tot_len + 1, i8, err);
 
     CHECK_BUFFER(buffer);
 
@@ -2022,8 +2021,7 @@ static bool add_to_handle_map(Nst_StrObj     *path,
 
 static Nst_Obj *import_nest_lib(Nst_StrObj *file_path, Nst_OpErr *err)
 {
-    Nst_SourceText *lib_src =
-        (Nst_SourceText *)nst_malloc(1, sizeof(Nst_SourceText), err);
+    Nst_SourceText *lib_src = nst_malloc_c(1, Nst_SourceText, err);
 
     if ( lib_src == NULL )
     {
@@ -2201,7 +2199,7 @@ Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len, Nst_OpErr *er
     const i8 *obj_ops_path = __FILE__;
     const i8 *nest_files = "libs/_nest_files/";
     usize full_size = path_len + nest_file_len + root_len;
-    file_path = (i8 *)nst_malloc((full_size + 1), sizeof(i8), err);
+    file_path = nst_malloc_c(full_size + 1, i8, err);
     if ( file_path == NULL )
     {
         return NULL;
@@ -2222,7 +2220,7 @@ Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len, Nst_OpErr *er
     }
 
     usize appdata_len = strlen(appdata);
-    file_path = (i8 *)nst_malloc(appdata_len + path_len + 26, sizeof(i8), err);
+    file_path = nst_malloc_c(appdata_len + path_len + 26, i8, err);
     if ( file_path == NULL )
     {
         return NULL;
@@ -2232,7 +2230,7 @@ Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len, Nst_OpErr *er
 #else
 
     // In UNIX the standard library is stored in /usr/lib/nest
-    file_path = (i8 *)nst_malloc(path_len + 15, sizeof(i8), err);
+    file_path = nst_malloc_c(path_len + 15, i8, err);
     if ( file_path == NULL )
     {
         return NULL;

@@ -70,6 +70,7 @@ static bool tick_element(GUI_Element *el, Nst_OpErr *err)
 
 bool update_elements(GUI_App *app, Nst_OpErr *err)
 {
+    SDL_GetWindowSize(app->window, &app->clip_window.w, &app->clip_window.h);
     return update_element(app->root, app->show_bounds, err);
 }
 

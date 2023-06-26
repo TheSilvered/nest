@@ -7,6 +7,7 @@
 __gui.loop_             = loop
 __gui.set_window_       = set_window
 __gui.label_            = label
+__gui.stack_layout_     = stack_layout
 __gui.set_position_     = set_position
 __gui.set_rel_position_ = set_rel_position
 __gui.set_size_         = set_size
@@ -39,15 +40,19 @@ __gui._debug_view_ = _debug_view
 
 |#| 'stditutil.nest' = _itu
 
-#_enum arr => (?::{}) :: (arr 0 1 1 @_itu.enumerate)
+#_enum arr start => (?::{}) :: (arr start 1 1 @_itu.enumerate)
 
-{ 'left', 'middle', 'right' } @_enum = REL_X
-{ 'top', 'center', 'bottom' } @_enum = REL_Y
+{ 'none', 'left', 'middle', 'right' } -1 @_enum = REL_X
+-- Though in C GUI_NONE_Y is -2, any negative value works
+{ 'none', 'top', 'center', 'bottom' } -1 @_enum = REL_Y
 
 { 'bold', 'regular' } @_enum = FONT_WEIGHT
 { 'big', 'medium', 'small' } @_enum = FONT_SIZE
 { 'regular', 'italic' } @_enum = FONT_STYLE
 
-{ 'padding', 'element', 'margin' } @_enum = SIZE_RECT
+{ 'padding', 'element', 'margin' } @_enum = RECT
+
+{ 'top_bottom', 'left_right', 'bottom_top', 'right_left' } @_enum = STACK_DIR
+{ 'left': 0, 'top': 0, 'middle': 1, 'center': 1, 'bottom': 2, 'right': 2 } = STACK_ALIGN
 
 _vars_ '__gui' '_vars_' '_enum' '_itu' -

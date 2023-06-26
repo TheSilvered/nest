@@ -246,7 +246,7 @@ NST_FUNC_SIGN(slice_)
     }
     else
     {
-        i8 *buf = (i8 *)nst_malloc(new_size + 1, sizeof(i8), err);
+        i8 *buf = nst_malloc_c(new_size + 1, i8, err);
         if ( buf == nullptr )
         {
             return nullptr;
@@ -332,8 +332,8 @@ void merge(Nst_SeqObj *seq, usize l, usize m, usize r, Nst_OpErr *err)
     usize len1 = m - l + 1;
     usize len2 = r - m;
 
-    Nst_Obj **left  = (Nst_Obj **)nst_malloc(len1, sizeof(Nst_Obj *), err);
-    Nst_Obj **right = (Nst_Obj **)nst_malloc(len2, sizeof(Nst_Obj *), err);
+    Nst_Obj **left  = nst_malloc_c(len1, Nst_Obj *, err);
+    Nst_Obj **right = nst_malloc_c(len2, Nst_Obj *, err);
 
     if ( left == nullptr || right == nullptr )
     {
@@ -478,10 +478,10 @@ NST_FUNC_SIGN(filter_)
 
     if ( seq->type == nst_type()->Array )
     {
-        Nst_Obj **new_objs = (Nst_Obj **)nst_realloc(
+        Nst_Obj **new_objs = nst_realloc_c(
             new_seq->objs,
             new_seq->len,
-            sizeof(Nst_Obj *),
+            Nst_Obj *,
             new_seq->size, err);
         if ( new_objs != new_seq->objs )
         {

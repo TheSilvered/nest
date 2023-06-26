@@ -33,11 +33,8 @@ sys.SUPPORTS_COLOR ? [
     ]
 ]
 
-#error_location tb [
-    $tb 2 < ? => ''
-    tb.(1).start.(0) 1 + = line
-    tb.(1).start.(1) 1 + = column
-    => '; line ' line ' column ' column ><
+#error_location error [
+    => '; line ' error.pos.start.0 ' column ' error.pos.start.1 ><
 ]
 
 #run_tests dir [
@@ -59,7 +56,7 @@ sys.SUPPORTS_COLOR ? [
         1 += _globals_.failed_tests
 
         C_RED ' FAILED' C_RESET ': ' res.error.name ' - ' res.error.message >< = s
-        res.traceback @error_location ><= s
+        res.error @error_location ><= s
         s true @io.println
     ]
 ]

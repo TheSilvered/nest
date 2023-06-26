@@ -5,20 +5,14 @@
 
 #define _NST_VERSION_BASE "beta-0.13.0"
 
-#if defined(_WIN32) || defined(WIN32)
-  #ifdef _WIN64
-    #define NST_VERSION _NST_VERSION_BASE " x64"
-  #else
-    #define NST_VERSION _NST_VERSION_BASE " x86"
-  #endif
-#elif defined(__GNUC__)
-  #if defined(__x86_64__) || defined(__ppc64__)
-    #define NST_VERSION _NST_VERSION_BASE " x64"
-  #else
-    #define NST_VERSION _NST_VERSION_BASE " x86"
-  #endif
+#include <stdint.h>
+
+#if (INTPTR_MAX == INT64_MAX) || defined(_NST_ARCH64)
+  #define NST_VERSION _NST_VERSION_BASE " x64"
+#elif INTPTR_MAX == INT32_MAX || defined(_NST_ARCH86)
+  #define NST_VERSION _NST_VERSION_BASE " x86"
 #else
-  #define NST_VERSION _NST_VERSION_BASE " x??"
+  #error Failed to determine architecture, define _NST_ARCH64 or _NST_ARCH86
 #endif
 
 #include "iter.h"

@@ -88,7 +88,7 @@ Nst_LList *json_tokenize(i8        *path,
 
     if ( readonly_text )
     {
-        i8 *text_copy = (i8 *)nst_malloc(text_len, sizeof(i8), err);
+        i8 *text_copy = nst_malloc_c(text_len, i8, err);
         if ( text_copy == nullptr )
         {
             return nullptr;
@@ -97,9 +97,9 @@ Nst_LList *json_tokenize(i8        *path,
         src_text.text = text_copy;
     }
 
-    i32 start_offset = nst_normalize_encoding(&src_text, false, &error);
-    nst_add_lines(&src_text, start_offset);
-    if ( error.occurred || start_offset == -1 )
+    bool result = nst_normalize_encoding(&src_text, NST_CP_UNKNOWN, &error);
+    nst_add_lines(&src_text);
+    if ( error.occurred || !result )
     {
         err->name = error.name;
         err->message = error.message;
@@ -297,21 +297,9 @@ static Nst_Tok *parse_json_str(Nst_OpErr *err)
 
             i32 num = (ch1 << 12) + (ch2 << 8) + (ch3 << 4) + ch4;
 
-            if ( num <= 0x7f )
-            {
-                nst_buffer_append_char(&buf, (i8)num, NULL);
-            }
-            else if ( num <= 0x7ff )
-            {
-                nst_buffer_append_char(&buf, 0b11000000 | (i8)(num >> 6), NULL);
-                nst_buffer_append_char(&buf, 0b10000000 | (i8)(num & 0x3f), NULL);
-            }
-            else
-            {
-                nst_buffer_append_char(&buf, 0b11100000 | (i8)(num >> 12), NULL);
-                nst_buffer_append_char(&buf, 0b10000000 | (i8)(num >> 6 & 0x3f), NULL);
-                nst_buffer_append_char(&buf, 0b10000000 | (i8)(num & 0x3f), NULL);
-            }
+            i8 unicode_ch[4] = { 0 };
+            nst_utf8_from_utf32(num, (u8 *)unicode_ch);
+            nst_buffer_append_c_str(&buf, unicode_ch, NULL);
             break;
         }
         default:

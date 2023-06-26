@@ -5,8 +5,9 @@
 #include "gui_event.h"
 #include "gui_update.h"
 #include "gui_label.h"
+#include "gui_stack_layout.h"
 
-#define FUNC_COUNT 15
+#define FUNC_COUNT 16
 
 static Nst_ObjDeclr func_list_[FUNC_COUNT];
 static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
@@ -24,8 +25,9 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(loop_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(set_window_, 6);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(label_, 5);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(stack_layout_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(set_position_, 3);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(set_rel_position_, 6);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(set_rel_position_, 7);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(set_size_, 3);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(set_rel_size_, 9);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(set_margins_, 5);
@@ -36,7 +38,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_root_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_debug_view_, 1);
 
-#if __LINE__ - FUNC_COUNT != 24
+#if __LINE__ - FUNC_COUNT != 25
 #error
 #endif
 
@@ -46,6 +48,7 @@ bool lib_init()
     app.root = nullptr;
     app.window = nullptr;
     app.renderer = nullptr;
+    app.clip_window = { 0, 0, 0, 0 };
 
     app.keep_open = false;
     app.show_bounds = false;
@@ -219,56 +222,12 @@ NST_FUNC_SIGN(set_window_)
     gui_element_set_parent(root, root);
     gui_element_set_rel_size(
         root, nullptr,
-        GUI_RSR_ELEMENT,
+        GUI_RECT_ELEMENT,
         -1, -1,
         -1, -1,
         1.0, 1.0,
         0, 0);
     gui_element_set_padding(root, 5, 5, 5, 5);
-
-#if 0
-    GUI_Label *test_child = (GUI_Label *)gui_element_new(
-        GUI_ET_LABEL,
-        sizeof(GUI_Label),
-        0, 0,
-        100, 100,
-        &app, err);
-
-    if ( test_child != nullptr )
-    {
-        gui_element_set_rel_pos(
-            (GUI_Element *)test_child,
-            root,
-            GUI_MIDDLE,
-            GUI_CENTER,
-            GUI_MIDDLE,
-            GUI_CENTER);
-        gui_element_set_rel_size(
-            (GUI_Element *)test_child,
-            root,
-            -1, -1,
-            -1, -1,
-            0.5, 0.0,
-            0, 0);
-
-        gui_element_set_margin((GUI_Element *)test_child, 5, 5, 5, 5);
-        gui_element_set_padding((GUI_Element *)test_child, 5, 5, 5, 5);
-
-        gui_element_add_child(root, (GUI_Element *)test_child, err);
-        nst_dec_ref(test_child);
-
-        test_child->text = (i8 *)"Lorem ipsum dolor sit amet, consectetur adipi"
-                                 "scing elit. Nulla ut turpis pretium, viverra "
-                                 "metus et, imperdiet leo. Maecenas tristique a"
-                                 "t libero sit amet tincidunt.";
-        test_child->text_len = 163;
-        test_child->font = get_font(&app, GUI_FSZ_MEDIUM, GUI_FST_REGULAR, GUI_FW_REGULAR);
-        test_child->color = { 0, 0, 0, 255 };
-        test_child->alignment = TTF_WRAPPED_ALIGN_LEFT;
-        test_child->texture = nullptr;
-        test_child->frame_update_func = UpdateFunc(gui_label_update);
-    }
-#endif
 
     app.keep_open = true;
     NST_RETURN_NULL;
@@ -335,7 +294,7 @@ NST_FUNC_SIGN(label_)
     GUI_Element *label = gui_label_new(
         text, font,
         { r, g, b, a },
-        0, 0, w, h,
+        0, 0, w + 1, h,
         &app, err);
 
     if ( label == nullptr )
@@ -344,6 +303,33 @@ NST_FUNC_SIGN(label_)
     }
     gui_element_set_margin(label, 0, 0, 10, 0);
     return OBJ(label);
+}
+
+NST_FUNC_SIGN(stack_layout_)
+{
+    Nst_Obj *direction_obj;
+    Nst_Obj *alignment_obj;
+
+    NST_DEF_EXTRACT("?i?i", &direction_obj, &alignment_obj);
+    Nst_Int direction = NST_DEF_VAL(direction_obj, AS_INT(direction_obj), 0);
+    Nst_Int alignment = NST_DEF_VAL(alignment_obj, AS_INT(alignment_obj), 0);
+
+    if ( direction < 0 || direction > 3 )
+    {
+        NST_SET_RAW_VALUE_ERROR("invalid direction");
+        return nullptr;
+    }
+    if ( alignment < 0 || alignment > 2 )
+    {
+        NST_SET_RAW_VALUE_ERROR("invalid alignment");
+        return nullptr;
+    }
+
+    return OBJ(gui_stack_layout_new(
+        (GUI_StackDir)direction,
+        (GUI_StackAlign)alignment,
+        0, 0, 0, 0,
+        &app, err));
 }
 
 NST_FUNC_SIGN(set_position_)
@@ -367,16 +353,18 @@ NST_FUNC_SIGN(set_rel_position_)
     GUI_Element *from_element, *to_element;
     Nst_Int from_x, from_y, to_x, to_y;
     Nst_Obj *to_x_obj, *to_y_obj;
+    Nst_Obj *rect_obj;
 
     NST_DEF_EXTRACT(
-        "?##ii?i?i",
+        "?##ii?i?i?i",
         gui_element_type, &from_element,
         gui_element_type, &to_element,
-        &from_x, &from_y,
+        &from_x, &from_y, &rect_obj,
         &to_x_obj, &to_y_obj);
 
     to_x = NST_DEF_VAL(to_x_obj, AS_INT(to_x_obj), from_x);
     to_y = NST_DEF_VAL(to_y_obj, AS_INT(to_y_obj), from_y);
+    Nst_Int rect = NST_DEF_VAL(rect_obj, AS_INT(rect_obj), 0);
 
     if ( OBJ(from_element) == nst_null() )
     {
@@ -386,6 +374,7 @@ NST_FUNC_SIGN(set_rel_position_)
 
     gui_element_set_rel_pos(
         to_element, from_element,
+        (GUI_RelRect)rect,
         (GUI_RelPosX)from_x, (GUI_RelPosY)from_y,
         (GUI_RelPosX)to_x,   (GUI_RelPosY)to_y);
     NST_RETURN_NULL;
@@ -436,7 +425,7 @@ NST_FUNC_SIGN(set_rel_size_)
     min_h = NST_DEF_VAL(min_h_obj, AS_INT(min_h_obj), -1);
     max_w = NST_DEF_VAL(max_w_obj, AS_INT(max_w_obj), -1);
     max_h = NST_DEF_VAL(max_h_obj, AS_INT(max_h_obj), -1);
-    Nst_Int rsr = NST_DEF_VAL(rsr_obj, AS_INT(rsr_obj), GUI_RSR_PADDING);
+    Nst_Int rsr = NST_DEF_VAL(rsr_obj, AS_INT(rsr_obj), GUI_RECT_PADDING);
 
     i32 diff_x = 0, diff_y = 0;
     f64 scale_x = 0.0, scale_y = 0.0;
@@ -461,7 +450,7 @@ NST_FUNC_SIGN(set_rel_size_)
 
     gui_element_set_rel_size(
         to_element, from_element,
-        (GUI_RelSizeRect)rsr,
+        (GUI_RelRect)rsr,
         (int)min_w, (int)min_h, (int)max_w, (int)max_h,
         scale_x, scale_y,
         diff_x, diff_y);
@@ -496,10 +485,7 @@ NST_FUNC_SIGN(show_overflow_)
 
     NST_DEF_EXTRACT("#o_b", gui_element_type, &element, &overflow);
 
-    if ( element->el_type == GUI_ET_LABEL )
-    {
-        ((GUI_Label *)element)->clip_text = !overflow;
-    }
+    gui_element_clip_content(element, !overflow);
 
     NST_RETURN_NULL;
 }

@@ -31,14 +31,16 @@
     "  -O0                   do not optimize the program\n" \
     "  -O1                   optimize only expressions with known values\n" \
     "  -O2                   optimize bytecode instruction sequences that can be\n" \
-    "                        more concise\n" \
+    "                        made more concise\n" \
     "  -O3                   replace built-in names (e.g. 'true', 'Int', etc.) with\n" \
     "                        their corresponding value, this does not replace them\n" \
     "                        when they might be modified\n" \
     "\n" \
-    "  --cp1252              reads the file using the CP-1252 encoding\n" \
+    "  -e --encoding         in the form -e=encoding, reads the file in the specified\n" \
+    "                        encoding (e.g. --encoding=utf8)\n" \
     "\n" \
-    "  -m --monochrome       prints the error messages without ANSI color escapes\n"
+    "  -m --monochrome       prints the error messages without ANSI color escapes\n" \
+    "                        sets also 'sys.SUPPORTS_COLOR' to false"
 
 #define USAGE_MESSAGE \
     "USAGE: nest [options] [filename | -c command] [args]\n" \
@@ -47,25 +49,38 @@
 #define VERSION_MESSAGE \
     "Using Nest version: " NST_VERSION
 
+#define ENCODING_MESSAGE \
+    "The supported encodings are:\n" \
+    "- utf8 (aka utf-8)\n" \
+    "- utf16 (aka utf-16, utf16le, utf-16le)\n" \
+    "- utf16be (aka utf-16be)\n" \
+    "- utf32 (aka utf-32, utf32le, utf-32le)\n" \
+    "- windows-1250..windows-1258 (aka windows125x, cp-125x, cp125x)\n" \
+    "- ascii (aka us-ascii)\n" \
+    "- iso-8859-1 (aka iso8859-1, latin1, latin, l1\n" \
+    "\n" \
+    "All names are case-insensitive and underscores (_) and hyphens (-) are\n" \
+    "interchangeable"
+
 bool supports_color = true;
 
 i32 _nst_parse_args(i32 argc, i8 **argv,
-                    bool *print_tokens,
-                    bool *print_ast,
-                    bool *print_bytecode,
-                    bool *force_execution,
-                    bool *force_cp1252,
-                    bool *no_default,
-                    i32  *opt_level,
-                    i8  **command,
-                    i8  **filename,
-                    i32  *args_start)
+                    bool     *print_tokens,
+                    bool     *print_ast,
+                    bool     *print_bytecode,
+                    bool     *force_execution,
+                    Nst_CPID *encoding,
+                    bool     *no_default,
+                    i32      *opt_level,
+                    i8      **command,
+                    i8      **filename,
+                    i32      *args_start)
 {
     *print_tokens = false;
     *print_ast = false;
     *print_bytecode = false;
     *force_execution = false;
-    *force_cp1252 = false;
+    *encoding = NST_CP_UNKNOWN;
     *no_default = false;
     *opt_level = 3;
     *command = NULL;
@@ -103,6 +118,21 @@ i32 _nst_parse_args(i32 argc, i8 **argv,
                 case 'f': *force_execution = true; break;
                 case 'D': *no_default      = true; break;
                 case 'm': supports_color   = false;break;
+                case 'e':
+                    if ( j != 1 || arg_len < 4 || arg[2] != '=' )
+                    {
+                        printf("Invalid usage of the option: -e\n");
+                        printf("\n" USAGE_MESSAGE);
+                        return -1;
+                    }
+                    *encoding = nst_encoding_from_name(arg + 3);
+                    if ( *encoding == NST_CP_UNKNOWN )
+                    {
+                        printf("Unknown encoding %s\n", arg + 3);
+                        printf("\n" ENCODING_MESSAGE);
+                        return -1;
+                    }
+                    break;
                 case 'h':
                 case '?':
                     printf(HELP_MESSAGE);
@@ -198,10 +228,6 @@ i32 _nst_parse_args(i32 argc, i8 **argv,
                     {
                         supports_color = false;
                     }
-                    else if ( strcmp(arg, "--cp1252") == 0 )
-                    {
-                        *force_cp1252 = true;
-                    }
                     else if ( strcmp(arg, "--no-default") == 0 )
                     {
                         *no_default = true;
@@ -215,6 +241,23 @@ i32 _nst_parse_args(i32 argc, i8 **argv,
                     {
                         printf(VERSION_MESSAGE "\n");
                         return 1;
+                    }
+                    else if ( strncmp(arg, "--encoding", 10) == 0 )
+                    {
+                        if ( j != 1 || arg_len < 12 || arg[11] != '=' )
+                        {
+                            printf("Invalid usage of the option: --encoding\n");
+                            printf("\n" USAGE_MESSAGE);
+                            return -1;
+                        }
+                        *encoding = nst_encoding_from_name(arg + 11);
+                        if ( *encoding == NST_CP_UNKNOWN )
+                        {
+                            printf("Unknown encoding %s\n", arg + 11);
+                            printf("\n" ENCODING_MESSAGE);
+                            return -1;
+                        }
+                        break;
                     }
                     else
                     {
@@ -284,8 +327,8 @@ bool _nst_wargv_to_argv(int       argc,
     {
         tot_size += (wcslen(wargv[i])) * 3 + 1;
     }
-    i8 **local_argv = (i8 **)nst_malloc(argc, sizeof(i8 *), NULL);
-    i8 *local_argv_content = (i8 *)nst_malloc(tot_size, sizeof(i8), NULL);
+    i8 **local_argv = nst_malloc_c(argc, i8 *, NULL);
+    i8 *local_argv_content = nst_malloc_c(tot_size, i8, NULL);
 
     if ( local_argv == NULL || local_argv_content == NULL )
     {
@@ -305,7 +348,7 @@ bool _nst_wargv_to_argv(int       argc,
         for ( usize j = 0, n = wcslen(warg); j < n; j++ )
         {
             usize ch_len = nst_check_utf16_bytes(warg + j, n - j);
-            if ( ch_len == -1 )
+            if ( ch_len < 0 )
             {
                 nst_free(local_argv);
                 nst_free(local_argv_content);
@@ -401,7 +444,7 @@ static bool get_byte(i8 *out_ch)
         }
     }
     i32 ch_len = nst_check_utf16_bytes(w_in.buf + w_in.buf_ptr, w_in.buf_size - w_in.buf_ptr);
-    if ( ch_len == -1 )
+    if ( ch_len < 0 )
     {
         return false;
     }

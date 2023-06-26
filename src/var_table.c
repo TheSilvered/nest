@@ -8,7 +8,7 @@ Nst_VarTable *nst_vt_new(Nst_MapObj *global_table,
                          Nst_SeqObj *args,
                          Nst_OpErr  *err)
 {
-    Nst_VarTable *vt = (Nst_VarTable *)nst_malloc(1, sizeof(Nst_VarTable), err);
+    Nst_VarTable *vt = nst_malloc_c(1, Nst_VarTable, err);
     if ( vt == NULL )
     {
         return NULL;

@@ -1653,7 +1653,7 @@ static void _print_ast(Nst_Node  *node,
     usize idx = 0;
 
     Nst_LLNode *prev_tail = is_last->tail;
-    bool *last = (bool *)nst_malloc(1, sizeof(bool), NULL);
+    bool *last = nst_malloc_c(1, bool, NULL);
     if ( last == NULL )
     {
         return;

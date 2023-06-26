@@ -10,7 +10,7 @@ Nst_Obj *nst_func_new(usize arg_num, Nst_InstList *bytecode, Nst_OpErr *err)
         nst_t.Func,
         _nst_func_destroy,
         err);
-    Nst_Obj **args = (Nst_Obj **)nst_malloc(arg_num, sizeof(Nst_Obj *), err);
+    Nst_Obj **args = nst_malloc_c(arg_num, Nst_Obj *, err);
     if ( func == NULL || args == NULL )
     {
         return NULL;

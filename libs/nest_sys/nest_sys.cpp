@@ -17,7 +17,7 @@
 
 #endif
 
-#define FUNC_COUNT 13
+#define FUNC_COUNT 14
 
 static Nst_ObjDeclr func_list_[FUNC_COUNT];
 static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
@@ -43,6 +43,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_ref_count_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_addr_,      1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(hash_,          1);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(endianness_,    0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_color_,    0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_set_cwd_,      1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_cwd_,      0);
@@ -165,6 +166,15 @@ NST_FUNC_SIGN(hash_)
     return nst_int_new(nst_obj_hash(args[0]), err);
 }
 
+NST_FUNC_SIGN(endianness_)
+{
+#if ENDIANNESS == BIG_ENDIAN
+    return nst_string_new_c("big", 3, false, err);
+#elif ENDIANNESS == LITTLE_ENDIAN
+    return nst_string_new_c("little", 6, false, err);
+#endif
+}
+
 NST_FUNC_SIGN(_get_color_)
 {
     NST_RETURN_COND(nst_supports_color());
@@ -202,7 +212,7 @@ NST_FUNC_SIGN(_set_cwd_)
 NST_FUNC_SIGN(_get_cwd_)
 {
 #ifdef WINDOWS
-    wchar_t *cwd = (wchar_t *)nst_malloc(PATH_MAX, sizeof(wchar_t), err);
+    wchar_t *cwd = nst_malloc_c(PATH_MAX, wchar_t, err);
     if ( cwd == nullptr )
     {
         NST_FAILED_ALLOCATION;
@@ -223,7 +233,7 @@ NST_FUNC_SIGN(_get_cwd_)
     }
     return nst_string_new_c_raw((const i8*)cwd_str, true, err);
 #else
-    i8 *cwd = (i8 *)nst_malloc(PATH_MAX, sizeof(i8), err);
+    i8 *cwd = nst_malloc_c(PATH_MAX, i8, err);
     if ( cwd == nullptr )
     {
         NST_FAILED_ALLOCATION;
