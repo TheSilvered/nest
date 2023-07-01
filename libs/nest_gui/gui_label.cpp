@@ -1,11 +1,12 @@
 #include "gui_label.h"
 #include "gui_draw.h"
+#include "gui_event.h"
 
 bool render_texture(GUI_Label *l, Nst_OpErr *err)
 {
     // TTF_SetFontWrappedAlign(l->font, l->alignment);
     l->texture_render_width = l->rect.w - l->padding_left - l->padding_right;
-    printf("%i\n", l->texture_render_width);
+
     SDL_Surface *text_surf = TTF_RenderUTF8_Blended_Wrapped(
         l->font,
         l->text.data,
@@ -109,6 +110,7 @@ GUI_Element *gui_label_new(Nst_StrObj *text,
     new_label->font = font;
     new_label->color = color;
     new_label->frame_update_func = UpdateFunc(gui_label_update);
+    new_label->handle_event_func = default_event_handler;
     new_label->auto_height = false;
 
     if ( !nst_buffer_init(&new_label->text, text->len + 1, err) )
@@ -165,8 +167,74 @@ end:
     return (GUI_Element *)new_label;
 }
 
+void reset_texture(GUI_Label *l)
+{
+    if ( l->texture != nullptr)
+    {
+        SDL_DestroyTexture(l->texture);
+        l->texture = nullptr;
+    }
+}
+
 void gui_label_destroy(GUI_Label *l)
 {
     nst_buffer_destroy(&l->text);
     gui_element_destroy((GUI_Element *)l);
+}
+
+void gui_label_change_color(GUI_Label *l, SDL_Color new_color)
+{
+    l->color = new_color;
+    reset_texture(l);
+}
+
+void gui_label_append_text(GUI_Label *l, Nst_StrObj *str)
+{
+    nst_buffer_append(&l->text, str, nullptr);
+    reset_texture(l);
+}
+
+void gui_label_append_c_text(GUI_Label *l, i8 *text)
+{
+    nst_buffer_append_c_str(&l->text, text, nullptr);
+    reset_texture(l);
+}
+
+void gui_label_set_text(GUI_Label *l, Nst_StrObj *str)
+{
+    i8 *new_data = nst_realloc_c(
+        l->text.data,
+        str->len + 1,
+        i8, l->text.size,
+        nullptr);
+    if ( new_data == nullptr )
+    {
+        return;
+    }
+
+    memcpy(new_data, str->value, str->len + 1);
+    l->text.data = new_data;
+    l->text.size = str->len + 1;
+    l->text.len = str->len;
+    reset_texture(l);
+}
+
+void gui_label_set_c_text(GUI_Label *l, i8 *text)
+{
+    usize str_len = strlen(text);
+    i8 *new_data = nst_realloc_c(
+        l->text.data,
+        str_len + 1,
+        i8, l->text.size,
+        nullptr);
+    if ( new_data == nullptr )
+    {
+        return;
+    }
+
+    memcpy(new_data, text, str_len + 1);
+    l->text.data = new_data;
+    l->text.size = str_len + 1;
+    l->text.len = str_len;
+    reset_texture(l);
 }

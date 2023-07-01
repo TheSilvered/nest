@@ -7,8 +7,8 @@
 #include "var_table.h"
 
 // Pushes a function on the call stack
-#define nst_fstack_push(func, start, end, vt, idx) \
-        _nst_fstack_push(FUNC(func), start, end, vt, idx)
+#define nst_fstack_push(func, start, end, vt, idx, cstack_size) \
+        _nst_fstack_push(FUNC(func), start, end, vt, idx, cstack_size)
 // Push a value on the value stack
 // returns false on failing to reallocate the memory
 #define nst_vstack_push(val) _nst_vstack_push(OBJ(val))
@@ -32,6 +32,7 @@ EXPORT typedef struct _Nst_FuncCall
     Nst_Pos end;
     Nst_VarTable *vt;
     Nst_Int idx;
+    usize cstack_size;
 }
 Nst_FuncCall;
 
@@ -85,7 +86,8 @@ EXPORT bool _nst_fstack_push(Nst_FuncObj   *func,
                              Nst_Pos        call_start,
                              Nst_Pos        call_end,
                              Nst_VarTable  *vt,
-                             Nst_Int        idx);
+                             Nst_Int        idx,
+                             usize          cstack_size);
 // Pops a function from the call stack
 EXPORT Nst_FuncCall nst_fstack_pop();
 // Returns the top function in the call stack

@@ -132,6 +132,7 @@ i32 _nst_parse_args(i32 argc, i8 **argv,
                         printf("\n" ENCODING_MESSAGE);
                         return -1;
                     }
+                    j = arg_len;
                     break;
                 case 'h':
                 case '?':
@@ -244,7 +245,7 @@ i32 _nst_parse_args(i32 argc, i8 **argv,
                     }
                     else if ( strncmp(arg, "--encoding", 10) == 0 )
                     {
-                        if ( j != 1 || arg_len < 12 || arg[11] != '=' )
+                        if ( j != 1 || arg_len < 12 || arg[10] != '=' )
                         {
                             printf("Invalid usage of the option: --encoding\n");
                             printf("\n" USAGE_MESSAGE);
@@ -257,7 +258,6 @@ i32 _nst_parse_args(i32 argc, i8 **argv,
                             printf("\n" ENCODING_MESSAGE);
                             return -1;
                         }
-                        break;
                     }
                     else
                     {

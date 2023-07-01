@@ -12,6 +12,7 @@ extern "C" {
 typedef struct _GUI_App
 {
     GUI_Element *root;
+    GUI_Element *focused_element;
     SDL_Window *window;
     SDL_Renderer *renderer;
     SDL_Rect clip_window;
@@ -47,11 +48,15 @@ EXPORT void free_lib();
 void set_sdl_error(Nst_OpErr *err);
 int imin(int n1, int n2);
 int imax(int n1, int n2);
+void set_focused_element(GUI_Element *el);
+GUI_Element *get_focused_element();
+void remove_focused_element();
 
 NST_FUNC_SIGN(init_);
 NST_FUNC_SIGN(loop_);
 NST_FUNC_SIGN(set_window_);
 NST_FUNC_SIGN(label_);
+NST_FUNC_SIGN(button_);
 NST_FUNC_SIGN(stack_layout_);
 NST_FUNC_SIGN(set_position_);
 NST_FUNC_SIGN(set_rel_position_);
@@ -63,6 +68,7 @@ NST_FUNC_SIGN(show_overflow_);
 NST_FUNC_SIGN(auto_height_);
 NST_FUNC_SIGN(add_child_);
 NST_FUNC_SIGN(get_root_);
+NST_FUNC_SIGN(set_func_);
 NST_FUNC_SIGN(_debug_view_);
 
 #ifdef __cplusplus

@@ -5,9 +5,10 @@
 #include "gui_event.h"
 #include "gui_update.h"
 #include "gui_label.h"
+#include "gui_button.h"
 #include "gui_stack_layout.h"
 
-#define FUNC_COUNT 16
+#define FUNC_COUNT 18
 
 static Nst_ObjDeclr func_list_[FUNC_COUNT];
 static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
@@ -25,6 +26,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(loop_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(set_window_, 6);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(label_, 5);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(button_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(stack_layout_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(set_position_, 3);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(set_rel_position_, 7);
@@ -36,9 +38,10 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(auto_height_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(add_child_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_root_, 0);
+    func_list_[idx++] = NST_MAKE_FUNCDECLR(set_func_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_debug_view_, 1);
 
-#if __LINE__ - FUNC_COUNT != 25
+#if __LINE__ - FUNC_COUNT != 26
 #error
 #endif
 
@@ -46,6 +49,7 @@ bool lib_init()
     gui_element_type = nst_type_new("GUI Element", 11, nullptr);
 
     app.root = nullptr;
+    app.focused_element = nullptr;
     app.window = nullptr;
     app.renderer = nullptr;
     app.clip_window = { 0, 0, 0, 0 };
@@ -131,6 +135,27 @@ int imax(int n1, int n2)
         return int(n2);
     }
     return int(n1);
+}
+
+void set_focused_element(GUI_Element *el)
+{
+    remove_focused_element();
+    app.focused_element = el;
+    nst_inc_ref(el);
+}
+
+GUI_Element *get_focused_element()
+{
+    return app.focused_element;
+}
+
+void remove_focused_element()
+{
+    if ( app.focused_element != nullptr )
+    {
+        nst_dec_ref(app.focused_element);
+        app.focused_element = nullptr;
+    }
 }
 
 NST_FUNC_SIGN(init_)
@@ -305,6 +330,45 @@ NST_FUNC_SIGN(label_)
     return OBJ(label);
 }
 
+NST_FUNC_SIGN(button_)
+{
+    Nst_StrObj *text;
+    NST_DEF_EXTRACT("s", &text);
+
+    TTF_Font *font = get_font(
+        &app,
+        GUI_FSZ_MEDIUM,
+        GUI_FST_REGULAR,
+        GUI_FW_REGULAR,
+        err);
+
+    if ( font == nullptr )
+    {
+        return nullptr;
+    }
+
+    int w, h;
+    TTF_SizeUTF8(font, text->value, &w, &h);
+
+    GUI_Element *label = gui_label_new(
+        text, font,
+        app.fg_color,
+        0, 0, w + 1, h,
+        &app, err);
+
+    if ( label == nullptr )
+    {
+        return nullptr;
+    }
+
+    GUI_Element *button = gui_button_new((GUI_Label *)label, &app, err);
+    if ( button == nullptr )
+    {
+        return nullptr;
+    }
+    return OBJ(button);
+}
+
 NST_FUNC_SIGN(stack_layout_)
 {
     Nst_Obj *direction_obj;
@@ -345,7 +409,7 @@ NST_FUNC_SIGN(set_position_)
         nst_dec_ref(element->rel_pos.element);
         element->rel_pos.element = nullptr;
     }
-    NST_RETURN_NULL;
+    return nst_inc_ref(element);
 }
 
 NST_FUNC_SIGN(set_rel_position_)
@@ -377,7 +441,7 @@ NST_FUNC_SIGN(set_rel_position_)
         (GUI_RelRect)rect,
         (GUI_RelPosX)from_x, (GUI_RelPosY)from_y,
         (GUI_RelPosX)to_x,   (GUI_RelPosY)to_y);
-    NST_RETURN_NULL;
+    return nst_inc_ref(from_element);
 }
 
 NST_FUNC_SIGN(set_size_)
@@ -396,7 +460,7 @@ NST_FUNC_SIGN(set_size_)
             element->rel_size.element = nullptr;
         }
     }
-    NST_RETURN_NULL;
+    return nst_inc_ref(element);
 }
 
 NST_FUNC_SIGN(set_rel_size_)
@@ -455,7 +519,7 @@ NST_FUNC_SIGN(set_rel_size_)
         scale_x, scale_y,
         diff_x, diff_y);
 
-    NST_RETURN_NULL;
+    return nst_inc_ref(from_element);
 }
 
 NST_FUNC_SIGN(set_margins_)
@@ -465,7 +529,7 @@ NST_FUNC_SIGN(set_margins_)
     NST_DEF_EXTRACT("#iiii", gui_element_type, &element, &l, &r, &t, &b);
 
     gui_element_set_margin(element, (i32)t, (i32)l, (i32)b, (i32)r);
-    NST_RETURN_NULL;
+    return nst_inc_ref(element);
 }
 
 NST_FUNC_SIGN(set_padding_)
@@ -475,7 +539,7 @@ NST_FUNC_SIGN(set_padding_)
     NST_DEF_EXTRACT("#iiii", gui_element_type, &element, &l, &r, &t, &b);
 
     gui_element_set_padding(element, (i32)t, (i32)l, (i32)b, (i32)r);
-    NST_RETURN_NULL;
+    return nst_inc_ref(element);
 }
 
 NST_FUNC_SIGN(show_overflow_)
@@ -487,7 +551,7 @@ NST_FUNC_SIGN(show_overflow_)
 
     gui_element_clip_content(element, !overflow);
 
-    NST_RETURN_NULL;
+    return nst_inc_ref(element);
 }
 
 NST_FUNC_SIGN(auto_height_)
@@ -502,7 +566,7 @@ NST_FUNC_SIGN(auto_height_)
         ((GUI_Label *)element)->auto_height = auto_height;
     }
 
-    NST_RETURN_NULL;
+    return nst_inc_ref(element);
 }
 
 NST_FUNC_SIGN(add_child_)
@@ -513,7 +577,7 @@ NST_FUNC_SIGN(add_child_)
     {
         return nullptr;
     }
-    NST_RETURN_NULL;
+    return nst_inc_ref(parent);
 }
 
 NST_FUNC_SIGN(get_root_)
@@ -524,6 +588,27 @@ NST_FUNC_SIGN(get_root_)
         return nullptr;
     }
     return nst_inc_ref(app.root);
+}
+
+NST_FUNC_SIGN(set_func_)
+{
+    GUI_Element *el;
+    Nst_FuncObj *func;
+    NST_DEF_EXTRACT("#f", gui_element_type, &el, &func);
+    if ( el->el_type != GUI_ET_BUTTON )
+    {
+        NST_SET_RAW_VALUE_ERROR("the element must be a button");
+        return nullptr;
+    }
+    if ( func->arg_num != 1 )
+    {
+        NST_SET_RAW_VALUE_ERROR("the function of a button must take exactly 1 argument");
+        return nullptr;
+    }
+    GUI_Button *b = (GUI_Button *)el;
+    b->func = gui_button_call_nest_func;
+    b->nest_func = FUNC(nst_inc_ref(func));
+    return nst_inc_ref(el);
 }
 
 NST_FUNC_SIGN(_debug_view_)

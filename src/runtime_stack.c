@@ -158,7 +158,8 @@ bool _nst_fstack_push(Nst_FuncObj  *func,
                       Nst_Pos       call_start,
                       Nst_Pos       call_end,
                       Nst_VarTable *vt,
-                      Nst_Int       idx)
+                      Nst_Int       idx,
+                      usize         cstack_size)
 {
     usize max_size = nst_state.f_stack.max_size;
 
@@ -172,11 +173,14 @@ bool _nst_fstack_push(Nst_FuncObj  *func,
         return false;
     }
 
-    nst_state.f_stack.stack[nst_state.f_stack.current_size].func = FUNC(nst_inc_ref(func));
-    nst_state.f_stack.stack[nst_state.f_stack.current_size].start = call_start;
-    nst_state.f_stack.stack[nst_state.f_stack.current_size].end = call_end;
-    nst_state.f_stack.stack[nst_state.f_stack.current_size].vt = vt;
-    nst_state.f_stack.stack[nst_state.f_stack.current_size++].idx = idx;
+    Nst_FuncCall *call = &nst_state.f_stack.stack[nst_state.f_stack.current_size++];
+
+    call->func = FUNC(nst_inc_ref(func));
+    call->start = call_start;
+    call->end = call_end;
+    call->vt = vt;
+    call->idx = idx;
+    call->cstack_size = cstack_size;
     return true;
 }
 

@@ -337,6 +337,7 @@ i32 nst_run(Nst_FuncObj *main_func,
         nst_no_pos(),
         nst_no_pos(),
         NULL,
+        0,
         0);
 
     nst_func_set_vt(main_func, nst_state.vt->vars);
@@ -432,6 +433,11 @@ static void complete_function(usize final_stack_size)
             // Free the function call
             Nst_FuncCall call = nst_fstack_pop();
 
+            while ( nst_state.c_stack.current_size > call.cstack_size )
+            {
+                nst_cstack_pop();
+            }
+
             destroy_call(&call, 0);
 
             Nst_FuncObj *func = nst_fstack_peek().func;
@@ -477,6 +483,12 @@ static void complete_function(usize final_stack_size)
         while ( nst_state.f_stack.current_size > end_size )
         {
             Nst_FuncCall call = nst_fstack_pop();
+
+            while ( nst_state.c_stack.current_size > call.cstack_size )
+            {
+                nst_cstack_pop();
+            }
+
             destroy_call(&call, 1);
             obj = nst_vstack_pop();
 
@@ -619,7 +631,8 @@ i32 nst_run_module(i8 *filename, Nst_SourceText *lib_src)
         nst_no_pos(),
         nst_no_pos(),
         nst_state.vt,
-        nst_state.idx - 1);
+        nst_state.idx - 1,
+        nst_state.c_stack.current_size);
     nst_state.idx = 0;
     Nst_VarTable *vt = nst_vt_new(
         no_default ? MAP(nst_c.Null_null) : NULL,
@@ -698,7 +711,8 @@ Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err)
         nst_no_pos(),
         nst_no_pos(),
         nst_state.vt,
-        nst_state.idx - 1);
+        nst_state.idx - 1,
+        nst_state.c_stack.current_size);
 
     Nst_VarTable *new_vt;
     if ( func->mod_globals != NULL )
@@ -754,7 +768,8 @@ Nst_Obj *nst_run_func_context(Nst_FuncObj *func,
         nst_no_pos(),
         nst_no_pos(),
         nst_state.vt,
-        nst_state.idx - 1);
+        nst_state.idx - 1,
+        nst_state.c_stack.current_size);
 
     Nst_VarTable *new_vt = nst_malloc_c(1, Nst_VarTable, &main_err);
     if ( new_vt == NULL )
@@ -1269,7 +1284,8 @@ static void exe_op_call(Nst_Inst *inst, Nst_InstID inst_id)
         inst->start,
         inst->end,
         nst_state.vt,
-        nst_state.idx);
+        nst_state.idx,
+        nst_state.c_stack.current_size);
     nst_state.idx = -1;
     nst_dec_ref(func);
 

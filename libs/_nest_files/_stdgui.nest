@@ -7,6 +7,7 @@
 __gui.loop_             = loop
 __gui.set_window_       = set_window
 __gui.label_            = label
+__gui.button_           = button
 __gui.stack_layout_     = stack_layout
 __gui.set_position_     = set_position
 __gui.set_rel_position_ = set_rel_position
@@ -17,6 +18,7 @@ __gui.set_padding_      = set_padding
 __gui.show_overflow_    = show_overflow
 __gui.auto_height_      = auto_height
 __gui.add_child_        = add_child
+__gui.set_func_         = set_func
 __gui.get_root_         = get_root
 
 __gui._debug_view_ = _debug_view

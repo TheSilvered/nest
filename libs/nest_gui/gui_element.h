@@ -63,7 +63,8 @@ typedef enum _GUI_ElementType
 {
     GUI_ET_BASE,
     GUI_ET_LABEL,
-    GUI_ET_STACK_LAYOUT
+    GUI_ET_STACK_LAYOUT,
+    GUI_ET_BUTTON
 }
 GUI_ElementType;
 

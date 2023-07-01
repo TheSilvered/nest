@@ -3,20 +3,6 @@
 
 #include <SDL_ttf.h>
 #include "nest_gui.h"
-#define NO_ALIGN_IMPL
-#ifndef TTF_WRAPPED_ALIGN_LEFT
-
-#define TTF_WRAPPED_ALIGN_LEFT 0
-#define TTF_WRAPPED_ALIGN_CENTER 1
-#define TTF_WRAPPED_ALIGN_RIGHT 2
-
-SDL_Surface *render_wrapped_aligned(TTF_Font *font,
-                                    i8       *text,
-                                    SDL_Color color,
-                                    int       wrap_lenght,
-                                    int       alignment);
-
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -37,12 +23,18 @@ GUI_Label;
 
 GUI_Element *gui_label_new(Nst_StrObj *text,
                            TTF_Font   *font,
-                           SDL_Color  color,
+                           SDL_Color   color,
                            int x, int y, int w, int h,
                            GUI_App *app,
                            Nst_OpErr *err);
 bool gui_label_update(GUI_Label *l, Nst_OpErr *err);
 void gui_label_destroy(GUI_Label *l);
+
+void gui_label_change_color(GUI_Label *l, SDL_Color new_color);
+void gui_label_append_text(GUI_Label *l, Nst_StrObj *str);
+void gui_label_append_c_text(GUI_Label *l, i8 *text);
+void gui_label_set_text(GUI_Label *l, Nst_StrObj *str);
+void gui_label_set_c_text(GUI_Label *l, i8 *text);
 
 #ifdef __cplusplus
 }

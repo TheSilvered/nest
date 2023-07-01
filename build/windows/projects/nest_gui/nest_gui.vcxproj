@@ -168,6 +168,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\libs\dll\framework.h" />
+    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_button.h" />
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_draw.h" />
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_element.h" />
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_event.h" />
@@ -178,6 +179,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp" />
+    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_button.cpp" />
     <ClCompile Include="..\..\..\..\libs\nest_gui\gui_draw.cpp" />
     <ClCompile Include="..\..\..\..\libs\nest_gui\gui_element.cpp" />
     <ClCompile Include="..\..\..\..\libs\nest_gui\gui_event.cpp" />

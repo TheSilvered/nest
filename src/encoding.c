@@ -1869,7 +1869,7 @@ Nst_CPID nst_encoding_from_name(i8 *name)
     }
     name_cpy[name_len] = 0;
 
-    if ( name_len > 3 && strncmp(name_cpy, "utf", 3) )
+    if ( name_len > 3 && strncmp(name_cpy, "utf", 3) == 0 )
     {
         name = name_cpy + 3;
         if ( strcmp(name, "8") == 0 || strcmp(name, "-8") == 0 )
@@ -1937,7 +1937,7 @@ Nst_CPID nst_encoding_from_name(i8 *name)
 
     if ( strcmp(name_cpy, "latin") == 0 || strcmp(name_cpy, "latin1") == 0 ||
          strcmp(name_cpy, "latin-1") == 0 || strcmp(name_cpy, "iso-8859-1") == 0 ||
-         strcmp(name_cpy, "iso8859-1") || strcmp(name_cpy, "l1"))
+         strcmp(name_cpy, "iso8859-1") == 0 || strcmp(name_cpy, "l1") == 0 )
     {
         return NST_CP_ISO8859_1;
     }
