@@ -7,14 +7,13 @@
 #include "obj_ops.h"
 #include "lib_import.h"
 
-static Nst_Obj *new_seq(usize len, usize size, Nst_TypeObj *type, Nst_OpErr *err)
+static Nst_Obj *new_seq(usize len, usize size, Nst_TypeObj *type)
 {
     Nst_SeqObj *seq = nst_obj_alloc(
         Nst_SeqObj,
         type,
-        _nst_seq_destroy,
-        err);
-    Nst_Obj **objs = nst_calloc_c(size, Nst_Obj *, NULL, err);
+        _nst_seq_destroy);
+    Nst_Obj **objs = nst_calloc_c(size, Nst_Obj *, NULL);
 
     if ( seq == NULL || objs == NULL )
     {
@@ -30,12 +29,12 @@ static Nst_Obj *new_seq(usize len, usize size, Nst_TypeObj *type, Nst_OpErr *err
     return OBJ(seq);
 }
 
-Nst_Obj *nst_array_new(usize len, Nst_OpErr *err)
+Nst_Obj *nst_array_new(usize len)
 {
-    return new_seq(len, len, nst_t.Array, err);
+    return new_seq(len, len, nst_t.Array);
 }
 
-Nst_Obj *nst_vector_new(usize len, Nst_OpErr *err)
+Nst_Obj *nst_vector_new(usize len)
 {
     usize size = (usize)(len * _NST_VECTOR_GROWTH_RATIO);
 
@@ -44,7 +43,7 @@ Nst_Obj *nst_vector_new(usize len, Nst_OpErr *err)
         size = _NST_VECTOR_MIN_SIZE;
     }
 
-    return new_seq(len, size, nst_t.Vector, err);
+    return new_seq(len, size, nst_t.Vector);
 }
 
 void _nst_seq_destroy(Nst_SeqObj *seq)
@@ -79,7 +78,7 @@ void _nst_seq_track(Nst_SeqObj* seq)
     }
 }
 
-bool _nst_vector_resize(Nst_SeqObj *vect, Nst_OpErr *err)
+bool _nst_vector_resize(Nst_SeqObj *vect)
 {
     usize len = vect->len;
     usize size = vect->size;
@@ -113,8 +112,7 @@ bool _nst_vector_resize(Nst_SeqObj *vect, Nst_OpErr *err)
         vect->objs,
         new_size,
         Nst_Obj *,
-        size,
-        err);
+        size);
 
     if ( new_objs == NULL )
     {
@@ -131,9 +129,9 @@ bool _nst_vector_resize(Nst_SeqObj *vect, Nst_OpErr *err)
     return true;
 }
 
-bool _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val, Nst_OpErr *err)
+bool _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val)
 {
-    if ( !_nst_vector_resize(vect, err) )
+    if ( !_nst_vector_resize(vect) )
     {
         return false;
     }
@@ -199,7 +197,7 @@ Nst_Obj *_nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val)
 
     for ( ; i < n; i++ )
     {
-        if ( nst_obj_eq(val, objs[i], NULL) == nst_c.Bool_true )
+        if ( nst_obj_eq(val, objs[i]) == nst_c.Bool_true )
         {
             nst_dec_ref(nst_c.Bool_true);
             nst_dec_ref(objs[i]);
@@ -222,7 +220,7 @@ Nst_Obj *_nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val)
     }
 
     vect->len--;
-    _nst_vector_resize(vect, NULL);
+    _nst_vector_resize(vect);
 
     NST_RETURN_TRUE;
 }
@@ -247,7 +245,7 @@ Nst_Obj *_nst_vector_pop(Nst_SeqObj *vect, usize quantity)
         vect->len--;
     }
 
-    _nst_vector_resize(vect, NULL);
+    _nst_vector_resize(vect);
 
     if ( last_obj == NULL )
     {
@@ -280,21 +278,21 @@ void seq_create(usize len, Nst_Obj *seq, va_list args)
     }
 }
 
-Nst_Obj *nst_vector_create(usize len, Nst_OpErr *err, ...)
+Nst_Obj *nst_vector_create(usize len, ...)
 {
-    Nst_Obj *vector = nst_vector_new(len, err);
+    Nst_Obj *vector = nst_vector_new(len);
     va_list args;
-    va_start(args, err);
+    va_start(args, len);
     seq_create(len, vector, args);
     va_end(args);
     return vector;
 }
 
-Nst_Obj *nst_array_create(usize len, Nst_OpErr *err, ...)
+Nst_Obj *nst_array_create(usize len, ...)
 {
-    Nst_Obj *array = nst_array_new(len, err);
+    Nst_Obj *array = nst_array_new(len);
     va_list args;
-    va_start(args, err);
+    va_start(args, len);
     seq_create(len, array, args);
     va_end(args);
     return array;
@@ -303,7 +301,6 @@ Nst_Obj *nst_array_create(usize len, Nst_OpErr *err, ...)
 Nst_Obj *seq_create_c(usize      len,
                       Nst_Obj   *seq,
                       const i8  *fmt,
-                      Nst_OpErr *err,
                       va_list    args)
 {
     if ( seq == NULL )
@@ -321,7 +318,7 @@ Nst_Obj *seq_create_c(usize      len,
         case 'I':
         {
             i64 value = va_arg(args, i64);
-            Nst_Obj *obj = nst_int_new(value, err);
+            Nst_Obj *obj = nst_int_new(value);
             if ( obj == NULL )
             {
                 goto failed;
@@ -332,7 +329,7 @@ Nst_Obj *seq_create_c(usize      len,
         case 'i':
         {
             i32 value = va_arg(args, i32);
-            Nst_Obj *obj = nst_int_new((i64)value, err);
+            Nst_Obj *obj = nst_int_new((i64)value);
             if ( obj == NULL )
             {
                 goto failed;
@@ -344,7 +341,7 @@ Nst_Obj *seq_create_c(usize      len,
         case 'F':
         {
             f64 value = va_arg(args, f64);
-            Nst_Obj *obj = nst_real_new(value, err);
+            Nst_Obj *obj = nst_real_new(value);
             if ( obj == NULL )
             {
                 goto failed;
@@ -368,7 +365,7 @@ Nst_Obj *seq_create_c(usize      len,
         case 'B':
         {
             int value = va_arg(args, int);
-            Nst_Obj *obj = nst_byte_new((u8)value, err);
+            Nst_Obj *obj = nst_byte_new((u8)value);
             if ( obj == NULL )
             {
                 goto failed;
@@ -397,12 +394,12 @@ Nst_Obj *seq_create_c(usize      len,
         default:
             if ( seq->type == nst_t.Vector )
             {
-                NST_SET_RAW_VALUE_ERROR(
+                nst_set_value_error_c(
                     _NST_EM_INVALID_TYPE_LETTER("nst_vector_create_c"));
             }
             else
             {
-                NST_SET_RAW_VALUE_ERROR(
+                nst_set_value_error_c(
                     _NST_EM_INVALID_TYPE_LETTER("nst_array_create_c"));
             }
             goto failed;
@@ -417,24 +414,24 @@ failed:
     return NULL;
 }
 
-Nst_Obj *nst_vector_create_c(const i8 *fmt, Nst_OpErr *err, ...)
+Nst_Obj *nst_vector_create_c(const i8 *fmt, ...)
 {
     usize len = strlen(fmt);
-    Nst_Obj *vector = nst_vector_new(len, err);
+    Nst_Obj *vector = nst_vector_new(len);
     va_list args;
-    va_start(args, err);
-    vector = seq_create_c(len, vector, fmt, err, args);
+    va_start(args, fmt);
+    vector = seq_create_c(len, vector, fmt, args);
     va_end(args);
     return vector;
 }
 
-Nst_Obj *nst_array_create_c(const i8 *fmt, Nst_OpErr *err, ...)
+Nst_Obj *nst_array_create_c(const i8 *fmt, ...)
 {
     usize len = strlen(fmt);
-    Nst_Obj *array = nst_array_new(len, err);
+    Nst_Obj *array = nst_array_new(len);
     va_list args;
-    va_start(args, err);
-    array = seq_create_c(len, array, fmt, err, args);
+    va_start(args, fmt);
+    array = seq_create_c(len, array, fmt, args);
     va_end(args);
     return array;
 }

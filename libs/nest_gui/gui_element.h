@@ -30,9 +30,9 @@ extern "C" {
 
 struct _GUI_Element;
 
-typedef i32 (*HandleEventFunc)(SDL_Event *, struct _GUI_Element *, Nst_OpErr *);
-typedef bool (*UpdateFunc)(struct _GUI_Element *, Nst_OpErr *);
-typedef bool (*OnChildAdded)(struct _GUI_Element *, usize, Nst_OpErr *);
+typedef i32 (*HandleEventFunc)(SDL_Event *, struct _GUI_Element *);
+typedef bool (*UpdateFunc)(struct _GUI_Element *);
+typedef bool (*OnChildAdded)(struct _GUI_Element *, usize);
 
 typedef enum _GUI_Flags
 {
@@ -136,8 +136,7 @@ GUI_Element *gui_element_new(GUI_ElementType t,
                              usize size,
                              int x, int y,
                              int w, int h,
-                             struct _GUI_App *app,
-                             Nst_OpErr *err);
+                             struct _GUI_App *app);
 void gui_element_destroy(GUI_Element *obj);
 void gui_element_track(GUI_Element *obj);
 void gui_element_traverse(GUI_Element *obj);
@@ -178,7 +177,7 @@ void gui_element_update_size(GUI_Element *obj);
 SDL_Rect gui_element_get_margin_rect(GUI_Element *obj);
 SDL_Rect gui_element_get_padding_rect(GUI_Element *obj);
 
-bool gui_element_add_child(GUI_Element *parent, GUI_Element *child, Nst_OpErr *err);
+bool gui_element_add_child(GUI_Element *parent, GUI_Element *child);
 
 void gui_element_clip_parent(GUI_Element *element, bool clip);
 void gui_element_clip_content(GUI_Element *element, bool clip);
@@ -186,8 +185,7 @@ void gui_element_clip_content(GUI_Element *element, bool clip);
 TTF_Font *get_font(struct _GUI_App *app,
                    GUI_FontSize     size,
                    GUI_FontStyle    style,
-                   GUI_FontWeight   weight,
-                   Nst_OpErr       *err);
+                   GUI_FontWeight   weight);
 
 #ifdef __cplusplus
 }

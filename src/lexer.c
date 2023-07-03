@@ -44,9 +44,9 @@
                            ch == ']' || ch == '^' )
 
 #define SET_ERROR_IF_OP_ERR(cond) do { \
-    if ( (cond) || lexer_err.name != NULL ) \
+    if ( (cond) || nst_error_occurred() ) \
     { \
-        _NST_SET_ERROR_FROM_OP_ERR(error, &lexer_err, cursor.pos, cursor.pos); \
+        _NST_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos); \
         return; \
     } } while ( 0 )
 
@@ -60,7 +60,6 @@ typedef struct LexerCursor {
 } LexerCursor;
 
 static LexerCursor cursor;
-static Nst_OpErr lexer_err = { NULL, NULL };
 
 static inline void advance();
 static inline void go_back();
@@ -109,9 +108,10 @@ Nst_LList *nst_tokenizef(i8             *filename,
     text[str_len] = '\0';
 
     i8 *full_path;
-    nst_get_full_path(filename, &full_path, NULL, NULL);
+    nst_get_full_path(filename, &full_path, NULL);
     if ( full_path == NULL )
     {
+        nst_error_clear();
         nst_fprint(nst_io.err, "Memory allocation failed\n");
         return NULL;
     }
@@ -135,7 +135,7 @@ Nst_LList *nst_tokenizef(i8             *filename,
 Nst_LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
 {
     Nst_Tok *tok = NULL;
-    Nst_LList *tokens = nst_llist_new(&lexer_err);
+    Nst_LList *tokens = nst_llist_new();
 
     cursor.idx = -1;
     cursor.ch = ' ';
@@ -147,7 +147,7 @@ Nst_LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
 
     if (tokens == NULL)
     {
-        _NST_SET_ERROR_FROM_OP_ERR(error, &lexer_err, cursor.pos, cursor.pos);
+        _NST_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
         return NULL;
     }
 
@@ -180,10 +180,10 @@ Nst_LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
         }
         else if ( cursor.ch == '\n' )
         {
-            tok = nst_tok_new_noend(nst_copy_pos(cursor.pos), NST_TT_ENDL, &lexer_err);
+            tok = nst_tok_new_noend(nst_copy_pos(cursor.pos), NST_TT_ENDL);
             if (tokens == NULL)
             {
-                _NST_SET_ERROR_FROM_OP_ERR(error, &lexer_err, cursor.pos, cursor.pos);
+                _NST_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
             }
         }
         else if ( cursor.ch == '\\' )
@@ -211,23 +211,23 @@ Nst_LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
 
         if ( tok != NULL )
         {
-            nst_llist_append(tokens, tok, true, &lexer_err);
+            nst_llist_append(tokens, tok, true);
         }
         tok = NULL;
         advance();
     }
 
-    tok = nst_tok_new_noend(cursor.pos, NST_TT_EOFILE, &lexer_err);
+    tok = nst_tok_new_noend(cursor.pos, NST_TT_EOFILE);
     if ( tok == NULL )
     {
-        _NST_SET_ERROR_FROM_OP_ERR(error, &lexer_err, cursor.pos, cursor.pos);
+        _NST_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
         nst_llist_destroy(tokens, (Nst_LListDestructor)nst_token_destroy);
         return NULL;
     }
-    nst_llist_append(tokens, tok, true, &lexer_err);
-    if ( lexer_err.name != NULL )
+
+    if ( !nst_llist_append(tokens, tok, true) )
     {
-        _NST_SET_ERROR_FROM_OP_ERR(error, &lexer_err, cursor.pos, cursor.pos);
+        _NST_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
         nst_llist_destroy(tokens, (Nst_LListDestructor)nst_token_destroy);
         return NULL;
     }
@@ -387,7 +387,7 @@ static void make_symbol(Nst_Tok **tok, Nst_Error *error)
         token_type = nst_tok_from_str(symbol);
     }
 
-    *tok = nst_tok_new_noval(start, nst_copy_pos(cursor.pos), token_type, &lexer_err);
+    *tok = nst_tok_new_noval(start, nst_copy_pos(cursor.pos), token_type);
     SET_ERROR_IF_OP_ERR(*tok == NULL);
 }
 
@@ -431,9 +431,9 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
         if ( !CH_IS_BIN(cursor.ch) )
         {
             go_back();
-            Nst_Obj *val = nst_byte_new(0, &lexer_err);
+            Nst_Obj *val = nst_byte_new(0);
             SET_ERROR_IF_OP_ERR(val == NULL);
-            *tok = nst_tok_new_value(start, cursor.pos, NST_TT_VALUE, val, &lexer_err);
+            *tok = nst_tok_new_value(start, cursor.pos, NST_TT_VALUE, val);
             SET_ERROR_IF_OP_ERR(*tok == NULL);
             return;
         }
@@ -574,9 +574,9 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
         {
             val = -val;
         }
-        Nst_Obj *obj = nst_byte_new(0, &lexer_err);
+        Nst_Obj *obj = nst_byte_new(0);
         SET_ERROR_IF_OP_ERR(obj == NULL);
-        *tok = nst_tok_new_value(start, cursor.pos, NST_TT_VALUE, obj, &lexer_err);
+        *tok = nst_tok_new_value(start, cursor.pos, NST_TT_VALUE, obj);
         SET_ERROR_IF_OP_ERR(*tok == NULL);
         return;
     }
@@ -647,7 +647,7 @@ dec_num:
     go_back();
 
 end:
-    ltrl = nst_malloc_c(ltrl_size + 3, i8, &lexer_err);
+    ltrl = nst_malloc_c(ltrl_size + 3, i8);
     SET_ERROR_IF_OP_ERR(ltrl == NULL);
     ltrl[0] = neg ? '-' : '+';
     memcpy(ltrl + 1, start_p, ltrl_size);
@@ -658,30 +658,29 @@ end:
 
     if ( is_real )
     {
-        res = nst_string_parse_real(&s, &lexer_err);
+        res = nst_string_parse_real(&s);
         nst_free(ltrl);
     }
     else
     {
-        res = nst_string_parse_int(&s, 0, &lexer_err);
+        res = nst_string_parse_int(&s, 0);
         advance();
         if ( cursor.ch == 'b' || cursor.ch == 'B' )
         {
-            if ( res == NULL && lexer_err.name == nst_s.e_MemoryError )
+            if ( res == NULL && nst_error_get()->name == nst_s.e_MemoryError )
             {
-                nst_dec_ref(lexer_err.name);
-                nst_dec_ref(lexer_err.message);
+                nst_error_clear();
                 ltrl[ltrl_size + 1] = 'b';
                 ltrl[ltrl_size + 2] = '\0';
                 s.len++;
-                res = nst_string_parse_byte(&s, &lexer_err);
+                res = nst_string_parse_byte(&s);
                 nst_free(ltrl);
             }
             else
             {
                 nst_free(ltrl);
                 SET_ERROR_IF_OP_ERR(res == NULL);
-                Nst_Obj *new_res = nst_byte_new(AS_INT(res) & 0xff, &lexer_err);
+                Nst_Obj *new_res = nst_byte_new(AS_INT(res) & 0xff);
                 nst_dec_ref(res);
                 res = new_res;
             }
@@ -695,7 +694,7 @@ end:
     }
 
     SET_ERROR_IF_OP_ERR(res == NULL);
-    *tok = nst_tok_new_value(start, end, NST_TT_VALUE, res, &lexer_err);
+    *tok = nst_tok_new_value(start, end, NST_TT_VALUE, res);
     SET_ERROR_IF_OP_ERR(*tok == NULL);
 }
 
@@ -723,22 +722,22 @@ static void make_ident(Nst_Tok **tok, Nst_Error *error)
     }
     go_back();
 
-    str = nst_malloc_c(str_len + 1, i8, &lexer_err);
+    str = nst_malloc_c(str_len + 1, i8);
     SET_ERROR_IF_OP_ERR(str == NULL);
 
     memcpy(str, str_start, str_len);
     str[str_len] = '\0';
 
     Nst_Pos end = nst_copy_pos(cursor.pos);
-    Nst_StrObj *val_obj = STR(nst_string_new_c_raw(str, true, &lexer_err));
+    Nst_StrObj *val_obj = STR(nst_string_new_c_raw(str, true));
     if ( val_obj == NULL )
     {
         nst_free(str);
-        _NST_SET_ERROR_FROM_OP_ERR(error, &lexer_err, cursor.pos, cursor.pos);
+        _NST_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
     }
     nst_obj_hash(OBJ(val_obj));
 
-    *tok = nst_tok_new_value(start, end, NST_TT_IDENT, OBJ(val_obj), &lexer_err);
+    *tok = nst_tok_new_value(start, end, NST_TT_IDENT, OBJ(val_obj));
     SET_ERROR_IF_OP_ERR(val_obj == NULL);
 }
 
@@ -751,7 +750,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
     bool escape = false;
 
     Nst_Buffer buf;
-    SET_ERROR_IF_OP_ERR(!nst_buffer_init(&buf, START_CH_SIZE, &lexer_err));
+    SET_ERROR_IF_OP_ERR(!nst_buffer_init(&buf, START_CH_SIZE));
 
     advance(); // still on the opening character
 
@@ -760,10 +759,10 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
     while ( cursor.idx < (i32) cursor.len &&
             (cursor.ch != closing_ch || escape) )
     {
-        if ( !nst_buffer_expand_by(&buf, 4, &lexer_err) )
+        if ( !nst_buffer_expand_by(&buf, 4) )
         {
             nst_buffer_destroy(&buf);
-            _NST_SET_ERROR_FROM_OP_ERR(error, &lexer_err, cursor.pos, cursor.pos);
+            _NST_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
         }
 
         if ( !escape )
@@ -785,7 +784,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
             }
             else
             {
-                nst_buffer_append_char(&buf, cursor.ch, NULL);
+                nst_buffer_append_char(&buf, cursor.ch);
             }
             advance();
             continue;
@@ -794,17 +793,17 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
         // If there is an escape sequence
         switch ( cursor.ch )
         {
-        case '\'':nst_buffer_append_char(&buf, '\'', NULL); break;
-        case '"': nst_buffer_append_char(&buf, '"' , NULL); break;
-        case '\\':nst_buffer_append_char(&buf, '\\', NULL); break;
-        case 'a': nst_buffer_append_char(&buf, '\a', NULL); break;
-        case 'b': nst_buffer_append_char(&buf, '\b', NULL); break;
-        case 'e': nst_buffer_append_char(&buf,'\x1b',NULL); break;
-        case 'f': nst_buffer_append_char(&buf, '\f', NULL); break;
-        case 'n': nst_buffer_append_char(&buf, '\n', NULL); break;
-        case 'r': nst_buffer_append_char(&buf, '\r', NULL); break;
-        case 't': nst_buffer_append_char(&buf, '\t', NULL); break;
-        case 'v': nst_buffer_append_char(&buf, '\v', NULL); break;
+        case '\'':nst_buffer_append_char(&buf, '\''); break;
+        case '"': nst_buffer_append_char(&buf, '"' ); break;
+        case '\\':nst_buffer_append_char(&buf, '\\'); break;
+        case 'a': nst_buffer_append_char(&buf, '\a'); break;
+        case 'b': nst_buffer_append_char(&buf, '\b'); break;
+        case 'e': nst_buffer_append_char(&buf,'\x1b');break;
+        case 'f': nst_buffer_append_char(&buf, '\f'); break;
+        case 'n': nst_buffer_append_char(&buf, '\n'); break;
+        case 'r': nst_buffer_append_char(&buf, '\r'); break;
+        case 't': nst_buffer_append_char(&buf, '\t'); break;
+        case 'v': nst_buffer_append_char(&buf, '\v'); break;
         case 'x':
         {
             if ( (usize)cursor.idx + 2 >= cursor.len )
@@ -825,7 +824,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
             i8 result = ((ch1 > '9' ? ch1 - 'a' + 10 : ch1 - '0') << 4) +
                             (ch2 > '9' ? ch2 - 'a' + 10 : ch2 - '0');
 
-            nst_buffer_append_char(&buf, result, NULL);
+            nst_buffer_append_char(&buf, result);
             break;
         }
         case 'u':
@@ -861,7 +860,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
             {
                 SET_INVALID_ESCAPE_ERROR;
             }
-            nst_buffer_append_c_str(&buf, (const i8 *)unicode_char, NULL);
+            nst_buffer_append_c_str(&buf, (const i8 *)unicode_char);
             break;
         }
         case '0':
@@ -878,7 +877,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
             advance();
             if ( !CH_IS_OCT(cursor.ch) )
             {
-                nst_buffer_append_char(&buf, ch1, NULL);
+                nst_buffer_append_char(&buf, ch1);
                 go_back();
                 break;
             }
@@ -887,12 +886,12 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
             advance();
             if ( !CH_IS_OCT(cursor.ch) )
             {
-                nst_buffer_append_char(&buf, (ch1 << 3) + ch2, NULL);
+                nst_buffer_append_char(&buf, (ch1 << 3) + ch2);
                 go_back();
                 break;
             }
             i8 ch3 = cursor.ch - '0';
-            nst_buffer_append_char(&buf, (ch1 << 6) + (ch2 << 3) + ch3, NULL);
+            nst_buffer_append_char(&buf, (ch1 << 6) + (ch2 << 3) + ch3);
             break;
         }
         default:
@@ -918,11 +917,11 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
         return;
     }
 
-    Nst_Obj *val_obj = OBJ(nst_buffer_to_string(&buf, &lexer_err));
+    Nst_Obj *val_obj = OBJ(nst_buffer_to_string(&buf));
     SET_ERROR_IF_OP_ERR(val_obj == NULL);
     nst_obj_hash(val_obj);
 
-    *tok = nst_tok_new_value(start, cursor.pos, NST_TT_VALUE, val_obj, &lexer_err);
+    *tok = nst_tok_new_value(start, cursor.pos, NST_TT_VALUE, val_obj);
     SET_ERROR_IF_OP_ERR(*tok == NULL);
 }
 
@@ -1029,9 +1028,9 @@ bool nst_normalize_encoding(Nst_SourceText *text,
 
     Nst_Pos pos = { 0, 0, text };
     Nst_Buffer buf;
-    if ( !nst_buffer_init(&buf, text->len + 40, &lexer_err) )
+    if ( !nst_buffer_init(&buf, text->len + 40) )
     {
-        _NST_SET_ERROR_FROM_OP_ERR(error, &lexer_err, pos, pos);
+        _NST_SET_ERROR_FROM_OP_ERR(error, pos, pos);
         return false;
     }
 
@@ -1075,10 +1074,10 @@ bool nst_normalize_encoding(Nst_SourceText *text,
         }
 
         // Re-encode character
-        if ( !nst_buffer_expand_by(&buf, 5, &lexer_err) )
+        if ( !nst_buffer_expand_by(&buf, 5) )
         {
             nst_buffer_destroy(&buf);
-            _NST_SET_ERROR_FROM_OP_ERR(error, &lexer_err, pos, pos);
+            _NST_SET_ERROR_FROM_OP_ERR(error, pos, pos);
             return false;
         }
         ch_len = nst_cp_utf8.from_utf32(utf32_ch, buf.data + buf.len);

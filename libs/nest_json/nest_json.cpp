@@ -13,7 +13,6 @@ static bool lib_init_ = false;
 bool lib_init()
 {
     usize idx = 0;
-    Nst_OpErr err = { nullptr, nullptr };
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(load_s_,      1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(load_f_,      1);
@@ -22,11 +21,11 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(set_options_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_options_, 0);
 
-#if __LINE__ - FUNC_COUNT != 19
+#if __LINE__ - FUNC_COUNT != 18
 #error
 #endif
 
-    lib_init_ = err.name == nullptr;
+    lib_init_ = !nst_error_occurred();
     return lib_init_;
 }
 
@@ -43,13 +42,13 @@ NST_FUNC_SIGN(load_s_)
     Nst_LList *tokens = json_tokenize(
         (i8 *)"<Str>",
         str->value, str->len,
-        true, err);
+        true);
     if ( tokens == nullptr )
     {
         return nullptr;
     }
 
-    Nst_Obj *value = json_parse((i8 *)"<Str>", tokens, err);
+    Nst_Obj *value = json_parse((i8 *)"<Str>", tokens);
     return value;
 }
 
@@ -61,7 +60,7 @@ NST_FUNC_SIGN(load_f_)
     Nst_IOFile f = fopen(path->value, "rb");
     if ( f == nullptr )
     {
-        NST_SET_RAW_VALUE_ERROR("file not found");
+        nst_set_value_error_c("file not found");
         return nullptr;
     }
 
@@ -69,7 +68,7 @@ NST_FUNC_SIGN(load_f_)
     usize buf_size = (usize)ftell(f);
     fseek(f, 0, SEEK_SET);
 
-    i8 *buf = nst_malloc_c(buf_size + 1, i8, err);
+    i8 *buf = nst_malloc_c(buf_size + 1, i8);
     if ( buf == nullptr )
     {
         fclose(f);
@@ -79,13 +78,13 @@ NST_FUNC_SIGN(load_f_)
     usize len = fread(buf, sizeof(i8), buf_size, f);
     fclose(f);
     buf[len] = 0;
-    Nst_LList *tokens = json_tokenize(path->value, buf, len, false, err);
+    Nst_LList *tokens = json_tokenize(path->value, buf, len, false);
     if ( tokens == nullptr )
     {
         return nullptr;
     }
 
-    Nst_Obj *value = json_parse(path->value, tokens, err);
+    Nst_Obj *value = json_parse(path->value, tokens);
     return value;
 }
 
@@ -97,7 +96,7 @@ NST_FUNC_SIGN(dump_s_)
     NST_DEF_EXTRACT("o?i", &obj, &indent_obj);
     Nst_Int indent = NST_DEF_VAL(indent_obj, AS_INT(indent_obj), 0);
 
-    return json_dump(obj, (i32)indent, err);
+    return json_dump(obj, (i32)indent);
 }
 
 NST_FUNC_SIGN(dump_f_)
@@ -112,11 +111,11 @@ NST_FUNC_SIGN(dump_f_)
     Nst_IOFile f = fopen(path->value, "wb");
     if ( f == nullptr )
     {
-        NST_SET_RAW_VALUE_ERROR("file not found");
+        nst_set_value_error_c("file not found");
         return nullptr;
     }
 
-    Nst_Obj *res = json_dump(obj, (i32)indent, err);
+    Nst_Obj *res = json_dump(obj, (i32)indent);
     if ( res == nullptr )
     {
         fclose(f);
@@ -144,5 +143,5 @@ NST_FUNC_SIGN(get_options_)
     Nst_Int val = 0;
     val |= comments        ? 0b01 : 0;
     val |= trailing_commas ? 0b10 : 0;
-    return nst_int_new(val, err);
+    return nst_int_new(val);
 }

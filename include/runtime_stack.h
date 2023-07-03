@@ -69,7 +69,7 @@ EXPORT typedef struct _Nst_GenericStack
 Nst_GenericStack;
 
 // Initializes a value stack
-EXPORT bool nst_vstack_init(Nst_OpErr *err);
+EXPORT bool nst_vstack_init();
 EXPORT bool _nst_vstack_push(Nst_Obj *obj);
 // Pop a value from the value stack and return it
 EXPORT Nst_Obj *nst_vstack_pop();
@@ -81,7 +81,7 @@ EXPORT bool nst_vstack_dup();
 EXPORT void nst_vstack_destroy();
 
 // New call stack on the heap
-EXPORT bool nst_fstack_init(Nst_OpErr *err);
+EXPORT bool nst_fstack_init();
 EXPORT bool _nst_fstack_push(Nst_FuncObj   *func,
                              Nst_Pos        call_start,
                              Nst_Pos        call_end,
@@ -96,7 +96,7 @@ EXPORT Nst_FuncCall nst_fstack_peek();
 EXPORT void nst_fstack_destroy();
 
 // New catch stack on the heap
-EXPORT bool nst_cstack_init(Nst_OpErr *err);
+EXPORT bool nst_cstack_init();
 // Pushes a value to the catch stack
 EXPORT bool nst_cstack_push(Nst_Int inst_idx,
                             usize   v_stack_size,
@@ -111,8 +111,7 @@ EXPORT void nst_cstack_destroy();
 // Initializes a new runtime stack
 EXPORT bool nst_stack_init(Nst_GenericStack *g_stack,
                            usize             unit_size,
-                           usize             starting_size,
-                           Nst_OpErr        *err);
+                           usize             starting_size);
 // Expands a generic stack
 EXPORT bool nst_stack_expand(Nst_GenericStack *g_stack, usize unit_size);
 // Shrinks a runtime stack

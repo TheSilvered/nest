@@ -87,33 +87,32 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
     }
 
     i32 op_tok = HEAD_TOK->type;
-    Nst_OpErr err = { NULL, NULL };
     Nst_Obj *ob1 = NST_TOK(HEAD_NODE->tokens->head->value)->value;
     Nst_Obj *ob2 = NST_TOK(TAIL_NODE->tokens->head->value)->value;
     Nst_Obj *res = NULL;
 
     switch ( op_tok )
     {
-    case NST_TT_ADD:    res = nst_obj_add(ob1, ob2, &err);   break;
-    case NST_TT_SUB:    res = nst_obj_sub(ob1, ob2, &err);   break;
-    case NST_TT_MUL:    res = nst_obj_mul(ob1, ob2, &err);   break;
-    case NST_TT_DIV:    res = nst_obj_div(ob1, ob2, &err);   break;
-    case NST_TT_POW:    res = nst_obj_pow(ob1, ob2, &err);   break;
-    case NST_TT_MOD:    res = nst_obj_mod(ob1, ob2, &err);   break;
-    case NST_TT_B_AND:  res = nst_obj_bwand(ob1, ob2, &err); break;
-    case NST_TT_B_OR:   res = nst_obj_bwor(ob1, ob2, &err);  break;
-    case NST_TT_B_XOR:  res = nst_obj_bwxor(ob1, ob2, &err); break;
-    case NST_TT_LSHIFT: res = nst_obj_bwls(ob1, ob2, &err);  break;
-    case NST_TT_RSHIFT: res = nst_obj_bwrs(ob1, ob2, &err);  break;
-    case NST_TT_CONCAT: res = nst_obj_concat(ob1, ob2, &err);break;
-    case NST_TT_L_AND:  res = nst_obj_lgand(ob1, ob2, &err); break;
-    case NST_TT_L_OR:   res = nst_obj_lgor(ob1, ob2, &err);  break;
-    case NST_TT_L_XOR:  res = nst_obj_lgxor(ob1, ob2, &err); break;
+    case NST_TT_ADD:    res = nst_obj_add(ob1, ob2);   break;
+    case NST_TT_SUB:    res = nst_obj_sub(ob1, ob2);   break;
+    case NST_TT_MUL:    res = nst_obj_mul(ob1, ob2);   break;
+    case NST_TT_DIV:    res = nst_obj_div(ob1, ob2);   break;
+    case NST_TT_POW:    res = nst_obj_pow(ob1, ob2);   break;
+    case NST_TT_MOD:    res = nst_obj_mod(ob1, ob2);   break;
+    case NST_TT_B_AND:  res = nst_obj_bwand(ob1, ob2); break;
+    case NST_TT_B_OR:   res = nst_obj_bwor(ob1, ob2);  break;
+    case NST_TT_B_XOR:  res = nst_obj_bwxor(ob1, ob2); break;
+    case NST_TT_LSHIFT: res = nst_obj_bwls(ob1, ob2);  break;
+    case NST_TT_RSHIFT: res = nst_obj_bwrs(ob1, ob2);  break;
+    case NST_TT_CONCAT: res = nst_obj_concat(ob1, ob2);break;
+    case NST_TT_L_AND:  res = nst_obj_lgand(ob1, ob2); break;
+    case NST_TT_L_OR:   res = nst_obj_lgor(ob1, ob2);  break;
+    case NST_TT_L_XOR:  res = nst_obj_lgxor(ob1, ob2); break;
     }
 
     if ( res == NULL )
     {
-        _NST_SET_ERROR_FROM_OP_ERR(error, &err, node->start, node->end);
+        _NST_SET_ERROR_FROM_OP_ERR(error, node->start, node->end);
         return;
     }
 
@@ -127,12 +126,11 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
         node->start,
         node->end,
         NST_TT_VALUE,
-        res,
-        &err);
+        res);
 
     if ( new_tok == NULL )
     {
-        _NST_SET_ERROR_FROM_OP_ERR(error, &err, node->start, node->end);
+        _NST_SET_ERROR_FROM_OP_ERR(error, node->start, node->end);
         return;
     }
     node->tokens->head->value = new_tok;
@@ -142,7 +140,6 @@ static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
 {
     Nst_Obj *res = NULL;
     i32 op_tok = HEAD_TOK->type;
-    Nst_OpErr err = { NULL, NULL };
     Nst_Obj *ob1 = NULL;
     Nst_Obj *ob2 = NULL;
 
@@ -172,12 +169,12 @@ static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
 
         switch ( op_tok )
         {
-        case NST_TT_GT:     res = nst_obj_gt(ob1, ob2, &err);    break;
-        case NST_TT_LT:     res = nst_obj_lt(ob1, ob2, &err);    break;
-        case NST_TT_EQ:     res = nst_obj_eq(ob1, ob2, &err);    break;
-        case NST_TT_NEQ:    res = nst_obj_ne(ob1, ob2, &err);    break;
-        case NST_TT_GTE:    res = nst_obj_ge(ob1, ob2, &err);    break;
-        case NST_TT_LTE:    res = nst_obj_le(ob1, ob2, &err);    break;
+        case NST_TT_GT:  res = nst_obj_gt(ob1, ob2); break;
+        case NST_TT_LT:  res = nst_obj_lt(ob1, ob2); break;
+        case NST_TT_EQ:  res = nst_obj_eq(ob1, ob2); break;
+        case NST_TT_NEQ: res = nst_obj_ne(ob1, ob2); break;
+        case NST_TT_GTE: res = nst_obj_ge(ob1, ob2); break;
+        case NST_TT_LTE: res = nst_obj_le(ob1, ob2); break;
         default: return;
         }
 
@@ -187,7 +184,7 @@ static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
         }
         else if ( res == NULL )
         {
-            _NST_SET_ERROR_FROM_OP_ERR(error, &err, node->start, node->end);
+            _NST_SET_ERROR_FROM_OP_ERR(error, node->start, node->end);
             return;
         }
     }
@@ -201,12 +198,11 @@ static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
         node->start,
         node->end,
         NST_TT_VALUE,
-        res,
-        &err);
+        res);
 
     if ( new_tok == NULL )
     {
-        _NST_SET_ERROR_FROM_OP_ERR(error, &err, node->start, node->end);
+        _NST_SET_ERROR_FROM_OP_ERR(error, node->start, node->end);
         return;
     }
     node->tokens->head->value = new_tok;
@@ -227,23 +223,22 @@ static void ast_optimize_local_op(Nst_Node *node, Nst_Error *error)
     }
 
     i32 op_tok = HEAD_TOK->type;
-    Nst_OpErr err = { NULL, NULL };
     Nst_Obj *ob = NST_TOK(HEAD_NODE->tokens->head->value)->value;
     Nst_Obj *res = NULL;
 
     switch ( op_tok )
     {
-    case NST_TT_LEN:    res = nst_obj_len(ob, &err);    break;
-    case NST_TT_L_NOT:  res = nst_obj_lgnot(ob, &err);  break;
-    case NST_TT_B_NOT:  res = nst_obj_bwnot(ob, &err);  break;
-    case NST_TT_TYPEOF: res = nst_obj_typeof(ob, &err); break;
-    case NST_TT_NEG:    res = nst_obj_neg(ob, &err);    break;
+    case NST_TT_LEN:    res = nst_obj_len(ob);    break;
+    case NST_TT_L_NOT:  res = nst_obj_lgnot(ob);  break;
+    case NST_TT_B_NOT:  res = nst_obj_bwnot(ob);  break;
+    case NST_TT_TYPEOF: res = nst_obj_typeof(ob); break;
+    case NST_TT_NEG:    res = nst_obj_neg(ob);    break;
     default: return;
     }
 
     if ( res == NULL )
     {
-        _NST_SET_ERROR_FROM_OP_ERR(error, &err, node->start, node->end);
+        _NST_SET_ERROR_FROM_OP_ERR(error, node->start, node->end);
         return;
     }
 
@@ -256,12 +251,11 @@ static void ast_optimize_local_op(Nst_Node *node, Nst_Error *error)
         node->start,
         node->end,
         NST_TT_VALUE,
-        res,
-        &err);
+        res);
 
     if ( new_tok == NULL )
     {
-        _NST_SET_ERROR_FROM_OP_ERR(error, &err, node->start, node->end);
+        _NST_SET_ERROR_FROM_OP_ERR(error, node->start, node->end);
         return;
     }
     node->tokens->head->value = new_tok;
@@ -567,9 +561,10 @@ static void optimize_const(Nst_InstList *bc,
                            const i8     *name,
                            Nst_Obj      *val)
 {
-    Nst_StrObj *str_obj = STR(nst_string_new_c_raw(name, false, NULL));
+    Nst_StrObj *str_obj = STR(nst_string_new_c_raw(name, false));
     if ( str_obj == NULL )
     {
+        nst_error_clear();
         return;
     }
 
@@ -811,7 +806,7 @@ static void remove_push_jumpif(Nst_InstList *bc)
             continue;
         }
 
-        Nst_Obj *cond = nst_obj_cast(inst_list[i - 1].val, nst_t.Bool, NULL);
+        Nst_Obj *cond = nst_obj_cast(inst_list[i - 1].val, nst_t.Bool);
         if ( (cond == nst_c.Bool_true && inst_list[i].id == NST_IC_JUMPIF_T) ||
                 (cond == nst_c.Bool_false && inst_list[i].id == NST_IC_JUMPIF_F) )
         {

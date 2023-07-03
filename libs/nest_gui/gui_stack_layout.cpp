@@ -1,6 +1,6 @@
 #include "gui_stack_layout.h"
 
-bool gui_stack_layout_on_child_added(GUI_StackLayout *sl, usize idx, Nst_OpErr *err)
+bool gui_stack_layout_on_child_added(GUI_StackLayout *sl, usize idx)
 {
     GUI_Element *child = (GUI_Element *)sl->children->objs[idx];
     GUI_Element *parent = (GUI_Element *)sl;
@@ -65,13 +65,13 @@ bool gui_stack_layout_on_child_added(GUI_StackLayout *sl, usize idx, Nst_OpErr *
 GUI_Element *gui_stack_layout_new(GUI_StackDir direction,
                                   GUI_StackAlign alignment,
                                   int x, int y, int w, int h,
-                                  GUI_App *app, Nst_OpErr *err)
+                                  GUI_App *app)
 {
     GUI_StackLayout *new_sl = (GUI_StackLayout *)gui_element_new(
         GUI_ET_STACK_LAYOUT,
         sizeof(GUI_StackLayout),
         x, y, w, h,
-        app, err);
+        app);
     if ( new_sl == nullptr )
     {
         return nullptr;

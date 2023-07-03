@@ -2,11 +2,10 @@
 #include "mem.h"
 #include "llist.h"
 
-Nst_LLNode *nst_llnode_new(void              *value,
-                           bool               allocated,
-                           struct _Nst_OpErr *err)
+Nst_LLNode *nst_llnode_new(void *value,
+                           bool  allocated)
 {
-    Nst_LLNode *node = nst_malloc_c(1, Nst_LLNode, err);
+    Nst_LLNode *node = nst_malloc_c(1, Nst_LLNode);
     if ( node == NULL )
     {
         return NULL;
@@ -17,12 +16,11 @@ Nst_LLNode *nst_llnode_new(void              *value,
     return node;
 }
 
-bool nst_llist_push(Nst_LList         *llist,
-                    void              *value,
-                    bool               allocated,
-                    struct _Nst_OpErr *err)
+bool nst_llist_push(Nst_LList *llist,
+                    void      *value,
+                    bool       allocated)
 {
-    Nst_LLNode *node = nst_llnode_new(value, allocated, err);
+    Nst_LLNode *node = nst_llnode_new(value, allocated);
     if ( node == NULL )
     {
         return false;
@@ -41,10 +39,9 @@ bool nst_llist_push(Nst_LList         *llist,
 
 bool nst_llist_append(Nst_LList *llist,
                       void *value,
-                      bool allocated,
-                      struct _Nst_OpErr *err)
+                      bool allocated)
 {
-    Nst_LLNode *node = nst_llnode_new(value, allocated, err);
+    Nst_LLNode *node = nst_llnode_new(value, allocated);
     if ( node == NULL )
     {
         return false;
@@ -68,10 +65,9 @@ bool nst_llist_append(Nst_LList *llist,
 bool nst_llist_insert(Nst_LList         *llist,
                       void              *value,
                       bool               allocated,
-                      Nst_LLNode        *node,
-                      struct _Nst_OpErr *err)
+                      Nst_LLNode        *node)
 {
-    Nst_LLNode *new_node = nst_llnode_new(value, allocated, err);
+    Nst_LLNode *new_node = nst_llnode_new(value, allocated);
     if ( new_node == NULL )
     {
         return false;
@@ -113,9 +109,9 @@ void *nst_llist_pop(Nst_LList *llist)
     return value;
 }
 
-Nst_LList *nst_llist_new(struct _Nst_OpErr *err)
+Nst_LList *nst_llist_new()
 {
-    Nst_LList *llist = nst_malloc_c(1, Nst_LList, err);
+    Nst_LList *llist = nst_malloc_c(1, Nst_LList);
     if ( llist == NULL )
     {
         return NULL;

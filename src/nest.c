@@ -235,7 +235,7 @@ int main(int argc, char **argv)
         }
     }
 
-    Nst_FuncObj *main_func = FUNC(nst_func_new(0, inst_ls, NULL));
+    Nst_FuncObj *main_func = FUNC(nst_func_new(0, inst_ls));
 
     i32 exe_result = nst_run(
         main_func,

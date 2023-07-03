@@ -47,7 +47,6 @@ static Nst_StrObj *str_obj_no_err(const i8 *value, Nst_TypeObj *type)
 
 bool _nst_init_objects()
 {
-    Nst_OpErr err = { NULL, NULL };
     nst_t.Type = str_obj_no_err("Type", NULL);
     if ( nst_t.Type == NULL )
     {
@@ -75,62 +74,62 @@ bool _nst_init_objects()
         return false;
     }
 
-    nst_t.Int    = nst_type_new("Int",    3, &err);
-    nst_t.Real   = nst_type_new("Real",   4, &err);
-    nst_t.Bool   = nst_type_new("Bool",   4, &err);
-    nst_t.Null   = nst_type_new("Null",   4, &err);
-    nst_t.Array  = nst_type_new("Array",  5, &err);
-    nst_t.Vector = nst_type_new("Vector", 6, &err);
-    nst_t.Map    = nst_type_new("Map",    3, &err);
-    nst_t.Func   = nst_type_new("Func",   4, &err);
-    nst_t.Iter   = nst_type_new("Iter",   4, &err);
-    nst_t.Byte   = nst_type_new("Byte",   4, &err);
-    nst_t.IOFile = nst_type_new("IOFile", 6, &err);
+    nst_t.Int    = nst_type_new("Int",    3);
+    nst_t.Real   = nst_type_new("Real",   4);
+    nst_t.Bool   = nst_type_new("Bool",   4);
+    nst_t.Null   = nst_type_new("Null",   4);
+    nst_t.Array  = nst_type_new("Array",  5);
+    nst_t.Vector = nst_type_new("Vector", 6);
+    nst_t.Map    = nst_type_new("Map",    3);
+    nst_t.Func   = nst_type_new("Func",   4);
+    nst_t.Iter   = nst_type_new("Iter",   4);
+    nst_t.Byte   = nst_type_new("Byte",   4);
+    nst_t.IOFile = nst_type_new("IOFile", 6);
 
-    nst_s.t_Type   = STR(_nst_string_copy(nst_t.Type,   &err));
-    nst_s.t_Int    = STR(_nst_string_copy(nst_t.Int,    &err));
-    nst_s.t_Real   = STR(_nst_string_copy(nst_t.Real,   &err));
-    nst_s.t_Bool   = STR(_nst_string_copy(nst_t.Bool,   &err));
-    nst_s.t_Null   = STR(_nst_string_copy(nst_t.Null,   &err));
-    nst_s.t_Str    = STR(_nst_string_copy(nst_t.Str,    &err));
-    nst_s.t_Array  = STR(_nst_string_copy(nst_t.Array,  &err));
-    nst_s.t_Vector = STR(_nst_string_copy(nst_t.Vector, &err));
-    nst_s.t_Map    = STR(_nst_string_copy(nst_t.Map,    &err));
-    nst_s.t_Func   = STR(_nst_string_copy(nst_t.Func,   &err));
-    nst_s.t_Iter   = STR(_nst_string_copy(nst_t.Iter,   &err));
-    nst_s.t_Byte   = STR(_nst_string_copy(nst_t.Byte,   &err));
-    nst_s.t_IOFile = STR(_nst_string_copy(nst_t.IOFile, &err));
+    nst_s.t_Type   = STR(_nst_string_copy(nst_t.Type));
+    nst_s.t_Int    = STR(_nst_string_copy(nst_t.Int));
+    nst_s.t_Real   = STR(_nst_string_copy(nst_t.Real));
+    nst_s.t_Bool   = STR(_nst_string_copy(nst_t.Bool));
+    nst_s.t_Null   = STR(_nst_string_copy(nst_t.Null));
+    nst_s.t_Str    = STR(_nst_string_copy(nst_t.Str));
+    nst_s.t_Array  = STR(_nst_string_copy(nst_t.Array));
+    nst_s.t_Vector = STR(_nst_string_copy(nst_t.Vector));
+    nst_s.t_Map    = STR(_nst_string_copy(nst_t.Map));
+    nst_s.t_Func   = STR(_nst_string_copy(nst_t.Func));
+    nst_s.t_Iter   = STR(_nst_string_copy(nst_t.Iter));
+    nst_s.t_Byte   = STR(_nst_string_copy(nst_t.Byte));
+    nst_s.t_IOFile = STR(_nst_string_copy(nst_t.IOFile));
 
-    nst_s.c_true  = STR(nst_string_new_c("true",  4, false, &err));
-    nst_s.c_false = STR(nst_string_new_c("false", 5, false, &err));
-    nst_s.c_null  = STR(nst_string_new_c("null",  4, false, &err));
+    nst_s.c_true  = STR(nst_string_new_c("true",  4, false));
+    nst_s.c_false = STR(nst_string_new_c("false", 5, false));
+    nst_s.c_null  = STR(nst_string_new_c("null",  4, false));
 
-    nst_s.e_SyntaxError = STR(nst_string_new_c("Syntax Error", 12, false, &err));
-    nst_s.e_ValueError  = STR(nst_string_new_c("Value Error",  11, false, &err));
-    nst_s.e_TypeError   = STR(nst_string_new_c("Type Error",   10, false, &err));
-    nst_s.e_CallError   = STR(nst_string_new_c("Call Error",   10, false, &err));
-    nst_s.e_MathError   = STR(nst_string_new_c("Math Error",   10, false, &err));
-    nst_s.e_ImportError = STR(nst_string_new_c("Import Error", 12, false, &err));
+    nst_s.e_SyntaxError = STR(nst_string_new_c("Syntax Error", 12, false));
+    nst_s.e_ValueError  = STR(nst_string_new_c("Value Error",  11, false));
+    nst_s.e_TypeError   = STR(nst_string_new_c("Type Error",   10, false));
+    nst_s.e_CallError   = STR(nst_string_new_c("Call Error",   10, false));
+    nst_s.e_MathError   = STR(nst_string_new_c("Math Error",   10, false));
+    nst_s.e_ImportError = STR(nst_string_new_c("Import Error", 12, false));
 
-    nst_s.o__vars_    = STR(nst_string_new_c("_vars_",    6, false, &err));
-    nst_s.o__globals_ = STR(nst_string_new_c("_globals_", 9, false, &err));
-    nst_s.o__args_    = STR(nst_string_new_c("_args_",    6, false, &err));
-    nst_s.o__cwd_     = STR(nst_string_new_c("_cwd_",     5, false, &err));
+    nst_s.o__vars_    = STR(nst_string_new_c("_vars_",    6, false));
+    nst_s.o__globals_ = STR(nst_string_new_c("_globals_", 9, false));
+    nst_s.o__args_    = STR(nst_string_new_c("_args_",    6, false));
+    nst_s.o__cwd_     = STR(nst_string_new_c("_cwd_",     5, false));
 
-    nst_c.Bool_true  = nst_bool_new(NST_TRUE, &err);
-    nst_c.Bool_false = nst_bool_new(NST_FALSE, &err);
-    nst_c.Null_null  = _nst_obj_alloc(sizeof(Nst_Obj), nst_t.Null, NULL, &err);
-    nst_c.Int_0    = nst_int_new(0, &err);
-    nst_c.Int_1    = nst_int_new(1, &err);
-    nst_c.Int_neg1 = nst_int_new(-1, &err);
-    nst_c.Real_0   = nst_real_new(0.0, &err);
-    nst_c.Real_1   = nst_real_new(1.0, &err);
-    nst_c.Byte_0   = nst_byte_new(0, &err);
-    nst_c.Byte_1   = nst_byte_new(1, &err);
+    nst_c.Bool_true  = nst_bool_new(NST_TRUE);
+    nst_c.Bool_false = nst_bool_new(NST_FALSE);
+    nst_c.Null_null  = _nst_obj_alloc(sizeof(Nst_Obj), nst_t.Null, NULL);
+    nst_c.Int_0    = nst_int_new(0);
+    nst_c.Int_1    = nst_int_new(1);
+    nst_c.Int_neg1 = nst_int_new(-1);
+    nst_c.Real_0   = nst_real_new(0.0);
+    nst_c.Real_1   = nst_real_new(1.0);
+    nst_c.Byte_0   = nst_byte_new(0);
+    nst_c.Byte_1   = nst_byte_new(1);
 
-    nst_io.in  = IOFILE(nst_iof_new(stdin,  false, true, false, &err));
-    nst_io.out = IOFILE(nst_iof_new(stdout, false, false, true, &err));
-    nst_io.err = IOFILE(nst_iof_new(stderr, false, false, true, &err));
+    nst_io.in  = IOFILE(nst_iof_new(stdin,  false, true, false));
+    nst_io.out = IOFILE(nst_iof_new(stdout, false, false, true));
+    nst_io.err = IOFILE(nst_iof_new(stderr, false, false, true));
 
     nst_io.in ->close_f = close_std_stream;
     nst_io.out->close_f = close_std_stream;
@@ -140,20 +139,19 @@ bool _nst_init_objects()
     nst_io.in->read_f = (Nst_IOFile_read_f)_nst_windows_stdin_read;
 #endif
 
-    nst_itf.range_start   = FUNC(nst_func_new_c(1, nst_iter_range_start,   &err));
-    nst_itf.range_is_done = FUNC(nst_func_new_c(1, nst_iter_range_is_done, &err));
-    nst_itf.range_get_val = FUNC(nst_func_new_c(1, nst_iter_range_get_val, &err));
-    nst_itf.str_start     = FUNC(nst_func_new_c(1, nst_iter_str_start,     &err));
-    nst_itf.str_is_done   = FUNC(nst_func_new_c(1, nst_iter_str_is_done,   &err));
-    nst_itf.str_get_val   = FUNC(nst_func_new_c(1, nst_iter_str_get_val,   &err));
-    nst_itf.seq_start     = FUNC(nst_func_new_c(1, nst_iter_seq_start,     &err));
-    nst_itf.seq_is_done   = FUNC(nst_func_new_c(1, nst_iter_seq_is_done,   &err));
-    nst_itf.seq_get_val   = FUNC(nst_func_new_c(1, nst_iter_seq_get_val,   &err));
+    nst_itf.range_start   = FUNC(nst_func_new_c(1, nst_iter_range_start));
+    nst_itf.range_is_done = FUNC(nst_func_new_c(1, nst_iter_range_is_done));
+    nst_itf.range_get_val = FUNC(nst_func_new_c(1, nst_iter_range_get_val));
+    nst_itf.str_start     = FUNC(nst_func_new_c(1, nst_iter_str_start));
+    nst_itf.str_is_done   = FUNC(nst_func_new_c(1, nst_iter_str_is_done));
+    nst_itf.str_get_val   = FUNC(nst_func_new_c(1, nst_iter_str_get_val));
+    nst_itf.seq_start     = FUNC(nst_func_new_c(1, nst_iter_seq_start));
+    nst_itf.seq_is_done   = FUNC(nst_func_new_c(1, nst_iter_seq_is_done));
+    nst_itf.seq_get_val   = FUNC(nst_func_new_c(1, nst_iter_seq_get_val));
 
-    if ( err.name != NULL )
+    if ( nst_error_occurred() )
     {
-        nst_dec_ref(err.name);
-        nst_dec_ref(err.message);
+        nst_error_clear();
         _nst_del_objects();
         return false;
     }

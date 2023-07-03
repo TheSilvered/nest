@@ -16,20 +16,20 @@
 // Sets an error if cond is true or the error's name is not NULL
 // SET_ERROR_IF_OP_ERR(0) will set the error if it occurred
 #define SET_ERROR_IF_OP_ERR(...) do { \
-    if ( parser_err.name != NULL ) \
+    if ( nst_error_occurred() ) \
     { \
         Nst_Tok *_t_ = NST_TOK(nst_llist_peek_front(tokens)); \
-        _NST_SET_ERROR_FROM_OP_ERR(p_state.error, &parser_err, _t_->start, _t_->end); \
+        _NST_SET_ERROR_FROM_OP_ERR(p_state.error, _t_->start, _t_->end); \
         __VA_ARGS__ \
         return NULL; \
     } } while ( 0 )
 
 #define SAFE_NODE_APPEND(node, node_to_append) \
-    nst_llist_append(node->nodes, node_to_append, true, &parser_err); \
+    nst_llist_append(node->nodes, node_to_append, true); \
     SET_ERROR_IF_OP_ERR(nst_node_destroy(node);nst_node_destroy(node_to_append);)
 
 #define SAFE_TOK_APPEND(node, tok_to_append) \
-    nst_llist_append(node->tokens, tok_to_append, true, &parser_err); \
+    nst_llist_append(node->tokens, tok_to_append, true); \
     SET_ERROR_IF_OP_ERR(nst_node_destroy(node);nst_token_destroy(tok_to_append);)
 
 #define RETURN_IF_ERROR(node) \
@@ -65,11 +65,10 @@ ParsingState;
 
 static ParsingState p_state;
 static Nst_LList *tokens;
-static Nst_OpErr parser_err = { NULL, NULL };
 static int recursion_lvl = 0;
 
 static inline void skip_blank();
-static Nst_Tok *copy_token(Nst_Tok *tok, Nst_OpErr *err);
+static Nst_Tok *copy_token(Nst_Tok *tok);
 static Nst_Node *fix_expr(Nst_Node *expr);
 
 static Nst_Node *parse_long_statement();
@@ -127,20 +126,19 @@ static inline void skip_blank()
     }
 }
 
-static Nst_Tok *copy_token(Nst_Tok *tok, Nst_OpErr *err)
+static Nst_Tok *copy_token(Nst_Tok *tok)
 {
     return nst_tok_new_value(
         tok->start,
         tok->end,
         tok->type,
-        tok->value != NULL ? nst_inc_ref(tok->value) : NULL,
-        err);
+        tok->value != NULL ? nst_inc_ref(tok->value) : NULL);
 }
 
 static Nst_Node *parse_long_statement()
 {
     INC_RECURSION_LVL;
-    Nst_Node *long_statement_node = nst_node_new(NST_NT_LONG_S, &parser_err);
+    Nst_Node *long_statement_node = nst_node_new(NST_NT_LONG_S);
     SET_ERROR_IF_OP_ERR();
 
     Nst_Node *node = NULL;
@@ -239,14 +237,12 @@ static Nst_Node *parse_statement()
             Nst_Tok *null_value = nst_tok_new_value(
                 start, end,
                 NST_TT_VALUE,
-                nst_inc_ref(nst_c.Null_null),
-                &parser_err);
+                nst_inc_ref(nst_c.Null_null));
             SET_ERROR_IF_OP_ERR();
             expr = nst_node_new_pos(
                 NST_NT_VALUE,
                 start,
-                end,
-                &parser_err);
+                end);
             SET_ERROR_IF_OP_ERR(nst_token_destroy(null_value););
             SAFE_TOK_APPEND(expr, null_value);
         }
@@ -261,8 +257,7 @@ static Nst_Node *parse_statement()
 
         Nst_Node *return_s_node = nst_node_new_pos(
             NST_NT_RETURN_S,
-            start, expr->end,
-            &parser_err);
+            start, expr->end);
         SET_ERROR_IF_OP_ERR(nst_node_destroy(expr););
         SAFE_NODE_APPEND(return_s_node, expr);
         DEC_RECURSION_LVL;
@@ -282,8 +277,7 @@ static Nst_Node *parse_statement()
 
         Nst_Node *continue_node = nst_node_new_pos(
             NST_NT_CONTINUE_S,
-            start, end,
-            &parser_err);
+            start, end);
         SET_ERROR_IF_OP_ERR();
         DEC_RECURSION_LVL;
         return continue_node;
@@ -301,8 +295,7 @@ static Nst_Node *parse_statement()
         }
         Nst_Node *break_node = nst_node_new_pos(
             NST_NT_BREAK_S,
-            start, end,
-            &parser_err);
+            start, end);
         SET_ERROR_IF_OP_ERR();
         DEC_RECURSION_LVL;
         return break_node;
@@ -335,7 +328,7 @@ static Nst_Node *parse_while_loop()
     Nst_Pos start = tok->start;
 
     Nst_Node *while_l_node = nst_node_new(
-        tok->type == NST_TT_WHILE ? NST_NT_WHILE_L : NST_NT_DOWHILE_L, &parser_err);
+        tok->type == NST_TT_WHILE ? NST_NT_WHILE_L : NST_NT_DOWHILE_L);
     SET_ERROR_IF_OP_ERR();
 
     nst_token_destroy(tok);
@@ -386,14 +379,14 @@ static Nst_Node *parse_for_loop()
     Nst_Pos start = tok->start;
     nst_token_destroy(tok);
 
-    Nst_Node *for_l_node = nst_node_new(NST_NT_FOR_L, &parser_err);
+    Nst_Node *for_l_node = nst_node_new(NST_NT_FOR_L);
     SET_ERROR_IF_OP_ERR();
 
     skip_blank();
     Nst_Node *range = parse_expr(false);
     RETURN_IF_ERROR(for_l_node);
 
-    nst_llist_append(for_l_node->nodes, range, true, &parser_err);
+    nst_llist_append(for_l_node->nodes, range, true);
     SET_ERROR_IF_OP_ERR(nst_node_destroy(for_l_node); nst_node_destroy(range););
 
     if ( NST_TOK(nst_llist_peek_front(tokens))->type == NST_TT_AS )
@@ -445,7 +438,7 @@ static Nst_Node *parse_if_expr(Nst_Node *condition)
     nst_token_destroy(NST_TOK(nst_llist_pop(tokens)));
     skip_blank();
 
-    Nst_Node *if_expr_node = nst_node_new(NST_NT_IF_E, &parser_err);
+    Nst_Node *if_expr_node = nst_node_new(NST_NT_IF_E);
     SET_ERROR_IF_OP_ERR();
     SAFE_NODE_APPEND(if_expr_node, condition);
 
@@ -483,7 +476,7 @@ static Nst_Node *parse_switch_statement()
     nst_token_destroy(tok);
     skip_blank();
 
-    Nst_Node *switch_s_node = nst_node_new(NST_NT_SWITCH_S, &parser_err);
+    Nst_Node *switch_s_node = nst_node_new(NST_NT_SWITCH_S);
     SET_ERROR_IF_OP_ERR();
 
     Nst_Node *main_val = parse_expr(false);
@@ -596,8 +589,7 @@ static Nst_Node *parse_func_def_or_lambda()
     nst_token_destroy(tok);
 
     Nst_Node *func_node = nst_node_new(
-        is_lambda ? NST_NT_LAMBDA : NST_NT_FUNC_DECLR,
-        &parser_err);
+        is_lambda ? NST_NT_LAMBDA : NST_NT_FUNC_DECLR);
 
     skip_blank();
     while ( NST_TOK(nst_llist_peek_front(tokens))->type == NST_TT_IDENT )
@@ -671,10 +663,9 @@ static Nst_Node *parse_func_def_or_lambda()
         Nst_Node *return_node = nst_node_new_pos(
             NST_NT_RETURN_S,
             return_start,
-            body->end,
-            &parser_err);
+            body->end);
 
-        nst_llist_append(return_node->nodes, body, true, &parser_err);
+        nst_llist_append(return_node->nodes, body, true);
         SET_ERROR_IF_OP_ERR(
             nst_node_destroy(func_node);
         nst_node_destroy(body);
@@ -796,8 +787,7 @@ static Nst_Node *fix_expr(Nst_Node *expr)
         Nst_Pos end = curr_node->end;
         Nst_Node *new_node = nst_node_new_pos(
             NST_NT_STACK_OP,
-            start, end,
-            &parser_err);
+            start, end);
 
         // move the nodes except for the last one
         for ( usize j = 0, m = curr_node->nodes->size - 1; j < m; j++ )
@@ -807,17 +797,17 @@ static Nst_Node *fix_expr(Nst_Node *expr)
                 nst_llist_pop_llnode(curr_node->nodes));
         }
 
-        Nst_Tok *new_tok = copy_token(op_tok, &parser_err);
+        Nst_Tok *new_tok = copy_token(op_tok);
         SET_ERROR_IF_OP_ERR(
                 nst_node_destroy(expr);
                 nst_node_destroy(new_node););
-        nst_llist_append(new_node->tokens, new_tok, true, &parser_err);
+        nst_llist_append(new_node->tokens, new_tok, true);
         SET_ERROR_IF_OP_ERR(
                 nst_node_destroy(expr);
                 nst_node_destroy(new_node);
                 nst_token_destroy(new_tok););
 
-        nst_llist_push(curr_node->nodes, new_node, true, &parser_err);
+        nst_llist_push(curr_node->nodes, new_node, true);
         SET_ERROR_IF_OP_ERR(nst_node_destroy(expr););
         curr_node = new_node;
     }
@@ -830,12 +820,12 @@ static Nst_Node *parse_stack_op(Nst_Node *value, Nst_Pos start)
 {
     INC_RECURSION_LVL;
     Nst_Node *value_node = NULL;
-    Nst_LList *new_nodes = nst_llist_new(&parser_err);
+    Nst_LList *new_nodes = nst_llist_new();
     SET_ERROR_IF_OP_ERR();
 
     if ( value != NULL )
     {
-        nst_llist_append(new_nodes, value, true, &parser_err);
+        nst_llist_append(new_nodes, value, true);
         SET_ERROR_IF_OP_ERR(nst_node_destroy(value););
     }
     else
@@ -846,7 +836,7 @@ static Nst_Node *parse_stack_op(Nst_Node *value, Nst_Pos start)
             nst_llist_destroy(new_nodes, NULL);
             return NULL;
         }
-        nst_llist_append(new_nodes, value_node, true, &parser_err);
+        nst_llist_append(new_nodes, value_node, true);
         SET_ERROR_IF_OP_ERR(nst_node_destroy(value_node););
     }
 
@@ -858,7 +848,7 @@ static Nst_Node *parse_stack_op(Nst_Node *value, Nst_Pos start)
             nst_llist_destroy(new_nodes, (Nst_LListDestructor)nst_node_destroy);
             return NULL;
         }
-        nst_llist_append(new_nodes, value_node, true, &parser_err);
+        nst_llist_append(new_nodes, value_node, true);
         SET_ERROR_IF_OP_ERR(nst_node_destroy(value_node););
     }
 
@@ -869,7 +859,7 @@ static Nst_Node *parse_stack_op(Nst_Node *value, Nst_Pos start)
 
     if ( NST_IS_STACK_OP(op_tok->type) )
     {
-        node = nst_node_new_pos(NST_NT_STACK_OP, start, end, &parser_err);
+        node = nst_node_new_pos(NST_NT_STACK_OP, start, end);
         SET_ERROR_IF_OP_ERR(
             nst_llist_destroy(new_nodes, (Nst_LListDestructor)nst_node_destroy););
         nst_llist_move_nodes(new_nodes, node->nodes);
@@ -892,14 +882,12 @@ static Nst_Node *parse_stack_op(Nst_Node *value, Nst_Pos start)
         Nst_Tok *new_tok = nst_tok_new_noval(
             op_tok->start,
             op_tok->end,
-            NST_ASSIGMENT_TO_STACK_OP(op_tok->type),
-            &parser_err);
+            NST_ASSIGMENT_TO_STACK_OP(op_tok->type));
         SET_ERROR_IF_OP_ERR(
             nst_llist_destroy(new_nodes, (Nst_LListDestructor)nst_node_destroy););
         node = nst_node_new_pos(
             NST_NT_STACK_OP,
-            start, end,
-            &parser_err);
+            start, end);
         SET_ERROR_IF_OP_ERR(
             nst_llist_destroy(new_nodes, (Nst_LListDestructor)nst_node_destroy);
             nst_token_destroy(new_tok););
@@ -925,8 +913,7 @@ static Nst_Node *parse_stack_op(Nst_Node *value, Nst_Pos start)
         {
             Nst_Node *new_node = nst_node_new_pos(
                 NST_NT_STACK_OP,
-                start, op_tok->end,
-                &parser_err);
+                start, op_tok->end);
             SET_ERROR_IF_OP_ERR(nst_node_destroy(node););
             SAFE_NODE_APPEND(new_node, node);
             op_tok = NST_TOK(nst_llist_pop(tokens));
@@ -934,9 +921,9 @@ static Nst_Node *parse_stack_op(Nst_Node *value, Nst_Pos start)
         }
         else if ( NST_IS_LOCAL_STACK_OP(op_tok->type) && is_local_stack_op )
         {
-            new_nodes = nst_llist_new(&parser_err);
+            new_nodes = nst_llist_new();
             SET_ERROR_IF_OP_ERR(nst_node_destroy(node););
-            nst_llist_append(new_nodes, node, true, &parser_err);
+            nst_llist_append(new_nodes, node, true);
             SET_ERROR_IF_OP_ERR(nst_node_destroy(node););
             node = parse_local_stack_op(new_nodes, start);
             if ( p_state.error->occurred )
@@ -1003,7 +990,7 @@ static Nst_Node *parse_local_stack_op(Nst_LList *nodes, Nst_Pos start)
             _NST_EM_LEFT_ARGS_NUM("*@", "1", ""));
     }
 
-    Nst_Node *local_stack_op_node = nst_node_new(NST_NT_LOCAL_STACK_OP, &parser_err);
+    Nst_Node *local_stack_op_node = nst_node_new(NST_NT_LOCAL_STACK_OP);
     SAFE_TOK_APPEND(local_stack_op_node, tok);
     nst_llist_move_nodes(nodes, local_stack_op_node->nodes);
 
@@ -1054,7 +1041,7 @@ static Nst_Node *parse_assignment_name(bool is_compound)
         RETURN_ERROR(err_start, err_end, _NST_EM_COMPOUND_ASSIGMENT);
     }
 
-    node = nst_node_new(NST_NT_ARR_LIT, &parser_err);
+    node = nst_node_new(NST_NT_ARR_LIT);
     SET_ERROR_IF_OP_ERR();
 
     while ( true )
@@ -1108,8 +1095,7 @@ static Nst_Node *parse_assignment(Nst_Node *value)
         Nst_Tok *op_tok = nst_tok_new_noval(
             tok->start,
             tok->end,
-            NST_ASSIGMENT_TO_STACK_OP(tok->type),
-            &parser_err);
+            NST_ASSIGMENT_TO_STACK_OP(tok->type));
         nst_token_destroy(tok);
         SET_ERROR_IF_OP_ERR(
             nst_node_destroy(value);
@@ -1117,25 +1103,24 @@ static Nst_Node *parse_assignment(Nst_Node *value)
         Nst_Node *op_node = nst_node_new_pos(
             NST_NT_STACK_OP,
             value->start,
-            name->end,
-            &parser_err);
+            name->end);
         SET_ERROR_IF_OP_ERR(
             nst_node_destroy(value);
             nst_token_destroy(op_tok);
             nst_node_destroy(name););
 
-        nst_llist_append(op_node->tokens, op_tok, true, &parser_err);
+        nst_llist_append(op_node->tokens, op_tok, true);
         SET_ERROR_IF_OP_ERR(
             nst_node_destroy(value);
             nst_token_destroy(op_tok);
             nst_node_destroy(op_node);
             nst_node_destroy(name););
-        nst_llist_append(op_node->nodes, name, false, &parser_err);
+        nst_llist_append(op_node->nodes, name, false);
         SET_ERROR_IF_OP_ERR(
             nst_node_destroy(value);
             nst_node_destroy(op_node);
             nst_node_destroy(name););
-        nst_llist_append(op_node->nodes, value, true, &parser_err);
+        nst_llist_append(op_node->nodes, value, true);
         SET_ERROR_IF_OP_ERR(
             nst_node_destroy(value);
             nst_node_destroy(op_node);
@@ -1151,12 +1136,11 @@ static Nst_Node *parse_assignment(Nst_Node *value)
     Nst_Pos end = name->end;
     Nst_Node *assignment_node = nst_node_new_pos(
         NST_NT_ASSIGN_E,
-        start, end,
-        &parser_err);
+        start, end);
     SET_ERROR_IF_OP_ERR(
         nst_node_destroy(value);
         nst_node_destroy(name););
-    nst_llist_append(assignment_node->nodes, value, true, &parser_err);
+    nst_llist_append(assignment_node->nodes, value, true);
     SET_ERROR_IF_OP_ERR(
         nst_node_destroy(value);
         nst_node_destroy(name);
@@ -1196,12 +1180,11 @@ static Nst_Node *parse_extraction()
         Nst_Node *extraction_node = nst_node_new_pos(
             NST_NT_EXTRACT_E,
             final_node->start,
-            atom->end,
-            &parser_err);
+            atom->end);
         SET_ERROR_IF_OP_ERR(
             nst_node_destroy(final_node);
             nst_node_destroy(atom););
-        nst_llist_append(extraction_node->nodes, final_node, true, &parser_err);
+        nst_llist_append(extraction_node->nodes, final_node, true);
         SET_ERROR_IF_OP_ERR(
             nst_node_destroy(final_node);
             nst_node_destroy(atom);
@@ -1223,8 +1206,7 @@ static Nst_Node *parse_atom()
     {
         Nst_Node *value_node = nst_node_new_pos(
             tok->type == NST_TT_IDENT ? NST_NT_ACCESS : NST_NT_VALUE,
-            tok->start, tok->end,
-            &parser_err);
+            tok->start, tok->end);
         SET_ERROR_IF_OP_ERR();
         nst_llist_pop(tokens);
         SAFE_TOK_APPEND(value_node, tok);
@@ -1260,7 +1242,7 @@ static Nst_Node *parse_atom()
     }
     else if ( NST_IS_LOCAL_OP(tok->type) )
     {
-        Nst_Node *local_op_node = nst_node_new(NST_NT_LOCAL_OP, &parser_err);
+        Nst_Node *local_op_node = nst_node_new(NST_NT_LOCAL_OP);
         SET_ERROR_IF_OP_ERR();
         nst_llist_pop(tokens);
         SAFE_TOK_APPEND(local_op_node, tok);
@@ -1275,7 +1257,7 @@ static Nst_Node *parse_atom()
     }
     else if ( tok->type == NST_TT_CALL )
     {
-        Nst_LList *nodes = nst_llist_new(&parser_err);
+        Nst_LList *nodes = nst_llist_new();
         SET_ERROR_IF_OP_ERR();
         Nst_Node *call = parse_local_stack_op(nodes, tok->start);
         if ( call == NULL )
@@ -1317,7 +1299,7 @@ static Nst_Node *parse_vector_literal()
     Nst_Pos start = tok->start;
     Nst_Pos err_end = tok->end;
     nst_token_destroy(tok);
-    Nst_Node *vect_node = nst_node_new(NST_NT_VEC_LIT, &parser_err);
+    Nst_Node *vect_node = nst_node_new(NST_NT_VEC_LIT);
     SET_ERROR_IF_OP_ERR();
 
     if ( NST_TOK(nst_llist_peek_front(tokens))->type == NST_TT_R_VBRACE )
@@ -1397,7 +1379,7 @@ static Nst_Node *parse_arr_or_map_literal()
     nst_token_destroy(tok);
     skip_blank();
 
-    Nst_Node *node = nst_node_new(NST_NT_MAP_LIT, &parser_err);
+    Nst_Node *node = nst_node_new(NST_NT_MAP_LIT);
     SET_ERROR_IF_OP_ERR();
 
     if ( NST_TOK(nst_llist_peek_front(tokens))->type == NST_TT_R_BRACE )
@@ -1532,7 +1514,7 @@ static Nst_Node *parse_try_catch()
     nst_token_destroy(tok);
     skip_blank();
 
-    Nst_Node *try_catch_node = nst_node_new(NST_NT_TRY_CATCH_S, &parser_err);
+    Nst_Node *try_catch_node = nst_node_new(NST_NT_TRY_CATCH_S);
     SET_ERROR_IF_OP_ERR();
 
     Nst_Node *try_block = parse_statement();
@@ -1653,14 +1635,15 @@ static void _print_ast(Nst_Node  *node,
     usize idx = 0;
 
     Nst_LLNode *prev_tail = is_last->tail;
-    bool *last = nst_malloc_c(1, bool, NULL);
+    bool *last = (bool *)nst_raw_malloc(sizeof(bool));
     if ( last == NULL )
     {
         return;
     }
-    nst_llist_append(is_last, last, true, NULL);
+    nst_llist_append(is_last, last, true);
     if ( prev_tail == is_last->tail )
     {
+        nst_error_clear();
         nst_free(last);
         return;
     }

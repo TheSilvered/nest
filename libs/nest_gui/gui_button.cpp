@@ -79,7 +79,7 @@ static SDL_Rect clickable_area_rect(GUI_Button *b)
     return ca;
 }
 
-bool gui_button_update(GUI_Button *b, Nst_OpErr *err)
+bool gui_button_update(GUI_Button *b)
 {
     SDL_Point m_pos;
     SDL_GetMouseState(&m_pos.x, &m_pos.y);
@@ -97,7 +97,7 @@ bool gui_button_update(GUI_Button *b, Nst_OpErr *err)
     return true;
 }
 
-i32 gui_button_handle_event(SDL_Event *e, GUI_Button *b, Nst_OpErr *err)
+i32 gui_button_handle_event(SDL_Event *e, GUI_Button *b)
 {
     SDL_Rect ca = clickable_area_rect(b);
     switch ( e->type )
@@ -168,11 +168,11 @@ i32 gui_button_handle_event(SDL_Event *e, GUI_Button *b, Nst_OpErr *err)
         b->cs = GUI_CS_HOVER;
         b->current_state++;
         b->current_state %= b->number_of_states;
-        bool res = b->func == nullptr ? true : b->func(b, err);
+        bool res = b->func == nullptr ? true : b->func(b);
         return res ? 1 : -1;
     }
     default:
-        return default_event_handler(e, (GUI_Element *)b, err);
+        return default_event_handler(e, (GUI_Element *)b);
     }
 }
 
@@ -191,14 +191,14 @@ void gui_button_destroy(GUI_Button *b)
     gui_element_destroy((GUI_Element *)b);
 }
 
-GUI_Element *gui_button_new(GUI_Label *text, GUI_App *app, Nst_OpErr *err)
+GUI_Element *gui_button_new(GUI_Label *text, GUI_App *app)
 {
     GUI_Button *b = (GUI_Button *)gui_element_new(
         GUI_ET_BUTTON,
         sizeof(GUI_Button),
         0, 0,
         text->rect.w + 14, text->rect.h + 10,
-        app, err);
+        app);
     if ( b == nullptr )
     {
         nst_dec_ref(text);
@@ -215,7 +215,7 @@ GUI_Element *gui_button_new(GUI_Label *text, GUI_App *app, Nst_OpErr *err)
     gui_element_set_padding((GUI_Element *)b, 5, 7, 5, 7);
     gui_element_set_margin((GUI_Element *)b, 5, 5, 5, 5);
 
-    if ( !gui_element_add_child((GUI_Element *)b, (GUI_Element *)text, err) )
+    if ( !gui_element_add_child((GUI_Element *)b, (GUI_Element *)text) )
     {
         
     }
@@ -242,19 +242,19 @@ GUI_Element *gui_button_new(GUI_Label *text, GUI_App *app, Nst_OpErr *err)
     return (GUI_Element *)b;
 }
 
-bool gui_button_call_nest_func(GUI_Button *b, Nst_OpErr *err)
+bool gui_button_call_nest_func(GUI_Button *b)
 {
     if ( b->nest_func == nullptr )
     {
         return true;
     }
 
-    Nst_Obj *arg = nst_int_new(b->current_state, err);
+    Nst_Obj *arg = nst_int_new(b->current_state);
     if ( arg == nullptr )
     {
         return false;
     }
-    Nst_Obj *result = nst_call_func(b->nest_func, &arg, err);
+    Nst_Obj *result = nst_call_func(b->nest_func, &arg);
     nst_dec_ref(arg);
     if ( result == nullptr )
     {

@@ -5,7 +5,7 @@
 #define FUNC_COUNT 4
 
 #define SET_INVALID_UTF8 \
-    NST_SET_RAW_VALUE_ERROR("the string is not valid UTF-8")
+    nst_set_value_error_c("the string is not valid UTF-8")
 
 static Nst_ObjDeclr func_list_[FUNC_COUNT];
 static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
@@ -14,18 +14,17 @@ static bool lib_init_ = false;
 bool lib_init()
 {
     usize idx = 0;
-    Nst_OpErr err = { nullptr, nullptr };
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(is_valid_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_len_,  1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(get_at_,   2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(to_iter_,  1);
 
-#if __LINE__ - FUNC_COUNT != 20
+#if __LINE__ - FUNC_COUNT != 19
 #error
 #endif
 
-    lib_init_ = err.name == nullptr;
+    lib_init_ = !nst_error_occurred();
     return lib_init_;
 }
 
@@ -57,7 +56,7 @@ NST_FUNC_SIGN(utf8_iter_get_val)
 
     if ( (usize)val >= s_len )
     {
-        NST_SET_VALUE_ERROR(nst_sprintf(
+        nst_set_value_error(nst_sprintf(
             _NST_EM_INDEX_OUT_OF_BOUNDS("Str (Unicode)"),
             val, s_len));
     }
@@ -69,7 +68,7 @@ NST_FUNC_SIGN(utf8_iter_get_val)
         SET_INVALID_UTF8;
         return nullptr;
     }
-    i8 *new_s = nst_malloc_c(res + 1, i8, err);
+    i8 *new_s = nst_malloc_c(res + 1, i8);
     if ( new_s == nullptr )
     {
         return nullptr;
@@ -79,7 +78,7 @@ NST_FUNC_SIGN(utf8_iter_get_val)
     new_s[res] = '\0';
     idx->value += res;
 
-    return nst_string_new(new_s, res, true, err);
+    return nst_string_new(new_s, res, true);
 }
 
 NST_FUNC_SIGN(is_valid_)
@@ -119,7 +118,7 @@ NST_FUNC_SIGN(get_len_)
         i += res;
     }
 
-    return nst_int_new(len, err);
+    return nst_int_new(len);
 }
 
 NST_FUNC_SIGN(get_at_)
@@ -148,7 +147,7 @@ NST_FUNC_SIGN(get_at_)
 
     if ( curr_idx < idx || i == s_len )
     {
-        NST_SET_VALUE_ERROR(nst_sprintf(
+        nst_set_value_error(nst_sprintf(
             _NST_EM_INDEX_OUT_OF_BOUNDS("Str (Unicode)"),
             idx, u_len));
         return nullptr;
@@ -161,15 +160,15 @@ NST_FUNC_SIGN(get_at_)
         return nullptr;
     }
 
-    i8 *new_s = nst_malloc_c(res + 1, i8, err);
+    i8 *new_s = nst_malloc_c(res + 1, i8);
     if ( new_s == nullptr )
     {
-        NST_FAILED_ALLOCATION;
+        nst_failed_allocation();
         return nullptr;
     }
     memcpy(new_s, s + i, res);
     new_s[res] = '\0';
-    return nst_string_new(new_s, res, true, err);
+    return nst_string_new(new_s, res, true);
 }
 
 NST_FUNC_SIGN(to_iter_)
@@ -179,11 +178,11 @@ NST_FUNC_SIGN(to_iter_)
     NST_DEF_EXTRACT("s", &str);
 
     // Layout: [idx, str]
-    Nst_Obj *arr = nst_array_create_c("iO", err, 0, str);
+    Nst_Obj *arr = nst_array_create_c("iO", 0, str);
 
     return nst_iter_new(
-        FUNC(nst_func_new_c(1, utf8_iter_start, err)),
-        FUNC(nst_func_new_c(1, utf8_iter_is_done, err)),
-        FUNC(nst_func_new_c(1, utf8_iter_get_val, err)),
-        arr, err);
+        FUNC(nst_func_new_c(1, utf8_iter_start)),
+        FUNC(nst_func_new_c(1, utf8_iter_is_done)),
+        FUNC(nst_func_new_c(1, utf8_iter_get_val)),
+        arr);
 }

@@ -27,7 +27,7 @@ void nst_stack_shrink(Nst_GenericStack *g_stack,
         g_stack->stack,
         (g_stack->max_size >> 1),
         unit_size,
-        g_stack->max_size, NULL);
+        g_stack->max_size);
 
     g_stack->max_size >>= 1;
     g_stack->stack = new_stack;
@@ -35,10 +35,9 @@ void nst_stack_shrink(Nst_GenericStack *g_stack,
 
 bool nst_stack_init(Nst_GenericStack *g_stack,
                     usize             unit_size,
-                    usize             starting_size,
-                    Nst_OpErr        *err)
+                    usize             starting_size)
 {
-    void *stack = nst_malloc(starting_size, unit_size, err);
+    void *stack = nst_malloc(starting_size, unit_size);
     if ( stack == NULL )
     {
         g_stack->stack = NULL;
@@ -65,7 +64,7 @@ bool nst_stack_expand(Nst_GenericStack *g_stack, usize unit_size)
         g_stack->stack,
         g_stack->max_size * 2,
         unit_size,
-        0, NULL);
+        0);
 
     if ( new_stack == NULL )
     {
@@ -78,12 +77,12 @@ bool nst_stack_expand(Nst_GenericStack *g_stack, usize unit_size)
     return true;
 }
 
-bool nst_vstack_init(Nst_OpErr *err)
+bool nst_vstack_init()
 {
     return nst_stack_init(
         (Nst_GenericStack *)&nst_state.v_stack,
         sizeof(Nst_Obj *),
-        V_STACK_MIN_SIZE, err);
+        V_STACK_MIN_SIZE);
 }
 
 bool _nst_vstack_push(Nst_Obj *obj)
@@ -146,12 +145,12 @@ void nst_vstack_destroy()
     nst_free(nst_state.v_stack.stack);
 }
 
-bool nst_fstack_init(Nst_OpErr *err)
+bool nst_fstack_init()
 {
     return nst_stack_init(
         (Nst_GenericStack *)&nst_state.f_stack,
         sizeof(Nst_FuncCall),
-        F_STACK_MIN_SIZE, err);
+        F_STACK_MIN_SIZE);
 }
 
 bool _nst_fstack_push(Nst_FuncObj  *func,
@@ -241,12 +240,12 @@ void nst_fstack_destroy()
     nst_free(nst_state.f_stack.stack);
 }
 
-bool nst_cstack_init(Nst_OpErr *err)
+bool nst_cstack_init()
 {
     return nst_stack_init(
         (Nst_GenericStack *)&nst_state.c_stack,
         sizeof(Nst_CatchFrame),
-        C_STACK_MIN_SIZE, err);
+        C_STACK_MIN_SIZE);
 }
 
 bool nst_cstack_push(Nst_Int inst_idx,

@@ -32,12 +32,12 @@ typedef struct _GUI_StackLayout
 }
 GUI_StackLayout;
 
-bool gui_stack_layout_on_child_added(GUI_StackLayout *sl, usize idx, Nst_OpErr *err);
+bool gui_stack_layout_on_child_added(GUI_StackLayout *sl, usize idx);
 
 GUI_Element *gui_stack_layout_new(GUI_StackDir direction,
                                   GUI_StackAlign alignment,
                                   int x, int y, int w, int h,
-                                  GUI_App *app, Nst_OpErr *err);
+                                  GUI_App *app);
 
 #ifdef __cplusplus
 }

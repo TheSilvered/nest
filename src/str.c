@@ -8,6 +8,7 @@
 #include "lib_import.h"
 #include "lexer.h"
 #include "encoding.h"
+#include "format.h"
 
 #define IS_WHITESPACE(ch) \
         (ch == ' '  || \
@@ -18,17 +19,17 @@
          ch == '\f')
 
 #define RETURN_INT_ERR do { \
-    NST_SET_RAW_VALUE_ERROR(_NST_EM_BAD_INT_LITERAL); \
+    nst_set_value_error_c(_NST_EM_BAD_INT_LITERAL); \
     return NULL; \
     } while ( 0 )
 
 #define RETURN_BYTE_ERR do { \
-    NST_SET_RAW_VALUE_ERROR(_NST_EM_BAD_BYTE_LITERAL); \
+    nst_set_value_error_c(_NST_EM_BAD_BYTE_LITERAL); \
     return NULL; \
     } while ( 0 )
 
 #define RETURN_REAL_ERR do { \
-    NST_SET_RAW_VALUE_ERROR(_NST_EM_BAD_REAL_LITERAL); \
+    nst_set_value_error_c(_NST_EM_BAD_REAL_LITERAL); \
     return NULL; \
     } while ( 0 )
 
@@ -39,23 +40,22 @@
     } \
     } while ( 0 )
 
-Nst_Obj *nst_string_new_c_raw(const i8 *val, bool allocated, struct _Nst_OpErr *err)
+Nst_Obj *nst_string_new_c_raw(const i8 *val, bool allocated)
 {
-    return nst_string_new((i8 *)val, strlen(val), allocated, err);
+    return nst_string_new((i8 *)val, strlen(val), allocated);
 }
 
-Nst_Obj *nst_string_new_c(const i8 *val, usize len, bool allocated, struct _Nst_OpErr *err)
+Nst_Obj *nst_string_new_c(const i8 *val, usize len, bool allocated)
 {
-    return nst_string_new((i8 *)val, len, allocated, err);
+    return nst_string_new((i8 *)val, len, allocated);
 }
 
-Nst_Obj *nst_string_new(i8 *val, usize len, bool allocated, struct _Nst_OpErr *err)
+Nst_Obj *nst_string_new(i8 *val, usize len, bool allocated)
 {
     Nst_StrObj *str = nst_obj_alloc(
         Nst_StrObj,
         nst_t.Str,
-        _nst_string_destroy,
-        err);
+        _nst_string_destroy);
     if ( str == NULL )
     {
         return NULL;
@@ -71,13 +71,12 @@ Nst_Obj *nst_string_new(i8 *val, usize len, bool allocated, struct _Nst_OpErr *e
     return OBJ(str);
 }
 
-Nst_TypeObj *nst_type_new(const i8 *val, usize len, struct _Nst_OpErr *err)
+Nst_TypeObj *nst_type_new(const i8 *val, usize len)
 {
     Nst_TypeObj *str = nst_obj_alloc(
         Nst_StrObj,
         nst_t.Type,
-        _nst_string_destroy,
-        err);
+        _nst_string_destroy);
     if ( str == NULL )
     {
         return NULL;
@@ -89,9 +88,9 @@ Nst_TypeObj *nst_type_new(const i8 *val, usize len, struct _Nst_OpErr *err)
     return str;
 }
 
-Nst_Obj *_nst_string_copy(Nst_StrObj *src, struct _Nst_OpErr *err)
+Nst_Obj *_nst_string_copy(Nst_StrObj *src)
 {
-    i8 *buffer = nst_malloc_c(src->len + 1, i8, err);
+    i8 *buffer = nst_malloc_c(src->len + 1, i8);
     if ( buffer == NULL )
     {
         return NULL;
@@ -108,7 +107,7 @@ static i32 is_unicode_escape(u8 b1, u8 b2)
     return v >= 0x80 && v <= 0x9f ? v : 0;
 }
 
-Nst_Obj *_nst_string_repr(Nst_StrObj *src, struct _Nst_OpErr *err)
+Nst_Obj *_nst_string_repr(Nst_StrObj *src)
 {
     const i8 *hex_chars = "0123456789abcdef";
     u8 *orig = (u8 *)src->value;
@@ -176,7 +175,7 @@ Nst_Obj *_nst_string_repr(Nst_StrObj *src, struct _Nst_OpErr *err)
         new_size += double_quotes_count;
     }
 
-    i8 *new_str = nst_malloc_c(new_size + 1, i8, err);
+    i8 *new_str = nst_malloc_c(new_size + 1, i8);
     if ( new_str == NULL )
     {
         return NULL;
@@ -256,7 +255,7 @@ Nst_Obj *_nst_string_repr(Nst_StrObj *src, struct _Nst_OpErr *err)
     NST_RETURN_NEW_STR(new_str, new_size);
 }
 
-Nst_Obj *_nst_string_get(Nst_StrObj *str, i64 idx, struct _Nst_OpErr *err)
+Nst_Obj *_nst_string_get(Nst_StrObj *str, i64 idx)
 {
     if ( idx < 0 )
     {
@@ -265,10 +264,14 @@ Nst_Obj *_nst_string_get(Nst_StrObj *str, i64 idx, struct _Nst_OpErr *err)
 
     if ( idx < 0 || idx >= (i64)str->len )
     {
+        nst_set_value_error(nst_sprintf(
+            _NST_EM_INDEX_OUT_OF_BOUNDS("Str"),
+            idx,
+            str->len));
         return NULL;
     }
 
-    i8 *ch = nst_malloc_c(2, i8, err);
+    i8 *ch = nst_malloc_c(2, i8);
     if ( ch == NULL )
     {
         return NULL;
@@ -292,7 +295,7 @@ void _nst_string_destroy(Nst_StrObj *str)
     }
 }
 
-Nst_Obj *nst_string_parse_int(Nst_StrObj *str, i32 base, struct _Nst_OpErr *err)
+Nst_Obj *nst_string_parse_int(Nst_StrObj *str, i32 base)
 {
     i8 *s = str->value;
     i8 *end = s + str->len;
@@ -305,7 +308,7 @@ Nst_Obj *nst_string_parse_int(Nst_StrObj *str, i32 base, struct _Nst_OpErr *err)
 
     if ( (base < 2 || base > 36) && base != 0 )
     {
-        NST_SET_RAW_VALUE_ERROR(_NST_EM_BAD_INT_BASE);
+        nst_set_value_error_c(_NST_EM_BAD_INT_BASE);
         return NULL;
     }
     ERR_IF_END(s, end, RETURN_INT_ERR);
@@ -410,7 +413,7 @@ Nst_Obj *nst_string_parse_int(Nst_StrObj *str, i32 base, struct _Nst_OpErr *err)
 
         if ( num > cut_off || (num == cut_off && ch_val > cut_lim) )
         {
-            NST_SET_RAW_MEMORY_ERROR(_NST_EM_INT_TOO_BIG);
+            nst_set_memory_error_c(_NST_EM_INT_TOO_BIG);
             return NULL;
         }
         num *= base;
@@ -428,14 +431,14 @@ Nst_Obj *nst_string_parse_int(Nst_StrObj *str, i32 base, struct _Nst_OpErr *err)
         RETURN_INT_ERR;
     }
 
-    return nst_int_new(num * sign, err);
+    return nst_int_new(num * sign);
 }
 
-Nst_Obj *nst_string_parse_byte(Nst_StrObj *str, struct _Nst_OpErr *err)
+Nst_Obj *nst_string_parse_byte(Nst_StrObj *str)
 {
     if ( str->len == 1 )
     {
-        return nst_byte_new(str->value[0], err);
+        return nst_byte_new(str->value[0]);
     }
 
     i8* s = str->value;
@@ -549,10 +552,10 @@ Nst_Obj *nst_string_parse_byte(Nst_StrObj *str, struct _Nst_OpErr *err)
     {
         RETURN_BYTE_ERR;
     }
-    return nst_byte_new(num & 0xff, err);
+    return nst_byte_new(num & 0xff);
 }
 
-Nst_Obj *nst_string_parse_real(Nst_StrObj *str, struct _Nst_OpErr *err)
+Nst_Obj *nst_string_parse_real(Nst_StrObj *str)
 {
     // \s*[+-]?\d+\.\d+(?:[eE][+-]?\d+)
 
@@ -668,7 +671,7 @@ Nst_Obj *nst_string_parse_real(Nst_StrObj *str, struct _Nst_OpErr *err)
 end:
     if ( contains_underscores )
     {
-        buf = nst_malloc_c(len + 1, i8, err);
+        buf = nst_malloc_c(len + 1, i8);
         if ( buf == NULL )
         {
             return NULL;
@@ -692,7 +695,7 @@ end:
     {
         nst_free(buf);
     }
-    return nst_real_new(res, err);
+    return nst_real_new(res);
 }
 
 i32 nst_string_compare(Nst_StrObj *str1, Nst_StrObj *str2)

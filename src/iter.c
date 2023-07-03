@@ -7,14 +7,12 @@
 Nst_Obj *nst_iter_new(Nst_FuncObj *start,
                       Nst_FuncObj *is_done,
                       Nst_FuncObj *get_val,
-                      Nst_Obj     *value,
-                      Nst_OpErr   *err)
+                      Nst_Obj     *value)
 {
     Nst_IterObj *iter = nst_obj_alloc(
         Nst_IterObj,
         nst_t.Iter,
-        _nst_iter_destroy,
-        err);
+        _nst_iter_destroy);
     if ( iter == NULL )
     {
         nst_dec_ref(start);
@@ -79,9 +77,9 @@ void _nst_iter_traverse(Nst_IterObj* iter)
     NST_FLAG_SET(iter->value,   NST_FLAG_GGC_REACHABLE);
 }
 
-i32 _nst_iter_start(Nst_IterObj *iter, Nst_OpErr *err)
+i32 _nst_iter_start(Nst_IterObj *iter)
 {
-    Nst_Obj *result = nst_call_func(iter->start, &iter->value, err);
+    Nst_Obj *result = nst_call_func(iter->start, &iter->value);
 
     if ( result == NULL )
     {
@@ -92,16 +90,16 @@ i32 _nst_iter_start(Nst_IterObj *iter, Nst_OpErr *err)
     return 0;
 }
 
-i32 _nst_iter_is_done(Nst_IterObj *iter, Nst_OpErr *err)
+i32 _nst_iter_is_done(Nst_IterObj *iter)
 {
-    Nst_Obj *result = nst_call_func(iter->is_done, &iter->value, err);
+    Nst_Obj *result = nst_call_func(iter->is_done, &iter->value);
 
     if ( result == NULL )
     {
         return -1;
     }
 
-    if ( nst_obj_cast(result, nst_t.Bool, NULL) == nst_c.Bool_true )
+    if ( nst_obj_cast(result, nst_t.Bool) == nst_c.Bool_true )
     {
         nst_dec_ref(nst_c.Bool_true);
         nst_dec_ref(result);
@@ -112,9 +110,9 @@ i32 _nst_iter_is_done(Nst_IterObj *iter, Nst_OpErr *err)
     return 0;
 }
 
-Nst_Obj *_nst_iter_get_val(Nst_IterObj *iter, Nst_OpErr *err)
+Nst_Obj *_nst_iter_get_val(Nst_IterObj *iter)
 {
-    return nst_call_func(iter->get_val, &iter->value, err);
+    return nst_call_func(iter->get_val, &iter->value);
 }
 
 #ifdef WINDOWS
@@ -149,7 +147,7 @@ NST_FUNC_SIGN(nst_iter_range_is_done)
 NST_FUNC_SIGN(nst_iter_range_get_val)
 {
     Nst_SeqObj *val = SEQ(args[0]);
-    Nst_Obj *ob = nst_int_new(AS_INT(val->objs[0]), err);
+    Nst_Obj *ob = nst_int_new(AS_INT(val->objs[0]));
     AS_INT(val->objs[0]) += AS_INT(val->objs[3]);
     return ob;
 }
@@ -185,7 +183,7 @@ NST_FUNC_SIGN(nst_iter_seq_get_val)
 
     if ( (Nst_Int)seq->len < idx )
     {
-        NST_SET_VALUE_ERROR(nst_sprintf(
+        nst_set_value_error(nst_sprintf(
             seq->type == nst_t.Array ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
                                      : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
             idx,
@@ -231,14 +229,14 @@ NST_FUNC_SIGN(nst_iter_str_get_val)
 
     if ( idx >= (Nst_Int)str->len )
     {
-        NST_SET_VALUE_ERROR(nst_sprintf(
+        nst_set_value_error(nst_sprintf(
             _NST_EM_INDEX_OUT_OF_BOUNDS("Str"),
             idx,
             str->len));
 
         return NULL;
     }
-    Nst_Obj *ob = nst_string_get(objs[1], AS_INT(objs[0]), err);
+    Nst_Obj *ob = nst_string_get(objs[1], AS_INT(objs[0]));
     AS_INT(val->objs[0]) += 1;
     return ob;
 }

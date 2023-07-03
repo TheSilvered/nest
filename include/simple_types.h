@@ -102,20 +102,19 @@ EXPORT typedef enum _Nst_IOFileFlag
 Nst_IOFileFlag;
 
 // Creates a new Int object
-EXPORT Nst_Obj *nst_int_new(Nst_Int value, Nst_OpErr *err);
+EXPORT Nst_Obj *nst_int_new(Nst_Int value);
 // Creates a new Real object
-EXPORT Nst_Obj *nst_real_new(Nst_Real value, Nst_OpErr *err);
+EXPORT Nst_Obj *nst_real_new(Nst_Real value);
 // Creates a new Bool object
-EXPORT Nst_Obj *nst_bool_new(Nst_Bool value, Nst_OpErr *err);
+EXPORT Nst_Obj *nst_bool_new(Nst_Bool value);
 // Creates a new Byte object
-EXPORT Nst_Obj *nst_byte_new(Nst_Byte value, Nst_OpErr *err);
+EXPORT Nst_Obj *nst_byte_new(Nst_Byte value);
 // Creates a new IOFile object, bin: is opened in binary format,
 // read: supports reading, write: supports writing
 EXPORT Nst_Obj *nst_iof_new(Nst_IOFile value,
                             bool       bin,
                             bool       read,
-                            bool       write,
-                            Nst_OpErr *err);
+                            bool       write);
 EXPORT Nst_Obj *nst_iof_new_fake(void *value,
                                  bool bin, bool read, bool write,
                                  Nst_IOFile_read_f  read_f,
@@ -123,8 +122,7 @@ EXPORT Nst_Obj *nst_iof_new_fake(void *value,
                                  Nst_IOFile_flush_f flush_f,
                                  Nst_IOFile_tell_f  tell_f,
                                  Nst_IOFile_seek_f  seek_f,
-                                 Nst_IOFile_close_f close_f,
-                                 Nst_OpErr *err);
+                                 Nst_IOFile_close_f close_f);
 
 EXPORT void _nst_iofile_destroy(Nst_IOFileObj *obj);
 

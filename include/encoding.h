@@ -147,8 +147,7 @@ EXPORT bool nst_translate_cp(Nst_CP *from,
                              void   *from_buf,
                              usize   from_len,
                              void  **to_buf,
-                             usize  *to_len,
-                             Nst_OpErr *err);
+                             usize  *to_len);
 
 EXPORT isize nst_check_string_cp(Nst_CP *cp, void *str, usize str_len);
 
@@ -158,8 +157,8 @@ EXPORT Nst_CP *nst_cp(Nst_CPID cpid);
 EXPORT Nst_CPID nst_acp();
 #endif
 
-EXPORT wchar_t *nst_char_to_wchar_t(i8 *str, usize len, Nst_OpErr *err);
-EXPORT i8 *nst_wchar_t_to_char(wchar_t *str, usize len, Nst_OpErr *err);
+EXPORT wchar_t *nst_char_to_wchar_t(i8 *str, usize len);
+EXPORT i8 *nst_wchar_t_to_char(wchar_t *str, usize len);
 
 EXPORT bool nst_is_valid_cp(u32 cp);
 

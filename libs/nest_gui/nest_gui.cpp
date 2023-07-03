@@ -20,7 +20,6 @@ Nst_TypeObj *gui_element_type;
 bool lib_init()
 {
     usize idx = 0;
-    Nst_OpErr err = { nullptr, nullptr };
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(init_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(loop_, 0);
@@ -41,12 +40,12 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(set_func_, 2);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(_debug_view_, 1);
 
-#if __LINE__ - FUNC_COUNT != 26
+#if __LINE__ - FUNC_COUNT != 25
 #error
 #endif
 
-    sdl_error_str = STR(nst_string_new_c_raw("SDL Error", false, nullptr));
-    gui_element_type = nst_type_new("GUI Element", 11, nullptr);
+    sdl_error_str = STR(nst_string_new_c_raw("SDL Error", false));
+    gui_element_type = nst_type_new("GUI Element", 11);
 
     app.root = nullptr;
     app.focused_element = nullptr;
@@ -72,7 +71,7 @@ bool lib_init()
     app.bg_light_color = { 60, 60, 60, 255 };
     app.fg_dimmed_color = { 160, 160, 160, 255 };
 
-    lib_init_ = err.name == nullptr;
+    lib_init_ = !nst_error_occurred();
     return lib_init_;
 }
 
@@ -97,26 +96,25 @@ void free_lib()
     SDL_Quit();
 }
 
-void set_sdl_error(Nst_OpErr *err)
+void set_sdl_error()
 {
     const i8 *sdl_error = SDL_GetError();
     usize len = strlen(sdl_error);
     i8 *new_error = (i8 *)nst_calloc(
         1,
         sizeof(i8) * (len + 1),
-        (void *)sdl_error, // copies the string if the allocation succeded
-        err);
+        (void *)sdl_error); // copies the string if the allocation succeded
     if ( new_error == nullptr )
     {
         return;
     }
-    Nst_StrObj *msg = STR(nst_string_new(new_error, len, true, err));
+    Nst_StrObj *msg = STR(nst_string_new(new_error, len, true));
     if ( msg == nullptr )
     {
         nst_free(new_error);
         return;
     }
-    NST_SET_ERROR(sdl_error_str, msg);
+    nst_set_error(nst_inc_ref(sdl_error_str), msg);
 }
 
 int imin(int n1, int n2)
@@ -167,7 +165,7 @@ NST_FUNC_SIGN(init_)
 
     if ( SDL_Init(SDL_INIT_EVERYTHING) || TTF_Init() )
     {
-        set_sdl_error(err);
+        set_sdl_error();
         return nullptr;
     }
     NST_RETURN_NULL;
@@ -177,15 +175,15 @@ NST_FUNC_SIGN(loop_)
 {
     while ( app.keep_open )
     {
-        if ( !handle_events(&app, err) )
+        if ( !handle_events(&app) )
         {
             return nullptr;
         }
-        if ( !update_elements(&app, err) )
+        if ( !update_elements(&app) )
         {
             return nullptr;
         }
-        if ( !tick_elements(&app, err) )
+        if ( !tick_elements(&app) )
         {
             return nullptr;
         }
@@ -200,7 +198,7 @@ NST_FUNC_SIGN(set_window_)
 {
     if ( app.window != nullptr )
     {
-        NST_SET_RAW_CALL_ERROR("'set_window' was called more than once");
+        nst_set_call_error_c("'set_window' was called more than once");
         return nullptr;
     }
 
@@ -218,13 +216,13 @@ NST_FUNC_SIGN(set_window_)
     app.window = SDL_CreateWindow(title->value, pos_x, pos_y, int(w), int(h), flags);
     if ( app.window == nullptr )
     {
-        set_sdl_error(err);
+        set_sdl_error();
         return nullptr;
     }
     app.renderer = SDL_CreateRenderer(app.window, -1, 0);
     if ( app.renderer == nullptr )
     {
-        set_sdl_error(err);
+        set_sdl_error();
         SDL_DestroyWindow(app.window);
         return nullptr;
     }
@@ -234,7 +232,7 @@ NST_FUNC_SIGN(set_window_)
         sizeof(GUI_Element),
         0, 0,
         int(w), int(h),
-        &app, err);
+        &app);
     if ( root == nullptr )
     {
         SDL_DestroyWindow(app.window);
@@ -298,7 +296,7 @@ NST_FUNC_SIGN(label_)
     }
     else
     {
-        NST_SET_RAW_VALUE_ERROR("the color must be of length 3 or 4");
+        nst_set_value_error_c("the color must be of length 3 or 4");
         return nullptr;
     }
 
@@ -306,8 +304,7 @@ NST_FUNC_SIGN(label_)
         &app,
         (GUI_FontSize)size,
         (GUI_FontStyle)style,
-        (GUI_FontWeight)weight,
-        err);
+        (GUI_FontWeight)weight);
     if ( font == nullptr )
     {
         return nullptr;
@@ -320,7 +317,7 @@ NST_FUNC_SIGN(label_)
         text, font,
         { r, g, b, a },
         0, 0, w + 1, h,
-        &app, err);
+        &app);
 
     if ( label == nullptr )
     {
@@ -339,8 +336,7 @@ NST_FUNC_SIGN(button_)
         &app,
         GUI_FSZ_MEDIUM,
         GUI_FST_REGULAR,
-        GUI_FW_REGULAR,
-        err);
+        GUI_FW_REGULAR);
 
     if ( font == nullptr )
     {
@@ -354,14 +350,14 @@ NST_FUNC_SIGN(button_)
         text, font,
         app.fg_color,
         0, 0, w + 1, h,
-        &app, err);
+        &app);
 
     if ( label == nullptr )
     {
         return nullptr;
     }
 
-    GUI_Element *button = gui_button_new((GUI_Label *)label, &app, err);
+    GUI_Element *button = gui_button_new((GUI_Label *)label, &app);
     if ( button == nullptr )
     {
         return nullptr;
@@ -380,12 +376,12 @@ NST_FUNC_SIGN(stack_layout_)
 
     if ( direction < 0 || direction > 3 )
     {
-        NST_SET_RAW_VALUE_ERROR("invalid direction");
+        nst_set_value_error_c("invalid direction");
         return nullptr;
     }
     if ( alignment < 0 || alignment > 2 )
     {
-        NST_SET_RAW_VALUE_ERROR("invalid alignment");
+        nst_set_value_error_c("invalid alignment");
         return nullptr;
     }
 
@@ -393,7 +389,7 @@ NST_FUNC_SIGN(stack_layout_)
         (GUI_StackDir)direction,
         (GUI_StackAlign)alignment,
         0, 0, 0, 0,
-        &app, err));
+        &app));
 }
 
 NST_FUNC_SIGN(set_position_)
@@ -573,7 +569,7 @@ NST_FUNC_SIGN(add_child_)
 {
     GUI_Element *parent, *child;
     NST_DEF_EXTRACT("##", gui_element_type, &parent, gui_element_type, &child);
-    if ( !gui_element_add_child(parent, child, err) )
+    if ( !gui_element_add_child(parent, child) )
     {
         return nullptr;
     }
@@ -584,7 +580,7 @@ NST_FUNC_SIGN(get_root_)
 {
     if ( app.window == nullptr )
     {
-        NST_SET_RAW_CALL_ERROR("'set_window' must be called before getting the root");
+        nst_set_call_error_c("'set_window' must be called before getting the root");
         return nullptr;
     }
     return nst_inc_ref(app.root);
@@ -597,12 +593,12 @@ NST_FUNC_SIGN(set_func_)
     NST_DEF_EXTRACT("#f", gui_element_type, &el, &func);
     if ( el->el_type != GUI_ET_BUTTON )
     {
-        NST_SET_RAW_VALUE_ERROR("the element must be a button");
+        nst_set_value_error_c("the element must be a button");
         return nullptr;
     }
     if ( func->arg_num != 1 )
     {
-        NST_SET_RAW_VALUE_ERROR("the function of a button must take exactly 1 argument");
+        nst_set_value_error_c("the function of a button must take exactly 1 argument");
         return nullptr;
     }
     GUI_Button *b = (GUI_Button *)el;

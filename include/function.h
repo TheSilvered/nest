@@ -18,7 +18,7 @@ extern "C" {
 EXPORT typedef union _Nst_FuncBody
 {
     Nst_InstList *bytecode;
-    Nst_Obj *(*c_func)(usize arg_num, Nst_Obj **args, Nst_OpErr *err);
+    Nst_Obj *(*c_func)(usize arg_num, Nst_Obj **args);
 }
 Nst_FuncBody;
 
@@ -35,13 +35,11 @@ Nst_FuncObj;
 
 // Creates a new function objects that accepts `arg_num` args
 // The function's `args` must be set manually
-EXPORT Nst_Obj *nst_func_new(usize arg_num, Nst_InstList *bytecode, Nst_OpErr *err);
+EXPORT Nst_Obj *nst_func_new(usize arg_num, Nst_InstList *bytecode);
 // Creates a new function object that is a wrapper of a C function
 EXPORT Nst_Obj *nst_func_new_c(usize arg_num,
                                Nst_Obj *(*cbody)(usize     arg_num,
-                                                 Nst_Obj  **args,
-                                                 Nst_OpErr *err),
-                               Nst_OpErr *err);
+                                                 Nst_Obj  **args));
 EXPORT void _nst_func_set_vt(Nst_FuncObj *func, Nst_MapObj *map);
 
 // traverse function for Nst_FuncObj, needed for the GGC

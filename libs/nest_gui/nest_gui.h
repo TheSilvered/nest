@@ -45,7 +45,7 @@ EXPORT bool lib_init();
 EXPORT Nst_DeclrList *get_func_ptrs();
 EXPORT void free_lib();
 
-void set_sdl_error(Nst_OpErr *err);
+void set_sdl_error();
 int imin(int n1, int n2);
 int imax(int n1, int n2);
 void set_focused_element(GUI_Element *el);

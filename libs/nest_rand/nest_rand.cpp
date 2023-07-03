@@ -19,7 +19,6 @@ bool lib_init()
 {
     using namespace std::chrono;
     usize idx = 0;
-    Nst_OpErr err = { nullptr, nullptr };
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(random_, 0);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(rand_int_, 2);
@@ -28,7 +27,7 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(shuffle_, 1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(seed_, 1);
 
-#if __LINE__ - FUNC_COUNT != 25
+#if __LINE__ - FUNC_COUNT != 24
 #error
 #endif
 
@@ -36,7 +35,7 @@ bool lib_init()
         system_clock::now().time_since_epoch()
     ).count());
 
-    lib_init_ = err.name == nullptr;
+    lib_init_ = !nst_error_occurred();
     return lib_init_;
 }
 
@@ -47,7 +46,7 @@ Nst_DeclrList *get_func_ptrs()
 
 NST_FUNC_SIGN(random_)
 {
-    return nst_int_new(rand_num(), err);
+    return nst_int_new(rand_num());
 }
 
 NST_FUNC_SIGN(rand_int_)
@@ -59,16 +58,16 @@ NST_FUNC_SIGN(rand_int_)
 
     if ( min > max )
     {
-        NST_SET_RAW_VALUE_ERROR("'min' is greater than 'max'");
+        nst_set_value_error_c("'min' is greater than 'max'");
         return nullptr;
     }
 
-    return nst_int_new(rand_range(min, max), err);
+    return nst_int_new(rand_range(min, max));
 }
 
 NST_FUNC_SIGN(rand_perc_)
 {
-    return nst_real_new(f64(i64(rand_num())) / f64(ULLONG_MAX), err);
+    return nst_real_new(f64(i64(rand_num())) / f64(ULLONG_MAX));
 }
 
 NST_FUNC_SIGN(choice_)

@@ -7,9 +7,9 @@
 extern "C" {
 #endif // !__cplusplus
 
-bool update_elements(GUI_App *app, Nst_OpErr *err);
-bool tick_elements(GUI_App *app, Nst_OpErr *err);
-bool root_update(GUI_Element *el, Nst_OpErr *err);
+bool update_elements(GUI_App *app);
+bool tick_elements(GUI_App *app);
+bool root_update(GUI_Element *el);
 
 #ifdef __cplusplus
 }

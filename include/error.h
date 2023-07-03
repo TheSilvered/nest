@@ -91,6 +91,15 @@
 #define _NST_EM_INVALID_ENCODING "could not decode byte %ib for %s encoding"
 #define _NST_EM_INVALID_DECODING "could not decode code point U+%06X for %s encoding"
 
+#define nst_set_error(name, msg)  _nst_set_error(STR(name), STR(msg))
+#define nst_set_syntax_error(msg) _nst_set_syntax_error(STR(msg))
+#define nst_set_memory_error(msg) _nst_set_memory_error(STR(msg))
+#define nst_set_type_error(msg)   _nst_set_type_error(STR(msg))
+#define nst_set_value_error(msg)  _nst_set_value_error(STR(msg))
+#define nst_set_math_error(msg)   _nst_set_math_error(STR(msg))
+#define nst_set_call_error(msg)   _nst_set_call_error(STR(msg))
+#define nst_set_import_error(msg) _nst_set_import_error(STR(msg))
+
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
@@ -150,6 +159,29 @@ EXPORT void nst_print_traceback(Nst_Traceback tb);
 
 // Frees a heap allocated text source
 EXPORT void nst_free_src_text(Nst_SourceText *text);
+
+EXPORT void _nst_set_error(Nst_StrObj *name, Nst_StrObj *msg);
+EXPORT void _nst_set_syntax_error(Nst_StrObj *msg);
+EXPORT void _nst_set_memory_error(Nst_StrObj *msg);
+EXPORT void _nst_set_type_error(Nst_StrObj *msg);
+EXPORT void _nst_set_value_error(Nst_StrObj *msg);
+EXPORT void _nst_set_math_error(Nst_StrObj *msg);
+EXPORT void _nst_set_call_error(Nst_StrObj *msg);
+EXPORT void _nst_set_import_error(Nst_StrObj *msg);
+
+EXPORT void nst_set_syntax_error_c(const i8 *msg);
+EXPORT void nst_set_memory_error_c(const i8 *msg);
+EXPORT void nst_set_type_error_c(const i8 *msg);
+EXPORT void nst_set_value_error_c(const i8 *msg);
+EXPORT void nst_set_math_error_c(const i8 *msg);
+EXPORT void nst_set_call_error_c(const i8 *msg);
+EXPORT void nst_set_import_error_c(const i8 *msg);
+
+EXPORT void nst_failed_allocation();
+
+EXPORT bool nst_error_occurred();
+EXPORT Nst_OpErr *nst_error_get();
+EXPORT void nst_error_clear();
 
 #ifdef __cplusplus
 }

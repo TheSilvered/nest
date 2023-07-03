@@ -44,23 +44,23 @@ void *nst_raw_realloc(void *block, usize size)
     return realloc(block, size);
 }
 
-void *nst_malloc(usize count, usize size, Nst_OpErr *err)
+void *nst_malloc(usize count, usize size)
 {
     void *ptr = nst_raw_malloc(count * size);
     if ( ptr == NULL )
     {
-        NST_FAILED_ALLOCATION;
+        nst_failed_allocation();
     }
     return ptr;
 }
 
-void *nst_calloc(usize count, usize size, void *init_value, Nst_OpErr *err)
+void *nst_calloc(usize count, usize size, void *init_value)
 {
     u8 *block = (u8 *)nst_raw_malloc(count * size);
 
     if ( block == NULL )
     {
-        NST_FAILED_ALLOCATION;
+        nst_failed_allocation();
         return NULL;
     }
     if ( init_value == NULL )
@@ -79,8 +79,7 @@ void *nst_calloc(usize count, usize size, void *init_value, Nst_OpErr *err)
 void *nst_realloc(void *prev_block,
                   usize new_count,
                   usize size,
-                  usize prev_count,
-                  Nst_OpErr *err)
+                  usize prev_count)
 {
     if ( new_count == prev_count )
     {
@@ -90,7 +89,7 @@ void *nst_realloc(void *prev_block,
     void *block = nst_raw_realloc(prev_block, new_count * size);
     if ( block == NULL && new_count > prev_count )
     {
-        NST_FAILED_ALLOCATION;
+        nst_failed_allocation();
         return NULL;
     }
     return block ? block : prev_block;
@@ -100,8 +99,7 @@ void *nst_crealloc(void *prev_block,
                    usize new_count,
                    usize size,
                    usize prev_count,
-                   void *init_value,
-                   Nst_OpErr *err)
+                   void *init_value)
 {
     if ( new_count == prev_count )
     {
@@ -116,7 +114,7 @@ void *nst_crealloc(void *prev_block,
 
     if ( block == NULL )
     {
-        NST_FAILED_ALLOCATION;
+        nst_failed_allocation();
         return NULL;
     }
 
@@ -144,9 +142,9 @@ void nst_free(void *block)
     free(block);
 }
 
-bool nst_sbuffer_init(Nst_SizedBuffer *buf, usize unit_size, usize count, Nst_OpErr *err)
+bool nst_sbuffer_init(Nst_SizedBuffer *buf, usize unit_size, usize count)
 {
-    void *data = nst_malloc(count, unit_size, err);
+    void *data = nst_malloc(count, unit_size);
     if ( data == NULL )
     {
         return false;
@@ -159,12 +157,12 @@ bool nst_sbuffer_init(Nst_SizedBuffer *buf, usize unit_size, usize count, Nst_Op
     return true;
 }
 
-bool nst_sbuffer_expand_by(Nst_SizedBuffer *buf, usize amount, Nst_OpErr *err)
+bool nst_sbuffer_expand_by(Nst_SizedBuffer *buf, usize amount)
 {
-    return nst_sbuffer_expand_to(buf, buf->len + amount + 1, err);
+    return nst_sbuffer_expand_to(buf, buf->len + amount + 1);
 }
 
-bool nst_sbuffer_expand_to(Nst_SizedBuffer *buf, usize count, Nst_OpErr *err)
+bool nst_sbuffer_expand_to(Nst_SizedBuffer *buf, usize count)
 {
     if ( buf->size > count )
     {
@@ -172,7 +170,7 @@ bool nst_sbuffer_expand_to(Nst_SizedBuffer *buf, usize count, Nst_OpErr *err)
     }
 
     usize new_size = (usize)(count * 1.5);
-    void *new_data = nst_realloc(buf->data, new_size, buf->unit_size, 0, err);
+    void *new_data = nst_realloc(buf->data, new_size, buf->unit_size, 0);
     if ( new_data == NULL )
     {
         return false;
@@ -189,13 +187,13 @@ void nst_sbuffer_fit(Nst_SizedBuffer *buf)
         return;
     }
 
-    buf->data = nst_realloc(buf->data, buf->len + 1, buf->unit_size, buf->size, NULL);
+    buf->data = nst_realloc(buf->data, buf->len + 1, buf->unit_size, buf->size);
     buf->size = buf->len + 1;
 }
 
-bool nst_sbuffer_append(Nst_SizedBuffer *buf, void *element, Nst_OpErr *err)
+bool nst_sbuffer_append(Nst_SizedBuffer *buf, void *element)
 {
-    if ( !nst_sbuffer_expand_by(buf, 1, err) )
+    if ( !nst_sbuffer_expand_by(buf, 1) )
     {
         return false;
     }
@@ -215,9 +213,9 @@ void nst_sbuffer_destroy(Nst_SizedBuffer *buf)
     buf->unit_size = 0;
 }
 
-bool nst_buffer_init(Nst_Buffer *buf, usize initial_size, Nst_OpErr *err)
+bool nst_buffer_init(Nst_Buffer *buf, usize initial_size)
 {
-    if ( !nst_sbuffer_init((Nst_SizedBuffer *)buf, sizeof(i8), initial_size, err) )
+    if ( !nst_sbuffer_init((Nst_SizedBuffer *)buf, sizeof(i8), initial_size) )
     {
         return false;
     }
@@ -229,14 +227,14 @@ bool nst_buffer_init(Nst_Buffer *buf, usize initial_size, Nst_OpErr *err)
     return true;
 }
 
-bool nst_buffer_expand_by(Nst_Buffer *buf, usize amount, Nst_OpErr *err)
+bool nst_buffer_expand_by(Nst_Buffer *buf, usize amount)
 {
-    return nst_sbuffer_expand_to((Nst_SizedBuffer *)buf, buf->len + amount + 1, err);
+    return nst_sbuffer_expand_to((Nst_SizedBuffer *)buf, buf->len + amount + 1);
 }
 
-bool nst_buffer_expand_to(Nst_Buffer *buf, usize size, Nst_OpErr *err)
+bool nst_buffer_expand_to(Nst_Buffer *buf, usize size)
 {
-    return nst_sbuffer_expand_to((Nst_SizedBuffer *)buf, size, err);
+    return nst_sbuffer_expand_to((Nst_SizedBuffer *)buf, size);
 }
 
 void nst_buffer_fit(Nst_Buffer *buf)
@@ -244,10 +242,10 @@ void nst_buffer_fit(Nst_Buffer *buf)
     nst_sbuffer_fit((Nst_SizedBuffer *)buf);
 }
 
-bool nst_buffer_append(Nst_Buffer *buf, Nst_StrObj *str, Nst_OpErr *err)
+bool nst_buffer_append(Nst_Buffer *buf, Nst_StrObj *str)
 {
     usize str_len = str->len;
-    if ( !nst_buffer_expand_by(buf, str_len, err) )
+    if ( !nst_buffer_expand_by(buf, str_len) )
     {
         return false;
     }
@@ -256,10 +254,10 @@ bool nst_buffer_append(Nst_Buffer *buf, Nst_StrObj *str, Nst_OpErr *err)
     return true;
 }
 
-bool nst_buffer_append_c_str(Nst_Buffer *buf, const i8 *str, Nst_OpErr *err)
+bool nst_buffer_append_c_str(Nst_Buffer *buf, const i8 *str)
 {
     usize str_len = strlen(str);
-    if ( !nst_buffer_expand_by(buf, str_len, err) )
+    if ( !nst_buffer_expand_by(buf, str_len) )
     {
         return false;
     }
@@ -268,9 +266,9 @@ bool nst_buffer_append_c_str(Nst_Buffer *buf, const i8 *str, Nst_OpErr *err)
     return true;
 }
 
-bool nst_buffer_append_char(Nst_Buffer *buf, i8 ch, Nst_OpErr *err)
+bool nst_buffer_append_char(Nst_Buffer *buf, i8 ch)
 {
-    if ( !nst_buffer_expand_by(buf, 1, err) )
+    if ( !nst_buffer_expand_by(buf, 1) )
     {
         return false;
     }
@@ -279,10 +277,10 @@ bool nst_buffer_append_char(Nst_Buffer *buf, i8 ch, Nst_OpErr *err)
     return true;
 }
 
-Nst_StrObj *nst_buffer_to_string(Nst_Buffer *buf, Nst_OpErr *err)
+Nst_StrObj *nst_buffer_to_string(Nst_Buffer *buf)
 {
     nst_buffer_fit(buf);
-    Nst_StrObj *str = STR(nst_string_new(buf->data, buf->len, true, err));
+    Nst_StrObj *str = STR(nst_string_new(buf->data, buf->len, true));
     if ( str == NULL )
     {
         nst_free(buf->data);

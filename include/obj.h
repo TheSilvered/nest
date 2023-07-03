@@ -14,12 +14,11 @@
 // Call the object's destructor and deallocate its memory
 #define nst_obj_destroy(obj) _nst_obj_destroy(OBJ(obj))
 // Create a new object of size `size` on the heap
-#define nst_obj_alloc(type, type_obj, destructor, err) \
+#define nst_obj_alloc(type, type_obj, destructor) \
     (type *)_nst_obj_alloc( \
         sizeof(type), \
         (struct _Nst_StrObj *)type_obj, \
-        (Nst_ObjDestructor)(destructor), \
-        err)
+        (Nst_ObjDestructor)(destructor))
 
 #define NST_FLAG_SET(obj, flag) ((obj)->flags |= flag)
 #define NST_FLAG_DEL(obj, flag) ((obj)->flags &= ~(flag))
@@ -53,8 +52,7 @@ EXPORT typedef Nst_Obj Nst_NullObj;
 
 EXPORT Nst_Obj *_nst_obj_alloc(usize               size,
                                struct _Nst_StrObj *type,
-                               void (*destructor)(void *),
-                               struct _Nst_OpErr  *err);
+                               void (*destructor)(void *));
 EXPORT void _nst_obj_destroy(Nst_Obj *obj);
 
 EXPORT Nst_Obj *_nst_inc_ref(Nst_Obj *obj);

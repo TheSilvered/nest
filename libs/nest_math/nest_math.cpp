@@ -3,7 +3,7 @@
 
 #define FUNC_COUNT 36
 #define COORD_TYPE_ERROR do { \
-        NST_SET_RAW_VALUE_ERROR( \
+        nst_set_value_error_c( \
             "all coordinates must be of type 'Real' or 'Int'"); \
         return nullptr; \
     } while (0)
@@ -15,7 +15,6 @@ static bool lib_init_ = false;
 bool lib_init()
 {
     usize idx = 0;
-    Nst_OpErr err = { nullptr, nullptr };
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(floor_,  1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(ceil_,   1);
@@ -54,11 +53,11 @@ bool lib_init()
     func_list_[idx++] = NST_MAKE_FUNCDECLR(abs_,    1);
     func_list_[idx++] = NST_MAKE_FUNCDECLR(hypot_,  2);
 
-#if __LINE__ - FUNC_COUNT != 21
+#if __LINE__ - FUNC_COUNT != 20
 #error
 #endif
 
-    lib_init_ = err.name == nullptr;
+    lib_init_ = !nst_error_occurred();
     return lib_init_;
 }
 
@@ -71,35 +70,35 @@ NST_FUNC_SIGN(floor_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_int_new((Nst_Int)n, err);
+    return nst_int_new((Nst_Int)n);
 }
 
 NST_FUNC_SIGN(ceil_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_int_new((Nst_Int)ceil(n), err);
+    return nst_int_new((Nst_Int)ceil(n));
 }
 
 NST_FUNC_SIGN(round_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_int_new((Nst_Int)round(n), err);
+    return nst_int_new((Nst_Int)round(n));
 }
 
 NST_FUNC_SIGN(exp_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(exp(n), err);
+    return nst_real_new(exp(n));
 }
 
 NST_FUNC_SIGN(ln_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(log(n), err);
+    return nst_real_new(log(n));
 }
 
 NST_FUNC_SIGN(log_)
@@ -110,17 +109,17 @@ NST_FUNC_SIGN(log_)
 
     if ( base_obj == nst_null() )
     {
-        return nst_real_new(log10(n), err);
+        return nst_real_new(log10(n));
     }
     Nst_Real base = AS_REAL(base_obj);
 
     if ( base == 2.0 )
     {
-        return nst_real_new(log2(n), err);
+        return nst_real_new(log2(n));
     }
     else
     {
-        return nst_real_new(log(n) / log(base), err);
+        return nst_real_new(log(n) / log(base));
     }
 }
 
@@ -131,53 +130,49 @@ NST_FUNC_SIGN(divmod_)
 
     NST_DEF_EXTRACT("ii", &x, &y);
 
-    Nst_SeqObj *res = SEQ(nst_array_new(2, err));
-    res->objs[0] = nst_int_new(x / y, err);
-    res->objs[1] = nst_int_new(x % y, err);
-
-    return OBJ(res);
+    return nst_array_create_c("II", x / y, x % y);
 }
 
 NST_FUNC_SIGN(sin_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(sin(n), err);
+    return nst_real_new(sin(n));
 }
 
 NST_FUNC_SIGN(cos_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(cos(n), err);
+    return nst_real_new(cos(n));
 }
 
 NST_FUNC_SIGN(tan_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(tan(n), err);
+    return nst_real_new(tan(n));
 }
 
 NST_FUNC_SIGN(asin_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(asin(n), err);
+    return nst_real_new(asin(n));
 }
 
 NST_FUNC_SIGN(acos_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(acos(n), err);
+    return nst_real_new(acos(n));
 }
 
 NST_FUNC_SIGN(atan_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(atan(n), err);
+    return nst_real_new(atan(n));
 }
 
 NST_FUNC_SIGN(atan2_)
@@ -185,49 +180,49 @@ NST_FUNC_SIGN(atan2_)
     Nst_Real x;
     Nst_Real y;
     NST_DEF_EXTRACT("NN", &y, &x);
-    return nst_real_new(atan2(y, x), err);
+    return nst_real_new(atan2(y, x));
 }
 
 NST_FUNC_SIGN(sinh_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(sinh(n), err);
+    return nst_real_new(sinh(n));
 }
 
 NST_FUNC_SIGN(cosh_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(cosh(n), err);
+    return nst_real_new(cosh(n));
 }
 
 NST_FUNC_SIGN(tanh_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(tanh(n), err);
+    return nst_real_new(tanh(n));
 }
 
 NST_FUNC_SIGN(asinh_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(asinh(n), err);
+    return nst_real_new(asinh(n));
 }
 
 NST_FUNC_SIGN(acosh_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(acosh(n), err);
+    return nst_real_new(acosh(n));
 }
 
 NST_FUNC_SIGN(atanh_)
 {
     Nst_Real n;
     NST_DEF_EXTRACT("N", &n);
-    return nst_real_new(atanh(n), err);
+    return nst_real_new(atanh(n));
 }
 
 NST_FUNC_SIGN(dist_2d_)
@@ -239,7 +234,7 @@ NST_FUNC_SIGN(dist_2d_)
 
     if ( p1->len != 2 || p2->len != 2 )
     {
-        NST_SET_RAW_VALUE_ERROR("the points must have exactly two values");
+        nst_set_value_error_c("the points must have exactly two values");
         return nullptr;
     }
 
@@ -293,7 +288,7 @@ NST_FUNC_SIGN(dist_2d_)
 
     // sqrt((x1 - x2)^2 + (y1 - y2)^2)
     Nst_Real c2 = (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2);
-    return nst_real_new(sqrt(c2), err);
+    return nst_real_new(sqrt(c2));
 }
 
 NST_FUNC_SIGN(dist_3d_)
@@ -305,7 +300,7 @@ NST_FUNC_SIGN(dist_3d_)
 
     if ( p1->len != 3 || p2->len != 3 )
     {
-        NST_SET_RAW_VALUE_ERROR("the points must have exactly three values");
+        nst_set_value_error_c("the points must have exactly three values");
         return nullptr;
     }
 
@@ -384,7 +379,7 @@ NST_FUNC_SIGN(dist_3d_)
     Nst_Real d2 = (x1 - x2)*(x1 - x2)
                 + (y1 - y2)*(y1 - y2)
                 + (z1 - z2)*(z1 - z2);
-    return nst_real_new(sqrt(d2), err);
+    return nst_real_new(sqrt(d2));
 }
 
 NST_FUNC_SIGN(dist_nd_)
@@ -396,7 +391,7 @@ NST_FUNC_SIGN(dist_nd_)
 
     if ( p1->len != p2->len )
     {
-        NST_SET_RAW_VALUE_ERROR(
+        nst_set_value_error_c(
             "the points must have the same number of values");
         return nullptr;
     }
@@ -437,7 +432,7 @@ NST_FUNC_SIGN(dist_nd_)
         tot += (t1 - t2) * (t1 - t2);
     }
 
-    return nst_real_new(sqrt(tot), err);
+    return nst_real_new(sqrt(tot));
 }
 
 NST_FUNC_SIGN(deg_)
@@ -446,7 +441,7 @@ NST_FUNC_SIGN(deg_)
 
     NST_DEF_EXTRACT("N", &n);
     // 57.29577951308232 = 180 / PI
-    return nst_real_new(n * 57.29577951308232, err);
+    return nst_real_new(n * 57.29577951308232);
 }
 
 NST_FUNC_SIGN(rad_)
@@ -455,7 +450,7 @@ NST_FUNC_SIGN(rad_)
 
     NST_DEF_EXTRACT("N", &n);
     // 0.017453292519943295 = PI / 180
-    return nst_real_new(n * 0.017453292519943295, err);
+    return nst_real_new(n * 0.017453292519943295);
 }
 
 NST_FUNC_SIGN(min_)
@@ -473,7 +468,7 @@ NST_FUNC_SIGN(min_)
 
         if ( seq_len == 0 )
         {
-            NST_SET_RAW_VALUE_ERROR("sequence length is zero");
+            nst_set_value_error_c("sequence length is zero");
             return nullptr;
         }
 
@@ -481,7 +476,7 @@ NST_FUNC_SIGN(min_)
 
         for ( usize i = 1; i < seq_len; i++)
         {
-            res = nst_obj_lt(seq->objs[i], min_obj, err);
+            res = nst_obj_lt(seq->objs[i], min_obj);
             if ( res == nullptr )
             {
                 return nullptr;
@@ -497,7 +492,7 @@ NST_FUNC_SIGN(min_)
         return nst_inc_ref(min_obj);
     }
 
-    res = nst_obj_lt(ob_b, ob_a, err);
+    res = nst_obj_lt(ob_b, ob_a);
     if ( res == nullptr )
     {
         return nullptr;
@@ -527,7 +522,7 @@ NST_FUNC_SIGN(max_)
 
         if ( seq_len == 0 )
         {
-            NST_SET_RAW_VALUE_ERROR("sequence length is zero");
+            nst_set_value_error_c("sequence length is zero");
             return nullptr;
         }
 
@@ -535,7 +530,7 @@ NST_FUNC_SIGN(max_)
 
         for ( usize i = 1; i < seq_len; i++)
         {
-            res = nst_obj_gt(seq->objs[i], max_obj, err);
+            res = nst_obj_gt(seq->objs[i], max_obj);
             if ( res == nullptr )
             {
                 return nullptr;
@@ -551,7 +546,7 @@ NST_FUNC_SIGN(max_)
         return nst_inc_ref(max_obj);
     }
 
-    res = nst_obj_gt(ob_b, ob_a, err);
+    res = nst_obj_gt(ob_b, ob_a);
     if ( res == nullptr )
     {
         return nullptr;
@@ -582,7 +577,7 @@ NST_FUNC_SIGN(sum_)
 
     for (usize i = 0, n = seq->len; i < n; i++)
     {
-        new_tot = nst_obj_add(tot, seq->objs[i], err);
+        new_tot = nst_obj_add(tot, seq->objs[i]);
         nst_dec_ref(tot);
 
         if ( new_tot == nullptr )
@@ -605,9 +600,9 @@ NST_FUNC_SIGN(frexp_)
     NST_DEF_EXTRACT("r", &n);
 
     int num;
-    Nst_SeqObj *arr = SEQ(nst_array_new(2, err));
-    arr->objs[0] = nst_real_new(frexp(n, &num), err);
-    arr->objs[1] = nst_int_new(num, err);
+    Nst_SeqObj *arr = SEQ(nst_array_new(2));
+    arr->objs[0] = nst_real_new(frexp(n, &num));
+    arr->objs[1] = nst_int_new(num);
 
     return OBJ(arr);
 }
@@ -619,7 +614,7 @@ NST_FUNC_SIGN(ldexp_)
 
     NST_DEF_EXTRACT("ri", &m, &e);
 
-    return nst_real_new(ldexp(m, (i32)e), err);
+    return nst_real_new(ldexp(m, (i32)e));
 }
 
 NST_FUNC_SIGN(map_)
@@ -634,10 +629,10 @@ NST_FUNC_SIGN(map_)
 
     if ( min1 == max1 )
     {
-        return nst_real_new(min2, err);
+        return nst_real_new(min2);
     }
 
-    return nst_real_new((val - min1) / (max1 - min1) * (max2 - min2) + min2, err);
+    return nst_real_new((val - min1) / (max1 - min1) * (max2 - min2) + min2);
 }
 
 NST_FUNC_SIGN(clamp_)
@@ -648,7 +643,7 @@ NST_FUNC_SIGN(clamp_)
 
     NST_DEF_EXTRACT("NNN", &val, &min, &max);
 
-    return nst_real_new(min > val ? min : max < val ? max : val, err);
+    return nst_real_new(min > val ? min : max < val ? max : val);
 }
 
 template <typename T>
@@ -742,7 +737,7 @@ static inline Nst_Real gcd_real(Nst_Real a, Nst_Real b)
     }
 }
 
-Nst_Obj *gcd_or_lcm_seq(Nst_SeqObj *seq, NST_FUNC_SIGN((*func)), Nst_OpErr *err)
+Nst_Obj *gcd_or_lcm_seq(Nst_SeqObj *seq, NST_FUNC_SIGN((*func)))
 {
     if ( seq->len == 0 )
     {
@@ -758,7 +753,7 @@ Nst_Obj *gcd_or_lcm_seq(Nst_SeqObj *seq, NST_FUNC_SIGN((*func)), Nst_OpErr *err)
     {
         gcd_args[0] = prev;
         gcd_args[1] = objs[i];
-        curr = func(2, gcd_args, err);
+        curr = func(2, gcd_args);
         nst_dec_ref(prev);
 
         if ( curr == nullptr )
@@ -786,11 +781,11 @@ NST_FUNC_SIGN(gcd_)
     {
         if ( ob2 == nst_null() )
         {
-            return gcd_or_lcm_seq(SEQ(ob1), gcd_, err);
+            return gcd_or_lcm_seq(SEQ(ob1), gcd_);
         }
         else
         {
-            NST_SET_TYPE_ERROR(nst_sprintf(
+            nst_set_type_error(nst_sprintf(
                 "the two objects must a sequence and null or two numbers, got '%s' and '%s'",
                 TYPE_NAME(ob1), TYPE_NAME(ob2)
             ));
@@ -800,7 +795,7 @@ NST_FUNC_SIGN(gcd_)
 
     if ( ob2 == nst_null() )
     {
-        NST_SET_TYPE_ERROR(nst_sprintf(
+        nst_set_type_error(nst_sprintf(
             "the two objects must a sequence and null or two numbers, got '%s' and '%s'",
             TYPE_NAME(ob1), TYPE_NAME(ob2)
         ));
@@ -824,7 +819,7 @@ NST_FUNC_SIGN(gcd_)
         else
             n2 = (Nst_Real)AS_BYTE(ob2);
 
-        return nst_real_new(gcd_real(n1, n2), err);
+        return nst_real_new(gcd_real(n1, n2));
     }
     else if ( ob1->type == type_int || ob2->type == type_int )
     {
@@ -849,13 +844,13 @@ NST_FUNC_SIGN(gcd_)
             n2_int = (Nst_Int)AS_BYTE(ob2);
         }
 
-        return nst_int_new(gcd_int(n1_int, n2_int), err);
+        return nst_int_new(gcd_int(n1_int, n2_int));
     }
     else
     {
         Nst_Byte n1_byte = AS_BYTE(ob1);
         Nst_Byte n2_byte = AS_BYTE(ob2);
-        return nst_byte_new(gcd_int(n1_byte, n2_byte), err);
+        return nst_byte_new(gcd_int(n1_byte, n2_byte));
     }
 }
 
@@ -874,11 +869,11 @@ NST_FUNC_SIGN(lcm_)
     {
         if ( ob2 == nst_null() )
         {
-            return gcd_or_lcm_seq(SEQ(ob1), lcm_, err);
+            return gcd_or_lcm_seq(SEQ(ob1), lcm_);
         }
         else
         {
-            NST_SET_TYPE_ERROR(nst_sprintf(
+            nst_set_type_error(nst_sprintf(
                 "the two objects must a sequence and null or two numbers, got '%s' and '%s'",
                 TYPE_NAME(ob1), TYPE_NAME(ob2)
             ));
@@ -888,14 +883,14 @@ NST_FUNC_SIGN(lcm_)
 
     if ( ob2 == nst_null() )
     {
-        NST_SET_TYPE_ERROR(nst_sprintf(
+        nst_set_type_error(nst_sprintf(
             "the two objects must a sequence and null or two numbers, got '%s' and '%s'",
             TYPE_NAME(ob1), TYPE_NAME(ob2)
         ));
         return nullptr;
     }
 
-    Nst_Obj *numerator = nst_obj_mul(ob1, ob2, nullptr);
+    Nst_Obj *numerator = nst_obj_mul(ob1, ob2);
 
     if ( (numerator->type == type_int  && AS_INT(numerator)  == 0)   ||
          (numerator->type == type_real && AS_REAL(numerator) == 0.0) ||
@@ -904,13 +899,13 @@ NST_FUNC_SIGN(lcm_)
         return numerator;
     }
 
-    Nst_Obj *denominator = gcd_(2, args, err);
+    Nst_Obj *denominator = gcd_(2, args);
     if ( denominator == nullptr )
     {
         return nullptr;
     }
 
-    Nst_Obj *result = nst_obj_div(numerator, denominator, err);
+    Nst_Obj *result = nst_obj_div(numerator, denominator);
     nst_dec_ref(numerator);
     nst_dec_ref(denominator);
 
@@ -926,7 +921,7 @@ NST_FUNC_SIGN(abs_)
     {
         return nst_inc_ref(args[0]);
     }
-    return nst_obj_mul(args[0], nst_const()->Int_neg1, err);
+    return nst_obj_mul(args[0], nst_const()->Int_neg1);
 }
 
 NST_FUNC_SIGN(hypot_)
@@ -936,5 +931,5 @@ NST_FUNC_SIGN(hypot_)
 
     NST_DEF_EXTRACT("NN", &c1, &c2);
 
-    return nst_real_new(sqrt(c1 * c1 + c2 * c2), err);
+    return nst_real_new(sqrt(c1 * c1 + c2 * c2));
 }

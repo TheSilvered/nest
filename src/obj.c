@@ -6,10 +6,9 @@
 
 Nst_Obj *_nst_obj_alloc(usize               size,
                         struct _Nst_StrObj *type,
-                        void (*destructor)(void *),
-                        struct _Nst_OpErr *err)
+                        void (*destructor)(void *))
 {
-    Nst_Obj *obj = OBJ(nst_malloc(1, size, err));
+    Nst_Obj *obj = OBJ(nst_malloc(1, size));
     if ( obj == NULL )
     {
         return NULL;

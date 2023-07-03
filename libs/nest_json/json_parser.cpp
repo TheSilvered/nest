@@ -11,21 +11,21 @@ static i32 recursion_level;
         recursion_level++; \
         if ( recursion_level > 1500 ) \
         { \
-            NST_SET_RAW_MEMORY_ERROR("over 1500 recursive calls, parsing failed"); \
+            nst_set_memory_error_c("over 1500 recursive calls, parsing failed"); \
             return nullptr; \
         } \
     } while ( 0 )
 #define DEC_RECURSION_LVL recursion_level--
 
-static Nst_Obj *parse_value(Nst_LList *tokens, Nst_OpErr *err);
-static Nst_Obj *parse_object(Nst_LList *tokens, Nst_OpErr *err);
-static Nst_Obj *parse_array(Nst_LList *tokens, Nst_OpErr *err);
+static Nst_Obj *parse_value(Nst_LList *tokens);
+static Nst_Obj *parse_object(Nst_LList *tokens);
+static Nst_Obj *parse_array(Nst_LList *tokens);
 
-Nst_Obj *json_parse(i8 *path, Nst_LList *tokens, Nst_OpErr *err)
+Nst_Obj *json_parse(i8 *path, Nst_LList *tokens)
 {
     file_path = path;
     recursion_level = 0;
-    Nst_Obj *res = parse_value(tokens, err);
+    Nst_Obj *res = parse_value(tokens);
     if ( res == nullptr )
     {
         nst_llist_destroy(tokens, (Nst_LListDestructor)nst_token_destroy);
@@ -44,7 +44,7 @@ Nst_Obj *json_parse(i8 *path, Nst_LList *tokens, Nst_OpErr *err)
     return res;
 }
 
-static Nst_Obj *parse_value(Nst_LList *tokens, Nst_OpErr *err)
+static Nst_Obj *parse_value(Nst_LList *tokens)
 {
     INC_RECURSION_LVL;
     Nst_Tok *tok = NST_TOK(nst_llist_pop(tokens));
@@ -59,10 +59,10 @@ static Nst_Obj *parse_value(Nst_LList *tokens, Nst_OpErr *err)
     }
     case JSON_LBRACKET:
         nst_token_destroy(tok);
-        return parse_array(tokens, err);
+        return parse_array(tokens);
     case JSON_LBRACE:
         nst_token_destroy(tok);
-        return parse_object(tokens, err);
+        return parse_object(tokens);
     default:
         JSON_SYNTAX_ERROR("expected value", file_path, tok->start);
         nst_token_destroy(tok);
@@ -71,10 +71,10 @@ static Nst_Obj *parse_value(Nst_LList *tokens, Nst_OpErr *err)
     DEC_RECURSION_LVL;
 }
 
-static Nst_Obj *parse_object(Nst_LList *tokens, Nst_OpErr *err)
+static Nst_Obj *parse_object(Nst_LList *tokens)
 {
     INC_RECURSION_LVL;
-    Nst_MapObj *map = MAP(nst_map_new(err));
+    Nst_MapObj *map = MAP(nst_map_new());
     Nst_Tok *tok = NST_TOK(nst_llist_pop(tokens));
 
     if ( (JSONTokenType)tok->type == JSON_RBRACE )
@@ -108,7 +108,7 @@ static Nst_Obj *parse_object(Nst_LList *tokens, Nst_OpErr *err)
         }
 
         nst_token_destroy(tok);
-        Nst_Obj *val = parse_value(tokens, err);
+        Nst_Obj *val = parse_value(tokens);
 
         if ( val == nullptr )
         {
@@ -117,7 +117,7 @@ static Nst_Obj *parse_object(Nst_LList *tokens, Nst_OpErr *err)
             return nullptr;
         }
 
-        nst_map_set(map, key, val, nullptr);
+        nst_map_set(map, key, val);
         nst_dec_ref(key);
         nst_dec_ref(val);
 
@@ -149,10 +149,10 @@ static Nst_Obj *parse_object(Nst_LList *tokens, Nst_OpErr *err)
     DEC_RECURSION_LVL;
 }
 
-static Nst_Obj *parse_array(Nst_LList *tokens, Nst_OpErr *err)
+static Nst_Obj *parse_array(Nst_LList *tokens)
 {
     INC_RECURSION_LVL;
-    Nst_VectorObj *vec = SEQ(nst_vector_new(0, err));
+    Nst_VectorObj *vec = SEQ(nst_vector_new(0));
     Nst_Tok *tok = NST_TOK(nst_llist_peek_front(tokens));
 
     if ( (JSONTokenType)tok->type == JSON_RBRACKET )
@@ -163,7 +163,7 @@ static Nst_Obj *parse_array(Nst_LList *tokens, Nst_OpErr *err)
 
     while ( true )
     {
-        Nst_Obj *val = parse_value(tokens, err);
+        Nst_Obj *val = parse_value(tokens);
 
         if ( val == nullptr )
         {
@@ -171,7 +171,7 @@ static Nst_Obj *parse_array(Nst_LList *tokens, Nst_OpErr *err)
             return nullptr;
         }
 
-        nst_vector_append(vec, val, err);
+        nst_vector_append(vec, val);
         nst_dec_ref(val);
 
         tok = NST_TOK(nst_llist_pop(tokens));
@@ -209,7 +209,7 @@ end:
             vec->objs,
             vec->len,
             Nst_Obj *,
-            0, err);
+            0);
         if ( new_objs != nullptr )
         {
             vec->objs = new_objs;

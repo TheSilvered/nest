@@ -46,21 +46,21 @@ typedef void * lib_t;
 #define ARE_TYPE(nst_type) ( ob1->type == nst_type && ob2->type == nst_type )
 
 #define RETURN_STACK_OP_TYPE_ERROR(operand) do { \
-    NST_SET_TYPE_ERROR(nst_sprintf( \
+    nst_set_type_error(nst_sprintf( \
         "invalid types '%s' and '%s' for '" operand "'", \
         TYPE_NAME(ob1), TYPE_NAME(ob2))); \
     return NULL; \
     } while ( 0 )
 
 #define RETURN_CAST_TYPE_ERROR(type) do { \
-    NST_SET_TYPE_ERROR(nst_sprintf( \
+    nst_set_type_error(nst_sprintf( \
         _NST_EM_INVALID_CASTING, \
         TYPE_NAME(ob), STR(type)->value)); \
     return NULL; \
     } while ( 0 )
 
 #define RETURN_LOCAL_OP_TYPE_ERROR(operand) do { \
-    NST_SET_TYPE_ERROR(nst_sprintf( \
+    nst_set_type_error(nst_sprintf( \
         _NST_EM_INVALID_OPERAND_TYPE(operand), \
         TYPE_NAME(ob))); \
     return NULL; \
@@ -79,21 +79,18 @@ typedef void * lib_t;
 
 static Nst_Obj *map_eq(Nst_MapObj *map1,
                        Nst_MapObj *map2,
-                       Nst_LList *containers,
-                       Nst_OpErr *err);
+                       Nst_LList *containers);
 static Nst_Obj *seq_eq(Nst_SeqObj *seq1,
                        Nst_SeqObj *seq2,
-                       Nst_LList *containers,
-                       Nst_OpErr *err);
-static Nst_Obj *import_nest_lib(Nst_StrObj *file_path, Nst_OpErr *err);
-static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err);
+                       Nst_LList *containers);
+static Nst_Obj *import_nest_lib(Nst_StrObj *file_path);
+static Nst_Obj *import_c_lib(Nst_StrObj *file_path);
 static bool add_to_handle_map(Nst_StrObj *path,
                               Nst_MapObj *map,
-                              Nst_SourceText *src_txt,
-                              Nst_OpErr *err);
+                              Nst_SourceText *src_txt);
 
 // Comparisons
-Nst_Obj *_nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if ( ob1 == ob2 )
     {
@@ -122,23 +119,23 @@ Nst_Obj *_nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
     else if ( IS_SEQ(ob1) && IS_SEQ(ob2) )
     {
-        Nst_LList *containers = nst_llist_new(err);
+        Nst_LList *containers = nst_llist_new();
         if ( containers == NULL )
         {
             return NULL;
         }
-        Nst_Obj *res = seq_eq(SEQ(ob1), SEQ(ob2), containers, err);
+        Nst_Obj *res = seq_eq(SEQ(ob1), SEQ(ob2), containers);
         nst_llist_destroy(containers, NULL);
         return res;
     }
     else if ( ARE_TYPE(nst_t.Map) )
     {
-        Nst_LList *containers = nst_llist_new(err);
+        Nst_LList *containers = nst_llist_new();
         if ( containers == NULL )
         {
             return NULL;
         }
-        Nst_Obj *res = map_eq(MAP(ob1), MAP(ob2), containers, err);
+        Nst_Obj *res = map_eq(MAP(ob1), MAP(ob2), containers);
         nst_llist_destroy(containers, NULL);
         return res;
     }
@@ -150,8 +147,7 @@ Nst_Obj *_nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 
 static Nst_Obj *seq_eq(Nst_SeqObj *seq1,
                        Nst_SeqObj *seq2,
-                       Nst_LList  *containers,
-                       Nst_OpErr  *err)
+                       Nst_LList  *containers)
 {
     if (seq1->len != seq2->len)
         NST_RETURN_FALSE;
@@ -164,13 +160,12 @@ static Nst_Obj *seq_eq(Nst_SeqObj *seq1,
         }
     }
 
-    nst_llist_append(containers, seq1, false, err);
-    if ( err->name != NULL )
+    if ( !nst_llist_append(containers, seq1, false) )
     {
         return NULL;
     }
-    nst_llist_append(containers, seq2, false, err);
-    if ( err->name != NULL )
+
+    if ( !nst_llist_append(containers, seq2, false) )
     {
         return NULL;
     }
@@ -185,15 +180,15 @@ static Nst_Obj *seq_eq(Nst_SeqObj *seq1,
 
         if ( IS_SEQ(ob1) && IS_SEQ(ob2) )
         {
-            result = seq_eq(SEQ(ob1), SEQ(ob2), containers, err);
+            result = seq_eq(SEQ(ob1), SEQ(ob2), containers);
         }
         else if ( ARE_TYPE(nst_t.Map) )
         {
-            result = map_eq(MAP(ob1), MAP(ob2), containers, err);
+            result = map_eq(MAP(ob1), MAP(ob2), containers);
         }
         else
         {
-            result = nst_obj_eq(ob1, ob2, NULL);
+            result = nst_obj_eq(ob1, ob2);
         }
 
         if ( result == NULL )
@@ -219,8 +214,7 @@ static Nst_Obj *seq_eq(Nst_SeqObj *seq1,
 
 static Nst_Obj *map_eq(Nst_MapObj *map1,
                        Nst_MapObj *map2,
-                       Nst_LList *containers,
-                       Nst_OpErr *err)
+                       Nst_LList *containers)
 {
     if ( map1->item_count != map2->item_count )
     {
@@ -235,9 +229,12 @@ static Nst_Obj *map_eq(Nst_MapObj *map1,
         }
     }
 
-    nst_llist_append(containers, map1, false, err);
-    nst_llist_append(containers, map2, false, err);
-    if ( err->name != NULL )
+    if ( !nst_llist_append(containers, map1, false) )
+    {
+        return NULL;
+    }
+
+    if ( !nst_llist_append(containers, map2, false) )
     {
         return NULL;
     }
@@ -265,15 +262,15 @@ static Nst_Obj *map_eq(Nst_MapObj *map1,
 
         if ( IS_SEQ(ob1) && IS_SEQ(ob2) )
         {
-            result = seq_eq(SEQ(ob1), SEQ(ob2), containers, err);
+            result = seq_eq(SEQ(ob1), SEQ(ob2), containers);
         }
         else if ( ARE_TYPE(nst_t.Map) )
         {
-            result = map_eq(MAP(ob1), MAP(ob2), containers, err);
+            result = map_eq(MAP(ob1), MAP(ob2), containers);
         }
         else
         {
-            result = nst_obj_eq(ob1, ob2, err);
+            result = nst_obj_eq(ob1, ob2);
         }
 
         if ( result == nst_c.Bool_false )
@@ -296,9 +293,9 @@ static Nst_Obj *map_eq(Nst_MapObj *map1,
     NST_RETURN_TRUE;
 }
 
-Nst_Obj *_nst_obj_ne(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_ne(Nst_Obj *ob1, Nst_Obj *ob2)
 {
-    if ( nst_obj_eq(ob1, ob2, err) == nst_c.Bool_true )
+    if ( nst_obj_eq(ob1, ob2) == nst_c.Bool_true )
     {
         nst_dec_ref(nst_c.Bool_true);
         NST_RETURN_FALSE;
@@ -310,7 +307,7 @@ Nst_Obj *_nst_obj_ne(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
 }
 
-Nst_Obj *_nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if ( ARE_TYPE(nst_t.Str) )
     {
@@ -338,7 +335,7 @@ Nst_Obj *_nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
 }
 
-Nst_Obj *_nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if ( ARE_TYPE(nst_t.Str) )
     {
@@ -366,9 +363,9 @@ Nst_Obj *_nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
 }
 
-Nst_Obj *_nst_obj_ge(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_ge(Nst_Obj *ob1, Nst_Obj *ob2)
 {
-    Nst_Obj *res = nst_obj_eq(ob1, ob2, err);
+    Nst_Obj *res = nst_obj_eq(ob1, ob2);
     if ( res == NULL )
     {
         return NULL;
@@ -382,19 +379,19 @@ Nst_Obj *_nst_obj_ge(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         nst_dec_ref(nst_c.Bool_false);
     }
 
-    res = nst_obj_gt(ob1, ob2, err);
+    res = nst_obj_gt(ob1, ob2);
 
-    if ( err != NULL && err->name == nst_s.e_TypeError )
+    if ( nst_error_occurred() )
     {
-        NST_UNSET_ERROR;
+        nst_error_clear();
         RETURN_STACK_OP_TYPE_ERROR(">=");
     }
     return res;
 }
 
-Nst_Obj *_nst_obj_le(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_le(Nst_Obj *ob1, Nst_Obj *ob2)
 {
-    Nst_Obj *res = nst_obj_eq(ob1, ob2, err);
+    Nst_Obj *res = nst_obj_eq(ob1, ob2);
     if ( res == nst_c.Bool_true )
     {
         return nst_c.Bool_true;
@@ -408,22 +405,22 @@ Nst_Obj *_nst_obj_le(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         nst_dec_ref(nst_c.Bool_false);
     }
 
-    res = nst_obj_lt(ob1, ob2, err);
+    res = nst_obj_lt(ob1, ob2);
 
-    if ( err != NULL && err->name == nst_s.e_TypeError )
+    if ( nst_error_occurred() )
     {
-        NST_UNSET_ERROR;
+        nst_error_clear();
         RETURN_STACK_OP_TYPE_ERROR("<=");
     }
     return res;
 }
 
 // Arithmetic operations
-Nst_Obj *_nst_obj_add(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_add(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if ( ob1->type == nst_t.Vector )
     {
-        if ( !nst_vector_append(ob1, ob2, err) )
+        if ( !nst_vector_append(ob1, ob2) )
         {
             return NULL;
         }
@@ -431,19 +428,19 @@ Nst_Obj *_nst_obj_add(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
     else if ( ARE_TYPE(nst_t.Byte) )
     {
-        return nst_byte_new(AS_BYTE(ob1) + AS_BYTE(ob2), err);
+        return nst_byte_new(AS_BYTE(ob1) + AS_BYTE(ob2));
     }
     else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
         i64 v1 = nst_number_to_i64(ob1);
         i64 v2 = nst_number_to_i64(ob2);
-        return nst_int_new(v1 + v2, err);
+        return nst_int_new(v1 + v2);
     }
     else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
         f64 v1 = nst_number_to_f64(ob1);
         f64 v2 = nst_number_to_f64(ob2);
-        return nst_real_new(v1 + v2, err);
+        return nst_real_new(v1 + v2);
     }
     else
     {
@@ -451,7 +448,7 @@ Nst_Obj *_nst_obj_add(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
 }
 
-Nst_Obj *_nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if ( ob1->type == nst_t.Vector )
     {
@@ -463,7 +460,7 @@ Nst_Obj *_nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         Nst_Obj *res = nst_map_drop(ob1, ob2);
         if ( res == NULL )
         {
-            NST_SET_TYPE_ERROR(nst_sprintf(
+            nst_set_type_error(nst_sprintf(
                 _NST_EM_UNHASHABLE_TYPE,
                 TYPE_NAME(ob2)));
             return NULL;
@@ -474,19 +471,19 @@ Nst_Obj *_nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
     else if ( ARE_TYPE(nst_t.Byte) )
     {
-        return nst_byte_new(AS_BYTE(ob1) - AS_BYTE(ob2), err);
+        return nst_byte_new(AS_BYTE(ob1) - AS_BYTE(ob2));
     }
     else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
         i64 v1 = nst_number_to_i64(ob1);
         i64 v2 = nst_number_to_i64(ob2);
-        return nst_int_new(v1 - v2, err);
+        return nst_int_new(v1 - v2);
     }
     else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
         f64 v1 = nst_number_to_f64(ob1);
         f64 v2 = nst_number_to_f64(ob2);
-        return nst_real_new(v1 - v2, err);
+        return nst_real_new(v1 - v2);
     }
     else
     {
@@ -494,19 +491,19 @@ Nst_Obj *_nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
 }
 
-Nst_Obj *_nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if ( ob1->type == nst_t.Vector && ob2->type == nst_t.Int )
     {
         if ( AS_INT(ob2) == 0 )
         {
-            return nst_vector_new(0, err);
+            return nst_vector_new(0);
         }
 
         Nst_SeqObj *vect = SEQ(ob1);
         usize v_len = vect->len;
         usize new_size = (usize)AS_INT(ob2) * v_len;
-        Nst_Obj **new_objs = nst_realloc(vect->objs, new_size, sizeof(Nst_Obj *), 0, err);
+        Nst_Obj **new_objs = nst_realloc_c(vect->objs, new_size, Nst_Obj *, 0);
         if ( new_objs == NULL )
         {
             return NULL;
@@ -523,19 +520,19 @@ Nst_Obj *_nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
     else if ( ARE_TYPE(nst_t.Byte) )
     {
-        return nst_byte_new(AS_BYTE(ob1) * AS_BYTE(ob2), err);
+        return nst_byte_new(AS_BYTE(ob1) * AS_BYTE(ob2));
     }
     else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
         i64 v1 = nst_number_to_i64(ob1);
         i64 v2 = nst_number_to_i64(ob2);
-        return nst_int_new(v1 * v2, err);
+        return nst_int_new(v1 * v2);
     }
     else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
         f64 v1 = nst_number_to_f64(ob1);
         f64 v2 = nst_number_to_f64(ob2);
-        return nst_real_new(v1 * v2, err);
+        return nst_real_new(v1 * v2);
     }
     else
     {
@@ -543,7 +540,7 @@ Nst_Obj *_nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
 }
 
-Nst_Obj *_nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if ( ob1->type == nst_t.Vector && ob2->type == nst_t.Int )
     {
@@ -553,11 +550,11 @@ Nst_Obj *_nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     {
         if ( AS_BYTE(ob2) == 0 )
         {
-            NST_SET_RAW_MATH_ERROR(_NST_EM_DIVISION_BY_ZERO);
+            nst_set_math_error_c(_NST_EM_DIVISION_BY_ZERO);
             return NULL;
         }
 
-        return nst_byte_new(AS_BYTE(ob1) / AS_BYTE(ob2), err);
+        return nst_byte_new(AS_BYTE(ob1) / AS_BYTE(ob2));
     }
     else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
@@ -566,11 +563,11 @@ Nst_Obj *_nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 
         if ( v2 == 0 )
         {
-            NST_SET_RAW_MATH_ERROR(_NST_EM_DIVISION_BY_ZERO);
+            nst_set_math_error_c(_NST_EM_DIVISION_BY_ZERO);
             return NULL;
         }
 
-        return nst_int_new(v1 / v2, err);
+        return nst_int_new(v1 / v2);
     }
     else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
@@ -579,11 +576,11 @@ Nst_Obj *_nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 
         if ( v2 == 0.0 )
         {
-            NST_SET_RAW_MATH_ERROR(_NST_EM_DIVISION_BY_ZERO);
+            nst_set_math_error_c(_NST_EM_DIVISION_BY_ZERO);
             return NULL;
         }
 
-        return nst_real_new(v1 / v2, err);
+        return nst_real_new(v1 / v2);
     }
     else
     {
@@ -591,7 +588,7 @@ Nst_Obj *_nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
 }
 
-Nst_Obj *_nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if ( ARE_TYPE(nst_t.Byte) )
     {
@@ -603,7 +600,7 @@ Nst_Obj *_nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
             res *= num;
         }
 
-        return nst_byte_new(res, err);
+        return nst_byte_new(res);
     }
     else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
@@ -626,7 +623,7 @@ Nst_Obj *_nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
             res *= v1;
         }
 
-        return nst_int_new(res, err);
+        return nst_int_new(res);
     }
     else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
@@ -636,11 +633,11 @@ Nst_Obj *_nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
         // any root of a negative number gives -nan as a result
         if ( v1 < 0 && floorl(v2) != v2 )
         {
-            NST_SET_RAW_MATH_ERROR(_NST_EM_COMPLEX_POW);
+            nst_set_math_error_c(_NST_EM_COMPLEX_POW);
             return NULL;
         }
 
-        return nst_real_new((Nst_Real)powl(v1, v2), err);
+        return nst_real_new((Nst_Real)powl(v1, v2));
     }
     else
     {
@@ -648,17 +645,17 @@ Nst_Obj *_nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
 }
 
-Nst_Obj *_nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if ( ARE_TYPE(nst_t.Byte) )
     {
         if ( AS_BYTE(ob2) == 0 )
         {
-            NST_SET_RAW_MATH_ERROR(_NST_EM_MODULO_BY_ZERO);
+            nst_set_math_error_c(_NST_EM_MODULO_BY_ZERO);
             return NULL;
         }
 
-        return nst_byte_new(AS_BYTE(ob1) % AS_BYTE(ob2), err);
+        return nst_byte_new(AS_BYTE(ob1) % AS_BYTE(ob2));
     }
     else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
@@ -667,11 +664,11 @@ Nst_Obj *_nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 
         if ( v2 == 0 )
         {
-            NST_SET_RAW_MATH_ERROR(_NST_EM_MODULO_BY_ZERO);
+            nst_set_math_error_c(_NST_EM_MODULO_BY_ZERO);
             return NULL;
         }
 
-        return nst_int_new(v1 % v2, err);
+        return nst_int_new(v1 % v2);
     }
     else if ( IS_NUM(ob1) && IS_NUM(ob2) )
     {
@@ -680,11 +677,11 @@ Nst_Obj *_nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 
         if ( v2 == 0.0 )
         {
-            NST_SET_RAW_MATH_ERROR(_NST_EM_MODULO_BY_ZERO);
+            nst_set_math_error_c(_NST_EM_MODULO_BY_ZERO);
             return NULL;
         }
 
-        return nst_real_new(fmod(v1, v2), err);
+        return nst_real_new(fmod(v1, v2));
     }
     else
     {
@@ -693,17 +690,17 @@ Nst_Obj *_nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 }
 
 // Bitwise operations
-Nst_Obj *_nst_obj_bwor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_bwor(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if ( ARE_TYPE(nst_t.Byte) )
     {
-        return nst_byte_new(AS_BYTE(ob1) | AS_BYTE(ob2), err);
+        return nst_byte_new(AS_BYTE(ob1) | AS_BYTE(ob2));
     }
     else if ( IS_INT(ob1) && IS_INT(ob2) )
     {
         i64 v1 = nst_number_to_i64(ob1);
         i64 v2 = nst_number_to_i64(ob2);
-        return nst_int_new(v1 | v2, err);
+        return nst_int_new(v1 | v2);
     }
     else
     {
@@ -711,17 +708,17 @@ Nst_Obj *_nst_obj_bwor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
 }
 
-Nst_Obj *_nst_obj_bwand(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_bwand(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if ( ARE_TYPE(nst_t.Byte) )
     {
-        return nst_byte_new(AS_BYTE(ob1) & AS_BYTE(ob2), err);
+        return nst_byte_new(AS_BYTE(ob1) & AS_BYTE(ob2));
     }
     else if (IS_INT(ob1) && IS_INT(ob2))
     {
         i64 v1 = nst_number_to_i64(ob1);
         i64 v2 = nst_number_to_i64(ob2);
-        return nst_int_new(v1 & v2, err);
+        return nst_int_new(v1 & v2);
     }
     else
     {
@@ -729,17 +726,17 @@ Nst_Obj *_nst_obj_bwand(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
 }
 
-Nst_Obj *_nst_obj_bwxor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_bwxor(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if ( ARE_TYPE(nst_t.Byte) )
     {
-        return nst_byte_new(AS_BYTE(ob1) ^ AS_BYTE(ob2), err);
+        return nst_byte_new(AS_BYTE(ob1) ^ AS_BYTE(ob2));
     }
     else if (IS_INT(ob1) && IS_INT(ob2))
     {
         i64 v1 = nst_number_to_i64(ob1);
         i64 v2 = nst_number_to_i64(ob2);
-        return nst_int_new(v1 ^ v2, err);
+        return nst_int_new(v1 ^ v2);
     }
     else
     {
@@ -747,17 +744,17 @@ Nst_Obj *_nst_obj_bwxor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
 }
 
-Nst_Obj *_nst_obj_bwls(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_bwls(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if ( ARE_TYPE(nst_t.Byte) )
     {
-        return nst_byte_new(AS_BYTE(ob1) << AS_BYTE(ob2), err);
+        return nst_byte_new(AS_BYTE(ob1) << AS_BYTE(ob2));
     }
     else if (IS_INT(ob1) && IS_INT(ob2))
     {
         i64 v1 = nst_number_to_i64(ob1);
         i64 v2 = nst_number_to_i64(ob2);
-        return nst_int_new(v1 << v2, err);
+        return nst_int_new(v1 << v2);
     }
     else
     {
@@ -765,17 +762,17 @@ Nst_Obj *_nst_obj_bwls(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
 }
 
-Nst_Obj *_nst_obj_bwrs(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_bwrs(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if ( ARE_TYPE(nst_t.Byte) )
     {
-        return nst_byte_new(AS_BYTE(ob1) >> AS_BYTE(ob2), err);
+        return nst_byte_new(AS_BYTE(ob1) >> AS_BYTE(ob2));
     }
     else if (IS_INT(ob1) && IS_INT(ob2))
     {
         i64 v1 = nst_number_to_i64(ob1);
         i64 v2 = nst_number_to_i64(ob2);
-        return nst_int_new(v1 >> v2, err);
+        return nst_int_new(v1 >> v2);
     }
     else
     {
@@ -784,9 +781,9 @@ Nst_Obj *_nst_obj_bwrs(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 }
 
 // Logical operations
-Nst_Obj *_nst_obj_lgor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_lgor(Nst_Obj *ob1, Nst_Obj *ob2)
 {
-    Nst_Obj *b = nst_obj_cast(ob1, nst_t.Bool, err);
+    Nst_Obj *b = nst_obj_cast(ob1, nst_t.Bool);
     Nst_Bool v1 = AS_BOOL(b);
     nst_dec_ref(b);
 
@@ -800,9 +797,9 @@ Nst_Obj *_nst_obj_lgor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
 }
 
-Nst_Obj *_nst_obj_lgand(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_lgand(Nst_Obj *ob1, Nst_Obj *ob2)
 {
-    Nst_Obj *b = nst_obj_cast(ob1, nst_t.Bool, err);
+    Nst_Obj *b = nst_obj_cast(ob1, nst_t.Bool);
     Nst_Bool v1 = AS_BOOL(b);
     nst_dec_ref(b);
 
@@ -816,10 +813,10 @@ Nst_Obj *_nst_obj_lgand(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     }
 }
 
-Nst_Obj *_nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2)
 {
-    ob1 = nst_obj_cast(ob1, nst_t.Bool, err);
-    ob2 = nst_obj_cast(ob2, nst_t.Bool, err);
+    ob1 = nst_obj_cast(ob1, nst_t.Bool);
+    ob2 = nst_obj_cast(ob2, nst_t.Bool);
 
     Nst_Bool v1 = AS_BOOL(ob1);
     Nst_Bool v2 = AS_BOOL(ob2);
@@ -833,31 +830,30 @@ Nst_Obj *_nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
 
 // Other
 
-Nst_Obj* _nst_repr_str_cast(Nst_Obj* ob, Nst_OpErr *err)
+Nst_Obj* _nst_repr_str_cast(Nst_Obj* ob)
 {
     Nst_TypeObj *ob_t = ob->type;
 
     if ( ob_t == nst_t.Str )
     {
-        return nst_string_repr(ob, err);
+        return nst_string_repr(ob);
     }
     else if ( ob_t == nst_t.Byte )
     {
-        i8 *str = nst_calloc_c(5, i8, NULL, err);
+        i8 *str = nst_calloc_c(5, i8, NULL);
         CHECK_BUFFER(str);
 
         sprintf(str, "%lib", (i32)AS_BYTE(ob));
-        return nst_string_new_c_raw((const i8 *)str, true, err);
+        return nst_string_new_c_raw((const i8 *)str, true);
     }
     else
     {
-        return nst_obj_cast(ob, nst_t.Str, NULL);
+        return nst_obj_cast(ob, nst_t.Str);
     }
 }
 
 Nst_Obj *_nst_obj_str_cast_seq(Nst_SeqObj *seq_obj,
-                               Nst_LList *all_objs,
-                               Nst_OpErr *err)
+                               Nst_LList *all_objs)
 {
     bool is_vect = seq_obj->type == nst_t.Vector;
     const char *recursive;
@@ -884,16 +880,16 @@ Nst_Obj *_nst_obj_str_cast_seq(Nst_SeqObj *seq_obj,
     {
         if ( seq_obj == n->value )
         {
-            return nst_string_new_c_raw(recursive, false, err);
+            return nst_string_new_c_raw(recursive, false);
         }
     }
 
     if ( seq_obj->len == 0 )
     {
-        return nst_string_new_c_raw(empty, false, err);
+        return nst_string_new_c_raw(empty, false);
     }
 
-    if ( !nst_llist_push(all_objs, seq_obj, false, err) )
+    if ( !nst_llist_push(all_objs, seq_obj, false) )
     {
         return NULL;
     }
@@ -901,12 +897,12 @@ Nst_Obj *_nst_obj_str_cast_seq(Nst_SeqObj *seq_obj,
     usize seq_len = seq_obj->len;
 
     Nst_Buffer buf;
-    if ( !nst_buffer_init(&buf, 6, err) )
+    if ( !nst_buffer_init(&buf, 6) )
     {
         return NULL;
     }
 
-    nst_buffer_append_c_str(&buf, open, NULL);
+    nst_buffer_append_c_str(&buf, open);
 
     for ( usize i = 0; i < seq_len; i++ )
     {
@@ -915,15 +911,15 @@ Nst_Obj *_nst_obj_str_cast_seq(Nst_SeqObj *seq_obj,
 
         if ( IS_SEQ(ob) )
         {
-            ob_str = STR(_nst_obj_str_cast_seq(SEQ(ob), all_objs, err));
+            ob_str = STR(_nst_obj_str_cast_seq(SEQ(ob), all_objs));
         }
         else if ( ob->type == nst_t.Map )
         {
-            ob_str = STR(_nst_obj_str_cast_map(MAP(ob), all_objs, err));
+            ob_str = STR(_nst_obj_str_cast_map(MAP(ob), all_objs));
         }
         else
         {
-            ob_str = STR(_nst_repr_str_cast(ob, err));
+            ob_str = STR(_nst_repr_str_cast(ob));
         }
         if ( ob_str == NULL )
         {
@@ -931,62 +927,63 @@ Nst_Obj *_nst_obj_str_cast_seq(Nst_SeqObj *seq_obj,
             return NULL;
         }
 
-        if ( !nst_buffer_append(&buf, ob_str, err) )
+        if ( !nst_buffer_append(&buf, ob_str) )
         {
             nst_buffer_destroy(&buf);
             return NULL;
         }
+
+        nst_dec_ref(ob_str);
 
         if ( i == seq_len - 1 )
         {
             break;
         }
 
-        if ( !nst_buffer_append_c_str(&buf, ", ", err) )
+        if ( !nst_buffer_append_c_str(&buf, ", ") )
         {
             nst_buffer_destroy(&buf);
             return NULL;
         }
     }
 
-    if ( !nst_buffer_append_c_str(&buf, close, err) )
+    if ( !nst_buffer_append_c_str(&buf, close) )
     {
         nst_buffer_destroy(&buf);
         return NULL;
     }
 
     nst_llist_pop(all_objs);
-    return OBJ(nst_buffer_to_string(&buf, err));
+    return OBJ(nst_buffer_to_string(&buf));
 }
 
 Nst_Obj *_nst_obj_str_cast_map(Nst_MapObj *map_obj,
-                               Nst_LList  *all_objs,
-                               Nst_OpErr  *err)
+                               Nst_LList  *all_objs)
 {
     for ( Nst_LLNode *n = all_objs->head; n != NULL; n = n->next )
     {
         if ( map_obj == n->value )
         {
-            return nst_string_new_c("{.}", 3, false, err);
+            return nst_string_new_c("{.}", 3, false);
         }
     }
 
     if ( MAP(map_obj)->item_count == 0 )
     {
-        return nst_string_new_c("{}", 2, false, err);
+        return nst_string_new_c("{}", 2, false);
     }
 
-    if ( !nst_llist_push(all_objs, map_obj, false, err) )
+    if ( !nst_llist_push(all_objs, map_obj, false) )
     {
         return NULL;
     }
 
     Nst_Buffer buf;
-    if ( !nst_buffer_init(&buf, 4, err) )
+    if ( !nst_buffer_init(&buf, 4) )
     {
         return NULL;
     }
-    nst_buffer_append_c_str(&buf, "{ ", NULL);
+    nst_buffer_append_c_str(&buf, "{ ");
 
     for ( i32 idx = nst_map_get_next_idx(-1, map_obj);
           idx != -1;
@@ -996,7 +993,7 @@ Nst_Obj *_nst_obj_str_cast_map(Nst_MapObj *map_obj,
         Nst_Obj *val = map_obj->nodes[idx].value;
 
         // Key cannot be a vector, an array or a map
-        Nst_StrObj *key_str = STR(_nst_repr_str_cast(key, err));
+        Nst_StrObj *key_str = STR(_nst_repr_str_cast(key));
         Nst_StrObj *val_str;
 
         if ( key_str == NULL )
@@ -1007,15 +1004,15 @@ Nst_Obj *_nst_obj_str_cast_map(Nst_MapObj *map_obj,
 
         if ( IS_SEQ(val) )
         {
-            val_str = STR(_nst_obj_str_cast_seq(SEQ(val), all_objs, err));
+            val_str = STR(_nst_obj_str_cast_seq(SEQ(val), all_objs));
         }
         else if ( val->type == nst_t.Map )
         {
-            val_str = STR(_nst_obj_str_cast_map(MAP(val), all_objs, err));
+            val_str = STR(_nst_obj_str_cast_map(MAP(val), all_objs));
         }
         else
         {
-            val_str = STR(_nst_repr_str_cast(val, err));
+            val_str = STR(_nst_repr_str_cast(val));
         }
 
         if ( key_str == NULL )
@@ -1026,42 +1023,42 @@ Nst_Obj *_nst_obj_str_cast_map(Nst_MapObj *map_obj,
         }
 
         usize expantion_amount = key_str->len + val_str->len + 4;
-        if ( !nst_buffer_expand_by(&buf, expantion_amount, err) )
+        if ( !nst_buffer_expand_by(&buf, expantion_amount) )
         {
             nst_buffer_destroy(&buf);
             return NULL;
         }
 
-        nst_buffer_append(&buf, key_str, NULL);
-        nst_buffer_append_c_str(&buf, ": ", NULL);
-        nst_buffer_append(&buf, val_str, NULL);
-        nst_buffer_append_c_str(&buf, ", ", NULL);
+        nst_buffer_append(&buf, key_str);
+        nst_buffer_append_c_str(&buf, ": ");
+        nst_buffer_append(&buf, val_str);
+        nst_buffer_append_c_str(&buf, ", ");
 
         nst_dec_ref(key_str);
         nst_dec_ref(val_str);
     }
 
     buf.len -= 2;
-    nst_buffer_append_c_str(&buf, " }", NULL);
+    nst_buffer_append_c_str(&buf, " }");
     nst_llist_pop(all_objs);
 
-    return OBJ(nst_buffer_to_string(&buf, err));
+    return OBJ(nst_buffer_to_string(&buf));
 }
 
-static Nst_Obj *obj_to_str(Nst_Obj *ob, Nst_OpErr *err)
+static Nst_Obj *obj_to_str(Nst_Obj *ob)
 {
     Nst_TypeObj *ob_t = ob->type;
 
     if ( ob_t == nst_t.Int )
     {
-        i8 *buffer = nst_malloc_c(MAX_INT_CHAR_COUNT, i8, err);
+        i8 *buffer = nst_malloc_c(MAX_INT_CHAR_COUNT, i8);
         CHECK_BUFFER(buffer);
         i32 len = sprintf(buffer, "%lli", AS_INT(ob));
         NST_RETURN_NEW_STR(buffer, len);
     }
     else if ( ob_t == nst_t.Real )
     {
-        i8 *buffer = nst_malloc_c(MAX_REAL_CHAR_COUNT, i8, err);
+        i8 *buffer = nst_malloc_c(MAX_REAL_CHAR_COUNT, i8);
         CHECK_BUFFER(buffer);
         i32 len = sprintf(buffer, "%." REAL_PRECISION "lg", AS_REAL(ob));
         for ( i32 i = 0; i < len; i++ )
@@ -1143,34 +1140,34 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob, Nst_OpErr *err)
         }
 
         // for custom types defined in external libraries
-        return nst_string_copy(ob, err);
+        return nst_string_copy(ob);
     }
     else if ( ob_t == nst_t.Byte )
     {
-        i8 *str = nst_calloc_c(2, i8, NULL, err);
+        i8 *str = nst_calloc_c(2, i8, NULL);
         CHECK_BUFFER(str);
         str[0] = AS_BYTE(ob);
         NST_RETURN_NEW_STR(str, 1);
     }
     else if ( ob_t == nst_t.Array || ob_t == nst_t.Vector )
     {
-        Nst_LList *all_objs = nst_llist_new(err);
+        Nst_LList *all_objs = nst_llist_new();
         if ( all_objs == NULL )
         {
             return NULL;
         }
-        Nst_Obj *str = _nst_obj_str_cast_seq(SEQ(ob), all_objs, err);
+        Nst_Obj *str = _nst_obj_str_cast_seq(SEQ(ob), all_objs);
         nst_llist_destroy(all_objs, NULL);
         return str;
     }
     else if ( ob_t == nst_t.Map )
     {
-        Nst_LList *all_objs = nst_llist_new(err);
+        Nst_LList *all_objs = nst_llist_new();
         if ( all_objs == NULL )
         {
             return NULL;
         }
-        Nst_Obj *str = _nst_obj_str_cast_map(MAP(ob), all_objs, err);
+        Nst_Obj *str = _nst_obj_str_cast_map(MAP(ob), all_objs);
         nst_llist_destroy(all_objs, NULL);
         return str;
     }
@@ -1180,7 +1177,7 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob, Nst_OpErr *err)
     }
     else if ( ob_t == nst_t.IOFile )
     {
-        i8 *buffer = nst_malloc_c(14, i8, err);
+        i8 *buffer = nst_malloc_c(14, i8);
         CHECK_BUFFER(buffer);
         memcpy(buffer, "<IOFile --- >", 14);
         if ( NST_IOF_CAN_READ(ob) )  buffer[8] = 'r';
@@ -1190,7 +1187,7 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob, Nst_OpErr *err)
     }
     else if ( ob_t == nst_t.Func )
     {
-        i8 *buffer = nst_malloc_c(13 + MAX_INT_CHAR_COUNT, i8, err);
+        i8 *buffer = nst_malloc_c(13 + MAX_INT_CHAR_COUNT, i8);
         CHECK_BUFFER(buffer);
         i32 len;
 
@@ -1207,7 +1204,7 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob, Nst_OpErr *err)
     {
         i8 *buffer = nst_malloc_c(
             STR(ob->type)->len + 16 + (i32)sizeof(usize) * 2,
-            i8, err);
+            i8);
         CHECK_BUFFER(buffer);
         i32 len = sprintf(
             buffer,
@@ -1260,68 +1257,68 @@ static Nst_Obj *obj_to_bool(Nst_Obj *ob)
     }
 }
 
-static Nst_Obj *obj_to_byte(Nst_Obj *ob, Nst_OpErr *err)
+static Nst_Obj *obj_to_byte(Nst_Obj *ob)
 {
     Nst_TypeObj *ob_t = ob->type;
 
     if ( ob_t == nst_t.Int )
     {
-        return nst_byte_new(AS_INT(ob) & 0xff, err);
+        return nst_byte_new(AS_INT(ob) & 0xff);
     }
     else if ( ob_t == nst_t.Real )
     {
-        return nst_byte_new((Nst_Int)AS_REAL(ob) & 0xff, err);
+        return nst_byte_new((Nst_Int)AS_REAL(ob) & 0xff);
     }
     else if ( ob_t == nst_t.Str )
     {
-        return nst_string_parse_byte(STR(ob), err);
+        return nst_string_parse_byte(STR(ob));
     }
     RETURN_CAST_TYPE_ERROR(nst_t.Byte);
 }
 
-static Nst_Obj *obj_to_int(Nst_Obj *ob, Nst_OpErr *err)
+static Nst_Obj *obj_to_int(Nst_Obj *ob)
 {
     Nst_TypeObj *ob_t = ob->type;
 
     if ( ob_t == nst_t.Real )
     {
-        return nst_int_new((Nst_Int)AS_REAL(ob), err);
+        return nst_int_new((Nst_Int)AS_REAL(ob));
     }
     else if ( ob_t == nst_t.Byte )
     {
-        return nst_int_new((Nst_Int)AS_BYTE(ob), err);
+        return nst_int_new((Nst_Int)AS_BYTE(ob));
     }
     else if ( ob_t == nst_t.Str )
     {
-        return nst_string_parse_int(STR(ob), 0, err);
+        return nst_string_parse_int(STR(ob), 0);
     }
     RETURN_CAST_TYPE_ERROR(nst_t.Int);
 }
 
-static Nst_Obj *obj_to_real(Nst_Obj *ob, Nst_OpErr *err)
+static Nst_Obj *obj_to_real(Nst_Obj *ob)
 {
     Nst_TypeObj *ob_t = ob->type;
 
     if ( ob_t == nst_t.Int )
     {
-        return nst_real_new((Nst_Real)AS_INT(ob), err);
+        return nst_real_new((Nst_Real)AS_INT(ob));
     }
     else if ( ob_t == nst_t.Byte )
     {
-        return nst_real_new((Nst_Real)AS_BYTE(ob), err);
+        return nst_real_new((Nst_Real)AS_BYTE(ob));
     }
     else if ( ob_t == nst_t.Str )
     {
-        return nst_string_parse_real(STR(ob), err);
+        return nst_string_parse_real(STR(ob));
     }
     RETURN_CAST_TYPE_ERROR(nst_t.Real);
 }
 
-static Nst_Obj *seq_to_seq(Nst_Obj *ob, bool is_vect, Nst_OpErr *err)
+static Nst_Obj *seq_to_seq(Nst_Obj *ob, bool is_vect)
 {
     usize seq_len = SEQ(ob)->len;
-    Nst_SeqObj *seq = is_vect ? SEQ(nst_vector_new(seq_len, err))
-                              : SEQ(nst_array_new(seq_len, err));
+    Nst_SeqObj *seq = is_vect ? SEQ(nst_vector_new(seq_len))
+                              : SEQ(nst_array_new(seq_len));
     if ( seq == NULL )
     {
         return NULL;
@@ -1334,18 +1331,18 @@ static Nst_Obj *seq_to_seq(Nst_Obj *ob, bool is_vect, Nst_OpErr *err)
     return OBJ(seq);
 }
 
-static Nst_Obj *str_to_seq(Nst_Obj *ob, bool is_vect, Nst_OpErr *err)
+static Nst_Obj *str_to_seq(Nst_Obj *ob, bool is_vect)
 {
     usize str_len = STR(ob)->len;
-    Nst_SeqObj *seq = is_vect ? SEQ(nst_vector_new(str_len, err))
-                              : SEQ(nst_array_new(str_len, err));
+    Nst_SeqObj *seq = is_vect ? SEQ(nst_vector_new(str_len))
+                              : SEQ(nst_array_new(str_len));
     if ( seq == NULL )
     {
         return NULL;
     }
     for ( usize i = 0; i < str_len; i++ )
     {
-        seq->objs[i] = nst_string_get(ob, i, err);
+        seq->objs[i] = nst_string_get(ob, i);
         if ( seq->objs[i] == NULL )
         {
             seq->len = i;
@@ -1356,16 +1353,16 @@ static Nst_Obj *str_to_seq(Nst_Obj *ob, bool is_vect, Nst_OpErr *err)
     return OBJ(seq);
 }
 
-static Nst_Obj *iter_to_seq(Nst_Obj *ob, bool is_vect, Nst_OpErr *err)
+static Nst_Obj *iter_to_seq(Nst_Obj *ob, bool is_vect)
 {
-    Nst_SeqObj *seq = SEQ(nst_vector_new(0, err));
+    Nst_SeqObj *seq = SEQ(nst_vector_new(0));
     Nst_IterObj *iter = ITER(ob);
     if ( seq == NULL )
     {
         return NULL;
     }
 
-    if ( nst_iter_start(iter, err) )
+    if ( nst_iter_start(iter) )
     {
         nst_dec_ref(seq);
         return NULL;
@@ -1373,7 +1370,7 @@ static Nst_Obj *iter_to_seq(Nst_Obj *ob, bool is_vect, Nst_OpErr *err)
 
     while ( true )
     {
-        i32 is_done = nst_iter_is_done(iter, err);
+        i32 is_done = nst_iter_is_done(iter);
         if ( is_done == -1 )
         {
             nst_dec_ref(seq);
@@ -1382,14 +1379,14 @@ static Nst_Obj *iter_to_seq(Nst_Obj *ob, bool is_vect, Nst_OpErr *err)
         else if ( is_done )
             break;
 
-        Nst_Obj *result = nst_iter_get_val(iter, err);
+        Nst_Obj *result = nst_iter_get_val(iter);
         if (result == NULL)
         {
             nst_dec_ref(seq);
             return NULL;
         }
 
-        if ( !nst_vector_append(seq, result, err) )
+        if ( !nst_vector_append(seq, result) )
         {
             nst_dec_ref(seq);
             return NULL;
@@ -1405,8 +1402,7 @@ static Nst_Obj *iter_to_seq(Nst_Obj *ob, bool is_vect, Nst_OpErr *err)
         seq->objs,
         seq->len,
         Nst_Obj *,
-        seq->size,
-        err);
+        seq->size);
     if ( new_objs != seq->objs )
     {
         seq->objs = new_objs;
@@ -1418,12 +1414,12 @@ static Nst_Obj *iter_to_seq(Nst_Obj *ob, bool is_vect, Nst_OpErr *err)
     return OBJ(seq);
 }
 
-static Nst_Obj *map_to_seq(Nst_Obj *ob, bool is_vect, Nst_OpErr *err)
+static Nst_Obj *map_to_seq(Nst_Obj *ob, bool is_vect)
 {
     Nst_MapObj *map = MAP(ob);
     usize seq_len = map->item_count;
-    Nst_SeqObj *seq = is_vect ? SEQ(nst_vector_new(seq_len, err))
-                              : SEQ(nst_array_new(seq_len, err));
+    Nst_SeqObj *seq = is_vect ? SEQ(nst_vector_new(seq_len))
+                              : SEQ(nst_array_new(seq_len));
 
     usize seq_i = 0;
     for ( i32 i = nst_map_get_next_idx(-1, map);
@@ -1431,7 +1427,7 @@ static Nst_Obj *map_to_seq(Nst_Obj *ob, bool is_vect, Nst_OpErr *err)
           i = nst_map_get_next_idx(i, map) )
     {
         Nst_Obj *node_arr = nst_array_create_c(
-            "OO", err,
+            "OO",
             map->nodes[i].key,
             map->nodes[i].value);
         if ( node_arr == NULL )
@@ -1446,32 +1442,32 @@ static Nst_Obj *map_to_seq(Nst_Obj *ob, bool is_vect, Nst_OpErr *err)
     return OBJ(seq);
 }
 
-static Nst_Obj *obj_to_seq(Nst_Obj *ob, bool is_vect, Nst_OpErr *err)
+static Nst_Obj *obj_to_seq(Nst_Obj *ob, bool is_vect)
 {
     Nst_TypeObj *ob_t = ob->type;
 
     if ( ob_t == nst_t.Array || ob_t == nst_t.Vector )
     {
-        return seq_to_seq(ob, is_vect, err);
+        return seq_to_seq(ob, is_vect);
     }
     else if ( ob_t == nst_t.Str )
     {
-        return str_to_seq(ob, is_vect, err);
+        return str_to_seq(ob, is_vect);
     }
     else if ( ob_t == nst_t.Iter )
     {
-        return iter_to_seq(ob, is_vect, err);
+        return iter_to_seq(ob, is_vect);
     }
     else if ( ob_t == nst_t.Map )
     {
-        return map_to_seq(ob, is_vect, err);
+        return map_to_seq(ob, is_vect);
     }
     RETURN_CAST_TYPE_ERROR(is_vect ? nst_t.Vector : nst_t.Array);
 }
 
-static Nst_Obj *str_to_iter(Nst_Obj *ob, Nst_OpErr *err)
+static Nst_Obj *str_to_iter(Nst_Obj *ob)
 {
-    Nst_Obj *data = nst_array_create_c("iO", err, 0, ob);
+    Nst_Obj *data = nst_array_create_c("iO", 0, ob);
     if ( data == NULL )
     {
         return NULL;
@@ -1484,13 +1480,12 @@ static Nst_Obj *str_to_iter(Nst_Obj *ob, Nst_OpErr *err)
         nst_itf.str_start,
         nst_itf.str_is_done,
         nst_itf.str_get_val,
-        OBJ(data),
-        err);
+        OBJ(data));
 }
 
-static Nst_Obj *seq_to_iter(Nst_Obj *ob, Nst_OpErr *err)
+static Nst_Obj *seq_to_iter(Nst_Obj *ob)
 {
-    Nst_Obj *data = nst_array_create_c("iO", err, 0, ob);
+    Nst_Obj *data = nst_array_create_c("iO", 0, ob);
     if ( data == NULL )
     {
         return NULL;
@@ -1503,23 +1498,22 @@ static Nst_Obj *seq_to_iter(Nst_Obj *ob, Nst_OpErr *err)
         nst_itf.seq_start,
         nst_itf.seq_is_done,
         nst_itf.seq_get_val,
-        OBJ(data),
-        err);
+        OBJ(data));
 }
 
-static Nst_Obj *map_to_iter(Nst_Obj *ob, Nst_OpErr *err)
+static Nst_Obj *map_to_iter(Nst_Obj *ob)
 {
     Nst_Obj *start_obj = nst_map_get_str(ob, "_start_");
     if ( start_obj == NULL )
     {
-        NST_SET_RAW_VALUE_ERROR(_NST_EM_MISSING_FUNC("_start_"));
+        nst_set_value_error_c(_NST_EM_MISSING_FUNC("_start_"));
         return NULL;
     }
 
     Nst_Obj *is_done_obj = nst_map_get_str(ob, "_is_done_");
     if ( is_done_obj == NULL )
     {
-        NST_SET_RAW_VALUE_ERROR(_NST_EM_MISSING_FUNC("_is_done_"));
+        nst_set_value_error_c(_NST_EM_MISSING_FUNC("_is_done_"));
         nst_dec_ref(start_obj);
         return NULL;
     }
@@ -1527,7 +1521,7 @@ static Nst_Obj *map_to_iter(Nst_Obj *ob, Nst_OpErr *err)
     Nst_Obj *get_val_obj = nst_map_get_str(ob, "_get_val_");
     if ( is_done_obj == NULL )
     {
-        NST_SET_RAW_VALUE_ERROR(_NST_EM_MISSING_FUNC("_get_val_"));
+        nst_set_value_error_c(_NST_EM_MISSING_FUNC("_get_val_"));
         nst_dec_ref(start_obj);
         nst_dec_ref(is_done_obj);
         return NULL;
@@ -1537,25 +1531,24 @@ static Nst_Obj *map_to_iter(Nst_Obj *ob, Nst_OpErr *err)
         FUNC(start_obj),
         FUNC(is_done_obj),
         FUNC(get_val_obj),
-        nst_inc_ref(ob),
-        err);
+        nst_inc_ref(ob));
 }
 
-static Nst_Obj *obj_to_iter(Nst_Obj *ob, Nst_OpErr *err)
+static Nst_Obj *obj_to_iter(Nst_Obj *ob)
 {
     Nst_TypeObj *ob_t = ob->type;
 
     if ( ob_t == nst_t.Str )
     {
-        return str_to_iter(ob, err);
+        return str_to_iter(ob);
     }
     else if ( ob_t == nst_t.Array || ob_t == nst_t.Vector )
     {
-        return seq_to_iter(ob, err);
+        return seq_to_iter(ob);
     }
     else if ( ob_t == nst_t.Map )
     {
-        return map_to_iter(ob, err);
+        return map_to_iter(ob);
     }
     else
     {
@@ -1563,11 +1556,11 @@ static Nst_Obj *obj_to_iter(Nst_Obj *ob, Nst_OpErr *err)
     }
 }
 
-static Nst_Obj *seq_to_map(Nst_Obj *ob, Nst_OpErr *err)
+static Nst_Obj *seq_to_map(Nst_Obj *ob)
 {
     Nst_SeqObj *seq = SEQ(ob);
     Nst_Obj **objs = seq->objs;
-    Nst_MapObj *map = MAP(nst_map_new(err));
+    Nst_MapObj *map = MAP(nst_map_new());
     if ( map == NULL )
     {
         return NULL;
@@ -1577,7 +1570,7 @@ static Nst_Obj *seq_to_map(Nst_Obj *ob, Nst_OpErr *err)
     {
         if ( objs[i]->type != nst_t.Array && objs[i]->type != nst_t.Vector )
         {
-            NST_SET_TYPE_ERROR(nst_sprintf(
+            nst_set_type_error(nst_sprintf(
                 _NST_EM_MAP_TO_SEQ_TYPE_ERR("index"),
                 TYPE_NAME(objs[i]), i));
             nst_dec_ref(map);
@@ -1586,7 +1579,7 @@ static Nst_Obj *seq_to_map(Nst_Obj *ob, Nst_OpErr *err)
 
         if ( SEQ(objs[i])->len != 2 )
         {
-            NST_SET_TYPE_ERROR(nst_sprintf(
+            nst_set_type_error(nst_sprintf(
                 _NST_EM_MAP_TO_SEQ_LEN_ERR("index"),
                 SEQ(objs[i])->len, i));
             nst_dec_ref(map);
@@ -1597,13 +1590,13 @@ static Nst_Obj *seq_to_map(Nst_Obj *ob, Nst_OpErr *err)
 
         if ( hash == -1 )
         {
-            NST_SET_TYPE_ERROR(nst_sprintf(
+            nst_set_type_error(nst_sprintf(
                 _NST_EM_MAP_TO_SEQ_HASH("index"), i));
             nst_dec_ref(map);
             return NULL;
         }
 
-        if ( !nst_map_set(map, SEQ(objs[i])->objs[0], SEQ(objs[i])->objs[1], err) )
+        if ( !nst_map_set(map, SEQ(objs[i])->objs[0], SEQ(objs[i])->objs[1]) )
         {
             nst_dec_ref(map);
             return NULL;
@@ -1613,16 +1606,16 @@ static Nst_Obj *seq_to_map(Nst_Obj *ob, Nst_OpErr *err)
     return OBJ(map);
 }
 
-static Nst_Obj *iter_to_map(Nst_Obj *ob, Nst_OpErr *err)
+static Nst_Obj *iter_to_map(Nst_Obj *ob)
 {
     Nst_IterObj *iter = ITER(ob);
-    Nst_MapObj *map = MAP(nst_map_new(err));
+    Nst_MapObj *map = MAP(nst_map_new());
     if ( map == NULL )
     {
         return NULL;
     }
 
-    if ( nst_iter_start(iter, err) )
+    if ( nst_iter_start(iter) )
     {
         nst_dec_ref(map);
         return NULL;
@@ -1632,7 +1625,7 @@ static Nst_Obj *iter_to_map(Nst_Obj *ob, Nst_OpErr *err)
 
     while ( true )
     {
-        i32 is_done = nst_iter_is_done(iter, err);
+        i32 is_done = nst_iter_is_done(iter);
         if ( is_done == -1 )
         {
             nst_dec_ref(map);
@@ -1643,7 +1636,7 @@ static Nst_Obj *iter_to_map(Nst_Obj *ob, Nst_OpErr *err)
             break;
         }
 
-        Nst_SeqObj *result = SEQ(nst_iter_get_val(iter, err));
+        Nst_SeqObj *result = SEQ(nst_iter_get_val(iter));
         if ( result == NULL )
         {
             nst_dec_ref(map);
@@ -1652,7 +1645,7 @@ static Nst_Obj *iter_to_map(Nst_Obj *ob, Nst_OpErr *err)
 
         if ( result->type != nst_t.Array && result->type != nst_t.Vector )
         {
-            NST_SET_TYPE_ERROR(nst_sprintf(
+            nst_set_type_error(nst_sprintf(
                 _NST_EM_MAP_TO_SEQ_TYPE_ERR("iteration"),
                 TYPE_NAME(result), iter_count));
             nst_dec_ref(map);
@@ -1661,7 +1654,7 @@ static Nst_Obj *iter_to_map(Nst_Obj *ob, Nst_OpErr *err)
 
         if ( result->len != 2 )
         {
-            NST_SET_TYPE_ERROR(nst_sprintf(
+            nst_set_type_error(nst_sprintf(
                 _NST_EM_MAP_TO_SEQ_LEN_ERR("iteration"),
                 result->len, iter_count));
             nst_dec_ref(map);
@@ -1672,13 +1665,13 @@ static Nst_Obj *iter_to_map(Nst_Obj *ob, Nst_OpErr *err)
 
         if ( hash == -1 )
         {
-            NST_SET_TYPE_ERROR(nst_sprintf(
+            nst_set_type_error(nst_sprintf(
                 _NST_EM_MAP_TO_SEQ_HASH("index"), iter_count));
             nst_dec_ref(map);
             return NULL;
         }
 
-        if ( !nst_map_set(map, result->objs[0], result->objs[1], err) )
+        if ( !nst_map_set(map, result->objs[0], result->objs[1]) )
         {
             nst_dec_ref(map);
             return NULL;
@@ -1690,22 +1683,22 @@ static Nst_Obj *iter_to_map(Nst_Obj *ob, Nst_OpErr *err)
     return OBJ(map);
 }
 
-static Nst_Obj *obj_to_map(Nst_Obj *ob, Nst_OpErr *err)
+static Nst_Obj *obj_to_map(Nst_Obj *ob)
 {
     Nst_TypeObj *ob_t = ob->type;
 
     if ( ob_t == nst_t.Array || ob_t == nst_t.Vector )
     {
-        return seq_to_map(ob, err);
+        return seq_to_map(ob);
     }
     else if ( ob_t == nst_t.Iter )
     {
-        return iter_to_map(ob, err);
+        return iter_to_map(ob);
     }
     RETURN_CAST_TYPE_ERROR(nst_t.Map);
 }
 
-Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
+Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type)
 {
     if ( ob->type == type )
     {
@@ -1714,7 +1707,7 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
 
     if ( type == nst_t.Str )
     {
-        return obj_to_str(ob, err);
+        return obj_to_str(ob);
     }
     else if ( type == nst_t.Bool )
     {
@@ -1722,35 +1715,35 @@ Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
     }
     else if ( type == nst_t.Byte )
     {
-        return obj_to_byte(ob, err);
+        return obj_to_byte(ob);
     }
     else if ( type == nst_t.Int )
     {
-        return obj_to_int(ob, err);
+        return obj_to_int(ob);
     }
     else if ( type == nst_t.Real )
     {
-        return obj_to_real(ob, err);
+        return obj_to_real(ob);
     }
     else if ( type == nst_t.Iter )
     {
-        return obj_to_iter(ob, err);
+        return obj_to_iter(ob);
     }
     else if ( type == nst_t.Array || type == nst_t.Vector )
     {
-        return obj_to_seq(ob, type == nst_t.Vector, err);
+        return obj_to_seq(ob, type == nst_t.Vector);
     }
     else if ( type == nst_t.Map )
     {
-        return obj_to_map(ob, err);
+        return obj_to_map(ob);
     }
     RETURN_CAST_TYPE_ERROR(type);
 }
 
-Nst_Obj *_nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2)
 {
-    ob1 = nst_obj_cast(ob1, nst_t.Str, err);
-    ob2 = nst_obj_cast(ob2, nst_t.Str, err);
+    ob1 = nst_obj_cast(ob1, nst_t.Str);
+    ob2 = nst_obj_cast(ob2, nst_t.Str);
 
     Nst_StrObj *nst_s1 = STR(ob1);
     Nst_StrObj *nst_s2 = STR(ob2);
@@ -1761,7 +1754,7 @@ Nst_Obj *_nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     usize len2 = nst_s2->len;
     usize tot_len = len1 + len2;
 
-    i8 *buffer = nst_malloc_c(tot_len + 1, i8, err);
+    i8 *buffer = nst_malloc_c(tot_len + 1, i8);
 
     CHECK_BUFFER(buffer);
 
@@ -1769,7 +1762,7 @@ Nst_Obj *_nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     memcpy(buffer + len1, s2, len2);
     buffer[tot_len] = '\0';
 
-    Nst_Obj *new_obj = nst_string_new(buffer, tot_len, true, err);
+    Nst_Obj *new_obj = nst_string_new(buffer, tot_len, true);
 
     nst_dec_ref(ob1);
     nst_dec_ref(ob2);
@@ -1777,15 +1770,15 @@ Nst_Obj *_nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
     return new_obj;
 }
 
-Nst_Obj *_nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step, Nst_OpErr *err)
+Nst_Obj *_nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step)
 {
     if ( AS_INT(step) == 0 )
     {
-        NST_SET_RAW_VALUE_ERROR(_NST_EM_RANGE_STEP_ZERO);
+        nst_set_value_error_c(_NST_EM_RANGE_STEP_ZERO);
         return NULL;
     }
 
-    Nst_Obj *data_seq = nst_array_create_c("iOOO", err, 0, start, stop, step);
+    Nst_Obj *data_seq = nst_array_create_c("iOOO", 0, start, stop, step);
     if ( data_seq == NULL )
     {
         return NULL;
@@ -1798,24 +1791,23 @@ Nst_Obj *_nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step, Nst_OpErr 
         nst_itf.range_start,
         nst_itf.range_is_done,
         nst_itf.range_get_val,
-        data_seq,
-        err);
+        data_seq);
 }
 
 // Local operations
-Nst_Obj *_nst_obj_neg(Nst_Obj *ob, Nst_OpErr *err)
+Nst_Obj *_nst_obj_neg(Nst_Obj *ob)
 {
     if ( ob->type == nst_t.Byte )
     {
-        return nst_byte_new(-AS_BYTE(ob), err);
+        return nst_byte_new(-AS_BYTE(ob));
     }
     else if ( ob->type == nst_t.Int )
     {
-        return nst_int_new(-AS_INT(ob), err);
+        return nst_int_new(-AS_INT(ob));
     }
     else if ( ob->type == nst_t.Real )
     {
-        return nst_real_new(-AS_REAL(ob), err);
+        return nst_real_new(-AS_REAL(ob));
     }
     else
     {
@@ -1823,23 +1815,23 @@ Nst_Obj *_nst_obj_neg(Nst_Obj *ob, Nst_OpErr *err)
     }
 }
 
-Nst_Obj *_nst_obj_len(Nst_Obj *ob, Nst_OpErr *err)
+Nst_Obj *_nst_obj_len(Nst_Obj *ob)
 {
     if ( ob->type == nst_t.Str )
     {
-        return nst_int_new(STR(ob)->len, err);
+        return nst_int_new(STR(ob)->len);
     }
     else if ( ob->type == nst_t.Map )
     {
-        return nst_int_new(MAP(ob)->item_count, err);
+        return nst_int_new(MAP(ob)->item_count);
     }
     else if ( IS_SEQ(ob) )
     {
-        return nst_int_new(SEQ(ob)->len, err);
+        return nst_int_new(SEQ(ob)->len);
     }
     else if ( ob->type == nst_t.Func )
     {
-        return nst_int_new(FUNC(ob)->arg_num, err);
+        return nst_int_new(FUNC(ob)->arg_num);
     }
     else
     {
@@ -1847,15 +1839,15 @@ Nst_Obj *_nst_obj_len(Nst_Obj *ob, Nst_OpErr *err)
     }
 }
 
-Nst_Obj *_nst_obj_bwnot(Nst_Obj *ob, Nst_OpErr *err)
+Nst_Obj *_nst_obj_bwnot(Nst_Obj *ob)
 {
     if ( ob->type == nst_t.Byte )
     {
-        return nst_byte_new(~AS_BYTE(ob), err);
+        return nst_byte_new(~AS_BYTE(ob));
     }
     else if ( ob->type == nst_t.Int )
     {
-        return nst_int_new(~AS_INT(ob), err);
+        return nst_int_new(~AS_INT(ob));
     }
     else
     {
@@ -1863,9 +1855,9 @@ Nst_Obj *_nst_obj_bwnot(Nst_Obj *ob, Nst_OpErr *err)
     }
 }
 
-Nst_Obj *_nst_obj_lgnot(Nst_Obj *ob, Nst_OpErr *err)
+Nst_Obj *_nst_obj_lgnot(Nst_Obj *ob)
 {
-    ob = nst_obj_cast(ob, nst_t.Bool, err);
+    ob = nst_obj_cast(ob, nst_t.Bool);
 
     if ( ob == nst_c.Bool_true )
     {
@@ -1879,14 +1871,14 @@ Nst_Obj *_nst_obj_lgnot(Nst_Obj *ob, Nst_OpErr *err)
     }
 }
 
-Nst_Obj *_nst_obj_stdout(Nst_Obj *ob, Nst_OpErr *err)
+Nst_Obj *_nst_obj_stdout(Nst_Obj *ob)
 {
     if ( NST_IOF_IS_CLOSED(nst_io.out) )
     {
         return nst_inc_ref(ob);
     }
 
-    Nst_Obj *str = nst_obj_cast(ob, nst_t.Str, err);
+    Nst_Obj *str = nst_obj_cast(ob, nst_t.Str);
 
     nst_fwrite(STR(str)->value, sizeof(i8), STR(str)->len, nst_io.out);
 
@@ -1904,20 +1896,20 @@ static inline i8 get_one_char()
         return '\n';
 }
 
-Nst_Obj *_nst_obj_stdin(Nst_Obj *ob, Nst_OpErr *err)
+Nst_Obj *_nst_obj_stdin(Nst_Obj *ob)
 {
     if ( NST_IOF_IS_CLOSED(nst_io.in) )
     {
-        return nst_string_new_c("", 0, false, err);
+        return nst_string_new_c("", 0, false);
     }
 
-    ob = nst_obj_cast(ob, nst_t.Str, err);
+    ob = nst_obj_cast(ob, nst_t.Str);
     nst_print(STR(ob)->value);
     nst_fflush(nst_io.out);
     nst_dec_ref(ob);
 
     Nst_Buffer buf;
-    if ( !nst_buffer_init(&buf, 4, err) )
+    if ( !nst_buffer_init(&buf, 4) )
     {
         return NULL;
     }
@@ -1929,21 +1921,21 @@ Nst_Obj *_nst_obj_stdin(Nst_Obj *ob, Nst_OpErr *err)
             continue;
         }
 
-        if ( !nst_buffer_append_char(&buf, ch, err) )
+        if ( !nst_buffer_append_char(&buf, ch) )
         {
             nst_buffer_destroy(&buf);
             return NULL;
         }
     }
 
-    return OBJ(nst_buffer_to_string(&buf, err));
+    return OBJ(nst_buffer_to_string(&buf));
 }
 
-Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
+Nst_Obj *_nst_obj_import(Nst_Obj *ob)
 {
     if ( ob->type != nst_t.Str )
     {
-        NST_SET_TYPE_ERROR(nst_sprintf(
+        nst_set_type_error(nst_sprintf(
             _NST_EM_EXPECTED_TYPE("Str"),
             TYPE_NAME(ob)
         ));
@@ -1964,10 +1956,10 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         file_name_len -= 6;
     }
 
-    Nst_StrObj *import_path = _nst_get_import_path(file_name, file_name_len, err);
+    Nst_StrObj *import_path = _nst_get_import_path(file_name, file_name_len);
     if ( import_path == NULL )
     {
-        NST_SET_VALUE_ERROR(nst_sprintf(
+        nst_set_value_error(nst_sprintf(
             _NST_EM_FILE_NOT_FOUND,
             file_name
         ));
@@ -1980,7 +1972,7 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         if ( nst_string_compare(import_path, STR(n->value)) == 0 )
         {
             nst_dec_ref(import_path);
-            NST_SET_RAW_IMPORT_ERROR(_NST_EM_CIRC_IMPORT);
+            nst_set_import_error_c(_NST_EM_CIRC_IMPORT);
             return NULL;
         }
     }
@@ -1992,36 +1984,35 @@ Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
         return obj_map;
     }
 
-    if ( !nst_llist_push(nst_state.lib_paths, import_path, false, err) )
+    if ( !nst_llist_push(nst_state.lib_paths, import_path, false) )
     {
         nst_dec_ref(import_path);
         return NULL;
     }
 
     if ( !c_import )
-        return import_nest_lib(import_path, err);
+        return import_nest_lib(import_path);
     else
-        return import_c_lib(import_path, err);
+        return import_c_lib(import_path);
 }
 
 static bool add_to_handle_map(Nst_StrObj     *path,
                               Nst_MapObj     *map,
-                              Nst_SourceText *src_txt,
-                              Nst_OpErr      *err)
+                              Nst_SourceText *src_txt)
 {
-    if ( !nst_llist_push(nst_state.lib_srcs, src_txt, true, err) )
+    if ( !nst_llist_push(nst_state.lib_srcs, src_txt, true) )
     {
         nst_dec_ref(path);
         return false;
     }
-    bool res = nst_map_set(nst_state.lib_handles, path, map, err);
+    bool res = nst_map_set(nst_state.lib_handles, path, map);
     nst_dec_ref(path);
     return res;
 }
 
-static Nst_Obj *import_nest_lib(Nst_StrObj *file_path, Nst_OpErr *err)
+static Nst_Obj *import_nest_lib(Nst_StrObj *file_path)
 {
-    Nst_SourceText *lib_src = nst_malloc_c(1, Nst_SourceText, err);
+    Nst_SourceText *lib_src = nst_malloc_c(1, Nst_SourceText);
 
     if ( lib_src == NULL )
     {
@@ -2032,7 +2023,7 @@ static Nst_Obj *import_nest_lib(Nst_StrObj *file_path, Nst_OpErr *err)
 
     if ( nst_run_module(file_path->value, lib_src) == -1 )
     {
-        nst_llist_push(nst_state.lib_srcs, lib_src, true, err);
+        nst_llist_push(nst_state.lib_srcs, lib_src, true);
         nst_llist_pop(nst_state.lib_paths);
         nst_dec_ref(file_path);
         return NULL;
@@ -2040,7 +2031,7 @@ static Nst_Obj *import_nest_lib(Nst_StrObj *file_path, Nst_OpErr *err)
 
     Nst_MapObj *map = MAP(nst_vstack_pop(nst_state.v_stack));
 
-    if ( !add_to_handle_map(file_path, map, lib_src, err) )
+    if ( !add_to_handle_map(file_path, map, lib_src) )
     {
         nst_dec_ref(map);
         return NULL;
@@ -2049,7 +2040,7 @@ static Nst_Obj *import_nest_lib(Nst_StrObj *file_path, Nst_OpErr *err)
     return OBJ(map);
 }
 
-static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
+static Nst_Obj *import_c_lib(Nst_StrObj *file_path)
 {
     void (*free_lib_func)();
     lib_t lib = dlopen(file_path->value);
@@ -2059,9 +2050,9 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
         nst_llist_pop(nst_state.lib_paths);
         nst_dec_ref(file_path);
 #ifdef WINDOWS
-        NST_SET_RAW_IMPORT_ERROR(_NST_EM_FILE_NOT_DLL);
+        nst_set_import_error_c(_NST_EM_FILE_NOT_DLL);
 #else
-        NST_SET_RAW_IMPORT_ERROR(dlerror());
+        nst_set_import_error_c(dlerror());
 #endif
         return NULL;
     }
@@ -2072,7 +2063,7 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
     {
         nst_llist_pop(nst_state.lib_paths);
         nst_dec_ref(file_path);
-        NST_SET_RAW_IMPORT_ERROR(_NST_EM_NO_LIB_FUNC("lib_init"));
+        nst_set_import_error_c(_NST_EM_NO_LIB_FUNC("lib_init"));
         dlclose(lib);
         return NULL;
     }
@@ -2082,7 +2073,7 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
         nst_llist_pop(nst_state.lib_paths);
         nst_dec_ref(file_path);
         dlclose(lib);
-        NST_SET_RAW_IMPORT_ERROR(_NST_EM_LIB_INIT_FAILED);
+        nst_set_import_error_c(_NST_EM_LIB_INIT_FAILED);
         return NULL;
     }
 
@@ -2093,7 +2084,7 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
     {
         nst_llist_pop(nst_state.lib_paths);
         nst_dec_ref(file_path);
-        NST_SET_RAW_IMPORT_ERROR(_NST_EM_NO_LIB_FUNC("get_func_ptrs"));
+        nst_set_import_error_c(_NST_EM_NO_LIB_FUNC("get_func_ptrs"));
         goto fail;
     }
 
@@ -2103,12 +2094,12 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
     {
         nst_llist_pop(nst_state.lib_paths);
         nst_dec_ref(file_path);
-        NST_SET_RAW_IMPORT_ERROR(_NST_EM_LIB_INIT_FAILED);
+        nst_set_import_error_c(_NST_EM_LIB_INIT_FAILED);
         goto fail;
     }
 
     // Populate the function map
-    Nst_MapObj *obj_map = MAP(nst_map_new(err));
+    Nst_MapObj *obj_map = MAP(nst_map_new());
     if ( obj_map == NULL )
     {
         goto fail;
@@ -2120,7 +2111,7 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
         Nst_Obj *obj;
         if ( obj_declr.arg_num >= 0 )
         {
-            obj = nst_func_new_c(obj_declr.arg_num, obj_declr.ptr, err);
+            obj = nst_func_new_c(obj_declr.arg_num, obj_declr.ptr);
         }
         else
         {
@@ -2133,7 +2124,7 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
             goto fail;
         }
 
-        if ( !nst_map_set(obj_map, obj_declr.name, obj, err) )
+        if ( !nst_map_set(obj_map, obj_declr.name, obj) )
         {
             nst_dec_ref(obj_map);
             nst_dec_ref(obj_declr.name);
@@ -2145,13 +2136,13 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path, Nst_OpErr *err)
         nst_dec_ref(obj);
     }
 
-    if ( !nst_llist_append(nst_state.loaded_libs, lib, true, err) )
+    if ( !nst_llist_append(nst_state.loaded_libs, lib, true) )
     {
         nst_dec_ref(obj_map);
         return NULL;
     }
 
-    if ( !add_to_handle_map(file_path, obj_map, NULL, err) )
+    if ( !add_to_handle_map(file_path, obj_map, NULL) )
     {
         nst_dec_ref(obj_map);
         return NULL;
@@ -2168,16 +2159,17 @@ fail:
     return NULL;
 }
 
-Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len, Nst_OpErr *err)
+Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len)
 {
     i8 *file_path;
-    usize new_len = nst_get_full_path(initial_path, &file_path, NULL, NULL);
+    usize new_len = nst_get_full_path(initial_path, &file_path, NULL);
     Nst_IOFile file;
 
     if ( file_path != NULL && (file = fopen(file_path, "r")) != NULL )
     {
+        nst_error_clear();
         fclose(file);
-        Nst_Obj *path_str = nst_string_new(file_path, new_len, true, err);
+        Nst_Obj *path_str = nst_string_new(file_path, new_len, true);
         if ( path_str == NULL )
         {
             nst_free(file_path);
@@ -2188,7 +2180,7 @@ Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len, Nst_OpErr *er
     if ( file_path != NULL )
     {
         nst_free(file_path);
-        NST_UNSET_ERROR;
+        nst_error_clear();
     }
 
 #ifdef WINDOWS
@@ -2199,7 +2191,7 @@ Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len, Nst_OpErr *er
     const i8 *obj_ops_path = __FILE__;
     const i8 *nest_files = "libs/_nest_files/";
     usize full_size = path_len + nest_file_len + root_len;
-    file_path = nst_malloc_c(full_size + 1, i8, err);
+    file_path = nst_malloc_c(full_size + 1, i8);
     if ( file_path == NULL )
     {
         return NULL;
@@ -2215,12 +2207,12 @@ Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len, Nst_OpErr *er
     i8 *appdata = getenv("LOCALAPPDATA");
     if ( appdata == NULL )
     {
-        NST_FAILED_ALLOCATION;
+        nst_failed_allocation();
         return NULL;
     }
 
     usize appdata_len = strlen(appdata);
-    file_path = nst_malloc_c(appdata_len + path_len + 26, i8, err);
+    file_path = nst_malloc_c(appdata_len + path_len + 26, i8);
     if ( file_path == NULL )
     {
         return NULL;
@@ -2230,7 +2222,7 @@ Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len, Nst_OpErr *er
 #else
 
     // In UNIX the standard library is stored in /usr/lib/nest
-    file_path = nst_malloc_c(path_len + 15, i8, err);
+    file_path = nst_malloc_c(path_len + 15, i8);
     if ( file_path == NULL )
     {
         return NULL;
@@ -2241,20 +2233,20 @@ Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len, Nst_OpErr *er
 
     if ( (file = fopen(file_path, "r")) == NULL )
     {
-        NST_SET_VALUE_ERROR(nst_sprintf(_NST_EM_FILE_NOT_FOUND, file_path));
+        nst_set_value_error(nst_sprintf(_NST_EM_FILE_NOT_FOUND, file_path));
         nst_free(file_path);
         return NULL;
     }
     fclose(file);
 
     i8 *abs_path;
-    new_len = nst_get_full_path(file_path, &abs_path, NULL, err);
+    new_len = nst_get_full_path(file_path, &abs_path, NULL);
     nst_free(file_path);
     if ( abs_path == NULL )
     {
         return NULL;
     }
-    Nst_StrObj *str = STR(nst_string_new(abs_path, new_len, true, err));
+    Nst_StrObj *str = STR(nst_string_new(abs_path, new_len, true));
     if ( str == NULL )
     {
         nst_free(file_path);
@@ -2267,7 +2259,7 @@ Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len, Nst_OpErr *er
 #pragma warning( disable: 4100 )
 #endif
 
-Nst_Obj *_nst_obj_typeof(Nst_Obj *ob, Nst_OpErr *err)
+Nst_Obj *_nst_obj_typeof(Nst_Obj *ob)
 {
     return nst_inc_ref(ob->type);
 }

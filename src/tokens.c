@@ -9,10 +9,9 @@
 Nst_Tok *nst_tok_new_value(Nst_Pos     start,
                            Nst_Pos     end,
                            Nst_TokType type,
-                           Nst_Obj    *value,
-                           Nst_OpErr  *err)
+                           Nst_Obj    *value)
 {
-    Nst_Tok *token = NST_TOK(nst_malloc(1, sizeof(Nst_Tok), err));
+    Nst_Tok *token = NST_TOK(nst_malloc(1, sizeof(Nst_Tok)));
     if ( token == NULL )
     {
         if ( value != NULL )
@@ -30,9 +29,9 @@ Nst_Tok *nst_tok_new_value(Nst_Pos     start,
     return token;
 }
 
-Nst_Tok *nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type, Nst_OpErr *err)
+Nst_Tok *nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type)
 {
-    Nst_Tok *token = NST_TOK(nst_malloc(1, sizeof(Nst_Tok), err));
+    Nst_Tok *token = NST_TOK(nst_malloc(1, sizeof(Nst_Tok)));
     if ( token == NULL )
     {
         return NULL;
@@ -46,9 +45,9 @@ Nst_Tok *nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type, Nst_OpE
     return token;
 }
 
-Nst_Tok *nst_tok_new_noend(Nst_Pos start, Nst_TokType type, Nst_OpErr *err)
+Nst_Tok *nst_tok_new_noend(Nst_Pos start, Nst_TokType type)
 {
-    Nst_Tok *token = NST_TOK(nst_malloc(1, sizeof(Nst_Tok), err));
+    Nst_Tok *token = NST_TOK(nst_malloc(1, sizeof(Nst_Tok)));
     if ( token == NULL )
     {
         return NULL;
@@ -457,9 +456,10 @@ void nst_print_tok(Nst_Tok *token)
     {
         printf(" - ");
 
-        Nst_StrObj* s = STR(_nst_repr_str_cast(token->value, NULL));
+        Nst_StrObj* s = STR(_nst_repr_str_cast(token->value));
         if ( s != NULL )
         {
+            nst_error_clear();
             fwrite(s->value, sizeof(i8), s->len, stdout);
             nst_dec_ref(s);
         }

@@ -6,7 +6,7 @@
 extern bool comments;
 
 #define JSON_SYNTAX_ERROR(msg, path, pos) \
-    NST_SET_SYNTAX_ERROR(nst_sprintf( \
+    nst_set_syntax_error(nst_sprintf( \
         "JSON: " msg ", file \"%s\", line %lli, column %lli", \
         path, (Nst_Int)(pos).line, (Nst_Int)(pos).col));
 
@@ -23,10 +23,9 @@ typedef enum _JSONTokenType
 }
 JSONTokenType;
 
-Nst_LList *json_tokenize(i8        *path,
-                         i8        *text,
-                         usize      text_len,
-                         bool       readonly_text,
-                         Nst_OpErr *err);
+Nst_LList *json_tokenize(i8   *path,
+                         i8   *text,
+                         usize text_len,
+                         bool  readonly_text);
 
 #endif // !JSON_LEXER_H

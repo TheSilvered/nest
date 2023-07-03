@@ -3,6 +3,6 @@
 
 #include "nest.h"
 
-Nst_Obj *json_dump(Nst_Obj *obj, i32 indent, Nst_OpErr *err);
+Nst_Obj *json_dump(Nst_Obj *obj, i32 indent);
 
 #endif // !JSON_DUMPER_H

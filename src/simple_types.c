@@ -7,39 +7,38 @@
 #include "obj_ops.h"
 
 #define NEW_SYMPLE_TYPE(type, type_obj) \
-    type *obj = nst_obj_alloc(type, type_obj, NULL, err); \
+    type *obj = nst_obj_alloc(type, type_obj, NULL); \
     if ( obj == NULL ) \
         return NULL; \
     obj->value = value; \
     return OBJ(obj)
 
-Nst_Obj *nst_int_new(Nst_Int value, Nst_OpErr *err)
+Nst_Obj *nst_int_new(Nst_Int value)
 {
     NEW_SYMPLE_TYPE(Nst_IntObj, nst_t.Int);
 }
 
-Nst_Obj *nst_real_new(Nst_Real value, Nst_OpErr *err)
+Nst_Obj *nst_real_new(Nst_Real value)
 {
     NEW_SYMPLE_TYPE(Nst_RealObj, nst_t.Real);
 }
 
-Nst_Obj *nst_byte_new(Nst_Byte value, Nst_OpErr *err)
+Nst_Obj *nst_byte_new(Nst_Byte value)
 {
     NEW_SYMPLE_TYPE(Nst_ByteObj, nst_t.Byte);
 }
 
-Nst_Obj *nst_bool_new(Nst_Bool value, Nst_OpErr *err)
+Nst_Obj *nst_bool_new(Nst_Bool value)
 {
     NEW_SYMPLE_TYPE(Nst_BoolObj, nst_t.Bool);
 }
 
-Nst_Obj *nst_iof_new(Nst_IOFile value, bool bin, bool read, bool write, Nst_OpErr *err)
+Nst_Obj *nst_iof_new(Nst_IOFile value, bool bin, bool read, bool write)
 {
     Nst_IOFileObj *obj = nst_obj_alloc(
         Nst_IOFileObj,
         nst_t.IOFile,
-        _nst_iofile_destroy,
-        err);
+        _nst_iofile_destroy);
     if ( obj == NULL )
     {
         return NULL;
@@ -76,14 +75,12 @@ Nst_Obj *nst_iof_new_fake(void *value,
                           Nst_IOFile_flush_f flush_f,
                           Nst_IOFile_tell_f  tell_f,
                           Nst_IOFile_seek_f  seek_f,
-                          Nst_IOFile_close_f close_f,
-                          Nst_OpErr *err)
+                          Nst_IOFile_close_f close_f)
 {
     Nst_IOFileObj *obj = nst_obj_alloc(
         Nst_IOFileObj,
         nst_t.IOFile,
-        _nst_iofile_destroy,
-        err);
+        _nst_iofile_destroy);
     if ( obj == NULL ) return NULL;
 
     obj->value   = (Nst_IOFile)value;
@@ -243,7 +240,7 @@ f64 _nst_number_to_f64(Nst_Obj *number)
 
 Nst_Bool _nst_obj_to_bool(Nst_Obj *obj)
 {
-    Nst_Obj *bool_obj = nst_obj_cast(obj, nst_t.Bool, NULL);
+    Nst_Obj *bool_obj = nst_obj_cast(obj, nst_t.Bool);
     Nst_Bool v = AS_BOOL(bool_obj);
     nst_dec_ref(bool_obj);
     return v;

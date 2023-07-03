@@ -327,8 +327,8 @@ bool _nst_wargv_to_argv(int       argc,
     {
         tot_size += (wcslen(wargv[i])) * 3 + 1;
     }
-    i8 **local_argv = nst_malloc_c(argc, i8 *, NULL);
-    i8 *local_argv_content = nst_malloc_c(tot_size, i8, NULL);
+    i8 **local_argv = (i8 **)nst_raw_malloc(argc * sizeof(i8 *));
+    i8 *local_argv_content = (i8 *)nst_raw_malloc(tot_size * sizeof(i8 *));
 
     if ( local_argv == NULL || local_argv_content == NULL )
     {

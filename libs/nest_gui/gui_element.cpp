@@ -5,14 +5,13 @@ GUI_Element *gui_element_new(GUI_ElementType t,
                              usize size,
                              int x, int y,
                              int w, int h,
-                             struct _GUI_App *app,
-                             Nst_OpErr *err)
+                             struct _GUI_App *app)
 {
     GUI_Element *obj = (GUI_Element *)_nst_obj_alloc(
         size,
         gui_element_type,
-        (Nst_ObjDestructor)gui_element_destroy,
-        err);
+        (Nst_ObjDestructor)gui_element_destroy);
+
     if ( obj == nullptr )
     {
         return nullptr;
@@ -24,7 +23,7 @@ GUI_Element *gui_element_new(GUI_ElementType t,
     obj->el_type = t;
 
     obj->parent = nullptr;
-    obj->children = SEQ(nst_vector_new(0, err));
+    obj->children = SEQ(nst_vector_new(0));
     if ( obj->children == nullptr )
     {
         nst_free(obj);
@@ -435,10 +434,9 @@ SDL_Rect gui_element_get_padding_rect(GUI_Element *obj)
     return r;
 }
 
-bool gui_element_add_child(GUI_Element *parent, GUI_Element *child, Nst_OpErr *err)
+bool gui_element_add_child(GUI_Element *parent, GUI_Element *child)
 {
-    nst_vector_append(parent->children, child, err);
-    if ( NST_ERROR_OCCURRED )
+    if ( !nst_vector_append(parent->children, child) )
     {
         return false;
     }
@@ -446,7 +444,7 @@ bool gui_element_add_child(GUI_Element *parent, GUI_Element *child, Nst_OpErr *e
 
     if ( parent->on_child_added_func != nullptr )
     {
-        return parent->on_child_added_func(parent, parent->children->len - 1, err);
+        return parent->on_child_added_func(parent, parent->children->len - 1);
     }
     return true;
 }
@@ -469,8 +467,7 @@ void gui_element_clip_content(GUI_Element *element, bool clip)
 TTF_Font *get_font(struct _GUI_App *app,
                    GUI_FontSize     size,
                    GUI_FontStyle    style,
-                   GUI_FontWeight   weight,
-                   Nst_OpErr       *err)
+                   GUI_FontWeight   weight)
 {
     TTF_Font *font;
     TTF_Font **font_var;
@@ -574,10 +571,10 @@ TTF_Font *get_font(struct _GUI_App *app,
         switch( style )
         {
         case GUI_FST_ITALIC:
-            font_path = _nst_get_import_path((i8 *)"font/osbi.ttf", 13, err);
+            font_path = _nst_get_import_path((i8 *)"font/osbi.ttf", 13);
             break;
         default:
-            font_path = _nst_get_import_path((i8 *)"font/osbr.ttf", 13, err);
+            font_path = _nst_get_import_path((i8 *)"font/osbr.ttf", 13);
             break;
         }
         break;
@@ -585,10 +582,10 @@ TTF_Font *get_font(struct _GUI_App *app,
         switch( style )
         {
         case GUI_FST_ITALIC:
-            font_path = _nst_get_import_path((i8 *)"font/osri.ttf", 13, err);
+            font_path = _nst_get_import_path((i8 *)"font/osri.ttf", 13);
             break;
         default:
-            font_path = _nst_get_import_path((i8 *)"font/osrr.ttf", 13, err);
+            font_path = _nst_get_import_path((i8 *)"font/osrr.ttf", 13);
             break;
         }
         break;

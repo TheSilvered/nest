@@ -2,7 +2,7 @@
 #include "gui_draw.h"
 #include "gui_event.h"
 
-bool render_texture(GUI_Label *l, Nst_OpErr *err)
+bool render_texture(GUI_Label *l)
 {
     // TTF_SetFontWrappedAlign(l->font, l->alignment);
     l->texture_render_width = l->rect.w - l->padding_left - l->padding_right;
@@ -14,7 +14,7 @@ bool render_texture(GUI_Label *l, Nst_OpErr *err)
         l->texture_render_width);
     if ( text_surf == nullptr )
     {
-        set_sdl_error(err);
+        set_sdl_error();
         return false;
     }
 
@@ -34,13 +34,13 @@ bool render_texture(GUI_Label *l, Nst_OpErr *err)
     SDL_FreeSurface(text_surf);
     if ( l->texture == nullptr )
     {
-        set_sdl_error(err);
+        set_sdl_error();
         return false;
     }
     return true;
 }
 
-bool gui_label_update(GUI_Label *l, Nst_OpErr *err)
+bool gui_label_update(GUI_Label *l)
 {
     if ( l->text.len == 0 )
     {
@@ -50,7 +50,7 @@ bool gui_label_update(GUI_Label *l, Nst_OpErr *err)
     if ( l->texture == nullptr ||
          l->rect.w - l->padding_left - l->padding_right != l->texture_render_width )
     {
-        if ( !render_texture(l, err) )
+        if ( !render_texture(l) )
         {
             return false;
         }
@@ -90,14 +90,13 @@ GUI_Element *gui_label_new(Nst_StrObj *text,
                            TTF_Font   *font,
                            SDL_Color  color,
                            int x, int y, int w, int h,
-                           GUI_App *app,
-                           Nst_OpErr *err)
+                           GUI_App *app)
 {
     GUI_Label *new_label = (GUI_Label *)gui_element_new(
         GUI_ET_LABEL,
         sizeof(GUI_Label),
         x, y, w, h,
-        app, err);
+        app);
     if ( new_label == nullptr )
     {
         return nullptr;
@@ -113,12 +112,12 @@ GUI_Element *gui_label_new(Nst_StrObj *text,
     new_label->handle_event_func = default_event_handler;
     new_label->auto_height = false;
 
-    if ( !nst_buffer_init(&new_label->text, text->len + 1, err) )
+    if ( !nst_buffer_init(&new_label->text, text->len + 1) )
     {
         gui_element_destroy((GUI_Element *)new_label);
         return nullptr;
     }
-    nst_buffer_append(&new_label->text, text, NULL);
+    nst_buffer_append(&new_label->text, text);
 
     usize offset = 0;
     i8 *text_p = new_label->text.data;
@@ -190,13 +189,13 @@ void gui_label_change_color(GUI_Label *l, SDL_Color new_color)
 
 void gui_label_append_text(GUI_Label *l, Nst_StrObj *str)
 {
-    nst_buffer_append(&l->text, str, nullptr);
+    nst_buffer_append(&l->text, str);
     reset_texture(l);
 }
 
 void gui_label_append_c_text(GUI_Label *l, i8 *text)
 {
-    nst_buffer_append_c_str(&l->text, text, nullptr);
+    nst_buffer_append_c_str(&l->text, text);
     reset_texture(l);
 }
 
@@ -205,8 +204,7 @@ void gui_label_set_text(GUI_Label *l, Nst_StrObj *str)
     i8 *new_data = nst_realloc_c(
         l->text.data,
         str->len + 1,
-        i8, l->text.size,
-        nullptr);
+        i8, l->text.size);
     if ( new_data == nullptr )
     {
         return;
@@ -225,8 +223,7 @@ void gui_label_set_c_text(GUI_Label *l, i8 *text)
     i8 *new_data = nst_realloc_c(
         l->text.data,
         str_len + 1,
-        i8, l->text.size,
-        nullptr);
+        i8, l->text.size);
     if ( new_data == nullptr )
     {
         return;

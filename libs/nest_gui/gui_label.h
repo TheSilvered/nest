@@ -25,9 +25,8 @@ GUI_Element *gui_label_new(Nst_StrObj *text,
                            TTF_Font   *font,
                            SDL_Color   color,
                            int x, int y, int w, int h,
-                           GUI_App *app,
-                           Nst_OpErr *err);
-bool gui_label_update(GUI_Label *l, Nst_OpErr *err);
+                           GUI_App *app);
+bool gui_label_update(GUI_Label *l);
 void gui_label_destroy(GUI_Label *l);
 
 void gui_label_change_color(GUI_Label *l, SDL_Color new_color);

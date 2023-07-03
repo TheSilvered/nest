@@ -17,7 +17,7 @@ typedef enum _GUI_ClickState
 GUI_ClickState;
 
 struct _GUI_Button;
-typedef bool (*OnStateChange)(struct _GUI_Button *, Nst_OpErr *err);
+typedef bool (*OnStateChange)(struct _GUI_Button *);
 
 typedef struct _GUI_Button
 {
@@ -34,11 +34,11 @@ typedef struct _GUI_Button
 }
 GUI_Button;
 
-GUI_Element *gui_button_new(GUI_Label *text, GUI_App *app, Nst_OpErr *err);
-bool gui_button_update(GUI_Button *b, Nst_OpErr *err);
-i32 gui_button_handle_event(SDL_Event *e, GUI_Button *b, Nst_OpErr *err);
+GUI_Element *gui_button_new(GUI_Label *text, GUI_App *app);
+bool gui_button_update(GUI_Button *b);
+i32 gui_button_handle_event(SDL_Event *e, GUI_Button *b);
 void gui_button_destroy(GUI_Button *b);
-bool gui_button_call_nest_func(GUI_Button *b, Nst_OpErr *err);
+bool gui_button_call_nest_func(GUI_Button *b);
 
 #ifdef __cplusplus
 }

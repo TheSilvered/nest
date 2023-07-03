@@ -488,9 +488,10 @@ Nst_Obj *nst_vsprintf(const i8 *fmt, va_list args)
         va_end(args);
         return NULL;
     }
-    i8 *buf = nst_calloc_c(buf_size, i8, NULL, NULL);
+    i8 *buf = nst_calloc_c(buf_size, i8, NULL);
     if ( buf == NULL )
     {
+        nst_error_clear();
         va_end(args);
         return NULL;
     }
@@ -503,9 +504,10 @@ Nst_Obj *nst_vsprintf(const i8 *fmt, va_list args)
         return NULL;
     }
 
-    Nst_Obj *str = nst_string_new(buf, len, true, NULL);
+    Nst_Obj *str = nst_string_new(buf, len, true);
     if ( str == NULL )
     {
+        nst_error_clear();
         nst_free(buf);
     }
     return str;
@@ -525,9 +527,10 @@ isize nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args)
         va_end(args);
         return -1;
     }
-    i8 *buf = nst_calloc_c(buf_size, i8, NULL, NULL);
+    i8 *buf = nst_calloc_c(buf_size, i8, NULL);
     if ( buf == NULL )
     {
+        nst_error_clear();
         va_end(args);
         return -1;
     }
@@ -539,5 +542,7 @@ isize nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args)
         nst_free(buf);
         return len;
     }
-    return nst_fwrite(buf, sizeof(i8), len, f);
+    isize result = nst_fwrite(buf, sizeof(i8), len, f);
+    nst_free(buf);
+    return result;
 }

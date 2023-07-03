@@ -36,21 +36,18 @@ struct _Nst_OpErr;
 EXPORT typedef void (*Nst_LListDestructor)(void *);
 
 // Adds an element to the front
-EXPORT bool nst_llist_push(Nst_LList         *llist,
-                           void              *value,
-                           bool               allocated,
-                           struct _Nst_OpErr *err);
+EXPORT bool nst_llist_push(Nst_LList *llist,
+                           void      *value,
+                           bool       allocated);
 // Adds an element to the back
-EXPORT bool nst_llist_append(Nst_LList         *llist,
-                             void              *value,
-                             bool               allocated,
-                             struct _Nst_OpErr *err);
+EXPORT bool nst_llist_append(Nst_LList *llist,
+                             void      *value,
+                             bool       allocated);
 // Inserts an element after node
-EXPORT bool nst_llist_insert(Nst_LList         *llist,
-                             void              *value,
-                             bool               allocated,
-                             Nst_LLNode        *node,
-                             struct _Nst_OpErr *err);
+EXPORT bool nst_llist_insert(Nst_LList  *llist,
+                             void       *value,
+                             bool        allocated,
+                             Nst_LLNode *node);
 // Removes and returns an element from the front
 EXPORT void *nst_llist_pop(Nst_LList *llist);
 // Returns the value from the head node
@@ -63,11 +60,10 @@ EXPORT void nst_llist_append_llnode(Nst_LList *llist, Nst_LLNode *node);
 EXPORT Nst_LLNode *nst_llist_pop_llnode(Nst_LList *llist);
 
 // Creates a new LList on the heap
-EXPORT Nst_LList *nst_llist_new(struct _Nst_OpErr *err);
+EXPORT Nst_LList *nst_llist_new();
 // Creates a new LLNode on the heap
-EXPORT Nst_LLNode *nst_llnode_new(void              *value,
-                                  bool               allocated,
-                                  struct _Nst_OpErr *err);
+EXPORT Nst_LLNode *nst_llnode_new(void *value,
+                                  bool  allocated);
 // Frees the list and all the values inside the nodes.
 // The value of the node is passed to 'item_destroy_func' when 'allocated' is true
 // When 'allocated' is true but 'item_destroy_func' is NULL, the value is not freed

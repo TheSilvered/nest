@@ -1579,8 +1579,7 @@ bool nst_translate_cp(Nst_CP *from,
                       void   *from_buf,
                       usize   from_len,
                       void  **to_buf,
-                      usize  *to_len,
-                      Nst_OpErr *err)
+                      usize  *to_len)
 {
     if ( to_len != NULL )
     {
@@ -1589,7 +1588,7 @@ bool nst_translate_cp(Nst_CP *from,
     *to_buf = NULL;
 
     Nst_Buffer buf;
-    if ( !nst_buffer_init(&buf, from_len * to->mult_min_sz + 40, err) )
+    if ( !nst_buffer_init(&buf, from_len * to->mult_min_sz + 40) )
     {
         return false;
     }
@@ -1602,7 +1601,7 @@ bool nst_translate_cp(Nst_CP *from,
         if ( ch_len < 0 )
         {
             nst_buffer_destroy(&buf);
-            NST_SET_VALUE_ERROR(nst_sprintf(
+            nst_set_value_error(nst_sprintf(
                 _NST_EM_INVALID_ENCODING,
                 *(u8 *)from_buf, from->name));
             return false;
@@ -1613,7 +1612,7 @@ bool nst_translate_cp(Nst_CP *from,
         n -= ch_len;
 
         // Re-encode character
-        if ( !nst_buffer_expand_by(&buf, to->mult_max_sz + to->ch_size, err) )
+        if ( !nst_buffer_expand_by(&buf, to->mult_max_sz + to->ch_size) )
         {
             nst_buffer_destroy(&buf);
             return false;
@@ -1622,13 +1621,13 @@ bool nst_translate_cp(Nst_CP *from,
         if ( ch_len < 0 )
         {
             nst_buffer_destroy(&buf);
-            NST_SET_VALUE_ERROR(nst_sprintf(
+            nst_set_value_error(nst_sprintf(
                 _NST_EM_INVALID_DECODING,
                 (int)utf32_ch, from->name));
         }
         buf.len += ch_len * to->ch_size;
     }
-    if ( !nst_buffer_expand_by(&buf, to->ch_size, err) )
+    if ( !nst_buffer_expand_by(&buf, to->ch_size) )
     {
         nst_buffer_destroy(&buf);
         return false;
@@ -1714,7 +1713,7 @@ Nst_CPID nst_acp()
 
 #endif
 
-wchar_t *nst_char_to_wchar_t(i8 *str, usize len, Nst_OpErr *err)
+wchar_t *nst_char_to_wchar_t(i8 *str, usize len)
 {
     wchar_t *out_str;
     if ( len == 0 )
@@ -1724,7 +1723,7 @@ wchar_t *nst_char_to_wchar_t(i8 *str, usize len, Nst_OpErr *err)
 
     bool res = nst_translate_cp(
         &nst_cp_utf8, &nst_cp_utf16,
-        (void *)str, len, (void **)&out_str, NULL, err);
+        (void *)str, len, (void **)&out_str, NULL);
     if ( res == false )
     {
         return NULL;
@@ -1732,7 +1731,7 @@ wchar_t *nst_char_to_wchar_t(i8 *str, usize len, Nst_OpErr *err)
     return out_str;
 }
 
-i8 *nst_wchar_t_to_char(wchar_t *str, usize len, Nst_OpErr *err)
+i8 *nst_wchar_t_to_char(wchar_t *str, usize len)
 {
     i8 *out_str;
     if ( len == 0 )
@@ -1742,7 +1741,7 @@ i8 *nst_wchar_t_to_char(wchar_t *str, usize len, Nst_OpErr *err)
 
     bool res = nst_translate_cp(
         &nst_cp_utf16, &nst_cp_utf8,
-        (void *)str, len, (void **)&out_str, NULL, err);
+        (void *)str, len, (void **)&out_str, NULL);
     if ( res == false )
     {
         return NULL;

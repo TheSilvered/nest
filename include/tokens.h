@@ -134,12 +134,11 @@ Nst_Tok;
 EXPORT Nst_Tok *nst_tok_new_value(Nst_Pos     start,
                                   Nst_Pos     end,
                                   Nst_TokType type,
-                                  Nst_Obj    *value,
-                                  Nst_OpErr  *err);
+                                  Nst_Obj    *value);
 // Creates a new tokens with only a type
-EXPORT Nst_Tok *nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type, Nst_OpErr *err);
+EXPORT Nst_Tok *nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type);
 // Creates a new token where start and end are the same
-EXPORT Nst_Tok *nst_tok_new_noend(Nst_Pos start, Nst_TokType type, Nst_OpErr *err);
+EXPORT Nst_Tok *nst_tok_new_noend(Nst_Pos start, Nst_TokType type);
 EXPORT void nst_token_destroy(Nst_Tok *token);
 
 // Returns the corresponding token id from a string literal

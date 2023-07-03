@@ -25,8 +25,8 @@
 #define nst_array_get nst_seq_get
 
 // Appends a value to the end of a vector
-#define nst_vector_append(vect, val, err) \
-    _nst_vector_append(SEQ(vect), OBJ(val), err)
+#define nst_vector_append(vect, val) \
+    _nst_vector_append(SEQ(vect), OBJ(val))
 // Removes the firs occurence of `val` in `vect`
 #define nst_vector_remove(vect, val) \
     _nst_vector_remove(SEQ(vect), OBJ(val))
@@ -52,15 +52,15 @@ EXPORT typedef Nst_SeqObj Nst_ArrayObj;
 EXPORT typedef Nst_SeqObj Nst_VectorObj;
 
 // Creates a new array of length `len`, the objects must be set manually inside
-EXPORT Nst_Obj *nst_array_new(usize len, Nst_OpErr *err);
+EXPORT Nst_Obj *nst_array_new(usize len);
 // Creates a new vector of lenght `len`, the objects must be set manually inside
-EXPORT Nst_Obj *nst_vector_new(usize len, Nst_OpErr *err);
+EXPORT Nst_Obj *nst_vector_new(usize len);
 
-EXPORT Nst_Obj *nst_array_create(usize len, Nst_OpErr *err, ...);
-EXPORT Nst_Obj *nst_vector_create(usize len, Nst_OpErr *err, ...);
+EXPORT Nst_Obj *nst_array_create(usize len, ...);
+EXPORT Nst_Obj *nst_vector_create(usize len, ...);
 
-EXPORT Nst_Obj *nst_array_create_c(const i8 *fmt, Nst_OpErr *err, ...);
-EXPORT Nst_Obj *nst_vector_create_c(const i8 *fmt, Nst_OpErr *err, ...);
+EXPORT Nst_Obj *nst_array_create_c(const i8 *fmt, ...);
+EXPORT Nst_Obj *nst_vector_create_c(const i8 *fmt, ...);
 
 EXPORT void _nst_seq_destroy(Nst_SeqObj *seq);
 EXPORT void _nst_seq_traverse(Nst_SeqObj *seq);
@@ -69,8 +69,8 @@ EXPORT void _nst_seq_track(Nst_SeqObj *seq);
 EXPORT bool _nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val);
 EXPORT Nst_Obj *_nst_seq_get(Nst_SeqObj *seq, i64 idx);
 
-EXPORT bool _nst_vector_resize(Nst_SeqObj *vect, Nst_OpErr *err);
-EXPORT bool _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val, Nst_OpErr *err);
+EXPORT bool _nst_vector_resize(Nst_SeqObj *vect);
+EXPORT bool _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val);
 EXPORT Nst_Obj *_nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val);
 EXPORT Nst_Obj *_nst_vector_pop(Nst_SeqObj *vect, usize quantity);
 

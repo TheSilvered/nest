@@ -3,14 +3,13 @@
 #include "global_consts.h"
 #include "mem.h"
 
-Nst_Obj *nst_func_new(usize arg_num, Nst_InstList *bytecode, Nst_OpErr *err)
+Nst_Obj *nst_func_new(usize arg_num, Nst_InstList *bytecode)
 {
     Nst_FuncObj *func = nst_obj_alloc(
         Nst_FuncObj,
         nst_t.Func,
-        _nst_func_destroy,
-        err);
-    Nst_Obj **args = nst_malloc_c(arg_num, Nst_Obj *, err);
+        _nst_func_destroy);
+    Nst_Obj **args = nst_malloc_c(arg_num, Nst_Obj *);
     if ( func == NULL || args == NULL )
     {
         return NULL;
@@ -28,15 +27,12 @@ Nst_Obj *nst_func_new(usize arg_num, Nst_InstList *bytecode, Nst_OpErr *err)
 
 Nst_Obj *nst_func_new_c(usize arg_num,
                         Nst_Obj *(*cbody)(usize     arg_num,
-                                          Nst_Obj  **args,
-                                          Nst_OpErr *err),
-                        Nst_OpErr *err)
+                                          Nst_Obj  **args))
 {
     Nst_FuncObj *func = nst_obj_alloc(
         Nst_FuncObj,
         nst_t.Func,
-        _nst_func_destroy,
-        err);
+        _nst_func_destroy);
     Nst_Obj **args = NULL;
     if ( func == NULL )
     {

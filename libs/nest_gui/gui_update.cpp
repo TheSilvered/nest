@@ -18,14 +18,14 @@ static void draw_element_bounds(GUI_Element *el)
     draw_rect(renderer, &r);
 }
 
-static bool update_element(GUI_Element *el, bool show_bounds, Nst_OpErr *err)
+static bool update_element(GUI_Element *el, bool show_bounds)
 {
     gui_element_update_pos(el);
     gui_element_update_size(el);
 
     if ( el->frame_update_func != nullptr )
     {
-        if ( !el->frame_update_func(el, err) )
+        if ( !el->frame_update_func(el) )
         {
             return false;
         }
@@ -39,7 +39,7 @@ static bool update_element(GUI_Element *el, bool show_bounds, Nst_OpErr *err)
     Nst_SeqObj *children = el->children;
     for ( usize i = 0, n = children->len; i < n; i++ )
     {
-        if ( !update_element((GUI_Element *)children->objs[i], show_bounds, err) )
+        if ( !update_element((GUI_Element *)children->objs[i], show_bounds) )
         {
             return false;
         }
@@ -47,11 +47,11 @@ static bool update_element(GUI_Element *el, bool show_bounds, Nst_OpErr *err)
     return true;
 }
 
-static bool tick_element(GUI_Element *el, Nst_OpErr *err)
+static bool tick_element(GUI_Element *el)
 {
     if ( el->tick_update_func != nullptr )
     {
-        if ( !el->tick_update_func(el, err) )
+        if ( !el->tick_update_func(el) )
         {
             return false;
         }
@@ -60,7 +60,7 @@ static bool tick_element(GUI_Element *el, Nst_OpErr *err)
     Nst_SeqObj *children = el->children;
     for ( usize i = 0, n = children->len; i < n; i++ )
     {
-        if ( !tick_element((GUI_Element *)children->objs[i], err) )
+        if ( !tick_element((GUI_Element *)children->objs[i]) )
         {
             return false;
         }
@@ -68,18 +68,18 @@ static bool tick_element(GUI_Element *el, Nst_OpErr *err)
     return true;
 }
 
-bool update_elements(GUI_App *app, Nst_OpErr *err)
+bool update_elements(GUI_App *app)
 {
     SDL_GetWindowSize(app->window, &app->clip_window.w, &app->clip_window.h);
-    return update_element(app->root, app->show_bounds, err);
+    return update_element(app->root, app->show_bounds);
 }
 
-bool tick_elements(GUI_App *app, Nst_OpErr *err)
+bool tick_elements(GUI_App *app)
 {
-    return tick_element(app->root, err);
+    return tick_element(app->root);
 }
 
-bool root_update(GUI_Element *el, Nst_OpErr *err)
+bool root_update(GUI_Element *el)
 {
     SDL_Renderer *renderer = el->app->renderer;
     SDL_Color *bg_color = &el->app->bg_color;

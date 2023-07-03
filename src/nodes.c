@@ -3,10 +3,10 @@
 #include "tokens.h"
 #include "mem.h"
 
-Nst_Node *nst_node_new(Nst_NodeType type, Nst_OpErr *err)
+Nst_Node *nst_node_new(Nst_NodeType type)
 {
-    Nst_Node *node = nst_malloc_c(1, Nst_Node, err);
-    Nst_LList *lists = nst_malloc_c(2, Nst_LList, err);
+    Nst_Node *node = nst_malloc_c(1, Nst_Node);
+    Nst_LList *lists = nst_malloc_c(2, Nst_LList);
     if ( node == NULL || lists == NULL )
     {
         if ( node ) nst_free(node);
@@ -30,10 +30,9 @@ Nst_Node *nst_node_new(Nst_NodeType type, Nst_OpErr *err)
 
 Nst_Node *nst_node_new_pos(Nst_NodeType type,
                            Nst_Pos start,
-                           Nst_Pos end,
-                           Nst_OpErr *err)
+                           Nst_Pos end)
 {
-    Nst_Node *node = nst_node_new(type, err);
+    Nst_Node *node = nst_node_new(type);
     if ( node == NULL )
     {
         return NULL;
