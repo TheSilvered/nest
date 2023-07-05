@@ -7,6 +7,7 @@
 #include "global_consts.h"
 #include "encoding.h"
 #include "format.h"
+#include "interpreter.h"
 
 #ifdef WINDOWS
 #include <windows.h>
@@ -480,5 +481,30 @@ void nst_error_clear()
         nst_dec_ref(global_op_err.message);
         global_op_err.name = NULL;
         global_op_err.message = NULL;
+    }
+}
+
+bool nst_traceback_init()
+{
+    nst_state.traceback.error.start = nst_no_pos();
+    nst_state.traceback.error.end = nst_no_pos();
+    nst_state.traceback.error.name = NULL;
+    nst_state.traceback.error.message = NULL;
+    nst_state.traceback.error.occurred = false;
+    nst_state.traceback.positions = nst_llist_new();
+
+    return nst_state.traceback.positions != NULL;
+}
+
+void nst_traceback_delete()
+{
+    nst_llist_destroy(nst_state.traceback.positions, nst_free);
+    if ( nst_state.traceback.error.name != NULL )
+    {
+        nst_dec_ref(nst_state.traceback.error.name);
+    }
+    if ( nst_state.traceback.error.message != NULL )
+    {
+        nst_dec_ref(nst_state.traceback.error.message);
     }
 }

@@ -134,6 +134,11 @@ bool nst_vstack_dup()
 
 void nst_vstack_destroy()
 {
+    if ( nst_state.v_stack.stack == NULL )
+    {
+        return;
+    }
+
     for ( Nst_Int i = 0; i < (Nst_Int)nst_state.v_stack.current_size; i++ )
     {
         if ( nst_state.v_stack.stack[i] != NULL )
@@ -223,6 +228,11 @@ Nst_FuncCall nst_fstack_peek()
 
 void nst_fstack_destroy()
 {
+    if ( nst_state.v_stack.stack == NULL )
+    {
+        return;
+    }
+
     for ( Nst_Int i = 0; i < (Nst_Int)nst_state.f_stack.current_size; i++ )
     {
         if ( nst_state.f_stack.stack[i].func != NULL )
@@ -292,5 +302,10 @@ Nst_CatchFrame nst_cstack_pop()
 
 void nst_cstack_destroy()
 {
+    if ( nst_state.v_stack.stack == NULL )
+    {
+        return;
+    }
+
     nst_free(nst_state.c_stack.stack);
 }

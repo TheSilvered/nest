@@ -1408,6 +1408,7 @@ static Nst_Node *parse_arr_or_map_literal()
             RETURN_ERROR(start, end, _NST_EM_EXPECTED_BRACE);
         }
         node->type = NST_NT_ARR_LIT;
+        nst_node_set_pos(node, start, tok->end);
         DEC_RECURSION_LVL;
         return node;
     }

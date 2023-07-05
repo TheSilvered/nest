@@ -5,68 +5,73 @@
 
 Nst_VarTable *nst_vt_new(Nst_MapObj *global_table,
                          Nst_StrObj *cwd,
-                         Nst_SeqObj *args)
+                         Nst_SeqObj *args,
+                         bool        no_default)
 {
     Nst_VarTable *vt = nst_malloc_c(1, Nst_VarTable);
     if ( vt == NULL )
     {
         return NULL;
     }
-
-    vt->global_table = global_table;
     Nst_MapObj *vars = MAP(nst_map_new());
     if ( vars == NULL )
     {
+        nst_free(vt);
         return NULL;
     }
     vt->vars = vars;
-    bool res = true;
-    res = res && nst_map_set(vars, nst_s.o__vars_, vars);
-    if ( global_table == NULL )
+    vt->global_table = no_default ? NULL : global_table;
+    nst_map_set(vars, nst_s.o__vars_, vars);
+
+    if ( no_default )
     {
-        res = res && nst_map_set(vars, nst_s.o__globals_, nst_c.Null_null);
-    }
-    else
-    {
-        res = res && nst_map_set(vars, nst_s.o__globals_, global_table);
-        if ( !res )
-        {
-            nst_dec_ref(vars);
-            nst_free(vt);
-            nst_failed_allocation();
-            return NULL;
-        }
-        nst_inc_ref(global_table);
         return vt;
     }
 
-    res = res && nst_map_set(vars, nst_s.t_Type,   nst_t.Type);
-    res = res && nst_map_set(vars, nst_s.t_Int,    nst_t.Int);
-    res = res && nst_map_set(vars, nst_s.t_Real,   nst_t.Real);
-    res = res && nst_map_set(vars, nst_s.t_Bool,   nst_t.Bool);
-    res = res && nst_map_set(vars, nst_s.t_Null,   nst_t.Null);
-    res = res && nst_map_set(vars, nst_s.t_Str,    nst_t.Str);
-    res = res && nst_map_set(vars, nst_s.t_Array,  nst_t.Array);
-    res = res && nst_map_set(vars, nst_s.t_Vector, nst_t.Vector);
-    res = res && nst_map_set(vars, nst_s.t_Map,    nst_t.Map);
-    res = res && nst_map_set(vars, nst_s.t_Func,   nst_t.Func);
-    res = res && nst_map_set(vars, nst_s.t_Iter,   nst_t.Iter);
-    res = res && nst_map_set(vars, nst_s.t_Byte,   nst_t.Byte);
-    res = res && nst_map_set(vars, nst_s.t_IOFile, nst_t.IOFile);
+    if ( global_table == NULL )
+    {
+        nst_map_set(vars, nst_s.o__globals_, nst_c.Null_null);
+    }
+    else
+    {
+        nst_inc_ref(global_table);
+        nst_map_set(vars, nst_s.o__globals_, global_table);
+        if ( nst_error_occurred() )
+        {
+            nst_map_drop(vars, nst_s.o__vars_);
+            nst_dec_ref(vars);
+            nst_free(vt);
+            return NULL;
+        }
+        return vt;
+    }
 
-    res = res && nst_map_set(vars, nst_s.c_true,  nst_c.Bool_true);
-    res = res && nst_map_set(vars, nst_s.c_false, nst_c.Bool_false);
-    res = res && nst_map_set(vars, nst_s.c_null,  nst_c.Null_null);
+    nst_map_set(vars, nst_s.t_Type,   nst_t.Type);
+    nst_map_set(vars, nst_s.t_Int,    nst_t.Int);
+    nst_map_set(vars, nst_s.t_Real,   nst_t.Real);
+    nst_map_set(vars, nst_s.t_Bool,   nst_t.Bool);
+    nst_map_set(vars, nst_s.t_Null,   nst_t.Null);
+    nst_map_set(vars, nst_s.t_Str,    nst_t.Str);
+    nst_map_set(vars, nst_s.t_Array,  nst_t.Array);
+    nst_map_set(vars, nst_s.t_Vector, nst_t.Vector);
+    nst_map_set(vars, nst_s.t_Map,    nst_t.Map);
+    nst_map_set(vars, nst_s.t_Func,   nst_t.Func);
+    nst_map_set(vars, nst_s.t_Iter,   nst_t.Iter);
+    nst_map_set(vars, nst_s.t_Byte,   nst_t.Byte);
+    nst_map_set(vars, nst_s.t_IOFile, nst_t.IOFile);
 
-    res = res && nst_map_set(vars, nst_s.o__cwd_, cwd);
-    res = res && nst_map_set(vars, nst_s.o__args_, args);
+    nst_map_set(vars, nst_s.c_true,  nst_c.Bool_true);
+    nst_map_set(vars, nst_s.c_false, nst_c.Bool_false);
+    nst_map_set(vars, nst_s.c_null,  nst_c.Null_null);
 
-    if ( !res )
+    nst_map_set(vars, nst_s.o__cwd_, cwd);
+    nst_map_set(vars, nst_s.o__args_, args);
+
+    if ( nst_error_occurred() )
     {
         nst_map_drop(vars, nst_s.o__vars_);
         nst_dec_ref(vars);
         nst_free(vt);
-        nst_failed_allocation();
         return NULL;
     }
     return vt;
@@ -96,4 +101,28 @@ bool _nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val)
         return false;
     }
     return true;
+}
+
+void nst_vt_destroy(Nst_VarTable *vt)
+{
+    nst_map_drop(vt->vars, nst_s.o__vars_);
+    nst_dec_ref(vt->vars);
+    if ( nst_state.vt->global_table != NULL )
+    {
+        nst_dec_ref(nst_state.vt->global_table);
+    }
+    nst_free(vt);
+}
+
+Nst_VarTable *nst_vt_from_func(Nst_FuncObj *f)
+{
+    if ( f->mod_globals != NULL )
+    {
+        return nst_vt_new(f->mod_globals, NULL, NULL, false);
+    }
+    else if ( nst_state.vt->global_table == NULL )
+    {
+        return nst_vt_new(nst_state.vt->vars, NULL, NULL, false);
+    }
+    return nst_vt_new(nst_state.vt->global_table, NULL, NULL, false);
 }

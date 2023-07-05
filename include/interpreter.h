@@ -63,6 +63,9 @@ extern Nst_ExecutionState nst_state;
 
 EXPORT Nst_ExecutionState *nst_get_state(void);
 
+EXPORT i32 nst_chdir(Nst_StrObj *str);
+EXPORT Nst_StrObj *nst_getcwd();
+
 #ifdef __cplusplus
 }
 #endif // !__cplusplus

@@ -25,9 +25,13 @@ Nst_VarTable;
 // Creates a new variable table
 EXPORT Nst_VarTable *nst_vt_new(Nst_MapObj *global_table,
                                 Nst_StrObj *cwd,
-                                Nst_SeqObj *args);
+                                Nst_SeqObj *args,
+                                bool        no_default);
+EXPORT void nst_vt_destroy(Nst_VarTable *vt);
 EXPORT Nst_Obj *_nst_vt_get(Nst_VarTable *vt, Nst_Obj *name);
 EXPORT bool _nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val);
+
+EXPORT Nst_VarTable *nst_vt_from_func(Nst_FuncObj *f);
 
 #ifdef __cplusplus
 }

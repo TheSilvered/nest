@@ -6,6 +6,7 @@
 #include "sequence.h"
 #include "obj_ops.h"
 #include "lib_import.h"
+#include "format.h"
 
 static Nst_Obj *new_seq(usize len, usize size, Nst_TypeObj *type)
 {
@@ -155,6 +156,10 @@ bool _nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val)
 
     if ( idx < 0 || idx >= (i64)seq->len )
     {
+        const i8 *fmt = seq->type == nst_t.Array ?
+            _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
+          : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector");
+        nst_set_value_error(nst_sprintf(fmt, idx, seq->len));
         return false;
     }
 
@@ -183,6 +188,10 @@ Nst_Obj *_nst_seq_get(Nst_SeqObj *seq, i64 idx)
 
     if ( idx < 0 || idx >= (i64)seq->len )
     {
+        const i8 *fmt = seq->type == nst_t.Array ?
+            _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
+          : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector");
+        nst_set_value_error(nst_sprintf(fmt, idx, seq->len));
         return NULL;
     }
 

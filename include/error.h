@@ -61,6 +61,8 @@
 #define _NST_EM_BAD_INT_BASE "the base must be between 2 and 36"
 #define _NST_EM_INVALID_CPID "the encoding selected is not supported"
 #define _NST_EM_NULL_ARG(func, argn) func ": " argn " is NULL"
+#define _NST_EM_FAILED_CHDIR "failed to change the current working directory"
+#define _NST_EM_FAILED_GETCWD "failed to get the current working directory"
 
 #define _NST_EM_EXPECTED_TYPE(type) "expected type '" type "', got '%s' instead"
 #define _NST_EM_EXPECTED_TYPES "expected type '%s', got '%s' instead"
@@ -182,6 +184,9 @@ EXPORT void nst_failed_allocation();
 EXPORT bool nst_error_occurred();
 EXPORT Nst_OpErr *nst_error_get();
 EXPORT void nst_error_clear();
+
+EXPORT bool nst_traceback_init();
+EXPORT void nst_traceback_delete();
 
 #ifdef __cplusplus
 }

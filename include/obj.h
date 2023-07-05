@@ -9,8 +9,13 @@
 
 // Increase the reference count of the object
 #define nst_inc_ref(obj) _nst_inc_ref(OBJ(obj))
+#define nst_ninc_ref(obj) (obj == NULL ? NULL : _nst_inc_ref(OBJ(obj)))
 // Decrease the reference count of the object
 #define nst_dec_ref(obj) _nst_dec_ref(OBJ(obj))
+#define nst_ndec_ref(obj) do { \
+    if (obj != NULL) { \
+        _nst_dec_ref(OBJ(obj)); \
+    }} while ( 0 )
 // Call the object's destructor and deallocate its memory
 #define nst_obj_destroy(obj) _nst_obj_destroy(OBJ(obj))
 // Create a new object of size `size` on the heap

@@ -245,22 +245,35 @@ void nst_ggc_collect_gen(Nst_GGCList *gen,
     free_obj_memory(&uv);
 }
 
-void nst_ggc_delete_objs(Nst_GarbageCollector *ggc)
+void nst_ggc_delete_objs()
 {
-    set_unreachable(&ggc->gen1);
-    set_unreachable(&ggc->gen2);
-    set_unreachable(&ggc->gen3);
-    set_unreachable(&ggc->old_gen);
+    set_unreachable(&nst_state.ggc.gen1);
+    set_unreachable(&nst_state.ggc.gen2);
+    set_unreachable(&nst_state.ggc.gen3);
+    set_unreachable(&nst_state.ggc.old_gen);
 
-    call_objs_destructor(&ggc->gen1);
-    call_objs_destructor(&ggc->gen2);
-    call_objs_destructor(&ggc->gen3);
-    call_objs_destructor(&ggc->old_gen);
+    call_objs_destructor(&nst_state.ggc.gen1);
+    call_objs_destructor(&nst_state.ggc.gen2);
+    call_objs_destructor(&nst_state.ggc.gen3);
+    call_objs_destructor(&nst_state.ggc.old_gen);
 
-    free_obj_memory(&ggc->gen1);
-    free_obj_memory(&ggc->gen2);
-    free_obj_memory(&ggc->gen3);
-    free_obj_memory(&ggc->old_gen);
+    free_obj_memory(&nst_state.ggc.gen1);
+    free_obj_memory(&nst_state.ggc.gen2);
+    free_obj_memory(&nst_state.ggc.gen3);
+    free_obj_memory(&nst_state.ggc.old_gen);
+}
+
+void nst_ggc_init()
+{
+    Nst_GGCList gen1 = { NULL, NULL, 0 };
+    Nst_GGCList gen2 = { NULL, NULL, 0 };
+    Nst_GGCList gen3 = { NULL, NULL, 0 };
+    Nst_GGCList old_gen = { NULL, NULL, 0 };
+    nst_state.ggc.gen1 = gen1;
+    nst_state.ggc.gen2 = gen2;
+    nst_state.ggc.gen3 = gen3;
+    nst_state.ggc.old_gen = old_gen;
+    nst_state.ggc.old_gen_pending = 0;
 }
 
 void nst_ggc_collect()

@@ -76,7 +76,8 @@ EXPORT void nst_ggc_collect(void);
 EXPORT void nst_ggc_track_obj(Nst_GGCObj *obj);
 // Deletes the objects still present in the GGC at program end
 // This function should never be called
-EXPORT void nst_ggc_delete_objs(Nst_GarbageCollector *ggc);
+EXPORT void nst_ggc_delete_objs();
+EXPORT void nst_ggc_init();
 
 EXPORT typedef enum _Nst_GGCFlag
 {
@@ -86,6 +87,7 @@ EXPORT typedef enum _Nst_GGCFlag
     NST_FLAG_GGC_IS_SUPPORTED = 0b00010000
 }
 Nst_GGCFlag;
+
 
 #ifdef __cplusplus
 }
