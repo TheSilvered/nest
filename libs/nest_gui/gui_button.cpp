@@ -133,7 +133,7 @@ i32 gui_button_handle_event(SDL_Event *e, GUI_Button *b)
         if ( b->cs != GUI_CS_HOVER && !SDL_PointInRect(&mp, &ca) )
         {
             return 0;
-        }                                                                      
+        }
         if ( get_focused_element() != (GUI_Element *)b &&
              get_focused_element() != nullptr )
         {
@@ -217,7 +217,7 @@ GUI_Element *gui_button_new(GUI_Label *text, GUI_App *app)
 
     if ( !gui_element_add_child((GUI_Element *)b, (GUI_Element *)text) )
     {
-        
+
     }
 
     b->text = text;

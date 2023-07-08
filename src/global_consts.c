@@ -135,8 +135,8 @@ bool _nst_init_objects()
     nst_io.out->close_f = close_std_stream;
     nst_io.err->close_f = close_std_stream;
 
-#ifdef WINDOWS
-    nst_io.in->read_f = (Nst_IOFile_read_f)_nst_windows_stdin_read;
+#ifdef Nst_WIN
+    nst_io.in->read_f = (Nst_IOFile_read_f)_Nst_windows_stdin_read;
 #endif
 
     nst_itf.range_start   = FUNC(nst_func_new_c(1, nst_iter_range_start));
@@ -149,9 +149,9 @@ bool _nst_init_objects()
     nst_itf.seq_is_done   = FUNC(nst_func_new_c(1, nst_iter_seq_is_done));
     nst_itf.seq_get_val   = FUNC(nst_func_new_c(1, nst_iter_seq_get_val));
 
-    if ( nst_error_occurred() )
+    if ( Nst_error_occurred() )
     {
-        nst_error_clear();
+        Nst_error_clear();
         _nst_del_objects();
         return false;
     }
@@ -272,7 +272,7 @@ Nst_StdStreams *nst_stdio()
     return &nst_io;
 }
 
-#ifdef WINDOWS
+#ifdef Nst_WIN
 #pragma warning( disable: 4100 )
 #endif
 

@@ -36,7 +36,7 @@ Nst_VarTable *nst_vt_new(Nst_MapObj *global_table,
     {
         nst_inc_ref(global_table);
         nst_map_set(vars, nst_s.o__globals_, global_table);
-        if ( nst_error_occurred() )
+        if ( Nst_error_occurred() )
         {
             nst_map_drop(vars, nst_s.o__vars_);
             nst_dec_ref(vars);
@@ -67,7 +67,7 @@ Nst_VarTable *nst_vt_new(Nst_MapObj *global_table,
     nst_map_set(vars, nst_s.o__cwd_, cwd);
     nst_map_set(vars, nst_s.o__args_, args);
 
-    if ( nst_error_occurred() )
+    if ( Nst_error_occurred() )
     {
         nst_map_drop(vars, nst_s.o__vars_);
         nst_dec_ref(vars);

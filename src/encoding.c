@@ -6,267 +6,241 @@
 #include "lib_import.h"
 #include "format.h"
 
-#ifdef WINDOWS
+#ifdef Nst_WIN
 #include <windows.h>
 #endif
 
-Nst_CP nst_cp_ascii = {
+Nst_CP Nst_cp_ascii = {
     .ch_size = sizeof(u8),
     .mult_max_sz = sizeof(u8),
     .mult_min_sz = sizeof(u8),
     .name = "ASCII",
-    .check_bytes = (Nst_CheckBytesFunc)nst_check_ascii_bytes,
-    .to_utf32    = (Nst_ToUTF32Func)nst_ascii_to_utf32,
-    .from_utf32  = (Nst_FromUTF32Func)nst_ascii_from_utf32,
+    .check_bytes = (Nst_CheckBytesFunc)Nst_check_ascii_bytes,
+    .to_utf32    = (Nst_ToUTF32Func)Nst_ascii_to_utf32,
+    .from_utf32  = (Nst_FromUTF32Func)Nst_ascii_from_utf32,
 };
 
-Nst_CP nst_cp_utf8 = {
+Nst_CP Nst_cp_utf8 = {
     .ch_size = sizeof(u8),
     .mult_max_sz = sizeof(u8) * 4,
     .mult_min_sz = sizeof(u8),
     .name = "UTF-8",
-    .check_bytes = (Nst_CheckBytesFunc)nst_check_utf8_bytes,
-    .to_utf32    = (Nst_ToUTF32Func)nst_utf8_to_utf32,
-    .from_utf32  = (Nst_FromUTF32Func)nst_utf8_from_utf32,
+    .check_bytes = (Nst_CheckBytesFunc)Nst_check_utf8_bytes,
+    .to_utf32    = (Nst_ToUTF32Func)Nst_utf8_to_utf32,
+    .from_utf32  = (Nst_FromUTF32Func)Nst_utf8_from_utf32,
 };
 
-Nst_CP nst_cp_utf16 = {
+Nst_CP Nst_cp_utf16 = {
     .ch_size = sizeof(u16),
     .mult_max_sz = sizeof(u16) * 2,
     .mult_min_sz = sizeof(u16),
     .name = "UTF-16",
-    .check_bytes = (Nst_CheckBytesFunc)nst_check_utf16_bytes,
-    .to_utf32    = (Nst_ToUTF32Func)nst_utf16_to_utf32,
-    .from_utf32  = (Nst_FromUTF32Func)nst_utf16_from_utf32,
+    .check_bytes = (Nst_CheckBytesFunc)Nst_check_utf16_bytes,
+    .to_utf32    = (Nst_ToUTF32Func)Nst_utf16_to_utf32,
+    .from_utf32  = (Nst_FromUTF32Func)Nst_utf16_from_utf32,
 };
 
-Nst_CP nst_cp_utf16be = {
+Nst_CP Nst_cp_utf16be = {
     .ch_size = sizeof(u8),
     .mult_max_sz = sizeof(u8) * 4,
     .mult_min_sz = sizeof(u8) * 2,
     .name = "UTF-16BE",
-    .check_bytes = (Nst_CheckBytesFunc)nst_check_utf16be_bytes,
-    .to_utf32    = (Nst_ToUTF32Func)nst_utf16be_to_utf32,
-    .from_utf32  = (Nst_FromUTF32Func)nst_utf16be_from_utf32,
+    .check_bytes = (Nst_CheckBytesFunc)Nst_check_utf16be_bytes,
+    .to_utf32    = (Nst_ToUTF32Func)Nst_utf16be_to_utf32,
+    .from_utf32  = (Nst_FromUTF32Func)Nst_utf16be_from_utf32,
 };
 
-Nst_CP nst_cp_utf16le = {
+Nst_CP Nst_cp_utf16le = {
     .ch_size = sizeof(u8),
     .mult_max_sz = sizeof(u8) * 4,
     .mult_min_sz = sizeof(u8) * 2,
     .name = "UTF-16LE",
-    .check_bytes = (Nst_CheckBytesFunc)nst_check_utf16le_bytes,
-    .to_utf32    = (Nst_ToUTF32Func)nst_utf16le_to_utf32,
-    .from_utf32  = (Nst_FromUTF32Func)nst_utf16le_from_utf32,
+    .check_bytes = (Nst_CheckBytesFunc)Nst_check_utf16le_bytes,
+    .to_utf32    = (Nst_ToUTF32Func)Nst_utf16le_to_utf32,
+    .from_utf32  = (Nst_FromUTF32Func)Nst_utf16le_from_utf32,
 };
 
-Nst_CP nst_cp_utf32 = {
+Nst_CP Nst_cp_utf32 = {
     .ch_size = sizeof(u32),
     .mult_max_sz = sizeof(u32),
     .mult_min_sz = sizeof(u32),
     .name = "UTF-32",
-    .check_bytes = (Nst_CheckBytesFunc)nst_check_utf32_bytes,
-    .to_utf32    = (Nst_ToUTF32Func)nst_utf32_to_utf32,
-    .from_utf32  = (Nst_FromUTF32Func)nst_utf32_from_utf32,
+    .check_bytes = (Nst_CheckBytesFunc)Nst_check_utf32_bytes,
+    .to_utf32    = (Nst_ToUTF32Func)Nst_utf32_to_utf32,
+    .from_utf32  = (Nst_FromUTF32Func)Nst_utf32_from_utf32,
 };
 
-Nst_CP nst_cp_utf32be = {
+Nst_CP Nst_cp_utf32be = {
     .ch_size = sizeof(u8),
     .mult_max_sz = sizeof(u8) * 4,
     .mult_min_sz = sizeof(u8) * 4,
     .name = "UTF-32BE",
-    .check_bytes = (Nst_CheckBytesFunc)nst_check_utf32be_bytes,
-    .to_utf32    = (Nst_ToUTF32Func)nst_utf32be_to_utf32,
-    .from_utf32  = (Nst_FromUTF32Func)nst_utf32be_from_utf32,
+    .check_bytes = (Nst_CheckBytesFunc)Nst_check_utf32be_bytes,
+    .to_utf32    = (Nst_ToUTF32Func)Nst_utf32be_to_utf32,
+    .from_utf32  = (Nst_FromUTF32Func)Nst_utf32be_from_utf32,
 };
 
-Nst_CP nst_cp_utf32le = {
+Nst_CP Nst_cp_utf32le = {
     .ch_size = sizeof(u8),
     .mult_max_sz = sizeof(u8) * 4,
     .mult_min_sz = sizeof(u8) * 4,
     .name = "UTF-32LE",
-    .check_bytes = (Nst_CheckBytesFunc)nst_check_utf32le_bytes,
-    .to_utf32    = (Nst_ToUTF32Func)nst_utf32le_to_utf32,
-    .from_utf32  = (Nst_FromUTF32Func)nst_utf32le_from_utf32,
+    .check_bytes = (Nst_CheckBytesFunc)Nst_check_utf32le_bytes,
+    .to_utf32    = (Nst_ToUTF32Func)Nst_utf32le_to_utf32,
+    .from_utf32  = (Nst_FromUTF32Func)Nst_utf32le_from_utf32,
 };
 
-Nst_CP nst_cp_1250 = {
+Nst_CP Nst_cp_1250 = {
     .ch_size = sizeof(u8),
     .mult_max_sz = sizeof(u8),
     .mult_min_sz = sizeof(u8),
     .name = "CP1250",
-    .check_bytes = (Nst_CheckBytesFunc)nst_check_1250_bytes,
-    .to_utf32    = (Nst_ToUTF32Func)nst_1250_to_utf32,
-    .from_utf32  = (Nst_FromUTF32Func)nst_1250_from_utf32,
+    .check_bytes = (Nst_CheckBytesFunc)Nst_check_1250_bytes,
+    .to_utf32    = (Nst_ToUTF32Func)Nst_1250_to_utf32,
+    .from_utf32  = (Nst_FromUTF32Func)Nst_1250_from_utf32,
 };
 
-Nst_CP nst_cp_1251 = {
+Nst_CP Nst_cp_1251 = {
     .ch_size = sizeof(u8),
     .mult_max_sz = sizeof(u8),
     .mult_min_sz = sizeof(u8),
     .name = "CP1251",
-    .check_bytes = (Nst_CheckBytesFunc)nst_check_1251_bytes,
-    .to_utf32    = (Nst_ToUTF32Func)nst_1251_to_utf32,
-    .from_utf32  = (Nst_FromUTF32Func)nst_1251_from_utf32,
+    .check_bytes = (Nst_CheckBytesFunc)Nst_check_1251_bytes,
+    .to_utf32    = (Nst_ToUTF32Func)Nst_1251_to_utf32,
+    .from_utf32  = (Nst_FromUTF32Func)Nst_1251_from_utf32,
 };
 
-Nst_CP nst_cp_1252 = {
+Nst_CP Nst_cp_1252 = {
     .ch_size = sizeof(u8),
     .mult_max_sz = sizeof(u8),
     .mult_min_sz = sizeof(u8),
     .name = "CP1252",
-    .check_bytes = (Nst_CheckBytesFunc)nst_check_1252_bytes,
-    .to_utf32    = (Nst_ToUTF32Func)nst_1252_to_utf32,
-    .from_utf32  = (Nst_FromUTF32Func)nst_1252_from_utf32,
+    .check_bytes = (Nst_CheckBytesFunc)Nst_check_1252_bytes,
+    .to_utf32    = (Nst_ToUTF32Func)Nst_1252_to_utf32,
+    .from_utf32  = (Nst_FromUTF32Func)Nst_1252_from_utf32,
 };
 
-Nst_CP nst_cp_1253 = {
+Nst_CP Nst_cp_1253 = {
     .ch_size = sizeof(u8),
     .mult_max_sz = sizeof(u8),
     .mult_min_sz = sizeof(u8),
     .name = "CP1253",
-    .check_bytes = (Nst_CheckBytesFunc)nst_check_1253_bytes,
-    .to_utf32    = (Nst_ToUTF32Func)nst_1253_to_utf32,
-    .from_utf32  = (Nst_FromUTF32Func)nst_1253_from_utf32,
+    .check_bytes = (Nst_CheckBytesFunc)Nst_check_1253_bytes,
+    .to_utf32    = (Nst_ToUTF32Func)Nst_1253_to_utf32,
+    .from_utf32  = (Nst_FromUTF32Func)Nst_1253_from_utf32,
 };
 
-Nst_CP nst_cp_1254 = {
+Nst_CP Nst_cp_1254 = {
     .ch_size = sizeof(u8),
     .mult_max_sz = sizeof(u8),
     .mult_min_sz = sizeof(u8),
     .name = "CP1254",
-    .check_bytes = (Nst_CheckBytesFunc)nst_check_1254_bytes,
-    .to_utf32    = (Nst_ToUTF32Func)nst_1254_to_utf32,
-    .from_utf32  = (Nst_FromUTF32Func)nst_1254_from_utf32,
+    .check_bytes = (Nst_CheckBytesFunc)Nst_check_1254_bytes,
+    .to_utf32    = (Nst_ToUTF32Func)Nst_1254_to_utf32,
+    .from_utf32  = (Nst_FromUTF32Func)Nst_1254_from_utf32,
 };
 
-Nst_CP nst_cp_1255 = {
+Nst_CP Nst_cp_1255 = {
     .ch_size = sizeof(u8),
     .mult_max_sz = sizeof(u8),
     .mult_min_sz = sizeof(u8),
     .name = "CP1255",
-    .check_bytes = (Nst_CheckBytesFunc)nst_check_1255_bytes,
-    .to_utf32    = (Nst_ToUTF32Func)nst_1255_to_utf32,
-    .from_utf32  = (Nst_FromUTF32Func)nst_1255_from_utf32,
+    .check_bytes = (Nst_CheckBytesFunc)Nst_check_1255_bytes,
+    .to_utf32    = (Nst_ToUTF32Func)Nst_1255_to_utf32,
+    .from_utf32  = (Nst_FromUTF32Func)Nst_1255_from_utf32,
 };
 
-Nst_CP nst_cp_1256 = {
+Nst_CP Nst_cp_1256 = {
     .ch_size = sizeof(u8),
     .mult_max_sz = sizeof(u8),
     .mult_min_sz = sizeof(u8),
     .name = "CP1256",
-    .check_bytes = (Nst_CheckBytesFunc)nst_check_1256_bytes,
-    .to_utf32    = (Nst_ToUTF32Func)nst_1256_to_utf32,
-    .from_utf32  = (Nst_FromUTF32Func)nst_1256_from_utf32,
+    .check_bytes = (Nst_CheckBytesFunc)Nst_check_1256_bytes,
+    .to_utf32    = (Nst_ToUTF32Func)Nst_1256_to_utf32,
+    .from_utf32  = (Nst_FromUTF32Func)Nst_1256_from_utf32,
 };
 
-Nst_CP nst_cp_1257 = {
+Nst_CP Nst_cp_1257 = {
     .ch_size = sizeof(u8),
     .mult_max_sz = sizeof(u8),
     .mult_min_sz = sizeof(u8),
     .name = "CP1257",
-    .check_bytes = (Nst_CheckBytesFunc)nst_check_1257_bytes,
-    .to_utf32    = (Nst_ToUTF32Func)nst_1257_to_utf32,
-    .from_utf32  = (Nst_FromUTF32Func)nst_1257_from_utf32,
+    .check_bytes = (Nst_CheckBytesFunc)Nst_check_1257_bytes,
+    .to_utf32    = (Nst_ToUTF32Func)Nst_1257_to_utf32,
+    .from_utf32  = (Nst_FromUTF32Func)Nst_1257_from_utf32,
 };
 
-Nst_CP nst_cp_1258 = {
+Nst_CP Nst_cp_1258 = {
     .ch_size = sizeof(u8),
     .mult_max_sz = sizeof(u8),
     .mult_min_sz = sizeof(u8),
     .name = "CP1258",
-    .check_bytes = (Nst_CheckBytesFunc)nst_check_1258_bytes,
-    .to_utf32    = (Nst_ToUTF32Func)nst_1258_to_utf32,
-    .from_utf32  = (Nst_FromUTF32Func)nst_1258_from_utf32,
+    .check_bytes = (Nst_CheckBytesFunc)Nst_check_1258_bytes,
+    .to_utf32    = (Nst_ToUTF32Func)Nst_1258_to_utf32,
+    .from_utf32  = (Nst_FromUTF32Func)Nst_1258_from_utf32,
 };
 
-Nst_CP nst_cp_iso8859_1 = {
+Nst_CP Nst_cp_iso8859_1 = {
     .ch_size = sizeof(u8),
     .mult_max_sz = sizeof(u8),
     .mult_min_sz = sizeof(u8),
     .name = "Latin-1",
-    .check_bytes = (Nst_CheckBytesFunc)nst_check_1258_bytes,
-    .to_utf32    = (Nst_ToUTF32Func)nst_1258_to_utf32,
-    .from_utf32  = (Nst_FromUTF32Func)nst_1258_from_utf32,
+    .check_bytes = (Nst_CheckBytesFunc)Nst_check_1258_bytes,
+    .to_utf32    = (Nst_ToUTF32Func)Nst_1258_to_utf32,
+    .from_utf32  = (Nst_FromUTF32Func)Nst_1258_from_utf32,
 };
 
-i32 nst_check_ascii_bytes(u8 *str, usize len)
+i32 Nst_check_ascii_bytes(u8 *str, usize len)
 {
-    if ( *str <= 0x7f )
-    {
-        return 1;
-    }
-    return -1;
+    return *str <= 0x7f ? 1 : -1;
 }
 
-u32 nst_ascii_to_utf32(u8 *str)
+u32 Nst_ascii_to_utf32(u8 *str)
 {
     return (u32)*str;
 }
 
-i32 nst_ascii_from_utf32(u32 ch, u8 *str)
+i32 Nst_ascii_from_utf32(u32 ch, u8 *str)
 {
-    if ( ch > 0x7f )
-    {
+    if (ch > 0x7f)
         return -1;
-    }
     *str = (u8)ch;
     return 1;
 }
 
-i32 nst_check_utf8_bytes(u8 *str, usize len)
+i32 Nst_check_utf8_bytes(u8 *str, usize len)
 {
     i32 n = 0;
 
     if ( *str <= 0b01111111 )
-    {
         return 1;
-    }
-    else if ( *str >= 0b11110000 && *str <= 0b11110111 )
-    {
-        if ( len < 4 )
-        {
+    else if (*str >= 0b11110000 && *str <= 0b11110111) {
+        if (len < 4)
             return -1;
-        }
         n = 3;
-    }
-    else if ( *str >= 0b11100000 && *str <= 0b11101111 )
-    {
-        if ( len < 3 )
-        {
+    } else if (*str >= 0b11100000 && *str <= 0b11101111) {
+        if (len < 3)
             return -1;
-        }
         n = 2;
-    }
-    else if ( *str >= 0b11000000 && *str <= 0b11011111 )
-    {
-        if ( len < 2 )
-        {
+    } else if (*str >= 0b11000000 && *str <= 0b11011111) {
+        if (len < 2)
             return -1;
-        }
         n = 1;
-    }
-    else
-    {
+    } else
         return -1;
-    }
 
-    for ( i32 i = 0; i < n; i++ )
-    {
-        if ( *(++str) < 0b10000000 || *str > 0b10111111 )
-        {
+    for (i32 i = 0; i < n; i++) {
+        if (*(++str) < 0b10000000 || *str > 0b10111111)
             return -1;
-        }
     }
     return n + 1;
 }
 
-u32 nst_utf8_to_utf32(u8 *str)
+u32 Nst_utf8_to_utf32(u8 *str)
 {
-    i32 len = nst_check_utf8_bytes(str, 4);
+    i32 len = Nst_check_utf8_bytes(str, 4);
     u32 n = 0;
-    switch ( len )
-    {
+    switch (len) {
     case 1:
         return (u32)*str;
     case 2:
@@ -289,30 +263,23 @@ u32 nst_utf8_to_utf32(u8 *str)
     }
 }
 
-i32 nst_utf8_from_utf32(u32 ch, u8 *str)
+i32 Nst_utf8_from_utf32(u32 ch, u8 *str)
 {
-    if ( ch <= 0x7f )
-    {
+    if (ch <= 0x7f) {
         *str = (i8)ch;
         return 1;
-    }
-    else if ( ch <= 0x7ff )
-    {
+    } else if (ch <= 0x7ff) {
         *str++ = 0b11000000 | (i8)(ch >> 6);
         *str   = 0b10000000 | (i8)(ch & 0x3f);
         return 2;
-    }
-    else if ( ch <= 0xffff )
-    {
+    } else if (ch <= 0xffff) {
         *str++ = 0b11100000 | (i8)(ch >> 12);
         *str++ = 0b10000000 | (i8)(ch >> 6 & 0x3f);
         *str   = 0b10000000 | (i8)(ch & 0x3f);
         return 3;
-    }
-    else if ( ch > 0x10ffff )
-    {
+    } else if (ch > 0x10ffff)
         return -1;
-    }
+
     *str++ = 0b11110000 | (i8)(ch >> 18);
     *str++ = 0b10000000 | (i8)(ch >> 12 & 0x3f);
     *str++ = 0b10000000 | (i8)(ch >> 6 & 0x3f);
@@ -320,41 +287,30 @@ i32 nst_utf8_from_utf32(u32 ch, u8 *str)
     return 4;
 }
 
-i32 nst_check_utf16_bytes(u16 *str, usize len)
+i32 Nst_check_utf16_bytes(u16 *str, usize len)
 {
-    if ( *str <= 0xd7ff )
-    {
+    if (*str <= 0xd7ff)
         return 1;
-    }
-    else if ( *str > 0xdbff || len < 2 )
-    {
+    else if (*str > 0xdbff || len < 2)
         return -1;
-    }
     str++;
-    if ( *str < 0xdc00 || *str > 0xdfff )
-    {
+    if (*str < 0xdc00 || *str > 0xdfff)
         return -1;
-    }
     return 2;
 }
 
-u32 nst_utf16_to_utf32(u16 *str)
+u32 Nst_utf16_to_utf32(u16 *str)
 {
-    if ( *str <= 0xd7ff )
-    {
+    if (*str <= 0xd7ff)
         return (u32)*str;
-    }
     return ((str[0] & 0x3ff) << 10) + (str[1] & 0x3ff) + 0x10000;
 }
 
-i32 nst_utf16_from_utf32(u32 ch, u16 *str)
+i32 Nst_utf16_from_utf32(u32 ch, u16 *str)
 {
-    if ( ch > 0x10FFFF || (ch >= 0xd800 && ch <= 0xdfff) )
-    {
+    if (ch > 0x10FFFF || (ch >= 0xd800 && ch <= 0xdfff))
         return -1;
-    }
-    if ( ch < 0xffff )
-    {
+    if (ch < 0xffff) {
         *str = (u16)ch;
         return 1;
     }
@@ -364,44 +320,36 @@ i32 nst_utf16_from_utf32(u32 ch, u16 *str)
     return 2;
 }
 
-i32 nst_check_utf16be_bytes(u8 *str, usize len)
+i32 Nst_check_utf16be_bytes(u8 *str, usize len)
 {
-    if ( len < 2 )
-    {
+    if (len < 2)
         return -1;
-    }
 
-    if ( len >= 4 )
-    {
+    if (len >= 4) {
         u16 wstr[2] = {
             ((u16)str[0] << 8) | (u16)str[1],
             ((u16)str[2] << 8) | (u16)str[3]
         };
-        return nst_check_utf16_bytes(wstr, 2) * 2;
+        return Nst_check_utf16_bytes(wstr, 2) * 2;
     }
     u16 wch = ((u16)str[0] << 8) | (u16)str[1];
-    return nst_check_utf16_bytes(&wch, 2) * 2;
+    return Nst_check_utf16_bytes(&wch, 2) * 2;
 }
 
-u32 nst_utf16be_to_utf32(u8 *str)
+u32 Nst_utf16be_to_utf32(u8 *str)
 {
     u16 ch1 = ((u16)str[0] << 8) | (u16)str[1];
-    if ( ch1 <= 0xd7ff )
-    {
+    if (ch1 <= 0xd7ff)
         return (u32)ch1;
-    }
     u16 ch2 = ((u16)str[2] << 8) | (u16)str[3];
     return ((ch1 & 0x3ff) << 10) + (ch2 & 0x3ff) + 0x10000;
 }
 
-i32 nst_utf16be_from_utf32(u32 ch, u8 *str)
+i32 Nst_utf16be_from_utf32(u32 ch, u8 *str)
 {
-    if ( ch > 0x10FFFF || (ch >= 0xd800 && ch <= 0xdfff) )
-    {
+    if (ch > 0x10FFFF || (ch >= 0xd800 && ch <= 0xdfff))
         return -1;
-    }
-    if ( ch < 0xffff )
-    {
+    if (ch < 0xffff) {
         str[0] = (u8)(ch >> 8);
         str[1] = (u8)(ch & 0xff);
         return 2;
@@ -416,48 +364,42 @@ i32 nst_utf16be_from_utf32(u32 ch, u8 *str)
     return 4;
 }
 
-i32 nst_check_utf16le_bytes(u8 *str, usize len)
+i32 Nst_check_utf16le_bytes(u8 *str, usize len)
 {
-    if ( len < 2 )
-    {
+    if (len < 2)
         return -1;
-    }
 
-    if ( len >= 4 )
-    {
+    if (len >= 4) {
         u16 wstr[2] = {
             ((u16)str[1] << 8) | (u16)str[0],
             ((u16)str[3] << 8) | (u16)str[2]
         };
-        return nst_check_utf16_bytes(wstr, 2) * 2;
+        return Nst_check_utf16_bytes(wstr, 2) * 2;
     }
     u16 wch = ((u16)str[1] << 8) | (u16)str[0];
-    return nst_check_utf16_bytes(&wch, 2) * 2;
+    return Nst_check_utf16_bytes(&wch, 2) * 2;
 }
 
-u32 nst_utf16le_to_utf32(u8 *str)
+u32 Nst_utf16le_to_utf32(u8 *str)
 {
     u16 ch1 = ((u16)str[1] << 8) | (u16)str[0];
-    if ( ch1 <= 0xd7ff )
-    {
+    if (ch1 <= 0xd7ff)
         return (u32)ch1;
-    }
     u16 ch2 = ((u16)str[3] << 8) | (u16)str[2];
     return ((ch1 & 0x3ff) << 10) + (ch2 & 0x3ff) + 0x10000;
 }
 
-i32 nst_utf16le_from_utf32(u32 ch, u8 *str)
+i32 Nst_utf16le_from_utf32(u32 ch, u8 *str)
 {
-    if ( ch > 0x10FFFF || (ch >= 0xd800 && ch <= 0xdfff) )
-    {
+    if (ch > 0x10FFFF || (ch >= 0xd800 && ch <= 0xdfff))
         return -1;
-    }
-    if ( ch < 0xffff )
-    {
+
+    if (ch < 0xffff) {
         str[1] = (u8)(ch >> 8);
         str[0] = (u8)(ch & 0xff);
         return 2;
     }
+
     ch -= 0x10000;
     u16 ch1 = 0xd800 + ((ch >> 10) & 0x3ff);
     u16 ch2 = 0xdc00 + (ch & 0x3ff);
@@ -468,37 +410,35 @@ i32 nst_utf16le_from_utf32(u32 ch, u8 *str)
     return 4;
 }
 
-i32 nst_check_utf32_bytes(u32 *str, usize len)
+i32 Nst_check_utf32_bytes(u32 *str, usize len)
 {
     return 1;
 }
 
-u32 nst_utf32_to_utf32(u32 *str)
+u32 Nst_utf32_to_utf32(u32 *str)
 {
     return *str;
 }
 
-i32 nst_utf32_from_utf32(u32 ch, u32 *str)
+i32 Nst_utf32_from_utf32(u32 ch, u32 *str)
 {
     *str = ch;
     return 1;
 }
 
-i32 nst_check_utf32be_bytes(u8 *str, usize len)
+i32 Nst_check_utf32be_bytes(u8 *str, usize len)
 {
-    if ( len < 4 )
-    {
+    if (len < 4)
         return -1;
-    }
     return 4;
 }
 
-u32 nst_utf32be_to_utf32(u8 *str)
+u32 Nst_utf32be_to_utf32(u8 *str)
 {
     return (str[0] << 12) + (str[1] << 8) + (str[2] << 4) + str[3];
 }
 
-i32 nst_utf32be_from_utf32(u32 ch, u8 *str)
+i32 Nst_utf32be_from_utf32(u32 ch, u8 *str)
 {
     str[0] = (u8)(ch >> 12);
     str[1] = (u8)((ch >> 8) & 0xff);
@@ -507,7 +447,7 @@ i32 nst_utf32be_from_utf32(u32 ch, u8 *str)
     return 4;
 }
 
-i32 nst_check_utf32le_bytes(u8 *str, usize len)
+i32 Nst_check_utf32le_bytes(u8 *str, usize len)
 {
     if ( len < 4 )
     {
@@ -516,12 +456,12 @@ i32 nst_check_utf32le_bytes(u8 *str, usize len)
     return 4;
 }
 
-u32 nst_utf32le_to_utf32(u8 *str)
+u32 Nst_utf32le_to_utf32(u8 *str)
 {
     return (str[3] << 12) + (str[2] << 8) + (str[1] << 4) + str[0];
 }
 
-i32 nst_utf32le_from_utf32(u32 ch, u8 *str)
+i32 Nst_utf32le_from_utf32(u32 ch, u8 *str)
 {
     str[3] = (u8)(ch >> 12);
     str[2] = (u8)((ch >> 8) & 0xff);
@@ -530,25 +470,21 @@ i32 nst_utf32le_from_utf32(u32 ch, u8 *str)
     return 4;
 }
 
-i32 nst_check_1250_bytes(u8 *str, usize len)
+i32 Nst_check_1250_bytes(u8 *str, usize len)
 {
     u8 ch = *str;
-    if ( ch == 0x81 || ch == 0x83 || ch == 0x88 || ch == 0x90 || ch == 0x98 )
-    {
+    if (ch == 0x81 || ch == 0x83 || ch == 0x88 || ch == 0x90 || ch == 0x98)
         return 1;
-    }
     return -1;
 }
 
-u32 nst_1250_to_utf32(u8 *str)
+u32 Nst_1250_to_utf32(u8 *str)
 {
     u8 ch = *str;
-    if ( ch < 0x80 )
-    {
+    if (ch < 0x80)
         return (u8)ch;
-    }
-    switch ( ch )
-    {
+
+    switch (ch) {
     case 0x80: return 0x20ac; case 0x82: return 0x201a; case 0x84: return 0x201e;
     case 0x85: return 0x2026; case 0x86: return 0x2020; case 0x87: return 0x2021;
     case 0x89: return 0x2030; case 0x8a: return 0x0160; case 0x8b: return 0x2039;
@@ -578,15 +514,13 @@ u32 nst_1250_to_utf32(u8 *str)
     }
 }
 
-i32 nst_1250_from_utf32(u32 ch, u8 *str)
+i32 Nst_1250_from_utf32(u32 ch, u8 *str)
 {
-    if ( ch < 0x80 )
-    {
+    if (ch < 0x80) {
         *str = (u8)ch;
         return 1;
     }
-    switch ( ch )
-    {
+    switch (ch) {
     case 0x20ac: *str = 0x80; break; case 0x201a: *str = 0x82; break;
     case 0x201e: *str = 0x84; break; case 0x2026: *str = 0x85; break;
     case 0x2020: *str = 0x86; break; case 0x2021: *str = 0x87; break;
@@ -654,20 +588,18 @@ i32 nst_1250_from_utf32(u32 ch, u8 *str)
 
     return 1;
 }
-i32 nst_check_1251_bytes(u8 *str, usize len)
+i32 Nst_check_1251_bytes(u8 *str, usize len)
 {
     return *str == 0x89 ? -1 : 1;
 }
 
-u32 nst_1251_to_utf32(u8 *str)
+u32 Nst_1251_to_utf32(u8 *str)
 {
     u8 ch = *str;
-    if ( ch < 0x80 )
-    {
+    if (ch < 0x80)
         return (u8)ch;
-    }
-    switch ( ch )
-    {
+
+    switch (ch) {
     case 0x80: return 0x0402; case 0x81: return 0x0403; case 0x82: return 0x201a;
     case 0x83: return 0x0453; case 0x84: return 0x201e; case 0x85: return 0x2026;
     case 0x86: return 0x2020; case 0x87: return 0x2021; case 0x88: return 0x20ac;
@@ -710,15 +642,13 @@ u32 nst_1251_to_utf32(u8 *str)
     }
 }
 
-i32 nst_1251_from_utf32(u32 ch, u8 *str)
+i32 Nst_1251_from_utf32(u32 ch, u8 *str)
 {
-    if ( ch < 0x80 )
-    {
+    if (ch < 0x80) {
         *str = (u8)ch;
         return 1;
     }
-    switch ( ch )
-    {
+    switch (ch) {
     case 0x0402: *str = 0x80; break; case 0x0403: *str = 0x81; break;
     case 0x201a: *str = 0x82; break; case 0x0453: *str = 0x83; break;
     case 0x201e: *str = 0x84; break; case 0x2026: *str = 0x85; break;
@@ -789,25 +719,21 @@ i32 nst_1251_from_utf32(u32 ch, u8 *str)
     return 1;
 }
 
-i32 nst_check_1252_bytes(u8 *str, usize len)
+i32 Nst_check_1252_bytes(u8 *str, usize len)
 {
     u8 ch = *str;
-    if ( ch == 0x81 || ch == 0x8d || ch == 0x8f || ch == 0x90 || ch == 0x9d )
-    {
+    if (ch == 0x81 || ch == 0x8d || ch == 0x8f || ch == 0x90 || ch == 0x9d)
         return -1;
-    }
     return 1;
 }
 
-u32 nst_1252_to_utf32(u8 *str)
+u32 Nst_1252_to_utf32(u8 *str)
 {
     u8 ch = *str;
-    if ( ch < 0x80 || ch > 0x9f )
-    {
+    if (ch < 0x80 || ch > 0x9f)
         return (u32)ch;
-    }
-    switch ( ch )
-    {
+
+    switch (ch) {
     case 0x80: return 0x20ac; case 0x82: return 0x201a; case 0x83: return 0x0192;
     case 0x84: return 0x201e; case 0x85: return 0x2026; case 0x86: return 0x2020;
     case 0x87: return 0x2021; case 0x88: return 0x02c6; case 0x89: return 0x2030;
@@ -821,15 +747,13 @@ u32 nst_1252_to_utf32(u8 *str)
     return 0;
 }
 
-i32 nst_1252_from_utf32(u32 ch, u8 *str)
+i32 Nst_1252_from_utf32(u32 ch, u8 *str)
 {
-    if ( ch < 0x80 || (ch > 0x9f && ch < 0x100) )
-    {
+    if (ch < 0x80 || (ch > 0x9f && ch < 0x100)) {
         *str = (u8)ch;
         return 1;
     }
-    switch ( ch )
-    {
+    switch (ch) {
     case 0x20ac: *str = 0x80; break; case 0x201a: *str = 0x82; break;
     case 0x0192: *str = 0x83; break; case 0x201e: *str = 0x84; break;
     case 0x2026: *str = 0x85; break; case 0x2020: *str = 0x86; break;
@@ -849,28 +773,26 @@ i32 nst_1252_from_utf32(u32 ch, u8 *str)
     return 1;
 }
 
-i32 nst_check_1253_bytes(u8 *str, usize len)
+i32 Nst_check_1253_bytes(u8 *str, usize len)
 {
     u8 ch = *str;
-    if ( ch == 0x81 || ch == 0x88 || ch == 0x8a || ch == 0x8c || ch == 0x8d ||
-         ch == 0x8e || ch == 0x8f || ch == 0x90 || ch == 0x98 || ch == 0x9a ||
-         ch == 0x9c || ch == 0x9d || ch == 0x9e || ch == 0x9f || ch == 0xaa ||
-         ch == 0xd2 || ch == 0xff )
+    if (ch == 0x81 || ch == 0x88 || ch == 0x8a || ch == 0x8c || ch == 0x8d
+        || ch == 0x8e || ch == 0x8f || ch == 0x90 || ch == 0x98 || ch == 0x9a
+        || ch == 0x9c || ch == 0x9d || ch == 0x9e || ch == 0x9f || ch == 0xaa
+        || ch == 0xd2 || ch == 0xff )
     {
         return -1;
     }
     return 1;
 }
 
-u32 nst_1253_to_utf32(u8 *str)
+u32 Nst_1253_to_utf32(u8 *str)
 {
     u8 ch = *str;
-    if ( ch < 0x80 )
-    {
+    if (ch < 0x80)
         return (u8)ch;
-    }
-    switch ( ch )
-    {
+
+    switch (ch) {
     case 0x80: return 0x20ac; case 0x82: return 0x201a; case 0x83: return 0x0192;
     case 0x84: return 0x201e; case 0x85: return 0x2026; case 0x86: return 0x2020;
     case 0x87: return 0x2021; case 0x89: return 0x2030; case 0x8b: return 0x2039;
@@ -905,15 +827,13 @@ u32 nst_1253_to_utf32(u8 *str)
     }
 }
 
-i32 nst_1253_from_utf32(u32 ch, u8 *str)
+i32 Nst_1253_from_utf32(u32 ch, u8 *str)
 {
-    if ( ch < 0x80 )
-    {
+    if (ch < 0x80) {
         *str = (u8)ch;
         return 1;
     }
-    switch ( ch )
-    {
+    switch (ch) {
     case 0x20ac: *str = 0x80; break; case 0x201a: *str = 0x82; break;
     case 0x0192: *str = 0x83; break; case 0x201e: *str = 0x84; break;
     case 0x2026: *str = 0x85; break; case 0x2020: *str = 0x86; break;
@@ -975,25 +895,24 @@ i32 nst_1253_from_utf32(u32 ch, u8 *str)
 
     return 1;
 }
-i32 nst_check_1254_bytes(u8 *str, usize len)
+i32 Nst_check_1254_bytes(u8 *str, usize len)
 {
     u8 ch = *str;
-    if ( ch == 0x81 || ch == 0x8d || ch == 0x8e || ch == 0x8f || ch == 0x90 ||
-         ch == 0x9d || ch == 0x9e )
+    if (ch == 0x81 || ch == 0x8d || ch == 0x8e || ch == 0x8f || ch == 0x90
+        || ch == 0x9d || ch == 0x9e)
     {
         return -1;
     }
     return 1;
 }
 
-u32 nst_1254_to_utf32(u8 *str)
+u32 Nst_1254_to_utf32(u8 *str)
 {
     u8 ch = *str;
-    if ( ch < 0x80 )
-    {
+    if (ch < 0x80)
         return (u8)ch;
-    }
-    switch ( ch )
+
+    switch (ch)
     {
     case 0x80: return 0x20ac; case 0x82: return 0x201a; case 0x83: return 0x0192;
     case 0x84: return 0x201e; case 0x85: return 0x2026; case 0x86: return 0x2020;
@@ -1010,22 +929,20 @@ u32 nst_1254_to_utf32(u8 *str)
     }
 }
 
-i32 nst_1254_from_utf32(u32 ch, u8 *str)
+i32 Nst_1254_from_utf32(u32 ch, u8 *str)
 {
-    if ( ch < 0x80 )
-    {
+    if (ch < 0x80) {
         *str = (u8)ch;
         return 1;
     }
-    if ( ch > 0x9f && ch < 0x100 && ch != 0xd0 && ch != 0xdd && ch != 0xde &&
-         ch != 0xf0 && ch != 0xfd && ch != 0xfe )
+    if (ch > 0x9f && ch < 0x100 && ch != 0xd0 && ch != 0xdd && ch != 0xde
+        && ch != 0xf0 && ch != 0xfd && ch != 0xfe)
     {
         *str = (u8)ch;
         return 1;
     }
 
-    switch ( ch )
-    {
+    switch (ch) {
     case 0x20ac: *str = 0x80; break; case 0x201a: *str = 0x82; break;
     case 0x0192: *str = 0x83; break; case 0x201e: *str = 0x84; break;
     case 0x2026: *str = 0x85; break; case 0x2020: *str = 0x86; break;
@@ -1047,29 +964,27 @@ i32 nst_1254_from_utf32(u32 ch, u8 *str)
 
     return 1;
 }
-i32 nst_check_1255_bytes(u8 *str, usize len)
+i32 Nst_check_1255_bytes(u8 *str, usize len)
 {
     u8 ch = *str;
-    if ( ch == 0x81 || ch == 0x8a || ch == 0x8c || ch == 0x8d || ch == 0x8e ||
-         ch == 0x8f || ch == 0x90 || ch == 0x9a || ch == 0x9c || ch == 0x9d ||
-         ch == 0x9e || ch == 0x9f || ch == 0xca || ch == 0xd9 || ch == 0xda ||
-         ch == 0xdb || ch == 0xdc || ch == 0xdd || ch == 0xde || ch == 0xdf ||
-         ch == 0xfb || ch == 0xfc || ch == 0xff )
+    if (ch == 0x81 || ch == 0x8a || ch == 0x8c || ch == 0x8d || ch == 0x8e
+        || ch == 0x8f || ch == 0x90 || ch == 0x9a || ch == 0x9c || ch == 0x9d
+        || ch == 0x9e || ch == 0x9f || ch == 0xca || ch == 0xd9 || ch == 0xda
+        || ch == 0xdb || ch == 0xdc || ch == 0xdd || ch == 0xde || ch == 0xdf
+        || ch == 0xfb || ch == 0xfc || ch == 0xff )
     {
         return -1;
     }
     return 1;
 }
 
-u32 nst_1255_to_utf32(u8 *str)
+u32 Nst_1255_to_utf32(u8 *str)
 {
     u8 ch = *str;
-    if ( ch < 0x80 )
-    {
+    if (ch < 0x80)
         return (u8)ch;
-    }
-    switch ( ch )
-    {
+
+    switch (ch) {
     case 0x80: return 0x20ac; case 0x82: return 0x201a; case 0x83: return 0x0192;
     case 0x84: return 0x201e; case 0x85: return 0x2026; case 0x86: return 0x2020;
     case 0x87: return 0x2021; case 0x88: return 0x02c6; case 0x89: return 0x2030;
@@ -1100,15 +1015,13 @@ u32 nst_1255_to_utf32(u8 *str)
     }
 }
 
-i32 nst_1255_from_utf32(u32 ch, u8 *str)
+i32 Nst_1255_from_utf32(u32 ch, u8 *str)
 {
-    if ( ch < 0x80 )
-    {
+    if (ch < 0x80) {
         *str = (u8)ch;
         return 1;
     }
-    switch ( ch )
-    {
+    switch (ch) {
     case 0x20ac: *str = 0x80; break; case 0x201a: *str = 0x82; break;
     case 0x0192: *str = 0x83; break; case 0x201e: *str = 0x84; break;
     case 0x2026: *str = 0x85; break; case 0x2020: *str = 0x86; break;
@@ -1168,20 +1081,18 @@ i32 nst_1255_from_utf32(u32 ch, u8 *str)
     return 1;
 }
 
-i32 nst_check_1256_bytes(u8 *str, usize len)
+i32 Nst_check_1256_bytes(u8 *str, usize len)
 {
     return 1;
 }
 
-u32 nst_1256_to_utf32(u8 *str)
+u32 Nst_1256_to_utf32(u8 *str)
 {
     u8 ch = *str;
-    if ( ch < 0x80 )
-    {
+    if (ch < 0x80)
         return (u8)ch;
-    }
-    switch ( ch )
-    {
+
+    switch (ch) {
     case 0x80: return 0x20ac; case 0x81: return 0x067e; case 0x82: return 0x201a;
     case 0x83: return 0x0192; case 0x84: return 0x201e; case 0x85: return 0x2026;
     case 0x86: return 0x2020; case 0x87: return 0x2021; case 0x88: return 0x02c6;
@@ -1215,15 +1126,13 @@ u32 nst_1256_to_utf32(u8 *str)
     }
 }
 
-i32 nst_1256_from_utf32(u32 ch, u8 *str)
+i32 Nst_1256_from_utf32(u32 ch, u8 *str)
 {
-    if ( ch < 0x80 )
-    {
+    if (ch < 0x80) {
         *str = (u8)ch;
         return 1;
     }
-    switch ( ch )
-    {
+    switch (ch) {
     case 0x20ac: *str = 0x80; break; case 0x067e: *str = 0x81; break;
     case 0x201a: *str = 0x82; break; case 0x0192: *str = 0x83; break;
     case 0x201e: *str = 0x84; break; case 0x2026: *str = 0x85; break;
@@ -1293,27 +1202,24 @@ i32 nst_1256_from_utf32(u32 ch, u8 *str)
 
     return 1;
 }
-i32 nst_check_1257_bytes(u8 *str, usize len)
+i32 Nst_check_1257_bytes(u8 *str, usize len)
 {
     u8 ch = *str;
-    if ( ch == 0x81 || ch == 0x83 || ch == 0x88 || ch == 0x8a || ch == 0x8c ||
-         ch == 0x90 || ch == 0x98 || ch == 0x9a || ch == 0x9c || ch == 0x9f ||
-         ch == 0xa1 || ch == 0xa5 )
+    if (ch == 0x81 || ch == 0x83 || ch == 0x88 || ch == 0x8a || ch == 0x8c
+        || ch == 0x90 || ch == 0x98 || ch == 0x9a || ch == 0x9c || ch == 0x9f
+        || ch == 0xa1 || ch == 0xa5 )
     {
         return -1;
     }
     return 1;
 }
 
-u32 nst_1257_to_utf32(u8 *str)
+u32 Nst_1257_to_utf32(u8 *str)
 {
     u8 ch = *str;
-    if ( ch < 0x80 )
-    {
+    if (ch < 0x80)
         return (u8)ch;
-    }
-    switch ( ch )
-    {
+    switch (ch) {
     case 0x80: return 0x20ac; case 0x82: return 0x201a; case 0x84: return 0x201e;
     case 0x85: return 0x2026; case 0x86: return 0x2020; case 0x87: return 0x2021;
     case 0x89: return 0x2030; case 0x8b: return 0x2039; case 0x8d: return 0x00a8;
@@ -1343,15 +1249,13 @@ u32 nst_1257_to_utf32(u8 *str)
     }
 }
 
-i32 nst_1257_from_utf32(u32 ch, u8 *str)
+i32 Nst_1257_from_utf32(u32 ch, u8 *str)
 {
-    if ( ch < 0x80 )
-    {
+    if (ch < 0x80) {
         *str = (u8)ch;
         return 1;
     }
-    switch ( ch )
-    {
+    switch (ch) {
     case 0x20ac: *str = 0x80; break; case 0x201a: *str = 0x82; break;
     case 0x201e: *str = 0x84; break; case 0x2026: *str = 0x85; break;
     case 0x2020: *str = 0x86; break; case 0x2021: *str = 0x87; break;
@@ -1415,26 +1319,24 @@ i32 nst_1257_from_utf32(u32 ch, u8 *str)
 
     return 1;
 }
-i32 nst_check_1258_bytes(u8 *str, usize len)
+i32 Nst_check_1258_bytes(u8 *str, usize len)
 {
     u8 ch = *str;
-    if ( ch == 0x81 || ch == 0x8a || ch == 0x8d || ch == 0x8e || ch == 0x8f ||
-         ch == 0x90 || ch == 0x9a || ch == 0x9d || ch == 0x9e )
+    if (ch == 0x81 || ch == 0x8a || ch == 0x8d || ch == 0x8e || ch == 0x8f
+        || ch == 0x90 || ch == 0x9a || ch == 0x9d || ch == 0x9e)
     {
         return -1;
     }
     return 1;
 }
 
-u32 nst_1258_to_utf32(u8 *str)
+u32 Nst_1258_to_utf32(u8 *str)
 {
     u8 ch = *str;
-    if ( ch < 0x80 )
-    {
+    if (ch < 0x80)
         return (u8)ch;
-    }
-    switch ( ch )
-    {
+
+    switch (ch) {
     case 0x80: return 0x20ac; case 0x82: return 0x201a; case 0x83: return 0x0192;
     case 0x84: return 0x201e; case 0x85: return 0x2026; case 0x86: return 0x2020;
     case 0x87: return 0x2021; case 0x88: return 0x02c6; case 0x89: return 0x2030;
@@ -1452,15 +1354,13 @@ u32 nst_1258_to_utf32(u8 *str)
     }
 }
 
-i32 nst_1258_from_utf32(u32 ch, u8 *str)
+i32 Nst_1258_from_utf32(u32 ch, u8 *str)
 {
-    if ( ch < 0x80 )
-    {
+    if (ch < 0x80) {
         *str = (u8)ch;
         return 1;
     }
-    switch ( ch )
-    {
+    switch (ch) {
     case 0x20ac: *str = 0x80; break; case 0x201a: *str = 0x82; break;
     case 0x0192: *str = 0x83; break; case 0x201e: *str = 0x84; break;
     case 0x2026: *str = 0x85; break; case 0x2020: *str = 0x86; break;
@@ -1527,82 +1427,55 @@ i32 nst_1258_from_utf32(u32 ch, u8 *str)
     return 1;
 }
 
-i32 nst_check_iso8859_1_bytes(u8 *str, usize len)
+i32 Nst_check_iso8859_1_bytes(u8 *str, usize len)
 {
     u8 ch = *str;
-    if ( ch < 0x20 || (ch > 0x7e && ch < 0xa0) )
-    {
+    if (ch < 0x20 || (ch > 0x7e && ch < 0xa0))
         return -1;
-    }
     return 1;
 }
 
-u32 nst_iso8859_1_to_utf32(u8 *str)
+u32 Nst_iso8859_1_to_utf32(u8 *str)
 {
     return (u32)*str;
 }
 
-i32 nst_iso8859_1_from_utf32(u32 ch, u8 *str)
+i32 Nst_iso8859_1_from_utf32(u32 ch, u8 *str)
 {
-    if ( ch < 0x20 || (ch > 0x7e && ch < 0xa0) || ch > 0xff )
-    {
+    if (ch < 0x20 || (ch > 0x7e && ch < 0xa0) || ch > 0xff)
         return -1;
-    }
     *str = (u8)ch;
     return 1;
 }
 
-i32 nst_utf16_to_utf8(i8 *out_str, u16 *in_str, usize in_str_len)
+i32 Nst_utf16_to_utf8(i8 *out_str, u16 *in_str, usize in_str_len)
 {
-    if ( nst_check_utf16_bytes(in_str, in_str_len) < 0 )
-    {
+    if (Nst_check_utf16_bytes(in_str, in_str_len) < 0)
         return -1;
-    }
 
-    u32 n = nst_utf16_to_utf32(in_str);
-    return nst_utf8_from_utf32(n, (u8 *)out_str);
+    u32 n = Nst_utf16_to_utf32(in_str);
+    return Nst_utf8_from_utf32(n, (u8 *)out_str);
 }
 
-i32 nst_cp1252_to_utf8(i8 *str, i8 byte)
+bool Nst_translate_cp(Nst_CP *from, Nst_CP *to, void *from_buf, usize from_len,
+                      void **to_buf, usize *to_len)
 {
-    if ( nst_check_1252_bytes((u8 *)&byte, 1) < 0 )
-    {
-        return -1;
-    }
-
-    u32 n = nst_1252_to_utf32((u8 *)&byte);
-    return nst_utf8_from_utf32(n, (u8 *)str);
-}
-
-bool nst_translate_cp(Nst_CP *from,
-                      Nst_CP *to,
-                      void   *from_buf,
-                      usize   from_len,
-                      void  **to_buf,
-                      usize  *to_len)
-{
-    if ( to_len != NULL )
-    {
+    if (to_len != NULL)
         *to_len = 0;
-    }
     *to_buf = NULL;
 
     Nst_Buffer buf;
-    if ( !nst_buffer_init(&buf, from_len * to->mult_min_sz + 40) )
-    {
+    if (!nst_buffer_init(&buf, from_len * to->mult_min_sz + 40))
         return false;
-    }
 
     isize n = (isize)from_len; // avoids accidental underflow
-    for ( ; n > 0; )
-    {
+    while (n > 0) {
         // Decode character
         i32 ch_len = from->check_bytes(from_buf, n);
-        if ( ch_len < 0 )
-        {
+        if (ch_len < 0) {
             nst_buffer_destroy(&buf);
-            nst_set_value_error(nst_sprintf(
-                _NST_EM_INVALID_ENCODING,
+            Nst_set_value_error(Nst_sprintf(
+                _Nst_EM_INVALID_ENCODING,
                 *(u8 *)from_buf, from->name));
             return false;
         }
@@ -1612,45 +1485,37 @@ bool nst_translate_cp(Nst_CP *from,
         n -= ch_len;
 
         // Re-encode character
-        if ( !nst_buffer_expand_by(&buf, to->mult_max_sz + to->ch_size) )
-        {
+        if (!nst_buffer_expand_by(&buf, to->mult_max_sz + to->ch_size)) {
             nst_buffer_destroy(&buf);
             return false;
         }
         ch_len = to->from_utf32(utf32_ch, buf.data + buf.len);
-        if ( ch_len < 0 )
-        {
+        if (ch_len < 0) {
             nst_buffer_destroy(&buf);
-            nst_set_value_error(nst_sprintf(
-                _NST_EM_INVALID_DECODING,
+            Nst_set_value_error(Nst_sprintf(
+                _Nst_EM_INVALID_DECODING,
                 (int)utf32_ch, from->name));
         }
         buf.len += ch_len * to->ch_size;
     }
-    if ( !nst_buffer_expand_by(&buf, to->ch_size) )
-    {
+    if (!nst_buffer_expand_by(&buf, to->ch_size)) {
         nst_buffer_destroy(&buf);
         return false;
     }
     memset(buf.data + buf.len, 0, to->ch_size);
 
     *to_buf = buf.data;
-    if ( to_len != NULL )
-    {
+    if (to_len != NULL)
         *to_len = buf.len;
-    }
     return true;
 }
 
-isize nst_check_string_cp(Nst_CP *cp, void *str, usize str_len)
+isize Nst_check_string_cp(Nst_CP *cp, void *str, usize str_len)
 {
-    for ( usize i = 0; i < str_len; i++ )
-    {
+    for (usize i = 0; i < str_len; i++) {
         i32 ch_len = cp->check_bytes(str, str_len - i);
-        if ( ch_len < 0 )
-        {
+        if (ch_len < 0)
             return i;
-        }
         usize ch_size = ch_len * cp->ch_size;
         str = (u8 *)str + ch_size;
         i += ch_len - 1;
@@ -1658,163 +1523,144 @@ isize nst_check_string_cp(Nst_CP *cp, void *str, usize str_len)
     return -1;
 }
 
-Nst_CP *nst_cp(Nst_CPID cpid)
+Nst_CP *Nst_cp(Nst_CPID cpid)
 {
-    switch ( cpid )
-    {
-    case NST_CP_ASCII:   return &nst_cp_ascii;
-    case NST_CP_UTF8:    return &nst_cp_utf8;
-    case NST_CP_UTF16:   return &nst_cp_utf16;
-    case NST_CP_UTF16BE: return &nst_cp_utf16be;
-    case NST_CP_UTF16LE: return &nst_cp_utf16le;
-    case NST_CP_UTF32:   return &nst_cp_utf32;
-    case NST_CP_UTF32BE: return &nst_cp_utf32be;
-    case NST_CP_UTF32LE: return &nst_cp_utf32le;
-    case NST_CP_1250:    return &nst_cp_1250;
-    case NST_CP_1251:    return &nst_cp_1251;
-    case NST_CP_1252:    return &nst_cp_1252;
-    case NST_CP_1253:    return &nst_cp_1253;
-    case NST_CP_1254:    return &nst_cp_1254;
-    case NST_CP_1255:    return &nst_cp_1255;
-    case NST_CP_1256:    return &nst_cp_1256;
-    case NST_CP_1257:    return &nst_cp_1257;
-    case NST_CP_1258:    return &nst_cp_1258;
-    case NST_CP_LATIN1:  return &nst_cp_iso8859_1;
-    default:
-        return NULL;
+    switch (cpid) {
+    case Nst_CP_ASCII:   return &Nst_cp_ascii;
+    case Nst_CP_UTF8:    return &Nst_cp_utf8;
+    case Nst_CP_UTF16:   return &Nst_cp_utf16;
+    case Nst_CP_UTF16BE: return &Nst_cp_utf16be;
+    case Nst_CP_UTF16LE: return &Nst_cp_utf16le;
+    case Nst_CP_UTF32:   return &Nst_cp_utf32;
+    case Nst_CP_UTF32BE: return &Nst_cp_utf32be;
+    case Nst_CP_UTF32LE: return &Nst_cp_utf32le;
+    case Nst_CP_1250:    return &Nst_cp_1250;
+    case Nst_CP_1251:    return &Nst_cp_1251;
+    case Nst_CP_1252:    return &Nst_cp_1252;
+    case Nst_CP_1253:    return &Nst_cp_1253;
+    case Nst_CP_1254:    return &Nst_cp_1254;
+    case Nst_CP_1255:    return &Nst_cp_1255;
+    case Nst_CP_1256:    return &Nst_cp_1256;
+    case Nst_CP_1257:    return &Nst_cp_1257;
+    case Nst_CP_1258:    return &Nst_cp_1258;
+    case Nst_CP_LATIN1:  return &Nst_cp_iso8859_1;
+    default: return NULL;
     }
 }
 
-#ifdef WINDOWS
+#ifdef Nst_WIN
 
-Nst_CPID nst_acp()
+Nst_CPID Nst_acp()
 {
     UINT acp = GetACP();
-    switch ( acp )
-    {
-    case 1250: return NST_CP_1250;
-    case 1251: return NST_CP_1251;
-    case 1252: return NST_CP_1252;
-    case 1253: return NST_CP_1253;
-    case 1254: return NST_CP_1254;
-    case 1255: return NST_CP_1255;
-    case 1256: return NST_CP_1256;
-    case 1257: return NST_CP_1257;
-    case 1258: return NST_CP_1258;
-    case 1200: return NST_CP_UTF16LE;
-    case 1201: return NST_CP_UTF16BE;
-    case 12000: return NST_CP_UTF32LE;
-    case 12001: return NST_CP_UTF32BE;
-    case 20127: return NST_CP_ASCII;
-    case 65001: return NST_CP_UTF8;
-    default: return NST_CP_ISO8859_1;
+    switch (acp) {
+    case 1250: return Nst_CP_1250;
+    case 1251: return Nst_CP_1251;
+    case 1252: return Nst_CP_1252;
+    case 1253: return Nst_CP_1253;
+    case 1254: return Nst_CP_1254;
+    case 1255: return Nst_CP_1255;
+    case 1256: return Nst_CP_1256;
+    case 1257: return Nst_CP_1257;
+    case 1258: return Nst_CP_1258;
+    case 1200: return Nst_CP_UTF16LE;
+    case 1201: return Nst_CP_UTF16BE;
+    case 12000: return Nst_CP_UTF32LE;
+    case 12001: return Nst_CP_UTF32BE;
+    case 20127: return Nst_CP_ASCII;
+    case 65001: return Nst_CP_UTF8;
+    default: return Nst_CP_ISO8859_1;
     }
 }
 
 #endif
 
-wchar_t *nst_char_to_wchar_t(i8 *str, usize len)
+wchar_t *Nst_char_to_wchar_t(i8 *str, usize len)
 {
     wchar_t *out_str;
-    if ( len == 0 )
-    {
+    if (len == 0)
         len = strlen(str);
-    }
 
-    bool res = nst_translate_cp(
-        &nst_cp_utf8, &nst_cp_utf16,
-        (void *)str, len, (void **)&out_str, NULL);
-    if ( res == false )
-    {
+    bool res = Nst_translate_cp(
+        &Nst_cp_utf8,
+        &Nst_cp_utf16,
+        (void *)str, len,
+        (void **)&out_str, NULL);
+    if (res == false)
         return NULL;
-    }
     return out_str;
 }
 
-i8 *nst_wchar_t_to_char(wchar_t *str, usize len)
+i8 *Nst_wchar_t_to_char(wchar_t *str, usize len)
 {
     i8 *out_str;
-    if ( len == 0 )
-    {
+    if (len == 0)
         len = wcslen(str);
-    }
 
-    bool res = nst_translate_cp(
-        &nst_cp_utf16, &nst_cp_utf8,
-        (void *)str, len, (void **)&out_str, NULL);
-    if ( res == false )
-    {
+    bool res = Nst_translate_cp(
+        &Nst_cp_utf16,
+        &Nst_cp_utf8,
+        (void *)str, len,
+        (void **)&out_str, NULL);
+    if (res == false)
         return NULL;
-    }
     return out_str;
 }
 
-bool nst_is_valid_cp(u32 cp)
+bool Nst_is_valid_cp(u32 cp)
 {
-    return cp <= 0x10FFFF // last valid code point
-        && (cp < 0xFDD0 || cp > 0xFDEF) // 32 noncharacters U+FDD0..U+FDEF
-        && ((cp & 0xFFF0) != 0xFFF0 || (cp & 0xF) < 0xE); // U+FFFE, U+FFFF, U+1FFFE ...
+    return cp <= 0x10FFFF
+        && (cp < 0xFDD0 || cp > 0xFDEF)
+        && ((cp & 0xFFF0) != 0xFFF0 || (cp & 0xF) < 0xE);
 }
 
-Nst_CPID nst_check_bom(i8 *str, usize len, i32 *bom_size)
+Nst_CPID Nst_check_bom(i8 *str, usize len, i32 *bom_size)
 {
-    Nst_CPID cpid = NST_CP_UNKNOWN;
+    Nst_CPID cpid = Nst_CP_UNKNOWN;
     i32 size = 0;
+    u8 *us = (u8 *)str;
 
-    if ( len >= 4 )
-    {
-        if ( str[0] == 0 && str[1] == 0 && str[2] == 0xfe && str[3] == 0xff )
-        {
-            cpid = NST_CP_UTF32BE;
+    if (len >= 4) {
+        if (us[0] == 0 && us[1] == 0 && us[2] == 0xfe && us[3] == 0xff) {
+            cpid = Nst_CP_UTF32BE;
             size = 4;
             goto end;
-        }
-        else if ( str[0] == 0xff && str[1] == 0xfe && str[2] == 0 && str[3] == 0 )
-        {
-            cpid = NST_CP_UTF32LE;
+        } else if (us[0] == 0xff && us[1] == 0xfe && us[2] == 0 && us[3] == 0) {
+            cpid = Nst_CP_UTF32LE;
             size = 4;
             goto end;
         }
     }
 
-    if ( len >= 3 && str[0] == 0xef && str[1] == 0xbb && str[2] == 0xbf )
-    {
-        cpid = NST_CP_UTF8;
+    if (len >= 3 && us[0] == 0xef && us[1] == 0xbb && us[2] == 0xbf) {
+        cpid = Nst_CP_UTF8;
         size = 3;
         goto end;
     }
 
-    if ( len >= 2 )
-    {
-        if ( str[0] == 0xfe && str[1] == 0xff )
-        {
-            cpid = NST_CP_UTF16BE;
+    if (len >= 2) {
+        if (us[0] == 0xfe && us[1] == 0xff) {
+            cpid = Nst_CP_UTF16BE;
             size = 2;
             goto end;
-        }
-        else if ( str[0] == 0xff && str[1] == 0xfe )
-        {
-            cpid = NST_CP_UTF16LE;
+        } else if (us[0] == 0xff && us[1] == 0xfe) {
+            cpid = Nst_CP_UTF16LE;
             size = 2;
             goto end;
         }
     }
 
 end:
-    if ( bom_size != NULL )
-    {
+    if (bom_size != NULL)
         *bom_size = size;
-    }
     return cpid;
 }
 
-Nst_CPID nst_detect_encoding(i8 *str, usize len, i32 *bom_size)
+Nst_CPID Nst_detect_encoding(i8 *str, usize len, i32 *bom_size)
 {
-    Nst_CPID cpid = nst_check_bom(str, len, bom_size);
-    if ( cpid != NST_CP_UNKNOWN )
-    {
+    Nst_CPID cpid = Nst_check_bom(str, len, bom_size);
+    if (cpid != Nst_CP_UNKNOWN)
         return cpid;
-    }
 
     // The encoding is checked as follows:
     // 1. Test for UTF-8
@@ -1822,123 +1668,98 @@ Nst_CPID nst_detect_encoding(i8 *str, usize len, i32 *bom_size)
     // 3. If 1 and 2 fail and it's on Windows check the local ansi CP
     // 4. Default to Latin-1
 
-    isize res = nst_check_string_cp(&nst_cp_utf8, str, len);
-    if ( res == -1 )
-    {
-        return NST_CP_UTF8;
-    }
+    isize res = Nst_check_string_cp(&Nst_cp_utf8, str, len);
+    if (res == -1)
+        return Nst_CP_UTF8;
 
-    res = nst_check_string_cp(&nst_cp_utf16le, str, len);
-    if ( res == -1 )
-    {
-        return NST_CP_UTF16LE;
-    }
+    res = Nst_check_string_cp(&Nst_cp_utf16le, str, len);
+    if (res == -1)
+        return Nst_CP_UTF16LE;
 
-#ifdef WINDOWS
-    cpid = nst_acp();
-    if ( cpid != NST_CP_UTF8 && cpid != NST_CP_ISO8859_1 )
-    {
-        res = nst_check_string_cp(nst_cp(cpid), str, len);
-        if ( res == -1 )
-        {
+#ifdef Nst_WIN
+    cpid = Nst_acp();
+    if (cpid != Nst_CP_UTF8 && cpid != Nst_CP_ISO8859_1) {
+        res = Nst_check_string_cp(Nst_cp(cpid), str, len);
+        if (res == -1)
             return cpid;
-        }
     }
 #endif
 
-    return NST_CP_ISO8859_1;
+    return Nst_CP_ISO8859_1;
 }
 
-Nst_CPID nst_encoding_from_name(i8 *name)
+Nst_CPID Nst_encoding_from_name(i8 *name)
 {
     usize name_len = strlen(name);
-    if ( name_len > 15 )
-    {
-        return NST_CP_UNKNOWN;
-    }
+    if (name_len > 15)
+        return Nst_CP_UNKNOWN;
     i8 name_cpy[16];
 
-    for ( i32 i = 0; i < name_len; i++ )
-    {
+    for (i32 i = 0; i < name_len; i++) {
         name_cpy[i] = tolower((u8)name[i]);
-        if ( name_cpy[i] == '_' )
-        {
+        if (name_cpy[i] == '_')
             name_cpy[i] = '-';
-        }
     }
     name_cpy[name_len] = 0;
 
-    if ( name_len > 3 && strncmp(name_cpy, "utf", 3) == 0 )
-    {
+    if (name_len > 3 && strncmp(name_cpy, "utf", 3) == 0) {
         name = name_cpy + 3;
-        if ( strcmp(name, "8") == 0 || strcmp(name, "-8") == 0 )
+        if (strcmp(name, "8") == 0 || strcmp(name, "-8") == 0)
+            return Nst_CP_UTF8;
+        if (strcmp(name, "16") == 0 || strcmp(name, "-16") == 0
+            || strcmp(name, "16le") == 0 || strcmp(name, "-16le") == 0 )
         {
-            return NST_CP_UTF8;
+            return Nst_CP_UTF16LE;
         }
-        if ( strcmp(name, "16") == 0 || strcmp(name, "-16") == 0 ||
-            strcmp(name, "16le") == 0 || strcmp(name, "-16le") == 0 )
+        if (strcmp(name, "16be") == 0 || strcmp(name, "-16be") == 0)
+            return Nst_CP_UTF16BE;
+        if (strcmp(name, "32") == 0 || strcmp(name, "-32") == 0
+            || strcmp(name, "32le") == 0 || strcmp(name, "-32le") == 0)
         {
-            return NST_CP_UTF16LE;
+            return Nst_CP_UTF32LE;
         }
-        if ( strcmp(name, "16be") == 0 || strcmp(name, "-16be") == 0 )
-        {
-            return NST_CP_UTF16BE;
-        }
-        if ( strcmp(name, "32") == 0 || strcmp(name, "-32") == 0 ||
-            strcmp(name, "32le") == 0 || strcmp(name, "-32le") == 0 )
-        {
-            return NST_CP_UTF32LE;
-        }
-        if ( strcmp(name, "32be") == 0 || strcmp(name, "-32be") == 0 )
-        {
-            return NST_CP_UTF32BE;
-        }
-        return NST_CP_UNKNOWN;
+        if (strcmp(name, "32be") == 0 || strcmp(name, "-32be") == 0)
+            return Nst_CP_UTF32BE;
+        return Nst_CP_UNKNOWN;
     }
 
-    if ( (name_len > 2 && strncmp(name_cpy, "cp", 2) == 0) ||
-         (name_len > 7 && strncmp(name_cpy, "windows", 7) == 0))
+    if ((name_len > 2 && strncmp(name_cpy, "cp", 2) == 0)
+        || (name_len > 7 && strncmp(name_cpy, "windows", 7) == 0))
     {
         if ( name_cpy[0] == 'c' )
-        {
             name = name_cpy + 2;
-        }
         else
-        {
             name = name_cpy + 7;
+
+        if (strncmp(name, "125", 3) != 0 && strncmp(name, "-125", 4) != 0)
+            return Nst_CP_UNKNOWN;
+
+        switch (name[0] == '-' ? name[4] : name[3]) {
+        case '0': return Nst_CP_1250;
+        case '1': return Nst_CP_1251;
+        case '2': return Nst_CP_1252;
+        case '3': return Nst_CP_1253;
+        case '4': return Nst_CP_1254;
+        case '5': return Nst_CP_1255;
+        case '6': return Nst_CP_1256;
+        case '7': return Nst_CP_1257;
+        case '8': return Nst_CP_1258;
         }
 
-        if ( strncmp(name, "125", 3) != 0 && strncmp(name, "-125", 4) != 0 )
-        {
-            return NST_CP_UNKNOWN;
-        }
-
-        switch ( name[0] == '-' ? name[4] : name[3] )
-        {
-        case '0': return NST_CP_1250;
-        case '1': return NST_CP_1251;
-        case '2': return NST_CP_1252;
-        case '3': return NST_CP_1253;
-        case '4': return NST_CP_1254;
-        case '5': return NST_CP_1255;
-        case '6': return NST_CP_1256;
-        case '7': return NST_CP_1257;
-        case '8': return NST_CP_1258;
-        }
-
-        return NST_CP_UNKNOWN;
+        return Nst_CP_UNKNOWN;
     }
 
-    if ( strcmp(name_cpy, "ascii") == 0 || strcmp(name_cpy, "us-ascii") == 0 )
+    if (strcmp(name_cpy, "ascii") == 0 || strcmp(name_cpy, "us-ascii") == 0)
+        return Nst_CP_ASCII;
+
+    if (strcmp(name_cpy, "latin") == 0
+        || strcmp(name_cpy, "latin1") == 0
+        || strcmp(name_cpy, "latin-1") == 0
+        || strcmp(name_cpy, "iso-8859-1") == 0
+        || strcmp(name_cpy, "iso8859-1") == 0
+        || strcmp(name_cpy, "l1") == 0)
     {
-        return NST_CP_ASCII;
+        return Nst_CP_ISO8859_1;
     }
-
-    if ( strcmp(name_cpy, "latin") == 0 || strcmp(name_cpy, "latin1") == 0 ||
-         strcmp(name_cpy, "latin-1") == 0 || strcmp(name_cpy, "iso-8859-1") == 0 ||
-         strcmp(name_cpy, "iso8859-1") == 0 || strcmp(name_cpy, "l1") == 0 )
-    {
-        return NST_CP_ISO8859_1;
-    }
-    return NST_CP_UNKNOWN;
+    return Nst_CP_UNKNOWN;
 }

@@ -7,44 +7,44 @@
 #include <stddef.h>
 
 #if defined(_WIN32) || defined(WIN32)
-  #define WINDOWS
+  #define Nst_WIN
 #endif
 
 #if defined(_WIN64) || defined(__x86_64__) || defined(__ppc64__)
-  #define ARCH_x64
+  #define Nst_x64
 #else
-  #define ARCH_x86
+  #define Nst_x86
 #endif
 
-#ifdef WINDOWS
-  #define EXPORT __declspec(dllexport)
+#ifdef Nst_WIN
+  #define NstEXP __declspec(dllexport)
 #else
-  #define EXPORT
+  #define NstEXP
 #endif
 
-#ifndef NORETURN
+#ifndef Nst_NORETURN
   #if __STDC_VERSION__ >= 201112L
-    #define NORETURN _Noreturn
-  #elif defined(WINDOWS)
-    #define NORETURN __declspec(noreturn)
+    #define Nst_NORETURN _Noreturn
+  #elif defined(Nst_WIN)
+    #define Nst_NORETURN __declspec(noreturn)
   #elif defined(__GNUC__)
-    #define NORETURN __attribute__((noreturn))
+    #define Nst_NORETURN __attribute__((noreturn))
   #endif
 #endif
 
-#if !defined(WIN_FMT) && defined(WINDOWS)
-  #define WIN_FMT _Printf_format_string_
+#if !defined(Nst_WIN_FMT) && defined(Nst_WIN)
+  #define Nst_WIN_FMT _Printf_format_string_
 #else
-  #define WIN_FMT
+  #define Nst_WIN_FMT
 #endif
 
-#if !defined(GNU_FMT) && defined(__GNUC__)
-  #define GNU_FMT(m, n) __attribute__((format(printf,m,n)))
+#if !defined(Nst_GNU_FMT) && defined(__GNUC__)
+  #define Nst_GNU_FMT(m, n) __attribute__((format(printf,m,n)))
 #else
-  #define GNU_FMT(m, n)
+  #define Nst_GNU_FMT(m, n)
 #endif
 
-#ifndef WINDOWS
+#ifndef Nst_WIN
 #include <endian.h>
 #else
 #define LITTLE_ENDIAN 0
@@ -52,7 +52,7 @@
 #endif
 
 #ifndef ENDIANNESS
-  #ifdef WINDOWS
+  #ifdef Nst_WIN
     #define ENDIANNESS LITTLE_ENDIAN
   #elif defined(__BYTE_ORDER) && __BYTE_ORDER == __BIG_ENDIAN || \
         defined(__BIG_ENDIAN__) || \
@@ -73,25 +73,31 @@
   #endif
 #endif
 
+#ifdef Nst_WIN
+  #define NstC __cdecl
+#else
+  #define NstC
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-EXPORT typedef char i8;
-EXPORT typedef short i16;
-EXPORT typedef long  i32;
-EXPORT typedef long long i64;
+NstEXP typedef char i8;
+NstEXP typedef short i16;
+NstEXP typedef long  i32;
+NstEXP typedef long long i64;
 
-EXPORT typedef unsigned char  u8;
-EXPORT typedef unsigned short u16;
-EXPORT typedef unsigned long  u32;
-EXPORT typedef unsigned long long u64;
+NstEXP typedef unsigned char  u8;
+NstEXP typedef unsigned short u16;
+NstEXP typedef unsigned long  u32;
+NstEXP typedef unsigned long long u64;
 
-EXPORT typedef float f32;
-EXPORT typedef double f64;
+NstEXP typedef float f32;
+NstEXP typedef double f64;
 
-EXPORT typedef size_t usize;
-EXPORT typedef ptrdiff_t isize;
+NstEXP typedef size_t usize;
+NstEXP typedef ptrdiff_t isize;
 
 #ifdef __cplusplus
 }

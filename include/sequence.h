@@ -38,7 +38,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-EXPORT typedef struct _Nst_SeqObj
+NstEXP typedef struct _Nst_SeqObj
 {
     NST_OBJ_HEAD;
     NST_GGC_HEAD;
@@ -48,31 +48,31 @@ EXPORT typedef struct _Nst_SeqObj
 }
 Nst_SeqObj; // vector or array
 
-EXPORT typedef Nst_SeqObj Nst_ArrayObj;
-EXPORT typedef Nst_SeqObj Nst_VectorObj;
+NstEXP typedef Nst_SeqObj Nst_ArrayObj;
+NstEXP typedef Nst_SeqObj Nst_VectorObj;
 
 // Creates a new array of length `len`, the objects must be set manually inside
-EXPORT Nst_Obj *nst_array_new(usize len);
+NstEXP Nst_Obj *nst_array_new(usize len);
 // Creates a new vector of lenght `len`, the objects must be set manually inside
-EXPORT Nst_Obj *nst_vector_new(usize len);
+NstEXP Nst_Obj *nst_vector_new(usize len);
 
-EXPORT Nst_Obj *nst_array_create(usize len, ...);
-EXPORT Nst_Obj *nst_vector_create(usize len, ...);
+NstEXP Nst_Obj *nst_array_create(usize len, ...);
+NstEXP Nst_Obj *nst_vector_create(usize len, ...);
 
-EXPORT Nst_Obj *nst_array_create_c(const i8 *fmt, ...);
-EXPORT Nst_Obj *nst_vector_create_c(const i8 *fmt, ...);
+NstEXP Nst_Obj *nst_array_create_c(const i8 *fmt, ...);
+NstEXP Nst_Obj *nst_vector_create_c(const i8 *fmt, ...);
 
-EXPORT void _nst_seq_destroy(Nst_SeqObj *seq);
-EXPORT void _nst_seq_traverse(Nst_SeqObj *seq);
-EXPORT void _nst_seq_track(Nst_SeqObj *seq);
+NstEXP void _nst_seq_destroy(Nst_SeqObj *seq);
+NstEXP void _nst_seq_traverse(Nst_SeqObj *seq);
+NstEXP void _nst_seq_track(Nst_SeqObj *seq);
 
-EXPORT bool _nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val);
-EXPORT Nst_Obj *_nst_seq_get(Nst_SeqObj *seq, i64 idx);
+NstEXP bool _nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val);
+NstEXP Nst_Obj *_nst_seq_get(Nst_SeqObj *seq, i64 idx);
 
-EXPORT bool _nst_vector_resize(Nst_SeqObj *vect);
-EXPORT bool _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val);
-EXPORT Nst_Obj *_nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val);
-EXPORT Nst_Obj *_nst_vector_pop(Nst_SeqObj *vect, usize quantity);
+NstEXP bool _nst_vector_resize(Nst_SeqObj *vect);
+NstEXP bool _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val);
+NstEXP Nst_Obj *_nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val);
+NstEXP Nst_Obj *_nst_vector_pop(Nst_SeqObj *vect, usize quantity);
 
 #ifdef __cplusplus
 }

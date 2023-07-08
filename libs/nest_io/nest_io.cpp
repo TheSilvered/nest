@@ -7,7 +7,7 @@
 #define FUNC_COUNT 19
 
 #define SET_FILE_CLOSED_ERROR \
-    nst_set_value_error_c("the given file given was previously closed")
+    Nst_set_value_error_c("the given file given was previously closed")
 
 static Nst_ObjDeclr func_list_[FUNC_COUNT];
 static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
@@ -48,7 +48,7 @@ bool lib_init()
     stdout_obj = nst_iof_new(stdout, false, false, true);
     stderr_obj = nst_iof_new(stderr, false, false, true);
 
-    lib_init_ = !nst_error_occurred();
+    lib_init_ = !Nst_error_occurred();
     return lib_init_;
 }
 
@@ -239,11 +239,11 @@ NST_FUNC_SIGN(open_)
 
     if ( file_mode_len < 1 || file_mode_len > 3 )
     {
-        nst_set_value_error_c("the file mode is not valid");
+        Nst_set_value_error_c("the file mode is not valid");
         return nullptr;
     }
 
-#ifdef WINDOWS
+#ifdef Nst_WIN
     wchar_t bin_mode[4] = { 0, 'b', 0, 0 };
 #else
     char bin_mode[4] = { 0, 'b', 0, 0 };
@@ -264,7 +264,7 @@ NST_FUNC_SIGN(open_)
         bin_mode[0] = 'w';
         break;
     default:
-        nst_set_value_error_c("the file mode is not valid");
+        Nst_set_value_error_c("the file mode is not valid");
         return nullptr;
     }
 
@@ -281,7 +281,7 @@ NST_FUNC_SIGN(open_)
             bin_mode[2] = '+';
             break;
         default:
-            nst_set_value_error_c("the file mode is not valid");
+            Nst_set_value_error_c("the file mode is not valid");
             return nullptr;
         }
     }
@@ -295,13 +295,13 @@ NST_FUNC_SIGN(open_)
         if ( !(file_mode[1] == 'b' && file_mode[2] == '+') &&
              !(file_mode[1] == '+' && file_mode[2] == 'b') )
         {
-            nst_set_value_error_c("the file mode is not valid");
+            Nst_set_value_error_c("the file mode is not valid");
             return nullptr;
         }
     }
 
-#ifdef WINDOWS
-    wchar_t *wide_filename = nst_char_to_wchar_t(file_name, file_name_str->len);
+#ifdef Nst_WIN
+    wchar_t *wide_filename = Nst_char_to_wchar_t(file_name, file_name_str->len);
     if ( wide_filename == nullptr )
     {
         return nullptr;
@@ -314,7 +314,7 @@ NST_FUNC_SIGN(open_)
 #endif
     if ( file_ptr == nullptr )
     {
-        nst_set_value_error(nst_sprintf("file '%.4096s' not found", file_name));
+        Nst_set_value_error(Nst_sprintf("file '%.4096s' not found", file_name));
         return nullptr;
     }
 
@@ -391,12 +391,12 @@ NST_FUNC_SIGN(write_)
     }
     else if ( !NST_IOF_CAN_WRITE(f) )
     {
-        nst_set_value_error_c("the file does not support writing");
+        Nst_set_value_error_c("the file does not support writing");
         return nullptr;
     }
     else if ( NST_IOF_IS_BIN(f) )
     {
-        nst_set_value_error_c("the file is binary, try using 'write_bytes'");
+        Nst_set_value_error_c("the file is binary, try using 'write_bytes'");
         return nullptr;
     }
 
@@ -423,12 +423,12 @@ NST_FUNC_SIGN(write_bytes_)
     }
     else if ( !NST_IOF_CAN_WRITE(f) )
     {
-        nst_set_value_error_c("the file does not support writing");
+        Nst_set_value_error_c("the file does not support writing");
         return nullptr;
     }
     else if ( !NST_IOF_IS_BIN(f) )
     {
-        nst_set_value_error_c("the file is not binary, try using 'write'");
+        Nst_set_value_error_c("the file is not binary, try using 'write'");
         return nullptr;
     }
 
@@ -469,12 +469,12 @@ NST_FUNC_SIGN(read_)
     }
     else if ( !NST_IOF_CAN_READ(f) )
     {
-        nst_set_value_error_c("the file does not support reading");
+        Nst_set_value_error_c("the file does not support reading");
         return nullptr;
     }
     else if ( NST_IOF_IS_BIN(f) )
     {
-        nst_set_value_error_c("the file is binary, try using 'read_bytes'");
+        Nst_set_value_error_c("the file is binary, try using 'read_bytes'");
         return nullptr;
     }
 
@@ -490,7 +490,7 @@ NST_FUNC_SIGN(read_)
     i8 *buffer = nst_malloc_c((usize)bytes_to_read + 1, i8);
     if ( buffer == nullptr )
     {
-        nst_failed_allocation();
+        Nst_failed_allocation();
         return nullptr;
     }
 
@@ -522,12 +522,12 @@ NST_FUNC_SIGN(read_bytes_)
     }
     else if ( !NST_IOF_CAN_READ(f) )
     {
-        nst_set_value_error_c("the file does not support reading");
+        Nst_set_value_error_c("the file does not support reading");
         return nullptr;
     }
     else if ( !NST_IOF_IS_BIN(f) )
     {
-        nst_set_value_error_c("the file is not binary, try using 'read'");
+        Nst_set_value_error_c("the file is not binary, try using 'read'");
         return nullptr;
     }
 
@@ -543,7 +543,7 @@ NST_FUNC_SIGN(read_bytes_)
     i8 *buffer = nst_malloc_c((usize)bytes_to_read, i8);
     if ( buffer == nullptr )
     {
-        nst_failed_allocation();
+        Nst_failed_allocation();
         return nullptr;
     }
 
@@ -610,7 +610,7 @@ NST_FUNC_SIGN(move_fptr_)
 
     if ( start < 0 || start > 2 )
     {
-        nst_set_value_error_c("invalid origin for seek_fptr");
+        Nst_set_value_error_c("invalid origin for seek_fptr");
         return nullptr;
     }
 
@@ -632,7 +632,7 @@ NST_FUNC_SIGN(move_fptr_)
 
     if ( end_pos < 0 || end_pos > size )
     {
-        nst_set_value_error_c("the file pointer goes outside the file");
+        Nst_set_value_error_c("the file pointer goes outside the file");
         return nullptr;
     }
 
@@ -656,7 +656,7 @@ NST_FUNC_SIGN(flush_)
     i32 res = nst_fflush(f);
     if ( res == EOF )
     {
-        nst_set_memory_error_c("failed to flush the file");
+        Nst_set_memory_error_c("failed to flush the file");
         return nullptr;
     }
     NST_RETURN_NULL;
@@ -697,7 +697,7 @@ NST_FUNC_SIGN(println_)
     }
 
     Nst_StrObj *s_obj = STR(nst_obj_cast(obj, nst_type()->Str));
-    nst_fprintln(file, (const i8 *)s_obj->value);
+    Nst_fprintln(file, (const i8 *)s_obj->value);
 
     if ( flush )
     {
@@ -721,7 +721,7 @@ NST_FUNC_SIGN(_set_stdin_)
 
     if ( !NST_IOF_CAN_READ(f) )
     {
-        nst_set_value_error_c("the file must support reading");
+        Nst_set_value_error_c("the file must support reading");
         return nullptr;
     }
 
@@ -751,7 +751,7 @@ NST_FUNC_SIGN(_set_stdout_)
 
     if ( !NST_IOF_CAN_WRITE(f) )
     {
-        nst_set_value_error_c("the file must support writing");
+        Nst_set_value_error_c("the file must support writing");
         return nullptr;
     }
 
@@ -781,7 +781,7 @@ NST_FUNC_SIGN(_set_stderr_)
 
     if ( !NST_IOF_CAN_WRITE(f) )
     {
-        nst_set_value_error_c("the file must support writing");
+        Nst_set_value_error_c("the file must support writing");
         return nullptr;
     }
 

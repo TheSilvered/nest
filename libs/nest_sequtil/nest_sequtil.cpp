@@ -34,7 +34,7 @@ bool lib_init()
 #error
 #endif
 
-    lib_init_ = !nst_error_occurred();
+    lib_init_ = !Nst_error_occurred();
     return lib_init_;
 }
 
@@ -52,7 +52,7 @@ NST_FUNC_SIGN(map_)
 
     if ( func->arg_num != 1 )
     {
-        nst_set_value_error_c("the function must take exactly one argument");
+        Nst_set_value_error_c("the function must take exactly one argument");
         return nullptr;
     }
 
@@ -100,8 +100,8 @@ NST_FUNC_SIGN(insert_at_)
 
     if ( new_idx < 0 || new_idx >= (Nst_Int)vect->len )
     {
-        nst_set_value_error(nst_sprintf(
-            _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+        Nst_set_value_error(Nst_sprintf(
+            _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector"),
             idx,
             vect->len));
 
@@ -137,8 +137,8 @@ NST_FUNC_SIGN(remove_at_)
 
     if ( new_idx < 0 || new_idx >= (Nst_Int)vect->len )
     {
-        nst_set_value_error(nst_sprintf(
-            _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+        Nst_set_value_error(Nst_sprintf(
+            _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector"),
             idx,
             vect->len));
 
@@ -174,7 +174,7 @@ NST_FUNC_SIGN(slice_)
 
     if ( step == 0 )
     {
-        nst_set_value_error_c("the step cannot be zero");
+        Nst_set_value_error_c("the step cannot be zero");
         return nullptr;
     }
 
@@ -310,7 +310,7 @@ bool insertion_sort(Nst_SeqObj *seq,
             j--;
         }
 
-        if ( nst_error_occurred() )
+        if ( Nst_error_occurred() )
         {
             return false;
         }
@@ -412,7 +412,7 @@ NST_FUNC_SIGN(sort_)
                 merge(seq, left, mid, right);
             }
 
-            if ( nst_error_occurred() )
+            if ( Nst_error_occurred() )
             {
                 return nullptr;
             }
@@ -447,7 +447,7 @@ NST_FUNC_SIGN(filter_)
 
     if ( func->arg_num != 1 )
     {
-        nst_set_call_error_c("the function must take exactly one argument");
+        Nst_set_call_error_c("the function must take exactly one argument");
         return nullptr;
     }
 
@@ -662,14 +662,14 @@ NST_FUNC_SIGN(lscan_)
 
     if ( func->arg_num != 2 )
     {
-        nst_set_value_error_c("the function must take exactly two argument");
+        Nst_set_value_error_c("the function must take exactly two argument");
         nst_dec_ref(seq);
         return nullptr;
     }
 
     if ( max_items < 0 )
     {
-        nst_set_value_error_c("the maximum item count must be greater than or equal to zero");
+        Nst_set_value_error_c("the maximum item count must be greater than or equal to zero");
         nst_dec_ref(seq);
         return nullptr;
     }
@@ -727,14 +727,14 @@ NST_FUNC_SIGN(rscan_)
 
     if ( func->arg_num != 2 )
     {
-        nst_set_value_error_c("the function must take exactly two argument");
+        Nst_set_value_error_c("the function must take exactly two argument");
         nst_dec_ref(seq);
         return nullptr;
     }
 
     if ( max_items < 0 )
     {
-        nst_set_value_error_c("the maximum item count must be greater than or equal to zero");
+        Nst_set_value_error_c("the maximum item count must be greater than or equal to zero");
         nst_dec_ref(seq);
         return nullptr;
     }

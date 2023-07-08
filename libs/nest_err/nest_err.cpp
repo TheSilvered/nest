@@ -18,7 +18,7 @@ bool lib_init()
 #error
 #endif
 
-    lib_init_ = !nst_error_occurred();
+    lib_init_ = !Nst_error_occurred();
     return lib_init_;
 }
 
@@ -122,7 +122,7 @@ Nst_Obj *failure(bool catch_exit)
     }
     else
     {
-        Nst_OpErr *err = nst_error_get();
+        Nst_OpErr *err = Nst_error_get();
         error_name_str = OBJ(err->name);
         error_message_str = OBJ(err->message);
 
@@ -163,7 +163,7 @@ NST_FUNC_SIGN(try_)
 
     if ( func_args->len != func->arg_num )
     {
-        nst_set_call_error(nst_sprintf(
+        Nst_set_call_error(Nst_sprintf(
             "the function expected %zi arguments but the %s had length %zi",
             func->arg_num, TYPE_NAME(func_args), func_args->len));
 

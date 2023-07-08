@@ -6,7 +6,7 @@
 extern bool comments;
 
 #define JSON_SYNTAX_ERROR(msg, path, pos) \
-    nst_set_syntax_error(nst_sprintf( \
+    Nst_set_syntax_error(Nst_sprintf( \
         "JSON: " msg ", file \"%s\", line %lli, column %lli", \
         path, (Nst_Int)(pos).line, (Nst_Int)(pos).col));
 

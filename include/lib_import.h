@@ -65,7 +65,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-EXPORT typedef struct _Nst_ObjDeclr
+NstEXP typedef struct _Nst_ObjDeclr
 {
     void *ptr;
     isize arg_num;
@@ -73,7 +73,7 @@ EXPORT typedef struct _Nst_ObjDeclr
 }
 Nst_ObjDeclr;
 
-EXPORT typedef struct _Nst_DeclrList
+NstEXP typedef struct _Nst_DeclrList
 {
     Nst_ObjDeclr *objs;
     usize obj_count;
@@ -87,7 +87,7 @@ Nst_DeclrList;
 // `args`: the arguments themselves
 // `err`: the `err` argument of the function
 // ...: the pointers to store the values in or the custom types
-EXPORT bool nst_extract_arg_values(const i8  *types,
+NstEXP bool nst_extract_arg_values(const i8  *types,
                                    usize      arg_num,
                                    Nst_Obj  **args,
                                    ...);

@@ -229,8 +229,8 @@ static MatchType *compile_type_match(i8      *types,
         case '#':
             if ( custom_type_count == 3 )
             {
-                nst_set_value_error_c(
-                    _NST_EM_INVALID_TYPE_LETTER("nst_extract_arg_values"));
+                Nst_set_value_error_c(
+                    _Nst_EM_INVALID_TYPE_LETTER("nst_extract_arg_values"));
                 free(match_type);
                 return NULL;
             }
@@ -242,8 +242,8 @@ static MatchType *compile_type_match(i8      *types,
         case '?':
             if ( !allow_optional )
             {
-                nst_set_value_error_c(
-                    _NST_EM_INVALID_TYPE_LETTER("nst_extract_arg_values"));
+                Nst_set_value_error_c(
+                    _Nst_EM_INVALID_TYPE_LETTER("nst_extract_arg_values"));
                 free(match_type);
                 return NULL;
             }
@@ -255,8 +255,8 @@ static MatchType *compile_type_match(i8      *types,
         case '|':
             if ( !allow_or )
             {
-                nst_set_value_error_c(
-                    _NST_EM_INVALID_TYPE_LETTER("nst_extract_arg_values"));
+                Nst_set_value_error_c(
+                    _Nst_EM_INVALID_TYPE_LETTER("nst_extract_arg_values"));
                 free(match_type);
                 return NULL;
             }
@@ -267,8 +267,8 @@ static MatchType *compile_type_match(i8      *types,
         }
         if ( !allow_or )
         {
-            nst_set_value_error_c(
-                _NST_EM_INVALID_TYPE_LETTER("nst_extract_arg_values"));
+            Nst_set_value_error_c(
+                _Nst_EM_INVALID_TYPE_LETTER("nst_extract_arg_values"));
             free(match_type);
             return NULL;
         }
@@ -287,8 +287,8 @@ static MatchType *compile_type_match(i8      *types,
     {
         if ( !allow_auto_casting || accepted_types & NULL_IDX )
         {
-            nst_set_value_error_c(
-                _NST_EM_INVALID_TYPE_LETTER("nst_extract_arg_values"));
+            Nst_set_value_error_c(
+                _Nst_EM_INVALID_TYPE_LETTER("nst_extract_arg_values"));
             free(match_type);
             return NULL;
         }
@@ -310,8 +310,8 @@ static MatchType *compile_type_match(i8      *types,
             match_type->final_type = (Nst_TypeObj *)BYTE_C_CAST;
             break;
         default:
-            nst_set_value_error_c(
-                _NST_EM_INVALID_TYPE_LETTER("nst_extract_arg_values"));
+            Nst_set_value_error_c(
+                _Nst_EM_INVALID_TYPE_LETTER("nst_extract_arg_values"));
             free(match_type);
             return NULL;
         }
@@ -320,8 +320,8 @@ static MatchType *compile_type_match(i8      *types,
     {
         if ( !allow_auto_casting )
         {
-            nst_set_value_error_c(
-                _NST_EM_INVALID_TYPE_LETTER("nst_extract_arg_values"));
+            Nst_set_value_error_c(
+                _Nst_EM_INVALID_TYPE_LETTER("nst_extract_arg_values"));
             free(match_type);
             return NULL;
         }
@@ -368,8 +368,8 @@ static MatchType *compile_type_match(i8      *types,
             match_type->final_type = nst_t.IOFile;
             break;
         default:
-            nst_set_value_error_c(
-                _NST_EM_INVALID_TYPE_LETTER("nst_extract_arg_values"));
+            Nst_set_value_error_c(
+                _Nst_EM_INVALID_TYPE_LETTER("nst_extract_arg_values"));
             free(match_type);
             return NULL;
         }
@@ -402,8 +402,8 @@ static MatchType *compile_type_match(i8      *types,
     {
         if ( accepted_types & C_CAST )
         {
-            nst_set_value_error_c(
-                _NST_EM_INVALID_TYPE_LETTER("nst_extract_arg_values"));
+            Nst_set_value_error_c(
+                _Nst_EM_INVALID_TYPE_LETTER("nst_extract_arg_values"));
             free(match_type);
             return NULL;
         }
@@ -628,7 +628,7 @@ static bool append_type(Nst_TypeObj *type, Nst_Buffer *buf, usize tot_types)
 {
     if ( !nst_buffer_expand_by(buf, type->len + 6) )
     {
-        nst_error_clear();
+        Nst_error_clear();
         return false;
     }
 
@@ -709,7 +709,7 @@ static bool append_types(MatchType *type, Nst_Buffer *buf)
     {
         if ( !nst_buffer_append_c_str(buf, "containing only ") )
         {
-            nst_error_clear();
+            Nst_error_clear();
             return false;
         }
         return append_types(type->seq_match, buf);
@@ -733,15 +733,15 @@ static void set_err(MatchType *type, Nst_Obj *ob, usize idx)
     Nst_Buffer buf;
     if ( !nst_buffer_init(&buf, 256) || !append_types(type, &buf) )
     {
-        nst_error_clear();
+        Nst_error_clear();
         nst_buffer_destroy(&buf);
-        nst_failed_allocation();
+        Nst_failed_allocation();
         return;
     }
 
-    Nst_StrObj *str = STR(nst_sprintf(fmt, buf.data, idx, ob->type->value));
+    Nst_StrObj *str = STR(Nst_sprintf(fmt, buf.data, idx, ob->type->value));
     nst_buffer_destroy(&buf);
-    nst_set_type_error(str);
+    Nst_set_type_error(str);
 }
 
 static void free_type_match(MatchType *type)
@@ -804,8 +804,8 @@ bool nst_extract_arg_values(const i8  *types,
 
     if ( idx != arg_num )
     {
-        nst_set_value_error_c(
-            _NST_EM_INVALID_TYPE_LETTER("nst_extract_arg_values"));
+        Nst_set_value_error_c(
+            _Nst_EM_INVALID_TYPE_LETTER("nst_extract_arg_values"));
         return false;
     }
     return true;

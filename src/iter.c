@@ -115,7 +115,7 @@ Nst_Obj *_nst_iter_get_val(Nst_IterObj *iter)
     return nst_call_func(iter->get_val, &iter->value);
 }
 
-#ifdef WINDOWS
+#ifdef Nst_WIN
 #pragma warning( disable: 4100 )
 #endif
 
@@ -183,9 +183,9 @@ NST_FUNC_SIGN(nst_iter_seq_get_val)
 
     if ( (Nst_Int)seq->len < idx )
     {
-        nst_set_value_error(nst_sprintf(
-            seq->type == nst_t.Array ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
-                                     : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+        Nst_set_value_error(Nst_sprintf(
+            seq->type == nst_t.Array ? _Nst_EM_INDEX_OUT_OF_BOUNDS("Array")
+                                     : _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector"),
             idx,
             seq->len));
 
@@ -229,8 +229,8 @@ NST_FUNC_SIGN(nst_iter_str_get_val)
 
     if ( idx >= (Nst_Int)str->len )
     {
-        nst_set_value_error(nst_sprintf(
-            _NST_EM_INDEX_OUT_OF_BOUNDS("Str"),
+        Nst_set_value_error(Nst_sprintf(
+            _Nst_EM_INDEX_OUT_OF_BOUNDS("Str"),
             idx,
             str->len));
 

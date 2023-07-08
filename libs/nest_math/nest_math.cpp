@@ -3,7 +3,7 @@
 
 #define FUNC_COUNT 36
 #define COORD_TYPE_ERROR do { \
-        nst_set_value_error_c( \
+        Nst_set_value_error_c( \
             "all coordinates must be of type 'Real' or 'Int'"); \
         return nullptr; \
     } while (0)
@@ -57,7 +57,7 @@ bool lib_init()
 #error
 #endif
 
-    lib_init_ = !nst_error_occurred();
+    lib_init_ = !Nst_error_occurred();
     return lib_init_;
 }
 
@@ -234,7 +234,7 @@ NST_FUNC_SIGN(dist_2d_)
 
     if ( p1->len != 2 || p2->len != 2 )
     {
-        nst_set_value_error_c("the points must have exactly two values");
+        Nst_set_value_error_c("the points must have exactly two values");
         return nullptr;
     }
 
@@ -300,7 +300,7 @@ NST_FUNC_SIGN(dist_3d_)
 
     if ( p1->len != 3 || p2->len != 3 )
     {
-        nst_set_value_error_c("the points must have exactly three values");
+        Nst_set_value_error_c("the points must have exactly three values");
         return nullptr;
     }
 
@@ -391,7 +391,7 @@ NST_FUNC_SIGN(dist_nd_)
 
     if ( p1->len != p2->len )
     {
-        nst_set_value_error_c(
+        Nst_set_value_error_c(
             "the points must have the same number of values");
         return nullptr;
     }
@@ -468,7 +468,7 @@ NST_FUNC_SIGN(min_)
 
         if ( seq_len == 0 )
         {
-            nst_set_value_error_c("sequence length is zero");
+            Nst_set_value_error_c("sequence length is zero");
             return nullptr;
         }
 
@@ -522,7 +522,7 @@ NST_FUNC_SIGN(max_)
 
         if ( seq_len == 0 )
         {
-            nst_set_value_error_c("sequence length is zero");
+            Nst_set_value_error_c("sequence length is zero");
             return nullptr;
         }
 
@@ -785,7 +785,7 @@ NST_FUNC_SIGN(gcd_)
         }
         else
         {
-            nst_set_type_error(nst_sprintf(
+            Nst_set_type_error(Nst_sprintf(
                 "the two objects must a sequence and null or two numbers, got '%s' and '%s'",
                 TYPE_NAME(ob1), TYPE_NAME(ob2)
             ));
@@ -795,7 +795,7 @@ NST_FUNC_SIGN(gcd_)
 
     if ( ob2 == nst_null() )
     {
-        nst_set_type_error(nst_sprintf(
+        Nst_set_type_error(Nst_sprintf(
             "the two objects must a sequence and null or two numbers, got '%s' and '%s'",
             TYPE_NAME(ob1), TYPE_NAME(ob2)
         ));
@@ -873,7 +873,7 @@ NST_FUNC_SIGN(lcm_)
         }
         else
         {
-            nst_set_type_error(nst_sprintf(
+            Nst_set_type_error(Nst_sprintf(
                 "the two objects must a sequence and null or two numbers, got '%s' and '%s'",
                 TYPE_NAME(ob1), TYPE_NAME(ob2)
             ));
@@ -883,7 +883,7 @@ NST_FUNC_SIGN(lcm_)
 
     if ( ob2 == nst_null() )
     {
-        nst_set_type_error(nst_sprintf(
+        Nst_set_type_error(Nst_sprintf(
             "the two objects must a sequence and null or two numbers, got '%s' and '%s'",
             TYPE_NAME(ob1), TYPE_NAME(ob2)
         ));

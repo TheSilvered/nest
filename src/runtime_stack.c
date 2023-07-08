@@ -192,8 +192,8 @@ Nst_FuncCall nst_fstack_pop()
 {
     Nst_FuncCall call = {
         NULL,
-        nst_no_pos(),
-        nst_no_pos(),
+        Nst_no_pos(),
+        Nst_no_pos(),
     };
 
     if ( nst_state.f_stack.current_size == 0 )
@@ -215,8 +215,8 @@ Nst_FuncCall nst_fstack_peek()
     {
         Nst_FuncCall ret_val = {
             NULL,
-            nst_no_pos(),
-            nst_no_pos(),
+            Nst_no_pos(),
+            Nst_no_pos(),
             NULL,
             0
         };

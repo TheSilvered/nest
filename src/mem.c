@@ -49,7 +49,7 @@ void *nst_malloc(usize count, usize size)
     void *ptr = nst_raw_malloc(count * size);
     if ( ptr == NULL )
     {
-        nst_failed_allocation();
+        Nst_failed_allocation();
     }
     return ptr;
 }
@@ -60,7 +60,7 @@ void *nst_calloc(usize count, usize size, void *init_value)
 
     if ( block == NULL )
     {
-        nst_failed_allocation();
+        Nst_failed_allocation();
         return NULL;
     }
     if ( init_value == NULL )
@@ -89,7 +89,7 @@ void *nst_realloc(void *prev_block,
     void *block = nst_raw_realloc(prev_block, new_count * size);
     if ( block == NULL && new_count > prev_count )
     {
-        nst_failed_allocation();
+        Nst_failed_allocation();
         return NULL;
     }
     return block ? block : prev_block;
@@ -114,7 +114,7 @@ void *nst_crealloc(void *prev_block,
 
     if ( block == NULL )
     {
-        nst_failed_allocation();
+        Nst_failed_allocation();
         return NULL;
     }
 

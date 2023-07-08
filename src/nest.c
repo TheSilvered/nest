@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include "nest.h"
 
-#ifdef WINDOWS
+#ifdef Nst_WIN
 #include <windows.h>
 #endif
 
@@ -22,12 +22,11 @@
     return code; \
     } while ( 0 )
 
-#ifdef WINDOWS
+#ifdef Nst_WIN
 
 #define EXIT(code) \
     do { \
         nst_free(argv); \
-        nst_free(argv_content); \
         _EXIT(code); \
     } while ( 0 )
 
@@ -39,22 +38,21 @@
 
 #define ERROR_EXIT \
     do { \
-    nst_print_error(error); \
+    Nst_print_error(error); \
     nst_dec_ref(error.name); \
     nst_dec_ref(error.message); \
     EXIT(1); \
     } while ( 0 )
 
-#ifdef WINDOWS
+#ifdef Nst_WIN
 
 int wmain(int argc, wchar_t **wargv)
 {
-    _nst_set_console_mode();
+    _Nst_set_console_mode();
 
     char **argv;
-    char *argv_content;
 
-    if ( !_nst_wargv_to_argv(argc, wargv, &argv, &argv_content) )
+    if ( !_Nst_wargv_to_argv(argc, wargv, &argv) )
     {
         return -1;
     }
@@ -86,7 +84,7 @@ int main(int argc, char **argv)
     i8 *filename;
     i32 args_start;
 
-    i32 parse_result = _nst_parse_args(
+    i32 parse_result = _Nst_parse_args(
         argc, argv,
         &print_tokens,
         &print_tree,
@@ -99,7 +97,7 @@ int main(int argc, char **argv)
         &filename,
         &args_start);
 
-    nst_set_color(nst_supports_color());
+    Nst_set_color(Nst_supports_color());
 
     if ( parse_result == -1 )
     {
@@ -112,16 +110,15 @@ int main(int argc, char **argv)
 
     if (!_nst_init_objects())
     {
-#ifdef WINDOWS
+#ifdef Nst_WIN
         nst_free(argv);
-        nst_free(argv_content);
 #endif
         printf("Failed allocation\n");
         return -1;
     }
 
     Nst_LList *tokens;
-    Nst_Error error = { false, nst_no_pos(), nst_no_pos(), NULL, NULL };
+    Nst_Error error = { false, Nst_no_pos(), Nst_no_pos(), NULL, NULL };
     Nst_SourceText src_text = { NULL, NULL, 0 };
 
     if ( filename != NULL )
@@ -208,7 +205,7 @@ int main(int argc, char **argv)
     }
 
     // nst_compile never fails
-    Nst_InstList *inst_ls = nst_compile(ast, false, &error);
+    Nst_InstList *inst_ls = Nst_compile(ast, false, &error);
 
     if ( opt_level >= 2 && inst_ls != NULL )
     {
@@ -226,7 +223,7 @@ int main(int argc, char **argv)
         {
             printf("\n");
         }
-        nst_print_bytecode(inst_ls, 0);
+        Nst_print_bytecode(inst_ls);
 
         if ( !force_exe )
         {

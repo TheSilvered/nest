@@ -33,19 +33,14 @@
 
 static int get_f_size(f64 val)
 {
-    if ( isinf(val) || isnan(val) )
-    {
+    if (isinf(val) || isnan(val))
         return 4;
-    }
 
     int exp;
     (void)frexp(val, &exp);
     if (exp < 100)
-    {
         return exp + exp / 3;
-    }
-    else
-    {
+    else {
         exp = (int)((f64)exp * (1.0 / 3.0));
         return exp + exp / 3;
     }
@@ -68,49 +63,38 @@ static isize get_seq_size(const i8 **fmt, va_list *args)
     usize float_size = 0;
     usize total_size = 0;
 
-    if ( **fmt == '%' )
-    {
+    if (**fmt == '%') {
         (*fmt)++;
         return 1;
     }
 
-    while ( true )
-    {
-        switch ( **fmt )
-        {
+    while (true) {
+        switch (**fmt) {
         case '#':
             alternate_form = true;
             (*fmt)++;
             continue;
         case '+':
-            if ( prepend_space )
-            {
+            if (prepend_space)
                 return -1;
-            }
             prepend_sign = true;
             (*fmt)++;
             continue;
         case '-':
-            if ( zero_padding )
-            {
+            if (zero_padding)
                 return -1;
-            }
             left_align = true;
             (*fmt)++;
             continue;
         case ' ':
-            if ( prepend_sign )
-            {
+            if (prepend_sign)
                 return -1;
-            }
             prepend_space = true;
             (*fmt)++;
             continue;
         case '0':
-            if ( left_align )
-            {
+            if (left_align)
                 return -1;
-            }
             zero_padding = true;
             (*fmt)++;
             continue;
@@ -122,40 +106,31 @@ static isize get_seq_size(const i8 **fmt, va_list *args)
         break;
     }
 
-    if ( isdigit((u8)**fmt) )
-    {
+    if (isdigit((u8)**fmt)) {
         i8 *end;
         width = (int)strtol(*fmt, &end, 10);
         *fmt = end;
-    }
-    else if ( **fmt == '*' )
-    {
+    } else if (**fmt == '*') {
         width = va_arg(*args, int);
         (*fmt)++;
     }
 
-    if ( **fmt == '.' )
-    {
+    if (**fmt == '.') {
         (*fmt)++;
-        if ( isdigit((u8)**fmt) )
-        {
+        if (isdigit((u8)**fmt)) {
             i8 *end;
             precision = (int)strtol(*fmt, &end, 10);
             *fmt = end;
-        }
-        else if ( **fmt == '*' )
-        {
+        } else if (**fmt == '*') {
             precision = va_arg(*args, int);
             (*fmt)++;
         }
     }
 
-    switch ( **fmt )
-    {
+    switch (**fmt) {
     case 'h':
         (*fmt)++;
-        if ( **fmt == 'h' )
-        {
+        if (**fmt == 'h') {
             int_size = sizeof(int);
             (*fmt)++;
             break;
@@ -164,8 +139,7 @@ static isize get_seq_size(const i8 **fmt, va_list *args)
         break;
     case 'l':
         (*fmt)++;
-        if ( **fmt == 'l' )
-        {
+        if (**fmt == 'l') {
             int_size = sizeof(long long int);
             (*fmt)++;
             break;
@@ -190,25 +164,17 @@ static isize get_seq_size(const i8 **fmt, va_list *args)
         return -1;
     }
 
-    switch ( **fmt )
-    {
+    switch (**fmt) {
     case 'u':
-        if ( prepend_sign || prepend_space )
-        {
+        if (prepend_sign || prepend_space)
             return -1;
-        }
     case 'd':
     case 'i':
-        if ( int_size == 0 && float_size == 0 )
-        {
+        if (int_size == 0 && float_size == 0)
             int_size = sizeof(int);
-        }
-        if ( int_size == 0 || alternate_form )
-        {
+        if (int_size == 0 || alternate_form)
             return -1;
-        }
-        switch ( int_size )
-        {
+        switch (int_size) {
         case 1:
             total_size = I8__MAX_DEC_LEN;
             (void)va_arg(*args, int);
@@ -232,16 +198,13 @@ static isize get_seq_size(const i8 **fmt, va_list *args)
         return total_size;
     case 'x':
     case 'X':
-        if ( int_size == 0 && float_size == 0 )
-        {
+        if (int_size == 0 && float_size == 0)
             int_size = sizeof(int);
-        }
-        if ( int_size == 0 || thousand_sep || prepend_sign || prepend_space )
-        {
+
+        if (int_size == 0 || thousand_sep || prepend_sign || prepend_space)
             return -1;
-        }
-        switch ( int_size )
-        {
+
+        switch (int_size) {
         case 1:
             total_size = I8__MAX_HEX_LEN;
             (void)va_arg(*args, int);
@@ -259,25 +222,20 @@ static isize get_seq_size(const i8 **fmt, va_list *args)
             (void)va_arg(*args, i64);
             break;
         }
-        if ( alternate_form )
-        {
+        if (alternate_form)
             total_size += 2;
-        }
         total_size = MAX(width, (isize)total_size);
         total_size = MAX(precision, (isize)total_size);
         (*fmt)++;
         return total_size;
     case 'o':
-        if ( int_size == 0 && float_size == 0 )
-        {
+        if (int_size == 0 && float_size == 0)
             int_size = sizeof(int);
-        }
-        if ( int_size == 0 || thousand_sep || prepend_sign || prepend_space )
-        {
+
+        if (int_size == 0 || thousand_sep || prepend_sign || prepend_space)
             return -1;
-        }
-        switch ( int_size )
-        {
+
+        switch (int_size) {
         case 1:
             total_size = I8__MAX_OCT_LEN;
             (void)va_arg(*args, int);
@@ -295,25 +253,23 @@ static isize get_seq_size(const i8 **fmt, va_list *args)
             (void)va_arg(*args, i64);
             break;
         }
-        if ( alternate_form )
-        {
+        if (alternate_form)
             total_size++;
-        }
         total_size = MAX(width, (isize)total_size);
         total_size = MAX(precision, (isize)total_size);
         (*fmt)++;
         return total_size;
     case 'c':
-        if ( int_size != 0 || float_size != 0 || thousand_sep || prepend_sign ||
-             prepend_space || alternate_form  || precision >= 0 )
+        if (int_size != 0 || float_size != 0 || thousand_sep || prepend_sign
+            || prepend_space || alternate_form  || precision >= 0)
         {
             return -1;
         }
         total_size = MAX(1, width);
         return total_size;
     case 's':
-        if ( int_size != 0 || float_size != 0 || thousand_sep || prepend_sign ||
-             prepend_space || alternate_form )
+        if (int_size != 0 || float_size != 0 || thousand_sep || prepend_sign
+            || prepend_space || alternate_form)
         {
             return -1;
         }
@@ -327,8 +283,8 @@ static isize get_seq_size(const i8 **fmt, va_list *args)
         (*fmt)++;
         return total_size;
     case 'p':
-        if ( int_size != 0 || float_size != 0 || thousand_sep || prepend_sign ||
-             prepend_space || alternate_form  || precision >= 0 )
+        if (int_size != 0 || float_size != 0 || thousand_sep || prepend_sign
+            || prepend_space || alternate_form  || precision >= 0)
         {
             return -1;
         }
@@ -338,18 +294,14 @@ static isize get_seq_size(const i8 **fmt, va_list *args)
         return total_size;
     case 'e':
     case 'E':
-        if ( int_size == 0 && float_size == 0 )
-        {
+        if (int_size == 0 && float_size == 0)
             float_size = sizeof(double);
-        }
-        if ( float_size == 0 || thousand_sep )
-        {
+
+        if (float_size == 0 || thousand_sep)
             return -1;
-        }
-        if ( precision < 0)
-        {
+
+        if (precision < 0)
             precision = 6;
-        }
 
         total_size = precision + E_EXTRA_SIZE;
         total_size = MAX((isize)total_size, width);
@@ -358,18 +310,14 @@ static isize get_seq_size(const i8 **fmt, va_list *args)
         return total_size;
     case 'g':
     case 'G':
-        if ( int_size == 0 && float_size == 0 )
-        {
+        if (int_size == 0 && float_size == 0)
             float_size = sizeof(double);
-        }
-        if ( float_size == 0 )
-        {
+
+        if (float_size == 0)
             return -1;
-        }
-        if ( precision < 0)
-        {
+
+        if (precision < 0)
             precision = 6;
-        }
 
         total_size = precision + G_EXTRA_SIZE;
         total_size = MAX((isize)total_size, width);
@@ -378,18 +326,14 @@ static isize get_seq_size(const i8 **fmt, va_list *args)
         return total_size;
     case 'f':
     case 'F':
-        if ( int_size == 0 && float_size == 0 )
-        {
+        if (int_size == 0 && float_size == 0)
             float_size = sizeof(double);
-        }
-        if ( float_size == 0 )
-        {
+
+        if (float_size == 0)
             return -1;
-        }
-        if ( precision < 0)
-        {
+
+        if (precision < 0)
             precision = 6;
-        }
         double val;
 
         val = va_arg(*args, f64);
@@ -410,16 +354,13 @@ static isize get_max_size_printf(const i8 *fmt, va_list orig_args)
     va_list args;
     va_copy(args, orig_args);
 
-    while (*fmt != '\0')
-    {
-        if (*fmt != '%')
-        {
+    while (*fmt != '\0') {
+        if (*fmt != '%') {
             fmt++;
             continue;
         }
         isize seq_size = get_seq_size(&fmt, &args);
-        if ( seq_size < 0 )
-        {
+        if (seq_size < 0) {
             return -1;
         }
         tot_size += seq_size;
@@ -427,87 +368,81 @@ static isize get_max_size_printf(const i8 *fmt, va_list orig_args)
     return tot_size + 1;
 }
 
-isize nst_print(const i8 *buf)
+isize Nst_print(const i8 *buf)
 {
-    return nst_fprint(nst_io.out, buf);
+    return Nst_fprint(nst_io.out, buf);
 }
 
-isize nst_println(const i8 *buf)
+isize Nst_println(const i8 *buf)
 {
-    return nst_fprintln(nst_io.out, buf);
+    return Nst_fprintln(nst_io.out, buf);
 }
 
-isize nst_printf(WIN_FMT const i8 *fmt, ...)
+isize Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
     return nst_vfprintf(nst_io.out, fmt, args);
 }
 
-isize nst_fprint(Nst_IOFileObj *f, const i8 *buf)
+isize Nst_fprint(Nst_IOFileObj *f, const i8 *buf)
 {
-    if ( NST_IOF_IS_CLOSED(f) )
-    {
+    if (NST_IOF_IS_CLOSED(f))
         return -1;
-    }
+
     usize len = strlen(buf);
     return nst_fwrite((i8 *)buf, sizeof(i8), (usize)len, f);
 }
 
-isize nst_fprintln(Nst_IOFileObj *f, const i8 *buf)
+isize Nst_fprintln(Nst_IOFileObj *f, const i8 *buf)
 {
-    if ( NST_IOF_IS_CLOSED(f) )
-    {
+    if (NST_IOF_IS_CLOSED(f))
         return -1;
-    }
+
     usize len = strlen(buf);
     size_t a = f->write_f((void *)buf, 1, (size_t)len, f->value);
     size_t b = f->write_f((void *)"\n", 1, 1, f->value);
     return a + b;
 }
 
-isize nst_fprintf(Nst_IOFileObj *f, WIN_FMT const i8 *fmt, ...)
+isize Nst_fprintf(Nst_IOFileObj *f, Nst_WIN_FMT const i8 *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
     return nst_vfprintf(f, fmt, args);
 }
 
-Nst_Obj *nst_sprintf(WIN_FMT const i8 *fmt, ...)
+Nst_Obj *Nst_sprintf(Nst_WIN_FMT const i8 *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    return nst_vsprintf(fmt, args);
+    return Nst_vsprintf(fmt, args);
 }
 
-Nst_Obj *nst_vsprintf(const i8 *fmt, va_list args)
+Nst_Obj *Nst_vsprintf(const i8 *fmt, va_list args)
 {
     usize buf_size = get_max_size_printf(fmt, args);
-    if ( buf_size < 0 )
-    {
+    if (buf_size < 0) {
         va_end(args);
         return NULL;
     }
     i8 *buf = nst_calloc_c(buf_size, i8, NULL);
-    if ( buf == NULL )
-    {
-        nst_error_clear();
+    if (buf == NULL) {
+        Nst_error_clear();
         va_end(args);
         return NULL;
     }
     int len = vsprintf(buf, fmt, args);
     va_end(args);
 
-    if ( len < 0 )
-    {
+    if (len < 0) {
         nst_free(buf);
         return NULL;
     }
 
     Nst_Obj *str = nst_string_new(buf, len, true);
-    if ( str == NULL )
-    {
-        nst_error_clear();
+    if (str == NULL) {
+        Nst_error_clear();
         nst_free(buf);
     }
     return str;
@@ -515,32 +450,28 @@ Nst_Obj *nst_vsprintf(const i8 *fmt, va_list args)
 
 isize nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args)
 {
-    if ( NST_IOF_IS_CLOSED(f) )
-    {
+    if (NST_IOF_IS_CLOSED(f)) {
         va_end(args);
-        return -1;
+        return -2;
     }
 
     isize buf_size = get_max_size_printf(fmt, args);
-    if ( buf_size < 0 )
-    {
+    if (buf_size < 0) {
         va_end(args);
-        return -1;
+        return -3;
     }
     i8 *buf = nst_calloc_c(buf_size, i8, NULL);
-    if ( buf == NULL )
-    {
-        nst_error_clear();
+    if (buf == NULL) {
+        Nst_error_clear();
         va_end(args);
-        return -1;
+        return -4;
     }
     int len = vsprintf(buf, fmt, args);
     va_end(args);
 
-    if ( len <= 0 )
-    {
+    if (len < 0) {
         nst_free(buf);
-        return len;
+        return -1;
     }
     isize result = nst_fwrite(buf, sizeof(i8), len, f);
     nst_free(buf);

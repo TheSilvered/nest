@@ -94,7 +94,7 @@ NST_FUNC_SIGN(chain_start)
     Nst_Obj *local_val = get_first_iter_val(main_iter);
     if ( local_val == nullptr )
     {
-        if ( nst_error_occurred() )
+        if ( Nst_error_occurred() )
         {
             return nullptr;
         }
@@ -116,7 +116,7 @@ NST_FUNC_SIGN(chain_start)
         {
             goto end;
         }
-        if ( nst_error_occurred() )
+        if ( Nst_error_occurred() )
         {
             return nullptr;
         }
@@ -218,7 +218,7 @@ NST_FUNC_SIGN(chain_get_val)
             nst_dec_ref(local_iter);
             goto end;
         }
-        if ( nst_error_occurred() )
+        if ( Nst_error_occurred() )
         {
             nst_dec_ref(return_ob);
             return nullptr;
@@ -481,10 +481,10 @@ NST_FUNC_SIGN(reversed_get_val)
 
     if ( res == nullptr )
     {
-        nst_set_value_error(nst_sprintf(
+        Nst_set_value_error(Nst_sprintf(
             SEQ(objs[1])->type == nst_type()->Array
-                ? _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
-                : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+                ? _Nst_EM_INDEX_OUT_OF_BOUNDS("Array")
+                : _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector"),
             AS_INT(objs[0]),
             SEQ(objs[1])->len));
 

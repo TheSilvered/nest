@@ -19,17 +19,17 @@
          ch == '\f')
 
 #define RETURN_INT_ERR do { \
-    nst_set_value_error_c(_NST_EM_BAD_INT_LITERAL); \
+    Nst_set_value_error_c(_Nst_EM_BAD_INT_LITERAL); \
     return NULL; \
     } while ( 0 )
 
 #define RETURN_BYTE_ERR do { \
-    nst_set_value_error_c(_NST_EM_BAD_BYTE_LITERAL); \
+    Nst_set_value_error_c(_Nst_EM_BAD_BYTE_LITERAL); \
     return NULL; \
     } while ( 0 )
 
 #define RETURN_REAL_ERR do { \
-    nst_set_value_error_c(_NST_EM_BAD_REAL_LITERAL); \
+    Nst_set_value_error_c(_Nst_EM_BAD_REAL_LITERAL); \
     return NULL; \
     } while ( 0 )
 
@@ -144,7 +144,7 @@ Nst_Obj *_nst_string_repr(Nst_StrObj *src)
             }
             else
             {
-                i32 res = nst_check_utf8_bytes(orig + i, l - i);
+                i32 res = Nst_check_utf8_bytes(orig + i, l - i);
                 if ( res == -1 )
                 {
                     new_size += 4;
@@ -217,7 +217,7 @@ Nst_Obj *_nst_string_repr(Nst_StrObj *src)
                 new_str[i++] = orig[j];
             }
             else if ( orig[j] <= 0b01111111 ||
-                      nst_check_utf8_bytes(orig + j, l - j) == -1 )
+                      Nst_check_utf8_bytes(orig + j, l - j) == -1 )
             {
                 new_str[i++] = '\\';
                 new_str[i++] = 'x';
@@ -226,7 +226,7 @@ Nst_Obj *_nst_string_repr(Nst_StrObj *src)
             }
             else
             {
-                i32 res = nst_check_utf8_bytes(orig + j, l - j);
+                i32 res = Nst_check_utf8_bytes(orig + j, l - j);
                 if ( res == 2 && is_unicode_escape(orig[j], orig[j + 1]) )
                 {
                     res = is_unicode_escape(orig[j], orig[j + 1]);
@@ -264,8 +264,8 @@ Nst_Obj *_nst_string_get(Nst_StrObj *str, i64 idx)
 
     if ( idx < 0 || idx >= (i64)str->len )
     {
-        nst_set_value_error(nst_sprintf(
-            _NST_EM_INDEX_OUT_OF_BOUNDS("Str"),
+        Nst_set_value_error(Nst_sprintf(
+            _Nst_EM_INDEX_OUT_OF_BOUNDS("Str"),
             idx,
             str->len));
         return NULL;
@@ -308,7 +308,7 @@ Nst_Obj *nst_string_parse_int(Nst_StrObj *str, i32 base)
 
     if ( (base < 2 || base > 36) && base != 0 )
     {
-        nst_set_value_error_c(_NST_EM_BAD_INT_BASE);
+        Nst_set_value_error_c(_Nst_EM_BAD_INT_BASE);
         return NULL;
     }
     ERR_IF_END(s, end, RETURN_INT_ERR);
@@ -413,7 +413,7 @@ Nst_Obj *nst_string_parse_int(Nst_StrObj *str, i32 base)
 
         if ( num > cut_off || (num == cut_off && ch_val > cut_lim) )
         {
-            nst_set_memory_error_c(_NST_EM_INT_TOO_BIG);
+            Nst_set_memory_error_c(_Nst_EM_INT_TOO_BIG);
             return NULL;
         }
         num *= base;

@@ -20,8 +20,8 @@ Nst_Node *nst_node_new(Nst_NodeType type)
     lists[1].tail = NULL;
     lists[1].size = 0;
 
-    node->start = nst_no_pos();
-    node->end = nst_no_pos();
+    node->start = Nst_no_pos();
+    node->end = Nst_no_pos();
     node->type = type;
     node->tokens = lists;
     node->nodes = lists + 1;

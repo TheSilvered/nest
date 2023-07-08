@@ -2,7 +2,7 @@
 #include <cstring>
 #include "json_dumper.h"
 
-#ifndef WINDOWS
+#ifndef Nst_WIN
 
 #define isinf std::isinf
 #define isnan std::isnan
@@ -11,7 +11,7 @@
 
 #define EXCEPT_ERROR \
     do { \
-        if ( nst_error_occurred() ) \
+        if ( Nst_error_occurred() ) \
         { \
             FAIL; \
         } \
@@ -28,7 +28,7 @@
         recursion_level++; \
         if ( recursion_level > 1500 ) \
         { \
-            nst_set_memory_error_c("over 1500 recursive calls, dump failed"); \
+            Nst_set_memory_error_c("over 1500 recursive calls, dump failed"); \
             FAIL; \
         } \
     } while ( 0 )
@@ -55,7 +55,7 @@ Nst_Obj *json_dump(Nst_Obj *obj, i32 indent)
     }
 
     dump_obj(obj, indent);
-    if ( nst_error_occurred() )
+    if ( Nst_error_occurred() )
     {
         return nullptr;
     }
@@ -98,7 +98,7 @@ static void dump_obj(Nst_Obj *obj, i32 indent)
     }
     else
     {
-        nst_set_type_error(nst_sprintf(
+        Nst_set_type_error(Nst_sprintf(
             "JSON: an object of type %s is not serializable",
             TYPE_NAME(obj)));
         FAIL;
@@ -116,7 +116,7 @@ static void dump_str(Nst_StrObj *str)
 
     for ( usize i = 0; i < s_len; i++ )
     {
-        i32 res = nst_check_utf8_bytes((u8 *)s_val + i, s_len - i);
+        i32 res = Nst_check_utf8_bytes((u8 *)s_val + i, s_len - i);
         if ( res != 1 )
         {
             unicode_bytes++;
@@ -133,7 +133,7 @@ static void dump_str(Nst_StrObj *str)
     nst_buffer_append_char(&str_buf, '"');
     for ( usize i = 0; i < s_len; i++ )
     {
-        i32 res = nst_check_utf8_bytes((u8 *)s_val + i, s_len - i);
+        i32 res = Nst_check_utf8_bytes((u8 *)s_val + i, s_len - i);
         switch ( res )
         {
         case 1:
@@ -179,7 +179,7 @@ static void dump_str(Nst_StrObj *str)
             break;
         }
         case 4:
-            nst_set_value_error_c(
+            Nst_set_value_error_c(
                 "JSON: cannot serialize characters above U+FFFF");
             FAIL;
         }
@@ -208,7 +208,7 @@ static void dump_num(Nst_Obj *number)
         Nst_Real val = AS_REAL(number);
         if ( isinf(val) || isnan(val) )
         {
-            nst_set_value_error_c(
+            Nst_set_value_error_c(
                 "JSON: cannot serialize infinities or NaNs");
             FAIL;
         }
@@ -320,7 +320,7 @@ static void dump_map(Nst_MapObj *map, i32 indent)
         Nst_Obj *value = nodes[i].value;
         if ( key->type != nst_type()->Str )
         {
-            nst_set_type_error_c("JSON: all keys of a map must be strings");
+            Nst_set_type_error_c("JSON: all keys of a map must be strings");
             FAIL;
         }
 

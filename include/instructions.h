@@ -16,7 +16,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-EXPORT typedef enum _Nst_InstID
+NstEXP typedef enum _Nst_InstID
 {
     NST_IC_NO_OP,
     NST_IC_POP_VAL, // Pop a value from the value stack
@@ -69,7 +69,7 @@ EXPORT typedef enum _Nst_InstID
 }
 Nst_InstID;
 
-EXPORT typedef struct _Nst_Instruction
+NstEXP typedef struct _Nst_Instruction
 {
     Nst_InstID id;
     Nst_Int int_val;
@@ -79,7 +79,7 @@ EXPORT typedef struct _Nst_Instruction
 }
 Nst_Inst;
 
-EXPORT typedef struct _Nst_InstList
+NstEXP typedef struct _Nst_InstList
 {
     usize total_size;
     Nst_Inst *instructions;
@@ -88,21 +88,21 @@ EXPORT typedef struct _Nst_InstList
 Nst_InstList;
 
 // Creates a new instruction on the heap with positions
-EXPORT Nst_Inst *nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end);
-EXPORT Nst_Inst *_nst_inst_new_val(Nst_InstID id,
+NstEXP Nst_Inst *nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end);
+NstEXP Nst_Inst *_nst_inst_new_val(Nst_InstID id,
                                    Nst_Obj   *val,
                                    Nst_Pos    start,
                                    Nst_Pos    end);
 // Creates a new instruction on the heap with positions and an integer value
-EXPORT Nst_Inst *nst_inst_new_int(Nst_InstID id,
+NstEXP Nst_Inst *nst_inst_new_int(Nst_InstID id,
                                   Nst_Int    int_val,
                                   Nst_Pos    start,
                                   Nst_Pos    end);
 
 // Destroys an instruction allocated on the heap
-EXPORT void nst_inst_destroy(Nst_Inst *inst);
+NstEXP void nst_inst_destroy(Nst_Inst *inst);
 // Destroys an instruction list
-EXPORT void nst_inst_list_destroy(Nst_InstList *inst_list);
+NstEXP void nst_inst_list_destroy(Nst_InstList *inst_list);
 
 #ifdef __cplusplus
 }

@@ -5,7 +5,7 @@
 #define FUNC_COUNT 4
 
 #define SET_INVALID_UTF8 \
-    nst_set_value_error_c("the string is not valid UTF-8")
+    Nst_set_value_error_c("the string is not valid UTF-8")
 
 static Nst_ObjDeclr func_list_[FUNC_COUNT];
 static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
@@ -24,7 +24,7 @@ bool lib_init()
 #error
 #endif
 
-    lib_init_ = !nst_error_occurred();
+    lib_init_ = !Nst_error_occurred();
     return lib_init_;
 }
 
@@ -56,11 +56,11 @@ NST_FUNC_SIGN(utf8_iter_get_val)
 
     if ( (usize)val >= s_len )
     {
-        nst_set_value_error(nst_sprintf(
-            _NST_EM_INDEX_OUT_OF_BOUNDS("Str (Unicode)"),
+        Nst_set_value_error(Nst_sprintf(
+            _Nst_EM_INDEX_OUT_OF_BOUNDS("Str (Unicode)"),
             val, s_len));
     }
-    i32 res = nst_check_utf8_bytes(
+    i32 res = Nst_check_utf8_bytes(
         (u8 *)str->value + val,
         s_len - (usize)val);
     if ( res == -1 )
@@ -88,7 +88,7 @@ NST_FUNC_SIGN(is_valid_)
     u8 *s = (u8 *)str->value;
     for ( usize i = 0, n = str->len; i < n; )
     {
-        i32 res = nst_check_utf8_bytes(s + i, n - i);
+        i32 res = Nst_check_utf8_bytes(s + i, n - i);
         if ( res == -1 )
         {
             NST_RETURN_FALSE;
@@ -109,7 +109,7 @@ NST_FUNC_SIGN(get_len_)
 
     for ( usize i = 0, n = str->len; i < n; len++ )
     {
-        i32 res = nst_check_utf8_bytes(s + i, n - i);
+        i32 res = Nst_check_utf8_bytes(s + i, n - i);
         if ( res == -1 )
         {
             SET_INVALID_UTF8;
@@ -136,7 +136,7 @@ NST_FUNC_SIGN(get_at_)
 
     for ( ; i < s_len && curr_idx < idx; curr_idx++, u_len++ )
     {
-        res = nst_check_utf8_bytes(s + i, s_len - i);
+        res = Nst_check_utf8_bytes(s + i, s_len - i);
         if ( res == -1 )
         {
             SET_INVALID_UTF8;
@@ -147,13 +147,13 @@ NST_FUNC_SIGN(get_at_)
 
     if ( curr_idx < idx || i == s_len )
     {
-        nst_set_value_error(nst_sprintf(
-            _NST_EM_INDEX_OUT_OF_BOUNDS("Str (Unicode)"),
+        Nst_set_value_error(Nst_sprintf(
+            _Nst_EM_INDEX_OUT_OF_BOUNDS("Str (Unicode)"),
             idx, u_len));
         return nullptr;
     }
 
-    res = nst_check_utf8_bytes(s + i, s_len - i);
+    res = Nst_check_utf8_bytes(s + i, s_len - i);
     if ( res == -1 )
     {
         SET_INVALID_UTF8;
@@ -163,7 +163,7 @@ NST_FUNC_SIGN(get_at_)
     i8 *new_s = nst_malloc_c(res + 1, i8);
     if ( new_s == nullptr )
     {
-        nst_failed_allocation();
+        Nst_failed_allocation();
         return nullptr;
     }
     memcpy(new_s, s + i, res);

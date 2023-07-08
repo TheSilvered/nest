@@ -7,8 +7,8 @@
 extern "C" {
 #endif // !__cplusplus
 
-EXPORT bool lib_init();
-EXPORT Nst_DeclrList *get_func_ptrs();
+NstEXP bool lib_init();
+NstEXP Nst_DeclrList *get_func_ptrs();
 
 NST_FUNC_SIGN(try_);
 NST_FUNC_SIGN(_get_err_names_);

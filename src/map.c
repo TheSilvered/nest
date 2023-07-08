@@ -157,8 +157,8 @@ bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
         hash = nst_obj_hash(key);
         if ( hash == -1 )
         {
-            nst_set_value_error(nst_sprintf(
-                _NST_EM_UNHASHABLE_TYPE,
+            Nst_set_value_error(Nst_sprintf(
+                _Nst_EM_UNHASHABLE_TYPE,
                 TYPE_NAME(key)));
             return false;
         }

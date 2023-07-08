@@ -2,7 +2,7 @@
 #include <ctime>
 #include "nest_time.h"
 
-#ifdef WINDOWS
+#ifdef Nst_WIN
 #include "../dll/framework.h"
 #else
 #include <unistd.h>
@@ -46,7 +46,7 @@ bool lib_init()
 #error
 #endif
 
-    lib_init_ = !nst_error_occurred();
+    lib_init_ = !Nst_error_occurred();
     return lib_init_;
 }
 
@@ -261,7 +261,7 @@ NST_FUNC_SIGN(sleep_)
 
     NST_DEF_EXTRACT("N", &time);
 
-#ifdef WINDOWS
+#ifdef Nst_WIN
     Sleep(DWORD(time * 1000));
 #else
     usleep(useconds_t(time * 1000000));
@@ -275,7 +275,7 @@ NST_FUNC_SIGN(sleep_ms_)
 
     NST_DEF_EXTRACT("l", &time);
 
-#ifdef WINDOWS
+#ifdef Nst_WIN
     Sleep(DWORD(time));
 #else
     usleep(useconds_t(time * 1000));

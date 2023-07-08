@@ -15,14 +15,14 @@
 extern "C" {
 #endif // !__cplusplus
 
-EXPORT typedef union _Nst_FuncBody
+NstEXP typedef union _Nst_FuncBody
 {
     Nst_InstList *bytecode;
     Nst_Obj *(*c_func)(usize arg_num, Nst_Obj **args);
 }
 Nst_FuncBody;
 
-EXPORT typedef struct _Nst_FuncObj
+NstEXP typedef struct _Nst_FuncObj
 {
     NST_OBJ_HEAD;
     NST_GGC_HEAD;
@@ -35,20 +35,20 @@ Nst_FuncObj;
 
 // Creates a new function objects that accepts `arg_num` args
 // The function's `args` must be set manually
-EXPORT Nst_Obj *nst_func_new(usize arg_num, Nst_InstList *bytecode);
+NstEXP Nst_Obj *nst_func_new(usize arg_num, Nst_InstList *bytecode);
 // Creates a new function object that is a wrapper of a C function
-EXPORT Nst_Obj *nst_func_new_c(usize arg_num,
+NstEXP Nst_Obj *nst_func_new_c(usize arg_num,
                                Nst_Obj *(*cbody)(usize     arg_num,
                                                  Nst_Obj  **args));
-EXPORT void _nst_func_set_vt(Nst_FuncObj *func, Nst_MapObj *map);
+NstEXP void _nst_func_set_vt(Nst_FuncObj *func, Nst_MapObj *map);
 
 // traverse function for Nst_FuncObj, needed for the GGC
-EXPORT void _nst_func_traverse(Nst_FuncObj *func);
-EXPORT void _nst_func_track(Nst_FuncObj *func);
+NstEXP void _nst_func_traverse(Nst_FuncObj *func);
+NstEXP void _nst_func_track(Nst_FuncObj *func);
 // destroy function for Nst_Func_Obj
-EXPORT void _nst_func_destroy(Nst_FuncObj *func);
+NstEXP void _nst_func_destroy(Nst_FuncObj *func);
 
-EXPORT typedef enum _Nst_FuncFlags
+NstEXP typedef enum _Nst_FuncFlags
 {
     NST_FLAG_FUNC_IS_C = 0b1
 }

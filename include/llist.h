@@ -15,7 +15,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-EXPORT typedef struct _Nst_LLNnode
+NstEXP typedef struct _Nst_LLNnode
 {
     void *value;
     bool allocated;
@@ -23,7 +23,7 @@ EXPORT typedef struct _Nst_LLNnode
 }
 Nst_LLNode;
 
-EXPORT typedef struct _Nst_LList
+NstEXP typedef struct _Nst_LList
 {
     Nst_LLNode *head;
     Nst_LLNode *tail;
@@ -33,46 +33,46 @@ Nst_LList;
 
 struct _Nst_OpErr;
 
-EXPORT typedef void (*Nst_LListDestructor)(void *);
+NstEXP typedef void (*Nst_LListDestructor)(void *);
 
 // Adds an element to the front
-EXPORT bool nst_llist_push(Nst_LList *llist,
+NstEXP bool nst_llist_push(Nst_LList *llist,
                            void      *value,
                            bool       allocated);
 // Adds an element to the back
-EXPORT bool nst_llist_append(Nst_LList *llist,
+NstEXP bool nst_llist_append(Nst_LList *llist,
                              void      *value,
                              bool       allocated);
 // Inserts an element after node
-EXPORT bool nst_llist_insert(Nst_LList  *llist,
+NstEXP bool nst_llist_insert(Nst_LList  *llist,
                              void       *value,
                              bool        allocated,
                              Nst_LLNode *node);
 // Removes and returns an element from the front
-EXPORT void *nst_llist_pop(Nst_LList *llist);
+NstEXP void *nst_llist_pop(Nst_LList *llist);
 // Returns the value from the head node
-EXPORT void *nst_llist_peek_front(Nst_LList *llist);
+NstEXP void *nst_llist_peek_front(Nst_LList *llist);
 // Returns the value from the tail node
-EXPORT void *nst_llist_peek_back(Nst_LList *llist);
+NstEXP void *nst_llist_peek_back(Nst_LList *llist);
 
-EXPORT void nst_llist_push_llnode(Nst_LList *llist, Nst_LLNode *node);
-EXPORT void nst_llist_append_llnode(Nst_LList *llist, Nst_LLNode *node);
-EXPORT Nst_LLNode *nst_llist_pop_llnode(Nst_LList *llist);
+NstEXP void nst_llist_push_llnode(Nst_LList *llist, Nst_LLNode *node);
+NstEXP void nst_llist_append_llnode(Nst_LList *llist, Nst_LLNode *node);
+NstEXP Nst_LLNode *nst_llist_pop_llnode(Nst_LList *llist);
 
 // Creates a new LList on the heap
-EXPORT Nst_LList *nst_llist_new();
+NstEXP Nst_LList *nst_llist_new();
 // Creates a new LLNode on the heap
-EXPORT Nst_LLNode *nst_llnode_new(void *value,
+NstEXP Nst_LLNode *nst_llnode_new(void *value,
                                   bool  allocated);
 // Frees the list and all the values inside the nodes.
 // The value of the node is passed to 'item_destroy_func' when 'allocated' is true
 // When 'allocated' is true but 'item_destroy_func' is NULL, the value is not freed
-EXPORT void nst_llist_destroy(Nst_LList *llist, void (*item_destroy_func)(void *));
+NstEXP void nst_llist_destroy(Nst_LList *llist, void (*item_destroy_func)(void *));
 // Frees all the values inside the list but maintains the list
 // If 'item_destroy_func' is NULL and 'allocated' is true, the item is not freed
-EXPORT void nst_llist_empty(Nst_LList *llist, void (*item_destroy_func)(void *));
+NstEXP void nst_llist_empty(Nst_LList *llist, void (*item_destroy_func)(void *));
 // Moves the contents of one llist to another
-EXPORT void nst_llist_move_nodes(Nst_LList *from, Nst_LList *to);
+NstEXP void nst_llist_move_nodes(Nst_LList *from, Nst_LList *to);
 
 #ifdef __cplusplus
 }

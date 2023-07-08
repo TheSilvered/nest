@@ -36,7 +36,7 @@ bool lib_init()
     state_ended     = nst_int_new(FLAG_CO_ENDED);
     nst_stack_init((Nst_GenericStack *)&co_c_stack, sizeof(CoroutineObj *), 8);
 
-    lib_init_ = !nst_error_occurred();
+    lib_init_ = !Nst_error_occurred();
     return lib_init_;
 }
 
@@ -267,7 +267,7 @@ NST_FUNC_SIGN(create_)
 
     if ( NST_FLAG_HAS(func, NST_FLAG_FUNC_IS_C) )
     {
-        nst_set_type_error_c("cannot create a coroutine from a C function");
+        Nst_set_type_error_c("cannot create a coroutine from a C function");
         return nullptr;
     }
 
@@ -294,8 +294,8 @@ NST_FUNC_SIGN(call_)
     if ( !NST_FLAG_HAS(co, FLAG_CO_PAUSED) &&
          co->func->arg_num != SEQ(co_args)->len )
     {
-        nst_set_call_error(nst_sprintf(
-            _NST_EM_WRONG_ARG_NUM,
+        Nst_set_call_error(Nst_sprintf(
+            _Nst_EM_WRONG_ARG_NUM,
             co->func->arg_num, co->func->arg_num == 1 ? "" : "s",
             i64(SEQ(co_args)->len), SEQ(co_args)->len == 1 ? "was" : "were"));
         nst_dec_ref(co_args);
@@ -304,7 +304,7 @@ NST_FUNC_SIGN(call_)
 
     if ( NST_FLAG_HAS(co, FLAG_CO_RUNNING) )
     {
-        nst_set_call_error_c("the coroutine is already running");
+        Nst_set_call_error_c("the coroutine is already running");
         nst_dec_ref(co_args);
         return nullptr;
     }
@@ -380,7 +380,7 @@ NST_FUNC_SIGN(pause_)
 
     if ( co == nullptr || call.func != co->func )
     {
-        nst_set_call_error_c(
+        Nst_set_call_error_c(
             "the top function does not match the coroutine");
         return nullptr;
     }
@@ -388,7 +388,7 @@ NST_FUNC_SIGN(pause_)
     if ( state->f_stack.current_size - 1 != co->call_stack_size ||
          !NST_FLAG_HAS(co, FLAG_CO_RUNNING) )
     {
-        nst_set_call_error_c("the function was not called with 'call'");
+        Nst_set_call_error_c("the function was not called with 'call'");
         return nullptr;
     }
 

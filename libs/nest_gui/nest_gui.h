@@ -41,9 +41,9 @@ typedef struct _GUI_App
 }
 GUI_App;
 
-EXPORT bool lib_init();
-EXPORT Nst_DeclrList *get_func_ptrs();
-EXPORT void free_lib();
+NstEXP bool lib_init();
+NstEXP Nst_DeclrList *get_func_ptrs();
+NstEXP void free_lib();
 
 void set_sdl_error();
 int imin(int n1, int n2);

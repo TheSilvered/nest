@@ -11,7 +11,7 @@ extern "C" {
 
 // the nomenclature is [group]_[value of the strings without spaces] t_ is
 // for types, c_ is for constants, e_ is for error names and o_ is for other
-EXPORT typedef struct _Nst_StrConsts
+NstEXP typedef struct _Nst_StrConsts
 {
     // Type strings
     Nst_StrObj *t_Type;
@@ -51,7 +51,7 @@ EXPORT typedef struct _Nst_StrConsts
 }
 Nst_StrConsts;
 
-EXPORT typedef struct _Nst_TypeObjs
+NstEXP typedef struct _Nst_TypeObjs
 {
     Nst_TypeObj *Type;
     Nst_TypeObj *Int;
@@ -69,7 +69,7 @@ EXPORT typedef struct _Nst_TypeObjs
 }
 Nst_TypeObjs;
 
-EXPORT typedef struct _Nst_Consts
+NstEXP typedef struct _Nst_Consts
 {
     Nst_Obj *Bool_true;
     Nst_Obj *Bool_false;
@@ -84,7 +84,7 @@ EXPORT typedef struct _Nst_Consts
 }
 Nst_Consts;
 
-EXPORT typedef struct _Nst_StdStreams
+NstEXP typedef struct _Nst_StdStreams
 {
     Nst_IOFileObj *in;
     Nst_IOFileObj *out;
@@ -92,7 +92,7 @@ EXPORT typedef struct _Nst_StdStreams
 }
 Nst_StdStreams;
 
-EXPORT typedef struct _Nst_IterFunctions
+NstEXP typedef struct _Nst_IterFunctions
 {
     Nst_FuncObj *range_start;
     Nst_FuncObj *range_is_done;
@@ -108,18 +108,18 @@ EXPORT typedef struct _Nst_IterFunctions
 }
 Nst_IterFunctions;
 
-EXPORT bool _nst_init_objects(void);
-EXPORT void _nst_del_objects(void);
+NstEXP bool _nst_init_objects(void);
+NstEXP void _nst_del_objects(void);
 
-EXPORT Nst_Obj *nst_true(void);
-EXPORT Nst_Obj *nst_false(void);
-EXPORT Nst_Obj *nst_null(void);
+NstEXP Nst_Obj *nst_true(void);
+NstEXP Nst_Obj *nst_false(void);
+NstEXP Nst_Obj *nst_null(void);
 
-EXPORT const Nst_TypeObjs *nst_type(void);
-EXPORT const Nst_StrConsts *nst_str(void);
-EXPORT const Nst_Consts *nst_const(void);
-EXPORT const Nst_IterFunctions *nst_iter_func(void);
-EXPORT Nst_StdStreams *nst_stdio(void);
+NstEXP const Nst_TypeObjs *nst_type(void);
+NstEXP const Nst_StrConsts *nst_str(void);
+NstEXP const Nst_Consts *nst_const(void);
+NstEXP const Nst_IterFunctions *nst_iter_func(void);
+NstEXP Nst_StdStreams *nst_stdio(void);
 
 extern Nst_TypeObjs nst_t;
 extern Nst_StrConsts nst_s;

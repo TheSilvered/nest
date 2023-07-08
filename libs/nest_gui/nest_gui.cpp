@@ -71,7 +71,7 @@ bool lib_init()
     app.bg_light_color = { 60, 60, 60, 255 };
     app.fg_dimmed_color = { 160, 160, 160, 255 };
 
-    lib_init_ = !nst_error_occurred();
+    lib_init_ = !Nst_error_occurred();
     return lib_init_;
 }
 
@@ -114,7 +114,7 @@ void set_sdl_error()
         nst_free(new_error);
         return;
     }
-    nst_set_error(nst_inc_ref(sdl_error_str), msg);
+    Nst_set_error(nst_inc_ref(sdl_error_str), msg);
 }
 
 int imin(int n1, int n2)
@@ -198,7 +198,7 @@ NST_FUNC_SIGN(set_window_)
 {
     if ( app.window != nullptr )
     {
-        nst_set_call_error_c("'set_window' was called more than once");
+        Nst_set_call_error_c("'set_window' was called more than once");
         return nullptr;
     }
 
@@ -296,7 +296,7 @@ NST_FUNC_SIGN(label_)
     }
     else
     {
-        nst_set_value_error_c("the color must be of length 3 or 4");
+        Nst_set_value_error_c("the color must be of length 3 or 4");
         return nullptr;
     }
 
@@ -376,12 +376,12 @@ NST_FUNC_SIGN(stack_layout_)
 
     if ( direction < 0 || direction > 3 )
     {
-        nst_set_value_error_c("invalid direction");
+        Nst_set_value_error_c("invalid direction");
         return nullptr;
     }
     if ( alignment < 0 || alignment > 2 )
     {
-        nst_set_value_error_c("invalid alignment");
+        Nst_set_value_error_c("invalid alignment");
         return nullptr;
     }
 
@@ -580,7 +580,7 @@ NST_FUNC_SIGN(get_root_)
 {
     if ( app.window == nullptr )
     {
-        nst_set_call_error_c("'set_window' must be called before getting the root");
+        Nst_set_call_error_c("'set_window' must be called before getting the root");
         return nullptr;
     }
     return nst_inc_ref(app.root);
@@ -593,12 +593,12 @@ NST_FUNC_SIGN(set_func_)
     NST_DEF_EXTRACT("#f", gui_element_type, &el, &func);
     if ( el->el_type != GUI_ET_BUTTON )
     {
-        nst_set_value_error_c("the element must be a button");
+        Nst_set_value_error_c("the element must be a button");
         return nullptr;
     }
     if ( func->arg_num != 1 )
     {
-        nst_set_value_error_c("the function of a button must take exactly 1 argument");
+        Nst_set_value_error_c("the function of a button must take exactly 1 argument");
         return nullptr;
     }
     GUI_Button *b = (GUI_Button *)el;

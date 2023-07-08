@@ -88,67 +88,67 @@ extern "C" {
 
 // Comparisons
 
-EXPORT Nst_Obj *_nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2);
-EXPORT Nst_Obj *_nst_obj_ne(Nst_Obj *ob1, Nst_Obj *ob2);
-EXPORT Nst_Obj *_nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2);
-EXPORT Nst_Obj *_nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2);
-EXPORT Nst_Obj *_nst_obj_ge(Nst_Obj *ob1, Nst_Obj *ob2);
-EXPORT Nst_Obj *_nst_obj_le(Nst_Obj *ob1, Nst_Obj *ob2);
+NstEXP Nst_Obj *_nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2);
+NstEXP Nst_Obj *_nst_obj_ne(Nst_Obj *ob1, Nst_Obj *ob2);
+NstEXP Nst_Obj *_nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2);
+NstEXP Nst_Obj *_nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2);
+NstEXP Nst_Obj *_nst_obj_ge(Nst_Obj *ob1, Nst_Obj *ob2);
+NstEXP Nst_Obj *_nst_obj_le(Nst_Obj *ob1, Nst_Obj *ob2);
 
 // Arithmetic operations
 
-EXPORT Nst_Obj *_nst_obj_add(Nst_Obj *ob1, Nst_Obj *ob2);
-EXPORT Nst_Obj *_nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2);
-EXPORT Nst_Obj *_nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2);
-EXPORT Nst_Obj *_nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2);
-EXPORT Nst_Obj *_nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2);
-EXPORT Nst_Obj *_nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2);
+NstEXP Nst_Obj *_nst_obj_add(Nst_Obj *ob1, Nst_Obj *ob2);
+NstEXP Nst_Obj *_nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2);
+NstEXP Nst_Obj *_nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2);
+NstEXP Nst_Obj *_nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2);
+NstEXP Nst_Obj *_nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2);
+NstEXP Nst_Obj *_nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2);
 
 // Bitwise operations
 
-EXPORT Nst_Obj *_nst_obj_bwor(Nst_Obj *ob1, Nst_Obj *ob2);
-EXPORT Nst_Obj *_nst_obj_bwand(Nst_Obj *ob1, Nst_Obj *ob2);
-EXPORT Nst_Obj *_nst_obj_bwxor(Nst_Obj *ob1, Nst_Obj *ob2);
-EXPORT Nst_Obj *_nst_obj_bwls(Nst_Obj *ob1, Nst_Obj *ob2);
-EXPORT Nst_Obj *_nst_obj_bwrs(Nst_Obj *ob1, Nst_Obj *ob2);
+NstEXP Nst_Obj *_nst_obj_bwor(Nst_Obj *ob1, Nst_Obj *ob2);
+NstEXP Nst_Obj *_nst_obj_bwand(Nst_Obj *ob1, Nst_Obj *ob2);
+NstEXP Nst_Obj *_nst_obj_bwxor(Nst_Obj *ob1, Nst_Obj *ob2);
+NstEXP Nst_Obj *_nst_obj_bwls(Nst_Obj *ob1, Nst_Obj *ob2);
+NstEXP Nst_Obj *_nst_obj_bwrs(Nst_Obj *ob1, Nst_Obj *ob2);
 
 // Logical operations
 
-EXPORT Nst_Obj *_nst_obj_lgor(Nst_Obj *ob1, Nst_Obj *ob2);
-EXPORT Nst_Obj *_nst_obj_lgand(Nst_Obj *ob1, Nst_Obj *ob2);
-EXPORT Nst_Obj *_nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2);
+NstEXP Nst_Obj *_nst_obj_lgor(Nst_Obj *ob1, Nst_Obj *ob2);
+NstEXP Nst_Obj *_nst_obj_lgand(Nst_Obj *ob1, Nst_Obj *ob2);
+NstEXP Nst_Obj *_nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2);
 
 // Other
 
 // Casts an object to a string that does not contain unprintable characters
 // and that usually a valid literal for the value
-EXPORT Nst_Obj *_nst_repr_str_cast(Nst_Obj *ob);
+NstEXP Nst_Obj *_nst_repr_str_cast(Nst_Obj *ob);
 // Internal cast from sequence to Str
-EXPORT Nst_Obj *_nst_obj_str_cast_seq(Nst_SeqObj *seq_obj,
+NstEXP Nst_Obj *_nst_obj_str_cast_seq(Nst_SeqObj *seq_obj,
                                       Nst_LList  *all_objs);
 // Internal cast from Map to Str
-EXPORT Nst_Obj *_nst_obj_str_cast_map(Nst_MapObj *map_obj,
+NstEXP Nst_Obj *_nst_obj_str_cast_map(Nst_MapObj *map_obj,
                                       Nst_LList  *all_objs);
-EXPORT Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type);
-EXPORT Nst_Obj *_nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2);
-EXPORT Nst_Obj *_nst_obj_range(Nst_Obj   *start,
+NstEXP Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type);
+NstEXP Nst_Obj *_nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2);
+NstEXP Nst_Obj *_nst_obj_range(Nst_Obj   *start,
                                Nst_Obj   *stop,
                                Nst_Obj   *step);
 
 // Local operations
 
-EXPORT Nst_Obj *_nst_obj_neg(Nst_Obj *ob);
-EXPORT Nst_Obj *_nst_obj_len(Nst_Obj *ob);
-EXPORT Nst_Obj *_nst_obj_bwnot(Nst_Obj *ob);
-EXPORT Nst_Obj *_nst_obj_lgnot(Nst_Obj *ob);
-EXPORT Nst_Obj *_nst_obj_stdout(Nst_Obj *ob);
-EXPORT Nst_Obj *_nst_obj_stdin(Nst_Obj *ob);
-EXPORT Nst_Obj *_nst_obj_typeof(Nst_Obj *ob);
-EXPORT Nst_Obj *_nst_obj_import(Nst_Obj *ob);
+NstEXP Nst_Obj *_nst_obj_neg(Nst_Obj *ob);
+NstEXP Nst_Obj *_nst_obj_len(Nst_Obj *ob);
+NstEXP Nst_Obj *_nst_obj_bwnot(Nst_Obj *ob);
+NstEXP Nst_Obj *_nst_obj_lgnot(Nst_Obj *ob);
+NstEXP Nst_Obj *_nst_obj_stdout(Nst_Obj *ob);
+NstEXP Nst_Obj *_nst_obj_stdin(Nst_Obj *ob);
+NstEXP Nst_Obj *_nst_obj_typeof(Nst_Obj *ob);
+NstEXP Nst_Obj *_nst_obj_import(Nst_Obj *ob);
 
 // returns the path of the library to import or NULL if it cannot be found
 // the path is heap allocated so it will require to be freed
-EXPORT Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len);
+NstEXP Nst_StrObj *_nst_get_import_path(i8 *initial_path, usize path_len);
 
 #ifdef __cplusplus
 }

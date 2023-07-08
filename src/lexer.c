@@ -16,11 +16,11 @@
 
 #define SET_INVALID_ESCAPE_ERROR do { \
     nst_buffer_destroy(&buf); \
-    _NST_SET_RAW_SYNTAX_ERROR( \
+    _Nst_SET_RAW_SYNTAX_ERROR( \
         error, \
         escape_start, \
         cursor.pos, \
-        _NST_EM_INVALID_ESCAPE); \
+        _Nst_EM_INVALID_ESCAPE); \
     return; } while (0)
 
 #define CUR_AT_END (cursor.idx >= (i32)cursor.len)
@@ -44,9 +44,9 @@
                            ch == ']' || ch == '^' )
 
 #define SET_ERROR_IF_OP_ERR(cond) do { \
-    if ( (cond) || nst_error_occurred() ) \
+    if ( (cond) || Nst_error_occurred() ) \
     { \
-        _NST_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos); \
+        _Nst_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos); \
         return; \
     } } while ( 0 )
 
@@ -86,9 +86,9 @@ Nst_LList *nst_tokenizef(i8             *filename,
     FILE *file = fopen(filename, "rb");
     if ( file == NULL )
     {
-        nst_fprint(nst_io.err, "File \"");
-        nst_fprint(nst_io.err, (const i8 *)filename);
-        nst_fprintln(nst_io.err, "\" not found");
+        Nst_fprint(nst_io.err, "File \"");
+        Nst_fprint(nst_io.err, (const i8 *)filename);
+        Nst_fprintln(nst_io.err, "\" not found");
         return NULL;
     }
 
@@ -99,7 +99,7 @@ Nst_LList *nst_tokenizef(i8             *filename,
     i8 *text = (i8 *)nst_raw_calloc(size + 1, sizeof(i8));
     if ( text == NULL )
     {
-        nst_fprint(nst_io.err, "Memory allocation failed\n");
+        Nst_fprint(nst_io.err, "Memory allocation failed\n");
         return NULL;
     }
 
@@ -111,8 +111,8 @@ Nst_LList *nst_tokenizef(i8             *filename,
     nst_get_full_path(filename, &full_path, NULL);
     if ( full_path == NULL )
     {
-        nst_error_clear();
-        nst_fprint(nst_io.err, "Memory allocation failed\n");
+        Nst_error_clear();
+        Nst_fprint(nst_io.err, "Memory allocation failed\n");
         return NULL;
     }
 
@@ -147,7 +147,7 @@ Nst_LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
 
     if (tokens == NULL)
     {
-        _NST_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
+        _Nst_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
         return NULL;
     }
 
@@ -180,10 +180,10 @@ Nst_LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
         }
         else if ( cursor.ch == '\n' )
         {
-            tok = nst_tok_new_noend(nst_copy_pos(cursor.pos), NST_TT_ENDL);
+            tok = nst_tok_new_noend(Nst_copy_pos(cursor.pos), NST_TT_ENDL);
             if (tokens == NULL)
             {
-                _NST_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
+                _Nst_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
             }
         }
         else if ( cursor.ch == '\\' )
@@ -192,11 +192,11 @@ Nst_LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
         }
         else
         {
-            _NST_SET_RAW_SYNTAX_ERROR(
+            _Nst_SET_RAW_SYNTAX_ERROR(
                 error,
                 cursor.pos,
                 cursor.pos,
-                _NST_EM_INVALID_CHAR);
+                _Nst_EM_INVALID_CHAR);
         }
 
         if ( error->occurred )
@@ -220,14 +220,14 @@ Nst_LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
     tok = nst_tok_new_noend(cursor.pos, NST_TT_EOFILE);
     if ( tok == NULL )
     {
-        _NST_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
+        _Nst_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
         nst_llist_destroy(tokens, (Nst_LListDestructor)nst_token_destroy);
         return NULL;
     }
 
     if ( !nst_llist_append(tokens, tok, true) )
     {
-        _NST_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
+        _Nst_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
         nst_llist_destroy(tokens, (Nst_LListDestructor)nst_token_destroy);
         return NULL;
     }
@@ -274,7 +274,7 @@ inline static void go_back()
 
 static void make_symbol(Nst_Tok **tok, Nst_Error *error)
 {
-    Nst_Pos start = nst_copy_pos(cursor.pos);
+    Nst_Pos start = Nst_copy_pos(cursor.pos);
     i8 symbol[4] = { cursor.ch, 0, 0, 0 };
     advance();
     if ( !CUR_AT_END && CH_IS_SYMBOL(cursor.ch) )
@@ -337,11 +337,11 @@ static void make_symbol(Nst_Tok **tok, Nst_Error *error)
 
         if ( !was_closed )
         {
-            _NST_SET_RAW_SYNTAX_ERROR(
+            _Nst_SET_RAW_SYNTAX_ERROR(
                 error,
                 start,
                 cursor.pos,
-                _NST_EM_OPEN_COMMENT);
+                _Nst_EM_OPEN_COMMENT);
         }
 
         return;
@@ -387,14 +387,14 @@ static void make_symbol(Nst_Tok **tok, Nst_Error *error)
         token_type = nst_tok_from_str(symbol);
     }
 
-    *tok = nst_tok_new_noval(start, nst_copy_pos(cursor.pos), token_type);
+    *tok = nst_tok_new_noval(start, Nst_copy_pos(cursor.pos), token_type);
     SET_ERROR_IF_OP_ERR(*tok == NULL);
 }
 
 static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
 {
     i8 *start_p = cursor.text + cursor.idx;
-    Nst_Pos start = nst_copy_pos(cursor.pos);
+    Nst_Pos start = Nst_copy_pos(cursor.pos);
     Nst_Pos end = start;
 
     usize ltrl_size = 0;
@@ -446,15 +446,15 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
         while ( CH_IS_BIN(cursor.ch) || cursor.ch == '_' );
         if ( CH_IS_DEC(cursor.ch) )
         {
-            _NST_SET_RAW_SYNTAX_ERROR(
+            _Nst_SET_RAW_SYNTAX_ERROR(
                 error,
                 start,
                 cursor.pos,
-                _NST_EM_BAD_INT_LITERAL);
+                _Nst_EM_BAD_INT_LITERAL);
             return;
         }
         go_back();
-        end = nst_copy_pos(cursor.pos);
+        end = Nst_copy_pos(cursor.pos);
         goto end;
     case 'o':
     case 'O':
@@ -462,11 +462,11 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
         if ( !CH_IS_OCT(cursor.ch) )
         {
             go_back();
-            _NST_SET_RAW_SYNTAX_ERROR(
+            _Nst_SET_RAW_SYNTAX_ERROR(
                 error,
                 start,
                 cursor.pos,
-                _NST_EM_BAD_INT_LITERAL);
+                _Nst_EM_BAD_INT_LITERAL);
             return;
         }
         ltrl_size += 2;
@@ -478,15 +478,15 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
         while ( CH_IS_OCT(cursor.ch) || cursor.ch == '_' );
         if ( CH_IS_DEC(cursor.ch) )
         {
-            _NST_SET_RAW_SYNTAX_ERROR(
+            _Nst_SET_RAW_SYNTAX_ERROR(
                 error,
                 start,
                 cursor.pos,
-                _NST_EM_BAD_INT_LITERAL);
+                _Nst_EM_BAD_INT_LITERAL);
             return;
         }
         go_back();
-        end = nst_copy_pos(cursor.pos);
+        end = Nst_copy_pos(cursor.pos);
         goto end;
     case 'x':
     case 'X':
@@ -494,11 +494,11 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
         if ( !CH_IS_HEX(cursor.ch) )
         {
             go_back();
-            _NST_SET_RAW_SYNTAX_ERROR(
+            _Nst_SET_RAW_SYNTAX_ERROR(
                 error,
                 start,
                 cursor.pos,
-                _NST_EM_BAD_INT_LITERAL);
+                _Nst_EM_BAD_INT_LITERAL);
             return;
         }
         ltrl_size += 2;
@@ -510,15 +510,15 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
         while ( CH_IS_HEX(cursor.ch) || cursor.ch == '_' );
         if ( CH_IS_ALPHA(cursor.ch) )
         {
-            _NST_SET_RAW_SYNTAX_ERROR(
+            _Nst_SET_RAW_SYNTAX_ERROR(
                 error,
                 start,
                 cursor.pos,
-                _NST_EM_BAD_INT_LITERAL);
+                _Nst_EM_BAD_INT_LITERAL);
             return;
         }
         go_back();
-        end = nst_copy_pos(cursor.pos);
+        end = Nst_copy_pos(cursor.pos);
         goto end;
     case 'h':
     case 'H':
@@ -527,11 +527,11 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
         if ( !CH_IS_HEX(cursor.ch) )
         {
             go_back();
-            _NST_SET_RAW_SYNTAX_ERROR(
+            _Nst_SET_RAW_SYNTAX_ERROR(
                 error,
                 start,
                 cursor.pos,
-                _NST_EM_BAD_BYTE_LITERAL);
+                _Nst_EM_BAD_BYTE_LITERAL);
             return;
         }
         i8 ch1 = 0;
@@ -561,11 +561,11 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
         while ( CH_IS_HEX(cursor.ch) || cursor.ch == '_' );
         if ( CH_IS_ALPHA(cursor.ch) )
         {
-            _NST_SET_RAW_SYNTAX_ERROR(
+            _Nst_SET_RAW_SYNTAX_ERROR(
                 error,
                 start,
                 cursor.pos,
-                _NST_EM_BAD_INT_LITERAL);
+                _Nst_EM_BAD_INT_LITERAL);
             return;
         }
         go_back();
@@ -603,11 +603,11 @@ dec_num:
 
     if ( !CH_IS_DEC(cursor.ch) )
     {
-        _NST_SET_RAW_SYNTAX_ERROR(
+        _Nst_SET_RAW_SYNTAX_ERROR(
             error,
             start,
             cursor.pos,
-            _NST_EM_BAD_REAL_LITERAL);
+            _Nst_EM_BAD_REAL_LITERAL);
         return;
     }
     do
@@ -631,11 +631,11 @@ dec_num:
     }
     if ( !CH_IS_DEC(cursor.ch) )
     {
-        _NST_SET_RAW_SYNTAX_ERROR(
+        _Nst_SET_RAW_SYNTAX_ERROR(
             error,
             start,
             cursor.pos,
-            _NST_EM_BAD_REAL_LITERAL);
+            _Nst_EM_BAD_REAL_LITERAL);
         return;
     }
     do
@@ -667,9 +667,9 @@ end:
         advance();
         if ( cursor.ch == 'b' || cursor.ch == 'B' )
         {
-            if ( res == NULL && nst_error_get()->name == nst_s.e_MemoryError )
+            if ( res == NULL && Nst_error_get()->name == nst_s.e_MemoryError )
             {
-                nst_error_clear();
+                Nst_error_clear();
                 ltrl[ltrl_size + 1] = 'b';
                 ltrl[ltrl_size + 2] = '\0';
                 s.len++;
@@ -700,7 +700,7 @@ end:
 
 static void make_ident(Nst_Tok **tok, Nst_Error *error)
 {
-    Nst_Pos start = nst_copy_pos(cursor.pos);
+    Nst_Pos start = Nst_copy_pos(cursor.pos);
 
     i8 *str;
     i8 *str_start = cursor.text + cursor.idx;
@@ -711,7 +711,7 @@ static void make_ident(Nst_Tok **tok, Nst_Error *error)
              CH_IS_DEC(cursor.ch)   ||
              (u8)cursor.ch >= 0b10000000) )
     {
-        i32 res = nst_check_utf8_bytes(
+        i32 res = Nst_check_utf8_bytes(
             (u8 *)cursor.text + cursor.idx,
             (usize)(cursor.text - cursor.idx));
         str_len += res;
@@ -728,12 +728,12 @@ static void make_ident(Nst_Tok **tok, Nst_Error *error)
     memcpy(str, str_start, str_len);
     str[str_len] = '\0';
 
-    Nst_Pos end = nst_copy_pos(cursor.pos);
+    Nst_Pos end = Nst_copy_pos(cursor.pos);
     Nst_StrObj *val_obj = STR(nst_string_new_c_raw(str, true));
     if ( val_obj == NULL )
     {
         nst_free(str);
-        _NST_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
+        _Nst_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
     }
     nst_obj_hash(OBJ(val_obj));
 
@@ -743,8 +743,8 @@ static void make_ident(Nst_Tok **tok, Nst_Error *error)
 
 static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
 {
-    Nst_Pos start = nst_copy_pos(cursor.pos);
-    Nst_Pos escape_start = nst_copy_pos(cursor.pos);
+    Nst_Pos start = Nst_copy_pos(cursor.pos);
+    Nst_Pos escape_start = Nst_copy_pos(cursor.pos);
     i8 closing_ch = cursor.ch;
     bool allow_multiline = cursor.ch == '"';
     bool escape = false;
@@ -762,7 +762,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
         if ( !nst_buffer_expand_by(&buf, 4) )
         {
             nst_buffer_destroy(&buf);
-            _NST_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
+            _Nst_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
         }
 
         if ( !escape )
@@ -770,17 +770,17 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
             if ( cursor.ch == '\n' && !allow_multiline )
             {
                 nst_buffer_destroy(&buf);
-                _NST_SET_RAW_SYNTAX_ERROR(
+                _Nst_SET_RAW_SYNTAX_ERROR(
                     error,
                     cursor.pos,
                     cursor.pos,
-                    _NST_EM_UNEXPECTED_NEWLINE);
+                    _Nst_EM_UNEXPECTED_NEWLINE);
                 return;
             }
             else if ( cursor.ch == '\\' )
             {
                 escape = true;
-                escape_start = nst_copy_pos(cursor.pos);
+                escape_start = Nst_copy_pos(cursor.pos);
             }
             else
             {
@@ -854,7 +854,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
 
             if ( num <= 0x10ffff )
             {
-                nst_utf8_from_utf32(num, (u8 *)unicode_char);
+                Nst_utf8_from_utf32(num, (u8 *)unicode_char);
             }
             else
             {
@@ -903,17 +903,17 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
     }
 
     go_back();
-    Nst_Pos error_end = nst_copy_pos(cursor.pos);
+    Nst_Pos error_end = Nst_copy_pos(cursor.pos);
     advance();
 
     if ( cursor.ch != closing_ch )
     {
         nst_buffer_destroy(&buf);
-        _NST_SET_RAW_SYNTAX_ERROR(
+        _Nst_SET_RAW_SYNTAX_ERROR(
             error,
             start,
             error_end,
-            _NST_EM_OPEN_STR_LITERAL);
+            _Nst_EM_OPEN_STR_LITERAL);
         return;
     }
 
@@ -1015,22 +1015,22 @@ bool nst_normalize_encoding(Nst_SourceText *text,
                             Nst_Error      *error)
 {
     i32 bom_size = 0;
-    if ( encoding == NST_CP_UNKNOWN )
+    if ( encoding == Nst_CP_UNKNOWN )
     {
-        encoding = nst_detect_encoding(text->text, text->len, &bom_size);
+        encoding = Nst_detect_encoding(text->text, text->len, &bom_size);
     }
     else
     {
-        nst_check_bom(text->text, text->len, &bom_size);
+        Nst_check_bom(text->text, text->len, &bom_size);
     }
 
-    Nst_CP *from = nst_cp(encoding);
+    Nst_CP *from = Nst_cp(encoding);
 
     Nst_Pos pos = { 0, 0, text };
     Nst_Buffer buf;
     if ( !nst_buffer_init(&buf, text->len + 40) )
     {
-        _NST_SET_ERROR_FROM_OP_ERR(error, pos, pos);
+        _Nst_SET_ERROR_FROM_OP_ERR(error, pos, pos);
         return false;
     }
 
@@ -1046,8 +1046,8 @@ bool nst_normalize_encoding(Nst_SourceText *text,
         if ( ch_len < 0 )
         {
             nst_buffer_destroy(&buf);
-            _NST_SET_VALUE_ERROR(error, pos, pos, nst_sprintf(
-                _NST_EM_INVALID_ENCODING,
+            _Nst_SET_VALUE_ERROR(error, pos, pos, Nst_sprintf(
+                _Nst_EM_INVALID_ENCODING,
                 *text_p, from->name));
             return false;
         }
@@ -1077,10 +1077,10 @@ bool nst_normalize_encoding(Nst_SourceText *text,
         if ( !nst_buffer_expand_by(&buf, 5) )
         {
             nst_buffer_destroy(&buf);
-            _NST_SET_ERROR_FROM_OP_ERR(error, pos, pos);
+            _Nst_SET_ERROR_FROM_OP_ERR(error, pos, pos);
             return false;
         }
-        ch_len = nst_cp_utf8.from_utf32(utf32_ch, buf.data + buf.len);
+        ch_len = Nst_cp_utf8.from_utf32(utf32_ch, buf.data + buf.len);
         buf.len += ch_len;
         pos.col++;
     }
@@ -1099,7 +1099,7 @@ static void parse_first_line(i8       *text,
                              bool     *no_default)
 {
     i32 bom_size;
-    nst_check_bom(text, len, &bom_size);
+    Nst_check_bom(text, len, &bom_size);
     text += bom_size;
     len -= bom_size;
 
@@ -1163,8 +1163,8 @@ static void parse_first_line(i8       *text,
                 i = 0;
                 continue;
             }
-            Nst_CPID new_encoding = nst_encoding_from_name(curr_opt + 11);
-            if ( new_encoding != NST_CP_UNKNOWN )
+            Nst_CPID new_encoding = Nst_encoding_from_name(curr_opt + 11);
+            if ( new_encoding != Nst_CP_UNKNOWN )
             {
                 *encoding = new_encoding;
             }
@@ -1205,8 +1205,8 @@ static void parse_first_line(i8       *text,
         {
             return;
         }
-        Nst_CPID new_encoding = nst_encoding_from_name(curr_opt + 11);
-        if ( new_encoding != NST_CP_UNKNOWN )
+        Nst_CPID new_encoding = Nst_encoding_from_name(curr_opt + 11);
+        if ( new_encoding != Nst_CP_UNKNOWN )
         {
             *encoding = new_encoding;
         }

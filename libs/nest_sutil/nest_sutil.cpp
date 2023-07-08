@@ -49,7 +49,7 @@ bool lib_init()
 #error
 #endif
 
-    lib_init_ = !nst_error_occurred();
+    lib_init_ = !Nst_error_occurred();
     return lib_init_;
 }
 
@@ -260,7 +260,7 @@ NST_FUNC_SIGN(rtrim_)
     i8 *new_str = nst_malloc_c(len + 1, i8);
     if ( new_str == nullptr )
     {
-        nst_failed_allocation();
+        Nst_failed_allocation();
         return nullptr;
     }
     strncpy(new_str, s_start, len);
@@ -293,7 +293,7 @@ NST_FUNC_SIGN(ljust_)
     {
         if ( STR(just_char)->len != 1 )
         {
-            nst_set_value_error_c(
+            Nst_set_value_error_c(
                 "filling string must be one character long");
             return nullptr;
         }
@@ -337,7 +337,7 @@ NST_FUNC_SIGN(rjust_)
     {
         if ( STR(just_char)->len != 1 )
         {
-            nst_set_value_error_c(
+            Nst_set_value_error_c(
                 "filling string must be one character long");
             return nullptr;
         }
@@ -381,7 +381,7 @@ NST_FUNC_SIGN(center_)
     {
         if ( STR(just_char)->len != 1 )
         {
-            nst_set_value_error_c(
+            Nst_set_value_error_c(
                 "filling string must be one character long");
             return nullptr;
         }
@@ -747,7 +747,7 @@ NST_FUNC_SIGN(bytearray_to_str_)
     i8 *new_str = nst_malloc_c(len + 1, i8);
     if ( new_str == nullptr )
     {
-        nst_failed_allocation();
+        Nst_failed_allocation();
         return nullptr;
     }
     Nst_Obj **objs = seq->objs;
@@ -813,7 +813,7 @@ NST_FUNC_SIGN(join_)
     Nst_Obj **objs = nst_malloc_c(len, Nst_Obj *);
     if ( objs == nullptr )
     {
-        nst_failed_allocation();
+        Nst_failed_allocation();
         return nullptr;
     }
 
@@ -827,7 +827,7 @@ NST_FUNC_SIGN(join_)
     if ( new_str == nullptr )
     {
         nst_free(objs);
-        nst_failed_allocation();
+        Nst_failed_allocation();
         return nullptr;
     }
     usize str_idx = 0;
@@ -871,7 +871,7 @@ NST_FUNC_SIGN(split_)
     {
         if ( STR(opt_substr)->len == 0 )
         {
-            nst_set_value_error_c(
+            Nst_set_value_error_c(
                 "separator must be at least one character long");
             return nullptr;
         }
@@ -907,7 +907,7 @@ NST_FUNC_SIGN(split_)
         if ( str_split == nullptr )
         {
             nst_dec_ref(vector);
-            nst_failed_allocation();
+            Nst_failed_allocation();
             return nullptr;
         }
 
@@ -987,7 +987,7 @@ NST_FUNC_SIGN(bin_)
     i8 *buf = nst_malloc_c((usize)str_len, i8);
     if ( buf == nullptr )
     {
-        nst_failed_allocation();
+        Nst_failed_allocation();
         return nullptr;
     }
 
@@ -1026,7 +1026,7 @@ NST_FUNC_SIGN(oct_)
     i8 *buf = nst_malloc_c((usize)str_len, i8);
     if ( buf == nullptr )
     {
-        nst_failed_allocation();
+        Nst_failed_allocation();
         return nullptr;
     }
 
@@ -1070,7 +1070,7 @@ NST_FUNC_SIGN(hex_)
     i8 *buf = nst_malloc_c((usize)str_len, i8);
     if ( buf == nullptr )
     {
-        nst_failed_allocation();
+        Nst_failed_allocation();
         return nullptr;
     }
 

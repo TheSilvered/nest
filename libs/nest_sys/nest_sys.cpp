@@ -2,7 +2,7 @@
 #include <cstring>
 #include "nest_sys.h"
 
-#ifdef WINDOWS
+#ifdef Nst_WIN
 
 #include <direct.h>
 #include <windows.h>
@@ -57,13 +57,13 @@ bool lib_init()
 
     version_obj = STR(nst_string_new_c_raw(NST_VERSION, false));
 
-#ifdef WINDOWS
+#ifdef Nst_WIN
     platform_obj = STR(nst_string_new_c("windows", 7, false));
 #else
     platform_obj = STR(nst_string_new_c("linux", 5, false));
 #endif
 
-    lib_init_ = !nst_error_occurred();
+    lib_init_ = !Nst_error_occurred();
     return lib_init_;
 }
 
@@ -83,8 +83,8 @@ NST_FUNC_SIGN(system_)
     Nst_StrObj *command;
     NST_DEF_EXTRACT("s", &command);
 
-#ifdef WINDOWS
-    wchar_t *wide_command = nst_char_to_wchar_t(command->value, command->len);
+#ifdef Nst_WIN
+    wchar_t *wide_command = Nst_char_to_wchar_t(command->value, command->len);
     if ( wide_command == nullptr )
     {
         return nullptr;
@@ -112,7 +112,7 @@ NST_FUNC_SIGN(exit_)
         nst_inc_ref(exit_code_obj);
     }
 
-    nst_set_error(nst_inc_ref(nst_null()), exit_code_obj);
+    Nst_set_error(nst_inc_ref(nst_null()), exit_code_obj);
     return nullptr;
 }
 
@@ -122,8 +122,8 @@ NST_FUNC_SIGN(getenv_)
 
     NST_DEF_EXTRACT("s", &name);
 
-#ifdef WINDOWS
-    wchar_t *wide_name = nst_char_to_wchar_t(name->value, name->len);
+#ifdef Nst_WIN
+    wchar_t *wide_name = Nst_char_to_wchar_t(name->value, name->len);
     if ( wide_name == nullptr )
     {
         return nullptr;
@@ -134,7 +134,7 @@ NST_FUNC_SIGN(getenv_)
     {
         NST_RETURN_NULL;
     }
-    i8 *env_name = nst_wchar_t_to_char(wide_env_name, 0);
+    i8 *env_name = Nst_wchar_t_to_char(wide_env_name, 0);
     if ( env_name == nullptr )
     {
         return nullptr;
@@ -183,7 +183,7 @@ NST_FUNC_SIGN(endianness_)
 
 NST_FUNC_SIGN(_get_color_)
 {
-    NST_RETURN_COND(nst_supports_color());
+    NST_RETURN_COND(Nst_supports_color());
 }
 
 NST_FUNC_SIGN(_set_cwd_)
@@ -191,8 +191,8 @@ NST_FUNC_SIGN(_set_cwd_)
     Nst_StrObj *new_cwd;
     NST_DEF_EXTRACT("s", &new_cwd);
 
-#ifdef WINDOWS
-    wchar_t *wide_cwd = nst_char_to_wchar_t(new_cwd->value, new_cwd->len);
+#ifdef Nst_WIN
+    wchar_t *wide_cwd = Nst_char_to_wchar_t(new_cwd->value, new_cwd->len);
     if ( wide_cwd == nullptr )
     {
         return nullptr;
@@ -202,14 +202,14 @@ NST_FUNC_SIGN(_set_cwd_)
     {
         errno = 0;
         nst_free(wide_cwd);
-        nst_set_value_error_c("invalid path");
+        Nst_set_value_error_c("invalid path");
     }
     nst_free(wide_cwd);
 #else
     if ( chdir(new_cwd->value) == -1 )
     {
         errno = 0;
-        nst_set_value_error_c("invalid path");
+        Nst_set_value_error_c("invalid path");
     }
 #endif
     NST_RETURN_NULL;
@@ -217,21 +217,21 @@ NST_FUNC_SIGN(_set_cwd_)
 
 NST_FUNC_SIGN(_get_cwd_)
 {
-#ifdef WINDOWS
+#ifdef Nst_WIN
     wchar_t *cwd = nst_malloc_c(PATH_MAX, wchar_t);
     if ( cwd == nullptr )
     {
-        nst_failed_allocation();
+        Nst_failed_allocation();
         return nullptr;
     }
     wchar_t *result = _wgetcwd(cwd, PATH_MAX);
     if ( result == nullptr )
     {
-        nst_failed_allocation();
+        Nst_failed_allocation();
         nst_free(cwd);
         return nullptr;
     }
-    i8 *cwd_str = nst_wchar_t_to_char(cwd, 0);
+    i8 *cwd_str = Nst_wchar_t_to_char(cwd, 0);
     nst_free(cwd);
     if ( cwd_str == nullptr )
     {
@@ -242,13 +242,13 @@ NST_FUNC_SIGN(_get_cwd_)
     i8 *cwd = nst_malloc_c(PATH_MAX, i8);
     if ( cwd == nullptr )
     {
-        nst_failed_allocation();
+        Nst_failed_allocation();
         return nullptr;
     }
     i8 *result = getcwd(cwd, PATH_MAX);
     if ( result == nullptr )
     {
-        nst_failed_allocation();
+        Nst_failed_allocation();
         nst_free(cwd);
         return nullptr;
     }

@@ -20,7 +20,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-EXPORT typedef struct _Nst_IterObj
+NstEXP typedef struct _Nst_IterObj
 {
     NST_OBJ_HEAD;
     NST_GGC_HEAD;
@@ -31,35 +31,35 @@ EXPORT typedef struct _Nst_IterObj
 }
 Nst_IterObj;
 
-EXPORT Nst_Obj *nst_iter_new(Nst_FuncObj *start,
+NstEXP Nst_Obj *nst_iter_new(Nst_FuncObj *start,
                              Nst_FuncObj *is_done,
                              Nst_FuncObj *get_val,
                              Nst_Obj     *value);
-EXPORT void _nst_iter_destroy(Nst_IterObj *iter);
-EXPORT void _nst_iter_traverse(Nst_IterObj *iter);
-EXPORT void _nst_iter_track(Nst_IterObj *iter);
+NstEXP void _nst_iter_destroy(Nst_IterObj *iter);
+NstEXP void _nst_iter_traverse(Nst_IterObj *iter);
+NstEXP void _nst_iter_track(Nst_IterObj *iter);
 
-EXPORT i32 _nst_iter_start(Nst_IterObj *iter);
-EXPORT i32 _nst_iter_is_done(Nst_IterObj *iter);
-EXPORT Nst_Obj *_nst_iter_get_val(Nst_IterObj *iter);
+NstEXP i32 _nst_iter_start(Nst_IterObj *iter);
+NstEXP i32 _nst_iter_is_done(Nst_IterObj *iter);
+NstEXP Nst_Obj *_nst_iter_get_val(Nst_IterObj *iter);
 
 // Functions for the range iterator
 
-EXPORT NST_FUNC_SIGN(nst_iter_range_start);
-EXPORT NST_FUNC_SIGN(nst_iter_range_is_done);
-EXPORT NST_FUNC_SIGN(nst_iter_range_get_val);
+NstEXP NST_FUNC_SIGN(nst_iter_range_start);
+NstEXP NST_FUNC_SIGN(nst_iter_range_is_done);
+NstEXP NST_FUNC_SIGN(nst_iter_range_get_val);
 
 // Functions for the sequence iterator
 
-EXPORT NST_FUNC_SIGN(nst_iter_seq_start);
-EXPORT NST_FUNC_SIGN(nst_iter_seq_is_done);
-EXPORT NST_FUNC_SIGN(nst_iter_seq_get_val);
+NstEXP NST_FUNC_SIGN(nst_iter_seq_start);
+NstEXP NST_FUNC_SIGN(nst_iter_seq_is_done);
+NstEXP NST_FUNC_SIGN(nst_iter_seq_get_val);
 
 // Functions for the string iterator
 
-EXPORT NST_FUNC_SIGN(nst_iter_str_start);
-EXPORT NST_FUNC_SIGN(nst_iter_str_is_done);
-EXPORT NST_FUNC_SIGN(nst_iter_str_get_val);
+NstEXP NST_FUNC_SIGN(nst_iter_str_start);
+NstEXP NST_FUNC_SIGN(nst_iter_str_is_done);
+NstEXP NST_FUNC_SIGN(nst_iter_str_get_val);
 
 #ifdef __cplusplus
 }

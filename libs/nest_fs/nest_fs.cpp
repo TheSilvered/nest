@@ -1,6 +1,6 @@
 #include "nest_fs.h"
 
-#ifdef WINDOWS
+#ifdef Nst_WIN
 #include <winerror.h>
 #else
 // This error does not get thrown on UNIX
@@ -97,7 +97,7 @@ bool lib_init()
 #error
 #endif
 
-    lib_init_ = !nst_error_occurred();
+    lib_init_ = !Nst_error_occurred();
     return lib_init_;
 }
 
@@ -137,8 +137,8 @@ static Nst_StrObj *heap_str(fs::path path)
 
 static Nst_Obj *throw_system_error(std::error_code ec)
 {
-    nst_set_error(
-        nst_sprintf("System Error %d", ec.value()),
+    Nst_set_error(
+        Nst_sprintf("System Error %d", ec.value()),
         heap_str(ec.message()));
     return NULL;
 }
@@ -255,7 +255,7 @@ NST_FUNC_SIGN(remove_dir_)
 
     if ( !fs::is_directory(utf8_path(path)) )
     {
-        nst_set_value_error(nst_sprintf(
+        Nst_set_value_error(Nst_sprintf(
             "directory '%.4096s' not found",
             path->value));
         return nullptr;
@@ -283,7 +283,7 @@ NST_FUNC_SIGN(remove_dirs_)
 
     if ( !fs::is_directory(utf8_path(path)) )
     {
-        nst_set_value_error(nst_sprintf(
+        Nst_set_value_error(Nst_sprintf(
             "directory '%.4096s' not found",
             path->value));
         return nullptr;
@@ -311,7 +311,7 @@ NST_FUNC_SIGN(remove_file_)
 
     if ( !check_path(path, fs::exists) || check_path(path, fs::is_directory) )
     {
-        nst_set_value_error(nst_sprintf(
+        Nst_set_value_error(Nst_sprintf(
             "file '%.4096s' not found",
             path->value));
         return nullptr;
@@ -429,7 +429,7 @@ NST_FUNC_SIGN(copy_)
 
     if ( ec.value() == ERROR_PATH_NOT_FOUND )
     {
-        nst_set_value_error(nst_sprintf(
+        Nst_set_value_error(Nst_sprintf(
             "file '%.100s' or directory '%.4096s' not found",
             path_from->value,
             path_to->value));
@@ -458,7 +458,7 @@ NST_FUNC_SIGN(rename_)
 
     if ( ec.value() == ERROR_PATH_NOT_FOUND )
     {
-        nst_set_value_error(nst_sprintf(
+        Nst_set_value_error(Nst_sprintf(
             "file '%.100s' or directory '%.4096s' not found",
             old_path->value,
             new_path->value));
@@ -483,7 +483,7 @@ NST_FUNC_SIGN(list_dir_)
     std::error_code ec;
     if ( !fs::is_directory(utf8_path(path), ec) )
     {
-        nst_set_value_error(nst_sprintf(
+        Nst_set_value_error(Nst_sprintf(
             "directory '%.4096s' not found",
             path->value));
         return nullptr;
@@ -519,7 +519,7 @@ NST_FUNC_SIGN(list_dirs_)
     std::error_code ec;
     if ( !fs::is_directory(utf8_path(path), ec) )
     {
-        nst_set_value_error(nst_sprintf(
+        Nst_set_value_error(Nst_sprintf(
             "directory '%.4096s' not found",
             path->value));
         return nullptr;
@@ -649,7 +649,7 @@ NST_FUNC_SIGN(join_)
     i8 *new_str = nst_malloc_c(new_len + 1, i8);
     if ( new_str == nullptr )
     {
-        nst_failed_allocation();
+        Nst_failed_allocation();
         return nullptr;
     }
 
@@ -657,7 +657,7 @@ NST_FUNC_SIGN(join_)
 
     if ( add_slash )
     {
-#ifdef WINDOWS
+#ifdef Nst_WIN
         new_str[p1_len] = '\\';
 #else
         new_str[p1_len] = '/';
@@ -668,7 +668,7 @@ NST_FUNC_SIGN(join_)
 
     for ( usize i = 0; i < new_len; i++ )
     {
-#ifdef WINDOWS
+#ifdef Nst_WIN
         if ( new_str[i] == '/' )
         {
             new_str[i] = '\\';
@@ -699,7 +699,7 @@ NST_FUNC_SIGN(normalize_)
 
     for ( usize i = 0, n = norm_path->len; i < n; i++ )
     {
-#ifdef WINDOWS
+#ifdef Nst_WIN
         if ( val[i] == '/' )
         {
             val[i] = '\\';

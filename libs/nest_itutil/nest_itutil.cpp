@@ -29,7 +29,7 @@ bool lib_init()
 #error
 #endif
 
-    lib_init_ = !nst_error_occurred();
+    lib_init_ = !Nst_error_occurred();
     return lib_init_;
 }
 
@@ -85,7 +85,7 @@ NST_FUNC_SIGN(repeat_)
     if ( AS_INT(times) < 0 )
     {
         nst_dec_ref(times);
-        nst_set_value_error_c("cannot repeat a negative number of times");
+        Nst_set_value_error_c("cannot repeat a negative number of times");
         return nullptr;
     }
 
@@ -123,7 +123,7 @@ Nst_Obj *zipn_(Nst_SeqObj *seq)
 
     if ( seq->len < 2 )
     {
-        nst_set_value_error_c("the sequence must be at least of length two");
+        Nst_set_value_error_c("the sequence must be at least of length two");
         return nullptr;
     }
 

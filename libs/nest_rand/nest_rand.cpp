@@ -35,7 +35,7 @@ bool lib_init()
         system_clock::now().time_since_epoch()
     ).count());
 
-    lib_init_ = !nst_error_occurred();
+    lib_init_ = !Nst_error_occurred();
     return lib_init_;
 }
 
@@ -58,7 +58,7 @@ NST_FUNC_SIGN(rand_int_)
 
     if ( min > max )
     {
-        nst_set_value_error_c("'min' is greater than 'max'");
+        Nst_set_value_error_c("'min' is greater than 'max'");
         return nullptr;
     }
 

@@ -38,7 +38,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-EXPORT typedef enum _Nst_TokenType
+NstEXP typedef enum _Nst_TokenType
 {
     NST_TT_ADD,       // + + stack-op start, num-op start
     NST_TT_SUB,       // | |
@@ -121,7 +121,7 @@ EXPORT typedef enum _Nst_TokenType
 }
 Nst_TokType;
 
-EXPORT typedef struct _Nst_Tok
+NstEXP typedef struct _Nst_Tok
 {
     Nst_Pos start;
     Nst_Pos end;
@@ -131,22 +131,22 @@ EXPORT typedef struct _Nst_Tok
 Nst_Tok;
 
 // Creates a new token with a value
-EXPORT Nst_Tok *nst_tok_new_value(Nst_Pos     start,
+NstEXP Nst_Tok *nst_tok_new_value(Nst_Pos     start,
                                   Nst_Pos     end,
                                   Nst_TokType type,
                                   Nst_Obj    *value);
 // Creates a new tokens with only a type
-EXPORT Nst_Tok *nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type);
+NstEXP Nst_Tok *nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type);
 // Creates a new token where start and end are the same
-EXPORT Nst_Tok *nst_tok_new_noend(Nst_Pos start, Nst_TokType type);
-EXPORT void nst_token_destroy(Nst_Tok *token);
+NstEXP Nst_Tok *nst_tok_new_noend(Nst_Pos start, Nst_TokType type);
+NstEXP void nst_token_destroy(Nst_Tok *token);
 
 // Returns the corresponding token id from a string literal
 // Ex nst_str_to_tok("+") -> NST_TT_ADD == 0
-EXPORT Nst_TokType nst_tok_from_str(i8 *str);
+NstEXP Nst_TokType nst_tok_from_str(i8 *str);
 
 // Prints a token like the tokens when using the -t flag
-EXPORT void nst_print_tok(Nst_Tok *token);
+NstEXP void nst_print_tok(Nst_Tok *token);
 
 #ifdef __cplusplus
 }

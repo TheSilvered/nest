@@ -459,7 +459,7 @@ void nst_print_tok(Nst_Tok *token)
         Nst_StrObj* s = STR(_nst_repr_str_cast(token->value));
         if ( s != NULL )
         {
-            nst_error_clear();
+            Nst_error_clear();
             fwrite(s->value, sizeof(i8), s->len, stdout);
             nst_dec_ref(s);
         }

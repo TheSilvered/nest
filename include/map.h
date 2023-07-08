@@ -42,7 +42,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-EXPORT typedef struct _Nst_MapNode
+NstEXP typedef struct _Nst_MapNode
 {
     i32 hash;
     Nst_Obj *key;
@@ -52,7 +52,7 @@ EXPORT typedef struct _Nst_MapNode
 }
 Nst_MapNode;
 
-EXPORT typedef struct _Nst_MapObj
+NstEXP typedef struct _Nst_MapObj
 {
     NST_OBJ_HEAD;
     NST_GGC_HEAD;
@@ -66,26 +66,26 @@ EXPORT typedef struct _Nst_MapObj
 Nst_MapObj;
 
 // Creates a new empty map
-EXPORT Nst_Obj *nst_map_new();
-EXPORT bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value);
-EXPORT Nst_Obj *_nst_map_get(Nst_MapObj *map, Nst_Obj *key);
-EXPORT Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key);
+NstEXP Nst_Obj *nst_map_new();
+NstEXP bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value);
+NstEXP Nst_Obj *_nst_map_get(Nst_MapObj *map, Nst_Obj *key);
+NstEXP Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key);
 
-EXPORT void _nst_map_destroy(Nst_MapObj *map);
-EXPORT void _nst_map_traverse(Nst_MapObj *map);
-EXPORT void _nst_map_track(Nst_MapObj *map);
+NstEXP void _nst_map_destroy(Nst_MapObj *map);
+NstEXP void _nst_map_traverse(Nst_MapObj *map);
+NstEXP void _nst_map_track(Nst_MapObj *map);
 
-EXPORT i32 _nst_map_get_next_idx(i32 curr_idx, Nst_MapObj *map);
-EXPORT i32 _nst_map_get_prev_idx(i32 curr_idx, Nst_MapObj *map);
+NstEXP i32 _nst_map_get_next_idx(i32 curr_idx, Nst_MapObj *map);
+NstEXP i32 _nst_map_get_prev_idx(i32 curr_idx, Nst_MapObj *map);
 // Resizes the node array if necessary
 // `force_item_reset` forces all the items in the map to be re-inserted
-EXPORT bool _nst_map_resize(Nst_MapObj *map, bool force_item_reset);
+NstEXP bool _nst_map_resize(Nst_MapObj *map, bool force_item_reset);
 
-EXPORT bool _nst_map_set_str(Nst_MapObj *map,
+NstEXP bool _nst_map_set_str(Nst_MapObj *map,
                              const i8   *key,
                              Nst_Obj    *value);
-EXPORT Nst_Obj *_nst_map_get_str(Nst_MapObj *map, const i8 *key);
-EXPORT Nst_Obj *_nst_map_drop_str(Nst_MapObj *map, const i8 *key);
+NstEXP Nst_Obj *_nst_map_get_str(Nst_MapObj *map, const i8 *key);
+NstEXP Nst_Obj *_nst_map_drop_str(Nst_MapObj *map, const i8 *key);
 
 #ifdef __cplusplus
 }

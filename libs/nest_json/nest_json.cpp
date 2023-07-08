@@ -25,7 +25,7 @@ bool lib_init()
 #error
 #endif
 
-    lib_init_ = !nst_error_occurred();
+    lib_init_ = !Nst_error_occurred();
     return lib_init_;
 }
 
@@ -60,7 +60,7 @@ NST_FUNC_SIGN(load_f_)
     Nst_IOFile f = fopen(path->value, "rb");
     if ( f == nullptr )
     {
-        nst_set_value_error_c("file not found");
+        Nst_set_value_error_c("file not found");
         return nullptr;
     }
 
@@ -111,7 +111,7 @@ NST_FUNC_SIGN(dump_f_)
     Nst_IOFile f = fopen(path->value, "wb");
     if ( f == nullptr )
     {
-        nst_set_value_error_c("file not found");
+        Nst_set_value_error_c("file not found");
         return nullptr;
     }
 

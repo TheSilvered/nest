@@ -10,9 +10,9 @@ extern "C" {
 #endif
 
 // Optimizes the AST, can return NULL and print an error
-EXPORT Nst_Node *nst_optimize_ast(Nst_Node *ast, Nst_Error *error);
+NstEXP Nst_Node *nst_optimize_ast(Nst_Node *ast, Nst_Error *error);
 // Optimizes the bytecode, can return NULL and print an error
-EXPORT Nst_InstList *nst_optimize_bytecode(Nst_InstList *bc,
+NstEXP Nst_InstList *nst_optimize_bytecode(Nst_InstList *bc,
                                            bool          optimize_builtins,
                                            Nst_Error    *error);
 

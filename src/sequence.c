@@ -157,9 +157,9 @@ bool _nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val)
     if ( idx < 0 || idx >= (i64)seq->len )
     {
         const i8 *fmt = seq->type == nst_t.Array ?
-            _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
-          : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector");
-        nst_set_value_error(nst_sprintf(fmt, idx, seq->len));
+            _Nst_EM_INDEX_OUT_OF_BOUNDS("Array")
+          : _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector");
+        Nst_set_value_error(Nst_sprintf(fmt, idx, seq->len));
         return false;
     }
 
@@ -189,9 +189,9 @@ Nst_Obj *_nst_seq_get(Nst_SeqObj *seq, i64 idx)
     if ( idx < 0 || idx >= (i64)seq->len )
     {
         const i8 *fmt = seq->type == nst_t.Array ?
-            _NST_EM_INDEX_OUT_OF_BOUNDS("Array")
-          : _NST_EM_INDEX_OUT_OF_BOUNDS("Vector");
-        nst_set_value_error(nst_sprintf(fmt, idx, seq->len));
+            _Nst_EM_INDEX_OUT_OF_BOUNDS("Array")
+          : _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector");
+        Nst_set_value_error(Nst_sprintf(fmt, idx, seq->len));
         return NULL;
     }
 
@@ -403,13 +403,13 @@ Nst_Obj *seq_create_c(usize      len,
         default:
             if ( seq->type == nst_t.Vector )
             {
-                nst_set_value_error_c(
-                    _NST_EM_INVALID_TYPE_LETTER("nst_vector_create_c"));
+                Nst_set_value_error_c(
+                    _Nst_EM_INVALID_TYPE_LETTER("nst_vector_create_c"));
             }
             else
             {
-                nst_set_value_error_c(
-                    _NST_EM_INVALID_TYPE_LETTER("nst_array_create_c"));
+                Nst_set_value_error_c(
+                    _Nst_EM_INVALID_TYPE_LETTER("nst_array_create_c"));
             }
             goto failed;
         }

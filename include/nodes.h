@@ -12,7 +12,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-EXPORT typedef enum _Nst_NodeType
+NstEXP typedef enum _Nst_NodeType
 {
     NST_NT_LONG_S,
     NST_NT_WHILE_L,
@@ -42,7 +42,7 @@ EXPORT typedef enum _Nst_NodeType
 }
 Nst_NodeType;
 
-EXPORT typedef struct _Nst_Node
+NstEXP typedef struct _Nst_Node
 {
     Nst_Pos start;
     Nst_Pos end;
@@ -53,15 +53,15 @@ EXPORT typedef struct _Nst_Node
 Nst_Node;
 
 // New node on the heap
-EXPORT Nst_Node *nst_node_new(Nst_NodeType type);
+NstEXP Nst_Node *nst_node_new(Nst_NodeType type);
 // New node on the heap with a position
-EXPORT Nst_Node *nst_node_new_pos(Nst_NodeType type,
+NstEXP Nst_Node *nst_node_new_pos(Nst_NodeType type,
                                   Nst_Pos      start,
                                   Nst_Pos      end);
 // Sets the position of a node
-EXPORT void nst_node_set_pos(Nst_Node *node, Nst_Pos start, Nst_Pos end);
+NstEXP void nst_node_set_pos(Nst_Node *node, Nst_Pos start, Nst_Pos end);
 // Destroy a token and its children
-EXPORT void nst_node_destroy(Nst_Node *node);
+NstEXP void nst_node_destroy(Nst_Node *node);
 
 #ifdef __cplusplus
 }
