@@ -10,20 +10,20 @@ extern "C" {
 NstEXP bool lib_init();
 NstEXP Nst_DeclrList *get_func_ptrs();
 
-NST_FUNC_SIGN(map_);
-NST_FUNC_SIGN(insert_at_);
-NST_FUNC_SIGN(remove_at_);
-NST_FUNC_SIGN(slice_);
-NST_FUNC_SIGN(merge_);
-NST_FUNC_SIGN(sort_);
-NST_FUNC_SIGN(empty_);
-NST_FUNC_SIGN(filter_);
-NST_FUNC_SIGN(contains_);
-NST_FUNC_SIGN(any_);
-NST_FUNC_SIGN(all_);
-NST_FUNC_SIGN(count_);
-NST_FUNC_SIGN(lscan_);
-NST_FUNC_SIGN(rscan_);
+Nst_FUNC_SIGN(map_);
+Nst_FUNC_SIGN(insert_at_);
+Nst_FUNC_SIGN(remove_at_);
+Nst_FUNC_SIGN(slice_);
+Nst_FUNC_SIGN(merge_);
+Nst_FUNC_SIGN(sort_);
+Nst_FUNC_SIGN(empty_);
+Nst_FUNC_SIGN(filter_);
+Nst_FUNC_SIGN(contains_);
+Nst_FUNC_SIGN(any_);
+Nst_FUNC_SIGN(all_);
+Nst_FUNC_SIGN(count_);
+Nst_FUNC_SIGN(lscan_);
+Nst_FUNC_SIGN(rscan_);
 
 #ifdef __cplusplus
 }

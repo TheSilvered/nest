@@ -22,25 +22,25 @@ typedef struct _VirtualIOFile_data
 }
 VirtualIOFile_data;
 
-NST_FUNC_SIGN(open_);
-NST_FUNC_SIGN(virtual_file_);
-NST_FUNC_SIGN(close_);
-NST_FUNC_SIGN(write_);
-NST_FUNC_SIGN(write_bytes_);
-NST_FUNC_SIGN(read_);
-NST_FUNC_SIGN(read_bytes_);
-NST_FUNC_SIGN(file_size_);
-NST_FUNC_SIGN(get_fptr_);
-NST_FUNC_SIGN(move_fptr_);
-NST_FUNC_SIGN(flush_);
-NST_FUNC_SIGN(get_flags_);
-NST_FUNC_SIGN(println_);
-NST_FUNC_SIGN(_set_stdin_);
-NST_FUNC_SIGN(_set_stdout_);
-NST_FUNC_SIGN(_set_stderr_);
-NST_FUNC_SIGN(_get_stdin_);
-NST_FUNC_SIGN(_get_stdout_);
-NST_FUNC_SIGN(_get_stderr_);
+Nst_FUNC_SIGN(open_);
+Nst_FUNC_SIGN(virtual_file_);
+Nst_FUNC_SIGN(close_);
+Nst_FUNC_SIGN(write_);
+Nst_FUNC_SIGN(write_bytes_);
+Nst_FUNC_SIGN(read_);
+Nst_FUNC_SIGN(read_bytes_);
+Nst_FUNC_SIGN(file_size_);
+Nst_FUNC_SIGN(get_fptr_);
+Nst_FUNC_SIGN(move_fptr_);
+Nst_FUNC_SIGN(flush_);
+Nst_FUNC_SIGN(get_flags_);
+Nst_FUNC_SIGN(println_);
+Nst_FUNC_SIGN(_set_stdin_);
+Nst_FUNC_SIGN(_set_stdout_);
+Nst_FUNC_SIGN(_set_stderr_);
+Nst_FUNC_SIGN(_get_stdin_);
+Nst_FUNC_SIGN(_get_stdout_);
+Nst_FUNC_SIGN(_get_stderr_);
 
 #ifdef __cplusplus
 }

@@ -10,12 +10,12 @@ extern "C" {
 NstEXP bool lib_init();
 NstEXP Nst_DeclrList *get_func_ptrs();
 
-NST_FUNC_SIGN(random_);
-NST_FUNC_SIGN(rand_int_);
-NST_FUNC_SIGN(rand_perc_);
-NST_FUNC_SIGN(choice_);
-NST_FUNC_SIGN(shuffle_);
-NST_FUNC_SIGN(seed_);
+Nst_FUNC_SIGN(random_);
+Nst_FUNC_SIGN(rand_int_);
+Nst_FUNC_SIGN(rand_perc_);
+Nst_FUNC_SIGN(choice_);
+Nst_FUNC_SIGN(shuffle_);
+Nst_FUNC_SIGN(seed_);
 
 #ifdef __cplusplus
 }

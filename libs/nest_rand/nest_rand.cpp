@@ -20,12 +20,12 @@ bool lib_init()
     using namespace std::chrono;
     usize idx = 0;
 
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(random_, 0);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(rand_int_, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(rand_perc_, 0);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(choice_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(shuffle_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(seed_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(random_, 0);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(rand_int_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(rand_perc_, 0);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(choice_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(shuffle_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(seed_, 1);
 
 #if __LINE__ - FUNC_COUNT != 24
 #error
@@ -44,17 +44,17 @@ Nst_DeclrList *get_func_ptrs()
     return lib_init_ ? &obj_list_ : nullptr;
 }
 
-NST_FUNC_SIGN(random_)
+Nst_FUNC_SIGN(random_)
 {
-    return nst_int_new(rand_num());
+    return Nst_int_new(rand_num());
 }
 
-NST_FUNC_SIGN(rand_int_)
+Nst_FUNC_SIGN(rand_int_)
 {
     Nst_Int min;
     Nst_Int max;
 
-    NST_DEF_EXTRACT("ii", &min, &max);
+    Nst_DEF_EXTRACT("ii", &min, &max);
 
     if ( min > max )
     {
@@ -62,30 +62,30 @@ NST_FUNC_SIGN(rand_int_)
         return nullptr;
     }
 
-    return nst_int_new(rand_range(min, max));
+    return Nst_int_new(rand_range(min, max));
 }
 
-NST_FUNC_SIGN(rand_perc_)
+Nst_FUNC_SIGN(rand_perc_)
 {
-    return nst_real_new(f64(i64(rand_num())) / f64(ULLONG_MAX));
+    return Nst_real_new(f64(i64(rand_num())) / f64(ULLONG_MAX));
 }
 
-NST_FUNC_SIGN(choice_)
+Nst_FUNC_SIGN(choice_)
 {
     Nst_Obj *seq;
 
-    NST_DEF_EXTRACT("S", &seq);
+    Nst_DEF_EXTRACT("S", &seq);
 
-    Nst_Obj *val = nst_seq_get(SEQ(seq), rand_num() % SEQ(seq)->len);
-    nst_dec_ref(seq);
+    Nst_Obj *val = Nst_seq_get(SEQ(seq), rand_num() % SEQ(seq)->len);
+    Nst_dec_ref(seq);
     return val;
 }
 
-NST_FUNC_SIGN(shuffle_)
+Nst_FUNC_SIGN(shuffle_)
 {
     Nst_SeqObj *seq;
 
-    NST_DEF_EXTRACT("A", &seq);
+    Nst_DEF_EXTRACT("A", &seq);
 
     usize seq_len = seq->len;
     Nst_Obj **objs = seq->objs;
@@ -98,16 +98,16 @@ NST_FUNC_SIGN(shuffle_)
         objs[idx] = obj;
     }
 
-    NST_RETURN_NULL;
+    Nst_RETURN_NULL;
 }
 
-NST_FUNC_SIGN(seed_)
+Nst_FUNC_SIGN(seed_)
 {
     Nst_Int seed;
 
-    NST_DEF_EXTRACT("i", &seed);
+    Nst_DEF_EXTRACT("i", &seed);
 
     rand_num.seed(seed);
 
-    NST_RETURN_NULL;
+    Nst_RETURN_NULL;
 }

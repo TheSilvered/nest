@@ -178,10 +178,10 @@ i32 gui_button_handle_event(SDL_Event *e, GUI_Button *b)
 
 void gui_button_destroy(GUI_Button *b)
 {
-    nst_dec_ref(b->text);
+    Nst_dec_ref(b->text);
     if ( b->nest_func != nullptr )
     {
-        nst_dec_ref(b->nest_func);
+        Nst_dec_ref(b->nest_func);
     }
 
     for ( int i = 0; i < 5; i++)
@@ -201,7 +201,7 @@ GUI_Element *gui_button_new(GUI_Label *text, GUI_App *app)
         app);
     if ( b == nullptr )
     {
-        nst_dec_ref(text);
+        Nst_dec_ref(text);
         return nullptr;
     }
 
@@ -249,17 +249,17 @@ bool gui_button_call_nest_func(GUI_Button *b)
         return true;
     }
 
-    Nst_Obj *arg = nst_int_new(b->current_state);
+    Nst_Obj *arg = Nst_int_new(b->current_state);
     if ( arg == nullptr )
     {
         return false;
     }
-    Nst_Obj *result = nst_call_func(b->nest_func, &arg);
-    nst_dec_ref(arg);
+    Nst_Obj *result = Nst_call_func(b->nest_func, &arg);
+    Nst_dec_ref(arg);
     if ( result == nullptr )
     {
         return false;
     }
-    nst_dec_ref(result);
+    Nst_dec_ref(result);
     return true;
 }

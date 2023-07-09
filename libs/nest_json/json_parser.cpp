@@ -28,44 +28,44 @@ Nst_Obj *json_parse(i8 *path, Nst_LList *tokens)
     Nst_Obj *res = parse_value(tokens);
     if ( res == nullptr )
     {
-        nst_llist_destroy(tokens, (Nst_LListDestructor)nst_token_destroy);
+        Nst_llist_destroy(tokens, (Nst_LListDestructor)Nst_token_destroy);
         return nullptr;
     }
 
     if ( tokens->size != 1 )
     {
-        nst_dec_ref(res);
-        Nst_Pos err_pos = NST_TOK(tokens->head)->start;
+        Nst_dec_ref(res);
+        Nst_Pos err_pos = Nst_TOK(tokens->head)->start;
         JSON_SYNTAX_ERROR("unexpected token", file_path, err_pos);
-        nst_llist_destroy(tokens, (Nst_LListDestructor)nst_token_destroy);
+        Nst_llist_destroy(tokens, (Nst_LListDestructor)Nst_token_destroy);
         return nullptr;
     }
-    nst_llist_destroy(tokens, (Nst_LListDestructor)nst_token_destroy);
+    Nst_llist_destroy(tokens, (Nst_LListDestructor)Nst_token_destroy);
     return res;
 }
 
 static Nst_Obj *parse_value(Nst_LList *tokens)
 {
     INC_RECURSION_LVL;
-    Nst_Tok *tok = NST_TOK(nst_llist_pop(tokens));
+    Nst_Tok *tok = Nst_TOK(Nst_llist_pop(tokens));
 
     switch ( tok->type )
     {
     case JSON_VALUE:
     {
-        Nst_Obj *res = nst_inc_ref(tok->value);
-        nst_token_destroy(tok);
+        Nst_Obj *res = Nst_inc_ref(tok->value);
+        Nst_token_destroy(tok);
         return res;
     }
     case JSON_LBRACKET:
-        nst_token_destroy(tok);
+        Nst_token_destroy(tok);
         return parse_array(tokens);
     case JSON_LBRACE:
-        nst_token_destroy(tok);
+        Nst_token_destroy(tok);
         return parse_object(tokens);
     default:
         JSON_SYNTAX_ERROR("expected value", file_path, tok->start);
-        nst_token_destroy(tok);
+        Nst_token_destroy(tok);
         return nullptr;
     }
     DEC_RECURSION_LVL;
@@ -74,75 +74,75 @@ static Nst_Obj *parse_value(Nst_LList *tokens)
 static Nst_Obj *parse_object(Nst_LList *tokens)
 {
     INC_RECURSION_LVL;
-    Nst_MapObj *map = MAP(nst_map_new());
-    Nst_Tok *tok = NST_TOK(nst_llist_pop(tokens));
+    Nst_MapObj *map = MAP(Nst_map_new());
+    Nst_Tok *tok = Nst_TOK(Nst_llist_pop(tokens));
 
     if ( (JSONTokenType)tok->type == JSON_RBRACE )
     {
-        nst_token_destroy(tok);
+        Nst_token_destroy(tok);
         return OBJ(map);
     }
 
     while ( true )
     {
         if ( (JSONTokenType)tok->type != JSON_VALUE ||
-             tok->value->type != nst_type()->Str )
+             tok->value->type != Nst_type()->Str )
         {
             JSON_SYNTAX_ERROR("expected string", file_path, tok->start);
-            nst_token_destroy(tok);
-            nst_dec_ref(map);
+            Nst_token_destroy(tok);
+            Nst_dec_ref(map);
             return nullptr;
         }
 
-        Nst_Obj *key = nst_inc_ref(tok->value);
-        nst_token_destroy(tok);
-        tok = NST_TOK(nst_llist_pop(tokens));
+        Nst_Obj *key = Nst_inc_ref(tok->value);
+        Nst_token_destroy(tok);
+        tok = Nst_TOK(Nst_llist_pop(tokens));
 
         if ( (JSONTokenType)tok->type != JSON_COLON )
         {
             JSON_SYNTAX_ERROR("expected colon", file_path, tok->start);
-            nst_token_destroy(tok);
-            nst_dec_ref(map);
-            nst_dec_ref(key);
+            Nst_token_destroy(tok);
+            Nst_dec_ref(map);
+            Nst_dec_ref(key);
             return nullptr;
         }
 
-        nst_token_destroy(tok);
+        Nst_token_destroy(tok);
         Nst_Obj *val = parse_value(tokens);
 
         if ( val == nullptr )
         {
-            nst_dec_ref(map);
-            nst_dec_ref(key);
+            Nst_dec_ref(map);
+            Nst_dec_ref(key);
             return nullptr;
         }
 
-        nst_map_set(map, key, val);
-        nst_dec_ref(key);
-        nst_dec_ref(val);
+        Nst_map_set(map, key, val);
+        Nst_dec_ref(key);
+        Nst_dec_ref(val);
 
-        tok = NST_TOK(nst_llist_pop(tokens));
+        tok = Nst_TOK(Nst_llist_pop(tokens));
         if ( (JSONTokenType)tok->type == JSON_RBRACE )
         {
-            nst_token_destroy(tok);
+            Nst_token_destroy(tok);
             return OBJ(map);
         }
         else if ( (JSONTokenType)tok->type == JSON_COMMA )
         {
-            nst_token_destroy(tok);
-            tok = NST_TOK(nst_llist_pop(tokens));
+            Nst_token_destroy(tok);
+            tok = Nst_TOK(Nst_llist_pop(tokens));
         }
         else
         {
             JSON_SYNTAX_ERROR("expected ',' or '}'", file_path, tok->start);
-            nst_token_destroy(tok);
-            nst_dec_ref(map);
+            Nst_token_destroy(tok);
+            Nst_dec_ref(map);
             return nullptr;
         }
 
         if ( (JSONTokenType)tok->type == JSON_RBRACE && trailing_commas )
         {
-            nst_token_destroy(tok);
+            Nst_token_destroy(tok);
             return OBJ(map);
         }
     }
@@ -152,12 +152,12 @@ static Nst_Obj *parse_object(Nst_LList *tokens)
 static Nst_Obj *parse_array(Nst_LList *tokens)
 {
     INC_RECURSION_LVL;
-    Nst_VectorObj *vec = SEQ(nst_vector_new(0));
-    Nst_Tok *tok = NST_TOK(nst_llist_peek_front(tokens));
+    Nst_VectorObj *vec = SEQ(Nst_vector_new(0));
+    Nst_Tok *tok = Nst_TOK(Nst_llist_peek_front(tokens));
 
     if ( (JSONTokenType)tok->type == JSON_RBRACKET )
     {
-        nst_token_destroy(NST_TOK(nst_llist_pop(tokens)));
+        Nst_token_destroy(Nst_TOK(Nst_llist_pop(tokens)));
         goto end;
     }
 
@@ -167,45 +167,45 @@ static Nst_Obj *parse_array(Nst_LList *tokens)
 
         if ( val == nullptr )
         {
-            nst_dec_ref(vec);
+            Nst_dec_ref(vec);
             return nullptr;
         }
 
-        nst_vector_append(vec, val);
-        nst_dec_ref(val);
+        Nst_vector_append(vec, val);
+        Nst_dec_ref(val);
 
-        tok = NST_TOK(nst_llist_pop(tokens));
+        tok = Nst_TOK(Nst_llist_pop(tokens));
         if ( (JSONTokenType)tok->type == JSON_RBRACKET )
         {
-            nst_token_destroy(tok);
+            Nst_token_destroy(tok);
             goto end;
         }
         else if ( (JSONTokenType)tok->type == JSON_COMMA )
         {
-            nst_token_destroy(tok);
+            Nst_token_destroy(tok);
         }
         else
         {
             JSON_SYNTAX_ERROR("expected ',' or ']'", file_path, tok->start);
-            nst_token_destroy(tok);
-            nst_dec_ref(vec);
+            Nst_token_destroy(tok);
+            Nst_dec_ref(vec);
             return nullptr;
         }
 
-        tok = NST_TOK(nst_llist_peek_front(tokens));
+        tok = Nst_TOK(Nst_llist_peek_front(tokens));
         if ( (JSONTokenType)tok->type == JSON_RBRACKET && trailing_commas )
         {
-            nst_token_destroy(NST_TOK(nst_llist_pop(tokens)));
+            Nst_token_destroy(Nst_TOK(Nst_llist_pop(tokens)));
             goto end;
         }
     }
 
 end:
-    vec->type = TYPE(nst_inc_ref(nst_type()->Array));
-    nst_dec_ref(nst_type()->Vector);
+    vec->type = TYPE(Nst_inc_ref(Nst_type()->Array));
+    Nst_dec_ref(Nst_type()->Vector);
     if ( vec->len < vec->size && vec->len != 0 )
     {
-        Nst_Obj **new_objs = nst_realloc_c(
+        Nst_Obj **new_objs = Nst_realloc_c(
             vec->objs,
             vec->len,
             Nst_Obj *,

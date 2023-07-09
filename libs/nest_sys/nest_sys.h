@@ -11,19 +11,19 @@ NstEXP bool lib_init();
 NstEXP Nst_DeclrList *get_func_ptrs();
 NstEXP void free_lib();
 
-NST_FUNC_SIGN(system_);
-NST_FUNC_SIGN(exit_);
-NST_FUNC_SIGN(getenv_);
-NST_FUNC_SIGN(get_ref_count_);
-NST_FUNC_SIGN(get_addr_);
-NST_FUNC_SIGN(hash_);
-NST_FUNC_SIGN(endianness_);
-NST_FUNC_SIGN(_get_color_);
-NST_FUNC_SIGN(_set_cwd_);
-NST_FUNC_SIGN(_get_cwd_);
-NST_FUNC_SIGN(_get_version_);
-NST_FUNC_SIGN(_get_platform_);
-NST_FUNC_SIGN(_raw_exit);
+Nst_FUNC_SIGN(system_);
+Nst_FUNC_SIGN(exit_);
+Nst_FUNC_SIGN(getenv_);
+Nst_FUNC_SIGN(get_ref_count_);
+Nst_FUNC_SIGN(get_addr_);
+Nst_FUNC_SIGN(hash_);
+Nst_FUNC_SIGN(endianness_);
+Nst_FUNC_SIGN(_get_color_);
+Nst_FUNC_SIGN(_set_cwd_);
+Nst_FUNC_SIGN(_get_cwd_);
+Nst_FUNC_SIGN(_get_version_);
+Nst_FUNC_SIGN(_get_platform_);
+Nst_FUNC_SIGN(_raw_exit);
 
 #ifdef __cplusplus
 }

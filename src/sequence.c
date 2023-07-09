@@ -10,11 +10,11 @@
 
 static Nst_Obj *new_seq(usize len, usize size, Nst_TypeObj *type)
 {
-    Nst_SeqObj *seq = nst_obj_alloc(
+    Nst_SeqObj *seq = Nst_obj_alloc(
         Nst_SeqObj,
         type,
-        _nst_seq_destroy);
-    Nst_Obj **objs = nst_calloc_c(size, Nst_Obj *, NULL);
+        _Nst_seq_destroy);
+    Nst_Obj **objs = Nst_calloc_c(size, Nst_Obj *, NULL);
 
     if ( seq == NULL || objs == NULL )
     {
@@ -25,61 +25,61 @@ static Nst_Obj *new_seq(usize len, usize size, Nst_TypeObj *type)
     seq->size = size;
     seq->objs = objs;
 
-    NST_GGC_OBJ_INIT(seq, _nst_seq_traverse, _nst_seq_track);
+    Nst_GGC_OBJ_INIT(seq, _Nst_seq_traverse, _Nst_seq_track);
 
     return OBJ(seq);
 }
 
-Nst_Obj *nst_array_new(usize len)
+Nst_Obj *Nst_array_new(usize len)
 {
-    return new_seq(len, len, nst_t.Array);
+    return new_seq(len, len, Nst_t.Array);
 }
 
-Nst_Obj *nst_vector_new(usize len)
+Nst_Obj *Nst_vector_new(usize len)
 {
-    usize size = (usize)(len * _NST_VECTOR_GROWTH_RATIO);
+    usize size = (usize)(len * _Nst_VECTOR_GROWTH_RATIO);
 
-    if ( size < _NST_VECTOR_MIN_SIZE )
+    if ( size < _Nst_VECTOR_MIN_SIZE )
     {
-        size = _NST_VECTOR_MIN_SIZE;
+        size = _Nst_VECTOR_MIN_SIZE;
     }
 
-    return new_seq(len, size, nst_t.Vector);
+    return new_seq(len, size, Nst_t.Vector);
 }
 
-void _nst_seq_destroy(Nst_SeqObj *seq)
+void _Nst_seq_destroy(Nst_SeqObj *seq)
 {
     Nst_Obj **objs = seq->objs;
     for ( usize i = 0, n = seq->len; i < n; i++ )
     {
-        nst_dec_ref(objs[i]);
+        Nst_dec_ref(objs[i]);
     }
 
-    nst_free(objs);
+    Nst_free(objs);
 }
 
-void _nst_seq_traverse(Nst_SeqObj *seq)
+void _Nst_seq_traverse(Nst_SeqObj *seq)
 {
     Nst_Obj **objs = seq->objs;
     for ( usize i = 0, n = seq->len; i < n; i++ )
     {
-        NST_FLAG_SET(objs[i], NST_FLAG_GGC_REACHABLE);
+        Nst_FLAG_SET(objs[i], Nst_FLAG_GGC_REACHABLE);
     }
 }
 
-void _nst_seq_track(Nst_SeqObj* seq)
+void _Nst_seq_track(Nst_SeqObj* seq)
 {
     Nst_Obj **objs = seq->objs;
     for ( usize i = 0, n = seq->len; i < n; i++ )
     {
-        if ( NST_FLAG_HAS(objs[i], NST_FLAG_GGC_IS_SUPPORTED) )
+        if ( Nst_FLAG_HAS(objs[i], Nst_FLAG_GGC_IS_SUPPORTED) )
         {
-            nst_ggc_track_obj((Nst_GGCObj*)objs[i]);
+            Nst_ggc_track_obj((Nst_GGCObj*)objs[i]);
         }
     }
 }
 
-bool _nst_vector_resize(Nst_SeqObj *vect)
+bool _Nst_vector_resize(Nst_SeqObj *vect)
 {
     usize len = vect->len;
     usize size = vect->size;
@@ -89,17 +89,17 @@ bool _nst_vector_resize(Nst_SeqObj *vect)
 
     if ( size == len )
     {
-        new_size = (usize)(len * _NST_VECTOR_GROWTH_RATIO);
+        new_size = (usize)(len * _Nst_VECTOR_GROWTH_RATIO);
     }
     else if ( size >> 2 >= len ) // if it's three quarters empty or less
     {
-        new_size = (usize)(size / _NST_VECTOR_GROWTH_RATIO);
-        if ( new_size < _NST_VECTOR_MIN_SIZE )
+        new_size = (usize)(size / _Nst_VECTOR_GROWTH_RATIO);
+        if ( new_size < _Nst_VECTOR_MIN_SIZE )
         {
-            new_size = _NST_VECTOR_MIN_SIZE;
+            new_size = _Nst_VECTOR_MIN_SIZE;
         }
 
-        if ( size == _NST_VECTOR_MIN_SIZE )
+        if ( size == _Nst_VECTOR_MIN_SIZE )
         {
             return true;
         }
@@ -109,7 +109,7 @@ bool _nst_vector_resize(Nst_SeqObj *vect)
         return true;
     }
 
-    Nst_Obj **new_objs = nst_realloc_c(
+    Nst_Obj **new_objs = Nst_realloc_c(
         vect->objs,
         new_size,
         Nst_Obj *,
@@ -130,24 +130,24 @@ bool _nst_vector_resize(Nst_SeqObj *vect)
     return true;
 }
 
-bool _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val)
+bool _Nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val)
 {
-    if ( !_nst_vector_resize(vect) )
+    if ( !_Nst_vector_resize(vect) )
     {
         return false;
     }
 
-    vect->objs[vect->len++] = nst_inc_ref(val);
+    vect->objs[vect->len++] = Nst_inc_ref(val);
 
-    if ( NST_OBJ_IS_TRACKED(vect) &&
-         NST_FLAG_HAS(val, NST_FLAG_GGC_IS_SUPPORTED) )
+    if ( Nst_OBJ_IS_TRACKED(vect) &&
+         Nst_FLAG_HAS(val, Nst_FLAG_GGC_IS_SUPPORTED) )
     {
-        nst_ggc_track_obj((Nst_GGCObj*)val);
+        Nst_ggc_track_obj((Nst_GGCObj*)val);
     }
     return true;
 }
 
-bool _nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val)
+bool _Nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val)
 {
     if ( idx < 0 )
     {
@@ -156,30 +156,30 @@ bool _nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val)
 
     if ( idx < 0 || idx >= (i64)seq->len )
     {
-        const i8 *fmt = seq->type == nst_t.Array ?
+        const i8 *fmt = seq->type == Nst_t.Array ?
             _Nst_EM_INDEX_OUT_OF_BOUNDS("Array")
           : _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector");
         Nst_set_value_error(Nst_sprintf(fmt, idx, seq->len));
         return false;
     }
 
-    nst_inc_ref(val);
+    Nst_inc_ref(val);
     if ( seq->objs[idx] != NULL )
     {
-        nst_dec_ref(seq->objs[idx]);
+        Nst_dec_ref(seq->objs[idx]);
     }
     seq->objs[idx] = val;
 
-    if ( NST_OBJ_IS_TRACKED(seq) &&
-         NST_FLAG_HAS(val, NST_FLAG_GGC_IS_SUPPORTED) )
+    if ( Nst_OBJ_IS_TRACKED(seq) &&
+         Nst_FLAG_HAS(val, Nst_FLAG_GGC_IS_SUPPORTED) )
     {
-        nst_ggc_track_obj((Nst_GGCObj*)val);
+        Nst_ggc_track_obj((Nst_GGCObj*)val);
     }
 
     return true;
 }
 
-Nst_Obj *_nst_seq_get(Nst_SeqObj *seq, i64 idx)
+Nst_Obj *_Nst_seq_get(Nst_SeqObj *seq, i64 idx)
 {
     if ( idx < 0 )
     {
@@ -188,17 +188,17 @@ Nst_Obj *_nst_seq_get(Nst_SeqObj *seq, i64 idx)
 
     if ( idx < 0 || idx >= (i64)seq->len )
     {
-        const i8 *fmt = seq->type == nst_t.Array ?
+        const i8 *fmt = seq->type == Nst_t.Array ?
             _Nst_EM_INDEX_OUT_OF_BOUNDS("Array")
           : _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector");
         Nst_set_value_error(Nst_sprintf(fmt, idx, seq->len));
         return NULL;
     }
 
-    return nst_inc_ref(seq->objs[idx]);
+    return Nst_inc_ref(seq->objs[idx]);
 }
 
-Nst_Obj *_nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val)
+Nst_Obj *_Nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val)
 {
     usize i = 0;
     usize n = vect->len;
@@ -206,20 +206,20 @@ Nst_Obj *_nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val)
 
     for ( ; i < n; i++ )
     {
-        if ( nst_obj_eq(val, objs[i]) == nst_c.Bool_true )
+        if ( Nst_obj_eq(val, objs[i]) == Nst_c.Bool_true )
         {
-            nst_dec_ref(nst_c.Bool_true);
-            nst_dec_ref(objs[i]);
+            Nst_dec_ref(Nst_c.Bool_true);
+            Nst_dec_ref(objs[i]);
             break;
         }
         else
         {
-            nst_dec_ref(nst_c.Bool_false);
+            Nst_dec_ref(Nst_c.Bool_false);
         }
 
         if ( i + 1 == n )
         {
-            NST_RETURN_FALSE;
+            Nst_RETURN_FALSE;
         }
     }
 
@@ -229,12 +229,12 @@ Nst_Obj *_nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val)
     }
 
     vect->len--;
-    _nst_vector_resize(vect);
+    _Nst_vector_resize(vect);
 
-    NST_RETURN_TRUE;
+    Nst_RETURN_TRUE;
 }
 
-Nst_Obj *_nst_vector_pop(Nst_SeqObj *vect, usize quantity)
+Nst_Obj *_Nst_vector_pop(Nst_SeqObj *vect, usize quantity)
 {
     if ( quantity > vect->len )
     {
@@ -248,17 +248,17 @@ Nst_Obj *_nst_vector_pop(Nst_SeqObj *vect, usize quantity)
     {
         if ( last_obj != NULL )
         {
-            nst_dec_ref(last_obj);
+            Nst_dec_ref(last_obj);
         }
         last_obj = vect->objs[n - i];
         vect->len--;
     }
 
-    _nst_vector_resize(vect);
+    _Nst_vector_resize(vect);
 
     if ( last_obj == NULL )
     {
-        NST_RETURN_NULL;
+        Nst_RETURN_NULL;
     }
     else
     {
@@ -274,7 +274,7 @@ void seq_create(usize len, Nst_Obj *seq, va_list args)
         for ( usize i = 0; i < len; i++ )
         {
             Nst_Obj *arg = va_arg(args, Nst_Obj *);
-            nst_dec_ref(arg);
+            Nst_dec_ref(arg);
         }
         return;
     }
@@ -287,9 +287,9 @@ void seq_create(usize len, Nst_Obj *seq, va_list args)
     }
 }
 
-Nst_Obj *nst_vector_create(usize len, ...)
+Nst_Obj *Nst_vector_create(usize len, ...)
 {
-    Nst_Obj *vector = nst_vector_new(len);
+    Nst_Obj *vector = Nst_vector_new(len);
     va_list args;
     va_start(args, len);
     seq_create(len, vector, args);
@@ -297,9 +297,9 @@ Nst_Obj *nst_vector_create(usize len, ...)
     return vector;
 }
 
-Nst_Obj *nst_array_create(usize len, ...)
+Nst_Obj *Nst_array_create(usize len, ...)
 {
-    Nst_Obj *array = nst_array_new(len);
+    Nst_Obj *array = Nst_array_new(len);
     va_list args;
     va_start(args, len);
     seq_create(len, array, args);
@@ -327,7 +327,7 @@ Nst_Obj *seq_create_c(usize      len,
         case 'I':
         {
             i64 value = va_arg(args, i64);
-            Nst_Obj *obj = nst_int_new(value);
+            Nst_Obj *obj = Nst_int_new(value);
             if ( obj == NULL )
             {
                 goto failed;
@@ -338,7 +338,7 @@ Nst_Obj *seq_create_c(usize      len,
         case 'i':
         {
             i32 value = va_arg(args, i32);
-            Nst_Obj *obj = nst_int_new((i64)value);
+            Nst_Obj *obj = Nst_int_new((i64)value);
             if ( obj == NULL )
             {
                 goto failed;
@@ -350,7 +350,7 @@ Nst_Obj *seq_create_c(usize      len,
         case 'F':
         {
             f64 value = va_arg(args, f64);
-            Nst_Obj *obj = nst_real_new(value);
+            Nst_Obj *obj = Nst_real_new(value);
             if ( obj == NULL )
             {
                 goto failed;
@@ -363,18 +363,18 @@ Nst_Obj *seq_create_c(usize      len,
             int value = va_arg(args, int);
             if ( value )
             {
-                objs[i] = nst_inc_ref(nst_c.Bool_true);
+                objs[i] = Nst_inc_ref(Nst_c.Bool_true);
             }
             else
             {
-                objs[i] = nst_inc_ref(nst_c.Bool_false);
+                objs[i] = Nst_inc_ref(Nst_c.Bool_false);
             }
             break;
         }
         case 'B':
         {
             int value = va_arg(args, int);
-            Nst_Obj *obj = nst_byte_new((u8)value);
+            Nst_Obj *obj = Nst_byte_new((u8)value);
             if ( obj == NULL )
             {
                 goto failed;
@@ -391,25 +391,25 @@ Nst_Obj *seq_create_c(usize      len,
         case 'O':
         {
             Nst_Obj *obj = va_arg(args, Nst_Obj *);
-            objs[i] = nst_inc_ref(obj);
+            objs[i] = Nst_inc_ref(obj);
             break;
         }
         case 'n':
         {
             (void)va_arg(args, void *);
-            objs[i] = nst_inc_ref(nst_c.Null_null);
+            objs[i] = Nst_inc_ref(Nst_c.Null_null);
             break;
         }
         default:
-            if ( seq->type == nst_t.Vector )
+            if ( seq->type == Nst_t.Vector )
             {
                 Nst_set_value_error_c(
-                    _Nst_EM_INVALID_TYPE_LETTER("nst_vector_create_c"));
+                    _Nst_EM_INVALID_TYPE_LETTER("Nst_vector_create_c"));
             }
             else
             {
                 Nst_set_value_error_c(
-                    _Nst_EM_INVALID_TYPE_LETTER("nst_array_create_c"));
+                    _Nst_EM_INVALID_TYPE_LETTER("Nst_array_create_c"));
             }
             goto failed;
         }
@@ -419,14 +419,14 @@ Nst_Obj *seq_create_c(usize      len,
     return seq;
 failed:
     SEQ(seq)->len = i;
-    nst_dec_ref(seq);
+    Nst_dec_ref(seq);
     return NULL;
 }
 
-Nst_Obj *nst_vector_create_c(const i8 *fmt, ...)
+Nst_Obj *Nst_vector_create_c(const i8 *fmt, ...)
 {
     usize len = strlen(fmt);
-    Nst_Obj *vector = nst_vector_new(len);
+    Nst_Obj *vector = Nst_vector_new(len);
     va_list args;
     va_start(args, fmt);
     vector = seq_create_c(len, vector, fmt, args);
@@ -434,10 +434,10 @@ Nst_Obj *nst_vector_create_c(const i8 *fmt, ...)
     return vector;
 }
 
-Nst_Obj *nst_array_create_c(const i8 *fmt, ...)
+Nst_Obj *Nst_array_create_c(const i8 *fmt, ...)
 {
     usize len = strlen(fmt);
-    Nst_Obj *array = nst_array_new(len);
+    Nst_Obj *array = Nst_array_new(len);
     va_list args;
     va_start(args, fmt);
     array = seq_create_c(len, array, fmt, args);

@@ -33,7 +33,7 @@ extern "C" {
  * otherwise
  * @param force_execution: set to true when the -f option is used or to false
  * otherwise
- * @param encoding: set to the specified encoding or to NST_CP_UNKNOWN if not
+ * @param encoding: set to the specified encoding or to Nst_CP_UNKNOWN if not
  * given
  * @param no_default: set to true when the -D option is used or to false
  * otherwise

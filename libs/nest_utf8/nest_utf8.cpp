@@ -15,10 +15,10 @@ bool lib_init()
 {
     usize idx = 0;
 
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_valid_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(get_len_,  1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(get_at_,   2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(to_iter_,  1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_valid_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_len_,  1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_at_,   2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(to_iter_,  1);
 
 #if __LINE__ - FUNC_COUNT != 19
 #error
@@ -33,20 +33,20 @@ Nst_DeclrList *get_func_ptrs()
     return lib_init_ ? &obj_list_ : nullptr;
 }
 
-NST_FUNC_SIGN(utf8_iter_start)
+Nst_FUNC_SIGN(utf8_iter_start)
 {
     Nst_Obj **objs = SEQ(args[0])->objs;
     AS_INT(objs[0]) = 0;
-    NST_RETURN_NULL;
+    Nst_RETURN_NULL;
 }
 
-NST_FUNC_SIGN(utf8_iter_is_done)
+Nst_FUNC_SIGN(utf8_iter_is_done)
 {
     Nst_Obj **objs = SEQ(args[0])->objs;
-    NST_RETURN_COND((usize)AS_INT(objs[0]) >= STR(objs[1])->len);
+    Nst_RETURN_COND((usize)AS_INT(objs[0]) >= STR(objs[1])->len);
 }
 
-NST_FUNC_SIGN(utf8_iter_get_val)
+Nst_FUNC_SIGN(utf8_iter_get_val)
 {
     Nst_Obj **objs = SEQ(args[0])->objs;
     Nst_IntObj *idx = (Nst_IntObj *)objs[0];
@@ -68,7 +68,7 @@ NST_FUNC_SIGN(utf8_iter_get_val)
         SET_INVALID_UTF8;
         return nullptr;
     }
-    i8 *new_s = nst_malloc_c(res + 1, i8);
+    i8 *new_s = Nst_malloc_c(res + 1, i8);
     if ( new_s == nullptr )
     {
         return nullptr;
@@ -78,31 +78,31 @@ NST_FUNC_SIGN(utf8_iter_get_val)
     new_s[res] = '\0';
     idx->value += res;
 
-    return nst_string_new(new_s, res, true);
+    return Nst_string_new(new_s, res, true);
 }
 
-NST_FUNC_SIGN(is_valid_)
+Nst_FUNC_SIGN(is_valid_)
 {
     Nst_StrObj *str;
-    NST_DEF_EXTRACT("s", &str);
+    Nst_DEF_EXTRACT("s", &str);
     u8 *s = (u8 *)str->value;
     for ( usize i = 0, n = str->len; i < n; )
     {
         i32 res = Nst_check_utf8_bytes(s + i, n - i);
         if ( res == -1 )
         {
-            NST_RETURN_FALSE;
+            Nst_RETURN_FALSE;
         }
         i += res;
     }
 
-    NST_RETURN_TRUE;
+    Nst_RETURN_TRUE;
 }
 
-NST_FUNC_SIGN(get_len_)
+Nst_FUNC_SIGN(get_len_)
 {
     Nst_StrObj *str;
-    NST_DEF_EXTRACT("s", &str);
+    Nst_DEF_EXTRACT("s", &str);
 
     u8 *s = (u8 *)str->value;
     usize len = 0;
@@ -118,14 +118,14 @@ NST_FUNC_SIGN(get_len_)
         i += res;
     }
 
-    return nst_int_new(len);
+    return Nst_int_new(len);
 }
 
-NST_FUNC_SIGN(get_at_)
+Nst_FUNC_SIGN(get_at_)
 {
     Nst_StrObj *str;
     Nst_Int idx;
-    NST_DEF_EXTRACT("si", &str, &idx);
+    Nst_DEF_EXTRACT("si", &str, &idx);
 
     u8 *s = (u8 *)str->value;
     usize u_len = 0;
@@ -160,7 +160,7 @@ NST_FUNC_SIGN(get_at_)
         return nullptr;
     }
 
-    i8 *new_s = nst_malloc_c(res + 1, i8);
+    i8 *new_s = Nst_malloc_c(res + 1, i8);
     if ( new_s == nullptr )
     {
         Nst_failed_allocation();
@@ -168,21 +168,21 @@ NST_FUNC_SIGN(get_at_)
     }
     memcpy(new_s, s + i, res);
     new_s[res] = '\0';
-    return nst_string_new(new_s, res, true);
+    return Nst_string_new(new_s, res, true);
 }
 
-NST_FUNC_SIGN(to_iter_)
+Nst_FUNC_SIGN(to_iter_)
 {
     Nst_Obj *str;
 
-    NST_DEF_EXTRACT("s", &str);
+    Nst_DEF_EXTRACT("s", &str);
 
     // Layout: [idx, str]
-    Nst_Obj *arr = nst_array_create_c("iO", 0, str);
+    Nst_Obj *arr = Nst_array_create_c("iO", 0, str);
 
-    return nst_iter_new(
-        FUNC(nst_func_new_c(1, utf8_iter_start)),
-        FUNC(nst_func_new_c(1, utf8_iter_is_done)),
-        FUNC(nst_func_new_c(1, utf8_iter_get_val)),
+    return Nst_iter_new(
+        FUNC(Nst_func_new_c(1, utf8_iter_start)),
+        FUNC(Nst_func_new_c(1, utf8_iter_is_done)),
+        FUNC(Nst_func_new_c(1, utf8_iter_get_val)),
         arr);
 }

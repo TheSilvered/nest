@@ -10,8 +10,8 @@ extern "C" {
 NstEXP bool lib_init();
 NstEXP Nst_DeclrList *get_func_ptrs();
 
-NST_FUNC_SIGN(try_);
-NST_FUNC_SIGN(_get_err_names_);
+Nst_FUNC_SIGN(try_);
+Nst_FUNC_SIGN(_get_err_names_);
 
 #ifdef __cplusplus
 }

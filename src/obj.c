@@ -4,11 +4,11 @@
 #include "str.h"
 #include "mem.h"
 
-Nst_Obj *_nst_obj_alloc(usize               size,
+Nst_Obj *_Nst_obj_alloc(usize               size,
                         struct _Nst_StrObj *type,
                         void (*destructor)(void *))
 {
-    Nst_Obj *obj = OBJ(nst_malloc(1, size));
+    Nst_Obj *obj = OBJ(Nst_malloc(1, size));
     if ( obj == NULL )
     {
         return NULL;
@@ -29,14 +29,14 @@ Nst_Obj *_nst_obj_alloc(usize               size,
         obj->type = type;
     }
 
-    nst_inc_ref(obj->type);
+    Nst_inc_ref(obj->type);
 
     return obj;
 }
 
-void _nst_obj_destroy(Nst_Obj *obj)
+void _Nst_obj_destroy(Nst_Obj *obj)
 {
-    if ( !NST_FLAG_HAS(obj, NST_FLAG_GGC_IS_SUPPORTED) )
+    if ( !Nst_FLAG_HAS(obj, Nst_FLAG_GGC_IS_SUPPORTED) )
     {
         if ( obj->destructor != NULL )
         {
@@ -44,14 +44,14 @@ void _nst_obj_destroy(Nst_Obj *obj)
         }
         if ( obj != OBJ(obj->type) )
         {
-            nst_dec_ref(obj->type);
+            Nst_dec_ref(obj->type);
         }
 
-        nst_free(obj);
+        Nst_free(obj);
         return;
     }
 
-    if ( NST_FLAG_HAS(obj, NST_FLAG_GGC_DELETED) )
+    if ( Nst_FLAG_HAS(obj, Nst_FLAG_GGC_DELETED) )
     {
         return;
     }
@@ -63,13 +63,13 @@ void _nst_obj_destroy(Nst_Obj *obj)
     }
     if ( obj != OBJ(obj->type) )
     {
-        nst_dec_ref(obj->type);
+        Nst_dec_ref(obj->type);
     }
 
     // if the object is being deleted by the garbage collector
-    if ( NST_FLAG_HAS(obj, NST_FLAG_GGC_UNREACHABLE) )
+    if ( Nst_FLAG_HAS(obj, Nst_FLAG_GGC_UNREACHABLE) )
     {
-        NST_FLAG_SET(obj, NST_FLAG_GGC_DELETED);
+        Nst_FLAG_SET(obj, Nst_FLAG_GGC_DELETED);
         return;
     }
 
@@ -99,20 +99,20 @@ void _nst_obj_destroy(Nst_Obj *obj)
         ls->size--;
     }
 
-    nst_free(obj);
+    Nst_free(obj);
 }
 
-Nst_Obj *_nst_inc_ref(Nst_Obj *obj)
+Nst_Obj *_Nst_inc_ref(Nst_Obj *obj)
 {
     obj->ref_count++;
     return obj;
 }
 
-void _nst_dec_ref(Nst_Obj *obj)
+void _Nst_dec_ref(Nst_Obj *obj)
 {
     obj->ref_count--;
     if ( obj->ref_count <= 0 || (obj == OBJ(obj->type) && obj->ref_count == 1) )
     {
-        _nst_obj_destroy(obj);
+        _Nst_obj_destroy(obj);
     }
 }

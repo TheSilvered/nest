@@ -1,4 +1,10 @@
-/* Object hashing */
+/**
+ * @file hash.h
+ *
+ * @brief Object hashing functions
+ *
+ * @author TheSilvered
+ */
 
 #ifndef HASH_H
 #define HASH_H
@@ -9,8 +15,8 @@
 extern "C" {
 #endif // !__cplusplus
 
-// Returns the hash of `obj` or -1 in case of faiulre
-NstEXP i32 nst_obj_hash(Nst_Obj *obj);
+/* Hashes a Nest object setting its hash field and returning the hash. */
+NstEXP i32 NstC Nst_obj_hash(Nst_Obj *obj);
 
 #ifdef __cplusplus
 }

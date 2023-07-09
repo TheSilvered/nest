@@ -14,7 +14,7 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif
+#endif // !__cplusplus
 
 /** Compiles the AST.
  *
@@ -41,6 +41,6 @@ NstEXP void NstC Nst_print_bytecode(Nst_InstList *ls);
 
 #ifdef __cplusplus
 }
-#endif
+#endif // !__cplusplus
 
 #endif // !COMPILER_H

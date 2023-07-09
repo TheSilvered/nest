@@ -15,6 +15,11 @@
 extern "C" {
 #endif // !__cplusplus
 
+/** The supported encodings in Nest
+ *
+ * @brief Nst_CP_UNKNOWN is -1, Nst_CP_LATIN1 and Nst_CP_ISO8859_1 are
+ * equivalent
+ */
 NstEXP typedef enum _Nst_CPID {
     Nst_CP_UNKNOWN = -1,
     Nst_CP_ASCII,
@@ -36,13 +41,7 @@ NstEXP typedef enum _Nst_CPID {
     Nst_CP_1258,
     Nst_CP_LATIN1,
     Nst_CP_ISO8859_1 = Nst_CP_LATIN1
-}
-/** The supported encodings in Nest
- *
- * @brief NST_CP_UNKNOWN is -1, NST_CP_LATIN1 and NST_CP_ISO8859_1 are
- * equivalent
- */
-Nst_CPID;
+} Nst_CPID;
 
 /**
  * @brief The signature of a function that checks the length of the first
@@ -63,15 +62,6 @@ NstEXP typedef u32 (*Nst_ToUTF32Func)(void *str);
  */
 NstEXP typedef i32 (*Nst_FromUTF32Func)(u32 ch, void *buf);
 
-NstEXP typedef struct _Nst_CP {
-    usize ch_size;
-    usize mult_max_sz;
-    usize mult_min_sz;
-    const i8 *name;
-    Nst_CheckBytesFunc check_bytes;
-    Nst_ToUTF32Func to_utf32;
-    Nst_FromUTF32Func from_utf32;
-}
 /** The structure that represents an encoding
  *
  * @param ch_size: the size of one unit in bytes (e.g. is 1 in UTF-8 but 2 in
@@ -84,7 +74,15 @@ NstEXP typedef struct _Nst_CP {
  * @param to_utf32: the Nst_ToUTF32Func function of the encoding
  * @param from_utf32: the Nst_FromUTF32Func function of the encoding
  */
-Nst_CP;
+NstEXP typedef struct _Nst_CP {
+    usize ch_size;
+    usize mult_max_sz;
+    usize mult_min_sz;
+    const i8 *name;
+    Nst_CheckBytesFunc check_bytes;
+    Nst_ToUTF32Func to_utf32;
+    Nst_FromUTF32Func from_utf32;
+} Nst_CP;
 
 extern Nst_CP Nst_cp_ascii;
 extern Nst_CP Nst_cp_utf8;
@@ -284,13 +282,13 @@ NstEXP isize NstC Nst_check_string_cp(Nst_CP *cp, void *str, usize str_len);
  */
 NstEXP Nst_CP *NstC Nst_cp(Nst_CPID cpid);
 
-#ifdef WINDOWS
+#ifdef Nst_WIN
 /**
  * @brief WINDOWS ONLY Returns the Nest code page ID of the local ANSI code
- * page. If the ANSI code page is not supported, NST_CP_LATIN1 is returned.
+ * page. If the ANSI code page is not supported, Nst_CP_LATIN1 is returned.
  */
 NstEXP Nst_CPID NstC Nst_acp();
-#endif
+#endif // !Nst_WIN
 
 /** Translates a UTF-8 string to Unicode (UTF-16)
  *

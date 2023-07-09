@@ -13,8 +13,8 @@ NstEXP void free_lib();
 
 typedef struct _CoroutineObj
 {
-    NST_OBJ_HEAD;
-    NST_GGC_HEAD;
+    Nst_OBJ_HEAD;
+    Nst_GGC_HEAD;
     Nst_FuncObj *func;
     Nst_MapObj *vars;
     Nst_MapObj *globals;
@@ -49,12 +49,12 @@ void coroutine_traverse(CoroutineObj *co);
 void coroutine_track(CoroutineObj *co);
 void coroutine_destroy(CoroutineObj *co);
 
-NST_FUNC_SIGN(create_);
-NST_FUNC_SIGN(call_);
-NST_FUNC_SIGN(pause_);
-NST_FUNC_SIGN(get_state_);
-NST_FUNC_SIGN(generator_);
-NST_FUNC_SIGN(_get_co_type_obj_);
+Nst_FUNC_SIGN(create_);
+Nst_FUNC_SIGN(call_);
+Nst_FUNC_SIGN(pause_);
+Nst_FUNC_SIGN(get_state_);
+Nst_FUNC_SIGN(generator_);
+Nst_FUNC_SIGN(_get_co_type_obj_);
 
 #ifdef __cplusplus
 }

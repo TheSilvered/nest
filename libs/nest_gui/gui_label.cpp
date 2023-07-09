@@ -25,7 +25,7 @@ bool render_texture(GUI_Label *l)
 
     l->texture = SDL_CreateTextureFromSurface(l->app->renderer, text_surf);
     if ( l->auto_height &&
-         (!NST_FLAG_HAS(l, GUI_FLAG_REL_SIZE) ||
+         (!Nst_FLAG_HAS(l, GUI_FLAG_REL_SIZE) ||
          (l->rel_size.diff_y == 0 && l->rel_size.scale_y == 0.0)) )
     {
         l->rect.h = l->padding_bottom + l->padding_top + text_surf->h;
@@ -112,12 +112,12 @@ GUI_Element *gui_label_new(Nst_StrObj *text,
     new_label->handle_event_func = default_event_handler;
     new_label->auto_height = false;
 
-    if ( !nst_buffer_init(&new_label->text, text->len + 1) )
+    if ( !Nst_buffer_init(&new_label->text, text->len + 1) )
     {
         gui_element_destroy((GUI_Element *)new_label);
         return nullptr;
     }
-    nst_buffer_append(&new_label->text, text);
+    Nst_buffer_append(&new_label->text, text);
 
     usize offset = 0;
     i8 *text_p = new_label->text.data;
@@ -177,7 +177,7 @@ void reset_texture(GUI_Label *l)
 
 void gui_label_destroy(GUI_Label *l)
 {
-    nst_buffer_destroy(&l->text);
+    Nst_buffer_destroy(&l->text);
     gui_element_destroy((GUI_Element *)l);
 }
 
@@ -189,19 +189,19 @@ void gui_label_change_color(GUI_Label *l, SDL_Color new_color)
 
 void gui_label_append_text(GUI_Label *l, Nst_StrObj *str)
 {
-    nst_buffer_append(&l->text, str);
+    Nst_buffer_append(&l->text, str);
     reset_texture(l);
 }
 
 void gui_label_append_c_text(GUI_Label *l, i8 *text)
 {
-    nst_buffer_append_c_str(&l->text, text);
+    Nst_buffer_append_c_str(&l->text, text);
     reset_texture(l);
 }
 
 void gui_label_set_text(GUI_Label *l, Nst_StrObj *str)
 {
-    i8 *new_data = nst_realloc_c(
+    i8 *new_data = Nst_realloc_c(
         l->text.data,
         str->len + 1,
         i8, l->text.size);
@@ -220,7 +220,7 @@ void gui_label_set_text(GUI_Label *l, Nst_StrObj *str)
 void gui_label_set_c_text(GUI_Label *l, i8 *text)
 {
     usize str_len = strlen(text);
-    i8 *new_data = nst_realloc_c(
+    i8 *new_data = Nst_realloc_c(
         l->text.data,
         str_len + 1,
         i8, l->text.size);

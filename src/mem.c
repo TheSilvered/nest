@@ -3,15 +3,15 @@
 #include "mem.h"
 #include "lib_import.h"
 
-#if defined(_DEBUG) && !defined(NST_NO_ALLOC_COUNT)
+#if defined(_DEBUG) && !defined(Nst_NO_ALLOC_COUNT)
 #define COUNT_ALLOC
-#endif
+#endif // !_DEBUG
 
 #ifdef COUNT_ALLOC
 static i32 allocation_count = 0;
-#endif
+#endif // !COUNT_ALLOC
 
-void *nst_raw_malloc(usize size)
+void *Nst_raw_malloc(usize size)
 {
 #ifdef COUNT_ALLOC
     void *ptr = malloc(size);
@@ -22,10 +22,10 @@ void *nst_raw_malloc(usize size)
     return ptr;
 #else
     return malloc(size);
-#endif
+#endif // !COUNT_ALLOC
 }
 
-void *nst_raw_calloc(usize count, usize size)
+void *Nst_raw_calloc(usize count, usize size)
 {
 #ifdef COUNT_ALLOC
     void *ptr = calloc(count, size);
@@ -36,17 +36,17 @@ void *nst_raw_calloc(usize count, usize size)
     return ptr;
 #else
     return calloc(count, size);
-#endif
+#endif // !COUNT_ALLOC
 }
 
-void *nst_raw_realloc(void *block, usize size)
+void *Nst_raw_realloc(void *block, usize size)
 {
     return realloc(block, size);
 }
 
-void *nst_malloc(usize count, usize size)
+void *Nst_malloc(usize count, usize size)
 {
-    void *ptr = nst_raw_malloc(count * size);
+    void *ptr = Nst_raw_malloc(count * size);
     if ( ptr == NULL )
     {
         Nst_failed_allocation();
@@ -54,9 +54,9 @@ void *nst_malloc(usize count, usize size)
     return ptr;
 }
 
-void *nst_calloc(usize count, usize size, void *init_value)
+void *Nst_calloc(usize count, usize size, void *init_value)
 {
-    u8 *block = (u8 *)nst_raw_malloc(count * size);
+    u8 *block = (u8 *)Nst_raw_malloc(count * size);
 
     if ( block == NULL )
     {
@@ -76,7 +76,7 @@ void *nst_calloc(usize count, usize size, void *init_value)
     return (void *)block;
 }
 
-void *nst_realloc(void *prev_block,
+void *Nst_realloc(void *prev_block,
                   usize new_count,
                   usize size,
                   usize prev_count)
@@ -86,7 +86,7 @@ void *nst_realloc(void *prev_block,
         return prev_block;
     }
 
-    void *block = nst_raw_realloc(prev_block, new_count * size);
+    void *block = Nst_raw_realloc(prev_block, new_count * size);
     if ( block == NULL && new_count > prev_count )
     {
         Nst_failed_allocation();
@@ -95,7 +95,7 @@ void *nst_realloc(void *prev_block,
     return block ? block : prev_block;
 }
 
-void *nst_crealloc(void *prev_block,
+void *Nst_crealloc(void *prev_block,
                    usize new_count,
                    usize size,
                    usize prev_count,
@@ -106,7 +106,7 @@ void *nst_crealloc(void *prev_block,
         return prev_block;
     }
 
-    u8 *block = (u8 *)nst_raw_realloc(prev_block, new_count * size);
+    u8 *block = (u8 *)Nst_raw_realloc(prev_block, new_count * size);
     if ( new_count <= prev_count )
     {
         return block ? (void *)block : prev_block;
@@ -131,20 +131,20 @@ void *nst_crealloc(void *prev_block,
     return (void *)block;
 }
 
-void nst_free(void *block)
+void Nst_free(void *block)
 {
 #ifdef COUNT_ALLOC
     if ( block != NULL )
     {
         allocation_count--;
     }
-#endif
+#endif // !COUNT_ALLOC
     free(block);
 }
 
-bool nst_sbuffer_init(Nst_SizedBuffer *buf, usize unit_size, usize count)
+bool Nst_sbuffer_init(Nst_SizedBuffer *buf, usize unit_size, usize count)
 {
-    void *data = nst_malloc(count, unit_size);
+    void *data = Nst_malloc(count, unit_size);
     if ( data == NULL )
     {
         return false;
@@ -157,12 +157,12 @@ bool nst_sbuffer_init(Nst_SizedBuffer *buf, usize unit_size, usize count)
     return true;
 }
 
-bool nst_sbuffer_expand_by(Nst_SizedBuffer *buf, usize amount)
+bool Nst_sbuffer_expand_by(Nst_SizedBuffer *buf, usize amount)
 {
-    return nst_sbuffer_expand_to(buf, buf->len + amount + 1);
+    return Nst_sbuffer_expand_to(buf, buf->len + amount + 1);
 }
 
-bool nst_sbuffer_expand_to(Nst_SizedBuffer *buf, usize count)
+bool Nst_sbuffer_expand_to(Nst_SizedBuffer *buf, usize count)
 {
     if ( buf->size > count )
     {
@@ -170,7 +170,7 @@ bool nst_sbuffer_expand_to(Nst_SizedBuffer *buf, usize count)
     }
 
     usize new_size = (usize)(count * 1.5);
-    void *new_data = nst_realloc(buf->data, new_size, buf->unit_size, 0);
+    void *new_data = Nst_realloc(buf->data, new_size, buf->unit_size, 0);
     if ( new_data == NULL )
     {
         return false;
@@ -180,20 +180,20 @@ bool nst_sbuffer_expand_to(Nst_SizedBuffer *buf, usize count)
     return true;
 }
 
-void nst_sbuffer_fit(Nst_SizedBuffer *buf)
+void Nst_sbuffer_fit(Nst_SizedBuffer *buf)
 {
     if ( (buf->size - buf->len) * buf->unit_size < 20 )
     {
         return;
     }
 
-    buf->data = nst_realloc(buf->data, buf->len + 1, buf->unit_size, buf->size);
+    buf->data = Nst_realloc(buf->data, buf->len + 1, buf->unit_size, buf->size);
     buf->size = buf->len + 1;
 }
 
-bool nst_sbuffer_append(Nst_SizedBuffer *buf, void *element)
+bool Nst_sbuffer_append(Nst_SizedBuffer *buf, void *element)
 {
-    if ( !nst_sbuffer_expand_by(buf, 1) )
+    if ( !Nst_sbuffer_expand_by(buf, 1) )
     {
         return false;
     }
@@ -201,11 +201,11 @@ bool nst_sbuffer_append(Nst_SizedBuffer *buf, void *element)
     return true;
 }
 
-void nst_sbuffer_destroy(Nst_SizedBuffer *buf)
+void Nst_sbuffer_destroy(Nst_SizedBuffer *buf)
 {
     if ( buf->data != NULL )
     {
-        nst_free(buf->data);
+        Nst_free(buf->data);
     }
     buf->data = NULL;
     buf->size = 0;
@@ -213,9 +213,9 @@ void nst_sbuffer_destroy(Nst_SizedBuffer *buf)
     buf->unit_size = 0;
 }
 
-bool nst_buffer_init(Nst_Buffer *buf, usize initial_size)
+bool Nst_buffer_init(Nst_Buffer *buf, usize initial_size)
 {
-    if ( !nst_sbuffer_init((Nst_SizedBuffer *)buf, sizeof(i8), initial_size) )
+    if ( !Nst_sbuffer_init((Nst_SizedBuffer *)buf, sizeof(i8), initial_size) )
     {
         return false;
     }
@@ -227,25 +227,25 @@ bool nst_buffer_init(Nst_Buffer *buf, usize initial_size)
     return true;
 }
 
-bool nst_buffer_expand_by(Nst_Buffer *buf, usize amount)
+bool Nst_buffer_expand_by(Nst_Buffer *buf, usize amount)
 {
-    return nst_sbuffer_expand_to((Nst_SizedBuffer *)buf, buf->len + amount + 1);
+    return Nst_sbuffer_expand_to((Nst_SizedBuffer *)buf, buf->len + amount + 1);
 }
 
-bool nst_buffer_expand_to(Nst_Buffer *buf, usize size)
+bool Nst_buffer_expand_to(Nst_Buffer *buf, usize size)
 {
-    return nst_sbuffer_expand_to((Nst_SizedBuffer *)buf, size);
+    return Nst_sbuffer_expand_to((Nst_SizedBuffer *)buf, size);
 }
 
-void nst_buffer_fit(Nst_Buffer *buf)
+void Nst_buffer_fit(Nst_Buffer *buf)
 {
-    nst_sbuffer_fit((Nst_SizedBuffer *)buf);
+    Nst_sbuffer_fit((Nst_SizedBuffer *)buf);
 }
 
-bool nst_buffer_append(Nst_Buffer *buf, Nst_StrObj *str)
+bool Nst_buffer_append(Nst_Buffer *buf, Nst_StrObj *str)
 {
     usize str_len = str->len;
-    if ( !nst_buffer_expand_by(buf, str_len) )
+    if ( !Nst_buffer_expand_by(buf, str_len) )
     {
         return false;
     }
@@ -254,10 +254,10 @@ bool nst_buffer_append(Nst_Buffer *buf, Nst_StrObj *str)
     return true;
 }
 
-bool nst_buffer_append_c_str(Nst_Buffer *buf, const i8 *str)
+bool Nst_buffer_append_c_str(Nst_Buffer *buf, const i8 *str)
 {
     usize str_len = strlen(str);
-    if ( !nst_buffer_expand_by(buf, str_len) )
+    if ( !Nst_buffer_expand_by(buf, str_len) )
     {
         return false;
     }
@@ -266,9 +266,9 @@ bool nst_buffer_append_c_str(Nst_Buffer *buf, const i8 *str)
     return true;
 }
 
-bool nst_buffer_append_char(Nst_Buffer *buf, i8 ch)
+bool Nst_buffer_append_char(Nst_Buffer *buf, i8 ch)
 {
-    if ( !nst_buffer_expand_by(buf, 1) )
+    if ( !Nst_buffer_expand_by(buf, 1) )
     {
         return false;
     }
@@ -277,13 +277,13 @@ bool nst_buffer_append_char(Nst_Buffer *buf, i8 ch)
     return true;
 }
 
-Nst_StrObj *nst_buffer_to_string(Nst_Buffer *buf)
+Nst_StrObj *Nst_buffer_to_string(Nst_Buffer *buf)
 {
-    nst_buffer_fit(buf);
-    Nst_StrObj *str = STR(nst_string_new(buf->data, buf->len, true));
+    Nst_buffer_fit(buf);
+    Nst_StrObj *str = STR(Nst_string_new(buf->data, buf->len, true));
     if ( str == NULL )
     {
-        nst_free(buf->data);
+        Nst_free(buf->data);
     }
     buf->data = NULL;
     buf->size = 0;
@@ -291,7 +291,7 @@ Nst_StrObj *nst_buffer_to_string(Nst_Buffer *buf)
     return str;
 }
 
-void nst_buffer_destroy(Nst_Buffer *buf)
+void Nst_buffer_destroy(Nst_Buffer *buf)
 {
-    nst_sbuffer_destroy((Nst_SizedBuffer *)buf);
+    Nst_sbuffer_destroy((Nst_SizedBuffer *)buf);
 }

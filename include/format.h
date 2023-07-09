@@ -37,8 +37,8 @@
   output and any extra characters. If an asterisk (*) is used, the width is
   obtained from an argument of type int that precedes the value to format
 
-  nst_printf("%0*i", 3, 5); // Result: "005"
-  nst_printf("%3i", 1234); // Result: "1234"
+  Nst_printf("%0*i", 3, 5); // Result: "005"
+  Nst_printf("%3i", 1234); // Result: "1234"
 
   Precision:
   This parameter has different meanings depending on type to format:
@@ -49,8 +49,8 @@
   - for g and G it specifies the number of significant digits to use, if not
     set it defaults to 6
 
-  nst_printf("%#-10.5X", 15); // Result: "0X000FF   "
-  nst_printf("%.2lf", 1.37); // Result: "1.3"
+  Nst_printf("%#-10.5X", 15); // Result: "0X000FF   "
+  Nst_printf("%.2lf", 1.37); // Result: "1.3"
 
   Length:
   This parameter specifies the size of the argument passed:
@@ -168,7 +168,7 @@ NstEXP isize NstC Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
 NstEXP isize NstC Nst_fprintf(Nst_IOFileObj *f, Nst_WIN_FMT const i8 *fmt, ...)
                                                 Nst_GNU_FMT(2, 3);
 /* va_list variant of Nst_frprintf */
-NstEXP isize NstC nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args);
+NstEXP isize NstC Nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args);
 
 /** Creates a Nest string object from a format placeholder.
  *

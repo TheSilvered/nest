@@ -6,17 +6,17 @@
 #include "obj_ops.h"
 #include "mem.h"
 
-Nst_Tok *nst_tok_new_value(Nst_Pos     start,
+Nst_Tok *Nst_tok_new_value(Nst_Pos     start,
                            Nst_Pos     end,
                            Nst_TokType type,
                            Nst_Obj    *value)
 {
-    Nst_Tok *token = NST_TOK(nst_malloc(1, sizeof(Nst_Tok)));
+    Nst_Tok *token = Nst_TOK(Nst_malloc(1, sizeof(Nst_Tok)));
     if ( token == NULL )
     {
         if ( value != NULL )
         {
-            nst_dec_ref(value);
+            Nst_dec_ref(value);
         }
         return NULL;
     }
@@ -29,9 +29,9 @@ Nst_Tok *nst_tok_new_value(Nst_Pos     start,
     return token;
 }
 
-Nst_Tok *nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type)
+Nst_Tok *Nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type)
 {
-    Nst_Tok *token = NST_TOK(nst_malloc(1, sizeof(Nst_Tok)));
+    Nst_Tok *token = Nst_TOK(Nst_malloc(1, sizeof(Nst_Tok)));
     if ( token == NULL )
     {
         return NULL;
@@ -45,9 +45,9 @@ Nst_Tok *nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type)
     return token;
 }
 
-Nst_Tok *nst_tok_new_noend(Nst_Pos start, Nst_TokType type)
+Nst_Tok *Nst_tok_new_noend(Nst_Pos start, Nst_TokType type)
 {
-    Nst_Tok *token = NST_TOK(nst_malloc(1, sizeof(Nst_Tok)));
+    Nst_Tok *token = Nst_TOK(Nst_malloc(1, sizeof(Nst_Tok)));
     if ( token == NULL )
     {
         return NULL;
@@ -61,7 +61,7 @@ Nst_Tok *nst_tok_new_noend(Nst_Pos start, Nst_TokType type)
     return token;
 }
 
-void nst_token_destroy(Nst_Tok *token)
+void Nst_token_destroy(Nst_Tok *token)
 {
     if ( token == NULL )
     {
@@ -70,44 +70,44 @@ void nst_token_destroy(Nst_Tok *token)
 
     if ( token->value != NULL )
     {
-        nst_dec_ref(token->value);
+        Nst_dec_ref(token->value);
     }
-    nst_free(token);
+    Nst_free(token);
 }
 
-Nst_TokType nst_tok_from_str(i8 *str)
+Nst_TokType Nst_tok_from_str(i8 *str)
 {
     if ( str[1] == '\0' )
     {
         switch ( str[0] )
         {
-        case '+': return NST_TT_ADD;
-        case '-': return NST_TT_SUB;
-        case '*': return NST_TT_MUL;
-        case '/': return NST_TT_DIV;
-        case '^': return NST_TT_POW;
-        case '%': return NST_TT_MOD;
-        case '&': return NST_TT_B_AND;
-        case '|': return NST_TT_B_OR;
-        case '<': return NST_TT_LT;
-        case '>': return NST_TT_GT;
-        case '=': return NST_TT_ASSIGN;
-        case '!': return NST_TT_L_NOT;
-        case '@': return NST_TT_CALL;
-        case '~': return NST_TT_B_NOT;
-        case ':': return NST_TT_COLON;
-        case ';': return NST_TT_BREAK;
-        case '?': return NST_TT_IF;
-        case '.': return NST_TT_EXTRACT;
-        case '#': return NST_TT_FUNC;
-        case '(': return NST_TT_L_PAREN;
-        case ')': return NST_TT_R_PAREN;
-        case '[': return NST_TT_L_BRACKET;
-        case ']': return NST_TT_R_BRACKET;
-        case '{': return NST_TT_L_BRACE;
-        case '}': return NST_TT_R_BRACE;
-        case ',': return NST_TT_COMMA;
-        case '$': return NST_TT_LEN;
+        case '+': return Nst_TT_ADD;
+        case '-': return Nst_TT_SUB;
+        case '*': return Nst_TT_MUL;
+        case '/': return Nst_TT_DIV;
+        case '^': return Nst_TT_POW;
+        case '%': return Nst_TT_MOD;
+        case '&': return Nst_TT_B_AND;
+        case '|': return Nst_TT_B_OR;
+        case '<': return Nst_TT_LT;
+        case '>': return Nst_TT_GT;
+        case '=': return Nst_TT_ASSIGN;
+        case '!': return Nst_TT_L_NOT;
+        case '@': return Nst_TT_CALL;
+        case '~': return Nst_TT_B_NOT;
+        case ':': return Nst_TT_COLON;
+        case ';': return Nst_TT_BREAK;
+        case '?': return Nst_TT_IF;
+        case '.': return Nst_TT_EXTRACT;
+        case '#': return Nst_TT_FUNC;
+        case '(': return Nst_TT_L_PAREN;
+        case ')': return Nst_TT_R_PAREN;
+        case '[': return Nst_TT_L_BRACKET;
+        case ']': return Nst_TT_R_BRACKET;
+        case '{': return Nst_TT_L_BRACE;
+        case '}': return Nst_TT_R_BRACE;
+        case ',': return Nst_TT_COMMA;
+        case '$': return Nst_TT_LEN;
         default: return (Nst_TokType)-1;
         }
     }
@@ -119,173 +119,173 @@ Nst_TokType nst_tok_from_str(i8 *str)
         case '&':
             if ( str[1] == '&' )
             {
-                return NST_TT_L_AND;
+                return Nst_TT_L_AND;
             }
             if ( str[1] == '|' )
             {
-                return NST_TT_L_XOR;
+                return Nst_TT_L_XOR;
             }
             if ( str[1] == '=' )
             {
-                return NST_TT_B_AND_A;
+                return Nst_TT_B_AND_A;
             }
             break;
         case '|':
             if ( str[1] == '|' )
             {
-                return NST_TT_L_OR;
+                return Nst_TT_L_OR;
             }
             if ( str[1] == '=' )
             {
-                return NST_TT_B_OR_A;
+                return Nst_TT_B_OR_A;
             }
             if ( str[1] == '>' )
             {
-                return NST_TT_SWITCH;
+                return Nst_TT_SWITCH;
             }
             break;
         case '^':
             if ( str[1] == '^' )
             {
-                return NST_TT_B_XOR;
+                return Nst_TT_B_XOR;
             }
             if ( str[1] == '=' )
             {
-                return NST_TT_POW_A;
+                return Nst_TT_POW_A;
             }
             break;
         case '<':
             if ( str[1] == '<' )
             {
-                return NST_TT_LSHIFT;
+                return Nst_TT_LSHIFT;
             }
             if ( str[1] == '=' )
             {
-                return NST_TT_LTE;
+                return Nst_TT_LTE;
             }
             if ( str[1] == '{' )
             {
-                return NST_TT_L_VBRACE;
+                return Nst_TT_L_VBRACE;
             }
             break;
         case '>':
             if ( str[1] == '>' )
             {
-                return NST_TT_RSHIFT;
+                return Nst_TT_RSHIFT;
             }
             if ( str[1] == '=' )
             {
-                return NST_TT_GTE;
+                return Nst_TT_GTE;
             }
             if ( str[1] == '<' )
             {
-                return NST_TT_CONCAT;
+                return Nst_TT_CONCAT;
             }
             break;
         case '=':
             if ( str[1] == '=' )
             {
-                return NST_TT_EQ;
+                return Nst_TT_EQ;
             }
             if ( str[1] == '>' )
             {
-                return NST_TT_RETURN;
+                return Nst_TT_RETURN;
             }
             break;
         case '!':
             if ( str[1] == '=' )
             {
-                return NST_TT_NEQ;
+                return Nst_TT_NEQ;
             }
             if ( str[1] == '!' )
             {
-                return NST_TT_THROW;
+                return Nst_TT_THROW;
             }
             break;
         case '-':
             if ( str[1] == '>' )
             {
-                return NST_TT_RANGE;
+                return Nst_TT_RANGE;
             }
             if ( str[1] == '=' )
             {
-                return NST_TT_SUB_A;
+                return Nst_TT_SUB_A;
             }
             if ( str[1] == ':' )
             {
-                return NST_TT_NEG;
+                return Nst_TT_NEG;
             }
             break;
         case ':':
             if ( str[1] == ':' )
             {
-                return NST_TT_CAST;
+                return Nst_TT_CAST;
             }
             if ( str[1] == '=' )
             {
-                return NST_TT_AS;
+                return Nst_TT_AS;
             }
             break;
         case '+':
             if ( str[1] == '=' )
             {
-                return NST_TT_ADD_A;
+                return Nst_TT_ADD_A;
             }
             break;
         case '*':
             if ( str[1] == '=' )
             {
-                return NST_TT_MUL_A;
+                return Nst_TT_MUL_A;
             }
             if ( str[1] == '@' )
             {
-                return NST_TT_SEQ_CALL;
+                return Nst_TT_SEQ_CALL;
             }
             break;
         case '/':
             if ( str[1] == '=' )
             {
-                return NST_TT_DIV_A;
+                return Nst_TT_DIV_A;
             }
             break;
         case '%':
             if ( str[1] == '=' )
             {
-                return NST_TT_MOD_A;
+                return Nst_TT_MOD_A;
             }
             break;
         case '@':
             if ( str[1] == '@' )
             {
-                return NST_TT_LOC_CALL;
+                return Nst_TT_LOC_CALL;
             }
             break;
         case '.':
             if ( str[1] == '.' )
             {
-                return NST_TT_CONTINUE;
+                return Nst_TT_CONTINUE;
             }
             break;
         case '}':
             if ( str[1] == '>' )
             {
-                return NST_TT_R_VBRACE;
+                return Nst_TT_R_VBRACE;
             }
             break;
         case '#':
             if ( str[1] == '#' )
             {
-                return NST_TT_LAMBDA;
+                return Nst_TT_LAMBDA;
             }
             break;
         case '?':
             if ( str[1] == '?' )
             {
-                return NST_TT_TRY;
+                return Nst_TT_TRY;
             }
             if ( str[1] == '!' )
             {
-                return NST_TT_CATCH;
+                return Nst_TT_CATCH;
             }
             break;
         }
@@ -296,37 +296,37 @@ Nst_TokType nst_tok_from_str(i8 *str)
     {
         if ( str[1] == '>' && str[2] == '>' )
         {
-            return NST_TT_STDOUT;
+            return Nst_TT_STDOUT;
         }
         if ( str[1] == '>' && str[2] == '=' )
         {
-            return NST_TT_RSHIFT_A;
+            return Nst_TT_RSHIFT_A;
         }
         if ( str[1] == '<' && str[2] == '=' )
         {
-            return NST_TT_CONCAT_A;
+            return Nst_TT_CONCAT_A;
         }
     }
     else if ( str[0] == '<' )
     {
         if ( str[1] == '<' && str[2] == '<' )
         {
-            return NST_TT_STDIN;
+            return Nst_TT_STDIN;
         }
         if ( str[1] == '<' && str[2] == '=' )
         {
-            return NST_TT_LSHIFT_A;
+            return Nst_TT_LSHIFT_A;
         }
     }
     else if ( str[0] == '?' )
     {
         if ( str[1] == '.' && str[2] == '.' )
         {
-            return NST_TT_WHILE;
+            return Nst_TT_WHILE;
         }
         if ( str[1] == ':' && str[2] == ':' )
         {
-            return NST_TT_TYPEOF;
+            return Nst_TT_TYPEOF;
         }
     }
     else if ( str[0] == '.' )
@@ -337,32 +337,32 @@ Nst_TokType nst_tok_from_str(i8 *str)
         }
         if ( str[2] == '?' )
         {
-            return NST_TT_DOWHILE;
+            return Nst_TT_DOWHILE;
         }
         if ( str[2] == '.' )
         {
-            return NST_TT_FOR;
+            return Nst_TT_FOR;
         }
     }
     else if ( str[0] == '|' )
     {
         if ( str[1] == '#' && str[2] == '|' )
         {
-            return NST_TT_IMPORT;
+            return Nst_TT_IMPORT;
         }
     }
     else if ( str[0] == '^' )
     {
         if ( str[1] == '^' && str[2] == '=' )
         {
-            return NST_TT_B_XOR_A;
+            return Nst_TT_B_XOR_A;
         }
     }
 
     return (Nst_TokType)-1;
 }
 
-void nst_print_tok(Nst_Tok *token)
+void Nst_print_tok(Nst_Tok *token)
 {
     printf(
         "(%02li:%02li, %02li:%02li | ",
@@ -373,82 +373,82 @@ void nst_print_tok(Nst_Tok *token)
 
     switch ( token->type )
     {
-    case NST_TT_ADD:      printf("ADD");      break;
-    case NST_TT_SUB:      printf("SUB");      break;
-    case NST_TT_MUL:      printf("MUL");      break;
-    case NST_TT_DIV:      printf("DIV");      break;
-    case NST_TT_POW:      printf("POW");      break;
-    case NST_TT_MOD:      printf("MOD");      break;
-    case NST_TT_B_AND:    printf("B_AND");    break;
-    case NST_TT_B_OR:     printf("B_OR");     break;
-    case NST_TT_B_XOR:    printf("B_XOR");    break;
-    case NST_TT_LSHIFT:   printf("LSHIFT");   break;
-    case NST_TT_RSHIFT:   printf("RSHIFT");   break;
-    case NST_TT_CONCAT:   printf("CONCAT");   break;
-    case NST_TT_L_AND:    printf("L_AND");    break;
-    case NST_TT_L_OR:     printf("L_OR");     break;
-    case NST_TT_L_XOR:    printf("L_XOR");    break;
-    case NST_TT_GT:       printf("GT");       break;
-    case NST_TT_LT:       printf("LT");       break;
-    case NST_TT_EQ:       printf("EQ");       break;
-    case NST_TT_NEQ:      printf("NEQ");      break;
-    case NST_TT_GTE:      printf("GTE");      break;
-    case NST_TT_LTE:      printf("LTE");      break;
-    case NST_TT_CAST:     printf("CAST");     break;
-    case NST_TT_CALL:     printf("CALL");     break;
-    case NST_TT_THROW:    printf("THROW");    break;
-    case NST_TT_RANGE:    printf("RANGE");    break;
-    case NST_TT_ASSIGN:   printf("ASSIGN");   break;
-    case NST_TT_ADD_A:    printf("ADD_A");    break;
-    case NST_TT_SUB_A:    printf("SUB_A");    break;
-    case NST_TT_MUL_A:    printf("MUL_A");    break;
-    case NST_TT_DIV_A:    printf("DIV_A");    break;
-    case NST_TT_POW_A:    printf("POW_A");    break;
-    case NST_TT_MOD_A:    printf("MOD_A");    break;
-    case NST_TT_B_AND_A:  printf("B_AND_A");  break;
-    case NST_TT_B_OR_A:   printf("B_OR_A");   break;
-    case NST_TT_B_XOR_A:  printf("B_XOR_A");  break;
-    case NST_TT_LSHIFT_A: printf("LSHIFT_A"); break;
-    case NST_TT_RSHIFT_A: printf("RSHIFT_A"); break;
-    case NST_TT_CONCAT_A: printf("CONCAT_A"); break;
-    case NST_TT_LEN:      printf("LEN");      break;
-    case NST_TT_L_NOT:    printf("L_NOT");    break;
-    case NST_TT_B_NOT:    printf("B_NOT");    break;
-    case NST_TT_STDOUT:   printf("STDOUT");   break;
-    case NST_TT_STDIN:    printf("STDIN");    break;
-    case NST_TT_IMPORT:   printf("IMPORT");   break;
-    case NST_TT_LOC_CALL: printf("LOC_CALL"); break;
-    case NST_TT_NEG:      printf("NEG");      break;
-    case NST_TT_TYPEOF:   printf("TYPEOF");   break;
-    case NST_TT_IDENT:    printf("IDENT");    break;
-    case NST_TT_VALUE:    printf("VALUE");    break;
-    case NST_TT_LAMBDA:   printf("LAMBDA");   break;
-    case NST_TT_L_PAREN:  printf("L_PAREN");  break;
-    case NST_TT_L_BRACE:  printf("L_BRACE");  break;
-    case NST_TT_L_VBRACE: printf("L_VBRACE"); break;
-    case NST_TT_L_BRACKET:printf("L_BRACKET");break;
-    case NST_TT_R_PAREN:  printf("R_PAREN");  break;
-    case NST_TT_R_BRACE:  printf("R_BRACE");  break;
-    case NST_TT_R_VBRACE: printf("R_VBRACE"); break;
-    case NST_TT_R_BRACKET:printf("R_BRACKET");break;
-    case NST_TT_IF:       printf("IF");       break;
-    case NST_TT_AS:       printf("AS");       break;
-    case NST_TT_ENDL:     printf("ENDL");     break;
-    case NST_TT_COMMA:    printf("COMMA");    break;
-    case NST_TT_COLON:    printf("COLON");    break;
-    case NST_TT_EOFILE:   printf("EOFILE");   break;
-    case NST_TT_EXTRACT:  printf("EXTRACT");  break;
-    case NST_TT_WHILE:    printf("WHILE");    break;
-    case NST_TT_DOWHILE:  printf("DOWHILE");  break;
-    case NST_TT_FOR:      printf("FOR");      break;
-    case NST_TT_FUNC:     printf("FUNC");     break;
-    case NST_TT_RETURN:   printf("RETURN");   break;
-    case NST_TT_SWITCH:   printf("SWITCH");   break;
-    case NST_TT_BREAK:    printf("BREAK");    break;
-    case NST_TT_CONTINUE: printf("CONTINUE"); break;
-    case NST_TT_TRY:      printf("TRY");      break;
-    case NST_TT_CATCH:    printf("CATCH");    break;
-    case NST_TT_SEQ_CALL: printf("SEQ_CALL"); break;
+    case Nst_TT_ADD:      printf("ADD");      break;
+    case Nst_TT_SUB:      printf("SUB");      break;
+    case Nst_TT_MUL:      printf("MUL");      break;
+    case Nst_TT_DIV:      printf("DIV");      break;
+    case Nst_TT_POW:      printf("POW");      break;
+    case Nst_TT_MOD:      printf("MOD");      break;
+    case Nst_TT_B_AND:    printf("B_AND");    break;
+    case Nst_TT_B_OR:     printf("B_OR");     break;
+    case Nst_TT_B_XOR:    printf("B_XOR");    break;
+    case Nst_TT_LSHIFT:   printf("LSHIFT");   break;
+    case Nst_TT_RSHIFT:   printf("RSHIFT");   break;
+    case Nst_TT_CONCAT:   printf("CONCAT");   break;
+    case Nst_TT_L_AND:    printf("L_AND");    break;
+    case Nst_TT_L_OR:     printf("L_OR");     break;
+    case Nst_TT_L_XOR:    printf("L_XOR");    break;
+    case Nst_TT_GT:       printf("GT");       break;
+    case Nst_TT_LT:       printf("LT");       break;
+    case Nst_TT_EQ:       printf("EQ");       break;
+    case Nst_TT_NEQ:      printf("NEQ");      break;
+    case Nst_TT_GTE:      printf("GTE");      break;
+    case Nst_TT_LTE:      printf("LTE");      break;
+    case Nst_TT_CAST:     printf("CAST");     break;
+    case Nst_TT_CALL:     printf("CALL");     break;
+    case Nst_TT_THROW:    printf("THROW");    break;
+    case Nst_TT_RANGE:    printf("RANGE");    break;
+    case Nst_TT_ASSIGN:   printf("ASSIGN");   break;
+    case Nst_TT_ADD_A:    printf("ADD_A");    break;
+    case Nst_TT_SUB_A:    printf("SUB_A");    break;
+    case Nst_TT_MUL_A:    printf("MUL_A");    break;
+    case Nst_TT_DIV_A:    printf("DIV_A");    break;
+    case Nst_TT_POW_A:    printf("POW_A");    break;
+    case Nst_TT_MOD_A:    printf("MOD_A");    break;
+    case Nst_TT_B_AND_A:  printf("B_AND_A");  break;
+    case Nst_TT_B_OR_A:   printf("B_OR_A");   break;
+    case Nst_TT_B_XOR_A:  printf("B_XOR_A");  break;
+    case Nst_TT_LSHIFT_A: printf("LSHIFT_A"); break;
+    case Nst_TT_RSHIFT_A: printf("RSHIFT_A"); break;
+    case Nst_TT_CONCAT_A: printf("CONCAT_A"); break;
+    case Nst_TT_LEN:      printf("LEN");      break;
+    case Nst_TT_L_NOT:    printf("L_NOT");    break;
+    case Nst_TT_B_NOT:    printf("B_NOT");    break;
+    case Nst_TT_STDOUT:   printf("STDOUT");   break;
+    case Nst_TT_STDIN:    printf("STDIN");    break;
+    case Nst_TT_IMPORT:   printf("IMPORT");   break;
+    case Nst_TT_LOC_CALL: printf("LOC_CALL"); break;
+    case Nst_TT_NEG:      printf("NEG");      break;
+    case Nst_TT_TYPEOF:   printf("TYPEOF");   break;
+    case Nst_TT_IDENT:    printf("IDENT");    break;
+    case Nst_TT_VALUE:    printf("VALUE");    break;
+    case Nst_TT_LAMBDA:   printf("LAMBDA");   break;
+    case Nst_TT_L_PAREN:  printf("L_PAREN");  break;
+    case Nst_TT_L_BRACE:  printf("L_BRACE");  break;
+    case Nst_TT_L_VBRACE: printf("L_VBRACE"); break;
+    case Nst_TT_L_BRACKET:printf("L_BRACKET");break;
+    case Nst_TT_R_PAREN:  printf("R_PAREN");  break;
+    case Nst_TT_R_BRACE:  printf("R_BRACE");  break;
+    case Nst_TT_R_VBRACE: printf("R_VBRACE"); break;
+    case Nst_TT_R_BRACKET:printf("R_BRACKET");break;
+    case Nst_TT_IF:       printf("IF");       break;
+    case Nst_TT_AS:       printf("AS");       break;
+    case Nst_TT_ENDL:     printf("ENDL");     break;
+    case Nst_TT_COMMA:    printf("COMMA");    break;
+    case Nst_TT_COLON:    printf("COLON");    break;
+    case Nst_TT_EOFILE:   printf("EOFILE");   break;
+    case Nst_TT_EXTRACT:  printf("EXTRACT");  break;
+    case Nst_TT_WHILE:    printf("WHILE");    break;
+    case Nst_TT_DOWHILE:  printf("DOWHILE");  break;
+    case Nst_TT_FOR:      printf("FOR");      break;
+    case Nst_TT_FUNC:     printf("FUNC");     break;
+    case Nst_TT_RETURN:   printf("RETURN");   break;
+    case Nst_TT_SWITCH:   printf("SWITCH");   break;
+    case Nst_TT_BREAK:    printf("BREAK");    break;
+    case Nst_TT_CONTINUE: printf("CONTINUE"); break;
+    case Nst_TT_TRY:      printf("TRY");      break;
+    case Nst_TT_CATCH:    printf("CATCH");    break;
+    case Nst_TT_SEQ_CALL: printf("SEQ_CALL"); break;
     default: printf("__UNKNOWN__");
     }
 
@@ -456,12 +456,12 @@ void nst_print_tok(Nst_Tok *token)
     {
         printf(" - ");
 
-        Nst_StrObj* s = STR(_nst_repr_str_cast(token->value));
+        Nst_StrObj* s = STR(_Nst_repr_str_cast(token->value));
         if ( s != NULL )
         {
             Nst_error_clear();
             fwrite(s->value, sizeof(i8), s->len, stdout);
-            nst_dec_ref(s);
+            Nst_dec_ref(s);
         }
     }
 

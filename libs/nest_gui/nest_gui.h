@@ -52,24 +52,24 @@ void set_focused_element(GUI_Element *el);
 GUI_Element *get_focused_element();
 void remove_focused_element();
 
-NST_FUNC_SIGN(init_);
-NST_FUNC_SIGN(loop_);
-NST_FUNC_SIGN(set_window_);
-NST_FUNC_SIGN(label_);
-NST_FUNC_SIGN(button_);
-NST_FUNC_SIGN(stack_layout_);
-NST_FUNC_SIGN(set_position_);
-NST_FUNC_SIGN(set_rel_position_);
-NST_FUNC_SIGN(set_size_);
-NST_FUNC_SIGN(set_rel_size_);
-NST_FUNC_SIGN(set_margins_);
-NST_FUNC_SIGN(set_padding_);
-NST_FUNC_SIGN(show_overflow_);
-NST_FUNC_SIGN(auto_height_);
-NST_FUNC_SIGN(add_child_);
-NST_FUNC_SIGN(get_root_);
-NST_FUNC_SIGN(set_func_);
-NST_FUNC_SIGN(_debug_view_);
+Nst_FUNC_SIGN(init_);
+Nst_FUNC_SIGN(loop_);
+Nst_FUNC_SIGN(set_window_);
+Nst_FUNC_SIGN(label_);
+Nst_FUNC_SIGN(button_);
+Nst_FUNC_SIGN(stack_layout_);
+Nst_FUNC_SIGN(set_position_);
+Nst_FUNC_SIGN(set_rel_position_);
+Nst_FUNC_SIGN(set_size_);
+Nst_FUNC_SIGN(set_rel_size_);
+Nst_FUNC_SIGN(set_margins_);
+Nst_FUNC_SIGN(set_padding_);
+Nst_FUNC_SIGN(show_overflow_);
+Nst_FUNC_SIGN(auto_height_);
+Nst_FUNC_SIGN(add_child_);
+Nst_FUNC_SIGN(get_root_);
+Nst_FUNC_SIGN(set_func_);
+Nst_FUNC_SIGN(_debug_view_);
 
 #ifdef __cplusplus
 }

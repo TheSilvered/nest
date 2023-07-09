@@ -370,33 +370,33 @@ static isize get_max_size_printf(const i8 *fmt, va_list orig_args)
 
 isize Nst_print(const i8 *buf)
 {
-    return Nst_fprint(nst_io.out, buf);
+    return Nst_fprint(Nst_io.out, buf);
 }
 
 isize Nst_println(const i8 *buf)
 {
-    return Nst_fprintln(nst_io.out, buf);
+    return Nst_fprintln(Nst_io.out, buf);
 }
 
 isize Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    return nst_vfprintf(nst_io.out, fmt, args);
+    return Nst_vfprintf(Nst_io.out, fmt, args);
 }
 
 isize Nst_fprint(Nst_IOFileObj *f, const i8 *buf)
 {
-    if (NST_IOF_IS_CLOSED(f))
+    if (Nst_IOF_IS_CLOSED(f))
         return -1;
 
     usize len = strlen(buf);
-    return nst_fwrite((i8 *)buf, sizeof(i8), (usize)len, f);
+    return Nst_fwrite((i8 *)buf, sizeof(i8), (usize)len, f);
 }
 
 isize Nst_fprintln(Nst_IOFileObj *f, const i8 *buf)
 {
-    if (NST_IOF_IS_CLOSED(f))
+    if (Nst_IOF_IS_CLOSED(f))
         return -1;
 
     usize len = strlen(buf);
@@ -409,7 +409,7 @@ isize Nst_fprintf(Nst_IOFileObj *f, Nst_WIN_FMT const i8 *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
-    return nst_vfprintf(f, fmt, args);
+    return Nst_vfprintf(f, fmt, args);
 }
 
 Nst_Obj *Nst_sprintf(Nst_WIN_FMT const i8 *fmt, ...)
@@ -426,7 +426,7 @@ Nst_Obj *Nst_vsprintf(const i8 *fmt, va_list args)
         va_end(args);
         return NULL;
     }
-    i8 *buf = nst_calloc_c(buf_size, i8, NULL);
+    i8 *buf = Nst_calloc_c(buf_size, i8, NULL);
     if (buf == NULL) {
         Nst_error_clear();
         va_end(args);
@@ -436,21 +436,21 @@ Nst_Obj *Nst_vsprintf(const i8 *fmt, va_list args)
     va_end(args);
 
     if (len < 0) {
-        nst_free(buf);
+        Nst_free(buf);
         return NULL;
     }
 
-    Nst_Obj *str = nst_string_new(buf, len, true);
+    Nst_Obj *str = Nst_string_new(buf, len, true);
     if (str == NULL) {
         Nst_error_clear();
-        nst_free(buf);
+        Nst_free(buf);
     }
     return str;
 }
 
-isize nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args)
+isize Nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args)
 {
-    if (NST_IOF_IS_CLOSED(f)) {
+    if (Nst_IOF_IS_CLOSED(f)) {
         va_end(args);
         return -2;
     }
@@ -460,7 +460,7 @@ isize nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args)
         va_end(args);
         return -3;
     }
-    i8 *buf = nst_calloc_c(buf_size, i8, NULL);
+    i8 *buf = Nst_calloc_c(buf_size, i8, NULL);
     if (buf == NULL) {
         Nst_error_clear();
         va_end(args);
@@ -470,10 +470,10 @@ isize nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args)
     va_end(args);
 
     if (len < 0) {
-        nst_free(buf);
+        Nst_free(buf);
         return -1;
     }
-    isize result = nst_fwrite(buf, sizeof(i8), len, f);
-    nst_free(buf);
+    isize result = Nst_fwrite(buf, sizeof(i8), len, f);
+    Nst_free(buf);
     return result;
 }

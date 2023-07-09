@@ -29,42 +29,37 @@ NstEXP typedef struct _Nst_ExecutionState
 Nst_ExecutionState;
 
 // Runs the main program, must never be called
-NstEXP i32 nst_run(Nst_FuncObj *main_func,
-                   i32          argc,
-                   i8         **argv,
-                   i8          *filename,
-                   i32          opt_lvl,
-                   bool         no_default);
+NstEXP i32 NstC Nst_run(Nst_FuncObj *main_func, i32 argc, i8 **argv,
+                        i8 *filename, i32 opt_lvl, bool no_default);
 // Runs an external Nest file, returns -1 on fail and 0 on success
-NstEXP i32 nst_run_module(i8 *file_name, Nst_SourceText *lib_src);
+NstEXP i32 NstC Nst_run_module(i8 *file_name, Nst_SourceText *lib_src);
 // Calls a Nst_FuncObj, it can be both a C function or a bytecode function
-NstEXP Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args);
+NstEXP Nst_Obj *NstC Nst_call_func(Nst_FuncObj *func, Nst_Obj **args);
 /* Calls a function that has NOT a C body with the given start indexand var table.
 The NULL value MUST be added on the stack manually */
-NstEXP Nst_Obj *nst_run_func_context(Nst_FuncObj *func,
-                                     Nst_Int      idx,
-                                     Nst_MapObj  *vars,
-                                     Nst_MapObj  *globals);
+NstEXP Nst_Obj *NstC Nst_run_func_context(Nst_FuncObj *func, Nst_Int idx,
+                                          Nst_MapObj *vars,
+                                          Nst_MapObj *globals);
 // Returns the full path of a file
 // `file_path` is the relative path of the file
 // `buf` is the pointer where the full path is stored, the memory is allocated
 // by the function
 // `file_part` is the pointer where the filename begins
-NstEXP usize nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part);
+NstEXP usize NstC Nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part);
 
-// Frees all the variables inside nst_state except for loaded_libs
-NstEXP void nst_state_free(void);
+// Frees all the variables inside Nst_state except for loaded_libs
+NstEXP void NstC Nst_state_free(void);
 
 // Frees loaded_libs, must be called after _nst_streams_del
-NstEXP void _nst_unload_libs(void);
+NstEXP void NstC _Nst_unload_libs(void);
 
 // The state of the interpreter
-extern Nst_ExecutionState nst_state;
+extern Nst_ExecutionState Nst_state;
 
-NstEXP Nst_ExecutionState *nst_get_state(void);
+NstEXP Nst_ExecutionState *NstC Nst_get_state(void);
 
-NstEXP i32 nst_chdir(Nst_StrObj *str);
-NstEXP Nst_StrObj *nst_getcwd();
+NstEXP i32 NstC Nst_chdir(Nst_StrObj *str);
+NstEXP Nst_StrObj *NstC Nst_getcwd();
 
 #ifdef __cplusplus
 }

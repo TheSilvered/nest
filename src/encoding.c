@@ -8,7 +8,7 @@
 
 #ifdef Nst_WIN
 #include <windows.h>
-#endif
+#endif // !Nst_WIN
 
 Nst_CP Nst_cp_ascii = {
     .ch_size = sizeof(u8),
@@ -1465,7 +1465,7 @@ bool Nst_translate_cp(Nst_CP *from, Nst_CP *to, void *from_buf, usize from_len,
     *to_buf = NULL;
 
     Nst_Buffer buf;
-    if (!nst_buffer_init(&buf, from_len * to->mult_min_sz + 40))
+    if (!Nst_buffer_init(&buf, from_len * to->mult_min_sz + 40))
         return false;
 
     isize n = (isize)from_len; // avoids accidental underflow
@@ -1473,7 +1473,7 @@ bool Nst_translate_cp(Nst_CP *from, Nst_CP *to, void *from_buf, usize from_len,
         // Decode character
         i32 ch_len = from->check_bytes(from_buf, n);
         if (ch_len < 0) {
-            nst_buffer_destroy(&buf);
+            Nst_buffer_destroy(&buf);
             Nst_set_value_error(Nst_sprintf(
                 _Nst_EM_INVALID_ENCODING,
                 *(u8 *)from_buf, from->name));
@@ -1485,21 +1485,21 @@ bool Nst_translate_cp(Nst_CP *from, Nst_CP *to, void *from_buf, usize from_len,
         n -= ch_len;
 
         // Re-encode character
-        if (!nst_buffer_expand_by(&buf, to->mult_max_sz + to->ch_size)) {
-            nst_buffer_destroy(&buf);
+        if (!Nst_buffer_expand_by(&buf, to->mult_max_sz + to->ch_size)) {
+            Nst_buffer_destroy(&buf);
             return false;
         }
         ch_len = to->from_utf32(utf32_ch, buf.data + buf.len);
         if (ch_len < 0) {
-            nst_buffer_destroy(&buf);
+            Nst_buffer_destroy(&buf);
             Nst_set_value_error(Nst_sprintf(
                 _Nst_EM_INVALID_DECODING,
                 (int)utf32_ch, from->name));
         }
         buf.len += ch_len * to->ch_size;
     }
-    if (!nst_buffer_expand_by(&buf, to->ch_size)) {
-        nst_buffer_destroy(&buf);
+    if (!Nst_buffer_expand_by(&buf, to->ch_size)) {
+        Nst_buffer_destroy(&buf);
         return false;
     }
     memset(buf.data + buf.len, 0, to->ch_size);
@@ -1573,7 +1573,7 @@ Nst_CPID Nst_acp()
     }
 }
 
-#endif
+#endif // !Nst_WIN
 
 wchar_t *Nst_char_to_wchar_t(i8 *str, usize len)
 {
@@ -1683,7 +1683,7 @@ Nst_CPID Nst_detect_encoding(i8 *str, usize len, i32 *bom_size)
         if (res == -1)
             return cpid;
     }
-#endif
+#endif // !Nst_WIN
 
     return Nst_CP_ISO8859_1;
 }

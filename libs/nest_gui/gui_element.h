@@ -6,8 +6,8 @@
 #include <SDL_ttf.h>
 
 #define GUI_ELEMENT_HEAD \
-    NST_OBJ_HEAD; \
-    NST_GGC_HEAD; \
+    Nst_OBJ_HEAD; \
+    Nst_GGC_HEAD; \
     GUI_ElementType el_type; \
     SDL_Rect rect; \
     i32 margin_top, margin_bottom, margin_left, margin_right; \

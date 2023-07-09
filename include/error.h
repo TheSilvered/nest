@@ -127,13 +127,6 @@
 extern "C" {
 #endif // !__cplusplus
 
-NstEXP typedef struct _Nst_SourceText {
-    i8 *text;
-    i8 *path;
-    i8 **lines;
-    usize len;
-    usize line_count;
-}
 /** The structure where the source text of a Nest file is kept.
  *
  * @param text: the UTF-8 text of the file
@@ -142,28 +135,26 @@ NstEXP typedef struct _Nst_SourceText {
  * @param len: the length in bytes of the text
  * @param line_count: the number of lines in the file
  */
-Nst_SourceText;
+NstEXP typedef struct _Nst_SourceText {
+    i8 *text;
+    i8 *path;
+    i8 **lines;
+    usize len;
+    usize line_count;
+} Nst_SourceText;
 
-NstEXP typedef struct _Nst_Pos {
-    i32 line;
-    i32 col;
-    Nst_SourceText *text;
-}
 /** The structure representing a position inside a source file
  *
  * @param line: the line of the position, the first is line 0
  * @param col: the column of the position, the first is 0
  * @param text: the text this position refers to
  */
-Nst_Pos;
+NstEXP typedef struct _Nst_Pos {
+    i32 line;
+    i32 col;
+    Nst_SourceText *text;
+} Nst_Pos;
 
-NstEXP typedef struct _Nst_Error {
-    bool occurred;
-    Nst_Pos start;
-    Nst_Pos end;
-    Nst_StrObj *name;
-    Nst_StrObj *message;
-}
 /** The structure representing an error with a determined position
  *
  * @param occurred: whether the struct contains a valid error
@@ -172,30 +163,34 @@ NstEXP typedef struct _Nst_Error {
  * @param name: the name of the error (e.g. Value Error, Type Error ecc.)
  * @param message: the message of the error
  */
-Nst_Error;
-
-NstEXP typedef struct _Nst_OpErr {
+NstEXP typedef struct _Nst_Error {
+    bool occurred;
+    Nst_Pos start;
+    Nst_Pos end;
     Nst_StrObj *name;
     Nst_StrObj *message;
-}
+} Nst_Error;
+
 /** The structure representing an error occurred during an operation and that
  * does not yet have a position
  *
  * @param name: the name of the error (e.g. Value Error, Type Error ecc.)
  * @param message: the message of the error
  */
-Nst_OpErr;
+NstEXP typedef struct _Nst_OpErr {
+    Nst_StrObj *name;
+    Nst_StrObj *message;
+} Nst_OpErr;
 
-NstEXP typedef struct _Nst_Traceback {
-    Nst_Error error;
-    Nst_LList *positions;
-}
 /** The structure containing the full traceback of the error.
  *
  * @param error: the error of the traceback
  * @param positions: the list of positions that led to the error
  */
-Nst_Traceback;
+NstEXP typedef struct _Nst_Traceback {
+    Nst_Error error;
+    Nst_LList *positions;
+} Nst_Traceback;
 
 /* Sets how the error message is printed (with or without ANSI escapes) */
 NstEXP void NstC Nst_set_color(bool color);
@@ -305,9 +300,9 @@ NstEXP Nst_OpErr *NstC Nst_error_get();
 /* Clears the global operation error, even if it is not set. */
 NstEXP void NstC Nst_error_clear();
 
-/* Initializes the traceback of nst_state. */
+/* Initializes the traceback of Nst_state. */
 NstEXP bool NstC Nst_traceback_init();
-/* Frees the traceback of nst_state. */
+/* Frees the traceback of Nst_state. */
 NstEXP void NstC Nst_traceback_delete();
 
 #ifdef __cplusplus

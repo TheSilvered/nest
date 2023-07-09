@@ -12,12 +12,12 @@
 
 #define _EXIT(code) \
     do { \
-    _nst_del_objects(); \
-    _nst_unload_libs(); \
+    _Nst_del_objects(); \
+    _Nst_unload_libs(); \
     if ( filename != NULL ) { \
-        nst_free(src_text.text); \
-        nst_free(src_text.lines); \
-        nst_free(src_text.path); \
+        Nst_free(src_text.text); \
+        Nst_free(src_text.lines); \
+        Nst_free(src_text.path); \
     } \
     return code; \
     } while ( 0 )
@@ -26,7 +26,7 @@
 
 #define EXIT(code) \
     do { \
-        nst_free(argv); \
+        Nst_free(argv); \
         _EXIT(code); \
     } while ( 0 )
 
@@ -39,8 +39,8 @@
 #define ERROR_EXIT \
     do { \
     Nst_print_error(error); \
-    nst_dec_ref(error.name); \
-    nst_dec_ref(error.message); \
+    Nst_dec_ref(error.name); \
+    Nst_dec_ref(error.message); \
     EXIT(1); \
     } while ( 0 )
 
@@ -63,9 +63,9 @@ int main(int argc, char **argv)
 #endif
 
 #ifdef _DEBUG
-    puts("**USING DEBUG BUILD - " NST_VERSION "**");
+    puts("**USING DEBUG BUILD - " Nst_VERSION "**");
 
-    for ( usize i = 0, n = strlen(NST_VERSION) + 24; i < n; i++ )
+    for ( usize i = 0, n = strlen(Nst_VERSION) + 24; i < n; i++ )
     {
         putc('-', stdout);
     }
@@ -108,10 +108,10 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    if (!_nst_init_objects())
+    if (!_Nst_init_objects())
     {
 #ifdef Nst_WIN
-        nst_free(argv);
+        Nst_free(argv);
 #endif
         printf("Failed allocation\n");
         return -1;
@@ -125,7 +125,7 @@ int main(int argc, char **argv)
     {
         i32 spec_opt_lvl;
         bool spec_no_def;
-        tokens = nst_tokenizef(
+        tokens = Nst_tokenizef(
             filename,
             encoding,
             &spec_opt_lvl,
@@ -149,7 +149,7 @@ int main(int argc, char **argv)
         src_text.text = command;
         src_text.line_count = 1;
         src_text.lines = &src_text.text;
-        tokens = nst_tokenize(&src_text, &error);
+        tokens = Nst_tokenize(&src_text, &error);
     }
 
     if ( tokens == NULL )
@@ -168,25 +168,25 @@ int main(int argc, char **argv)
     {
         for ( Nst_LLNode *n = tokens->head; n != NULL; n = n->next )
         {
-            nst_print_tok(NST_TOK(n->value));
+            Nst_print_tok(Nst_TOK(n->value));
             printf("\n");
         }
 
         if ( !force_exe && !print_tree && !print_bc )
         {
-            nst_llist_destroy(tokens, (Nst_LListDestructor)nst_token_destroy);
+            Nst_llist_destroy(tokens, (Nst_LListDestructor)Nst_token_destroy);
             EXIT(0);
         }
     }
 
-    Nst_Node *ast = nst_parse(tokens, &error);
+    Nst_Node *ast = Nst_parse(tokens, &error);
 
     if ( opt_level >= 1 && ast != NULL )
     {
-        ast = nst_optimize_ast(ast, &error);
+        ast = Nst_optimize_ast(ast, &error);
     }
 
-    // nst_optimize_ast can delete the ast
+    // Nst_optimize_ast can delete the ast
     if ( ast == NULL )
     {
         ERROR_EXIT;
@@ -195,11 +195,11 @@ int main(int argc, char **argv)
     if ( print_tree )
     {
         if ( print_tokens ) printf("\n");
-        nst_print_ast(ast);
+        Nst_print_ast(ast);
 
         if ( !force_exe && !print_bc )
         {
-            nst_node_destroy(ast);
+            Nst_node_destroy(ast);
             EXIT(0);
         }
     }
@@ -210,7 +210,7 @@ int main(int argc, char **argv)
     if ( opt_level >= 2 && inst_ls != NULL )
     {
         bool optimize_builtins = opt_level == 3 && !no_default;
-        inst_ls = nst_optimize_bytecode(inst_ls, optimize_builtins, &error);
+        inst_ls = Nst_optimize_bytecode(inst_ls, optimize_builtins, &error);
     }
     if ( inst_ls == NULL )
     {
@@ -227,14 +227,14 @@ int main(int argc, char **argv)
 
         if ( !force_exe )
         {
-            nst_inst_list_destroy(inst_ls);
+            Nst_inst_list_destroy(inst_ls);
             EXIT(0);
         }
     }
 
-    Nst_FuncObj *main_func = FUNC(nst_func_new(0, inst_ls));
+    Nst_FuncObj *main_func = FUNC(Nst_func_new(0, inst_ls));
 
-    i32 exe_result = nst_run(
+    i32 exe_result = Nst_run(
         main_func,
         argc - args_start,
         argv + args_start,

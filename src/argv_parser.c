@@ -3,7 +3,7 @@
 
 #ifdef Nst_WIN
 #include "windows.h"
-#endif
+#endif // !Nst_WIN
 
 #define HELP_MESSAGE                                                                     \
     "USAGE: nest [options] [filename | -c command] [args]\n\n"                           \
@@ -47,7 +47,7 @@
     "Run 'nest --help' for more information\n"
 
 #define VERSION_MESSAGE                                                       \
-    "Using Nest version: " NST_VERSION
+    "Using Nest version: " Nst_VERSION
 
 #define ENCODING_MESSAGE                                                      \
     "The supported encodings are:\n"                                          \
@@ -267,12 +267,12 @@ bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv)
         tot_size += (wcslen(wargv[i])) * 3 + 1;
     }
 
-    i8 **local_argv = (i8 **)nst_raw_malloc(
+    i8 **local_argv = (i8 **)Nst_raw_malloc(
         ((argc + 1) * sizeof(i8 *))
       + (tot_size * sizeof(i8)));
 
     if (local_argv == NULL) {
-        nst_free(local_argv);
+        Nst_free(local_argv);
         puts("Failed allocation while converting argv");
         return false;
     }
@@ -286,7 +286,7 @@ bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv)
         for (usize j = 0, n = wcslen(warg); j < n; j++) {
             usize ch_len = Nst_check_utf16_bytes(warg + j, n - j);
             if (ch_len < 0) {
-                nst_free(local_argv);
+                Nst_free(local_argv);
                 puts("Invalid argv enconding");
                 return false;
             }

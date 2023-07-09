@@ -13,37 +13,37 @@ bool lib_init()
 {
     usize idx = 0;
 
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(lfind_, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(rfind_, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(starts_with_, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(ends_with_, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(trim_,  1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(ltrim_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(rtrim_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(ljust_, 3);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(rjust_, 3);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(center_, 3);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(to_title_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(to_upper_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(to_lower_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_title_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_upper_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_lower_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_alpha_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_digit_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_alnum_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_charset_, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(is_printable_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(replace_substr_, 3);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(bytearray_to_str_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(str_to_bytearray_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(repr_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(join_, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(split_, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(bin_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(oct_, 1);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(hex_, 2);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(parse_int_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(lfind_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(rfind_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(starts_with_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(ends_with_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(trim_,  1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(ltrim_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(rtrim_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(ljust_, 3);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(rjust_, 3);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(center_, 3);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(to_title_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(to_upper_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(to_lower_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_title_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_upper_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_lower_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_alpha_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_digit_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_alnum_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_charset_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_printable_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(replace_substr_, 3);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(bytearray_to_str_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(str_to_bytearray_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(repr_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(join_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(split_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(bin_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(oct_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(hex_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(parse_int_, 2);
 
 #if __LINE__ - FUNC_COUNT != 17
 #error
@@ -58,40 +58,40 @@ Nst_DeclrList *get_func_ptrs()
     return lib_init_ ? &obj_list_ : nullptr;
 }
 
-NST_FUNC_SIGN(lfind_)
+Nst_FUNC_SIGN(lfind_)
 {
     Nst_StrObj *str1 = nullptr;
     Nst_StrObj *str2 = nullptr;
 
-    NST_DEF_EXTRACT("ss", &str1, &str2);
+    Nst_DEF_EXTRACT("ss", &str1, &str2);
 
     if ( str1 == str2 )
     {
-        NST_RETURN_ZERO;
+        Nst_RETURN_ZERO;
     }
 
-    i8 *sub = nst_string_find(str1->value, str1->len, str2->value, str2->len);
+    i8 *sub = Nst_string_find(str1->value, str1->len, str2->value, str2->len);
 
     if ( sub == nullptr )
     {
-        return nst_inc_ref(nst_const()->Int_neg1);
+        return Nst_inc_ref(Nst_const()->Int_neg1);
     }
     else
     {
-        return nst_int_new(sub - str1->value);
+        return Nst_int_new(sub - str1->value);
     }
 }
 
-NST_FUNC_SIGN(rfind_)
+Nst_FUNC_SIGN(rfind_)
 {
     Nst_StrObj *str1;
     Nst_StrObj *str2;
 
-    NST_DEF_EXTRACT("ss", &str1, &str2);
+    Nst_DEF_EXTRACT("ss", &str1, &str2);
 
     if ( str1 == str2 )
     {
-        NST_RETURN_ZERO;
+        Nst_RETURN_ZERO;
     }
 
     i8 *s1 = str1->value + str1->len - 1;
@@ -116,23 +116,23 @@ NST_FUNC_SIGN(rfind_)
 
         if ( p2 - s2_start + 1 == 0 )
         {
-            return nst_int_new(p1 - s1_start + 1);
+            return Nst_int_new(p1 - s1_start + 1);
         }
     }
 
-    return nst_inc_ref(nst_const()->Int_neg1);
+    return Nst_inc_ref(Nst_const()->Int_neg1);
 }
 
-NST_FUNC_SIGN(starts_with_)
+Nst_FUNC_SIGN(starts_with_)
 {
     Nst_StrObj *str;
     Nst_StrObj *substr;
 
-    NST_DEF_EXTRACT("ss", &str, &substr);
+    Nst_DEF_EXTRACT("ss", &str, &substr);
 
     if ( str->len < substr->len )
     {
-        NST_RETURN_FALSE;
+        Nst_RETURN_FALSE;
     }
 
     i8 *s = str->value;
@@ -142,22 +142,22 @@ NST_FUNC_SIGN(starts_with_)
     while ( sub != sub_end )
     {
         if ( *sub++ != *s++)
-            NST_RETURN_FALSE;
+            Nst_RETURN_FALSE;
     }
 
-    NST_RETURN_TRUE;
+    Nst_RETURN_TRUE;
 }
 
-NST_FUNC_SIGN(ends_with_)
+Nst_FUNC_SIGN(ends_with_)
 {
     Nst_StrObj *str;
     Nst_StrObj *substr;
 
-    NST_DEF_EXTRACT("ss", &str, &substr);
+    Nst_DEF_EXTRACT("ss", &str, &substr);
 
     if ( str->len < substr->len )
     {
-        NST_RETURN_FALSE;
+        Nst_RETURN_FALSE;
     }
 
     i8 *s_end = str->value + str->len;
@@ -167,17 +167,17 @@ NST_FUNC_SIGN(ends_with_)
     while ( sub_end != sub )
     {
         if ( *--sub_end != *--s_end)
-            NST_RETURN_FALSE;
+            Nst_RETURN_FALSE;
     }
 
-    NST_RETURN_TRUE;
+    Nst_RETURN_TRUE;
 }
 
-NST_FUNC_SIGN(trim_)
+Nst_FUNC_SIGN(trim_)
 {
     Nst_StrObj *str;
 
-    NST_DEF_EXTRACT("s", &str);
+    Nst_DEF_EXTRACT("s", &str);
 
     i8 *s_start = str->value;
     i8 *s_end = str->value + str->len - 1;
@@ -191,7 +191,7 @@ NST_FUNC_SIGN(trim_)
 
     if ( s_start == s_end + 1 )
     {
-        return nst_string_new_c("", 0, false);
+        return Nst_string_new_c("", 0, false);
     }
 
     while ( isspace((u8)*s_end) )
@@ -200,7 +200,7 @@ NST_FUNC_SIGN(trim_)
         --len;
     }
 
-    i8 *new_str = nst_malloc_c(len + 1, i8);
+    i8 *new_str = Nst_malloc_c(len + 1, i8);
     if ( new_str == nullptr )
     {
         return nullptr;
@@ -208,14 +208,14 @@ NST_FUNC_SIGN(trim_)
 
     strncpy(new_str, s_start, len);
 
-    return nst_string_new(new_str, len, true);
+    return Nst_string_new(new_str, len, true);
 }
 
-NST_FUNC_SIGN(ltrim_)
+Nst_FUNC_SIGN(ltrim_)
 {
     Nst_StrObj *str;
 
-    NST_DEF_EXTRACT("s", &str);
+    Nst_DEF_EXTRACT("s", &str);
 
     i8 *s_start = str->value;
     usize len = str->len;
@@ -226,21 +226,21 @@ NST_FUNC_SIGN(ltrim_)
         --len;
     }
 
-    i8 *new_str = nst_malloc_c(len + 1, i8);
+    i8 *new_str = Nst_malloc_c(len + 1, i8);
     if ( new_str == nullptr )
     {
         return nullptr;
     }
     strcpy(new_str, s_start);
 
-    return nst_string_new(new_str, len, true);
+    return Nst_string_new(new_str, len, true);
 }
 
-NST_FUNC_SIGN(rtrim_)
+Nst_FUNC_SIGN(rtrim_)
 {
     Nst_StrObj *str;
 
-    NST_DEF_EXTRACT("s", &str);
+    Nst_DEF_EXTRACT("s", &str);
 
     usize len = str->len;
     i8 *s_start = str->value;
@@ -248,7 +248,7 @@ NST_FUNC_SIGN(rtrim_)
 
     if ( len == 0 )
     {
-        return nst_string_new((i8 *)"", 0, false);
+        return Nst_string_new((i8 *)"", 0, false);
     }
 
     while ( s_end + 1 != s_start && isspace((u8)*s_end) )
@@ -257,7 +257,7 @@ NST_FUNC_SIGN(rtrim_)
         --len;
     }
 
-    i8 *new_str = nst_malloc_c(len + 1, i8);
+    i8 *new_str = Nst_malloc_c(len + 1, i8);
     if ( new_str == nullptr )
     {
         Nst_failed_allocation();
@@ -265,27 +265,27 @@ NST_FUNC_SIGN(rtrim_)
     }
     strncpy(new_str, s_start, len);
 
-    return nst_string_new(new_str, len, true);
+    return Nst_string_new(new_str, len, true);
 }
 
-NST_FUNC_SIGN(ljust_)
+Nst_FUNC_SIGN(ljust_)
 {
     Nst_StrObj *str;
     Nst_Int just_len;
     Nst_Obj *just_char;
 
-    NST_DEF_EXTRACT("si?s", &str, &just_len, &just_char);
+    Nst_DEF_EXTRACT("si?s", &str, &just_len, &just_char);
 
     usize len = str->len;
 
     if ( just_len <= (Nst_Int)len )
     {
-        return nst_inc_ref(args[0]);
+        return Nst_inc_ref(args[0]);
     }
 
     i8 just_ch;
 
-    if ( just_char == nst_null() )
+    if ( just_char == Nst_null() )
     {
         just_ch = ' ';
     }
@@ -300,7 +300,7 @@ NST_FUNC_SIGN(ljust_)
         just_ch = *STR(just_char)->value;
     }
 
-    i8 *new_str = nst_malloc_c((usize)just_len + 1, i8);
+    i8 *new_str = Nst_malloc_c((usize)just_len + 1, i8);
     if ( new_str == nullptr )
     {
         return nullptr;
@@ -309,27 +309,27 @@ NST_FUNC_SIGN(ljust_)
     memset(new_str + len, just_ch, (usize)(just_len - len));
     new_str[just_len] = 0;
 
-    return nst_string_new(new_str, (usize)just_len, true);
+    return Nst_string_new(new_str, (usize)just_len, true);
 }
 
-NST_FUNC_SIGN(rjust_)
+Nst_FUNC_SIGN(rjust_)
 {
     Nst_StrObj *str;
     Nst_Int just_len;
     Nst_Obj *just_char;
 
-    NST_DEF_EXTRACT("si?s", &str, &just_len, &just_char);
+    Nst_DEF_EXTRACT("si?s", &str, &just_len, &just_char);
 
     usize len = str->len;
 
     if ( just_len <= (Nst_Int)len )
     {
-        return nst_inc_ref(args[0]);
+        return Nst_inc_ref(args[0]);
     }
 
     i8 just_ch;
 
-    if ( just_char == nst_null() )
+    if ( just_char == Nst_null() )
     {
         just_ch = ' ';
     }
@@ -344,7 +344,7 @@ NST_FUNC_SIGN(rjust_)
         just_ch = *STR(just_char)->value;
     }
 
-    i8 *new_str = nst_malloc_c((usize)just_len + 1, i8);
+    i8 *new_str = Nst_malloc_c((usize)just_len + 1, i8);
     if ( new_str == nullptr )
     {
         return nullptr;
@@ -353,27 +353,27 @@ NST_FUNC_SIGN(rjust_)
     memcpy(new_str + (just_len - len), str->value, len);
     new_str[just_len] = 0;
 
-    return nst_string_new(new_str, (usize)just_len, true);
+    return Nst_string_new(new_str, (usize)just_len, true);
 }
 
-NST_FUNC_SIGN(center_)
+Nst_FUNC_SIGN(center_)
 {
     Nst_StrObj *str;
     Nst_Int just_len;
     Nst_Obj *just_char;
 
-    NST_DEF_EXTRACT("si?s", &str, &just_len, &just_char);
+    Nst_DEF_EXTRACT("si?s", &str, &just_len, &just_char);
 
     usize len = str->len;
 
     if ( just_len <= (Nst_Int)len )
     {
-        return nst_inc_ref(args[0]);
+        return Nst_inc_ref(args[0]);
     }
 
     i8 just_ch;
 
-    if ( just_char == nst_null() )
+    if ( just_char == Nst_null() )
     {
         just_ch = ' ';
     }
@@ -388,7 +388,7 @@ NST_FUNC_SIGN(center_)
         just_ch = *STR(just_char)->value;
     }
 
-    i8 *new_str = nst_malloc_c((usize)just_len + 1, i8);
+    i8 *new_str = Nst_malloc_c((usize)just_len + 1, i8);
     if ( new_str == nullptr )
     {
         return nullptr;
@@ -398,16 +398,16 @@ NST_FUNC_SIGN(center_)
     memcpy(new_str + half, str->value, len);
     new_str[just_len] = 0;
 
-    return nst_string_new(new_str, (usize)just_len, true);
+    return Nst_string_new(new_str, (usize)just_len, true);
 }
 
-NST_FUNC_SIGN(to_title_)
+Nst_FUNC_SIGN(to_title_)
 {
     Nst_StrObj *str;
 
-    NST_DEF_EXTRACT("s", &str);
+    Nst_DEF_EXTRACT("s", &str);
 
-    Nst_StrObj *new_str = STR(nst_string_copy(str));
+    Nst_StrObj *new_str = STR(Nst_string_copy(str));
     i8 *s = new_str->value;
     i8 *end = s + new_str->len;
     bool new_word = true;
@@ -435,13 +435,13 @@ NST_FUNC_SIGN(to_title_)
     return OBJ(new_str);
 }
 
-NST_FUNC_SIGN(to_upper_)
+Nst_FUNC_SIGN(to_upper_)
 {
     Nst_StrObj *str;
 
-    NST_DEF_EXTRACT("s", &str);
+    Nst_DEF_EXTRACT("s", &str);
 
-    Nst_StrObj *new_str = STR(nst_string_copy(str));
+    Nst_StrObj *new_str = STR(Nst_string_copy(str));
     i8 *s = new_str->value;
     i8 *end = s + new_str->len;
 
@@ -454,13 +454,13 @@ NST_FUNC_SIGN(to_upper_)
     return OBJ(new_str);
 }
 
-NST_FUNC_SIGN(to_lower_)
+Nst_FUNC_SIGN(to_lower_)
 {
     Nst_StrObj *str;
 
-    NST_DEF_EXTRACT("s", &str);
+    Nst_DEF_EXTRACT("s", &str);
 
-    Nst_StrObj *new_str = STR(nst_string_copy(str));
+    Nst_StrObj *new_str = STR(Nst_string_copy(str));
     i8 *s = new_str->value;
     i8 *end = s + new_str->len;
 
@@ -473,11 +473,11 @@ NST_FUNC_SIGN(to_lower_)
     return OBJ(new_str);
 }
 
-NST_FUNC_SIGN(is_title_)
+Nst_FUNC_SIGN(is_title_)
 {
     Nst_StrObj *str;
 
-    NST_DEF_EXTRACT("s", &str);
+    Nst_DEF_EXTRACT("s", &str);
 
     i8 *s = str->value;
     i8 *end = s + str->len;
@@ -504,17 +504,17 @@ NST_FUNC_SIGN(is_title_)
             ++s;
             continue;
         }
-        NST_RETURN_FALSE;
+        Nst_RETURN_FALSE;
     }
 
-    NST_RETURN_TRUE;
+    Nst_RETURN_TRUE;
 }
 
-NST_FUNC_SIGN(is_upper_)
+Nst_FUNC_SIGN(is_upper_)
 {
     Nst_StrObj *str;
 
-    NST_DEF_EXTRACT("s", &str);
+    Nst_DEF_EXTRACT("s", &str);
 
     i8 *s = str->value;
     i8 *end = s + str->len;
@@ -523,19 +523,19 @@ NST_FUNC_SIGN(is_upper_)
     {
         if ( isalpha((u8)*s) && !isupper((u8)*s) )
         {
-            NST_RETURN_FALSE;
+            Nst_RETURN_FALSE;
         }
         ++s;
     }
 
-    NST_RETURN_TRUE;
+    Nst_RETURN_TRUE;
 }
 
-NST_FUNC_SIGN(is_lower_)
+Nst_FUNC_SIGN(is_lower_)
 {
     Nst_StrObj *str;
 
-    NST_DEF_EXTRACT("s", &str);
+    Nst_DEF_EXTRACT("s", &str);
 
     i8 *s = str->value;
     i8 *end = s + str->len;
@@ -544,19 +544,19 @@ NST_FUNC_SIGN(is_lower_)
     {
         if ( isalpha((u8)*s) && !islower((u8)*s) )
         {
-            NST_RETURN_FALSE;
+            Nst_RETURN_FALSE;
         }
         ++s;
     }
 
-    NST_RETURN_TRUE;
+    Nst_RETURN_TRUE;
 }
 
-NST_FUNC_SIGN(is_alpha_)
+Nst_FUNC_SIGN(is_alpha_)
 {
     Nst_StrObj *str;
 
-    NST_DEF_EXTRACT("s", &str);
+    Nst_DEF_EXTRACT("s", &str);
 
     i8 *s = str->value;
     i8 *end = s + str->len;
@@ -565,18 +565,18 @@ NST_FUNC_SIGN(is_alpha_)
     {
         if ( !isalpha((u8)*s++) )
         {
-            NST_RETURN_FALSE;
+            Nst_RETURN_FALSE;
         }
     }
 
-    NST_RETURN_TRUE;
+    Nst_RETURN_TRUE;
 }
 
-NST_FUNC_SIGN(is_digit_)
+Nst_FUNC_SIGN(is_digit_)
 {
     Nst_StrObj *str;
 
-    NST_DEF_EXTRACT("s", &str);
+    Nst_DEF_EXTRACT("s", &str);
 
     i8 *s = str->value;
     i8 *end = s + str->len;
@@ -585,18 +585,18 @@ NST_FUNC_SIGN(is_digit_)
     {
         if ( !isdigit((u8)*s++) )
         {
-            NST_RETURN_FALSE;
+            Nst_RETURN_FALSE;
         }
     }
 
-    NST_RETURN_TRUE;
+    Nst_RETURN_TRUE;
 }
 
-NST_FUNC_SIGN(is_alnum_)
+Nst_FUNC_SIGN(is_alnum_)
 {
     Nst_StrObj *str;
 
-    NST_DEF_EXTRACT("s", &str);
+    Nst_DEF_EXTRACT("s", &str);
 
     i8 *s = str->value;
     i8 *end = s + str->len;
@@ -605,19 +605,19 @@ NST_FUNC_SIGN(is_alnum_)
     {
         if ( !isalnum((u8)*s++) )
         {
-            NST_RETURN_FALSE;
+            Nst_RETURN_FALSE;
         }
     }
 
-    NST_RETURN_TRUE;
+    Nst_RETURN_TRUE;
 }
 
-NST_FUNC_SIGN(is_charset_)
+Nst_FUNC_SIGN(is_charset_)
 {
     Nst_StrObj *str1;
     Nst_StrObj *str2;
 
-    NST_DEF_EXTRACT("ss", &str1, &str2);
+    Nst_DEF_EXTRACT("ss", &str1, &str2);
 
     i8 *s1 = str1->value;
     i8 *s2 = str2->value;
@@ -639,19 +639,19 @@ NST_FUNC_SIGN(is_charset_)
 
         if ( p2 == end2 )
         {
-            NST_RETURN_FALSE;
+            Nst_RETURN_FALSE;
         }
         ++s1;
     }
 
-    NST_RETURN_TRUE;
+    Nst_RETURN_TRUE;
 }
 
-NST_FUNC_SIGN(is_printable_)
+Nst_FUNC_SIGN(is_printable_)
 {
     Nst_StrObj *str;
 
-    NST_DEF_EXTRACT("s", &str);
+    Nst_DEF_EXTRACT("s", &str);
 
     i8 *s = str->value;
     i8 *end = s + str->len;
@@ -660,20 +660,20 @@ NST_FUNC_SIGN(is_printable_)
     {
         if ( !isprint((u8)*s++) )
         {
-            NST_RETURN_FALSE;
+            Nst_RETURN_FALSE;
         }
     }
 
-    NST_RETURN_TRUE;
+    Nst_RETURN_TRUE;
 }
 
-NST_FUNC_SIGN(replace_substr_)
+Nst_FUNC_SIGN(replace_substr_)
 {
     Nst_StrObj *str;
     Nst_StrObj *str_from;
     Nst_StrObj *str_to;
 
-    NST_DEF_EXTRACT("sss", &str, &str_from, &str_to);
+    Nst_DEF_EXTRACT("sss", &str, &str_from, &str_to);
 
     usize s_len = str->len;
     usize s_from_len = str_from->len;
@@ -688,7 +688,7 @@ NST_FUNC_SIGN(replace_substr_)
 
     while ( true )
     {
-        sub = nst_string_find(s, s_len, s_from, s_from_len);
+        sub = Nst_string_find(s, s_len, s_from, s_from_len);
         if ( sub == nullptr )
         {
             break;
@@ -701,12 +701,12 @@ NST_FUNC_SIGN(replace_substr_)
 
     if ( count == 0 )
     {
-        return nst_inc_ref(str);
+        return Nst_inc_ref(str);
     }
 
     s_len = str->len;
     s = str->value;
-    i8 *new_str = nst_malloc_c(
+    i8 *new_str = Nst_malloc_c(
         s_len - s_from_len * count + s_to_len * count + 1,
         i8);
     if ( new_str == nullptr )
@@ -717,7 +717,7 @@ NST_FUNC_SIGN(replace_substr_)
     // Copy replacing the occurrence
     while ( true )
     {
-        sub = nst_string_find(s, s_len, s_from, s_from_len);
+        sub = Nst_string_find(s, s_len, s_from, s_from_len);
         if (sub == nullptr)
             break;
 
@@ -734,17 +734,17 @@ NST_FUNC_SIGN(replace_substr_)
     new_str_len += s_len;
 
     new_str[new_str_len] = 0;
-    return nst_string_new(new_str, new_str_len, true);
+    return Nst_string_new(new_str, new_str_len, true);
 }
 
-NST_FUNC_SIGN(bytearray_to_str_)
+Nst_FUNC_SIGN(bytearray_to_str_)
 {
     Nst_SeqObj *seq;
 
-    NST_DEF_EXTRACT("A.B", &seq);
+    Nst_DEF_EXTRACT("A.B", &seq);
 
     usize len = seq->len;
-    i8 *new_str = nst_malloc_c(len + 1, i8);
+    i8 *new_str = Nst_malloc_c(len + 1, i8);
     if ( new_str == nullptr )
     {
         Nst_failed_allocation();
@@ -758,46 +758,46 @@ NST_FUNC_SIGN(bytearray_to_str_)
     }
 
     new_str[len] = 0;
-    return nst_string_new(new_str, len, true);
+    return Nst_string_new(new_str, len, true);
 }
 
-NST_FUNC_SIGN(str_to_bytearray_)
+Nst_FUNC_SIGN(str_to_bytearray_)
 {
     Nst_StrObj *str;
 
-    NST_DEF_EXTRACT("s", &str);
+    Nst_DEF_EXTRACT("s", &str);
 
     usize len = str->len;
     i8 *s = str->value;
-    Nst_SeqObj *new_arr = SEQ(nst_array_new(len));
+    Nst_SeqObj *new_arr = SEQ(Nst_array_new(len));
     Nst_Obj **objs = new_arr->objs;
 
     for ( usize i = 0; i < len; i++ )
     {
-        objs[i] = nst_byte_new(s[i]);
+        objs[i] = Nst_byte_new(s[i]);
     }
 
     return OBJ(new_arr);
 }
 
-NST_FUNC_SIGN(repr_)
+Nst_FUNC_SIGN(repr_)
 {
     Nst_Obj *obj;
-    NST_DEF_EXTRACT("o", &obj);
-    return _nst_repr_str_cast(obj);
+    Nst_DEF_EXTRACT("o", &obj);
+    return _Nst_repr_str_cast(obj);
 }
 
-NST_FUNC_SIGN(join_)
+Nst_FUNC_SIGN(join_)
 {
     Nst_SeqObj *seq;
     Nst_Obj *opt_str;
 
-    NST_DEF_EXTRACT("A?s", &seq, &opt_str);
+    Nst_DEF_EXTRACT("A?s", &seq, &opt_str);
 
     usize str_len;
     i8 *str_val;
 
-    if ( opt_str == nst_null() )
+    if ( opt_str == Nst_null() )
     {
         str_len = 1;
         str_val = (i8 *)" ";
@@ -810,7 +810,7 @@ NST_FUNC_SIGN(join_)
 
     usize len = seq->len;
     usize tot_len = str_len * (len - 1);
-    Nst_Obj **objs = nst_malloc_c(len, Nst_Obj *);
+    Nst_Obj **objs = Nst_malloc_c(len, Nst_Obj *);
     if ( objs == nullptr )
     {
         Nst_failed_allocation();
@@ -819,14 +819,14 @@ NST_FUNC_SIGN(join_)
 
     for ( usize i = 0; i < len; i++ )
     {
-        objs[i] = nst_obj_cast(seq->objs[i], nst_type()->Str);
+        objs[i] = Nst_obj_cast(seq->objs[i], Nst_type()->Str);
         tot_len += STR(objs[i])->len;
     }
 
-    i8 *new_str = nst_malloc_c(tot_len + 1, i8);
+    i8 *new_str = Nst_malloc_c(tot_len + 1, i8);
     if ( new_str == nullptr )
     {
-        nst_free(objs);
+        Nst_free(objs);
         Nst_failed_allocation();
         return nullptr;
     }
@@ -837,7 +837,7 @@ NST_FUNC_SIGN(join_)
         Nst_StrObj *curr_str = STR(objs[i]);
         memcpy(new_str + str_idx, curr_str->value, curr_str->len);
         str_idx += curr_str->len;
-        nst_dec_ref(objs[i]);
+        Nst_dec_ref(objs[i]);
         if ( i + 1 == len )
         {
             break;
@@ -845,23 +845,23 @@ NST_FUNC_SIGN(join_)
         memcpy(new_str + str_idx, str_val, str_len);
         str_idx += str_len;
     }
-    nst_free(objs);
+    Nst_free(objs);
     new_str[tot_len] = '\0';
-    return nst_string_new(new_str, tot_len, true);
+    return Nst_string_new(new_str, tot_len, true);
 }
 
-NST_FUNC_SIGN(split_)
+Nst_FUNC_SIGN(split_)
 {
     Nst_StrObj *str;
     Nst_Obj *opt_substr;
 
-    NST_DEF_EXTRACT("s?s", &str, &opt_substr);
+    Nst_DEF_EXTRACT("s?s", &str, &opt_substr);
 
     i8 *sub;
     usize sub_len;
     bool rm_spaces = false;
 
-    if ( opt_substr == nst_null() )
+    if ( opt_substr == Nst_null() )
     {
         sub = (i8 *)" ";
         sub_len = 1;
@@ -879,7 +879,7 @@ NST_FUNC_SIGN(split_)
         sub_len = STR(opt_substr)->len;
     }
 
-    Nst_SeqObj *vector = SEQ(nst_vector_new(0));
+    Nst_SeqObj *vector = SEQ(Nst_vector_new(0));
 
     i8 *s = str->value;
     i8 *sub_idx = s;
@@ -901,21 +901,21 @@ NST_FUNC_SIGN(split_)
         return OBJ(vector);
     }
 
-    while ( (sub_idx = nst_string_find(s, s_len, sub, sub_len)) != nullptr )
+    while ( (sub_idx = Nst_string_find(s, s_len, sub, sub_len)) != nullptr )
     {
-        str_split = nst_malloc_c(sub_idx - s + 1, i8);
+        str_split = Nst_malloc_c(sub_idx - s + 1, i8);
         if ( str_split == nullptr )
         {
-            nst_dec_ref(vector);
+            Nst_dec_ref(vector);
             Nst_failed_allocation();
             return nullptr;
         }
 
         memcpy(str_split, s, sub_idx - s);
         str_split[sub_idx - s] = '\0';
-        str_obj = nst_string_new(str_split, sub_idx - s, true);
-        nst_vector_append(vector, str_obj);
-        nst_dec_ref(str_obj);
+        str_obj = Nst_string_new(str_split, sub_idx - s, true);
+        Nst_vector_append(vector, str_obj);
+        Nst_dec_ref(str_obj);
         s_len -= sub_idx - s + sub_len;
         s = sub_idx + sub_len;
 
@@ -935,17 +935,17 @@ NST_FUNC_SIGN(split_)
 
     if ( s_len != 0 )
     {
-        str_split = nst_malloc_c(s_len + 1, i8);
+        str_split = Nst_malloc_c(s_len + 1, i8);
         if ( str_split == nullptr )
         {
-            nst_dec_ref(vector);
+            Nst_dec_ref(vector);
             return nullptr;
         }
         memcpy(str_split, s, s_len);
         str_split[s_len] = '\0';
-        str_obj = nst_string_new(str_split, s_len, true);
-        nst_vector_append(vector, str_obj);
-        nst_dec_ref(str_obj);
+        str_obj = Nst_string_new(str_split, s_len, true);
+        Nst_vector_append(vector, str_obj);
+        Nst_dec_ref(str_obj);
     }
 
     return OBJ(vector);
@@ -977,14 +977,14 @@ static Nst_Int highest_bit(u64 n)
     }
 }
 
-NST_FUNC_SIGN(bin_)
+Nst_FUNC_SIGN(bin_)
 {
     Nst_Int n;
-    NST_DEF_EXTRACT("i", &n);
+    Nst_DEF_EXTRACT("i", &n);
 
     Nst_Int str_len = highest_bit(n) + 1;
 
-    i8 *buf = nst_malloc_c((usize)str_len, i8);
+    i8 *buf = Nst_malloc_c((usize)str_len, i8);
     if ( buf == nullptr )
     {
         Nst_failed_allocation();
@@ -1004,13 +1004,13 @@ NST_FUNC_SIGN(bin_)
     }
     buf[str_len - 1] = '\0';
 
-    return nst_string_new(buf, usize(str_len) - 1, true);
+    return Nst_string_new(buf, usize(str_len) - 1, true);
 }
 
-NST_FUNC_SIGN(oct_)
+Nst_FUNC_SIGN(oct_)
 {
     Nst_Int n;
-    NST_DEF_EXTRACT("i", &n);
+    Nst_DEF_EXTRACT("i", &n);
 
     Nst_Int h_bit = highest_bit(n);
     Nst_Int str_len = h_bit / 3;
@@ -1023,7 +1023,7 @@ NST_FUNC_SIGN(oct_)
         str_len += 1;
     }
 
-    i8 *buf = nst_malloc_c((usize)str_len, i8);
+    i8 *buf = Nst_malloc_c((usize)str_len, i8);
     if ( buf == nullptr )
     {
         Nst_failed_allocation();
@@ -1037,17 +1037,17 @@ NST_FUNC_SIGN(oct_)
     }
     buf[str_len - 1] = '\0';
 
-    return nst_string_new(buf, usize(str_len) - 1, true);
+    return Nst_string_new(buf, usize(str_len) - 1, true);
 }
 
-NST_FUNC_SIGN(hex_)
+Nst_FUNC_SIGN(hex_)
 {
     Nst_Int n;
     Nst_Obj *upper_obj;
-    NST_DEF_EXTRACT("i?b", &n, &upper_obj);
+    Nst_DEF_EXTRACT("i?b", &n, &upper_obj);
 
     const i8 *digits;
-    if ( upper_obj == nst_null() || !AS_BOOL(upper_obj) )
+    if ( upper_obj == Nst_null() || !AS_BOOL(upper_obj) )
     {
         digits = "0123456789abcdef";
     }
@@ -1067,7 +1067,7 @@ NST_FUNC_SIGN(hex_)
         str_len += 1;
     }
 
-    i8 *buf = nst_malloc_c((usize)str_len, i8);
+    i8 *buf = Nst_malloc_c((usize)str_len, i8);
     if ( buf == nullptr )
     {
         Nst_failed_allocation();
@@ -1081,16 +1081,16 @@ NST_FUNC_SIGN(hex_)
     }
     buf[str_len - 1] = '\0';
 
-    return nst_string_new(buf, usize(str_len) - 1, true);
+    return Nst_string_new(buf, usize(str_len) - 1, true);
 }
 
-NST_FUNC_SIGN(parse_int_)
+Nst_FUNC_SIGN(parse_int_)
 {
     Nst_StrObj *str;
     Nst_Obj *base_obj;
-    NST_DEF_EXTRACT("s?i", &str, &base_obj);
+    Nst_DEF_EXTRACT("s?i", &str, &base_obj);
 
-    Nst_Int base = NST_DEF_VAL(base_obj, AS_INT(base_obj), 0);
+    Nst_Int base = Nst_DEF_VAL(base_obj, AS_INT(base_obj), 0);
 
-    return nst_string_parse_int(str, i32(base));
+    return Nst_string_parse_int(str, i32(base));
 }

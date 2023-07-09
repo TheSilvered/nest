@@ -7,7 +7,7 @@ GUI_Element *gui_element_new(GUI_ElementType t,
                              int w, int h,
                              struct _GUI_App *app)
 {
-    GUI_Element *obj = (GUI_Element *)_nst_obj_alloc(
+    GUI_Element *obj = (GUI_Element *)_Nst_obj_alloc(
         size,
         gui_element_type,
         (Nst_ObjDestructor)gui_element_destroy);
@@ -23,10 +23,10 @@ GUI_Element *gui_element_new(GUI_ElementType t,
     obj->el_type = t;
 
     obj->parent = nullptr;
-    obj->children = SEQ(nst_vector_new(0));
+    obj->children = SEQ(Nst_vector_new(0));
     if ( obj->children == nullptr )
     {
-        nst_free(obj);
+        Nst_free(obj);
         return nullptr;
     }
     obj->app = app;
@@ -39,60 +39,60 @@ GUI_Element *gui_element_new(GUI_ElementType t,
     gui_element_set_margin(obj, 0, 0, 0, 0);
     gui_element_set_padding(obj, 0, 0, 0, 0);
 
-    NST_GGC_OBJ_INIT(obj, gui_element_track, gui_element_traverse);
+    Nst_GGC_OBJ_INIT(obj, gui_element_track, gui_element_traverse);
 
     return obj;
 }
 
 void gui_element_destroy(GUI_Element *obj)
 {
-    nst_dec_ref(obj->children);
+    Nst_dec_ref(obj->children);
     if ( obj->parent != nullptr )
     {
-        nst_dec_ref(obj->parent);
+        Nst_dec_ref(obj->parent);
     }
-    if ( NST_FLAG_HAS(obj, GUI_FLAG_REL_POS) && obj->rel_pos.element != nullptr )
+    if ( Nst_FLAG_HAS(obj, GUI_FLAG_REL_POS) && obj->rel_pos.element != nullptr )
     {
-        nst_dec_ref(obj->rel_pos.element);
+        Nst_dec_ref(obj->rel_pos.element);
     }
-    if ( NST_FLAG_HAS(obj, GUI_FLAG_REL_SIZE) && obj->rel_size.element != nullptr )
+    if ( Nst_FLAG_HAS(obj, GUI_FLAG_REL_SIZE) && obj->rel_size.element != nullptr )
     {
-        nst_dec_ref(obj->rel_size.element);
+        Nst_dec_ref(obj->rel_size.element);
     }
 }
 
 void gui_element_track(GUI_Element *obj)
 {
-    nst_ggc_track_obj(GGC_OBJ(obj->children));
+    Nst_ggc_track_obj(GGC_OBJ(obj->children));
     if ( obj->parent != nullptr )
     {
-        nst_ggc_track_obj(GGC_OBJ(obj->parent));
+        Nst_ggc_track_obj(GGC_OBJ(obj->parent));
     }
-    if ( NST_FLAG_HAS(obj, GUI_FLAG_REL_POS) && obj->rel_pos.element != nullptr )
+    if ( Nst_FLAG_HAS(obj, GUI_FLAG_REL_POS) && obj->rel_pos.element != nullptr )
     {
-        nst_ggc_track_obj(GGC_OBJ(obj->rel_pos.element));
+        Nst_ggc_track_obj(GGC_OBJ(obj->rel_pos.element));
     }
-    if ( NST_FLAG_HAS(obj, GUI_FLAG_REL_SIZE) && obj->rel_size.element != nullptr )
+    if ( Nst_FLAG_HAS(obj, GUI_FLAG_REL_SIZE) && obj->rel_size.element != nullptr )
     {
-        nst_ggc_track_obj(GGC_OBJ(obj->rel_size.element));
+        Nst_ggc_track_obj(GGC_OBJ(obj->rel_size.element));
     }
 }
 
 void gui_element_traverse(GUI_Element *obj)
 {
-    _nst_seq_traverse(obj->children);
-    NST_FLAG_SET(obj->children, NST_FLAG_GGC_REACHABLE);
+    _Nst_seq_traverse(obj->children);
+    Nst_FLAG_SET(obj->children, Nst_FLAG_GGC_REACHABLE);
     if ( obj->parent != nullptr )
     {
-        NST_FLAG_SET(obj->parent, NST_FLAG_GGC_REACHABLE);
+        Nst_FLAG_SET(obj->parent, Nst_FLAG_GGC_REACHABLE);
     }
-    if ( NST_FLAG_HAS(obj, GUI_FLAG_REL_POS) && obj->rel_pos.element != nullptr )
+    if ( Nst_FLAG_HAS(obj, GUI_FLAG_REL_POS) && obj->rel_pos.element != nullptr )
     {
-        NST_FLAG_SET(obj->rel_pos.element, NST_FLAG_GGC_REACHABLE);
+        Nst_FLAG_SET(obj->rel_pos.element, Nst_FLAG_GGC_REACHABLE);
     }
-    if ( NST_FLAG_HAS(obj, GUI_FLAG_REL_SIZE) && obj->rel_size.element != nullptr )
+    if ( Nst_FLAG_HAS(obj, GUI_FLAG_REL_SIZE) && obj->rel_size.element != nullptr )
     {
-        NST_FLAG_SET(obj->rel_size.element, NST_FLAG_GGC_REACHABLE);
+        Nst_FLAG_SET(obj->rel_size.element, Nst_FLAG_GGC_REACHABLE);
     }
 }
 
@@ -124,15 +124,15 @@ void gui_element_set_parent(GUI_Element *obj, GUI_Element *parent)
 {
     if ( obj->parent != nullptr )
     {
-        nst_dec_ref(obj->parent);
+        Nst_dec_ref(obj->parent);
     }
 
     obj->parent = parent;
-    nst_inc_ref(parent);
+    Nst_inc_ref(parent);
 
-    if ( NST_OBJ_IS_TRACKED(obj) )
+    if ( Nst_OBJ_IS_TRACKED(obj) )
     {
-        nst_ggc_track_obj(GGC_OBJ(parent));
+        Nst_ggc_track_obj(GGC_OBJ(parent));
     }
 }
 
@@ -238,7 +238,7 @@ void gui_element_set_rel_pos(GUI_Element *obj,
                              GUI_RelPosX from_x, GUI_RelPosY from_y,
                              GUI_RelPosX to_x, GUI_RelPosY to_y)
 {
-    NST_FLAG_SET(obj, GUI_FLAG_REL_POS);
+    Nst_FLAG_SET(obj, GUI_FLAG_REL_POS);
     obj->rel_pos.rel_pos_rect = rel_pos_rect;
     obj->rel_pos.from_x = from_x;
     obj->rel_pos.from_y = from_y;
@@ -248,19 +248,19 @@ void gui_element_set_rel_pos(GUI_Element *obj,
 
     if ( element != nullptr )
     {
-        nst_inc_ref(element);
-        if ( NST_OBJ_IS_TRACKED(obj) )
+        Nst_inc_ref(element);
+        if ( Nst_OBJ_IS_TRACKED(obj) )
         {
-            nst_ggc_track_obj(GGC_OBJ(element));
+            Nst_ggc_track_obj(GGC_OBJ(element));
         }
     }
     else
     {
         obj->rel_pos.element = obj->app->root;
-        nst_inc_ref(obj->app->root);
-        if ( NST_OBJ_IS_TRACKED(obj) )
+        Nst_inc_ref(obj->app->root);
+        if ( Nst_OBJ_IS_TRACKED(obj) )
         {
-            nst_ggc_track_obj(GGC_OBJ(obj->app->root));
+            Nst_ggc_track_obj(GGC_OBJ(obj->app->root));
         }
     }
 }
@@ -273,7 +273,7 @@ void gui_element_set_rel_size(GUI_Element *obj,
                               f64 scale_x, f64 scale_y,
                               i32 diff_x, i32 diff_y)
 {
-    NST_FLAG_SET(obj, GUI_FLAG_REL_SIZE);
+    Nst_FLAG_SET(obj, GUI_FLAG_REL_SIZE);
     obj->rel_size.rel_size_rect = rel_size_rect;
     obj->rel_size.min_w = min_w;
     obj->rel_size.min_h = min_h;
@@ -287,17 +287,17 @@ void gui_element_set_rel_size(GUI_Element *obj,
 
     if ( element != nullptr )
     {
-        nst_inc_ref(element);
-        if ( NST_OBJ_IS_TRACKED(obj) )
+        Nst_inc_ref(element);
+        if ( Nst_OBJ_IS_TRACKED(obj) )
         {
-            nst_ggc_track_obj(GGC_OBJ(element));
+            Nst_ggc_track_obj(GGC_OBJ(element));
         }
     }
 }
 
 void gui_element_update_pos(GUI_Element *obj)
 {
-    if ( !NST_FLAG_HAS(obj, GUI_FLAG_REL_POS) )
+    if ( !Nst_FLAG_HAS(obj, GUI_FLAG_REL_POS) )
     {
         return;
     }
@@ -319,7 +319,7 @@ void gui_element_update_pos(GUI_Element *obj)
 
 void gui_element_update_size(GUI_Element *obj)
 {
-    if ( !NST_FLAG_HAS(obj, GUI_FLAG_REL_SIZE) )
+    if ( !Nst_FLAG_HAS(obj, GUI_FLAG_REL_SIZE) )
     {
         return;
     }
@@ -436,7 +436,7 @@ SDL_Rect gui_element_get_padding_rect(GUI_Element *obj)
 
 bool gui_element_add_child(GUI_Element *parent, GUI_Element *child)
 {
-    if ( !nst_vector_append(parent->children, child) )
+    if ( !Nst_vector_append(parent->children, child) )
     {
         return false;
     }
@@ -571,10 +571,10 @@ TTF_Font *get_font(struct _GUI_App *app,
         switch( style )
         {
         case GUI_FST_ITALIC:
-            font_path = _nst_get_import_path((i8 *)"font/osbi.ttf", 13);
+            font_path = _Nst_get_import_path((i8 *)"font/osbi.ttf", 13);
             break;
         default:
-            font_path = _nst_get_import_path((i8 *)"font/osbr.ttf", 13);
+            font_path = _Nst_get_import_path((i8 *)"font/osbr.ttf", 13);
             break;
         }
         break;
@@ -582,10 +582,10 @@ TTF_Font *get_font(struct _GUI_App *app,
         switch( style )
         {
         case GUI_FST_ITALIC:
-            font_path = _nst_get_import_path((i8 *)"font/osri.ttf", 13);
+            font_path = _Nst_get_import_path((i8 *)"font/osri.ttf", 13);
             break;
         default:
-            font_path = _nst_get_import_path((i8 *)"font/osrr.ttf", 13);
+            font_path = _Nst_get_import_path((i8 *)"font/osrr.ttf", 13);
             break;
         }
         break;

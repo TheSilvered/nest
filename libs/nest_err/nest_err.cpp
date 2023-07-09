@@ -11,8 +11,8 @@ bool lib_init()
 {
     usize idx = 0;
 
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(try_, 3);
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(_get_err_names_, 0);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(try_, 3);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_err_names_, 0);
 
 #if __LINE__ - FUNC_COUNT != 15
 #error
@@ -34,49 +34,49 @@ Nst_Obj *make_pos(Nst_Pos start, Nst_Pos end)
         return nullptr;
     }
 
-    Nst_Obj *map = nst_map_new();
+    Nst_Obj *map = Nst_map_new();
 
-    Nst_Obj *arr1 = nst_array_new(2);
-    Nst_Obj *arr2 = nst_array_new(2);
-    Nst_Obj *file_str = nst_string_new_c_raw(start.text->path, false);
+    Nst_Obj *arr1 = Nst_array_new(2);
+    Nst_Obj *arr2 = Nst_array_new(2);
+    Nst_Obj *file_str = Nst_string_new_c_raw(start.text->path, false);
 
-    SEQ(arr1)->objs[0] = nst_int_new(start.line);
-    SEQ(arr1)->objs[1] = nst_int_new(start.col);
-    SEQ(arr2)->objs[0] = nst_int_new(end.line);
-    SEQ(arr2)->objs[1] = nst_int_new(end.col);
+    SEQ(arr1)->objs[0] = Nst_int_new(start.line);
+    SEQ(arr1)->objs[1] = Nst_int_new(start.col);
+    SEQ(arr2)->objs[0] = Nst_int_new(end.line);
+    SEQ(arr2)->objs[1] = Nst_int_new(end.col);
 
-    nst_map_set_str(map, "file", file_str);
-    nst_map_set_str(map, "start", arr1);
-    nst_map_set_str(map, "end", arr2);
+    Nst_map_set_str(map, "file", file_str);
+    Nst_map_set_str(map, "start", arr1);
+    Nst_map_set_str(map, "end", arr2);
 
-    nst_dec_ref(file_str);
-    nst_dec_ref(arr1);
-    nst_dec_ref(arr2);
+    Nst_dec_ref(file_str);
+    Nst_dec_ref(arr1);
+    Nst_dec_ref(arr2);
 
     return map;
 }
 
 Nst_Obj *success(Nst_Obj *val)
 {
-    Nst_Obj *map = nst_map_new();
-    nst_map_set_str(map, "value", val);
-    nst_map_set_str(map, "error", nst_null());
-    nst_map_set_str(map, "traceback", nst_null());
-    nst_dec_ref(val);
+    Nst_Obj *map = Nst_map_new();
+    Nst_map_set_str(map, "value", val);
+    Nst_map_set_str(map, "error", Nst_null());
+    Nst_map_set_str(map, "traceback", Nst_null());
+    Nst_dec_ref(val);
 
     return map;
 }
 
 Nst_Obj *failure(bool catch_exit)
 {
-    Nst_Obj *map = nst_map_new();
-    Nst_Obj *error_map = nst_map_new();
+    Nst_Obj *map = Nst_map_new();
+    Nst_Obj *error_map = Nst_map_new();
     Nst_Obj *error_name_str;
     Nst_Obj *error_message_str;
     Nst_Obj *error_pos;
     Nst_Obj *error_traceback;
-    Nst_ExecutionState *state = nst_get_state();
-    nst_map_set_str(map, "value", nst_null());
+    Nst_ExecutionState *state = Nst_get_state();
+    Nst_map_set_str(map, "value", Nst_null());
 
     if ( state->traceback.error.occurred )
     {
@@ -84,16 +84,16 @@ Nst_Obj *failure(bool catch_exit)
         error_name_str = OBJ(error.name);
         error_message_str = OBJ(error.message);
 
-        if ( OBJ(error_name_str) == nst_null() && !catch_exit )
+        if ( OBJ(error_name_str) == Nst_null() && !catch_exit )
         {
-            nst_dec_ref(map);
-            nst_dec_ref(error_map);
+            Nst_dec_ref(map);
+            Nst_dec_ref(error_map);
             return nullptr;
         }
 
         error_pos = make_pos(error.start, error.end);
         error_traceback =
-            nst_array_new(state->traceback.positions->size / 2);
+            Nst_array_new(state->traceback.positions->size / 2);
 
         Nst_LList *positions = state->traceback.positions;
         Nst_Int skipped = 0;
@@ -117,7 +117,7 @@ Nst_Obj *failure(bool catch_exit)
             SEQ(error_traceback)->objs[i - skipped] = pos;
         }
 
-        nst_llist_empty(positions, nst_free);
+        Nst_llist_empty(positions, Nst_free);
         state->traceback.error.occurred = false;
     }
     else
@@ -126,40 +126,40 @@ Nst_Obj *failure(bool catch_exit)
         error_name_str = OBJ(err->name);
         error_message_str = OBJ(err->message);
 
-        if ( OBJ(error_name_str) == nst_null() && !catch_exit )
+        if ( OBJ(error_name_str) == Nst_null() && !catch_exit )
         {
-            nst_dec_ref(map);
-            nst_dec_ref(error_map);
+            Nst_dec_ref(map);
+            Nst_dec_ref(error_map);
             return nullptr;
         }
 
-        error_pos = nst_inc_ref(nst_null());
-        error_traceback = nst_inc_ref(nst_null());
+        error_pos = Nst_inc_ref(Nst_null());
+        error_traceback = Nst_inc_ref(Nst_null());
     }
 
-    nst_map_set_str(error_map, "name", error_name_str);
-    nst_map_set_str(error_map, "message", error_message_str);
-    nst_map_set_str(error_map, "pos", error_pos);
-    nst_map_set_str(map, "error", error_map);
-    nst_map_set_str(map, "traceback", error_traceback);
+    Nst_map_set_str(error_map, "name", error_name_str);
+    Nst_map_set_str(error_map, "message", error_message_str);
+    Nst_map_set_str(error_map, "pos", error_pos);
+    Nst_map_set_str(map, "error", error_map);
+    Nst_map_set_str(map, "traceback", error_traceback);
 
-    nst_dec_ref(error_name_str);
-    nst_dec_ref(error_message_str);
-    nst_dec_ref(error_pos);
-    nst_dec_ref(error_map);
-    nst_dec_ref(error_traceback);
+    Nst_dec_ref(error_name_str);
+    Nst_dec_ref(error_message_str);
+    Nst_dec_ref(error_pos);
+    Nst_dec_ref(error_map);
+    Nst_dec_ref(error_traceback);
 
     return map;
 }
 
-NST_FUNC_SIGN(try_)
+Nst_FUNC_SIGN(try_)
 {
     Nst_FuncObj *func;
     Nst_SeqObj *func_args;
     Nst_Obj *catch_exit_obj;
 
-    NST_DEF_EXTRACT("fA?b", &func, &func_args, &catch_exit_obj);
-    bool catch_exit = NST_DEF_VAL(catch_exit_obj, AS_BOOL(catch_exit_obj), false);
+    Nst_DEF_EXTRACT("fA?b", &func, &func_args, &catch_exit_obj);
+    bool catch_exit = Nst_DEF_VAL(catch_exit_obj, AS_BOOL(catch_exit_obj), false);
 
     if ( func_args->len != func->arg_num )
     {
@@ -170,7 +170,7 @@ NST_FUNC_SIGN(try_)
         return nullptr;
     }
 
-    Nst_Obj *result = nst_call_func(func, func_args->objs);
+    Nst_Obj *result = Nst_call_func(func, func_args->objs);
 
     if ( result != nullptr )
     {
@@ -182,17 +182,17 @@ NST_FUNC_SIGN(try_)
     }
 }
 
-NST_FUNC_SIGN(_get_err_names_)
+Nst_FUNC_SIGN(_get_err_names_)
 {
-    Nst_Obj *names = nst_array_create_c(
+    Nst_Obj *names = Nst_array_create_c(
         "OOOOOOO",
-        nst_str()->e_SyntaxError,
-        nst_str()->e_ValueError,
-        nst_str()->e_TypeError,
-        nst_str()->e_CallError,
-        nst_str()->e_MemoryError,
-        nst_str()->e_MathError,
-        nst_str()->e_ImportError);
+        Nst_str()->e_SyntaxError,
+        Nst_str()->e_ValueError,
+        Nst_str()->e_TypeError,
+        Nst_str()->e_CallError,
+        Nst_str()->e_MemoryError,
+        Nst_str()->e_MathError,
+        Nst_str()->e_ImportError);
 
     return names;
 }

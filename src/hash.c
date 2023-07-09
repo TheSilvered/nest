@@ -11,40 +11,30 @@ static i32 hash_int(Nst_IntObj *num);
 static i32 hash_byte(Nst_ByteObj *byte);
 static i32 hash_ptr(void *ptr);
 
-i32 nst_obj_hash(Nst_Obj *obj)
+i32 Nst_obj_hash(Nst_Obj *obj)
 {
-    // Hashing floats can lead to unpredictable behaviour
-    // caused by floating point imprecision. Because of this
-    // it's not natively supported to hash floats
+    // Hashing floats can lead to unpredictable behaviour caused by floating
+    // point imprecision. Because of this it's not natively supported to hash
+    // floats
 
-    if ( obj->hash != -1 )
-    {
+    if (obj->hash != -1)
         return obj->hash;
-    }
 
     i32 hash;
-    if ( obj->type == nst_t.Type ||
-         obj->type == nst_t.Null ||
-         obj->type == nst_t.Bool )
+    if (obj->type == Nst_t.Type
+        || obj->type == Nst_t.Null
+        || obj->type == Nst_t.Bool)
     {
         hash = hash_ptr(obj);
     }
-    else if ( obj->type == nst_t.Str )
-    {
+    else if (obj->type == Nst_t.Str)
         hash = hash_str(STR(obj));
-    }
-    else if ( obj->type == nst_t.Int )
-    {
+    else if (obj->type == Nst_t.Int)
         hash = hash_int((Nst_IntObj*)obj);
-    }
-    else if ( obj->type == nst_t.Byte )
-    {
+    else if (obj->type == Nst_t.Byte)
         hash = hash_byte((Nst_ByteObj*)obj);
-    }
     else
-    {
         return -1;
-    }
 
     obj->hash = hash;
     return hash;
@@ -66,8 +56,7 @@ static i32 hash_str(Nst_StrObj *str)
     i8 *s = str->value;
     i8 *s_end = s + str->len;
 
-    while ( s != s_end )
-    {
+    while (s != s_end) {
         hash ^= *s++;
         hash *= FNV_PRIME;
     }

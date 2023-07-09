@@ -10,27 +10,27 @@ extern "C" {
 NstEXP bool lib_init();
 NstEXP Nst_DeclrList *get_func_ptrs();
 
-NST_FUNC_SIGN(time_);
-NST_FUNC_SIGN(time_ns_);
-NST_FUNC_SIGN(high_res_time_);
-NST_FUNC_SIGN(high_res_time_ns_);
-NST_FUNC_SIGN(monotonic_time_);
-NST_FUNC_SIGN(monotonic_time_ns_);
-NST_FUNC_SIGN(year_day_);
-NST_FUNC_SIGN(week_day_);
-NST_FUNC_SIGN(day_);
-NST_FUNC_SIGN(month_);
-NST_FUNC_SIGN(year_);
-NST_FUNC_SIGN(date_);
-NST_FUNC_SIGN(seconds_);
-NST_FUNC_SIGN(minutes_);
-NST_FUNC_SIGN(hours_);
-NST_FUNC_SIGN(clock_time_);
-NST_FUNC_SIGN(gmt_clock_time_);
-NST_FUNC_SIGN(clock_datetime_);
-NST_FUNC_SIGN(gmt_clock_datetime_);
-NST_FUNC_SIGN(sleep_);
-NST_FUNC_SIGN(sleep_ms_);
+Nst_FUNC_SIGN(time_);
+Nst_FUNC_SIGN(time_ns_);
+Nst_FUNC_SIGN(high_res_time_);
+Nst_FUNC_SIGN(high_res_time_ns_);
+Nst_FUNC_SIGN(monotonic_time_);
+Nst_FUNC_SIGN(monotonic_time_ns_);
+Nst_FUNC_SIGN(year_day_);
+Nst_FUNC_SIGN(week_day_);
+Nst_FUNC_SIGN(day_);
+Nst_FUNC_SIGN(month_);
+Nst_FUNC_SIGN(year_);
+Nst_FUNC_SIGN(date_);
+Nst_FUNC_SIGN(seconds_);
+Nst_FUNC_SIGN(minutes_);
+Nst_FUNC_SIGN(hours_);
+Nst_FUNC_SIGN(clock_time_);
+Nst_FUNC_SIGN(gmt_clock_time_);
+Nst_FUNC_SIGN(clock_datetime_);
+Nst_FUNC_SIGN(gmt_clock_datetime_);
+Nst_FUNC_SIGN(sleep_);
+Nst_FUNC_SIGN(sleep_ms_);
 
 #ifdef __cplusplus
 }

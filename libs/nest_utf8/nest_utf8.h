@@ -10,10 +10,10 @@ extern "C" {
 NstEXP bool lib_init();
 NstEXP Nst_DeclrList *get_func_ptrs();
 
-NST_FUNC_SIGN(is_valid_);
-NST_FUNC_SIGN(get_len_);
-NST_FUNC_SIGN(get_at_);
-NST_FUNC_SIGN(to_iter_);
+Nst_FUNC_SIGN(is_valid_);
+Nst_FUNC_SIGN(get_len_);
+Nst_FUNC_SIGN(get_at_);
+Nst_FUNC_SIGN(to_iter_);
 
 #ifdef __cplusplus
 }
