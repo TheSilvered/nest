@@ -35,49 +35,31 @@ NEST_LIB_x86 := $(x86_DIR)/libnest.so
 .PHONY: debug x86 __no_libnest_x64 __no_libnest_x86 __no_libnest_dbg help
 
 main:
-	ifndef LIB_NAME
-		$(error LIB_NAME must be defined)
-	endif
 	@$(MAKE_FILE) libnest.mk
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 -LIB_NAME=$(LIB_NAME) \
 		-LIB_FLAGS=$(LIB_FLAGS) -LIB_LINKS=$(LIB_LINKS)
 __no_libnest_x64: $(x64_TARGET);
 $(x64_TARGET): $(SRCS) $(HEADERS) $(NEST_LIB_x64)
-	ifndef LIB_NAME
-		$(error LIB_NAME must be defined)
-	endif
 	@mkdir -p $(x64_DIR)
 	@echo "Compiling $(TARGET_NAME) for x64..."
 	@$(CC) $(CFLAGS) $(SRCS) $(CLINKS_x64) -O3 -o $(x64_TARGET)
 
 x86:
-	ifndef LIB_NAME
-		$(error LIB_NAME must be defined)
-	endif
 	@$(MAKE_FILE) libnest.mk x86
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 -LIB_NAME=$(LIB_NAME) \
 		-LIB_FLAGS=$(LIB_FLAGS) -LIB_LINKS=$(LIB_LINKS)
 __no_libnest_x86: $(x86_TARGET);
 $(x86_TARGET): $(SRCS) $(HEADERS) $(NEST_LIB_x86)
-	ifndef LIB_NAME
-		$(error LIB_NAME must be defined)
-	endif
 	@mkdir -p $(x86_DIR)
 	@echo "Compiling $(TARGET_NAME) for x86..."
 	@$(CC) $(CFLAGS) $(SRCS) $(CLINKS_x86) -O3 -m32 -o $(x86_TARGET)
 
 debug:
-	ifndef LIB_NAME
-		$(error LIB_NAME must be defined)
-	endif
 	@$(MAKE_FILE) libnest.mk debug
 	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg -LIB_NAME=$(LIB_NAME) \
 		-LIB_FLAGS=$(LIB_FLAGS) -LIB_LINKS=$(LIB_LINKS)
 __no_libnest_dbg: $(DBG_TARGET);
 $(DBG_TARGET): $(SRCS) $(HEADERS) $(NEST_LIB_DBG)
-	ifndef LIB_NAME
-		$(error LIB_NAME must be defined)
-	endif
 	@mkdir -p $(DBG_DIR)
 	@echo "Compiling $(TARGET_NAME) in debug mode..."
 	@$(CC) $(CFLAGS) $(SRCS) $(CLINKS_DBG) $(DBG_FLAGS) -o $(DBG_TARGET)

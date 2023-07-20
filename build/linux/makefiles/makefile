@@ -66,8 +66,8 @@ clean:
 	rm -fr $(DBG_DIR)
 
 all:
-	@$(MAKE_FILE) libnest.mk x64
-	@$(MAKE) __no_libnest_x64
+	@$(MAKE_FILE) libnest.mk
+	@$(SILENT_MAKE) __no_libnest_x64
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=co
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=err
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=fs
