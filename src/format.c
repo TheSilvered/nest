@@ -169,7 +169,7 @@ static isize get_seq_size(const i8 **fmt, va_list *args)
     case 'u':
         if (prepend_sign || prepend_space)
             return -1;
-        [[fallthrough]];
+        // fall through
     case 'd':
     case 'i':
         if (int_size == 0 && float_size == 0)
