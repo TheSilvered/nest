@@ -287,7 +287,7 @@ NstEXP Nst_CP *NstC Nst_cp(Nst_CPID cpid);
  * @brief WINDOWS ONLY Returns the Nest code page ID of the local ANSI code
  * page. If the ANSI code page is not supported, Nst_CP_LATIN1 is returned.
  */
-NstEXP Nst_CPID NstC Nst_acp();
+NstEXP Nst_CPID NstC Nst_acp(void);
 #endif // !Nst_WIN
 
 /** Translates a UTF-8 string to Unicode (UTF-16)

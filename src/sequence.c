@@ -307,8 +307,7 @@ Nst_Obj *Nst_array_create(usize len, ...)
     return array;
 }
 
-Nst_Obj *seq_create_c(usize      len,
-                      Nst_Obj   *seq,
+Nst_Obj *seq_create_c(Nst_Obj   *seq,
                       const i8  *fmt,
                       va_list    args)
 {
@@ -429,7 +428,7 @@ Nst_Obj *Nst_vector_create_c(const i8 *fmt, ...)
     Nst_Obj *vector = Nst_vector_new(len);
     va_list args;
     va_start(args, fmt);
-    vector = seq_create_c(len, vector, fmt, args);
+    vector = seq_create_c(vector, fmt, args);
     va_end(args);
     return vector;
 }
@@ -440,7 +439,7 @@ Nst_Obj *Nst_array_create_c(const i8 *fmt, ...)
     Nst_Obj *array = Nst_array_new(len);
     va_list args;
     va_start(args, fmt);
-    array = seq_create_c(len, array, fmt, args);
+    array = seq_create_c(array, fmt, args);
     va_end(args);
     return array;
 }

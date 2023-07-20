@@ -16,16 +16,14 @@
     ]
 ]
 
-{
-    "string": "hello",
-    "int": 1234,
-    "real1": 1.0,
-    "real2": 1.5e+3,
-    "real3": 1.0e3,
-    "real4": 13.21e-5,
-    "array": { "obj1", 2, { 1, 2, 3 }, { "obj": 4 } },
-    "another_object": { "hello": "world" }
-} = data
+{ 'string': 'hello',
+  'int': 1234,
+  'real1': 1.0,
+  'real2': 1.5e+3,
+  'real3': 1.0e3,
+  'real4': 13.21e-5,
+  'array': { 'obj1', 2, { 1, 2, 3 }, { 'obj': 4 } },
+  'another_object': { 'hello': 'world' } } = data
 
 'test_files/data.json' @json.load_f = data_read
 data_read data @test.assert_eq
@@ -38,30 +36,32 @@ data_read dump_data @test.assert_eq
 m @json.dump_s '{"\\u00e8": "is"}' @test.assert_eq
 
 json.dump_s { 0 -> 10 } @test.assert_raises_error
-json.dump_s { "\xF0\x90\x8D\x88" } @test.assert_raises_error
 json.dump_s { { 1: 'hi' } } @test.assert_raises_error
 
-json.parse_s { '"hi",' } @test.assert_raises_error
-json.parse_s { ',' } @test.assert_raises_error
-json.parse_s { '{1: 2}' } @test.assert_raises_error
-json.parse_s { '{"1" 2}' } @test.assert_raises_error
-json.parse_s { '{"1": 2' } @test.assert_raises_error
-json.parse_s { '["1", 2' } @test.assert_raises_error
+json.load_s { '"hi",' } @test.assert_raises_error
+json.load_s { ',' }  @test.assert_raises_error
+json.load_s { '{1: 2}' } @test.assert_raises_error
+json.load_s { '{"1" 2}' } @test.assert_raises_error
+json.load_s { '{"1": 2' } @test.assert_raises_error
+json.load_s { '["1", 2' } @test.assert_raises_error
 
-json.parse_s { 'a' } @test.assert_raises_error
-json.parse_s { '"\n"' } @test.assert_raises_error
-json.parse_s { '"\\v"' } @test.assert_raises_error
-json.parse_s { '"abc' } @test.assert_raises_error
-json.parse_s { '-' } @test.assert_raises_error
-json.parse_s { '05' } @test.assert_raises_error
-json.parse_s { '999999999999999' } @test.assert_raises_error
-json.parse_s { '-.5' } @test.assert_raises_error
-json.parse_s { '0.' } @test.assert_raises_error
-json.parse_s { '0el' } @test.assert_raises_error
-json.parse_s { 'falsa' } @test.assert_raises_error
-json.parse_s { 'treu' } @test.assert_raises_error
-json.parse_s { 'nulL' } @test.assert_raises_error
+json.load_s { 'a' } @test.assert_raises_error
+json.load_s { '"\n"' } @test.assert_raises_error
+json.load_s { '"\\v"' } @test.assert_raises_error
+json.load_s { '"abc' } @test.assert_raises_error
+json.load_s { '-' } @test.assert_raises_error
+json.load_s { '05' } @test.assert_raises_error
+json.load_s { '9999999999999999999999999999' } @test.assert_raises_error
+json.load_s { '-.5' } @test.assert_raises_error
+json.load_s { '0.' } @test.assert_raises_error
+json.load_s { '0el' } @test.assert_raises_error
+json.load_s { 'falsa' } @test.assert_raises_error
+json.load_s { 'treu' } @test.assert_raises_error
+json.load_s { 'nulL' } @test.assert_raises_error
+
+>>> (json.load_s { 'nulL' } @test.assert_raises_error)
+
 
 json.OPTIONS.allow_comments @json.set_options
-json.parse_s { '/a' } @test.assert_raises_error
-json.parse_s { '/*' } @test.assert_raises_error
+json.load_s { '/a' } @test.assert_raises_error
+json.load_s { '/*' } @test.assert_raises_error

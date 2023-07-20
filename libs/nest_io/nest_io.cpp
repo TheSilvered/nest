@@ -144,7 +144,7 @@ static usize virtual_iof_write_f(void               *buf,
     return e_count;
 }
 
-static i32 virtual_iof_flush_f(VirtualIOFile_data *f)
+static int virtual_iof_flush_f(VirtualIOFile_data *f)
 {
     if ( f == nullptr )
     {
@@ -179,7 +179,7 @@ static i32 virtual_iof_tell_f(VirtualIOFile_data *f)
     return (i32)f->ptr;
 }
 
-static i32 virtual_iof_seek_f(VirtualIOFile_data *f, i32 offset, i32 start)
+static int virtual_iof_seek_f(VirtualIOFile_data *f, i32 offset, int start)
 {
     if ( f == nullptr )
     {
@@ -210,7 +210,7 @@ static i32 virtual_iof_seek_f(VirtualIOFile_data *f, i32 offset, i32 start)
     return 0;
 }
 
-static i32 virtual_iof_close_f(VirtualIOFile_data *f)
+static int virtual_iof_close_f(VirtualIOFile_data *f)
 {
     if ( f == nullptr )
     {
@@ -799,15 +799,21 @@ Nst_FUNC_SIGN(_set_stderr_)
 
 Nst_FUNC_SIGN(_get_stdin_)
 {
+    (void)arg_num;
+    (void)args;
     return Nst_inc_ref(stdin_obj);
 }
 
 Nst_FUNC_SIGN(_get_stdout_)
 {
+    (void)arg_num;
+    (void)args;
     return Nst_inc_ref(stdout_obj);
 }
 
 Nst_FUNC_SIGN(_get_stderr_)
 {
+    (void)arg_num;
+    (void)args;
     return Nst_inc_ref(stderr_obj);
 }

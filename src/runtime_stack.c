@@ -77,7 +77,7 @@ bool Nst_stack_expand(Nst_GenericStack *g_stack, usize unit_size)
     return true;
 }
 
-bool Nst_vstack_init()
+bool Nst_vstack_init(void)
 {
     return Nst_stack_init(
         (Nst_GenericStack *)&Nst_state.v_stack,
@@ -97,7 +97,7 @@ bool _Nst_vstack_push(Nst_Obj *obj)
     return true;
 }
 
-Nst_Obj *Nst_vstack_pop()
+Nst_Obj *Nst_vstack_pop(void)
 {
     if ( Nst_state.v_stack.current_size == 0 )
     {
@@ -113,7 +113,7 @@ Nst_Obj *Nst_vstack_pop()
     return val;
 }
 
-Nst_Obj *Nst_vstack_peek()
+Nst_Obj *Nst_vstack_peek(void)
 {
     if ( Nst_state.v_stack.current_size == 0 )
     {
@@ -123,7 +123,7 @@ Nst_Obj *Nst_vstack_peek()
     return Nst_state.v_stack.stack[Nst_state.v_stack.current_size - 1];
 }
 
-bool Nst_vstack_dup()
+bool Nst_vstack_dup(void)
 {
     if ( Nst_state.v_stack.current_size != 0 )
     {
@@ -132,7 +132,7 @@ bool Nst_vstack_dup()
     return true;
 }
 
-void Nst_vstack_destroy()
+void Nst_vstack_destroy(void)
 {
     if ( Nst_state.v_stack.stack == NULL )
     {
@@ -150,7 +150,7 @@ void Nst_vstack_destroy()
     Nst_free(Nst_state.v_stack.stack);
 }
 
-bool Nst_fstack_init()
+bool Nst_fstack_init(void)
 {
     return Nst_stack_init(
         (Nst_GenericStack *)&Nst_state.f_stack,
@@ -188,12 +188,14 @@ bool _Nst_fstack_push(Nst_FuncObj  *func,
     return true;
 }
 
-Nst_FuncCall Nst_fstack_pop()
+Nst_FuncCall Nst_fstack_pop(void)
 {
     Nst_FuncCall call = {
         NULL,
         Nst_no_pos(),
         Nst_no_pos(),
+        NULL,
+        0, 0
     };
 
     if ( Nst_state.f_stack.current_size == 0 )
@@ -209,7 +211,7 @@ Nst_FuncCall Nst_fstack_pop()
     return call;
 }
 
-Nst_FuncCall Nst_fstack_peek()
+Nst_FuncCall Nst_fstack_peek(void)
 {
     if ( Nst_state.f_stack.current_size == 0 )
     {
@@ -218,7 +220,7 @@ Nst_FuncCall Nst_fstack_peek()
             Nst_no_pos(),
             Nst_no_pos(),
             NULL,
-            0
+            0, 0
         };
         return ret_val;
     }
@@ -226,7 +228,7 @@ Nst_FuncCall Nst_fstack_peek()
     return Nst_state.f_stack.stack[Nst_state.f_stack.current_size - 1];
 }
 
-void Nst_fstack_destroy()
+void Nst_fstack_destroy(void)
 {
     if ( Nst_state.v_stack.stack == NULL )
     {
@@ -250,7 +252,7 @@ void Nst_fstack_destroy()
     Nst_free(Nst_state.f_stack.stack);
 }
 
-bool Nst_cstack_init()
+bool Nst_cstack_init(void)
 {
     return Nst_stack_init(
         (Nst_GenericStack *)&Nst_state.c_stack,
@@ -273,7 +275,7 @@ bool Nst_cstack_push(Nst_Int inst_idx,
     return true;
 }
 
-Nst_CatchFrame Nst_cstack_peek()
+Nst_CatchFrame Nst_cstack_peek(void)
 {
     if ( Nst_state.c_stack.current_size == 0 )
     {
@@ -284,7 +286,7 @@ Nst_CatchFrame Nst_cstack_peek()
     return Nst_state.c_stack.stack[Nst_state.c_stack.current_size - 1];
 }
 
-Nst_CatchFrame Nst_cstack_pop()
+Nst_CatchFrame Nst_cstack_pop(void)
 {
     Nst_CatchFrame frame = { 0, 0, -1 };
     if ( Nst_state.c_stack.current_size == 0 )
@@ -300,7 +302,7 @@ Nst_CatchFrame Nst_cstack_pop()
     return frame;
 }
 
-void Nst_cstack_destroy()
+void Nst_cstack_destroy(void)
 {
     if ( Nst_state.v_stack.stack == NULL )
     {

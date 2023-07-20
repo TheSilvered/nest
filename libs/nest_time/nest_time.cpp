@@ -120,42 +120,56 @@ static void add_time(Nst_MapObj *map, tm *(*time_func)(const time_t *))
 
 Nst_FUNC_SIGN(time_)
 {
+    (void)arg_num;
+    (void)args;
     return Nst_real_new(duration<Nst_Real>(
         system_clock::now().time_since_epoch()).count());
 }
 
 Nst_FUNC_SIGN(time_ns_)
 {
+    (void)arg_num;
+    (void)args;
     return Nst_int_new(Nst_Int(duration_cast<nanoseconds>(
         system_clock::now().time_since_epoch()).count()));
 }
 
 Nst_FUNC_SIGN(high_res_time_)
 {
+    (void)arg_num;
+    (void)args;
     return Nst_real_new(duration<Nst_Real>(
         high_resolution_clock::now().time_since_epoch()).count());
 }
 
 Nst_FUNC_SIGN(high_res_time_ns_)
 {
+    (void)arg_num;
+    (void)args;
     return Nst_int_new(Nst_Int(duration_cast<nanoseconds>(
         high_resolution_clock::now().time_since_epoch()).count()));
 }
 
 Nst_FUNC_SIGN(monotonic_time_)
 {
+    (void)arg_num;
+    (void)args;
     return Nst_real_new(duration<Nst_Real>(
         steady_clock::now().time_since_epoch()).count());
 }
 
 Nst_FUNC_SIGN(monotonic_time_ns_)
 {
+    (void)arg_num;
+    (void)args;
     return Nst_int_new(Nst_Int(duration_cast<nanoseconds>(
         steady_clock::now().time_since_epoch()).count()));
 }
 
 Nst_FUNC_SIGN(year_day_)
 {
+    (void)arg_num;
+    (void)args;
     time_t raw_time;
     time(&raw_time);
     tm *t = localtime(&raw_time);
@@ -164,6 +178,8 @@ Nst_FUNC_SIGN(year_day_)
 
 Nst_FUNC_SIGN(week_day_)
 {
+    (void)arg_num;
+    (void)args;
     time_t raw_time;
     time(&raw_time);
     tm *t = localtime(&raw_time);
@@ -172,6 +188,8 @@ Nst_FUNC_SIGN(week_day_)
 
 Nst_FUNC_SIGN(day_)
 {
+    (void)arg_num;
+    (void)args;
     time_t raw_time;
     time(&raw_time);
     tm *t = localtime(&raw_time);
@@ -180,6 +198,8 @@ Nst_FUNC_SIGN(day_)
 
 Nst_FUNC_SIGN(month_)
 {
+    (void)arg_num;
+    (void)args;
     time_t raw_time;
     time(&raw_time);
     tm *t = localtime(&raw_time);
@@ -188,6 +208,8 @@ Nst_FUNC_SIGN(month_)
 
 Nst_FUNC_SIGN(year_)
 {
+    (void)arg_num;
+    (void)args;
     time_t raw_time;
     time(&raw_time);
     tm *t = localtime(&raw_time);
@@ -196,6 +218,8 @@ Nst_FUNC_SIGN(year_)
 
 Nst_FUNC_SIGN(date_)
 {
+    (void)arg_num;
+    (void)args;
     Nst_MapObj *map = MAP(Nst_map_new());
     add_date(map, localtime);
     return OBJ(map);
@@ -203,6 +227,8 @@ Nst_FUNC_SIGN(date_)
 
 Nst_FUNC_SIGN(seconds_)
 {
+    (void)arg_num;
+    (void)args;
     time_t raw_time;
     time(&raw_time);
     tm *t = localtime(&raw_time);
@@ -211,6 +237,8 @@ Nst_FUNC_SIGN(seconds_)
 
 Nst_FUNC_SIGN(minutes_)
 {
+    (void)arg_num;
+    (void)args;
     time_t raw_time;
     time(&raw_time);
     tm *t = localtime(&raw_time);
@@ -219,6 +247,8 @@ Nst_FUNC_SIGN(minutes_)
 
 Nst_FUNC_SIGN(hours_)
 {
+    (void)arg_num;
+    (void)args;
     time_t raw_time;
     time(&raw_time);
     tm *t = localtime(&raw_time);
@@ -227,6 +257,8 @@ Nst_FUNC_SIGN(hours_)
 
 Nst_FUNC_SIGN(clock_time_)
 {
+    (void)arg_num;
+    (void)args;
     Nst_MapObj *map = MAP(Nst_map_new());
     add_time(map, localtime);
     return OBJ(map);
@@ -234,6 +266,8 @@ Nst_FUNC_SIGN(clock_time_)
 
 Nst_FUNC_SIGN(gmt_clock_time_)
 {
+    (void)arg_num;
+    (void)args;
     Nst_MapObj *map = MAP(Nst_map_new());
     add_time(map, gmtime);
     return OBJ(map);
@@ -241,6 +275,8 @@ Nst_FUNC_SIGN(gmt_clock_time_)
 
 Nst_FUNC_SIGN(clock_datetime_)
 {
+    (void)arg_num;
+    (void)args;
     Nst_MapObj *map = MAP(Nst_map_new());
     add_date(map, localtime);
     add_time(map, localtime);
@@ -249,6 +285,8 @@ Nst_FUNC_SIGN(clock_datetime_)
 
 Nst_FUNC_SIGN(gmt_clock_datetime_)
 {
+    (void)arg_num;
+    (void)args;
     Nst_MapObj *map = MAP(Nst_map_new());
     add_date(map, gmtime);
     add_time(map, gmtime);

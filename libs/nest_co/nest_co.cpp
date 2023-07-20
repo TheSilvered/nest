@@ -91,6 +91,7 @@ static CoroutineObj *co_c_stack_peek()
 
 static Nst_FUNC_SIGN(generator_start)
 {
+    (void)arg_num;
     Nst_Obj **objs = SEQ(args[0])->objs;
     CoroutineObj *co = (CoroutineObj *)(objs[0]);
 
@@ -132,11 +133,13 @@ static Nst_FUNC_SIGN(generator_start)
 
 static Nst_FUNC_SIGN(generator_is_done)
 {
+    (void)arg_num;
     return Nst_inc_ref(SEQ(args[0])->objs[3]);
 }
 
 static Nst_FUNC_SIGN(generator_get_val)
 {
+    (void)arg_num;
     Nst_Obj *return_ob = Nst_inc_ref(SEQ(args[0])->objs[2]);
 
     CoroutineObj *co = (CoroutineObj *)(SEQ(args[0])->objs[0]);
@@ -473,5 +476,7 @@ Nst_FUNC_SIGN(generator_)
 
 Nst_FUNC_SIGN(_get_co_type_obj_)
 {
+    (void)arg_num;
+    (void)args;
     return Nst_inc_ref(t_Coroutine);
 }

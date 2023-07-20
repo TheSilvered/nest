@@ -66,7 +66,7 @@ NstEXP typedef struct _Nst_MapObj
 Nst_MapObj;
 
 // Creates a new empty map
-NstEXP Nst_Obj *NstC Nst_map_new();
+NstEXP Nst_Obj *NstC Nst_map_new(void);
 NstEXP bool NstC _Nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value);
 NstEXP Nst_Obj *NstC _Nst_map_get(Nst_MapObj *map, Nst_Obj *key);
 NstEXP Nst_Obj *NstC _Nst_map_drop(Nst_MapObj *map, Nst_Obj *key);

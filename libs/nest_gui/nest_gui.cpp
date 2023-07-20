@@ -158,6 +158,8 @@ void remove_focused_element()
 
 Nst_FUNC_SIGN(init_)
 {
+    (void)arg_num;
+    (void)args;
     if ( SDL_WasInit(SDL_INIT_EVERYTHING) == SDL_INIT_EVERYTHING )
     {
         Nst_RETURN_NULL;
@@ -173,6 +175,8 @@ Nst_FUNC_SIGN(init_)
 
 Nst_FUNC_SIGN(loop_)
 {
+    (void)arg_num;
+    (void)args;
     while ( app.keep_open )
     {
         if ( !handle_events(&app) )
@@ -485,7 +489,10 @@ Nst_FUNC_SIGN(set_rel_size_)
     min_h = Nst_DEF_VAL(min_h_obj, AS_INT(min_h_obj), -1);
     max_w = Nst_DEF_VAL(max_w_obj, AS_INT(max_w_obj), -1);
     max_h = Nst_DEF_VAL(max_h_obj, AS_INT(max_h_obj), -1);
-    Nst_Int rsr = Nst_DEF_VAL(rsr_obj, AS_INT(rsr_obj), GUI_RECT_PADDING);
+    Nst_Int rsr = Nst_DEF_VAL(
+        rsr_obj,
+        AS_INT(rsr_obj),
+        (Nst_Int)GUI_RECT_PADDING);
 
     i32 diff_x = 0, diff_y = 0;
     f64 scale_x = 0.0, scale_y = 0.0;
@@ -578,6 +585,8 @@ Nst_FUNC_SIGN(add_child_)
 
 Nst_FUNC_SIGN(get_root_)
 {
+    (void)arg_num;
+    (void)args;
     if ( app.window == nullptr )
     {
         Nst_set_call_error_c("'set_window' must be called before getting the root");

@@ -119,7 +119,7 @@ int main(int argc, char **argv)
 
     Nst_LList *tokens;
     Nst_Error error = { false, Nst_no_pos(), Nst_no_pos(), NULL, NULL };
-    Nst_SourceText src_text = { NULL, NULL, 0 };
+    Nst_SourceText src_text = { NULL, NULL, NULL, 0, 0 };
 
     if ( filename != NULL )
     {

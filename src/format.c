@@ -158,6 +158,7 @@ static isize get_seq_size(const i8 **fmt, va_list *args)
     case 't':
         (*fmt)++;
         int_size = sizeof(ptrdiff_t);
+        break;
     case 'q':
     case 'L': // long double is not supported
     case 'I': // neither are I, I32 and I64
@@ -168,6 +169,7 @@ static isize get_seq_size(const i8 **fmt, va_list *args)
     case 'u':
         if (prepend_sign || prepend_space)
             return -1;
+        [[fallthrough]];
     case 'd':
     case 'i':
         if (int_size == 0 && float_size == 0)
@@ -421,7 +423,7 @@ Nst_Obj *Nst_sprintf(Nst_WIN_FMT const i8 *fmt, ...)
 
 Nst_Obj *Nst_vsprintf(const i8 *fmt, va_list args)
 {
-    usize buf_size = get_max_size_printf(fmt, args);
+    isize buf_size = get_max_size_printf(fmt, args);
     if (buf_size < 0) {
         va_end(args);
         return NULL;

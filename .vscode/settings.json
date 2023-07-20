@@ -20,7 +20,8 @@
         "errno.h": "c",
         "error.h": "c",
         "optional": "c",
-        "system_error": "c"
+        "system_error": "c",
+        "encoding.h": "c"
     },
     "editor.cursorSmoothCaretAnimation": "on",
     "editor.smoothScrolling": true,

@@ -1,7 +1,7 @@
 CC = gcc
-CFLAGS = -I../../../include -Wall -shared -fPIC -rdynamic
+CFLAGS = -I../../../include -Wall -Wextra -Wlogical-op -Wnull-dereference -Wduplicated-cond -Wduplicated-branches -Wshadow -shared -fPIC -rdynamic
 DBG_FLAGS = -D_DEBUG -g -O0
-EXE_NAME = libnest.so
+TARGET_NAME = libnest.so
 
 SRC_DIR = ../../../src
 x64_DIR = ../linux_release/x64
@@ -12,22 +12,33 @@ CLINKS = -lm -ldl
 
 SRCS := $(filter-out $(SRC_DIR)/nest.c, $(wildcard $(SRC_DIR)/*.c))
 HEADERS := $(wildcard $(SRC_DIR)/*.h)
-DBG_TARGET := $(DBG_DIR)/$(EXE_NAME)
-x64_TARGET := $(x64_DIR)/$(EXE_NAME)
-x86_TARGET := $(x86_DIR)/$(EXE_NAME)
+DBG_TARGET := $(DBG_DIR)/$(TARGET_NAME)
+x64_TARGET := $(x64_DIR)/$(TARGET_NAME)
+x86_TARGET := $(x86_DIR)/$(TARGET_NAME)
 
-.PHONY: debug x86
+.PHONY: debug x86 help
 
 $(x64_TARGET): $(SRCS) $(HEADERS)
-	mkdir -p $(x64_DIR)
-	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -O3 -o $(x64_TARGET)
+	@mkdir -p $(x64_DIR)
+	@echo "Compiling $(TARGET_NAME) for x64..."
+	@$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -O3 -o $(x64_TARGET)
 
 x86: $(x86_TARGET);
 $(x86_TARGET): $(SRCS) $(HEADERS)
-	mkdir -p $(x86_DIR)
-	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -O3 -m32 -o $(x86_TARGET)
+	@mkdir -p $(x86_DIR)
+	@echo "Compiling $(TARGET_NAME) for x86..."
+	@$(CC) $(CFLAGS) $(SRCS) $(CLINKS) -O3 -m32 -o $(x86_TARGET)
 
 debug: $(DBG_TARGET);
 $(DBG_TARGET): $(SRCS) $(HEADERS)
-	mkdir -p $(DBG_DIR)
-	$(CC) $(CFLAGS) $(SRCS) $(CLINKS) $(DBG_FLAGS) -o $(DBG_TARGET)
+	@mkdir -p $(DBG_DIR)
+	@echo "Compiling $(TARGET_NAME) in debug mode..."
+	@$(CC) $(CFLAGS) $(SRCS) $(CLINKS) $(DBG_FLAGS) -o $(DBG_TARGET)
+
+help:
+	@echo "libnest.mk help:"
+	@echo "  make -f libnest.mk        compile libnest.so for 64 bit platforms"
+	@echo "  make -f libnest.mk x86    compile libnest.so for 32 bit platforms"
+	@echo "  make -f libnest.mk debug  compile libnest.so with debug symbols"
+	@echo ""
+	@echo "  make -f libnest.mk help   prints this message"

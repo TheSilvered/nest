@@ -35,7 +35,7 @@ void Nst_set_color(bool color)
     use_color = color;
 }
 
-static inline void set_error_stream()
+static inline void set_error_stream(void)
 {
     err_stream = IOFILE(Nst_inc_ref(Nst_io.err));
     if (Nst_IOF_IS_CLOSED(err_stream)) {
@@ -62,15 +62,11 @@ Nst_Pos Nst_copy_pos(Nst_Pos pos)
     return new_pos;
 }
 
-Nst_Pos Nst_no_pos()
+Nst_Pos Nst_no_pos(void)
 {
     Nst_Pos new_pos = { 0, 0, NULL };
     return new_pos;
 }
-
-#ifdef Nst_WIN
-#pragma warning( disable: 4100 )
-#endif // !Nst_WIN
 
 static inline void print_repeat(i8 ch, i32 times)
 {
@@ -472,7 +468,7 @@ void Nst_set_import_error_c(const i8 *msg)
     set_error_c(Nst_s.e_ImportError, msg);
 }
 
-void Nst_failed_allocation()
+void Nst_failed_allocation(void)
 {
     Nst_set_error(
         Nst_inc_ref(Nst_s.e_MemoryError),
@@ -480,17 +476,17 @@ void Nst_failed_allocation()
     );
 }
 
-bool Nst_error_occurred()
+bool Nst_error_occurred(void)
 {
     return global_op_err.name != NULL;
 }
 
-Nst_OpErr *Nst_error_get()
+Nst_OpErr *Nst_error_get(void)
 {
     return &global_op_err;
 }
 
-void Nst_error_clear()
+void Nst_error_clear(void)
 {
     if (Nst_error_occurred()) {
         Nst_dec_ref(global_op_err.name);
@@ -500,7 +496,7 @@ void Nst_error_clear()
     }
 }
 
-bool Nst_traceback_init()
+bool Nst_traceback_init(void)
 {
     Nst_state.traceback.error.start = Nst_no_pos();
     Nst_state.traceback.error.end = Nst_no_pos();
@@ -512,7 +508,7 @@ bool Nst_traceback_init()
     return Nst_state.traceback.positions != NULL;
 }
 
-void Nst_traceback_delete()
+void Nst_traceback_delete(void)
 {
     Nst_llist_destroy(Nst_state.traceback.positions, Nst_free);
     if (Nst_state.traceback.error.name != NULL)

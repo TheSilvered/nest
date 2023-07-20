@@ -32,13 +32,17 @@ io.STDOUT = log_file -- allows tests to be ran singularly
 ]
 
 #assert_cast_error obj type [
+    ?::type Type != ? 'Type Error' !! 'The type argument must be a Type'
     ?? type :: obj ?! _ =>
     type ' :: ' obj ' did not fail' >< @_assertion_failed
 ]
 
 #assert_raises_error func args [
+    ?::func Func != ?
+        'Type Error' !! ('The first argument must be a Func, got type ' \
+                         ?::func ' instead' ><)
     ?? args *@func ?! _ =>
-    'The function did not fail' >< @_assertion_failed
+    'The function did not fail' @_assertion_failed
 ]
 
 #println s [

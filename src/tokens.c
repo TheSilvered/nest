@@ -108,7 +108,7 @@ Nst_TokType Nst_tok_from_str(i8 *str)
         case '}': return Nst_TT_R_BRACE;
         case ',': return Nst_TT_COMMA;
         case '$': return Nst_TT_LEN;
-        default: return (Nst_TokType)-1;
+        default: return Nst_TT_INVALID;
         }
     }
 
@@ -289,7 +289,7 @@ Nst_TokType Nst_tok_from_str(i8 *str)
             }
             break;
         }
-        return (Nst_TokType)-1;
+        return Nst_TT_INVALID;
     }
 
     if ( str[0] == '>' )
@@ -333,7 +333,7 @@ Nst_TokType Nst_tok_from_str(i8 *str)
     {
         if ( str[1] != '.' )
         {
-            return (Nst_TokType)-1;
+            return Nst_TT_INVALID;
         }
         if ( str[2] == '?' )
         {
@@ -359,7 +359,7 @@ Nst_TokType Nst_tok_from_str(i8 *str)
         }
     }
 
-    return (Nst_TokType)-1;
+    return Nst_TT_INVALID;
 }
 
 void Nst_print_tok(Nst_Tok *token)

@@ -291,19 +291,19 @@ NstEXP void NstC Nst_set_call_error_c(const i8 *msg);
 NstEXP void NstC Nst_set_import_error_c(const i8 *msg);
 
 /* Sets the global operation error with a memory error of failed allocation. */
-NstEXP void NstC Nst_failed_allocation();
+NstEXP void NstC Nst_failed_allocation(void);
 
 /* Returns whether the global operation error is set. */
-NstEXP bool NstC Nst_error_occurred();
+NstEXP bool NstC Nst_error_occurred(void);
 /* Returns the global operation error, it does not create a copy. */
-NstEXP Nst_OpErr *NstC Nst_error_get();
+NstEXP Nst_OpErr *NstC Nst_error_get(void);
 /* Clears the global operation error, even if it is not set. */
-NstEXP void NstC Nst_error_clear();
+NstEXP void NstC Nst_error_clear(void);
 
 /* Initializes the traceback of Nst_state. */
-NstEXP bool NstC Nst_traceback_init();
+NstEXP bool NstC Nst_traceback_init(void);
 /* Frees the traceback of Nst_state. */
-NstEXP void NstC Nst_traceback_delete();
+NstEXP void NstC Nst_traceback_delete(void);
 
 #ifdef __cplusplus
 }

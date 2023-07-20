@@ -55,7 +55,7 @@ NstEXP void NstC Nst_llist_append_llnode(Nst_LList *llist, Nst_LLNode *node);
 NstEXP Nst_LLNode *NstC Nst_llist_pop_llnode(Nst_LList *llist);
 
 // Creates a new LList on the heap
-NstEXP Nst_LList *NstC Nst_llist_new();
+NstEXP Nst_LList *NstC Nst_llist_new(void);
 // Creates a new LLNode on the heap
 NstEXP Nst_LLNode *NstC Nst_llnode_new(void *value,
                                   bool  allocated);

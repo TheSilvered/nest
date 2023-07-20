@@ -198,7 +198,7 @@ void Nst_ggc_collect_gen(Nst_GGCList *gen, Nst_GGCList *other_gen1,
     free_obj_memory(&uv);
 }
 
-void Nst_ggc_delete_objs()
+void Nst_ggc_delete_objs(void)
 {
     set_unreachable(&Nst_state.ggc.gen1);
     set_unreachable(&Nst_state.ggc.gen2);
@@ -216,7 +216,7 @@ void Nst_ggc_delete_objs()
     free_obj_memory(&Nst_state.ggc.old_gen);
 }
 
-void Nst_ggc_init()
+void Nst_ggc_init(void)
 {
     Nst_GGCList gen1 = { NULL, NULL, 0 };
     Nst_GGCList gen2 = { NULL, NULL, 0 };
@@ -229,7 +229,7 @@ void Nst_ggc_init()
     Nst_state.ggc.old_gen_pending = 0;
 }
 
-void Nst_ggc_collect()
+void Nst_ggc_collect(void)
 {
     Nst_GarbageCollector *ggc = &Nst_state.ggc;
     usize old_gen_size = ggc->old_gen.size;

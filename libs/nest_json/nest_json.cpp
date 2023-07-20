@@ -140,6 +140,8 @@ Nst_FUNC_SIGN(set_options_)
 
 Nst_FUNC_SIGN(get_options_)
 {
+    (void)arg_num;
+    (void)args;
     Nst_Int val = 0;
     val |= comments        ? 0b01 : 0;
     val |= trailing_commas ? 0b10 : 0;

@@ -74,10 +74,10 @@ NstEXP typedef usize (*Nst_IOFile_write_f)(void  *buf,
                                            usize size,
                                            usize count,
                                            void  *f_value);
-NstEXP typedef i32   (*Nst_IOFile_flush_f)(void *f_value);
+NstEXP typedef int   (*Nst_IOFile_flush_f)(void *f_value);
 NstEXP typedef i32   (*Nst_IOFile_tell_f) (void *f_value);
-NstEXP typedef i32   (*Nst_IOFile_seek_f) (void *f_value, i32 offset, i32 origin);
-NstEXP typedef i32   (*Nst_IOFile_close_f)(void *f_value);
+NstEXP typedef int   (*Nst_IOFile_seek_f) (void *f_value, i32 offset, int origin);
+NstEXP typedef int   (*Nst_IOFile_close_f)(void *f_value);
 
 NstEXP typedef struct _Nst_IOFileObj
 {

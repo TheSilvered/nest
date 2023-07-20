@@ -96,7 +96,7 @@ libraries.
 
 Once you have installed the libraries you can enter `nest/build/linux/makefiles/`
 and run `make help` to see what to compile. In general you will want to run
-`make all`.
+`make all` or `make all-debug`.
 
 After having compiled the C code you can go back to the parent directory
 (`nest/build/linux/`) and run `./_update_files.sh` if you already have a version

@@ -79,10 +79,16 @@ Nst_LList *json_tokenize(i8   *path,
     Nst_SourceText src_text = {
         .text = text,
         .path = path,
-        .len = text_len
+        .lines = nullptr,
+        .len = text_len,
+        .line_count = 0
     };
     Nst_Error error = {
-        .occurred = false
+        .occurred = false,
+        .start = Nst_no_pos(),
+        .end = Nst_no_pos(),
+        .name = nullptr,
+        .message = nullptr
     };
 
     if ( readonly_text )

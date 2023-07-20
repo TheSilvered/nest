@@ -67,27 +67,27 @@ static ParsingState p_state;
 static Nst_LList *tokens;
 static int recursion_lvl = 0;
 
-static inline void skip_blank();
+static inline void skip_blank(void);
 static Nst_Tok *copy_token(Nst_Tok *tok);
 static Nst_Node *fix_expr(Nst_Node *expr);
 
-static Nst_Node *parse_long_statement();
-static Nst_Node *parse_statement();
-static Nst_Node *parse_while_loop();
-static Nst_Node *parse_for_loop();
+static Nst_Node *parse_long_statement(void);
+static Nst_Node *parse_statement(void);
+static Nst_Node *parse_while_loop(void);
+static Nst_Node *parse_for_loop(void);
 static Nst_Node *parse_if_expr(Nst_Node *condition);
-static Nst_Node *parse_switch_statement();
-static Nst_Node *parse_func_def_or_lambda();
+static Nst_Node *parse_switch_statement(void);
+static Nst_Node *parse_func_def_or_lambda(void);
 static Nst_Node *parse_expr(bool break_as_end);
 static Nst_Node *parse_stack_op(Nst_Node *value, Nst_Pos start);
 static Nst_Node *parse_local_stack_op(Nst_LList *nodes, Nst_Pos start);
 static Nst_Node *parse_assignment_name(bool is_compound);
 static Nst_Node *parse_assignment(Nst_Node *value);
-static Nst_Node *parse_extraction();
-static Nst_Node *parse_atom();
-static Nst_Node *parse_vector_literal();
-static Nst_Node *parse_arr_or_map_literal();
-static Nst_Node *parse_try_catch();
+static Nst_Node *parse_extraction(void);
+static Nst_Node *parse_atom(void);
+static Nst_Node *parse_vector_literal(void);
+static Nst_Node *parse_arr_or_map_literal(void);
+static Nst_Node *parse_try_catch(void);
 
 Nst_Node *Nst_parse(Nst_LList *tokens_list, Nst_Error *error)
 {
@@ -118,7 +118,7 @@ Nst_Node *Nst_parse(Nst_LList *tokens_list, Nst_Error *error)
     return node; // NULL if there was an error
 }
 
-static inline void skip_blank()
+static inline void skip_blank(void)
 {
     while ( Nst_TOK(Nst_llist_peek_front(tokens))->type == Nst_TT_ENDL )
     {
@@ -135,7 +135,7 @@ static Nst_Tok *copy_token(Nst_Tok *tok)
         tok->value != NULL ? Nst_inc_ref(tok->value) : NULL);
 }
 
-static Nst_Node *parse_long_statement()
+static Nst_Node *parse_long_statement(void)
 {
     INC_RECURSION_LVL;
     Nst_Node *long_statement_node = Nst_node_new(Nst_NT_LONG_S);
@@ -169,7 +169,7 @@ static Nst_Node *parse_long_statement()
     return long_statement_node;
 }
 
-static Nst_Node *parse_statement()
+static Nst_Node *parse_statement(void)
 {
     INC_RECURSION_LVL;
     skip_blank();
@@ -321,7 +321,7 @@ static Nst_Node *parse_statement()
     }
 }
 
-static Nst_Node *parse_while_loop()
+static Nst_Node *parse_while_loop(void)
 {
     INC_RECURSION_LVL;
     Nst_Tok *tok = Nst_TOK(Nst_llist_pop(tokens));
@@ -372,7 +372,7 @@ static Nst_Node *parse_while_loop()
     return while_l_node;
 }
 
-static Nst_Node *parse_for_loop()
+static Nst_Node *parse_for_loop(void)
 {
     INC_RECURSION_LVL;
     Nst_Tok *tok = Nst_TOK(Nst_llist_pop(tokens));
@@ -466,7 +466,7 @@ static Nst_Node *parse_if_expr(Nst_Node *condition)
     return if_expr_node;
 }
 
-static Nst_Node *parse_switch_statement()
+static Nst_Node *parse_switch_statement(void)
 {
     INC_RECURSION_LVL;
     Nst_Tok *tok = Nst_TOK(Nst_llist_pop(tokens));
@@ -579,7 +579,7 @@ static Nst_Node *parse_switch_statement()
     }
 }
 
-static Nst_Node *parse_func_def_or_lambda()
+static Nst_Node *parse_func_def_or_lambda(void)
 {
     INC_RECURSION_LVL;
     Nst_Tok *tok = Nst_TOK(Nst_llist_pop(tokens));
@@ -1150,7 +1150,7 @@ static Nst_Node *parse_assignment(Nst_Node *value)
     return assignment_node;
 }
 
-static Nst_Node *parse_extraction()
+static Nst_Node *parse_extraction(void)
 {
     INC_RECURSION_LVL;
     Nst_Node *atom = parse_atom();
@@ -1197,7 +1197,7 @@ static Nst_Node *parse_extraction()
     return final_node;
 }
 
-static Nst_Node *parse_atom()
+static Nst_Node *parse_atom(void)
 {
     INC_RECURSION_LVL;
     Nst_Tok *tok = Nst_TOK(Nst_llist_peek_front(tokens));
@@ -1292,7 +1292,7 @@ static Nst_Node *parse_atom()
     }
 }
 
-static Nst_Node *parse_vector_literal()
+static Nst_Node *parse_vector_literal(void)
 {
     INC_RECURSION_LVL;
     Nst_Tok *tok = Nst_TOK(Nst_llist_pop(tokens));
@@ -1368,7 +1368,7 @@ static Nst_Node *parse_vector_literal()
     return vect_node;
 }
 
-static Nst_Node *parse_arr_or_map_literal()
+static Nst_Node *parse_arr_or_map_literal(void)
 {
     INC_RECURSION_LVL;
     Nst_Tok *tok = Nst_TOK(Nst_llist_pop(tokens));
@@ -1507,7 +1507,7 @@ static Nst_Node *parse_arr_or_map_literal()
     }
 }
 
-static Nst_Node *parse_try_catch()
+static Nst_Node *parse_try_catch(void)
 {
     INC_RECURSION_LVL;
     Nst_Tok *tok = Nst_TOK(Nst_llist_pop(tokens));
@@ -1680,7 +1680,7 @@ static void _print_ast(Nst_Node  *node,
 
 void Nst_print_ast(Nst_Node *ast)
 {
-    Nst_LList *is_last = Nst_llist_new(NULL);
+    Nst_LList *is_last = Nst_llist_new();
     if ( is_last == NULL )
     {
         return;

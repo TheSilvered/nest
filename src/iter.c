@@ -4,17 +4,14 @@
 #include "obj_ops.h"
 #include "format.h"
 
-Nst_Obj *Nst_iter_new(Nst_FuncObj *start,
-                      Nst_FuncObj *is_done,
-                      Nst_FuncObj *get_val,
-                      Nst_Obj     *value)
+Nst_Obj *Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *is_done,
+                      Nst_FuncObj *get_val, Nst_Obj *value)
 {
     Nst_IterObj *iter = Nst_obj_alloc(
         Nst_IterObj,
         Nst_t.Iter,
         _Nst_iter_destroy);
-    if ( iter == NULL )
-    {
+    if (iter == NULL) {
         Nst_dec_ref(start);
         Nst_dec_ref(is_done);
         Nst_dec_ref(get_val);
@@ -27,10 +24,10 @@ Nst_Obj *Nst_iter_new(Nst_FuncObj *start,
     iter->get_val = get_val;
     iter->value = value;
 
-    if ( Nst_FLAG_HAS(start,   Nst_FLAG_GGC_IS_SUPPORTED) ||
-         Nst_FLAG_HAS(is_done, Nst_FLAG_GGC_IS_SUPPORTED) ||
-         Nst_FLAG_HAS(get_val, Nst_FLAG_GGC_IS_SUPPORTED) ||
-         Nst_FLAG_HAS(value,   Nst_FLAG_GGC_IS_SUPPORTED) )
+    if (Nst_FLAG_HAS(start, Nst_FLAG_GGC_IS_SUPPORTED)
+        || Nst_FLAG_HAS(is_done, Nst_FLAG_GGC_IS_SUPPORTED)
+        || Nst_FLAG_HAS(get_val, Nst_FLAG_GGC_IS_SUPPORTED)
+        || Nst_FLAG_HAS(value, Nst_FLAG_GGC_IS_SUPPORTED))
     {
         Nst_GGC_OBJ_INIT(iter, _Nst_iter_traverse, _Nst_iter_track);
     }
@@ -48,25 +45,17 @@ void _Nst_iter_destroy(Nst_IterObj *iter)
 
 void _Nst_iter_track(Nst_IterObj* iter)
 {
-    if ( Nst_FLAG_HAS(iter->start, Nst_FLAG_GGC_IS_SUPPORTED) )
-    {
+    if (Nst_FLAG_HAS(iter->start, Nst_FLAG_GGC_IS_SUPPORTED))
         Nst_ggc_track_obj((Nst_GGCObj*)iter->start);
-    }
 
-    if ( Nst_FLAG_HAS(iter->is_done, Nst_FLAG_GGC_IS_SUPPORTED) )
-    {
+    if (Nst_FLAG_HAS(iter->is_done, Nst_FLAG_GGC_IS_SUPPORTED))
         Nst_ggc_track_obj((Nst_GGCObj*)iter->is_done);
-    }
 
-    if ( Nst_FLAG_HAS(iter->get_val, Nst_FLAG_GGC_IS_SUPPORTED) )
-    {
+    if (Nst_FLAG_HAS(iter->get_val, Nst_FLAG_GGC_IS_SUPPORTED))
         Nst_ggc_track_obj((Nst_GGCObj*)iter->get_val);
-    }
 
-    if ( Nst_FLAG_HAS(iter->value, Nst_FLAG_GGC_IS_SUPPORTED) )
-    {
+    if (Nst_FLAG_HAS(iter->value, Nst_FLAG_GGC_IS_SUPPORTED))
         Nst_ggc_track_obj((Nst_GGCObj*)iter->value);
-    }
 }
 
 void _Nst_iter_traverse(Nst_IterObj* iter)
@@ -81,10 +70,8 @@ i32 _Nst_iter_start(Nst_IterObj *iter)
 {
     Nst_Obj *result = Nst_call_func(iter->start, &iter->value);
 
-    if ( result == NULL )
-    {
+    if (result == NULL)
         return -1;
-    }
 
     Nst_dec_ref(result);
     return 0;
@@ -94,18 +81,13 @@ i32 _Nst_iter_is_done(Nst_IterObj *iter)
 {
     Nst_Obj *result = Nst_call_func(iter->is_done, &iter->value);
 
-    if ( result == NULL )
-    {
+    if (result == NULL)
         return -1;
-    }
 
-    if ( Nst_obj_cast(result, Nst_t.Bool) == Nst_c.Bool_true )
-    {
-        Nst_dec_ref(Nst_c.Bool_true);
+    if (Nst_obj_to_bool(result)) {
         Nst_dec_ref(result);
         return 1;
     }
-    Nst_dec_ref(Nst_c.Bool_false);
     Nst_dec_ref(result);
     return 0;
 }
@@ -115,12 +97,9 @@ Nst_Obj *_Nst_iter_get_val(Nst_IterObj *iter)
     return Nst_call_func(iter->get_val, &iter->value);
 }
 
-#ifdef Nst_WIN
-#pragma warning( disable: 4100 )
-#endif // !Nst_WIN
-
 Nst_FUNC_SIGN(Nst_iter_range_start)
 {
+    (void)arg_num;
     Nst_SeqObj *val = SEQ(args[0]);
     AS_INT(val->objs[0]) = AS_INT(val->objs[1]);
     Nst_RETURN_NULL;
@@ -128,24 +107,22 @@ Nst_FUNC_SIGN(Nst_iter_range_start)
 
 Nst_FUNC_SIGN(Nst_iter_range_is_done)
 {
+    (void)arg_num;
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
     Nst_Int idx = AS_INT(objs[0]);
     Nst_Int stop = AS_INT(objs[2]);
     Nst_Int step = AS_INT(objs[3]);
 
-    if ( step > 0 )
-    {
+    if (step > 0)
         Nst_RETURN_COND(idx >= stop);
-    }
     else
-    {
         Nst_RETURN_COND(idx <= stop);
-    }
 }
 
 Nst_FUNC_SIGN(Nst_iter_range_get_val)
 {
+    (void)arg_num;
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj *ob = Nst_int_new(AS_INT(val->objs[0]));
     AS_INT(val->objs[0]) += AS_INT(val->objs[3]);
@@ -154,6 +131,7 @@ Nst_FUNC_SIGN(Nst_iter_range_get_val)
 
 Nst_FUNC_SIGN(Nst_iter_seq_start)
 {
+    (void)arg_num;
     Nst_SeqObj *val = SEQ(args[0]);
     AS_INT(val->objs[0]) = 0;
     Nst_RETURN_NULL;
@@ -161,28 +139,25 @@ Nst_FUNC_SIGN(Nst_iter_seq_start)
 
 Nst_FUNC_SIGN(Nst_iter_seq_is_done)
 {
+    (void)arg_num;
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
     usize seq_len = SEQ(objs[1])->len;
 
-    if ( seq_len == 0 || AS_INT(objs[0]) >= (Nst_Int)seq_len )
-    {
+    if (seq_len == 0 || AS_INT(objs[0]) >= (Nst_Int)seq_len)
         Nst_RETURN_TRUE;
-    }
     else
-    {
         Nst_RETURN_FALSE;
-    }
 }
 
 Nst_FUNC_SIGN(Nst_iter_seq_get_val)
 {
+    (void)arg_num;
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_SeqObj *seq = SEQ(val->objs[1]);
     Nst_Int idx = AS_INT(val->objs[0]);
 
-    if ( (Nst_Int)seq->len < idx )
-    {
+    if ((Nst_Int)seq->len < idx) {
         Nst_set_value_error(Nst_sprintf(
             seq->type == Nst_t.Array ? _Nst_EM_INDEX_OUT_OF_BOUNDS("Array")
                                      : _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector"),
@@ -199,6 +174,7 @@ Nst_FUNC_SIGN(Nst_iter_seq_get_val)
 
 Nst_FUNC_SIGN(Nst_iter_str_start)
 {
+    (void)arg_num;
     Nst_SeqObj *val = SEQ(args[0]);
     AS_INT(val->objs[0]) = 0;
     Nst_RETURN_NULL;
@@ -206,29 +182,26 @@ Nst_FUNC_SIGN(Nst_iter_str_start)
 
 Nst_FUNC_SIGN(Nst_iter_str_is_done)
 {
+    (void)arg_num;
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
     usize str_len = STR(objs[1])->len;
 
-    if ( str_len == 0 || AS_INT(objs[0]) >= (Nst_Int)str_len )
-    {
+    if (str_len == 0 || AS_INT(objs[0]) >= (Nst_Int)str_len)
         Nst_RETURN_TRUE;
-    }
     else
-    {
         Nst_RETURN_FALSE;
-    }
 }
 
 Nst_FUNC_SIGN(Nst_iter_str_get_val)
 {
+    (void)arg_num;
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
     Nst_StrObj *str = STR(objs[1]);
     Nst_Int idx = AS_INT(objs[0]);
 
-    if ( idx >= (Nst_Int)str->len )
-    {
+    if (idx >= (Nst_Int)str->len) {
         Nst_set_value_error(Nst_sprintf(
             _Nst_EM_INDEX_OUT_OF_BOUNDS("Str"),
             idx,

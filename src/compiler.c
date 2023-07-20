@@ -16,14 +16,14 @@
 #define CURR_LEN ((Nst_Int)(c_state.inst_ls->size))
 
 #define ADD_INST(instruction, ...) do {                                       \
-    SET_ERROR_IF_OP_ERR();                                                    \
+    RETURN_IF_OP_ERR();                                                       \
     Nst_llist_append(c_state.inst_ls, instruction, true);                     \
-    SET_ERROR_IF_OP_ERR(Nst_inst_destroy(instruction); __VA_ARGS__);          \
+    RETURN_IF_OP_ERR(Nst_inst_destroy(instruction); __VA_ARGS__);             \
     } while (0)
 
 #define PRINT(str, size) Nst_fwrite(str, sizeof(i8), size, Nst_io.out)
 
-#define SET_ERROR_IF_OP_ERR(...) do {                                         \
+#define RETURN_IF_OP_ERR(...) do {                                            \
     if (Nst_error_occurred()) {                                               \
         _Nst_SET_ERROR_FROM_OP_ERR(c_state.error, node->start, node->end);    \
         __VA_ARGS__                                                           \
@@ -46,12 +46,12 @@ typedef struct _CompilerState {
 
 static CompileState c_state;
 
-static void inc_loop_id()
+static void inc_loop_id(void)
 {
     c_state.loop_id -= 2;
 }
 
-static void dec_loop_id()
+static void dec_loop_id(void)
 {
     c_state.loop_id += 2;
 }
@@ -652,7 +652,7 @@ static void compile_func_declr(Nst_Node *node)
     Nst_FuncObj *func = FUNC(Nst_func_new(
         node->tokens->size - 1,
         inst_list));
-    SET_ERROR_IF_OP_ERR(
+    RETURN_IF_OP_ERR(
         Nst_inst_list_destroy(inst_list);
         c_state.inst_ls = prev_inst_ls;);
     c_state.loop_id = prev_loop_id;
@@ -694,7 +694,7 @@ static void compile_lambda(Nst_Node *node)
     Nst_FuncObj *func = FUNC(Nst_func_new(
         node->tokens->size,
         inst_list));
-    SET_ERROR_IF_OP_ERR(
+    RETURN_IF_OP_ERR(
         Nst_inst_list_destroy(inst_list);
         c_state.inst_ls = prev_inst_ls;);
     c_state.loop_id = prev_loop_id;
@@ -802,7 +802,7 @@ static void compile_comp_op(Nst_Node *node)
     compile_node(HEAD_NODE);
     EXCEPT_ERROR();
     Nst_LList *fix_jumps = Nst_llist_new();
-    SET_ERROR_IF_OP_ERR();
+    RETURN_IF_OP_ERR();
 
     for (Nst_LLNode *n = node->nodes->head->next;
          n->next != NULL;
@@ -821,7 +821,7 @@ static void compile_comp_op(Nst_Node *node)
         inst = Nst_inst_new(Nst_IC_JUMPIF_F, node->start, node->end);
         ADD_INST(inst, Nst_llist_destroy(fix_jumps, NULL););
         Nst_llist_append(fix_jumps, inst, false);
-        SET_ERROR_IF_OP_ERR(Nst_llist_destroy(fix_jumps, NULL););
+        RETURN_IF_OP_ERR(Nst_llist_destroy(fix_jumps, NULL););
         inst = Nst_inst_new(Nst_IC_POP_VAL, node->start, node->end);
         ADD_INST(inst, Nst_llist_destroy(fix_jumps, NULL););
     }
@@ -984,7 +984,7 @@ static void compile_local_stack_op(Nst_Node *node)
         ADD_INST(inst);
         inst = Nst_inst_new_int(
             Nst_IC_OP_CALL,
-            tok_type == Nst_TT_CALL ? node->nodes->size - 1 : -1,
+            tok_type == Nst_TT_CALL ? (i32)(node->nodes->size - 1) : -1,
             node->start, node->end);
         ADD_INST(inst);
         // The function object is popped by the RETURN_VAL instruction
@@ -1272,9 +1272,9 @@ static void compile_unpacking_assign_e(Nst_Node *node, Nst_Pos v_start,
 
     Nst_Inst *inst;
     Nst_LList *nodes = Nst_llist_new();
-    SET_ERROR_IF_OP_ERR();
+    RETURN_IF_OP_ERR();
     Nst_llist_push(nodes, node, false);
-    SET_ERROR_IF_OP_ERR();
+    RETURN_IF_OP_ERR();
 
     while (nodes->size != 0) {
         Nst_Node *curr_node = Nst_NODE(Nst_llist_pop(nodes));
@@ -1288,7 +1288,7 @@ static void compile_unpacking_assign_e(Nst_Node *node, Nst_Pos v_start,
 
             for (Nst_LLIST_ITER(n, curr_node->nodes)) {
                 Nst_llist_append(nodes, n->value, false);
-                SET_ERROR_IF_OP_ERR(Nst_llist_destroy(nodes, NULL););
+                RETURN_IF_OP_ERR(Nst_llist_destroy(nodes, NULL););
             }
 
             // the array literal is guaranteed to have at least one item
@@ -1382,7 +1382,7 @@ static void compile_switch_s(Nst_Node *node)
     Nst_LLNode *prev_body_end = NULL;
     Nst_Node *default_body = NULL;
     Nst_LList *jumps_to_switch_end = Nst_llist_new();
-    SET_ERROR_IF_OP_ERR();
+    RETURN_IF_OP_ERR();
 
     compile_node(HEAD_NODE);
     EXCEPT_ERROR(Nst_llist_destroy(jumps_to_switch_end, NULL););
@@ -1418,7 +1418,7 @@ static void compile_switch_s(Nst_Node *node)
         inst = Nst_inst_new(Nst_IC_JUMP, node->start, node->end);
         ADD_INST(inst, Nst_llist_destroy(jumps_to_switch_end, NULL););
         Nst_llist_append(jumps_to_switch_end, inst, false);
-        SET_ERROR_IF_OP_ERR(Nst_llist_destroy(jumps_to_switch_end, NULL););
+        RETURN_IF_OP_ERR(Nst_llist_destroy(jumps_to_switch_end, NULL););
         jump_body_end->int_val = CURR_LEN;
         Nst_LLNode *body_end = c_state.inst_ls->tail;
 

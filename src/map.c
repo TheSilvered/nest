@@ -10,7 +10,7 @@
 #include "format.h"
 #include "string.h"
 
-Nst_Obj *Nst_map_new()
+Nst_Obj *Nst_map_new(void)
 {
     Nst_MapObj *map = Nst_obj_alloc(
         Nst_MapObj,

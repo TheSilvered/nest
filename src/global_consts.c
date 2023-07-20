@@ -11,7 +11,7 @@ Nst_Consts Nst_c;
 Nst_StdStreams Nst_io;
 Nst_IterFunctions Nst_itf;
 
-static i32 close_std_stream(void *f);
+static int close_std_stream(void *f);
 
 static Nst_StrObj *str_obj_no_err(const i8 *value, Nst_TypeObj *type)
 {
@@ -36,7 +36,7 @@ static Nst_StrObj *str_obj_no_err(const i8 *value, Nst_TypeObj *type)
     return obj;
 }
 
-bool _Nst_init_objects()
+bool _Nst_init_objects(void)
 {
     Nst_t.Type = str_obj_no_err("Type", NULL);
     if (Nst_t.Type == NULL)
@@ -144,7 +144,7 @@ bool _Nst_init_objects()
     return true;
 }
 
-void _Nst_del_objects()
+void _Nst_del_objects(void)
 {
     Nst_ndec_ref(Nst_t.Type);
     Nst_ndec_ref(Nst_t.Int);
@@ -218,32 +218,32 @@ void _Nst_del_objects()
     Nst_ndec_ref(Nst_itf.seq_get_val);
 }
 
-Nst_Obj *Nst_true()
+Nst_Obj *Nst_true(void)
 {
     return Nst_c.Bool_true;
 }
 
-Nst_Obj *Nst_false()
+Nst_Obj *Nst_false(void)
 {
     return Nst_c.Bool_false;
 }
 
-Nst_Obj *Nst_null()
+Nst_Obj *Nst_null(void)
 {
     return Nst_c.Null_null;
 }
 
-const Nst_TypeObjs *Nst_type()
+const Nst_TypeObjs *Nst_type(void)
 {
     return &Nst_t;
 }
 
-const Nst_StrConsts *Nst_str()
+const Nst_StrConsts *Nst_str(void)
 {
     return &Nst_s;
 }
 
-const Nst_Consts *Nst_const()
+const Nst_Consts *Nst_const(void)
 {
     return &Nst_c;
 }
@@ -253,13 +253,13 @@ const Nst_IterFunctions *Nst_iter_func(void)
     return &Nst_itf;
 }
 
-Nst_StdStreams *Nst_stdio()
+Nst_StdStreams *Nst_stdio(void)
 {
     return &Nst_io;
 }
 
-#ifdef Nst_WIN
-#pragma warning( disable: 4100 )
-#endif // !Nst_WIN
-
-static i32 close_std_stream(void *f) { return 0; }
+static int close_std_stream(void *f)
+{
+    (void)f;
+    return 0;
+}

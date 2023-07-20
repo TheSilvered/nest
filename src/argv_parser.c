@@ -242,7 +242,7 @@ i32 _Nst_parse_args(i32 argc, i8 **argv, bool *print_tokens, bool *print_ast,
     return 0;
 }
 
-bool Nst_supports_color()
+bool Nst_supports_color(void)
 {
     return supports_color;
 }
@@ -299,7 +299,7 @@ bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv)
     return true;
 }
 
-void _Nst_set_console_mode()
+void _Nst_set_console_mode(void)
 {
     SetErrorMode(SEM_FAILCRITICALERRORS);
     SetConsoleOutputCP(CP_UTF8);

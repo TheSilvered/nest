@@ -109,7 +109,7 @@ void *Nst_llist_pop(Nst_LList *llist)
     return value;
 }
 
-Nst_LList *Nst_llist_new()
+Nst_LList *Nst_llist_new(void)
 {
     Nst_LList *llist = Nst_malloc_c(1, Nst_LList);
     if ( llist == NULL )

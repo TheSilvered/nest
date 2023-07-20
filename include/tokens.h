@@ -109,6 +109,7 @@ NstEXP typedef enum _Nst_TokenType
     Nst_TT_BREAK,     // - expr-end-w-break end
 
     // other tokens
+
     Nst_TT_EXTRACT,
     Nst_TT_WHILE,
     Nst_TT_DOWHILE,
@@ -117,7 +118,11 @@ NstEXP typedef enum _Nst_TokenType
     Nst_TT_RETURN,
     Nst_TT_SWITCH,
     Nst_TT_CONTINUE,
-    Nst_TT_TRY
+    Nst_TT_TRY,
+
+    // invalid token
+
+    Nst_TT_INVALID
 }
 Nst_TokType;
 

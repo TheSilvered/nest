@@ -1886,7 +1886,7 @@ Nst_Obj *_Nst_obj_stdout(Nst_Obj *ob)
     return Nst_inc_ref(ob);
 }
 
-static inline i8 get_one_char()
+static inline i8 get_one_char(void)
 {
     i8 ch;
     usize chars_read = Nst_fread(&ch, sizeof(i8), 1, Nst_io.in);
@@ -2029,7 +2029,7 @@ static Nst_Obj *import_nest_lib(Nst_StrObj *file_path)
         return NULL;
     }
 
-    Nst_MapObj *map = MAP(Nst_vstack_pop(Nst_state.v_stack));
+    Nst_MapObj *map = MAP(Nst_vstack_pop());
 
     if ( !add_to_handle_map(file_path, map, lib_src) )
     {
@@ -2254,10 +2254,6 @@ Nst_StrObj *_Nst_get_import_path(i8 *initial_path, usize path_len)
     }
     return str;
 }
-
-#ifdef Nst_WIN
-#pragma warning( disable: 4100 )
-#endif // !Nst_WIN
 
 Nst_Obj *_Nst_obj_typeof(Nst_Obj *ob)
 {

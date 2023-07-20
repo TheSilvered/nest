@@ -1,30 +1,8 @@
 # Introduction
 
-## Nomenclature
-
-All functions and global variables start with the prefix `nst_` and use snake
-case. Functions that are prefixed with `_nst_` are used internally and should
-not be used in outside programs. An exception are the functions that have a
-wrapper that implicitly casts the arguments to the correct types.
-
-All structs and enums are redefined as a type that start with the prefix `Nst_`
-and use pascal case. To use the original struct the prefix is `_Nst_`. For
-example `Nst_OpErr` and `struct _Nst_OpErr` are equivalent.
-
-Most macros start with the prefix `NST_` and use uppercase snake case. Macros
-that start with `_NST_`, like functions, are used internally and should not be
-used.  
-The macros that do not start with these prefixes are `OBJ`, `GGC_OBJ`, `AS_INT`,
-`AS_REAL`, `AS_BYTE`, `AS_BOOL`, `STR`, `VECTOR`, `ARRAY`, `SEQ`, `ITER`,
-`IOFILE`, `FUNC` and `MAP` which simply cast a type of object to another. The
-ones beginning with `AS_` also extract the value, this means that
-`AS_INT(num_obj)` will cast `num_obj` to a `Nst_Int`, not a `Nst_IntObj *`.  
-The macros used as include guards also do not start with `NST_`.  
-There are other macros that start with `nst_` and these implicitly cast the
-arguments of a function to the correct type, for example if `map` is of type
-`Nst_Obj *` and `key` of type `Nst_StrObj *` you would have to write
-`_nst_map_get(MAP(map), OBJ(key))` but with the macro you can just call the
-function: `nst_map_get(map, key)`.
+The Nest C API allows you to write C libraries for the Nest Programming
+Language or to use Nest inside your C or C++ program. These documents explain
+all the functions, macros and structs defined inside the library.
 
 ## Type definitions
 
@@ -48,72 +26,278 @@ types inspired by Rust:
 
 ## Code style
 
-- use 4 spaces for indentation, not tabs
-- prefer the types defined in `typedefs.h` over the built-in name but they can
-  be used when the code gives warnings or is harder to read because of casts
-- no line should end with whitespace
-- function definition: return type and name on the same line, arguments possibly
-  on the same line but if it is too long the types may be aligned on new lines
-  with the first type and the name should be aligned with the one following the
-  longest type
+### Line length
+
+Each line can be at most 79 characters long, it can be exceeded only be one
+punctuation character that is not a comment.
+
+```better-c
+/* -------------------- This line is 79 characters long -------------------- */
+                                                                             //
+// This is good                                                              //
+bool res = Nst_translate_cp(                                                 //
+    &Nst_cp_utf8,                                                            //
+    &Nst_cp_utf16,                                                           //
+    (void *)str, len,                                                        //
+    (void **)&out_str, NULL);                                                //
+                                                                             //
+// This is also good                                                         //
+NstEXP bool NstC Nst_translate_cp(Nst_CP *from, Nst_CP *to, void *from_buf,  //
+                                  usize from_len, void **to_buf, usize *to_len);
+                                                                             //
+// This is too long                                                          //
+bool res = Nst_translate_cp(&Nst_cp_utf8, &Nst_cp_utf16, (void *)str, len, (void **)&out_str, NULL);
+```
+
+If the line is too long you can reduce it in various ways:
+
+- put the arguments of a function call on separate lines, though you can put
+  related arguments on the same one
+- put the arguments of a function definition on different lines that are all
+  indented to be aligned with the first argument
+- split the accessing of fields in structs before the dot or the arrow
   ```better-c
-  Nst_LList *nst_tokenizef(i8             *filename,
-                           bool            force_cp1252,
-                           i32            *opt_level,
-                           bool           *no_default,
-                           Nst_SourceText *src_text,
-                           Nst_Error      *error)
-  {
-      ...
-  }
+  // This is good
+  Nst_state.idx = Nst_fstack_peek()
+      .func->body
+      .bytecode->total_size;
+
+  // This is wrong
+  Nst_state.idx = Nst_fstack_peek().
+      func->body.
+      bytecode->total_size;
   ```
-- the asterisk of pointers should have a space only at the left
-- there should be a space in the parenthesis of `if`, `while` and `switch`
-- all binary operators should be surrounded by spaces but they can be omitted
-  to show the lowest priority
-- there should be a space after commas, colons and semicolons if they are not
-  part of a ternary conditional expression
-- all braces (`{` and `}`) should be on their own line and may never be omitted,
-  they keep the indentation of the parent block
-  ```better-c
-  // like this
-  if ( condition_1 || condition_2 )
-  {
-      i32 *ptr = &var;
-  }
+- maybe you have too many operations on one line and you should split them up
 
-  // not like this
-  if (condition_1 || condition_2) {
-      i32 *ptr = &var;
-  }
+### Indentation
 
-  // or this
-  if (condition_1 || condition_2)
-      i32 *ptr = &var;
-  ```
-- the return statement should not contain redundant parenthesis
-- breaking long function or macro calls should happen after the opening
-  parenthesis and the closing parenthesis should be on the same line as the
-  last argument
-  ```better-c
-  // like this
-  nst_string_new(
-      buf,
-      buf_len,
-      true,
-      err);
+Each level of indentation must be of exactly four spaces, not tabs. There is no
+limit to how many levels of indentation you can have.
 
-  // not this
-  nst_string_new(buf,
-                 buf_len,
-                 true,
-                 err);
+### Type names
 
-  // or this
-  nst_string_new(
-      buf,
-      buf_len,
-      true,
-      err
-  );
-  ```
+When there is a corresponding type, use the type definition inside `typedefs.h`.
+You can use built-in types when there are type warnings.
+
+### Function declarations and definitions
+
+The function definition should keep the return type and the function name on
+the same line, the arguments, if they don't fit into the line, can span
+multiple lines and are always indented to the first one.
+
+```better-c
+// This is good
+NstEXP Nst_LList *NstC nst_tokenizef(i8 *filename, bool force_cp1252,
+                                     i32 *opt_level, bool *no_default,
+                                     Nst_SourceText *src_text,
+                                     Nst_Error *error);
+
+// This is wrong
+NstEXP Nst_LList *NstC
+nst_tokenizef(i8 *filename, bool force_cp1252, i32 *opt_level, bool *no_default,
+              Nst_SourceText *src_text, Nst_Error *error);
+
+// This is also wrong
+NstEXP Nst_LList *NstC nst_tokenizef(
+    i8 *filename,
+    bool force_cp1252,
+    i32 *opt_level,
+    bool *no_default,
+    Nst_SourceText *src_text,
+    Nst_Error *error
+);
+```
+
+Furthermore, when implementing the function the curly braces should always
+appear in their own lines.
+
+```better-c
+// This is good
+i8 *Nst_wchar_t_to_char(wchar_t *str, usize len)
+{
+    ...
+}
+
+// This is wrong
+i8 *Nst_wchar_t_to_char(wchar_t *str, usize len) {
+    ...
+}
+```
+
+### Nomenclature
+
+All exported names should begin with either `Nst_` or `_Nst_`, with the
+exception of type casts defined to make the code shorter and more readable.  
+Which one to use depends on whether the function is intended for public or
+internal use.
+
+Macros, aside from `Nst_` and `_Nst_`, should use uppercase with the words
+separated by underscores (Ex. `Nst_RETURN_COND`).
+
+Functions, aside from `Nst_` and `_Nst_`, should use snake case, with lowercase
+words separated by underscores (Ex. `Nst_buffer_expand_by`).
+
+Types (including structs, enums, typedefs and unions), aside from `Nst_` or
+`_Nst_` should use pascal case where each word has its first letter capitalized
+(Ex. `Nst_StrObj`).
+
+When declaring a struct it should always be in this format:
+
+```better-c
+typedef struct _Nst_StructName {
+    ...
+} Nst_StructName;
+```
+
+where `StructName` is the name of the struct. This means that any structure in
+Nest can be accessed using the name of the alias preceded by an underscore:
+`struct _Nst_Obj` and `Nst_Obj` are equivalent.
+
+### Function calls
+
+When calling a functions there should be no whitespace between the name and the
+opening bracket, before the commas separating the arguments or around the
+closing bracket. There should always be one space after the comma.  
+If the line is too long, arguments can be split on multiple lines that end with
+the commas that separate them. The closing bracket and semicolon should be on
+the same line as the last argument. You may put relate arguments on the same
+line, otherwise each argument goes on a separate line.
+
+```better-c
+// This is good
+Nst_calloc_c(_Nst_MAP_MIN_SIZE, Nst_MapNode, NULL);
+
+// This is also good
+bool res = Nst_translate_cp(
+    &Nst_cp_utf8,
+    &Nst_cp_utf16,
+    (void *)str, len,
+    (void **)&out_str, NULL);
+
+// This is wrong
+bool res = Nst_translate_cp(
+    &Nst_cp_utf8,
+    &Nst_cp_utf16,
+    (void *)str, len,
+    (void **)&out_str, NULL
+);
+
+// This is also wrong
+Nst_calloc_c (_Nst_MAP_MIN_SIZE, Nst_MapNode, NULL);
+Nst_calloc_c( _Nst_MAP_MIN_SIZE, Nst_MapNode, NULL );
+Nst_calloc_c(_Nst_MAP_MIN_SIZE , Nst_MapNode , NULL);
+```
+
+### Macros
+
+A macro should always require a semicolon when put on its own line.  
+When defining a macro, if it spans multiple lines the backslashes should be put
+as the last character of the line.  
+If the macro needs to be wrapped inside a `do { ... } while (0)`, the `do {`
+should be in the same line as the name of the macro and `} while (0)` on the
+last line, at the same indentation of the rest of the macro's body using always
+a zero `0` and *not* `false`. The body itself should be ad one level of
+indentation.  
+If the name of the macro with the arguments is too long to fit into one line,
+or the `do {` would exceed the 79 character length, you should consider making
+the macro a function.
+
+```better-c
+// This is good
+#define Nst_OBJ_IS_TRACKED(obj) (GGC_OBJ(obj)->ggc_list != NULL)
+
+// This is also good
+#define Nst_GGC_OBJ_INIT(obj, trav_func, track_function) do {                 \
+    obj->ggc_prev = NULL;                                                     \
+    obj->ggc_next = NULL;                                                     \
+    obj->ggc_list = NULL;                                                     \
+    obj->traverse_func = (void (*)(Nst_Obj *))(trav_func);                    \
+    obj->track_func = (void (*)(Nst_Obj *))(track_function);                  \
+    Nst_FLAG_SET(obj, Nst_FLAG_GGC_IS_SUPPORTED);                             \
+    } while (0)
+
+// This is wrong
+#define Nst_GGC_OBJ_INIT(obj, trav_func, track_function)                      \
+    do {                                                                      \
+        obj->ggc_prev = NULL;                                                 \
+        obj->ggc_next = NULL;                                                 \
+        obj->ggc_list = NULL;                                                 \
+        obj->traverse_func = (void (*)(Nst_Obj *))(trav_func);                \
+        obj->track_func = (void (*)(Nst_Obj *))(track_function);              \
+        Nst_FLAG_SET(obj, Nst_FLAG_GGC_IS_SUPPORTED);                         \
+    } while (0)
+
+#define Nst_GGC_OBJ_INIT(obj, trav_func, track_function) do {                 \
+    obj->ggc_prev = NULL;                                                     \
+    obj->ggc_next = NULL;                                                     \
+    obj->ggc_list = NULL;                                                     \
+    obj->traverse_func = (void (*)(Nst_Obj *))(trav_func);                    \
+    obj->track_func = (void (*)(Nst_Obj *))(track_function);                  \
+    Nst_FLAG_SET(obj, Nst_FLAG_GGC_IS_SUPPORTED);                             \
+    } while (false)
+
+#define Nst_GGC_OBJ_INIT(obj, trav_func, track_function) do { \
+    obj->ggc_prev = NULL; \
+    obj->ggc_next = NULL; \
+    obj->ggc_list = NULL; \
+    obj->traverse_func = (void (*)(Nst_Obj *))(trav_func); \
+    obj->track_func = (void (*)(Nst_Obj *))(track_function); \
+    Nst_FLAG_SET(obj, Nst_FLAG_GGC_IS_SUPPORTED); \
+    } while (0)
+```
+
+### Documenting
+
+The header file should always contain a short description of what the file
+contains and the author in this format.
+
+```better-c
+/**
+ * @file filename.h
+ *
+ * @brief Brief description
+ *
+ * @author Author's name or Github
+ */
+```
+
+Above each public definition there must be an exhaustive description of how the
+thing works and behaves. If one line is sufficient, use C89-style comments.
+Always put a space after `/*` and before `*/`.
+
+```better-c
+/* Nst_CheckBytesFunc for ASCII */
+NstEXP i32 NstC Nst_check_ascii_bytes(u8 *str, usize len);
+```
+
+When the description does not fit into one line but the function is not
+complex, you should use a multi line comment with the following format:
+
+```better-c
+/**
+ * @brief Sets the global operation error creating a string object from the
+ * given message and using "Syntax Error" as the name.
+ */
+NstEXP void NstC Nst_set_syntax_error_c(const i8 *msg);
+```
+
+If the function is more complex you can use a more complete form of
+documentation that explains the parameters, the return value and gives some
+specifications:
+
+```better-c
+/** Compiles the AST.
+ *
+ * @brief Both ast and error are expected to be not NULL.
+ *
+ * @param ast: the AST to compile, will be freed by the function
+ * @param is_module: whether the AST is of an imported module or of the main
+ * file
+ * @param error: the error set if one occurs
+ *
+ * @return The function returns the compiled Nst_InstList or NULL if an error
+ * occurred.
+ */
+NstEXP Nst_InstList *NstC Nst_compile(Nst_Node *ast, bool is_module,
+                                      Nst_Error *error);
+```

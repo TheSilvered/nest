@@ -466,6 +466,7 @@ tests/test_output.txt
 # Other
 *.zip
 *.tar.gz
+.obsidian/
 tests/_test.nest
 docs/prev_docs/
 build/linux/_update_tests.sh

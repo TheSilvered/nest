@@ -743,5 +743,7 @@ Nst_FUNC_SIGN(extension_)
 
 Nst_FUNC_SIGN(_get_copy_options_)
 {
+    (void)arg_num;
+    (void)args;
     return Nst_inc_ref(CPO_);
 }

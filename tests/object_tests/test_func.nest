@@ -70,19 +70,11 @@ global_var 2 @test.assert_eq
 @args_1 null @test.assert_eq
 { 'arg1' } *@args_1 'arg1' @test.assert_eq
 {,} *@args_1 null @test.assert_eq
-{ 'arg1', 'arg2' } args_1 @test.assert_raises_error
-?? [
-    'arg1' 'arg2' @args_1
-    false = failed
-] ?! _ [
-    true = failed
-]
-
-!failed ? 'the function did not fail' @test._assertion_failed
+args_1 { 'arg1', 'arg2' } @test.assert_raises_error
 
 1 2 @args_2 3 @test.assert_eq
 4 5 @args_2 9 @test.assert_eq
-{ 4 } args_2 @test.assert_raises_error
+args_2 { 4 } @test.assert_raises_error
 
 true @nested_return_1 1 @test.assert_eq
 false @nested_return_1 2 @test.assert_eq
@@ -95,4 +87,4 @@ false @nested_return_4 1 @test.assert_eq
 10 @nested_return_5 1 @test.assert_eq
 20 @nested_return_5 2 @test.assert_eq
 @nested_return_5 3 @test.assert_eq
-{,} recursive_func @test.assert_raises_error
+recursive_func {,} @test.assert_raises_error
