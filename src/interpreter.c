@@ -583,13 +583,13 @@ Nst_Obj *Nst_run_func_context(Nst_FuncObj *func, Nst_Int idx, Nst_MapObj *vars,
 
 static i32 exe_no_op(Nst_Inst *inst)
 {
-    (void)inst;
+    Nst_UNUSED(inst);
     return 0;
 }
 
 static i32 exe_pop_val(Nst_Inst *inst)
 {
-    (void)inst;
+    Nst_UNUSED(inst);
     CHECK_V_STACK;
     Nst_Obj *obj = Nst_vstack_pop();
     Nst_dec_ref(obj);
@@ -639,7 +639,7 @@ static i32 exe_for_get_val(Nst_Inst *inst)
 
 static i32 exe_return_val(Nst_Inst *inst)
 {
-    (void)inst;
+    Nst_UNUSED(inst);
     Nst_Obj *result = Nst_vstack_pop();
     Nst_Obj *obj = Nst_vstack_pop();
 
@@ -656,7 +656,7 @@ static i32 exe_return_val(Nst_Inst *inst)
 
 static i32 exe_return_vars(Nst_Inst *inst)
 {
-    (void)inst;
+    Nst_UNUSED(inst);
     Nst_MapObj *vars = Nst_state.vt->vars;
     Nst_Obj *obj = Nst_vstack_pop();
 
@@ -672,7 +672,7 @@ static i32 exe_return_vars(Nst_Inst *inst)
 
 static i32 exe_set_val_loc(Nst_Inst *inst)
 {
-    (void)inst;
+    Nst_UNUSED(inst);
     CHECK_V_STACK;
     Nst_Obj *val = Nst_vstack_pop();
     i32 res = Nst_vt_set(Nst_state.vt, inst->val, val);
@@ -682,7 +682,7 @@ static i32 exe_set_val_loc(Nst_Inst *inst)
 
 static i32 exe_set_cont_loc(Nst_Inst *inst)
 {
-    (void)inst;
+    Nst_UNUSED(inst);
     i32 res = exe_set_cont_val(inst);
     CHECK_V_STACK;
     Nst_vstack_pop();
@@ -743,7 +743,7 @@ static i32 exe_type_check(Nst_Inst *inst)
 
 static i32 exe_hash_check(Nst_Inst *inst)
 {
-    (void)inst;
+    Nst_UNUSED(inst);
     CHECK_V_STACK;
     Nst_Obj *obj = Nst_vstack_peek();
     Nst_obj_hash(obj);
@@ -786,7 +786,7 @@ static i32 exe_push_val(Nst_Inst *inst)
 
 static i32 exe_set_cont_val(Nst_Inst *inst)
 {
-    (void)inst;
+    Nst_UNUSED(inst);
     CHECK_V_STACK_SIZE(3);
     Nst_Obj *idx = Nst_vstack_pop();
     Nst_Obj *cont = Nst_vstack_pop();
@@ -1008,7 +1008,7 @@ static i32 exe_op_call(Nst_Inst *inst)
 
 static i32 exe_op_cast(Nst_Inst *inst)
 {
-    (void)inst;
+    Nst_UNUSED(inst);
     CHECK_V_STACK_SIZE(2);
     Nst_Obj *val = Nst_vstack_pop();
     Nst_Obj *type = Nst_vstack_pop();
@@ -1059,7 +1059,7 @@ static i32 exe_op_range(Nst_Inst *inst)
 
 static i32 exe_throw_err(Nst_Inst *inst)
 {
-    (void)inst;
+    Nst_UNUSED(inst);
     CHECK_V_STACK_SIZE(2);
     Nst_Obj *message = Nst_vstack_pop();
     Nst_Obj *name = Nst_vstack_pop();
@@ -1103,7 +1103,7 @@ static i32 exe_local_op(Nst_Inst *inst)
 
 static i32 exe_op_import(Nst_Inst *inst)
 {
-    (void)inst;
+    Nst_UNUSED(inst);
     CHECK_V_STACK;
     Nst_Obj *name = Nst_vstack_pop();
     Nst_Obj *res = Nst_obj_import(name);
@@ -1119,7 +1119,7 @@ static i32 exe_op_import(Nst_Inst *inst)
 
 static i32 exe_op_extract(Nst_Inst *inst)
 {
-    (void)inst;
+    Nst_UNUSED(inst);
     CHECK_V_STACK_SIZE(2);
     Nst_Obj *idx = Nst_vstack_pop();
     Nst_Obj *cont = Nst_vstack_pop();
@@ -1187,7 +1187,7 @@ end:
 
 static i32 exe_dec_int(Nst_Inst *inst)
 {
-    (void)inst;
+    Nst_UNUSED(inst);
     CHECK_V_STACK;
     Nst_Obj *obj = Nst_vstack_peek();
     AS_INT(obj) -= 1;
@@ -1196,7 +1196,7 @@ static i32 exe_dec_int(Nst_Inst *inst)
 
 static i32 exe_new_obj(Nst_Inst *inst)
 {
-    (void)inst;
+    Nst_UNUSED(inst);
     CHECK_V_STACK;
     Nst_Obj *obj = Nst_vstack_peek();
     Nst_Obj *new_obj = Nst_int_new(AS_INT(obj));
@@ -1209,7 +1209,7 @@ static i32 exe_new_obj(Nst_Inst *inst)
 
 static i32 exe_dup(Nst_Inst *inst)
 {
-    (void)inst;
+    Nst_UNUSED(inst);
     CHECK_V_STACK;
     Nst_vstack_push(Nst_vstack_peek());
     return 0;
@@ -1316,14 +1316,14 @@ static i32 exe_push_catch(Nst_Inst *inst)
 
 static i32 exe_pop_catch(Nst_Inst *inst)
 {
-    (void)inst;
+    Nst_UNUSED(inst);
     Nst_cstack_pop();
     return 0;
 }
 
 static i32 exe_save_error(Nst_Inst *inst)
 {
-    (void)inst;
+    Nst_UNUSED(inst);
     assert(GLOBAL_ERROR->occurred);
 
     Nst_Obj *err_map = Nst_map_new();
@@ -1454,7 +1454,7 @@ usize Nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part)
     i8 *result = realpath(file_path, path);
 
     if (result == NULL) {
-        free(path);
+        Nst_free(path);
         return 0;
     }
 

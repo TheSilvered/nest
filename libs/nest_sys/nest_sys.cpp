@@ -159,26 +159,26 @@ Nst_FUNC_SIGN(getenv_)
 
 Nst_FUNC_SIGN(get_ref_count_)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     return Nst_int_new(args[0]->ref_count);
 }
 
 Nst_FUNC_SIGN(get_addr_)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     return Nst_int_new((usize)args[0]);
 }
 
 Nst_FUNC_SIGN(hash_)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     return Nst_int_new(Nst_obj_hash(args[0]));
 }
 
 Nst_FUNC_SIGN(endianness_)
 {
-    (void)arg_num;
-    (void)args;
+    Nst_UNUSED(arg_num);
+    Nst_UNUSED(args);
 #if Nst_ENDIANNESS == Nst_BIG_ENDIAN
     return Nst_string_new_c("big", 3, false);
 #elif Nst_ENDIANNESS == Nst_LITTLE_ENDIAN
@@ -188,8 +188,8 @@ Nst_FUNC_SIGN(endianness_)
 
 Nst_FUNC_SIGN(_get_color_)
 {
-    (void)arg_num;
-    (void)args;
+    Nst_UNUSED(arg_num);
+    Nst_UNUSED(args);
     Nst_RETURN_COND(Nst_supports_color());
 }
 
@@ -224,8 +224,8 @@ Nst_FUNC_SIGN(_set_cwd_)
 
 Nst_FUNC_SIGN(_get_cwd_)
 {
-    (void)arg_num;
-    (void)args;
+    Nst_UNUSED(arg_num);
+    Nst_UNUSED(args);
 #ifdef Nst_WIN
     wchar_t *cwd = Nst_malloc_c(PATH_MAX, wchar_t);
     if ( cwd == nullptr )
@@ -267,15 +267,15 @@ Nst_FUNC_SIGN(_get_cwd_)
 
 Nst_FUNC_SIGN(_get_version_)
 {
-    (void)arg_num;
-    (void)args;
+    Nst_UNUSED(arg_num);
+    Nst_UNUSED(args);
     return Nst_inc_ref(version_obj);
 }
 
 Nst_FUNC_SIGN(_get_platform_)
 {
-    (void)arg_num;
-    (void)args;
+    Nst_UNUSED(arg_num);
+    Nst_UNUSED(args);
     return Nst_inc_ref(platform_obj);
 }
 

@@ -46,8 +46,8 @@ Nst_DeclrList *get_func_ptrs()
 
 Nst_FUNC_SIGN(random_)
 {
-    (void)arg_num;
-    (void)args;
+    Nst_UNUSED(arg_num);
+    Nst_UNUSED(args);
     return Nst_int_new(rand_num());
 }
 
@@ -69,8 +69,8 @@ Nst_FUNC_SIGN(rand_int_)
 
 Nst_FUNC_SIGN(rand_perc_)
 {
-    (void)arg_num;
-    (void)args;
+    Nst_UNUSED(arg_num);
+    Nst_UNUSED(args);
     return Nst_real_new(f64(i64(rand_num())) / f64(ULLONG_MAX));
 }
 

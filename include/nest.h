@@ -1,4 +1,10 @@
-/* All necessary header files */
+/**
+ * @file nest.h
+ *
+ * @brief Header files and Nst_VERSION definition.
+ *
+ * @author TheSilvered
+ */
 
 #ifndef NEST_H
 #define NEST_H

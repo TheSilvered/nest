@@ -138,7 +138,8 @@ NstEXP isize NstC Nst_fprintln(Nst_IOFileObj *f, const i8 *buf);
 
 /** Prints a formatted string to the Nest standard output.
  *
- * @brief buf is assumed to be not NULL.
+ * @brief buf is assumed to be not NULL. Check the full format documentation in
+ * format.h.
  *
  * @param fmt: the format placeholder, check the format placeholder
  * specification in format.h for more details
@@ -153,7 +154,8 @@ NstEXP isize NstC Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
                              Nst_GNU_FMT(1, 2);
 /** Prints a formatted string to a Nest file object.
  *
- * @brief buf and f are assumed to be not NULL.
+ * @brief buf and f are assumed to be not NULL. Check the full format
+ * documentation in format.h.
  *
  * @param f: the file to print the string to
  * @param fmt: the format placeholder, check the format placeholder
@@ -167,7 +169,7 @@ NstEXP isize NstC Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
  */
 NstEXP isize NstC Nst_fprintf(Nst_IOFileObj *f, Nst_WIN_FMT const i8 *fmt, ...)
                                                 Nst_GNU_FMT(2, 3);
-/* va_list variant of Nst_frprintf */
+/* va_list variant of Nst_fprintf */
 NstEXP isize NstC Nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args);
 
 /** Creates a Nest string object from a format placeholder.

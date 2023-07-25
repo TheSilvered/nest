@@ -1,19 +1,27 @@
-/* Nodes of the AST */
+/**
+ * @file nodes.h
+ *
+ * @brief Nodes of the AST.
+ *
+ * @author TheSilvered
+ */
 
 #ifndef NODES_H
 #define NODES_H
 
 #include "error.h"
 
+/* Casts expr to Nst_Node *. */
 #define Nst_NODE(expr) ((Nst_Node *)(expr))
+/* Evaluates to true if the specified node type returns a value. */
 #define Nst_NODE_RETUNS_VALUE(node_type) (node_type >= Nst_NT_STACK_OP)
 
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
-NstEXP typedef enum _Nst_NodeType
-{
+/* The types of nodes in the AST. */
+NstEXP typedef enum _Nst_NodeType {
     Nst_NT_LONG_S,
     Nst_NT_WHILE_L,
     Nst_NT_DOWHILE_L,
@@ -40,27 +48,48 @@ NstEXP typedef enum _Nst_NodeType
     Nst_NT_ASSIGN_E,
     Nst_NT_IF_E,
     Nst_NT_LAMBDA
-}
-Nst_NodeType;
+} Nst_NodeType;
 
-NstEXP typedef struct _Nst_Node
-{
+/** A structure representing a node.
+ *
+ * @param start: the starting position of the node
+ * @param end: the ending position of the node
+ * @param type: the type of the node
+ * @param nodes: the child nodes of the node
+ * @param tokens: the tokens that the node contains
+ */
+NstEXP typedef struct _Nst_Node {
     Nst_Pos start;
     Nst_Pos end;
     Nst_NodeType type;
     Nst_LList *nodes;
     Nst_LList *tokens;
-}
-Nst_Node;
+} Nst_Node;
 
-// New node on the heap
+/** Creates and initializes a new AST node on the heap.
+ *
+ * @brief Though the position is not in the arguments, its position should be
+ * set later with Nst_node_set_pos.
+ *
+ * @param type: the type of the node to initialize
+ *
+ * @return The new node or NULL on failure. The error is set.
+ */
 NstEXP Nst_Node *NstC Nst_node_new(Nst_NodeType type);
-// New node on the heap with a position
+/** Creates and initializes a new AST node on the heap.
+ *
+ *
+ * @param type: the type of the node to initialize
+ * @param start: the start position of the node
+ * @param end: the end position of the node
+ *
+ * @return The new node or NULL on failure. The error is set.
+ */
 NstEXP Nst_Node *NstC Nst_node_new_pos(Nst_NodeType type, Nst_Pos start,
                                        Nst_Pos end);
-// Sets the position of a node
+/* Sets the position of a node. */
 NstEXP void NstC Nst_node_set_pos(Nst_Node *node, Nst_Pos start, Nst_Pos end);
-// Destroy a token and its children
+/* Destroys a token and its children. */
 NstEXP void NstC Nst_node_destroy(Nst_Node *node);
 
 #ifdef __cplusplus

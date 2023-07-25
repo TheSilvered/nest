@@ -71,6 +71,16 @@ Nst_Obj *Nst_string_new(i8 *val, usize len, bool allocated)
     return OBJ(str);
 }
 
+NstEXP Nst_Obj *Nst_string_new_allocated(i8 *val, usize len)
+{
+    Nst_Obj *str = Nst_string_new(val, len, true);
+    if (str == NULL) {
+        Nst_free(val);
+        return NULL;
+    }
+    return str;
+}
+
 Nst_TypeObj *Nst_type_new(const i8 *val, usize len)
 {
     Nst_TypeObj *str = Nst_obj_alloc(
@@ -98,7 +108,7 @@ Nst_Obj *_Nst_string_copy(Nst_StrObj *src)
 
     strcpy(buffer, src->value);
 
-    Nst_RETURN_NEW_STR(buffer, src->len);
+    return Nst_string_new_allocated(buffer, src->len);
 }
 
 static i32 is_unicode_escape(u8 b1, u8 b2)
@@ -252,7 +262,7 @@ Nst_Obj *_Nst_string_repr(Nst_StrObj *src)
     new_str[new_size - 1] = using_doub ? '"' : '\'';
     new_str[new_size] = 0;
 
-    Nst_RETURN_NEW_STR(new_str, new_size);
+    return Nst_string_new_allocated(new_str, new_size);
 }
 
 Nst_Obj *_Nst_string_get(Nst_StrObj *str, i64 idx)
@@ -280,7 +290,7 @@ Nst_Obj *_Nst_string_get(Nst_StrObj *str, i64 idx)
     ch[0] = str->value[idx];
     ch[1] = 0;
 
-    Nst_RETURN_NEW_STR(ch, 1);
+    return Nst_string_new_allocated(ch, 1);
 }
 
 void _Nst_string_destroy(Nst_StrObj *str)

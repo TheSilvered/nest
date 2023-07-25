@@ -56,7 +56,6 @@
 #define Nst_LITTLE_ENDIAN 4321
 #define Nst_BIG_ENDIAN 1234
 
-
 #ifndef Nst_ENDIANNESS
   #ifdef Nst_WIN
     #define Nst_ENDIANNESS Nst_LITTLE_ENDIAN
@@ -84,6 +83,12 @@
 #else
   #define NstC
 #endif // !NstC
+
+#ifdef Nst_UNUSED
+#undef Nst_UNUSED
+#endif
+
+#define Nst_UNUSED(v) (void)(v)
 
 #ifdef __cplusplus
 extern "C" {

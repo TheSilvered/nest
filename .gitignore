@@ -457,19 +457,20 @@ linux_debug/
 linux_libs/
 linux_archives/
 
-#MkDocs build
+# MkDocs build & other documentation-related things
 site/
+.obsidian/
+docs/prev_docs/
 
 # Test output
 tests/test_output.txt
+tests/_test.nest
 
-# Other
+# Archives
 *.zip
 *.tar.gz
-.obsidian/
-tests/_test.nest
-docs/prev_docs/
-build/linux/_update_tests.sh
 
+# Other
+build/linux/_update_tests.sh
 !libs/nest_gui/SDL2/lib/**/*.dll
 !libs/nest_gui/SDL2/lib/**/*.lib

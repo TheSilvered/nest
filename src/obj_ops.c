@@ -458,7 +458,7 @@ Nst_Obj *_Nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2)
     else if ( ob1->type == Nst_t.Map )
     {
         Nst_Obj *res = Nst_map_drop(ob1, ob2);
-        if ( res == NULL )
+        if ( res == NULL && ob2->hash == -1 )
         {
             Nst_set_type_error(Nst_sprintf(
                 _Nst_EM_UNHASHABLE_TYPE,
@@ -466,7 +466,7 @@ Nst_Obj *_Nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2)
             return NULL;
         }
 
-        Nst_dec_ref(res);
+        Nst_ndec_ref(res);
         return Nst_inc_ref(ob1);
     }
     else if ( ARE_TYPE(Nst_t.Byte) )
@@ -1054,7 +1054,7 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
         i8 *buffer = Nst_malloc_c(MAX_INT_CHAR_COUNT, i8);
         CHECK_BUFFER(buffer);
         i32 len = sprintf(buffer, "%lli", AS_INT(ob));
-        Nst_RETURN_NEW_STR(buffer, len);
+        return Nst_string_new_allocated(buffer, len);
     }
     else if ( ob_t == Nst_t.Real )
     {
@@ -1065,13 +1065,13 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
         {
             if ( buffer[i] == '.' || buffer[i] == 'e' )
             {
-                Nst_RETURN_NEW_STR(buffer, len);
+                return Nst_string_new_allocated(buffer, len);
             }
         }
         buffer[len++] = '.';
         buffer[len++] = '0';
         buffer[len] = '\0';
-        Nst_RETURN_NEW_STR(buffer, len);
+        return Nst_string_new_allocated(buffer, len);
     }
     else if ( ob_t == Nst_t.Bool )
     {
@@ -1147,7 +1147,7 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
         i8 *str = Nst_calloc_c(2, i8, NULL);
         CHECK_BUFFER(str);
         str[0] = AS_BYTE(ob);
-        Nst_RETURN_NEW_STR(str, 1);
+        return Nst_string_new_allocated(str, 1);
     }
     else if ( ob_t == Nst_t.Array || ob_t == Nst_t.Vector )
     {
@@ -1183,7 +1183,7 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
         if ( Nst_IOF_CAN_READ(ob) )  buffer[8] = 'r';
         if ( Nst_IOF_CAN_WRITE(ob) ) buffer[9] = 'w';
         if ( Nst_IOF_IS_BIN(ob) )    buffer[10]= 'b';
-        Nst_RETURN_NEW_STR(buffer, 13);
+        return Nst_string_new_allocated(buffer, 13);
     }
     else if ( ob_t == Nst_t.Func )
     {
@@ -1198,7 +1198,7 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
         }
         else
             len = sprintf(buffer, "<Func %zi args>", FUNC(ob)->arg_num);
-        Nst_RETURN_NEW_STR(buffer, len);
+        return Nst_string_new_allocated(buffer, len);
     }
     else
     {
@@ -1212,7 +1212,7 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
             STR(ob->type)->value,
             (int)sizeof(usize) * 2,
             (usize)ob);
-        Nst_RETURN_NEW_STR(buffer, len);
+        return Nst_string_new_allocated(buffer, len);
     }
 }
 

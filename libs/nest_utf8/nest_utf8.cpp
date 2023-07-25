@@ -35,7 +35,7 @@ Nst_DeclrList *get_func_ptrs()
 
 Nst_FUNC_SIGN(utf8_iter_start)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     AS_INT(objs[0]) = 0;
     Nst_RETURN_NULL;
@@ -43,14 +43,14 @@ Nst_FUNC_SIGN(utf8_iter_start)
 
 Nst_FUNC_SIGN(utf8_iter_is_done)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     Nst_RETURN_COND((usize)AS_INT(objs[0]) >= STR(objs[1])->len);
 }
 
 Nst_FUNC_SIGN(utf8_iter_get_val)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     Nst_IntObj *idx = (Nst_IntObj *)objs[0];
     Nst_StrObj *str = (Nst_StrObj *)objs[1];

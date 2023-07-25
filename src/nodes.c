@@ -7,18 +7,15 @@ Nst_Node *Nst_node_new(Nst_NodeType type)
 {
     Nst_Node *node = Nst_malloc_c(1, Nst_Node);
     Nst_LList *lists = Nst_malloc_c(2, Nst_LList);
-    if ( node == NULL || lists == NULL )
-    {
-        if ( node ) Nst_free(node);
-        if ( lists ) Nst_free(lists);
+    if (node == NULL || lists == NULL) {
+        if (node)
+            Nst_free(node);
+        if (lists)
+            Nst_free(lists);
         return NULL;
     }
-    lists[0].head = NULL;
-    lists[0].tail = NULL;
-    lists[0].size = 0;
-    lists[1].head = NULL;
-    lists[1].tail = NULL;
-    lists[1].size = 0;
+    Nst_llist_init(&lists[0]);
+    Nst_llist_init(&lists[1]);
 
     node->start = Nst_no_pos();
     node->end = Nst_no_pos();
@@ -28,15 +25,11 @@ Nst_Node *Nst_node_new(Nst_NodeType type)
     return node;
 }
 
-Nst_Node *Nst_node_new_pos(Nst_NodeType type,
-                           Nst_Pos start,
-                           Nst_Pos end)
+Nst_Node *Nst_node_new_pos(Nst_NodeType type, Nst_Pos start, Nst_Pos end)
 {
     Nst_Node *node = Nst_node_new(type);
-    if ( node == NULL )
-    {
+    if (node == NULL)
         return NULL;
-    }
     Nst_node_set_pos(node, start, end);
     return node;
 }
@@ -49,10 +42,8 @@ void Nst_node_set_pos(Nst_Node *node, Nst_Pos start, Nst_Pos end)
 
 void Nst_node_destroy(Nst_Node *node)
 {
-    if ( node == NULL )
-    {
+    if (node == NULL)
         return;
-    }
 
     Nst_llist_empty(node->tokens, (Nst_LListDestructor)Nst_token_destroy);
     Nst_llist_empty(node->nodes, (Nst_LListDestructor)Nst_node_destroy);

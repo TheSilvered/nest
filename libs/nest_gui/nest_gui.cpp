@@ -158,8 +158,8 @@ void remove_focused_element()
 
 Nst_FUNC_SIGN(init_)
 {
-    (void)arg_num;
-    (void)args;
+    Nst_UNUSED(arg_num);
+    Nst_UNUSED(args);
     if ( SDL_WasInit(SDL_INIT_EVERYTHING) == SDL_INIT_EVERYTHING )
     {
         Nst_RETURN_NULL;
@@ -175,8 +175,8 @@ Nst_FUNC_SIGN(init_)
 
 Nst_FUNC_SIGN(loop_)
 {
-    (void)arg_num;
-    (void)args;
+    Nst_UNUSED(arg_num);
+    Nst_UNUSED(args);
     while ( app.keep_open )
     {
         if ( !handle_events(&app) )
@@ -585,8 +585,8 @@ Nst_FUNC_SIGN(add_child_)
 
 Nst_FUNC_SIGN(get_root_)
 {
-    (void)arg_num;
-    (void)args;
+    Nst_UNUSED(arg_num);
+    Nst_UNUSED(args);
     if ( app.window == nullptr )
     {
         Nst_set_call_error_c("'set_window' must be called before getting the root");

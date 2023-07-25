@@ -82,6 +82,9 @@ Functions that are guaranteed to not return an error:
 // operator |#|
 #define Nst_obj_import(ob) _Nst_obj_import(OBJ(ob))
 
+#define Nst_obj_eq_c(ob1, ob2) _Nst_obj_to_bool(Nst_obj_eq(ob1, ob2))
+#define Nst_obj_ne_c(ob1, ob2) _Nst_obj_to_bool(Nst_obj_ne(ob1, ob2))
+
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus

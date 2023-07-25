@@ -99,7 +99,7 @@ Nst_Obj *_Nst_iter_get_val(Nst_IterObj *iter)
 
 Nst_FUNC_SIGN(Nst_iter_range_start)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_SeqObj *val = SEQ(args[0]);
     AS_INT(val->objs[0]) = AS_INT(val->objs[1]);
     Nst_RETURN_NULL;
@@ -107,7 +107,7 @@ Nst_FUNC_SIGN(Nst_iter_range_start)
 
 Nst_FUNC_SIGN(Nst_iter_range_is_done)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
     Nst_Int idx = AS_INT(objs[0]);
@@ -122,7 +122,7 @@ Nst_FUNC_SIGN(Nst_iter_range_is_done)
 
 Nst_FUNC_SIGN(Nst_iter_range_get_val)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj *ob = Nst_int_new(AS_INT(val->objs[0]));
     AS_INT(val->objs[0]) += AS_INT(val->objs[3]);
@@ -131,7 +131,7 @@ Nst_FUNC_SIGN(Nst_iter_range_get_val)
 
 Nst_FUNC_SIGN(Nst_iter_seq_start)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_SeqObj *val = SEQ(args[0]);
     AS_INT(val->objs[0]) = 0;
     Nst_RETURN_NULL;
@@ -139,7 +139,7 @@ Nst_FUNC_SIGN(Nst_iter_seq_start)
 
 Nst_FUNC_SIGN(Nst_iter_seq_is_done)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
     usize seq_len = SEQ(objs[1])->len;
@@ -152,7 +152,7 @@ Nst_FUNC_SIGN(Nst_iter_seq_is_done)
 
 Nst_FUNC_SIGN(Nst_iter_seq_get_val)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_SeqObj *seq = SEQ(val->objs[1]);
     Nst_Int idx = AS_INT(val->objs[0]);
@@ -174,7 +174,7 @@ Nst_FUNC_SIGN(Nst_iter_seq_get_val)
 
 Nst_FUNC_SIGN(Nst_iter_str_start)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_SeqObj *val = SEQ(args[0]);
     AS_INT(val->objs[0]) = 0;
     Nst_RETURN_NULL;
@@ -182,7 +182,7 @@ Nst_FUNC_SIGN(Nst_iter_str_start)
 
 Nst_FUNC_SIGN(Nst_iter_str_is_done)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
     usize str_len = STR(objs[1])->len;
@@ -195,7 +195,7 @@ Nst_FUNC_SIGN(Nst_iter_str_is_done)
 
 Nst_FUNC_SIGN(Nst_iter_str_get_val)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
     Nst_StrObj *str = STR(objs[1]);

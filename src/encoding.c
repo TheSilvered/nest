@@ -192,7 +192,7 @@ Nst_CP Nst_cp_iso8859_1 = {
 
 i32 Nst_check_ascii_bytes(u8 *str, usize len)
 {
-    (void)len;
+    Nst_UNUSED(len);
     return *str <= 0x7f ? 1 : -1;
 }
 
@@ -413,8 +413,8 @@ i32 Nst_utf16le_from_utf32(u32 ch, u8 *str)
 
 i32 Nst_check_utf32_bytes(u32 *str, usize len)
 {
-    (void)str;
-    (void)len;
+    Nst_UNUSED(str);
+    Nst_UNUSED(len);
     return 1;
 }
 
@@ -431,7 +431,7 @@ i32 Nst_utf32_from_utf32(u32 ch, u32 *str)
 
 i32 Nst_check_utf32be_bytes(u8 *str, usize len)
 {
-    (void)str;
+    Nst_UNUSED(str);
     if (len < 4)
         return -1;
     return 4;
@@ -453,7 +453,7 @@ i32 Nst_utf32be_from_utf32(u32 ch, u8 *str)
 
 i32 Nst_check_utf32le_bytes(u8 *str, usize len)
 {
-    (void)str;
+    Nst_UNUSED(str);
     if (len < 4)
         return -1;
     return 4;
@@ -475,7 +475,7 @@ i32 Nst_utf32le_from_utf32(u32 ch, u8 *str)
 
 i32 Nst_check_1250_bytes(u8 *str, usize len)
 {
-    (void)len;
+    Nst_UNUSED(len);
     u8 ch = *str;
     if (ch == 0x81 || ch == 0x83 || ch == 0x88 || ch == 0x90 || ch == 0x98)
         return 1;
@@ -594,7 +594,7 @@ i32 Nst_1250_from_utf32(u32 ch, u8 *str)
 }
 i32 Nst_check_1251_bytes(u8 *str, usize len)
 {
-    (void)len;
+    Nst_UNUSED(len);
     return *str == 0x89 ? -1 : 1;
 }
 
@@ -726,7 +726,7 @@ i32 Nst_1251_from_utf32(u32 ch, u8 *str)
 
 i32 Nst_check_1252_bytes(u8 *str, usize len)
 {
-    (void)len;
+    Nst_UNUSED(len);
     u8 ch = *str;
     if (ch == 0x81 || ch == 0x8d || ch == 0x8f || ch == 0x90 || ch == 0x9d)
         return -1;
@@ -781,7 +781,7 @@ i32 Nst_1252_from_utf32(u32 ch, u8 *str)
 
 i32 Nst_check_1253_bytes(u8 *str, usize len)
 {
-    (void)len;
+    Nst_UNUSED(len);
     u8 ch = *str;
     if (ch == 0x81 || ch == 0x88 || ch == 0x8a || ch == 0x8c || ch == 0x8d
         || ch == 0x8e || ch == 0x8f || ch == 0x90 || ch == 0x98 || ch == 0x9a
@@ -904,7 +904,7 @@ i32 Nst_1253_from_utf32(u32 ch, u8 *str)
 }
 i32 Nst_check_1254_bytes(u8 *str, usize len)
 {
-    (void)len;
+    Nst_UNUSED(len);
     u8 ch = *str;
     if (ch == 0x81 || ch == 0x8d || ch == 0x8e || ch == 0x8f || ch == 0x90
         || ch == 0x9d || ch == 0x9e)
@@ -974,7 +974,7 @@ i32 Nst_1254_from_utf32(u32 ch, u8 *str)
 }
 i32 Nst_check_1255_bytes(u8 *str, usize len)
 {
-    (void)len;
+    Nst_UNUSED(len);
     u8 ch = *str;
     if (ch == 0x81 || ch == 0x8a || ch == 0x8c || ch == 0x8d || ch == 0x8e
         || ch == 0x8f || ch == 0x90 || ch == 0x9a || ch == 0x9c || ch == 0x9d
@@ -1092,8 +1092,8 @@ i32 Nst_1255_from_utf32(u32 ch, u8 *str)
 
 i32 Nst_check_1256_bytes(u8 *str, usize len)
 {
-    (void)str;
-    (void)len;
+    Nst_UNUSED(str);
+    Nst_UNUSED(len);
     return 1;
 }
 
@@ -1215,7 +1215,7 @@ i32 Nst_1256_from_utf32(u32 ch, u8 *str)
 }
 i32 Nst_check_1257_bytes(u8 *str, usize len)
 {
-    (void)len;
+    Nst_UNUSED(len);
     u8 ch = *str;
     if (ch == 0x81 || ch == 0x83 || ch == 0x88 || ch == 0x8a || ch == 0x8c
         || ch == 0x90 || ch == 0x98 || ch == 0x9a || ch == 0x9c || ch == 0x9f
@@ -1333,7 +1333,7 @@ i32 Nst_1257_from_utf32(u32 ch, u8 *str)
 }
 i32 Nst_check_1258_bytes(u8 *str, usize len)
 {
-    (void)len;
+    Nst_UNUSED(len);
     u8 ch = *str;
     if (ch == 0x81 || ch == 0x8a || ch == 0x8d || ch == 0x8e || ch == 0x8f
         || ch == 0x90 || ch == 0x9a || ch == 0x9d || ch == 0x9e)
@@ -1442,7 +1442,7 @@ i32 Nst_1258_from_utf32(u32 ch, u8 *str)
 
 i32 Nst_check_iso8859_1_bytes(u8 *str, usize len)
 {
-    (void)len;
+    Nst_UNUSED(len);
     u8 ch = *str;
     if (ch < 0x20 || (ch > 0x7e && ch < 0xa0))
         return -1;

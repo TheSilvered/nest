@@ -184,8 +184,8 @@ Nst_FUNC_SIGN(try_)
 
 Nst_FUNC_SIGN(_get_err_names_)
 {
-    (void)arg_num;
-    (void)args;
+    Nst_UNUSED(arg_num);
+    Nst_UNUSED(args);
 
     Nst_Obj *names = Nst_array_create_c(
         "OOOOOOO",

@@ -260,6 +260,6 @@ Nst_StdStreams *Nst_stdio(void)
 
 static int close_std_stream(void *f)
 {
-    (void)f;
+    Nst_UNUSED(f);
     return 0;
 }

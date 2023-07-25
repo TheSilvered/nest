@@ -112,251 +112,146 @@ Nst_TokType Nst_tok_from_str(i8 *str)
         }
     }
 
-    if ( str[2] == '\0' )
-    {
-        switch ( str[0] )
-        {
+    if (str[2] == '\0') {
+        switch (str[0]) {
         case '&':
-            if ( str[1] == '&' )
-            {
+            if (str[1] == '&')
                 return Nst_TT_L_AND;
-            }
-            if ( str[1] == '|' )
-            {
+            if (str[1] == '|')
                 return Nst_TT_L_XOR;
-            }
-            if ( str[1] == '=' )
-            {
+            if (str[1] == '=')
                 return Nst_TT_B_AND_A;
-            }
             break;
         case '|':
-            if ( str[1] == '|' )
-            {
+            if (str[1] == '|')
                 return Nst_TT_L_OR;
-            }
-            if ( str[1] == '=' )
-            {
+            if (str[1] == '=')
                 return Nst_TT_B_OR_A;
-            }
-            if ( str[1] == '>' )
-            {
+            if (str[1] == '>')
                 return Nst_TT_SWITCH;
-            }
             break;
         case '^':
-            if ( str[1] == '^' )
-            {
+            if (str[1] == '^')
                 return Nst_TT_B_XOR;
-            }
-            if ( str[1] == '=' )
-            {
+            if (str[1] == '=')
                 return Nst_TT_POW_A;
-            }
             break;
         case '<':
-            if ( str[1] == '<' )
-            {
+            if (str[1] == '<')
                 return Nst_TT_LSHIFT;
-            }
-            if ( str[1] == '=' )
-            {
+            if (str[1] == '=')
                 return Nst_TT_LTE;
-            }
-            if ( str[1] == '{' )
-            {
+            if (str[1] == '{')
                 return Nst_TT_L_VBRACE;
-            }
             break;
         case '>':
-            if ( str[1] == '>' )
-            {
+            if (str[1] == '>')
                 return Nst_TT_RSHIFT;
-            }
-            if ( str[1] == '=' )
-            {
+            if (str[1] == '=')
                 return Nst_TT_GTE;
-            }
-            if ( str[1] == '<' )
-            {
+            if (str[1] == '<')
                 return Nst_TT_CONCAT;
-            }
             break;
         case '=':
-            if ( str[1] == '=' )
-            {
+            if (str[1] == '=')
                 return Nst_TT_EQ;
-            }
-            if ( str[1] == '>' )
-            {
+            if (str[1] == '>')
                 return Nst_TT_RETURN;
-            }
             break;
         case '!':
-            if ( str[1] == '=' )
-            {
+            if (str[1] == '=')
                 return Nst_TT_NEQ;
-            }
-            if ( str[1] == '!' )
-            {
+            if (str[1] == '!')
                 return Nst_TT_THROW;
-            }
             break;
         case '-':
-            if ( str[1] == '>' )
-            {
+            if (str[1] == '>')
                 return Nst_TT_RANGE;
-            }
-            if ( str[1] == '=' )
-            {
+            if (str[1] == '=')
                 return Nst_TT_SUB_A;
-            }
-            if ( str[1] == ':' )
-            {
+            if (str[1] == ':')
                 return Nst_TT_NEG;
-            }
             break;
         case ':':
-            if ( str[1] == ':' )
-            {
+            if (str[1] == ':')
                 return Nst_TT_CAST;
-            }
-            if ( str[1] == '=' )
-            {
+            if (str[1] == '=')
                 return Nst_TT_AS;
-            }
             break;
         case '+':
-            if ( str[1] == '=' )
-            {
+            if (str[1] == '=')
                 return Nst_TT_ADD_A;
-            }
             break;
         case '*':
-            if ( str[1] == '=' )
-            {
+            if (str[1] == '=')
                 return Nst_TT_MUL_A;
-            }
-            if ( str[1] == '@' )
-            {
+            if (str[1] == '@')
                 return Nst_TT_SEQ_CALL;
-            }
             break;
         case '/':
-            if ( str[1] == '=' )
-            {
+            if (str[1] == '=')
                 return Nst_TT_DIV_A;
-            }
             break;
         case '%':
-            if ( str[1] == '=' )
-            {
+            if (str[1] == '=')
                 return Nst_TT_MOD_A;
-            }
             break;
         case '@':
-            if ( str[1] == '@' )
-            {
+            if (str[1] == '@')
                 return Nst_TT_LOC_CALL;
-            }
             break;
         case '.':
-            if ( str[1] == '.' )
-            {
+            if (str[1] == '.')
                 return Nst_TT_CONTINUE;
-            }
             break;
         case '}':
-            if ( str[1] == '>' )
-            {
+            if (str[1] == '>')
                 return Nst_TT_R_VBRACE;
-            }
             break;
         case '#':
-            if ( str[1] == '#' )
-            {
+            if (str[1] == '#')
                 return Nst_TT_LAMBDA;
-            }
             break;
         case '?':
-            if ( str[1] == '?' )
-            {
+            if (str[1] == '?')
                 return Nst_TT_TRY;
-            }
-            if ( str[1] == '!' )
-            {
+            if (str[1] == '!')
                 return Nst_TT_CATCH;
-            }
             break;
         }
         return Nst_TT_INVALID;
     }
 
-    if ( str[0] == '>' )
-    {
-        if ( str[1] == '>' && str[2] == '>' )
-        {
+    if (str[0] == '>') {
+        if (str[1] == '>' && str[2] == '>')
             return Nst_TT_STDOUT;
-        }
-        if ( str[1] == '>' && str[2] == '=' )
-        {
+        if (str[1] == '>' && str[2] == '=')
             return Nst_TT_RSHIFT_A;
-        }
-        if ( str[1] == '<' && str[2] == '=' )
-        {
+        if (str[1] == '<' && str[2] == '=')
             return Nst_TT_CONCAT_A;
-        }
-    }
-    else if ( str[0] == '<' )
-    {
-        if ( str[1] == '<' && str[2] == '<' )
-        {
+    } else if (str[0] == '<') {
+        if (str[1] == '<' && str[2] == '<')
             return Nst_TT_STDIN;
-        }
-        if ( str[1] == '<' && str[2] == '=' )
-        {
+        if (str[1] == '<' && str[2] == '=')
             return Nst_TT_LSHIFT_A;
-        }
-    }
-    else if ( str[0] == '?' )
-    {
-        if ( str[1] == '.' && str[2] == '.' )
-        {
+    } else if (str[0] == '?') {
+        if (str[1] == '.' && str[2] == '.')
             return Nst_TT_WHILE;
-        }
-        if ( str[1] == ':' && str[2] == ':' )
-        {
+        if (str[1] == ':' && str[2] == ':')
             return Nst_TT_TYPEOF;
-        }
-    }
-    else if ( str[0] == '.' )
-    {
-        if ( str[1] != '.' )
-        {
+    } else if (str[0] == '.') {
+        if (str[1] != '.')
             return Nst_TT_INVALID;
-        }
-        if ( str[2] == '?' )
-        {
+        if (str[2] == '?')
             return Nst_TT_DOWHILE;
-        }
-        if ( str[2] == '.' )
-        {
+        if (str[2] == '.')
             return Nst_TT_FOR;
-        }
-    }
-    else if ( str[0] == '|' )
-    {
-        if ( str[1] == '#' && str[2] == '|' )
-        {
+    } else if (str[0] == '|') {
+        if (str[1] == '#' && str[2] == '|')
             return Nst_TT_IMPORT;
-        }
-    }
-    else if ( str[0] == '^' )
-    {
-        if ( str[1] == '^' && str[2] == '=' )
-        {
+    } else if (str[0] == '^') {
+        if (str[1] == '^' && str[2] == '=')
             return Nst_TT_B_XOR_A;
-        }
     }
 
     return Nst_TT_INVALID;

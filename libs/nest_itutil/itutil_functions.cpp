@@ -3,7 +3,7 @@
 // --------------------------------- Count --------------------------------- //
 Nst_FUNC_SIGN(count_start)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     AS_INT(objs[0]) = AS_INT(objs[1]);
     Nst_RETURN_NULL;
@@ -11,14 +11,14 @@ Nst_FUNC_SIGN(count_start)
 
 Nst_FUNC_SIGN(count_is_done)
 {
-    (void)arg_num;
-    (void)args;
+    Nst_UNUSED(arg_num);
+    Nst_UNUSED(args);
     Nst_RETURN_FALSE;
 }
 
 Nst_FUNC_SIGN(count_get_val)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     Nst_Obj *ob = Nst_int_new(AS_INT(objs[0]));
     AS_INT(objs[0]) += AS_INT(objs[2]);
@@ -28,7 +28,7 @@ Nst_FUNC_SIGN(count_get_val)
 // --------------------------------- Cycle --------------------------------- //
 Nst_FUNC_SIGN(cycle_start)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     AS_INT(objs[0]) = 0;
     Nst_RETURN_NULL;
@@ -36,14 +36,14 @@ Nst_FUNC_SIGN(cycle_start)
 
 Nst_FUNC_SIGN(cycle_is_done)
 {
-    (void)arg_num;
-    (void)args;
+    Nst_UNUSED(arg_num);
+    Nst_UNUSED(args);
     Nst_RETURN_FALSE;
 }
 
 Nst_FUNC_SIGN(cycle_get_val)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     Nst_Obj *ob = Nst_seq_get(SEQ(objs[1]), AS_INT(objs[0]));
     AS_INT(objs[0]) += 1;
@@ -54,7 +54,7 @@ Nst_FUNC_SIGN(cycle_get_val)
 // --------------------------------- Repeat -------------------------------- //
 Nst_FUNC_SIGN(repeat_start)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     AS_INT(objs[0]) = 0;
     Nst_RETURN_NULL;
@@ -62,7 +62,7 @@ Nst_FUNC_SIGN(repeat_start)
 
 Nst_FUNC_SIGN(repeat_is_done)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     Nst_Int max_count = AS_INT(objs[2]);
     if ( max_count >= 0 && AS_INT(objs[0]) >= max_count )
@@ -74,7 +74,7 @@ Nst_FUNC_SIGN(repeat_is_done)
 
 Nst_FUNC_SIGN(repeat_get_val)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     if ( AS_INT(objs[2]) >= 0 )
     {
@@ -100,7 +100,7 @@ static Nst_Obj *get_first_iter_val(Nst_IterObj *iter)
 
 Nst_FUNC_SIGN(chain_start)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     Nst_IterObj *main_iter = ITER(objs[0]);
     Nst_Obj *local_val = get_first_iter_val(main_iter);
@@ -165,14 +165,14 @@ end:
 
 Nst_FUNC_SIGN(chain_is_done)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     return Nst_inc_ref(objs[3]);
 }
 
 Nst_FUNC_SIGN(chain_get_val)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     Nst_IterObj *main_iter = ITER(objs[0]);
     Nst_IterObj *local_iter = ITER(objs[1]);
@@ -247,7 +247,7 @@ end:
 // ---------------------------------- Zip ---------------------------------- //
 Nst_FUNC_SIGN(zip_start)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     if ( Nst_iter_start(objs[0]) || Nst_iter_start(objs[1]) )
     {
@@ -258,7 +258,7 @@ Nst_FUNC_SIGN(zip_start)
 
 Nst_FUNC_SIGN(zip_is_done)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
 
     i32 res = Nst_iter_is_done(objs[0]);
@@ -286,7 +286,7 @@ Nst_FUNC_SIGN(zip_is_done)
 
 Nst_FUNC_SIGN(zip_get_val)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
 
     Nst_Obj *ob1 = Nst_iter_get_val(objs[0]);
@@ -308,7 +308,7 @@ Nst_FUNC_SIGN(zip_get_val)
 
 Nst_FUNC_SIGN(zipn_start)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     for ( usize i = 0, n = (usize)AS_INT(objs[0]); i < n; i++ )
     {
@@ -322,7 +322,7 @@ Nst_FUNC_SIGN(zipn_start)
 
 Nst_FUNC_SIGN(zipn_is_done)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
 
     for ( usize i = 0, n = (usize)AS_INT(objs[0]); i < n; i++ )
@@ -343,7 +343,7 @@ Nst_FUNC_SIGN(zipn_is_done)
 
 Nst_FUNC_SIGN(zipn_get_val)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
 
     Nst_SeqObj *arr = SEQ(Nst_array_new((usize)AS_INT(objs[0])));
@@ -365,7 +365,7 @@ Nst_FUNC_SIGN(zipn_get_val)
 // ------------------------------- Enumerate ------------------------------- //
 Nst_FUNC_SIGN(enumerate_start)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     AS_INT(objs[0]) = AS_INT(objs[2]);
     if ( Nst_iter_start(objs[1]) )
@@ -377,7 +377,7 @@ Nst_FUNC_SIGN(enumerate_start)
 
 Nst_FUNC_SIGN(enumerate_is_done)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     Nst_IterObj *iter = ITER(objs[1]);
     return Nst_call_func(iter->is_done, &iter->value);
@@ -385,7 +385,7 @@ Nst_FUNC_SIGN(enumerate_is_done)
 
 Nst_FUNC_SIGN(enumerate_get_val)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     Nst_Int idx = AS_INT(objs[0]);
     Nst_IterObj *iter = ITER(objs[1]);
@@ -415,7 +415,7 @@ Nst_FUNC_SIGN(enumerate_get_val)
 // -------------------------- Keys, values, items -------------------------- //
 Nst_FUNC_SIGN(kvi_start)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     AS_INT(objs[0]) = Nst_map_get_next_idx(-1, MAP(objs[1]));
     Nst_RETURN_NULL;
@@ -423,7 +423,7 @@ Nst_FUNC_SIGN(kvi_start)
 
 Nst_FUNC_SIGN(kvi_is_done)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     if ( AS_INT(objs[0]) == -1 )
     {
@@ -434,7 +434,7 @@ Nst_FUNC_SIGN(kvi_is_done)
 
 Nst_FUNC_SIGN(keys_get_val)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
 
     if ( AS_INT(objs[0]) == -1 )
@@ -449,7 +449,7 @@ Nst_FUNC_SIGN(keys_get_val)
 
 Nst_FUNC_SIGN(values_get_val)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
 
     if ( AS_INT(objs[0]) == -1 )
@@ -464,7 +464,7 @@ Nst_FUNC_SIGN(values_get_val)
 
 Nst_FUNC_SIGN(items_get_val)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     Nst_MapNode node = MAP(objs[1])->nodes[AS_INT(objs[0])];
 
@@ -487,7 +487,7 @@ Nst_FUNC_SIGN(items_get_val)
 // -------------------------------- Reversed ------------------------------- //
 Nst_FUNC_SIGN(reversed_start)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     AS_INT(objs[0]) = SEQ(objs[1])->len - 1;
     Nst_RETURN_NULL;
@@ -495,7 +495,7 @@ Nst_FUNC_SIGN(reversed_start)
 
 Nst_FUNC_SIGN(reversed_is_done)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     if ( AS_INT(objs[0]) == -1 )
     {
@@ -506,7 +506,7 @@ Nst_FUNC_SIGN(reversed_is_done)
 
 Nst_FUNC_SIGN(reversed_get_val)
 {
-    (void)arg_num;
+    Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
     Nst_Obj *res = Nst_seq_get(SEQ(objs[1]), AS_INT(objs[0]));
 

@@ -799,21 +799,21 @@ Nst_FUNC_SIGN(_set_stderr_)
 
 Nst_FUNC_SIGN(_get_stdin_)
 {
-    (void)arg_num;
-    (void)args;
+    Nst_UNUSED(arg_num);
+    Nst_UNUSED(args);
     return Nst_inc_ref(stdin_obj);
 }
 
 Nst_FUNC_SIGN(_get_stdout_)
 {
-    (void)arg_num;
-    (void)args;
+    Nst_UNUSED(arg_num);
+    Nst_UNUSED(args);
     return Nst_inc_ref(stdout_obj);
 }
 
 Nst_FUNC_SIGN(_get_stderr_)
 {
-    (void)arg_num;
-    (void)args;
+    Nst_UNUSED(arg_num);
+    Nst_UNUSED(args);
     return Nst_inc_ref(stderr_obj);
 }
