@@ -29,6 +29,23 @@
 #define Nst_FLAG_DEL(obj, flag) ((obj)->flags &= ~(flag))
 #define Nst_FLAG_HAS(obj, flag) ((obj)->flags & (flag))
 
+#if !defined(_DEBUG) && defined(Nst_TRACK_OBJ_INIT_POS)
+#undef Nst_TRACK_OBJ_INIT_POS
+#endif
+
+#ifdef Nst_TRACK_OBJ_INIT_POS
+
+#define Nst_OBJ_HEAD \
+    i32 ref_count; \
+    struct _Nst_StrObj *type; \
+    void (*destructor)(void *); \
+    i32 hash; \
+    u8 flags; \
+    i32 init_line; \
+    i32 init_col; \
+    i8 *init_path
+
+#else
 // only the lower 4 bits of 'flags' can be used
 // the top 4 are reserved for the garbage collector
 #define Nst_OBJ_HEAD \
@@ -37,6 +54,7 @@
     void (*destructor)(void *); \
     i32 hash; \
     u8 flags
+#endif
 
 #ifdef __cplusplus
 extern "C" {

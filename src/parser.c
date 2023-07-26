@@ -1305,6 +1305,7 @@ static Nst_Node *parse_vector_literal(void)
     if ( Nst_TOK(Nst_llist_peek_front(tokens))->type == Nst_TT_R_VBRACE )
     {
         tok = Nst_TOK(Nst_llist_pop(tokens));
+        Nst_node_set_pos(vect_node, start, tok->end);
         Nst_token_destroy(tok);
         DEC_RECURSION_LVL;
         return vect_node;

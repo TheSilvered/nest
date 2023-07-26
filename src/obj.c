@@ -4,6 +4,10 @@
 #include "str.h"
 #include "mem.h"
 
+#ifdef Nst_TRACK_OBJ_INIT_POS
+#include "interpreter.h"
+#endif
+
 Nst_Obj *_Nst_obj_alloc(usize               size,
                         struct _Nst_StrObj *type,
                         void (*destructor)(void *))
@@ -13,6 +17,19 @@ Nst_Obj *_Nst_obj_alloc(usize               size,
     {
         return NULL;
     }
+
+#ifdef Nst_TRACK_OBJ_INIT_POS
+    Nst_Inst *inst = Nst_current_inst();
+    if (inst == NULL) {
+        obj->init_line = -1;
+        obj->init_col = -1;
+        obj->init_path = NULL;
+    } else {
+        obj->init_line = inst->start.line;
+        obj->init_col = inst->start.col;
+        obj->init_path = inst->start.text->path;
+    }
+#endif
 
     obj->ref_count = 1;
     obj->destructor = destructor;

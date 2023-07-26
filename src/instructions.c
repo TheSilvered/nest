@@ -1,13 +1,12 @@
+#include <assert.h>
 #include "mem.h"
 #include "instructions.h"
 
 Nst_Inst *Nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end)
 {
     Nst_Inst *inst = Nst_malloc_c(1, Nst_Inst);
-    if ( inst == NULL )
-    {
+    if (inst == NULL)
         return NULL;
-    }
 
     inst->id = id;
     inst->int_val = 0;
@@ -15,19 +14,18 @@ Nst_Inst *Nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end)
     inst->start = start;
     inst->end = end;
 
+    assert(start.text != NULL);
+    assert(end.text != NULL);
+
     return inst;
 }
 
-Nst_Inst *_Nst_inst_new_val(Nst_InstID id,
-                            Nst_Obj   *val,
-                            Nst_Pos    start,
-                            Nst_Pos    end)
+Nst_Inst *_Nst_inst_new_val(Nst_InstID id, Nst_Obj *val, Nst_Pos start,
+                            Nst_Pos end)
 {
     Nst_Inst *inst = Nst_malloc_c(1, Nst_Inst);
-    if ( inst == NULL )
-    {
+    if (inst == NULL)
         return NULL;
-    }
 
     inst->id = id;
     inst->int_val = 0;
@@ -35,19 +33,18 @@ Nst_Inst *_Nst_inst_new_val(Nst_InstID id,
     inst->start = start;
     inst->end = end;
 
+    assert(start.text != NULL);
+    assert(end.text != NULL);
+
     return inst;
 }
 
-Nst_Inst *Nst_inst_new_int(Nst_InstID id,
-                           Nst_Int    int_val,
-                           Nst_Pos    start,
-                           Nst_Pos    end)
+Nst_Inst *Nst_inst_new_int(Nst_InstID id, Nst_Int int_val, Nst_Pos start,
+                           Nst_Pos end)
 {
     Nst_Inst *inst = Nst_malloc_c(1, Nst_Inst);
-    if ( inst == NULL )
-    {
+    if (inst == NULL)
         return NULL;
-    }
 
     inst->id = id;
     inst->int_val = int_val;
@@ -55,27 +52,25 @@ Nst_Inst *Nst_inst_new_int(Nst_InstID id,
     inst->start = start;
     inst->end = end;
 
+    assert(start.text != NULL);
+    assert(end.text != NULL);
+
     return inst;
 }
 
 void Nst_inst_destroy(Nst_Inst *inst)
 {
-    if ( inst->val != NULL )
-    {
+    if (inst->val != NULL)
         Nst_dec_ref(inst->val);
-    }
     Nst_free(inst);
 }
 
 void Nst_inst_list_destroy(Nst_InstList *inst_list)
 {
     Nst_Inst *instructions = inst_list->instructions;
-    for ( Nst_Int i = 0, n = inst_list->total_size; i < n; i++ )
-    {
-        if ( instructions[i].val != NULL )
-        {
+    for (Nst_Int i = 0, n = inst_list->total_size; i < n; i++) {
+        if (instructions[i].val != NULL)
             Nst_dec_ref(instructions[i].val);
-        }
     }
 
     Nst_free(instructions);

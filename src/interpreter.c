@@ -44,6 +44,7 @@
     assert((Nst_Int)(Nst_state.v_stack.current_size) >= size)
 
 Nst_ExecutionState Nst_state;
+static bool state_init = false;
 
 static void complete_function(usize final_stack_size);
 
@@ -122,13 +123,13 @@ i32 Nst_run(Nst_FuncObj *main_func, i32 argc, i8 **argv, i8 *filename,
             i32 opt_level, bool no_default)
 {
     // Init global state
-    bool state_init = Nst_state_init(
+    bool init_succeded = Nst_state_init(
         argc, argv,
         filename,
         opt_level,
         no_default);
 
-    if (!state_init) {
+    if (!init_succeded) {
         fprintf(stderr, "Failed allocation\n");
         return -1;
     }
@@ -235,8 +236,13 @@ bool Nst_state_init(i32 argc, i8 **argv, i8 *filename, i32 opt_level,
             return false;
         }
     }
-
+    state_init = true;
     return true;
+}
+
+NstEXP bool NstC Nst_state_was_init(void)
+{
+    return state_init;
 }
 
 void Nst_state_free(void)
@@ -253,11 +259,13 @@ void Nst_state_free(void)
             Nst_state.lib_paths,
             (Nst_LListDestructor)_Nst_dec_ref);
     }
+#if !defined(_DEBUG) || !defined(Nst_TRACK_OBJ_INIT_POS)
     if (Nst_state.lib_srcs != NULL) {
         Nst_llist_destroy(
             Nst_state.lib_srcs,
             (Nst_LListDestructor)Nst_free_src_text);
     }
+#endif
     if (Nst_state.loaded_libs == NULL)
         goto free_ggc;
 
@@ -374,6 +382,17 @@ static void complete_function(usize final_stack_size)
         curr_inst_ls = Nst_fstack_peek().func->body.bytecode;
         instructions = curr_inst_ls->instructions;
     }
+}
+
+Nst_Inst *Nst_current_inst(void)
+{
+    if (!Nst_state_was_init() || Nst_state.f_stack.current_size == 0)
+        return NULL;
+
+    Nst_InstList *instructions = Nst_fstack_peek().func->body.bytecode;
+    if (Nst_state.idx >= (i64)instructions->total_size || Nst_state.idx < 0)
+        return NULL;
+    return &instructions->instructions[Nst_state.idx];
 }
 
 i32 Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
@@ -820,15 +839,11 @@ static i32 exe_set_cont_val(Nst_Inst *inst)
 end:
     Nst_dec_ref(cont);
     Nst_dec_ref(idx);
-    Nst_dec_ref(val);
     return return_value;
 }
 
-static i32 call_c_func(bool         is_seq_call,
-                       Nst_Int      tot_args,
-                       Nst_Int      arg_num,
-                       Nst_Int      null_args,
-                       Nst_SeqObj  *args_seq,
+static i32 call_c_func(bool is_seq_call, Nst_Int tot_args, Nst_Int arg_num,
+                       Nst_Int null_args, Nst_SeqObj *args_seq,
                        Nst_FuncObj *func)
 {
     Nst_Obj **args;

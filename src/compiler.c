@@ -179,20 +179,20 @@ static Nst_InstList *compile_internal(Nst_Node *node, bool is_func,
         inst_list->instructions[i].id = Nst_IC_RETURN_VARS;
         inst_list->instructions[i].int_val = 0;
         inst_list->instructions[i].val = NULL;
-        inst_list->instructions[i].start = Nst_no_pos();
-        inst_list->instructions[i].end = Nst_no_pos();
+        inst_list->instructions[i].start = node->start;
+        inst_list->instructions[i].end = node->end;
     } else if (add_return) {
         inst_list->instructions[i].id = Nst_IC_PUSH_VAL;
         inst_list->instructions[i].int_val = 0;
         inst_list->instructions[i].val = Nst_inc_ref(Nst_c.Null_null);
-        inst_list->instructions[i].start = Nst_no_pos();
-        inst_list->instructions[i++].end = Nst_no_pos();
+        inst_list->instructions[i].start = node->start;
+        inst_list->instructions[i++].end = node->end;
 
         inst_list->instructions[i].id = Nst_IC_RETURN_VAL;
         inst_list->instructions[i].int_val = 0;
         inst_list->instructions[i].val = NULL;
-        inst_list->instructions[i].start = Nst_no_pos();
-        inst_list->instructions[i].end = Nst_no_pos();
+        inst_list->instructions[i].start = node->start;
+        inst_list->instructions[i].end = node->end;
     }
 
     // Using free to not decrease the references of the objects
@@ -666,16 +666,16 @@ static void compile_func_declr(Nst_Node *node)
     Nst_Inst *inst = Nst_inst_new_val(
         Nst_IC_PUSH_VAL,
         OBJ(func),
-        Nst_no_pos(),
-        Nst_no_pos());
+        node->start,
+        node->end);
     ADD_INST(inst);
     Nst_dec_ref(func);
 
     inst = Nst_inst_new_val(
         Nst_IC_SET_VAL_LOC,
         HEAD_TOK->value,
-        Nst_no_pos(),
-        Nst_no_pos());
+        node->start,
+        node->end);
     ADD_INST(inst);
 }
 
