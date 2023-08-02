@@ -31,6 +31,7 @@ NEST_LIB_x86 := $(x86_DIR)/libnest.so
 .PHONY: debug x86 all all-debug all-x86 help
 .PHONY: __no_libnest_x64 __no_libnest_x86 __no_libnest_dbg
 .PHONY: clean clear
+.PHONY: run
 
 main:
 	@$(MAKE_FILE) libnest.mk
@@ -62,8 +63,8 @@ $(DBG_TARGET): $(SRCS) $(NEST_LIB_DBG)
 clear:
 	@$(SILENT_MAKE) clean
 clean:
-	rm -fr $(EXE_DIR)
-	rm -fr $(DBG_DIR)
+	rm -frv $(EXE_DIR)
+	rm -frv $(DBG_DIR)
 
 all:
 	@$(MAKE_FILE) libnest.mk
@@ -119,6 +120,11 @@ all-debug:
 	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=time
 	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=utf8
 
+run:
+	@$(SILENT_MAKE) all-debug
+	@cd .. && ./_update_files.sh py && ./_install_debug.sh
+	@cd ../../../tests && nest _test.nest
+
 help:
 	@echo "makefile help:"
 	@echo "  make                   compile nest and libnest.so for 64 bit platforms"
@@ -131,6 +137,10 @@ help:
 	@echo "  make __no_libnest_x64  compile nest for 64 bit platforms"
 	@echo "  make __no_libnest_x86  compile nest for 32 bit platforms"
 	@echo "  make __no_libnest_dbg  compile nest with debug symbols"
+	@echo ""
+	@echo "  make run               run 'make all-debug', '_update_files.sh',"
+	@echo "                         '_install_debug.sh' and then run '_test.nest'"
+	@echo "                         from 'nest/tests/'; the file needs to be created"
 	@echo ""
 	@echo "  make clean             removes the output folders"
 	@echo "  make clear             alias of clean"

@@ -19,7 +19,8 @@
 extern "C" {
 #endif // !__cplusplus
 
-/** Parses command-line arguments.
+/**
+ * Parses command-line arguments.
  *
  * @brief All arguments are expected to be valid and the pointers cannot be
  * NULL.
@@ -61,7 +62,8 @@ NstEXP bool Nst_supports_color(void);
 
 #ifdef Nst_WIN
 
-/** WINDOWS ONLY Re-encodes Unicode artuments to UTF-8.
+/**
+ * WINDOWS ONLY Re-encodes Unicode artuments to UTF-8.
  *
  * @brief All arguments are expected to be valid and the pointers cannot be
  * NULL.

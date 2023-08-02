@@ -24,8 +24,9 @@
 extern "C" {
 #endif // !__cplusplus
 
-/** The structure defining a Nest iter object.
- * 
+/**
+ * The structure defining a Nest iter object.
+ *
  * @param start: the start function of the iterator
  * @param is_done: the is_done function of the iterator
  * @param get_val: the get_val function of the iterator
@@ -40,16 +41,17 @@ NstEXP typedef struct _Nst_IterObj {
     Nst_Obj *value;
 } Nst_IterObj;
 
-/** Creates a new Nest iterator object.
- * 
+/**
+ * Creates a new Nest iterator object.
+ *
  * @brief This function takes one reference of start, is_done, get_val and
  * value both on success and on failure.
- * 
+ *
  * @param start: the start function for the new iterator
  * @param is_done: the is_done function for the new iterator
  * @param get_val: the get_val function for the new iterator
  * @param value: the value for the new iterator
- * 
+ *
  * @return The new object or NULL on failure. The error is set.
  */
 NstEXP Nst_Obj *NstC Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *is_done,
@@ -61,25 +63,28 @@ NstEXP void NstC _Nst_iter_traverse(Nst_IterObj *iter);
 /* Track function for Nest iter objects. */
 NstEXP void NstC _Nst_iter_track(Nst_IterObj *iter);
 
-/** Calls the start function of a Nst_IterObj.
- * 
+/**
+ * Calls the start function of a Nst_IterObj.
+ *
  * @param iter: the iterator to start
- * 
+ *
  * @return -1 on failure and 0 on succcess. The error may not be set.
  */
 NstEXP i32 NstC _Nst_iter_start(Nst_IterObj *iter);
-/** Calls the is_done function of a Nst_IterObj.
- * 
+/**
+ * Calls the is_done function of a Nst_IterObj.
+ *
  * @param iter: the iterator to check for completion
- * 
+ *
  * @return -1 on failure, 1 if the iterator is done, 0 if it can still iterate.
  * The error may not be set.
  */
 NstEXP i32 NstC _Nst_iter_is_done(Nst_IterObj *iter);
-/** Calls the get_val function of a Nst_IterObj.
- * 
+/**
+ * Calls the get_val function of a Nst_IterObj.
+ *
  * @param iter: the iterator to get the value from
- * 
+ *
  * @return The resulting object on success and NULL on failure. The error may
  * not be set.
  */

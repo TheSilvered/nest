@@ -40,7 +40,7 @@
 #define GLOBAL_ERROR (&(Nst_state.traceback.error))
 
 #define CHECK_V_STACK assert(Nst_state.v_stack.current_size != 0)
-#define CHECK_V_STACK_SIZE(size) \
+#define CHECK_V_STACK_SIZE(size)                                              \
     assert((Nst_Int)(Nst_state.v_stack.current_size) >= size)
 
 Nst_ExecutionState Nst_state;

@@ -169,7 +169,7 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
             goto normal_type;
         case '#':
             custom_type = va_arg(*args, Nst_TypeObj *);
-            if (!Nst_sbuffer_append(&custom_types, custom_type)) {
+            if (!Nst_sbuffer_append(&custom_types, &custom_type)) {
                 Nst_sbuffer_destroy(&custom_types);
                 Nst_free(match_type);
                 return NULL;

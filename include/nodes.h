@@ -50,7 +50,8 @@ NstEXP typedef enum _Nst_NodeType {
     Nst_NT_LAMBDA
 } Nst_NodeType;
 
-/** A structure representing a node.
+/**
+ * A structure representing a node.
  *
  * @param start: the starting position of the node
  * @param end: the ending position of the node
@@ -66,7 +67,8 @@ NstEXP typedef struct _Nst_Node {
     Nst_LList *tokens;
 } Nst_Node;
 
-/** Creates and initializes a new AST node on the heap.
+/**
+ * Creates and initializes a new AST node on the heap.
  *
  * @brief Though the position is not in the arguments, its position should be
  * set later with Nst_node_set_pos.
@@ -76,7 +78,8 @@ NstEXP typedef struct _Nst_Node {
  * @return The new node or NULL on failure. The error is set.
  */
 NstEXP Nst_Node *NstC Nst_node_new(Nst_NodeType type);
-/** Creates and initializes a new AST node on the heap.
+/**
+ * Creates and initializes a new AST node on the heap.
  *
  *
  * @param type: the type of the node to initialize
@@ -89,7 +92,7 @@ NstEXP Nst_Node *NstC Nst_node_new_pos(Nst_NodeType type, Nst_Pos start,
                                        Nst_Pos end);
 /* Sets the position of a node. */
 NstEXP void NstC Nst_node_set_pos(Nst_Node *node, Nst_Pos start, Nst_Pos end);
-/* Destroys a token and its children. */
+/* Destroys a node and its children. */
 NstEXP void NstC Nst_node_destroy(Nst_Node *node);
 
 #ifdef __cplusplus

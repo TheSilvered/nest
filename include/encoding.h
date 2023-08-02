@@ -15,7 +15,8 @@
 extern "C" {
 #endif // !__cplusplus
 
-/** The supported encodings in Nest
+/**
+ * The supported encodings in Nest
  *
  * @brief Nst_CP_UNKNOWN is -1, Nst_CP_LATIN1 and Nst_CP_ISO8859_1 are
  * equivalent
@@ -62,7 +63,8 @@ NstEXP typedef u32 (*Nst_ToUTF32Func)(void *str);
  */
 NstEXP typedef i32 (*Nst_FromUTF32Func)(u32 ch, void *buf);
 
-/** The structure that represents an encoding
+/**
+ * The structure that represents an encoding
  *
  * @param ch_size: the size of one unit in bytes (e.g. is 1 in UTF-8 but 2 in
  * UTF-16)
@@ -229,7 +231,8 @@ NstEXP u32 NstC Nst_iso8859_1_to_utf32(u8 *str);
 /* Nst_FromUTF32Func for ISO-8859-1 */
 NstEXP i32 NstC Nst_iso8859_1_from_utf32(u32 ch, u8 *str);
 
-/** Translate the first character of a Unicode (UTF-16) string to UTF-8.
+/**
+ * Translate the first character of a Unicode (UTF-16) string to UTF-8.
  *
  * @brief All arguments are expected to be valid.
  *
@@ -242,7 +245,8 @@ NstEXP i32 NstC Nst_iso8859_1_from_utf32(u32 ch, u8 *str);
  */
 NstEXP i32 NstC Nst_utf16_to_utf8(i8 *out_str, u16 *in_str, usize in_str_len);
 
-/** Translate a string to another encoding.
+/**
+ * Translate a string to another encoding.
  *
  * @brief All pointers are expeced to be valid and not NULL except for `to_len`
  * that can be NULL if there is no need to get the length of the output string.
@@ -262,7 +266,8 @@ NstEXP i32 NstC Nst_utf16_to_utf8(i8 *out_str, u16 *in_str, usize in_str_len);
 NstEXP bool NstC Nst_translate_cp(Nst_CP *from, Nst_CP *to, void *from_buf,
                                   usize from_len, void **to_buf, usize *to_len);
 
-/** Checks the validity of the encoding of a string.
+/**
+ * Checks the validity of the encoding of a string.
  *
  * @brief Both cp and str are expeced to be valid and non-NULL pointers.
  *
@@ -290,7 +295,8 @@ NstEXP Nst_CP *NstC Nst_cp(Nst_CPID cpid);
 NstEXP Nst_CPID NstC Nst_acp(void);
 #endif // !Nst_WIN
 
-/** Translates a UTF-8 string to Unicode (UTF-16)
+/**
+ * Translates a UTF-8 string to Unicode (UTF-16)
  *
  * @brief The new string is heap-allocated. str is assumed to be a valid
  * non-NULL pointer.
@@ -303,17 +309,18 @@ NstEXP Nst_CPID NstC Nst_acp(void);
  */
 NstEXP wchar_t *NstC Nst_char_to_wchar_t(i8 *str, usize len);
 
-/** Translates a Unicode (UTF-16) string to UTF-8
-*
-* @brief The new string is heap-allocated. str is assumed to be a valid
-* non-NULL pointer.
-*
-* @param str: the string to translate
-* @param len: the length of the string, if 0, it is calculated with wcslen
-*
-* @return The function returns the new string or NULL on failure. If the
-* function fails, the error is set.
-*/
+/**
+ * Translates a Unicode (UTF-16) string to UTF-8
+ *
+ * @brief The new string is heap-allocated. str is assumed to be a valid
+ * non-NULL pointer.
+ *
+ * @param str: the string to translate
+ * @param len: the length of the string, if 0, it is calculated with wcslen
+ *
+ * @return The function returns the new string or NULL on failure. If the
+ * function fails, the error is set.
+ */
 NstEXP i8 *NstC Nst_wchar_t_to_char(wchar_t *str, usize len);
 
 /* Returns whether a code point is a noncharacter. */
@@ -324,7 +331,8 @@ NstEXP bool NstC Nst_is_valid_cp(u32 cp);
  * no BOM was detected.
  */
 NstEXP Nst_CPID NstC Nst_check_bom(i8 *str, usize len, i32 *bom_size);
-/** Detects the encoding of a file.
+/**
+ * Detects the encoding of a file.
  *
  * @brief If no valid encoding is detected, Nst_CP_LATIN1 is returned. No error
  * is set.

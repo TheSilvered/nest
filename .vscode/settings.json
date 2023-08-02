@@ -33,7 +33,16 @@
         "var_table.h": "c",
         "chrono": "c",
         "algorithm": "c",
-        "system_error": "c"
+        "system_error": "c",
+        "string": "c",
+        "vector": "c",
+        "memory": "c",
+        "string_view": "c",
+        "array": "c",
+        "deque": "c",
+        "unordered_map": "c",
+        "initializer_list": "c",
+        "utility": "c"
     },
     "makefile.makeDirectory": "build/linux/makefiles",
     "makefile.dryrunSwitches": [

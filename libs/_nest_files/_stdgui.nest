@@ -2,24 +2,38 @@
 
 |#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_gui.dll' = __gui
 
-@__gui.init_
+@__gui.init_sdl_and_ttf_
 
 __gui.loop_             = loop
-__gui.set_window_       = set_window
 __gui.label_            = label
 __gui.button_           = button
 __gui.stack_layout_     = stack_layout
-__gui.set_position_     = set_position
-__gui.set_rel_position_ = set_rel_position
+__gui.set_window_       = set_window
+__gui.set_pos_          = set_pos
+__gui.set_rel_pos_      = set_rel_pos
+__gui.get_pos_          = get_pos
 __gui.set_size_         = set_size
 __gui.set_rel_size_     = set_rel_size
+__gui.get_size_         = get_size
+__gui.set_overflow_     = set_overflow
+__gui.get_overflow_     = get_overflow
 __gui.set_margins_      = set_margins
+__gui.get_margins_      = get_margins
 __gui.set_padding_      = set_padding
-__gui.show_overflow_    = show_overflow
-__gui.auto_height_      = auto_height
+__gui.get_padding_      = get_padding
+__gui.show_             = show
+__gui.hide_             = hide
+__gui.is_hidden_        = is_hidden
+__gui.set_auto_height_  = set_auto_height
+__gui.get_auto_height_  = get_auto_height
+__gui.set_font_         = set_font
+__gui.get_font_         = get_font
 __gui.add_child_        = add_child
+__gui.remove_child_     = remove_child
 __gui.set_func_         = set_func
 __gui.get_root_         = get_root
+__gui.get_builtin_font_ = get_builtin_font
+__gui.open_font_        = open_font
 
 __gui._debug_view_ = _debug_view
 
@@ -48,9 +62,8 @@ __gui._debug_view_ = _debug_view
 -- Though in C GUI_NONE_Y is -2, any negative value works
 { 'none', 'top', 'center', 'bottom' } -1 @_enum = REL_Y
 
-{ 'bold', 'regular' } @_enum = FONT_WEIGHT
-{ 'big', 'medium', 'small' } @_enum = FONT_SIZE
-{ 'regular', 'italic' } @_enum = FONT_STYLE
+{ 'light', 'regular', 'bold', 'extra_bold' } @_enum = FW
+{ 'small', 'medium', 'large' } @_enum = FS
 
 { 'padding', 'element', 'margin' } @_enum = RECT
 

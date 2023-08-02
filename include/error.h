@@ -127,7 +127,8 @@
 extern "C" {
 #endif // !__cplusplus
 
-/** The structure where the source text of a Nest file is kept.
+/**
+ * The structure where the source text of a Nest file is kept.
  *
  * @param text: the UTF-8 text of the file
  * @param path: the path of the file
@@ -143,7 +144,8 @@ NstEXP typedef struct _Nst_SourceText {
     usize line_count;
 } Nst_SourceText;
 
-/** The structure representing a position inside a source file
+/**
+ * The structure representing a position inside a source file
  *
  * @param line: the line of the position, the first is line 0
  * @param col: the column of the position, the first is 0
@@ -155,7 +157,8 @@ NstEXP typedef struct _Nst_Pos {
     Nst_SourceText *text;
 } Nst_Pos;
 
-/** The structure representing an error with a determined position
+/**
+ * The structure representing an error with a determined position
  *
  * @param occurred: whether the struct contains a valid error
  * @param start: the start position of the error
@@ -171,7 +174,8 @@ NstEXP typedef struct _Nst_Error {
     Nst_StrObj *message;
 } Nst_Error;
 
-/** The structure representing an error occurred during an operation and that
+/**
+ * The structure representing an error occurred during an operation and that
  * does not yet have a position
  *
  * @param name: the name of the error (e.g. Value Error, Type Error ecc.)
@@ -182,7 +186,8 @@ NstEXP typedef struct _Nst_OpErr {
     Nst_StrObj *message;
 } Nst_OpErr;
 
-/** The structure containing the full traceback of the error.
+/**
+ * The structure containing the full traceback of the error.
  *
  * @param error: the error of the traceback
  * @param positions: the list of positions that led to the error
@@ -206,48 +211,56 @@ NstEXP void NstC Nst_print_traceback(Nst_Traceback tb);
 /* Frees a heap allocated text source, text can be NULL. No error is set. */
 NstEXP void NstC Nst_free_src_text(Nst_SourceText *text);
 
-/** Sets the global operation error with the given name and message
+/**
+ * Sets the global operation error with the given name and message
  *
  * @brief It takes a reference of both name and message.
  */
 NstEXP void NstC _Nst_set_error(Nst_StrObj *name, Nst_StrObj *msg);
-/** Sets the global operation error with the given message and "Syntax Error"
+/**
+ * Sets the global operation error with the given message and "Syntax Error"
  * as the name.
  *
  * @brief It takes a reference of the message.
  */
 NstEXP void NstC _Nst_set_syntax_error(Nst_StrObj *msg);
-/** Sets the global operation error with the given message and "Memory Error"
+/**
+ * Sets the global operation error with the given message and "Memory Error"
  * as the name.
  *
  * @brief It takes a reference of the message.
  */
 NstEXP void NstC _Nst_set_memory_error(Nst_StrObj *msg);
-/** Sets the global operation error with the given message and "Type Error"
+/**
+ * Sets the global operation error with the given message and "Type Error"
  * as the name.
  *
  * @brief It takes a reference of the message.
  */
 NstEXP void NstC _Nst_set_type_error(Nst_StrObj *msg);
-/** Sets the global operation error with the given message and "Value Error"
+/**
+ * Sets the global operation error with the given message and "Value Error"
  * as the name.
  *
  * @brief It takes a reference of the message.
  */
 NstEXP void NstC _Nst_set_value_error(Nst_StrObj *msg);
-/** Sets the global operation error with the given message and "Math Error"
+/**
+ * Sets the global operation error with the given message and "Math Error"
  * as the name.
  *
  * @brief It takes a reference of the message.
  */
 NstEXP void NstC _Nst_set_math_error(Nst_StrObj *msg);
-/** Sets the global operation error with the given message and "Call Error"
+/**
+ * Sets the global operation error with the given message and "Call Error"
  * as the name.
  *
  * @brief It takes a reference of the message.
  */
 NstEXP void NstC _Nst_set_call_error(Nst_StrObj *msg);
-/** Sets the global operation error with the given message and "Import Error"
+/**
+ * Sets the global operation error with the given message and "Import Error"
  * as the name.
  *
  * @brief It takes a reference of the message.

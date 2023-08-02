@@ -127,7 +127,7 @@ i8 *Nst_wchar_t_to_char(wchar_t *str, usize len) {
 ### Nomenclature
 
 All exported names should begin with either `Nst_` or `_Nst_`, with the
-exception of type casts defined to make the code shorter and more readable.  
+exception of type casts defined to make the code shorter and more readable.
 Which one to use depends on whether the function is intended for public or
 internal use.
 
@@ -157,7 +157,7 @@ Nest can be accessed using the name of the alias preceded by an underscore:
 
 When calling a functions there should be no whitespace between the name and the
 opening bracket, before the commas separating the arguments or around the
-closing bracket. There should always be one space after the comma.  
+closing bracket. There should always be one space after the comma.
 If the line is too long, arguments can be split on multiple lines that end with
 the commas that separate them. The closing bracket and semicolon should be on
 the same line as the last argument. You may put relate arguments on the same
@@ -190,14 +190,14 @@ Nst_calloc_c(_Nst_MAP_MIN_SIZE , Nst_MapNode , NULL);
 
 ### Macros
 
-A macro should always require a semicolon when put on its own line.  
+A macro should always require a semicolon when put on its own line.
 When defining a macro, if it spans multiple lines the backslashes should be put
-as the last character of the line.  
+as the last character of the line.
 If the macro needs to be wrapped inside a `do { ... } while (0)`, the `do {`
 should be in the same line as the name of the macro and `} while (0)` on the
 last line, at the same indentation of the rest of the macro's body using always
 a zero `0` and *not* `false`. The body itself should be ad one level of
-indentation.  
+indentation.
 If the name of the macro with the arguments is too long to fit into one line,
 or the `do {` would exceed the 79 character length, you should consider making
 the macro a function.
@@ -286,7 +286,8 @@ documentation that explains the parameters, the return value and gives some
 specifications:
 
 ```better-c
-/** Compiles the AST.
+/**
+ * Compiles the AST.
  *
  * @brief Both ast and error are expected to be not NULL.
  *

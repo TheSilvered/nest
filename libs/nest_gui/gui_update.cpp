@@ -20,50 +20,39 @@ static void draw_element_bounds(GUI_Element *el)
 
 static bool update_element(GUI_Element *el, bool show_bounds)
 {
+    if (IS_HIDDEN(el))
+        return true;
+
     gui_element_update_pos(el);
     gui_element_update_size(el);
 
-    if ( el->frame_update_func != nullptr )
-    {
-        if ( !el->frame_update_func(el) )
-        {
+    if (el->frame_update_func != nullptr) {
+        if (!el->frame_update_func(el))
             return false;
-        }
     }
 
-    if ( show_bounds )
-    {
+    if (show_bounds)
         draw_element_bounds(el);
-    }
 
     Nst_SeqObj *children = el->children;
-    for ( usize i = 0, n = children->len; i < n; i++ )
-    {
-        if ( !update_element((GUI_Element *)children->objs[i], show_bounds) )
-        {
+    for (usize i = 0, n = children->len; i < n; i++) {
+        if (!update_element((GUI_Element *)children->objs[i], show_bounds))
             return false;
-        }
     }
     return true;
 }
 
 static bool tick_element(GUI_Element *el)
 {
-    if ( el->tick_update_func != nullptr )
-    {
-        if ( !el->tick_update_func(el) )
-        {
+    if (el->tick_update_func != nullptr) {
+        if (!el->tick_update_func(el))
             return false;
-        }
     }
 
     Nst_SeqObj *children = el->children;
-    for ( usize i = 0, n = children->len; i < n; i++ )
-    {
-        if ( !tick_element((GUI_Element *)children->objs[i]) )
-        {
+    for (usize i = 0, n = children->len; i < n; i++) {
+        if (!tick_element((GUI_Element *)children->objs[i]))
             return false;
-        }
     }
     return true;
 }

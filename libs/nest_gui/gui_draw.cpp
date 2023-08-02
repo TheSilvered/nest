@@ -38,8 +38,7 @@ static void draw_point(SDL_Surface *surf, int x, int y, u8 r, u8 g, u8 b, u8 a)
     SDL_FillRect(surf, &rect, (a << 24) + (r << 16) + (g << 8) + b);
 }
 
-static void draw_angle_point(SDL_Surface *surf,
-                             int rad,
+static void draw_angle_point(SDL_Surface *surf, int rad,
                              int i, int j, int x, int y,
                              u8 r, u8 g, u8 b, u8 a)
 {
@@ -50,19 +49,54 @@ static void draw_angle_point(SDL_Surface *surf,
 
     i32 dist = (rad-i) * (rad-i) + (rad-j) * (rad-j);
 
-    if ( dist < rad*rad )
+    if ( dist < rad * rad )
     {
         draw_point(surf, x, y, r, g, b, a);
     }
-    else if ( dist < (rad+1)*(rad+1) )
+    else if ( dist < (rad+1) * (rad+1) )
     {
         u8 new_opacity = u8((1 - sqrt(dist) + rad) * a);
         draw_point(surf, x, y, r, g, b, new_opacity);
     }
 }
 
-SDL_Texture *draw_round_rect(SDL_Renderer *renderer,
-                             SDL_Rect rect,
+static void draw_angle_border_point(SDL_Surface *surf, int rad, int border,
+                                    int i, int j, int x, int y,
+                                    u8 r_i, u8 g_i, u8 b_i, u8 a_i,
+                                    u8 r_b, u8 g_b, u8 b_b, u8 a_b)
+{
+    if ( rad - i <= 0 || rad - j <= 0 )
+    {
+        return;
+    }
+
+    i32 dist = (rad-i) * (rad-i) + (rad-j) * (rad-j);
+    int b_rad = rad - border;
+    if ( dist < (b_rad) * (b_rad) )
+    {
+        draw_point(surf, x, y, r_i, g_i, b_i, a_i);
+    }
+    else if ( dist < (b_rad+1) * (b_rad+1) )
+    {
+        double t = 1 - sqrt(dist) + b_rad;
+        u8 new_r = u8(t * r_i + (1 - t) * r_b);
+        u8 new_g = u8(t * g_i + (1 - t) * g_b);
+        u8 new_b = u8(t * b_i + (1 - t) * b_b);
+        u8 new_a = u8(t * a_i + (1 - t) * a_b);
+        draw_point(surf, x, y, new_r, new_g, new_b, new_a);
+    }
+    else if ( dist < rad * rad )
+    {
+        draw_point(surf, x, y, r_b, g_b, b_b, a_b);
+    }
+    else if ( dist < (rad+1) * (rad+1) )
+    {
+        u8 new_opacity = u8((1 - sqrt(dist) + rad) * a_b);
+        draw_point(surf, x, y, r_b, g_b, b_b, new_opacity);
+    }
+}
+
+SDL_Texture *draw_round_rect(SDL_Renderer *renderer, SDL_Rect rect,
                              int rtl, int rtr, int rbl, int rbr,
                              u8 r, u8 g, u8 b, u8 a)
 {
@@ -95,28 +129,22 @@ SDL_Texture *draw_round_rect(SDL_Renderer *renderer,
 
     u32 color = (a << 24) + (r << 16) + (g << 8) + b;
 
-    int max_l = imax(rtl, rbl);
-    int max_r = imax(rtr, rbr);
-
-    int min_l = imin(rtl, rbl);
-    int min_r = imin(rtr, rbr);
-
-    SDL_Rect cr = { max_l, 0, rect.w - max_r - max_l, rect.h };
+    SDL_Rect cr = { 0, 0, rect.w, rect.h };
     SDL_FillRect(surf, &cr, color);
 
-    cr = { 0, rtl, min_l, rect.h - rtl - rbl };
-    SDL_FillRect(surf, &cr, color);
+    cr = { 0, 0, rtl, rtl };
+    SDL_FillRect(surf, &cr, 0);
 
-    cr = {  min_l, rtl == min_l ? 0 : rtl, max_l - min_l, rect.h - (rtl == min_l ? rbl : rtl) };
-    SDL_FillRect(surf, &cr, color);
+    cr = { rect.w - rtr, 0, rtr, rtr };
+    SDL_FillRect(surf, &cr, 0);
 
-    cr = { rect.w - min_r, rtr, min_r, rect.h - rtr - rbr };
-    SDL_FillRect(surf, &cr, color);
+    cr = { 0, rect.h - rbl, rbl, rbl };
+    SDL_FillRect(surf, &cr, 0);
 
-    cr = { rect.w - max_r, rtr == min_r ? 0 : rtr, max_r - min_r, rect.h - (rtr == min_r ? rbr : rtr) };
-    SDL_FillRect(surf, &cr, color);
+    cr = { rect.w - rbr, rect.h - rbr, rbr, rbr };
+    SDL_FillRect(surf, &cr, 0);
 
-    int max_rad = imax(max_l, max_r);
+    int max_rad = imax(imax(rtl, rtr), imax(rbl, rbr));
 
     for ( int i = 0; i < max_rad; i++ )
     {
@@ -134,6 +162,108 @@ SDL_Texture *draw_round_rect(SDL_Renderer *renderer,
     return texture;
 }
 
+SDL_Texture *draw_round_border_rect(SDL_Renderer *renderer, SDL_Rect rect,
+                                    int border_thickness,
+                                    int rtl, int rtr, int rbl, int rbr,
+                                    u8 r_i, u8 g_i, u8 b_i, u8 a_i,
+                                    u8 r_b, u8 g_b, u8 b_b, u8 a_b)
+{
+    if (border_thickness == 0)
+        return draw_round_rect(
+            renderer,
+            rect,
+            rtl, rtr, rbl, rbr,
+            r_i, g_i, b_i, a_i);
+
+    SDL_Surface *surf = SDL_CreateRGBSurface(
+        0, rect.w, rect.h, 32,
+        0x00FF0000, 0x0000FF00, 0x000000FF, 0xFF000000);
+    SDL_Texture *texture;
+
+    if ( surf == nullptr )
+    {
+        return nullptr;
+    }
+
+    if ( rect.w == 0 && rect.h == 0 )
+    {
+        texture = SDL_CreateTextureFromSurface(renderer, surf);
+        SDL_FreeSurface(surf);
+        return texture;
+    }
+
+    i32 min_side = rect.w;
+    if ( min_side > rect.h )
+    {
+        min_side = rect.h;
+    }
+    rtl = fix_radius(min_side, rtl);
+    rtr = fix_radius(min_side, rtr);
+    rbl = fix_radius(min_side, rbl);
+    rbr = fix_radius(min_side, rbr);
+
+    u32 i_color = (a_i << 24) + (r_i << 16) + (g_i << 8) + b_i;
+    u32 b_color = (a_b << 24) + (r_b << 16) + (g_b << 8) + b_b;
+
+    SDL_Rect cr = { 0, 0, rect.w, rect.h };
+    SDL_FillRect(surf, &cr, b_color);
+
+    cr = {
+        border_thickness, border_thickness,
+        rect.w - border_thickness * 2,
+        rect.h - border_thickness * 2 };
+    SDL_FillRect(surf, &cr, i_color);
+
+    cr = { 0, 0, rtl, rtl };
+    SDL_FillRect(surf, &cr, 0);
+
+    cr = { rect.w - rtr, 0, rtr, rtr };
+    SDL_FillRect(surf, &cr, 0);
+
+    cr = { 0, rect.h - rbl, rbl, rbl };
+    SDL_FillRect(surf, &cr, 0);
+
+    cr = { rect.w - rbr, rect.h - rbr, rbr, rbr };
+    SDL_FillRect(surf, &cr, 0);
+
+    int max_rad = imax(imax(rtl, rtr), imax(rbl, rbr));
+
+    for ( int i = 0; i < max_rad; i++ )
+    {
+        for ( int j = 0; j < max_rad; j++ )
+        {
+            draw_angle_border_point(
+                surf,
+                rtl, border_thickness,
+                i, j, i, j,
+                r_i, g_i, b_i, a_i,
+                r_b, g_b, b_b, a_b);
+            draw_angle_border_point(
+                surf,
+                rtr, border_thickness,
+                i, j, rect.w - i - 1, j,
+                r_i, g_i, b_i, a_i,
+                r_b, g_b, b_b, a_b);
+            draw_angle_border_point(
+                surf,
+                rbr, border_thickness,
+                i, j, rect.w - i - 1, rect.h - j - 1,
+                r_i, g_i, b_i, a_i,
+                r_b, g_b, b_b, a_b);
+            draw_angle_border_point(
+                surf,
+                rbl, border_thickness,
+                i, j, i, rect.h - j - 1,
+                r_i, g_i, b_i, a_i,
+                r_b, g_b, b_b, a_b);
+        }
+    }
+
+    texture = SDL_CreateTextureFromSurface(renderer, surf);
+    SDL_FreeSurface(surf);
+    return texture;
+}
+
 void draw_texture(GUI_App *app, int x, int y, SDL_Texture *texture, SDL_Rect *clip)
 {
     int w, h;
@@ -142,7 +272,7 @@ void draw_texture(GUI_App *app, int x, int y, SDL_Texture *texture, SDL_Rect *cl
 
     if ( clip == nullptr )
     {
-        SDL_RenderCopy(app->renderer, texture, NULL, &texture_rect);
+        SDL_RenderCopy(app->renderer, texture, nullptr, &texture_rect);
         return;
     }
 

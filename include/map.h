@@ -57,7 +57,8 @@
 extern "C" {
 #endif // !__cplusplus
 
-/** The structure representing a node of a Nst_MapObj.
+/**
+ * The structure representing a node of a Nst_MapObj.
  *
  * @param hash: the hash of the key contained in the node
  * @param key: the key of the node
@@ -73,7 +74,8 @@ NstEXP typedef struct _Nst_MapNode {
     i32 prev_idx;
 } Nst_MapNode;
 
-/** The structure representing a Nest map object.
+/**
+ * The structure representing a Nest map object.
  *
  * @param size: the current size of the nodes array
  * @param item_count: the number of nodes inside the map
@@ -93,12 +95,14 @@ NstEXP typedef struct _Nst_MapObj {
     i32 tail_idx;
 } Nst_MapObj;
 
-/** Creates a new map object.
+/**
+ * Creates a new map object.
  *
  * @return The new object or NULL on failure. The error is set.
  */
 NstEXP Nst_Obj *NstC Nst_map_new(void);
-/** Inserts or modifies a value in the map.
+/**
+ * Inserts or modifies a value in the map.
  *
  * @param map: the map to update
  * @param key: the key to insert or modify
@@ -107,7 +111,8 @@ NstEXP Nst_Obj *NstC Nst_map_new(void);
  * @return true on success and false on failure. The error is set.
  */
 NstEXP bool NstC _Nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value);
-/** Gets the value associated with a key.
+/**
+ * Gets the value associated with a key.
  *
  * @param map: the map to get the value from
  * @param key: the key to get
@@ -116,7 +121,8 @@ NstEXP bool NstC _Nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value);
  * is not hashable or is not inside the map. No error is set.
  */
 NstEXP Nst_Obj *NstC _Nst_map_get(Nst_MapObj *map, Nst_Obj *key);
-/** Drops a key from a map and returns its value.
+/**
+ * Drops a key from a map and returns its value.
  *
  * @param map: the map to drop the key from
  * @param key: the key to drop
@@ -133,7 +139,9 @@ NstEXP void NstC _Nst_map_traverse(Nst_MapObj *map);
 /* The track function for the map object. */
 NstEXP void NstC _Nst_map_track(Nst_MapObj *map);
 
-/** Gets the next index in a map given the current one.
+/**
+ * Gets the next index in a map given the current one.
+ *
  * @brief If curr_idx is -1, the first index is returned.
  *
  * @param curr_idx: the current index
@@ -142,7 +150,9 @@ NstEXP void NstC _Nst_map_track(Nst_MapObj *map);
  * @return The next index or -1 if the given index is the last one.
  */
 NstEXP i32 NstC _Nst_map_get_next_idx(i32 curr_idx, Nst_MapObj *map);
-/** Gets the next index in a map given the current one.
+/**
+ * Gets the next index in a map given the current one.
+ *
  * @brief If curr_idx is -1, the first index is returned.
  *
  * @param curr_idx: the current index
@@ -152,7 +162,8 @@ NstEXP i32 NstC _Nst_map_get_next_idx(i32 curr_idx, Nst_MapObj *map);
  */
 NstEXP i32 NstC _Nst_map_get_prev_idx(i32 curr_idx, Nst_MapObj *map);
 
-/** Resizes the node array if necessary.
+/**
+ * Resizes the node array if necessary.
  *
  * @param map: the map to resize
  * @param force_item_reset: whether to force the nodes inside the map to be
@@ -163,7 +174,8 @@ NstEXP i32 NstC _Nst_map_get_prev_idx(i32 curr_idx, Nst_MapObj *map);
  */
 NstEXP bool NstC _Nst_map_resize(Nst_MapObj *map, bool force_item_reset);
 
-/** Inserts or modifies a value in the map.
+/**
+ * Inserts or modifies a value in the map.
  *
  * @param map: the map to update
  * @param key: the key to insert or modify as a C string
@@ -173,7 +185,8 @@ NstEXP bool NstC _Nst_map_resize(Nst_MapObj *map, bool force_item_reset);
  */
 NstEXP bool NstC _Nst_map_set_str(Nst_MapObj *map, const i8 *key,
                                   Nst_Obj *value);
-/** Gets the value associated with a key.
+/**
+ * Gets the value associated with a key.
  *
  * @param map: the map to get the value from
  * @param key: the key to get as a C string
@@ -182,7 +195,8 @@ NstEXP bool NstC _Nst_map_set_str(Nst_MapObj *map, const i8 *key,
  * is not hashable or is not inside the map. No error is set.
  */
 NstEXP Nst_Obj *NstC _Nst_map_get_str(Nst_MapObj *map, const i8 *key);
-/** Drops a key from a map and returns its value.
+/**
+ * Drops a key from a map and returns its value.
  *
  * @param map: the map to drop the key from
  * @param key: the key to drop as a C string

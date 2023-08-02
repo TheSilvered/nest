@@ -148,16 +148,16 @@ bool Nst_sbuffer_append(Nst_SizedBuffer *buf, void *element)
     if (!Nst_sbuffer_expand_by(buf, 1))
         return false;
 
-    memcpy((i8 *)buf->data + buf->size, element, buf->unit_size);
+    void *data_end = (void *)((i8 *)buf->data + (buf->len * buf->unit_size));
+    memcpy(data_end, element, buf->unit_size);
+    buf->len++;
     return true;
 }
 
 void Nst_sbuffer_destroy(Nst_SizedBuffer *buf)
 {
-    if ( buf->data != NULL )
-    {
+    if (buf->data != NULL)
         Nst_free(buf->data);
-    }
     buf->data = NULL;
     buf->size = 0;
     buf->len = 0;

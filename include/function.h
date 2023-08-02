@@ -26,7 +26,8 @@ extern "C" {
 #endif // !__cplusplus
 
 
-/** The union representing the body of a function object.
+/**
+ * The union representing the body of a function object.
  *
  * @param bytecode: the body is an instruction list
  * @param c_func: the body is a C function
@@ -36,7 +37,8 @@ NstEXP typedef union _Nst_FuncBody {
     Nst_Obj *(*c_func)(usize arg_num, Nst_Obj **args);
 } Nst_FuncBody;
 
-/** The structure representing a Nest function object.
+/**
+ * The structure representing a Nest function object.
  *
  * @param body: the body of the function
  * @param args: the array of names of the arguments
@@ -52,7 +54,8 @@ NstEXP typedef struct _Nst_FuncObj {
     Nst_MapObj *mod_globals;
 } Nst_FuncObj;
 
-/** Creates a new function object with an instruction-list body.
+/**
+ * Creates a new function object with an instruction-list body.
  *
  * @brief bytecode is assumed to be a valid non-NULL pointer. The args array
  * must be set later manually.
@@ -64,7 +67,8 @@ NstEXP typedef struct _Nst_FuncObj {
  * set.
  */
 NstEXP Nst_Obj *Nst_func_new(usize arg_num, Nst_InstList *bytecode);
-/** Creates a new function object with a C function body.
+/**
+ * Creates a new function object with a C function body.
  *
  * @brief cbody is assumed to be a valid non_NULL pointer. The args array must
  * NOT be set since it is not used.
@@ -78,7 +82,8 @@ NstEXP Nst_Obj *Nst_func_new(usize arg_num, Nst_InstList *bytecode);
 NstEXP Nst_Obj *Nst_func_new_c(usize arg_num,
                                Nst_Obj *(*cbody)(usize     arg_num,
                                                  Nst_Obj  **args));
-/** Sets the mod_globals table of a function and all the functions defined
+/**
+ * Sets the mod_globals table of a function and all the functions defined
  * inside it.
  *
  * @brief If the field is already set or the function has a C body, it is not

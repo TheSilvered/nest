@@ -15,7 +15,8 @@
 extern "C" {
 #endif // !__cplusplus
 
-/** Global execution state of Nest.
+/**
+ * Global execution state of Nest.
  *
  * @param traceback: traceback of the current running program
  * @param vt: current variable table
@@ -49,7 +50,8 @@ NstEXP typedef struct _Nst_ExecutionState {
     Nst_LList *lib_srcs;
 } Nst_ExecutionState;
 
-/** Runs the main program.
+/**
+ * Runs the main program.
  *
  * @brief Must never be called inside a library.
  *
@@ -65,7 +67,8 @@ NstEXP typedef struct _Nst_ExecutionState {
  */
 NstEXP i32 NstC Nst_run(Nst_FuncObj *main_func, i32 argc, i8 **argv,
                         i8 *filename, i32 opt_lvl, bool no_default);
-/** Runs an external Nest file.
+/**
+ * Runs an external Nest file.
  *
  * @brief If the function succeedes, the result of the module is on top of the
  * value stack.
@@ -79,7 +82,8 @@ NstEXP i32 NstC Nst_run(Nst_FuncObj *main_func, i32 argc, i8 **argv,
  * @return -1 on failure and 0 on success.
  */
 NstEXP i32 NstC Nst_run_module(i8 *file_name, Nst_SourceText *lib_src);
-/** Calls a Nst_FuncObj.
+/**
+ * Calls a Nst_FuncObj.
  * @brief It can have both a Nest or C body. No checking is done on the number
  * of arguments.
  *
@@ -93,7 +97,8 @@ NstEXP i32 NstC Nst_run_module(i8 *file_name, Nst_SourceText *lib_src);
  */
 NstEXP Nst_Obj *NstC Nst_call_func(Nst_FuncObj *func, Nst_Obj **args);
 
-/** Executes the body of a Nst_FuncObj that has a Nest body using a given
+/**
+ * Executes the body of a Nst_FuncObj that has a Nest body using a given
  * context.
  *
  * @brief The context is set according to the arguments passed.
@@ -111,7 +116,8 @@ NstEXP Nst_Obj *NstC Nst_call_func(Nst_FuncObj *func, Nst_Obj **args);
 NstEXP Nst_Obj *NstC Nst_run_func_context(Nst_FuncObj *func, Nst_Int idx,
                                           Nst_MapObj *vars,
                                           Nst_MapObj *globals);
-/** Returns the absolute path to a file system object.
+/**
+ * Returns the absolute path to a file system object.
  *
  * @brief The absolute path is allocated on the heap.
  *
@@ -129,7 +135,8 @@ NstEXP usize NstC Nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part);
  * failure NULL is returned. No error is set.
  */
 NstEXP Nst_Inst *NstC Nst_current_inst(void);
-/** Initializes the global state.
+/**
+ * Initializes the global state.
  *
  * @param argc: the command line argument count
  * @param argv: the command line arguments
@@ -161,12 +168,14 @@ extern Nst_ExecutionState Nst_state;
 /* Returns a pointer to the global state of the interpreter. */
 NstEXP Nst_ExecutionState *NstC Nst_get_state(void);
 
-/** Changes the current working directory using a Nst_StrObj.
+/**
+ * Changes the current working directory using a Nst_StrObj.
  *
  * @return 0 on success and -1 on failure. The error is set.
  */
 NstEXP i32 NstC Nst_chdir(Nst_StrObj *str);
-/** Gets the current working directory as a Nest string.
+/**
+ * Gets the current working directory as a Nest string.
  *
  * @return the new string or NULL on failure. The error is set.
  */

@@ -7,19 +7,14 @@
 #define F_STACK_MIN_SIZE 125
 #define C_STACK_MIN_SIZE 4
 
-void Nst_stack_shrink(Nst_GenericStack *g_stack,
-                      usize             min_size,
-                      usize             unit_size)
+void Nst_stack_shrink(Nst_GenericStack *g_stack, usize min_size,
+                      usize unit_size)
 {
-    if ( g_stack->max_size <= min_size )
-    {
+    if (g_stack->max_size <= min_size)
         return;
-    }
 
-    if ( g_stack->max_size >> 2 < g_stack->current_size )
-    {
+    if (g_stack->max_size >> 2 < g_stack->current_size)
         return;
-    }
 
     assert(g_stack->current_size <= g_stack->max_size);
 
@@ -33,13 +28,11 @@ void Nst_stack_shrink(Nst_GenericStack *g_stack,
     g_stack->stack = new_stack;
 }
 
-bool Nst_stack_init(Nst_GenericStack *g_stack,
-                    usize             unit_size,
-                    usize             starting_size)
+bool Nst_stack_init(Nst_GenericStack *g_stack, usize unit_size,
+                    usize starting_size)
 {
     void *stack = Nst_malloc(starting_size, unit_size);
-    if ( stack == NULL )
-    {
+    if (stack == NULL) {
         g_stack->stack = NULL;
         g_stack->current_size = 0;
         g_stack->max_size = 0;
@@ -55,10 +48,8 @@ bool Nst_stack_init(Nst_GenericStack *g_stack,
 
 bool Nst_stack_expand(Nst_GenericStack *g_stack, usize unit_size)
 {
-    if ( g_stack->current_size < g_stack->max_size )
-    {
+    if (g_stack->current_size < g_stack->max_size)
         return true;
-    }
 
     void *new_stack = Nst_realloc(
         g_stack->stack,
@@ -66,10 +57,8 @@ bool Nst_stack_expand(Nst_GenericStack *g_stack, usize unit_size)
         unit_size,
         0);
 
-    if ( new_stack == NULL )
-    {
+    if (new_stack == NULL)
         return false;
-    }
 
     g_stack->stack = new_stack;
     g_stack->max_size *= 2;
@@ -87,22 +76,21 @@ bool Nst_vstack_init(void)
 
 bool _Nst_vstack_push(Nst_Obj *obj)
 {
-    if ( !Nst_stack_expand((Nst_GenericStack *)&Nst_state.v_stack, sizeof(Nst_Obj *)) )
-    {
+    bool result = Nst_stack_expand(
+        (Nst_GenericStack *)&Nst_state.v_stack,
+        sizeof(Nst_Obj *));
+    if (!result)
         return false;
-    }
 
-    Nst_state.v_stack.stack[Nst_state.v_stack.current_size++] =
-        obj != NULL ? Nst_inc_ref(obj) : NULL;
+    usize idx = Nst_state.v_stack.current_size++;
+    Nst_state.v_stack.stack[idx] = Nst_ninc_ref(obj);
     return true;
 }
 
 Nst_Obj *Nst_vstack_pop(void)
 {
-    if ( Nst_state.v_stack.current_size == 0 )
-    {
+    if (Nst_state.v_stack.current_size == 0)
         return NULL;
-    }
 
     Nst_Obj *val = Nst_state.v_stack.stack[--Nst_state.v_stack.current_size];
     Nst_stack_shrink(
@@ -115,36 +103,27 @@ Nst_Obj *Nst_vstack_pop(void)
 
 Nst_Obj *Nst_vstack_peek(void)
 {
-    if ( Nst_state.v_stack.current_size == 0 )
-    {
+    if (Nst_state.v_stack.current_size == 0)
         return NULL;
-    }
 
     return Nst_state.v_stack.stack[Nst_state.v_stack.current_size - 1];
 }
 
 bool Nst_vstack_dup(void)
 {
-    if ( Nst_state.v_stack.current_size != 0 )
-    {
+    if (Nst_state.v_stack.current_size != 0)
         return Nst_vstack_push(Nst_vstack_peek());
-    }
     return true;
 }
 
 void Nst_vstack_destroy(void)
 {
-    if ( Nst_state.v_stack.stack == NULL )
-    {
+    if (Nst_state.v_stack.stack == NULL)
         return;
-    }
 
-    for ( Nst_Int i = 0; i < (Nst_Int)Nst_state.v_stack.current_size; i++ )
-    {
-        if ( Nst_state.v_stack.stack[i] != NULL )
-        {
+    for (Nst_Int i = 0; i < (Nst_Int)Nst_state.v_stack.current_size; i++) {
+        if (Nst_state.v_stack.stack[i] != NULL)
             Nst_dec_ref(Nst_state.v_stack.stack[i]);
-        }
     }
 
     Nst_free(Nst_state.v_stack.stack);
@@ -158,26 +137,22 @@ bool Nst_fstack_init(void)
         F_STACK_MIN_SIZE);
 }
 
-bool _Nst_fstack_push(Nst_FuncObj  *func,
-                      Nst_Pos       call_start,
-                      Nst_Pos       call_end,
-                      Nst_VarTable *vt,
-                      Nst_Int       idx,
-                      usize         cstack_size)
+bool _Nst_fstack_push(Nst_FuncObj  *func, Nst_Pos call_start, Nst_Pos call_end,
+                      Nst_VarTable *vt, Nst_Int idx, usize cstack_size)
 {
     usize max_size = Nst_state.f_stack.max_size;
 
-    if ( Nst_state.f_stack.current_size == max_size && max_size == 1000 )
-    {
+    if (Nst_state.f_stack.current_size == max_size && max_size == 1000)
         return false;
-    }
 
-    if ( !Nst_stack_expand((Nst_GenericStack *)&Nst_state.f_stack, sizeof(Nst_FuncCall)) )
-    {
+    bool result = Nst_stack_expand(
+        (Nst_GenericStack *)&Nst_state.f_stack,
+        sizeof(Nst_FuncCall));
+    if (!result)
         return false;
-    }
 
-    Nst_FuncCall *call = &Nst_state.f_stack.stack[Nst_state.f_stack.current_size++];
+    usize stack_idx = Nst_state.f_stack.current_size++;
+    Nst_FuncCall *call = &Nst_state.f_stack.stack[stack_idx];
 
     call->func = FUNC(Nst_inc_ref(func));
     call->start = call_start;
@@ -198,10 +173,8 @@ Nst_FuncCall Nst_fstack_pop(void)
         0, 0
     };
 
-    if ( Nst_state.f_stack.current_size == 0 )
-    {
+    if (Nst_state.f_stack.current_size == 0)
         return call;
-    }
 
     call = Nst_state.f_stack.stack[--Nst_state.f_stack.current_size];
     Nst_stack_shrink(
@@ -213,8 +186,7 @@ Nst_FuncCall Nst_fstack_pop(void)
 
 Nst_FuncCall Nst_fstack_peek(void)
 {
-    if ( Nst_state.f_stack.current_size == 0 )
-    {
+    if (Nst_state.f_stack.current_size == 0) {
         Nst_FuncCall ret_val = {
             NULL,
             Nst_no_pos(),
@@ -230,20 +202,14 @@ Nst_FuncCall Nst_fstack_peek(void)
 
 void Nst_fstack_destroy(void)
 {
-    if ( Nst_state.v_stack.stack == NULL )
-    {
+    if (Nst_state.v_stack.stack == NULL)
         return;
-    }
 
-    for ( Nst_Int i = 0; i < (Nst_Int)Nst_state.f_stack.current_size; i++ )
-    {
-        if ( Nst_state.f_stack.stack[i].func != NULL )
-        {
+    for (Nst_Int i = 0; i < (Nst_Int)Nst_state.f_stack.current_size; i++) {
+        if (Nst_state.f_stack.stack[i].func != NULL)
             Nst_dec_ref(Nst_state.f_stack.stack[i].func);
-        }
 
-        if ( Nst_state.f_stack.stack[i].vt != NULL )
-        {
+        if (Nst_state.f_stack.stack[i].vt != NULL) {
             Nst_dec_ref(Nst_state.f_stack.stack[i].vt->vars);
             Nst_free(Nst_state.f_stack.stack[i].vt);
         }
@@ -260,25 +226,25 @@ bool Nst_cstack_init(void)
         C_STACK_MIN_SIZE);
 }
 
-bool Nst_cstack_push(Nst_Int inst_idx,
-                     usize   v_stack_size,
-                     usize   f_stack_size)
+bool Nst_cstack_push(Nst_Int inst_idx, usize v_stack_size, usize f_stack_size)
 {
-    if ( !Nst_stack_expand((Nst_GenericStack *)&Nst_state.c_stack, sizeof(Nst_CatchFrame)) )
-    {
+    bool result = Nst_stack_expand(
+        (Nst_GenericStack *)&Nst_state.c_stack,
+        sizeof(Nst_CatchFrame));
+    if (!result)
         return false;
-    }
 
-    Nst_state.c_stack.stack[Nst_state.c_stack.current_size].f_stack_size = f_stack_size;
-    Nst_state.c_stack.stack[Nst_state.c_stack.current_size].v_stack_size = v_stack_size;
-    Nst_state.c_stack.stack[Nst_state.c_stack.current_size++].inst_idx   = inst_idx;
+    usize idx = Nst_state.c_stack.current_size++;
+    Nst_CatchFrame *frame = &Nst_state.c_stack.stack[idx];
+    frame->f_stack_size = f_stack_size;
+    frame->v_stack_size = v_stack_size;
+    frame->inst_idx     = inst_idx;
     return true;
 }
 
 Nst_CatchFrame Nst_cstack_peek(void)
 {
-    if ( Nst_state.c_stack.current_size == 0 )
-    {
+    if (Nst_state.c_stack.current_size == 0) {
         Nst_CatchFrame frame = { 0, 0, -1 };
         return frame;
     }
@@ -289,10 +255,8 @@ Nst_CatchFrame Nst_cstack_peek(void)
 Nst_CatchFrame Nst_cstack_pop(void)
 {
     Nst_CatchFrame frame = { 0, 0, -1 };
-    if ( Nst_state.c_stack.current_size == 0 )
-    {
+    if (Nst_state.c_stack.current_size == 0)
         return frame;
-    }
 
     frame = Nst_state.c_stack.stack[--Nst_state.c_stack.current_size];
     Nst_stack_shrink(
@@ -304,10 +268,8 @@ Nst_CatchFrame Nst_cstack_pop(void)
 
 void Nst_cstack_destroy(void)
 {
-    if ( Nst_state.v_stack.stack == NULL )
-    {
+    if (Nst_state.v_stack.stack == NULL)
         return;
-    }
 
     Nst_free(Nst_state.c_stack.stack);
 }

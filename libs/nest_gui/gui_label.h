@@ -12,7 +12,7 @@ typedef struct _GUI_Label
 {
     GUI_ELEMENT_HEAD;
     Nst_Buffer text;
-    TTF_Font *font;
+    GUI_FontObj *font;
     SDL_Texture *texture;
     SDL_Color color;
     int alignment;
@@ -22,18 +22,19 @@ typedef struct _GUI_Label
 GUI_Label;
 
 GUI_Element *gui_label_new(Nst_StrObj *text,
-                           TTF_Font   *font,
-                           SDL_Color   color,
+                           GUI_FontObj *font,
+                           SDL_Color color,
                            int x, int y, int w, int h,
                            GUI_App *app);
 bool gui_label_update(GUI_Label *l);
 void gui_label_destroy(GUI_Label *l);
 
 void gui_label_change_color(GUI_Label *l, SDL_Color new_color);
-void gui_label_append_text(GUI_Label *l, Nst_StrObj *str);
-void gui_label_append_c_text(GUI_Label *l, i8 *text);
-void gui_label_set_text(GUI_Label *l, Nst_StrObj *str);
-void gui_label_set_c_text(GUI_Label *l, i8 *text);
+void gui_label_append_text(GUI_Label *l, Nst_StrObj *str, bool change_size);
+void gui_label_append_c_text(GUI_Label *l, i8 *text, bool change_size);
+void gui_label_set_text(GUI_Label *l, Nst_StrObj *str, bool change_size);
+void gui_label_set_c_text(GUI_Label *l, i8 *text, bool change_size);
+void gui_label_set_font(GUI_Label *l, GUI_FontObj *font, bool change_size);
 
 #ifdef __cplusplus
 }

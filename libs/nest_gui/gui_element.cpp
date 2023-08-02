@@ -11,11 +11,8 @@ GUI_Element *gui_element_new(GUI_ElementType t,
         size,
         gui_element_type,
         (Nst_ObjDestructor)gui_element_destroy);
-
-    if ( obj == nullptr )
-    {
+    if (obj == nullptr)
         return nullptr;
-    }
     obj->rect = { x, y, w, h };
     obj->clip_content = false;
     obj->clip_parent = false;
@@ -24,8 +21,7 @@ GUI_Element *gui_element_new(GUI_ElementType t,
 
     obj->parent = nullptr;
     obj->children = SEQ(Nst_vector_new(0));
-    if ( obj->children == nullptr )
-    {
+    if (obj->children == nullptr) {
         Nst_free(obj);
         return nullptr;
     }
@@ -34,28 +30,23 @@ GUI_Element *gui_element_new(GUI_ElementType t,
     obj->handle_event_func = nullptr;
     obj->frame_update_func = nullptr;
     obj->tick_update_func = nullptr;
-    obj->on_child_added_func = nullptr;
 
     gui_element_set_margin(obj, 0, 0, 0, 0);
     gui_element_set_padding(obj, 0, 0, 0, 0);
 
     Nst_GGC_OBJ_INIT(obj, gui_element_track, gui_element_traverse);
-
     return obj;
 }
 
 void gui_element_destroy(GUI_Element *obj)
 {
     Nst_dec_ref(obj->children);
-    if ( obj->parent != nullptr )
-    {
+    if (obj->parent != nullptr)
         Nst_dec_ref(obj->parent);
-    }
-    if ( Nst_FLAG_HAS(obj, GUI_FLAG_REL_POS) && obj->rel_pos.element != nullptr )
-    {
+    if (Nst_FLAG_HAS(obj, GUI_FLAG_REL_POS) && obj->rel_pos.element != nullptr)
         Nst_dec_ref(obj->rel_pos.element);
-    }
-    if ( Nst_FLAG_HAS(obj, GUI_FLAG_REL_SIZE) && obj->rel_size.element != nullptr )
+    if (Nst_FLAG_HAS(obj, GUI_FLAG_REL_SIZE)
+        && obj->rel_size.element != nullptr)
     {
         Nst_dec_ref(obj->rel_size.element);
     }
@@ -64,15 +55,12 @@ void gui_element_destroy(GUI_Element *obj)
 void gui_element_track(GUI_Element *obj)
 {
     Nst_ggc_track_obj(GGC_OBJ(obj->children));
-    if ( obj->parent != nullptr )
-    {
+    if (obj->parent != nullptr)
         Nst_ggc_track_obj(GGC_OBJ(obj->parent));
-    }
-    if ( Nst_FLAG_HAS(obj, GUI_FLAG_REL_POS) && obj->rel_pos.element != nullptr )
-    {
+    if (Nst_FLAG_HAS(obj, GUI_FLAG_REL_POS) && obj->rel_pos.element != nullptr)
         Nst_ggc_track_obj(GGC_OBJ(obj->rel_pos.element));
-    }
-    if ( Nst_FLAG_HAS(obj, GUI_FLAG_REL_SIZE) && obj->rel_size.element != nullptr )
+    if (Nst_FLAG_HAS(obj, GUI_FLAG_REL_SIZE)
+        && obj->rel_size.element != nullptr)
     {
         Nst_ggc_track_obj(GGC_OBJ(obj->rel_size.element));
     }
@@ -82,42 +70,42 @@ void gui_element_traverse(GUI_Element *obj)
 {
     _Nst_seq_traverse(obj->children);
     Nst_FLAG_SET(obj->children, Nst_FLAG_GGC_REACHABLE);
-    if ( obj->parent != nullptr )
-    {
+    if (obj->parent != nullptr)
         Nst_FLAG_SET(obj->parent, Nst_FLAG_GGC_REACHABLE);
-    }
-    if ( Nst_FLAG_HAS(obj, GUI_FLAG_REL_POS) && obj->rel_pos.element != nullptr )
-    {
+    if (Nst_FLAG_HAS(obj, GUI_FLAG_REL_POS) && obj->rel_pos.element != nullptr)
         Nst_FLAG_SET(obj->rel_pos.element, Nst_FLAG_GGC_REACHABLE);
-    }
-    if ( Nst_FLAG_HAS(obj, GUI_FLAG_REL_SIZE) && obj->rel_size.element != nullptr )
+    if (Nst_FLAG_HAS(obj, GUI_FLAG_REL_SIZE)
+        && obj->rel_size.element != nullptr)
     {
         Nst_FLAG_SET(obj->rel_size.element, Nst_FLAG_GGC_REACHABLE);
     }
 }
 
-void gui_element_set_margin(GUI_Element *obj,
-                            i32 margin_top,
-                            i32 margin_left,
-                            i32 margin_bottom,
-                            i32 margin_right)
+void gui_element_set_margin(GUI_Element *obj, i32 margin_top, i32 margin_left,
+                            i32 margin_bottom, i32 margin_right)
 {
-    obj->margin_top = margin_top;
-    obj->margin_left = margin_left;
-    obj->margin_bottom = margin_bottom;
-    obj->margin_right = margin_right;
+    if (margin_top >= 0)
+        obj->margin_top = margin_top;
+    if (margin_left >= 0)
+        obj->margin_left = margin_left;
+    if (margin_bottom >= 0)
+        obj->margin_bottom = margin_bottom;
+    if (margin_right >= 0)
+        obj->margin_right = margin_right;
 }
 
-void gui_element_set_padding(GUI_Element *obj,
-                             i32 padding_top,
-                             i32 padding_left,
-                             i32 padding_bottom,
+void gui_element_set_padding(GUI_Element *obj, i32 padding_top,
+                             i32 padding_left, i32 padding_bottom,
                              i32 padding_right)
 {
-    obj->padding_top = padding_top;
-    obj->padding_left = padding_left;
-    obj->padding_bottom = padding_bottom;
-    obj->padding_right = padding_right;
+    if (padding_top >= 0)
+        obj->padding_top = padding_top;
+    if (padding_left >= 0)
+        obj->padding_left = padding_left;
+    if (padding_bottom >= 0)
+        obj->padding_bottom = padding_bottom;
+    if (padding_right >= 0)
+        obj->padding_right = padding_right;
 }
 
 void gui_element_set_parent(GUI_Element *obj, GUI_Element *parent)
@@ -192,89 +180,199 @@ int gui_element_get_content_y(GUI_Element *obj, GUI_RelPosY pos, GUI_RelRect r)
     }
 }
 
-void gui_element_set_x(GUI_Element *obj, GUI_RelPosX pos, int x)
+static void set_margin_pos(GUI_Element *obj,
+                           GUI_RelPosX pos_x, int x,
+                           GUI_RelPosY pos_y, int y)
 {
-    switch ( pos )
-    {
+    switch (pos_x) {
     case GUI_LEFT:
         obj->rect.x = x + obj->margin_left;
         break;
     case GUI_MIDDLE:
         obj->rect.x = x
             + obj->margin_left
-            - ((obj->rect.w + obj->margin_left + obj->margin_right) >> 1);
+            - (obj->rect.w + obj->margin_left + obj->margin_right) / 2;
         break;
     case GUI_RIGHT:
         obj->rect.x = x - obj->rect.w - obj->margin_right;
         break;
-    default:
-        obj->rect.x = x;
+    default: break;
     }
-}
 
-void gui_element_set_y(GUI_Element *obj, GUI_RelPosY pos, int y)
-{
-    switch ( pos )
-    {
+    switch (pos_y) {
     case GUI_TOP:
         obj->rect.y = y + obj->margin_top;
         break;
     case GUI_CENTER:
         obj->rect.y = y
             + obj->margin_top
-            - ((obj->rect.h + obj->margin_top + obj->margin_bottom) >> 1);
+            - (obj->rect.h + obj->margin_top + obj->margin_bottom) / 2;
         break;
     case GUI_BOTTOM:
         obj->rect.y = y - obj->rect.h - obj->margin_bottom;
         break;
-    default:
-        obj->rect.y = y;
+    default: break;
     }
 }
 
-void gui_element_set_rel_pos(GUI_Element *obj,
-                             GUI_Element *element,
-                             GUI_RelRect rel_pos_rect,
+static void set_padding_pos(GUI_Element *obj,
+                            GUI_RelPosX pos_x, int x,
+                            GUI_RelPosY pos_y, int y)
+{
+    switch (pos_x) {
+    case GUI_LEFT:
+        obj->rect.x = x - obj->padding_left;
+        break;
+    case GUI_MIDDLE:
+        obj->rect.x = x
+            - obj->padding_left
+            - (obj->rect.w - obj->padding_left - obj->padding_right) / 2;
+        break;
+    case GUI_RIGHT:
+        obj->rect.x = x - obj->rect.w - obj->padding_left;
+        break;
+    default: break;
+    }
+
+    switch (pos_y) {
+    case GUI_TOP:
+        obj->rect.y = y - obj->padding_top;
+        break;
+    case GUI_CENTER:
+        obj->rect.y = y
+            - obj->padding_top
+            - (obj->rect.h - obj->padding_top - obj->padding_bottom) / 2;
+        break;
+    case GUI_BOTTOM:
+        obj->rect.y = y - obj->rect.h - obj->padding_top;
+        break;
+    default: break;
+    }
+}
+
+static void set_element_pos(GUI_Element *obj,
+                            GUI_RelPosX pos_x, int x,
+                            GUI_RelPosY pos_y, int y)
+{
+    switch (pos_x) {
+    case GUI_LEFT:
+        obj->rect.x = x;
+        break;
+    case GUI_MIDDLE:
+        obj->rect.x = x - obj->rect.w / 2;
+        break;
+    case GUI_RIGHT:
+        obj->rect.x = x - obj->rect.w;
+        break;
+    default: break;
+    }
+
+    switch (pos_y) {
+    case GUI_TOP:
+        obj->rect.y = y;
+        break;
+    case GUI_MIDDLE:
+        obj->rect.y = y - obj->rect.h / 2;
+        break;
+    case GUI_RIGHT:
+        obj->rect.y = y - obj->rect.y;
+        break;
+    default: break;
+    }
+}
+
+void gui_element_set_pos(GUI_Element *obj,
+                         GUI_RelPosX pos_x, int x,
+                         GUI_RelPosY pos_y, int y,
+                         GUI_RelRect rect)
+{
+    int prev_x = obj->rect.x;
+    int prev_y = obj->rect.y;
+
+    if (rect == GUI_RECT_MARGIN)
+        set_margin_pos(obj, pos_x, x, pos_y, y);
+    else if (rect == GUI_RECT_PADDING)
+        set_padding_pos(obj, pos_x, x, pos_y, y);
+    else
+        set_element_pos(obj, pos_x, x, pos_y, y);
+
+    if (prev_x != obj->rect.x || prev_y != obj->rect.y) {
+        SDL_Event event;
+        event.type = SDL_USEREVENT;
+        event.user.code = GUI_UE_MOVED;
+        event.user.data1 = obj;
+        SDL_PushEvent(&event);
+    }
+}
+
+void gui_element_set_size(GUI_Element *obj, int w, int h, GUI_RelRect rect)
+{
+    int prev_w = obj->rect.w;
+    int prev_h = obj->rect.h;
+
+    if (w >= 0) {
+        if (rect == GUI_RECT_MARGIN)
+            obj->rect.w = imax(w, obj->margin_left + obj->margin_right)
+                        - obj->margin_left - obj->margin_right;
+        else if (rect == GUI_RECT_PADDING)
+            obj->rect.w = w + obj->padding_left + obj->padding_right;
+        else
+            obj->rect.w = w;
+    }
+
+    if (h >= 0) {
+        if (rect == GUI_RECT_MARGIN)
+            obj->rect.h = imax(h, obj->margin_top + obj->margin_bottom)
+                - obj->margin_top - obj->margin_bottom;
+        else if (rect == GUI_RECT_PADDING)
+            obj->rect.h = h + obj->padding_top + obj->padding_bottom;
+        else
+            obj->rect.h = h;
+    }
+
+    if (prev_w != obj->rect.w || prev_h != obj->rect.h) {
+        SDL_Event event;
+        event.type = SDL_USEREVENT;
+        event.user.code = GUI_UE_RESIZED;
+        event.user.data1 = obj;
+        SDL_PushEvent(&event);
+    }
+}
+
+void gui_element_set_rel_pos(GUI_Element *obj, GUI_Element *element,
+                             GUI_RelRect from_rect, GUI_RelRect to_rect,
                              GUI_RelPosX from_x, GUI_RelPosY from_y,
                              GUI_RelPosX to_x, GUI_RelPosY to_y)
 {
     Nst_FLAG_SET(obj, GUI_FLAG_REL_POS);
-    obj->rel_pos.rel_pos_rect = rel_pos_rect;
+    obj->rel_pos.from_rect = from_rect;
+    obj->rel_pos.to_rect = to_rect;
     obj->rel_pos.from_x = from_x;
     obj->rel_pos.from_y = from_y;
     obj->rel_pos.to_x = to_x;
     obj->rel_pos.to_y = to_y;
     obj->rel_pos.element = element;
 
-    if ( element != nullptr )
-    {
+    if (element != nullptr) {
         Nst_inc_ref(element);
-        if ( Nst_OBJ_IS_TRACKED(obj) )
-        {
+        if (!Nst_OBJ_IS_TRACKED(obj))
             Nst_ggc_track_obj(GGC_OBJ(element));
-        }
-    }
-    else
-    {
+    } else {
         obj->rel_pos.element = obj->app->root;
         Nst_inc_ref(obj->app->root);
-        if ( Nst_OBJ_IS_TRACKED(obj) )
-        {
+        if (!Nst_OBJ_IS_TRACKED(obj) )
             Nst_ggc_track_obj(GGC_OBJ(obj->app->root));
-        }
     }
 }
 
-void gui_element_set_rel_size(GUI_Element *obj,
-                              GUI_Element *element,
-                              GUI_RelRect rel_size_rect,
-                              i32 min_w, i32 min_h,
-                              i32 max_w, i32 max_h,
-                              f64 scale_x, f64 scale_y,
-                              i32 diff_x, i32 diff_y)
+void gui_element_set_rel_size(GUI_Element *obj, GUI_Element *element,
+                              GUI_RelRect from_rect, GUI_RelRect to_rect,
+                              i32 min_w, i32 min_h, i32 max_w, i32 max_h,
+                              f64 scale_x, f64 scale_y, i32 diff_x, i32 diff_y)
 {
     Nst_FLAG_SET(obj, GUI_FLAG_REL_SIZE);
-    obj->rel_size.rel_size_rect = rel_size_rect;
+    obj->rel_size.from_rect = from_rect;
+    obj->rel_size.to_rect = to_rect;
     obj->rel_size.min_w = min_w;
     obj->rel_size.min_h = min_h;
     obj->rel_size.max_w = max_w;
@@ -285,123 +383,108 @@ void gui_element_set_rel_size(GUI_Element *obj,
     obj->rel_size.diff_y = diff_y;
     obj->rel_size.element = element;
 
-    if ( element != nullptr )
-    {
+    if (element != nullptr) {
         Nst_inc_ref(element);
-        if ( Nst_OBJ_IS_TRACKED(obj) )
-        {
+        if (!Nst_OBJ_IS_TRACKED(obj))
             Nst_ggc_track_obj(GGC_OBJ(element));
-        }
     }
 }
 
 void gui_element_update_pos(GUI_Element *obj)
 {
-    if ( !Nst_FLAG_HAS(obj, GUI_FLAG_REL_POS) )
-    {
+    if (!Nst_FLAG_HAS(obj, GUI_FLAG_REL_POS))
         return;
-    }
 
     GUI_RelPosX from_x = obj->rel_pos.from_x;
     GUI_RelPosY from_y = obj->rel_pos.from_y;
+    GUI_RelPosX to_x = obj->rel_pos.to_x;
+    GUI_RelPosY to_y = obj->rel_pos.to_y;
 
-    if ( from_x >= GUI_LEFT && from_x <= GUI_RIGHT )
-    {
-        int x = gui_element_get_content_x(obj->rel_pos.element, from_x, obj->rel_pos.rel_pos_rect);
-        gui_element_set_x(obj, obj->rel_pos.to_x, x);
+    int x, y;
+    if (from_x >= GUI_LEFT && from_x <= GUI_RIGHT) {
+        x = gui_element_get_content_x(
+            obj->rel_pos.element,
+            from_x,
+            obj->rel_pos.from_rect);
+    } else {
+        x = obj->rect.x;
+        to_x = (GUI_RelPosX)-1;
     }
-    if ( from_y >= GUI_TOP && from_y <= GUI_BOTTOM )
-    {
-        int y = gui_element_get_content_y(obj->rel_pos.element, from_y, obj->rel_pos.rel_pos_rect);
-        gui_element_set_y(obj, obj->rel_pos.to_y, y);
+
+    if (from_y >= GUI_TOP && from_y <= GUI_BOTTOM) {
+        y = gui_element_get_content_y(
+            obj->rel_pos.element,
+            from_y,
+            obj->rel_pos.from_rect);
+    } else {
+        y = obj->rect.y;
+        to_y = (GUI_RelPosY)-1;
     }
+    gui_element_set_pos(obj, to_x, x, to_y, y, obj->rel_pos.to_rect);
 }
 
 void gui_element_update_size(GUI_Element *obj)
 {
-    if ( !Nst_FLAG_HAS(obj, GUI_FLAG_REL_SIZE) )
-    {
+    if (!Nst_FLAG_HAS(obj, GUI_FLAG_REL_SIZE))
         return;
-    }
 
     int p_w, p_h;
     GUI_Element *rs_element = obj->rel_size.element;
 
-    if ( rs_element == nullptr )
-    {
+    if (rs_element == nullptr)
         SDL_GetWindowSize(obj->app->window, &p_w, &p_h);
-    }
-    else
-    {
+    else {
         p_w = rs_element->rect.w;
         p_h = rs_element->rect.h;
 
-        if ( obj->rel_size.rel_size_rect == GUI_RECT_MARGIN )
-        {
+        if (obj->rel_size.from_rect == GUI_RECT_MARGIN) {
             p_w += rs_element->margin_left + rs_element->margin_right;
             p_h += rs_element->margin_top  + rs_element->margin_bottom;
-        }
-        else if ( obj->rel_size.rel_size_rect == GUI_RECT_PADDING )
-        {
+        } else if (obj->rel_size.from_rect == GUI_RECT_PADDING) {
             p_w -= rs_element->padding_left + rs_element->padding_right;
             p_h -= rs_element->padding_top  + rs_element->padding_bottom;
         }
     }
 
-    if ( obj->rel_size.diff_x != 0 )
-    {
-        p_w += obj->rel_size.diff_x;
-    }
-    else if ( obj->rel_size.scale_x != 0.0 )
-    {
-        p_w = int(double(p_w) * obj->rel_size.scale_x);
-    }
-    else
-    {
-        p_w = obj->rect.w;
-    }
+    i32 diff_x = obj->rel_size.diff_x;
+    i32 diff_y = obj->rel_size.diff_y;
+    f64 scale_x = obj->rel_size.scale_x;
+    f64 scale_y = obj->rel_size.scale_y;
 
-    if ( obj->rel_size.diff_y != 0 )
-    {
-        p_h += obj->rel_size.diff_y;
-    }
-    else if ( obj->rel_size.scale_y != 0.0 )
-    {
-        p_h = int(double(p_h) * obj->rel_size.scale_y);
-    }
+    if (diff_x != 0)
+        p_w += diff_x;
+    else if (scale_x != 0.0)
+        p_w = int(double(p_w) * scale_x);
     else
-    {
-        p_h = obj->rect.h;
-    }
+        p_w = -1;
+
+    if (diff_y != 0)
+        p_h += diff_y;
+    else if (scale_y != 0.0)
+        p_h = int(double(p_h) * scale_y);
+    else
+        p_h = -1;
 
     i32 min_w = obj->rel_size.min_w;
     i32 min_h = obj->rel_size.min_h;
     i32 max_w = obj->rel_size.max_w;
     i32 max_h = obj->rel_size.max_h;
 
-    if ( p_w < min_w && min_w > 0 )
-    {
+    if (p_w < min_w && min_w > 0)
         p_w = min_w;
-    }
-    if ( p_w > max_w && max_w > 0 )
-    {
+    if (p_w > max_w && max_w > 0)
         p_w = max_w;
-    }
+    if (p_w < 0 && diff_x != 0 && scale_x != 0)
+        p_w = 0;
 
-    if ( p_h < min_h && min_h > 0 )
-    {
+    if (p_h < min_h && min_h > 0)
         p_h = min_h;
-    }
-    if ( p_h > max_h && max_h > 0 )
-    {
+    if (p_h > max_h && max_h > 0)
         p_h = max_h;
-    }
+    if (p_h < 0 && diff_y != 0 && scale_y != 0)
+        p_h = 0;
 
-    if ( p_w < 0 ) p_w = 0;
-    if ( p_h < 0 ) p_h = 0;
-
-    obj->rect.w = p_w;
-    obj->rect.h = p_h;
+    gui_element_set_size(obj, p_w, p_h, obj->rel_size.to_rect);
 }
 
 SDL_Rect gui_element_get_margin_rect(GUI_Element *obj)
@@ -434,19 +517,42 @@ SDL_Rect gui_element_get_padding_rect(GUI_Element *obj)
     return r;
 }
 
+SDL_Rect gui_element_get_clip_rect(GUI_Element *obj)
+{
+    if (obj->clip_content && !obj->clip_parent)
+        return gui_element_get_padding_rect(obj);
+    if (obj->clip_content) {
+        SDL_Rect clip;
+        SDL_Rect parent_clip = gui_element_get_clip_rect(obj->parent);
+        SDL_Rect padding_rect = gui_element_get_padding_rect(obj);
+        SDL_IntersectRect(&parent_clip, &padding_rect, &clip);
+        return clip;
+    }
+    if (obj->clip_parent) {
+        return gui_element_get_clip_rect(obj->parent);
+    }
+    return obj->app->clip_window;
+}
+
 bool gui_element_add_child(GUI_Element *parent, GUI_Element *child)
 {
-    if ( !Nst_vector_append(parent->children, child) )
-    {
+    if (!Nst_vector_append(parent->children, child))
         return false;
-    }
     gui_element_set_parent(child, parent);
 
-    if ( parent->on_child_added_func != nullptr )
-    {
-        return parent->on_child_added_func(parent, parent->children->len - 1);
-    }
+    SDL_Event event;
+    event.type = SDL_USEREVENT;
+    event.user.code = GUI_UE_CHILD_ADDED;
+    event.user.data1 = parent;
+    event.user.data2 = (void *)(parent->children->len - 1);
+    SDL_PushEvent(&event);
+
     return true;
+}
+
+bool gui_element_remove_child(GUI_Element *parent, GUI_Element *child)
+{
+    return Nst_obj_to_bool(Nst_vector_remove(parent->children, child));
 }
 
 void gui_element_clip_parent(GUI_Element *element, bool clip)
@@ -464,153 +570,53 @@ void gui_element_clip_content(GUI_Element *element, bool clip)
     element->clip_content = clip;
 }
 
-TTF_Font *get_font(struct _GUI_App *app,
-                   GUI_FontSize     size,
-                   GUI_FontStyle    style,
-                   GUI_FontWeight   weight)
+struct _GUI_FontObj *get_font(struct _GUI_App *app, GUI_FontWeight weight,
+                              GUI_FontSize size, bool italic, bool monospace)
 {
-    TTF_Font *font;
-    TTF_Font **font_var;
+    usize idx = size * 16 + (monospace ? 8 : 0) + (italic ? 4 : 0) + weight;
+    GUI_FontObj *font_obj = app->builtin_fonts[idx];
+    if (font_obj != nullptr)
+        return font_obj;
 
-    switch ( size )
-    {
-    case GUI_FSZ_BIG:
-        switch ( weight )
-        {
-        case GUI_FW_BOLD:
-            switch( style )
-            {
-            case GUI_FST_ITALIC:
-                font_var = &app->bold_italic_big;
-                break;
-            default:
-                font_var = &app->bold_big;
-                break;
-            }
-            break;
-        default:
-            switch( style )
-            {
-            case GUI_FST_ITALIC:
-                font_var = &app->italic_big;
-                break;
-            default:
-                font_var = &app->regular_big;
-                break;
-            }
-            break;
-        }
-        break;
-    case GUI_FSZ_SMALL:
-        switch ( weight )
-        {
-        case GUI_FW_BOLD:
-            switch( style )
-            {
-            case GUI_FST_ITALIC:
-                font_var = &app->bold_italic_small;
-                break;
-            default:
-                font_var = &app->bold_small;
-                break;
-            }
-            break;
-        default:
-            switch( style )
-            {
-            case GUI_FST_ITALIC:
-                font_var = &app->italic_small;
-                break;
-            default:
-                font_var = &app->regular_small;
-                break;
-            }
-            break;
-        }
-        break;
-    default:
-        switch ( weight )
-        {
-        case GUI_FW_BOLD:
-            switch( style )
-            {
-            case GUI_FST_ITALIC:
-                font_var = &app->bold_italic_medium;
-                break;
-            default:
-                font_var = &app->bold_medium;
-                break;
-            }
-            break;
-        default:
-            switch( style )
-            {
-            case GUI_FST_ITALIC:
-                font_var = &app->italic_medium;
-                break;
-            default:
-                font_var = &app->regular_medium;
-                break;
-            }
-            break;
-        }
-        break;
-    }
-    font = *font_var;
+    i8 buf[23] = { 0 };
+    strcat(buf, "font/");
+    if (monospace)
+        strcat(buf, "jbm-");
+    else
+        strcat(buf, "inter-");
 
-    if ( font != nullptr )
-    {
-        return font;
-    }
+    if (italic && monospace)
+        strcat(buf, "italic-");
+    strcat(buf, "0.ttf");
 
-    Nst_StrObj *font_path;
+    usize buf_len = strlen(buf);
+    buf[buf_len - 5] = '0' + weight;
 
-    switch ( weight )
-    {
-    case GUI_FW_BOLD:
-        switch( style )
-        {
-        case GUI_FST_ITALIC:
-            font_path = _Nst_get_import_path((i8 *)"font/osbi.ttf", 13);
-            break;
-        default:
-            font_path = _Nst_get_import_path((i8 *)"font/osbr.ttf", 13);
-            break;
-        }
-        break;
-    default:
-        switch( style )
-        {
-        case GUI_FST_ITALIC:
-            font_path = _Nst_get_import_path((i8 *)"font/osri.ttf", 13);
-            break;
-        default:
-            font_path = _Nst_get_import_path((i8 *)"font/osrr.ttf", 13);
-            break;
-        }
-        break;
+    Nst_StrObj *font_path = _Nst_get_import_path(buf, buf_len);
+    if (font_path == nullptr) {
+        return nullptr;
     }
     int ptsize;
-
-    if ( font_path == nullptr )
-    {
+    switch (size) {
+    case GUI_FS_SMALL:  ptsize = 11; break;
+    case GUI_FS_MEDIUM: ptsize = 14; break;
+    case GUI_FS_LARGE:  ptsize = 17; break;
+    default: ptsize = 14;
+    }
+    TTF_Font *font = TTF_OpenFont(font_path->value, ptsize);
+    Nst_dec_ref(font_path);
+    if (font == nullptr) {
+        Nst_failed_allocation();
+        return nullptr;
+    }
+    if (italic && !monospace)
+        TTF_SetFontStyle(font, TTF_STYLE_ITALIC);
+    font_obj = (GUI_FontObj *)gui_font_new(font);
+    if (font_obj == nullptr) {
+        TTF_CloseFont(font);
         return nullptr;
     }
 
-    switch ( size )
-    {
-    case GUI_FSZ_BIG:
-        ptsize = 18;
-        break;
-    case GUI_FSZ_SMALL:
-        ptsize = 13;
-        break;
-    default:
-        ptsize = 15;
-        break;
-    }
-
-    font = TTF_OpenFont(font_path->value, ptsize);
-    *font_var = font;
-    return font;
+    app->builtin_fonts[idx] = font_obj;
+    return font_obj;
 }

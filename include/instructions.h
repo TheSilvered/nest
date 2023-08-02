@@ -71,7 +71,8 @@ NstEXP typedef enum _Nst_InstID {
     Nst_IC_UNPACK_SEQ
 } Nst_InstID;
 
-/** The structure representing an instruction in Nest.
+/**
+ * The structure representing an instruction in Nest.
  *
  * @param id: the ID of the instruction
  * @param int_val: an integer value used by the instruction
@@ -87,7 +88,8 @@ NstEXP typedef struct _Nst_Instruction {
     Nst_Pos end;
 } Nst_Inst;
 
-/** The structure representing a list of instructions in Nest.
+/**
+ * The structure representing a list of instructions in Nest.
  *
  * @param total_size: the total number of instructions in the list
  * @param instructions: the array of instructions
@@ -99,7 +101,8 @@ NstEXP typedef struct _Nst_InstList {
     Nst_LList *functions;
 } Nst_InstList;
 
-/** Creates a new instruction on the heap.
+/**
+ * Creates a new instruction on the heap.
  *
  * @param id: the id of the instruction to create
  * @param start: the start position of the instruction
@@ -108,7 +111,8 @@ NstEXP typedef struct _Nst_InstList {
  * @return The new instruction or NULL on failure. The error is set.
  */
 NstEXP Nst_Inst *NstC Nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end);
-/** Creates a new instruction on the heap with a Nest object value.
+/**
+ * Creates a new instruction on the heap with a Nest object value.
  *
  * @param id: the id of the instruction to create
  * @param val: the Nest object value
@@ -119,7 +123,8 @@ NstEXP Nst_Inst *NstC Nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end);
  */
 NstEXP Nst_Inst *NstC _Nst_inst_new_val(Nst_InstID id, Nst_Obj *val,
                                         Nst_Pos start, Nst_Pos end);
-/** Creates a new instruction on the heap with an integer value.
+/**
+ * Creates a new instruction on the heap with an integer value.
  *
  * @param id: the id of the instruction to create
  * @param int_val: the integer value

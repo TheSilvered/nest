@@ -90,6 +90,10 @@
 
 #define Nst_UNUSED(v) (void)(v)
 
+#if !defined(_DEBUG) && defined(Nst_TRACK_OBJ_INIT_POS)
+#undef Nst_TRACK_OBJ_INIT_POS
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus

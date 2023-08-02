@@ -17,7 +17,8 @@
 extern "C" {
 #endif // !__cplusplus
 
-/** String constants
+/**
+ * String constants
  *
  * @brief Fields starting with t_ are the name of types, the ones starting with
  * c_ are the name of constants, the one starting with e_ are the name of
@@ -82,7 +83,8 @@ NstEXP typedef struct _Nst_TypeObjs {
     Nst_TypeObj *IOFile;
 } Nst_TypeObjs;
 
-/** Other constants
+/**
+ * Other constants
  *
  * @brief Each constants is preceded by the name of its type.
  */
@@ -121,7 +123,8 @@ NstEXP typedef struct _Nst_IterFunctions {
     Nst_FuncObj *str_get_val;
 } Nst_IterFunctions;
 
-/** Initializes all the global constants and IO streams.
+/**
+ * Initializes all the global constants and IO streams.
  *
  * @return true on success and false on failure. No error is set.
  */

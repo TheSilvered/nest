@@ -14,15 +14,16 @@
     i32 padding_top, padding_bottom, padding_left, padding_right; \
     GUI_RelPos rel_pos; \
     GUI_RelSize rel_size; \
-    Nst_SeqObj *children; \
+    Nst_VectorObj *children; \
     struct _GUI_Element *parent; \
     HandleEventFunc handle_event_func; \
     UpdateFunc frame_update_func; \
     UpdateFunc tick_update_func; \
-    OnChildAdded on_child_added_func; \
     bool clip_parent; \
     bool clip_content; \
     struct _GUI_App *app
+
+#define IS_HIDDEN(element) Nst_FLAG_HAS(element, GUI_FLAG_IS_HIDDEN)
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,6 +39,7 @@ typedef enum _GUI_Flags
 {
     GUI_FLAG_REL_POS  = 0b00000001,
     GUI_FLAG_REL_SIZE = 0b00000010,
+    GUI_FLAG_IS_HIDDEN= 0b00000100
 }
 GUI_Flags;
 
@@ -76,12 +78,19 @@ typedef enum _GUI_RelRect
 }
 GUI_RelRect;
 
+typedef enum _GUI_UserEventCode {
+    GUI_UE_CHILD_ADDED,
+    GUI_UE_RESIZED,
+    GUI_UE_MOVED
+} GUI_UserEventCode;
+
 struct _GUI_Element;
 
 typedef struct _GUI_RelPos
 {
     struct _GUI_Element *element;
-    GUI_RelRect rel_pos_rect;
+    GUI_RelRect from_rect;
+    GUI_RelRect to_rect;
     GUI_RelPosX from_x;
     GUI_RelPosY from_y;
     GUI_RelPosX to_x;
@@ -92,7 +101,8 @@ GUI_RelPos;
 typedef struct _GUI_RelSize
 {
     struct _GUI_Element *element;
-    GUI_RelRect rel_size_rect;
+    GUI_RelRect from_rect;
+    GUI_RelRect to_rect;
     i32 min_w, min_h;
     i32 max_w, max_h;
     f64 scale_x, scale_y;
@@ -108,28 +118,6 @@ typedef struct _GUI_Element
 }
 GUI_Element;
 
-typedef enum _GUI_FontWeight
-{
-    GUI_FW_BOLD,
-    GUI_FW_REGULAR
-}
-GUI_FontWeight;
-
-typedef enum _GUI_FontSize
-{
-    GUI_FSZ_BIG,
-    GUI_FSZ_MEDIUM,
-    GUI_FSZ_SMALL
-}
-GUI_FontSize;
-
-typedef enum _GUI_FontStyle
-{
-    GUI_FST_REGULAR,
-    GUI_FST_ITALIC
-}
-GUI_FontStyle;
-
 extern Nst_TypeObj *gui_element_type;
 
 GUI_Element *gui_element_new(GUI_ElementType t,
@@ -140,52 +128,60 @@ GUI_Element *gui_element_new(GUI_ElementType t,
 void gui_element_destroy(GUI_Element *obj);
 void gui_element_track(GUI_Element *obj);
 void gui_element_traverse(GUI_Element *obj);
-void gui_element_set_margin(GUI_Element *obj,
-                            i32 margin_top,
-                            i32 margin_left,
-                            i32 margin_bottom,
-                            i32 margin_right);
-void gui_element_set_padding(GUI_Element *obj,
-                             i32 padding_top,
-                             i32 padding_left,
-                             i32 padding_bottom,
+void gui_element_set_margin(GUI_Element *obj, i32 margin_top, i32 margin_left,
+                            i32 margin_bottom, i32 margin_right);
+void gui_element_set_padding(GUI_Element *obj, i32 padding_top,
+                             i32 padding_left, i32 padding_bottom,
                              i32 padding_right);
 void gui_element_set_parent(GUI_Element *obj, GUI_Element *parent);
 int gui_element_get_content_x(GUI_Element *obj, GUI_RelPosX pos, GUI_RelRect r);
 int gui_element_get_content_y(GUI_Element *obj, GUI_RelPosY pos, GUI_RelRect r);
 
-void gui_element_set_x(GUI_Element *obj, GUI_RelPosX pos, int x);
-void gui_element_set_y(GUI_Element *obj, GUI_RelPosY pos, int y);
+void gui_element_set_pos(GUI_Element *obj,
+                         GUI_RelPosX pos_x, int x, GUI_RelPosY pos_y, int y,
+                         GUI_RelRect rect);
+void gui_element_set_size(GUI_Element *obj, int w, int h, GUI_RelRect rect);
 
-void gui_element_set_rel_pos(GUI_Element *obj,
-                             GUI_Element *element,
-                             GUI_RelRect rel_pos_rect,
+void gui_element_set_rel_pos(GUI_Element *obj, GUI_Element *element,
+                             GUI_RelRect from_rect, GUI_RelRect to_rect,
                              GUI_RelPosX from_x, GUI_RelPosY from_y,
                              GUI_RelPosX to_x, GUI_RelPosY to_y);
 
-void gui_element_set_rel_size(GUI_Element *obj,
-                              GUI_Element *element,
-                              GUI_RelRect rel_size_rect,
-                              i32 min_w, i32 min_h,
-                              i32 max_w, i32 max_h,
-                              f64 scale_x, f64 scale_y,
-                              i32 diff_x, i32 diff_y);
+void gui_element_set_rel_size(GUI_Element *obj, GUI_Element *element,
+                              GUI_RelRect from_rect, GUI_RelRect to_rect,
+                              i32 min_w, i32 min_h, i32 max_w, i32 max_h,
+                              f64 scale_x, f64 scale_y, i32 diff_x, i32 diff_y);
 
 void gui_element_update_pos(GUI_Element *obj);
 void gui_element_update_size(GUI_Element *obj);
 
 SDL_Rect gui_element_get_margin_rect(GUI_Element *obj);
 SDL_Rect gui_element_get_padding_rect(GUI_Element *obj);
+SDL_Rect gui_element_get_clip_rect(GUI_Element *obj);
 
 bool gui_element_add_child(GUI_Element *parent, GUI_Element *child);
+bool gui_element_remove_child(GUI_Element *parent, GUI_Element *child);
 
 void gui_element_clip_parent(GUI_Element *element, bool clip);
 void gui_element_clip_content(GUI_Element *element, bool clip);
 
-TTF_Font *get_font(struct _GUI_App *app,
-                   GUI_FontSize     size,
-                   GUI_FontStyle    style,
-                   GUI_FontWeight   weight);
+typedef enum _GUI_FontWeight {
+    GUI_FW_LIGHT,
+    GUI_FW_REGULAR,
+    GUI_FW_BOLD,
+    GUI_FW_EXTRA_BOLD
+} GUI_FontWeight;
+
+typedef enum _GUI_FontSize {
+    GUI_FS_SMALL,
+    GUI_FS_MEDIUM,
+    GUI_FS_LARGE,
+} GUI_FontSize;
+
+struct _GUI_FontObj;
+
+struct _GUI_FontObj *get_font(struct _GUI_App *app, GUI_FontWeight weight,
+                              GUI_FontSize size, bool italic, bool monospace);
 
 #ifdef __cplusplus
 }

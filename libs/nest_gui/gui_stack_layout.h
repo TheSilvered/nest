@@ -32,7 +32,7 @@ typedef struct _GUI_StackLayout
 }
 GUI_StackLayout;
 
-bool gui_stack_layout_on_child_added(GUI_StackLayout *sl, usize idx);
+i32 gui_stack_layout_handle_event(SDL_Event *e, GUI_StackLayout *sl);
 
 GUI_Element *gui_stack_layout_new(GUI_StackDir direction,
                                   GUI_StackAlign alignment,

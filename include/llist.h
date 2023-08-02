@@ -11,7 +11,16 @@
 
 #include "typedefs.h"
 
-// Initialize a for loop on a list
+/**
+ * Loops through the list given.
+ *
+ * @brief It should be put inside the brackets of a for loop with nothing
+ * else.
+ *
+ * @param node: the name of the variable holding the current node in the
+ * iteration
+ * @param llist: the list to iterate
+ */
 #define Nst_LLIST_ITER(node, llist)                                           \
     Nst_LLNode *node = llist->head;                                           \
     node != NULL;                                                             \
@@ -21,7 +30,8 @@
 extern "C" {
 #endif // !__cplusplus
 
-/** The structure representing a node of a Nst_LList.
+/**
+ * The structure representing a node of a Nst_LList.
  *
  * @param value: the value that the node contains
  * @param allocated: whether the value contained in the node was allocated
@@ -33,7 +43,8 @@ NstEXP typedef struct _Nst_LLNnode {
     struct _Nst_LLNnode *next;
 } Nst_LLNode;
 
-/** The structure representing a linked list.
+/**
+ * The structure representing a linked list.
  *
  * @param head: the first node in the list
  * @param tail: the last node in the list
@@ -48,7 +59,8 @@ NstEXP typedef struct _Nst_LList {
 /* The type of a list destructor. */
 NstEXP typedef void (*Nst_LListDestructor)(void *);
 
-/** Adds a value to the front of the list.
+/**
+ * Adds a value to the front of the list.
  *
  * @param llist: the list to add the value to
  * @param value: the value to add
@@ -58,7 +70,8 @@ NstEXP typedef void (*Nst_LListDestructor)(void *);
  * @return true if the value is added and false on failure. The error is set.
  */
 NstEXP bool NstC Nst_llist_push(Nst_LList *llist, void *value, bool allocated);
-/** Adds a value to the back of the list.
+/**
+ * Adds a value to the back of the list.
  *
  * @param llist: the list to add the value to
  * @param value: the value to add
@@ -69,7 +82,8 @@ NstEXP bool NstC Nst_llist_push(Nst_LList *llist, void *value, bool allocated);
  */
 NstEXP bool NstC Nst_llist_append(Nst_LList *llist, void *value,
                                   bool allocated);
-/** Adds a value after a given node.
+/**
+ * Adds a value after a given node.
  *
  * @brief node can be NULL, in which case the function behaves like
  * Nst_llist_push.
@@ -104,7 +118,8 @@ NstEXP void NstC Nst_llist_append_llnode(Nst_LList *llist, Nst_LLNode *node);
 /* Removes the front node of a list and returns it. */
 NstEXP Nst_LLNode *NstC Nst_llist_pop_llnode(Nst_LList *llist);
 
-/** Creates and initializes a new list on the heap
+/**
+ * Creates and initializes a new list on the heap
  *
  * @return The new list or NULL on failure. The error is set.
  */
@@ -112,13 +127,15 @@ NstEXP Nst_LList *NstC Nst_llist_new(void);
 /* Initializes a llist. */
 NstEXP void NstC Nst_llist_init(Nst_LList *llist);
 
-/** Creates a new node on the heap.
+/**
+ * Creates a new node on the heap.
  *
  * @return The new node or NULL on failure. The error is set.
  */
 NstEXP Nst_LLNode *NstC Nst_llnode_new(void *value, bool allocated);
 
-/** Destroys a heap-allocated list.
+/**
+ * Destroys a heap-allocated list.
  *
  * @brief If the value of a node is marked as allocated it will be passed to
  * item_destructor otherwise it is left untouched.
@@ -128,7 +145,8 @@ NstEXP Nst_LLNode *NstC Nst_llnode_new(void *value, bool allocated);
  */
 NstEXP void NstC Nst_llist_destroy(Nst_LList *llist,
                                    void (*item_destructor)(void *));
-/** Destroys all the nodes inside list.
+/**
+ * Destroys all the nodes inside list.
  *
  * @brief If the value of a node is marked as allocated it will be passed to
  * item_destructor otherwise it is left untouched.
@@ -138,7 +156,8 @@ NstEXP void NstC Nst_llist_destroy(Nst_LList *llist,
  */
 NstEXP void NstC Nst_llist_empty(Nst_LList *llist,
                                  void (*item_destructor)(void *));
-/** Moves all the nodes from a list to the end of another.
+/**
+ * Moves all the nodes from a list to the end of another.
  *
  * @brief If to has already some values the new ones are added at the end.
  *

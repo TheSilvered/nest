@@ -16,9 +16,11 @@
 extern "C" {
 #endif // !__cplusplus
 
-/** Compiles the AST.
+/**
+ * Compiles the AST.
  *
- * @brief Both ast and error are expected to be not NULL.
+ * @brief Both ast and error are expected to be not NULL. The AST is destroyed
+ * when passed to this function.
  *
  * @param ast: the AST to compile, will be freed by the function
  * @param is_module: whether the AST is of an imported module or of the main
@@ -31,7 +33,8 @@ extern "C" {
 NstEXP Nst_InstList *NstC Nst_compile(Nst_Node *ast, bool is_module,
                                       Nst_Error *error);
 
-/** Prints an Nst_InstList.
+/**
+ * Prints an Nst_InstList.
  *
  * @brief This function is called when using the -b option.
  *

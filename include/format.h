@@ -90,7 +90,8 @@
 extern "C" {
 #endif // !__cplusplus
 
-/** Prints a string to the Nest standard output.
+/**
+ * Prints a string to the Nest standard output.
  *
  * @brief buf is assumed to be not NULL.
  *
@@ -100,19 +101,21 @@ extern "C" {
  * No error is set.
  */
 NstEXP isize NstC Nst_print(const i8 *buf);
-/** Prints a string to a Nest file object.
-*
-* @brief buf and f are assumed to be not NULL.
-*
-* @param f: the file to print the string to
-* @param buf: the NUL-terminated string to print
-*
-* @return The number of bytes written. If the file is closed -1 is returned.
-* No error is set.
-*/
+/**
+ * Prints a string to a Nest file object.
+ *
+ * @brief buf and f are assumed to be not NULL.
+ *
+ * @param f: the file to print the string to
+ * @param buf: the NUL-terminated string to print
+ *
+ * @return The number of bytes written. If the file is closed -1 is returned.
+ * No error is set.
+ */
 NstEXP isize NstC Nst_fprint(Nst_IOFileObj *f, const i8 *buf);
 
-/** Prints a string to the Nest standard output appending a newline character.
+/**
+ * Prints a string to the Nest standard output appending a newline character.
  *
  * @brief buf is assumed to be not NULL. On all platforms only a newline
  * (U+000A) is appended, NOT a carriage return.
@@ -123,20 +126,22 @@ NstEXP isize NstC Nst_fprint(Nst_IOFileObj *f, const i8 *buf);
  * file is closed -1 is returned. No error is set.
  */
 NstEXP isize NstC Nst_println(const i8 *buf);
-/** Prints a string to a Nest file object appending a newline character.
-*
-* @brief buf and f are assumed to be not NULL. On all platforms only a newline
-* (U+000A) is appended, NOT a carriage return.
-*
-* @param f: the file to print the string to
-* @param buf: the NUL-terminated string to print
-*
-* @return The number of bytes written, including the newline character. If the
-* file is closed -1 is returned. No error is set.
-*/
+/**
+ * Prints a string to a Nest file object appending a newline character.
+ *
+ * @brief buf and f are assumed to be not NULL. On all platforms only a newline
+ * (U+000A) is appended, NOT a carriage return.
+ *
+ * @param f: the file to print the string to
+ * @param buf: the NUL-terminated string to print
+ *
+ * @return The number of bytes written, including the newline character. If the
+ * file is closed -1 is returned. No error is set.
+ */
 NstEXP isize NstC Nst_fprintln(Nst_IOFileObj *f, const i8 *buf);
 
-/** Prints a formatted string to the Nest standard output.
+/**
+ * Prints a formatted string to the Nest standard output.
  *
  * @brief buf is assumed to be not NULL. Check the full format documentation in
  * format.h.
@@ -152,7 +157,8 @@ NstEXP isize NstC Nst_fprintln(Nst_IOFileObj *f, const i8 *buf);
  */
 NstEXP isize NstC Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
                              Nst_GNU_FMT(1, 2);
-/** Prints a formatted string to a Nest file object.
+/**
+ * Prints a formatted string to a Nest file object.
  *
  * @brief buf and f are assumed to be not NULL. Check the full format
  * documentation in format.h.
@@ -172,7 +178,8 @@ NstEXP isize NstC Nst_fprintf(Nst_IOFileObj *f, Nst_WIN_FMT const i8 *fmt, ...)
 /* va_list variant of Nst_fprintf */
 NstEXP isize NstC Nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args);
 
-/** Creates a Nest string object from a format placeholder.
+/**
+ * Creates a Nest string object from a format placeholder.
  *
  * @brief buf is assumed to be not NULL.
  *

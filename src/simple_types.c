@@ -241,7 +241,6 @@ f64 _Nst_number_to_f64(Nst_Obj *number)
 Nst_Bool _Nst_obj_to_bool(Nst_Obj *obj)
 {
     Nst_Obj *bool_obj = Nst_obj_cast(obj, Nst_t.Bool);
-    Nst_Bool v = AS_BOOL(bool_obj);
     Nst_dec_ref(bool_obj);
-    return v;
+    return bool_obj == Nst_c.Bool_true;
 }

@@ -26,10 +26,8 @@
 /* Checks whether a Nst_GGCObj is tracked by the garbage collector */
 #define Nst_OBJ_IS_TRACKED(obj) (GGC_OBJ(obj)->ggc_list != NULL)
 
-// To add after Nst_OBJ_HEAD and before any arguments, adds support for the GGC
-// to the object
-
-/** The macro to add support to the GGC to an object structure.
+/**
+ * The macro to add support to the GGC to an object structure.
  *
  * @brief It must be placed after Nst_OBJ_HEAD and before any other fields.
  */
@@ -56,7 +54,8 @@ extern "C" {
 
 struct _Nst_GGCList;
 
-/** The struct representing a garbage collector object.
+/**
+ * The struct representing a garbage collector object.
  *
  * @param ggc_next: the next object in the generation it belongs to
  * @param ggc_prev: the previous object in the generation it belongs to
@@ -71,7 +70,8 @@ NstEXP typedef struct _Nst_GGCObj {
     Nst_GGC_HEAD;
 } Nst_GGCObj;
 
-/** The structure representing a garbage collector generation.
+/**
+ * The structure representing a garbage collector generation.
  *
  * @param head: the first object in the generation
  * @param tail: the last object in the generation
@@ -83,7 +83,8 @@ NstEXP typedef struct _Nst_GGCList {
     usize size;
 } Nst_GGCList;
 
-/** The structure representing the garbage collector.
+/**
+ * The structure representing the garbage collector.
  *
  * @param gen1: the first generation
  * @param gen2: the second generation
@@ -113,12 +114,12 @@ NstEXP void NstC Nst_ggc_delete_objs(void);
 /* Initializes the garbage collector of Nst_state. */
 NstEXP void NstC Nst_ggc_init(void);
 
-/* The flags of a garbage collector object */
+/* The flags of a garbage collector object. */
 NstEXP typedef enum _Nst_GGCFlags {
-    Nst_FLAG_GGC_REACHABLE    = 0b10000000,
-    Nst_FLAG_GGC_UNREACHABLE  = 0b01000000,
-    Nst_FLAG_GGC_DELETED      = 0b00100000,
-    Nst_FLAG_GGC_IS_SUPPORTED = 0b00010000
+    Nst_FLAG_GGC_REACHABLE    = 0x80000000,
+    Nst_FLAG_GGC_UNREACHABLE  = 0x40000000,
+    Nst_FLAG_GGC_DELETED      = 0x20000000,
+    Nst_FLAG_GGC_IS_SUPPORTED = 0x10000000
 } Nst_GGCFlags;
 
 #ifdef __cplusplus
