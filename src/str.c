@@ -10,35 +10,29 @@
 #include "encoding.h"
 #include "format.h"
 
-#define IS_WHITESPACE(ch) \
-        (ch == ' '  || \
-         ch == '\n' || \
-         ch == '\t' || \
-         ch == '\r' || \
-         ch == '\v' || \
-         ch == '\f')
+#define IS_WHITESPACE(ch)                                                     \
+        (ch == ' ' || ch == '\n' || ch == '\t' || ch == '\r' || ch == '\v'    \
+         || ch == '\f')
 
-#define RETURN_INT_ERR do { \
-    Nst_set_value_error_c(_Nst_EM_BAD_INT_LITERAL); \
-    return NULL; \
-    } while ( 0 )
+#define RETURN_INT_ERR do {                                                   \
+    Nst_set_value_error_c(_Nst_EM_BAD_INT_LITERAL);                           \
+    return NULL;                                                              \
+    } while (0)
 
-#define RETURN_BYTE_ERR do { \
-    Nst_set_value_error_c(_Nst_EM_BAD_BYTE_LITERAL); \
-    return NULL; \
-    } while ( 0 )
+#define RETURN_BYTE_ERR do {                                                  \
+    Nst_set_value_error_c(_Nst_EM_BAD_BYTE_LITERAL);                          \
+    return NULL;                                                              \
+    } while (0)
 
-#define RETURN_REAL_ERR do { \
-    Nst_set_value_error_c(_Nst_EM_BAD_REAL_LITERAL); \
-    return NULL; \
-    } while ( 0 )
+#define RETURN_REAL_ERR do {                                                  \
+    Nst_set_value_error_c(_Nst_EM_BAD_REAL_LITERAL);                          \
+    return NULL;                                                              \
+    } while (0)
 
-#define ERR_IF_END(s, end, err_macro) do { \
-    if ( s == end ) \
-    { \
-        err_macro; \
-    } \
-    } while ( 0 )
+#define ERR_IF_END(s, end, err_macro) do {                                    \
+    if (s == end)                                                             \
+        err_macro;                                                            \
+    } while (0)
 
 Nst_Obj *Nst_string_new_c_raw(const i8 *val, bool allocated)
 {
@@ -56,22 +50,18 @@ Nst_Obj *Nst_string_new(i8 *val, usize len, bool allocated)
         Nst_StrObj,
         Nst_t.Str,
         _Nst_string_destroy);
-    if ( str == NULL )
-    {
+    if (str == NULL)
         return NULL;
-    }
 
-    if ( allocated )
-    {
+    if (allocated)
         str->flags |= Nst_FLAG_STR_IS_ALLOC;
-    }
     str->len = len;
     str->value = val;
 
     return OBJ(str);
 }
 
-NstEXP Nst_Obj *Nst_string_new_allocated(i8 *val, usize len)
+Nst_Obj *Nst_string_new_allocated(i8 *val, usize len)
 {
     Nst_Obj *str = Nst_string_new(val, len, true);
     if (str == NULL) {
@@ -81,18 +71,16 @@ NstEXP Nst_Obj *Nst_string_new_allocated(i8 *val, usize len)
     return str;
 }
 
-Nst_TypeObj *Nst_type_new(const i8 *val, usize len)
+Nst_TypeObj *Nst_type_new(const i8 *val)
 {
     Nst_TypeObj *str = Nst_obj_alloc(
         Nst_StrObj,
         Nst_t.Type,
         _Nst_string_destroy);
-    if ( str == NULL )
-    {
+    if (str == NULL)
         return NULL;
-    }
 
-    str->len = len;
+    str->len = strlen(val);
     str->value = (i8 *)val;
 
     return str;
@@ -101,20 +89,18 @@ Nst_TypeObj *Nst_type_new(const i8 *val, usize len)
 Nst_Obj *_Nst_string_copy(Nst_StrObj *src)
 {
     i8 *buffer = Nst_malloc_c(src->len + 1, i8);
-    if ( buffer == NULL )
-    {
+    if (buffer == NULL)
         return NULL;
-    }
 
     strcpy(buffer, src->value);
 
     return Nst_string_new_allocated(buffer, src->len);
 }
 
-static i32 is_unicode_escape(u8 b1, u8 b2)
+static i32 is_unicode_escape(u8 *str)
 {
-    i32 v = ((b1 & 0x1f) << 6) + (b2 & 0x3f);
-    return v >= 0x80 && v <= 0x9f ? v : 0;
+    u32 ch = Nst_utf8_to_utf32(str);
+    return ch >= 0x80 && ch <= 0x9f ? !Nst_is_valid_cp(ch) : 0;
 }
 
 Nst_Obj *_Nst_string_repr(Nst_StrObj *src)
@@ -127,10 +113,8 @@ Nst_Obj *_Nst_string_repr(Nst_StrObj *src)
     i32 single_quotes_count = 0;
     bool using_doub = false;
 
-    for ( usize i = 0; i < l; i++ )
-    {
-        switch ( orig[i] )
-        {
+    for (usize i = 0; i < l; i++) {
+        switch (orig[i]) {
         case '\\':
         case '\a':
         case '\b':
@@ -143,29 +127,19 @@ Nst_Obj *_Nst_string_repr(Nst_StrObj *src)
         case '\'': single_quotes_count += 1; break;
         case '"': double_quotes_count += 1; break;
         default:
-            if ( isprint(orig[i]) )
-            {
+            if (isprint(orig[i])) {
                 new_size += 1;
                 continue;
-            }
-            else if ( orig[i] <= 0b01111111 )
-            {
+            } else if ( orig[i] <= 0b01111111 )
                 new_size += 4;
-            }
-            else
-            {
+            else {
                 i32 res = Nst_check_utf8_bytes(orig + i, l - i);
-                if ( res == -1 )
-                {
+                if (res == -1)
                     new_size += 4;
-                }
-                else if ( res == 2 && is_unicode_escape(orig[i], orig[i + 1]) )
-                {
+                else if (is_unicode_escape(orig + i)) {
                     new_size += 6;
                     i++;
-                }
-                else
-                {
+                } else {
                     new_size += res;
                     i += res - 1;
                 }
@@ -173,31 +147,24 @@ Nst_Obj *_Nst_string_repr(Nst_StrObj *src)
         }
     }
 
-    if ( single_quotes_count > double_quotes_count )
-    {
+    if (single_quotes_count > double_quotes_count) {
         using_doub = true;
         new_size += double_quotes_count * 2;
         new_size += single_quotes_count;
-    }
-    else
-    {
+    } else {
         new_size += single_quotes_count * 2;
         new_size += double_quotes_count;
     }
 
     i8 *new_str = Nst_malloc_c(new_size + 1, i8);
-    if ( new_str == NULL )
-    {
+    if (new_str == NULL)
         return NULL;
-    }
 
     *new_str = using_doub ? '"' : '\'';
 
     usize i = 1;
-    for ( usize j = 0; j < l; j++ )
-    {
-        switch ( orig[j] )
-        {
+    for (usize j = 0; j < l; j++) {
+        switch (orig[j]) {
         case '\\': new_str[i++] = '\\'; new_str[i++] = '\\';break;
         case '\a': new_str[i++] = '\\'; new_str[i++] = 'a'; break;
         case '\b': new_str[i++] = '\\'; new_str[i++] = 'b'; break;
@@ -208,38 +175,29 @@ Nst_Obj *_Nst_string_repr(Nst_StrObj *src)
         case '\t': new_str[i++] = '\\'; new_str[i++] = 't'; break;
         case '\v': new_str[i++] = '\\'; new_str[i++] = 'v'; break;
         case '\'':
-            if ( !using_doub )
-            {
+            if (!using_doub)
                 new_str[i++] = '\\';
-            }
             new_str[i++] = '\'';
             break;
         case '"':
-            if ( using_doub )
-            {
+            if (using_doub)
                 new_str[i++] = '\\';
-            }
             new_str[i++] = '"';
             break;
         default:
-            if ( isprint((u8)orig[j]) )
-            {
+            if (isprint((u8)orig[j]))
                 new_str[i++] = orig[j];
-            }
-            else if ( orig[j] <= 0b01111111 ||
-                      Nst_check_utf8_bytes(orig + j, l - j) == -1 )
+            else if (orig[j] <= 0b01111111
+                     || Nst_check_utf8_bytes(orig + j, l - j) == -1)
             {
                 new_str[i++] = '\\';
                 new_str[i++] = 'x';
                 new_str[i++] = hex_chars[(u8)orig[j] >> 4];
                 new_str[i++] = hex_chars[(u8)orig[j] & 0xf];
-            }
-            else
-            {
+            } else {
                 i32 res = Nst_check_utf8_bytes(orig + j, l - j);
-                if ( res == 2 && is_unicode_escape(orig[j], orig[j + 1]) )
-                {
-                    res = is_unicode_escape(orig[j], orig[j + 1]);
+                if (res == 2 && is_unicode_escape(orig + j)) {
+                    res = Nst_check_utf8_bytes(orig + j, l - j);
                     j++;
                     new_str[i++] = '\\';
                     new_str[i++] = 'u';
@@ -250,10 +208,8 @@ Nst_Obj *_Nst_string_repr(Nst_StrObj *src)
                     continue;
                 }
 
-                for ( ; res > 0; res-- )
-                {
+                for (; res > 0; res--)
                     new_str[i++] = orig[j++];
-                }
                 j--;
             }
         }
@@ -267,13 +223,10 @@ Nst_Obj *_Nst_string_repr(Nst_StrObj *src)
 
 Nst_Obj *_Nst_string_get(Nst_StrObj *str, i64 idx)
 {
-    if ( idx < 0 )
-    {
+    if (idx < 0)
         idx += str->len;
-    }
 
-    if ( idx < 0 || idx >= (i64)str->len )
-    {
+    if (idx < 0 || idx >= (i64)str->len) {
         Nst_set_value_error(Nst_sprintf(
             _Nst_EM_INDEX_OUT_OF_BOUNDS("Str"),
             idx,
@@ -282,10 +235,8 @@ Nst_Obj *_Nst_string_get(Nst_StrObj *str, i64 idx)
     }
 
     i8 *ch = Nst_malloc_c(2, i8);
-    if ( ch == NULL )
-    {
+    if (ch == NULL)
         return NULL;
-    }
 
     ch[0] = str->value[idx];
     ch[1] = 0;
@@ -295,14 +246,10 @@ Nst_Obj *_Nst_string_get(Nst_StrObj *str, i64 idx)
 
 void _Nst_string_destroy(Nst_StrObj *str)
 {
-    if ( str == NULL )
-    {
+    if (str == NULL)
         return;
-    }
-    if ( Nst_STR_IS_ALLOC(str) )
-    {
+    if (Nst_STR_IS_ALLOC(str))
         Nst_free(str->value);
-    }
 }
 
 Nst_Obj *Nst_string_parse_int(Nst_StrObj *str, i32 base)
@@ -312,71 +259,53 @@ Nst_Obj *Nst_string_parse_int(Nst_StrObj *str, i32 base)
     i8 ch;
     i32 ch_val;
     i32 sign = 1;
-    Nst_Int num = 0;
-    Nst_Int cut_off = 0;
-    Nst_Int cut_lim = 0;
+    i64 num = 0;
+    i64 cut_off = 0;
+    i64 cut_lim = 0;
 
-    if ( (base < 2 || base > 36) && base != 0 )
-    {
+    if ((base < 2 || base > 36) && base != 0) {
         Nst_set_value_error_c(_Nst_EM_BAD_INT_BASE);
         return NULL;
     }
     ERR_IF_END(s, end, RETURN_INT_ERR);
 
     ch = *s;
-    while ( IS_WHITESPACE(ch)  )
-    {
+    while (IS_WHITESPACE(ch))
         ch = *++s;
-    }
     ERR_IF_END(s, end, RETURN_INT_ERR);
 
-    if ( ch == '-' || ch == '+' )
-    {
+    if (ch == '-' || ch == '+') {
         sign = ch == '-' ? -1 : 1;
         ch = *++s;
     }
     ERR_IF_END(s, end, RETURN_INT_ERR);
 
-    if ( ch == '0' )
-    {
+    if (ch == '0') {
         ch = *++s;
-        switch ( ch )
-        {
+        switch (ch) {
         case 'B':
         case 'b':
-            if ( base == 2 || base == 0 )
-            {
+            if (base == 2 || base == 0) {
                 base = 2;
                 ch = *++s;
-            }
-            else
-            {
+            } else
                 ch = *--s;
-            }
             break;
         case 'O':
         case 'o':
-            if ( base == 8 || base == 0 )
-            {
+            if (base == 8 || base == 0) {
                 base = 8;
                 ch = *++s;
-            }
-            else
-            {
+            } else
                 ch = *--s;
-            }
             break;
         case 'X':
         case 'x':
-            if ( base == 16 || base == 0 )
-            {
+            if (base == 16 || base == 0) {
                 base = 16;
                 ch = *++s;
-            }
-            else
-            {
+            } else
                 ch = *--s;
-            }
             break;
         default:
             ch = *--s;
@@ -384,45 +313,29 @@ Nst_Obj *Nst_string_parse_int(Nst_StrObj *str, i32 base)
         }
     }
     ERR_IF_END(s, end, RETURN_INT_ERR);
-    if ( base == 0 )
-    {
+    if (base == 0)
         base = 10;
-    }
 
     cut_off = sign == -1 ? -9223372036854775807 - 1 : 9223372036854775807;
     cut_lim = sign * (cut_off % base);
     cut_off /= sign * base;
-    while ( true )
-    {
-        if ( ch >= '0' && ch <= '9' )
-        {
+    while (true) {
+        if (ch >= '0' && ch <= '9')
             ch_val = ch - '0';
-        }
-        else if ( ch >= 'a' && ch <= 'z' )
-        {
+        else if (ch >= 'a' && ch <= 'z')
             ch_val = ch - 'a' + 10;
-        }
-        else if ( ch >= 'A' && ch <= 'Z' )
-        {
+        else if (ch >= 'A' && ch <= 'Z')
             ch_val = ch - 'A' + 10;
-        }
-        else if ( ch == '_' )
-        {
+        else if (ch == '_') {
             ch = *++s;
             continue;
-        }
-        else
-        {
+        } else
             break;
-        }
 
-        if ( ch_val < 0 || ch_val > base - 1 )
-        {
+        if (ch_val < 0 || ch_val > base - 1)
             RETURN_INT_ERR;
-        }
 
-        if ( num > cut_off || (num == cut_off && ch_val > cut_lim) )
-        {
+        if (num > cut_off || (num == cut_off && ch_val > cut_lim)) {
             Nst_set_memory_error_c(_Nst_EM_INT_TOO_BIG);
             return NULL;
         }
@@ -431,25 +344,19 @@ Nst_Obj *Nst_string_parse_int(Nst_StrObj *str, i32 base)
         ch = *++s;
     }
 
-    while ( IS_WHITESPACE(ch) )
-    {
+    while (IS_WHITESPACE(ch))
         ch = *++s;
-    }
 
-    if ( s != end )
-    {
+    if (s != end)
         RETURN_INT_ERR;
-    }
 
     return Nst_int_new(num * sign);
 }
 
 Nst_Obj *Nst_string_parse_byte(Nst_StrObj *str)
 {
-    if ( str->len == 1 )
-    {
+    if (str->len == 1)
         return Nst_byte_new(str->value[0]);
-    }
 
     i8* s = str->value;
     i8* end = s + str->len;
@@ -461,28 +368,20 @@ Nst_Obj *Nst_string_parse_byte(Nst_StrObj *str)
 
     ERR_IF_END(s, end, RETURN_BYTE_ERR);
 
-    while ( IS_WHITESPACE(ch) )
-    {
+    while (IS_WHITESPACE(ch))
         ch = *++s;
-    }
     ERR_IF_END(s, end, RETURN_BYTE_ERR);
 
-    if ( ch == '-' )
-    {
+    if (ch == '-') {
         sign = -1;
         ch = *++s;
-    }
-    else if ( ch == '+' )
-    {
+    } else if (ch == '+')
         ch = *++s;
-    }
     ERR_IF_END(s, end, RETURN_BYTE_ERR);
 
-    if ( ch == '0' )
-    {
+    if (ch == '0') {
         ch = *++s;
-        switch ( ch )
-        {
+        switch (ch) {
         case 'b':
         case 'B':
             base = 2;
@@ -504,34 +403,21 @@ Nst_Obj *Nst_string_parse_byte(Nst_StrObj *str)
     }
 
     bool has_digits = false;
-    while ( true )
-    {
-        if ( ch >= '0' && ch <= '9' )
-        {
+    while (true) {
+        if (ch >= '0' && ch <= '9')
             ch_val = ch - '0';
-        }
-        else if ( ch >= 'a' && ch <= 'f' && base == 16 )
-        {
+        else if (ch >= 'a' && ch <= 'f' && base == 16)
             ch_val = ch - 'a' + 10;
-        }
-        else if ( ch >= 'A' && ch <= 'F' && base == 16 )
-        {
+        else if (ch >= 'A' && ch <= 'F' && base == 16)
             ch_val = ch - 'A' + 10;
-        }
-        else if ( ch == '_' )
-        {
+        else if (ch == '_') {
             ch = *++s;
             continue;
-        }
-        else
-        {
+        } else
             break;
-        }
 
-        if ( ch_val >= base )
-        {
+        if (ch_val >= base)
             RETURN_BYTE_ERR;
-        }
         has_digits = true;
         num *= base;
         num += ch_val;
@@ -540,28 +426,18 @@ Nst_Obj *Nst_string_parse_byte(Nst_StrObj *str)
     }
     num *= sign;
 
-    if ( base != 2 && !has_digits )
-    {
+    if (base != 2 && !has_digits)
         RETURN_BYTE_ERR;
-    }
 
-    if ( (base != 2 || has_digits) && base != 16 && ch != 'b' && ch != 'B' )
-    {
+    if ((base != 2 || has_digits) && base != 16 && ch != 'b' && ch != 'B')
         RETURN_BYTE_ERR;
-    }
-    if ( (base != 2 || has_digits) && base != 16 )
-    {
+    if ((base != 2 || has_digits) && base != 16)
         ch = *++s;
-    }
 
-    while ( IS_WHITESPACE(ch) )
-    {
+    while (IS_WHITESPACE(ch))
         ch = *++s;
-    }
-    if ( s != end )
-    {
+    if (s != end)
         RETURN_BYTE_ERR;
-    }
     return Nst_byte_new(num & 0xff);
 }
 
@@ -577,134 +453,94 @@ Nst_Obj *Nst_string_parse_real(Nst_StrObj *str)
     usize len = 0;
     i8 ch = *s;
     i8 *buf;
-    Nst_Real res;
+    f64 res;
     bool contains_underscores = false;
 
-    if ( s == end )
-    {
+    if (s == end)
         RETURN_REAL_ERR;
-    }
 
-    while ( IS_WHITESPACE(ch) )
-    {
+    while (IS_WHITESPACE(ch)) {
         ch = *++s;
         start++;
     }
     ERR_IF_END(s, end, RETURN_REAL_ERR);
 
-    if ( ch == '+' || ch == '-' )
-    {
+    if (ch == '+' || ch == '-') {
         ch = *++s;
         len++;
     }
     ERR_IF_END(s, end, RETURN_REAL_ERR);
 
-    if ( ch < '0' || ch > '9' )
-    {
+    if (ch < '0' || ch > '9')
         RETURN_REAL_ERR;
-    }
-    while ( (ch >= '0' && ch <= '9') || ch == '_' )
-    {
+    while ((ch >= '0' && ch <= '9') || ch == '_') {
         ch = *++s;
         len++;
-        if ( ch == '_' )
-        {
+        if (ch == '_')
             contains_underscores = true;
-        }
     }
 
-    if ( ch != '.' )
-    {
-        while ( IS_WHITESPACE(ch) )
-        {
+    if (ch != '.') {
+        while (IS_WHITESPACE(ch))
             ch = *++s;
-        }
-        if ( s != end )
-        {
+        if (s != end)
             RETURN_REAL_ERR;
-        }
         goto end;
     }
     ch = *++s;
     len++;
 
-    if ( ch < '0' || ch > '9' )
-    {
+    if (ch < '0' || ch > '9')
         RETURN_REAL_ERR;
-    }
-    while ( (ch >= '0' && ch <= '9') || ch == '_' )
-    {
+    while ((ch >= '0' && ch <= '9') || ch == '_') {
         ch = *++s;
         len++;
 
-        if ( ch == '_' )
-        {
+        if (ch == '_')
             contains_underscores = true;
-        }
     }
 
-    if ( ch == 'e' || ch == 'E' )
-    {
+    if (ch == 'e' || ch == 'E') {
         ch = *++s;
         len++;
 
-        if ( ch == '+' || ch == '-' )
-        {
+        if (ch == '+' || ch == '-') {
             ch = *++s;
             len++;
         }
         ERR_IF_END(s, end, RETURN_REAL_ERR);
 
-        if ( ch < '0' || ch > '9' )
-        {
+        if (ch < '0' || ch > '9')
             RETURN_REAL_ERR;
-        }
-        while ( (ch >= '0' && ch <= '9') || ch == '_' )
-        {
+        while ((ch >= '0' && ch <= '9') || ch == '_') {
             ch = *++s;
             len++;
-            if ( ch == '_' )
-            {
+            if (ch == '_')
                 contains_underscores = true;
-            }
         }
     }
 
-    while ( IS_WHITESPACE(ch) )
-    {
+    while (IS_WHITESPACE(ch))
         ch = *++s;
-    }
-    if ( s != end )
-    {
+    if (s != end)
         RETURN_REAL_ERR;
-    }
 end:
-    if ( contains_underscores )
-    {
+    if (contains_underscores) {
         buf = Nst_malloc_c(len + 1, i8);
-        if ( buf == NULL )
-        {
+        if (buf == NULL)
             return NULL;
-        }
         s = buf;
-        while ( len-- )
-        {
-            if ( (ch = *start++) != '_' )
-            {
+        while (len--) {
+            if ((ch = *start++) != '_')
                 *s++ = ch;
-            }
         }
         *s = '\0';
-    }
-    else
-    {
+    } else {
         buf = start;
     }
     res = strtod(buf, NULL);
-    if ( contains_underscores )
-    {
+    if (contains_underscores)
         Nst_free(buf);
-    }
     return Nst_real_new(res);
 }
 
@@ -715,20 +551,16 @@ i32 Nst_string_compare(Nst_StrObj *str1, Nst_StrObj *str2)
     i8 *end1 = p1 + str1->len;
     i8 *end2 = p2 + str2->len;
 
-    while ( p1 != end1 && p2 != end2 )
-    {
-        if ( *p1 != *p2 )
-        {
+    while (p1 != end1 && p2 != end2) {
+        if (*p1 != *p2)
             return (i32)(*p1 - *p2);
-        }
-        else
-        {
+        else {
             ++p1;
             ++p2;
         }
     }
 
-    return (i32)((Nst_Int)str1->len - (Nst_Int)str2->len);
+    return (i32)((i64)str1->len - (i64)str2->len);
 }
 
 i8 *Nst_string_find(i8 *s1, usize l1, i8 *s2, usize l2)
@@ -738,26 +570,21 @@ i8 *Nst_string_find(i8 *s1, usize l1, i8 *s2, usize l2)
     i8 *p1 = NULL;
     i8 *p2 = NULL;
 
-    if ( l2 > l1 )
-    {
+    if (l2 > l1)
         return NULL;
-    }
 
     while (s1 != end1)
     {
         p1 = s1++;
         p2 = s2;
 
-        while (p1 != end1 && p2 != end2 && *p1 == *p2)
-        {
+        while (p1 != end1 && p2 != end2 && *p1 == *p2) {
             ++p1;
             ++p2;
         }
 
         if (p2 == end2)
-        {
             return s1 - 1;
-        }
     }
 
     return NULL;

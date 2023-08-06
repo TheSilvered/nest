@@ -134,14 +134,14 @@ extern "C" {
  * @param path: the path of the file
  * @param lines: the beginning of each line of the file
  * @param len: the length in bytes of the text
- * @param line_count: the number of lines in the file
+ * @param lines_len: the number of lines in the file
  */
 NstEXP typedef struct _Nst_SourceText {
     i8 *text;
     i8 *path;
     i8 **lines;
-    usize len;
-    usize line_count;
+    usize text_len;
+    usize lines_len;
 } Nst_SourceText;
 
 /**

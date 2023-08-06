@@ -25,16 +25,16 @@ static Nst_MapObj *CPO_ = nullptr;
 bool lib_init()
 {
     CPO_ = MAP(Nst_map_new());
-    Nst_Obj *none_opt            = Nst_int_new((Nst_Int)fs::copy_options::none);
-    Nst_Obj *skip_opt            = Nst_int_new((Nst_Int)fs::copy_options::skip_existing);
-    Nst_Obj *overwrite_opt       = Nst_int_new((Nst_Int)fs::copy_options::overwrite_existing);
-    Nst_Obj *update_opt          = Nst_int_new((Nst_Int)fs::copy_options::update_existing);
-    Nst_Obj *recursive_opt       = Nst_int_new((Nst_Int)fs::copy_options::recursive);
-    Nst_Obj *copy_symlinks_opt   = Nst_int_new((Nst_Int)fs::copy_options::copy_symlinks);
-    Nst_Obj *skip_symlinks_opt   = Nst_int_new((Nst_Int)fs::copy_options::skip_symlinks);
-    Nst_Obj *dirs_only_opt       = Nst_int_new((Nst_Int)fs::copy_options::directories_only);
-    Nst_Obj *make_symlinks_opt   = Nst_int_new((Nst_Int)fs::copy_options::create_symlinks);
-    Nst_Obj *make_hard_links_opt = Nst_int_new((Nst_Int)fs::copy_options::create_hard_links);
+    Nst_Obj *none_opt            = Nst_int_new((i64)fs::copy_options::none);
+    Nst_Obj *skip_opt            = Nst_int_new((i64)fs::copy_options::skip_existing);
+    Nst_Obj *overwrite_opt       = Nst_int_new((i64)fs::copy_options::overwrite_existing);
+    Nst_Obj *update_opt          = Nst_int_new((i64)fs::copy_options::update_existing);
+    Nst_Obj *recursive_opt       = Nst_int_new((i64)fs::copy_options::recursive);
+    Nst_Obj *copy_symlinks_opt   = Nst_int_new((i64)fs::copy_options::copy_symlinks);
+    Nst_Obj *skip_symlinks_opt   = Nst_int_new((i64)fs::copy_options::skip_symlinks);
+    Nst_Obj *dirs_only_opt       = Nst_int_new((i64)fs::copy_options::directories_only);
+    Nst_Obj *make_symlinks_opt   = Nst_int_new((i64)fs::copy_options::create_symlinks);
+    Nst_Obj *make_hard_links_opt = Nst_int_new((i64)fs::copy_options::create_hard_links);
 
     Nst_map_set_str(CPO_, "none",            none_opt);
     Nst_map_set_str(CPO_, "skip",            skip_opt);

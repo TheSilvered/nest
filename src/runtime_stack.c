@@ -121,7 +121,7 @@ void Nst_vstack_destroy(void)
     if (Nst_state.v_stack.stack == NULL)
         return;
 
-    for (Nst_Int i = 0; i < (Nst_Int)Nst_state.v_stack.current_size; i++) {
+    for (i64 i = 0; i < (i64)Nst_state.v_stack.current_size; i++) {
         if (Nst_state.v_stack.stack[i] != NULL)
             Nst_dec_ref(Nst_state.v_stack.stack[i]);
     }
@@ -138,7 +138,7 @@ bool Nst_fstack_init(void)
 }
 
 bool _Nst_fstack_push(Nst_FuncObj  *func, Nst_Pos call_start, Nst_Pos call_end,
-                      Nst_VarTable *vt, Nst_Int idx, usize cstack_size)
+                      Nst_VarTable *vt, i64 idx, usize cstack_size)
 {
     usize max_size = Nst_state.f_stack.max_size;
 
@@ -205,7 +205,7 @@ void Nst_fstack_destroy(void)
     if (Nst_state.v_stack.stack == NULL)
         return;
 
-    for (Nst_Int i = 0; i < (Nst_Int)Nst_state.f_stack.current_size; i++) {
+    for (i64 i = 0; i < (i64)Nst_state.f_stack.current_size; i++) {
         if (Nst_state.f_stack.stack[i].func != NULL)
             Nst_dec_ref(Nst_state.f_stack.stack[i].func);
 
@@ -226,7 +226,7 @@ bool Nst_cstack_init(void)
         C_STACK_MIN_SIZE);
 }
 
-bool Nst_cstack_push(Nst_Int inst_idx, usize v_stack_size, usize f_stack_size)
+bool Nst_cstack_push(i64 inst_idx, usize v_stack_size, usize f_stack_size)
 {
     bool result = Nst_stack_expand(
         (Nst_GenericStack *)&Nst_state.c_stack,

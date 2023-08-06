@@ -173,7 +173,7 @@ static Nst_Obj *seq_eq(Nst_SeqObj *seq1, Nst_SeqObj *seq2,
 static Nst_Obj *map_eq(Nst_MapObj *map1, Nst_MapObj *map2,
                        Nst_LList *containers)
 {
-    if (map1->item_count != map2->item_count)
+    if (map1->len != map2->len)
         Nst_RETURN_FALSE;
 
     for (Nst_LLNode *n = containers->head; n != NULL; n = n->next) {
@@ -340,7 +340,7 @@ Nst_Obj *_Nst_obj_add(Nst_Obj *ob1, Nst_Obj *ob2)
 Nst_Obj *_Nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ob1->type == Nst_t.Vector) {
-        Nst_dec_ref(Nst_vector_remove(ob1, ob2));
+        Nst_vector_remove(ob1, ob2);
         return Nst_inc_ref(ob1);
     } else if (ob1->type == Nst_t.Map) {
         Nst_Obj *res = Nst_map_drop(ob1, ob2);
@@ -380,7 +380,7 @@ Nst_Obj *_Nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2)
         if (new_objs == NULL)
             return NULL;
         vect->objs = new_objs;
-        vect->size = new_size;
+        vect->cap = new_size;
         vect->len = new_size;
         for (usize i = v_len; i < new_size; i++)
             new_objs[i] = Nst_inc_ref(new_objs[i % v_len]);
@@ -438,10 +438,10 @@ Nst_Obj *_Nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2)
 Nst_Obj *_Nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ARE_TYPE(Nst_t.Byte)) {
-        Nst_Byte res = 1;
-        Nst_Byte num = AS_BYTE(ob1);
+        u8 res = 1;
+        u8 num = AS_BYTE(ob1);
 
-        for (Nst_Byte i = 0, n = AS_BYTE(ob2); i < n; i++)
+        for (u8 i = 0, n = AS_BYTE(ob2); i < n; i++)
             res *= num;
 
         return Nst_byte_new(res);
@@ -454,7 +454,7 @@ Nst_Obj *_Nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2)
         else if (v2 == 0)
             return Nst_inc_ref(Nst_c.Int_1);
 
-        Nst_Int res = 1;
+        i64 res = 1;
 
         for (i64 i = 0; i < v2; i++)
             res *= v1;
@@ -470,7 +470,7 @@ Nst_Obj *_Nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2)
             return NULL;
         }
 
-        return Nst_real_new((Nst_Real)powl(v1, v2));
+        return Nst_real_new((f64)powl(v1, v2));
     } else
         RETURN_STACK_OP_TYPE_ERROR("^");
 }
@@ -572,11 +572,7 @@ Nst_Obj *_Nst_obj_bwrs(Nst_Obj *ob1, Nst_Obj *ob2)
 // Logical operations
 Nst_Obj *_Nst_obj_lgor(Nst_Obj *ob1, Nst_Obj *ob2)
 {
-    Nst_Obj *b = Nst_obj_cast(ob1, Nst_t.Bool);
-    Nst_Bool v1 = AS_BOOL(b);
-    Nst_dec_ref(b);
-
-    if (v1)
+    if (Nst_obj_to_bool(ob1))
         return Nst_inc_ref(ob1);
     else
         return Nst_inc_ref(ob2);
@@ -584,11 +580,7 @@ Nst_Obj *_Nst_obj_lgor(Nst_Obj *ob1, Nst_Obj *ob2)
 
 Nst_Obj *_Nst_obj_lgand(Nst_Obj *ob1, Nst_Obj *ob2)
 {
-    Nst_Obj *b = Nst_obj_cast(ob1, Nst_t.Bool);
-    Nst_Bool v1 = AS_BOOL(b);
-    Nst_dec_ref(b);
-
-    if (!v1)
+    if (!Nst_obj_to_bool(ob1))
         return Nst_inc_ref(ob1);
     else
         return Nst_inc_ref(ob2);
@@ -706,7 +698,7 @@ Nst_Obj *_Nst_obj_str_cast_map(Nst_MapObj *map_obj, Nst_LList *all_objs)
             return Nst_string_new_c("{.}", 3, false);
     }
 
-    if (MAP(map_obj)->item_count == 0)
+    if (MAP(map_obj)->len == 0)
         return Nst_string_new_c("{}", 2, false);
 
     if (!Nst_llist_push(all_objs, map_obj, false))
@@ -890,7 +882,7 @@ static Nst_Obj *obj_to_bool(Nst_Obj *ob)
     else if (ob_t == Nst_t.Str)
         Nst_RETURN_COND(STR(ob)->len != 0);
     else if (ob_t == Nst_t.Map)
-        Nst_RETURN_COND(MAP(ob)->item_count != 0);
+        Nst_RETURN_COND(MAP(ob)->len != 0);
     else if (ob_t == Nst_t.Array || ob_t == Nst_t.Vector)
         Nst_RETURN_COND(SEQ(ob)->len != 0);
     else if (ob_t == Nst_t.Null)
@@ -910,7 +902,7 @@ static Nst_Obj *obj_to_byte(Nst_Obj *ob)
     if (ob_t == Nst_t.Int)
         return Nst_byte_new(AS_INT(ob) & 0xff);
     else if (ob_t == Nst_t.Real)
-        return Nst_byte_new((Nst_Int)AS_REAL(ob) & 0xff);
+        return Nst_byte_new((i64)AS_REAL(ob) & 0xff);
     else if (ob_t == Nst_t.Str)
         return Nst_string_parse_byte(STR(ob));
     RETURN_CAST_TYPE_ERROR(Nst_t.Byte);
@@ -921,9 +913,9 @@ static Nst_Obj *obj_to_int(Nst_Obj *ob)
     Nst_TypeObj *ob_t = ob->type;
 
     if (ob_t == Nst_t.Real)
-        return Nst_int_new((Nst_Int)AS_REAL(ob));
+        return Nst_int_new((i64)AS_REAL(ob));
     else if (ob_t == Nst_t.Byte)
-        return Nst_int_new((Nst_Int)AS_BYTE(ob));
+        return Nst_int_new((i64)AS_BYTE(ob));
     else if (ob_t == Nst_t.Str)
         return Nst_string_parse_int(STR(ob), 0);
     RETURN_CAST_TYPE_ERROR(Nst_t.Int);
@@ -934,9 +926,9 @@ static Nst_Obj *obj_to_real(Nst_Obj *ob)
     Nst_TypeObj *ob_t = ob->type;
 
     if (ob_t == Nst_t.Int)
-        return Nst_real_new((Nst_Real)AS_INT(ob));
+        return Nst_real_new((f64)AS_INT(ob));
     else if (ob_t == Nst_t.Byte)
-        return Nst_real_new((Nst_Real)AS_BYTE(ob));
+        return Nst_real_new((f64)AS_BYTE(ob));
     else if (ob_t == Nst_t.Str)
         return Nst_string_parse_real(STR(ob));
     RETURN_CAST_TYPE_ERROR(Nst_t.Real);
@@ -1012,10 +1004,10 @@ static Nst_Obj *iter_to_seq(Nst_Obj *ob, bool is_vect)
         seq->objs,
         seq->len,
         Nst_Obj *,
-        seq->size);
+        seq->cap);
     if (new_objs != seq->objs) {
         seq->objs = new_objs;
-        seq->size = seq->len;
+        seq->cap = seq->len;
     }
 
     seq->type = STR(Nst_inc_ref(Nst_t.Array));
@@ -1026,7 +1018,7 @@ static Nst_Obj *iter_to_seq(Nst_Obj *ob, bool is_vect)
 static Nst_Obj *map_to_seq(Nst_Obj *ob, bool is_vect)
 {
     Nst_MapObj *map = MAP(ob);
-    usize seq_len = map->item_count;
+    usize seq_len = map->len;
     Nst_SeqObj *seq = is_vect ? SEQ(Nst_vector_new(seq_len))
                               : SEQ(Nst_array_new(seq_len));
 
@@ -1373,7 +1365,7 @@ Nst_Obj *_Nst_obj_len(Nst_Obj *ob)
     if (ob->type == Nst_t.Str)
         return Nst_int_new(STR(ob)->len);
     else if (ob->type == Nst_t.Map)
-        return Nst_int_new(MAP(ob)->item_count);
+        return Nst_int_new(MAP(ob)->len);
     else if (IS_SEQ(ob))
         return Nst_int_new(SEQ(ob)->len);
     else if (ob->type == Nst_t.Func)

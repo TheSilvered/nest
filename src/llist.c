@@ -24,7 +24,7 @@ bool Nst_llist_push(Nst_LList *llist, void *value, bool allocated)
 
     if (llist->tail == NULL)
         llist->tail = node;
-    llist->size++;
+    llist->len++;
     return true;
 }
 
@@ -41,7 +41,7 @@ bool Nst_llist_append(Nst_LList *llist, void *value, bool allocated)
 
     if (llist->head == NULL)
         llist->head = node;
-    llist->size++;
+    llist->len++;
     return true;
 }
 
@@ -66,7 +66,7 @@ bool Nst_llist_insert(Nst_LList *llist, void *value, bool allocated,
 
 void *Nst_llist_pop(Nst_LList *llist)
 {
-    if (llist->size == 0)
+    if (llist->len == 0)
         return NULL;
 
     Nst_LLNode *node = llist->head;
@@ -75,7 +75,7 @@ void *Nst_llist_pop(Nst_LList *llist)
     if (llist->head == NULL)
         llist->tail = NULL;
 
-    llist->size--;
+    llist->len--;
     void *value = node->value;
     Nst_free(node);
     return value;
@@ -93,7 +93,7 @@ Nst_LList *Nst_llist_new(void)
 
 void Nst_llist_init(Nst_LList *llist)
 {
-    llist->size = 0;
+    llist->len = 0;
     llist->head = NULL;
     llist->tail = NULL;
 }
@@ -133,54 +133,54 @@ void Nst_llist_empty(Nst_LList *llist, void (*item_destructor)(void *))
     }
     llist->head = NULL;
     llist->tail = NULL;
-    llist->size = 0;
+    llist->len = 0;
 }
 
 void Nst_llist_move_nodes(Nst_LList *from, Nst_LList *to)
 {
-    if (to->size == 0) {
+    if (to->len == 0) {
         to->head = from->head;
         to->tail = from->tail;
-        to->size = from->size;
+        to->len = from->len;
     } else {
         to->tail->next = from->head;
         to->tail = from->tail;
-        to->size += from->size;
+        to->len += from->len;
     }
 
     from->head = NULL;
     from->tail = NULL;
-    from->size = 0;
+    from->len = 0;
 }
 
 void Nst_llist_push_llnode(Nst_LList *llist, Nst_LLNode *node)
 {
     node->next = llist->head;
     llist->head = node;
-    llist->size++;
-    if (llist->size == 1)
+    llist->len++;
+    if (llist->len == 1)
         llist->tail = node;
 }
 
 void Nst_llist_append_llnode(Nst_LList *llist, Nst_LLNode *node)
 {
     node->next = NULL;
-    if (llist->size > 0)
+    if (llist->len > 0)
         llist->tail->next = node;
     else
         llist->head = node;
     llist->tail = node;
-    llist->size++;
+    llist->len++;
 }
 
 Nst_LLNode *Nst_llist_pop_llnode(Nst_LList *llist)
 {
-    if (llist->size == 0)
+    if (llist->len == 0)
         return NULL;
     Nst_LLNode *node = llist->head;
     llist->head = node->next;
-    llist->size--;
-    if (llist->size == 0)
+    llist->len--;
+    if (llist->len == 0)
         llist->tail = NULL;
     node->next = NULL;
     return node;

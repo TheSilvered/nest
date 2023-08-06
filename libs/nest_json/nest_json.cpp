@@ -94,7 +94,7 @@ Nst_FUNC_SIGN(dump_s_)
     Nst_Obj *indent_obj;
 
     Nst_DEF_EXTRACT("o?i", &obj, &indent_obj);
-    Nst_Int indent = Nst_DEF_VAL(indent_obj, AS_INT(indent_obj), 0);
+    i64 indent = Nst_DEF_VAL(indent_obj, AS_INT(indent_obj), 0);
 
     return json_dump(obj, (i32)indent);
 }
@@ -106,7 +106,7 @@ Nst_FUNC_SIGN(dump_f_)
     Nst_Obj *indent_obj;
 
     Nst_DEF_EXTRACT("so?i", &path, &obj, &indent_obj);
-    Nst_Int indent = Nst_DEF_VAL(indent_obj, AS_INT(indent_obj), 0);
+    i64 indent = Nst_DEF_VAL(indent_obj, AS_INT(indent_obj), 0);
 
     Nst_IOFile f = fopen(path->value, "wb");
     if ( f == nullptr )
@@ -129,7 +129,7 @@ Nst_FUNC_SIGN(dump_f_)
 
 Nst_FUNC_SIGN(set_options_)
 {
-    Nst_Int options;
+    i64 options;
     Nst_DEF_EXTRACT("i", &options);
 
     comments        = bool(options & 0b01);
@@ -142,7 +142,7 @@ Nst_FUNC_SIGN(get_options_)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
-    Nst_Int val = 0;
+    i64 val = 0;
     val |= comments        ? 0b01 : 0;
     val |= trailing_commas ? 0b10 : 0;
     return Nst_int_new(val);

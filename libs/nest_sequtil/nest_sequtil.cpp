@@ -86,19 +86,19 @@ Nst_FUNC_SIGN(map_)
 Nst_FUNC_SIGN(insert_at_)
 {
     Nst_SeqObj *vect;
-    Nst_Int idx;
+    i64 idx;
     Nst_Obj *obj;
 
     Nst_DEF_EXTRACT("vio", &vect, &idx, &obj);
 
-    Nst_Int new_idx = idx;
+    i64 new_idx = idx;
 
     if ( idx < 0 )
     {
         new_idx = vect->len + idx;
     }
 
-    if ( new_idx < 0 || new_idx >= (Nst_Int)vect->len )
+    if ( new_idx < 0 || new_idx >= (i64)vect->len )
     {
         Nst_set_value_error(Nst_sprintf(
             _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector"),
@@ -112,7 +112,7 @@ Nst_FUNC_SIGN(insert_at_)
     Nst_vector_append(vect, Nst_null());
     Nst_dec_ref(Nst_null());
 
-    for ( Nst_Int i = vect->len - 1; i >= new_idx; i-- )
+    for ( i64 i = vect->len - 1; i >= new_idx; i-- )
     {
         vect->objs[i + 1] = vect->objs[i];
     }
@@ -124,18 +124,18 @@ Nst_FUNC_SIGN(insert_at_)
 Nst_FUNC_SIGN(remove_at_)
 {
     Nst_SeqObj *vect;
-    Nst_Int idx;
+    i64 idx;
 
     Nst_DEF_EXTRACT("vi", &vect, &idx);
 
-    Nst_Int new_idx = idx;
+    i64 new_idx = idx;
 
     if ( idx < 0 )
     {
         new_idx = vect->len + idx;
     }
 
-    if ( new_idx < 0 || new_idx >= (Nst_Int)vect->len )
+    if ( new_idx < 0 || new_idx >= (i64)vect->len )
     {
         Nst_set_value_error(Nst_sprintf(
             _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector"),
@@ -147,7 +147,7 @@ Nst_FUNC_SIGN(remove_at_)
 
     Nst_Obj *obj = vect->objs[new_idx];
     vect->len--;
-    for ( ; new_idx < (Nst_Int)vect->len; new_idx++ )
+    for ( ; new_idx < (i64)vect->len; new_idx++ )
     {
         vect->objs[new_idx] = vect->objs[new_idx + 1];
     }
@@ -165,9 +165,9 @@ Nst_FUNC_SIGN(slice_)
 
     Nst_DEF_EXTRACT("S?i?i?i", &seq, &start_obj, &stop_obj, &step_obj);
 
-    Nst_Int step  = Nst_DEF_VAL(step_obj,  AS_INT(step_obj), 1);
-    Nst_Int start = Nst_DEF_VAL(start_obj, AS_INT(start_obj), step > 0 ? 0 : seq->len);
-    Nst_Int stop  = Nst_DEF_VAL(stop_obj,  AS_INT(stop_obj), step > 0 ? seq->len : -1);
+    i64 step  = Nst_DEF_VAL(step_obj,  AS_INT(step_obj), 1);
+    i64 start = Nst_DEF_VAL(start_obj, AS_INT(start_obj), step > 0 ? 0 : seq->len);
+    i64 stop  = Nst_DEF_VAL(stop_obj,  AS_INT(stop_obj), step > 0 ? seq->len : -1);
 
     usize seq_len = seq->len;
     Nst_TypeObj *seq_type = args[0]->type;
@@ -192,7 +192,7 @@ Nst_FUNC_SIGN(slice_)
     {
         start = 0;
     }
-    else if ( start >= (Nst_Int)seq_len )
+    else if ( start >= (i64)seq_len )
     {
         start = seq_len - 1;
     }
@@ -201,7 +201,7 @@ Nst_FUNC_SIGN(slice_)
     {
         stop = 0;
     }
-    else if ( stop > (Nst_Int)seq_len )
+    else if ( stop > (i64)seq_len )
     {
         stop = seq_len;
     }
@@ -280,14 +280,14 @@ Nst_FUNC_SIGN(merge_)
         new_seq = SEQ(Nst_array_new(seq1->len + seq2->len));
     }
 
-    Nst_Int i = 0;
+    i64 i = 0;
 
-    for ( Nst_Int n = (Nst_Int)seq1->len; i < n; i++ )
+    for ( i64 n = (i64)seq1->len; i < n; i++ )
     {
         Nst_seq_set(new_seq, i, seq1->objs[i]);
     }
 
-    for ( Nst_Int j = i, n = (Nst_Int)seq2->len; j - i < n; j++ )
+    for ( i64 j = i, n = (i64)seq2->len; j - i < n; j++ )
     {
         Nst_seq_set(new_seq, j, seq2->objs[j - i]);
     }
@@ -296,13 +296,13 @@ Nst_FUNC_SIGN(merge_)
 }
 
 bool insertion_sort(Nst_SeqObj *seq,
-                    Nst_Int     left,
-                    Nst_Int     right)
+                    i64     left,
+                    i64     right)
 {
-    for ( Nst_Int i = left + 1; i <= right; i++ )
+    for ( i64 i = left + 1; i <= right; i++ )
     {
         Nst_Obj *temp = seq->objs[i];
-        Nst_Int j = i - 1;
+        i64 j = i - 1;
         while ( j >= left && Nst_obj_gt(seq->objs[j], temp) == Nst_true())
         {
             Nst_dec_ref(Nst_true());
@@ -481,10 +481,10 @@ Nst_FUNC_SIGN(filter_)
             new_seq->objs,
             new_seq->len,
             Nst_Obj *,
-            new_seq->size);
+            new_seq->cap);
         if ( new_objs != new_seq->objs )
         {
-            new_seq->size = new_seq->len;
+            new_seq->cap = new_seq->len;
         }
         new_seq->objs = new_objs;
 
@@ -658,7 +658,7 @@ Nst_FUNC_SIGN(lscan_)
     Nst_Obj *max_items_obj;
 
     Nst_DEF_EXTRACT("Sfo?i", &seq, &func, &prev_val, &max_items_obj);
-    Nst_Int max_items = Nst_DEF_VAL(max_items_obj, AS_INT(max_items_obj), seq->len + 1);
+    i64 max_items = Nst_DEF_VAL(max_items_obj, AS_INT(max_items_obj), seq->len + 1);
 
     if ( func->arg_num != 2 )
     {
@@ -674,7 +674,7 @@ Nst_FUNC_SIGN(lscan_)
         return nullptr;
     }
 
-    if ( max_items > (Nst_Int)seq->len + 1 )
+    if ( max_items > (i64)seq->len + 1 )
     {
         max_items = seq->len + 1;
     }
@@ -693,7 +693,7 @@ Nst_FUNC_SIGN(lscan_)
 
     Nst_Obj *func_args[2];
 
-    for ( Nst_Int i = 1; i < max_items; i++ )
+    for ( i64 i = 1; i < max_items; i++ )
     {
         func_args[0] = prev_val;
         func_args[1] = seq->objs[i - 1];
@@ -723,7 +723,7 @@ Nst_FUNC_SIGN(rscan_)
     Nst_Obj *max_items_obj;
 
     Nst_DEF_EXTRACT("Sfo?i", &seq, &func, &prev_val, &max_items_obj);
-    Nst_Int max_items = Nst_DEF_VAL(max_items_obj, AS_INT(max_items_obj), seq->len + 1);
+    i64 max_items = Nst_DEF_VAL(max_items_obj, AS_INT(max_items_obj), seq->len + 1);
 
     if ( func->arg_num != 2 )
     {
@@ -739,7 +739,7 @@ Nst_FUNC_SIGN(rscan_)
         return nullptr;
     }
 
-    Nst_Int seq_len = (Nst_Int)seq->len;
+    i64 seq_len = (i64)seq->len;
 
     if ( max_items > seq_len + 1 )
     {
@@ -760,7 +760,7 @@ Nst_FUNC_SIGN(rscan_)
 
     Nst_Obj *func_args[2];
 
-    for ( Nst_Int i = max_items - 2; i >= 0; i-- )
+    for ( i64 i = max_items - 2; i >= 0; i-- )
     {
         func_args[0] = seq->objs[i + seq_len - max_items + 1];
         func_args[1] = prev_val;
@@ -768,7 +768,7 @@ Nst_FUNC_SIGN(rscan_)
         if ( new_val == nullptr )
         {
             Nst_dec_ref(prev_val);
-            for ( Nst_Int j = max_items - 1; j > i; j-- )
+            for ( i64 j = max_items - 1; j > i; j-- )
             {
                 Nst_dec_ref(new_seq->objs[max_items - j - 1]);
             }

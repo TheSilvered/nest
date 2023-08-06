@@ -67,7 +67,7 @@
     By following the type with a dot
 
   Example:
-    i|r|B_B?A.#|i -> An Int, Real, Byte all casted to a Nst_Byte followed by an
+    i|r|B_B?A.#|i -> An Int, Real, Byte all casted to a u8 followed by an
                      optional Array or Vector that, if it exists, should
                      contain only objects of a custom type or integers.
 */

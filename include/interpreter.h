@@ -36,7 +36,7 @@ extern "C" {
 NstEXP typedef struct _Nst_ExecutionState {
     Nst_Traceback traceback;
     Nst_VarTable *vt;
-    Nst_Int idx;
+    i64 idx;
     Nst_GarbageCollector ggc;
     Nst_StrObj *curr_path;
     Nst_SeqObj *argv;
@@ -113,7 +113,7 @@ NstEXP Nst_Obj *NstC Nst_call_func(Nst_FuncObj *func, Nst_Obj **args);
  * @return The result of the function or NULL on failure. The error may not be
  * set.
  */
-NstEXP Nst_Obj *NstC Nst_run_func_context(Nst_FuncObj *func, Nst_Int idx,
+NstEXP Nst_Obj *NstC Nst_run_func_context(Nst_FuncObj *func, i64 idx,
                                           Nst_MapObj *vars,
                                           Nst_MapObj *globals);
 /**

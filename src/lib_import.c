@@ -435,7 +435,7 @@ cast_obj:
         if (res == NULL)
             return false;
         if (arg != NULL)
-            *(Nst_Int *)arg = AS_INT(res);
+            *(i64 *)arg = AS_INT(res);
         Nst_dec_ref(res);
         return true;
     } else if ((accepted_types & 0x7000) == REAL_C_CAST) {
@@ -443,7 +443,7 @@ cast_obj:
         if (res == NULL)
             return false;
         if (arg != NULL)
-            *(Nst_Real *)arg = AS_REAL(res);
+            *(f64 *)arg = AS_REAL(res);
         Nst_dec_ref(res);
         return true;
     } else if ((accepted_types & 0x7000) == BYTE_C_CAST) {
@@ -451,7 +451,7 @@ cast_obj:
         if (res == NULL)
             return false;
         if (arg != NULL)
-            *(Nst_Byte *)arg = AS_BYTE(res);
+            *(u8 *)arg = AS_BYTE(res);
         Nst_dec_ref(res);
         return true;
     } else if ((accepted_types & 0x7000) == BOOL_C_CAST) {
@@ -459,7 +459,7 @@ cast_obj:
         if (res == NULL)
             return false;
         if (arg != NULL)
-            *(Nst_Bool *)arg = AS_BOOL(res);
+            *(bool *)arg = AS_BOOL(res);
         Nst_dec_ref(res);
         return true;
     }

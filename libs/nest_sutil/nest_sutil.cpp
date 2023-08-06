@@ -271,14 +271,14 @@ Nst_FUNC_SIGN(rtrim_)
 Nst_FUNC_SIGN(ljust_)
 {
     Nst_StrObj *str;
-    Nst_Int just_len;
+    i64 just_len;
     Nst_Obj *just_char;
 
     Nst_DEF_EXTRACT("si?s", &str, &just_len, &just_char);
 
     usize len = str->len;
 
-    if ( just_len <= (Nst_Int)len )
+    if ( just_len <= (i64)len )
     {
         return Nst_inc_ref(args[0]);
     }
@@ -315,14 +315,14 @@ Nst_FUNC_SIGN(ljust_)
 Nst_FUNC_SIGN(rjust_)
 {
     Nst_StrObj *str;
-    Nst_Int just_len;
+    i64 just_len;
     Nst_Obj *just_char;
 
     Nst_DEF_EXTRACT("si?s", &str, &just_len, &just_char);
 
     usize len = str->len;
 
-    if ( just_len <= (Nst_Int)len )
+    if ( just_len <= (i64)len )
     {
         return Nst_inc_ref(args[0]);
     }
@@ -359,14 +359,14 @@ Nst_FUNC_SIGN(rjust_)
 Nst_FUNC_SIGN(center_)
 {
     Nst_StrObj *str;
-    Nst_Int just_len;
+    i64 just_len;
     Nst_Obj *just_char;
 
     Nst_DEF_EXTRACT("si?s", &str, &just_len, &just_char);
 
     usize len = str->len;
 
-    if ( just_len <= (Nst_Int)len )
+    if ( just_len <= (i64)len )
     {
         return Nst_inc_ref(args[0]);
     }
@@ -951,7 +951,7 @@ Nst_FUNC_SIGN(split_)
     return OBJ(vector);
 }
 
-static Nst_Int highest_bit(u64 n)
+static i64 highest_bit(u64 n)
 {
     u64 str_len = 63;
     u64 part_size = 32;
@@ -979,10 +979,10 @@ static Nst_Int highest_bit(u64 n)
 
 Nst_FUNC_SIGN(bin_)
 {
-    Nst_Int n;
+    i64 n;
     Nst_DEF_EXTRACT("i", &n);
 
-    Nst_Int str_len = highest_bit(n) + 1;
+    i64 str_len = highest_bit(n) + 1;
 
     i8 *buf = Nst_malloc_c((usize)str_len, i8);
     if ( buf == nullptr )
@@ -991,7 +991,7 @@ Nst_FUNC_SIGN(bin_)
         return nullptr;
     }
 
-    for ( Nst_Int i = 0; i < Nst_Int(str_len - 1); i++ )
+    for ( i64 i = 0; i < i64(str_len - 1); i++ )
     {
         if ( 1ll << i & n )
         {
@@ -1009,11 +1009,11 @@ Nst_FUNC_SIGN(bin_)
 
 Nst_FUNC_SIGN(oct_)
 {
-    Nst_Int n;
+    i64 n;
     Nst_DEF_EXTRACT("i", &n);
 
-    Nst_Int h_bit = highest_bit(n);
-    Nst_Int str_len = h_bit / 3;
+    i64 h_bit = highest_bit(n);
+    i64 str_len = h_bit / 3;
     if ( h_bit % 3 )
     {
         str_len += 2;
@@ -1030,7 +1030,7 @@ Nst_FUNC_SIGN(oct_)
         return nullptr;
     }
 
-    for ( Nst_Int i = 0; i < Nst_Int(str_len - 1); i++ )
+    for ( i64 i = 0; i < i64(str_len - 1); i++ )
     {
         i8 ch = i8((07ull << (i * 3) & u64(n)) >> (i * 3));
         buf[str_len - i - 2] = '0' + ch;
@@ -1042,12 +1042,12 @@ Nst_FUNC_SIGN(oct_)
 
 Nst_FUNC_SIGN(hex_)
 {
-    Nst_Int n;
-    Nst_Obj *upper_obj;
-    Nst_DEF_EXTRACT("i?b", &n, &upper_obj);
+    i64 n;
+    bool upper;
+    Nst_DEF_EXTRACT("io_b", &n, &upper);
 
     const i8 *digits;
-    if ( upper_obj == Nst_null() || !AS_BOOL(upper_obj) )
+    if (upper)
     {
         digits = "0123456789abcdef";
     }
@@ -1056,8 +1056,8 @@ Nst_FUNC_SIGN(hex_)
         digits = "0123456789ABCDEF";
     }
 
-    Nst_Int h_bit = highest_bit(n);
-    Nst_Int str_len = h_bit / 4;
+    i64 h_bit = highest_bit(n);
+    i64 str_len = h_bit / 4;
     if ( h_bit % 4 )
     {
         str_len += 2;
@@ -1074,7 +1074,7 @@ Nst_FUNC_SIGN(hex_)
         return nullptr;
     }
 
-    for ( Nst_Int i = 0; i < Nst_Int(str_len - 1); i++ )
+    for ( i64 i = 0; i < i64(str_len - 1); i++ )
     {
         u64 ch_idx = (0xfull << (i * 4) & u64(n)) >> (i * 4);
         buf[str_len - i - 2] = digits[ch_idx];
@@ -1090,7 +1090,7 @@ Nst_FUNC_SIGN(parse_int_)
     Nst_Obj *base_obj;
     Nst_DEF_EXTRACT("s?i", &str, &base_obj);
 
-    Nst_Int base = Nst_DEF_VAL(base_obj, AS_INT(base_obj), 0);
+    i64 base = Nst_DEF_VAL(base_obj, AS_INT(base_obj), 0);
 
     return Nst_string_parse_int(str, i32(base));
 }

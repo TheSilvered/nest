@@ -110,7 +110,7 @@ Nst_LList *Nst_tokenizef(i8 *filename, Nst_CPID encoding, i32 *opt_level,
     }
 
     src_text->text = text;
-    src_text->len = str_len;
+    src_text->text_len = str_len;
     src_text->path = full_path;
 
     parse_first_line(text, str_len, opt_level, &encoding, no_default);
@@ -133,7 +133,7 @@ Nst_LList *Nst_tokenize(Nst_SourceText *text, Nst_Error *error)
 
     cursor.idx = -1;
     cursor.ch = ' ';
-    cursor.len = text->len;
+    cursor.len = text->text_len;
     cursor.text = text->text;
     cursor.pos.col = -1;
     cursor.pos.line = 0;
@@ -795,7 +795,7 @@ bool Nst_add_lines(Nst_SourceText* text)
     i8 **starts = (i8 **)Nst_raw_calloc(100, sizeof(i8 *));
     if (starts == NULL) {
         text->lines = NULL;
-        text->line_count = 0;
+        text->lines_len = 0;
         return false;
     }
 
@@ -808,7 +808,7 @@ bool Nst_add_lines(Nst_SourceText* text)
     // if the file only contains \r, it is replaced with \n
 
     bool remove_r = false;
-    for (usize i = 0, n = text->len; i < n; i++) {
+    for (usize i = 0, n = text->text_len; i < n; i++) {
         if (text_p[i] == '\n') {
             remove_r = true;
             break;
@@ -816,7 +816,7 @@ bool Nst_add_lines(Nst_SourceText* text)
     }
 
     usize offset = 0;
-    for (usize i = 0, n = text->len; i < n; i++) {
+    for (usize i = 0, n = text->text_len; i < n; i++) {
         if (text_p[i] != '\r')
             text_p[i - offset] = text_p[i];
         else if (remove_r)
@@ -825,17 +825,17 @@ bool Nst_add_lines(Nst_SourceText* text)
             text_p[i] = '\n';
     }
 
-    text->len = text->len - offset;
-    text->text[text->len] = '\0';
+    text->text_len = text->text_len - offset;
+    text->text[text->text_len] = '\0';
 
     // now all lines end with \n
-    for (usize i = 0, n = text->len; i < n; i++) {
+    for (usize i = 0, n = text->text_len; i < n; i++) {
         if (text_p[i] != '\n')
             continue;
 
         if (i + 1 == n) {
             text->lines = starts;
-            text->line_count = line_count;
+            text->lines_len = line_count;
         }
 
         line_count++;
@@ -845,7 +845,7 @@ bool Nst_add_lines(Nst_SourceText* text)
             if (temp == NULL) {
                 Nst_free(starts);
                 text->lines = NULL;
-                text->line_count = 0;
+                text->lines_len = 0;
                 return false;
             }
             starts = (i8 **)temp;
@@ -855,7 +855,7 @@ bool Nst_add_lines(Nst_SourceText* text)
     }
 
     text->lines = starts;
-    text->line_count = line_count;
+    text->lines_len = line_count;
     return true;
 }
 
@@ -864,20 +864,20 @@ bool Nst_normalize_encoding(Nst_SourceText *text, Nst_CPID encoding,
 {
     i32 bom_size = 0;
     if (encoding == Nst_CP_UNKNOWN)
-        encoding = Nst_detect_encoding(text->text, text->len, &bom_size);
+        encoding = Nst_detect_encoding(text->text, text->text_len, &bom_size);
     else
-        Nst_check_bom(text->text, text->len, &bom_size);
+        Nst_check_bom(text->text, text->text_len, &bom_size);
 
     Nst_CP *from = Nst_cp(encoding);
 
     Nst_Pos pos = { 0, 0, text };
     Nst_Buffer buf;
-    if (!Nst_buffer_init(&buf, text->len + 40)) {
+    if (!Nst_buffer_init(&buf, text->text_len + 40)) {
         _Nst_SET_ERROR_FROM_OP_ERR(error, pos, pos);
         return false;
     }
 
-    isize n = (isize)text->len - bom_size;
+    isize n = (isize)text->text_len - bom_size;
     u8 *text_p = (u8 *)text->text + bom_size;
 
     bool skip_line_feed = false;
@@ -924,7 +924,7 @@ bool Nst_normalize_encoding(Nst_SourceText *text, Nst_CPID encoding,
 
     Nst_free(text->text);
     text->text = buf.data;
-    text->len = buf.len;
+    text->text_len = buf.len;
     return true;
 }
 

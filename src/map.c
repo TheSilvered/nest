@@ -19,7 +19,7 @@ Nst_Obj *Nst_map_new(void)
     if (map == NULL)
         return NULL;
 
-    map->item_count = 0;
+    map->len = 0;
     map->nodes = Nst_calloc_c(_Nst_MAP_MIN_SIZE, Nst_MapNode, NULL);
 
     if (map->nodes == NULL) {
@@ -28,7 +28,7 @@ Nst_Obj *Nst_map_new(void)
     }
 
     map->mask = _Nst_MAP_MIN_SIZE - 1;
-    map->size = _Nst_MAP_MIN_SIZE;
+    map->cap = _Nst_MAP_MIN_SIZE;
     map->head_idx = -1;
     map->tail_idx = -1;
 
@@ -63,12 +63,12 @@ static i32 set_clean(Nst_MapObj *map, i32 hash, Nst_Obj *key, Nst_Obj *value,
 
 bool _Nst_map_resize(Nst_MapObj *map, bool force_item_reset)
 {
-    usize old_size = map->size;
+    usize old_size = map->cap;
     Nst_MapNode *old_nodes = map->nodes;
     usize size;
-    if (old_size - map->item_count < old_size >> 2)
+    if (old_size - map->len < old_size >> 2)
         size = old_size << 1;
-    else if (old_size > _Nst_MAP_MIN_SIZE && old_size >> 2 >= map->item_count)
+    else if (old_size > _Nst_MAP_MIN_SIZE && old_size >> 2 >= map->len)
         size = old_size >> 1;
     else if (force_item_reset)
         size = old_size; // resize_map only resets the items
@@ -81,7 +81,7 @@ bool _Nst_map_resize(Nst_MapObj *map, bool force_item_reset)
         return old_size > size;
     }
     map->mask = size - 1;
-    map->size = size;
+    map->cap = size;
 
     i32 prev_idx = -1;
     i32 new_idx = 0;
@@ -162,7 +162,7 @@ bool _Nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
             (nodes + (i & mask))->next_idx = -1;
         }
     } else {
-        map->item_count++;
+        map->len++;
 
         // if it's the first node inserted
         if (map->head_idx == -1) {
@@ -253,7 +253,7 @@ Nst_Obj *_Nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
         nodes[i].hash = -1;
         nodes[i].key = NULL;
         nodes[i].value = NULL;
-        map->item_count--;
+        map->len--;
 
         if (curr_node.next_idx != -1)
             nodes[curr_node.next_idx].prev_idx = curr_node.prev_idx;
@@ -283,7 +283,7 @@ Nst_Obj *_Nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
             nodes[i & mask].hash = -1;
             nodes[i & mask].key = NULL;
             nodes[i & mask].value = NULL;
-            map->item_count--;
+            map->len--;
 
             if (curr_node.next_idx != -1)
                 nodes[curr_node.next_idx].prev_idx = curr_node.prev_idx;

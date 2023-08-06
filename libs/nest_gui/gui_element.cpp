@@ -552,7 +552,7 @@ bool gui_element_add_child(GUI_Element *parent, GUI_Element *child)
 
 bool gui_element_remove_child(GUI_Element *parent, GUI_Element *child)
 {
-    return Nst_obj_to_bool(Nst_vector_remove(parent->children, child));
+    return Nst_vector_remove(parent->children, child);
 }
 
 void gui_element_clip_parent(GUI_Element *element, bool clip)

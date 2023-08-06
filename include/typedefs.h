@@ -1,5 +1,10 @@
-/* Clearer types */
-
+/**
+ * @file typedefs.h
+ *
+ * @brief Clearer C types and useful platform-agnostic macros.
+ *
+ * @author TheSilvered
+ */
 #ifndef TYPEDEFS_H
 #define TYPEDEFS_H
 
@@ -74,7 +79,7 @@
         defined(_MIPSEL) || defined(__MIPSEL) || defined(__MIPSEL__)
     #define Nst_ENDIANNESS Nst_LITTLE_ENDIAN
   #else
-    #error Failed to determine endianness, define Nst_LITTLE_ENDIAN as 4321 (LE) or 1234 (BE)
+    #error Failed to determine endianness, define Nst_ENDIANNESS as 4321 (LE) or 1234 (BE)
   #endif // !Nst_ENDIANNESS
 #endif // !Nst_ENDIANNESS
 

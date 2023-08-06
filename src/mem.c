@@ -108,7 +108,7 @@ bool Nst_sbuffer_init(Nst_SizedBuffer *buf, usize unit_size, usize count)
         return false;
 
     buf->data = data;
-    buf->size = count;
+    buf->cap = count;
     buf->unit_size = unit_size;
     buf->len = 0;
     return true;
@@ -121,7 +121,7 @@ bool Nst_sbuffer_expand_by(Nst_SizedBuffer *buf, usize amount)
 
 bool Nst_sbuffer_expand_to(Nst_SizedBuffer *buf, usize count)
 {
-    if (buf->size > count)
+    if (buf->cap > count)
         return true;
 
     usize new_size = (usize)(count * 1.5);
@@ -130,17 +130,17 @@ bool Nst_sbuffer_expand_to(Nst_SizedBuffer *buf, usize count)
         return false;
 
     buf->data = new_data;
-    buf->size = new_size;
+    buf->cap = new_size;
     return true;
 }
 
 void Nst_sbuffer_fit(Nst_SizedBuffer *buf)
 {
-    if ((buf->size - buf->len) * buf->unit_size < 20)
+    if ((buf->cap - buf->len) * buf->unit_size < 20)
         return;
 
-    buf->data = Nst_realloc(buf->data, buf->len, buf->unit_size, buf->size);
-    buf->size = buf->len;
+    buf->data = Nst_realloc(buf->data, buf->len, buf->unit_size, buf->cap);
+    buf->cap = buf->len;
 }
 
 bool Nst_sbuffer_append(Nst_SizedBuffer *buf, void *element)
@@ -159,7 +159,7 @@ void Nst_sbuffer_destroy(Nst_SizedBuffer *buf)
     if (buf->data != NULL)
         Nst_free(buf->data);
     buf->data = NULL;
-    buf->size = 0;
+    buf->cap = 0;
     buf->len = 0;
     buf->unit_size = 0;
 }
@@ -187,11 +187,11 @@ bool Nst_buffer_expand_to(Nst_Buffer *buf, usize size)
 
 void Nst_buffer_fit(Nst_Buffer *buf)
 {
-    if ((buf->size - buf->len) * buf->unit_size < 20)
+    if ((buf->cap - buf->len) * buf->unit_size < 20)
         return;
 
-    buf->data = Nst_realloc(buf->data, buf->len + 1, buf->unit_size, buf->size);
-    buf->size = buf->len + 1;
+    buf->data = Nst_realloc(buf->data, buf->len + 1, buf->unit_size, buf->cap);
+    buf->cap = buf->len + 1;
 }
 
 bool Nst_buffer_append(Nst_Buffer *buf, Nst_StrObj *str)
@@ -236,7 +236,7 @@ Nst_StrObj *Nst_buffer_to_string(Nst_Buffer *buf)
     if (str == NULL)
         Nst_free(buf->data);
     buf->data = NULL;
-    buf->size = 0;
+    buf->cap = 0;
     buf->len = 0;
     return str;
 }

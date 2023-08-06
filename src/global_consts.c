@@ -61,17 +61,17 @@ bool _Nst_init_objects(void)
         return false;
     }
 
-    Nst_t.Int    = Nst_type_new("Int",    3);
-    Nst_t.Real   = Nst_type_new("Real",   4);
-    Nst_t.Bool   = Nst_type_new("Bool",   4);
-    Nst_t.Null   = Nst_type_new("Null",   4);
-    Nst_t.Array  = Nst_type_new("Array",  5);
-    Nst_t.Vector = Nst_type_new("Vector", 6);
-    Nst_t.Map    = Nst_type_new("Map",    3);
-    Nst_t.Func   = Nst_type_new("Func",   4);
-    Nst_t.Iter   = Nst_type_new("Iter",   4);
-    Nst_t.Byte   = Nst_type_new("Byte",   4);
-    Nst_t.IOFile = Nst_type_new("IOFile", 6);
+    Nst_t.Int    = Nst_type_new("Int");
+    Nst_t.Real   = Nst_type_new("Real");
+    Nst_t.Bool   = Nst_type_new("Bool");
+    Nst_t.Null   = Nst_type_new("Null");
+    Nst_t.Array  = Nst_type_new("Array");
+    Nst_t.Vector = Nst_type_new("Vector");
+    Nst_t.Map    = Nst_type_new("Map");
+    Nst_t.Func   = Nst_type_new("Func");
+    Nst_t.Iter   = Nst_type_new("Iter");
+    Nst_t.Byte   = Nst_type_new("Byte");
+    Nst_t.IOFile = Nst_type_new("IOFile");
 
     Nst_s.t_Type   = STR(_Nst_string_copy(Nst_t.Type));
     Nst_s.t_Int    = STR(_Nst_string_copy(Nst_t.Int));
@@ -103,8 +103,8 @@ bool _Nst_init_objects(void)
     Nst_s.o__args_    = STR(Nst_string_new_c("_args_",    6, false));
     Nst_s.o__cwd_     = STR(Nst_string_new_c("_cwd_",     5, false));
 
-    Nst_c.Bool_true  = Nst_bool_new(Nst_TRUE);
-    Nst_c.Bool_false = Nst_bool_new(Nst_FALSE);
+    Nst_c.Bool_true  = Nst_bool_new(true);
+    Nst_c.Bool_false = Nst_bool_new(false);
     Nst_c.Null_null  = _Nst_obj_alloc(sizeof(Nst_Obj), Nst_t.Null, NULL);
     Nst_c.Int_0    = Nst_int_new(0);
     Nst_c.Int_1    = Nst_int_new(1);

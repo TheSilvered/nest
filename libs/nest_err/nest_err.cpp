@@ -93,10 +93,10 @@ Nst_Obj *failure(bool catch_exit)
 
         error_pos = make_pos(error.start, error.end);
         error_traceback =
-            Nst_array_new(state->traceback.positions->size / 2);
+            Nst_array_new(state->traceback.positions->len / 2);
 
         Nst_LList *positions = state->traceback.positions;
-        Nst_Int skipped = 0;
+        i64 skipped = 0;
         Nst_LLNode *n1 = positions->head;
         Nst_LLNode *n2 = n1 == nullptr ? n1 : n1->next;
         for ( usize i = 0; n1 != nullptr; i++ )

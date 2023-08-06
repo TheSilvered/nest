@@ -173,13 +173,13 @@ void gui_label_set_text(GUI_Label *l, Nst_StrObj *str, bool change_size)
     i8 *new_data = Nst_realloc_c(
         l->text.data,
         str->len + 1,
-        i8, l->text.size);
+        i8, l->text.cap);
     if (new_data == nullptr)
         return;
 
     memcpy(new_data, str->value, str->len + 1);
     l->text.data = new_data;
-    l->text.size = str->len + 1;
+    l->text.cap = str->len + 1;
     l->text.len = str->len;
     reset_texture(l, change_size);
 }
@@ -190,13 +190,13 @@ void gui_label_set_c_text(GUI_Label *l, i8 *text, bool change_size)
     i8 *new_data = Nst_realloc_c(
         l->text.data,
         str_len + 1,
-        i8, l->text.size);
+        i8, l->text.cap);
     if (new_data == nullptr)
         return;
 
     memcpy(new_data, text, str_len + 1);
     l->text.data = new_data;
-    l->text.size = str_len + 1;
+    l->text.cap = str_len + 1;
     l->text.len = str_len;
     reset_texture(l, change_size);
 }

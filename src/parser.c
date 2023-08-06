@@ -113,7 +113,7 @@ Nst_Node *Nst_parse(Nst_LList *tokens_list, Nst_Error *error)
     Nst_Node *node = parse_long_statement();
 
     // i.e. there are tokens other than Nst_TT_EOFILE
-    if (!p_state.error->occurred && tokens->size > 1) {
+    if (!p_state.error->occurred && tokens->len > 1) {
         Nst_Pos start = PEEK_FIRST_TOK->start;
         Nst_Pos end = PEEK_FIRST_TOK->start;
 
@@ -158,7 +158,7 @@ static Nst_Node *parse_long_statement(void)
         skip_blank();
     }
 
-    if (nodes->size == 0) {
+    if (nodes->len == 0) {
         Nst_node_set_pos(
             long_statement_node,
             PEEK_FIRST_TOK->start,
@@ -555,7 +555,7 @@ static Nst_Node *parse_func_def_or_lambda(void)
     Nst_Pos err_end = PEEK_FIRST_TOK->end;
 
     // if there are no identifiers after #
-    if (func_node->tokens->size == 0 && !is_lambda) {
+    if (func_node->tokens->len == 0 && !is_lambda) {
         Nst_node_destroy(func_node);
         RETURN_ERROR(err_start, err_end, _Nst_EM_EXPECTED_IDENT);
     }
@@ -625,20 +625,12 @@ static Nst_Node *parse_expr(bool break_as_end)
     Nst_Pos start = PEEK_FIRST_TOK->start;
     i32 token_type = PEEK_FIRST_TOK->type;
 
-    if (break_as_end) {
-        while (!Nst_IS_EXPR_END_W_BREAK(token_type)) {
-            node = parse_stack_op(node, start);
-            if (p_state.error->occurred)
-                return NULL;
-            token_type = PEEK_FIRST_TOK->type;
-        }
-    } else {
-        while (!Nst_IS_EXPR_END(token_type)) {
-            node = parse_stack_op(node, start);
-            if (p_state.error->occurred)
-                return NULL;
-            token_type = PEEK_FIRST_TOK->type;
-        }
+    while (!Nst_IS_EXPR_END(token_type)
+           && (!break_as_end || token_type != Nst_TT_BREAK)) {
+        node = parse_stack_op(node, start);
+        if (p_state.error->occurred)
+            return NULL;
+        token_type = PEEK_FIRST_TOK->type;
     }
 
     if (node == NULL) {
@@ -672,7 +664,7 @@ static Nst_Node *fix_expr(Nst_Node *expr)
         return expr;
     }
 
-    if (expr->type == Nst_NT_STACK_OP && expr->nodes->size == 1) {
+    if (expr->type == Nst_NT_STACK_OP && expr->nodes->len == 1) {
         Nst_Node *new_node = Nst_NODE(Nst_llist_peek_front(expr->nodes));
         Nst_llist_empty(expr->tokens, (Nst_LListDestructor)Nst_token_destroy);
         Nst_llist_empty(expr->nodes, NULL);
@@ -700,7 +692,7 @@ static Nst_Node *fix_expr(Nst_Node *expr)
     }
 
     // writing 1 2 3 4 + becomes 1 2 + 3 + 4 +
-    for (usize i = 0, n = expr->nodes->size - 2; i < n; i++) {
+    for (usize i = 0, n = expr->nodes->len - 2; i < n; i++) {
         // get the positions
         Nst_Pos start = curr_node->start;
         Nst_Pos end = curr_node->end;
@@ -709,7 +701,7 @@ static Nst_Node *fix_expr(Nst_Node *expr)
             start, end);
 
         // move the nodes except for the last one
-        for (usize j = 0, m = curr_node->nodes->size - 1; j < m; j++) {
+        for (usize j = 0, m = curr_node->nodes->len - 1; j < m; j++) {
             Nst_llist_append_llnode(
                 new_node->nodes,
                 Nst_llist_pop_llnode(curr_node->nodes));
@@ -802,7 +794,7 @@ static Nst_Node *parse_stack_op(Nst_Node *value, Nst_Pos start)
         Nst_llist_move_nodes(new_nodes, node->nodes);
         Nst_free(new_nodes);
         SAFE_TOK_APPEND(node, new_tok);
-    } else if (new_nodes->size == 1 && value == NULL) {
+    } else if (new_nodes->len == 1 && value == NULL) {
         node = Nst_NODE(Nst_llist_pop(new_nodes));
         Nst_llist_destroy(new_nodes, NULL);
     } else {
@@ -847,29 +839,29 @@ static Nst_Node *parse_local_stack_op(Nst_LList *nodes, Nst_Pos start)
     INC_RECURSION_LVL;
     Nst_Tok *tok = POP_FIRST_TOK;
 
-    if (tok->type == Nst_TT_CAST && nodes->size != 1) {
+    if (tok->type == Nst_TT_CAST && nodes->len != 1) {
         Nst_token_destroy(tok);
         RETURN_ERROR(
             Nst_NODE(Nst_llist_peek_front(nodes))->start,
             Nst_NODE(Nst_llist_peek_back(nodes))->end,
             _Nst_EM_LEFT_ARGS_NUM("::", "1", ""));
     } else if (tok->type == Nst_TT_RANGE
-               && nodes->size != 1
-               && nodes->size != 2)
+               && nodes->len != 1
+               && nodes->len != 2)
     {
         Nst_token_destroy(tok);
         RETURN_ERROR(
             Nst_NODE(Nst_llist_peek_front(nodes))->start,
             Nst_NODE(Nst_llist_peek_back(nodes))->end,
             _Nst_EM_LEFT_ARGS_NUM("->", "1 or 2", "s"));
-    } else if (tok->type == Nst_TT_THROW && nodes->size != 1) {
+    } else if (tok->type == Nst_TT_THROW && nodes->len != 1) {
         Nst_token_destroy(tok);
         RETURN_ERROR(
             Nst_NODE(Nst_llist_peek_front(nodes))->start,
             Nst_NODE(Nst_llist_peek_back(nodes))->end,
             _Nst_EM_LEFT_ARGS_NUM("!!", "1", ""));
     }
-    else if (tok->type == Nst_TT_SEQ_CALL && nodes->size != 1) {
+    else if (tok->type == Nst_TT_SEQ_CALL && nodes->len != 1) {
         Nst_token_destroy(tok);
         RETURN_ERROR(
             Nst_NODE(Nst_llist_peek_front(nodes))->start,
@@ -1165,7 +1157,7 @@ static Nst_Node *parse_vector_literal(void)
         skip_blank();
         tok = POP_FIRST_TOK;
 
-        if (tok->type == Nst_TT_BREAK && vect_node->nodes->size == 1) {
+        if (tok->type == Nst_TT_BREAK && vect_node->nodes->len == 1) {
             SAFE_TOK_APPEND(vect_node, tok);
             skip_blank();
 
@@ -1438,7 +1430,7 @@ static void _print_ast(Nst_Node *node, Nst_Tok *tok, i32 lvl,
         node->end.line,
         node->end.col);
 
-    usize tot_len = node->nodes->size + node->tokens->size - 1;
+    usize tot_len = node->nodes->len + node->tokens->len - 1;
     usize idx = 0;
 
     Nst_LLNode *prev_tail = is_last->tail;
@@ -1461,9 +1453,9 @@ static void _print_ast(Nst_Node *node, Nst_Tok *tok, i32 lvl,
 
     for (cursor = node->nodes->head; cursor != NULL; cursor = cursor->next) {
 #ifdef _Nst_ARCH_x64
-        is_last->tail->value = (void *)(i64)(idx == node->nodes->size - 1);
+        is_last->tail->value = (void *)(i64)(idx == node->nodes->len - 1);
 #else
-        is_last->tail->value = (void *)(idx == node->nodes->size - 1);
+        is_last->tail->value = (void *)(idx == node->nodes->len - 1);
 #endif
         _print_ast(Nst_NODE(cursor->value), NULL, lvl + 1, is_last);
         idx++;

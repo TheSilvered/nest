@@ -6,8 +6,8 @@
 
 static inline void move_obj(Nst_GGCObj *obj, Nst_GGCList *from, Nst_GGCList *to)
 {
-    if (from->size == 1) {
-        from->size = 0;
+    if (from->len == 1) {
+        from->len = 0;
         from->head = NULL;
         from->tail = NULL;
     } else {
@@ -23,24 +23,24 @@ static inline void move_obj(Nst_GGCObj *obj, Nst_GGCList *from, Nst_GGCList *to)
         else
             obj->ggc_next->ggc_prev = obj->ggc_prev;
 
-        from->size--;
+        from->len--;
     }
 
-    if (to->size == 0)
+    if (to->len == 0)
         to->head = obj;
     else
         to->tail->ggc_next = obj;
     obj->ggc_prev = to->tail;
     obj->ggc_next = NULL;
     to->tail = obj;
-    to->size++;
+    to->len++;
 
     obj->ggc_list = to;
 }
 
 static void move_list(Nst_GGCList *from, Nst_GGCList *to)
 {
-    if (from->size == 0)
+    if (from->len == 0)
         return;
 
     for (Nst_GGCObj *cursor = from->head;
@@ -53,21 +53,21 @@ static void move_list(Nst_GGCList *from, Nst_GGCList *to)
     if (to->head == NULL) {
         to->head = from->head;
         to->tail = from->tail;
-        to->size = from->size;
+        to->len = from->len;
         from->head = NULL;
         from->tail = NULL;
-        from->size = 0;
+        from->len = 0;
         return;
     }
 
     from->head->ggc_prev = to->tail;
     to->tail->ggc_next = from->head;
     to->tail = from->tail;
-    to->size += from->size;
+    to->len += from->len;
 
     from->head = NULL;
     from->tail = NULL;
-    from->size = 0;
+    from->len = 0;
 }
 
 static inline void call_objs_destructor(Nst_GGCList *gen)
@@ -163,7 +163,7 @@ void Nst_ggc_collect_gen(Nst_GGCList *gen, Nst_GGCList *other_gen1,
     Nst_GGCObj *traversed_end = gen->head;
 
     do {
-        prev_uv_size = uv.size;
+        prev_uv_size = uv.len;
         // Traverse reachable objects
         for (ob = traversed_end; ob != NULL;) {
             ob->traverse_func(OBJ(ob));
@@ -172,7 +172,7 @@ void Nst_ggc_collect_gen(Nst_GGCList *gen, Nst_GGCList *other_gen1,
 
         traversed_end = gen->tail;
 
-        if (uv.size == 0)
+        if (uv.len == 0)
             return;
 
         // Move objects reached back into the reachable objects to be traversed
@@ -189,7 +189,7 @@ void Nst_ggc_collect_gen(Nst_GGCList *gen, Nst_GGCList *other_gen1,
             ob = new_ob;
         }
 
-        if (prev_uv_size == uv.size)
+        if (prev_uv_size == uv.len)
             break;
     }
     while (true);
@@ -232,11 +232,11 @@ void Nst_ggc_init(void)
 void Nst_ggc_collect(void)
 {
     Nst_GarbageCollector *ggc = &Nst_state.ggc;
-    usize old_gen_size = ggc->old_gen.size;
+    usize old_gen_size = ggc->old_gen.len;
     // if the number of objects never checked in the old generation
     // is more than 25% and there are at least 10 objects
     if (old_gen_size > _Nst_OLD_GEN_MIN
-        && ggc->old_gen_pending >= (Nst_Int)old_gen_size >> 2)
+        && ggc->old_gen_pending >= (i64)old_gen_size >> 2)
     {
         Nst_ggc_collect_gen(&ggc->old_gen, &ggc->gen1, &ggc->gen2, &ggc->gen3);
         ggc->old_gen_pending = 0;
@@ -246,40 +246,40 @@ void Nst_ggc_collect(void)
     bool has_collected_gen2 = false;
 
     // Collect the generations if they are over their maximum value
-    if (ggc->gen1.size > _Nst_GEN1_MAX) {
+    if (ggc->gen1.len > _Nst_GEN1_MAX) {
         Nst_ggc_collect_gen(&ggc->gen1, &ggc->gen2, &ggc->gen3, &ggc->old_gen);
         has_collected_gen1 = true;
     }
 
-    if (ggc->gen2.size > _Nst_GEN2_MAX
+    if (ggc->gen2.len > _Nst_GEN2_MAX
         || (has_collected_gen1
-            && ggc->gen1.size + ggc->gen2.size > _Nst_GEN2_MAX))
+            && ggc->gen1.len + ggc->gen2.len > _Nst_GEN2_MAX))
     {
         Nst_ggc_collect_gen(&ggc->gen2, &ggc->gen1, &ggc->gen3, &ggc->old_gen);
         has_collected_gen2 = true;
     }
 
-    if (ggc->gen3.size > _Nst_GEN3_MAX
+    if (ggc->gen3.len > _Nst_GEN3_MAX
         || (has_collected_gen2
-            && ggc->gen2.size + ggc->gen3.size > _Nst_GEN3_MAX) )
+            && ggc->gen2.len + ggc->gen3.len > _Nst_GEN3_MAX) )
     {
         Nst_ggc_collect_gen(&ggc->gen3, &ggc->gen1, &ggc->gen2, &ggc->old_gen);
-        ggc->old_gen_pending += ggc->gen3.size;
+        ggc->old_gen_pending += ggc->gen3.len;
         move_list(&ggc->gen3, &ggc->old_gen);
     }
 
     if (has_collected_gen2) {
-        if (ggc->gen2.size + ggc->gen3.size > _Nst_GEN3_MAX) {
-            ggc->old_gen_pending += ggc->gen2.size;
+        if (ggc->gen2.len + ggc->gen3.len > _Nst_GEN3_MAX) {
+            ggc->old_gen_pending += ggc->gen2.len;
             move_list(&ggc->gen2, &ggc->old_gen);
         } else
             move_list(&ggc->gen2, &ggc->gen3);
     }
 
     if (has_collected_gen1) {
-        if (ggc->gen1.size + ggc->gen2.size > _Nst_GEN2_MAX) {
-            if (ggc->gen1.size + ggc->gen3.size > _Nst_GEN3_MAX) {
-                ggc->old_gen_pending += ggc->gen1.size;
+        if (ggc->gen1.len + ggc->gen2.len > _Nst_GEN2_MAX) {
+            if (ggc->gen1.len + ggc->gen3.len > _Nst_GEN3_MAX) {
+                ggc->old_gen_pending += ggc->gen1.len;
                 move_list(&ggc->gen1, &ggc->old_gen);
             } else
                 move_list(&ggc->gen1, &ggc->gen3);
@@ -295,21 +295,21 @@ void Nst_ggc_track_obj(Nst_GGCObj *obj)
     if (Nst_OBJ_IS_TRACKED(obj))
         return;
 
-    if (ggc->gen1.size == 0) {
+    if (ggc->gen1.len == 0) {
         ggc->gen1.head = obj;
         ggc->gen1.tail = obj;
-        ggc->gen1.size = 1;
+        ggc->gen1.len = 1;
         obj->ggc_list = &ggc->gen1;
     } else {
         obj->ggc_prev = ggc->gen1.tail;
         obj->ggc_list = &ggc->gen1;
         ggc->gen1.tail->ggc_next = obj;
         ggc->gen1.tail = obj;
-        ggc->gen1.size++;
+        ggc->gen1.len++;
     }
 
     obj->track_func(OBJ(obj));
 
-    if (ggc->gen1.size > _Nst_GEN1_MAX)
+    if (ggc->gen1.len > _Nst_GEN1_MAX)
         Nst_ggc_collect();
 }

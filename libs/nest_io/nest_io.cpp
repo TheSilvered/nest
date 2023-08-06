@@ -328,7 +328,7 @@ Nst_FUNC_SIGN(virtual_file_)
 
     Nst_DEF_EXTRACT("o_b?i", &bin, &buf_size_obj);
 
-    Nst_Int buf_size = Nst_DEF_VAL(buf_size_obj, AS_INT(buf_size_obj), 128);
+    i64 buf_size = Nst_DEF_VAL(buf_size_obj, AS_INT(buf_size_obj), 128);
 
     VirtualIOFile_data *f = Nst_malloc_c(1, VirtualIOFile_data);
     if ( f == nullptr )
@@ -457,7 +457,7 @@ Nst_FUNC_SIGN(read_)
     Nst_Obj *bytes_to_read_obj;
 
     Nst_DEF_EXTRACT("F?i", &f, &bytes_to_read_obj);
-    Nst_Int bytes_to_read = Nst_DEF_VAL(
+    i64 bytes_to_read = Nst_DEF_VAL(
         bytes_to_read_obj,
         AS_INT(bytes_to_read_obj),
         -1);
@@ -481,7 +481,7 @@ Nst_FUNC_SIGN(read_)
     i32 start = Nst_ftell(f);
     i32 end = get_file_size(f);
 
-    Nst_Int max_size = (Nst_Int)(end - start);
+    i64 max_size = (i64)(end - start);
     if ( bytes_to_read < 0 || bytes_to_read > max_size )
     {
         bytes_to_read = max_size;
@@ -510,7 +510,7 @@ Nst_FUNC_SIGN(read_bytes_)
     Nst_Obj *bytes_to_read_obj;
 
     Nst_DEF_EXTRACT("F?i", &f, &bytes_to_read_obj);
-    Nst_Int bytes_to_read = Nst_DEF_VAL(
+    i64 bytes_to_read = Nst_DEF_VAL(
         bytes_to_read_obj,
         AS_INT(bytes_to_read_obj),
         -1);
@@ -534,7 +534,7 @@ Nst_FUNC_SIGN(read_bytes_)
     i32 start = Nst_ftell(f);
     i32 end = get_file_size(f);
 
-    Nst_Int max_size = (Nst_Int)(end - start);
+    i64 max_size = (i64)(end - start);
     if ( bytes_to_read < 0 || bytes_to_read > max_size )
     {
         bytes_to_read = max_size;
@@ -597,8 +597,8 @@ Nst_FUNC_SIGN(get_fptr_)
 Nst_FUNC_SIGN(move_fptr_)
 {
     Nst_IOFileObj *f;
-    Nst_Int start;
-    Nst_Int offset;
+    i64 start;
+    i64 offset;
 
     Nst_DEF_EXTRACT("Fii", &f, &start, &offset);
 

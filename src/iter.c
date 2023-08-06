@@ -110,9 +110,9 @@ Nst_FUNC_SIGN(Nst_iter_range_is_done)
     Nst_UNUSED(arg_num);
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
-    Nst_Int idx = AS_INT(objs[0]);
-    Nst_Int stop = AS_INT(objs[2]);
-    Nst_Int step = AS_INT(objs[3]);
+    i64 idx = AS_INT(objs[0]);
+    i64 stop = AS_INT(objs[2]);
+    i64 step = AS_INT(objs[3]);
 
     if (step > 0)
         Nst_RETURN_COND(idx >= stop);
@@ -144,7 +144,7 @@ Nst_FUNC_SIGN(Nst_iter_seq_is_done)
     Nst_Obj **objs = val->objs;
     usize seq_len = SEQ(objs[1])->len;
 
-    if (seq_len == 0 || AS_INT(objs[0]) >= (Nst_Int)seq_len)
+    if (seq_len == 0 || AS_INT(objs[0]) >= (i64)seq_len)
         Nst_RETURN_TRUE;
     else
         Nst_RETURN_FALSE;
@@ -155,9 +155,9 @@ Nst_FUNC_SIGN(Nst_iter_seq_get_val)
     Nst_UNUSED(arg_num);
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_SeqObj *seq = SEQ(val->objs[1]);
-    Nst_Int idx = AS_INT(val->objs[0]);
+    i64 idx = AS_INT(val->objs[0]);
 
-    if ((Nst_Int)seq->len < idx) {
+    if ((i64)seq->len < idx) {
         Nst_set_value_error(Nst_sprintf(
             seq->type == Nst_t.Array ? _Nst_EM_INDEX_OUT_OF_BOUNDS("Array")
                                      : _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector"),
@@ -187,7 +187,7 @@ Nst_FUNC_SIGN(Nst_iter_str_is_done)
     Nst_Obj **objs = val->objs;
     usize str_len = STR(objs[1])->len;
 
-    if (str_len == 0 || AS_INT(objs[0]) >= (Nst_Int)str_len)
+    if (str_len == 0 || AS_INT(objs[0]) >= (i64)str_len)
         Nst_RETURN_TRUE;
     else
         Nst_RETURN_FALSE;
@@ -199,9 +199,9 @@ Nst_FUNC_SIGN(Nst_iter_str_get_val)
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
     Nst_StrObj *str = STR(objs[1]);
-    Nst_Int idx = AS_INT(objs[0]);
+    i64 idx = AS_INT(objs[0]);
 
-    if (idx >= (Nst_Int)str->len) {
+    if (idx >= (i64)str->len) {
         Nst_set_value_error(Nst_sprintf(
             _Nst_EM_INDEX_OUT_OF_BOUNDS("Str"),
             idx,

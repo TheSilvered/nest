@@ -82,7 +82,7 @@ NstEXP typedef enum _Nst_InstID {
  */
 NstEXP typedef struct _Nst_Instruction {
     Nst_InstID id;
-    Nst_Int int_val;
+    i64 int_val;
     Nst_Obj *val;
     Nst_Pos start;
     Nst_Pos end;
@@ -133,7 +133,7 @@ NstEXP Nst_Inst *NstC _Nst_inst_new_val(Nst_InstID id, Nst_Obj *val,
  *
  * @return The new instruction or NULL on failure. The error is set.
  */
-NstEXP Nst_Inst *NstC Nst_inst_new_int(Nst_InstID id, Nst_Int int_val,
+NstEXP Nst_Inst *NstC Nst_inst_new_int(Nst_InstID id, i64 int_val,
                                        Nst_Pos start, Nst_Pos end);
 
 /* Destroys an instruction allocated on the heap. */

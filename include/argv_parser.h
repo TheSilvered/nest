@@ -20,6 +20,35 @@ extern "C" {
 #endif // !__cplusplus
 
 /**
+ * A structure representing the command-line arguments of Nest.
+ *
+ * @brief Note: command and filename cannot both be set
+ *
+ * @param print_tokens: whether the tokens of the program should be printed
+ * @param print_ast: whether the AST of the program should be printed
+ * @param print_bytecode: whether the bytecode of the program should be printed
+ * @param force_execution: whether to execute the program when print_tokens,
+ * print_ast or print_bytecode are true
+ * @param encoding: the encoding of the file to open, ignored if it is passed
+ * through the command
+ * @param no_default: whether to initialize the program with default variables
+ * such as true, false, Int, Str etc...
+ * @param opt_level: the optimization level of the program 0 through 3
+ * @param command: the code to execute passed as a command line argument
+ * @param filename: the file to execute
+ * @param args_start: the index where the arguments for the Nest program start
+ */
+typedef struct _Nst_CLArgs {
+    bool print_tokens, print_ast, print_bytecode;
+    bool force_execution;
+    Nst_CPID encoding;
+    bool no_default;
+    i32 opt_level;
+    i8 *command, *filename;
+    i32 args_start;
+} Nst_CLArgs;
+
+/**
  * Parses command-line arguments.
  *
  * @brief All arguments are expected to be valid and the pointers cannot be
@@ -48,11 +77,7 @@ extern "C" {
  * @return -1 on failure, 0 on success where the program can continue, 1 on
  * success when the program should stop because a message was printed
  */
-NstEXP i32 NstC _Nst_parse_args(i32 argc, i8 **argv, bool *print_tokens,
-                                bool *print_ast, bool *print_bytecode,
-                                bool *force_execution, Nst_CPID *encoding,
-                                bool *no_default, i32 *opt_level, i8 **command,
-                                i8 **filename, i32 *args_start);
+NstEXP i32 NstC _Nst_parse_args(i32 argc, i8 **argv, Nst_CLArgs *cl_args);
 
 /**
  * @return returns true if ANSI escapes are supported on the current console

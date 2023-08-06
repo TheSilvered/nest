@@ -41,7 +41,7 @@
 
 #define CHECK_V_STACK assert(Nst_state.v_stack.current_size != 0)
 #define CHECK_V_STACK_SIZE(size)                                              \
-    assert((Nst_Int)(Nst_state.v_stack.current_size) >= size)
+    assert((i64)(Nst_state.v_stack.current_size) >= size)
 
 Nst_ExecutionState Nst_state;
 static bool state_init = false;
@@ -287,7 +287,7 @@ void _Nst_unload_libs(void)
     }
 }
 
-static inline void destroy_call(Nst_FuncCall *call, Nst_Int offset)
+static inline void destroy_call(Nst_FuncCall *call, i64 offset)
 {
     while (Nst_state.c_stack.current_size > call->cstack_size)
         Nst_cstack_pop();
@@ -357,7 +357,7 @@ static void complete_function(usize final_stack_size)
     for (; Nst_state.f_stack.current_size > final_stack_size;
          Nst_state.idx++)
     {
-        if (Nst_state.idx >= (Nst_Int)curr_inst_ls->total_size) {
+        if (Nst_state.idx >= (i64)curr_inst_ls->total_size) {
             // Free the function call
             Nst_FuncCall call = Nst_fstack_pop();
             destroy_call(&call, 0);
@@ -557,7 +557,7 @@ Nst_Obj *Nst_call_func(Nst_FuncObj *func, Nst_Obj **args)
     return Nst_vstack_pop();
 }
 
-Nst_Obj *Nst_run_func_context(Nst_FuncObj *func, Nst_Int idx, Nst_MapObj *vars,
+Nst_Obj *Nst_run_func_context(Nst_FuncObj *func, i64 idx, Nst_MapObj *vars,
                               Nst_MapObj *globals)
 {
     assert(!Nst_FLAG_HAS(func, Nst_FLAG_FUNC_IS_C));
@@ -842,8 +842,8 @@ end:
     return return_value;
 }
 
-static i32 call_c_func(bool is_seq_call, Nst_Int tot_args, Nst_Int arg_num,
-                       Nst_Int null_args, Nst_SeqObj *args_seq,
+static i32 call_c_func(bool is_seq_call, i64 tot_args, i64 arg_num,
+                       i64 null_args, Nst_SeqObj *args_seq,
                        Nst_FuncObj *func)
 {
     Nst_Obj **args;
@@ -874,7 +874,7 @@ static i32 call_c_func(bool is_seq_call, Nst_Int tot_args, Nst_Int arg_num,
     } else if (tot_args == 0)
         args = NULL;
     else if (tot_args <= 10) {
-        for (Nst_Int i = arg_num - 1; i >= 0; i--)
+        for (i64 i = arg_num - 1; i >= 0; i--)
             stack_args[i] = Nst_vstack_pop();
         args = stack_args;
     } else {
@@ -884,21 +884,21 @@ static i32 call_c_func(bool is_seq_call, Nst_Int tot_args, Nst_Int arg_num,
             return -1;
         }
 
-        for (Nst_Int i = arg_num - 1; i >= 0; i--)
+        for (i64 i = arg_num - 1; i >= 0; i--)
             args[i] = Nst_vstack_pop();
         args_allocated = true;
     }
 
-    for (Nst_Int i = 0; i < null_args; i++)
+    for (i64 i = 0; i < null_args; i++)
         args[arg_num + i] = Nst_inc_ref(Nst_c.Null_null);
 
     Nst_Obj *res = func->body.c_func((usize)tot_args, args);
 
     if (!is_seq_call) {
-        for (Nst_Int i = 0; i < tot_args; i++)
+        for (i64 i = 0; i < tot_args; i++)
             Nst_dec_ref(args[i]);
     } else {
-        for (Nst_Int i = 0; i < null_args; i++)
+        for (i64 i = 0; i < null_args; i++)
             Nst_dec_ref(args[arg_num + i]);
     }
 
@@ -926,7 +926,7 @@ static i32 exe_op_call(Nst_Inst *inst)
         CHECK_V_STACK_SIZE(inst->int_val + 1);
 #endif // !_DEBUG
 
-    Nst_Int arg_num = inst->int_val;
+    i64 arg_num = inst->int_val;
     bool is_seq_call = false;
     Nst_FuncObj *func = FUNC(Nst_vstack_pop());
     Nst_SeqObj *args_seq;
@@ -947,7 +947,7 @@ static i32 exe_op_call(Nst_Inst *inst)
     } else
         args_seq = NULL;
 
-    if ((Nst_Int)(func->arg_num) < arg_num) {
+    if ((i64)(func->arg_num) < arg_num) {
         Nst_set_call_error(Nst_sprintf(
             _Nst_EM_WRONG_ARG_NUM,
             func->arg_num, func->arg_num == 1 ? "" : "s",
@@ -958,8 +958,8 @@ static i32 exe_op_call(Nst_Inst *inst)
         return -1;
     }
 
-    Nst_Int null_args = (Nst_Int)func->arg_num - arg_num;
-    Nst_Int tot_args = func->arg_num;
+    i64 null_args = (i64)func->arg_num - arg_num;
+    i64 tot_args = func->arg_num;
 
     if (Nst_FLAG_HAS(func, Nst_FLAG_FUNC_IS_C)) {
         return call_c_func(
@@ -995,7 +995,7 @@ static i32 exe_op_call(Nst_Inst *inst)
 
     change_vt(new_vt);
 
-    for (Nst_Int i = 0; i < arg_num; i++) {
+    for (i64 i = 0; i < arg_num; i++) {
         Nst_Obj *val;
         if (is_seq_call)
             val = Nst_inc_ref(args_seq->objs[i]);
@@ -1011,7 +1011,7 @@ static i32 exe_op_call(Nst_Inst *inst)
     }
     Nst_ndec_ref(args_seq);
 
-    for (Nst_Int i = arg_num; i < tot_args; i++) {
+    for (i64 i = arg_num; i < tot_args; i++) {
         Nst_vt_set(new_vt, func->args[i], Nst_c.Null_null);
         if (Nst_error_occurred())
             return -1;
@@ -1237,7 +1237,7 @@ static i32 exe_rot(Nst_Inst *inst)
     Nst_Obj *obj = Nst_vstack_peek();
     usize stack_size = Nst_state.v_stack.current_size - 1;
     Nst_Obj **stack = Nst_state.v_stack.stack;
-    for (Nst_Int i = 1, n = inst->int_val; i < n; i++)
+    for (i64 i = 1, n = inst->int_val; i < n; i++)
         stack[stack_size - i + 1] = stack[stack_size - i];
 
     stack[stack_size - inst->int_val + 1] = obj;
@@ -1246,7 +1246,7 @@ static i32 exe_rot(Nst_Inst *inst)
 
 static i32 exe_make_seq(Nst_Inst *inst)
 {
-    Nst_Int seq_size = inst->int_val;
+    i64 seq_size = inst->int_val;
     Nst_Obj *seq = inst->id == Nst_IC_MAKE_ARR
         ? Nst_array_new((usize)seq_size)
         : Nst_vector_new((usize)seq_size);
@@ -1255,7 +1255,7 @@ static i32 exe_make_seq(Nst_Inst *inst)
 
     CHECK_V_STACK_SIZE(seq_size);
 
-    for (Nst_Int i = 1; i <= seq_size; i++) {
+    for (i64 i = 1; i <= seq_size; i++) {
         Nst_Obj *curr_obj = Nst_vstack_pop();
         Nst_seq_set(seq, seq_size - i, curr_obj);
         Nst_dec_ref(curr_obj);
@@ -1268,12 +1268,12 @@ static i32 exe_make_seq(Nst_Inst *inst)
 
 static i32 exe_make_seq_rep(Nst_Inst *inst)
 {
-    Nst_Int seq_size = inst->int_val;
+    i64 seq_size = inst->int_val;
     CHECK_V_STACK_SIZE(2);
     Nst_Obj *size_obj = Nst_vstack_pop();
     Nst_Obj *val = Nst_vstack_pop();
 
-    Nst_Int size = AS_INT(size_obj);
+    i64 size = AS_INT(size_obj);
     Nst_dec_ref(size_obj);
     Nst_Obj *seq = inst->id == Nst_IC_MAKE_ARR_REP
         ? Nst_array_new((usize)size)
@@ -1281,7 +1281,7 @@ static i32 exe_make_seq_rep(Nst_Inst *inst)
     if (Nst_error_occurred())
         return -1;
 
-    for (Nst_Int i = 1; i <= size; i++)
+    for (i64 i = 1; i <= size; i++)
         Nst_seq_set(seq, seq_size - i, val);
 
     Nst_vstack_push(seq);
@@ -1292,7 +1292,7 @@ static i32 exe_make_seq_rep(Nst_Inst *inst)
 
 static i32 exe_make_map(Nst_Inst *inst)
 {
-    Nst_Int map_size = inst->int_val;
+    i64 map_size = inst->int_val;
     Nst_Obj *map = Nst_map_new();
     if (Nst_error_occurred())
         return -1;
@@ -1301,7 +1301,7 @@ static i32 exe_make_map(Nst_Inst *inst)
     usize stack_size = Nst_state.v_stack.current_size;
     Nst_Obj **v_stack = Nst_state.v_stack.stack;
 
-    for (Nst_Int i = 0; i < map_size; i++) {
+    for (i64 i = 0; i < map_size; i++) {
         Nst_Obj *key = v_stack[stack_size - map_size + i];
         i++;
         Nst_Obj *val = v_stack[stack_size - map_size + i];
@@ -1356,7 +1356,7 @@ static i32 exe_save_error(Nst_Inst *inst)
     Nst_dec_ref(err_map);
 
     // Remove the source of any libraries that failed to load
-    while (Nst_state.lib_srcs->size > Nst_state.lib_handles->item_count) {
+    while (Nst_state.lib_srcs->len > Nst_state.lib_handles->len) {
         Nst_SourceText *txt = (Nst_SourceText *)Nst_llist_pop(
             Nst_state.lib_srcs);
         Nst_free_src_text(txt);
@@ -1377,7 +1377,7 @@ static i32 exe_unpack_seq(Nst_Inst *inst)
         return -1;
     }
 
-    if ((Nst_Int)seq->len != inst->int_val) {
+    if ((i64)seq->len != inst->int_val) {
         Nst_set_value_error(Nst_sprintf(
             _Nst_EM_WRONG_UNPACK_LENGTH,
             inst->int_val, seq->len));
@@ -1385,7 +1385,7 @@ static i32 exe_unpack_seq(Nst_Inst *inst)
         return -1;
     }
 
-    for (Nst_Int i = seq->len - 1; i >= 0; i--)
+    for (i64 i = seq->len - 1; i >= 0; i--)
         Nst_vstack_push(seq->objs[i]);
 
     Nst_dec_ref(seq);

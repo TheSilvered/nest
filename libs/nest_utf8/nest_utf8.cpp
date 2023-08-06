@@ -55,7 +55,7 @@ Nst_FUNC_SIGN(utf8_iter_get_val)
     Nst_IntObj *idx = (Nst_IntObj *)objs[0];
     Nst_StrObj *str = (Nst_StrObj *)objs[1];
     usize s_len = str->len;
-    Nst_Int val = idx->value;
+    i64 val = idx->value;
 
     if ( (usize)val >= s_len )
     {
@@ -127,13 +127,13 @@ Nst_FUNC_SIGN(get_len_)
 Nst_FUNC_SIGN(get_at_)
 {
     Nst_StrObj *str;
-    Nst_Int idx;
+    i64 idx;
     Nst_DEF_EXTRACT("si", &str, &idx);
 
     u8 *s = (u8 *)str->value;
     usize u_len = 0;
     usize s_len = str->len;
-    Nst_Int curr_idx = 0;
+    i64 curr_idx = 0;
     usize i = 0;
     i32 res;
 

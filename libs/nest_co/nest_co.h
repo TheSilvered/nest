@@ -20,7 +20,7 @@ typedef struct _CoroutineObj
     Nst_MapObj *globals;
     Nst_Obj **stack;
     usize stack_size;
-    Nst_Int idx;
+    i64 idx;
     usize call_stack_size;
 }
 CoroutineObj;

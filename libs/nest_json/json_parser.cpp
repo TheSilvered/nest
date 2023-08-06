@@ -32,7 +32,7 @@ Nst_Obj *json_parse(i8 *path, Nst_LList *tokens)
         return nullptr;
     }
 
-    if ( tokens->size != 1 )
+    if ( tokens->len != 1 )
     {
         Nst_dec_ref(res);
         Nst_Pos err_pos = Nst_TOK(tokens->head)->start;
@@ -203,7 +203,7 @@ static Nst_Obj *parse_array(Nst_LList *tokens)
 end:
     vec->type = TYPE(Nst_inc_ref(Nst_type()->Array));
     Nst_dec_ref(Nst_type()->Vector);
-    if ( vec->len < vec->size && vec->len != 0 )
+    if ( vec->len < vec->cap && vec->len != 0 )
     {
         Nst_Obj **new_objs = Nst_realloc_c(
             vec->objs,
@@ -213,7 +213,7 @@ end:
         if ( new_objs != nullptr )
         {
             vec->objs = new_objs;
-            vec->size = vec->len;
+            vec->cap = vec->len;
         }
     }
     return OBJ(vec);

@@ -55,16 +55,16 @@ Nst_DeclrList *get_func_ptrs()
     return lib_init_ ? &obj_list_ : nullptr;
 }
 
-static Nst_Int get_year_day_c(tm *t)
+static i64 get_year_day_c(tm *t)
 {
-    Nst_Int y = t->tm_year + 1900;
-    Nst_Int m = t->tm_mon;
-    Nst_Int d = t->tm_mday;
+    i64 y = t->tm_year + 1900;
+    i64 m = t->tm_mon;
+    i64 d = t->tm_mday;
 
     i32 days_per_moth[] = {   0,   0,  31,  59,  90, 120, 151,
                             181, 212, 243, 273, 304, 334       };
 
-    Nst_Int day_of_the_year = days_per_moth[m] + d;
+    i64 day_of_the_year = days_per_moth[m] + d;
     // If it's a leap year and it's at least March
     if ( ((y % 4 == 0 && y % 100 != 0) || (y % 400)) && m > 2 )
     {
@@ -122,7 +122,7 @@ Nst_FUNC_SIGN(time_)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
-    return Nst_real_new(duration<Nst_Real>(
+    return Nst_real_new(duration<f64>(
         system_clock::now().time_since_epoch()).count());
 }
 
@@ -130,7 +130,7 @@ Nst_FUNC_SIGN(time_ns_)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
-    return Nst_int_new(Nst_Int(duration_cast<nanoseconds>(
+    return Nst_int_new(i64(duration_cast<nanoseconds>(
         system_clock::now().time_since_epoch()).count()));
 }
 
@@ -138,7 +138,7 @@ Nst_FUNC_SIGN(high_res_time_)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
-    return Nst_real_new(duration<Nst_Real>(
+    return Nst_real_new(duration<f64>(
         high_resolution_clock::now().time_since_epoch()).count());
 }
 
@@ -146,7 +146,7 @@ Nst_FUNC_SIGN(high_res_time_ns_)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
-    return Nst_int_new(Nst_Int(duration_cast<nanoseconds>(
+    return Nst_int_new(i64(duration_cast<nanoseconds>(
         high_resolution_clock::now().time_since_epoch()).count()));
 }
 
@@ -154,7 +154,7 @@ Nst_FUNC_SIGN(monotonic_time_)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
-    return Nst_real_new(duration<Nst_Real>(
+    return Nst_real_new(duration<f64>(
         steady_clock::now().time_since_epoch()).count());
 }
 
@@ -162,7 +162,7 @@ Nst_FUNC_SIGN(monotonic_time_ns_)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
-    return Nst_int_new(Nst_Int(duration_cast<nanoseconds>(
+    return Nst_int_new(i64(duration_cast<nanoseconds>(
         steady_clock::now().time_since_epoch()).count()));
 }
 
@@ -295,7 +295,7 @@ Nst_FUNC_SIGN(gmt_clock_datetime_)
 
 Nst_FUNC_SIGN(sleep_)
 {
-    Nst_Real time;
+    f64 time;
 
     Nst_DEF_EXTRACT("N", &time);
 
@@ -309,7 +309,7 @@ Nst_FUNC_SIGN(sleep_)
 
 Nst_FUNC_SIGN(sleep_ms_)
 {
-    Nst_Int time;
+    i64 time;
 
     Nst_DEF_EXTRACT("l", &time);
 

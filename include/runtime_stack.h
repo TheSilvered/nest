@@ -52,7 +52,7 @@ NstEXP typedef struct _Nst_FuncCall {
     Nst_Pos start;
     Nst_Pos end;
     Nst_VarTable *vt;
-    Nst_Int idx;
+    i64 idx;
     usize cstack_size;
 } Nst_FuncCall;
 
@@ -81,7 +81,7 @@ NstEXP typedef struct _Nst_CallStack {
 NstEXP typedef struct _Nst_CatchFrame {
     usize f_stack_size;
     usize v_stack_size;
-    Nst_Int inst_idx;
+    i64 inst_idx;
 } Nst_CatchFrame;
 
 /**
@@ -170,7 +170,7 @@ NstEXP bool NstC Nst_fstack_init(void);
  */
 NstEXP bool NstC _Nst_fstack_push(Nst_FuncObj *func, Nst_Pos call_start,
                                   Nst_Pos call_end, Nst_VarTable *vt,
-                                  Nst_Int idx, usize cstack_size);
+                                  i64 idx, usize cstack_size);
 /**
  * @brief Pops the top call from the call stack and returns it. If the stack
  * is empty, a call with a NULL function and vt is returned. No error is set.
@@ -191,7 +191,7 @@ NstEXP void NstC Nst_fstack_destroy(void);
  */
 NstEXP bool NstC Nst_cstack_init(void);
 // Pushes a value to the catch stack
-NstEXP bool NstC Nst_cstack_push(Nst_Int inst_idx, usize v_stack_size,
+NstEXP bool NstC Nst_cstack_push(i64 inst_idx, usize v_stack_size,
                                  usize f_stack_size);
 /**
  * @brief Returns the top value of the catch stack. If the stack is empty a

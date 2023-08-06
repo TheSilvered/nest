@@ -49,7 +49,7 @@ NstEXP Nst_LList *NstC Nst_tokenize(Nst_SourceText *text, Nst_Error *error);
  * Adds the lines array to the given text.
  *
  * @brief On failure the lines field of the struct is set to NULL and
- * line_count to 0.
+ * lines_len to 0.
  *
  * @param text: the text to add the line starts to
  *

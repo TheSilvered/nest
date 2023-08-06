@@ -64,7 +64,7 @@ Nst_FUNC_SIGN(repeat_is_done)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
-    Nst_Int max_count = AS_INT(objs[2]);
+    i64 max_count = AS_INT(objs[2]);
     if ( max_count >= 0 && AS_INT(objs[0]) >= max_count )
     {
         Nst_RETURN_TRUE;
@@ -387,7 +387,7 @@ Nst_FUNC_SIGN(enumerate_get_val)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
-    Nst_Int idx = AS_INT(objs[0]);
+    i64 idx = AS_INT(objs[0]);
     Nst_IterObj *iter = ITER(objs[1]);
 
     Nst_Obj *res = Nst_call_func(iter->get_val, &iter->value);
@@ -521,7 +521,7 @@ Nst_FUNC_SIGN(reversed_get_val)
 
         return nullptr;
     }
-    Nst_Int len = SEQ(objs[1])->len;
+    i64 len = SEQ(objs[1])->len;
     AS_INT(objs[0]) -= 1;
 
     if ( AS_INT(objs[0]) >= len )

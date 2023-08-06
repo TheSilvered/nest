@@ -177,8 +177,8 @@ Nst_FUNC_SIGN(enumerate_)
     Nst_Obj *invert_order;
 
     Nst_DEF_EXTRACT("R?i?io:b", &ob, &start_ob, &step_ob, &invert_order);
-    Nst_Int start = Nst_DEF_VAL(start_ob, AS_INT(start_ob), 0);
-    Nst_Int step = Nst_DEF_VAL(step_ob, AS_INT(step_ob), 1);
+    i64 start = Nst_DEF_VAL(start_ob, AS_INT(start_ob), 0);
+    i64 step = Nst_DEF_VAL(step_ob, AS_INT(step_ob), 1);
 
     // Layout: [idx, iterator, start, step, invert_order]
     Nst_Obj *arr = Nst_array_create_c(

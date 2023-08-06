@@ -8,18 +8,12 @@
 #include "global_consts.h"
 #include "format.h"
 
-Nst_Tok *Nst_tok_new_value(Nst_Pos     start,
-                           Nst_Pos     end,
-                           Nst_TokType type,
-                           Nst_Obj    *value)
+Nst_Tok *Nst_tok_new_value(Nst_Pos start, Nst_Pos end, Nst_TokType type,
+                           Nst_Obj *value)
 {
     Nst_Tok *token = Nst_TOK(Nst_malloc(1, sizeof(Nst_Tok)));
-    if ( token == NULL )
-    {
-        if ( value != NULL )
-        {
-            Nst_dec_ref(value);
-        }
+    if (token == NULL) {
+        Nst_ndec_ref(value);
         return NULL;
     }
 
@@ -34,10 +28,8 @@ Nst_Tok *Nst_tok_new_value(Nst_Pos     start,
 Nst_Tok *Nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type)
 {
     Nst_Tok *token = Nst_TOK(Nst_malloc(1, sizeof(Nst_Tok)));
-    if ( token == NULL )
-    {
+    if (token == NULL)
         return NULL;
-    }
 
     token->start = start;
     token->end = end;
@@ -50,10 +42,8 @@ Nst_Tok *Nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type)
 Nst_Tok *Nst_tok_new_noend(Nst_Pos start, Nst_TokType type)
 {
     Nst_Tok *token = Nst_TOK(Nst_malloc(1, sizeof(Nst_Tok)));
-    if ( token == NULL )
-    {
+    if (token == NULL)
         return NULL;
-    }
 
     token->start = start;
     token->end = start;
@@ -65,24 +55,17 @@ Nst_Tok *Nst_tok_new_noend(Nst_Pos start, Nst_TokType type)
 
 void Nst_token_destroy(Nst_Tok *token)
 {
-    if ( token == NULL )
-    {
+    if (token == NULL)
         return;
-    }
 
-    if ( token->value != NULL )
-    {
-        Nst_dec_ref(token->value);
-    }
+    Nst_ndec_ref(token->value);
     Nst_free(token);
 }
 
 Nst_TokType Nst_tok_from_str(i8 *str)
 {
-    if ( str[1] == '\0' )
-    {
-        switch ( str[0] )
-        {
+    if (str[1] == '\0') {
+        switch (str[0]) {
         case '+': return Nst_TT_ADD;
         case '-': return Nst_TT_SUB;
         case '*': return Nst_TT_MUL;

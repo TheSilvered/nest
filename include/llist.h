@@ -48,12 +48,12 @@ NstEXP typedef struct _Nst_LLNnode {
  *
  * @param head: the first node in the list
  * @param tail: the last node in the list
- * @param size: the total number of nodes in the list
+ * @param len: the total number of nodes in the list
  */
 NstEXP typedef struct _Nst_LList {
     Nst_LLNode *head;
     Nst_LLNode *tail;
-    usize size;
+    usize len;
 } Nst_LList;
 
 /* The type of a list destructor. */

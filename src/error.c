@@ -98,7 +98,7 @@ static void print_line(Nst_Pos *pos, i32 start_col, i32 end_col,
     i32 lineno = pos->line;
     i8 *text = pos->text->lines[lineno];
     i8 *start = pos->text->text;
-    usize tot_len = pos->text->len;
+    usize tot_len = pos->text->text_len;
     i32 indent = get_indent(pos->text, lineno) - keep_indent;
     i32 spaces = 0;
     i32 carets = 0;
@@ -293,7 +293,7 @@ static inline void print_rep_count(i32 count)
 void Nst_print_traceback(Nst_Traceback tb)
 {
     Nst_fflush(Nst_io.out);
-    assert(tb.positions->size % 2 == 0);
+    assert(tb.positions->len % 2 == 0);
     set_error_stream();
 
     Nst_Pos prev_start = { -1, -1, NULL };

@@ -77,8 +77,8 @@ NstEXP typedef struct _Nst_MapNode {
 /**
  * The structure representing a Nest map object.
  *
- * @param size: the current size of the nodes array
- * @param item_count: the number of nodes inside the map
+ * @param cap: the current capacity of the nodes array
+ * @param len: the number of nodes inside the map
  * @param mask: the mask applied to the hash when inserting new nodes
  * @param nodes: the array of nodes of the map
  * @param head_idx: the first node in the map
@@ -87,8 +87,8 @@ NstEXP typedef struct _Nst_MapNode {
 NstEXP typedef struct _Nst_MapObj {
     Nst_OBJ_HEAD;
     Nst_GGC_HEAD;
-    usize size;
-    usize item_count;
+    usize cap;
+    usize len;
     usize mask;
     Nst_MapNode *nodes;
     i32 head_idx;

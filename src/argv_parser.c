@@ -64,21 +64,58 @@
 
 bool supports_color = true;
 
-i32 _Nst_parse_args(i32 argc, i8 **argv, bool *print_tokens, bool *print_ast,
-                    bool *print_bytecode, bool *force_execution,
-                    Nst_CPID *encoding, bool *no_default, i32 *opt_level,
-                    i8 **command, i8 **filename, i32 *args_start)
+static i32 long_arg(i8 *arg, Nst_CLArgs *cl_args)
 {
-    *print_tokens = false;
-    *print_ast = false;
-    *print_bytecode = false;
-    *force_execution = false;
-    *encoding = Nst_CP_UNKNOWN;
-    *no_default = false;
-    *opt_level = 3;
-    *command = NULL;
-    *filename = NULL;
-    *args_start = 1;
+    if (strcmp(arg, "--tokens") == 0) {
+        cl_args->print_tokens = true;
+    } else if (strcmp(arg, "--ast") == 0) {
+        cl_args->print_ast = true;
+    } else if (strcmp(arg, "--bytecode") == 0) {
+        cl_args->print_bytecode = true;
+    } else if (strcmp(arg, "--force-execution") == 0) {
+        cl_args->force_execution = true;
+    } else if (strcmp(arg, "--monochrome") == 0) {
+        supports_color = false;
+    } else if (strcmp(arg, "--no-default") == 0) {
+        cl_args->no_default = true;
+    } else if (strcmp(arg, "--help") == 0) {
+        printf(HELP_MESSAGE);
+        return 1;
+    } else if (strcmp(arg, "--version") == 0) {
+        printf(VERSION_MESSAGE "\n");
+        return 1;
+    } else if (strncmp(arg, "--encoding", 10) == 0) {
+        if (strlen(arg) < 12 || arg[10] != '=') {
+            printf("Invalid usage of the option: --encoding\n");
+            printf("\n" USAGE_MESSAGE);
+            return -1;
+        }
+        cl_args->encoding = Nst_encoding_from_name(arg + 11);
+        if (cl_args->encoding == Nst_CP_UNKNOWN) {
+            printf("Unknown encoding %s\n", arg + 11);
+            printf("\n" ENCODING_MESSAGE);
+            return -1;
+        }
+    } else {
+        printf("Invalid option: %s\n", arg);
+        printf("\n" USAGE_MESSAGE);
+        return -1;
+    }
+    return 0;
+}
+
+i32 _Nst_parse_args(i32 argc, i8 **argv, Nst_CLArgs *cl_args)
+{
+    cl_args->print_tokens = false;
+    cl_args->print_ast = false;
+    cl_args->print_bytecode = false;
+    cl_args->force_execution = false;
+    cl_args->encoding = Nst_CP_UNKNOWN;
+    cl_args->no_default = false;
+    cl_args->opt_level = 3;
+    cl_args->command = NULL;
+    cl_args->filename = NULL;
+    cl_args->args_start = 1;
     i32 i;
 
     if (argc < 2) {
@@ -91,8 +128,8 @@ i32 _Nst_parse_args(i32 argc, i8 **argv, bool *print_tokens, bool *print_ast,
         i32 arg_len = (i32)strlen(arg);
 
         if (arg[0] != '-') {
-            *filename = arg;
-            *args_start = i + 1;
+            cl_args->filename = arg;
+            cl_args->args_start = i + 1;
             return 0;
         }
 
@@ -104,26 +141,12 @@ i32 _Nst_parse_args(i32 argc, i8 **argv, bool *print_tokens, bool *print_ast,
 
         for (i32 j = 1; j < (i32)arg_len; j++) {
             switch (arg[j]) {
-            case 't': *print_tokens    = true; break;
-            case 'a': *print_ast       = true; break;
-            case 'b': *print_bytecode  = true; break;
-            case 'f': *force_execution = true; break;
-            case 'D': *no_default      = true; break;
-            case 'm': supports_color   = false;break;
-            case 'e':
-                if (j != 1 || arg_len < 4 || arg[2] != '=') {
-                    printf("Invalid usage of the option: -e\n");
-                    printf("\n" USAGE_MESSAGE);
-                    return -1;
-                }
-                *encoding = Nst_encoding_from_name(arg + 3);
-                if (*encoding == Nst_CP_UNKNOWN) {
-                    printf("Unknown encoding %s\n", arg + 3);
-                    printf("\n" ENCODING_MESSAGE);
-                    return -1;
-                }
-                j = arg_len;
-                break;
+            case 't': cl_args->print_tokens    = true; break;
+            case 'a': cl_args->print_ast       = true; break;
+            case 'b': cl_args->print_bytecode  = true; break;
+            case 'f': cl_args->force_execution = true; break;
+            case 'D': cl_args->no_default      = true; break;
+            case 'm': supports_color        = false;break;
             case 'h':
             case '?':
                 printf(HELP_MESSAGE);
@@ -131,8 +154,21 @@ i32 _Nst_parse_args(i32 argc, i8 **argv, bool *print_tokens, bool *print_ast,
             case 'V':
                 printf(VERSION_MESSAGE "\n");
                 return 1;
-            case 'O':
-            {
+            case 'e':
+                if (j != 1 || arg_len < 4 || arg[2] != '=') {
+                    printf("Invalid usage of the option: -e\n");
+                    printf("\n" USAGE_MESSAGE);
+                    return -1;
+                }
+                cl_args->encoding = Nst_encoding_from_name(arg + 3);
+                if (cl_args->encoding == Nst_CP_UNKNOWN) {
+                    printf("Unknown encoding %s\n", arg + 3);
+                    printf("\n" ENCODING_MESSAGE);
+                    return -1;
+                }
+                j = arg_len;
+                break;
+            case 'O': {
                 if (j != 1) {
                     printf("Invalid option: -O\n");
                     printf("\n" USAGE_MESSAGE);
@@ -146,12 +182,12 @@ i32 _Nst_parse_args(i32 argc, i8 **argv, bool *print_tokens, bool *print_ast,
                 i32 level = arg[j + 1] - '0';
 
                 if (level < 0 || level > 3) {
-                    printf("Invalid option: -O%c\n", (i8)(level + '0'));
+                    printf("Invalid option: -O%c\n", arg[j + 1]);
                     printf("\n" USAGE_MESSAGE);
                     return -1;
                 }
 
-                *opt_level = level;
+                cl_args->opt_level = level;
                 j = (i32)arg_len;
                 break;
             }
@@ -162,8 +198,8 @@ i32 _Nst_parse_args(i32 argc, i8 **argv, bool *print_tokens, bool *print_ast,
                     return -1;
                 }
 
-                *command = argv[i + 1];
-                *args_start = i + 2;
+                cl_args->command = argv[i + 1];
+                cl_args->args_start = i + 2;
                 return 0;
             case '-':
                 if (j != 1) {
@@ -172,52 +208,19 @@ i32 _Nst_parse_args(i32 argc, i8 **argv, bool *print_tokens, bool *print_ast,
                     return -1;
                 } else if (arg_len == 2) {
                     if (++i < argc) {
-                        *filename = argv[i];
+                        cl_args->filename = argv[i];
                     } else {
                         printf("No file provided\n");
                         printf("\n" USAGE_MESSAGE);
                         return -1;
                     }
 
-                    *args_start = ++i;
+                    cl_args->args_start = ++i;
                     return 0;
                 }
 
-                if (strcmp(arg, "--tokens") == 0) {
-                    *print_tokens = true;
-                } else if (strcmp(arg, "--ast") == 0) {
-                    *print_ast = true;
-                } else if (strcmp(arg, "--bytecode") == 0) {
-                    *print_bytecode = true;
-                } else if (strcmp(arg, "--force-execution") == 0) {
-                    *force_execution = true;
-                } else if (strcmp(arg, "--monochrome") == 0) {
-                    supports_color = false;
-                } else if (strcmp(arg, "--no-default") == 0) {
-                    *no_default = true;
-                } else if (strcmp(arg, "--help") == 0) {
-                    printf(HELP_MESSAGE);
-                    return 1;
-                } else if (strcmp(arg, "--version") == 0) {
-                    printf(VERSION_MESSAGE "\n");
-                    return 1;
-                } else if (strncmp(arg, "--encoding", 10) == 0) {
-                    if (j != 1 || arg_len < 12 || arg[10] != '=') {
-                        printf("Invalid usage of the option: --encoding\n");
-                        printf("\n" USAGE_MESSAGE);
-                        return -1;
-                    }
-                    *encoding = Nst_encoding_from_name(arg + 11);
-                    if (*encoding == Nst_CP_UNKNOWN) {
-                        printf("Unknown encoding %s\n", arg + 11);
-                        printf("\n" ENCODING_MESSAGE);
-                        return -1;
-                    }
-                } else {
-                    printf("Invalid option: %s\n", arg);
-                    printf("\n" USAGE_MESSAGE);
+                if (long_arg(arg, cl_args))
                     return -1;
-                }
 
                 j = (i32)arg_len;
                 break;
@@ -231,14 +234,14 @@ i32 _Nst_parse_args(i32 argc, i8 **argv, bool *print_tokens, bool *print_ast,
     }
 
     if (++i < argc) {
-        *filename = argv[i];
+        cl_args->filename = argv[i];
     } else {
         printf("No file provided\n");
         printf("\n" USAGE_MESSAGE);
         return -1;
     }
 
-    *args_start = ++i;
+    cl_args->args_start = ++i;
     return 0;
 }
 

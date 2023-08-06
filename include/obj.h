@@ -54,9 +54,9 @@
  * because they are reserved for the garbage collector.
  */
 #define Nst_OBJ_HEAD                                                          \
-    i32 ref_count;                                                            \
     struct _Nst_StrObj *type;                                                 \
     void (*destructor)(void *);                                               \
+    i32 ref_count;                                                            \
     i32 hash;                                                                 \
     u32 flags;                                                                \
     i32 init_line;                                                            \
@@ -72,11 +72,11 @@
  * flags cannot occupy the four most significant bits of the flags field
  * because they are reserved for the garbage collector.
  */
-#define Nst_OBJ_HEAD \
-    i32 ref_count; \
-    struct _Nst_StrObj *type; \
-    void (*destructor)(void *); \
-    i32 hash; \
+#define Nst_OBJ_HEAD                                                          \
+    struct _Nst_StrObj *type;                                                 \
+    void (*destructor)(void *);                                               \
+    i32 ref_count;                                                            \
+    i32 hash;                                                                 \
     u32 flags
 #endif
 

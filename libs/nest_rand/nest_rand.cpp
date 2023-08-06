@@ -10,7 +10,7 @@ static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
 static bool lib_init_ = false;
 static std::mt19937_64 rand_num;
 
-static inline Nst_Int rand_range(Nst_Int min, Nst_Int max)
+static inline i64 rand_range(i64 min, i64 max)
 {
     return rand_num() % (max - min) + min;
 }
@@ -53,8 +53,8 @@ Nst_FUNC_SIGN(random_)
 
 Nst_FUNC_SIGN(rand_int_)
 {
-    Nst_Int min;
-    Nst_Int max;
+    i64 min;
+    i64 max;
 
     Nst_DEF_EXTRACT("ii", &min, &max);
 
@@ -107,7 +107,7 @@ Nst_FUNC_SIGN(shuffle_)
 
 Nst_FUNC_SIGN(seed_)
 {
-    Nst_Int seed;
+    i64 seed;
 
     Nst_DEF_EXTRACT("i", &seed);
 

@@ -1678,7 +1678,7 @@ Nst_CPID Nst_detect_encoding(i8 *str, usize len, i32 *bom_size)
 
     // The encoding is checked as follows:
     // 1. Test for UTF-8
-    // 2. Test for UTF-16LE
+    // 2. Test for UTF-16LE on little endian and UTF-16BE on big endian systems
     // 3. If 1 and 2 fail and it's on Windows check the local ansi CP
     // 4. Default to Latin-1
 
@@ -1686,7 +1686,12 @@ Nst_CPID Nst_detect_encoding(i8 *str, usize len, i32 *bom_size)
     if (res == -1)
         return Nst_CP_UTF8;
 
+#if Nst_ENDIANNESS == Nst_LITTLE_ENDIAN
     res = Nst_check_string_cp(&Nst_cp_utf16le, str, len);
+#else
+    res = Nst_check_string_cp(&Nst_cp_utf16be, str, len);
+#endif
+
     if (res == -1)
         return Nst_CP_UTF16LE;
 

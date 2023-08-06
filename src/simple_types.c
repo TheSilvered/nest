@@ -6,29 +6,29 @@
 #include "global_consts.h"
 #include "obj_ops.h"
 
-#define NEW_SYMPLE_TYPE(type, type_obj) \
-    type *obj = Nst_obj_alloc(type, type_obj, NULL); \
-    if ( obj == NULL ) \
-        return NULL; \
-    obj->value = value; \
+#define NEW_SYMPLE_TYPE(type, type_obj)                                       \
+    type *obj = Nst_obj_alloc(type, type_obj, NULL);                          \
+    if (obj == NULL)                                                          \
+        return NULL;                                                          \
+    obj->value = value;                                                       \
     return OBJ(obj)
 
-Nst_Obj *Nst_int_new(Nst_Int value)
+Nst_Obj *Nst_int_new(i64 value)
 {
     NEW_SYMPLE_TYPE(Nst_IntObj, Nst_t.Int);
 }
 
-Nst_Obj *Nst_real_new(Nst_Real value)
+Nst_Obj *Nst_real_new(f64 value)
 {
     NEW_SYMPLE_TYPE(Nst_RealObj, Nst_t.Real);
 }
 
-Nst_Obj *Nst_byte_new(Nst_Byte value)
+Nst_Obj *Nst_byte_new(u8 value)
 {
     NEW_SYMPLE_TYPE(Nst_ByteObj, Nst_t.Byte);
 }
 
-Nst_Obj *Nst_bool_new(Nst_Bool value)
+Nst_Obj *Nst_bool_new(bool value)
 {
     NEW_SYMPLE_TYPE(Nst_BoolObj, Nst_t.Bool);
 }
@@ -39,10 +39,8 @@ Nst_Obj *Nst_iof_new(Nst_IOFile value, bool bin, bool read, bool write)
         Nst_IOFileObj,
         Nst_t.IOFile,
         _Nst_iofile_destroy);
-    if ( obj == NULL )
-    {
+    if (obj == NULL)
         return NULL;
-    }
 
     obj->value   = value;
     obj->read_f  = (Nst_IOFile_read_f)fread;
@@ -52,24 +50,17 @@ Nst_Obj *Nst_iof_new(Nst_IOFile value, bool bin, bool read, bool write)
     obj->seek_f  = (Nst_IOFile_seek_f)fseek;
     obj->close_f = (Nst_IOFile_close_f)fclose;
 
-    if ( bin )
-    {
+    if (bin)
         Nst_FLAG_SET(obj, Nst_FLAG_IOFILE_IS_BIN);
-    }
-    if ( read )
-    {
+    if (read)
         Nst_FLAG_SET(obj, Nst_FLAG_IOFILE_CAN_READ);
-    }
-    if ( write )
-    {
+    if (write)
         Nst_FLAG_SET(obj, Nst_FLAG_IOFILE_CAN_WRITE);
-    }
 
     return OBJ(obj);
 }
 
-Nst_Obj *Nst_iof_new_fake(void *value,
-                          bool bin, bool read, bool write,
+Nst_Obj *Nst_iof_new_fake(void *value, bool bin, bool read, bool write,
                           Nst_IOFile_read_f  read_f,
                           Nst_IOFile_write_f write_f,
                           Nst_IOFile_flush_f flush_f,
@@ -81,7 +72,8 @@ Nst_Obj *Nst_iof_new_fake(void *value,
         Nst_IOFileObj,
         Nst_t.IOFile,
         _Nst_iofile_destroy);
-    if ( obj == NULL ) return NULL;
+    if (obj == NULL)
+        return NULL;
 
     obj->value   = (Nst_IOFile)value;
     obj->read_f  = read_f;
@@ -91,88 +83,63 @@ Nst_Obj *Nst_iof_new_fake(void *value,
     obj->seek_f  = seek_f;
     obj->close_f = close_f;
 
-    if ( bin )
-    {
+    if (bin)
         Nst_FLAG_SET(obj, Nst_FLAG_IOFILE_IS_BIN);
-    }
-    if ( read )
-    {
+    if (read)
         Nst_FLAG_SET(obj, Nst_FLAG_IOFILE_CAN_READ);
-    }
-    if ( write )
-    {
+    if (write)
         Nst_FLAG_SET(obj, Nst_FLAG_IOFILE_CAN_WRITE);
-    }
 
     return OBJ(obj);
 }
 
 void _Nst_iofile_destroy(Nst_IOFileObj *obj)
 {
-    if ( !Nst_IOF_IS_CLOSED(obj) )
-    {
+    if (!Nst_IOF_IS_CLOSED(obj)) {
         obj->flush_f(obj->value);
         obj->close_f(obj->value);
     }
 }
 
-isize Nst_fread(void  *buf,
-                usize size,
-                usize count,
-                Nst_IOFileObj *f)
+isize Nst_fread(void *buf, usize size, usize count, Nst_IOFileObj *f)
 {
-    if ( Nst_IOF_IS_CLOSED(f) || !Nst_IOF_CAN_READ(f) )
-    {
+    if (Nst_IOF_IS_CLOSED(f) || !Nst_IOF_CAN_READ(f))
         return -1;
-    }
     return f->read_f(buf, size, count, f->value);
 }
 
-isize Nst_fwrite(void  *buf,
-                 usize size,
-                 usize count,
-                 Nst_IOFileObj *f)
+isize Nst_fwrite(void *buf, usize size, usize count, Nst_IOFileObj *f)
 {
-    if ( Nst_IOF_IS_CLOSED(f) || !Nst_IOF_CAN_WRITE(f) )
-    {
+    if (Nst_IOF_IS_CLOSED(f) || !Nst_IOF_CAN_WRITE(f))
         return -1;
-    }
     return f->write_f(buf, size, count, f->value);
 }
 
 i32 Nst_fflush(Nst_IOFileObj *f)
 {
-    if ( Nst_IOF_IS_CLOSED(f) )
-    {
+    if (Nst_IOF_IS_CLOSED(f))
         return EOF;
-    }
     return f->flush_f(f->value);
 }
 
 i32 Nst_ftell(Nst_IOFileObj *f)
 {
-    if ( Nst_IOF_IS_CLOSED(f) )
-    {
+    if (Nst_IOF_IS_CLOSED(f))
         return -1;
-    }
     return f->tell_f(f->value);
 }
 
 i32 Nst_fseek(Nst_IOFileObj *f, i32 offset, i32 origin)
 {
-    if ( Nst_IOF_IS_CLOSED(f) )
-    {
+    if (Nst_IOF_IS_CLOSED(f))
         return -1;
-    }
     return f->seek_f(f->value, offset, origin);
 }
 
 i32 Nst_fclose(Nst_IOFileObj *f)
 {
-    if ( Nst_IOF_IS_CLOSED(f) )
-    {
+    if (Nst_IOF_IS_CLOSED(f))
         return EOF;
-    }
 
     f->close_f(f->value);
     f->value = NULL;
@@ -199,18 +166,12 @@ i64 _Nst_number_to_i64(Nst_Obj *number)
 {
     Nst_TypeObj *t = number->type;
 
-    if ( t == Nst_t.Byte )
-    {
+    if (t == Nst_t.Byte)
         return (i64)AS_BYTE(number);
-    }
-    else if ( t == Nst_t.Int )
-    {
+    else if (t == Nst_t.Int)
         return AS_INT(number);
-    }
-    else if ( t == Nst_t.Real )
-    {
+    else if (t == Nst_t.Real)
         return (i64)AS_REAL(number);
-    }
     return 0;
 }
 
@@ -223,22 +184,16 @@ f64 _Nst_number_to_f64(Nst_Obj *number)
 {
     Nst_TypeObj *t = number->type;
 
-    if ( t == Nst_t.Byte )
-    {
+    if (t == Nst_t.Byte)
         return (f64)AS_BYTE(number);
-    }
-    else if ( t == Nst_t.Int )
-    {
+    else if (t == Nst_t.Int)
         return (f64)AS_INT(number);
-    }
-    else if ( t == Nst_t.Real )
-    {
+    else if (t == Nst_t.Real)
         return AS_REAL(number);
-    }
     return 0.0;
 }
 
-Nst_Bool _Nst_obj_to_bool(Nst_Obj *obj)
+bool _Nst_obj_to_bool(Nst_Obj *obj)
 {
     Nst_Obj *bool_obj = Nst_obj_cast(obj, Nst_t.Bool);
     Nst_dec_ref(bool_obj);

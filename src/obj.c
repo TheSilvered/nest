@@ -87,7 +87,7 @@ void _Nst_obj_destroy(Nst_Obj *obj)
         else
             ggc_obj->ggc_next->ggc_prev = ggc_obj->ggc_prev;
 
-        ls->size--;
+        ls->len--;
     }
 
     Nst_free(obj);

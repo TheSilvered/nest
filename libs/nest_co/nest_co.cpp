@@ -28,7 +28,7 @@ bool lib_init()
 #error
 #endif
 
-    t_Coroutine = Nst_type_new("Coroutine", 9);
+    t_Coroutine = Nst_type_new("Coroutine");
 
     state_suspended = Nst_int_new(FLAG_CO_SUSPENDED);
     state_running   = Nst_int_new(FLAG_CO_RUNNING);
@@ -410,7 +410,7 @@ Nst_FUNC_SIGN(pause_)
 
     usize stack_size = 0;
     Nst_Obj **v_stack_objs = state->v_stack.stack;
-    for ( Nst_Int i = (Nst_Int)state->v_stack.current_size - 1;
+    for ( i64 i = (i64)state->v_stack.current_size - 1;
           i >= 0;
           i-- )
     {

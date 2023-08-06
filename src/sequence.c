@@ -14,15 +14,18 @@ static Nst_Obj *new_seq(usize len, usize size, Nst_TypeObj *type)
         Nst_SeqObj,
         type,
         _Nst_seq_destroy);
-    Nst_Obj **objs = Nst_calloc_c(size, Nst_Obj *, NULL);
+    if (seq == NULL)
+        return NULL;
 
-    if ( seq == NULL || objs == NULL )
+    Nst_Obj **objs = Nst_calloc_c(size, Nst_Obj *, NULL);
+    if (objs == NULL)
     {
+        Nst_free(seq);
         return NULL;
     }
 
     seq->len = len;
-    seq->size = size;
+    seq->cap = size;
     seq->objs = objs;
 
     Nst_GGC_OBJ_INIT(seq, _Nst_seq_traverse, _Nst_seq_track);
@@ -39,10 +42,8 @@ Nst_Obj *Nst_vector_new(usize len)
 {
     usize size = (usize)(len * _Nst_VECTOR_GROWTH_RATIO);
 
-    if ( size < _Nst_VECTOR_MIN_SIZE )
-    {
+    if (size < _Nst_VECTOR_MIN_SIZE)
         size = _Nst_VECTOR_MIN_SIZE;
-    }
 
     return new_seq(len, size, Nst_t.Vector);
 }
@@ -50,10 +51,8 @@ Nst_Obj *Nst_vector_new(usize len)
 void _Nst_seq_destroy(Nst_SeqObj *seq)
 {
     Nst_Obj **objs = seq->objs;
-    for ( usize i = 0, n = seq->len; i < n; i++ )
-    {
+    for (usize i = 0, n = seq->len; i < n; i++)
         Nst_dec_ref(objs[i]);
-    }
 
     Nst_free(objs);
 }
@@ -61,53 +60,38 @@ void _Nst_seq_destroy(Nst_SeqObj *seq)
 void _Nst_seq_traverse(Nst_SeqObj *seq)
 {
     Nst_Obj **objs = seq->objs;
-    for ( usize i = 0, n = seq->len; i < n; i++ )
-    {
+    for (usize i = 0, n = seq->len; i < n; i++)
         Nst_FLAG_SET(objs[i], Nst_FLAG_GGC_REACHABLE);
-    }
 }
 
 void _Nst_seq_track(Nst_SeqObj* seq)
 {
     Nst_Obj **objs = seq->objs;
-    for ( usize i = 0, n = seq->len; i < n; i++ )
-    {
+    for (usize i = 0, n = seq->len; i < n; i++) {
         if ( Nst_FLAG_HAS(objs[i], Nst_FLAG_GGC_IS_SUPPORTED) )
-        {
             Nst_ggc_track_obj((Nst_GGCObj*)objs[i]);
-        }
     }
 }
 
 bool _Nst_vector_resize(Nst_SeqObj *vect)
 {
     usize len = vect->len;
-    usize size = vect->size;
+    usize size = vect->cap;
     usize new_size;
 
     assert(len <= size);
 
-    if ( size == len )
-    {
+    if (size == len)
         new_size = (usize)(len * _Nst_VECTOR_GROWTH_RATIO);
-    }
-    else if ( size >> 2 >= len ) // if it's three quarters empty or less
-    {
+    else if (size >> 2 >= len) { // if it's three quarters empty or less
         new_size = (usize)(size / _Nst_VECTOR_GROWTH_RATIO);
-        if ( new_size < _Nst_VECTOR_MIN_SIZE )
-        {
+        if (new_size < _Nst_VECTOR_MIN_SIZE)
             new_size = _Nst_VECTOR_MIN_SIZE;
-        }
 
-        if ( size == _Nst_VECTOR_MIN_SIZE )
-        {
+        if (size == _Nst_VECTOR_MIN_SIZE)
             return true;
-        }
-    }
-    else
-    {
+    } else
         return true;
-    }
 
     Nst_Obj **new_objs = Nst_realloc_c(
         vect->objs,
@@ -115,32 +99,26 @@ bool _Nst_vector_resize(Nst_SeqObj *vect)
         Nst_Obj *,
         size);
 
-    if ( new_objs == NULL )
-    {
+    if (new_objs == NULL)
         return false;
-    }
 
-    for ( usize i = len; i < new_size; i++ )
-    {
+    for (usize i = len; i < new_size; i++)
         new_objs[i] = NULL;
-    }
 
-    vect->size = new_size;
+    vect->cap = new_size;
     vect->objs = new_objs;
     return true;
 }
 
 bool _Nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val)
 {
-    if ( !_Nst_vector_resize(vect) )
-    {
+    if (!_Nst_vector_resize(vect))
         return false;
-    }
 
     vect->objs[vect->len++] = Nst_inc_ref(val);
 
-    if ( Nst_OBJ_IS_TRACKED(vect) &&
-         Nst_FLAG_HAS(val, Nst_FLAG_GGC_IS_SUPPORTED) )
+    if (Nst_OBJ_IS_TRACKED(vect)
+        && Nst_FLAG_HAS(val, Nst_FLAG_GGC_IS_SUPPORTED))
     {
         Nst_ggc_track_obj((Nst_GGCObj*)val);
     }
@@ -149,29 +127,24 @@ bool _Nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val)
 
 bool _Nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val)
 {
-    if ( idx < 0 )
-    {
+    if (idx < 0)
         idx += seq->len;
-    }
 
-    if ( idx < 0 || idx >= (i64)seq->len )
-    {
-        const i8 *fmt = seq->type == Nst_t.Array ?
-            _Nst_EM_INDEX_OUT_OF_BOUNDS("Array")
+    if (idx < 0 || idx >= (i64)seq->len) {
+        const i8 *fmt = seq->type == Nst_t.Array
+          ? _Nst_EM_INDEX_OUT_OF_BOUNDS("Array")
           : _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector");
         Nst_set_value_error(Nst_sprintf(fmt, idx, seq->len));
         return false;
     }
 
     Nst_inc_ref(val);
-    if ( seq->objs[idx] != NULL )
-    {
+    if (seq->objs[idx] != NULL)
         Nst_dec_ref(seq->objs[idx]);
-    }
     seq->objs[idx] = val;
 
-    if ( Nst_OBJ_IS_TRACKED(seq) &&
-         Nst_FLAG_HAS(val, Nst_FLAG_GGC_IS_SUPPORTED) )
+    if (Nst_OBJ_IS_TRACKED(seq)
+        && Nst_FLAG_HAS(val, Nst_FLAG_GGC_IS_SUPPORTED))
     {
         Nst_ggc_track_obj((Nst_GGCObj*)val);
     }
@@ -181,15 +154,12 @@ bool _Nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val)
 
 Nst_Obj *_Nst_seq_get(Nst_SeqObj *seq, i64 idx)
 {
-    if ( idx < 0 )
-    {
+    if (idx < 0)
         idx += seq->len;
-    }
 
-    if ( idx < 0 || idx >= (i64)seq->len )
-    {
-        const i8 *fmt = seq->type == Nst_t.Array ?
-            _Nst_EM_INDEX_OUT_OF_BOUNDS("Array")
+    if (idx < 0 || idx >= (i64)seq->len) {
+        const i8 *fmt = seq->type == Nst_t.Array
+          ? _Nst_EM_INDEX_OUT_OF_BOUNDS("Array")
           : _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector");
         Nst_set_value_error(Nst_sprintf(fmt, idx, seq->len));
         return NULL;
@@ -198,81 +168,62 @@ Nst_Obj *_Nst_seq_get(Nst_SeqObj *seq, i64 idx)
     return Nst_inc_ref(seq->objs[idx]);
 }
 
-Nst_Obj *_Nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val)
+bool _Nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val)
 {
     usize i = 0;
     usize n = vect->len;
     Nst_Obj **objs = vect->objs;
 
-    for ( ; i < n; i++ )
-    {
-        if ( Nst_obj_eq(val, objs[i]) == Nst_c.Bool_true )
-        {
+    for (; i < n; i++) {
+        if (Nst_obj_eq(val, objs[i]) == Nst_c.Bool_true) {
             Nst_dec_ref(Nst_c.Bool_true);
             Nst_dec_ref(objs[i]);
             break;
-        }
-        else
-        {
+        } else
             Nst_dec_ref(Nst_c.Bool_false);
-        }
 
-        if ( i + 1 == n )
-        {
-            Nst_RETURN_FALSE;
-        }
+        if (i + 1 == n)
+            return false;
     }
 
-    for ( i++; i < n; i++ )
-    {
+    for (i++; i < n; i++)
         vect->objs[i - 1] = objs[i];
-    }
 
     vect->len--;
     _Nst_vector_resize(vect);
 
-    Nst_RETURN_TRUE;
+    return true;
 }
 
 Nst_Obj *_Nst_vector_pop(Nst_SeqObj *vect, usize quantity)
 {
-    if ( quantity > vect->len )
-    {
+    if (quantity > vect->len)
         quantity = vect->len;
-    }
 
     Nst_Obj *last_obj = NULL;
     usize n = vect->len;
 
-    for ( usize i = 1; i <= quantity; i++ )
-    {
-        if ( last_obj != NULL )
-        {
+    for (usize i = 1; i <= quantity; i++) {
+        if (last_obj != NULL)
             Nst_dec_ref(last_obj);
-        }
         last_obj = vect->objs[n - i];
         vect->len--;
     }
 
     _Nst_vector_resize(vect);
 
-    if ( last_obj == NULL )
-    {
+    if (last_obj == NULL)
         Nst_RETURN_NULL;
-    }
     else
-    {
-        // Has already one more reference because it was in the vector
+        // The reference is moved from the vector to the return, no need to add
+        // a new one
         return last_obj;
-    }
 }
 
-void seq_create(usize len, Nst_Obj *seq, va_list args)
+static void seq_create(usize len, Nst_Obj *seq, va_list args)
 {
-    if ( seq == NULL )
-    {
-        for ( usize i = 0; i < len; i++ )
-        {
+    if (seq == NULL) {
+        for (usize i = 0; i < len; i++) {
             Nst_Obj *arg = va_arg(args, Nst_Obj *);
             Nst_dec_ref(arg);
         }
@@ -280,8 +231,7 @@ void seq_create(usize len, Nst_Obj *seq, va_list args)
     }
 
     Nst_Obj **objs = SEQ(seq)->objs;
-    for ( usize i = 0; i < len; i++ )
-    {
+    for (usize i = 0; i < len; i++) {
         Nst_Obj *arg = va_arg(args, Nst_Obj *);
         objs[i] = arg;
     }
@@ -307,77 +257,55 @@ Nst_Obj *Nst_array_create(usize len, ...)
     return array;
 }
 
-Nst_Obj *seq_create_c(Nst_Obj   *seq,
-                      const i8  *fmt,
-                      va_list    args)
+Nst_Obj *seq_create_c(Nst_Obj *seq, const i8 *fmt, va_list args)
 {
-    if ( seq == NULL )
-    {
+    if (seq == NULL)
         return NULL;
-    }
 
     i8 *p = (i8 *)fmt;
     usize i = 0;
     Nst_Obj **objs = SEQ(seq)->objs;
-    while ( *p )
-    {
-        switch ( *p++ )
-        {
-        case 'I':
-        {
+    while (*p) {
+        switch (*p++) {
+        case 'I': {
             i64 value = va_arg(args, i64);
             Nst_Obj *obj = Nst_int_new(value);
-            if ( obj == NULL )
-            {
+            if (obj == NULL)
                 goto failed;
-            }
             objs[i] = obj;
             break;
         }
-        case 'i':
-        {
+        case 'i': {
             i32 value = va_arg(args, i32);
             Nst_Obj *obj = Nst_int_new((i64)value);
-            if ( obj == NULL )
-            {
+            if (obj == NULL)
                 goto failed;
-            }
             objs[i] = obj;
             break;
         }
         case 'f':
-        case 'F':
-        {
+        case 'F': {
             f64 value = va_arg(args, f64);
             Nst_Obj *obj = Nst_real_new(value);
-            if ( obj == NULL )
-            {
+            if (obj == NULL)
                 goto failed;
-            }
             objs[i] = obj;
             break;
         }
-        case 'b':
-        {
+        case 'b': {
             int value = va_arg(args, int);
-            if ( value )
-            {
+            if (value)
                 objs[i] = Nst_inc_ref(Nst_c.Bool_true);
-            }
             else
-            {
                 objs[i] = Nst_inc_ref(Nst_c.Bool_false);
-            }
             break;
         }
         case 'B':
         {
             int value = va_arg(args, int);
             Nst_Obj *obj = Nst_byte_new((u8)value);
-            if ( obj == NULL )
-            {
+            if (obj == NULL)
                 goto failed;
-            }
             objs[i] = obj;
             break;
         }
@@ -400,13 +328,10 @@ Nst_Obj *seq_create_c(Nst_Obj   *seq,
             break;
         }
         default:
-            if ( seq->type == Nst_t.Vector )
-            {
+            if (seq->type == Nst_t.Vector) {
                 Nst_set_value_error_c(
                     _Nst_EM_INVALID_TYPE_LETTER("Nst_vector_create_c"));
-            }
-            else
-            {
+            } else {
                 Nst_set_value_error_c(
                     _Nst_EM_INVALID_TYPE_LETTER("Nst_array_create_c"));
             }

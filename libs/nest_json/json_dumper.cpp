@@ -205,7 +205,7 @@ static void dump_num(Nst_Obj *number)
     }
     else
     {
-        Nst_Real val = AS_REAL(number);
+        f64 val = AS_REAL(number);
         if ( isinf(val) || isnan(val) )
         {
             Nst_set_value_error_c(
@@ -287,7 +287,7 @@ static void dump_seq(Nst_SeqObj *seq, i32 indent)
 
 static void dump_map(Nst_MapObj *map, i32 indent)
 {
-    if ( map->item_count == 0 )
+    if ( map->len == 0 )
     {
         Nst_buffer_append_c_str(&str_buf, "{}");
         return;
@@ -309,7 +309,7 @@ static void dump_map(Nst_MapObj *map, i32 indent)
     }
 
     usize count = 0;
-    usize tot = map->item_count;
+    usize tot = map->len;
     Nst_MapNode *nodes = map->nodes;
     for ( i32 i = Nst_map_get_next_idx(-1, map);
           i != -1;

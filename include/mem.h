@@ -60,13 +60,13 @@ extern "C" {
  * Structure representing a buffer of objects with an arbitrary size.
  *
  * @param len: the number of objects currently in the buffer
- * @param size: the size in bytes of the allocated block
+ * @param cap: the size in bytes of the allocated block
  * @param unit_size: the size in bytes of one object
  * @param data: the array of objects
  */
 typedef struct _Nst_SizedBuffer {
     usize len;
-    usize size;
+    usize cap;
     usize unit_size;
     void *data;
 } Nst_SizedBuffer;
@@ -79,13 +79,13 @@ typedef struct _Nst_SizedBuffer {
  * functions.
  *
  * @param len: the length of the string in the buffer
- * @param size: the size in bytes of the allocated block
+ * @param cap: the size in bytes of the allocated block
  * @param unit_size: always 1
  * @param data: the string
  */
 typedef struct _Nst_Buffer {
     usize len;
-    usize size;
+    usize cap;
     usize unit_size;
     i8 *data;
 } Nst_Buffer;

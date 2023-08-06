@@ -75,12 +75,12 @@ NstEXP typedef struct _Nst_GGCObj {
  *
  * @param head: the first object in the generation
  * @param tail: the last object in the generation
- * @param size: the total number of objects in the generation
+ * @param len: the total number of objects in the generation
  */
 NstEXP typedef struct _Nst_GGCList {
     Nst_GGCObj *head;
     Nst_GGCObj *tail;
-    usize size;
+    usize len;
 } Nst_GGCList;
 
 /**
@@ -98,7 +98,7 @@ NstEXP typedef struct _Nst_GarbageCollector {
     Nst_GGCList gen2;
     Nst_GGCList gen3;
     Nst_GGCList old_gen;
-    Nst_Int old_gen_pending;
+    i64 old_gen_pending;
 } Nst_GarbageCollector;
 
 /* Collects the object of a generation */

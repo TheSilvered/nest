@@ -274,8 +274,8 @@ static void ast_optimize_long_s(Nst_Node *node, Nst_Error *error)
 static bool can_optimize_consts(Nst_InstList *bc);
 static bool is_accessed(Nst_InstList *bc, Nst_StrObj *name);
 static bool has_assignments(Nst_InstList *bc, Nst_StrObj *name);
-static bool has_jumps_to(Nst_InstList *bc, Nst_Int idx, Nst_Int avoid_start,
-                         Nst_Int avoid_end);
+static bool has_jumps_to(Nst_InstList *bc, i64 idx, i64 avoid_start,
+                         i64 avoid_end);
 static void replace_access(Nst_InstList *bc, Nst_StrObj *name, Nst_Obj *val);
 static void optimize_const(Nst_InstList *bc, const i8 *name, Nst_Obj *val);
 static void remove_push_pop(Nst_InstList *bc);
@@ -283,7 +283,7 @@ static void remove_assign_pop(Nst_InstList *bc);
 static void remove_assign_loc_get_val(Nst_InstList *bc);
 static void remove_push_check(Nst_InstList *bc, Nst_Error *error);
 static void remove_push_jumpif(Nst_InstList *bc);
-static void remove_inst(Nst_InstList *bc, Nst_Int idx);
+static void remove_inst(Nst_InstList *bc, i64 idx);
 static void optimize_funcs(Nst_InstList *bc, Nst_Error *error);
 static void remove_dead_code(Nst_InstList *bc);
 static void optimize_chained_jumps(Nst_InstList *bc);
@@ -310,7 +310,7 @@ Nst_InstList *Nst_optimize_bytecode(Nst_InstList *bc, bool optimize_builtins,
         optimize_const(bc, "null",   OBJ(Nst_c.Null_null));
     }
 
-    Nst_Int initial_size;
+    i64 initial_size;
     do {
         initial_size = bc->total_size;
         remove_push_check(bc, error);
@@ -332,16 +332,16 @@ Nst_InstList *Nst_optimize_bytecode(Nst_InstList *bc, bool optimize_builtins,
             return NULL;
         }
 
-        Nst_Int size = bc->total_size;
+        i64 size = bc->total_size;
         Nst_Inst *inst_list = bc->instructions;
-        for (Nst_Int i = 0; i < size; i++) {
+        for (i64 i = 0; i < size; i++) {
             if (inst_list[i].id == Nst_IC_NO_OP) {
                 remove_inst(bc, i);
                 i--;
                 size--;
             }
         }
-    } while (initial_size != (Nst_Int)bc->total_size);
+    } while (initial_size != (i64)bc->total_size);
 
     return bc;
 }
@@ -373,10 +373,10 @@ static bool is_accessed(Nst_InstList *bc, Nst_StrObj *name)
     // or is followed by PUSH_VAL and OP_EXTRACT or SET_CONT_VAL
     // it is not counted as an access
 
-    Nst_Int size = bc->total_size;
+    i64 size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;
 
-    for (Nst_Int i = 0; i < size; i++) {
+    for (i64 i = 0; i < size; i++) {
         if (inst_list[i].id == Nst_IC_PUSH_VAL
             && inst_list[i].val->type == Nst_t.Str
             && Nst_string_compare(STR(inst_list[i].val), name) == 0 )
@@ -437,10 +437,10 @@ static bool is_accessed(Nst_InstList *bc, Nst_StrObj *name)
 
 static bool has_assignments(Nst_InstList *bc, Nst_StrObj *name)
 {
-    Nst_Int size = bc->total_size;
+    i64 size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;
 
-    for (Nst_Int i = 0; i < size; i++) {
+    for (i64 i = 0; i < size; i++) {
         if (i > 0 && inst_list[i].id == Nst_IC_SET_CONT_VAL) {
             Nst_Inst prev_inst = inst_list[i - 1];
             if (prev_inst.id == Nst_IC_PUSH_VAL
@@ -471,10 +471,10 @@ static bool has_assignments(Nst_InstList *bc, Nst_StrObj *name)
 
 static void replace_access(Nst_InstList *bc, Nst_StrObj *name, Nst_Obj *val)
 {
-    Nst_Int size = bc->total_size;
+    i64 size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;
 
-    for (Nst_Int i = 0; i < size; i++) {
+    for (i64 i = 0; i < size; i++) {
         if (inst_list[i].id != Nst_IC_GET_VAL)
             continue;
 
@@ -506,14 +506,14 @@ end:
     Nst_dec_ref(str_obj);
 }
 
-static bool has_jumps_to(Nst_InstList *bc, Nst_Int idx, Nst_Int avoid_start,
-                         Nst_Int avoid_end)
+static bool has_jumps_to(Nst_InstList *bc, i64 idx, i64 avoid_start,
+                         i64 avoid_end)
 {
-    Nst_Int size = bc->total_size;
+    i64 size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;
     Nst_Inst inst;
 
-    for (Nst_Int i = 0; i < size; i++) {
+    for (i64 i = 0; i < size; i++) {
         if (i >= avoid_start && i <= avoid_end)
             continue;
 
@@ -527,11 +527,11 @@ static bool has_jumps_to(Nst_InstList *bc, Nst_Int idx, Nst_Int avoid_start,
 
 static void remove_push_pop(Nst_InstList *bc)
 {
-    Nst_Int size = bc->total_size;
+    i64 size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;
     bool expect_pop = false;
 
-    for (Nst_Int i = 0; i < size; i++) {
+    for (i64 i = 0; i < size; i++) {
         if (inst_list[i].id == Nst_IC_PUSH_VAL) {
             expect_pop = true;
             continue;
@@ -554,11 +554,11 @@ static void remove_push_pop(Nst_InstList *bc)
 
 static void remove_assign_pop(Nst_InstList *bc)
 {
-    Nst_Int size = bc->total_size;
+    i64 size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;
     bool expect_pop = false;
 
-    for (Nst_Int i = 0; i < size; i++) {
+    for (i64 i = 0; i < size; i++) {
         if (inst_list[i].id == Nst_IC_SET_VAL
             || inst_list[i].id == Nst_IC_SET_CONT_VAL)
         {
@@ -585,12 +585,12 @@ static void remove_assign_pop(Nst_InstList *bc)
 
 static void remove_assign_loc_get_val(Nst_InstList* bc)
 {
-    Nst_Int size = bc->total_size;
+    i64 size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;
     bool expect_get_val = false;
     Nst_StrObj *expected_name = NULL;
 
-    for (Nst_Int i = 0; i < size; i++) {
+    for (i64 i = 0; i < size; i++) {
         if (inst_list[i].id == Nst_IC_SET_VAL_LOC) {
             expect_get_val = true;
             expected_name = STR(inst_list[i].val);
@@ -625,11 +625,11 @@ static void remove_assign_loc_get_val(Nst_InstList* bc)
 
 static void remove_push_check(Nst_InstList *bc, Nst_Error *error)
 {
-    Nst_Int size = bc->total_size;
+    i64 size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;
     bool was_push = false;
 
-    for (Nst_Int i = 0; i < size; i++) {
+    for (i64 i = 0; i < size; i++) {
         if (inst_list[i].id == Nst_IC_PUSH_VAL) {
             was_push = true;
             continue;
@@ -681,11 +681,11 @@ static void remove_push_check(Nst_InstList *bc, Nst_Error *error)
 
 static void remove_push_jumpif(Nst_InstList *bc)
 {
-    Nst_Int size = bc->total_size;
+    i64 size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;
     bool expect_jumpif = false;
 
-    for ( Nst_Int i = 0; i < size; i++ )
+    for ( i64 i = 0; i < size; i++ )
     {
         if ( inst_list[i].id == Nst_IC_PUSH_VAL )
         {
@@ -719,21 +719,21 @@ static void remove_push_jumpif(Nst_InstList *bc)
     }
 }
 
-static void remove_inst(Nst_InstList *bc, Nst_Int idx)
+static void remove_inst(Nst_InstList *bc, i64 idx)
 {
-    Nst_Int size = bc->total_size;
+    i64 size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;
 
     if (idx < 0 || idx >= size)
         return;
 
-    for (Nst_Int i = idx; i < size - 1; i++)
+    for (i64 i = idx; i < size - 1; i++)
         inst_list[i] = inst_list[i + 1];
 
     bc->total_size--;
     size--;
 
-    for (Nst_Int i = 0; i < size; i++) {
+    for (i64 i = 0; i < size; i++) {
         if (Nst_INST_IS_JUMP(inst_list[i].id) && inst_list[i].int_val > idx)
             inst_list[i].int_val--;
     }
@@ -751,10 +751,10 @@ static void optimize_funcs(Nst_InstList *bc, Nst_Error *error)
 
 static void remove_dead_code(Nst_InstList *bc)
 {
-    Nst_Int size = bc->total_size;
+    i64 size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;
 
-    for (Nst_Int i = 0; i < size; i++) {
+    for (i64 i = 0; i < size; i++) {
         if ((inst_list[i].id != Nst_IC_JUMP
              || i + 1 > inst_list[i].int_val)
             && inst_list[i].id != Nst_IC_RETURN_VAL
@@ -765,9 +765,9 @@ static void remove_dead_code(Nst_InstList *bc)
 
         bool is_jump_useless = inst_list[i].id == Nst_IC_JUMP;
         bool stop_at_save_error = inst_list[i].id == Nst_IC_THROW_ERR;
-        Nst_Int end = is_jump_useless ? inst_list[i].int_val : size;
+        i64 end = is_jump_useless ? inst_list[i].int_val : size;
 
-        for (Nst_Int j = i + 1; j < end; j++) {
+        for (i64 j = i + 1; j < end; j++) {
             if (has_jumps_to(bc, j, i + 1, inst_list[i].int_val - 1)) {
                 is_jump_useless = false;
                 break;
@@ -790,14 +790,14 @@ static void remove_dead_code(Nst_InstList *bc)
 
 static void optimize_chained_jumps(Nst_InstList* bc)
 {
-    Nst_Int size = bc->total_size;
+    i64 size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;
 
-    for (Nst_Int i = 0; i < size; i++) {
+    for (i64 i = 0; i < size; i++) {
         if (!Nst_INST_IS_JUMP(inst_list[i].id))
             continue;
 
-        Nst_Int end_jump = inst_list[i].int_val;
+        i64 end_jump = inst_list[i].int_val;
 
         while (inst_list[end_jump].id == Nst_IC_JUMP)
             end_jump = inst_list[end_jump].int_val;
