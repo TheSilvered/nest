@@ -73,6 +73,10 @@ machine, in case you want to use Python run `update_exes.bat py`.
 Once done you can navigate to `nest\build\windows\installer` and compile
 `installer-script-x64.iss` and `installer-script-x86.iss`.
 
+### Uninstalling on Windows
+
+To uninstall Nest on Windows you can do so from the control panel.
+
 ### Linux archive
 
 To Install Nest from the precompiled binaries archive download the `.tar.gz`
@@ -91,22 +95,15 @@ To compile Nest from source on Linux first clone the repository and enter in the
 directory. From here run `sudo bash configure.sh` to install the necessary
 libraries.
 
-!!!note
-    If you are not using `apt` or `dnf` this file will not work.
+**Note**: if you are not using `apt` or `dnf` this file will not work.
 
 Once you have installed the libraries you can enter `nest/build/linux/makefiles/`
 and run `make help` to see what to compile. In general you will want to run
-`make all` or `make all-debug`.
+`make install` or `make install-x86`.
 
-After having compiled the C code you can go back to the parent directory
-(`nest/build/linux/`) and run `./_update_files.sh` if you already have a version
-of Nest installed or `./_update_files.sh py` to use Python 3 instead.
+### Uninstalling on linux
 
-Now to install the compiled binaries run
-
-```text
-$ sudo bash linux_install_x[ARCHITECTURE].sh
-```
+To uninstall Nest on linux, copy `nest/build/linux/uninstall.sh` and execute it.
 
 ## Plugins
 
@@ -118,11 +115,11 @@ extract it into `%USERPROFILE%\.vscode\extensions` on Windows or into
 
 Currently VS Code supports only syntax highlighting and commenting with keyboard
 shortcuts, to run the Nest file you can install Code Runner and add
-`"nest": "cd $dir && nest -m $fileName"` inside `"code-runner.executorMap"` in
+`"nest": "cd $dir && nest $fileName"` inside `"code-runner.executorMap"` in
 `settings.json`.
 
 This method does not support input, to do that you can select the option to run
-Code Runner in the terminal and remove `-m` from the command.
+Code Runner in the terminal.
 
 ### Sublime Text
 

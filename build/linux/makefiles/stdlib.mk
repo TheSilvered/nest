@@ -1,6 +1,6 @@
 ifeq ($(LIB_NAME),gui)
-  LIB_FLAGS=$(shell pkg-config --cflags sdl2 SDL2_ttf)
-  LIB_LINKS=$(shell pkg-config --libs sdl2 SDL2_ttf)
+    LIB_FLAGS=$(shell pkg-config --cflags sdl2 SDL2_ttf)
+    LIB_LINKS=$(shell pkg-config --libs sdl2 SDL2_ttf)
 endif
 
 
@@ -35,31 +35,37 @@ NEST_LIB_x86 := $(x86_DIR)/libnest.so
 .PHONY: debug x86 __no_libnest_x64 __no_libnest_x86 __no_libnest_dbg help
 
 main:
+	@if [ "$(LIB_NAME)" = "" ]; then echo LIB_NAME not defined.; exit 1; fi
 	@$(MAKE_FILE) libnest.mk
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 -LIB_NAME=$(LIB_NAME) \
 		-LIB_FLAGS=$(LIB_FLAGS) -LIB_LINKS=$(LIB_LINKS)
 __no_libnest_x64: $(x64_TARGET);
 $(x64_TARGET): $(SRCS) $(HEADERS) $(NEST_LIB_x64)
+	@if [ "$(LIB_NAME)" = "" ]; then echo LIB_NAME not defined.; exit 1; fi
 	@mkdir -p $(x64_DIR)
 	@echo "Compiling $(TARGET_NAME) for x64..."
 	@$(CC) $(CFLAGS) $(SRCS) $(CLINKS_x64) -O3 -o $(x64_TARGET)
 
 x86:
+	@if [ "$(LIB_NAME)" = "" ]; then echo LIB_NAME not defined.; exit 1; fi
 	@$(MAKE_FILE) libnest.mk x86
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 -LIB_NAME=$(LIB_NAME) \
 		-LIB_FLAGS=$(LIB_FLAGS) -LIB_LINKS=$(LIB_LINKS)
 __no_libnest_x86: $(x86_TARGET);
 $(x86_TARGET): $(SRCS) $(HEADERS) $(NEST_LIB_x86)
+	@if [ "$(LIB_NAME)" = "" ]; then echo LIB_NAME not defined.; exit 1; fi
 	@mkdir -p $(x86_DIR)
 	@echo "Compiling $(TARGET_NAME) for x86..."
 	@$(CC) $(CFLAGS) $(SRCS) $(CLINKS_x86) -O3 -m32 -o $(x86_TARGET)
 
 debug:
+	@if [ "$(LIB_NAME)" = "" ]; then echo LIB_NAME not defined.; exit 1; fi
 	@$(MAKE_FILE) libnest.mk debug
 	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg -LIB_NAME=$(LIB_NAME) \
 		-LIB_FLAGS=$(LIB_FLAGS) -LIB_LINKS=$(LIB_LINKS)
 __no_libnest_dbg: $(DBG_TARGET);
 $(DBG_TARGET): $(SRCS) $(HEADERS) $(NEST_LIB_DBG)
+	@if [ "$(LIB_NAME)" = "" ]; then echo LIB_NAME not defined.; exit 1; fi
 	@mkdir -p $(DBG_DIR)
 	@echo "Compiling $(TARGET_NAME) in debug mode..."
 	@$(CC) $(CFLAGS) $(SRCS) $(CLINKS_DBG) $(DBG_FLAGS) -o $(DBG_TARGET)
