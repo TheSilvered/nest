@@ -20,6 +20,13 @@ test.log_file io.STDOUT == ? [
 
 'sys.getenv (appdata): ' ('APPDATA' @sys.getenv) >< @test.println
 'sys.getenv (home): ' ('HOME' @sys.getenv) >< @test.println
+
+'Nst:TESTENV' 'test-value' @sys.putenv
+'Nst:TESTENV' @sys.getenv 'test-value' @test.assert_eq
+sys.putenv { 'Invalid=name', 'hello value' } @test.assert_raises_error
+sys.putenv { 'Invalid\0name', 'hellovalue' } @test.assert_raises_error
+sys.putenv { 'validname', 'invalid\0value' } @test.assert_raises_error
+
 'Hello' @sys.get_ref_count 2 @test.assert_eq
 'sys.get_addr: 0x'(10 @sys.get_addr @su.hex 16 '0' @su.rjust) >< @test.println
 10 @sys.hash 10 @test.assert_eq

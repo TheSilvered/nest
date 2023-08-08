@@ -27,14 +27,14 @@ extern "C" {
  * A structure representing the value stack.
  *
  * @param stack: the objects in the stack
- * @param current_size: the current size of the stack
- * @param max_size: the maximum size of the stack before it needs to be
+ * @param len: the current size of the stack
+ * @param cap: the maximum size of the stack before it needs to be
  * expanded
  */
 NstEXP typedef struct _Nst_ValueStack {
     Nst_Obj **stack;
-    usize current_size;
-    usize max_size;
+    usize len;
+    usize cap;
 } Nst_ValueStack;
 
 /**
@@ -45,7 +45,7 @@ NstEXP typedef struct _Nst_ValueStack {
  * @param end: the end postition of the call
  * @param vt: the variable table of the call
  * @param idx: the instruction index of the call
- * @param cstack_size: the size of the catch stack when the function was called
+ * @param cstack_len: the size of the catch stack when the function was called
  */
 NstEXP typedef struct _Nst_FuncCall {
     Nst_FuncObj *func;
@@ -53,34 +53,34 @@ NstEXP typedef struct _Nst_FuncCall {
     Nst_Pos end;
     Nst_VarTable *vt;
     i64 idx;
-    usize cstack_size;
+    usize cstack_len;
 } Nst_FuncCall;
 
 /**
  * A structure representing the call stack.
  *
  * @param stack: the calls in the stack
- * @param current_size: the current size of the stack
- * @param max_size: the maximum size of the stack before it needs to be
+ * @param len: the current size of the stack
+ * @param cap: the maximum size of the stack before it needs to be
  * expanded
  */
 NstEXP typedef struct _Nst_CallStack {
     Nst_FuncCall *stack;
-    usize current_size;
-    usize max_size;
+    usize len;
+    usize cap;
 } Nst_CallStack;
 
 /**
  * A structure representing the state of the stack when a catch was pushed and
  * that is restored if an error occurs.
  *
- * @param f_stack_size: the size of the call stack
- * @param v_stack_size: the size of the value stack
+ * @param f_stack_len: the size of the call stack
+ * @param v_stack_len: the size of the value stack
  * @param inst_idx: the instruction index
  */
 NstEXP typedef struct _Nst_CatchFrame {
-    usize f_stack_size;
-    usize v_stack_size;
+    usize f_stack_len;
+    usize v_stack_len;
     i64 inst_idx;
 } Nst_CatchFrame;
 
@@ -88,28 +88,28 @@ NstEXP typedef struct _Nst_CatchFrame {
  * A structure representing the catch stack.
  *
  * @param stack: the catch frames in the stack
- * @param current_size: the current size of the stack
- * @param max_size: the maximum size of the stack before it needs to be
+ * @param len: the current size of the stack
+ * @param cap: the maximum size of the stack before it needs to be
  * expanded
  */
 NstEXP typedef struct _Nst_CatchStack {
     Nst_CatchFrame *stack;
-    usize current_size;
-    usize max_size;
+    usize len;
+    usize cap;
 } Nst_CatchStack;
 
 /**
  * A structure representing a generic stack.
  *
  * @param stack: the pointer to the array of elements in the stack
- * @param current_size: the current size of the stack
- * @param max_size: the maximum size of the stack before it needs to be
+ * @param len: the current size of the stack
+ * @param cap: the maximum size of the stack before it needs to be
  * expanded
  */
 NstEXP typedef struct _Nst_GenericStack {
     void *stack;
-    usize current_size;
-    usize max_size;
+    usize len;
+    usize cap;
 } Nst_GenericStack;
 
 /**

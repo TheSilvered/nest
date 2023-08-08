@@ -14,6 +14,7 @@ NstEXP void free_lib();
 Nst_FUNC_SIGN(system_);
 Nst_FUNC_SIGN(exit_);
 Nst_FUNC_SIGN(getenv_);
+Nst_FUNC_SIGN(putenv_);
 Nst_FUNC_SIGN(get_ref_count_);
 Nst_FUNC_SIGN(get_addr_);
 Nst_FUNC_SIGN(hash_);

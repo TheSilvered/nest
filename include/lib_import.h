@@ -30,6 +30,7 @@
     'A': a|v
     'S': a|v|s:a
     'R': I|a|v|s:I
+    'y': o_b
 
   Other:
     'o': any object
@@ -165,6 +166,9 @@
 /* Results in def_val if obj is Nst_null() and in val otherwise. */
 #define Nst_DEF_VAL(obj, val, def_val)                                        \
     (OBJ(obj) == Nst_null() ? (def_val) : (val))
+
+/* Checks if the type of an object is type_name. */
+#define Nst_T(obj, type_name) ((obj)->type == Nst_type()->type_name)
 
 #ifdef __cplusplus
 extern "C" {

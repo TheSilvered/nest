@@ -4,18 +4,18 @@
 #include <cstring>
 #include "json_lexer.h"
 
-#define SET_INVALID_ESCAPE_ERROR \
-    Nst_set_syntax_error(Nst_sprintf( \
-        "JSON: invalid string escape, file \"%s\", line %lli, column %lli", \
-        state.pos.text->path, \
-        (i64)state.pos.line, \
+#define SET_INVALID_ESCAPE_ERROR                                              \
+    Nst_set_syntax_error(Nst_sprintf(                                         \
+        "JSON: invalid string escape, file \"%s\", line %lli, column %lli",   \
+        state.pos.text->path,                                                 \
+        (i64)state.pos.line,                                                  \
         (i64)state.pos.col))
 
-#define SET_INVALID_VALUE_ERROR \
-    Nst_set_syntax_error(Nst_sprintf( \
-        "JSON: invalid value, file \"%s\", line %lli, column %lli", \
-        state.pos.text->path, \
-        (i64)state.pos.line, \
+#define SET_INVALID_VALUE_ERROR                                               \
+    Nst_set_syntax_error(Nst_sprintf(                                         \
+        "JSON: invalid value, file \"%s\", line %lli, column %lli",           \
+        state.pos.text->path,                                                 \
+        (i64)state.pos.line,                                                  \
         (i64)state.pos.col))
 
 #define IS_HEX(ch) ( (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') )
@@ -29,15 +29,13 @@
 
 bool comments = false;
 
-typedef struct _LexerState
-{
+typedef struct _LexerState {
     Nst_Pos pos;
     usize idx;
     usize len;
     i8 *path;
     i8 ch;
-}
-LexerState;
+} LexerState;
 
 LexerState state;
 
@@ -45,15 +43,13 @@ static void advance()
 {
     state.idx++;
     state.pos.col++;
-    if ( state.idx >= state.len )
-    {
+    if (state.idx >= state.len) {
         state.ch = '\0';
         return;
     }
 
     state.ch = state.pos.text->text[state.idx];
-    if ( state.ch == '\n' )
-    {
+    if (state.ch == '\n') {
         state.pos.line++;
         state.pos.col = 0;
     }
@@ -71,10 +67,8 @@ static Nst_Tok *parse_json_num();
 static Nst_Tok *parse_json_val();
 static bool ignore_comment();
 
-Nst_LList *json_tokenize(i8   *path,
-                         i8   *text,
-                         usize text_len,
-                         bool  readonly_text)
+Nst_LList *json_tokenize(i8 *path, i8 *text, usize text_len,
+                         bool readonly_text)
 {
     Nst_SourceText src_text = {
         .text = text,
@@ -91,21 +85,17 @@ Nst_LList *json_tokenize(i8   *path,
         .message = nullptr
     };
 
-    if ( readonly_text )
-    {
+    if (readonly_text) {
         i8 *text_copy = Nst_malloc_c(text_len, i8);
-        if ( text_copy == nullptr )
-        {
+        if (text_copy == nullptr)
             return nullptr;
-        }
         memcpy(text_copy, text, text_len);
         src_text.text = text_copy;
     }
 
     bool result = Nst_normalize_encoding(&src_text, Nst_CP_UNKNOWN, &error);
     Nst_add_lines(&src_text);
-    if ( error.occurred || !result )
-    {
+    if (error.occurred || !result) {
         Nst_set_error(
             error.name,
             error.message);
@@ -117,10 +107,8 @@ Nst_LList *json_tokenize(i8   *path,
     Nst_LList *tokens = Nst_llist_new();
     Nst_Tok *tok = nullptr;
 
-    if ( text_len == 0 )
-    {
+    if (text_len == 0)
         goto end;
-    }
 
     state.pos.text = &src_text;
     state.pos.col = 1;
@@ -130,10 +118,8 @@ Nst_LList *json_tokenize(i8   *path,
     state.path = path;
     state.ch = *src_text.text;
 
-    while ( state.idx < state.len )
-    {
-        switch ( state.ch )
-        {
+    while (state.idx < state.len) {
+        switch (state.ch) {
         case ' ':
         case '\n':
         case '\r':
@@ -180,14 +166,10 @@ Nst_LList *json_tokenize(i8   *path,
             tok = parse_json_val();
             break;
         case '/':
-            if ( ignore_comment() )
-            {
+            if (ignore_comment())
                 continue;
-            }
             else
-            {
                 tok = nullptr;
-            }
             break;
         default:
             Nst_set_syntax_error(Nst_sprintf(
@@ -196,8 +178,7 @@ Nst_LList *json_tokenize(i8   *path,
             tok = nullptr;
         }
 
-        if ( tok == nullptr )
-        {
+        if (tok == nullptr) {
             Nst_llist_destroy(tokens, (Nst_LListDestructor)Nst_token_destroy);
             Nst_free(src_text.text);
             Nst_free(src_text.lines);
@@ -220,25 +201,19 @@ static Nst_Tok *parse_json_str()
     bool escape = false;
 
     Nst_Buffer buf;
-    if ( !Nst_buffer_init(&buf, 8) )
-    {
+    if (!Nst_buffer_init(&buf, 8))
         return nullptr;
-    }
 
     advance();
 
-    while ( state.idx < state.len && (state.ch != '"' || escape))
-    {
-        if ( !Nst_buffer_expand_by(&buf, 3) )
-        {
+    while (state.idx < state.len && (state.ch != '"' || escape)) {
+        if (!Nst_buffer_expand_by(&buf, 3)) {
             Nst_buffer_destroy(&buf);
             return nullptr;
         }
 
-        if ( !escape )
-        {
-            if ( (u8)state.ch < ' ' )
-            {
+        if (!escape) {
+            if ((u8)state.ch < ' ') {
                 Nst_buffer_destroy(&buf);
                 Nst_set_syntax_error(Nst_sprintf(
                     "JSON: invalid character, file \"%s\", line %lli, column %lli",
@@ -246,14 +221,10 @@ static Nst_Tok *parse_json_str()
                     (i64)state.pos.line,
                     (i64)state.pos.col));
                 return nullptr;
-            }
-            else if ( state.ch == '\\' )
-            {
+            } else if (state.ch == '\\') {
                 escape = true;
                 escape_start = Nst_copy_pos(state.pos);
-            }
-            else
-            {
+            } else {
                 Nst_buffer_append_char(&buf, state.ch);
             }
             advance();
@@ -261,8 +232,7 @@ static Nst_Tok *parse_json_str()
         }
 
         // If there is an escape sequence
-        switch ( state.ch )
-        {
+        switch (state.ch) {
         case '"': Nst_buffer_append_char(&buf, '"' ); break;
         case '\\':Nst_buffer_append_char(&buf, '\\'); break;
         case '/': Nst_buffer_append_char(&buf, '/' ); break;
@@ -271,11 +241,9 @@ static Nst_Tok *parse_json_str()
         case 'n': Nst_buffer_append_char(&buf, '\n'); break;
         case 'r': Nst_buffer_append_char(&buf, '\r'); break;
         case 't': Nst_buffer_append_char(&buf, '\t'); break;
-        case 'u':
-        {
+        case 'u': {
             advance();
-            if ( state.idx + 3 >= state.len )
-            {
+            if (state.idx + 3 >= state.len) {
                 Nst_buffer_destroy(&buf);
                 SET_INVALID_ESCAPE_ERROR;
                 return nullptr;
@@ -289,8 +257,7 @@ static Nst_Tok *parse_json_str()
             advance();
             i8 ch4 = (i8)tolower(state.ch);
 
-            if ( !IS_HEX(ch1) || !IS_HEX(ch2) || !IS_HEX(ch3) || !IS_HEX(ch4) )
-            {
+            if (!IS_HEX(ch1) || !IS_HEX(ch2) || !IS_HEX(ch3) || !IS_HEX(ch4)) {
                 Nst_buffer_destroy(&buf);
                 SET_INVALID_ESCAPE_ERROR;
                 return nullptr;
@@ -318,8 +285,7 @@ static Nst_Tok *parse_json_str()
         advance();
     }
 
-    if ( state.ch != '"' )
-    {
+    if (state.ch != '"') {
         JSON_SYNTAX_ERROR("open string", state.path, state.pos);
         Nst_buffer_destroy(&buf);
         return nullptr;
@@ -333,43 +299,30 @@ static Nst_Tok *parse_json_num()
 {
     i8 *start_idx = state.pos.text->text + state.idx;
     Nst_Pos start = Nst_copy_pos(state.pos);
-    if ( state.ch == '-' )
-    {
+    if (state.ch == '-')
         advance();
-    }
 
-    if ( state.idx >= state.len )
-    {
+    if (state.idx >= state.len) {
         JSON_SYNTAX_ERROR("invalid number", state.path, state.pos);
         return nullptr;
-    }
-    else if ( state.ch == '0' )
-    {
+    } else if (state.ch == '0') {
         advance();
-        if ( state.ch >= '0' && state.ch <= '9' )
-        {
+        if (state.ch >= '0' && state.ch <= '9') {
             JSON_SYNTAX_ERROR("invalid number", state.path, state.pos);
             return nullptr;
         }
 
         goto float_ltrl;
-    }
-    else if ( state.ch > '0' && state.ch <= '9' )
-    {
-        while ( state.ch >= '0' && state.ch <= '9' )
-        {
+    } else if (state.ch > '0' && state.ch <= '9') {
+        while (state.ch >= '0' && state.ch <= '9')
             advance();
-        }
 
-        if ( state.ch == '.' || state.ch == 'e' || state.ch == 'E' )
-        {
+        if (state.ch == '.' || state.ch == 'e' || state.ch == 'E')
             goto float_ltrl;
-        }
         go_back();
         errno = 0;
         i64 value = strtoll(start_idx, nullptr, 10);
-        if ( errno == ERANGE )
-        {
+        if (errno == ERANGE) {
             Nst_set_memory_error(Nst_sprintf(
                 "JSON: number too big, file \"%s\", line %lli, column %lli",
                 state.path,
@@ -382,16 +335,13 @@ static Nst_Tok *parse_json_num()
             state.pos,
             JSON_VALUE,
             Nst_int_new(value));
-    }
-    else
-    {
+    } else {
         JSON_SYNTAX_ERROR("invalid number", state.path, state.pos);
         return nullptr;
     }
 
 float_ltrl:
-    if ( state.ch != '.' && state.ch != 'e' && state.ch != 'E' )
-    {
+    if (state.ch != '.' && state.ch != 'e' && state.ch != 'E') {
         go_back();
         return tok_new_value(
             start,
@@ -400,43 +350,30 @@ float_ltrl:
             Nst_inc_ref(Nst_const()->Int_0));
     }
 
-    if ( state.ch == '.' )
-    {
+    if (state.ch == '.') {
         advance();
-        if (state.ch < '0' || state.ch > '9')
-        {
+        if (state.ch < '0' || state.ch > '9') {
             JSON_SYNTAX_ERROR("invalid number", state.path, state.pos);
             return nullptr;
         }
-        while ( state.ch >= '0' && state.ch <= '9' )
-        {
+        while (state.ch >= '0' && state.ch <= '9')
             advance();
-        }
     }
 
-    if ( state.ch == 'e' || state.ch == 'E' )
-    {
+    if (state.ch == 'e' || state.ch == 'E') {
         advance();
-        if ( state.ch == '+' || state.ch == '-' )
-        {
+        if (state.ch == '+' || state.ch == '-')
             advance();
-        }
 
-        if ( state.ch < '0' || state.ch > '9' )
-        {
+        if (state.ch < '0' || state.ch > '9') {
             JSON_SYNTAX_ERROR("invalid number", state.path, state.pos);
             return nullptr;
         }
-        while ( state.ch >= '0' && state.ch <= '9' )
-        {
+        while (state.ch >= '0' && state.ch <= '9')
             advance();
-        }
         go_back();
-    }
-    else
-    {
+    } else
         go_back();
-    }
 
     {
         f64 value = strtod(start_idx, nullptr);
@@ -452,16 +389,13 @@ static Nst_Tok *parse_json_val()
 {
     Nst_Pos start = Nst_copy_pos(state.pos);
     i8 *text = state.pos.text->text + state.idx;
-    switch ( state.ch )
-    {
+    switch (state.ch) {
     case 't':
-        if ( state.idx + 3 >= state.len )
-        {
+        if (state.idx + 3 >= state.len) {
             SET_INVALID_VALUE_ERROR;
             return nullptr;
         }
-        if ( text[1] != 'r' || text[2] != 'u' || text[3] != 'e')
-        {
+        if (text[1] != 'r' || text[2] != 'u' || text[3] != 'e') {
             SET_INVALID_VALUE_ERROR;
             return nullptr;
         }
@@ -474,14 +408,13 @@ static Nst_Tok *parse_json_val()
             JSON_VALUE,
             Nst_inc_ref(Nst_true()));
     case 'f':
-        if ( state.idx + 4 >= state.len )
-        {
+        if (state.idx + 4 >= state.len) {
             SET_INVALID_VALUE_ERROR;
             return nullptr;
         }
 
-        if ( text[1] != 'a' || text[2] != 'l' ||
-             text[3] != 's' || text[4] != 'e' )
+        if (text[1] != 'a' || text[2] != 'l'
+            || text[3] != 's' || text[4] != 'e')
         {
             SET_INVALID_VALUE_ERROR;
             return nullptr;
@@ -496,14 +429,12 @@ static Nst_Tok *parse_json_val()
             JSON_VALUE,
             Nst_inc_ref(Nst_false()));
     default:
-        if ( state.idx + 3 >= state.len )
-        {
+        if (state.idx + 3 >= state.len) {
             SET_INVALID_VALUE_ERROR;
             return nullptr;
         }
 
-        if ( text[1] != 'u' || text[2] != 'l' || text[3] != 'l' )
-        {
+        if (text[1] != 'u' || text[2] != 'l' || text[3] != 'l') {
             SET_INVALID_VALUE_ERROR;
             return nullptr;
         }
@@ -520,15 +451,13 @@ static Nst_Tok *parse_json_val()
 
 static bool ignore_comment()
 {
-    if ( !comments )
-    {
+    if (!comments) {
         JSON_SYNTAX_ERROR("invalid character", state.path, state.pos);
         return false;
     }
 
     advance();
-    if ( state.idx >= state.len || ( state.ch != '/' && state.ch != '*') )
-    {
+    if (state.idx >= state.len || ( state.ch != '/' && state.ch != '*')) {
         JSON_SYNTAX_ERROR("invalid character", state.path, state.pos);
         return false;
     }
@@ -536,31 +465,21 @@ static bool ignore_comment()
     bool is_multiline = state.ch == '*';
     bool can_close = false;
 
-    while ( state.idx < state.len )
-    {
+    while (state.idx < state.len) {
         advance();
-        if ( state.ch == '\n' && !is_multiline )
-        {
+        if (state.ch == '\n' && !is_multiline) {
             advance();
             return true;
-        }
-        else if ( state.ch == '/' && can_close )
-        {
+        } else if (state.ch == '/' && can_close) {
             advance();
             return true;
-        }
-        else if ( state.ch == '*' )
-        {
+        } else if (state.ch == '*')
             can_close = true;
-        }
         else
-        {
             can_close = false;
-        }
     }
 
-    if ( is_multiline )
-    {
+    if (is_multiline) {
         JSON_SYNTAX_ERROR("open multiline comment", state.path, state.pos);
         return false;
     }

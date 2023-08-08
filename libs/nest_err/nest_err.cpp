@@ -29,10 +29,8 @@ Nst_DeclrList *get_func_ptrs()
 
 Nst_Obj *make_pos(Nst_Pos start, Nst_Pos end)
 {
-    if ( start.text == nullptr )
-    {
+    if (start.text == nullptr)
         return nullptr;
-    }
 
     Nst_Obj *map = Nst_map_new();
 
@@ -78,37 +76,33 @@ Nst_Obj *failure(bool catch_exit)
     Nst_ExecutionState *state = Nst_get_state();
     Nst_map_set_str(map, "value", Nst_null());
 
-    if ( state->traceback.error.occurred )
-    {
+    if (state->traceback.error.occurred) {
         Nst_Error error = state->traceback.error;
         error_name_str = OBJ(error.name);
         error_message_str = OBJ(error.message);
 
-        if ( OBJ(error_name_str) == Nst_null() && !catch_exit )
-        {
+        if (OBJ(error_name_str) == Nst_null() && !catch_exit) {
             Nst_dec_ref(map);
             Nst_dec_ref(error_map);
             return nullptr;
         }
 
         error_pos = make_pos(error.start, error.end);
-        error_traceback =
-            Nst_array_new(state->traceback.positions->len / 2);
+        error_traceback = Nst_array_new(state->traceback.positions->len / 2);
 
         Nst_LList *positions = state->traceback.positions;
         i64 skipped = 0;
         Nst_LLNode *n1 = positions->head;
         Nst_LLNode *n2 = n1 == nullptr ? n1 : n1->next;
-        for ( usize i = 0; n1 != nullptr; i++ )
-        {
-            Nst_Obj *pos = make_pos(*(Nst_Pos *)n1->value,
-                                    *(Nst_Pos *)n2->value);
+        for (usize i = 0; n1 != nullptr; i++) {
+            Nst_Obj *pos = make_pos(
+                *(Nst_Pos *)n1->value,
+                *(Nst_Pos *)n2->value);
 
             n1 = n2->next;
             n2 = n1 == nullptr ? n1 : n1->next;
 
-            if ( pos == nullptr )
-            {
+            if (pos == nullptr) {
                 SEQ(error_traceback)->len--;
                 skipped++;
                 continue;
@@ -119,15 +113,12 @@ Nst_Obj *failure(bool catch_exit)
 
         Nst_llist_empty(positions, Nst_free);
         state->traceback.error.occurred = false;
-    }
-    else
-    {
+    } else {
         Nst_OpErr *err = Nst_error_get();
         error_name_str = OBJ(err->name);
         error_message_str = OBJ(err->message);
 
-        if ( OBJ(error_name_str) == Nst_null() && !catch_exit )
-        {
+        if (OBJ(error_name_str) == Nst_null() && !catch_exit) {
             Nst_dec_ref(map);
             Nst_dec_ref(error_map);
             return nullptr;
@@ -156,13 +147,11 @@ Nst_FUNC_SIGN(try_)
 {
     Nst_FuncObj *func;
     Nst_SeqObj *func_args;
-    Nst_Obj *catch_exit_obj;
+    bool catch_exit;
 
-    Nst_DEF_EXTRACT("fA?b", &func, &func_args, &catch_exit_obj);
-    bool catch_exit = Nst_DEF_VAL(catch_exit_obj, AS_BOOL(catch_exit_obj), false);
+    Nst_DEF_EXTRACT("f A y", &func, &func_args, &catch_exit);
 
-    if ( func_args->len != func->arg_num )
-    {
+    if (func_args->len != func->arg_num) {
         Nst_set_call_error(Nst_sprintf(
             "the function expected %zi arguments but the %s had length %zi",
             func->arg_num, TYPE_NAME(func_args), func_args->len));
@@ -172,14 +161,10 @@ Nst_FUNC_SIGN(try_)
 
     Nst_Obj *result = Nst_call_func(func, func_args->objs);
 
-    if ( result != nullptr )
-    {
+    if (result != nullptr)
         return success(result);
-    }
     else
-    {
         return failure(catch_exit);
-    }
 }
 
 Nst_FUNC_SIGN(_get_err_names_)

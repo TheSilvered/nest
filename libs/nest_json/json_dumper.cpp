@@ -9,29 +9,24 @@
 
 #endif
 
-#define EXCEPT_ERROR \
-    do { \
-        if ( Nst_error_occurred() ) \
-        { \
-            FAIL; \
-        } \
+#define EXCEPT_ERROR do {                                                     \
+    if (Nst_error_occurred())                                                 \
+        FAIL;                                                                 \
+    } while (0)
+
+#define FAIL do {                                                             \
+    Nst_buffer_destroy(&str_buf);                                             \
+    return;                                                                   \
+    } while (0)
+
+#define INC_RECURSION_LVL do {                                                \
+    recursion_level++;                                                        \
+    if (recursion_level > 1500) {                                             \
+        Nst_set_memory_error_c("over 1500 recursive calls, dump failed");     \
+        FAIL;                                                                 \
+    }                                                                         \
     } while ( 0 )
 
-#define FAIL \
-    do { \
-        Nst_buffer_destroy(&str_buf); \
-        return; \
-    } while ( 0 )
-
-#define INC_RECURSION_LVL \
-    do { \
-        recursion_level++; \
-        if ( recursion_level > 1500 ) \
-        { \
-            Nst_set_memory_error_c("over 1500 recursive calls, dump failed"); \
-            FAIL; \
-        } \
-    } while ( 0 )
 #define DEC_RECURSION_LVL recursion_level--
 
 static void dump_obj(Nst_Obj *obj, i32 indent);
@@ -66,38 +61,21 @@ Nst_Obj *json_dump(Nst_Obj *obj, i32 indent)
 static void dump_obj(Nst_Obj *obj, i32 indent)
 {
     INC_RECURSION_LVL;
-    if ( obj->type == Nst_type()->Str )
-    {
+    if (Nst_T(obj, Str))
         dump_str(STR(obj));
-    }
-    else if ( obj->type == Nst_type()->Int  ||
-              obj->type == Nst_type()->Real ||
-              obj->type == Nst_type()->Byte )
-    {
+    else if (Nst_T(obj, Int) || Nst_T(obj, Real) || Nst_T(obj, Byte))
         dump_num(obj);
-    }
-    else if ( obj->type == Nst_type()->Map )
-    {
+    else if (Nst_T(obj, Map))
         dump_map(MAP(obj), indent);
-    }
-    else if ( obj->type == Nst_type()->Array || obj->type == Nst_type()->Vector )
-    {
+    else if (Nst_T(obj, Array) || Nst_T(obj, Vector))
         dump_seq(SEQ(obj), indent);
-    }
-    else if ( obj == Nst_null() )
-    {
+    else if (obj == Nst_null())
         Nst_buffer_append_c_str(&str_buf, "null");
-    }
-    else if ( obj == Nst_true() )
-    {
+    else if (obj == Nst_true())
         Nst_buffer_append_c_str(&str_buf, "true");
-    }
-    else if ( obj == Nst_false() )
-    {
+    else if (obj == Nst_false())
         Nst_buffer_append_c_str(&str_buf, "false");
-    }
-    else
-    {
+    else {
         Nst_set_type_error(Nst_sprintf(
             "JSON: an object of type %s is not serializable",
             TYPE_NAME(obj)));
@@ -114,17 +92,12 @@ static void dump_str(Nst_StrObj *str)
     usize s_len = str->len;
     const i8 *hex_digits = "0123456789abcdef";
 
-    for ( usize i = 0; i < s_len; i++ )
-    {
+    for (usize i = 0; i < s_len; i++) {
         i32 res = Nst_check_utf8_bytes((u8 *)s_val + i, s_len - i);
-        if ( res != 1 )
-        {
+        if (res != 1)
             unicode_bytes++;
-        }
-        if ( res != -1 )
-        {
+        if (res != -1)
             i += res - 1;
-        }
     }
 
     Nst_buffer_expand_by(&str_buf, s_len + unicode_bytes * 5 + 2);
@@ -191,36 +164,26 @@ static void dump_str(Nst_StrObj *str)
 static void dump_num(Nst_Obj *number)
 {
     INC_RECURSION_LVL;
-    if ( number->type == Nst_type()->Byte )
-    {
+    if (Nst_T(number, Byte)) {
         i8 loc_buf[4];
         sprintf(loc_buf, "%i", AS_BYTE(number));
         Nst_buffer_append_c_str(&str_buf, loc_buf);
-    }
-    else if ( number->type == Nst_type()->Int )
-    {
+    } else if (Nst_T(number, Int)) {
         i8 loc_buf[21];
         sprintf(loc_buf, "%lli", AS_INT(number));
         Nst_buffer_append_c_str(&str_buf, loc_buf);
-    }
-    else
-    {
+    } else {
         f64 val = AS_REAL(number);
-        if ( isinf(val) || isnan(val) )
-        {
-            Nst_set_value_error_c(
-                "JSON: cannot serialize infinities or NaNs");
+        if (isinf(val) || isnan(val)) {
+            Nst_set_value_error_c("JSON: cannot serialize infinities or NaNs");
             FAIL;
         }
         i8 loc_buf[27];
         sprintf(loc_buf, "%.16lg", val);
         usize len = strlen(loc_buf);
-        for ( usize i = 0; i < len; i++ )
-        {
-            if ( loc_buf[i] == '.' || loc_buf[i] == 'e' )
-            {
+        for (usize i = 0; i < len; i++) {
+            if (loc_buf[i] == '.' || loc_buf[i] == 'e')
                 goto finish;
-            }
         }
         loc_buf[len++] = '.';
         loc_buf[len++] = '0';
@@ -233,8 +196,7 @@ static void dump_num(Nst_Obj *number)
 
 static void dump_seq(Nst_SeqObj *seq, i32 indent)
 {
-    if ( seq->len == 0 )
-    {
+    if (seq->len == 0) {
         Nst_buffer_append_c_str(&str_buf, "[]");
         return;
     }
@@ -244,30 +206,24 @@ static void dump_seq(Nst_SeqObj *seq, i32 indent)
     EXCEPT_ERROR;
     indent_level++;
 
-    if ( indent > 1 )
-    {
+    if (indent > 1) {
         Nst_buffer_expand_by(&str_buf, indent * indent_level + 1);
         EXCEPT_ERROR;
         Nst_buffer_append_char(&str_buf, '\n');
-        for ( i8 i = 0; i < indent * indent_level; i++ )
-        {
+        for (i8 i = 0; i < indent * indent_level; i++)
             Nst_buffer_append_char(&str_buf, ' ');
-        }
     }
 
-    for ( usize i = 0, n = seq->len; i < n; i++ )
-    {
+    for (usize i = 0, n = seq->len; i < n; i++) {
         dump_obj(seq->objs[i], indent);
         EXCEPT_ERROR;
 
-        if ( i + 1 == n )
-        {
+        if (i + 1 == n) {
             DEC_RECURSION_LVL;
             indent_level--;
             Nst_buffer_expand_by(&str_buf, 1);
             EXCEPT_ERROR;
-            if ( indent < 1 )
-            {
+            if (indent < 1) {
                 Nst_buffer_append_char(&str_buf, ']');
                 return;
             }
@@ -287,8 +243,7 @@ static void dump_seq(Nst_SeqObj *seq, i32 indent)
 
 static void dump_map(Nst_MapObj *map, i32 indent)
 {
-    if ( map->len == 0 )
-    {
+    if (map->len == 0) {
         Nst_buffer_append_c_str(&str_buf, "{}");
         return;
     }
@@ -297,29 +252,25 @@ static void dump_map(Nst_MapObj *map, i32 indent)
     EXCEPT_ERROR;
     indent_level++;
 
-    if ( indent > 1 )
-    {
+    if (indent > 1) {
         Nst_buffer_expand_by(&str_buf, indent * indent_level + 1);
         EXCEPT_ERROR;
         Nst_buffer_append_char(&str_buf, '\n');
-        for ( i8 i = 0; i < indent * indent_level; i++ )
-        {
+        for (i8 i = 0; i < indent * indent_level; i++)
             Nst_buffer_append_char(&str_buf, ' ');
-        }
     }
 
     usize count = 0;
     usize tot = map->len;
     Nst_MapNode *nodes = map->nodes;
-    for ( i32 i = Nst_map_get_next_idx(-1, map);
-          i != -1;
-          i = Nst_map_get_next_idx(i, map) )
+    for (i32 i = Nst_map_get_next_idx(-1, map);
+         i != -1;
+         i = Nst_map_get_next_idx(i, map))
     {
         count++;
         Nst_Obj *key = nodes[i].key;
         Nst_Obj *value = nodes[i].value;
-        if ( key->type != Nst_type()->Str )
-        {
+        if (!Nst_T(key, Str)) {
             Nst_set_type_error_c("JSON: all keys of a map must be strings");
             FAIL;
         }
@@ -327,30 +278,22 @@ static void dump_map(Nst_MapObj *map, i32 indent)
         dump_str(STR(key));
         EXCEPT_ERROR;
 
-        if ( indent == -1 )
-        {
+        if (indent == -1)
             Nst_buffer_append_char(&str_buf, ':');
-        }
         else
-        {
             Nst_buffer_append_c_str(&str_buf, ": ");
-        }
         EXCEPT_ERROR;
 
         dump_obj(value, indent);
         EXCEPT_ERROR;
 
-        if ( count == tot )
-        {
+        if (count == tot) {
             DEC_RECURSION_LVL;
             indent_level--;
-            if ( indent < 1 )
-            {
+            if (indent < 1) {
                 Nst_buffer_append_char(&str_buf, '}');
                 return;
-            }
-            else
-            {
+            } else {
                 Nst_buffer_append_char(&str_buf, '\n');
                 EXCEPT_ERROR;
             }
@@ -368,22 +311,15 @@ static void dump_map(Nst_MapObj *map, i32 indent)
 static void add_comma(i32 indent)
 {
     INC_RECURSION_LVL;
-    if ( indent == -1 )
-    {
+    if (indent == -1)
         Nst_buffer_expand_by(&str_buf, 1);
-    }
     else
-    {
         Nst_buffer_expand_by(&str_buf, 2);
-    }
     EXCEPT_ERROR;
     Nst_buffer_append_char(&str_buf, ',');
-    if ( indent == 0 )
-    {
+    if (indent == 0)
         Nst_buffer_append_char(&str_buf, ' ');
-    }
-    else if ( indent > 0 )
-    {
+    else if (indent > 0) {
         Nst_buffer_append_char(&str_buf, '\n');
         add_indent(indent);
     }
@@ -395,9 +331,7 @@ static void add_indent(i32 indent)
     INC_RECURSION_LVL;
     Nst_buffer_expand_by(&str_buf, indent * indent_level);
     EXCEPT_ERROR;
-    for ( i32 i = 0; i < indent * indent_level; i++ )
-    {
+    for (i32 i = 0; i < indent * indent_level; i++)
         Nst_buffer_append_char(&str_buf, ' ');
-    }
     DEC_RECURSION_LVL;
 }

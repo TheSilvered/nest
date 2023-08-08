@@ -32,8 +32,7 @@ bool lib_init()
 #endif
 
     rand_num.seed(duration_cast<nanoseconds>(
-        system_clock::now().time_since_epoch()
-    ).count());
+        system_clock::now().time_since_epoch()).count());
 
     lib_init_ = !Nst_error_occurred();
     return lib_init_;
@@ -56,10 +55,9 @@ Nst_FUNC_SIGN(rand_int_)
     i64 min;
     i64 max;
 
-    Nst_DEF_EXTRACT("ii", &min, &max);
+    Nst_DEF_EXTRACT("i i", &min, &max);
 
-    if ( min > max )
-    {
+    if (min > max) {
         Nst_set_value_error_c("'min' is greater than 'max'");
         return nullptr;
     }
@@ -94,8 +92,7 @@ Nst_FUNC_SIGN(shuffle_)
     usize seq_len = seq->len;
     Nst_Obj **objs = seq->objs;
 
-    for ( usize i = 0; i + 1 < seq_len; i++ )
-    {
+    for (usize i = 0; i + 1 < seq_len; i++) {
         usize idx = usize(rand_range(i, seq_len));
         Nst_Obj *obj = objs[i];
         objs[i] = objs[idx];
@@ -108,10 +105,7 @@ Nst_FUNC_SIGN(shuffle_)
 Nst_FUNC_SIGN(seed_)
 {
     i64 seed;
-
     Nst_DEF_EXTRACT("i", &seed);
-
     rand_num.seed(seed);
-
     Nst_RETURN_NULL;
 }

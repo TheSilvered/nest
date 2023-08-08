@@ -5,22 +5,22 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
-#define GUI_ELEMENT_HEAD \
-    Nst_OBJ_HEAD; \
-    Nst_GGC_HEAD; \
-    GUI_ElementType el_type; \
-    SDL_Rect rect; \
-    i32 margin_top, margin_bottom, margin_left, margin_right; \
-    i32 padding_top, padding_bottom, padding_left, padding_right; \
-    GUI_RelPos rel_pos; \
-    GUI_RelSize rel_size; \
-    Nst_VectorObj *children; \
-    struct _GUI_Element *parent; \
-    HandleEventFunc handle_event_func; \
-    UpdateFunc frame_update_func; \
-    UpdateFunc tick_update_func; \
-    bool clip_parent; \
-    bool clip_content; \
+#define GUI_ELEMENT_HEAD                                                      \
+    Nst_OBJ_HEAD;                                                             \
+    Nst_GGC_HEAD;                                                             \
+    GUI_ElementType el_type;                                                  \
+    SDL_Rect rect;                                                            \
+    i32 margin_top, margin_bottom, margin_left, margin_right;                 \
+    i32 padding_top, padding_bottom, padding_left, padding_right;             \
+    GUI_RelPos rel_pos;                                                       \
+    GUI_RelSize rel_size;                                                     \
+    Nst_VectorObj *children;                                                  \
+    struct _GUI_Element *parent;                                              \
+    HandleEventFunc handle_event_func;                                        \
+    UpdateFunc frame_update_func;                                             \
+    UpdateFunc tick_update_func;                                              \
+    bool clip_parent;                                                         \
+    bool clip_content;                                                        \
     struct _GUI_App *app
 
 #define IS_HIDDEN(element) Nst_FLAG_HAS(element, GUI_FLAG_IS_HIDDEN)
@@ -35,48 +35,38 @@ typedef i32 (*HandleEventFunc)(SDL_Event *, struct _GUI_Element *);
 typedef bool (*UpdateFunc)(struct _GUI_Element *);
 typedef bool (*OnChildAdded)(struct _GUI_Element *, usize);
 
-typedef enum _GUI_Flags
-{
+typedef enum _GUI_Flags {
     GUI_FLAG_REL_POS  = 0b00000001,
     GUI_FLAG_REL_SIZE = 0b00000010,
     GUI_FLAG_IS_HIDDEN= 0b00000100
-}
-GUI_Flags;
+} GUI_Flags;
 
-typedef enum _GUI_RelPosX
-{
+typedef enum _GUI_RelPosX {
     GUI_NONE_X = -1,
     GUI_LEFT,
     GUI_MIDDLE,
     GUI_RIGHT
-}
-GUI_RelPosX;
+} GUI_RelPosX;
 
-typedef enum _GUI_RelPosY
-{
+typedef enum _GUI_RelPosY {
     GUI_NONE_Y = -1,
     GUI_TOP,
     GUI_CENTER,
     GUI_BOTTOM
-}
-GUI_RelPosY;
+} GUI_RelPosY;
 
-typedef enum _GUI_ElementType
-{
+typedef enum _GUI_ElementType {
     GUI_ET_BASE,
     GUI_ET_LABEL,
     GUI_ET_STACK_LAYOUT,
     GUI_ET_BUTTON
-}
-GUI_ElementType;
+} GUI_ElementType;
 
-typedef enum _GUI_RelRect
-{
+typedef enum _GUI_RelRect {
     GUI_RECT_PADDING,
     GUI_RECT_ELEMENT,
     GUI_RECT_MARGIN
-}
-GUI_RelRect;
+} GUI_RelRect;
 
 typedef enum _GUI_UserEventCode {
     GUI_UE_CHILD_ADDED,
@@ -86,8 +76,7 @@ typedef enum _GUI_UserEventCode {
 
 struct _GUI_Element;
 
-typedef struct _GUI_RelPos
-{
+typedef struct _GUI_RelPos {
     struct _GUI_Element *element;
     GUI_RelRect from_rect;
     GUI_RelRect to_rect;
@@ -95,11 +84,9 @@ typedef struct _GUI_RelPos
     GUI_RelPosY from_y;
     GUI_RelPosX to_x;
     GUI_RelPosY to_y;
-}
-GUI_RelPos;
+} GUI_RelPos;
 
-typedef struct _GUI_RelSize
-{
+typedef struct _GUI_RelSize {
     struct _GUI_Element *element;
     GUI_RelRect from_rect;
     GUI_RelRect to_rect;
@@ -107,24 +94,18 @@ typedef struct _GUI_RelSize
     i32 max_w, max_h;
     f64 scale_x, scale_y;
     i32 diff_x, diff_y;
-}
-GUI_RelSize;
+} GUI_RelSize;
 
 struct _GUI_App;
 
-typedef struct _GUI_Element
-{
+typedef struct _GUI_Element {
     GUI_ELEMENT_HEAD;
-}
-GUI_Element;
+} GUI_Element;
 
 extern Nst_TypeObj *gui_element_type;
 
-GUI_Element *gui_element_new(GUI_ElementType t,
-                             usize size,
-                             int x, int y,
-                             int w, int h,
-                             struct _GUI_App *app);
+GUI_Element *gui_element_new(GUI_ElementType t, usize size, int x, int y,
+                             int w, int h, struct _GUI_App *app);
 void gui_element_destroy(GUI_Element *obj);
 void gui_element_track(GUI_Element *obj);
 void gui_element_traverse(GUI_Element *obj);

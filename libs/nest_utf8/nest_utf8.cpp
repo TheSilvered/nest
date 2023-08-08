@@ -57,8 +57,7 @@ Nst_FUNC_SIGN(utf8_iter_get_val)
     usize s_len = str->len;
     i64 val = idx->value;
 
-    if ( (usize)val >= s_len )
-    {
+    if ((usize)val >= s_len) {
         Nst_set_value_error(Nst_sprintf(
             _Nst_EM_INDEX_OUT_OF_BOUNDS("Str (Unicode)"),
             val, s_len));
@@ -66,16 +65,13 @@ Nst_FUNC_SIGN(utf8_iter_get_val)
     i32 res = Nst_check_utf8_bytes(
         (u8 *)str->value + val,
         s_len - (usize)val);
-    if ( res == -1 )
-    {
+    if (res == -1) {
         SET_INVALID_UTF8;
         return nullptr;
     }
     i8 *new_s = Nst_malloc_c(res + 1, i8);
-    if ( new_s == nullptr )
-    {
+    if (new_s == nullptr)
         return nullptr;
-    }
 
     memcpy(new_s, str->value + val, res);
     new_s[res] = '\0';
@@ -89,13 +85,10 @@ Nst_FUNC_SIGN(is_valid_)
     Nst_StrObj *str;
     Nst_DEF_EXTRACT("s", &str);
     u8 *s = (u8 *)str->value;
-    for ( usize i = 0, n = str->len; i < n; )
-    {
+    for (usize i = 0, n = str->len; i < n;) {
         i32 res = Nst_check_utf8_bytes(s + i, n - i);
-        if ( res == -1 )
-        {
+        if (res == -1)
             Nst_RETURN_FALSE;
-        }
         i += res;
     }
 
@@ -110,11 +103,9 @@ Nst_FUNC_SIGN(get_len_)
     u8 *s = (u8 *)str->value;
     usize len = 0;
 
-    for ( usize i = 0, n = str->len; i < n; len++ )
-    {
+    for (usize i = 0, n = str->len; i < n; len++) {
         i32 res = Nst_check_utf8_bytes(s + i, n - i);
-        if ( res == -1 )
-        {
+        if (res == -1) {
             SET_INVALID_UTF8;
             return nullptr;
         }
@@ -137,19 +128,16 @@ Nst_FUNC_SIGN(get_at_)
     usize i = 0;
     i32 res;
 
-    for ( ; i < s_len && curr_idx < idx; curr_idx++, u_len++ )
-    {
+    for (; i < s_len && curr_idx < idx; curr_idx++, u_len++) {
         res = Nst_check_utf8_bytes(s + i, s_len - i);
-        if ( res == -1 )
-        {
+        if (res == -1) {
             SET_INVALID_UTF8;
             return nullptr;
         }
         i += res;
     }
 
-    if ( curr_idx < idx || i == s_len )
-    {
+    if (curr_idx < idx || i == s_len) {
         Nst_set_value_error(Nst_sprintf(
             _Nst_EM_INDEX_OUT_OF_BOUNDS("Str (Unicode)"),
             idx, u_len));
@@ -157,18 +145,15 @@ Nst_FUNC_SIGN(get_at_)
     }
 
     res = Nst_check_utf8_bytes(s + i, s_len - i);
-    if ( res == -1 )
-    {
+    if (res == -1) {
         SET_INVALID_UTF8;
         return nullptr;
     }
 
     i8 *new_s = Nst_malloc_c(res + 1, i8);
-    if ( new_s == nullptr )
-    {
-        Nst_failed_allocation();
+    if (new_s == nullptr)
         return nullptr;
-    }
+
     memcpy(new_s, s + i, res);
     new_s[res] = '\0';
     return Nst_string_new(new_s, res, true);

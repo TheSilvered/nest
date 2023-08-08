@@ -7,30 +7,24 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef enum _GUI_StackDir
-{
+typedef enum _GUI_StackDir {
     GUI_SD_TOP_BOTTOM,
     GUI_SD_LEFT_RIGHT,
     GUI_SD_BOTTOM_TOP,
     GUI_SD_RIGHT_LEFT
-}
-GUI_StackDir;
+} GUI_StackDir;
 
-typedef enum _GUI_StackAlign
-{
+typedef enum _GUI_StackAlign {
     GUI_SA_LEFT_TOP,
     GUI_SA_MIDDLE,
     GUI_SA_BOTTOM_RIGTH
-}
-GUI_StackAlign;
+} GUI_StackAlign;
 
-typedef struct _GUI_StackLayout
-{
+typedef struct _GUI_StackLayout {
     GUI_ELEMENT_HEAD;
     GUI_StackDir sd;
     GUI_StackAlign sa;
-}
-GUI_StackLayout;
+} GUI_StackLayout;
 
 i32 gui_stack_layout_handle_event(SDL_Event *e, GUI_StackLayout *sl);
 

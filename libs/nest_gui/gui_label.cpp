@@ -62,10 +62,8 @@ bool gui_label_update(GUI_Label *l)
     return true;
 }
 
-GUI_Element *gui_label_new(Nst_StrObj *text,
-                           GUI_FontObj *font,
-                           SDL_Color  color,
-                           int x, int y, int w, int h,
+GUI_Element *gui_label_new(Nst_StrObj *text, GUI_FontObj *font,
+                           SDL_Color  color, int x, int y, int w, int h,
                            GUI_App *app)
 {
     GUI_Label *new_label = (GUI_Label *)gui_element_new(

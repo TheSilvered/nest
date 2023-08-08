@@ -39,9 +39,9 @@
 #define ERROR_OCCURRED (Nst_state.traceback.error.occurred)
 #define GLOBAL_ERROR (&(Nst_state.traceback.error))
 
-#define CHECK_V_STACK assert(Nst_state.v_stack.current_size != 0)
+#define CHECK_V_STACK assert(Nst_state.v_stack.len != 0)
 #define CHECK_V_STACK_SIZE(size)                                              \
-    assert((i64)(Nst_state.v_stack.current_size) >= size)
+    assert((i64)(Nst_state.v_stack.len) >= size)
 
 Nst_ExecutionState Nst_state;
 static bool state_init = false;
@@ -289,7 +289,7 @@ void _Nst_unload_libs(void)
 
 static inline void destroy_call(Nst_FuncCall *call, i64 offset)
 {
-    while (Nst_state.c_stack.current_size > call->cstack_size)
+    while (Nst_state.c_stack.len > call->cstack_len)
         Nst_cstack_pop();
 
     Nst_state.idx = call->idx + offset;
@@ -310,19 +310,19 @@ static inline void set_global_error(usize final_stack_size, Nst_Inst *inst)
 
     Nst_CatchFrame top_catch = Nst_cstack_peek();
     if (OBJ(Nst_state.traceback.error.name) == Nst_c.Null_null) {
-        top_catch.f_stack_size = 0;
-        top_catch.v_stack_size = 0;
+        top_catch.f_stack_len = 0;
+        top_catch.v_stack_len = 0;
         top_catch.inst_idx = -1;
     }
 
     Nst_Obj *obj;
 
-    usize end_size = top_catch.f_stack_size;
+    usize end_size = top_catch.f_stack_len;
     if (end_size < final_stack_size) {
         end_size = final_stack_size;
     }
 
-    while (Nst_state.f_stack.current_size > end_size) {
+    while (Nst_state.f_stack.len > end_size) {
         Nst_FuncCall call = Nst_fstack_pop();
         destroy_call(&call, 1);
         obj = Nst_vstack_pop();
@@ -338,7 +338,7 @@ static inline void set_global_error(usize final_stack_size, Nst_Inst *inst)
     if (end_size == final_stack_size)
         return;
 
-    while (Nst_state.v_stack.current_size > top_catch.v_stack_size) {
+    while (Nst_state.v_stack.len > top_catch.v_stack_len) {
         obj = Nst_vstack_pop();
         if (obj != NULL)
             Nst_dec_ref(obj);
@@ -348,20 +348,20 @@ static inline void set_global_error(usize final_stack_size, Nst_Inst *inst)
 
 static void complete_function(usize final_stack_size)
 {
-    if (Nst_state.f_stack.current_size == 0)
+    if (Nst_state.f_stack.len == 0)
         return;
 
     Nst_InstList *curr_inst_ls = Nst_fstack_peek().func->body.bytecode;
     Nst_Inst *instructions = curr_inst_ls->instructions;
 
-    for (; Nst_state.f_stack.current_size > final_stack_size;
+    for (; Nst_state.f_stack.len > final_stack_size;
          Nst_state.idx++)
     {
         if (Nst_state.idx >= (i64)curr_inst_ls->total_size) {
             // Free the function call
             Nst_FuncCall call = Nst_fstack_pop();
             destroy_call(&call, 0);
-            if (Nst_state.f_stack.current_size == 0)
+            if (Nst_state.f_stack.len == 0)
                 return;
             curr_inst_ls = Nst_fstack_peek().func->body.bytecode;
             instructions = curr_inst_ls->instructions;
@@ -376,7 +376,7 @@ static void complete_function(usize final_stack_size)
             continue;
         else if (result == -1) {
             set_global_error(final_stack_size, inst);
-            if (Nst_state.f_stack.current_size == final_stack_size)
+            if (Nst_state.f_stack.len == final_stack_size)
                 return;
         }
         curr_inst_ls = Nst_fstack_peek().func->body.bytecode;
@@ -386,7 +386,7 @@ static void complete_function(usize final_stack_size)
 
 Nst_Inst *Nst_current_inst(void)
 {
-    if (!Nst_state_was_init() || Nst_state.f_stack.current_size == 0)
+    if (!Nst_state_was_init() || Nst_state.f_stack.len == 0)
         return NULL;
 
     Nst_InstList *instructions = Nst_fstack_peek().func->body.bytecode;
@@ -480,7 +480,7 @@ i32 Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
         Nst_no_pos(),
         Nst_state.vt,
         Nst_state.idx - 1,
-        Nst_state.c_stack.current_size);
+        Nst_state.c_stack.len);
     Nst_state.idx = 0;
     Nst_VarTable *vt = Nst_vt_new(NULL, path_str, Nst_state.argv, no_default);
     if (vt == NULL) {
@@ -499,7 +499,7 @@ i32 Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
 
     Nst_func_set_vt(mod_func, Nst_state.vt->vars);
 
-    complete_function(Nst_state.f_stack.current_size - 1);
+    complete_function(Nst_state.f_stack.len - 1);
     Nst_state.curr_path = prev_path;
     Nst_dec_ref(path_str);
     Nst_dec_ref(mod_func);
@@ -531,7 +531,7 @@ Nst_Obj *Nst_call_func(Nst_FuncObj *func, Nst_Obj **args)
         Nst_no_pos(),
         Nst_state.vt,
         Nst_state.idx - 1,
-        Nst_state.c_stack.current_size);
+        Nst_state.c_stack.len);
 
     Nst_VarTable *new_vt = Nst_vt_from_func(func);
     if (new_vt == NULL)
@@ -549,7 +549,7 @@ Nst_Obj *Nst_call_func(Nst_FuncObj *func, Nst_Obj **args)
 
     Nst_state.idx = 0;
     change_vt(new_vt);
-    complete_function(Nst_state.f_stack.current_size - 1);
+    complete_function(Nst_state.f_stack.len - 1);
 
     if (ERROR_OCCURRED)
         return NULL;
@@ -568,7 +568,7 @@ Nst_Obj *Nst_run_func_context(Nst_FuncObj *func, i64 idx, Nst_MapObj *vars,
         Nst_no_pos(),
         Nst_state.vt,
         Nst_state.idx - 1,
-        Nst_state.c_stack.current_size);
+        Nst_state.c_stack.len);
 
     Nst_VarTable *new_vt = Nst_malloc_c(1, Nst_VarTable);
     if (new_vt == NULL) {
@@ -592,7 +592,7 @@ Nst_Obj *Nst_run_func_context(Nst_FuncObj *func, i64 idx, Nst_MapObj *vars,
         new_vt->global_table = MAP(Nst_inc_ref(globals));
     change_vt(new_vt);
     Nst_state.idx = idx;
-    complete_function(Nst_state.f_stack.current_size - 1);
+    complete_function(Nst_state.f_stack.len - 1);
 
     if (ERROR_OCCURRED)
         return NULL;
@@ -977,7 +977,7 @@ static i32 exe_op_call(Nst_Inst *inst)
         inst->end,
         Nst_state.vt,
         Nst_state.idx,
-        Nst_state.c_stack.current_size);
+        Nst_state.c_stack.len);
     Nst_state.idx = -1;
     Nst_dec_ref(func);
 
@@ -1235,7 +1235,7 @@ static i32 exe_rot(Nst_Inst *inst)
     CHECK_V_STACK_SIZE(inst->int_val);
 
     Nst_Obj *obj = Nst_vstack_peek();
-    usize stack_size = Nst_state.v_stack.current_size - 1;
+    usize stack_size = Nst_state.v_stack.len - 1;
     Nst_Obj **stack = Nst_state.v_stack.stack;
     for (i64 i = 1, n = inst->int_val; i < n; i++)
         stack[stack_size - i + 1] = stack[stack_size - i];
@@ -1298,7 +1298,7 @@ static i32 exe_make_map(Nst_Inst *inst)
         return -1;
 
     CHECK_V_STACK_SIZE(map_size);
-    usize stack_size = Nst_state.v_stack.current_size;
+    usize stack_size = Nst_state.v_stack.len;
     Nst_Obj **v_stack = Nst_state.v_stack.stack;
 
     for (i64 i = 0; i < map_size; i++) {
@@ -1314,7 +1314,7 @@ static i32 exe_make_map(Nst_Inst *inst)
         Nst_dec_ref(val);
         Nst_dec_ref(key);
     }
-    Nst_state.v_stack.current_size -= (usize)map_size;
+    Nst_state.v_stack.len -= (usize)map_size;
     Nst_vstack_push(map);
     Nst_dec_ref(map);
     return 0;
@@ -1324,8 +1324,8 @@ static i32 exe_push_catch(Nst_Inst *inst)
 {
     Nst_cstack_push(
         inst->int_val,
-        Nst_state.v_stack.current_size,
-        Nst_state.f_stack.current_size);
+        Nst_state.v_stack.len,
+        Nst_state.f_stack.len);
     return 0;
 }
 
@@ -1581,12 +1581,7 @@ Nst_StrObj *Nst_getcwd(void)
     Nst_free(wide_cwd);
     if (cwd_buf == NULL)
         return NULL;
-    Nst_Obj *return_str = Nst_string_new_c_raw((const i8 *)cwd_buf, true);
-    if (return_str == NULL) {
-        Nst_free(cwd_buf);
-        return NULL;
-    }
-    return STR(return_str);
+    return STR(Nst_string_new_allocated(cwd_buf, strlen(cwd_buf)));
 #else
     i8 *cwd_buf = Nst_malloc_c(PATH_MAX, i8);
     if (cwd_buf == NULL)
@@ -1597,12 +1592,7 @@ Nst_StrObj *Nst_getcwd(void)
         Nst_set_call_error_c(_Nst_EM_FAILED_GETCWD);
         return NULL;
     }
-    Nst_Obj *return_str = Nst_string_new_c_raw((const i8 *)cwd_buf, true);
-    if (return_str == NULL) {
-        Nst_free(cwd_buf);
-        return NULL;
-    }
-    return STR(return_str);
+    return STR(Nst_string_new_allocated(cwd_buf, strlen(cwd_buf)));
 #endif // !Nst_WIN
 }
 

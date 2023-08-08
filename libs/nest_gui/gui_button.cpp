@@ -10,8 +10,7 @@ static void draw_button(GUI_Button *b)
     SDL_Color c_i, c_b;
     SDL_Rect clip = gui_element_get_clip_rect((GUI_Element *)b);
 
-    switch (b->cs)
-    {
+    switch (b->cs) {
     case GUI_CS_IDLE:
         texture = b->textures[0];
         if (texture == nullptr) {
@@ -31,8 +30,7 @@ static void draw_button(GUI_Button *b)
     case GUI_CS_HOVER:
     case GUI_CS_HOVER_IDLE:
         texture = b->textures[1];
-        if (texture == nullptr)
-        {
+        if (texture == nullptr) {
             c_i = b->app->bg_color3;
             c_b = b->app->bg_color3;
             texture = draw_round_border_rect(
@@ -48,8 +46,7 @@ static void draw_button(GUI_Button *b)
         break;
     case GUI_CS_CLICKED:
         texture = b->textures[2];
-        if (texture == nullptr)
-        {
+        if (texture == nullptr) {
             c_i = b->app->bg_color2;
             c_b = b->app->bg_color3;
             texture = draw_round_border_rect(
@@ -214,10 +211,8 @@ GUI_Element *gui_button_new(GUI_Label *text, GUI_App *app)
     b->nest_func = nullptr;
     b->clickable_area = b->rect;
 
-    for ( int i = 0; i < 5; i++)
-    {
+    for (int i = 0; i < 5; i++)
         b->textures[i] = nullptr;
-    }
 
     text->handle_event_func = nullptr;
     b->frame_update_func = (UpdateFunc)gui_button_update;
@@ -229,22 +224,16 @@ GUI_Element *gui_button_new(GUI_Label *text, GUI_App *app)
 
 bool gui_button_call_nest_func(GUI_Button *b)
 {
-    if ( b->nest_func == nullptr )
-    {
+    if (b->nest_func == nullptr)
         return true;
-    }
 
     Nst_Obj *arg = Nst_int_new(b->current_state);
-    if ( arg == nullptr )
-    {
+    if (arg == nullptr)
         return false;
-    }
     Nst_Obj *result = Nst_call_func(b->nest_func, &arg);
     Nst_dec_ref(arg);
-    if ( result == nullptr )
-    {
+    if (result == nullptr)
         return false;
-    }
     Nst_dec_ref(result);
     return true;
 }

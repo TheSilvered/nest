@@ -7,20 +7,17 @@
 extern "C" {
 #endif
 
-typedef enum _GUI_ClickState
-{
+typedef enum _GUI_ClickState {
     GUI_CS_IDLE,
     GUI_CS_HOVER,
     GUI_CS_HOVER_IDLE,
     GUI_CS_CLICKED
-}
-GUI_ClickState;
+} GUI_ClickState;
 
 struct _GUI_Button;
 typedef bool (*OnStateChange)(struct _GUI_Button *);
 
-typedef struct _GUI_Button
-{
+typedef struct _GUI_Button {
     GUI_ELEMENT_HEAD;
     GUI_Label *text;
     GUI_ClickState cs;
@@ -31,8 +28,7 @@ typedef struct _GUI_Button
     OnStateChange func;
     Nst_FuncObj *nest_func;
     SDL_Rect clickable_area;
-}
-GUI_Button;
+} GUI_Button;
 
 GUI_Element *gui_button_new(GUI_Label *text, GUI_App *app);
 bool gui_button_update(GUI_Button *b);

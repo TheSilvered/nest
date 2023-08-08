@@ -1,3 +1,5 @@
+#!/bin/bash
+
 src_path=./linux_release/x64;
 
 if ! command -v apt-get &> /dev/null

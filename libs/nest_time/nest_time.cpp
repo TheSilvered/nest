@@ -66,10 +66,8 @@ static i64 get_year_day_c(tm *t)
 
     i64 day_of_the_year = days_per_moth[m] + d;
     // If it's a leap year and it's at least March
-    if ( ((y % 4 == 0 && y % 100 != 0) || (y % 400)) && m > 2 )
-    {
+    if (((y % 4 == 0 && y % 100 != 0) || (y % 400)) && m > 2)
         day_of_the_year += 1;
-    }
 
     return day_of_the_year;
 }

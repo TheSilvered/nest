@@ -227,7 +227,7 @@ Nst_FUNC_SIGN(label_)
     Nst_SeqObj *color;
     u8 r, g, b, a;
 
-    Nst_DEF_EXTRACT("s?#?A.i", &text, gui_font_type, &font, &color);
+    Nst_DEF_EXTRACT("s ?# ?A.i", &text, gui_font_type, &font, &color);
 
     if (OBJ(color) == Nst_null()) {
         r = app.fg_color.r;
@@ -275,7 +275,7 @@ Nst_FUNC_SIGN(button_)
 {
     Nst_StrObj *text;
     GUI_FontObj *font;
-    Nst_DEF_EXTRACT("s?#", &text, gui_font_type, &font);
+    Nst_DEF_EXTRACT("s ?#", &text, gui_font_type, &font);
 
     if (OBJ(font) == Nst_null()) {
         font = get_font(&app, GUI_FW_REGULAR, GUI_FS_MEDIUM, false, false);
@@ -305,7 +305,7 @@ Nst_FUNC_SIGN(stack_layout_)
     Nst_Obj *direction_obj;
     Nst_Obj *alignment_obj;
 
-    Nst_DEF_EXTRACT("?i?i", &direction_obj, &alignment_obj);
+    Nst_DEF_EXTRACT("?i ?i", &direction_obj, &alignment_obj);
     i64 direction = Nst_DEF_VAL(direction_obj, AS_INT(direction_obj), 0);
     i64 alignment = Nst_DEF_VAL(alignment_obj, AS_INT(alignment_obj), 0);
 
@@ -338,7 +338,11 @@ Nst_FUNC_SIGN(set_window_)
     Nst_Obj *pos_x_obj, *pos_y_obj;
     int flags, pos_x, pos_y;
 
-    Nst_DEF_EXTRACT("sii?i?i?i", &title, &w, &h, &flags_obj, &pos_x_obj, &pos_y_obj);
+    Nst_DEF_EXTRACT(
+        "s i i ?i ?i ?i",
+        &title, &w, &h,
+        &flags_obj,
+        &pos_x_obj, &pos_y_obj);
     flags = Nst_DEF_VAL(flags_obj, int(AS_INT(flags_obj)), 0);
     pos_x = Nst_DEF_VAL(pos_x_obj, int(AS_INT(pos_x_obj)), SDL_WINDOWPOS_CENTERED);
     pos_y = Nst_DEF_VAL(pos_y_obj, int(AS_INT(pos_y_obj)), SDL_WINDOWPOS_CENTERED);
@@ -390,7 +394,7 @@ Nst_FUNC_SIGN(set_pos_)
     i64 x, y, rect, pos_x, pos_y;
     Nst_Obj *rect_obj, *pos_x_obj, *pos_y_obj;
     Nst_DEF_EXTRACT(
-        "#ii?i?i?i",
+        "# i i ?i ?i ?i",
         gui_element_type, &element,
         &x, &y,
         &pos_x_obj, &pos_y_obj,
@@ -456,7 +460,7 @@ Nst_FUNC_SIGN(get_pos_)
     GUI_Element *element;
     Nst_Obj *pos_x_obj, *pos_y_obj, *rect_obj;
     Nst_DEF_EXTRACT(
-        "#?i?i?i",
+        "# ?i ?i ?i",
         gui_element_type, &element,
         &pos_x_obj, &pos_y_obj,
         &rect_obj);
@@ -493,7 +497,7 @@ Nst_FUNC_SIGN(set_size_)
     GUI_Element *element;
     i64 w, h;
     Nst_Obj *rect_obj;
-    Nst_DEF_EXTRACT("#ii?i", gui_element_type, &element, &w, &h, &rect_obj);
+    Nst_DEF_EXTRACT("# i i ?i", gui_element_type, &element, &w, &h, &rect_obj);
     i64 rect = Nst_DEF_VAL(rect_obj, AS_INT(rect_obj), 1);
     gui_element_set_size(element, (int)w, (int)h, (GUI_RelRect)rect);
     if (Nst_FLAG_HAS(element, GUI_FLAG_REL_SIZE)) {
@@ -546,12 +550,12 @@ Nst_FUNC_SIGN(set_rel_size_)
     i32 diff_x = 0, diff_y = 0;
     f64 scale_x = 0.0, scale_y = 0.0;
 
-    if (size_x->type == Nst_type()->Int)
+    if (Nst_T(size_x, Int))
         diff_x = (i32)AS_INT(size_x);
     else
         scale_x = AS_REAL(size_x);
 
-    if (size_y->type == Nst_type()->Int)
+    if (Nst_T(size_y, Int))
         diff_y = (i32)AS_INT(size_y);
     else
         scale_y = AS_REAL(size_y);
@@ -570,7 +574,7 @@ Nst_FUNC_SIGN(get_size_)
 {
     GUI_Element *element;
     Nst_Obj *rect_obj;
-    Nst_DEF_EXTRACT("#?i", gui_element_type, &element, &rect_obj);
+    Nst_DEF_EXTRACT("# ?i", gui_element_type, &element, &rect_obj);
     i64 rel_rect = Nst_DEF_VAL(rect_obj, AS_INT(rect_obj), 1);
 
     SDL_Rect rect;
@@ -588,7 +592,7 @@ Nst_FUNC_SIGN(set_overflow_)
     GUI_Element *element;
     bool overflow;
 
-    Nst_DEF_EXTRACT("#o_b", gui_element_type, &element, &overflow);
+    Nst_DEF_EXTRACT("# y", gui_element_type, &element, &overflow);
 
     gui_element_clip_content(element, !overflow);
 
@@ -608,7 +612,7 @@ Nst_FUNC_SIGN(set_margins_)
     Nst_Obj *l_obj, *b_obj, *r_obj;
     i64 t, l, b, r;
     Nst_DEF_EXTRACT(
-        "#i?i?i?i",
+        "# i ?i ?i ?i",
         gui_element_type, &element,
         &t, &l_obj, &b_obj, &r_obj);
 
@@ -656,7 +660,7 @@ Nst_FUNC_SIGN(set_padding_)
     Nst_Obj *l_obj, *b_obj, *r_obj;
     i64 t, l, b, r;
     Nst_DEF_EXTRACT(
-        "#i?i?i?i",
+        "# i ?i ?i ?i",
         gui_element_type, &element,
         &t, &l_obj, &b_obj, &r_obj);
 
@@ -726,7 +730,7 @@ Nst_FUNC_SIGN(set_auto_height_)
     GUI_Element *element;
     bool auto_height;
 
-    Nst_DEF_EXTRACT("#o_b", gui_element_type, &element, &auto_height);
+    Nst_DEF_EXTRACT("# y", gui_element_type, &element, &auto_height);
 
     if (element->el_type == GUI_ET_LABEL)
         ((GUI_Label *)element)->auto_height = auto_height;
@@ -751,7 +755,7 @@ Nst_FUNC_SIGN(set_font_)
     GUI_FontObj *font;
     Nst_Obj *change_size_obj;
     Nst_DEF_EXTRACT(
-        "##o",
+        "# # o",
         gui_element_type, &element,
         gui_font_type, &font,
         &change_size_obj);
@@ -772,7 +776,7 @@ Nst_FUNC_SIGN(set_font_)
 Nst_FUNC_SIGN(get_font_)
 {
     GUI_Element *element;
-    Nst_DEF_EXTRACT("##", gui_element_type, &element);
+    Nst_DEF_EXTRACT("# #", gui_element_type, &element);
 
     if (element->el_type == GUI_ET_LABEL)
         return Nst_inc_ref(((GUI_Label *)element)->font);
@@ -785,7 +789,7 @@ Nst_FUNC_SIGN(get_font_)
 Nst_FUNC_SIGN(add_child_)
 {
     GUI_Element *parent, *child;
-    Nst_DEF_EXTRACT("##", gui_element_type, &parent, gui_element_type, &child);
+    Nst_DEF_EXTRACT("# #", gui_element_type, &parent, gui_element_type, &child);
     if (!gui_element_add_child(parent, child))
         return nullptr;
     return Nst_inc_ref(parent);
@@ -794,7 +798,7 @@ Nst_FUNC_SIGN(add_child_)
 Nst_FUNC_SIGN(remove_child_)
 {
     GUI_Element *parent, *child;
-    Nst_DEF_EXTRACT("##", gui_element_type, &parent, gui_element_type, &child);
+    Nst_DEF_EXTRACT("# #", gui_element_type, &parent, gui_element_type, &child);
     Nst_RETURN_COND(gui_element_remove_child(parent, child));
 }
 
@@ -802,8 +806,7 @@ Nst_FUNC_SIGN(get_root_)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
-    if ( app.window == nullptr )
-    {
+    if (app.window == nullptr) {
         Nst_set_call_error_c("'set_window' must be called before getting the root");
         return nullptr;
     }
@@ -814,14 +817,12 @@ Nst_FUNC_SIGN(set_func_)
 {
     GUI_Element *el;
     Nst_FuncObj *func;
-    Nst_DEF_EXTRACT("#f", gui_element_type, &el, &func);
-    if ( el->el_type != GUI_ET_BUTTON )
-    {
+    Nst_DEF_EXTRACT("# f", gui_element_type, &el, &func);
+    if (el->el_type != GUI_ET_BUTTON) {
         Nst_set_value_error_c("the element must be a button");
         return nullptr;
     }
-    if ( func->arg_num != 1 )
-    {
+    if (func->arg_num != 1) {
         Nst_set_value_error_c("the function of a button must take exactly 1 argument");
         return nullptr;
     }
@@ -835,7 +836,7 @@ Nst_FUNC_SIGN(get_builtin_font_)
 {
     Nst_Obj *weight_obj, *size_obj;
     bool monospace, italic;
-    Nst_DEF_EXTRACT("?i?io_bo_b", &weight_obj, &size_obj, &italic, &monospace);
+    Nst_DEF_EXTRACT("?i ?i y y", &weight_obj, &size_obj, &italic, &monospace);
     i64 weight = Nst_DEF_VAL(
         weight_obj,
         AS_INT(weight_obj),
@@ -859,7 +860,7 @@ Nst_FUNC_SIGN(open_font_)
     i64 size;
     bool bold, italic, underline, strikethrough;
     Nst_DEF_EXTRACT(
-        "sio_bo_bo_bo_b",
+        "s i y y y y",
         &path, &size,
         &bold, &italic, &underline, &strikethrough);
     TTF_Font *font = TTF_OpenFont(path->value, (int)size);
@@ -886,7 +887,7 @@ Nst_FUNC_SIGN(open_font_)
 Nst_FUNC_SIGN(_debug_view_)
 {
     bool show_view;
-    Nst_DEF_EXTRACT("o_b", &show_view);
+    Nst_DEF_EXTRACT("y", &show_view);
     app.show_bounds = show_view;
     Nst_RETURN_NULL;
 }

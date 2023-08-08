@@ -32,6 +32,7 @@ NEST_LIB_x86 := $(x86_DIR)/libnest.so
 .PHONY: __no_libnest_x64 __no_libnest_x86 __no_libnest_dbg
 .PHONY: clean clear
 .PHONY: run
+.PHONY: install install-x86 install-debug uninstall
 
 main:
 	@$(MAKE_FILE) libnest.mk
@@ -124,6 +125,21 @@ run:
 	@$(SILENT_MAKE) all-debug
 	@cd .. && ./_update_files.sh py && ./_install_debug.sh
 	@cd ../../../tests && nest _test.nest
+
+install:
+	@$(SILENT_MAKE) all
+	@cd .. && ./_update_files.sh py && ./linux_install_x64.sh
+
+install-x86:
+	@$(SILENT_MAKE) all-x86
+	@cd .. && ./_update_files.sh py && ./linux_install_x86.sh
+
+install-debug:
+	@$(SILENT_MAKE) all-debug
+	@cd .. && ./_update_files.sh py && ./_install_debug.sh
+
+uninstall:
+	@cd .. && ./uninstall.sh
 
 help:
 	@echo "makefile help:"

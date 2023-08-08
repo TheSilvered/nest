@@ -43,10 +43,8 @@ Nst_FUNC_SIGN(load_s_)
         (i8 *)"<Str>",
         str->value, str->len,
         true);
-    if ( tokens == nullptr )
-    {
+    if (tokens == nullptr)
         return nullptr;
-    }
 
     Nst_Obj *value = json_parse((i8 *)"<Str>", tokens);
     return value;
@@ -58,8 +56,7 @@ Nst_FUNC_SIGN(load_f_)
     Nst_DEF_EXTRACT("s", &path);
 
     Nst_IOFile f = fopen(path->value, "rb");
-    if ( f == nullptr )
-    {
+    if (f == nullptr) {
         Nst_set_value_error_c("file not found");
         return nullptr;
     }
@@ -69,8 +66,7 @@ Nst_FUNC_SIGN(load_f_)
     fseek(f, 0, SEEK_SET);
 
     i8 *buf = Nst_malloc_c(buf_size + 1, i8);
-    if ( buf == nullptr )
-    {
+    if (buf == nullptr) {
         fclose(f);
         return nullptr;
     }
@@ -79,10 +75,8 @@ Nst_FUNC_SIGN(load_f_)
     fclose(f);
     buf[len] = 0;
     Nst_LList *tokens = json_tokenize(path->value, buf, len, false);
-    if ( tokens == nullptr )
-    {
+    if (tokens == nullptr)
         return nullptr;
-    }
 
     Nst_Obj *value = json_parse(path->value, tokens);
     return value;
@@ -109,15 +103,13 @@ Nst_FUNC_SIGN(dump_f_)
     i64 indent = Nst_DEF_VAL(indent_obj, AS_INT(indent_obj), 0);
 
     Nst_IOFile f = fopen(path->value, "wb");
-    if ( f == nullptr )
-    {
+    if (f == nullptr) {
         Nst_set_value_error_c("file not found");
         return nullptr;
     }
 
     Nst_Obj *res = json_dump(obj, (i32)indent);
-    if ( res == nullptr )
-    {
+    if (res == nullptr) {
         fclose(f);
         return nullptr;
     }

@@ -11,8 +11,7 @@ NstEXP bool lib_init();
 NstEXP Nst_DeclrList *get_func_ptrs();
 NstEXP void free_lib();
 
-typedef struct _CoroutineObj
-{
+typedef struct _CoroutineObj {
     Nst_OBJ_HEAD;
     Nst_GGC_HEAD;
     Nst_FuncObj *func;
@@ -22,19 +21,15 @@ typedef struct _CoroutineObj
     usize stack_size;
     i64 idx;
     usize call_stack_size;
-}
-CoroutineObj;
+} CoroutineObj;
 
-typedef struct _CoroutineCallStack
-{
+typedef struct _CoroutineCallStack {
     CoroutineObj **stack;
-    usize current_size;
-    usize max_size;
-}
-CoroutineCallStack;
+    usize len;
+    usize cap;
+} CoroutineCallStack;
 
-enum CoroutineFlags
-{
+enum _CoroutineFlags {
     FLAG_CO_SUSPENDED = 0b0001,
     FLAG_CO_RUNNING   = 0b0010,
     FLAG_CO_PAUSED    = 0b0100,
@@ -42,9 +37,9 @@ enum CoroutineFlags
 
     // Assigned to the function object
     FLAG_FUNC_IS_CO   = 0b1000
-};
+} CoroutineFlags;
 
-Nst_Obj *coroutine_new(Nst_FuncObj *func, Nst_OpErr *err);
+Nst_Obj *coroutine_new(Nst_FuncObj *func);
 void coroutine_traverse(CoroutineObj *co);
 void coroutine_track(CoroutineObj *co);
 void coroutine_destroy(CoroutineObj *co);

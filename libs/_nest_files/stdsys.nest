@@ -5,6 +5,7 @@
 __sys.endianness_    = endianness
 __sys.exit_          = exit
 __sys.getenv_        = getenv
+__sys.putenv_        = putenv
 __sys.get_addr_      = get_addr
 __sys.get_ref_count_ = get_ref_count
 __sys.hash_          = hash

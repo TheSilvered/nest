@@ -89,6 +89,12 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
             break;
 
         switch (*t) {
+        case ' ':
+        case '\t':
+        case '\n':
+        case '\r':
+            t++;
+            continue;
         case 't':
             accepted_types |= TYPE_IDX;
             goto normal_type;
@@ -166,6 +172,13 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
             accepted_types |= ITER_IDX;
             if (allow_casting)
                 match_type->final_type = Nst_t.Iter;
+            goto normal_type;
+        case 'y':
+            match_any = true;
+            if (allow_casting) {
+                accepted_types |= C_CAST;
+                accepted_types |= BOOL_C_CAST;
+            }
             goto normal_type;
         case '#':
             custom_type = va_arg(*args, Nst_TypeObj *);

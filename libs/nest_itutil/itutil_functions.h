@@ -3,6 +3,10 @@
 
 #include "nest.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif // !__cplusplus
+
 Nst_FUNC_SIGN(count_start);
 Nst_FUNC_SIGN(count_is_done);
 Nst_FUNC_SIGN(count_get_val);
@@ -40,5 +44,9 @@ Nst_FUNC_SIGN(items_get_val);
 Nst_FUNC_SIGN(reversed_start);
 Nst_FUNC_SIGN(reversed_is_done);
 Nst_FUNC_SIGN(reversed_get_val);
+
+#ifdef __cplusplus
+}
+#endif // !__cplusplus
 
 #endif // !ITUTIL_FUNCTIONS_H

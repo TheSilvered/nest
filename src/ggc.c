@@ -120,7 +120,7 @@ void Nst_ggc_collect_gen(Nst_GGCList *gen, Nst_GGCList *other_gen1,
     // All objects in the variable tables are reachable
     Nst_FLAG_SET(Nst_state.vt->vars, Nst_FLAG_GGC_REACHABLE);
     _Nst_map_traverse(Nst_state.vt->vars);
-    for (usize i = 0, n = Nst_state.f_stack.current_size; i < n; i++) {
+    for (usize i = 0, n = Nst_state.f_stack.len; i < n; i++) {
         Nst_VarTable *vt = Nst_state.f_stack.stack[i].vt;
         if (vt != NULL) {
             _Nst_map_traverse(vt->vars);

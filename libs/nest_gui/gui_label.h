@@ -8,8 +8,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct _GUI_Label
-{
+typedef struct _GUI_Label {
     GUI_ELEMENT_HEAD;
     Nst_Buffer text;
     GUI_FontObj *font;
@@ -18,13 +17,10 @@ typedef struct _GUI_Label
     int alignment;
     int texture_render_width;
     bool auto_height;
-}
-GUI_Label;
+} GUI_Label;
 
-GUI_Element *gui_label_new(Nst_StrObj *text,
-                           GUI_FontObj *font,
-                           SDL_Color color,
-                           int x, int y, int w, int h,
+GUI_Element *gui_label_new(Nst_StrObj *text, GUI_FontObj *font,
+                           SDL_Color color, int x, int y, int w, int h,
                            GUI_App *app);
 bool gui_label_update(GUI_Label *l);
 void gui_label_destroy(GUI_Label *l);

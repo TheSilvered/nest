@@ -43,7 +43,7 @@ Nst_FUNC_SIGN(count_)
     Nst_Obj *start;
     Nst_Obj *step_obj;
 
-    Nst_DEF_EXTRACT("i:i?i", &start, &step_obj);
+    Nst_DEF_EXTRACT("i:i ?i", &start, &step_obj);
     Nst_IntObj *step = Nst_DEF_VAL(
         step_obj,
         (Nst_IntObj *)Nst_inc_ref(step_obj),
@@ -80,10 +80,9 @@ Nst_FUNC_SIGN(repeat_)
     Nst_Obj *ob;
     Nst_Obj *times;
 
-    Nst_DEF_EXTRACT("oi:i", &ob, &times);
+    Nst_DEF_EXTRACT("o i:i", &ob, &times);
 
-    if ( AS_INT(times) < 0 )
-    {
+    if (AS_INT(times) < 0) {
         Nst_dec_ref(times);
         Nst_set_value_error_c("cannot repeat a negative number of times");
         return nullptr;
@@ -116,13 +115,10 @@ Nst_FUNC_SIGN(chain_)
 
 Nst_Obj *zipn_(Nst_SeqObj *seq)
 {
-    if ( !Nst_extract_arg_values("A.I|a|v|s", 1, (Nst_Obj **)&seq, &seq) )
-    {
+    if (!Nst_extract_arg_values("A.I|a|v|s", 1, (Nst_Obj **)&seq, &seq))
         return nullptr;
-    }
 
-    if ( seq->len < 2 )
-    {
+    if (seq->len < 2) {
         Nst_set_value_error_c("the sequence must be at least of length two");
         return nullptr;
     }
@@ -133,10 +129,8 @@ Nst_Obj *zipn_(Nst_SeqObj *seq)
     Nst_SeqObj *arr = SEQ(Nst_array_new(seq->len + 1));
     arr->objs[0] = Nst_int_new(seq->len);
 
-    for ( usize i = 0, n = seq->len; i < n; i++ )
-    {
+    for (usize i = 0, n = seq->len; i < n; i++)
         arr->objs[i + 1] = Nst_obj_cast(objs[i], Nst_type()->Iter);
-    }
 
     return Nst_iter_new(
         FUNC(Nst_func_new_c(1, zipn_start)),
@@ -152,10 +146,8 @@ Nst_FUNC_SIGN(zip_)
 
     Nst_DEF_EXTRACT("I|a|v|s?R", &seq1, &seq2);
 
-    if ( seq2 == Nst_null() )
-    {
+    if (seq2 == Nst_null())
         return zipn_((Nst_SeqObj *)seq1);
-    }
 
     seq1 = Nst_obj_cast(seq1, Nst_type()->Iter);
 
@@ -176,7 +168,7 @@ Nst_FUNC_SIGN(enumerate_)
     Nst_Obj *step_ob;
     Nst_Obj *invert_order;
 
-    Nst_DEF_EXTRACT("R?i?io:b", &ob, &start_ob, &step_ob, &invert_order);
+    Nst_DEF_EXTRACT("R ?i ?i o:b", &ob, &start_ob, &step_ob, &invert_order);
     i64 start = Nst_DEF_VAL(start_ob, AS_INT(start_ob), 0);
     i64 step = Nst_DEF_VAL(step_ob, AS_INT(step_ob), 1);
 
