@@ -250,7 +250,7 @@ Nst_FUNC_SIGN(call_)
         Nst_inc_ref(co_args);
 
     if (!Nst_FLAG_HAS(co, FLAG_CO_PAUSED)
-        && co->func->arg_num != SEQ(co_args)->len )
+        && co->func->arg_num != SEQ(co_args)->len)
     {
         Nst_set_call_error(Nst_sprintf(
             _Nst_EM_WRONG_ARG_NUM,

@@ -66,19 +66,19 @@ bool supports_color = true;
 
 static i32 long_arg(i8 *arg, Nst_CLArgs *cl_args)
 {
-    if (strcmp(arg, "--tokens") == 0) {
+    if (strcmp(arg, "--tokens") == 0)
         cl_args->print_tokens = true;
-    } else if (strcmp(arg, "--ast") == 0) {
+    else if (strcmp(arg, "--ast") == 0)
         cl_args->print_ast = true;
-    } else if (strcmp(arg, "--bytecode") == 0) {
+    else if (strcmp(arg, "--bytecode") == 0)
         cl_args->print_bytecode = true;
-    } else if (strcmp(arg, "--force-execution") == 0) {
+    else if (strcmp(arg, "--force-execution") == 0)
         cl_args->force_execution = true;
-    } else if (strcmp(arg, "--monochrome") == 0) {
+    else if (strcmp(arg, "--monochrome") == 0)
         supports_color = false;
-    } else if (strcmp(arg, "--no-default") == 0) {
+    else if (strcmp(arg, "--no-default") == 0)
         cl_args->no_default = true;
-    } else if (strcmp(arg, "--help") == 0) {
+    else if (strcmp(arg, "--help") == 0) {
         printf(HELP_MESSAGE);
         return 1;
     } else if (strcmp(arg, "--version") == 0) {
@@ -207,9 +207,9 @@ i32 _Nst_parse_args(i32 argc, i8 **argv, Nst_CLArgs *cl_args)
                     printf("\n" USAGE_MESSAGE);
                     return -1;
                 } else if (arg_len == 2) {
-                    if (++i < argc) {
+                    if (++i < argc)
                         cl_args->filename = argv[i];
-                    } else {
+                    else {
                         printf("No file provided\n");
                         printf("\n" USAGE_MESSAGE);
                         return -1;
@@ -233,9 +233,9 @@ i32 _Nst_parse_args(i32 argc, i8 **argv, Nst_CLArgs *cl_args)
         }
     }
 
-    if (++i < argc) {
+    if (++i < argc)
         cl_args->filename = argv[i];
-    } else {
+    else {
         printf("No file provided\n");
         printf("\n" USAGE_MESSAGE);
         return -1;
@@ -266,9 +266,8 @@ bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv)
 {
     usize tot_size = 0;
 
-    for (i32 i = 0; i < argc; i++) {
+    for (i32 i = 0; i < argc; i++)
         tot_size += (wcslen(wargv[i])) * 3 + 1;
-    }
 
     i8 **local_argv = (i8 **)Nst_raw_malloc(
         ((argc + 1) * sizeof(i8 *))
@@ -326,9 +325,8 @@ void _Nst_set_console_mode(void)
     if (!SetConsoleMode(stdout_handle, stdout_mode)) {
         stdout_new_mode = ENABLE_VIRTUAL_TERMINAL_PROCESSING;
         stdout_mode = stdout_new_mode | stdout_new_mode;
-        if (!SetConsoleMode(stdout_handle, stdout_mode)) {
+        if (!SetConsoleMode(stdout_handle, stdout_mode))
             supports_color = false;
-        }
     }
 
     HANDLE stdin_handle = GetStdHandle(STD_INPUT_HANDLE);
@@ -401,9 +399,9 @@ static bool get_byte(i8 *out_ch)
 
 usize _Nst_windows_stdin_read(i8 *buf, usize size, usize count, void *f_value)
 {
-    if (w_in.hd == NULL) {
+    if (w_in.hd == NULL)
         return fread(buf, size, count, (FILE *)f_value);
-    }
+
     usize bytes = size * count;
 
     for (usize i = 0; i < bytes; i++) {

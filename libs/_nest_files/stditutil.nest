@@ -11,6 +11,7 @@ __itu.iter_is_done_ = iter_is_done
 __itu.iter_get_val_ = iter_get_val
 __itu.iter_start_   = iter_start
 __itu.keys_         = keys
+__itu.new_iterator_ = new_iterator
 __itu.repeat_       = repeat
 __itu.reversed_     = reversed
 __itu.values_       = values

@@ -9,7 +9,7 @@
 /*
   Usage of the 'types' argument:
 
-  Builtin types
+  Builtin types:
     't': type
     'i': integer
     'r': real
@@ -24,7 +24,91 @@
     'B': byte
     'F': file
 
-  Shorthands
+  Other:
+    'o': any object
+
+  Whitespace:
+    Whitespace inside the type string is mostly ignored but there cannot be
+    any whitespace characters after the last type.
+
+    "i s v" -> OK
+    "i s v " -> Error
+
+  Multiple types per argument:
+    To specifiy more than one type that an argument can be, use a pipe (|)
+    between the various types.
+
+    Nst_Obj *var;
+    Nst_DEF_EXTRACT("i|s", &var); // 'var' accepts only Int or Str objects
+
+  Custom types:
+    You can have any number of custom types in a single argument and you should
+    label them with #. The custom type(s) are to be passed to the function
+    before the pointer to the variable in the order in which they appear.
+
+    Nst_Obj *var;
+    Nst_DEF_EXTRACT("#|#|#", custom_type1, custom_type2, custom_type3, &var);
+
+  Optional types:
+    To have an optional type you can use ? before the type itself. Optional
+    types allow for either the specified types or Null to be acceppted. Because
+    of this writing ?i and i|n is the same thing.
+
+    Nst_IOFileObj *file;
+    Nst_DEF_EXTRACT("?F", &file); // 'file' can be either a File or NULL object
+
+  Casting to other Nst_Obj:
+    By following the selected type(s) with a colon (:) you can specify the type
+    that the object should be casted to after it has been checked with exactly
+    one letter. This letter can be any of the builtin types except 'n'. Using
+    'o' as the type to cast will only increase the reference of the argument.
+    In fact, when casting an object with this method a new reference is always
+    put inside the given variable that needs dereferencing when no longer in
+    use.
+
+    Nst_IntObj *num;
+    Nst_DEF_EXTRACT("i|B:i", &num); // 'num' accepts a Int and Byte objects but
+                                    // it will always contain an Int
+
+  Casting to C types:
+    If you follow the selcted type(s) with an underscore (_), you can extract
+    the value of the argument into a C value. This method only accepts 'i',
+    'r', 'b' and 'B' and cannot be used when casting to another Nst_Obj.
+
+    bool opt;
+    Nst_DEF_EXTRACT("i_b", &opt); // 'opt' only accepts Int objects but
+                                  // will always contain a boolean
+
+  Implicit casting to C types:
+    If a type is specified as only one of 'i', 'r', 'b' or 'B' it is
+    automatically translated to 'i_i', 'r_r', 'b_b' and 'B_B' respectively.
+    The values are extracted to the following C types:
+    - i -> i64
+    - r -> f64
+    - b -> bool
+    - B -> u8
+
+    i64 int_num;
+    f64 real_num;
+    Nst_DEF_EXTRACT("i r", &int_num, &real_num);
+    // even though only 'i' and 'r' are specified, the extracted values are C
+    // types
+
+  Sequence type checking:
+    You can additionally check the types present inside the matched sequence
+    by following the type with a dot (.). This will not throw an error if the
+    type to check is not an Array or Vector object. Note that this kind of
+    checking cannot occurr if the argument is casted to a C type.
+
+    Nst_SeqObj *array_of_ints;
+    Nst_DEF_EXTRACT("?a.i|B" &array_of_ints);
+    // 'array_of_ints' can be either an Array or Null object. If it is the
+    // former its elements can only be Int and Byte objects.
+
+  Shorthands:
+    There are some shorthands that reduce the complexity of the type string by
+    representing commonly used types into a single character.
+
     'l': i|B_i
     'N': i|r|B_r
     'A': a|v
@@ -32,45 +116,17 @@
     'R': I|a|v|s:I
     'y': o_b
 
-  Other:
-    'o': any object
-
-  Custom types:
-    You can have any number of custom types in a single argument and you should
-    label them with #. The custom type(s) are to be passed to the function
-    before the pointer to the variable in the order in which they appear.
-
-    Nst_DEF_EXTRACT("#|#|#", custom_type1, custom_type2, custom_type3, &var);
-
-  Optional types:
-    To have an optional type you can use ? before the type itself. Using |n is
-    the same thing. i|n is the same as ?i
-
-  Multiple types per argument:
-    To specifiy more than one type that an argument can be, use a pipe (|)
-    between the various type.
-
-  Automatic type casting:
-    After the type specified you can add : or _ followed by exactly one letter.
-    : is a cast between Nest objects, _ is a cast to a C type. When using the
-    latter there cannot be any optional or custom types and it is restricted to
-    only these types after the underscore: i, r, b or B.
-
-  Implicit casting:
-    If a type is specified as only one of i, r, b or B it automatically becomes
-    i_i, r_r, b_b or B_B if it is not used to check the contents of a sequence
-    To get the object itself use i:i, r:r, b:b, B:B and then immediatly
-    decrease the reference (it is safe in this case since no new objects are
-    created)
-
-  Sequence type checking:
-    You can additionally check the types present inside the matched sequence
-    By following the type with a dot
+    The types that cast their value to a C type or to another Nst_Obj are
+    omitted when the shorthand is used when cheking the contents of a sequence
+    and can be overwritten by manual casts.
 
   Example:
-    i|r|B_B?A.#|i -> An Int, Real, Byte all casted to a u8 followed by an
-                     optional Array or Vector that, if it exists, should
-                     contain only objects of a custom type or integers.
+    "N_B ?A.#|i" -> An Int, Real, Byte all casted to a u8 followed by an
+                    optional Array or Vector that, if it exists, should contain
+                    only objects of a custom type or integers.
+    "S.s" -> A string, array or vector that casted to an array should contain
+             only strings. This can be written in an expanded form as
+             "a|v|s:a.s"
 */
 
 #ifndef LIB_IMPORT_H

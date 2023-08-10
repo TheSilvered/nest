@@ -349,7 +349,7 @@ void gui_element_set_rel_pos(GUI_Element *obj, GUI_Element *element,
     } else {
         obj->rel_pos.element = obj->app->root;
         Nst_inc_ref(obj->app->root);
-        if (!Nst_OBJ_IS_TRACKED(obj) )
+        if (!Nst_OBJ_IS_TRACKED(obj))
             Nst_ggc_track_obj(GGC_OBJ(obj->app->root));
     }
 }
@@ -515,9 +515,9 @@ SDL_Rect gui_element_get_clip_rect(GUI_Element *obj)
         SDL_IntersectRect(&parent_clip, &padding_rect, &clip);
         return clip;
     }
-    if (obj->clip_parent) {
+    if (obj->clip_parent)
         return gui_element_get_clip_rect(obj->parent);
-    }
+
     return obj->app->clip_window;
 }
 
@@ -579,9 +579,9 @@ struct _GUI_FontObj *get_font(struct _GUI_App *app, GUI_FontWeight weight,
     buf[buf_len - 5] = '0' + weight;
 
     Nst_StrObj *font_path = _Nst_get_import_path(buf, buf_len);
-    if (font_path == nullptr) {
+    if (font_path == nullptr)
         return nullptr;
-    }
+
     int ptsize;
     switch (size) {
     case GUI_FS_SMALL:  ptsize = 11; break;

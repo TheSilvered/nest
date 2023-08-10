@@ -25,30 +25,48 @@
 10 3 @itu.repeat @string_output '101010' @test.assert_eq
 itu.repeat { 10, -2 } @test.assert_raises_error
 
-{ { 1, 2 }, 'Hi' } @itu.chain @string_output '12Hi' @test.assert_eq
-{ 3 -> 5, <{ 2, 3 }> } @itu.chain @string_output '3423' @test.assert_eq
-{ 3 -> 5 } @itu.chain @string_output '34' @test.assert_eq
+{{1, 2}, 'Hi'} @itu.chain @string_output '12Hi' @test.assert_eq
+{3 -> 5, <{2, 3}>} @itu.chain @string_output '3423' @test.assert_eq
+{3 -> 5} @itu.chain @string_output '34' @test.assert_eq
 {,} @itu.chain @string_output '' @test.assert_eq
 'abc' @itu.enumerate @itu.chain @string_output '0a1b2c' @test.assert_eq
-string_output { { 1 } @itu.chain } @test.assert_raises_error
-string_output { { 'hi', 5.6 } @itu.chain } @test.assert_raises_error
-string_output { (0 -> 10) @itu.chain } @test.assert_raises_error
+string_output {{1} @itu.chain} @test.assert_raises_error
+string_output {{'hi', 5.6} @itu.chain} @test.assert_raises_error
+string_output {(0 -> 10) @itu.chain} @test.assert_raises_error
 
-{ 1, 2, 3 } 'Hi' @itu.zip @string_output "{ 1, 'H' }{ 2, 'i' }" @test.assert_eq
-(2 0 -> 100) <{ 'a', 'b', 'c' }> @itu.zip @string_output "{ 0, 'a' }{ 2, 'b' }{ 4, 'c' }" @test.assert_eq
-{ { 1, 2, 3 }, 'Hi', <{ 9, 8, 7, 6, 5 }> } @itu.zip @string_output "{ 1, 'H', 9 }{ 2, 'i', 8 }" @test.assert_eq
-{ 0 -> 3, 'Hello'} @itu.zip @string_output "{ 0, 'H' }{ 1, 'e' }{ 2, 'l' }" @test.assert_eq
+{1, 2, 3} 'Hi' @itu.zip @string_output "{1, 'H'}{2, 'i'}" @test.assert_eq
+(2 0 -> 100) <{'a', 'b', 'c'}> @itu.zip @string_output "{0, 'a'}{2, 'b'}{4, 'c'}" @test.assert_eq
+{{1, 2, 3}, 'Hi', <{9, 8, 7, 6, 5}> } @itu.zip @string_output "{1, 'H', 9}{2, 'i', 8}" @test.assert_eq
+{0 -> 3, 'Hello'} @itu.zip @string_output "{0, 'H'}{1, 'e'}{2, 'l'}" @test.assert_eq
 
-'Hello' @itu.enumerate @string_output "{ 0, 'H' }{ 1, 'e' }{ 2, 'l' }{ 3, 'l' }{ 4, 'o' }" @test.assert_eq
-'Hi!' 5 @itu.enumerate @string_output "{ 5, 'H' }{ 6, 'i' }{ 7, '!' }" @test.assert_eq
-'Hi!' 5 -1 @itu.enumerate @string_output "{ 5, 'H' }{ 4, 'i' }{ 3, '!' }" @test.assert_eq
-'Hi!' 5 -1 true @itu.enumerate @string_output "{ 'H', 5 }{ 'i', 4 }{ '!', 3 }" @test.assert_eq
+'Hello' @itu.enumerate @string_output "{0, 'H'}{1, 'e'}{2, 'l'}{3, 'l'}{4, 'o'}" @test.assert_eq
+'Hi!' 5 @itu.enumerate @string_output "{5, 'H'}{6, 'i'}{7, '!'}" @test.assert_eq
+'Hi!' 5 -1 @itu.enumerate @string_output "{5, 'H'}{4, 'i'}{3, '!'}" @test.assert_eq
+'Hi!' 5 -1 true @itu.enumerate @string_output "{'H', 5}{'i', 4}{'!', 3}" @test.assert_eq
 
-{ 'a': 1, 'b': 2, 'c': 3 } = m
+{'a': 1, 'b': 2, 'c': 3} = m
 m @itu.keys @string_output 'abc' @test.assert_eq
 m @itu.values @string_output '123' @test.assert_eq
-m @itu.items @string_output "{ 'a', 1 }{ 'b', 2 }{ 'c', 3 }" @test.assert_eq
 
 'Hello' @itu.reversed @string_output 'olleH' @test.assert_eq
-{ 1, 2, 3 } @itu.reversed @string_output '321' @test.assert_eq
-<{ 1, 2, 3 }> @itu.reversed @string_output '321' @test.assert_eq
+{1, 2, 3} @itu.reversed @string_output '321' @test.assert_eq
+<{1, 2, 3}> @itu.reversed @string_output '321' @test.assert_eq
+
+#start v [
+    0 = v.0
+]
+
+#is_done v [
+    => v.0 $v.1 >=
+]
+
+#get_val v [
+    => v.1 .(1 += v.0 1 -)
+]
+
+start is_done get_val {0, {1, 2, 3}} @itu.new_iterator = my_iter
+Array :: my_iter {1, 2, 3} @test.assert_eq
+
+itu.new_iterator {##[], ##v[], ##v[], null} @test.assert_raises_error
+itu.new_iterator {##v[], ##[], ##v[], null} @test.assert_raises_error
+itu.new_iterator {##v[], ##v[], ##[], null} @test.assert_raises_error

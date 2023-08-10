@@ -3,7 +3,6 @@
 #include "optimizer.h"
 #include "obj_ops.h"
 #include "tokens.h"
-#include "error_internal.h"
 #include "iter.h"
 #include "hash.h"
 #include "format.h"
@@ -100,7 +99,7 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
     }
 
     if (res == NULL) {
-        _Nst_SET_ERROR_FROM_OP_ERR(error, node->start, node->end);
+        Nst_set_internal_error_from_op_err(error, node->start, node->end);
         return;
     }
 
@@ -117,7 +116,7 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
         res);
 
     if (new_tok == NULL) {
-        _Nst_SET_ERROR_FROM_OP_ERR(error, node->start, node->end);
+        Nst_set_internal_error_from_op_err(error, node->start, node->end);
         return;
     }
     node->tokens->head->value = new_tok;
@@ -159,7 +158,7 @@ static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
         if (res == Nst_c.Bool_false)
             break;
         else if (res == NULL) {
-            _Nst_SET_ERROR_FROM_OP_ERR(error, node->start, node->end);
+            Nst_set_internal_error_from_op_err(error, node->start, node->end);
             return;
         }
     }
@@ -176,7 +175,7 @@ static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
         res);
 
     if (new_tok == NULL) {
-        _Nst_SET_ERROR_FROM_OP_ERR(error, node->start, node->end);
+        Nst_set_internal_error_from_op_err(error, node->start, node->end);
         return;
     }
     node->tokens->head->value = new_tok;
@@ -206,7 +205,7 @@ static void ast_optimize_local_op(Nst_Node *node, Nst_Error *error)
     }
 
     if (res == NULL) {
-        _Nst_SET_ERROR_FROM_OP_ERR(error, node->start, node->end);
+        Nst_set_internal_error_from_op_err(error, node->start, node->end);
         return;
     }
 
@@ -222,7 +221,7 @@ static void ast_optimize_local_op(Nst_Node *node, Nst_Error *error)
         res);
 
     if (new_tok == NULL) {
-        _Nst_SET_ERROR_FROM_OP_ERR(error, node->start, node->end);
+        Nst_set_internal_error_from_op_err(error, node->start, node->end);
         return;
     }
     node->tokens->head->value = new_tok;
@@ -379,7 +378,7 @@ static bool is_accessed(Nst_InstList *bc, Nst_StrObj *name)
     for (i64 i = 0; i < size; i++) {
         if (inst_list[i].id == Nst_IC_PUSH_VAL
             && inst_list[i].val->type == Nst_t.Str
-            && Nst_string_compare(STR(inst_list[i].val), name) == 0 )
+            && Nst_string_compare(STR(inst_list[i].val), name) == 0)
         {
             if (inst_list[++i].id == Nst_IC_OP_EXTRACT)
                 return true;
@@ -537,7 +536,7 @@ static void remove_push_pop(Nst_InstList *bc)
             continue;
         } else if (!expect_pop
                    || inst_list[i].id != Nst_IC_POP_VAL
-                   || has_jumps_to(bc, i, -1, -1) )
+                   || has_jumps_to(bc, i, -1, -1))
         {
             expect_pop = false;
             continue;
@@ -644,27 +643,27 @@ static void remove_push_check(Nst_InstList *bc, Nst_Error *error)
 
         if (inst_list[i].id == Nst_IC_TYPE_CHECK) {
             if (inst_list[i].val != OBJ(inst_list[i - 1].val->type)) {
-                _Nst_SET_TYPE_ERROR(
+                Nst_set_internal_type_error(
                     error,
                     inst_list[i].start,
                     inst_list[i].end,
-                    Nst_sprintf(
+                    STR(Nst_sprintf(
                         _Nst_EM_EXPECTED_TYPES,
                         STR(inst_list[i].val)->value,
-                        TYPE_NAME(inst_list[i - 1].val)));
+                        TYPE_NAME(inst_list[i - 1].val))));
 
                 return;
             }
         } else {
             Nst_obj_hash(inst_list[i - 1].val);
             if (inst_list[i - 1].val->hash == -1) {
-                _Nst_SET_TYPE_ERROR(
+                Nst_set_internal_type_error(
                     error,
                     inst_list[i].start,
                     inst_list[i].end,
-                    Nst_sprintf(
+                    STR(Nst_sprintf(
                         _Nst_EM_UNHASHABLE_TYPE,
-                        TYPE_NAME(inst_list[i - 1].val)));
+                        TYPE_NAME(inst_list[i - 1].val))));
 
                 return;
             }
@@ -685,18 +684,16 @@ static void remove_push_jumpif(Nst_InstList *bc)
     Nst_Inst *inst_list = bc->instructions;
     bool expect_jumpif = false;
 
-    for ( i64 i = 0; i < size; i++ )
-    {
-        if ( inst_list[i].id == Nst_IC_PUSH_VAL )
-        {
+    for (i64 i = 0; i < size; i++) {
+        if (inst_list[i].id == Nst_IC_PUSH_VAL) {
             expect_jumpif = true;
             continue;
         }
-        else if ( !expect_jumpif ||
-                  !Nst_INST_IS_JUMP(inst_list[i].id) ||
-                  inst_list[i].id == Nst_IC_JUMP ||
-                  inst_list[i].id == Nst_IC_JUMPIF_ZERO ||
-                  has_jumps_to(bc, i, -1, -1) )
+        else if (!expect_jumpif
+                 || !Nst_INST_IS_JUMP(inst_list[i].id)
+                 || inst_list[i].id == Nst_IC_JUMP
+                 || inst_list[i].id == Nst_IC_JUMPIF_ZERO
+                 || has_jumps_to(bc, i, -1, -1))
         {
             expect_jumpif = false;
             continue;

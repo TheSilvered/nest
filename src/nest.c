@@ -15,7 +15,7 @@
         Nst_free(src_text.path);                                              \
     }                                                                         \
     return code;                                                              \
-    } while ( 0 )
+    } while (0)
 
 #define ERROR_EXIT                                                            \
     do {                                                                      \
@@ -23,7 +23,7 @@
     Nst_dec_ref(error.name);                                                  \
     Nst_dec_ref(error.message);                                               \
     EXIT(1);                                                                  \
-    } while ( 0 )
+    } while (0)
 
 #ifdef Nst_WIN
 
@@ -32,7 +32,7 @@
 #define EXIT(code) do {                                                       \
         Nst_free(argv);                                                       \
         _EXIT(code);                                                          \
-    } while ( 0 )
+    } while (0)
 
 int wmain(int argc, wchar_t **wargv)
 {

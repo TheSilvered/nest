@@ -213,7 +213,7 @@ i32 Nst_check_utf8_bytes(u8 *str, usize len)
 {
     i32 n = 0;
 
-    if ( *str <= 0b01111111 )
+    if (*str <= 0b01111111)
         return 1;
     else if (*str >= 0b11110000 && *str <= 0b11110111) {
         if (len < 4)
@@ -786,7 +786,7 @@ i32 Nst_check_1253_bytes(u8 *str, usize len)
     if (ch == 0x81 || ch == 0x88 || ch == 0x8a || ch == 0x8c || ch == 0x8d
         || ch == 0x8e || ch == 0x8f || ch == 0x90 || ch == 0x98 || ch == 0x9a
         || ch == 0x9c || ch == 0x9d || ch == 0x9e || ch == 0x9f || ch == 0xaa
-        || ch == 0xd2 || ch == 0xff )
+        || ch == 0xd2 || ch == 0xff)
     {
         return -1;
     }
@@ -920,8 +920,7 @@ u32 Nst_1254_to_utf32(u8 *str)
     if (ch < 0x80)
         return (u8)ch;
 
-    switch (ch)
-    {
+    switch (ch) {
     case 0x80: return 0x20ac; case 0x82: return 0x201a; case 0x83: return 0x0192;
     case 0x84: return 0x201e; case 0x85: return 0x2026; case 0x86: return 0x2020;
     case 0x87: return 0x2021; case 0x88: return 0x02c6; case 0x89: return 0x2030;
@@ -980,7 +979,7 @@ i32 Nst_check_1255_bytes(u8 *str, usize len)
         || ch == 0x8f || ch == 0x90 || ch == 0x9a || ch == 0x9c || ch == 0x9d
         || ch == 0x9e || ch == 0x9f || ch == 0xca || ch == 0xd9 || ch == 0xda
         || ch == 0xdb || ch == 0xdc || ch == 0xdd || ch == 0xde || ch == 0xdf
-        || ch == 0xfb || ch == 0xfc || ch == 0xff )
+        || ch == 0xfb || ch == 0xfc || ch == 0xff)
     {
         return -1;
     }
@@ -1219,7 +1218,7 @@ i32 Nst_check_1257_bytes(u8 *str, usize len)
     u8 ch = *str;
     if (ch == 0x81 || ch == 0x83 || ch == 0x88 || ch == 0x8a || ch == 0x8c
         || ch == 0x90 || ch == 0x98 || ch == 0x9a || ch == 0x9c || ch == 0x9f
-        || ch == 0xa1 || ch == 0xa5 )
+        || ch == 0xa1 || ch == 0xa5)
     {
         return -1;
     }
@@ -1726,7 +1725,7 @@ Nst_CPID Nst_encoding_from_name(i8 *name)
         if (strcmp(name, "8") == 0 || strcmp(name, "-8") == 0)
             return Nst_CP_UTF8;
         if (strcmp(name, "16") == 0 || strcmp(name, "-16") == 0
-            || strcmp(name, "16le") == 0 || strcmp(name, "-16le") == 0 )
+            || strcmp(name, "16le") == 0 || strcmp(name, "-16le") == 0)
         {
             return Nst_CP_UTF16LE;
         }
@@ -1745,7 +1744,7 @@ Nst_CPID Nst_encoding_from_name(i8 *name)
     if ((name_len > 2 && strncmp(name_cpy, "cp", 2) == 0)
         || (name_len > 7 && strncmp(name_cpy, "windows", 7) == 0))
     {
-        if ( name_cpy[0] == 'c' )
+        if (name_cpy[0] == 'c')
             name = name_cpy + 2;
         else
             name = name_cpy + 7;

@@ -1,6 +1,5 @@
 #include <assert.h>
 #include <errno.h>
-#include "error_internal.h"
 #include <stdlib.h>
 #include "obj_ops.h"
 #include "hash.h"
@@ -166,9 +165,8 @@ i32 Nst_run(Nst_FuncObj *main_func, i32 argc, i8 **argv, i8 *filename,
 bool Nst_state_init(i32 argc, i8 **argv, i8 *filename, i32 opt_level,
                     bool no_default)
 {
-    if (!Nst_traceback_init()) {
+    if (!Nst_traceback_init())
         return false;
-    }
     Nst_ggc_init();
     Nst_state.curr_path = Nst_getcwd();
     if (Nst_state.curr_path == NULL) {
@@ -306,7 +304,7 @@ static inline void set_global_error(usize final_stack_size, Nst_Inst *inst)
     if (Nst_state.traceback.error.occurred)
         add_positions(inst->start, inst->end);
     else
-        _Nst_SET_ERROR_FROM_OP_ERR(GLOBAL_ERROR, inst->start, inst->end);
+        Nst_set_internal_error_from_op_err(GLOBAL_ERROR, inst->start, inst->end);
 
     Nst_CatchFrame top_catch = Nst_cstack_peek();
     if (OBJ(Nst_state.traceback.error.name) == Nst_c.Null_null) {
@@ -318,9 +316,8 @@ static inline void set_global_error(usize final_stack_size, Nst_Inst *inst)
     Nst_Obj *obj;
 
     usize end_size = top_catch.f_stack_len;
-    if (end_size < final_stack_size) {
+    if (end_size < final_stack_size)
         end_size = final_stack_size;
-    }
 
     while (Nst_state.f_stack.len > end_size) {
         Nst_FuncCall call = Nst_fstack_pop();
@@ -439,7 +436,7 @@ i32 Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
     if (mod_func == NULL) {
         Nst_inst_list_destroy(inst_ls);
         inst_ls = Nst_fstack_peek().func->body.bytecode;
-        _Nst_SET_ERROR_FROM_OP_ERR(
+        Nst_set_internal_error_from_op_err(
             GLOBAL_ERROR,
             inst_ls->instructions[Nst_state.idx].start,
             inst_ls->instructions[Nst_state.idx].end);
@@ -453,7 +450,7 @@ i32 Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
     if (path_str == NULL) {
         Nst_dec_ref(mod_func);
         inst_ls = Nst_fstack_peek().func->body.bytecode;
-        _Nst_SET_ERROR_FROM_OP_ERR(
+        Nst_set_internal_error_from_op_err(
             GLOBAL_ERROR,
             inst_ls->instructions[Nst_state.idx].start,
             inst_ls->instructions[Nst_state.idx].end);
@@ -466,7 +463,7 @@ i32 Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
         Nst_dec_ref(path_str);
         Nst_state.curr_path = prev_path;
         inst_ls = Nst_fstack_peek().func->body.bytecode;
-        _Nst_SET_ERROR_FROM_OP_ERR(
+        Nst_set_internal_error_from_op_err(
             GLOBAL_ERROR,
             inst_ls->instructions[Nst_state.idx].start,
             inst_ls->instructions[Nst_state.idx].end);
@@ -488,7 +485,7 @@ i32 Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
         Nst_dec_ref(Nst_state.curr_path);
         Nst_state.curr_path = prev_path;
         inst_ls = Nst_fstack_peek().func->body.bytecode;
-        _Nst_SET_ERROR_FROM_OP_ERR(
+        Nst_set_internal_error_from_op_err(
             GLOBAL_ERROR,
             inst_ls->instructions[Nst_state.idx].start,
             inst_ls->instructions[Nst_state.idx].end);
@@ -506,7 +503,7 @@ i32 Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
 
     if (Nst_chdir(prev_path) != 0) {
         inst_ls = Nst_fstack_peek().func->body.bytecode;
-        _Nst_SET_ERROR_FROM_OP_ERR(
+        Nst_set_internal_error_from_op_err(
             GLOBAL_ERROR,
             inst_ls->instructions[Nst_state.idx].start,
             inst_ls->instructions[Nst_state.idx].end);
@@ -572,7 +569,7 @@ Nst_Obj *Nst_run_func_context(Nst_FuncObj *func, i64 idx, Nst_MapObj *vars,
 
     Nst_VarTable *new_vt = Nst_malloc_c(1, Nst_VarTable);
     if (new_vt == NULL) {
-        _Nst_SET_ERROR_FROM_OP_ERR(
+        Nst_set_internal_error_from_op_err(
             GLOBAL_ERROR,
             func->body.bytecode->instructions[0].start,
             func->body.bytecode->instructions[0].end);
@@ -718,9 +715,8 @@ static i32 exe_jumpif_t(Nst_Inst *inst)
 {
     CHECK_V_STACK;
     Nst_Obj *top_val = Nst_vstack_pop();
-    if (Nst_obj_to_bool(top_val)) {
+    if (Nst_obj_to_bool(top_val))
         Nst_state.idx = inst->int_val - 1;
-    }
     Nst_dec_ref(top_val);
     return 0;
 }
@@ -729,9 +725,9 @@ static i32 exe_jumpif_f(Nst_Inst *inst)
 {
     CHECK_V_STACK;
     Nst_Obj *top_val = Nst_vstack_pop();
-    if (!Nst_obj_to_bool(top_val)) {
+    if (!Nst_obj_to_bool(top_val))
         Nst_state.idx = inst->int_val - 1;
-    }
+
     Nst_dec_ref(top_val);
     return 0;
 }
@@ -740,9 +736,9 @@ static i32 exe_jumpif_zero(Nst_Inst *inst)
 {
     CHECK_V_STACK;
     Nst_Obj *val = Nst_vstack_peek();
-    if (AS_INT(val) == 0) {
+    if (AS_INT(val) == 0)
         Nst_state.idx = inst->int_val - 1;
-    }
+
     return 0;
 }
 
@@ -1106,8 +1102,7 @@ static i32 exe_local_op(Nst_Inst *inst)
     Nst_Obj *obj = Nst_vstack_pop();
     Nst_Obj *res = local_op_func[inst->int_val - Nst_TT_LEN](obj);
 
-    if (res != NULL)
-    {
+    if (res != NULL) {
         Nst_vstack_push(res);
         Nst_dec_ref(res);
     }
@@ -1162,7 +1157,7 @@ static i32 exe_op_extract(Nst_Inst *inst)
 
         if (res != NULL)
             Nst_vstack_push(res);
-        else if ( idx->hash != -1 )
+        else if (idx->hash != -1)
             Nst_vstack_push(Nst_c.Null_null);
         else {
             Nst_set_type_error(Nst_sprintf(
@@ -1599,9 +1594,9 @@ Nst_StrObj *Nst_getcwd(void)
 static inline void add_positions(Nst_Pos start, Nst_Pos end)
 {
     Nst_Pos *positions = Nst_raw_malloc(2 * sizeof(Nst_Pos));
-    if (positions == NULL) {
+    if (positions == NULL)
         return;
-    }
+
     Nst_OpErr prev_err = { NULL, NULL };
     if (Nst_error_occurred()) {
         prev_err.name    = STR(Nst_inc_ref(Nst_error_get()->name));

@@ -318,6 +318,69 @@ NstEXP bool NstC Nst_traceback_init(void);
 /* Frees the traceback of Nst_state. */
 NstEXP void NstC Nst_traceback_delete(void);
 
+NstEXP void NstC Nst_set_internal_error(Nst_Error *error, Nst_Pos start,
+                                        Nst_Pos end, Nst_StrObj *name,
+                                        Nst_StrObj *msg);
+
+NstEXP void NstC Nst_set_internal_error_c(Nst_Error *error, Nst_Pos start,
+                                          Nst_Pos end, Nst_StrObj *name,
+                                          const i8 *msg);
+
+NstEXP void NstC Nst_set_internal_syntax_error(Nst_Error *error, Nst_Pos start,
+                                               Nst_Pos end, Nst_StrObj *msg);
+
+NstEXP void NstC Nst_set_internal_memory_error(Nst_Error *error, Nst_Pos start,
+                                               Nst_Pos end, Nst_StrObj *msg);
+
+NstEXP void NstC Nst_set_internal_type_error(Nst_Error *error, Nst_Pos start,
+                                             Nst_Pos end, Nst_StrObj *msg);
+
+NstEXP void NstC Nst_set_internal_value_error(Nst_Error *error, Nst_Pos start,
+                                              Nst_Pos end, Nst_StrObj *msg);
+
+NstEXP void NstC Nst_set_internal_math_error(Nst_Error *error, Nst_Pos start,
+                                             Nst_Pos end, Nst_StrObj *msg);
+
+NstEXP void NstC Nst_set_internal_call_error(Nst_Error *error, Nst_Pos start,
+                                             Nst_Pos end, Nst_StrObj *msg);
+
+NstEXP void NstC Nst_set_internal_import_error(Nst_Error *error, Nst_Pos start,
+                                               Nst_Pos end, Nst_StrObj *msg);
+
+NstEXP void NstC Nst_set_internal_syntax_error_c(Nst_Error *error,
+                                                 Nst_Pos start, Nst_Pos end,
+                                                 const i8 *msg);
+
+NstEXP void NstC Nst_set_internal_memory_error_c(Nst_Error *error,
+                                                 Nst_Pos start, Nst_Pos end,
+                                                 const i8 *msg);
+
+NstEXP void NstC Nst_set_internal_type_error_c(Nst_Error *error,
+                                               Nst_Pos start, Nst_Pos end,
+                                               const i8 *msg);
+
+NstEXP void NstC Nst_set_internal_value_error_c(Nst_Error *error,
+                                                Nst_Pos start, Nst_Pos end,
+                                                const i8 *msg);
+
+NstEXP void NstC Nst_set_internal_math_error_c(Nst_Error *error,
+                                               Nst_Pos start, Nst_Pos end,
+                                               const i8 *msg);
+
+NstEXP void NstC Nst_set_internal_call_error_c(Nst_Error *error,
+                                               Nst_Pos start, Nst_Pos end,
+                                               const i8 *msg);
+
+NstEXP void NstC Nst_set_internal_import_error_c(Nst_Error *error,
+                                                 Nst_Pos start, Nst_Pos end,
+                                                 const i8 *msg);
+
+NstEXP void NstC Nst_internal_failed_allocation(Nst_Error *error,
+                                                Nst_Pos start, Nst_Pos end);
+
+NstEXP void NstC Nst_set_internal_error_from_op_err(Nst_Error *error,
+                                                    Nst_Pos start, Nst_Pos end);
+
 #ifdef __cplusplus
 }
 #endif // !__cplusplus

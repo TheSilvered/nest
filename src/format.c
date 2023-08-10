@@ -277,10 +277,8 @@ static isize get_seq_size(const i8 **fmt, va_list *args)
         }
         i8 *str = va_arg(*args, i8 *);
         total_size = strlen(str);
-        if ( precision >= 0 )
-        {
+        if (precision >= 0)
             total_size = MIN((isize)total_size, precision);
-        }
         total_size = MAX((isize)total_size, width);
         (*fmt)++;
         return total_size;
@@ -362,9 +360,8 @@ static isize get_max_size_printf(const i8 *fmt, va_list orig_args)
             continue;
         }
         isize seq_size = get_seq_size(&fmt, &args);
-        if (seq_size < 0) {
+        if (seq_size < 0)
             return -1;
-        }
         tot_size += seq_size;
     }
     return tot_size + 1;

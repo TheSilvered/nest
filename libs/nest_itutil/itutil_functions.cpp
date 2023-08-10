@@ -345,23 +345,7 @@ Nst_FUNC_SIGN(enumerate_get_val)
     return OBJ(arr);
 }
 
-// -------------------------- Keys, values, items -------------------------- //
-Nst_FUNC_SIGN(kvi_start)
-{
-    Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    AS_INT(objs[0]) = Nst_map_get_next_idx(-1, MAP(objs[1]));
-    Nst_RETURN_NULL;
-}
-
-Nst_FUNC_SIGN(kvi_is_done)
-{
-    Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    if (AS_INT(objs[0]) == -1)
-        Nst_RETURN_TRUE;
-    Nst_RETURN_FALSE;
-}
+// ----------------------------- Keys & values ----------------------------- //
 
 Nst_FUNC_SIGN(keys_get_val)
 {
@@ -387,25 +371,6 @@ Nst_FUNC_SIGN(values_get_val)
     Nst_MapNode node = MAP(objs[1])->nodes[AS_INT(objs[0])];
     AS_INT(objs[0]) = Nst_map_get_next_idx((i32)AS_INT(objs[0]), MAP(objs[1]));
     return Nst_inc_ref(node.value);
-}
-
-Nst_FUNC_SIGN(items_get_val)
-{
-    Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    Nst_MapNode node = MAP(objs[1])->nodes[AS_INT(objs[0])];
-
-    Nst_SeqObj *arr = SEQ(Nst_array_new(2));
-
-    if (AS_INT(objs[0]) == -1) {
-        Nst_seq_set(arr, 0, Nst_null());
-        Nst_seq_set(arr, 1, Nst_null());
-    } else {
-        Nst_seq_set(arr, 0, node.key);
-        Nst_seq_set(arr, 1, node.value);
-    }
-    AS_INT(objs[0]) = Nst_map_get_next_idx((i32)AS_INT(objs[0]), MAP(objs[1]));
-    return OBJ(arr);
 }
 
 // -------------------------------- Reversed ------------------------------- //

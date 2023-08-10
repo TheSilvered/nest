@@ -51,7 +51,7 @@ This program prints all the ascii characters
     Byte :: 1 = byte_1
     Byte :: 0 = byte_0
 
-    { byte_0; 1000 } = tape
+    {byte_0; 1000} = tape
     0 = pointer
     -1 = index
     '' = curr_input

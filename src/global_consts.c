@@ -135,6 +135,9 @@ bool _Nst_init_objects(void)
     Nst_itf.seq_start     = FUNC(Nst_func_new_c(1, Nst_iter_seq_start));
     Nst_itf.seq_is_done   = FUNC(Nst_func_new_c(1, Nst_iter_seq_is_done));
     Nst_itf.seq_get_val   = FUNC(Nst_func_new_c(1, Nst_iter_seq_get_val));
+    Nst_itf.map_start     = FUNC(Nst_func_new_c(1, Nst_iter_map_start));
+    Nst_itf.map_is_done   = FUNC(Nst_func_new_c(1, Nst_iter_map_is_done));
+    Nst_itf.map_get_val   = FUNC(Nst_func_new_c(1, Nst_iter_map_get_val));
 
     if (Nst_error_occurred()) {
         Nst_error_clear();

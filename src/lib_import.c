@@ -95,6 +95,12 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
         case '\r':
             t++;
             continue;
+        case '\0':
+            Nst_set_value_error_c(
+                _Nst_EM_INVALID_TYPE_LETTER("Nst_extract_arg_values"));
+            Nst_sbuffer_destroy(&custom_types);
+            Nst_free(match_type);
+            return NULL;
         case 't':
             accepted_types |= TYPE_IDX;
             goto normal_type;
@@ -233,6 +239,22 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
     match_type->custom_types = (Nst_TypeObj **)custom_types.data;
     match_type->custom_types_size = custom_types.len;
 
+    if (allow_casting) {
+        if (accepted_types == INT_IDX) {
+            accepted_types |= C_CAST;
+            accepted_types |= INT_C_CAST;
+        } else if (accepted_types == REAL_IDX) {
+            accepted_types |= C_CAST;
+            accepted_types |= REAL_C_CAST;
+        } else if (accepted_types == BOOL_IDX) {
+            accepted_types |= C_CAST;
+            accepted_types |= BOOL_C_CAST;
+        } else if (accepted_types == BYTE_IDX) {
+            accepted_types |= C_CAST;
+            accepted_types |= BYTE_C_CAST;
+        }
+    }
+
     if (*t == '_') {
         if (!allow_casting || accepted_types & NULL_IDX) {
             Nst_set_value_error_c(
@@ -269,47 +291,23 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
             destroy_match_type(match_type);
             return NULL;
         }
+        accepted_types &= ~C_CAST;
+
         t++;
         switch (*t++) {
-        case 't':
-            match_type->final_type = Nst_t.Type;
-            break;
-        case 'i':
-            match_type->final_type = Nst_t.Int;
-            break;
-        case 'r':
-            match_type->final_type = Nst_t.Real;
-            break;
-        case 'b':
-            match_type->final_type = Nst_t.Bool;
-            break;
-        case 'n':
-            match_type->final_type = Nst_t.Null;
-            break;
-        case 's':
-            match_type->final_type = Nst_t.Str;
-            break;
-        case 'v':
-            match_type->final_type = Nst_t.Vector;
-            break;
-        case 'a':
-            match_type->final_type = Nst_t.Array;
-            break;
-        case 'm':
-            match_type->final_type = Nst_t.Map;
-            break;
-        case 'f':
-            match_type->final_type = Nst_t.Func;
-            break;
-        case 'I':
-            match_type->final_type = Nst_t.Iter;
-            break;
-        case 'B':
-            match_type->final_type = Nst_t.Byte;
-            break;
-        case 'F':
-            match_type->final_type = Nst_t.IOFile;
-            break;
+        case 't': match_type->final_type = Nst_t.Type;   break;
+        case 'i': match_type->final_type = Nst_t.Int;    break;
+        case 'r': match_type->final_type = Nst_t.Real;   break;
+        case 'b': match_type->final_type = Nst_t.Bool;   break;
+        case 's': match_type->final_type = Nst_t.Str;    break;
+        case 'v': match_type->final_type = Nst_t.Vector; break;
+        case 'a': match_type->final_type = Nst_t.Array;  break;
+        case 'm': match_type->final_type = Nst_t.Map;    break;
+        case 'f': match_type->final_type = Nst_t.Func;   break;
+        case 'I': match_type->final_type = Nst_t.Iter;   break;
+        case 'B': match_type->final_type = Nst_t.Byte;   break;
+        case 'F': match_type->final_type = Nst_t.IOFile; break;
+        case 'o': match_type->final_type = Nst_t.Null;   break;
         default:
             Nst_set_value_error_c(
                 _Nst_EM_INVALID_TYPE_LETTER("Nst_extract_arg_values"));
@@ -317,24 +315,8 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
             destroy_match_type(match_type);
             return NULL;
         }
-    } else if (*t != '.' && allow_casting) {
-        if (accepted_types == INT_IDX) {
-            accepted_types |= INT_C_CAST;
-            accepted_types |= C_CAST;
-        }
-        else if (accepted_types == REAL_IDX) {
-            accepted_types |= REAL_C_CAST;
-            accepted_types |= C_CAST;
-        }
-        else if (accepted_types == BYTE_IDX) {
-            accepted_types |= BYTE_C_CAST;
-            accepted_types |= C_CAST;
-        }
-        else if (accepted_types == BOOL_IDX) {
-            accepted_types |= BOOL_C_CAST;
-            accepted_types |= C_CAST;
-        }
-    }
+    } else if (*t == '.' && (accepted_types & C_CAST))
+        accepted_types &= ~C_CAST;
 
     if (*t == '.') {
         if (accepted_types & C_CAST) {
@@ -419,6 +401,15 @@ cast_obj:
         goto content_check;
 
     if (!(accepted_types & C_CAST)) {
+        if (final_type == Nst_t.Null) {
+            Nst_inc_ref(ob);
+            if (!Nst_vector_append(allocated_objects, ob)) {
+                Nst_dec_ref(ob);
+                return false;
+            }
+            goto content_check;
+        }
+
         // Avoid casting arrays to vectors or vectors to arrays since they are
         // both Nst_SeqObj
         if ((final_type == Nst_t.Array || final_type == Nst_t.Vector)
@@ -541,9 +532,8 @@ static bool append_types(MatchType *type, Nst_Buffer *buf)
     tot_types += type->custom_types_size;
 
     for (u16 i = 0; i < 13; i++) {
-        if (((accepted_types >> i) & 1) == 0 || i == 5) {
+        if (((accepted_types >> i) & 1) == 0 || i == 5)
             continue;
-        }
         tot_types--;
         switch (i) {
         case 0: type_str = Nst_t.Int; break;
@@ -563,8 +553,7 @@ static bool append_types(MatchType *type, Nst_Buffer *buf)
             return false;
     }
 
-    for (usize i = 0, n = type->custom_types_size; i < n; i++)
-    {
+    for (usize i = 0, n = type->custom_types_size; i < n; i++) {
         type_str = type->custom_types[i];
         tot_types--;
         if (!append_type(type_str, buf, tot_types))

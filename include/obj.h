@@ -24,7 +24,7 @@
 #define Nst_ndec_ref(obj) do {                                                \
     if (obj != NULL)                                                          \
         _Nst_dec_ref(OBJ(obj));                                               \
-    } while ( 0 )
+    } while (0)
 /* Alias for _Nst_obj_destroy that casts obj to Nst_Obj *. */
 #define Nst_obj_destroy(obj) _Nst_obj_destroy(OBJ(obj))
 /**

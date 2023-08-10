@@ -3,7 +3,6 @@
 #include "mem.h"
 #include "llist.h"
 #include "parser.h"
-#include "error_internal.h"
 #include "tokens.h"
 #include "global_consts.h"
 #include "format.h"
@@ -13,7 +12,7 @@
 #define DESTROY_FIRST_TOK Nst_token_destroy(POP_FIRST_TOK)
 
 #define RETURN_ERROR(start, end, message) do {                                \
-    _Nst_SET_RAW_SYNTAX_ERROR(p_state.error, start, end, message);            \
+    Nst_set_internal_syntax_error_c(p_state.error, start, end, message);      \
     return NULL;                                                              \
     } while (0)
 
@@ -21,7 +20,7 @@
 // SET_ERROR_IF_OP_ERR(0) will set the error if it occurred
 #define SET_ERROR_IF_OP_ERR(...) do {                                         \
     if (Nst_error_occurred()) {                                               \
-        _Nst_SET_ERROR_FROM_OP_ERR(                                           \
+        Nst_set_internal_error_from_op_err(                                           \
             p_state.error,                                                    \
             PEEK_FIRST_TOK->start,                                            \
             PEEK_FIRST_TOK->end);                                             \
@@ -54,7 +53,7 @@
 #define INC_RECURSION_LVL do {                                                \
     recursion_lvl++;                                                          \
     if (recursion_lvl > 1500) {                                               \
-        _Nst_SET_RAW_MEMORY_ERROR(                                            \
+        Nst_set_internal_memory_error_c(                                      \
             p_state.error,                                                    \
             PEEK_FIRST_TOK->start,                                            \
             PEEK_FIRST_TOK->end,                                              \
@@ -117,7 +116,10 @@ Nst_Node *Nst_parse(Nst_LList *tokens_list, Nst_Error *error)
         Nst_Pos start = PEEK_FIRST_TOK->start;
         Nst_Pos end = PEEK_FIRST_TOK->start;
 
-        _Nst_SET_RAW_SYNTAX_ERROR(error, start, end, _Nst_EM_UNEXPECTED_TOK);
+        Nst_set_internal_syntax_error_c(
+            error,
+            start, end,
+            _Nst_EM_UNEXPECTED_TOK);
     }
 
     Nst_llist_destroy(tokens, (Nst_LListDestructor)Nst_token_destroy);

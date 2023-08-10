@@ -18,8 +18,7 @@ static Nst_Obj *new_seq(usize len, usize size, Nst_TypeObj *type)
         return NULL;
 
     Nst_Obj **objs = Nst_calloc_c(size, Nst_Obj *, NULL);
-    if (objs == NULL)
-    {
+    if (objs == NULL) {
         Nst_free(seq);
         return NULL;
     }
@@ -54,7 +53,8 @@ void _Nst_seq_destroy(Nst_SeqObj *seq)
     for (usize i = 0, n = seq->len; i < n; i++)
         Nst_dec_ref(objs[i]);
 
-    Nst_free(objs);
+    if (objs != NULL)
+        Nst_free(objs);
 }
 
 void _Nst_seq_traverse(Nst_SeqObj *seq)
@@ -68,7 +68,7 @@ void _Nst_seq_track(Nst_SeqObj* seq)
 {
     Nst_Obj **objs = seq->objs;
     for (usize i = 0, n = seq->len; i < n; i++) {
-        if ( Nst_FLAG_HAS(objs[i], Nst_FLAG_GGC_IS_SUPPORTED) )
+        if (Nst_FLAG_HAS(objs[i], Nst_FLAG_GGC_IS_SUPPORTED))
             Nst_ggc_track_obj((Nst_GGCObj*)objs[i]);
     }
 }
@@ -300,8 +300,7 @@ Nst_Obj *seq_create_c(Nst_Obj *seq, const i8 *fmt, va_list args)
                 objs[i] = Nst_inc_ref(Nst_c.Bool_false);
             break;
         }
-        case 'B':
-        {
+        case 'B': {
             int value = va_arg(args, int);
             Nst_Obj *obj = Nst_byte_new((u8)value);
             if (obj == NULL)
@@ -309,20 +308,17 @@ Nst_Obj *seq_create_c(Nst_Obj *seq, const i8 *fmt, va_list args)
             objs[i] = obj;
             break;
         }
-        case 'o':
-        {
+        case 'o': {
             Nst_Obj *obj = va_arg(args, Nst_Obj *);
             objs[i] = obj;
             break;
         }
-        case 'O':
-        {
+        case 'O': {
             Nst_Obj *obj = va_arg(args, Nst_Obj *);
             objs[i] = Nst_inc_ref(obj);
             break;
         }
-        case 'n':
-        {
+        case 'n': {
             (void)va_arg(args, void *);
             objs[i] = Nst_inc_ref(Nst_c.Null_null);
             break;

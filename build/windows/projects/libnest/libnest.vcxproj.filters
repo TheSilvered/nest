@@ -27,9 +27,6 @@
     <ClInclude Include="..\..\..\..\include\error.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\error_internal.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\function.h">
       <Filter>Header files</Filter>
     </ClInclude>

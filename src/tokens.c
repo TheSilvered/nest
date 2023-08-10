@@ -335,8 +335,7 @@ void Nst_print_tok(Nst_Tok *token)
         Nst_print(" - ");
 
         Nst_StrObj* s = STR(_Nst_repr_str_cast(token->value));
-        if ( s != NULL )
-        {
+        if (s != NULL) {
             Nst_error_clear();
             Nst_fwrite(s->value, sizeof(i8), s->len, Nst_io.out);
             Nst_dec_ref(s);

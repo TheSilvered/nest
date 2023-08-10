@@ -19,8 +19,8 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(enumerate_,    4);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(keys_,         1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(values_,       1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(items_,        1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(reversed_,     1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(new_iterator_, 4);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(iter_start_,   1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(iter_is_done_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(iter_get_val_, 1);
@@ -193,8 +193,8 @@ Nst_FUNC_SIGN(keys_)
     Nst_Obj *arr = Nst_array_create_c("iO", 0, map);
 
     return Nst_iter_new(
-        FUNC(Nst_func_new_c(1, kvi_start)),
-        FUNC(Nst_func_new_c(1, kvi_is_done)),
+        FUNC(Nst_inc_ref(Nst_iter_func()->map_start)),
+        FUNC(Nst_inc_ref(Nst_iter_func()->map_is_done)),
         FUNC(Nst_func_new_c(1, keys_get_val)),
         arr);
 }
@@ -209,25 +209,9 @@ Nst_FUNC_SIGN(values_)
     Nst_Obj *arr = Nst_array_create_c("iO", 0, map);
 
     return Nst_iter_new(
-        FUNC(Nst_func_new_c(1, kvi_start)),
-        FUNC(Nst_func_new_c(1, kvi_is_done)),
+        FUNC(Nst_inc_ref(Nst_iter_func()->map_start)),
+        FUNC(Nst_inc_ref(Nst_iter_func()->map_is_done)),
         FUNC(Nst_func_new_c(1, values_get_val)),
-        arr);
-}
-
-Nst_FUNC_SIGN(items_)
-{
-    Nst_MapObj *map;
-
-    Nst_DEF_EXTRACT("m", &map);
-
-    // Layout: [idx, map]
-    Nst_Obj *arr = Nst_array_create_c("iO", 0, map);
-
-    return Nst_iter_new(
-        FUNC(Nst_func_new_c(1, kvi_start)),
-        FUNC(Nst_func_new_c(1, kvi_is_done)),
-        FUNC(Nst_func_new_c(1, items_get_val)),
         arr);
 }
 
@@ -245,6 +229,31 @@ Nst_FUNC_SIGN(reversed_)
         FUNC(Nst_func_new_c(1, reversed_is_done)),
         FUNC(Nst_func_new_c(1, reversed_get_val)),
         arr);
+}
+
+Nst_FUNC_SIGN(new_iterator_)
+{
+    Nst_FuncObj *start;
+    Nst_FuncObj *is_done;
+    Nst_FuncObj *get_val;
+    Nst_Obj *data;
+
+    Nst_DEF_EXTRACT(
+        "f:o f:o f:o o:o",
+        &start,
+        &is_done,
+        &get_val,
+        &data);
+
+    if (start->arg_num != 1
+        || is_done->arg_num != 1
+        || get_val->arg_num != 1)
+    {
+        Nst_set_value_error_c("all the functions must accept exactly one argument");
+        return nullptr;
+    }
+
+    return Nst_iter_new(start, is_done, get_val, data);
 }
 
 Nst_FUNC_SIGN(iter_start_)

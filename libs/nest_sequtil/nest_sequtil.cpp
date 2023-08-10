@@ -176,12 +176,12 @@ Nst_FUNC_SIGN(slice_)
 
     if (start < 0)
         start = 0;
-    else if ( start >= (i64)seq_len )
+    else if (start >= (i64)seq_len)
         start = seq_len - 1;
 
     if (stop < 0 && stop_obj != Nst_null())
         stop = 0;
-    else if ( stop > (i64)seq_len )
+    else if (stop > (i64)seq_len)
         stop = seq_len;
 
     isize new_size = (isize)((stop - start) / step);
@@ -341,9 +341,7 @@ Nst_FUNC_SIGN(sort_)
                 merge(seq, left, mid, right);
 
             if (Nst_error_occurred())
-            {
                 return nullptr;
-            }
         }
     }
 
@@ -501,7 +499,7 @@ Nst_FUNC_SIGN(count_)
 
         return Nst_int_new(count);
     } else {
-        if (!Nst_T(obj, Str) || STR(obj)->len == 0 )
+        if (!Nst_T(obj, Str) || STR(obj)->len == 0)
             Nst_RETURN_ZERO;
 
         i8 *str = STR(container)->value;

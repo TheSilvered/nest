@@ -95,6 +95,8 @@
 
 #define Nst_UNUSED(v) (void)(v)
 
+#define Nst_TRACK_OBJ_INIT_POS
+
 #if !defined(_DEBUG) && defined(Nst_TRACK_OBJ_INIT_POS)
 #undef Nst_TRACK_OBJ_INIT_POS
 #endif

@@ -18,8 +18,8 @@
         (i64)state.pos.line,                                                  \
         (i64)state.pos.col))
 
-#define IS_HEX(ch) ( (ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f') )
-#define HEX_TO_INT(ch) ( ch <= '9' ? ch - '0' : ch - 'a' + 10 )
+#define IS_HEX(ch) ((ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f'))
+#define HEX_TO_INT(ch) (ch <= '9' ? ch - '0' : ch - 'a' + 10)
 
 #define tok_new_noval(start, end, type) \
     Nst_tok_new_noval(start, end, (Nst_TokType)type)
@@ -224,9 +224,8 @@ static Nst_Tok *parse_json_str()
             } else if (state.ch == '\\') {
                 escape = true;
                 escape_start = Nst_copy_pos(state.pos);
-            } else {
+            } else
                 Nst_buffer_append_char(&buf, state.ch);
-            }
             advance();
             continue;
         }
@@ -457,7 +456,7 @@ static bool ignore_comment()
     }
 
     advance();
-    if (state.idx >= state.len || ( state.ch != '/' && state.ch != '*')) {
+    if (state.idx >= state.len || (state.ch != '/' && state.ch != '*')) {
         JSON_SYNTAX_ERROR("invalid character", state.path, state.pos);
         return false;
     }

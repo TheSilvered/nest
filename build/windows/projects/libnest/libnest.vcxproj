@@ -155,7 +155,6 @@
     <ClInclude Include="..\..\..\..\include\compiler.h" />
     <ClInclude Include="..\..\..\..\include\encoding.h" />
     <ClInclude Include="..\..\..\..\include\error.h" />
-    <ClInclude Include="..\..\..\..\include\error_internal.h" />
     <ClInclude Include="..\..\..\..\include\format.h" />
     <ClInclude Include="..\..\..\..\include\function.h" />
     <ClInclude Include="..\..\..\..\include\ggc.h" />

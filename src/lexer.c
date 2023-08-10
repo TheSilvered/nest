@@ -3,7 +3,6 @@
 #include <stdio.h>
 #include <string.h>
 #include "mem.h"
-#include "error_internal.h"
 #include "hash.h"
 #include "lexer.h"
 #include "global_consts.h"
@@ -17,7 +16,7 @@
 
 #define SET_INVALID_ESCAPE_ERROR do {                                         \
     Nst_buffer_destroy(&buf);                                                 \
-    _Nst_SET_RAW_SYNTAX_ERROR(                                                \
+    Nst_set_internal_syntax_error_c(                                          \
         error,                                                                \
         escape_start,                                                         \
         cursor.pos,                                                           \
@@ -47,10 +46,10 @@
 
 #define RETURN_IF_OP_ERR(cond) do {                                           \
     if ((cond) || Nst_error_occurred()) {                                     \
-        _Nst_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);            \
+        Nst_set_internal_error_from_op_err(error, cursor.pos, cursor.pos);            \
         return;                                                               \
     }                                                                         \
-    } while ( 0 )
+    } while (0)
 
 typedef struct LexerCursor {
     i8 *text;
@@ -140,7 +139,7 @@ Nst_LList *Nst_tokenize(Nst_SourceText *text, Nst_Error *error)
     cursor.pos.text = text;
 
     if (tokens == NULL) {
-        _Nst_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
+        Nst_set_internal_error_from_op_err(error, cursor.pos, cursor.pos);
         return NULL;
     }
 
@@ -164,11 +163,11 @@ Nst_LList *Nst_tokenize(Nst_SourceText *text, Nst_Error *error)
         else if (cursor.ch == '\n') {
             tok = Nst_tok_new_noend(Nst_copy_pos(cursor.pos), Nst_TT_ENDL);
             if (tokens == NULL)
-                _Nst_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
+                Nst_set_internal_error_from_op_err(error, cursor.pos, cursor.pos);
         } else if (cursor.ch == '\\')
             advance();
         else {
-            _Nst_SET_RAW_SYNTAX_ERROR(
+            Nst_set_internal_syntax_error_c(
                 error,
                 cursor.pos,
                 cursor.pos,
@@ -190,13 +189,13 @@ Nst_LList *Nst_tokenize(Nst_SourceText *text, Nst_Error *error)
 
     tok = Nst_tok_new_noend(cursor.pos, Nst_TT_EOFILE);
     if (tok == NULL) {
-        _Nst_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
+        Nst_set_internal_error_from_op_err(error, cursor.pos, cursor.pos);
         Nst_llist_destroy(tokens, (Nst_LListDestructor)Nst_token_destroy);
         return NULL;
     }
 
     if (!Nst_llist_append(tokens, tok, true)) {
-        _Nst_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
+        Nst_set_internal_error_from_op_err(error, cursor.pos, cursor.pos);
         Nst_llist_destroy(tokens, (Nst_LListDestructor)Nst_token_destroy);
         return NULL;
     }
@@ -267,7 +266,7 @@ static void make_symbol(Nst_Tok **tok, Nst_Error *error)
         }
         go_back();
         return;
-    } else if ( symbol[0] == '-' && symbol[1] == '/' ) {
+    } else if (symbol[0] == '-' && symbol[1] == '/') {
         bool can_close = false;
         bool was_closed = false;
 
@@ -285,7 +284,7 @@ static void make_symbol(Nst_Tok **tok, Nst_Error *error)
         go_back();
 
         if (!was_closed) {
-            _Nst_SET_RAW_SYNTAX_ERROR(
+            Nst_set_internal_syntax_error_c(
                 error,
                 start,
                 cursor.pos,
@@ -305,7 +304,7 @@ static void make_symbol(Nst_Tok **tok, Nst_Error *error)
         symbol[2] = '\0';
         go_back();
         go_back();
-    } else if ( symbol[2] == '-' ) {
+    } else if (symbol[2] == '-') {
         // A '-' at the end might start a comment, il can be checked only when
         // it is at index 0 or 1
         symbol[2] = '\0';
@@ -375,7 +374,7 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
             advance();
         } while (CH_IS_BIN(cursor.ch) || cursor.ch == '_');
         if (CH_IS_DEC(cursor.ch)) {
-            _Nst_SET_RAW_SYNTAX_ERROR(
+            Nst_set_internal_syntax_error_c(
                 error,
                 start,
                 cursor.pos,
@@ -390,7 +389,7 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
         advance();
         if (!CH_IS_OCT(cursor.ch)) {
             go_back();
-            _Nst_SET_RAW_SYNTAX_ERROR(
+            Nst_set_internal_syntax_error_c(
                 error,
                 start,
                 cursor.pos,
@@ -401,9 +400,9 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
         do {
             ltrl_size++;
             advance();
-        } while ( CH_IS_OCT(cursor.ch) || cursor.ch == '_' );
+        } while (CH_IS_OCT(cursor.ch) || cursor.ch == '_');
         if (CH_IS_DEC(cursor.ch)) {
-            _Nst_SET_RAW_SYNTAX_ERROR(
+            Nst_set_internal_syntax_error_c(
                 error,
                 start,
                 cursor.pos,
@@ -418,7 +417,7 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
         advance();
         if (!CH_IS_HEX(cursor.ch)) {
             go_back();
-            _Nst_SET_RAW_SYNTAX_ERROR(
+            Nst_set_internal_syntax_error_c(
                 error,
                 start,
                 cursor.pos,
@@ -431,7 +430,7 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
             advance();
         } while (CH_IS_HEX(cursor.ch) || cursor.ch == '_');
         if (CH_IS_ALPHA(cursor.ch)) {
-            _Nst_SET_RAW_SYNTAX_ERROR(
+            Nst_set_internal_syntax_error_c(
                 error,
                 start,
                 cursor.pos,
@@ -442,12 +441,11 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
         end = Nst_copy_pos(cursor.pos);
         goto end;
     case 'h':
-    case 'H':
-    {
+    case 'H': {
         advance();
         if (!CH_IS_HEX(cursor.ch)) {
             go_back();
-            _Nst_SET_RAW_SYNTAX_ERROR(
+            Nst_set_internal_syntax_error_c(
                 error,
                 start,
                 cursor.pos,
@@ -462,17 +460,16 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
                 continue;
             }
             ch1 = ch2;
-            if (cursor.ch >= '0' && cursor.ch <= '9') {
+            if (cursor.ch >= '0' && cursor.ch <= '9')
                 ch2 = cursor.ch - '0';
-            } else if (cursor.ch >= 'a' && cursor.ch <= 'f') {
+            else if (cursor.ch >= 'a' && cursor.ch <= 'f')
                 ch2 = cursor.ch - 'a' + 10;
-            } else {
+            else
                 ch2 = cursor.ch - 'A' + 10;
-            }
             advance();
         } while (CH_IS_HEX(cursor.ch) || cursor.ch == '_');
         if (CH_IS_ALPHA(cursor.ch)) {
-            _Nst_SET_RAW_SYNTAX_ERROR(
+            Nst_set_internal_syntax_error_c(
                 error,
                 start,
                 cursor.pos,
@@ -508,7 +505,7 @@ dec_num:
     ltrl_size++;
 
     if (!CH_IS_DEC(cursor.ch)) {
-        _Nst_SET_RAW_SYNTAX_ERROR(
+        Nst_set_internal_syntax_error_c(
             error,
             start,
             cursor.pos,
@@ -518,7 +515,7 @@ dec_num:
     do {
         advance();
         ltrl_size++;
-    } while ( CH_IS_DEC(cursor.ch) || cursor.ch == '_' );
+    } while (CH_IS_DEC(cursor.ch) || cursor.ch == '_');
 
     if (cursor.ch != 'e' && cursor.ch != 'E') {
         go_back();
@@ -531,7 +528,7 @@ dec_num:
         ltrl_size++;
     }
     if (!CH_IS_DEC(cursor.ch)) {
-        _Nst_SET_RAW_SYNTAX_ERROR(
+        Nst_set_internal_syntax_error_c(
             error,
             start,
             cursor.pos,
@@ -619,7 +616,7 @@ static void make_ident(Nst_Tok **tok, Nst_Error *error)
     Nst_StrObj *val_obj = STR(Nst_string_new_c_raw(str, true));
     if (val_obj == NULL) {
         Nst_free(str);
-        _Nst_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
+        Nst_set_internal_error_from_op_err(error, cursor.pos, cursor.pos);
     }
     Nst_obj_hash(OBJ(val_obj));
 
@@ -647,19 +644,19 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
     {
         if (!Nst_buffer_expand_by(&buf, 4)) {
             Nst_buffer_destroy(&buf);
-            _Nst_SET_ERROR_FROM_OP_ERR(error, cursor.pos, cursor.pos);
+            Nst_set_internal_error_from_op_err(error, cursor.pos, cursor.pos);
         }
 
         if (!escape) {
             if (cursor.ch == '\n' && !allow_multiline) {
                 Nst_buffer_destroy(&buf);
-                _Nst_SET_RAW_SYNTAX_ERROR(
+                Nst_set_internal_syntax_error_c(
                     error,
                     cursor.pos,
                     cursor.pos,
                     _Nst_EM_UNEXPECTED_NEWLINE);
                 return;
-            } else if ( cursor.ch == '\\' ) {
+            } else if (cursor.ch == '\\') {
                 escape = true;
                 escape_start = Nst_copy_pos(cursor.pos);
             } else
@@ -704,8 +701,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
             break;
         }
         case 'u':
-        case 'U':
-        {
+        case 'U': {
             i32 size = cursor.ch == 'U' ? 8 : 4;
             if ((usize)cursor.idx + size >= cursor.len)
                 SET_INVALID_ESCAPE_ERROR;
@@ -737,8 +733,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
         case '4':
         case '5':
         case '6':
-        case '7':
-        {
+        case '7': {
             i8 ch1 = cursor.ch - '0';
 
             advance();
@@ -773,7 +768,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
 
     if (cursor.ch != closing_ch) {
         Nst_buffer_destroy(&buf);
-        _Nst_SET_RAW_SYNTAX_ERROR(
+        Nst_set_internal_syntax_error_c(
             error,
             start,
             error_end,
@@ -873,7 +868,7 @@ bool Nst_normalize_encoding(Nst_SourceText *text, Nst_CPID encoding,
     Nst_Pos pos = { 0, 0, text };
     Nst_Buffer buf;
     if (!Nst_buffer_init(&buf, text->text_len + 40)) {
-        _Nst_SET_ERROR_FROM_OP_ERR(error, pos, pos);
+        Nst_set_internal_error_from_op_err(error, pos, pos);
         return false;
     }
 
@@ -887,9 +882,12 @@ bool Nst_normalize_encoding(Nst_SourceText *text, Nst_CPID encoding,
         i32 ch_len = from->check_bytes(text_p, n);
         if (ch_len < 0) {
             Nst_buffer_destroy(&buf);
-            _Nst_SET_VALUE_ERROR(error, pos, pos, Nst_sprintf(
-                _Nst_EM_INVALID_ENCODING,
-                *text_p, from->name));
+            Nst_set_internal_syntax_error(
+                error,
+                pos, pos,
+                STR(Nst_sprintf(
+                    _Nst_EM_INVALID_ENCODING,
+                    *text_p, from->name)));
             return false;
         }
         usize ch_size = ch_len * from->ch_size;
@@ -913,7 +911,7 @@ bool Nst_normalize_encoding(Nst_SourceText *text, Nst_CPID encoding,
         // Re-encode character
         if (!Nst_buffer_expand_by(&buf, 5)) {
             Nst_buffer_destroy(&buf);
-            _Nst_SET_ERROR_FROM_OP_ERR(error, pos, pos);
+            Nst_set_internal_error_from_op_err(error, pos, pos);
             return false;
         }
         ch_len = Nst_cp_utf8.from_utf32(utf32_ch, buf.data + buf.len);

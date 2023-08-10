@@ -114,7 +114,7 @@ void Nst_ggc_collect_gen(Nst_GGCList *gen, Nst_GGCList *other_gen1,
     for (ob = gen->head; ob != NULL; ob = ob->ggc_next) {
         Nst_FLAG_DEL(ob, Nst_FLAG_GGC_REACHABLE
                          | Nst_FLAG_GGC_UNREACHABLE
-                         | Nst_FLAG_GGC_DELETED );
+                         | Nst_FLAG_GGC_DELETED);
     }
 
     // All objects in the variable tables are reachable
@@ -261,7 +261,7 @@ void Nst_ggc_collect(void)
 
     if (ggc->gen3.len > _Nst_GEN3_MAX
         || (has_collected_gen2
-            && ggc->gen2.len + ggc->gen3.len > _Nst_GEN3_MAX) )
+            && ggc->gen2.len + ggc->gen3.len > _Nst_GEN3_MAX))
     {
         Nst_ggc_collect_gen(&ggc->gen3, &ggc->gen1, &ggc->gen2, &ggc->old_gen);
         ggc->old_gen_pending += ggc->gen3.len;

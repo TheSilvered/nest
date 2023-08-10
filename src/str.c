@@ -130,7 +130,7 @@ Nst_Obj *_Nst_string_repr(Nst_StrObj *src)
             if (isprint(orig[i])) {
                 new_size += 1;
                 continue;
-            } else if ( orig[i] <= 0b01111111 )
+            } else if (orig[i] <= 0b01111111)
                 new_size += 4;
             else {
                 i32 res = Nst_check_utf8_bytes(orig + i, l - i);
@@ -535,9 +535,9 @@ end:
                 *s++ = ch;
         }
         *s = '\0';
-    } else {
+    } else
         buf = start;
-    }
+
     res = strtod(buf, NULL);
     if (contains_underscores)
         Nst_free(buf);
@@ -573,8 +573,7 @@ i8 *Nst_string_find(i8 *s1, usize l1, i8 *s2, usize l2)
     if (l2 > l1)
         return NULL;
 
-    while (s1 != end1)
-    {
+    while (s1 != end1) {
         p1 = s1++;
         p2 = s2;
 

@@ -5,7 +5,7 @@
 ?::empty_m Map @test.assert_eq
 empty_m.not_a_key null @test.assert_eq
 
-{ 'a': 1, 'b': 2, 'c': 3, 'd': 4 } = m
+{'a': 1, 'b': 2, 'c': 3, 'd': 4} = m
 ?::m Map @test.assert_eq
 $m 4 @test.assert_eq
 m.a 1 @test.assert_eq
@@ -13,15 +13,15 @@ m.b 2 @test.assert_eq
 m.c 3 @test.assert_eq
 m.d 4 @test.assert_eq
 
-m 'c' - { 'a': 1, 'b': 2, 'd': 4 } @test.assert_eq
-m 'h' - { 'a': 1, 'b': 2, 'd': 4 } @test.assert_eq
+m 'c' - {'a': 1, 'b': 2, 'd': 4} @test.assert_eq
+m 'h' - {'a': 1, 'b': 2, 'd': 4} @test.assert_eq
 
-Str :: m "{ 'a': 1, 'b': 2, 'd': 4 }" @test.assert_eq
+Str :: m "{'a': 1, 'b': 2, 'd': 4}" @test.assert_eq
 {} @test.assert_false
-{ 'smth': 1 } @test.assert_true
+{'smth': 1} @test.assert_true
 
 m 'a' -
 m 'b' -
 m 'd' -
 $m 0 @test.assert_eq
-Map :: { { 'a', 1 }, { 'b', 2 } } { 'a': 1, 'b': 2 } @test.assert_eq
+Map :: {{'a', 1}, {'b', 2}} {'a': 1, 'b': 2} @test.assert_eq

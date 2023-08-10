@@ -150,7 +150,8 @@ NstEXP void *NstC Nst_calloc(usize count, usize size, void *init_value);
  * @param count: the current number of elements in the block
  *
  * @return A pointer to the reallocated memory block or NULL on failure. The
- * error is set.
+ * error is set. If either new_count or size is zero, block is freed and NULL
+ * is returned with no error.
  */
 NstEXP void *NstC Nst_realloc(void *block, usize new_count, usize size,
                               usize count);
@@ -170,7 +171,8 @@ NstEXP void *NstC Nst_realloc(void *block, usize new_count, usize size,
  * with
  *
  * @return A pointer to the reallocated memory block or NULL on failure. The
- * error is set.
+ * error is set. If either new_count or size is zero, block is freed and NULL
+ * is returned with no error.
  */
 NstEXP void *NstC Nst_crealloc(void *block, usize new_count, usize size,
                                usize count, void *init_value);

@@ -23,7 +23,7 @@ bool render_texture(GUI_Label *l)
     l->texture = SDL_CreateTextureFromSurface(l->app->renderer, text_surf);
     if (l->auto_height
         && (!Nst_FLAG_HAS(l, GUI_FLAG_REL_SIZE)
-            || (l->rel_size.diff_y == 0 && l->rel_size.scale_y == 0.0)) )
+            || (l->rel_size.diff_y == 0 && l->rel_size.scale_y == 0.0)))
     {
         l->rect.h = l->padding_bottom + l->padding_top + text_surf->h;
     }

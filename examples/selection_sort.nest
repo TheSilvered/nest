@@ -10,12 +10,12 @@
             seq.(min) seq.(j) > ?
                 j = min
         ]
-        { seq.(i), seq.(min) } = { seq.(min), seq.(i) }
+        {seq.(i), seq.(min)} = {seq.(min), seq.(i)}
     ]
     => seq
 ]
 
-{ 1, 2, 3, 4, 5, 6, 7, 8, 9 } = arr
+{1, 2, 3, 4, 5, 6, 7, 8, 9} = arr
 arr @rand.shuffle
 >>> ('shuffled: ' arr '\n' ><)
 arr @insertion_sort

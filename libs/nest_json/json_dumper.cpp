@@ -25,7 +25,7 @@
         Nst_set_memory_error_c("over 1500 recursive calls, dump failed");     \
         FAIL;                                                                 \
     }                                                                         \
-    } while ( 0 )
+    } while (0)
 
 #define DEC_RECURSION_LVL recursion_level--
 
@@ -44,16 +44,12 @@ static i32 recursion_level;
 Nst_Obj *json_dump(Nst_Obj *obj, i32 indent)
 {
     recursion_level = 0;
-    if ( !Nst_buffer_init(&str_buf, 255) )
-    {
+    if (!Nst_buffer_init(&str_buf, 255))
         return nullptr;
-    }
 
     dump_obj(obj, indent);
-    if ( Nst_error_occurred() )
-    {
+    if (Nst_error_occurred())
         return nullptr;
-    }
 
     return OBJ(Nst_buffer_to_string(&str_buf));
 }
@@ -104,16 +100,13 @@ static void dump_str(Nst_StrObj *str)
     EXCEPT_ERROR;
 
     Nst_buffer_append_char(&str_buf, '"');
-    for ( usize i = 0; i < s_len; i++ )
-    {
+    for (usize i = 0; i < s_len; i++) {
         i32 res = Nst_check_utf8_bytes((u8 *)s_val + i, s_len - i);
-        switch ( res )
-        {
+        switch (res) {
         case 1:
             Nst_buffer_append_char(&str_buf, s_val[i]);
             break;
-        case -1:
-        {
+        case -1: {
             Nst_buffer_append_c_str(&str_buf, "\\u00");
             u8 c1 = u8(s_val[i]) >> 4;
             u8 c2 = u8(s_val[i]) & 0xf;
@@ -121,8 +114,7 @@ static void dump_str(Nst_StrObj *str)
             Nst_buffer_append_char(&str_buf, hex_digits[c2]);
             break;
         }
-        case 2:
-        {
+        case 2: {
             Nst_buffer_append_c_str(&str_buf, "\\u0");
             u8 c1 = u8(s_val[i]) >> 2 & 0xf;
             u8 c2 = ((u8(s_val[i]) & 0x3) << 2)
@@ -135,8 +127,7 @@ static void dump_str(Nst_StrObj *str)
             Nst_buffer_append_char(&str_buf, hex_digits[c3]);
             break;
         }
-        case 3:
-        {
+        case 3: {
             Nst_buffer_append_c_str(&str_buf, "\\u");
             u8 c1 = u8(s_val[i++]) & 0xf;
             u8 c2 = (u8(s_val[i]) >> 2) & 0xf;

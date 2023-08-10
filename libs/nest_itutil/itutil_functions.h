@@ -35,11 +35,8 @@ Nst_FUNC_SIGN(enumerate_start);
 Nst_FUNC_SIGN(enumerate_is_done);
 Nst_FUNC_SIGN(enumerate_get_val);
 
-Nst_FUNC_SIGN(kvi_start);
-Nst_FUNC_SIGN(kvi_is_done);
 Nst_FUNC_SIGN(keys_get_val);
 Nst_FUNC_SIGN(values_get_val);
-Nst_FUNC_SIGN(items_get_val);
 
 Nst_FUNC_SIGN(reversed_start);
 Nst_FUNC_SIGN(reversed_is_done);

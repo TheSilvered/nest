@@ -90,7 +90,7 @@ NstEXP i32 NstC _Nst_iter_is_done(Nst_IterObj *iter);
  */
 NstEXP Nst_Obj *NstC _Nst_iter_get_val(Nst_IterObj *iter);
 
-// Functions for the range iterator
+// Functions for range iterators
 
 /* The start function of the range iterator. */
 NstEXP Nst_FUNC_SIGN(Nst_iter_range_start);
@@ -99,7 +99,7 @@ NstEXP Nst_FUNC_SIGN(Nst_iter_range_is_done);
 /* The get_val function of the range iterator. */
 NstEXP Nst_FUNC_SIGN(Nst_iter_range_get_val);
 
-// Functions for the sequence iterator
+// Functions for sequence iterators
 
 /* The start function of the sequence iterator. */
 NstEXP Nst_FUNC_SIGN(Nst_iter_seq_start);
@@ -108,7 +108,7 @@ NstEXP Nst_FUNC_SIGN(Nst_iter_seq_is_done);
 /* The get_val function of the sequence iterator. */
 NstEXP Nst_FUNC_SIGN(Nst_iter_seq_get_val);
 
-// Functions for the string iterator
+// Functions for string iterators
 
 /* The start function of the string iterator. */
 NstEXP Nst_FUNC_SIGN(Nst_iter_str_start);
@@ -116,6 +116,15 @@ NstEXP Nst_FUNC_SIGN(Nst_iter_str_start);
 NstEXP Nst_FUNC_SIGN(Nst_iter_str_is_done);
 /* The get_val function of the string iterator. */
 NstEXP Nst_FUNC_SIGN(Nst_iter_str_get_val);
+
+// Functions for map iterators
+
+/* The start function of the map iterator. */
+NstEXP Nst_FUNC_SIGN(Nst_iter_map_start);
+/* The is_done function of the map iterator. */
+NstEXP Nst_FUNC_SIGN(Nst_iter_map_is_done);
+/* The get_val function of the map iterator. */
+NstEXP Nst_FUNC_SIGN(Nst_iter_map_get_val);
 
 #ifdef __cplusplus
 }

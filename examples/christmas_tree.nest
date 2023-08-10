@@ -3,9 +3,9 @@
 Int :: <<< 'Input the hight: ' = height
 
 ... 1 2 -> (height 2 *) := i [
-    ... height (i 2 /) 1 - [ >>> ' ' ]
-    ... i [ >>> '*' ]
+    ... height (i 2 /) 1 - [>>> ' ']
+    ... i [>>> '*']
     >>> '\n'
 ]
-... height 1 - [ >>> ' ' ]
+... height 1 - [>>> ' ']
 >>> '*\n'

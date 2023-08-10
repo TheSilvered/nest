@@ -213,3 +213,39 @@ Nst_FUNC_SIGN(Nst_iter_str_get_val)
     AS_INT(val->objs[0]) += 1;
     return ob;
 }
+
+Nst_FUNC_SIGN(Nst_iter_map_start)
+{
+    Nst_UNUSED(arg_num);
+    Nst_Obj **objs = SEQ(args[0])->objs;
+    AS_INT(objs[0]) = Nst_map_get_next_idx(-1, objs[1]);
+    Nst_RETURN_NULL;
+}
+
+Nst_FUNC_SIGN(Nst_iter_map_is_done)
+{
+    Nst_UNUSED(arg_num);
+    Nst_Obj **objs = SEQ(args[0])->objs;
+    if (AS_INT(objs[0]) == -1)
+        Nst_RETURN_TRUE;
+    Nst_RETURN_FALSE;
+}
+
+Nst_FUNC_SIGN(Nst_iter_map_get_val)
+{
+    Nst_UNUSED(arg_num);
+    Nst_Obj **objs = SEQ(args[0])->objs;
+
+    Nst_SeqObj *arr = SEQ(Nst_array_new(2));
+
+    if (AS_INT(objs[0]) == -1) {
+        Nst_seq_set(arr, 0, Nst_null());
+        Nst_seq_set(arr, 1, Nst_null());
+    } else {
+        Nst_MapNode node = MAP(objs[1])->nodes[AS_INT(objs[0])];
+        Nst_seq_set(arr, 0, node.key);
+        Nst_seq_set(arr, 1, node.value);
+    }
+    AS_INT(objs[0]) = Nst_map_get_next_idx((i32)AS_INT(objs[0]), MAP(objs[1]));
+    return OBJ(arr);
+}

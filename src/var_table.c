@@ -84,7 +84,8 @@ bool _Nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val)
 
 void Nst_vt_destroy(Nst_VarTable *vt)
 {
-    Nst_map_drop(vt->vars, Nst_s.o__vars_);
+    Nst_Obj *vars = Nst_map_drop(vt->vars, Nst_s.o__vars_);
+    Nst_ndec_ref(vars);
     Nst_dec_ref(vt->vars);
     if (Nst_state.vt->global_table != NULL)
         Nst_dec_ref(Nst_state.vt->global_table);

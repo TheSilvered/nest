@@ -142,25 +142,9 @@ bool _Nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
     Nst_inc_ref(key);
     Nst_inc_ref(value);
 
-    if (curr_node.key != NULL)
-    {
+    if (curr_node.key != NULL) {
         Nst_dec_ref(curr_node.key);
         Nst_dec_ref(curr_node.value);
-
-        // if it's not the last node
-        if (curr_node.next_idx != -1) {
-            nodes[curr_node.next_idx].prev_idx = curr_node.prev_idx;
-
-            if (curr_node.prev_idx != -1)
-                nodes[curr_node.prev_idx].next_idx = curr_node.next_idx;
-            else
-                map->head_idx = curr_node.next_idx;
-
-            nodes[map->tail_idx].next_idx = (i32)(i & mask);
-            (nodes + (i & mask))->prev_idx = map->tail_idx;
-            map->tail_idx = (i32)(i & mask);
-            (nodes + (i & mask))->next_idx = -1;
-        }
     } else {
         map->len++;
 
@@ -245,8 +229,7 @@ Nst_Obj *_Nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
     if (curr_node.key == NULL)
         return NULL;
 
-    if (curr_node.hash == hash && Nst_obj_eq_c(key, curr_node.key))
-    {
+    if (curr_node.hash == hash && Nst_obj_eq_c(key, curr_node.key)) {
         Nst_dec_ref(curr_node.key);
         Nst_Obj *node_value = curr_node.value;
 

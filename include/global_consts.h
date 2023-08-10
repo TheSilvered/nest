@@ -1,5 +1,5 @@
 /**
- * @file error_internal.h
+ * @file global_consts.h
  *
  * @brief Constant objects used in the program
  *
@@ -121,6 +121,10 @@ NstEXP typedef struct _Nst_IterFunctions {
     Nst_FuncObj *str_start;
     Nst_FuncObj *str_is_done;
     Nst_FuncObj *str_get_val;
+
+    Nst_FuncObj *map_start;
+    Nst_FuncObj *map_is_done;
+    Nst_FuncObj *map_get_val;
 } Nst_IterFunctions;
 
 /**

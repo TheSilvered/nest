@@ -68,9 +68,9 @@ static void draw_angle_border_point(SDL_Surface *surf, int rad, int border,
         u8 new_b = u8(t * b_i + (1 - t) * b_b);
         u8 new_a = u8(t * a_i + (1 - t) * a_b);
         draw_point(surf, x, y, new_r, new_g, new_b, new_a);
-    } else if (dist < rad * rad) {
+    } else if (dist < rad * rad)
         draw_point(surf, x, y, r_b, g_b, b_b, a_b);
-    } else if (dist < (rad+1) * (rad+1)) {
+    else if (dist < (rad+1) * (rad+1)) {
         u8 new_opacity = u8((1 - sqrt(dist) + rad) * a_b);
         draw_point(surf, x, y, r_b, g_b, b_b, new_opacity);
     }

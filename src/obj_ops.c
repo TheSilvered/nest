@@ -41,30 +41,30 @@ typedef void * lib_t;
     (obj->type == Nst_t.Int                                                   \
      || obj->type == Nst_t.Real                                               \
      || obj->type == Nst_t.Byte)
-#define IS_INT(obj) ( obj->type == Nst_t.Int || obj->type == Nst_t.Byte )
-#define IS_SEQ(obj) ( obj->type == Nst_t.Array || obj->type == Nst_t.Vector )
-#define ARE_TYPE(type_obj) ( ob1->type == type_obj && ob2->type == type_obj )
+#define IS_INT(obj) (obj->type == Nst_t.Int || obj->type == Nst_t.Byte)
+#define IS_SEQ(obj) (obj->type == Nst_t.Array || obj->type == Nst_t.Vector)
+#define ARE_TYPE(type_obj) (ob1->type == type_obj && ob2->type == type_obj)
 
 #define RETURN_STACK_OP_TYPE_ERROR(operand) do {                              \
     Nst_set_type_error(Nst_sprintf(                                           \
         "invalid types '%s' and '%s' for '" operand "'",                      \
         TYPE_NAME(ob1), TYPE_NAME(ob2)));                                     \
     return NULL;                                                              \
-    } while ( 0 )
+    } while (0)
 
 #define RETURN_CAST_TYPE_ERROR(type) do {                                     \
     Nst_set_type_error(Nst_sprintf(                                           \
         _Nst_EM_INVALID_CASTING,                                              \
         TYPE_NAME(ob), STR(type)->value));                                    \
     return NULL;                                                              \
-    } while ( 0 )
+    } while (0)
 
 #define RETURN_LOCAL_OP_TYPE_ERROR(operand) do {                              \
     Nst_set_type_error(Nst_sprintf(                                           \
         _Nst_EM_INVALID_OPERAND_TYPE(operand),                                \
         TYPE_NAME(ob)));                                                      \
     return NULL;                                                              \
-    } while ( 0 )
+    } while (0)
 
 #define CHECK_BUFFER(buf) do {                                                \
         if (buf == NULL)                                                      \
@@ -283,7 +283,7 @@ Nst_Obj *_Nst_obj_ge(Nst_Obj *ob1, Nst_Obj *ob2)
     Nst_Obj *res = Nst_obj_eq(ob1, ob2);
     if (res == NULL)
         return NULL;
-    else if ( res == Nst_c.Bool_true )
+    else if (res == Nst_c.Bool_true)
         return Nst_c.Bool_true;
     else
         Nst_dec_ref(Nst_c.Bool_false);
@@ -302,7 +302,7 @@ Nst_Obj *_Nst_obj_le(Nst_Obj *ob1, Nst_Obj *ob2)
     Nst_Obj *res = Nst_obj_eq(ob1, ob2);
     if (res == Nst_c.Bool_true)
         return Nst_c.Bool_true;
-    else if ( res == NULL )
+    else if (res == NULL)
         return NULL;
     else
         Nst_dec_ref(Nst_c.Bool_false);
@@ -623,13 +623,13 @@ Nst_Obj *_Nst_obj_str_cast_seq(Nst_SeqObj *seq_obj, Nst_LList *all_objs)
     if (is_vect) {
         recursive = "<{.}>";
         empty = "<{}>";
-        open = "<{ ";
-        close = " }>";
+        open = "<{";
+        close = "}>";
     } else {
         recursive = "{.}";
         empty = "{,}";
-        open = "{ ";
-        close = " }";
+        open = "{";
+        close = "}";
     }
 
     for (Nst_LLNode *n = all_objs->head; n != NULL; n = n->next) {
@@ -705,9 +705,9 @@ Nst_Obj *_Nst_obj_str_cast_map(Nst_MapObj *map_obj, Nst_LList *all_objs)
         return NULL;
 
     Nst_Buffer buf;
-    if (!Nst_buffer_init(&buf, 4))
+    if (!Nst_buffer_init(&buf, 7))
         return NULL;
-    Nst_buffer_append_c_str(&buf, "{ ");
+    Nst_buffer_append_c_str(&buf, "{");
 
     for (i32 idx = Nst_map_get_next_idx(-1, map_obj);
          idx != -1;
@@ -754,7 +754,7 @@ Nst_Obj *_Nst_obj_str_cast_map(Nst_MapObj *map_obj, Nst_LList *all_objs)
     }
 
     buf.len -= 2;
-    Nst_buffer_append_c_str(&buf, " }");
+    Nst_buffer_append_c_str(&buf, "}");
     Nst_llist_pop(all_objs);
 
     return OBJ(Nst_buffer_to_string(&buf));
@@ -789,29 +789,29 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
     } else if (ob_t == Nst_t.Type) {
         if (ob == OBJ(Nst_t.Null))
             return Nst_inc_ref(Nst_s.t_Null);
-        if ( ob == OBJ(Nst_t.Int) )
+        if (ob == OBJ(Nst_t.Int))
             return Nst_inc_ref(Nst_s.t_Int);
-        if ( ob == OBJ(Nst_t.Real) )
+        if (ob == OBJ(Nst_t.Real))
             return Nst_inc_ref(Nst_s.t_Real);
-        if ( ob == OBJ(Nst_t.Bool) )
+        if (ob == OBJ(Nst_t.Bool))
             return Nst_inc_ref(Nst_s.t_Bool);
-        if ( ob == OBJ(Nst_t.Str) )
+        if (ob == OBJ(Nst_t.Str))
             return Nst_inc_ref(Nst_s.t_Str);
-        if ( ob == OBJ(Nst_t.Map) )
+        if (ob == OBJ(Nst_t.Map))
             return Nst_inc_ref(Nst_s.t_Map);
-        if ( ob == OBJ(Nst_t.Vector) )
+        if (ob == OBJ(Nst_t.Vector))
             return Nst_inc_ref(Nst_s.t_Vector);
-        if ( ob == OBJ(Nst_t.Array) )
+        if (ob == OBJ(Nst_t.Array))
             return Nst_inc_ref(Nst_s.t_Array);
-        if ( ob == OBJ(Nst_t.Byte) )
+        if (ob == OBJ(Nst_t.Byte))
             return Nst_inc_ref(Nst_s.t_Byte);
-        if ( ob == OBJ(Nst_t.Type) )
+        if (ob == OBJ(Nst_t.Type))
             return Nst_inc_ref(Nst_s.t_Type);
-        if ( ob == OBJ(Nst_t.Iter) )
+        if (ob == OBJ(Nst_t.Iter))
             return Nst_inc_ref(Nst_s.t_Iter);
-        if ( ob == OBJ(Nst_t.Func) )
+        if (ob == OBJ(Nst_t.Func))
             return Nst_inc_ref(Nst_s.t_Func);
-        if ( ob == OBJ(Nst_t.IOFile) )
+        if (ob == OBJ(Nst_t.IOFile))
             return Nst_inc_ref(Nst_s.t_IOFile);
 
         // for custom types defined in external libraries
@@ -841,9 +841,12 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
         i8 *buffer = Nst_malloc_c(14, i8);
         CHECK_BUFFER(buffer);
         memcpy(buffer, "<IOFile --- >", 14);
-        if ( Nst_IOF_CAN_READ(ob) )  buffer[8] = 'r';
-        if ( Nst_IOF_CAN_WRITE(ob) ) buffer[9] = 'w';
-        if ( Nst_IOF_IS_BIN(ob) )    buffer[10]= 'b';
+        if (Nst_IOF_CAN_READ(ob))
+            buffer[8] = 'r';
+        if (Nst_IOF_CAN_WRITE(ob))
+            buffer[9] = 'w';
+        if (Nst_IOF_IS_BIN(ob))
+            buffer[10]= 'b';
         return Nst_string_new_allocated(buffer, 13);
     } else if (ob_t == Nst_t.Func) {
         i8 *buffer = Nst_malloc_c(13 + MAX_INT_CHAR_COUNT, i8);
@@ -1091,32 +1094,18 @@ static Nst_Obj *seq_to_iter(Nst_Obj *ob)
 
 static Nst_Obj *map_to_iter(Nst_Obj *ob)
 {
-    Nst_Obj *start_obj = Nst_map_get_str(ob, "_start_");
-    if (start_obj == NULL) {
-        Nst_set_value_error_c(_Nst_EM_MISSING_FUNC("_start_"));
+    Nst_Obj *data = Nst_array_create_c("iO", 0, ob);
+    if (data == NULL)
         return NULL;
-    }
 
-    Nst_Obj *is_done_obj = Nst_map_get_str(ob, "_is_done_");
-    if (is_done_obj == NULL) {
-        Nst_set_value_error_c(_Nst_EM_MISSING_FUNC("_is_done_"));
-        Nst_dec_ref(start_obj);
-        return NULL;
-    }
-
-    Nst_Obj *get_val_obj = Nst_map_get_str(ob, "_get_val_");
-    if (is_done_obj == NULL) {
-        Nst_set_value_error_c(_Nst_EM_MISSING_FUNC("_get_val_"));
-        Nst_dec_ref(start_obj);
-        Nst_dec_ref(is_done_obj);
-        return NULL;
-    }
-
+    Nst_inc_ref(Nst_itf.map_start);
+    Nst_inc_ref(Nst_itf.map_is_done);
+    Nst_inc_ref(Nst_itf.map_get_val);
     return Nst_iter_new(
-        FUNC(start_obj),
-        FUNC(is_done_obj),
-        FUNC(get_val_obj),
-        Nst_inc_ref(ob));
+        Nst_itf.map_start,
+        Nst_itf.map_is_done,
+        Nst_itf.map_get_val,
+        OBJ(data));
 }
 
 static Nst_Obj *obj_to_iter(Nst_Obj *ob)
@@ -1640,9 +1629,8 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path)
     return OBJ(obj_map);
 fail:
     free_lib_func = (void (*)())dlsym(lib, "free_lib");
-    if (free_lib_func) {
+    if (free_lib_func)
         free_lib_func();
-    }
     dlclose(lib);
     return NULL;
 }
@@ -1657,9 +1645,8 @@ Nst_StrObj *_Nst_get_import_path(i8 *initial_path, usize path_len)
         Nst_error_clear();
         fclose(file);
         Nst_Obj *path_str = Nst_string_new(file_path, new_len, true);
-        if (path_str == NULL) {
+        if (path_str == NULL)
             Nst_free(file_path);
-        }
         return STR(path_str);
     }
 

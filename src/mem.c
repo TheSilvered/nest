@@ -69,11 +69,11 @@ void *Nst_realloc(void *prev_block, usize new_count, usize size,
         return prev_block;
 
     void *block = Nst_raw_realloc(prev_block, new_count * size);
-    if (block == NULL && new_count > prev_count) {
+    if (block == NULL && new_count > prev_count && size != 0) {
         Nst_failed_allocation();
         return NULL;
     }
-    return block ? block : prev_block;
+    return block || new_count == 0 || size == 0 ? block : prev_block;
 }
 
 void *Nst_crealloc(void *prev_block, usize new_count, usize size,
@@ -83,7 +83,9 @@ void *Nst_crealloc(void *prev_block, usize new_count, usize size,
         return prev_block;
 
     u8 *block = (u8 *)Nst_raw_realloc(prev_block, new_count * size);
-    if (new_count <= prev_count)
+    if (new_count == 0 || size == 0)
+        return NULL;
+    else if (new_count <= prev_count)
         return block ? (void *)block : prev_block;
 
     if (block == NULL) {
