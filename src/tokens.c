@@ -53,7 +53,7 @@ Nst_Tok *Nst_tok_new_noend(Nst_Pos start, Nst_TokType type)
     return token;
 }
 
-void Nst_token_destroy(Nst_Tok *token)
+void Nst_tok_destroy(Nst_Tok *token)
 {
     if (token == NULL)
         return;
@@ -328,6 +328,7 @@ void Nst_print_tok(Nst_Tok *token)
     case Nst_TT_TRY:      Nst_print("TRY");      break;
     case Nst_TT_CATCH:    Nst_print("CATCH");    break;
     case Nst_TT_SEQ_CALL: Nst_print("SEQ_CALL"); break;
+    case Nst_TT_FMT_STR:  Nst_print("FMT_STR");  break;
     default: Nst_print("__UNKNOWN__");
     }
 

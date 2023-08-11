@@ -105,7 +105,7 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
 
     Nst_node_destroy(Nst_NODE(Nst_llist_pop(node->nodes)));
     Nst_node_destroy(Nst_NODE(Nst_llist_pop(node->nodes)));
-    Nst_token_destroy(Nst_TOK(Nst_llist_peek_front(node->tokens)));
+    Nst_tok_destroy(Nst_TOK(Nst_llist_peek_front(node->tokens)));
 
     node->type = Nst_NT_VALUE;
 
@@ -164,7 +164,7 @@ static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
     }
 
     Nst_llist_empty(node->nodes, (Nst_LListDestructor)Nst_node_destroy);
-    Nst_token_destroy(Nst_TOK(Nst_llist_peek_front(node->tokens)));
+    Nst_tok_destroy(Nst_TOK(Nst_llist_peek_front(node->tokens)));
 
     node->type = Nst_NT_VALUE;
 
@@ -210,7 +210,7 @@ static void ast_optimize_local_op(Nst_Node *node, Nst_Error *error)
     }
 
     Nst_node_destroy(Nst_NODE(Nst_llist_pop(node->nodes)));
-    Nst_token_destroy(Nst_TOK(Nst_llist_peek_front(node->tokens)));
+    Nst_tok_destroy(Nst_TOK(Nst_llist_peek_front(node->tokens)));
 
     node->type = Nst_NT_VALUE;
 

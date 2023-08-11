@@ -123,7 +123,7 @@ int main(int argc, char **argv)
             && !cl_args.print_ast
             && !cl_args.print_bytecode)
         {
-            Nst_llist_destroy(tokens, (Nst_LListDestructor)Nst_token_destroy);
+            Nst_llist_destroy(tokens, (Nst_LListDestructor)Nst_tok_destroy);
             EXIT(0);
         }
     }

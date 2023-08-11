@@ -179,7 +179,7 @@ Nst_LList *json_tokenize(i8 *path, i8 *text, usize text_len,
         }
 
         if (tok == nullptr) {
-            Nst_llist_destroy(tokens, (Nst_LListDestructor)Nst_token_destroy);
+            Nst_llist_destroy(tokens, (Nst_LListDestructor)Nst_tok_destroy);
             Nst_free(src_text.text);
             Nst_free(src_text.lines);
             return nullptr;

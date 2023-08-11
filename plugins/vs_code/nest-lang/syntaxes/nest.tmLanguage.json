@@ -35,25 +35,9 @@
 		},
 		"strings": {
 			"patterns": [
-				{ "include": "#special-strings-double" },
-				{ "include": "#special-strings-single" },
 				{ "include": "#str-double" },
 				{ "include": "#str-single" }
 			]
-		},
-		"special-strings-double": {
-			"name": "string.quoted.double.nest",
-			"match": "(\")(_(start|is_done|get_val|advance)_)(\")",
-			"captures": {
-				"2": { "name": "constant.character.escape.nest" }
-			}
-		},
-		"special-strings-single": {
-			"name": "string.quoted.single.nest",
-			"match": "(')(_(start|is_done|get_val|advance)_)(')",
-			"captures": {
-				"2": { "name": "constant.character.escape.nest" }
-			}
 		},
 		"str-double": {
 			"name": "string.quoted.double.nest",

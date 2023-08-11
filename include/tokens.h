@@ -112,19 +112,20 @@ NstEXP typedef enum _Nst_TokenType {
     Nst_TT_L_PAREN,   // |
     Nst_TT_L_BRACE,   // |
     Nst_TT_L_VBRACE,  // - atom end
-    Nst_TT_L_BRACKET, // + + expr-end-w-break start, expr-end start
-    Nst_TT_R_PAREN,   // | |
-    Nst_TT_R_BRACE,   // | |
-    Nst_TT_R_VBRACE,  // | |
-    Nst_TT_R_BRACKET, // | |
-    Nst_TT_IF,        // | |
-    Nst_TT_AS,        // | |
-    Nst_TT_ENDL,      // | |
-    Nst_TT_COMMA,     // | |
-    Nst_TT_COLON,     // | |
-    Nst_TT_CATCH,     // | |
-    Nst_TT_EOFILE,    // | - expr-end end
-    Nst_TT_BREAK,     // - expr-end-w-break end
+    Nst_TT_L_BRACKET, // + expr-end start
+    Nst_TT_R_PAREN,   // |
+    Nst_TT_R_BRACE,   // |
+    Nst_TT_R_VBRACE,  // |
+    Nst_TT_R_BRACKET, // |
+    Nst_TT_IF,        // |
+    Nst_TT_AS,        // |
+    Nst_TT_ENDL,      // |
+    Nst_TT_COMMA,     // |
+    Nst_TT_COLON,     // |
+    Nst_TT_CATCH,     // |
+    Nst_TT_FMT_STR,   // |
+    Nst_TT_EOFILE,    // - expr-end
+    Nst_TT_BREAK,     //
 
     // other tokens
 
@@ -191,7 +192,7 @@ NstEXP Nst_Tok *NstC Nst_tok_new_noval(Nst_Pos start, Nst_Pos end,
  * @return The new token on success and NULL on failure. The error is set.
  */
 NstEXP Nst_Tok *NstC Nst_tok_new_noend(Nst_Pos start, Nst_TokType type);
-NstEXP void NstC Nst_token_destroy(Nst_Tok *token);
+NstEXP void NstC Nst_tok_destroy(Nst_Tok *token);
 
 /**
  * Gets the token type from a string of punctuation characters.

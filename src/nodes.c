@@ -45,7 +45,7 @@ void Nst_node_destroy(Nst_Node *node)
     if (node == NULL)
         return;
 
-    Nst_llist_empty(node->tokens, (Nst_LListDestructor)Nst_token_destroy);
+    Nst_llist_empty(node->tokens, (Nst_LListDestructor)Nst_tok_destroy);
     Nst_llist_empty(node->nodes, (Nst_LListDestructor)Nst_node_destroy);
     Nst_free(node->tokens);
     Nst_free(node);

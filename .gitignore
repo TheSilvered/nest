@@ -464,7 +464,7 @@ docs/prev_docs/
 
 # Test output
 tests/test_output.txt
-tests/_test.nest
+tests/_test*.nest
 
 # Archives
 *.zip

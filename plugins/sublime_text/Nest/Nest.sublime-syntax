@@ -70,18 +70,6 @@ contexts:
     - include: general
 
   strings:
-    - match: '(")(_(start|is_done|get_val|advance)_)(")'
-      captures:
-        1: punctuation.definition.string.begin.nest
-        2: constant.character.escape.nest
-        4: punctuation.definition.string.end.nest
-
-    - match: '('')(_(start|is_done|get_val|advance)_)('')'
-      captures:
-        1: punctuation.definition.string.begin.nest
-        2: constant.character.escape.nest
-        4: punctuation.definition.string.end.nest
-
     - match: '(?<=\|#\|)\s*(")(__C__:)'
       captures:
         1: punctuation.definition.string.begin.nest
