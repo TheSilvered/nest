@@ -4,7 +4,7 @@
 #include <cstdlib>
 #include "nest_io.h"
 
-#define FUNC_COUNT 19
+#define FUNC_COUNT 26
 
 #define SET_FILE_CLOSED_ERROR \
     Nst_set_value_error_c("the given file given was previously closed")
@@ -20,7 +20,7 @@ bool lib_init()
 {
     usize idx = 0;
 
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(open_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(open_, 4);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(virtual_file_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(close_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(write_, 2);
@@ -28,10 +28,17 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(read_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(read_bytes_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(file_size_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(move_fptr_, 3);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_fptr_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(move_fpi_, 3);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_fpi_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(flush_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_flags_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(can_read_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(can_write_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(can_seek_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_bin_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_a_tty_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(descriptor_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(encoding_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(println_, 3);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(_set_stdin_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(_set_stdout_, 1);
@@ -44,9 +51,9 @@ bool lib_init()
 #error
 #endif
 
-    stdin_obj  = Nst_iof_new(stdin,  false, true, false);
-    stdout_obj = Nst_iof_new(stdout, false, false, true);
-    stderr_obj = Nst_iof_new(stderr, false, false, true);
+    stdin_obj  = Nst_inc_ref(Nst_stdio()->in);
+    stdout_obj = Nst_inc_ref(Nst_stdio()->out);
+    stderr_obj = Nst_inc_ref(Nst_stdio()->err);
 
     lib_init_ = !Nst_error_occurred();
     return lib_init_;
@@ -64,138 +71,224 @@ void free_lib()
     Nst_dec_ref(stdout_obj);
 }
 
-static i32 get_file_size(Nst_IOFileObj *f)
+static usize get_file_size(Nst_IOFileObj *f)
 {
-    i32 start = f->tell_f(f->value);
-    f->seek_f(f->value, 0, SEEK_END);
-    i32 end = f->tell_f(f->value);
-    f->seek_f(f->value, start, SEEK_SET);
+    usize start, end;
+    Nst_ftell(f, &start);
+    Nst_fseek(Nst_SEEK_END, 0, f);
+    Nst_ftell(f, &end);
+    Nst_fseek(Nst_SEEK_SET, start, f);
     return end;
 }
 
-static usize virtual_iof_read_f(void *buf, usize e_size, usize e_count,
-                                VirtualIOFile_data *f)
+static Nst_IOResult virtual_iof_read(i8 *buf, usize buf_size, usize count,
+                                     usize *buf_len, Nst_IOFileObj *f)
 {
-    if (f == nullptr)
-        return 0;
+    if (Nst_IOF_IS_CLOSED(f))
+        return Nst_IO_CLOSED;
 
-    usize byte_count = e_size * e_count;
-    if (byte_count == 0 || f->ptr >= f->size)
-        return 0;
+    VirtualIOFile_data *vf = (VirtualIOFile_data *)f->fp;
 
-    if (f->ptr + byte_count > f->size) {
-        byte_count = f->size - (usize)f->ptr;
-        byte_count -= byte_count % e_size;
+    if (vf->ptr >= vf->data.len)
+        count = 0;
+
+    if (Nst_IOF_IS_BIN(f)) {
+        if (count > buf_size && buf_size != 0)
+            count = buf_size;
+
+        i8 *out_buf;
+        if (buf_size == 0)
+            out_buf = (i8 *)Nst_raw_malloc(count);
+        else
+            out_buf = buf;
+
+        if (vf->ptr + count > vf->data.len)
+            count = vf->data.len - (usize)vf->ptr;
+
+        memcpy(buf, vf->data.data + vf->ptr, count);
+        vf->ptr += count;
+
+        if (buf_size == 0)
+            *(i8 **)buf = out_buf;
+        if (buf_len != NULL)
+            *buf_len = count;
+
+        if (vf->ptr == vf->data.len)
+            return Nst_IO_EOF_REACHED;
+        return Nst_IO_SUCCESS;
     }
 
-    memcpy(buf, f->data + f->ptr, byte_count);
-    f->ptr += (i32)byte_count;
-    return byte_count / e_size;
-}
-
-static usize virtual_iof_write_f(void *buf, usize e_size, usize e_count,
-                                 VirtualIOFile_data *f)
-{
-    if (f == nullptr)
-        return 0;
-
-    usize byte_count = e_size * e_count;
-    if (byte_count == 0 || f->ptr > f->size)
-        return 0;
-
-    if (f->curr_buf_size + byte_count <= f->buf_size) {
-        memcpy(f->buf + f->curr_buf_size, buf, byte_count);
-        f->curr_buf_size += byte_count;
+    Nst_Buffer buffer;
+    if (buf_size == 0) {
+        if (!Nst_buffer_init(&buffer, count + 1))
+            return Nst_IO_ALLOC_FAILED;
     } else {
-        usize tot_bytes = byte_count + f->curr_buf_size;
-        i8 *new_data = Nst_realloc_c(
-            f->data,
-            (usize)f->ptr + tot_bytes,
-            i8,
-            0);
-        if (new_data == NULL)
-            return 0;
-        f->size = (usize)f->ptr + tot_bytes;
-        f->data = new_data;
-        memcpy(f->data + f->ptr, f->buf, f->curr_buf_size);
-        memcpy(f->data + f->ptr + f->curr_buf_size, buf, byte_count);
-        f->ptr += tot_bytes;
-        f->curr_buf_size = 0;
+        buffer.data = buf;
+        buffer.cap = buf_size;
+        buffer.len = 0;
     }
 
-    return e_count;
+    for (usize i = 0; i < count; i++) {
+        if (vf->data.len - vf->ptr == 0) {
+            if (buf_size == 0)
+                *(i8 **)buf = buffer.data;
+            if (buf_len != NULL)
+                *buf_len = buffer.len;
+            return Nst_IO_EOF_REACHED;
+        }
+
+        i32 ch_size = Nst_check_utf8_bytes(
+            (u8 *)vf->data.data,
+            vf->data.len - vf->ptr);
+
+        if (ch_size == -1) {
+            if (buf_size == 0)
+                Nst_buffer_destroy(&buffer);
+            return Nst_IO_INVALID_DECODING;
+        }
+        if (buf_size == 0 && !Nst_buffer_expand_by(&buffer, (usize)ch_size)) {
+            Nst_buffer_destroy(&buffer);
+            return Nst_IO_ALLOC_FAILED;
+        }
+
+        if (buffer.cap - buffer.len - 1 < (usize)ch_size) {
+            if (buf_size == 0)
+                *(i8 **)buf = buffer.data;
+            if (buf_len != NULL)
+                *buf_len = buffer.len;
+            return Nst_IO_BUF_FULL;
+        }
+        memcpy(buffer.data + buffer.len, vf->data.data + vf->ptr, ch_size);
+        buffer.len += ch_size;
+        vf->ptr += ch_size;
+    }
+    if (buf_size == 0)
+        *(i8 **)buf = buffer.data;
+    if (buf_len != NULL)
+        *buf_len = buffer.len;
+    return Nst_IO_SUCCESS;
 }
 
-static int virtual_iof_flush_f(VirtualIOFile_data *f)
+static Nst_IOResult virtual_iof_write(i8 *buf, usize buf_len, usize *count,
+                                      Nst_IOFileObj *f)
 {
-    if (f == nullptr)
-        return EOF;
+    if (Nst_IOF_IS_CLOSED(f))
+        return Nst_IO_CLOSED;
 
-    usize byte_count = f->curr_buf_size;
-    i8 *new_data = Nst_realloc_c(
-        f->data,
-        (usize)f->ptr + byte_count,
-        i8,
-        0);
-    if (new_data == NULL)
-        return EOF;
-    f->size = (usize)f->ptr + byte_count;
-    f->data = new_data;
-    memcpy(f->data + f->ptr, f->buf, byte_count);
-    f->ptr += byte_count;
-    f->curr_buf_size = 0;
-    return 0;
+    VirtualIOFile_data *vf = (VirtualIOFile_data *)f->fp;
+
+    if (vf->ptr > vf->data.len)
+        return Nst_IO_ERROR;
+
+    Nst_StrObj temp = Nst_string_temp(buf, buf_len);
+    if (!Nst_buffer_append(&vf->data, &temp)) {
+        return Nst_IO_ALLOC_FAILED;
+    }
+    vf->ptr += buf_len;
+
+    if (count != NULL) {
+        if (Nst_IOF_IS_BIN(f))
+            *count = buf_len;
+        else {
+            usize char_count = 0;
+            while (buf_len) {
+                i32 ch_size = Nst_check_utf8_bytes((u8 *)buf, buf_len);
+                if (ch_size < 0) {
+                    *count = char_count;
+                    return Nst_IO_INVALID_DECODING;
+                }
+                buf_len -= ch_size;
+                buf += ch_size;
+            }
+            *count = char_count;
+        }
+    }
+    return Nst_IO_SUCCESS;
 }
 
-static i32 virtual_iof_tell_f(VirtualIOFile_data *f)
+static Nst_IOResult virtual_iof_flush(Nst_IOFileObj *f)
 {
-    if (f == nullptr)
-        return -1;
+    if (Nst_IOF_IS_CLOSED(f))
+        return Nst_IO_CLOSED;
 
-    return (i32)f->ptr;
+    return Nst_IO_SUCCESS;
 }
 
-static int virtual_iof_seek_f(VirtualIOFile_data *f, i32 offset, int start)
+static Nst_IOResult virtual_iof_tell(Nst_IOFileObj *f, usize *pos)
 {
-    if (f == nullptr)
-        return -1;
+    if (Nst_IOF_IS_CLOSED(f))
+        return Nst_IO_CLOSED;
+
+    *pos = ((VirtualIOFile_data *)f->fp)->ptr;
+    return Nst_IO_SUCCESS;
+}
+
+static Nst_IOResult virtual_iof_seek(Nst_SeekWhence origin, isize offset,
+                                     Nst_IOFileObj *f)
+{
+    if (Nst_IOF_IS_CLOSED(f))
+        return Nst_IO_CLOSED;
+
+    VirtualIOFile_data *vf = (VirtualIOFile_data *)f->fp;
 
     isize new_pos;
-    if (start == SEEK_CUR)
-        new_pos = f->ptr + offset;
-    else if (start == SEEK_SET)
+    if (origin == Nst_SEEK_CUR)
+        new_pos = vf->ptr + offset;
+    else if (origin == Nst_SEEK_SET)
         new_pos = offset;
     else
-        new_pos = (i32)f->size - offset;
+        new_pos = (i32)vf->data.len - offset;
 
     if (new_pos < 0)
-        return -1;
+        return Nst_IO_OP_FAILED;
 
-    f->ptr = new_pos;
+    vf->ptr = new_pos;
 
-    return 0;
+    return Nst_IO_SUCCESS;
 }
 
-static int virtual_iof_close_f(VirtualIOFile_data *f)
+static Nst_IOResult virtual_iof_close(Nst_IOFileObj *f)
 {
-    if (f == nullptr)
-        return -1;
+    if (Nst_IOF_IS_CLOSED(f))
+        return Nst_IO_CLOSED;
 
-    Nst_free(f->data);
-    Nst_free(f->buf);
-    Nst_free(f);
-    return 0;
+    VirtualIOFile_data *vf = (VirtualIOFile_data *)f->fp;
+    Nst_buffer_destroy(&vf->data);
+    Nst_free(vf);
+
+    return Nst_IO_SUCCESS;
 }
+
+static Nst_IOFuncSet vf_funcs = {
+    .read = virtual_iof_read,
+    .write = virtual_iof_write,
+    .flush = virtual_iof_flush,
+    .tell = virtual_iof_tell,
+    .seek = virtual_iof_seek,
+    .close = virtual_iof_close
+};
 
 Nst_FUNC_SIGN(open_)
 {
     Nst_StrObj *file_name_str;
     Nst_Obj *file_mode_str;
-    Nst_DEF_EXTRACT("s ?s", &file_name_str, &file_mode_str);
+    Nst_Obj *encoding_obj;
+    Nst_Obj *buf_size;
+    Nst_DEF_EXTRACT(
+        "s ?s ?s ?i",
+        &file_name_str,
+        &file_mode_str,
+        &encoding_obj,
+        &buf_size);
 
     i8 *file_name = file_name_str->value;
-    i8 *file_mode = Nst_DEF_VAL(file_mode_str, STR(file_mode_str)->value, (i8 *)"r");
-    usize file_mode_len = Nst_DEF_VAL(file_mode_str, STR(file_mode_str)->len, 1);
+    i8 *file_mode = Nst_DEF_VAL(
+        file_mode_str,
+        STR(file_mode_str)->value,
+        (i8 *)"r");
+    usize file_mode_len = Nst_DEF_VAL(
+        file_mode_str,
+        STR(file_mode_str)->len, 1);
 
     bool is_bin = false;
     bool can_read = false;
@@ -258,22 +351,55 @@ Nst_FUNC_SIGN(open_)
         }
     }
 
+    Nst_CP *encoding;
+    if (is_bin) {
+        if (encoding_obj != Nst_null()) {
+            Nst_set_value_error_c(
+                "encoding is not supported when the file is opened in binary"
+                " mode");
+            return nullptr;
+        }
+        encoding = NULL;
+    } else {
+        Nst_CPID cpid = Nst_DEF_VAL(
+            encoding_obj,
+            Nst_encoding_from_name(STR(encoding_obj)->value),
+            Nst_CP_UTF8);
+        if (cpid == Nst_CP_UNKNOWN) {
+            Nst_set_value_error(
+                Nst_sprintf(
+                    "invalid encoding '%.100s'",
+                    STR(encoding_obj)->value));
+            return nullptr;
+        }
+        if (cpid == Nst_CP_UTF16)
+            cpid = Nst_CP_UTF16LE;
+        if (cpid == Nst_CP_UTF32)
+            cpid = Nst_CP_UTF32LE;
+
+        encoding = Nst_cp(cpid);
+    }
+
 #ifdef Nst_WIN
     wchar_t *wide_filename = Nst_char_to_wchar_t(file_name, file_name_str->len);
     if (wide_filename == nullptr)
         return nullptr;
 
-    Nst_IOFile file_ptr = _wfopen(wide_filename, bin_mode);
+    FILE *file_ptr = _wfopen(wide_filename, bin_mode);
     Nst_free(wide_filename);
 #else
-    Nst_IOFile file_ptr = fopen(file_name, bin_mode);
+    FILE *file_ptr = fopen(file_name, bin_mode);
 #endif
     if (file_ptr == nullptr) {
         Nst_set_value_error(Nst_sprintf("file '%.4096s' not found", file_name));
         return nullptr;
     }
 
-    return Nst_iof_new(file_ptr, is_bin, can_read, can_write);
+    if (buf_size != Nst_null()) {
+        setvbuf(file_ptr, nullptr, _IOFBF, (usize)AS_INT(buf_size));
+    }
+
+    return Nst_iof_new(file_ptr, is_bin, can_read, can_write, encoding);
 }
 
 Nst_FUNC_SIGN(virtual_file_)
@@ -289,28 +415,17 @@ Nst_FUNC_SIGN(virtual_file_)
     if (f == nullptr)
         return nullptr;
 
-    f->data = Nst_malloc_c(1, i8);
-    f->size = 0;
-    f->ptr = 0;
-    f->buf = Nst_malloc_c((usize)buf_size, i8);
-    f->buf_size = (usize)buf_size;
-    f->curr_buf_size = 0;
-
-    if (f->data == nullptr || f->buf == nullptr) {
-        Nst_free(f->data);
-        Nst_free(f->buf);
+    if (!Nst_buffer_init(&f->data, buf_size)) {
         Nst_free(f);
         return nullptr;
     }
+    f->ptr = 0;
 
     return Nst_iof_new_fake(
-        (void *)f, bin, true, true,
-        (Nst_IOFile_read_f)virtual_iof_read_f,
-        (Nst_IOFile_write_f)virtual_iof_write_f,
-        (Nst_IOFile_flush_f)virtual_iof_flush_f,
-        (Nst_IOFile_tell_f)virtual_iof_tell_f,
-        (Nst_IOFile_seek_f)virtual_iof_seek_f,
-        (Nst_IOFile_close_f)virtual_iof_close_f);
+        (void *)f,
+        bin, true, true, true,
+        Nst_cp(Nst_CP_UTF8),
+        vf_funcs);
 }
 
 Nst_FUNC_SIGN(close_)
@@ -350,10 +465,19 @@ Nst_FUNC_SIGN(write_)
     // casting to a string never returns an error
     Nst_Obj *str_to_write = Nst_obj_cast(value_to_write, Nst_type()->Str);
     Nst_StrObj *str = STR(str_to_write);
-    usize res = Nst_fwrite(str->value, sizeof(i8), str->len, f);
-
+    usize count;
+    Nst_IOResult result = Nst_fwrite(str->value, str->len, &count, f);
     Nst_dec_ref(str_to_write);
-    return Nst_int_new(res);
+
+    if (result == Nst_IO_INVALID_ENCODING) {
+        Nst_set_value_error_c("could not encode the entire string");
+        return nullptr;
+    } else if (result == Nst_IO_ERROR) {
+        Nst_set_call_error_c("failed to write the entire string");
+        return nullptr;
+    }
+
+    return Nst_int_new(count);
 }
 
 Nst_FUNC_SIGN(write_bytes_)
@@ -383,10 +507,15 @@ Nst_FUNC_SIGN(write_bytes_)
     for (usize i = 0; i < seq_len; i++)
         bytes[i] = AS_BYTE(objs[i]);
 
-    usize res = Nst_fwrite(bytes, sizeof(i8), seq_len, f);
+    usize count;
 
+    if (Nst_fwrite(bytes, seq_len, &count, f) == Nst_IO_ERROR) {
+        Nst_set_call_error_c("failed to write all bytes");
+        Nst_free(bytes);
+        return nullptr;
+    }
     Nst_free(bytes);
-    return Nst_int_new(res);
+    return Nst_int_new(count);
 }
 
 Nst_FUNC_SIGN(read_)
@@ -411,27 +540,34 @@ Nst_FUNC_SIGN(read_)
         return nullptr;
     }
 
-    i32 start = Nst_ftell(f);
-    i32 end = get_file_size(f);
+    if (!Nst_IOF_CAN_SEEK(f) && bytes_to_read < 0) {
+        Nst_set_value_error_c("the file must be seekable to read it entierly");
+        return nullptr;
+    } else if (Nst_IOF_CAN_SEEK(f)) {
+        usize start;
+        Nst_ftell(f, &start);
+        usize end = get_file_size(f);
 
-    i64 max_size = (i64)(end - start);
-    if (bytes_to_read < 0 || bytes_to_read > max_size)
-        bytes_to_read = max_size;
+        i64 max_size = (i64)(end - start);
+        if (bytes_to_read < 0 || bytes_to_read > max_size)
+            bytes_to_read = max_size;
+    }
 
-    i8 *buffer = Nst_malloc_c((usize)bytes_to_read + 1, i8);
-    if (buffer == nullptr) {
+    i8 *buf;
+    usize buf_len;
+    Nst_IOResult result = Nst_fread((i8 *)&buf, 0, bytes_to_read, &buf_len, f);
+    if (result == Nst_IO_ALLOC_FAILED) {
         Nst_failed_allocation();
+        return nullptr;
+    } else if (result == Nst_IO_INVALID_DECODING) {
+        Nst_set_value_error_c("could not decode a byte in the file");
+        return nullptr;
+    } else if (result == Nst_IO_ERROR) {
+        Nst_set_call_error_c("failed to read the file");
         return nullptr;
     }
 
-    usize read_bytes = Nst_fread(
-        buffer,
-        sizeof(i8),
-        (usize)bytes_to_read,
-        f);
-    buffer[read_bytes] = 0;
-
-    return Nst_string_new(buffer, read_bytes, true);
+    return Nst_string_new(buf, buf_len, true);
 }
 
 Nst_FUNC_SIGN(read_bytes_)
@@ -456,31 +592,34 @@ Nst_FUNC_SIGN(read_bytes_)
         return nullptr;
     }
 
-    i32 start = Nst_ftell(f);
-    i32 end = get_file_size(f);
+    if (!Nst_IOF_CAN_SEEK(f) && bytes_to_read < 0) {
+        Nst_set_value_error_c("the file must be seekable to read it entierly");
+        return nullptr;
+    } else if (Nst_IOF_CAN_SEEK(f)) {
+        usize start;
+        Nst_ftell(f, &start);
+        usize end = get_file_size(f);
 
-    i64 max_size = (i64)(end - start);
-    if (bytes_to_read < 0 || bytes_to_read > max_size)
-        bytes_to_read = max_size;
+        i64 max_size = (i64)(end - start);
+        if (bytes_to_read < 0 || bytes_to_read > max_size)
+            bytes_to_read = max_size;
+    }
 
-    i8 *buffer = Nst_malloc_c((usize)bytes_to_read, i8);
-    if (buffer == nullptr) {
+    i8 *buf;
+    usize buf_len;
+    Nst_IOResult result = Nst_fread((i8 *)&buf, 0, bytes_to_read, &buf_len, f);
+
+    if (result == Nst_IO_ALLOC_FAILED) {
         Nst_failed_allocation();
         return nullptr;
     }
 
-    usize read_bytes = Nst_fread(
-        buffer,
-        sizeof(i8),
-        (usize)bytes_to_read,
-        f);
+    Nst_SeqObj *bytes_array = SEQ(Nst_array_new(buf_len));
 
-    Nst_SeqObj *bytes_array = SEQ(Nst_array_new(read_bytes));
+    for (usize i = 0; i < buf_len; i++)
+        bytes_array->objs[i] = Nst_byte_new(buf[i]);
 
-    for (usize i = 0; i < read_bytes; i++)
-        bytes_array->objs[i] = Nst_byte_new(buffer[i]);
-
-    Nst_free(buffer);
+    Nst_free(buf);
     return OBJ(bytes_array);
 }
 
@@ -498,7 +637,7 @@ Nst_FUNC_SIGN(file_size_)
     return Nst_int_new(get_file_size(f));
 }
 
-Nst_FUNC_SIGN(get_fptr_)
+Nst_FUNC_SIGN(get_fpi_)
 {
     Nst_IOFileObj *f;
 
@@ -508,11 +647,23 @@ Nst_FUNC_SIGN(get_fptr_)
         SET_FILE_CLOSED_ERROR;
         return nullptr;
     }
+    if (!Nst_IOF_CAN_SEEK(f)) {
+        Nst_set_value_error_c("the file cannot be seeked");
+        return nullptr;
+    }
 
-    return Nst_int_new(Nst_ftell(f));
+    usize pos;
+    if (Nst_ftell(f, &pos) == Nst_IO_ERROR) {
+        Nst_set_call_error_c(
+            "failed to get the position of the file-position indicator");
+        return nullptr;
+    }
+
+    return Nst_int_new((i64)pos);
 }
 
-Nst_FUNC_SIGN(move_fptr_)
+
+Nst_FUNC_SIGN(move_fpi_)
 {
     Nst_IOFileObj *f;
     i64 start;
@@ -524,28 +675,40 @@ Nst_FUNC_SIGN(move_fptr_)
         SET_FILE_CLOSED_ERROR;
         return nullptr;
     }
+    if (!Nst_IOF_CAN_SEEK(f)) {
+        Nst_set_value_error_c("the file cannot be seeked");
+        return nullptr;
+    }
 
     if (start < 0 || start > 2) {
-        Nst_set_value_error_c("invalid origin for seek_fptr");
+        Nst_set_value_error(Nst_sprintf("invalid origin '%lli'", start));
         return nullptr;
     }
 
-    i32 size = get_file_size(f);
-    i32 end_pos = 0;
+    usize size = get_file_size(f);
+    isize end_pos = 0;
 
     if (start == SEEK_END)
-        end_pos = i32(size + offset);
+        end_pos = size + isize(offset);
     else if (start == SEEK_SET)
-        end_pos = i32(offset);
-    else
-        end_pos = Nst_ftell(f) + i32(offset);
+        end_pos = offset;
+    else {
+        if (Nst_ftell(f, (usize *)&end_pos) != Nst_IO_ERROR)
+            end_pos += offset;
+        else
+            end_pos = 0;
+    }
 
-    if (end_pos < 0 || end_pos > size) {
-        Nst_set_value_error_c("the file pointer goes outside the file");
+    if (end_pos < 0 || end_pos > (isize)size) {
+        Nst_set_value_error_c(
+            "the file-position indicator goes outside the file");
         return nullptr;
     }
 
-    Nst_fseek(f, (i32)offset, (i32)start);
+    if (Nst_fseek((Nst_SeekWhence)start, (isize)offset, f) == Nst_IO_ERROR) {
+        Nst_set_call_error_c(
+            "failed to change the position of the file-position indicator");
+    }
 
     Nst_RETURN_NULL;
 }
@@ -575,16 +738,76 @@ Nst_FUNC_SIGN(get_flags_)
 
     Nst_DEF_EXTRACT("F", &f);
 
-    i8 *flags = Nst_malloc_c(4, i8);
+    i8 *flags = Nst_malloc_c(6, i8);
     if (flags == nullptr)
         return nullptr;
 
     flags[0] = Nst_IOF_CAN_READ(f)  ? 'r' : '-';
     flags[1] = Nst_IOF_CAN_WRITE(f) ? 'w' : '-';
     flags[2] = Nst_IOF_IS_BIN(f)    ? 'b' : '-';
-    flags[3] = 0;
+    flags[3] = Nst_IOF_CAN_SEEK(f)  ? 's' : '-';
+    flags[4] = Nst_IOF_IS_TTY(f)    ? 't' : '-';
+    flags[5] = 0;
 
-    return Nst_string_new(flags,  3, true);
+    return Nst_string_new(flags, 5, true);
+}
+
+Nst_FUNC_SIGN(can_read_)
+{
+    Nst_IOFileObj *f;
+    Nst_DEF_EXTRACT("F", &f);
+    Nst_RETURN_COND(Nst_IOF_CAN_READ(f));
+}
+
+Nst_FUNC_SIGN(can_write_)
+{
+    Nst_IOFileObj *f;
+    Nst_DEF_EXTRACT("F", &f);
+    Nst_RETURN_COND(Nst_IOF_CAN_WRITE(f));
+}
+
+Nst_FUNC_SIGN(can_seek_)
+{
+    Nst_IOFileObj *f;
+    Nst_DEF_EXTRACT("F", &f);
+    Nst_RETURN_COND(Nst_IOF_CAN_SEEK(f));
+}
+
+Nst_FUNC_SIGN(is_bin_)
+{
+    Nst_IOFileObj *f;
+    Nst_DEF_EXTRACT("F", &f);
+    Nst_RETURN_COND(Nst_IOF_IS_BIN(f));
+}
+
+Nst_FUNC_SIGN(is_a_tty_)
+{
+    Nst_IOFileObj *f;
+    Nst_DEF_EXTRACT("F", &f);
+    Nst_RETURN_COND(Nst_IOF_IS_TTY(f));
+}
+
+Nst_FUNC_SIGN(descriptor_)
+{
+    Nst_IOFileObj *f;
+    Nst_DEF_EXTRACT("F", &f);
+    return Nst_int_new(f->fd);
+}
+
+Nst_FUNC_SIGN(encoding_)
+{
+    Nst_IOFileObj *f;
+    Nst_DEF_EXTRACT("F", &f);
+    if (f->encoding == NULL) {
+        if (Nst_IOF_IS_BIN(f))
+            Nst_set_type_error_c("cannot get the encoding of a binary file");
+        else if (Nst_IOF_IS_CLOSED(f))
+            SET_FILE_CLOSED_ERROR;
+        else
+            Nst_set_value_error_c("failed to get the encoding of the file");
+        return nullptr;
+    }
+    return Nst_string_new_c_raw(f->encoding->name, false);
 }
 
 Nst_FUNC_SIGN(println_)
@@ -593,7 +816,10 @@ Nst_FUNC_SIGN(println_)
     bool flush;
     Nst_Obj *file_obj;
     Nst_DEF_EXTRACT("o y ?F", &obj, &flush, &file_obj);
-    Nst_IOFileObj *file = Nst_DEF_VAL(file_obj, IOFILE(file_obj), Nst_stdio()->out);
+    Nst_IOFileObj *file = Nst_DEF_VAL(
+        file_obj,
+        IOFILE(file_obj),
+        Nst_stdio()->out);
 
     if (Nst_IOF_IS_CLOSED(file)) {
         SET_FILE_CLOSED_ERROR;

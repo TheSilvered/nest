@@ -2,10 +2,10 @@
 |#| 'stdio.nest' = io
 
 #read_whole_file f [
-    f @io.get_fptr = start
-    f io.FROM_START 0 @io.move_fptr
+    f @io.get_fpi = start
+    f io.FROM_START 0 @io.move_fpi
     f @io.read = content
-    f io.FROM_START start @io.move_fptr
+    f io.FROM_START start @io.move_fpi
     => content
 ]
 
@@ -23,14 +23,14 @@ f @io.close
 f 'Hello' @io.write
 f @io.close
 
-f @io.get_flags '-w-' @test.assert_eq
+f @io.get_flags '-w-s-' @test.assert_eq
 
 'test_files/file.txt' 'r+' @io.open = f
 
 f -1 @io.read 'Hello' @test.assert_eq
 f @io.file_size 5 @test.assert_eq
-f io.FROM_CUR -2 @io.move_fptr
-f @io.get_fptr 3 @test.assert_eq
+f io.FROM_CUR -2 @io.move_fpi
+f @io.get_fpi 3 @test.assert_eq
 f -1 @io.read 'lo' @test.assert_eq
 
 f @io._set_stdout
@@ -45,20 +45,19 @@ false @io.virtual_file = f
 f 'Hello' @io.write
 f @io.flush
 f @read_whole_file 'Hello' @test.assert_eq
-f @io.get_flags 'rw-' @test.assert_eq
+f @io.get_flags 'rw-s-' @test.assert_eq
 f @io.close
 
 true @io.virtual_file = f
-f @io.get_flags 'rwb' @test.assert_eq
+f @io.get_flags 'rwbs-' @test.assert_eq
 f @io.close
 
-false 10 @io.virtual_file = f1
-false  0 @io.virtual_file = f2
-'abc' false f1 @io.println
-'abc' false f2 @io.println
-f1 @read_whole_file '' @test.assert_eq
-f2 @read_whole_file 'abc\n' @test.assert_eq
-f1 'defghijk' @io.write
-f1 @read_whole_file 'abc\ndefghijk' @test.assert_eq
-f1 @io.close
-f2 @io.close
+'test_files/utf16le_file.txt' 'w' 'utf16le' @io.open = f
+f 'àèìòù§°ç' @io.write
+f @io.close
+
+'test_files/utf16le_file.txt' 'r' 'utf16le' @io.open = f
+f 3 @io.read 'àèì' @test.assert_eq
+f @io.read 'òù§°ç' @test.assert_eq
+f @io.close
+

@@ -1,0 +1,14 @@
+|#| '../test_lib.nest' = test
+|#| 'stdcodecs.nest' = cc
+
+'àèìòù' = s
+'\xff' = i
+
+s @cc.get_len 5 @test.assert_eq
+
+Array :: (s @cc.to_iter) { 'à', 'è', 'ì', 'ò', 'ù' } @test.assert_eq
+
+s 0 @cc.get_at 'à' @test.assert_eq
+s 4 @cc.get_at 'ù' @test.assert_eq
+cc.get_at { s, 5 } @test.assert_raises_error
+cc.get_at { i, 5 } @test.assert_raises_error

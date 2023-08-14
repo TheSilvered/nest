@@ -15,6 +15,8 @@ Nst_CP Nst_cp_ascii = {
     .mult_max_sz = sizeof(u8),
     .mult_min_sz = sizeof(u8),
     .name = "ASCII",
+    .bom = NULL,
+    .bom_size = 0,
     .check_bytes = (Nst_CheckBytesFunc)Nst_check_ascii_bytes,
     .to_utf32    = (Nst_ToUTF32Func)Nst_ascii_to_utf32,
     .from_utf32  = (Nst_FromUTF32Func)Nst_ascii_from_utf32,
@@ -25,6 +27,8 @@ Nst_CP Nst_cp_utf8 = {
     .mult_max_sz = sizeof(u8) * 4,
     .mult_min_sz = sizeof(u8),
     .name = "UTF-8",
+    .bom = "\xef\xbb\xbf",
+    .bom_size = 3,
     .check_bytes = (Nst_CheckBytesFunc)Nst_check_utf8_bytes,
     .to_utf32    = (Nst_ToUTF32Func)Nst_utf8_to_utf32,
     .from_utf32  = (Nst_FromUTF32Func)Nst_utf8_from_utf32,
@@ -35,6 +39,12 @@ Nst_CP Nst_cp_utf16 = {
     .mult_max_sz = sizeof(u16) * 2,
     .mult_min_sz = sizeof(u16),
     .name = "UTF-16",
+#if Nst_ENDIANNESS == Nst_LITTLE_ENDIAN
+    .bom = "\xff\xfe",
+#else
+    .bom = "\xfe\xff",
+#endif
+    .bom_size = 2,
     .check_bytes = (Nst_CheckBytesFunc)Nst_check_utf16_bytes,
     .to_utf32    = (Nst_ToUTF32Func)Nst_utf16_to_utf32,
     .from_utf32  = (Nst_FromUTF32Func)Nst_utf16_from_utf32,
@@ -45,6 +55,8 @@ Nst_CP Nst_cp_utf16be = {
     .mult_max_sz = sizeof(u8) * 4,
     .mult_min_sz = sizeof(u8) * 2,
     .name = "UTF-16BE",
+    .bom = "\xfe\xff",
+    .bom_size = 2,
     .check_bytes = (Nst_CheckBytesFunc)Nst_check_utf16be_bytes,
     .to_utf32    = (Nst_ToUTF32Func)Nst_utf16be_to_utf32,
     .from_utf32  = (Nst_FromUTF32Func)Nst_utf16be_from_utf32,
@@ -55,6 +67,8 @@ Nst_CP Nst_cp_utf16le = {
     .mult_max_sz = sizeof(u8) * 4,
     .mult_min_sz = sizeof(u8) * 2,
     .name = "UTF-16LE",
+    .bom = "\xff\xfe",
+    .bom_size = 2,
     .check_bytes = (Nst_CheckBytesFunc)Nst_check_utf16le_bytes,
     .to_utf32    = (Nst_ToUTF32Func)Nst_utf16le_to_utf32,
     .from_utf32  = (Nst_FromUTF32Func)Nst_utf16le_from_utf32,
@@ -65,6 +79,12 @@ Nst_CP Nst_cp_utf32 = {
     .mult_max_sz = sizeof(u32),
     .mult_min_sz = sizeof(u32),
     .name = "UTF-32",
+#if Nst_ENDIANNESS == Nst_LITTLE_ENDIAN
+    .bom = "\xff\xfe\x00\x00",
+#else
+    .bom = "\x00\x00\xfe\xff",
+#endif
+    .bom_size = 4,
     .check_bytes = (Nst_CheckBytesFunc)Nst_check_utf32_bytes,
     .to_utf32    = (Nst_ToUTF32Func)Nst_utf32_to_utf32,
     .from_utf32  = (Nst_FromUTF32Func)Nst_utf32_from_utf32,
@@ -75,6 +95,8 @@ Nst_CP Nst_cp_utf32be = {
     .mult_max_sz = sizeof(u8) * 4,
     .mult_min_sz = sizeof(u8) * 4,
     .name = "UTF-32BE",
+    .bom = "\x00\x00\xfe\xff",
+    .bom_size = 4,
     .check_bytes = (Nst_CheckBytesFunc)Nst_check_utf32be_bytes,
     .to_utf32    = (Nst_ToUTF32Func)Nst_utf32be_to_utf32,
     .from_utf32  = (Nst_FromUTF32Func)Nst_utf32be_from_utf32,
@@ -85,6 +107,8 @@ Nst_CP Nst_cp_utf32le = {
     .mult_max_sz = sizeof(u8) * 4,
     .mult_min_sz = sizeof(u8) * 4,
     .name = "UTF-32LE",
+    .bom = "\xff\xfe\x00\x00",
+    .bom_size = 4,
     .check_bytes = (Nst_CheckBytesFunc)Nst_check_utf32le_bytes,
     .to_utf32    = (Nst_ToUTF32Func)Nst_utf32le_to_utf32,
     .from_utf32  = (Nst_FromUTF32Func)Nst_utf32le_from_utf32,
@@ -95,6 +119,8 @@ Nst_CP Nst_cp_1250 = {
     .mult_max_sz = sizeof(u8),
     .mult_min_sz = sizeof(u8),
     .name = "CP1250",
+    .bom = NULL,
+    .bom_size = 0,
     .check_bytes = (Nst_CheckBytesFunc)Nst_check_1250_bytes,
     .to_utf32    = (Nst_ToUTF32Func)Nst_1250_to_utf32,
     .from_utf32  = (Nst_FromUTF32Func)Nst_1250_from_utf32,
@@ -105,6 +131,8 @@ Nst_CP Nst_cp_1251 = {
     .mult_max_sz = sizeof(u8),
     .mult_min_sz = sizeof(u8),
     .name = "CP1251",
+    .bom = NULL,
+    .bom_size = 0,
     .check_bytes = (Nst_CheckBytesFunc)Nst_check_1251_bytes,
     .to_utf32    = (Nst_ToUTF32Func)Nst_1251_to_utf32,
     .from_utf32  = (Nst_FromUTF32Func)Nst_1251_from_utf32,
@@ -115,6 +143,8 @@ Nst_CP Nst_cp_1252 = {
     .mult_max_sz = sizeof(u8),
     .mult_min_sz = sizeof(u8),
     .name = "CP1252",
+    .bom = NULL,
+    .bom_size = 0,
     .check_bytes = (Nst_CheckBytesFunc)Nst_check_1252_bytes,
     .to_utf32    = (Nst_ToUTF32Func)Nst_1252_to_utf32,
     .from_utf32  = (Nst_FromUTF32Func)Nst_1252_from_utf32,
@@ -125,6 +155,8 @@ Nst_CP Nst_cp_1253 = {
     .mult_max_sz = sizeof(u8),
     .mult_min_sz = sizeof(u8),
     .name = "CP1253",
+    .bom = NULL,
+    .bom_size = 0,
     .check_bytes = (Nst_CheckBytesFunc)Nst_check_1253_bytes,
     .to_utf32    = (Nst_ToUTF32Func)Nst_1253_to_utf32,
     .from_utf32  = (Nst_FromUTF32Func)Nst_1253_from_utf32,
@@ -135,6 +167,8 @@ Nst_CP Nst_cp_1254 = {
     .mult_max_sz = sizeof(u8),
     .mult_min_sz = sizeof(u8),
     .name = "CP1254",
+    .bom = NULL,
+    .bom_size = 0,
     .check_bytes = (Nst_CheckBytesFunc)Nst_check_1254_bytes,
     .to_utf32    = (Nst_ToUTF32Func)Nst_1254_to_utf32,
     .from_utf32  = (Nst_FromUTF32Func)Nst_1254_from_utf32,
@@ -145,6 +179,8 @@ Nst_CP Nst_cp_1255 = {
     .mult_max_sz = sizeof(u8),
     .mult_min_sz = sizeof(u8),
     .name = "CP1255",
+    .bom = NULL,
+    .bom_size = 0,
     .check_bytes = (Nst_CheckBytesFunc)Nst_check_1255_bytes,
     .to_utf32    = (Nst_ToUTF32Func)Nst_1255_to_utf32,
     .from_utf32  = (Nst_FromUTF32Func)Nst_1255_from_utf32,
@@ -155,6 +191,8 @@ Nst_CP Nst_cp_1256 = {
     .mult_max_sz = sizeof(u8),
     .mult_min_sz = sizeof(u8),
     .name = "CP1256",
+    .bom = NULL,
+    .bom_size = 0,
     .check_bytes = (Nst_CheckBytesFunc)Nst_check_1256_bytes,
     .to_utf32    = (Nst_ToUTF32Func)Nst_1256_to_utf32,
     .from_utf32  = (Nst_FromUTF32Func)Nst_1256_from_utf32,
@@ -165,6 +203,8 @@ Nst_CP Nst_cp_1257 = {
     .mult_max_sz = sizeof(u8),
     .mult_min_sz = sizeof(u8),
     .name = "CP1257",
+    .bom = NULL,
+    .bom_size = 0,
     .check_bytes = (Nst_CheckBytesFunc)Nst_check_1257_bytes,
     .to_utf32    = (Nst_ToUTF32Func)Nst_1257_to_utf32,
     .from_utf32  = (Nst_FromUTF32Func)Nst_1257_from_utf32,
@@ -175,6 +215,8 @@ Nst_CP Nst_cp_1258 = {
     .mult_max_sz = sizeof(u8),
     .mult_min_sz = sizeof(u8),
     .name = "CP1258",
+    .bom = NULL,
+    .bom_size = 0,
     .check_bytes = (Nst_CheckBytesFunc)Nst_check_1258_bytes,
     .to_utf32    = (Nst_ToUTF32Func)Nst_1258_to_utf32,
     .from_utf32  = (Nst_FromUTF32Func)Nst_1258_from_utf32,
@@ -184,7 +226,9 @@ Nst_CP Nst_cp_iso8859_1 = {
     .ch_size = sizeof(u8),
     .mult_max_sz = sizeof(u8),
     .mult_min_sz = sizeof(u8),
-    .name = "Latin-1",
+    .name = "ISO-8859-1",
+    .bom = NULL,
+    .bom_size = 0,
     .check_bytes = (Nst_CheckBytesFunc)Nst_check_1258_bytes,
     .to_utf32    = (Nst_ToUTF32Func)Nst_1258_to_utf32,
     .from_utf32  = (Nst_FromUTF32Func)Nst_1258_from_utf32,
@@ -234,6 +278,29 @@ i32 Nst_check_utf8_bytes(u8 *str, usize len)
         if (*(++str) < 0b10000000 || *str > 0b10111111)
             return -1;
     }
+
+    u32 ch = 0;
+    switch (n) {
+    case 0:
+        return (u32)*str;
+    case 1:
+        ch += (*str++ & 0x1f) << 6;
+        ch += *str & 0x3f;
+        break;
+    case 2:
+        ch += (*str++ & 0xf) << 12;
+        ch += (*str++ & 0x3f) << 6;
+        ch += *str & 0x3f;
+        break;
+    default:
+        ch += (*str++ & 0x7)  << 18;
+        ch += (*str++ & 0x3f) << 12;
+        ch += (*str++ & 0x3f) << 6;
+        ch += *str & 0x3f;
+        break;
+    }
+    if (ch >= 0xd800 && ch <= 0xdfff)
+        return -1;
     return n + 1;
 }
 
@@ -266,6 +333,9 @@ u32 Nst_utf8_to_utf32(u8 *str)
 
 i32 Nst_utf8_from_utf32(u32 ch, u8 *str)
 {
+    if (ch >= 0xd800 && ch <= 0xdfff)
+        return -1;
+
     if (ch <= 0x7f) {
         *str = (i8)ch;
         return 1;
@@ -309,7 +379,7 @@ u32 Nst_utf16_to_utf32(u16 *str)
 
 i32 Nst_utf16_from_utf32(u32 ch, u16 *str)
 {
-    if (ch > 0x10FFFF || (ch >= 0xd800 && ch <= 0xdfff))
+    if (ch > 0x10ffff || (ch >= 0xd800 && ch <= 0xdfff))
         return -1;
     if (ch < 0xffff) {
         *str = (u16)ch;
@@ -1477,9 +1547,27 @@ bool Nst_translate_cp(Nst_CP *from, Nst_CP *to, void *from_buf, usize from_len,
         *to_len = 0;
     *to_buf = NULL;
 
+    // copy the string if the encoding is the same
+    if (from == to) {
+        *to_buf = (i8 *)Nst_malloc(from_len + 1, from->ch_size);
+        if (*to_buf == NULL) {
+            return false;
+        }
+        memcpy(*to_buf, from_buf, from->ch_size * (from_len + 1));
+        if (to_len != NULL)
+            *to_len = from_len;
+        return true;
+    }
+
     Nst_Buffer buf;
-    if (!Nst_buffer_init(&buf, from_len * to->mult_min_sz + 40))
+    if (!Nst_buffer_init(&buf, from_len * to->mult_min_sz + 40 + to->bom_size))
         return false;
+
+    // skip BOM of initial string
+    if (from->bom != NULL && from_len >= from->bom_size) {
+        if (memcmp(from->bom, from_buf, from->bom_size) == 0)
+            from_buf = (void *)((i8 *)from_buf + from->bom_size);
+    }
 
     isize n = (isize)from_len; // avoids accidental underflow
     while (n > 0) {
@@ -1622,9 +1710,10 @@ i8 *Nst_wchar_t_to_char(wchar_t *str, usize len)
 
 bool Nst_is_valid_cp(u32 cp)
 {
-    return cp <= 0x10FFFF
-        && (cp < 0xFDD0 || cp > 0xFDEF)
-        && ((cp & 0xFFF0) != 0xFFF0 || (cp & 0xF) < 0xE);
+    return cp <= 0x10ffff
+        && (cp < 0xd800 || cp > 0xdfff)
+        && (cp < 0xfdd0 || cp > 0xfdef)
+        && ((cp & 0xfff0) != 0xfff0 || (cp & 0xf) < 0xe);
 }
 
 Nst_CPID Nst_check_bom(i8 *str, usize len, i32 *bom_size)

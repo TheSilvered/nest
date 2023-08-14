@@ -22,8 +22,9 @@
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
     <ProjectGuid>{0d4d13bc-dc91-4a5d-73be-45674dc30710}</ProjectGuid>
-    <RootNamespace>nestutf8</RootNamespace>
+    <RootNamespace>nestcodecs</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>nest_codecs</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -156,14 +157,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\libs\dll\framework.h" />
-    <ClInclude Include="..\..\..\..\libs\nest_utf8\nest_utf8.h" />
+    <ClInclude Include="..\..\..\..\libs\nest_codecs\nest_codecs.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp" />
-    <ClCompile Include="..\..\..\..\libs\nest_utf8\nest_utf8.cpp" />
+    <ClCompile Include="..\..\..\..\libs\nest_codecs\nest_codecs.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\libs\_nest_files\stdutf8.nest" />
+    <None Include="..\..\..\..\libs\_nest_files\stdcodecs.nest" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

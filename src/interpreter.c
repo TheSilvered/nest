@@ -1344,6 +1344,8 @@ static i32 exe_save_error(Nst_Inst *inst)
     Nst_state.traceback.error.occurred = false;
     Nst_dec_ref(GLOBAL_ERROR->name);
     Nst_dec_ref(GLOBAL_ERROR->message);
+    GLOBAL_ERROR->name = NULL;
+    GLOBAL_ERROR->message = NULL;
 
     Nst_llist_empty(Nst_state.traceback.positions, Nst_free);
 

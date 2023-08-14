@@ -92,6 +92,21 @@ NstEXP Nst_Obj *NstC Nst_string_new(i8 *val, usize len, bool allocated);
 NstEXP Nst_Obj *NstC Nst_string_new_allocated(i8 *val, usize len);
 
 /**
+ * Creates a new temporary read-only string object.
+ *
+ * @brief This object is not allocated on the heap and cannot be returned by
+ * a function, its intended use is only on functions where a string object is
+ * needed but you have the string in another form. Nothing is allocated and
+ * it must not be destroyed in any way.
+ *
+ * @param val: the value of the string
+ * @param len: the length of the string
+ *
+ * @return A Nst_StrObj struct, NOT POINTER. This function never fails.
+ */
+NstEXP Nst_StrObj NstC Nst_string_temp(i8 *val, usize len);
+
+/**
  * Creates a new Nst_TypeObj.
  *
  * @param val: the name of the type

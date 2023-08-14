@@ -5,6 +5,8 @@
 #include "windows.h"
 #endif // !Nst_WIN
 
+#include "file.h"
+
 #define HELP_MESSAGE                                                                     \
     "USAGE: nest [options] [filename | -c command] [args]\n\n"                           \
                                                                                          \
@@ -252,16 +254,6 @@ bool Nst_supports_color(void)
 
 #ifdef Nst_WIN
 
-struct {
-    HANDLE hd;
-    FILE *fp;
-    wchar_t buf[1024];
-    i8 ch[4];
-    i32 buf_size;
-    i32 buf_ptr;
-    i32 ch_idx;
-} w_in;
-
 bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv)
 {
     usize tot_size = 0;
@@ -331,85 +323,13 @@ void _Nst_set_console_mode(void)
 
     HANDLE stdin_handle = GetStdHandle(STD_INPUT_HANDLE);
     if (stdin_handle == INVALID_HANDLE_VALUE) {
-        w_in.hd = NULL;
+        Nst_stdin.hd = NULL;
         return;
     }
-    w_in.hd = stdin_handle;
-    w_in.fp = stdin;
-    w_in.buf_ptr = 0;
-    w_in.buf_size = 0;
-    w_in.ch_idx = 0;
-    w_in.ch[0] = 0;
-    w_in.ch[1] = 0;
-    w_in.ch[2] = 0;
-    w_in.ch[3] = 0;
-}
-
-static bool read_characters(usize offset)
-{
-    DWORD len;
-    BOOL result = ReadConsoleW(
-        w_in.hd,
-        w_in.buf + offset,
-        (DWORD)(1024 - offset),
-        &len,
-        NULL);
-    if (!result)
-        return false;
-
-    w_in.buf_size = (usize)len;
-    w_in.buf_ptr = (i32)offset;
-    return true;
-}
-
-static bool get_byte(i8 *out_ch)
-{
-    if (w_in.ch_idx < 4 && w_in.ch[w_in.ch_idx] != 0) {
-        *out_ch = w_in.ch[w_in.ch_idx++];
-        return true;
-    }
-
-    if (w_in.buf_ptr >= w_in.buf_size) {
-        if (!read_characters(0))
-            return false;
-    } else if (w_in.buf_ptr + 1 == w_in.buf_size) {
-        // fix surrogate pairs getting cut-off
-        w_in.buf[0] = w_in.buf[w_in.buf_ptr];
-        if (!read_characters(1))
-            return false;
-    }
-
-    i32 ch_len = Nst_check_utf16_bytes(
-        w_in.buf + w_in.buf_ptr,
-        w_in.buf_size - w_in.buf_ptr);
-
-    if (ch_len < 0)
-        return false;
-
-    w_in.ch[0] = 0;
-    w_in.ch[1] = 0;
-    w_in.ch[2] = 0;
-    w_in.ch[3] = 0;
-    Nst_utf16_to_utf8(w_in.ch, w_in.buf + w_in.buf_ptr, (usize)ch_len);
-    w_in.buf_ptr += ch_len;
-    w_in.ch_idx = 1;
-    *out_ch = w_in.ch[0];
-    return true;
-}
-
-usize _Nst_windows_stdin_read(i8 *buf, usize size, usize count, void *f_value)
-{
-    if (w_in.hd == NULL)
-        return fread(buf, size, count, (FILE *)f_value);
-
-    usize bytes = size * count;
-
-    for (usize i = 0; i < bytes; i++) {
-        if (!get_byte(buf))
-            return i;
-        buf++;
-    }
-    return bytes;
+    Nst_stdin.hd = stdin_handle;
+    Nst_stdin.fp = stdin;
+    Nst_stdin.buf_ptr = 0;
+    Nst_stdin.buf_size = 0;
 }
 
 #endif // !Nst_WIN

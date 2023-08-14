@@ -1,5 +1,5 @@
-#ifndef NEST_UTF8_H
-#define NEST_UTF8_H
+#ifndef NEST_CODECS_H
+#define NEST_CODECS_H
 
 #include "nest.h"
 
@@ -10,13 +10,15 @@ extern "C" {
 NstEXP bool lib_init();
 NstEXP Nst_DeclrList *get_func_ptrs();
 
-Nst_FUNC_SIGN(is_valid_);
 Nst_FUNC_SIGN(get_len_);
 Nst_FUNC_SIGN(get_at_);
 Nst_FUNC_SIGN(to_iter_);
+Nst_FUNC_SIGN(from_cp_);
+Nst_FUNC_SIGN(to_cp_);
+Nst_FUNC_SIGN(cp_is_valid_);
 
 #ifdef __cplusplus
 }
 #endif // !__cplusplus
 
-#endif // !NEST_UTF8_H
+#endif // !NEST_CODECS_H

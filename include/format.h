@@ -84,7 +84,7 @@
 #ifndef FORMAT_H
 #define FORMAT_H
 
-#include "simple_types.h"
+#include "file.h"
 
 #ifdef __cplusplus
 extern "C" {

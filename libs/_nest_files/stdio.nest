@@ -2,12 +2,19 @@
 
 |#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_io.dll' = __io
 
+__io.can_read_    = can_read
+__io.can_seek_    = can_seek
+__io.can_write_   = can_write
 __io.close_       = close
+__io.descriptor_  = descriptor
+__io.encoding_    = encoding
 __io.file_size_   = file_size
 __io.flush_       = flush
 __io.get_flags_   = get_flags
-__io.get_fptr_    = get_fptr
-__io.move_fptr_   = move_fptr
+__io.get_fpi_     = get_fpi
+__io.is_a_tty_    = is_a_tty
+__io.is_bin_      = is_bin
+__io.move_fpi_    = move_fpi
 __io.open_        = open
 __io.println_     = println
 __io.read_        = read

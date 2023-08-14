@@ -3,11 +3,12 @@ ifeq ($(LIB_NAME),gui)
     LIB_LINKS=$(shell pkg-config --libs sdl2 SDL2_ttf)
 endif
 
-
 MAKE_FILE = $(MAKE) --no-print-directory -f
 
 CC = g++
-CFLAGS = $(LIB_FLAGS) -I../../../include -Wall -Wextra -Wlogical-op -Wnull-dereference -Wduplicated-cond -Wduplicated-branches -Wshadow -shared -fPIC -rdynamic -std=c++2a
+CFLAGS = $(LIB_FLAGS) -D_FILE_OFFSET_BITS=64 -I../../../include -Wall -Wextra \
+         -Wlogical-op -Wnull-dereference -Wduplicated-cond -Wshadow -shared   \
+         -Wduplicated-branches -fPIC -rdynamic -std=c++2a
 DBG_FLAGS = -D_DEBUG -g -O0
 TARGET_NAME = std$(LIB_NAME).cnest
 

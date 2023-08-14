@@ -7,6 +7,7 @@
 #include "format.h"
 #include "global_consts.h"
 #include "mem.h"
+#include "file.h"
 
 #define MIN(a, b) ((b) < (a) ? (b) : (a))
 #define MAX(a, b) ((b) > (a) ? (b) : (a))
@@ -386,11 +387,11 @@ isize Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
 
 isize Nst_fprint(Nst_IOFileObj *f, const i8 *buf)
 {
-    if (Nst_IOF_IS_CLOSED(f))
-        return -1;
-
     usize len = strlen(buf);
-    return Nst_fwrite((i8 *)buf, sizeof(i8), (usize)len, f);
+    usize count;
+    if (Nst_fwrite((i8 *)buf, (usize)len, &count, f) < 0)
+        return -1;
+    return count;
 }
 
 isize Nst_fprintln(Nst_IOFileObj *f, const i8 *buf)
@@ -399,9 +400,12 @@ isize Nst_fprintln(Nst_IOFileObj *f, const i8 *buf)
         return -1;
 
     usize len = strlen(buf);
-    size_t a = f->write_f((void *)buf, 1, (size_t)len, f->value);
-    size_t b = f->write_f((void *)"\n", 1, 1, f->value);
-    return a + b;
+    usize count_a, count_b;
+    if (Nst_fwrite((i8 *)buf, len, &count_a, f) < 0)
+        return -1;
+    if (Nst_fwrite((i8 *)"\n", 1, &count_b, f) < 0)
+        return -1;
+    return count_a + count_b;
 }
 
 isize Nst_fprintf(Nst_IOFileObj *f, Nst_WIN_FMT const i8 *fmt, ...)
@@ -472,7 +476,8 @@ isize Nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args)
         Nst_free(buf);
         return -1;
     }
-    isize result = Nst_fwrite(buf, sizeof(i8), len, f);
+    usize count;
+    Nst_IOResult result = Nst_fwrite(buf, len, &count, f);
     Nst_free(buf);
-    return result;
+    return result >= 0 ? (isize)count : -1;
 }

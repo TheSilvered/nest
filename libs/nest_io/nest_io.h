@@ -13,12 +13,8 @@ NstEXP void free_lib();
 
 typedef struct _VirtualIOFile_data
 {
+    Nst_Buffer data;
     usize ptr;
-    usize size;
-    i8 *data;
-    i8 *buf;
-    usize buf_size;
-    usize curr_buf_size;
 }
 VirtualIOFile_data;
 
@@ -30,10 +26,17 @@ Nst_FUNC_SIGN(write_bytes_);
 Nst_FUNC_SIGN(read_);
 Nst_FUNC_SIGN(read_bytes_);
 Nst_FUNC_SIGN(file_size_);
-Nst_FUNC_SIGN(get_fptr_);
-Nst_FUNC_SIGN(move_fptr_);
+Nst_FUNC_SIGN(get_fpi_);
+Nst_FUNC_SIGN(move_fpi_);
 Nst_FUNC_SIGN(flush_);
 Nst_FUNC_SIGN(get_flags_);
+Nst_FUNC_SIGN(can_read_);
+Nst_FUNC_SIGN(can_write_);
+Nst_FUNC_SIGN(can_seek_);
+Nst_FUNC_SIGN(is_bin_);
+Nst_FUNC_SIGN(is_a_tty_);
+Nst_FUNC_SIGN(descriptor_);
+Nst_FUNC_SIGN(encoding_);
 Nst_FUNC_SIGN(println_);
 Nst_FUNC_SIGN(_set_stdin_);
 Nst_FUNC_SIGN(_set_stdout_);

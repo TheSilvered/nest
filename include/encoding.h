@@ -11,6 +11,11 @@
 
 #include "error.h"
 
+/* Maximum size of a multibyte character across all supported encodings. */
+#define Nst_CP_MULTIBYTE_MAX_SIZE 4
+/* Maximum size of the BOM across all supported encodings. */
+#define Nst_CP_BOM_MAX_SIZE 4
+
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
@@ -77,13 +82,15 @@ NstEXP typedef i32 (*Nst_FromUTF32Func)(u32 ch, void *buf);
  * @param from_utf32: the Nst_FromUTF32Func function of the encoding
  */
 NstEXP typedef struct _Nst_CP {
-    usize ch_size;
-    usize mult_max_sz;
-    usize mult_min_sz;
+    const usize ch_size;
+    const usize mult_max_sz;
+    const usize mult_min_sz;
     const i8 *name;
-    Nst_CheckBytesFunc check_bytes;
-    Nst_ToUTF32Func to_utf32;
-    Nst_FromUTF32Func from_utf32;
+    const i8 *bom;
+    const usize bom_size;
+    const Nst_CheckBytesFunc check_bytes;
+    const Nst_ToUTF32Func to_utf32;
+    const Nst_FromUTF32Func from_utf32;
 } Nst_CP;
 
 extern Nst_CP Nst_cp_ascii;

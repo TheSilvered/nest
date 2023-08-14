@@ -18,7 +18,7 @@
     <ClInclude Include="..\..\..\..\libs\dll\framework.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\libs\nest_utf8\nest_utf8.h">
+    <ClInclude Include="..\..\..\..\libs\nest_codecs\nest_codecs.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -26,12 +26,12 @@
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\libs\nest_utf8\nest_utf8.cpp">
+    <ClCompile Include="..\..\..\..\libs\nest_codecs\nest_codecs.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <None Include="..\..\..\..\libs\_nest_files\stdutf8.nest">
+    <None Include="..\..\..\..\libs\_nest_files\stdcodecs.nest">
       <Filter>Resources</Filter>
     </None>
   </ItemGroup>

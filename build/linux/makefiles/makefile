@@ -2,7 +2,8 @@ SILENT_MAKE = $(MAKE) --no-print-directory
 MAKE_FILE = $(SILENT_MAKE) -f
 
 CC = gcc
-CFLAGS = -I../../../include -Wall -Wextra -Wlogical-op -Wnull-dereference -Wduplicated-cond -Wduplicated-branches -Wshadow
+CFLAGS = -D_FILE_OFFSET_BITS=64 -I../../../include -Wall -Wextra -Wlogical-op \
+         -Wnull-dereference -Wduplicated-cond -Wduplicated-branches -Wshadow
 DBG_FLAGS = -D_DEBUG -g -O0
 TARGET_NAME = nest
 
@@ -71,6 +72,7 @@ all:
 	@$(MAKE_FILE) libnest.mk
 	@$(SILENT_MAKE) __no_libnest_x64
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=co
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=codecs
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=err
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=fs
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=gui
@@ -83,12 +85,12 @@ all:
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=sutil
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=sys
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=time
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=utf8
 
 all-x86:
 	@$(MAKE_FILE) libnest.mk x86
 	@$(SILENT_MAKE) __no_libnest_x86
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=co
+	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=codecs
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=err
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=fs
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=gui
@@ -101,12 +103,12 @@ all-x86:
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=sutil
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=sys
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=time
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=utf8
 
 all-debug:
 	@$(MAKE_FILE) libnest.mk debug
 	@$(SILENT_MAKE) __no_libnest_dbg
 	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=co
+	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=codecs
 	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=err
 	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=fs
 	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=gui
@@ -119,7 +121,6 @@ all-debug:
 	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=sutil
 	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=sys
 	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=time
-	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=utf8
 
 run:
 	@$(SILENT_MAKE) all-debug

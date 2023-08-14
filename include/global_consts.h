@@ -12,6 +12,7 @@
 #include "error.h"
 #include "simple_types.h"
 #include "function.h"
+#include "file.h"
 
 #ifdef __cplusplus
 extern "C" {

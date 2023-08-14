@@ -119,8 +119,9 @@ Nst_LList *Nst_tokenizef(i8 *filename, Nst_CPID encoding, i32 *opt_level,
     i8 *full_path;
     Nst_get_full_path(filename, &full_path, NULL);
     if (full_path == NULL) {
+        Nst_OpErr *err = Nst_error_get();
+        Nst_fprintf(Nst_io.err, "%s - %s", err->name->value, err->message->value);
         Nst_error_clear();
-        Nst_fprint(Nst_io.err, "Memory allocation failed\n");
         return NULL;
     }
 
@@ -751,10 +752,10 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
 
             i8 unicode_char[5] = { 0 };
 
-            if (num <= 0x10ffff)
-                Nst_utf8_from_utf32(num, (u8 *)unicode_char);
-            else
+            if (!Nst_is_valid_cp(num))
                 SET_INVALID_ESCAPE_ERROR;
+
+            Nst_utf8_from_utf32(num, (u8 *)unicode_char);
             Nst_buffer_append_c_str(&buf, (const i8 *)unicode_char);
             break;
         }

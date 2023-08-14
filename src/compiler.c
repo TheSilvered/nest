@@ -20,7 +20,7 @@
     RETURN_IF_OP_ERR(Nst_inst_destroy(instruction); __VA_ARGS__);             \
     } while (0)
 
-#define PRINT(str, size) Nst_fwrite(str, sizeof(i8), size, Nst_io.out)
+#define PRINT(str, size) Nst_fwrite(str, size, NULL, Nst_io.out)
 
 #define RETURN_IF_OP_ERR(...) do {                                            \
     if (Nst_error_occurred()) {                                               \
@@ -1690,7 +1690,7 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
             if (Nst_error_occurred())
                 Nst_error_clear();
             else {
-                Nst_fwrite(s->value, sizeof(i8), s->len, Nst_io.out);
+                Nst_fwrite(s->value, s->len, NULL, Nst_io.out);
                 Nst_dec_ref(s);
             }
 

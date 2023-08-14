@@ -1,10 +1,10 @@
 #include <cstring>
 #include <cstdlib>
-#include "nest_utf8.h"
+#include "nest_codecs.h"
 
-#define FUNC_COUNT 4
+#define FUNC_COUNT 6
 
-#define SET_INVALID_UTF8 \
+#define SET_INVALID_UTF8                                                      \
     Nst_set_value_error_c("the string is not valid UTF-8")
 
 static Nst_ObjDeclr func_list_[FUNC_COUNT];
@@ -15,10 +15,12 @@ bool lib_init()
 {
     usize idx = 0;
 
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_valid_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_len_,  1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_at_,   2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(to_iter_,  1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_len_,     1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_at_,      2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(to_iter_,     1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(from_cp_,     1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(to_cp_,       1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(cp_is_valid_, 1);
 
 #if __LINE__ - FUNC_COUNT != 19
 #error
@@ -78,21 +80,6 @@ Nst_FUNC_SIGN(utf8_iter_get_val)
     idx->value += res;
 
     return Nst_string_new(new_s, res, true);
-}
-
-Nst_FUNC_SIGN(is_valid_)
-{
-    Nst_StrObj *str;
-    Nst_DEF_EXTRACT("s", &str);
-    u8 *s = (u8 *)str->value;
-    for (usize i = 0, n = str->len; i < n;) {
-        i32 res = Nst_check_utf8_bytes(s + i, n - i);
-        if (res == -1)
-            Nst_RETURN_FALSE;
-        i += res;
-    }
-
-    Nst_RETURN_TRUE;
 }
 
 Nst_FUNC_SIGN(get_len_)
@@ -173,4 +160,60 @@ Nst_FUNC_SIGN(to_iter_)
         FUNC(Nst_func_new_c(1, utf8_iter_is_done)),
         FUNC(Nst_func_new_c(1, utf8_iter_get_val)),
         arr);
+}
+
+Nst_FUNC_SIGN(from_cp_)
+{
+    i64 cp;
+    Nst_DEF_EXTRACT("l", &cp);
+
+    if (cp < 0 || cp > UINT32_MAX) {
+        Nst_set_value_error(
+            Nst_sprintf("codepoint %lli ouside the allowed range", cp));
+        return nullptr;
+    }
+
+    if (!Nst_is_valid_cp((u32)cp)) {
+        if (cp <= 0xffff)
+            Nst_set_value_error(Nst_sprintf("invalid code point U+%04llX", cp));
+        else
+            Nst_set_value_error(Nst_sprintf("invalid code point U+%06llX", cp));
+
+        return nullptr;
+    }
+
+    u8 *str = Nst_malloc_c(5, u8);
+    if (str == NULL)
+        return nullptr;
+
+    i32 len = Nst_utf8_from_utf32((u32)cp, str);
+    return Nst_string_new_allocated((i8 *)str, (usize)len);
+}
+
+Nst_FUNC_SIGN(to_cp_)
+{
+    Nst_StrObj *str;
+    Nst_DEF_EXTRACT("s", &str);
+
+    usize str_len = str->len;
+    if (str_len > 4) {
+        Nst_set_value_error_c("the string must contain only one character");
+        return nullptr;
+    }
+
+    if (Nst_check_utf8_bytes((u8 *)str->value, str_len) != (i32)str_len) {
+        Nst_set_value_error_c("the string must contain only one character");
+        return nullptr;
+    }
+
+    u32 cp = Nst_utf8_to_utf32((u8 *)str->value);
+    return Nst_int_new(cp);
+}
+
+Nst_FUNC_SIGN(cp_is_valid_)
+{
+    i64 cp;
+    Nst_DEF_EXTRACT("l", &cp);
+
+    Nst_RETURN_COND(cp < 0 || cp > UINT32_MAX || !Nst_is_valid_cp((u32)cp));
 }

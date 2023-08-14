@@ -817,10 +817,16 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
         // for custom types defined in external libraries
         return Nst_string_copy(ob);
     } else if (ob_t == Nst_t.Byte) {
-        i8 *str = Nst_calloc_c(2, i8, NULL);
+        u8 value = AS_BYTE(ob);
+        i8 *str = Nst_calloc_c(3, i8, NULL);
         CHECK_BUFFER(str);
-        str[0] = AS_BYTE(ob);
-        return Nst_string_new_allocated(str, 1);
+        if (value <= 0x7f) {
+            str[0] = AS_BYTE(ob);
+            return Nst_string_new_allocated(str, 1);
+        }
+        str[0] = 0b11000000 | (value >> 6);
+        str[1] = 0b10000000 | (value & 0x3f);
+        return Nst_string_new_allocated(str, 2);
     } else if (ob_t == Nst_t.Array || ob_t == Nst_t.Vector) {
         Nst_LList *all_objs = Nst_llist_new();
         if (all_objs == NULL)
@@ -840,13 +846,17 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
     else if (ob_t == Nst_t.IOFile) {
         i8 *buffer = Nst_malloc_c(14, i8);
         CHECK_BUFFER(buffer);
-        memcpy(buffer, "<IOFile --- >", 14);
+        memcpy(buffer, "<IOFile ----- >", 16);
         if (Nst_IOF_CAN_READ(ob))
             buffer[8] = 'r';
         if (Nst_IOF_CAN_WRITE(ob))
             buffer[9] = 'w';
         if (Nst_IOF_IS_BIN(ob))
             buffer[10]= 'b';
+        if (Nst_IOF_CAN_SEEK(ob))
+            buffer[11]= 's';
+        if (Nst_IOF_IS_TTY(ob))
+            buffer[11]= 't';
         return Nst_string_new_allocated(buffer, 13);
     } else if (ob_t == Nst_t.Func) {
         i8 *buffer = Nst_malloc_c(13 + MAX_INT_CHAR_COUNT, i8);
@@ -1388,20 +1398,21 @@ Nst_Obj *_Nst_obj_stdout(Nst_Obj *ob)
 
     Nst_Obj *str = Nst_obj_cast(ob, Nst_t.Str);
 
-    Nst_fwrite(STR(str)->value, sizeof(i8), STR(str)->len, Nst_io.out);
+    Nst_fwrite(STR(str)->value, STR(str)->len, NULL, Nst_io.out);
 
     Nst_dec_ref(str);
     return Nst_inc_ref(ob);
 }
 
-static inline i8 get_one_char(void)
+static inline i8 get_one_char(i8 *ch)
 {
-    i8 ch;
-    usize chars_read = Nst_fread(&ch, sizeof(i8), 1, Nst_io.in);
-    if (chars_read == 1)
-        return ch;
+    ch[0] = 0; ch[1] = 0; ch[2] = 0; ch[3] = 0; ch[4] = 0;
+
+    Nst_IOResult result = Nst_fread(ch, 5, 1, NULL, Nst_io.in);
+    if (result == Nst_IO_SUCCESS)
+        return true;
     else
-        return '\n';
+        return false;
 }
 
 Nst_Obj *_Nst_obj_stdin(Nst_Obj *ob)
@@ -1418,11 +1429,14 @@ Nst_Obj *_Nst_obj_stdin(Nst_Obj *ob)
     if (!Nst_buffer_init(&buf, 4))
         return NULL;
 
-    for (i8 ch = get_one_char(); ch != '\n'; ch = get_one_char()) {
-        if (ch == '\r')
+    i8 ch[5];
+    while (get_one_char(ch)) {
+        if (ch[0] == '\r')
             continue;
+        if (ch[0] == '\n')
+            break;
 
-        if (!Nst_buffer_append_char(&buf, ch)) {
+        if (!Nst_buffer_append_c_str(&buf, (const i8 *)ch)) {
             Nst_buffer_destroy(&buf);
             return NULL;
         }
@@ -1639,7 +1653,7 @@ Nst_StrObj *_Nst_get_import_path(i8 *initial_path, usize path_len)
 {
     i8 *file_path;
     usize new_len = Nst_get_full_path(initial_path, &file_path, NULL);
-    Nst_IOFile file;
+    FILE *file;
 
     if (file_path != NULL && (file = fopen(file_path, "r")) != NULL) {
         Nst_error_clear();

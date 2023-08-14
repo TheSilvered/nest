@@ -55,7 +55,7 @@ Nst_FUNC_SIGN(load_f_)
     Nst_StrObj *path;
     Nst_DEF_EXTRACT("s", &path);
 
-    Nst_IOFile f = fopen(path->value, "rb");
+    FILE *f = fopen(path->value, "rb");
     if (f == nullptr) {
         Nst_set_value_error_c("file not found");
         return nullptr;
@@ -102,7 +102,7 @@ Nst_FUNC_SIGN(dump_f_)
     Nst_DEF_EXTRACT("so?i", &path, &obj, &indent_obj);
     i64 indent = Nst_DEF_VAL(indent_obj, AS_INT(indent_obj), 0);
 
-    Nst_IOFile f = fopen(path->value, "wb");
+    FILE *f = fopen(path->value, "wb");
     if (f == nullptr) {
         Nst_set_value_error_c("file not found");
         return nullptr;

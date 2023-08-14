@@ -35,8 +35,8 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_charset_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_printable_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(replace_substr_, 3);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(bytearray_to_str_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(str_to_bytearray_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(bytearray_to_str_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(str_to_bytearray_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(repr_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(join_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(split_, 2);
@@ -637,37 +637,96 @@ Nst_FUNC_SIGN(replace_substr_)
 Nst_FUNC_SIGN(bytearray_to_str_)
 {
     Nst_SeqObj *seq;
+    Nst_StrObj *encoding_obj;
 
-    Nst_DEF_EXTRACT("A.B", &seq);
+    Nst_DEF_EXTRACT("A.B ?s", &seq, &encoding_obj);
+
+    Nst_CPID cpid = Nst_DEF_VAL(
+        encoding_obj,
+        Nst_encoding_from_name(STR(encoding_obj)->value),
+        Nst_CP_UTF8);
+    if (cpid == Nst_CP_UNKNOWN) {
+        Nst_set_value_error(
+            Nst_sprintf(
+                "invalid encoding '%.100s'",
+                STR(encoding_obj)->value));
+        return nullptr;
+    }
+    if (cpid == Nst_CP_UTF16)
+        cpid = Nst_CP_UTF16LE;
+    if (cpid == Nst_CP_UTF32)
+        cpid = Nst_CP_UTF32LE;
+
+    Nst_CP *encoding = Nst_cp(cpid);
 
     usize len = seq->len;
-    i8 *new_str = Nst_malloc_c(len + 1, i8);
-    if (new_str == nullptr) {
+    i8 *byte_array = Nst_malloc_c(len + 1, i8);
+    if (byte_array == nullptr) {
         Nst_failed_allocation();
         return nullptr;
     }
     Nst_Obj **objs = seq->objs;
 
     for (usize i = 0; i < len; i++)
-        new_str[i] = AS_BYTE(objs[i]);
+        byte_array[i] = AS_BYTE(objs[i]);
 
-    new_str[len] = 0;
-    return Nst_string_new(new_str, len, true);
+    byte_array[len] = 0;
+
+    i8 *str;
+    usize str_len;
+    bool result = Nst_translate_cp(
+        encoding, Nst_cp(Nst_CP_UTF8),
+        byte_array, len,
+        (void **)&str, &str_len);
+
+    Nst_free(byte_array);
+    if (!result)
+        return nullptr;
+
+    return Nst_string_new(str, str_len, true);
 }
 
 Nst_FUNC_SIGN(str_to_bytearray_)
 {
     Nst_StrObj *str;
+    Nst_StrObj *encoding_obj;
 
-    Nst_DEF_EXTRACT("s", &str);
+    Nst_DEF_EXTRACT("s ?s", &str, &encoding_obj);
 
-    usize len = str->len;
-    i8 *s = str->value;
-    Nst_SeqObj *new_arr = SEQ(Nst_array_new(len));
+    Nst_CPID cpid = Nst_DEF_VAL(
+        encoding_obj,
+        Nst_encoding_from_name(STR(encoding_obj)->value),
+        Nst_CP_UTF8);
+    if (cpid == Nst_CP_UNKNOWN) {
+        Nst_set_value_error(
+            Nst_sprintf(
+                "invalid encoding '%.100s'",
+                STR(encoding_obj)->value));
+        return nullptr;
+    }
+    if (cpid == Nst_CP_UTF16)
+        cpid = Nst_CP_UTF16LE;
+    if (cpid == Nst_CP_UTF32)
+        cpid = Nst_CP_UTF32LE;
+
+    Nst_CP *encoding = Nst_cp(cpid);
+
+    u8 *byte_array;
+    usize array_len;
+    bool result = Nst_translate_cp(
+        Nst_cp(Nst_CP_UTF8), encoding,
+        str->value, str->len,
+        (void **)&byte_array, &array_len);
+
+    if (!result)
+        return nullptr;
+
+    Nst_SeqObj *new_arr = SEQ(Nst_array_new(array_len));
     Nst_Obj **objs = new_arr->objs;
 
-    for (usize i = 0; i < len; i++)
-        objs[i] = Nst_byte_new(s[i]);
+    for (usize i = 0; i < array_len; i++)
+        objs[i] = Nst_byte_new(byte_array[i]);
+    Nst_free(byte_array);
 
     return OBJ(new_arr);
 }
@@ -840,7 +899,7 @@ static i64 highest_bit(u64 n)
 Nst_FUNC_SIGN(bin_)
 {
     i64 n;
-    Nst_DEF_EXTRACT("i", &n);
+    Nst_DEF_EXTRACT("l", &n);
 
     i64 str_len = highest_bit(n) + 1;
 
@@ -864,7 +923,7 @@ Nst_FUNC_SIGN(bin_)
 Nst_FUNC_SIGN(oct_)
 {
     i64 n;
-    Nst_DEF_EXTRACT("i", &n);
+    Nst_DEF_EXTRACT("l", &n);
 
     i64 h_bit = highest_bit(n);
     i64 str_len = h_bit / 3;
@@ -892,7 +951,7 @@ Nst_FUNC_SIGN(hex_)
 {
     i64 n;
     bool upper;
-    Nst_DEF_EXTRACT("i y", &n, &upper);
+    Nst_DEF_EXTRACT("l y", &n, &upper);
 
     const i8 *digits;
     if (upper)

@@ -32,5 +32,6 @@
 #include "argv_parser.h"
 #include "mem.h"
 #include "format.h"
+#include "file.h"
 
 #endif //!NEST_H

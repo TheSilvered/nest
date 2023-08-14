@@ -102,9 +102,6 @@ NstEXP bool NstC _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv);
 /* WINDOWS-ONLY Initialises the console */
 NstEXP void NstC _Nst_set_console_mode(void);
 
-/* WINDOWS ONLY The read function for the stdin object */
-usize _Nst_windows_stdin_read(i8 *buf, usize size, usize count, void *f_value);
-
 #endif // !Nst_WIN
 
 #ifdef __cplusplus

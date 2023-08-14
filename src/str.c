@@ -71,6 +71,17 @@ Nst_Obj *Nst_string_new_allocated(i8 *val, usize len)
     return str;
 }
 
+Nst_StrObj Nst_string_temp(i8 *val, usize len)
+{
+    Nst_StrObj obj;
+    obj.value = val;
+    obj.len = len;
+    obj.hash = -1;
+    obj.type = Nst_t.Str;
+    obj.ref_count = 1;
+    return obj;
+}
+
 Nst_TypeObj *Nst_type_new(const i8 *val)
 {
     Nst_TypeObj *str = Nst_obj_alloc(
@@ -234,14 +245,22 @@ Nst_Obj *_Nst_string_get(Nst_StrObj *str, i64 idx)
         return NULL;
     }
 
-    i8 *ch = Nst_malloc_c(2, i8);
+    i8 *ch = Nst_malloc_c(3, i8);
     if (ch == NULL)
         return NULL;
 
-    ch[0] = str->value[idx];
-    ch[1] = 0;
+    u8 byte = str->value[idx];
 
-    return Nst_string_new_allocated(ch, 1);
+    if (byte <= 0x7f) {
+        ch[0] = str->value[idx];
+        ch[1] = 0;
+        return Nst_string_new_allocated(ch, 1);
+    }
+
+    ch[0] = 0b11000000 | (byte >> 6);
+    ch[1] = 0b10000000 | (byte & 0x3f);
+    ch[2] = 0;
+    return Nst_string_new_allocated(ch, 2);
 }
 
 void _Nst_string_destroy(Nst_StrObj *str)
@@ -357,6 +376,14 @@ Nst_Obj *Nst_string_parse_byte(Nst_StrObj *str)
 {
     if (str->len == 1)
         return Nst_byte_new(str->value[0]);
+
+    if (str->len == 2 && (u8)str->value[0] > 0x7f) {
+        u32 utf32_ch = Nst_utf8_to_utf32((u8 *)str->value);
+        if (utf32_ch <= 0xff)
+            return Nst_byte_new((u8)utf32_ch);
+        else
+            RETURN_BYTE_ERR;
+    }
 
     i8* s = str->value;
     i8* end = s + str->len;

@@ -155,6 +155,7 @@
     <ClInclude Include="..\..\..\..\include\compiler.h" />
     <ClInclude Include="..\..\..\..\include\encoding.h" />
     <ClInclude Include="..\..\..\..\include\error.h" />
+    <ClInclude Include="..\..\..\..\include\file.h" />
     <ClInclude Include="..\..\..\..\include\format.h" />
     <ClInclude Include="..\..\..\..\include\function.h" />
     <ClInclude Include="..\..\..\..\include\ggc.h" />
@@ -188,6 +189,7 @@
     <ClCompile Include="..\..\..\..\src\compiler.c" />
     <ClCompile Include="..\..\..\..\src\encoding.c" />
     <ClCompile Include="..\..\..\..\src\error.c" />
+    <ClCompile Include="..\..\..\..\src\file.c" />
     <ClCompile Include="..\..\..\..\src\format.c" />
     <ClCompile Include="..\..\..\..\src\function.c" />
     <ClCompile Include="..\..\..\..\src\ggc.c" />

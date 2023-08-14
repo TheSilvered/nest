@@ -474,3 +474,4 @@ tests/_test*.nest
 build/linux/_update_tests.sh
 !libs/nest_gui/SDL2/lib/**/*.dll
 !libs/nest_gui/SDL2/lib/**/*.lib
+\[ignore\]*

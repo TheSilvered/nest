@@ -123,22 +123,31 @@ static Nst_StrObj *heap_str(const i8 *str, usize len)
     return STR(Nst_string_new(heap_s, len, true));
 }
 
-static Nst_StrObj *heap_str(std::string str)
-{
-    return heap_str(str.c_str(), str.length());
-}
-
 static Nst_StrObj *heap_str(fs::path path)
 {
     std::u8string str = path.u8string();
     return heap_str((const i8 *)str.c_str(), str.length());
 }
 
+static Nst_StrObj *error_str(std::string str)
+{
+#ifdef Nst_WIN
+    i8 *val;
+    usize len;
+    bool result = Nst_translate_cp(
+        Nst_cp(Nst_acp()), Nst_cp(Nst_CP_UTF8),
+        (void *)str.c_str(), str.length(), (void **)&val, &len);
+    return STR(Nst_string_new_allocated(val, len));
+#else
+    return heap_str(str.c_str(), str.length());
+#endif
+}
+
 static Nst_Obj *throw_system_error(std::error_code ec)
 {
     Nst_set_error(
         Nst_sprintf("System Error %d", ec.value()),
-        heap_str(ec.message()));
+        error_str(ec.message()));
     return NULL;
 }
 
@@ -470,7 +479,7 @@ Nst_FUNC_SIGN(list_dirs_)
     for (fs::directory_entry const &entry
         : fs::recursive_directory_iterator{ path->value })
     {
-        Nst_StrObj *str =  heap_str(entry.path());
+        Nst_StrObj *str = heap_str(entry.path());
         if (str == nullptr)
             return nullptr;
         Nst_vector_append(vector, OBJ(str));
@@ -490,7 +499,7 @@ Nst_FUNC_SIGN(absolute_path_)
     fs::path result = fs::absolute(utf8_path(path), ec);
 
     if (ec.value() == 0)
-        return OBJ(heap_str(result.string()));
+        return OBJ(heap_str(result));
     else
         Nst_RETURN_NULL;
 }
@@ -505,7 +514,7 @@ Nst_FUNC_SIGN(canonical_path_)
     fs::path result = fs::canonical(utf8_path(path), ec);
 
     if (ec.value() == 0)
-        return OBJ(heap_str(result.string()));
+        return OBJ(heap_str(result));
     else
         Nst_RETURN_NULL;
 }
@@ -521,7 +530,7 @@ Nst_FUNC_SIGN(relative_path_)
     fs::path result = fs::relative(utf8_path(path), utf8_path(base), ec);
 
     if (ec.value() == 0)
-        return OBJ(heap_str(result.string()));
+        return OBJ(heap_str(result));
     else
         Nst_RETURN_NULL;
 }

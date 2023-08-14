@@ -48,7 +48,7 @@ static inline void set_error_stream(void)
 
 static inline void err_putc(i8 ch)
 {
-    Nst_fwrite(&ch, sizeof(i8), 1, err_stream);
+    Nst_fwrite(&ch, 1, NULL, err_stream);
 }
 
 Nst_Pos Nst_copy_pos(Nst_Pos pos)

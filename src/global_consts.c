@@ -11,7 +11,12 @@ Nst_Consts Nst_c;
 Nst_StdStreams Nst_io;
 Nst_IterFunctions Nst_itf;
 
-static int close_std_stream(void *f);
+static Nst_IOResult write_std_stream(i8 *buf, usize buf_len, usize *count,
+                                    Nst_IOFileObj *f);
+static Nst_IOResult close_std_stream(Nst_IOFileObj *f);
+
+static Nst_IOResult read_std_stream(i8 *buf, usize buf_size, usize count,
+                                    usize *buf_len, Nst_IOFileObj *f);
 
 static Nst_StrObj *str_obj_no_err(const i8 *value, Nst_TypeObj *type)
 {
@@ -114,17 +119,19 @@ bool _Nst_init_objects(void)
     Nst_c.Byte_0   = Nst_byte_new(0);
     Nst_c.Byte_1   = Nst_byte_new(1);
 
-    Nst_io.in  = IOFILE(Nst_iof_new(stdin,  false, true, false));
-    Nst_io.out = IOFILE(Nst_iof_new(stdout, false, false, true));
-    Nst_io.err = IOFILE(Nst_iof_new(stderr, false, false, true));
+    Nst_io.in  = IOFILE(Nst_iof_new(stdin,  false, true, false, NULL));
+    Nst_io.out = IOFILE(Nst_iof_new(stdout, false, false, true, NULL));
+    Nst_io.err = IOFILE(Nst_iof_new(stderr, false, false, true, NULL));
 
-    Nst_io.in ->close_f = close_std_stream;
-    Nst_io.out->close_f = close_std_stream;
-    Nst_io.err->close_f = close_std_stream;
+    Nst_io.in->func_set.read = read_std_stream;
 
-#ifdef Nst_WIN
-    Nst_io.in->read_f = (Nst_IOFile_read_f)_Nst_windows_stdin_read;
-#endif // !Nst_WIN
+    Nst_io.out->func_set.write = write_std_stream;
+    Nst_io.err->func_set.write = write_std_stream;
+
+    Nst_io.in ->func_set.close = close_std_stream;
+    Nst_io.out->func_set.close = close_std_stream;
+    Nst_io.err->func_set.close = close_std_stream;
+
 
     Nst_itf.range_start   = FUNC(Nst_func_new_c(1, Nst_iter_range_start));
     Nst_itf.range_is_done = FUNC(Nst_func_new_c(1, Nst_iter_range_is_done));
@@ -261,8 +268,140 @@ Nst_StdStreams *Nst_stdio(void)
     return &Nst_io;
 }
 
-static int close_std_stream(void *f)
+static Nst_IOResult write_std_stream(i8 *buf, usize buf_len, usize *count,
+                                     Nst_IOFileObj *f)
+{
+    usize chars_written = 0;
+
+    while (buf_len > 0) {
+        i32 ch_len = Nst_check_utf8_bytes((u8 *)buf, buf_len);
+        if (ch_len < 0) {
+            if (count != NULL)
+                *count = chars_written;
+            return Nst_IO_INVALID_DECODING;
+        }
+        usize written_char = fwrite(buf, 1, ch_len, f->fp);
+        if (written_char != (usize)ch_len) {
+            if (count != NULL)
+                *count = chars_written;
+            return Nst_IO_ERROR;
+        }
+        chars_written++;
+        buf += ch_len;
+        buf_len -= ch_len;
+    }
+    if (count != NULL)
+        *count = chars_written;
+    return Nst_IO_SUCCESS;
+}
+
+static Nst_IOResult close_std_stream(Nst_IOFileObj *f)
 {
     Nst_UNUSED(f);
-    return 0;
+    return Nst_IO_SUCCESS;
+}
+
+#ifdef Nst_WIN
+
+static bool read_characters(usize offset)
+{
+    DWORD len;
+    BOOL result = ReadConsoleW(
+        Nst_stdin.hd,
+        Nst_stdin.buf + offset,
+        (DWORD)(1024 - offset),
+        &len,
+        NULL);
+    if (!result)
+        return false;
+
+    Nst_stdin.buf_size = (usize)len;
+    Nst_stdin.buf_ptr = (i32)offset;
+    return true;
+}
+
+static bool get_ch(Nst_Buffer *buf)
+{
+    if (Nst_stdin.buf_ptr >= Nst_stdin.buf_size) {
+        if (!read_characters(0))
+            return false;
+    } else if (Nst_stdin.buf_ptr + 1 == Nst_stdin.buf_size) {
+        // fix surrogate pairs getting cut-off
+        Nst_stdin.buf[0] = Nst_stdin.buf[Nst_stdin.buf_ptr];
+        if (!read_characters(1))
+            return false;
+    }
+
+    i32 ch_len = Nst_check_utf16_bytes(
+        Nst_stdin.buf + Nst_stdin.buf_ptr,
+        Nst_stdin.buf_size - Nst_stdin.buf_ptr);
+
+    if (ch_len < 0)
+        return false;
+
+    Nst_utf16_to_utf8(
+        buf->data,
+        Nst_stdin.buf + Nst_stdin.buf_ptr,
+        (usize)ch_len);
+    buf->len += ch_len;
+    return true;
+}
+
+#else
+static bool get_ch(Nst_Buffer *buf)
+{
+    i8 ch_buf[5] = { 0 };
+
+    for (i32 i = 0; i < 4; i++) {
+        if (fread(buf + i, 1, 1, Nst_io.in->fp) == 0)
+            return false;
+
+        if (Nst_check_utf8_bytes((u8 *)ch_buf, i + 1) > 0) {
+            goto success;
+        }
+    }
+    return false;
+
+success:
+    Nst_buffer_append_c_str(buf, ch_buf);
+    return true;
+}
+#endif
+
+static Nst_IOResult read_std_stream(i8 *buf, usize buf_size, usize count,
+                                    usize *buf_len, Nst_IOFileObj *f)
+{
+#ifdef Nst_WIN
+    if (Nst_stdin.hd == NULL)
+        return Nst_FILE_read(buf, buf_size, count, buf_len, f);
+#else
+    Nst_UNUSED(f);
+#endif // !Nst_WIN
+
+    bool expand_buf = buf_size == 0;
+    Nst_Buffer buffer;
+    if (expand_buf) {
+        if (!Nst_buffer_init(&buffer, count))
+            return Nst_IO_ALLOC_FAILED;
+    } else {
+        buffer.data = buf;
+        buffer.cap = buf_size;
+        buffer.len = 0;
+    }
+
+    for (usize i = 0; i < count; i++) {
+        if (expand_buf && !Nst_buffer_expand_by(&buffer, 5))
+            return Nst_IO_ALLOC_FAILED;
+
+        if (!get_ch(&buffer))
+            return Nst_IO_OP_FAILED;
+    }
+
+    buffer.data[buffer.len] = '\0';
+
+    if (expand_buf)
+        *(i8 **)buf = buffer.data;
+    if (buf_len != NULL)
+        *buf_len = buffer.len;
+    return Nst_IO_SUCCESS;
 }
