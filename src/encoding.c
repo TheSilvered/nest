@@ -336,6 +336,11 @@ i32 Nst_utf8_from_utf32(u32 ch, u8 *str)
     if (ch >= 0xd800 && ch <= 0xdfff)
         return -1;
 
+    return Nst_invalid_utf8_from_utf32(ch, str);
+}
+
+i32 Nst_invalid_utf8_from_utf32(u32 ch, u8 *str)
+{
     if (ch <= 0x7f) {
         *str = (i8)ch;
         return 1;

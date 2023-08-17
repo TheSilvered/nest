@@ -125,6 +125,11 @@ NstEXP i32 NstC Nst_check_utf8_bytes(u8 *str, usize len);
 NstEXP u32 NstC Nst_utf8_to_utf32(u8 *str);
 /* Nst_FromUTF32Func for UTF-8 */
 NstEXP i32 NstC Nst_utf8_from_utf32(u32 ch, u8 *str);
+/**
+ * @brief Nst_FromUTF32Func for UTF-8 that accepts invalid code points
+ * (below 0x10ffff).
+ */
+NstEXP i32 NstC Nst_invalid_utf8_from_utf32(u32 ch, u8 *str);
 
 /* Nst_CheckBytesFunc for UTF-16 */
 NstEXP i32 NstC Nst_check_utf16_bytes(u16 *str, usize len);

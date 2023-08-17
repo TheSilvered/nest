@@ -253,28 +253,6 @@ Nst_IOResult Nst_FILE_write(i8 *buf, usize buf_len, usize *count,
             return Nst_IO_ERROR;
     }
 
-    if (f->encoding == &Nst_cp_utf8) {
-        if (count != NULL) {
-            usize char_count = 0;
-            usize buf_len_cpy = buf_len;
-            while (buf_len_cpy) {
-                i32 ch_size = Nst_check_utf8_bytes((u8 *)buf, buf_len_cpy);
-                if (ch_size < 0) {
-                    *count = char_count;
-                    return Nst_IO_INVALID_DECODING;
-                }
-                buf_len_cpy -= ch_size;
-                buf += ch_size;
-            }
-            *count = char_count;
-            buf -= buf_len;
-        }
-        usize written_bytes = fwrite(buf, 1, buf_len, f->fp);
-        if (written_bytes != buf_len)
-            return Nst_IO_ERROR;
-        return Nst_IO_SUCCESS;
-    }
-
     usize chars_written = 0;
     i8 ch_buf[Nst_CP_MULTIBYTE_MAX_SIZE];
 

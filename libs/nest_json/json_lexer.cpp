@@ -271,7 +271,7 @@ static Nst_Tok *parse_json_str()
 
             i8 unicode_ch[4] = { 0 };
 
-            Nst_utf8_from_utf32(num, (u8 *)unicode_ch);
+            Nst_invalid_utf8_from_utf32(num, (u8 *)unicode_ch);
             Nst_buffer_append_c_str(&buf, unicode_ch);
             break;
         }
