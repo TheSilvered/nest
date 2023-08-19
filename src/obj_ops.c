@@ -1398,9 +1398,45 @@ Nst_Obj *_Nst_obj_stdout(Nst_Obj *ob)
 
     Nst_Obj *str = Nst_obj_cast(ob, Nst_t.Str);
 
-    Nst_fwrite(STR(str)->value, STR(str)->len, NULL, Nst_io.out);
+    Nst_IOResult result = Nst_fwrite(
+        STR(str)->value,
+        STR(str)->len,
+        NULL,
+        Nst_io.out);
 
     Nst_dec_ref(str);
+
+    if (result != Nst_IO_SUCCESS) {
+        switch (result) {
+        case Nst_IO_CLOSED:
+            Nst_set_value_errorf(_Nst_EM_FILE_CLOSED, "@@io._get_stdout");
+            break;
+        case Nst_IO_OP_FAILED:
+            Nst_set_value_error_c(_Nst_EM_WRITE_FAILED);
+            break;
+        case Nst_IO_ERROR:
+            Nst_set_value_error_c(_Nst_EM_CALL_FAILED("Nst_write"));
+            break;
+        case Nst_IO_INVALID_DECODING: {
+            u32 ch;
+            const i8 *name;
+            Nst_io_result_get_details(&ch, NULL, &name);
+            Nst_set_value_errorf(_Nst_EM_INVALID_DECODING, (int)ch, name);
+            break;
+        }
+        case Nst_IO_INVALID_ENCODING: {
+            u32 ch;
+            const i8 *name;
+            Nst_io_result_get_details(&ch, NULL, &name);
+            Nst_set_value_errorf(_Nst_EM_INVALID_ENCODING, (u8)ch, name);
+            break;
+        }
+        default:
+            Nst_set_call_error_c(_Nst_EM_CALL_FAILED("_Nst_obj_stdout"));
+        }
+        return NULL;
+    }
+
     return Nst_inc_ref(ob);
 }
 

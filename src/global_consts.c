@@ -274,12 +274,7 @@ static Nst_IOResult write_std_stream(i8 *buf, usize buf_len, usize *count,
     usize chars_written = 0;
 
     while (buf_len > 0) {
-        i32 ch_len = Nst_check_utf8_bytes((u8 *)buf, buf_len);
-        if (ch_len < 0) {
-            if (count != NULL)
-                *count = chars_written;
-            return Nst_IO_INVALID_DECODING;
-        }
+        i32 ch_len = Nst_check_ext_utf8_bytes((u8 *)buf, buf_len);
         usize written_char = fwrite(buf, 1, ch_len, f->fp);
         if (written_char != (usize)ch_len) {
             if (count != NULL)
@@ -356,7 +351,7 @@ static bool get_ch(Nst_Buffer *buf)
         if (fread(buf + i, 1, 1, Nst_io.in->fp) == 0)
             return false;
 
-        if (Nst_check_utf8_bytes((u8 *)ch_buf, i + 1) > 0) {
+        if (Nst_check_ext_utf8_bytes((u8 *)ch_buf, i + 1) > 0) {
             goto success;
         }
     }

@@ -108,10 +108,12 @@ Nst_Obj *_Nst_string_copy(Nst_StrObj *src)
     return Nst_string_new_allocated(buffer, src->len);
 }
 
-static i32 is_unicode_escape(u8 *str)
+static bool is_unicode_escape(u8 *str)
 {
-    u32 ch = Nst_utf8_to_utf32(str);
-    return ch >= 0x80 && ch <= 0x9f ? !Nst_is_valid_cp(ch) : 0;
+    u32 ch = Nst_ext_utf8_to_utf32(str);
+    if (ch >= 0x80 && ch <= 0x9f)
+        return !Nst_is_valid_cp(ch) || Nst_is_non_character(ch);
+    return false;
 }
 
 Nst_Obj *_Nst_string_repr(Nst_StrObj *src)
@@ -141,10 +143,10 @@ Nst_Obj *_Nst_string_repr(Nst_StrObj *src)
             if (isprint(orig[i])) {
                 new_size += 1;
                 continue;
-            } else if (orig[i] <= 0b01111111)
+            } else if (orig[i] <= 0x7f)
                 new_size += 4;
             else {
-                i32 res = Nst_check_utf8_bytes(orig + i, l - i);
+                i32 res = Nst_check_ext_utf8_bytes(orig + i, l - i);
                 if (res == -1)
                     new_size += 4;
                 else if (is_unicode_escape(orig + i)) {
@@ -199,16 +201,16 @@ Nst_Obj *_Nst_string_repr(Nst_StrObj *src)
             if (isprint((u8)orig[j]))
                 new_str[i++] = orig[j];
             else if (orig[j] <= 0b01111111
-                     || Nst_check_utf8_bytes(orig + j, l - j) == -1)
+                     || Nst_check_ext_utf8_bytes(orig + j, l - j) == -1)
             {
                 new_str[i++] = '\\';
                 new_str[i++] = 'x';
                 new_str[i++] = hex_chars[(u8)orig[j] >> 4];
                 new_str[i++] = hex_chars[(u8)orig[j] & 0xf];
             } else {
-                i32 res = Nst_check_utf8_bytes(orig + j, l - j);
+                i32 res = Nst_check_ext_utf8_bytes(orig + j, l - j);
                 if (res == 2 && is_unicode_escape(orig + j)) {
-                    res = Nst_check_utf8_bytes(orig + j, l - j);
+                    res = Nst_check_ext_utf8_bytes(orig + j, l - j);
                     j++;
                     new_str[i++] = '\\';
                     new_str[i++] = 'u';
@@ -378,7 +380,7 @@ Nst_Obj *Nst_string_parse_byte(Nst_StrObj *str)
         return Nst_byte_new(str->value[0]);
 
     if (str->len == 2 && (u8)str->value[0] > 0x7f) {
-        u32 utf32_ch = Nst_utf8_to_utf32((u8 *)str->value);
+        u32 utf32_ch = Nst_ext_utf8_to_utf32((u8 *)str->value);
         if (utf32_ch <= 0xff)
             return Nst_byte_new((u8)utf32_ch);
         else

@@ -30,6 +30,7 @@ NstEXP typedef enum _Nst_CPID {
     Nst_CP_UNKNOWN = -1,
     Nst_CP_ASCII,
     Nst_CP_UTF8,
+    Nst_CP_EXT_UTF8,
     Nst_CP_UTF16,
     Nst_CP_UTF16BE,
     Nst_CP_UTF16LE,
@@ -95,6 +96,7 @@ NstEXP typedef struct _Nst_CP {
 
 extern Nst_CP Nst_cp_ascii;
 extern Nst_CP Nst_cp_utf8;
+extern Nst_CP Nst_cp_ext_utf8;
 extern Nst_CP Nst_cp_utf16;
 extern Nst_CP Nst_cp_utf16be;
 extern Nst_CP Nst_cp_utf16le;
@@ -125,11 +127,13 @@ NstEXP i32 NstC Nst_check_utf8_bytes(u8 *str, usize len);
 NstEXP u32 NstC Nst_utf8_to_utf32(u8 *str);
 /* Nst_FromUTF32Func for UTF-8 */
 NstEXP i32 NstC Nst_utf8_from_utf32(u32 ch, u8 *str);
-/**
- * @brief Nst_FromUTF32Func for UTF-8 that accepts invalid code points
- * (below 0x10ffff).
- */
-NstEXP i32 NstC Nst_invalid_utf8_from_utf32(u32 ch, u8 *str);
+
+/* Nst_CheckBytesFunc for extUTF-8 */
+NstEXP i32 NstC Nst_check_ext_utf8_bytes(u8 *str, usize len);
+/* Nst_ToUTF32Func for extUTF-8 */
+NstEXP u32 NstC Nst_ext_utf8_to_utf32(u8 *str);
+/* Nst_FromUTF32Func for extUTF-8 */
+NstEXP i32 NstC Nst_ext_utf8_from_utf32(u32 ch, u8 *str);
 
 /* Nst_CheckBytesFunc for UTF-16 */
 NstEXP i32 NstC Nst_check_utf16_bytes(u16 *str, usize len);
@@ -335,8 +339,14 @@ NstEXP wchar_t *NstC Nst_char_to_wchar_t(i8 *str, usize len);
  */
 NstEXP i8 *NstC Nst_wchar_t_to_char(wchar_t *str, usize len);
 
-/* Returns whether a code point is a noncharacter. */
+/**
+ * @brief Returns whether a code point is valid. A valid code point is smaller
+ * or equal to U+10FFFF and is not a high or low surrogate.
+ */
 NstEXP bool NstC Nst_is_valid_cp(u32 cp);
+
+/* Returns whether a code is a non character. */
+NstEXP bool NstC Nst_is_non_character(u32 cp);
 
 /**
  * @return The Nst_CPID deduced from the Byte Order Mark or Nst_CP_UNKNOWN if

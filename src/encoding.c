@@ -34,6 +34,18 @@ Nst_CP Nst_cp_utf8 = {
     .from_utf32  = (Nst_FromUTF32Func)Nst_utf8_from_utf32,
 };
 
+Nst_CP Nst_cp_ext_utf8 = {
+    .ch_size = sizeof(u8),
+    .mult_max_sz = sizeof(u8) * 4,
+    .mult_min_sz = sizeof(u8),
+    .name = "extUTF-8",
+    .bom = "\xef\xbb\xbf",
+    .bom_size = 3,
+    .check_bytes = (Nst_CheckBytesFunc)Nst_check_ext_utf8_bytes,
+    .to_utf32    = (Nst_ToUTF32Func)Nst_ext_utf8_to_utf32,
+    .from_utf32  = (Nst_FromUTF32Func)Nst_ext_utf8_from_utf32,
+};
+
 Nst_CP Nst_cp_utf16 = {
     .ch_size = sizeof(u16),
     .mult_max_sz = sizeof(u16) * 2,
@@ -253,82 +265,54 @@ i32 Nst_ascii_from_utf32(u32 ch, u8 *str)
     return 1;
 }
 
+static u32 utf8_cp(u8 c, u8 *str, i32 len)
+{
+    switch (len) {
+    case 1:
+        return (u32)c;
+    case 2:
+        return ((c & 0x1f) << 6) | (*str & 0x3f);
+#if Nst_ENDIANNESS == Nst_BIG_ENDIAN
+    case 3: {
+        u16 n = *(u16 *)str;
+        return ((c & 0xf) << 12) | ((n & 0x3f00) >> 2) | (n & 0x3f);
+    } default: {
+        u32 n = *(u32 *)(str - 1);
+        return ((c & 0x7) << 18)
+             | ((n & 0x3f0000) >> 4)
+             | ((n & 0x3f00) >> 2)
+             | (n & 0x3f);
+    }
+#else
+    case 3: {
+        u16 n = *(u16 *)str;
+        return ((c & 0xf) << 12) | ((n & 0x3f) << 6) | ((n & 0x3f00) >> 8);
+    } default: {
+        u32 n = *(u32 *)(str - 1);
+        return ((c & 0x7) << 18)
+            | ((n & 0x3f00) << 4)
+            | ((n & 0x3f0000) >> 10)
+            | ((n & 0x3f000000) >> 24);
+    }
+#endif
+    }
+}
+
 i32 Nst_check_utf8_bytes(u8 *str, usize len)
 {
-    i32 n = 0;
-
-    if (*str <= 0b01111111)
-        return 1;
-    else if (*str >= 0b11110000 && *str <= 0b11110111) {
-        if (len < 4)
-            return -1;
-        n = 3;
-    } else if (*str >= 0b11100000 && *str <= 0b11101111) {
-        if (len < 3)
-            return -1;
-        n = 2;
-    } else if (*str >= 0b11000000 && *str <= 0b11011111) {
-        if (len < 2)
-            return -1;
-        n = 1;
-    } else
+    i32 ch_len = Nst_check_ext_utf8_bytes(str, len);
+    if (ch_len == -1)
         return -1;
-
-    for (i32 i = 0; i < n; i++) {
-        if (*(++str) < 0b10000000 || *str > 0b10111111)
-            return -1;
-    }
-
-    u32 ch = 0;
-    switch (n) {
-    case 0:
-        return (u32)*str;
-    case 1:
-        ch += (*str++ & 0x1f) << 6;
-        ch += *str & 0x3f;
-        break;
-    case 2:
-        ch += (*str++ & 0xf) << 12;
-        ch += (*str++ & 0x3f) << 6;
-        ch += *str & 0x3f;
-        break;
-    default:
-        ch += (*str++ & 0x7)  << 18;
-        ch += (*str++ & 0x3f) << 12;
-        ch += (*str++ & 0x3f) << 6;
-        ch += *str & 0x3f;
-        break;
-    }
+    u8 ch1 = *str++;
+    u32 ch = utf8_cp(ch1, str, ch_len);
     if (ch >= 0xd800 && ch <= 0xdfff)
         return -1;
-    return n + 1;
+    return ch_len;
 }
 
 u32 Nst_utf8_to_utf32(u8 *str)
 {
-    i32 len = Nst_check_utf8_bytes(str, 4);
-    u32 n = 0;
-    switch (len) {
-    case 1:
-        return (u32)*str;
-    case 2:
-        n += (*str++ & 0x1f) << 6;
-        n += *str & 0x3f;
-        return n;
-    case 3:
-        n += (*str++ & 0xf) << 12;
-        n += (*str++ & 0x3f) << 6;
-        n += *str & 0x3f;
-        return n;
-    case 4:
-        n += (*str++ & 0x7)  << 18;
-        n += (*str++ & 0x3f) << 12;
-        n += (*str++ & 0x3f) << 6;
-        n += *str & 0x3f;
-        return n;
-    default:
-        return -1;
-    }
+    return Nst_ext_utf8_to_utf32(str);
 }
 
 i32 Nst_utf8_from_utf32(u32 ch, u8 *str)
@@ -336,10 +320,53 @@ i32 Nst_utf8_from_utf32(u32 ch, u8 *str)
     if (ch >= 0xd800 && ch <= 0xdfff)
         return -1;
 
-    return Nst_invalid_utf8_from_utf32(ch, str);
+    return Nst_ext_utf8_from_utf32(ch, str);
 }
 
-i32 Nst_invalid_utf8_from_utf32(u32 ch, u8 *str)
+i32 Nst_check_ext_utf8_bytes(u8 *str, usize len)
+{
+    u8 ch1 = *str++;
+
+    if ((ch1 & 0x80) == 0)
+        return 1;
+    else if ((ch1 & 0xe0) == 0xc0) {
+        if (len < 2 || (*str & 0xc0) != 0x80)
+            return -1;
+        return 2;
+    } else if ((ch1 & 0xf0) == 0xe0) {
+        if (len < 3 || (*(u16 *)str & 0xc0c0) != 0x8080)
+            return -1;
+        return 3;
+    } else if ((ch1 & 0xf8) == 0xf0) {
+#if Nst_ENDIANNESS == Nst_BIG_ENDIAN
+        if (len < 4 || (*(u32 *)(str - 1) & 0xc0c0c0) != 0x808080)
+#else
+        if (len < 4 || (*(u32 *)(str - 1) & 0xc0c0c000) != 0x80808000)
+#endif
+            return -1;
+        return 4;
+    } else
+        return -1;
+}
+
+u32 Nst_ext_utf8_to_utf32(u8 *str)
+{
+    i32 len;
+    u8 ch1 = *str++;
+
+    if ((ch1 & 0x80) == 0)
+        len = 1;
+    else if ((ch1 & 0b11100000) == 0b11000000)
+        len = 2;
+    else if ((ch1 & 0b11110000) == 0b11100000)
+        len = 3;
+    else
+        len = 4;
+
+    return utf8_cp(ch1, str, len);
+}
+
+i32 Nst_ext_utf8_from_utf32(u32 ch, u8 *str)
 {
     if (ch <= 0x7f) {
         *str = (i8)ch;
@@ -1634,6 +1661,7 @@ Nst_CP *Nst_cp(Nst_CPID cpid)
     switch (cpid) {
     case Nst_CP_ASCII:   return &Nst_cp_ascii;
     case Nst_CP_UTF8:    return &Nst_cp_utf8;
+    case Nst_CP_EXT_UTF8:return &Nst_cp_ext_utf8;
     case Nst_CP_UTF16:   return &Nst_cp_utf16;
     case Nst_CP_UTF16BE: return &Nst_cp_utf16be;
     case Nst_CP_UTF16LE: return &Nst_cp_utf16le;
@@ -1715,10 +1743,13 @@ i8 *Nst_wchar_t_to_char(wchar_t *str, usize len)
 
 bool Nst_is_valid_cp(u32 cp)
 {
-    return cp <= 0x10ffff
-        && (cp < 0xd800 || cp > 0xdfff)
-        && (cp < 0xfdd0 || cp > 0xfdef)
-        && ((cp & 0xfff0) != 0xfff0 || (cp & 0xf) < 0xe);
+    return cp <= 0x10ffff && (cp < 0xd800 || cp > 0xdfff);
+}
+
+bool Nst_is_non_character(u32 cp)
+{
+    return (cp > 0xfdd0 && cp < 0xfdef)
+        || ((cp & 0xfff0) == 0xfff0 || (cp & 0xf) > 0xe);
 }
 
 Nst_CPID Nst_check_bom(i8 *str, usize len, i32 *bom_size)
@@ -1863,6 +1894,14 @@ Nst_CPID Nst_encoding_from_name(i8 *name)
 
     if (strcmp(name_cpy, "ascii") == 0 || strcmp(name_cpy, "us-ascii") == 0)
         return Nst_CP_ASCII;
+
+    if (strcmp(name_cpy, "extutf8") == 0
+        || strcmp(name_cpy, "ext-utf8") == 0
+        || strcmp(name_cpy, "extutf-8") == 0
+        || strcmp(name_cpy, "ext-utf-8") == 0)
+    {
+        return Nst_CP_EXT_UTF8;
+    }
 
     if (strcmp(name_cpy, "latin") == 0
         || strcmp(name_cpy, "latin1") == 0

@@ -1,20 +1,17 @@
 --$ -O2 --no-default
 
-'_start_'
-'_advance_'
-'_is_done_'
-'_get_val_'
+
 'hello\n \xff \123 \' \u1234 \Uabdef123 abc'
 'the string
 stops'
 
-"_start_"
-"_advance_"
-"_is_done_"
-"_get_val_"
+
 "hello\n \xff \123 \" \u1234 \Uabdef123 abc"
 "the string
 continues"
+
+'hello \(>>> (hello "str") world)'
+"hello \(>>> (hello 'str') world)"
 
 |#| '__C__:stdio.dll' = io
 |#| "__C__:stdio.dll" = io

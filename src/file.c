@@ -18,6 +18,10 @@ Nst_StdIn Nst_stdin;
 
 #endif
 
+static u32 io_result_ill_encoded_ch;
+static usize io_result_position;
+static const i8 *io_result_encoding_name;
+
 Nst_Obj *Nst_iof_new(FILE *value, bool bin, bool read, bool write,
                      Nst_CP *encoding)
 {
@@ -47,8 +51,10 @@ Nst_Obj *Nst_iof_new(FILE *value, bool bin, bool read, bool write,
         Nst_FLAG_SET(obj, Nst_FLAG_IOFILE_CAN_READ);
     if (write)
         Nst_FLAG_SET(obj, Nst_FLAG_IOFILE_CAN_WRITE);
-    if (lseek(obj->fd, 0, SEEK_CUR) != -1)
+    if (lseek(obj->fd, 1, SEEK_SET) != -1) {
         Nst_FLAG_SET(obj, Nst_FLAG_IOFILE_CAN_SEEK);
+        lseek(obj->fd, 0, SEEK_SET);
+    }
     if (isatty(obj->fd))
         Nst_FLAG_SET(obj, Nst_FLAG_IOFILE_IS_TTY);
 
@@ -94,7 +100,7 @@ void _Nst_iofile_destroy(Nst_IOFileObj *obj)
 }
 
 static Nst_IOResult FILE_read_get_ch(Nst_IOFileObj *f, Nst_Buffer *buf,
-                                     bool expand_buf)
+                                     bool expand_buf, usize *bytes_read)
 {
     i8 ch_buf[Nst_CP_MULTIBYTE_MAX_SIZE + 1] = { 0 };
     usize ch_len = 0;
@@ -104,9 +110,12 @@ static Nst_IOResult FILE_read_get_ch(Nst_IOFileObj *f, Nst_Buffer *buf,
 
     for (usize i = 0; i < f->encoding->mult_max_sz; i++) {
         if (fread(ch_buf + i, 1, 1, f->fp) == 0) {
-            if (feof(f->fp))
+            if (i == 0 && feof(f->fp))
                 return Nst_IO_EOF_REACHED;
-            else if (ferror(f->fp))
+            else if (feof(f->fp)) {
+                *bytes_read += i;
+                break;
+            } else
                 return Nst_IO_ERROR;
         }
         if (f->encoding->check_bytes(ch_buf, i + 1) > 0) {
@@ -114,6 +123,7 @@ static Nst_IOResult FILE_read_get_ch(Nst_IOFileObj *f, Nst_Buffer *buf,
             goto success;
         }
     }
+    Nst_io_result_set_details((u32)ch_buf[0], *bytes_read, f->encoding->name);
     return Nst_IO_INVALID_DECODING;
 
 success:
@@ -121,9 +131,10 @@ success:
         fseek((FILE *)f->fp, (long)ch_len, SEEK_CUR);
         return Nst_IO_BUF_FULL;
     }
+    *bytes_read += ch_len;
 
     ch = f->encoding->to_utf32(ch_buf);
-    Nst_utf8_from_utf32(ch, (u8 *)(buf->data + buf->len));
+    Nst_ext_utf8_from_utf32(ch, (u8 *)(buf->data + buf->len));
     buf->len += ch_len;
     return Nst_IO_SUCCESS;
 }
@@ -137,6 +148,7 @@ Nst_IOResult Nst_FILE_read(i8 *buf, usize buf_size, usize count,
     if (!Nst_IOF_CAN_READ(f))
         return Nst_IO_OP_FAILED;
 
+    usize bytes_read;
     if (Nst_IOF_IS_BIN(f)) {
         i8 *out_buf;
         if (buf_size == 0)
@@ -147,16 +159,20 @@ Nst_IOResult Nst_FILE_read(i8 *buf, usize buf_size, usize count,
         if (buf == NULL)
             return Nst_IO_ALLOC_FAILED;
 
+        usize original_count = count;
         if (count > buf_size && buf_size != 0)
             count = buf_size;
 
-        usize bytes_read = fread(out_buf, 1, count, (FILE *)f->fp);
+        bytes_read = fread(out_buf, 1, count, (FILE *)f->fp);
         if (buf_len != NULL)
             *buf_len = bytes_read;
         if (buf_size == 0)
             *(i8 **)buf = out_buf;
 
-        return bytes_read == count ? Nst_IO_SUCCESS : Nst_IO_EOF_REACHED;
+        if (bytes_read == count)
+            return Nst_IO_EOF_REACHED;
+
+        return original_count == count ? Nst_IO_SUCCESS : Nst_IO_BUF_FULL;
     }
 
     if (buf_size != 0 && !Nst_IOF_CAN_SEEK(f))
@@ -187,8 +203,12 @@ Nst_IOResult Nst_FILE_read(i8 *buf, usize buf_size, usize count,
         buffer.len = 0;
     }
 
+    bytes_read = 0;
     for (usize i = 0; i < count; i++) {
-        Nst_IOResult result = FILE_read_get_ch(f, &buffer, expand_buf);
+        Nst_IOResult result = FILE_read_get_ch(
+            f,
+            &buffer, expand_buf,
+            &bytes_read);
         if (result != Nst_IO_SUCCESS) {
             if (result < 0) {
                 if (expand_buf) {
@@ -241,8 +261,9 @@ Nst_IOResult Nst_FILE_write(i8 *buf, usize buf_len, usize *count,
     // add BOM if it can be added except for UTF-8 files
     if (Nst_IOF_CAN_SEEK(f)
         && ftell((FILE *)f->fp) == 0
+        && f->encoding->bom != NULL
         && f->encoding != &Nst_cp_utf8
-        && f->encoding->bom != NULL)
+        && f->encoding != &Nst_cp_ext_utf8)
     {
         usize written_bytes = fwrite(
             f->encoding->bom,
@@ -256,18 +277,18 @@ Nst_IOResult Nst_FILE_write(i8 *buf, usize buf_len, usize *count,
     usize chars_written = 0;
     i8 ch_buf[Nst_CP_MULTIBYTE_MAX_SIZE];
 
+    usize initial_len = buf_len;
     while (buf_len > 0) {
-        i32 ch_len = Nst_check_utf8_bytes((u8 *)buf, buf_len);
-        if (ch_len < 0) {
-            if (count != NULL)
-                *count = chars_written;
-            return Nst_IO_INVALID_DECODING;
-        }
-        u32 ch = Nst_utf8_to_utf32((u8 *)buf);
+        i32 ch_len = Nst_check_ext_utf8_bytes((u8 *)buf, buf_len);
+        u32 ch = Nst_ext_utf8_to_utf32((u8 *)buf);
         i32 ch_buf_len = f->encoding->from_utf32(ch, ch_buf);
         if (ch_buf_len < 0) {
             if (count != NULL)
                 *count = chars_written;
+            Nst_io_result_set_details(
+                ch,
+                initial_len - buf_len,
+                f->encoding->name);
             return Nst_IO_INVALID_ENCODING;
         }
         usize written_char = fwrite(ch_buf, 1, ch_buf_len, f->fp);
@@ -336,8 +357,7 @@ Nst_IOResult Nst_FILE_close(Nst_IOFileObj *f)
     if (Nst_IOF_IS_CLOSED(f))
         return Nst_IO_CLOSED;
 
-    fclose(f->fp);
-    return Nst_IO_SUCCESS;
+    return fclose(f->fp) == -1 ? Nst_IO_ERROR : Nst_IO_SUCCESS;
 }
 
 Nst_IOResult Nst_fread(i8 *buf, usize buf_size, usize count, usize *buf_len,
@@ -375,4 +395,23 @@ Nst_IOResult Nst_fclose(Nst_IOFileObj *f)
     Nst_FLAG_SET(f, Nst_FLAG_IOFILE_IS_CLOSED);
 
     return result;
+}
+
+void Nst_io_result_get_details(u32 *ill_encoded_ch, usize *position,
+                               const i8 **encoding_name)
+{
+    if (ill_encoded_ch != NULL)
+        *ill_encoded_ch = io_result_ill_encoded_ch;
+    if (position != NULL)
+        *position = io_result_position;
+    if (encoding_name != NULL)
+        *encoding_name = io_result_encoding_name;
+}
+
+void Nst_io_result_set_details(u32 ill_encoded_ch, usize position,
+                               const i8 *encoding_name)
+{
+    io_result_ill_encoded_ch = ill_encoded_ch;
+    io_result_position = position;
+    io_result_encoding_name = encoding_name;
 }

@@ -137,7 +137,7 @@ static Nst_IOResult virtual_iof_read(i8 *buf, usize buf_size, usize count,
             return Nst_IO_EOF_REACHED;
         }
 
-        i32 ch_size = Nst_check_utf8_bytes(
+        i32 ch_size = Nst_check_ext_utf8_bytes(
             (u8 *)vf->data.data,
             vf->data.len - vf->ptr);
 
@@ -192,11 +192,7 @@ static Nst_IOResult virtual_iof_write(i8 *buf, usize buf_len, usize *count,
         else {
             usize char_count = 0;
             while (buf_len) {
-                i32 ch_size = Nst_check_utf8_bytes((u8 *)buf, buf_len);
-                if (ch_size < 0) {
-                    *count = char_count;
-                    return Nst_IO_INVALID_DECODING;
-                }
+                i32 ch_size = Nst_check_ext_utf8_bytes((u8 *)buf, buf_len);
                 buf_len -= ch_size;
                 buf += ch_size;
             }
@@ -470,10 +466,22 @@ Nst_FUNC_SIGN(write_)
     Nst_dec_ref(str_to_write);
 
     if (result == Nst_IO_INVALID_ENCODING) {
-        Nst_set_value_error_c("could not encode the entire string");
+        u32 failed_ch;
+        usize failed_pos;
+        const i8 *name;
+        Nst_io_result_get_details(&failed_ch, &failed_pos, &name);
+        Nst_set_value_errorf(
+            "could not encode U+%0*X at %zi for %s encoding",
+            failed_ch > 0xffff ? 6 : 4,
+            (int)failed_ch,
+            failed_pos,
+            name);
         return nullptr;
     } else if (result == Nst_IO_ERROR) {
         Nst_set_call_error_c("failed to write the entire string");
+        return nullptr;
+    } else if (result == Nst_IO_ALLOC_FAILED) {
+        Nst_failed_allocation();
         return nullptr;
     }
 
@@ -508,13 +516,15 @@ Nst_FUNC_SIGN(write_bytes_)
         bytes[i] = AS_BYTE(objs[i]);
 
     usize count;
-
-    if (Nst_fwrite(bytes, seq_len, &count, f) == Nst_IO_ERROR) {
+    Nst_IOResult result = Nst_fwrite(bytes, seq_len, &count, f);
+    Nst_free(bytes);
+    if (result == Nst_IO_ERROR) {
         Nst_set_call_error_c("failed to write all bytes");
-        Nst_free(bytes);
+        return nullptr;
+    } else if (result == Nst_IO_ALLOC_FAILED) {
+        Nst_failed_allocation();
         return nullptr;
     }
-    Nst_free(bytes);
     return Nst_int_new(count);
 }
 
@@ -560,7 +570,15 @@ Nst_FUNC_SIGN(read_)
         Nst_failed_allocation();
         return nullptr;
     } else if (result == Nst_IO_INVALID_DECODING) {
-        Nst_set_value_error_c("could not decode a byte in the file");
+        u32 failed_ch;
+        usize failed_pos;
+        const i8 *name;
+        Nst_io_result_get_details(&failed_ch, &failed_pos, &name);
+        Nst_set_value_errorf(
+            "could not decode byte %#x at %zi for %s encoding",
+            (int)failed_ch,
+            failed_pos,
+            name);
         return nullptr;
     } else if (result == Nst_IO_ERROR) {
         Nst_set_call_error_c("failed to read the file");
@@ -612,6 +630,9 @@ Nst_FUNC_SIGN(read_bytes_)
     if (result == Nst_IO_ALLOC_FAILED) {
         Nst_failed_allocation();
         return nullptr;
+    } else if (result == Nst_IO_ERROR) {
+        Nst_set_call_error_c("failed to read the file");
+        return nullptr;
     }
 
     Nst_SeqObj *bytes_array = SEQ(Nst_array_new(buf_len));
@@ -631,6 +652,9 @@ Nst_FUNC_SIGN(file_size_)
 
     if (Nst_IOF_IS_CLOSED(f)) {
         SET_FILE_CLOSED_ERROR;
+        return nullptr;
+    } else if (!Nst_IOF_CAN_SEEK(f)) {
+        Nst_set_value_error_c("the file cannot be seeked");
         return nullptr;
     }
 
@@ -722,13 +746,20 @@ Nst_FUNC_SIGN(flush_)
     if (Nst_IOF_IS_CLOSED(f)) {
         SET_FILE_CLOSED_ERROR;
         return nullptr;
-    }
-
-    i32 res = Nst_fflush(f);
-    if (res == EOF) {
-        Nst_set_memory_error_c("failed to flush the file");
+    } else if (!Nst_IOF_CAN_WRITE(f)) {
+        Nst_set_value_error("the file cannot be written");
         return nullptr;
     }
+
+    Nst_IOResult result = Nst_fflush(f);
+    if (result == Nst_IO_ERROR) {
+        Nst_set_memory_error_c("failed to flush the file");
+        return nullptr;
+    } else if (result == Nst_IO_ALLOC_FAILED) {
+        Nst_failed_allocation();
+        return nullptr;
+    }
+
     Nst_RETURN_NULL;
 }
 

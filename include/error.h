@@ -13,54 +13,59 @@
 
 // Error messages
 
+
 #define _Nst_EM_BAD_BREAK "';' outside of a loop"
 #define _Nst_EM_BAD_RETURN "'=>' outside of a function"
-#define _Nst_EM_INT_TOO_BIG "Int literal's value is too large"
 #define _Nst_EM_EXPECTED_IF "expected '?'"
-#define _Nst_EM_EXPECTED_OP "expected stack or local stack operator"
+#define _Nst_EM_CIRC_IMPORT "circular import"
+#define _Nst_EM_READ_FAILED "failed to read from the file"
+#define _Nst_EM_FILE_CLOSED "the file '%.4096s' was closed"
+#define _Nst_EM_INT_TOO_BIG "Int literal's value is too large"
 #define _Nst_EM_FILE_NOT_SO "the file is not a valid shared object"
 #define _Nst_EM_COMPLEX_POW "fractional power of a negative number"
-#define _Nst_EM_CIRC_IMPORT "circular import"
-#define _Nst_EM_REAL_TOO_BIG "Real literal's value is too large"
+#define _Nst_EM_EXPECTED_OP "expected stack or local stack operator"
 #define _Nst_EM_INVALID_CHAR "invalid character"
-#define _Nst_EM_OPEN_COMMENT "multiline comment was never closed"
 #define _Nst_EM_BAD_CONTINUE "'..' outside of a loop"
 #define _Nst_EM_FILE_NOT_DLL "the file is not a valid DLL"
+#define _Nst_EM_WRITE_FAILED "failed to write to the file"
+#define _Nst_EM_REAL_TOO_BIG "Real literal's value is too large"
 #define _Nst_EM_BAD_INT_BASE "the base must be between 2 and 36"
+#define _Nst_EM_OPEN_COMMENT "multiline comment was never closed"
 #define _Nst_EM_INVALID_CPID "the encoding selected is not supported"
 #define _Nst_EM_FAILED_CHDIR "failed to change the current working directory"
 #define _Nst_EM_MISSING_PAREN "unmatched '('"
 #define _Nst_EM_FAILED_GETCWD "failed to get the current working directory"
-#define _Nst_EM_INVALID_SYMBOL "invalid symbol"
-#define _Nst_EM_INVALID_ESCAPE "invalid escape sequence"
-#define _Nst_EM_UNEXPECTED_TOK "unexpected token"
-#define _Nst_EM_EXPECTED_IDENT "expected an identifier"
-#define _Nst_EM_EXPECTED_VALUE "expected a value"
-#define _Nst_EM_MISSING_VBRACE "unmatched '<{'"
 #define _Nst_EM_EXPECTED_BRACE "expected '}'"
 #define _Nst_EM_EXPECTED_COLON "expected ':'"
 #define _Nst_EM_EXPECTED_CATCH "expected '?!'"
+#define _Nst_EM_MISSING_VBRACE "unmatched '<{'"
+#define _Nst_EM_INVALID_SYMBOL "invalid symbol"
 #define _Nst_EM_MODULO_BY_ZERO "modulo by zero"
-#define _Nst_EM_EXPECTED_TYPES "expected type '%s', got '%s' instead"
+#define _Nst_EM_UNEXPECTED_TOK "unexpected token"
+#define _Nst_EM_EXPECTED_VALUE "expected a value"
 #define _Nst_EM_FILE_NOT_FOUND "file '%s' not found"
-#define _Nst_EM_BAD_INT_LITERAL "invalid Int literal"
+#define _Nst_EM_EXPECTED_IDENT "expected an identifier"
+#define _Nst_EM_INVALID_ESCAPE "invalid escape sequence"
+#define _Nst_EM_EXPECTED_TYPES "expected type '%s', got '%s' instead"
 #define _Nst_EM_MISSING_BRACKET "unmatched '['"
 #define _Nst_EM_EXPECTED_VBRACE "expected '}>'"
+#define _Nst_EM_BAD_INT_LITERAL "invalid Int literal"
+#define _Nst_EM_UNHASHABLE_TYPE "unhashable type '%s'"
 #define _Nst_EM_RANGE_STEP_ZERO "the step cannot be zero"
 #define _Nst_EM_LIB_INIT_FAILED "the module failed to initialize"
 #define _Nst_EM_INVALID_CASTING "invalid type cast from '%s' to '%s'"
-#define _Nst_EM_UNHASHABLE_TYPE "unhashable type '%s'"
+#define _Nst_EM_EXPECTED_BRACKET "expected '['"
+#define _Nst_EM_DIVISION_BY_ZERO "division by zero"
 #define _Nst_EM_BAD_BYTE_LITERAL "invalid Byte literal"
 #define _Nst_EM_BAD_REAL_LITERAL "invalid Real literal"
 #define _Nst_EM_OPEN_STR_LITERAL "string literal was never closed"
-#define _Nst_EM_EXPECTED_BRACKET "expected '['"
-#define _Nst_EM_DIVISION_BY_ZERO "division by zero"
 #define _Nst_EM_INVALID_ENCODING "could not decode byte %ib for %s encoding"
+#define _Nst_EM_CALL_FAILED(func) "call to '" func "' failed"
 #define _Nst_EM_RAN_OUT_OF_MEMORY "ran out of memory"
+#define _Nst_EM_MISSING_FUNC(func) "missing '" func "' for a custom iterator"
+#define _Nst_EM_MAP_TO_SEQ_HASH(i) "unhashable object found at " i " %zi"
 #define _Nst_EM_EXPECTED_R_BRACKET "expected ']'"
 #define _Nst_EM_INVALID_EXPRESSION "invalid expression"
-#define _Nst_EM_MAP_TO_SEQ_HASH(i) "unhashable object found at " i " %zi"
-#define _Nst_EM_MISSING_FUNC(func) "missing '" func "' for a custom iterator"
 #define _Nst_EM_NULL_ARG(func, argn) func ": " argn " is NULL"
 #define _Nst_EM_INVALID_TYPE_LETTER(f) f ": invalid type string"
 #define _Nst_EM_EXPECTED_COMMA_OR_BRACE "expected ',' or '}'"
@@ -122,6 +127,55 @@
 #define Nst_set_call_error(msg)   _Nst_set_call_error(STR(msg))
 /* Alias for _Nst_set_import_error that casts msg to Nst_StrObj * */
 #define Nst_set_import_error(msg) _Nst_set_import_error(STR(msg))
+
+/**
+ * @brief Alias for _Nst_set_error that casts name to Nst_StrObj * and builds a
+ * formatted string with fmt.
+ */
+#define Nst_set_errorf(name, fmt, ...)                                        \
+    Nst_set_error(name, Nst_sprintf(fmt, __VA_ARGS__))
+/**
+ * @brief Alias for _Nst_set_syntax_error that casts builds a formatted string
+ * with fmt.
+ */
+#define Nst_set_syntax_errorf(fmt, ...)                                       \
+    Nst_set_syntax_error(Nst_sprintf(fmt, __VA_ARGS__))
+/**
+ * @brief Alias for _Nst_set_memory_error that casts builds a formatted string
+ * with fmt.
+ */
+#define Nst_set_memory_errorf(fmt, ...)                                       \
+    Nst_set_memory_error(Nst_sprintf(fmt, __VA_ARGS__))
+/**
+ * @brief Alias for _Nst_set_type_error that casts builds a formatted string
+ * with fmt.
+ */
+#define Nst_set_type_errorf(fmt, ...)                                         \
+    Nst_set_type_error(Nst_sprintf(fmt, __VA_ARGS__))
+/**
+ * @brief Alias for _Nst_set_value_error that casts builds a formatted string
+ * with fmt.
+ */
+#define Nst_set_value_errorf(fmt, ...)                                        \
+    Nst_set_value_error(Nst_sprintf(fmt, __VA_ARGS__))
+/**
+ * @brief Alias for _Nst_set_math_error that casts builds a formatted string
+ * with fmt.
+ */
+#define Nst_set_math_errorf(fmt, ...)                                         \
+    Nst_set_math_error(Nst_sprintf(fmt, __VA_ARGS__))
+/**
+ * @brief Alias for _Nst_set_call_error that casts builds a formatted string
+ * with fmt.
+ */
+#define Nst_set_call_errorf(fmt, ...)                                         \
+    Nst_set_call_error(Nst_sprintf(fmt, __VA_ARGS__))
+/**
+ * @brief Alias for _Nst_set_import_error that casts builds a formatted string
+ * with fmt.
+ */
+#define Nst_set_import_errorf(fmt, ...)                                       \
+    Nst_set_import_error(Nst_sprintf(fmt, __VA_ARGS__))
 
 #ifdef __cplusplus
 extern "C" {

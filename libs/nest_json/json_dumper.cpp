@@ -89,7 +89,7 @@ static void dump_str(Nst_StrObj *str)
     const i8 *hex_digits = "0123456789abcdef";
 
     for (usize i = 0; i < s_len; i++) {
-        i32 res = Nst_check_utf8_bytes((u8 *)s_val + i, s_len - i);
+        i32 res = Nst_check_ext_utf8_bytes((u8 *)s_val + i, s_len - i);
         if (res != 1)
             unicode_bytes++;
         if (res != -1)
@@ -101,7 +101,7 @@ static void dump_str(Nst_StrObj *str)
 
     Nst_buffer_append_char(&str_buf, '"');
     for (usize i = 0; i < s_len; i++) {
-        i32 res = Nst_check_utf8_bytes((u8 *)s_val + i, s_len - i);
+        i32 res = Nst_check_ext_utf8_bytes((u8 *)s_val + i, s_len - i);
         switch (res) {
         case 1:
             Nst_buffer_append_char(&str_buf, s_val[i]);

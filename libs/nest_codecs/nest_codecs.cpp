@@ -64,7 +64,7 @@ Nst_FUNC_SIGN(utf8_iter_get_val)
             _Nst_EM_INDEX_OUT_OF_BOUNDS("Str (Unicode)"),
             val, s_len));
     }
-    i32 res = Nst_check_utf8_bytes(
+    i32 res = Nst_check_ext_utf8_bytes(
         (u8 *)str->value + val,
         s_len - (usize)val);
     if (res == -1) {
@@ -91,7 +91,7 @@ Nst_FUNC_SIGN(get_len_)
     usize len = 0;
 
     for (usize i = 0, n = str->len; i < n; len++) {
-        i32 res = Nst_check_utf8_bytes(s + i, n - i);
+        i32 res = Nst_check_ext_utf8_bytes(s + i, n - i);
         if (res == -1) {
             SET_INVALID_UTF8;
             return nullptr;
@@ -116,7 +116,7 @@ Nst_FUNC_SIGN(get_at_)
     i32 res;
 
     for (; i < s_len && curr_idx < idx; curr_idx++, u_len++) {
-        res = Nst_check_utf8_bytes(s + i, s_len - i);
+        res = Nst_check_ext_utf8_bytes(s + i, s_len - i);
         if (res == -1) {
             SET_INVALID_UTF8;
             return nullptr;
@@ -131,7 +131,7 @@ Nst_FUNC_SIGN(get_at_)
         return nullptr;
     }
 
-    res = Nst_check_utf8_bytes(s + i, s_len - i);
+    res = Nst_check_ext_utf8_bytes(s + i, s_len - i);
     if (res == -1) {
         SET_INVALID_UTF8;
         return nullptr;
@@ -169,7 +169,7 @@ Nst_FUNC_SIGN(from_cp_)
 
     if (cp < 0 || cp > UINT32_MAX) {
         Nst_set_value_error(
-            Nst_sprintf("codepoint %lli ouside the allowed range", cp));
+            Nst_sprintf("codepoint %#llx ouside the allowed range", cp));
         return nullptr;
     }
 
@@ -201,12 +201,12 @@ Nst_FUNC_SIGN(to_cp_)
         return nullptr;
     }
 
-    if (Nst_check_utf8_bytes((u8 *)str->value, str_len) != (i32)str_len) {
+    if (Nst_check_ext_utf8_bytes((u8 *)str->value, str_len) != (i32)str_len) {
         Nst_set_value_error_c("the string must contain only one character");
         return nullptr;
     }
 
-    u32 cp = Nst_utf8_to_utf32((u8 *)str->value);
+    u32 cp = Nst_ext_utf8_to_utf32((u8 *)str->value);
     return Nst_int_new(cp);
 }
 

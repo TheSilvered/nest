@@ -755,7 +755,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
             if (num > 0x10ffff)
                 SET_INVALID_ESCAPE_ERROR;
 
-            Nst_invalid_utf8_from_utf32(num, (u8 *)unicode_char);
+            Nst_ext_utf8_from_utf32(num, (u8 *)unicode_char);
             Nst_buffer_append_c_str(&buf, (const i8 *)unicode_char);
             break;
         }
