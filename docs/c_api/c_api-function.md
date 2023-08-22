@@ -1,35 +1,39 @@
 # `function.h`
 
-The header defining the Nest function object.
+[`Nst_FuncObj`](c_api-function.md#nst_funcobj) interface.
+
+## Authors
+
+TheSilvered
 
 ## Macros
 
 ### `FUNC`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
 FUNC(ptr)
 ```
 
-**Description**:
+**Description:**
 
-Casts `ptr` to a `Nst_FuncObj *`.
+Casts ptr to Nst_FuncObj *
 
 ---
 
-### `nst_func_set_vt`
+### `Nst_func_set_vt`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-nst_func_set_vt(func, map)
+Nst_func_set_vt(func, map)
 ```
 
-**Description**:
+**Description:**
 
-Wrapper for [`_nst_func_set_vt`](#_nst_func_set_vt) that automatically casts
-`func` to `Nst_FuncObj *` and `map` to `Nst_MapObj *`.
+Alias for _Nst_func_set_vt that casts func to Nst_FuncObj * and map to
+Nst_MapObj *
 
 ---
 
@@ -37,25 +41,23 @@ Wrapper for [`_nst_func_set_vt`](#_nst_func_set_vt) that automatically casts
 
 ### `Nst_FuncBody`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef union _Nst_FuncBody
-{
+typedef union _Nst_FuncBody {
     Nst_InstList *bytecode;
-    Nst_Obj *(*c_func)(usize arg_num, Nst_Obj **args, Nst_OpErr *err);
-}
-Nst_FuncBody;
+    Nst_Obj *(*c_func)(usize arg_num, Nst_Obj **args);
+} Nst_FuncBody
 ```
 
-**Description**:
+**Description:**
 
-The union that contains the executable part of a function.
+The union representing the body of a function object.
 
-**Variants**:
+**Variants:**
 
-- `bytecode`: the function is written in Nest
-- `c_func`: the function is written in C
+- `bytecode`: the body is an instruction list
+- `c_func`: the body is a C function
 
 ---
 
@@ -63,119 +65,147 @@ The union that contains the executable part of a function.
 
 ### `Nst_FuncObj`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_FuncObj
-{
-    NST_OBJ_HEAD;
-    NST_GGC_HEAD;
+typedef struct _Nst_FuncObj {
+    Nst_OBJ_HEAD;
+    Nst_GGC_HEAD;
     Nst_FuncBody body;
     Nst_Obj **args;
     usize arg_num;
     Nst_MapObj *mod_globals;
-}
-Nst_FuncObj;
+} Nst_FuncObj
 ```
 
-**Description**:
+**Description:**
 
-The structure that defines a Nest function object.
+The structure representing a Nest function object.
 
-**Fields**:
+**Fields:**
 
-- `body`: the code to execute when the function is called
-- `args`: the name of the arguments of the function, they are all `Nst_StrObj *`.
-  This parameter is unused when the function uses a C body
-- `arg_num`: the number of arguments expected by the function
-- `mod_globals`: the global variables of the module the function was defined in
+- `body`: the body of the function
+- `args`: the array of names of the arguments
+- `arg_num`: the maximum number of arguments
+- `mod_globals`: the global variable table when the function was defined
 
 ---
 
 ## Functions
 
-### `nst_func_new`
+### `Nst_func_new`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_func_new(usize arg_num, Nst_InstList *bytecode, Nst_OpErr *err)
+Nst_Obj *Nst_func_new(usize arg_num, Nst_InstList *bytecode)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new Nest function object with a Nest body.
+Creates a new function object with an instruction-list body.
 
-**Arguments**:
+bytecode is assumed to be a valid non-NULL pointer. The args array must be set
+later manually.
 
-- `[in] arg_num`: the number of arguments expected by the function
-- `[in] bytecode`: the body of the function
-- `[out] err`: set if an error occurs
+**Parameters:**
 
-**Return value**:
+- `arg_num`: the maximum number of arguments the function accepts
+- `bytecode`: the body of the function
 
-The function returns a new `Func` object or `NULL` if an error occurs.
+**Returns:**
+
+The new function object or NULL on failure. On failure the error is set.
 
 ---
 
-### `nst_func_new_c`
+### `Nst_func_new_c`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_func_new_c(usize arg_num,
-                        Nst_Obj *(*cbody)(usize     arg_num,
-                                          Nst_Obj  **args,
-                                          Nst_OpErr *err),
-                        Nst_OpErr *err)
+Nst_Obj *Nst_func_new_c(usize arg_num, Nst_Obj *(*cbody)(usize, Nst_Obj **))
 ```
 
-**Description**:
+**Description:**
 
-Creates a new Nest function object with a C body.
+Creates a new function object with a C function body.
 
-**Arguments**:
+cbody is assumed to be a valid non_NULL pointer. The args array must NOT be set
+since it is not used.
 
-- `[in] arg_num`: the number of arguments expected by the function
-- `[in] cbody`: the body of the function
-- `[out] err`: set if an error occurs
+**Parameters:**
 
-**Return value**:
+- `arg_num`: the maximum number of arguments the function accepts
+- `cbody`: the body of the function
 
-The function returns a new `Func` object or `NULL` if an error occurs.
+**Returns:**
+
+The new function object or NULL on failure. On failure the error is set.
 
 ---
 
-### `_nst_func_set_vt`
+### `_Nst_func_set_vt`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void _nst_func_set_vt(Nst_FuncObj *func, Nst_MapObj *map)
+void _Nst_func_set_vt(Nst_FuncObj *func, Nst_MapObj *map)
 ```
 
-**Description**:
+**Description:**
 
-Sets `mod_globals` of `func` if it has a Nest body and of all the functions
-defined inside it.
+Sets the mod_globals table of a function and all the functions defined inside
+it.
 
-**Arguments**:
+If the field is already set or the function has a C body, it is not modified
 
-- `[in] func`: the function of which to change the global table
-- `[in] map`: the global table to be set
+**Parameters:**
+
+- `func`: the function to change the mod_globals field of
+- `map`: the map to set as the new value
 
 ---
 
-### Other functions
+### `_Nst_func_traverse`
+
+**Synopsis:**
 
 ```better-c
-void _nst_func_traverse(Nst_FuncObj *func)
-void _nst_func_track(Nst_FuncObj *func)
-void _nst_func_destroy(Nst_FuncObj *func)
+void _Nst_func_traverse(Nst_FuncObj *func)
 ```
 
-These functions are used internally by Nest and should never be called by
-extenal libraries.
+**Description:**
+
+Traverse function for Nst_FuncObj
+
+---
+
+### `_Nst_func_track`
+
+**Synopsis:**
+
+```better-c
+void _Nst_func_track(Nst_FuncObj *func)
+```
+
+**Description:**
+
+Track function for Nst_FuncObj
+
+---
+
+### `_Nst_func_destroy`
+
+**Synopsis:**
+
+```better-c
+void _Nst_func_destroy(Nst_FuncObj *func)
+```
+
+**Description:**
+
+Destructor for Nst_Func_Obj
 
 ---
 
@@ -183,21 +213,15 @@ extenal libraries.
 
 ### `Nst_FuncFlags`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef enum _Nst_FuncFlags
-{
-    NST_FLAG_FUNC_IS_C = 0b1
-}
-Nst_FuncFlags;
+typedef enum _Nst_FuncFlags {
+    Nst_FLAG_FUNC_IS_C = 0b1
+} Nst_FuncFlags
 ```
 
-**Description**:
+**Description:**
 
-The flags used for functions. To check if a function `func` has a C body do the
-following:
+The flags for Nst_FuncObj
 
-```better-c
-NST_FLAG_HAS(func, NST_FLAG_FUNC_IS_C)
-```

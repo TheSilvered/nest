@@ -1,369 +1,1045 @@
 # `obj_ops.h`
 
-This header contains the functions that implement the operators in Nest.
+Various object operations.
+
+## Authors
+
+TheSilvered
 
 ## Macros
 
-### Binary operator aliases
+### `Nst_obj_eq`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-nst_obj_eq(ob1, ob2, err)
-nst_obj_ne(ob1, ob2, err)
-nst_obj_gt(ob1, ob2, err)
-nst_obj_lt(ob1, ob2, err)
-nst_obj_ge(ob1, ob2, err)
-nst_obj_le(ob1, ob2, err)
-nst_obj_add(ob1, ob2, err)
-nst_obj_sub(ob1, ob2, err)
-nst_obj_mul(ob1, ob2, err)
-nst_obj_div(ob1, ob2, err)
-nst_obj_pow(ob1, ob2, err)
-nst_obj_mod(ob1, ob2, err)
-nst_obj_bwor(ob1, ob2, err)
-nst_obj_bwand(ob1, ob2, err)
-nst_obj_bwxor(ob1, ob2, err)
-nst_obj_bwls(ob1, ob2, err)
-nst_obj_bwrs(ob1, ob2, err)
-nst_obj_lgor(ob1, ob2, err)
-nst_obj_lgand(ob1, ob2, err)
-nst_obj_lgxor(ob1, ob2, err)
-nst_obj_concat(ob1, ob2, err)
+Nst_obj_eq(ob1, ob2)
 ```
 
-**Description**:
+**Description:**
 
-Aliases for the function of the same name that starts with an underscore, that
-cast `ob1` and `ob2` to `Nst_Obj *`.
+Alias for _Nst_obj_eq that casts both objects to Nst_Obj *.
 
 ---
 
-### Unary operator aliases
+### `Nst_obj_ne`
+
+**Synopsis:**
 
 ```better-c
-nst_obj_neg(ob, err)
-nst_obj_len(ob, err)
-nst_obj_bwnot(ob, err)
-nst_obj_lgnot(ob, err)
-nst_obj_stdout(ob, err)
-nst_obj_stdin(ob, err)
-nst_obj_typeof(ob, err)
-nst_obj_import(ob, err)
+Nst_obj_ne(ob1, ob2)
 ```
 
-**Description**:
+**Description:**
 
-Aliases for the function of the same name that starts with an underscore, that
-cast `ob` to `Nst_Obj *`.
+Alias for _Nst_obj_ne that casts both objects to Nst_Obj *.
 
 ---
 
-### `nst_obj_cast`
+### `Nst_obj_gt`
+
+**Synopsis:**
 
 ```better-c
-nst_obj_cast(ob, type, err)
+Nst_obj_gt(ob1, ob2)
 ```
 
-**Description**:
+**Description:**
 
-Alias for [`_nst_obj_cast`](#_nst_obj_cast) that casts `ob` to `Nst_Obj *` and
-`type` to `Nst_TypeObj *`.
+Alias for _Nst_obj_gt that casts both objects to Nst_Obj *.
 
 ---
 
-### `nst_obj_range`
+### `Nst_obj_lt`
+
+**Synopsis:**
 
 ```better-c
-nst_obj_range(ob1, ob2, ob3, err)
+Nst_obj_lt(ob1, ob2)
 ```
 
-**Description**:
+**Description:**
 
-Alias for [`_nst_obj_range`](#_nst_obj_range) that casts `ob1`, `ob2` and `ob3`
-to `Nst_Obj *`.
+Alias for _Nst_obj_lt that casts both objects to Nst_Obj *.
+
+---
+
+### `Nst_obj_ge`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_ge(ob1, ob2)
+```
+
+**Description:**
+
+Alias for _Nst_obj_ge that casts both objects to Nst_Obj *.
+
+---
+
+### `Nst_obj_le`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_le(ob1, ob2)
+```
+
+**Description:**
+
+Alias for _Nst_obj_le that casts both objects to Nst_Obj *.
+
+---
+
+### `Nst_obj_add`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_add(ob1, ob2)
+```
+
+**Description:**
+
+Alias for _Nst_obj_add that casts both objects to Nst_Obj *.
+
+---
+
+### `Nst_obj_sub`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_sub(ob1, ob2)
+```
+
+**Description:**
+
+Alias for _Nst_obj_sub that casts both objects to Nst_Obj *.
+
+---
+
+### `Nst_obj_mul`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_mul(ob1, ob2)
+```
+
+**Description:**
+
+Alias for _Nst_obj_mul that casts both objects to Nst_Obj *.
+
+---
+
+### `Nst_obj_div`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_div(ob1, ob2)
+```
+
+**Description:**
+
+Alias for _Nst_obj_div that casts both objects to Nst_Obj *.
+
+---
+
+### `Nst_obj_pow`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_pow(ob1, ob2)
+```
+
+**Description:**
+
+Alias for _Nst_obj_pow that casts both objects to Nst_Obj *.
+
+---
+
+### `Nst_obj_mod`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_mod(ob1, ob2)
+```
+
+**Description:**
+
+Alias for _Nst_obj_mod that casts both objects to Nst_Obj *.
+
+---
+
+### `Nst_obj_bwor`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_bwor(ob1, ob2)
+```
+
+**Description:**
+
+Alias for _Nst_obj_bwor that casts both objects to Nst_Obj *.
+
+---
+
+### `Nst_obj_bwand`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_bwand(ob1, ob2)
+```
+
+**Description:**
+
+Alias for _Nst_obj_bwand that casts both objects to Nst_Obj *.
+
+---
+
+### `Nst_obj_bwxor`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_bwxor(ob1, ob2)
+```
+
+**Description:**
+
+Alias for _Nst_obj_bwxor that casts both objects to Nst_Obj *.
+
+---
+
+### `Nst_obj_bwls`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_bwls(ob1, ob2)
+```
+
+**Description:**
+
+Alias for _Nst_obj_bwls that casts both objects to Nst_Obj *.
+
+---
+
+### `Nst_obj_bwrs`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_bwrs(ob1, ob2)
+```
+
+**Description:**
+
+Alias for _Nst_obj_bwrs that casts both objects to Nst_Obj *.
+
+---
+
+### `Nst_obj_lgor`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_lgor(ob1, ob2)
+```
+
+**Description:**
+
+Alias for _Nst_obj_lgor that casts both objects to Nst_Obj *.
+
+---
+
+### `Nst_obj_lgand`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_lgand(ob1, ob2)
+```
+
+**Description:**
+
+Alias for _Nst_obj_lgand that casts both objects to Nst_Obj *.
+
+---
+
+### `Nst_obj_lgxor`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_lgxor(ob1, ob2)
+```
+
+**Description:**
+
+Alias for _Nst_obj_lgxor that casts both objects to Nst_Obj *.
+
+---
+
+### `Nst_obj_cast`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_cast(ob, type)
+```
+
+**Description:**
+
+Alias for _Nst_obj_cast that casts ob to Nst_Obj * and type to Nst_TypeObj *.
+
+---
+
+### `Nst_obj_concat`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_concat(ob1, ob2)
+```
+
+**Description:**
+
+Alias for _Nst_obj_concat that casts both objects to Nst_Obj *.
+
+---
+
+### `Nst_obj_range`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_range(ob1, ob2, ob3)
+```
+
+**Description:**
+
+Alias for _Nst_obj_range that casts all objects to Nst_Obj *.
+
+---
+
+### `Nst_obj_neg`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_neg(ob)
+```
+
+**Description:**
+
+Alias for _Nst_obj_neg that casts ob to Nst_Obj *.
+
+---
+
+### `Nst_obj_len`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_len(ob)
+```
+
+**Description:**
+
+Alias for _Nst_obj_len that casts ob to Nst_Obj *.
+
+---
+
+### `Nst_obj_bwnot`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_bwnot(ob)
+```
+
+**Description:**
+
+Alias for _Nst_obj_bwnot that casts ob to Nst_Obj *.
+
+---
+
+### `Nst_obj_lgnot`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_lgnot(ob)
+```
+
+**Description:**
+
+Alias for _Nst_obj_lgnot that casts ob to Nst_Obj *.
+
+---
+
+### `Nst_obj_stdout`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_stdout(ob)
+```
+
+**Description:**
+
+Alias for _Nst_obj_stdout that casts ob to Nst_Obj *.
+
+---
+
+### `Nst_obj_stdin`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_stdin(ob)
+```
+
+**Description:**
+
+Alias for _Nst_obj_stdin that casts ob to Nst_Obj *.
+
+---
+
+### `Nst_obj_typeof`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_typeof(ob)
+```
+
+**Description:**
+
+Alias for _Nst_obj_typeof that casts ob to Nst_Obj *.
+
+---
+
+### `Nst_obj_import`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_import(ob)
+```
+
+**Description:**
+
+Alias for _Nst_obj_import that casts ob to Nst_Obj *.
+
+---
+
+### `Nst_obj_eq_c`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_eq_c(ob1, ob2)
+```
+
+**Description:**
+
+Calls Nst_obj_eq making the result a C bool.
+
+---
+
+### `Nst_obj_ne_c`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_ne_c(ob1, ob2)
+```
+
+**Description:**
+
+Calls Nst_obj_ne making the result a C bool.
 
 ---
 
 ## Functions
 
-### Binary operator function
+### `_Nst_obj_eq`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-// Comparisons
-
-EXPORT Nst_Obj *_nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_ne(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_ge(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_le(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
-
-// Arithmetic operations
-
-EXPORT Nst_Obj *_nst_obj_add(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
-
-// Bitwise operations
-
-EXPORT Nst_Obj *_nst_obj_bwor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_bwand(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_bwxor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_bwls(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_bwrs(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
-
-// Logical operations
-
-EXPORT Nst_Obj *_nst_obj_lgor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_lgand(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
-
-// Other
-
-EXPORT Nst_Obj *_nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2, Nst_OpErr *err)
+Nst_Obj *_Nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
-**Description**:
+**Description:**
 
-All of these functions execute a certain Nest binary operator:
-
-- `eq`: `==`
-- `ne`: `!=`
-- `gt`: `>`
-- `lt`: `<`
-- `ge`: `>=`
-- `le`: `<=`
-- `add`: `+`
-- `sub`: `-`
-- `mul`: `*`
-- `div`: `/`
-- `pow`: `^`
-- `mod`: `%`
-- `bwor`: `|`
-- `bwand`: `&`
-- `bwxor`: `^^`
-- `bwls`: `<<`
-- `bwrs`: `>>`
-- `lgor`: `||`
-- `lgand`: `&&`
-- `lgxor`: `&|`
-
-**Arguments**:
-
-- `[in] ob1`: the first object of the operator
-- `[in] ob2`: the second object of the operator
-- `[out] err`: the second object of the operator
-
-**Return value**:
-
-The function returns the result of the operation or `NULL` if an error occurs.
+Implements the == operator. Is guaranteed to not fail.
 
 ---
 
-### Unary operator functions
+### `_Nst_obj_ne`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-EXPORT Nst_Obj *_nst_obj_neg(Nst_Obj *ob, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_len(Nst_Obj *ob, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_bwnot(Nst_Obj *ob, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_lgnot(Nst_Obj *ob, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_stdout(Nst_Obj *ob, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_stdin(Nst_Obj *ob, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_typeof(Nst_Obj *ob, Nst_OpErr *err)
-EXPORT Nst_Obj *_nst_obj_import(Nst_Obj *ob, Nst_OpErr *err)
+Nst_Obj *_Nst_obj_ne(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
-**Description**:
+**Description:**
 
-All of these functions execute a certain Nest unary operator:
-
-- `neg`: `-:`
-- `len`: `$`
-- `bwnot`: `~`
-- `lgnot`: `!`
-- `stdout`: `>>>`
-- `stdin`: `<<<`
-- `typeof`: `?::`
-- `import`: `|#|`
-
-**Arguments**:
-
-- `[in] ob1`: the object to operate on
-- `[out] err`: the second object of the operator
-
-**Return value**:
-
-The function returns the result of the operation or `NULL` if an error occurs.
+Implements the != operator. Is guaranteed to not fail.
 
 ---
 
-### `_nst_obj_range`
+### `_Nst_obj_gt`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *_nst_obj_range(Nst_Obj   *start,
-                        Nst_Obj   *stop,
-                        Nst_Obj   *step,
-                        Nst_OpErr *err)
+Nst_Obj *_Nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
-**Description**:
+**Description:**
 
-Implements the built-in range operator `->`.
-
-**Arguments**:
-
-- `[in] start`: the number to start from
-- `[in] stop`: the number to stop at, not inclusive
-- `[in] step`: the size of the step
-- `[out] err`: the error
-
-**Return value**:
-
-The function returns the iterator or `NULL` if an error occurs.
+Implements the > operator. On failure the error is set.
 
 ---
 
-### `_nst_obj_cast`
+### `_Nst_obj_lt`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *_nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type, Nst_OpErr *err)
+Nst_Obj *_Nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
-**Description**:
+**Description:**
 
-Casts `ob` to `type`. The cast to `Bool` is always guaranteed to succeed, the
-one to `Str` accepts any type of object but could fail because of memory
-allocations.
-
-Casts to the same type of the object return the object itself increasing the
-reference count.
-
-**Arguments**:
-
-- `[in] ob`: the object to cast to another type
-- `[in] type`: the type to cast the object to
-- `[out] err`: the error
-
-**Return value**:
-
-The function returns the casted object or `NULL` if an error occurs.
+Implements the < operator. On failure the error is set.
 
 ---
 
-### `_nst_repr_str_cast`
+### `_Nst_obj_ge`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *_nst_repr_str_cast(Nst_Obj *ob, Nst_OpErr *err)
+Nst_Obj *_Nst_obj_ge(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
-**Description**:
+**Description:**
 
-Casts `ob` to a printable representation of its value. The only times this is
-different from `nst_obj_cast(ob, nst_type()->Str, err)` is with strings and
-bytes.
-
-**Arguments**:
-
-- `[in] ob`: the object to cast to a string
-- `[out] err`: the error
-
-**Return value**:
-
-The function returns the new string or `NULL` on failure.
+Implements the >= operator. On failure the error is set.
 
 ---
 
-### `_nst_obj_str_cast_seq`
+### `_Nst_obj_le`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *_nst_obj_str_cast_seq(Nst_SeqObj *seq_obj,
-                               Nst_LList  *all_objs,
-                               Nst_OpErr  *err)
+Nst_Obj *_Nst_obj_le(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
-**Description**:
+**Description:**
 
-Casts a sequence to a string.
-
-**Arguments**:
-
-- `[in] seq_obj`: the sequence to cast
-- `[inout] all_objs`: the "container stack" that lists all the containers that
-  contain the one being casted, to prevent infinite recursion
-- `[out] err`: the error
-
-**Return value**:
-
-The function returns the new string or `NULL` if an error occurred.
+Implements the <= operator. On failure the error is set.
 
 ---
 
-### `_nst_obj_str_cast_map`
+### `_Nst_obj_add`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *_nst_obj_str_cast_map(Nst_MapObj *map_obj,
-                               Nst_LList  *all_objs,
-                               Nst_OpErr  *err)
+Nst_Obj *_Nst_obj_add(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
-**Description**:
+**Description:**
 
-Casts a map to a string.
-
-**Arguments**:
-
-- `[in] map_obj`: the map to cast
-- `[inout] all_objs`: the "container stack" that lists all the containers that
-  contain the one being casted, to prevent infinite recursion
-- `[out] err`: the error
-
-**Return value**:
-
-The function returns the new string or `NULL` if an error occurred.
+Implements the + operator. On failure the error is set.
 
 ---
 
-### `_nst_get_import_path`
+### `_Nst_obj_sub`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_StrObj *_nst_get_import_path(i8        *initial_path,
-                                 usize      path_len,
-                                 Nst_OpErr *err)
+Nst_Obj *_Nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
-**Description**:
+**Description:**
 
-Creates the absolute path to a file for importing, if a local file has the same
-name as one from the standard library, the local one is imported.
+Implements the - operator. On failure the error is set.
 
-**Arguments**:
+---
 
-- `[in] initial_path`: the relative path to the file or the name of the file in
-  the standard library
-- `[in] path_len`: the length of `initial_path`
-- `[out] err`: the error
+### `_Nst_obj_mul`
 
-**Return value**:
+**Synopsis:**
 
-The function returns the absolute path to the module being imported or `NULL` if
-the file is not found or an error occurs.
+```better-c
+Nst_Obj *_Nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2)
+```
+
+**Description:**
+
+Implements the * operator. On failure the error is set.
+
+---
+
+### `_Nst_obj_div`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2)
+```
+
+**Description:**
+
+Implements the / operator. On failure the error is set.
+
+---
+
+### `_Nst_obj_pow`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2)
+```
+
+**Description:**
+
+Implements the ^ operator. On failure the error is set.
+
+---
+
+### `_Nst_obj_mod`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2)
+```
+
+**Description:**
+
+Implements the % operator. On failure the error is set.
+
+---
+
+### `_Nst_obj_bwor`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_bwor(Nst_Obj *ob1, Nst_Obj *ob2)
+```
+
+**Description:**
+
+Implements the | operator. On failure the error is set.
+
+---
+
+### `_Nst_obj_bwand`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_bwand(Nst_Obj *ob1, Nst_Obj *ob2)
+```
+
+**Description:**
+
+Implements the & operator. On failure the error is set.
+
+---
+
+### `_Nst_obj_bwxor`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_bwxor(Nst_Obj *ob1, Nst_Obj *ob2)
+```
+
+**Description:**
+
+Implements the ^^ operator. On failure the error is set.
+
+---
+
+### `_Nst_obj_bwls`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_bwls(Nst_Obj *ob1, Nst_Obj *ob2)
+```
+
+**Description:**
+
+Implements the << operator. On failure the error is set.
+
+---
+
+### `_Nst_obj_bwrs`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_bwrs(Nst_Obj *ob1, Nst_Obj *ob2)
+```
+
+**Description:**
+
+Implements the >> operator. On failure the error is set.
+
+---
+
+### `_Nst_obj_lgor`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_lgor(Nst_Obj *ob1, Nst_Obj *ob2)
+```
+
+**Description:**
+
+Implements the || operator. On failure the error is set.
+
+---
+
+### `_Nst_obj_lgand`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_lgand(Nst_Obj *ob1, Nst_Obj *ob2)
+```
+
+**Description:**
+
+Implements the && operator. On failure the error is set.
+
+---
+
+### `_Nst_obj_lgxor`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2)
+```
+
+**Description:**
+
+Implements the &| operator. On failure the error is set.
+
+---
+
+### `_Nst_obj_neg`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_neg(Nst_Obj *ob)
+```
+
+**Description:**
+
+Implements the -: operator. On failure the error is set.
+
+---
+
+### `_Nst_obj_len`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_len(Nst_Obj *ob)
+```
+
+**Description:**
+
+Implements the $ operator. On failure the error is set.
+
+---
+
+### `_Nst_obj_bwnot`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_bwnot(Nst_Obj *ob)
+```
+
+**Description:**
+
+Implements the ~ operator. On failure the error is set.
+
+---
+
+### `_Nst_obj_lgnot`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_lgnot(Nst_Obj *ob)
+```
+
+**Description:**
+
+Implements the ! operator. On failure the error is set.
+
+---
+
+### `_Nst_obj_stdout`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_stdout(Nst_Obj *ob)
+```
+
+**Description:**
+
+Implements the >>> operator. On failure the error is set.
+
+---
+
+### `_Nst_obj_stdin`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_stdin(Nst_Obj *ob)
+```
+
+**Description:**
+
+Implements the <<< operator. On failure the error is set.
+
+---
+
+### `_Nst_obj_typeof`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_typeof(Nst_Obj *ob)
+```
+
+**Description:**
+
+Implements the ?:: operator. On failure the error is set.
+
+---
+
+### `_Nst_obj_import`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_import(Nst_Obj *ob)
+```
+
+**Description:**
+
+Implements the |#| operator. On failure the error is set.
+
+---
+
+### `_Nst_repr_str_cast`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_repr_str_cast(Nst_Obj *ob)
+```
+
+**Description:**
+
+Casts an object to its string representation.
+
+All objects can be casted, even custom types, but the function can still fail to
+allocate memory.
+
+**Parameters:**
+
+- `ob`: the object to be casted
+
+**Returns:**
+
+The new string or NULL on failure. The error is set.
+
+---
+
+### `_Nst_obj_str_cast_seq`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_str_cast_seq(Nst_SeqObj *seq_obj, Nst_LList *all_objs)
+```
+
+**Description:**
+
+Internal cast from sequence to string.
+
+It is recommended to use Nst_obj_cast(seq_obj, Nst_type()->Str), this is used
+internally.
+
+**Parameters:**
+
+- `seq_obj`: the object to cast
+- `all_objs`: a list containing all collections encountered up to that point, on
+  the first call it is empty and is populated automatically
+
+**Returns:**
+
+The new string object or NULL on failure. The error is set.
+
+---
+
+### `_Nst_obj_str_cast_map`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_str_cast_map(Nst_MapObj *map_obj, Nst_LList *all_objs)
+```
+
+**Description:**
+
+Internal cast from map to string.
+
+It is recommended to use Nst_obj_cast(map_obj, Nst_type()->Str), this is used
+internally.
+
+**Parameters:**
+
+- `map_obj`: the object to cast
+- `all_objs`: a list containing all collections encountered up to that point, on
+  the first call it is empty and is populated automatically
+
+**Returns:**
+
+The new string object or NULL on failure. The error is set.
+
+---
+
+### `_Nst_obj_cast`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type)
+```
+
+**Description:**
+
+Casts an object from a type to another.
+
+Casting an object to Bool is guaranteed to not fail. All objects can be casted
+to Str but the function can still fail if a memory allocation fails.
+
+**Parameters:**
+
+- `ob`: the object to be casted
+- `type`: the type to cast the object to
+
+**Returns:**
+
+The casted object or NULL on failure. The error is set.
+
+---
+
+### `_Nst_obj_concat`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2)
+```
+
+**Description:**
+
+Concatenates two objects into a string.
+
+Both objects are casted to Str before being concatenated.
+
+**Parameters:**
+
+- `ob1`: the first object
+- `ob2`: the second object
+
+**Returns:**
+
+The result of the concatenation or NULL on failure. The error is set.
+
+---
+
+### `_Nst_obj_range`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step)
+```
+
+**Description:**
+
+Creates a range object given the start, stop and step.
+
+**Parameters:**
+
+- `start`: the starting value of the range
+- `stop`: the the excluded stopping index of the range
+- `step`: the step of the range
+
+**Returns:**
+
+The new range object or NULL on failure. The error is set.
+
+---
+
+### `_Nst_get_import_path`
+
+**Synopsis:**
+
+```better-c
+Nst_StrObj *_Nst_get_import_path(i8 *initial_path, usize path_len)
+```
+
+**Description:**
+
+Returns the absolute path for a library to import.
+
+If the library is not found on the given path, the standard library directory is
+checked.
+
+**Parameters:**
+
+- `initial_path`: the relative path used to import the library
+- `path_len`: the length in bytes of initial_path
+
+**Returns:**
+
+The path on success and NULL on failure. The error is set. This function failes
+if the specified library is not found.
+

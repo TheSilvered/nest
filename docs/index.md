@@ -22,7 +22,7 @@ prompt) to use Nest:
 
 ```text
 $ nest
-USAGE: nest [options] [filename | -c command] [args]
+USAGE: nest [options] <filename | -c command> [args]
 Run 'nest --help' for more information
 ```
 

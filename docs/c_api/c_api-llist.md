@@ -1,25 +1,31 @@
 # `llist.h`
 
-This header contains various functions to operate with singly-linked lists.
+Singly-linked list.
+
+## Authors
+
+TheSilvered
 
 ## Macros
 
-### `NST_LLIST_ITER`
+### `Nst_LLIST_ITER`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-NST_LLIST_ITER(node, llist)
+Nst_LLIST_ITER(node, llist)
 ```
 
-**Description**:
+**Description:**
 
-Sets up a for-loop to iterate though the nodes in `llist`.
+Loops through the list given.
 
-**Arguments**:
+It should be put inside the brackets of a for loop with nothing else.
 
-- `node`: the name of the variable of the loop
-- `llist`: the list to iterate on
+**Parameters:**
+
+- `node`: the name of the variable holding the current node in the iteration
+- `llist`: the list to iterate
 
 ---
 
@@ -27,54 +33,49 @@ Sets up a for-loop to iterate though the nodes in `llist`.
 
 ### `Nst_LLNode`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_LLNnode
-{
+typedef struct _Nst_LLNode {
     void *value;
     bool allocated;
-    struct _Nst_LLNnode *next;
-}
-Nst_LLNode
+    Nst_LLNode *next;
+} Nst_LLNode
 ```
 
-**Description**:
+**Description:**
 
-The node of a linked list.
+The structure representing a node of a Nst_LList.
 
-**Fields**:
+**Fields:**
 
-- `value`: the value of the node
-- `allocated`: whether the value of the node should be freed when the list is
-  destroyed
+- `value`: the value that the node contains
+- `allocated`: whether the value contained in the node was allocated
 - `next`: the next node in the list
 
 ---
 
 ### `Nst_LList`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_LList
-{
+typedef struct _Nst_LList {
     Nst_LLNode *head;
     Nst_LLNode *tail;
-    usize size;
-}
-Nst_LList
+    usize len;
+} Nst_LList
 ```
 
-**Description**:
+**Description:**
 
-The struct for a linked list.
+The structure representing a linked list.
 
-**Fields**:
+**Fields:**
 
 - `head`: the first node in the list
 - `tail`: the last node in the list
-- `size`: the total number of nodes in the list
+- `len`: the total number of nodes in the list
 
 ---
 
@@ -82,326 +83,295 @@ The struct for a linked list.
 
 ### `Nst_LListDestructor`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
 typedef void (*Nst_LListDestructor)(void *)
 ```
 
+**Description:**
+
+The type of a list destructor.
+
 ---
 
 ## Functions
 
-### `nst_llist_new`
+### `Nst_llist_push`
 
-**Synopsis**:
-
-```better-c
-Nst_LList *nst_llist_new(Nst_OpErr *err)
-```
-
-**Description**:
-
-Creates a new `Nst_LList` on the heap.
-
-**Arguments**:
-
-- `[out] err`: the error
-
-**Return value**:
-
-The function returns the created list on success and `NULL` on failure.
-
----
-
-### `nst_llnode_new`
-
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_LLNode *nst_llnode_new(void      *value,
-                           bool       allocated,
-                           Nst_OpErr *err)
+bool Nst_llist_push(Nst_LList *llist, void *value, bool allocated)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new `Nst_LLNode` on the heap.
+Adds a value to the front of the list.
 
-**Arguments**:
+**Parameters:**
 
-- `[in] value`: the value of the node
-- `[in] allocated`: whether the value is allocated
-- `[out] err`: the error
-
-**Return value**:
-
-The function returns the created node on success and `NULL` on failure.
-
----
-
-### `nst_llist_push`
-
-**Synopsis**:
-
-```better-c
-bool nst_llist_push(Nst_LList *llist,
-                    void      *value,
-                    bool       allocated,
-                    Nst_OpErr *err)
-```
-
-**Description**:
-
-Inserts an element to the front.
-
-**Arguments**:
-
-- `[inout] llist`: the list to add the element to
-- `[in] value`: the value to insert
-- `[in] allocated`: whether the value needs to be freed when the list is
+- `llist`: the list to add the value to
+- `value`: the value to add
+- `allocated`: whether to pass this value to the destructor when the list is
   destroyed
-- `[out] err`: the error
 
-**Return value**:
+**Returns:**
 
-The function returns `true` on success and `false` on failure.
+true if the value is added and false on failure. The error is set.
 
 ---
 
-### `nst_llist_append`
+### `Nst_llist_append`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-bool nst_llist_append(Nst_LList *llist,
-                      void      *value,
-                      bool       allocated,
-                      Nst_OpErr *err)
+bool Nst_llist_append(Nst_LList *llist, void *value, bool allocated)
 ```
 
-**Description**:
+**Description:**
 
-Appends an element to the back.
+Adds a value to the back of the list.
 
-**Arguments**:
+**Parameters:**
 
-- `[inout] llist`: the list to add the element to
-- `[in] value`: the value to append
-- `[in] allocated`: whether the value needs to be freed when the list is
+- `llist`: the list to add the value to
+- `value`: the value to add
+- `allocated`: whether to pass this value to the destructor when the list is
   destroyed
-- `[out] err`: the error
 
-**Return value**:
+**Returns:**
 
-The function returns `true` on success and `false` on failure.
+true if the value is added and false on failure. The error is set.
 
 ---
 
-### `nst_llist_insert`
+### `Nst_llist_insert`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-bool nst_llist_insert(Nst_LList  *llist,
-                      void       *value,
-                      bool        allocated,
-                      Nst_LLNode *node,
-                      Nst_OpErr  *err)
+bool Nst_llist_insert(Nst_LList *llist, void *value, bool allocated,
+                      Nst_LLNode *node)
 ```
 
-**Description**:
+**Description:**
 
-Inserts an element in `llist` after `node`.
+Adds a value after a given node.
 
-**Arguments**:
+node can be NULL, in which case the function behaves like Nst_llist_push.
 
-- `[inout] llist`: the list to add the element to
-- `[in] value`: the value to insert
-- `[in] allocated`: whether the value needs to be freed when the list is
+**Parameters:**
+
+- `llist`: the list to add the value to
+- `value`: the value to add
+- `allocated`: whether to pass this value to the destructor when the list is
   destroyed
-- `[inout] node`: the node that should precede the inserted value
-- `[out] err`: the error
+- `node`: the node belonging to the list after which the value is inserted
 
-**Return value**:
+**Returns:**
 
-The function returns `true` on success and `false` on failure.
-
----
-
-### `nst_llist_pop`
-
-**Synopsis**:
-
-```better-c
-void *nst_llist_pop(Nst_LList *llist)
-```
-
-**Description**:
-
-Removes a node from the front.
-
-**Arguments**:
-
-- `llist`: the list to remove the element from
-
-**Return value**:
-
-The function returns the value inside the node.
+true if the value is added and false on failure. The error is set.
 
 ---
 
-### `nst_llist_peek_front`
+### `Nst_llist_pop`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void *nst_llist_peek_front(Nst_LList *llist)
+void *Nst_llist_pop(Nst_LList *llist)
 ```
 
-**Arguments**:
+**Description:**
 
-- `[in] llist`: the list to get the value from
-
-**Return value**:
-
-The function returns the value from the head node.
+Removes and returns the front value from a list.
 
 ---
 
-### `nst_llist_peek_back`
+### `Nst_llist_peek_front`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void *nst_llist_peek_back(Nst_LList *llist)
+void *Nst_llist_peek_front(Nst_LList *llist)
 ```
 
-**Arguments**:
+**Description:**
 
-- `[in] llist`: the list to get the value from
-
-**Return value**:
-
-The function returns the value from the tail node.
+Returns the front value of a list. If the list is empty NULL is returned, no
+error is set.
 
 ---
 
-### `nst_llist_push_llnode`
+### `Nst_llist_peek_back`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void nst_llist_push_llnode(Nst_LList *llist, Nst_LLNode *node)
+void *Nst_llist_peek_back(Nst_LList *llist)
 ```
 
-**Description**:
+**Description:**
 
-Inserts `node` to the front of `llist`.
-
-**Arguments**:
-
-- `[inout] llist`: the list to add the node to
-- `[in] node`: the node to add
+Returns the back value of a list. If the list is empty NULL is returned, no
+error is set.
 
 ---
 
-### `nst_llist_append_llnode`
+### `Nst_llist_push_llnode`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void nst_llist_append_llnode(Nst_LList *llist, Nst_LLNode *node)
+void Nst_llist_push_llnode(Nst_LList *llist, Nst_LLNode *node)
 ```
 
-**Description**:
+**Description:**
 
-Appends `node` to the back of `llist`.
-
-**Arguments**:
-
-- `[inout] llist`: the list to add the node to
-- `[in] node`: the node to add
+Adds a node to the front of a list.
 
 ---
 
-### `nst_llist_pop_llnode`
+### `Nst_llist_append_llnode`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_LLNode *nst_llist_pop_llnode(Nst_LList *llist)
+void Nst_llist_append_llnode(Nst_LList *llist, Nst_LLNode *node)
 ```
 
-**Description**:
+**Description:**
 
-Removes the front node of `llist`.
-
-**Arguments**:
-
-- `llist`: the list to pop the node from
-
-**Return value**:
-
-The function returns the popped node.
+Adds a node to the back of a list.
 
 ---
 
-### `nst_llist_destroy`
+### `Nst_llist_pop_llnode`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void nst_llist_destroy(Nst_LList *llist, void (*item_destroy_func)(void *))
+Nst_LLNode *Nst_llist_pop_llnode(Nst_LList *llist)
 ```
 
-**Description**:
+**Description:**
 
-Frees the list and all the values inside the nodes. The values of the nodes are
-passed to `item_destroy_func` when `allocated` is `true`. If `item_destroy_func`
-is `NULL` the values are not freed.
-
-**Arguments**:
-
-- `[in] llist`: the list to destroy
-- `[in] item_destroy_func`: the destructor for the values of the nodes
+Removes the front node of a list and returns it.
 
 ---
 
-### `nst_llist_empty`
+### `Nst_llist_new`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void nst_llist_empty(Nst_LList *llist, void (*item_destroy_func)(void *))
+Nst_LList *Nst_llist_new(void)
 ```
 
-**Description**:
+**Description:**
 
-Frees all the values inside the list but maintains the list. If
-`item_destroy_func` is `NULL` the values are not freed.
+Creates and initializes a new list on the heap
 
-**Arguments**:
+**Returns:**
 
-- `[inout] llist`: the list to destroy
-- `[in] item_destroy_func`: the destructor for the values of the nodes
+The new list or NULL on failure. The error is set.
 
 ---
 
-### `nst_llist_move_nodes`
+### `Nst_llist_init`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void nst_llist_move_nodes(Nst_LList *from, Nst_LList *to)
+void Nst_llist_init(Nst_LList *llist)
 ```
 
-**Description**:
+**Description:**
 
-Moves the contents of one llist to another. If `to` is not empty the nodes are
-appended at the end.
+Initializes a llist.
 
-**Arguments**:
+---
 
-- `[in] from`: the list from which to move the nodes
-- `[inout] to`: the list to add the nodes to
+### `Nst_llnode_new`
+
+**Synopsis:**
+
+```better-c
+Nst_LLNode *Nst_llnode_new(void *value, bool allocated)
+```
+
+**Description:**
+
+Creates a new node on the heap.
+
+**Returns:**
+
+The new node or NULL on failure. The error is set.
+
+---
+
+### `Nst_llist_destroy`
+
+**Synopsis:**
+
+```better-c
+void Nst_llist_destroy(Nst_LList *llist, void (*item_destructor)(void *))
+```
+
+**Description:**
+
+Destroys a heap-allocated list.
+
+If the value of a node is marked as allocated it will be passed to
+item_destructor otherwise it is left untouched.
+
+**Parameters:**
+
+- `llist`: the list to destroy
+- `item_destructor`: the destructor to use on allocated values
+
+---
+
+### `Nst_llist_empty`
+
+**Synopsis:**
+
+```better-c
+void Nst_llist_empty(Nst_LList *llist, void (*item_destructor)(void *))
+```
+
+**Description:**
+
+Destroys all the nodes inside list.
+
+If the value of a node is marked as allocated it will be passed to
+item_destructor otherwise it is left untouched.
+
+**Parameters:**
+
+- `llist`: the list to empty
+- `item_destructor`: the destructor to use on allocated values
+
+---
+
+### `Nst_llist_move_nodes`
+
+**Synopsis:**
+
+```better-c
+void Nst_llist_move_nodes(Nst_LList *from, Nst_LList *to)
+```
+
+**Description:**
+
+Moves all the nodes from a list to the end of another.
+
+If to has already some values the new ones are added at the end.
+
+**Parameters:**
+
+- `from`: the list to move the nodes from
+- `to`: the list to move the nodes to
+

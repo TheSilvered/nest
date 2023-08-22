@@ -80,7 +80,7 @@ NstEXP typedef enum _Nst_InstID {
  * @param start: the start position of the instruction
  * @param end: the end position of the instruction
  */
-NstEXP typedef struct _Nst_Instruction {
+NstEXP typedef struct _Nst_Inst {
     Nst_InstID id;
     i64 int_val;
     Nst_Obj *val;

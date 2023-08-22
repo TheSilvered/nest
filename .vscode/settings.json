@@ -42,7 +42,10 @@
         "deque": "c",
         "unordered_map": "c",
         "initializer_list": "c",
-        "utility": "c"
+        "utility": "c",
+        "xlocale": "c",
+        "charconv": "c",
+        "xmemory": "c"
     },
     "makefile.makeDirectory": "build/linux/makefiles",
     "makefile.dryrunSwitches": [

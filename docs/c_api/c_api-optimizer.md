@@ -1,57 +1,62 @@
 # `optimizer.h`
 
-This header contains the functions used to optimize the code.
+Ast and bytecode optimizer.
+
+## Authors
+
+TheSilvered
 
 ## Functions
 
-### `nst_optimize_ast`
+### `Nst_optimize_ast`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Node *nst_optimize_ast(Nst_Node *ast, Nst_Error *error)
+Nst_Node *Nst_optimize_ast(Nst_Node *ast, Nst_Error *error)
 ```
 
-**Description**:
+**Description:**
 
-Optimizes the abstract syntax tree evaluating expressions with known values.
+Optimizes the AST.
 
-**Arguments**:
+The AST is destroyed if an error occurrs.
 
-- `[in] ast`: the AST to optimize
-- `[out] error`: the error that occurred
+**Parameters:**
 
-**Return value**:
+- `ast`: the AST to optimize
+- `error`: the pointer to place the error in
 
-The function returns the optimized AST or `NULL` if it fails, in which case the
-AST is automatically freed.
+**Returns:**
+
+The optimized AST on success and NULL on failure. No operation error is set.
 
 ---
 
-### `nst_optimize_bytecode`
+### `Nst_optimize_bytecode`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_InstList *nst_optimize_bytecode(Nst_InstList *bc,
-                                    bool optimize_builtins,
+Nst_InstList *Nst_optimize_bytecode(Nst_InstList *bc, bool optimize_builtins,
                                     Nst_Error *error)
 ```
 
-**Description**:
+**Description:**
 
-Optimizes the bytecode removing unreachable instructions, chained jumps,
-variable accesses to predefined variables, swapping instruction blocks that can
-be represented by a single instruction and some other things.
+Optimizes bytecode.
 
-**Arguments**:
+The bytecode is destroyed if an error occurrs.
 
-- `[in] bc`: the bytecode to optimize
-- `[in] optimize_builtins`: whether to optimize built-in variables with their
-  values
-- `[out] error`: the error that occurred
+**Parameters:**
 
-**Return value**:
+- `bc`: the bytecode to optimize
+- `optimize_builtins`: whether accesses to builtins such as Int and false should
+  be replaced by their values when they are not modified
+- `error`: the pointer to place the error in
 
-The function returns the optimized bytecode or `NULL` if it fails, in which case
-the instruction list is automatically freed.
+**Returns:**
+
+The optimized bytecode on success and NULL on failure. No operation error is
+set.
+

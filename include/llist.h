@@ -37,10 +37,10 @@ extern "C" {
  * @param allocated: whether the value contained in the node was allocated
  * @param next: the next node in the list
  */
-NstEXP typedef struct _Nst_LLNnode {
+NstEXP typedef struct _Nst_LLNode {
     void *value;
     bool allocated;
-    struct _Nst_LLNnode *next;
+    struct _Nst_LLNode *next;
 } Nst_LLNode;
 
 /**

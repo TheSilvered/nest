@@ -1,7 +1,7 @@
 /**
  * @file map.h
  *
- * @brief Nst_MapObj interface.
+ * @brief Nst_MapObj interface
  *
  * @author TheSilvered
  */
@@ -26,7 +26,7 @@
 /**
  * @brief Alias for _Nst_map_get that casts map to Nst_MapObj * and key to
  * Nst_Obj *.
-*/
+ */
 #define Nst_map_get(map, key) _Nst_map_get(MAP(map), OBJ(key))
 /**
  * @brief Alias for _Nst_map_drop that casts map to Nst_MapObj * and key to
@@ -41,7 +41,6 @@
 #define Nst_map_get_prev_idx(curr_idx, map) \
     _Nst_map_get_prev_idx(curr_idx, MAP(map))
 
-// Sets a value in the map with the key that is a string
 /**
  * @brief Alias for _Nst_map_set_str that casts map to Nst_MapObj * and value
  * to Nst_Obj *.

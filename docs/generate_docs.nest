@@ -1,0 +1,647 @@
+|#| 'stdsutil.nest' = su
+|#| 'stdio.nest' = io
+|#| 'stdsequtil.nest' = sequ
+|#| 'stditutil.nest' = itu
+|#| 'stdfs.nest' = fs
+|#| 'stdsys.nest' = sys
+|#| 'stdmath.nest' = math
+
+'c_api' @fs.make_dir
+'c_api' @sys._set_cwd
+
+#create_symbols header_lines  [
+    0 = idx
+    ?.. header_lines.(idx) ' */' != [1 += idx]
+
+    -- find all declarations in the header
+    header_lines idx @generate_symbol_table = symbols
+
+    -- skip the next steps if no symbols could be found
+    symbols null == ?
+        => {
+            'other': <{}>,
+            'macros': <{}>,
+            'unions': <{}>,
+            'structs': <{}>,
+            'typedefs': <{}>,
+            'functions': <{}>,
+            'enums': <{}>
+        }
+
+    -- sort them by category
+    header_lines symbols @sort_categories = categories
+
+    -- Find the name of each symbol
+    header_lines categories @find_names
+
+    -- Create a proper synopsis & documentation
+    header_lines categories @build_docs
+
+    => categories
+]
+
+#generate_header_details header_lines doc_file [
+    header_lines.1 ' * @file ' '' @su.replace_substr = filename
+    doc_file (filename 1 true @title) @io.write
+    header_lines 2 @get_doc_block = {_, description, idx}
+    doc_file (description '.' >< @paragraph) @io.write
+    header_lines idx @get_doc_block = {_, authors, idx}
+    doc_file ('Authors' 2 @title) @io.write
+    doc_file (authors @paragraph) @io.write
+    => idx
+]
+
+#generate_symbol_table header_lines idx [
+    <{}> = symbols
+
+    ?.. header_lines idx @find_next_doc_comment = idx null != [
+        header_lines.(idx) '[docs:ignore]' @sequ.contains ? [
+            1 += idx
+            ..
+        ]
+
+        header_lines.(idx) '[docs:ignore_sym' @sequ.contains ? [
+            header_lines.(idx) @su.split = {_, _, sym_name, _}
+            sym_name.-1 ']' != ? 'Syntax Error' !! 'invalid docs directive \(header_lines.(idx))'
+            null = ignored_symbols.(sym_name 0 -1 @sequ.slice)
+            1 += idx
+            ..
+        ]
+
+        header_lines.(idx) '[docs:link' @sequ.contains ? [
+            header_lines.(idx) @su.split = {_, _, sym_name, sym_link, _}
+            sym_link.-1 ']' != ? 'Syntax Error' !! 'invalid docs directive \(header_lines.(idx))'
+            sym_link 0 -1 @sequ.slice = additional_symbols.(sym_name)
+            1 += idx
+            ..
+        ]
+
+        header_lines.(idx) '[docs:raw]' @sequ.contains ? [
+            1 += idx
+            header_lines.(idx) = contents
+            1 += idx
+            ?.. header_lines.(idx) '*/' != [
+                '\n' header_lines.(idx) ><= contents
+                1 += idx
+            ]
+            '\n' ><= contents
+            symbols <{null, contents}> +
+            ..
+        ]
+
+        idx = doc_start
+        ?.. \
+            (header_lines.(idx) ' *' @su.starts_with) \
+            (header_lines.(idx) '/*' @su.starts_with) ||
+        [
+            1 += idx
+        ]
+        symbols <{idx, doc_start}> +
+    ]
+
+    => $symbols 0 == ? null : symbols
+]
+
+#sort_categories header_lines symbols [
+    {
+        'other': <{}>,
+        'macros': <{}>,
+        'unions': <{}>,
+        'structs': <{}>,
+        'typedefs': <{}>,
+        'functions': <{}>,
+        'enums': <{}>
+    } = categories
+
+    ... Iter :: symbols := symbol [
+        symbol.0 null == ? [
+            categories.other symbol.1 +
+            ..
+        ]
+
+        header_lines.(symbol.0) = symbol_line
+        symbol_line '#define' @su.starts_with ? [
+            categories.macros symbol +
+            ..
+        ]
+        symbol_line 'NstEXP typedef enum' @su.starts_with ? [
+            categories.enums symbol +
+            ..
+        ]
+        symbol_line 'NstEXP typedef struct' @su.starts_with ? [
+            categories.structs symbol +
+            ..
+        ]
+        symbol_line 'NstEXP typedef union' @su.starts_with ? [
+            categories.unions symbol +
+            ..
+        ]
+        symbol_line 'NstEXP typedef' @su.starts_with ? [
+            categories.typedefs symbol +
+            ..
+        ]
+        categories.functions symbol +
+    ]
+
+    => categories
+]
+
+#find_names header_lines symbols [
+    ... Iter :: symbols.macros := macro [
+        header_lines.(macro.0) 8 @sequ.slice = macro_name -- remove #define
+        macro_name ' ' @su.lfind = space_idx
+        macro_name '(' @su.lfind = paren_idx
+        (paren_idx -1 ==) (space_idx -1 !=) && ? [
+            macro_name null space_idx @sequ.slice = macro_name
+        ] : (paren_idx -1 !=) (space_idx -1 ==) && ? [
+            macro_name null paren_idx @sequ.slice = macro_name
+        ] : (paren_idx -1 !=) (space_idx -1 !=) && ? [
+            space_idx paren_idx @math.min = min_idx
+            macro_name null min_idx @sequ.slice = macro_name
+        ]
+        macro_name @check_name
+        macro macro_name +
+    ]
+
+    ... Iter :: symbols.unions := union [
+        header_lines.(union.0) 22 -2 @sequ.slice = union_name
+        union_name @check_name
+        union union_name +
+    ]
+
+    ... Iter :: symbols.structs := struct [
+        header_lines.(struct.0) 23 -2 @sequ.slice = struct_name
+        struct_name @check_name
+        struct struct_name +
+    ]
+
+    ... Iter :: symbols.typedefs := typedef [
+        header_lines.(typedef.0) 15 @sequ.slice = typedef_name
+        typedef_name '(' @su.lfind = paren_idx
+        paren_idx -1 == ? [
+            typedef_name ' ' @su.lfind 1 + = space_idx
+            typedef_name space_idx -1 @sequ.slice = typedef_name
+        ] : [
+            typedef_name ')' @su.lfind = rparen_idx
+            2 += paren_idx
+            typedef_name paren_idx rparen_idx @sequ.slice = typedef_name
+        ]
+        typedef_name @check_name
+        typedef typedef_name +
+    ]
+
+    ... Iter :: symbols.enums := enum [
+        header_lines.(enum.0) 21 -2 @sequ.slice = enum_name
+        enum_name @check_name
+        enum enum_name +
+    ]
+
+    ... Iter :: symbols.functions := function [
+        header_lines.(function.0) 'NstEXP Nst_FUNC_SIGN' @su.starts_with ? [
+            header_lines.(function.0) 21 -2 @sequ.slice = function_name
+        ] : [
+            header_lines.(function.0) '(' @su.lfind = paren_idx
+            header_lines.(function.0) null paren_idx @sequ.slice = function_name
+            function_name ' ' @su.rfind 1 + = space_idx
+            function_name space_idx @sequ.slice = function_name
+        ]
+        function_name @check_name
+        function function_name +
+    ]
+]
+
+#check_name name [
+    !(name (su.DIGITS su.LETTERS '_' ><) @su.is_charset) ?
+        'Value Error' !! 'invalid name \(name @su.repr)'
+]
+
+#build_docs header_lines categories [
+    ... Iter :: categories.macros := macro [
+        header_lines macro @make_macro_syn = syn
+        header_lines macro @make_doc = doc
+        syn = macro.0
+        doc = macro.1
+    ]
+
+    ... \
+        {
+            categories.unions,
+            categories.structs,
+            categories.typedefs,
+            categories.functions,
+            categories.enums
+        } @itu.chain := symbol
+    [
+        header_lines symbol @make_syn = syn
+        header_lines symbol @make_doc = doc
+        syn = symbol.0
+        doc = symbol.1
+    ]
+]
+
+#make_macro_syn header_lines symbol [
+    header_lines.(symbol.0) 8 @sequ.slice = syn
+    syn '(' @su.lfind = paren_idx
+    syn ' ' @su.lfind = space_idx
+    paren_idx -1 == ? => null
+    (space_idx -1 !=) (paren_idx -1 !=) (paren_idx space_idx >) && ? => null
+    syn ')' @su.lfind 1 + = paren_idx
+    => syn null paren_idx @sequ.slice
+]
+
+#make_syn header_lines symbol [
+    symbol = {syn_start, _, name}
+
+    header_lines.(syn_start) \
+        'NstEXP '  '' @su.replace_substr \
+        'NstC '    '' @su.replace_substr \
+    = syn
+
+    (syn 'typedef struct' @su.starts_with) \
+    (syn 'typedef union'  @su.starts_with) \
+    (syn 'typedef enum'   @su.starts_with) || ? [
+        name ';' >< = end
+    ] : [
+        syn 'struct _' '' @su.replace_substr = syn
+        ';' = end
+    ]
+
+    ?.. !(syn end @su.ends_with) [
+        1 += syn_start
+        header_lines.(syn_start) = line
+        line 'struct _' '' @su.replace_substr = line
+        end ';' == ? [
+            line @su.ltrim = line
+            ' ' line ><= syn
+        ] : [
+            '\n' line ><= syn
+        ]
+    ]
+    => syn
+]
+
+#make_doc header_lines symbol [
+    symbol = {syn_start, doc_start, _}
+    {
+        null: <{}>,
+        '@brief': <{}>,
+        '@param': <{}>,
+        '@return': <{}>
+    } = doc
+
+    ?.. true [
+        header_lines doc_start @get_doc_block = doc_block
+        (doc_block null ==) (doc_block.2 syn_start >) || ? ;
+        doc.(doc_block.0) doc_block.1 +
+        doc_block.2 = doc_start
+    ]
+
+    => doc
+]
+
+#write_docs categories doc_file [
+    ... Iter :: categories.other := other_item [
+        doc_file (other_item '\n' ><) @io.write
+    ]
+
+    $categories.macros    \
+    $categories.unions    \
+    $categories.structs   \
+    $categories.typedefs  \
+    $categories.functions \
+    $categories.enums + = tot
+
+    tot 0 != categories.other && ?
+        doc_file '---\n\n' @io.write
+
+    doc_file 'Macros'       categories.macros    tot @write_category = tot
+    doc_file 'Unions'       categories.unions    tot @write_category = tot
+    doc_file 'Structs'      categories.structs   tot @write_category = tot
+    doc_file 'Type aliases' categories.typedefs  tot @write_category = tot
+    doc_file 'Functions'    categories.functions tot @write_category = tot
+    doc_file 'Enums'        categories.enums     tot @write_category
+]
+
+#write_category doc_file name symbols tot [
+    $symbols 0 != ?
+        doc_file (name 2 @title) @io.write
+
+    ... Iter :: symbols := symbol [
+        doc_file symbol tot name @write_symbol_doc = tot
+    ]
+    => tot
+]
+
+#write_symbol_doc doc_file symbol tot type [
+    symbol = {syn, doc, name}
+
+    doc_file (name 3 true @title) @io.write
+    symbol.0 null != ? [
+        doc_file ('Synopsis' 0 @title) @io.write
+        doc_file (symbol.0 'better-c' @code_block) @io.write
+    ]
+
+    $doc.(null) $doc.'@brief' + 0 != ? [
+        doc_file ('Description' 0 @title) @io.write
+        ... Iter :: doc.(null) := desc [
+            doc_file (desc @paragraph) @io.write
+        ]
+
+        ... Iter :: doc.'@brief' := desc [
+            doc_file (desc @paragraph) @io.write
+        ]
+    ]
+
+    $doc.'@param' 0 != ? [
+        |> type [
+        ? 'Unions' [..]
+        ? 'Enums' [
+            'Variants' = title_name
+        ]
+        ? 'Structs' [
+            'Fields' = title_name
+        ]
+        ? [
+            'Parameters' = title_name
+        ]
+        ]
+
+        doc_file (title_name 0 @title) @io.write
+        doc.'@param' ##x [
+            x ': ' 1 @su.split = {name, desc}
+            => '`\(name)`: \(desc)'
+        ] @sequ.map = params
+        doc_file (params @unordered_list) @io.write
+    ]
+
+    $doc.'@return' 0 != ? [
+        doc_file ('Returns' 0 @title) @io.write
+        ... Iter :: doc.'@return' := ret [
+            doc_file (ret @paragraph) @io.write
+        ]
+    ]
+
+    1 -= tot
+    tot 0 != ?
+        doc_file '---\n\n' @io.write
+    => tot
+]
+
+#title contents level code [
+    level 0 == ? => '**\(contents):**\n\n'
+
+    '' = s
+    ... level [
+        '#' ><= s
+    ]
+    code ? => '\(s) `\(contents)`\n\n'
+         : => '\(s) \(contents)\n\n'
+]
+
+#paragraph contents [
+    contents 'WINDOWS ONLY' '**WINDOWS ONLY**' @su.replace_substr = contents
+    contents @generate_links = contents
+    contents '[docs:list-item]' @sequ.contains ? [
+        contents '[docs:list-item]' @su.split = items
+        items.0 80 0 @format_line_width '\n' >< = header
+        items 0 @sequ.remove_at
+        items @unordered_list = items
+        => header items ><
+    ] : contents 'Note:' @su.starts_with ? [
+        contents.6 @su.to_upper = first_letter
+        first_letter (contents 7 @sequ.slice) >< = contents
+        => '!!!note\n    ' (contents 76 4 @format_line_width) '\n' ><
+    ] : [
+        => contents 80 0 @format_line_width '\n' ><
+    ]
+]
+
+#generate_links contents [
+    !(contents '`' @sequ.contains) ? => contents
+    '' = final_contents
+    0 = idx
+    ?.. idx $contents < [
+        contents.(idx) '`' != ? [
+            contents.(idx) ><= final_contents
+            1 += idx
+            ..
+        ]
+        contents idx @generate_link = {idx, link}
+        link ><= final_contents
+    ]
+    => final_contents
+]
+
+#generate_link contents idx [
+    1 += idx
+    idx = start
+    ?.. idx $contents < [
+        contents.(idx) '`' == ? [
+            idx = end
+            ;
+        ]
+        1 += idx
+    ]
+
+    contents start end @sequ.slice = name
+
+    name = lname
+    ?.. (lname '*' @su.ends_with) (lname ' ' @su.ends_with) || [
+        lname 0 -1 @sequ.slice = lname
+    ]
+
+    additional_symbols lname @sequ.contains ? [
+        => {end 1 +, '[`\(name)`](\(additional_symbols.(lname)))'}
+    ]
+
+    !(lname 'Nst' @su.starts_with) !(lname '_Nst' @su.starts_with) && ? [
+        lname @su.to_lower = lname
+        (lname 'nst' @su.starts_with) (lname '_nst' @su.starts_with) || \
+        !(ignored_symbols name @sequ.contains) && ?
+            'Warning: \(name) could be incorrect' @io.println
+        => {end 1 +, '`\(name)`'}
+    ]
+
+    _globals_.symbols.(lname) = link
+    link null == ? [
+        !(ignored_symbols lname @sequ.contains) ?
+            'Warning: \(lname) not found' @io.println
+        => {end 1 +, '`\(lname)`'}
+    ]
+    => {end 1 +, '[`\(name)`](\(link))'}
+]
+
+#unordered_list contents [
+    '' = ul
+
+    ... Iter :: contents := item [
+        item 78 2 @format_line_width = fmt_item
+        '- \(fmt_item)' ><= ul
+    ]
+    => ul '\n' ><
+]
+
+#format_line_width contents width indentation words [
+    '' = lines
+
+    words null == ?
+        Vector :: (contents @su.split @itu.reversed) = words
+    :
+        Vector :: (words @itu.reversed) = words
+
+    ?.. $words 0 != [
+        words 1 / = line
+
+        ?.. ($words 0 !=) ($line $words.-1 + width <) && [
+            ' ' (words 1 /) ><= line
+        ]
+        $lines 0 != ? [
+            ... indentation [
+                ' ' line >< = line
+            ]
+        ]
+        line '\n' ><= lines
+    ]
+    => lines
+]
+
+#code_block contents language [
+    (contents 'typedef struct' @su.starts_with) \
+    (contents 'typedef union'  @su.starts_with) \
+    (contents 'typedef enum'   @su.starts_with) || ?
+        => '```\(language)\n\(contents null -1 @sequ.slice)\n```\n\n'
+
+    !(contents ');' @su.ends_with) ?
+        => '```\(language)\n\(contents)\n```\n\n'
+
+    1 = open_paren
+    -3 = idx
+    ?.. open_paren 0 != [
+          contents.(idx) ')' == ? 1 += open_paren
+        : contents.(idx) '(' == ? 1 -= open_paren
+        1 -= idx
+    ]
+    2 += idx
+    contents null idx @sequ.slice = body
+    contents idx @sequ.slice = args
+    args ', ' @su.split ##x [
+        => x ';' @su.ends_with ? x null -1 @sequ.slice >< : x ',' ><
+    ] @sequ.map = args
+    -- args @io.println
+    null (79 $body -) $body args @format_line_width = args
+    => '```\(language)\n\(body)\(args)```\n\n'
+]
+
+#get_doc_block header_lines idx [
+    header_lines idx @find_next_doc_block = idx
+    idx null == ? => null
+
+    ($header_lines.(idx) 4 >=) (header_lines.(idx).3 '@' ==) && ? [
+        header_lines.(idx) null 2 @su.split = {_, field, contents}
+    ] : [
+        header_lines.(idx) '*/' @su.ends_with ?
+            => {null, header_lines.(idx) 3 -3 @sequ.slice, idx 1 +}
+        header_lines.(idx) 3 @sequ.slice = contents
+    ]
+
+    contents ':' @su.ends_with = maybe_list
+    false = in_list
+    1 += idx
+
+    ?.. \
+        (idx $header_lines <) \
+        (header_lines.(idx) ' *' !=) \
+        (header_lines.(idx) ' */' !=) \
+        (($header_lines.(idx) 4 >=) (header_lines.(idx).3 '@' !=) &&) &&
+    [
+        header_lines.(idx) 3 @sequ.slice = line
+
+        in_list maybe_list || (line '!' @su.starts_with) && ? [
+            line 1 @sequ.slice = line
+            true = in_list
+            '[docs:list-item]' line ><= contents
+        ] : [
+            ' ' line ><= contents
+            line ':' @su.ends_with !in_list && = maybe_list
+        ]
+        1 += idx
+    ]
+
+    => {field, contents, idx}
+]
+
+#find_next_doc_block header_lines idx [
+    -- if it is already inside a block
+    header_lines.(idx) ' *' @su.starts_with ? [
+        ?.. \
+            (idx $header_lines <) \
+            (   (header_lines.(idx) ' */' ==) \
+                ($header_lines.(idx) 4 <) \
+                (header_lines.(idx).3 '@' !=) ||) &&
+        [
+            1 += idx
+        ]
+
+        idx $header_lines >= ? => null
+        header_lines.(idx) ' */' == ? => header_lines idx @find_next_doc_block
+        => idx
+    ]
+    header_lines idx @find_next_doc_comment = idx
+    (idx null ==) ($header_lines idx ==) || ? => null
+
+    -- if the documentation is one-line
+    header_lines.(idx) '*/' @su.ends_with ? => idx
+    => idx 1 +
+]
+
+#find_next_doc_comment header_lines idx [
+    ?.. \
+        (idx $header_lines <) \
+        !(header_lines.(idx) '/*' @su.starts_with) &&
+    [
+        1 += idx
+    ]
+    idx $header_lines >= ? => null
+
+    => idx
+]
+
+#update_global_symbols categories file [
+    ... \
+        {
+            categories.macros,
+            categories.unions,
+            categories.structs,
+            categories.typedefs,
+            categories.functions,
+            categories.enums
+        } @itu.chain := symbol
+    [
+        symbol.2 = name
+        _globals_.symbols.(name) null != ?
+            'Value Error' !! 'duplicate symbol \(name), previous one was \(_globals_.symbols.(name))'
+        '\(file)#\(name @su.to_lower)' = _globals_.symbols.(name)
+    ]
+]
+
+{} = files
+{} = symbols
+{} = ignored_symbols
+{} = additional_symbols
+
+... Iter :: ('../../include' @fs.list_dir) := header [
+    header @fs.filename 0 -2 @sequ.slice = header_name
+    header 'r' @io.open = header_file
+    header_file @io.read '\n' @su.split = header_lines
+    header_file @io.close
+    header_lines @create_symbols = categories
+    {categories, header_lines} = files.'c_api-\(header_name).md'
+    categories 'c_api-\(header_name).md' @update_global_symbols
+]
+
+... Iter :: files := {file, {categories, header_lines}} [
+    file 'w' @io.open = doc_file
+    header_lines doc_file @generate_header_details
+    categories doc_file @write_docs
+    doc_file @io.close
+]

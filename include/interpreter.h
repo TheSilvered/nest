@@ -162,7 +162,7 @@ NstEXP void NstC Nst_state_free(void);
 /* Frees loaded_libs, must be called after Nst_state_free. */
 NstEXP void NstC _Nst_unload_libs(void);
 
-/* The global state of the interpreter. */
+// The global state of the interpreter.
 extern Nst_ExecutionState Nst_state;
 
 /* Returns a pointer to the global state of the interpreter. */

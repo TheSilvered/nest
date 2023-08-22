@@ -1,330 +1,201 @@
 # `lib_import.h`
 
-This header contains
+C/C++ library utilities.
+
+## Authors
+
+TheSilvered
 
 ## Macros
 
-### `NST_MAKE_FUNCDECLR`
+### `Nst_MAKE_FUNCDECLR`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-NST_MAKE_FUNCDECLR(func_ptr, argc)
+Nst_MAKE_FUNCDECLR(func_ptr, argc)
 ```
 
-**Description**:
+**Description:**
 
-Initializes a [`Nst_ObjDeclr`](#nst_objdeclr) using `func_ptr` as the name.
+Initializes a function declaration.
 
-**Arguments**:
+For the name of the function the name of the function pointer is used.
 
-- `func_ptr`: the function to store
-- `argc`: the number of arguments taken by the function
+**Parameters:**
+
+- `func_ptr`: the function pointer to use
+- `argc`: the number of arguments the function accepts
 
 ---
 
-### `NST_MAKE_NAMED_FUNCDECLR`
+### `Nst_MAKE_NAMED_FUNCDECLR`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-NST_MAKE_NAMED_FUNCDECLR(func_ptr, argc, func_name)
+Nst_MAKE_NAMED_FUNCDECLR(func_ptr, argc, func_name)
 ```
 
-**Description**:
+**Description:**
 
-Initializes a [`Nst_ObjDeclr`](#nst_objdeclr) using a custom name.
+Initializes a function declaration with a custom name.
 
-**Arguments**:
+**Parameters:**
 
-- `func_ptr`: the function to store
-- `argc`: the number of arguments taken by the function
-- `func_name`: the name of the function as a NUL-terminated string
+- `func_ptr`: the function pointer to use
+- `argc`: the number of arguments the function accepts
+- `func_name`: the name to use as a C string
 
 ---
 
-### `NST_MAKE_OBJDECLR`
+### `Nst_MAKE_OBJDECLR`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-NST_MAKE_OBJDECLR(obj_ptr)
+Nst_MAKE_OBJDECLR(obj_ptr)
 ```
 
-**Description**:
+**Description:**
 
-Initializes a [`Nst_ObjDeclr`] storing `obj_ptr` and using its name.
+Initialized an object declaration.
 
-**Arguments**:
+For the name of the object the name of the pointer is used.
 
-- `obj_ptr`: the object to store
+**Parameters:**
+
+- `obj_pointer`: the pointer to the Nest object to declare
 
 ---
 
-### `NST_MAKE_NAMED_OBJDECLR`
+### `Nst_MAKE_NAMED_OBJDECLR`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-NST_MAKE_NAMED_OBJDECLR(obj_ptr, obj_name)
+Nst_MAKE_NAMED_OBJDECLR(obj_ptr, obj_name)
 ```
 
-**Description**:
+**Description:**
 
-Initializes a [`Nst_ObjDeclr`] storing `obj_ptr` and using a custom name.
+Initialized an object declaration with a custom name.
 
-**Arguments**:
+**Parameters:**
 
-- `obj_ptr`: the object to store
-- `obj_name`: the name as a NUL-terminated string
+- `obj_pointer`: the pointer to the Nest object to declare
+- `obj_name`: the name to use as a C string
 
 ---
 
-### `NST_SET_ERROR`
+### `Nst_RETURN_TRUE`
 
-**Synopsis**:
+**Description:**
 
-```better-c
-NST_SET_ERROR(err_name, err_msg)
-```
-
-**Description**:
-
-Sets the name and message of the error increasing the reference count of the
-name but not of the message.
-
-**Arguments**:
-
-- `err_name`: the name of the error
-- `err_msg`: the message of the error
+Returns Nst_true().
 
 ---
 
-### `NST_UNSET_ERROR`
+### `Nst_RETURN_FALSE`
 
-**Description**:
+**Description:**
 
-Clears the error setting both the name and the message to `NULL`.
-
----
-
-### `NST_SET_[error_name]_ERROR` macros
-
-**Synopsis**:
-
-```better-c
-NST_SET_[error_name]_ERROR(msg)
-```
-
-**Description**:
-
-Availalable macros:
-
-```better-c
-NST_SET_SYNTAX_ERROR
-NST_SET_MEMORY_ERROR
-NST_SET_TYPE_ERROR
-NST_SET_VALUE_ERROR
-NST_SET_MATH_ERROR
-NST_SET_CALL_ERROR
-NST_SET_IMPORT_ERROR
-```
-
-Sets an error with the name as `[error_name]` and the message as `msg`
-
-**Arguments**:
-
-- `msg`: the message of the error
+Returns Nst_false().
 
 ---
 
-### `NST_SET_RAW_ERROR`
+### `Nst_RETURN_NULL`
 
-**Synopsis**:
+**Description:**
 
-```better-c
-NST_SET_RAW_ERROR(err_name, err_msg)
-```
-
-**Description**:
-
-Sets the name and message of the error increasing the reference count of the
-name and creating a new Nest string from a NUL-terminated one.
-
-**Arguments**:
-
-- `err_name`: the name of the error
-- `err_msg`: a NUL-terminated string for the message
+Returns Nst_null().
 
 ---
 
-### `NST_SET_RAW_[error_name]_ERROR` macros
+### `Nst_RETURN_ZERO`
 
-**Synopsis**:
+**Description:**
 
-```better-c
-NST_SET_RAW_[error_name]_ERROR(msg)
-```
-
-**Description**:
-
-Availalable macros:
-
-```better-c
-NST_SET_RAW_SYNTAX_ERROR
-NST_SET_RAW_MEMORY_ERROR
-NST_SET_RAW_TYPE_ERROR
-NST_SET_RAW_VALUE_ERROR
-NST_SET_RAW_MATH_ERROR
-NST_SET_RAW_CALL_ERROR
-NST_SET_RAW_IMPORT_ERROR
-```
-
-Sets an error with the name as `[error_name]` and the message as `msg`
-
-**Arguments**:
-
-- `msg`: a NUL-terminated string for the message
+Returns Nst_const()->Int_0.
 
 ---
 
-### `NST_FAILED_ALLOCATION`
+### `Nst_RETURN_ONE`
 
-**Description**:
+**Description:**
 
-Sets the error name to `Memory Error` and the message with failed allocation.
-
----
-
-### `NST_RETURN_[obj]`
-
-**Synopsis**:
-
-```better-c
-NST_RETURN_TRUE
-NST_RETURN_FALSE
-NST_RETURN_NULL
-NST_RETURN_ZERO
-NST_RETURN_ONE
-```
-
-**Description**:
-
-Returns `[obj]`, for `NST_RETURN_ZERO` and `NST_RETURN_ONE` the type is `Int`.
+Returns Nst_const()->Int_1.
 
 ---
 
-### `NST_RETURN_COND`
+### `Nst_RETURN_COND`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-NST_RETURN_COND(cond)
+Nst_RETURN_COND(cond)
 ```
 
-**Description**:
+**Description:**
 
-Returns either `nst_true()` or `nst_false()` depending on `cond`.
+Returns Nst_true() if cond is true and Nst_false otherwise. cond is a C
+condition.
 
 ---
 
-### `NST_FUNC_SIGN`
+### `Nst_FUNC_SIGN`
 
-**Synopsis**:
-
-```better-c
-NST_FUNC_SIGN(name)
-```
-
-**Description**:
-
-Expands into the function signature of a function that can be called through
-Nest.
-
-**Arguments**:
-
-- `name`: the name of the function
-
-**Example**:
+**Synopsis:**
 
 ```better-c
-NST_FUNC_SIGN(my_func)
-
-// Expands into
-
-Nst_Obj *name(usize arg_num, Nst_Obj **args, Nst_OpErr *err)
+Nst_FUNC_SIGN(name)
 ```
 
-- `arg_num`: is the number of arguments of the function
-- `args`: the arguments passed
-- `err`: the error
+**Description:**
+
+Function signature for a Nest-callable C function.
 
 ---
 
-### `NST_DEF_EXTRACT`
+### `Nst_DEF_EXTRACT`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-NST_DEF_EXTRACT(ltrl, ...)
+Nst_DEF_EXTRACT(ltrl, ...)
 ```
 
-**Description**:
+**Description:**
 
-Default call to [`nst_extract_arg_values`](#nst_extract_arg_values), checking
-the return value and exiting in case of failure.
-
-**Arguments**:
-
-- `ltrl`: the `types` parameter for `nst_extract_arg_values`
+Default call to Nst_extract_arg_values that returns nullptr on error.
 
 ---
 
-### `NST_DEF_VAL`
+### `Nst_DEF_VAL`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-NST_DEF_VAL(obj, val, def_val)
+Nst_DEF_VAL(obj, val, def_val)
 ```
 
-**Description**:
+**Description:**
 
-Evaluates to `def_val` if `obj` is `nst_null()` and to `def_val` otherwise.
-
-**Arguments**:
-
-- `obj`: the object that may be `null`
-- `val`: the value used if the object is not `null`
-- `def_val`: the value used if the object is `null`
+Results in def_val if obj is Nst_null() and in val otherwise.
 
 ---
 
-### `NST_ERROR_OCCURRED`
+### `Nst_T`
 
-**Description**:
-
-Evaluates to `true` if an error has occurred and to `false` otherwise.
-
----
-
-### `NST_RETURN_NEW_STR`
-
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-NST_RETURN_NEW_STR(val, len)
+Nst_T(obj, type_name)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new `Nst_StrObj` with the length of `len` and the contents of `val`.
-If an error occurs `val` is freed.
-
-**Arguments**:
-
-- `val`: the content of the string to create
-- `len`: the length of the string
+Checks if the type of an object is type_name.
 
 ---
 
@@ -332,180 +203,75 @@ If an error occurs `val` is freed.
 
 ### `Nst_ObjDeclr`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_ObjDeclr
-{
+typedef struct _Nst_ObjDeclr {
     void *ptr;
     isize arg_num;
     Nst_StrObj *name;
-}
-Nst_ObjDeclr;
+} Nst_ObjDeclr
 ```
 
-**Description**:
+**Description:**
 
-A structure that defines an object exported by a C library.
+Structure defining an object declaration.
 
-**Fields**:
+**Fields:**
 
-- `ptr`: a pointer to the exported object
-- `arg_num`: the number of arguments taken by the object if it is a function, if
-  it is not this field is set to `-1`
-- `name`: the name of the object
+- `ptr`: the pointer to the object or function
+- `arg_num`: the number of arguments if the object is a function, -1 for other
+  declarations
+- `name`: the name of the declared object
 
 ---
 
 ### `Nst_DeclrList`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_DeclrList
-{
+typedef struct _Nst_DeclrList {
     Nst_ObjDeclr *objs;
     usize obj_count;
-}
-Nst_DeclrList;
+} Nst_DeclrList
 ```
 
-**Description**:
+**Description:**
 
-A structure used to hold all the objects of a C library.
+Structure defining a list of object declarations.
 
-**Fields**:
+**Fields:**
 
-- `objs`: the objects of the library
-- `obj_count`: the number of objects exported
+- `objs`: the array of declared objects
+- `obj_count`: the number of objects inside the array
 
 ---
 
 ## Functions
 
-### `nst_extract_arg_values`
+### `Nst_extract_arg_values`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-bool nst_extract_arg_values(const i8  *types,
-                            usize      arg_num,
-                            Nst_Obj  **args,
-                            Nst_OpErr *err,
+bool Nst_extract_arg_values(const i8 *types, usize arg_num, Nst_Obj **args,
                             ...)
 ```
 
-**Description**:
+**Description:**
 
-Extracts the values from the arguments performing type checking.
+Checks the types of the arguments and extracts their values.
 
-**Arguments**:
+If you want to check but not get the value of an argument, the pointer in the
+variable arguments can be NULL. Check the syntax for the types argument in
+lib_import.h
 
-- `types`: a string of letters for the types, check the
-  [full format](#types-format)
-- `arg_num`: the number of arguments passed to the function
-- `args`: the arguments
-- `err`: the error
+**Parameters:**
 
-**Return value**:
+- `types`: the string that defines the expected types of the arguments
+- `arg_num`: the number of arguments passed
+- `args`: the arguments to check
+- `...`: the pointers to the variables where the values extracted are stored and
+  to the custom types
 
-The function returns `true` on success and `false` on failure.
-
----
-
-## Types format
-
-### Object letters
-
-**Builtin types**
-
-- `t`: `Type`
-- `i`: `Int`
-- `r`: `Real`
-- `b`: `Bool`
-- `n`: `Null`
-- `s`: `Str`
-- `v`: `Vector`
-- `a`: `Array`
-- `m`: `Map`
-- `f`: `Func`
-- `I`: `Iter`
-- `B`: `Byte`
-- `F`: `IOFile`
-
-**Shorthands**
-
-- `l`: `i|B_i`
-- `N`: `i|r|B_r`
-- `A`: `a|v`
-- `S`: `a|v|s:a`
-- `R`: `I|a|v|s:I`
-
-**Other**
-
-- `o`: any object
-- `#`: a custom object
-
-### Features
-
-**Custom types**
-
-You can have up to 3 custom types in a single argument and you should label
-them with `#`. These types should be passed to the function before the argument
-itself.
-
-```better-c
-// example of a custom type from libs/nest_co/nest_co.cpp
-NST_DEF_EXTRACT("#?A", t_Coroutine, &co, &co_args)
-
-// if we were to swap ?A and # t_Coroutine would follow &co_args
-NST_DEF_EXTRACT("?A#", &co_args, t_Coroutine, &co)
-```
-
-**Optional types**
-
-To have an optional type you can use `?` before the type itself. Using `|n` is
-the same thing.
-
-**Multiple types per argument**
-
-To have multiple possible types an argument can be you can use a pipe (`|`)
-between them.
-
-**Automatic type casting**
-
-After the type specified you can add `:` or `_` followed by exactly one letter.
-`:` is a cast between Nest objects, `_` is a cast to a C type. When using the
-latter there cannot be any optional or custom types and it is restricted to
-only these types after the underscore: `i`, `r`, `b` or `B`.
-
-If an object is casted to another Nest object, its reference count must be
-decreased when the function ends.
-
-**Implicit casting**
-
-If a type is specified as only one of `i`, `r`, `b` or `B` it automatically
-becomes `i_i`, `r_r`, `b_b` or `B_B` if it is not used to check the contents of
-a sequence. To get the object itself use `i:i`, `r:r`, `b:b`, `B:B` and then
-immediately decrease the reference (it is safe in this case since no new objects
-are created).
-
-```better-c
-Nst_IntObj *num;
-
-NST_DEF_EXTRACT("i:i", &num);
-nst_dec_ref(num);
-
-// here you can use 'num' normally
-```
-
-**Sequence type checking**
-
-You can additionally check the types present inside the matched sequence
-By following the type with a dot
-
-### Examples
-
-`i|r|B_B?A.#|i`: An `Int`, `Real` or `Byte` casted to a `Nst_Byte` followed by
-an optional `Array` or `Vector` that, if it exists, should contain only objects
-of a custom type or integers.

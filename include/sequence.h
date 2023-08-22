@@ -1,12 +1,12 @@
 /**
  * @file sequence.h
  *
- * @brief Nst_SeqObject interface for Arrays and Vectors.
+ * @brief Nst_SeqObject interface for Arrays and Vectors
  *
  * @author TheSilvered
  */
 
-/*
+/* [docs:ignore]
   Nst_array_create_c and Nst_vector_create_c format types:
   - I: a 64 bit integer
   - i: a 32 bit integer

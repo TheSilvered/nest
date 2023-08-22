@@ -1,253 +1,165 @@
 # `simple_types.h`
 
-This header defines the Nest int, real, byte and file objects.
+Interface for Nst_IntObj, Nst_RealObj, Nst_ByteObj, Nst_BoolObj and
+Nst_IOFileObj.
+
+## Authors
+
+TheSilvered
 
 ## Macros
 
-### `NST_TRUE`
-
-**Description**:
-
-The value `true` for [`Nst_Bool`](#nst_int-nst_real-nst_bool-nst_byte).
-
----
-
-### `NST_FALSE`
-
-**Description**:
-
-The value `false` for [`Nst_Bool`](#nst_int-nst_real-nst_bool-nst_byte).
-
----
-
 ### `AS_INT`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
 AS_INT(ptr)
 ```
 
-**Description**:
+**Description:**
 
-Casts `ptr` to `Nst_IntObj *` and gets its value field.
+Casts ptr to a Nst_IntObj * and extracts the value field.
 
 ---
 
 ### `AS_REAL`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
 AS_REAL(ptr)
 ```
 
-**Description**:
+**Description:**
 
-Casts `ptr` to `Nst_RealObj *` and gets its value field.
+Casts ptr to a Nst_RealObj * and extracts the value field.
 
 ---
 
 ### `AS_BYTE`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
 AS_BYTE(ptr)
 ```
 
-**Description**:
+**Description:**
 
-Casts `ptr` to `Nst_ByteObj *` and gets its value field.
+Casts ptr to a Nst_ByteObj * and extracts the value field.
 
 ---
 
 ### `AS_BOOL`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
 AS_BOOL(ptr)
 ```
 
-**Description**:
+**Description:**
 
-Casts `ptr` to `Nst_BoolObj *` and gets its value field.
-
----
-
-### `IOFILE`
-
-**Synopsis**:
-
-```better-c
-IOFILE(ptr)
-```
-
-**Description**:
-
-Casts `ptr` to `Nst_IOFile *`
+Casts ptr to a Nst_BoolObj * and extracts the value field.
 
 ---
 
-### `NST_IOF_IS_CLOSED`
+### `Nst_number_to_u8`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-NST_IOF_IS_CLOSED(f)
+Nst_number_to_u8(number)
 ```
 
-**Description**:
+**Description:**
 
-Whether `f` has the `NST_FLAG_IOFILE_IS_CLOSED` flag set.
+Alias for _Nst_number_to_u8 that casts number to Nst_Obj *.
 
 ---
 
-### `NST_IOF_IS_BIN`
+### `Nst_number_to_int`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-NST_IOF_IS_BIN(f)
+Nst_number_to_int(number)
 ```
 
-**Description**:
+**Description:**
 
-Whether `f` has the `NST_FLAG_IOFILE_IS_BIN` flag set.
+Alias for _Nst_number_to_int that casts number to Nst_Obj *.
 
 ---
 
-### `NST_IOF_CAN_WRITE`
+### `Nst_number_to_i32`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-NST_IOF_CAN_WRITE(f)
+Nst_number_to_i32(number)
 ```
 
-**Description**:
+**Description:**
 
-Whether `f` has the `NST_FLAG_IOFILE_CAN_WRITE` flag set.
+Alias for _Nst_number_to_i32 that casts number to Nst_Obj *.
 
 ---
 
-### `NST_IOF_CAN_READ`
+### `Nst_number_to_i64`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-NST_IOF_CAN_READ(f)
+Nst_number_to_i64(number)
 ```
 
-**Description**:
+**Description:**
 
-Whether `f` has the `NST_FLAG_IOFILE_CAN_READ` flag set.
+Alias for _Nst_number_to_i64 that casts number to Nst_Obj *.
 
 ---
 
-### `nst_number_to_u8`
+### `Nst_number_to_f32`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-nst_number_to_u8(number)
+Nst_number_to_f32(number)
 ```
 
-**Description**:
+**Description:**
 
-Alias for [`_nst_number_to_u8`](#_nst_number_to_u8) that casts `number` to
-`Nst_Obj *`.
+Alias for _Nst_number_to_f32 that casts number to Nst_Obj *.
 
 ---
 
-### `nst_number_to_int`
+### `Nst_number_to_f64`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-nst_number_to_int(number)
+Nst_number_to_f64(number)
 ```
 
-**Description**:
+**Description:**
 
-Alias for [`_nst_number_to_int`](#_nst_number_to_int) that casts `number` to
-`Nst_Obj *`.
+Alias for _Nst_number_to_f64 that casts number to Nst_Obj *.
 
 ---
 
-### `nst_number_to_i32`
+### `Nst_obj_to_bool`
 
-**Synopsis**:
-
-```better-c
-nst_number_to_i32(number)
-```
-
-**Description**:
-
-Alias for [`_nst_number_to_i32`](#_nst_number_to_i32) that casts `number` to
-`Nst_Obj *`.
-
----
-
-### `nst_number_to_i64`
-
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-nst_number_to_i64(number)
+Nst_obj_to_bool(obj)
 ```
 
-**Description**:
+**Description:**
 
-Alias for [`_nst_number_to_i64`](#_nst_number_to_i64) that casts `number` to
-`Nst_Obj *`.
-
----
-
-### `nst_number_to_f32`
-
-**Synopsis**:
-
-```better-c
-nst_number_to_f32(number)
-```
-
-**Description**:
-
-Alias for [`_nst_number_to_f32`](#_nst_number_to_f32) that casts `number` to
-`Nst_Obj *`.
-
----
-
-### `nst_number_to_f64`
-
-**Synopsis**:
-
-```better-c
-nst_number_to_f64(number)
-```
-
-**Description**:
-
-Alias for [`_nst_number_to_f64`](#_nst_number_to_f64) that casts `number` to
-`Nst_Obj *`.
-
----
-
-### `nst_obj_to_bool`
-
-**Synopsis**:
-
-```better-c
-nst_obj_to_bool(obj)
-```
-
-**Description**:
-
-Alias for [`_nst_obj_to_bool`](#_nst_obj_to_bool) that casts `obj` to
-`Nst_Obj *`.
+Alias for _Nst_obj_to_bool that casts obj to Nst_Obj *.
 
 ---
 
@@ -255,641 +167,336 @@ Alias for [`_nst_obj_to_bool`](#_nst_obj_to_bool) that casts `obj` to
 
 ### `Nst_IntObj`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_IntObj
-{
-    NST_OBJ_HEAD;
-    Nst_Int value;
-}
-Nst_IntObj
+typedef struct _Nst_IntObj {
+    Nst_OBJ_HEAD;
+    i64 value;
+} Nst_IntObj
 ```
 
-**Description**:
+**Description:**
 
-The structure defining a Nest int object.
+A structure representing a Nest integer object.
+
+**Fields:**
+
+- `value`: the value of the integer
 
 ---
 
 ### `Nst_RealObj`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_RealObj
-{
-    NST_OBJ_HEAD;
-    Nst_Real value;
-}
-Nst_RealObj
+typedef struct _Nst_RealObj {
+    Nst_OBJ_HEAD;
+    f64 value;
+} Nst_RealObj
 ```
 
-**Description**:
+**Description:**
 
-The structure defining a Nest real object.
+A structure representing a Nest real number (floating-point) object.
+
+**Fields:**
+
+- `value`: the value of the real number
 
 ---
 
 ### `Nst_BoolObj`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_BoolObj
-{
-    NST_OBJ_HEAD;
-    Nst_Bool value;
-}
-Nst_BoolObj
+typedef struct _Nst_BoolObj {
+    Nst_OBJ_HEAD;
+    bool value;
+} Nst_BoolObj
 ```
 
-**Description**:
+**Description:**
 
-The structure defining a Nest bool object.
+A structure representing a Nest boolean object.
+
+**Fields:**
+
+- `value`: the value of the boolean
 
 ---
 
 ### `Nst_ByteObj`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_ByteObj
-{
-    NST_OBJ_HEAD;
-    Nst_Byte value;
-}
-Nst_ByteObj
+typedef struct _Nst_ByteObj {
+    Nst_OBJ_HEAD;
+    u8 value;
+} Nst_ByteObj
 ```
 
-**Description**:
+**Description:**
 
-The structure defining a Nest byte object.
+A structure representing a Nest byte object.
+
+**Fields:**
+
+- `value`: the value of the byte
 
 ---
-
-### `Nst_IOFileObj`
-
-**Synopsis**:
-
-```better-c
-typedef struct _Nst_IOFileObj
-{
-    NST_OBJ_HEAD;
-    Nst_IOFile value;
-    Nst_IOFile_read_f  read_f;
-    Nst_IOFile_write_f write_f;
-    Nst_IOFile_flush_f flush_f;
-    Nst_IOFile_tell_f  tell_f;
-    Nst_IOFile_seek_f  seek_f;
-    Nst_IOFile_close_f close_f;
-}
-Nst_IOFileObj
-```
-
-**Description**:
-
-The structure defining a Nest file object.
-
-**Fields**:
-
-- `value`: the file pointer
-- `read_f`: the function to read from the file, does not check for the 
-  `NST_FLAG_IOFILE_CAN_READ` flag
-- `write_f`: the function to write to the file, does not check for the 
-  `NST_FLAG_IOFILE_CAN_WRITE` flag
-- `flush_f`: the function to flush the file buffer
-- `tell_f`: the function to get the file cursor position
-- `seek_f`: the function to set the file cursor position
-- `close_f`: the function to close the file, does not set the
-  `NST_FLAG_IOFILE_IS_CLOSED` flag
-
----
-
-## Type aliases
-
-### `Nst_Int`, `Nst_Real`, `Nst_Bool`, `Nst_Byte`
-
-**Synopsis**:
-
-```better-c
-typedef i64 Nst_Int
-typedef f64 Nst_Real
-typedef i8 Nst_Bool
-typedef u8 Nst_Byte
-```
-
----
-
-### `Nst_IOFile`
-
-**Synopsis**:
-
-```better-c
-typedef FILE *Nst_IOFile
-```
-
----
-
-### `Nst_IOFile_read_f`, `Nst_IOFile_write_f`, `Nst_IOFile_flush_f`, `Nst_IOFile_tell_f`, `Nst_IOFile_seek_f`, `Nst_IOFile_close_f`
-
-**Synopsis**:
-
-```better-c
-typedef usize (*Nst_IOFile_read_f)(void  *buf,
-                                   usize  size,
-                                   usize  count,
-                                   void  *f_value)
-
-typedef usize (*Nst_IOFile_write_f)(void  *buf,
-                                    usize  size,
-                                    usize  count,
-                                    void  *f_value)
-
-typedef i32 (*Nst_IOFile_flush_f)(void *f_value)
-typedef i32 (*Nst_IOFile_tell_f)(void *f_value)
-typedef i32 (*Nst_IOFile_seek_f)(void *f_value, i32 offset, i32 origin)
-typedef i32 (*Nst_IOFile_close_f)(void *f_value)
-```
 
 ## Functions
 
-### `nst_int_new`
+### `Nst_int_new`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_int_new(Nst_Int value, Nst_OpErr *err)
+Nst_Obj *Nst_int_new(i64 value)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new Nest int object.
+Creates a new Nst_IntObj.
 
-**Arguments**:
+**Parameters:**
 
-- `[in] value`: the value of the object
-- `[out] err`: the error
+- `value`: the value of the new object
 
-**Return value**:
+**Returns:**
 
-The function returns the new object on success and `NULL` on failure.
+The new object on success or NULL on failure. The error is set.
 
 ---
 
-### `nst_real_new`
+### `Nst_real_new`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_real_new(Nst_Real value, Nst_OpErr *err)
+Nst_Obj *Nst_real_new(f64 value)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new Nest real object.
+Creates a new Nst_RealObj.
 
-**Arguments**:
+**Parameters:**
 
-- `[in] value`: the value of the object
-- `[out] err`: the error
+- `value`: the value of the new object
 
-**Return value**:
+**Returns:**
 
-The function returns the new object on success and `NULL` on failure.
+The new object on success or NULL on failure. The error is set.
 
 ---
 
-### `nst_bool_new`
+### `Nst_bool_new`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_bool_new(Nst_Bool value, Nst_OpErr *err)
+Nst_Obj *Nst_bool_new(bool value)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new Nest bool object. It should never be called since the `true` and
-`false` objects are always the same through the lifetime of the program; use
-`nst_true()` and `nst_false()` to get the boolean values instead.
+Creates a new Nst_BoolObj.
 
-**Arguments**:
+This function should never be called, to get the true and false objects use
+Nst_true() and Nst_false() instead. Note that these functions do not return a
+new reference to the returned objects.
 
-- `[in] value`: the value of the object
-- `[out] err`: the error
+**Parameters:**
 
-**Return value**:
+- `value`: the value of the new object
 
-The function returns the new object on success and `NULL` on failure.
+**Returns:**
+
+The new object on success or NULL on failure. The error is set.
 
 ---
 
-### `nst_byte_new`
+### `Nst_byte_new`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_byte_new(Nst_Byte value, Nst_OpErr *err)
+Nst_Obj *Nst_byte_new(u8 value)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new Nest byte object.
+Creates a new Nst_ByteObj.
 
-**Arguments**:
+**Parameters:**
 
-- `[in] value`: the value of the object
-- `[out] err`: the error
+- `value`: the value of the new object
 
-**Return value**:
+**Returns:**
 
-The function returns the new object on success and `NULL` on failure.
+The new object on success or NULL on failure. The error is set.
 
 ---
 
-### `nst_iof_new`
+### `_Nst_number_to_u8`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_iof_new(Nst_IOFile value,
-                     bool       bin,
-                     bool       read,
-                     bool       write,
-                     Nst_OpErr *err)
+u8  _Nst_number_to_u8(Nst_Obj *number)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new Nest file object.
+Converts the value of a numeric object (Nst_IntObj, Nst_RealObj, Nst_ByteObj) to
+a u8.
 
-**Arguments**:
+**Parameters:**
 
-- `[in] value`: the file pointer of the file object
-- `[in] bin`: whether the file was opened in binary mode
-- `[in] read`: whether the file supports reading
-- `[in] write`: whether the file supports writing
-- `[out] err`: the error
+- `number`: the object to convert the value of
 
-**Return value**:
+**Returns:**
 
-The function returns the new object or `NULL` on failure.
+The converted number. If number is not a numeric object 0 is returned. No error
+is set.
 
 ---
 
-### `nst_iof_new_fake`
+### `_Nst_number_to_int`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_iof_new_fake(void *value,
-                          bool bin, bool read, bool write,
-                          Nst_IOFile_read_f  read_f,
-                          Nst_IOFile_write_f write_f,
-                          Nst_IOFile_flush_f flush_f,
-                          Nst_IOFile_tell_f  tell_f,
-                          Nst_IOFile_seek_f  seek_f,
-                          Nst_IOFile_close_f close_f,
-                          Nst_OpErr *err)
+int _Nst_number_to_int(Nst_Obj *number)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new object that emulates a file with custom functions. See
-`libs/nest_io/nest_io.cpp` for an example.
+Converts the value of a numeric object (Nst_IntObj, Nst_RealObj, Nst_ByteObj) to
+an int.
 
-**Arguments**:
+**Parameters:**
 
-- `[in] value`: the file pointer of the file object
-- `[in] bin`: whether the file was opened in binary mode
-- `[in] read`: whether the file supports reading
-- `[in] write`: whether the file supports writing
-- `[in] read_f`: the function used to read from the file
-- `[in] write_f`: the function used to write to the file
-- `[in] flush_f`: the function used to flush the file buffer
-- `[in] tell_f`: the function used to get the cursor position of the file
-- `[in] seek_f`: the function used to set the cursor position of the file
-- `[in] close_f`: the function used to close the file
-- `[out] err`: the error
+- `number`: the object to convert the value of
 
-**Return value**:
+**Returns:**
 
-The function returns the new object or `NULL` on failure.
+The converted number. If number is not a numeric object 0 is returned. No error
+is set.
 
 ---
 
-### `_nst_iofile_destroy`
+### `_Nst_number_to_i32`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void _nst_iofile_destroy(Nst_IOFileObj *obj)
+i32 _Nst_number_to_i32(Nst_Obj *number)
 ```
 
-**Description**:
+**Description:**
 
-The function used to destroy a file object.
+Converts the value of a numeric object (Nst_IntObj, Nst_RealObj, Nst_ByteObj) to
+an i32.
+
+**Parameters:**
+
+- `number`: the object to convert the value of
+
+**Returns:**
+
+The converted number. If number is not a numeric object 0 is returned. No error
+is set.
 
 ---
 
-### `nst_fread`
+### `_Nst_number_to_i64`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-usize nst_fread(void          *buf,
-                usize          size,
-                usize          count,
-                Nst_IOFileObj *f)
+i64 _Nst_number_to_i64(Nst_Obj *number)
 ```
 
-**Description**:
+**Description:**
 
-Reads from a file object. It checks the `NST_FLAG_IOFILE_IS_CLOSED` and
-`NST_FLAG_IOFILE_CAN_READ` flags.
+Converts the value of a numeric object (Nst_IntObj, Nst_RealObj, Nst_ByteObj) to
+an i64.
 
-**Arguments**:
+**Parameters:**
 
-- `[inout] buf`: the buffer where to store the contents read
-- `[in] size`: the size of one element in bytes
-- `[in] count`: the maximum number of elements to read
-- `[inout] f`: the file to read from
+- `number`: the object to convert the value of
 
-**Return value**:
+**Returns:**
 
-The function returns the number of elements read that can be less than `couunt`
-or `0` when the cursor is at the end of the file and `-1` on failure.
+The converted number. If number is not a numeric object 0 is returned. No error
+is set.
 
 ---
 
-### `nst_fwrite`
+### `_Nst_number_to_f32`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-usize nst_fwrite(void          *buf,
-                 usize          size,
-                 usize          count,
-                 Nst_IOFileObj *f)
+f32 _Nst_number_to_f32(Nst_Obj *number)
 ```
 
-**Description**:
+**Description:**
 
-Writes to a file object. It checks the `NST_FLAG_IOFILE_IS_CLOSED` and
-`NST_FLAG_IOFILE_CAN_WRITE` flags.
+Converts the value of a numeric object (Nst_IntObj, Nst_RealObj, Nst_ByteObj) to
+an f32.
 
-**Arguments**:
+**Parameters:**
 
-- `[inout] buf`: the buffer where to read the contentes from
-- `[in] size`: the size of one element in bytes
-- `[in] count`: the number of elements to write
-- `[inout] f`: the file to write to
+- `number`: the object to convert the value of
 
-**Return value**:
+**Returns:**
 
-The function returns the number of elements written or `-1` on failure.
+The converted number. If number is not a numeric object 0 is returned. No error
+is set.
 
 ---
 
-### `nst_fflush`
+### `_Nst_number_to_f64`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-i32 nst_fflush(Nst_IOFileObj *f)
+f64 _Nst_number_to_f64(Nst_Obj *number)
 ```
 
-**Description**:
+**Description:**
 
-Flushes the contentes of a file, checks for the `NST_FLAG_IOFILE_IS_CLOSED` flag.
+Converts the value of a numeric object (Nst_IntObj, Nst_RealObj, Nst_ByteObj) to
+an f64.
 
-**Arguments**:
+**Parameters:**
 
-- `[inout] f`: the file to flush
+- `number`: the object to convert the value of
 
-**Return value**:
+**Returns:**
 
-The function returns `0` on success and `EOF` on failure.
+The converted number. If number is not a numeric object 0 is returned. No error
+is set.
 
 ---
 
-### `nst_ftell`
+### `_Nst_obj_to_bool`
 
-**Synopsis**:
-
-```better-c
-i32 nst_ftell(Nst_IOFileObj *f)
-```
-
-**Arguments**:
-
-- `[in] f`: the file to get the cursor position of
-
-**Return value**:
-
-The function returns the current position of the cursor of the file or `-1` on
-failure. Checks for the `NST_FLAG_IOFILE_IS_CLOSED` flag.
-
----
-
-### `nst_fseek`
-
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-i32 nst_fseek(Nst_IOFileObj *f, i32 offset, i32 origin)
+bool _Nst_obj_to_bool(Nst_Obj *obj)
 ```
 
-**Description**:
+**Description:**
 
-Moves the file cursor, checks for the `NST_FLAG_IOFILE_IS_CLOSED` flag.
+Converts any object to a boolean. Exactly the same as casting the object to
+Nst_type()->Bool and then checking if the result matches Nst_true();
 
-**Arguments**:
-
-- `[inout] f`: the file to move the cursor of
-- `[in] offset`: the number of bytes to move from `origin`
-- `[in] origin`: the starting position of `offset`, it can be one of `SEEK_END`,
-  `SEEK_CUR` and `SEEK_SET`
-
-**Return value**:
-
-The function returns `0` on success and `-1` on failure.
-
----
-
-### `nst_fclose`
-
-**Synopsis**:
-
-```better-c
-i32 nst_fclose(Nst_IOFileObj *f)
-```
-
-**Description**:
-
-Closes a file setting the `NST_FLAG_IOFILE_IS_CLOSED` flag.
-
-**Arguments**:
-
-- `[inout] f`: the file to close
-
-**Return value**:
-
-The function returns `0` on success and `EOF` on failure.
-
----
-
-### `_nst_number_to_u8`
-
-**Synopsis**:
-
-```better-c
-u8 _nst_number_to_u8(Nst_Obj *number)
-```
-
-**Arguments**:
-
-- `[in] number`: the object to get the value of
-
-**Return value**:
-
-Returns the value of `number` as a `u8`. If `number` is not a `Byte`, `Int` or
-`Real` object `0` is returned.
-
----
-
-### `_nst_number_to_int`
-
-**Synopsis**:
-
-```better-c
-int _nst_number_to_int(Nst_Obj *number)
-```
-
-**Arguments**:
-
-- `[in] number`: the object to get the value of
-
-**Return value**:
-
-Returns the value of `number` as an `int`. If `number` is not a `Byte`, `Int` or
-`Real` object `0` is returned.
-
----
-
-### `_nst_number_to_i32`
-
-**Synopsis**:
-
-```better-c
-i32 _nst_number_to_i32(Nst_Obj *number)
-```
-
-**Arguments**:
-
-- `[in] number`: the object to get the value of
-
-**Return value**:
-
-Returns the value of `number` as an `i32`. If `number` is not a `Byte`, `Int` or
-`Real` object `0` is returned.
-
----
-
-### `_nst_number_to_i64`
-
-**Synopsis**:
-
-```better-c
-i64 _nst_number_to_i64(Nst_Obj *number)
-```
-
-**Arguments**:
-
-- `[in] number`: the object to get the value of
-
-**Return value**:
-
-Returns the value of `number` as an `i64`. If `number` is not a `Byte`, `Int` or
-`Real` object `0` is returned.
-
----
-
-### `_nst_number_to_f32`
-
-**Synopsis**:
-
-```better-c
-f32 _nst_number_to_f32(Nst_Obj *number)
-```
-
-**Arguments**:
-
-- `[in] number`: the object to get the value of
-
-**Return value**:
-
-Returns the value of `number` as an `f32`. If `number` is not a `Byte`, `Int` or
-`Real` object `0` is returned.
-
----
-
-### `_nst_number_to_f64`
-
-**Synopsis**:
-
-```better-c
-f64 _nst_number_to_f64(Nst_Obj *number)
-```
-
-**Arguments**:
-
-- `[in] number`: the object to get the value of
-
-**Return value**:
-
-Returns the value of `number` as an `f64`. If `number` is not a `Byte`, `Int` or
-`Real` object `0` is returned.
-
----
-
-### `_nst_number_to_f64`
-
-**Synopsis**:
-
-```better-c
-Nst_Bool _nst_obj_to_bool(Nst_Obj *obj)
-```
-
-**Arguments**:
-
-- `[in] number`: the object to cast to a boolean
-
-**Return value**:
-
-Returns the value of the object casted to a boolean.
-
----
-
-## Enums
-
-### `Nst_IOFileFlag`
-
-**Synopsis**:
-
-```better-c
-typedef enum _Nst_IOFileFlag
-{
-    NST_FLAG_IOFILE_IS_CLOSED = 0b0001,
-    NST_FLAG_IOFILE_IS_BIN    = 0b0010,
-    NST_FLAG_IOFILE_CAN_WRITE = 0b0100,
-    NST_FLAG_IOFILE_CAN_READ  = 0b1000
-}
-Nst_IOFileFlag
-```
-
-**Description**:
-
-The flags used to manage file objects.

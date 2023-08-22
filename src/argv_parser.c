@@ -8,7 +8,7 @@
 #include "file.h"
 
 #define HELP_MESSAGE                                                                     \
-    "USAGE: nest [options] [filename | -c command] [args]\n\n"                           \
+    "USAGE: nest [options] <filename | -c command> [args]\n\n"                           \
                                                                                          \
     "Filename:\n"                                                                        \
     "  The name of the file to execute\n\n"                                              \
@@ -45,7 +45,7 @@
     "                        sets also 'sys.SUPPORTS_COLOR' to false"
 
 #define USAGE_MESSAGE                                                         \
-    "USAGE: nest [options] [filename | -c command] [args]\n"                  \
+    "USAGE: nest [options] <filename | -c command> [args]\n"                  \
     "Run 'nest --help' for more information\n"
 
 #define VERSION_MESSAGE                                                       \
@@ -54,6 +54,7 @@
 #define ENCODING_MESSAGE                                                      \
     "The supported encodings are:\n"                                          \
     "- utf8 (aka utf-8)\n"                                                    \
+    "- ext-utf8 (aka ext-utf-8, extutf-8, extutf8)\n"                         \
     "- utf16 (aka utf-16, utf16le, utf-16le)\n"                               \
     "- utf16be (aka utf-16be)\n"                                              \
     "- utf32 (aka utf-32, utf32le, utf-32le)\n"                               \
@@ -62,7 +63,7 @@
     "- iso-8859-1 (aka iso8859-1, latin1, latin, l1\n\n"                      \
                                                                               \
     "All names are case-insensitive and underscores (_) and hyphens (-) are\n"\
-    "interchangeable"
+    "interchangeable."
 
 bool supports_color = true;
 

@@ -1,7 +1,7 @@
 /**
  * @file obj_ops.h
  *
- * @brief Various object operations.
+ * @brief Various object operations
  *
  * @author TheSilvered
  */

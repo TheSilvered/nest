@@ -91,12 +91,12 @@ NstEXP typedef struct _Nst_ByteObj {
  */
 NstEXP Nst_Obj *NstC Nst_int_new(i64 value);
 /**
-* Creates a new Nst_RealObj.
-*
-* @param value: the value of the new object
-*
-* @return The new object on success or NULL on failure. The error is set.
-*/
+ * Creates a new Nst_RealObj.
+ *
+ * @param value: the value of the new object
+ *
+ * @return The new object on success or NULL on failure. The error is set.
+ */
 NstEXP Nst_Obj *NstC Nst_real_new(f64 value);
 /**
  * Creates a new Nst_BoolObj.

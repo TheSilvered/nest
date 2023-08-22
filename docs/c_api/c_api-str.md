@@ -1,107 +1,108 @@
 # `str.h`
 
-This header defines the Nest string object.
+Nst_StrObj interface.
+
+## Authors
+
+TheSilvered
 
 ## Macros
 
 ### `STR`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
 STR(ptr)
 ```
 
-**Description**:
+**Description:**
 
-Casts `ptr` to `Nst_StrObj *`.
+Casts ptr to Nst_StrObj *.
 
 ---
 
 ### `TYPE`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
 TYPE(ptr)
 ```
 
-**Description**:
+**Description:**
 
-Casts `ptr` to `Nst_TypeObj *`.
+Casts ptr to Nst_TypeObj *.
 
 ---
 
 ### `TYPE_NAME`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
 TYPE_NAME(obj)
 ```
 
-**Description**:
+**Description:**
 
-Gets the C string of the name of the type.
-
----
-
-### `NST_STR_IS_ALLOC`
-
-**Synopsis**:
-
-```better-c
-NST_STR_IS_ALLOC(str)
-```
-
-**Description**:
-
-Checks if a string has the `NST_FLAG_STR_IS_ALLOC` flag.
+Gets the name of the type of an object as a C string.
 
 ---
 
-### `nst_string_copy`
+### `Nst_STR_IS_ALLOC`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-nst_string_copy(src, err)
+Nst_STR_IS_ALLOC(str)
 ```
 
-**Description**:
+**Description:**
 
-Alias of [`_nst_string_copy`](#_nst_string_copy) that casts `src` to a
-`Nst_StrObj *`.
+Checks if the value of a string is allocated.
 
 ---
 
-### `nst_string_repr`
+### `Nst_string_copy`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-nst_string_repr(src, err)
+Nst_string_copy(src)
 ```
 
-**Description**:
+**Description:**
 
-Alias of [`_nst_string_repr`](#_nst_string_repr) that casts `src` to a
-`Nst_StrObj *`.
+Alias of _Nst_string_copy that casts src to Nst_StrObj *.
 
 ---
 
-### `nst_string_get`
+### `Nst_string_repr`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-nst_string_get(str, idx, err)
+Nst_string_repr(src)
 ```
 
-**Description**:
+**Description:**
 
-Alias of [`_nst_string_get`](#_nst_string_get) that casts `str` to a
-`Nst_StrObj *`.
+Alias of _Nst_string_repr that casts src to Nst_StrObj *.
+
+---
+
+### `Nst_string_get`
+
+**Synopsis:**
+
+```better-c
+Nst_string_get(str, idx)
+```
+
+**Description:**
+
+Alias of _Nst_string_get that casts str to Nst_StrObj *.
 
 ---
 
@@ -109,362 +110,416 @@ Alias of [`_nst_string_get`](#_nst_string_get) that casts `str` to a
 
 ### `Nst_StrObj`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_StrObj
-{
-    NST_OBJ_HEAD;
+typedef struct _Nst_StrObj {
+    Nst_OBJ_HEAD;
     usize len;
     i8 *value;
-}
-Nst_StrObj
+} Nst_StrObj
 ```
 
-**Description**:
+**Description:**
 
-The structure defining the Nest string object.
+Structure representing a Nest string.
 
-**Fields**:
+**Fields:**
 
-- `len`: the length of the string
-- `value`: the raw string data
+- `len`: the lenght of the string
+- `value`: the value of the string
 
 ---
 
-## Type Aliases
+## Type aliases
 
 ### `Nst_TypeObj`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef Nst_StrObj Nst_TypeObj
+typedef Nst_StrObj Nst_TypeObj;
 ```
+
+**Description:**
+
+Defined for completness, Nest types are just strings.
 
 ---
 
 ## Functions
 
-### `nst_string_new_c_raw`
+### `Nst_string_new_c_raw`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_string_new_c_raw(const i8 *val, bool allocated, Nst_OpErr *err)
+Nst_Obj *Nst_string_new_c_raw(const i8 *val, bool allocated)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new string from a C string using `strlen` for the length.
+Creates a new string object with a value taken from a C string of unknown
+length.
 
-**Arguments**:
+**Parameters:**
 
-- `[in] val`: the value of the string
-- `[in] allocated`: whether the value should be freed when the string is deleted
-- `[out] err`: the error
+- `val`: the value of the string
+- `allocated`: whether the value is heap allocated and should be freed with the
+  string
 
-**Return value**:
+**Returns:**
 
-The function returns the new string or `NULL` on failure.
+The new string on success and NULL on failure. The error is set.
 
 ---
 
-### `nst_string_new_c`
+### `Nst_string_new_c`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_string_new_c(const i8 *val, usize len, bool allocated, Nst_OpErr *err)
+Nst_Obj *Nst_string_new_c(const i8 *val, usize len, bool allocated)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new string from a C string with a given length.
+Creates a new string object from a string literal of known length.
 
-**Arguments**:
+**Parameters:**
 
-- `[in] val`: the value of the string
-- `[in] len`: the length in bytes of the string
-- `[in] allocated`: whether the value should be freed when the string is deleted
-- `[out] err`: the error
+- `val`: the value of the string
+- `len`: the length of the string literal
+- `allocated`: whether the value is heap allocated and should be freed with the
+  string
 
-**Return value**:
+**Returns:**
 
-The function returns the new string or `NULL` on failure.
+The new string on success and NULL on failure. The error is set.
 
 ---
 
-### `nst_string_new`
+### `Nst_string_new`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_string_new(i8 *val, usize len, bool allocated, Nst_OpErr *err)
+Nst_Obj *Nst_string_new(i8 *val, usize len, bool allocated)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new string from a buffer of known length.
+Creates a new string object.
 
-**Arguments**:
+**Parameters:**
 
-- `[in] val`: the value of the string
-- `[in] len`: the length in bytes of the string
-- `[in] allocated`: whether the value should be freed when the string is deleted
-- `[out] err`: the error
+- `val`: the value of the string to create
+- `len`: the length of the string
+- `allocated`: whether the value is heap allocated and should be freed with the
+  string
 
-**Return value**:
+**Returns:**
 
-The function returns the new string or `NULL` on failure.
+The new string on success and NULL on failure. The error is set.
 
 ---
 
-### `nst_type_new`
+### `Nst_string_new_allocated`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_TypeObj *nst_type_new(const i8 *val, usize len, Nst_OpErr *err)
+Nst_Obj *Nst_string_new_allocated(i8 *val, usize len)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new type object. This assumes that `val` is not heap-allocated.
+Creates a new string object from a heap-allocated value.
 
-**Arguments**:
+val is freed if the string fails to be created.
 
-- `[in] val`: the name of the type
-- `[in] len`: the length of the name
-- `[out] err`: the error
+**Parameters:**
 
-**Return value**:
+- `val`: the value of the string to create
+- `len`: the length of the string
 
-The function returns the new type or `NULL` on failure.
+**Returns:**
+
+The new string on success and NULL on failure. The error is set.
 
 ---
 
-### `_nst_string_copy`
+### `Nst_string_temp`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *_nst_string_copy(Nst_StrObj *src, Nst_OpErr *err)
+Nst_StrObj Nst_string_temp(i8 *val, usize len)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new string copying the contents.
+Creates a new temporary read-only string object.
 
-**Arguments**:
+This object is not allocated on the heap and cannot be returned by a function,
+its intended use is only on functions where a string object is needed but you
+have the string in another form. Nothing is allocated and it must not be
+destroyed in any way.
 
-- `[in] src`: the string to copy
-- `[out] err`: the error
+**Parameters:**
 
-**Return value**:
+- `val`: the value of the string
+- `len`: the length of the string
 
-The function returns the copied string or `NULL` on failure.
+**Returns:**
+
+A Nst_StrObj struct, NOT POINTER. This function never fails.
 
 ---
 
-### `_nst_string_repr`
+### `Nst_type_new`
 
-**Synopsis**:
-
-```better-c
-Nst_Obj *_nst_string_repr(Nst_StrObj *src, Nst_OpErr *err)
-```
-
-**Description**:
-
-Creates a new string that is the source-code representation of `src`.
-
-**Arguments**:
-
-- `[in] src`: the string to transform
-- `[out] err`: the error
-
-
-**Return value**:
-
-The function returns the new string or `NULL` on failure.
-
-**Example**:
+**Synopsis:**
 
 ```better-c
-Nst_StrObj *str = nst_string_new_c_raw("Hello, world!\n", false, NULL);
-Nst_StrObj *repr = nst_string_repr(str, NULL);
-repr->value; // "'Hello, world!\\n'"
+Nst_TypeObj *Nst_type_new(const i8 *val)
 ```
+
+**Description:**
+
+Creates a new Nst_TypeObj.
+
+**Parameters:**
+
+- `val`: the name of the type
+
+**Returns:**
+
+The new object on success and NULL on failure. The error is set.
 
 ---
 
-### `_nst_string_get`
+### `_Nst_string_copy`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *_nst_string_get(Nst_StrObj *str, i64 idx, Nst_OpErr *err)
+Nst_Obj *_Nst_string_copy(Nst_StrObj *src)
 ```
 
-**Description**:
+**Description:**
 
-Creates a one-character string with the character at `idx` of the string.
-Negative indices are interpreted as starting from the end of the string.
+Creates a new string copying the contents of an already existing one.
 
-**Arguments**:
+src remains untouched even if the function fails.
 
-- `[in] str`: the string to the the character of
-- `[in] idx`: the index of the character
-- `[out] err`: the error
+**Parameters:**
 
-**Return value**:
+- `src`: the string to copy
 
-The function returns the new string or `NULL` on failure.
+**Returns:**
+
+The copied string on success and NULL on failure. The error is set.
 
 ---
 
-### `nst_string_parse_int`
+### `_Nst_string_repr`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_string_parse_int(Nst_StrObj *str, i32 base, struct _Nst_OpErr *err)
+Nst_Obj *_Nst_string_repr(Nst_StrObj *src)
 ```
 
-**Description**:
+**Description:**
 
-Parses a `Nst_IntObj` from a string. When `base` is `0` the number is
-interpreted in base 10 unless a prefix is used (`0b`, `0o` or `0x`).  
-When using bases 2, 8 and 16 the prefix is ignored if found.  
-Valid values for `base` are between 2 and 36 or 0, any other base is invalid.  
-This function accepts underscores (`_`) between the digits.
+Creates a new string by making a string representation of an existing one that
+replaces any special characters such as \\n and \\t with their code
+representation.
 
-**Arguments**:
+src remains untouched even if the function fails.
 
-- `[in] str`: the string to parse
-- `[in] base`: the base of the number to parse, bases above 10 use the alphabet
-- `[out] err`: the error
+**Parameters:**
 
-**Return value**:
+- `src`: the string to copy
 
-The function returns the parsed integer or `NULL` on failure.
+**Returns:**
+
+The copied string on success and NULL on failure. The error is set.
 
 ---
 
-### `nst_string_parse_byte`
+### `_Nst_string_get`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_string_parse_byte(Nst_StrObj* str, struct _Nst_OpErr* err)
+Nst_Obj *_Nst_string_get(Nst_StrObj *str, i64 idx)
 ```
 
-**Description**:
+**Description:**
 
-Parses a `Nst_ByteObj *` from a string. When the string is one character long,
-the character's ASCII is returned otherwise the normal Nest byte literals are
-parsed. If the literal is not a byte (e.g. `"10"` instead of `"10b"`) the
-function fails.
+Creates a new one-character string with a character of an existing string.
 
-**Arguments**:
+idx is wrapped to the end if it is negative.
 
-- `[in] str`: the string to parse
-- `[out] err`: the error
+**Parameters:**
 
-**Return value**:
+- `str`: the string to get the character from
+- `idx`: the index of the character to get
 
-The function returns the parsed byte or `NULL` on failure.
+**Returns:**
+
+The new string on success and NULL on failure. The error is set. The function
+fails if the index falls outside the string.
 
 ---
 
-### `nst_string_parse_real`
+### `Nst_string_parse_int`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_string_parse_real(Nst_StrObj *str, struct _Nst_OpErr *err)
+Nst_Obj *Nst_string_parse_int(Nst_StrObj *str, i32 base)
 ```
 
-**Description**:
+**Description:**
 
-Parses a `Nst_RealObj *` from a string using normal Nest real literals are used.
+Parses a Nst_IntObj from a string.
 
-**Arguments**:
+If an invalid literal is found, the function fails rather than returning zero.
+base can be any number between 2 and 36, where above 10 letters start to be
+used. If the base is 0 the function accepts prefixes such as 0x, 0b and 0o to
+change the base.
 
-- `[in] str`: the string to parse
-- `[out] err`: the error
+**Parameters:**
 
-**Return value**:
+- `str`: the string to parse
+- `base`: the base to parse the string in
 
-The function returns the parsed real or `NULL` on failure.
+**Returns:**
+
+The new int object or NULL on failure. The error is set.
 
 ---
 
-### `nst_string_compare`
+### `Nst_string_parse_byte`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-i32 nst_string_compare(Nst_StrObj *str1, Nst_StrObj *str2)
+Nst_Obj *Nst_string_parse_byte(Nst_StrObj* str)
 ```
 
-**Description**:
+**Description:**
 
-Compares two Nest strings.
+Parses a Nst_ByteObj from a string.
 
-**Arguments**:
+If an invalid literal is found, the function fails rather than returning zero.
+Valid literals follow Nest's byte syntax, because of this 10 is considered
+invalid but 10b is valid.
 
-- `[in] str1`: the first string to compare
-- `[in] str2`: the second string to compare
+**Parameters:**
 
-**Return value**:
+- `str`: the string to parse
 
-The function returns:
+**Returns:**
 
-- `0` if the strings are equal
-- `> 0` if `str1` is greater than `str2`
-- `< 0` if `str2` is greater than `str1`
+The new byte object or NULL on failure. The error is set.
 
 ---
 
-### `nst_string_find`
+### `Nst_string_parse_real`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-i8 *nst_string_find(i8 *s1, usize l1, i8 *s2, usize l2)
+Nst_Obj *Nst_string_parse_real(Nst_StrObj *str)
 ```
 
-**Description**:
+**Description:**
 
-Finds the position of a substring.
+Parses a Nst_RealObj from a string.
 
-**Arguments**:
+If an invalid literal is found, the function fails rather than returning zero.
+Valid literals follow Nest's real syntax, because of this 3. or .5 are
+considered invalid and must be written as 3.0 and 0.5.
 
-- `[in] s1`: the main string
-- `[in] l1`: the length of the main string
-- `[in] s2`: the substring of which to find the position
-- `[in] l2`: the length of the substring
+**Parameters:**
 
-**Return value**:
+- `str`: the string to parse
 
-The function returns the pointer to the start of the firs occurrence of `s2` in
-`s1` or `NULL` if it could not be found.
+**Returns:**
+
+The new real object or NULL on failure. The error is set.
 
 ---
 
-### `_nst_string_destroy`
+### `Nst_string_compare`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void _nst_string_destroy(Nst_StrObj *str)
+i32 Nst_string_compare(Nst_StrObj *str1, Nst_StrObj *str2)
 ```
 
-**Description**:
+**Description:**
 
-Destroys a string object, should never be called.
+Compares two Nest strings, similarly to strcmp but takes into account possible
+NUL bytes inside the compared string.
+
+**Parameters:**
+
+- `str1`: the first string to compare
+- `str2`: the second string to compare
+
+**Returns:**
+
+0 if the two strings are equal, a value < 0 if str2 is greater than str1 and a
+value > 0 if str1 is greater than str2.
+
+---
+
+### `_Nst_string_destroy`
+
+**Synopsis:**
+
+```better-c
+void _Nst_string_destroy(Nst_StrObj *str)
+```
+
+**Description:**
+
+String object destructor.
+
+---
+
+### `Nst_string_find`
+
+**Synopsis:**
+
+```better-c
+i8 *Nst_string_find(i8 *s1, usize l1, i8 *s2, usize l2)
+```
+
+**Description:**
+
+Finds the first occurrence of a substring inside a string.
+
+If the pointer is not NULL it is guaranteed to be between s1 <= p < s1 + l1,
+where p is the pointer returned.
+
+**Parameters:**
+
+- `s1`: the main string
+- `l1`: the length of s1
+- `s2`: the substring to find inside the main string
+- `l2`: the lenght of s2
+
+**Returns:**
+
+The pointer to the start of s1 or NULL if the string could not be found. No
+error is set.
 
 ---
 
@@ -472,21 +527,15 @@ Destroys a string object, should never be called.
 
 ### `Nst_StrFlags`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef enum _Nst_StrFlags
-{
-    NST_FLAG_STR_IS_ALLOC = 0b1
-}
-Nst_StrFlags
+typedef enum _Nst_StrFlags {
+    Nst_FLAG_STR_IS_ALLOC = 0b1
+} Nst_StrFlags
 ```
 
-**Description**:
+**Description:**
 
-The flags used by the string object.
+Nst_StrObj-specific flags.
 
-**Fields**:
-
-- `NST_FLAG_STR_IS_ALLOC`: whether the `value` of the string should be freed
-    when the string is destroyed

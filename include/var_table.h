@@ -1,7 +1,7 @@
 /**
  * @file var_table.h
  *
- * @brief Variable table interface using Nst_MapObj.
+ * @brief Variable table interface using Nst_MapObj
  *
  * @author TheSilvered
  */

@@ -1,431 +1,636 @@
 # `mem.h`
 
-This header contains
+Heap & dynamic memory management functions.
+
+## Authors
+
+TheSilvered
 
 ## Macros
 
-### `nst_raw_free`
+### `Nst_raw_free`
 
-**Synopsis**:
+**Description:**
+
+Alias for C free.
+
+---
+
+### `Nst_malloc_c`
+
+**Synopsis:**
 
 ```better-c
-nst_raw_free
+Nst_malloc_c(count, type)
 ```
 
-**Description**:
+**Description:**
 
-An alias for [nst_free](#nst_free)
+Calls Nst_malloc using sizeof(type) for the size and casting the result to a
+pointer of the type.
+
+---
+
+### `Nst_calloc_c`
+
+**Synopsis:**
+
+```better-c
+Nst_calloc_c(count, type, init_value)
+```
+
+**Description:**
+
+Calls Nst_calloc using sizeof(type) for the size and casting the result to a
+pointer of the type.
+
+---
+
+### `Nst_realloc_c`
+
+**Synopsis:**
+
+```better-c
+Nst_realloc_c(block, new_count, type, count)
+```
+
+**Description:**
+
+Calls Nst_realloc using sizeof(type) for the size and casting the result to a
+pointer of the type.
+
+---
+
+### `Nst_crealloc_c`
+
+**Synopsis:**
+
+```better-c
+Nst_crealloc_c(block, new_count, type, count, init_value)
+```
+
+**Description:**
+
+Calls Nst_crealloc using sizeof(type) for the size and casting the result to a
+pointer of the type.
 
 ---
 
 ## Structs
 
-### `Nst_Buffer`
+### `Nst_SizedBuffer`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-struct _Nst_Buffer
-{
+typedef struct _Nst_SizedBuffer {
     usize len;
-    usize size;
-    i8 *data;
-}
-Nst_Buffer
+    usize cap;
+    usize unit_size;
+    void *data;
+} Nst_SizedBuffer
 ```
 
-**Description**:
+**Description:**
 
-A dynaimc buffer for repeated string concatenation.
+Structure representing a buffer of objects with an arbitrary size.
 
-**Fields**:
+**Fields:**
 
-- `len`: the length of the string contained in the buffer
-- `size`: the maximum size of the buffer
-- `data`: the data of the buffer
+- `len`: the number of objects currently in the buffer
+- `cap`: the size in bytes of the allocated block
+- `unit_size`: the size in bytes of one object
+- `data`: the array of objects
+
+---
+
+### `Nst_Buffer`
+
+**Synopsis:**
+
+```better-c
+typedef struct _Nst_Buffer {
+    usize len;
+    usize cap;
+    usize unit_size;
+    i8 *data;
+} Nst_Buffer
+```
+
+**Description:**
+
+Structure representing a buffer of chars.
+
+Uses the same layout of Nst_SizedBuffer to re-use the same functions. Ensures to
+always contain a valid string if not modified by custom functions.
+
+**Fields:**
+
+- `len`: the length of the string in the buffer
+- `cap`: the size in bytes of the allocated block
+- `unit_size`: always 1
+- `data`: the string
 
 ---
 
 ## Functions
 
-### `nst_raw_malloc`
+### `Nst_raw_malloc`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void *nst_raw_malloc(usize size)
+void *Nst_raw_malloc(usize size)
 ```
 
-**Description**:
+**Description:**
 
-The normal `malloc`
+Alias for C malloc.
 
 ---
 
-### `nst_raw_calloc`
+### `Nst_raw_calloc`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void *nst_raw_calloc(usize count, usize size)
+void *Nst_raw_calloc(usize count, usize size)
 ```
 
-**Description**:
+**Description:**
 
-The normal `calloc`
+Alias for C calloc.
 
 ---
 
-### `nst_raw_realloc`
+### `Nst_raw_realloc`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void *nst_raw_realloc(void *block, usize size)
+void *Nst_raw_realloc(void *block, usize size)
 ```
 
-**Description**:
+**Description:**
 
-The normal `realloc`
+Alias for C realloc.
 
 ---
 
-### `nst_malloc`
+### `Nst_free`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void *nst_malloc(usize count, usize size, Nst_OpErr *err)
+void Nst_free(void *block)
 ```
 
-**Description**:
+**Description:**
 
-Allocates on the heap a block of memory to contain `count` objects of size `size`.
-
-**Arguments**:
-
-- `[in] count`: the number of objects to allocate
-- `[in] size`: the size of each object
-- `[out] err`: the error
-
-**Return value**:
-
-The function returns a pointer to the block on success or `NULL` on failure.
+Alias for C free.
 
 ---
 
-### `nst_calloc`
+### `Nst_malloc`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void *nst_calloc(usize count,
-                 usize size,
-                 void *init_value,
-                 Nst_OpErr *err)
+void *Nst_malloc(usize count, usize size)
 ```
 
-**Description**:
+**Description:**
 
-Allocates on the heap a block of memory to contain `count` objects of size `size`
-initializing their value with `init_value`.
+Allocates memory on the heap.
 
-**Arguments**:
+The elements are contiguous in memory.
 
-- `[in] count`: the number of objects to allocate
-- `[in] size`: the size of each object
-- `[in] init_value`: the value used to initialize the objects, must the same
-  size as the one specified in `size` or `NULL`, in which case the whole block
-  is filled with zeroes
-- `[out] err`: the error
+**Parameters:**
 
-**Return value**:
+- `count`: the number of elements to allocate
+- `size`: the size in bytes of each element
 
-The function returns a pointer to the block on success or `NULL` on failure.
+**Returns:**
+
+A pointer to the allocated memory block or NULL on failure. The error is set.
 
 ---
 
-### `nst_realloc`
+### `Nst_calloc`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void *nst_realloc(void *prev_block,
-                  usize new_count,
-                  usize size,
-                  usize prev_count,
-                  Nst_OpErr *err)
+void *Nst_calloc(usize count, usize size, void *init_value)
 ```
 
-**Description**:
+**Description:**
 
-Reallocates a block of memory increasing or decreasing its size. When
-`new_count` is less than or equal to `prev_count` the function is guaranteed to
-succeed. It is not guaranteed that a new block is returned, it could be the same
-as the one given.
+Allocates memory on the heap initializing it.
 
-**Arguments**:
+The elements are contiguous in memory. If init_value is NULL, the function has a
+similar behaviour to calloc filling the memory with zeroes. init_value is
+expected to be the same size as the one given for the elements.
 
-- `[in] prev_block`: the pointer to the block to reallocate
-- `[in] new_count`: the new number of objects in the block
-- `[in] size`: the size of each object
-- `[in] prev_count`: the previous number of objects in the block
-- `[out] err`: the error
+**Parameters:**
 
-**Return value**:
+- `count`: the number of elements to allocate
+- `size`: the size in bytes of each element
+- `init_value`: a pointer to the value to initialize each element with
 
-The function returns a pointer to the block on success or `NULL` on failure.
+**Returns:**
+
+A pointer to the allocated memory block or NULL on failure. The error is set.
 
 ---
 
-### `nst_crealloc`
+### `Nst_realloc`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void *nst_crealloc(void *prev_block,
-                   usize new_count,
-                   usize size,
-                   usize prev_count,
-                   void *init_value,
-                   Nst_OpErr *err)
+void *Nst_realloc(void *block, usize new_count, usize size, usize count)
 ```
 
-**Description**:
+**Description:**
 
-The function reallocates a block of memory initializing any new portions with
-`init_value`
+Changes the size of an allocated memory block.
 
-**Arguments**:
+This function never fails when the block is shrinked because if the call to
+realloc fails, the old block is returned.
 
-- `[in] prev_block`: the pointer to the block to reallocate
-- `[in] new_count`: the new number of objects in the block
-- `[in] size`: the size of each object
-- `[in] prev_count`: the previous number of objects in the block, if set to zero
-  the whole block is cleared
-- `[in] init_value`: the value used to initialize the objects, must the same
-  size as the one specified in `size` or `NULL`, in which case the whole block
-  is filled with zeroes
-- `[out] err`: the error
+**Parameters:**
 
-**Return value**:
+- `block`: the block to reallocate
+- `new_count`: the new number of elements of the block
+- `size`: the size in bytes of each element
+- `count`: the current number of elements in the block
+
+**Returns:**
+
+A pointer to the reallocated memory block or NULL on failure. The error is set.
+If either new_count or size is zero, block is freed and NULL is returned with no
+error.
 
 ---
 
-### `nst_free`
+### `Nst_crealloc`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void nst_free(void *block)
+void *Nst_crealloc(void *block, usize new_count, usize size, usize count,
+                   void *init_value)
 ```
 
-**Description**:
+**Description:**
 
-Frees a memory block allocated on the heap.
+Changes the size of an allocated memory block initializing new memory.
+
+This function never fails when the block is shrinked because if the call to
+realloc fails, the old block is returned. If init_value is NULL, the function
+just fills the new memory with zeroes. init_value is expected to be the same
+size as the one given for the elements.
+
+**Parameters:**
+
+- `block`: the block to reallocate
+- `new_count`: the new number of elements of the block
+- `size`: the size in bytes of each element
+- `count`: the current number of elements in the block
+- `init_value`: a pointer to the value to initialize the new elements with
+
+**Returns:**
+
+A pointer to the reallocated memory block or NULL on failure. The error is set.
+If either new_count or size is zero, block is freed and NULL is returned with no
+error.
 
 ---
 
-### `nst_buffer_init`
+### `Nst_sbuffer_init`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-bool nst_buffer_init(Nst_Buffer *buf, usize initial_size, Nst_OpErr *err)
+bool Nst_sbuffer_init(Nst_SizedBuffer *buf, usize unit_size, usize count)
 ```
 
-**Description**:
+**Description:**
 
-Initializes a buffer struct allocating `initial_size` bytes for `data`.
+Initializes a Nst_SizedBuffer.
 
-**Arguments**:
+**Parameters:**
 
-- `[out] buf`: the buffer
-- `[in] initial_size`: the initial size of the buffer
-- `[out] err`: the error
+- `buf`: the buffer to initialize
+- `unit_size`: the size of the elements the buffer will contain
+- `count`: the number of elements to initialize the buffer with
 
-**Return value**:
+**Returns:**
 
-The function returns `true` on success and `false` on failure.
+true on succes and false on failure. The error is set.
 
 ---
 
-### `nst_buffer_expand_by`
+### `Nst_sbuffer_expand_by`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-bool nst_buffer_expand_by(Nst_Buffer *buf, usize amount, Nst_OpErr *err)
+bool Nst_sbuffer_expand_by(Nst_SizedBuffer *buf, usize amount)
 ```
 
-**Description**:
+**Description:**
 
-Expands the buffer capacity by `amount` bytes. This does not always allocate
-memory as the buffer is made larger than requested when expanding it to decrease
-the allocations.
+Expands a sized buffer to contain a specified amount new elements.
 
-**Arguments**:
+The buffer is expanded only if needed.
 
-- `[inout] buf`: the buffer
-- `[in] amount`: the number of bytes to increase the buffer by
-- `[out] err`: the error
+**Parameters:**
 
-**Return value**:
+- `buf`: the buffer to expand
+- `amount`: the number of new elements the buffer needs to contain
 
-The function returns `true` on success and `false` on failure.
+**Returns:**
+
+true on succes and false on failure. The error is set.
 
 ---
 
-### `nst_buffer_expand_to`
+### `Nst_sbuffer_expand_to`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-bool nst_buffer_expand_to(Nst_Buffer *buf, usize size, Nst_OpErr *err)
+bool Nst_sbuffer_expand_to(Nst_SizedBuffer *buf, usize count)
 ```
 
-**Description**:
+**Description:**
 
-Expands the buffer capacity to `size` bytes. This does not always allocate
-memory as the buffer is made larger than requested when expanding it to decrease
-the allocations.
+Expands a sized buffer to contain a total amount of elements.
 
-**Arguments**:
+The buffer is expanded only if needed. If the new size is smaller than the
+current one nothing is done.
 
-- `[inout] buf`: the buffer
-- `[in] size`: the minimum size to reach
-- `[out] err`: the error
+**Parameters:**
 
-**Return value**:
+- `buf`: the buffer to expand
+- `amount`: the number of elements the buffer needs to contain
 
-The function returns `true` on success and `false` on failure.
+**Returns:**
+
+true on succes and false on failure. The error is set.
 
 ---
 
-### `nst_buffer_fit`
+### `Nst_sbuffer_fit`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void nst_buffer_fit(Nst_Buffer *buf)
+void Nst_sbuffer_fit(Nst_SizedBuffer *buf)
 ```
 
-**Description**:
+**Description:**
 
-Makes the `size` of the buffer `len + 1`.
-
-**Arguments**:
-
-- `[inout] buf`: the buffer
+Shrinks the capacity of a sized buffer to match its length.
 
 ---
 
-### `nst_buffer_append`
+### `Nst_sbuffer_append`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-bool nst_buffer_append(Nst_Buffer *buf, Nst_StrObj *str, Nst_OpErr *err)
+bool Nst_sbuffer_append(Nst_SizedBuffer *buf, void *element)
 ```
 
-**Description**:
+**Description:**
 
-Appends the contents of a Nest string object to the end of the buffer, the
-buffer is automatically expanded.
+Appends an element to the end of the buffer.
 
-**Arguments**:
+If necessary, the buffer is expanded automatically. The data pointed to by
+element is expected to be at least a number of bytes that matches the one of the
+elements contained by the buffer.
 
-- `[inout] buf`: the buffer
-- `[in] str`: the string to append
-- `[out] err`: the error
+**Parameters:**
 
-**Return value**:
+- `buf`: the buffer to append the element to
+- `element`: a pointer to the element to append
 
-The function returns `true` on success and `false` on failure.
+**Returns:**
+
+true on success and false on failure. The error is set.
 
 ---
 
-### `nst_buffer_append_c_str`
+### `Nst_sbuffer_destroy`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-bool nst_buffer_append_c_str(Nst_Buffer *buf, const i8 *str, Nst_OpErr *err)
+void Nst_sbuffer_destroy(Nst_SizedBuffer *buf)
 ```
 
-**Description**:
+**Description:**
 
-Appends the contents a NUL-terminated string to the end of the buffer, the
-buffer is automatically expanded.
-
-**Arguments**:
-
-- `[inout] buf`: the buffer
-- `[in] str`: the string to append
-- `[out] err`: the error
-
-**Return value**:
-
-The function returns `true` on success and `false` on failure.
+Destroys the contents of a sized buffer. The buffer itself is not freed.
 
 ---
 
-### `nst_buffer_append_char`
+### `Nst_buffer_init`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-bool nst_buffer_append_char(Nst_Buffer *buf, i8 ch, Nst_OpErr *err)
+bool Nst_buffer_init(Nst_Buffer *buf, usize initial_size)
 ```
 
-**Description**:
+**Description:**
 
-Appends a character to the end of the buffer, the buffer is automatically
-expanded.
+Initializes a Nst_Buffer.
 
-**Arguments**:
+**Parameters:**
 
+- `buf`: the buffer to initialize
+- `initial_size`: the initial capacity of the buffer
 
+**Returns:**
 
-**Return value**:
-
-The function returns `true` on success and `false` on failure.
+true on succes and false on failure. The error is set.
 
 ---
 
-### `nst_buffer_to_string`
+### `Nst_buffer_expand_by`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_StrObj *nst_buffer_to_string(Nst_Buffer *buf, Nst_OpErr *err)
+bool Nst_buffer_expand_by(Nst_Buffer *buf, usize amount)
 ```
 
-**Description**:
+**Description:**
 
-Calls [`nst_buffer_fit`](#nst_buffer_fit) on `buf` and creates a string with it.
+Expands a buffer to contain a specified amount new characters.
 
-**Arguments**:
+The buffer is expanded only if needed. One is added to the amount to take into
+account the NUL character at the end.
 
-- `[in] buf`: the buffer to turn into a string
-- `[out] err`: the error
+**Parameters:**
 
-**Return value**:
+- `buf`: the buffer to expand
+- `amount`: the number of new characters the buffer needs to contain
 
-The function returns the created string or `NULL` in case of failure. On failure
-the contents of the buffer are freed.
+**Returns:**
+
+true on succes and false on failure. The error is set.
 
 ---
 
-### `nst_buffer_destroy`
+### `Nst_buffer_expand_to`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void nst_buffer_destroy(Nst_Buffer *buf)
+bool Nst_buffer_expand_to(Nst_Buffer *buf, usize size)
 ```
 
-**Description**:
+**Description:**
 
-Frees the contents of the buffer but not the buffer itself. If the buffer was
-already this function exists early.
+Expands a sized buffer to contain a total amount of characters.
+
+The buffer is expanded only if needed. If the new size is smaller than the
+current one nothing is done. One is added to the size to take into account the
+NUL character at the end.
+
+**Parameters:**
+
+- `buf`: the buffer to expand
+- `amount`: the number of characters the buffer needs to contain
+
+**Returns:**
+
+true on succes and false on failure. The error is set.
+
+---
+
+### `Nst_buffer_fit`
+
+**Synopsis:**
+
+```better-c
+void Nst_buffer_fit(Nst_Buffer *buf)
+```
+
+**Description:**
+
+Shrinks the capacity of a buffer to match its length.
+
+---
+
+### `Nst_buffer_append`
+
+**Synopsis:**
+
+```better-c
+bool Nst_buffer_append(Nst_Buffer *buf, Nst_StrObj *str)
+```
+
+**Description:**
+
+Appends a Nst_StrObj to the end of the buffer.
+
+**Parameters:**
+
+- `buf`: the buffer to append the string to
+- `str`: the string to append
+
+**Returns:**
+
+true on success and false on failure. The error is set.
+
+---
+
+### `Nst_buffer_append_c_str`
+
+**Synopsis:**
+
+```better-c
+bool Nst_buffer_append_c_str(Nst_Buffer *buf, const i8 *str)
+```
+
+**Description:**
+
+Appends a C string to the end of the buffer.
+
+**Parameters:**
+
+- `buf`: the buffer to append the string to
+- `str`: the string to append
+
+**Returns:**
+
+true on success and false on failure. The error is set.
+
+---
+
+### `Nst_buffer_append_char`
+
+**Synopsis:**
+
+```better-c
+bool Nst_buffer_append_char(Nst_Buffer *buf, i8 ch)
+```
+
+**Description:**
+
+Appends a character to the end of the buffer.
+
+**Parameters:**
+
+- `buf`: the buffer to append the string to
+- `ch`: the character to append
+
+**Returns:**
+
+true on success and false on failure. The error is set.
+
+---
+
+### `Nst_buffer_to_string`
+
+**Synopsis:**
+
+```better-c
+Nst_StrObj *Nst_buffer_to_string(Nst_Buffer *buf)
+```
+
+**Description:**
+
+Creates a Nst_StrObj from a buffer.
+
+The data of the buffer is set to NULL and its len and size are set to 0. The
+function automatically calls Nst_buffer_fit.
+
+**Parameters:**
+
+- `buf`: the buffer to create the string from
+
+**Returns:**
+
+The new string on success and NULL on failure. The error is set.
+
+---
+
+### `Nst_buffer_destroy`
+
+**Synopsis:**
+
+```better-c
+void Nst_buffer_destroy(Nst_Buffer *buf)
+```
+
+**Description:**
+
+Destroys the contents of a buffer. The buffer itself is not freed.
+

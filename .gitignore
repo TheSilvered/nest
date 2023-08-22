@@ -460,7 +460,6 @@ linux_archives/
 # MkDocs build & other documentation-related things
 site/
 .obsidian/
-docs/prev_docs/
 
 # Test output
 tests/test_output.txt
@@ -475,3 +474,4 @@ build/linux/_update_tests.sh
 !libs/nest_gui/SDL2/lib/**/*.dll
 !libs/nest_gui/SDL2/lib/**/*.lib
 \[ignore\]*
+\[ignore\]*/

@@ -1,7 +1,7 @@
 /**
  * @file obj.h
  *
- * @brief Nest Object interface.
+ * @brief Nest Object interface
  *
  * @author TheSilvered
  */
@@ -46,7 +46,7 @@
 
 #ifdef Nst_TRACK_OBJ_INIT_POS
 
-/**
+/** [docs:ignore]
  * The macro used to make a struct an object.
  *
  * @brief It must be placed before any other arguments in the struct. Custom
@@ -101,7 +101,7 @@ struct _Nst_StrObj;
  * DEFINED the column of the instruction that initialized the object
  * @param init_path: THIS FIELD ONLY EXISTS WHEN Nst_TRACK_OBJ_INIT_POS IS
  * DEFINED the path to the file where the object was initialized
-*/
+ */
 NstEXP typedef struct _Nst_Obj {
     Nst_OBJ_HEAD;
 } Nst_Obj;

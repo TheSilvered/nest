@@ -1,148 +1,146 @@
 # `map.h`
 
-This header defines the Nest hash map object.
+Nst_MapObj interface.
+
+## Authors
+
+TheSilvered
 
 ## Macros
 
-### `_NST_MIN_MAP_SIZE`
+### `_Nst_MAP_MIN_SIZE`
 
-**Description**:
+**Description:**
 
-The minimum size of the array of nodes of a map.
+The minimum size of a map, must be a power of two.
 
 ---
 
 ### `MAP`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
 MAP(ptr)
 ```
 
-**Description**:
+**Description:**
 
-Casts `ptr` to `Nst_MapObj *`
-
----
-
-### `nst_map_set`
-
-**Synopsis**:
-
-```better-c
-nst_map_set(map, key, value, err)
-```
-
-**Description**:
-
-Alias for [`_nst_map_set`](#_nst_map_set) that casts `map` to `Nst_MapObj *` and
-casts `key` and `value` to `Nst_Obj *`.
+Casts ptr to Nst_MapObj *.
 
 ---
 
-### `nst_map_get`
+### `Nst_map_set`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-nst_map_get(map, key)
+Nst_map_set(map, key, value)
 ```
 
-**Description**:
+**Description:**
 
-Alias for [`_nst_map_get`](#_nst_map_get) that casts `map` to `Nst_MapObj *` and
-casts `key` to `Nst_Obj *`.
+Alias for _Nst_map_set which casts map to Nst_MapObj *, and key and value to
+Nst_Obj *.
 
 ---
 
-### `nst_map_drop`
+### `Nst_map_get`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-nst_map_drop(map, key)
+Nst_map_get(map, key)
 ```
 
-**Description**:
+**Description:**
 
-Alias for [`_nst_map_get`](#_nst_map_drop) that casts `map` to `Nst_MapObj *`
-and casts `key` to `Nst_Obj *`.
+Alias for _Nst_map_get that casts map to Nst_MapObj * and key to Nst_Obj *.
 
 ---
 
-### `nst_map_get_next_idx`
+### `Nst_map_drop`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-nst_map_get_next_idx(curr_idx, map)
+Nst_map_drop(map, key)
 ```
 
-**Description**:
+**Description:**
 
-Alias for [`_nst_map_get_next_idx`](#_nst_map_get_next_idx) that casts `map` to
-`Nst_MapObj *`.
+Alias for _Nst_map_drop that casts map to Nst_MapObj * and key to Nst_Obj *.
 
 ---
 
-### `nst_map_get_prev_idx`
+### `Nst_map_get_next_idx`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-nst_map_get_prev_idx(curr_idx, map)
+Nst_map_get_next_idx(curr_idx, map)
 ```
 
-**Description**:
+**Description:**
 
-Alias for [`_nst_map_get_prev_idx`](#_nst_map_get_prev_idx) that casts `map` to
-`Nst_MapObj *`.
+Alias for _Nst_map_get_next_idx that casts map to Nst_MapObj *.
 
 ---
 
-### `nst_map_set_str`
+### `Nst_map_get_prev_idx`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-nst_map_set_str(map, key, value, err)
+Nst_map_get_prev_idx(curr_idx, map)
 ```
 
-**Description**:
+**Description:**
 
-Alias for [`_nst_map_set_str`](#_nst_map_set_str) that casts `map` to
-`Nst_MapObj *` and casts `value` to `Nst_Obj *`.
+Alias for _Nst_map_get_prev_idx that casts map to Nst_MapObj *.
 
 ---
 
-### `nst_map_get_str`
+### `Nst_map_set_str`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-nst_map_get_str(map, key)
+Nst_map_set_str(map, key, value)
 ```
 
-**Description**:
+**Description:**
 
-Alias for [`_nst_map_get_str`](#_nst_map_get_str) that casts `map` to
-`Nst_MapObj *`.
+Alias for _Nst_map_set_str that casts map to Nst_MapObj * and value to Nst_Obj
+*.
 
 ---
 
-### `nst_map_drop_str`
+### `Nst_map_get_str`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-nst_map_drop_str(map, key)
+Nst_map_get_str(map, key)
 ```
 
-**Description**:
+**Description:**
 
-Alias for [`_nst_map_drop_str`](#_nst_map_drop_str) that casts `map` to
-`Nst_MapObj *`.
+Alias for Nst_map_get_str that casts map to Nst_MapObj *.
+
+---
+
+### `Nst_map_drop_str`
+
+**Synopsis:**
+
+```better-c
+Nst_map_drop_str(map, key)
+```
+
+**Description:**
+
+Alias for Nst_map_drop_str that casts map to Nst_MapObj *.
 
 ---
 
@@ -150,337 +148,340 @@ Alias for [`_nst_map_drop_str`](#_nst_map_drop_str) that casts `map` to
 
 ### `Nst_MapNode`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_MapNode
-{
+typedef struct _Nst_MapNode {
     i32 hash;
     Nst_Obj *key;
     Nst_Obj *value;
     i32 next_idx;
     i32 prev_idx;
-}
-Nst_MapNode
+} Nst_MapNode
 ```
 
-**Description**:
+**Description:**
 
-A single key-value pair in a map.
+The structure representing a node of a Nst_MapObj.
 
-**Fields**:
+**Fields:**
 
-- `hash`: the hash of the key
-- `key`: the key
-- `value`: the value
-- `next_idx`: the next node in the map
-- `prev_idx`: the previous node in the map
+- `hash`: the hash of the key contained in the node
+- `key`: the key of the node
+- `value`: the value of the node
+- `next_idx`: the index of the next node inside the map
+- `prev_idx`: the index of the previous node inside the map
 
 ---
 
 ### `Nst_MapObj`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_MapObj
-{
-    NST_OBJ_HEAD;
-    NST_GGC_HEAD;
-    usize size;
-    usize item_count;
+typedef struct _Nst_MapObj {
+    Nst_OBJ_HEAD;
+    Nst_GGC_HEAD;
+    usize cap;
+    usize len;
     usize mask;
     Nst_MapNode *nodes;
     i32 head_idx;
     i32 tail_idx;
-}
-Nst_MapObj
+} Nst_MapObj
 ```
 
-**Description**:
+**Description:**
 
-The structure for a Nest map object.
+The structure representing a Nest map object.
 
-**Fields**:
+**Fields:**
 
-- `size`: the size of the `nodes` array
-- `item_count`: the number of items inside the map
-- `mask`: the number of bits of the hash used to index the `nodes` array
-- `nodes`: the array of key-value pairs
-- `head_idx`: the index of the first node of the map
-- `tail_idx`: the index of the last node of the map
+- `cap`: the current capacity of the nodes array
+- `len`: the number of nodes inside the map
+- `mask`: the mask applied to the hash when inserting new nodes
+- `nodes`: the array of nodes of the map
+- `head_idx`: the first node in the map
+- `tail_idx`: the last node in the map
 
 ---
 
 ## Functions
 
-### `nst_map_new`
+### `Nst_map_new`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_map_new(Nst_OpErr *err)
+Nst_Obj *Nst_map_new(void)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new empty map on the heap.
+Creates a new map object.
 
-**Arguments**:
+**Returns:**
 
-- `[out] err`: the error
-
-**Return value**:
-
-The function returns the new map on success and `NULL` on failure.
+The new object or NULL on failure. The error is set.
 
 ---
 
-### `_nst_map_set`
+### `_Nst_map_set`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-bool _nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value, Nst_OpErr *err)
+bool _Nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
 ```
 
-**Description**:
+**Description:**
 
-Inserts a new key-value pair in the map or updates the value of a key.
+Inserts or modifies a value in the map.
 
-**Arguments**:
+**Parameters:**
 
-- `[inout] map`: the map to insert the value into
-- `[in] key`: the key to add or update
-- `[in] value`: the value associated with the key
-- `[out] err`: the error
+- `map`: the map to update
+- `key`: the key to insert or modify
+- `value`: the value to associate with the key
 
-**Return value**:
+**Returns:**
 
-The function returns `true` if the item was inserted in the map and `false`
-otherwise. When `false` is returned, the error is set.
+true on success and false on failure. The error is set.
 
 ---
 
-### `_nst_map_get`
+### `_Nst_map_get`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *_nst_map_get(Nst_MapObj *map, Nst_Obj *key)
+Nst_Obj *_Nst_map_get(Nst_MapObj *map, Nst_Obj *key)
 ```
 
-**Description**:
+**Description:**
 
 Gets the value associated with a key.
 
-**Arguments**:
+**Parameters:**
 
-- `[in] map`: the map to get the value from
-- `[in] key`: the key of the value
+- `map`: the map to get the value from
+- `key`: the key to get
 
-**Return value**:
+**Returns:**
 
-The function returns the associated value or `NULL` in case of error.
-
----
-
-### `_nst_map_drop`
-
-**Synopsis**:
-
-```better-c
-Nst_Obj *_nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
-```
-
-**Description**:
-
-Drops a key-value pair from a map.
-
-**Arguments**:
-
-- `[inout] map`: the map to drop the pair from
-- `[in] key`: the key of the pair
-
-**Return value**:
-
-The function returns the value of the pair dropped.
+The object associated with the key on success and NULL if the key is not
+hashable or is not inside the map. No error is set.
 
 ---
 
-### `_nst_map_get_next_idx`
+### `_Nst_map_drop`
 
-**Synopsis**:
-
-```better-c
-i32 _nst_map_get_next_idx(i32 curr_idx, Nst_MapObj *map)
-```
-
-**Description**:
-
-Returns the index of the node after the one at index `curr_idx`. If `curr_idx`
-is `-1`, the index of the first node is returned.
-
-**Arguments**:
-
-- `[in] curr_idx`: the current index
-- `[in] map`: the map of which the index refers to
-
-**Return value**:
-
-The function returns the next index or `-1` if it is the last node.
-
-**Example**:
+**Synopsis:**
 
 ```better-c
-// Iterating over the values of a map
-
-for ( i32 i = nst_map_get_next_idx(-1, map);
-      i != -1;
-      i = nst_map_get_next_idx(i, map) ):
-{
-    Nst_MapNode node = map->nodes[i];
-}
+Nst_Obj *_Nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
 ```
+
+**Description:**
+
+Drops a key from a map and returns its value.
+
+**Parameters:**
+
+- `map`: the map to drop the key from
+- `key`: the key to drop
+
+**Returns:**
+
+The object associated with the removed key on success and NULL if the key is not
+hashable or is not inside the map. No error is set.
 
 ---
 
-### `_nst_map_get_prev_idx`
+### `_Nst_map_destroy`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-i32 _nst_map_get_prev_idx(i32 curr_idx, Nst_MapObj *map)
+void _Nst_map_destroy(Nst_MapObj *map)
 ```
 
-**Description**:
+**Description:**
 
-Returns the index of the node before the one at index `curr_idx`. If `curr_idx`
-is `-1`, the index of the last node is returned.
-
-**Arguments**:
-
-- `[in] curr_idx`: the current index
-- `[in] map`: the map of which the index refers to
-
-**Return value**:
-
-The function returns the next index or `-1` if it is the first node.
+The destructor for the map object.
 
 ---
 
-### `_nst_map_resize`
+### `_Nst_map_traverse`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-bool _nst_map_resize(Nst_MapObj *map, bool force_item_reset, Nst_OpErr *err)
+void _Nst_map_traverse(Nst_MapObj *map)
 ```
 
-**Description**:
+**Description:**
 
-Resizes the node array if necessary. `force_item_reset` forces all the items in
-the map to be re-inserted
-
-**Arguments**:
-
-- `[inout] map`: the map to resize
-- `[in] force_item_reset`: whether to re-insert the items
-- `[out] err`: the error
-
-**Return value**:
-
-Returns `true` on success and `false` on failure.
+The traverse function for the map object.
 
 ---
 
-### `_nst_map_set_str`
+### `_Nst_map_track`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-bool _nst_map_set_str(Nst_MapObj *map,
-                      const i8   *key,
-                      Nst_Obj    *value,
-                      Nst_OpErr  *err)
+void _Nst_map_track(Nst_MapObj *map)
 ```
 
-**Description**:
+**Description:**
 
-Sets a key-value pair creating the key from a C-style string.
-
-**Arguments**:
-
-- `[inout] map`: the map to add the pair to
-- `[in] key`: the key
-- `[in] value`: the value
-- `[out] err`: the error
-
-**Return value**:
-
-Returns `true` on success and `false` on failure. When `false` is returned, `err`
-is guaranteed to be set.
+The track function for the map object.
 
 ---
 
-### `_nst_map_get_str`
+### `_Nst_map_get_next_idx`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *_nst_map_get_str(Nst_MapObj *map, const i8 *key)
+i32 _Nst_map_get_next_idx(i32 curr_idx, Nst_MapObj *map)
 ```
 
-**Description**:
+**Description:**
 
-Gets a value from a map creating the key from a C-style string.
+Gets the next index in a map given the current one.
 
-**Arguments**:
+If curr_idx is -1, the first index is returned.
 
-- `[in] map`: the map to get the value from
-- `[in] key`: the key associated to the value
+**Parameters:**
 
-**Return value**:
+- `curr_idx`: the current index
+- `map`: the map to get the index from
 
-The function returns `NULL` if the key was not inside the dictionary, and the
-value associated to the key on success.
+**Returns:**
+
+The next index or -1 if the given index is the last one.
 
 ---
 
-### `_nst_map_drop_str`
+### `_Nst_map_get_prev_idx`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *_nst_map_drop_str(Nst_MapObj *map, const i8 *key)
+i32 _Nst_map_get_prev_idx(i32 curr_idx, Nst_MapObj *map)
 ```
 
-**Description**:
+**Description:**
 
-Drops a key-value pair from a map creating the key from a C-style string.
+Gets the next index in a map given the current one.
 
-**Arguments**:
+If curr_idx is -1, the first index is returned.
 
-- `[inout] map`: the map to remove the pair from
-- `[in] key`: the key of the pair
+**Parameters:**
 
-**Return value**:
+- `curr_idx`: the current index
+- `map`: the map to get the index from
 
-The function returns `NULL` if the key was not inside the dictionary, and the
-value associated to the removed key on success.
+**Returns:**
+
+The next index or -1 if the given index is the last one.
 
 ---
 
-### Other functions
+### `_Nst_map_resize`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void _nst_map_destroy(Nst_MapObj *map)
-void _nst_map_traverse(Nst_MapObj *map)
-void _nst_map_track(Nst_MapObj *map)
+bool _Nst_map_resize(Nst_MapObj *map, bool force_item_reset)
 ```
 
-**Description**:
+**Description:**
 
-These functions are used to manage map objects.
+Resizes the node array if necessary.
+
+**Parameters:**
+
+- `map`: the map to resize
+- `force_item_reset`: whether to force the nodes inside the map to be
+  re-inserted
+
+**Returns:**
+
+true on success and false on failure. The error is set. When shrinking the
+function is guaranteed to succeed.
+
+---
+
+### `_Nst_map_set_str`
+
+**Synopsis:**
+
+```better-c
+bool _Nst_map_set_str(Nst_MapObj *map, const i8 *key, Nst_Obj *value)
+```
+
+**Description:**
+
+Inserts or modifies a value in the map.
+
+**Parameters:**
+
+- `map`: the map to update
+- `key`: the key to insert or modify as a C string
+- `value`: the value to associate with the key
+
+**Returns:**
+
+true on success and false on failure. The error is set.
+
+---
+
+### `_Nst_map_get_str`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_map_get_str(Nst_MapObj *map, const i8 *key)
+```
+
+**Description:**
+
+Gets the value associated with a key.
+
+**Parameters:**
+
+- `map`: the map to get the value from
+- `key`: the key to get as a C string
+
+**Returns:**
+
+The object associated with the key on success and NULL if the key is not
+hashable or is not inside the map. No error is set.
+
+---
+
+### `_Nst_map_drop_str`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_map_drop_str(Nst_MapObj *map, const i8 *key)
+```
+
+**Description:**
+
+Drops a key from a map and returns its value.
+
+**Parameters:**
+
+- `map`: the map to drop the key from
+- `key`: the key to drop as a C string
+
+**Returns:**
+
+The object associated with the removed key on success and NULL if the key is not
+hashable or is not inside the map. No error is set.
+

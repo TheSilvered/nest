@@ -1,17 +1,21 @@
 # `global_consts.h`
 
-This header contains the functions used to obtain global variables and constants.
+Constant objects used in the program.
+
+## Authors
+
+TheSilvered
 
 ## Structs
 
 ### `Nst_StrConsts`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_StrConsts
-{
+typedef struct _Nst_StrConsts {
     // Type strings
+
     Nst_StrObj *t_Type;
     Nst_StrObj *t_Int;
     Nst_StrObj *t_Real;
@@ -27,11 +31,13 @@ typedef struct _Nst_StrConsts
     Nst_StrObj *t_IOFile;
 
     // Constant strings
+
     Nst_StrObj *c_true;
     Nst_StrObj *c_false;
     Nst_StrObj *c_null;
 
     // Standard error names
+
     Nst_StrObj *e_SyntaxError;
     Nst_StrObj *e_MemoryError;
     Nst_StrObj *e_ValueError;
@@ -41,29 +47,31 @@ typedef struct _Nst_StrConsts
     Nst_StrObj *e_ImportError;
 
     // Other
+
     Nst_StrObj *o__vars_;
     Nst_StrObj *o__globals_;
     Nst_StrObj *o__args_;
     Nst_StrObj *o__cwd_;
     Nst_StrObj *o_failed_alloc;
-}
-Nst_StrConsts
+} Nst_StrConsts
 ```
 
-**Description**:
+**Description:**
 
-This is a struct containing the strings that remain constant throughout the
-lifetime of the program.
+String constants
+
+Fields starting with t_ are the name of types, the ones starting with c_ are the
+name of constants, the one starting with e_ are the name of errors and the one
+starting with o_ are others.
 
 ---
 
 ### `Nst_TypeObjs`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_TypeObjs
-{
+typedef struct _Nst_TypeObjs {
     Nst_TypeObj *Type;
     Nst_TypeObj *Int;
     Nst_TypeObj *Real;
@@ -77,23 +85,21 @@ typedef struct _Nst_TypeObjs
     Nst_TypeObj *Iter;
     Nst_TypeObj *Byte;
     Nst_TypeObj *IOFile;
-}
-Nst_TypeObjs
+} Nst_TypeObjs
 ```
 
-**Description**:
+**Description:**
 
-This structure contains the built-in types.
+Type constants
 
 ---
 
 ### `Nst_Consts`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_Consts
-{
+typedef struct _Nst_Consts {
     Nst_Obj *Bool_true;
     Nst_Obj *Bool_false;
     Nst_Obj *Null_null;
@@ -104,166 +110,206 @@ typedef struct _Nst_Consts
     Nst_Obj *Real_1;
     Nst_Obj *Byte_0;
     Nst_Obj *Byte_1;
-}
-Nst_Consts
+} Nst_Consts
 ```
 
-**Description**:
+**Description:**
 
-This structure contains other constants of the language or that are often used.
+Other constants
+
+Each constants is preceded by the name of its type.
 
 ---
 
 ### `Nst_StdStreams`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_StdStreams
-{
+typedef struct _Nst_StdStreams {
     Nst_IOFileObj *in;
     Nst_IOFileObj *out;
     Nst_IOFileObj *err;
-}
-Nst_StdStreams
+} Nst_StdStreams
 ```
 
-**Description**:
+**Description:**
 
-This structure contains the files used as the standard streams by Nest. These
-are not constant.
+Standard IO streams, these are not constant and can change at run-time.
+
+---
+
+### `Nst_IterFunctions`
+
+**Synopsis:**
+
+```better-c
+typedef struct _Nst_IterFunctions {
+    Nst_FuncObj *range_start;
+    Nst_FuncObj *range_is_done;
+    Nst_FuncObj *range_get_val;
+
+    Nst_FuncObj *seq_start;
+    Nst_FuncObj *seq_is_done;
+    Nst_FuncObj *seq_get_val;
+
+    Nst_FuncObj *str_start;
+    Nst_FuncObj *str_is_done;
+    Nst_FuncObj *str_get_val;
+
+    Nst_FuncObj *map_start;
+    Nst_FuncObj *map_is_done;
+    Nst_FuncObj *map_get_val;
+} Nst_IterFunctions
+```
+
+**Description:**
+
+The functions of the built-in iterators
 
 ---
 
 ## Functions
 
-### `_nst_init_objects`
+### `_Nst_init_objects`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-bool _nst_init_objects(void)
+bool _Nst_init_objects(void)
 ```
 
-**Description**:
+**Description:**
 
-This function initializes the objects inside `Nst_StrConsts`, `Nst_TypeObjs`,
-`Nst_Consts` and `Nst_StdStreams`. It should never be called.
+Initializes all the global constants and IO streams.
 
-**Return value**:
+**Returns:**
 
-The function returns `true` if all the fields were initialized correctly or
-`false` if something failed.
+true on success and false on failure. No error is set.
 
 ---
 
-### `_nst_del_objects`
+### `_Nst_del_objects`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void _nst_del_objects(void)
+void _Nst_del_objects(void)
 ```
 
-**Description**:
+**Description:**
 
-This function deletes the objects inside `Nst_StrConsts`, `Nst_TypeObjs`,
-`Nst_Consts` and `Nst_StdStreams`. It should never be called.
+Deletes all the global constants and IO streams.
 
 ---
 
-### `nst_true`
+### `Nst_true`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_true(void)
+Nst_Obj *Nst_true(void)
 ```
 
-**Return value**:
+**Description:**
 
-This function returns `Nst_Consts.Bool_true`.
+Returns the true object constant.
 
 ---
 
-### `nst_false`
+### `Nst_false`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_false(void)
+Nst_Obj *Nst_false(void)
 ```
 
-**Return value**:
+**Description:**
 
-This function returns `Nst_Consts.Bool_false`.
+Returns the false object constant.
 
 ---
 
-### `nst_null`
+### `Nst_null`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_null(void)
+Nst_Obj *Nst_null(void)
 ```
 
-**Return value**:
+**Description:**
 
-This function returns `Nst_Consts.Bool_null`.
+Returns the null object constant.
 
 ---
 
-### `nst_type`
+### `Nst_type`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-const Nst_TypeObjs *nst_type(void)
+const Nst_TypeObjs *Nst_type(void)
 ```
 
-**Return value**:
+**Description:**
 
-This function returns the global `Nst_TypeObjs` structure.
+Returns a Nst_TypeObjs struct containing all the types.
 
 ---
 
-### `nst_str`
+### `Nst_str`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-const Nst_StrConsts *nst_str(void)
+const Nst_StrConsts *Nst_str(void)
 ```
 
-**Return value**:
+**Description:**
 
-This function returns the global `Nst_StrConsts` structure.
+Returns a Nst_StrConsts struct containing all the string constants.
 
 ---
 
-### `nst_const`
+### `Nst_const`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-const Nst_Consts *nst_const(void)
+const Nst_Consts *Nst_const(void)
 ```
 
-**Return value**:
+**Description:**
 
-This function returns the global `Nst_Consts` structure.
+Returns a Nst_Consts struct containing all the object constants.
 
 ---
 
-### `nst_stdio`
+### `Nst_iter_func`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_StdStreams *nst_stdio(void)
+const Nst_IterFunctions *Nst_iter_func(void)
 ```
 
-**Return value**:
+**Description:**
 
-This function returns the global `Nst_StdStreams` structure.
+Returns a Nst_IterFunctions struct containing all the function constants.
+
+---
+
+### `Nst_stdio`
+
+**Synopsis:**
+
+```better-c
+Nst_StdStreams *Nst_stdio(void)
+```
+
+**Description:**
+
+Returns a Nst_StdStreams struct containing all the standard IO streams.
+

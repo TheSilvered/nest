@@ -1,65 +1,66 @@
 # `iter.h`
 
-This header contains
+Nst_IterObj interface.
+
+## Authors
+
+TheSilvered
 
 ## Macros
 
 ### `ITER`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
 ITER(ptr)
 ```
 
-**Description**:
+**Description:**
 
-Casts `ptr` to a [`Nst_IterObj *`](#nst_iterobj).
-
----
-
-### `nst_iter_start`
-
-**Synopsis**:
-
-```better-c
-nst_iter_start(iter, err)
-```
-
-**Description**:
-
-Alias for [`_nst_iter_start`](#_nst_iter_start) that casts `iter` to a
-[`Nst_IterObj *`](#nst_iterobj) implicitly.
+Casts ptr to Nst_IterObj *.
 
 ---
 
-### `nst_iter_is_done`
+### `Nst_iter_start`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-nst_iter_is_done(iter, err)
+Nst_iter_start(iter)
 ```
 
-**Description**:
+**Description:**
 
-Alias for [`_nst_iter_is_done`](#_nst_iter_is_done) that casts `iter` to a
-[`Nst_IterObj *`](#nst_iterobj) implicitly.
+Alias for _Nst_iter_start that asts iter to Nst_IterObj *.
 
 ---
 
-### `nst_iter_get_val`
+### `Nst_iter_is_done`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-nst_iter_get_val(iter, err)
+Nst_iter_is_done(iter)
 ```
 
-**Description**:
+**Description:**
 
-Alias for [`_nst_iter_get_val`](#_nst_iter_get_val) that casts `iter` to a
-[`Nst_IterObj *`](#nst_iterobj) implicitly.
+Alias for _Nst_iter_is_done that asts iter to Nst_IterObj *.
+
+---
+
+### `Nst_iter_get_val`
+
+**Synopsis:**
+
+```better-c
+Nst_iter_get_val(iter)
+```
+
+**Description:**
+
+Alias for _Nst_iter_get_val that asts iter to Nst_IterObj *.
 
 ---
 
@@ -67,170 +68,335 @@ Alias for [`_nst_iter_get_val`](#_nst_iter_get_val) that casts `iter` to a
 
 ### `Nst_IterObj`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_IterObj
-{
-    NST_OBJ_HEAD;
-    NST_GGC_HEAD;
+typedef struct _Nst_IterObj {
+    Nst_OBJ_HEAD;
+    Nst_GGC_HEAD;
     Nst_FuncObj *start;
     Nst_FuncObj *is_done;
     Nst_FuncObj *get_val;
     Nst_Obj *value;
-}
-Nst_IterObj
+} Nst_IterObj
 ```
 
-**Description**:
+**Description:**
 
-The structure that defines a Nest iterator object.
+The structure defining a Nest iter object.
 
-**Fields**:
+**Fields:**
 
-- `start`: the function called when the iterator starts
-- `is_done`: the function called before each iteration to check if it has ended
-- `get_val`: the function called before each iteration to get the value to be
-  assigned to the variable
-- `value`: the object passed to `start`, `is_done` and `get_val`
+- `start`: the start function of the iterator
+- `is_done`: the is_done function of the iterator
+- `get_val`: the get_val function of the iterator
+- `value`: the value passed to the functions of the iterator
 
 ---
 
 ## Functions
 
-### `nst_iter_new`
+### `Nst_iter_new`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_iter_new(Nst_FuncObj *start,
-                      Nst_FuncObj *is_done,
-                      Nst_FuncObj *get_val,
-                      Nst_Obj     *value,
-                      Nst_OpErr   *err)
+Nst_Obj *Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *is_done,
+                      Nst_FuncObj *get_val, Nst_Obj *value)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new iterator. The references to the arguments must be increased
-manually.
+Creates a new Nest iterator object.
 
-**Arguments**:
+This function takes one reference of start, is_done, get_val and value both on
+success and on failure.
 
-- `[in] start`: the `_start_` function of the iterator
-- `[in] is_done`: the `_is_done_` function of the iterator
-- `[in] get_val`: the `_get_val_` function of the iterator
-- `[in] value`: the `value` of the iterator
-- `[out] err`: the error
+**Parameters:**
 
-**Return value**:
+- `start`: the start function for the new iterator
+- `is_done`: the is_done function for the new iterator
+- `get_val`: the get_val function for the new iterator
+- `value`: the value for the new iterator
 
-The function returns the new iterator or `NULL` in case of failure.
+**Returns:**
+
+The new object or NULL on failure. The error is set.
 
 ---
 
-### `_nst_iter_start`
+### `_Nst_iter_destroy`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-i32 _nst_iter_start(Nst_IterObj *iter, Nst_OpErr *err)
+void _Nst_iter_destroy(Nst_IterObj *iter)
 ```
 
-**Description**:
+**Description:**
 
-Executes the `_start_` function of `iter`.
-
-**Arguments**:
-
-- `iter`: the iter of which function to use
-- `err`: the error
-
-**Return value**:
-
-The function returns `0` on success and `-1` on failure.
+Destructor for Nest iter objects.
 
 ---
 
-### `_nst_iter_is_done`
+### `_Nst_iter_traverse`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-i32 _nst_iter_is_done(Nst_IterObj *iter, Nst_OpErr *err)
+void _Nst_iter_traverse(Nst_IterObj *iter)
 ```
 
-**Description**:
+**Description:**
 
-Executes the `_is_done_` function of `iter`.
-
-**Arguments**:
-
-- `iter`: the iter of which function to use
-- `err`: the error
-
-**Return value**:
-
-The function returns `0` if `_is_done_` returned false, `1` it the function
-returned true and `-1` on failure.
+Traverse function for Nest iter objects.
 
 ---
 
-### `_nst_iter_get_val`
+### `_Nst_iter_track`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj * _nst_iter_get_val(Nst_IterObj *iter, Nst_OpErr *err)
+void _Nst_iter_track(Nst_IterObj *iter)
 ```
 
-**Description**:
+**Description:**
 
-Executes the `_get_val_` function of `iter`.
-
-**Arguments**:
-
-- `iter`: the iter of which function to use
-- `err`: the error
-
-**Return value**:
-
-The function returns the object returned by `_get_val_` on success and `NULL`
-on failure.
+Track function for Nest iter objects.
 
 ---
 
-### Other functions
+### `_Nst_iter_start`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-// Functions for the iter object
-
-void _nst_iter_destroy(Nst_IterObj *iter)
-void _nst_iter_traverse(Nst_IterObj *iter)
-void _nst_iter_track(Nst_IterObj *iter)
-
-// Functions for the range iterator
-
-NST_FUNC_SIGN(nst_iter_range_start)
-NST_FUNC_SIGN(nst_iter_range_is_done)
-NST_FUNC_SIGN(nst_iter_range_get_val)
-
-// Functions for the sequence iterator
-
-NST_FUNC_SIGN(nst_iter_seq_start)
-NST_FUNC_SIGN(nst_iter_seq_is_done)
-NST_FUNC_SIGN(nst_iter_seq_get_val)
-
-// Functions for the string iterator
-
-NST_FUNC_SIGN(nst_iter_str_start)
-NST_FUNC_SIGN(nst_iter_str_is_done)
-NST_FUNC_SIGN(nst_iter_str_get_val)
+i32 _Nst_iter_start(Nst_IterObj *iter)
 ```
 
-**Description**:
+**Description:**
 
-These functions are used internally by Nest to create the built-in iterators or
-to manage `Iter` objects.
+Calls the start function of a Nst_IterObj.
+
+**Parameters:**
+
+- `iter`: the iterator to start
+
+**Returns:**
+
+-1 on failure and 0 on succcess. The error may not be set.
+
+---
+
+### `_Nst_iter_is_done`
+
+**Synopsis:**
+
+```better-c
+i32 _Nst_iter_is_done(Nst_IterObj *iter)
+```
+
+**Description:**
+
+Calls the is_done function of a Nst_IterObj.
+
+**Parameters:**
+
+- `iter`: the iterator to check for completion
+
+**Returns:**
+
+-1 on failure, 1 if the iterator is done, 0 if it can still iterate. The error
+may not be set.
+
+---
+
+### `_Nst_iter_get_val`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_iter_get_val(Nst_IterObj *iter)
+```
+
+**Description:**
+
+Calls the get_val function of a Nst_IterObj.
+
+**Parameters:**
+
+- `iter`: the iterator to get the value from
+
+**Returns:**
+
+The resulting object on success and NULL on failure. The error may not be set.
+
+---
+
+### `Nst_iter_range_start`
+
+**Synopsis:**
+
+```better-c
+Nst_FUNC_SIGN(Nst_iter_range_start)
+```
+
+**Description:**
+
+The start function of the range iterator.
+
+---
+
+### `Nst_iter_range_is_done`
+
+**Synopsis:**
+
+```better-c
+Nst_FUNC_SIGN(Nst_iter_range_is_done)
+```
+
+**Description:**
+
+The is_done function of the range iterator.
+
+---
+
+### `Nst_iter_range_get_val`
+
+**Synopsis:**
+
+```better-c
+Nst_FUNC_SIGN(Nst_iter_range_get_val)
+```
+
+**Description:**
+
+The get_val function of the range iterator.
+
+---
+
+### `Nst_iter_seq_start`
+
+**Synopsis:**
+
+```better-c
+Nst_FUNC_SIGN(Nst_iter_seq_start)
+```
+
+**Description:**
+
+The start function of the sequence iterator.
+
+---
+
+### `Nst_iter_seq_is_done`
+
+**Synopsis:**
+
+```better-c
+Nst_FUNC_SIGN(Nst_iter_seq_is_done)
+```
+
+**Description:**
+
+The is_done function of the sequence iterator.
+
+---
+
+### `Nst_iter_seq_get_val`
+
+**Synopsis:**
+
+```better-c
+Nst_FUNC_SIGN(Nst_iter_seq_get_val)
+```
+
+**Description:**
+
+The get_val function of the sequence iterator.
+
+---
+
+### `Nst_iter_str_start`
+
+**Synopsis:**
+
+```better-c
+Nst_FUNC_SIGN(Nst_iter_str_start)
+```
+
+**Description:**
+
+The start function of the string iterator.
+
+---
+
+### `Nst_iter_str_is_done`
+
+**Synopsis:**
+
+```better-c
+Nst_FUNC_SIGN(Nst_iter_str_is_done)
+```
+
+**Description:**
+
+The is_done function of the string iterator.
+
+---
+
+### `Nst_iter_str_get_val`
+
+**Synopsis:**
+
+```better-c
+Nst_FUNC_SIGN(Nst_iter_str_get_val)
+```
+
+**Description:**
+
+The get_val function of the string iterator.
+
+---
+
+### `Nst_iter_map_start`
+
+**Synopsis:**
+
+```better-c
+Nst_FUNC_SIGN(Nst_iter_map_start)
+```
+
+**Description:**
+
+The start function of the map iterator.
+
+---
+
+### `Nst_iter_map_is_done`
+
+**Synopsis:**
+
+```better-c
+Nst_FUNC_SIGN(Nst_iter_map_is_done)
+```
+
+**Description:**
+
+The is_done function of the map iterator.
+
+---
+
+### `Nst_iter_map_get_val`
+
+**Synopsis:**
+
+```better-c
+Nst_FUNC_SIGN(Nst_iter_map_get_val)
+```
+
+**Description:**
+
+The get_val function of the map iterator.
+

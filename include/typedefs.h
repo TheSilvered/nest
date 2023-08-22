@@ -1,10 +1,11 @@
 /**
  * @file typedefs.h
  *
- * @brief Clearer C types and useful platform-agnostic macros.
+ * @brief Clearer C types and useful platform-agnostic macros
  *
  * @author TheSilvered
  */
+
 #ifndef TYPEDEFS_H
 #define TYPEDEFS_H
 
@@ -104,6 +105,19 @@
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
+
+/* [docs:link i8 c_api.md/#type-definitions] */
+/* [docs:link i16 c_api.md/#type-definitions] */
+/* [docs:link i32 c_api.md/#type-definitions] */
+/* [docs:link i64 c_api.md/#type-definitions] */
+/* [docs:link u8 c_api.md/#type-definitions] */
+/* [docs:link u16 c_api.md/#type-definitions] */
+/* [docs:link u32 c_api.md/#type-definitions] */
+/* [docs:link u64 c_api.md/#type-definitions] */
+/* [docs:link f32 c_api.md/#type-definitions] */
+/* [docs:link f64 c_api.md/#type-definitions] */
+/* [docs:link usize c_api.md/#type-definitions] */
+/* [docs:link isize c_api.md/#type-definitions] */
 
 NstEXP typedef char i8;
 NstEXP typedef short i16;

@@ -39,7 +39,7 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(str_to_bytearray_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(repr_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(join_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(split_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(split_, 3);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(bin_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(oct_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(hex_, 2);
@@ -796,9 +796,11 @@ Nst_FUNC_SIGN(split_)
 {
     Nst_StrObj *str;
     Nst_Obj *opt_substr;
+    Nst_Obj *quantity_obj;
 
-    Nst_DEF_EXTRACT("s ?s", &str, &opt_substr);
+    Nst_DEF_EXTRACT("s ?s ?i", &str, &opt_substr, &quantity_obj);
 
+    i64 quantity = Nst_DEF_VAL(quantity_obj, AS_INT(quantity_obj), -1);
     i8 *sub;
     usize sub_len;
     bool rm_spaces = false;
@@ -818,6 +820,14 @@ Nst_FUNC_SIGN(split_)
     }
 
     Nst_SeqObj *vector = SEQ(Nst_vector_new(0));
+
+    if (quantity == 0) {
+        if (!Nst_vector_append(vector, str)) {
+            Nst_dec_ref(vector);
+            return nullptr;
+        }
+        return OBJ(vector);
+    }
 
     i8 *s = str->value;
     i8 *sub_idx = s;
@@ -859,6 +869,10 @@ Nst_FUNC_SIGN(split_)
             if (s_len == 0)
                 break;
         }
+        if (quantity != -1)
+            quantity--;
+        if (quantity == 0)
+            break;
     }
 
     if (s_len != 0) {

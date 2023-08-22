@@ -1,7 +1,7 @@
 /**
  * @file parser.h
  *
- * @brief Token parser into AST.
+ * @brief Token parser into AST
  *
  * @author TheSilvered
  */

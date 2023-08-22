@@ -1,7 +1,7 @@
 /**
  * @file str.h
  *
- * @brief Nst_StrObj interface.
+ * @brief Nst_StrObj interface
  *
  * @author TheSilvered
  */

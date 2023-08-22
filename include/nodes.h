@@ -1,7 +1,7 @@
 /**
  * @file nodes.h
  *
- * @brief Nodes of the AST.
+ * @brief Nodes of the AST
  *
  * @author TheSilvered
  */

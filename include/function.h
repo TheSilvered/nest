@@ -1,7 +1,7 @@
 /**
  * @file function.h
  *
- * @brief Nst_FuncObj interface
+ * @brief `Nst_FuncObj` interface
  *
  * @author TheSilvered
  */
@@ -66,7 +66,7 @@ NstEXP typedef struct _Nst_FuncObj {
  * @return The new function object or NULL on failure. On failure the error is
  * set.
  */
-NstEXP Nst_Obj *Nst_func_new(usize arg_num, Nst_InstList *bytecode);
+NstEXP Nst_Obj *NstC Nst_func_new(usize arg_num, Nst_InstList *bytecode);
 /**
  * Creates a new function object with a C function body.
  *
@@ -79,9 +79,8 @@ NstEXP Nst_Obj *Nst_func_new(usize arg_num, Nst_InstList *bytecode);
  * @return The new function object or NULL on failure. On failure the error is
  * set.
  */
-NstEXP Nst_Obj *Nst_func_new_c(usize arg_num,
-                               Nst_Obj *(*cbody)(usize     arg_num,
-                                                 Nst_Obj  **args));
+NstEXP Nst_Obj *NstC Nst_func_new_c(usize arg_num,
+                                    Nst_Obj *(*cbody)(usize, Nst_Obj **));
 /**
  * Sets the mod_globals table of a function and all the functions defined
  * inside it.
@@ -92,14 +91,14 @@ NstEXP Nst_Obj *Nst_func_new_c(usize arg_num,
  * @param func: the function to change the mod_globals field of
  * @param map: the map to set as the new value
  */
-NstEXP void _Nst_func_set_vt(Nst_FuncObj *func, Nst_MapObj *map);
+NstEXP void NstC _Nst_func_set_vt(Nst_FuncObj *func, Nst_MapObj *map);
 
 /* Traverse function for Nst_FuncObj */
-NstEXP void _Nst_func_traverse(Nst_FuncObj *func);
+NstEXP void NstC _Nst_func_traverse(Nst_FuncObj *func);
 /* Track function for Nst_FuncObj */
-NstEXP void _Nst_func_track(Nst_FuncObj *func);
+NstEXP void NstC _Nst_func_track(Nst_FuncObj *func);
 /* Destructor for Nst_Func_Obj */
-NstEXP void _Nst_func_destroy(Nst_FuncObj *func);
+NstEXP void NstC _Nst_func_destroy(Nst_FuncObj *func);
 
 /* The flags for Nst_FuncObj */
 NstEXP typedef enum _Nst_FuncFlags {

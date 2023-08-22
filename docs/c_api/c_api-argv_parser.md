@@ -1,114 +1,129 @@
 # `argv_parser.h`
 
-The header that contains the function for command-line argument parsing.
+Command-line arguments parser.
+
+## Authors
+
+TheSilvered
+
+## Structs
+
+### `Nst_CLArgs`
+
+**Synopsis:**
+
+```better-c
+typedef struct _Nst_CLArgs {
+    bool print_tokens, print_ast, print_bytecode;
+    bool force_execution;
+    Nst_CPID encoding;
+    bool no_default;
+    i32 opt_level;
+    i8 *command, *filename;
+    i32 args_start;
+} Nst_CLArgs
+```
+
+**Description:**
+
+A structure representing the command-line arguments of Nest.
+
+!!!note
+    `command` and `filename` cannot both be set.
+
+**Fields:**
+
+- `print_tokens`: whether the tokens of the program should be printed
+- `print_ast`: whether the AST of the program should be printed
+- `print_bytecode`: whether the bytecode of the program should be printed
+- `force_execution`: whether to execute the program when `print_tokens`,
+  `print_ast` or `print_bytecode` are true
+- `encoding`: the encoding of the file to open, ignored if it is passed through
+  the command
+- `no_default`: whether to initialize the program with default variables such as
+  `true`, `false`, `Int`, `Str` etc...
+- `opt_level`: the optimization level of the program 0 through 3
+- `command`: the code to execute passed as a command line argument
+- `filename`: the file to execute
+- `args_start`: the index where the arguments for the Nest program start
+
+---
 
 ## Functions
 
-### `nst_parse_args`
+### `_Nst_parse_args`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-i32 _nst_parse_args(i32 argc, i8 **argv,
-                    bool *print_tokens,
-                    bool *print_ast,
-                    bool *print_bytecode,
-                    bool *force_execution,
-                    bool *monochrome,
-                    bool *force_cp1252,
-                    bool *no_default,
-                    i32  *opt_level,
-                    i8  **command,
-                    i8  **filename,
-                    i32  *args_start)
+i32 _Nst_parse_args(i32 argc, i8 **argv, Nst_CLArgs *cl_args)
 ```
 
-**Description**:
+**Description:**
 
-Parses the command-line arguments given to the program.
+Parses command-line arguments.
 
-**Arguments**:
+**Parameters:**
 
-- `[in] argc` the number of arguments
-- `[in] argv` the array of the arguments
-- `[out] print_tokens` the `-t` or `--tokens` option
-- `[out] print_ast` the `-a` or `--ast` option
-- `[out] print_bytecode` the `-b` or `--bytecode` option
-- `[out] force_execution` the `-f` or `--force-execution` option
-- `[out] monochrome` the `-m` option
-- `[out] force_cp1252` the `--cp1252` option
-- `[out] no_default` the `--no-default` option
-- `[out] opt_level` the `-O<lvl>` option
-- `[out] command` the value after `-c`
-- `[out] filename` the file name passed
-- `[out] args_start` the index at which the arguments in `_args_` begin
+- `argc`: length of `argv`
+- `argv`: the command-line arguments array
+- `cl_args`: the struct where to put the parsed arguments
 
-**Return value**:
+**Returns:**
 
-- `-1` is returned if the parsing failed
-- `0` is returned if the parsing succeded and the program can run
-- `1` is returned if the parsing succeded and the program should stop because a
-  message was printed.
+`-1` on failure, `0` on success where the program can continue, `1` on success
+when the program should stop because an info message was printed.
 
 ---
 
-### `nst_supports_color`
+### `Nst_supports_color`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-bool nst_supports_color(void)
+bool Nst_supports_color(void)
 ```
 
-**Return value**:
+**Returns:**
 
-Returns `true` if the output supports color and `false` if it does not. When the
-`--monochrome` flag is used, this function returns `true`.
+`true` if ANSI escapes are supported on the current console and `false`
+otherwise.
 
 ---
 
-### `_nst_wargv_to_argv`
+### `_Nst_wargv_to_argv`
 
-_This function is available **only on Windows**_
-
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-bool _nst_wargv_to_argv(int       argc,
-                        wchar_t **wargv,
-                        i8     ***argv,
-                        i8      **argv_content)
+bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv)
 ```
 
-**Description**:
+**Description:**
 
-This function turns Unicode Windows arguments into normal C strings encoded in
-UTF-8. Both `argv` and `argv_content` need to be freed.
+**WINDOWS ONLY** Re-encodes Unicode arguments to UTF-8.
 
-**Arguments**:
+**Parameters:**
 
-- `[in] argc`: the number of command-line arguments
-- `[in] wargv`: the Unicode arguments
-- `[out] argv`: the pointer where to store the arguments, the memory is
-  allocated by the function
-- `[out] argv_content`: the pointer where to store the contents of the arguments,
-  the memory is allocated by the function
+- `argc`: the length of `wargv`
+- `wargv`: the arguments given
+- `argv`: the pointer where the re-encoded arguments are put
 
-**Return value**:
+**Returns:**
 
-The function returns `true` on success and `false` on failure.
+`true` on success and `false` on failure.
 
 ---
 
-### `_nst_set_console_mode`
+### `_Nst_set_console_mode`
 
-_This function is available **only on Windows**_
-
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void _nst_set_console_mode(void)
+void _Nst_set_console_mode(void)
 ```
-**Description**:
 
-Sets the console output to be UTF-8 and to intercept ANSI escape sequences.
+**Description:**
+
+WINDOWS-ONLY Initialises the console.
+

@@ -1,17 +1,32 @@
 # `hash.h`
 
-This header contains the general hashing function used by Nest in maps.
+Object hashing functions.
+
+## Authors
+
+TheSilvered
 
 ## Functions
 
-### `nst_obj_hash`
+### `Nst_obj_hash`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-i32 nst_obj_hash(Nst_Obj *obj)
+i32 Nst_obj_hash(Nst_Obj *obj)
 ```
 
-**Return value**:
+**Description:**
 
-This function returns the hash of `obj` or `-1` if it cannot be hashed.
+Hashes a Nest object setting its hash field.
+
+If the object is unhashable -1 is set.
+
+**Parameters:**
+
+- `obj`: the object to be hashed
+
+**Returns:**
+
+The hash of the object or -1 if the object cannot be hashed. No error is set.
+

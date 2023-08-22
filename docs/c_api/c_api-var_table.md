@@ -1,133 +1,146 @@
 # `var_table.h`
 
-This header contains the definition for the Nest variable table.
+Variable table interface using Nst_MapObj.
+
+## Authors
+
+TheSilvered
 
 ## Macros
 
-### `nst_vt_get`
+### `Nst_vt_get`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-nst_vt_get(vt, name)
+Nst_vt_get(vt, name)
 ```
 
-**Description**:
+**Description:**
 
-Alias for [`_nst_vt_get`](#_nst_vt_get) that casts `name` to `Nst_Obj *`.
+Alias of _Nst_vt_get that casts name to Nst_Obj *.
 
 ---
 
-### `nst_vt_set`
+### `Nst_vt_set`
 
-**Synopsis**:
-
-```better-c
-nst_vt_set(vt, name, val, err)
-```
-
-**Description**:
-
-Alias for [`_nst_vt_set`](#_nst_vt_set) that casts `name` and `val` to
-`Nst_Obj *`.
-
----
-
-## Structs
-
-### `Nst_VarTable`
-
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_VarTable
-{
-    Nst_MapObj *vars;
-    Nst_MapObj *global_table;
-}
-Nst_VarTable
+Nst_vt_set(vt, name, val)
 ```
 
-**Description**:
+**Description:**
 
-The structure defining a variable table in Nest.
-
-**Fields**:
-
-- `vars`: the local variables
-- `global_table`: the global variables
+Alias of _Nst_vt_set that casts name and val to Nst_Obj *.
 
 ---
 
 ## Functions
 
-### `nst_vt_new`
+### `Nst_vt_new`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_VarTable *nst_vt_new(Nst_MapObj *global_table,
-                         Nst_StrObj *cwd,
-                         Nst_SeqObj *args,
-                         Nst_OpErr  *err)
+Nst_VarTable *Nst_vt_new(Nst_MapObj *global_table, Nst_StrObj *cwd,
+                         Nst_SeqObj *args, bool no_default)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new variable table.
+Creates a new var table on the heap.
 
-**Arguments**:
+**Parameters:**
 
-- `[in] global_table`: the global table
-- `[in] cwd`: the current working directory
-- `[in] args`: the command line arguments
-- `[out] err`: the error
-
-**Return value**:
-
-The function returns the new variable table or `NULL` on failure.
+- `global_table`: the current global variable table, can be NULL
+- `cwd`: the current working directory, ignored when global_table is not NULL or
+  no_default is true
+- `args`: the command line arguments, ignored when global_table is not NULL or
+  no_default is true
+- `no_default`: whether to create predefined variables
 
 ---
 
-### `_nst_vt_get`
+### `Nst_vt_destroy`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *_nst_vt_get(Nst_VarTable *vt, Nst_Obj *name)
+void Nst_vt_destroy(Nst_VarTable *vt)
 ```
 
-**Description**:
+**Description:**
 
-Gets a value from a variable table.
-
-**Arguments**:
-
-- `[in] vt`: the variable table
-- `[in] name`: the name of the variable
-
-**Return value**:
-
-The function returns the value associated with `name` or `nst_null()` if it is
-not found.
+Nst_VarTable destructor.
 
 ---
 
-### `_nst_vt_set`
+### `_Nst_vt_get`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void _nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val, Nst_OpErr *err)
+Nst_Obj *_Nst_vt_get(Nst_VarTable *vt, Nst_Obj *name)
 ```
 
-**Description**:
+**Description:**
+
+Retrieves a value from a variable table.
+
+**Parameters:**
+
+- `vt`: the variable table to get the value from
+- `name`: the name of the value to get
+
+**Returns:**
+
+The value associated with the key or Nst_null() if the key is not present in the
+table.
+
+---
+
+### `_Nst_vt_set`
+
+**Synopsis:**
+
+```better-c
+bool _Nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val)
+```
+
+**Description:**
 
 Sets a value in a variable table.
 
-**Arguments**:
+**Parameters:**
 
-- `[inout] vt`: the variable table
-- `[in] name`: the key of the value
-- `[in] val`: the value associated with `name`
-- `[out] err`: the error
+- `vt`: the variable table to set the value into
+- `name`: the name of the value to set
+- `value`: the value to associate to name
+
+**Returns:**
+
+true on success and false on failure. The error is set.
+
+---
+
+### `Nst_vt_from_func`
+
+**Synopsis:**
+
+```better-c
+Nst_VarTable *Nst_vt_from_func(Nst_FuncObj *f)
+```
+
+**Description:**
+
+Creates a new variable table with the correct global table of the funciton.
+
+**Parameters:**
+
+- `f`: the function where the global table is stored
+
+**Returns:**
+
+The new var table or NULL on failure. The error is set.
+

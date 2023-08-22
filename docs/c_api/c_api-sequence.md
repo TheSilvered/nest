@@ -1,116 +1,113 @@
 # `sequence.h`
 
-This header defines the Nest sequence object.
+Nst_SeqObject interface for Arrays and Vectors.
+
+## Authors
+
+TheSilvered
 
 ## Macros
 
-### `_NST_VECTOR_MIN_SIZE`
+### `Nst_seq_set`
 
-**Description**:
-
-The minimum number of elements inside a vector
-
----
-
-### `_NST_VECTOR_GROWTH_RATIO`
-
-**Description**:
-
-The radio of growth and shrinking of a vector.
-
----
-
-### `SEQ`, `ARRAY`, `VECTOR`
-
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-SEQ(ptr)
-ARRAY(ptr)
-VECTOR(ptr)
+Nst_seq_set(seq, idx, val)
 ```
 
-**Description**:
+**Description:**
 
-These macros cast `ptr` to a `Nst_SeqObj *`.
+Alias for _Nst_seq_set that casts seq to Nst_SeqObj * and val to Nst_Obj *.
 
 ---
 
-### `nst_seq_set`, `nst_vector_set`, `nst_array_set`
+### `Nst_seq_get`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-nst_seq_set(seq, idx, val)
-nst_vector_set nst_seq_set
-nst_array_set nst_seq_set
+Nst_seq_get(seq, idx)
 ```
 
-**Description**:
+**Description:**
 
-Alias for [`_nst_seq_set`](#_nst_seq_set) that casts `seq` to `Nst_SeqObj *` and
-`val` to `Nst_Obj *`.
+Alias for _Nst_seq_get that casts seq to Nst_SeqObj *.
 
 ---
 
-### `nst_seq_get`, `nst_vector_get`, `nst_array_get`
+### `Nst_vector_set`
 
-**Synopsis**:
+**Description:**
 
-```better-c
-nst_seq_get(seq, idx)
-nst_vector_get nst_seq_get
-nst_array_get nst_seq_get
-```
-
-**Description**:
-
-Alias for [`_nst_seq_get`](#_nst_seq_get) that casts `seq` to `Nst_SeqObj *`.
+Alias of Nst_seq_set.
 
 ---
 
-### `nst_vector_append`
+### `Nst_vector_get`
 
-**Synopsis**:
+**Description:**
 
-```better-c
-nst_vector_append(vect, val, err)
-```
-
-**Description**:
-
-Alias for [`_nst_vector_append`](#_nst_vector_append) that casts `vect` to
-`Nst_SeqObj *` and `val` to `Nst_Obj *`.
+Alias of Nst_seq_get.
 
 ---
 
-### `nst_vector_remove`
+### `Nst_array_set`
 
-**Synopsis**:
+**Description:**
 
-```better-c
-nst_vector_remove(vect, val)
-```
-
-**Description**:
-
-Alias for [`_nst_vector_remove`](#_nst_vector_remove) that casts `vect` to
-`Nst_SeqObj *`.
+Alias of Nst_seq_set.
 
 ---
 
-### `nst_vector_pop`
+### `Nst_array_get`
 
-**Synopsis**:
+**Description:**
+
+Alias of Nst_geq_set.
+
+---
+
+### `Nst_vector_append`
+
+**Synopsis:**
 
 ```better-c
-nst_vector_pop(vect, quantity)
+Nst_vector_append(vect, val)
 ```
 
-**Description**:
+**Description:**
 
-Alias for [`_nst_vector_pop`](#_nst_vector_pop) that casts `vect` to
-`Nst_SeqObj *`.
+Alias of _Nst_vector_append that casts vect to Nst_SeqObj * and val to Nst_Obj
+*.
+
+---
+
+### `Nst_vector_remove`
+
+**Synopsis:**
+
+```better-c
+Nst_vector_remove(vect, val)
+```
+
+**Description:**
+
+Alias of Nst_vector_remove that casts vect to Nst_SeqObj * and val to Nst_Obj *.
+
+---
+
+### `Nst_vector_pop`
+
+**Synopsis:**
+
+```better-c
+Nst_vector_pop(vect, quantity)
+```
+
+**Description:**
+
+Alias of _Nst_vector_pop that casts vect to Nst_SeqObj *.
 
 ---
 
@@ -118,404 +115,409 @@ Alias for [`_nst_vector_pop`](#_nst_vector_pop) that casts `vect` to
 
 ### `Nst_SeqObj`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_SeqObj
-{
-    NST_OBJ_HEAD;
-    NST_GGC_HEAD;
+typedef struct _Nst_SeqObj {
+    Nst_OBJ_HEAD;
+    Nst_GGC_HEAD;
     Nst_Obj **objs;
     usize len;
-    usize size;
-}
-Nst_SeqObj
+    usize cap;
+} Nst_SeqObj
 ```
 
-**Description**:
+**Description:**
 
-The structure that defines a Nest sequence object.
+A structure representing a Nest sequence object.
 
-**Fields**:
+**Fields:**
 
-- `objs`: the objects array
-- `len`: the number of objects in the sequence
-- `size`: the maximum number of objects that can be added to the sequence before
-  having to allocate more memory, for arrays this number coincides with `len`
+- `objs`: the array of objects inside the sequence
+- `len`: the lenght of the sequence
+- `cap`: the capacity of the sequence
 
 ---
 
 ## Type aliases
 
-### `Nst_ArrayObj`, `Nst_VectorObj`
+### `Nst_ArrayObj`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef Nst_SeqObj Nst_ArrayObj
-typedef Nst_SeqObj Nst_VectorObj
+typedef Nst_SeqObj Nst_ArrayObj;
 ```
+
+**Description:**
+
+Type added for C type completion.
+
+---
+
+### `Nst_VectorObj`
+
+**Synopsis:**
+
+```better-c
+typedef Nst_SeqObj Nst_VectorObj;
+```
+
+**Description:**
+
+Type added for C type completion.
 
 ---
 
 ## Functions
 
-### `nst_array_new`
+### `Nst_array_new`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_array_new(usize len, Nst_OpErr *err)
+Nst_Obj *Nst_array_new(usize len)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new array of length `len`, the objects must be set manually inside.
+Creates a new array object of the specified lenght.
 
-**Arguments**:
+The objects inside the array must be set manually, each entry in the array takes
+one reference of the object inserted.
 
-- `[in] len`: the length of the array
-- `[out] err`: the error
+**Parameters:**
 
-**Return value**:
+- `len`: the length of the array to create
 
-The function returns the new array on success and `NULL` on failure.
+**Returns:**
+
+The new object on success and NULL on failure. The error is set.
 
 ---
 
-### `nst_vector_new`
+### `Nst_vector_new`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_vector_new(usize len, Nst_OpErr *err)
+Nst_Obj *Nst_vector_new(usize len)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new vector of length `len`, the objects must be set manually inside.
+Creates a new vector object of the specified lenght.
 
-**Arguments**:
+The objects inside the vector must be set manually, each entry in the vector
+takes one reference of the object inserted.
 
-- `[in] len`: the length of the vector
-- `[out] err`: the error
+**Parameters:**
 
-**Return value**:
+- `len`: the length of the vector to create
 
-The function returns the new vector on success and `NULL` on failure.
+**Returns:**
+
+The new object on success and NULL on failure. The error is set.
 
 ---
 
-### `nst_array_create`
+### `Nst_array_create`
 
-**Synopsis**:
-
-```better-c
-Nst_Obj *nst_array_create(usize len, Nst_OpErr *err, ...)
-```
-
-**Description**:
-
-Creates a new array inserting the values. The function takes one reference of
-the values, regardless of success of failure.
-
-**Arguments**:
-
-- `[in] len`: the length of the array to create
-- `[out] err`: the error
-- `[in] ...`: the objects to insert
-
-**Return value**:
-
-The function returns the new array or `NULL` in case of failure.
-
-**Example**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *build_pair(Nst_Obj *ob1, Nst_obj *ob2, Nst_OpErr *err)
-{
-    // add the references for the array
-    nst_inc_ref(ob1);
-    nst_inc_ref(ob2);
-    return nst_array_create(2, err, ob1, ob2);
-}
+Nst_Obj *Nst_array_create(usize len, ...)
 ```
 
-!!!note
-    The number of objects passed to the function must be equal to the specified
-    length
+**Description:**
+
+Creates an array object of the length specified, inserting the objects inside.
+
+The number of varargs passed to the function must match the number given in the
+len parameter.
+
+**Parameters:**
+
+- `len`: the length of the array to create
+- `...`: the objects to insert in the array, a reference is taken from each
+  object
+
+**Returns:**
+
+The new array on success or NULL on failure. The error is set.
 
 ---
 
-### `nst_vector_create`
+### `Nst_vector_create`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_vector_create(usize len, Nst_OpErr *err, ...)
+Nst_Obj *Nst_vector_create(usize len, ...)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new vector inserting the values. The function takes one reference of
-the values, regardless of success of failure.
+Creates a vector object of the length specified, inserting the objects inside.
 
-**Arguments**:
+The number of varargs passed to the function must match the number given in the
+len parameter.
 
-- `[in] len`: the length of the vector to create
-- `[out] err`: the error
-- `[in] ...`: the objects to insert
+**Parameters:**
 
-**Return value**:
+- `len`: the length of the vector to create
+- `...`: the objects to insert in the vector, a reference is taken from each
+  object
 
-The function returns the new vector or `NULL` in case of failure.
+**Returns:**
 
-!!!note
-    The number of objects passed to the function must be equal to the specified
-    length
+The new vector on success or NULL on failure. The error is set.
 
 ---
 
-### `nst_array_create_c`
+### `Nst_array_create_c`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_array_create_c(const i8 *fmt, Nst_OpErr *err, ...)
+Nst_Obj *Nst_array_create_c(const i8 *fmt, ...)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new array from a specified format creating objects from C values.
-The length is obtained from the type format.  
-See the [sequence type format](#sequence-type-format).
+Creates an array object, creating the contained objects from C values.
 
-**Arguments**:
+The number of varargs passed to the function must match the number of types in
+the fmt argument. For more information about object types in Nst_array_create_c
+see sequence.h.
 
-- `[in] fmt`: the type format
-- `[out] err`: the error
-- `[in] ...`: the values to insert
+**Parameters:**
 
-**Return value**:
+- `fmt`: the types of the values passed to the function
+- `...`: the values passed to the function used to create the objects
 
-The function returns the new array or `NULL` on failure.
+**Returns:**
+
+The new array on success or NULL on failure. The error is set.
 
 ---
 
-### `nst_vector_create_c`
+### `Nst_vector_create_c`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_vector_create_c(const i8 *fmt, Nst_OpErr *err, ...)
+Nst_Obj *Nst_vector_create_c(const i8 *fmt, ...)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new vector from a specified format creating objects from C values.
-The length is obtained from the type format.  
-See the [sequence type format](#sequence-type-format).
+Creates a vector object, creating the contained objects from C values.
 
-**Arguments**:
+The number of varargs passed to the function must match the number of types in
+the fmt argument. For more information about object types in Nst_vector_create_c
+see sequence.h.
 
-- `[in] fmt`: the type format
-- `[out] err`: the error
-- `[in] ...`: the values to insert
+**Parameters:**
 
-**Return value**:
+- `fmt`: the types of the values passed to the function
+- `...`: the values passed to the function used to create the objects
 
-The function returns the new vector or `NULL` on failure.
+**Returns:**
+
+The new array on success or NULL on failure. The error is set.
 
 ---
 
-### `_nst_seq_set`
+### `_Nst_seq_destroy`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-bool _nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val)
+void _Nst_seq_destroy(Nst_SeqObj *seq)
 ```
 
-**Description**:
+**Description:**
 
-Sets a value at index `idx` of `seq` increasing its reference count and
-decreasing the one of the replaced object, this cannot be called if there is no
-valid object at `idx`.
-
-**Arguments**:
-
-- `[inout] seq`: the sequence to set the object of
-- `[in] idx`: the index of the object to set, if negative it starts from the end
-  with the last index being `-1`
-- `[in] val`: the value to insert
-
-**Return value**:
-
-The function returns `true` if the object was set properly or `false` if `idx`
-was outside the sequence.
+Destructor for sequence objects.
 
 ---
 
-### `_nst_seq_get`
+### `_Nst_seq_traverse`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *_nst_seq_get(Nst_SeqObj *seq, i64 idx)
+void _Nst_seq_traverse(Nst_SeqObj *seq)
 ```
 
-**Description**:
+**Description:**
 
-Gets the object at index `idx` of `seq`. Negative integers are interpreted as
-starting from the end of the sequence with the last item being `-1`, the second
-to last item `-2` and so on.
-
-**Arguments**:
-
-- `[in] seq`: the sequence to get the object from
-- `[in] idx`: the index of the object
-
-**Return value**:
-
-The function returns the object or `NULL` if the index is outside the sequence.
+Traverse function for sequence objects.
 
 ---
 
-### `_nst_vector_resize`
+### `_Nst_seq_track`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-bool _nst_vector_resize(Nst_SeqObj *vect, Nst_OpErr *err)
+void _Nst_seq_track(Nst_SeqObj *seq)
 ```
 
-**Description**:
+**Description:**
 
-This function expands the vector when it is full and shrinks it when is mostly
-empty. The function is guaranteed to succeed when shrinking.
-
-**Arguments**:
-
-- `[inout] vect`: the vector to expand
-- `[out] err`: the error
-
-**Return value**:
-
-The function returns `false` on failure and `true` on success. It is guaranteed
-to succeed when shrinking the vector.
+Track function for sequence objects.
 
 ---
 
-### `_nst_vector_append`
+### `_Nst_seq_set`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-bool _nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val, Nst_OpErr *err)
+bool _Nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val)
 ```
 
-**Description**:
+**Description:**
 
-Appends a value to a vector.
+Changes the value of an index in a sequence.
 
-**Arguments**:
+The sequence to change must already contain valid values. idx can be negative in
+which case it is subtracted from the length of the sequence to get the new
+index.
 
-- `[inout] vect`: the vector to append the value to
-- `[in] val`: the value to append
-- `[out] err`: the error
+**Parameters:**
 
-**Return value**:
+- `seq`: the sequence to modify
+- `idx`: the index to update
+- `val`: the value to set the index to
 
-The function returns `false` on failure and `true` on success.
+**Returns:**
+
+true on success and false on failure. The error is set. This function fails when
+the index is outside the sequence.
 
 ---
 
-### `_nst_vector_remove`
+### `_Nst_seq_get`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *_nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val)
+Nst_Obj *_Nst_seq_get(Nst_SeqObj *seq, i64 idx)
 ```
 
-**Description**:
+**Description:**
 
-Removes the first occurrence of `val` from a vector shifting the following items
-to fill the spot.
+Gets the value at an index of a sequence.
 
-**Arguments**:
+The sequence must already contain valid values.
 
-- `[inout] vect`: the vector to remove the value from
-- `[in] val`: an object equal to the value to remove
+**Parameters:**
+
+- `seq`: the sequence to get the value from
+- `idx`: the index of the value to get
+
+**Returns:**
+
+A new reference to the object at index on success and NULL on failure. The error
+is set. The function fails when the index is outside the sequence.
 
 ---
 
-### `_nst_vector_pop`
+### `_Nst_vector_resize`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *_nst_vector_pop(Nst_SeqObj *vect, usize quantity)
+bool _Nst_vector_resize(Nst_SeqObj *vect)
 ```
 
-**Description**:
+**Description:**
+
+Resizes a vector if needed.
+
+**Parameters:**
+
+- `vect`: the vector to resize
+
+**Returns:**
+
+true on success and false on failure. The error is set. The function never fails
+if the vector is untouched or is shrinked.
+
+---
+
+### `_Nst_vector_append`
+
+**Synopsis:**
+
+```better-c
+bool _Nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val)
+```
+
+**Description:**
+
+Appends a value to the end of a vector.
+
+**Parameters:**
+
+- `vect`: the vector to append the value to
+- `val`: the value to append
+
+**Returns:**
+
+true on success and false on failure. The error is set.
+
+---
+
+### `_Nst_vector_remove`
+
+**Synopsis:**
+
+```better-c
+bool _Nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val)
+```
+
+**Description:**
+
+Removes the first occurrence of a value inside a vector.
+
+**Parameters:**
+
+- `vect`: the vector to remove the value from
+- `val`: an object that is equal to the value to remove, the equality is checked
+  with Nst_obj_eq
+
+**Returns:**
+
+true if the object was removed and false if there was no object that matched. No
+error is set.
+
+---
+
+### `_Nst_vector_pop`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_vector_pop(Nst_SeqObj *vect, usize quantity)
+```
+
+**Description:**
 
 Pops a certain number of values from the end of a vector.
 
-**Arguments**:
+If the quantity is greater than the length of the vector, it is adapted and the
+function does not fail.
 
-- `[inout] vect`: the vector to pop the values from
-- `[in] quantity`: the number of values to remove
+**Parameters:**
 
-**Return value**:
+- `vect`: the vector to pop the values from
+- `quantity`: the number of values to pop
 
-The function returns the last value popped.
+**Returns:**
 
----
+The last value popped or NULL if no value was popped. No error is set.
 
-### Other functions
-
-**Synopsis**:
-
-```better-c
-void _nst_seq_destroy(Nst_SeqObj *seq)
-void _nst_seq_traverse(Nst_SeqObj *seq)
-void _nst_seq_track(Nst_SeqObj *seq)
-```
-
-**Description**:
-
-These functions are used to manage sequence objects.
-
-## Sequence type format
-
-The format is a series of letters that specify for each index the the type of
-the value that is given to the function.
-
-- `i`: `i32`
-- `I`: `i64`
-- `f` and `F`: `f64`
-- `b`: `bool`
-- `B`: `u8`
-- `o`: an object that has already a reference for the new sequence
-- `O`: an object which needs its reference count to be increased
-- `n`: `NULL`
-
-### Example
-
-```better-c
-Nst_Int num;
-Nst_Obj *obj;
-NST_DEF_EXTRACT(iB|i|r:r, &num, &obj);
-
-Nst_Obj *array = nst_array_create_c(
-    "iIfbBoOn", err,
-    123, // an Int object is created
-    num, // an Int object is created here too
-    4.3, // a Real object is created
-    true, // the value nst_true() is added
-    10, // a Byte object is created
-    obj, // the object already has a reference because it was casted to Real
-    nst_type()->IOFile, // the object does not have an extra reference
-    nullptr /* nst_null() is added */);
-```

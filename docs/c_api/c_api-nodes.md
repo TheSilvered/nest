@@ -1,38 +1,38 @@
 # `nodes.h`
 
-This header contains the structures and functions to handle AST nodes.
+Nodes of the AST.
+
+## Authors
+
+TheSilvered
 
 ## Macros
 
-### `NST_NODE`
+### `Nst_NODE`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-NST_NODE(expr)
+Nst_NODE(expr)
 ```
 
-**Description**:
+**Description:**
 
-Casts `expr` to `Nst_Node *`.
+Casts expr to Nst_Node *.
 
 ---
 
-### `NST_NODE_RETUNS_VALUE`
+### `Nst_NODE_RETUNS_VALUE`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-NST_NODE_RETUNS_VALUE(node_type)
+Nst_NODE_RETUNS_VALUE(node_type)
 ```
 
-**Description**:
+**Description:**
 
-Checks if a node is an expression or a statement.
-
-**Arguments**:
-
-- `node_type`: a `Nst_NodeType`, _not_ a `Nst_Node`
+Evaluates to true if the specified node type returns a value.
 
 ---
 
@@ -40,122 +40,108 @@ Checks if a node is an expression or a statement.
 
 ### `Nst_Node`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_Node
-{
+typedef struct _Nst_Node {
     Nst_Pos start;
     Nst_Pos end;
     Nst_NodeType type;
     Nst_LList *nodes;
     Nst_LList *tokens;
-}
-Nst_Node
+} Nst_Node
 ```
 
-**Description**:
+**Description:**
 
-The structure for a node of the abstract syntax tree.
+A structure representing a node.
 
-**Fields**:
+**Fields:**
 
-- `start`: the start position of the node
-- `end`: the end position of the node
+- `start`: the starting position of the node
+- `end`: the ending position of the node
 - `type`: the type of the node
-- `nodes`: the child nodes
-- `tokens`: the tokens it refernecs
+- `nodes`: the child nodes of the node
+- `tokens`: the tokens that the node contains
 
 ---
 
 ## Functions
 
-### `nst_node_new`
+### `Nst_node_new`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Node *nst_node_new(Nst_NodeType type, Nst_OpErr *err)
+Nst_Node *Nst_node_new(Nst_NodeType type)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new node on the heap.
+Creates and initializes a new AST node on the heap.
 
-**Arguments**:
+Though the position is not in the arguments, its position should be set later
+with Nst_node_set_pos.
 
-- `[in] type`: the type of the new node
-- `[out] err`: the error
+**Parameters:**
 
-**Return value**:
+- `type`: the type of the node to initialize
 
-The function returns the new node or `NULL` if an error occurs.
+**Returns:**
+
+The new node or NULL on failure. The error is set.
 
 ---
 
-### `nst_node_new_pos`
+### `Nst_node_new_pos`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Node *nst_node_new_pos(Nst_NodeType type,
-                           Nst_Pos      start,
-                           Nst_Pos      end,
-                           Nst_OpErr   *err)
+Nst_Node *Nst_node_new_pos(Nst_NodeType type, Nst_Pos start, Nst_Pos end)
 ```
 
-**Description**:
+**Description:**
 
-Creates a new node on the heap but setting also its `start` and `end` fields.
+Creates and initializes a new AST node on the heap.
 
-**Arguments**:
+**Parameters:**
 
-- `[in] type`: the type of the new node
-- `[in] start`: the start position of the new node
-- `[in] end`: the start position of the new node
-- `[out] err`: the error
+- `type`: the type of the node to initialize
+- `start`: the start position of the node
+- `end`: the end position of the node
 
-**Return value**:
+**Returns:**
 
-The function returns the new node or `NULL` if an error occurs.
+The new node or NULL on failure. The error is set.
 
 ---
 
-### `nst_node_set_pos`
+### `Nst_node_set_pos`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void nst_node_set_pos(Nst_Node *node, Nst_Pos start, Nst_Pos end)
+void Nst_node_set_pos(Nst_Node *node, Nst_Pos start, Nst_Pos end)
 ```
 
-**Description**:
+**Description:**
 
 Sets the position of a node.
 
-**Arguments**:
-
-- `[inout] node`: the node to set the position to
-- `[in] start`: the start position
-- `[in] end`: the end position
-
 ---
 
-### `nst_node_destroy`
+### `Nst_node_destroy`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void nst_node_destroy(Nst_Node *node)
+void Nst_node_destroy(Nst_Node *node)
 ```
 
-**Description**:
+**Description:**
 
-Destroys a node and all its children nodes and tokens.
-
-**Arguments**:
-
-- `node`: the node to destroy
+Destroys a node and its children.
 
 ---
 
@@ -163,38 +149,40 @@ Destroys a node and all its children nodes and tokens.
 
 ### `Nst_NodeType`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef enum _Nst_NodeType
-{
-    NST_NT_LONG_S,
-    NST_NT_WHILE_L,
-    NST_NT_DOWHILE_L,
-    NST_NT_FOR_L,
-    NST_NT_FOR_AS_L,
-    NST_NT_FUNC_DECLR,
-    NST_NT_RETURN_S,
-    NST_NT_CONTINUE_S,
-    NST_NT_BREAK_S,
-    NST_NT_SWITCH_S,
-    NST_NT_TRY_CATCH_S,
-    NST_NT_STACK_OP,
-    NST_NT_LOCAL_STACK_OP,
-    NST_NT_LOCAL_OP,
-    NST_NT_ARR_LIT,
-    NST_NT_VEC_LIT,
-    NST_NT_MAP_LIT,
-    NST_NT_VALUE,
-    NST_NT_ACCESS,
-    NST_NT_EXTRACT_E,
-    NST_NT_ASSIGN_E,
-    NST_NT_IF_E,
-    NST_NT_LAMBDA
-}
-Nst_NodeType
+typedef enum _Nst_NodeType {
+    Nst_NT_LONG_S,
+    Nst_NT_WHILE_L,
+    Nst_NT_DOWHILE_L,
+    Nst_NT_FOR_L,
+    Nst_NT_FOR_AS_L,
+    Nst_NT_FUNC_DECLR,
+    Nst_NT_RETURN_S,
+    Nst_NT_CONTINUE_S,
+    Nst_NT_BREAK_S,
+    Nst_NT_SWITCH_S,
+    Nst_NT_TRY_CATCH_S,
+
+    // These nodes return a value
+
+    Nst_NT_STACK_OP,
+    Nst_NT_LOCAL_STACK_OP,
+    Nst_NT_LOCAL_OP,
+    Nst_NT_ARR_LIT,
+    Nst_NT_VEC_LIT,
+    Nst_NT_MAP_LIT,
+    Nst_NT_VALUE,
+    Nst_NT_ACCESS,
+    Nst_NT_EXTRACT_E,
+    Nst_NT_ASSIGN_E,
+    Nst_NT_IF_E,
+    Nst_NT_LAMBDA
+} Nst_NodeType
 ```
 
-**Description**:
+**Description:**
 
-The enum containing all the possible node types.
+The types of nodes in the AST.
+

@@ -1,7 +1,7 @@
 /**
  * @file mem.h
  *
- * @brief Heap & dynamic memory management functions.
+ * @brief Heap & dynamic memory management functions
  *
  * @author TheSilvered
  */
@@ -64,7 +64,7 @@ extern "C" {
  * @param unit_size: the size in bytes of one object
  * @param data: the array of objects
  */
-typedef struct _Nst_SizedBuffer {
+NstEXP typedef struct _Nst_SizedBuffer {
     usize len;
     usize cap;
     usize unit_size;
@@ -83,7 +83,7 @@ typedef struct _Nst_SizedBuffer {
  * @param unit_size: always 1
  * @param data: the string
  */
-typedef struct _Nst_Buffer {
+NstEXP typedef struct _Nst_Buffer {
     usize len;
     usize cap;
     usize unit_size;
@@ -100,13 +100,13 @@ NstEXP void *NstC Nst_raw_realloc(void *block, usize size);
 /* Alias for C free. */
 NstEXP void NstC Nst_free(void *block);
 #else
-/* Alias for C malloc. */
+/* [docs:ignore] Alias for C malloc. */
 #define Nst_raw_malloc malloc
-/* Alias for C calloc. */
+/* [docs:ignore] Alias for C calloc. */
 #define Nst_raw_calloc calloc
-/* Alias for C realloc. */
+/* [docs:ignore] Alias for C realloc. */
 #define Nst_raw_realloc realloc
-/* Alias for C free. */
+/* [docs:ignore] Alias for C free. */
 #define Nst_free free
 #endif
 

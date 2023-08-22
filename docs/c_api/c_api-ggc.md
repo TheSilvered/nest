@@ -1,75 +1,94 @@
 # `ggc.h`
 
-This header contains structs and functions related to the generational garbage
-collector.
+Generational Garbage Collector (GGC).
+
+## Authors
+
+TheSilvered
 
 ## Macros
 
+### `_Nst_GEN1_MAX`
+
+**Description:**
+
+The maximum number of objects inside the first generation
+
+---
+
+### `_Nst_GEN2_MAX`
+
+**Description:**
+
+The maximum number of objects inside the second generation
+
+---
+
+### `_Nst_GEN3_MAX`
+
+**Description:**
+
+The maximum number of objects inside the third generation
+
+---
+
+### `_Nst_OLD_GEN_MIN`
+
+**Description:**
+
+The minimum size of the old generation needed to collect it
+
+---
+
 ### `GGC_OBJ`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
 GGC_OBJ(obj)
 ```
 
-**Description**:
+**Description:**
 
-Casts an object to `Nst_GGCObj *`.
+Casts obj to Nst_GGCObj *
 
 ---
 
-### `NST_OBJ_IS_TRACKED`
+### `Nst_OBJ_IS_TRACKED`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-NST_OBJ_IS_TRACKED(obj)
+Nst_OBJ_IS_TRACKED(obj)
 ```
 
-**Description**:
+**Description:**
 
-Checks whether the object is tracked by the garbage collector.
-
----
-
-### `NST_GGC_HEAD`
-
-**Description**:
-
-Adds the necessary fields to an object struct to make it traceable by the
-garbage collector.  
-It must always be inserted after `NST_OBJ_HEAD` and before any additional fields.
-
-**Added fields**:
-
-- `ggc_next`
-- `ggc_prev`
-- `ggc_list`
-- `traverse_func`
-- `track_func`
-
-Check [`Nst_GGCObj`](#nst_ggcobj) for their function.
+Checks whether a Nst_GGCObj is tracked by the garbage collector
 
 ---
 
-### `NST_GGC_OBJ_INIT`
+### `Nst_GGC_HEAD`
 
-**Synopsis**:
+**Description:**
+
+The macro to add support to the GGC to an object structure.
+
+It must be placed after Nst_OBJ_HEAD and before any other fields.
+
+---
+
+### `Nst_GGC_OBJ_INIT`
+
+**Synopsis:**
 
 ```better-c
-NST_GGC_OBJ_INIT(obj, trav_func, track_function)
+Nst_GGC_OBJ_INIT(obj, trav_func, track_function)
 ```
 
-**Description**:
+**Description:**
 
-Initializes all the fields added by `NST_GGC_HEAD`.
-
-**Arguments**:
-
-- `obj`: the object of which the fields must be initialized
-- `trav_func`: the traverse function of the object
-- `track_function`: the tracking function of the object
+Initializes the fields of a Nst_GGCObj.
 
 ---
 
@@ -77,208 +96,173 @@ Initializes all the fields added by `NST_GGC_HEAD`.
 
 ### `Nst_GGCObj`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_GGCObj
-{
-    NST_OBJ_HEAD;
-    NST_GGC_HEAD;
-}
-Nst_GGCObj;
+typedef struct _Nst_GGCObj {
+    Nst_OBJ_HEAD;
+    Nst_GGC_HEAD;
+} Nst_GGCObj
 ```
 
-**Description**:
+**Description:**
 
-The structure containing all the fields in common with any object that is
-traceable by the garbage collector.
+The struct representing a garbage collector object.
 
-**Fields**:
+**Fields:**
 
-- `ggc_next`: the next object contained in the `Nst_GGCList`
-- `ggc_prev`: the previous object contained in the `Nst_GGCList`
-- `ggc_list`: the `Nst_GGCList` the object is inside of, this is the list that
-  `ggc_next` and `ggc_pref` refer to
-- `traverse_func`: the function that adds the `NST_FLAG_GGC_REACHABLE` flag to
-  any objects that the object references
-- `track_func`: the function that tracks any objects referenced by the object
-  with the [`nst_ggc_track_obj`](#nst_ggc_track_obj) function
-
-**Example**:
-
-The following two functions are used by the builtin `Map` type:
-
-```better-c
-void _nst_map_traverse(Nst_MapObj *map)
-{
-    for ( i32 i = nst_map_get_next_idx(-1, map);
-          i != -1;
-          i = nst_map_get_next_idx(i, map) )
-    {
-        NST_FLAG_SET(map->nodes[i].key,   NST_FLAG_GGC_REACHABLE);
-        NST_FLAG_SET(map->nodes[i].value, NST_FLAG_GGC_REACHABLE);
-    }
-}
-
-void _nst_map_track(Nst_MapObj *map)
-{
-    for ( i32 i = nst_map_get_next_idx(-1, map);
-          i != -1;
-          i = nst_map_get_next_idx(i, map) )
-    {
-        if ( NST_FLAG_HAS(map->nodes[i].value, NST_FLAG_GGC_IS_SUPPORTED) )
-        {
-            nst_ggc_track_obj((Nst_GGCObj*)(map->nodes[i].value));
-        }
-    }
-}
-```
-
-The `NST_FLAG_GGC_REACHABLE` flag is reserved for any object and can be set
-even if it is not traceable by the garbage collector, as it happens in
-`_nst_map_traverse`.
+- `ggc_next`: the next object in the generation it belongs to
+- `ggc_prev`: the previous object in the generation it belongs to
+- `ggc_list`: the genreration it belongs to
+- `traverse_func`: the function that sets as reachable all the objects contained
+  in the object
+- `track_func`: the function that tracks all the trackable objects that the
+  object contains when it itself is tracked
 
 ---
 
 ### `Nst_GGCList`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_GGCList
-{
+typedef struct _Nst_GGCList {
     Nst_GGCObj *head;
     Nst_GGCObj *tail;
-    usize size;
-}
-Nst_GGCList;
+    usize len;
+} Nst_GGCList
 ```
 
-**Description**:
+**Description:**
 
-A structure defining a doubly linked list of objects belonging to the same
-generation.
+The structure representing a garbage collector generation.
 
-**Fields**:
+**Fields:**
 
-- `head`: the first object in the list
-- `tail`: the last object in the list
-- `size`: the number of objects in the list
+- `head`: the first object in the generation
+- `tail`: the last object in the generation
+- `len`: the total number of objects in the generation
 
 ---
 
 ### `Nst_GarbageCollector`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_GarbageCollector
-{
+typedef struct _Nst_GarbageCollector {
     Nst_GGCList gen1;
     Nst_GGCList gen2;
     Nst_GGCList gen3;
     Nst_GGCList old_gen;
-    Nst_Int old_gen_pending;
-}
-Nst_GarbageCollector;
+    i64 old_gen_pending;
+} Nst_GarbageCollector
 ```
 
-**Description**:
+**Description:**
 
-The structure of the garbage collector holding the generations of the tracked
-objects.
+The structure representing the garbage collector.
+
+**Fields:**
+
+- `gen1`: the first generation
+- `gen2`: the second generation
+- `gen3`: the third generation
+- `old_gen`: the old generation
+- `old_gen_pending`: the number of objects in the old generation that have been
+  added since its last collection
 
 ---
 
 ## Functions
 
-### `nst_ggc_collect_gen`
+### `Nst_ggc_collect_gen`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void nst_ggc_collect_gen(Nst_GGCList *gen,
-                         Nst_GGCList *other_gen1,
-                         Nst_GGCList *other_gen2,
-                         Nst_GGCList *other_gen3)
+void Nst_ggc_collect_gen(Nst_GGCList *gen, Nst_GGCList *other_gen1,
+                         Nst_GGCList *other_gen2, Nst_GGCList *other_gen3)
 ```
 
-**Description**:
+**Description:**
 
-Deletes the objects that have no external reference inside of a certain
-generation.
+Collects the object of a generation
 
 ---
 
-### `nst_ggc_collect`
+### `Nst_ggc_collect`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void nst_ggc_collect(void)
+void Nst_ggc_collect(void)
 ```
 
-**Description**:
+**Description:**
 
-Collects the generations if needed and moves the remaining objects to the next
-one.
+Runs a general collection, that collects generations as needed.
 
 ---
 
-### `nst_ggc_track_obj`
+### `Nst_ggc_track_obj`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void nst_ggc_track_obj(Nst_GGCObj *obj)
+void Nst_ggc_track_obj(Nst_GGCObj *obj)
 ```
 
-**Description**:
+**Description:**
 
-Sets `obj` to be tracked. If it is already tracked, the function does not fail.
-
-**Arguments**:
-
-- `[in] obj`: the object to track
+Adds an object to the tracked objects by the garbage collector.
 
 ---
 
-### `nst_ggc_delete_objs`
+### `Nst_ggc_delete_objs`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void nst_ggc_delete_objs(Nst_GarbageCollector *ggc)
+void Nst_ggc_delete_objs(void)
 ```
 
-**Description**:
+**Description:**
 
-Deletes all the objects still tracked by the garbage collector.
+Deletes all objects still present in the garbage collector.
 
-**Arguments**:
+---
 
-- `ggc`: the garbage collector of which to delete the objects
+### `Nst_ggc_init`
+
+**Synopsis:**
+
+```better-c
+void Nst_ggc_init(void)
+```
+
+**Description:**
+
+Initializes the garbage collector of Nst_state.
 
 ---
 
 ## Enums
 
-### `Nst_GGCFlag`
+### `Nst_GGCFlags`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef enum _Nst_GGCFlag
-{
-    NST_FLAG_GGC_REACHABLE    = 0b10000000,
-    NST_FLAG_GGC_UNREACHABLE  = 0b01000000,
-    NST_FLAG_GGC_DELETED      = 0b00100000,
-    NST_FLAG_GGC_IS_SUPPORTED = 0b00010000
-}
-Nst_GGCFlag;
+typedef enum _Nst_GGCFlags {
+    Nst_FLAG_GGC_REACHABLE    = 0x80000000,
+    Nst_FLAG_GGC_UNREACHABLE  = 0x40000000,
+    Nst_FLAG_GGC_DELETED      = 0x20000000,
+    Nst_FLAG_GGC_IS_SUPPORTED = 0x10000000
+} Nst_GGCFlags
 ```
 
-**Description**:
+**Description:**
 
-The flags used to track the state of objects during a collection. They are
-reserved for any object, even if it is not traceable.
+The flags of a garbage collector object.
+

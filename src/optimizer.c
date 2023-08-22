@@ -331,6 +331,7 @@ Nst_InstList *Nst_optimize_bytecode(Nst_InstList *bc, bool optimize_builtins,
             return NULL;
         }
 
+        // remove NO_OP instructions and compact the bytecode
         i64 size = bc->total_size;
         Nst_Inst *inst_list = bc->instructions;
         for (i64 i = 0; i < size; i++) {
@@ -762,26 +763,40 @@ static void remove_dead_code(Nst_InstList *bc)
 
         bool is_jump_useless = inst_list[i].id == Nst_IC_JUMP;
         bool stop_at_save_error = inst_list[i].id == Nst_IC_THROW_ERR;
-        i64 end = is_jump_useless ? inst_list[i].int_val : size;
+        i64 end;
+        if (inst_list[i].id != Nst_IC_RETURN_VAL)
+            end = inst_list[i].int_val;
+        else
+            end = size;
 
         for (i64 j = i + 1; j < end; j++) {
-            if (has_jumps_to(bc, j, i + 1, inst_list[i].int_val - 1)) {
+            if (has_jumps_to(bc, j, i + 1, end - 1)) {
                 is_jump_useless = false;
-                break;
+                // check the removed instructions again because now they could
+                // be referenced
+                end = j;
+                j = i;
+                continue;
             }
 
-            if (stop_at_save_error && inst_list[j].id == Nst_IC_SAVE_ERROR)
-                break;
+            if (stop_at_save_error && inst_list[j].id == Nst_IC_SAVE_ERROR) {
+                end = j;
+                j = i;
+                continue;
+            }
+        }
 
+        if (is_jump_useless)
+            inst_list[i].id = Nst_IC_NO_OP;
+
+        // remove dead instructions
+        for (i64 j = i + 1; j < end; j++) {
             if (inst_list[j].val != NULL)
                 Nst_dec_ref(inst_list[j].val);
 
             inst_list[j].id = Nst_IC_NO_OP;
             inst_list[j].val = NULL;
         }
-
-        if (is_jump_useless)
-            inst_list[i].id = Nst_IC_NO_OP;
     }
 }
 

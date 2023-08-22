@@ -519,13 +519,13 @@ static void compile_for_as_l(Nst_Node *node)
     // For loop advance
     i64 loop_advance = CURR_LEN;
     body_start = body_start->next;
-    Nst_LLNode *body_end = c_state.inst_ls->tail;
     inst = Nst_inst_new_int(
         Nst_IC_JUMP,
         cond_start_idx,
         node->start,
         node->end);
     ADD_INST(inst);
+    Nst_LLNode *body_end = c_state.inst_ls->tail;
 
     i64 body_end_idx = CURR_LEN;
     jump_body_end->int_val = body_end_idx;

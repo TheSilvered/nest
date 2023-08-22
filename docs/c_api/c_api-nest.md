@@ -1,21 +1,16 @@
 # `nest.h`
 
-This includes all the other headers and defines some macros.
+Header files and Nst_VERSION definition.
+
+## Authors
+
+TheSilvered
 
 ## Macros
 
-### `_NST_VERSION_BASE`
+### `Nst_VERSION`
 
-**Description**:
+**Description:**
 
-The current version of Nest as a string, such as `beta-0.12.0`.
+The current version of Nest as a string.
 
----
-
-### `NST_VERSION`
-
-**Description**:
-
-The current version of Nest as a string that also includes the architecture of
-the platform, such as `beta-0.12.0 x64`. If the architecture cannot be
-determined `x??` is used.

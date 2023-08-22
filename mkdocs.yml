@@ -41,7 +41,7 @@ nav:
     - compiler.h: c_api/c_api-compiler.md
     - encoding.h: c_api/c_api-encoding.md
     - error.h: c_api/c_api-error.md
-    - error_internal.h: c_api/c_api-error_internal.md
+    - file.h: c_api/c_api-file.md
     - format.h: c_api/c_api-format.md
     - function.h: c_api/c_api-function.md
     - ggc.h: c_api/c_api-ggc.md

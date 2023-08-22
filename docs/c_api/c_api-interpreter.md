@@ -1,218 +1,336 @@
 # `interpreter.h`
 
-This header contains the structures and functions used to execute Nest bytecode.
+Bytecode interpreter.
+
+## Authors
+
+TheSilvered
 
 ## Structs
 
 ### `Nst_ExecutionState`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-typedef struct _Nst_ExecutionState
-{
+typedef struct _Nst_ExecutionState {
     Nst_Traceback traceback;
     Nst_VarTable *vt;
-    Nst_Int idx;
+    i64 idx;
     Nst_GarbageCollector ggc;
     Nst_StrObj *curr_path;
     Nst_SeqObj *argv;
     i32 opt_level;
-    Nst_ValueStack *v_stack;
-    Nst_CallStack  *f_stack;
-    Nst_CatchStack *c_stack;
+    Nst_ValueStack v_stack;
+    Nst_CallStack  f_stack;
+    Nst_CatchStack c_stack;
     Nst_LList *loaded_libs;
     Nst_LList *lib_paths;
     Nst_MapObj *lib_handles;
     Nst_LList *lib_srcs;
-}
-Nst_ExecutionState
+} Nst_ExecutionState
 ```
 
-**Description**:
+**Description:**
 
-This structure holds many variables regarding the state of the code.
+Global execution state of Nest.
 
-**Fields**:
+**Fields:**
 
-- `traceback`: the back trace of the errors
-- `vt`: the current variable table
-- `idx`: the index of the current instruction
-- `ggc`: the generational garbage collector
-- `curr_path`: the current working directory
-- `argv`: the arguments passed to Nest
-- `opt_level`: the maximum level of optimization for the files
-- `v_stack`: the value stack
-- `f_stack`: the call (or function) stack
-- `c_stack`: the catch frame stack
-- `loaded_libs`: the handles to the C libraries loaded
-- `lib_paths`: the import stack, used to detect circular imports
-- `lib_handles`: a map with the path of the library as the key and a map of the
-  contents as the value, used when re-importing a library
-- `lib_srcs`: the source texts of the Nest library imported, used to print the
-  errors
+- `traceback`: traceback of the current running program
+- `vt`: current variable table
+- `idx`: current instruction index
+- `ggc`: generational garbage collector
+- `curr_path`: current working directory
+- `argv`: arguments passed to the program
+- `opt_level`: maximum optimization level when importing libraries
+- `v_stack`: value stack
+- `f_stack`: call stack
+- `c_stack`: catch stack
+- `loaded_libs`: dynamic library handles
+- `lib_paths`: import stack
+- `lib_handles`: maps of the imported libraries
+- `lib_srcs`: sources of the imported Nest libraries
 
 ---
 
 ## Functions
 
-### `nst_run`
+### `Nst_run`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-i32 nst_run(Nst_FuncObj *main_func,
-            i32          argc,
-            i8         **argv,
-            i8          *filename,
-            i32          opt_lvl,
-            bool         no_default)
+i32 Nst_run(Nst_FuncObj *main_func, i32 argc, i8 **argv, i8 *filename,
+            i32 opt_lvl, bool no_default)
 ```
 
-**Description**:
+**Description:**
 
-Runs the main program, must never be called.
+Runs the main program.
+
+Must never be called inside a library.
+
+**Parameters:**
+
+- `main_func`: the function object of the main program
+- `argc`: the command line argument count
+- `argv`: the command line arguments
+- `filename`: the name of the file of the main program
+- `opt_level`: the maximum optimization level
+- `no_default`: whether to initialize the variable table of the main program
+  with built-in values
+
+**Returns:**
+
+The exit code of the program.
 
 ---
 
-### `nst_run_module`
+### `Nst_run_module`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-i32 nst_run_module(i8 *file_name, Nst_SourceText *lib_src)
+i32 Nst_run_module(i8 *file_name, Nst_SourceText *lib_src)
 ```
 
-**Description**:
+**Description:**
 
-Runs an external Nest file. Should not be called, use `nst_obj_import` instead
-in `obj_ops.h`.
+Runs an external Nest file.
 
-**Arguments**:
+If the function succeedes, the result of the module is on top of the value
+stack.
 
-- `[in] file_name`: the path of the module, must exist no checks are done
-- `[out] lib_src`: the source of the module
+**Parameters:**
 
-**Return value**:
-The function returns -1 on fail and 0 on success
+- `file_name`: the name of the file to run, must exist since no checking is done
+- `lib_src`: the pointer where to store the source of the file, if an error
+  occurs the source of the library is expected to be on the lib_srcs list of the
+  global state
+
+**Returns:**
+
+-1 on failure and 0 on success.
 
 ---
 
-### `nst_call_func`
+### `Nst_call_func`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_call_func(Nst_FuncObj *func, Nst_Obj **args, Nst_OpErr *err)
+Nst_Obj *Nst_call_func(Nst_FuncObj *func, Nst_Obj **args)
 ```
 
-**Description**:
+**Description:**
 
-Calls a function object.
+Calls a Nst_FuncObj.
 
-**Arguments**:
+It can have both a Nest or C body. No checking is done on the number of
+arguments.
 
-- `[in] func`: the function to run
-- `[in] args`: the arguments to pass to the function
-- `[out] err`: the error
+**Parameters:**
 
-**Return value**:
+- `func`: the function to call
+- `args`: the array of arguments to pass to it, the correct number of arguments
+  must be ginven, no null arguments are added
 
-The function returns the value returned by the function or `NULL` on failure.
+**Returns:**
+
+The result of the function or NULL on failure. When a function with a Nest body
+is called the error may not be set. When a function with a C body is called, the
+error is always set.
 
 ---
 
-### `nst_run_func_context`
+### `Nst_run_func_context`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Obj *nst_run_func_context(Nst_FuncObj *func,
-                              Nst_Int      idx,
-                              Nst_MapObj  *vars,
-                              Nst_MapObj  *globals)
+Nst_Obj *Nst_run_func_context(Nst_FuncObj *func, i64 idx, Nst_MapObj *vars,
+                              Nst_MapObj *globals)
 ```
 
-**Description**:
+**Description:**
 
-Runs a *Nest* function giving full control on its execution.
+Executes the body of a Nst_FuncObj that has a Nest body using a given context.
 
-**Arguments**:
+The context is set according to the arguments passed.
 
-- `[in] func`: the function to run
-- `[in] idx`: the instruction index at which to start the execution
-- `[in] vars`: the local variables to be used
-- `[in] globals`: the global variables to be used
+**Parameters:**
 
-**Return value**:
+- `func`: the function to execute
+- `idx`: the instruction index from which to start the execution of the body
+- `vars`: the local variable table
+- `globals`: the global variable table, it may be NULL, in which case it is
+  determined automatically
 
-The function returns the value returned by the function or `NULL` on failure.
+**Returns:**
+
+The result of the function or NULL on failure. The error may not be set.
 
 ---
 
-### `nst_get_full_path`
+### `Nst_get_full_path`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-usize nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part, Nst_OpErr *err)
+usize Nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part)
 ```
 
-**Description**:
+**Description:**
 
-Gets the full path from a relative one allocating it on the heap.
+Returns the absolute path to a file system object.
 
-**Arguments**:
+The absolute path is allocated on the heap.
 
-- `[in] file_path`: the relative path
-- `[out] buf`: the place where the buffer is stored
-- `[out] file_part`: the place where the file name begins, can be `NULL`
-- `[out] err`: the error
+**Parameters:**
 
-**Return value**:
+- `file_path`: the relative path to the object
+- `buf`: the buf where the absolute path is placed
+- `file_part`: where the start of the file name inside the file path is put,
+  this may be NULL in which case it is ignored
 
-The function returns the length of the path or `0` on failure.
+**Returns:**
+
+The length in bytes of the absolute path.
 
 ---
 
-### `nst_state_free`
+### `Nst_current_inst`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void nst_state_free(void)
+Nst_Inst *Nst_current_inst(void)
 ```
 
-**Description**:
+**Description:**
 
-Frees all the variables inside the global `Nst_ExecutionState` except for
-`loaded_libs`. Must never be called by a library.
+Returns a pointer to the current instruction being executed. On failure NULL is
+returned. No error is set.
 
 ---
 
-### `_nst_unload_libs`
+### `Nst_state_init`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void _nst_unload_libs(void)
+bool Nst_state_init(i32 argc, i8 **argv, i8 *filename, i32 opt_level,
+                    bool no_default)
 ```
 
-**Description**:
+**Description:**
 
-Frees `loaded_libs` of the global `Nst_ExecutionState`, must be called after
-`_nst_streams_del` but never by a library.
+Initializes the global state.
+
+**Parameters:**
+
+- `argc`: the command line argument count
+- `argv`: the command line arguments
+- `filename`: the name of the file of the main program
+- `opt_level`: the maximum optimization level
+- `no_default`: whether to initialize the variable table of the main program
+  with built-in values
+
+**Returns:**
+
+true if the state initialized succesfully and false otherwise. No error is set.
 
 ---
 
-### `nst_get_state`
+### `Nst_state_was_init`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_ExecutionState *nst_get_state(void)
+bool Nst_state_was_init(void)
 ```
 
-**Return value**:
+**Description:**
 
-Returns a pointer to the global `Nst_ExecutionState`.
+Returns true if the state was initialized and false otherwise.
+
+---
+
+### `Nst_state_free`
+
+**Synopsis:**
+
+```better-c
+void Nst_state_free(void)
+```
+
+**Description:**
+
+Frees the variables inside the global state, calls free_lib in the libraries
+that define it and deletes the objects inside the garbage collector.
+
+---
+
+### `_Nst_unload_libs`
+
+**Synopsis:**
+
+```better-c
+void _Nst_unload_libs(void)
+```
+
+**Description:**
+
+Frees loaded_libs, must be called after Nst_state_free.
+
+---
+
+### `Nst_get_state`
+
+**Synopsis:**
+
+```better-c
+Nst_ExecutionState *Nst_get_state(void)
+```
+
+**Description:**
+
+Returns a pointer to the global state of the interpreter.
+
+---
+
+### `Nst_chdir`
+
+**Synopsis:**
+
+```better-c
+i32 Nst_chdir(Nst_StrObj *str)
+```
+
+**Description:**
+
+Changes the current working directory using a Nst_StrObj.
+
+**Returns:**
+
+0 on success and -1 on failure. The error is set.
+
+---
+
+### `Nst_getcwd`
+
+**Synopsis:**
+
+```better-c
+Nst_StrObj *Nst_getcwd(void)
+```
+
+**Description:**
+
+Gets the current working directory as a Nest string.
+
+**Returns:**
+
+the new string or NULL on failure. The error is set.
+

@@ -1,7 +1,7 @@
 /**
  * @file optimizer.h
  *
- * @brief Ast and bytecode optimizer.
+ * @brief Ast and bytecode optimizer
  *
  * @author TheSilvered
  */

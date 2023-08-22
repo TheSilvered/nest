@@ -6,7 +6,7 @@
  * @author TheSilvered
  */
 
-/*
+/* [docs:ignore]
   Usage of the 'types' argument:
 
   Builtin types:

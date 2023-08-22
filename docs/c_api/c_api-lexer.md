@@ -1,103 +1,113 @@
-# `lexer.h`
+# `iter.h`
 
-This header contains the functions used by the lexer to create a list of tokens.
+Lexer and tokenizer for Nest code.
+
+## Authors
+
+TheSilvered
 
 ## Functions
 
-### `nst_tokenizef`
+### `Nst_tokenizef`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_LList *nst_tokenizef(i8             *filename,
-                         bool            force_cp1252,
-                         i32            *opt_level,
-                         bool           *no_default,
-                         Nst_SourceText *src_text,
-                         Nst_Error      *error)
+Nst_LList *Nst_tokenizef(i8 *filename, Nst_CPID encoding, i32 *opt_level,
+                         bool *no_default, Nst_SourceText *src_text,
+                         Nst_Error *error)
 ```
 
-**Description**:
+**Description:**
 
-Creates an list of tokens from a file.
+Opens and tokenizes a file.
 
-**Arguments**:
+**Parameters:**
 
-- `[in] filename`: the path to the file to tokenize
-- `[in] force_cp1252`: force the file to be decoded with CP-1252 encoding
-- `[out] opt_level`, `no_default`: the parameters modified by the file arguments
-- `[out] src_text`: the source of the file
-- `[out] error`: the error that occurred
+- `filename`: the path to the file
+- `encoding`: the supposed encoding of the file, if set to Nst_CP_UNKNOWN it
+  will be detected automatically
+- `opt_level`: where the optimization level is stored if specified with file
+  arguments
+- `no_default`: where the --no-default option is stored if specified with file
+  arguments
+- `src_text`: where the source of the file is saved
+- `error`: where the error is put if it occurrs
 
-**Return value**:
+**Returns:**
 
-The function returns the list of tokens on success and `NULL` on failure.
+A Nst_LList of tokens or NULL on failure. No error is set.
 
 ---
 
-### `nst_tokenize`
+### `Nst_tokenize`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_LList *nst_tokenize(Nst_SourceText *text, Nst_Error *error)
+Nst_LList *Nst_tokenize(Nst_SourceText *text, Nst_Error *error)
 ```
 
-**Description**:
+**Description:**
 
-Tokenizes a `Nst_SourceText`.
+Tokenizes text.
 
-**Arguments**:
+**Parameters:**
 
-- `[in] text`: the text to tokenize
-- `[out] error`: the error
+- `text`: the text to tokenize
+- `error`: where the error is put if it occurrs
 
-**Return value**:
+**Returns:**
 
-The function returns the list of tokens on success and `NULL` on failure.
+A Nst_LList of tokens or NULL on failure. No global operation error is set.
 
 ---
 
-### `nst_add_lines`
+### `Nst_add_lines`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void nst_add_lines(Nst_SourceText *text, i32 start_offset)
+bool Nst_add_lines(Nst_SourceText *text)
 ```
 
-**Description**:
+**Description:**
 
-Populates the `lines` array of `text`.
+Adds the lines array to the given text.
 
-**Arguments**:
+On failure the lines field of the struct is set to NULL and lines_len to 0.
 
-- `[inout] text`: the text to add the lines to
-- `[in] start_offset`: an offset in bytes from the beginning of the text that
-  sets the starting point
+**Parameters:**
+
+- `text`: the text to add the line starts to
+
+**Returns:**
+
+true on success and false on failure. No error is set.
 
 ---
 
-### `nst_normalize_encoding`
+### `Nst_normalize_encoding`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-i32 nst_normalize_encoding(Nst_SourceText *text,
-                           bool            is_cp1252,
-                           Nst_Error      *error)
+bool Nst_normalize_encoding(Nst_SourceText *text, Nst_CPID encoding,
+                            Nst_Error *error)
 ```
 
-**Description**:
+**Description:**
 
-Re-encodes the text with UTF-8.
+Re-encodes a file to be UTF-8.
 
-**Arguments**:
+**Parameters:**
 
-- `[inout] text`: the text to re-encode
-- `[in] is_cp1252`: whether to force the detected encoding to be CP-1252
-- `[out] error`: the error
+- `text`: the text to re-encode
+- `encoding`: the encoding of the text, if Nst_CP_UNKNWON it is detected
+  automatically
+- `error`: where the error is put if it occurrs
 
-**Return value**:
+**Returns:**
 
-The function returns the offset to pass to `nst_add_lines` or `-1` on failure.
+true on success and false on failure. No global operation error is set.
+

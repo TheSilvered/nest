@@ -1,7 +1,7 @@
 /**
  * @file runtime_stack.h
  *
- * @brief Stacks used for the VM during runtime.
+ * @brief Stacks used for the VM during runtime
  *
  * @author TheSilvered
  */

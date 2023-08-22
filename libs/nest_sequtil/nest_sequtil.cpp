@@ -189,7 +189,7 @@ Nst_FUNC_SIGN(slice_)
     if ((stop - start) % step != 0)
         new_size++;
 
-    if (new_size <= 0) {
+    if (new_size <= 0 || seq_len == 0) {
         Nst_dec_ref(seq);
         if (seq_type == Nst_type()->Str)
             return Nst_string_new((i8 *)"", 0, false);
@@ -199,8 +199,8 @@ Nst_FUNC_SIGN(slice_)
             return Nst_vector_new(0);
     }
 
-    if (seq_type == Nst_type()->Array || seq_type == Nst_type()->Vector) {
-        Nst_Obj *new_seq = seq_type == Nst_type()->Array
+    if (Nst_T(seq_type, Array) || Nst_T(seq_type, Vector)) {
+        Nst_Obj *new_seq = Nst_T(seq_type, Array)
             ? Nst_array_new(new_size)
             : Nst_vector_new(new_size);
 

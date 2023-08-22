@@ -1,42 +1,47 @@
 # `parser.h`
 
-This header contains the functions used to parse and print the AST of a sequence
-of tokens.
+Token parser into AST.
+
+## Authors
+
+TheSilvered
 
 ## Functions
 
-### `nst_parse`
+### `Nst_parse`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-Nst_Node *nst_parse(Nst_LList *tokens, Nst_Error *error)
+Nst_Node *Nst_parse(Nst_LList *tokens, Nst_Error *error)
 ```
 
-**Description**:
+**Description:**
 
-Creates the abstract syntax tree from a list of tokens.
+Parses a list of tokens into an abstract syntax tree.
 
-**Arguments**:
+The list of tokens is destroyed when calling this function.
 
-- `tokens`: the tokens to parse
-- `error`: the error that occured
+**Parameters:**
 
-**Return value**:
+- `tokens`: the tokens to be parsed
+- `error`: a pointer to put the error into
 
-The function returns the AST or `NULL` if it fails. The token list is always
-freed.
+**Returns:**
+
+The AST or NULL on failure. No operation error is set.
 
 ---
 
-### `nst_print_ast`
+### `Nst_print_ast`
 
-**Synopsis**:
+**Synopsis:**
 
 ```better-c
-void nst_print_ast(Nst_Node *ast)
+void Nst_print_ast(Nst_Node *ast)
 ```
 
-**Description**:
+**Description:**
 
-Prints the abstract syntax tree to stdout.
+Prints the AST to the Nest standart output.
+
