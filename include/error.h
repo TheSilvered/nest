@@ -369,9 +369,9 @@ NstEXP Nst_OpErr *NstC Nst_error_get(void);
 /* Clears the global operation error, even if it is not set. */
 NstEXP void NstC Nst_error_clear(void);
 
-/* Initializes the traceback of the current `Nst_ExecutionState`. */
+/* Initializes the traceback of the current `Nst_state`. */
 NstEXP bool NstC Nst_traceback_init(void);
-/* Frees the traceback of the current `Nst_ExecutionState`. */
+/* Frees the traceback of the current `Nst_state`. */
 NstEXP void NstC Nst_traceback_delete(void);
 
 /**

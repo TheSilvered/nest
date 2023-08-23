@@ -19,11 +19,11 @@ extern "C" {
 #endif // !__cplusplus
 
 /**
- * String constants
+ * String constants.
  *
- * @brief Fields starting with t_ are the name of types, the ones starting with
- * c_ are the name of constants, the one starting with e_ are the name of
- * errors and the one starting with o_ are others.
+ * @brief Fields starting with `t_` are the name of types, the ones starting
+ * with `c_` are the name of constants, the one starting with `e_` are the name
+ * of errors and the one starting with `o_` are others.
  */
 NstEXP typedef struct _Nst_StrConsts {
     // Type strings
@@ -67,7 +67,7 @@ NstEXP typedef struct _Nst_StrConsts {
     Nst_StrObj *o_failed_alloc;
 } Nst_StrConsts;
 
-/* Type constants */
+/* Type constants. */
 NstEXP typedef struct _Nst_TypeObjs {
     Nst_TypeObj *Type;
     Nst_TypeObj *Int;
@@ -85,7 +85,7 @@ NstEXP typedef struct _Nst_TypeObjs {
 } Nst_TypeObjs;
 
 /**
- * Other constants
+ * Other constants.
  *
  * @brief Each constants is preceded by the name of its type.
  */
@@ -102,14 +102,18 @@ NstEXP typedef struct _Nst_Consts {
     Nst_Obj *Byte_1;
 } Nst_Consts;
 
-/* Standard IO streams, these are not constant and can change at run-time. */
+/**
+ * Standard IO streams.
+ *
+ * @brief Note: these are not constant and can change at run-time.
+ */
 NstEXP typedef struct _Nst_StdStreams {
     Nst_IOFileObj *in;
     Nst_IOFileObj *out;
     Nst_IOFileObj *err;
 } Nst_StdStreams;
 
-/* The functions of the built-in iterators */
+/* The functions of the built-in iterators. */
 NstEXP typedef struct _Nst_IterFunctions {
     Nst_FuncObj *range_start;
     Nst_FuncObj *range_is_done;
@@ -131,7 +135,7 @@ NstEXP typedef struct _Nst_IterFunctions {
 /**
  * Initializes all the global constants and IO streams.
  *
- * @return true on success and false on failure. No error is set.
+ * @return `true` on success and `false` on failure. No error is set.
  */
 NstEXP bool NstC _Nst_init_objects(void);
 /* Deletes all the global constants and IO streams. */
@@ -144,15 +148,18 @@ NstEXP Nst_Obj *NstC Nst_false(void);
 /* Returns the null object constant. */
 NstEXP Nst_Obj *NstC Nst_null(void);
 
-/* Returns a Nst_TypeObjs struct containing all the types. */
+/* Returns a `Nst_TypeObjs` struct containing all the types. */
 NstEXP const Nst_TypeObjs *NstC Nst_type(void);
-/* Returns a Nst_StrConsts struct containing all the string constants. */
+/* Returns a `Nst_StrConsts` struct containing all the string constants. */
 NstEXP const Nst_StrConsts *NstC Nst_str(void);
-/* Returns a Nst_Consts struct containing all the object constants. */
+/* Returns a `Nst_Consts` struct containing all the object constants. */
 NstEXP const Nst_Consts *NstC Nst_const(void);
-/* Returns a Nst_IterFunctions struct containing all the function constants. */
+/**
+ * @brief Returns a `Nst_IterFunctions` struct containing all the function
+ * constants.
+ */
 NstEXP const Nst_IterFunctions *NstC Nst_iter_func(void);
-/* Returns a Nst_StdStreams struct containing all the standard IO streams. */
+/* Returns a `Nst_StdStreams` struct containing all the standard IO streams. */
 NstEXP Nst_StdStreams *NstC Nst_stdio(void);
 
 extern Nst_TypeObjs Nst_t;

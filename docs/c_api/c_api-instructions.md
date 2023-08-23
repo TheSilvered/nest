@@ -18,7 +18,7 @@ Nst_INST_IS_JUMP(inst_id)
 
 **Description:**
 
-Checks whether a given instruction id represents a jump instruction.
+Checks whether a given instruction ID represents a jump instruction.
 
 ---
 
@@ -32,7 +32,8 @@ Nst_inst_new_val(id, val, start, end)
 
 **Description:**
 
-Alias for _Nst_inst_new_val that casts val to Nst_Obj *.
+Alias for [`_Nst_inst_new_val`](c_api-instructions.md#_nst_inst_new_val) that
+casts `val` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -112,7 +113,7 @@ Creates a new instruction on the heap.
 
 **Returns:**
 
-The new instruction or NULL on failure. The error is set.
+The new instruction or `NULL` on failure. The error is set.
 
 ---
 
@@ -129,6 +130,8 @@ Nst_Inst *_Nst_inst_new_val(Nst_InstID id, Nst_Obj *val, Nst_Pos start,
 
 Creates a new instruction on the heap with a Nest object value.
 
+The reference count of `val` is increased.
+
 **Parameters:**
 
 - `id`: the id of the instruction to create
@@ -138,7 +141,7 @@ Creates a new instruction on the heap with a Nest object value.
 
 **Returns:**
 
-The new instruction or NULL on failure. The error is set.
+The new instruction or `NULL` on failure. The error is set.
 
 ---
 
@@ -164,7 +167,7 @@ Creates a new instruction on the heap with an integer value.
 
 **Returns:**
 
-The new instruction or NULL on failure. The error is set.
+The new instruction or `NULL` on failure. The error is set.
 
 ---
 
@@ -178,7 +181,7 @@ void Nst_inst_destroy(Nst_Inst *inst)
 
 **Description:**
 
-Destroys an instruction allocated on the heap.
+Destroys a [`Nst_Inst`](c_api-instructions.md#nst_inst) allocated on the heap.
 
 ---
 
@@ -192,7 +195,7 @@ void Nst_inst_list_destroy(Nst_InstList *inst_list)
 
 **Description:**
 
-Destroys an instruction list.
+Destroys a [`Nst_InstList`](c_api-instructions.md#nst_instlist).
 
 ---
 

@@ -6,10 +6,6 @@
  * @author TheSilvered
  */
 
-/* [docs:ignore_sym Nst_CP_UNKNOWN] */
-/* [docs:ignore_sym Nst_CP_LATIN1] */
-/* [docs:ignore_sym Nst_CP_ISO8859_1] */
-
 #ifndef ENCODING_H
 #define ENCODING_H
 
@@ -23,6 +19,10 @@
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
+
+/* [docs:link Nst_CP_UNKNOWN c_api-encoding.h/#nst_cpid] */
+/* [docs:link Nst_CP_LATIN1 c_api-encoding.h/#nst_cpid] */
+/* [docs:link Nst_CP_ISO8859_1 c_api-encoding.h/#nst_cpid] */
 
 /**
  * The supported encodings in Nest.

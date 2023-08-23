@@ -45,7 +45,8 @@
         "utility": "c",
         "xlocale": "c",
         "charconv": "c",
-        "xmemory": "c"
+        "xmemory": "c",
+        "iterator": "c"
     },
     "makefile.makeDirectory": "build/linux/makefiles",
     "makefile.dryrunSwitches": [

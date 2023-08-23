@@ -1018,7 +1018,8 @@ Nst_CPID Nst_acp(void)
 **Description:**
 
 **WINDOWS ONLY** Returns the Nest code page ID of the local ANSI code page. If
-the ANSI code page is not supported, `Nst_CP_LATIN1` is returned.
+the ANSI code page is not supported,
+[`Nst_CP_LATIN1`](c_api-encoding.h/#nst_cpid) is returned.
 
 ---
 
@@ -1114,7 +1115,7 @@ Nst_CPID Nst_check_bom(i8 *str, usize len, i32 *bom_size)
 **Returns:**
 
 The [`Nst_CPID`](c_api-encoding.md#nst_cpid) deduced from the Byte Order Mark or
-`Nst_CP_UNKNOWN` if no BOM was detected.
+[`Nst_CP_UNKNOWN`](c_api-encoding.h/#nst_cpid) if no BOM was detected.
 
 ---
 
@@ -1130,7 +1131,8 @@ Nst_CPID Nst_detect_encoding(i8 *str, usize len, i32 *bom_size)
 
 Detects the encoding of a file.
 
-If no valid encoding is detected, `Nst_CP_LATIN1` is returned. No error is set.
+If no valid encoding is detected, [`Nst_CP_LATIN1`](c_api-encoding.h/#nst_cpid)
+is returned. No error is set.
 
 ---
 
@@ -1145,7 +1147,7 @@ Nst_CPID Nst_encoding_from_name(i8 *name)
 **Returns:**
 
 The encoding ID from a C string, if no matching encoding is found,
-`Nst_CP_UNKNOWN` is returned. No error is set.
+[`Nst_CP_UNKNOWN`](c_api-encoding.h/#nst_cpid) is returned. No error is set.
 
 ---
 
@@ -1185,5 +1187,7 @@ typedef enum _Nst_CPID {
 
 The supported encodings in Nest.
 
-`Nst_CP_UNKNOWN` is -1, `Nst_CP_LATIN1` and `Nst_CP_ISO8859_1` are equivalent.
+[`Nst_CP_UNKNOWN`](c_api-encoding.h/#nst_cpid) is -1,
+[`Nst_CP_LATIN1`](c_api-encoding.h/#nst_cpid) and
+[`Nst_CP_ISO8859_1`](c_api-encoding.h/#nst_cpid) are equivalent.
 

@@ -12,7 +12,7 @@ TheSilvered
 
 **Description:**
 
-The maximum number of objects inside the first generation
+The maximum number of objects inside the first generation.
 
 ---
 
@@ -20,7 +20,7 @@ The maximum number of objects inside the first generation
 
 **Description:**
 
-The maximum number of objects inside the second generation
+The maximum number of objects inside the second generation.
 
 ---
 
@@ -28,7 +28,7 @@ The maximum number of objects inside the second generation
 
 **Description:**
 
-The maximum number of objects inside the third generation
+The maximum number of objects inside the third generation.
 
 ---
 
@@ -36,7 +36,7 @@ The maximum number of objects inside the third generation
 
 **Description:**
 
-The minimum size of the old generation needed to collect it
+The minimum size of the old generation needed to collect it.
 
 ---
 
@@ -50,7 +50,7 @@ GGC_OBJ(obj)
 
 **Description:**
 
-Casts obj to Nst_GGCObj *
+Casts obj to [`Nst_GGCObj *`](c_api-ggc.md#nst_ggcobj).
 
 ---
 
@@ -64,7 +64,8 @@ Nst_OBJ_IS_TRACKED(obj)
 
 **Description:**
 
-Checks whether a Nst_GGCObj is tracked by the garbage collector
+Checks whether a [`Nst_GGCObj`](c_api-ggc.md#nst_ggcobj) is tracked by the
+garbage collector.
 
 ---
 
@@ -74,7 +75,8 @@ Checks whether a Nst_GGCObj is tracked by the garbage collector
 
 The macro to add support to the GGC to an object structure.
 
-It must be placed after Nst_OBJ_HEAD and before any other fields.
+It must be placed after [`Nst_OBJ_HEAD`](c_api-obj.md#nst_obj_head) and before
+any other fields.
 
 ---
 
@@ -88,7 +90,7 @@ Nst_GGC_OBJ_INIT(obj, trav_func, track_function)
 
 **Description:**
 
-Initializes the fields of a Nst_GGCObj.
+Initializes the fields of a [`Nst_GGCObj`](c_api-ggc.md#nst_ggcobj).
 
 ---
 
@@ -243,7 +245,8 @@ void Nst_ggc_init(void)
 
 **Description:**
 
-Initializes the garbage collector of Nst_state.
+Initializes the garbage collector of
+[`Nst_state`](c_api-interpreter.md/#nst_get_state).
 
 ---
 

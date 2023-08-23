@@ -193,12 +193,12 @@ typedef Nst_IOResult (*Nst_IOFile_read_f)(i8 *buf, usize buf_size, usize count,
 The type that represents a read function of a Nest file object.
 
 This function shall read from the given file object count characters or bytes
-when in binary mode. `buf` shall be interpreted as [`i8
-**`](c_api.md/#type-definitions) instead of [`i8 *`](c_api.md/#type-definitions)
-and a new buffer shall be allocated with [`Nst_malloc`](c_api-mem.md#nst_malloc)
-or similar functions. The buffer shall contain UTF8-encoded text. When buf_len
-is not `NULL` the function shall fill it with the number of characters written
-(or bytes if it is in binary mode).
+when in binary mode. `buf` shall be interpreted as
+[`i8 **`](c_api.md/#type-definitions) instead of
+[`i8 *`](c_api.md/#type-definitions) and a new buffer shall be allocated with
+[`Nst_malloc`](c_api-mem.md#nst_malloc) or similar functions. The buffer shall
+contain UTF8-encoded text. When buf_len is not `NULL` the function shall fill it
+with the number of characters written (or bytes if it is in binary mode).
 
 **Returns:**
 

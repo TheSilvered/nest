@@ -18,7 +18,7 @@ FUNC(ptr)
 
 **Description:**
 
-Casts ptr to Nst_FuncObj *
+Casts `ptr` to [`Nst_FuncObj *`](c_api-function.md#nst_funcobj).
 
 ---
 
@@ -32,8 +32,9 @@ Nst_func_set_vt(func, map)
 
 **Description:**
 
-Alias for _Nst_func_set_vt that casts func to Nst_FuncObj * and map to
-Nst_MapObj *
+Alias for [`_Nst_func_set_vt`](c_api-function.md#_nst_func_set_vt) that casts
+`func` to [`Nst_FuncObj *`](c_api-function.md#nst_funcobj) and `map` to
+[`Nst_MapObj *`](c_api-map.md#nst_mapobj).
 
 ---
 
@@ -105,8 +106,8 @@ Nst_Obj *Nst_func_new(usize arg_num, Nst_InstList *bytecode)
 
 Creates a new function object with an instruction-list body.
 
-bytecode is assumed to be a valid non-NULL pointer. The args array must be set
-later manually.
+!!!note
+    The `args` array must be set manually after instantiation.
 
 **Parameters:**
 
@@ -115,7 +116,7 @@ later manually.
 
 **Returns:**
 
-The new function object or NULL on failure. On failure the error is set.
+The new function object or `NULL` on failure. The error is set.
 
 ---
 
@@ -131,8 +132,8 @@ Nst_Obj *Nst_func_new_c(usize arg_num, Nst_Obj *(*cbody)(usize, Nst_Obj **))
 
 Creates a new function object with a C function body.
 
-cbody is assumed to be a valid non_NULL pointer. The args array must NOT be set
-since it is not used.
+!!!note
+    The `args` array must NOT be set since it is not used.
 
 **Parameters:**
 
@@ -141,7 +142,7 @@ since it is not used.
 
 **Returns:**
 
-The new function object or NULL on failure. On failure the error is set.
+The new function object or `NULL` on failure. The error is set.
 
 ---
 
@@ -155,14 +156,14 @@ void _Nst_func_set_vt(Nst_FuncObj *func, Nst_MapObj *map)
 
 **Description:**
 
-Sets the mod_globals table of a function and all the functions defined inside
+Sets the `mod_globals` table of a function and all the functions defined inside
 it.
 
-If the field is already set or the function has a C body, it is not modified
+If the field is already set or the function has a C body, it is not modified.
 
 **Parameters:**
 
-- `func`: the function to change the mod_globals field of
+- `func`: the function to change the `mod_globals` field of
 - `map`: the map to set as the new value
 
 ---
@@ -177,7 +178,7 @@ void _Nst_func_traverse(Nst_FuncObj *func)
 
 **Description:**
 
-Traverse function for Nst_FuncObj
+Traverse function for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
 
 ---
 
@@ -191,7 +192,7 @@ void _Nst_func_track(Nst_FuncObj *func)
 
 **Description:**
 
-Track function for Nst_FuncObj
+Track function for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
 
 ---
 
@@ -205,7 +206,7 @@ void _Nst_func_destroy(Nst_FuncObj *func)
 
 **Description:**
 
-Destructor for Nst_Func_Obj
+Destructor for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
 
 ---
 
@@ -223,5 +224,5 @@ typedef enum _Nst_FuncFlags {
 
 **Description:**
 
-The flags for Nst_FuncObj
+The flags for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
 

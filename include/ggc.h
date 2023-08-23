@@ -11,25 +11,25 @@
 
 #include "simple_types.h"
 
-/* The maximum number of objects inside the first generation */
+/* The maximum number of objects inside the first generation. */
 #define _Nst_GEN1_MAX 700
-/* The maximum number of objects inside the second generation */
+/* The maximum number of objects inside the second generation. */
 #define _Nst_GEN2_MAX 10
-/* The maximum number of objects inside the third generation */
+/* The maximum number of objects inside the third generation. */
 #define _Nst_GEN3_MAX 10
-/* The minimum size of the old generation needed to collect it */
+/* The minimum size of the old generation needed to collect it. */
 #define _Nst_OLD_GEN_MIN 100
 
-/* Casts obj to Nst_GGCObj * */
+/* Casts obj to `Nst_GGCObj *`. */
 #define GGC_OBJ(obj) ((Nst_GGCObj *)(obj))
 
-/* Checks whether a Nst_GGCObj is tracked by the garbage collector */
+/* Checks whether a `Nst_GGCObj` is tracked by the garbage collector. */
 #define Nst_OBJ_IS_TRACKED(obj) (GGC_OBJ(obj)->ggc_list != NULL)
 
 /**
  * The macro to add support to the GGC to an object structure.
  *
- * @brief It must be placed after Nst_OBJ_HEAD and before any other fields.
+ * @brief It must be placed after `Nst_OBJ_HEAD` and before any other fields.
  */
 #define Nst_GGC_HEAD                                                          \
     struct _Nst_GGCObj *ggc_next;                                             \
@@ -38,7 +38,7 @@
     void (* traverse_func)(Nst_Obj *);                                        \
     void (* track_func)(Nst_Obj *)
 
-/* Initializes the fields of a Nst_GGCObj. */
+/* Initializes the fields of a `Nst_GGCObj`. */
 #define Nst_GGC_OBJ_INIT(obj, trav_func, track_function) do {                 \
     obj->ggc_prev = NULL;                                                     \
     obj->ggc_next = NULL;                                                     \
@@ -111,7 +111,7 @@ NstEXP void NstC Nst_ggc_collect(void);
 NstEXP void NstC Nst_ggc_track_obj(Nst_GGCObj *obj);
 /* Deletes all objects still present in the garbage collector. */
 NstEXP void NstC Nst_ggc_delete_objs(void);
-/* Initializes the garbage collector of Nst_state. */
+/* Initializes the garbage collector of `Nst_state`. */
 NstEXP void NstC Nst_ggc_init(void);
 
 /* The flags of a garbage collector object. */

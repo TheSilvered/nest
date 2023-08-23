@@ -58,11 +58,11 @@ typedef struct _Nst_StrConsts {
 
 **Description:**
 
-String constants
+String constants.
 
-Fields starting with t_ are the name of types, the ones starting with c_ are the
-name of constants, the one starting with e_ are the name of errors and the one
-starting with o_ are others.
+Fields starting with `t_` are the name of types, the ones starting with `c_` are
+the name of constants, the one starting with `e_` are the name of errors and the
+one starting with `o_` are others.
 
 ---
 
@@ -90,7 +90,7 @@ typedef struct _Nst_TypeObjs {
 
 **Description:**
 
-Type constants
+Type constants.
 
 ---
 
@@ -115,7 +115,7 @@ typedef struct _Nst_Consts {
 
 **Description:**
 
-Other constants
+Other constants.
 
 Each constants is preceded by the name of its type.
 
@@ -135,7 +135,10 @@ typedef struct _Nst_StdStreams {
 
 **Description:**
 
-Standard IO streams, these are not constant and can change at run-time.
+Standard IO streams.
+
+!!!note
+    These are not constant and can change at run-time.
 
 ---
 
@@ -165,7 +168,7 @@ typedef struct _Nst_IterFunctions {
 
 **Description:**
 
-The functions of the built-in iterators
+The functions of the built-in iterators.
 
 ---
 
@@ -185,7 +188,7 @@ Initializes all the global constants and IO streams.
 
 **Returns:**
 
-true on success and false on failure. No error is set.
+`true` on success and `false` on failure. No error is set.
 
 ---
 
@@ -255,7 +258,8 @@ const Nst_TypeObjs *Nst_type(void)
 
 **Description:**
 
-Returns a Nst_TypeObjs struct containing all the types.
+Returns a [`Nst_TypeObjs`](c_api-global_consts.md#nst_typeobjs) struct
+containing all the types.
 
 ---
 
@@ -269,7 +273,8 @@ const Nst_StrConsts *Nst_str(void)
 
 **Description:**
 
-Returns a Nst_StrConsts struct containing all the string constants.
+Returns a [`Nst_StrConsts`](c_api-global_consts.md#nst_strconsts) struct
+containing all the string constants.
 
 ---
 
@@ -283,7 +288,8 @@ const Nst_Consts *Nst_const(void)
 
 **Description:**
 
-Returns a Nst_Consts struct containing all the object constants.
+Returns a [`Nst_Consts`](c_api-global_consts.md#nst_consts) struct containing
+all the object constants.
 
 ---
 
@@ -297,7 +303,8 @@ const Nst_IterFunctions *Nst_iter_func(void)
 
 **Description:**
 
-Returns a Nst_IterFunctions struct containing all the function constants.
+Returns a [`Nst_IterFunctions`](c_api-global_consts.md#nst_iterfunctions) struct
+containing all the function constants.
 
 ---
 
@@ -311,5 +318,6 @@ Nst_StdStreams *Nst_stdio(void)
 
 **Description:**
 
-Returns a Nst_StdStreams struct containing all the standard IO streams.
+Returns a [`Nst_StdStreams`](c_api-global_consts.md#nst_stdstreams) struct
+containing all the standard IO streams.
 

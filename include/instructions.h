@@ -12,11 +12,11 @@
 #include "simple_types.h"
 #include "error.h"
 
-/* Checks whether a given instruction id represents a jump instruction. */
+/* Checks whether a given instruction ID represents a jump instruction. */
 #define Nst_INST_IS_JUMP(inst_id)                                             \
     ((inst_id) >= Nst_IC_JUMP && (inst_id) <= Nst_IC_PUSH_CATCH)
 
-/* Alias for _Nst_inst_new_val that casts val to Nst_Obj *. */
+/* Alias for `_Nst_inst_new_val` that casts `val` to `Nst_Obj *`. */
 #define Nst_inst_new_val(id, val, start, end)                                 \
     _Nst_inst_new_val(id, OBJ(val), start, end)
 
@@ -108,18 +108,20 @@ NstEXP typedef struct _Nst_InstList {
  * @param start: the start position of the instruction
  * @param end: the end postision of the instruction
  *
- * @return The new instruction or NULL on failure. The error is set.
+ * @return The new instruction or `NULL` on failure. The error is set.
  */
 NstEXP Nst_Inst *NstC Nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end);
 /**
  * Creates a new instruction on the heap with a Nest object value.
+ *
+ * @brief The reference count of `val` is increased.
  *
  * @param id: the id of the instruction to create
  * @param val: the Nest object value
  * @param start: the start position of the instruction
  * @param end: the end position of the instrcution
  *
- * @return The new instruction or NULL on failure. The error is set.
+ * @return The new instruction or `NULL` on failure. The error is set.
  */
 NstEXP Nst_Inst *NstC _Nst_inst_new_val(Nst_InstID id, Nst_Obj *val,
                                         Nst_Pos start, Nst_Pos end);
@@ -131,14 +133,14 @@ NstEXP Nst_Inst *NstC _Nst_inst_new_val(Nst_InstID id, Nst_Obj *val,
  * @param start: the start position of the instruction
  * @param end: the end position of the instrcution
  *
- * @return The new instruction or NULL on failure. The error is set.
+ * @return The new instruction or `NULL` on failure. The error is set.
  */
 NstEXP Nst_Inst *NstC Nst_inst_new_int(Nst_InstID id, i64 int_val,
                                        Nst_Pos start, Nst_Pos end);
 
-/* Destroys an instruction allocated on the heap. */
+/* Destroys a `Nst_Inst` allocated on the heap. */
 NstEXP void NstC Nst_inst_destroy(Nst_Inst *inst);
-/* Destroys an instruction list. */
+/* Destroys a `Nst_InstList`. */
 NstEXP void NstC Nst_inst_list_destroy(Nst_InstList *inst_list);
 
 #ifdef __cplusplus

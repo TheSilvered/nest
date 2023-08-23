@@ -39,7 +39,7 @@ main:
 	@$(MAKE_FILE) libnest.mk
 	@$(SILENT_MAKE) __no_libnest_x64
 __no_libnest_x64: $(x64_TARGET);
-$(x64_TARGET): $(SRCS)
+$(x64_TARGET): $(SRCS) $(NEST_LIB_x64)
 	@mkdir -p $(x64_DIR)
 	@echo "Compiling $(TARGET_NAME) for x64..."
 	@$(CC) $(CFLAGS) $(SRCS) $(CLINKS_x64) -O3 -o $(x64_TARGET)
@@ -48,7 +48,7 @@ x86:
 	@$(MAKE_FILE) libnest.mk x86
 	@$(SILENT_MAKE) __no_libnest_x86
 __no_libnest_x86: $(x86_TARGET);
-$(x86_TARGET): $(SRCS)
+$(x86_TARGET): $(SRCS) $(NEST_LIB_x86)
 	@mkdir -p $(x86_DIR)
 	@echo "Compiling $(TARGET_NAME) for x86..."
 	@$(CC) $(CFLAGS) $(SRCS) $(CLINKS_x86) -O3 -m32 -o $(x86_TARGET)

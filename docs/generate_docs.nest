@@ -69,9 +69,23 @@
         ]
 
         header_lines.(idx) '[docs:link' @sequ.contains ? [
-            header_lines.(idx) @su.split = {_, _, sym_name, sym_link, _}
-            sym_link.-1 ']' != ? 'Syntax Error' !! 'invalid docs directive \(header_lines.(idx))'
-            sym_link 0 -1 @sequ.slice = additional_symbols.(sym_name)
+            header_lines.(idx) @su.split = parts
+            $parts 5 == ? [
+                parts = {_, _, sym_name, sym_link, _}
+                sym_link.-1 ']' != ?
+                    'Syntax Error' !! 'invalid docs directive \(header_lines.(idx))'
+                'c' = link_type
+                sym_link 0 -1 @sequ.slice = sym_link
+            ] : $parts 6 == ? [
+                parts = {_, _, sym_name, sym_link, link_type, _}
+                link_type.-1 ']' != ?
+                    'Syntax Error' !! 'invalid docs directive \(header_lines.(idx))'
+                link_type.0 = link_type
+            ]
+            -- single backslash = space, double backslash = backslash
+            sym_name '\\' ' '  @su.replace_substr \
+                     '  ' '\\' @su.replace_substr = sym_name
+            {sym_link, link_type} = additional_symbols.(sym_name)
             1 += idx
             ..
         ]
@@ -411,6 +425,11 @@
         contents.6 @su.to_upper = first_letter
         first_letter (contents 7 @sequ.slice) >< = contents
         => '!!!note\n    ' (contents 76 4 @format_line_width) '\n' ><
+    ] : contents 'Warning:' @su.starts_with ? [
+        contents.6 @su.to_upper = first_letter
+        first_letter (contents 7 @sequ.slice) >< = contents
+        => '!!!warning\n    ' (contents 76 4 @format_line_width) '\n' ><
+
     ] : [
         => contents 80 0 @format_line_width '\n' ><
     ]
@@ -437,11 +456,11 @@
     idx = start
     ?.. idx $contents < [
         contents.(idx) '`' == ? [
-            idx = end
             ;
         ]
         1 += idx
     ]
+    idx = end
 
     contents start end @sequ.slice = name
 
@@ -451,7 +470,26 @@
     ]
 
     additional_symbols lname @sequ.contains ? [
-        => {end 1 +, '[`\(name)`](\(additional_symbols.(lname)))'}
+        -- prevents line breaks on links
+        name ' ' '[docs:nbsp]' @su.replace_substr = name
+
+        additional_symbols.(lname) = {link, type}
+        |> type [
+        ? 'c' [ -- code
+            => {end 1 +, '[`\(name)`](\(link))'}
+        ]
+        ? 'i' [ -- image
+            => {end 1 +, '![\(name)](\(link))'}
+        ]
+        ? 't' [ -- normal text
+            => {end 1 +, '[\(name)](\(link))'}
+        ]
+        ? [
+            name '[docs:nbsp]' ' ' @su.replace_substr = name
+            'Warning: invalid link type \(type) for \(name)' @io.println
+            => {end 1 +, '`\(name)`'}
+        ]
+        ]
     ]
 
     !(lname 'Nst' @su.starts_with) !(lname '_Nst' @su.starts_with) && ? [
@@ -468,6 +506,7 @@
             'Warning: \(lname) not found' @io.println
         => {end 1 +, '`\(lname)`'}
     ]
+    name ' ' '[docs:nbsp]' @su.replace_substr = name
     => {end 1 +, '[`\(name)`](\(link))'}
 ]
 
@@ -489,6 +528,8 @@
     :
         Vector :: (words @itu.reversed) = words
 
+    words ##x [=> x '[docs:nbsp]' ' ' @su.replace_substr] @sequ.map = words
+
     ?.. $words 0 != [
         words 1 / = line
 
@@ -502,7 +543,7 @@
         ]
         line '\n' ><= lines
     ]
-    => lines
+    => lines '\xa0' ' ' @su.replace_substr
 ]
 
 #code_block contents language [

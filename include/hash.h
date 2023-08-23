@@ -18,11 +18,11 @@ extern "C" {
 /**
  * Hashes a Nest object setting its hash field.
  *
- * @brief If the object is unhashable -1 is set.
+ * @brief If the object is unhashable `-1` is set.
  *
  * @param obj: the object to be hashed
  *
- * @return The hash of the object or -1 if the object cannot be hashed. No
+ * @return The hash of the object or `-1` if the object cannot be hashed. No
  * error is set.
  */
 NstEXP i32 NstC Nst_obj_hash(Nst_Obj *obj);

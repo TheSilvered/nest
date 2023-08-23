@@ -53,7 +53,7 @@ NstEXP typedef struct _Nst_ExecutionState {
 /**
  * Runs the main program.
  *
- * @brief Must never be called inside a library.
+ * @brief Warning: it must never be called inside a library.
  *
  * @param main_func: the function object of the main program
  * @param argc: the command line argument count
@@ -70,35 +70,37 @@ NstEXP i32 NstC Nst_run(Nst_FuncObj *main_func, i32 argc, i8 **argv,
 /**
  * Runs an external Nest file.
  *
- * @brief If the function succeedes, the result of the module is on top of the
- * value stack.
- *
  * @param file_name: the name of the file to run, must exist since no checking
  * is done
  * @param lib_src: the pointer where to store the source of the file, if an
  * error occurs the source of the library is expected to be on the lib_srcs
  * list of the global state
  *
- * @return -1 on failure and 0 on success.
+ * @return `true` on success and `false` on failure. If the function succeedes,
+ * the result of the module is on top of the value stack. The global operation
+ * error is not set but an internal one is, hence the caller must not set the
+ * error.
  */
-NstEXP i32 NstC Nst_run_module(i8 *file_name, Nst_SourceText *lib_src);
+NstEXP bool NstC Nst_run_module(i8 *file_name, Nst_SourceText *lib_src);
 /**
- * Calls a Nst_FuncObj.
- * @brief It can have both a Nest or C body. No checking is done on the number
- * of arguments.
+ * Calls a `Nst_FuncObj`.
+ *
+ * @brief It can have both a Nest or C body.
+ * @brief Warning: No checking is done on the number of arguments.
  *
  * @param func: the function to call
  * @param args: the array of arguments to pass to it, the correct number of
- * arguments must be ginven, no null arguments are added
+ * arguments must be ginven, no `null` arguments are added
  *
- * @return The result of the function or NULL on failure. When a function with
- * a Nest body is called the error may not be set. When a function with a C
- * body is called, the error is always set.
+ * @return The result of the function or `NULL` on failure.
+ * When a function with a Nest body fails the error is set internally and the
+ * caller must not set it. When a function with a C body fails, the error
+ * should always set.
  */
 NstEXP Nst_Obj *NstC Nst_call_func(Nst_FuncObj *func, Nst_Obj **args);
 
 /**
- * Executes the body of a Nst_FuncObj that has a Nest body using a given
+ * Executes the body of a `Nst_FuncObj` that has a Nest body using a given
  * context.
  *
  * @brief The context is set according to the arguments passed.
@@ -107,11 +109,11 @@ NstEXP Nst_Obj *NstC Nst_call_func(Nst_FuncObj *func, Nst_Obj **args);
  * @param idx: the instruction index from which to start the execution of the
  * body
  * @param vars: the local variable table
- * @param globals: the global variable table, it may be NULL, in which case it
- * is determined automatically
+ * @param globals: the global variable table, it may be `NULL`, in which case
+ * it is determined automatically
  *
- * @return The result of the function or NULL on failure. The error may not be
- * set.
+ * @return The result of the function or `NULL` on failure. The error is set
+ * internally and must not be set by the caller.
  */
 NstEXP Nst_Obj *NstC Nst_run_func_context(Nst_FuncObj *func, i64 idx,
                                           Nst_MapObj *vars,
@@ -119,24 +121,26 @@ NstEXP Nst_Obj *NstC Nst_run_func_context(Nst_FuncObj *func, i64 idx,
 /**
  * Returns the absolute path to a file system object.
  *
- * @brief The absolute path is allocated on the heap.
+ * @brief Note: the absolute path is allocated on the heap and should be freed
+ * with `Nst_free` when appropriate.
  *
  * @param file_path: the relative path to the object
  * @param buf: the buf where the absolute path is placed
  * @param file_part: where the start of the file name inside the file path is
- * put, this may be NULL in which case it is ignored
+ * put, this may be `NULL` in which case it is ignored
  *
- * @return The length in bytes of the absolute path.
+ * @return The length in bytes of the absolute path or 0 on failure. The error
+ * is set.
  */
 NstEXP usize NstC Nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part);
 
 /**
  * @brief Returns a pointer to the current instruction being executed. On
- * failure NULL is returned. No error is set.
+ * failure `NULL` is returned. No error is set.
  */
 NstEXP Nst_Inst *NstC Nst_current_inst(void);
 /**
- * Initializes the global state.
+ * Initializes the global `Nst_state`.
  *
  * @param argc: the command line argument count
  * @param argv: the command line arguments
@@ -145,39 +149,40 @@ NstEXP Nst_Inst *NstC Nst_current_inst(void);
  * @param no_default: whether to initialize the variable table of the main
  * program with built-in values
  *
- * @return true if the state initialized succesfully and false otherwise. No
- * error is set.
+ * @return `true` if the state initialized succesfully and `false` otherwise.
+ * No error is set.
  */
 NstEXP bool NstC Nst_state_init(i32 argc, i8 **argv, i8 *filename,
                                 i32 opt_level, bool no_default);
-/* Returns true if the state was initialized and false otherwise. */
+/* Returns `true` if the state was initialized and `false` otherwise. */
 NstEXP bool NstC Nst_state_was_init(void);
 /**
- * @brief Frees the variables inside the global state, calls free_lib in the
+ * @brief Frees the variables inside the global state, calls `free_lib` in the
  * libraries that define it and deletes the objects inside the garbage
  * collector.
  */
 NstEXP void NstC Nst_state_free(void);
 
-/* Frees loaded_libs, must be called after Nst_state_free. */
+/* Frees `loaded_libs`, must be called after `_Nst_del_objects`. */
 NstEXP void NstC _Nst_unload_libs(void);
 
 // The global state of the interpreter.
 extern Nst_ExecutionState Nst_state;
 
-/* Returns a pointer to the global state of the interpreter. */
+/* [docs:link Nst_state c_api-interpreter.md/#nst_get_state] */
+/* Returns a pointer to the global `Nst_ExecutionState`. */
 NstEXP Nst_ExecutionState *NstC Nst_get_state(void);
 
 /**
- * Changes the current working directory using a Nst_StrObj.
+ * Changes the current working directory using a `Nst_StrObj`.
  *
- * @return 0 on success and -1 on failure. The error is set.
+ * @return `0` on success and `-1` on failure. The error is set.
  */
 NstEXP i32 NstC Nst_chdir(Nst_StrObj *str);
 /**
- * Gets the current working directory as a Nest string.
+ * Gets the current working directory as a `Nst_StrObj`.
  *
- * @return the new string or NULL on failure. The error is set.
+ * @return the new string or `NULL` on failure. The error is set.
  */
 NstEXP Nst_StrObj *NstC Nst_getcwd(void);
 

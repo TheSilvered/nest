@@ -69,7 +69,8 @@ i32 Nst_run(Nst_FuncObj *main_func, i32 argc, i8 **argv, i8 *filename,
 
 Runs the main program.
 
-Must never be called inside a library.
+!!!warning
+    G: it must never be called inside a library.
 
 **Parameters:**
 
@@ -92,15 +93,12 @@ The exit code of the program.
 **Synopsis:**
 
 ```better-c
-i32 Nst_run_module(i8 *file_name, Nst_SourceText *lib_src)
+bool Nst_run_module(i8 *file_name, Nst_SourceText *lib_src)
 ```
 
 **Description:**
 
 Runs an external Nest file.
-
-If the function succeedes, the result of the module is on top of the value
-stack.
 
 **Parameters:**
 
@@ -111,7 +109,9 @@ stack.
 
 **Returns:**
 
--1 on failure and 0 on success.
+`true` on success and `false` on failure. If the function succeedes, the result
+of the module is on top of the value stack. The global operation error is not
+set but an internal one is, hence the caller must not set the error.
 
 ---
 
@@ -125,22 +125,24 @@ Nst_Obj *Nst_call_func(Nst_FuncObj *func, Nst_Obj **args)
 
 **Description:**
 
-Calls a Nst_FuncObj.
+Calls a [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
 
-It can have both a Nest or C body. No checking is done on the number of
-arguments.
+It can have both a Nest or C body.
+
+!!!warning
+    G: No checking is done on the number of arguments.
 
 **Parameters:**
 
 - `func`: the function to call
 - `args`: the array of arguments to pass to it, the correct number of arguments
-  must be ginven, no null arguments are added
+  must be ginven, no `null` arguments are added
 
 **Returns:**
 
-The result of the function or NULL on failure. When a function with a Nest body
-is called the error may not be set. When a function with a C body is called, the
-error is always set.
+The result of the function or `NULL` on failure. When a function with a Nest
+body fails the error is set internally and the caller must not set it. When a
+function with a C body fails, the error should always set.
 
 ---
 
@@ -155,7 +157,8 @@ Nst_Obj *Nst_run_func_context(Nst_FuncObj *func, i64 idx, Nst_MapObj *vars,
 
 **Description:**
 
-Executes the body of a Nst_FuncObj that has a Nest body using a given context.
+Executes the body of a [`Nst_FuncObj`](c_api-function.md#nst_funcobj) that has a
+Nest body using a given context.
 
 The context is set according to the arguments passed.
 
@@ -164,12 +167,13 @@ The context is set according to the arguments passed.
 - `func`: the function to execute
 - `idx`: the instruction index from which to start the execution of the body
 - `vars`: the local variable table
-- `globals`: the global variable table, it may be NULL, in which case it is
+- `globals`: the global variable table, it may be `NULL`, in which case it is
   determined automatically
 
 **Returns:**
 
-The result of the function or NULL on failure. The error may not be set.
+The result of the function or `NULL` on failure. The error is set internally and
+must not be set by the caller.
 
 ---
 
@@ -185,18 +189,20 @@ usize Nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part)
 
 Returns the absolute path to a file system object.
 
-The absolute path is allocated on the heap.
+!!!note
+    The absolute path is allocated on the heap and should be freed with
+    [`Nst_free`](c_api-mem.md#nst_free) when appropriate.
 
 **Parameters:**
 
 - `file_path`: the relative path to the object
 - `buf`: the buf where the absolute path is placed
 - `file_part`: where the start of the file name inside the file path is put,
-  this may be NULL in which case it is ignored
+  this may be `NULL` in which case it is ignored
 
 **Returns:**
 
-The length in bytes of the absolute path.
+The length in bytes of the absolute path or 0 on failure. The error is set.
 
 ---
 
@@ -210,8 +216,8 @@ Nst_Inst *Nst_current_inst(void)
 
 **Description:**
 
-Returns a pointer to the current instruction being executed. On failure NULL is
-returned. No error is set.
+Returns a pointer to the current instruction being executed. On failure `NULL`
+is returned. No error is set.
 
 ---
 
@@ -226,7 +232,7 @@ bool Nst_state_init(i32 argc, i8 **argv, i8 *filename, i32 opt_level,
 
 **Description:**
 
-Initializes the global state.
+Initializes the global [`Nst_state`](c_api-interpreter.md/#nst_get_state).
 
 **Parameters:**
 
@@ -239,7 +245,8 @@ Initializes the global state.
 
 **Returns:**
 
-true if the state initialized succesfully and false otherwise. No error is set.
+`true` if the state initialized succesfully and `false` otherwise. No error is
+set.
 
 ---
 
@@ -253,7 +260,7 @@ bool Nst_state_was_init(void)
 
 **Description:**
 
-Returns true if the state was initialized and false otherwise.
+Returns `true` if the state was initialized and `false` otherwise.
 
 ---
 
@@ -267,7 +274,7 @@ void Nst_state_free(void)
 
 **Description:**
 
-Frees the variables inside the global state, calls free_lib in the libraries
+Frees the variables inside the global state, calls `free_lib` in the libraries
 that define it and deletes the objects inside the garbage collector.
 
 ---
@@ -282,7 +289,8 @@ void _Nst_unload_libs(void)
 
 **Description:**
 
-Frees loaded_libs, must be called after Nst_state_free.
+Frees `loaded_libs`, must be called after
+[`_Nst_del_objects`](c_api-global_consts.md#_nst_del_objects).
 
 ---
 
@@ -296,7 +304,8 @@ Nst_ExecutionState *Nst_get_state(void)
 
 **Description:**
 
-Returns a pointer to the global state of the interpreter.
+Returns a pointer to the global
+[`Nst_ExecutionState`](c_api-interpreter.md#nst_executionstate).
 
 ---
 
@@ -310,11 +319,12 @@ i32 Nst_chdir(Nst_StrObj *str)
 
 **Description:**
 
-Changes the current working directory using a Nst_StrObj.
+Changes the current working directory using a
+[`Nst_StrObj`](c_api-str.md#nst_strobj).
 
 **Returns:**
 
-0 on success and -1 on failure. The error is set.
+`0` on success and `-1` on failure. The error is set.
 
 ---
 
@@ -328,9 +338,9 @@ Nst_StrObj *Nst_getcwd(void)
 
 **Description:**
 
-Gets the current working directory as a Nest string.
+Gets the current working directory as a [`Nst_StrObj`](c_api-str.md#nst_strobj).
 
 **Returns:**
 
-the new string or NULL on failure. The error is set.
+the new string or `NULL` on failure. The error is set.
 

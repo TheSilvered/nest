@@ -18,7 +18,7 @@ ITER(ptr)
 
 **Description:**
 
-Casts ptr to Nst_IterObj *.
+Casts `ptr` to [`Nst_IterObj *`](c_api-iter.md#nst_iterobj).
 
 ---
 
@@ -32,7 +32,8 @@ Nst_iter_start(iter)
 
 **Description:**
 
-Alias for _Nst_iter_start that asts iter to Nst_IterObj *.
+Alias for [`_Nst_iter_start`](c_api-iter.md#_nst_iter_start) that asts iter to
+[`Nst_IterObj *`](c_api-iter.md#nst_iterobj).
 
 ---
 
@@ -46,7 +47,8 @@ Nst_iter_is_done(iter)
 
 **Description:**
 
-Alias for _Nst_iter_is_done that asts iter to Nst_IterObj *.
+Alias for [`_Nst_iter_is_done`](c_api-iter.md#_nst_iter_is_done) that asts iter
+to [`Nst_IterObj *`](c_api-iter.md#nst_iterobj).
 
 ---
 
@@ -60,7 +62,8 @@ Nst_iter_get_val(iter)
 
 **Description:**
 
-Alias for _Nst_iter_get_val that asts iter to Nst_IterObj *.
+Alias for [`_Nst_iter_get_val`](c_api-iter.md#_nst_iter_get_val) that asts iter
+to [`Nst_IterObj *`](c_api-iter.md#nst_iterobj).
 
 ---
 
@@ -83,13 +86,13 @@ typedef struct _Nst_IterObj {
 
 **Description:**
 
-The structure defining a Nest iter object.
+The structure defining a Nest iterator object.
 
 **Fields:**
 
-- `start`: the start function of the iterator
-- `is_done`: the is_done function of the iterator
-- `get_val`: the get_val function of the iterator
+- `start`: the function that initializes the iterator
+- `is_done`: the function of the iterator that checks if it has finished
+- `get_val`: the function of the iterator that gets the current value
 - `value`: the value passed to the functions of the iterator
 
 ---
@@ -109,19 +112,20 @@ Nst_Obj *Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *is_done,
 
 Creates a new Nest iterator object.
 
-This function takes one reference of start, is_done, get_val and value both on
-success and on failure.
+!!!note
+    This function takes one reference of `start`, `is_done`, `get_val` and value
+    both on success and on failure.
 
 **Parameters:**
 
-- `start`: the start function for the new iterator
-- `is_done`: the is_done function for the new iterator
-- `get_val`: the get_val function for the new iterator
-- `value`: the value for the new iterator
+- `start`: the `start` function for the new iterator
+- `is_done`: the `is_done` function for the new iterator
+- `get_val`: the `get_val` function for the new iterator
+- `value`: the `value` for the new iterator
 
 **Returns:**
 
-The new object or NULL on failure. The error is set.
+The new object or `NULL` on failure. The error is set.
 
 ---
 
@@ -177,7 +181,7 @@ i32 _Nst_iter_start(Nst_IterObj *iter)
 
 **Description:**
 
-Calls the start function of a Nst_IterObj.
+Calls the `start` function of a [`Nst_IterObj`](c_api-iter.md#nst_iterobj).
 
 **Parameters:**
 
@@ -185,7 +189,8 @@ Calls the start function of a Nst_IterObj.
 
 **Returns:**
 
--1 on failure and 0 on succcess. The error may not be set.
+`-1` on failure and `0` on succcess. The error may be set internally and must
+not be set by the caller.
 
 ---
 
@@ -199,7 +204,7 @@ i32 _Nst_iter_is_done(Nst_IterObj *iter)
 
 **Description:**
 
-Calls the is_done function of a Nst_IterObj.
+Calls the `is_done` function of a [`Nst_IterObj`](c_api-iter.md#nst_iterobj).
 
 **Parameters:**
 
@@ -207,8 +212,8 @@ Calls the is_done function of a Nst_IterObj.
 
 **Returns:**
 
--1 on failure, 1 if the iterator is done, 0 if it can still iterate. The error
-may not be set.
+`-1` on failure, `1` if the iterator is done, `0` if it can still iterate. The
+error may be set internally and must not be set by the caller.
 
 ---
 
@@ -222,7 +227,7 @@ Nst_Obj *_Nst_iter_get_val(Nst_IterObj *iter)
 
 **Description:**
 
-Calls the get_val function of a Nst_IterObj.
+Calls the `get_val` function of a [`Nst_IterObj`](c_api-iter.md#nst_iterobj).
 
 **Parameters:**
 
@@ -230,7 +235,8 @@ Calls the get_val function of a Nst_IterObj.
 
 **Returns:**
 
-The resulting object on success and NULL on failure. The error may not be set.
+The resulting object on success and `NULL` on failure. The error may be set
+internally and must not be set by the caller.
 
 ---
 
@@ -244,7 +250,7 @@ Nst_FUNC_SIGN(Nst_iter_range_start)
 
 **Description:**
 
-The start function of the range iterator.
+The `start` function of the range iterator.
 
 ---
 
@@ -258,7 +264,7 @@ Nst_FUNC_SIGN(Nst_iter_range_is_done)
 
 **Description:**
 
-The is_done function of the range iterator.
+The `is_done` function of the range iterator.
 
 ---
 
@@ -272,7 +278,7 @@ Nst_FUNC_SIGN(Nst_iter_range_get_val)
 
 **Description:**
 
-The get_val function of the range iterator.
+The `get_val` function of the range iterator.
 
 ---
 
@@ -286,7 +292,7 @@ Nst_FUNC_SIGN(Nst_iter_seq_start)
 
 **Description:**
 
-The start function of the sequence iterator.
+The `start` function of the sequence iterator.
 
 ---
 
@@ -300,7 +306,7 @@ Nst_FUNC_SIGN(Nst_iter_seq_is_done)
 
 **Description:**
 
-The is_done function of the sequence iterator.
+The `is_done` function of the sequence iterator.
 
 ---
 
@@ -314,7 +320,7 @@ Nst_FUNC_SIGN(Nst_iter_seq_get_val)
 
 **Description:**
 
-The get_val function of the sequence iterator.
+The `get_val` function of the sequence iterator.
 
 ---
 
@@ -328,7 +334,7 @@ Nst_FUNC_SIGN(Nst_iter_str_start)
 
 **Description:**
 
-The start function of the string iterator.
+The `start` function of the string iterator.
 
 ---
 
@@ -342,7 +348,7 @@ Nst_FUNC_SIGN(Nst_iter_str_is_done)
 
 **Description:**
 
-The is_done function of the string iterator.
+The `is_done` function of the string iterator.
 
 ---
 
@@ -356,7 +362,7 @@ Nst_FUNC_SIGN(Nst_iter_str_get_val)
 
 **Description:**
 
-The get_val function of the string iterator.
+The `get_val` function of the string iterator.
 
 ---
 
@@ -370,7 +376,7 @@ Nst_FUNC_SIGN(Nst_iter_map_start)
 
 **Description:**
 
-The start function of the map iterator.
+The `start` function of the map iterator.
 
 ---
 
@@ -384,7 +390,7 @@ Nst_FUNC_SIGN(Nst_iter_map_is_done)
 
 **Description:**
 
-The is_done function of the map iterator.
+The `is_done` function of the map iterator.
 
 ---
 
@@ -398,5 +404,5 @@ Nst_FUNC_SIGN(Nst_iter_map_get_val)
 
 **Description:**
 
-The get_val function of the map iterator.
+The `get_val` function of the map iterator.
 

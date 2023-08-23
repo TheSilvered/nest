@@ -1567,7 +1567,7 @@ static Nst_Obj *import_nest_lib(Nst_StrObj *file_path)
         return NULL;
     }
 
-    if (Nst_run_module(file_path->value, lib_src) == -1) {
+    if (!Nst_run_module(file_path->value, lib_src)) {
         Nst_llist_push(Nst_state.lib_srcs, lib_src, true);
         Nst_llist_pop(Nst_state.lib_paths);
         Nst_dec_ref(file_path);

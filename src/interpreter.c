@@ -392,7 +392,7 @@ Nst_Inst *Nst_current_inst(void)
     return &instructions->instructions[Nst_state.idx];
 }
 
-i32 Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
+bool Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
 {
     // Compile and optimize the imported module
     i32 opt_level = Nst_state.opt_level;
@@ -413,14 +413,14 @@ i32 Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
         opt_level = file_opt_lvl;
 
     if (tokens == NULL)
-        return -1;
+        return false;
 
     Nst_Node *ast = Nst_parse(tokens, GLOBAL_ERROR);
     if (ast != NULL && opt_level >= 1)
         ast = Nst_optimize_ast(ast, GLOBAL_ERROR);
 
     if (ast == NULL)
-        return -1;
+        return false;
 
     Nst_InstList *inst_ls = Nst_compile(ast, true, GLOBAL_ERROR);
     if (opt_level >= 2 && inst_ls != NULL) {
@@ -430,7 +430,7 @@ i32 Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
             GLOBAL_ERROR);
     }
     if (inst_ls == NULL)
-        return -1;
+        return false;
 
     Nst_FuncObj *mod_func = FUNC(Nst_func_new(0, inst_ls));
     if (mod_func == NULL) {
@@ -440,7 +440,7 @@ i32 Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
             GLOBAL_ERROR,
             inst_ls->instructions[Nst_state.idx].start,
             inst_ls->instructions[Nst_state.idx].end);
-        return -1;
+        return false;
     }
 
     // Change the cwd
@@ -454,7 +454,7 @@ i32 Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
             GLOBAL_ERROR,
             inst_ls->instructions[Nst_state.idx].start,
             inst_ls->instructions[Nst_state.idx].end);
-        return -1;
+        return false;
     }
     Nst_state.curr_path = path_str;
 
@@ -467,7 +467,7 @@ i32 Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
             GLOBAL_ERROR,
             inst_ls->instructions[Nst_state.idx].start,
             inst_ls->instructions[Nst_state.idx].end);
-        return -1;
+        return false;
     }
 
     Nst_vstack_push(NULL);
@@ -489,7 +489,7 @@ i32 Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
             GLOBAL_ERROR,
             inst_ls->instructions[Nst_state.idx].start,
             inst_ls->instructions[Nst_state.idx].end);
-        return -1;
+        return false;
     }
 
     change_vt(vt);
@@ -507,13 +507,13 @@ i32 Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
             GLOBAL_ERROR,
             inst_ls->instructions[Nst_state.idx].start,
             inst_ls->instructions[Nst_state.idx].end);
-        return -1;
+        return false;
     }
 
     if (ERROR_OCCURRED)
-        return -1;
+        return false;
     else
-        return 0;
+        return true;
 }
 
 Nst_Obj *Nst_call_func(Nst_FuncObj *func, Nst_Obj **args)
