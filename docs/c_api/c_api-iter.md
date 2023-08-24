@@ -18,7 +18,7 @@ ITER(ptr)
 
 **Description:**
 
-Casts `ptr` to [`Nst_IterObj *`](c_api-iter.md#nst_iterobj).
+Casts `ptr` to [`Nst_IterObj *`](c_api-iter.md/#nst_iterobj).
 
 ---
 
@@ -32,8 +32,8 @@ Nst_iter_start(iter)
 
 **Description:**
 
-Alias for [`_Nst_iter_start`](c_api-iter.md#_nst_iter_start) that asts iter to
-[`Nst_IterObj *`](c_api-iter.md#nst_iterobj).
+Alias for [`_Nst_iter_start`](c_api-iter.md/#_nst_iter_start) that casts iter to
+[`Nst_IterObj *`](c_api-iter.md/#nst_iterobj).
 
 ---
 
@@ -47,8 +47,8 @@ Nst_iter_is_done(iter)
 
 **Description:**
 
-Alias for [`_Nst_iter_is_done`](c_api-iter.md#_nst_iter_is_done) that asts iter
-to [`Nst_IterObj *`](c_api-iter.md#nst_iterobj).
+Alias for [`_Nst_iter_is_done`](c_api-iter.md/#_nst_iter_is_done) that casts
+iter to [`Nst_IterObj *`](c_api-iter.md/#nst_iterobj).
 
 ---
 
@@ -62,8 +62,8 @@ Nst_iter_get_val(iter)
 
 **Description:**
 
-Alias for [`_Nst_iter_get_val`](c_api-iter.md#_nst_iter_get_val) that asts iter
-to [`Nst_IterObj *`](c_api-iter.md#nst_iterobj).
+Alias for [`_Nst_iter_get_val`](c_api-iter.md/#_nst_iter_get_val) that casts
+iter to [`Nst_IterObj *`](c_api-iter.md/#nst_iterobj).
 
 ---
 
@@ -81,7 +81,7 @@ typedef struct _Nst_IterObj {
     Nst_FuncObj *is_done;
     Nst_FuncObj *get_val;
     Nst_Obj *value;
-} Nst_IterObj
+} struct _Nst_IterObj
 ```
 
 **Description:**
@@ -181,7 +181,7 @@ i32 _Nst_iter_start(Nst_IterObj *iter)
 
 **Description:**
 
-Calls the `start` function of a [`Nst_IterObj`](c_api-iter.md#nst_iterobj).
+Calls the `start` function of a [`Nst_IterObj`](c_api-iter.md/#nst_iterobj).
 
 **Parameters:**
 
@@ -189,8 +189,8 @@ Calls the `start` function of a [`Nst_IterObj`](c_api-iter.md#nst_iterobj).
 
 **Returns:**
 
-`-1` on failure and `0` on succcess. The error may be set internally and must
-not be set by the caller.
+`-1` on failure and `0` on success. The error may be set internally and must not
+be set by the caller.
 
 ---
 
@@ -204,7 +204,7 @@ i32 _Nst_iter_is_done(Nst_IterObj *iter)
 
 **Description:**
 
-Calls the `is_done` function of a [`Nst_IterObj`](c_api-iter.md#nst_iterobj).
+Calls the `is_done` function of a [`Nst_IterObj`](c_api-iter.md/#nst_iterobj).
 
 **Parameters:**
 
@@ -227,7 +227,7 @@ Nst_Obj *_Nst_iter_get_val(Nst_IterObj *iter)
 
 **Description:**
 
-Calls the `get_val` function of a [`Nst_IterObj`](c_api-iter.md#nst_iterobj).
+Calls the `get_val` function of a [`Nst_IterObj`](c_api-iter.md/#nst_iterobj).
 
 **Parameters:**
 

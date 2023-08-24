@@ -113,11 +113,11 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_read_f)(i8 *buf, usize buf_size,
  * @return This function shall not return `Nst_IO_BUF_FULL`,
  * `Nst_IO_EOF_REACHED` and `Nst_IO_INVALID_DECODING` variants of
  * `Nst_IOResult`. The other ones shall be returned as follows:
- * !`Nst_IO_SUCCESS` when the function succesfully writes the characters to the
- * file.
+ * !`Nst_IO_SUCCESS` when the function successfully writes the characters to
+ * the file.
  * !`Nst_IO_ALLOC_FAILED` if a memory allocation fails.
  * !`Nst_IO_INVALID_ENCODING` if a character cannot be encoded in the encoding
- * the file is opended in. This variant can only be returned when the file is
+ * the file is opened in. This variant can only be returned when the file is
  * not binary. When it is returned `Nst_io_result_set_details` must be called.
  * !`Nst_IO_OP_FAILED` if the file does not support writing.
  * !`Nst_IO_CLOSED` if the file is closed.
@@ -204,7 +204,7 @@ NstEXP typedef struct _Nst_IOFuncSet {
 #ifdef Nst_WIN
 
 /**
- * @brief WINDOWS ONLY A structure representing the stdandard input file on
+ * @brief WINDOWS ONLY A structure representing the standard input file on
  * Windows.
  */
 NstEXP typedef struct _Nst_StdIn {
@@ -224,7 +224,7 @@ extern Nst_StdIn Nst_stdin;
  *
  * @param fp: the pointer to the file, it may not be a `FILE *`
  * @param fd: the file descriptor, `-1` if not supported
- * @param encoding: the encoding the file was opended in, `NULL` when opened in
+ * @param encoding: the encoding the file was opened in, `NULL` when opened in
  * binary mode
  * @param func_set: the functions used to operate the file
  */
@@ -266,7 +266,7 @@ NstEXP Nst_Obj *NstC Nst_iof_new(FILE *value, bool bin, bool read,
  * @param bin: if the file is in binary mode
  * @param read: whether the file can be read
  * @param write: whether the file can be written
- * @param seek: whether the file can be seeked
+ * @param seek: whether the file can be sought
  * @param encoding: the encoding of the opened file, ignored when `bin` is
  * `true`
  * @param func_set: custom functions used to read the file

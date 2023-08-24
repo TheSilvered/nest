@@ -138,7 +138,7 @@ bool Nst_sbuffer_expand_to(Nst_SizedBuffer *buf, usize count)
 
 void Nst_sbuffer_fit(Nst_SizedBuffer *buf)
 {
-    if ((buf->cap - buf->len) * buf->unit_size < 20)
+    if ((buf->cap - buf->len) * buf->unit_size < sizeof(usize))
         return;
 
     buf->data = Nst_realloc(buf->data, buf->len, buf->unit_size, buf->cap);
@@ -189,7 +189,7 @@ bool Nst_buffer_expand_to(Nst_Buffer *buf, usize size)
 
 void Nst_buffer_fit(Nst_Buffer *buf)
 {
-    if ((buf->cap - buf->len) * buf->unit_size < 20)
+    if ((buf->cap - buf->len) * buf->unit_size < sizeof(usize))
         return;
 
     buf->data = Nst_realloc(buf->data, buf->len + 1, buf->unit_size, buf->cap);

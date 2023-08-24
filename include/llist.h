@@ -31,7 +31,7 @@ extern "C" {
 #endif // !__cplusplus
 
 /**
- * The structure representing a node of a Nst_LList.
+ * The structure representing a node of a `Nst_LList`.
  *
  * @param value: the value that the node contains
  * @param allocated: whether the value contained in the node was allocated
@@ -67,7 +67,8 @@ NstEXP typedef void (*Nst_LListDestructor)(void *);
  * @param allocated: whether to pass this value to the destructor when the list
  * is destroyed
  *
- * @return true if the value is added and false on failure. The error is set.
+ * @return `true` if the value is added and `false` on failure. The error is
+ * set.
  */
 NstEXP bool NstC Nst_llist_push(Nst_LList *llist, void *value, bool allocated);
 /**
@@ -78,15 +79,16 @@ NstEXP bool NstC Nst_llist_push(Nst_LList *llist, void *value, bool allocated);
  * @param allocated: whether to pass this value to the destructor when the list
  * is destroyed
  *
- * @return true if the value is added and false on failure. The error is set.
+ * @return `true` if the value is added and `false` on failure. The error is
+ * set.
  */
 NstEXP bool NstC Nst_llist_append(Nst_LList *llist, void *value,
                                   bool allocated);
 /**
  * Adds a value after a given node.
  *
- * @brief node can be NULL, in which case the function behaves like
- * Nst_llist_push.
+ * @brief node can be `NULL`, in which case the function behaves like
+ * `Nst_llist_push`.
  *
  * @param llist: the list to add the value to
  * @param value: the value to add
@@ -95,19 +97,20 @@ NstEXP bool NstC Nst_llist_append(Nst_LList *llist, void *value,
  * @param node: the node belonging to the list after which the value is
  * inserted
  *
- * @return true if the value is added and false on failure. The error is set.
+ * @return `true` if the value is added and `false` on failure. The error is
+ * set.
  */
 NstEXP bool NstC Nst_llist_insert(Nst_LList *llist, void *value,
                                   bool allocated, Nst_LLNode *node);
 /* Removes and returns the front value from a list. */
 NstEXP void *NstC Nst_llist_pop(Nst_LList *llist);
 /**
- * @brief Returns the front value of a list. If the list is empty NULL is
+ * @brief Returns the front value of a list. If the list is empty `NULL` is
  * returned, no error is set.
  */
 NstEXP void *NstC Nst_llist_peek_front(Nst_LList *llist);
 /**
- * @brief Returns the back value of a list. If the list is empty NULL is
+ * @brief Returns the back value of a list. If the list is empty `NULL` is
  * returned, no error is set.
  */
 NstEXP void *NstC Nst_llist_peek_back(Nst_LList *llist);
@@ -121,7 +124,7 @@ NstEXP Nst_LLNode *NstC Nst_llist_pop_llnode(Nst_LList *llist);
 /**
  * Creates and initializes a new list on the heap
  *
- * @return The new list or NULL on failure. The error is set.
+ * @return The new list or `NULL` on failure. The error is set.
  */
 NstEXP Nst_LList *NstC Nst_llist_new(void);
 /* Initializes a llist. */
@@ -130,7 +133,7 @@ NstEXP void NstC Nst_llist_init(Nst_LList *llist);
 /**
  * Creates a new node on the heap.
  *
- * @return The new node or NULL on failure. The error is set.
+ * @return The new node or `NULL` on failure. The error is set.
  */
 NstEXP Nst_LLNode *NstC Nst_llnode_new(void *value, bool allocated);
 

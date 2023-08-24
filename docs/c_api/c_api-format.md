@@ -276,7 +276,7 @@ isize Nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args)
 
 **Description:**
 
-`va_list` variant of [`Nst_fprintf`](c_api-format.md#nst_fprintf).
+`va_list` variant of [`Nst_fprintf`](c_api-format.md/#nst_fprintf).
 
 ---
 
@@ -317,5 +317,5 @@ Nst_Obj *Nst_vsprintf(const i8 *fmt, va_list args)
 
 **Description:**
 
-`va_list` variant of [`Nst_sprintf`](c_api-format.md#nst_sprintf).
+`va_list` variant of [`Nst_sprintf`](c_api-format.md/#nst_sprintf).
 

@@ -44,9 +44,6 @@ NstEXP typedef enum _Nst_InstID {
     Nst_IC_HASH_CHECK,
     Nst_IC_THROW_ERR,
     Nst_IC_POP_CATCH,
-
-    // These instruction push a value on the stack
-
     Nst_IC_SET_VAL,
     Nst_IC_GET_VAL,
     Nst_IC_PUSH_VAL,
@@ -106,7 +103,7 @@ NstEXP typedef struct _Nst_InstList {
  *
  * @param id: the id of the instruction to create
  * @param start: the start position of the instruction
- * @param end: the end postision of the instruction
+ * @param end: the end position of the instruction
  *
  * @return The new instruction or `NULL` on failure. The error is set.
  */
@@ -119,7 +116,7 @@ NstEXP Nst_Inst *NstC Nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end);
  * @param id: the id of the instruction to create
  * @param val: the Nest object value
  * @param start: the start position of the instruction
- * @param end: the end position of the instrcution
+ * @param end: the end position of the instruction
  *
  * @return The new instruction or `NULL` on failure. The error is set.
  */
@@ -131,7 +128,7 @@ NstEXP Nst_Inst *NstC _Nst_inst_new_val(Nst_InstID id, Nst_Obj *val,
  * @param id: the id of the instruction to create
  * @param int_val: the integer value
  * @param start: the start position of the instruction
- * @param end: the end position of the instrcution
+ * @param end: the end position of the instruction
  *
  * @return The new instruction or `NULL` on failure. The error is set.
  */

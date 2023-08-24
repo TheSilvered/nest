@@ -21,7 +21,7 @@ typedef struct _Nst_CLArgs {
     i32 opt_level;
     i8 *command, *filename;
     i32 args_start;
-} Nst_CLArgs
+} struct _Nst_CLArgs
 ```
 
 **Description:**
@@ -125,5 +125,5 @@ void _Nst_set_console_mode(void)
 
 **Description:**
 
-WINDOWS-ONLY Initialises the console.
+WINDOWS-ONLY Initializes the console.
 

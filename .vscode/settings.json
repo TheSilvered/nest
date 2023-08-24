@@ -46,7 +46,13 @@
         "xlocale": "c",
         "charconv": "c",
         "xmemory": "c",
-        "iterator": "c"
+        "iterator": "c",
+        "optional": "c",
+        "type_traits": "c",
+        "xlocmon": "c",
+        "xtr1common": "c",
+        "xutility": "c",
+        "sstream": "c"
     },
     "makefile.makeDirectory": "build/linux/makefiles",
     "makefile.dryrunSwitches": [

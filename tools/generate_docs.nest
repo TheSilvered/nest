@@ -6,9 +6,6 @@
 |#| 'stdsys.nest' = sys
 |#| 'stdmath.nest' = math
 
-'c_api' @fs.make_dir
-'c_api' @sys._set_cwd
-
 #create_symbols header_lines  [
     0 = idx
     ?.. header_lines.(idx) ' */' != [1 += idx]
@@ -85,6 +82,11 @@
             -- single backslash = space, double backslash = backslash
             sym_name '\\' ' '  @su.replace_substr \
                      '  ' '\\' @su.replace_substr = sym_name
+
+            ?.. sym_name (' *()' sym_name.-1 @sequ.contains) && [
+                sym_name 0 -1 @sequ.slice = sym_name
+            ]
+
             {sym_link, link_type} = additional_symbols.(sym_name)
             1 += idx
             ..
@@ -284,6 +286,7 @@
         1 += syn_start
         header_lines.(syn_start) = line
         line 'struct _' '' @su.replace_substr = line
+        line name 'struct _\(name)' @su.replace_substr = line
         end ';' == ? [
             line @su.ltrim = line
             ' ' line ><= syn
@@ -352,7 +355,7 @@
     doc_file (name 3 true @title) @io.write
     symbol.0 null != ? [
         doc_file ('Synopsis' 0 @title) @io.write
-        doc_file (symbol.0 'better-c' @code_block) @io.write
+        doc_file (symbol.0 'better-c' true @code_block) @io.write
     ]
 
     $doc.(null) $doc.'@brief' + 0 != ? [
@@ -426,8 +429,8 @@
         first_letter (contents 7 @sequ.slice) >< = contents
         => '!!!note\n    ' (contents 76 4 @format_line_width) '\n' ><
     ] : contents 'Warning:' @su.starts_with ? [
-        contents.6 @su.to_upper = first_letter
-        first_letter (contents 7 @sequ.slice) >< = contents
+        contents.9 @su.to_upper = first_letter
+        first_letter (contents 10 @sequ.slice) >< = contents
         => '!!!warning\n    ' (contents 76 4 @format_line_width) '\n' ><
 
     ] : [
@@ -465,9 +468,10 @@
     contents start end @sequ.slice = name
 
     name = lname
-    ?.. (lname '*' @su.ends_with) (lname ' ' @su.ends_with) || [
+    ?.. lname (' *()' lname.-1 @sequ.contains) && [
         lname 0 -1 @sequ.slice = lname
     ]
+    !lname ? => {end 1 +, '`\(name)`'}
 
     additional_symbols lname @sequ.contains ? [
         -- prevents line breaks on links
@@ -546,7 +550,10 @@
     => lines '\xa0' ' ' @su.replace_substr
 ]
 
-#code_block contents language [
+#code_block contents language format [
+    !format ?
+        => '```\(language)\n\(contents)\n```\n\n'
+
     (contents 'typedef struct' @su.starts_with) \
     (contents 'typedef union'  @su.starts_with) \
     (contents 'typedef enum'   @su.starts_with) || ?
@@ -661,7 +668,7 @@
         symbol.2 = name
         _globals_.symbols.(name) null != ?
             'Value Error' !! 'duplicate symbol \(name), previous one was \(_globals_.symbols.(name))'
-        '\(file)#\(name @su.to_lower)' = _globals_.symbols.(name)
+        '\(file)/#\(name @su.to_lower)' = _globals_.symbols.(name)
     ]
 ]
 
@@ -669,6 +676,14 @@
 {} = symbols
 {} = ignored_symbols
 {} = additional_symbols
+
+$_args_ 2 == ?
+    _args_.1 = dir
+:
+    '../docs/c_api' = dir
+
+dir @fs.make_dir
+dir @sys._set_cwd
 
 ... Iter :: ('../../include' @fs.list_dir) := header [
     header @fs.filename 0 -2 @sequ.slice = header_name
@@ -686,3 +701,11 @@
     categories doc_file @write_docs
     doc_file @io.close
 ]
+
+'c_api-reference.md' 'w' @io.open = reference
+reference ('API Reference' 1 @title) @io.write
+
+Array :: symbols ##x [=> '[`\(x.0)`](\(x.1))'] @sequ.map @sequ.sort = sorted_symbols
+
+reference (sorted_symbols @unordered_list) @io.write
+reference @io.close

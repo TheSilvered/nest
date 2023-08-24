@@ -18,7 +18,7 @@ Nst_IS_STACK_OP(token_type)
 
 **Description:**
 
-Checks if a token is in the STACK_OP catecory.
+Checks if a token is in the `STACK_OP` category.
 
 ---
 
@@ -32,7 +32,7 @@ Nst_IS_NUM_OP(token_type)
 
 **Description:**
 
-Checks if a token is in the NUM_OP catecory.
+Checks if a token is in the `NUM_OP` category.
 
 ---
 
@@ -46,7 +46,7 @@ Nst_IS_COND_OP(token_type)
 
 **Description:**
 
-Checks if a token is in the COND_OP catecory.
+Checks if a token is in the `COND_OP` category.
 
 ---
 
@@ -60,7 +60,7 @@ Nst_IS_COMP_OP(token_type)
 
 **Description:**
 
-Checks if a token is in the COMP_OP catecory.
+Checks if a token is in the `COMP_OP` category.
 
 ---
 
@@ -74,7 +74,7 @@ Nst_IS_LOCAL_STACK_OP(token_type)
 
 **Description:**
 
-Checks if a token is in the LOCAL_STACK_OP catecory.
+Checks if a token is in the `LOCAL_STACK_OP` category.
 
 ---
 
@@ -88,7 +88,7 @@ Nst_IS_ASSIGNMENT(token_type)
 
 **Description:**
 
-Checks if a token is in the ASSIGNMENT catecory.
+Checks if a token is in the `ASSIGNMENT` category.
 
 ---
 
@@ -102,7 +102,7 @@ Nst_IS_LOCAL_OP(token_type)
 
 **Description:**
 
-Checks if a token is in the LOCAL_OP catecory.
+Checks if a token is in the `LOCAL_OP` category.
 
 ---
 
@@ -116,7 +116,7 @@ Nst_IS_ATOM(token_type)
 
 **Description:**
 
-Checks if a token is in the ATOM catecory.
+Checks if a token is in the `ATOM` category.
 
 ---
 
@@ -130,7 +130,7 @@ Nst_IS_VALUE(token_type)
 
 **Description:**
 
-Checks if a token is in the VALUE catecory.
+Checks if a token is in the `VALUE` category.
 
 ---
 
@@ -144,7 +144,7 @@ Nst_IS_EXPR_END(token_type)
 
 **Description:**
 
-Checks if a token is in the EXPR_END catecory.
+Checks if a token is in the `EXPR_END` category.
 
 ---
 
@@ -158,7 +158,7 @@ Nst_ASSIGMENT_TO_STACK_OP(token_type)
 
 **Description:**
 
-Transforms a compount-assignment token type into a STACK_OP one.
+Transforms a compound-assignment token type into a `STACK_OP` one.
 
 ---
 
@@ -172,7 +172,7 @@ Nst_TOK(expr)
 
 **Description:**
 
-Casts expr to Nst_Tok *.
+Casts expr to [`Nst_Tok *`](c_api-tokens.md/#nst_tok).
 
 ---
 
@@ -186,9 +186,9 @@ Casts expr to Nst_Tok *.
 typedef struct _Nst_Tok {
     Nst_Pos start;
     Nst_Pos end;
-    Nst_TokType type;
+    struct _Nst_TokType type;
     Nst_Obj *value;
-} Nst_Tok
+} struct _Nst_Tok
 ```
 
 **Description:**
@@ -228,7 +228,7 @@ Creates a new token on the heap with a value.
 
 **Returns:**
 
-The new token on success and NULL on failure. The error is set.
+The new token on success and `NULL` on failure. The error is set.
 
 ---
 
@@ -252,7 +252,7 @@ Creates a new token on the heap that has no value.
 
 **Returns:**
 
-The new token on success and NULL on failure. The error is set.
+The new token on success and `NULL` on failure. The error is set.
 
 ---
 
@@ -276,7 +276,7 @@ and end positions.
 
 **Returns:**
 
-The new token on success and NULL on failure. The error is set.
+The new token on success and `NULL` on failure. The error is set.
 
 ---
 
@@ -300,8 +300,8 @@ str is expected to be at least one character long.
 
 **Returns:**
 
-The parsed token type or Nst_TT_INVALID if the string does not contain a valid
-token literal.
+The parsed token type or [`Nst_TT_INVALID`](c_api-tokens.md/#nst_toktype) if the
+string does not contain a valid token literal.
 
 ---
 
@@ -411,7 +411,7 @@ typedef enum _Nst_TokType {
     // invalid token
 
     Nst_TT_INVALID = -1
-} Nst_TokType
+} struct _Nst_TokType
 ```
 
 **Description:**

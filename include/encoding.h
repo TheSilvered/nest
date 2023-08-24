@@ -11,7 +11,7 @@
 
 #include "error.h"
 
-/* Maximum size of a multibyte character across all supported encodings. */
+/* Maximum size of a multi-byte character across all supported encodings. */
 #define Nst_CP_MULTIBYTE_MAX_SIZE 4
 /* Maximum size of the BOM across all supported encodings. */
 #define Nst_CP_BOM_MAX_SIZE 4
@@ -20,9 +20,9 @@
 extern "C" {
 #endif // !__cplusplus
 
-/* [docs:link Nst_CP_UNKNOWN c_api-encoding.h/#nst_cpid] */
-/* [docs:link Nst_CP_LATIN1 c_api-encoding.h/#nst_cpid] */
-/* [docs:link Nst_CP_ISO8859_1 c_api-encoding.h/#nst_cpid] */
+/* [docs:link Nst_CP_UNKNOWN c_api-encoding.md/#nst_cpid] */
+/* [docs:link Nst_CP_LATIN1 c_api-encoding.md/#nst_cpid] */
+/* [docs:link Nst_CP_ISO8859_1 c_api-encoding.md/#nst_cpid] */
 
 /**
  * The supported encodings in Nest.
@@ -266,7 +266,7 @@ NstEXP i32 NstC Nst_utf16_to_utf8(i8 *out_str, u16 *in_str, usize in_str_len);
 /**
  * Translate a string to another encoding.
  *
- * @brief All pointers are expeced to be valid and not `NULL` except for
+ * @brief All pointers are expected to be valid and not `NULL` except for
  * `to_len` that can be `NULL` if there is no need to get the length of the
  * output string.
  *
@@ -288,7 +288,7 @@ NstEXP bool NstC Nst_translate_cp(Nst_CP *from, Nst_CP *to, void *from_buf,
 /**
  * Checks the validity of the encoding of a string.
  *
- * @param cp: the expeced encoding of the string
+ * @param cp: the expected encoding of the string
  * @param str: the string to check
  * @param str_len: the length in units of the string (a unit is 1 byte for
  * `char8_t` strings, two bytes for `char16_t` strings etc.)
@@ -312,6 +312,9 @@ NstEXP Nst_CP *NstC Nst_cp(Nst_CPID cpid);
 NstEXP Nst_CPID NstC Nst_acp(void);
 #endif // !Nst_WIN
 
+/* [docs:link strlen https://man7.org/linux/man-pages/man3/strlen.3.html] */
+/* [docs:link wcslen https://man7.org/linux/man-pages/man3/wcslen.3.html] */
+
 /**
  * Translates a UTF-8 string to Unicode (UTF-16).
  *
@@ -319,7 +322,7 @@ NstEXP Nst_CPID NstC Nst_acp(void);
  * non-NULL pointer.
  *
  * @param str: the string to translate
- * @param len: the length of the string, if 0, it is calculated with strlen
+ * @param len: the length of the string, if 0, it is calculated with `strlen`
  *
  * @return The function returns the new string or NULL on failure. If the
  * function fails, the error is set.

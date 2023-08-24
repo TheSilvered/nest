@@ -18,7 +18,7 @@ STR(ptr)
 
 **Description:**
 
-Casts ptr to Nst_StrObj *.
+Casts `ptr` to [`Nst_StrObj *`](c_api-str.md/#nst_strobj).
 
 ---
 
@@ -32,7 +32,7 @@ TYPE(ptr)
 
 **Description:**
 
-Casts ptr to Nst_TypeObj *.
+Casts `ptr` to [`Nst_TypeObj *`](c_api-str.md/#nst_typeobj).
 
 ---
 
@@ -74,7 +74,8 @@ Nst_string_copy(src)
 
 **Description:**
 
-Alias of _Nst_string_copy that casts src to Nst_StrObj *.
+Alias of [`_Nst_string_copy`](c_api-str.md/#_nst_string_copy) that casts `src`
+to [`Nst_StrObj *`](c_api-str.md/#nst_strobj).
 
 ---
 
@@ -88,7 +89,8 @@ Nst_string_repr(src)
 
 **Description:**
 
-Alias of _Nst_string_repr that casts src to Nst_StrObj *.
+Alias of [`_Nst_string_repr`](c_api-str.md/#_nst_string_repr) that casts `src`
+to [`Nst_StrObj *`](c_api-str.md/#nst_strobj).
 
 ---
 
@@ -102,7 +104,8 @@ Nst_string_get(str, idx)
 
 **Description:**
 
-Alias of _Nst_string_get that casts str to Nst_StrObj *.
+Alias of [`_Nst_string_get`](c_api-str.md/#_nst_string_get) that casts `str` to
+[`Nst_StrObj *`](c_api-str.md/#nst_strobj).
 
 ---
 
@@ -117,7 +120,7 @@ typedef struct _Nst_StrObj {
     Nst_OBJ_HEAD;
     usize len;
     i8 *value;
-} Nst_StrObj
+} struct _Nst_StrObj
 ```
 
 **Description:**
@@ -126,7 +129,7 @@ Structure representing a Nest string.
 
 **Fields:**
 
-- `len`: the lenght of the string
+- `len`: the length of the string
 - `value`: the value of the string
 
 ---
@@ -143,7 +146,7 @@ typedef Nst_StrObj Nst_TypeObj;
 
 **Description:**
 
-Defined for completness, Nest types are just strings.
+Defined for completeness, Nest `Type` objects are just strings.
 
 ---
 
@@ -170,7 +173,7 @@ length.
 
 **Returns:**
 
-The new string on success and NULL on failure. The error is set.
+The new string on success and `NULL` on failure. The error is set.
 
 ---
 
@@ -195,7 +198,7 @@ Creates a new string object from a string literal of known length.
 
 **Returns:**
 
-The new string on success and NULL on failure. The error is set.
+The new string on success and `NULL` on failure. The error is set.
 
 ---
 
@@ -220,7 +223,7 @@ Creates a new string object.
 
 **Returns:**
 
-The new string on success and NULL on failure. The error is set.
+The new string on success and `NULL` on failure. The error is set.
 
 ---
 
@@ -245,7 +248,7 @@ val is freed if the string fails to be created.
 
 **Returns:**
 
-The new string on success and NULL on failure. The error is set.
+The new string on success and `NULL` on failure. The error is set.
 
 ---
 
@@ -273,7 +276,8 @@ destroyed in any way.
 
 **Returns:**
 
-A Nst_StrObj struct, NOT POINTER. This function never fails.
+A [`Nst_StrObj`](c_api-str.md/#nst_strobj) struct, **NOT POINTER**. This
+function never fails.
 
 ---
 
@@ -287,7 +291,7 @@ Nst_TypeObj *Nst_type_new(const i8 *val)
 
 **Description:**
 
-Creates a new Nst_TypeObj.
+Creates a new [`Nst_TypeObj`](c_api-str.md/#nst_typeobj).
 
 **Parameters:**
 
@@ -295,7 +299,7 @@ Creates a new Nst_TypeObj.
 
 **Returns:**
 
-The new object on success and NULL on failure. The error is set.
+The new object on success and `NULL` on failure. The error is set.
 
 ---
 
@@ -311,7 +315,7 @@ Nst_Obj *_Nst_string_copy(Nst_StrObj *src)
 
 Creates a new string copying the contents of an already existing one.
 
-src remains untouched even if the function fails.
+`src` remains untouched even if the function fails.
 
 **Parameters:**
 
@@ -319,7 +323,7 @@ src remains untouched even if the function fails.
 
 **Returns:**
 
-The copied string on success and NULL on failure. The error is set.
+The copied string on success and `NULL` on failure. The error is set.
 
 ---
 
@@ -334,18 +338,18 @@ Nst_Obj *_Nst_string_repr(Nst_StrObj *src)
 **Description:**
 
 Creates a new string by making a string representation of an existing one that
-replaces any special characters such as \\n and \\t with their code
+replaces any special characters such as newlines and tabs with their code
 representation.
 
-src remains untouched even if the function fails.
+`src` remains untouched even if the function fails.
 
 **Parameters:**
 
-- `src`: the string to copy
+- `src`: the string to make the representation of
 
 **Returns:**
 
-The copied string on success and NULL on failure. The error is set.
+The copied string on success and `NULL` on failure. The error is set.
 
 ---
 
@@ -361,7 +365,7 @@ Nst_Obj *_Nst_string_get(Nst_StrObj *str, i64 idx)
 
 Creates a new one-character string with a character of an existing string.
 
-idx is wrapped to the end if it is negative.
+If `idx` negative it is subtracted to the length to get the actual index.
 
 **Parameters:**
 
@@ -370,7 +374,7 @@ idx is wrapped to the end if it is negative.
 
 **Returns:**
 
-The new string on success and NULL on failure. The error is set. The function
+The new string on success and `NULL` on failure. The error is set. The function
 fails if the index falls outside the string.
 
 ---
@@ -385,12 +389,13 @@ Nst_Obj *Nst_string_parse_int(Nst_StrObj *str, i32 base)
 
 **Description:**
 
-Parses a Nst_IntObj from a string.
+Parses a [`Nst_IntObj`](c_api-simple_types.md/#nst_intobj) from a string.
 
 If an invalid literal is found, the function fails rather than returning zero.
-base can be any number between 2 and 36, where above 10 letters start to be
-used. If the base is 0 the function accepts prefixes such as 0x, 0b and 0o to
-change the base.
+`base` can be any number between `2` and `36`, where above `10` letters start to
+be used. If the base is `0` the function uses prefixes such as `0x`, `0b` and
+`0o` to change the base. If the base is `2`, `8` or `16` the prefix is optional
+and is ignored if found.
 
 **Parameters:**
 
@@ -399,7 +404,7 @@ change the base.
 
 **Returns:**
 
-The new int object or NULL on failure. The error is set.
+The new int object or `NULL` on failure. The error is set.
 
 ---
 
@@ -439,11 +444,11 @@ Nst_Obj *Nst_string_parse_real(Nst_StrObj *str)
 
 **Description:**
 
-Parses a Nst_RealObj from a string.
+Parses a [`Nst_RealObj`](c_api-simple_types.md/#nst_realobj) from a string.
 
 If an invalid literal is found, the function fails rather than returning zero.
-Valid literals follow Nest's real syntax, because of this 3. or .5 are
-considered invalid and must be written as 3.0 and 0.5.
+Valid literals follow Nest's real syntax, because of this `3.` or `.5` are
+considered invalid and must be written as `3.0` and `0.5`.
 
 **Parameters:**
 
@@ -451,7 +456,7 @@ considered invalid and must be written as 3.0 and 0.5.
 
 **Returns:**
 
-The new real object or NULL on failure. The error is set.
+The new real object or `NULL` on failure. The error is set.
 
 ---
 
@@ -465,8 +470,9 @@ i32 Nst_string_compare(Nst_StrObj *str1, Nst_StrObj *str2)
 
 **Description:**
 
-Compares two Nest strings, similarly to strcmp but takes into account possible
-NUL bytes inside the compared string.
+Compares two Nest strings, similarly to
+[`strcmp`](https://man7.org/linux/man-pages/man3/strcmp.3.html) but takes into
+account possible `NUL` bytes inside the compared string.
 
 **Parameters:**
 
@@ -475,8 +481,8 @@ NUL bytes inside the compared string.
 
 **Returns:**
 
-0 if the two strings are equal, a value < 0 if str2 is greater than str1 and a
-value > 0 if str1 is greater than str2.
+`0` if the two strings are equal, a value `< 0` if `str2` is greater than `str1`
+and a value `> 0` if `str1` is greater than `str2`.
 
 ---
 
@@ -506,19 +512,19 @@ i8 *Nst_string_find(i8 *s1, usize l1, i8 *s2, usize l2)
 
 Finds the first occurrence of a substring inside a string.
 
-If the pointer is not NULL it is guaranteed to be between s1 <= p < s1 + l1,
-where p is the pointer returned.
+If the pointer is not `NULL` it is guaranteed to be between `s1 <= p < s1 + l1`,
+where `p` is the pointer returned.
 
 **Parameters:**
 
 - `s1`: the main string
-- `l1`: the length of s1
+- `l1`: the length of `s1`
 - `s2`: the substring to find inside the main string
-- `l2`: the lenght of s2
+- `l2`: the length of `s2`
 
 **Returns:**
 
-The pointer to the start of s1 or NULL if the string could not be found. No
+The pointer to the start of `s1` or `NULL` if the string could not be found. No
 error is set.
 
 ---
@@ -532,10 +538,10 @@ error is set.
 ```better-c
 typedef enum _Nst_StrFlags {
     Nst_FLAG_STR_IS_ALLOC = 0b1
-} Nst_StrFlags
+} struct _Nst_StrFlags
 ```
 
 **Description:**
 
-Nst_StrObj-specific flags.
+[`Nst_StrObj`](c_api-str.md/#nst_strobj)-specific flags.
 

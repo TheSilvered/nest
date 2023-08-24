@@ -18,7 +18,7 @@ extern "C" {
 /**
  * Hashes a Nest object setting its hash field.
  *
- * @brief If the object is unhashable `-1` is set.
+ * @brief If the object is not hashable `-1` is set.
  *
  * @param obj: the object to be hashed
  *

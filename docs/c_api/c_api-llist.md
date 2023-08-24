@@ -39,13 +39,13 @@ It should be put inside the brackets of a for loop with nothing else.
 typedef struct _Nst_LLNode {
     void *value;
     bool allocated;
-    Nst_LLNode *next;
-} Nst_LLNode
+    struct _Nst_LLNode *next;
+} struct _Nst_LLNode
 ```
 
 **Description:**
 
-The structure representing a node of a Nst_LList.
+The structure representing a node of a [`Nst_LList`](c_api-llist.md/#nst_llist).
 
 **Fields:**
 
@@ -64,7 +64,7 @@ typedef struct _Nst_LList {
     Nst_LLNode *head;
     Nst_LLNode *tail;
     usize len;
-} Nst_LList
+} struct _Nst_LList
 ```
 
 **Description:**
@@ -118,7 +118,7 @@ Adds a value to the front of the list.
 
 **Returns:**
 
-true if the value is added and false on failure. The error is set.
+`true` if the value is added and `false` on failure. The error is set.
 
 ---
 
@@ -143,7 +143,7 @@ Adds a value to the back of the list.
 
 **Returns:**
 
-true if the value is added and false on failure. The error is set.
+`true` if the value is added and `false` on failure. The error is set.
 
 ---
 
@@ -160,7 +160,8 @@ bool Nst_llist_insert(Nst_LList *llist, void *value, bool allocated,
 
 Adds a value after a given node.
 
-node can be NULL, in which case the function behaves like Nst_llist_push.
+node can be `NULL`, in which case the function behaves like
+[`Nst_llist_push`](c_api-llist.md/#nst_llist_push).
 
 **Parameters:**
 
@@ -172,7 +173,7 @@ node can be NULL, in which case the function behaves like Nst_llist_push.
 
 **Returns:**
 
-true if the value is added and false on failure. The error is set.
+`true` if the value is added and `false` on failure. The error is set.
 
 ---
 
@@ -200,7 +201,7 @@ void *Nst_llist_peek_front(Nst_LList *llist)
 
 **Description:**
 
-Returns the front value of a list. If the list is empty NULL is returned, no
+Returns the front value of a list. If the list is empty `NULL` is returned, no
 error is set.
 
 ---
@@ -215,7 +216,7 @@ void *Nst_llist_peek_back(Nst_LList *llist)
 
 **Description:**
 
-Returns the back value of a list. If the list is empty NULL is returned, no
+Returns the back value of a list. If the list is empty `NULL` is returned, no
 error is set.
 
 ---
@@ -276,7 +277,7 @@ Creates and initializes a new list on the heap
 
 **Returns:**
 
-The new list or NULL on failure. The error is set.
+The new list or `NULL` on failure. The error is set.
 
 ---
 
@@ -308,7 +309,7 @@ Creates a new node on the heap.
 
 **Returns:**
 
-The new node or NULL on failure. The error is set.
+The new node or `NULL` on failure. The error is set.
 
 ---
 

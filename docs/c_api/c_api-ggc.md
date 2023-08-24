@@ -50,7 +50,7 @@ GGC_OBJ(obj)
 
 **Description:**
 
-Casts obj to [`Nst_GGCObj *`](c_api-ggc.md#nst_ggcobj).
+Casts obj to [`Nst_GGCObj *`](c_api-ggc.md/#nst_ggcobj).
 
 ---
 
@@ -64,7 +64,7 @@ Nst_OBJ_IS_TRACKED(obj)
 
 **Description:**
 
-Checks whether a [`Nst_GGCObj`](c_api-ggc.md#nst_ggcobj) is tracked by the
+Checks whether a [`Nst_GGCObj`](c_api-ggc.md/#nst_ggcobj) is tracked by the
 garbage collector.
 
 ---
@@ -75,7 +75,7 @@ garbage collector.
 
 The macro to add support to the GGC to an object structure.
 
-It must be placed after [`Nst_OBJ_HEAD`](c_api-obj.md#nst_obj_head) and before
+It must be placed after [`Nst_OBJ_HEAD`](c_api-obj.md/#nst_obj_head) and before
 any other fields.
 
 ---
@@ -90,7 +90,7 @@ Nst_GGC_OBJ_INIT(obj, trav_func, track_function)
 
 **Description:**
 
-Initializes the fields of a [`Nst_GGCObj`](c_api-ggc.md#nst_ggcobj).
+Initializes the fields of a [`Nst_GGCObj`](c_api-ggc.md/#nst_ggcobj).
 
 ---
 
@@ -104,7 +104,7 @@ Initializes the fields of a [`Nst_GGCObj`](c_api-ggc.md#nst_ggcobj).
 typedef struct _Nst_GGCObj {
     Nst_OBJ_HEAD;
     Nst_GGC_HEAD;
-} Nst_GGCObj
+} struct _Nst_GGCObj
 ```
 
 **Description:**
@@ -115,10 +115,10 @@ The struct representing a garbage collector object.
 
 - `ggc_next`: the next object in the generation it belongs to
 - `ggc_prev`: the previous object in the generation it belongs to
-- `ggc_list`: the genreration it belongs to
+- `ggc_list`: the generation it belongs to
 - `traverse_func`: the function that sets as reachable all the objects contained
   in the object
-- `track_func`: the function that tracks all the trackable objects that the
+- `track_func`: the function that tracks all the traceable objects that the
   object contains when it itself is tracked
 
 ---
@@ -132,7 +132,7 @@ typedef struct _Nst_GGCList {
     Nst_GGCObj *head;
     Nst_GGCObj *tail;
     usize len;
-} Nst_GGCList
+} struct _Nst_GGCList
 ```
 
 **Description:**
@@ -158,7 +158,7 @@ typedef struct _Nst_GarbageCollector {
     Nst_GGCList gen3;
     Nst_GGCList old_gen;
     i64 old_gen_pending;
-} Nst_GarbageCollector
+} struct _Nst_GarbageCollector
 ```
 
 **Description:**
@@ -262,7 +262,7 @@ typedef enum _Nst_GGCFlags {
     Nst_FLAG_GGC_UNREACHABLE  = 0x40000000,
     Nst_FLAG_GGC_DELETED      = 0x20000000,
     Nst_FLAG_GGC_IS_SUPPORTED = 0x10000000
-} Nst_GGCFlags
+} struct _Nst_GGCFlags
 ```
 
 **Description:**

@@ -79,7 +79,7 @@ NstEXP bool NstC Nst_supports_color(void);
  */
 NstEXP bool NstC _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv);
 
-/* WINDOWS-ONLY Initialises the console. */
+/* WINDOWS-ONLY Initializes the console. */
 NstEXP void NstC _Nst_set_console_mode(void);
 
 #endif // !Nst_WIN

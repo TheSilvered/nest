@@ -26,8 +26,8 @@ Nst_malloc_c(count, type)
 
 **Description:**
 
-Calls Nst_malloc using sizeof(type) for the size and casting the result to a
-pointer of the type.
+Calls [`Nst_malloc`](c_api-mem.md/#nst_malloc) using `sizeof(type)` for the size
+and casting the result to a pointer of `type`.
 
 ---
 
@@ -41,8 +41,8 @@ Nst_calloc_c(count, type, init_value)
 
 **Description:**
 
-Calls Nst_calloc using sizeof(type) for the size and casting the result to a
-pointer of the type.
+Calls [`Nst_calloc`](c_api-mem.md/#nst_calloc) using `sizeof(type)` for the size
+and casting the result to a pointer of `type`.
 
 ---
 
@@ -56,8 +56,8 @@ Nst_realloc_c(block, new_count, type, count)
 
 **Description:**
 
-Calls Nst_realloc using sizeof(type) for the size and casting the result to a
-pointer of the type.
+Calls [`Nst_realloc`](c_api-mem.md/#nst_realloc) using `sizeof(type)` for the
+size and casting the result to a pointer of `type`.
 
 ---
 
@@ -71,8 +71,8 @@ Nst_crealloc_c(block, new_count, type, count, init_value)
 
 **Description:**
 
-Calls Nst_crealloc using sizeof(type) for the size and casting the result to a
-pointer of the type.
+Calls [`Nst_crealloc`](c_api-mem.md/#nst_crealloc) using `sizeof(type)` for the
+size and casting the result to a pointer of `type`.
 
 ---
 
@@ -88,7 +88,7 @@ typedef struct _Nst_SizedBuffer {
     usize cap;
     usize unit_size;
     void *data;
-} Nst_SizedBuffer
+} struct _Nst_SizedBuffer
 ```
 
 **Description:**
@@ -114,21 +114,22 @@ typedef struct _Nst_Buffer {
     usize cap;
     usize unit_size;
     i8 *data;
-} Nst_Buffer
+} struct _Nst_Buffer
 ```
 
 **Description:**
 
 Structure representing a buffer of chars.
 
-Uses the same layout of Nst_SizedBuffer to re-use the same functions. Ensures to
-always contain a valid string if not modified by custom functions.
+Uses the same layout of [`Nst_SizedBuffer`](c_api-mem.md/#nst_sizedbuffer) to
+re-use the same functions. Ensures to always contain a valid string if not
+modified by external functions.
 
 **Fields:**
 
 - `len`: the length of the string in the buffer
 - `cap`: the size in bytes of the allocated block
-- `unit_size`: always 1
+- `unit_size`: always `1`
 - `data`: the string
 
 ---
@@ -145,7 +146,7 @@ void *Nst_raw_malloc(usize size)
 
 **Description:**
 
-Alias for C malloc.
+Alias for C [`malloc`](https://man7.org/linux/man-pages/man3/malloc.3.html).
 
 ---
 
@@ -159,7 +160,7 @@ void *Nst_raw_calloc(usize count, usize size)
 
 **Description:**
 
-Alias for C calloc.
+Alias for C [`calloc`](https://man7.org/linux/man-pages/man3/malloc.3.html).
 
 ---
 
@@ -173,7 +174,7 @@ void *Nst_raw_realloc(void *block, usize size)
 
 **Description:**
 
-Alias for C realloc.
+Alias for C [`realloc`](https://man7.org/linux/man-pages/man3/malloc.3.html).
 
 ---
 
@@ -187,7 +188,7 @@ void Nst_free(void *block)
 
 **Description:**
 
-Alias for C free.
+Alias for C [`free`](https://man7.org/linux/man-pages/man3/malloc.3.html).
 
 ---
 
@@ -212,7 +213,7 @@ The elements are contiguous in memory.
 
 **Returns:**
 
-A pointer to the allocated memory block or NULL on failure. The error is set.
+A pointer to the allocated memory block or `NULL` on failure. The error is set.
 
 ---
 
@@ -228,9 +229,11 @@ void *Nst_calloc(usize count, usize size, void *init_value)
 
 Allocates memory on the heap initializing it.
 
-The elements are contiguous in memory. If init_value is NULL, the function has a
-similar behaviour to calloc filling the memory with zeroes. init_value is
-expected to be the same size as the one given for the elements.
+The elements are contiguous in memory. If `init_value` is `NULL`, the function
+has a similar behaviour to
+[`calloc`](https://man7.org/linux/man-pages/man3/malloc.3.html) filling the
+memory with zeroes. `init_value` is expected to be the same size as the one
+given for the elements.
 
 **Parameters:**
 
@@ -240,7 +243,7 @@ expected to be the same size as the one given for the elements.
 
 **Returns:**
 
-A pointer to the allocated memory block or NULL on failure. The error is set.
+A pointer to the allocated memory block or `NULL` on failure. The error is set.
 
 ---
 
@@ -256,8 +259,9 @@ void *Nst_realloc(void *block, usize new_count, usize size, usize count)
 
 Changes the size of an allocated memory block.
 
-This function never fails when the block is shrinked because if the call to
-realloc fails, the old block is returned.
+This function never fails when the block is shrunk because if the call to
+[`realloc`](https://man7.org/linux/man-pages/man3/malloc.3.html) fails, the old
+block is returned.
 
 **Parameters:**
 
@@ -268,9 +272,9 @@ realloc fails, the old block is returned.
 
 **Returns:**
 
-A pointer to the reallocated memory block or NULL on failure. The error is set.
-If either new_count or size is zero, block is freed and NULL is returned with no
-error.
+A pointer to the reallocated memory block or `NULL` on failure. The error is
+set. If either `new_count` or `size` is zero, block is freed and `NULL` is
+returned with no error.
 
 ---
 
@@ -287,10 +291,10 @@ void *Nst_crealloc(void *block, usize new_count, usize size, usize count,
 
 Changes the size of an allocated memory block initializing new memory.
 
-This function never fails when the block is shrinked because if the call to
-realloc fails, the old block is returned. If init_value is NULL, the function
-just fills the new memory with zeroes. init_value is expected to be the same
-size as the one given for the elements.
+This function never fails when the block is shrunk because if the call to
+[`realloc`](https://man7.org/linux/man-pages/man3/malloc.3.html) fails, the old
+block is returned. If `init_value` is `NULL`, the function just fills the new
+memory with zeroes. `init_value` is expected to have a size of `size`.
 
 **Parameters:**
 
@@ -302,9 +306,9 @@ size as the one given for the elements.
 
 **Returns:**
 
-A pointer to the reallocated memory block or NULL on failure. The error is set.
-If either new_count or size is zero, block is freed and NULL is returned with no
-error.
+A pointer to the reallocated memory block or `NULL` on failure. The error is
+set. If either `new_count` or `size` is zero, block is freed and `NULL` is
+returned with no error.
 
 ---
 
@@ -318,7 +322,7 @@ bool Nst_sbuffer_init(Nst_SizedBuffer *buf, usize unit_size, usize count)
 
 **Description:**
 
-Initializes a Nst_SizedBuffer.
+Initializes a [`Nst_SizedBuffer`](c_api-mem.md/#nst_sizedbuffer).
 
 **Parameters:**
 
@@ -328,7 +332,7 @@ Initializes a Nst_SizedBuffer.
 
 **Returns:**
 
-true on succes and false on failure. The error is set.
+`true` on succes and `false` on failure. The error is set.
 
 ---
 
@@ -353,7 +357,7 @@ The buffer is expanded only if needed.
 
 **Returns:**
 
-true on succes and false on failure. The error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -379,7 +383,7 @@ current one nothing is done.
 
 **Returns:**
 
-true on succes and false on failure. The error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -409,9 +413,10 @@ bool Nst_sbuffer_append(Nst_SizedBuffer *buf, void *element)
 
 Appends an element to the end of the buffer.
 
-If necessary, the buffer is expanded automatically. The data pointed to by
-element is expected to be at least a number of bytes that matches the one of the
-elements contained by the buffer.
+The buffer is expanded more than needed to reduce the overall number of
+reallocations.
+
+If necessary, the buffer is expanded automatically.
 
 **Parameters:**
 
@@ -420,7 +425,7 @@ elements contained by the buffer.
 
 **Returns:**
 
-true on success and false on failure. The error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -448,7 +453,7 @@ bool Nst_buffer_init(Nst_Buffer *buf, usize initial_size)
 
 **Description:**
 
-Initializes a Nst_Buffer.
+Initializes a [`Nst_Buffer`](c_api-mem.md/#nst_buffer).
 
 **Parameters:**
 
@@ -457,7 +462,7 @@ Initializes a Nst_Buffer.
 
 **Returns:**
 
-true on succes and false on failure. The error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -473,8 +478,8 @@ bool Nst_buffer_expand_by(Nst_Buffer *buf, usize amount)
 
 Expands a buffer to contain a specified amount new characters.
 
-The buffer is expanded only if needed. One is added to the amount to take into
-account the NUL character at the end.
+The buffer is expanded only if needed. `1` is added to `amount` to take into
+account the `NUL` character at the end.
 
 **Parameters:**
 
@@ -483,7 +488,7 @@ account the NUL character at the end.
 
 **Returns:**
 
-true on succes and false on failure. The error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -500,8 +505,8 @@ bool Nst_buffer_expand_to(Nst_Buffer *buf, usize size)
 Expands a sized buffer to contain a total amount of characters.
 
 The buffer is expanded only if needed. If the new size is smaller than the
-current one nothing is done. One is added to the size to take into account the
-NUL character at the end.
+current one nothing is done. `1` is added to the size to take into account the
+`NUL` character at the end.
 
 **Parameters:**
 
@@ -510,7 +515,7 @@ NUL character at the end.
 
 **Returns:**
 
-true on succes and false on failure. The error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -538,7 +543,9 @@ bool Nst_buffer_append(Nst_Buffer *buf, Nst_StrObj *str)
 
 **Description:**
 
-Appends a Nst_StrObj to the end of the buffer.
+Appends a [`Nst_StrObj`](c_api-str.md/#nst_strobj) to the end of the buffer.
+
+The buffer is expanded if needed.
 
 **Parameters:**
 
@@ -547,7 +554,7 @@ Appends a Nst_StrObj to the end of the buffer.
 
 **Returns:**
 
-true on success and false on failure. The error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -563,6 +570,8 @@ bool Nst_buffer_append_c_str(Nst_Buffer *buf, const i8 *str)
 
 Appends a C string to the end of the buffer.
 
+The buffer is expanded if needed.
+
 **Parameters:**
 
 - `buf`: the buffer to append the string to
@@ -570,7 +579,7 @@ Appends a C string to the end of the buffer.
 
 **Returns:**
 
-true on success and false on failure. The error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -586,6 +595,8 @@ bool Nst_buffer_append_char(Nst_Buffer *buf, i8 ch)
 
 Appends a character to the end of the buffer.
 
+The buffer is expanded if needed.
+
 **Parameters:**
 
 - `buf`: the buffer to append the string to
@@ -593,7 +604,7 @@ Appends a character to the end of the buffer.
 
 **Returns:**
 
-true on success and false on failure. The error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -607,10 +618,11 @@ Nst_StrObj *Nst_buffer_to_string(Nst_Buffer *buf)
 
 **Description:**
 
-Creates a Nst_StrObj from a buffer.
+Creates a [`Nst_StrObj`](c_api-str.md/#nst_strobj) from a buffer.
 
-The data of the buffer is set to NULL and its len and size are set to 0. The
-function automatically calls Nst_buffer_fit.
+The data of the buffer is set to `NULL` and its `len` and `cap` are set to `0`.
+The function automatically calls
+[`Nst_buffer_fit`](c_api-mem.md/#nst_buffer_fit).
 
 **Parameters:**
 
@@ -618,7 +630,7 @@ function automatically calls Nst_buffer_fit.
 
 **Returns:**
 
-The new string on success and NULL on failure. The error is set.
+The new string on success and `NULL` on failure. The error is set.
 
 ---
 

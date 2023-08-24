@@ -19,7 +19,7 @@
 
 **Description**:
 
-Ends the execution of the program and terminates with an exit code of `code`.  
+Ends the execution of the program and terminates with an exit code of `code`.
 If `code` is `null` it defaults to `0`.
 
 ---
@@ -69,8 +69,8 @@ Returns the reference count of `object`
 
 **Return value**:
 
-Returns the hash of the object, used in maps. If the object is unhashable, -1 is
-returned.
+Returns the hash of the object, used in maps. If the object is not hashable, -1
+is returned.
 
 ---
 
@@ -86,7 +86,7 @@ Executes `cmd` in a sub-shell.
 
 **Return value**:
 
-The return value is the exit status of the shell.  
+The return value is the exit status of the shell.
 On Linux is always the exit status, on Windows, it depends on the default shell.
 
 ---
@@ -125,7 +125,7 @@ Sets the current working directory. The changes do not reflect in `_cwd_`.
 **Description**:
 
 Similar to [`exit`](#exit), but instead of throwing a special error, the C
-function is called.  
+function is called.
 This function cannot be accessed by importing the normal system library, you
 need to import the C source instead.
 

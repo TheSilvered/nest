@@ -28,7 +28,7 @@ typedef struct _Nst_ExecutionState {
     Nst_LList *lib_paths;
     Nst_MapObj *lib_handles;
     Nst_LList *lib_srcs;
-} Nst_ExecutionState
+} struct _Nst_ExecutionState
 ```
 
 **Description:**
@@ -70,7 +70,7 @@ i32 Nst_run(Nst_FuncObj *main_func, i32 argc, i8 **argv, i8 *filename,
 Runs the main program.
 
 !!!warning
-    G: it must never be called inside a library.
+    It must never be called inside a library.
 
 **Parameters:**
 
@@ -109,7 +109,7 @@ Runs an external Nest file.
 
 **Returns:**
 
-`true` on success and `false` on failure. If the function succeedes, the result
+`true` on success and `false` on failure. If the function succeeds, the result
 of the module is on top of the value stack. The global operation error is not
 set but an internal one is, hence the caller must not set the error.
 
@@ -125,18 +125,18 @@ Nst_Obj *Nst_call_func(Nst_FuncObj *func, Nst_Obj **args)
 
 **Description:**
 
-Calls a [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
+Calls a [`Nst_FuncObj`](c_api-function.md/#nst_funcobj).
 
 It can have both a Nest or C body.
 
 !!!warning
-    G: No checking is done on the number of arguments.
+    No checking is done on the number of arguments.
 
 **Parameters:**
 
 - `func`: the function to call
 - `args`: the array of arguments to pass to it, the correct number of arguments
-  must be ginven, no `null` arguments are added
+  must be given, no `null` arguments are added
 
 **Returns:**
 
@@ -157,8 +157,8 @@ Nst_Obj *Nst_run_func_context(Nst_FuncObj *func, i64 idx, Nst_MapObj *vars,
 
 **Description:**
 
-Executes the body of a [`Nst_FuncObj`](c_api-function.md#nst_funcobj) that has a
-Nest body using a given context.
+Executes the body of a [`Nst_FuncObj`](c_api-function.md/#nst_funcobj) that has
+a Nest body using a given context.
 
 The context is set according to the arguments passed.
 
@@ -191,7 +191,7 @@ Returns the absolute path to a file system object.
 
 !!!note
     The absolute path is allocated on the heap and should be freed with
-    [`Nst_free`](c_api-mem.md#nst_free) when appropriate.
+    [`Nst_free`](c_api-mem.md/#nst_free) when appropriate.
 
 **Parameters:**
 
@@ -245,7 +245,7 @@ Initializes the global [`Nst_state`](c_api-interpreter.md/#nst_get_state).
 
 **Returns:**
 
-`true` if the state initialized succesfully and `false` otherwise. No error is
+`true` if the state initialized successfully and `false` otherwise. No error is
 set.
 
 ---
@@ -290,7 +290,7 @@ void _Nst_unload_libs(void)
 **Description:**
 
 Frees `loaded_libs`, must be called after
-[`_Nst_del_objects`](c_api-global_consts.md#_nst_del_objects).
+[`_Nst_del_objects`](c_api-global_consts.md/#_nst_del_objects).
 
 ---
 
@@ -305,7 +305,7 @@ Nst_ExecutionState *Nst_get_state(void)
 **Description:**
 
 Returns a pointer to the global
-[`Nst_ExecutionState`](c_api-interpreter.md#nst_executionstate).
+[`Nst_ExecutionState`](c_api-interpreter.md/#nst_executionstate).
 
 ---
 
@@ -320,7 +320,7 @@ i32 Nst_chdir(Nst_StrObj *str)
 **Description:**
 
 Changes the current working directory using a
-[`Nst_StrObj`](c_api-str.md#nst_strobj).
+[`Nst_StrObj`](c_api-str.md/#nst_strobj).
 
 **Returns:**
 
@@ -338,7 +338,8 @@ Nst_StrObj *Nst_getcwd(void)
 
 **Description:**
 
-Gets the current working directory as a [`Nst_StrObj`](c_api-str.md#nst_strobj).
+Gets the current working directory as a
+[`Nst_StrObj`](c_api-str.md/#nst_strobj).
 
 **Returns:**
 

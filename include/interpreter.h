@@ -76,7 +76,7 @@ NstEXP i32 NstC Nst_run(Nst_FuncObj *main_func, i32 argc, i8 **argv,
  * error occurs the source of the library is expected to be on the lib_srcs
  * list of the global state
  *
- * @return `true` on success and `false` on failure. If the function succeedes,
+ * @return `true` on success and `false` on failure. If the function succeeds,
  * the result of the module is on top of the value stack. The global operation
  * error is not set but an internal one is, hence the caller must not set the
  * error.
@@ -90,7 +90,7 @@ NstEXP bool NstC Nst_run_module(i8 *file_name, Nst_SourceText *lib_src);
  *
  * @param func: the function to call
  * @param args: the array of arguments to pass to it, the correct number of
- * arguments must be ginven, no `null` arguments are added
+ * arguments must be given, no `null` arguments are added
  *
  * @return The result of the function or `NULL` on failure.
  * When a function with a Nest body fails the error is set internally and the
@@ -149,7 +149,7 @@ NstEXP Nst_Inst *NstC Nst_current_inst(void);
  * @param no_default: whether to initialize the variable table of the main
  * program with built-in values
  *
- * @return `true` if the state initialized succesfully and `false` otherwise.
+ * @return `true` if the state initialized successfully and `false` otherwise.
  * No error is set.
  */
 NstEXP bool NstC Nst_state_init(i32 argc, i8 **argv, i8 *filename,

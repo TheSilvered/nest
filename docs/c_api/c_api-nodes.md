@@ -18,7 +18,7 @@ Nst_NODE(expr)
 
 **Description:**
 
-Casts expr to Nst_Node *.
+Casts `expr` to [`Nst_Node *`](c_api-nodes.md/#nst_node).
 
 ---
 
@@ -32,7 +32,7 @@ Nst_NODE_RETUNS_VALUE(node_type)
 
 **Description:**
 
-Evaluates to true if the specified node type returns a value.
+Evaluates to `true` if the specified node type returns a value.
 
 ---
 
@@ -46,10 +46,10 @@ Evaluates to true if the specified node type returns a value.
 typedef struct _Nst_Node {
     Nst_Pos start;
     Nst_Pos end;
-    Nst_NodeType type;
+    struct _Nst_NodeType type;
     Nst_LList *nodes;
     Nst_LList *tokens;
-} Nst_Node
+} struct _Nst_Node
 ```
 
 **Description:**
@@ -81,7 +81,7 @@ Nst_Node *Nst_node_new(Nst_NodeType type)
 Creates and initializes a new AST node on the heap.
 
 Though the position is not in the arguments, its position should be set later
-with Nst_node_set_pos.
+with [`Nst_node_set_pos`](c_api-nodes.md/#nst_node_set_pos).
 
 **Parameters:**
 
@@ -89,7 +89,7 @@ with Nst_node_set_pos.
 
 **Returns:**
 
-The new node or NULL on failure. The error is set.
+The new node or `NULL` on failure. The error is set.
 
 ---
 
@@ -113,7 +113,7 @@ Creates and initializes a new AST node on the heap.
 
 **Returns:**
 
-The new node or NULL on failure. The error is set.
+The new node or `NULL` on failure. The error is set.
 
 ---
 
@@ -179,7 +179,7 @@ typedef enum _Nst_NodeType {
     Nst_NT_ASSIGN_E,
     Nst_NT_IF_E,
     Nst_NT_LAMBDA
-} Nst_NodeType
+} struct _Nst_NodeType
 ```
 
 **Description:**

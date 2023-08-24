@@ -18,7 +18,8 @@ Nst_fstack_push(func, start, end, vt, idx, cstack_size)
 
 **Description:**
 
-Alias for _Nst_fstack_push that casts func to Nst_FuncObj *.
+Alias for [`_Nst_fstack_push`](c_api-runtime_stack.md/#_nst_fstack_push) that
+casts func to [`Nst_FuncObj *`](c_api-function.md/#nst_funcobj).
 
 ---
 
@@ -32,7 +33,8 @@ Nst_vstack_push(val)
 
 **Description:**
 
-Alias for _Nst_vstack_push that casts val to Nst_Obj *.
+Alias for [`_Nst_vstack_push`](c_api-runtime_stack.md/#_nst_vstack_push) that
+casts val to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
 
 ---
 
@@ -47,7 +49,7 @@ typedef struct _Nst_ValueStack {
     Nst_Obj **stack;
     usize len;
     usize cap;
-} Nst_ValueStack
+} struct _Nst_ValueStack
 ```
 
 **Description:**
@@ -74,7 +76,7 @@ typedef struct _Nst_FuncCall {
     Nst_VarTable *vt;
     i64 idx;
     usize cstack_len;
-} Nst_FuncCall
+} struct _Nst_FuncCall
 ```
 
 **Description:**
@@ -84,8 +86,8 @@ A structure representing a function call.
 **Fields:**
 
 - `func`: the function being called
-- `start`: the start postition of the call
-- `end`: the end postition of the call
+- `start`: the start position of the call
+- `end`: the end position of the call
 - `vt`: the variable table of the call
 - `idx`: the instruction index of the call
 - `cstack_len`: the size of the catch stack when the function was called
@@ -101,7 +103,7 @@ typedef struct _Nst_CallStack {
     Nst_FuncCall *stack;
     usize len;
     usize cap;
-} Nst_CallStack
+} struct _Nst_CallStack
 ```
 
 **Description:**
@@ -125,7 +127,7 @@ typedef struct _Nst_CatchFrame {
     usize f_stack_len;
     usize v_stack_len;
     i64 inst_idx;
-} Nst_CatchFrame
+} struct _Nst_CatchFrame
 ```
 
 **Description:**
@@ -150,7 +152,7 @@ typedef struct _Nst_CatchStack {
     Nst_CatchFrame *stack;
     usize len;
     usize cap;
-} Nst_CatchStack
+} struct _Nst_CatchStack
 ```
 
 **Description:**
@@ -174,7 +176,7 @@ typedef struct _Nst_GenericStack {
     void *stack;
     usize len;
     usize cap;
-} Nst_GenericStack
+} struct _Nst_GenericStack
 ```
 
 **Description:**
@@ -205,7 +207,7 @@ Initializes the value stack.
 
 **Returns:**
 
-true on success and false on failure. The error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -221,15 +223,13 @@ bool _Nst_vstack_push(Nst_Obj *obj)
 
 Pushes a value on the value stack.
 
-The value can be NULL.
-
 **Parameters:**
 
-- `obj`: the value to be pushed, if not NULL its refcount is increased
+- `obj`: the value to be pushed, if not `NULL` its refcount is increased
 
 **Returns:**
 
-true on success and false on failure. The error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -244,7 +244,7 @@ Nst_Obj *Nst_vstack_pop(void)
 **Description:**
 
 Pops the top value from the value stack and returns it. If the stack is empty
-NULL is returned. No error is set.
+`NULL` is returned. No error is set.
 
 ---
 
@@ -258,7 +258,7 @@ Nst_Obj *Nst_vstack_peek(void)
 
 **Returns:**
 
-The top value from the value stack. If the stack is empty NULL is returned. No
+The top value from the value stack. If the stack is empty `NULL` is returned. No
 error is set.
 
 ---
@@ -279,8 +279,8 @@ If the stack is empty nothing is done.
 
 **Returns:**
 
-true on success and false on failure. If the stack is empty the function always
-succeeds. The error is set.
+`true` on success and `false` on failure. If the stack is empty the function
+always succeeds. The error is set.
 
 ---
 
@@ -312,7 +312,7 @@ Initializes the call stack.
 
 **Returns:**
 
-true on success and false on failure. The error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -340,7 +340,7 @@ Pushes a call on the call stack.
 
 **Returns:**
 
-true on sccess and false on falure. The error is not always set.
+`true` on success and `false` on failure. The error is not always set.
 
 ---
 
@@ -355,7 +355,8 @@ Nst_FuncCall Nst_fstack_pop(void)
 **Description:**
 
 Pops the top call from the call stack and returns it. If the stack is empty, a
-call with a NULL function and vt is returned. No error is set.
+[`Nst_FuncCall`](c_api-runtime_stack.md/#nst_funccall) with a `NULL` `func` and
+`vt` is returned. No error is set.
 
 ---
 
@@ -369,8 +370,9 @@ Nst_FuncCall Nst_fstack_peek(void)
 
 **Description:**
 
-Returns the top function in the call stack. If the stack is empty, a call with a
-NULL function and vt is returned. No error is set.
+Returns the top function in the call stack. If the stack is empty, a
+[`Nst_FuncCall`](c_api-runtime_stack.md/#nst_funccall) with a `NULL` `func` and
+`vt` is returned. No error is set.
 
 ---
 
@@ -402,7 +404,7 @@ Initializes the catch stack.
 
 **Returns:**
 
-true on success and false on failure. The error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -416,8 +418,9 @@ Nst_CatchFrame Nst_cstack_peek(void)
 
 **Description:**
 
-Returns the top value of the catch stack. If the stack is empty a frame with an
-instruction index of -1 is returned. No error is set.
+Returns the top value of the catch stack. If the stack is empty a
+[`Nst_CatchFrame`](c_api-runtime_stack.md/#nst_catchframe) with an `inst_idx` of
+`-1` is returned. No error is set.
 
 ---
 
@@ -432,7 +435,8 @@ Nst_CatchFrame Nst_cstack_pop(void)
 **Description:**
 
 Pops the top value of the catch stack and returns it. If the stack is empty a
-frame with an instruction index of -1 is returned. No error is set.
+[`Nst_CatchFrame`](c_api-runtime_stack.md/#nst_catchframe) with an `inst_idx` of
+`-1` is returned. No error is set.
 
 ---
 
@@ -471,7 +475,7 @@ Initializes a new generic stack.
 
 **Returns:**
 
-true on success and false on failure. The error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -494,7 +498,7 @@ Expands a generic stack if needed.
 
 **Returns:**
 
-true on success and false on failure. The error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 

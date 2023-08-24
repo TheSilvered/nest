@@ -18,7 +18,7 @@ OBJ(obj)
 
 **Description:**
 
-Casts obj to Nst_Obj *.
+Casts `obj` to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
 
 ---
 
@@ -32,7 +32,8 @@ Nst_inc_ref(obj)
 
 **Description:**
 
-Alias for _Nst_inc_ref that casts obj to Nst_Obj *.
+Alias for [`_Nst_inc_ref`](c_api-obj.md/#_nst_inc_ref) that casts `obj` to
+[`Nst_Obj *`](c_api-obj.md/#nst_obj).
 
 ---
 
@@ -46,7 +47,8 @@ Nst_ninc_ref(obj)
 
 **Description:**
 
-Calls Nst_inc_ref if obj is not a NULL pointer.
+Calls [`Nst_inc_ref`](c_api-obj.md/#nst_inc_ref) if `obj` is not a `NULL`
+pointer.
 
 ---
 
@@ -60,7 +62,8 @@ Nst_dec_ref(obj)
 
 **Description:**
 
-Alias for _Nst_dec_ref that casts obj to Nst_Obj *.
+Alias for [`_Nst_dec_ref`](c_api-obj.md/#_nst_dec_ref) that casts `obj` to
+[`Nst_Obj *`](c_api-obj.md/#nst_obj).
 
 ---
 
@@ -74,7 +77,8 @@ Nst_ndec_ref(obj)
 
 **Description:**
 
-Calls Nst_dec_ref ib the object is not a NULL pointer.
+Calls [`Nst_dec_ref`](c_api-obj.md/#nst_dec_ref) if the object is not a `NULL`
+pointer.
 
 ---
 
@@ -88,7 +92,8 @@ Nst_obj_destroy(obj)
 
 **Description:**
 
-Alias for _Nst_obj_destroy that casts obj to Nst_Obj *.
+Alias for [`_Nst_obj_destroy`](c_api-obj.md/#_nst_obj_destroy) that casts obj to
+[`Nst_Obj *`](c_api-obj.md/#nst_obj).
 
 ---
 
@@ -102,8 +107,9 @@ Nst_obj_alloc(type, type_obj, destructor)
 
 **Description:**
 
-Wrapper for _Nst_obj_alloc. type is used to get the size of the object to
-allocate and to cast the result into the correct pointer type.
+Wrapper for [`_Nst_obj_alloc`](c_api-obj.md/#_nst_obj_alloc). `type` is used to
+get the size of the object to allocate and to cast the result into the correct
+pointer type.
 
 ---
 
@@ -117,7 +123,7 @@ Nst_FLAG_SET(obj, flag)
 
 **Description:**
 
-Sets a flag of obj to true.
+Sets `flag` of `obj` to `true`.
 
 ---
 
@@ -131,7 +137,7 @@ Nst_FLAG_DEL(obj, flag)
 
 **Description:**
 
-Sets a flag of obj to false.
+Sets `flag` of `obj` to `false`.
 
 ---
 
@@ -145,7 +151,7 @@ Nst_FLAG_HAS(obj, flag)
 
 **Description:**
 
-Checks if obj has a flag.
+Checks if `flag` is set.
 
 ---
 
@@ -170,7 +176,7 @@ reserved for the garbage collector.
 ```better-c
 typedef struct _Nst_Obj {
     Nst_OBJ_HEAD;
-} Nst_Obj
+} struct _Nst_Obj
 ```
 
 **Description:**
@@ -182,15 +188,15 @@ The structure representing a basic Nest object.
 - `ref_count`: the reference count of the object
 - `type`: the type of the object
 - `destructor`: the destructor of the object
-- `hash`: the hash of the object, -1 if it has not yet been hashed or is not
+- `hash`: the hash of the object, `-1` if it has not yet been hashed or is not
   hashable
 - `flags`: the flags of the object
-- `init_line`: THIS FIELD ONLY EXISTS WHEN Nst_TRACK_OBJ_INIT_POS IS DEFINED the
-  line of the instruction that initialized the object
-- `init_col`: THIS FIELD ONLY EXISTS WHEN Nst_TRACK_OBJ_INIT_POS IS DEFINED the
-  column of the instruction that initialized the object
-- `init_path`: THIS FIELD ONLY EXISTS WHEN Nst_TRACK_OBJ_INIT_POS IS DEFINED the
-  path to the file where the object was initialized
+- `init_line`: **THIS FIELD ONLY EXISTS WHEN `Nst_TRACK_OBJ_INIT_POS` IS
+  DEFINED** the line of the instruction that initialized the object
+- `init_col`: **THIS FIELD ONLY EXISTS WHEN `Nst_TRACK_OBJ_INIT_POS` IS
+  DEFINED** the column of the instruction that initialized the object
+- `init_path`: **THIS FIELD ONLY EXISTS WHEN `Nst_TRACK_OBJ_INIT_POS` IS
+  DEFINED** the path to the file where the object was initialized
 
 ---
 
@@ -220,7 +226,8 @@ typedef Nst_Obj Nst_NullObj;
 
 **Description:**
 
-A Nst_NullObj is just a Nst_Obj as it does not have any special fields.
+A [`Nst_NullObj`](c_api-obj.md/#nst_nullobj) is just a
+[`Nst_Obj`](c_api-obj.md/#nst_obj) as it does not have any special fields.
 
 ---
 
@@ -237,18 +244,19 @@ Nst_Obj *_Nst_obj_alloc(usize size, Nst_StrObj *type,
 
 **Description:**
 
-Allocates an object on the heap and initializes the fields in Nst_OBJ_HEAD.
+Allocates an object on the heap and initializes the fields in
+[`Nst_OBJ_HEAD`](c_api-obj.md/#nst_obj_head).
 
 **Parameters:**
 
 - `size`: the size in bytes of the memory to allocate
-- `type`: the type of the object, if it is NULL, the object itself is used as
+- `type`: the type of the object, if it is `NULL`, the object itself is used as
   the type
-- `destructor`: the destructor of the object, it can be NULL
+- `destructor`: the destructor of the object, it can be `NULL`
 
 **Returns:**
 
-The newly allocate object or NULL on failure. The error is set.
+The newly allocate object or `NULL` on failure. The error is set.
 
 ---
 
@@ -264,7 +272,8 @@ void _Nst_obj_destroy(Nst_Obj *obj)
 
 Calls an object's destructor and then frees its memory.
 
-This function should not be called on most occasions, use Nst_dec_ref instead.
+This function should not be called on most occasions, use
+[`Nst_dec_ref`](c_api-obj.md/#nst_dec_ref) instead.
 
 ---
 
@@ -292,6 +301,6 @@ void _Nst_dec_ref(Nst_Obj *obj)
 
 **Description:**
 
-Decreases the reference count of an object and calls _Nst_ObjDestroy if it
-reaches zero.
+Decreases the reference count of an object and calls
+[`_Nst_obj_destroy`](c_api-obj.md/#_nst_obj_destroy) if it reaches zero.
 

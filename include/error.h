@@ -29,7 +29,7 @@
 #define _Nst_EM_WRITE_FAILED "failed to write to the file"
 #define _Nst_EM_REAL_TOO_BIG "Real literal's value is too large"
 #define _Nst_EM_BAD_INT_BASE "the base must be between 2 and 36"
-#define _Nst_EM_OPEN_COMMENT "multiline comment was never closed"
+#define _Nst_EM_OPEN_COMMENT "multi-line comment was never closed"
 #define _Nst_EM_INVALID_CPID "the encoding selected is not supported"
 #define _Nst_EM_FAILED_CHDIR "failed to change the current working directory"
 #define _Nst_EM_MISSING_PAREN "unmatched '('"
@@ -49,7 +49,7 @@
 #define _Nst_EM_MISSING_BRACKET "unmatched '['"
 #define _Nst_EM_EXPECTED_VBRACE "expected '}>'"
 #define _Nst_EM_BAD_INT_LITERAL "invalid Int literal"
-#define _Nst_EM_UNHASHABLE_TYPE "unhashable type '%s'"
+#define _Nst_EM_UNHASHABLE_TYPE "type '%s' is not hashable"
 #define _Nst_EM_RANGE_STEP_ZERO "the step cannot be zero"
 #define _Nst_EM_LIB_INIT_FAILED "the module failed to initialize"
 #define _Nst_EM_INVALID_CASTING "invalid type cast from '%s' to '%s'"
@@ -62,7 +62,7 @@
 #define _Nst_EM_CALL_FAILED(func) "call to '" func "' failed"
 #define _Nst_EM_RAN_OUT_OF_MEMORY "ran out of memory"
 #define _Nst_EM_MISSING_FUNC(func) "missing '" func "' for a custom iterator"
-#define _Nst_EM_MAP_TO_SEQ_HASH(i) "unhashable object found at " i " %zi"
+#define _Nst_EM_MAP_TO_SEQ_HASH(i) "non-hashable object found at " i " %zi"
 #define _Nst_EM_EXPECTED_R_BRACKET "expected ']'"
 #define _Nst_EM_INVALID_EXPRESSION "invalid expression"
 #define _Nst_EM_NULL_ARG(func, argn) func ": " argn " is NULL"
@@ -76,7 +76,7 @@
 #define _Nst_EM_EXPECTED_TYPE(type)                                           \
     "expected type '" type "', got '%s' instead"
 #define _Nst_EM_COMPOUND_ASSIGMENT                                            \
-    "cannot unpack values in a compound assigment"
+    "cannot unpack values in a compound assignment"
 #define _Nst_EM_NEGATIVE_SIZE_FOR_SEQ                                         \
     "the length of the sequence cannot be negative"
 #define _Nst_EM_UNEXPECTED_NEWLINE                                            \
@@ -216,7 +216,7 @@ NstEXP typedef struct _Nst_Pos {
  * @param occurred: whether the struct contains a valid error
  * @param start: the start position of the error
  * @param end: the end position of the error
- * @param name: the name of the error (e.g. `Value Error`, `Type Error` ecc.)
+ * @param name: the name of the error (e.g. `Value Error`, `Type Error` etc.)
  * @param message: the message of the error
  */
 NstEXP typedef struct _Nst_Error {
@@ -231,7 +231,7 @@ NstEXP typedef struct _Nst_Error {
  * The structure representing an error occurred during an operation and that
  * does not yet have a position.
  *
- * @param name: the name of the error (e.g. `Value Error`, `Type Error` ecc.)
+ * @param name: the name of the error (e.g. `Value Error`, `Type Error` etc.)
  * @param message: the message of the error
  */
 NstEXP typedef struct _Nst_OpErr {

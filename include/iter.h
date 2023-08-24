@@ -13,11 +13,11 @@
 
 /* Casts `ptr` to `Nst_IterObj *`. */
 #define ITER(ptr) ((Nst_IterObj *)(ptr))
-/* Alias for `_Nst_iter_start` that asts iter to `Nst_IterObj *`. */
+/* Alias for `_Nst_iter_start` that casts iter to `Nst_IterObj *`. */
 #define Nst_iter_start(iter) _Nst_iter_start(ITER(iter))
-/* Alias for `_Nst_iter_is_done` that asts iter to `Nst_IterObj *`. */
+/* Alias for `_Nst_iter_is_done` that casts iter to `Nst_IterObj *`. */
 #define Nst_iter_is_done(iter) _Nst_iter_is_done(ITER(iter))
-/* Alias for `_Nst_iter_get_val` that asts iter to `Nst_IterObj *`. */
+/* Alias for `_Nst_iter_get_val` that casts iter to `Nst_IterObj *`. */
 #define Nst_iter_get_val(iter) _Nst_iter_get_val(ITER(iter))
 
 #ifdef __cplusplus
@@ -68,7 +68,7 @@ NstEXP void NstC _Nst_iter_track(Nst_IterObj *iter);
  *
  * @param iter: the iterator to start
  *
- * @return `-1` on failure and `0` on succcess. The error may be set internally
+ * @return `-1` on failure and `0` on success. The error may be set internally
  * and must not be set by the caller.
  */
 NstEXP i32 NstC _Nst_iter_start(Nst_IterObj *iter);

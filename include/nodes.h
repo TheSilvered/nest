@@ -11,9 +11,9 @@
 
 #include "error.h"
 
-/* Casts expr to Nst_Node *. */
+/* Casts `expr` to `Nst_Node *`. */
 #define Nst_NODE(expr) ((Nst_Node *)(expr))
-/* Evaluates to true if the specified node type returns a value. */
+/* Evaluates to `true` if the specified node type returns a value. */
 #define Nst_NODE_RETUNS_VALUE(node_type) (node_type >= Nst_NT_STACK_OP)
 
 #ifdef __cplusplus
@@ -71,22 +71,21 @@ NstEXP typedef struct _Nst_Node {
  * Creates and initializes a new AST node on the heap.
  *
  * @brief Though the position is not in the arguments, its position should be
- * set later with Nst_node_set_pos.
+ * set later with `Nst_node_set_pos`.
  *
  * @param type: the type of the node to initialize
  *
- * @return The new node or NULL on failure. The error is set.
+ * @return The new node or `NULL` on failure. The error is set.
  */
 NstEXP Nst_Node *NstC Nst_node_new(Nst_NodeType type);
 /**
  * Creates and initializes a new AST node on the heap.
  *
- *
  * @param type: the type of the node to initialize
  * @param start: the start position of the node
  * @param end: the end position of the node
  *
- * @return The new node or NULL on failure. The error is set.
+ * @return The new node or `NULL` on failure. The error is set.
  */
 NstEXP Nst_Node *NstC Nst_node_new_pos(Nst_NodeType type, Nst_Pos start,
                                        Nst_Pos end);

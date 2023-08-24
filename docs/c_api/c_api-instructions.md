@@ -32,8 +32,8 @@ Nst_inst_new_val(id, val, start, end)
 
 **Description:**
 
-Alias for [`_Nst_inst_new_val`](c_api-instructions.md#_nst_inst_new_val) that
-casts `val` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
+Alias for [`_Nst_inst_new_val`](c_api-instructions.md/#_nst_inst_new_val) that
+casts `val` to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
 
 ---
 
@@ -45,12 +45,12 @@ casts `val` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ```better-c
 typedef struct _Nst_Inst {
-    Nst_InstID id;
+    struct _Nst_InstID id;
     i64 int_val;
     Nst_Obj *val;
     Nst_Pos start;
     Nst_Pos end;
-} Nst_Inst
+} struct _Nst_Inst
 ```
 
 **Description:**
@@ -76,7 +76,7 @@ typedef struct _Nst_InstList {
     usize total_size;
     Nst_Inst *instructions;
     Nst_LList *functions;
-} Nst_InstList
+} struct _Nst_InstList
 ```
 
 **Description:**
@@ -109,7 +109,7 @@ Creates a new instruction on the heap.
 
 - `id`: the id of the instruction to create
 - `start`: the start position of the instruction
-- `end`: the end postision of the instruction
+- `end`: the end position of the instruction
 
 **Returns:**
 
@@ -137,7 +137,7 @@ The reference count of `val` is increased.
 - `id`: the id of the instruction to create
 - `val`: the Nest object value
 - `start`: the start position of the instruction
-- `end`: the end position of the instrcution
+- `end`: the end position of the instruction
 
 **Returns:**
 
@@ -163,7 +163,7 @@ Creates a new instruction on the heap with an integer value.
 - `id`: the id of the instruction to create
 - `int_val`: the integer value
 - `start`: the start position of the instruction
-- `end`: the end position of the instrcution
+- `end`: the end position of the instruction
 
 **Returns:**
 
@@ -181,7 +181,7 @@ void Nst_inst_destroy(Nst_Inst *inst)
 
 **Description:**
 
-Destroys a [`Nst_Inst`](c_api-instructions.md#nst_inst) allocated on the heap.
+Destroys a [`Nst_Inst`](c_api-instructions.md/#nst_inst) allocated on the heap.
 
 ---
 
@@ -195,7 +195,7 @@ void Nst_inst_list_destroy(Nst_InstList *inst_list)
 
 **Description:**
 
-Destroys a [`Nst_InstList`](c_api-instructions.md#nst_instlist).
+Destroys a [`Nst_InstList`](c_api-instructions.md/#nst_instlist).
 
 ---
 
@@ -225,9 +225,6 @@ typedef enum _Nst_InstID {
     Nst_IC_HASH_CHECK,
     Nst_IC_THROW_ERR,
     Nst_IC_POP_CATCH,
-
-    // These instruction push a value on the stack
-
     Nst_IC_SET_VAL,
     Nst_IC_GET_VAL,
     Nst_IC_PUSH_VAL,
@@ -250,7 +247,7 @@ typedef enum _Nst_InstID {
     Nst_IC_MAKE_MAP,
     Nst_IC_SAVE_ERROR,
     Nst_IC_UNPACK_SEQ
-} Nst_InstID
+} struct _Nst_InstID
 ```
 
 **Description:**

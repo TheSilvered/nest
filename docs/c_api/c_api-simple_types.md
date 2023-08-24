@@ -1,7 +1,9 @@
 # `simple_types.h`
 
-Interface for Nst_IntObj, Nst_RealObj, Nst_ByteObj, Nst_BoolObj and
-Nst_IOFileObj.
+Interface for [`Nst_IntObj`](c_api-simple_types.md/#nst_intobj),
+[`Nst_RealObj`](c_api-simple_types.md/#nst_realobj),
+[`Nst_ByteObj`](c_api-simple_types.md/#nst_byteobj) and
+[`Nst_BoolObj`](c_api-simple_types.md/#nst_boolobj).
 
 ## Authors
 
@@ -19,7 +21,8 @@ AS_INT(ptr)
 
 **Description:**
 
-Casts ptr to a Nst_IntObj * and extracts the value field.
+Casts `ptr` to a [`Nst_IntObj *`](c_api-simple_types.md/#nst_intobj) and
+extracts the value field.
 
 ---
 
@@ -33,7 +36,8 @@ AS_REAL(ptr)
 
 **Description:**
 
-Casts ptr to a Nst_RealObj * and extracts the value field.
+Casts `ptr` to a [`Nst_RealObj *`](c_api-simple_types.md/#nst_realobj) and
+extracts the value field.
 
 ---
 
@@ -47,7 +51,8 @@ AS_BYTE(ptr)
 
 **Description:**
 
-Casts ptr to a Nst_ByteObj * and extracts the value field.
+Casts `ptr` to a [`Nst_ByteObj *`](c_api-simple_types.md/#nst_byteobj) and
+extracts the value field.
 
 ---
 
@@ -61,7 +66,8 @@ AS_BOOL(ptr)
 
 **Description:**
 
-Casts ptr to a Nst_BoolObj * and extracts the value field.
+Casts `ptr` to a [`Nst_BoolObj *`](c_api-simple_types.md/#nst_boolobj) and
+extracts the value field.
 
 ---
 
@@ -75,7 +81,8 @@ Nst_number_to_u8(number)
 
 **Description:**
 
-Alias for _Nst_number_to_u8 that casts number to Nst_Obj *.
+Alias for [`_Nst_number_to_u8`](c_api-simple_types.md/#_nst_number_to_u8) that
+casts `number` to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
 
 ---
 
@@ -89,7 +96,8 @@ Nst_number_to_int(number)
 
 **Description:**
 
-Alias for _Nst_number_to_int that casts number to Nst_Obj *.
+Alias for [`_Nst_number_to_int `](c_api-simple_types.md/#_nst_number_to_int)that
+casts `number` to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
 
 ---
 
@@ -103,7 +111,8 @@ Nst_number_to_i32(number)
 
 **Description:**
 
-Alias for _Nst_number_to_i32 that casts number to Nst_Obj *.
+Alias for [`_Nst_number_to_i32`](c_api-simple_types.md/#_nst_number_to_i32) that
+casts `number` to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
 
 ---
 
@@ -117,7 +126,8 @@ Nst_number_to_i64(number)
 
 **Description:**
 
-Alias for _Nst_number_to_i64 that casts number to Nst_Obj *.
+Alias for [`_Nst_number_to_i64`](c_api-simple_types.md/#_nst_number_to_i64) that
+casts `number` to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
 
 ---
 
@@ -131,7 +141,8 @@ Nst_number_to_f32(number)
 
 **Description:**
 
-Alias for _Nst_number_to_f32 that casts number to Nst_Obj *.
+Alias for [`_Nst_number_to_f32`](c_api-simple_types.md/#_nst_number_to_f32) that
+casts `number` to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
 
 ---
 
@@ -145,7 +156,8 @@ Nst_number_to_f64(number)
 
 **Description:**
 
-Alias for _Nst_number_to_f64 that casts number to Nst_Obj *.
+Alias for [`_Nst_number_to_f64`](c_api-simple_types.md/#_nst_number_to_f64) that
+casts `number` to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
 
 ---
 
@@ -159,7 +171,8 @@ Nst_obj_to_bool(obj)
 
 **Description:**
 
-Alias for _Nst_obj_to_bool that casts obj to Nst_Obj *.
+Alias for [`_Nst_obj_to_bool`](c_api-simple_types.md/#_nst_obj_to_bool) that
+casts `obj` to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
 
 ---
 
@@ -173,7 +186,7 @@ Alias for _Nst_obj_to_bool that casts obj to Nst_Obj *.
 typedef struct _Nst_IntObj {
     Nst_OBJ_HEAD;
     i64 value;
-} Nst_IntObj
+} struct _Nst_IntObj
 ```
 
 **Description:**
@@ -194,7 +207,7 @@ A structure representing a Nest integer object.
 typedef struct _Nst_RealObj {
     Nst_OBJ_HEAD;
     f64 value;
-} Nst_RealObj
+} struct _Nst_RealObj
 ```
 
 **Description:**
@@ -215,7 +228,7 @@ A structure representing a Nest real number (floating-point) object.
 typedef struct _Nst_BoolObj {
     Nst_OBJ_HEAD;
     bool value;
-} Nst_BoolObj
+} struct _Nst_BoolObj
 ```
 
 **Description:**
@@ -236,7 +249,7 @@ A structure representing a Nest boolean object.
 typedef struct _Nst_ByteObj {
     Nst_OBJ_HEAD;
     u8 value;
-} Nst_ByteObj
+} struct _Nst_ByteObj
 ```
 
 **Description:**
@@ -261,7 +274,7 @@ Nst_Obj *Nst_int_new(i64 value)
 
 **Description:**
 
-Creates a new Nst_IntObj.
+Creates a new [`Nst_IntObj`](c_api-simple_types.md/#nst_intobj).
 
 **Parameters:**
 
@@ -269,7 +282,7 @@ Creates a new Nst_IntObj.
 
 **Returns:**
 
-The new object on success or NULL on failure. The error is set.
+The new object on success or `NULL` on failure. The error is set.
 
 ---
 
@@ -283,7 +296,7 @@ Nst_Obj *Nst_real_new(f64 value)
 
 **Description:**
 
-Creates a new Nst_RealObj.
+Creates a new [`Nst_RealObj`](c_api-simple_types.md/#nst_realobj).
 
 **Parameters:**
 
@@ -291,7 +304,7 @@ Creates a new Nst_RealObj.
 
 **Returns:**
 
-The new object on success or NULL on failure. The error is set.
+The new object on success or `NULL` on failure. The error is set.
 
 ---
 
@@ -305,11 +318,12 @@ Nst_Obj *Nst_bool_new(bool value)
 
 **Description:**
 
-Creates a new Nst_BoolObj.
+Creates a new [`Nst_BoolObj`](c_api-simple_types.md/#nst_boolobj).
 
-This function should never be called, to get the true and false objects use
-Nst_true() and Nst_false() instead. Note that these functions do not return a
-new reference to the returned objects.
+This function should never be called, to get the `true` and `false` objects use
+[`Nst_true()`](c_api-global_consts.md/#nst_true) and
+[`Nst_false()`](c_api-global_consts.md/#nst_false) instead. Note that these
+functions do not return a new reference to the respective objects.
 
 **Parameters:**
 
@@ -317,7 +331,7 @@ new reference to the returned objects.
 
 **Returns:**
 
-The new object on success or NULL on failure. The error is set.
+The new object on success or `NULL` on failure. The error is set.
 
 ---
 
@@ -331,7 +345,7 @@ Nst_Obj *Nst_byte_new(u8 value)
 
 **Description:**
 
-Creates a new Nst_ByteObj.
+Creates a new [`Nst_ByteObj`](c_api-simple_types.md/#nst_byteobj).
 
 **Parameters:**
 
@@ -339,7 +353,7 @@ Creates a new Nst_ByteObj.
 
 **Returns:**
 
-The new object on success or NULL on failure. The error is set.
+The new object on success or `NULL` on failure. The error is set.
 
 ---
 
@@ -353,8 +367,11 @@ u8  _Nst_number_to_u8(Nst_Obj *number)
 
 **Description:**
 
-Converts the value of a numeric object (Nst_IntObj, Nst_RealObj, Nst_ByteObj) to
-a u8.
+Converts the value of a numeric object
+([`Nst_IntObj`](c_api-simple_types.md/#nst_intobj),
+[`Nst_RealObj`](c_api-simple_types.md/#nst_realobj),
+[`Nst_ByteObj`](c_api-simple_types.md/#nst_byteobj)) to a
+[`u8`](c_api.md/#type-definitions).
 
 **Parameters:**
 
@@ -362,8 +379,8 @@ a u8.
 
 **Returns:**
 
-The converted number. If number is not a numeric object 0 is returned. No error
-is set.
+The converted number. If number is not a numeric object, `0` is returned. No
+error is set.
 
 ---
 
@@ -377,8 +394,10 @@ int _Nst_number_to_int(Nst_Obj *number)
 
 **Description:**
 
-Converts the value of a numeric object (Nst_IntObj, Nst_RealObj, Nst_ByteObj) to
-an int.
+Converts the value of a numeric object
+([`Nst_IntObj`](c_api-simple_types.md/#nst_intobj),
+[`Nst_RealObj`](c_api-simple_types.md/#nst_realobj),
+[`Nst_ByteObj`](c_api-simple_types.md/#nst_byteobj)) to an `int`.
 
 **Parameters:**
 
@@ -386,8 +405,8 @@ an int.
 
 **Returns:**
 
-The converted number. If number is not a numeric object 0 is returned. No error
-is set.
+The converted number. If number is not a numeric object, `0` is returned. No
+error is set.
 
 ---
 
@@ -401,8 +420,11 @@ i32 _Nst_number_to_i32(Nst_Obj *number)
 
 **Description:**
 
-Converts the value of a numeric object (Nst_IntObj, Nst_RealObj, Nst_ByteObj) to
-an i32.
+Converts the value of a numeric object
+([`Nst_IntObj`](c_api-simple_types.md/#nst_intobj),
+[`Nst_RealObj`](c_api-simple_types.md/#nst_realobj),
+[`Nst_ByteObj`](c_api-simple_types.md/#nst_byteobj)) to an
+[`i32`](c_api.md/#type-definitions).
 
 **Parameters:**
 
@@ -410,8 +432,8 @@ an i32.
 
 **Returns:**
 
-The converted number. If number is not a numeric object 0 is returned. No error
-is set.
+The converted number. If number is not a numeric object, `0` is returned. No
+error is set.
 
 ---
 
@@ -425,8 +447,11 @@ i64 _Nst_number_to_i64(Nst_Obj *number)
 
 **Description:**
 
-Converts the value of a numeric object (Nst_IntObj, Nst_RealObj, Nst_ByteObj) to
-an i64.
+Converts the value of a numeric object
+([`Nst_IntObj`](c_api-simple_types.md/#nst_intobj),
+[`Nst_RealObj`](c_api-simple_types.md/#nst_realobj),
+[`Nst_ByteObj`](c_api-simple_types.md/#nst_byteobj)) to an
+[`i64`](c_api.md/#type-definitions).
 
 **Parameters:**
 
@@ -434,8 +459,8 @@ an i64.
 
 **Returns:**
 
-The converted number. If number is not a numeric object 0 is returned. No error
-is set.
+The converted number. If number is not a numeric object, `0` is returned. No
+error is set.
 
 ---
 
@@ -449,8 +474,11 @@ f32 _Nst_number_to_f32(Nst_Obj *number)
 
 **Description:**
 
-Converts the value of a numeric object (Nst_IntObj, Nst_RealObj, Nst_ByteObj) to
-an f32.
+Converts the value of a numeric object
+([`Nst_IntObj`](c_api-simple_types.md/#nst_intobj),
+[`Nst_RealObj`](c_api-simple_types.md/#nst_realobj),
+[`Nst_ByteObj`](c_api-simple_types.md/#nst_byteobj)) to an
+[`f32`](c_api.md/#type-definitions).
 
 **Parameters:**
 
@@ -458,8 +486,8 @@ an f32.
 
 **Returns:**
 
-The converted number. If number is not a numeric object 0 is returned. No error
-is set.
+The converted number. If number is not a numeric object, `0.0` is returned. No
+error is set.
 
 ---
 
@@ -473,8 +501,11 @@ f64 _Nst_number_to_f64(Nst_Obj *number)
 
 **Description:**
 
-Converts the value of a numeric object (Nst_IntObj, Nst_RealObj, Nst_ByteObj) to
-an f64.
+Converts the value of a numeric object
+([`Nst_IntObj`](c_api-simple_types.md/#nst_intobj),
+[`Nst_RealObj`](c_api-simple_types.md/#nst_realobj),
+[`Nst_ByteObj`](c_api-simple_types.md/#nst_byteobj)) to an
+[`f64`](c_api.md/#type-definitions).
 
 **Parameters:**
 
@@ -482,8 +513,8 @@ an f64.
 
 **Returns:**
 
-The converted number. If number is not a numeric object 0 is returned. No error
-is set.
+The converted number. If number is not a numeric object `0.0f` is returned. No
+error is set.
 
 ---
 
@@ -498,5 +529,6 @@ bool _Nst_obj_to_bool(Nst_Obj *obj)
 **Description:**
 
 Converts any object to a boolean. Exactly the same as casting the object to
-Nst_type()->Bool and then checking if the result matches Nst_true();
+[`Nst_type()->Bool`](c_api-global_consts.md/#nst_type) and then checking if the
+result matches [`Nst_true()`](c_api-global_consts.md/#nst_true).
 

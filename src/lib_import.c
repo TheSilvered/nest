@@ -95,12 +95,6 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
         case '\r':
             t++;
             continue;
-        case '\0':
-            Nst_set_value_error_c(
-                _Nst_EM_INVALID_TYPE_LETTER("Nst_extract_arg_values"));
-            Nst_sbuffer_destroy(&custom_types);
-            Nst_free(match_type);
-            return NULL;
         case 't':
             accepted_types |= TYPE_IDX;
             goto normal_type;
@@ -340,6 +334,11 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
         accepted_types &= C_CAST | BOOL_C_CAST;
 
     match_type->accepted_types = accepted_types;
+
+    // consume trailing whitespace to make Nst_extract_arg_values check only
+    // for NUL
+    while (*t == ' ' || *t == '\t' || *t == '\n' || *t == '\r')
+        t++;
 
     return match_type;
 }

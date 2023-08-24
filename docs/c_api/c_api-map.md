@@ -1,6 +1,6 @@
 # `map.h`
 
-Nst_MapObj interface.
+[`Nst_MapObj`](c_api-map.md/#nst_mapobj) interface.
 
 ## Authors
 
@@ -26,7 +26,7 @@ MAP(ptr)
 
 **Description:**
 
-Casts ptr to Nst_MapObj *.
+Casts `ptr` to [`Nst_MapObj *`](c_api-map.md/#nst_mapobj).
 
 ---
 
@@ -40,8 +40,9 @@ Nst_map_set(map, key, value)
 
 **Description:**
 
-Alias for _Nst_map_set which casts map to Nst_MapObj *, and key and value to
-Nst_Obj *.
+Alias for [`_Nst_map_set`](c_api-map.md/#_nst_map_set) which casts `map` to
+[`Nst_MapObj *`](c_api-map.md/#nst_mapobj), and `key` and value to
+[`Nst_Obj *`](c_api-obj.md/#nst_obj).
 
 ---
 
@@ -55,7 +56,9 @@ Nst_map_get(map, key)
 
 **Description:**
 
-Alias for _Nst_map_get that casts map to Nst_MapObj * and key to Nst_Obj *.
+Alias for [`_Nst_map_get`](c_api-map.md/#_nst_map_get) that casts `map` to
+[`Nst_MapObj *`](c_api-map.md/#nst_mapobj) and `key` to
+[`Nst_Obj *`](c_api-obj.md/#nst_obj).
 
 ---
 
@@ -69,7 +72,9 @@ Nst_map_drop(map, key)
 
 **Description:**
 
-Alias for _Nst_map_drop that casts map to Nst_MapObj * and key to Nst_Obj *.
+Alias for [`_Nst_map_drop`](c_api-map.md/#_nst_map_drop) that casts `map` to
+[`Nst_MapObj *`](c_api-map.md/#nst_mapobj) and `key` to
+[`Nst_Obj *`](c_api-obj.md/#nst_obj).
 
 ---
 
@@ -83,7 +88,8 @@ Nst_map_get_next_idx(curr_idx, map)
 
 **Description:**
 
-Alias for _Nst_map_get_next_idx that casts map to Nst_MapObj *.
+Alias for [`_Nst_map_get_next_idx`](c_api-map.md/#_nst_map_get_next_idx) that
+casts `map` to [`Nst_MapObj *`](c_api-map.md/#nst_mapobj).
 
 ---
 
@@ -97,7 +103,8 @@ Nst_map_get_prev_idx(curr_idx, map)
 
 **Description:**
 
-Alias for _Nst_map_get_prev_idx that casts map to Nst_MapObj *.
+Alias for [`_Nst_map_get_prev_idx`](c_api-map.md/#_nst_map_get_prev_idx) that
+casts `map` to [`Nst_MapObj *`](c_api-map.md/#nst_mapobj).
 
 ---
 
@@ -111,8 +118,9 @@ Nst_map_set_str(map, key, value)
 
 **Description:**
 
-Alias for _Nst_map_set_str that casts map to Nst_MapObj * and value to Nst_Obj
-*.
+Alias for [`_Nst_map_set_str`](c_api-map.md/#_nst_map_set_str) that casts `map`
+to [`Nst_MapObj *`](c_api-map.md/#nst_mapobj) and `value` to
+[`Nst_Obj *`](c_api-obj.md/#nst_obj).
 
 ---
 
@@ -126,7 +134,8 @@ Nst_map_get_str(map, key)
 
 **Description:**
 
-Alias for Nst_map_get_str that casts map to Nst_MapObj *.
+Alias for [`Nst_map_get_str`](c_api-map.md/#nst_map_get_str) that casts `map` to
+[`Nst_MapObj *`](c_api-map.md/#nst_mapobj).
 
 ---
 
@@ -140,7 +149,8 @@ Nst_map_drop_str(map, key)
 
 **Description:**
 
-Alias for Nst_map_drop_str that casts map to Nst_MapObj *.
+Alias for [`Nst_map_drop_str`](c_api-map.md/#nst_map_drop_str) that casts map to
+[`Nst_MapObj *`](c_api-map.md/#nst_mapobj).
 
 ---
 
@@ -157,12 +167,12 @@ typedef struct _Nst_MapNode {
     Nst_Obj *value;
     i32 next_idx;
     i32 prev_idx;
-} Nst_MapNode
+} struct _Nst_MapNode
 ```
 
 **Description:**
 
-The structure representing a node of a Nst_MapObj.
+The structure representing a node of a [`Nst_MapObj`](c_api-map.md/#nst_mapobj).
 
 **Fields:**
 
@@ -188,7 +198,7 @@ typedef struct _Nst_MapObj {
     Nst_MapNode *nodes;
     i32 head_idx;
     i32 tail_idx;
-} Nst_MapObj
+} struct _Nst_MapObj
 ```
 
 **Description:**
@@ -222,7 +232,7 @@ Creates a new map object.
 
 **Returns:**
 
-The new object or NULL on failure. The error is set.
+The new object or `NULL` on failure. The error is set.
 
 ---
 
@@ -246,7 +256,7 @@ Inserts or modifies a value in the map.
 
 **Returns:**
 
-true on success and false on failure. The error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -269,7 +279,7 @@ Gets the value associated with a key.
 
 **Returns:**
 
-The object associated with the key on success and NULL if the key is not
+The object associated with the key on success or `NULL` if the key is not
 hashable or is not inside the map. No error is set.
 
 ---
@@ -293,8 +303,8 @@ Drops a key from a map and returns its value.
 
 **Returns:**
 
-The object associated with the removed key on success and NULL if the key is not
-hashable or is not inside the map. No error is set.
+The object associated with the removed key on success or `NULL` if the key is
+not hashable or is not inside the map. No error is set.
 
 ---
 
@@ -350,9 +360,9 @@ i32 _Nst_map_get_next_idx(i32 curr_idx, Nst_MapObj *map)
 
 **Description:**
 
-Gets the next index in a map given the current one.
+Gets the following index in a map given the current one.
 
-If curr_idx is -1, the first index is returned.
+If curr_idx is `-1`, the first index is returned.
 
 **Parameters:**
 
@@ -361,7 +371,7 @@ If curr_idx is -1, the first index is returned.
 
 **Returns:**
 
-The next index or -1 if the given index is the last one.
+The following index or `-1` if the given index is the last one. No error is set.
 
 ---
 
@@ -375,9 +385,9 @@ i32 _Nst_map_get_prev_idx(i32 curr_idx, Nst_MapObj *map)
 
 **Description:**
 
-Gets the next index in a map given the current one.
+Gets the preceding index in a map given the current one.
 
-If curr_idx is -1, the first index is returned.
+If curr_idx is `-1`, the first index is returned.
 
 **Parameters:**
 
@@ -386,7 +396,7 @@ If curr_idx is -1, the first index is returned.
 
 **Returns:**
 
-The next index or -1 if the given index is the last one.
+The preceding index or `-1` if the given index is the last one. No error is set.
 
 ---
 
@@ -410,7 +420,7 @@ Resizes the node array if necessary.
 
 **Returns:**
 
-true on success and false on failure. The error is set. When shrinking the
+`true` on success and `false` on failure. The error is set. When shrinking the
 function is guaranteed to succeed.
 
 ---
@@ -435,7 +445,7 @@ Inserts or modifies a value in the map.
 
 **Returns:**
 
-true on success and false on failure. The error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -458,7 +468,7 @@ Gets the value associated with a key.
 
 **Returns:**
 
-The object associated with the key on success and NULL if the key is not
+The object associated with the key on success or `NULL` if the key is not
 hashable or is not inside the map. No error is set.
 
 ---
@@ -482,6 +492,6 @@ Drops a key from a map and returns its value.
 
 **Returns:**
 
-The object associated with the removed key on success and NULL if the key is not
-hashable or is not inside the map. No error is set.
+The object associated with the removed key on success or `NULL` if the key is
+not hashable or is not inside the map. No error is set.
 

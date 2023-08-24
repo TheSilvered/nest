@@ -20,7 +20,7 @@ Nst_Node *Nst_optimize_ast(Nst_Node *ast, Nst_Error *error)
 
 Optimizes the AST.
 
-The AST is destroyed if an error occurrs.
+The AST is destroyed if an error occurs.
 
 **Parameters:**
 
@@ -29,7 +29,7 @@ The AST is destroyed if an error occurrs.
 
 **Returns:**
 
-The optimized AST on success and NULL on failure. No operation error is set.
+The optimized AST on success and `NULL` on failure. No operation error is set.
 
 ---
 
@@ -46,7 +46,7 @@ Nst_InstList *Nst_optimize_bytecode(Nst_InstList *bc, bool optimize_builtins,
 
 Optimizes bytecode.
 
-The bytecode is destroyed if an error occurrs.
+The bytecode is destroyed if an error occurs.
 
 **Parameters:**
 
@@ -57,6 +57,6 @@ The bytecode is destroyed if an error occurrs.
 
 **Returns:**
 
-The optimized bytecode on success and NULL on failure. No operation error is
+The optimized bytecode on success and `NULL` on failure. No operation error is
 set.
 

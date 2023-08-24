@@ -59,10 +59,10 @@ struct _Nst_GGCList;
  *
  * @param ggc_next: the next object in the generation it belongs to
  * @param ggc_prev: the previous object in the generation it belongs to
- * @param ggc_list: the genreration it belongs to
+ * @param ggc_list: the generation it belongs to
  * @param traverse_func: the function that sets as reachable all the objects
  * contained in the object
- * @param track_func: the function that tracks all the trackable objects that
+ * @param track_func: the function that tracks all the traceable objects that
  * the object contains when it itself is tracked
  */
 NstEXP typedef struct _Nst_GGCObj {

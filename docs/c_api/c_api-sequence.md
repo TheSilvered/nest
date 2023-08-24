@@ -6,6 +6,24 @@ Nst_SeqObject interface for Arrays and Vectors.
 
 TheSilvered
 
+## Sequence creation format types
+
+- `I`: `Int` from a 64-bit integer
+- `i`: `Int` from a 32-bit integer
+- `f`, `F`: `Real` from a double
+- `b`: `Bool` from a boolean (promoted to an int)
+- `B`: `Byte` from a 8-bit integer
+- `o`: an already existing object to take one reference from
+- `O`: an already existing object to add one reference to
+- `n`: `null`, the vararg can be any pointer as its value is ignored but `NULL`
+  is preferred
+
+!!!note
+    The `fmt` string **cannot** contain whitespace since its length is used to
+    determine the length of the sequence.
+
+---
+
 ## Macros
 
 ### `Nst_seq_set`
@@ -18,7 +36,9 @@ Nst_seq_set(seq, idx, val)
 
 **Description:**
 
-Alias for _Nst_seq_set that casts seq to Nst_SeqObj * and val to Nst_Obj *.
+Alias for [`_Nst_seq_set`](c_api-sequence.md/#_nst_seq_set) that casts `seq` to
+[`Nst_SeqObj *`](c_api-sequence.md/#nst_seqobj) and `val` to
+[`Nst_Obj *`](c_api-obj.md/#nst_obj).
 
 ---
 
@@ -32,7 +52,8 @@ Nst_seq_get(seq, idx)
 
 **Description:**
 
-Alias for _Nst_seq_get that casts seq to Nst_SeqObj *.
+Alias for [`_Nst_seq_get`](c_api-sequence.md/#_nst_seq_get) that casts `seq` to
+[`Nst_SeqObj *`](c_api-sequence.md/#nst_seqobj).
 
 ---
 
@@ -40,7 +61,7 @@ Alias for _Nst_seq_get that casts seq to Nst_SeqObj *.
 
 **Description:**
 
-Alias of Nst_seq_set.
+Alias of [`Nst_seq_set`](c_api-sequence.md/#nst_seq_set).
 
 ---
 
@@ -48,7 +69,7 @@ Alias of Nst_seq_set.
 
 **Description:**
 
-Alias of Nst_seq_get.
+Alias of [`Nst_seq_get`](c_api-sequence.md/#nst_seq_get).
 
 ---
 
@@ -56,7 +77,7 @@ Alias of Nst_seq_get.
 
 **Description:**
 
-Alias of Nst_seq_set.
+Alias of [`Nst_seq_set`](c_api-sequence.md/#nst_seq_set).
 
 ---
 
@@ -64,7 +85,7 @@ Alias of Nst_seq_set.
 
 **Description:**
 
-Alias of Nst_geq_set.
+Alias of [`Nst_seq_set`](c_api-sequence.md/#nst_seq_set).
 
 ---
 
@@ -78,8 +99,9 @@ Nst_vector_append(vect, val)
 
 **Description:**
 
-Alias of _Nst_vector_append that casts vect to Nst_SeqObj * and val to Nst_Obj
-*.
+Alias of [`_Nst_vector_append`](c_api-sequence.md/#_nst_vector_append) that
+casts `vect` to [`Nst_SeqObj *`](c_api-sequence.md/#nst_seqobj) and `val` to
+[`Nst_Obj *`](c_api-obj.md/#nst_obj).
 
 ---
 
@@ -93,7 +115,9 @@ Nst_vector_remove(vect, val)
 
 **Description:**
 
-Alias of Nst_vector_remove that casts vect to Nst_SeqObj * and val to Nst_Obj *.
+Alias of [`_Nst_vector_remove`](c_api-sequence.md/#_nst_vector_remove) that
+casts `vect` to [`Nst_SeqObj *`](c_api-sequence.md/#nst_seqobj) and `val` to
+[`Nst_Obj *`](c_api-obj.md/#nst_obj).
 
 ---
 
@@ -107,7 +131,8 @@ Nst_vector_pop(vect, quantity)
 
 **Description:**
 
-Alias of _Nst_vector_pop that casts vect to Nst_SeqObj *.
+Alias of [`_Nst_vector_pop`](c_api-sequence.md/#_nst_vector_pop) that casts
+`vect` to [`Nst_SeqObj *`](c_api-sequence.md/#nst_seqobj).
 
 ---
 
@@ -124,7 +149,7 @@ typedef struct _Nst_SeqObj {
     Nst_Obj **objs;
     usize len;
     usize cap;
-} Nst_SeqObj
+} struct _Nst_SeqObj
 ```
 
 **Description:**
@@ -134,7 +159,7 @@ A structure representing a Nest sequence object.
 **Fields:**
 
 - `objs`: the array of objects inside the sequence
-- `len`: the lenght of the sequence
+- `len`: the length of the sequence
 - `cap`: the capacity of the sequence
 
 ---
@@ -181,10 +206,11 @@ Nst_Obj *Nst_array_new(usize len)
 
 **Description:**
 
-Creates a new array object of the specified lenght.
+Creates a new array object of the specified length.
 
-The objects inside the array must be set manually, each entry in the array takes
-one reference of the object inserted.
+!!!warning
+    The objects inside the array must be set manually, each entry in the array
+    takes one reference of the object inserted.
 
 **Parameters:**
 
@@ -192,7 +218,7 @@ one reference of the object inserted.
 
 **Returns:**
 
-The new object on success and NULL on failure. The error is set.
+The new object on success or `NULL` on failure. The error is set.
 
 ---
 
@@ -206,10 +232,11 @@ Nst_Obj *Nst_vector_new(usize len)
 
 **Description:**
 
-Creates a new vector object of the specified lenght.
+Creates a new vector object of the specified length.
 
-The objects inside the vector must be set manually, each entry in the vector
-takes one reference of the object inserted.
+!!!warning
+    The objects inside the vector must be set manually, each entry in the vector
+    takes one reference of the object inserted.
 
 **Parameters:**
 
@@ -217,7 +244,7 @@ takes one reference of the object inserted.
 
 **Returns:**
 
-The new object on success and NULL on failure. The error is set.
+The new object on success or `NULL` on failure. The error is set.
 
 ---
 
@@ -244,7 +271,7 @@ len parameter.
 
 **Returns:**
 
-The new array on success or NULL on failure. The error is set.
+The new array on success or `NULL` on failure. The error is set.
 
 ---
 
@@ -261,7 +288,7 @@ Nst_Obj *Nst_vector_create(usize len, ...)
 Creates a vector object of the length specified, inserting the objects inside.
 
 The number of varargs passed to the function must match the number given in the
-len parameter.
+`len` parameter.
 
 **Parameters:**
 
@@ -271,7 +298,7 @@ len parameter.
 
 **Returns:**
 
-The new vector on success or NULL on failure. The error is set.
+The new vector on success or `NULL` on failure. The error is set.
 
 ---
 
@@ -288,8 +315,9 @@ Nst_Obj *Nst_array_create_c(const i8 *fmt, ...)
 Creates an array object, creating the contained objects from C values.
 
 The number of varargs passed to the function must match the number of types in
-the fmt argument. For more information about object types in Nst_array_create_c
-see sequence.h.
+the fmt argument. For more information about the `fmt` argument check the
+documentation in
+[`sequence.h`](c_api-sequence.md/#sequence-creation-format-types)
 
 **Parameters:**
 
@@ -298,7 +326,7 @@ see sequence.h.
 
 **Returns:**
 
-The new array on success or NULL on failure. The error is set.
+The new array on success or `NULL` on failure. The error is set.
 
 ---
 
@@ -315,8 +343,9 @@ Nst_Obj *Nst_vector_create_c(const i8 *fmt, ...)
 Creates a vector object, creating the contained objects from C values.
 
 The number of varargs passed to the function must match the number of types in
-the fmt argument. For more information about object types in Nst_vector_create_c
-see sequence.h.
+the fmt argument. For more information about the `fmt` argument check the
+documentation in
+[`sequence.h`](c_api-sequence.md/#sequence-creation-format-types)
 
 **Parameters:**
 
@@ -325,7 +354,7 @@ see sequence.h.
 
 **Returns:**
 
-The new array on success or NULL on failure. The error is set.
+The new array on success or `NULL` on failure. The error is set.
 
 ---
 
@@ -383,8 +412,8 @@ bool _Nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val)
 
 Changes the value of an index in a sequence.
 
-The sequence to change must already contain valid values. idx can be negative in
-which case it is subtracted from the length of the sequence to get the new
+The sequence to change must already contain valid values. `idx` can be negative
+in which case it is subtracted from the length of the sequence to get the new
 index.
 
 **Parameters:**
@@ -395,8 +424,8 @@ index.
 
 **Returns:**
 
-true on success and false on failure. The error is set. This function fails when
-the index is outside the sequence.
+`true` on success and `false` on failure. The error is set. This function fails
+when the index is outside the sequence.
 
 ---
 
@@ -421,8 +450,8 @@ The sequence must already contain valid values.
 
 **Returns:**
 
-A new reference to the object at index on success and NULL on failure. The error
-is set. The function fails when the index is outside the sequence.
+A new reference to the object at `idx` on success and `NULL` on failure. The
+error is set. The function fails when the index is outside the sequence.
 
 ---
 
@@ -444,8 +473,8 @@ Resizes a vector if needed.
 
 **Returns:**
 
-true on success and false on failure. The error is set. The function never fails
-if the vector is untouched or is shrinked.
+`true` on success and `false` on failure. The error is set. The function never
+fails if the vector is untouched or is shrunk.
 
 ---
 
@@ -468,7 +497,7 @@ Appends a value to the end of a vector.
 
 **Returns:**
 
-true on success and false on failure. The error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -488,12 +517,12 @@ Removes the first occurrence of a value inside a vector.
 
 - `vect`: the vector to remove the value from
 - `val`: an object that is equal to the value to remove, the equality is checked
-  with Nst_obj_eq
+  with `Nst_obj_eq`
 
 **Returns:**
 
-true if the object was removed and false if there was no object that matched. No
-error is set.
+`true` if the object was removed and `false` if there was no object that
+matched. No error is set.
 
 ---
 
@@ -519,5 +548,5 @@ function does not fail.
 
 **Returns:**
 
-The last value popped or NULL if no value was popped. No error is set.
+The last value popped or `NULL` if no value was popped. No error is set.
 

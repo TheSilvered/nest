@@ -1,6 +1,6 @@
 # `function.h`
 
-[`Nst_FuncObj`](c_api-function.md#nst_funcobj) interface.
+[`Nst_FuncObj`](c_api-function.md/#nst_funcobj) interface.
 
 ## Authors
 
@@ -18,7 +18,7 @@ FUNC(ptr)
 
 **Description:**
 
-Casts `ptr` to [`Nst_FuncObj *`](c_api-function.md#nst_funcobj).
+Casts `ptr` to [`Nst_FuncObj *`](c_api-function.md/#nst_funcobj).
 
 ---
 
@@ -32,9 +32,9 @@ Nst_func_set_vt(func, map)
 
 **Description:**
 
-Alias for [`_Nst_func_set_vt`](c_api-function.md#_nst_func_set_vt) that casts
-`func` to [`Nst_FuncObj *`](c_api-function.md#nst_funcobj) and `map` to
-[`Nst_MapObj *`](c_api-map.md#nst_mapobj).
+Alias for [`_Nst_func_set_vt`](c_api-function.md/#_nst_func_set_vt) that casts
+`func` to [`Nst_FuncObj *`](c_api-function.md/#nst_funcobj) and `map` to
+[`Nst_MapObj *`](c_api-map.md/#nst_mapobj).
 
 ---
 
@@ -48,7 +48,7 @@ Alias for [`_Nst_func_set_vt`](c_api-function.md#_nst_func_set_vt) that casts
 typedef union _Nst_FuncBody {
     Nst_InstList *bytecode;
     Nst_Obj *(*c_func)(usize arg_num, Nst_Obj **args);
-} Nst_FuncBody
+} struct _Nst_FuncBody
 ```
 
 **Description:**
@@ -76,7 +76,7 @@ typedef struct _Nst_FuncObj {
     Nst_Obj **args;
     usize arg_num;
     Nst_MapObj *mod_globals;
-} Nst_FuncObj
+} struct _Nst_FuncObj
 ```
 
 **Description:**
@@ -178,7 +178,7 @@ void _Nst_func_traverse(Nst_FuncObj *func)
 
 **Description:**
 
-Traverse function for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
+Traverse function for [`Nst_FuncObj`](c_api-function.md/#nst_funcobj).
 
 ---
 
@@ -192,7 +192,7 @@ void _Nst_func_track(Nst_FuncObj *func)
 
 **Description:**
 
-Track function for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
+Track function for [`Nst_FuncObj`](c_api-function.md/#nst_funcobj).
 
 ---
 
@@ -206,7 +206,7 @@ void _Nst_func_destroy(Nst_FuncObj *func)
 
 **Description:**
 
-Destructor for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
+Destructor for [`Nst_FuncObj`](c_api-function.md/#nst_funcobj).
 
 ---
 
@@ -219,10 +219,10 @@ Destructor for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
 ```better-c
 typedef enum _Nst_FuncFlags {
     Nst_FLAG_FUNC_IS_C = 0b1
-} Nst_FuncFlags
+} struct _Nst_FuncFlags
 ```
 
 **Description:**
 
-The flags for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
+The flags for [`Nst_FuncObj`](c_api-function.md/#nst_funcobj).
 
