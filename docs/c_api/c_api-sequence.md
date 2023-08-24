@@ -149,7 +149,7 @@ typedef struct _Nst_SeqObj {
     Nst_Obj **objs;
     usize len;
     usize cap;
-} struct _Nst_SeqObj
+} Nst_SeqObj
 ```
 
 **Description:**

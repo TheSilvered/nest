@@ -49,7 +49,7 @@ typedef struct _Nst_Node {
     struct _Nst_NodeType type;
     Nst_LList *nodes;
     Nst_LList *tokens;
-} struct _Nst_Node
+} Nst_Node
 ```
 
 **Description:**
@@ -179,7 +179,7 @@ typedef enum _Nst_NodeType {
     Nst_NT_ASSIGN_E,
     Nst_NT_IF_E,
     Nst_NT_LAMBDA
-} struct _Nst_NodeType
+} Nst_NodeType
 ```
 
 **Description:**

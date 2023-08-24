@@ -120,7 +120,7 @@ typedef struct _Nst_StrObj {
     Nst_OBJ_HEAD;
     usize len;
     i8 *value;
-} struct _Nst_StrObj
+} Nst_StrObj
 ```
 
 **Description:**
@@ -538,7 +538,7 @@ error is set.
 ```better-c
 typedef enum _Nst_StrFlags {
     Nst_FLAG_STR_IS_ALLOC = 0b1
-} struct _Nst_StrFlags
+} Nst_StrFlags
 ```
 
 **Description:**

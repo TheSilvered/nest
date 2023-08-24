@@ -120,7 +120,7 @@ typedef struct _Nst_IOFuncSet {
     Nst_IOFile_tell_f tell;
     Nst_IOFile_seek_f seek;
     Nst_IOFile_close_f close;
-} struct _Nst_IOFuncSet
+} Nst_IOFuncSet
 ```
 
 **Description:**
@@ -140,7 +140,7 @@ typedef struct _Nst_StdIn {
     FILE *fp;
     i32 buf_size;
     i32 buf_ptr;
-} struct _Nst_StdIn
+} Nst_StdIn
 ```
 
 **Description:**
@@ -160,7 +160,7 @@ typedef struct _Nst_IOFileObj {
     int fd;
     Nst_CP *encoding;
     Nst_IOFuncSet func_set;
-} struct _Nst_IOFileObj
+} Nst_IOFileObj
 ```
 
 **Description:**
@@ -707,7 +707,7 @@ typedef enum _Nst_IOResult {
     Nst_IO_OP_FAILED = -4,
     Nst_IO_CLOSED = -5,
     Nst_IO_ERROR = -6
-} struct _Nst_IOResult
+} Nst_IOResult
 ```
 
 **Description:**
@@ -725,7 +725,7 @@ typedef enum _Nst_SeekWhence {
     Nst_SEEK_SET = 0,
     Nst_SEEK_CUR = 1,
     Nst_SEEK_END = 2
-} struct _Nst_SeekWhence
+} Nst_SeekWhence
 ```
 
 **Description:**
@@ -746,7 +746,7 @@ typedef enum _Nst_IOFileFlag {
     Nst_FLAG_IOFILE_CAN_READ  = 0b001000,
     Nst_FLAG_IOFILE_CAN_SEEK  = 0b010000,
     Nst_FLAG_IOFILE_IS_TTY    = 0b100000
-} struct _Nst_IOFileFlag
+} Nst_IOFileFlag
 ```
 
 **Description:**

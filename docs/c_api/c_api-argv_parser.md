@@ -21,7 +21,7 @@ typedef struct _Nst_CLArgs {
     i32 opt_level;
     i8 *command, *filename;
     i32 args_start;
-} struct _Nst_CLArgs
+} Nst_CLArgs
 ```
 
 **Description:**

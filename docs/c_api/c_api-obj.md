@@ -176,7 +176,7 @@ reserved for the garbage collector.
 ```better-c
 typedef struct _Nst_Obj {
     Nst_OBJ_HEAD;
-} struct _Nst_Obj
+} Nst_Obj
 ```
 
 **Description:**

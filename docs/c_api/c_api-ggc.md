@@ -104,7 +104,7 @@ Initializes the fields of a [`Nst_GGCObj`](c_api-ggc.md/#nst_ggcobj).
 typedef struct _Nst_GGCObj {
     Nst_OBJ_HEAD;
     Nst_GGC_HEAD;
-} struct _Nst_GGCObj
+} Nst_GGCObj
 ```
 
 **Description:**
@@ -132,7 +132,7 @@ typedef struct _Nst_GGCList {
     Nst_GGCObj *head;
     Nst_GGCObj *tail;
     usize len;
-} struct _Nst_GGCList
+} Nst_GGCList
 ```
 
 **Description:**
@@ -158,7 +158,7 @@ typedef struct _Nst_GarbageCollector {
     Nst_GGCList gen3;
     Nst_GGCList old_gen;
     i64 old_gen_pending;
-} struct _Nst_GarbageCollector
+} Nst_GarbageCollector
 ```
 
 **Description:**
@@ -262,7 +262,7 @@ typedef enum _Nst_GGCFlags {
     Nst_FLAG_GGC_UNREACHABLE  = 0x40000000,
     Nst_FLAG_GGC_DELETED      = 0x20000000,
     Nst_FLAG_GGC_IS_SUPPORTED = 0x10000000
-} struct _Nst_GGCFlags
+} Nst_GGCFlags
 ```
 
 **Description:**

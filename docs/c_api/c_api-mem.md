@@ -88,7 +88,7 @@ typedef struct _Nst_SizedBuffer {
     usize cap;
     usize unit_size;
     void *data;
-} struct _Nst_SizedBuffer
+} Nst_SizedBuffer
 ```
 
 **Description:**
@@ -114,7 +114,7 @@ typedef struct _Nst_Buffer {
     usize cap;
     usize unit_size;
     i8 *data;
-} struct _Nst_Buffer
+} Nst_Buffer
 ```
 
 **Description:**

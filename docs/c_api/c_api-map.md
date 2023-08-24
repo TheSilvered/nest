@@ -167,7 +167,7 @@ typedef struct _Nst_MapNode {
     Nst_Obj *value;
     i32 next_idx;
     i32 prev_idx;
-} struct _Nst_MapNode
+} Nst_MapNode
 ```
 
 **Description:**
@@ -198,7 +198,7 @@ typedef struct _Nst_MapObj {
     Nst_MapNode *nodes;
     i32 head_idx;
     i32 tail_idx;
-} struct _Nst_MapObj
+} Nst_MapObj
 ```
 
 **Description:**

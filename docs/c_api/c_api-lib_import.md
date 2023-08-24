@@ -387,7 +387,7 @@ typedef struct _Nst_ObjDeclr {
     void *ptr;
     isize arg_num;
     Nst_StrObj *name;
-} struct _Nst_ObjDeclr
+} Nst_ObjDeclr
 ```
 
 **Description:**
@@ -411,7 +411,7 @@ Structure defining an object declaration.
 typedef struct _Nst_DeclrList {
     Nst_ObjDeclr *objs;
     usize obj_count;
-} struct _Nst_DeclrList
+} Nst_DeclrList
 ```
 
 **Description:**

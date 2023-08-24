@@ -49,7 +49,7 @@ typedef struct _Nst_ValueStack {
     Nst_Obj **stack;
     usize len;
     usize cap;
-} struct _Nst_ValueStack
+} Nst_ValueStack
 ```
 
 **Description:**
@@ -76,7 +76,7 @@ typedef struct _Nst_FuncCall {
     Nst_VarTable *vt;
     i64 idx;
     usize cstack_len;
-} struct _Nst_FuncCall
+} Nst_FuncCall
 ```
 
 **Description:**
@@ -103,7 +103,7 @@ typedef struct _Nst_CallStack {
     Nst_FuncCall *stack;
     usize len;
     usize cap;
-} struct _Nst_CallStack
+} Nst_CallStack
 ```
 
 **Description:**
@@ -127,7 +127,7 @@ typedef struct _Nst_CatchFrame {
     usize f_stack_len;
     usize v_stack_len;
     i64 inst_idx;
-} struct _Nst_CatchFrame
+} Nst_CatchFrame
 ```
 
 **Description:**
@@ -152,7 +152,7 @@ typedef struct _Nst_CatchStack {
     Nst_CatchFrame *stack;
     usize len;
     usize cap;
-} struct _Nst_CatchStack
+} Nst_CatchStack
 ```
 
 **Description:**
@@ -176,7 +176,7 @@ typedef struct _Nst_GenericStack {
     void *stack;
     usize len;
     usize cap;
-} struct _Nst_GenericStack
+} Nst_GenericStack
 ```
 
 **Description:**

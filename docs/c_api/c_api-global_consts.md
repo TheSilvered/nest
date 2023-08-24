@@ -53,7 +53,7 @@ typedef struct _Nst_StrConsts {
     Nst_StrObj *o__args_;
     Nst_StrObj *o__cwd_;
     Nst_StrObj *o_failed_alloc;
-} struct _Nst_StrConsts
+} Nst_StrConsts
 ```
 
 **Description:**
@@ -85,7 +85,7 @@ typedef struct _Nst_TypeObjs {
     Nst_TypeObj *Iter;
     Nst_TypeObj *Byte;
     Nst_TypeObj *IOFile;
-} struct _Nst_TypeObjs
+} Nst_TypeObjs
 ```
 
 **Description:**
@@ -110,7 +110,7 @@ typedef struct _Nst_Consts {
     Nst_Obj *Real_1;
     Nst_Obj *Byte_0;
     Nst_Obj *Byte_1;
-} struct _Nst_Consts
+} Nst_Consts
 ```
 
 **Description:**
@@ -130,7 +130,7 @@ typedef struct _Nst_StdStreams {
     Nst_IOFileObj *in;
     Nst_IOFileObj *out;
     Nst_IOFileObj *err;
-} struct _Nst_StdStreams
+} Nst_StdStreams
 ```
 
 **Description:**
@@ -163,7 +163,7 @@ typedef struct _Nst_IterFunctions {
     Nst_FuncObj *map_start;
     Nst_FuncObj *map_is_done;
     Nst_FuncObj *map_get_val;
-} struct _Nst_IterFunctions
+} Nst_IterFunctions
 ```
 
 **Description:**

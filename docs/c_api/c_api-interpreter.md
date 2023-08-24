@@ -28,7 +28,7 @@ typedef struct _Nst_ExecutionState {
     Nst_LList *lib_paths;
     Nst_MapObj *lib_handles;
     Nst_LList *lib_srcs;
-} struct _Nst_ExecutionState
+} Nst_ExecutionState
 ```
 
 **Description:**

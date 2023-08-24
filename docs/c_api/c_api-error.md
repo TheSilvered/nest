@@ -262,7 +262,7 @@ typedef struct _Nst_SourceText {
     i8 **lines;
     usize text_len;
     usize lines_len;
-} struct _Nst_SourceText
+} Nst_SourceText
 ```
 
 **Description:**
@@ -288,7 +288,7 @@ typedef struct _Nst_Pos {
     i32 line;
     i32 col;
     Nst_SourceText *text;
-} struct _Nst_Pos
+} Nst_Pos
 ```
 
 **Description:**
@@ -314,7 +314,7 @@ typedef struct _Nst_Error {
     Nst_Pos end;
     Nst_StrObj *name;
     Nst_StrObj *message;
-} struct _Nst_Error
+} Nst_Error
 ```
 
 **Description:**
@@ -339,7 +339,7 @@ The structure representing an error with a determined position.
 typedef struct _Nst_OpErr {
     Nst_StrObj *name;
     Nst_StrObj *message;
-} struct _Nst_OpErr
+} Nst_OpErr
 ```
 
 **Description:**
@@ -362,7 +362,7 @@ not yet have a position.
 typedef struct _Nst_Traceback {
     Nst_Error error;
     Nst_LList *positions;
-} struct _Nst_Traceback
+} Nst_Traceback
 ```
 
 **Description:**

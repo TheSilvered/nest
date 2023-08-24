@@ -48,7 +48,7 @@ Alias of [`_Nst_vt_set`](c_api-var_table.md/#_nst_vt_set) that casts `name` and
 typedef struct _Nst_VarTable {
     Nst_MapObj *vars;
     Nst_MapObj *global_table;
-} struct _Nst_VarTable
+} Nst_VarTable
 ```
 
 **Description:**

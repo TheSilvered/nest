@@ -81,7 +81,7 @@ typedef struct _Nst_IterObj {
     Nst_FuncObj *is_done;
     Nst_FuncObj *get_val;
     Nst_Obj *value;
-} struct _Nst_IterObj
+} Nst_IterObj
 ```
 
 **Description:**

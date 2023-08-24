@@ -50,7 +50,7 @@ typedef struct _Nst_Inst {
     Nst_Obj *val;
     Nst_Pos start;
     Nst_Pos end;
-} struct _Nst_Inst
+} Nst_Inst
 ```
 
 **Description:**
@@ -76,7 +76,7 @@ typedef struct _Nst_InstList {
     usize total_size;
     Nst_Inst *instructions;
     Nst_LList *functions;
-} struct _Nst_InstList
+} Nst_InstList
 ```
 
 **Description:**
@@ -247,7 +247,7 @@ typedef enum _Nst_InstID {
     Nst_IC_MAKE_MAP,
     Nst_IC_SAVE_ERROR,
     Nst_IC_UNPACK_SEQ
-} struct _Nst_InstID
+} Nst_InstID
 ```
 
 **Description:**

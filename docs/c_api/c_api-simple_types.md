@@ -186,7 +186,7 @@ casts `obj` to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
 typedef struct _Nst_IntObj {
     Nst_OBJ_HEAD;
     i64 value;
-} struct _Nst_IntObj
+} Nst_IntObj
 ```
 
 **Description:**
@@ -207,7 +207,7 @@ A structure representing a Nest integer object.
 typedef struct _Nst_RealObj {
     Nst_OBJ_HEAD;
     f64 value;
-} struct _Nst_RealObj
+} Nst_RealObj
 ```
 
 **Description:**
@@ -228,7 +228,7 @@ A structure representing a Nest real number (floating-point) object.
 typedef struct _Nst_BoolObj {
     Nst_OBJ_HEAD;
     bool value;
-} struct _Nst_BoolObj
+} Nst_BoolObj
 ```
 
 **Description:**
@@ -249,7 +249,7 @@ A structure representing a Nest boolean object.
 typedef struct _Nst_ByteObj {
     Nst_OBJ_HEAD;
     u8 value;
-} struct _Nst_ByteObj
+} Nst_ByteObj
 ```
 
 **Description:**

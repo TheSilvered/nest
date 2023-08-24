@@ -188,7 +188,7 @@ typedef struct _Nst_Tok {
     Nst_Pos end;
     struct _Nst_TokType type;
     Nst_Obj *value;
-} struct _Nst_Tok
+} Nst_Tok
 ```
 
 **Description:**
@@ -411,7 +411,7 @@ typedef enum _Nst_TokType {
     // invalid token
 
     Nst_TT_INVALID = -1
-} struct _Nst_TokType
+} Nst_TokType
 ```
 
 **Description:**

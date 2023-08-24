@@ -286,7 +286,7 @@
         1 += syn_start
         header_lines.(syn_start) = line
         line 'struct _' '' @su.replace_substr = line
-        line name 'struct _\(name)' @su.replace_substr = line
+        line '  \(name)' '  struct _\(name)' @su.replace_substr = line
         end ';' == ? [
             line @su.ltrim = line
             ' ' line ><= syn

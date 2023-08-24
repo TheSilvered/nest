@@ -41,7 +41,7 @@ typedef struct _Nst_CP {
     const Nst_CheckBytesFunc check_bytes;
     const Nst_ToUTF32Func to_utf32;
     const Nst_FromUTF32Func from_utf32;
-} struct _Nst_CP
+} Nst_CP
 ```
 
 **Description:**
@@ -1180,7 +1180,7 @@ typedef enum _Nst_CPID {
     Nst_CP_1258,
     Nst_CP_LATIN1,
     Nst_CP_ISO8859_1 = Nst_CP_LATIN1
-} struct _Nst_CPID
+} Nst_CPID
 ```
 
 **Description:**

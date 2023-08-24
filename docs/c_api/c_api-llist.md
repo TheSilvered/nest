@@ -40,7 +40,7 @@ typedef struct _Nst_LLNode {
     void *value;
     bool allocated;
     struct _Nst_LLNode *next;
-} struct _Nst_LLNode
+} Nst_LLNode
 ```
 
 **Description:**
@@ -64,7 +64,7 @@ typedef struct _Nst_LList {
     Nst_LLNode *head;
     Nst_LLNode *tail;
     usize len;
-} struct _Nst_LList
+} Nst_LList
 ```
 
 **Description:**

@@ -48,7 +48,7 @@ Alias for [`_Nst_func_set_vt`](c_api-function.md/#_nst_func_set_vt) that casts
 typedef union _Nst_FuncBody {
     Nst_InstList *bytecode;
     Nst_Obj *(*c_func)(usize arg_num, Nst_Obj **args);
-} struct _Nst_FuncBody
+} Nst_FuncBody
 ```
 
 **Description:**
@@ -76,7 +76,7 @@ typedef struct _Nst_FuncObj {
     Nst_Obj **args;
     usize arg_num;
     Nst_MapObj *mod_globals;
-} struct _Nst_FuncObj
+} Nst_FuncObj
 ```
 
 **Description:**
@@ -219,7 +219,7 @@ Destructor for [`Nst_FuncObj`](c_api-function.md/#nst_funcobj).
 ```better-c
 typedef enum _Nst_FuncFlags {
     Nst_FLAG_FUNC_IS_C = 0b1
-} struct _Nst_FuncFlags
+} Nst_FuncFlags
 ```
 
 **Description:**
