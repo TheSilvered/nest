@@ -705,7 +705,15 @@ dir @sys._set_cwd
 'c_api-reference.md' 'w' @io.open = reference
 reference ('API Reference' 1 @title) @io.write
 
-Array :: symbols ##x [=> '[`\(x.0)`](\(x.1))'] @sequ.map @sequ.sort = sorted_symbols
+#symbol_sort_map pair [
+    pair.0 = symbol
+    symbol @su.to_lower = symbol
+    symbol '_' '' @su.replace_substr = symbol
+    !(symbol 'nst' @su.starts_with) ? => '__' symbol ><
+    => symbol
+]
 
+Array :: symbols symbol_sort_map @sequ.sort = sorted_symbols
+sorted_symbols (##x => '[`\(x.0)`](\(x.1))') @sequ.map = sorted_symbols
 reference (sorted_symbols @unordered_list) @io.write
 reference @io.close
