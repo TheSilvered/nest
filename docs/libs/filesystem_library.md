@@ -10,11 +10,11 @@
 
 ### `@absolute_path`
 
-**Synopsis**:
+**Synopsis:**
 
 `[path: Str] @absolute_path -> Str`
 
-**Description**:
+**Description:**
 
 Returns the absolute path of a file or directory.
 
@@ -26,11 +26,11 @@ Returns the absolute path of a file or directory.
 
 ### `@canonical_path`
 
-**Synopsis**:
+**Synopsis:**
 
 `[path: Str] @canonical_path -> Str`
 
-**Description**:
+**Description:**
 
 Returns the canonical path of a file or directory. A canonical path is an
 absolute path that does not point to a link. This means that any canonical path
@@ -44,15 +44,15 @@ is an absolute path but not vice-versa.
 
 ### `@copy`
 
-**Synopsis**:
+**Synopsis:**
 
 `[from: Str, to: Str, options: Int?] @copy -> null`
 
-**Description**:
+**Description:**
 
 Copies a file or a directory from `from` to `to`. `options` must be set with
-the [`CPO`](#cpo) constant and its members.  
-If `options` is `null`, `CPO.none` is used.  
+the [`CPO`](#cpo) constant and its members.
+If `options` is `null`, `CPO.none` is used.
 An error is thrown if either the source or the destination path does not exits
 or if a system error occurs.
 
@@ -66,11 +66,11 @@ or if a system error occurs.
 
 ### `@equivalent`
 
-**Synopsis**:
+**Synopsis:**
 
 `[path_1: Str, path_2: Str] @equivalent -> Bool`
 
-**Description**:
+**Description:**
 
 Returns true if the two paths point to the same file and false otherwise. This
 returns true even when the two paths are different but are hard links to the
@@ -85,11 +85,11 @@ same file.
 
 ### `@extension`
 
-**Synopsis**:
+**Synopsis:**
 
 `[path: Str] @extension -> Str`
 
-**Description**:
+**Description:**
 
 Returns the extension of the file pointed to by `path`.
 
@@ -111,11 +111,11 @@ Returns the extension of the file pointed to by `path`.
 
 ### `@filename`
 
-**Synopsis**:
+**Synopsis:**
 
 `[path: Str] @filename -> Str`
 
-**Description**:
+**Description:**
 
 Returns the name of the file `path` points to.
 
@@ -137,11 +137,11 @@ Returns the name of the file `path` points to.
 
 ### `@is_dir`
 
-**Synopsis**:
+**Synopsis:**
 
 `[path: Str] @is_dir -> Bool`
 
-**Description**:
+**Description:**
 
 Checks if a directory exists at `path`.
 
@@ -153,11 +153,11 @@ Checks if a directory exists at `path`.
 
 ### `@is_file`
 
-**Synopsis**:
+**Synopsis:**
 
 `[path: Str] @is_file -> Bool`
 
-**Description**:
+**Description:**
 
 Checks if a file exists at `path`.
 
@@ -169,14 +169,14 @@ Checks if a file exists at `path`.
 
 ### `@join`
 
-**Synopsis**:
+**Synopsis:**
 
 `[path_1: Str, path_2: Str] @join -> Str`
 
-**Description**:
+**Description:**
 
-Joins two paths by adding, if needed, a slash between them.  
-If `path_2` is an absolute path it is returned without any modifications.  
+Joins two paths by adding, if needed, a slash between them.
+If `path_2` is an absolute path it is returned without any modifications.
 This function normalizes the slashes after joining: on Windows `/` becomes `\`
 and on Linux `\` becomes `/`.
 
@@ -189,11 +189,11 @@ and on Linux `\` becomes `/`.
 
 ### `@list_dir`
 
-**Synopsis**:
+**Synopsis:**
 
 `[path: Str] @list_dir -> Vector`
 
-**Description**:
+**Description:**
 
 Lists the contents of a directory, both files and sub-directories but not the
 contents of the latter. Throws an error if `path` does not point to a valid
@@ -207,11 +207,11 @@ directory or a system error occurs.
 
 ### `@list_dirs`
 
-**Synopsis**:
+**Synopsis:**
 
 `[path: Str] @list_dirs -> Vector`
 
-**Description**:
+**Description:**
 
 Similar to [`list_dir`](#list_dir) but also lists the contents of the
 sub directories. Throws an error if `path` does not point to a valid directory
@@ -225,11 +225,11 @@ or a system error occurs.
 
 ### `@make_dir`
 
-**Synopsis**:
+**Synopsis:**
 
 `[path: Str] @make_dir -> null`
 
-**Description**:
+**Description:**
 
 Creates a new directory at `path`, succeeds even if the directory exists. An
 error is thrown if any parent directory does not exist or a system error occurs.
@@ -242,11 +242,11 @@ error is thrown if any parent directory does not exist or a system error occurs.
 
 ### `@make_dirs`
 
-**Synopsis**:
+**Synopsis:**
 
 `[path: Str] @make_dirs -> null`
 
-**Description**:
+**Description:**
 
 Creates a directory at `path`, and the parent directories if needed, succeeds
 even if the directory already exists. An error is thrown only if a system error
@@ -260,11 +260,11 @@ occurs.
 
 ### `@parent_path`
 
-**Synopsis**:
+**Synopsis:**
 
 `[path: Str] @parent_path -> Str`
 
-**Description**:
+**Description:**
 
 Returns the path of the directory where the element is contained.
 
@@ -286,11 +286,11 @@ Returns the path of the directory where the element is contained.
 
 ### `@relative_path`
 
-**Synopsis**:
+**Synopsis:**
 
 `[path: Str, base: Str] @relative_path -> Str`
 
-**Description**:
+**Description:**
 
 Returns a relative path to `path` using `base` as the starting point.
 
@@ -311,11 +311,11 @@ Returns a relative path to `path` using `base` as the starting point.
 
 ### `@remove_dir`
 
-**Synopsis**:
+**Synopsis:**
 
 `[path: Str] @remove_dir -> null`
 
-**Description**:
+**Description:**
 
 Removes a directory at `path` which must be empty. An error is thrown if the
 directory contains any sub directories or files, the path does not point to a
@@ -329,11 +329,11 @@ valid directory or if a system error occurs.
 
 ### `@remove_dirs`
 
-**Synopsis**:
+**Synopsis:**
 
 `[path: Str] @remove_dirs -> null`
 
-**Description**:
+**Description:**
 
 Removes a directory at `path` and all of its contents, throws an error if the
 directory does not exist or a system error occurs.
@@ -346,11 +346,11 @@ directory does not exist or a system error occurs.
 
 ### `@remove_file`
 
-**Synopsis**:
+**Synopsis:**
 
 `[path: Str] @remove_file -> null`
 
-**Description**:
+**Description:**
 
 Removes a file at `path`, throws an error if the file does not exist or a system
 error occurs.
@@ -363,11 +363,11 @@ error occurs.
 
 ### `@rename`
 
-**Synopsis**:
+**Synopsis:**
 
 `[old_path: Str, new_path: Str] @rename -> null`
 
-**Description**:
+**Description:**
 
 Renames or moves a file or a directory. Throws an error if `old_path` does not
 exist or if a system error occurs.
@@ -383,7 +383,7 @@ exist or if a system error occurs.
 
 ### `CPO`
 
-A map that has the copy options.  
+A map that has the copy options.
 Its members are:
 
 | Name              | Description                                                      |

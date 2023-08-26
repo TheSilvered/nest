@@ -11,59 +11,61 @@
 ### `@all`
 
 
-**Synopsis**:
+**Synopsis:**
 
 `[seq: Array|Vector] @all -> Bool`
 
-**Return value**:
+**Returns:**
 
-Returns true if all the elements of `seq` are truthy.
+`true` if all the elements of `seq` are truthy.
 
 ---
 
 ### `@any`
 
-**Synopsis**:
+**Synopsis:**
 
 `[seq: Array|Vector] @any -> Bool`
 
-**Return value**:
+**Returns:**
 
-Returns true if any of the elements of `seq` is truthy.
+`true` if at least one element in `seq` is truthy.
 
 ---
 
 ### `@contains`
 
-**Synopsis**:
+**Synopsis:**
 
 `[container: Array|Vector|Map|Str, object: Any] @contains -> Bool`
 
-**Return value**:
+**Returns:**
 
-Returns `true` if `object` is inside `container`, and `false` otherwise.  
-For maps only the keys are checked, therefore `{ 'a': 1 } 1 @contains` is false.  
-For strings, the functionr returns true if `object` is a substring of `container`.
+`true` if `object` is inside `container`, and `false` otherwise. For maps only
+the keys are checked, therefore `{ 'a': 1 } 1 @contains` is false. For strings,
+the function returns `true` if `object` is a substring of `container`.
 
 ---
 
 ### `@count`
 
-**Synopsis**:
+**Synopsis:**
 
 `[seq: Str|Array|Vector, object: Any] @count -> Int`
 
-Returns the number of times `object` appears inside `seq`.
+**Returns:**
+
+The number of times `object` appears inside `seq`.
 
 ---
 
 ### `@empty`
 
-**Synopsis**:
+**Synopsis:**
 
 `[vect: Vector] @empty -> Vector`
 
-**Description**:
+**Description:**
 
 Empties `vect` and returns it.
 
@@ -71,25 +73,26 @@ Empties `vect` and returns it.
 
 ### `@filter`
 
-**Synopsis**:
+**Synopsis:**
 
 `[seq: Array|Vector, func: Func] @filter -> Array|Vector`
 
-**Description**:
+**Description:**
 
 Creates a new sequence of the same type of `seq` that has all the elements from
-`seq` that when passed as an argument to `func` returned a truthy value.  
+`seq` that when passed as an argument to `func` returned a truthy value.
+
 `func` must take exactly one argument.
 
 ---
 
 ### `@insert_at`
 
-**Synopsis**:
+**Synopsis:**
 
 `[vect: Vector, index: Int, object: Any] @insert_at -> null`
 
-**Description**:
+**Description:**
 
 Inserts `object` at `index` in `vect`.
 
@@ -113,16 +116,16 @@ vec 4 -1 @sequ.insert_at
 
 ### `@lscan`
 
-**Synopsis**:
+**Synopsis:**
 
 `[seq: Array|Vector|Str, func: Func, start_val: Any, max_items: Int?] @lscan -> Array|Vector`
 
-**Description**:
+**Description:**
 
 Creates a new sequence where each element is the result of passing the previous
 object and the current object through `func`. For the first object `start_val`
-is used.  
-The operation happens from the start to the end of the sequence.  
+is used.
+The operation happens from the start to the end of the sequence.
 `func` must take exactly two arguments where the first is the previous value and
 the second the current one.
 
@@ -154,14 +157,14 @@ The function returns the scanned sequence that includes `start_val`.
 
 ### `@map`
 
-**Synopsis**:
+**Synopsis:**
 
 `[seq: Array|Vector, func: Func] @map -> Array|Vector`
 
-**Description**:
+**Description:**
 
 Creates a new sequence of type `?::seq` where all items of `seq` are passed
-through `func`.  
+through `func`.
 `func` must take exactly one argument.
 
 **Arguments**:
@@ -187,11 +190,11 @@ arr (##n => n n *) @sequ.map = squares
 
 ### `@merge`
 
-**Synopsis**:
+**Synopsis:**
 
 `[seq1: Array|Vector, seq2: Array|Vector] @merge -> Array|Vector`
 
-**Description**:
+**Description:**
 
 Creates a new sequence that merges the two sequences together, one after the
 other.
@@ -206,11 +209,11 @@ followed by the elements inside `seq2`.
 
 ### `@remove_at`
 
-**Synopsis**:
+**Synopsis:**
 
 `[vect: Vector, index: Int] @remove_at -> Any`
 
-**Description**:
+**Description:**
 
 Removes the element at `index` in `vect` and returns it.
 
@@ -218,16 +221,16 @@ Removes the element at `index` in `vect` and returns it.
 
 ### `@rscan`
 
-**Synopsis**:
+**Synopsis:**
 
 `[seq: Array|Vector|Str, func: Func, start_val: Any, max_items: Int?] @lscan -> Array|Vector`
 
-**Description**:
+**Description:**
 
 Creates a new sequence where each element is the result of passing the previous
 object and the current object through `func`. For the first object `start_val`
-is used.  
-The operation happens from the end to the start of the sequence.  
+is used.
+The operation happens from the end to the start of the sequence.
 `func` must take exactly two arguments.
 
 !!!note
@@ -257,11 +260,11 @@ The function returns the scanned sequence that includes `start_val`.
 
 ### `@slice`
 
-**Synopsis**:
+**Synopsis:**
 
 `[seq: Str|Array|Vector, start: Int?, stop: Int?, step: Int?] @slice -> Str|Array|Vector`
 
-**Description**:
+**Description:**
 
 Creates a new sequence of type `?::seq` that contains the elements from `start`
 to `stop` separated by a gap of `step`.
@@ -296,16 +299,18 @@ The function returns the slice slice of the sequence.
 
 ### `@sort`
 
-**Synopsis**:
+**Synopsis:**
 
-`[seq: Array|Vector] @sort -> Array|Vector`
+`[seq: Array|Vector, mapping_func: Func?] @sort -> Array|Vector`
 
-**Description**:
+**Description:**
 
-Sorts `seq` in increasing order. The elements can be all numbers or all strings
-but not a mixture of those. It uses a stable sorting algorithm called Timsort.
+Sorts `seq` in-place increasing order. When `mapping_func` is not `null` it is
+used to map the objects of `seq` to keys used in the comparisons, the original
+objects are sorted according to the value of the corresponding key.
+
+`mapping_func` must take exactly one argument.
 
 **Return value**:
 
-The function returns the sorted sequence of type `Array` or `Vector` depending
-on the type of `seq`.
+The function returns `seq`.

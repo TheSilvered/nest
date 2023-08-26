@@ -6,7 +6,7 @@
  * @author TheSilvered
  */
 
-/* [docs:link format.h c_api-format.md/#format-placeholder-specification] */
+/* [docs:link format.h c_api-format.md#format-placeholder-specification] */
 
 /* [docs:raw]
 ## Format placeholder specification

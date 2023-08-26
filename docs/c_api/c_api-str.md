@@ -18,7 +18,7 @@ STR(ptr)
 
 **Description:**
 
-Casts `ptr` to [`Nst_StrObj *`](c_api-str.md/#nst_strobj).
+Casts `ptr` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
 
 ---
 
@@ -32,7 +32,7 @@ TYPE(ptr)
 
 **Description:**
 
-Casts `ptr` to [`Nst_TypeObj *`](c_api-str.md/#nst_typeobj).
+Casts `ptr` to [`Nst_TypeObj *`](c_api-str.md#nst_typeobj).
 
 ---
 
@@ -74,8 +74,8 @@ Nst_string_copy(src)
 
 **Description:**
 
-Alias of [`_Nst_string_copy`](c_api-str.md/#_nst_string_copy) that casts `src`
-to [`Nst_StrObj *`](c_api-str.md/#nst_strobj).
+Alias of [`_Nst_string_copy`](c_api-str.md#_nst_string_copy) that casts `src` to
+[`Nst_StrObj *`](c_api-str.md#nst_strobj).
 
 ---
 
@@ -89,8 +89,8 @@ Nst_string_repr(src)
 
 **Description:**
 
-Alias of [`_Nst_string_repr`](c_api-str.md/#_nst_string_repr) that casts `src`
-to [`Nst_StrObj *`](c_api-str.md/#nst_strobj).
+Alias of [`_Nst_string_repr`](c_api-str.md#_nst_string_repr) that casts `src` to
+[`Nst_StrObj *`](c_api-str.md#nst_strobj).
 
 ---
 
@@ -104,8 +104,8 @@ Nst_string_get(str, idx)
 
 **Description:**
 
-Alias of [`_Nst_string_get`](c_api-str.md/#_nst_string_get) that casts `str` to
-[`Nst_StrObj *`](c_api-str.md/#nst_strobj).
+Alias of [`_Nst_string_get`](c_api-str.md#_nst_string_get) that casts `str` to
+[`Nst_StrObj *`](c_api-str.md#nst_strobj).
 
 ---
 
@@ -276,8 +276,8 @@ destroyed in any way.
 
 **Returns:**
 
-A [`Nst_StrObj`](c_api-str.md/#nst_strobj) struct, **NOT POINTER**. This
-function never fails.
+A [`Nst_StrObj`](c_api-str.md#nst_strobj) struct, **NOT POINTER**. This function
+never fails.
 
 ---
 
@@ -291,7 +291,7 @@ Nst_TypeObj *Nst_type_new(const i8 *val)
 
 **Description:**
 
-Creates a new [`Nst_TypeObj`](c_api-str.md/#nst_typeobj).
+Creates a new [`Nst_TypeObj`](c_api-str.md#nst_typeobj).
 
 **Parameters:**
 
@@ -389,7 +389,7 @@ Nst_Obj *Nst_string_parse_int(Nst_StrObj *str, i32 base)
 
 **Description:**
 
-Parses a [`Nst_IntObj`](c_api-simple_types.md/#nst_intobj) from a string.
+Parses a [`Nst_IntObj`](c_api-simple_types.md#nst_intobj) from a string.
 
 If an invalid literal is found, the function fails rather than returning zero.
 `base` can be any number between `2` and `36`, where above `10` letters start to
@@ -444,7 +444,7 @@ Nst_Obj *Nst_string_parse_real(Nst_StrObj *str)
 
 **Description:**
 
-Parses a [`Nst_RealObj`](c_api-simple_types.md/#nst_realobj) from a string.
+Parses a [`Nst_RealObj`](c_api-simple_types.md#nst_realobj) from a string.
 
 If an invalid literal is found, the function fails rather than returning zero.
 Valid literals follow Nest's real syntax, because of this `3.` or `.5` are
@@ -543,5 +543,5 @@ typedef enum _Nst_StrFlags {
 
 **Description:**
 
-[`Nst_StrObj`](c_api-str.md/#nst_strobj)-specific flags.
+[`Nst_StrObj`](c_api-str.md#nst_strobj)-specific flags.
 

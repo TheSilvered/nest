@@ -36,9 +36,9 @@ Nst_seq_set(seq, idx, val)
 
 **Description:**
 
-Alias for [`_Nst_seq_set`](c_api-sequence.md/#_nst_seq_set) that casts `seq` to
-[`Nst_SeqObj *`](c_api-sequence.md/#nst_seqobj) and `val` to
-[`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_seq_set`](c_api-sequence.md#_nst_seq_set) that casts `seq` to
+[`Nst_SeqObj *`](c_api-sequence.md#nst_seqobj) and `val` to
+[`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -52,8 +52,8 @@ Nst_seq_get(seq, idx)
 
 **Description:**
 
-Alias for [`_Nst_seq_get`](c_api-sequence.md/#_nst_seq_get) that casts `seq` to
-[`Nst_SeqObj *`](c_api-sequence.md/#nst_seqobj).
+Alias for [`_Nst_seq_get`](c_api-sequence.md#_nst_seq_get) that casts `seq` to
+[`Nst_SeqObj *`](c_api-sequence.md#nst_seqobj).
 
 ---
 
@@ -61,7 +61,7 @@ Alias for [`_Nst_seq_get`](c_api-sequence.md/#_nst_seq_get) that casts `seq` to
 
 **Description:**
 
-Alias of [`Nst_seq_set`](c_api-sequence.md/#nst_seq_set).
+Alias of [`Nst_seq_set`](c_api-sequence.md#nst_seq_set).
 
 ---
 
@@ -69,7 +69,7 @@ Alias of [`Nst_seq_set`](c_api-sequence.md/#nst_seq_set).
 
 **Description:**
 
-Alias of [`Nst_seq_get`](c_api-sequence.md/#nst_seq_get).
+Alias of [`Nst_seq_get`](c_api-sequence.md#nst_seq_get).
 
 ---
 
@@ -77,7 +77,7 @@ Alias of [`Nst_seq_get`](c_api-sequence.md/#nst_seq_get).
 
 **Description:**
 
-Alias of [`Nst_seq_set`](c_api-sequence.md/#nst_seq_set).
+Alias of [`Nst_seq_set`](c_api-sequence.md#nst_seq_set).
 
 ---
 
@@ -85,7 +85,7 @@ Alias of [`Nst_seq_set`](c_api-sequence.md/#nst_seq_set).
 
 **Description:**
 
-Alias of [`Nst_seq_set`](c_api-sequence.md/#nst_seq_set).
+Alias of [`Nst_seq_set`](c_api-sequence.md#nst_seq_set).
 
 ---
 
@@ -99,9 +99,9 @@ Nst_vector_append(vect, val)
 
 **Description:**
 
-Alias of [`_Nst_vector_append`](c_api-sequence.md/#_nst_vector_append) that
-casts `vect` to [`Nst_SeqObj *`](c_api-sequence.md/#nst_seqobj) and `val` to
-[`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias of [`_Nst_vector_append`](c_api-sequence.md#_nst_vector_append) that casts
+`vect` to [`Nst_SeqObj *`](c_api-sequence.md#nst_seqobj) and `val` to
+[`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -115,9 +115,9 @@ Nst_vector_remove(vect, val)
 
 **Description:**
 
-Alias of [`_Nst_vector_remove`](c_api-sequence.md/#_nst_vector_remove) that
-casts `vect` to [`Nst_SeqObj *`](c_api-sequence.md/#nst_seqobj) and `val` to
-[`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias of [`_Nst_vector_remove`](c_api-sequence.md#_nst_vector_remove) that casts
+`vect` to [`Nst_SeqObj *`](c_api-sequence.md#nst_seqobj) and `val` to
+[`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -131,8 +131,8 @@ Nst_vector_pop(vect, quantity)
 
 **Description:**
 
-Alias of [`_Nst_vector_pop`](c_api-sequence.md/#_nst_vector_pop) that casts
-`vect` to [`Nst_SeqObj *`](c_api-sequence.md/#nst_seqobj).
+Alias of [`_Nst_vector_pop`](c_api-sequence.md#_nst_vector_pop) that casts
+`vect` to [`Nst_SeqObj *`](c_api-sequence.md#nst_seqobj).
 
 ---
 
@@ -317,7 +317,7 @@ Creates an array object, creating the contained objects from C values.
 The number of varargs passed to the function must match the number of types in
 the fmt argument. For more information about the `fmt` argument check the
 documentation in
-[`sequence.h`](c_api-sequence.md/#sequence-creation-format-types)
+[`sequence.h`](c_api-sequence.md#sequence-creation-format-types)
 
 **Parameters:**
 
@@ -345,7 +345,7 @@ Creates a vector object, creating the contained objects from C values.
 The number of varargs passed to the function must match the number of types in
 the fmt argument. For more information about the `fmt` argument check the
 documentation in
-[`sequence.h`](c_api-sequence.md/#sequence-creation-format-types)
+[`sequence.h`](c_api-sequence.md#sequence-creation-format-types)
 
 **Parameters:**
 

@@ -18,8 +18,8 @@ Nst_vt_get(vt, name)
 
 **Description:**
 
-Alias of [`_Nst_vt_get`](c_api-var_table.md/#_nst_vt_get) that casts `name` to
-[`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias of [`_Nst_vt_get`](c_api-var_table.md#_nst_vt_get) that casts `name` to
+[`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -33,8 +33,8 @@ Nst_vt_set(vt, name, val)
 
 **Description:**
 
-Alias of [`_Nst_vt_set`](c_api-var_table.md/#_nst_vt_set) that casts `name` and
-`val` to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias of [`_Nst_vt_set`](c_api-var_table.md#_nst_vt_set) that casts `name` and
+`val` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -98,7 +98,7 @@ void Nst_vt_destroy(Nst_VarTable *vt)
 
 **Description:**
 
-[`Nst_VarTable`](c_api-var_table.md/#nst_vartable) destructor.
+[`Nst_VarTable`](c_api-var_table.md#nst_vartable) destructor.
 
 ---
 
@@ -122,8 +122,8 @@ Retrieves a value from a variable table.
 **Returns:**
 
 The value associated with the key or
-[`Nst_null()`](c_api-global_consts.md/#nst_null) if the key is not present in
-the table.
+[`Nst_null()`](c_api-global_consts.md#nst_null) if the key is not present in the
+table.
 
 ---
 

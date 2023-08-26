@@ -10,7 +10,7 @@
 
 ### `@bin`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Int] @bin -> Str`
 
@@ -23,7 +23,7 @@ without any prefix.
 
 ### `@bytearray_to_str`
 
-**Synopsis**:
+**Synopsis:**
 
 `[sequence: Array|Vector] @bytearray_to_str -> Str`
 
@@ -35,16 +35,16 @@ Transforms an array of `Byte` objects into a string.
 
 ### `@center`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str, length: Int, char: Str?] @center -> Str`
 
-**Description**:
+**Description:**
 
 Creates a new string of length `length`, copies `string` centering it and
 filling the remaining space with `char`. If the string cannot be perfectly
-centered it will be closer to the left side.  
-`char` must be of length 1.  
+centered it will be closer to the left side.
+`char` must be of length 1.
 If `length` is smaller than or equal to `$string`, the string itself is returned.
 If `char` is `null` a space will be used instead.
 
@@ -64,7 +64,7 @@ The function returns the centered string.
 
 ### `@ends_with`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str, substring: Str] @ends_with -> Bool`
 
@@ -77,7 +77,7 @@ otherwise.
 
 ### `@hex`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Int] @hex -> Str`
 
@@ -90,7 +90,7 @@ without any prefix.
 
 ### `@is_alnum`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str] @is_alnum -> Bool`
 
@@ -102,7 +102,7 @@ Returns whether all the characters in `string` are numbers or letters.
 
 ### `@is_alpha`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str] @is_alpha -> Bool`
 
@@ -115,20 +115,20 @@ lowercase.
 
 ### `@is_charset`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str, charset: Str] @is_charset -> Bool`
 
 **Return value**:
 
-Returns whether all the characters in `string` are contained in a charset.  
+Returns whether all the characters in `string` are contained in a charset.
 `'hello' LETTERS @is_charset` is equal to `'hello' @is_alpha` but slower.
 
 ---
 
 ### `@is_digit`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str] @is_digit -> Bool`
 
@@ -141,7 +141,7 @@ Returns whether all the characters in `string` are numbers, dots (`.`) and signs
 
 ### `@is_lower`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str] @is_lower -> Bool`
 
@@ -154,7 +154,7 @@ ignored.
 
 ### `@is_printable`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str] @is_printable -> Bool`
 
@@ -167,7 +167,7 @@ a line feed, is not but `a` is.
 
 ### `@is_title`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str] @is_title -> Bool`
 
@@ -180,7 +180,7 @@ the others lowercase.
 
 ### `@is_upper`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str] @is_upper -> Bool`
 
@@ -193,14 +193,14 @@ ignored.
 
 ### `@join`
 
-**Synopsis**:
+**Synopsis:**
 
 `[seq: Array|Vector, separator: Str?] @join -> Str`
 
-**Description**:
+**Description:**
 
 Casts all the elements in `seq` and joins them in a string separating them with
-`separator`.  
+`separator`.
 If `separator` is `null` a space is used instead.
 
 **Return value**:
@@ -211,11 +211,11 @@ The function returns a string with all the objects in `seq` joined together.
 
 ### `@lfind`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str, substring: Str] @lfind -> Int`
 
-**Description**:
+**Description:**
 
 Finds the first occurrence of `substring` in `string` starting from the left and
 returns the index of the first character.
@@ -229,15 +229,15 @@ inside `string`.
 
 ### `@ljust`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str, length: Int, char: Str?] @ljust -> Str`
 
-**Description**:
+**Description:**
 
 Creates a new string of length `length`, copies `string` justifying it to the
-left and fills the remaining space with `char`.  
-`char` must be of length 1.  
+left and fills the remaining space with `char`.
+`char` must be of length 1.
 If `length` is smaller than or equal to `$string`, the string itself is returned.
 If `char` is `null` it defaults to `' '`.
 
@@ -249,7 +249,7 @@ The function returns the justified string.
 
 ### `@ltrim`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str] @ltrim -> Str`
 
@@ -261,7 +261,7 @@ Creates a new string with leading whitespace removed.
 
 ### `@oct`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Int] @oct -> Str`
 
@@ -274,17 +274,17 @@ any prefix.
 
 ### `@parse_int`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str, base: Int?] @parse_int -> Int`
 
-**Description**:
+**Description:**
 
 This function parses an integer of base `base` from `string`. `base` can be any
 integer between 2 and 36 inclusive. If it is set to 2, 8 or 16 the corresponding
 prefix (`0b`, `0o` or `0x`) is ignored. If set to 0 it will use base 10 unless
 it finds one of the specified prefixes. Setting `base` to `null` is the same as
-setting it to `0`. Any underscore between the digits is ignored.  
+setting it to `0`. Any underscore between the digits is ignored.
 If `string` does not contain a valid integer literal, an error it thrown.
 
 **Return value**:
@@ -304,14 +304,14 @@ The function returns the parsed digit.
 
 ### `@replace_substr`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str, old_substring: Str, new_substing: Str] @replace_substr -> Str`
 
-**Description**:
+**Description:**
 
-Replaces all the occurrences of `old_substring` in `string` with `new_substing`.  
-`old_substring` and `new_substing` can be of different length.  
+Replaces all the occurrences of `old_substring` in `string` with `new_substing`.
+`old_substring` and `new_substing` can be of different length.
 If `new_substing` is an empty string, nothing is replaced.
 
 **Return value**:
@@ -323,16 +323,16 @@ replaced.
 
 ### `@repr`
 
-**Synopsis**:
+**Synopsis:**
 
 `[object: Any] @repr -> Str`
 
-**Description**:
+**Description:**
 
 Creates a representation of the value of `object`. This is the same as a cast to
-a string for most objects except for objects of type `Str` and `Byte`.  
+a string for most objects except for objects of type `Str` and `Byte`.
 `Str` objects become their literal so a string that when printed outputs `'\n'`,
-becomes `"'\\n'"`.  
+becomes `"'\\n'"`.
 `Byte` object become their literal as well, using a decimal base.
 
 **Return value**:
@@ -355,11 +355,11 @@ b" @su.repr --> "\"a'''\\nb\""
 
 ### `@rfind`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str, substring: Str] @rfind -> Int`
 
-**Description**:
+**Description:**
 
 Finds the first occurrence of `substring` in `string` starting from the right
 and returns the index of the first character.
@@ -373,15 +373,15 @@ inside `string`.
 
 ### `@rjust`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str, length: Int, char: Str?] @rjust -> Str`
 
-**Description**:
+**Description:**
 
 Creates a new string of length `length`, copies `string` justifying it to the
-right and fills the remaining space with `char`.  
-`char` must be of length 1.  
+right and fills the remaining space with `char`.
+`char` must be of length 1.
 If `length` is smaller than or equal to `$string`, the string itself is returned.
 If `char` is `null` a space will be used instead.
 
@@ -393,7 +393,7 @@ The function returns the justified string.
 
 ### `@rtrim`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str] @rtrim -> Str`
 
@@ -405,11 +405,11 @@ Creates a new string with trailing whitespace removed.
 
 ### `@split`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str, separator: Str?] @split -> Vector`
 
-**Description**:
+**Description:**
 
 Splits `string` where it finds `separator` without including it and returns a
 vector with all the resulting strings.
@@ -432,7 +432,7 @@ The function returns a new vector containing the split strings.
 
 ### `@starts_with`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str, substring: Str] @starts_with -> Bool`
 
@@ -445,7 +445,7 @@ otherwise.
 
 ### `@str_to_bytearray`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str] @str_to_bytearray -> Array`
 
@@ -457,7 +457,7 @@ Transforms a string into an array of `Byte` objects.
 
 ### `@to_lower`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str] @to_lower -> Str`
 
@@ -476,7 +476,7 @@ A new string is returned with all the letters lowercase.
 
 ### `@to_title`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str] @to_title -> Str`
 
@@ -498,7 +498,7 @@ whitespace.
 
 ### `@to_upper`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str] @to_upper -> Str`
 
@@ -517,7 +517,7 @@ A new string is returned with all the letters uppercase.
 
 ### `@trim`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str] @trim -> Str`
 

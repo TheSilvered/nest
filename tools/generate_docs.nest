@@ -6,7 +6,7 @@
 |#| 'stdsys.nest' = sys
 |#| 'stdmath.nest' = math
 
-#create_symbols header_lines  [
+#create_symbols header_lines [
     0 = idx
     ?.. header_lines.(idx) ' */' != [1 += idx]
 
@@ -195,7 +195,7 @@
         header_lines.(typedef.0) 15 @sequ.slice = typedef_name
         typedef_name '(' @su.lfind = paren_idx
         paren_idx -1 == ? [
-            typedef_name ' ' @su.lfind 1 + = space_idx
+            typedef_name ' ' @su.rfind 1 + = space_idx
             typedef_name space_idx -1 @sequ.slice = typedef_name
         ] : [
             typedef_name ')' @su.lfind = rparen_idx
@@ -668,7 +668,7 @@
         symbol.2 = name
         _globals_.symbols.(name) null != ?
             'Value Error' !! 'duplicate symbol \(name), previous one was \(_globals_.symbols.(name))'
-        '\(file)/#\(name @su.to_lower)' = _globals_.symbols.(name)
+        '\(file)#\(name @su.to_lower)' = _globals_.symbols.(name)
     ]
 ]
 

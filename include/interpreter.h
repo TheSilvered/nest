@@ -169,7 +169,7 @@ NstEXP void NstC _Nst_unload_libs(void);
 // The global state of the interpreter.
 extern Nst_ExecutionState Nst_state;
 
-/* [docs:link Nst_state c_api-interpreter.md/#nst_get_state] */
+/* [docs:link Nst_state c_api-interpreter.md#nst_get_state] */
 /* Returns a pointer to the global `Nst_ExecutionState`. */
 NstEXP Nst_ExecutionState *NstC Nst_get_state(void);
 

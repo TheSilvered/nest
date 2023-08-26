@@ -172,7 +172,7 @@ Nst_TOK(expr)
 
 **Description:**
 
-Casts expr to [`Nst_Tok *`](c_api-tokens.md/#nst_tok).
+Casts expr to [`Nst_Tok *`](c_api-tokens.md#nst_tok).
 
 ---
 
@@ -300,7 +300,7 @@ str is expected to be at least one character long.
 
 **Returns:**
 
-The parsed token type or [`Nst_TT_INVALID`](c_api-tokens.md/#nst_toktype) if the
+The parsed token type or [`Nst_TT_INVALID`](c_api-tokens.md#nst_toktype) if the
 string does not contain a valid token literal.
 
 ---

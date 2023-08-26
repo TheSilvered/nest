@@ -18,7 +18,7 @@ ITER(ptr)
 
 **Description:**
 
-Casts `ptr` to [`Nst_IterObj *`](c_api-iter.md/#nst_iterobj).
+Casts `ptr` to [`Nst_IterObj *`](c_api-iter.md#nst_iterobj).
 
 ---
 
@@ -32,8 +32,8 @@ Nst_iter_start(iter)
 
 **Description:**
 
-Alias for [`_Nst_iter_start`](c_api-iter.md/#_nst_iter_start) that casts iter to
-[`Nst_IterObj *`](c_api-iter.md/#nst_iterobj).
+Alias for [`_Nst_iter_start`](c_api-iter.md#_nst_iter_start) that casts iter to
+[`Nst_IterObj *`](c_api-iter.md#nst_iterobj).
 
 ---
 
@@ -47,8 +47,8 @@ Nst_iter_is_done(iter)
 
 **Description:**
 
-Alias for [`_Nst_iter_is_done`](c_api-iter.md/#_nst_iter_is_done) that casts
-iter to [`Nst_IterObj *`](c_api-iter.md/#nst_iterobj).
+Alias for [`_Nst_iter_is_done`](c_api-iter.md#_nst_iter_is_done) that casts iter
+to [`Nst_IterObj *`](c_api-iter.md#nst_iterobj).
 
 ---
 
@@ -62,8 +62,8 @@ Nst_iter_get_val(iter)
 
 **Description:**
 
-Alias for [`_Nst_iter_get_val`](c_api-iter.md/#_nst_iter_get_val) that casts
-iter to [`Nst_IterObj *`](c_api-iter.md/#nst_iterobj).
+Alias for [`_Nst_iter_get_val`](c_api-iter.md#_nst_iter_get_val) that casts iter
+to [`Nst_IterObj *`](c_api-iter.md#nst_iterobj).
 
 ---
 
@@ -181,7 +181,7 @@ i32 _Nst_iter_start(Nst_IterObj *iter)
 
 **Description:**
 
-Calls the `start` function of a [`Nst_IterObj`](c_api-iter.md/#nst_iterobj).
+Calls the `start` function of a [`Nst_IterObj`](c_api-iter.md#nst_iterobj).
 
 **Parameters:**
 
@@ -204,7 +204,7 @@ i32 _Nst_iter_is_done(Nst_IterObj *iter)
 
 **Description:**
 
-Calls the `is_done` function of a [`Nst_IterObj`](c_api-iter.md/#nst_iterobj).
+Calls the `is_done` function of a [`Nst_IterObj`](c_api-iter.md#nst_iterobj).
 
 **Parameters:**
 
@@ -227,7 +227,7 @@ Nst_Obj *_Nst_iter_get_val(Nst_IterObj *iter)
 
 **Description:**
 
-Calls the `get_val` function of a [`Nst_IterObj`](c_api-iter.md/#nst_iterobj).
+Calls the `get_val` function of a [`Nst_IterObj`](c_api-iter.md#nst_iterobj).
 
 **Parameters:**
 

@@ -20,9 +20,9 @@
 extern "C" {
 #endif // !__cplusplus
 
-/* [docs:link Nst_CP_UNKNOWN c_api-encoding.md/#nst_cpid] */
-/* [docs:link Nst_CP_LATIN1 c_api-encoding.md/#nst_cpid] */
-/* [docs:link Nst_CP_ISO8859_1 c_api-encoding.md/#nst_cpid] */
+/* [docs:link Nst_CP_UNKNOWN c_api-encoding.md#nst_cpid] */
+/* [docs:link Nst_CP_LATIN1 c_api-encoding.md#nst_cpid] */
+/* [docs:link Nst_CP_ISO8859_1 c_api-encoding.md#nst_cpid] */
 
 /**
  * The supported encodings in Nest.

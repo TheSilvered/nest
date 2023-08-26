@@ -14,89 +14,126 @@
 #include <stdint.h>
 
 #if defined(_WIN32) || defined(WIN32)
-  #define Nst_WIN
+/* Defined when compiling on MS Windows. */
+#define Nst_WIN
 #endif // !Nst_WIN
 
 #if !defined(_Nst_ARCH_x64) && !defined(_Nst_ARCH_x86)
-  #if INTPTR_MAX == INT64_MAX
-    #define _Nst_ARCH_x64
-  #elif INTPTR_MAX == INT32_MAX
-    #define _Nst_ARCH_x86
-  #else
-    #error Failed to determine architecture, define _Nst_ARCH_x64 or _Nst_ARCH_x86
-  #endif // !_Nst_ARCHxx
+#if INTPTR_MAX == INT64_MAX
+/* Defined when compiling on 64-bit architectures. */
+#define _Nst_ARCH_x64
+#elif INTPTR_MAX == INT32_MAX
+/* Defined when compiling on 32-bit architectures. */
+#define _Nst_ARCH_x86
+#else
+#error Failed to determine architecture, define _Nst_ARCH_x64 or _Nst_ARCH_x86
+#endif // !_Nst_ARCHxx
 #endif // !_Nst_ARCHxx
 
 #ifdef Nst_WIN
-  #define NstEXP __declspec(dllexport)
+/* Exports a symbol in a dynamic library. */
+#define NstEXP __declspec(dllexport)
 #else
-  #define NstEXP
+/* [docs:ignore] Exports a symbol in a dynamic library. */
+#define NstEXP
 #endif // !NstEXP
 
 #ifndef Nst_NORETURN
-  #if __STDC_VERSION__ >= 201112L
-    #define Nst_NORETURN _Noreturn
-  #elif defined(Nst_WIN)
-    #define Nst_NORETURN __declspec(noreturn)
-  #elif defined(__GNUC__)
-    #define Nst_NORETURN __attribute__((noreturn))
-  #endif // !Nst_NORETURN
+#if __STDC_VERSION__ >= 201112L
+/* Marks a function that does not finish. */
+#define Nst_NORETURN _Noreturn
+#elif defined(Nst_WIN)
+/* [docs:ignore] Marks a function that does not finish. */
+#define Nst_NORETURN __declspec(noreturn)
+#elif defined(__GNUC__)
+/* [docs:ignore] Marks a function that does not finish. */
+#define Nst_NORETURN __attribute__((noreturn))
+#endif // !Nst_NORETURN
 #endif // !Nst_NORETURN
 
 #if !defined(Nst_WIN_FMT) && defined(Nst_WIN)
-  #define Nst_WIN_FMT _Printf_format_string_
+/* Marks an argument as a printf format string on MSVC. */
+#define Nst_WIN_FMT _Printf_format_string_
 #else
-  #define Nst_WIN_FMT
+/* [docs:ignore] Marks an argument as a printf format string on MSVC. */
+#define Nst_WIN_FMT
 #endif // !Nst_WIN_FMT
 
 #if !defined(Nst_GNU_FMT) && defined(__GNUC__)
-  #define Nst_GNU_FMT(m, n) __attribute__((format(printf,m,n)))
+/* Marks an argument as a printf format string on GCC. */
+#define Nst_GNU_FMT(m, n) __attribute__((format(printf,m,n)))
 #else
-  #define Nst_GNU_FMT(m, n)
+/* [docs:ignore]  Marks an argument as a printf format string on GCC. */
+#define Nst_GNU_FMT(m, n)
 #endif // !Nst_GNU_FMT
 
 #ifndef Nst_WIN
 #include <endian.h>
 #endif // !endian.h
 
+/* Represents little-endian systems. Always defined. */
 #define Nst_LITTLE_ENDIAN 4321
+/* Represents big-endian systems. Always defined. */
 #define Nst_BIG_ENDIAN 1234
 
 #ifndef Nst_ENDIANNESS
-  #ifdef Nst_WIN
-    #define Nst_ENDIANNESS Nst_LITTLE_ENDIAN
-  #elif defined(__BYTE_ORDER) && __BYTE_ORDER == __BIG_ENDIAN || \
-        defined(__BIG_ENDIAN__) || \
-        defined(__ARMEB__) || \
-        defined(__THUMBEB__) || \
-        defined(__AARCH64EB__) || \
-        defined(_MIBSEB) || defined(__MIBSEB) || defined(__MIBSEB__)
-    #define Nst_ENDIANNESS Nst_BIG_ENDIAN
-  #elif defined(__BYTE_ORDER) && __BYTE_ORDER == __LITTLE_ENDIAN || \
-        defined(__LITTLE_ENDIAN__) || \
-        defined(__ARMEL__) || \
-        defined(__THUMBEL__) || \
-        defined(__AARCH64EL__) || \
-        defined(_MIPSEL) || defined(__MIPSEL) || defined(__MIPSEL__)
-    #define Nst_ENDIANNESS Nst_LITTLE_ENDIAN
-  #else
-    #error Failed to determine endianness, define Nst_ENDIANNESS as 4321 (LE) or 1234 (BE)
-  #endif // !Nst_ENDIANNESS
+#ifdef Nst_WIN
+/**
+ * @brief The endianness of the system, either `Nst_LITTLE_ENDIAN` or
+ * `Nst_BIG_ENDIAN`.
+ */
+#define Nst_ENDIANNESS Nst_LITTLE_ENDIAN
+#elif defined(__BYTE_ORDER) && __BYTE_ORDER == __BIG_ENDIAN || \
+  defined(__BIG_ENDIAN__) || \
+  defined(__ARMEB__) || \
+  defined(__THUMBEB__) || \
+  defined(__AARCH64EB__) || \
+  defined(_MIBSEB) || defined(__MIBSEB) || defined(__MIBSEB__)
+/** [docs:ignore]
+ * @brief The endianness of the system, either `Nst_LITTLE_ENDIAN` or
+ * `Nst_BIG_ENDIAN`.
+ */
+#define Nst_ENDIANNESS Nst_BIG_ENDIAN
+#elif defined(__BYTE_ORDER) && __BYTE_ORDER == __LITTLE_ENDIAN || \
+  defined(__LITTLE_ENDIAN__) || \
+  defined(__ARMEL__) || \
+  defined(__THUMBEL__) || \
+  defined(__AARCH64EL__) || \
+  defined(_MIPSEL) || defined(__MIPSEL) || defined(__MIPSEL__)
+/** [docs:ignore]
+ * @brief The endianness of the system, either `Nst_LITTLE_ENDIAN` or
+ * `Nst_BIG_ENDIAN`.
+ */
+#define Nst_ENDIANNESS Nst_LITTLE_ENDIAN
+#else
+#error Failed to determine endianness, define Nst_ENDIANNESS as 4321 (LE) or 1234 (BE)
+#endif // !Nst_ENDIANNESS
 #endif // !Nst_ENDIANNESS
 
 #ifdef Nst_WIN
-  #define NstC __cdecl
+/* Marks a function for for the standard C declaration (`__cdecl`). */
+#define NstC __cdecl
 #else
-  #define NstC
+/** [docs:ignore]
+ * @brief Marks a function for for the standard C declaration (`__cdecl`).
+ */
+#define NstC
 #endif // !NstC
 
 #ifdef Nst_UNUSED
 #undef Nst_UNUSED
 #endif
 
+/* Marks an argument as unused. To be used inside the body of the function. */
 #define Nst_UNUSED(v) (void)(v)
 
+#if 0
+/**
+ * @brief Defined to compile with additional arguments that track the location
+ * of the creation of Nest objects.
+ */
 #define Nst_TRACK_OBJ_INIT_POS
+#endif
 
 #if !defined(_DEBUG) && defined(Nst_TRACK_OBJ_INIT_POS)
 #undef Nst_TRACK_OBJ_INIT_POS
@@ -106,33 +143,45 @@
 extern "C" {
 #endif // !__cplusplus
 
-/* [docs:link i8 c_api.md/#type-definitions] */
-/* [docs:link i16 c_api.md/#type-definitions] */
-/* [docs:link i32 c_api.md/#type-definitions] */
-/* [docs:link i64 c_api.md/#type-definitions] */
-/* [docs:link u8 c_api.md/#type-definitions] */
-/* [docs:link u16 c_api.md/#type-definitions] */
-/* [docs:link u32 c_api.md/#type-definitions] */
-/* [docs:link u64 c_api.md/#type-definitions] */
-/* [docs:link f32 c_api.md/#type-definitions] */
-/* [docs:link f64 c_api.md/#type-definitions] */
-/* [docs:link usize c_api.md/#type-definitions] */
-/* [docs:link isize c_api.md/#type-definitions] */
+/* [docs:link i8 c_api.md#type-definitions] */
+/* [docs:link i16 c_api.md#type-definitions] */
+/* [docs:link i32 c_api.md#type-definitions] */
+/* [docs:link i64 c_api.md#type-definitions] */
+/* [docs:link u8 c_api.md#type-definitions] */
+/* [docs:link u16 c_api.md#type-definitions] */
+/* [docs:link u32 c_api.md#type-definitions] */
+/* [docs:link u64 c_api.md#type-definitions] */
+/* [docs:link f32 c_api.md#type-definitions] */
+/* [docs:link f64 c_api.md#type-definitions] */
+/* [docs:link usize c_api.md#type-definitions] */
+/* [docs:link isize c_api.md#type-definitions] */
 
+/* `char` alias. */
 NstEXP typedef char i8;
+/* `short` alias. */
 NstEXP typedef short i16;
-NstEXP typedef long  i32;
+/* `long int` alias. */
+NstEXP typedef long i32;
+/* `long long int` alias. */
 NstEXP typedef long long i64;
 
-NstEXP typedef unsigned char  u8;
+/* `unsigned char` alias. */
+NstEXP typedef unsigned char u8;
+/* `unsigned short` alias. */
 NstEXP typedef unsigned short u16;
-NstEXP typedef unsigned long  u32;
+/* `unsigned long` alias. */
+NstEXP typedef unsigned long u32;
+/* `unsigned long long` alias. */
 NstEXP typedef unsigned long long u64;
 
+/* `float` alias. */
 NstEXP typedef float f32;
+/* `double` alias. */
 NstEXP typedef double f64;
 
+/* `size_t` alias. */
 NstEXP typedef size_t usize;
+/* `ptrdiff_t` alias. */
 NstEXP typedef ptrdiff_t isize;
 
 #ifdef __cplusplus

@@ -1,6 +1,6 @@
 # `function.h`
 
-[`Nst_FuncObj`](c_api-function.md/#nst_funcobj) interface.
+[`Nst_FuncObj`](c_api-function.md#nst_funcobj) interface.
 
 ## Authors
 
@@ -18,7 +18,7 @@ FUNC(ptr)
 
 **Description:**
 
-Casts `ptr` to [`Nst_FuncObj *`](c_api-function.md/#nst_funcobj).
+Casts `ptr` to [`Nst_FuncObj *`](c_api-function.md#nst_funcobj).
 
 ---
 
@@ -32,9 +32,9 @@ Nst_func_set_vt(func, map)
 
 **Description:**
 
-Alias for [`_Nst_func_set_vt`](c_api-function.md/#_nst_func_set_vt) that casts
-`func` to [`Nst_FuncObj *`](c_api-function.md/#nst_funcobj) and `map` to
-[`Nst_MapObj *`](c_api-map.md/#nst_mapobj).
+Alias for [`_Nst_func_set_vt`](c_api-function.md#_nst_func_set_vt) that casts
+`func` to [`Nst_FuncObj *`](c_api-function.md#nst_funcobj) and `map` to
+[`Nst_MapObj *`](c_api-map.md#nst_mapobj).
 
 ---
 
@@ -178,7 +178,7 @@ void _Nst_func_traverse(Nst_FuncObj *func)
 
 **Description:**
 
-Traverse function for [`Nst_FuncObj`](c_api-function.md/#nst_funcobj).
+Traverse function for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
 
 ---
 
@@ -192,7 +192,7 @@ void _Nst_func_track(Nst_FuncObj *func)
 
 **Description:**
 
-Track function for [`Nst_FuncObj`](c_api-function.md/#nst_funcobj).
+Track function for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
 
 ---
 
@@ -206,7 +206,7 @@ void _Nst_func_destroy(Nst_FuncObj *func)
 
 **Description:**
 
-Destructor for [`Nst_FuncObj`](c_api-function.md/#nst_funcobj).
+Destructor for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
 
 ---
 
@@ -224,5 +224,5 @@ typedef enum _Nst_FuncFlags {
 
 **Description:**
 
-The flags for [`Nst_FuncObj`](c_api-function.md/#nst_funcobj).
+The flags for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
 

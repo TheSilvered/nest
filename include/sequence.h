@@ -6,7 +6,7 @@
  * @author TheSilvered
  */
 
-/* [docs:link sequence.h c_api-sequence.md/#sequence-creation-format-types] */
+/* [docs:link sequence.h c_api-sequence.md#sequence-creation-format-types] */
 
 /* [docs:raw]
 ## Sequence creation format types

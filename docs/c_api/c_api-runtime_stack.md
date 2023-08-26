@@ -18,8 +18,8 @@ Nst_fstack_push(func, start, end, vt, idx, cstack_size)
 
 **Description:**
 
-Alias for [`_Nst_fstack_push`](c_api-runtime_stack.md/#_nst_fstack_push) that
-casts func to [`Nst_FuncObj *`](c_api-function.md/#nst_funcobj).
+Alias for [`_Nst_fstack_push`](c_api-runtime_stack.md#_nst_fstack_push) that
+casts func to [`Nst_FuncObj *`](c_api-function.md#nst_funcobj).
 
 ---
 
@@ -33,8 +33,8 @@ Nst_vstack_push(val)
 
 **Description:**
 
-Alias for [`_Nst_vstack_push`](c_api-runtime_stack.md/#_nst_vstack_push) that
-casts val to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_vstack_push`](c_api-runtime_stack.md#_nst_vstack_push) that
+casts val to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -355,7 +355,7 @@ Nst_FuncCall Nst_fstack_pop(void)
 **Description:**
 
 Pops the top call from the call stack and returns it. If the stack is empty, a
-[`Nst_FuncCall`](c_api-runtime_stack.md/#nst_funccall) with a `NULL` `func` and
+[`Nst_FuncCall`](c_api-runtime_stack.md#nst_funccall) with a `NULL` `func` and
 `vt` is returned. No error is set.
 
 ---
@@ -371,7 +371,7 @@ Nst_FuncCall Nst_fstack_peek(void)
 **Description:**
 
 Returns the top function in the call stack. If the stack is empty, a
-[`Nst_FuncCall`](c_api-runtime_stack.md/#nst_funccall) with a `NULL` `func` and
+[`Nst_FuncCall`](c_api-runtime_stack.md#nst_funccall) with a `NULL` `func` and
 `vt` is returned. No error is set.
 
 ---
@@ -419,7 +419,7 @@ Nst_CatchFrame Nst_cstack_peek(void)
 **Description:**
 
 Returns the top value of the catch stack. If the stack is empty a
-[`Nst_CatchFrame`](c_api-runtime_stack.md/#nst_catchframe) with an `inst_idx` of
+[`Nst_CatchFrame`](c_api-runtime_stack.md#nst_catchframe) with an `inst_idx` of
 `-1` is returned. No error is set.
 
 ---
@@ -435,7 +435,7 @@ Nst_CatchFrame Nst_cstack_pop(void)
 **Description:**
 
 Pops the top value of the catch stack and returns it. If the stack is empty a
-[`Nst_CatchFrame`](c_api-runtime_stack.md/#nst_catchframe) with an `inst_idx` of
+[`Nst_CatchFrame`](c_api-runtime_stack.md#nst_catchframe) with an `inst_idx` of
 `-1` is returned. No error is set.
 
 ---

@@ -1,6 +1,6 @@
 # `file.h`
 
-[`Nst_IOFileObj`](c_api-file.md/#nst_iofileobj) interface.
+[`Nst_IOFileObj`](c_api-file.md#nst_iofileobj) interface.
 
 ## Authors
 
@@ -18,7 +18,7 @@ IOFILE(ptr)
 
 **Description:**
 
-Casts ptr to a [`Nst_IOFileObj *`](c_api-file.md/#nst_iofileobj).
+Casts ptr to a [`Nst_IOFileObj *`](c_api-file.md#nst_iofileobj).
 
 ---
 
@@ -194,35 +194,35 @@ The type that represents a read function of a Nest file object.
 
 This function shall read from the given file object count characters or bytes
 when in binary mode. `buf` shall be interpreted as
-[`i8 **`](c_api.md/#type-definitions) instead of
-[`i8 *`](c_api.md/#type-definitions) and a new buffer shall be allocated with
-[`Nst_malloc`](c_api-mem.md/#nst_malloc) or similar functions. The buffer shall
+[`i8 **`](c_api.md#type-definitions) instead of
+[`i8 *`](c_api.md#type-definitions) and a new buffer shall be allocated with
+[`Nst_malloc`](c_api-mem.md#nst_malloc) or similar functions. The buffer shall
 contain UTF8-encoded text. When buf_len is not `NULL` the function shall fill it
 with the number of characters written (or bytes if it is in binary mode).
 
 **Returns:**
 
-This function shall return any [`Nst_IOResult`](c_api-file.md/#nst_ioresult)
-variant except for [`Nst_IO_INVALID_ENCODING`](c_api-file.md/#nst_ioresult) as
+This function shall return any [`Nst_IOResult`](c_api-file.md#nst_ioresult)
+variant except for [`Nst_IO_INVALID_ENCODING`](c_api-file.md#nst_ioresult) as
 follows:
 
-- [`Nst_IO_BUF_FULL`](c_api-file.md/#nst_ioresult) when `buf` is not allocated
+- [`Nst_IO_BUF_FULL`](c_api-file.md#nst_ioresult) when `buf` is not allocated
   and cannot store all requested characters or bytes.
-- [`Nst_IO_EOF_REACHED`](c_api-file.md/#nst_ioresult) when the end of the file
+- [`Nst_IO_EOF_REACHED`](c_api-file.md#nst_ioresult) when the end of the file
   has been reached.
-- [`Nst_IO_SUCCESS`](c_api-file.md/#nst_ioresult) when everything works
+- [`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult) when everything works
   correctly.
-- [`Nst_IO_ALLOC_FAILED`](c_api-file.md/#nst_ioresult) when the buffer fails to
+- [`Nst_IO_ALLOC_FAILED`](c_api-file.md#nst_ioresult) when the buffer fails to
   be allocated.
-- [`Nst_IO_INVALID_DECODING`](c_api-file.md/#nst_ioresult) when the text read
+- [`Nst_IO_INVALID_DECODING`](c_api-file.md#nst_ioresult) when the text read
   cannot be decoded. This variant cannot be returned if the file is in binary
   mode. When it is returned
-  [`Nst_io_result_set_details`](c_api-file.md/#nst_io_result_set_details) must
-  be called.
-- [`Nst_IO_OP_FAILED`](c_api-file.md/#nst_ioresult) if the file does not support
+  [`Nst_io_result_set_details`](c_api-file.md#nst_io_result_set_details) must be
+  called.
+- [`Nst_IO_OP_FAILED`](c_api-file.md#nst_ioresult) if the file does not support
   reading.
-- [`Nst_IO_CLOSED`](c_api-file.md/#nst_ioresult) if the file is closed.
-- [`Nst_IO_ERROR`](c_api-file.md/#nst_ioresult) for any other error that might
+- [`Nst_IO_CLOSED`](c_api-file.md#nst_ioresult) if the file is closed.
+- [`Nst_IO_ERROR`](c_api-file.md#nst_ioresult) for any other error that might
   occur.
 
 ---
@@ -247,25 +247,25 @@ characters under U+10FFFF.
 
 **Returns:**
 
-This function shall not return [`Nst_IO_BUF_FULL`](c_api-file.md/#nst_ioresult),
-[`Nst_IO_EOF_REACHED`](c_api-file.md/#nst_ioresult) and
-[`Nst_IO_INVALID_DECODING`](c_api-file.md/#nst_ioresult) variants of
-[`Nst_IOResult`](c_api-file.md/#nst_ioresult). The other ones shall be returned
+This function shall not return [`Nst_IO_BUF_FULL`](c_api-file.md#nst_ioresult),
+[`Nst_IO_EOF_REACHED`](c_api-file.md#nst_ioresult) and
+[`Nst_IO_INVALID_DECODING`](c_api-file.md#nst_ioresult) variants of
+[`Nst_IOResult`](c_api-file.md#nst_ioresult). The other ones shall be returned
 as follows:
 
-- [`Nst_IO_SUCCESS`](c_api-file.md/#nst_ioresult) when the function successfully
+- [`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult) when the function successfully
   writes the characters to the file.
-- [`Nst_IO_ALLOC_FAILED`](c_api-file.md/#nst_ioresult) if a memory allocation
+- [`Nst_IO_ALLOC_FAILED`](c_api-file.md#nst_ioresult) if a memory allocation
   fails.
-- [`Nst_IO_INVALID_ENCODING`](c_api-file.md/#nst_ioresult) if a character cannot
+- [`Nst_IO_INVALID_ENCODING`](c_api-file.md#nst_ioresult) if a character cannot
   be encoded in the encoding the file is opened in. This variant can only be
   returned when the file is not binary. When it is returned
-  [`Nst_io_result_set_details`](c_api-file.md/#nst_io_result_set_details) must
-  be called.
-- [`Nst_IO_OP_FAILED`](c_api-file.md/#nst_ioresult) if the file does not support
+  [`Nst_io_result_set_details`](c_api-file.md#nst_io_result_set_details) must be
+  called.
+- [`Nst_IO_OP_FAILED`](c_api-file.md#nst_ioresult) if the file does not support
   writing.
-- [`Nst_IO_CLOSED`](c_api-file.md/#nst_ioresult) if the file is closed.
-- [`Nst_IO_ERROR`](c_api-file.md/#nst_ioresult) for any other error that might
+- [`Nst_IO_CLOSED`](c_api-file.md#nst_ioresult) if the file is closed.
+- [`Nst_IO_ERROR`](c_api-file.md#nst_ioresult) for any other error that might
   occur.
 
 ---
@@ -287,20 +287,20 @@ This function shall write any buffered bytes to the file.
 **Returns:**
 
 This function shall return only either
-[`Nst_IO_CLOSED`](c_api-file.md/#nst_ioresult),
-[`Nst_IO_ERROR`](c_api-file.md/#nst_ioresult),
-[`Nst_IO_OP_FAILED`](c_api-file.md/#nst_ioresult),
-[`Nst_IO_SUCCESS`](c_api-file.md/#nst_ioresult) or
-[`Nst_IO_ALLOC_FAILED`](c_api-file.md/#nst_ioresult) as follows:
+[`Nst_IO_CLOSED`](c_api-file.md#nst_ioresult),
+[`Nst_IO_ERROR`](c_api-file.md#nst_ioresult),
+[`Nst_IO_OP_FAILED`](c_api-file.md#nst_ioresult),
+[`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult) or
+[`Nst_IO_ALLOC_FAILED`](c_api-file.md#nst_ioresult) as follows:
 
-- [`Nst_IO_CLOSED`](c_api-file.md/#nst_ioresult) when the file is closed.
-- [`Nst_IO_OP_FAILED`](c_api-file.md/#nst_ioresult) if the file does not support
+- [`Nst_IO_CLOSED`](c_api-file.md#nst_ioresult) when the file is closed.
+- [`Nst_IO_OP_FAILED`](c_api-file.md#nst_ioresult) if the file does not support
   writing.
-- [`Nst_IO_SUCCESS`](c_api-file.md/#nst_ioresult) if the function exits
+- [`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult) if the function exits
   successfully.
-- [`Nst_IO_ALLOC_FAILED`](c_api-file.md/#nst_ioresult) if a memory allocation
+- [`Nst_IO_ALLOC_FAILED`](c_api-file.md#nst_ioresult) if a memory allocation
   fails.
-- [`Nst_IO_ERROR`](c_api-file.md/#nst_ioresult) for any other error.
+- [`Nst_IO_ERROR`](c_api-file.md#nst_ioresult) for any other error.
 
 ---
 
@@ -322,17 +322,17 @@ of the file of the file-position indicator.
 **Returns:**
 
 This function shall return only either
-[`Nst_IO_CLOSED`](c_api-file.md/#nst_ioresult),
-[`Nst_IO_ERROR`](c_api-file.md/#nst_ioresult),
-[`Nst_IO_OP_FAILED`](c_api-file.md/#nst_ioresult) or
-[`Nst_IO_SUCCESS`](c_api-file.md/#nst_ioresult) as follows:
+[`Nst_IO_CLOSED`](c_api-file.md#nst_ioresult),
+[`Nst_IO_ERROR`](c_api-file.md#nst_ioresult),
+[`Nst_IO_OP_FAILED`](c_api-file.md#nst_ioresult) or
+[`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult) as follows:
 
-- [`Nst_IO_CLOSED`](c_api-file.md/#nst_ioresult) when the file is closed.
-- [`Nst_IO_OP_FAILED`](c_api-file.md/#nst_ioresult) if the file does not support
+- [`Nst_IO_CLOSED`](c_api-file.md#nst_ioresult) when the file is closed.
+- [`Nst_IO_OP_FAILED`](c_api-file.md#nst_ioresult) if the file does not support
   seeking.
-- [`Nst_IO_SUCCESS`](c_api-file.md/#nst_ioresult) if the function exits
+- [`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult) if the function exits
   successfully.
-- [`Nst_IO_ERROR`](c_api-file.md/#nst_ioresult) for any other error.
+- [`Nst_IO_ERROR`](c_api-file.md#nst_ioresult) for any other error.
 
 ---
 
@@ -350,25 +350,25 @@ typedef Nst_IOResult (*Nst_IOFile_seek_f)(Nst_SeekWhence origin, isize offset,
 The type that represents a seek function of a Nest file object.
 
 This function shall move the file-position indicator by an offset starting from
-origin. [`Nst_SEEK_SET`](c_api-file.md/#nst_seekwhence) is the start of the
-file, [`Nst_SEEK_CUR`](c_api-file.md/#nst_seekwhence) is the current position of
-the file-position indicator and [`Nst_SEEK_END`](c_api-file.md/#nst_seekwhence)
-is the end of the file.
+origin. [`Nst_SEEK_SET`](c_api-file.md#nst_seekwhence) is the start of the file,
+[`Nst_SEEK_CUR`](c_api-file.md#nst_seekwhence) is the current position of the
+file-position indicator and [`Nst_SEEK_END`](c_api-file.md#nst_seekwhence) is
+the end of the file.
 
 **Returns:**
 
 This function shall return only either
-[`Nst_IO_CLOSED`](c_api-file.md/#nst_ioresult),
-[`Nst_IO_ERROR`](c_api-file.md/#nst_ioresult),
-[`Nst_IO_OP_FAILED`](c_api-file.md/#nst_ioresult) or
-[`Nst_IO_SUCCESS`](c_api-file.md/#nst_ioresult) as follows:
+[`Nst_IO_CLOSED`](c_api-file.md#nst_ioresult),
+[`Nst_IO_ERROR`](c_api-file.md#nst_ioresult),
+[`Nst_IO_OP_FAILED`](c_api-file.md#nst_ioresult) or
+[`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult) as follows:
 
-- [`Nst_IO_CLOSED`](c_api-file.md/#nst_ioresult) when the file is closed.
-- [`Nst_IO_OP_FAILED`](c_api-file.md/#nst_ioresult) if the file does not support
+- [`Nst_IO_CLOSED`](c_api-file.md#nst_ioresult) when the file is closed.
+- [`Nst_IO_OP_FAILED`](c_api-file.md#nst_ioresult) if the file does not support
   seeking.
-- [`Nst_IO_SUCCESS`](c_api-file.md/#nst_ioresult) if the function exits
+- [`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult) if the function exits
   successfully.
-- [`Nst_IO_ERROR`](c_api-file.md/#nst_ioresult) for any other error.
+- [`Nst_IO_ERROR`](c_api-file.md#nst_ioresult) for any other error.
 
 ---
 
@@ -389,15 +389,15 @@ This function shall close the given file and free any allocated memory.
 **Returns:**
 
 This function shall return only either
-[`Nst_IO_CLOSED`](c_api-file.md/#nst_ioresult),
-[`Nst_IO_ERROR`](c_api-file.md/#nst_ioresult) or
-[`Nst_IO_SUCCESS`](c_api-file.md/#nst_ioresult) as follows:
+[`Nst_IO_CLOSED`](c_api-file.md#nst_ioresult),
+[`Nst_IO_ERROR`](c_api-file.md#nst_ioresult) or
+[`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult) as follows:
 
-- [`Nst_IO_CLOSED`](c_api-file.md/#nst_ioresult) when the file was already
+- [`Nst_IO_CLOSED`](c_api-file.md#nst_ioresult) when the file was already
   closed.
-- [`Nst_IO_SUCCESS`](c_api-file.md/#nst_ioresult) if the function exits
+- [`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult) if the function exits
   successfully.
-- [`Nst_IO_ERROR`](c_api-file.md/#nst_ioresult) for any other error.
+- [`Nst_IO_ERROR`](c_api-file.md#nst_ioresult) for any other error.
 
 ---
 
@@ -414,7 +414,7 @@ Nst_Obj *Nst_iof_new(FILE *value, bool bin, bool read, bool write,
 
 **Description:**
 
-Creates a new [`Nst_IOFileObj`](c_api-file.md/#nst_iofileobj) from a C file
+Creates a new [`Nst_IOFileObj`](c_api-file.md#nst_iofileobj) from a C file
 pointer.
 
 **Parameters:**
@@ -442,7 +442,7 @@ Nst_Obj *Nst_iof_new_fake(void *value, bool bin, bool read, bool write,
 
 **Description:**
 
-Creates a new [`Nst_IOFileObj`](c_api-file.md/#nst_iofileobj) that is not a C
+Creates a new [`Nst_IOFileObj`](c_api-file.md#nst_iofileobj) that is not a C
 file pointer.
 
 **Parameters:**
@@ -471,7 +471,7 @@ void _Nst_iofile_destroy(Nst_IOFileObj *obj)
 
 **Description:**
 
-Destructor of a [`Nst_IOFileObj`](c_api-file.md/#nst_iofileobj).
+Destructor of a [`Nst_IOFileObj`](c_api-file.md#nst_iofileobj).
 
 ---
 
@@ -487,7 +487,7 @@ Nst_IOResult Nst_fread(i8 *buf, usize buf_size, usize count, usize *buf_len,
 **Description:**
 
 Calls the read function of the file, see
-[`Nst_IOFile_read_f`](c_api-file.md/#nst_iofile_read_f).
+[`Nst_IOFile_read_f`](c_api-file.md#nst_iofile_read_f).
 
 ---
 
@@ -502,7 +502,7 @@ Nst_IOResult Nst_fwrite(i8 *buf, usize buf_len, usize *count, Nst_IOFileObj *f)
 **Description:**
 
 Calls the write function of the file, see
-[`Nst_IOFile_write_f`](c_api-file.md/#nst_iofile_write_f).
+[`Nst_IOFile_write_f`](c_api-file.md#nst_iofile_write_f).
 
 ---
 
@@ -517,7 +517,7 @@ Nst_IOResult Nst_fflush(Nst_IOFileObj *f)
 **Description:**
 
 Calls the flush function of the file, see
-[`Nst_IOFile_flush_f`](c_api-file.md/#nst_iofile_flush_f).
+[`Nst_IOFile_flush_f`](c_api-file.md#nst_iofile_flush_f).
 
 ---
 
@@ -532,7 +532,7 @@ Nst_IOResult Nst_ftell(Nst_IOFileObj *f, usize *pos)
 **Description:**
 
 Calls the tell function of the file, see
-[`Nst_IOFile_tell_f`](c_api-file.md/#nst_iofile_tell_f).
+[`Nst_IOFile_tell_f`](c_api-file.md#nst_iofile_tell_f).
 
 ---
 
@@ -547,7 +547,7 @@ Nst_IOResult Nst_fseek(Nst_SeekWhence origin, isize offset, Nst_IOFileObj *f)
 **Description:**
 
 Calls the seek function of the file, see
-[`Nst_IOFile_seek_f`](c_api-file.md/#nst_iofile_seek_f).
+[`Nst_IOFile_seek_f`](c_api-file.md#nst_iofile_seek_f).
 
 ---
 
@@ -562,7 +562,7 @@ Nst_IOResult Nst_fclose(Nst_IOFileObj *f)
 **Description:**
 
 Calls the close function of the file, see
-[`Nst_IOFile_close_f`](c_api-file.md/#nst_iofile_close_f).
+[`Nst_IOFile_close_f`](c_api-file.md#nst_iofile_close_f).
 
 ---
 
@@ -649,20 +649,20 @@ void Nst_io_result_get_details(u32 *ill_encoded_ch, usize *position,
 
 **Description:**
 
-Gets the details of the [`Nst_IOResult`](c_api-file.md/#nst_ioresult) returned
-by the functions.
+Gets the details of the [`Nst_IOResult`](c_api-file.md#nst_ioresult) returned by
+the functions.
 
 This function can only be called when the returned
-[`Nst_IOResult`](c_api-file.md/#nst_ioresult) is either
-[`Nst_IO_INVALID_ENCODING`](c_api-file.md/#nst_ioresult) or
-[`Nst_IO_INVALID_DECODING`](c_api-file.md/#nst_ioresult). If the result is the
+[`Nst_IOResult`](c_api-file.md#nst_ioresult) is either
+[`Nst_IO_INVALID_ENCODING`](c_api-file.md#nst_ioresult) or
+[`Nst_IO_INVALID_DECODING`](c_api-file.md#nst_ioresult). If the result is the
 former `ill_encoded_ch` will be the code point that could not be encoded,
 otherwise if the result is the latter `ill_encoded_ch` will represent the byte
 that could not be decoded. Similarly `encoding_name` is the encoding that failed
 to encode the code point for
-[`Nst_IO_INVALID_ENCODING`](c_api-file.md/#nst_ioresult) and the name of the one
+[`Nst_IO_INVALID_ENCODING`](c_api-file.md#nst_ioresult) and the name of the one
 that failed to decode the byte for
-[`Nst_IO_INVALID_DECODING`](c_api-file.md/#nst_ioresult).
+[`Nst_IO_INVALID_DECODING`](c_api-file.md#nst_ioresult).
 
 **Parameters:**
 
@@ -686,7 +686,7 @@ void Nst_io_result_set_details(u32 ill_encoded_ch, usize position,
 **Description:**
 
 Sets the values returned with
-[`Nst_io_result_get_details`](c_api-file.md/#nst_io_result_get_details).
+[`Nst_io_result_get_details`](c_api-file.md#nst_io_result_get_details).
 
 ---
 

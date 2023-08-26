@@ -18,8 +18,8 @@ Nst_obj_eq(ob1, ob2)
 
 **Description:**
 
-Alias for [`_Nst_obj_eq`](c_api-obj_ops.md/#_nst_obj_eq) that casts both objects
-to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_eq`](c_api-obj_ops.md#_nst_obj_eq) that casts both objects
+to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -33,8 +33,8 @@ Nst_obj_ne(ob1, ob2)
 
 **Description:**
 
-Alias for [`_Nst_obj_ne`](c_api-obj_ops.md/#_nst_obj_ne) that casts both objects
-to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_ne`](c_api-obj_ops.md#_nst_obj_ne) that casts both objects
+to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -48,8 +48,8 @@ Nst_obj_gt(ob1, ob2)
 
 **Description:**
 
-Alias for [`_Nst_obj_gt`](c_api-obj_ops.md/#_nst_obj_gt) that casts both objects
-to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_gt`](c_api-obj_ops.md#_nst_obj_gt) that casts both objects
+to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -63,8 +63,8 @@ Nst_obj_lt(ob1, ob2)
 
 **Description:**
 
-Alias for [`_Nst_obj_lt`](c_api-obj_ops.md/#_nst_obj_lt) that casts both objects
-to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_lt`](c_api-obj_ops.md#_nst_obj_lt) that casts both objects
+to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -78,8 +78,8 @@ Nst_obj_ge(ob1, ob2)
 
 **Description:**
 
-Alias for [`_Nst_obj_ge`](c_api-obj_ops.md/#_nst_obj_ge) that casts both objects
-to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_ge`](c_api-obj_ops.md#_nst_obj_ge) that casts both objects
+to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -93,8 +93,8 @@ Nst_obj_le(ob1, ob2)
 
 **Description:**
 
-Alias for [`_Nst_obj_le`](c_api-obj_ops.md/#_nst_obj_le) that casts both objects
-to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_le`](c_api-obj_ops.md#_nst_obj_le) that casts both objects
+to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -108,8 +108,8 @@ Nst_obj_add(ob1, ob2)
 
 **Description:**
 
-Alias for [`_Nst_obj_add`](c_api-obj_ops.md/#_nst_obj_add) that casts both
-objects to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_add`](c_api-obj_ops.md#_nst_obj_add) that casts both
+objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -123,8 +123,8 @@ Nst_obj_sub(ob1, ob2)
 
 **Description:**
 
-Alias for [`_Nst_obj_sub`](c_api-obj_ops.md/#_nst_obj_sub) that casts both
-objects to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_sub`](c_api-obj_ops.md#_nst_obj_sub) that casts both
+objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -138,8 +138,8 @@ Nst_obj_mul(ob1, ob2)
 
 **Description:**
 
-Alias for [`_Nst_obj_mul`](c_api-obj_ops.md/#_nst_obj_mul) that casts both
-objects to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_mul`](c_api-obj_ops.md#_nst_obj_mul) that casts both
+objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -153,8 +153,8 @@ Nst_obj_div(ob1, ob2)
 
 **Description:**
 
-Alias for [`_Nst_obj_div`](c_api-obj_ops.md/#_nst_obj_div) that casts both
-objects to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_div`](c_api-obj_ops.md#_nst_obj_div) that casts both
+objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -168,8 +168,8 @@ Nst_obj_pow(ob1, ob2)
 
 **Description:**
 
-Alias for [`_Nst_obj_pow`](c_api-obj_ops.md/#_nst_obj_pow) that casts both
-objects to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_pow`](c_api-obj_ops.md#_nst_obj_pow) that casts both
+objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -183,8 +183,8 @@ Nst_obj_mod(ob1, ob2)
 
 **Description:**
 
-Alias for [`_Nst_obj_mod`](c_api-obj_ops.md/#_nst_obj_mod) that casts both
-objects to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_mod`](c_api-obj_ops.md#_nst_obj_mod) that casts both
+objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -198,8 +198,8 @@ Nst_obj_bwor(ob1, ob2)
 
 **Description:**
 
-Alias for [`_Nst_obj_bwor`](c_api-obj_ops.md/#_nst_obj_bwor) that casts both
-objects to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_bwor`](c_api-obj_ops.md#_nst_obj_bwor) that casts both
+objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -213,8 +213,8 @@ Nst_obj_bwand(ob1, ob2)
 
 **Description:**
 
-Alias for [`_Nst_obj_bwand`](c_api-obj_ops.md/#_nst_obj_bwand) that casts both
-objects to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_bwand`](c_api-obj_ops.md#_nst_obj_bwand) that casts both
+objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -228,8 +228,8 @@ Nst_obj_bwxor(ob1, ob2)
 
 **Description:**
 
-Alias for [`_Nst_obj_bwxor`](c_api-obj_ops.md/#_nst_obj_bwxor) that casts both
-objects to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_bwxor`](c_api-obj_ops.md#_nst_obj_bwxor) that casts both
+objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -243,8 +243,8 @@ Nst_obj_bwls(ob1, ob2)
 
 **Description:**
 
-Alias for [`_Nst_obj_bwls`](c_api-obj_ops.md/#_nst_obj_bwls) that casts both
-objects to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_bwls`](c_api-obj_ops.md#_nst_obj_bwls) that casts both
+objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -258,8 +258,8 @@ Nst_obj_bwrs(ob1, ob2)
 
 **Description:**
 
-Alias for [`_Nst_obj_bwrs`](c_api-obj_ops.md/#_nst_obj_bwrs) that casts both
-objects to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_bwrs`](c_api-obj_ops.md#_nst_obj_bwrs) that casts both
+objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -273,8 +273,8 @@ Nst_obj_lgor(ob1, ob2)
 
 **Description:**
 
-Alias for [`_Nst_obj_lgor`](c_api-obj_ops.md/#_nst_obj_lgor) that casts both
-objects to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_lgor`](c_api-obj_ops.md#_nst_obj_lgor) that casts both
+objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -288,8 +288,8 @@ Nst_obj_lgand(ob1, ob2)
 
 **Description:**
 
-Alias for [`_Nst_obj_lgand`](c_api-obj_ops.md/#_nst_obj_lgand) that casts both
-objects to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_lgand`](c_api-obj_ops.md#_nst_obj_lgand) that casts both
+objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -303,8 +303,8 @@ Nst_obj_lgxor(ob1, ob2)
 
 **Description:**
 
-Alias for [`_Nst_obj_lgxor`](c_api-obj_ops.md/#_nst_obj_lgxor) that casts both
-objects to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_lgxor`](c_api-obj_ops.md#_nst_obj_lgxor) that casts both
+objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -318,9 +318,9 @@ Nst_obj_cast(ob, type)
 
 **Description:**
 
-Alias for [`_Nst_obj_cast`](c_api-obj_ops.md/#_nst_obj_cast) that casts `ob` to
-[`Nst_Obj *`](c_api-obj.md/#nst_obj) and `type` to
-[`Nst_TypeObj *`](c_api-str.md/#nst_typeobj).
+Alias for [`_Nst_obj_cast`](c_api-obj_ops.md#_nst_obj_cast) that casts `ob` to
+[`Nst_Obj *`](c_api-obj.md#nst_obj) and `type` to
+[`Nst_TypeObj *`](c_api-str.md#nst_typeobj).
 
 ---
 
@@ -334,8 +334,8 @@ Nst_obj_concat(ob1, ob2)
 
 **Description:**
 
-Alias for [`_Nst_obj_concat`](c_api-obj_ops.md/#_nst_obj_concat) that casts both
-objects to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_concat`](c_api-obj_ops.md#_nst_obj_concat) that casts both
+objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -349,8 +349,8 @@ Nst_obj_range(ob1, ob2, ob3)
 
 **Description:**
 
-Alias for [`_Nst_obj_range`](c_api-obj_ops.md/#_nst_obj_range) that casts all
-objects to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_range`](c_api-obj_ops.md#_nst_obj_range) that casts all
+objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -364,8 +364,8 @@ Nst_obj_neg(ob)
 
 **Description:**
 
-Alias for [`_Nst_obj_neg`](c_api-obj_ops.md/#_nst_obj_neg) that casts `ob` to
-[`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_neg`](c_api-obj_ops.md#_nst_obj_neg) that casts `ob` to
+[`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -379,8 +379,8 @@ Nst_obj_len(ob)
 
 **Description:**
 
-Alias for [`_Nst_obj_len`](c_api-obj_ops.md/#_nst_obj_len) that casts `ob` to
-[`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_len`](c_api-obj_ops.md#_nst_obj_len) that casts `ob` to
+[`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -394,8 +394,8 @@ Nst_obj_bwnot(ob)
 
 **Description:**
 
-Alias for [`_Nst_obj_bwnot`](c_api-obj_ops.md/#_nst_obj_bwnot) that casts `ob`
-to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_bwnot`](c_api-obj_ops.md#_nst_obj_bwnot) that casts `ob` to
+[`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -409,8 +409,8 @@ Nst_obj_lgnot(ob)
 
 **Description:**
 
-Alias for [`_Nst_obj_lgnot`](c_api-obj_ops.md/#_nst_obj_lgnot) that casts `ob`
-to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_lgnot`](c_api-obj_ops.md#_nst_obj_lgnot) that casts `ob` to
+[`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -424,8 +424,8 @@ Nst_obj_stdout(ob)
 
 **Description:**
 
-Alias for [`_Nst_obj_stdout`](c_api-obj_ops.md/#_nst_obj_stdout) that casts `ob`
-to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_stdout`](c_api-obj_ops.md#_nst_obj_stdout) that casts `ob`
+to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -439,8 +439,8 @@ Nst_obj_stdin(ob)
 
 **Description:**
 
-Alias for [`_Nst_obj_stdin`](c_api-obj_ops.md/#_nst_obj_stdin) that casts `ob`
-to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_stdin`](c_api-obj_ops.md#_nst_obj_stdin) that casts `ob` to
+[`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -454,8 +454,8 @@ Nst_obj_typeof(ob)
 
 **Description:**
 
-Alias for [`_Nst_obj_typeof`](c_api-obj_ops.md/#_nst_obj_typeof) that casts `ob`
-to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_typeof`](c_api-obj_ops.md#_nst_obj_typeof) that casts `ob`
+to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -469,8 +469,8 @@ Nst_obj_import(ob)
 
 **Description:**
 
-Alias for [`_Nst_obj_import`](c_api-obj_ops.md/#_nst_obj_import) that casts `ob`
-to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_import`](c_api-obj_ops.md#_nst_obj_import) that casts `ob`
+to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -484,7 +484,7 @@ Nst_obj_eq_c(ob1, ob2)
 
 **Description:**
 
-Calls [`Nst_obj_eq`](c_api-obj_ops.md/#nst_obj_eq) making the result a C bool.
+Calls [`Nst_obj_eq`](c_api-obj_ops.md#nst_obj_eq) making the result a C bool.
 
 ---
 
@@ -498,7 +498,7 @@ Nst_obj_ne_c(ob1, ob2)
 
 **Description:**
 
-Calls [`Nst_obj_ne`](c_api-obj_ops.md/#nst_obj_ne) making the result a C bool.
+Calls [`Nst_obj_ne`](c_api-obj_ops.md#nst_obj_ne) making the result a C bool.
 
 ---
 
@@ -934,8 +934,8 @@ Nst_Obj *_Nst_obj_str_cast_seq(Nst_SeqObj *seq_obj, Nst_LList *all_objs)
 Internal cast from sequence to string.
 
 It is recommended to use
-[`Nst_obj_cast(seq_obj, Nst_type()->Str)`](c_api-obj_ops.md/#_nst_obj_cast),
-this is used internally.
+[`Nst_obj_cast(seq_obj, Nst_type()->Str)`](c_api-obj_ops.md#_nst_obj_cast), this
+is used internally.
 
 **Parameters:**
 
@@ -962,8 +962,8 @@ Nst_Obj *_Nst_obj_str_cast_map(Nst_MapObj *map_obj, Nst_LList *all_objs)
 Internal cast from map to string.
 
 It is recommended to use
-[`Nst_obj_cast(map_obj, Nst_type()->Str)`](c_api-obj_ops.md/#_nst_obj_cast),
-this is used internally.
+[`Nst_obj_cast(map_obj, Nst_type()->Str)`](c_api-obj_ops.md#_nst_obj_cast), this
+is used internally.
 
 **Parameters:**
 

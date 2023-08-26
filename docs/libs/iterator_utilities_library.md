@@ -10,7 +10,7 @@
 
 ### `@chain`
 
-**Synopsis**:
+**Synopsis:**
 
 `[sequence: Iter|Array|Vector|Str] @chain -> Iter`
 
@@ -33,7 +33,7 @@ inside of the sequence.
 
 ### `@count`
 
-**Synopsis**:
+**Synopsis:**
 
 `[start: Int, step: Int] @count -> Iter`
 
@@ -54,7 +54,7 @@ advancing by `step`.
 
 ### `@cycle`
 
-**Synopsis**:
+**Synopsis:**
 
 `[sequence: Str|Array|Vector] @cycle -> Iter`
 
@@ -75,7 +75,7 @@ object restarting from the first when the sequence ends.
 
 ### `@enumerate`
 
-**Synopsis**:
+**Synopsis:**
 
 `[iterator: Str|Array|Vector|Iter, start: Int?, step: Int?, invert_order: Bool?] @enumerate -> Iter`
 
@@ -106,7 +106,7 @@ If `iterator` is a `Str`, `Array` or `Vector` it is automatically casted to an
 
 ### `@items`
 
-**Synopsis**:
+**Synopsis:**
 
 `[map: Map] @items -> Iter`
 
@@ -128,11 +128,11 @@ put the objects in.
 
 ### `@iter_is_done`
 
-**Synopsis**:
+**Synopsis:**
 
 `[iter: Iter] @iter_is_done`
 
-**Description**:
+**Description:**
 
 Calls the `_is_done_` function of an iterator.
 
@@ -140,11 +140,11 @@ Calls the `_is_done_` function of an iterator.
 
 ### `@iter_get_val`
 
-**Synopsis**:
+**Synopsis:**
 
 `[iter: Iter] @iter_get_val`
 
-**Description**:
+**Description:**
 
 Calls the `_get_val_` function of an iterator.
 
@@ -152,11 +152,11 @@ Calls the `_get_val_` function of an iterator.
 
 ### `@iter_start`
 
-**Synopsis**:
+**Synopsis:**
 
 `[iter: Iter] @iter_start`
 
-**Description**:
+**Description:**
 
 Calls the `_start_` function of an iterator.
 
@@ -164,7 +164,7 @@ Calls the `_start_` function of an iterator.
 
 ### `@keys`
 
-**Synopsis**:
+**Synopsis:**
 
 `[map: Map] @keys -> Iter`
 
@@ -187,7 +187,7 @@ objects in.
 ### `@repeat`
 
 
-**Synopsis**:
+**Synopsis:**
 
 `[object: Any, times: Int] @repeat -> Iter`
 
@@ -206,7 +206,7 @@ specified by `times`.
 
 ### `@reversed`
 
-**Synopsis**:
+**Synopsis:**
 
 `[sequence: Str|Array|Vector] @reversed -> Iter`
 
@@ -226,7 +226,7 @@ Returns the elements of a sequence in reverse order, from the last to the first.
 
 ### `@values`
 
-**Synopsis**:
+**Synopsis:**
 
 `[map: Map] @values -> Iter`
 
@@ -248,9 +248,9 @@ objects in.
 
 ### `@zip`
 
-**Synopsis**:
+**Synopsis:**
 
-`[seq_1: Array|Vector, seq_2: null] @zip -> Iter`  
+`[seq_1: Array|Vector, seq_2: null] @zip -> Iter`
 `[seq_1: Array|Vector|Str|Iter, seq_2: Array|Vector|Str|Iter] @zip -> Iter`
 
 **Return value**:

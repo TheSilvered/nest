@@ -32,8 +32,8 @@ Nst_inst_new_val(id, val, start, end)
 
 **Description:**
 
-Alias for [`_Nst_inst_new_val`](c_api-instructions.md/#_nst_inst_new_val) that
-casts `val` to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_inst_new_val`](c_api-instructions.md#_nst_inst_new_val) that
+casts `val` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -181,7 +181,7 @@ void Nst_inst_destroy(Nst_Inst *inst)
 
 **Description:**
 
-Destroys a [`Nst_Inst`](c_api-instructions.md/#nst_inst) allocated on the heap.
+Destroys a [`Nst_Inst`](c_api-instructions.md#nst_inst) allocated on the heap.
 
 ---
 
@@ -195,7 +195,7 @@ void Nst_inst_list_destroy(Nst_InstList *inst_list)
 
 **Description:**
 
-Destroys a [`Nst_InstList`](c_api-instructions.md/#nst_instlist).
+Destroys a [`Nst_InstList`](c_api-instructions.md#nst_instlist).
 
 ---
 

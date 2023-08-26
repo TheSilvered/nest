@@ -173,8 +173,8 @@ NstEXP Nst_Obj *NstC _Nst_obj_import(Nst_Obj *ob);
  */
 NstEXP Nst_Obj *NstC _Nst_repr_str_cast(Nst_Obj *ob);
 
-/* [docs:link Nst_obj_cast(seq_obj,\Nst_type()->Str) c_api-obj_ops.md/#_nst_obj_cast] */
-/* [docs:link Nst_obj_cast(map_obj,\Nst_type()->Str) c_api-obj_ops.md/#_nst_obj_cast] */
+/* [docs:link Nst_obj_cast(seq_obj,\Nst_type()->Str) c_api-obj_ops.md#_nst_obj_cast] */
+/* [docs:link Nst_obj_cast(map_obj,\Nst_type()->Str) c_api-obj_ops.md#_nst_obj_cast] */
 
 /**
  * Internal cast from sequence to string.

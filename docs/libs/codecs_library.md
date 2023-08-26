@@ -1,32 +1,38 @@
-# UTF-8 Library
+# Codecs Library
 
 ## Importing
 
 ```nest
-|#| 'stdutf8.nest' = utf8
+|#| 'stdcodecs.nest' = cc
 ```
 
 ## Functions
 
-### `@is_valid`
+### `@cp_is_valid`
 
-**Synopsis**:
+**Synopsis:**
 
-`[string: Str] @is_valid -> Bool`
+`[cp: Int|Byte] @cp_is_valid -> Bool`
 
-**Return value**:
+**Returns:**
 
-Returns `true` if `string` is encoded with UTF-8 and `false` otherwise.
+`true` if `cp` is a valid unicode code point and `false` otherwise.
+
+---
+
+### `@from_cp`
+
+**Synopsis:**
 
 ---
 
 ### `@get_at`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str, index: Int] @get_at -> Str`
 
-**Return value**:
+**Returns:**
 
 Returns the Unicode character at `index` in `string`. Negative indices do not
 work unlike normal extraction operations.
@@ -39,23 +45,33 @@ work unlike normal extraction operations.
 
 ### `@get_len`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str] @get_len -> Int`
 
-**Return value**:
+**Returns**:
 
-Returns the Unicode length of `string`. If it is not valid UTF-8 an error is
-thrown.
+The Unicode length of `string`. If it is not valid UTF-8 an error is thrown.
 
 !!!note
-    Similarly to `get_at` this function operates in linear time.
+    Similarly to [`get_at`](codecs_library.md#get_at) this function operates in
+    linear time.
+
+---
+
+### '@to_cp`
+
+**Synopsis:**
+
+`[character: Str] @to_cp -> Int`
+
+**Return value**:
 
 ---
 
 ### `@to_iter`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str] @to_iter -> Iter`
 

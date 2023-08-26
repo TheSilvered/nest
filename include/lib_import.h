@@ -6,7 +6,7 @@
  * @author TheSilvered
  */
 
-/* [docs:link lib_import.h c_api-lib_import.md/#usage-of-the-types-argument] */
+/* [docs:link lib_import.h c_api-lib_import.md#usage-of-the-types-argument] */
 
 /* [docs:raw]
 ## Usage of the `types` argument
@@ -244,8 +244,8 @@ union, the cast is kept.
         STR(Nst_string_new_c_raw(obj_name, false))                            \
     }
 
-/* [docs:link Nst_const()->Int_0 c_api-global_consts.md/#nst_const] */
-/* [docs:link Nst_const()->Int_1 c_api-global_consts.md/#nst_const] */
+/* [docs:link Nst_const()->Int_0 c_api-global_consts.md#nst_const] */
+/* [docs:link Nst_const()->Int_1 c_api-global_consts.md#nst_const] */
 
 /* Returns `Nst_true()`. */
 #define Nst_RETURN_TRUE return Nst_inc_ref(Nst_true())

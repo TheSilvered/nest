@@ -179,7 +179,7 @@ NstEXP f32 NstC _Nst_number_to_f32(Nst_Obj *number);
  * returned. No error is set.
  */
 NstEXP f64 NstC _Nst_number_to_f64(Nst_Obj *number);
-/* [docs:link Nst_type()->Bool c_api-global_consts.md/#nst_type] */
+/* [docs:link Nst_type()->Bool c_api-global_consts.md#nst_type] */
 /**
  * @brief Converts any object to a boolean. Exactly the same as casting the
  * object to `Nst_type()->Bool` and then checking if the result matches

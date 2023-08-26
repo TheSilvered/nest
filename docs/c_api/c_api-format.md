@@ -213,7 +213,7 @@ isize Nst_printf(Nst_WIN_FMT const i8 *fmt, ...) Nst_GNU_FMT(1, 2)
 Prints a formatted string to the Nest standard output.
 
 Check the full format placeholder specification in
-[`format.h`](c_api-format.md/#format-placeholder-specification).
+[`format.h`](c_api-format.md#format-placeholder-specification).
 
 **Parameters:**
 
@@ -246,7 +246,7 @@ isize Nst_fprintf(Nst_IOFileObj *f, Nst_WIN_FMT const i8 *fmt, ...) Nst_GNU_FMT(
 Prints a formatted string to a Nest file object.
 
 Check the full format placeholder specification in
-[`format.h`](c_api-format.md/#format-placeholder-specification).
+[`format.h`](c_api-format.md#format-placeholder-specification).
 
 **Parameters:**
 
@@ -276,7 +276,7 @@ isize Nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args)
 
 **Description:**
 
-`va_list` variant of [`Nst_fprintf`](c_api-format.md/#nst_fprintf).
+`va_list` variant of [`Nst_fprintf`](c_api-format.md#nst_fprintf).
 
 ---
 
@@ -293,7 +293,7 @@ Nst_Obj *Nst_sprintf(Nst_WIN_FMT const i8 *fmt, ...) Nst_GNU_FMT(1, 2)
 Creates a Nest string object from a format placeholder.
 
 Check the full format placeholder specification in
-[`format.h`](c_api-format.md/#format-placeholder-specification).
+[`format.h`](c_api-format.md#format-placeholder-specification).
 
 **Parameters:**
 
@@ -317,5 +317,5 @@ Nst_Obj *Nst_vsprintf(const i8 *fmt, va_list args)
 
 **Description:**
 
-`va_list` variant of [`Nst_sprintf`](c_api-format.md/#nst_sprintf).
+`va_list` variant of [`Nst_sprintf`](c_api-format.md#nst_sprintf).
 

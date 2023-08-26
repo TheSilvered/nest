@@ -26,7 +26,7 @@ Nst_malloc_c(count, type)
 
 **Description:**
 
-Calls [`Nst_malloc`](c_api-mem.md/#nst_malloc) using `sizeof(type)` for the size
+Calls [`Nst_malloc`](c_api-mem.md#nst_malloc) using `sizeof(type)` for the size
 and casting the result to a pointer of `type`.
 
 ---
@@ -41,7 +41,7 @@ Nst_calloc_c(count, type, init_value)
 
 **Description:**
 
-Calls [`Nst_calloc`](c_api-mem.md/#nst_calloc) using `sizeof(type)` for the size
+Calls [`Nst_calloc`](c_api-mem.md#nst_calloc) using `sizeof(type)` for the size
 and casting the result to a pointer of `type`.
 
 ---
@@ -56,7 +56,7 @@ Nst_realloc_c(block, new_count, type, count)
 
 **Description:**
 
-Calls [`Nst_realloc`](c_api-mem.md/#nst_realloc) using `sizeof(type)` for the
+Calls [`Nst_realloc`](c_api-mem.md#nst_realloc) using `sizeof(type)` for the
 size and casting the result to a pointer of `type`.
 
 ---
@@ -71,7 +71,7 @@ Nst_crealloc_c(block, new_count, type, count, init_value)
 
 **Description:**
 
-Calls [`Nst_crealloc`](c_api-mem.md/#nst_crealloc) using `sizeof(type)` for the
+Calls [`Nst_crealloc`](c_api-mem.md#nst_crealloc) using `sizeof(type)` for the
 size and casting the result to a pointer of `type`.
 
 ---
@@ -121,7 +121,7 @@ typedef struct _Nst_Buffer {
 
 Structure representing a buffer of chars.
 
-Uses the same layout of [`Nst_SizedBuffer`](c_api-mem.md/#nst_sizedbuffer) to
+Uses the same layout of [`Nst_SizedBuffer`](c_api-mem.md#nst_sizedbuffer) to
 re-use the same functions. Ensures to always contain a valid string if not
 modified by external functions.
 
@@ -322,7 +322,7 @@ bool Nst_sbuffer_init(Nst_SizedBuffer *buf, usize unit_size, usize count)
 
 **Description:**
 
-Initializes a [`Nst_SizedBuffer`](c_api-mem.md/#nst_sizedbuffer).
+Initializes a [`Nst_SizedBuffer`](c_api-mem.md#nst_sizedbuffer).
 
 **Parameters:**
 
@@ -453,7 +453,7 @@ bool Nst_buffer_init(Nst_Buffer *buf, usize initial_size)
 
 **Description:**
 
-Initializes a [`Nst_Buffer`](c_api-mem.md/#nst_buffer).
+Initializes a [`Nst_Buffer`](c_api-mem.md#nst_buffer).
 
 **Parameters:**
 
@@ -543,7 +543,7 @@ bool Nst_buffer_append(Nst_Buffer *buf, Nst_StrObj *str)
 
 **Description:**
 
-Appends a [`Nst_StrObj`](c_api-str.md/#nst_strobj) to the end of the buffer.
+Appends a [`Nst_StrObj`](c_api-str.md#nst_strobj) to the end of the buffer.
 
 The buffer is expanded if needed.
 
@@ -618,11 +618,11 @@ Nst_StrObj *Nst_buffer_to_string(Nst_Buffer *buf)
 
 **Description:**
 
-Creates a [`Nst_StrObj`](c_api-str.md/#nst_strobj) from a buffer.
+Creates a [`Nst_StrObj`](c_api-str.md#nst_strobj) from a buffer.
 
 The data of the buffer is set to `NULL` and its `len` and `cap` are set to `0`.
 The function automatically calls
-[`Nst_buffer_fit`](c_api-mem.md/#nst_buffer_fit).
+[`Nst_buffer_fit`](c_api-mem.md#nst_buffer_fit).
 
 **Parameters:**
 

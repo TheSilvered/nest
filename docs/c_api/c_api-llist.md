@@ -45,7 +45,7 @@ typedef struct _Nst_LLNode {
 
 **Description:**
 
-The structure representing a node of a [`Nst_LList`](c_api-llist.md/#nst_llist).
+The structure representing a node of a [`Nst_LList`](c_api-llist.md#nst_llist).
 
 **Fields:**
 
@@ -161,7 +161,7 @@ bool Nst_llist_insert(Nst_LList *llist, void *value, bool allocated,
 Adds a value after a given node.
 
 node can be `NULL`, in which case the function behaves like
-[`Nst_llist_push`](c_api-llist.md/#nst_llist_push).
+[`Nst_llist_push`](c_api-llist.md#nst_llist_push).
 
 **Parameters:**
 

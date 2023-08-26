@@ -265,7 +265,7 @@ Initialized an object declaration with a custom name.
 
 **Description:**
 
-Returns [`Nst_true()`](c_api-global_consts.md/#nst_true).
+Returns [`Nst_true()`](c_api-global_consts.md#nst_true).
 
 ---
 
@@ -273,7 +273,7 @@ Returns [`Nst_true()`](c_api-global_consts.md/#nst_true).
 
 **Description:**
 
-Returns [`Nst_false()`](c_api-global_consts.md/#nst_false).
+Returns [`Nst_false()`](c_api-global_consts.md#nst_false).
 
 ---
 
@@ -281,7 +281,7 @@ Returns [`Nst_false()`](c_api-global_consts.md/#nst_false).
 
 **Description:**
 
-Returns [`Nst_null()`](c_api-global_consts.md/#nst_null).
+Returns [`Nst_null()`](c_api-global_consts.md#nst_null).
 
 ---
 
@@ -289,7 +289,7 @@ Returns [`Nst_null()`](c_api-global_consts.md/#nst_null).
 
 **Description:**
 
-Returns [`Nst_const()->Int_0`](c_api-global_consts.md/#nst_const).
+Returns [`Nst_const()->Int_0`](c_api-global_consts.md#nst_const).
 
 ---
 
@@ -297,7 +297,7 @@ Returns [`Nst_const()->Int_0`](c_api-global_consts.md/#nst_const).
 
 **Description:**
 
-Returns [`Nst_const()->Int_1`](c_api-global_consts.md/#nst_const).
+Returns [`Nst_const()->Int_1`](c_api-global_consts.md#nst_const).
 
 ---
 
@@ -311,8 +311,8 @@ Nst_RETURN_COND(cond)
 
 **Description:**
 
-Returns [`Nst_true()`](c_api-global_consts.md/#nst_true) if `cond` is `true` and
-[`Nst_false()`](c_api-global_consts.md/#nst_false) otherwise. `cond` is a C
+Returns [`Nst_true()`](c_api-global_consts.md#nst_true) if `cond` is `true` and
+[`Nst_false()`](c_api-global_consts.md#nst_false) otherwise. `cond` is a C
 condition.
 
 ---
@@ -342,7 +342,7 @@ Nst_DEF_EXTRACT(ltrl, ...)
 **Description:**
 
 Default call to
-[`Nst_extract_arg_values`](c_api-lib_import.md/#nst_extract_arg_values) that
+[`Nst_extract_arg_values`](c_api-lib_import.md#nst_extract_arg_values) that
 returns `NULL` on error.
 
 ---
@@ -357,7 +357,7 @@ Nst_DEF_VAL(obj, val, def_val)
 
 **Description:**
 
-Results in `def_val` if obj is [`Nst_null()`](c_api-global_consts.md/#nst_null)
+Results in `def_val` if obj is [`Nst_null()`](c_api-global_consts.md#nst_null)
 and in `val` otherwise.
 
 ---
@@ -441,7 +441,7 @@ bool Nst_extract_arg_values(const i8 *types, usize arg_num, Nst_Obj **args,
 Checks the types of the arguments and extracts their values.
 
 Check the syntax for the types argument in
-[`lib_import.h`](c_api-lib_import.md/#usage-of-the-types-argument).
+[`lib_import.h`](c_api-lib_import.md#usage-of-the-types-argument).
 
 **Parameters:**
 

@@ -69,7 +69,8 @@ Nst_FUNC_SIGN(rand_perc_)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
-    return Nst_real_new(f64(i64(rand_num())) / f64(ULLONG_MAX));
+    u64 num = u64(rand_range(LLONG_MIN, LLONG_MAX - 1));
+    return Nst_real_new(f64(num) / f64(ULLONG_MAX));
 }
 
 Nst_FUNC_SIGN(choice_)
@@ -99,7 +100,7 @@ Nst_FUNC_SIGN(shuffle_)
         objs[idx] = obj;
     }
 
-    Nst_RETURN_NULL;
+    return Nst_inc_ref(seq);
 }
 
 Nst_FUNC_SIGN(seed_)

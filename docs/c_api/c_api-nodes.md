@@ -18,7 +18,7 @@ Nst_NODE(expr)
 
 **Description:**
 
-Casts `expr` to [`Nst_Node *`](c_api-nodes.md/#nst_node).
+Casts `expr` to [`Nst_Node *`](c_api-nodes.md#nst_node).
 
 ---
 
@@ -81,7 +81,7 @@ Nst_Node *Nst_node_new(Nst_NodeType type)
 Creates and initializes a new AST node on the heap.
 
 Though the position is not in the arguments, its position should be set later
-with [`Nst_node_set_pos`](c_api-nodes.md/#nst_node_set_pos).
+with [`Nst_node_set_pos`](c_api-nodes.md#nst_node_set_pos).
 
 **Parameters:**
 

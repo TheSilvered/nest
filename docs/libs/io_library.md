@@ -10,14 +10,14 @@
 
 ### `@close`
 
-**Synopsis**:
+**Synopsis:**
 
 `[file: IOFile] @close -> null`
 
-**Description**:
+**Description:**
 
 Closes a file. After a file is closed, you will not be able to do any other
-operation with it. If the file was already closed an error is thrown.  
+operation with it. If the file was already closed an error is thrown.
 When the program ends any file that is still open gets closed.
 
 **Arguments**:
@@ -28,11 +28,11 @@ When the program ends any file that is still open gets closed.
 
 ### `@file_size`
 
-**Synopsis**:
+**Synopsis:**
 
 `[file: IOFile] @file_size -> Int`
 
-**Description**:
+**Description:**
 
 Returns the size of the file in bytes.
 
@@ -40,11 +40,11 @@ Returns the size of the file in bytes.
 
 ### `@flush`
 
-**Synopsis**:
+**Synopsis:**
 
 `[file: IOFile] @flush -> null`
 
-**Description**:
+**Description:**
 
 Flushes the output buffer of a file.
 
@@ -52,7 +52,7 @@ Flushes the output buffer of a file.
 
 ### `@get_flags`
 
-**Synopsis**:
+**Synopsis:**
 
 `[file: IOFile] @get_flags -> Str`
 
@@ -85,11 +85,11 @@ f3 @io.close
 
 ### `@get_fptr`
 
-**Synopsis**:
+**Synopsis:**
 
 `[file: IOFile] @get_fptr -> Int`
 
-**Description**:
+**Description:**
 
 Returns the position in bytes of the file pointer.
 
@@ -97,15 +97,15 @@ Returns the position in bytes of the file pointer.
 
 ### `@move_fptr`
 
-**Synopsis**:
+**Synopsis:**
 
 `[file: IOFile, starting_position: Int, offset: Int] @move_fptr -> null`
 
-**Description**:
+**Description:**
 
 Moves the file pointer from `starting_position` that can be set with
 `FROM_START`, `FROM_SET`, `FROM_CUR` and `FROM_END` by a number of bytes
-specified by the `offset`.  
+specified by the `offset`.
 `offset` can also be negative.
 
 **Arguments**:
@@ -118,11 +118,11 @@ specified by the `offset`.
 
 ### `@open`
 
-**Synopsis**:
+**Synopsis:**
 
 `[path: Str, mode: Str?] @open -> IOFile?`
 
-**Description**:
+**Description:**
 
 Opens a file. If the mode is `null` it is set to `r`.
 
@@ -156,14 +156,14 @@ An `IOFile` object or `null` if the file was not found.
 
 ### `@println`
 
-**Synopsis**:
+**Synopsis:**
 
 `[object: Any, flush: Bool?, file: IOFile?] @println -> null`
 
-**Description**:
+**Description:**
 
-Will print `object` like `>>>` followed by a newline.  
-`flush` specifies if the file must be flushed and is `false` by default.  
+Will print `object` like `>>>` followed by a newline.
+`flush` specifies if the file must be flushed and is `false` by default.
 `file` is the file where the object should be printed, stdout by default. If it
 is closed an error will be thrown.
 
@@ -177,14 +177,14 @@ is closed an error will be thrown.
 
 ### `@read`
 
-**Synopsis**:
+**Synopsis:**
 
 `[file: IOFile, size: Int?] @read -> Str`
 
-**Description**:
+**Description:**
 
 Reads a number of bytes from a file opened in `r`, `r+`, `w+` or `a+` and returns
-a `Str` object.  
+a `Str` object.
 If `size` is negative or `null` the whole file is read.
 
 **Arguments**:
@@ -200,16 +200,16 @@ The function returns the content that it read as a string.
 
 ### `@read_bytes`
 
-**Synopsis**:
+**Synopsis:**
 
 `[file: IOFile, size: Int?] @read_bytes -> Array`
 
-**Description**:
+**Description:**
 
 Reads a number of bytes from a file opened in `rb`, `rb+`, `wb+` or `ab+` and
 returns an `Array` object. To convert the array to a string, use the
 [`bytearray_to_str`](string_utilities_library.md#bytearray_to_str) function in
-`stdsutil.nest`.  
+`stdsutil.nest`.
 If `size` is negative or `null` the whole file is read.
 
 **Arguments**:
@@ -225,12 +225,12 @@ The function returns the content that it read as an array of `Byte` objects.
 
 ### `@virtual_file`
 
-**Synopsis**:
+**Synopsis:**
 
 `[binary: Bool?, buffer_size: Int?] @virtual_file -> IOFile`
 
 Creates a virtual `IOFile` object that works like a normal file but is not an
-actual file.  
+actual file.
 
 **Arguments**:
 - `binary`: specifies if the file should use `write` and `read` or `write_bytes`
@@ -247,11 +247,11 @@ The function returns the created file.
 
 ### `@write`
 
-**Synopsis**:
+**Synopsis:**
 
 `[file: IOFile, content: Any] @write -> Int`
 
-**Description**:
+**Description:**
 
 Writes to a file opened in `w`, `a`, `r+`, `w+` or `a+`. `content` is casted
 to a string before being written. If the file is closed an error is thrown.
@@ -282,14 +282,14 @@ f @io.close
 
 ### `@write_bytes`
 
-**Synopsis**:
+**Synopsis:**
 
 `[file: IOFile, content: Array|Vector] @write_bytes -> Int`
 
-**Description**:
+**Description:**
 
-Writes to a binary file opened in `wb`, `ab`, `rb+`, `wb+` or `ab+`.  
-The second argument is an array or vector containing only `Byte` objects.  
+Writes to a binary file opened in `wb`, `ab`, `rb+`, `wb+` or `ab+`.
+The second argument is an array or vector containing only `Byte` objects.
 To create such vector from a string, use the
 [`str_to_bytearray`](string_utilities_library.md#str_to_bytearray)
 function in `stdsutil.nest`.
@@ -307,7 +307,7 @@ The function retunst the number of bytes written.
 
 ### `@_get_stdin`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @_get_stdin -> IOFile`
 
@@ -320,7 +320,7 @@ return the same object that `STDIN` points to.
 
 ### `@_get_stderr`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @_get_stdin -> IOFile`
 
@@ -333,7 +333,7 @@ return the same object that `STDERR` points to.
 
 ### `@_get_stdout`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @_get_stdin -> IOFile`
 
@@ -346,13 +346,13 @@ return the same object that `STDOUT` points to.
 
 ### `@_set_stdin`
 
-**Synopsis**:
+**Synopsis:**
 
 `[file: IOFile] @_set_stdin -> null`
 
-**Description**:
+**Description:**
 
-Changes the standard input stream to `file`.  
+Changes the standard input stream to `file`.
 `file` must support reading and must not be already closed.
 
 The [`STDIN`](#stdin) constant will **not** reflect any changes and will always
@@ -362,13 +362,13 @@ point to the original input stream unless changed manually.
 
 ### `@_set_stderr`
 
-**Synopsis**:
+**Synopsis:**
 
 `[file: IOFile] @_set_stderr -> null`
 
-**Description**:
+**Description:**
 
-Changes the standard error stream to `file`.  
+Changes the standard error stream to `file`.
 `file` must support writing and must not be already closed.
 
 The [`STDERR`](#stderr) constant will **not** reflect any changes and will
@@ -378,13 +378,13 @@ always point to the original error stream unless changed manually.
 
 ### `@_set_stdout`
 
-**Synopsis**:
+**Synopsis:**
 
 `[file: IOFile] @_set_stdout -> null`
 
-**Description**:
+**Description:**
 
-Changes the standard output stream to `file`.  
+Changes the standard output stream to `file`.
 `file` must support writing and must not be already closed.
 
 The [`STDOUT`](#stdout) constant will **not** reflect any changes and will

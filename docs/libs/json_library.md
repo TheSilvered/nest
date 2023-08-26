@@ -40,14 +40,14 @@ Nest to JSON type correlations:
 
 ### `@dump_f`
 
-**Synopsis**:
+**Synopsis:**
 
 `[path: Str, object: Any, indent: Int?] @dump_f -> null`
 
-**Description**:
+**Description:**
 
 Writes to the file at `path` the serialization to JSON of `object`. This
-function overwrites any existing content on the file.  
+function overwrites any existing content on the file.
 `indent` works exactly like it does in [`dump_s`](#dump_s).
 
 **Arguments**:
@@ -60,11 +60,11 @@ function overwrites any existing content on the file.
 
 ### `@dump_s`
 
-**Synopsis**:
+**Synopsis:**
 
 `[object: Any, indent: Int?] @dump_s -> Str`
 
-**Description**:
+**Description:**
 
 Generates a JSON string that serializes `object` using `indent` to format it.
 If `object` cannot be serialized, an error is thrown.
@@ -72,7 +72,7 @@ If `object` cannot be serialized, an error is thrown.
 `indent` specifies the indentation level when the object contains maps or
 sequences. If it is set to 0, everything will be written in one continuous line.
 If set to -1, the smallest representation will be used (removing the spaces
-after commas and colons).  
+after commas and colons).
 By default `indent` is set to 0.
 
 **Arguments**:
@@ -81,7 +81,7 @@ By default `indent` is set to 0.
 - `indent`: the indentation of the output string. If it is set to 0, everything
             will be written in one continuous line but keeping spaces after
             commas and colons. If set to -1, the smallest representation is used
-            by removing even the spaces that 0 keeps.  
+            by removing even the spaces that 0 keeps.
 
 **Return value**:
 
@@ -117,7 +117,7 @@ Output:
 
 ### `@get_options`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @get_options -> Int`
 
@@ -144,11 +144,11 @@ function.
 
 ### `@load_f`
 
-**Synopsis**:
+**Synopsis:**
 
 `[path: Str] @load_f -> Any`
 
-**Description**:
+**Description:**
 
 Opens the file at `path`, reads its content and parses is as json data.
 
@@ -181,11 +181,11 @@ The code:
 
 ### `@load_s`
 
-**Synopsis**:
+**Synopsis:**
 
 `[string: Str] @load_s -> Any`
 
-**Description**:
+**Description:**
 
 Parses the contents of `string` as JSON data.
 
@@ -214,9 +214,9 @@ The function returns the parsed data as a Nest object according to the
 
 `[options: Int] @set_options -> null`
 
-**Description**:
+**Description:**
 
-Sets any option contained in [`OPTIONS`](#options).  
+Sets any option contained in [`OPTIONS`](#options).
 To set more than one option you can use the `|` operator. The options given are
 set to true and the ones omitted ones are set to false. Passing a `0` disables
 everything. Every option is disabled by default.

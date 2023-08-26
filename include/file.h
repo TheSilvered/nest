@@ -39,15 +39,15 @@
 extern "C" {
 #endif // !__cplusplus
 
-/* [docs:link Nst_IO_BUF_FULL c_api-file.md/#nst_ioresult] */
-/* [docs:link Nst_IO_EOF_REACHED c_api-file.md/#nst_ioresult] */
-/* [docs:link Nst_IO_SUCCESS c_api-file.md/#nst_ioresult] */
-/* [docs:link Nst_IO_ALLOC_FAILED c_api-file.md/#nst_ioresult] */
-/* [docs:link Nst_IO_INVALID_ENCODING c_api-file.md/#nst_ioresult] */
-/* [docs:link Nst_IO_INVALID_DECODING c_api-file.md/#nst_ioresult] */
-/* [docs:link Nst_IO_OP_FAILED c_api-file.md/#nst_ioresult] */
-/* [docs:link Nst_IO_CLOSED c_api-file.md/#nst_ioresult] */
-/* [docs:link Nst_IO_ERROR c_api-file.md/#nst_ioresult] */
+/* [docs:link Nst_IO_BUF_FULL c_api-file.md#nst_ioresult] */
+/* [docs:link Nst_IO_EOF_REACHED c_api-file.md#nst_ioresult] */
+/* [docs:link Nst_IO_SUCCESS c_api-file.md#nst_ioresult] */
+/* [docs:link Nst_IO_ALLOC_FAILED c_api-file.md#nst_ioresult] */
+/* [docs:link Nst_IO_INVALID_ENCODING c_api-file.md#nst_ioresult] */
+/* [docs:link Nst_IO_INVALID_DECODING c_api-file.md#nst_ioresult] */
+/* [docs:link Nst_IO_OP_FAILED c_api-file.md#nst_ioresult] */
+/* [docs:link Nst_IO_CLOSED c_api-file.md#nst_ioresult] */
+/* [docs:link Nst_IO_ERROR c_api-file.md#nst_ioresult] */
 
 /* Enumeration of the possible IO return values. */
 NstEXP typedef enum _Nst_IOResult {
@@ -62,9 +62,9 @@ NstEXP typedef enum _Nst_IOResult {
     Nst_IO_ERROR = -6
 } Nst_IOResult;
 
-/* [docs:link Nst_SEEK_SET c_api-file.md/#nst_seekwhence] */
-/* [docs:link Nst_SEEK_CUR c_api-file.md/#nst_seekwhence] */
-/* [docs:link Nst_SEEK_END c_api-file.md/#nst_seekwhence] */
+/* [docs:link Nst_SEEK_SET c_api-file.md#nst_seekwhence] */
+/* [docs:link Nst_SEEK_CUR c_api-file.md#nst_seekwhence] */
+/* [docs:link Nst_SEEK_END c_api-file.md#nst_seekwhence] */
 
 /* Enumeration of the possible origins for seek file functions. */
 NstEXP typedef enum _Nst_SeekWhence {

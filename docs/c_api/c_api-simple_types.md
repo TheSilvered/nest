@@ -1,9 +1,9 @@
 # `simple_types.h`
 
-Interface for [`Nst_IntObj`](c_api-simple_types.md/#nst_intobj),
-[`Nst_RealObj`](c_api-simple_types.md/#nst_realobj),
-[`Nst_ByteObj`](c_api-simple_types.md/#nst_byteobj) and
-[`Nst_BoolObj`](c_api-simple_types.md/#nst_boolobj).
+Interface for [`Nst_IntObj`](c_api-simple_types.md#nst_intobj),
+[`Nst_RealObj`](c_api-simple_types.md#nst_realobj),
+[`Nst_ByteObj`](c_api-simple_types.md#nst_byteobj) and
+[`Nst_BoolObj`](c_api-simple_types.md#nst_boolobj).
 
 ## Authors
 
@@ -21,8 +21,8 @@ AS_INT(ptr)
 
 **Description:**
 
-Casts `ptr` to a [`Nst_IntObj *`](c_api-simple_types.md/#nst_intobj) and
-extracts the value field.
+Casts `ptr` to a [`Nst_IntObj *`](c_api-simple_types.md#nst_intobj) and extracts
+the value field.
 
 ---
 
@@ -36,7 +36,7 @@ AS_REAL(ptr)
 
 **Description:**
 
-Casts `ptr` to a [`Nst_RealObj *`](c_api-simple_types.md/#nst_realobj) and
+Casts `ptr` to a [`Nst_RealObj *`](c_api-simple_types.md#nst_realobj) and
 extracts the value field.
 
 ---
@@ -51,7 +51,7 @@ AS_BYTE(ptr)
 
 **Description:**
 
-Casts `ptr` to a [`Nst_ByteObj *`](c_api-simple_types.md/#nst_byteobj) and
+Casts `ptr` to a [`Nst_ByteObj *`](c_api-simple_types.md#nst_byteobj) and
 extracts the value field.
 
 ---
@@ -66,7 +66,7 @@ AS_BOOL(ptr)
 
 **Description:**
 
-Casts `ptr` to a [`Nst_BoolObj *`](c_api-simple_types.md/#nst_boolobj) and
+Casts `ptr` to a [`Nst_BoolObj *`](c_api-simple_types.md#nst_boolobj) and
 extracts the value field.
 
 ---
@@ -81,8 +81,8 @@ Nst_number_to_u8(number)
 
 **Description:**
 
-Alias for [`_Nst_number_to_u8`](c_api-simple_types.md/#_nst_number_to_u8) that
-casts `number` to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_number_to_u8`](c_api-simple_types.md#_nst_number_to_u8) that
+casts `number` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -96,8 +96,8 @@ Nst_number_to_int(number)
 
 **Description:**
 
-Alias for [`_Nst_number_to_int `](c_api-simple_types.md/#_nst_number_to_int)that
-casts `number` to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_number_to_int `](c_api-simple_types.md#_nst_number_to_int)that
+casts `number` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -111,8 +111,8 @@ Nst_number_to_i32(number)
 
 **Description:**
 
-Alias for [`_Nst_number_to_i32`](c_api-simple_types.md/#_nst_number_to_i32) that
-casts `number` to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_number_to_i32`](c_api-simple_types.md#_nst_number_to_i32) that
+casts `number` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -126,8 +126,8 @@ Nst_number_to_i64(number)
 
 **Description:**
 
-Alias for [`_Nst_number_to_i64`](c_api-simple_types.md/#_nst_number_to_i64) that
-casts `number` to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_number_to_i64`](c_api-simple_types.md#_nst_number_to_i64) that
+casts `number` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -141,8 +141,8 @@ Nst_number_to_f32(number)
 
 **Description:**
 
-Alias for [`_Nst_number_to_f32`](c_api-simple_types.md/#_nst_number_to_f32) that
-casts `number` to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_number_to_f32`](c_api-simple_types.md#_nst_number_to_f32) that
+casts `number` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -156,8 +156,8 @@ Nst_number_to_f64(number)
 
 **Description:**
 
-Alias for [`_Nst_number_to_f64`](c_api-simple_types.md/#_nst_number_to_f64) that
-casts `number` to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_number_to_f64`](c_api-simple_types.md#_nst_number_to_f64) that
+casts `number` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -171,8 +171,8 @@ Nst_obj_to_bool(obj)
 
 **Description:**
 
-Alias for [`_Nst_obj_to_bool`](c_api-simple_types.md/#_nst_obj_to_bool) that
-casts `obj` to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_to_bool`](c_api-simple_types.md#_nst_obj_to_bool) that
+casts `obj` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -274,7 +274,7 @@ Nst_Obj *Nst_int_new(i64 value)
 
 **Description:**
 
-Creates a new [`Nst_IntObj`](c_api-simple_types.md/#nst_intobj).
+Creates a new [`Nst_IntObj`](c_api-simple_types.md#nst_intobj).
 
 **Parameters:**
 
@@ -296,7 +296,7 @@ Nst_Obj *Nst_real_new(f64 value)
 
 **Description:**
 
-Creates a new [`Nst_RealObj`](c_api-simple_types.md/#nst_realobj).
+Creates a new [`Nst_RealObj`](c_api-simple_types.md#nst_realobj).
 
 **Parameters:**
 
@@ -318,11 +318,11 @@ Nst_Obj *Nst_bool_new(bool value)
 
 **Description:**
 
-Creates a new [`Nst_BoolObj`](c_api-simple_types.md/#nst_boolobj).
+Creates a new [`Nst_BoolObj`](c_api-simple_types.md#nst_boolobj).
 
 This function should never be called, to get the `true` and `false` objects use
-[`Nst_true()`](c_api-global_consts.md/#nst_true) and
-[`Nst_false()`](c_api-global_consts.md/#nst_false) instead. Note that these
+[`Nst_true()`](c_api-global_consts.md#nst_true) and
+[`Nst_false()`](c_api-global_consts.md#nst_false) instead. Note that these
 functions do not return a new reference to the respective objects.
 
 **Parameters:**
@@ -345,7 +345,7 @@ Nst_Obj *Nst_byte_new(u8 value)
 
 **Description:**
 
-Creates a new [`Nst_ByteObj`](c_api-simple_types.md/#nst_byteobj).
+Creates a new [`Nst_ByteObj`](c_api-simple_types.md#nst_byteobj).
 
 **Parameters:**
 
@@ -368,10 +368,10 @@ u8  _Nst_number_to_u8(Nst_Obj *number)
 **Description:**
 
 Converts the value of a numeric object
-([`Nst_IntObj`](c_api-simple_types.md/#nst_intobj),
-[`Nst_RealObj`](c_api-simple_types.md/#nst_realobj),
-[`Nst_ByteObj`](c_api-simple_types.md/#nst_byteobj)) to a
-[`u8`](c_api.md/#type-definitions).
+([`Nst_IntObj`](c_api-simple_types.md#nst_intobj),
+[`Nst_RealObj`](c_api-simple_types.md#nst_realobj),
+[`Nst_ByteObj`](c_api-simple_types.md#nst_byteobj)) to a
+[`u8`](c_api.md#type-definitions).
 
 **Parameters:**
 
@@ -395,9 +395,9 @@ int _Nst_number_to_int(Nst_Obj *number)
 **Description:**
 
 Converts the value of a numeric object
-([`Nst_IntObj`](c_api-simple_types.md/#nst_intobj),
-[`Nst_RealObj`](c_api-simple_types.md/#nst_realobj),
-[`Nst_ByteObj`](c_api-simple_types.md/#nst_byteobj)) to an `int`.
+([`Nst_IntObj`](c_api-simple_types.md#nst_intobj),
+[`Nst_RealObj`](c_api-simple_types.md#nst_realobj),
+[`Nst_ByteObj`](c_api-simple_types.md#nst_byteobj)) to an `int`.
 
 **Parameters:**
 
@@ -421,10 +421,10 @@ i32 _Nst_number_to_i32(Nst_Obj *number)
 **Description:**
 
 Converts the value of a numeric object
-([`Nst_IntObj`](c_api-simple_types.md/#nst_intobj),
-[`Nst_RealObj`](c_api-simple_types.md/#nst_realobj),
-[`Nst_ByteObj`](c_api-simple_types.md/#nst_byteobj)) to an
-[`i32`](c_api.md/#type-definitions).
+([`Nst_IntObj`](c_api-simple_types.md#nst_intobj),
+[`Nst_RealObj`](c_api-simple_types.md#nst_realobj),
+[`Nst_ByteObj`](c_api-simple_types.md#nst_byteobj)) to an
+[`i32`](c_api.md#type-definitions).
 
 **Parameters:**
 
@@ -448,10 +448,10 @@ i64 _Nst_number_to_i64(Nst_Obj *number)
 **Description:**
 
 Converts the value of a numeric object
-([`Nst_IntObj`](c_api-simple_types.md/#nst_intobj),
-[`Nst_RealObj`](c_api-simple_types.md/#nst_realobj),
-[`Nst_ByteObj`](c_api-simple_types.md/#nst_byteobj)) to an
-[`i64`](c_api.md/#type-definitions).
+([`Nst_IntObj`](c_api-simple_types.md#nst_intobj),
+[`Nst_RealObj`](c_api-simple_types.md#nst_realobj),
+[`Nst_ByteObj`](c_api-simple_types.md#nst_byteobj)) to an
+[`i64`](c_api.md#type-definitions).
 
 **Parameters:**
 
@@ -475,10 +475,10 @@ f32 _Nst_number_to_f32(Nst_Obj *number)
 **Description:**
 
 Converts the value of a numeric object
-([`Nst_IntObj`](c_api-simple_types.md/#nst_intobj),
-[`Nst_RealObj`](c_api-simple_types.md/#nst_realobj),
-[`Nst_ByteObj`](c_api-simple_types.md/#nst_byteobj)) to an
-[`f32`](c_api.md/#type-definitions).
+([`Nst_IntObj`](c_api-simple_types.md#nst_intobj),
+[`Nst_RealObj`](c_api-simple_types.md#nst_realobj),
+[`Nst_ByteObj`](c_api-simple_types.md#nst_byteobj)) to an
+[`f32`](c_api.md#type-definitions).
 
 **Parameters:**
 
@@ -502,10 +502,10 @@ f64 _Nst_number_to_f64(Nst_Obj *number)
 **Description:**
 
 Converts the value of a numeric object
-([`Nst_IntObj`](c_api-simple_types.md/#nst_intobj),
-[`Nst_RealObj`](c_api-simple_types.md/#nst_realobj),
-[`Nst_ByteObj`](c_api-simple_types.md/#nst_byteobj)) to an
-[`f64`](c_api.md/#type-definitions).
+([`Nst_IntObj`](c_api-simple_types.md#nst_intobj),
+[`Nst_RealObj`](c_api-simple_types.md#nst_realobj),
+[`Nst_ByteObj`](c_api-simple_types.md#nst_byteobj)) to an
+[`f64`](c_api.md#type-definitions).
 
 **Parameters:**
 
@@ -529,6 +529,6 @@ bool _Nst_obj_to_bool(Nst_Obj *obj)
 **Description:**
 
 Converts any object to a boolean. Exactly the same as casting the object to
-[`Nst_type()->Bool`](c_api-global_consts.md/#nst_type) and then checking if the
-result matches [`Nst_true()`](c_api-global_consts.md/#nst_true).
+[`Nst_type()->Bool`](c_api-global_consts.md#nst_type) and then checking if the
+result matches [`Nst_true()`](c_api-global_consts.md#nst_true).
 

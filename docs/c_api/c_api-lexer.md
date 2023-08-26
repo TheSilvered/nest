@@ -36,7 +36,7 @@ Opens and tokenizes a file.
 
 **Returns:**
 
-A [`Nst_LList`](c_api-llist.md/#nst_llist) of tokens or `NULL` on failure. No
+A [`Nst_LList`](c_api-llist.md#nst_llist) of tokens or `NULL` on failure. No
 error is set.
 
 ---
@@ -60,7 +60,7 @@ Tokenizes text.
 
 **Returns:**
 
-A [`Nst_LList`](c_api-llist.md/#nst_llist) of tokens or `NULL` on failure. No
+A [`Nst_LList`](c_api-llist.md#nst_llist) of tokens or `NULL` on failure. No
 global operation error is set.
 
 ---

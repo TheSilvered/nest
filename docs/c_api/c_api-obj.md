@@ -18,7 +18,7 @@ OBJ(obj)
 
 **Description:**
 
-Casts `obj` to [`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Casts `obj` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -32,8 +32,8 @@ Nst_inc_ref(obj)
 
 **Description:**
 
-Alias for [`_Nst_inc_ref`](c_api-obj.md/#_nst_inc_ref) that casts `obj` to
-[`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_inc_ref`](c_api-obj.md#_nst_inc_ref) that casts `obj` to
+[`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -47,7 +47,7 @@ Nst_ninc_ref(obj)
 
 **Description:**
 
-Calls [`Nst_inc_ref`](c_api-obj.md/#nst_inc_ref) if `obj` is not a `NULL`
+Calls [`Nst_inc_ref`](c_api-obj.md#nst_inc_ref) if `obj` is not a `NULL`
 pointer.
 
 ---
@@ -62,8 +62,8 @@ Nst_dec_ref(obj)
 
 **Description:**
 
-Alias for [`_Nst_dec_ref`](c_api-obj.md/#_nst_dec_ref) that casts `obj` to
-[`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_dec_ref`](c_api-obj.md#_nst_dec_ref) that casts `obj` to
+[`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -77,7 +77,7 @@ Nst_ndec_ref(obj)
 
 **Description:**
 
-Calls [`Nst_dec_ref`](c_api-obj.md/#nst_dec_ref) if the object is not a `NULL`
+Calls [`Nst_dec_ref`](c_api-obj.md#nst_dec_ref) if the object is not a `NULL`
 pointer.
 
 ---
@@ -92,8 +92,8 @@ Nst_obj_destroy(obj)
 
 **Description:**
 
-Alias for [`_Nst_obj_destroy`](c_api-obj.md/#_nst_obj_destroy) that casts obj to
-[`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_obj_destroy`](c_api-obj.md#_nst_obj_destroy) that casts obj to
+[`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -107,7 +107,7 @@ Nst_obj_alloc(type, type_obj, destructor)
 
 **Description:**
 
-Wrapper for [`_Nst_obj_alloc`](c_api-obj.md/#_nst_obj_alloc). `type` is used to
+Wrapper for [`_Nst_obj_alloc`](c_api-obj.md#_nst_obj_alloc). `type` is used to
 get the size of the object to allocate and to cast the result into the correct
 pointer type.
 
@@ -226,8 +226,8 @@ typedef Nst_Obj Nst_NullObj;
 
 **Description:**
 
-A [`Nst_NullObj`](c_api-obj.md/#nst_nullobj) is just a
-[`Nst_Obj`](c_api-obj.md/#nst_obj) as it does not have any special fields.
+A [`Nst_NullObj`](c_api-obj.md#nst_nullobj) is just a
+[`Nst_Obj`](c_api-obj.md#nst_obj) as it does not have any special fields.
 
 ---
 
@@ -245,7 +245,7 @@ Nst_Obj *_Nst_obj_alloc(usize size, Nst_StrObj *type,
 **Description:**
 
 Allocates an object on the heap and initializes the fields in
-[`Nst_OBJ_HEAD`](c_api-obj.md/#nst_obj_head).
+[`Nst_OBJ_HEAD`](c_api-obj.md#nst_obj_head).
 
 **Parameters:**
 
@@ -273,7 +273,7 @@ void _Nst_obj_destroy(Nst_Obj *obj)
 Calls an object's destructor and then frees its memory.
 
 This function should not be called on most occasions, use
-[`Nst_dec_ref`](c_api-obj.md/#nst_dec_ref) instead.
+[`Nst_dec_ref`](c_api-obj.md#nst_dec_ref) instead.
 
 ---
 
@@ -302,5 +302,5 @@ void _Nst_dec_ref(Nst_Obj *obj)
 **Description:**
 
 Decreases the reference count of an object and calls
-[`_Nst_obj_destroy`](c_api-obj.md/#_nst_obj_destroy) if it reaches zero.
+[`_Nst_obj_destroy`](c_api-obj.md#_nst_obj_destroy) if it reaches zero.
 

@@ -10,11 +10,11 @@
 
 ### `@call`
 
-**Synopsis**:
+**Synopsis:**
 
 `[co: Coroutine, args: Array|Vector|null] @call -> Any`
 
-**Description**:
+**Description:**
 Calls the coroutine passing the arguments given. If the coroutine is paused the
 arguments are ignored, if it is suspended or has ended the arguments are
 required. If the coroutine is running an error is thrown since coroutines cannot
@@ -49,11 +49,11 @@ paused or the value that was returned by the function.
 
 ### `@create`
 
-**Synopsis**:
+**Synopsis:**
 
 `[function: Func] @create -> Coroutine`
 
-**Description**:
+**Description:**
 
 Creates a `Coroutine` object from `function`.
 
@@ -84,11 +84,11 @@ func @co.create = func_co
 
 ### `@generator`
 
-**Synopsis**:
+**Synopsis:**
 
 `[co: Coroutine] @generator -> Iter`
 
-**Description**:
+**Description:**
 
 Creates an `Iter` object given a coroutine and each time `pause` is called, the
 return value is yielded by the iterator. The return value of the function is
@@ -133,11 +133,11 @@ this program outputs:
 
 ### `@get_state`
 
-**Synopsis**:
+**Synopsis:**
 
 `[co: Coroutine] @get_state -> Int`
 
-**Description**:
+**Description:**
 
 Returns the current state of the coroutine, either suspended, running, paused or
 ended. To get the state as a string use the return value of this function to
@@ -179,11 +179,11 @@ f_co @print_state --> ended
 
 ### `@pause`
 
-**Synopsis**:
+**Synopsis:**
 
 `[return_value: Any] @pause -> null`
 
-**Description**:
+**Description:**
 
 Pauses the current coroutine and makes it return `return_value`. If the
 coroutine was not called with `call` or if it is used outside of a coroutine an

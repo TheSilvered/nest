@@ -120,7 +120,7 @@ i32 Nst_check_ascii_bytes(u8 *str, usize len)
 
 **Description:**
 
-[`Nst_CheckBytesFunc`](c_api-encoding.md/#nst_checkbytesfunc) for ASCII.
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for ASCII.
 
 ---
 
@@ -134,7 +134,7 @@ u32 Nst_ascii_to_utf32(u8 *str)
 
 **Description:**
 
-[`Nst_ToUTF32Func`](c_api-encoding.md/#nst_toutf32func) for ASCII
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for ASCII
 
 ---
 
@@ -148,7 +148,7 @@ i32 Nst_ascii_from_utf32(u32 ch, u8 *str)
 
 **Description:**
 
-[`Nst_FromUTF32Func`](c_api-encoding.md/#nst_fromutf32func) for ASCII
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for ASCII
 
 ---
 
@@ -162,7 +162,7 @@ i32 Nst_check_utf8_bytes(u8 *str, usize len)
 
 **Description:**
 
-[`Nst_CheckBytesFunc`](c_api-encoding.md/#nst_checkbytesfunc) for UTF-8.
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for UTF-8.
 
 ---
 
@@ -176,7 +176,7 @@ u32 Nst_utf8_to_utf32(u8 *str)
 
 **Description:**
 
-[`Nst_ToUTF32Func`](c_api-encoding.md/#nst_toutf32func) for UTF-8.
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for UTF-8.
 
 ---
 
@@ -190,7 +190,7 @@ i32 Nst_utf8_from_utf32(u32 ch, u8 *str)
 
 **Description:**
 
-[`Nst_FromUTF32Func`](c_api-encoding.md/#nst_fromutf32func) for UTF-8.
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for UTF-8.
 
 ---
 
@@ -204,7 +204,7 @@ i32 Nst_check_ext_utf8_bytes(u8 *str, usize len)
 
 **Description:**
 
-[`Nst_CheckBytesFunc`](c_api-encoding.md/#nst_checkbytesfunc) for extUTF-8.
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for extUTF-8.
 
 ---
 
@@ -218,7 +218,7 @@ u32 Nst_ext_utf8_to_utf32(u8 *str)
 
 **Description:**
 
-[`Nst_ToUTF32Func`](c_api-encoding.md/#nst_toutf32func) for extUTF-8.
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for extUTF-8.
 
 ---
 
@@ -232,7 +232,7 @@ i32 Nst_ext_utf8_from_utf32(u32 ch, u8 *str)
 
 **Description:**
 
-[`Nst_FromUTF32Func`](c_api-encoding.md/#nst_fromutf32func) for extUTF-8.
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for extUTF-8.
 
 ---
 
@@ -246,7 +246,7 @@ i32 Nst_check_utf16_bytes(u16 *str, usize len)
 
 **Description:**
 
-[`Nst_CheckBytesFunc`](c_api-encoding.md/#nst_checkbytesfunc) for UTF-16.
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for UTF-16.
 
 ---
 
@@ -260,7 +260,7 @@ u32 Nst_utf16_to_utf32(u16 *str)
 
 **Description:**
 
-[`Nst_ToUTF32Func`](c_api-encoding.md/#nst_toutf32func) for UTF-16.
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for UTF-16.
 
 ---
 
@@ -274,7 +274,7 @@ i32 Nst_utf16_from_utf32(u32 ch, u16 *str)
 
 **Description:**
 
-[`Nst_FromUTF32Func`](c_api-encoding.md/#nst_fromutf32func) for UTF-16.
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for UTF-16.
 
 ---
 
@@ -288,7 +288,7 @@ i32 Nst_check_utf16be_bytes(u8 *str, usize len)
 
 **Description:**
 
-[`Nst_CheckBytesFunc`](c_api-encoding.md/#nst_checkbytesfunc) for UTF-16BE.
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for UTF-16BE.
 
 ---
 
@@ -302,7 +302,7 @@ u32 Nst_utf16be_to_utf32(u8 *str)
 
 **Description:**
 
-[`Nst_ToUTF32Func`](c_api-encoding.md/#nst_toutf32func) for UTF-16BE.
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for UTF-16BE.
 
 ---
 
@@ -316,7 +316,7 @@ i32 Nst_utf16be_from_utf32(u32 ch, u8 *str)
 
 **Description:**
 
-[`Nst_FromUTF32Func`](c_api-encoding.md/#nst_fromutf32func) for UTF-16BE.
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for UTF-16BE.
 
 ---
 
@@ -330,7 +330,7 @@ i32 Nst_check_utf16le_bytes(u8 *str, usize len)
 
 **Description:**
 
-[`Nst_CheckBytesFunc`](c_api-encoding.md/#nst_checkbytesfunc) for UTF-16LE.
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for UTF-16LE.
 
 ---
 
@@ -344,7 +344,7 @@ u32 Nst_utf16le_to_utf32(u8 *str)
 
 **Description:**
 
-[`Nst_ToUTF32Func`](c_api-encoding.md/#nst_toutf32func) for UTF-16LE.
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for UTF-16LE.
 
 ---
 
@@ -358,7 +358,7 @@ i32 Nst_utf16le_from_utf32(u32 ch, u8 *str)
 
 **Description:**
 
-[`Nst_FromUTF32Func`](c_api-encoding.md/#nst_fromutf32func) for UTF-16LE.
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for UTF-16LE.
 
 ---
 
@@ -372,7 +372,7 @@ i32 Nst_check_utf32_bytes(u32 *str, usize len)
 
 **Description:**
 
-[`Nst_CheckBytesFunc`](c_api-encoding.md/#nst_checkbytesfunc) for UTF-32.
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for UTF-32.
 
 ---
 
@@ -386,7 +386,7 @@ u32 Nst_utf32_to_utf32(u32 *str)
 
 **Description:**
 
-[`Nst_ToUTF32Func`](c_api-encoding.md/#nst_toutf32func) for UTF-32.
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for UTF-32.
 
 ---
 
@@ -400,7 +400,7 @@ i32 Nst_utf32_from_utf32(u32 ch, u32 *str)
 
 **Description:**
 
-[`Nst_FromUTF32Func`](c_api-encoding.md/#nst_fromutf32func) for UTF-32.
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for UTF-32.
 
 ---
 
@@ -414,7 +414,7 @@ i32 Nst_check_utf32be_bytes(u8 *str, usize len)
 
 **Description:**
 
-[`Nst_CheckBytesFunc`](c_api-encoding.md/#nst_checkbytesfunc) for UTF-32BE.
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for UTF-32BE.
 
 ---
 
@@ -428,7 +428,7 @@ u32 Nst_utf32be_to_utf32(u8 *str)
 
 **Description:**
 
-[`Nst_ToUTF32Func`](c_api-encoding.md/#nst_toutf32func) for UTF-32BE.
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for UTF-32BE.
 
 ---
 
@@ -442,7 +442,7 @@ i32 Nst_utf32be_from_utf32(u32 ch, u8 *str)
 
 **Description:**
 
-[`Nst_FromUTF32Func`](c_api-encoding.md/#nst_fromutf32func) for UTF-32BE.
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for UTF-32BE.
 
 ---
 
@@ -456,7 +456,7 @@ i32 Nst_check_utf32le_bytes(u8 *str, usize len)
 
 **Description:**
 
-[`Nst_CheckBytesFunc`](c_api-encoding.md/#nst_checkbytesfunc) for UTF-32LE.
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for UTF-32LE.
 
 ---
 
@@ -470,7 +470,7 @@ u32 Nst_utf32le_to_utf32(u8 *str)
 
 **Description:**
 
-[`Nst_ToUTF32Func`](c_api-encoding.md/#nst_toutf32func) for UTF-32LE.
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for UTF-32LE.
 
 ---
 
@@ -484,7 +484,7 @@ i32 Nst_utf32le_from_utf32(u32 ch, u8 *str)
 
 **Description:**
 
-[`Nst_FromUTF32Func`](c_api-encoding.md/#nst_fromutf32func) for UTF-32LE.
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for UTF-32LE.
 
 ---
 
@@ -498,7 +498,7 @@ i32 Nst_check_1250_bytes(u8 *str, usize len)
 
 **Description:**
 
-[`Nst_CheckBytesFunc`](c_api-encoding.md/#nst_checkbytesfunc) for CP1250.
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for CP1250.
 
 ---
 
@@ -512,7 +512,7 @@ u32 Nst_1250_to_utf32(u8 *str)
 
 **Description:**
 
-[`Nst_ToUTF32Func`](c_api-encoding.md/#nst_toutf32func) for CP1250.
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for CP1250.
 
 ---
 
@@ -526,7 +526,7 @@ i32 Nst_1250_from_utf32(u32 ch, u8 *str)
 
 **Description:**
 
-[`Nst_FromUTF32Func`](c_api-encoding.md/#nst_fromutf32func) for CP1250.
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for CP1250.
 
 ---
 
@@ -540,7 +540,7 @@ i32 Nst_check_1251_bytes(u8 *str, usize len)
 
 **Description:**
 
-[`Nst_CheckBytesFunc`](c_api-encoding.md/#nst_checkbytesfunc) for CP1251.
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for CP1251.
 
 ---
 
@@ -554,7 +554,7 @@ u32 Nst_1251_to_utf32(u8 *str)
 
 **Description:**
 
-[`Nst_ToUTF32Func`](c_api-encoding.md/#nst_toutf32func) for CP1251.
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for CP1251.
 
 ---
 
@@ -568,7 +568,7 @@ i32 Nst_1251_from_utf32(u32 ch, u8 *str)
 
 **Description:**
 
-[`Nst_FromUTF32Func`](c_api-encoding.md/#nst_fromutf32func) for CP1251.
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for CP1251.
 
 ---
 
@@ -582,7 +582,7 @@ i32 Nst_check_1252_bytes(u8 *str, usize len)
 
 **Description:**
 
-[`Nst_CheckBytesFunc`](c_api-encoding.md/#nst_checkbytesfunc) for CP1252.
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for CP1252.
 
 ---
 
@@ -596,7 +596,7 @@ u32 Nst_1252_to_utf32(u8 *str)
 
 **Description:**
 
-[`Nst_ToUTF32Func`](c_api-encoding.md/#nst_toutf32func) for CP1252.
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for CP1252.
 
 ---
 
@@ -610,7 +610,7 @@ i32 Nst_1252_from_utf32(u32 ch, u8 *str)
 
 **Description:**
 
-[`Nst_FromUTF32Func`](c_api-encoding.md/#nst_fromutf32func) for CP1252.
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for CP1252.
 
 ---
 
@@ -624,7 +624,7 @@ i32 Nst_check_1253_bytes(u8 *str, usize len)
 
 **Description:**
 
-[`Nst_CheckBytesFunc`](c_api-encoding.md/#nst_checkbytesfunc) for CP1253.
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for CP1253.
 
 ---
 
@@ -638,7 +638,7 @@ u32 Nst_1253_to_utf32(u8 *str)
 
 **Description:**
 
-[`Nst_ToUTF32Func`](c_api-encoding.md/#nst_toutf32func) for CP1253.
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for CP1253.
 
 ---
 
@@ -652,7 +652,7 @@ i32 Nst_1253_from_utf32(u32 ch, u8 *str)
 
 **Description:**
 
-[`Nst_FromUTF32Func`](c_api-encoding.md/#nst_fromutf32func) for CP1253.
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for CP1253.
 
 ---
 
@@ -666,7 +666,7 @@ i32 Nst_check_1254_bytes(u8 *str, usize len)
 
 **Description:**
 
-[`Nst_CheckBytesFunc`](c_api-encoding.md/#nst_checkbytesfunc) for CP1254.
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for CP1254.
 
 ---
 
@@ -680,7 +680,7 @@ u32 Nst_1254_to_utf32(u8 *str)
 
 **Description:**
 
-[`Nst_ToUTF32Func`](c_api-encoding.md/#nst_toutf32func) for CP1254.
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for CP1254.
 
 ---
 
@@ -694,7 +694,7 @@ i32 Nst_1254_from_utf32(u32 ch, u8 *str)
 
 **Description:**
 
-[`Nst_FromUTF32Func`](c_api-encoding.md/#nst_fromutf32func) for CP1254.
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for CP1254.
 
 ---
 
@@ -708,7 +708,7 @@ i32 Nst_check_1255_bytes(u8 *str, usize len)
 
 **Description:**
 
-[`Nst_CheckBytesFunc`](c_api-encoding.md/#nst_checkbytesfunc) for CP1255.
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for CP1255.
 
 ---
 
@@ -722,7 +722,7 @@ u32 Nst_1255_to_utf32(u8 *str)
 
 **Description:**
 
-[`Nst_ToUTF32Func`](c_api-encoding.md/#nst_toutf32func) for CP1255.
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for CP1255.
 
 ---
 
@@ -736,7 +736,7 @@ i32 Nst_1255_from_utf32(u32 ch, u8 *str)
 
 **Description:**
 
-[`Nst_FromUTF32Func`](c_api-encoding.md/#nst_fromutf32func) for CP1255.
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for CP1255.
 
 ---
 
@@ -750,7 +750,7 @@ i32 Nst_check_1256_bytes(u8 *str, usize len)
 
 **Description:**
 
-[`Nst_CheckBytesFunc`](c_api-encoding.md/#nst_checkbytesfunc) for CP1256.
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for CP1256.
 
 ---
 
@@ -764,7 +764,7 @@ u32 Nst_1256_to_utf32(u8 *str)
 
 **Description:**
 
-[`Nst_ToUTF32Func`](c_api-encoding.md/#nst_toutf32func) for CP1256.
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for CP1256.
 
 ---
 
@@ -778,7 +778,7 @@ i32 Nst_1256_from_utf32(u32 ch, u8 *str)
 
 **Description:**
 
-[`Nst_FromUTF32Func`](c_api-encoding.md/#nst_fromutf32func) for CP1256.
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for CP1256.
 
 ---
 
@@ -792,7 +792,7 @@ i32 Nst_check_1257_bytes(u8 *str, usize len)
 
 **Description:**
 
-[`Nst_CheckBytesFunc`](c_api-encoding.md/#nst_checkbytesfunc) for CP1257.
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for CP1257.
 
 ---
 
@@ -806,7 +806,7 @@ u32 Nst_1257_to_utf32(u8 *str)
 
 **Description:**
 
-[`Nst_ToUTF32Func`](c_api-encoding.md/#nst_toutf32func) for CP1257.
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for CP1257.
 
 ---
 
@@ -820,7 +820,7 @@ i32 Nst_1257_from_utf32(u32 ch, u8 *str)
 
 **Description:**
 
-[`Nst_FromUTF32Func`](c_api-encoding.md/#nst_fromutf32func) for CP1257.
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for CP1257.
 
 ---
 
@@ -834,7 +834,7 @@ i32 Nst_check_1258_bytes(u8 *str, usize len)
 
 **Description:**
 
-[`Nst_CheckBytesFunc`](c_api-encoding.md/#nst_checkbytesfunc) for CP1258.
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for CP1258.
 
 ---
 
@@ -848,7 +848,7 @@ u32 Nst_1258_to_utf32(u8 *str)
 
 **Description:**
 
-[`Nst_ToUTF32Func`](c_api-encoding.md/#nst_toutf32func) for CP1258.
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for CP1258.
 
 ---
 
@@ -862,7 +862,7 @@ i32 Nst_1258_from_utf32(u32 ch, u8 *str)
 
 **Description:**
 
-[`Nst_FromUTF32Func`](c_api-encoding.md/#nst_fromutf32func) for CP1258.
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for CP1258.
 
 ---
 
@@ -876,7 +876,7 @@ i32 Nst_check_iso8859_1_bytes(u8 *str, usize len)
 
 **Description:**
 
-[`Nst_CheckBytesFunc`](c_api-encoding.md/#nst_checkbytesfunc) for ISO-8859-1.
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for ISO-8859-1.
 
 ---
 
@@ -890,7 +890,7 @@ u32 Nst_iso8859_1_to_utf32(u8 *str)
 
 **Description:**
 
-[`Nst_ToUTF32Func`](c_api-encoding.md/#nst_toutf32func) for ISO-8859-1.
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for ISO-8859-1.
 
 ---
 
@@ -904,7 +904,7 @@ i32 Nst_iso8859_1_from_utf32(u32 ch, u8 *str)
 
 **Description:**
 
-[`Nst_FromUTF32Func`](c_api-encoding.md/#nst_fromutf32func) for ISO-8859-1.
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for ISO-8859-1.
 
 ---
 
@@ -1019,7 +1019,7 @@ Nst_CPID Nst_acp(void)
 
 **WINDOWS ONLY** Returns the Nest code page ID of the local ANSI code page. If
 the ANSI code page is not supported,
-[`Nst_CP_LATIN1`](c_api-encoding.md/#nst_cpid) is returned.
+[`Nst_CP_LATIN1`](c_api-encoding.md#nst_cpid) is returned.
 
 ---
 
@@ -1114,8 +1114,8 @@ Nst_CPID Nst_check_bom(i8 *str, usize len, i32 *bom_size)
 
 **Returns:**
 
-The [`Nst_CPID`](c_api-encoding.md/#nst_cpid) deduced from the Byte Order Mark
-or [`Nst_CP_UNKNOWN`](c_api-encoding.md/#nst_cpid) if no BOM was detected.
+The [`Nst_CPID`](c_api-encoding.md#nst_cpid) deduced from the Byte Order Mark or
+[`Nst_CP_UNKNOWN`](c_api-encoding.md#nst_cpid) if no BOM was detected.
 
 ---
 
@@ -1131,7 +1131,7 @@ Nst_CPID Nst_detect_encoding(i8 *str, usize len, i32 *bom_size)
 
 Detects the encoding of a file.
 
-If no valid encoding is detected, [`Nst_CP_LATIN1`](c_api-encoding.md/#nst_cpid)
+If no valid encoding is detected, [`Nst_CP_LATIN1`](c_api-encoding.md#nst_cpid)
 is returned. No error is set.
 
 ---
@@ -1147,7 +1147,7 @@ Nst_CPID Nst_encoding_from_name(i8 *name)
 **Returns:**
 
 The encoding ID from a C string, if no matching encoding is found,
-[`Nst_CP_UNKNOWN`](c_api-encoding.md/#nst_cpid) is returned. No error is set.
+[`Nst_CP_UNKNOWN`](c_api-encoding.md#nst_cpid) is returned. No error is set.
 
 ---
 
@@ -1187,7 +1187,7 @@ typedef enum _Nst_CPID {
 
 The supported encodings in Nest.
 
-[`Nst_CP_UNKNOWN`](c_api-encoding.md/#nst_cpid) is -1,
-[`Nst_CP_LATIN1`](c_api-encoding.md/#nst_cpid) and
-[`Nst_CP_ISO8859_1`](c_api-encoding.md/#nst_cpid) are equivalent.
+[`Nst_CP_UNKNOWN`](c_api-encoding.md#nst_cpid) is -1,
+[`Nst_CP_LATIN1`](c_api-encoding.md#nst_cpid) and
+[`Nst_CP_ISO8859_1`](c_api-encoding.md#nst_cpid) are equivalent.
 

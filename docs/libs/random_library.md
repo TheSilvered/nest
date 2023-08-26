@@ -10,60 +10,60 @@
 
 ### `@choice`
 
-**Synopsis**:
+**Synopsis:**
 
 `[sequence: Str|Array|Vector] @choice -> Any`
 
-**Return value**:
+**Returns:**
 
-Returns a random element choosing between the ones in `sequence`.
+A random element choosing between the ones in `sequence`.
 
 ---
 
 ### `@random`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @random -> Int`
 
-**Return value**:
+**Returns:**
 
-The function returns a random integer in the range [-2^63, 2^63).
+A random integer in the range [-2^63, 2^63).
 
 ---
 
 ### `@rand_int`
 
-**Synopsis**:
+**Synopsis:**
 
 `[min: Int, max: Int] @rand_int -> Int`
 
-**Return value**:
+**Returns:**
 
-The function returns a random integer between `min` and `max`. If `max` is
-smaller than `min`, an error is thrown.
+A random integer between `min` and `max`. If `max` is smaller than `min`, an
+error is thrown.
 
 ---
 
 ### `@rand_perc`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @rand_perc -> Real`
 
-**Return value**:
+**Returns:**
 
-The function returns a random real number in the range \[0.0, 1.0\].
+A random real number in the range \[0.0, 1.0\).
 
 ---
 
 ### `@seed`
 
-**Synopsis**:
+**Synopsis:**
 
 `[seed: Int] @seed -> null`
 
-**Description**:
+**Description:**
 
 Sets the seed for the pseudo random number generator. By default it is
 `@@time_ns` from the function in `stdtime.nest`
@@ -72,10 +72,14 @@ Sets the seed for the pseudo random number generator. By default it is
 
 ### `@shuffle`
 
-**Synopsis**:
+**Synopsis:**
 
-`[sequence: Array|Vector] @shuffle -> null`
+`[sequence: Array|Vector] @shuffle -> Array|Vector`
 
-**Description**:
+**Description:**
 
 Shuffles `sequence` in-place, it does not create a new one.
+
+**Returns:**
+
+The shuffled sequence, the same object that was passed in.

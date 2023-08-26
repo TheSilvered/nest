@@ -1,26 +1,72 @@
 |#| '../test_lib.nest' = test
 |#| 'stdsequtil.nest' = sequ
+|#| 'stdrand.nest' = rand
 
-<{ 1, 3, 4, 5, 6 }> = v
+<{1, 3, 4, 5, 6}> = v
 
-{ 1, 2, 3 } (##n => n 1 +) @sequ.map { 2, 3, 4 } @test.assert_eq
+{1, 2, 3} (##n => n 1 +) @sequ.map {2, 3, 4} @test.assert_eq
 v 1 2 @sequ.insert_at
-v <{ 1, 2, 3, 4, 5, 6 }> @test.assert_eq
+v <{1, 2, 3, 4, 5, 6}> @test.assert_eq
 v -1 @sequ.remove_at
-v <{ 1, 2, 3, 4, 5 }> @test.assert_eq
+v <{1, 2, 3, 4, 5}> @test.assert_eq
 'hceilaloo' 0 9 2 @sequ.slice 'hello' @test.assert_eq
 'hceilaloo' 1 8 2 @sequ.slice 'ciao' @test.assert_eq
 'abcde' 3 0 -1 @sequ.slice 'dcb' @test.assert_eq
 'abcde' null null -1 @sequ.slice 'edcba' @test.assert_eq
-{ 1, 2, 3, 4 } 10 0 @sequ.slice {,} @test.assert_eq
+{1, 2, 3, 4} 10 0 @sequ.slice {,} @test.assert_eq
 
-<{ 1, 2, 3 }> <{ 4, 5, 6 }> @sequ.merge <{ 1, 2, 3, 4, 5, 6 }> @test.assert_eq
-?::(<{ 1, 2, 3 }>  { 4, 5, 6 }  @sequ.merge) Vector @test.assert_eq
-?::( { 1, 2, 3 }   { 4, 5, 6 }  @sequ.merge) Array  @test.assert_eq
+<{1, 2, 3}> <{4, 5, 6}> @sequ.merge <{1, 2, 3, 4, 5, 6}> @test.assert_eq
+?::(<{1, 2, 3}> {4, 5, 6} @sequ.merge) Vector @test.assert_eq
+?::( {1, 2, 3}  {4, 5, 6} @sequ.merge) Array  @test.assert_eq
 
-{ 4, 2, 6, 0, 5, 1, 9, 7, 3, 8 } = a
-a @sequ.sort { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9 } @test.assert_eq
-v @sequ.empty <{ }> @test.assert_eq
+#make_arr size as_str [
+    Array :: (0 -> size) = arr
+    !as_str ? => arr
+    => arr (##x => Str :: x) @sequ.map 
+]
+
+{,} = arr0
+{1} = arr1
+{2, 1} = arr2
+31 @make_arr @rand.shuffle = arr31
+32 @make_arr @rand.shuffle = arr32
+33 @make_arr @rand.shuffle = arr33
+63 @make_arr @rand.shuffle = arr63
+64 @make_arr @rand.shuffle = arr64
+65 @make_arr @rand.shuffle = arr65
+99 @make_arr @rand.shuffle = arr99
+
+arr0  @sequ.sort {,} @test.assert_eq
+arr1  @sequ.sort {1} @test.assert_eq
+arr2  @sequ.sort {1, 2} @test.assert_eq
+arr31 @sequ.sort (31 @make_arr) @test.assert_eq
+arr32 @sequ.sort (32 @make_arr) @test.assert_eq
+arr33 @sequ.sort (33 @make_arr) @test.assert_eq
+arr63 @sequ.sort (63 @make_arr) @test.assert_eq
+arr64 @sequ.sort (64 @make_arr) @test.assert_eq
+arr65 @sequ.sort (65 @make_arr) @test.assert_eq
+arr99 @sequ.sort (99 @make_arr) @test.assert_eq
+
+{'1'} = arr1
+{'2', '1'} = arr2
+31 true @make_arr @rand.shuffle = arr31
+32 true @make_arr @rand.shuffle = arr32
+33 true @make_arr @rand.shuffle = arr33
+63 true @make_arr @rand.shuffle = arr63
+64 true @make_arr @rand.shuffle = arr64
+65 true @make_arr @rand.shuffle = arr65
+99 true @make_arr @rand.shuffle = arr99
+
+arr0  (##x => Int :: x) @sequ.sort {,} @test.assert_eq
+arr1  (##x => Int :: x) @sequ.sort {'1'} @test.assert_eq
+arr2  (##x => Int :: x) @sequ.sort {'1', '2'} @test.assert_eq
+arr31 (##x => Int :: x) @sequ.sort (31 true @make_arr) @test.assert_eq
+arr32 (##x => Int :: x) @sequ.sort (32 true @make_arr) @test.assert_eq
+arr33 (##x => Int :: x) @sequ.sort (33 true @make_arr) @test.assert_eq
+arr63 (##x => Int :: x) @sequ.sort (63 true @make_arr) @test.assert_eq
+arr64 (##x => Int :: x) @sequ.sort (64 true @make_arr) @test.assert_eq
+arr65 (##x => Int :: x) @sequ.sort (65 true @make_arr) @test.assert_eq
+arr99 (##x => Int :: x) @sequ.sort (99 true @make_arr) @test.assert_eq
 
 { 0, 1, 2, 3, 4, 5 } (##x => x 3 >=) @sequ.filter { 3, 4, 5 } @test.assert_eq
 ?::(<{ 0 }> (##x => true) @sequ.filter) Vector @test.assert_eq

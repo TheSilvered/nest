@@ -18,8 +18,8 @@ Nst_set_error(name, msg)
 
 **Description:**
 
-Alias for [`_Nst_set_error`](c_api-error.md/#_nst_set_error) that casts `name`
-and `msg` to [`Nst_StrObj *`](c_api-str.md/#nst_strobj).
+Alias for [`_Nst_set_error`](c_api-error.md#_nst_set_error) that casts `name`
+and `msg` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
 
 ---
 
@@ -33,8 +33,8 @@ Nst_set_syntax_error(msg)
 
 **Description:**
 
-Alias for [`_Nst_set_syntax_error`](c_api-error.md/#_nst_set_syntax_error) that
-casts `msg` to [`Nst_StrObj *`](c_api-str.md/#nst_strobj).
+Alias for [`_Nst_set_syntax_error`](c_api-error.md#_nst_set_syntax_error) that
+casts `msg` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
 
 ---
 
@@ -48,8 +48,8 @@ Nst_set_memory_error(msg)
 
 **Description:**
 
-Alias for [`_Nst_set_memory_error`](c_api-error.md/#_nst_set_memory_error) that
-casts `msg` to [`Nst_StrObj *`](c_api-str.md/#nst_strobj).
+Alias for [`_Nst_set_memory_error`](c_api-error.md#_nst_set_memory_error) that
+casts `msg` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
 
 ---
 
@@ -63,8 +63,8 @@ Nst_set_type_error(msg)
 
 **Description:**
 
-Alias for [`_Nst_set_type_error`](c_api-error.md/#_nst_set_type_error) that
-casts `msg` to [`Nst_StrObj *`](c_api-str.md/#nst_strobj).
+Alias for [`_Nst_set_type_error`](c_api-error.md#_nst_set_type_error) that casts
+`msg` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
 
 ---
 
@@ -78,8 +78,8 @@ Nst_set_value_error(msg)
 
 **Description:**
 
-Alias for [`_Nst_set_value_error`](c_api-error.md/#_nst_set_value_error) that
-casts `msg` to [`Nst_StrObj *`](c_api-str.md/#nst_strobj).
+Alias for [`_Nst_set_value_error`](c_api-error.md#_nst_set_value_error) that
+casts `msg` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
 
 ---
 
@@ -93,8 +93,8 @@ Nst_set_math_error(msg)
 
 **Description:**
 
-Alias for [`_Nst_set_math_error`](c_api-error.md/#_nst_set_math_error) that
-casts `msg` to [`Nst_StrObj *`](c_api-str.md/#nst_strobj).
+Alias for [`_Nst_set_math_error`](c_api-error.md#_nst_set_math_error) that casts
+`msg` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
 
 ---
 
@@ -108,8 +108,8 @@ Nst_set_call_error(msg)
 
 **Description:**
 
-Alias for [`_Nst_set_call_error`](c_api-error.md/#_nst_set_call_error) that
-casts `msg` to [`Nst_StrObj *`](c_api-str.md/#nst_strobj).
+Alias for [`_Nst_set_call_error`](c_api-error.md#_nst_set_call_error) that casts
+`msg` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
 
 ---
 
@@ -123,8 +123,8 @@ Nst_set_import_error(msg)
 
 **Description:**
 
-Alias for [`_Nst_set_import_error`](c_api-error.md/#_nst_set_import_error) that
-casts `msg` to [`Nst_StrObj *`](c_api-str.md/#nst_strobj).
+Alias for [`_Nst_set_import_error`](c_api-error.md#_nst_set_import_error) that
+casts `msg` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
 
 ---
 
@@ -138,8 +138,8 @@ Nst_set_errorf(name, fmt, ...)
 
 **Description:**
 
-Alias for [`_Nst_set_error`](c_api-error.md/#_nst_set_error) that casts `name`
-to [`Nst_StrObj *`](c_api-str.md/#nst_strobj) and builds a formatted string with
+Alias for [`_Nst_set_error`](c_api-error.md#_nst_set_error) that casts `name` to
+[`Nst_StrObj *`](c_api-str.md#nst_strobj) and builds a formatted string with
 `fmt`.
 
 ---
@@ -154,7 +154,7 @@ Nst_set_syntax_errorf(fmt, ...)
 
 **Description:**
 
-Alias for [`_Nst_set_syntax_error`](c_api-error.md/#_nst_set_syntax_error) that
+Alias for [`_Nst_set_syntax_error`](c_api-error.md#_nst_set_syntax_error) that
 builds a formatted string with `fmt`.
 
 ---
@@ -169,7 +169,7 @@ Nst_set_memory_errorf(fmt, ...)
 
 **Description:**
 
-Alias for [`_Nst_set_memory_error`](c_api-error.md/#_nst_set_memory_error) that
+Alias for [`_Nst_set_memory_error`](c_api-error.md#_nst_set_memory_error) that
 builds a formatted string with `fmt`.
 
 ---
@@ -184,7 +184,7 @@ Nst_set_type_errorf(fmt, ...)
 
 **Description:**
 
-Alias for [`_Nst_set_type_error`](c_api-error.md/#_nst_set_type_error) that
+Alias for [`_Nst_set_type_error`](c_api-error.md#_nst_set_type_error) that
 builds a formatted string with `fmt`.
 
 ---
@@ -199,7 +199,7 @@ Nst_set_value_errorf(fmt, ...)
 
 **Description:**
 
-Alias for [`_Nst_set_value_error`](c_api-error.md/#_nst_set_value_error) that
+Alias for [`_Nst_set_value_error`](c_api-error.md#_nst_set_value_error) that
 builds a formatted string with `fmt`.
 
 ---
@@ -214,7 +214,7 @@ Nst_set_math_errorf(fmt, ...)
 
 **Description:**
 
-Alias for [`_Nst_set_math_error`](c_api-error.md/#_nst_set_math_error) that
+Alias for [`_Nst_set_math_error`](c_api-error.md#_nst_set_math_error) that
 builds a formatted string with `fmt`.
 
 ---
@@ -229,7 +229,7 @@ Nst_set_call_errorf(fmt, ...)
 
 **Description:**
 
-Alias for [`_Nst_set_call_error`](c_api-error.md/#_nst_set_call_error) that
+Alias for [`_Nst_set_call_error`](c_api-error.md#_nst_set_call_error) that
 builds a formatted string with `fmt`.
 
 ---
@@ -244,7 +244,7 @@ Nst_set_import_errorf(fmt, ...)
 
 **Description:**
 
-Alias for [`_Nst_set_import_error`](c_api-error.md/#_nst_set_import_error) that
+Alias for [`_Nst_set_import_error`](c_api-error.md#_nst_set_import_error) that
 builds a formatted string with `fmt`.
 
 ---
@@ -430,7 +430,7 @@ void Nst_print_error(Nst_Error err)
 
 **Description:**
 
-Prints a formatted [`Nst_Error`](c_api-error.md/#nst_error).
+Prints a formatted [`Nst_Error`](c_api-error.md#nst_error).
 
 ---
 
@@ -444,7 +444,7 @@ void Nst_print_traceback(Nst_Traceback tb)
 
 **Description:**
 
-Prints a formatted [`Nst_Traceback`](c_api-error.md/#nst_traceback).
+Prints a formatted [`Nst_Traceback`](c_api-error.md#nst_traceback).
 
 ---
 
@@ -769,7 +769,7 @@ bool Nst_traceback_init(void)
 **Description:**
 
 Initializes the traceback of the current
-[`Nst_state`](c_api-interpreter.md/#nst_get_state).
+[`Nst_state`](c_api-interpreter.md#nst_get_state).
 
 ---
 
@@ -784,7 +784,7 @@ void Nst_traceback_delete(void)
 **Description:**
 
 Frees the traceback of the current
-[`Nst_state`](c_api-interpreter.md/#nst_get_state).
+[`Nst_state`](c_api-interpreter.md#nst_get_state).
 
 ---
 
@@ -799,7 +799,7 @@ void Nst_set_internal_error(Nst_Error *error, Nst_Pos start, Nst_Pos end,
 
 **Description:**
 
-Sets a [`Nst_Error`](c_api-error.md/#nst_error) with the given fields.
+Sets a [`Nst_Error`](c_api-error.md#nst_error) with the given fields.
 
 `name` will increment the reference count but `msg` will not.
 
@@ -823,7 +823,7 @@ void Nst_set_internal_error_c(Nst_Error *error, Nst_Pos start, Nst_Pos end,
 
 **Description:**
 
-Sets a [`Nst_Error`](c_api-error.md/#nst_error) with the given fields and
+Sets a [`Nst_Error`](c_api-error.md#nst_error) with the given fields and
 creating the message from a C string.
 
 `name` will increment the reference count.
@@ -848,8 +848,8 @@ void Nst_set_internal_syntax_error(Nst_Error *error, Nst_Pos start,
 
 **Description:**
 
-Similar to [`Nst_set_internal_error`](c_api-error.md/#nst_set_internal_error)
-and uses "Syntax Error" as the name.
+Similar to [`Nst_set_internal_error`](c_api-error.md#nst_set_internal_error) and
+uses "Syntax Error" as the name.
 
 ---
 
@@ -864,8 +864,8 @@ void Nst_set_internal_memory_error(Nst_Error *error, Nst_Pos start,
 
 **Description:**
 
-Similar to [`Nst_set_internal_error`](c_api-error.md/#nst_set_internal_error)
-and uses "Memory Error" as the name.
+Similar to [`Nst_set_internal_error`](c_api-error.md#nst_set_internal_error) and
+uses "Memory Error" as the name.
 
 ---
 
@@ -880,8 +880,8 @@ void Nst_set_internal_type_error(Nst_Error *error, Nst_Pos start, Nst_Pos end,
 
 **Description:**
 
-Similar to [`Nst_set_internal_error`](c_api-error.md/#nst_set_internal_error)
-and uses "Type Error" as the name.
+Similar to [`Nst_set_internal_error`](c_api-error.md#nst_set_internal_error) and
+uses "Type Error" as the name.
 
 ---
 
@@ -896,8 +896,8 @@ void Nst_set_internal_value_error(Nst_Error *error, Nst_Pos start, Nst_Pos end,
 
 **Description:**
 
-Similar to [`Nst_set_internal_error`](c_api-error.md/#nst_set_internal_error)
-and uses "Value Error" as the name.
+Similar to [`Nst_set_internal_error`](c_api-error.md#nst_set_internal_error) and
+uses "Value Error" as the name.
 
 ---
 
@@ -912,8 +912,8 @@ void Nst_set_internal_math_error(Nst_Error *error, Nst_Pos start, Nst_Pos end,
 
 **Description:**
 
-Similar to [`Nst_set_internal_error`](c_api-error.md/#nst_set_internal_error)
-and uses "Math Error" as the name.
+Similar to [`Nst_set_internal_error`](c_api-error.md#nst_set_internal_error) and
+uses "Math Error" as the name.
 
 ---
 
@@ -928,8 +928,8 @@ void Nst_set_internal_call_error(Nst_Error *error, Nst_Pos start, Nst_Pos end,
 
 **Description:**
 
-Similar to [`Nst_set_internal_error`](c_api-error.md/#nst_set_internal_error)
-and uses "Call Error" as the name.
+Similar to [`Nst_set_internal_error`](c_api-error.md#nst_set_internal_error) and
+uses "Call Error" as the name.
 
 ---
 
@@ -944,8 +944,8 @@ void Nst_set_internal_import_error(Nst_Error *error, Nst_Pos start,
 
 **Description:**
 
-Similar to [`Nst_set_internal_error`](c_api-error.md/#nst_set_internal_error)
-and uses "Import Error" as the name.
+Similar to [`Nst_set_internal_error`](c_api-error.md#nst_set_internal_error) and
+uses "Import Error" as the name.
 
 ---
 
@@ -960,9 +960,8 @@ void Nst_set_internal_syntax_error_c(Nst_Error *error, Nst_Pos start,
 
 **Description:**
 
-Similar to
-[`Nst_set_internal_error_c`](c_api-error.md/#nst_set_internal_error_c) and uses
-"Syntax Error" as the name.
+Similar to [`Nst_set_internal_error_c`](c_api-error.md#nst_set_internal_error_c)
+and uses "Syntax Error" as the name.
 
 ---
 
@@ -977,9 +976,8 @@ void Nst_set_internal_memory_error_c(Nst_Error *error, Nst_Pos start,
 
 **Description:**
 
-Similar to
-[`Nst_set_internal_error_c`](c_api-error.md/#nst_set_internal_error_c) and uses
-"Memory Error" as the name.
+Similar to [`Nst_set_internal_error_c`](c_api-error.md#nst_set_internal_error_c)
+and uses "Memory Error" as the name.
 
 ---
 
@@ -994,9 +992,8 @@ void Nst_set_internal_type_error_c(Nst_Error *error, Nst_Pos start,
 
 **Description:**
 
-Similar to
-[`Nst_set_internal_error_c`](c_api-error.md/#nst_set_internal_error_c) and uses
-"Type Error" as the name.
+Similar to [`Nst_set_internal_error_c`](c_api-error.md#nst_set_internal_error_c)
+and uses "Type Error" as the name.
 
 ---
 
@@ -1011,9 +1008,8 @@ void Nst_set_internal_value_error_c(Nst_Error *error, Nst_Pos start,
 
 **Description:**
 
-Similar to
-[`Nst_set_internal_error_c`](c_api-error.md/#nst_set_internal_error_c) and uses
-"Value Error" as the name.
+Similar to [`Nst_set_internal_error_c`](c_api-error.md#nst_set_internal_error_c)
+and uses "Value Error" as the name.
 
 ---
 
@@ -1028,9 +1024,8 @@ void Nst_set_internal_math_error_c(Nst_Error *error, Nst_Pos start,
 
 **Description:**
 
-Similar to
-[`Nst_set_internal_error_c`](c_api-error.md/#nst_set_internal_error_c) and uses
-"Math Error" as the name.
+Similar to [`Nst_set_internal_error_c`](c_api-error.md#nst_set_internal_error_c)
+and uses "Math Error" as the name.
 
 ---
 
@@ -1045,9 +1040,8 @@ void Nst_set_internal_call_error_c(Nst_Error *error, Nst_Pos start,
 
 **Description:**
 
-Similar to
-[`Nst_set_internal_error_c`](c_api-error.md/#nst_set_internal_error_c) and uses
-"Call Error" as the name.
+Similar to [`Nst_set_internal_error_c`](c_api-error.md#nst_set_internal_error_c)
+and uses "Call Error" as the name.
 
 ---
 
@@ -1062,9 +1056,8 @@ void Nst_set_internal_import_error_c(Nst_Error *error, Nst_Pos start,
 
 **Description:**
 
-Similar to
-[`Nst_set_internal_error_c`](c_api-error.md/#nst_set_internal_error_c) and uses
-"Import Error" as the name.
+Similar to [`Nst_set_internal_error_c`](c_api-error.md#nst_set_internal_error_c)
+and uses "Import Error" as the name.
 
 ---
 
@@ -1094,6 +1087,6 @@ void Nst_set_internal_error_from_op_err(Nst_Error *error, Nst_Pos start,
 
 **Description:**
 
-Sets a [`Nst_Error`](c_api-error.md/#nst_error) from the global error and clears
+Sets a [`Nst_Error`](c_api-error.md#nst_error) from the global error and clears
 it.
 

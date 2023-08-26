@@ -22,6 +22,7 @@ nav:
   - Tutorials:
     - tutorials/c-lib-tutorial.md
   - Built-in libraries:
+    - libs/codecs_library.md
     - libs/coroutine_library.md
     - libs/error_library.md
     - libs/filesystem_library.md
@@ -34,7 +35,6 @@ nav:
     - libs/string_utilities_library.md
     - libs/system_library.md
     - libs/time_library.md
-    - libs/utf8_library.md
   - C API:
     - c_api/c_api.md
     - c_api/c_api-reference.md

@@ -10,7 +10,7 @@
 
 ### `@acos`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Byte|Int|Real] @acos -> Real`
 
@@ -22,7 +22,7 @@ Returns the area cosine of `n` radians.
 
 ### `@asin`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Byte|Int|Real] @asin -> Real`
 
@@ -34,7 +34,7 @@ Returns the area sine of `n` radians.
 
 ### `@atan`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Byte|Int|Real] @atan -> Real`
 
@@ -46,7 +46,7 @@ Returns the area tangent of `n` radians.
 
 ### `@acosh`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Byte|Int|Real] @acosh -> Real`
 
@@ -58,7 +58,7 @@ Returns the area hyperbolic cosine of `n` radians.
 
 ### `@asinh`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Byte|Int|Real] @asinh -> Real`
 
@@ -70,7 +70,7 @@ Returns the area hyperbolic sine of `n` radians.
 
 ### `@atanh`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Byte|Int|Real] @atanh -> Real`
 
@@ -82,7 +82,7 @@ Returns the area hyperbolic tangent of `n` radians.
 
 ### `@atan2`
 
-**Synopsis**:
+**Synopsis:**
 
 `[y: Byte|Int|Real, x: Byte|Int|Real] @atan2 -> Real`
 
@@ -95,7 +95,7 @@ relative to the x axis.
 
 ### `@cos`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Byte|Int|Real] @cos -> Real`
 
@@ -107,7 +107,7 @@ Returns the cosine of `n` radians.
 
 ### `@sin`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Byte|Int|Real] @sin -> Real`
 
@@ -119,7 +119,7 @@ Returns the sine of `n` radians.
 
 ### `@tan`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Byte|Int|Real] @tan -> Real`
 
@@ -131,7 +131,7 @@ Returns the tangent of `n` radians.
 
 ### `@cosh`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Byte|Int|Real] @cosh -> Real`
 
@@ -143,7 +143,7 @@ Returns the hyperbolic cosine of `n` radians.
 
 ### `@sinh`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Byte|Int|Real] @sinh -> Real`
 
@@ -155,7 +155,7 @@ Returns the hyperbolic sine of `n` radians.
 
 ### `@tanh`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Byte|Int|Real] @tanh -> Real`
 
@@ -169,7 +169,7 @@ Returns the hyperbolic tangent of `n` radians.
 
 ### `@abs`
 
-**Synopsis**:
+**Synopsis:**
 
 `[number: Byte|Int|Real] @abs -> Byte|Int|Real`
 
@@ -181,11 +181,11 @@ Returns the absolute value of `number`.
 
 ### `@ceil`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Byte|Int|Real] @ceil -> Int`
 
-**Description**:
+**Description:**
 
 Calculates the ceil of `n`.
 
@@ -193,7 +193,7 @@ Calculates the ceil of `n`.
 
 ### `@clamp`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Byte|Int|Real, min: Byte|Int|Real, max: Byte|Int|Real] @clamp -> Real`
 
@@ -207,7 +207,7 @@ If `n` is between `min` and `max` inclusive, it is returned.
 
 ### `@deg`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Byte|Int|Real] @deg -> Real`
 
@@ -219,7 +219,7 @@ Transforms `n` radians in degrees.
 
 ### `@dist_nd`
 
-**Synopsis**:
+**Synopsis:**
 
 `[a: Array|Vector, b: Array|Vector] @dist_nd -> Real`
 
@@ -233,7 +233,7 @@ of type `Int` or `Real`.
 
 ### `@dist_2d`
 
-**Synopsis**:
+**Synopsis:**
 
 `[a: Array|Vector, b: Array|Vector] @dist_2d -> Real`
 
@@ -246,7 +246,7 @@ have a length of 2 and the coordinates must be of type `Int` or `Real`.
 
 ### `@dist_3d`
 
-**Synopsis**:
+**Synopsis:**
 
 `[a: Array|Vector, b: Array|Vector] @dist_3d -> Real`
 
@@ -259,11 +259,11 @@ have a length of 3 and the coordinates must be of type `Int` or `Real`.
 
 ### `@divmod`
 
-**Synopsis**:
+**Synopsis:**
 
 `[a: Int, b: Int] @divmod -> Array`
 
-**Description**:
+**Description:**
 
 Returns a 2-element array with the first being the result of `a b /` and the
 second being the result of `a b %`, equal to `{ a b /, a b % }`
@@ -272,11 +272,11 @@ second being the result of `a b %`, equal to `{ a b /, a b % }`
 
 ### `@exp`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Byte|Int|Real] @exp -> Real`
 
-**Description**:
+**Description:**
 
 Returns Euler's constant `e` raised to the power of `n`.
 
@@ -284,11 +284,11 @@ Returns Euler's constant `e` raised to the power of `n`.
 
 ### `@floor`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Byte|Int|Real] @floor -> Int`
 
-**Description**:
+**Description:**
 
 Calculates the floor of `n`.
 
@@ -296,7 +296,7 @@ Calculates the floor of `n`.
 
 ### `@frexp`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Real] @frexp -> Array`
 
@@ -309,7 +309,7 @@ the exponent as the second.
 
 ### `@gcd`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n1: Byte|Int|Real|Vector|Array, n2: Byte|Int|Real|null] @gcd -> Byte|Int|Real`
 
@@ -323,7 +323,7 @@ it is returned.
 
 ### `@hypot`
 
-**Synopsis**:
+**Synopsis:**
 
 `[c1: Byte|Int|Real, c2: Byte|Int|Real] @hypot -> Real`
 
@@ -335,7 +335,7 @@ Calculates the hypotenuse of a right triangle given the two catheti.
 
 ### `@lcm`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n1: Byte|Int|Real|Vector|Array, n2: Byte|Int|Real|null] @lcm -> Byte|Int|Real`
 
@@ -349,7 +349,7 @@ returned.
 
 ### `@ldexp`
 
-**Synopsis**:
+**Synopsis:**
 
 `[m: Real, e: Int] @ldexp -> Real`
 
@@ -362,11 +362,11 @@ the exponent.
 
 ### `@ln`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Byte|Int|Real] @ln -> Real`
 
-**Description**:
+**Description:**
 
 Returns the natural logarithm of `n`.
 
@@ -374,11 +374,11 @@ Returns the natural logarithm of `n`.
 
 ### `@log`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Byte|Int|Real, m: Byte|Int|Real|null] @log -> Real`
 
-**Description**:
+**Description:**
 
 Returns the logarithm of `n` with base `m`. If `m` is `null` base `10` is used.
 
@@ -386,23 +386,23 @@ Returns the logarithm of `n` with base `m`. If `m` is `null` base `10` is used.
 
 ### `@map`
 
-**Synopsis**:
+**Synopsis:**
 
 To make the synopsis more readable, `Number` means `Byte|Int|Real`.
 
 `[n: Number, min1: Number, max1: Number, min2: Number, max2: Number] @map -> Real`
 
-**Description**:
+**Description:**
 
-Maps `n` from a range from `min1` to `max2`, to a range from `min2` to `max2`.  
-Uses the formula `(n min1 -) (max1 min1 -) / (max2 min2 -) * min2 +`.  
+Maps `n` from a range from `min1` to `max2`, to a range from `min2` to `max2`.
+Uses the formula `(n min1 -) (max1 min1 -) / (max2 min2 -) * min2 +`.
 If `min1` and `max1` are equal, `min2` is returned.
 
 ---
 
 ### `@max`
 
-**Synopsis**:
+**Synopsis:**
 
 `[a: Any, b: Any] @max -> Any`
 
@@ -426,7 +426,7 @@ instead.
 
 ### `@min`
 
-**Synopsis**:
+**Synopsis:**
 
 `[a: Any, b: Any] @min -> Any`
 
@@ -450,7 +450,7 @@ instead.
 
 ### `@rad`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Byte|Int|Real] @rad -> Real`
 
@@ -462,11 +462,11 @@ Transforms `n` degrees in radians.
 
 ### `@round`
 
-**Synopsis**:
+**Synopsis:**
 
 `[n: Byte|Int|Real] @round -> Int`
 
-**Description**:
+**Description:**
 
 Rounds `n` to the nearest integer. Numbers ending in `.5` get rounded up.
 
@@ -474,11 +474,11 @@ Rounds `n` to the nearest integer. Numbers ending in `.5` get rounded up.
 
 ### `@sum`
 
-**Synopsis**:
+**Synopsis:**
 
 `[sequence: Array|Vector] @sum -> Byte|Int|Real`
 
-**Description**:
+**Description:**
 
 Returns the sum of the elements in `sequence`. The type of the return value
 depends on the type of the elements inside the sequence.
@@ -502,7 +502,7 @@ The same as `PHI`.
 ### `PI`
 
 π, defined as the ratio between the radius of the circle and its
-semicircumference.  
+semicircumference.
 It is about equal to `3.14159`.
 
 ---
@@ -515,5 +515,5 @@ It is about equal to `3.14159`.
 
 ### `TAU`
 
-τ, defined as the ratio between the radius of the circle and its circumference.  
+τ, defined as the ratio between the radius of the circle and its circumference.
 It is about equal to `6.28318` or to `2π`.

@@ -50,7 +50,7 @@ GGC_OBJ(obj)
 
 **Description:**
 
-Casts obj to [`Nst_GGCObj *`](c_api-ggc.md/#nst_ggcobj).
+Casts obj to [`Nst_GGCObj *`](c_api-ggc.md#nst_ggcobj).
 
 ---
 
@@ -64,7 +64,7 @@ Nst_OBJ_IS_TRACKED(obj)
 
 **Description:**
 
-Checks whether a [`Nst_GGCObj`](c_api-ggc.md/#nst_ggcobj) is tracked by the
+Checks whether a [`Nst_GGCObj`](c_api-ggc.md#nst_ggcobj) is tracked by the
 garbage collector.
 
 ---
@@ -75,7 +75,7 @@ garbage collector.
 
 The macro to add support to the GGC to an object structure.
 
-It must be placed after [`Nst_OBJ_HEAD`](c_api-obj.md/#nst_obj_head) and before
+It must be placed after [`Nst_OBJ_HEAD`](c_api-obj.md#nst_obj_head) and before
 any other fields.
 
 ---
@@ -90,7 +90,7 @@ Nst_GGC_OBJ_INIT(obj, trav_func, track_function)
 
 **Description:**
 
-Initializes the fields of a [`Nst_GGCObj`](c_api-ggc.md/#nst_ggcobj).
+Initializes the fields of a [`Nst_GGCObj`](c_api-ggc.md#nst_ggcobj).
 
 ---
 
@@ -246,7 +246,7 @@ void Nst_ggc_init(void)
 **Description:**
 
 Initializes the garbage collector of
-[`Nst_state`](c_api-interpreter.md/#nst_get_state).
+[`Nst_state`](c_api-interpreter.md#nst_get_state).
 
 ---
 

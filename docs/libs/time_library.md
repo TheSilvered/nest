@@ -10,7 +10,7 @@
 
 ### `@clock_datetime`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @clock_datetime -> Map`
 
@@ -22,7 +22,7 @@ Returns a map containing both the information from `clock_time` and `date`.
 
 ### `@clock_time`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @clock_time -> Map`
 
@@ -35,7 +35,7 @@ Returns a map containing the current second as `second`, the current minute as
 
 ### `@date`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @date -> Map`
 
@@ -48,7 +48,7 @@ year day as `year_day`, month as `month` and year as `year`.
 
 ### `@day`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @day -> Int`
 
@@ -60,13 +60,13 @@ Returns the current day of the month, from `1` to `31`.
 
 ### `@gmt_clock_datetime`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @gmt_clock_datetime -> Map`
 
 **Return value**:
 
-Returns a map containing both the information from `gmt_clock_time` and `date`.  
+Returns a map containing both the information from `gmt_clock_time` and `date`.
 The date is take with the Greenwich Main Time too, to there might be discrepancy
 between `date` and `gmt_clock_datetime`.
 
@@ -74,7 +74,7 @@ between `date` and `gmt_clock_datetime`.
 
 ### `@gmt_clock_time`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @gmt_clock_time -> Map`
 
@@ -87,7 +87,7 @@ taken with the Greenwich Main Time.
 
 ### `@high_res_time`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @high_res_time -> Real`
 
@@ -100,7 +100,7 @@ has meaning only when compared with other values from the same function.
 
 ### `@high_res_time_ns`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @high_res_time_ns -> Int`
 
@@ -113,7 +113,7 @@ value has meaning only when compared with other values from the same function.
 
 ### `@hours`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @hours -> Int`
 
@@ -125,7 +125,7 @@ Returns the current hour, from `0` to `23`.
 
 ### `@minutes`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @minutes -> Int`
 
@@ -137,7 +137,7 @@ Returns the current minute, from `0` to `59`.
 
 ### `@monotonic_time`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @monotonic_time -> Real`
 
@@ -152,7 +152,7 @@ function.
 
 ### `@monotonic_time_ns`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @monotonic_time_ns -> Int`
 
@@ -167,7 +167,7 @@ the same function.
 
 ### `@month`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @month -> Int`
 
@@ -179,7 +179,7 @@ Returns the current month, from `1`, January, to `12`, December.
 
 ### `@seconds`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @seconds -> Int`
 
@@ -191,11 +191,11 @@ Returns the current second, from `0` to `59`.
 
 ### `@sleep`
 
-**Synopsis**:
+**Synopsis:**
 
 `[seconds: Byte|Int|Real] @sleep -> null`
 
-**Description**:
+**Description:**
 
 Pauses the execution for `seconds` seconds.
 
@@ -203,11 +203,11 @@ Pauses the execution for `seconds` seconds.
 
 ### `@sleep_ms`
 
-**Synopsis**:
+**Synopsis:**
 
 `[milliseconds: Byte|Int] @sleep_ms -> null`
 
-**Description**:
+**Description:**
 
 Pauses the execution for `milliseconds` milliseconds.
 
@@ -215,7 +215,7 @@ Pauses the execution for `milliseconds` milliseconds.
 
 ### `@time`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @time -> Real`
 
@@ -227,7 +227,7 @@ Returns the time since the epoch in seconds.
 
 ### `@time_ns`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @time_ns -> Int`
 
@@ -239,7 +239,7 @@ Returns the time since the epoch in nanoseconds.
 
 ### `@week_day`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @week_day -> Int`
 
@@ -251,7 +251,7 @@ Returns the current day of the week, from `0`, Sunday, to `6`, Saturday.
 
 ### `@year`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @year -> Int`
 
@@ -263,7 +263,7 @@ Returns the current year.
 
 ### `@year_day`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @year_day -> Int`
 

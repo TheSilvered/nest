@@ -13,11 +13,11 @@
 
 ### `@exit`
 
-**Synopsis**:
+**Synopsis:**
 
 `[code: Int?] @exit -> null`
 
-**Description**:
+**Description:**
 
 Ends the execution of the program and terminates with an exit code of `code`.
 If `code` is `null` it defaults to `0`.
@@ -26,7 +26,7 @@ If `code` is `null` it defaults to `0`.
 
 ### `@getenv`
 
-**Synopsis**:
+**Synopsis:**
 
 `[name: Str] @getenv -> Str?`
 
@@ -39,7 +39,7 @@ The function returns the environment variable `name`, if it does not exist,
 
 ### `@get_addr`
 
-**Synopsis**:
+**Synopsis:**
 
 `[object: Any] @get_addr -> Int`
 
@@ -51,7 +51,7 @@ Returns the address of the object in memory.
 
 ### `@get_ref_count`
 
-**Synopsis**:
+**Synopsis:**
 
 `[object: Any] @get_ref_count -> Int`
 
@@ -63,7 +63,7 @@ Returns the reference count of `object`
 
 ### `@hash`
 
-**Synopsis**:
+**Synopsis:**
 
 `[object: Any] @hash -> Int`
 
@@ -76,11 +76,11 @@ is returned.
 
 ### `@system`
 
-**Synopsis**:
+**Synopsis:**
 
 `[cmd: Str] @system -> Int`
 
-**Description**:
+**Description:**
 
 Executes `cmd` in a sub-shell.
 
@@ -93,11 +93,11 @@ On Linux is always the exit status, on Windows, it depends on the default shell.
 
 ### `@_get_cwd`
 
-**Synopsis**:
+**Synopsis:**
 
 `[] @_get_cwd -> Str`
 
-**Description**:
+**Description:**
 
 Gets the current working directory. If `_set_cwd` was never called, this is
 equivalent to `_cwd_`.
@@ -106,11 +106,11 @@ equivalent to `_cwd_`.
 
 ### `@_set_cwd`
 
-**Synopsis**:
+**Synopsis:**
 
 `[cwd: Str] @_set_cwd -> null`
 
-**Description**:
+**Description:**
 
 Sets the current working directory. The changes do not reflect in `_cwd_`.
 
@@ -118,11 +118,11 @@ Sets the current working directory. The changes do not reflect in `_cwd_`.
 
 ### `@_raw_exit`
 
-**Synopsis**:
+**Synopsis:**
 
 `[code: Int?] @_raw_exit -> null`
 
-**Description**:
+**Description:**
 
 Similar to [`exit`](#exit), but instead of throwing a special error, the C
 function is called.

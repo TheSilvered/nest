@@ -1,6 +1,6 @@
 # `map.h`
 
-[`Nst_MapObj`](c_api-map.md/#nst_mapobj) interface.
+[`Nst_MapObj`](c_api-map.md#nst_mapobj) interface.
 
 ## Authors
 
@@ -26,7 +26,7 @@ MAP(ptr)
 
 **Description:**
 
-Casts `ptr` to [`Nst_MapObj *`](c_api-map.md/#nst_mapobj).
+Casts `ptr` to [`Nst_MapObj *`](c_api-map.md#nst_mapobj).
 
 ---
 
@@ -40,9 +40,9 @@ Nst_map_set(map, key, value)
 
 **Description:**
 
-Alias for [`_Nst_map_set`](c_api-map.md/#_nst_map_set) which casts `map` to
-[`Nst_MapObj *`](c_api-map.md/#nst_mapobj), and `key` and value to
-[`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_map_set`](c_api-map.md#_nst_map_set) which casts `map` to
+[`Nst_MapObj *`](c_api-map.md#nst_mapobj), and `key` and value to
+[`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -56,9 +56,9 @@ Nst_map_get(map, key)
 
 **Description:**
 
-Alias for [`_Nst_map_get`](c_api-map.md/#_nst_map_get) that casts `map` to
-[`Nst_MapObj *`](c_api-map.md/#nst_mapobj) and `key` to
-[`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_map_get`](c_api-map.md#_nst_map_get) that casts `map` to
+[`Nst_MapObj *`](c_api-map.md#nst_mapobj) and `key` to
+[`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -72,9 +72,9 @@ Nst_map_drop(map, key)
 
 **Description:**
 
-Alias for [`_Nst_map_drop`](c_api-map.md/#_nst_map_drop) that casts `map` to
-[`Nst_MapObj *`](c_api-map.md/#nst_mapobj) and `key` to
-[`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_map_drop`](c_api-map.md#_nst_map_drop) that casts `map` to
+[`Nst_MapObj *`](c_api-map.md#nst_mapobj) and `key` to
+[`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -88,8 +88,8 @@ Nst_map_get_next_idx(curr_idx, map)
 
 **Description:**
 
-Alias for [`_Nst_map_get_next_idx`](c_api-map.md/#_nst_map_get_next_idx) that
-casts `map` to [`Nst_MapObj *`](c_api-map.md/#nst_mapobj).
+Alias for [`_Nst_map_get_next_idx`](c_api-map.md#_nst_map_get_next_idx) that
+casts `map` to [`Nst_MapObj *`](c_api-map.md#nst_mapobj).
 
 ---
 
@@ -103,8 +103,8 @@ Nst_map_get_prev_idx(curr_idx, map)
 
 **Description:**
 
-Alias for [`_Nst_map_get_prev_idx`](c_api-map.md/#_nst_map_get_prev_idx) that
-casts `map` to [`Nst_MapObj *`](c_api-map.md/#nst_mapobj).
+Alias for [`_Nst_map_get_prev_idx`](c_api-map.md#_nst_map_get_prev_idx) that
+casts `map` to [`Nst_MapObj *`](c_api-map.md#nst_mapobj).
 
 ---
 
@@ -118,9 +118,9 @@ Nst_map_set_str(map, key, value)
 
 **Description:**
 
-Alias for [`_Nst_map_set_str`](c_api-map.md/#_nst_map_set_str) that casts `map`
-to [`Nst_MapObj *`](c_api-map.md/#nst_mapobj) and `value` to
-[`Nst_Obj *`](c_api-obj.md/#nst_obj).
+Alias for [`_Nst_map_set_str`](c_api-map.md#_nst_map_set_str) that casts `map`
+to [`Nst_MapObj *`](c_api-map.md#nst_mapobj) and `value` to
+[`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -134,8 +134,8 @@ Nst_map_get_str(map, key)
 
 **Description:**
 
-Alias for [`Nst_map_get_str`](c_api-map.md/#nst_map_get_str) that casts `map` to
-[`Nst_MapObj *`](c_api-map.md/#nst_mapobj).
+Alias for [`Nst_map_get_str`](c_api-map.md#nst_map_get_str) that casts `map` to
+[`Nst_MapObj *`](c_api-map.md#nst_mapobj).
 
 ---
 
@@ -149,8 +149,8 @@ Nst_map_drop_str(map, key)
 
 **Description:**
 
-Alias for [`Nst_map_drop_str`](c_api-map.md/#nst_map_drop_str) that casts map to
-[`Nst_MapObj *`](c_api-map.md/#nst_mapobj).
+Alias for [`Nst_map_drop_str`](c_api-map.md#nst_map_drop_str) that casts map to
+[`Nst_MapObj *`](c_api-map.md#nst_mapobj).
 
 ---
 
@@ -172,7 +172,7 @@ typedef struct _Nst_MapNode {
 
 **Description:**
 
-The structure representing a node of a [`Nst_MapObj`](c_api-map.md/#nst_mapobj).
+The structure representing a node of a [`Nst_MapObj`](c_api-map.md#nst_mapobj).
 
 **Fields:**
 

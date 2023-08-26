@@ -31,7 +31,7 @@ passed to this function.
 
 **Returns:**
 
-The compiled [`Nst_InstList`](c_api-instructions.md/#nst_instlist) or `NULL` if
+The compiled [`Nst_InstList`](c_api-instructions.md#nst_instlist) or `NULL` if
 an error occurred.
 
 ---
@@ -46,7 +46,7 @@ void Nst_print_bytecode(Nst_InstList *ls)
 
 **Description:**
 
-Prints an [`Nst_InstList`](c_api-instructions.md/#nst_instlist).
+Prints an [`Nst_InstList`](c_api-instructions.md#nst_instlist).
 
 This function is called when using the -b option.
 
