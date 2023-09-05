@@ -87,7 +87,7 @@ for that configuration as well, you need to compile Nest for it first.
 Now that the library has been created you can navigate to `~/vec_lib/vec_lib`
 to access the source files. `dllmain.cpp` and `framework.h` are used on Windows
 to generate the DLL and `vec_lib.vcxproj` and `vec_lib.vcxproj.filters` are
-project files used by Visual Studio.  
+project files used by Visual Studio.
 Furthermore, if you navigate to `~/vec_lib/nest_source` you will find all the
 necessary headers.
 
@@ -108,11 +108,11 @@ that are the ones that you will want to modify.
 extern "C" {
 #endif // !__cplusplus
 
-EXPORT bool lib_init();
-EXPORT Nst_DeclrList *get_func_ptrs();
-// EXPORT void free_lib();
+NstEXP bool NstC lib_init();
+NstEXP Nst_DeclrList *NstC get_func_ptrs();
+// NstEXP void NstC free_lib();
 
-NST_FUNC_SIGN(add);
+Nst_FUNC_SIGN(add);
 
 #ifdef __cplusplus
 }
@@ -134,11 +134,11 @@ communicate with the library.
   interpreter is closing and the library is unloaded, here there should be the
   cleanup of the things initialized with `lib_init`
 
-Now we can get to the last line: `NST_FUNC_SIGN(add)`. This is also a function
+Now we can get to the last line: `Nst_FUNC_SIGN(add)`. This is also a function
 declaration that would appear like this without the macro:
 
 ```better-c
-Nst_Obj *add(usize arg_num, Nst_Obj **args, Nst_OpErr *err);
+Nst_Obj *NstC add(usize arg_num, Nst_Obj **args);
 ```
 
 Though using the macro is preferred since other macros rely on the correct
@@ -161,16 +161,15 @@ static bool lib_init_ = false;
 bool lib_init()
 {
     usize idx = 0;
-    Nst_OpErr err = { nullptr, nullptr };
 
     func_list_[idx++] = NST_MAKE_FUNCDECLR(add, 2);
 
-#if __LINE__ - FUNC_COUNT != 15 // keep this number as the line after the first
+#if __LINE__ - FUNC_COUNT != 14 // keep this number as the line after the first
                                 // func_list_[idx++] = ...
 #error
 #endif
 
-    lib_init_ = err.name == nullptr;
+    lib_init_ = !Nst_error_occurred();
     return lib_init_;
 }
 
@@ -179,19 +178,19 @@ Nst_DeclrList *get_func_ptrs()
     return lib_init_ ? &obj_list_ : nullptr;
 }
 
-NST_FUNC_SIGN(add)
+Nst_FUNC_SIGN(add)
 {
-    Nst_Int a, b;
-    NST_DEF_EXTRACT("ii", &a, &b);
-    return nst_int_new(a + b, err);
+    i64 a, b;
+    Nst_DEF_EXTRACT("ii", &a, &b);
+    return Nst_int_new(a + b);
 }
 ```
 
 First, let's look at the implementation of `lib_init`. The first two lines are
 there to make it easier to set the values of `func_list_` and to catch any
 errors, then line 14 declares the function `add` as a variable to be exported
-as a function that accepts two arguments.  
-Now let's address the elephant in the room: `#if __LINE__ - FUNC_COUNT != 15`.
+as a function that accepts two arguments.
+Now let's address the elephant in the room: `#if __LINE__ - FUNC_COUNT != 14`.
 This is quite odd but is there to prevent `FUNC_COUNT` from being incorrect and
 causing a write-out-of-bounds operation because the `func_list_` array is too
 small. The program will not compile, though, when you add any new statements
@@ -205,7 +204,7 @@ This said, let's take a look at the implementation of `add`. Adding two numbers
 is not a hard task: firstly the values passed from Nest are extracted, as they
 are in the `args` array, and then a new `Int` object is created from the sum
 of the values of the two arguments. I suggest reading the documentation of
-[`NST_DEF_EXTRACT`](../c_api/c_api-lib_import.md#nst_def_extract) and of the
+[`Nst_DEF_EXTRACT`](../c_api/c_api-lib_import.md#nst_def_extract) and of the
 other functions and macros declared in `lib_import.h` as they were originally
 thought for external libraries.
 
@@ -218,7 +217,7 @@ the new `Type` object. Then we can replace the declaration of `add` with this
 object declaration:
 
 ```better-c
-func_list_[idx++] = NST_MAKE_NAMED_OBJDECLR(t_Vec2, "Vec2");
+func_list_[idx++] = Nst_MAKE_NAMED_OBJDECLR(t_Vec2, "Vec2");
 ```
 
 This creates a new variable when the module is imported with the name `Vec2` and
@@ -226,7 +225,7 @@ the value of `t_Vec2`. But `t_Vec2` has not been yet initialized, that is why
 we add this line after before the declaration and change line 18:
 
 ```better-c
-t_Vec2 = nst_type_new("Vec2", 4, &err);
+t_Vec2 = Nst_type_new("Vec2");
 ```
 
 The last thing to do is implement `free_lib` since we initialized a new object
@@ -235,7 +234,7 @@ in `lib_init`.
 ```better-c
 void free_lib()
 {
-    nst_dec_ref(t_Vec2);
+    Nst_dec_ref(t_Vec2);
 }
 ```
 
@@ -268,31 +267,29 @@ the function declarations:
 ```better-c
 typedef struct _Vec2Obj
 {
-    NST_OBJ_HEAD;
+    Nst_OBJ_HEAD;
     f64 x, y;
 }
 Vec2Obj;
 ```
 
-Here, `NST_OBJ_HEAD` adds all the fields to the struct to be able to manage it
+Here, `Nst_OBJ_HEAD` adds all the fields to the struct to be able to manage it
 as an object and `x` and `y` are just additional fields.
 
 Then let's declare a new function to create an instance of this object:
 
 ```better-c
-Nst_Obj *vec2_new(f64 x, f64 y, Nst_OpErr *err);
+Nst_Obj *vec2_new(f64 x, f64 y);
 ```
 
 and implement it in `vec_lib.cpp`
 
 ```better-c
-Nst_Obj *vec2_new(f64 x, f64 y, Nst_OpErr *err)
+Nst_Obj *vec2_new(f64 x, f64 y)
 {
-    Vec2Obj *vec2 = nst_obj_alloc(Vec2Obj, t_Vec2, nullptr, err);
-    if ( vec2 == nullptr )
-    {
+    Vec2Obj *vec2 = Nst_obj_alloc(Vec2Obj, t_Vec2, nullptr);
+    if (vec2 == nullptr)
         return nullptr;
-    }
 
     vec2->x = x;
     vec2->y = y;
@@ -300,9 +297,6 @@ Nst_Obj *vec2_new(f64 x, f64 y, Nst_OpErr *err)
     return OBJ(vec2);
 }
 ```
-
-As you can see the last argument is a `Nst_OpErr *` because the memory
-allocation might fail.
 
 Now that we have the `Vec2` object ready, we can start working onto implementing
 the functions that the user will be able to call from Nest.
@@ -315,18 +309,18 @@ simply called `vec2` by adding `NST_FUNC_SIGN(vec2);` to `vec_lib.h` and
 the implementation to `vec_lib.cpp`:
 
 ```better-c
-NST_FUNC_SIGN(vec2)
+Nst_FUNC_SIGN(vec2)
 {
-    Nst_Real x, y;
-    NST_DEF_EXTRACT("NN", &x, &y);
-    return vec2_new(x, y, err);
+    f64 x, y;
+    Nst_DEF_EXTRACT("NN", &x, &y);
+    return vec2_new(x, y);
 }
 ```
 
 Now let's make it available to the user by adding this line to `lib_init`:
 
 ```better-c
-func_list_[idx++] = NST_MAKE_FUNCDECLR(vec2, 2);
+func_list_[idx++] = Nst_MAKE_FUNCDECLR(vec2, 2);
 ```
 
 and updating `FUNC_COUNT`. Note that the second argument, `2` is the number of
@@ -335,16 +329,16 @@ arguments that the function takes.
 Now we can try to test it and you should be able to create the vectors but if
 you try to print them you will probably be greeted with something like
 `<Vec2 object at 0x000001B2A47C36F0>`. That is not ideal, and since there is no
-way to see its contents. So let's create another function just for that called
+way to see its contents let's create another function just for that called
 `vec2_to_str`. Here I will just show you the implementation and you can add
 everything else just like you did for `vec2`.
 
 ```better-c
-NST_FUNC_SIGN(vec2_to_str)
+Nst_FUNC_SIGN(vec2_to_str)
 {
     Vec2Obj *vec2;
-    NST_DEF_EXTRACT("#", t_Vec2, &vec2);
-    return nst_sprintf("<Vec2 x=%lg y=%lg>", vec2->x, vec2->y);
+    Nst_DEF_EXTRACT("#", t_Vec2, &vec2);
+    return Nst_sprintf("<Vec2 x=%lg y=%lg>", vec2->x, vec2->y);
 }
 ```
 
@@ -354,8 +348,8 @@ Now that the basic functions are in place, you can start implementing various
 functions to get back the `x` and `y` values, to normalize, to get the length or
 the cross product etc... all following the general process showed above.
 
-To see my implementation of the library you can check it inside the examples
-directory in the repository.
+To see my implementation of the library you can check it in the
+[repository](https://github.com/TheSilvered/nest/tree/main/examples/vec_lib).
 
 ## Nest wrapper
 
@@ -365,5 +359,5 @@ the `.cnest` one.
 
 !!!note
     In Windows, even though the library is compiled as a `.dll` you should
-    change the extension to `.cnest` as that is the standard for Nest C
-    libraries.
+    change the extension to `.cnest` to allow the `.nest` wrapper to be
+    cross-platform.
