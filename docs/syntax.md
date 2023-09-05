@@ -29,7 +29,8 @@ have any combination of the following space-separated arguments:
 - `-O0` through `-O3` to specify the optimization level of the file; if the
   specified level is higher than the one specified by the actual command, the
   latter is used
-- `--cp1252` forces the file to be read with the CP or Windows 1252 encoding
+- `--encoding=<name>` forces the file to be read with the given encoding, the
+  list of valid encodings can be found [here](stdlib/io_library.md#open)
 - `--no-default` will not add any [predefined variable](#predefined-variables)
   to the global scope except for `_vars_`
 
@@ -37,7 +38,7 @@ In this example the file will be read using CP1252, only simple expressions are
 optimized and no predefined variables are added.
 
 ```nest
---$ --no-default --cp1252 -O1
+--$ --no-default --encoding=cp1252 -O1
 ```
 
 !!!note
@@ -141,13 +142,18 @@ are all the valid escape sequences:
 | `\ooo`   | -         | Octal byte                |
 | `\uhhhh` | -         | Any BMP Unicode character |
 | `\Uhhhhhhhh` | -     | Any Unicode character     |
+| `\(...)` | -         | A Nest expression         |
 
 !!!note
-    `h` represents a hexadecimal byte (`0-9`, `a-f` or `A-F`) and `n` an
-    octal one (`0-7`)  
+    `h` represents a hexadecimal byte (`0-9`, `a-f` or `A-F`) and `o` an
+    octal one (`0-7`)
+
 !!!note
-    octal escapes can have either one, two or three digits: `\0`, `\12` and
+    Octal escapes can have either one, two or three digits: `\0`, `\12` and
     `\012` are all valid
+
+!!!note
+    `...` are to be substituted with the expression to evaluate
 
 ### Array literals
 
@@ -422,12 +428,12 @@ The valid type casts in Nest are the following:
 | **`Type`**   |       |        |    ✓   |        |   ✓   |         |          |       |        |        |        |          |    ✓   |
 
 When `Int`, `Real` or `Byte` objects are casted to `Bool`, they become `false`
-if they are zero and `true` otherwise.  
+if they are zero and `true` otherwise.
 When `Str`, `Array`, `Vector` or `Map` objects are casted to a boolean, it
-returns `false` if their length zero and `true` otherwise.  
+returns `false` if their length zero and `true` otherwise.
 When an `IOFile` is casted to `Bool`, it returns `true` if the file is open and
-`false` if it has been closed.  
-When `Null` is casted to `Bool`, it always returns `false`.  
+`false` if it has been closed.
+When `Null` is casted to `Bool`, it always returns `false`.
 When any other object is casted to a `Bool`, it always returns `true`.
 
 ---
@@ -535,7 +541,7 @@ element in an array, vector or map.
 
 ---
 
-There is another kind of assignment in Nest: the unpacking assignment.  
+There is another kind of assignment in Nest: the unpacking assignment.
 An unpacking assignment takes a vector or an array and splits its contents into
 the variables.
 
@@ -724,7 +730,7 @@ When calling a function the arguments are taken from left to right:
 ### The return statement
 
 The return statement is introduced by `=>` and exits early from a function
-returning the value of the expression that follows it.  
+returning the value of the expression that follows it.
 If it is not followed by an expression or there is no such statement in the
 function, `null` is returned.
 
@@ -747,7 +753,7 @@ The switch statement has the following syntax:
 ```
 
 If `expression` is not equal to any of the cases, the code for the default case
-is executed. If there is no default case, nothing happens.  
+is executed. If there is no default case, nothing happens.
 When the code for a case is executed, the switch statement ends. To have the
 same behaviour as C when the `break` keyword is omitted, you can use the `..`
 keyword.

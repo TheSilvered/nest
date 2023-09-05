@@ -42,7 +42,7 @@ A new string containing the character associated with the given code point. If
 
 **Returns:**
 
-Returns the Unicode character at `index` in `string`. Negative indices do not
+The Unicode character at `index` in `string`. Negative indices do not
 work unlike normal extraction operations.
 
 !!!note

@@ -30,10 +30,9 @@ If `code` is `null` it defaults to `0`.
 
 `[name: Str] @getenv -> Str?`
 
-**Return value**:
+**Returns:**
 
-The function returns the environment variable `name`, if it does not exist,
-`null` is returned.
+The environment variable `name`, if it does not exist, `null` is returned.
 
 ---
 
@@ -43,9 +42,9 @@ The function returns the environment variable `name`, if it does not exist,
 
 `[object: Any] @get_addr -> Int`
 
-**Return value**:
+**Returns:**
 
-Returns the address of the object in memory.
+The address of the object in memory.
 
 ---
 
@@ -55,9 +54,9 @@ Returns the address of the object in memory.
 
 `[object: Any] @get_ref_count -> Int`
 
-**Return value**:
+**Returns:**
 
-Returns the reference count of `object`
+The reference count of `object`
 
 ---
 
@@ -67,10 +66,24 @@ Returns the reference count of `object`
 
 `[object: Any] @hash -> Int`
 
-**Return value**:
+**Returns:**
 
-Returns the hash of the object, used in maps. If the object is not hashable, -1
-is returned.
+The hash of the object, used in maps. If the object is not hashable, `-1` is
+returned.
+
+---
+
+### `@putenv`
+
+**Synopsis:**
+
+`[name: Str, value: Str] @putenv -> null`
+
+**Description:**
+
+Sets the value of `name` environment variable to be `value`. Both `name` and
+`value` cannot contain NUL characters and `name` cannot contain an equals sign
+(`=`).
 
 ---
 
@@ -84,9 +97,10 @@ is returned.
 
 Executes `cmd` in a sub-shell.
 
-**Return value**:
+**Returns:**
 
 The return value is the exit status of the shell.
+
 On Linux is always the exit status, on Windows, it depends on the default shell.
 
 ---
@@ -126,6 +140,7 @@ Sets the current working directory. The changes do not reflect in `_cwd_`.
 
 Similar to [`exit`](#exit), but instead of throwing a special error, the C
 function is called.
+
 This function cannot be accessed by importing the normal system library, you
 need to import the C source instead.
 
@@ -136,6 +151,12 @@ need to import the C source instead.
 ---
 
 ## Constants
+
+### `ENDIANNESS`
+
+The endiannes of the compiled executable, can be either `little` or `big`.
+
+---
 
 ### `PLATFORM`
 

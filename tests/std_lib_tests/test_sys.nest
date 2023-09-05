@@ -18,8 +18,10 @@ test.log_file io.STDOUT == ? [
     '../test_output.txt' 'a+' @io.open = test.log_file
 ]
 
-'sys.getenv (appdata): ' ('APPDATA' @sys.getenv) >< @test.println
-'sys.getenv (home): ' ('HOME' @sys.getenv) >< @test.println
+'sys.getenv (appdata): \('APPDATA' @sys.getenv)' @test.println
+'sys.getenv (home): \('HOME' @sys.getenv)' @test.println
+
+sys.ENDIANNESS @test.println
 
 'Nst:TESTENV' 'test-value' @sys.putenv
 'Nst:TESTENV' @sys.getenv 'test-value' @test.assert_eq

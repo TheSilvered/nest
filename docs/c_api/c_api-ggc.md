@@ -50,7 +50,7 @@ GGC_OBJ(obj)
 
 **Description:**
 
-Casts obj to [`Nst_GGCObj *`](c_api-ggc.md#nst_ggcobj).
+Casts `obj` to [`Nst_GGCObj *`](c_api-ggc.md#nst_ggcobj).
 
 ---
 

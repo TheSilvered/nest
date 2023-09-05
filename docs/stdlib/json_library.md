@@ -157,7 +157,7 @@ Opens the file at `path`, reads its content and parses is as json data.
 
 **Returns:**
 
-Returns the parsed data as a Nest object according to the
+The parsed data as a Nest object according to the
 [table above](#type-correlations).
 
 **Example:**

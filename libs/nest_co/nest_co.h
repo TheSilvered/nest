@@ -7,9 +7,9 @@
 extern "C" {
 #endif // !__cplusplus
 
-NstEXP bool lib_init();
-NstEXP Nst_DeclrList *get_func_ptrs();
-NstEXP void free_lib();
+NstEXP bool NstC lib_init();
+NstEXP Nst_DeclrList *NstC get_func_ptrs();
+NstEXP void NstC free_lib();
 
 typedef struct _CoroutineObj {
     Nst_OBJ_HEAD;

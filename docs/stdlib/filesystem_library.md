@@ -532,7 +532,7 @@ exist or if a system error occurs.
 
 **Returns:**
 
-Returns a new [`CPO`](filesystem_library.md#cpo) map.
+A new [`CPO`](filesystem_library.md#cpo) map.
 
 ---
 

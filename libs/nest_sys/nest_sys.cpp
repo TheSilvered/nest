@@ -36,20 +36,20 @@ bool lib_init()
     is_debug = Nst_false();
 #endif
 
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(system_,        1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(exit_,          1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(getenv_,        1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(putenv_,        2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_ref_count_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_addr_,      1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(hash_,          1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(endianness_,    0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_color_,    0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_set_cwd_,      1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_cwd_,      0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_version_,  0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_platform_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_raw_exit,      1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(system_,          1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(exit_,            1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(getenv_,          1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(putenv_,          2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_ref_count_,   1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_addr_,        1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(hash_,            1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_color_,      0);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_set_cwd_,        1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_cwd_,        0);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_endianness_, 0);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_version_,    0);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_platform_,   0);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_raw_exit,        1);
     func_list_[idx++] = Nst_MAKE_NAMED_OBJDECLR(is_debug, "_DEBUG");
 
 #if __LINE__ - FUNC_COUNT != 40
@@ -157,7 +157,7 @@ Nst_FUNC_SIGN(putenv_)
     }
 
     if (strchr((const char *)name->value, '=') != nullptr) {
-        Nst_set_value_error_c("the name cannot contain an euqlas sign (=)");
+        Nst_set_value_error_c("the name cannot contain an equals sign (=)");
         return nullptr;
     }
 
@@ -211,7 +211,7 @@ Nst_FUNC_SIGN(hash_)
     return Nst_int_new(Nst_obj_hash(args[0]));
 }
 
-Nst_FUNC_SIGN(endianness_)
+Nst_FUNC_SIGN(_get_endianness_)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);

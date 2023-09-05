@@ -2,19 +2,19 @@
 
 |#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_sys.dll' = __sys
 
-__sys.endianness_    = endianness
 __sys.exit_          = exit
 __sys.getenv_        = getenv
-__sys.putenv_        = putenv
 __sys.get_addr_      = get_addr
 __sys.get_ref_count_ = get_ref_count
 __sys.hash_          = hash
+__sys.putenv_        = putenv
 __sys.system_        = system
 __sys._get_cwd_      = _get_cwd
 __sys._set_cwd_      = _set_cwd
 
-@__sys._get_platform_ = PLATFORM
-@__sys._get_color_    = SUPPORTS_COLOR
-@__sys._get_version_  = VERSION
+@__sys._get_endianness_ = ENDIANNESS
+@__sys._get_platform_   = PLATFORM
+@__sys._get_color_      = SUPPORTS_COLOR
+@__sys._get_version_    = VERSION
 
 _vars_ '__sys' '_vars_' -

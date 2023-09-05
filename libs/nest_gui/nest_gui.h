@@ -36,9 +36,9 @@ typedef struct _GUI_App {
     Nst_Obj *opened_fonts;
 } GUI_App;
 
-NstEXP bool lib_init();
-NstEXP Nst_DeclrList *get_func_ptrs();
-NstEXP void free_lib();
+NstEXP bool NstC lib_init();
+NstEXP Nst_DeclrList *NstC get_func_ptrs();
+NstEXP void NstC free_lib();
 
 Nst_Obj *gui_font_new(TTF_Font *font);
 void set_sdl_error();

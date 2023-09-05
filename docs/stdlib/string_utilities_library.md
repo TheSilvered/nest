@@ -14,7 +14,7 @@
 
 `[n: Int] @bin -> Str`
 
-**Return value**:
+**Returns:**
 
 The function returns a string containing the binary representation of `n`
 without any prefix.
@@ -25,11 +25,11 @@ without any prefix.
 
 **Synopsis:**
 
-`[sequence: Array|Vector] @bytearray_to_str -> Str`
+`[sequence: Array|Vector, encoding: Str] @bytearray_to_str -> Str`
 
-**Return value**:
+**Returns:**
 
-Transforms an array of `Byte` objects into a string.
+Transforms an array of `Byte` objects into a string using the given encoding.
 
 ---
 
@@ -48,9 +48,9 @@ centered it will be closer to the left side.
 If `length` is smaller than or equal to `$string`, the string itself is returned.
 If `char` is `null` a space will be used instead.
 
-**Return value**:
+**Returns:**
 
-The function returns the centered string.
+The centered string.
 
 **Example:**
 
@@ -68,10 +68,9 @@ The function returns the centered string.
 
 `[string: Str, substring: Str] @ends_with -> Bool`
 
-**Return value**:
+**Returns:**
 
-Returns `true` if `substring` is equal to the end of `string` and `false`
-otherwise.
+`true` if `substring` is equal to the end of `string` and `false` otherwise.
 
 ---
 
@@ -81,10 +80,10 @@ otherwise.
 
 `[n: Int] @hex -> Str`
 
-**Return value**:
+**Returns:**
 
-The function returns a string containing the hexadecimal representation of `n`
-without any prefix.
+A string containing the hexadecimal representation of `n` without any
+prefix.
 
 ---
 
@@ -94,9 +93,9 @@ without any prefix.
 
 `[string: Str] @is_alnum -> Bool`
 
-**Return value**:
+**Returns:**
 
-Returns whether all the characters in `string` are numbers or letters.
+Whether all the characters in `string` are numbers or letters.
 
 ---
 
@@ -106,9 +105,9 @@ Returns whether all the characters in `string` are numbers or letters.
 
 `[string: Str] @is_alpha -> Bool`
 
-**Return value**:
+**Returns:**
 
-Returns whether all the characters in `string` are letters, both uppercase or
+Whether all the characters in `string` are letters, both uppercase or
 lowercase.
 
 ---
@@ -119,9 +118,9 @@ lowercase.
 
 `[string: Str, charset: Str] @is_charset -> Bool`
 
-**Return value**:
+**Returns:**
 
-Returns whether all the characters in `string` are contained in a charset.
+Whether all the characters in `string` are contained in a charset.
 `'hello' LETTERS @is_charset` is equal to `'hello' @is_alpha` but slower.
 
 ---
@@ -132,9 +131,9 @@ Returns whether all the characters in `string` are contained in a charset.
 
 `[string: Str] @is_digit -> Bool`
 
-**Return value**:
+**Returns:**
 
-Returns whether all the characters in `string` are numbers, dots (`.`) and signs
+Whether all the characters in `string` are numbers, dots (`.`) and signs
 (`+` and `-`) are not considered digits.
 
 ---
@@ -145,10 +144,9 @@ Returns whether all the characters in `string` are numbers, dots (`.`) and signs
 
 `[string: Str] @is_lower -> Bool`
 
-**Return value**:
+**Returns:**
 
-Returns whether all the letters in `string` are lowercase, any punctuation is
-ignored.
+Whether all the letters in `string` are lowercase, any punctuation is ignored.
 
 ---
 
@@ -158,10 +156,10 @@ ignored.
 
 `[string: Str] @is_printable -> Bool`
 
-**Return value**:
+**Returns:**
 
-Returns whether all the characters in `string` are printable. For example `\n`,
-a line feed, is not but `a` is.
+Whether all the characters in `string` are printable. For example `\n`, a line
+feed, is not but `a` is.
 
 ---
 
@@ -171,10 +169,10 @@ a line feed, is not but `a` is.
 
 `[string: Str] @is_title -> Bool`
 
-**Return value**:
+**Returns:**
 
-Returns whether all the words in `string` have the first letter uppercase and
-the others lowercase.
+Whether all the words in `string` have the first letter uppercase and the
+others lowercase.
 
 ---
 
@@ -184,10 +182,9 @@ the others lowercase.
 
 `[string: Str] @is_upper -> Bool`
 
-**Return value**:
+**Returns:**
 
-Returns whether all the letters in `string` are uppercase, any punctuation is
-ignored.
+Whether all the letters in `string` are uppercase, any punctuation is ignored.
 
 ---
 
@@ -203,9 +200,9 @@ Casts all the elements in `seq` and joins them in a string separating them with
 `separator`.
 If `separator` is `null` a space is used instead.
 
-**Return value**:
+**Returns:**
 
-The function returns a string with all the objects in `seq` joined together.
+A string with all the objects in `seq` joined together.
 
 ---
 
@@ -220,10 +217,9 @@ The function returns a string with all the objects in `seq` joined together.
 Finds the first occurrence of `substring` in `string` starting from the left and
 returns the index of the first character.
 
-**Return value**:
+**Returns:**
 
-The function returns the index where `substring` starts or `-1` if it is not
-inside `string`.
+The index where `substring` starts or `-1` if it is not inside `string`.
 
 ---
 
@@ -241,9 +237,9 @@ left and fills the remaining space with `char`.
 If `length` is smaller than or equal to `$string`, the string itself is returned.
 If `char` is `null` it defaults to `' '`.
 
-**Return value**:
+**Returns:**
 
-The function returns the justified string.
+The justified string.
 
 ---
 
@@ -253,7 +249,7 @@ The function returns the justified string.
 
 `[string: Str] @ltrim -> Str`
 
-**Return value**:
+**Returns:**
 
 Creates a new string with leading whitespace removed.
 
@@ -265,10 +261,9 @@ Creates a new string with leading whitespace removed.
 
 `[n: Int] @oct -> Str`
 
-**Return value**:
+**Returns:**
 
-The function returns a string containing the octal representation of `n` without
-any prefix.
+A string containing the octal representation of `n` without any prefix.
 
 ---
 
@@ -287,9 +282,9 @@ it finds one of the specified prefixes. Setting `base` to `null` is the same as
 setting it to `0`. Any underscore between the digits is ignored.
 If `string` does not contain a valid integer literal, an error it thrown.
 
-**Return value**:
+**Returns:**
 
-The function returns the parsed digit.
+The parsed integer.
 
 **Example:**
 
@@ -314,10 +309,9 @@ Replaces all the occurrences of `old_substring` in `string` with `new_substing`.
 `old_substring` and `new_substing` can be of different length.
 If `new_substing` is an empty string, nothing is replaced.
 
-**Return value**:
+**Returns:**
 
-The function returns a new string with all the occurrences of the substring
-replaced.
+A new string with all the occurrences of the substring replaced.
 
 ---
 
@@ -335,9 +329,9 @@ a string for most objects except for objects of type `Str` and `Byte`.
 becomes `"'\\n'"`.
 `Byte` object become their literal as well, using a decimal base.
 
-**Return value**:
+**Returns:**
 
-The function returns the string representation of the object given.
+The string representation of the object given.
 
 **Example:**
 
@@ -364,10 +358,9 @@ b" @su.repr --> "\"a'''\\nb\""
 Finds the first occurrence of `substring` in `string` starting from the right
 and returns the index of the first character.
 
-**Return value**:
+**Returns:**
 
-The function returns the index where `substring` starts or `-1` if it is not
-inside `string`.
+The index where `substring` starts or `-1` if it is not inside `string`.
 
 ---
 
@@ -385,9 +378,9 @@ right and fills the remaining space with `char`.
 If `length` is smaller than or equal to `$string`, the string itself is returned.
 If `char` is `null` a space will be used instead.
 
-**Return value**:
+**Returns:**
 
-The function returns the justified string.
+The justified string.
 
 ---
 
@@ -397,7 +390,7 @@ The function returns the justified string.
 
 `[string: Str] @rtrim -> Str`
 
-**Return value**:
+**Returns:**
 
 Creates a new string with trailing whitespace removed.
 
@@ -416,9 +409,9 @@ vector with all the resulting strings.
 If `separator` is `null`, the string is split using spaces. One or more
 continuous space character count as one space.
 
-**Return value**:
+**Returns:**
 
-The function returns a new vector containing the split strings.
+A new vector containing the split strings.
 
 **Example:**
 
@@ -436,10 +429,9 @@ The function returns a new vector containing the split strings.
 
 `[string: Str, substring: Str] @starts_with -> Bool`
 
-**Return value**:
+**Returns:**
 
-Returns `true` if `substring` is equal to the start of `string` and `false`
-otherwise.
+`true` if `substring` is equal to the start of `string` and `false` otherwise.
 
 ---
 
@@ -449,7 +441,7 @@ otherwise.
 
 `[string: Str] @str_to_bytearray -> Array`
 
-**Return value**:
+**Returns:**
 
 Transforms a string into an array of `Byte` objects.
 
@@ -461,7 +453,7 @@ Transforms a string into an array of `Byte` objects.
 
 `[string: Str] @to_lower -> Str`
 
-**Return value**:
+**Returns:**
 
 A new string is returned with all the letters lowercase.
 
@@ -480,7 +472,7 @@ A new string is returned with all the letters lowercase.
 
 `[string: Str] @to_title -> Str`
 
-**Return value**:
+**Returns:**
 
 A new string is returned with the first letter of every word uppercase and all
 the others lowercase. A word is defined as a piece of text surrounded by
@@ -502,7 +494,7 @@ whitespace.
 
 `[string: Str] @to_upper -> Str`
 
-**Return value**:
+**Returns:**
 
 A new string is returned with all the letters uppercase.
 
@@ -521,7 +513,7 @@ A new string is returned with all the letters uppercase.
 
 `[string: Str] @trim -> Str`
 
-**Return value**:
+**Returns:**
 
 Creates a new string with leading and trailing whitespaces removed.
 

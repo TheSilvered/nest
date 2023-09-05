@@ -7,9 +7,9 @@
 extern "C" {
 #endif // !__cplusplus
 
-NstEXP bool lib_init();
-NstEXP Nst_DeclrList *get_func_ptrs();
-NstEXP void free_lib();
+NstEXP bool NstC lib_init();
+NstEXP Nst_DeclrList *NstC get_func_ptrs();
+NstEXP void NstC free_lib();
 
 Nst_FUNC_SIGN(is_dir_);
 Nst_FUNC_SIGN(is_file_);

@@ -140,9 +140,9 @@ the second the current one.
 - `start_val`: the value that is passed to the sequence along the fist object
 - `max_items`: the maximum number of items in the end sequence
 
-**Return value**:
+**Returns:**
 
-The function returns the scanned sequence that includes `start_val`.
+The scanned sequence that includes `start_val`.
 
 **Example:**
 
@@ -172,9 +172,9 @@ through `func`.
 - `seq`: the sequence containing the items to be mapped
 - `func`: the function used to map each object
 
-**Return value**:
+**Returns:**
 
-The function returns a new sequence containing the mapped items.
+A new sequence containing the mapped items.
 
 **Example:**
 
@@ -199,11 +199,11 @@ arr (##n => n n *) @sequ.map = squares
 Creates a new sequence that merges the two sequences together, one after the
 other.
 
-**Return value**:
+**Returns:**
 
-The function returns a new sequence of type `Array` if both `seq1` and `seq2`
-are arrays and `Vector` otherwise, containing all the elements inside `seq1`
-followed by the elements inside `seq2`.
+A new sequence of type `Array` if both `seq1` and `seq2` are arrays and `Vector`
+otherwise, containing all the elements inside `seq1` followed by the elements
+inside `seq2`.
 
 ---
 
@@ -243,9 +243,9 @@ The operation happens from the end to the start of the sequence.
 - `start_val`: the value that is passed to the sequence along the fist object
 - `max_items`: the maximum number of items in the end sequence
 
-**Return value**:
+**Returns:**
 
-The function returns the scanned sequence that includes `start_val`.
+The scanned sequence that includes `start_val`.
 
 **Example:**
 
@@ -281,7 +281,7 @@ to `stop` separated by a gap of `step`.
 
 Any index that falls outside the sequence is clamped back in.
 
-**Return value**:
+**Returns:**
 
 The function returns the slice slice of the sequence.
 
@@ -311,6 +311,6 @@ objects are sorted according to the value of the corresponding key.
 
 `mapping_func` must take exactly one argument.
 
-**Return value**:
+**Returns:**
 
 The function returns `seq`.

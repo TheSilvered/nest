@@ -222,16 +222,24 @@ sln_file @io.close
 
 "LIB_NAME := " name "
 
+# Uncomment to add additional flags
+# LIB_FLAGS=
+
+# Uncomment to add additional libraries
+# LIB_LINKS=
+
 CC=g++
-CFLAGS=-Inest_source -Wall -shared -fPIC -rdynamic -std=c++2a
+CFLAGS = $(LIB_FLAGS) -D_FILE_OFFSET_BITS=64 -Inest_source -Wall -Wextra    \\
+         -Wlogical-op -Wnull-dereference -Wduplicated-cond -Wshadow -shared \\
+         -Wduplicated-branches -fPIC -rdynamic -std=c++2a
 DBG_FLAGS=-D_DEBUG -g -O0
-OUT_FILE=$(LIB_NAME).cnest
+TARGET_NAME=$(LIB_NAME).cnest
 
 x64_DIR = linux_release/x64
 x86_DIR = linux_release/x86
 DBG_DIR = linux_debug
 
-CLINKS = -lm -ldl -lnest
+CLINKS = -lm -ldl -lnest $(LIB_LINKS)
 CLINK_DIR_DBG := -L$(DBG_DIR)
 CLINK_DIR_x86 := -L$(x86_DIR)
 CLINK_DIR_x64 := -L$(x64_DIR)
@@ -241,25 +249,28 @@ CLINKS_x64 := $(CLINK_DIR_x64) $(CLINKS)
 
 SRCS := $(filter-out $(LIB_NAME)/dllmain.cpp, $(wildcard $(LIB_NAME)/*.c*))
 HEADERS := $(filter-out $(LIB_NAME)/framework.h, $(wildcard $(LIB_NAME)/*.h*))
-DBG_TARGET := $(DBG_DIR)/$(OUT_FILE)
-x64_TARGET := $(x64_DIR)/$(OUT_FILE)
-x86_TARGET := $(x86_DIR)/$(OUT_FILE)
+DBG_TARGET := $(DBG_DIR)/$(TARGET_NAME)
+x64_TARGET := $(x64_DIR)/$(TARGET_NAME)
+x86_TARGET := $(x86_DIR)/$(TARGET_NAME)
 
 .PHONY: debug x86
 
 $(x64_TARGET): $(SRCS) $(HEADERS)
-	mkdir -p $(x64_DIR)
-	$(CC) $(CFLAGS) $(SRCS) $(CLINKS_x64) -O3 -o $(x64_TARGET)
+	@mkdir -p $(x64_DIR)
+	@echo \"Compiling $(TARGET_NAME) for x64...\"
+	@$(CC) $(CFLAGS) $(SRCS) $(CLINKS_x64) -O3 -o $(x64_TARGET)
 
 x86: $(x86_TARGET);
 $(x86_TARGET): $(SRCS) $(HEADERS)
-	mkdir -p $(x86_DIR)
-	$(CC) $(CFLAGS) $(SRCS) $(CLINKS_x86) -O3 -m32 -o $(x86_TARGET)
+	@mkdir -p $(x86_DIR)
+	@echo \"Compiling $(TARGET_NAME) for x86...\"
+	@$(CC) $(CFLAGS) $(SRCS) $(CLINKS_x86) -O3 -m32 -o $(x86_TARGET)
 
 debug: $(DBG_TARGET);
 $(DBG_TARGET): $(SRCS) $(HEADERS)
-	mkdir -p $(DBG_DIR)
-	$(CC) $(CFLAGS) $(SRCS) $(CLINKS_DBG) $(DBG_FLAGS) -o $(DBG_TARGET)
+	@mkdir -p $(DBG_DIR)
+	@echo \"Compiling $(TARGET_NAME) in debug mode...\"
+	@$(CC) $(CFLAGS) $(SRCS) $(CLINKS_DBG) $(DBG_FLAGS) -o $(DBG_TARGET)
 " >< = makefile_content
 
 'makefile' 'w' @io.open = makefile
@@ -512,12 +523,11 @@ filters_file @io.close
 
 "#include \"framework.h\"
 
-BOOL APIENTRY DllMain(HMODULE hModule,
-                      DWORD   ul_reason_for_call,
-                      LPVOID  lpReserved)
+BOOL APIENTRY DllMain(HMODULE h_module, DWORD reason_for_call, LPVOID reserved)
 {
     return TRUE;
 }
+
 " = dllmain_content
 
 "#ifndef FRAMEWORK_H
@@ -538,11 +548,11 @@ BOOL APIENTRY DllMain(HMODULE hModule,
 extern \"C\" {
 #endif // !__cplusplus
 
-EXPORT bool lib_init();
-EXPORT Nst_DeclrList *get_func_ptrs();
-// EXPORT void free_lib();
+NstEXP bool NstC lib_init();
+NstEXP Nst_DeclrList *NstC get_func_ptrs();
+// NstEXP void NstC free_lib();
 
-NST_FUNC_SIGN(add);
+Nst_FUNC_SIGN(add);
 
 #ifdef __cplusplus
 }
@@ -562,16 +572,15 @@ static bool lib_init_ = false;
 bool lib_init()
 {
     usize idx = 0;
-    Nst_OpErr err = { nullptr, nullptr };
 
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(add, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(add, 2);
 
-#if __LINE__ - FUNC_COUNT != 15 // keep this number as the line after the first
+#if __LINE__ - FUNC_COUNT != 14 // keep this number as the line after the first
                                 // func_list_[idx++] = ...
 #error
 #endif
 
-    lib_init_ = err.name == nullptr;
+    lib_init_ = !Nst_error_occurred();
     return lib_init_;
 }
 
@@ -580,11 +589,11 @@ Nst_DeclrList *get_func_ptrs()
     return lib_init_ ? &obj_list_ : nullptr;
 }
 
-NST_FUNC_SIGN(add)
+Nst_FUNC_SIGN(add)
 {
-    Nst_Int a, b;
-    NST_DEF_EXTRACT(\"ii\", &a, &b);
-    return nst_int_new(a + b, err);
+    i64 a, b;
+    Nst_DEF_EXTRACT(\"ii\", &a, &b);
+    return Nst_int_new(a + b);
 }
 " >< = name_cpp_content
 

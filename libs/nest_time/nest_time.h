@@ -7,8 +7,8 @@
 extern "C" {
 #endif // !__cplusplus
 
-NstEXP bool lib_init();
-NstEXP Nst_DeclrList *get_func_ptrs();
+NstEXP bool NstC lib_init();
+NstEXP Nst_DeclrList *NstC get_func_ptrs();
 
 Nst_FUNC_SIGN(time_);
 Nst_FUNC_SIGN(time_ns_);

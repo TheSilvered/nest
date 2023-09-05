@@ -120,8 +120,8 @@ Flushes the output buffer of a file.
 
 **Returns:**
 
-Returns a 5-character string where the first character is `r` if the file can
-be read and `-` otherwise, the second one is `w` if the file can be written and
+A 5-character string where the first character is `r` if the file can be read
+and `-` otherwise, the second one is `w` if the file can be written and
 `-` otherwise, the third one `b` if the file is opened in binary mode and
 `-` if it is opened normally, the fourth is `s` if the file is seekable and
 `-` otherwise and the last one is `t` if the file is a TTY and `-` otherwise.
@@ -381,9 +381,9 @@ to a string before being written. If the file is closed an error is thrown.
 - `file`: the file to be written
 - `content`: the contents to be written
 
-**Return value**:
+**Returns:**
 
-The function returns the number of characters written.
+The number of characters written.
 
 **Example:**
 
