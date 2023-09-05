@@ -9,7 +9,7 @@ First things first you need to clone the latest stable release of Nest by
 executing:
 
 ```text
-git clone -b beta-0.12.1 https://github.com/TheSilvered/nest.git
+git clone -b stable https://github.com/TheSilvered/nest.git
 cd nest
 ```
 
