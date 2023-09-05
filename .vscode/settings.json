@@ -30,34 +30,13 @@
         "str.h": "c",
         "tokens.h": "c",
         "typedefs.h": "c",
-        "var_table.h": "c",
-        "chrono": "c",
-        "algorithm": "c",
-        "system_error": "c",
-        "string": "c",
-        "vector": "c",
-        "memory": "c",
-        "string_view": "c",
-        "array": "c",
-        "deque": "c",
-        "unordered_map": "c",
-        "initializer_list": "c",
-        "utility": "c",
-        "xlocale": "c",
-        "charconv": "c",
-        "xmemory": "c",
-        "iterator": "c",
-        "optional": "c",
-        "type_traits": "c",
-        "xlocmon": "c",
-        "xtr1common": "c",
-        "xutility": "c",
-        "sstream": "c"
+        "var_table.h": "c"
     },
     "makefile.makeDirectory": "build/linux/makefiles",
     "makefile.dryrunSwitches": [
         "--always-make",
         "--keep-going"
     ],
-    "makefile.makefilePath": "build/linux/makefiles/makefile"
+    "makefile.makefilePath": "build/linux/makefiles/makefile",
+    "C_Cpp.default.cStandard": "c23"
 }

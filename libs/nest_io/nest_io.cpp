@@ -830,10 +830,10 @@ Nst_FUNC_SIGN(encoding_)
     Nst_IOFileObj *f;
     Nst_DEF_EXTRACT("F", &f);
     if (f->encoding == NULL) {
-        if (Nst_IOF_IS_BIN(f))
-            Nst_set_type_error_c("cannot get the encoding of a binary file");
-        else if (Nst_IOF_IS_CLOSED(f))
+        if (Nst_IOF_IS_CLOSED(f))
             SET_FILE_CLOSED_ERROR;
+        else if (Nst_IOF_IS_BIN(f))
+            Nst_set_type_error_c("cannot get the encoding of a binary file");
         else
             Nst_set_value_error_c("failed to get the encoding of the file");
         return nullptr;

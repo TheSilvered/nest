@@ -1842,6 +1842,8 @@ Nst_CPID Nst_encoding_from_name(i8 *name)
         name_cpy[i] = tolower((u8)name[i]);
         if (name_cpy[i] == '_')
             name_cpy[i] = '-';
+        else if (name_cpy[i] == ' ')
+            name_cpy[i] = '-';
     }
     name_cpy[name_len] = 0;
 

@@ -7,6 +7,9 @@
 
 A programming language with no keywords.
 
+**This programming language is still in early development and is heavily
+unstable. Beta versions are not properly tested and might crash unexpectedly.**
+
 ## Features
 
 - Dynamically typed
@@ -18,20 +21,47 @@ A programming language with no keywords.
 - the standard library includes coroutines, a JSON parser and various other
   helper functions
 
-**This programming language is still in early development and is heavily unstable.
-The beta versions are not properly tested and might crash unexpectedly.**
+### Nest 0.14.0 planned featues and improvements
+
+- [ ] Object pools (optimization)
+- [ ] Remove `is_done` function from iterators & return special object with
+      `get_val`
+- [ ] `map` from `stdsequtil.nest` as an iterator
+- [ ] Argument to specify in-place or new for functions that modify accept
+  sequences
+  - [ ] `sequ.map`
+  - [ ] `sequ.sort`
+  - [ ] `sequ.lscan`
+  - [ ] `sequ.rscan`
+  - [ ] `rand.shuffle`
+- [ ] Add `copy` and `deepcopy` to `stdsequtil.nest`
+- [ ] Non-recursive JSON parsing & dumping
+- [ ] Add encoding arguments to `load_f` and `dump_f` in `stdjson.nest`
+- [ ] Add option for `Infinity` and `Nan` to `stdjson.nest`
+- [ ] Add `extUTF-16` encoding (with little and big endian variants) that accept
+- [ ] Rename `replace_substr` to `replace`
+- [ ] Make third argument of `replace_substr` optional to remove the substring
+- [ ] Add 'contains' stack operator `<.>`
+- [ ] Add `pos` argument to `lfind` and `rfind`
+- [ ] Automatic documentation generation for standard library
+- [ ] Avoid object to object casts in `Nst_extract_arg_values` if the first
+      object is `null`
+- [ ] Better testing with C
 
 ### Planned features
 
-- Regular expressions in the standard library
-- A custom graphics and UI standard library built on top of SDL2
-- Unicode built-in strings
-- Correct encoding/decoding in I/O
-- Better custom iterators
+- Regular expressions in the standard library [^1]
+- A custom graphics and UI standard library built on top of SDL2 [^2]
+
+[^1]: will probably be a port of PCRE
+
+[^2]: currently in the workings and undocumented, a preview can be accessed
+      with `_stdgui.nest` or `stdgui.cnest`
 
 ## Documentation
 
-The documentation is hosted on ReadTheDocs and can be found [here](https://nest-docs.readthedocs.io/).
+The documentation is hosted on ReadTheDocs and can be found
+[here](https://nest-docs.readthedocs.io/).
 
 ## Installation
 
@@ -46,8 +76,8 @@ Redistributable that can be downloaded here:
 | <https://aka.ms/vs/17/release/vc_redist.x86.exe> | 32-bit             |
 
 After insalling it you can download the installer from the desired release and
-run it. It is recommended to add Nest to the PATH environment variable to use it
-from the terminal.
+run it. It is recommended to add Nest to the PATH environment variable to use
+it from the terminal.
 
 Once installed you can check that it is working by running this command:
 
@@ -67,8 +97,8 @@ Once installed you can clone the repository and open the solution located in
 To create the installer you need to install InnoSetup, then navigate to
 `nest\build\windows` and run `update_exes.bat`.
 
-For this step you need to have either Nest already installed or Python 3 on your
-machine, in case you want to use Python run `update_exes.bat py`.
+For this step you need to have either Nest already installed or Python 3 on
+your machine, in case you want to use Python run `update_exes.bat py`.
 
 Once done you can navigate to `nest\build\windows\installer` and compile
 `installer-script-x64.iss` and `installer-script-x86.iss`.

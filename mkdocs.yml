@@ -22,19 +22,19 @@ nav:
   - Tutorials:
     - tutorials/c-lib-tutorial.md
   - Built-in libraries:
-    - libs/codecs_library.md
-    - libs/coroutine_library.md
-    - libs/error_library.md
-    - libs/filesystem_library.md
-    - libs/io_library.md
-    - libs/iterator_utilities_library.md
-    - libs/json_library.md
-    - libs/math_library.md
-    - libs/random_library.md
-    - libs/sequence_utilities_library.md
-    - libs/string_utilities_library.md
-    - libs/system_library.md
-    - libs/time_library.md
+    - stdlib/codecs_library.md
+    - stdlib/coroutine_library.md
+    - stdlib/error_library.md
+    - stdlib/filesystem_library.md
+    - stdlib/io_library.md
+    - stdlib/iterator_utilities_library.md
+    - stdlib/json_library.md
+    - stdlib/math_library.md
+    - stdlib/random_library.md
+    - stdlib/sequence_utilities_library.md
+    - stdlib/string_utilities_library.md
+    - stdlib/system_library.md
+    - stdlib/time_library.md
   - C API:
     - c_api/c_api.md
     - c_api/c_api-reference.md

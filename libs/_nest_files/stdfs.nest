@@ -46,6 +46,6 @@ __fs._get_copy_options_ = _get_copy_options
   - make_symlinks: C++ create_symlinks
   - make_hard_links: C++ create_hard_links
 /-
-__fs.CPO_ = CPO
+@__fs._get_copy_options_ = CPO
 
 _vars_ '__fs' '_vars_' -

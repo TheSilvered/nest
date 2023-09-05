@@ -102,7 +102,7 @@ Inserts `object` at `index` in `vect`.
 - `index`: the index where to insert the object
 - `object`: the object to insert
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdsequtil.nest' = sequ
@@ -133,7 +133,7 @@ the second the current one.
 { x1, x2, ... } f s @lscan == { s, s x1 @f, (s x1 @f) x2 @f, ... }
 ```
 
-**Arguments**:
+**Arguments:**
 
 - `seq`: the sequence to scan
 - `func`: the function to scan the sequence with
@@ -144,7 +144,7 @@ the second the current one.
 
 The function returns the scanned sequence that includes `start_val`.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdsequtil.nest' = sequ
@@ -167,7 +167,7 @@ Creates a new sequence of type `?::seq` where all items of `seq` are passed
 through `func`.
 `func` must take exactly one argument.
 
-**Arguments**:
+**Arguments:**
 
 - `seq`: the sequence containing the items to be mapped
 - `func`: the function used to map each object
@@ -176,7 +176,7 @@ through `func`.
 
 The function returns a new sequence containing the mapped items.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdsequtil.nest' = sequ
@@ -236,7 +236,7 @@ The operation happens from the end to the start of the sequence.
 !!!note
     The arguments passed to `func` are reversed compared to `lscan`.
 
-**Arguments**:
+**Arguments:**
 
 - `seq`: the sequence to scan
 - `func`: the function to scan the sequence with
@@ -247,7 +247,7 @@ The operation happens from the end to the start of the sequence.
 
 The function returns the scanned sequence that includes `start_val`.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdsequtil.nest' = sequ
@@ -269,7 +269,7 @@ The function returns the scanned sequence that includes `start_val`.
 Creates a new sequence of type `?::seq` that contains the elements from `start`
 to `stop` separated by a gap of `step`.
 
-**Arguments**:
+**Arguments:**
 
 - `seq`: the sequence to take a slice of
 - `start`: the starting index of the slice, if set to `null` it corresponds to
@@ -285,7 +285,7 @@ Any index that falls outside the sequence is clamped back in.
 
 The function returns the slice slice of the sequence.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdsequtil.nest' = sequ

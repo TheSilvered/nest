@@ -1006,7 +1006,7 @@ bool Nst_normalize_encoding(Nst_SourceText *text, Nst_CPID encoding,
             Nst_set_internal_error_from_op_err(error, pos, pos);
             return false;
         }
-        ch_len = Nst_cp_utf8.from_utf32(utf32_ch, buf.data + buf.len);
+        ch_len = Nst_cp_ext_utf8.from_utf32(utf32_ch, buf.data + buf.len);
         buf.len += ch_len;
         pos.col++;
     }

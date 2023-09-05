@@ -412,7 +412,7 @@ Returns the biggest object between `a` and `b`. If `b` is `null`, `a` must be
 either an `Array` or a `Vector` and the biggest object inside it is returned
 instead.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdmath.nest' = math
@@ -436,7 +436,7 @@ Returns the smallest object between `a` and `b`. If `b` is `null`, `a` must be
 either an `Array` or a `Vector` and the smallest object inside it is returned
 instead.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdmath.nest' = math

@@ -18,7 +18,7 @@
 
 Returns the absolute path of a file or directory.
 
-**Arguments**:
+**Arguments:**
 
 - `path`: the relative path to expand
 
@@ -36,7 +36,7 @@ Returns the canonical path of a file or directory. A canonical path is an
 absolute path that does not point to a link. This means that any canonical path
 is an absolute path but not vice-versa.
 
-**Arguments**:
+**Arguments:**
 
 - `path`: the relative path to expand
 
@@ -56,7 +56,7 @@ If `options` is `null`, `CPO.none` is used.
 An error is thrown if either the source or the destination path does not exits
 or if a system error occurs.
 
-**Arguments**:
+**Arguments:**
 
 - `from`: the path of the element to copy
 - `to`: the path the element should be copied as
@@ -76,10 +76,22 @@ Returns true if the two paths point to the same file and false otherwise. This
 returns true even when the two paths are different but are hard links to the
 same file.
 
-**Arguments**:
+**Arguments:**
 
 - `path_1`: the path of the first file
 - `path_2`: the path of the second file
+
+---
+
+### `@exists`
+
+**Synopsis:**
+
+`[path: Str] @exists -> Bool`
+
+**Returns:**
+
+`true` if `path` points to an existing file or directory.
 
 ---
 
@@ -93,7 +105,7 @@ same file.
 
 Returns the extension of the file pointed to by `path`.
 
-**Arguments**:
+**Arguments:**
 
 - `path`: the path of a file
 
@@ -119,11 +131,11 @@ Returns the extension of the file pointed to by `path`.
 
 Returns the name of the file `path` points to.
 
-**Arguments**:
+**Arguments:**
 
 - `path`: the path of a file
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdfs.nest' = fs
@@ -132,6 +144,30 @@ Returns the name of the file `path` points to.
 'dir/subdir/subdir2'  @fs.filename --> 'subdir2'
 'dir/subdir/subdir2/' @fs.filename --> ''
 ```
+
+---
+
+### `@is_block_device`
+
+**Synopsis:**
+
+`[path: Str] @is_block_device -> Bool`
+
+**Returns:**
+
+`true` if `path` points to a block device.
+
+---
+
+### `@is_char_device`
+
+**Synopsis:**
+
+`[path: Str] @is_char_device -> Bool`
+
+**Returns:**
+
+`true` if `path` points to a character device.
 
 ---
 
@@ -145,7 +181,7 @@ Returns the name of the file `path` points to.
 
 Checks if a directory exists at `path`.
 
-**Arguments**:
+**Arguments:**
 
 - `path`: the path of the directory to check
 
@@ -161,9 +197,45 @@ Checks if a directory exists at `path`.
 
 Checks if a file exists at `path`.
 
-**Arguments**:
+**Arguments:**
 
 - `path`: the path of the file to check
+
+---
+
+### `@is_named_pipe`
+
+**Synopsis:**
+
+`[path: Str] @is_named_pipe -> Bool`
+
+**Returns:**
+
+`true` if `path` points to a FIFO.
+
+---
+
+### `@is_socket`
+
+**Synopsis:**
+
+`[path: Str] @is_socket -> Bool`
+
+**Returns:**
+
+`true` if `path` points to a socket.
+
+---
+
+### `@is_symlink`
+
+**Synopsis:**
+
+`[path: Str] @is_socket -> Bool`
+
+**Returns:**
+
+`true` if `path` points to a symbolic link.
 
 ---
 
@@ -180,7 +252,7 @@ If `path_2` is an absolute path it is returned without any modifications.
 This function normalizes the slashes after joining: on Windows `/` becomes `\`
 and on Linux `\` becomes `/`.
 
-**Arguments**:
+**Arguments:**
 
 - `path_1`: the first path
 - `path_2`: the path to append to `path_1`
@@ -199,7 +271,7 @@ Lists the contents of a directory, both files and sub-directories but not the
 contents of the latter. Throws an error if `path` does not point to a valid
 directory or a system error occurs.
 
-**Arguments**:
+**Arguments:**
 
 - `path`: the directory of which the contents are listed
 
@@ -217,7 +289,7 @@ Similar to [`list_dir`](#list_dir) but also lists the contents of the
 sub directories. Throws an error if `path` does not point to a valid directory
 or a system error occurs.
 
-**Arguments**:
+**Arguments:**
 
 - `path`: the directory of which the contents are listed
 
@@ -234,9 +306,27 @@ or a system error occurs.
 Creates a new directory at `path`, succeeds even if the directory exists. An
 error is thrown if any parent directory does not exist or a system error occurs.
 
-**Arguments**:
+**Arguments:**
 
 - `path`: the path of the directory to create
+
+---
+
+### `@make_dir_symlink`
+
+**Synopsis:**
+
+`[target: Str, link: Str] @make_dir_symlink -> null`
+
+**Description:**
+
+Creates a new symbolic link that points to a directory.
+
+**Arguments:**
+
+- `target`: the directory the new symbolic link points to, does not have to
+  exist
+- `link`: the path of the new symbolic link
 
 ---
 
@@ -252,9 +342,64 @@ Creates a directory at `path`, and the parent directories if needed, succeeds
 even if the directory already exists. An error is thrown only if a system error
 occurs.
 
-**Arguments**:
+**Arguments:**
 
 - `path`: the path of the directories to create
+
+---
+
+### `@make_file_symlink`
+
+**Synopsis:**
+
+`[target: Str, link: Str] @make_file_symlink -> null`
+
+**Description:**
+
+Creates a new symbolic link that points to a file.
+
+**Arguments:**
+
+- `target`: the file the new symbolic link points to, does not have to exist
+- `link`: the path of the new symbolic link
+
+---
+
+### `@make_hard_link`
+
+**Synopsis:**
+
+`[target: Str, link: Str] @make_hard_link -> null`
+
+**Description:**
+
+Creates a new hard link that points either to a file or a directory.
+
+**Arguments:**
+
+- `target`: the file or directory the new symbolic link points to
+- `link`: the path of the new hard link
+
+---
+
+### `@normalize`
+
+**Synopsis:**
+
+`[path: Str] @normalize -> Str`
+
+**Description:**
+
+Translates any slashes in the path to the native separators.
+
+**Returns:**
+
+The normalized path.
+
+!!!warning
+    On Unix the file system allows for backslashes in names but this function
+    will replace them. `dir1/dir2/file\.txt` becomes `dir1/dir2/file/.txt` even
+    if the first is a valid path to a file called `file\.txt`.
 
 ---
 
@@ -268,11 +413,11 @@ occurs.
 
 Returns the path of the directory where the element is contained.
 
-**Arguments**:
+**Arguments:**
 
 - `path`: the path to a file or a directory
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdfs.nest' = fs
@@ -294,12 +439,12 @@ Returns the path of the directory where the element is contained.
 
 Returns a relative path to `path` using `base` as the starting point.
 
-**Arguments**:
+**Arguments:**
 
 - `path`: the directory to reach
 - `base`: the starting directory
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdfs.nest' = fs
@@ -321,7 +466,7 @@ Removes a directory at `path` which must be empty. An error is thrown if the
 directory contains any sub directories or files, the path does not point to a
 valid directory or if a system error occurs.
 
-**Arguments**:
+**Arguments:**
 
 - `path`: the path of the directory to delete
 
@@ -338,7 +483,7 @@ valid directory or if a system error occurs.
 Removes a directory at `path` and all of its contents, throws an error if the
 directory does not exist or a system error occurs.
 
-**Arguments**:
+**Arguments:**
 
 - `path`: the path of the directory to delete
 
@@ -355,7 +500,7 @@ directory does not exist or a system error occurs.
 Removes a file at `path`, throws an error if the file does not exist or a system
 error occurs.
 
-**Arguments**:
+**Arguments:**
 
 - `path`: the path of the file to delete
 
@@ -372,10 +517,22 @@ error occurs.
 Renames or moves a file or a directory. Throws an error if `old_path` does not
 exist or if a system error occurs.
 
-**Arguments**:
+**Arguments:**
 
 - `old_path`: the old path of the element
 - `new_path`: the path the element should be moved to
+
+---
+
+### `@_get_copy_options`
+
+**Synopsis:**
+
+`[] @_get_copy_options -> Map`
+
+**Returns:**
+
+Returns a new [`CPO`](filesystem_library.md#cpo) map.
 
 ---
 

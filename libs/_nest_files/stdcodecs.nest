@@ -11,6 +11,7 @@ __cc.to_iter_     = to_iter
 
 'ascii' = ASCII
 'utf8' = UTF_8
+'extutf8' = EXT_UTF_8
 'utf16' = UTF_16
 'utf16le' = UTF_16LE
 'utf16be' = UTF_16BE

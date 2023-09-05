@@ -14,12 +14,12 @@
 
 `[sequence: Iter|Array|Vector|Str] @chain -> Iter`
 
-**Return value**:
+**Returns:**
 
-The function returns an iterator that chains the objects inside of the elements
-inside of the sequence.
+An iterator that chains the objects inside of the elements inside of the
+sequence.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stditutil.nest' = itu
@@ -37,12 +37,11 @@ inside of the sequence.
 
 `[start: Int, step: Int] @count -> Iter`
 
-**Return value**:
+**Returns:**
 
-The function returns an iterator that counts indefinitely from `start`,
-advancing by `step`.
+An iterator that counts indefinitely from `start`, advancing by `step`.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stditutil.nest' = itu
@@ -58,12 +57,12 @@ advancing by `step`.
 
 `[sequence: Str|Array|Vector] @cycle -> Iter`
 
-**Return value**:
+**Returns:**
 
-The function returns an iterator that cycles through the elements of the given
-object restarting from the first when the sequence ends.
+An iterator that cycles through the elements of the given object restarting
+from the first when the sequence ends.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stditutil.nest' = itu
@@ -79,19 +78,20 @@ object restarting from the first when the sequence ends.
 
 `[iterator: Str|Array|Vector|Iter, start: Int?, step: Int?, invert_order: Bool?] @enumerate -> Iter`
 
-**Return value**:
+**Returns:**
 
-Returns a 2-element array where the first element is the object returned by
-the `iterator` and the second is the index of the current iteration. When
+A 2-element array where the first element is the object returned by the
+`iterator` and the second is the index of the current iteration. When
 `invert_order` is set to a truthy value the first element is the object and the
 second the iteration count.
+
 `start` by default is set to `0` and `step` to `1` but this behaviour can be
 changed by passing the additional arguments.
 
 If `iterator` is a `Str`, `Array` or `Vector` it is automatically casted to an
 `Iter`.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stditutil.nest' = itu
@@ -100,28 +100,6 @@ If `iterator` is a `Str`, `Array` or `Vector` it is automatically casted to an
 'Hi!' 5 -1 @itu.enumerate --> { 5, 'H' }, { 4, 'i' }, { 3, '!' }
 'Hi!' @itu.reversed @itu.enumerate --> { 0, '!' }, { 1, 'i' }, { 2, 'H' }
 'Hi!' 0 1 true @itu.enumerate --> { 'H', 0 }, { 'i', 1 }, { '!', 2 }
-```
-
----
-
-### `@items`
-
-**Synopsis:**
-
-`[map: Map] @items -> Iter`
-
-**Return value**:
-
-Returns all the key-value pairs in a map, the order is not the one in which you
-put the objects in.
-
-**Example**:
-
-```nest
-|#| 'stditutil.nest' = itu
-
-{ 'key_1': 1, 'key_2': 2 } @itu.items --> { 'key_1', 1 }, { 'key_2', 2 }
-{ 'key_2': 2, 'key_1': 1 } @itu.items --> { 'key_2', 2 }, { 'key_1', 1 }
 ```
 
 ---
@@ -168,12 +146,12 @@ Calls the `_start_` function of an iterator.
 
 `[map: Map] @keys -> Iter`
 
-**Return value**:
+**Returns:**
 
-Returns all the keys in a map, the order is not the one in which you put the
+All the keys in a map, the order is not the one in which you put the
 objects in.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stditutil.nest' = itu
@@ -184,17 +162,41 @@ objects in.
 
 ---
 
-### `@repeat`
+### `@new_iterator`
 
+**Synopsis:**
+
+`[start: Func, is_done: Func, get_val: Func, data: Any] @new_iterator -> Iter`
+
+**Description:**
+
+Creates a new iterator object that uses custom functions. Any of the given
+functions must take exactly one parameter that will be `data`.
+
+**Arguments:**
+
+- `start`: the function called when the iterator is started
+- `is_done`: the function called before any iteration to check if it has ended
+- `get_val`: the function called to get the value of each iteration
+- `data`: the object passed to the functions when they get called
+
+**Returns:**
+
+The new custom iterator.
+
+---
+
+### `@repeat`
 
 **Synopsis:**
 
 `[object: Any, times: Int] @repeat -> Iter`
 
-**Return value**:
+**Returns:**
 
-The function returns an iterator that repeats `object` the number of times
-specified by `times`.
+An iterator that repeats `object` the number of times specified by `times`.
+
+**Example:**
 
 ```nest
 |#| 'stditutil.nest' = itu
@@ -210,11 +212,11 @@ specified by `times`.
 
 `[sequence: Str|Array|Vector] @reversed -> Iter`
 
-**Return value**:
+**Returns:**
 
-Returns the elements of a sequence in reverse order, from the last to the first.
+The elements of a sequence in reverse order, from the last to the first.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stditutil.nest' = itu
@@ -230,12 +232,12 @@ Returns the elements of a sequence in reverse order, from the last to the first.
 
 `[map: Map] @values -> Iter`
 
-**Return value**:
+**Returns:**
 
-Returns all the values in a map, the order is not the one in which you put the
+All the values in a map, the order is not the one in which you put the
 objects in.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stditutil.nest' = itu
@@ -250,24 +252,20 @@ objects in.
 
 **Synopsis:**
 
-`[seq_1: Array|Vector, seq_2: null] @zip -> Iter`
-`[seq_1: Array|Vector|Str|Iter, seq_2: Array|Vector|Str|Iter] @zip -> Iter`
+`[seq_1: Array|Vector|Str|Iter, seq_2: Array|Vector|Str|Iter?] @zip -> Iter`
 
-**Return value**:
+**Returns:**
 
-In the first case, with `seq_2` that is `null`, `seq_1` must contain all
-objects of type `Array`, `Vector`, `Str` or `Iter` and must be of length equal
-or greater to two. The iterator returned in this case returns an array of the
-same length of `seq_1` containing the objects returned by each of the iterators
-that seq_1 contains. The iterator stops when the end of the shortest iterator
-is reached.
+The function either accepts a sequence containing `Array`, `Vector`, `Str` or
+`Iter` objects in `seq_1` with `seq_2` that is `null` or two sequences.
 
-In the second case the iterator returns an array of length two for each
-iteration containing the objects returned by the two sequences. This iterator,
-similarly to the first one, stops when the end of the of the shortest sequence
-is reached.
+When `seq_2` is `null` the function returns an iterator that constructs an
+array with the values at the same index in all of the sequences.
 
-**Example**:
+Otherwise an array of length two is created with the values at the same index
+inside `seq_1` and `seq_2`.
+
+**Example:**
 
 ```nest
 |#| 'stditutil.nest' = itu

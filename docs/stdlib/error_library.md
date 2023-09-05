@@ -18,18 +18,19 @@
 
 Calls `func` passing `args` as the arguments and catching any erros that occur.
 
-**Arguments**:
+**Arguments:**
 
 - `func`: the function to be called
 - `args`: the arguments to be passed to the function
 
-**Return value**:
+**Returns:**
 
-It returns a map containing `value`, `error` and `traceback`.
-`value` is the value returned by the function or `null` if an error occurred.
-`error` is `null` if everything was successful otherwise it is a map containing
-`name`, `message` and `pos`.
-`traceback` is an array of positions that trace back the cause of the error.
+A map containing `value`, `error` and `traceback`:
+
+- `value` is the value returned by the function or `null` if an error occurred.
+- `error` is `null` if everything was successful otherwise it is a map containing
+  `name`, `message` and `pos`.
+- `traceback` is an array of positions that trace back the cause of the error.
 
 A position is a map that contains 3 keys:
 
@@ -41,7 +42,7 @@ A position is a map that contains 3 keys:
 !!!note
     The lines start from 0 and the columns from 1 and the end position is inclusive.
 
-**Example**:
+**Example:**
 
 The file `example.nest` contains this code:
 ```nest

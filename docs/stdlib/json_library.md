@@ -50,7 +50,7 @@ Writes to the file at `path` the serialization to JSON of `object`. This
 function overwrites any existing content on the file.
 `indent` works exactly like it does in [`dump_s`](#dump_s).
 
-**Arguments**:
+**Arguments:**
 
 - `path`: the path of the file to write the contents to
 - `indent`: the indentation to use to format the file, see the argument with the
@@ -75,7 +75,7 @@ If set to -1, the smallest representation will be used (removing the spaces
 after commas and colons).
 By default `indent` is set to 0.
 
-**Arguments**:
+**Arguments:**
 
 - `object`: the object to serialize
 - `indent`: the indentation of the output string. If it is set to 0, everything
@@ -87,7 +87,7 @@ By default `indent` is set to 0.
 
 The function returns the string that contains the serialized object.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdjson.nest' = json
@@ -127,7 +127,7 @@ Returns the options set with `set_options`. To check if a given option is
 enabled use a bit-wise and (`&`) between it and all the return value of this
 function.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdjson.nest' = json
@@ -152,7 +152,7 @@ function.
 
 Opens the file at `path`, reads its content and parses is as json data.
 
-**Arguments**:
+**Arguments:**
 
 - `path`: the path to the file to open
 
@@ -161,7 +161,7 @@ Opens the file at `path`, reads its content and parses is as json data.
 The function returns the parsed data as a Nest object according to the
 [table above](#type-correlations).
 
-**Example**:
+**Example:**
 
 The file `example.json`:
 
@@ -189,7 +189,7 @@ The code:
 
 Parses the contents of `string` as JSON data.
 
-**Arguments**:
+**Arguments:**
 
 - `string`: the string to parse
 
@@ -198,7 +198,7 @@ Parses the contents of `string` as JSON data.
 The function returns the parsed data as a Nest object according to the
 [table above](#type-correlations).
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdjson.nest' = json
@@ -221,7 +221,7 @@ To set more than one option you can use the `|` operator. The options given are
 set to true and the ones omitted ones are set to false. Passing a `0` disables
 everything. Every option is disabled by default.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdjson.nest' = json

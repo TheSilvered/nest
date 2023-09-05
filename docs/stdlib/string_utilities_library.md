@@ -52,7 +52,7 @@ If `char` is `null` a space will be used instead.
 
 The function returns the centered string.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdsutil.nest' = su
@@ -291,7 +291,7 @@ If `string` does not contain a valid integer literal, an error it thrown.
 
 The function returns the parsed digit.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdsutil.nest' = su
@@ -339,7 +339,7 @@ becomes `"'\\n'"`.
 
 The function returns the string representation of the object given.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdsutil.nest' = su
@@ -420,7 +420,7 @@ continuous space character count as one space.
 
 The function returns a new vector containing the split strings.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdsutil.nest' = su
@@ -465,7 +465,7 @@ Transforms a string into an array of `Byte` objects.
 
 A new string is returned with all the letters lowercase.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdsutil.nest' = su
@@ -486,7 +486,7 @@ A new string is returned with the first letter of every word uppercase and all
 the others lowercase. A word is defined as a piece of text surrounded by
 whitespace.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdsutil.nest' = su
@@ -506,7 +506,7 @@ whitespace.
 
 A new string is returned with all the letters uppercase.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdsutil.nest' = su

@@ -20,18 +20,18 @@ arguments are ignored, if it is suspended or has ended the arguments are
 required. If the coroutine is running an error is thrown since coroutines cannot
 be recursive.
 
-**Arguments**:
+**Arguments:**
 
 - `co`: the coroutine to be called
 - `args`: the arguments passed to the function of the coroutine, this argument
   is ignored if it is paused
 
-**Return value**:
+**Returns:**
 
-The function returns either the value passed to `pause` when the coroutine was
-paused or the value that was returned by the function.
+Either the value passed to [`pause`](coroutine_library.md#pause) when the
+coroutine was paused or the value that was returned by the function.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdco.nest' = co
@@ -57,16 +57,16 @@ paused or the value that was returned by the function.
 
 Creates a `Coroutine` object from `function`.
 
-**Arguments**:
+**Arguments:**
 
 - `function`: the function to turn into a coroutine, it must be written in Nest
 
-**Return value**:
+**Returns:**
 
-The function returns a `Coroutine` object or throws an error if the given
-function was written in C or C++.
+A `Coroutine` object or throws an error if the given function was written in
+C or C++.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdco.nest' = co
@@ -97,13 +97,15 @@ ignored.
 The function of the coroutine must take exactly one argument that is the
 coroutine itself.
 
-**Arguments**:
+**Arguments:**
 
 - `co`: the coroutine to turn into an iterator
 
-**Return value**:
+**Returns:**
 
-The function returns the iterator created from the coroutine.
+The iterator created from the coroutine.
+
+**Example:**
 
 ```nest
 |#| 'stdco.nest' = co
@@ -143,15 +145,15 @@ Returns the current state of the coroutine, either suspended, running, paused or
 ended. To get the state as a string use the return value of this function to
 index the [STR_STATE](#str_state) map
 
-**Arguments**:
+**Arguments:**
 
 - `co`: the coroutine to get the state of
 
-**Return value**:
+**Returns:**
 
 The ID of the current state of the coroutine. This function does throw any errors.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdco.nest' = co
@@ -189,11 +191,11 @@ Pauses the current coroutine and makes it return `return_value`. If the
 coroutine was not called with `call` or if it is used outside of a coroutine an
 error is thrown.
 
-**Arguments**:
+**Arguments:**
 
 - `return_value`: the value that is returned by `call` when the coroutine pauses.
 
-**Example**:
+**Example:**
 
 ```nest
 |#| 'stdco.nest' = co
@@ -209,6 +211,18 @@ func_co {,} @co.call = value_returned --> Hello,
 func_co @co.call --> world!
 >>> (value_returned '\n' ><) --> 10
 ```
+
+---
+
+### `@_get_co_type_obj`
+
+**Synopsis:**
+
+`[] @_get_co_type_obj -> Type`
+
+**Returns:**
+
+The type object of coroutines.
 
 ---
 

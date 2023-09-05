@@ -51,18 +51,19 @@
 #define VERSION_MESSAGE                                                       \
     "Using Nest version: " Nst_VERSION
 
-#define ENCODING_MESSAGE                                                      \
-    "The supported encodings are:\n"                                          \
-    "- utf8 (aka utf-8)\n"                                                    \
-    "- ext-utf8 (aka ext-utf-8, extutf-8, extutf8)\n"                         \
-    "- utf16 (aka utf-16, utf16le, utf-16le)\n"                               \
-    "- utf16be (aka utf-16be)\n"                                              \
-    "- utf32 (aka utf-32, utf32le, utf-32le)\n"                               \
-    "- windows-1250..windows-1258 (aka windows125x, cp-125x, cp125x)\n"       \
-    "- ascii (aka us-ascii)\n"                                                \
-    "- iso-8859-1 (aka iso8859-1, latin1, latin, l1\n\n"                      \
-                                                                              \
-    "All names are case-insensitive and underscores (_) and hyphens (-) are\n"\
+#define ENCODING_MESSAGE                                                           \
+    "The supported encodings are:\n"                                               \
+    "- utf8 (aka utf-8)\n"                                                         \
+    "- ext-utf8 (aka ext-utf-8, extutf-8, extutf8)\n"                              \
+    "- utf16 (aka utf-16, utf16le, utf-16le)\n"                                    \
+    "- utf16be (aka utf-16be)\n"                                                   \
+    "- utf32 (aka utf-32, utf32le, utf-32le)\n"                                    \
+    "- utf32be (aka utf-32be)\n"                                                   \
+    "- windows-1250..windows-1258 (aka windows125x, cp-125x, cp125x)\n"            \
+    "- ascii (aka us-ascii)\n"                                                     \
+    "- iso-8859-1 (aka iso8859-1, latin1, latin-1, latin, l1)\n\n"                 \
+                                                                                   \
+    "All names are case-insensitive. Underscores (_), hyphens (-) and spaces are\n"\
     "interchangeable."
 
 bool supports_color = true;

@@ -20,7 +20,7 @@
 /* The minimum size of the old generation needed to collect it. */
 #define _Nst_OLD_GEN_MIN 100
 
-/* Casts obj to `Nst_GGCObj *`. */
+/* Casts `obj` to `Nst_GGCObj *`. */
 #define GGC_OBJ(obj) ((Nst_GGCObj *)(obj))
 
 /* Checks whether a `Nst_GGCObj` is tracked by the garbage collector. */

@@ -13,7 +13,7 @@
 #include <cerrno>
 #include <cstring>
 
-#define FUNC_COUNT 32
+#define FUNC_COUNT 31
 #define COPY_OPT(name) Nst_int_new((i64)fs::copy_options::name)
 
 namespace fs = std::filesystem;
@@ -21,44 +21,9 @@ namespace fs = std::filesystem;
 static Nst_ObjDeclr func_list_[FUNC_COUNT];
 static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
 static bool lib_init_ = false;
-static Nst_MapObj *CPO_ = nullptr;
 
 bool lib_init()
 {
-    CPO_ = MAP(Nst_map_new());
-    Nst_Obj *none_opt            = COPY_OPT(none);
-    Nst_Obj *skip_opt            = COPY_OPT(skip_existing);
-    Nst_Obj *overwrite_opt       = COPY_OPT(overwrite_existing);
-    Nst_Obj *update_opt          = COPY_OPT(update_existing);
-    Nst_Obj *recursive_opt       = COPY_OPT(recursive);
-    Nst_Obj *copy_symlinks_opt   = COPY_OPT(copy_symlinks);
-    Nst_Obj *skip_symlinks_opt   = COPY_OPT(skip_symlinks);
-    Nst_Obj *dirs_only_opt       = COPY_OPT(directories_only);
-    Nst_Obj *make_symlinks_opt   = COPY_OPT(create_symlinks);
-    Nst_Obj *make_hard_links_opt = COPY_OPT(create_hard_links);
-
-    Nst_map_set_str(CPO_, "none",            none_opt);
-    Nst_map_set_str(CPO_, "skip",            skip_opt);
-    Nst_map_set_str(CPO_, "overwrite",       overwrite_opt);
-    Nst_map_set_str(CPO_, "update",          update_opt);
-    Nst_map_set_str(CPO_, "recursive",       recursive_opt);
-    Nst_map_set_str(CPO_, "copy_symlinks",   copy_symlinks_opt);
-    Nst_map_set_str(CPO_, "skip_symlinks",   skip_symlinks_opt);
-    Nst_map_set_str(CPO_, "dirs_only",       dirs_only_opt);
-    Nst_map_set_str(CPO_, "make_symlinks",   make_symlinks_opt);
-    Nst_map_set_str(CPO_, "make_hard_links", make_hard_links_opt);
-
-    Nst_dec_ref(none_opt);
-    Nst_dec_ref(skip_opt);
-    Nst_dec_ref(overwrite_opt);
-    Nst_dec_ref(update_opt);
-    Nst_dec_ref(recursive_opt);
-    Nst_dec_ref(copy_symlinks_opt);
-    Nst_dec_ref(skip_symlinks_opt);
-    Nst_dec_ref(dirs_only_opt);
-    Nst_dec_ref(make_symlinks_opt);
-    Nst_dec_ref(make_hard_links_opt);
-
     usize idx = 0;
 
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_dir_, 1);
@@ -92,9 +57,8 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(filename_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(extension_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_copy_options_, 0);
-    func_list_[idx++] = Nst_MAKE_OBJDECLR(CPO_);
 
-#if __LINE__ - FUNC_COUNT != 65
+#if __LINE__ - FUNC_COUNT != 30
 #error
 #endif
 
@@ -105,11 +69,6 @@ bool lib_init()
 Nst_DeclrList *get_func_ptrs()
 {
     return lib_init_ ? &obj_list_ : nullptr;
-}
-
-void free_lib()
-{
-    Nst_dec_ref(CPO_);
 }
 
 static Nst_StrObj *heap_str(const i8 *str, usize len)
@@ -651,5 +610,41 @@ Nst_FUNC_SIGN(_get_copy_options_)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
-    return Nst_inc_ref(CPO_);
+
+    Nst_MapObj *cpo_map = MAP(Nst_map_new());
+
+    Nst_Obj *none_opt            = COPY_OPT(none);
+    Nst_Obj *skip_opt            = COPY_OPT(skip_existing);
+    Nst_Obj *overwrite_opt       = COPY_OPT(overwrite_existing);
+    Nst_Obj *update_opt          = COPY_OPT(update_existing);
+    Nst_Obj *recursive_opt       = COPY_OPT(recursive);
+    Nst_Obj *copy_symlinks_opt   = COPY_OPT(copy_symlinks);
+    Nst_Obj *skip_symlinks_opt   = COPY_OPT(skip_symlinks);
+    Nst_Obj *dirs_only_opt       = COPY_OPT(directories_only);
+    Nst_Obj *make_symlinks_opt   = COPY_OPT(create_symlinks);
+    Nst_Obj *make_hard_links_opt = COPY_OPT(create_hard_links);
+
+    Nst_map_set_str(cpo_map, "none",            none_opt);
+    Nst_map_set_str(cpo_map, "skip",            skip_opt);
+    Nst_map_set_str(cpo_map, "overwrite",       overwrite_opt);
+    Nst_map_set_str(cpo_map, "update",          update_opt);
+    Nst_map_set_str(cpo_map, "recursive",       recursive_opt);
+    Nst_map_set_str(cpo_map, "copy_symlinks",   copy_symlinks_opt);
+    Nst_map_set_str(cpo_map, "skip_symlinks",   skip_symlinks_opt);
+    Nst_map_set_str(cpo_map, "dirs_only",       dirs_only_opt);
+    Nst_map_set_str(cpo_map, "make_symlinks",   make_symlinks_opt);
+    Nst_map_set_str(cpo_map, "make_hard_links", make_hard_links_opt);
+
+    Nst_dec_ref(none_opt);
+    Nst_dec_ref(skip_opt);
+    Nst_dec_ref(overwrite_opt);
+    Nst_dec_ref(update_opt);
+    Nst_dec_ref(recursive_opt);
+    Nst_dec_ref(copy_symlinks_opt);
+    Nst_dec_ref(skip_symlinks_opt);
+    Nst_dec_ref(dirs_only_opt);
+    Nst_dec_ref(make_symlinks_opt);
+    Nst_dec_ref(make_hard_links_opt);
+
+    return OBJ(cpo_map);
 }
