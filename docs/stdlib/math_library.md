@@ -14,9 +14,9 @@
 
 `[n: Byte|Int|Real] @acos -> Real`
 
-**Return value**:
+**Returns:**
 
-Returns the area cosine of `n` radians.
+The arc cosine of `n` radians.
 
 ---
 
@@ -26,9 +26,9 @@ Returns the area cosine of `n` radians.
 
 `[n: Byte|Int|Real] @asin -> Real`
 
-**Return value**:
+**Returns:**
 
-Returns the area sine of `n` radians.
+The arc sine of `n` radians.
 
 ---
 
@@ -38,9 +38,9 @@ Returns the area sine of `n` radians.
 
 `[n: Byte|Int|Real] @atan -> Real`
 
-**Return value**:
+**Returns:**
 
-Returns the area tangent of `n` radians.
+The arc tangent of `n` radians.
 
 ---
 
@@ -50,9 +50,9 @@ Returns the area tangent of `n` radians.
 
 `[n: Byte|Int|Real] @acosh -> Real`
 
-**Return value**:
+**Returns:**
 
-Returns the area hyperbolic cosine of `n` radians.
+The arc hyperbolic cosine of `n` radians.
 
 ---
 
@@ -62,9 +62,9 @@ Returns the area hyperbolic cosine of `n` radians.
 
 `[n: Byte|Int|Real] @asinh -> Real`
 
-**Return value**:
+**Returns:**
 
-Returns the area hyperbolic sine of `n` radians.
+The arc hyperbolic sine of `n` radians.
 
 ---
 
@@ -74,9 +74,9 @@ Returns the area hyperbolic sine of `n` radians.
 
 `[n: Byte|Int|Real] @atanh -> Real`
 
-**Return value**:
+**Returns:**
 
-Returns the area hyperbolic tangent of `n` radians.
+The arc hyperbolic tangent of `n` radians.
 
 ---
 
@@ -86,9 +86,9 @@ Returns the area hyperbolic tangent of `n` radians.
 
 `[y: Byte|Int|Real, x: Byte|Int|Real] @atan2 -> Real`
 
-**Return value**:
+**Returns:**
 
-Calculates the angle in radians of the vector from `{ 0, 0 }` to `{ x, y }`
+The counter-clockwise angle in radians of the vector from `{0, 0}` to `{x, y}`
 relative to the x axis.
 
 ---
@@ -99,9 +99,9 @@ relative to the x axis.
 
 `[n: Byte|Int|Real] @cos -> Real`
 
-**Return value**:
+**Returns:**
 
-Returns the cosine of `n` radians.
+The cosine of `n` radians.
 
 ---
 
@@ -111,9 +111,9 @@ Returns the cosine of `n` radians.
 
 `[n: Byte|Int|Real] @sin -> Real`
 
-**Return value**:
+**Returns:**
 
-Returns the sine of `n` radians.
+The sine of `n` radians.
 
 ---
 
@@ -123,9 +123,9 @@ Returns the sine of `n` radians.
 
 `[n: Byte|Int|Real] @tan -> Real`
 
-**Return value**:
+**Returns:**
 
-Returns the tangent of `n` radians.
+The tangent of `n` radians.
 
 ---
 
@@ -135,9 +135,9 @@ Returns the tangent of `n` radians.
 
 `[n: Byte|Int|Real] @cosh -> Real`
 
-**Return value**:
+**Returns:**
 
-Returns the hyperbolic cosine of `n` radians.
+The hyperbolic cosine of `n` radians.
 
 ---
 
@@ -147,9 +147,9 @@ Returns the hyperbolic cosine of `n` radians.
 
 `[n: Byte|Int|Real] @sinh -> Real`
 
-**Return value**:
+**Returns:**
 
-Returns the hyperbolic sine of `n` radians.
+The hyperbolic sine of `n` radians.
 
 ---
 
@@ -159,9 +159,9 @@ Returns the hyperbolic sine of `n` radians.
 
 `[n: Byte|Int|Real] @tanh -> Real`
 
-**Return value**:
+**Returns:**
 
-Returns the hyperbolic tangent of `n` radians.
+The hyperbolic tangent of `n` radians.
 
 ---
 
@@ -173,9 +173,9 @@ Returns the hyperbolic tangent of `n` radians.
 
 `[number: Byte|Int|Real] @abs -> Byte|Int|Real`
 
-**Return value**:
+**Returns:**
 
-Returns the absolute value of `number`.
+The absolute value of `number`.
 
 ---
 
@@ -197,10 +197,10 @@ Calculates the ceil of `n`.
 
 `[n: Byte|Int|Real, min: Byte|Int|Real, max: Byte|Int|Real] @clamp -> Real`
 
-**Return value**:
+**Returns:**
 
-Returns a value such that `min <= value <= max`. If `n` is greater than `max`,
-`max` is returned, similarly if `n` is smaller than `min` then `min` is returned.
+A value such that `min <= value <= max`. If `n` is greater than `max`, `max` is
+returned, similarly if `n` is smaller than `min` then `min` is returned.
 If `n` is between `min` and `max` inclusive, it is returned.
 
 ---
@@ -211,7 +211,7 @@ If `n` is between `min` and `max` inclusive, it is returned.
 
 `[n: Byte|Int|Real] @deg -> Real`
 
-**Return value**:
+**Returns:**
 
 Transforms `n` radians in degrees.
 
@@ -223,7 +223,7 @@ Transforms `n` radians in degrees.
 
 `[a: Array|Vector, b: Array|Vector] @dist_nd -> Real`
 
-**Return value**:
+**Returns:**
 
 Calculates the euclidean distance of points `a` and `b` with the same number of
 dimensions. The two arrays must have the same length and the coordinates must be
@@ -237,7 +237,7 @@ of type `Int` or `Real`.
 
 `[a: Array|Vector, b: Array|Vector] @dist_2d -> Real`
 
-**Return value**:
+**Returns:**
 
 Calculates the euclidean distance of 2D points `a` and `b`. The two arrays must
 have a length of 2 and the coordinates must be of type `Int` or `Real`.
@@ -250,7 +250,7 @@ have a length of 2 and the coordinates must be of type `Int` or `Real`.
 
 `[a: Array|Vector, b: Array|Vector] @dist_3d -> Real`
 
-**Return value**:
+**Returns:**
 
 Calculates the euclidean distance of 3D points `a` and `b`. The two arrays must
 have a length of 3 and the coordinates must be of type `Int` or `Real`.
@@ -300,10 +300,10 @@ Calculates the floor of `n`.
 
 `[n: Real] @frexp -> Array`
 
-**Return value**:
+**Returns:**
 
-Returns an array of size two with the mantissa of `n` as the first element and
-the exponent as the second.
+An array of size two with the mantissa of `n` as the first element and the
+exponent as the second.
 
 ---
 
@@ -313,11 +313,11 @@ the exponent as the second.
 
 `[n1: Byte|Int|Real|Vector|Array, n2: Byte|Int|Real|null] @gcd -> Byte|Int|Real`
 
-**Return value**:
+**Returns:**
 
-Returns the greatest common divisor between `n1` and `n2`. If `n2` is `null`,
-`n1` must be a sequence and the greatest common divisor of the elements inside
-it is returned.
+The greatest common divisor between `n1` and `n2`. If `n2` is `null`, `n1` must
+be a sequence and the greatest common divisor of the elements inside it is
+returned.
 
 ---
 
@@ -327,7 +327,7 @@ it is returned.
 
 `[c1: Byte|Int|Real, c2: Byte|Int|Real] @hypot -> Real`
 
-**Return value**:
+**Returns:**
 
 Calculates the hypotenuse of a right triangle given the two catheti.
 
@@ -339,10 +339,10 @@ Calculates the hypotenuse of a right triangle given the two catheti.
 
 `[n1: Byte|Int|Real|Vector|Array, n2: Byte|Int|Real|null] @lcm -> Byte|Int|Real`
 
-**Return value**:
+**Returns:**
 
-Returns the least common multiple between `n1` and `n2`. If `n2` is `null`, `n1`
-must be a sequence and the least common multiple of the elements inside it is
+The least common multiple between `n1` and `n2`. If `n2` is `null`, `n1` must
+be a sequence and the least common multiple of the elements inside it is
 returned.
 
 ---
@@ -353,7 +353,7 @@ returned.
 
 `[m: Real, e: Int] @ldexp -> Real`
 
-**Return value**:
+**Returns:**
 
 Inverse of `frexp`, returns a `Real` number with `m` as the mantissa and `e` as
 the exponent.
@@ -406,11 +406,10 @@ If `min1` and `max1` are equal, `min2` is returned.
 
 `[a: Any, b: Any] @max -> Any`
 
-**Return value**:
+**Returns:**
 
-Returns the biggest object between `a` and `b`. If `b` is `null`, `a` must be
-either an `Array` or a `Vector` and the biggest object inside it is returned
-instead.
+The biggest object between `a` and `b`. If `b` is `null`, `a` must be either an
+`Array` or a `Vector` and the biggest object inside it is returned instead.
 
 **Example:**
 
@@ -430,11 +429,10 @@ instead.
 
 `[a: Any, b: Any] @min -> Any`
 
-**Return value**:
+**Returns:**
 
-Returns the smallest object between `a` and `b`. If `b` is `null`, `a` must be
-either an `Array` or a `Vector` and the smallest object inside it is returned
-instead.
+The smallest object between `a` and `b`. If `b` is `null`, `a` must be either
+an `Array` or a `Vector` and the smallest object inside it is returned instead.
 
 **Example:**
 
@@ -454,7 +452,7 @@ instead.
 
 `[n: Byte|Int|Real] @rad -> Real`
 
-**Return value**:
+**Returns:**
 
 Transforms `n` degrees in radians.
 

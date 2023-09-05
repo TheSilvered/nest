@@ -83,9 +83,9 @@ By default `indent` is set to 0.
             commas and colons. If set to -1, the smallest representation is used
             by removing even the spaces that 0 keeps.
 
-**Return value**:
+**Returns:**
 
-The function returns the string that contains the serialized object.
+The string that contains the serialized object.
 
 **Example:**
 
@@ -121,11 +121,10 @@ Output:
 
 `[] @get_options -> Int`
 
-**Return value**:
+**Returns:**
 
-Returns the options set with `set_options`. To check if a given option is
-enabled use a bit-wise and (`&`) between it and all the return value of this
-function.
+The options set with `set_options`. To check if a given option is enabled use
+a bit-wise and (`&`) between it and all the return value of this function.
 
 **Example:**
 
@@ -156,9 +155,9 @@ Opens the file at `path`, reads its content and parses is as json data.
 
 - `path`: the path to the file to open
 
-**Return value**:
+**Returns:**
 
-The function returns the parsed data as a Nest object according to the
+Returns the parsed data as a Nest object according to the
 [table above](#type-correlations).
 
 **Example:**
@@ -193,9 +192,9 @@ Parses the contents of `string` as JSON data.
 
 - `string`: the string to parse
 
-**Return value**:
+**Returns:**
 
-The function returns the parsed data as a Nest object according to the
+The parsed data as a Nest object according to the
 [table above](#type-correlations).
 
 **Example:**
