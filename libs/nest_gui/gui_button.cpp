@@ -171,7 +171,6 @@ void gui_button_destroy(GUI_Button *b)
         if (b->textures[i] != nullptr)
             SDL_DestroyTexture(b->textures[i]);
     }
-    gui_element_destroy((GUI_Element *)b);
 }
 
 GUI_Element *gui_button_new(GUI_Label *text, GUI_App *app)
@@ -181,7 +180,8 @@ GUI_Element *gui_button_new(GUI_Label *text, GUI_App *app)
         sizeof(GUI_Button),
         0, 0,
         text->rect.w + 14, text->rect.h + 5,
-        app);
+        app,
+        (Nst_ObjDstr)gui_button_destroy);
     if (b == nullptr) {
         Nst_dec_ref(text);
         return nullptr;
@@ -217,7 +217,6 @@ GUI_Element *gui_button_new(GUI_Label *text, GUI_App *app)
     text->handle_event_func = nullptr;
     b->frame_update_func = (UpdateFunc)gui_button_update;
     b->handle_event_func = (HandleEventFunc)gui_button_handle_event;
-    b->destructor = (Nst_ObjDestructor)gui_button_destroy;
 
     return (GUI_Element *)b;
 }

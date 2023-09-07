@@ -55,7 +55,7 @@ typedef void * lib_t;
 #define RETURN_CAST_TYPE_ERROR(type) do {                                     \
     Nst_set_type_error(Nst_sprintf(                                           \
         _Nst_EM_INVALID_CASTING,                                              \
-        TYPE_NAME(ob), STR(type)->value));                                    \
+        TYPE_NAME(ob), Nst_TYPE_STR(type)->value));                           \
     return NULL;                                                              \
     } while (0)
 
@@ -787,35 +787,7 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
         else
             return Nst_inc_ref(Nst_s.c_false);
     } else if (ob_t == Nst_t.Type) {
-        if (ob == OBJ(Nst_t.Null))
-            return Nst_inc_ref(Nst_s.t_Null);
-        if (ob == OBJ(Nst_t.Int))
-            return Nst_inc_ref(Nst_s.t_Int);
-        if (ob == OBJ(Nst_t.Real))
-            return Nst_inc_ref(Nst_s.t_Real);
-        if (ob == OBJ(Nst_t.Bool))
-            return Nst_inc_ref(Nst_s.t_Bool);
-        if (ob == OBJ(Nst_t.Str))
-            return Nst_inc_ref(Nst_s.t_Str);
-        if (ob == OBJ(Nst_t.Map))
-            return Nst_inc_ref(Nst_s.t_Map);
-        if (ob == OBJ(Nst_t.Vector))
-            return Nst_inc_ref(Nst_s.t_Vector);
-        if (ob == OBJ(Nst_t.Array))
-            return Nst_inc_ref(Nst_s.t_Array);
-        if (ob == OBJ(Nst_t.Byte))
-            return Nst_inc_ref(Nst_s.t_Byte);
-        if (ob == OBJ(Nst_t.Type))
-            return Nst_inc_ref(Nst_s.t_Type);
-        if (ob == OBJ(Nst_t.Iter))
-            return Nst_inc_ref(Nst_s.t_Iter);
-        if (ob == OBJ(Nst_t.Func))
-            return Nst_inc_ref(Nst_s.t_Func);
-        if (ob == OBJ(Nst_t.IOFile))
-            return Nst_inc_ref(Nst_s.t_IOFile);
-
-        // for custom types defined in external libraries
-        return Nst_string_copy(ob);
+        return Nst_inc_ref(Nst_TYPE_STR(ob));
     } else if (ob_t == Nst_t.Byte) {
         u8 value = AS_BYTE(ob);
         i8 *str = Nst_calloc_c(3, i8, NULL);
@@ -872,13 +844,13 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
         return Nst_string_new_allocated(buffer, len);
     } else {
         i8 *buffer = Nst_malloc_c(
-            STR(ob->type)->len + 16 + (i32)sizeof(usize) * 2,
+            Nst_TYPE_STR(ob->type)->len + 16 + (i32)sizeof(usize) * 2,
             i8);
         CHECK_BUFFER(buffer);
         i32 len = sprintf(
             buffer,
             "<%s object at 0x%0*zX>",
-            STR(ob->type)->value,
+            Nst_TYPE_STR(ob->type)->value,
             (int)sizeof(usize) * 2,
             (usize)ob);
         return Nst_string_new_allocated(buffer, len);
@@ -1023,7 +995,7 @@ static Nst_Obj *iter_to_seq(Nst_Obj *ob, bool is_vect)
         seq->cap = seq->len;
     }
 
-    seq->type = STR(Nst_inc_ref(Nst_t.Array));
+    seq->type = TYPE(Nst_inc_ref(Nst_t.Array));
     Nst_dec_ref(Nst_t.Vector);
     return OBJ(seq);
 }

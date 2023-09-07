@@ -492,7 +492,7 @@ content_check:
     return true;
 }
 
-static bool append_type(Nst_TypeObj *type, Nst_Buffer *buf, usize tot_types)
+static bool append_type(Nst_StrObj *type, Nst_Buffer *buf, usize tot_types)
 {
     if (!Nst_buffer_expand_by(buf, type->len + 6)) {
         Nst_error_clear();
@@ -548,14 +548,14 @@ static bool append_types(MatchType *type, Nst_Buffer *buf)
         case 11: type_str = Nst_t.Func; break;
         default: type_str = Nst_t.Type; break;
         }
-        if (!append_type(type_str, buf, tot_types))
+        if (!append_type(Nst_TYPE_STR(type_str), buf, tot_types))
             return false;
     }
 
     for (usize i = 0, n = type->custom_types_size; i < n; i++) {
         type_str = type->custom_types[i];
         tot_types--;
-        if (!append_type(type_str, buf, tot_types))
+        if (!append_type(Nst_TYPE_STR(type_str), buf, tot_types))
             return false;
     }
 
@@ -586,7 +586,7 @@ static void set_err(MatchType *type, Nst_Obj *ob, usize idx)
         return;
     }
 
-    Nst_StrObj *str = STR(Nst_sprintf(fmt, buf.data, idx, ob->type->value));
+    Nst_StrObj *str = STR(Nst_sprintf(fmt, buf.data, idx, ob->type->name.value));
     Nst_buffer_destroy(&buf);
     Nst_set_type_error(str);
 }

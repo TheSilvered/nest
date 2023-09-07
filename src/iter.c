@@ -7,10 +7,7 @@
 Nst_Obj *Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *is_done,
                       Nst_FuncObj *get_val, Nst_Obj *value)
 {
-    Nst_IterObj *iter = Nst_obj_alloc(
-        Nst_IterObj,
-        Nst_t.Iter,
-        _Nst_iter_destroy);
+    Nst_IterObj *iter = Nst_obj_alloc(Nst_IterObj, Nst_t.Iter);
     if (iter == NULL) {
         Nst_dec_ref(start);
         Nst_dec_ref(is_done);
@@ -19,18 +16,18 @@ Nst_Obj *Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *is_done,
         return NULL;
     }
 
+    if (Nst_HAS_FLAG(start, Nst_FLAG_GGC_IS_SUPPORTED)
+        || Nst_HAS_FLAG(is_done, Nst_FLAG_GGC_IS_SUPPORTED)
+        || Nst_HAS_FLAG(get_val, Nst_FLAG_GGC_IS_SUPPORTED)
+        || Nst_HAS_FLAG(value, Nst_FLAG_GGC_IS_SUPPORTED))
+    {
+        Nst_GGC_OBJ_INIT(iter);
+    }
+
     iter->start = start;
     iter->is_done = is_done;
     iter->get_val = get_val;
     iter->value = value;
-
-    if (Nst_FLAG_HAS(start, Nst_FLAG_GGC_IS_SUPPORTED)
-        || Nst_FLAG_HAS(is_done, Nst_FLAG_GGC_IS_SUPPORTED)
-        || Nst_FLAG_HAS(get_val, Nst_FLAG_GGC_IS_SUPPORTED)
-        || Nst_FLAG_HAS(value, Nst_FLAG_GGC_IS_SUPPORTED))
-    {
-        Nst_GGC_OBJ_INIT(iter, _Nst_iter_traverse, _Nst_iter_track);
-    }
 
     return OBJ(iter);
 }
@@ -43,27 +40,12 @@ void _Nst_iter_destroy(Nst_IterObj *iter)
     Nst_dec_ref(iter->value);
 }
 
-void _Nst_iter_track(Nst_IterObj* iter)
-{
-    if (Nst_FLAG_HAS(iter->start, Nst_FLAG_GGC_IS_SUPPORTED))
-        Nst_ggc_track_obj((Nst_GGCObj*)iter->start);
-
-    if (Nst_FLAG_HAS(iter->is_done, Nst_FLAG_GGC_IS_SUPPORTED))
-        Nst_ggc_track_obj((Nst_GGCObj*)iter->is_done);
-
-    if (Nst_FLAG_HAS(iter->get_val, Nst_FLAG_GGC_IS_SUPPORTED))
-        Nst_ggc_track_obj((Nst_GGCObj*)iter->get_val);
-
-    if (Nst_FLAG_HAS(iter->value, Nst_FLAG_GGC_IS_SUPPORTED))
-        Nst_ggc_track_obj((Nst_GGCObj*)iter->value);
-}
-
 void _Nst_iter_traverse(Nst_IterObj* iter)
 {
-    Nst_FLAG_SET(iter->start,   Nst_FLAG_GGC_REACHABLE);
-    Nst_FLAG_SET(iter->is_done, Nst_FLAG_GGC_REACHABLE);
-    Nst_FLAG_SET(iter->get_val, Nst_FLAG_GGC_REACHABLE);
-    Nst_FLAG_SET(iter->value,   Nst_FLAG_GGC_REACHABLE);
+    Nst_ggc_obj_reachable(iter->start);
+    Nst_ggc_obj_reachable(iter->is_done);
+    Nst_ggc_obj_reachable(iter->get_val);
+    Nst_ggc_obj_reachable(iter->value);
 }
 
 i32 _Nst_iter_start(Nst_IterObj *iter)

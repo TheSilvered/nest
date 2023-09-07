@@ -14,7 +14,7 @@
 /* The maximum number of objects inside the first generation. */
 #define _Nst_GEN1_MAX 700
 /* The maximum number of objects inside the second generation. */
-#define _Nst_GEN2_MAX 10
+#define _Nst_GEN2_MAX 100
 /* The maximum number of objects inside the third generation. */
 #define _Nst_GEN3_MAX 10
 /* The minimum size of the old generation needed to collect it. */
@@ -23,8 +23,8 @@
 /* Casts `obj` to `Nst_GGCObj *`. */
 #define GGC_OBJ(obj) ((Nst_GGCObj *)(obj))
 
-/* Checks whether a `Nst_GGCObj` is tracked by the garbage collector. */
-#define Nst_OBJ_IS_TRACKED(obj) (GGC_OBJ(obj)->ggc_list != NULL)
+/* Alias for `_Nst_ggc_obj_reachable` that casts `obj` to `Nst_Obj *`. */
+#define Nst_ggc_obj_reachable(obj) _Nst_ggc_obj_reachable(OBJ(obj))
 
 /**
  * The macro to add support to the GGC to an object structure.
@@ -32,20 +32,20 @@
  * @brief It must be placed after `Nst_OBJ_HEAD` and before any other fields.
  */
 #define Nst_GGC_HEAD                                                          \
-    struct _Nst_GGCObj *ggc_next;                                             \
-    struct _Nst_GGCObj *ggc_prev;                                             \
-    struct _Nst_GGCList *ggc_list;                                            \
-    void (* traverse_func)(Nst_Obj *);                                        \
-    void (* track_func)(Nst_Obj *)
+    Nst_Obj *p_prev;                                                          \
+    i32 ggc_ref_count;                                                        \
+    struct _Nst_GGCList *ggc_list
 
-/* Initializes the fields of a `Nst_GGCObj`. */
-#define Nst_GGC_OBJ_INIT(obj, trav_func, track_function) do {                 \
-    obj->ggc_prev = NULL;                                                     \
-    obj->ggc_next = NULL;                                                     \
+/**
+ * @brief Initializes the fields of a `Nst_GGCObj`. Should be called before
+ * initializing other fields of the object.
+ */
+#define Nst_GGC_OBJ_INIT(obj) do {                                            \
+    obj->p_prev = NULL;                                                       \
     obj->ggc_list = NULL;                                                     \
-    obj->traverse_func = (void (*)(Nst_Obj *))(trav_func);                    \
-    obj->track_func = (void (*)(Nst_Obj *))(track_function);                  \
-    Nst_FLAG_SET(obj, Nst_FLAG_GGC_IS_SUPPORTED);                             \
+    obj->ggc_ref_count = 0;                                                   \
+    Nst_SET_FLAG(obj, Nst_FLAG_GGC_IS_SUPPORTED);                             \
+    Nst_ggc_track_obj(GGC_OBJ(obj));                                          \
     } while (0)
 
 #ifdef __cplusplus
@@ -57,9 +57,6 @@ struct _Nst_GGCList;
 /**
  * The struct representing a garbage collector object.
  *
- * @param ggc_next: the next object in the generation it belongs to
- * @param ggc_prev: the previous object in the generation it belongs to
- * @param ggc_list: the generation it belongs to
  * @param traverse_func: the function that sets as reachable all the objects
  * contained in the object
  * @param track_func: the function that tracks all the traceable objects that
@@ -92,6 +89,7 @@ NstEXP typedef struct _Nst_GGCList {
  * @param old_gen: the old generation
  * @param old_gen_pending: the number of objects in the old generation that
  * have been added since its last collection
+ * @param allow_tracking: whether the tracking of new objects is allowed
  */
 NstEXP typedef struct _Nst_GarbageCollector {
     Nst_GGCList gen1;
@@ -102,9 +100,7 @@ NstEXP typedef struct _Nst_GarbageCollector {
 } Nst_GarbageCollector;
 
 /* Collects the object of a generation */
-NstEXP void NstC Nst_ggc_collect_gen(Nst_GGCList *gen, Nst_GGCList *other_gen1,
-                                     Nst_GGCList *other_gen2,
-                                     Nst_GGCList *other_gen3);
+NstEXP void NstC Nst_ggc_collect_gen(Nst_GGCList *gen);
 /* Runs a general collection, that collects generations as needed. */
 NstEXP void NstC Nst_ggc_collect(void);
 /* Adds an object to the tracked objects by the garbage collector. */
@@ -113,13 +109,14 @@ NstEXP void NstC Nst_ggc_track_obj(Nst_GGCObj *obj);
 NstEXP void NstC Nst_ggc_delete_objs(void);
 /* Initializes the garbage collector of `Nst_state`. */
 NstEXP void NstC Nst_ggc_init(void);
+/* Sets an `Nst_Obj` as reachable for the garbage collector. */
+NstEXP void NstC _Nst_ggc_obj_reachable(Nst_Obj *obj);
 
 /* The flags of a garbage collector object. */
 NstEXP typedef enum _Nst_GGCFlags {
     Nst_FLAG_GGC_REACHABLE    = 0x80000000,
-    Nst_FLAG_GGC_UNREACHABLE  = 0x40000000,
-    Nst_FLAG_GGC_DELETED      = 0x20000000,
-    Nst_FLAG_GGC_IS_SUPPORTED = 0x10000000
+    Nst_FLAG_GGC_DELETE       = 0x40000000,
+    Nst_FLAG_GGC_IS_SUPPORTED = 0x20000000
 } Nst_GGCFlags;
 
 #ifdef __cplusplus

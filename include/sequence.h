@@ -175,8 +175,10 @@ NstEXP Nst_Obj *NstC Nst_vector_create_c(const i8 *fmt, ...);
 NstEXP void NstC _Nst_seq_destroy(Nst_SeqObj *seq);
 /* Traverse function for sequence objects. */
 NstEXP void NstC _Nst_seq_traverse(Nst_SeqObj *seq);
+#if 0
 /* Track function for sequence objects. */
 NstEXP void NstC _Nst_seq_track(Nst_SeqObj *seq);
+#endif
 
 /**
  * Changes the value of an index in a sequence.

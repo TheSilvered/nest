@@ -61,13 +61,16 @@ Global execution state of Nest.
 **Synopsis:**
 
 ```better-c
-i32 Nst_run(Nst_FuncObj *main_func, i32 argc, i8 **argv, i8 *filename,
-            i32 opt_lvl, bool no_default)
+i32 Nst_run(Nst_FuncObj *main_func)
 ```
 
 **Description:**
 
 Runs the main program.
+
+This function requires [`Nst_state_init`](c_api-interpreter.md#nst_state_init)
+to be called before. It will call
+[`Nst_state_free`](c_api-interpreter.md#nst_state_free) automatically.
 
 !!!warning
     It must never be called inside a library.
@@ -75,12 +78,6 @@ Runs the main program.
 **Parameters:**
 
 - `main_func`: the function object of the main program
-- `argc`: the command line argument count
-- `argv`: the command line arguments
-- `filename`: the name of the file of the main program
-- `opt_level`: the maximum optimization level
-- `no_default`: whether to initialize the variable table of the main program
-  with built-in values
 
 **Returns:**
 

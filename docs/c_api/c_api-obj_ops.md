@@ -320,7 +320,7 @@ Nst_obj_cast(ob, type)
 
 Alias for [`_Nst_obj_cast`](c_api-obj_ops.md#_nst_obj_cast) that casts `ob` to
 [`Nst_Obj *`](c_api-obj.md#nst_obj) and `type` to
-[`Nst_TypeObj *`](c_api-str.md#nst_typeobj).
+[`Nst_TypeObj *`](c_api-type.md#nst_typeobj).
 
 ---
 

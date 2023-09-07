@@ -11,6 +11,9 @@
 
 #include "typedefs.h"
 
+/* Maximum size for an object pool. */
+#define _Nst_P_LEN_MAX 20
+
 /* Casts `obj` to `Nst_Obj *`. */
 #define OBJ(obj) ((Nst_Obj *)(obj))
 
@@ -31,18 +34,25 @@
  * @brief Wrapper for `_Nst_obj_alloc`. `type` is used to get the size of the
  * object to allocate and to cast the result into the correct pointer type.
  */
-#define Nst_obj_alloc(type, type_obj, destructor)                             \
+#define Nst_obj_alloc(type, type_obj)                                         \
     (type *)_Nst_obj_alloc(                                                   \
         sizeof(type),                                                         \
-        (struct _Nst_StrObj *)(type_obj),                                     \
-        (Nst_ObjDestructor)(destructor))
+        (struct _Nst_TypeObj *)(type_obj))
 
 /* Sets `flag` of `obj` to `true`. */
-#define Nst_FLAG_SET(obj, flag) ((obj)->flags |= (flag))
+#define Nst_SET_FLAG(obj, flag) ((obj)->flags |= (flag))
 /* Sets `flag` of `obj` to `false`. */
-#define Nst_FLAG_DEL(obj, flag) ((obj)->flags &= ~(flag))
+#define Nst_DEL_FLAG(obj, flag) ((obj)->flags &= ~(flag))
 /* Checks if `flag` is set. */
-#define Nst_FLAG_HAS(obj, flag) ((obj)->flags & (flag))
+#define Nst_HAS_FLAG(obj, flag) ((obj)->flags & (flag))
+
+struct _Nst_StrObj;
+struct _Nst_TypeObj;
+
+/* The type of an object destructor. */
+NstEXP typedef void (*Nst_ObjDstr)(void *);
+/* The type of an object traverse function for the garbage collector. */
+NstEXP typedef void (*Nst_ObjTrav)(void *);
 
 #ifdef Nst_TRACK_OBJ_INIT_POS
 
@@ -54,8 +64,8 @@
  * because they are reserved for the garbage collector.
  */
 #define Nst_OBJ_HEAD                                                          \
-    struct _Nst_StrObj *type;                                                 \
-    void (*destructor)(void *);                                               \
+    struct _Nst_TypeObj *type;                                                \
+    struct _Nst_Obj *p_next;                                                  \
     i32 ref_count;                                                            \
     i32 hash;                                                                 \
     u32 flags;                                                                \
@@ -73,8 +83,8 @@
  * because they are reserved for the garbage collector.
  */
 #define Nst_OBJ_HEAD                                                          \
-    struct _Nst_StrObj *type;                                                 \
-    void (*destructor)(void *);                                               \
+    struct _Nst_TypeObj *type;                                                \
+    struct _Nst_Obj *p_next;                                                  \
     i32 ref_count;                                                            \
     i32 hash;                                                                 \
     u32 flags
@@ -84,8 +94,6 @@
 extern "C" {
 #endif // !__cplusplus
 
-struct _Nst_StrObj;
-
 /* [docs:ignore_sym Nst_TRACK_OBJ_INIT_POS] */
 
 /**
@@ -93,7 +101,7 @@ struct _Nst_StrObj;
  *
  * @param ref_count: the reference count of the object
  * @param type: the type of the object
- * @param destructor: the destructor of the object
+ * @param p_next: the next object in the type's pool
  * @param hash: the hash of the object, `-1` if it has not yet been hashed or
  * is not hashable
  * @param flags: the flags of the object
@@ -108,9 +116,6 @@ NstEXP typedef struct _Nst_Obj {
     Nst_OBJ_HEAD;
 } Nst_Obj;
 
-/* The type of an object destructor. */
-NstEXP typedef void (*Nst_ObjDestructor)(void *);
-
 /**
  * @brief A `Nst_NullObj` is just a `Nst_Obj` as it does not have any special
  * fields.
@@ -124,19 +129,24 @@ NstEXP typedef Nst_Obj Nst_NullObj;
  * @param size: the size in bytes of the memory to allocate
  * @param type: the type of the object, if it is `NULL`, the object itself is
  * used as the type
- * @param destructor: the destructor of the object, it can be `NULL`
  *
  * @return The newly allocate object or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC _Nst_obj_alloc(usize size, struct _Nst_StrObj *type,
-                                    void (*destructor)(void *));
+NstEXP Nst_Obj *NstC _Nst_obj_alloc(usize size, struct _Nst_TypeObj *type);
 /**
- * Calls an object's destructor and then frees its memory.
+ * Calls an object's destructor.
  *
  * @brief This function should not be called on most occasions, use
  * `Nst_dec_ref` instead.
  */
 NstEXP void NstC _Nst_obj_destroy(Nst_Obj *obj);
+
+/**
+ * Frees the memory of the object or adds it to the object pool.
+ *
+ * @param obj: the pointer to the object to free
+ */
+NstEXP void NstC _Nst_obj_free(Nst_Obj *obj);
 
 /* Increases the reference count of an object. */
 NstEXP Nst_Obj *NstC _Nst_inc_ref(Nst_Obj *obj);
@@ -145,6 +155,11 @@ NstEXP Nst_Obj *NstC _Nst_inc_ref(Nst_Obj *obj);
  * `_Nst_obj_destroy` if it reaches zero.
  */
 NstEXP void NstC _Nst_dec_ref(Nst_Obj *obj);
+
+/* Flags of a Nest object. */
+NstEXP typedef enum _Nst_ObjFlags {
+    Nst_FLAG_OBJ_DESTROYED = 0x10000000
+} Nst_ObjFlags;
 
 #ifdef __cplusplus
 }

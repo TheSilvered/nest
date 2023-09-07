@@ -19,6 +19,8 @@ Nst_TypeObj *gui_element_type;
 Nst_TypeObj *gui_font_type;
 GUI_FontObj *default_font;
 
+static void gui_font_destroy(GUI_FontObj *f);
+
 bool lib_init()
 {
     usize idx = 0;
@@ -56,13 +58,18 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(open_font_, 3);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(_debug_view_, 1);
 
-#if __LINE__ - FUNC_COUNT != 27
+#if __LINE__ - FUNC_COUNT != 29
 #error
 #endif
 
     sdl_error_str = STR(Nst_string_new_c_raw("SDL Error", false));
-    gui_element_type = Nst_type_new("GUI_Element");
-    gui_font_type = Nst_type_new("GUI Font");
+    gui_element_type = Nst_cont_type_new(
+        "GUI_Element",
+        (Nst_ObjDstr)gui_element_destroy,
+        (Nst_ObjTrav)gui_element_traverse);
+    gui_font_type = Nst_type_new(
+        "GUI Font",
+        (Nst_ObjDstr)gui_font_destroy);
     default_font = nullptr;
 
     app.root = nullptr;
@@ -118,7 +125,7 @@ void free_lib()
         Nst_ndec_ref(app.builtin_fonts[i]);
 }
 
-static void gui_font_destructor(GUI_FontObj *f)
+static void gui_font_destroy(GUI_FontObj *f)
 {
     if (!TTF_WasInit()) {
         TTF_CloseFont(f->font);
@@ -128,10 +135,7 @@ static void gui_font_destructor(GUI_FontObj *f)
 
 Nst_Obj *gui_font_new(TTF_Font *font)
 {
-    GUI_FontObj *f = Nst_obj_alloc(
-        GUI_FontObj,
-        gui_font_type,
-        (Nst_ObjDestructor)(gui_font_destructor));
+    GUI_FontObj *f = Nst_obj_alloc(GUI_FontObj, gui_font_type);
     f->font = font;
     if (!Nst_vector_append(app.opened_fonts, f)) {
         Nst_dec_ref(f);
@@ -364,7 +368,7 @@ Nst_FUNC_SIGN(set_window_)
         sizeof(GUI_Element),
         0, 0,
         int(w), int(h),
-        &app);
+        &app, NULL);
     if (root == nullptr) {
         SDL_DestroyRenderer(app.renderer);
         SDL_DestroyWindow(app.window);
@@ -408,8 +412,8 @@ Nst_FUNC_SIGN(set_pos_)
         (GUI_RelPosX)pos_x, (int)x,
         (GUI_RelPosY)pos_y, (int)y,
         (GUI_RelRect)rect);
-    if (Nst_FLAG_HAS(element, GUI_FLAG_REL_POS)) {
-        Nst_FLAG_DEL(element, GUI_FLAG_REL_POS);
+    if (Nst_HAS_FLAG(element, GUI_FLAG_REL_POS)) {
+        Nst_DEL_FLAG(element, GUI_FLAG_REL_POS);
         Nst_dec_ref(element->rel_pos.element);
         element->rel_pos.element = nullptr;
     }
@@ -500,8 +504,8 @@ Nst_FUNC_SIGN(set_size_)
     Nst_DEF_EXTRACT("# i i ?i", gui_element_type, &element, &w, &h, &rect_obj);
     i64 rect = Nst_DEF_VAL(rect_obj, AS_INT(rect_obj), 1);
     gui_element_set_size(element, (int)w, (int)h, (GUI_RelRect)rect);
-    if (Nst_FLAG_HAS(element, GUI_FLAG_REL_SIZE)) {
-        Nst_FLAG_DEL(element, GUI_FLAG_REL_SIZE);
+    if (Nst_HAS_FLAG(element, GUI_FLAG_REL_SIZE)) {
+        Nst_DEL_FLAG(element, GUI_FLAG_REL_SIZE);
         if (element->rel_size.element != nullptr) {
             Nst_dec_ref(element->rel_size.element);
             element->rel_size.element = nullptr;
@@ -706,7 +710,7 @@ Nst_FUNC_SIGN(show_)
 {
     GUI_Element *element;
     Nst_DEF_EXTRACT("#", gui_element_type, &element);
-    Nst_FLAG_DEL(element, GUI_FLAG_IS_HIDDEN);
+    Nst_DEL_FLAG(element, GUI_FLAG_IS_HIDDEN);
     return Nst_inc_ref(element);
 }
 
@@ -714,7 +718,7 @@ Nst_FUNC_SIGN(hide_)
 {
     GUI_Element *element;
     Nst_DEF_EXTRACT("#", gui_element_type, &element);
-    Nst_FLAG_SET(element, GUI_FLAG_IS_HIDDEN);
+    Nst_SET_FLAG(element, GUI_FLAG_IS_HIDDEN);
     return Nst_inc_ref(element);
 }
 
@@ -722,7 +726,7 @@ Nst_FUNC_SIGN(is_hidden_)
 {
     GUI_Element *element;
     Nst_DEF_EXTRACT("#", gui_element_type, &element);
-    Nst_RETURN_COND(Nst_FLAG_HAS(element, GUI_FLAG_IS_HIDDEN));
+    Nst_RETURN_COND(Nst_HAS_FLAG(element, GUI_FLAG_IS_HIDDEN));
 }
 
 Nst_FUNC_SIGN(set_auto_height_)

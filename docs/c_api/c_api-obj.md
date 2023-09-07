@@ -8,6 +8,14 @@ TheSilvered
 
 ## Macros
 
+### `_Nst_P_LEN_MAX`
+
+**Description:**
+
+Maximum size for an object pool.
+
+---
+
 ### `OBJ`
 
 **Synopsis:**
@@ -102,7 +110,7 @@ Alias for [`_Nst_obj_destroy`](c_api-obj.md#_nst_obj_destroy) that casts obj to
 **Synopsis:**
 
 ```better-c
-Nst_obj_alloc(type, type_obj, destructor)
+Nst_obj_alloc(type, type_obj)
 ```
 
 **Description:**
@@ -113,12 +121,12 @@ pointer type.
 
 ---
 
-### `Nst_FLAG_SET`
+### `Nst_SET_FLAG`
 
 **Synopsis:**
 
 ```better-c
-Nst_FLAG_SET(obj, flag)
+Nst_SET_FLAG(obj, flag)
 ```
 
 **Description:**
@@ -127,12 +135,12 @@ Sets `flag` of `obj` to `true`.
 
 ---
 
-### `Nst_FLAG_DEL`
+### `Nst_DEL_FLAG`
 
 **Synopsis:**
 
 ```better-c
-Nst_FLAG_DEL(obj, flag)
+Nst_DEL_FLAG(obj, flag)
 ```
 
 **Description:**
@@ -141,12 +149,12 @@ Sets `flag` of `obj` to `false`.
 
 ---
 
-### `Nst_FLAG_HAS`
+### `Nst_HAS_FLAG`
 
 **Synopsis:**
 
 ```better-c
-Nst_FLAG_HAS(obj, flag)
+Nst_HAS_FLAG(obj, flag)
 ```
 
 **Description:**
@@ -187,7 +195,7 @@ The structure representing a basic Nest object.
 
 - `ref_count`: the reference count of the object
 - `type`: the type of the object
-- `destructor`: the destructor of the object
+- `p_next`: the next object in the type's pool
 - `hash`: the hash of the object, `-1` if it has not yet been hashed or is not
   hashable
 - `flags`: the flags of the object
@@ -202,17 +210,31 @@ The structure representing a basic Nest object.
 
 ## Type aliases
 
-### `Nst_ObjDestructor`
+### `Nst_ObjDstr`
 
 **Synopsis:**
 
 ```better-c
-typedef void (*Nst_ObjDestructor)(void *)
+typedef void (*Nst_ObjDstr)(void *)
 ```
 
 **Description:**
 
 The type of an object destructor.
+
+---
+
+### `Nst_ObjTrav`
+
+**Synopsis:**
+
+```better-c
+typedef void (*Nst_ObjTrav)(void *)
+```
+
+**Description:**
+
+The type of an object traverse function for the garbage collector.
 
 ---
 
@@ -238,8 +260,7 @@ A [`Nst_NullObj`](c_api-obj.md#nst_nullobj) is just a
 **Synopsis:**
 
 ```better-c
-Nst_Obj *_Nst_obj_alloc(usize size, Nst_StrObj *type,
-                        void (*destructor)(void *))
+Nst_Obj *_Nst_obj_alloc(usize size, Nst_TypeObj *type)
 ```
 
 **Description:**
@@ -252,7 +273,6 @@ Allocates an object on the heap and initializes the fields in
 - `size`: the size in bytes of the memory to allocate
 - `type`: the type of the object, if it is `NULL`, the object itself is used as
   the type
-- `destructor`: the destructor of the object, it can be `NULL`
 
 **Returns:**
 
@@ -270,10 +290,28 @@ void _Nst_obj_destroy(Nst_Obj *obj)
 
 **Description:**
 
-Calls an object's destructor and then frees its memory.
+Calls an object's destructor.
 
 This function should not be called on most occasions, use
 [`Nst_dec_ref`](c_api-obj.md#nst_dec_ref) instead.
+
+---
+
+### `_Nst_obj_free`
+
+**Synopsis:**
+
+```better-c
+void _Nst_obj_free(Nst_Obj *obj)
+```
+
+**Description:**
+
+Frees the memory of the object or adds it to the object pool.
+
+**Parameters:**
+
+- `obj`: the pointer to the object to free
 
 ---
 
@@ -303,4 +341,22 @@ void _Nst_dec_ref(Nst_Obj *obj)
 
 Decreases the reference count of an object and calls
 [`_Nst_obj_destroy`](c_api-obj.md#_nst_obj_destroy) if it reaches zero.
+
+---
+
+## Enums
+
+### `Nst_ObjFlags`
+
+**Synopsis:**
+
+```better-c
+typedef enum _Nst_ObjFlags {
+    Nst_FLAG_OBJ_DESTROYED = 0x10000000
+} Nst_ObjFlags
+```
+
+**Description:**
+
+Flags of a Nest object.
 

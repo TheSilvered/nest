@@ -13,6 +13,7 @@
 #include "simple_types.h"
 #include "function.h"
 #include "file.h"
+#include "type.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,27 +22,11 @@ extern "C" {
 /**
  * String constants.
  *
- * @brief Fields starting with `t_` are the name of types, the ones starting
- * with `c_` are the name of constants, the one starting with `e_` are the name
- * of errors and the one starting with `o_` are others.
+ * @brief Fields starting with `c_` are the name of language constants (e.g.
+ * true), the one starting with `e_` are the name of errors and the ones
+ * starting with `o_` are others.
  */
 NstEXP typedef struct _Nst_StrConsts {
-    // Type strings
-
-    Nst_StrObj *t_Type;
-    Nst_StrObj *t_Int;
-    Nst_StrObj *t_Real;
-    Nst_StrObj *t_Bool;
-    Nst_StrObj *t_Null;
-    Nst_StrObj *t_Str;
-    Nst_StrObj *t_Array;
-    Nst_StrObj *t_Vector;
-    Nst_StrObj *t_Map;
-    Nst_StrObj *t_Func;
-    Nst_StrObj *t_Iter;
-    Nst_StrObj *t_Byte;
-    Nst_StrObj *t_IOFile;
-
     // Constant strings
 
     Nst_StrObj *c_true;

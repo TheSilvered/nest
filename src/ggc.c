@@ -1,5 +1,7 @@
+#include <assert.h>
 #include "mem.h"
 #include "interpreter.h"
+#include "type.h"
 
 #define REACHABLE(ob) ((ob)->flags & Nst_FLAG_GCC_REACHABLE)
 #define UNREACHABLE(ob) ((ob)->flags & Nst_FLAG_GCC_UNREACHABLE)
@@ -12,16 +14,16 @@ static inline void move_obj(Nst_GGCObj *obj, Nst_GGCList *from, Nst_GGCList *to)
         from->tail = NULL;
     } else {
         // if it's the first object in the list
-        if (obj->ggc_prev == NULL)
-            from->head = obj->ggc_next;
+        if (obj->p_prev == NULL)
+            from->head = GGC_OBJ(obj->p_next);
         else
-            obj->ggc_prev->ggc_next = obj->ggc_next;
+            obj->p_prev->p_next = obj->p_next;
 
         // if it's the last object in the list
-        if (obj->ggc_next == NULL)
-            from->tail = obj->ggc_prev;
+        if (obj->p_next == NULL)
+            from->tail = GGC_OBJ(obj->p_prev);
         else
-            obj->ggc_next->ggc_prev = obj->ggc_prev;
+            GGC_OBJ(obj->p_next)->p_prev = obj->p_prev;
 
         from->len--;
     }
@@ -29,9 +31,9 @@ static inline void move_obj(Nst_GGCObj *obj, Nst_GGCList *from, Nst_GGCList *to)
     if (to->len == 0)
         to->head = obj;
     else
-        to->tail->ggc_next = obj;
-    obj->ggc_prev = to->tail;
-    obj->ggc_next = NULL;
+        to->tail->p_next = OBJ(obj);
+    obj->p_prev = OBJ(to->tail);
+    obj->p_next = NULL;
     to->tail = obj;
     to->len++;
 
@@ -44,8 +46,8 @@ static void move_list(Nst_GGCList *from, Nst_GGCList *to)
         return;
 
     for (Nst_GGCObj *cursor = from->head;
-         cursor != NULL;
-         cursor = cursor->ggc_next)
+        cursor != NULL;
+        cursor = GGC_OBJ(cursor->p_next))
     {
         cursor->ggc_list = to;
     }
@@ -60,8 +62,8 @@ static void move_list(Nst_GGCList *from, Nst_GGCList *to)
         return;
     }
 
-    from->head->ggc_prev = to->tail;
-    to->tail->ggc_next = from->head;
+    from->head->p_prev = OBJ(to->tail);
+    to->tail->p_next = OBJ(from->head);
     to->tail = from->tail;
     to->len += from->len;
 
@@ -70,140 +72,99 @@ static void move_list(Nst_GGCList *from, Nst_GGCList *to)
     from->len = 0;
 }
 
+static inline void remove_objs_list(Nst_GGCList *gen)
+{
+    for (Nst_GGCObj *ob = gen->head; ob != NULL; ob = GGC_OBJ(ob->p_next))
+        ob->ggc_list = NULL;
+}
+
 static inline void call_objs_destructor(Nst_GGCList *gen)
 {
-    for (Nst_GGCObj *ob = gen->head; ob != NULL; ob = ob->ggc_next)
-        Nst_obj_destroy(ob);
+    for (Nst_GGCObj *ob = gen->head; ob != NULL; ob = GGC_OBJ(ob->p_next)) {
+        assert(ob->ggc_list == NULL);
+        _Nst_obj_destroy(OBJ(ob));
+    }
 }
 
 static inline void free_obj_memory(Nst_GGCList *gen)
 {
     Nst_GGCObj *new_ob = NULL;
     for (Nst_GGCObj *ob = gen->head; ob != NULL;) {
-        new_ob = ob->ggc_next;
-        Nst_free(ob);
+        new_ob = GGC_OBJ(ob->p_next);
+        Nst_SET_FLAG(ob, Nst_FLAG_GGC_DELETE);
+        _Nst_obj_free(OBJ(ob));
         ob = new_ob;
     }
 }
 
-static inline void set_unreachable(Nst_GGCList *gen)
+static inline void destroy_objects(Nst_GGCList *gen)
 {
-    for (Nst_GGCObj *ob = gen->head; ob != NULL; ob = ob->ggc_next)
-        Nst_FLAG_SET(ob, Nst_FLAG_GGC_UNREACHABLE);
+    remove_objs_list(gen);
+    call_objs_destructor(gen);
+    free_obj_memory(gen);
 }
 
-static inline void traverse_gen(Nst_GGCList *gen)
-{
-    for (Nst_GGCObj *ob = gen->head; ob != NULL; ob = ob->ggc_next)
-        ob->traverse_func(OBJ(ob));
-}
-
-void Nst_ggc_collect_gen(Nst_GGCList *gen, Nst_GGCList *other_gen1,
-                         Nst_GGCList *other_gen2, Nst_GGCList *other_gen3)
+void Nst_ggc_collect_gen(Nst_GGCList *gen)
 {
     // Unreachable values
-    Nst_GGCList uv = {
-        NULL,
-        NULL,
-        0
-    };
+    Nst_GGCList uv = { NULL, NULL, 0 };
 
     Nst_GGCObj *ob = NULL;
     Nst_GGCObj *new_ob = NULL;
+    for (ob = gen->head; ob != NULL; ob = GGC_OBJ(ob->p_next))
+        ob->ggc_ref_count = ob->ref_count;
 
-    for (ob = gen->head; ob != NULL; ob = ob->ggc_next) {
-        Nst_FLAG_DEL(ob, Nst_FLAG_GGC_REACHABLE
-                         | Nst_FLAG_GGC_UNREACHABLE
-                         | Nst_FLAG_GGC_DELETED);
-    }
+    for (ob = gen->head; ob != NULL; ob = GGC_OBJ(ob->p_next))
+        CONT_TYPE(ob->type)->trav(OBJ(ob));
 
-    // All objects in the variable tables are reachable
-    Nst_FLAG_SET(Nst_state.vt->vars, Nst_FLAG_GGC_REACHABLE);
-    _Nst_map_traverse(Nst_state.vt->vars);
-    for (usize i = 0, n = Nst_state.f_stack.len; i < n; i++) {
-        Nst_VarTable *vt = Nst_state.f_stack.stack[i].vt;
-        if (vt != NULL) {
-            _Nst_map_traverse(vt->vars);
-            Nst_FLAG_DEL(vt->vars, Nst_FLAG_GGC_UNREACHABLE);
-            Nst_FLAG_SET(vt->vars, Nst_FLAG_GGC_REACHABLE);
-        }
-    }
-
-    // As well as the objects inside other generations
-    traverse_gen(other_gen1);
-    traverse_gen(other_gen2);
-    traverse_gen(other_gen3);
-
-    // The argv array is reachable too
-    Nst_FLAG_DEL(Nst_state.argv, Nst_FLAG_GGC_UNREACHABLE);
-    Nst_FLAG_SET(Nst_state.argv, Nst_FLAG_GGC_REACHABLE);
-    _Nst_seq_traverse(Nst_state.argv);
-
-    // And the same goes for the lib handles
-    Nst_FLAG_DEL(Nst_state.lib_handles, Nst_FLAG_GGC_UNREACHABLE);
-    Nst_FLAG_SET(Nst_state.lib_handles, Nst_FLAG_GGC_REACHABLE);
-    _Nst_map_traverse(Nst_state.lib_handles);
-
-    // Move unreachable objects to `unreachable_values`
     for (ob = gen->head; ob != NULL;) {
-        if (Nst_FLAG_HAS(ob, Nst_FLAG_GGC_REACHABLE)) {
-            ob = ob->ggc_next;
-            continue;
+        new_ob = GGC_OBJ(ob->p_next);
+        if (ob->ggc_ref_count == 0) {
+            Nst_DEL_FLAG(ob, Nst_FLAG_GGC_REACHABLE);
+            move_obj(ob, gen, &uv);
         }
-        Nst_FLAG_SET(ob, Nst_FLAG_GGC_UNREACHABLE);
-        new_ob = ob->ggc_next;
-        move_obj(ob, gen, &uv);
         ob = new_ob;
     }
 
-    // previous unreachable_values size
-    usize prev_uv_size = 0;
+    if (gen->len == 0) {
+        destroy_objects(&uv);
+        return;
+    }
 
-    // last traversed value in `gen`
-    Nst_GGCObj *traversed_end = gen->head;
+    for (ob = gen->head; ob != NULL; ob = GGC_OBJ(ob->p_next))
+        CONT_TYPE(ob->type)->trav(OBJ(ob));
 
-    do {
-        prev_uv_size = uv.len;
-        // Traverse reachable objects
-        for (ob = traversed_end; ob != NULL;) {
-            ob->traverse_func(OBJ(ob));
-            ob = ob->ggc_next;
-        }
 
-        traversed_end = gen->tail;
-
-        if (uv.len == 0)
-            return;
-
-        // Move objects reached back into the reachable objects to be traversed
+    while (true) {
+        Nst_GGCObj *last_traversed = gen->tail;
         for (ob = uv.head; ob != NULL;) {
-            if (Nst_FLAG_HAS(ob, Nst_FLAG_GGC_REACHABLE))
-                Nst_FLAG_DEL(ob, Nst_FLAG_GGC_UNREACHABLE);
-            else {
-                ob = ob->ggc_next;
-                continue;
-            }
-
-            new_ob = ob->ggc_next;
-            move_obj(ob, &uv, gen);
+            new_ob = GGC_OBJ(ob->p_next);
+            if (Nst_HAS_FLAG(ob, Nst_FLAG_GGC_REACHABLE))
+                move_obj(ob, &uv, gen);
             ob = new_ob;
         }
 
-        if (prev_uv_size == uv.len)
+        // if no new objects were appended back to the reachable ones
+        if (last_traversed->p_next == NULL)
             break;
-    }
-    while (true);
 
-    call_objs_destructor(&uv);
-    free_obj_memory(&uv);
+        for (ob = GGC_OBJ(last_traversed->p_next);
+             ob != NULL;
+             ob = GGC_OBJ(ob->p_next))
+        {
+            CONT_TYPE(ob->type)->trav(OBJ(ob));
+        }
+    }
+
+    destroy_objects(&uv);
 }
 
 void Nst_ggc_delete_objs(void)
 {
-    set_unreachable(&Nst_state.ggc.gen1);
-    set_unreachable(&Nst_state.ggc.gen2);
-    set_unreachable(&Nst_state.ggc.gen3);
-    set_unreachable(&Nst_state.ggc.old_gen);
+    remove_objs_list(&Nst_state.ggc.gen1);
+    remove_objs_list(&Nst_state.ggc.gen2);
+    remove_objs_list(&Nst_state.ggc.gen3);
+    remove_objs_list(&Nst_state.ggc.old_gen);
 
     call_objs_destructor(&Nst_state.ggc.gen1);
     call_objs_destructor(&Nst_state.ggc.gen2);
@@ -229,6 +190,14 @@ void Nst_ggc_init(void)
     Nst_state.ggc.old_gen_pending = 0;
 }
 
+void _Nst_ggc_obj_reachable(Nst_Obj *obj)
+{
+    if (Nst_HAS_FLAG(obj, Nst_FLAG_GGC_IS_SUPPORTED)) {
+        Nst_SET_FLAG(obj, Nst_FLAG_GGC_REACHABLE);
+        GGC_OBJ(obj)->ggc_ref_count--;
+    }
+}
+
 void Nst_ggc_collect(void)
 {
     Nst_GarbageCollector *ggc = &Nst_state.ggc;
@@ -238,7 +207,7 @@ void Nst_ggc_collect(void)
     if (old_gen_size > _Nst_OLD_GEN_MIN
         && ggc->old_gen_pending >= (i64)old_gen_size >> 2)
     {
-        Nst_ggc_collect_gen(&ggc->old_gen, &ggc->gen1, &ggc->gen2, &ggc->gen3);
+        Nst_ggc_collect_gen(&ggc->old_gen);
         ggc->old_gen_pending = 0;
     }
 
@@ -247,7 +216,7 @@ void Nst_ggc_collect(void)
 
     // Collect the generations if they are over their maximum value
     if (ggc->gen1.len > _Nst_GEN1_MAX) {
-        Nst_ggc_collect_gen(&ggc->gen1, &ggc->gen2, &ggc->gen3, &ggc->old_gen);
+        Nst_ggc_collect_gen(&ggc->gen1);
         has_collected_gen1 = true;
     }
 
@@ -255,7 +224,7 @@ void Nst_ggc_collect(void)
         || (has_collected_gen1
             && ggc->gen1.len + ggc->gen2.len > _Nst_GEN2_MAX))
     {
-        Nst_ggc_collect_gen(&ggc->gen2, &ggc->gen1, &ggc->gen3, &ggc->old_gen);
+        Nst_ggc_collect_gen(&ggc->gen2);
         has_collected_gen2 = true;
     }
 
@@ -263,7 +232,7 @@ void Nst_ggc_collect(void)
         || (has_collected_gen2
             && ggc->gen2.len + ggc->gen3.len > _Nst_GEN3_MAX))
     {
-        Nst_ggc_collect_gen(&ggc->gen3, &ggc->gen1, &ggc->gen2, &ggc->old_gen);
+        Nst_ggc_collect_gen(&ggc->gen3);
         ggc->old_gen_pending += ggc->gen3.len;
         move_list(&ggc->gen3, &ggc->old_gen);
     }
@@ -290,26 +259,16 @@ void Nst_ggc_collect(void)
 
 void Nst_ggc_track_obj(Nst_GGCObj *obj)
 {
-    Nst_GarbageCollector *ggc = &Nst_state.ggc;
+    assert(Nst_HAS_FLAG(obj->type, Nst_FLAG_TYPE_IS_CONTAINER));
 
-    if (Nst_OBJ_IS_TRACKED(obj))
-        return;
-
-    if (ggc->gen1.len == 0) {
-        ggc->gen1.head = obj;
-        ggc->gen1.tail = obj;
-        ggc->gen1.len = 1;
-        obj->ggc_list = &ggc->gen1;
-    } else {
-        obj->ggc_prev = ggc->gen1.tail;
-        obj->ggc_list = &ggc->gen1;
-        ggc->gen1.tail->ggc_next = obj;
-        ggc->gen1.tail = obj;
-        ggc->gen1.len++;
+    if (Nst_state.ggc.gen1.len == 0)
+        Nst_state.ggc.gen1.head = obj;
+    else {
+        obj->p_prev = OBJ(Nst_state.ggc.gen1.tail);
+        Nst_state.ggc.gen1.tail->p_next = OBJ(obj);
     }
 
-    obj->track_func(OBJ(obj));
-
-    if (ggc->gen1.len > _Nst_GEN1_MAX)
-        Nst_ggc_collect();
+    Nst_state.ggc.gen1.tail = obj;
+    obj->ggc_list = &Nst_state.ggc.gen1;
+    Nst_state.ggc.gen1.len++;
 }

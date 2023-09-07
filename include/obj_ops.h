@@ -11,6 +11,7 @@
 
 #include "map.h"
 #include "sequence.h"
+#include "type.h"
 
 /* Alias for `_Nst_obj_eq` that casts both objects to `Nst_Obj *`. */
 #define Nst_obj_eq(ob1, ob2) _Nst_obj_eq(OBJ(ob1), OBJ(ob2))

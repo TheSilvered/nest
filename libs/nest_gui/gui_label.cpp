@@ -22,7 +22,7 @@ bool render_texture(GUI_Label *l)
 
     l->texture = SDL_CreateTextureFromSurface(l->app->renderer, text_surf);
     if (l->auto_height
-        && (!Nst_FLAG_HAS(l, GUI_FLAG_REL_SIZE)
+        && (!Nst_HAS_FLAG(l, GUI_FLAG_REL_SIZE)
             || (l->rel_size.diff_y == 0 && l->rel_size.scale_y == 0.0)))
     {
         l->rect.h = l->padding_bottom + l->padding_top + text_surf->h;
@@ -70,13 +70,13 @@ GUI_Element *gui_label_new(Nst_StrObj *text, GUI_FontObj *font,
         GUI_ET_LABEL,
         sizeof(GUI_Label),
         x, y, w, h,
-        app);
+        app,
+        (Nst_ObjDstr)gui_label_destroy);
     if (new_label == nullptr) {
         Nst_dec_ref(font);
         return nullptr;
     }
 
-    new_label->destructor = (Nst_ObjDestructor)gui_label_destroy;
     // new_label->alignment = TTF_WRAPPED_ALIGN_LEFT;
     new_label->texture = nullptr;
     new_label->texture_render_width = 0;
@@ -145,7 +145,6 @@ void reset_texture(GUI_Label *l, bool change_size)
 void gui_label_destroy(GUI_Label *l)
 {
     Nst_buffer_destroy(&l->text);
-    gui_element_destroy((GUI_Element *)l);
 }
 
 void gui_label_change_color(GUI_Label *l, SDL_Color new_color)

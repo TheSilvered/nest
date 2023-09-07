@@ -4,6 +4,7 @@
 #include "mem.h"
 #include "iter.h"
 #include "argv_parser.h"
+#include "type.h"
 
 Nst_TypeObjs Nst_t;
 Nst_StrConsts Nst_s;
@@ -12,53 +13,84 @@ Nst_StdStreams Nst_io;
 Nst_IterFunctions Nst_itf;
 
 static Nst_IOResult write_std_stream(i8 *buf, usize buf_len, usize *count,
-                                    Nst_IOFileObj *f);
+                                     Nst_IOFileObj *f);
 static Nst_IOResult close_std_stream(Nst_IOFileObj *f);
 
 static Nst_IOResult read_std_stream(i8 *buf, usize buf_size, usize count,
                                     usize *buf_len, Nst_IOFileObj *f);
 
-static Nst_StrObj *str_obj_no_err(const i8 *value, Nst_TypeObj *type)
+static Nst_TypeObj *type_obj_no_err(const i8 *name, Nst_ObjDstr dstr)
 {
-    Nst_StrObj *obj = STR(Nst_raw_malloc(sizeof(Nst_StrObj)));
-    if (obj == NULL)
+    Nst_TypeObj *type = TYPE(Nst_raw_malloc(sizeof(Nst_TypeObj)));
+    if (type == NULL)
         return NULL;
 
-    obj->ref_count = 1;
-    obj->destructor = (Nst_ObjDestructor)_Nst_string_destroy;
-    obj->hash = -1;
-    obj->flags = 0;
-    obj->value = (i8 *)value;
-    obj->len = strlen(value);
+#ifdef Nst_TRACK_OBJ_INIT_POS
+    type->init_line = -1;
+    type->init_col = -1;
+    type->init_path = NULL;
+#endif
 
-    // the type of the object is itself
-    if (type == NULL)
-        obj->type = TYPE(obj);
-    else
-        obj->type = type;
+    type->ref_count = 1;
+    type->p_next = NULL;
+    type->hash = -1;
+    type->flags = 0;
+    type->p_head = NULL;
+    type->p_len = 0;
+    type->dstr = dstr;
+    type->name = Nst_string_temp((i8 *)name, strlen(name));
 
-    Nst_inc_ref(obj->type);
-    return obj;
+    type->type = Nst_t.Type;
+    Nst_ninc_ref(Nst_t.Type);
+    return type;
+}
+
+static Nst_StrObj *str_obj_no_err(const i8 *value)
+{
+    Nst_StrObj *str = STR(Nst_raw_malloc(sizeof(Nst_StrObj)));
+    if (str == NULL)
+        return NULL;
+
+#ifdef Nst_TRACK_OBJ_INIT_POS
+    str->init_line = -1;
+    str->init_col = -1;
+    str->init_path = NULL;
+#endif
+
+    str->ref_count = 1;
+    str->p_next = NULL;
+    str->hash = -1;
+    str->flags = 0;
+    str->len = strlen(value);
+    str->value = (i8 *)value;
+
+    str->type = Nst_t.Str;
+    Nst_inc_ref(Nst_t.Str);
+    return str;
 }
 
 bool _Nst_init_objects(void)
 {
-    Nst_t.Type = str_obj_no_err("Type", NULL);
+    Nst_t.Type = type_obj_no_err("Type", (Nst_ObjDstr)_Nst_type_destroy);
     if (Nst_t.Type == NULL)
         return false;
+    Nst_t.Type->type = Nst_t.Type;
 
-    Nst_t.Str = str_obj_no_err("Str", Nst_t.Type);
+    Nst_t.Str = type_obj_no_err("Str", (Nst_ObjDstr)_Nst_string_destroy);
     if (Nst_t.Str == NULL) {
         Nst_free(Nst_t.Type);
         return false;
     }
-    Nst_s.e_MemoryError = str_obj_no_err("Memory Error", Nst_t.Str);
+    Nst_t.Type->name.type = Nst_t.Str;
+    Nst_t.Str->name.type  = Nst_t.Str;
+
+    Nst_s.e_MemoryError = str_obj_no_err("Memory Error");
     if (Nst_s.e_MemoryError == NULL) {
         Nst_free(Nst_t.Type);
         Nst_free(Nst_t.Str);
         return false;
     }
-    Nst_s.o_failed_alloc = str_obj_no_err("failed allocation", Nst_t.Str);
+    Nst_s.o_failed_alloc = str_obj_no_err("failed allocation");
     if (Nst_s.o_failed_alloc == NULL) {
         Nst_free(Nst_t.Type);
         Nst_free(Nst_t.Str);
@@ -66,31 +98,32 @@ bool _Nst_init_objects(void)
         return false;
     }
 
-    Nst_t.Int    = Nst_type_new("Int");
-    Nst_t.Real   = Nst_type_new("Real");
-    Nst_t.Bool   = Nst_type_new("Bool");
-    Nst_t.Null   = Nst_type_new("Null");
-    Nst_t.Array  = Nst_type_new("Array");
-    Nst_t.Vector = Nst_type_new("Vector");
-    Nst_t.Map    = Nst_type_new("Map");
-    Nst_t.Func   = Nst_type_new("Func");
-    Nst_t.Iter   = Nst_type_new("Iter");
-    Nst_t.Byte   = Nst_type_new("Byte");
-    Nst_t.IOFile = Nst_type_new("IOFile");
-
-    Nst_s.t_Type   = STR(_Nst_string_copy(Nst_t.Type));
-    Nst_s.t_Int    = STR(_Nst_string_copy(Nst_t.Int));
-    Nst_s.t_Real   = STR(_Nst_string_copy(Nst_t.Real));
-    Nst_s.t_Bool   = STR(_Nst_string_copy(Nst_t.Bool));
-    Nst_s.t_Null   = STR(_Nst_string_copy(Nst_t.Null));
-    Nst_s.t_Str    = STR(_Nst_string_copy(Nst_t.Str));
-    Nst_s.t_Array  = STR(_Nst_string_copy(Nst_t.Array));
-    Nst_s.t_Vector = STR(_Nst_string_copy(Nst_t.Vector));
-    Nst_s.t_Map    = STR(_Nst_string_copy(Nst_t.Map));
-    Nst_s.t_Func   = STR(_Nst_string_copy(Nst_t.Func));
-    Nst_s.t_Iter   = STR(_Nst_string_copy(Nst_t.Iter));
-    Nst_s.t_Byte   = STR(_Nst_string_copy(Nst_t.Byte));
-    Nst_s.t_IOFile = STR(_Nst_string_copy(Nst_t.IOFile));
+    Nst_t.Int    = Nst_type_new("Int", NULL);
+    Nst_t.Real   = Nst_type_new("Real", NULL);
+    Nst_t.Bool   = Nst_type_new("Bool", NULL);
+    Nst_t.Null   = Nst_type_new("Null", NULL);
+    Nst_t.Byte   = Nst_type_new("Byte", NULL);
+    Nst_t.IOFile = Nst_type_new("IOFile", (Nst_ObjDstr)_Nst_iofile_destroy);
+    Nst_t.Array = Nst_cont_type_new(
+        "Array",
+        (Nst_ObjDstr)_Nst_seq_destroy,
+        (Nst_ObjTrav)_Nst_seq_traverse);
+    Nst_t.Vector = Nst_cont_type_new(
+        "Vector",
+        (Nst_ObjDstr)_Nst_seq_destroy,
+        (Nst_ObjTrav)_Nst_seq_traverse);
+    Nst_t.Map = Nst_cont_type_new(
+        "Map",
+        (Nst_ObjDstr)_Nst_map_destroy,
+        (Nst_ObjTrav)_Nst_map_traverse);
+    Nst_t.Func = Nst_cont_type_new(
+        "Func",
+        (Nst_ObjDstr)_Nst_func_destroy,
+        (Nst_ObjTrav)_Nst_func_traverse);
+    Nst_t.Iter = Nst_cont_type_new(
+        "Iter",
+        (Nst_ObjDstr)_Nst_iter_destroy,
+        (Nst_ObjTrav)_Nst_iter_traverse);
 
     Nst_s.c_true  = STR(Nst_string_new_c("true",  4, false));
     Nst_s.c_false = STR(Nst_string_new_c("false", 5, false));
@@ -110,7 +143,7 @@ bool _Nst_init_objects(void)
 
     Nst_c.Bool_true  = Nst_bool_new(true);
     Nst_c.Bool_false = Nst_bool_new(false);
-    Nst_c.Null_null  = _Nst_obj_alloc(sizeof(Nst_Obj), Nst_t.Null, NULL);
+    Nst_c.Null_null  = _Nst_obj_alloc(sizeof(Nst_Obj), Nst_t.Null);
     Nst_c.Int_0    = Nst_int_new(0);
     Nst_c.Int_1    = Nst_int_new(1);
     Nst_c.Int_neg1 = Nst_int_new(-1);
@@ -169,20 +202,6 @@ void _Nst_del_objects(void)
     Nst_ndec_ref(Nst_t.Iter);
     Nst_ndec_ref(Nst_t.Byte);
     Nst_ndec_ref(Nst_t.IOFile);
-
-    Nst_ndec_ref(Nst_s.t_Type);
-    Nst_ndec_ref(Nst_s.t_Int);
-    Nst_ndec_ref(Nst_s.t_Real);
-    Nst_ndec_ref(Nst_s.t_Bool);
-    Nst_ndec_ref(Nst_s.t_Null);
-    Nst_ndec_ref(Nst_s.t_Str);
-    Nst_ndec_ref(Nst_s.t_Array);
-    Nst_ndec_ref(Nst_s.t_Vector);
-    Nst_ndec_ref(Nst_s.t_Map);
-    Nst_ndec_ref(Nst_s.t_Func);
-    Nst_ndec_ref(Nst_s.t_Iter);
-    Nst_ndec_ref(Nst_s.t_Byte);
-    Nst_ndec_ref(Nst_s.t_IOFile);
 
     Nst_ndec_ref(Nst_s.c_true);
     Nst_ndec_ref(Nst_s.c_false);

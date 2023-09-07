@@ -1,4 +1,4 @@
-#include <string.h>
+﻿#include <string.h>
 #include <stdlib.h>
 #include "nest.h"
 
@@ -77,6 +77,7 @@ int main(int argc, char **argv)
         printf("Failed allocation\n");
         return -1;
     }
+    Nst_ggc_init();
 
     Nst_LList *tokens;
     Nst_Error error = { false, Nst_no_pos(), Nst_no_pos(), NULL, NULL };
@@ -155,8 +156,10 @@ int main(int argc, char **argv)
         bool optimize_builtins = cl_args.opt_level == 3 && !cl_args.no_default;
         inst_ls = Nst_optimize_bytecode(inst_ls, optimize_builtins, &error);
     }
-    if (inst_ls == NULL)
+    if (inst_ls == NULL) {
+        Nst_ggc_delete_objs();
         ERROR_EXIT;
+    }
 
     if (cl_args.print_bytecode) {
         if (cl_args.print_tokens || cl_args.print_ast)
@@ -169,15 +172,20 @@ int main(int argc, char **argv)
         }
     }
 
-    Nst_FuncObj *main_func = FUNC(Nst_func_new(0, inst_ls));
-
-    i32 exe_result = Nst_run(
-        main_func,
+    if (!Nst_state_init(
         argc - cl_args.args_start,
         argv + cl_args.args_start,
         cl_args.filename,
         cl_args.opt_level,
-        cl_args.no_default);
+        cl_args.no_default))
+    {
+        fprintf(stderr, "Failed allocation\n");
+        EXIT(-1);
+    }
+
+    Nst_FuncObj *main_func = FUNC(Nst_func_new(0, inst_ls));
+
+    i32 exe_result = Nst_run(main_func);
 
     EXIT(exe_result);
 }

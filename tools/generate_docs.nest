@@ -228,7 +228,7 @@
 
 #check_name name [
     !(name (su.DIGITS su.LETTERS '_' ><) @su.is_charset) ?
-        'Value Error' !! 'invalid name \(name @su.repr)'
+        'Value Error' !! 'invalid name \(name @su.repr), \(header @fs.normalize)'
 ]
 
 #build_docs header_lines categories [
@@ -688,8 +688,12 @@ dir @sys._set_cwd
 ... Iter :: ('../../include' @fs.list_dir) := header [
     header @fs.filename 0 -2 @sequ.slice = header_name
     header 'r' @io.open = header_file
-    header_file @io.read '\n' @su.split = header_lines
+    header_file @io.read = contents
+    contents '\r\n' '\n' @su.replace_substr \
+             '\r'   '\n' @su.replace_substr = contents
+    contents '\n' @su.split = header_lines
     header_file @io.close
+
     header_lines @create_symbols = categories
     {categories, header_lines} = files.'c_api-\(header_name).md'
     categories 'c_api-\(header_name).md' @update_global_symbols
@@ -713,7 +717,9 @@ reference ('API Reference' 1 @title) @io.write
     => symbol
 ]
 
-Array :: symbols symbol_sort_map @sequ.sort = sorted_symbols
+#simple_sort_map pair => pair.0
+
+Array :: symbols simple_sort_map @sequ.sort = sorted_symbols
 sorted_symbols (##x => '[`\(x.0)`](\(x.1))') @sequ.map = sorted_symbols
 reference (sorted_symbols @unordered_list) @io.write
 reference @io.close

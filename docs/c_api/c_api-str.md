@@ -22,20 +22,6 @@ Casts `ptr` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
 
 ---
 
-### `TYPE`
-
-**Synopsis:**
-
-```better-c
-TYPE(ptr)
-```
-
-**Description:**
-
-Casts `ptr` to [`Nst_TypeObj *`](c_api-str.md#nst_typeobj).
-
----
-
 ### `TYPE_NAME`
 
 **Synopsis:**
@@ -47,6 +33,20 @@ TYPE_NAME(obj)
 **Description:**
 
 Gets the name of the type of an object as a C string.
+
+---
+
+### `Nst_TYPE_STR`
+
+**Synopsis:**
+
+```better-c
+Nst_TYPE_STR(type)
+```
+
+**Description:**
+
+Gets the name of the type as a Nest string.
 
 ---
 
@@ -131,22 +131,6 @@ Structure representing a Nest string.
 
 - `len`: the length of the string
 - `value`: the value of the string
-
----
-
-## Type aliases
-
-### `Nst_TypeObj`
-
-**Synopsis:**
-
-```better-c
-typedef Nst_StrObj Nst_TypeObj;
-```
-
-**Description:**
-
-Defined for completeness, Nest `Type` objects are just strings.
 
 ---
 
@@ -278,28 +262,6 @@ destroyed in any way.
 
 A [`Nst_StrObj`](c_api-str.md#nst_strobj) struct, **NOT POINTER**. This function
 never fails.
-
----
-
-### `Nst_type_new`
-
-**Synopsis:**
-
-```better-c
-Nst_TypeObj *Nst_type_new(const i8 *val)
-```
-
-**Description:**
-
-Creates a new [`Nst_TypeObj`](c_api-str.md#nst_typeobj).
-
-**Parameters:**
-
-- `val`: the name of the type
-
-**Returns:**
-
-The new object on success and `NULL` on failure. The error is set.
 
 ---
 

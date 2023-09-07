@@ -13,10 +13,10 @@
 
 /* Casts `ptr` to `Nst_StrObj *`. */
 #define STR(ptr) ((Nst_StrObj *)(ptr))
-/* Casts `ptr` to `Nst_TypeObj *`. */
-#define TYPE(ptr) ((Nst_TypeObj *)(ptr))
 /* Gets the name of the type of an object as a C string. */
-#define TYPE_NAME(obj) (STR(obj->type)->value)
+#define TYPE_NAME(obj) (obj->type->name.value)
+/* Gets the name of the type as a Nest string. */
+#define Nst_TYPE_STR(type) (&((struct _Nst_TypeObj *)(type))->name)
 /* Checks if the value of a string is allocated. */
 #define Nst_STR_IS_ALLOC(str) ((str)->flags & Nst_FLAG_STR_IS_ALLOC)
 
@@ -42,9 +42,6 @@ NstEXP typedef struct _Nst_StrObj {
     usize len;
     i8 *value;
 } Nst_StrObj;
-
-/* Defined for completeness, Nest `Type` objects are just strings. */
-NstEXP typedef Nst_StrObj Nst_TypeObj;
 
 /**
  * Creates a new string object with a value taken from a C string of unknown
@@ -105,15 +102,6 @@ NstEXP Nst_Obj *NstC Nst_string_new_allocated(i8 *val, usize len);
  * @return A `Nst_StrObj` struct, **NOT POINTER**. This function never fails.
  */
 NstEXP Nst_StrObj NstC Nst_string_temp(i8 *val, usize len);
-
-/**
- * Creates a new `Nst_TypeObj`.
- *
- * @param val: the name of the type
- *
- * @return The new object on success and `NULL` on failure. The error is set.
- */
-NstEXP Nst_TypeObj *NstC Nst_type_new(const i8 *val);
 
 /**
  * Creates a new string copying the contents of an already existing one.

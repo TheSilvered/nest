@@ -1,17 +1,34 @@
+#include <assert.h>
+
 #include "obj.h"
 #include "map.h"
 #include "ggc.h"
 #include "str.h"
 #include "mem.h"
+#include "type.h"
 
 #ifdef Nst_TRACK_OBJ_INIT_POS
 #include "interpreter.h"
 #endif
 
-Nst_Obj *_Nst_obj_alloc(usize size, struct _Nst_StrObj *type,
-                        void (*destructor)(void *))
+static Nst_Obj *pop_p_head(usize size, Nst_TypeObj *type)
 {
-    Nst_Obj *obj = OBJ(Nst_malloc(1, size));
+    Nst_Obj *obj;
+
+    if (type != NULL && type->p_head != NULL) {
+        obj = type->p_head;
+        type->p_head = obj->p_next;
+        type->p_len--;
+        // p_next is taken care of in _Nst_obj_alloc
+    } else
+        obj = OBJ(Nst_malloc(1, size));
+
+    return obj;
+}
+
+Nst_Obj *_Nst_obj_alloc(usize size, struct _Nst_TypeObj *type)
+{
+    Nst_Obj *obj = pop_p_head(size, type);
     if (obj == NULL)
         return NULL;
 
@@ -29,68 +46,67 @@ Nst_Obj *_Nst_obj_alloc(usize size, struct _Nst_StrObj *type,
 #endif
 
     obj->ref_count = 1;
-    obj->destructor = destructor;
+    obj->p_next = NULL;
     obj->hash = -1;
     obj->flags = 0;
 
-    // if the type of the object is itself
-    if (type == NULL)
-        obj->type = TYPE(obj);
-    else
-        obj->type = type;
-
-    Nst_inc_ref(obj->type);
+    obj->type = type;
+    Nst_inc_ref(type);
     return obj;
 }
 
 void _Nst_obj_destroy(Nst_Obj *obj)
 {
-    if (!Nst_FLAG_HAS(obj, Nst_FLAG_GGC_IS_SUPPORTED)) {
-        if (obj->destructor != NULL)
-            (*obj->destructor)(obj);
-        if (obj != OBJ(obj->type))
-            Nst_dec_ref(obj->type);
-
-        Nst_free(obj);
-        return;
-    }
-
-    if (Nst_FLAG_HAS(obj, Nst_FLAG_GGC_DELETED))
+    if (Nst_HAS_FLAG(obj, Nst_FLAG_OBJ_DESTROYED))
         return;
 
-    // If the object is being freed during a collection and it is referenced
-    // by other objects in the same generation this prevents the destructor
-    // from being called more than once.
     obj->ref_count = 2147483647;
-    if (obj->destructor != NULL)
-        (*obj->destructor)(obj);
+    if (obj->type->dstr != NULL)
+        obj->type->dstr(obj);
     if (obj != OBJ(obj->type))
         Nst_dec_ref(obj->type);
 
-    // if the object is being deleted by the garbage collector
-    if (Nst_FLAG_HAS(obj, Nst_FLAG_GGC_UNREACHABLE)) {
-        Nst_FLAG_SET(obj, Nst_FLAG_GGC_DELETED);
-        return;
-    }
+    Nst_SET_FLAG(obj, Nst_FLAG_OBJ_DESTROYED);
+}
 
-    Nst_GGCObj *ggc_obj = GGC_OBJ(obj);
-    Nst_GGCList *ls = ggc_obj->ggc_list;
+void _Nst_obj_free(Nst_Obj *obj)
+{
+    assert(Nst_HAS_FLAG(obj, Nst_FLAG_OBJ_DESTROYED));
 
-    if (ls != NULL) {
+    if (Nst_HAS_FLAG(obj, Nst_FLAG_GGC_IS_SUPPORTED)) {
+        Nst_GGCObj *ggc_obj = GGC_OBJ(obj);
+        Nst_GGCList *ls = ggc_obj->ggc_list;
+
+        // if ls is NULL it means that the object is being deleted in a garbage
+        // collection
+        if (ls == NULL) {
+            if (Nst_HAS_FLAG(obj, Nst_FLAG_GGC_DELETE))
+                goto free_mem;
+            return;
+        }
+
         if (ls->head == ggc_obj)
-            ls->head = ggc_obj->ggc_next;
+            ls->head = GGC_OBJ(ggc_obj->p_next);
         else
-            ggc_obj->ggc_prev->ggc_next = ggc_obj->ggc_next;
+            ggc_obj->p_prev->p_next = ggc_obj->p_next;
 
         if (ls->tail == ggc_obj)
-            ls->tail = ggc_obj->ggc_prev;
+            ls->tail = GGC_OBJ(ggc_obj->p_prev);
         else
-            ggc_obj->ggc_next->ggc_prev = ggc_obj->ggc_prev;
+            GGC_OBJ(ggc_obj->p_next)->p_prev = ggc_obj->p_prev;
 
         ls->len--;
     }
 
-    Nst_free(obj);
+free_mem:
+    if (obj->type->p_len >= _Nst_P_LEN_MAX) {
+        free(obj);
+        return;
+    }
+
+    obj->p_next = obj->type->p_head;
+    obj->type->p_head = obj;
+    obj->type->p_len++;
 }
 
 Nst_Obj *_Nst_inc_ref(Nst_Obj *obj)
@@ -102,6 +118,10 @@ Nst_Obj *_Nst_inc_ref(Nst_Obj *obj)
 void _Nst_dec_ref(Nst_Obj *obj)
 {
     obj->ref_count--;
-    if (obj->ref_count <= 0 || (obj == OBJ(obj->type) && obj->ref_count == 1))
+
+    assert(obj->ref_count >= 0); // The ref_count should nevere be below zero
+    if (obj->ref_count <= 0) {
         _Nst_obj_destroy(obj);
+        _Nst_obj_free(obj);
+    }
 }

@@ -41,7 +41,6 @@ enum _CoroutineFlags {
 
 Nst_Obj *coroutine_new(Nst_FuncObj *func);
 void coroutine_traverse(CoroutineObj *co);
-void coroutine_track(CoroutineObj *co);
 void coroutine_destroy(CoroutineObj *co);
 
 Nst_FUNC_SIGN(create_);

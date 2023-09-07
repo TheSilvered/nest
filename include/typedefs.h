@@ -127,7 +127,7 @@
 /* Marks an argument as unused. To be used inside the body of the function. */
 #define Nst_UNUSED(v) (void)(v)
 
-#if 0
+#if 1
 /**
  * @brief Defined to compile with additional arguments that track the location
  * of the creation of Nest objects.

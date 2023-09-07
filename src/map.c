@@ -12,12 +12,11 @@
 
 Nst_Obj *Nst_map_new(void)
 {
-    Nst_MapObj *map = Nst_obj_alloc(
-        Nst_MapObj,
-        Nst_t.Map,
-        _Nst_map_destroy);
+    Nst_MapObj *map = Nst_obj_alloc(Nst_MapObj, Nst_t.Map);
     if (map == NULL)
         return NULL;
+
+    Nst_GGC_OBJ_INIT(map);
 
     map->len = 0;
     map->nodes = Nst_calloc_c(_Nst_MAP_MIN_SIZE, Nst_MapNode, NULL);
@@ -31,8 +30,6 @@ Nst_Obj *Nst_map_new(void)
     map->cap = _Nst_MAP_MIN_SIZE;
     map->head_idx = -1;
     map->tail_idx = -1;
-
-    Nst_GGC_OBJ_INIT(map, _Nst_map_traverse, _Nst_map_track);
 
     return OBJ(map);
 }
@@ -163,12 +160,6 @@ bool _Nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
     (nodes + (i & mask))->hash = hash;
     (nodes + (i & mask))->key = key;
     (nodes + (i & mask))->value = value;
-
-    if (Nst_OBJ_IS_TRACKED(map)
-        && Nst_FLAG_HAS(value, Nst_FLAG_GGC_IS_SUPPORTED))
-    {
-        Nst_ggc_track_obj((Nst_GGCObj*)value);
-    }
 
     return true;
 }
@@ -338,22 +329,8 @@ void _Nst_map_traverse(Nst_MapObj *map)
          i != -1;
          i = Nst_map_get_next_idx(i, map))
     {
-        // don't really care if the object is tracked by the garbage collector
-        // or not, keys shouldn't be tracked but for good mesure the flag is
-        // added reguardless
-        Nst_FLAG_SET(map->nodes[i].key,   Nst_FLAG_GGC_REACHABLE);
-        Nst_FLAG_SET(map->nodes[i].value, Nst_FLAG_GGC_REACHABLE);
-    }
-}
-
-void _Nst_map_track(Nst_MapObj *map)
-{
-    for (i32 i = Nst_map_get_next_idx(-1, map);
-         i != -1;
-         i = Nst_map_get_next_idx(i, map))
-    {
-        if (Nst_FLAG_HAS(map->nodes[i].value, Nst_FLAG_GGC_IS_SUPPORTED))
-            Nst_ggc_track_obj((Nst_GGCObj*)(map->nodes[i].value));
+        Nst_ggc_obj_reachable(map->nodes[i].key);
+        Nst_ggc_obj_reachable(map->nodes[i].value);
     }
 }
 

@@ -182,20 +182,6 @@ Traverse function for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
 
 ---
 
-### `_Nst_func_track`
-
-**Synopsis:**
-
-```better-c
-void _Nst_func_track(Nst_FuncObj *func)
-```
-
-**Description:**
-
-Track function for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
-
----
-
 ### `_Nst_func_destroy`
 
 **Synopsis:**

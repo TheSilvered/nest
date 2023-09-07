@@ -650,7 +650,7 @@ static void remove_push_check(Nst_InstList *bc, Nst_Error *error)
                     inst_list[i].end,
                     STR(Nst_sprintf(
                         _Nst_EM_EXPECTED_TYPES,
-                        STR(inst_list[i].val)->value,
+                        Nst_TYPE_STR(inst_list[i].val)->value,
                         TYPE_NAME(inst_list[i - 1].val))));
 
                 return;

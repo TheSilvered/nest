@@ -72,7 +72,7 @@ GUI_Element *gui_stack_layout_new(GUI_StackDir direction,
         GUI_ET_STACK_LAYOUT,
         sizeof(GUI_StackLayout),
         x, y, w, h,
-        app);
+        app, nullptr);
     if (new_sl == nullptr)
         return nullptr;
     new_sl->sd = direction;

@@ -28,7 +28,10 @@ bool lib_init()
 #error
 #endif
 
-    t_Coroutine = Nst_type_new("Coroutine");
+    t_Coroutine = Nst_cont_type_new(
+        "Coroutine",
+        (Nst_ObjDstr)coroutine_destroy,
+        (Nst_ObjTrav) coroutine_traverse);
 
     state_suspended = Nst_int_new(FLAG_CO_SUSPENDED);
     state_running   = Nst_int_new(FLAG_CO_RUNNING);
@@ -86,7 +89,7 @@ static Nst_FUNC_SIGN(generator_start)
     Nst_Obj **objs = SEQ(args[0])->objs;
     CoroutineObj *co = (CoroutineObj *)(objs[0]);
 
-    if (Nst_FLAG_HAS(co, FLAG_CO_PAUSED)) {
+    if (Nst_HAS_FLAG(co, FLAG_CO_PAUSED)) {
         // Reset the state of the coroutine to start from the beginning
         for (usize i = 0, n = co->stack_size; i < n; i++)
             Nst_dec_ref(co->stack[i]);
@@ -95,8 +98,8 @@ static Nst_FUNC_SIGN(generator_start)
         Nst_dec_ref(co->vars);
         Nst_dec_ref(co->globals);
 
-        Nst_FLAG_DEL(co, FLAG_CO_PAUSED);
-        Nst_FLAG_SET(co, FLAG_CO_SUSPENDED);
+        Nst_DEL_FLAG(co, FLAG_CO_PAUSED);
+        Nst_SET_FLAG(co, FLAG_CO_SUSPENDED);
     }
 
     Nst_Obj *obj = call_(2, objs);
@@ -104,7 +107,7 @@ static Nst_FUNC_SIGN(generator_start)
     if (obj == nullptr)
         return nullptr;
 
-    if (Nst_FLAG_HAS(co, FLAG_CO_ENDED))
+    if (Nst_HAS_FLAG(co, FLAG_CO_ENDED))
         Nst_seq_set(args[0], 3, Nst_true());
     else
         Nst_seq_set(args[0], 2, obj);
@@ -130,7 +133,7 @@ static Nst_FUNC_SIGN(generator_get_val)
     if (obj == nullptr)
         return nullptr;
 
-    if (Nst_FLAG_HAS(co, FLAG_CO_ENDED))
+    if (Nst_HAS_FLAG(co, FLAG_CO_ENDED))
         Nst_seq_set(args[0], 3, Nst_true());
     else
         Nst_seq_set(args[0], 2, obj);
@@ -141,13 +144,11 @@ static Nst_FUNC_SIGN(generator_get_val)
 
 Nst_Obj *coroutine_new(Nst_FuncObj *func)
 {
-    CoroutineObj *co = Nst_obj_alloc(
-        CoroutineObj,
-        t_Coroutine,
-        coroutine_destroy);
-
+    CoroutineObj *co = Nst_obj_alloc(CoroutineObj, t_Coroutine);
     if (co == nullptr)
         return nullptr;
+
+    Nst_GGC_OBJ_INIT(co);
 
     co->func = func;
     co->vars = NULL;
@@ -156,57 +157,36 @@ Nst_Obj *coroutine_new(Nst_FuncObj *func)
     co->stack_size = 0;
     co->idx = -1;
 
-    Nst_FLAG_SET(co, FLAG_CO_SUSPENDED);
-    Nst_FLAG_SET(func, FLAG_FUNC_IS_CO);
-
-    Nst_GGC_OBJ_INIT(co, coroutine_traverse, coroutine_track);
+    Nst_SET_FLAG(co, FLAG_CO_SUSPENDED);
+    Nst_SET_FLAG(func, FLAG_FUNC_IS_CO);
 
     return OBJ(co);
 }
 
 void coroutine_traverse(CoroutineObj *co)
 {
-    Nst_FLAG_SET(co->func, Nst_FLAG_GGC_REACHABLE);
+    Nst_ggc_obj_reachable(co->func);
 
-    if (!Nst_FLAG_HAS(co, FLAG_CO_PAUSED))
+    if (!Nst_HAS_FLAG(co, FLAG_CO_PAUSED))
         return;
 
     for (usize i = 0, n = co->stack_size; i < n; i++) {
         if (co->stack[i] != NULL)
-            Nst_FLAG_SET(co->stack[i], Nst_FLAG_GGC_REACHABLE);
+            Nst_ggc_obj_reachable(co->stack[i]);
     }
 
-    Nst_FLAG_SET(co->vars,    Nst_FLAG_GGC_REACHABLE);
-    Nst_FLAG_SET(co->globals, Nst_FLAG_GGC_REACHABLE);
-}
-
-void coroutine_track(CoroutineObj *co)
-{
-    Nst_ggc_track_obj(GGC_OBJ(co->func));
-
-    if (!Nst_FLAG_HAS(co, FLAG_CO_PAUSED))
-        return;
-
-    for (usize i = 0, n = co->stack_size; i < n; i++) {
-        if (co->stack[i] != nullptr
-            && Nst_FLAG_HAS(co->stack[i], Nst_FLAG_GGC_IS_SUPPORTED))
-        {
-            Nst_ggc_track_obj((Nst_GGCObj*)co->stack[i]);
-        }
-    }
-
-    Nst_ggc_track_obj(GGC_OBJ(co->vars));
-    Nst_ggc_track_obj(GGC_OBJ(co->globals));
+    Nst_ggc_obj_reachable(co->vars);
+    Nst_ggc_obj_reachable(co->globals);
 }
 
 void coroutine_destroy(CoroutineObj *co)
 {
     Nst_dec_ref(co->func);
 
-    if (!Nst_FLAG_HAS(co, FLAG_CO_PAUSED))
+    if (!Nst_HAS_FLAG(co, FLAG_CO_PAUSED))
         return;
 
-    if (co->vars != NULL && !Nst_FLAG_HAS(co->vars, Nst_FLAG_GGC_DELETED)) {
+    if (co->vars != NULL && !Nst_HAS_FLAG(co->vars, Nst_FLAG_OBJ_DESTROYED)) {
         Nst_dec_ref(Nst_map_drop_str(co->vars, "_vars_"));
         Nst_dec_ref(co->vars);
     }
@@ -228,7 +208,7 @@ Nst_FUNC_SIGN(create_)
 
     Nst_DEF_EXTRACT("f", &func);
 
-    if (Nst_FLAG_HAS(func, Nst_FLAG_FUNC_IS_C)) {
+    if (Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C)) {
         Nst_set_type_error_c("cannot create a coroutine from a C function");
         return nullptr;
     }
@@ -249,7 +229,7 @@ Nst_FUNC_SIGN(call_)
     else
         Nst_inc_ref(co_args);
 
-    if (!Nst_FLAG_HAS(co, FLAG_CO_PAUSED)
+    if (!Nst_HAS_FLAG(co, FLAG_CO_PAUSED)
         && co->func->arg_num != SEQ(co_args)->len)
     {
         Nst_set_call_error(Nst_sprintf(
@@ -260,18 +240,18 @@ Nst_FUNC_SIGN(call_)
         return nullptr;
     }
 
-    if (Nst_FLAG_HAS(co, FLAG_CO_RUNNING)) {
+    if (Nst_HAS_FLAG(co, FLAG_CO_RUNNING)) {
         Nst_set_call_error_c("the coroutine is already running");
         Nst_dec_ref(co_args);
         return nullptr;
     }
 
-    bool is_paused = Nst_FLAG_HAS(co, FLAG_CO_PAUSED);
+    bool is_paused = Nst_HAS_FLAG(co, FLAG_CO_PAUSED);
 
-    Nst_FLAG_DEL(co, FLAG_CO_SUSPENDED);
-    Nst_FLAG_DEL(co, FLAG_CO_PAUSED);
-    Nst_FLAG_DEL(co, FLAG_CO_ENDED);
-    Nst_FLAG_SET(co, FLAG_CO_RUNNING);
+    Nst_DEL_FLAG(co, FLAG_CO_SUSPENDED);
+    Nst_DEL_FLAG(co, FLAG_CO_PAUSED);
+    Nst_DEL_FLAG(co, FLAG_CO_ENDED);
+    Nst_SET_FLAG(co, FLAG_CO_RUNNING);
 
     Nst_ExecutionState *state = Nst_get_state();
     co->call_stack_size = state->f_stack.len;
@@ -302,17 +282,17 @@ Nst_FUNC_SIGN(call_)
 
     // If an error occurred
     if (result == nullptr) {
-        Nst_FLAG_DEL(co, FLAG_CO_SUSPENDED);
-        Nst_FLAG_DEL(co, FLAG_CO_RUNNING);
-        Nst_FLAG_DEL(co, FLAG_CO_PAUSED);
-        Nst_FLAG_SET(co, FLAG_CO_ENDED);
+        Nst_DEL_FLAG(co, FLAG_CO_SUSPENDED);
+        Nst_DEL_FLAG(co, FLAG_CO_RUNNING);
+        Nst_DEL_FLAG(co, FLAG_CO_PAUSED);
+        Nst_SET_FLAG(co, FLAG_CO_ENDED);
         return nullptr;
     }
 
-    if (!Nst_FLAG_HAS(co, FLAG_CO_PAUSED)) {
-        Nst_FLAG_DEL(co, FLAG_CO_SUSPENDED);
-        Nst_FLAG_DEL(co, FLAG_CO_RUNNING);
-        Nst_FLAG_SET(co, FLAG_CO_ENDED);
+    if (!Nst_HAS_FLAG(co, FLAG_CO_PAUSED)) {
+        Nst_DEL_FLAG(co, FLAG_CO_SUSPENDED);
+        Nst_DEL_FLAG(co, FLAG_CO_RUNNING);
+        Nst_SET_FLAG(co, FLAG_CO_ENDED);
     }
 
     return result;
@@ -335,7 +315,7 @@ Nst_FUNC_SIGN(pause_)
     }
 
     if (state->f_stack.len - 1 != co->call_stack_size
-        || !Nst_FLAG_HAS(co, FLAG_CO_RUNNING))
+        || !Nst_HAS_FLAG(co, FLAG_CO_RUNNING))
     {
         Nst_set_call_error_c("the function was not called with 'call'");
         return nullptr;
@@ -369,10 +349,10 @@ Nst_FUNC_SIGN(pause_)
 
     Nst_vstack_pop(); // remove NULL from the stack
 
-    Nst_FLAG_DEL(co, FLAG_CO_SUSPENDED);
-    Nst_FLAG_DEL(co, FLAG_CO_RUNNING);
-    Nst_FLAG_DEL(co, FLAG_CO_ENDED);
-    Nst_FLAG_SET(co, FLAG_CO_PAUSED);
+    Nst_DEL_FLAG(co, FLAG_CO_SUSPENDED);
+    Nst_DEL_FLAG(co, FLAG_CO_RUNNING);
+    Nst_DEL_FLAG(co, FLAG_CO_ENDED);
+    Nst_SET_FLAG(co, FLAG_CO_PAUSED);
 
     return Nst_inc_ref(return_value);
 }
@@ -383,13 +363,13 @@ Nst_FUNC_SIGN(get_state_)
 
     Nst_DEF_EXTRACT("#", t_Coroutine, &co);
 
-    if (Nst_FLAG_HAS(co, FLAG_CO_SUSPENDED))
+    if (Nst_HAS_FLAG(co, FLAG_CO_SUSPENDED))
         return Nst_inc_ref(state_suspended);
 
-    if (Nst_FLAG_HAS(co, FLAG_CO_RUNNING))
+    if (Nst_HAS_FLAG(co, FLAG_CO_RUNNING))
         return Nst_inc_ref(state_running);
 
-    if (Nst_FLAG_HAS(co, FLAG_CO_PAUSED))
+    if (Nst_HAS_FLAG(co, FLAG_CO_PAUSED))
         return Nst_inc_ref(state_paused);
 
     return Nst_inc_ref(state_ended);

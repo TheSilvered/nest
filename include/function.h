@@ -91,8 +91,6 @@ NstEXP void NstC _Nst_func_set_vt(Nst_FuncObj *func, Nst_MapObj *map);
 
 /* Traverse function for `Nst_FuncObj`. */
 NstEXP void NstC _Nst_func_traverse(Nst_FuncObj *func);
-/* Track function for `Nst_FuncObj`. */
-NstEXP void NstC _Nst_func_track(Nst_FuncObj *func);
 /* Destructor for `Nst_FuncObj`. */
 NstEXP void NstC _Nst_func_destroy(Nst_FuncObj *func);
 

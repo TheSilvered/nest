@@ -7,15 +7,15 @@
 #include "obj_ops.h"
 #include "lib_import.h"
 #include "format.h"
+#include "type.h"
 
 static Nst_Obj *new_seq(usize len, usize size, Nst_TypeObj *type)
 {
-    Nst_SeqObj *seq = Nst_obj_alloc(
-        Nst_SeqObj,
-        type,
-        _Nst_seq_destroy);
+    Nst_SeqObj *seq = Nst_obj_alloc(Nst_SeqObj, type);
     if (seq == NULL)
         return NULL;
+
+    Nst_GGC_OBJ_INIT(seq);
 
     Nst_Obj **objs = Nst_calloc_c(size, Nst_Obj *, NULL);
     if (objs == NULL) {
@@ -26,8 +26,6 @@ static Nst_Obj *new_seq(usize len, usize size, Nst_TypeObj *type)
     seq->len = len;
     seq->cap = size;
     seq->objs = objs;
-
-    Nst_GGC_OBJ_INIT(seq, _Nst_seq_traverse, _Nst_seq_track);
 
     return OBJ(seq);
 }
@@ -61,16 +59,7 @@ void _Nst_seq_traverse(Nst_SeqObj *seq)
 {
     Nst_Obj **objs = seq->objs;
     for (usize i = 0, n = seq->len; i < n; i++)
-        Nst_FLAG_SET(objs[i], Nst_FLAG_GGC_REACHABLE);
-}
-
-void _Nst_seq_track(Nst_SeqObj* seq)
-{
-    Nst_Obj **objs = seq->objs;
-    for (usize i = 0, n = seq->len; i < n; i++) {
-        if (Nst_FLAG_HAS(objs[i], Nst_FLAG_GGC_IS_SUPPORTED))
-            Nst_ggc_track_obj((Nst_GGCObj*)objs[i]);
-    }
+        Nst_ggc_obj_reachable(objs[i]);
 }
 
 bool _Nst_vector_resize(Nst_SeqObj *vect)
@@ -117,11 +106,6 @@ bool _Nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val)
 
     vect->objs[vect->len++] = Nst_inc_ref(val);
 
-    if (Nst_OBJ_IS_TRACKED(vect)
-        && Nst_FLAG_HAS(val, Nst_FLAG_GGC_IS_SUPPORTED))
-    {
-        Nst_ggc_track_obj((Nst_GGCObj*)val);
-    }
     return true;
 }
 
@@ -142,12 +126,6 @@ bool _Nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val)
     if (seq->objs[idx] != NULL)
         Nst_dec_ref(seq->objs[idx]);
     seq->objs[idx] = val;
-
-    if (Nst_OBJ_IS_TRACKED(seq)
-        && Nst_FLAG_HAS(val, Nst_FLAG_GGC_IS_SUPPORTED))
-    {
-        Nst_ggc_track_obj((Nst_GGCObj*)val);
-    }
 
     return true;
 }

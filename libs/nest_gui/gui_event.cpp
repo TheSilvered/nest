@@ -26,7 +26,7 @@ bool handle_events(GUI_App *app)
 
 i32 default_event_handler(SDL_Event *e, GUI_Element *el)
 {
-    if (Nst_FLAG_HAS(el, GUI_FLAG_IS_HIDDEN))
+    if (Nst_HAS_FLAG(el, GUI_FLAG_IS_HIDDEN))
         return 0;
 
     switch (e->type) {

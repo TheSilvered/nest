@@ -46,10 +46,7 @@ Nst_Obj *Nst_string_new_c(const i8 *val, usize len, bool allocated)
 
 Nst_Obj *Nst_string_new(i8 *val, usize len, bool allocated)
 {
-    Nst_StrObj *str = Nst_obj_alloc(
-        Nst_StrObj,
-        Nst_t.Str,
-        _Nst_string_destroy);
+    Nst_StrObj *str = Nst_obj_alloc(Nst_StrObj, Nst_t.Str);
     if (str == NULL)
         return NULL;
 
@@ -74,27 +71,14 @@ Nst_Obj *Nst_string_new_allocated(i8 *val, usize len)
 Nst_StrObj Nst_string_temp(i8 *val, usize len)
 {
     Nst_StrObj obj;
-    obj.value = val;
-    obj.len = len;
-    obj.hash = -1;
     obj.type = Nst_t.Str;
     obj.ref_count = 1;
+    obj.p_next = NULL;
+    obj.hash = -1;
+    obj.flags = 0;
+    obj.value = val;
+    obj.len = len;
     return obj;
-}
-
-Nst_TypeObj *Nst_type_new(const i8 *val)
-{
-    Nst_TypeObj *str = Nst_obj_alloc(
-        Nst_StrObj,
-        Nst_t.Type,
-        _Nst_string_destroy);
-    if (str == NULL)
-        return NULL;
-
-    str->len = strlen(val);
-    str->value = (i8 *)val;
-
-    return str;
 }
 
 Nst_Obj *_Nst_string_copy(Nst_StrObj *src)

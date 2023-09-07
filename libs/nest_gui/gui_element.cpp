@@ -2,14 +2,14 @@
 #include "nest_gui.h"
 
 GUI_Element *gui_element_new(GUI_ElementType t, usize size, int x, int y,
-                             int w, int h, struct _GUI_App *app)
+                             int w, int h, struct _GUI_App *app,
+                             void (*el_destructor)(void *))
 {
-    GUI_Element *obj = (GUI_Element *)_Nst_obj_alloc(
-        size,
-        gui_element_type,
-        (Nst_ObjDestructor)gui_element_destroy);
+    GUI_Element *obj = (GUI_Element *)_Nst_obj_alloc(size, gui_element_type);
     if (obj == nullptr)
         return nullptr;
+    Nst_GGC_OBJ_INIT(obj);
+
     obj->rect = { x, y, w, h };
     obj->clip_content = false;
     obj->clip_parent = false;
@@ -27,54 +27,42 @@ GUI_Element *gui_element_new(GUI_ElementType t, usize size, int x, int y,
     obj->handle_event_func = nullptr;
     obj->frame_update_func = nullptr;
     obj->tick_update_func = nullptr;
+    obj->el_destructor = el_destructor;
 
     gui_element_set_margin(obj, 0, 0, 0, 0);
     gui_element_set_padding(obj, 0, 0, 0, 0);
 
-    Nst_GGC_OBJ_INIT(obj, gui_element_track, gui_element_traverse);
     return obj;
 }
 
 void gui_element_destroy(GUI_Element *obj)
 {
+    if (obj->el_destructor != nullptr)
+        obj->el_destructor(obj);
+
     Nst_dec_ref(obj->children);
     if (obj->parent != nullptr)
         Nst_dec_ref(obj->parent);
-    if (Nst_FLAG_HAS(obj, GUI_FLAG_REL_POS) && obj->rel_pos.element != nullptr)
+    if (Nst_HAS_FLAG(obj, GUI_FLAG_REL_POS) && obj->rel_pos.element != nullptr)
         Nst_dec_ref(obj->rel_pos.element);
-    if (Nst_FLAG_HAS(obj, GUI_FLAG_REL_SIZE)
+    if (Nst_HAS_FLAG(obj, GUI_FLAG_REL_SIZE)
         && obj->rel_size.element != nullptr)
     {
         Nst_dec_ref(obj->rel_size.element);
     }
 }
 
-void gui_element_track(GUI_Element *obj)
-{
-    Nst_ggc_track_obj(GGC_OBJ(obj->children));
-    if (obj->parent != nullptr)
-        Nst_ggc_track_obj(GGC_OBJ(obj->parent));
-    if (Nst_FLAG_HAS(obj, GUI_FLAG_REL_POS) && obj->rel_pos.element != nullptr)
-        Nst_ggc_track_obj(GGC_OBJ(obj->rel_pos.element));
-    if (Nst_FLAG_HAS(obj, GUI_FLAG_REL_SIZE)
-        && obj->rel_size.element != nullptr)
-    {
-        Nst_ggc_track_obj(GGC_OBJ(obj->rel_size.element));
-    }
-}
-
 void gui_element_traverse(GUI_Element *obj)
 {
-    _Nst_seq_traverse(obj->children);
-    Nst_FLAG_SET(obj->children, Nst_FLAG_GGC_REACHABLE);
+    Nst_ggc_obj_reachable(obj->children);
     if (obj->parent != nullptr)
-        Nst_FLAG_SET(obj->parent, Nst_FLAG_GGC_REACHABLE);
-    if (Nst_FLAG_HAS(obj, GUI_FLAG_REL_POS) && obj->rel_pos.element != nullptr)
-        Nst_FLAG_SET(obj->rel_pos.element, Nst_FLAG_GGC_REACHABLE);
-    if (Nst_FLAG_HAS(obj, GUI_FLAG_REL_SIZE)
+        Nst_ggc_obj_reachable(obj->parent);
+    if (Nst_HAS_FLAG(obj, GUI_FLAG_REL_POS) && obj->rel_pos.element != nullptr)
+        Nst_ggc_obj_reachable(obj->rel_pos.element);
+    if (Nst_HAS_FLAG(obj, GUI_FLAG_REL_SIZE)
         && obj->rel_size.element != nullptr)
     {
-        Nst_FLAG_SET(obj->rel_size.element, Nst_FLAG_GGC_REACHABLE);
+        Nst_ggc_obj_reachable(obj->rel_size.element);
     }
 }
 
@@ -112,9 +100,6 @@ void gui_element_set_parent(GUI_Element *obj, GUI_Element *parent)
 
     obj->parent = parent;
     Nst_inc_ref(parent);
-
-    if (Nst_OBJ_IS_TRACKED(obj))
-        Nst_ggc_track_obj(GGC_OBJ(parent));
 }
 
 int gui_element_get_content_x(GUI_Element *obj, GUI_RelPosX pos, GUI_RelRect r)
@@ -333,7 +318,7 @@ void gui_element_set_rel_pos(GUI_Element *obj, GUI_Element *element,
                              GUI_RelPosX from_x, GUI_RelPosY from_y,
                              GUI_RelPosX to_x, GUI_RelPosY to_y)
 {
-    Nst_FLAG_SET(obj, GUI_FLAG_REL_POS);
+    Nst_SET_FLAG(obj, GUI_FLAG_REL_POS);
     obj->rel_pos.from_rect = from_rect;
     obj->rel_pos.to_rect = to_rect;
     obj->rel_pos.from_x = from_x;
@@ -342,15 +327,11 @@ void gui_element_set_rel_pos(GUI_Element *obj, GUI_Element *element,
     obj->rel_pos.to_y = to_y;
     obj->rel_pos.element = element;
 
-    if (element != nullptr) {
+    if (element != nullptr)
         Nst_inc_ref(element);
-        if (!Nst_OBJ_IS_TRACKED(obj))
-            Nst_ggc_track_obj(GGC_OBJ(element));
-    } else {
+    else {
         obj->rel_pos.element = obj->app->root;
         Nst_inc_ref(obj->app->root);
-        if (!Nst_OBJ_IS_TRACKED(obj))
-            Nst_ggc_track_obj(GGC_OBJ(obj->app->root));
     }
 }
 
@@ -359,7 +340,7 @@ void gui_element_set_rel_size(GUI_Element *obj, GUI_Element *element,
                               i32 min_w, i32 min_h, i32 max_w, i32 max_h,
                               f64 scale_x, f64 scale_y, i32 diff_x, i32 diff_y)
 {
-    Nst_FLAG_SET(obj, GUI_FLAG_REL_SIZE);
+    Nst_SET_FLAG(obj, GUI_FLAG_REL_SIZE);
     obj->rel_size.from_rect = from_rect;
     obj->rel_size.to_rect = to_rect;
     obj->rel_size.min_w = min_w;
@@ -372,16 +353,13 @@ void gui_element_set_rel_size(GUI_Element *obj, GUI_Element *element,
     obj->rel_size.diff_y = diff_y;
     obj->rel_size.element = element;
 
-    if (element != nullptr) {
+    if (element != nullptr)
         Nst_inc_ref(element);
-        if (!Nst_OBJ_IS_TRACKED(obj))
-            Nst_ggc_track_obj(GGC_OBJ(element));
-    }
 }
 
 void gui_element_update_pos(GUI_Element *obj)
 {
-    if (!Nst_FLAG_HAS(obj, GUI_FLAG_REL_POS))
+    if (!Nst_HAS_FLAG(obj, GUI_FLAG_REL_POS))
         return;
 
     GUI_RelPosX from_x = obj->rel_pos.from_x;
@@ -414,7 +392,7 @@ void gui_element_update_pos(GUI_Element *obj)
 
 void gui_element_update_size(GUI_Element *obj)
 {
-    if (!Nst_FLAG_HAS(obj, GUI_FLAG_REL_SIZE))
+    if (!Nst_HAS_FLAG(obj, GUI_FLAG_REL_SIZE))
         return;
 
     int p_w, p_h;

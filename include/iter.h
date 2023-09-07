@@ -60,8 +60,10 @@ NstEXP Nst_Obj *NstC Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *is_done,
 NstEXP void NstC _Nst_iter_destroy(Nst_IterObj *iter);
 /* Traverse function for Nest iter objects. */
 NstEXP void NstC _Nst_iter_traverse(Nst_IterObj *iter);
+#if 0
 /* Track function for Nest iter objects. */
 NstEXP void NstC _Nst_iter_track(Nst_IterObj *iter);
+#endif
 
 /**
  * Calls the `start` function of a `Nst_IterObj`.

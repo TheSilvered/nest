@@ -23,7 +23,7 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 
 ### Nest 0.14.0 planned featues and improvements
 
-- [ ] Object pools (optimization)
+- [x] Object pools (optimization)
 - [ ] Remove `is_done` function from iterators & return special object with
       `get_val`
 - [ ] `map` from `stdsequtil.nest` as an iterator
@@ -83,7 +83,7 @@ Once installed you can check that it is working by running this command:
 
 ```text
 PS C:\Users\user> nest -V
-Using Nest version: beta-0.12.1 x64
+Using Nest version: beta-0.13.0 x64
 ```
 
 ### Compile from source on Windows

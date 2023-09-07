@@ -89,7 +89,6 @@ static i32 exe_unpack_seq(Nst_Inst *inst);
 static Nst_SeqObj *make_argv(i32 argc, i8 **argv, i8 *filename);
 static Nst_StrObj *make_cwd(i8 *file_path);
 static inline void add_positions(Nst_Pos start, Nst_Pos end);
-static inline void change_vt(Nst_VarTable *new_vt);
 static void loaded_libs_destructor(C_LIB_TYPE lib);
 
 i32 (*inst_func[])(Nst_Inst *) = {
@@ -118,21 +117,8 @@ Nst_Obj *(*local_op_func[])(Nst_Obj *) = {
     _Nst_obj_typeof
 };
 
-i32 Nst_run(Nst_FuncObj *main_func, i32 argc, i8 **argv, i8 *filename,
-            i32 opt_level, bool no_default)
+i32 Nst_run(Nst_FuncObj *main_func)
 {
-    // Init global state
-    bool init_succeded = Nst_state_init(
-        argc, argv,
-        filename,
-        opt_level,
-        no_default);
-
-    if (!init_succeded) {
-        fprintf(stderr, "Failed allocation\n");
-        return -1;
-    }
-
     // Execute main function
     Nst_fstack_push(
         main_func,
@@ -142,7 +128,6 @@ i32 Nst_run(Nst_FuncObj *main_func, i32 argc, i8 **argv, i8 *filename,
         0, 0);
 
     Nst_func_set_vt(main_func, Nst_state.vt->vars);
-    Nst_ggc_track_obj(GGC_OBJ(Nst_state.vt->vars));
 
     complete_function(0);
     Nst_dec_ref(main_func);
@@ -167,7 +152,6 @@ bool Nst_state_init(i32 argc, i8 **argv, i8 *filename, i32 opt_level,
 {
     if (!Nst_traceback_init())
         return false;
-    Nst_ggc_init();
     Nst_state.curr_path = Nst_getcwd();
     if (Nst_state.curr_path == NULL) {
         Nst_error_clear();
@@ -364,10 +348,14 @@ static void complete_function(usize final_stack_size)
             instructions = curr_inst_ls->instructions;
             continue;
         }
-
+        //if (Nst_state.idx == 179)
+        //    __debugbreak();
         Nst_Inst *inst = &instructions[Nst_state.idx];
         Nst_InstID inst_id = inst->id;
         i32 result = inst_func[inst_id](inst);
+
+        if (Nst_state.ggc.gen1.len > _Nst_GEN1_MAX)
+            Nst_ggc_collect();
 
         if (result == 0)
             continue;
@@ -492,7 +480,7 @@ bool Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
         return false;
     }
 
-    change_vt(vt);
+    Nst_state.vt = vt;
 
     Nst_func_set_vt(mod_func, Nst_state.vt->vars);
 
@@ -518,7 +506,7 @@ bool Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
 
 Nst_Obj *Nst_call_func(Nst_FuncObj *func, Nst_Obj **args)
 {
-    if (Nst_FLAG_HAS(func, Nst_FLAG_FUNC_IS_C))
+    if (Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C))
         return func->body.c_func(func->arg_num, args);
 
     Nst_vstack_push(NULL);
@@ -545,7 +533,7 @@ Nst_Obj *Nst_call_func(Nst_FuncObj *func, Nst_Obj **args)
     }
 
     Nst_state.idx = 0;
-    change_vt(new_vt);
+    Nst_state.vt = new_vt;
     complete_function(Nst_state.f_stack.len - 1);
 
     if (ERROR_OCCURRED)
@@ -557,7 +545,7 @@ Nst_Obj *Nst_call_func(Nst_FuncObj *func, Nst_Obj **args)
 Nst_Obj *Nst_run_func_context(Nst_FuncObj *func, i64 idx, Nst_MapObj *vars,
                               Nst_MapObj *globals)
 {
-    assert(!Nst_FLAG_HAS(func, Nst_FLAG_FUNC_IS_C));
+    assert(!Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C));
 
     Nst_fstack_push(
         func,
@@ -587,7 +575,7 @@ Nst_Obj *Nst_run_func_context(Nst_FuncObj *func, i64 idx, Nst_MapObj *vars,
             new_vt->global_table = MAP(Nst_inc_ref(Nst_state.vt->global_table));
     } else
         new_vt->global_table = MAP(Nst_inc_ref(globals));
-    change_vt(new_vt);
+    Nst_state.vt = new_vt;
     Nst_state.idx = idx;
     complete_function(Nst_state.f_stack.len - 1);
 
@@ -615,7 +603,7 @@ static i32 exe_pop_val(Nst_Inst *inst)
 static i32 exe_for_inst(Nst_Inst *inst, Nst_IterObj *iter,
                         Nst_FuncObj *func)
 {
-    if (Nst_FLAG_HAS(func, Nst_FLAG_FUNC_IS_C)) {
+    if (Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C)) {
         Nst_Obj *res = func->body.c_func(
             (usize)inst->int_val,
             &iter->value);
@@ -749,7 +737,7 @@ static i32 exe_type_check(Nst_Inst *inst)
     if (obj->type != TYPE(inst->val)) {
         Nst_set_type_error(Nst_sprintf(
             _Nst_EM_EXPECTED_TYPES,
-            STR(inst->val)->value,
+            Nst_TYPE_STR(inst->val)->value,
             TYPE_NAME(obj)));
         return -1;
     }
@@ -887,7 +875,7 @@ static i32 call_c_func(bool is_seq_call, i64 tot_args, i64 arg_num,
 
     for (i64 i = 0; i < null_args; i++)
         args[arg_num + i] = Nst_inc_ref(Nst_c.Null_null);
-
+;
     Nst_Obj *res = func->body.c_func((usize)tot_args, args);
 
     if (!is_seq_call) {
@@ -957,7 +945,7 @@ static i32 exe_op_call(Nst_Inst *inst)
     i64 null_args = (i64)func->arg_num - arg_num;
     i64 tot_args = func->arg_num;
 
-    if (Nst_FLAG_HAS(func, Nst_FLAG_FUNC_IS_C)) {
+    if (Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C)) {
         return call_c_func(
             is_seq_call,
             tot_args,
@@ -989,7 +977,7 @@ static i32 exe_op_call(Nst_Inst *inst)
         return -1;
     }
 
-    change_vt(new_vt);
+    Nst_state.vt = new_vt;
 
     for (i64 i = 0; i < arg_num; i++) {
         Nst_Obj *val;
@@ -1629,14 +1617,6 @@ static inline void add_positions(Nst_Pos start, Nst_Pos end)
         Nst_llist_pop(Nst_state.traceback.positions);
         Nst_free(positions);
     }
-}
-
-static inline void change_vt(Nst_VarTable *new_vt)
-{
-    Nst_state.vt = new_vt;
-    Nst_ggc_track_obj(GGC_OBJ(Nst_state.vt->vars));
-    if (Nst_state.vt->global_table != NULL)
-        Nst_ggc_track_obj(GGC_OBJ(Nst_state.vt->global_table));
 }
 
 static void loaded_libs_destructor(C_LIB_TYPE lib)

@@ -23,17 +23,17 @@
 #define IOFILE(ptr) ((Nst_IOFileObj *)(ptr))
 
 /* Checks if `f` is closed. */
-#define Nst_IOF_IS_CLOSED(f) Nst_FLAG_HAS(f, Nst_FLAG_IOFILE_IS_CLOSED)
+#define Nst_IOF_IS_CLOSED(f) Nst_HAS_FLAG(f, Nst_FLAG_IOFILE_IS_CLOSED)
 /* Checks if `f` was opened in binary mode. */
-#define Nst_IOF_IS_BIN(f) Nst_FLAG_HAS(f, Nst_FLAG_IOFILE_IS_BIN)
+#define Nst_IOF_IS_BIN(f) Nst_HAS_FLAG(f, Nst_FLAG_IOFILE_IS_BIN)
 /* Checks if `f` is a TTY. */
-#define Nst_IOF_IS_TTY(f) Nst_FLAG_HAS(f, Nst_FLAG_IOFILE_IS_TTY)
+#define Nst_IOF_IS_TTY(f) Nst_HAS_FLAG(f, Nst_FLAG_IOFILE_IS_TTY)
 /* Checks if `f` can be written. */
-#define Nst_IOF_CAN_WRITE(f) Nst_FLAG_HAS(f, Nst_FLAG_IOFILE_CAN_WRITE)
+#define Nst_IOF_CAN_WRITE(f) Nst_HAS_FLAG(f, Nst_FLAG_IOFILE_CAN_WRITE)
 /* Checks if `f` can be read. */
-#define Nst_IOF_CAN_READ(f) Nst_FLAG_HAS(f, Nst_FLAG_IOFILE_CAN_READ)
+#define Nst_IOF_CAN_READ(f) Nst_HAS_FLAG(f, Nst_FLAG_IOFILE_CAN_READ)
 /* Checks if `f` can be seeked. */
-#define Nst_IOF_CAN_SEEK(f) Nst_FLAG_HAS(f, Nst_FLAG_IOFILE_CAN_SEEK)
+#define Nst_IOF_CAN_SEEK(f) Nst_HAS_FLAG(f, Nst_FLAG_IOFILE_CAN_SEEK)
 
 #ifdef __cplusplus
 extern "C" {
