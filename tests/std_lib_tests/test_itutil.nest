@@ -23,7 +23,6 @@
 <{ 1, 2, 3 }> @itu.cycle 6 @string_output '1231231' @test.assert_eq
 
 10 3 @itu.repeat @string_output '101010' @test.assert_eq
-itu.repeat { 10, -2 } @test.assert_raises_error
 
 {{1, 2}, 'Hi'} @itu.chain @string_output '12Hi' @test.assert_eq
 {3 -> 5, <{2, 3}>} @itu.chain @string_output '3423' @test.assert_eq
@@ -61,10 +60,13 @@ m @itu.values @string_output '123' @test.assert_eq
 ]
 
 #get_val v [
-    => v.1 .(1 += v.0 1 -)
+    => v.0 $v.1 >= ?
+       itu.IEND
+    :
+       v.1 .(1 += v.0 1 -)
 ]
 
-start is_done get_val {0, {1, 2, 3}} @itu.new_iterator = my_iter
+start get_val {0, {1, 2, 3}} @itu.new_iterator = my_iter
 Array :: my_iter {1, 2, 3} @test.assert_eq
 
 itu.new_iterator {##[], ##v[], ##v[], null} @test.assert_raises_error

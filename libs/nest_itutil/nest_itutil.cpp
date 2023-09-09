@@ -20,10 +20,10 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(keys_,         1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(values_,       1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(reversed_,     1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(new_iterator_, 4);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(new_iterator_, 3);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(iter_start_,   1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(iter_is_done_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(iter_get_val_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_iend_,    1);
 
 #if __LINE__ - FUNC_COUNT != 15
 #error
@@ -54,24 +54,36 @@ Nst_FUNC_SIGN(count_)
 
     return Nst_iter_new(
         FUNC(Nst_func_new_c(1, count_start)),
-        FUNC(Nst_func_new_c(1, count_is_done)),
         FUNC(Nst_func_new_c(1, count_get_val)),
         arr);
 }
 
 Nst_FUNC_SIGN(cycle_)
 {
-    Nst_Obj *seq;
+    Nst_Obj *iterable;
 
-    Nst_DEF_EXTRACT("S", &seq);
+    Nst_DEF_EXTRACT("A|s|I:o", &iterable);
 
-    // Layout: [idx, seq]
-    Nst_Obj *arr = Nst_array_create_c("io", 0, seq);
+    if (Nst_T(iterable, Iter)) {
+        return Nst_iter_new(
+            FUNC(Nst_func_new_c(1, cycle_iter_start)),
+            FUNC(Nst_func_new_c(1, cycle_iter_get_val)),
+            iterable);
+    }
+
+    // Layout: [idx, iterable]
+    Nst_Obj *arr = Nst_array_create_c("io", 0, iterable);
+
+    if (Nst_T(iterable, Str)) {
+        return Nst_iter_new(
+            FUNC(Nst_func_new_c(1, cycle_str_start)),
+            FUNC(Nst_func_new_c(1, cycle_str_get_val)),
+            arr);
+    }
 
     return Nst_iter_new(
-        FUNC(Nst_func_new_c(1, cycle_start)),
-        FUNC(Nst_func_new_c(1, cycle_is_done)),
-        FUNC(Nst_func_new_c(1, cycle_get_val)),
+        FUNC(Nst_func_new_c(1, cycle_seq_start)),
+        FUNC(Nst_func_new_c(1, cycle_seq_get_val)),
         arr);
 }
 
@@ -82,18 +94,11 @@ Nst_FUNC_SIGN(repeat_)
 
     Nst_DEF_EXTRACT("o i:i", &ob, &times);
 
-    if (AS_INT(times) < 0) {
-        Nst_dec_ref(times);
-        Nst_set_value_error_c("cannot repeat a negative number of times");
-        return nullptr;
-    }
-
     // Layout: [count, item, max_times]
     Nst_Obj *arr = Nst_array_create_c("iOo", 0, ob, times);
 
     return Nst_iter_new(
         FUNC(Nst_func_new_c(1, repeat_start)),
-        FUNC(Nst_func_new_c(1, repeat_is_done)),
         FUNC(Nst_func_new_c(1, repeat_get_val)),
         arr);
 }
@@ -104,11 +109,10 @@ Nst_FUNC_SIGN(chain_)
 
     Nst_DEF_EXTRACT("R", &iter);
 
-    // Layout: [main_iter, local_seq, val, is_done]
-    Nst_Obj *arr = Nst_array_create_c("onnb", iter, nullptr, nullptr, false);
+    // Layout: [main_iter, current_iter]
+    Nst_Obj *arr = Nst_array_create_c("onnb", iter, nullptr);
     return Nst_iter_new(
         FUNC(Nst_func_new_c(1, chain_start)),
-        FUNC(Nst_func_new_c(1, chain_is_done)),
         FUNC(Nst_func_new_c(1, chain_get_val)),
         arr);
 }
@@ -134,7 +138,6 @@ Nst_Obj *zipn_(Nst_SeqObj *seq)
 
     return Nst_iter_new(
         FUNC(Nst_func_new_c(1, zipn_start)),
-        FUNC(Nst_func_new_c(1, zipn_is_done)),
         FUNC(Nst_func_new_c(1, zipn_get_val)),
         OBJ(arr));
 }
@@ -144,7 +147,7 @@ Nst_FUNC_SIGN(zip_)
     Nst_Obj *seq1;
     Nst_Obj *seq2;
 
-    Nst_DEF_EXTRACT("I|a|v|s?R", &seq1, &seq2);
+    Nst_DEF_EXTRACT("I|a|v|s ?R", &seq1, &seq2);
 
     if (seq2 == Nst_null())
         return zipn_((Nst_SeqObj *)seq1);
@@ -156,7 +159,6 @@ Nst_FUNC_SIGN(zip_)
 
     return Nst_iter_new(
         FUNC(Nst_func_new_c(1, zip_start)),
-        FUNC(Nst_func_new_c(1, zip_is_done)),
         FUNC(Nst_func_new_c(1, zip_get_val)),
         arr);
 }
@@ -179,7 +181,6 @@ Nst_FUNC_SIGN(enumerate_)
 
     return Nst_iter_new(
         FUNC(Nst_func_new_c(1, enumerate_start)),
-        FUNC(Nst_func_new_c(1, enumerate_is_done)),
         FUNC(Nst_func_new_c(1, enumerate_get_val)),
         arr);
 }
@@ -194,7 +195,6 @@ Nst_FUNC_SIGN(keys_)
 
     return Nst_iter_new(
         FUNC(Nst_inc_ref(Nst_iter_func()->map_start)),
-        FUNC(Nst_inc_ref(Nst_iter_func()->map_is_done)),
         FUNC(Nst_func_new_c(1, keys_get_val)),
         arr);
 }
@@ -210,7 +210,6 @@ Nst_FUNC_SIGN(values_)
 
     return Nst_iter_new(
         FUNC(Nst_inc_ref(Nst_iter_func()->map_start)),
-        FUNC(Nst_inc_ref(Nst_iter_func()->map_is_done)),
         FUNC(Nst_func_new_c(1, values_get_val)),
         arr);
 }
@@ -226,7 +225,6 @@ Nst_FUNC_SIGN(reversed_)
 
     return Nst_iter_new(
         FUNC(Nst_func_new_c(1, reversed_start)),
-        FUNC(Nst_func_new_c(1, reversed_is_done)),
         FUNC(Nst_func_new_c(1, reversed_get_val)),
         arr);
 }
@@ -234,26 +232,22 @@ Nst_FUNC_SIGN(reversed_)
 Nst_FUNC_SIGN(new_iterator_)
 {
     Nst_FuncObj *start;
-    Nst_FuncObj *is_done;
     Nst_FuncObj *get_val;
     Nst_Obj *data;
 
     Nst_DEF_EXTRACT(
-        "f:o f:o f:o o:o",
+        "f:o f:o o:o",
         &start,
-        &is_done,
         &get_val,
         &data);
 
-    if (start->arg_num != 1
-        || is_done->arg_num != 1
-        || get_val->arg_num != 1)
+    if (start->arg_num != 1 || get_val->arg_num != 1)
     {
         Nst_set_value_error_c("all the functions must accept exactly one argument");
         return nullptr;
     }
 
-    return Nst_iter_new(start, is_done, get_val, data);
+    return Nst_iter_new(start, get_val, data);
 }
 
 Nst_FUNC_SIGN(iter_start_)
@@ -265,15 +259,6 @@ Nst_FUNC_SIGN(iter_start_)
     return Nst_call_func(iter->start, &iter->value);
 }
 
-Nst_FUNC_SIGN(iter_is_done_)
-{
-    Nst_IterObj *iter;
-
-    Nst_DEF_EXTRACT("I", &iter);
-
-    return Nst_call_func(iter->is_done, &iter->value);
-}
-
 Nst_FUNC_SIGN(iter_get_val_)
 {
     Nst_IterObj *iter;
@@ -281,4 +266,11 @@ Nst_FUNC_SIGN(iter_get_val_)
     Nst_DEF_EXTRACT("I", &iter);
 
     return Nst_call_func(iter->get_val, &iter->value);
+}
+
+Nst_FUNC_SIGN(_get_iend_)
+{
+    Nst_UNUSED(arg_num);
+    Nst_UNUSED(args);
+    return Nst_iend_ref();
 }

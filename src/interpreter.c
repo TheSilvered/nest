@@ -35,6 +35,10 @@
 
 #include "mem.h"
 
+#define INST_FAILED -1
+#define INST_SUCCESS 0
+#define INST_NEW_FUNC 1
+
 #define ERROR_OCCURRED (Nst_state.traceback.error.occurred)
 #define GLOBAL_ERROR (&(Nst_state.traceback.error))
 
@@ -92,9 +96,9 @@ static inline void add_positions(Nst_Pos start, Nst_Pos end);
 static void loaded_libs_destructor(C_LIB_TYPE lib);
 
 i32 (*inst_func[])(Nst_Inst *) = {
-    exe_no_op, exe_pop_val, exe_for_start, exe_for_is_done, exe_for_get_val,
-    exe_return_val, exe_return_vars, exe_set_val_loc, exe_set_cont_loc,
-    exe_jump, exe_jumpif_t, exe_jumpif_f, exe_jumpif_zero, exe_push_catch,
+    exe_no_op, exe_pop_val, exe_for_start, exe_for_get_val, exe_return_val,
+    exe_return_vars, exe_set_val_loc, exe_set_cont_loc, exe_jump, exe_jumpif_t,
+    exe_jumpif_f, exe_jumpif_zero, exe_for_is_done, exe_push_catch,
     exe_type_check, exe_hash_check, exe_throw_err, exe_pop_catch, exe_set_val,
     exe_get_val, exe_push_val, exe_set_cont_val, exe_op_call, exe_op_cast,
     exe_op_range, exe_stack_op, exe_local_op, exe_op_import, exe_op_extract,
@@ -348,8 +352,7 @@ static void complete_function(usize final_stack_size)
             instructions = curr_inst_ls->instructions;
             continue;
         }
-        //if (Nst_state.idx == 179)
-        //    __debugbreak();
+
         Nst_Inst *inst = &instructions[Nst_state.idx];
         Nst_InstID inst_id = inst->id;
         i32 result = inst_func[inst_id](inst);
@@ -357,9 +360,9 @@ static void complete_function(usize final_stack_size)
         if (Nst_state.ggc.gen1.len > _Nst_GEN1_MAX)
             Nst_ggc_collect();
 
-        if (result == 0)
+        if (result == INST_SUCCESS)
             continue;
-        else if (result == -1) {
+        else if (result == INST_FAILED) {
             set_global_error(final_stack_size, inst);
             if (Nst_state.f_stack.len == final_stack_size)
                 return;
@@ -588,7 +591,7 @@ Nst_Obj *Nst_run_func_context(Nst_FuncObj *func, i64 idx, Nst_MapObj *vars,
 static i32 exe_no_op(Nst_Inst *inst)
 {
     Nst_UNUSED(inst);
-    return 0;
+    return INST_SUCCESS;
 }
 
 static i32 exe_pop_val(Nst_Inst *inst)
@@ -597,41 +600,39 @@ static i32 exe_pop_val(Nst_Inst *inst)
     CHECK_V_STACK;
     Nst_Obj *obj = Nst_vstack_pop();
     Nst_dec_ref(obj);
-    return 0;
+    return INST_SUCCESS;
 }
 
 static i32 exe_for_inst(Nst_Inst *inst, Nst_IterObj *iter,
                         Nst_FuncObj *func)
 {
     if (Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C)) {
-        Nst_Obj *res = func->body.c_func(
-            (usize)inst->int_val,
-            &iter->value);
-
+        Nst_Obj *res = func->body.c_func((usize)inst->int_val, &iter->value);
         if (res == NULL)
-            return -1;
+            return INST_FAILED;
+
         Nst_vstack_push(res);
         Nst_dec_ref(res);
-        return 0;
+        return INST_SUCCESS;
     }
     Nst_vstack_push(iter->value);
     Nst_vstack_push(func);
     exe_op_call(inst);
-    return 1;
+    return INST_NEW_FUNC;
 }
 
 static i32 exe_for_start(Nst_Inst *inst)
 {
     CHECK_V_STACK;
-    Nst_IterObj *iter = ITER(Nst_vstack_peek());
+    Nst_Obj *iterable = Nst_vstack_peek();
+    Nst_IterObj *iter = ITER(Nst_obj_cast(iterable, Nst_t.Iter));
+    if (iter == NULL) {
+        Nst_set_type_errorf(_Nst_EM_BAD_CAST("Iter"), TYPE_NAME(iterable));
+        return INST_FAILED;
+    }
+    Nst_state.v_stack.stack[Nst_state.v_stack.len - 1] = OBJ(iter);
+    Nst_dec_ref(iterable);
     return exe_for_inst(inst, iter, iter->start);
-}
-
-static i32 exe_for_is_done(Nst_Inst *inst)
-{
-    CHECK_V_STACK;
-    Nst_IterObj *iter = ITER(Nst_vstack_peek());
-    return exe_for_inst(inst, iter, iter->is_done);
 }
 
 static i32 exe_for_get_val(Nst_Inst *inst)
@@ -639,6 +640,17 @@ static i32 exe_for_get_val(Nst_Inst *inst)
     CHECK_V_STACK;
     Nst_IterObj *iter = ITER(Nst_vstack_peek());
     return exe_for_inst(inst, iter, iter->get_val);
+}
+
+static i32 exe_for_is_done(Nst_Inst *inst)
+{
+    CHECK_V_STACK_SIZE(2);
+    Nst_Obj *iter_val = Nst_vstack_peek();
+    if (iter_val == Nst_c.IEnd_iend) {
+        Nst_dec_ref(Nst_vstack_pop());
+        Nst_state.idx = inst->int_val - 1;
+    }
+    return INST_SUCCESS;
 }
 
 static i32 exe_return_val(Nst_Inst *inst)
@@ -655,7 +667,7 @@ static i32 exe_return_val(Nst_Inst *inst)
     Nst_vstack_push(result);
     Nst_state.idx = Nst_fstack_peek().func->body.bytecode->total_size;
     Nst_dec_ref(result);
-    return 0;
+    return INST_SUCCESS;
 }
 
 static i32 exe_return_vars(Nst_Inst *inst)
@@ -671,7 +683,7 @@ static i32 exe_return_vars(Nst_Inst *inst)
 
     Nst_vstack_push(vars);
     Nst_state.idx = Nst_fstack_peek().func->body.bytecode->total_size;
-    return 0;
+    return INST_SUCCESS;
 }
 
 static i32 exe_set_val_loc(Nst_Inst *inst)
@@ -696,7 +708,7 @@ static i32 exe_set_cont_loc(Nst_Inst *inst)
 static i32 exe_jump(Nst_Inst *inst)
 {
     Nst_state.idx = inst->int_val - 1;
-    return 0;
+    return INST_SUCCESS;
 }
 
 static i32 exe_jumpif_t(Nst_Inst *inst)
@@ -706,7 +718,7 @@ static i32 exe_jumpif_t(Nst_Inst *inst)
     if (Nst_obj_to_bool(top_val))
         Nst_state.idx = inst->int_val - 1;
     Nst_dec_ref(top_val);
-    return 0;
+    return INST_SUCCESS;
 }
 
 static i32 exe_jumpif_f(Nst_Inst *inst)
@@ -717,7 +729,7 @@ static i32 exe_jumpif_f(Nst_Inst *inst)
         Nst_state.idx = inst->int_val - 1;
 
     Nst_dec_ref(top_val);
-    return 0;
+    return INST_SUCCESS;
 }
 
 static i32 exe_jumpif_zero(Nst_Inst *inst)
@@ -727,7 +739,7 @@ static i32 exe_jumpif_zero(Nst_Inst *inst)
     if (AS_INT(val) == 0)
         Nst_state.idx = inst->int_val - 1;
 
-    return 0;
+    return INST_SUCCESS;
 }
 
 static i32 exe_type_check(Nst_Inst *inst)
@@ -739,9 +751,9 @@ static i32 exe_type_check(Nst_Inst *inst)
             _Nst_EM_EXPECTED_TYPES,
             Nst_TYPE_STR(inst->val)->value,
             TYPE_NAME(obj)));
-        return -1;
+        return INST_FAILED;
     }
-    return 0;
+    return INST_SUCCESS;
 }
 
 static i32 exe_hash_check(Nst_Inst *inst)
@@ -754,9 +766,9 @@ static i32 exe_hash_check(Nst_Inst *inst)
         Nst_set_type_error(Nst_sprintf(
             _Nst_EM_UNHASHABLE_TYPE,
             TYPE_NAME(obj)));
-        return -1;
+        return INST_FAILED;
     }
-    return 0;
+    return INST_SUCCESS;
 }
 
 static i32 exe_set_val(Nst_Inst *inst)
@@ -766,7 +778,7 @@ static i32 exe_set_val(Nst_Inst *inst)
         Nst_state.vt,
         inst->val,
         Nst_vstack_peek());
-    return Nst_error_occurred() ? -1 : 0;
+    return Nst_error_occurred() ? INST_FAILED : INST_SUCCESS;
 }
 
 static i32 exe_get_val(Nst_Inst *inst)
@@ -778,13 +790,13 @@ static i32 exe_get_val(Nst_Inst *inst)
         Nst_vstack_push(obj);
         Nst_dec_ref(obj);
     }
-    return 0;
+    return INST_SUCCESS;
 }
 
 static i32 exe_push_val(Nst_Inst *inst)
 {
     Nst_vstack_push(inst->val);
-    return 0;
+    return INST_SUCCESS;
 }
 
 static i32 exe_set_cont_val(Nst_Inst *inst)

@@ -13,6 +13,7 @@
 
 // Error messages
 
+
 #define _Nst_EM_BAD_BREAK "';' outside of a loop"
 #define _Nst_EM_BAD_RETURN "'=>' outside of a function"
 #define _Nst_EM_EXPECTED_IF "expected '?'"
@@ -23,6 +24,7 @@
 #define _Nst_EM_FILE_NOT_SO "the file is not a valid shared object"
 #define _Nst_EM_COMPLEX_POW "fractional power of a negative number"
 #define _Nst_EM_EXPECTED_OP "expected stack or local stack operator"
+#define _Nst_EM_BAD_CAST(to) "cannot cast an object of type '%s' to '" to "'"
 #define _Nst_EM_INVALID_CHAR "invalid character"
 #define _Nst_EM_BAD_CONTINUE "'..' outside of a loop"
 #define _Nst_EM_FILE_NOT_DLL "the file is not a valid DLL"

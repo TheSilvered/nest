@@ -37,21 +37,6 @@ Alias for [`_Nst_iter_start`](c_api-iter.md#_nst_iter_start) that casts iter to
 
 ---
 
-### `Nst_iter_is_done`
-
-**Synopsis:**
-
-```better-c
-Nst_iter_is_done(iter)
-```
-
-**Description:**
-
-Alias for [`_Nst_iter_is_done`](c_api-iter.md#_nst_iter_is_done) that casts iter
-to [`Nst_IterObj *`](c_api-iter.md#nst_iterobj).
-
----
-
 ### `Nst_iter_get_val`
 
 **Synopsis:**
@@ -78,7 +63,6 @@ typedef struct _Nst_IterObj {
     Nst_OBJ_HEAD;
     Nst_GGC_HEAD;
     Nst_FuncObj *start;
-    Nst_FuncObj *is_done;
     Nst_FuncObj *get_val;
     Nst_Obj *value;
 } Nst_IterObj
@@ -91,7 +75,6 @@ The structure defining a Nest iterator object.
 **Fields:**
 
 - `start`: the function that initializes the iterator
-- `is_done`: the function of the iterator that checks if it has finished
 - `get_val`: the function of the iterator that gets the current value
 - `value`: the value passed to the functions of the iterator
 
@@ -104,8 +87,7 @@ The structure defining a Nest iterator object.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *is_done,
-                      Nst_FuncObj *get_val, Nst_Obj *value)
+Nst_Obj *Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *get_val, Nst_Obj *value)
 ```
 
 **Description:**
@@ -119,7 +101,6 @@ Creates a new Nest iterator object.
 **Parameters:**
 
 - `start`: the `start` function for the new iterator
-- `is_done`: the `is_done` function for the new iterator
 - `get_val`: the `get_val` function for the new iterator
 - `value`: the `value` for the new iterator
 
@@ -157,20 +138,6 @@ Traverse function for Nest iter objects.
 
 ---
 
-### `_Nst_iter_track`
-
-**Synopsis:**
-
-```better-c
-void _Nst_iter_track(Nst_IterObj *iter)
-```
-
-**Description:**
-
-Track function for Nest iter objects.
-
----
-
 ### `_Nst_iter_start`
 
 **Synopsis:**
@@ -191,29 +158,6 @@ Calls the `start` function of a [`Nst_IterObj`](c_api-iter.md#nst_iterobj).
 
 `-1` on failure and `0` on success. The error may be set internally and must not
 be set by the caller.
-
----
-
-### `_Nst_iter_is_done`
-
-**Synopsis:**
-
-```better-c
-i32 _Nst_iter_is_done(Nst_IterObj *iter)
-```
-
-**Description:**
-
-Calls the `is_done` function of a [`Nst_IterObj`](c_api-iter.md#nst_iterobj).
-
-**Parameters:**
-
-- `iter`: the iterator to check for completion
-
-**Returns:**
-
-`-1` on failure, `1` if the iterator is done, `0` if it can still iterate. The
-error may be set internally and must not be set by the caller.
 
 ---
 
@@ -254,20 +198,6 @@ The `start` function of the range iterator.
 
 ---
 
-### `Nst_iter_range_is_done`
-
-**Synopsis:**
-
-```better-c
-Nst_FUNC_SIGN(Nst_iter_range_is_done)
-```
-
-**Description:**
-
-The `is_done` function of the range iterator.
-
----
-
 ### `Nst_iter_range_get_val`
 
 **Synopsis:**
@@ -293,20 +223,6 @@ Nst_FUNC_SIGN(Nst_iter_seq_start)
 **Description:**
 
 The `start` function of the sequence iterator.
-
----
-
-### `Nst_iter_seq_is_done`
-
-**Synopsis:**
-
-```better-c
-Nst_FUNC_SIGN(Nst_iter_seq_is_done)
-```
-
-**Description:**
-
-The `is_done` function of the sequence iterator.
 
 ---
 
@@ -338,20 +254,6 @@ The `start` function of the string iterator.
 
 ---
 
-### `Nst_iter_str_is_done`
-
-**Synopsis:**
-
-```better-c
-Nst_FUNC_SIGN(Nst_iter_str_is_done)
-```
-
-**Description:**
-
-The `is_done` function of the string iterator.
-
----
-
 ### `Nst_iter_str_get_val`
 
 **Synopsis:**
@@ -377,20 +279,6 @@ Nst_FUNC_SIGN(Nst_iter_map_start)
 **Description:**
 
 The `start` function of the map iterator.
-
----
-
-### `Nst_iter_map_is_done`
-
-**Synopsis:**
-
-```better-c
-Nst_FUNC_SIGN(Nst_iter_map_is_done)
-```
-
-**Description:**
-
-The `is_done` function of the map iterator.
 
 ---
 

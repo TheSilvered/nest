@@ -67,6 +67,7 @@ NstEXP typedef struct _Nst_TypeObjs {
     Nst_TypeObj *Iter;
     Nst_TypeObj *Byte;
     Nst_TypeObj *IOFile;
+    Nst_TypeObj *IEnd;
 } Nst_TypeObjs;
 
 /**
@@ -78,6 +79,7 @@ NstEXP typedef struct _Nst_Consts {
     Nst_Obj *Bool_true;
     Nst_Obj *Bool_false;
     Nst_Obj *Null_null;
+    Nst_Obj *IEnd_iend;
     Nst_Obj *Int_0;
     Nst_Obj *Int_1;
     Nst_Obj *Int_neg1;
@@ -101,19 +103,15 @@ NstEXP typedef struct _Nst_StdStreams {
 /* The functions of the built-in iterators. */
 NstEXP typedef struct _Nst_IterFunctions {
     Nst_FuncObj *range_start;
-    Nst_FuncObj *range_is_done;
     Nst_FuncObj *range_get_val;
 
     Nst_FuncObj *seq_start;
-    Nst_FuncObj *seq_is_done;
     Nst_FuncObj *seq_get_val;
 
     Nst_FuncObj *str_start;
-    Nst_FuncObj *str_is_done;
     Nst_FuncObj *str_get_val;
 
     Nst_FuncObj *map_start;
-    Nst_FuncObj *map_is_done;
     Nst_FuncObj *map_get_val;
 } Nst_IterFunctions;
 
@@ -128,10 +126,23 @@ NstEXP void NstC _Nst_del_objects(void);
 
 /* Returns the true object constant. */
 NstEXP Nst_Obj *NstC Nst_true(void);
+/* Returns a new reference to the true object constant. */
+NstEXP Nst_Obj *NstC Nst_true_ref(void);
+
 /* Returns the false object constant. */
 NstEXP Nst_Obj *NstC Nst_false(void);
+/* Returns a new reference to the false object constant. */
+NstEXP Nst_Obj *NstC Nst_false_ref(void);
+
 /* Returns the null object constant. */
 NstEXP Nst_Obj *NstC Nst_null(void);
+/* Returns a new reference to the null object constant. */
+NstEXP Nst_Obj *NstC Nst_null_ref(void);
+
+/* Returns the iend object constant. */
+NstEXP Nst_Obj *NstC Nst_iend(void);
+/* Returns a new reference to the iend object constant. */
+NstEXP Nst_Obj *NstC Nst_iend_ref(void);
 
 /* Returns a `Nst_TypeObjs` struct containing all the types. */
 NstEXP const Nst_TypeObjs *NstC Nst_type(void);

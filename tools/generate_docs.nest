@@ -706,7 +706,7 @@ dir @sys._set_cwd
     doc_file @io.close
 ]
 
-'c_api-reference.md' 'w' @io.open = reference
+'c_api_reference.md' 'w' @io.open = reference
 reference ('API Reference' 1 @title) @io.write
 
 #symbol_sort_map pair [

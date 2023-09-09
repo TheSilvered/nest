@@ -118,7 +118,7 @@ bool _Nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val)
         const i8 *fmt = seq->type == Nst_t.Array
           ? _Nst_EM_INDEX_OUT_OF_BOUNDS("Array")
           : _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector");
-        Nst_set_value_error(Nst_sprintf(fmt, idx, seq->len));
+        Nst_set_value_errorf(fmt, idx, seq->len);
         return false;
     }
 
@@ -139,7 +139,7 @@ Nst_Obj *_Nst_seq_get(Nst_SeqObj *seq, i64 idx)
         const i8 *fmt = seq->type == Nst_t.Array
           ? _Nst_EM_INDEX_OUT_OF_BOUNDS("Array")
           : _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector");
-        Nst_set_value_error(Nst_sprintf(fmt, idx, seq->len));
+        Nst_set_value_errorf(fmt, idx, seq->len);
         return NULL;
     }
 

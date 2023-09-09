@@ -36,8 +36,8 @@ nav:
     - stdlib/system_library.md
     - stdlib/time_library.md
   - C API:
-    - c_api/c_api.md
-    - c_api/c_api-reference.md
+    - c_api/c_api_index.md
+    - c_api/c_api_reference.md
     - argv_parser.h: c_api/c_api-argv_parser.md
     - compiler.h: c_api/c_api-compiler.md
     - encoding.h: c_api/c_api-encoding.md
@@ -67,6 +67,7 @@ nav:
     - simple_types.h: c_api/c_api-simple_types.md
     - str.h: c_api/c_api-str.md
     - tokens.h: c_api/c_api-tokens.md
+    - type.h: c_api/c_api-type.md
     - typedefs.h: c_api/c_api-typedefs.md
     - var_table.h: c_api/c_api-var_table.md
 extra_javascript:

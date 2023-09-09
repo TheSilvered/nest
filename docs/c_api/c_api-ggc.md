@@ -272,6 +272,7 @@ collector.
 ```better-c
 typedef enum _Nst_GGCFlags {
     Nst_FLAG_GGC_REACHABLE    = 0x80000000,
+    Nst_FLAG_GGC_DELETE       = 0x40000000,
     Nst_FLAG_GGC_IS_SUPPORTED = 0x20000000
 } Nst_GGCFlags
 ```

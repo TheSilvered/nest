@@ -101,8 +101,9 @@ bool _Nst_init_objects(void)
     Nst_t.Int    = Nst_type_new("Int", NULL);
     Nst_t.Real   = Nst_type_new("Real", NULL);
     Nst_t.Bool   = Nst_type_new("Bool", NULL);
-    Nst_t.Null   = Nst_type_new("Null", NULL);
     Nst_t.Byte   = Nst_type_new("Byte", NULL);
+    Nst_t.Null   = Nst_type_new("Null", NULL);
+    Nst_t.IEnd   = Nst_type_new("IEnd", NULL);
     Nst_t.IOFile = Nst_type_new("IOFile", (Nst_ObjDstr)_Nst_iofile_destroy);
     Nst_t.Array = Nst_cont_type_new(
         "Array",
@@ -144,6 +145,7 @@ bool _Nst_init_objects(void)
     Nst_c.Bool_true  = Nst_bool_new(true);
     Nst_c.Bool_false = Nst_bool_new(false);
     Nst_c.Null_null  = _Nst_obj_alloc(sizeof(Nst_Obj), Nst_t.Null);
+    Nst_c.IEnd_iend  = _Nst_obj_alloc(sizeof(Nst_Obj), Nst_t.IEnd);
     Nst_c.Int_0    = Nst_int_new(0);
     Nst_c.Int_1    = Nst_int_new(1);
     Nst_c.Int_neg1 = Nst_int_new(-1);
@@ -165,18 +167,13 @@ bool _Nst_init_objects(void)
     Nst_io.out->func_set.close = close_std_stream;
     Nst_io.err->func_set.close = close_std_stream;
 
-
     Nst_itf.range_start   = FUNC(Nst_func_new_c(1, Nst_iter_range_start));
-    Nst_itf.range_is_done = FUNC(Nst_func_new_c(1, Nst_iter_range_is_done));
     Nst_itf.range_get_val = FUNC(Nst_func_new_c(1, Nst_iter_range_get_val));
     Nst_itf.str_start     = FUNC(Nst_func_new_c(1, Nst_iter_str_start));
-    Nst_itf.str_is_done   = FUNC(Nst_func_new_c(1, Nst_iter_str_is_done));
     Nst_itf.str_get_val   = FUNC(Nst_func_new_c(1, Nst_iter_str_get_val));
     Nst_itf.seq_start     = FUNC(Nst_func_new_c(1, Nst_iter_seq_start));
-    Nst_itf.seq_is_done   = FUNC(Nst_func_new_c(1, Nst_iter_seq_is_done));
     Nst_itf.seq_get_val   = FUNC(Nst_func_new_c(1, Nst_iter_seq_get_val));
     Nst_itf.map_start     = FUNC(Nst_func_new_c(1, Nst_iter_map_start));
-    Nst_itf.map_is_done   = FUNC(Nst_func_new_c(1, Nst_iter_map_is_done));
     Nst_itf.map_get_val   = FUNC(Nst_func_new_c(1, Nst_iter_map_get_val));
 
     if (Nst_error_occurred()) {
@@ -202,6 +199,7 @@ void _Nst_del_objects(void)
     Nst_ndec_ref(Nst_t.Iter);
     Nst_ndec_ref(Nst_t.Byte);
     Nst_ndec_ref(Nst_t.IOFile);
+    Nst_ndec_ref(Nst_t.IEnd);
 
     Nst_ndec_ref(Nst_s.c_true);
     Nst_ndec_ref(Nst_s.c_false);
@@ -224,6 +222,7 @@ void _Nst_del_objects(void)
     Nst_ndec_ref(Nst_c.Bool_true);
     Nst_ndec_ref(Nst_c.Bool_false);
     Nst_ndec_ref(Nst_c.Null_null);
+    Nst_ndec_ref(Nst_c.IEnd_iend);
     Nst_ndec_ref(Nst_c.Int_0);
     Nst_ndec_ref(Nst_c.Int_1);
     Nst_ndec_ref(Nst_c.Int_neg1);
@@ -237,13 +236,10 @@ void _Nst_del_objects(void)
     Nst_ndec_ref(Nst_io.err);
 
     Nst_ndec_ref(Nst_itf.range_start);
-    Nst_ndec_ref(Nst_itf.range_is_done);
     Nst_ndec_ref(Nst_itf.range_get_val);
     Nst_ndec_ref(Nst_itf.str_start);
-    Nst_ndec_ref(Nst_itf.str_is_done);
     Nst_ndec_ref(Nst_itf.str_get_val);
     Nst_ndec_ref(Nst_itf.seq_start);
-    Nst_ndec_ref(Nst_itf.seq_is_done);
     Nst_ndec_ref(Nst_itf.seq_get_val);
 }
 
@@ -252,14 +248,39 @@ Nst_Obj *Nst_true(void)
     return Nst_c.Bool_true;
 }
 
+Nst_Obj *Nst_true_ref(void)
+{
+    return Nst_inc_ref(Nst_c.Bool_true);
+}
+
 Nst_Obj *Nst_false(void)
 {
     return Nst_c.Bool_false;
 }
 
+Nst_Obj *Nst_false_ref(void)
+{
+    return Nst_inc_ref(Nst_c.Bool_false);
+}
+
 Nst_Obj *Nst_null(void)
 {
     return Nst_c.Null_null;
+}
+
+Nst_Obj *Nst_null_ref(void)
+{
+    return Nst_inc_ref(Nst_c.Null_null);
+}
+
+Nst_Obj *Nst_iend(void)
+{
+    return Nst_c.IEnd_iend;
+}
+
+Nst_Obj *Nst_iend_ref(void)
+{
+    return Nst_inc_ref(Nst_c.IEnd_iend);
 }
 
 const Nst_TypeObjs *Nst_type(void)

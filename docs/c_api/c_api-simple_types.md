@@ -371,7 +371,7 @@ Converts the value of a numeric object
 ([`Nst_IntObj`](c_api-simple_types.md#nst_intobj),
 [`Nst_RealObj`](c_api-simple_types.md#nst_realobj),
 [`Nst_ByteObj`](c_api-simple_types.md#nst_byteobj)) to a
-[`u8`](c_api.md#type-definitions).
+[`u8`](c_api_index.md#type-definitions).
 
 **Parameters:**
 
@@ -424,7 +424,7 @@ Converts the value of a numeric object
 ([`Nst_IntObj`](c_api-simple_types.md#nst_intobj),
 [`Nst_RealObj`](c_api-simple_types.md#nst_realobj),
 [`Nst_ByteObj`](c_api-simple_types.md#nst_byteobj)) to an
-[`i32`](c_api.md#type-definitions).
+[`i32`](c_api_index.md#type-definitions).
 
 **Parameters:**
 
@@ -451,7 +451,7 @@ Converts the value of a numeric object
 ([`Nst_IntObj`](c_api-simple_types.md#nst_intobj),
 [`Nst_RealObj`](c_api-simple_types.md#nst_realobj),
 [`Nst_ByteObj`](c_api-simple_types.md#nst_byteobj)) to an
-[`i64`](c_api.md#type-definitions).
+[`i64`](c_api_index.md#type-definitions).
 
 **Parameters:**
 
@@ -478,7 +478,7 @@ Converts the value of a numeric object
 ([`Nst_IntObj`](c_api-simple_types.md#nst_intobj),
 [`Nst_RealObj`](c_api-simple_types.md#nst_realobj),
 [`Nst_ByteObj`](c_api-simple_types.md#nst_byteobj)) to an
-[`f32`](c_api.md#type-definitions).
+[`f32`](c_api_index.md#type-definitions).
 
 **Parameters:**
 
@@ -505,7 +505,7 @@ Converts the value of a numeric object
 ([`Nst_IntObj`](c_api-simple_types.md#nst_intobj),
 [`Nst_RealObj`](c_api-simple_types.md#nst_realobj),
 [`Nst_ByteObj`](c_api-simple_types.md#nst_byteobj)) to an
-[`f64`](c_api.md#type-definitions).
+[`f64`](c_api_index.md#type-definitions).
 
 **Parameters:**
 

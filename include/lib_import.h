@@ -248,11 +248,11 @@ union, the cast is kept.
 /* [docs:link Nst_const()->Int_1 c_api-global_consts.md#nst_const] */
 
 /* Returns `Nst_true()`. */
-#define Nst_RETURN_TRUE return Nst_inc_ref(Nst_true())
+#define Nst_RETURN_TRUE return Nst_true_ref()
 /* Returns `Nst_false()`. */
-#define Nst_RETURN_FALSE return Nst_inc_ref(Nst_false())
+#define Nst_RETURN_FALSE return Nst_false_ref()
 /* Returns `Nst_null()`. */
-#define Nst_RETURN_NULL return Nst_inc_ref(Nst_null())
+#define Nst_RETURN_NULL return Nst_null_ref()
 /* Returns `Nst_const()->Int_0`. */
 #define Nst_RETURN_ZERO return Nst_inc_ref(Nst_const()->Int_0)
 /* Returns `Nst_const()->Int_1`. */
@@ -262,7 +262,7 @@ union, the cast is kept.
  * `cond` is a C condition.
  */
 #define Nst_RETURN_COND(cond)                                                 \
-    return (cond) ? Nst_inc_ref(Nst_true()) : Nst_inc_ref(Nst_false())
+    return (cond) ? Nst_true_ref() : Nst_false_ref()
 
 /* Function signature for a Nest-callable C function. */
 #define Nst_FUNC_SIGN(name)                                                   \

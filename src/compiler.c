@@ -24,7 +24,10 @@
 
 #define RETURN_IF_OP_ERR(...) do {                                            \
     if (Nst_error_occurred()) {                                               \
-        Nst_set_internal_error_from_op_err(c_state.error, node->start, node->end);    \
+        Nst_set_internal_error_from_op_err(                                   \
+            c_state.error,                                                    \
+            node->start,                                                      \
+            node->end);                                                       \
         __VA_ARGS__                                                           \
         return;                                                               \
     }                                                                         \
@@ -113,7 +116,10 @@ static Nst_InstList *compile_internal(Nst_Node *node, bool is_func,
 
     Nst_InstList *inst_list = Nst_malloc_c(1, Nst_InstList);
     if (inst_list == NULL) {
-        Nst_set_internal_error_from_op_err(c_state.error, node->start, node->end);
+        Nst_set_internal_error_from_op_err(
+            c_state.error,
+            node->start,
+            node->end);
         Nst_llist_destroy(
             c_state.inst_ls,
             (Nst_LListDestructor)Nst_inst_destroy);
@@ -455,31 +461,23 @@ static void compile_for_as_l(Nst_Node *node)
     /*
     For-as loop bytecode
 
-                [ITERATOR CODE]
-                TYPE_CHECK Iter
-                FOR_START
-                POP_VAL
-    cond_start: FOR_IS_DONE
-                JUMPIF_T body_end
-                FOR_GET_VAL
-                SET_VAL_LOC name
-                [BODY CODE]
-    body_end:   JUMP cond_start
-    loop_end:   POP_VAL
-                [CODE CONTINUATION]
+           [ITERATOR CODE]
+           FOR_START
+           POP_VAL
+    start: FOR_GET_VAL
+           FOR_IS_DONE end
+           [ASSIGN_CODE name]
+           POP_VAL
+           [BODY_CODE]
+           JUMP start
+    end:   POP_VAL
+           [CODE CONTINUATION]
     */
 
     Nst_Inst *inst;
     compile_node(HEAD_NODE);
     EXCEPT_ERROR();
-    inst = Nst_inst_new_val(
-        Nst_IC_TYPE_CHECK,
-        Nst_t.Iter,
-        HEAD_NODE->start,
-        HEAD_NODE->end);
-    ADD_INST(inst);
 
-    // Initialization
     inst = Nst_inst_new_int(
         Nst_IC_FOR_START, 1,
         HEAD_NODE->start,
@@ -488,47 +486,33 @@ static void compile_for_as_l(Nst_Node *node)
     inst = Nst_inst_new(Nst_IC_POP_VAL, node->start, node->end);
     ADD_INST(inst);
 
-    // Condition
-    i64 cond_start_idx = CURR_LEN;
-    inst = Nst_inst_new_int(
-        Nst_IC_FOR_IS_DONE, 1,
-        HEAD_NODE->start,
-        HEAD_NODE->end);
-    ADD_INST(inst);
-    Nst_Inst *jump_body_end = Nst_inst_new(
-        Nst_IC_JUMPIF_T,
-        node->start,
-        node->end);
-    ADD_INST(jump_body_end);
-
-    // Setting variable
+    i64 start_idx = CURR_LEN;
     inst = Nst_inst_new_int(
         Nst_IC_FOR_GET_VAL, 1,
         HEAD_NODE->start,
         HEAD_NODE->end);
     ADD_INST(inst);
+    Nst_Inst *for_is_done = Nst_inst_new(
+        Nst_IC_FOR_IS_DONE,
+        HEAD_NODE->start,
+        HEAD_NODE->end);
+    ADD_INST(for_is_done);
+
     compile_unpacking_assign_e(SECOND_NODE, HEAD_NODE->start, HEAD_NODE->end);
     EXCEPT_ERROR();
 
-    // For loop body
     inc_loop_id();
     Nst_LLNode *body_start = c_state.inst_ls->tail;
     compile_node(TAIL_NODE);
     EXCEPT_ERROR();
-
-    // For loop advance
-    i64 loop_advance = CURR_LEN;
-    body_start = body_start->next;
-    inst = Nst_inst_new_int(
-        Nst_IC_JUMP,
-        cond_start_idx,
-        node->start,
-        node->end);
+    inst = Nst_inst_new_int(Nst_IC_JUMP, start_idx, node->start, node->end);
     ADD_INST(inst);
+
+    body_start = body_start->next;
     Nst_LLNode *body_end = c_state.inst_ls->tail;
 
-    i64 body_end_idx = CURR_LEN;
-    jump_body_end->int_val = body_end_idx;
+    i64 end_idx = CURR_LEN;
+    for_is_done->int_val = end_idx;
     inst = Nst_inst_new(Nst_IC_POP_VAL, node->start, node->end);
     ADD_INST(inst);
 
@@ -541,10 +525,10 @@ static void compile_for_as_l(Nst_Node *node)
         if (Nst_INST_IS_JUMP(inst->id)) {
             // Continue statement
             if (inst->int_val == c_state.loop_id)
-                inst->int_val = loop_advance;
+                inst->int_val = start_idx;
             // Break statement
             else if (inst->int_val == c_state.loop_id - 1)
-                inst->int_val = body_end_idx;
+                inst->int_val = end_idx;
         }
     }
 

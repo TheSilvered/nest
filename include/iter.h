@@ -15,8 +15,6 @@
 #define ITER(ptr) ((Nst_IterObj *)(ptr))
 /* Alias for `_Nst_iter_start` that casts iter to `Nst_IterObj *`. */
 #define Nst_iter_start(iter) _Nst_iter_start(ITER(iter))
-/* Alias for `_Nst_iter_is_done` that casts iter to `Nst_IterObj *`. */
-#define Nst_iter_is_done(iter) _Nst_iter_is_done(ITER(iter))
 /* Alias for `_Nst_iter_get_val` that casts iter to `Nst_IterObj *`. */
 #define Nst_iter_get_val(iter) _Nst_iter_get_val(ITER(iter))
 
@@ -28,7 +26,6 @@ extern "C" {
  * The structure defining a Nest iterator object.
  *
  * @param start: the function that initializes the iterator
- * @param is_done: the function of the iterator that checks if it has finished
  * @param get_val: the function of the iterator that gets the current value
  * @param value: the value passed to the functions of the iterator
  */
@@ -36,7 +33,6 @@ NstEXP typedef struct _Nst_IterObj {
     Nst_OBJ_HEAD;
     Nst_GGC_HEAD;
     Nst_FuncObj *start;
-    Nst_FuncObj *is_done;
     Nst_FuncObj *get_val;
     Nst_Obj *value;
 } Nst_IterObj;
@@ -48,22 +44,17 @@ NstEXP typedef struct _Nst_IterObj {
  * `get_val` and value both on success and on failure.
  *
  * @param start: the `start` function for the new iterator
- * @param is_done: the `is_done` function for the new iterator
  * @param get_val: the `get_val` function for the new iterator
  * @param value: the `value` for the new iterator
  *
  * @return The new object or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *is_done,
-                                  Nst_FuncObj *get_val, Nst_Obj *value);
+NstEXP Nst_Obj *NstC Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *get_val,
+                                  Nst_Obj *value);
 /* Destructor for Nest iter objects. */
 NstEXP void NstC _Nst_iter_destroy(Nst_IterObj *iter);
 /* Traverse function for Nest iter objects. */
 NstEXP void NstC _Nst_iter_traverse(Nst_IterObj *iter);
-#if 0
-/* Track function for Nest iter objects. */
-NstEXP void NstC _Nst_iter_track(Nst_IterObj *iter);
-#endif
 
 /**
  * Calls the `start` function of a `Nst_IterObj`.
@@ -74,15 +65,7 @@ NstEXP void NstC _Nst_iter_track(Nst_IterObj *iter);
  * and must not be set by the caller.
  */
 NstEXP i32 NstC _Nst_iter_start(Nst_IterObj *iter);
-/**
- * Calls the `is_done` function of a `Nst_IterObj`.
- *
- * @param iter: the iterator to check for completion
- *
- * @return `-1` on failure, `1` if the iterator is done, `0` if it can still
- * iterate. The error may be set internally and must not be set by the caller.
- */
-NstEXP i32 NstC _Nst_iter_is_done(Nst_IterObj *iter);
+
 /**
  * Calls the `get_val` function of a `Nst_IterObj`.
  *
@@ -97,8 +80,6 @@ NstEXP Nst_Obj *NstC _Nst_iter_get_val(Nst_IterObj *iter);
 
 /* The `start` function of the range iterator. */
 NstEXP Nst_FUNC_SIGN(Nst_iter_range_start);
-/* The `is_done` function of the range iterator. */
-NstEXP Nst_FUNC_SIGN(Nst_iter_range_is_done);
 /* The `get_val` function of the range iterator. */
 NstEXP Nst_FUNC_SIGN(Nst_iter_range_get_val);
 
@@ -106,8 +87,6 @@ NstEXP Nst_FUNC_SIGN(Nst_iter_range_get_val);
 
 /* The `start` function of the sequence iterator. */
 NstEXP Nst_FUNC_SIGN(Nst_iter_seq_start);
-/* The `is_done` function of the sequence iterator. */
-NstEXP Nst_FUNC_SIGN(Nst_iter_seq_is_done);
 /* The `get_val` function of the sequence iterator. */
 NstEXP Nst_FUNC_SIGN(Nst_iter_seq_get_val);
 
@@ -115,8 +94,6 @@ NstEXP Nst_FUNC_SIGN(Nst_iter_seq_get_val);
 
 /* The `start` function of the string iterator. */
 NstEXP Nst_FUNC_SIGN(Nst_iter_str_start);
-/* The `is_done` function of the string iterator. */
-NstEXP Nst_FUNC_SIGN(Nst_iter_str_is_done);
 /* The `get_val` function of the string iterator. */
 NstEXP Nst_FUNC_SIGN(Nst_iter_str_get_val);
 
@@ -124,8 +101,6 @@ NstEXP Nst_FUNC_SIGN(Nst_iter_str_get_val);
 
 /* The `start` function of the map iterator. */
 NstEXP Nst_FUNC_SIGN(Nst_iter_map_start);
-/* The `is_done` function of the map iterator. */
-NstEXP Nst_FUNC_SIGN(Nst_iter_map_is_done);
 /* The `get_val` function of the map iterator. */
 NstEXP Nst_FUNC_SIGN(Nst_iter_map_get_val);
 

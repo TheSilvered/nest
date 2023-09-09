@@ -963,19 +963,14 @@ static Nst_Obj *iter_to_seq(Nst_Obj *ob, bool is_vect)
     }
 
     while (true) {
-        i32 is_done = Nst_iter_is_done(iter);
-        if (is_done == -1) {
-            Nst_dec_ref(seq);
-            return NULL;
-        } else if (is_done)
-            break;
-
         Nst_Obj *result = Nst_iter_get_val(iter);
         if (result == NULL) {
             Nst_dec_ref(seq);
             return NULL;
+        } else if (result == Nst_c.IEnd_iend) {
+            Nst_dec_ref(result);
+            break;
         }
-
         if (!Nst_vector_append(seq, result)) {
             Nst_dec_ref(seq);
             return NULL;
@@ -1049,11 +1044,9 @@ static Nst_Obj *str_to_iter(Nst_Obj *ob)
         return NULL;
 
     Nst_inc_ref(Nst_itf.str_start);
-    Nst_inc_ref(Nst_itf.str_is_done);
     Nst_inc_ref(Nst_itf.str_get_val);
     return Nst_iter_new(
         Nst_itf.str_start,
-        Nst_itf.str_is_done,
         Nst_itf.str_get_val,
         OBJ(data));
 }
@@ -1065,11 +1058,9 @@ static Nst_Obj *seq_to_iter(Nst_Obj *ob)
         return NULL;
 
     Nst_inc_ref(Nst_itf.seq_start);
-    Nst_inc_ref(Nst_itf.seq_is_done);
     Nst_inc_ref(Nst_itf.seq_get_val);
     return Nst_iter_new(
         Nst_itf.seq_start,
-        Nst_itf.seq_is_done,
         Nst_itf.seq_get_val,
         OBJ(data));
 }
@@ -1081,11 +1072,9 @@ static Nst_Obj *map_to_iter(Nst_Obj *ob)
         return NULL;
 
     Nst_inc_ref(Nst_itf.map_start);
-    Nst_inc_ref(Nst_itf.map_is_done);
     Nst_inc_ref(Nst_itf.map_get_val);
     return Nst_iter_new(
         Nst_itf.map_start,
-        Nst_itf.map_is_done,
         Nst_itf.map_get_val,
         OBJ(data));
 }
@@ -1162,17 +1151,13 @@ static Nst_Obj *iter_to_map(Nst_Obj *ob)
     usize iter_count = 1;
 
     while (true) {
-        i32 is_done = Nst_iter_is_done(iter);
-        if (is_done == -1) {
-            Nst_dec_ref(map);
-            return NULL;
-        } else if (is_done)
-            break;
-
         Nst_SeqObj *result = SEQ(Nst_iter_get_val(iter));
         if (result == NULL) {
             Nst_dec_ref(map);
             return NULL;
+        } else if (OBJ(result) == Nst_c.IEnd_iend) {
+            Nst_dec_ref(result);
+            break;
         }
 
         if (result->type != Nst_t.Array && result->type != Nst_t.Vector) {
@@ -1195,7 +1180,7 @@ static Nst_Obj *iter_to_map(Nst_Obj *ob)
 
         if (hash == -1) {
             Nst_set_type_error(Nst_sprintf(
-                _Nst_EM_MAP_TO_SEQ_HASH("index"), iter_count));
+                _Nst_EM_MAP_TO_SEQ_HASH("iteration"), iter_count));
             Nst_dec_ref(map);
             return NULL;
         }
@@ -1309,11 +1294,9 @@ Nst_Obj *_Nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step)
         return NULL;
 
     Nst_inc_ref(Nst_itf.range_start);
-    Nst_inc_ref(Nst_itf.range_is_done);
     Nst_inc_ref(Nst_itf.range_get_val);
     return Nst_iter_new(
         Nst_itf.range_start,
-        Nst_itf.range_is_done,
         Nst_itf.range_get_val,
         data_seq);
 }

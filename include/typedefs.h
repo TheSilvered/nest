@@ -143,18 +143,18 @@
 extern "C" {
 #endif // !__cplusplus
 
-/* [docs:link i8 c_api.md#type-definitions] */
-/* [docs:link i16 c_api.md#type-definitions] */
-/* [docs:link i32 c_api.md#type-definitions] */
-/* [docs:link i64 c_api.md#type-definitions] */
-/* [docs:link u8 c_api.md#type-definitions] */
-/* [docs:link u16 c_api.md#type-definitions] */
-/* [docs:link u32 c_api.md#type-definitions] */
-/* [docs:link u64 c_api.md#type-definitions] */
-/* [docs:link f32 c_api.md#type-definitions] */
-/* [docs:link f64 c_api.md#type-definitions] */
-/* [docs:link usize c_api.md#type-definitions] */
-/* [docs:link isize c_api.md#type-definitions] */
+/* [docs:link i8 c_api_index.md#type-definitions] */
+/* [docs:link i16 c_api_index.md#type-definitions] */
+/* [docs:link i32 c_api_index.md#type-definitions] */
+/* [docs:link i64 c_api_index.md#type-definitions] */
+/* [docs:link u8 c_api_index.md#type-definitions] */
+/* [docs:link u16 c_api_index.md#type-definitions] */
+/* [docs:link u32 c_api_index.md#type-definitions] */
+/* [docs:link u64 c_api_index.md#type-definitions] */
+/* [docs:link f32 c_api_index.md#type-definitions] */
+/* [docs:link f64 c_api_index.md#type-definitions] */
+/* [docs:link usize c_api_index.md#type-definitions] */
+/* [docs:link isize c_api_index.md#type-definitions] */
 
 /* `char` alias. */
 NstEXP typedef char i8;
