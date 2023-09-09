@@ -24,7 +24,7 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 ### Nest 0.14.0 planned featues and improvements
 
 - [x] Object pools (optimization)
-- [ ] Remove `is_done` function from iterators & return special object with
+- [x] Remove `is_done` function from iterators & return special object with
       `get_val`
 - [ ] `map` from `stdsequtil.nest` as an iterator
 - [ ] Argument to specify in-place or new for functions that modify accept
