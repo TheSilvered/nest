@@ -39,6 +39,7 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 - [ ] Add encoding arguments to `load_f` and `dump_f` in `stdjson.nest`
 - [ ] Add option for `Infinity` and `Nan` to `stdjson.nest`
 - [ ] Add `extUTF-16` encoding (with little and big endian variants) that accept
+  unpaired surrogates
 - [ ] Rename `replace_substr` to `replace`
 - [ ] Make third argument of `replace_substr` optional to remove the substring
 - [ ] Add 'contains' stack operator `<.>`
