@@ -688,8 +688,12 @@ dir @sys._set_cwd
 ... Iter :: ('../../include' @fs.list_dir) := header [
     header @fs.filename 0 -2 @sequ.slice = header_name
     header 'r' @io.open = header_file
-    header_file @io.read '\n' @su.split = header_lines
+    header_file @io.read = contents
+    contents '\r\n' '\n' @su.replace_substr \
+             '\r'   '\n' @su.replace_substr = contents
+    contents '\n' @su.split = header_lines
     header_file @io.close
+
     header_lines @create_symbols = categories
     {categories, header_lines} = files.'c_api-\(header_name).md'
     categories 'c_api-\(header_name).md' @update_global_symbols

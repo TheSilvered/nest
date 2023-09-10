@@ -162,6 +162,7 @@ Nst_FUNC_SIGN(slice_)
         step > 0 ? seq->len : -1);
 
     usize seq_len = seq->len;
+    Nst_TypeObj *seq_type = args[0]->type;
 
     if (step == 0) {
         Nst_set_value_error_c("the step cannot be zero");
@@ -191,15 +192,15 @@ Nst_FUNC_SIGN(slice_)
 
     if (new_size <= 0 || seq_len == 0) {
         Nst_dec_ref(seq);
-        if (Nst_T(seq, Str))
+        if (seq_type == Nst_type()->Str)
             return Nst_string_new((i8 *)"", 0, false);
-        else if (Nst_T(seq, Array))
+        else if (seq_type == Nst_type()->Array)
             return Nst_array_new(0);
         else
             return Nst_vector_new(0);
     }
 
-    if (Nst_T(seq, Array) || Nst_T(seq, Vector)) {
+    if (seq_type == Nst_type()->Array || seq_type == Nst_type()->Vector) {
         Nst_Obj *new_seq = Nst_T(seq, Array)
             ? Nst_array_new(new_size)
             : Nst_vector_new(new_size);
