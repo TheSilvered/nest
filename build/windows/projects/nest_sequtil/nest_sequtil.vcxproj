@@ -161,10 +161,12 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\libs\dll\framework.h" />
     <ClInclude Include="..\..\..\..\libs\nest_sequtil\nest_sequtil.h" />
+    <ClInclude Include="..\..\..\..\libs\nest_sequtil\sequtil_i_functions.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp" />
     <ClCompile Include="..\..\..\..\libs\nest_sequtil\nest_sequtil.cpp" />
+    <ClCompile Include="..\..\..\..\libs\nest_sequtil\sequtil_i_functions.cpp" />
   </ItemGroup>
   <ItemGroup>
     <None Include="..\..\..\..\libs\_nest_files\stdsequtil.nest" />

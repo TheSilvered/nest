@@ -1,8 +1,9 @@
 #include <cmath>
 #include <cstring>
 #include "nest_sequtil.h"
+#include "sequtil_i_functions.h"
 
-#define FUNC_COUNT 14
+#define FUNC_COUNT 19
 #define SORT_RUN_SIZE 32
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
@@ -17,21 +18,26 @@ bool lib_init()
     usize idx = 0;
 
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(map_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(map_i_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(insert_at_, 3);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(remove_at_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(slice_, 4);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(slice_i_, 4);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(merge_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(sort_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(empty_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(filter_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(filter_i_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(contains_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(any_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(all_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(count_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(lscan_, 4);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(lscan_i_, 4);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(rscan_, 4);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(rscan_i_, 4);
 
-#if __LINE__ - FUNC_COUNT != 20
+#if __LINE__ - FUNC_COUNT != 21
 #error
 #endif
 
@@ -77,6 +83,26 @@ Nst_FUNC_SIGN(map_)
     }
 
     return OBJ(new_seq);
+}
+
+Nst_FUNC_SIGN(map_i_)
+{
+    Nst_IterObj *iter;
+    Nst_FuncObj *func;
+
+    Nst_DEF_EXTRACT("R f:o", &iter, &func);
+
+    if (func->arg_num != 1) {
+        Nst_set_call_error_c("the function must take exactly one argument");
+        return nullptr;
+    }
+
+    Nst_Obj *arr = Nst_array_create(2, iter, func);
+
+    return Nst_iter_new(
+        FUNC(Nst_func_new_c(1, map_i_start)),
+        FUNC(Nst_func_new_c(1, map_i_get_val)),
+        arr);
 }
 
 Nst_FUNC_SIGN(insert_at_)
@@ -142,32 +168,21 @@ Nst_FUNC_SIGN(remove_at_)
     return obj;
 }
 
-Nst_FUNC_SIGN(slice_)
+static isize clapm_slice_arguments(usize seq_len, Nst_Obj *start_obj,
+                                   Nst_Obj *stop_obj, Nst_Obj *step_obj,
+                                   i64 &start, i64 &step)
 {
-    Nst_SeqObj *seq;
-    Nst_Obj *start_obj;
-    Nst_Obj *stop_obj;
-    Nst_Obj *step_obj;
-
-    Nst_DEF_EXTRACT("S ?i ?i ?i", &seq, &start_obj, &stop_obj, &step_obj);
-
-    i64 step = Nst_DEF_VAL(step_obj,  AS_INT(step_obj), 1);
-    i64 start = Nst_DEF_VAL(
-        start_obj,
-        AS_INT(start_obj),
-        step > 0 ? 0 : seq->len);
-    i64 stop = Nst_DEF_VAL(
-        stop_obj,
-        AS_INT(stop_obj),
-        step > 0 ? seq->len : -1);
-
-    usize seq_len = seq->len;
-    Nst_TypeObj *seq_type = args[0]->type;
+    step = Nst_DEF_VAL(step_obj,  AS_INT(step_obj), 1);
+    start = Nst_DEF_VAL(start_obj, AS_INT(start_obj), step > 0 ? 0 : seq_len);
+    i64 stop = Nst_DEF_VAL(stop_obj, AS_INT(stop_obj), step > 0 ? seq_len : -1);
 
     if (step == 0) {
         Nst_set_value_error_c("the step cannot be zero");
-        return nullptr;
+        return -1;
     }
+
+    if (seq_len == 0)
+        return 0;
 
     if (start < 0)
         start += seq_len;
@@ -186,22 +201,44 @@ Nst_FUNC_SIGN(slice_)
         stop = seq_len;
 
     isize new_size = (isize)((stop - start) / step);
-
     if ((stop - start) % step != 0)
         new_size++;
 
-    if (new_size <= 0 || seq_len == 0) {
-        Nst_dec_ref(seq);
-        if (seq_type == Nst_type()->Str)
+    if (new_size <= 0)
+        return 0;
+    return new_size;
+}
+
+Nst_FUNC_SIGN(slice_)
+{
+    Nst_SeqObj *seq;
+    Nst_Obj *start_obj;
+    Nst_Obj *stop_obj;
+    Nst_Obj *step_obj;
+
+    Nst_DEF_EXTRACT("S ?i ?i ?i", &seq, &start_obj, &stop_obj, &step_obj);
+
+    i64 start, step;
+    isize new_size = clapm_slice_arguments(
+        seq->len,
+        start_obj, stop_obj, step_obj,
+        start, step);
+
+    Nst_TypeObj *seq_t = args[0]->type;
+
+    if (new_size == -1)
+        return nullptr;
+    else if (new_size == 0) {
+        if (seq_t == Nst_type()->Str)
             return Nst_string_new((i8 *)"", 0, false);
-        else if (seq_type == Nst_type()->Array)
+        else if (seq_t == Nst_type()->Array)
             return Nst_array_new(0);
         else
             return Nst_vector_new(0);
     }
 
-    if (Nst_T(seq_type, Array) || Nst_T(seq_type, Vector)) {
-        Nst_Obj *new_seq = Nst_T(seq_type, Array)
+    if (seq_t == Nst_type()->Array || seq_t == Nst_type()->Vector) {
+        Nst_Obj *new_seq = seq_t == Nst_type()->Array
             ? Nst_array_new(new_size)
             : Nst_vector_new(new_size);
 
@@ -220,6 +257,39 @@ Nst_FUNC_SIGN(slice_)
         buf[new_size] = 0;
         Nst_dec_ref(seq);
         return Nst_string_new(buf, new_size, true);
+    }
+}
+
+Nst_FUNC_SIGN(slice_i_)
+{
+    Nst_Obj *seq;
+    Nst_Obj *start_obj;
+    Nst_Obj *stop_obj;
+    Nst_Obj *step_obj;
+
+    Nst_DEF_EXTRACT("s|a|v ?i ?i ?i", &seq, &start_obj, &stop_obj, &step_obj);
+
+    i64 start, step;
+    isize new_size = clapm_slice_arguments(
+        Nst_T(seq, Str) ? STR(seq)->len : SEQ(seq)->len,
+        start_obj, stop_obj, step_obj,
+        start, step);
+
+    if (new_size == -1)
+        return nullptr;
+
+    Nst_Obj *arr = Nst_array_create_c("iIIIO", 0, start, step, new_size, seq);
+
+    if (Nst_T(seq, Str)) {
+        return Nst_iter_new(
+            FUNC(Nst_func_new_c(1, slice_i_start)),
+            FUNC(Nst_func_new_c(1, slice_i_str_get_val)),
+            arr);
+    } else {
+        return Nst_iter_new(
+            FUNC(Nst_func_new_c(1, slice_i_start)),
+            FUNC(Nst_func_new_c(1, slice_i_seq_get_val)),
+            arr);
     }
 }
 
@@ -405,7 +475,8 @@ bool merge(Nst_Obj **values, usize left, usize mid, usize right,
     return true;
 }
 
-Nst_Obj *mapped_sort(Nst_SeqObj *seq, Nst_FuncObj *map_func) {
+Nst_Obj *mapped_sort(Nst_SeqObj *seq, Nst_FuncObj *map_func)
+{
     if (map_func->arg_num != 1) {
         Nst_set_call_error_c("the function must take exactly one argument");
         return nullptr;
@@ -571,6 +642,26 @@ Nst_FUNC_SIGN(filter_)
     }
 
     return OBJ(new_seq);
+}
+
+Nst_FUNC_SIGN(filter_i_)
+{
+    Nst_IterObj *iter;
+    Nst_FuncObj *func;
+
+    Nst_DEF_EXTRACT("R f:o", &iter, &func);
+
+    if (func->arg_num != 1) {
+        Nst_set_call_error_c("the function must take exactly one argument");
+        return nullptr;
+    }
+
+    Nst_Obj *arr = Nst_array_create(2, iter, func);
+
+    return Nst_iter_new(
+        FUNC(Nst_func_new_c(1, filter_i_start)),
+        FUNC(Nst_func_new_c(1, filter_i_get_val)),
+        arr);
 }
 
 Nst_FUNC_SIGN(contains_)
@@ -746,6 +837,14 @@ Nst_FUNC_SIGN(lscan_)
     return OBJ(new_seq);
 }
 
+Nst_FUNC_SIGN(lscan_i_)
+{
+    Nst_UNUSED(arg_num);
+    Nst_UNUSED(args);
+    Nst_set_call_error_c("not yet implemented");
+    return nullptr;
+}
+
 Nst_FUNC_SIGN(rscan_)
 {
     Nst_SeqObj *seq;
@@ -807,4 +906,12 @@ Nst_FUNC_SIGN(rscan_)
     Nst_dec_ref(prev_val);
     Nst_dec_ref(seq);
     return OBJ(new_seq);
+}
+
+Nst_FUNC_SIGN(rscan_i_)
+{
+    Nst_UNUSED(arg_num);
+    Nst_UNUSED(args);
+    Nst_set_call_error_c("not yet implemented");
+    return nullptr;
 }

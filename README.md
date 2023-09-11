@@ -26,13 +26,18 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 - [x] Object pools (optimization)
 - [x] Remove `is_done` function from iterators & return special object with
       `get_val`
-- [ ] `map` from `stdsequtil.nest` as an iterator
-- [ ] Argument to specify in-place or new for functions that modify accept
-  sequences
+- [ ] Add iterator variants in `stdsequtil.nest` of
+  - [x] `map`
+  - [x] `filter`
+  - [ ] `lscan`
+  - [ ] `rscan`
+  - [x] `slice`
+- [ ] Argument to specify in-place or new for functions that accept sequences
   - [ ] `sequ.map`
   - [ ] `sequ.sort`
   - [ ] `sequ.lscan`
   - [ ] `sequ.rscan`
+  - [ ] `sequ.merge`
   - [ ] `rand.shuffle`
 - [ ] Add `copy` and `deepcopy` to `stdsequtil.nest`
 - [ ] Non-recursive JSON parsing & dumping

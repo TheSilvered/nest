@@ -8,13 +8,18 @@ __sequ.contains_  = contains
 __sequ.count_     = count
 __sequ.empty_     = empty
 __sequ.filter_    = filter
+__sequ.filter_i_  = filter_i
 __sequ.insert_at_ = insert_at
 __sequ.lscan_     = lscan
+__sequ.lscan_i_   = lscan_i
 __sequ.map_       = map
+__sequ.map_i_     = map_i
 __sequ.merge_     = merge
 __sequ.remove_at_ = remove_at
 __sequ.rscan_     = rscan
+__sequ.rscan_i_   = rscan_i
 __sequ.slice_     = slice
+__sequ.slice_i_   = slice_i
 __sequ.sort_      = sort
 
 _vars_ '__sequ' '_vars_' -

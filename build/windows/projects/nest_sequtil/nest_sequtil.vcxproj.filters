@@ -21,12 +21,18 @@
     <ClInclude Include="..\..\..\..\libs\nest_sequtil\nest_sequtil.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\libs\nest_sequtil\sequtil_i_functions.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\libs\nest_sequtil\nest_sequtil.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\libs\nest_sequtil\sequtil_i_functions.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>

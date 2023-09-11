@@ -48,10 +48,7 @@ This program prints all the ascii characters
 ]
 
 #execute code loop_map [
-    Byte :: 1 = byte_1
-    Byte :: 0 = byte_0
-
-    {byte_0; 1000} = tape
+    {0b; 1000} = tape
     0 = pointer
     -1 = index
     '' = curr_input
@@ -62,10 +59,10 @@ This program prints all the ascii characters
         code.(index) = command
         |> command [
             ? '+' [
-                byte_1 += tape.(pointer)
+                1b += tape.(pointer)
             ]
             ? '-' [
-                byte_1 -= tape.(pointer)
+                1b -= tape.(pointer)
             ]
             ? '[' [
                 tape.(pointer) 0 == ? loop_map.(index) = index
@@ -89,7 +86,7 @@ This program prints all the ascii characters
                 ]
 
                 $curr_input 0 == ? [
-                    byte_0 = tape.(pointer)
+                    0b = tape.(pointer)
                 ] : [
                     Byte :: curr_input.(input_index) = tape.(pointer)
                     1 += input_index
