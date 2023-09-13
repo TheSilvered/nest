@@ -166,7 +166,7 @@ static void print_line(Nst_Pos *pos, i32 start_col, i32 end_col,
 
     start_col -= keep_indent;
 
-    if (end_col - start_col + 1 == line_length) {
+    if (end_col - start_col + 1 >= line_length) {
         if (use_color)
             Nst_fprint(err_stream, C_RES);
         return;

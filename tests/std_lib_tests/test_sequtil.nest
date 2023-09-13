@@ -2,26 +2,496 @@
 |#| 'stdsequtil.nest' = sequ
 |#| 'stdrand.nest' = rand
 
-<{1, 3, 4, 5, 6}> = v
+{1, 2, 3} (##n => n 1 +) @sequ.map = map_res1
+?::map_res1 Array @test.assert_eq
+map_res1 {2, 3, 4} @test.assert_eq
+<{1, 2, 3}> (##n => n 1 +) @sequ.map = map_res2
+?::map_res2 Vector @test.assert_eq
+map_res2 <{2, 3, 4}> @test.assert_eq
+sequ.map {{1, 2, 3}, (##n => 'hello' !! 'error')} @test.assert_raises_error
+sequ.map {{1, 2, 3}, (##a b => a b +)} @test.assert_raises_error
 
-{1, 2, 3} (##n => n 1 +) @sequ.map {2, 3, 4} @test.assert_eq
-v 1 2 @sequ.insert_at
-v <{1, 2, 3, 4, 5, 6}> @test.assert_eq
-v -1 @sequ.remove_at
-v <{1, 2, 3, 4, 5}> @test.assert_eq
-'hceilaloo' 0 9 2 @sequ.slice 'hello' @test.assert_eq
-'hceilaloo' 1 8 2 @sequ.slice 'ciao' @test.assert_eq
-'abcde' 3 0 -1 @sequ.slice 'dcb' @test.assert_eq
-'abcde' null null -1 @sequ.slice 'edcba' @test.assert_eq
-{1, 2, 3, 4} 10 0 @sequ.slice {,} @test.assert_eq
-{'h', 'c', 'e', 'i', 'l', 'a', 'l', 'o', 'o'} 0 9 2 @sequ.slice {'h', 'e', 'l', 'l', 'o'} @test.assert_eq
-{'h', 'c', 'e', 'i', 'l', 'a', 'l', 'o', 'o'} 1 8 2 @sequ.slice {'c', 'i', 'a', 'o'} @test.assert_eq
-{'a', 'b', 'c', 'd', 'e'} 3 0 -1 @sequ.slice {'d', 'c', 'b'} @test.assert_eq
-{'a', 'b', 'c', 'd', 'e'} null null -1 @sequ.slice {'e', 'd', 'c', 'b', 'a'} @test.assert_eq
+{1, 2, 3} (##n => n 2 ^) @sequ.map_i = map_i_res1
+?::map_i_res1 Iter @test.assert_eq
+Array :: map_i_res1 {1, 4, 9} @test.assert_eq
+<{1, 2, 3}> (##n => n 2 ^) @sequ.map_i = map_i_res2
+?::map_i_res2 Iter @test.assert_eq
+Array :: map_i_res2 <{1, 4, 9}> @test.assert_eq
+<{1, 2, 3}> (##n => 'hello' !! 'error') @sequ.map_i = map_i_res3
+map_i_res3 Array @test.assert_cast_error
+sequ.map {{1, 2, 3}, (##a b => a b +)} @test.assert_raises_error
 
-<{1, 2, 3}> <{4, 5, 6}> @sequ.merge <{1, 2, 3, 4, 5, 6}> @test.assert_eq
-?::(<{1, 2, 3}> {4, 5, 6} @sequ.merge) Vector @test.assert_eq
-?::( {1, 2, 3}  {4, 5, 6} @sequ.merge) Array  @test.assert_eq
+<{1, 2, 4, 5}> = vec1
+vec1 2 3 @sequ.insert_at
+vec1 {1, 2, 3, 4, 5} @test.assert_eq
+vec1 -1 4.5 @sequ.insert_at
+vec1 {1, 2, 3, 4, 4.5, 5} @test.assert_eq
+sequ.insert_at {vec1, 6, null} @test.assert_raises_error
+sequ.insert_at {vec1, -7, null} @test.assert_raises_error
+
+vec1 -2 @sequ.remove_at
+vec1 {1, 2, 3, 4, 5} @test.assert_eq
+vec1 2 @sequ.remove_at
+vec1 {1, 2, 4, 5} @test.assert_eq
+sequ.remove_at {vec1, 4} @test.assert_raises_error
+sequ.remove_at {vec1, -5} @test.assert_raises_error
+
+sequ.slice {'0123456789', null, null, 0} @test.assert_raises_error
+'0123456789' 3 @sequ.slice '3456789' @test.assert_eq
+'0123456789' -3 @sequ.slice '789' @test.assert_eq
+'0123456789' 9 @sequ.slice '9' @test.assert_eq
+'0123456789' 10 @sequ.slice '' @test.assert_eq
+'0123456789' 11 @sequ.slice '' @test.assert_eq
+'0123456789' -9 @sequ.slice '123456789' @test.assert_eq
+'0123456789' -10 @sequ.slice '0123456789' @test.assert_eq
+'0123456789' -11 @sequ.slice '0123456789' @test.assert_eq
+'0123456789' null 3 @sequ.slice '012' @test.assert_eq
+'0123456789' null -3 @sequ.slice '0123456' @test.assert_eq
+'0123456789' null 9 @sequ.slice '012345678' @test.assert_eq
+'0123456789' null 10 @sequ.slice '0123456789' @test.assert_eq
+'0123456789' null 11 @sequ.slice '0123456789' @test.assert_eq
+'0123456789' null -9 @sequ.slice '0' @test.assert_eq
+'0123456789' null -10 @sequ.slice '' @test.assert_eq
+'0123456789' null -11 @sequ.slice '' @test.assert_eq
+'0123456789' null null 1 @sequ.slice '0123456789' @test.assert_eq
+'0123456789' null null 2 @sequ.slice '02468' @test.assert_eq
+'0123456789' null null 3 @sequ.slice '0369' @test.assert_eq
+'0123456789' null null 9 @sequ.slice '09' @test.assert_eq
+'0123456789' null null 10 @sequ.slice '0' @test.assert_eq
+'0123456789' null null 11 @sequ.slice '0' @test.assert_eq
+'0123456789' null null -1 @sequ.slice '9876543210' @test.assert_eq
+'0123456789' null null -2 @sequ.slice '97531' @test.assert_eq
+'0123456789' null null -3 @sequ.slice '9630' @test.assert_eq
+'0123456789' null null -9 @sequ.slice '90' @test.assert_eq
+'0123456789' null null -10 @sequ.slice '9' @test.assert_eq
+'0123456789' null null -11 @sequ.slice '9' @test.assert_eq
+'0123456789' @sequ.slice '0123456789' @test.assert_eq
+'0123456789' 0 10 @sequ.slice '0123456789' @test.assert_eq
+'0123456789' 3 10 @sequ.slice '3456789' @test.assert_eq
+'0123456789' 0 8 @sequ.slice '01234567' @test.assert_eq
+'0123456789' 3 8 @sequ.slice '34567' @test.assert_eq
+'0123456789' 5 6 @sequ.slice '5' @test.assert_eq
+'0123456789' 5 5 @sequ.slice '' @test.assert_eq
+'0123456789' 9 9 @sequ.slice '' @test.assert_eq
+'0123456789' 10 10 @sequ.slice '' @test.assert_eq
+'0123456789' -1 -1 @sequ.slice '' @test.assert_eq
+'0123456789' 3 -3 @sequ.slice '3456' @test.assert_eq
+'0123456789' -7 7 @sequ.slice '3456' @test.assert_eq
+'0123456789' -7 -3 @sequ.slice '3456' @test.assert_eq
+'0123456789' -7 -3 @sequ.slice '3456' @test.assert_eq
+'0123456789' 20 30 @sequ.slice '' @test.assert_eq
+'0123456789' -30 -20 @sequ.slice '' @test.assert_eq
+'0123456789' 0 null 1 @sequ.slice '0123456789' @test.assert_eq
+'0123456789' 1 null 2 @sequ.slice '13579' @test.assert_eq
+'0123456789' 1 null 3 @sequ.slice '147' @test.assert_eq
+'0123456789' 2 null 2 @sequ.slice '2468' @test.assert_eq
+'0123456789' 3 null 2 @sequ.slice '3579' @test.assert_eq
+'0123456789' 6 null -1 @sequ.slice '6543210' @test.assert_eq
+'0123456789' 6 null -2 @sequ.slice '6420' @test.assert_eq
+'0123456789' 6 null -5 @sequ.slice '61' @test.assert_eq
+'0123456789' -7 null 2 @sequ.slice '3579' @test.assert_eq
+'0123456789' -2 null -2 @sequ.slice '86420' @test.assert_eq
+'0123456789' -2 null -3 @sequ.slice '852' @test.assert_eq
+'0123456789' 10 null 2 @sequ.slice '' @test.assert_eq
+'0123456789' -10 null -2 @sequ.slice '0' @test.assert_eq
+'0123456789' -11 null -2 @sequ.slice '' @test.assert_eq
+'0123456789' null 10 1 @sequ.slice '0123456789' @test.assert_eq
+'0123456789' null 8 1 @sequ.slice '01234567' @test.assert_eq
+'0123456789' null 8 3 @sequ.slice '036' @test.assert_eq
+'0123456789' null -3 2 @sequ.slice '0246' @test.assert_eq
+'0123456789' null 2 -1 @sequ.slice '9876543' @test.assert_eq
+'0123456789' null -6 -1 @sequ.slice '98765' @test.assert_eq
+'0123456789' null -20 -1 @sequ.slice '9876543210' @test.assert_eq
+'0123456789' 2 8 3 @sequ.slice '25' @test.assert_eq
+'0123456789' 3 3 2 @sequ.slice '' @test.assert_eq
+'0123456789' 8 3 1 @sequ.slice '' @test.assert_eq
+'0123456789' 8 3 -1 @sequ.slice '87654' @test.assert_eq
+'0123456789' -7 9 2 @sequ.slice '357' @test.assert_eq
+'0123456789' 30 -30 -1 @sequ.slice '9876543210' @test.assert_eq
+
+sequ.slice {{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, null, null, 0} @test.assert_raises_error
+?::({0, 1, 2} 0 0 @sequ.slice) Array @test.assert_eq
+?::({0, 1, 2} 0 3 @sequ.slice) Array @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 3 @sequ.slice {3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -3 @sequ.slice {7, 8, 9} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 9 @sequ.slice {9} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 10 @sequ.slice {,} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 11 @sequ.slice {,} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -9 @sequ.slice {1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -10 @sequ.slice {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -11 @sequ.slice {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null 3 @sequ.slice {0, 1, 2} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null -3 @sequ.slice {0, 1, 2, 3, 4, 5, 6} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null 9 @sequ.slice {0, 1, 2, 3, 4, 5, 6, 7, 8} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null 10 @sequ.slice {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null 11 @sequ.slice {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null -9 @sequ.slice {0} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null -10 @sequ.slice {,} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null -11 @sequ.slice {,} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null 1 @sequ.slice {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null 2 @sequ.slice {0, 2, 4, 6, 8} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null 3 @sequ.slice {0, 3, 6, 9} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null 9 @sequ.slice {0, 9} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null 10 @sequ.slice {0} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null 11 @sequ.slice {0} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null -1 @sequ.slice {9, 8, 7, 6, 5, 4, 3, 2, 1, 0} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null -2 @sequ.slice {9, 7, 5, 3, 1} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null -3 @sequ.slice {9, 6, 3, 0} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null -9 @sequ.slice {9, 0} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null -10 @sequ.slice {9} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null -11 @sequ.slice {9} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @sequ.slice {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 0 10 @sequ.slice {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 3 10 @sequ.slice {3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 0 8 @sequ.slice {0, 1, 2, 3, 4, 5, 6, 7} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 3 8 @sequ.slice {3, 4, 5, 6, 7} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 5 6 @sequ.slice {5} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 5 5 @sequ.slice {,} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 9 9 @sequ.slice {,} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 10 10 @sequ.slice {,} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -1 -1 @sequ.slice {,} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 3 -3 @sequ.slice {3, 4, 5, 6} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -7 7 @sequ.slice {3, 4, 5, 6} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -7 -3 @sequ.slice {3, 4, 5, 6} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -7 -3 @sequ.slice {3, 4, 5, 6} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 20 30 @sequ.slice {,} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -30 -20 @sequ.slice {,} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 0 null 1 @sequ.slice {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 1 null 2 @sequ.slice {1, 3, 5, 7, 9} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 1 null 3 @sequ.slice {1, 4, 7} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 2 null 2 @sequ.slice {2, 4, 6, 8} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 3 null 2 @sequ.slice {3, 5, 7, 9} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 6 null -1 @sequ.slice {6, 5, 4, 3, 2, 1, 0} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 6 null -2 @sequ.slice {6, 4, 2, 0} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 6 null -5 @sequ.slice {6, 1} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -7 null 2 @sequ.slice {3, 5, 7, 9} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -2 null -2 @sequ.slice {8, 6, 4, 2, 0} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -2 null -3 @sequ.slice {8, 5, 2} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 10 null 2 @sequ.slice {,} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -10 null -2 @sequ.slice {0} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -11 null -2 @sequ.slice {,} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null 10 1 @sequ.slice {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null 8 1 @sequ.slice {0, 1, 2, 3, 4, 5, 6, 7} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null 8 3 @sequ.slice {0, 3, 6} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null -3 2 @sequ.slice {0, 2, 4, 6} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null 2 -1 @sequ.slice {9, 8, 7, 6, 5, 4, 3} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null -6 -1 @sequ.slice {9, 8, 7, 6, 5} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null -20 -1 @sequ.slice {9, 8, 7, 6, 5, 4, 3, 2, 1, 0} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 2 8 3 @sequ.slice {2, 5} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 3 3 2 @sequ.slice {,} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 8 3 1 @sequ.slice {,} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 8 3 -1 @sequ.slice {8, 7, 6, 5, 4} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -7 9 2 @sequ.slice {3, 5, 7} @test.assert_eq
+{0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 30 -30 -1 @sequ.slice {9, 8, 7, 6, 5, 4, 3, 2, 1, 0} @test.assert_eq
+
+sequ.slice {<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}>, null, null, 0} @test.assert_raises_error
+?::(<{0, 1, 2}> 0 0 @sequ.slice) Vector @test.assert_eq
+?::(<{0, 1, 2}> 0 3 @sequ.slice) Vector @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 3 @sequ.slice <{3, 4, 5, 6, 7, 8, 9}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -3 @sequ.slice <{7, 8, 9}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 9 @sequ.slice <{9}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 10 @sequ.slice <{}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 11 @sequ.slice <{}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -9 @sequ.slice <{1, 2, 3, 4, 5, 6, 7, 8, 9}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -10 @sequ.slice <{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -11 @sequ.slice <{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null 3 @sequ.slice <{0, 1, 2}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null -3 @sequ.slice <{0, 1, 2, 3, 4, 5, 6}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null 9 @sequ.slice <{0, 1, 2, 3, 4, 5, 6, 7, 8}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null 10 @sequ.slice <{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null 11 @sequ.slice <{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null -9 @sequ.slice <{0}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null -10 @sequ.slice <{}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null -11 @sequ.slice <{}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null 1 @sequ.slice <{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null 2 @sequ.slice <{0, 2, 4, 6, 8}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null 3 @sequ.slice <{0, 3, 6, 9}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null 9 @sequ.slice <{0, 9}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null 10 @sequ.slice <{0}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null 11 @sequ.slice <{0}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null -1 @sequ.slice <{9, 8, 7, 6, 5, 4, 3, 2, 1, 0}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null -2 @sequ.slice <{9, 7, 5, 3, 1}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null -3 @sequ.slice <{9, 6, 3, 0}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null -9 @sequ.slice <{9, 0}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null -10 @sequ.slice <{9}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null -11 @sequ.slice <{9}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> @sequ.slice <{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 0 10 @sequ.slice <{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 3 10 @sequ.slice <{3, 4, 5, 6, 7, 8, 9}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 0 8 @sequ.slice <{0, 1, 2, 3, 4, 5, 6, 7}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 3 8 @sequ.slice <{3, 4, 5, 6, 7}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 5 6 @sequ.slice <{5}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 5 5 @sequ.slice <{}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 9 9 @sequ.slice <{}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 10 10 @sequ.slice <{}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -1 -1 @sequ.slice <{}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 3 -3 @sequ.slice <{3, 4, 5, 6}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -7 7 @sequ.slice <{3, 4, 5, 6}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -7 -3 @sequ.slice <{3, 4, 5, 6}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -7 -3 @sequ.slice <{3, 4, 5, 6}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 20 30 @sequ.slice <{}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -30 -20 @sequ.slice <{}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 0 null 1 @sequ.slice <{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 1 null 2 @sequ.slice <{1, 3, 5, 7, 9}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 1 null 3 @sequ.slice <{1, 4, 7}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 2 null 2 @sequ.slice <{2, 4, 6, 8}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 3 null 2 @sequ.slice <{3, 5, 7, 9}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 6 null -1 @sequ.slice <{6, 5, 4, 3, 2, 1, 0}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 6 null -2 @sequ.slice <{6, 4, 2, 0}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 6 null -5 @sequ.slice <{6, 1}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -7 null 2 @sequ.slice <{3, 5, 7, 9}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -2 null -2 @sequ.slice <{8, 6, 4, 2, 0}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -2 null -3 @sequ.slice <{8, 5, 2}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 10 null 2 @sequ.slice <{}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -10 null -2 @sequ.slice <{0}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -11 null -2 @sequ.slice <{}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null 10 1 @sequ.slice <{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null 8 1 @sequ.slice <{0, 1, 2, 3, 4, 5, 6, 7}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null 8 3 @sequ.slice <{0, 3, 6}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null -3 2 @sequ.slice <{0, 2, 4, 6}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null 2 -1 @sequ.slice <{9, 8, 7, 6, 5, 4, 3}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null -6 -1 @sequ.slice <{9, 8, 7, 6, 5}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null -20 -1 @sequ.slice <{9, 8, 7, 6, 5, 4, 3, 2, 1, 0}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 2 8 3 @sequ.slice <{2, 5}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 3 3 2 @sequ.slice <{}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 8 3 1 @sequ.slice <{}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 8 3 -1 @sequ.slice <{8, 7, 6, 5, 4}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -7 9 2 @sequ.slice <{3, 5, 7}> @test.assert_eq
+<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 30 -30 -1 @sequ.slice <{9, 8, 7, 6, 5, 4, 3, 2, 1, 0}> @test.assert_eq
+
+sequ.slice_i {'0123456789', null, null, 0} @test.assert_raises_error
+?::('012' 0 0 @sequ.slice_i) Iter @test.assert_eq
+?::('012' 0 3 @sequ.slice_i) Iter @test.assert_eq
+Array :: ('0123456789' 3 @sequ.slice_i) {'3', '4', '5', '6', '7', '8', '9'} @test.assert_eq
+Array :: ('0123456789' -3 @sequ.slice_i) {'7', '8', '9'} @test.assert_eq
+Array :: ('0123456789' 9 @sequ.slice_i) {'9'} @test.assert_eq
+Array :: ('0123456789' 10 @sequ.slice_i) {,} @test.assert_eq
+Array :: ('0123456789' 11 @sequ.slice_i) {,} @test.assert_eq
+Array :: ('0123456789' -9 @sequ.slice_i) {'1', '2', '3', '4', '5', '6', '7', '8', '9'} @test.assert_eq
+Array :: ('0123456789' -10 @sequ.slice_i) {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'} @test.assert_eq
+Array :: ('0123456789' -11 @sequ.slice_i) {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'} @test.assert_eq
+Array :: ('0123456789' null 3 @sequ.slice_i) {'0', '1', '2'} @test.assert_eq
+Array :: ('0123456789' null -3 @sequ.slice_i) {'0', '1', '2', '3', '4', '5', '6'} @test.assert_eq
+Array :: ('0123456789' null 9 @sequ.slice_i) {'0', '1', '2', '3', '4', '5', '6', '7', '8'} @test.assert_eq
+Array :: ('0123456789' null 10 @sequ.slice_i) {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'} @test.assert_eq
+Array :: ('0123456789' null 11 @sequ.slice_i) {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'} @test.assert_eq
+Array :: ('0123456789' null -9 @sequ.slice_i) {'0'} @test.assert_eq
+Array :: ('0123456789' null -10 @sequ.slice_i) {,} @test.assert_eq
+Array :: ('0123456789' null -11 @sequ.slice_i) {,} @test.assert_eq
+Array :: ('0123456789' null null 1 @sequ.slice_i) {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'} @test.assert_eq
+Array :: ('0123456789' null null 2 @sequ.slice_i) {'0', '2', '4', '6', '8'} @test.assert_eq
+Array :: ('0123456789' null null 3 @sequ.slice_i) {'0', '3', '6', '9'} @test.assert_eq
+Array :: ('0123456789' null null 9 @sequ.slice_i) {'0', '9'} @test.assert_eq
+Array :: ('0123456789' null null 10 @sequ.slice_i) {'0'} @test.assert_eq
+Array :: ('0123456789' null null 11 @sequ.slice_i) {'0'} @test.assert_eq
+Array :: ('0123456789' null null -1 @sequ.slice_i) {'9', '8', '7', '6', '5', '4', '3', '2', '1', '0'} @test.assert_eq
+Array :: ('0123456789' null null -2 @sequ.slice_i) {'9', '7', '5', '3', '1'} @test.assert_eq
+Array :: ('0123456789' null null -3 @sequ.slice_i) {'9', '6', '3', '0'} @test.assert_eq
+Array :: ('0123456789' null null -9 @sequ.slice_i) {'9', '0'} @test.assert_eq
+Array :: ('0123456789' null null -10 @sequ.slice_i) {'9'} @test.assert_eq
+Array :: ('0123456789' null null -11 @sequ.slice_i) {'9'} @test.assert_eq
+Array :: ('0123456789' @sequ.slice_i) {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'} @test.assert_eq
+Array :: ('0123456789' 0 10 @sequ.slice_i) {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'} @test.assert_eq
+Array :: ('0123456789' 3 10 @sequ.slice_i) {'3', '4', '5', '6', '7', '8', '9'} @test.assert_eq
+Array :: ('0123456789' 0 8 @sequ.slice_i) {'0', '1', '2', '3', '4', '5', '6', '7'} @test.assert_eq
+Array :: ('0123456789' 3 8 @sequ.slice_i) {'3', '4', '5', '6', '7'} @test.assert_eq
+Array :: ('0123456789' 5 6 @sequ.slice_i) {'5'} @test.assert_eq
+Array :: ('0123456789' 5 5 @sequ.slice_i) {,} @test.assert_eq
+Array :: ('0123456789' 9 9 @sequ.slice_i) {,} @test.assert_eq
+Array :: ('0123456789' 10 10 @sequ.slice_i) {,} @test.assert_eq
+Array :: ('0123456789' -1 -1 @sequ.slice_i) {,} @test.assert_eq
+Array :: ('0123456789' 3 -3 @sequ.slice_i) {'3', '4', '5', '6'} @test.assert_eq
+Array :: ('0123456789' -7 7 @sequ.slice_i) {'3', '4', '5', '6'} @test.assert_eq
+Array :: ('0123456789' -7 -3 @sequ.slice_i) {'3', '4', '5', '6'} @test.assert_eq
+Array :: ('0123456789' -7 -3 @sequ.slice_i) {'3', '4', '5', '6'} @test.assert_eq
+Array :: ('0123456789' 20 30 @sequ.slice_i) {,} @test.assert_eq
+Array :: ('0123456789' -30 -20 @sequ.slice_i) {,} @test.assert_eq
+Array :: ('0123456789' 0 null 1 @sequ.slice_i) {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'} @test.assert_eq
+Array :: ('0123456789' 1 null 2 @sequ.slice_i) {'1', '3', '5', '7', '9'} @test.assert_eq
+Array :: ('0123456789' 1 null 3 @sequ.slice_i) {'1', '4', '7'} @test.assert_eq
+Array :: ('0123456789' 2 null 2 @sequ.slice_i) {'2', '4', '6', '8'} @test.assert_eq
+Array :: ('0123456789' 3 null 2 @sequ.slice_i) {'3', '5', '7', '9'} @test.assert_eq
+Array :: ('0123456789' 6 null -1 @sequ.slice_i) {'6', '5', '4', '3', '2', '1', '0'} @test.assert_eq
+Array :: ('0123456789' 6 null -2 @sequ.slice_i) {'6', '4', '2', '0'} @test.assert_eq
+Array :: ('0123456789' 6 null -5 @sequ.slice_i) {'6', '1'} @test.assert_eq
+Array :: ('0123456789' -7 null 2 @sequ.slice_i) {'3', '5', '7', '9'} @test.assert_eq
+Array :: ('0123456789' -2 null -2 @sequ.slice_i) {'8', '6', '4', '2', '0'} @test.assert_eq
+Array :: ('0123456789' -2 null -3 @sequ.slice_i) {'8', '5', '2'} @test.assert_eq
+Array :: ('0123456789' 10 null 2 @sequ.slice_i) {,} @test.assert_eq
+Array :: ('0123456789' -10 null -2 @sequ.slice_i) {'0'} @test.assert_eq
+Array :: ('0123456789' -11 null -2 @sequ.slice_i) {,} @test.assert_eq
+Array :: ('0123456789' null 10 1 @sequ.slice_i) {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9'} @test.assert_eq
+Array :: ('0123456789' null 8 1 @sequ.slice_i) {'0', '1', '2', '3', '4', '5', '6', '7'} @test.assert_eq
+Array :: ('0123456789' null 8 3 @sequ.slice_i) {'0', '3', '6'} @test.assert_eq
+Array :: ('0123456789' null -3 2 @sequ.slice_i) {'0', '2', '4', '6'} @test.assert_eq
+Array :: ('0123456789' null 2 -1 @sequ.slice_i) {'9', '8', '7', '6', '5', '4', '3'} @test.assert_eq
+Array :: ('0123456789' null -6 -1 @sequ.slice_i) {'9', '8', '7', '6', '5'} @test.assert_eq
+Array :: ('0123456789' null -20 -1 @sequ.slice_i) {'9', '8', '7', '6', '5', '4', '3', '2', '1', '0'} @test.assert_eq
+Array :: ('0123456789' 2 8 3 @sequ.slice_i) {'2', '5'} @test.assert_eq
+Array :: ('0123456789' 3 3 2 @sequ.slice_i) {,} @test.assert_eq
+Array :: ('0123456789' 8 3 1 @sequ.slice_i) {,} @test.assert_eq
+Array :: ('0123456789' 8 3 -1 @sequ.slice_i) {'8', '7', '6', '5', '4'} @test.assert_eq
+Array :: ('0123456789' -7 9 2 @sequ.slice_i) {'3', '5', '7'} @test.assert_eq
+Array :: ('0123456789' 30 -30 -1 @sequ.slice_i) {'9', '8', '7', '6', '5', '4', '3', '2', '1', '0'} @test.assert_eq
+
+sequ.slice_i {{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}, null, null, 0} @test.assert_raises_error
+?::({0, 1, 2} 0 0 @sequ.slice_i) Iter @test.assert_eq
+?::({0, 1, 2} 0 3 @sequ.slice_i) Iter @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 3 @sequ.slice_i) {3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -3 @sequ.slice_i) {7, 8, 9} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 9 @sequ.slice_i) {9} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 10 @sequ.slice_i) {,} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 11 @sequ.slice_i) {,} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -9 @sequ.slice_i) {1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -10 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -11 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null 3 @sequ.slice_i) {0, 1, 2} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null -3 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null 9 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7, 8} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null 10 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null 11 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null -9 @sequ.slice_i) {0} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null -10 @sequ.slice_i) {,} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null -11 @sequ.slice_i) {,} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null 1 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null 2 @sequ.slice_i) {0, 2, 4, 6, 8} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null 3 @sequ.slice_i) {0, 3, 6, 9} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null 9 @sequ.slice_i) {0, 9} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null 10 @sequ.slice_i) {0} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null 11 @sequ.slice_i) {0} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null -1 @sequ.slice_i) {9, 8, 7, 6, 5, 4, 3, 2, 1, 0} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null -2 @sequ.slice_i) {9, 7, 5, 3, 1} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null -3 @sequ.slice_i) {9, 6, 3, 0} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null -9 @sequ.slice_i) {9, 0} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null -10 @sequ.slice_i) {9} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null null -11 @sequ.slice_i) {9} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 0 10 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 3 10 @sequ.slice_i) {3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 0 8 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 3 8 @sequ.slice_i) {3, 4, 5, 6, 7} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 5 6 @sequ.slice_i) {5} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 5 5 @sequ.slice_i) {,} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 9 9 @sequ.slice_i) {,} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 10 10 @sequ.slice_i) {,} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -1 -1 @sequ.slice_i) {,} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 3 -3 @sequ.slice_i) {3, 4, 5, 6} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -7 7 @sequ.slice_i) {3, 4, 5, 6} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -7 -3 @sequ.slice_i) {3, 4, 5, 6} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -7 -3 @sequ.slice_i) {3, 4, 5, 6} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 20 30 @sequ.slice_i) {,} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -30 -20 @sequ.slice_i) {,} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 0 null 1 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 1 null 2 @sequ.slice_i) {1, 3, 5, 7, 9} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 1 null 3 @sequ.slice_i) {1, 4, 7} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 2 null 2 @sequ.slice_i) {2, 4, 6, 8} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 3 null 2 @sequ.slice_i) {3, 5, 7, 9} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 6 null -1 @sequ.slice_i) {6, 5, 4, 3, 2, 1, 0} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 6 null -2 @sequ.slice_i) {6, 4, 2, 0} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 6 null -5 @sequ.slice_i) {6, 1} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -7 null 2 @sequ.slice_i) {3, 5, 7, 9} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -2 null -2 @sequ.slice_i) {8, 6, 4, 2, 0} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -2 null -3 @sequ.slice_i) {8, 5, 2} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 10 null 2 @sequ.slice_i) {,} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -10 null -2 @sequ.slice_i) {0} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -11 null -2 @sequ.slice_i) {,} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null 10 1 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null 8 1 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null 8 3 @sequ.slice_i) {0, 3, 6} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null -3 2 @sequ.slice_i) {0, 2, 4, 6} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null 2 -1 @sequ.slice_i) {9, 8, 7, 6, 5, 4, 3} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null -6 -1 @sequ.slice_i) {9, 8, 7, 6, 5} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} null -20 -1 @sequ.slice_i) {9, 8, 7, 6, 5, 4, 3, 2, 1, 0} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 2 8 3 @sequ.slice_i) {2, 5} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 3 3 2 @sequ.slice_i) {,} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 8 3 1 @sequ.slice_i) {,} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 8 3 -1 @sequ.slice_i) {8, 7, 6, 5, 4} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} -7 9 2 @sequ.slice_i) {3, 5, 7} @test.assert_eq
+Array :: ({0, 1, 2, 3, 4, 5, 6, 7, 8, 9} 30 -30 -1 @sequ.slice_i) {9, 8, 7, 6, 5, 4, 3, 2, 1, 0} @test.assert_eq
+
+sequ.slice_i {<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}>, null, null, 0} @test.assert_raises_error
+?::(<{0, 1, 2}> 0 0 @sequ.slice_i) Iter @test.assert_eq
+?::(<{0, 1, 2}> 0 3 @sequ.slice_i) Iter @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 3 @sequ.slice_i) {3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -3 @sequ.slice_i) {7, 8, 9} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 9 @sequ.slice_i) {9} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 10 @sequ.slice_i) {,} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 11 @sequ.slice_i) {,} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -9 @sequ.slice_i) {1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -10 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -11 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null 3 @sequ.slice_i) {0, 1, 2} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null -3 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null 9 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7, 8} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null 10 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null 11 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null -9 @sequ.slice_i) {0} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null -10 @sequ.slice_i) {,} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null -11 @sequ.slice_i) {,} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null 1 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null 2 @sequ.slice_i) {0, 2, 4, 6, 8} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null 3 @sequ.slice_i) {0, 3, 6, 9} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null 9 @sequ.slice_i) {0, 9} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null 10 @sequ.slice_i) {0} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null 11 @sequ.slice_i) {0} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null -1 @sequ.slice_i) {9, 8, 7, 6, 5, 4, 3, 2, 1, 0} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null -2 @sequ.slice_i) {9, 7, 5, 3, 1} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null -3 @sequ.slice_i) {9, 6, 3, 0} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null -9 @sequ.slice_i) {9, 0} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null -10 @sequ.slice_i) {9} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null null -11 @sequ.slice_i) {9} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 0 10 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 3 10 @sequ.slice_i) {3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 0 8 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 3 8 @sequ.slice_i) {3, 4, 5, 6, 7} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 5 6 @sequ.slice_i) {5} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 5 5 @sequ.slice_i) {,} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 9 9 @sequ.slice_i) {,} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 10 10 @sequ.slice_i) {,} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -1 -1 @sequ.slice_i) {,} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 3 -3 @sequ.slice_i) {3, 4, 5, 6} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -7 7 @sequ.slice_i) {3, 4, 5, 6} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -7 -3 @sequ.slice_i) {3, 4, 5, 6} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -7 -3 @sequ.slice_i) {3, 4, 5, 6} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 20 30 @sequ.slice_i) {,} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -30 -20 @sequ.slice_i) {,} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 0 null 1 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 1 null 2 @sequ.slice_i) {1, 3, 5, 7, 9} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 1 null 3 @sequ.slice_i) {1, 4, 7} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 2 null 2 @sequ.slice_i) {2, 4, 6, 8} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 3 null 2 @sequ.slice_i) {3, 5, 7, 9} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 6 null -1 @sequ.slice_i) {6, 5, 4, 3, 2, 1, 0} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 6 null -2 @sequ.slice_i) {6, 4, 2, 0} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 6 null -5 @sequ.slice_i) {6, 1} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -7 null 2 @sequ.slice_i) {3, 5, 7, 9} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -2 null -2 @sequ.slice_i) {8, 6, 4, 2, 0} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -2 null -3 @sequ.slice_i) {8, 5, 2} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 10 null 2 @sequ.slice_i) {,} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -10 null -2 @sequ.slice_i) {0} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -11 null -2 @sequ.slice_i) {,} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null 10 1 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7, 8, 9} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null 8 1 @sequ.slice_i) {0, 1, 2, 3, 4, 5, 6, 7} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null 8 3 @sequ.slice_i) {0, 3, 6} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null -3 2 @sequ.slice_i) {0, 2, 4, 6} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null 2 -1 @sequ.slice_i) {9, 8, 7, 6, 5, 4, 3} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null -6 -1 @sequ.slice_i) {9, 8, 7, 6, 5} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> null -20 -1 @sequ.slice_i) {9, 8, 7, 6, 5, 4, 3, 2, 1, 0} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 2 8 3 @sequ.slice_i) {2, 5} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 3 3 2 @sequ.slice_i) {,} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 8 3 1 @sequ.slice_i) {,} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 8 3 -1 @sequ.slice_i) {8, 7, 6, 5, 4} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> -7 9 2 @sequ.slice_i) {3, 5, 7} @test.assert_eq
+Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 30 -30 -1 @sequ.slice_i) {9, 8, 7, 6, 5, 4, 3, 2, 1, 0} @test.assert_eq
+
+{1, 3, 4} {2, 6, 8} @sequ.merge {1, 3, 4, 2, 6, 8} @test.assert_eq
+<{1, 3, 4}> {2, 6, 8} @sequ.merge {1, 3, 4, 2, 6, 8} @test.assert_eq
+{1, 3, 4} <{2, 6, 8}> @sequ.merge {1, 3, 4, 2, 6, 8} @test.assert_eq
+<{1, 3, 4}> <{2, 6, 8}> @sequ.merge {1, 3, 4, 2, 6, 8} @test.assert_eq
+?:: ({1, 3, 4} {2, 6, 8} @sequ.merge) Array @test.assert_eq
+?:: (<{1, 3, 4}> {2, 6, 8} @sequ.merge) Vector @test.assert_eq
+?:: ({1, 3, 4} <{2, 6, 8}> @sequ.merge) Vector @test.assert_eq
+?:: (<{1, 3, 4}> <{2, 6, 8}> @sequ.merge) Vector @test.assert_eq
 
 #make_arr size as_str [
     Array :: (0 -> size) = arr
@@ -72,38 +542,153 @@ arr64 (##x => Int :: x) @sequ.sort (64 true @make_arr) @test.assert_eq
 arr65 (##x => Int :: x) @sequ.sort (65 true @make_arr) @test.assert_eq
 arr99 (##x => Int :: x) @sequ.sort (99 true @make_arr) @test.assert_eq
 
-{ 0, 1, 2, 3, 4, 5 } (##x => x 3 >=) @sequ.filter { 3, 4, 5 } @test.assert_eq
-?::(<{ 0 }> (##x => true) @sequ.filter) Vector @test.assert_eq
+<{'a', 3, 5, 0 -> 10, 3b}> = vec2
+vec2 @sequ.empty
+vec2 <{}> @test.assert_eq
 
-{ 0, 1, 2, 3 } 3 @sequ.contains @test.assert_true
-<{ 0, 1, 2, 3 }> 4 @sequ.contains @test.assert_false
+sequ.filter {{1, 2, 3}, (## => 1)} @test.assert_raises_error
+{1, 2, 3, 4, 5, 6} (##x => x 2 % 0 ==) @sequ.filter {2, 4, 6} @test.assert_eq
+{1, 2, 3} (## x => false) @sequ.filter {,} @test.assert_eq
+?::({1, 2, 3, 4, 5, 6} (##x => x 2 % 0 ==) @sequ.filter) Array @test.assert_eq
+?::({1, 2, 3} (## x => false) @sequ.filter) Array @test.assert_eq
+<{1, 2, 3, 4, 5, 6}> (##x => x 2 % 0 ==) @sequ.filter {2, 4, 6} @test.assert_eq
+<{1, 2, 3}> (## x => false) @sequ.filter <{}> @test.assert_eq
+?::(<{1, 2, 3, 4, 5, 6}> (##x => x 2 % 0 ==) @sequ.filter) Vector @test.assert_eq
+?::(<{1, 2, 3}> (## x => false) @sequ.filter) Vector @test.assert_eq
 
-{ 'a': 10 } 'a' @sequ.contains @test.assert_true
-{ 'a': 10 } 10 @sequ.contains @test.assert_false
+sequ.filter_i {{1, 2, 3}, (## => 1)} @test.assert_raises_error
+Array :: ({1, 2, 3, 4, 5, 6} (##x => x 2 % 0 ==) @sequ.filter_i) {2, 4, 6} @test.assert_eq
+Array :: ({1, 2, 3} (## x => false) @sequ.filter_i) {,} @test.assert_eq
+?::({1, 2, 3, 4, 5, 6} (##x => x 2 % 0 ==) @sequ.filter_i) Iter @test.assert_eq
+?::({1, 2, 3} (## x => false) @sequ.filter_i) Iter @test.assert_eq
+Array :: (<{1, 2, 3, 4, 5, 6}> (##x => x 2 % 0 ==) @sequ.filter_i) {2, 4, 6} @test.assert_eq
+Array :: (<{1, 2, 3}> (## x => false) @sequ.filter_i) <{}> @test.assert_eq
+?::(<{1, 2, 3, 4, 5, 6}> (##x => x 2 % 0 ==) @sequ.filter_i) Iter @test.assert_eq
+?::(<{1, 2, 3}> (## x => false) @sequ.filter_i) Iter @test.assert_eq
 
-{ false, false, false } @sequ.any @test.assert_false
-{ false, false, true  } @sequ.any @test.assert_true
-{ false, false, true  } @sequ.all @test.assert_false
-{ true,  true,  true  } @sequ.any @test.assert_true
+{,} 3 @sequ.contains @test.assert_false
+{,} {,} @sequ.contains @test.assert_false
+{1, 2, 3, 4} 5 @sequ.contains @test.assert_false
+{1, '2', 3, {}} 5 @sequ.contains @test.assert_false
+{1, '2', 3, {}} 3 @sequ.contains @test.assert_true
+{1, '2', 3, {}} '2' @sequ.contains @test.assert_true
+{1, '2', 3, {}} 1 @sequ.contains @test.assert_true
+{1, '2', 3, {}} {} @sequ.contains @test.assert_true
+<{}> 3 @sequ.contains @test.assert_false
+<{}> <{}> @sequ.contains @test.assert_false
+<{1, 2, 3, 4}> 5 @sequ.contains @test.assert_false
+<{1, '2', 3, {}}> 5 @sequ.contains @test.assert_false
+<{1, '2', 3, {}}> 3 @sequ.contains @test.assert_true
+<{1, '2', 3, {}}> '2' @sequ.contains @test.assert_true
+<{1, '2', 3, {}}> 1 @sequ.contains @test.assert_true
+<{1, '2', 3, {}}> {} @sequ.contains @test.assert_true
 
-{ 1, 2, 3, 1, 1 } 1 @sequ.count 3 @test.assert_eq
-'babbabbaba' 'bab' @sequ.count 3 @test.assert_eq
-'babbabbaba' 'ba' @sequ.count 4 @test.assert_eq
-'babbabbaba' 'b' @sequ.count 6 @test.assert_eq
-'babbabbaba' 'a' @sequ.count 4 @test.assert_eq
-'babbabbaba' '' @sequ.count 0 @test.assert_eq
-'babbabbaba' 'z' @sequ.count 0 @test.assert_eq
-'babbabbaba' 'babbabbaba' @sequ.count 1 @test.assert_eq
-'babbabbaba' 'babbabbabaasd' @sequ.count 0 @test.assert_eq
-'babbabbaba' 10 @sequ.count 0 @test.assert_eq
+{1: 'a', 'b': 2, 3: 'c'} 'b' @sequ.contains @test.assert_true
+{1: 'a', 'b': 2, 3: 'c'} 2 @sequ.contains @test.assert_false
+{1: 'a', 'b': 2, 3: 'c'} 'c' @sequ.contains @test.assert_false
+{1: 'a', 'b': 2, 3: 'c'} 1 @sequ.contains @test.assert_true
+{1: 'a', 'b': 2, 3: 'c'} 3 @sequ.contains @test.assert_true
 
-{ 1, 2, 3, 4 } (##a b => a b +) 0 @sequ.lscan { 0, 1, 3, 6, 10 } @test.assert_eq
-{ 1, 2, 3, 4 } (##a b => a b +) 0 @sequ.rscan { 10, 9, 7, 4, 0 } @test.assert_eq
-{ 1, 2, 3, 4 } (##a b => a b +) 3 @sequ.lscan { 3, 4, 6, 9, 13 } @test.assert_eq
-{ 1, 2, 3, 4 } (##a b => a b +) 3 @sequ.rscan { 13, 12, 10, 7, 3 } @test.assert_eq
-{ 1, 2, 3, 4 } (##a b => a b +) 3 2 @sequ.lscan { 3, 4 } @test.assert_eq
-{ 1, 2, 3, 4 } (##a b => a b +) 3 2 @sequ.rscan { 7, 3 } @test.assert_eq
-'hi' (##a b => a b ><) '' @sequ.lscan { '', 'h', 'hi' } @test.assert_eq
-'hi' (##a b => a b ><) '' @sequ.rscan { 'hi', 'i', '' } @test.assert_eq
-'hi' (##a b => a b ><) '' 2 @sequ.lscan { '', 'h' } @test.assert_eq
-'hi' (##a b => a b ><) '' 2 @sequ.rscan { 'i', '' } @test.assert_eq
+'hello' 'llo' @sequ.contains @test.assert_true
+'hello' 'he' @sequ.contains @test.assert_true
+'hello' 'helo' @sequ.contains @test.assert_false
+'hello' 'lloa' @sequ.contains @test.assert_false
+'' '' @sequ.contains @test.assert_false
+'' 'abcd' @sequ.contains @test.assert_false
+'hello' 'helloa' @sequ.contains @test.assert_false
+
+{,} @sequ.any @test.assert_false
+{true, false} @sequ.any @test.assert_true
+{true, true} @sequ.any @test.assert_true
+{true, true, false} @sequ.any @test.assert_true
+{'', false, {}} @sequ.any @test.assert_false
+{0, 1, 'hello'} @sequ.any @test.assert_true
+{0.0, -0.0, {,}} @sequ.any @test.assert_false
+<{}> @sequ.any @test.assert_false
+<{true, false}> @sequ.any @test.assert_true
+<{true, true}> @sequ.any @test.assert_true
+<{true, true, false}> @sequ.any @test.assert_true
+<{'', false, {}}> @sequ.any @test.assert_false
+<{0, 1, 'hello'}> @sequ.any @test.assert_true
+<{0.0, -0.0, {,}}> @sequ.any @test.assert_false
+
+{,} @sequ.all @test.assert_true
+{true, false} @sequ.all @test.assert_false
+{true, true} @sequ.all @test.assert_true
+{true, true, false} @sequ.all @test.assert_false
+{'', false, {}} @sequ.all @test.assert_false
+{{1}, 1, 'hello'} @sequ.all @test.assert_true
+{0.0, -0.0, {,}} @sequ.all @test.assert_false
+<{}> @sequ.all @test.assert_true
+<{true, false}> @sequ.all @test.assert_false
+<{true, true}> @sequ.all @test.assert_true
+<{true, true, false}> @sequ.all @test.assert_false
+<{'', false, {}}> @sequ.all @test.assert_false
+<{{1}, 1, 'hello'}> @sequ.all @test.assert_true
+<{0.0, -0.0, {,}}> @sequ.all @test.assert_false
+
+{,} 'a' @sequ.count 0 @test.assert_eq
+{1, 1.0, 0} 1 @sequ.count 2 @test.assert_eq
+{{}, {,}, {}} {,} @sequ.count 1 @test.assert_eq
+{10, 10, 10, 10} 10 @sequ.count 4 @test.assert_eq
+{10, 10, 10, 10} 9 @sequ.count 0 @test.assert_eq
+{10, 10, 10, 10} {1, 2} @sequ.count 0 @test.assert_eq
+{{1, 2}, <{1, 2}>, 3, {1: 2}} {1, 2} @sequ.count 2 @test.assert_eq
+<{}> 'a' @sequ.count 0 @test.assert_eq
+<{1, 1.0, 0}> 1 @sequ.count 2 @test.assert_eq
+<{{}, {,}, {}}> {,} @sequ.count 1 @test.assert_eq
+<{10, 10, 10, 10}> 10 @sequ.count 4 @test.assert_eq
+<{10, 10, 10, 10}> 9 @sequ.count 0 @test.assert_eq
+<{10, 10, 10, 10}> {1, 2} @sequ.count 0 @test.assert_eq
+<{{1, 2}, <{1, 2}>, 3, {1: 2}}> {1, 2} @sequ.count 2 @test.assert_eq
+
+'' '' @sequ.count 0 @test.assert_eq
+'' 'a' @sequ.count 0 @test.assert_eq
+'' 'ab' @sequ.count 0 @test.assert_eq
+'hello' '' @sequ.count 0 @test.assert_eq
+'hello' 'l' @sequ.count 2 @test.assert_eq
+'hello' 'll' @sequ.count 1 @test.assert_eq
+'hello' 'hl' @sequ.count 0 @test.assert_eq
+'hello' 'helloa' @sequ.count 0 @test.assert_eq
+'acsaccascscasc' 'sc' @sequ.count 3 @test.assert_eq
+'acsaccascscasc' 's' @sequ.count 4 @test.assert_eq
+'hello' 'hello' @sequ.count 1 @test.assert_eq
+'abcabcab' 'abc' @sequ.count 2 @test.assert_eq
+
+sequ.lscan {{1, 2, 3}, (##a => a)} @test.assert_raises_error
+sequ.lscan {{1, 2, 3}, (##a b => a), 0, -4} @test.assert_raises_error
+{1, 2, 3} (##a b => a b +) 0 0 @sequ.lscan {,} @test.assert_eq
+?::({1, 2, 3} (##a b => a b +) 0 0 @sequ.lscan) Array @test.assert_eq
+?::({1, 2, 3, 4} (##a b => a b +) 3 2 @sequ.lscan) Array @test.assert_eq
+{1, 2, 3, 4} (##a b => a b +) 0 @sequ.lscan {0, 1, 3, 6, 10} @test.assert_eq
+{1, 2, 3, 4} (##a b => a b +) 3 @sequ.lscan {3, 4, 6, 9, 13} @test.assert_eq
+{1, 2, 3, 4} (##a b => a b +) 3 2 @sequ.lscan {3, 4} @test.assert_eq
+<{1, 2, 3}> (##a b => a b +) 0 0 @sequ.lscan {,} @test.assert_eq
+?::(<{1, 2, 3}> (##a b => a b +) 0 0 @sequ.lscan) Vector @test.assert_eq
+?::(<{1, 2, 3, 4}> (##a b => a b +) 3 2 @sequ.lscan) Vector @test.assert_eq
+<{1, 2, 3, 4}> (##a b => a b +) 0 @sequ.lscan {0, 1, 3, 6, 10} @test.assert_eq
+<{1, 2, 3, 4}> (##a b => a b +) 3 @sequ.lscan {3, 4, 6, 9, 13} @test.assert_eq
+<{1, 2, 3, 4}> (##a b => a b +) 3 2 @sequ.lscan {3, 4} @test.assert_eq
+'hi' (##a b => a b ><) '' @sequ.lscan {'', 'h', 'hi'} @test.assert_eq
+'hi' (##a b => a b ><) '' 2 @sequ.lscan {'', 'h'} @test.assert_eq
+'hi' (##a b => a b ><) '' 5 @sequ.lscan {'', 'h', 'hi'} @test.assert_eq
+sequ.lscan {'hi', ##a b => a !! b, '', 5} @test.assert_raises_error
+
+sequ.rscan {{1, 2, 3}, (##a => a)} @test.assert_raises_error
+sequ.rscan {{1, 2, 3}, (##a b => a), 0, -4} @test.assert_raises_error
+{1, 2, 3} (##a b => a b +) 0 0 @sequ.rscan {,} @test.assert_eq
+?::({1, 2, 3} (##a b => a b +) 0 0 @sequ.rscan) Array @test.assert_eq
+?::({1, 2, 3, 4} (##a b => a b +) 3 2 @sequ.rscan) Array @test.assert_eq
+{1, 2, 3, 4} (##a b => a b +) 0 @sequ.rscan {10, 9, 7, 4, 0} @test.assert_eq
+{1, 2, 3, 4} (##a b => a b +) 3 @sequ.rscan {13, 12, 10, 7, 3} @test.assert_eq
+{1, 2, 3, 4} (##a b => a b +) 3 2 @sequ.rscan {7, 3} @test.assert_eq
+<{1, 2, 3}> (##a b => a b +) 0 0 @sequ.rscan {,} @test.assert_eq
+?::(<{1, 2, 3}> (##a b => a b +) 0 0 @sequ.rscan) Vector @test.assert_eq
+?::(<{1, 2, 3, 4}> (##a b => a b +) 3 2 @sequ.rscan) Vector @test.assert_eq
+<{1, 2, 3, 4}> (##a b => a b +) 0 @sequ.rscan {10, 9, 7, 4, 0} @test.assert_eq
+<{1, 2, 3, 4}> (##a b => a b +) 3 @sequ.rscan {13, 12, 10, 7, 3} @test.assert_eq
+<{1, 2, 3, 4}> (##a b => a b +) 3 2 @sequ.rscan {7, 3} @test.assert_eq
+'hi' (##a b => a b ><) '' @sequ.rscan {'hi', 'i', ''} @test.assert_eq
+'hi' (##a b => a b ><) '' 2 @sequ.rscan {'i', ''} @test.assert_eq
+'hi' (##a b => a b ><) '' 5 @sequ.rscan {'hi', 'i', ''} @test.assert_eq
+sequ.rscan {'hi', ##a b => a !! b, '', 5} @test.assert_raises_error

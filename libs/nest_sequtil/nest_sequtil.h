@@ -26,9 +26,7 @@ Nst_FUNC_SIGN(any_);
 Nst_FUNC_SIGN(all_);
 Nst_FUNC_SIGN(count_);
 Nst_FUNC_SIGN(lscan_);
-Nst_FUNC_SIGN(lscan_i_);
 Nst_FUNC_SIGN(rscan_);
-Nst_FUNC_SIGN(rscan_i_);
 
 #ifdef __cplusplus
 }

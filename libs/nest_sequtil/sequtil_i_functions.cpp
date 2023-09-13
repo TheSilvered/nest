@@ -114,31 +114,3 @@ Nst_FUNC_SIGN(filter_i_get_val)
 
     return value;
 }
-
-Nst_FUNC_SIGN(lscan_i_start)
-{
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
-    return nullptr;
-}
-
-Nst_FUNC_SIGN(lscan_i_get_val)
-{
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
-    return nullptr;
-}
-
-Nst_FUNC_SIGN(rscan_i_start)
-{
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
-    return nullptr;
-}
-
-Nst_FUNC_SIGN(rscan_i_get_val)
-{
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
-    return nullptr;
-}

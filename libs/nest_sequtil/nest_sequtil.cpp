@@ -3,7 +3,7 @@
 #include "nest_sequtil.h"
 #include "sequtil_i_functions.h"
 
-#define FUNC_COUNT 19
+#define FUNC_COUNT 17
 #define SORT_RUN_SIZE 32
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
@@ -33,9 +33,7 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(all_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(count_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(lscan_, 4);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(lscan_i_, 4);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(rscan_, 4);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(rscan_i_, 4);
 
 #if __LINE__ - FUNC_COUNT != 21
 #error
@@ -71,10 +69,8 @@ Nst_FUNC_SIGN(map_)
         Nst_Obj *res = Nst_call_func(func, &arg);
 
         if (res == nullptr) {
-            for (usize j = 0; j < i; j++)
-                Nst_dec_ref(new_seq->objs[j]);
-            Nst_free(new_seq->objs);
-            Nst_free(new_seq);
+            new_seq->len = i;
+            Nst_dec_ref(new_seq);
             return nullptr;
         }
 
@@ -173,8 +169,6 @@ static isize clapm_slice_arguments(usize seq_len, Nst_Obj *start_obj,
                                    i64 &start, i64 &step)
 {
     step = Nst_DEF_VAL(step_obj,  AS_INT(step_obj), 1);
-    start = Nst_DEF_VAL(start_obj, AS_INT(start_obj), step > 0 ? 0 : seq_len);
-    i64 stop = Nst_DEF_VAL(stop_obj, AS_INT(stop_obj), step > 0 ? seq_len : -1);
 
     if (step == 0) {
         Nst_set_value_error_c("the step cannot be zero");
@@ -184,21 +178,40 @@ static isize clapm_slice_arguments(usize seq_len, Nst_Obj *start_obj,
     if (seq_len == 0)
         return 0;
 
+    start = Nst_DEF_VAL(
+        start_obj,
+        AS_INT(start_obj),
+        step > 0 ? 0 : seq_len - 1);
+    i64 stop = Nst_DEF_VAL(
+        stop_obj,
+        AS_INT(stop_obj),
+        step > 0 ? seq_len : -(i64)seq_len - 1);
+
     if (start < 0)
         start += seq_len;
 
-    if (stop < 0 && stop_obj != Nst_null())
+    if (stop < 0)
         stop += seq_len;
 
-    if (start < 0)
-        start = 0;
-    else if (start >= (i64)seq_len)
-        start = seq_len - 1;
+    if (step > 0) {
+        if (start < 0)
+            start = 0;
 
-    if (stop < 0 && stop_obj != Nst_null())
-        stop = 0;
-    else if (stop > (i64)seq_len)
-        stop = seq_len;
+        if (stop > (i64)seq_len)
+            stop = seq_len;
+
+        if (stop <= start || start >= (i64)seq_len)
+            return 0;
+    } else {
+        if (stop < -1)
+            stop = -1;
+
+        if (start >= (i64)seq_len)
+            start = seq_len - 1;
+
+        if (stop >= start || start < 0)
+            return 0;
+    }
 
     isize new_size = (isize)((stop - start) / step);
     if ((stop - start) % step != 0)
@@ -775,6 +788,30 @@ Nst_FUNC_SIGN(count_)
     }
 }
 
+static i64 check_scan_args(usize seq_len, usize func_arg_num,
+                           Nst_Obj *max_items_obj)
+{
+    i64 max_items = Nst_DEF_VAL(
+        max_items_obj,
+        AS_INT(max_items_obj),
+        seq_len + 1);
+
+    if (func_arg_num != 2) {
+        Nst_set_value_error_c("the function must take exactly two argument");
+        return -1;
+    }
+
+    if (max_items < 0) {
+        Nst_set_value_error_c(
+            "the maximum item count must be greater than or equal to zero");
+        return -1;
+    }
+
+    if (max_items > (i64)seq_len + 1)
+        max_items = seq_len + 1;
+    return max_items;
+}
+
 Nst_FUNC_SIGN(lscan_)
 {
     Nst_SeqObj *seq;
@@ -782,27 +819,13 @@ Nst_FUNC_SIGN(lscan_)
     Nst_Obj *prev_val;
     Nst_Obj *max_items_obj;
 
-    Nst_DEF_EXTRACT("Sfo?i", &seq, &func, &prev_val, &max_items_obj);
-    i64 max_items = Nst_DEF_VAL(
-        max_items_obj,+
-        AS_INT(max_items_obj),
-        seq->len + 1);
-
-    if (func->arg_num != 2) {
-        Nst_set_value_error_c("the function must take exactly two argument");
-        Nst_dec_ref(seq);
-        return nullptr;
-    }
+    Nst_DEF_EXTRACT("S f o ?i", &seq, &func, &prev_val, &max_items_obj);
+    i64 max_items = check_scan_args(seq->len, func->arg_num, max_items_obj);
 
     if (max_items < 0) {
-        Nst_set_value_error_c(
-            "the maximum item count must be greater than or equal to zero");
         Nst_dec_ref(seq);
         return nullptr;
     }
-
-    if (max_items > (i64)seq->len + 1)
-        max_items = seq->len + 1;
 
     Nst_SeqObj *new_seq = Nst_T(seq, Array)
         ? SEQ(Nst_array_new((usize)max_items))
@@ -837,14 +860,6 @@ Nst_FUNC_SIGN(lscan_)
     return OBJ(new_seq);
 }
 
-Nst_FUNC_SIGN(lscan_i_)
-{
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
-    Nst_set_call_error_c("not yet implemented");
-    return nullptr;
-}
-
 Nst_FUNC_SIGN(rscan_)
 {
     Nst_SeqObj *seq;
@@ -852,26 +867,13 @@ Nst_FUNC_SIGN(rscan_)
     Nst_Obj *prev_val;
     Nst_Obj *max_items_obj;
 
-    Nst_DEF_EXTRACT("Sfo?i", &seq, &func, &prev_val, &max_items_obj);
-    i64 max_items = Nst_DEF_VAL(max_items_obj, AS_INT(max_items_obj), seq->len + 1);
-
-    if (func->arg_num != 2) {
-        Nst_set_value_error_c("the function must take exactly two argument");
-        Nst_dec_ref(seq);
-        return nullptr;
-    }
+    Nst_DEF_EXTRACT("S f o ?i", &seq, &func, &prev_val, &max_items_obj);
+    i64 max_items = check_scan_args(seq->len, func->arg_num, max_items_obj);
 
     if (max_items < 0) {
-        Nst_set_value_error_c(
-            "the maximum item count must be greater than or equal to zero");
         Nst_dec_ref(seq);
         return nullptr;
     }
-
-    i64 seq_len = (i64)seq->len;
-
-    if (max_items > seq_len + 1)
-        max_items = seq_len + 1;
 
     Nst_SeqObj *new_seq = Nst_T(seq, Array)
         ? SEQ(Nst_array_new((usize)max_items))
@@ -885,33 +887,26 @@ Nst_FUNC_SIGN(rscan_)
     Nst_seq_set(new_seq, max_items - 1, prev_val);
 
     Nst_Obj *func_args[2];
+    i64 seq_len = (i64)seq->len;
 
-    for (i64 i = max_items - 2; i >= 0; i--) {
-        func_args[0] = seq->objs[i + seq_len - max_items + 1];
+    for (i64 i = 1; i < max_items; i++) {
+        func_args[0] = seq->objs[seq_len - i];
         func_args[1] = prev_val;
         Nst_Obj *new_val = Nst_call_func(func, func_args);
         if (new_val == nullptr) {
             Nst_dec_ref(prev_val);
-            for (i64 j = max_items - 1; j > i; j--)
+            for (i64 j = 0; j < i; j++)
                 Nst_dec_ref(new_seq->objs[max_items - j - 1]);
             new_seq->len = 0;
             Nst_dec_ref(new_seq);
             Nst_dec_ref(seq);
             return nullptr;
         }
-        Nst_seq_set(new_seq, i, new_val);
+        Nst_seq_set(new_seq, max_items - i - 1, new_val);
         Nst_dec_ref(prev_val);
         prev_val = new_val;
     }
     Nst_dec_ref(prev_val);
     Nst_dec_ref(seq);
     return OBJ(new_seq);
-}
-
-Nst_FUNC_SIGN(rscan_i_)
-{
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
-    Nst_set_call_error_c("not yet implemented");
-    return nullptr;
 }

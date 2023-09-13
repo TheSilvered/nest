@@ -37,7 +37,7 @@ io.STDOUT = log_file -- allows tests to be ran singularly
     type ' :: ' obj ' did not fail' >< @_assertion_failed
 ]
 
-#assert_raises_error func args [
+#assert_raises_error func args errname errmsg [
     ?::func Func != ?
         'Type Error' !! ('The first argument must be a Func, got type ' \
                          ?::func ' instead' ><)

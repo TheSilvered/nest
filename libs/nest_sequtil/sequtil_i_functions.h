@@ -17,12 +17,6 @@ Nst_FUNC_SIGN(slice_i_str_get_val);
 Nst_FUNC_SIGN(filter_i_start);
 Nst_FUNC_SIGN(filter_i_get_val);
 
-Nst_FUNC_SIGN(lscan_i_start);
-Nst_FUNC_SIGN(lscan_i_get_val);
-
-Nst_FUNC_SIGN(rscan_i_start);
-Nst_FUNC_SIGN(rscan_i_get_val);
-
 #ifdef __cplusplus
 }
 #endif

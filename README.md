@@ -26,6 +26,7 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 - [x] Object pools (optimization)
 - [x] Remove `is_done` function from iterators & return special object with
       `get_val`
+- [ ] Strings that index to actual characters
 - [ ] Add iterator variants in `stdsequtil.nest` of
   - [x] `map`
   - [x] `filter`
