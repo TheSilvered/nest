@@ -261,7 +261,7 @@ Nst_FUNC_SIGN(remove_file_)
         return nullptr;
     }
 
-    bool success = fs::remove(path->value, ec);
+    bool success = fs::remove(utf8_path(path), ec);
 
     if (success || ec.value() == 0)
         Nst_RETURN_NULL;
@@ -405,7 +405,7 @@ Nst_FUNC_SIGN(list_dir_)
     Nst_SeqObj *vector = SEQ(Nst_vector_new(0));
 
     for (fs::directory_entry const &entry
-         : fs::directory_iterator{ path->value })
+         : fs::directory_iterator{ utf8_path(path) })
     {
         Nst_StrObj *str = heap_str(entry.path());
         if (str == nullptr)
@@ -436,7 +436,7 @@ Nst_FUNC_SIGN(list_dirs_)
     Nst_SeqObj *vector = SEQ(Nst_vector_new(0));
 
     for (fs::directory_entry const &entry
-        : fs::recursive_directory_iterator{ path->value })
+        : fs::recursive_directory_iterator{ utf8_path(path) })
     {
         Nst_StrObj *str = heap_str(entry.path());
         if (str == nullptr)

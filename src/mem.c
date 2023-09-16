@@ -96,6 +96,13 @@ void *Nst_crealloc(void *prev_block, usize new_count, usize size,
     if (init_value == NULL) {
         memset(block + (prev_count * size), 0, (new_count - prev_count) * size);
         return (void *)block;
+    } else if (size == 1) {
+        u8 value = *(u8 *)init_value;
+        memset(
+            block + prev_count,
+            value,
+            new_count - prev_count);
+        return (void *)block;
     }
 
     for (usize i = prev_count; i < new_count; i++)

@@ -58,6 +58,8 @@ NstEXP typedef struct _Nst_ContTypeObj {
 /**
  * Creates a new `Nst_TypeObj`.
  *
+ * @brief Note: `name` can only contain 7-bit ASCII characters
+ *
  * @param name: the name of the type
  * @param dstr: the destructor of the type
  *
@@ -66,6 +68,8 @@ NstEXP typedef struct _Nst_ContTypeObj {
 NstEXP Nst_TypeObj *NstC Nst_type_new(const i8 *name, Nst_ObjDstr dstr);
 /**
  * Creates a new `Nst_ContTypeObj`.
+ *
+ * @brief Note: `name` can only contain 7-bit ASCII characters
  *
  * @param name: the name of the type
  * @param dstr: the destructor of the type
@@ -80,7 +84,8 @@ NstEXP Nst_TypeObj *NstC Nst_cont_type_new(const i8 *name, Nst_ObjDstr dstr,
 NstEXP void NstC _Nst_type_destroy(Nst_TypeObj *obj);
 
 NstEXP typedef enum _Nst_TypeFlags {
-    Nst_FLAG_TYPE_IS_CONTAINER = 0b1
+    Nst_FLAG_TYPE_IS_CONTAINER = Nst_FLAG(1),
+    Nst_FLAG_TYPE_DESTROY_NAME = Nst_FLAG(2)
 } Nst_TypeFlags;
 
 #ifdef __cplusplus

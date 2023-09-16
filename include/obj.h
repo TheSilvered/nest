@@ -45,6 +45,8 @@
 #define Nst_DEL_FLAG(obj, flag) ((obj)->flags &= ~(flag))
 /* Checks if `flag` is set. */
 #define Nst_HAS_FLAG(obj, flag) ((obj)->flags & (flag))
+/* Creates a flag from an id. `n` can be between 1 and 28 included.  */
+#define Nst_FLAG(n) (1 << ((n) - 1))
 
 struct _Nst_StrObj;
 struct _Nst_TypeObj;
@@ -158,7 +160,7 @@ NstEXP void NstC _Nst_dec_ref(Nst_Obj *obj);
 
 /* Flags of a Nest object. */
 NstEXP typedef enum _Nst_ObjFlags {
-    Nst_FLAG_OBJ_DESTROYED = 0x10000000
+    Nst_FLAG_OBJ_DESTROYED = Nst_FLAG(29)
 } Nst_ObjFlags;
 
 #ifdef __cplusplus

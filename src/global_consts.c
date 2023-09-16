@@ -63,6 +63,7 @@ static Nst_StrObj *str_obj_no_err(const i8 *value)
     str->flags = 0;
     str->len = strlen(value);
     str->value = (i8 *)value;
+    str->indexable_str = NULL;
 
     str->type = Nst_t.Str;
     Nst_inc_ref(Nst_t.Str);

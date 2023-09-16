@@ -13,7 +13,6 @@
 
 // Error messages
 
-
 #define _Nst_EM_BAD_BREAK "';' outside of a loop"
 #define _Nst_EM_BAD_RETURN "'=>' outside of a function"
 #define _Nst_EM_EXPECTED_IF "expected '?'"
@@ -36,6 +35,7 @@
 #define _Nst_EM_FAILED_CHDIR "failed to change the current working directory"
 #define _Nst_EM_MISSING_PAREN "unmatched '('"
 #define _Nst_EM_FAILED_GETCWD "failed to get the current working directory"
+#define _Nst_EM_BAD_TYPE_NAME "type names must only contain 7-bit ASCII"
 #define _Nst_EM_EXPECTED_BRACE "expected '}'"
 #define _Nst_EM_EXPECTED_COLON "expected ':'"
 #define _Nst_EM_EXPECTED_CATCH "expected '?!'"
@@ -61,6 +61,7 @@
 #define _Nst_EM_BAD_REAL_LITERAL "invalid Real literal"
 #define _Nst_EM_OPEN_STR_LITERAL "string literal was never closed"
 #define _Nst_EM_INVALID_ENCODING "could not decode byte %ib for %s encoding"
+#define _Nst_EM_STR_INDEX_FAILED "failed to index string"
 #define _Nst_EM_CALL_FAILED(func) "call to '" func "' failed"
 #define _Nst_EM_RAN_OUT_OF_MEMORY "ran out of memory"
 #define _Nst_EM_MISSING_FUNC(func) "missing '" func "' for a custom iterator"

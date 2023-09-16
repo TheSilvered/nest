@@ -125,14 +125,15 @@ Nst_FUNC_SIGN(Nst_iter_str_get_val)
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
     Nst_StrObj *str = STR(objs[1]);
-    i64 idx = AS_INT(objs[0]);
+    Nst_Obj *ch;
 
-    if (idx >= (i64)str->len)
+    if (!Nst_string_get_next_ch(str, (isize *)&AS_INT(objs[0]), &ch)) {
+        if (AS_INT(objs[0]) == -1)
+            return NULL;
         return Nst_iend_ref();
+    }
 
-    Nst_Obj *ob = Nst_string_get(str, idx);
-    AS_INT(val->objs[0]) += 1;
-    return ob;
+    return ch;
 }
 
 Nst_FUNC_SIGN(Nst_iter_map_start)

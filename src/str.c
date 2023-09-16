@@ -34,6 +34,82 @@
         err_macro;                                                            \
     } while (0)
 
+static i32 get_ch_width(u8 *str, u8 *end)
+{
+    bool can_be_ascii = true;
+    while (str < end) {
+        u8 c = *str;
+        if (c >= 0x80) {
+            can_be_ascii = false;
+            if ((c & 0xf0) == 0xf0)
+                return 4;
+        }
+        str++;
+    }
+    return can_be_ascii ? 1 : 2;
+}
+
+static void fill_indexable_str_utf16(u16 *i_str, u8 *s, u8 *s_end)
+{
+    while (s < s_end) {
+        i32 len = Nst_check_ext_utf8_bytes(s, 4);
+        u32 ch = Nst_ext_utf8_to_utf32(s);
+        *i_str++ = (u16)ch;
+        s += len;
+    }
+}
+
+static void fill_indexable_str_utf32(u32 *i_str, u8 *s, u8 *s_end)
+{
+    while (s < s_end) {
+        i32 len = Nst_check_ext_utf8_bytes(s, 4);
+        u32 ch = Nst_ext_utf8_to_utf32(s);
+        *i_str++ = ch;
+        s += len;
+    }
+}
+
+static bool create_indexable_str(Nst_StrObj *str)
+{
+    u8 *s = (u8 *)str->value;
+    u8 *s_end = s + str->len;
+
+    i32 ch_width = get_ch_width(s, s_end);
+
+    if (ch_width == 1) {
+        Nst_SET_FLAG(str, Nst_FLAG_STR_IS_ASCII);
+        Nst_SET_FLAG(str, Nst_FLAG_STR_CAN_INDEX);
+        return true;
+    }
+
+    u8 *indexable_str = (u8 *)Nst_malloc(str->true_len, ch_width);
+    if (indexable_str == NULL)
+        return false;
+
+    if (ch_width == 2) {
+        fill_indexable_str_utf16((u16 *)indexable_str, s, s_end);
+        Nst_SET_FLAG(str, Nst_FLAG_STR_INDEX_16);
+    } else {
+        fill_indexable_str_utf32((u32 *)indexable_str, s, s_end);
+        Nst_SET_FLAG(str, Nst_FLAG_STR_INDEX_32);
+    }
+
+    Nst_SET_FLAG(str, Nst_FLAG_STR_CAN_INDEX);
+    str->indexable_str = indexable_str;
+    return true;
+}
+
+static usize get_string_true_len(i8 *s, i8 *s_end)
+{
+    usize len = 0;
+    while (s < s_end) {
+        if ((*s++ & 0b11000000) == 0b10000000)
+            continue;
+        len++;
+    }
+    return len;
+}
+
 Nst_Obj *Nst_string_new_c_raw(const i8 *val, bool allocated)
 {
     return Nst_string_new((i8 *)val, strlen(val), allocated);
@@ -46,6 +122,15 @@ Nst_Obj *Nst_string_new_c(const i8 *val, usize len, bool allocated)
 
 Nst_Obj *Nst_string_new(i8 *val, usize len, bool allocated)
 {
+    return Nst_string_new_len(
+        val,
+        len,
+        get_string_true_len(val, val + len),
+        allocated);
+}
+
+Nst_Obj *Nst_string_new_len(i8 *val, usize len, usize true_len, bool allocated)
+{
     Nst_StrObj *str = Nst_obj_alloc(Nst_StrObj, Nst_t.Str);
     if (str == NULL)
         return NULL;
@@ -54,6 +139,8 @@ Nst_Obj *Nst_string_new(i8 *val, usize len, bool allocated)
         str->flags |= Nst_FLAG_STR_IS_ALLOC;
     str->len = len;
     str->value = val;
+    str->true_len = true_len;
+    str->indexable_str = NULL;
 
     return OBJ(str);
 }
@@ -75,9 +162,11 @@ Nst_StrObj Nst_string_temp(i8 *val, usize len)
     obj.ref_count = 1;
     obj.p_next = NULL;
     obj.hash = -1;
-    obj.flags = 0;
+    obj.flags = Nst_FLAG_STR_CAN_INDEX | Nst_FLAG_STR_IS_ASCII;
     obj.value = val;
     obj.len = len;
+    obj.true_len = len;
+    obj.indexable_str = NULL;
     return obj;
 }
 
@@ -87,17 +176,53 @@ Nst_Obj *_Nst_string_copy(Nst_StrObj *src)
     if (buffer == NULL)
         return NULL;
 
-    strcpy(buffer, src->value);
+    memcpy(buffer, src->value, src->len);
 
-    return Nst_string_new_allocated(buffer, src->len);
+    Nst_Obj *str = Nst_string_new_len(buffer, src->true_len, src->len, true);
+    if (str == NULL)
+        Nst_free(buffer);
+    return str;
 }
 
-static bool is_unicode_escape(u8 *str)
+static i32 get_unicode_escape_len(u8 *str)
 {
     u32 ch = Nst_ext_utf8_to_utf32(str);
-    if (ch >= 0x80 && ch <= 0x9f)
-        return !Nst_is_valid_cp(ch) || Nst_is_non_character(ch);
-    return false;
+    if (!Nst_is_valid_cp(ch) || Nst_is_non_character(ch)) {
+        return ch <= 0xffff ? 6 : 8;
+    }
+    return 0;
+}
+
+static i32 ch_repr_len(u8 *str, usize i, usize s_len)
+{
+    if (str[i] < 0x80) {
+        switch (str[i]) {
+        case '\\':
+        case '\a':
+        case '\b':
+        case '\x1b':
+        case '\f':
+        case '\n':
+        case '\r':
+        case '\t':
+        case '\v': return 2;
+        }
+
+        if (!isprint(str[i]))
+            return 4;
+        return 1;
+    }
+
+    i32 res = Nst_check_ext_utf8_bytes(str + i, s_len - i);
+
+    if (res == -1)
+        return 0;
+
+    i32 escape_len = get_unicode_escape_len(str + i);
+    if (escape_len)
+        return escape_len;
+    else
+        return res;
 }
 
 Nst_Obj *_Nst_string_repr(Nst_StrObj *src)
@@ -108,50 +233,21 @@ Nst_Obj *_Nst_string_repr(Nst_StrObj *src)
     usize new_size = 2;
     i32 double_quotes_count = 0;
     i32 single_quotes_count = 0;
-    bool using_doub = false;
 
     for (usize i = 0; i < l; i++) {
-        switch (orig[i]) {
-        case '\\':
-        case '\a':
-        case '\b':
-        case '\x1b':
-        case '\f':
-        case '\n':
-        case '\r':
-        case '\t':
-        case '\v': new_size += 2; break;
-        case '\'': single_quotes_count += 1; break;
-        case '"': double_quotes_count += 1; break;
-        default:
-            if (isprint(orig[i])) {
-                new_size += 1;
-                continue;
-            } else if (orig[i] <= 0x7f)
-                new_size += 4;
-            else {
-                i32 res = Nst_check_ext_utf8_bytes(orig + i, l - i);
-                if (res == -1)
-                    new_size += 4;
-                else if (is_unicode_escape(orig + i)) {
-                    new_size += 6;
-                    i++;
-                } else {
-                    new_size += res;
-                    i += res - 1;
-                }
-            }
-        }
+        new_size += ch_repr_len(orig, i, l);
+        if (orig[i] == '\'')
+            single_quotes_count++;
+        else if (orig[i] == '"')
+            double_quotes_count++;
     }
 
-    if (single_quotes_count > double_quotes_count) {
-        using_doub = true;
-        new_size += double_quotes_count * 2;
-        new_size += single_quotes_count;
-    } else {
-        new_size += single_quotes_count * 2;
+    bool using_doub = single_quotes_count > double_quotes_count;
+
+    if (using_doub)
         new_size += double_quotes_count;
-    }
+    else
+        new_size += single_quotes_count;
 
     i8 *new_str = Nst_malloc_c(new_size + 1, i8);
     if (new_str == NULL)
@@ -162,54 +258,55 @@ Nst_Obj *_Nst_string_repr(Nst_StrObj *src)
     usize i = 1;
     for (usize j = 0; j < l; j++) {
         switch (orig[j]) {
-        case '\\': new_str[i++] = '\\'; new_str[i++] = '\\';break;
-        case '\a': new_str[i++] = '\\'; new_str[i++] = 'a'; break;
-        case '\b': new_str[i++] = '\\'; new_str[i++] = 'b'; break;
-        case'\x1b':new_str[i++] = '\\'; new_str[i++] = 'e'; break;
-        case '\f': new_str[i++] = '\\'; new_str[i++] = 'f'; break;
-        case '\n': new_str[i++] = '\\'; new_str[i++] = 'n'; break;
-        case '\r': new_str[i++] = '\\'; new_str[i++] = 'r'; break;
-        case '\t': new_str[i++] = '\\'; new_str[i++] = 't'; break;
-        case '\v': new_str[i++] = '\\'; new_str[i++] = 'v'; break;
+        case '\\': new_str[i++] = '\\'; new_str[i++] = '\\';continue;
+        case '\a': new_str[i++] = '\\'; new_str[i++] = 'a'; continue;
+        case '\b': new_str[i++] = '\\'; new_str[i++] = 'b'; continue;
+        case'\x1b':new_str[i++] = '\\'; new_str[i++] = 'e'; continue;
+        case '\f': new_str[i++] = '\\'; new_str[i++] = 'f'; continue;
+        case '\n': new_str[i++] = '\\'; new_str[i++] = 'n'; continue;
+        case '\r': new_str[i++] = '\\'; new_str[i++] = 'r'; continue;
+        case '\t': new_str[i++] = '\\'; new_str[i++] = 't'; continue;
+        case '\v': new_str[i++] = '\\'; new_str[i++] = 'v'; continue;
         case '\'':
             if (!using_doub)
                 new_str[i++] = '\\';
             new_str[i++] = '\'';
-            break;
+            continue;
         case '"':
             if (using_doub)
                 new_str[i++] = '\\';
             new_str[i++] = '"';
-            break;
-        default:
-            if (isprint((u8)orig[j]))
-                new_str[i++] = orig[j];
-            else if (orig[j] <= 0b01111111
-                     || Nst_check_ext_utf8_bytes(orig + j, l - j) == -1)
-            {
-                new_str[i++] = '\\';
-                new_str[i++] = 'x';
-                new_str[i++] = hex_chars[(u8)orig[j] >> 4];
-                new_str[i++] = hex_chars[(u8)orig[j] & 0xf];
-            } else {
-                i32 res = Nst_check_ext_utf8_bytes(orig + j, l - j);
-                if (res == 2 && is_unicode_escape(orig + j)) {
-                    res = Nst_check_ext_utf8_bytes(orig + j, l - j);
-                    j++;
-                    new_str[i++] = '\\';
-                    new_str[i++] = 'u';
-                    new_str[i++] = '0';
-                    new_str[i++] = '0';
-                    new_str[i++] = hex_chars[res >> 4];
-                    new_str[i++] = hex_chars[res & 0xf];
-                    continue;
-                }
-
-                for (; res > 0; res--)
-                    new_str[i++] = orig[j++];
-                j--;
-            }
+            continue;
         }
+        if (orig[j] < 0x80) {
+            if (isprint(orig[j])) {
+                new_str[i++] = orig[j];
+                continue;
+            }
+
+            new_str[i++] = '\\';
+            new_str[i++] = 'x';
+            new_str[i++] = hex_chars[(orig[j] & 0xf0) >> 4];
+            new_str[i++] = hex_chars[orig[j] & 0x0f];
+            continue;
+        }
+
+        i32 res = Nst_check_ext_utf8_bytes(orig + j, l - j);
+        i32 escape_len = get_unicode_escape_len(orig + j);
+        if (escape_len) {
+            new_str[i++] = '\\';
+            new_str[i++] = escape_len == 8 ? 'U' : 'u';
+            i32 cp = Nst_ext_utf8_to_utf32(orig + j);
+            for (escape_len -= 3; escape_len >= 0; escape_len--) {
+                new_str[i++] = hex_chars[(cp >> (escape_len * 4)) & 0xf];
+            }
+            j += res - 1;
+            continue;
+        }
+
+        memcpy(new_str + i, orig + j, res);
+        i += res;
+        j += res - 1;
     }
 
     new_str[new_size - 1] = using_doub ? '"' : '\'';
@@ -221,32 +318,112 @@ Nst_Obj *_Nst_string_repr(Nst_StrObj *src)
 Nst_Obj *_Nst_string_get(Nst_StrObj *str, i64 idx)
 {
     if (idx < 0)
-        idx += str->len;
+        idx += str->true_len;
 
-    if (idx < 0 || idx >= (i64)str->len) {
+    if (idx < 0 || idx >= (i64)str->true_len) {
         Nst_set_value_error(Nst_sprintf(
             _Nst_EM_INDEX_OUT_OF_BOUNDS("Str"),
             idx,
-            str->len));
+            str->true_len));
         return NULL;
     }
 
-    i8 *ch = Nst_malloc_c(3, i8);
-    if (ch == NULL)
-        return NULL;
-
-    u8 byte = str->value[idx];
-
-    if (byte <= 0x7f) {
-        ch[0] = str->value[idx];
-        ch[1] = 0;
-        return Nst_string_new_allocated(ch, 1);
+    if (!Nst_HAS_FLAG(str, Nst_FLAG_STR_CAN_INDEX)) {
+        if (!create_indexable_str(str))
+            return NULL;
     }
 
-    ch[0] = 0b11000000 | (byte >> 6);
-    ch[1] = 0b10000000 | (byte & 0x3f);
-    ch[2] = 0;
-    return Nst_string_new_allocated(ch, 2);
+    if (Nst_HAS_FLAG(str, Nst_FLAG_STR_IS_ASCII)) {
+        i8 *c_buf = Nst_malloc_c(2, i8);
+        if (c_buf == NULL)
+            return NULL;
+        c_buf[0] = str->value[idx];
+        c_buf[1] = 0;
+        return Nst_string_new_allocated(c_buf, 1);
+    }
+
+    if (Nst_HAS_FLAG(str, Nst_FLAG_STR_INDEX_16)) {
+        i8 *c_buf = Nst_calloc_c(4, i8, NULL);
+        if (c_buf == NULL)
+            return NULL;
+        u32 c = ((u16 *)(str->indexable_str))[idx];
+        Nst_ext_utf8_from_utf32(c, (u8 *)c_buf);
+        return Nst_string_new_allocated(c_buf, strlen(c_buf));
+    }
+
+    if (Nst_HAS_FLAG(str, Nst_FLAG_STR_INDEX_32)) {
+        i8 *c_buf = Nst_calloc_c(5, i8, NULL);
+        if (c_buf == NULL)
+            return NULL;
+        u32 c = ((u32 *)(str->indexable_str))[idx];
+        Nst_ext_utf8_from_utf32(c, (u8 *)c_buf);
+        return Nst_string_new_allocated(c_buf, strlen(c_buf));
+    }
+
+    Nst_set_value_error_c(_Nst_EM_STR_INDEX_FAILED);
+    return NULL;
+}
+
+bool _Nst_string_get_next_ch(Nst_StrObj *str, isize *ch_idx, Nst_Obj **out_ch)
+{
+    if (out_ch != NULL)
+        *out_ch = NULL;
+    isize idx = *ch_idx;
+
+    if (idx >= (isize)str->len || idx < 0)
+        return false;
+
+    i32 ch_len = Nst_check_ext_utf8_bytes(
+        (u8 *)str->value,
+        str->len - idx);
+
+    if (ch_len == -1) {
+        *ch_idx = -1;
+        Nst_set_value_errorf(
+            _Nst_EM_INVALID_ENCODING,
+            *(u8 *)str->value,
+            Nst_cp_ext_utf8.name);
+        return false;
+    }
+
+    if (out_ch == NULL) {
+        *ch_idx += ch_len;
+        return true;
+    }
+
+    i8 *ch_buf = Nst_malloc_c(ch_len + 1, i8);
+    if (ch_buf == NULL) {
+        *ch_idx = -1;
+        return false;
+    }
+
+    memcpy(ch_buf, str->value + idx, (usize)ch_len);
+    ch_buf[ch_len] = 0;
+
+    *out_ch = Nst_string_new_len(ch_buf, ch_len, 1, true);
+    *ch_idx += ch_len;
+
+    if (*out_ch == NULL) {
+        *ch_idx = -1;
+        return false;
+    }
+
+    return true;
+}
+
+usize _Nst_str_len(Nst_StrObj *str)
+{
+    return str->true_len;
+}
+
+usize _Nst_str_buf_len(Nst_StrObj *str)
+{
+    return str->len;
+}
+
+const i8 *_Nst_str_buf(Nst_StrObj *str)
+{
+    return (const i8 *)str->value;
 }
 
 void _Nst_string_destroy(Nst_StrObj *str)
@@ -255,6 +432,8 @@ void _Nst_string_destroy(Nst_StrObj *str)
         return;
     if (Nst_STR_IS_ALLOC(str))
         Nst_free(str->value);
+    if (str->indexable_str != NULL)
+        Nst_free(str->indexable_str);
 }
 
 Nst_Obj *Nst_string_parse_int(Nst_StrObj *str, i32 base)

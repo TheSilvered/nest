@@ -114,6 +114,9 @@ extern "C" {
 /**
  * Prints a string to the Nest standard output.
  *
+ * @brief Warning: do not use this function to print `Nst_StrObj` objects, use
+ * `Nst_fwrite` instead.
+ *
  * @param buf: the NUL-terminated string to print
  *
  * @return The number of bytes written. If the file is closed `-1` is returned.
@@ -122,6 +125,9 @@ extern "C" {
 NstEXP isize NstC Nst_print(const i8 *buf);
 /**
  * Prints a string to a Nest file object.
+ *
+ * @brief Warning: do not use this function to print `Nst_StrObj` objects, use
+ * `Nst_fwrite` instead.
  *
  * @param f: the file to print the string to
  * @param buf: the NUL-terminated string to print
@@ -133,6 +139,9 @@ NstEXP isize NstC Nst_fprint(Nst_IOFileObj *f, const i8 *buf);
 
 /**
  * Prints a string to the Nest standard output appending a newline character.
+ *
+ * @brief Warning: do not use this function to print `Nst_StrObj` objects, use
+ * `Nst_fwrite` instead.
  *
  * @brief On all platforms only a newline (U+000A) is appended, NOT a carriage
  * return.
@@ -148,6 +157,9 @@ NstEXP isize NstC Nst_println(const i8 *buf);
  *
  * @brief On all platforms only a newline (U+000A) is appended, NOT a carriage
  * return.
+ *
+ * @brief Warning: do not use this function to print `Nst_StrObj` objects, use
+ * `Nst_fwrite` instead.
  *
  * @param f: the file to print the string to
  * @param buf: the NUL-terminated string to print

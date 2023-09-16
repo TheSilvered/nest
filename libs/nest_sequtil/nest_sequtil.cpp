@@ -261,15 +261,22 @@ Nst_FUNC_SIGN(slice_)
         Nst_dec_ref(seq);
         return new_seq;
     } else {
-        i8 *buf = Nst_malloc_c(new_size + 1, i8);
+        isize new_len = 0;
+        for (isize i = 0; i < new_size; i++)
+            new_len += STR(seq->objs[i * step + start])->len;
+
+        i8 *buf = Nst_malloc_c(new_len + 1, i8);
         if (buf == nullptr)
             return nullptr;
 
-        for (isize i = 0; i < new_size; i++)
-            buf[i] = STR(seq->objs[i * step + start])->value[0];
-        buf[new_size] = 0;
+        for (isize i = 0; i < new_len;) {
+            Nst_StrObj *s = STR(seq->objs[i * step + start]);
+            memcpy(buf + i, s->value, s->len);
+            i += s->len;
+        }
+        buf[new_len] = 0;
         Nst_dec_ref(seq);
-        return Nst_string_new(buf, new_size, true);
+        return Nst_string_new(buf, new_len, true);
     }
 }
 

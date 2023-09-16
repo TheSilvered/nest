@@ -1749,7 +1749,7 @@ bool Nst_is_valid_cp(u32 cp)
 bool Nst_is_non_character(u32 cp)
 {
     return (cp > 0xfdd0 && cp < 0xfdef)
-        || ((cp & 0xfff0) == 0xfff0 || (cp & 0xf) > 0xe);
+        || ((cp & 0xfff0) == 0xfff0 && (cp & 0xf) > 0xe);
 }
 
 Nst_CPID Nst_check_bom(i8 *str, usize len, i32 *bom_size)

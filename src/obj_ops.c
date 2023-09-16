@@ -850,7 +850,7 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
         i32 len = sprintf(
             buffer,
             "<%s object at 0x%0*zX>",
-            Nst_TYPE_STR(ob->type)->value,
+            TYPE_NAME(ob),
             (int)sizeof(usize) * 2,
             (usize)ob);
         return Nst_string_new_allocated(buffer, len);
@@ -934,19 +934,25 @@ static Nst_Obj *seq_to_seq(Nst_Obj *ob, bool is_vect)
 
 static Nst_Obj *str_to_seq(Nst_Obj *ob, bool is_vect)
 {
-    usize str_len = STR(ob)->len;
+    usize str_len = STR(ob)->true_len;
     Nst_SeqObj *seq = is_vect ? SEQ(Nst_vector_new(str_len))
                               : SEQ(Nst_array_new(str_len));
     if (seq == NULL)
         return NULL;
-    for (usize i = 0; i < str_len; i++) {
-        seq->objs[i] = Nst_string_get(ob, i);
-        if (seq->objs[i] == NULL) {
-            seq->len = i;
-            Nst_dec_ref(seq);
-            return NULL;
-        }
+
+    Nst_Obj *ch;
+    isize idx = 0;
+    isize i = 0;
+
+    while (Nst_string_get_next_ch(ob, &idx, &ch))
+        seq->objs[i++] = ch;
+
+    if (idx == -1) {
+        seq->len = i;
+        Nst_dec_ref(seq);
+        return NULL;
     }
+
     return OBJ(seq);
 }
 
@@ -1253,7 +1259,14 @@ Nst_Obj *_Nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2)
     memcpy(buffer + len1, s2, len2);
     buffer[tot_len] = '\0';
 
-    Nst_Obj *new_obj = Nst_string_new(buffer, tot_len, true);
+    Nst_Obj *new_obj = Nst_string_new_len(
+        buffer,
+        tot_len,
+        nst_s1->true_len + nst_s2->true_len,
+        true);
+
+    if (new_obj == NULL)
+        Nst_free(buffer);
 
     Nst_dec_ref(ob1);
     Nst_dec_ref(ob2);
@@ -1317,7 +1330,7 @@ Nst_Obj *_Nst_obj_neg(Nst_Obj *ob)
 Nst_Obj *_Nst_obj_len(Nst_Obj *ob)
 {
     if (ob->type == Nst_t.Str)
-        return Nst_int_new(STR(ob)->len);
+        return Nst_int_new(STR(ob)->true_len);
     else if (ob->type == Nst_t.Map)
         return Nst_int_new(MAP(ob)->len);
     else if (IS_SEQ(ob))
@@ -1412,7 +1425,7 @@ Nst_Obj *_Nst_obj_stdin(Nst_Obj *ob)
         return Nst_string_new_c("", 0, false);
 
     ob = Nst_obj_cast(ob, Nst_t.Str);
-    Nst_print(STR(ob)->value);
+    Nst_fwrite(STR(ob)->value, STR(ob)->len, NULL, Nst_io.out);
     Nst_fflush(Nst_io.out);
     Nst_dec_ref(ob);
 
@@ -1646,13 +1659,25 @@ Nst_StrObj *_Nst_get_import_path(i8 *initial_path, usize path_len)
     usize new_len = Nst_get_full_path(initial_path, &file_path, NULL);
     FILE *file;
 
-    if (file_path != NULL && (file = fopen(file_path, "r")) != NULL) {
-        Nst_error_clear();
-        fclose(file);
-        Nst_Obj *path_str = Nst_string_new(file_path, new_len, true);
-        if (path_str == NULL)
-            Nst_free(file_path);
-        return STR(path_str);
+    if (file_path != NULL) {
+#ifdef Nst_WIN
+        wchar_t *wide_filename = Nst_char_to_wchar_t(file_path, new_len);
+        if (wide_filename == NULL)
+            return NULL;
+
+        file = _wfopen(wide_filename, L"rb");
+        Nst_free(wide_filename);
+#else
+        file = fopen(file_path, "rb");
+#endif
+        if (file != NULL) {
+            Nst_error_clear();
+            fclose(file);
+            Nst_Obj *path_str = Nst_string_new(file_path, new_len, true);
+            if (path_str == NULL)
+                Nst_free(file_path);
+            return STR(path_str);
+        }
     }
 
     if (file_path != NULL) {
@@ -1701,7 +1726,18 @@ Nst_StrObj *_Nst_get_import_path(i8 *initial_path, usize path_len)
 
 #endif // !Nst_WIN
 
-    if ((file = fopen(file_path, "r")) == NULL) {
+#ifdef Nst_WIN
+    wchar_t *wide_filename = Nst_char_to_wchar_t(file_path, strlen(file_path));
+    if (wide_filename == NULL)
+        return NULL;
+
+    file = _wfopen(wide_filename, L"rb");
+    Nst_free(wide_filename);
+#else
+    file = fopen(file_path, "rb");
+#endif
+
+    if (file == NULL) {
         Nst_set_value_error(Nst_sprintf(_Nst_EM_FILE_NOT_FOUND, file_path));
         Nst_free(file_path);
         return NULL;

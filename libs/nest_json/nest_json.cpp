@@ -55,7 +55,17 @@ Nst_FUNC_SIGN(load_f_)
     Nst_StrObj *path;
     Nst_DEF_EXTRACT("s", &path);
 
+#ifdef Nst_WIN
+    wchar_t *wide_filename = Nst_char_to_wchar_t(path->value, path->len);
+    if (wide_filename == nullptr)
+        return nullptr;
+
+    FILE *f = _wfopen(wide_filename, L"rb");
+    Nst_free(wide_filename);
+#else
     FILE *f = fopen(path->value, "rb");
+#endif
+
     if (f == nullptr) {
         Nst_set_value_error_c("file not found");
         return nullptr;
@@ -102,7 +112,17 @@ Nst_FUNC_SIGN(dump_f_)
     Nst_DEF_EXTRACT("so?i", &path, &obj, &indent_obj);
     i64 indent = Nst_DEF_VAL(indent_obj, AS_INT(indent_obj), 0);
 
+#ifdef Nst_WIN
+    wchar_t *wide_filename = Nst_char_to_wchar_t(path->value, path->len);
+    if (wide_filename == nullptr)
+        return nullptr;
+
+    FILE *f = _wfopen(wide_filename, L"wb");
+    Nst_free(wide_filename);
+#else
     FILE *f = fopen(path->value, "wb");
+#endif
+
     if (f == nullptr) {
         Nst_set_value_error_c("file not found");
         return nullptr;

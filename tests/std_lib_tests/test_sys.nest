@@ -30,7 +30,7 @@ sys.putenv { 'Invalid\0name', 'hellovalue' } @test.assert_raises_error
 sys.putenv { 'validname', 'invalid\0value' } @test.assert_raises_error
 
 'Hello' @sys.get_ref_count 2 @test.assert_eq
-'sys.get_addr: 0x'(10 @sys.get_addr @su.hex 16 '0' @su.rjust) >< @test.println
+'sys.get_addr: 0x'(10 @sys.get_addr @su.hex -16 '0' @su.justify) >< @test.println
 10 @sys.hash 10 @test.assert_eq
 -1 @sys.hash -2 @test.assert_eq
 ?::sys.VERSION Str @test.assert_eq

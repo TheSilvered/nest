@@ -858,7 +858,8 @@ Nst_FUNC_SIGN(println_)
     }
 
     Nst_StrObj *s_obj = STR(Nst_obj_cast(obj, Nst_type()->Str));
-    Nst_fprintln(file, (const i8 *)s_obj->value);
+    Nst_fwrite(s_obj->value, s_obj->len, NULL, file);
+    Nst_fprintln(file, "");
 
     if (flush)
         Nst_fflush(file);

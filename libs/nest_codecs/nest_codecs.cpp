@@ -2,7 +2,7 @@
 #include <cstdlib>
 #include "nest_codecs.h"
 
-#define FUNC_COUNT 6
+#define FUNC_COUNT 3
 
 #define SET_INVALID_UTF8                                                      \
     Nst_set_value_error_c("the string is not valid UTF-8")
@@ -15,9 +15,6 @@ bool lib_init()
 {
     usize idx = 0;
 
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_len_,     1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_at_,      2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(to_iter_,     1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(from_cp_,     1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(to_cp_,       1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(cp_is_valid_, 1);
@@ -33,122 +30,6 @@ bool lib_init()
 Nst_DeclrList *get_func_ptrs()
 {
     return lib_init_ ? &obj_list_ : nullptr;
-}
-
-Nst_FUNC_SIGN(utf8_iter_start)
-{
-    Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    AS_INT(objs[0]) = 0;
-    Nst_RETURN_NULL;
-}
-
-Nst_FUNC_SIGN(utf8_iter_get_val)
-{
-    Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    Nst_StrObj *str = (Nst_StrObj *)objs[1];
-    usize s_len = str->len;
-    i64 idx = AS_INT(objs[0]);
-
-    if ((usize)idx >= s_len)
-        return Nst_iend_ref();
-
-    i32 res = Nst_check_ext_utf8_bytes(
-        (u8 *)str->value + idx,
-        s_len - (usize)idx);
-    if (res == -1) {
-        SET_INVALID_UTF8;
-        return nullptr;
-    }
-    i8 *new_s = Nst_malloc_c(res + 1, i8);
-    if (new_s == nullptr)
-        return nullptr;
-
-    memcpy(new_s, str->value + idx, res);
-    new_s[res] = '\0';
-    AS_INT(objs[0]) += res;
-
-    return Nst_string_new(new_s, res, true);
-}
-
-Nst_FUNC_SIGN(get_len_)
-{
-    Nst_StrObj *str;
-    Nst_DEF_EXTRACT("s", &str);
-
-    u8 *s = (u8 *)str->value;
-    usize len = 0;
-
-    for (usize i = 0, n = str->len; i < n; len++) {
-        i32 res = Nst_check_ext_utf8_bytes(s + i, n - i);
-        if (res == -1) {
-            SET_INVALID_UTF8;
-            return nullptr;
-        }
-        i += res;
-    }
-
-    return Nst_int_new(len);
-}
-
-Nst_FUNC_SIGN(get_at_)
-{
-    Nst_StrObj *str;
-    i64 idx;
-    Nst_DEF_EXTRACT("si", &str, &idx);
-
-    u8 *s = (u8 *)str->value;
-    usize u_len = 0;
-    usize s_len = str->len;
-    i64 curr_idx = 0;
-    usize i = 0;
-    i32 res;
-
-    for (; i < s_len && curr_idx < idx; curr_idx++, u_len++) {
-        res = Nst_check_ext_utf8_bytes(s + i, s_len - i);
-        if (res == -1) {
-            SET_INVALID_UTF8;
-            return nullptr;
-        }
-        i += res;
-    }
-
-    if (curr_idx < idx || i == s_len) {
-        Nst_set_value_error(Nst_sprintf(
-            _Nst_EM_INDEX_OUT_OF_BOUNDS("Str (Unicode)"),
-            idx, u_len));
-        return nullptr;
-    }
-
-    res = Nst_check_ext_utf8_bytes(s + i, s_len - i);
-    if (res == -1) {
-        SET_INVALID_UTF8;
-        return nullptr;
-    }
-
-    i8 *new_s = Nst_malloc_c(res + 1, i8);
-    if (new_s == nullptr)
-        return nullptr;
-
-    memcpy(new_s, s + i, res);
-    new_s[res] = '\0';
-    return Nst_string_new(new_s, res, true);
-}
-
-Nst_FUNC_SIGN(to_iter_)
-{
-    Nst_Obj *str;
-
-    Nst_DEF_EXTRACT("s", &str);
-
-    // Layout: [idx, str]
-    Nst_Obj *arr = Nst_array_create_c("iO", 0, str);
-
-    return Nst_iter_new(
-        FUNC(Nst_func_new_c(1, utf8_iter_start)),
-        FUNC(Nst_func_new_c(1, utf8_iter_get_val)),
-        arr);
 }
 
 Nst_FUNC_SIGN(from_cp_)
@@ -171,8 +52,8 @@ Nst_FUNC_SIGN(from_cp_)
         return nullptr;
     }
 
-    u8 *str = Nst_malloc_c(5, u8);
-    if (str == NULL)
+    u8 *str = Nst_calloc_c(5, u8, nullptr);
+    if (str == nullptr)
         return nullptr;
 
     i32 len = Nst_utf8_from_utf32((u32)cp, str);
@@ -184,13 +65,7 @@ Nst_FUNC_SIGN(to_cp_)
     Nst_StrObj *str;
     Nst_DEF_EXTRACT("s", &str);
 
-    usize str_len = str->len;
-    if (str_len > 4) {
-        Nst_set_value_error_c("the string must contain only one character");
-        return nullptr;
-    }
-
-    if (Nst_check_ext_utf8_bytes((u8 *)str->value, str_len) != (i32)str_len) {
+    if (str->true_len != 1) {
         Nst_set_value_error_c("the string must contain only one character");
         return nullptr;
     }
@@ -204,5 +79,5 @@ Nst_FUNC_SIGN(cp_is_valid_)
     i64 cp;
     Nst_DEF_EXTRACT("l", &cp);
 
-    Nst_RETURN_COND(cp < 0 || cp > UINT32_MAX || !Nst_is_valid_cp((u32)cp));
+    Nst_RETURN_COND(cp >= 0 && cp <= UINT32_MAX && Nst_is_valid_cp((u32)cp));
 }

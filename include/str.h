@@ -26,6 +26,9 @@
 #define Nst_string_repr(src) _Nst_string_repr(STR(src))
 /* Alias of `_Nst_string_get` that casts `str` to `Nst_StrObj *`. */
 #define Nst_string_get(str, idx) _Nst_string_get(STR(str), idx)
+/* Alias of `_Nst_string_get_next_ch` that casts `str` to `Nst_StrObj *`. */
+#define Nst_string_get_next_ch(str, idx, out_ch)                              \
+    _Nst_string_get_next_ch(STR(str), idx, out_ch)
 
 #ifdef __cplusplus
 extern "C" {
@@ -34,20 +37,25 @@ extern "C" {
 /**
  * Structure representing a Nest string.
  *
- * @param len: the length of the string
+ * @param len: the length in bytes of `value`
+ * @param true_len: the length in characters of `value`
  * @param value: the value of the string
+ * @param indexable_str: the string in UTF-16 or UTF-32 depending on the
+ * characters it contains
  */
 NstEXP typedef struct _Nst_StrObj {
     Nst_OBJ_HEAD;
     usize len;
+    usize true_len;
     i8 *value;
+    u8 *indexable_str;
 } Nst_StrObj;
 
 /**
  * Creates a new string object with a value taken from a C string of unknown
  * length.
  *
- * @param val: the value of the string
+ * @param val: the value of the string in extUTF-8 encoding
  * @param allocated: whether the value is heap allocated and should be freed
  * with the string
  *
@@ -57,8 +65,8 @@ NstEXP Nst_Obj *NstC Nst_string_new_c_raw(const i8 *val, bool allocated);
 /**
  * Creates a new string object from a string literal of known length.
  *
- * @param val: the value of the string
- * @param len: the length of the string literal
+ * @param val: the value of the string in extUTF-8 encoding
+ * @param len: the length of `val` in bytes
  * @param allocated: whether the value is heap allocated and should be freed
  * with the string
  *
@@ -68,8 +76,8 @@ NstEXP Nst_Obj *NstC Nst_string_new_c(const i8 *val, usize len, bool allocated);
 /**
  * Creates a new string object.
  *
- * @param val: the value of the string to create
- * @param len: the length of the string
+ * @param val: the value of the string to create in extUTF-8 encoding
+ * @param len: the length of `val` in bytes
  * @param allocated: whether the value is heap allocated and should be freed
  * with the string
  *
@@ -82,11 +90,24 @@ NstEXP Nst_Obj *NstC Nst_string_new(i8 *val, usize len, bool allocated);
  * @brief val is freed if the string fails to be created.
  *
  * @param val: the value of the string to create
- * @param len: the length of the string
+ * @param len: the length of `val` in bytes
  *
  * @return The new string on success and `NULL` on failure. The error is set.
  */
 NstEXP Nst_Obj *NstC Nst_string_new_allocated(i8 *val, usize len);
+
+/**
+ * Creates a new string object with known length.
+ *
+ * @param val: the value of the string to create
+ * @param len: the length in characters of `val`
+ * @param true_len: the length in bytes  of `val`
+ * @param allocated: whether `val` is allocated on the heap
+ *
+ * @return The new string on success and `NULL` on failure. The error is set.
+ */
+NstEXP Nst_Obj *NstC Nst_string_new_len(i8 *val, usize len, usize true_len,
+                                        bool allocated);
 
 /**
  * Creates a new temporary read-only string object.
@@ -94,7 +115,10 @@ NstEXP Nst_Obj *NstC Nst_string_new_allocated(i8 *val, usize len);
  * @brief This object is not allocated on the heap and cannot be returned by
  * a function, its intended use is only on functions where a string object is
  * needed but you have the string in another form. Nothing is allocated and
- * it must not be destroyed in any way.
+ * it must not be destroyed in any way. `val` is assumed to contain only 7-bit
+ * ASCII characters. If it can be indexed and it may not contain only those
+ * characters, create a string with `Nst_string_new` or other similar
+ * functions.
  *
  * @param val: the value of the string
  * @param len: the length of the string
@@ -140,6 +164,26 @@ NstEXP Nst_Obj *NstC _Nst_string_repr(Nst_StrObj *src);
  * The function fails if the index falls outside the string.
  */
 NstEXP Nst_Obj *NstC _Nst_string_get(Nst_StrObj *str, i64 idx);
+/**
+ * Gets a character in a string given an index.
+ *
+ * @brief `ch_idx` is an in-out parameter and is set to the starting index of
+ * the next character. `out_ch` can be `NULL` in which case only the index is
+ * set.
+ *
+ * @param str: the string to get the next character of
+ * @param ch_idx: the starting index of the character (it may not correspond
+ * to the index in Nest)
+ * @param out_ch: the pointer where the new character is placed
+ *
+ * @return The function returns `true` if the character was taken succesfully
+ * and `false` if an error occurred or `ch_idx` is outside the string. The
+ * error is set only when an internal call fails or `ch_idx` does not point to
+ * the start of a character. When an error occurrs `ch_idx` is set to `-1`.
+ * No error is set if `ch_idx` is outside the string's range.
+ */
+NstEXP bool NstC _Nst_string_get_next_ch(Nst_StrObj *str, isize *ch_idx,
+                                         Nst_Obj **out_ch);
 
 /**
  * Parses a `Nst_IntObj` from a string.
@@ -213,7 +257,11 @@ NstEXP i8 *NstC Nst_string_find(i8 *s1, usize l1, i8 *s2, usize l2);
 
 /* `Nst_StrObj`-specific flags. */
 NstEXP typedef enum _Nst_StrFlags {
-    Nst_FLAG_STR_IS_ALLOC = 0b1
+    Nst_FLAG_STR_IS_ALLOC  = Nst_FLAG(1),
+    Nst_FLAG_STR_IS_ASCII  = Nst_FLAG(2),
+    Nst_FLAG_STR_INDEX_16  = Nst_FLAG(3),
+    Nst_FLAG_STR_INDEX_32  = Nst_FLAG(4),
+    Nst_FLAG_STR_CAN_INDEX = Nst_FLAG(5)
 } Nst_StrFlags;
 
 #ifdef __cplusplus

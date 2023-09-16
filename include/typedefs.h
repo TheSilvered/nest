@@ -12,6 +12,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <assert.h>
 
 #if defined(_WIN32) || defined(WIN32)
 /* Defined when compiling on MS Windows. */
@@ -134,6 +135,8 @@
  */
 #define Nst_TRACK_OBJ_INIT_POS
 #endif
+
+#define _Nst_ASSERT_TYPE(ob, t_name) assert((ob)->type == Nst_t.t_name)
 
 #if !defined(_DEBUG) && defined(Nst_TRACK_OBJ_INIT_POS)
 #undef Nst_TRACK_OBJ_INIT_POS

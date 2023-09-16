@@ -94,7 +94,17 @@ Nst_LList *Nst_tokenizef(i8 *filename, Nst_CPID encoding, i32 *opt_level,
     *opt_level = 3;
     *no_default = false;
 
+#ifdef Nst_WIN
+    wchar_t *wide_filename = Nst_char_to_wchar_t(filename, strlen(filename));
+    if (wide_filename == NULL)
+        return NULL;
+
+    FILE *file = _wfopen(wide_filename, L"rb");
+    Nst_free(wide_filename);
+#else
     FILE *file = fopen(filename, "rb");
+#endif
+
     if (file == NULL) {
         Nst_fprint(Nst_io.err, "File \"");
         Nst_fprint(Nst_io.err, (const i8 *)filename);
@@ -735,7 +745,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
         }
         case 'u':
         case 'U': {
-            i32 size = cursor.ch == 'U' ? 8 : 4;
+            i32 size = cursor.ch == 'U' ? 6 : 4;
             if ((usize)cursor.idx + size >= cursor.len)
                 SET_INVALID_ESCAPE_ERROR;
 

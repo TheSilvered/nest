@@ -3,8 +3,24 @@
 #include "global_consts.h"
 #include "mem.h"
 
+static bool check_type_name(const u8 *name)
+{
+    u8 c = *name++;
+    while (c) {
+        if (c >= 0x80) {
+            Nst_set_value_error_c(_Nst_EM_BAD_TYPE_NAME);
+            return false;
+        }
+        c = *name++;
+    }
+    return true;
+}
+
 Nst_TypeObj *Nst_type_new(const i8 *name, Nst_ObjDstr dstr)
 {
+    if (!check_type_name((const u8 *)name))
+        return NULL;
+
     Nst_TypeObj *type = Nst_obj_alloc(Nst_TypeObj, Nst_t.Type);
     if (type == NULL)
         return NULL;
@@ -20,6 +36,9 @@ Nst_TypeObj *Nst_type_new(const i8 *name, Nst_ObjDstr dstr)
 Nst_TypeObj *Nst_cont_type_new(const i8 *name, Nst_ObjDstr dstr,
                                Nst_ObjTrav trav)
 {
+    if (!check_type_name((const u8 *)name))
+        return NULL;
+
     Nst_ContTypeObj *type = Nst_obj_alloc(Nst_ContTypeObj, Nst_t.Type);
     if (type == NULL)
         return NULL;

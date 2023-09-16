@@ -125,24 +125,24 @@ lines.
 To escape a character you can use a backslash `\` before the character and here
 are all the valid escape sequences:
 
-| Sequence | Hex Value | Name                      |
-|:---------|:---------:|:--------------------------|
-| `\\`     | `5c`      | Backslash                 |
-| `\'`     | `27`      | Single quote              |
-| `\"`     | `22`      | Double quotes             |
-| `\a`     | `07`      | Alert / Bell              |
-| `\b`     | `08`      | Backspace                 |
-| `\e`     | `1b`      | Backspace                 |
-| `\f`     | `0c`      | Form feed / Page break    |
-| `\n`     | `0a`      | Line feed / Newline       |
-| `\r`     | `0d`      | Carriage return           |
-| `\t`     | `09`      | Horizontal tab            |
-| `\v`     | `0b`      | Vertical tab              |
-| `\xhh`   | -         | Hexadecimal byte          |
-| `\ooo`   | -         | Octal byte                |
-| `\uhhhh` | -         | Any BMP Unicode character |
-| `\Uhhhhhhhh` | -     | Any Unicode character     |
-| `\(...)` | -         | A Nest expression         |
+| Sequence   | Hex Value | Name                      |
+|:-----------|:---------:|:--------------------------|
+| `\\`       | `5c`      | Backslash                 |
+| `\'`       | `27`      | Single quote              |
+| `\"`       | `22`      | Double quotes             |
+| `\a`       | `07`      | Alert / Bell              |
+| `\b`       | `08`      | Backspace                 |
+| `\e`       | `1b`      | Backspace                 |
+| `\f`       | `0c`      | Form feed / Page break    |
+| `\n`       | `0a`      | Line feed / Newline       |
+| `\r`       | `0d`      | Carriage return           |
+| `\t`       | `09`      | Horizontal tab            |
+| `\v`       | `0b`      | Vertical tab              |
+| `\xhh`     | -         | Hexadecimal byte          |
+| `\ooo`     | -         | Octal byte                |
+| `\uhhhh`   | -         | Any BMP Unicode character |
+| `\Uhhhhhh` | -         | Any Unicode character     |
+| `\(...)`   | -         | A Nest expression         |
 
 !!!note
     `h` represents a hexadecimal byte (`0-9`, `a-f` or `A-F`) and `o` an

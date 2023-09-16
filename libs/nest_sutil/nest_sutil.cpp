@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include "nest_sutil.h"
 
-#define FUNC_COUNT 31
+#define FUNC_COUNT 30
 
 static Nst_ObjDeclr func_list_[FUNC_COUNT];
 static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
@@ -20,8 +20,7 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(trim_,  1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(ltrim_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(rtrim_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(ljust_, 3);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(rjust_, 3);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(justify_, 3);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(center_, 3);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(to_title_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(to_upper_, 1);
@@ -235,113 +234,147 @@ Nst_FUNC_SIGN(rtrim_)
     return Nst_string_new(new_str, len, true);
 }
 
-Nst_FUNC_SIGN(ljust_)
+static void fill_ch_str(i8 *str, i8 *ch, usize ch_size, usize count)
 {
-    Nst_StrObj *str;
-    i64 just_len;
-    Nst_Obj *just_char;
-
-    Nst_DEF_EXTRACT("s i ?s", &str, &just_len, &just_char);
-
-    usize len = str->len;
-
-    if (just_len <= (i64)len)
-        return Nst_inc_ref(args[0]);
-
-    i8 just_ch;
-
-    if (just_char == Nst_null())
-        just_ch = ' ';
+    if (ch_size == 1)
+        memset(str, *ch, count);
     else {
-        if (STR(just_char)->len != 1) {
-            Nst_set_value_error_c(
-                "filling string must be one character long");
-            return nullptr;
-        }
-        just_ch = *STR(just_char)->value;
+        for (usize i = 0, n = count * ch_size; i < n; i += ch_size)
+            memcpy(str + i, ch, ch_size);
     }
-
-    i8 *new_str = Nst_malloc_c((usize)just_len + 1, i8);
-    if (new_str == nullptr)
-        return nullptr;
-    memcpy(new_str, str->value, len);
-    memset(new_str + len, just_ch, (usize)(just_len - len));
-    new_str[just_len] = 0;
-
-    return Nst_string_new(new_str, (usize)just_len, true);
 }
 
-Nst_FUNC_SIGN(rjust_)
+static Nst_Obj *justify_left(Nst_StrObj *str, i64 just_len, i8 *fill_ch,
+                             usize fill_ch_len)
+{
+    usize fill_len = just_len - str->true_len;
+    usize str_len = str->len;
+    usize new_str_len = str_len + fill_ch_len * fill_len;
+
+    i8 *new_str = Nst_malloc_c(new_str_len + 1, i8);
+    if (new_str == nullptr)
+        return nullptr;
+
+    memcpy(new_str, str->value, str_len);
+    fill_ch_str(new_str + str_len, fill_ch, fill_ch_len, fill_len);
+
+    new_str[str_len + fill_ch_len * fill_len] = 0;
+    Nst_Obj *new_str_obj = Nst_string_new_len(
+        new_str,
+        new_str_len,
+        just_len,
+        true);
+    if (new_str_obj == nullptr)
+        Nst_free(new_str);
+    return new_str_obj;
+}
+
+static Nst_Obj *justify_right(Nst_StrObj *str, i64 just_len, i8 *fill_ch,
+                              usize fill_ch_len)
+{
+    usize fill_len = just_len - str->true_len;
+    usize str_len = str->len;
+    usize new_str_len = str_len + fill_ch_len * fill_len;
+
+    i8 *new_str = Nst_malloc_c(new_str_len + 1, i8);
+    if (new_str == nullptr)
+        return nullptr;
+
+    fill_ch_str(new_str, fill_ch, fill_ch_len, fill_len);
+    memcpy(new_str + fill_len * fill_ch_len, str->value, str_len);
+    new_str[str_len + fill_ch_len * fill_len] = 0;
+    Nst_Obj *new_str_obj = Nst_string_new_len(
+        new_str,
+        new_str_len,
+        just_len,
+        true);
+    if (new_str_obj == nullptr)
+        Nst_free(new_str);
+    return new_str_obj;
+}
+
+static bool check_just_args(usize arg_num, Nst_Obj **args, Nst_StrObj *&str,
+                            i64 &just_len, i8 *&fill_ch, usize &fill_ch_len)
+{
+    Nst_StrObj *just_ch_obj;
+    Nst_DEF_EXTRACT("s i ?s", &str, &just_len, &just_ch_obj);
+
+    usize fill_ch_true_len;
+
+    if (OBJ(just_ch_obj) == Nst_null()) {
+        fill_ch = (i8 *)" ";
+        fill_ch_len = 1;
+        fill_ch_true_len = 1;
+    } else {
+        fill_ch = just_ch_obj->value;
+        fill_ch_len = just_ch_obj->len;
+        fill_ch_true_len = just_ch_obj->true_len;
+    }
+
+    if (fill_ch_true_len != 1) {
+        Nst_set_value_error_c("filling string must be one character long");
+        return false;
+    }
+    return true;
+}
+
+Nst_FUNC_SIGN(justify_)
 {
     Nst_StrObj *str;
     i64 just_len;
-    Nst_Obj *just_char;
+    i8 *fill_ch;
+    usize fill_ch_len;
 
-    Nst_DEF_EXTRACT("s i ?s", &str, &just_len, &just_char);
-
-    usize len = str->len;
-
-    if (just_len <= (i64)len)
-        return Nst_inc_ref(args[0]);
-
-    i8 just_ch;
-
-    if (just_char == Nst_null())
-        just_ch = ' ';
-    else {
-        if (STR(just_char)->len != 1) {
-            Nst_set_value_error_c(
-                "filling string must be one character long");
-            return nullptr;
-        }
-        just_ch = *STR(just_char)->value;
-    }
-
-    i8 *new_str = Nst_malloc_c((usize)just_len + 1, i8);
-    if (new_str == nullptr)
+    if (!check_just_args(arg_num, args, str, just_len, fill_ch, fill_ch_len))
         return nullptr;
-    memset(new_str, just_ch, (usize)(just_len - len));
-    memcpy(new_str + (just_len - len), str->value, len);
-    new_str[just_len] = 0;
 
-    return Nst_string_new(new_str, (usize)just_len, true);
+    usize pos_just_len = just_len < 0 ? -just_len : just_len;
+
+    if (pos_just_len <= str->true_len)
+        return Nst_inc_ref(str);
+
+    if (just_len > 0)
+        return justify_left(str, just_len, fill_ch, fill_ch_len);
+    else
+        return justify_right(str, -just_len, fill_ch, fill_ch_len);
 }
 
 Nst_FUNC_SIGN(center_)
 {
     Nst_StrObj *str;
     i64 just_len;
-    Nst_Obj *just_char;
+    i8 *fill_ch;
+    usize fill_ch_len;
 
-    Nst_DEF_EXTRACT("s i ?s", &str, &just_len, &just_char);
+    if (!check_just_args(arg_num, args, str, just_len, fill_ch, fill_ch_len))
+        return nullptr;
 
-    usize len = str->len;
+    usize fill_len = just_len - str->true_len;
+    usize str_len = str->len;
+    usize new_str_len = str_len + fill_ch_len * fill_len;
 
-    if (just_len <= (i64)len)
-        return Nst_inc_ref(args[0]);
-
-    i8 just_ch;
-
-    if (just_char == Nst_null())
-        just_ch = ' ';
-    else {
-        if (STR(just_char)->len != 1) {
-            Nst_set_value_error_c(
-                "filling string must be one character long");
-            return nullptr;
-        }
-        just_ch = *STR(just_char)->value;
-    }
-
-    i8 *new_str = Nst_malloc_c((usize)just_len + 1, i8);
+    i8 *new_str = Nst_malloc_c(new_str_len + 1, i8);
     if (new_str == nullptr)
         return nullptr;
-    usize half = (usize)(just_len - len) / 2;
-    memset(new_str, just_ch, usize(just_len));
-    memcpy(new_str + half, str->value, len);
-    new_str[just_len] = 0;
 
-    return Nst_string_new(new_str, (usize)just_len, true);
+    usize half_fill = fill_len / 2;
+
+    fill_ch_str(new_str, fill_ch, fill_ch_len, half_fill);
+    memcpy(new_str + half_fill * fill_ch_len, str->value, str_len);
+    fill_ch_str(
+        new_str + half_fill * fill_ch_len + str_len,
+        fill_ch, fill_ch_len,
+        fill_len - half_fill); // not half_fill again becaues of odd fills
+
+    new_str[str_len + fill_ch_len * fill_len] = 0;
+    Nst_Obj *new_str_obj = Nst_string_new_len(
+        new_str,
+        new_str_len,
+        just_len,
+        true);
+    if (new_str_obj == nullptr)
+        Nst_free(new_str);
+    return new_str_obj;
 }
 
 Nst_FUNC_SIGN(to_title_)
@@ -533,24 +566,29 @@ Nst_FUNC_SIGN(is_charset_)
 
     Nst_DEF_EXTRACT("s s", &str1, &str2);
 
-    i8 *s1 = str1->value;
-    i8 *s2 = str2->value;
-    i8 *end1 = s1 + str1->len;
-    i8 *end2 = s2 + str2->len;
-    i8 *p2 = s2;
+    if (str1->len == 0)
+        Nst_RETURN_TRUE;
+    else if (str2->len == 0)
+        Nst_RETURN_FALSE;
 
-    while (s1 != end1) {
-        p2 = s2;
-        while (p2 != end2) {
-            if (*s1 == *p2)
+    isize i = 0;
+    u8 *p1 = (u8 *)str1->value;
+    u8 *p2 = (u8 *)str2->value;
+
+    do {
+        bool found_ch = false;
+        u32 ch1 = Nst_ext_utf8_to_utf32(p1 + i);
+        isize j = 0;
+        do {
+            u32 ch2 = Nst_ext_utf8_to_utf32(p2 + j);
+            if (ch1 == ch2) {
+                found_ch = true;
                 break;
-            ++p2;
-        }
-
-        if (p2 == end2)
+            }
+        } while (Nst_string_get_next_ch(str2, &j, NULL));
+        if (!found_ch)
             Nst_RETURN_FALSE;
-        ++s1;
-    }
+    } while (Nst_string_get_next_ch(str1, &i, NULL));
 
     Nst_RETURN_TRUE;
 }
@@ -564,9 +602,17 @@ Nst_FUNC_SIGN(is_printable_)
     i8 *s = str->value;
     i8 *end = s + str->len;
 
-    while (s != end) {
-        if (!isprint((u8)*s++))
+    while (s < end) {
+        i32 res = Nst_check_ext_utf8_bytes((u8 *)s, end - s);
+        u32 ch = Nst_ext_utf8_to_utf32((u8 *)s);
+        s += res;
+
+        if ((ch < 0x80 && !isprint((int)ch))
+            || !Nst_is_valid_cp(ch)
+            || Nst_is_non_character(ch))
+        {
             Nst_RETURN_FALSE;
+        }
     }
 
     Nst_RETURN_TRUE;

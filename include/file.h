@@ -107,7 +107,7 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_read_f)(i8 *buf, usize buf_size,
  *
  * @brief This function shall write the contents of buf to a file. If count is
  * not `NULL` it is filled with the number of characters written (or the number
- * of bytes if the file is in binary mode). buf shall contain UTF-8 text that
+ * of bytes if the file is in binary mode). `buf` shall contain UTF-8 text that
  * allows invalid characters under U+10FFFF.
  *
  * @return This function shall not return `Nst_IO_BUF_FULL`,
