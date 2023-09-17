@@ -1,5 +1,6 @@
 |#| 'stdio.nest' = io
 |#| 'stdsutil.nest' = su
+|#| 'stdsys.nest' = sys
 
 io.STDOUT = log_file -- allows tests to be ran singularly
 
@@ -43,6 +44,16 @@ io.STDOUT = log_file -- allows tests to be ran singularly
                          ?::func ' instead' ><)
     ?? args *@func ?! _ =>
     'The function did not fail' @_assertion_failed
+]
+
+#assert_obj_eq ob1 ob2 [
+    (ob1 @sys.get_addr) (ob2 @sys.get_addr) != ?
+        '\(ob1 @su.repr) and \(ob2 @su.repr) are different objects' @_assertion_failed
+]
+
+#assert_obj_ne ob1 ob2 [
+    (ob1 @sys.get_addr) (ob2 @sys.get_addr) == ?
+        '\(ob1 @su.repr) and \(ob2 @su.repr) are the same object' @_assertion_failed
 ]
 
 #println s [

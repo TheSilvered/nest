@@ -109,9 +109,6 @@ GUI_Element *gui_element_new(GUI_ElementType t, usize size, int x, int y,
                              int w, int h, struct _GUI_App *app,
                              void (*el_destructor)(void *));
 void gui_element_destroy(GUI_Element *obj);
-#if 0
-void gui_element_track(GUI_Element *obj);
-#endif
 void gui_element_traverse(GUI_Element *obj);
 void gui_element_set_margin(GUI_Element *obj, i32 margin_top, i32 margin_left,
                             i32 margin_bottom, i32 margin_right);

@@ -45,6 +45,8 @@
 #define Nst_seq_set(seq, idx, val) _Nst_seq_set(SEQ(seq), idx, OBJ(val))
 /* Alias for `_Nst_seq_get` that casts `seq` to `Nst_SeqObj *`. */
 #define Nst_seq_get(seq, idx) _Nst_seq_get(SEQ(seq), idx)
+/* Alias for `_Nst_seq_copy` that casts `seq` to `Nst_SeqObj *`. */
+#define Nst_seq_copy(seq) _Nst_seq_copy(SEQ(seq))
 
 /* Alias of `Nst_seq_set`. */
 #define Nst_vector_set Nst_seq_set
@@ -170,15 +172,20 @@ NstEXP Nst_Obj *NstC Nst_array_create_c(const i8 *fmt, ...);
  * @return The new array on success or `NULL` on failure. The error is set.
  */
 NstEXP Nst_Obj *NstC Nst_vector_create_c(const i8 *fmt, ...);
+/**
+ * Creates a shallow copy of a sequence.
+ *
+ * @param seq: the sequence to copy
+ *
+ * @return The new sequence or NULL on failure. The error is set.
+ */
+NstEXP Nst_Obj *NstC _Nst_seq_copy(Nst_SeqObj *seq);
 
 /* Destructor for sequence objects. */
 NstEXP void NstC _Nst_seq_destroy(Nst_SeqObj *seq);
 /* Traverse function for sequence objects. */
 NstEXP void NstC _Nst_seq_traverse(Nst_SeqObj *seq);
-#if 0
-/* Track function for sequence objects. */
-NstEXP void NstC _Nst_seq_track(Nst_SeqObj *seq);
-#endif
+
 
 /**
  * Changes the value of an index in a sequence.

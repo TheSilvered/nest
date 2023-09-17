@@ -3,7 +3,7 @@
 #include "nest_sequtil.h"
 #include "sequtil_i_functions.h"
 
-#define FUNC_COUNT 17
+#define FUNC_COUNT 18
 #define SORT_RUN_SIZE 32
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
@@ -17,14 +17,15 @@ bool lib_init()
 {
     usize idx = 0;
 
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(map_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(map_, 3);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(map_i_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(insert_at_, 3);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(remove_at_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(slice_, 4);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(slice_i_, 4);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(merge_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(sort_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(extend_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(sort_, 3);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(empty_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(filter_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(filter_i_, 2);
@@ -52,33 +53,46 @@ Nst_FUNC_SIGN(map_)
 {
     Nst_SeqObj *seq;
     Nst_FuncObj *func;
+    bool map_in_place;
 
-    Nst_DEF_EXTRACT("A f", &seq, &func);
+    Nst_DEF_EXTRACT("A f y", &seq, &func, &map_in_place);
 
     if (func->arg_num != 1) {
         Nst_set_value_error_c("the function must take exactly one argument");
         return nullptr;
     }
 
-    Nst_SeqObj *new_seq = Nst_T(seq, Array)
-        ? SEQ(Nst_array_new(seq->len))
-        : SEQ(Nst_vector_new(seq->len));
+    Nst_SeqObj *new_seq;
 
+    if (map_in_place)
+        new_seq = seq;
+    else {
+        new_seq = Nst_T(seq, Array)
+            ? SEQ(Nst_array_new(seq->len))
+            : SEQ(Nst_vector_new(seq->len));
+    }
+
+    Nst_Obj **objs = seq->objs;
     for (usize i = 0, n = seq->len; i < n; i++) {
         Nst_Obj *arg = Nst_seq_get(seq, i);
-        Nst_Obj *res = Nst_call_func(func, &arg);
+        Nst_Obj *res = Nst_call_func(func, objs + i);
 
         if (res == nullptr) {
-            new_seq->len = i;
-            Nst_dec_ref(new_seq);
+            if (!map_in_place) {
+                new_seq->len = i;
+                Nst_dec_ref(new_seq);
+            }
             return nullptr;
         }
+
+        if (map_in_place)
+            Nst_dec_ref(new_seq->objs[i]);
 
         new_seq->objs[i] = res;
         Nst_dec_ref(arg);
     }
 
-    return OBJ(new_seq);
+    return map_in_place ? Nst_inc_ref(new_seq) : OBJ(new_seq);
 }
 
 Nst_FUNC_SIGN(map_i_)
@@ -338,6 +352,20 @@ Nst_FUNC_SIGN(merge_)
     return OBJ(new_seq);
 }
 
+Nst_FUNC_SIGN(extend_)
+{
+    Nst_SeqObj *vec;
+    Nst_SeqObj *seq;
+
+    Nst_DEF_EXTRACT("v v|a|s|I:a", &vec, &seq);
+
+    Nst_Obj **seq_objs = seq->objs;
+    for (usize i = 0, n = seq->len; i < n; i++)
+        Nst_vector_append(vec, seq_objs[i]);
+
+    return Nst_inc_ref(vec);
+}
+
 typedef struct _MappedValue {
     Nst_Obj *mapped;
     Nst_Obj *original;
@@ -495,12 +523,15 @@ bool merge(Nst_Obj **values, usize left, usize mid, usize right,
     return true;
 }
 
-Nst_Obj *mapped_sort(Nst_SeqObj *seq, Nst_FuncObj *map_func)
+Nst_Obj *mapped_sort(Nst_SeqObj *seq, Nst_FuncObj *map_func, bool new_seq)
 {
     if (map_func->arg_num != 1) {
         Nst_set_call_error_c("the function must take exactly one argument");
         return nullptr;
     }
+
+    if (new_seq)
+        seq = SEQ(Nst_seq_copy(seq));
 
     usize seq_len = seq->len;
     Nst_Obj **objs = seq->objs;
@@ -552,12 +583,14 @@ Nst_Obj *mapped_sort(Nst_SeqObj *seq, Nst_FuncObj *map_func)
         Nst_dec_ref(values[i].mapped);
     }
     Nst_free(values);
-    return Nst_inc_ref(seq);
+    return new_seq ? OBJ(seq) : Nst_inc_ref(seq);
 
 fail:
     for (usize i = 0; i < seq_len; i++)
         Nst_dec_ref(values[i].mapped);
     Nst_free(values);
+    if (new_seq)
+        Nst_dec_ref(seq);
     return nullptr;
 }
 
@@ -565,11 +598,15 @@ Nst_FUNC_SIGN(sort_)
 {
     Nst_SeqObj *seq;
     Nst_Obj *map_func;
+    bool new_seq;
 
-    Nst_DEF_EXTRACT("A ?f", &seq, &map_func);
+    Nst_DEF_EXTRACT("A ?f y", &seq, &map_func, &new_seq);
 
     if (map_func != Nst_null())
-        return mapped_sort(seq, FUNC(map_func));
+        return mapped_sort(seq, FUNC(map_func), new_seq);
+
+    if (new_seq)
+        seq = SEQ(Nst_seq_copy(seq));
 
     usize seq_len = seq->len;
     Nst_Obj **objs = seq->objs;
@@ -578,8 +615,11 @@ Nst_FUNC_SIGN(sort_)
 
     for (usize i = 0; i < seq_len; i += SORT_RUN_SIZE) {
         isize right = MIN(i + SORT_RUN_SIZE, seq_len);
-        if (!insertion_sort(objs, i, right))
+        if (!insertion_sort(objs, i, right)) {
+            if (new_seq)
+                Nst_dec_ref(seq);
             return nullptr;
+        }
     }
 
     for (usize chunk_size = SORT_RUN_SIZE;
@@ -593,15 +633,18 @@ Nst_FUNC_SIGN(sort_)
             if (mid >= right)
                 continue;
 
-            if (!merge(objs, left, mid, right, buf, buf_size))
+            if (!merge(objs, left, mid, right, buf, buf_size)) {
+                if (new_seq)
+                    Nst_dec_ref(seq);
                 return nullptr; // buf is freed by merge
+            }
         }
     }
 
     if (buf != nullptr)
         Nst_free(buf);
 
-    return Nst_inc_ref(seq);
+    return new_seq ? OBJ(seq) : Nst_inc_ref(seq);
 }
 
 Nst_FUNC_SIGN(empty_)

@@ -8,8 +8,13 @@ map_res1 {2, 3, 4} @test.assert_eq
 <{1, 2, 3}> (##n => n 1 +) @sequ.map = map_res2
 ?::map_res2 Vector @test.assert_eq
 map_res2 <{2, 3, 4}> @test.assert_eq
-sequ.map {{1, 2, 3}, (##n => 'hello' !! 'error')} @test.assert_raises_error
-sequ.map {{1, 2, 3}, (##a b => a b +)} @test.assert_raises_error
+sequ.map {{1, 2, 3}, ##n => 'hello' !! 'error'} @test.assert_raises_error
+sequ.map {{1, 2, 3}, ##a b => a b +} @test.assert_raises_error
+{1, -1, 5} = arr1
+arr1 (##n => n 1 +) true @sequ.map
+arr1 {2, 0, 6} @test.assert_eq
+sequ.map {arr1, ##n => 1.0 n /, true} @test.assert_raises_error
+arr1 {0.5, 0, 6} @test.assert_eq
 
 {1, 2, 3} (##n => n 2 ^) @sequ.map_i = map_i_res1
 ?::map_i_res1 Iter @test.assert_eq
@@ -19,7 +24,7 @@ Array :: map_i_res1 {1, 4, 9} @test.assert_eq
 Array :: map_i_res2 <{1, 4, 9}> @test.assert_eq
 <{1, 2, 3}> (##n => 'hello' !! 'error') @sequ.map_i = map_i_res3
 map_i_res3 Array @test.assert_cast_error
-sequ.map {{1, 2, 3}, (##a b => a b +)} @test.assert_raises_error
+sequ.map {{1, 2, 3}, ##a b => a b +} @test.assert_raises_error
 
 <{1, 2, 4, 5}> = vec1
 vec1 2 3 @sequ.insert_at
@@ -542,11 +547,15 @@ arr64 (##x => Int :: x) @sequ.sort (64 true @make_arr) @test.assert_eq
 arr65 (##x => Int :: x) @sequ.sort (65 true @make_arr) @test.assert_eq
 arr99 (##x => Int :: x) @sequ.sort (99 true @make_arr) @test.assert_eq
 
+31 true @make_arr @rand.shuffle = arr31
+arr31 (##x => Int :: x) true @sequ.sort = new_arr31
+arr31 new_arr32 @test.assert_obj_ne
+
 <{'a', 3, 5, 0 -> 10, 3b}> = vec2
 vec2 @sequ.empty
 vec2 <{}> @test.assert_eq
 
-sequ.filter {{1, 2, 3}, (## => 1)} @test.assert_raises_error
+sequ.filter {{1, 2, 3}, ## => 1} @test.assert_raises_error
 {1, 2, 3, 4, 5, 6} (##x => x 2 % 0 ==) @sequ.filter {2, 4, 6} @test.assert_eq
 {1, 2, 3} (## x => false) @sequ.filter {,} @test.assert_eq
 ?::({1, 2, 3, 4, 5, 6} (##x => x 2 % 0 ==) @sequ.filter) Array @test.assert_eq
@@ -556,7 +565,7 @@ sequ.filter {{1, 2, 3}, (## => 1)} @test.assert_raises_error
 ?::(<{1, 2, 3, 4, 5, 6}> (##x => x 2 % 0 ==) @sequ.filter) Vector @test.assert_eq
 ?::(<{1, 2, 3}> (## x => false) @sequ.filter) Vector @test.assert_eq
 
-sequ.filter_i {{1, 2, 3}, (## => 1)} @test.assert_raises_error
+sequ.filter_i {{1, 2, 3}, ## => 1} @test.assert_raises_error
 Array :: ({1, 2, 3, 4, 5, 6} (##x => x 2 % 0 ==) @sequ.filter_i) {2, 4, 6} @test.assert_eq
 Array :: ({1, 2, 3} (## x => false) @sequ.filter_i) {,} @test.assert_eq
 ?::({1, 2, 3, 4, 5, 6} (##x => x 2 % 0 ==) @sequ.filter_i) Iter @test.assert_eq

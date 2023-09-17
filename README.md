@@ -31,13 +31,11 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
   - [x] `map`
   - [x] `filter`
   - [x] `slice`
-- [ ] Argument to specify in-place or new for functions that accept sequences
-  - [ ] `sequ.map`
-  - [ ] `sequ.sort`
-  - [ ] `sequ.lscan`
-  - [ ] `sequ.rscan`
-  - [ ] `sequ.merge`
-  - [ ] `rand.shuffle`
+- [x] Argument to specify in-place or new for functions that accept sequences
+  - [x] `sequ.map`
+  - [x] `sequ.sort`
+  - [x] `rand.shuffle`
+- [x] Add `extend` to `stdsequtil.nest` (instead of in-place `sequ.merge`)
 - [ ] Add `copy` and `deepcopy` to `stdsequtil.nest`
 - [ ] Non-recursive JSON parsing & dumping
 - [ ] Add encoding arguments to `load_f` and `dump_f` in `stdjson.nest`

@@ -57,6 +57,21 @@ Alias for [`_Nst_seq_get`](c_api-sequence.md#_nst_seq_get) that casts `seq` to
 
 ---
 
+### `Nst_seq_copy`
+
+**Synopsis:**
+
+```better-c
+Nst_seq_copy(seq)
+```
+
+**Description:**
+
+Alias for [`_Nst_seq_copy`](c_api-sequence.md#_nst_seq_copy) that casts `seq` to
+[`Nst_SeqObj *`](c_api-sequence.md#nst_seqobj).
+
+---
+
 ### `Nst_vector_set`
 
 **Description:**
@@ -358,6 +373,28 @@ The new array on success or `NULL` on failure. The error is set.
 
 ---
 
+### `_Nst_seq_copy`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_seq_copy(Nst_SeqObj *seq)
+```
+
+**Description:**
+
+Creates a shallow copy of a sequence.
+
+**Parameters:**
+
+- `seq`: the sequence to copy
+
+**Returns:**
+
+The new sequence or NULL on failure. The error is set.
+
+---
+
 ### `_Nst_seq_destroy`
 
 **Synopsis:**
@@ -383,20 +420,6 @@ void _Nst_seq_traverse(Nst_SeqObj *seq)
 **Description:**
 
 Traverse function for sequence objects.
-
----
-
-### `_Nst_seq_track`
-
-**Synopsis:**
-
-```better-c
-void _Nst_seq_track(Nst_SeqObj *seq)
-```
-
-**Description:**
-
-Track function for sequence objects.
 
 ---
 

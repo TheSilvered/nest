@@ -342,3 +342,19 @@ Nst_Obj *Nst_array_create_c(const i8 *fmt, ...)
     va_end(args);
     return array;
 }
+
+Nst_Obj *_Nst_seq_copy(Nst_SeqObj *seq)
+{
+    Nst_SeqObj *new_seq = seq->type == Nst_t.Array ?
+        SEQ(Nst_array_new(seq->len)) : SEQ(Nst_vector_new(seq->len));
+    if (new_seq == NULL)
+        return NULL;
+
+    Nst_Obj **new_objs = new_seq->objs;
+    Nst_Obj **old_objs = seq->objs;
+
+    for (usize i = 0, n = seq->len; i < n; i++)
+        new_objs[i] = Nst_inc_ref(old_objs[i]);
+
+    return OBJ(new_seq);
+}

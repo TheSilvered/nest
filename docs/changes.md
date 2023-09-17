@@ -21,6 +21,7 @@
   - with `justify` a positive length means justify left and a negative one means justify right
 - now `su.repr` will display in `\xhh`, `\uhhhh` or `\uhhhhhh` unprintable characters (control characters, non-characters, surrogates)
 - fixed `>>>` that would not fully print a string that contains a NUL character
+- added an argument to `sequ.map`, `sequ.sort` and `rand.shuffle` to specify whether the sequence should be modified in-place or create a new one
 
 ### Bug fixes
 
@@ -31,6 +32,7 @@
 - fixed `json.load_f` and `json.dump_f` not working correctly with UTF-8 file names on Windows
 - fixed Nest not finding files with non-ASCII charcters (both command-line and libraries) on Windows
 - fixed `su.is_charset` returning an incorrect result on some non-ASCII strings (ex. `'à' 'èĠ' @su.is_charset` now returns `false`, before it would return `true`)
+- fixed `io.println` not printing the full string if it contained a NUL character
 
 ## C API
 
@@ -48,6 +50,7 @@
 - added `Nst_string_new_len` to create strings with a known character length
 - added `Nst_string_get_next_ch` to iterate over a string's characters without generaing the `indexable_str` field
 - added `Nst_FLAG_STR_IS_ASCII`, `Nst_FLAG_STR_INDEX_16`, `Nst_FLAG_STR_INDEX_32` and `Nst_FLAG_STR_CAN_INDEX` variants to `Nst_StrFlags`
+- added `Nst_seq_copy` and `_Nst_seq_copy` to create a shallow copy of sequences
 
 ### Changes
 

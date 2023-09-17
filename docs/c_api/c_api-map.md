@@ -336,20 +336,6 @@ The traverse function for the map object.
 
 ---
 
-### `_Nst_map_track`
-
-**Synopsis:**
-
-```better-c
-void _Nst_map_track(Nst_MapObj *map)
-```
-
-**Description:**
-
-The track function for the map object.
-
----
-
 ### `_Nst_map_get_next_idx`
 
 **Synopsis:**

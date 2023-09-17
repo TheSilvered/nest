@@ -135,10 +135,6 @@ NstEXP Nst_Obj *NstC _Nst_map_drop(Nst_MapObj *map, Nst_Obj *key);
 NstEXP void NstC _Nst_map_destroy(Nst_MapObj *map);
 /* The traverse function for the map object. */
 NstEXP void NstC _Nst_map_traverse(Nst_MapObj *map);
-#if 0
-/* The track function for the map object. */
-NstEXP void NstC _Nst_map_track(Nst_MapObj *map);
-#endif
 
 /**
  * Gets the following index in a map given the current one.
