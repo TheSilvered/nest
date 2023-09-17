@@ -21,6 +21,7 @@ nav:
   - General syntax: syntax.md
   - Tutorials:
     - tutorials/c-lib-tutorial.md
+    - tutorials/using-generate_docs.md
   - Built-in libraries:
     - stdlib/codecs_library.md
     - stdlib/coroutine_library.md
@@ -70,6 +71,7 @@ nav:
     - type.h: c_api/c_api-type.md
     - typedefs.h: c_api/c_api-typedefs.md
     - var_table.h: c_api/c_api-var_table.md
+  - Version History: changes.md
 extra_javascript:
   - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js
   - js/highlight.js

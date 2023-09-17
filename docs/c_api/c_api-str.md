@@ -109,6 +109,21 @@ Alias of [`_Nst_string_get`](c_api-str.md#_nst_string_get) that casts `str` to
 
 ---
 
+### `Nst_string_get_next_ch`
+
+**Synopsis:**
+
+```better-c
+Nst_string_get_next_ch(str, idx, out_ch)
+```
+
+**Description:**
+
+Alias of [`_Nst_string_get_next_ch`](c_api-str.md#_nst_string_get_next_ch) that
+casts `str` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
+
+---
+
 ## Structs
 
 ### `Nst_StrObj`
@@ -119,7 +134,9 @@ Alias of [`_Nst_string_get`](c_api-str.md#_nst_string_get) that casts `str` to
 typedef struct _Nst_StrObj {
     Nst_OBJ_HEAD;
     usize len;
+    usize true_len;
     i8 *value;
+    u8 *indexable_str;
 } Nst_StrObj
 ```
 
@@ -129,8 +146,11 @@ Structure representing a Nest string.
 
 **Fields:**
 
-- `len`: the length of the string
+- `len`: the length in bytes of `value`
+- `true_len`: the length in characters of `value`
 - `value`: the value of the string
+- `indexable_str`: the string in UTF-16 or UTF-32 depending on the characters it
+  contains
 
 ---
 
@@ -151,7 +171,7 @@ length.
 
 **Parameters:**
 
-- `val`: the value of the string
+- `val`: the value of the string in extUTF-8 encoding
 - `allocated`: whether the value is heap allocated and should be freed with the
   string
 
@@ -175,8 +195,8 @@ Creates a new string object from a string literal of known length.
 
 **Parameters:**
 
-- `val`: the value of the string
-- `len`: the length of the string literal
+- `val`: the value of the string in extUTF-8 encoding
+- `len`: the length of `val` in bytes
 - `allocated`: whether the value is heap allocated and should be freed with the
   string
 
@@ -200,8 +220,8 @@ Creates a new string object.
 
 **Parameters:**
 
-- `val`: the value of the string to create
-- `len`: the length of the string
+- `val`: the value of the string to create in extUTF-8 encoding
+- `len`: the length of `val` in bytes
 - `allocated`: whether the value is heap allocated and should be freed with the
   string
 
@@ -228,7 +248,32 @@ val is freed if the string fails to be created.
 **Parameters:**
 
 - `val`: the value of the string to create
-- `len`: the length of the string
+- `len`: the length of `val` in bytes
+
+**Returns:**
+
+The new string on success and `NULL` on failure. The error is set.
+
+---
+
+### `Nst_string_new_len`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *Nst_string_new_len(i8 *val, usize len, usize true_len, bool allocated)
+```
+
+**Description:**
+
+Creates a new string object with known length.
+
+**Parameters:**
+
+- `val`: the value of the string to create
+- `len`: the length in characters of `val`
+- `true_len`: the length in bytes of `val`
+- `allocated`: whether `val` is allocated on the heap
 
 **Returns:**
 
@@ -251,7 +296,10 @@ Creates a new temporary read-only string object.
 This object is not allocated on the heap and cannot be returned by a function,
 its intended use is only on functions where a string object is needed but you
 have the string in another form. Nothing is allocated and it must not be
-destroyed in any way.
+destroyed in any way. `val` is assumed to contain only 7-bit ASCII characters.
+If it can be indexed and it may not contain only those characters, create a
+string with [`Nst_string_new`](c_api-str.md#nst_string_new) or other similar
+functions.
 
 **Parameters:**
 
@@ -338,6 +386,38 @@ If `idx` negative it is subtracted to the length to get the actual index.
 
 The new string on success and `NULL` on failure. The error is set. The function
 fails if the index falls outside the string.
+
+---
+
+### `_Nst_string_get_next_ch`
+
+**Synopsis:**
+
+```better-c
+bool _Nst_string_get_next_ch(Nst_StrObj *str, isize *ch_idx, Nst_Obj **out_ch)
+```
+
+**Description:**
+
+Gets a character in a string given an index.
+
+`ch_idx` is an in-out parameter and is set to the starting index of the next
+character. `out_ch` can be `NULL` in which case only the index is set.
+
+**Parameters:**
+
+- `str`: the string to get the next character of
+- `ch_idx`: the starting index of the character (it may not correspond to the
+  index in Nest)
+- `out_ch`: the pointer where the new character is placed
+
+**Returns:**
+
+The function returns `true` if the character was taken succesfully and `false`
+if an error occurred or `ch_idx` is outside the string. The error is set only
+when an internal call fails or `ch_idx` does not point to the start of a
+character. When an error occurrs `ch_idx` is set to `-1`. No error is set if
+`ch_idx` is outside the string's range.
 
 ---
 
@@ -499,7 +579,11 @@ error is set.
 
 ```better-c
 typedef enum _Nst_StrFlags {
-    Nst_FLAG_STR_IS_ALLOC = 0b1
+    Nst_FLAG_STR_IS_ALLOC  = Nst_FLAG(1),
+    Nst_FLAG_STR_IS_ASCII  = Nst_FLAG(2),
+    Nst_FLAG_STR_INDEX_16  = Nst_FLAG(3),
+    Nst_FLAG_STR_INDEX_32  = Nst_FLAG(4),
+    Nst_FLAG_STR_CAN_INDEX = Nst_FLAG(5)
 } Nst_StrFlags
 ```
 

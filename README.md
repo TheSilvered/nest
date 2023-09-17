@@ -88,7 +88,7 @@ Once installed you can check that it is working by running this command:
 
 ```text
 PS C:\Users\user> nest -V
-Using Nest version: beta-0.13.0 x64
+Using Nest version: beta-0.14.0 x64
 ```
 
 ### Compile from source on Windows

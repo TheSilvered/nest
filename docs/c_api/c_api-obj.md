@@ -163,6 +163,20 @@ Checks if `flag` is set.
 
 ---
 
+### `Nst_FLAG`
+
+**Synopsis:**
+
+```better-c
+Nst_FLAG(n)
+```
+
+**Description:**
+
+Creates a flag from an id. `n` can be between 1 and 28 included.
+
+---
+
 ### `Nst_OBJ_HEAD`
 
 **Description:**
@@ -352,7 +366,7 @@ Decreases the reference count of an object and calls
 
 ```better-c
 typedef enum _Nst_ObjFlags {
-    Nst_FLAG_OBJ_DESTROYED = 0x10000000
+    Nst_FLAG_OBJ_DESTROYED = Nst_FLAG(29)
 } Nst_ObjFlags
 ```
 

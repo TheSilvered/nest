@@ -243,7 +243,7 @@ The type that represents a write function of a Nest file object.
 
 This function shall write the contents of buf to a file. If count is not `NULL`
 it is filled with the number of characters written (or the number of bytes if
-the file is in binary mode). buf shall contain UTF-8 text that allows invalid
+the file is in binary mode). `buf` shall contain UTF-8 text that allows invalid
 characters under U+10FFFF.
 
 **Returns:**

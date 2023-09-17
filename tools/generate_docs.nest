@@ -227,8 +227,11 @@
 ]
 
 #check_name name [
-    !(name (su.DIGITS su.LETTERS '_' ><) @su.is_charset) ?
-        'Value Error' !! 'invalid name \(name @su.repr), \(header @fs.normalize)'
+    !(name (su.DIGITS su.LETTERS '_' ><) @su.is_charset) ? [
+        'invalid name \(name @su.repr) in \(header @fs.normalize), check if' \
+        ' you missed NstEXT' >< = err_msg
+        'Value Error' !! err_msg
+    ]
 ]
 
 #build_docs header_lines categories [
@@ -309,7 +312,10 @@
     ?.. true [
         header_lines doc_start @get_doc_block = doc_block
         (doc_block null ==) (doc_block.2 syn_start >) || ? ;
-        doc.(doc_block.0) doc_block.1 +
+        ??
+            doc.(doc_block.0) doc_block.1 +
+        ?! _
+            'Value Error' !! 'unsupported tag \(doc_block.0)'
         doc_block.2 = doc_start
     ]
 
@@ -353,9 +359,9 @@
     symbol = {syn, doc, name}
 
     doc_file (name 3 true @title) @io.write
-    symbol.0 null != ? [
+    syn null != ? [
         doc_file ('Synopsis' 0 @title) @io.write
-        doc_file (symbol.0 'better-c' true @code_block) @io.write
+        doc_file (syn 'better-c' true @code_block) @io.write
     ]
 
     $doc.(null) $doc.'@brief' + 0 != ? [
@@ -391,7 +397,7 @@
         doc_file (params @unordered_list) @io.write
     ]
 
-    $doc.'@return' 0 != ? [
+    $doc.'@return' 0 != && ? [
         doc_file ('Returns' 0 @title) @io.write
         ... Iter :: doc.'@return' := ret [
             doc_file (ret @paragraph) @io.write
@@ -717,9 +723,7 @@ reference ('API Reference' 1 @title) @io.write
     => symbol
 ]
 
-#simple_sort_map pair => pair.0
-
-Array :: symbols simple_sort_map @sequ.sort = sorted_symbols
+Array :: symbols symbol_sort_map @sequ.sort = sorted_symbols
 sorted_symbols (##x => '[`\(x.0)`](\(x.1))') @sequ.map = sorted_symbols
 reference (sorted_symbols @unordered_list) @io.write
 reference @io.close

@@ -114,6 +114,10 @@ isize Nst_print(const i8 *buf)
 
 Prints a string to the Nest standard output.
 
+!!!warning
+    Do not use this function to print [`Nst_StrObj`](c_api-str.md#nst_strobj)
+    objects, use [`Nst_fwrite`](c_api-file.md#nst_fwrite) instead.
+
 **Parameters:**
 
 - `buf`: the NUL-terminated string to print
@@ -136,6 +140,10 @@ isize Nst_fprint(Nst_IOFileObj *f, const i8 *buf)
 **Description:**
 
 Prints a string to a Nest file object.
+
+!!!warning
+    Do not use this function to print [`Nst_StrObj`](c_api-str.md#nst_strobj)
+    objects, use [`Nst_fwrite`](c_api-file.md#nst_fwrite) instead.
 
 **Parameters:**
 
@@ -160,6 +168,10 @@ isize Nst_println(const i8 *buf)
 **Description:**
 
 Prints a string to the Nest standard output appending a newline character.
+
+!!!warning
+    Do not use this function to print [`Nst_StrObj`](c_api-str.md#nst_strobj)
+    objects, use [`Nst_fwrite`](c_api-file.md#nst_fwrite) instead.
 
 On all platforms only a newline (U+000A) is appended, NOT a carriage return.
 
@@ -187,6 +199,10 @@ isize Nst_fprintln(Nst_IOFileObj *f, const i8 *buf)
 Prints a string to a Nest file object appending a newline character.
 
 On all platforms only a newline (U+000A) is appended, NOT a carriage return.
+
+!!!warning
+    Do not use this function to print [`Nst_StrObj`](c_api-str.md#nst_strobj)
+    objects, use [`Nst_fwrite`](c_api-file.md#nst_fwrite) instead.
 
 **Parameters:**
 

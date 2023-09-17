@@ -110,6 +110,9 @@ Nst_TypeObj *Nst_type_new(const i8 *name, Nst_ObjDstr dstr)
 
 Creates a new [`Nst_TypeObj`](c_api-type.md#nst_typeobj).
 
+!!!note
+    `name` can only contain 7-bit ASCII characters
+
 **Parameters:**
 
 - `name`: the name of the type
@@ -133,6 +136,9 @@ Nst_TypeObj *Nst_cont_type_new(const i8 *name, Nst_ObjDstr dstr,
 **Description:**
 
 Creates a new [`Nst_ContTypeObj`](c_api-type.md#nst_conttypeobj).
+
+!!!note
+    `name` can only contain 7-bit ASCII characters
 
 **Parameters:**
 
