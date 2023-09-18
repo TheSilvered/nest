@@ -18,7 +18,7 @@ This program prints all the ascii characters
 
 #clean code [
     <{}> = clean_code
-    ... Iter :: code := command [
+    ... code := command [
         (command '+' ==) \
         (command '-' ==) \
         (command '[' ==) \

@@ -33,6 +33,7 @@
 - fixed Nest not finding files with non-ASCII charcters (both command-line and libraries) on Windows
 - fixed `su.is_charset` returning an incorrect result on some non-ASCII strings (ex. `'à' 'èĠ' @su.is_charset` now returns `false`, before it would return `true`)
 - fixed `io.println` not printing the full string if it contained a NUL character
+- fixed user input causing a halt
 
 ## C API
 
