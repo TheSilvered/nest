@@ -123,7 +123,7 @@ bool Nst_sbuffer_expand_by(Nst_SizedBuffer *buf, usize amount)
 
 bool Nst_sbuffer_expand_to(Nst_SizedBuffer *buf, usize count)
 {
-    if (buf->cap > count)
+    if (buf->cap >= count)
         return true;
 
     usize new_size = (usize)(count * 1.5);

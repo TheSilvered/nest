@@ -322,9 +322,13 @@ static bool get_ch(Nst_Buffer *buf)
             return false;
     } else if (Nst_stdin.buf_ptr + 1 == Nst_stdin.buf_size) {
         // fix surrogate pairs getting cut-off
-        Nst_stdin.buf[0] = Nst_stdin.buf[Nst_stdin.buf_ptr];
-        if (!read_characters(1))
-            return false;
+        wchar_t ch = Nst_stdin.buf[Nst_stdin.buf_ptr];
+
+        if (0xd800 <= ch && ch <= 0xdfff) {
+            Nst_stdin.buf[0] = ch;
+            if (!read_characters(1))
+                return false;
+        }
     }
 
     i32 ch_len = Nst_check_utf16_bytes(
@@ -334,11 +338,12 @@ static bool get_ch(Nst_Buffer *buf)
     if (ch_len < 0)
         return false;
 
-    Nst_utf16_to_utf8(
+    i32 utf8_ch_len = Nst_utf16_to_utf8(
         buf->data,
         Nst_stdin.buf + Nst_stdin.buf_ptr,
         (usize)ch_len);
-    buf->len += ch_len;
+    buf->len += utf8_ch_len;
+    Nst_stdin.buf_ptr += ch_len;
     return true;
 }
 
@@ -348,7 +353,7 @@ static bool get_ch(Nst_Buffer *buf)
     i8 ch_buf[5] = { 0 };
 
     for (i32 i = 0; i < 4; i++) {
-        if (fread(buf + i, 1, 1, Nst_io.in->fp) == 0)
+        if (fread(ch_buf + i, 1, 1, Nst_io.in->fp) == 0)
             return false;
 
         if (Nst_check_ext_utf8_bytes((u8 *)ch_buf, i + 1) > 0) {
@@ -364,7 +369,7 @@ success:
 #endif
 
 static Nst_IOResult read_std_stream(i8 *buf, usize buf_size, usize count,
-                                    usize *buf_len, Nst_IOFileObj *f)
+    usize *buf_len, Nst_IOFileObj *f)
 {
 #ifdef Nst_WIN
     if (Nst_stdin.hd == NULL)
@@ -373,20 +378,24 @@ static Nst_IOResult read_std_stream(i8 *buf, usize buf_size, usize count,
     Nst_UNUSED(f);
 #endif // !Nst_WIN
 
-    bool expand_buf = buf_size == 0;
     Nst_Buffer buffer;
-    if (expand_buf) {
+
+    if (buf_size == 0) {
         if (!Nst_buffer_init(&buffer, count))
             return Nst_IO_ALLOC_FAILED;
     } else {
         buffer.data = buf;
-        buffer.cap = buf_size;
         buffer.len = 0;
+        buffer.cap = buf_size;
+        buffer.unit_size = sizeof(u8);
     }
 
     for (usize i = 0; i < count; i++) {
-        if (expand_buf && !Nst_buffer_expand_by(&buffer, 5))
-            return Nst_IO_ALLOC_FAILED;
+        if (buf_size == 0) {
+            if (!Nst_buffer_expand_by(&buffer, 5))
+                return Nst_IO_ALLOC_FAILED;
+        } else if (buf_size < buffer.len + 5)
+            break;
 
         if (!get_ch(&buffer))
             return Nst_IO_OP_FAILED;
@@ -394,7 +403,7 @@ static Nst_IOResult read_std_stream(i8 *buf, usize buf_size, usize count,
 
     buffer.data[buffer.len] = '\0';
 
-    if (expand_buf)
+    if (buf_size == 0)
         *(i8 **)buf = buffer.data;
     if (buf_len != NULL)
         *buf_len = buffer.len;

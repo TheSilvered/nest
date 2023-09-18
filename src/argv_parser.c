@@ -301,16 +301,21 @@ void _Nst_set_console_mode(void)
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
 
+    Nst_stdin.hd = NULL;
+    Nst_stdin.fp = stdin;
+    Nst_stdin.buf_ptr = 0;
+    Nst_stdin.buf_size = 0;
+
     HANDLE stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
     if (stdout_handle == INVALID_HANDLE_VALUE) {
         supports_color = false;
-        return;
+        goto try_stdin;
     }
 
     DWORD stdout_prev_mode = 0;
     if (!GetConsoleMode(stdout_handle, &stdout_prev_mode)) {
         supports_color = false;
-        return;
+        goto try_stdin;
     }
 
     DWORD stdout_new_mode = ENABLE_VIRTUAL_TERMINAL_PROCESSING;
@@ -323,15 +328,12 @@ void _Nst_set_console_mode(void)
             supports_color = false;
     }
 
-    HANDLE stdin_handle = GetStdHandle(STD_INPUT_HANDLE);
-    if (stdin_handle == INVALID_HANDLE_VALUE) {
-        Nst_stdin.hd = NULL;
+    HANDLE stdin_handle;
+try_stdin:
+    stdin_handle = GetStdHandle(STD_INPUT_HANDLE);
+    if (stdin_handle == INVALID_HANDLE_VALUE)
         return;
-    }
     Nst_stdin.hd = stdin_handle;
-    Nst_stdin.fp = stdin;
-    Nst_stdin.buf_ptr = 0;
-    Nst_stdin.buf_size = 0;
 }
 
 #endif // !Nst_WIN
