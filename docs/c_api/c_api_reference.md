@@ -299,6 +299,8 @@
 - [`Nst_MAKE_OBJDECLR`](c_api-lib_import.md#nst_make_objdeclr)
 - [`Nst_malloc`](c_api-mem.md#nst_malloc)
 - [`Nst_malloc_c`](c_api-mem.md#nst_malloc_c)
+- [`Nst_map_copy`](c_api-map.md#nst_map_copy)
+- [`_Nst_map_copy`](c_api-map.md#_nst_map_copy)
 - [`_Nst_map_destroy`](c_api-map.md#_nst_map_destroy)
 - [`Nst_map_drop`](c_api-map.md#nst_map_drop)
 - [`_Nst_map_drop`](c_api-map.md#_nst_map_drop)

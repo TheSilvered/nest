@@ -3,7 +3,7 @@
 #include "nest_sequtil.h"
 #include "sequtil_i_functions.h"
 
-#define FUNC_COUNT 18
+#define FUNC_COUNT 20
 #define SORT_RUN_SIZE 32
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
@@ -35,6 +35,8 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(count_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(lscan_, 4);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(rscan_, 4);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(copy_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(deep_copy_, 1);
 
 #if __LINE__ - FUNC_COUNT != 21
 #error
@@ -959,4 +961,143 @@ Nst_FUNC_SIGN(rscan_)
     Nst_dec_ref(prev_val);
     Nst_dec_ref(seq);
     return OBJ(new_seq);
+}
+
+Nst_FUNC_SIGN(copy_)
+{
+    Nst_Obj *obj;
+    Nst_DEF_EXTRACT("a|v|m", &obj);
+
+    if (Nst_T(obj, Map))
+        return Nst_map_copy(obj);
+
+    return Nst_seq_copy(obj);
+}
+
+static Nst_Obj *obj_deep_copy(Nst_Obj *obj, Nst_Obj *cont_map);
+static Nst_Obj *seq_deep_copy(Nst_SeqObj *seq, Nst_Obj *cont_map);
+static Nst_Obj *map_deep_copy(Nst_MapObj *map, Nst_Obj *cont_map);
+
+static Nst_Obj *seq_deep_copy(Nst_SeqObj *seq, Nst_Obj *cont_map)
+{
+    Nst_Obj **new_objs, **old_objs;
+
+    Nst_Obj *seq_id = Nst_int_new((i64)seq);
+    if (seq_id == nullptr)
+        return nullptr;
+
+    Nst_SeqObj *new_seq = SEQ(Nst_map_get(cont_map, seq_id));
+    if (new_seq != nullptr)
+        goto end;
+
+    new_seq = Nst_T(seq, Array)
+        ? SEQ(Nst_array_new(seq->len))
+        : SEQ(Nst_vector_new(seq->len));
+
+    if (new_seq == nullptr)
+        goto end;
+    
+    if (!Nst_map_set(cont_map, seq_id, new_seq)) {
+        Nst_dec_ref(new_seq);
+        new_seq = nullptr;
+        goto end;
+    }
+
+    new_seq->len = 0;
+    new_objs = new_seq->objs;
+    old_objs = seq->objs;
+
+    for (usize i = 0, n = seq->len; i < n; i++) {
+        Nst_Obj *copied_obj = obj_deep_copy(old_objs[i], cont_map);
+        if (copied_obj == nullptr) {
+            Nst_dec_ref(new_seq);
+            new_seq = nullptr;
+            goto end;
+        }
+        new_objs[i] = copied_obj;
+        new_seq->len++;
+    }
+
+    new_seq->len = seq->len;
+
+end:
+    Nst_dec_ref(seq_id);
+    return OBJ(new_seq);
+}
+
+static Nst_Obj *map_deep_copy(Nst_MapObj *map, Nst_Obj *cont_map)
+{
+    Nst_Obj *seq_id = Nst_int_new((i64)map);
+    if (seq_id == nullptr)
+        return nullptr;
+
+    Nst_MapObj *new_map = MAP(Nst_map_get(cont_map, seq_id));
+    if (new_map != nullptr)
+        goto end;
+
+    new_map = MAP(Nst_map_new());
+
+    if (new_map == nullptr)
+        goto end;
+
+    if (!Nst_map_set(cont_map, seq_id, new_map)) {
+        Nst_dec_ref(new_map);
+        new_map = nullptr;
+        goto end;
+    }
+
+    for (i32 i = Nst_map_get_next_idx(-1, map);
+         i != -1;
+         i = Nst_map_get_next_idx(i, map))
+    {
+        Nst_Obj *key = map->nodes[i].key;
+        Nst_Obj *value = obj_deep_copy(map->nodes[i].value, cont_map);
+
+        if (value == nullptr) {
+            Nst_dec_ref(new_map);
+            new_map = nullptr;
+            goto end;
+        }
+
+        if (!Nst_map_set(new_map, key, value)) {
+            Nst_dec_ref(value);
+            Nst_dec_ref(new_map);
+            new_map = nullptr;
+            goto end;
+        }
+        Nst_dec_ref(value);
+    }
+
+end:
+    Nst_dec_ref(seq_id);
+    return OBJ(new_map);
+}
+
+static Nst_Obj *obj_deep_copy(Nst_Obj *obj, Nst_Obj *cont_map)
+{
+    if (Nst_T(obj, Map))
+        return map_deep_copy(MAP(obj), cont_map);
+    else if (Nst_T(obj, Array) || Nst_T(obj, Vector))
+        return seq_deep_copy(SEQ(obj), cont_map);
+    return Nst_inc_ref(obj);
+}
+
+Nst_FUNC_SIGN(deep_copy_)
+{
+    Nst_Obj *obj;
+    Nst_DEF_EXTRACT("a|v|m", &obj);
+
+    Nst_Obj *cont_map = Nst_map_new();
+    if (cont_map == nullptr)
+        return nullptr;
+
+    Nst_Obj *res;
+
+    if (Nst_T(obj, Map))
+        res = map_deep_copy(MAP(obj), cont_map);
+    else
+        res = seq_deep_copy(SEQ(obj), cont_map);
+
+    Nst_dec_ref(cont_map);
+    return res;
 }

@@ -49,7 +49,7 @@
     "Run 'nest --help' for more information\n"
 
 #define VERSION_MESSAGE                                                       \
-    "Using Nest version: " Nst_VERSION
+    "Using Nest version: " Nst_VERSION " (" __DATE__ ", " __TIME__ ")"
 
 #define ENCODING_MESSAGE                                                           \
     "The supported encodings are:\n"                                               \
@@ -309,13 +309,13 @@ void _Nst_set_console_mode(void)
     HANDLE stdout_handle = GetStdHandle(STD_OUTPUT_HANDLE);
     if (stdout_handle == INVALID_HANDLE_VALUE) {
         supports_color = false;
-        return;
+        goto try_stdin;
     }
 
     DWORD stdout_prev_mode = 0;
     if (!GetConsoleMode(stdout_handle, &stdout_prev_mode)) {
         supports_color = false;
-        return;
+        goto try_stdin;
     }
 
     DWORD stdout_new_mode = ENABLE_VIRTUAL_TERMINAL_PROCESSING;
@@ -328,7 +328,9 @@ void _Nst_set_console_mode(void)
             supports_color = false;
     }
 
-    HANDLE stdin_handle = GetStdHandle(STD_INPUT_HANDLE);
+    HANDLE stdin_handle;
+try_stdin:
+    stdin_handle = GetStdHandle(STD_INPUT_HANDLE);
     if (stdin_handle == INVALID_HANDLE_VALUE)
         return;
     Nst_stdin.hd = stdin_handle;

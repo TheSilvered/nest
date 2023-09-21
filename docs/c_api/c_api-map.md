@@ -78,6 +78,21 @@ Alias for [`_Nst_map_drop`](c_api-map.md#_nst_map_drop) that casts `map` to
 
 ---
 
+### `Nst_map_copy`
+
+**Synopsis:**
+
+```better-c
+Nst_map_copy(map)
+```
+
+**Description:**
+
+Alias for [`_Nst_map_copy`](c_api-map.md#_nst_map_copy) that casts `map` to
+[`Nst_MapObj *`](c_api-map.md#nst_mapobj).
+
+---
+
 ### `Nst_map_get_next_idx`
 
 **Synopsis:**
@@ -305,6 +320,28 @@ Drops a key from a map and returns its value.
 
 The object associated with the removed key on success or `NULL` if the key is
 not hashable or is not inside the map. No error is set.
+
+---
+
+### `_Nst_map_copy`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_map_copy(Nst_MapObj *map)
+```
+
+**Description:**
+
+Creates a shallow copy of a map object.
+
+**Parameters:**
+
+- `map`: the map to copy
+
+**Returns:**
+
+The copied map or `NULL` on failure. The error is set.
 
 ---
 

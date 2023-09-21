@@ -276,6 +276,46 @@ Nst_Obj *_Nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
     return NULL;
 }
 
+Nst_Obj *_Nst_map_copy(Nst_MapObj *map)
+{
+    Nst_MapObj *new_map = MAP(Nst_map_new());
+    if (new_map == NULL)
+        return NULL;
+
+    new_map->len      = map->len;
+    new_map->mask     = map->mask;
+    new_map->cap      = map->cap;
+    new_map->head_idx = map->head_idx;
+    new_map->tail_idx = map->tail_idx;
+
+    Nst_MapNode *new_nodes = Nst_crealloc_c(
+        new_map->nodes,
+        new_map->cap,
+        Nst_MapNode,
+        _Nst_MAP_MIN_SIZE,
+        NULL);
+
+    if (new_nodes == NULL) {
+        Nst_dec_ref(new_map);
+        return NULL;
+    }
+
+    new_map->nodes = new_nodes;
+    Nst_MapNode *old_nodes = map->nodes;
+
+    for (usize i = 0, n = map->cap; i < n; i++) {
+        if (old_nodes[i].key == NULL)
+            continue;
+        new_nodes[i].hash = old_nodes[i].hash;
+        new_nodes[i].key = Nst_inc_ref(old_nodes[i].key);
+        new_nodes[i].value = Nst_inc_ref(old_nodes[i].value);
+        new_nodes[i].next_idx = old_nodes[i].next_idx;
+        new_nodes[i].prev_idx = old_nodes[i].prev_idx;
+    }
+
+    return OBJ(new_map);
+}
+
 void _Nst_map_destroy(Nst_MapObj *map)
 {
     for (i32 i = Nst_map_get_next_idx(-1, map);

@@ -36,7 +36,7 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
   - [x] `sequ.sort`
   - [x] `rand.shuffle`
 - [x] Add `extend` to `stdsequtil.nest` (instead of in-place `sequ.merge`)
-- [ ] Add `copy` and `deepcopy` to `stdsequtil.nest`
+- [x] Add `copy` and `deepcopy` to `stdsequtil.nest`
 - [ ] Non-recursive JSON parsing & dumping
 - [ ] Add encoding arguments to `load_f` and `dump_f` in `stdjson.nest`
 - [ ] Add option for `Infinity` and `Nan` to `stdjson.nest`

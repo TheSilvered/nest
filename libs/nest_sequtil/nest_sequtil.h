@@ -28,6 +28,8 @@ Nst_FUNC_SIGN(all_);
 Nst_FUNC_SIGN(count_);
 Nst_FUNC_SIGN(lscan_);
 Nst_FUNC_SIGN(rscan_);
+Nst_FUNC_SIGN(copy_);
+Nst_FUNC_SIGN(deep_copy_);
 
 #ifdef __cplusplus
 }

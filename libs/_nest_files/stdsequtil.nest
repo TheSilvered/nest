@@ -5,7 +5,9 @@
 __sequ.all_       = all
 __sequ.any_       = any
 __sequ.contains_  = contains
+__sequ.copy_      = copy
 __sequ.count_     = count
+__sequ.deep_copy_ = deep_copy
 __sequ.empty_     = empty
 __sequ.filter_    = filter
 __sequ.filter_i_  = filter_i
