@@ -20,7 +20,7 @@ Nst_Obj *Nst_func_new(usize arg_num, Nst_InstList *bytecode)
     return OBJ(func);
 }
 
-Nst_Obj *Nst_func_new_c(usize arg_num, Nst_Obj *(*cbody)(usize, Nst_Obj **))
+Nst_Obj *Nst_func_new_c(usize arg_num, Nst_NestCallable cbody)
 {
     Nst_FuncObj *func = Nst_obj_alloc(Nst_FuncObj, Nst_t.Func);
     Nst_Obj **args = NULL;

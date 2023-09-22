@@ -125,7 +125,7 @@ The new function object or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_func_new_c(usize arg_num, Nst_Obj *(*cbody)(usize, Nst_Obj **))
+Nst_Obj *Nst_func_new_c(usize arg_num, Nst_NestCallable cbody)
 ```
 
 **Description:**

@@ -37,8 +37,7 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
   - [x] `rand.shuffle`
 - [x] Add `extend` to `stdsequtil.nest` (instead of in-place `sequ.merge`)
 - [x] Add `copy` and `deepcopy` to `stdsequtil.nest`
-- [ ] Non-recursive JSON parsing & dumping
-- [ ] Add encoding arguments to `load_f` and `dump_f` in `stdjson.nest`
+- [x] Add encoding arguments to `load_f` and `dump_f` in `stdjson.nest`
 - [ ] Add option for `Infinity` and `Nan` to `stdjson.nest`
 - [ ] Add `extUTF-16` encoding (with little and big endian variants) that accept
   unpaired surrogates
@@ -51,7 +50,7 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
       object is `null`
 - [ ] Better testing with C
 
-### Planned features
+### Future planned features
 
 - Regular expressions in the standard library [^1]
 - A custom graphics and UI standard library built on top of SDL2 [^2]

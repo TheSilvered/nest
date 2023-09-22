@@ -554,7 +554,7 @@ struct _GUI_FontObj *get_font(struct _GUI_App *app, GUI_FontWeight weight,
     strcat(buf, "0.ttf");
 
     usize buf_len = strlen(buf);
-    buf[buf_len - 5] = '0' + weight;
+    buf[buf_len - 5] = '0' + (i8)weight;
 
     Nst_StrObj *font_path = _Nst_get_import_path(buf, buf_len);
     if (font_path == nullptr)

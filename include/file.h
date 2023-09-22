@@ -338,6 +338,16 @@ NstEXP void NstC Nst_io_result_get_details(u32 *ill_encoded_ch,
 NstEXP void NstC Nst_io_result_set_details(u32 ill_encoded_ch,
                                            usize position,
                                            const i8 *encoding_name);
+/**
+ * Opens a file allowing for Unicode characters in UTF-8.
+ *
+ * @param path: the path to the file
+ * @param mode: the mode to open the file with
+ *
+ * @return The file pointer on success and `NULL` on failure. The error is set
+ * only if a Memory Error occurs.
+ */
+NstEXP FILE *NstC Nst_fopen_unicode(i8 *path, const i8 *mode);
 
 #ifdef __cplusplus
 }

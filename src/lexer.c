@@ -94,18 +94,10 @@ Nst_LList *Nst_tokenizef(i8 *filename, Nst_CPID encoding, i32 *opt_level,
     *opt_level = 3;
     *no_default = false;
 
-#ifdef Nst_WIN
-    wchar_t *wide_filename = Nst_char_to_wchar_t(filename, strlen(filename));
-    if (wide_filename == NULL)
-        return NULL;
-
-    FILE *file = _wfopen(wide_filename, L"rb");
-    Nst_free(wide_filename);
-#else
-    FILE *file = fopen(filename, "rb");
-#endif
+    FILE *file = Nst_fopen_unicode(filename, "rb");
 
     if (file == NULL) {
+        Nst_error_clear();
         Nst_fprint(Nst_io.err, "File \"");
         Nst_fprint(Nst_io.err, (const i8 *)filename);
         Nst_fprintln(Nst_io.err, "\" not found");
@@ -965,6 +957,7 @@ bool Nst_normalize_encoding(Nst_SourceText *text, Nst_CPID encoding,
     else
         Nst_check_bom(text->text, text->text_len, &bom_size);
 
+    encoding = Nst_single_byte_cp(encoding);
     Nst_CP *from = Nst_cp(encoding);
 
     Nst_Pos pos = { 0, 0, text };
@@ -1080,6 +1073,7 @@ static void parse_first_line(i8 *text, usize len, i32 *opt_level,
                 continue;
             }
             Nst_CPID new_encoding = Nst_encoding_from_name(curr_opt + 11);
+            new_encoding = Nst_single_byte_cp(new_encoding);
             if (new_encoding != Nst_CP_UNKNOWN)
                 *encoding = new_encoding;
         }
@@ -1106,6 +1100,7 @@ static void parse_first_line(i8 *text, usize len, i32 *opt_level,
         if (curr_opt[11] != '=')
             return;
         Nst_CPID new_encoding = Nst_encoding_from_name(curr_opt + 11);
+        new_encoding = Nst_single_byte_cp(new_encoding);
         if (new_encoding != Nst_CP_UNKNOWN)
             *encoding = new_encoding;
     }

@@ -96,6 +96,9 @@ static Nst_StrObj *error_str(std::string str)
     bool result = Nst_translate_cp(
         Nst_cp(Nst_acp()), Nst_cp(Nst_CP_UTF8),
         (void *)str.c_str(), str.length(), (void **)&val, &len);
+    if (!result)
+        return STR(Nst_inc_ref(Nst_str()->o_failed_alloc));
+
     return STR(Nst_string_new_allocated(val, len));
 #else
     return heap_str(str.c_str(), str.length());

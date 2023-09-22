@@ -1614,7 +1614,7 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path)
         Nst_ObjDeclr obj_declr = obj_ptrs->objs[i];
         Nst_Obj *obj;
         if (obj_declr.arg_num >= 0)
-            obj = Nst_func_new_c(obj_declr.arg_num, obj_declr.ptr);
+            obj = Nst_func_new_c(obj_declr.arg_num, (Nst_NestCallable)obj_declr.ptr);
         else
             obj = Nst_inc_ref(obj_declr.ptr);
 
@@ -1657,33 +1657,24 @@ Nst_StrObj *_Nst_get_import_path(i8 *initial_path, usize path_len)
 {
     i8 *file_path;
     usize new_len = Nst_get_full_path(initial_path, &file_path, NULL);
+
     FILE *file;
 
     if (file_path != NULL) {
-#ifdef Nst_WIN
-        wchar_t *wide_filename = Nst_char_to_wchar_t(file_path, new_len);
-        if (wide_filename == NULL)
-            return NULL;
+        file = Nst_fopen_unicode(file_path, "rb");
 
-        file = _wfopen(wide_filename, L"rb");
-        Nst_free(wide_filename);
-#else
-        file = fopen(file_path, "rb");
-#endif
         if (file != NULL) {
-            Nst_error_clear();
             fclose(file);
             Nst_Obj *path_str = Nst_string_new(file_path, new_len, true);
             if (path_str == NULL)
                 Nst_free(file_path);
             return STR(path_str);
-        }
+        } else if (Nst_error_occurred())
+            return NULL;
     }
 
-    if (file_path != NULL) {
+    if (file_path != NULL)
         Nst_free(file_path);
-        Nst_error_clear();
-    }
 
 #ifdef Nst_WIN
  #ifdef _DEBUG
@@ -1726,19 +1717,11 @@ Nst_StrObj *_Nst_get_import_path(i8 *initial_path, usize path_len)
 
 #endif // !Nst_WIN
 
-#ifdef Nst_WIN
-    wchar_t *wide_filename = Nst_char_to_wchar_t(file_path, strlen(file_path));
-    if (wide_filename == NULL)
-        return NULL;
-
-    file = _wfopen(wide_filename, L"rb");
-    Nst_free(wide_filename);
-#else
-    file = fopen(file_path, "rb");
-#endif
+    file = Nst_fopen_unicode(file_path, "rb");
 
     if (file == NULL) {
-        Nst_set_value_error(Nst_sprintf(_Nst_EM_FILE_NOT_FOUND, file_path));
+        if (!Nst_error_occurred())
+            Nst_set_value_errorf(_Nst_EM_FILE_NOT_FOUND, file_path);
         Nst_free(file_path);
         return NULL;
     }
@@ -1751,7 +1734,7 @@ Nst_StrObj *_Nst_get_import_path(i8 *initial_path, usize path_len)
         return NULL;
     Nst_StrObj *str = STR(Nst_string_new(abs_path, new_len, true));
     if (str == NULL) {
-        Nst_free(file_path);
+        Nst_free(abs_path);
         return NULL;
     }
     return str;

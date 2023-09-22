@@ -199,7 +199,6 @@ Nst_Obj *_Nst_map_get(Nst_MapObj *map, Nst_Obj *key)
             return curr_node.value;
         }
     }
-    return NULL;
 }
 
 Nst_Obj *_Nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
@@ -273,7 +272,6 @@ Nst_Obj *_Nst_map_drop(Nst_MapObj *map, Nst_Obj *key)
             return node_value;
         }
     }
-    return NULL;
 }
 
 Nst_Obj *_Nst_map_copy(Nst_MapObj *map)

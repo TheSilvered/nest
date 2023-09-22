@@ -369,6 +369,11 @@ NstEXP Nst_CPID NstC Nst_detect_encoding(i8 *str, usize len, i32 *bom_size);
  * `Nst_CP_UNKNOWN` is returned. No error is set.
  */
 NstEXP Nst_CPID NstC Nst_encoding_from_name(i8 *name);
+/**
+ * @return The little endian variation of a multi-byte encoding or the encoding
+ * itself, though always one with a unit size of one byte.
+ */
+NstEXP Nst_CPID NstC Nst_single_byte_cp(Nst_CPID cpid);
 
 #ifdef __cplusplus
 }

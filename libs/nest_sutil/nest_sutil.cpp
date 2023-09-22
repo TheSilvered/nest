@@ -395,10 +395,10 @@ Nst_FUNC_SIGN(to_title_)
             continue;
         }
         if (new_word) {
-            *s = toupper((u8)*s);
+            *s = (i8)toupper((u8)*s);
             new_word = false;
         } else
-            *s = tolower((u8)*s);
+            *s = (i8)tolower((u8)*s);
         ++s;
     }
 
@@ -416,7 +416,7 @@ Nst_FUNC_SIGN(to_upper_)
     i8 *end = s + new_str->len;
 
     while (s != end) {
-        *s = toupper((u8)*s);
+        *s = (i8)toupper((u8)*s);
         ++s;
     }
 
@@ -434,7 +434,7 @@ Nst_FUNC_SIGN(to_lower_)
     i8 *end = s + new_str->len;
 
     while (s != end) {
-        *s = tolower((u8)*s);
+        *s = (i8)tolower((u8)*s);
         ++s;
     }
 
@@ -698,10 +698,7 @@ Nst_FUNC_SIGN(bytearray_to_str_)
                 STR(encoding_obj)->value));
         return nullptr;
     }
-    if (cpid == Nst_CP_UTF16)
-        cpid = Nst_CP_UTF16LE;
-    if (cpid == Nst_CP_UTF32)
-        cpid = Nst_CP_UTF32LE;
+    cpid = Nst_single_byte_cp(cpid);
 
     Nst_CP *encoding = Nst_cp(cpid);
 
@@ -750,10 +747,7 @@ Nst_FUNC_SIGN(str_to_bytearray_)
                 STR(encoding_obj)->value));
         return nullptr;
     }
-    if (cpid == Nst_CP_UTF16)
-        cpid = Nst_CP_UTF16LE;
-    if (cpid == Nst_CP_UTF32)
-        cpid = Nst_CP_UTF32LE;
+    cpid = Nst_single_byte_cp(cpid);
 
     Nst_CP *encoding = Nst_cp(cpid);
 

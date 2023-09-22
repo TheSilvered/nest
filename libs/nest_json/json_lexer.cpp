@@ -68,7 +68,7 @@ static Nst_Tok *parse_json_val();
 static bool ignore_comment();
 
 Nst_LList *json_tokenize(i8 *path, i8 *text, usize text_len,
-                         bool readonly_text)
+                         bool readonly_text, Nst_CPID encoding)
 {
     Nst_SourceText src_text = {
         .text = text,
@@ -93,7 +93,7 @@ Nst_LList *json_tokenize(i8 *path, i8 *text, usize text_len,
         src_text.text = text_copy;
     }
 
-    bool result = Nst_normalize_encoding(&src_text, Nst_CP_UNKNOWN, &error);
+    bool result = Nst_normalize_encoding(&src_text, encoding, &error);
     Nst_add_lines(&src_text);
     if (error.occurred || !result) {
         Nst_set_error(

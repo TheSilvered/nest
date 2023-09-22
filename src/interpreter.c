@@ -256,7 +256,8 @@ void Nst_state_free(void)
         goto free_ggc;
 
     for (Nst_LLIST_ITER(lib, Nst_state.loaded_libs)) {
-        void (*free_lib_func)() = (void (*)())dlsym(lib->value, "free_lib");
+        void (*free_lib_func)(void) =
+            (void (*)(void))dlsym(lib->value, "free_lib");
         if (free_lib_func != NULL)
             free_lib_func();
     }

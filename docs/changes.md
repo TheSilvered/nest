@@ -20,12 +20,12 @@
 - removed `ljust` and `rjust` from `stdsutil.nest` in favour of `justify`
   - with `justify` a positive length means justify left and a negative one means justify right
 - now `su.repr` will display in `\xhh`, `\uhhhh` or `\uhhhhhh` unprintable characters (control characters, non-characters, surrogates)
-- fixed `>>>` that would not fully print a string that contains a NUL character
 - added an argument to `sequ.map`, `sequ.sort` and `rand.shuffle` to specify whether the sequence should be modified in-place or create a new one
+- added an argument to `json.load_f` and `json.dump_f` to specify the encoding of the file
 
 **Bug fixes**
 
-- reworked garbage collector to work more reliably and remove many types of crashes
+- reworked the garbage collector to work more reliably and remove many types of crashes
 - fixed error printing sometimes adding an empty line after a fully red one
 - fixed incorrect behaviour of `sequ.slice` on some occasions
 - fixed a crash that occurred when an error was thrown inside a function in `sequ.rscan`
@@ -52,6 +52,9 @@
 - added `Nst_FLAG_STR_IS_ASCII`, `Nst_FLAG_STR_INDEX_16`, `Nst_FLAG_STR_INDEX_32` and `Nst_FLAG_STR_CAN_INDEX` variants to `Nst_StrFlags`
 - added `Nst_seq_copy` and `_Nst_seq_copy` to create a shallow copy of sequences
 - added `Nst_map_copy` and `_Nst_map_copy` to create a shallow copy of a map
+- added `Nst_fopen_unicode` to open files from UTF-8 strings on all platforms
+- added `Nst_single_byte_cp` to always get a single-byte encoding
+- added `Nst_NestCallable` type as the type of C functions callable from Nest
 
 **Changes**
 

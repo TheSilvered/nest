@@ -1678,6 +1678,7 @@ Nst_CP *Nst_cp(Nst_CPID cpid)
     case Nst_CP_1257:    return &Nst_cp_1257;
     case Nst_CP_1258:    return &Nst_cp_1258;
     case Nst_CP_LATIN1:  return &Nst_cp_iso8859_1;
+    case Nst_CP_UNKNOWN:
     default: return NULL;
     }
 }
@@ -1839,7 +1840,7 @@ Nst_CPID Nst_encoding_from_name(i8 *name)
     i8 name_cpy[16];
 
     for (usize i = 0; i < name_len; i++) {
-        name_cpy[i] = tolower((u8)name[i]);
+        name_cpy[i] = (i8)tolower((u8)name[i]);
         if (name_cpy[i] == '_')
             name_cpy[i] = '-';
         else if (name_cpy[i] == ' ')
@@ -1915,4 +1916,13 @@ Nst_CPID Nst_encoding_from_name(i8 *name)
         return Nst_CP_ISO8859_1;
     }
     return Nst_CP_UNKNOWN;
+}
+
+Nst_CPID Nst_single_byte_cp(Nst_CPID cpid)
+{
+    if (cpid == Nst_CP_UTF16)
+        return Nst_CP_UTF16LE;
+    else if (cpid == Nst_CP_UTF32)
+        return Nst_CP_UTF32LE;
+    return cpid;
 }

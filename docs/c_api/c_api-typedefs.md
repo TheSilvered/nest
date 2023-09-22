@@ -295,3 +295,17 @@ typedef ptrdiff_t isize;
 
 `ptrdiff_t` alias.
 
+---
+
+### `Nst_NestCallable`
+
+**Synopsis:**
+
+```better-c
+typedef Nst_Obj *(*Nst_NestCallable)(usize, Nst_Obj **)
+```
+
+**Description:**
+
+The signature of a C function callable by Nest.
+

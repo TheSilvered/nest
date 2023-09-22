@@ -295,11 +295,7 @@ Nst_FUNC_SIGN(open_)
         return nullptr;
     }
 
-#ifdef Nst_WIN
-    wchar_t bin_mode[4] = { 0, 'b', 0, 0 };
-#else
     char bin_mode[4] = { 0, 'b', 0, 0 };
-#endif
 
     switch (*file_mode) {
     case 'r':
@@ -368,26 +364,18 @@ Nst_FUNC_SIGN(open_)
                     STR(encoding_obj)->value));
             return nullptr;
         }
-        if (cpid == Nst_CP_UTF16)
-            cpid = Nst_CP_UTF16LE;
-        if (cpid == Nst_CP_UTF32)
-            cpid = Nst_CP_UTF32LE;
+
+        cpid = Nst_single_byte_cp(cpid);
 
         encoding = Nst_cp(cpid);
     }
 
-#ifdef Nst_WIN
-    wchar_t *wide_filename = Nst_char_to_wchar_t(file_name, file_name_str->len);
-    if (wide_filename == nullptr)
-        return nullptr;
+    FILE *file_ptr = Nst_fopen_unicode(file_name, bin_mode);
 
-    FILE *file_ptr = _wfopen(wide_filename, bin_mode);
-    Nst_free(wide_filename);
-#else
-    FILE *file_ptr = fopen(file_name, bin_mode);
-#endif
     if (file_ptr == nullptr) {
-        Nst_set_value_error(Nst_sprintf("file '%.4096s' not found", file_name));
+        if (!Nst_error_occurred()) {
+            Nst_set_value_errorf("file '%.4096s' not found", file_name);
+        }
         return nullptr;
     }
 

@@ -229,7 +229,7 @@
 #check_name name [
     !(name (su.DIGITS su.LETTERS '_' ><) @su.is_charset) ? [
         'invalid name \(name @su.repr) in \(header @fs.normalize), check if' \
-        ' you missed NstEXT' >< = err_msg
+        ' you missed NstEXP' >< = err_msg
         'Value Error' !! err_msg
     ]
 ]

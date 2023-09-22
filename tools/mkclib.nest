@@ -376,7 +376,7 @@ name '_' '' @su.replace_substr = root_namespace
     <PropertyGroup Label=\"UserMacros\" />
     <ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|Win32'\">
         <ClCompile>
-            <WarningLevel>Level3</WarningLevel>
+            <WarningLevel>Level4</WarningLevel>
             <SDLCheck>true</SDLCheck>
             <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;TESTLIBFILES_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
             <ConformanceMode>true</ConformanceMode>
@@ -395,7 +395,7 @@ name '_' '' @su.replace_substr = root_namespace
     </ItemDefinitionGroup>
     <ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|Win32'\">
         <ClCompile>
-            <WarningLevel>Level3</WarningLevel>
+            <WarningLevel>Level4</WarningLevel>
             <FunctionLevelLinking>true</FunctionLevelLinking>
             <IntrinsicFunctions>true</IntrinsicFunctions>
             <SDLCheck>true</SDLCheck>
@@ -418,7 +418,7 @@ name '_' '' @su.replace_substr = root_namespace
     </ItemDefinitionGroup>
     <ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|x64'\">
         <ClCompile>
-            <WarningLevel>Level3</WarningLevel>
+            <WarningLevel>Level4</WarningLevel>
             <SDLCheck>true</SDLCheck>
             <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;TESTLIBFILES_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
             <ConformanceMode>true</ConformanceMode>
@@ -437,7 +437,7 @@ name '_' '' @su.replace_substr = root_namespace
     </ItemDefinitionGroup>
     <ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|x64'\">
         <ClCompile>
-            <WarningLevel>Level3</WarningLevel>
+            <WarningLevel>Level4</WarningLevel>
             <FunctionLevelLinking>true</FunctionLevelLinking>
             <IntrinsicFunctions>true</IntrinsicFunctions>
             <SDLCheck>true</SDLCheck>

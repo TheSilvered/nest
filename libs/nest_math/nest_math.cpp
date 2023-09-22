@@ -480,9 +480,7 @@ Nst_FUNC_SIGN(clamp_)
     return Nst_real_new(max(min(val, max_val), min_val));
 }
 
-template <typename T>
-
-static inline T gcd_int(T a, T b)
+static inline i64 gcd_int(i64 a, i64 b)
 {
     if (a == 0)
         return b;
@@ -494,7 +492,7 @@ static inline T gcd_int(T a, T b)
     if (b < 0)
         b *= -1;
 
-    T res = 1;
+    i64 res = 1;
     while (true) {
         if (a == b)
             return res * a;
@@ -600,7 +598,7 @@ Nst_FUNC_SIGN(gcd_)
     } else {
         u8 n1_byte = AS_BYTE(ob1);
         u8 n2_byte = AS_BYTE(ob2);
-        return Nst_byte_new(gcd_int(n1_byte, n2_byte));
+        return Nst_byte_new((u8)gcd_int((i64)n1_byte, (i64)n2_byte));
     }
 }
 

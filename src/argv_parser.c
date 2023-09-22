@@ -100,6 +100,7 @@ static i32 long_arg(i8 *arg, Nst_CLArgs *cl_args)
             printf("\n" ENCODING_MESSAGE);
             return -1;
         }
+        cl_args->encoding = Nst_single_byte_cp(cl_args->encoding);
     } else {
         printf("Invalid option: %s\n", arg);
         printf("\n" USAGE_MESSAGE);
@@ -170,6 +171,7 @@ i32 _Nst_parse_args(i32 argc, i8 **argv, Nst_CLArgs *cl_args)
                     printf("\n" ENCODING_MESSAGE);
                     return -1;
                 }
+                cl_args->encoding = Nst_single_byte_cp(cl_args->encoding);
                 j = arg_len;
                 break;
             case 'O': {
@@ -280,7 +282,7 @@ bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv)
         local_argv[i] = argv_ptr;
 
         for (usize j = 0, n = wcslen(warg); j < n; j++) {
-            usize ch_len = Nst_check_utf16_bytes(warg + j, n - j);
+            i32 ch_len = Nst_check_utf16_bytes(warg + j, n - j);
             if (ch_len < 0) {
                 Nst_free(local_argv);
                 puts("Invalid argv enconding");

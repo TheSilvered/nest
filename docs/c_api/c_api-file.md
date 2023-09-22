@@ -691,6 +691,30 @@ Sets the values returned with
 
 ---
 
+### `Nst_fopen_unicode`
+
+**Synopsis:**
+
+```better-c
+FILE *Nst_fopen_unicode(i8 *path, const i8 *mode)
+```
+
+**Description:**
+
+Opens a file allowing for Unicode characters in UTF-8.
+
+**Parameters:**
+
+- `path`: the path to the file
+- `mode`: the mode to open the file with
+
+**Returns:**
+
+The file pointer on success and `NULL` on failure. The error is set only if a
+Memory Error occurs.
+
+---
+
 ## Enums
 
 ### `Nst_IOResult`

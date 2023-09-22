@@ -1151,6 +1151,21 @@ The encoding ID from a C string, if no matching encoding is found,
 
 ---
 
+### `Nst_single_byte_cp`
+
+**Synopsis:**
+
+```better-c
+Nst_CPID Nst_single_byte_cp(Nst_CPID cpid)
+```
+
+**Returns:**
+
+The little endian variation of a multi-byte encoding or the encoding itself,
+though always one with a unit size of one byte.
+
+---
+
 ## Enums
 
 ### `Nst_CPID`

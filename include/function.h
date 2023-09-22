@@ -75,8 +75,7 @@ NstEXP Nst_Obj *NstC Nst_func_new(usize arg_num, Nst_InstList *bytecode);
  *
  * @return The new function object or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_func_new_c(usize arg_num,
-                                    Nst_Obj *(*cbody)(usize, Nst_Obj **));
+NstEXP Nst_Obj *NstC Nst_func_new_c(usize arg_num, Nst_NestCallable cbody);
 /**
  * Sets the `mod_globals` table of a function and all the functions defined
  * inside it.

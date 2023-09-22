@@ -187,6 +187,11 @@ NstEXP typedef size_t usize;
 /* `ptrdiff_t` alias. */
 NstEXP typedef ptrdiff_t isize;
 
+typedef struct _Nst_Obj Nst_Obj;
+
+/* The signature of a C function callable by Nest. */
+NstEXP typedef Nst_Obj *(*Nst_NestCallable)(usize, Nst_Obj **);
+
 #ifdef __cplusplus
 }
 #endif // !__cplusplus

@@ -60,5 +60,4 @@ i32 root_handle_event(SDL_Event *e, GUI_Element *el)
     default:
         return default_event_handler(e, el);
     }
-    return 0;
 }

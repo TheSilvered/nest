@@ -391,6 +391,27 @@ Nst_IOResult Nst_fclose(Nst_IOFileObj *f)
     return result;
 }
 
+FILE *Nst_fopen_unicode(i8 *path, const i8 *mode)
+{
+#ifdef Nst_WIN
+    wchar_t *wide_path = Nst_char_to_wchar_t(path, strlen(path));
+    if (wide_path == NULL)
+        return NULL;
+    wchar_t *wide_mode = Nst_char_to_wchar_t((i8 *)mode, strlen(mode));
+    if (wide_mode == NULL) {
+        Nst_free(wide_path);
+        return NULL;
+    }
+
+    FILE *f = _wfopen((const wchar_t *)wide_path, (const wchar_t *)wide_mode);
+    Nst_free(wide_path);
+    Nst_free(wide_mode);
+#else
+    FILE *f = fopen(path, mode);
+#endif
+    return f;
+}
+
 void Nst_io_result_get_details(u32 *ill_encoded_ch, usize *position,
                                const i8 **encoding_name)
 {
