@@ -238,12 +238,12 @@ NstEXP typedef struct _Nst_IOFileObj {
 
 /* The flags of a IO file. */
 NstEXP typedef enum _Nst_IOFileFlag {
-    Nst_FLAG_IOFILE_IS_CLOSED = 0b000001,
-    Nst_FLAG_IOFILE_IS_BIN    = 0b000010,
-    Nst_FLAG_IOFILE_CAN_WRITE = 0b000100,
-    Nst_FLAG_IOFILE_CAN_READ  = 0b001000,
-    Nst_FLAG_IOFILE_CAN_SEEK  = 0b010000,
-    Nst_FLAG_IOFILE_IS_TTY    = 0b100000
+    Nst_FLAG_IOFILE_IS_CLOSED = Nst_FLAG(1),
+    Nst_FLAG_IOFILE_IS_BIN    = Nst_FLAG(2),
+    Nst_FLAG_IOFILE_CAN_WRITE = Nst_FLAG(3),
+    Nst_FLAG_IOFILE_CAN_READ  = Nst_FLAG(4),
+    Nst_FLAG_IOFILE_CAN_SEEK  = Nst_FLAG(5),
+    Nst_FLAG_IOFILE_IS_TTY    = Nst_FLAG(6)
 } Nst_IOFileFlag;
 
 /**

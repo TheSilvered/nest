@@ -95,7 +95,7 @@ NstEXP void NstC _Nst_func_destroy(Nst_FuncObj *func);
 
 /* The flags for `Nst_FuncObj`. */
 NstEXP typedef enum _Nst_FuncFlags {
-    Nst_FLAG_FUNC_IS_C = 0b1
+    Nst_FLAG_FUNC_IS_C = Nst_FLAG(1)
 } Nst_FuncFlags;
 
 #ifdef __cplusplus

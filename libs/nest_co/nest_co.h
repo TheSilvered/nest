@@ -30,13 +30,13 @@ typedef struct _CoroutineCallStack {
 } CoroutineCallStack;
 
 enum _CoroutineFlags {
-    FLAG_CO_SUSPENDED = 0b0001,
-    FLAG_CO_RUNNING   = 0b0010,
-    FLAG_CO_PAUSED    = 0b0100,
-    FLAG_CO_ENDED     = 0b1000,
+    FLAG_CO_SUSPENDED = Nst_FLAG(1),
+    FLAG_CO_RUNNING   = Nst_FLAG(2),
+    FLAG_CO_PAUSED    = Nst_FLAG(3),
+    FLAG_CO_ENDED     = Nst_FLAG(4),
 
     // Assigned to the function object
-    FLAG_FUNC_IS_CO   = 0b1000
+    FLAG_FUNC_IS_CO   = Nst_FLAG(4)
 } CoroutineFlags;
 
 Nst_Obj *coroutine_new(Nst_FuncObj *func);

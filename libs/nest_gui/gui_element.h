@@ -37,9 +37,9 @@ typedef bool (*UpdateFunc)(struct _GUI_Element *);
 typedef bool (*OnChildAdded)(struct _GUI_Element *, usize);
 
 typedef enum _GUI_Flags {
-    GUI_FLAG_REL_POS  = 0b00000001,
-    GUI_FLAG_REL_SIZE = 0b00000010,
-    GUI_FLAG_IS_HIDDEN= 0b00000100
+    GUI_FLAG_REL_POS  = Nst_FLAG(1),
+    GUI_FLAG_REL_SIZE = Nst_FLAG(2),
+    GUI_FLAG_IS_HIDDEN= Nst_FLAG(3)
 } GUI_Flags;
 
 typedef enum _GUI_RelPosX {
