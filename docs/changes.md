@@ -55,6 +55,7 @@
 - added `Nst_fopen_unicode` to open files from UTF-8 strings on all platforms
 - added `Nst_single_byte_cp` to always get a single-byte encoding
 - added `Nst_NestCallable` type as the type of C functions callable from Nest
+- added `Nst_sbuffer_copy` and `Nst_buffer_copy` to copy the contents of buffers
 
 **Changes**
 
@@ -71,10 +72,12 @@
 - removed `Nst_iter_is_done` and `_Nst_iter_is_done`
 - removed `is_done` argument from `Nst_iter_new`
 - removed `Nst_iter_range_is_done`, `Nst_iter_seq_is_done`, `Nst_iter_str_is_done` and `Nst_iter_map_is_done`
+- now type shorthands for `Nst_extract_arg_values` that are part of type unions will not cast the object automatically
 
 **Bug fixes**
 
 - fixed `Nst_is_non_character` returning `true` on some valid characters
+- fixed `Nst_extract_arg_values` sometimes trying to cast an invalid value
 
 ---
 

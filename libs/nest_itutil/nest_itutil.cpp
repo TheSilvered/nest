@@ -147,7 +147,7 @@ Nst_FUNC_SIGN(zip_)
     Nst_Obj *seq1;
     Nst_Obj *seq2;
 
-    Nst_DEF_EXTRACT("I|a|v|s ?R", &seq1, &seq2);
+    Nst_DEF_EXTRACT("I|a|v|s ?R:I", &seq1, &seq2);
 
     if (seq2 == Nst_null())
         return zipn_((Nst_SeqObj *)seq1);

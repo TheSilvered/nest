@@ -7,31 +7,34 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef enum _GUI_StackDir {
-    GUI_SD_TOP_BOTTOM,
-    GUI_SD_LEFT_RIGHT,
-    GUI_SD_BOTTOM_TOP,
-    GUI_SD_RIGHT_LEFT
-} GUI_StackDir;
+namespace GUI {
 
-typedef enum _GUI_StackAlign {
-    GUI_SA_LEFT_TOP,
-    GUI_SA_MIDDLE,
-    GUI_SA_BOTTOM_RIGTH
-} GUI_StackAlign;
+typedef enum _StackDir {
+    SD_TOP_BOTTOM,
+    SD_LEFT_RIGHT,
+    SD_BOTTOM_TOP,
+    SD_RIGHT_LEFT
+} StackDir;
 
-typedef struct _GUI_StackLayout {
+typedef enum _StackAlign {
+    SA_LEFT_TOP,
+    SA_MIDDLE,
+    SA_BOTTOM_RIGHT
+} StackAlign;
+
+typedef struct _StackLayout {
     GUI_ELEMENT_HEAD;
-    GUI_StackDir sd;
-    GUI_StackAlign sa;
-} GUI_StackLayout;
+    StackDir sd;
+    StackAlign sa;
+} StackLayout;
 
-i32 gui_stack_layout_handle_event(SDL_Event *e, GUI_StackLayout *sl);
+i32 stack_layout_handle_event(SDL_Event *e, StackLayout *sl);
+bool stack_layout_update(StackLayout *sl);
 
-GUI_Element *gui_stack_layout_new(GUI_StackDir direction,
-                                  GUI_StackAlign alignment,
-                                  int x, int y, int w, int h,
-                                  GUI_App *app);
+Element *stack_layout_new(StackDir direction, StackAlign alignment,
+                          int x, int y, int w, int h, App *app);
+
+}
 
 #ifdef __cplusplus
 }

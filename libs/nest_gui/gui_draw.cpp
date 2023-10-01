@@ -1,5 +1,7 @@
 #include "gui_draw.h"
 
+using namespace GUI;
+
 void draw_rect(SDL_Renderer *renderer, SDL_Rect *rect)
 {
     if (rect == nullptr)
@@ -243,7 +245,7 @@ SDL_Texture *draw_round_border_rect(SDL_Renderer *renderer, SDL_Rect rect,
     return texture;
 }
 
-void draw_texture(GUI_App *app, int x, int y, SDL_Texture *texture,
+void draw_texture(App *app, int x, int y, SDL_Texture *texture,
                   SDL_Rect *clip)
 {
     int w, h;

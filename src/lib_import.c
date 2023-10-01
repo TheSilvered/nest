@@ -83,6 +83,10 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
     Nst_TypeObj *custom_type = NULL;
     i8 *t = (i8 *)types;
     u16 accepted_types = 0;
+    u16 pending_cast_types = 0;
+    u16 pending_c_cast = 0;
+    Nst_TypeObj *pending_final_type = NULL;
+    bool can_cast = true;
 
     while (true) {
         if (allow_or && *t != '|')
@@ -100,12 +104,33 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
             goto normal_type;
         case 'i':
             accepted_types |= INT_IDX;
+            if (pending_c_cast != 0 || pending_final_type != NULL)
+                can_cast = false;
+
+            if (can_cast) {
+                pending_cast_types = INT_IDX;
+                pending_c_cast = C_CAST | INT_C_CAST;
+            }
             goto normal_type;
         case 'r':
             accepted_types |= REAL_IDX;
+            if (pending_c_cast != 0 || pending_final_type != NULL)
+                can_cast = false;
+
+            if (can_cast) {
+                pending_cast_types = REAL_IDX;
+                pending_c_cast = C_CAST | REAL_C_CAST;
+            }
             goto normal_type;
         case 'b':
             accepted_types |= BOOL_IDX;
+            if (pending_c_cast != 0 || pending_final_type != NULL)
+                can_cast = false;
+
+            if (can_cast) {
+                pending_cast_types = BOOL_IDX;
+                pending_c_cast = C_CAST | BOOL_C_CAST;
+            }
             goto normal_type;
         case 'n':
             accepted_types |= NULL_IDX;
@@ -130,6 +155,13 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
             goto normal_type;
         case 'B':
             accepted_types |= BYTE_IDX;
+            if (pending_c_cast != 0 || pending_final_type != NULL)
+                can_cast = false;
+
+            if (can_cast) {
+                pending_cast_types = BYTE_IDX;
+                pending_c_cast = C_CAST | BYTE_C_CAST;
+            }
             goto normal_type;
         case 'F':
             accepted_types |= IOFILE_IDX;
@@ -140,18 +172,24 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
         case 'l':
             accepted_types |= INT_IDX;
             accepted_types |= BYTE_IDX;
-            if (allow_casting) {
-                accepted_types |= C_CAST;
-                accepted_types |= INT_C_CAST;
+            if (pending_c_cast != 0 || pending_final_type != NULL)
+                can_cast = false;
+
+            if (can_cast) {
+                pending_cast_types = INT_IDX | BYTE_IDX;
+                pending_c_cast = C_CAST | INT_C_CAST;
             }
             goto normal_type;
         case 'N':
             accepted_types |= INT_IDX;
             accepted_types |= BYTE_IDX;
             accepted_types |= REAL_IDX;
-            if (allow_casting) {
-                accepted_types |= C_CAST;
-                accepted_types |= REAL_C_CAST;
+            if (pending_c_cast != 0 || pending_final_type != NULL)
+                can_cast = false;
+
+            if (can_cast) {
+                pending_cast_types = INT_IDX | BYTE_IDX | REAL_IDX;
+                pending_c_cast = C_CAST | REAL_C_CAST;
             }
             goto normal_type;
         case 'A':
@@ -162,22 +200,33 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
             accepted_types |= ARRAY_IDX;
             accepted_types |= VECTOR_IDX;
             accepted_types |= STR_IDX;
-            if (allow_casting)
-                match_type->final_type = Nst_t.Array;
+            if (pending_c_cast != 0 || pending_final_type != NULL)
+                can_cast = false;
+
+            if (can_cast) {
+                pending_cast_types = ARRAY_IDX | VECTOR_IDX | STR_IDX;
+                pending_final_type = Nst_t.Array;
+            }
             goto normal_type;
         case 'R':
             accepted_types |= ARRAY_IDX;
             accepted_types |= VECTOR_IDX;
             accepted_types |= STR_IDX;
             accepted_types |= ITER_IDX;
-            if (allow_casting)
-                match_type->final_type = Nst_t.Iter;
+            if (can_cast) {
+                pending_cast_types = ARRAY_IDX | VECTOR_IDX
+                                   | STR_IDX   | ITER_IDX;
+                pending_final_type = Nst_t.Iter;
+            }
             goto normal_type;
         case 'y':
             match_any = true;
-            if (allow_casting) {
-                accepted_types |= C_CAST;
-                accepted_types |= BOOL_C_CAST;
+            if (pending_c_cast != 0 || pending_final_type != NULL)
+                can_cast = false;
+
+            if (can_cast) {
+                pending_cast_types = 0;
+                pending_c_cast = C_CAST | BOOL_C_CAST;
             }
             goto normal_type;
         case '#':
@@ -233,20 +282,16 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
     match_type->custom_types = (Nst_TypeObj **)custom_types.data;
     match_type->custom_types_size = custom_types.len;
 
-    if (allow_casting) {
-        if (accepted_types == INT_IDX) {
-            accepted_types |= C_CAST;
-            accepted_types |= INT_C_CAST;
-        } else if (accepted_types == REAL_IDX) {
-            accepted_types |= C_CAST;
-            accepted_types |= REAL_C_CAST;
-        } else if (accepted_types == BOOL_IDX) {
-            accepted_types |= C_CAST;
-            accepted_types |= BOOL_C_CAST;
-        } else if (accepted_types == BYTE_IDX) {
-            accepted_types |= C_CAST;
-            accepted_types |= BYTE_C_CAST;
-        }
+    if (allow_casting
+        && (pending_c_cast != 0 || pending_final_type != NULL)
+        && can_cast
+        && accepted_types == pending_cast_types
+        && custom_types.len == 0)
+    {
+        if (pending_c_cast)
+            accepted_types |= pending_c_cast;
+        else
+            match_type->final_type = pending_final_type;
     }
 
     if (*t == '_') {

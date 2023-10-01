@@ -2,10 +2,15 @@
 #include "gui_draw.h"
 #include "gui_event.h"
 
-bool render_texture(GUI_Label *l)
+using namespace GUI;
+
+static bool render_texture(Label *l)
 {
+    i32 p_top, p_left, p_bottom, p_right;
+    element_get_padding((Element *)l, p_top, p_left, p_bottom, p_right);
+
     // TTF_SetFontWrappedAlign(l->font, l->alignment);
-    l->texture_render_width = l->rect.w - l->padding_left - l->padding_right;
+    l->texture_render_width = l->rect.w - p_left - p_right;
 
     SDL_Surface *text_surf = TTF_RenderUTF8_Blended_Wrapped(
         l->font->font,
@@ -21,12 +26,8 @@ bool render_texture(GUI_Label *l)
         SDL_DestroyTexture(l->texture);
 
     l->texture = SDL_CreateTextureFromSurface(l->app->renderer, text_surf);
-    if (l->auto_height
-        && (!Nst_HAS_FLAG(l, GUI_FLAG_REL_SIZE)
-            || (l->rel_size.diff_y == 0 && l->rel_size.scale_y == 0.0)))
-    {
-        l->rect.h = l->padding_bottom + l->padding_top + text_surf->h;
-    }
+    if (l->auto_height)
+        l->rect.h = p_bottom + p_top + text_surf->h;
 
     SDL_FreeSurface(text_surf);
     if (l->texture == nullptr) {
@@ -36,42 +37,44 @@ bool render_texture(GUI_Label *l)
     return true;
 }
 
-bool gui_label_update(GUI_Label *l)
+bool GUI::label_update(Label *l)
 {
+    i32 p_top, p_left, p_bottom, p_right;
+    element_get_padding((Element *)l, p_top, p_left, p_bottom, p_right);
+
     if (l->text.len == 0)
         return true;
 
     if (l->texture == nullptr
         || l->rect.w
-           - l->padding_left
-           - l->padding_right != l->texture_render_width)
+           - p_left
+           - p_right != l->texture_render_width)
     {
         if (!render_texture(l))
             return false;
     }
 
-    SDL_Rect clip_rect = gui_element_get_clip_rect((GUI_Element *)l);
+    SDL_Rect clip_rect = element_get_clip_rect((Element *)l);
 
     draw_texture(
         l->app,
-        int(l->rect.x + l->padding_left),
-        int(l->rect.y + l->padding_top),
+        int(l->rect.x + p_left),
+        int(l->rect.y + p_right),
         l->texture,
         &clip_rect);
 
     return true;
 }
 
-GUI_Element *gui_label_new(Nst_StrObj *text, GUI_FontObj *font,
-                           SDL_Color  color, int x, int y, int w, int h,
-                           GUI_App *app)
+Element *GUI::label_new(Nst_StrObj *text, FontObj *font, SDL_Color color,
+                        int x, int y, int w, int h, App *app)
 {
-    GUI_Label *new_label = (GUI_Label *)gui_element_new(
+    Label *new_label = (Label *)element_new(
         GUI_ET_LABEL,
-        sizeof(GUI_Label),
-        x, y, w, h,
+        sizeof(Label),
+        x, y, w + 7, h + 6,
         app,
-        (Nst_ObjDstr)gui_label_destroy);
+        (Nst_ObjDstr)label_destroy);
     if (new_label == nullptr) {
         Nst_dec_ref(font);
         return nullptr;
@@ -82,16 +85,17 @@ GUI_Element *gui_label_new(Nst_StrObj *text, GUI_FontObj *font,
     new_label->texture_render_width = 0;
     new_label->font = font;
     new_label->color = color;
-    new_label->frame_update_func = UpdateFunc(gui_label_update);
+    new_label->frame_update_func = UpdateFunc(label_update);
     new_label->handle_event_func = default_event_handler;
     new_label->auto_height = false;
 
     if (!Nst_buffer_init(&new_label->text, text->len + 1)) {
-        gui_element_destroy((GUI_Element *)new_label);
+        element_destroy((Element *)new_label);
         Nst_dec_ref(font);
         return nullptr;
     }
     Nst_buffer_append(&new_label->text, text);
+    element_set_padding((Element *)new_label, 3, 3, 3, 3);
 
     usize offset = 0;
     i8 *text_p = new_label->text.data;
@@ -125,10 +129,10 @@ GUI_Element *gui_label_new(Nst_StrObj *text, GUI_FontObj *font,
     text_p[text->len] = '\0';
 
 end:
-    return (GUI_Element *)new_label;
+    return (Element *)new_label;
 }
 
-void reset_texture(GUI_Label *l, bool change_size)
+static void reset_texture(Label *l, bool change_size)
 {
     if (l->texture != nullptr) {
         SDL_DestroyTexture(l->texture);
@@ -138,34 +142,34 @@ void reset_texture(GUI_Label *l, bool change_size)
         int new_w, new_h;
         TTF_SizeUTF8(l->font->font, l->text.data, &new_w, &new_h);
         new_w++;
-        gui_element_set_size((GUI_Element *)l, new_w, new_h, GUI_RECT_PADDING);
+        element_set_size((Element *)l, new_w, new_h, true);
     }
 }
 
-void gui_label_destroy(GUI_Label *l)
+void GUI::label_destroy(Label *l)
 {
     Nst_buffer_destroy(&l->text);
 }
 
-void gui_label_change_color(GUI_Label *l, SDL_Color new_color)
+void GUI::label_change_color(Label *l, SDL_Color new_color)
 {
     l->color = new_color;
     reset_texture(l, false);
 }
 
-void gui_label_append_text(GUI_Label *l, Nst_StrObj *str, bool change_size)
+void GUI::label_append_text(Label *l, Nst_StrObj *str, bool change_size)
 {
     Nst_buffer_append(&l->text, str);
     reset_texture(l, change_size);
 }
 
-void gui_label_append_c_text(GUI_Label *l, i8 *text, bool change_size)
+void GUI::label_append_c_text(Label *l, i8 *text, bool change_size)
 {
     Nst_buffer_append_c_str(&l->text, text);
     reset_texture(l, change_size);
 }
 
-void gui_label_set_text(GUI_Label *l, Nst_StrObj *str, bool change_size)
+void GUI::label_set_text(Label *l, Nst_StrObj *str, bool change_size)
 {
     i8 *new_data = Nst_realloc_c(
         l->text.data,
@@ -181,7 +185,7 @@ void gui_label_set_text(GUI_Label *l, Nst_StrObj *str, bool change_size)
     reset_texture(l, change_size);
 }
 
-void gui_label_set_c_text(GUI_Label *l, i8 *text, bool change_size)
+void GUI::label_set_c_text(Label *l, i8 *text, bool change_size)
 {
     usize str_len = strlen(text);
     i8 *new_data = Nst_realloc_c(
@@ -198,7 +202,7 @@ void gui_label_set_c_text(GUI_Label *l, i8 *text, bool change_size)
     reset_texture(l, change_size);
 }
 
-void gui_label_set_font(GUI_Label *l, GUI_FontObj *font, bool change_size)
+void GUI::label_set_font(Label *l, FontObj *font, bool change_size)
 {
     Nst_inc_ref(font);
     Nst_dec_ref(l->font);

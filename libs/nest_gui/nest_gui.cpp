@@ -7,19 +7,17 @@
 #include "gui_label.h"
 #include "gui_button.h"
 #include "gui_stack_layout.h"
+#include "gui_animation.h"
 
-#define FUNC_COUNT 32
+#define FUNC_COUNT 52
 
 static Nst_ObjDeclr func_list_[FUNC_COUNT];
 static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
 static bool lib_init_ = false;
 static Nst_StrObj *sdl_error_str;
-static GUI_App app;
-Nst_TypeObj *gui_element_type;
-Nst_TypeObj *gui_font_type;
-GUI_FontObj *default_font;
-
-static void gui_font_destroy(GUI_FontObj *f);
+static GUI::App app;
+static i32 label_count = 1, button_count = 1;
+GUI::FontObj *default_font;
 
 bool lib_init()
 {
@@ -27,20 +25,16 @@ bool lib_init()
 
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(init_sdl_and_ttf_, 0);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(loop_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(label_, 3);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(button_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(stack_layout_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(label_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(button_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(stack_layout_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(set_window_, 6);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(set_pos_, 6);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(set_rel_pos_, 8);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_pos_, 4);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(set_size_, 4);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(set_rel_size_, 10);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_size_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(set_overflow_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_overflow_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(set_margins_, 5);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_margins_, 5);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(set_padding_, 5);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_padding_, 5);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(show_, 1);
@@ -50,26 +44,50 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_auto_height_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(set_font_, 3);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_font_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(add_child_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(remove_child_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_root_, 0);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(set_func_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_builtin_font_, 4);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(open_font_, 3);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(match_x_, 4);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(match_y_, 4);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(match_pos_, 4);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(match_w_, 4);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(match_h_, 4);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(match_size_, 4);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(perc_pos_, 4);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(diff_pos_, 3);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(perc_size_, 4);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(diff_size_, 3);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(min_x_, 3);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(min_y_, 3);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(min_pos_, 4);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(max_x_, 3);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(max_y_, 3);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(max_pos_, 4);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(min_w_, 3);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(min_h_, 3);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(min_size_, 4);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(max_w_, 3);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(max_h_, 3);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(max_size_, 4);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(fill_w_, 6);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(fill_h_, 6);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_text_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(set_text_, 3);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(_debug_view_, 1);
 
-#if __LINE__ - FUNC_COUNT != 29
+#if __LINE__ - FUNC_COUNT != 27
 #error
 #endif
 
+    if (!GUI::ani_init())
+        return false;
+    if (!GUI::element_init()) {
+        GUI::ani_quit();
+        return false;
+    }
+
     sdl_error_str = STR(Nst_string_new_c_raw("SDL Error", false));
-    gui_element_type = Nst_cont_type_new(
-        "GUI_Element",
-        (Nst_ObjDstr)gui_element_destroy,
-        (Nst_ObjTrav)gui_element_traverse);
-    gui_font_type = Nst_type_new(
-        "GUI Font",
-        (Nst_ObjDstr)gui_font_destroy);
     default_font = nullptr;
 
     app.root = nullptr;
@@ -106,8 +124,8 @@ Nst_DeclrList *get_func_ptrs()
 void free_lib()
 {
     Nst_dec_ref(sdl_error_str);
-    Nst_dec_ref(gui_element_type);
-    Nst_dec_ref(gui_font_type);
+    GUI::ani_quit();
+    GUI::element_quit();
 
     if (app.window != nullptr) {
         SDL_DestroyRenderer(app.renderer);
@@ -116,7 +134,7 @@ void free_lib()
     }
 
     for (usize i = 0, n = SEQ(app.opened_fonts)->len; i < n; i++)
-        TTF_CloseFont(((GUI_FontObj *)(SEQ(app.opened_fonts)->objs[i]))->font);
+        TTF_CloseFont(((GUI::FontObj *)(SEQ(app.opened_fonts)->objs[i]))->font);
 
     TTF_Quit();
     SDL_Quit();
@@ -125,26 +143,7 @@ void free_lib()
         Nst_ndec_ref(app.builtin_fonts[i]);
 }
 
-static void gui_font_destroy(GUI_FontObj *f)
-{
-    if (!TTF_WasInit()) {
-        TTF_CloseFont(f->font);
-        Nst_vector_remove(app.opened_fonts, f);
-    }
-}
-
-Nst_Obj *gui_font_new(TTF_Font *font)
-{
-    GUI_FontObj *f = Nst_obj_alloc(GUI_FontObj, gui_font_type);
-    f->font = font;
-    if (!Nst_vector_append(app.opened_fonts, f)) {
-        Nst_dec_ref(f);
-        return nullptr;
-    }
-    return OBJ(f);
-}
-
-void set_sdl_error()
+void GUI::set_sdl_error()
 {
     const i8 *sdl_error = SDL_GetError();
     usize len = strlen(sdl_error);
@@ -162,34 +161,45 @@ void set_sdl_error()
     Nst_set_error(Nst_inc_ref(sdl_error_str), msg);
 }
 
-int imin(int n1, int n2)
+int GUI::imin(int n1, int n2)
 {
     return n2 < n1 ? n2 : n1;
 }
 
-int imax(int n1, int n2)
+int GUI::imax(int n1, int n2)
 {
     return n2 > n1 ? n2 : n1;
 }
 
-void set_focused_element(GUI_Element *el)
+void GUI::set_focused_element(GUI::Element *el)
 {
-    remove_focused_element();
+    GUI::remove_focused_element();
     app.focused_element = el;
     Nst_inc_ref(el);
 }
 
-GUI_Element *get_focused_element()
+GUI::Element *GUI::get_focused_element()
 {
     return app.focused_element;
 }
 
-void remove_focused_element()
+void GUI::remove_focused_element()
 {
     if (app.focused_element != nullptr) {
         Nst_dec_ref(app.focused_element);
         app.focused_element = nullptr;
     }
+}
+
+GUI::App *GUI::get_global_app()
+{
+    return &app;
+}
+
+static void fmt_label_text(const i8 *base, i8 *buf, i32 &count)
+{
+    sprintf(buf, base, count);
+    count++;
 }
 
 Nst_FUNC_SIGN(init_sdl_and_ttf_)
@@ -200,7 +210,7 @@ Nst_FUNC_SIGN(init_sdl_and_ttf_)
         Nst_RETURN_NULL;
 
     if (SDL_Init(SDL_INIT_EVERYTHING) || TTF_Init()) {
-        set_sdl_error();
+        GUI::set_sdl_error();
         return nullptr;
     }
     Nst_RETURN_NULL;
@@ -226,107 +236,95 @@ Nst_FUNC_SIGN(loop_)
 
 Nst_FUNC_SIGN(label_)
 {
-    Nst_StrObj *text;
-    GUI_FontObj *font;
-    Nst_SeqObj *color;
+    GUI::Element *parent;
+
+    Nst_DEF_EXTRACT("#", GUI::get_element_type(), &parent);
     u8 r, g, b, a;
+    r = app.fg_color.r;
+    g = app.fg_color.g;
+    b = app.fg_color.b;
+    a = app.fg_color.a;
 
-    Nst_DEF_EXTRACT("s ?# ?A.i", &text, gui_font_type, &font, &color);
-
-    if (OBJ(color) == Nst_null()) {
-        r = app.fg_color.r;
-        g = app.fg_color.g;
-        b = app.fg_color.b;
-        a = app.fg_color.a;
-    } else if (color->len == 3) {
-        r = u8(AS_INT(color->objs[0]));
-        g = u8(AS_INT(color->objs[1]));
-        b = u8(AS_INT(color->objs[2]));
-        a = 255;
-    } else if (color->len == 4) {
-        r = u8(AS_INT(color->objs[0]));
-        g = u8(AS_INT(color->objs[1]));
-        b = u8(AS_INT(color->objs[2]));
-        a = u8(AS_INT(color->objs[4]));
-    } else {
-        Nst_set_value_error_c("the color must be of length 3 or 4");
+    GUI::FontObj *font = get_font(
+        &app,
+        GUI::GUI_FW_REGULAR, GUI::GUI_FS_MEDIUM,
+        false, false);
+    if (font == nullptr)
         return nullptr;
-    }
-
-    if (OBJ(font) == Nst_null()) {
-        font = get_font(&app, GUI_FW_REGULAR, GUI_FS_MEDIUM, false, false);
-        if (font == nullptr)
-            return nullptr;
-    }
     Nst_inc_ref(font);
 
+    i8 buf[16];
+    fmt_label_text("Label %li", buf, button_count);
+    Nst_StrObj text = Nst_string_temp(buf, strlen(buf));
     int w, h;
-    TTF_SizeUTF8(font->font, text->value, &w, &h);
-
-    GUI_Element *label = gui_label_new(
-        text, font,
+    TTF_SizeUTF8(font->font, text.value, &w, &h);
+    GUI::Element *label = GUI::label_new(
+        &text, font,
         { r, g, b, a },
-        0, 0, w + 1, h,
+        0, 0, w, h,
         &app);
 
     if (label == nullptr)
         return nullptr;
-    gui_element_set_margin(label, 10, 0, 0, 0);
+
+    if (!GUI::element_add_child(parent, label)) {
+        Nst_dec_ref(label);
+        return nullptr;
+    }
     return OBJ(label);
 }
 
 Nst_FUNC_SIGN(button_)
 {
-    Nst_StrObj *text;
-    GUI_FontObj *font;
-    Nst_DEF_EXTRACT("s ?#", &text, gui_font_type, &font);
+    GUI::Element *parent;
+    Nst_DEF_EXTRACT("#", GUI::get_element_type(), &parent);
 
-    if (OBJ(font) == Nst_null()) {
-        font = get_font(&app, GUI_FW_REGULAR, GUI_FS_MEDIUM, false, false);
-        if (font == nullptr)
-            return nullptr;
-    }
+    GUI::FontObj *font = get_font(
+        &app,
+        GUI::GUI_FW_REGULAR, GUI::GUI_FS_MEDIUM,
+        false, false);
+    if (font == nullptr)
+        return nullptr;
     Nst_inc_ref(font);
 
+    i8 buf[17];
+    fmt_label_text("Button %li", buf, label_count);
+    Nst_StrObj text = Nst_string_temp(buf, strlen(buf));
     int w, h;
-    TTF_SizeUTF8(font->font, text->value, &w, &h);
+    TTF_SizeUTF8(font->font, text.value, &w, &h);
 
-    GUI_Element *label = gui_label_new(
-        text, font,
+    GUI::Element *label = GUI::label_new(
+        &text, font,
         app.fg_color,
-        0, 0, w + 1, h,
+        0, 0, w, h,
         &app);
 
     if (label == nullptr)
         return nullptr;
 
-    GUI_Element *button = gui_button_new((GUI_Label *)label, &app);
+    GUI::Element *button = GUI::button_new((GUI::Label *)label, &app);
+    if (!GUI::element_add_child(parent, button)) {
+        Nst_dec_ref(button);
+        return nullptr;
+    }
     return OBJ(button);
 }
 
 Nst_FUNC_SIGN(stack_layout_)
 {
-    Nst_Obj *direction_obj;
-    Nst_Obj *alignment_obj;
+    GUI::Element *parent;
+    Nst_DEF_EXTRACT("#", GUI::get_element_type(), &parent);
 
-    Nst_DEF_EXTRACT("?i ?i", &direction_obj, &alignment_obj);
-    i64 direction = Nst_DEF_VAL(direction_obj, AS_INT(direction_obj), 0);
-    i64 alignment = Nst_DEF_VAL(alignment_obj, AS_INT(alignment_obj), 0);
-
-    if (direction < 0 || direction > 3) {
-        Nst_set_value_error_c("invalid direction");
-        return nullptr;
-    }
-    if (alignment < 0 || alignment > 2) {
-        Nst_set_value_error_c("invalid alignment");
-        return nullptr;
-    }
-
-    return OBJ(gui_stack_layout_new(
-        (GUI_StackDir)direction,
-        (GUI_StackAlign)alignment,
+    GUI::Element *sl = GUI::stack_layout_new(
+        GUI::SD_TOP_BOTTOM,
+        GUI::SA_LEFT_TOP,
         0, 0, 0, 0,
-        &app));
+        &app);
+    if (!GUI::element_add_child(parent, sl)) {
+        Nst_dec_ref(sl);
+        return nullptr;
+    }
+    return OBJ(sl);
 }
 
 Nst_FUNC_SIGN(set_window_)
@@ -353,19 +351,19 @@ Nst_FUNC_SIGN(set_window_)
 
     app.window = SDL_CreateWindow(title->value, pos_x, pos_y, int(w), int(h), flags);
     if (app.window == nullptr) {
-        set_sdl_error();
+        GUI::set_sdl_error();
         return nullptr;
     }
     app.renderer = SDL_CreateRenderer(app.window, -1, 0);
     if (app.renderer == nullptr) {
-        set_sdl_error();
+        GUI::set_sdl_error();
         SDL_DestroyWindow(app.window);
         return nullptr;
     }
 
-    GUI_Element *root = gui_element_new(
-        GUI_ET_BASE,
-        sizeof(GUI_Element),
+    GUI::Element *root = GUI::element_new(
+        GUI::GUI_ET_BASE,
+        sizeof(GUI::Element),
         0, 0,
         int(w), int(h),
         &app, NULL);
@@ -374,19 +372,12 @@ Nst_FUNC_SIGN(set_window_)
         SDL_DestroyWindow(app.window);
         return nullptr;
     }
-    root->handle_event_func = root_handle_event;
-    root->frame_update_func = root_update;
+    root->handle_event_func = GUI::root_handle_event;
+    root->frame_update_func = GUI::root_update;
     app.root = root;
 
-    gui_element_set_parent(root, root);
-    gui_element_set_rel_size(
-        root, nullptr,
-        GUI_RECT_ELEMENT, GUI_RECT_ELEMENT,
-        -1, -1,
-        -1, -1,
-        1.0, 1.0,
-        0, 0);
-    gui_element_set_padding(root, 5, 5, 5, 5);
+    GUI::element_set_parent(root, root);
+    GUI::match_size(nullptr, app.root, false, false);
 
     app.keep_open = true;
     Nst_RETURN_NULL;
@@ -394,278 +385,87 @@ Nst_FUNC_SIGN(set_window_)
 
 Nst_FUNC_SIGN(set_pos_)
 {
-    GUI_Element *element;
-    i64 x, y, rect, pos_x, pos_y;
-    Nst_Obj *rect_obj, *pos_x_obj, *pos_y_obj;
+    GUI::Element *element;
+    i64 x, y, pos;
+    Nst_Obj *pos_obj;
     Nst_DEF_EXTRACT(
-        "# i i ?i ?i ?i",
-        gui_element_type, &element,
+        "# i i ?i",
+        GUI::get_element_type(), &element,
         &x, &y,
-        &pos_x_obj, &pos_y_obj,
-        &rect_obj);
-    rect = Nst_DEF_VAL(rect_obj, AS_INT(rect_obj), 1);
-    pos_x = Nst_DEF_VAL(pos_x_obj, AS_INT(pos_x_obj), 0);
-    pos_y = Nst_DEF_VAL(pos_y_obj, AS_INT(pos_y_obj), 0);
+        &pos_obj);
+    pos = Nst_DEF_VAL(pos_obj, AS_INT(pos_obj), 0);
 
-    gui_element_set_pos(
-        element,
-        (GUI_RelPosX)pos_x, (int)x,
-        (GUI_RelPosY)pos_y, (int)y,
-        (GUI_RelRect)rect);
-    if (Nst_HAS_FLAG(element, GUI_FLAG_REL_POS)) {
-        Nst_DEL_FLAG(element, GUI_FLAG_REL_POS);
-        Nst_dec_ref(element->rel_pos.element);
-        element->rel_pos.element = nullptr;
-    }
+    GUI::element_set_pos(element, (GUI::Pos)pos, (int)x, (int)y);
     return Nst_inc_ref(element);
-}
-
-Nst_FUNC_SIGN(set_rel_pos_)
-{
-    GUI_Element *from_element, *to_element;
-    i64 from_x, from_y, to_x, to_y;
-    Nst_Obj *to_x_obj, *to_y_obj;
-    Nst_Obj *from_rect_obj, *to_rect_obj;
-
-    Nst_DEF_EXTRACT(
-        "?#" // from_element
-        "#" // to_element
-        "i" // from_x
-        "i" // from_y
-        "?i" // to_x_obj
-        "?i" // to_y_obj
-        "?i" // from_rect_obj
-        "?i", // to_rect_obj
-        gui_element_type, &from_element,
-        gui_element_type, &to_element,
-        &from_x, &from_y, &to_x_obj, &to_y_obj,
-        &from_rect_obj, &to_rect_obj);
-
-    to_x = Nst_DEF_VAL(to_x_obj, AS_INT(to_x_obj), from_x);
-    to_y = Nst_DEF_VAL(to_y_obj, AS_INT(to_y_obj), from_y);
-    i64 from_rect = Nst_DEF_VAL(from_rect_obj, AS_INT(from_rect_obj), 0);
-    i64 to_rect = Nst_DEF_VAL(to_rect_obj, AS_INT(to_rect_obj), 2);
-
-    if (OBJ(from_element) == Nst_null()) {
-        Nst_dec_ref(from_element);
-        from_element = nullptr;
-    }
-
-    gui_element_set_rel_pos(
-        to_element, from_element,
-        (GUI_RelRect)from_rect, (GUI_RelRect)to_rect,
-        (GUI_RelPosX)from_x, (GUI_RelPosY)from_y,
-        (GUI_RelPosX)to_x,   (GUI_RelPosY)to_y);
-    return Nst_inc_ref(from_element);
 }
 
 Nst_FUNC_SIGN(get_pos_)
 {
-    GUI_Element *element;
-    Nst_Obj *pos_x_obj, *pos_y_obj, *rect_obj;
-    Nst_DEF_EXTRACT(
-        "# ?i ?i ?i",
-        gui_element_type, &element,
-        &pos_x_obj, &pos_y_obj,
-        &rect_obj);
-    i64 pos_x = Nst_DEF_VAL(pos_x_obj, AS_INT(pos_x_obj), 0);
-    i64 pos_y = Nst_DEF_VAL(pos_y_obj, AS_INT(pos_y_obj), 0);
-    i64 rel_rect = Nst_DEF_VAL(rect_obj, AS_INT(rect_obj), 1);
-
-    SDL_Rect rect;
-    if ((GUI_RelRect)rel_rect == GUI_RECT_MARGIN)
-        rect = gui_element_get_margin_rect(element);
-    else if ((GUI_RelRect)rel_rect == GUI_RECT_PADDING)
-        rect = gui_element_get_padding_rect(element);
-    else
-        rect = element->rect;
+    GUI::Element *element;
+    Nst_Obj *pos_obj;
+    Nst_DEF_EXTRACT("# ?i", GUI::get_element_type(), &element, &pos_obj);
+    GUI::Pos pos = Nst_DEF_VAL(pos_obj, GUI::Pos(AS_INT(pos_obj)), GUI::TL);
 
     int x, y;
-    switch ((GUI_RelPosX)pos_x) {
-    case GUI_MIDDLE: x = rect.x + rect.w / 2; break;
-    case GUI_RIGHT: x = rect.x + rect.w; break;
-    default: x = rect.x;
-    }
-
-    switch ((GUI_RelPosX)pos_y) {
-    case GUI_MIDDLE: y = rect.y + rect.h / 2; break;
-    case GUI_RIGHT: y = rect.y + rect.h; break;
-    default: y = rect.y;
-    }
+    GUI::element_get_pos(element, pos, x, y);
 
     return Nst_array_create_c("ii", x, y);
 }
 
 Nst_FUNC_SIGN(set_size_)
 {
-    GUI_Element *element;
+    GUI::Element *element;
     i64 w, h;
-    Nst_Obj *rect_obj;
-    Nst_DEF_EXTRACT("# i i ?i", gui_element_type, &element, &w, &h, &rect_obj);
-    i64 rect = Nst_DEF_VAL(rect_obj, AS_INT(rect_obj), 1);
-    gui_element_set_size(element, (int)w, (int)h, (GUI_RelRect)rect);
-    if (Nst_HAS_FLAG(element, GUI_FLAG_REL_SIZE)) {
-        Nst_DEL_FLAG(element, GUI_FLAG_REL_SIZE);
-        if (element->rel_size.element != nullptr) {
-            Nst_dec_ref(element->rel_size.element);
-            element->rel_size.element = nullptr;
-        }
-    }
-    return Nst_inc_ref(element);
-}
-
-Nst_FUNC_SIGN(set_rel_size_)
-{
-    GUI_Element *from_element, *to_element;
-    Nst_Obj *size_x, *size_y;
-    Nst_Obj *min_w_obj, *min_h_obj, *max_w_obj, *max_h_obj;
-    i64 min_w, min_h, max_w, max_h;
-    Nst_Obj *from_rect_obj, *to_rect_obj;
-
+    bool to_padding;
     Nst_DEF_EXTRACT(
-        "?#" // from_element
-        "#" // to_element
-        "i|r" // size_x
-        "i|r" // size_y
-        "?i" // min_w_obj
-        "?i" // min_h_obj
-        "?i" // max_w_obj
-        "?i" // max_h_obj
-        "?i" // from_rect_obj
-        "?i", // to_rect_obj
-        gui_element_type, &from_element,
-        gui_element_type, &to_element,
-        &size_x, &size_y,
-        &min_w_obj, &min_h_obj, &max_w_obj, &max_h_obj,
-        &from_rect_obj, &to_rect_obj);
+        "# i i y",
+        GUI::get_element_type(), &element,
+        &w, &h,
+        &to_padding);
 
-    if (OBJ(from_element) == Nst_null()) {
-        Nst_dec_ref(from_element);
-        from_element = nullptr;
-    }
-
-    min_w = Nst_DEF_VAL(min_w_obj, AS_INT(min_w_obj), -1);
-    min_h = Nst_DEF_VAL(min_h_obj, AS_INT(min_h_obj), -1);
-    max_w = Nst_DEF_VAL(max_w_obj, AS_INT(max_w_obj), -1);
-    max_h = Nst_DEF_VAL(max_h_obj, AS_INT(max_h_obj), -1);
-    i64 from_rect = Nst_DEF_VAL(from_rect_obj, AS_INT(from_rect_obj), 0);
-    i64 to_rect = Nst_DEF_VAL(from_rect_obj, AS_INT(from_rect_obj), 2);
-
-    i32 diff_x = 0, diff_y = 0;
-    f64 scale_x = 0.0, scale_y = 0.0;
-
-    if (Nst_T(size_x, Int))
-        diff_x = (i32)AS_INT(size_x);
-    else
-        scale_x = AS_REAL(size_x);
-
-    if (Nst_T(size_y, Int))
-        diff_y = (i32)AS_INT(size_y);
-    else
-        scale_y = AS_REAL(size_y);
-
-    gui_element_set_rel_size(
-        to_element, from_element,
-        (GUI_RelRect)from_rect, (GUI_RelRect)to_rect,
-        (int)min_w, (int)min_h, (int)max_w, (int)max_h,
-        scale_x, scale_y,
-        diff_x, diff_y);
-
-    return Nst_inc_ref(from_element);
+    GUI::element_set_size(element, (int)w, (int)h, to_padding);
+    return Nst_inc_ref(element);
 }
 
 Nst_FUNC_SIGN(get_size_)
 {
-    GUI_Element *element;
-    Nst_Obj *rect_obj;
-    Nst_DEF_EXTRACT("# ?i", gui_element_type, &element, &rect_obj);
-    i64 rel_rect = Nst_DEF_VAL(rect_obj, AS_INT(rect_obj), 1);
+    GUI::Element *element;
+    bool from_padding;
+    Nst_DEF_EXTRACT("# y", GUI::get_element_type(), &element, &from_padding);
 
-    SDL_Rect rect;
-    if ((GUI_RelRect)rel_rect == GUI_RECT_MARGIN)
-        rect = gui_element_get_margin_rect(element);
-    else if ((GUI_RelRect)rel_rect == GUI_RECT_PADDING)
-        rect = gui_element_get_padding_rect(element);
-    else
-        rect = element->rect;
-    return Nst_array_create_c("ii", rect.w, rect.h);
+    int w, h;
+    GUI::element_get_size(element, w, h, from_padding);
+
+    return Nst_array_create_c("ii", w, h);
 }
 
 Nst_FUNC_SIGN(set_overflow_)
 {
-    GUI_Element *element;
+    GUI::Element *element;
     bool overflow;
 
-    Nst_DEF_EXTRACT("# y", gui_element_type, &element, &overflow);
+    Nst_DEF_EXTRACT("# y", GUI::get_element_type(), &element, &overflow);
 
-    gui_element_clip_content(element, !overflow);
+    GUI::element_set_clip(element, !overflow);
 
     return Nst_inc_ref(element);
 }
 
 Nst_FUNC_SIGN(get_overflow_)
 {
-    GUI_Element *element;
-    Nst_DEF_EXTRACT("#", gui_element_type, &element);
+    GUI::Element *element;
+    Nst_DEF_EXTRACT("#", GUI::get_element_type(), &element);
     Nst_RETURN_COND(element->clip_content);
-}
-
-Nst_FUNC_SIGN(set_margins_)
-{
-    GUI_Element *element;
-    Nst_Obj *l_obj, *b_obj, *r_obj;
-    i64 t, l, b, r;
-    Nst_DEF_EXTRACT(
-        "# i ?i ?i ?i",
-        gui_element_type, &element,
-        &t, &l_obj, &b_obj, &r_obj);
-
-    Nst_Obj *null = Nst_null();
-
-    if (l_obj == null && b_obj == null && r_obj == null) {
-        l = t;
-        b = t;
-        r = t;
-    } else if (l_obj != null && b_obj == null && r_obj == null) {
-        b = t;
-        l = AS_INT(l_obj);
-        r = l;
-    } else if (l_obj != null && b_obj != null && r_obj == null) {
-        l = AS_INT(l_obj);
-        b = AS_INT(b_obj);
-        r = l;
-    } else if (l_obj != null && b_obj != null && r_obj != null) {
-        l = AS_INT(l_obj);
-        b = AS_INT(b_obj);
-        r = AS_INT(r_obj);
-    } else {
-        l = Nst_DEF_VAL(l_obj, AS_INT(l_obj), -1);
-        b = Nst_DEF_VAL(b_obj, AS_INT(b_obj), -1);
-        r = Nst_DEF_VAL(r_obj, AS_INT(r_obj), -1);
-    }
-
-    gui_element_set_margin(element, (i32)t, (i32)l, (i32)b, (i32)r);
-    return Nst_inc_ref(element);
-}
-
-Nst_FUNC_SIGN(get_margins_)
-{
-    GUI_Element *element;
-    Nst_DEF_EXTRACT("#", gui_element_type, &element);
-    return Nst_array_create_c(
-        "iiii",
-        element->margin_left, element->margin_right,
-        element->margin_top, element->margin_bottom);
 }
 
 Nst_FUNC_SIGN(set_padding_)
 {
-    GUI_Element *element;
+    GUI::Element *element;
     Nst_Obj *l_obj, *b_obj, *r_obj;
     i64 t, l, b, r;
     Nst_DEF_EXTRACT(
         "# i ?i ?i ?i",
-        gui_element_type, &element,
+        GUI::get_element_type(), &element,
         &t, &l_obj, &b_obj, &r_obj);
 
     Nst_Obj *null = Nst_null();
@@ -692,76 +492,75 @@ Nst_FUNC_SIGN(set_padding_)
         r = Nst_DEF_VAL(r_obj, AS_INT(r_obj), -1);
     }
 
-    gui_element_set_padding(element, (i32)t, (i32)l, (i32)b, (i32)r);
+    GUI::element_set_padding(element, (i32)t, (i32)l, (i32)b, (i32)r);
     return Nst_inc_ref(element);
 }
 
 Nst_FUNC_SIGN(get_padding_)
 {
-    GUI_Element *element;
-    Nst_DEF_EXTRACT("#", gui_element_type, &element);
-    return Nst_array_create_c(
-        "iiii",
-        element->padding_left, element->padding_right,
-        element->padding_top, element->padding_bottom);
+    GUI::Element *element;
+    Nst_DEF_EXTRACT("#", GUI::get_element_type(), &element);
+    i32 p_top, p_left, p_bottom, p_right;
+    GUI::element_get_padding(element, p_top, p_left, p_bottom, p_right);
+    return Nst_array_create_c("iiii", p_top, p_left, p_bottom, p_right);
 }
 
 Nst_FUNC_SIGN(show_)
 {
-    GUI_Element *element;
-    Nst_DEF_EXTRACT("#", gui_element_type, &element);
-    Nst_DEL_FLAG(element, GUI_FLAG_IS_HIDDEN);
+    GUI::Element *element;
+    Nst_DEF_EXTRACT("#", GUI::get_element_type(), &element);
+    Nst_DEL_FLAG(element, GUI::GUI_FLAG_IS_HIDDEN);
     return Nst_inc_ref(element);
 }
 
 Nst_FUNC_SIGN(hide_)
 {
-    GUI_Element *element;
-    Nst_DEF_EXTRACT("#", gui_element_type, &element);
-    Nst_SET_FLAG(element, GUI_FLAG_IS_HIDDEN);
+    GUI::Element *element;
+    Nst_DEF_EXTRACT("#", GUI::get_element_type(), &element);
+    Nst_SET_FLAG(element, GUI::GUI_FLAG_IS_HIDDEN);
     return Nst_inc_ref(element);
 }
 
 Nst_FUNC_SIGN(is_hidden_)
 {
-    GUI_Element *element;
-    Nst_DEF_EXTRACT("#", gui_element_type, &element);
-    Nst_RETURN_COND(Nst_HAS_FLAG(element, GUI_FLAG_IS_HIDDEN));
+    GUI::Element *element;
+    Nst_DEF_EXTRACT("#", GUI::get_element_type(), &element);
+    Nst_RETURN_COND(Nst_HAS_FLAG(element, GUI::GUI_FLAG_IS_HIDDEN));
 }
 
 Nst_FUNC_SIGN(set_auto_height_)
 {
-    GUI_Element *element;
+    GUI::Element *element;
     bool auto_height;
 
-    Nst_DEF_EXTRACT("# y", gui_element_type, &element, &auto_height);
+    Nst_DEF_EXTRACT("# y", GUI::get_element_type(), &element, &auto_height);
 
-    if (element->el_type == GUI_ET_LABEL)
-        ((GUI_Label *)element)->auto_height = auto_height;
+    if (element->el_type == GUI::GUI_ET_LABEL)
+        ((GUI::Label *)element)->auto_height = auto_height;
 
     return Nst_inc_ref(element);
 }
 
 Nst_FUNC_SIGN(get_auto_height_)
 {
-    GUI_Element *element;
-    Nst_DEF_EXTRACT("#", gui_element_type, &element);
+    GUI::Element *element;
+    Nst_DEF_EXTRACT("#", GUI::get_element_type(), &element);
 
-    if (element->el_type == GUI_ET_LABEL)
-        Nst_RETURN_COND(((GUI_Label *)element)->auto_height);
+    if (element->el_type == GUI::GUI_ET_LABEL)
+        Nst_RETURN_COND(((GUI::Label *)element)->auto_height);
 
     Nst_RETURN_FALSE;
 }
 
 Nst_FUNC_SIGN(set_font_)
 {
-    GUI_Element *element;
-    GUI_FontObj *font;
+    GUI::Element *element;
+    GUI::FontObj *font;
     Nst_Obj *change_size_obj;
     Nst_DEF_EXTRACT(
         "# # o",
-        gui_element_type, &element,
-        gui_font_type, &font,
+        GUI::get_element_type(), &element,
+        GUI::get_font_type(), &font,
         &change_size_obj);
 
     bool change_size = Nst_DEF_VAL(
@@ -769,41 +568,25 @@ Nst_FUNC_SIGN(set_font_)
         Nst_obj_to_bool(change_size_obj),
         true);
 
-    if (element->el_type == GUI_ET_LABEL)
-        gui_label_set_font((GUI_Label *)element, font, change_size);
-    else if (element->el_type == GUI_ET_BUTTON)
-        gui_label_set_font(((GUI_Button *)element)->text, font, change_size);
+    if (element->el_type == GUI::GUI_ET_LABEL)
+        GUI::label_set_font((GUI::Label *)element, font, change_size);
+    else if (element->el_type == GUI::GUI_ET_BUTTON)
+        GUI::label_set_font(((GUI::Button *)element)->text, font, change_size);
 
     return Nst_inc_ref(element);
 }
 
 Nst_FUNC_SIGN(get_font_)
 {
-    GUI_Element *element;
-    Nst_DEF_EXTRACT("# #", gui_element_type, &element);
+    GUI::Element *element;
+    Nst_DEF_EXTRACT("# #", GUI::get_element_type(), &element);
 
-    if (element->el_type == GUI_ET_LABEL)
-        return Nst_inc_ref(((GUI_Label *)element)->font);
-    else if (element->el_type == GUI_ET_BUTTON)
-        return Nst_inc_ref(((GUI_Button *)element)->text->font);
+    if (element->el_type == GUI::GUI_ET_LABEL)
+        return Nst_inc_ref(((GUI::Label *)element)->font);
+    else if (element->el_type == GUI::GUI_ET_BUTTON)
+        return Nst_inc_ref(((GUI::Button *)element)->text->font);
 
     Nst_RETURN_NULL;
-}
-
-Nst_FUNC_SIGN(add_child_)
-{
-    GUI_Element *parent, *child;
-    Nst_DEF_EXTRACT("# #", gui_element_type, &parent, gui_element_type, &child);
-    if (!gui_element_add_child(parent, child))
-        return nullptr;
-    return Nst_inc_ref(parent);
-}
-
-Nst_FUNC_SIGN(remove_child_)
-{
-    GUI_Element *parent, *child;
-    Nst_DEF_EXTRACT("# #", gui_element_type, &parent, gui_element_type, &child);
-    Nst_RETURN_COND(gui_element_remove_child(parent, child));
 }
 
 Nst_FUNC_SIGN(get_root_)
@@ -811,7 +594,8 @@ Nst_FUNC_SIGN(get_root_)
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
     if (app.window == nullptr) {
-        Nst_set_call_error_c("'set_window' must be called before getting the root");
+        Nst_set_call_error_c(
+            "'set_window' must be called before getting the root");
         return nullptr;
     }
     return Nst_inc_ref(app.root);
@@ -819,19 +603,20 @@ Nst_FUNC_SIGN(get_root_)
 
 Nst_FUNC_SIGN(set_func_)
 {
-    GUI_Element *el;
+    GUI::Element *el;
     Nst_FuncObj *func;
-    Nst_DEF_EXTRACT("# f", gui_element_type, &el, &func);
-    if (el->el_type != GUI_ET_BUTTON) {
+    Nst_DEF_EXTRACT("# f", GUI::get_element_type(), &el, &func);
+    if (el->el_type != GUI::GUI_ET_BUTTON) {
         Nst_set_value_error_c("the element must be a button");
         return nullptr;
     }
     if (func->arg_num != 1) {
-        Nst_set_value_error_c("the function of a button must take exactly 1 argument");
+        Nst_set_value_error_c(
+            "the function of a button must take exactly 1 argument");
         return nullptr;
     }
-    GUI_Button *b = (GUI_Button *)el;
-    b->func = gui_button_call_nest_func;
+    GUI::Button *b = (GUI::Button *)el;
+    b->func = GUI::button_call_nest_func;
     b->nest_func = FUNC(Nst_inc_ref(func));
     return Nst_inc_ref(el);
 }
@@ -844,16 +629,16 @@ Nst_FUNC_SIGN(get_builtin_font_)
     i64 weight = Nst_DEF_VAL(
         weight_obj,
         AS_INT(weight_obj),
-        (i64)GUI_FW_REGULAR);
+        (i64)GUI::GUI_FW_REGULAR);
     i64 size = Nst_DEF_VAL(
         size_obj,
         AS_INT(size_obj),
-        (i64)GUI_FS_MEDIUM);
+        (i64)GUI::GUI_FS_MEDIUM);
 
     return OBJ(get_font(
         &app,
-        (GUI_FontWeight)weight,
-        (GUI_FontSize)size,
+        (GUI::FontWeight)weight,
+        (GUI::FontSize)size,
         (int)italic,
         (int)monospace));
 }
@@ -882,10 +667,531 @@ Nst_FUNC_SIGN(open_font_)
     if (strikethrough)
         TTF_SetFontStyle(font, TTF_STYLE_STRIKETHROUGH);
 
-    GUI_FontObj *font_obj = (GUI_FontObj *)gui_font_new(font);
+    GUI::FontObj *font_obj = (GUI::FontObj *)GUI::font_new(font);
     if (font_obj == nullptr)
         TTF_CloseFont(font);
     return OBJ(font_obj);
+}
+
+Nst_FUNC_SIGN(match_x_)
+{
+    GUI::Element *to_el;
+    GUI::Element *from_el;
+    Nst_Obj *side_from_obj;
+    Nst_Obj *side_to_obj;
+    Nst_DEF_EXTRACT(
+        "# ?# ?i ?i",
+        GUI::get_element_type(), &to_el,
+        GUI::get_element_type(), &from_el,
+        &side_to_obj,
+        &side_from_obj);
+
+    if (OBJ(from_el) == Nst_null())
+        from_el = to_el->parent;
+
+    GUI::Side side_to = Nst_DEF_VAL(
+        side_to_obj,
+        GUI::Side(AS_INT(side_to_obj)),
+        GUI::LEFT);
+    GUI::Side side_from = Nst_DEF_VAL(
+        side_from_obj,
+        GUI::Side(AS_INT(side_from_obj)),
+        GUI::LEFT);
+
+    GUI::match_x(from_el, to_el, side_from, side_to);
+    return OBJ(to_el);
+}
+
+Nst_FUNC_SIGN(match_y_)
+{
+    GUI::Element *to_el;
+    GUI::Element *from_el;
+    Nst_Obj *side_from_obj;
+    Nst_Obj *side_to_obj;
+    Nst_DEF_EXTRACT(
+        "# ?# ?i ?i",
+        GUI::get_element_type(), &to_el,
+        GUI::get_element_type(), &from_el,
+        &side_to_obj,
+        &side_from_obj);
+
+    if (OBJ(from_el) == Nst_null())
+        from_el = to_el->parent;
+
+    GUI::Side side_to = Nst_DEF_VAL(
+        side_to_obj,
+        GUI::Side(AS_INT(side_to_obj)),
+        GUI::TOP);
+    GUI::Side side_from = Nst_DEF_VAL(
+        side_from_obj,
+        GUI::Side(AS_INT(side_from_obj)),
+        GUI::TOP);
+
+    GUI::match_y(from_el, to_el, side_from, side_to);
+    return OBJ(to_el);
+}
+
+Nst_FUNC_SIGN(match_pos_)
+{
+    GUI::Element *to_el;
+    GUI::Element *from_el;
+    Nst_Obj *pos_from_obj;
+    Nst_Obj *pos_to_obj;
+    Nst_DEF_EXTRACT(
+        "# ?# ?i ?i",
+        GUI::get_element_type(), &to_el,
+        GUI::get_element_type(), &from_el,
+        &pos_to_obj,
+        &pos_from_obj);
+
+    if (OBJ(from_el) == Nst_null())
+        from_el = to_el->parent;
+
+    GUI::Pos pos_to = Nst_DEF_VAL(
+        pos_to_obj,
+        GUI::Pos(AS_INT(pos_to_obj)),
+        GUI::TL);
+    GUI::Pos pos_from = Nst_DEF_VAL(
+        pos_from_obj,
+        GUI::Pos(AS_INT(pos_from_obj)),
+        GUI::TL);
+
+    GUI::match_pos(from_el, to_el, pos_from, pos_to);
+    return OBJ(to_el);
+}
+
+Nst_FUNC_SIGN(match_w_)
+{
+    GUI::Element *to_el;
+    GUI::Element *from_el;
+    bool from_p, to_p;
+    Nst_DEF_EXTRACT(
+        "# ?# y y",
+        GUI::get_element_type(), &to_el,
+        GUI::get_element_type(), &from_el,
+        &from_p,
+        &to_p);
+
+    if (OBJ(from_el) == Nst_null())
+        from_el = to_el->parent;
+
+    GUI::match_w(from_el, to_el, from_p, to_p);
+    return OBJ(to_el);
+}
+
+Nst_FUNC_SIGN(match_h_)
+{
+    GUI::Element *to_el;
+    GUI::Element *from_el;
+    bool from_p, to_p;
+    Nst_DEF_EXTRACT(
+        "# ?# y y",
+        GUI::get_element_type(), &to_el,
+        GUI::get_element_type(), &from_el,
+        &from_p,
+        &to_p);
+
+    if (OBJ(from_el) == Nst_null())
+        from_el = to_el->parent;
+
+    GUI::match_h(from_el, to_el, from_p, to_p);
+    return OBJ(to_el);
+}
+
+Nst_FUNC_SIGN(match_size_)
+{
+    GUI::Element *to_el;
+    GUI::Element *from_el;
+    bool from_p, to_p;
+    Nst_DEF_EXTRACT(
+        "# ?# y y",
+        GUI::get_element_type(), &to_el,
+        GUI::get_element_type(), &from_el,
+        &from_p,
+        &to_p);
+
+    if (OBJ(from_el) == Nst_null())
+        from_el = to_el->parent;
+
+    GUI::match_size(from_el, to_el, from_p, to_p);
+    return OBJ(to_el);
+}
+
+Nst_FUNC_SIGN(perc_pos_)
+{
+    GUI::Element *el;
+    Nst_Obj *x_obj;
+    Nst_Obj *y_obj;
+    Nst_Obj *pos_obj;
+    Nst_DEF_EXTRACT(
+        "# ?N ?N ?i",
+        GUI::get_element_type(), &el,
+        &x_obj, &y_obj, &pos_obj);
+    fsize x = Nst_DEF_VAL(x_obj, fsize(AS_REAL(x_obj)), 1);
+    fsize y = Nst_DEF_VAL(y_obj, fsize(AS_REAL(y_obj)), 1);
+    GUI::Pos pos = Nst_DEF_VAL(pos_obj, GUI::Pos(AS_INT(pos_obj)), GUI::TL);
+
+    GUI::perc_pos(el, x, y, pos);
+    return OBJ(el);
+}
+
+Nst_FUNC_SIGN(diff_pos_)
+{
+    GUI::Element *el;
+    Nst_Obj *x_obj;
+    Nst_Obj *y_obj;
+    Nst_DEF_EXTRACT(
+        "# ?i ?i",
+        GUI::get_element_type(), &el,
+        &x_obj, &y_obj);
+    i64 x = Nst_DEF_VAL(x_obj, AS_INT(x_obj), 0);
+    i64 y = Nst_DEF_VAL(y_obj, AS_INT(y_obj), 0);
+
+    GUI::diff_pos(el, int(x), int(y));
+    return OBJ(el);
+}
+
+Nst_FUNC_SIGN(perc_size_)
+{
+    GUI::Element *el;
+    Nst_Obj *w_obj;
+    Nst_Obj *h_obj;
+    bool padding_rect;
+    Nst_DEF_EXTRACT(
+        "# ?N:r ?N:r y",
+        GUI::get_element_type(), &el,
+        &w_obj, &h_obj, &padding_rect);
+    fsize w = Nst_DEF_VAL(w_obj, fsize(AS_REAL(w_obj)), 1);
+    fsize h = Nst_DEF_VAL(h_obj, fsize(AS_REAL(h_obj)), 1);
+
+    GUI::perc_size(el, w, h, padding_rect);
+    return OBJ(el);
+}
+
+Nst_FUNC_SIGN(diff_size_)
+{
+    GUI::Element *el;
+    Nst_Obj *w_obj;
+    Nst_Obj *h_obj;
+    Nst_DEF_EXTRACT(
+        "# ?i ?i",
+        GUI::get_element_type(), &el,
+        &w_obj, &h_obj);
+    i64 w = Nst_DEF_VAL(w_obj, AS_INT(w_obj), 0);
+    i64 h = Nst_DEF_VAL(h_obj, AS_INT(h_obj), 0);
+
+    GUI::diff_size(el, int(w), int(h));
+    return OBJ(el);
+}
+
+Nst_FUNC_SIGN(min_x_)
+{
+    GUI::Element *el;
+    i64 min_x;
+    Nst_Obj *side_obj;
+    Nst_DEF_EXTRACT("# i ?i", GUI::get_element_type(), &el, &min_x, &side_obj);
+
+    GUI::Side side = Nst_DEF_VAL(
+        side_obj,
+        GUI::Side(AS_INT(side_obj)),
+        GUI::LEFT);
+
+    GUI::min_x(el, (int)min_x, side);
+    return OBJ(el);
+}
+
+Nst_FUNC_SIGN(min_y_)
+{
+    GUI::Element *el;
+    i64 min_y;
+    Nst_Obj *side_obj;
+    Nst_DEF_EXTRACT("# i ?i", GUI::get_element_type(), &el, &min_y, &side_obj);
+
+    GUI::Side side = Nst_DEF_VAL(
+        side_obj,
+        GUI::Side(AS_INT(side_obj)),
+        GUI::TOP);
+
+    GUI::min_y(el, (int)min_y, side);
+    return OBJ(el);
+}
+
+Nst_FUNC_SIGN(min_pos_)
+{
+    GUI::Element *el;
+    i64 min_x;
+    i64 min_y;
+    Nst_Obj *pos_obj;
+    Nst_DEF_EXTRACT(
+        "# i i ?i",
+        GUI::get_element_type(), &el,
+        &min_x, &min_y,
+        &pos_obj);
+
+    GUI::Pos pos = Nst_DEF_VAL(pos_obj, GUI::Pos(AS_INT(pos_obj)), GUI::TL);
+
+    GUI::min_pos(el, (int)min_x, (int)min_y, pos);
+    return OBJ(el);
+}
+
+Nst_FUNC_SIGN(max_x_)
+{
+    GUI::Element *el;
+    i64 max_x;
+    Nst_Obj *side_obj;
+    Nst_DEF_EXTRACT("# i ?i", GUI::get_element_type(), &el, &max_x, &side_obj);
+
+    GUI::Side side = Nst_DEF_VAL(
+        side_obj,
+        GUI::Side(AS_INT(side_obj)),
+        GUI::LEFT);
+
+    GUI::max_x(el, (int)max_x, side);
+    return OBJ(el);
+}
+
+Nst_FUNC_SIGN(max_y_)
+{
+    GUI::Element *el;
+    i64 max_y;
+    Nst_Obj *side_obj;
+    Nst_DEF_EXTRACT("# i ?i", GUI::get_element_type(), &el, &max_y, &side_obj);
+
+    GUI::Side side = Nst_DEF_VAL(
+        side_obj,
+        GUI::Side(AS_INT(side_obj)),
+        GUI::TOP);
+
+    GUI::max_y(el, (int)max_y, side);
+    return OBJ(el);
+}
+
+Nst_FUNC_SIGN(max_pos_)
+{
+    GUI::Element *el;
+    i64 max_x;
+    i64 max_y;
+    Nst_Obj *pos_obj;
+    Nst_DEF_EXTRACT(
+        "# i i ?i",
+        GUI::get_element_type(), &el,
+        &max_x, &max_y,
+        &pos_obj);
+
+    GUI::Pos pos = Nst_DEF_VAL(pos_obj, GUI::Pos(AS_INT(pos_obj)), GUI::TL);
+
+    GUI::max_pos(el, (int)max_x, (int)max_y, pos);
+    return OBJ(el);
+}
+
+Nst_FUNC_SIGN(min_w_)
+{
+    GUI::Element *el;
+    i64 min_w;
+    bool padding_rect;
+    Nst_DEF_EXTRACT(
+        "# i y",
+        GUI::get_element_type(), &el,
+        &min_w,
+        &padding_rect);
+
+    GUI::min_w(el, (int)min_w, padding_rect);
+    return OBJ(el);
+}
+
+Nst_FUNC_SIGN(min_h_)
+{
+    GUI::Element *el;
+    i64 min_h;
+    bool padding_rect;
+    Nst_DEF_EXTRACT(
+        "# i y",
+        GUI::get_element_type(), &el,
+        &min_h,
+        &padding_rect);
+
+    GUI::min_w(el, (int)min_h, padding_rect);
+    return OBJ(el);
+}
+
+Nst_FUNC_SIGN(min_size_)
+{
+    GUI::Element *el;
+    i64 min_w;
+    i64 min_h;
+    bool padding_rect;
+    Nst_DEF_EXTRACT(
+        "# i i y",
+        GUI::get_element_type(), &el,
+        &min_w, &min_h,
+        &padding_rect);
+
+    GUI::min_size(el, (int)min_w, (int)min_h, padding_rect);
+    return OBJ(el);
+}
+
+Nst_FUNC_SIGN(max_w_)
+{
+    GUI::Element *el;
+    i64 max_w;
+    bool padding_rect;
+    Nst_DEF_EXTRACT(
+        "# i y",
+        GUI::get_element_type(), &el,
+        &max_w,
+        &padding_rect);
+
+    GUI::max_w(el, (int)max_w, padding_rect);
+    return OBJ(el);
+}
+
+Nst_FUNC_SIGN(max_h_)
+{
+    GUI::Element *el;
+    i64 max_h;
+    bool padding_rect;
+    Nst_DEF_EXTRACT(
+        "# i y",
+        GUI::get_element_type(), &el,
+        &max_h,
+        &padding_rect);
+
+    GUI::max_w(el, (int)max_h, padding_rect);
+    return OBJ(el);
+}
+
+Nst_FUNC_SIGN(max_size_)
+{
+    GUI::Element *el;
+    i64 max_w;
+    i64 max_h;
+    bool padding_rect;
+    Nst_DEF_EXTRACT(
+        "# i i y",
+        GUI::get_element_type(), &el,
+        &max_w, &max_h,
+        &padding_rect);
+
+    GUI::min_size(el, (int)max_w, (int)max_h, padding_rect);
+    return OBJ(el);
+}
+
+Nst_FUNC_SIGN(fill_w_)
+{
+    GUI::Element *el;
+    GUI::Element *left_el;
+    GUI::Element *right_el;
+    Nst_Obj *left_obj_side_obj;
+    Nst_Obj *right_obj_side_obj;
+    bool padding_rect;
+    Nst_DEF_EXTRACT(
+        "# # # ?i ?i y",
+        GUI::get_element_type(), &el,
+        GUI::get_element_type(), &left_el,
+        GUI::get_element_type(), &right_el,
+        &left_obj_side_obj,
+        &right_obj_side_obj,
+        &padding_rect);
+
+    GUI::Side left_obj_side = Nst_DEF_VAL(
+        left_obj_side_obj,
+        GUI::Side(AS_INT(left_obj_side_obj)),
+        GUI::RIGHT);
+    GUI::Side right_obj_side = Nst_DEF_VAL(
+        right_obj_side_obj,
+        GUI::Side(AS_INT(right_obj_side_obj)),
+        GUI::LEFT);
+
+    fill_w(
+        el, left_el, right_el,
+        left_obj_side, right_obj_side,
+        padding_rect);
+    return OBJ(el);
+}
+
+Nst_FUNC_SIGN(fill_h_)
+{
+    GUI::Element *el;
+    GUI::Element *top_el;
+    GUI::Element *bottom_el;
+    Nst_Obj *top_obj_side_obj;
+    Nst_Obj *bottom_obj_side_obj;
+    bool padding_rect;
+    Nst_DEF_EXTRACT(
+        "# # # ?i ?i y",
+        GUI::get_element_type(), &el,
+        GUI::get_element_type(), &top_el,
+        GUI::get_element_type(), &bottom_el,
+        &top_obj_side_obj,
+        &bottom_obj_side_obj,
+        &padding_rect);
+
+    GUI::Side top_obj_side = Nst_DEF_VAL(
+        top_obj_side_obj,
+        GUI::Side(AS_INT(top_obj_side_obj)),
+        GUI::BOTTOM);
+    GUI::Side bottom_obj_side = Nst_DEF_VAL(
+        bottom_obj_side_obj,
+        GUI::Side(AS_INT(bottom_obj_side_obj)),
+        GUI::TOP);
+
+    fill_h(
+        el, top_el, bottom_el,
+        top_obj_side, bottom_obj_side,
+        padding_rect);
+    return OBJ(el);
+}
+
+Nst_FUNC_SIGN(get_text_)
+{
+    GUI::Element *element;
+    Nst_DEF_EXTRACT("#", GUI::get_element_type(), &element);
+
+    Nst_Buffer *buf;
+    if (element->el_type == GUI::GUI_ET_LABEL)
+        buf = &((GUI::Label *)element)->text;
+    else if (element->el_type == GUI::GUI_ET_BUTTON)
+        buf = &((GUI::Button *)element)->text->text;
+    else {
+        Nst_set_type_errorf(
+            "cannot get the text of '%s' elements",
+            GUI::element_get_type_name(element));
+        return nullptr;
+    }
+
+    Nst_Buffer new_buf;
+    if (!Nst_buffer_copy(buf, &new_buf))
+        return nullptr;
+    Nst_StrObj *text = Nst_buffer_to_string(&new_buf);
+    return OBJ(text);
+}
+
+Nst_FUNC_SIGN(set_text_)
+{
+    GUI::Element *element;
+    Nst_StrObj *text;
+    bool keep_same_size;
+    Nst_DEF_EXTRACT(
+        "# s y",
+        GUI::get_element_type(),
+        &element,
+        &text,
+        &keep_same_size);
+
+    GUI::Label *label;
+    if (element->el_type == GUI::GUI_ET_LABEL)
+        label = (GUI::Label *)element;
+    else if (element->el_type == GUI::GUI_ET_BUTTON)
+        label = ((GUI::Button *)element)->text;
+    else {
+        Nst_set_type_errorf(
+            "cannot set the text of '%s' elements",
+            GUI::element_get_type_name(element));
+        return nullptr;
+    }
+
+    GUI::label_set_text(label, text, !keep_same_size);
+    return Nst_inc_ref(element);
 }
 
 Nst_FUNC_SIGN(_debug_view_)

@@ -1,82 +1,114 @@
 #include "gui_stack_layout.h"
+#include "gui_animation.h"
+#include "gui_draw.h"
 
-i32 gui_stack_layout_handle_event(SDL_Event *e, GUI_StackLayout *sl)
+using namespace GUI;
+
+i32 GUI::stack_layout_handle_event(SDL_Event *e, StackLayout *sl)
 {
     if (e->type != SDL_USEREVENT
         || e->user.data1 != sl
         || e->user.code != GUI_UE_CHILD_ADDED)
         return 0;
 
-#ifdef _Nst_ARCH_x64
-    u32 idx = (u32)(u64)e->user.data2;
-#else
-    u32 idx = (u32)e->user.data2;
-#endif
-    GUI_Element *child = (GUI_Element *)sl->children->objs[idx];
-    GUI_Element *parent = (GUI_Element *)sl;
-    GUI_Element *prev_child = nullptr;
+    isize idx = (isize)e->user.data2;
+
+    Element *child = (Element *)sl->children->objs[idx];
+    Element *prev_child = nullptr;
 
     if (idx >= 1)
-        prev_child = (GUI_Element *)sl->children->objs[idx - 1];
-
-    GUI_StackDir inv_sd = GUI_StackDir(sl->sd - 2);
-
-    if (inv_sd == -1)
-        inv_sd = (GUI_StackDir)3;
-    else if (inv_sd == -2)
-        inv_sd = (GUI_StackDir)2;
+        prev_child = (Element *)sl->children->objs[idx - 1];
 
     switch (sl->sd) {
-    case GUI_SD_TOP_BOTTOM:
-    case GUI_SD_BOTTOM_TOP:
-        if (idx == 0) {
-            gui_element_set_rel_pos(
-                child, parent,
-                GUI_RECT_PADDING, GUI_RECT_MARGIN,
-                (GUI_RelPosX)sl->sa, (GUI_RelPosY)sl->sd,
-                (GUI_RelPosX)sl->sa, (GUI_RelPosY)sl->sd);
-            break;
-        }
-        gui_element_set_rel_pos(
-            child, prev_child,
-            GUI_RECT_MARGIN, GUI_RECT_MARGIN,
-            (GUI_RelPosX)sl->sa, (GUI_RelPosY)inv_sd,
-            (GUI_RelPosX)sl->sa, (GUI_RelPosY)sl->sd);
+    case SD_TOP_BOTTOM:
+        match_y(
+            idx == 0 ? (Element *)sl : prev_child,
+            child,
+            idx == 0 ? P_TOP : BOTTOM,
+            TOP);
+        goto h_sa;
+    case SD_BOTTOM_TOP:
+        match_y(
+            idx == 0 ? (Element *)sl : prev_child,
+            child,
+            idx == 0 ? P_BOTTOM : TOP,
+            BOTTOM);
+        goto h_sa;
+    case SD_LEFT_RIGHT:
+        match_x(
+            idx == 0 ? (Element *)sl : prev_child,
+            child,
+            idx == 0 ? P_LEFT : RIGHT,
+            LEFT);
+        goto v_sa;
+    case SD_RIGHT_LEFT:
+        match_x(
+            idx == 0 ? (Element *)sl : prev_child,
+            child,
+            idx == 0 ? P_RIGHT : LEFT,
+            RIGHT);
+        goto v_sa;
+    }
+
+h_sa:
+    switch (sl->sa) {
+    case SA_LEFT_TOP:
+        match_x((Element *)sl, child, P_LEFT, LEFT);
         break;
-    case GUI_SD_LEFT_RIGHT:
-    case GUI_SD_RIGHT_LEFT:
-        if (idx == 0) {
-            gui_element_set_rel_pos(
-                child, parent,
-                GUI_RECT_PADDING, GUI_RECT_MARGIN,
-                GUI_RelPosX(sl->sd - 1), (GUI_RelPosY)sl->sa,
-                GUI_RelPosX(sl->sd - 1), (GUI_RelPosY)sl->sa);
-            break;
-        }
-        gui_element_set_rel_pos(
-            child, prev_child,
-            GUI_RECT_MARGIN, GUI_RECT_MARGIN,
-            GUI_RelPosX(inv_sd - 1), (GUI_RelPosY)sl->sa,
-            GUI_RelPosX(sl->sd - 1), (GUI_RelPosY)sl->sa);
+    case SA_MIDDLE:
+        match_x((Element *)sl, child, P_CENTER, CENTER);
+        break;
+    case SA_BOTTOM_RIGHT:
+        match_x((Element *)sl, child, P_RIGHT, RIGHT);
+        break;
+    }
+    return true;
+
+v_sa:
+    switch (sl->sa) {
+    case SA_LEFT_TOP:
+        match_y((Element *)sl, child, P_TOP, TOP);
+        break;
+    case SA_MIDDLE:
+        match_y((Element *)sl, child, P_CENTER, CENTER);
+        break;
+    case SA_BOTTOM_RIGHT:
+        match_y((Element *)sl, child, P_BOTTOM, BOTTOM);
         break;
     }
     return true;
 }
 
-GUI_Element *gui_stack_layout_new(GUI_StackDir direction,
-                                  GUI_StackAlign alignment,
-                                  int x, int y, int w, int h,
-                                  GUI_App *app)
+bool GUI::stack_layout_update(StackLayout *sl)
 {
-    GUI_StackLayout *new_sl = (GUI_StackLayout *)gui_element_new(
+    SDL_Rect clip = element_get_clip_rect((Element *)sl);
+    SDL_Rect p_rect = element_get_padding_rect((Element *)sl);
+    SDL_Color c = sl->app->bg_color3;
+    SDL_Texture *texture = draw_round_rect(
+        sl->app->renderer,
+        p_rect,
+        6, 6, 6, 6,
+        c.r, c.g, c.b, 60);
+    draw_texture(sl->app, p_rect.x, p_rect.y, texture, &clip);
+    SDL_DestroyTexture(texture);
+    return true;
+}
+
+Element *GUI::stack_layout_new(StackDir direction, StackAlign alignment,
+                               int x, int y, int w, int h, App *app)
+{
+    StackLayout *new_sl = (StackLayout *)element_new(
         GUI_ET_STACK_LAYOUT,
-        sizeof(GUI_StackLayout),
+        sizeof(StackLayout),
         x, y, w, h,
         app, nullptr);
     if (new_sl == nullptr)
         return nullptr;
     new_sl->sd = direction;
     new_sl->sa = alignment;
-    new_sl->handle_event_func = (HandleEventFunc)gui_stack_layout_handle_event;
-    return (GUI_Element *)new_sl;
+    new_sl->handle_event_func = (HandleEventFunc)stack_layout_handle_event;
+    new_sl->frame_update_func = (UpdateFunc)stack_layout_update;
+    element_set_padding((Element *)new_sl, 3, 3, 3, 3);
+
+    return (Element *)new_sl;
 }

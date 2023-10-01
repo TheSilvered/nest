@@ -1,14 +1,18 @@
 #include "gui_button.h"
 #include "gui_draw.h"
 #include "gui_event.h"
+#include "gui_animation.h"
 
 #define BUTTON_RAD 5
 
-static void draw_button(GUI_Button *b)
+using namespace GUI;
+
+static void draw_button(Button *b)
 {
     SDL_Texture* texture;
     SDL_Color c_i, c_b;
-    SDL_Rect clip = gui_element_get_clip_rect((GUI_Element *)b);
+    SDL_Rect clip = element_get_clip_rect((Element *)b);
+    SDL_Rect p_rect = element_get_padding_rect((Element *)b);
 
     switch (b->cs) {
     case GUI_CS_IDLE:
@@ -18,14 +22,14 @@ static void draw_button(GUI_Button *b)
             c_b = b->app->bg_dark;
             texture = draw_round_border_rect(
                 b->app->renderer,
-                b->rect, 1,
+                p_rect, 1,
                 BUTTON_RAD, BUTTON_RAD, BUTTON_RAD, BUTTON_RAD,
                 c_i.r, c_i.g, c_i.b, c_i.a,
                 c_b.r, c_b.g, c_b.b, c_b.a);
             b->textures[0] = texture;
         }
-        gui_label_change_color(b->text, b->app->fg_color);
-        draw_texture(b->app, b->rect.x, b->rect.y, texture, &clip);
+        label_change_color(b->text, b->app->fg_color);
+        draw_texture(b->app, p_rect.x, p_rect.y, texture, &clip);
         break;
     case GUI_CS_HOVER:
     case GUI_CS_HOVER_IDLE:
@@ -35,14 +39,14 @@ static void draw_button(GUI_Button *b)
             c_b = b->app->bg_color3;
             texture = draw_round_border_rect(
                 b->app->renderer,
-                b->rect, 1,
+                p_rect, 1,
                 BUTTON_RAD, BUTTON_RAD, BUTTON_RAD, BUTTON_RAD,
                 c_i.r, c_i.g, c_i.b, c_i.a,
                 c_b.r, c_b.g, c_b.b, c_b.a);
             b->textures[1] = texture;
         }
-        gui_label_change_color(b->text, b->app->fg_color);
-        draw_texture(b->app, b->rect.x, b->rect.y, texture, &clip);
+        label_change_color(b->text, b->app->fg_color);
+        draw_texture(b->app, p_rect.x, p_rect.y, texture, &clip);
         break;
     case GUI_CS_CLICKED:
         texture = b->textures[2];
@@ -51,37 +55,37 @@ static void draw_button(GUI_Button *b)
             c_b = b->app->bg_color3;
             texture = draw_round_border_rect(
                 b->app->renderer,
-                b->rect, 1,
+                p_rect, 1,
                 BUTTON_RAD, BUTTON_RAD, BUTTON_RAD, BUTTON_RAD,
                 c_i.r, c_i.g, c_i.b, c_i.a,
                 c_b.r, c_b.g, c_b.b, c_b.a);
             b->textures[2] = texture;
         }
-        gui_label_change_color(b->text, b->app->fg_color);
-        draw_texture(b->app, b->rect.x, b->rect.y, texture, &clip);
+        label_change_color(b->text, b->app->fg_color);
+        draw_texture(b->app, p_rect.x, p_rect.y, texture, &clip);
         break;
     default:
         break;
     }
 }
 
-static SDL_Rect clickable_area_rect(GUI_Button *b)
+static SDL_Rect clickable_area_rect(Button *b)
 {
     SDL_Rect ca = b->clickable_area;
     ca.x += b->rect.x;
     ca.y += b->rect.y;
-    SDL_Rect clip = gui_element_get_clip_rect((GUI_Element *)b);
+    SDL_Rect clip = element_get_clip_rect((Element *)b);
     SDL_IntersectRect(&ca, &clip, &ca);
     return ca;
 }
 
-bool gui_button_update(GUI_Button *b)
+bool GUI::button_update(Button *b)
 {
     draw_button(b);
     return true;
 }
 
-i32 gui_button_handle_event(SDL_Event *e, GUI_Button *b)
+i32 GUI::button_handle_event(SDL_Event *e, Button *b)
 {
     SDL_Rect ca = clickable_area_rect(b);
     switch (e->type) {
@@ -158,11 +162,11 @@ i32 gui_button_handle_event(SDL_Event *e, GUI_Button *b)
         b->clickable_area.h = b->rect.h;
         return 1;
     default:
-        return default_event_handler(e, (GUI_Element *)b);
+        return default_event_handler(e, (Element *)b);
     }
 }
 
-void gui_button_destroy(GUI_Button *b)
+void GUI::button_destroy(Button *b)
 {
     Nst_dec_ref(b->text);
     Nst_ndec_ref(b->nest_func);
@@ -173,30 +177,26 @@ void gui_button_destroy(GUI_Button *b)
     }
 }
 
-GUI_Element *gui_button_new(GUI_Label *text, GUI_App *app)
+Element *GUI::button_new(Label *text, App *app)
 {
-    GUI_Button *b = (GUI_Button *)gui_element_new(
+    Button *b = (Button *)element_new(
         GUI_ET_BUTTON,
-        sizeof(GUI_Button),
+        sizeof(Button),
         0, 0,
-        text->rect.w + 14, text->rect.h + 5,
+        element_get_w((Element *)text, false) + 10,
+        element_get_h((Element *)text, false) + 6,
         app,
-        (Nst_ObjDstr)gui_button_destroy);
+        (Nst_ObjDstr)button_destroy);
     if (b == nullptr) {
         Nst_dec_ref(text);
         return nullptr;
     }
 
-    gui_element_set_rel_pos(
-        (GUI_Element *)text, (GUI_Element *)b,
-        GUI_RECT_PADDING, GUI_RECT_ELEMENT,
-        GUI_MIDDLE, GUI_CENTER,
-        GUI_MIDDLE, GUI_CENTER);
-    gui_element_clip_parent((GUI_Element *)text, true);
-    gui_element_set_padding((GUI_Element *)b, 2, 7, 3, 7);
-    gui_element_set_margin((GUI_Element *)b, 5, 5, 5, 5);
+    match_pos((Element *)b, (Element *)text, CC, CC);
+    diff_pos((Element *)text, 1, 0);
+    element_set_padding((Element *)b, 3, 3, 3, 3);
 
-    if (!gui_element_add_child((GUI_Element *)b, (GUI_Element *)text)) {
+    if (!element_add_child((Element *)b, (Element *)text)) {
         Nst_dec_ref(text);
         Nst_dec_ref(b);
         return nullptr;
@@ -215,13 +215,13 @@ GUI_Element *gui_button_new(GUI_Label *text, GUI_App *app)
         b->textures[i] = nullptr;
 
     text->handle_event_func = nullptr;
-    b->frame_update_func = (UpdateFunc)gui_button_update;
-    b->handle_event_func = (HandleEventFunc)gui_button_handle_event;
+    b->frame_update_func = (UpdateFunc)button_update;
+    b->handle_event_func = (HandleEventFunc)button_handle_event;
 
-    return (GUI_Element *)b;
+    return (Element *)b;
 }
 
-bool gui_button_call_nest_func(GUI_Button *b)
+bool GUI::button_call_nest_func(Button *b)
 {
     if (b->nest_func == nullptr)
         return true;

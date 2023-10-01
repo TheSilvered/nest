@@ -163,6 +163,19 @@ bool Nst_sbuffer_append(Nst_SizedBuffer *buf, void *element)
     return true;
 }
 
+bool Nst_sbuffer_copy(Nst_SizedBuffer *src, Nst_SizedBuffer *dst)
+{
+    void *new_data = Nst_calloc(1, src->len, src->data);
+    if (new_data == NULL)
+        return false;
+    
+    dst->cap = src->len;
+    dst->len = src->len;
+    dst->unit_size = src->unit_size;
+    dst->data = new_data;
+    return true;
+}
+
 void Nst_sbuffer_destroy(Nst_SizedBuffer *buf)
 {
     if (buf->data != NULL)
@@ -248,6 +261,19 @@ Nst_StrObj *Nst_buffer_to_string(Nst_Buffer *buf)
     buf->cap = 0;
     buf->len = 0;
     return str;
+}
+
+bool Nst_buffer_copy(Nst_Buffer *src, Nst_Buffer *dst)
+{
+    void *new_data = Nst_calloc(1, src->len + 1, src->data);
+    if (new_data == NULL)
+        return false;
+
+    dst->cap = src->len;
+    dst->len = src->len;
+    dst->unit_size = src->unit_size;
+    dst->data = new_data;
+    return true;
 }
 
 void Nst_buffer_destroy(Nst_Buffer *buf)

@@ -232,6 +232,18 @@ NstEXP void NstC Nst_sbuffer_fit(Nst_SizedBuffer *buf);
  * @return `true` on success and `false` on failure. The error is set.
  */
 NstEXP bool NstC Nst_sbuffer_append(Nst_SizedBuffer *buf, void *element);
+/**
+ * Copies the contents of a sized buffer into another.
+ * 
+ * @brief The data of the source buffer is copied into a new block of memory,
+ * subsequent changes to the source buffer will not modify the copied one. 
+ * 
+ * @param src: the buffer to copy from
+ * @param dst: the buffer to copy to
+ * 
+ * @return `true` on success and `false` on failure. The error is set.
+ */
+NstEXP bool NstC Nst_sbuffer_copy(Nst_SizedBuffer *src, Nst_SizedBuffer *dst);
 /* Destroys the contents of a sized buffer. The buffer itself is not freed. */
 NstEXP void NstC Nst_sbuffer_destroy(Nst_SizedBuffer *buf);
 
@@ -315,6 +327,18 @@ NstEXP bool NstC Nst_buffer_append_char(Nst_Buffer *buf, i8 ch);
  * @return The new string on success and `NULL` on failure. The error is set.
  */
 NstEXP Nst_StrObj *NstC Nst_buffer_to_string(Nst_Buffer *buf);
+/**
+* Copies the contents of a buffer into another.
+* 
+* @brief The data of the source buffer is copied into a new block of memory,
+* subsequent changes to the source buffer will not modify the copied one. 
+* 
+* @param src: the buffer to copy from
+* @param dst: the buffer to copy to
+* 
+* @return `true` on success and `false` on failure. The error is set.
+*/
+NstEXP bool NstC Nst_buffer_copy(Nst_Buffer *src, Nst_Buffer *dst);
 /* Destroys the contents of a buffer. The buffer itself is not freed. */
 NstEXP void NstC Nst_buffer_destroy(Nst_Buffer *buf);
 

@@ -7,9 +7,13 @@
 extern "C" {
 #endif // !__cplusplus
 
-bool update_elements(GUI_App *app);
-bool tick_elements(GUI_App *app);
-bool root_update(GUI_Element *el);
+namespace GUI {
+
+bool update_elements(App *app);
+bool tick_elements(App *app);
+bool root_update(Element *el);
+
+}
 
 #ifdef __cplusplus
 }
