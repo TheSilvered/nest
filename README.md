@@ -38,7 +38,7 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 - [x] Add `extend` to `stdsequtil.nest` (instead of in-place `sequ.merge`)
 - [x] Add `copy` and `deepcopy` to `stdsequtil.nest`
 - [x] Add encoding arguments to `load_f` and `dump_f` in `stdjson.nest`
-- [ ] Add option for `Infinity` and `Nan` to `stdjson.nest`
+- [x] Add option for `Infinity` and `Nan` to `stdjson.nest`
 - [ ] Add `extUTF-16` encoding (with little and big endian variants) that accept
   unpaired surrogates
 - [ ] Rename `replace_substr` to `replace`
@@ -49,6 +49,8 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 - [ ] Avoid object to object casts in `Nst_extract_arg_values` if the first
       object is `null`
 - [ ] Better testing with C
+- [ ] Add `INF` and `NAN` constants to `stdmath.nest`
+- [ ] Finish implementing `Nst_fmt`
 
 ### Future planned features
 

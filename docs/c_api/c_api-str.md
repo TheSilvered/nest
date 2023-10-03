@@ -296,8 +296,8 @@ Creates a new temporary read-only string object.
 This object is not allocated on the heap and cannot be returned by a function,
 its intended use is only on functions where a string object is needed but you
 have the string in another form. Nothing is allocated and it must not be
-destroyed in any way. `val` is assumed to contain only 7-bit ASCII characters.
-If it can be indexed and it may not contain only those characters, create a
+destroyed in any way. If the string is indexed, `val` is assumed to contain only
+7-bit ASCII characters. If it may not contain only those characters, create a
 string with [`Nst_string_new`](c_api-str.md#nst_string_new) or other similar
 functions.
 

@@ -115,9 +115,9 @@ NstEXP Nst_Obj *NstC Nst_string_new_len(i8 *val, usize len, usize true_len,
  * @brief This object is not allocated on the heap and cannot be returned by
  * a function, its intended use is only on functions where a string object is
  * needed but you have the string in another form. Nothing is allocated and
- * it must not be destroyed in any way. `val` is assumed to contain only 7-bit
- * ASCII characters. If it can be indexed and it may not contain only those
- * characters, create a string with `Nst_string_new` or other similar
+ * it must not be destroyed in any way. If the string is indexed, `val` is
+ * assumed to contain only 7-bit ASCII characters. If it may not contain only
+ * those characters, create a string with `Nst_string_new` or other similar
  * functions.
  *
  * @param val: the value of the string

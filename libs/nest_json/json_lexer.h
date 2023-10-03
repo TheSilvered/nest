@@ -4,6 +4,7 @@
 #include "nest.h"
 
 extern bool comments;
+extern bool nan_and_inf;
 
 #define JSON_SYNTAX_ERROR(msg, path, pos)                                     \
     Nst_set_syntax_error(Nst_sprintf(                                         \

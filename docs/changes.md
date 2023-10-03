@@ -6,6 +6,9 @@
 
 - added `IEND` constant to `stditutil.nest`
 - added `map_i`, `slice_i`, `filter_i`, `copy` and `deep_copy` to `stdsequtil.nest`
+- added `is_nan` and `is_inf` functions to `stdmath.nest`
+- added `inf_and_nan` option to `stdjson.nest` to allow for `NaN` and `Infinity` to be treated as numeric literals
+- added `is_inf` and `is_nan` functions to `stdmath.nest`
 
 **Changes**
 
@@ -22,6 +25,7 @@
 - now `su.repr` will display in `\xhh`, `\uhhhh` or `\uhhhhhh` unprintable characters (control characters, non-characters, surrogates)
 - added an argument to `sequ.map`, `sequ.sort` and `rand.shuffle` to specify whether the sequence should be modified in-place or create a new one
 - added an argument to `json.load_f` and `json.dump_f` to specify the encoding of the file
+- renamed `allow_comments` and `allow_trailing_commas` in `json.OPTIONS` to `comments` and `trailing_commas` respectively
 
 **Bug fixes**
 
@@ -33,6 +37,7 @@
 - fixed Nest not finding files with non-ASCII charcters (both command-line and libraries) on Windows
 - fixed `su.is_charset` returning an incorrect result on some non-ASCII strings (ex. `'à' 'èĠ' @su.is_charset` now returns `false`, before it would return `true`)
 - fixed `io.println` not printing the full string if it contained a NUL character
+- fixed `inf` and `nan` values not being casted correctly to strings
 
 ### C API
 
@@ -56,6 +61,8 @@
 - added `Nst_single_byte_cp` to always get a single-byte encoding
 - added `Nst_NestCallable` type as the type of C functions callable from Nest
 - added `Nst_sbuffer_copy` and `Nst_buffer_copy` to copy the contents of buffers
+- added `Nst_buffer_append_str` to append a string of known length to a buffer
+- added `Nst_fmt` and `Nst_vfmt` to format strings with greater control
 
 **Changes**
 

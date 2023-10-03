@@ -5,6 +5,7 @@
 #include "iter.h"
 #include "argv_parser.h"
 #include "type.h"
+#include "math.h"
 
 Nst_TypeObjs Nst_t;
 Nst_StrConsts Nst_s;
@@ -147,13 +148,17 @@ bool _Nst_init_objects(void)
     Nst_c.Bool_false = Nst_bool_new(false);
     Nst_c.Null_null  = _Nst_obj_alloc(sizeof(Nst_Obj), Nst_t.Null);
     Nst_c.IEnd_iend  = _Nst_obj_alloc(sizeof(Nst_Obj), Nst_t.IEnd);
-    Nst_c.Int_0    = Nst_int_new(0);
-    Nst_c.Int_1    = Nst_int_new(1);
-    Nst_c.Int_neg1 = Nst_int_new(-1);
-    Nst_c.Real_0   = Nst_real_new(0.0);
-    Nst_c.Real_1   = Nst_real_new(1.0);
-    Nst_c.Byte_0   = Nst_byte_new(0);
-    Nst_c.Byte_1   = Nst_byte_new(1);
+    Nst_c.Int_0      = Nst_int_new(0);
+    Nst_c.Int_1      = Nst_int_new(1);
+    Nst_c.Int_neg1   = Nst_int_new(-1);
+    Nst_c.Real_0     = Nst_real_new(0.0);
+    Nst_c.Real_1     = Nst_real_new(1.0);
+    Nst_c.Real_nan   = Nst_real_new(NAN);
+    Nst_c.Real_negnan= Nst_real_new(-NAN);
+    Nst_c.Real_inf   = Nst_real_new(INFINITY);
+    Nst_c.Real_neginf= Nst_real_new(-INFINITY);
+    Nst_c.Byte_0     = Nst_byte_new(0);
+    Nst_c.Byte_1     = Nst_byte_new(1);
 
     Nst_io.in  = IOFILE(Nst_iof_new(stdin,  false, true, false, NULL));
     Nst_io.out = IOFILE(Nst_iof_new(stdout, false, false, true, NULL));

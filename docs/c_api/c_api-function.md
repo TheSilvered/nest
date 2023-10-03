@@ -204,7 +204,7 @@ Destructor for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
 
 ```better-c
 typedef enum _Nst_FuncFlags {
-    Nst_FLAG_FUNC_IS_C = 0b1
+    Nst_FLAG_FUNC_IS_C = Nst_FLAG(1)
 } Nst_FuncFlags
 ```
 

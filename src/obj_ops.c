@@ -30,9 +30,9 @@ typedef void * lib_t;
 #include "mem.h"
 #define MAX_INT_CHAR_COUNT 21
 
-// precision    1  +     16    +  1  +    2     +        3               + 1
-//           (sign) (precision) (dot) (e+ or e-) (over e+308 becomes inf) (\0)
-#define MAX_REAL_CHAR_COUNT 24
+// the length of +9_123_456_789_012_345.0, which is one more than
+// +1.123456789012345e+308
+#define MAX_REAL_CHAR_COUNT 25
 #define MAX_BYTE_CHAR_COUNT 5
 #define REAL_EPSILON 9.9e-15
 #define REAL_PRECISION "16"
@@ -773,8 +773,9 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
         i8 *buffer = Nst_malloc_c(MAX_REAL_CHAR_COUNT, i8);
         CHECK_BUFFER(buffer);
         i32 len = sprintf(buffer, "%." REAL_PRECISION "lg", AS_REAL(ob));
+        // this is temporary, Nest_fmt will work better
         for (i32 i = 0; i < len; i++) {
-            if (buffer[i] == '.' || buffer[i] == 'e')
+            if (buffer[i] == '.' || buffer[i] == 'e' || buffer[i] == 'n')
                 return Nst_string_new_allocated(buffer, len);
         }
         buffer[len++] = '.';

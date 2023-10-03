@@ -168,7 +168,7 @@ bool Nst_sbuffer_copy(Nst_SizedBuffer *src, Nst_SizedBuffer *dst)
     void *new_data = Nst_calloc(1, src->len, src->data);
     if (new_data == NULL)
         return false;
-    
+
     dst->cap = src->len;
     dst->len = src->len;
     dst->unit_size = src->unit_size;
@@ -238,6 +238,16 @@ bool Nst_buffer_append_c_str(Nst_Buffer *buf, const i8 *str)
 
     memcpy(buf->data + buf->len, str, str_len + 1);
     buf->len += str_len;
+    return true;
+}
+
+bool Nst_buffer_append_str(Nst_Buffer *buf, i8 *str, usize len)
+{
+    if (!Nst_buffer_expand_by(buf, len))
+        return false;
+    memcpy(buf->data + buf->len, str, len);
+    buf->len += len;
+    buf->data[buf->len] = '\0';
     return true;
 }
 

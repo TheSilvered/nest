@@ -167,8 +167,9 @@ Nst_FUNC_SIGN(set_options_)
     i64 options;
     Nst_DEF_EXTRACT("i", &options);
 
-    comments        = bool(options & 0b01);
-    trailing_commas = bool(options & 0b10);
+    comments        = bool(options & 0b001);
+    trailing_commas = bool(options & 0b010);
+    nan_and_inf     = bool(options & 0b100);
 
     Nst_RETURN_NULL;
 }
@@ -178,7 +179,8 @@ Nst_FUNC_SIGN(get_options_)
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
     i64 val = 0;
-    val |= comments        ? 0b01 : 0;
-    val |= trailing_commas ? 0b10 : 0;
+    val |= comments        ? 0b001 : 0;
+    val |= trailing_commas ? 0b010 : 0;
+    val |= nan_and_inf     ? 0b100 : 0;
     return Nst_int_new(val);
 }

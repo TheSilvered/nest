@@ -8,7 +8,7 @@
 
 #endif
 
-#define FUNC_COUNT 36
+#define FUNC_COUNT 38
 #define COORD_TYPE_ERROR do {                                                 \
         Nst_set_value_error_c(                                                \
             "all coordinates must be of type 'Real' or 'Int'");               \
@@ -59,6 +59,8 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(lcm_,    2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(abs_,    1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(hypot_,  2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_nan_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_inf_, 1);
 
 #if __LINE__ - FUNC_COUNT != 27
 #error
@@ -67,6 +69,11 @@ bool lib_init()
     lib_init_ = !Nst_error_occurred();
     return lib_init_;
 }
+
+#ifndef Nst_WIN
+#define isnan std::isnan
+#define isinf std::isinf
+#endif // !Nst_WIN
 
 Nst_DeclrList *get_func_ptrs()
 {
@@ -665,4 +672,18 @@ Nst_FUNC_SIGN(hypot_)
     Nst_DEF_EXTRACT("N N", &c1, &c2);
 
     return Nst_real_new(sqrt(c1 * c1 + c2 * c2));
+}
+
+Nst_FUNC_SIGN(is_nan_)
+{
+    f64 n;
+    Nst_DEF_EXTRACT("N", &n);
+    Nst_RETURN_COND(isnan(n));
+}
+
+Nst_FUNC_SIGN(is_inf_)
+{
+    f64 n;
+    Nst_DEF_EXTRACT("N", &n);
+    Nst_RETURN_COND(isinf(n));
 }

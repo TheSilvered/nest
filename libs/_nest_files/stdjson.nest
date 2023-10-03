@@ -9,7 +9,8 @@ __json.load_f_      = load_f
 __json.load_s_      = load_s
 __json.set_options_ = set_options
 
-{ 'allow_comments':        0b01,
-  'allow_trailing_commas': 0b10 } = OPTIONS
+{ 'comments':        0b001,
+  'trailing_commas': 0b010,
+  'nan_and_inf':     0b100 } = OPTIONS
 
 _vars_ '__json' '_vars_' -

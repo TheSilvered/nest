@@ -85,6 +85,10 @@ NstEXP typedef struct _Nst_Consts {
     Nst_Obj *Int_neg1;
     Nst_Obj *Real_0;
     Nst_Obj *Real_1;
+    Nst_Obj *Real_nan;
+    Nst_Obj *Real_negnan;
+    Nst_Obj *Real_inf;
+    Nst_Obj *Real_neginf;
     Nst_Obj *Byte_0;
     Nst_Obj *Byte_1;
 } Nst_Consts;

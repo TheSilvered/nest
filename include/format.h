@@ -225,6 +225,11 @@ NstEXP Nst_Obj *NstC Nst_sprintf(Nst_WIN_FMT const i8 *fmt, ...)
 /* `va_list` variant of `Nst_sprintf`. */
 NstEXP Nst_Obj *NstC Nst_vsprintf(const i8 *fmt, va_list args);
 
+#ifdef ENABLE_NST_FMT
+NstEXP i8 *NstC Nst_fmt(const i8 *fmt, usize *len, ...);
+NstEXP i8 *NstC Nst_vfmt(const i8 *fmt, usize *len, va_list args);
+#endif // !ENABLE_NST_FMT
+
 #ifdef __cplusplus
 }
 #endif // !__cplusplus
