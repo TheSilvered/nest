@@ -153,6 +153,10 @@ void GUI::entry_track_data(AniDataEntry &entry)
     }
 }
 
+#ifndef Nst_WIN
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#endif
+
 Element *GUI::entry_get_element(AniDataEntry &entry)
 {
     return (Element *)entry.data;

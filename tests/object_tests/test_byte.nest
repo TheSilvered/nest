@@ -48,3 +48,6 @@ Byte :: 256.0 0b @test.assert_eq
 Byte :: 15.6 15b @test.assert_eq
 Byte :: 15.1 15b @test.assert_eq
 Byte :: 16.0 16b @test.assert_eq
+0b10b 2b @test.assert_eq
+0o2b 0b10b @test.assert_eq
+0ha 0o12b @test.assert_eq

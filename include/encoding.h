@@ -29,6 +29,13 @@ extern "C" {
  *
  * @brief `Nst_CP_UNKNOWN` is -1, `Nst_CP_LATIN1` and `Nst_CP_ISO8859_1` are
  * equivalent.
+ * 
+ * @brief Note: `Nst_CP_EXT_UTF8` is a UTF-8 encoding that allows surrogates to
+ * be encoded.
+ * 
+ * @brief Note: `Nst_CP_EXT_UTF16` along with the little and big endian
+ * versions are UTF-16 encodings that allow for unpaired surrogates with the
+ * only constraint being that a high surrogate cannot be the last character.
  */
 NstEXP typedef enum _Nst_CPID {
     Nst_CP_UNKNOWN = -1,
@@ -38,6 +45,9 @@ NstEXP typedef enum _Nst_CPID {
     Nst_CP_UTF16,
     Nst_CP_UTF16BE,
     Nst_CP_UTF16LE,
+    Nst_CP_EXT_UTF16,
+    Nst_CP_EXT_UTF16BE,
+    Nst_CP_EXT_UTF16LE,
     Nst_CP_UTF32,
     Nst_CP_UTF32BE,
     Nst_CP_UTF32LE,
@@ -159,6 +169,28 @@ NstEXP i32 NstC Nst_check_utf16le_bytes(u8 *str, usize len);
 NstEXP u32 NstC Nst_utf16le_to_utf32(u8 *str);
 /* `Nst_FromUTF32Func` for UTF-16LE. */
 NstEXP i32 NstC Nst_utf16le_from_utf32(u32 ch, u8 *str);
+
+/* `Nst_CheckBytesFunc` for extUTF-16. */
+NstEXP i32 NstC Nst_check_ext_utf16_bytes(u16 *str, usize len);
+/* `Nst_ToUTF32Func` for extUTF-16. */
+NstEXP u32 NstC Nst_ext_utf16_to_utf32(u16 *str);
+/* `Nst_FromUTF32Func` for extUTF-16. */
+NstEXP i32 NstC Nst_ext_utf16_from_utf32(u32 ch, u16 *str);
+
+/* `Nst_CheckBytesFunc` for extUTF-16BE. */
+NstEXP i32 NstC Nst_check_ext_utf16be_bytes(u8 *str, usize len);
+/* `Nst_ToUTF32Func` for extUTF-16BE. */
+NstEXP u32 NstC Nst_ext_utf16be_to_utf32(u8 *str);
+/* `Nst_FromUTF32Func` for extUTF-16BE. */
+NstEXP i32 NstC Nst_ext_utf16be_from_utf32(u32 ch, u8 *str);
+
+/* `Nst_CheckBytesFunc` for extUTF-16LE. */
+NstEXP i32 NstC Nst_check_ext_utf16le_bytes(u8 *str, usize len);
+/* `Nst_ToUTF32Func` for extUTF-16LE. */
+NstEXP u32 NstC Nst_ext_utf16le_to_utf32(u8 *str);
+/* `Nst_FromUTF32Func` for extUTF-16LE. */
+NstEXP i32 NstC Nst_ext_utf16le_from_utf32(u32 ch, u8 *str);
+
 
 /* `Nst_CheckBytesFunc` for UTF-32. */
 NstEXP i32 NstC Nst_check_utf32_bytes(u32 *str, usize len);

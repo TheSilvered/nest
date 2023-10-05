@@ -785,6 +785,9 @@ Nst_FUNC_SIGN(join_)
 
     Nst_DEF_EXTRACT("A ?s", &seq, &opt_str);
 
+    if (seq->len == 0)
+        return Nst_string_new_c("", 0, false);
+
     usize str_len;
     i8 *str_val;
 

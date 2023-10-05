@@ -514,7 +514,7 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
         i32 val = (i32)ch2 + (i32)ch1 * 16;
         if (neg)
             val = -val;
-        Nst_Obj *obj = Nst_byte_new(0);
+        Nst_Obj *obj = Nst_byte_new((u8)val);
         RETURN_IF_OP_ERR(obj == NULL);
         *tok = Nst_tok_new_value(start, cursor.pos, Nst_TT_VALUE, obj);
         RETURN_IF_OP_ERR(*tok == NULL);
