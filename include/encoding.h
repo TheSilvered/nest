@@ -23,6 +23,8 @@ extern "C" {
 /* [docs:link Nst_CP_UNKNOWN c_api-encoding.md#nst_cpid] */
 /* [docs:link Nst_CP_LATIN1 c_api-encoding.md#nst_cpid] */
 /* [docs:link Nst_CP_ISO8859_1 c_api-encoding.md#nst_cpid] */
+/* [docs:link Nst_CP_EXT_UTF8 c_api-encoding.md#nst_cpid] */
+/* [docs:link Nst_CP_EXT_UTF16 c_api-encoding.md#nst_cpid] */
 
 /**
  * The supported encodings in Nest.

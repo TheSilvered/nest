@@ -362,6 +362,132 @@ i32 Nst_utf16le_from_utf32(u32 ch, u8 *str)
 
 ---
 
+### `Nst_check_ext_utf16_bytes`
+
+**Synopsis:**
+
+```better-c
+i32 Nst_check_ext_utf16_bytes(u16 *str, usize len)
+```
+
+**Description:**
+
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for extUTF-16.
+
+---
+
+### `Nst_ext_utf16_to_utf32`
+
+**Synopsis:**
+
+```better-c
+u32 Nst_ext_utf16_to_utf32(u16 *str)
+```
+
+**Description:**
+
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for extUTF-16.
+
+---
+
+### `Nst_ext_utf16_from_utf32`
+
+**Synopsis:**
+
+```better-c
+i32 Nst_ext_utf16_from_utf32(u32 ch, u16 *str)
+```
+
+**Description:**
+
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for extUTF-16.
+
+---
+
+### `Nst_check_ext_utf16be_bytes`
+
+**Synopsis:**
+
+```better-c
+i32 Nst_check_ext_utf16be_bytes(u8 *str, usize len)
+```
+
+**Description:**
+
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for extUTF-16BE.
+
+---
+
+### `Nst_ext_utf16be_to_utf32`
+
+**Synopsis:**
+
+```better-c
+u32 Nst_ext_utf16be_to_utf32(u8 *str)
+```
+
+**Description:**
+
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for extUTF-16BE.
+
+---
+
+### `Nst_ext_utf16be_from_utf32`
+
+**Synopsis:**
+
+```better-c
+i32 Nst_ext_utf16be_from_utf32(u32 ch, u8 *str)
+```
+
+**Description:**
+
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for extUTF-16BE.
+
+---
+
+### `Nst_check_ext_utf16le_bytes`
+
+**Synopsis:**
+
+```better-c
+i32 Nst_check_ext_utf16le_bytes(u8 *str, usize len)
+```
+
+**Description:**
+
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for extUTF-16LE.
+
+---
+
+### `Nst_ext_utf16le_to_utf32`
+
+**Synopsis:**
+
+```better-c
+u32 Nst_ext_utf16le_to_utf32(u8 *str)
+```
+
+**Description:**
+
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for extUTF-16LE.
+
+---
+
+### `Nst_ext_utf16le_from_utf32`
+
+**Synopsis:**
+
+```better-c
+i32 Nst_ext_utf16le_from_utf32(u32 ch, u8 *str)
+```
+
+**Description:**
+
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for extUTF-16LE.
+
+---
+
 ### `Nst_check_utf32_bytes`
 
 **Synopsis:**
@@ -1181,6 +1307,9 @@ typedef enum _Nst_CPID {
     Nst_CP_UTF16,
     Nst_CP_UTF16BE,
     Nst_CP_UTF16LE,
+    Nst_CP_EXT_UTF16,
+    Nst_CP_EXT_UTF16BE,
+    Nst_CP_EXT_UTF16LE,
     Nst_CP_UTF32,
     Nst_CP_UTF32BE,
     Nst_CP_UTF32LE,
@@ -1205,4 +1334,14 @@ The supported encodings in Nest.
 [`Nst_CP_UNKNOWN`](c_api-encoding.md#nst_cpid) is -1,
 [`Nst_CP_LATIN1`](c_api-encoding.md#nst_cpid) and
 [`Nst_CP_ISO8859_1`](c_api-encoding.md#nst_cpid) are equivalent.
+
+!!!note
+    [`Nst_CP_EXT_UTF8`](c_api-encoding.md#nst_cpid) is a UTF-8 encoding that
+    allows surrogates to be encoded.
+
+!!!note
+    [`Nst_CP_EXT_UTF16`](c_api-encoding.md#nst_cpid) along with the little and
+    big endian versions are UTF-16 encodings that allow for unpaired surrogates
+    with the only constraint being that a high surrogate cannot be the last
+    character.
 

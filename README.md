@@ -39,9 +39,10 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 - [x] Add `copy` and `deepcopy` to `stdsequtil.nest`
 - [x] Add encoding arguments to `load_f` and `dump_f` in `stdjson.nest`
 - [x] Add option for `Infinity` and `NaN` to `stdjson.nest`
-- [ ] Add `extUTF-16` encoding (with little and big endian variants) that accept
+- [x] Add `extUTF-16` encoding (with little and big endian variants) that accept
   unpaired surrogates
-- [ ] Rename `replace_substr` to `replace`
+- [ ] Rename `replace_substr` to `replace`, `bytearray_to_str` to `decode` and
+  `str_to_bytearray` to `encode`
 - [ ] Make third argument of `replace_substr` optional to remove the substring
 - [ ] Add 'contains' stack operator `<.>`
 - [ ] Add `pos` argument to `lfind` and `rfind`

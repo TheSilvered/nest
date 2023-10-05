@@ -33,9 +33,9 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_alnum_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_charset_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_printable_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(replace_substr_, 3);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(bytearray_to_str_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(str_to_bytearray_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(replace_, 3);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(decode_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(encode_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(repr_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(join_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(split_, 3);
@@ -618,7 +618,7 @@ Nst_FUNC_SIGN(is_printable_)
     Nst_RETURN_TRUE;
 }
 
-Nst_FUNC_SIGN(replace_substr_)
+Nst_FUNC_SIGN(replace_)
 {
     Nst_StrObj *str;
     Nst_StrObj *str_from;
@@ -680,7 +680,7 @@ Nst_FUNC_SIGN(replace_substr_)
     return Nst_string_new(new_str, new_str_len, true);
 }
 
-Nst_FUNC_SIGN(bytearray_to_str_)
+Nst_FUNC_SIGN(decode_)
 {
     Nst_SeqObj *seq;
     Nst_StrObj *encoding_obj;
@@ -729,7 +729,7 @@ Nst_FUNC_SIGN(bytearray_to_str_)
     return Nst_string_new(str, str_len, true);
 }
 
-Nst_FUNC_SIGN(str_to_bytearray_)
+Nst_FUNC_SIGN(encode_)
 {
     Nst_StrObj *str;
     Nst_StrObj *encoding_obj;

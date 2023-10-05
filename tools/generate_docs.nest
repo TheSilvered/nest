@@ -38,7 +38,7 @@
 ]
 
 #generate_header_details header_lines doc_file [
-    header_lines.1 ' * @file ' '' @su.replace_substr = filename
+    header_lines.1 ' * @file ' '' @su.replace = filename
     doc_file (filename 1 true @title) @io.write
     header_lines 2 @get_doc_block = {_, description, idx}
     doc_file (description '.' >< @paragraph) @io.write
@@ -80,8 +80,8 @@
                 link_type.0 = link_type
             ]
             -- single backslash = space, double backslash = backslash
-            sym_name '\\' ' '  @su.replace_substr \
-                     '  ' '\\' @su.replace_substr = sym_name
+            sym_name '\\' ' '  @su.replace \
+                     '  ' '\\' @su.replace = sym_name
 
             ?.. sym_name (' *()' sym_name.-1 @sequ.contains) && [
                 sym_name 0 -1 @sequ.slice = sym_name
@@ -272,8 +272,8 @@
     symbol = {syn_start, _, name}
 
     header_lines.(syn_start) \
-        'NstEXP '  '' @su.replace_substr \
-        'NstC '    '' @su.replace_substr \
+        'NstEXP '  '' @su.replace \
+        'NstC '    '' @su.replace \
     = syn
 
     (syn 'typedef struct' @su.starts_with) \
@@ -281,15 +281,15 @@
     (syn 'typedef enum'   @su.starts_with) || ? [
         name ';' >< = end
     ] : [
-        syn 'struct _' '' @su.replace_substr = syn
+        syn 'struct _' '' @su.replace = syn
         ';' = end
     ]
 
     ?.. !(syn end @su.ends_with) [
         1 += syn_start
         header_lines.(syn_start) = line
-        line 'struct _' '' @su.replace_substr = line
-        line '  \(name)' '  struct _\(name)' @su.replace_substr = line
+        line 'struct _' '' @su.replace = line
+        line '  \(name)' '  struct _\(name)' @su.replace = line
         end ';' == ? [
             line @su.ltrim = line
             ' ' line ><= syn
@@ -422,7 +422,7 @@
 ]
 
 #paragraph contents [
-    contents 'WINDOWS ONLY' '**WINDOWS ONLY**' @su.replace_substr = contents
+    contents 'WINDOWS ONLY' '**WINDOWS ONLY**' @su.replace = contents
     contents @generate_links = contents
     contents '[docs:list-item]' @sequ.contains ? [
         contents '[docs:list-item]' @su.split = items
@@ -481,7 +481,7 @@
 
     additional_symbols lname @sequ.contains ? [
         -- prevents line breaks on links
-        name ' ' '[docs:nbsp]' @su.replace_substr = name
+        name ' ' '[docs:nbsp]' @su.replace = name
 
         additional_symbols.(lname) = {link, type}
         |> type [
@@ -495,7 +495,7 @@
             => {end 1 +, '[\(name)](\(link))'}
         ]
         ? [
-            name '[docs:nbsp]' ' ' @su.replace_substr = name
+            name '[docs:nbsp]' ' ' @su.replace = name
             'Warning: invalid link type \(type) for \(name)' @io.println
             => {end 1 +, '`\(name)`'}
         ]
@@ -516,7 +516,7 @@
             'Warning: \(lname) not found' @io.println
         => {end 1 +, '`\(lname)`'}
     ]
-    name ' ' '[docs:nbsp]' @su.replace_substr = name
+    name ' ' '[docs:nbsp]' @su.replace = name
     => {end 1 +, '[`\(name)`](\(link))'}
 ]
 
@@ -538,7 +538,7 @@
     :
         Vector :: (words @itu.reversed) = words
 
-    words ##x [=> x '[docs:nbsp]' ' ' @su.replace_substr] @sequ.map = words
+    words ##x [=> x '[docs:nbsp]' ' ' @su.replace] @sequ.map = words
 
     ?.. $words 0 != [
         words 1 / = line
@@ -553,7 +553,7 @@
         ]
         line '\n' ><= lines
     ]
-    => lines '\xa0' ' ' @su.replace_substr
+    => lines '\xa0' ' ' @su.replace
 ]
 
 #code_block contents language format [
@@ -695,8 +695,8 @@ dir @sys._set_cwd
     header @fs.filename 0 -2 @sequ.slice = header_name
     header 'r' @io.open = header_file
     header_file @io.read = contents
-    contents '\r\n' '\n' @su.replace_substr \
-             '\r'   '\n' @su.replace_substr = contents
+    contents '\r\n' '\n' @su.replace \
+             '\r'   '\n' @su.replace = contents
     contents '\n' @su.split = header_lines
     header_file @io.close
 
@@ -718,7 +718,7 @@ reference ('API Reference' 1 @title) @io.write
 #symbol_sort_map pair [
     pair.0 = symbol
     symbol @su.to_lower = symbol
-    symbol '_' '' @su.replace_substr = symbol
+    symbol '_' '' @su.replace = symbol
     !(symbol 'nst' @su.starts_with) ? => '__' symbol ><
     => symbol
 ]
