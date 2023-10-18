@@ -324,6 +324,21 @@ Alias for [`_Nst_obj_cast`](c_api-obj_ops.md#_nst_obj_cast) that casts `ob` to
 
 ---
 
+### `Nst_obj_contains`
+
+**Synopsis:**
+
+```better-c
+Nst_obj_contains(ob1, ob2)
+```
+
+**Description:**
+
+Alias for [`_Nst_obj_contains`](c_api-obj_ops.md#_nst_obj_contains) that casts
+both objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
+
+---
+
 ### `Nst_obj_concat`
 
 **Synopsis:**
@@ -1000,6 +1015,20 @@ to `Str` but the function can still fail if a memory allocation is unsuccessful.
 **Returns:**
 
 The casted object or `NULL` on failure. The error is set.
+
+---
+
+### `_Nst_obj_contains`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_contains(Nst_Obj *ob1, Nst_Obj *ob2)
+```
+
+**Description:**
+
+Implements the `<.>` operator. On failure the error is set.
 
 ---
 

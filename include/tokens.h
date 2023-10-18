@@ -13,7 +13,7 @@
 
 /* Checks if a token is in the `STACK_OP` category. */
 #define Nst_IS_STACK_OP(token_type)                                           \
-    ((token_type) >= Nst_TT_ADD && (token_type) <= Nst_TT_LTE)
+    ((token_type) >= Nst_TT_ADD && (token_type) <= Nst_TT_CONTAINS)
 /* Checks if a token is in the `NUM_OP` category. */
 #define Nst_IS_NUM_OP(token_type)                                             \
     ((token_type) >= Nst_TT_ADD && (token_type) <= Nst_TT_RSHIFT)
@@ -82,7 +82,8 @@ NstEXP typedef enum _Nst_TokType {
     Nst_TT_EQ,        // | |
     Nst_TT_NEQ,       // | |
     Nst_TT_GTE,       // | |
-    Nst_TT_LTE,       // - - stack-op end, comp-op end
+    Nst_TT_LTE,       // | - comp-op end
+    Nst_TT_CONTAINS,  // - stack-op end
     Nst_TT_CAST,      // + local-stack-op start
     Nst_TT_CALL,      // |
     Nst_TT_SEQ_CALL,  // |
@@ -128,7 +129,7 @@ NstEXP typedef enum _Nst_TokType {
     Nst_TT_COLON,     // |
     Nst_TT_CATCH,     // |
     Nst_TT_FMT_STR,   // |
-    Nst_TT_EOFILE,    // - expr-end
+    Nst_TT_EOFILE,    // - expr-end end
     Nst_TT_BREAK,     //
 
     // other tokens

@@ -52,12 +52,12 @@
     <{}> = symbols
 
     ?.. header_lines idx @find_next_doc_comment = idx null != [
-        header_lines.(idx) '[docs:ignore]' @sequ.contains ? [
+        header_lines.(idx) '[docs:ignore]' <.> ? [
             1 += idx
             ..
         ]
 
-        header_lines.(idx) '[docs:ignore_sym' @sequ.contains ? [
+        header_lines.(idx) '[docs:ignore_sym' <.> ? [
             header_lines.(idx) @su.split = {_, _, sym_name, _}
             sym_name.-1 ']' != ? 'Syntax Error' !! 'invalid docs directive \(header_lines.(idx))'
             null = ignored_symbols.(sym_name 0 -1 @sequ.slice)
@@ -65,7 +65,7 @@
             ..
         ]
 
-        header_lines.(idx) '[docs:link' @sequ.contains ? [
+        header_lines.(idx) '[docs:link' <.> ? [
             header_lines.(idx) @su.split = parts
             $parts 5 == ? [
                 parts = {_, _, sym_name, sym_link, _}
@@ -83,7 +83,7 @@
             sym_name '\\' ' '  @su.replace \
                      '  ' '\\' @su.replace = sym_name
 
-            ?.. sym_name (' *()' sym_name.-1 @sequ.contains) && [
+            ?.. sym_name (' *()' sym_name.-1 <.>) && [
                 sym_name 0 -1 @sequ.slice = sym_name
             ]
 
@@ -92,7 +92,7 @@
             ..
         ]
 
-        header_lines.(idx) '[docs:raw]' @sequ.contains ? [
+        header_lines.(idx) '[docs:raw]' <.> ? [
             1 += idx
             header_lines.(idx) = contents
             1 += idx
@@ -424,7 +424,7 @@
 #paragraph contents [
     contents 'WINDOWS ONLY' '**WINDOWS ONLY**' @su.replace = contents
     contents @generate_links = contents
-    contents '[docs:list-item]' @sequ.contains ? [
+    contents '[docs:list-item]' <.> ? [
         contents '[docs:list-item]' @su.split = items
         items.0 80 0 @format_line_width '\n' >< = header
         items 0 @sequ.remove_at
@@ -445,7 +445,7 @@
 ]
 
 #generate_links contents [
-    !(contents '`' @sequ.contains) ? => contents
+    !(contents '`' <.>) ? => contents
     '' = final_contents
     0 = idx
     ?.. idx $contents < [
@@ -474,12 +474,12 @@
     contents start end @sequ.slice = name
 
     name = lname
-    ?.. lname (' *()' lname.-1 @sequ.contains) && [
+    ?.. lname (' *()' lname.-1 <.>) && [
         lname 0 -1 @sequ.slice = lname
     ]
     !lname ? => {end 1 +, '`\(name)`'}
 
-    additional_symbols lname @sequ.contains ? [
+    additional_symbols lname <.> ? [
         -- prevents line breaks on links
         name ' ' '[docs:nbsp]' @su.replace = name
 
@@ -505,14 +505,14 @@
     !(lname 'Nst' @su.starts_with) !(lname '_Nst' @su.starts_with) && ? [
         lname @su.to_lower = lname
         (lname 'nst' @su.starts_with) (lname '_nst' @su.starts_with) || \
-        !(ignored_symbols name @sequ.contains) && ?
+        !(ignored_symbols name <.>) && ?
             'Warning: \(name) could be incorrect' @io.println
         => {end 1 +, '`\(name)`'}
     ]
 
     _globals_.symbols.(lname) = link
     link null == ? [
-        !(ignored_symbols lname @sequ.contains) ?
+        !(ignored_symbols lname <.>) ?
             'Warning: \(lname) not found' @io.println
         => {end 1 +, '`\(lname)`'}
     ]

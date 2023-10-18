@@ -34,3 +34,11 @@ Str :: false 'false' @test.assert_eq
 'a' 'a\0' == @test.assert_false
 'a' 'a\0' > @test.assert_false
 'a' 'a\0' < @test.assert_true
+
+'hello' 'llo' <.> @test.assert_true
+'hello' 'he' <.> @test.assert_true
+'hello' 'helo' <.> @test.assert_false
+'hello' 'lloa' <.> @test.assert_false
+'' '' <.> @test.assert_false
+'' 'abcd' <.> @test.assert_false
+'hello' 'helloa' <.> @test.assert_false

@@ -90,7 +90,7 @@ __gui._debug_view_ = _debug_view
 { 'tl', 'tc', 'tr',
   'cl', 'cc', 'cr',
   'bl', 'bc', 'br',
-  
+
   'p_tl', 'p_tc', 'p_tr',
   'p_cl', 'p_cc', 'p_cr',
   'p_bl', 'p_bc', 'p_br' } @_enum = POS

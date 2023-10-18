@@ -9,6 +9,7 @@
 - added `is_nan` and `is_inf` functions to `stdmath.nest`
 - added `inf_and_nan` option to `stdjson.nest` to allow for `NaN` and `Infinity` to be treated as numeric literals
 - added `is_inf` and `is_nan` functions to `stdmath.nest`
+- added the 'contains' stack operator `<.>` to check if an object is inside another
 
 **Changes**
 
@@ -26,6 +27,7 @@
 - added an argument to `sequ.map`, `sequ.sort` and `rand.shuffle` to specify whether the sequence should be modified in-place or create a new one
 - added an argument to `json.load_f` and `json.dump_f` to specify the encoding of the file
 - renamed `allow_comments` and `allow_trailing_commas` in `json.OPTIONS` to `comments` and `trailing_commas` respectively
+- removed `contains` from `stdsequtil.nest` in favour of the new stack operator
 
 **Bug fixes**
 
@@ -41,6 +43,7 @@
 - fixed a bug where any byte using a hexadecimal literal would be interpreted as zero
 - fixed `CP-1250` encoding not working
 - fixed `join` in `stdsutil.nest` causing a `Memory Error` if the passed sequence was empty
+- fixed `rtrim` and `trim` in `stdsutil.nest` that if used could later cause crashes
 
 ### C API
 
@@ -65,6 +68,8 @@
 - added `Nst_NestCallable` type as the type of C functions callable from Nest
 - added `Nst_sbuffer_copy` and `Nst_buffer_copy` to copy the contents of buffers
 - added `Nst_buffer_append_str` to append a string of known length to a buffer
+- added `Nst_obj_contains` and `_Nst_obj_contains` to implement the `<.>` operator
+- added `Nst_TT_CONTAINS` token type
 
 **Changes**
 

@@ -347,7 +347,8 @@ typedef enum _Nst_TokType {
     Nst_TT_EQ,        // | |
     Nst_TT_NEQ,       // | |
     Nst_TT_GTE,       // | |
-    Nst_TT_LTE,       // - - stack-op end, comp-op end
+    Nst_TT_LTE,       // | - comp-op end
+    Nst_TT_CONTAINS,  // - stack-op end
     Nst_TT_CAST,      // + local-stack-op start
     Nst_TT_CALL,      // |
     Nst_TT_SEQ_CALL,  // |
@@ -393,7 +394,7 @@ typedef enum _Nst_TokType {
     Nst_TT_COLON,     // |
     Nst_TT_CATCH,     // |
     Nst_TT_FMT_STR,   // |
-    Nst_TT_EOFILE,    // - expr-end
+    Nst_TT_EOFILE,    // - expr-end end
     Nst_TT_BREAK,     //
 
     // other tokens

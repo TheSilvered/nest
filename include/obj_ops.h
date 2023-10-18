@@ -58,6 +58,8 @@
  * to `Nst_TypeObj *`.
  */
 #define Nst_obj_cast(ob, type) _Nst_obj_cast(OBJ(ob), TYPE(type))
+/* Alias for `_Nst_obj_contains` that casts both objects to `Nst_Obj *`. */
+#define Nst_obj_contains(ob1, ob2) _Nst_obj_contains(OBJ(ob1), OBJ(ob2))
 /* Alias for `_Nst_obj_concat` that casts both objects to `Nst_Obj *`. */
 #define Nst_obj_concat(ob1, ob2) _Nst_obj_concat(OBJ(ob1), OBJ(ob2))
 /* Alias for `_Nst_obj_range` that casts all objects to `Nst_Obj *`. */
@@ -218,6 +220,8 @@ NstEXP Nst_Obj *NstC _Nst_obj_str_cast_map(Nst_MapObj *map_obj,
  * @return The casted object or `NULL` on failure. The error is set.
  */
 NstEXP Nst_Obj *NstC _Nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type);
+/* Implements the `<.>` operator. On failure the error is set. */
+NstEXP Nst_Obj *NstC _Nst_obj_contains(Nst_Obj *ob1, Nst_Obj *ob2);
 /**
  * Concatenates two objects into a string.
  *

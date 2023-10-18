@@ -3,7 +3,7 @@
 #include "nest_sequtil.h"
 #include "sequtil_i_functions.h"
 
-#define FUNC_COUNT 20
+#define FUNC_COUNT 19
 #define SORT_RUN_SIZE 32
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
@@ -29,7 +29,6 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(empty_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(filter_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(filter_i_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(contains_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(any_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(all_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(count_, 2);
@@ -729,48 +728,6 @@ Nst_FUNC_SIGN(filter_i_)
         arr);
 }
 
-Nst_FUNC_SIGN(contains_)
-{
-    Nst_Obj *container;
-    Nst_Obj *object;
-
-    Nst_DEF_EXTRACT("a|v|m|s o", &container, &object);
-
-    if (Nst_T(container, Array) || Nst_T(container, Vector)) {
-        Nst_SeqObj *seq = SEQ(container);
-
-        for (usize i = 0, n = seq->len; i < n; i++) {
-            if (Nst_obj_eq(seq->objs[i], object) == Nst_true())
-                return Nst_true();
-            else
-                Nst_dec_ref(Nst_false());
-        }
-
-        Nst_RETURN_FALSE;
-    } else if (Nst_T(container, Map)) {
-        Nst_MapObj *map = MAP(container);
-
-        if (Nst_obj_hash(object) == -1)
-            Nst_RETURN_FALSE;
-
-        Nst_Obj *item = Nst_map_get(map, object);
-        if (item == nullptr)
-            Nst_RETURN_FALSE;
-        else {
-            Nst_dec_ref(item);
-            Nst_RETURN_TRUE;
-        }
-    } else {
-        if (!Nst_T(container, Str))
-            Nst_RETURN_FALSE;
-
-        i8 *res = Nst_string_find(
-            STR(container)->value, STR(container)->len,
-            STR(object)->value, STR(object)->len);
-        Nst_RETURN_COND(res != nullptr);
-    }
-}
-
 Nst_FUNC_SIGN(any_)
 {
     Nst_SeqObj *seq;
@@ -996,7 +953,7 @@ static Nst_Obj *seq_deep_copy(Nst_SeqObj *seq, Nst_Obj *cont_map)
 
     if (new_seq == nullptr)
         goto end;
-    
+
     if (!Nst_map_set(cont_map, seq_id, new_seq)) {
         Nst_dec_ref(new_seq);
         new_seq = nullptr;

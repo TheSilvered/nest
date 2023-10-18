@@ -112,7 +112,7 @@ Nst_Obj *(*stack_op_func[])(Nst_Obj *, Nst_Obj *) = {
     _Nst_obj_mod, _Nst_obj_bwand, _Nst_obj_bwor, _Nst_obj_bwxor, _Nst_obj_bwls,
     _Nst_obj_bwrs, _Nst_obj_concat, _Nst_obj_lgand, _Nst_obj_lgor,
     _Nst_obj_lgxor, _Nst_obj_gt, _Nst_obj_lt, _Nst_obj_eq, _Nst_obj_ne,
-    _Nst_obj_ge, _Nst_obj_le
+    _Nst_obj_ge, _Nst_obj_le, _Nst_obj_contains
 };
 
 Nst_Obj *(*local_op_func[])(Nst_Obj *) = {

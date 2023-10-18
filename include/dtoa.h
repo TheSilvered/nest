@@ -2,7 +2,7 @@
  * @file dtoa.h
  *
  * @brief Functions to format floating point numbers. Header for the library
- * by David M. Gay.
+ * by David M. Gay
  *
  * @author TheSilvered
  */

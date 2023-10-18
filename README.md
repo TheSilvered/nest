@@ -41,17 +41,23 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 - [x] Add option for `Infinity` and `NaN` to `stdjson.nest`
 - [x] Add `extUTF-16` encoding (with little and big endian variants) that accept
   unpaired surrogates
-- [ ] Rename `replace_substr` to `replace`, `bytearray_to_str` to `decode` and
+- [x] Rename `replace_substr` to `replace`, `bytearray_to_str` to `decode` and
   `str_to_bytearray` to `encode`
-- [ ] Make third argument of `replace_substr` optional to remove the substring
-- [ ] Add 'contains' stack operator `<.>`
+- [x] Make third argument of `replace_substr` optional to remove the substring
+- [x] Add 'contains' stack operator `<.>`
 - [ ] Add `pos` argument to `lfind` and `rfind`
 - [ ] Automatic documentation generation for standard library
 - [ ] Avoid object to object casts in `Nst_extract_arg_values` if the first
       object is `null`
-- [ ] Better testing with C
 - [ ] Add `INF` and `NAN` constants to `stdmath.nest`
-- [ ] Finish implementing `Nst_fmt`
+- [ ] Better testing with C
+
+### Nest 0.15.0 planned features
+
+- [ ] Finish implementing `Nst_fmt` and add a wrapper to `stdsutil.nest`
+- [ ] Add `is_space`, `remove_prefix` and `remove_suffix` to `stdsutil.nest`
+- [ ] Add `batch` to `stditutil.nest`
+- [ ] Add `enum` to `stdsequtil.nest`
 
 ### Future planned features
 

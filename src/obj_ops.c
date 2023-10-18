@@ -1238,6 +1238,35 @@ Nst_Obj *_Nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type)
     RETURN_CAST_TYPE_ERROR(type);
 }
 
+Nst_Obj *_Nst_obj_contains(Nst_Obj *ob1, Nst_Obj *ob2)
+{
+    if (ob1->type == Nst_t.Array || ob1->type == Nst_t.Vector) {
+        Nst_Obj **objs = SEQ(ob1)->objs;
+        for (usize i = 0, n = SEQ(ob1)->len; i < n; i++) {
+            if (Nst_obj_eq_c(objs[i], ob2))
+                Nst_RETURN_TRUE;
+        }
+        Nst_RETURN_FALSE;
+    } else if (ob1->type == Nst_t.Map) {
+        if (Nst_obj_hash(ob2) == -1)
+            Nst_RETURN_FALSE;
+
+        Nst_Obj *item = Nst_map_get(ob1, ob2);
+        if (item == NULL)
+            Nst_RETURN_FALSE;
+        else {
+            Nst_dec_ref(item);
+            Nst_RETURN_TRUE;
+        }
+    } else if (ob1->type == Nst_t.Str && ob2->type == Nst_t.Str) {
+        i8 *res = Nst_string_find(
+            STR(ob1)->value, STR(ob1)->len,
+            STR(ob2)->value, STR(ob2)->len);
+        Nst_RETURN_COND(res != NULL);
+    } else
+        RETURN_STACK_OP_TYPE_ERROR("<.>");
+}
+
 Nst_Obj *_Nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     ob1 = Nst_obj_cast(ob1, Nst_t.Str);

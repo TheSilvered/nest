@@ -289,6 +289,7 @@ The stack operators in Nest are:
 - `<=` less than or equal to
 - `==` equal to
 - `!=` not equal to
+- `<.>` contains
 
 To perform an operation with these operators you can write all the operands
 followed by the operator:
@@ -319,7 +320,13 @@ The following two expressions are equal but the first one is more concise:
 ```
 
 !!!note
-    writing `a b c !=` does not mean that all three values are different
+    In the expression above, the values `2` and `3` are not actually evaluated
+    twice. If you had for example a function such as `#f [>>> 'hi\n'[] => 2]`
+    and used it inside the expression `1 @@f 2 <`, `hi` would be only printed
+    once.
+
+!!!note
+    Writing `a b c !=` does not mean that all three values are different
     from each other, it only means that adjacent ones are.
 
 The operators `+`, `-`, `*` and `/` have a different meaning when operating in

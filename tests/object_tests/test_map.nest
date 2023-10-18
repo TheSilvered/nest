@@ -25,3 +25,9 @@ m 'b' -
 m 'd' -
 $m 0 @test.assert_eq
 Map :: {{'a', 1}, {'b', 2}} {'a': 1, 'b': 2} @test.assert_eq
+
+{1: 'a', 'b': 2, 3: 'c'} 'b' <.> @test.assert_true
+{1: 'a', 'b': 2, 3: 'c'} 2 <.> @test.assert_false
+{1: 'a', 'b': 2, 3: 'c'} 'c' <.> @test.assert_false
+{1: 'a', 'b': 2, 3: 'c'} 1 <.> @test.assert_true
+{1: 'a', 'b': 2, 3: 'c'} 3 <.> @test.assert_true

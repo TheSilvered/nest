@@ -1717,6 +1717,7 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
             case Nst_TT_STDOUT: PRINT(">>>", 3);break;
             case Nst_TT_STDIN:  PRINT("<<<", 3);break;
             case Nst_TT_TYPEOF: PRINT("?::", 3);break;
+            case Nst_TT_CONTAINS:PRINT("<.>", 3);break;
             default: PRINT("__UNKNOWN_OP__", 14);
             }
             PRINT("]", 1);

@@ -35,7 +35,7 @@ variables:
   lang_keywords: '(\?\.\.|\.\.\?|\.\.\.|\?\?|\?!|\?|:=|\.\.|;)'
   lang_arith_operators: '(-:|\+|-|\*|/|//|\^|%|><)'
   lang_logic_operators: '(!=|==|>=|<=|&&|\|\||&\|)'
-  lang_other_operators: '(!!|\$|::|\?::|!|>>>|<<<|>>|<<|\||&|\^\^|~)'
+  lang_other_operators: '(!!|\$|::|\?::|!|>>>|<<<|>>|<<|<\.>|\||&|\^\^|~)'
   lang_assign_operators: '(\+=|-=|\*=|/=|//=|\^=|%=|><=|=|\|#\|)'
 
 contexts:

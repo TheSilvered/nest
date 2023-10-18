@@ -501,7 +501,7 @@ Array :: (<{0, 1, 2, 3, 4, 5, 6, 7, 8, 9}> 30 -30 -1 @sequ.slice_i) {9, 8, 7, 6,
 #make_arr size as_str [
     Array :: (0 -> size) = arr
     !as_str ? => arr
-    => arr (##x => Str :: x) @sequ.map 
+    => arr (##x => Str :: x) @sequ.map
 ]
 
 {,} = arr0
@@ -574,37 +574,6 @@ Array :: (<{1, 2, 3, 4, 5, 6}> (##x => x 2 % 0 ==) @sequ.filter_i) {2, 4, 6} @te
 Array :: (<{1, 2, 3}> (## x => false) @sequ.filter_i) <{}> @test.assert_eq
 ?::(<{1, 2, 3, 4, 5, 6}> (##x => x 2 % 0 ==) @sequ.filter_i) Iter @test.assert_eq
 ?::(<{1, 2, 3}> (## x => false) @sequ.filter_i) Iter @test.assert_eq
-
-{,} 3 @sequ.contains @test.assert_false
-{,} {,} @sequ.contains @test.assert_false
-{1, 2, 3, 4} 5 @sequ.contains @test.assert_false
-{1, '2', 3, {}} 5 @sequ.contains @test.assert_false
-{1, '2', 3, {}} 3 @sequ.contains @test.assert_true
-{1, '2', 3, {}} '2' @sequ.contains @test.assert_true
-{1, '2', 3, {}} 1 @sequ.contains @test.assert_true
-{1, '2', 3, {}} {} @sequ.contains @test.assert_true
-<{}> 3 @sequ.contains @test.assert_false
-<{}> <{}> @sequ.contains @test.assert_false
-<{1, 2, 3, 4}> 5 @sequ.contains @test.assert_false
-<{1, '2', 3, {}}> 5 @sequ.contains @test.assert_false
-<{1, '2', 3, {}}> 3 @sequ.contains @test.assert_true
-<{1, '2', 3, {}}> '2' @sequ.contains @test.assert_true
-<{1, '2', 3, {}}> 1 @sequ.contains @test.assert_true
-<{1, '2', 3, {}}> {} @sequ.contains @test.assert_true
-
-{1: 'a', 'b': 2, 3: 'c'} 'b' @sequ.contains @test.assert_true
-{1: 'a', 'b': 2, 3: 'c'} 2 @sequ.contains @test.assert_false
-{1: 'a', 'b': 2, 3: 'c'} 'c' @sequ.contains @test.assert_false
-{1: 'a', 'b': 2, 3: 'c'} 1 @sequ.contains @test.assert_true
-{1: 'a', 'b': 2, 3: 'c'} 3 @sequ.contains @test.assert_true
-
-'hello' 'llo' @sequ.contains @test.assert_true
-'hello' 'he' @sequ.contains @test.assert_true
-'hello' 'helo' @sequ.contains @test.assert_false
-'hello' 'lloa' @sequ.contains @test.assert_false
-'' '' @sequ.contains @test.assert_false
-'' 'abcd' @sequ.contains @test.assert_false
-'hello' 'helloa' @sequ.contains @test.assert_false
 
 {,} @sequ.any @test.assert_false
 {true, false} @sequ.any @test.assert_true

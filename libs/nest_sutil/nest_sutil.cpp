@@ -180,6 +180,7 @@ Nst_FUNC_SIGN(trim_)
         return nullptr;
 
     strncpy(new_str, s_start, len);
+    new_str[len] = '\0';
 
     return Nst_string_new(new_str, len, true);
 }
@@ -230,6 +231,7 @@ Nst_FUNC_SIGN(rtrim_)
         return nullptr;
     }
     strncpy(new_str, s_start, len);
+    new_str[len] = '\0';
 
     return Nst_string_new(new_str, len, true);
 }
@@ -624,14 +626,14 @@ Nst_FUNC_SIGN(replace_)
     Nst_StrObj *str_from;
     Nst_StrObj *str_to;
 
-    Nst_DEF_EXTRACT("s s s", &str, &str_from, &str_to);
+    Nst_DEF_EXTRACT("s s ?s", &str, &str_from, &str_to);
 
     usize s_len = str->len;
     usize s_from_len = str_from->len;
-    usize s_to_len = str_to->len;
     i8 *s = str->value;
     i8 *s_from = str_from->value;
-    i8 *s_to = str_to->value;
+    usize s_to_len = Nst_DEF_VAL(str_to, str_to->len, 0);
+    i8 *s_to = Nst_DEF_VAL(str_to, str_to->value, (i8 *)"");
 
     i8 *sub = nullptr;
     usize new_str_len = 0;

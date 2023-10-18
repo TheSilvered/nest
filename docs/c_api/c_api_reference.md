@@ -386,6 +386,8 @@
 - [`_Nst_obj_cast`](c_api-obj_ops.md#_nst_obj_cast)
 - [`Nst_obj_concat`](c_api-obj_ops.md#nst_obj_concat)
 - [`_Nst_obj_concat`](c_api-obj_ops.md#_nst_obj_concat)
+- [`Nst_obj_contains`](c_api-obj_ops.md#nst_obj_contains)
+- [`_Nst_obj_contains`](c_api-obj_ops.md#_nst_obj_contains)
 - [`Nst_ObjDeclr`](c_api-lib_import.md#nst_objdeclr)
 - [`Nst_obj_destroy`](c_api-obj.md#nst_obj_destroy)
 - [`_Nst_obj_destroy`](c_api-obj.md#_nst_obj_destroy)
