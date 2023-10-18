@@ -671,7 +671,7 @@ bool Nst_extract_arg_values(const i8 *types, usize arg_num, Nst_Obj **args,
             set_err(type, ob, idx);
             free_type_match(type);
             for (usize i = 0, n = allocated_objects->len; i < n; i++)
-                Nst_dec_ref(allocated_objects->objs[n]);
+                Nst_dec_ref(allocated_objects->objs[i]);
             Nst_dec_ref(allocated_objects);
             return false;
         }

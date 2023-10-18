@@ -92,6 +92,7 @@
 
 - fixed `Nst_is_non_character` returning `true` on some valid characters
 - fixed `Nst_extract_arg_values` sometimes trying to cast an invalid value
+- fixed `Nst_extract_arg_values` crashing when deleting any allocated objects if an error occurred
 - fixed `Nst_encoding_from_name` failing to identify valid encoding names
 - fixed some bugs with UTF-16 and its variants not working properly
 
