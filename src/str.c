@@ -364,7 +364,7 @@ Nst_Obj *_Nst_string_get(Nst_StrObj *str, i64 idx)
     return NULL;
 }
 
-bool _Nst_string_get_next_ch(Nst_StrObj *str, isize *ch_idx, Nst_Obj **out_ch)
+bool _Nst_string_next_ch(Nst_StrObj *str, isize *ch_idx, Nst_Obj **out_ch)
 {
     if (out_ch != NULL)
         *out_ch = NULL;
@@ -374,7 +374,7 @@ bool _Nst_string_get_next_ch(Nst_StrObj *str, isize *ch_idx, Nst_Obj **out_ch)
         return false;
 
     i32 ch_len = Nst_check_ext_utf8_bytes(
-        (u8 *)str->value,
+        (u8 *)str->value + idx,
         str->len - idx);
 
     if (ch_len == -1) {
@@ -776,6 +776,24 @@ i8 *Nst_string_find(i8 *s1, usize l1, i8 *s2, usize l2)
 
         if (p2 == end2)
             return s1 - 1;
+    }
+
+    return NULL;
+}
+
+i8 *Nst_string_rfind(i8 *s1, usize l1, i8 *s2, usize l2)
+{
+    i8 *p = s1 + l1 - l2;
+
+    while (p >= s1) {
+        for (usize i = 0; i < l2; i++) {
+            if (p[i] != s2[i])
+                goto next_cycle;
+        }
+        return p;
+
+    next_cycle:
+        p--;
     }
 
     return NULL;

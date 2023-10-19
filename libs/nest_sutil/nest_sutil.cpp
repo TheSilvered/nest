@@ -13,8 +13,8 @@ bool lib_init()
 {
     usize idx = 0;
 
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(lfind_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(rfind_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(lfind_, 4);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(rfind_, 4);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(starts_with_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(ends_with_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(trim_,  1);
@@ -57,17 +57,88 @@ Nst_DeclrList *get_func_ptrs()
     return lib_init_ ? &obj_list_ : nullptr;
 }
 
+void get_in_str(Nst_StrObj *str, Nst_Obj *start_idx, Nst_Obj *end_idx,
+                i8 **out_str, i8 **out_str_end)
+{
+    usize str1_true_len = str->true_len;
+    i64 start = Nst_DEF_VAL(start_idx, AS_INT(start_idx), 0);
+    i64 end = Nst_DEF_VAL(end_idx, AS_INT(end_idx), str1_true_len);
+
+    if (start < 0)
+        start += str1_true_len;
+    if (end < 0)
+        end += str1_true_len;
+
+    // no need to check start >= str1_true_len or end < 0 see below
+
+    if (start < 0)
+        start = 0;
+    if (end > (isize)str1_true_len)
+        end = str1_true_len;
+
+    if (start >= end) {
+        *out_str = nullptr;
+        *out_str_end = 0;
+        return;
+    }
+
+    // start and end are surely inside the string because start is 0 at min and
+    // end is str1_true_len at max. If the start is below end it means that it
+    // is also below str1_true_len, if end is above start it means that is also
+    // above 0 and the remaining bound checking is done
+
+    isize i = 0;
+
+    do {
+        if (i == -1) {
+            *out_str = nullptr;
+            *out_str_end = (i8 *)1; // signals an error
+            return;
+        }
+        if (start == 0)
+            *out_str = str->value + i;
+        if (end == 0) {
+            *out_str_end = str->value + i;
+            return;
+        }
+        start--;
+        end--;
+    } while (Nst_string_next_ch(str, &i, nullptr));
+
+    *out_str_end = str->value + i + 1;
+}
+
 Nst_FUNC_SIGN(lfind_)
 {
-    Nst_StrObj *str1 = nullptr;
-    Nst_StrObj *str2 = nullptr;
+    Nst_StrObj *str1;
+    Nst_StrObj *str2;
+    Nst_Obj *start_idx;
+    Nst_Obj *end_idx;
 
-    Nst_DEF_EXTRACT("s s", &str1, &str2);
+    Nst_DEF_EXTRACT("s s ?i ?i", &str1, &str2, &start_idx, &end_idx);
 
-    if (str1 == str2)
+    i8 *str1_value;
+    usize str1_len;
+
+    if (start_idx != Nst_null() || end_idx != Nst_null()) {
+        i8 *str1_end;
+        get_in_str(str1, start_idx, end_idx, &str1_value, &str1_end);
+        if (str1_value == nullptr) {
+            if (str1_end == nullptr)
+                return Nst_inc_ref(Nst_const()->Int_neg1);
+            else
+                return nullptr;
+        }
+        str1_len = str1_end - str1_value;
+    } else {
+        str1_value = str1->value;
+        str1_len = str1->len;
+    }
+
+    if (str1_value == str2->value)
         Nst_RETURN_ZERO;
 
-    i8 *sub = Nst_string_find(str1->value, str1->len, str2->value, str2->len);
+    i8 *sub = Nst_string_find(str1_value, str1_len, str2->value, str2->len);
 
     if (sub == nullptr)
         return Nst_inc_ref(Nst_const()->Int_neg1);
@@ -79,33 +150,38 @@ Nst_FUNC_SIGN(rfind_)
 {
     Nst_StrObj *str1;
     Nst_StrObj *str2;
+    Nst_Obj *start_idx;
+    Nst_Obj *end_idx;
 
-    Nst_DEF_EXTRACT("s s", &str1, &str2);
+    Nst_DEF_EXTRACT("s s ?i ?i", &str1, &str2, &start_idx, &end_idx);
 
-    if (str1 == str2)
-        Nst_RETURN_ZERO;
+    i8 *str1_value;
+    usize str1_len;
 
-    i8 *s1 = str1->value + str1->len - 1;
-    i8 *s2 = str2->value + str2->len - 1;
-    i8 *p1;
-    i8 *p2;
-    i8 *s1_start = str1->value;
-    i8 *s2_start = str2->value;
-
-    while (s1 - s1_start + 1) {
-        p1 = s1--;
-        p2 = s2;
-
-        while (p1 - s1_start + 1 && p2 - s2_start + 1 && *p1 == *p2) {
-            p1--;
-            p2--;
+    if (start_idx != nullptr || end_idx != nullptr) {
+        i8 *str1_end;
+        get_in_str(str1, start_idx, end_idx, &str1_value, &str1_end);
+        if (str1_value == nullptr) {
+            if (str1_end == nullptr)
+                return Nst_inc_ref(Nst_const()->Int_neg1);
+            else
+                return nullptr;
         }
-
-        if (p2 - s2_start + 1 == 0)
-            return Nst_int_new(p1 - s1_start + 1);
+        str1_len = str1_end - str1_value;
+    } else {
+        str1_value = str1->value;
+        str1_len = str1->len;
     }
 
-    return Nst_inc_ref(Nst_const()->Int_neg1);
+    if (str1_value == str2->value)
+        Nst_RETURN_ZERO;
+
+    i8 *sub = Nst_string_rfind(str1_value, str1_len, str2->value, str2->len);
+
+    if (sub == nullptr)
+        return Nst_inc_ref(Nst_const()->Int_neg1);
+    else
+        return Nst_int_new(sub - str1->value);
 }
 
 Nst_FUNC_SIGN(starts_with_)
@@ -587,10 +663,10 @@ Nst_FUNC_SIGN(is_charset_)
                 found_ch = true;
                 break;
             }
-        } while (Nst_string_get_next_ch(str2, &j, NULL));
+        } while (Nst_string_next_ch(str2, &j, NULL));
         if (!found_ch)
             Nst_RETURN_FALSE;
-    } while (Nst_string_get_next_ch(str1, &i, NULL));
+    } while (Nst_string_next_ch(str1, &i, NULL));
 
     Nst_RETURN_TRUE;
 }

@@ -45,7 +45,7 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
   `str_to_bytearray` to `encode`
 - [x] Make third argument of `replace_substr` optional to remove the substring
 - [x] Add 'contains' stack operator `<.>`
-- [ ] Add `pos` argument to `lfind` and `rfind`
+- [x] Add `from` and `to` arguments to `lfind` and `rfind`
 - [ ] Automatic documentation generation for standard library
 - [ ] Avoid object to object casts in `Nst_extract_arg_values` if the first
       object is `null`

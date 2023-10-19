@@ -435,31 +435,50 @@ Nst_Obj *_Nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2)
         RETURN_STACK_OP_TYPE_ERROR("/");
 }
 
+static u8 fast_byte_pow(u8 base, u8 exp)
+{
+    if (exp == 1)
+        return base;
+    else if (exp == 0)
+        return 1;
+    else if (exp % 2 == 0) {
+        u8 part = fast_byte_pow(base, exp / 2);
+        return part * part;
+    } else {
+        u8 part = fast_byte_pow(base, (exp - 1) / 2);
+        return base * part * part;
+    }
+}
+
+static i64 fast_int_pow(i64 base, i64 exp)
+{
+    if (exp == 1)
+        return base;
+    else if (exp == 0)
+        return 1;
+    else if (exp % 2 == 0) {
+        i64 part = fast_int_pow(base, exp / 2);
+        return part * part;
+    } else {
+        i64 part = fast_int_pow(base, (exp - 1) / 2);
+        return base * part * part;
+    }
+}
+
 Nst_Obj *_Nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ARE_TYPE(Nst_t.Byte)) {
-        u8 res = 1;
-        u8 num = AS_BYTE(ob1);
-
-        for (u8 i = 0, n = AS_BYTE(ob2); i < n; i++)
-            res *= num;
-
-        return Nst_byte_new(res);
+        u8 base = AS_BYTE(ob1);
+        u8 exp = AS_BYTE(ob2);
+        return Nst_byte_new(fast_byte_pow(base, exp));
     } else if (IS_INT(ob1) && IS_INT(ob2)) {
-        i64 v1 = Nst_number_to_i64(ob1);
-        i64 v2 = Nst_number_to_i64(ob2);
-
-        if (v2 < 0)
+        i64 base = Nst_number_to_i64(ob1);
+        i64 exp = Nst_number_to_i64(ob2);
+        if (exp < 0)
             return Nst_inc_ref(Nst_c.Int_0);
-        else if (v2 == 0)
+        else if (exp == 0)
             return Nst_inc_ref(Nst_c.Int_1);
-
-        i64 res = 1;
-
-        for (i64 i = 0; i < v2; i++)
-            res *= v1;
-
-        return Nst_int_new(res);
+        return Nst_int_new(fast_int_pow(base, exp));
     } else if (IS_NUM(ob1) && IS_NUM(ob2)) {
         f64 v1 = Nst_number_to_f64(ob1);
         f64 v2 = Nst_number_to_f64(ob2);
@@ -945,7 +964,7 @@ static Nst_Obj *str_to_seq(Nst_Obj *ob, bool is_vect)
     isize idx = 0;
     isize i = 0;
 
-    while (Nst_string_get_next_ch(ob, &idx, &ch))
+    while (Nst_string_next_ch(ob, &idx, &ch))
         seq->objs[i++] = ch;
 
     if (idx == -1) {

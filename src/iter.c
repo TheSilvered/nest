@@ -127,7 +127,7 @@ Nst_FUNC_SIGN(Nst_iter_str_get_val)
     Nst_StrObj *str = STR(objs[1]);
     Nst_Obj *ch;
 
-    if (!Nst_string_get_next_ch(str, (isize *)&AS_INT(objs[0]), &ch)) {
+    if (!Nst_string_next_ch(str, (isize *)&AS_INT(objs[0]), &ch)) {
         if (AS_INT(objs[0]) == -1)
             return NULL;
         return Nst_iend_ref();

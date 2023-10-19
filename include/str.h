@@ -27,8 +27,8 @@
 /* Alias of `_Nst_string_get` that casts `str` to `Nst_StrObj *`. */
 #define Nst_string_get(str, idx) _Nst_string_get(STR(str), idx)
 /* Alias of `_Nst_string_get_next_ch` that casts `str` to `Nst_StrObj *`. */
-#define Nst_string_get_next_ch(str, idx, out_ch)                              \
-    _Nst_string_get_next_ch(STR(str), idx, out_ch)
+#define Nst_string_next_ch(str, idx, out_ch)                              \
+    _Nst_string_next_ch(STR(str), idx, out_ch)
 
 #ifdef __cplusplus
 extern "C" {
@@ -180,10 +180,11 @@ NstEXP Nst_Obj *NstC _Nst_string_get(Nst_StrObj *str, i64 idx);
  * and `false` if an error occurred or `ch_idx` is outside the string. The
  * error is set only when an internal call fails or `ch_idx` does not point to
  * the start of a character. When an error occurrs `ch_idx` is set to `-1`.
- * No error is set if `ch_idx` is outside the string's range.
+ * If `ch_idx` is outside the string's range no error is set and `ch_idx`
+ * remains untouched.
  */
-NstEXP bool NstC _Nst_string_get_next_ch(Nst_StrObj *str, isize *ch_idx,
-                                         Nst_Obj **out_ch);
+NstEXP bool NstC _Nst_string_next_ch(Nst_StrObj *str, isize *ch_idx,
+                                     Nst_Obj **out_ch);
 
 /**
  * Parses a `Nst_IntObj` from a string.
@@ -242,8 +243,8 @@ NstEXP void NstC _Nst_string_destroy(Nst_StrObj *str);
 /**
  * Finds the first occurrence of a substring inside a string.
  *
- * @brief If the pointer is not `NULL` it is guaranteed to be between
- * `s1 <= p < s1 + l1`, where `p` is the pointer returned.
+ * @brief If the pointer returned is not `NULL` it is guaranteed to be between
+ * `s1 <= p < s1 + l1`, where `p` is the pointer.
  *
  * @param s1: the main string
  * @param l1: the length of `s1`
@@ -254,6 +255,22 @@ NstEXP void NstC _Nst_string_destroy(Nst_StrObj *str);
  * be found. No error is set.
  */
 NstEXP i8 *NstC Nst_string_find(i8 *s1, usize l1, i8 *s2, usize l2);
+/**
+* Finds the first occurrence of a substring inside a string starting from the
+* right.
+*
+* @brief If the pointer returned is not `NULL` it is guaranteed to be between
+* `s1 <= p < s1 + l1`, where `p` is the pointer.
+*
+* @param s1: the main string
+* @param l1: the length of `s1`
+* @param s2: the substring to find inside the main string
+* @param l2: the length of `s2`
+*
+* @return The pointer to the start of `s1` or `NULL` if the string could not
+* be found. No error is set.
+*/
+NstEXP i8 *NstC Nst_string_rfind(i8 *s1, usize l1, i8 *s2, usize l2);
 
 /* `Nst_StrObj`-specific flags. */
 NstEXP typedef enum _Nst_StrFlags {

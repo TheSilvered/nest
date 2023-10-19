@@ -23,11 +23,12 @@
   - removed `to_iter`, `get_len` and `get_at` from `stdcodecs.nest` since they are no longer needed
 - removed `ljust` and `rjust` from `stdsutil.nest` in favour of `justify`
   - with `justify` a positive length means justify left and a negative one means justify right
-- now `su.repr` will display in `\xhh`, `\uhhhh` or `\uhhhhhh` unprintable characters (control characters, non-characters, surrogates)
-- added an argument to `sequ.map`, `sequ.sort` and `rand.shuffle` to specify whether the sequence should be modified in-place or create a new one
+- now `su.repr` will display in `\xhh`, `\uhhhh` or `\Uhhhhhh` unprintable characters (control characters, non-characters, surrogates)
+- added an argument to `sequ.map`, `sequ.sort` and `rand.shuffle` to specify whether the sequence should be modified in-place or a new one should be created
 - added an argument to `json.load_f` and `json.dump_f` to specify the encoding of the file
 - renamed `allow_comments` and `allow_trailing_commas` in `json.OPTIONS` to `comments` and `trailing_commas` respectively
 - removed `contains` from `stdsequtil.nest` in favour of the new stack operator
+- added `from` and `to` arguments to `lfind` and `rfind` in `stdsutil.nest`
 
 **Bug fixes**
 
@@ -44,6 +45,7 @@
 - fixed `CP-1250` encoding not working
 - fixed `join` in `stdsutil.nest` causing a `Memory Error` if the passed sequence was empty
 - fixed `rtrim` and `trim` in `stdsutil.nest` that if used could later cause crashes
+- fixed iterating through strings and creating sequences from strings that contain unicode characters which would create invalid strings
 
 ### C API
 
@@ -70,6 +72,7 @@
 - added `Nst_buffer_append_str` to append a string of known length to a buffer
 - added `Nst_obj_contains` and `_Nst_obj_contains` to implement the `<.>` operator
 - added `Nst_TT_CONTAINS` token type
+- added `Nst_string_rfind` to find a substring from the right
 
 **Changes**
 
@@ -87,6 +90,8 @@
 - removed `is_done` argument from `Nst_iter_new`
 - removed `Nst_iter_range_is_done`, `Nst_iter_seq_is_done`, `Nst_iter_str_is_done` and `Nst_iter_map_is_done`
 - now type shorthands for `Nst_extract_arg_values` that are part of type unions will not cast the object automatically
+- renamed `_Nst_string_get_next_ch` and `Nst_string_get_next_ch` to `_Nst_string_next_ch` and `Nst_string_next_ch` respectively
+- optimized exponentation
 
 **Bug fixes**
 
@@ -95,6 +100,7 @@
 - fixed `Nst_extract_arg_values` crashing when deleting any allocated objects if an error occurred
 - fixed `Nst_encoding_from_name` failing to identify valid encoding names
 - fixed some bugs with UTF-16 and its variants not working properly
+- fixed `_Nst_string_next_ch` creating invalid strings
 
 ---
 
