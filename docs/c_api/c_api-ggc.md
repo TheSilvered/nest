@@ -6,6 +6,8 @@ Generational Garbage Collector (GGC).
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `_Nst_GEN1_MAX`
@@ -45,7 +47,7 @@ The minimum size of the old generation needed to collect it.
 **Synopsis:**
 
 ```better-c
-GGC_OBJ(obj)
+#define GGC_OBJ(obj)
 ```
 
 **Description:**
@@ -59,7 +61,7 @@ Casts `obj` to [`Nst_GGCObj *`](c_api-ggc.md#nst_ggcobj).
 **Synopsis:**
 
 ```better-c
-Nst_ggc_obj_reachable(obj)
+#define Nst_ggc_obj_reachable(obj)
 ```
 
 **Description:**
@@ -85,7 +87,7 @@ any other fields.
 **Synopsis:**
 
 ```better-c
-Nst_GGC_OBJ_INIT(obj)
+#define Nst_GGC_OBJ_INIT(obj)
 ```
 
 **Description:**
@@ -280,4 +282,3 @@ typedef enum _Nst_GGCFlags {
 **Description:**
 
 The flags of a garbage collector object.
-

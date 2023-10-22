@@ -6,6 +6,8 @@ Header files and Nst_VERSION definition.
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `Nst_VERSION`
@@ -13,4 +15,3 @@ TheSilvered
 **Description:**
 
 The current version of Nest as a string.
-

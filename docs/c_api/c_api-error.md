@@ -6,6 +6,8 @@ Error management interface.
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `Nst_set_error`
@@ -13,7 +15,7 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-Nst_set_error(name, msg)
+#define Nst_set_error(name, msg)
 ```
 
 **Description:**
@@ -28,7 +30,7 @@ and `msg` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
 **Synopsis:**
 
 ```better-c
-Nst_set_syntax_error(msg)
+#define Nst_set_syntax_error(msg)
 ```
 
 **Description:**
@@ -43,7 +45,7 @@ casts `msg` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
 **Synopsis:**
 
 ```better-c
-Nst_set_memory_error(msg)
+#define Nst_set_memory_error(msg)
 ```
 
 **Description:**
@@ -58,7 +60,7 @@ casts `msg` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
 **Synopsis:**
 
 ```better-c
-Nst_set_type_error(msg)
+#define Nst_set_type_error(msg)
 ```
 
 **Description:**
@@ -73,7 +75,7 @@ Alias for [`_Nst_set_type_error`](c_api-error.md#_nst_set_type_error) that casts
 **Synopsis:**
 
 ```better-c
-Nst_set_value_error(msg)
+#define Nst_set_value_error(msg)
 ```
 
 **Description:**
@@ -88,7 +90,7 @@ casts `msg` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
 **Synopsis:**
 
 ```better-c
-Nst_set_math_error(msg)
+#define Nst_set_math_error(msg)
 ```
 
 **Description:**
@@ -103,7 +105,7 @@ Alias for [`_Nst_set_math_error`](c_api-error.md#_nst_set_math_error) that casts
 **Synopsis:**
 
 ```better-c
-Nst_set_call_error(msg)
+#define Nst_set_call_error(msg)
 ```
 
 **Description:**
@@ -118,7 +120,7 @@ Alias for [`_Nst_set_call_error`](c_api-error.md#_nst_set_call_error) that casts
 **Synopsis:**
 
 ```better-c
-Nst_set_import_error(msg)
+#define Nst_set_import_error(msg)
 ```
 
 **Description:**
@@ -133,7 +135,7 @@ casts `msg` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
 **Synopsis:**
 
 ```better-c
-Nst_set_errorf(name, fmt, ...)
+#define Nst_set_errorf(name, fmt, ...)
 ```
 
 **Description:**
@@ -149,7 +151,7 @@ Alias for [`_Nst_set_error`](c_api-error.md#_nst_set_error) that casts `name` to
 **Synopsis:**
 
 ```better-c
-Nst_set_syntax_errorf(fmt, ...)
+#define Nst_set_syntax_errorf(fmt, ...)
 ```
 
 **Description:**
@@ -164,7 +166,7 @@ builds a formatted string with `fmt`.
 **Synopsis:**
 
 ```better-c
-Nst_set_memory_errorf(fmt, ...)
+#define Nst_set_memory_errorf(fmt, ...)
 ```
 
 **Description:**
@@ -179,7 +181,7 @@ builds a formatted string with `fmt`.
 **Synopsis:**
 
 ```better-c
-Nst_set_type_errorf(fmt, ...)
+#define Nst_set_type_errorf(fmt, ...)
 ```
 
 **Description:**
@@ -194,7 +196,7 @@ builds a formatted string with `fmt`.
 **Synopsis:**
 
 ```better-c
-Nst_set_value_errorf(fmt, ...)
+#define Nst_set_value_errorf(fmt, ...)
 ```
 
 **Description:**
@@ -209,7 +211,7 @@ builds a formatted string with `fmt`.
 **Synopsis:**
 
 ```better-c
-Nst_set_math_errorf(fmt, ...)
+#define Nst_set_math_errorf(fmt, ...)
 ```
 
 **Description:**
@@ -224,7 +226,7 @@ builds a formatted string with `fmt`.
 **Synopsis:**
 
 ```better-c
-Nst_set_call_errorf(fmt, ...)
+#define Nst_set_call_errorf(fmt, ...)
 ```
 
 **Description:**
@@ -239,7 +241,7 @@ builds a formatted string with `fmt`.
 **Synopsis:**
 
 ```better-c
-Nst_set_import_errorf(fmt, ...)
+#define Nst_set_import_errorf(fmt, ...)
 ```
 
 **Description:**
@@ -1089,4 +1091,3 @@ void Nst_set_internal_error_from_op_err(Nst_Error *error, Nst_Pos start,
 
 Sets a [`Nst_Error`](c_api-error.md#nst_error) from the global error and clears
 it.
-

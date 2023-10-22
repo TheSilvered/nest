@@ -26,7 +26,7 @@
 #define Nst_string_repr(src) _Nst_string_repr(STR(src))
 /* Alias of `_Nst_string_get` that casts `str` to `Nst_StrObj *`. */
 #define Nst_string_get(str, idx) _Nst_string_get(STR(str), idx)
-/* Alias of `_Nst_string_get_next_ch` that casts `str` to `Nst_StrObj *`. */
+/* Alias of `_Nst_string_next_ch` that casts `str` to `Nst_StrObj *`. */
 #define Nst_string_next_ch(str, idx, out_ch)                              \
     _Nst_string_next_ch(STR(str), idx, out_ch)
 
@@ -225,7 +225,7 @@ NstEXP Nst_Obj *NstC Nst_string_parse_byte(Nst_StrObj* str);
  * @return The new real object or `NULL` on failure. The error is set.
  */
 NstEXP Nst_Obj *NstC Nst_string_parse_real(Nst_StrObj *str);
-/* [docs:link strcmp https://man7.org/linux/man-pages/man3/strcmp.3.html] */
+/* [docs:link strcmp <https://man7.org/linux/man-pages/man3/strcmp.3.html>] */
 /**
  * Compares two Nest strings, similarly to `strcmp` but takes into account
  * possible `NUL` bytes inside the compared string.
@@ -256,20 +256,20 @@ NstEXP void NstC _Nst_string_destroy(Nst_StrObj *str);
  */
 NstEXP i8 *NstC Nst_string_find(i8 *s1, usize l1, i8 *s2, usize l2);
 /**
-* Finds the first occurrence of a substring inside a string starting from the
-* right.
-*
-* @brief If the pointer returned is not `NULL` it is guaranteed to be between
-* `s1 <= p < s1 + l1`, where `p` is the pointer.
-*
-* @param s1: the main string
-* @param l1: the length of `s1`
-* @param s2: the substring to find inside the main string
-* @param l2: the length of `s2`
-*
-* @return The pointer to the start of `s1` or `NULL` if the string could not
-* be found. No error is set.
-*/
+ * Finds the first occurrence of a substring inside a string starting from the
+ * right.
+ *
+ * @brief If the pointer returned is not `NULL` it is guaranteed to be between
+ * `s1 <= p < s1 + l1`, where `p` is the pointer.
+ *
+ * @param s1: the main string
+ * @param l1: the length of `s1`
+ * @param s2: the substring to find inside the main string
+ * @param l2: the length of `s2`
+ *
+ * @return The pointer to the start of `s1` or `NULL` if the string could not
+ * be found. No error is set.
+ */
 NstEXP i8 *NstC Nst_string_rfind(i8 *s1, usize l1, i8 *s2, usize l2);
 
 /* `Nst_StrObj`-specific flags. */

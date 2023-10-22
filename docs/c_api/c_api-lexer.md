@@ -1,10 +1,12 @@
-# `iter.h`
+# `lexer.h`
 
 Lexer and tokenizer for Nest code.
 
 ## Authors
 
 TheSilvered
+
+---
 
 ## Functions
 
@@ -25,8 +27,9 @@ Opens and tokenizes a file.
 **Parameters:**
 
 - `filename`: the path to the file
-- `encoding`: the supposed encoding of the file, if set to `Nst_CP_UNKNOWN` it
-  will be detected automatically
+- `encoding`: the supposed encoding of the file, if set to
+  [`Nst_CP_UNKNOWN`](c_api-encoding.md#nst_cpid) it will be detected
+  automatically
 - `opt_level`: where the optimization level is stored if specified with file
   arguments
 - `no_default`: where the `--no-default` option is stored if specified with file
@@ -105,11 +108,10 @@ Re-encodes a file to be UTF-8.
 **Parameters:**
 
 - `text`: the text to re-encode
-- `encoding`: the encoding of the text, if `Nst_CP_UNKNWON` it is detected
-  automatically
+- `encoding`: the encoding of the text, if
+  [`Nst_CP_UNKNOWN`](c_api-encoding.md#nst_cpid) it is detected automatically
 - `error`: where the error is put if it occurs
 
 **Returns:**
 
 `true` on success and `false` on failure. No global operation error is set.
-

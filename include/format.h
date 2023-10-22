@@ -6,7 +6,7 @@
  * @author TheSilvered
  */
 
-/* [docs:link format.h c_api-format.md#format-placeholder-specification] */
+/* [docs:link format.h <c_api-format.md#format-placeholder-specification>] */
 
 /* [docs:raw]
 ## Format placeholder specification
@@ -180,10 +180,10 @@ NstEXP isize NstC Nst_fprintln(Nst_IOFileObj *f, const i8 *buf);
  * @return The number of characters written. On failure a negative value is
  * returned and no error is set. The negative value returned depends on the
  * type of the error:
- * !`-1` signals a failure of vsprintf,
- * !`-2` that the output file is closed,
- * !`-3` an error in the format string and
- * !`-4` a memory allocation error.
+ *! `-1` signals a failure of vsprintf,
+ *! `-2` that the output file is closed,
+ *! `-3` an error in the format string and
+ *! `-4` a memory allocation error.
  */
 NstEXP isize NstC Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
                              Nst_GNU_FMT(1, 2);
@@ -199,10 +199,10 @@ NstEXP isize NstC Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
  * @return The number of characters written. On failure a negative value is
  * returned and no error is set. The negative value returned depends on the
  * type of the error:
- * !`-1` signals a failure of vsprintf,
- * !`-2` that the output file is closed,
- * !`-3` an error in the format string and
- * !`-4` a memory allocation error.
+ *! `-1` signals a failure of vsprintf,
+ *! `-2` that the output file is closed,
+ *! `-3` an error in the format string and
+ *! `-4` a memory allocation error.
  */
 NstEXP isize NstC Nst_fprintf(Nst_IOFileObj *f, Nst_WIN_FMT const i8 *fmt, ...)
                                                 Nst_GNU_FMT(2, 3);

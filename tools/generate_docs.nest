@@ -6,539 +6,879 @@
 |#| 'stdsys.nest' = sys
 |#| 'stdmath.nest' = math
 
-#create_symbols header_lines [
-    0 = idx
-    ?.. header_lines.(idx) ' */' != [1 += idx]
+-/ ============================ General Logging ============================ /-
 
-    -- find all declarations in the header
-    header_lines idx @generate_symbol_table = symbols
-
-    -- skip the next steps if no symbols could be found
-    symbols null == ?
-        => {
-            'other': <{}>,
-            'macros': <{}>,
-            'unions': <{}>,
-            'structs': <{}>,
-            'typedefs': <{}>,
-            'functions': <{}>,
-            'enums': <{}>
-        }
-
-    -- sort them by category
-    header_lines symbols @sort_categories = categories
-
-    -- Find the name of each symbol
-    header_lines categories @find_names
-
-    -- Create a proper synopsis & documentation
-    header_lines categories @build_docs
-
-    => categories
+#_logging_message level message parser [
+    parser ?
+        => level ' ' (parser @parser_pos_info) ': ' message ><
+    :
+        => level ': ' message ><
 ]
 
-#generate_header_details header_lines doc_file [
-    header_lines.1 ' * @file ' '' @su.replace = filename
-    doc_file (filename 1 true @title) @io.write
-    header_lines 2 @get_doc_block = {_, description, idx}
-    doc_file (description '.' >< @paragraph) @io.write
-    header_lines idx @get_doc_block = {_, authors, idx}
-    doc_file ('Authors' 2 @title) @io.write
-    doc_file (authors @paragraph) @io.write
-    => idx
+-- printed when the syntax does not adhere to the standard
+#warning message parser [
+    sys.SUPPORTS_COLOR ? >>> '\e[33m'
+    'Warning' message parser @_logging_message @io.println
+    sys.SUPPORTS_COLOR ? >>> '\e[0m'
 ]
 
-#generate_symbol_table header_lines idx [
-    <{}> = symbols
-
-    ?.. header_lines idx @find_next_doc_comment = idx null != [
-        header_lines.(idx) '[docs:ignore]' <.> ? [
-            1 += idx
-            ..
-        ]
-
-        header_lines.(idx) '[docs:ignore_sym' <.> ? [
-            header_lines.(idx) @su.split = {_, _, sym_name, _}
-            sym_name.-1 ']' != ? 'Syntax Error' !! 'invalid docs directive \(header_lines.(idx))'
-            null = ignored_symbols.(sym_name 0 -1 @sequ.slice)
-            1 += idx
-            ..
-        ]
-
-        header_lines.(idx) '[docs:link' <.> ? [
-            header_lines.(idx) @su.split = parts
-            $parts 5 == ? [
-                parts = {_, _, sym_name, sym_link, _}
-                sym_link.-1 ']' != ?
-                    'Syntax Error' !! 'invalid docs directive \(header_lines.(idx))'
-                'c' = link_type
-                sym_link 0 -1 @sequ.slice = sym_link
-            ] : $parts 6 == ? [
-                parts = {_, _, sym_name, sym_link, link_type, _}
-                link_type.-1 ']' != ?
-                    'Syntax Error' !! 'invalid docs directive \(header_lines.(idx))'
-                link_type.0 = link_type
-            ]
-            -- single backslash = space, double backslash = backslash
-            sym_name '\\' ' '  @su.replace \
-                     '  ' '\\' @su.replace = sym_name
-
-            ?.. sym_name (' *()' sym_name.-1 <.>) && [
-                sym_name 0 -1 @sequ.slice = sym_name
-            ]
-
-            {sym_link, link_type} = additional_symbols.(sym_name)
-            1 += idx
-            ..
-        ]
-
-        header_lines.(idx) '[docs:raw]' <.> ? [
-            1 += idx
-            header_lines.(idx) = contents
-            1 += idx
-            ?.. header_lines.(idx) '*/' != [
-                '\n' header_lines.(idx) ><= contents
-                1 += idx
-            ]
-            '\n' ><= contents
-            symbols <{null, contents}> +
-            ..
-        ]
-
-        idx = doc_start
-        ?.. \
-            (header_lines.(idx) ' *' @su.starts_with) \
-            (header_lines.(idx) '/*' @su.starts_with) ||
-        [
-            1 += idx
-        ]
-        symbols <{idx, doc_start}> +
-    ]
-
-    => $symbols 0 == ? null : symbols
+-- printed when data may be lost
+#error message parser [
+    sys.SUPPORTS_COLOR ? >>> '\e[31m'
+    'Error' message parser @_logging_message @io.println
+    sys.SUPPORTS_COLOR ? >>> '\e[0m'
 ]
 
-#sort_categories header_lines symbols [
-    {
-        'other': <{}>,
-        'macros': <{}>,
-        'unions': <{}>,
-        'structs': <{}>,
-        'typedefs': <{}>,
-        'functions': <{}>,
-        'enums': <{}>
-    } = categories
-
-    ... Iter :: symbols := symbol [
-        symbol.0 null == ? [
-            categories.other symbol.1 +
-            ..
-        ]
-
-        header_lines.(symbol.0) = symbol_line
-        symbol_line '#define' @su.starts_with ? [
-            categories.macros symbol +
-            ..
-        ]
-        symbol_line 'NstEXP typedef enum' @su.starts_with ? [
-            categories.enums symbol +
-            ..
-        ]
-        symbol_line 'NstEXP typedef struct' @su.starts_with ? [
-            categories.structs symbol +
-            ..
-        ]
-        symbol_line 'NstEXP typedef union' @su.starts_with ? [
-            categories.unions symbol +
-            ..
-        ]
-        symbol_line 'NstEXP typedef' @su.starts_with ? [
-            categories.typedefs symbol +
-            ..
-        ]
-        categories.functions symbol +
-    ]
-
-    => categories
+-- printed when parsing cannot continue on the file
+#fatal message parser [
+    'Fatal' message parser @_logging_message >< @io.println
+    true = parser.fatal_error
 ]
 
-#find_names header_lines symbols [
-    ... Iter :: symbols.macros := macro [
-        header_lines.(macro.0) 8 @sequ.slice = macro_name -- remove #define
-        macro_name ' ' @su.lfind = space_idx
-        macro_name '(' @su.lfind = paren_idx
-        (paren_idx -1 ==) (space_idx -1 !=) && ? [
-            macro_name null space_idx @sequ.slice = macro_name
-        ] : (paren_idx -1 !=) (space_idx -1 ==) && ? [
-            macro_name null paren_idx @sequ.slice = macro_name
-        ] : (paren_idx -1 !=) (space_idx -1 !=) && ? [
-            space_idx paren_idx @math.min = min_idx
-            macro_name null min_idx @sequ.slice = macro_name
+-/ ================================ Parser ================================= /-
+
+#parser_new file_name lines [
+    => {'file': file_name, 'lines': lines, 'idx': -1, 'fatal_error': false}
+]
+
+#parser_next_line parser [
+    parser.idx 1 + $parser.lines < ? [
+        1 += parser.idx
+        parser.lines.(parser.idx) = line
+        => line @su.rtrim
+    ]
+    => null
+]
+
+#parser_prev_line parser [
+    parser.idx 1 - -1 > ? [
+        1 -= parser.idx
+        parser.lines.(parser.idx) = line
+        => line @su.rtrim
+    ]
+    => null
+]
+
+#parser_curr_line parser [
+    => -1 parser.idx $parser.lines < ?
+        parser.lines.(parser.idx) @su.rtrim
+    :
+        null
+]
+
+#parser_pos_info parser [
+    => "(file \(parser.file @su.repr), line \(parser.idx 1 +))"
+]
+
+-/ ========================= Parsing documentation ========================= /-
+
+#get_next_doc_block parser data_map [
+    ?.. parser @parser_next_line = line null != [
+        line @su.ltrim = trimmed_line
+        !(trimmed_line '/*' @su.starts_with) ?
+            ..
+
+        trimmed_line '/*/' <.> ? [
+            "lines cannot contain '/*/'" parser @fatal
+            => null
         ]
-        macro_name @check_name
-        macro macro_name +
-    ]
 
-    ... Iter :: symbols.unions := union [
-        header_lines.(union.0) 22 -2 @sequ.slice = union_name
-        union_name @check_name
-        union union_name +
-    ]
-
-    ... Iter :: symbols.structs := struct [
-        header_lines.(struct.0) 23 -2 @sequ.slice = struct_name
-        struct_name @check_name
-        struct struct_name +
-    ]
-
-    ... Iter :: symbols.typedefs := typedef [
-        header_lines.(typedef.0) 15 @sequ.slice = typedef_name
-        typedef_name '(' @su.lfind = paren_idx
-        paren_idx -1 == ? [
-            typedef_name ' ' @su.rfind 1 + = space_idx
-            typedef_name space_idx -1 @sequ.slice = typedef_name
+        trimmed_line '[docs:ignore]' <.> ? [
+            !(parser @_reach_block_end) ? => null
         ] : [
-            typedef_name ')' @su.lfind = rparen_idx
-            2 += paren_idx
-            typedef_name paren_idx rparen_idx @sequ.slice = typedef_name
-        ]
-        typedef_name @check_name
-        typedef typedef_name +
-    ]
-
-    ... Iter :: symbols.enums := enum [
-        header_lines.(enum.0) 21 -2 @sequ.slice = enum_name
-        enum_name @check_name
-        enum enum_name +
-    ]
-
-    ... Iter :: symbols.functions := function [
-        header_lines.(function.0) 'NstEXP Nst_FUNC_SIGN' @su.starts_with ? [
-            header_lines.(function.0) 21 -2 @sequ.slice = function_name
-        ] : [
-            header_lines.(function.0) '(' @su.lfind = paren_idx
-            header_lines.(function.0) null paren_idx @sequ.slice = function_name
-            function_name ' ' @su.rfind 1 + = space_idx
-            function_name space_idx @sequ.slice = function_name
-        ]
-        function_name @check_name
-        function function_name +
-    ]
-]
-
-#check_name name [
-    !(name (su.DIGITS su.LETTERS '_' ><) @su.is_charset) ? [
-        'invalid name \(name @su.repr) in \(header @fs.normalize), check if' \
-        ' you missed NstEXP' >< = err_msg
-        'Value Error' !! err_msg
-    ]
-]
-
-#build_docs header_lines categories [
-    ... Iter :: categories.macros := macro [
-        header_lines macro @make_macro_syn = syn
-        header_lines macro @make_doc = doc
-        syn = macro.0
-        doc = macro.1
-    ]
-
-    ... \
-        {
-            categories.unions,
-            categories.structs,
-            categories.typedefs,
-            categories.functions,
-            categories.enums
-        } @itu.chain := symbol
-    [
-        header_lines symbol @make_syn = syn
-        header_lines symbol @make_doc = doc
-        syn = symbol.0
-        doc = symbol.1
-    ]
-]
-
-#make_macro_syn header_lines symbol [
-    header_lines.(symbol.0) 8 @sequ.slice = syn
-    syn '(' @su.lfind = paren_idx
-    syn ' ' @su.lfind = space_idx
-    paren_idx -1 == ? => null
-    (space_idx -1 !=) (paren_idx -1 !=) (paren_idx space_idx >) && ? => null
-    syn ')' @su.lfind 1 + = paren_idx
-    => syn null paren_idx @sequ.slice
-]
-
-#make_syn header_lines symbol [
-    symbol = {syn_start, _, name}
-
-    header_lines.(syn_start) \
-        'NstEXP '  '' @su.replace \
-        'NstC '    '' @su.replace \
-    = syn
-
-    (syn 'typedef struct' @su.starts_with) \
-    (syn 'typedef union'  @su.starts_with) \
-    (syn 'typedef enum'   @su.starts_with) || ? [
-        name ';' >< = end
-    ] : [
-        syn 'struct _' '' @su.replace = syn
-        ';' = end
-    ]
-
-    ?.. !(syn end @su.ends_with) [
-        1 += syn_start
-        header_lines.(syn_start) = line
-        line 'struct _' '' @su.replace = line
-        line '  \(name)' '  struct _\(name)' @su.replace = line
-        end ';' == ? [
-            line @su.ltrim = line
-            ' ' line ><= syn
-        ] : [
-            '\n' line ><= syn
+            => parser data_map @_get_block_data
         ]
     ]
-    => syn
+    => null
 ]
 
-#make_doc header_lines symbol [
-    symbol = {syn_start, doc_start, _}
-    {
+#_reach_block_end parser [
+    parser @parser_curr_line = curr_line
+    curr_line '*/' @su.ends_with ? => true
+
+    false = was_closed
+    ?.. parser @parser_next_line = line null != [
+        line '*/' @su.ends_with ? [
+            true = was_closed
+            ;
+
+        ]
+    ]
+    !was_closed ? [
+        'doc block was not closed' parser @fatal
+        => false
+    ]
+    => true
+]
+
+{'sym_info':  0,
+ 'file_info': 1,
+ 'raw_block': 2,
+ 'link_info': 3} = BLOCK_MAP_TYPES
+
+{'code':   0,
+ 'text':   1,
+ 'image':  2,
+ 'ignore': 3,
+ 'error':  4} = LINK_TYPES
+
+#_sym_info_map [
+    => {
+        '_type': BLOCK_MAP_TYPES.sym_info,
         null: <{}>,
-        '@brief': <{}>,
-        '@param': <{}>,
-        '@return': <{}>
-    } = doc
-
-    ?.. true [
-        header_lines doc_start @get_doc_block = doc_block
-        (doc_block null ==) (doc_block.2 syn_start >) || ? ;
-        ??
-            doc.(doc_block.0) doc_block.1 +
-        ?! _
-            'Value Error' !! 'unsupported tag \(doc_block.0)'
-        doc_block.2 = doc_start
-    ]
-
-    => doc
+        'brief': <{}>,
+        'param': <{}>,
+        'return': <{}>,
+        '_ignored': <{}>
+    }
 ]
 
-#write_docs categories doc_file [
-    ... Iter :: categories.other := other_item [
-        doc_file (other_item '\n' ><) @io.write
-    ]
-
-    $categories.macros    \
-    $categories.unions    \
-    $categories.structs   \
-    $categories.typedefs  \
-    $categories.functions \
-    $categories.enums + = tot
-
-    tot 0 != categories.other && ?
-        doc_file '---\n\n' @io.write
-
-    doc_file 'Macros'       categories.macros    tot @write_category = tot
-    doc_file 'Unions'       categories.unions    tot @write_category = tot
-    doc_file 'Structs'      categories.structs   tot @write_category = tot
-    doc_file 'Type aliases' categories.typedefs  tot @write_category = tot
-    doc_file 'Functions'    categories.functions tot @write_category = tot
-    doc_file 'Enums'        categories.enums     tot @write_category
+#_file_info_map [
+    => {
+        '_type': BLOCK_MAP_TYPES.file_info,
+        'file': <{}>,
+        'brief': <{}>,
+        'author': <{}>,
+        '_ignored': <{}>
+    }
 ]
 
-#write_category doc_file name symbols tot [
-    $symbols 0 != ?
-        doc_file (name 2 @title) @io.write
-
-    ... Iter :: symbols := symbol [
-        doc_file symbol tot name @write_symbol_doc = tot
-    ]
-    => tot
+#_raw_block_map [
+    => {
+        '_type': BLOCK_MAP_TYPES.raw_block,
+        'raw': ''
+    }
 ]
 
-#write_symbol_doc doc_file symbol tot type [
-    symbol = {syn, doc, name}
-
-    doc_file (name 3 true @title) @io.write
-    syn null != ? [
-        doc_file ('Synopsis' 0 @title) @io.write
-        doc_file (syn 'better-c' true @code_block) @io.write
-    ]
-
-    $doc.(null) $doc.'@brief' + 0 != ? [
-        doc_file ('Description' 0 @title) @io.write
-        ... Iter :: doc.(null) := desc [
-            doc_file (desc @paragraph) @io.write
-        ]
-
-        ... Iter :: doc.'@brief' := desc [
-            doc_file (desc @paragraph) @io.write
-        ]
-    ]
-
-    $doc.'@param' 0 != ? [
-        |> type [
-        ? 'Unions' [..]
-        ? 'Enums' [
-            'Variants' = title_name
-        ]
-        ? 'Structs' [
-            'Fields' = title_name
-        ]
-        ? [
-            'Parameters' = title_name
-        ]
-        ]
-
-        doc_file (title_name 0 @title) @io.write
-        doc.'@param' ##x [
-            x ': ' 1 @su.split = {name, desc}
-            => '`\(name)`: \(desc)'
-        ] @sequ.map = params
-        doc_file (params @unordered_list) @io.write
-    ]
-
-    $doc.'@return' 0 != && ? [
-        doc_file ('Returns' 0 @title) @io.write
-        ... Iter :: doc.'@return' := ret [
-            doc_file (ret @paragraph) @io.write
-        ]
-    ]
-
-    1 -= tot
-    tot 0 != ?
-        doc_file '---\n\n' @io.write
-    => tot
+#_link_info_map [
+    => {
+        '_type': BLOCK_MAP_TYPES.link_info,
+        'sym_name': '',
+        'link_type': LINK_TYPES.code,
+        'internal_link': true,
+        'link': ''
+    }
 ]
 
-#title contents level code [
-    level 0 == ? => '**\(contents):**\n\n'
+#_get_block_data parser data_map [
+    parser @parser_curr_line = line
+    {} = data
+    line @su.ltrim = trimmed_line
+    trimmed_line line != ?
+        'white space before documentation comment' parser @warning
+
+    trimmed_line '*/' @su.ends_with = is_one_line
+
+    trimmed_line '/**' @su.starts_with is_one_line && ? [
+        "one-line doc should start with '/*'' not '/**'" parser @warning
+        trimmed_line 1 @sequ.slice = trimmed_line
+    ]
+
+    line '[docs:raw]' <.> ?
+        => parser @_raw_block_data
+
+    data_map null == ?
+        @_sym_info_map = data_map
+
+    is_one_line ? [
+        trimmed_line 2 -2 @sequ.slice = trimmed_line
+        !(trimmed_line.0 trimmed_line.-1 ' ' ==) ?
+            "white space should be left after '/*' and before '*/" \
+            parser @warning
+        trimmed_line @su.trim = trimmed_line
+
+        trimmed_line '[docs:' @su.starts_with ?
+            => parser trimmed_line @_docs_link_data
+
+        <{trimmed_line}> = data_map.(null)
+        => data_map
+    ]
+
+    !(trimmed_line '/**' @su.starts_with) ? [
+        "multi-line doc blocks should start with '/**'" parser @warning
+        trimmed_line 2 @sequ.slice = trimmed_line
+    ] : [
+        trimmed_line 3 @sequ.slice = trimmed_line
+    ]
+
+    trimmed_line '' != ? [
+        'the first line should not contain text' parser @warning
+        trimmed_line @su.trim = curr_text
+    ] : [
+        '' = curr_text
+    ]
+
+    null = curr_context
+    curr_text ':' @su.ends_with = can_be_list
+    false = in_list
+
+    ?.. parser @parser_next_line = line null != [
+        line @su.ltrim = trimmed_line
+        !trimmed_line ? [
+            'doc blocks should not contain completly emtpy lines' \
+            parser @warning
+            ..
+        ]
+        trimmed_line.0 '*' != ? [
+            "block lines must start with an asterisk '*'" parser @error
+            ..
+        ]
+        !(line ' *' @su.starts_with) ?
+            "lines should start with ' *'" parser @warning
+
+        trimmed_line '*/' @su.ends_with ? [
+            trimmed_line '*/' != ?
+                'closing line cannot contain text in blocks' parser @error
+            => curr_text data_map curr_context @_append_curr_text
+        ]
+        trimmed_line 1 @sequ.slice = trimmed_line
+
+        trimmed_line '!' @su.starts_with (can_be_list in_list ||) && ? [
+            true = in_list
+            trimmed_line 1 @sequ.slice = trimmed_line
+            trimmed_line '' == ?
+                "blocks should not end with ' *!'" parser @warning
+            :
+                '\n' ><= curr_text
+            '!' = c
+        ] : [
+            '*' = c
+        ]
+
+        trimmed_line '' == ? [
+            curr_text data_map curr_context @_append_curr_text
+            '' = curr_text
+            ..
+        ]
+
+        trimmed_line.0 ' ' != ?
+            "there should be white space after '\(c)'" parser @warning
+        trimmed_line @su.ltrim = trimmed_line
+        trimmed_line '@' @su.starts_with ? [
+            parser trimmed_line data_map @_get_context \
+                = {curr_context, new_text}
+            curr_text data_map curr_context @_append_curr_text
+            new_text = curr_text
+            curr_text ':' @su.ends_with = can_be_list
+            ..
+        ]
+        curr_text trimmed_line @_append_text = curr_text
+        curr_text ':' @su.ends_with = can_be_list
+    ]
+
+    'doc block was not closed' parser @fatal
+    => null
+]
+
+#_append_text text new [
+    text ? [
+        text.-1 '\n' == ?
+            => text new ><
+        :
+            => text ' ' new ><
+    ] : [
+     => new
+    ]
+]
+
+#_append_curr_text curr_text data_map curr_context [
+    curr_context null == !(data_map curr_context <.>) && ?
+        =>
+    curr_text '' != ?
+        data_map.(curr_context) curr_text +
+    => data_map
+]
+
+#_get_context parser line data_map [
+    '' = context_name
+
+    ... line 1 @sequ.slice_i := c [
+        c @su.is_alpha ? c ><= context_name : ;
+    ]
+
+    context_name '' == ? [
+        "missing block name after '@'" parser @error
+        => {'_ignored', ''}
+    ]
+
+    !(data_map context_name <.>) ? [
+        '\(context_name @su.repr) is not a valid block name' parser @error
+        => {'_ignored', ''}
+    ]
+
+    line ($context_name 1 +) @sequ.slice = content
+    !(content @su.trim) ? [
+        'content should follow the name of the block' parser @warning
+        => {contex_name, ''}
+    ]
+
+    content.0 ' ' != ? [
+        'there should be whitespace after the name of the block' \
+        parser @warning
+    ]
+    content @su.trim = content
+    => {context_name, content}
+]
+
+#_raw_block_data parser [
+    '' = text
+
+    false = was_closed
+    ?.. parser @parser_next_line = line null != [
+        line '*/' @su.ends_with ? [
+            $line 2 != ?
+                'closing line cannot contain text in raw blocks' parser @error
+            true = was_closed
+            ;
+
+        ]
+        line '\n' ><= text
+    ]
+
+    !was_closed ? [
+        'doc block was not closed' parser @fatal
+        => null
+    ]
+
+    @_raw_block_map = map
+    text = map.raw
+    => map
+]
+
+#_docs_link_data parser line [
+    @_link_info_map = data_map
+
+    line @su.split = args
+    args.0 ':' @su.split = {_, link_action}
+
+    !({'ignore_sym', 'link'} link_action <.>) ? [
+        'invalid action \(link_action @su.repr)' parser @error
+        LINK_TYPES.error = data_map.link_type
+        => data_map
+    ]
+
+    $args 1 <= ? [
+        'not enough arguments for the action' parser @error
+        LINK_TYPES.error = data_map.link_type
+        => data_map
+    ]
+
+    args.-1 .-1 ']' != ? [
+        "missing ']'" parser @error
+        LINK_TYPES.error = data_map.link_type
+        => data_map
+    ]
+    args.-1 null -1 @sequ.slice = args.-1
+
+    link_action 'ignore_sym' == ? [
+        $args 2 != ? [
+            "'ignore_sym' expects exactly one argument" parser @error
+            LINK_TYPES.error = data_map.link_type
+            => data_map
+        ]
+        LINK_TYPES.ignore = data_map.link_type
+        args.1 = data_map.sym_name
+        => data_map
+    ]
+
+    $args 4 > ? [
+        "'link' expects only two or three arguments" parser @error
+        LINK_TYPES.error = data_map.link_type
+        => data_map
+    ]
+
+    args.1 = data_map.sym_name
+
+    args.2 .0 '<' == ? [
+            args.2 .-1 '>' != ? [
+            "missing '>'" parser @error
+            LINK_TYPES.error = data_map.link_type
+            => data_map
+        ]
+        args.2 1 -1 @sequ.slice = data_map.link
+        false = data_map.internal_link
+    ] : [
+        args.2 = data_map.link
+    ]
+
+    $args 4 != ? => data_map
+
+    args.3 = link_type
+    |> link_type [
+      ? 'c' [
+        LINK_TYPES.code = link_type
+    ] ? 't' [
+        LINK_TYPES.text = link_type
+    ] ? 'i' [
+        LINK_TYPES.image = link_type
+    ] ? [
+        '\(link_type @su.repr) is not a valid link type' parser @warning
+        LINK_TYPES.code = link_type
+    ]
+    ]
+    link_type = data_map.link_type
+    => data_map
+]
+
+-/ ========================== Parsing symbol data ========================== /-
+
+{'function': 0,
+ 'struct':   1,
+ 'macro':    2,
+ 'typedef':  3,
+ 'enum':     4,
+ 'union':    5,
+ 'r_struct': 6, -- raw struct
+ 'r_union':  7, -- raw union
+ 'r_enum':   8, -- raw enum
+ 't_func':   9, -- function typedef
+ 'error':   -1} = SYMBOL_TYPES
+
+#get_symbol_data parser [
+    parser @_get_symbol_type = {symbol_type, symbol_text}
+
+    |> symbol_type [
+      ? SYMBOL_TYPES.error [
+        =>
+    ] ? SYMBOL_TYPES.function [
+        symbol_text @_get_function_data = symbol_data
+    ] ? SYMBOL_TYPES.macro [
+        symbol_text @_get_macro_data = symbol_data
+    ] ? SYMBOL_TYPES.struct [
+        ..
+    ] ? SYMBOL_TYPES.enum [
+        ..
+    ] ? SYMBOL_TYPES.union [
+        symbol_type symbol_text @_get_s_e_u_data = symbol_data
+    ] ? SYMBOL_TYPES.typedef [
+        symbol_text @_get_typedef_data = symbol_data
+    ] ? SYMBOL_TYPES.r_struct [
+        ..
+    ] ? SYMBOL_TYPES.r_enum [
+        ..
+    ] ? SYMBOL_TYPES.r_union [
+        symbol_type symbol_text @_get_raw_s_e_u_data = symbol_data
+    ] ? SYMBOL_TYPES.t_func [
+        symbol_text @_get_t_func_data = symbol_data
+    ] ? [
+        'invalid symbol type' parser @error
+        =>
+    ]
+    ]
+
+    symbol_data.error null != ? [
+        symbol_data.error parser @error
+        =>
+    ]
+    symbol_data 'error' -
+    => symbol_data
+]
+
+#_get_symbol_type parser [
+    parser @parser_next_line = line
+    !line ? [
+        'expected a symbol' parser @error
+        => {SYMBOL_TYPES.error, ''}
+    ]
+
+    line '#define' @su.starts_with ? [
+        => parser @_get_macro
+    ]
+
+    0 = paren
+    0 = bracket
+    0 = brace
+    '' = symbol_text
+    false = valid_symbol
+
+    ..? line null != [
+        line paren bracket brace @_paren_count = {paren, bracket, brace}
+        (line ';' @su.ends_with) (paren bracket brace 0 ==) && ? [
+            '\n' line ><= symbol_text
+            true = valid_symbol
+            ;
+        ]
+        '\n' line ><= symbol_text
+        parser @parser_next_line = line
+    ]
+
+    !valid_symbol ? [
+        'the symbol is not valid' parser @error
+        => {SYMBOL_TYPES.error, ''}
+    ]
+    symbol_text 1 @sequ.slice = symbol_text -- remove the initial line feed
+    symbol_text = original_text
+    symbol_text 'NstEXP' @_remove_prefix @su.trim = symbol_text
+
+    symbol_text 'typedef' @su.starts_with ? [
+        symbol_text 'typedef' @_remove_prefix @su.trim = symbol_text
+        true = is_typedef
+    ] : [
+        false = is_typedef
+    ]
+    symbol_text '}' @su.rfind = close_bracket
+    symbol_text ')' @su.rfind = close_paren
+
+    close_paren close_bracket -1 == is_typedef && ? [
+        => {SYMBOL_TYPES.typedef, original_text}
+    ]
+
+    close_paren close_bracket > ? [
+        is_typedef ?
+            => {SYMBOL_TYPES.t_func, original_text}
+        :
+            => {SYMBOL_TYPES.function, original_text}
+    ]
+
+    symbol_text 'enum' @su.starts_with ? [
+        is_typedef ?
+            SYMBOL_TYPES.enum = symbol_type
+        :
+            SYMBOL_TYPES.r_enum = symbol_type
+    ] : symbol_text 'union' @su.starts_with ? [
+        is_typedef ?
+            SYMBOL_TYPES.union = symbol_type
+        :
+            SYMBOL_TYPES.r_union = symbol_type
+    ] : symbol_text 'struct' @su.starts_with ? [
+        is_typedef ?
+            SYMBOL_TYPES.struct = symbol_type
+        :
+            SYMBOL_TYPES.r_struct = symbol_type
+    ] : [
+        'cannot determine the kind of symbol' parser @error
+        => {SYMBOL_TYPES.error, ''}
+    ]
+
+    => {symbol_type, original_text}
+]
+
+#_paren_count line paren bracket brace [
+    line '(' @sequ.count += paren
+    line ')' @sequ.count -= paren
+    line '[' @sequ.count += bracket
+    line ']' @sequ.count -= bracket
+    line '{' @sequ.count += brace
+    line '}' @sequ.count -= brace
+    => {paren, bracket, brace}
+]
+
+#_remove_prefix str prefix [
+    str prefix @su.starts_with ?
+        str $prefix @sequ.slice = str
+    => str
+]
+
+#_get_macro parser [
+    parser @parser_curr_line = line
+    line = macro_text
+    ?.. line '\\' @su.ends_with [
+        parser @parser_next_line = line
+        line null == ? [
+            'expected a line for macro continuation' parser @error
+            => {SYMBOL_TYPES.error, ''}
+        ]
+        '\n' line ><= macro_text
+    ]
+
+    => {SYMBOL_TYPES.macro, macro_text}
+]
+
+#_symbol_data_map type [
+    => {'name': null, 'synopsis': null, 'type': type, 'error': null}
+]
+
+#_get_function_data func_text [
+    func_text 'NstEXP' @_remove_prefix @su.trim = func_text
+    func_text '\n' ' ' @su.replace = func_text
+    func_text @su.split @su.join = func_text
+
+    SYMBOL_TYPES.function @_symbol_data_map = data_map
+
+    func_text 'Nst_FUNC_SIGN' @su.starts_with ? [
+        func_text '(' @su.lfind = open_paren
+        func_text ')' @su.lfind = close_paren
+        func_text (open_paren 1 +) close_paren @sequ.slice = data_map.name
+        func_text null (close_paren 1 +) @sequ.slice = data_map.synopsis
+        => data_map
+    ]
+
+    func_text '}' @su.lfind = close_brace
+    close_brace -1 != ?
+        func_text '(' close_brace @su.lfind = open_paren
+    :
+        func_text '(' @su.lfind = open_paren
+
+    func_text null open_paren @sequ.slice @_split_tokens = tokens
+    $tokens 0 == ? [
+        'failed to parse function' = data_map.error
+        => data_map
+    ]
+
+    func_text open_paren @sequ.slice @_split_args = args
+
+    '' = synopsis
+    ... tokens := token [
+        token 'NstC' == ? ..
+        token ',)]' @su.is_charset ? [
+            token ' ' ><= synopsis
+            ..
+        ] : token '}' == ? [
+            ' } ' ><= synopsis
+        ]
+        !synopsis ? [
+            token ><= synopsis
+            ..
+        ]
+        synopsis.-1 '*([' @su.is_charset ?
+            token ><= synopsis
+        :
+            ' ' token ><= synopsis
+    ]
+
+    $synopsis 2 + = indent
+    args.-1 null -1 @sequ.slice = args.-1
+    args.0 ',' ><= synopsis
+    synopsis = line
+    '' = synopsis
+    ... args 1 @sequ.slice_i := arg [
+        line ' ' arg ',' >< = new_line
+        $new_line 79 > ? [
+            line ><= synopsis
+            '\n' ({'';indent} @su.join) >< = line
+            arg ',' ><= line
+            ..
+        ]
+        new_line = line
+    ]
+    line ? line ><= synopsis
+    synopsis null -1 @sequ.slice = synopsis -- removes the final comma
+    ')' ><= synopsis
+
+    tokens.-1 = data_map.name
+    synopsis = data_map.synopsis
+
+    => data_map
+]
+
+#_split_tokens text [
+    '' = ident
+    <{}> = tokens
+
+    ... text := c [
+        (c @su.is_alnum) (c '_' ==) || ? [
+            c ><= ident
+            ..
+        ]
+        ident ? tokens ident +
+        '' = ident
+        c ' ' != ?
+            tokens c +
+    ]
+    ident ? tokens ident +
+    => tokens
+]
+
+#_split_args text [
+    text ',' @su.split su.trim @sequ.map = maybe_args
+
+    <{}> = args
+    '' = curr_arg
+    -1= paren
+    0 = bracket
+    0 = brace
+    0 = g_paren
+    ... maybe_args := arg [
+        arg paren bracket brace @_paren_count = {paren, bracket, brace}
+
+        curr_arg ?
+            curr_arg ', ' arg >< = curr_arg
+        :
+            arg = curr_arg
+
+        -- needed to omit extra stuff after the end of the arguments such as
+        -- Nst_GNU_FMT
+        ... arg := c [
+            c ')' == ? [
+                1 -= g_paren
+                g_paren 0 == ? ;
+            ] : c '(' == ? [
+                1 += g_paren
+            ]
+        ]
+
+        g_paren 0 == ? [
+            curr_arg ')' @su.rfind = arg_end
+            curr_arg null (arg_end 1 +) @sequ.slice = curr_arg
+            args curr_arg +
+            ;
+        ]
+        paren bracket brace 0 == ? [
+            args curr_arg +
+            '' = curr_arg
+            ..
+        ]
+    ]
+
+    args (## x => x 'struct _' @su.replace) true @sequ.map
+    => args
+]
+
+#_get_macro_data macro_text [
+    macro_text '#define' @_remove_prefix @su.trim = macro_text
+    macro_text '(' @su.lfind = open_paren
+    macro_text ' ' @su.lfind = space
+    macro_text ')' @su.lfind = close_paren
+    SYMBOL_TYPES.macro @_symbol_data_map = data_map
+
+    (open_paren -1 !=) (open_paren space <) && ? [
+        '#define ' (macro_text null (close_paren 1 +) @sequ.slice) >< \
+             = data_map.synopsis
+        macro_text null open_paren @sequ.slice = data_map.name
+    ] : (space -1 !=) ? [
+        '' = data_map.synopsis
+        macro_text null space @sequ.slice = data_map.name
+    ] : [
+        '' = data_map.synopsis
+        macro_text = data_map.name
+    ]
+    => data_map
+]
+
+#_get_s_e_u_data symbol_type symbol_text [
+    symbol_text 'NstEXP' @_remove_prefix @su.trim = symbol_text
+
+    symbol_text '}' @su.rfind = close_brace
+    symbol_text (close_brace 1 +) @sequ.slice = name
+    name ' ' @su.replace '\n' @su.replace ';' @su.replace = name
+
+    symbol_text null close_brace @sequ.slice = synopsis
+    synopsis 'struct _' @su.replace = synopsis
+    symbol_type SYMBOL_TYPES.struct == ?
+        synopsis name 'struct _\(name)' @su.replace = synopsis
+    '} \(name)' ><= synopsis
+
+    symbol_type @_symbol_data_map = data_map
+    name = data_map.name
+    synopsis = data_map.synopsis
+    => data_map
+]
+
+#_get_typedef_data typedef_text [
+    typedef_text 'NstEXP' @_remove_prefix @su.trim = typedef_text
+    typedef_text @_split_tokens = tokens
+
+    SYMBOL_TYPES.typedef @_symbol_data_map = data_map
+    tokens.-2 = data_map.name
+    typedef_text null -1 @sequ.slice = data_map.synopsis
+    => data_map
+]
+
+#_get_raw_s_e_u_data symbol_type symbol_text [
+    symbol_text 'NstEXP' @_remove_prefix @su.trim = symbol_text
+    symbol_text = orig_text
+
+    symbol_text '\n' ' ' @su.replace \
+        'enum ' @_remove_prefix \
+        'union ' @_remove_prefix \
+        'struct ' @_remove_prefix = symbol_text
+
+    (symbol_text @_split_tokens).0 = name
+
+    symbol_type @_symbol_data_map = data_map
+    name = data_map.name
+    orig_text = data_map.synopsis
+
+    => data_map
+]
+
+#_get_t_func_data t_func_text [
+    t_func_text 'NstEXP' @_remove_prefix @su.trim = t_func_text
+    t_func_text '\n' ' ' @su.replace = t_func_text
+    t_func_text @su.split @su.join = t_func_text
+
+    SYMBOL_TYPES.t_func @_symbol_data_map = data_map
+
+    t_func_text '}' @su.lfind = close_brace
+    close_brace -1 != ?
+        t_func_text ')' close_brace @su.lfind = close_paren
+    :
+        t_func_text ')' @su.lfind = close_paren
+
+    t_func_text '(' close_paren @su.lfind = open_paren
+
+    t_func_text null open_paren @sequ.slice = synopsis
+    (synopsis @_split_tokens).-2 = name
+    t_func_text open_paren @sequ.slice @_split_args = args
+
+    $synopsis 2 + = indent
+    args.-1 null -1 @sequ.slice = args.-1
+    args.0 ',' ><= synopsis
+    synopsis = line
+    '' = synopsis
+    ... args 1 @sequ.slice_i := arg [
+        line ' ' arg ',' >< = new_line
+        $new_line 79 > ? [
+            line ><= synopsis
+            '\n' ({'';indent} @su.join) >< = line
+            arg ',' ><= line
+            ..
+        ]
+        new_line = line
+    ]
+    line ? line ><= synopsis
+    synopsis null -1 @sequ.slice = synopsis -- removes the final comma
+    ')' ><= synopsis
+
+    name = data_map.name
+    synopsis = data_map.synopsis
+
+    => data_map
+]
+
+-/ =========================== Markdown Writing ============================ /-
+
+#title text level [
+    level 0 == ? => '**\(text):**\n'
 
     '' = s
     ... level [
         '#' ><= s
     ]
-    code ? => '\(s) `\(contents)`\n\n'
-         : => '\(s) \(contents)\n\n'
+    => '\(s) \(text)\n'
 ]
 
-#paragraph contents [
-    contents 'WINDOWS ONLY' '**WINDOWS ONLY**' @su.replace = contents
-    contents @generate_links = contents
-    contents '[docs:list-item]' <.> ? [
-        contents '[docs:list-item]' @su.split = items
-        items.0 80 0 @format_line_width '\n' >< = header
-        items 0 @sequ.remove_at
-        items @unordered_list = items
-        => header items ><
-    ] : contents 'Note:' @su.starts_with ? [
-        contents.6 @su.to_upper = first_letter
-        first_letter (contents 7 @sequ.slice) >< = contents
-        => '!!!note\n    ' (contents 76 4 @format_line_width) '\n' ><
-    ] : contents 'Warning:' @su.starts_with ? [
-        contents.9 @su.to_upper = first_letter
-        first_letter (contents 10 @sequ.slice) >< = contents
-        => '!!!warning\n    ' (contents 76 4 @format_line_width) '\n' ><
-
-    ] : [
-        => contents 80 0 @format_line_width '\n' ><
-    ]
+#paragraph text [
+    => text 80 @_format_line_width
 ]
 
-#generate_links contents [
-    !(contents '`' <.>) ? => contents
-    '' = final_contents
-    0 = idx
-    ?.. idx $contents < [
-        contents.(idx) '`' != ? [
-            contents.(idx) ><= final_contents
-            1 += idx
-            ..
-        ]
-        contents idx @generate_link = {idx, link}
-        link ><= final_contents
-    ]
-    => final_contents
-]
-
-#generate_link contents idx [
-    1 += idx
-    idx = start
-    ?.. idx $contents < [
-        contents.(idx) '`' == ? [
-            ;
-        ]
-        1 += idx
-    ]
-    idx = end
-
-    contents start end @sequ.slice = name
-
-    name = lname
-    ?.. lname (' *()' lname.-1 <.>) && [
-        lname 0 -1 @sequ.slice = lname
-    ]
-    !lname ? => {end 1 +, '`\(name)`'}
-
-    additional_symbols lname <.> ? [
-        -- prevents line breaks on links
-        name ' ' '[docs:nbsp]' @su.replace = name
-
-        additional_symbols.(lname) = {link, type}
-        |> type [
-        ? 'c' [ -- code
-            => {end 1 +, '[`\(name)`](\(link))'}
-        ]
-        ? 'i' [ -- image
-            => {end 1 +, '![\(name)](\(link))'}
-        ]
-        ? 't' [ -- normal text
-            => {end 1 +, '[\(name)](\(link))'}
-        ]
-        ? [
-            name '[docs:nbsp]' ' ' @su.replace = name
-            'Warning: invalid link type \(type) for \(name)' @io.println
-            => {end 1 +, '`\(name)`'}
-        ]
-        ]
-    ]
-
-    !(lname 'Nst' @su.starts_with) !(lname '_Nst' @su.starts_with) && ? [
-        lname @su.to_lower = lname
-        (lname 'nst' @su.starts_with) (lname '_nst' @su.starts_with) || \
-        !(ignored_symbols name <.>) && ?
-            'Warning: \(name) could be incorrect' @io.println
-        => {end 1 +, '`\(name)`'}
-    ]
-
-    _globals_.symbols.(lname) = link
-    link null == ? [
-        !(ignored_symbols lname <.>) ?
-            'Warning: \(lname) not found' @io.println
-        => {end 1 +, '`\(lname)`'}
-    ]
-    name ' ' '[docs:nbsp]' @su.replace = name
-    => {end 1 +, '[`\(name)`](\(link))'}
-]
-
-#unordered_list contents [
+#list items [
     '' = ul
-
-    ... Iter :: contents := item [
-        item 78 2 @format_line_width = fmt_item
-        '- \(fmt_item)' ><= ul
+    ... items := item [
+        '- ' (item 78 2 @_format_line_width) ><= ul
     ]
-    => ul '\n' ><
+    => ul
 ]
 
-#format_line_width contents width indentation words [
+#code_block text language [
+    language null == ? 'text' = language
+    => '```\(language)\n\(text)\n```\n'
+]
+
+#note_box text [
+    => '!!!note\n    \(text 76 4 @_format_line_width)'
+]
+
+#warning_box text [
+    => '!!!warning\n    \(text 76 4 @_format_line_width)'
+]
+
+#_format_line_width text width indent [
+    indent null == ? 0 = indent
+
     '' = lines
-
-    words null == ?
-        Vector :: (contents @su.split @itu.reversed) = words
-    :
-        Vector :: (words @itu.reversed) = words
-
-    words ##x [=> x '[docs:nbsp]' ' ' @su.replace] @sequ.map = words
+    Vector :: (text @su.split @itu.reversed) = words
+    words (##x => x '[docs:nbsp]' ' ' @su.replace) true @sequ.map
 
     ?.. $words 0 != [
         words 1 / = line
@@ -547,183 +887,455 @@
             ' ' (words 1 /) ><= line
         ]
         $lines 0 != ? [
-            ... indentation [
+            ... indent [
                 ' ' line >< = line
             ]
         ]
         line '\n' ><= lines
     ]
-    => lines '\xa0' ' ' @su.replace
+    => lines
 ]
 
-#code_block contents language format [
-    !format ?
-        => '```\(language)\n\(contents)\n```\n\n'
-
-    (contents 'typedef struct' @su.starts_with) \
-    (contents 'typedef union'  @su.starts_with) \
-    (contents 'typedef enum'   @su.starts_with) || ?
-        => '```\(language)\n\(contents null -1 @sequ.slice)\n```\n\n'
-
-    !(contents ');' @su.ends_with) ?
-        => '```\(language)\n\(contents)\n```\n\n'
-
-    1 = open_paren
-    -3 = idx
-    ?.. open_paren 0 != [
-          contents.(idx) ')' == ? 1 += open_paren
-        : contents.(idx) '(' == ? 1 -= open_paren
-        1 -= idx
-    ]
-    2 += idx
-    contents null idx @sequ.slice = body
-    contents idx @sequ.slice = args
-    args ', ' @su.split ##x [
-        => x ';' @su.ends_with ? x null -1 @sequ.slice >< : x ',' ><
-    ] @sequ.map = args
-    -- args @io.println
-    null (79 $body -) $body args @format_line_width = args
-    => '```\(language)\n\(body)\(args)```\n\n'
+#hr [
+    => '---\n'
 ]
 
-#get_doc_block header_lines idx [
-    header_lines idx @find_next_doc_block = idx
-    idx null == ? => null
+-/ ============================ Link management ============================ /-
 
-    ($header_lines.(idx) 4 >=) (header_lines.(idx).3 '@' ==) && ? [
-        header_lines.(idx) null 2 @su.split = {_, field, contents}
-    ] : [
-        header_lines.(idx) '*/' @su.ends_with ?
-            => {null, header_lines.(idx) 3 -3 @sequ.slice, idx 1 +}
-        header_lines.(idx) 3 @sequ.slice = contents
+#link_manager_new [
+    => {
+        'symbols': {},
+        'aliases': {},
+        'ignored_symbols': {}
+    }
+]
+
+#link_manager_add_symbols link_manager file_blocks [
+    file_blocks.header.file.0 = file
+    'c_api-' (file '.' @su.split).0 '.md' >< = file
+
+    ... file_blocks.symbols := symbol [
+        symbol.sym.name = name
+        link_manager.symbols.(name) null != ? [
+            '\(name @su.repr) is a duplicate symbol' @error
+            ..
+        ]
+
+        '\(file)#\(name @su.to_lower)' = link_manager.symbols.(name)
     ]
 
-    contents ':' @su.ends_with = maybe_list
-    false = in_list
-    1 += idx
+    ... file_blocks.link_info := link_info [
+        link_info.sym_name @_fix_name = name
+        !name ? ..
 
-    ?.. \
-        (idx $header_lines <) \
-        (header_lines.(idx) ' *' !=) \
-        (header_lines.(idx) ' */' !=) \
-        (($header_lines.(idx) 4 >=) (header_lines.(idx).3 '@' !=) &&) &&
-    [
-        header_lines.(idx) 3 @sequ.slice = line
-
-        in_list maybe_list || (line '!' @su.starts_with) && ? [
-            line 1 @sequ.slice = line
-            true = in_list
-            '[docs:list-item]' line ><= contents
+        link_info.link_type LINK_TYPES.ignore == ? [
+            null = link_manager.ignored_symbols.(name)
         ] : [
-            ' ' line ><= contents
-            line ':' @su.ends_with !in_list && = maybe_list
+            {link_info.link, link_info.internal_link, link_info.link_type} \
+                = link_manager.aliases.(name)
         ]
-        1 += idx
     ]
-
-    => {field, contents, idx}
 ]
 
-#find_next_doc_block header_lines idx [
-    -- if it is already inside a block
-    header_lines.(idx) ' *' @su.starts_with ? [
-        ?.. \
-            (idx $header_lines <) \
-            (   (header_lines.(idx) ' */' ==) \
-                ($header_lines.(idx) 4 <) \
-                (header_lines.(idx).3 '@' !=) ||) &&
-        [
-            1 += idx
+#_fix_name name error [
+    name '\\' ' ' @su.replace = name
+    name = orig_name
+
+    ?.. name (' *()' name.-1 <.>) && [
+        name 0 -1 @sequ.slice = name
+    ]
+
+    !name ? [
+        error ? '\(orig_name @su.repr) is not a vaild link name' @error
+        => null
+    ]
+
+    => name
+]
+
+#link_manager_expand_internal_links link_manager [
+    {} = new_aliases
+    ... link_manager.aliases := {name, {link, internal_link, link_type}} [
+        !internal_link ? [
+            {link, link_type} = new_aliases.(name)
+            ..
         ]
 
-        idx $header_lines >= ? => null
-        header_lines.(idx) ' */' == ? => header_lines idx @find_next_doc_block
-        => idx
-    ]
-    header_lines idx @find_next_doc_comment = idx
-    (idx null ==) ($header_lines idx ==) || ? => null
+        link_manager.symbols.(link) = new_link
+        new_link null == ? [
+            link_manager.aliases.(link) = alias_link
 
-    -- if the documentation is one-line
-    header_lines.(idx) '*/' @su.ends_with ? => idx
-    => idx 1 +
+            alias_link null != ? [
+                "link from '\(name)' to '\(link)', an alias" @error
+
+            ] : [
+                "linking '\(name)' to '\(link)' failed, name not found" @error
+            ]
+            ..
+        ]
+
+        {new_link, link_type} = new_aliases.(name)
+    ]
+    new_aliases = link_manager.aliases
 ]
 
-#find_next_doc_comment header_lines idx [
-    ?.. \
-        (idx $header_lines <) \
-        !(header_lines.(idx) '/*' @su.starts_with) &&
-    [
+#link_manager_get_link link_manager name [
+    name = orig_name
+    name false @_fix_name = name
+    !name ? => '`\(name)`'
+
+    link_manager.ignored_symbols name <.> ? [
+        => '`\(orig_name)`'
+    ]
+
+    link_manager.aliases.(name) = alias_link
+
+    alias_link null != ? [
+        orig_name ' ' '[docs:nbsp]' @su.replace = orig_name
+        alias_link = {link, link_type}
+
+        |> link_type [
+        ? LINK_TYPES.code [
+            => '[`\(orig_name)`](\(link))'
+        ]
+        ? LINK_TYPES.image [
+            => '![\(orig_name)](\(link))'
+        ]
+        ? LINK_TYPES.text [
+            => '[\(orig_name)](\(link))'
+        ]
+        ]
+    ]
+    link_manager.symbols.(name) = link
+    link null == ? [
+        name @su.to_lower = name
+        (name 'nst' @su.starts_with) (name '_nst' @su.starts_with) || ? [
+            "'\(orig_name)' could be misspelled" @warning
+        ]
+        => '`\(orig_name)`'
+    ]
+
+    orig_name ' ' '[docs:nbsp]' @su.replace = orig_name
+    => '[`\(orig_name)`](\(link))'
+]
+
+-/ ============================= C API Parsing ============================= /-
+
+#parse_c_api [
+    !('../include/' @fs.is_dir) ? [
+        'current working directory is not nest/tools/' @fatal
+        => null
+    ]
+
+    @link_manager_new = link_manager
+
+    {} = files
+
+    ... '../include/' @fs.list_dir := file [
+        file @_parse_c_file = file_blocks
+        file_blocks null == ? [
+            '\(file @su.repr) failed' @io.println
+            ..
+        ]
+        link_manager file_blocks @link_manager_add_symbols
+        file_blocks = files.(file)
+    ]
+
+    link_manager @link_manager_expand_internal_links
+    => {files, link_manager}
+]
+
+#_file_blocks_map file_header [
+    => {
+        'header': file_header,
+        'symbols': <{}>,
+        'raw_blocks': <{}>,
+        'link_info': <{}>
+    }
+]
+
+#_parse_c_file file_path [
+    file_path @io.open = file
+    file @io.read = content
+    file @io.close
+    content @_split_lines = lines
+
+    file_path @fs.filename lines @parser_new = parser
+
+    @_file_info_map = file_header
+    parser file_header @get_next_doc_block = file_header
+    file_header null == ? => null
+    !file_header.file ? [
+        'missing file header' parser @fatal
+        => null
+    ]
+
+    file_header @_file_blocks_map = file_blocks
+    file_blocks.header.file.0 = header_name
+
+    header_name (file_path @fs.filename) != ? [
+        'file name in header \(header_name @su.repr) does not correspond ' \
+            'to the one of the file' >< parser @warning
+    ]
+
+    ?.. parser @get_next_doc_block = block [
+        |> block._type [
+          ? BLOCK_MAP_TYPES.link_info [
+            block.link_type LINK_TYPES.error != ?
+                file_blocks.link_info block +
+        ] ? BLOCK_MAP_TYPES.raw_block [
+            file_blocks.raw_blocks block +
+        ] ? BLOCK_MAP_TYPES.sym_info [
+            parser @get_symbol_data = symbol_data
+            symbol_data null != ?
+                file_blocks.symbols {'doc': block, 'sym': symbol_data} +
+        ] ? [
+            'invalid block type \(block._type)' parser @error
+        ]
+        ]
+    ]
+
+    => parser.fatal_error ? null : file_blocks
+]
+
+#_split_lines content [
+    content '\r\n' '\n' @su.replace '\r' '\n' @su.replace = content
+    => content '\n' @su.split
+]
+
+-/ ============================= C API Writing ============================= /-
+
+#write_c_api files link_manager [
+    !('../docs/' @fs.is_dir) ? [
+        'current working directory is not nest/tools/' @fatal
+        => null
+    ]
+    '../docs/c_api/' @fs.make_dir
+    @sys._get_cwd = old_cwd
+    '../docs/c_api/' @sys._set_cwd
+
+    ... files := {_, file_blocks} [
+        file_blocks link_manager @_write_c_file
+    ]
+
+    old_cwd @sys._set_cwd
+]
+
+#_write_c_file file_blocks lm [
+    file_blocks.header.file.0 = file_name
+
+    file_blocks.header.brief ?
+        file_blocks.header.brief.0 = file_description
+
+    !file_description ?
+        'No description' = file_description
+
+    file_blocks.header.author ? [
+        file_blocks.header.author.0 = file_authors
+    ]
+
+    !file_authors ?
+        'No authors.' = file_authors
+
+    file_description.-1 '.' != ? '.' ><= file_description
+
+    'c_api-' (file_name '.' @su.split).0 '.md' >< 'w' @io.open = file
+
+    file ('`' file_name '`' >< 1 @title) @io.write
+    file_description lm @_doc_paragraph file @_append_to_file
+    'Authors' 2 @title file @_append_to_file
+    file_authors lm @_doc_paragraph file @_append_to_file
+
+    ... file_blocks.raw_blocks := raw_block [
+        raw_block.raw file @_append_to_file
+    ]
+
+    file_blocks.symbols @_split_categories = categories
+
+    ... categories := {name, symbols} [
+        file name symbols lm @_write_category
+    ]
+
+    file @io.close
+]
+
+#_append_to_file text file lm [
+    file ('\n' text ><) @io.write
+]
+
+#_add_links text lm [
+    '' = linked_text
+
+    0 = idx
+    0 = prev_end
+
+    ?.. text '`' idx @su.lfind 1 + = idx [
+        idx 1 - = start
+        text '`' idx @su.lfind = idx
+        idx -1 == ? ;
+        idx = end
         1 += idx
+        text (start 1 +) end @sequ.slice = link_text
+        lm link_text @link_manager_get_link = link_text
+
+        text prev_end start @sequ.slice ><= linked_text
+        link_text ><= linked_text
+        end 1 + = prev_end
     ]
-    idx $header_lines >= ? => null
 
-    => idx
+    prev_end 1 + $linked_text != ?
+        text prev_end @sequ.slice ><= linked_text
+
+    => linked_text
 ]
 
-#update_global_symbols categories file [
-    ... \
-        {
-            categories.macros,
-            categories.unions,
-            categories.structs,
-            categories.typedefs,
-            categories.functions,
-            categories.enums
-        } @itu.chain := symbol
-    [
-        symbol.2 = name
-        _globals_.symbols.(name) null != ?
-            'Value Error' !! 'duplicate symbol \(name), previous one was \(_globals_.symbols.(name))'
-        '\(file)#\(name @su.to_lower)' = _globals_.symbols.(name)
+#_doc_paragraph text lm [
+    text lm @_add_links = text
+    text 'WINDOWS ONLY' '**WINDOWS ONLY**' @su.replace = text
+
+    text '\n' <.> ? [
+        text '\n' @su.split = items
+        items.0 @paragraph = introduction
+        items 1 @sequ.slice @list = list_str
+        => introduction '\n' list_str ><
+    ]
+    text 'Warning:' @su.starts_with ? [
+        text 'Warning:' @_remove_prefix @su.trim = text
+        text ? [
+            (text.0 @su.to_upper) (text 1 @sequ.slice) >< = text
+        ]
+        => text @warning_box
+    ]
+    text 'Note:' @su.starts_with ? [
+        text 'Note:' @_remove_prefix @su.trim = text
+        text ? [
+            (text.0 @su.to_upper) (text 1 @sequ.slice) >< = text
+        ]
+        => text @note_box
+    ]
+    => text @paragraph
+]
+
+#_doc_list items lm [
+    <{}> = new_items
+
+    ... items := item [
+        new_items (item lm @_add_links) +
+    ]
+    => new_items @list
+]
+
+#_split_categories symbols [
+    {
+        'Macros': <{}>,
+        'Unions': <{}>,
+        'Structs': <{}>,
+        'Type aliases': <{}>,
+        'Functions': <{}>,
+        'Enums': <{}>
+    } = categories
+
+    ... symbols := symbol [
+        |> symbol.sym.type [
+          ? SYMBOL_TYPES.macro [
+            categories.'Macros' symbol +
+        ] ? SYMBOL_TYPES.union [
+            ..
+        ] ? SYMBOL_TYPES.r_union [
+            categories.'Unions' symbol +
+        ] ? SYMBOL_TYPES.struct [
+            ..
+        ] ? SYMBOL_TYPES.r_struct [
+            categories.'Structs' symbol +
+        ] ? SYMBOL_TYPES.typedef [
+            ..
+        ] ? SYMBOL_TYPES.t_func [
+            categories.'Type aliases' symbol +
+        ] ? SYMBOL_TYPES.function [
+            categories.'Functions' symbol +
+        ] ? SYMBOL_TYPES.enum [
+            ..
+        ] ? SYMBOL_TYPES.r_enum [
+            categories.'Enums' symbol +
+        ]
+        ]
+    ]
+
+    => categories
+]
+
+#_write_category file name symbols lm [
+    !symbols ? =>
+
+    @hr file @_append_to_file
+    name 2 @title file @_append_to_file
+
+    ... symbols @itu.enumerate := {i, symbol} [
+        file symbol i lm @write_symbol_doc
     ]
 ]
 
-{} = files
-{} = symbols
-{} = ignored_symbols
-{} = additional_symbols
+#write_symbol_doc file symbol i lm [
+    i 0 != ?
+        @hr file @_append_to_file
 
-$_args_ 2 == ?
-    _args_.1 = dir
-:
-    '../docs/c_api' = dir
+    '`' symbol.sym.name '`' >< 3 @title file @_append_to_file
 
-dir @fs.make_dir
-dir @sys._set_cwd
+    symbol.sym.synopsis ? [
+        'Synopsis' 0 @title file @_append_to_file
+        symbol.sym.synopsis 'better-c' @code_block file @_append_to_file
+    ]
 
-... Iter :: ('../../include' @fs.list_dir) := header [
-    header @fs.filename 0 -2 @sequ.slice = header_name
-    header 'r' @io.open = header_file
-    header_file @io.read = contents
-    contents '\r\n' '\n' @su.replace \
-             '\r'   '\n' @su.replace = contents
-    contents '\n' @su.split = header_lines
-    header_file @io.close
+    symbol.doc = doc
+    $doc.(null) $doc.brief + 0 != ? [
+        'Description' 0 @title file @_append_to_file
+        ... doc.(null) := desc [
+            desc lm @_doc_paragraph file @_append_to_file
+        ]
+        ... doc.brief := desc [
+            desc lm @_doc_paragraph file @_append_to_file
+        ]
+    ]
 
-    header_lines @create_symbols = categories
-    {categories, header_lines} = files.'c_api-\(header_name).md'
-    categories 'c_api-\(header_name).md' @update_global_symbols
+    $doc.param 0 != ? [
+        |> symbol.sym.type [
+          ? SYMBOL_TYPES.union [
+            ..
+        ] ? SYMBOL_TYPES.r_union [
+            ..
+        ] ? SYMBOL_TYPES.enum [
+            ..
+        ] ? SYMBOL_TYPES.r_enum [
+            'Variants' = title_name
+        ] ? SYMBOL_TYPES.struct [
+            ..
+        ] ? SYMBOL_TYPES.r_struct [
+            'Fields' = title_name
+        ] ? [
+            'Parameters' = title_name
+        ]
+        ]
+
+        title_name 0 @title file @_append_to_file
+        doc.param ##x [
+            x ':' 1 @su.split = {name, desc}
+            => '`\(name @su.trim)`: \(desc @su.trim)'
+        ] @sequ.map = params
+        params lm @_doc_list file @_append_to_file
+    ]
+
+    $doc.return 0 != && ? [
+        'Returns' 0 @title file @_append_to_file
+        ... doc.return := ret [
+            ret lm @_doc_paragraph file @_append_to_file
+        ]
+    ]
 ]
 
-... Iter :: files := {file, {categories, header_lines}} [
-    file 'w' @io.open = doc_file
-    header_lines doc_file @generate_header_details
-    categories doc_file @write_docs
-    doc_file @io.close
+-/ ============================= Main program ============================== /-
+
+#main [
+    @parse_c_api *@write_c_api
 ]
 
-'c_api_reference.md' 'w' @io.open = reference
-reference ('API Reference' 1 @title) @io.write
-
-#symbol_sort_map pair [
-    pair.0 = symbol
-    symbol @su.to_lower = symbol
-    symbol '_' '' @su.replace = symbol
-    !(symbol 'nst' @su.starts_with) ? => '__' symbol ><
-    => symbol
-]
-
-Array :: symbols symbol_sort_map @sequ.sort = sorted_symbols
-sorted_symbols (##x => '[`\(x.0)`](\(x.1))') @sequ.map = sorted_symbols
-reference (sorted_symbols @unordered_list) @io.write
-reference @io.close
+@main

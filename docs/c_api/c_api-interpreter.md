@@ -6,6 +6,8 @@ Bytecode interpreter.
 
 TheSilvered
 
+---
+
 ## Structs
 
 ### `Nst_ExecutionState`
@@ -340,4 +342,3 @@ Gets the current working directory as a [`Nst_StrObj`](c_api-str.md#nst_strobj).
 **Returns:**
 
 the new string or `NULL` on failure. The error is set.
-

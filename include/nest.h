@@ -36,4 +36,4 @@
 #include "format.h"
 #include "file.h"
 
-#endif //!NEST_H
+#endif // !NEST_H

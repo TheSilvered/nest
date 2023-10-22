@@ -144,7 +144,9 @@ and run `make help` to see what to compile. In general you will want to run
 
 ### Uninstalling on linux
 
-To uninstall Nest on linux, copy `nest/build/linux/uninstall.sh` and execute it.
+To uninstall Nest on linux, copy
+[`nest/build/linux/uninstall.sh`](https://github.com/TheSilvered/nest/blob/main/build/linux/uninstall.sh)
+and execute it.
 
 ## Plugins
 

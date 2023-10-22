@@ -6,6 +6,8 @@ Variable table interface using Nst_MapObj.
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `Nst_vt_get`
@@ -13,7 +15,7 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-Nst_vt_get(vt, name)
+#define Nst_vt_get(vt, name)
 ```
 
 **Description:**
@@ -28,7 +30,7 @@ Alias of [`_Nst_vt_get`](c_api-var_table.md#_nst_vt_get) that casts `name` to
 **Synopsis:**
 
 ```better-c
-Nst_vt_set(vt, name, val)
+#define Nst_vt_set(vt, name, val)
 ```
 
 **Description:**
@@ -170,4 +172,3 @@ Creates a new variable table with the correct global table of the function.
 **Returns:**
 
 The new var table or `NULL` on failure. The error is set.
-

@@ -6,6 +6,8 @@ Functions to manage various encodings.
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `Nst_CP_MULTIBYTE_MAX_SIZE`
@@ -55,9 +57,13 @@ The structure that represents an encoding.
 - `mult_min_sz`: the size in bytes of the shortest character (usually the same
   as `ch_size`)
 - `name`: the name of the encoding displayed in errors
-- `check_bytes`: the `Nst_CheckBytesFunc` function of the encoding
-- `to_utf32`: the `Nst_ToUTF32Func` function of the encoding
-- `from_utf32`: the `Nst_FromUTF32Func` function of the encoding
+- `check_bytes`: the
+  [`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) function of the
+  encoding
+- `to_utf32`: the [`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func)
+  function of the encoding
+- `from_utf32`: the [`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func)
+  function of the encoding
 
 ---
 
@@ -1166,7 +1172,8 @@ The new string is heap-allocated. str is assumed to be a valid non-NULL pointer.
 **Parameters:**
 
 - `str`: the string to translate
-- `len`: the length of the string, if 0, it is calculated with `strlen`
+- `len`: the length of the string, if 0, it is calculated with
+  [`strlen`](https://man7.org/linux/man-pages/man3/strlen.3.html)
 
 **Returns:**
 
@@ -1192,7 +1199,8 @@ The new string is heap-allocated. str is assumed to be a valid non-NULL pointer.
 **Parameters:**
 
 - `str`: the string to translate
-- `len`: the length of the string, if `0`, it is calculated with `wcslen`
+- `len`: the length of the string, if `0`, it is calculated with
+  [`wcslen`](https://man7.org/linux/man-pages/man3/wcslen.3.html)
 
 **Returns:**
 
@@ -1344,4 +1352,3 @@ The supported encodings in Nest.
     big endian versions are UTF-16 encodings that allow for unpaired surrogates
     with the only constraint being that a high surrogate cannot be the last
     character.
-

@@ -6,6 +6,8 @@ Nst_StrObj interface.
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `STR`
@@ -13,7 +15,7 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-STR(ptr)
+#define STR(ptr)
 ```
 
 **Description:**
@@ -27,7 +29,7 @@ Casts `ptr` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
 **Synopsis:**
 
 ```better-c
-TYPE_NAME(obj)
+#define TYPE_NAME(obj)
 ```
 
 **Description:**
@@ -41,7 +43,7 @@ Gets the name of the type of an object as a C string.
 **Synopsis:**
 
 ```better-c
-Nst_TYPE_STR(type)
+#define Nst_TYPE_STR(type)
 ```
 
 **Description:**
@@ -55,7 +57,7 @@ Gets the name of the type as a Nest string.
 **Synopsis:**
 
 ```better-c
-Nst_STR_IS_ALLOC(str)
+#define Nst_STR_IS_ALLOC(str)
 ```
 
 **Description:**
@@ -69,7 +71,7 @@ Checks if the value of a string is allocated.
 **Synopsis:**
 
 ```better-c
-Nst_string_copy(src)
+#define Nst_string_copy(src)
 ```
 
 **Description:**
@@ -84,7 +86,7 @@ Alias of [`_Nst_string_copy`](c_api-str.md#_nst_string_copy) that casts `src` to
 **Synopsis:**
 
 ```better-c
-Nst_string_repr(src)
+#define Nst_string_repr(src)
 ```
 
 **Description:**
@@ -99,7 +101,7 @@ Alias of [`_Nst_string_repr`](c_api-str.md#_nst_string_repr) that casts `src` to
 **Synopsis:**
 
 ```better-c
-Nst_string_get(str, idx)
+#define Nst_string_get(str, idx)
 ```
 
 **Description:**
@@ -109,18 +111,18 @@ Alias of [`_Nst_string_get`](c_api-str.md#_nst_string_get) that casts `str` to
 
 ---
 
-### `Nst_string_get_next_ch`
+### `Nst_string_next_ch`
 
 **Synopsis:**
 
 ```better-c
-Nst_string_get_next_ch(str, idx, out_ch)
+#define Nst_string_next_ch(str, idx, out_ch)
 ```
 
 **Description:**
 
-Alias of [`_Nst_string_get_next_ch`](c_api-str.md#_nst_string_get_next_ch) that
-casts `str` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
+Alias of [`_Nst_string_next_ch`](c_api-str.md#_nst_string_next_ch) that casts
+`str` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
 
 ---
 
@@ -389,12 +391,12 @@ fails if the index falls outside the string.
 
 ---
 
-### `_Nst_string_get_next_ch`
+### `_Nst_string_next_ch`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_string_get_next_ch(Nst_StrObj *str, isize *ch_idx, Nst_Obj **out_ch)
+bool _Nst_string_next_ch(Nst_StrObj *str, isize *ch_idx, Nst_Obj **out_ch)
 ```
 
 **Description:**
@@ -416,8 +418,8 @@ character. `out_ch` can be `NULL` in which case only the index is set.
 The function returns `true` if the character was taken succesfully and `false`
 if an error occurred or `ch_idx` is outside the string. The error is set only
 when an internal call fails or `ch_idx` does not point to the start of a
-character. When an error occurrs `ch_idx` is set to `-1`. No error is set if
-`ch_idx` is outside the string's range.
+character. When an error occurrs `ch_idx` is set to `-1`. If `ch_idx` is outside
+the string's range no error is set and `ch_idx` remains untouched.
 
 ---
 
@@ -554,8 +556,38 @@ i8 *Nst_string_find(i8 *s1, usize l1, i8 *s2, usize l2)
 
 Finds the first occurrence of a substring inside a string.
 
-If the pointer is not `NULL` it is guaranteed to be between `s1 <= p < s1 + l1`,
-where `p` is the pointer returned.
+If the pointer returned is not `NULL` it is guaranteed to be between `s1 <= p <
+s1 + l1`, where `p` is the pointer.
+
+**Parameters:**
+
+- `s1`: the main string
+- `l1`: the length of `s1`
+- `s2`: the substring to find inside the main string
+- `l2`: the length of `s2`
+
+**Returns:**
+
+The pointer to the start of `s1` or `NULL` if the string could not be found. No
+error is set.
+
+---
+
+### `Nst_string_rfind`
+
+**Synopsis:**
+
+```better-c
+i8 *Nst_string_rfind(i8 *s1, usize l1, i8 *s2, usize l2)
+```
+
+**Description:**
+
+Finds the first occurrence of a substring inside a string starting from the
+right.
+
+If the pointer returned is not `NULL` it is guaranteed to be between `s1 <= p <
+s1 + l1`, where `p` is the pointer.
 
 **Parameters:**
 
@@ -590,4 +622,3 @@ typedef enum _Nst_StrFlags {
 **Description:**
 
 [`Nst_StrObj`](c_api-str.md#nst_strobj)-specific flags.
-

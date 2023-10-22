@@ -31,7 +31,7 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-Nst_seq_set(seq, idx, val)
+#define Nst_seq_set(seq, idx, val)
 ```
 
 **Description:**
@@ -47,7 +47,7 @@ Alias for [`_Nst_seq_set`](c_api-sequence.md#_nst_seq_set) that casts `seq` to
 **Synopsis:**
 
 ```better-c
-Nst_seq_get(seq, idx)
+#define Nst_seq_get(seq, idx)
 ```
 
 **Description:**
@@ -62,7 +62,7 @@ Alias for [`_Nst_seq_get`](c_api-sequence.md#_nst_seq_get) that casts `seq` to
 **Synopsis:**
 
 ```better-c
-Nst_seq_copy(seq)
+#define Nst_seq_copy(seq)
 ```
 
 **Description:**
@@ -109,7 +109,7 @@ Alias of [`Nst_seq_set`](c_api-sequence.md#nst_seq_set).
 **Synopsis:**
 
 ```better-c
-Nst_vector_append(vect, val)
+#define Nst_vector_append(vect, val)
 ```
 
 **Description:**
@@ -125,7 +125,7 @@ Alias of [`_Nst_vector_append`](c_api-sequence.md#_nst_vector_append) that casts
 **Synopsis:**
 
 ```better-c
-Nst_vector_remove(vect, val)
+#define Nst_vector_remove(vect, val)
 ```
 
 **Description:**
@@ -141,7 +141,7 @@ Alias of [`_Nst_vector_remove`](c_api-sequence.md#_nst_vector_remove) that casts
 **Synopsis:**
 
 ```better-c
-Nst_vector_pop(vect, quantity)
+#define Nst_vector_pop(vect, quantity)
 ```
 
 **Description:**
@@ -186,7 +186,7 @@ A structure representing a Nest sequence object.
 **Synopsis:**
 
 ```better-c
-typedef Nst_SeqObj Nst_ArrayObj;
+typedef Nst_SeqObj Nst_ArrayObj
 ```
 
 **Description:**
@@ -200,7 +200,7 @@ Type added for C type completion.
 **Synopsis:**
 
 ```better-c
-typedef Nst_SeqObj Nst_VectorObj;
+typedef Nst_SeqObj Nst_VectorObj
 ```
 
 **Description:**
@@ -540,7 +540,7 @@ Removes the first occurrence of a value inside a vector.
 
 - `vect`: the vector to remove the value from
 - `val`: an object that is equal to the value to remove, the equality is checked
-  with `Nst_obj_eq`
+  with [`Nst_obj_eq`](c_api-obj_ops.md#nst_obj_eq)
 
 **Returns:**
 
@@ -572,4 +572,3 @@ function does not fail.
 **Returns:**
 
 The last value popped or `NULL` if no value was popped. No error is set.
-

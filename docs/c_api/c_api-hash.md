@@ -6,6 +6,8 @@ Object hashing functions.
 
 TheSilvered
 
+---
+
 ## Functions
 
 ### `Nst_obj_hash`
@@ -29,4 +31,3 @@ If the object is not hashable `-1` is set.
 **Returns:**
 
 The hash of the object or `-1` if the object cannot be hashed. No error is set.
-

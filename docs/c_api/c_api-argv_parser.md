@@ -6,6 +6,8 @@ Command-line arguments parser.
 
 TheSilvered
 
+---
+
 ## Structs
 
 ### `Nst_CLArgs`
@@ -125,5 +127,4 @@ void _Nst_set_console_mode(void)
 
 **Description:**
 
-WINDOWS-ONLY Initializes the console.
-
+**WINDOWS ONLY** Initializes the console.

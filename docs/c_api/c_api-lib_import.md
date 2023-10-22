@@ -184,7 +184,7 @@ union. In case a cast is added after the type manually, it is overwritten.
 **Synopsis:**
 
 ```better-c
-Nst_MAKE_FUNCDECLR(func_ptr, argc)
+#define Nst_MAKE_FUNCDECLR(func_ptr, argc)
 ```
 
 **Description:**
@@ -205,7 +205,7 @@ For the name of the function the name of the function pointer is used.
 **Synopsis:**
 
 ```better-c
-Nst_MAKE_NAMED_FUNCDECLR(func_ptr, argc, func_name)
+#define Nst_MAKE_NAMED_FUNCDECLR(func_ptr, argc, func_name)
 ```
 
 **Description:**
@@ -225,7 +225,7 @@ Initializes a function declaration with a custom name.
 **Synopsis:**
 
 ```better-c
-Nst_MAKE_OBJDECLR(obj_ptr)
+#define Nst_MAKE_OBJDECLR(obj_ptr)
 ```
 
 **Description:**
@@ -245,7 +245,7 @@ For the name of the object the name of the pointer is used.
 **Synopsis:**
 
 ```better-c
-Nst_MAKE_NAMED_OBJDECLR(obj_ptr, obj_name)
+#define Nst_MAKE_NAMED_OBJDECLR(obj_ptr, obj_name)
 ```
 
 **Description:**
@@ -304,7 +304,7 @@ Returns [`Nst_const()->Int_1`](c_api-global_consts.md#nst_const).
 **Synopsis:**
 
 ```better-c
-Nst_RETURN_COND(cond)
+#define Nst_RETURN_COND(cond)
 ```
 
 **Description:**
@@ -320,7 +320,7 @@ condition.
 **Synopsis:**
 
 ```better-c
-Nst_FUNC_SIGN(name)
+#define Nst_FUNC_SIGN(name)
 ```
 
 **Description:**
@@ -334,7 +334,7 @@ Function signature for a Nest-callable C function.
 **Synopsis:**
 
 ```better-c
-Nst_DEF_EXTRACT(ltrl, ...)
+#define Nst_DEF_EXTRACT(ltrl, ...)
 ```
 
 **Description:**
@@ -350,7 +350,7 @@ returns `NULL` on error.
 **Synopsis:**
 
 ```better-c
-Nst_DEF_VAL(obj, val, def_val)
+#define Nst_DEF_VAL(obj, val, def_val)
 ```
 
 **Description:**
@@ -365,7 +365,7 @@ and in `val` otherwise.
 **Synopsis:**
 
 ```better-c
-Nst_T(obj, type_name)
+#define Nst_T(obj, type_name)
 ```
 
 **Description:**
@@ -453,4 +453,3 @@ Check the syntax for the types argument in
 **Returns:**
 
 `true` on success and `false` on failure. The error is set.
-

@@ -6,6 +6,8 @@ Nest Object interface.
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `_Nst_P_LEN_MAX`
@@ -21,7 +23,7 @@ Maximum size for an object pool.
 **Synopsis:**
 
 ```better-c
-OBJ(obj)
+#define OBJ(obj)
 ```
 
 **Description:**
@@ -35,7 +37,7 @@ Casts `obj` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_inc_ref(obj)
+#define Nst_inc_ref(obj)
 ```
 
 **Description:**
@@ -50,7 +52,7 @@ Alias for [`_Nst_inc_ref`](c_api-obj.md#_nst_inc_ref) that casts `obj` to
 **Synopsis:**
 
 ```better-c
-Nst_ninc_ref(obj)
+#define Nst_ninc_ref(obj)
 ```
 
 **Description:**
@@ -65,7 +67,7 @@ pointer.
 **Synopsis:**
 
 ```better-c
-Nst_dec_ref(obj)
+#define Nst_dec_ref(obj)
 ```
 
 **Description:**
@@ -80,7 +82,7 @@ Alias for [`_Nst_dec_ref`](c_api-obj.md#_nst_dec_ref) that casts `obj` to
 **Synopsis:**
 
 ```better-c
-Nst_ndec_ref(obj)
+#define Nst_ndec_ref(obj)
 ```
 
 **Description:**
@@ -95,7 +97,7 @@ pointer.
 **Synopsis:**
 
 ```better-c
-Nst_obj_destroy(obj)
+#define Nst_obj_destroy(obj)
 ```
 
 **Description:**
@@ -110,7 +112,7 @@ Alias for [`_Nst_obj_destroy`](c_api-obj.md#_nst_obj_destroy) that casts obj to
 **Synopsis:**
 
 ```better-c
-Nst_obj_alloc(type, type_obj)
+#define Nst_obj_alloc(type, type_obj)
 ```
 
 **Description:**
@@ -126,7 +128,7 @@ pointer type.
 **Synopsis:**
 
 ```better-c
-Nst_SET_FLAG(obj, flag)
+#define Nst_SET_FLAG(obj, flag)
 ```
 
 **Description:**
@@ -140,7 +142,7 @@ Sets `flag` of `obj` to `true`.
 **Synopsis:**
 
 ```better-c
-Nst_DEL_FLAG(obj, flag)
+#define Nst_DEL_FLAG(obj, flag)
 ```
 
 **Description:**
@@ -154,7 +156,7 @@ Sets `flag` of `obj` to `false`.
 **Synopsis:**
 
 ```better-c
-Nst_HAS_FLAG(obj, flag)
+#define Nst_HAS_FLAG(obj, flag)
 ```
 
 **Description:**
@@ -168,7 +170,7 @@ Checks if `flag` is set.
 **Synopsis:**
 
 ```better-c
-Nst_FLAG(n)
+#define Nst_FLAG(n)
 ```
 
 **Description:**
@@ -257,7 +259,7 @@ The type of an object traverse function for the garbage collector.
 **Synopsis:**
 
 ```better-c
-typedef Nst_Obj Nst_NullObj;
+typedef Nst_Obj Nst_NullObj
 ```
 
 **Description:**
@@ -373,4 +375,3 @@ typedef enum _Nst_ObjFlags {
 **Description:**
 
 Flags of a Nest object.
-

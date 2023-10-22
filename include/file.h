@@ -39,15 +39,15 @@
 extern "C" {
 #endif // !__cplusplus
 
-/* [docs:link Nst_IO_BUF_FULL c_api-file.md#nst_ioresult] */
-/* [docs:link Nst_IO_EOF_REACHED c_api-file.md#nst_ioresult] */
-/* [docs:link Nst_IO_SUCCESS c_api-file.md#nst_ioresult] */
-/* [docs:link Nst_IO_ALLOC_FAILED c_api-file.md#nst_ioresult] */
-/* [docs:link Nst_IO_INVALID_ENCODING c_api-file.md#nst_ioresult] */
-/* [docs:link Nst_IO_INVALID_DECODING c_api-file.md#nst_ioresult] */
-/* [docs:link Nst_IO_OP_FAILED c_api-file.md#nst_ioresult] */
-/* [docs:link Nst_IO_CLOSED c_api-file.md#nst_ioresult] */
-/* [docs:link Nst_IO_ERROR c_api-file.md#nst_ioresult] */
+/* [docs:link Nst_IO_BUF_FULL Nst_IOResult] */
+/* [docs:link Nst_IO_EOF_REACHED Nst_IOResult] */
+/* [docs:link Nst_IO_SUCCESS Nst_IOResult] */
+/* [docs:link Nst_IO_ALLOC_FAILED Nst_IOResult] */
+/* [docs:link Nst_IO_INVALID_ENCODING Nst_IOResult] */
+/* [docs:link Nst_IO_INVALID_DECODING Nst_IOResult] */
+/* [docs:link Nst_IO_OP_FAILED Nst_IOResult] */
+/* [docs:link Nst_IO_CLOSED Nst_IOResult] */
+/* [docs:link Nst_IO_ERROR Nst_IOResult] */
 
 /* Enumeration of the possible IO return values. */
 NstEXP typedef enum _Nst_IOResult {
@@ -62,9 +62,9 @@ NstEXP typedef enum _Nst_IOResult {
     Nst_IO_ERROR = -6
 } Nst_IOResult;
 
-/* [docs:link Nst_SEEK_SET c_api-file.md#nst_seekwhence] */
-/* [docs:link Nst_SEEK_CUR c_api-file.md#nst_seekwhence] */
-/* [docs:link Nst_SEEK_END c_api-file.md#nst_seekwhence] */
+/* [docs:link Nst_SEEK_SET Nst_SeekWhence] */
+/* [docs:link Nst_SEEK_CUR Nst_SeekWhence] */
+/* [docs:link Nst_SEEK_END Nst_SeekWhence] */
 
 /* Enumeration of the possible origins for seek file functions. */
 NstEXP typedef enum _Nst_SeekWhence {
@@ -87,17 +87,17 @@ struct _Nst_IOFileObj;
  *
  * @return This function shall return any `Nst_IOResult` variant except for
  * `Nst_IO_INVALID_ENCODING` as follows:
- * !`Nst_IO_BUF_FULL` when `buf` is not allocated and cannot store all
+ *! `Nst_IO_BUF_FULL` when `buf` is not allocated and cannot store all
  * requested characters or bytes.
- * !`Nst_IO_EOF_REACHED` when the end of the file has been reached.
- * !`Nst_IO_SUCCESS` when everything works correctly.
- * !`Nst_IO_ALLOC_FAILED` when the buffer fails to be allocated.
- * !`Nst_IO_INVALID_DECODING` when the text read cannot be decoded. This
+ *! `Nst_IO_EOF_REACHED` when the end of the file has been reached.
+ *! `Nst_IO_SUCCESS` when everything works correctly.
+ *! `Nst_IO_ALLOC_FAILED` when the buffer fails to be allocated.
+ *! `Nst_IO_INVALID_DECODING` when the text read cannot be decoded. This
  * variant cannot be returned if the file is in binary mode. When it is
  * returned `Nst_io_result_set_details` must be called.
- * !`Nst_IO_OP_FAILED` if the file does not support reading.
- * !`Nst_IO_CLOSED` if the file is closed.
- * !`Nst_IO_ERROR` for any other error that might occur.
+ *! `Nst_IO_OP_FAILED` if the file does not support reading.
+ *! `Nst_IO_CLOSED` if the file is closed.
+ *! `Nst_IO_ERROR` for any other error that might occur.
  */
 NstEXP typedef Nst_IOResult (*Nst_IOFile_read_f)(i8 *buf, usize buf_size,
                                                  usize count, usize *buf_len,
@@ -113,15 +113,15 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_read_f)(i8 *buf, usize buf_size,
  * @return This function shall not return `Nst_IO_BUF_FULL`,
  * `Nst_IO_EOF_REACHED` and `Nst_IO_INVALID_DECODING` variants of
  * `Nst_IOResult`. The other ones shall be returned as follows:
- * !`Nst_IO_SUCCESS` when the function successfully writes the characters to
+ *! `Nst_IO_SUCCESS` when the function successfully writes the characters to
  * the file.
- * !`Nst_IO_ALLOC_FAILED` if a memory allocation fails.
- * !`Nst_IO_INVALID_ENCODING` if a character cannot be encoded in the encoding
+ *! `Nst_IO_ALLOC_FAILED` if a memory allocation fails.
+ *! `Nst_IO_INVALID_ENCODING` if a character cannot be encoded in the encoding
  * the file is opened in. This variant can only be returned when the file is
  * not binary. When it is returned `Nst_io_result_set_details` must be called.
- * !`Nst_IO_OP_FAILED` if the file does not support writing.
- * !`Nst_IO_CLOSED` if the file is closed.
- * !`Nst_IO_ERROR` for any other error that might occur.
+ *! `Nst_IO_OP_FAILED` if the file does not support writing.
+ *! `Nst_IO_CLOSED` if the file is closed.
+ *! `Nst_IO_ERROR` for any other error that might occur.
  */
 NstEXP typedef Nst_IOResult (*Nst_IOFile_write_f)(i8 *buf, usize buf_len,
                                                   usize *count,
@@ -134,11 +134,11 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_write_f)(i8 *buf, usize buf_len,
  * @return This function shall return only either `Nst_IO_CLOSED`,
  * `Nst_IO_ERROR`, `Nst_IO_OP_FAILED`, `Nst_IO_SUCCESS` or
  * `Nst_IO_ALLOC_FAILED` as follows:
- * !`Nst_IO_CLOSED` when the file is closed.
- * !`Nst_IO_OP_FAILED` if the file does not support writing.
- * !`Nst_IO_SUCCESS` if the function exits successfully.
- * !`Nst_IO_ALLOC_FAILED` if a memory allocation fails.
- * !`Nst_IO_ERROR` for any other error.
+ *! `Nst_IO_CLOSED` when the file is closed.
+ *! `Nst_IO_OP_FAILED` if the file does not support writing.
+ *! `Nst_IO_SUCCESS` if the function exits successfully.
+ *! `Nst_IO_ALLOC_FAILED` if a memory allocation fails.
+ *! `Nst_IO_ERROR` for any other error.
  */
 NstEXP typedef Nst_IOResult (*Nst_IOFile_flush_f)(struct _Nst_IOFileObj *f);
 /**
@@ -149,10 +149,10 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_flush_f)(struct _Nst_IOFileObj *f);
  *
  * @return This function shall return only either `Nst_IO_CLOSED`,
  * `Nst_IO_ERROR`, `Nst_IO_OP_FAILED` or `Nst_IO_SUCCESS` as follows:
- * !`Nst_IO_CLOSED` when the file is closed.
- * !`Nst_IO_OP_FAILED` if the file does not support seeking.
- * !`Nst_IO_SUCCESS` if the function exits successfully.
- * !`Nst_IO_ERROR` for any other error.
+ *! `Nst_IO_CLOSED` when the file is closed.
+ *! `Nst_IO_OP_FAILED` if the file does not support seeking.
+ *! `Nst_IO_SUCCESS` if the function exits successfully.
+ *! `Nst_IO_ERROR` for any other error.
  */
 NstEXP typedef Nst_IOResult (*Nst_IOFile_tell_f)(struct _Nst_IOFileObj *f,
                                                  usize *pos);
@@ -166,10 +166,10 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_tell_f)(struct _Nst_IOFileObj *f,
  *
  * @return This function shall return only either `Nst_IO_CLOSED`,
  * `Nst_IO_ERROR`, `Nst_IO_OP_FAILED` or `Nst_IO_SUCCESS` as follows:
- * !`Nst_IO_CLOSED` when the file is closed.
- * !`Nst_IO_OP_FAILED` if the file does not support seeking.
- * !`Nst_IO_SUCCESS` if the function exits successfully.
- * !`Nst_IO_ERROR` for any other error.
+ *! `Nst_IO_CLOSED` when the file is closed.
+ *! `Nst_IO_OP_FAILED` if the file does not support seeking.
+ *! `Nst_IO_SUCCESS` if the function exits successfully.
+ *! `Nst_IO_ERROR` for any other error.
  */
 NstEXP typedef Nst_IOResult (*Nst_IOFile_seek_f)(Nst_SeekWhence origin,
                                                  isize offset,
@@ -182,9 +182,9 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_seek_f)(Nst_SeekWhence origin,
  *
  * @return This function shall return only either `Nst_IO_CLOSED`,
  * `Nst_IO_ERROR` or `Nst_IO_SUCCESS` as follows:
- * !`Nst_IO_CLOSED` when the file was already closed.
- * !`Nst_IO_SUCCESS` if the function exits successfully.
- * !`Nst_IO_ERROR` for any other error.
+ *! `Nst_IO_CLOSED` when the file was already closed.
+ *! `Nst_IO_SUCCESS` if the function exits successfully.
+ *! `Nst_IO_ERROR` for any other error.
  */
 NstEXP typedef Nst_IOResult (*Nst_IOFile_close_f)(struct _Nst_IOFileObj *f);
 

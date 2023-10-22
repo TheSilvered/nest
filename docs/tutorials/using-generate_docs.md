@@ -48,8 +48,8 @@ better to use only one.
 blocks in the order in which they appear. These blocks, with a special start,
 can also create `Note` and `Warning` notices for the declaration they describe.
 
-To create these notices the line should start with either ` * @brief Note: ` or
-` * @brief Warning: `, with a space after the colon.
+To create these notices the line should start with either ` * @brief Note:` or
+` * @brief Warning:`. The letter after the color is automatically capitalized.
 
 ### `param` blocks
 
@@ -70,7 +70,7 @@ appear.
 
 You can add an unordered list to the end of all block types, except for `param`.
 This is done by ending a line with a colon and having the next one start with
-` * !`. You cannot, however, continue the normal block text after starting the
+` *! `. You cannot, however, continue the normal block text after starting the
 unordered list but you can make another one.
 
 ### Full example
@@ -91,12 +91,12 @@ Documentation comment:
  * @param p1: the first parameter of the function
  * @param p2: the second parameter of the function
  * @param ...: variable parameters for the function
- * 
+ *
  * @return This function returns these values:
- * !value 1,
- * !value 2 or
- * !value 3
- * 
+ *! value 1,
+ *! value 2 or
+ *! value 3
+ *
  * @return and does not throw an error.
  */
 NstEXP i32 NstC Nst_some_random_function(int p1, int p2, ...);
@@ -151,9 +151,9 @@ and does not throw an error.
 With this tool you can also have links inside your documentation. Any text
 inside back ticks `` ` `` is checked to create a link. If it matches a name
 that is documented a link to that is generated, this ignores trailing spaces,
-asterisks and closing parentheses, so `Nst_Obj` and `Nst_Obj *` will both link
-to the same declaration. You can also add custom links to the text by creating
-a single-line doc comment that does not actually document anything but creates
+asterisks and parentheses, so `Nst_Obj` and `Nst_Obj *` will both link to the
+same declaration. You can also add custom links to the text by creating a
+single-line doc comment that does not actually document anything but creates
 a custom link. This is the syntax for it:
 
 ```c
@@ -163,7 +163,9 @@ a custom link. This is the syntax for it:
 `name` is the text inside the back ticks, if it contains spaces use a
 backslash, `hello\world` will match `` `hello world` ``.
 
-`url` is the URL that will be assigned to the link.
+`url` is the URL that will be assigned to the link. This is normally just the
+name of another symbol in the documentation. If you wish to use a normal URL
+you can surround it with angle brackets.
 
 `type` is the type of the link and can be omitted in which case it defaults to
 `c`:
@@ -173,10 +175,23 @@ backslash, `hello\world` will match `` `hello world` ``.
 - `i` will make the link an image, with the text being the alt-text
 
 ```c
-/* [docs:link i8 c_api_index.md#type-definitions] */
+// link to an internal name
+/* [docs:link Nst_IO_SUCCESS Nst_IOResult] */
 
-/* [docs:link image\of\a\wave https://tinyurl.com/43y8kjze i] */
+// link to an external URL
+/* [docs:link image\of\a\wave <https://tinyurl.com/43y8kjze> i] */
 ```
+
+### Link resolution
+
+Links are resolved as following:
+
+1. Normalize the name removing any trailing spaces, asterisks or parenthesis
+2. Check if the symbol is ignored, if so no link is found
+2. Check if the symbol appears in a user-defined link (with the `docs:link`),
+   if so return the corresponding link
+3. Check if the symbol exists in the documentation, if so return its link
+4. Else no link is found
 
 ## Other directives
 

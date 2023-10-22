@@ -221,7 +221,7 @@ closed `-1` is returned. No error is set.
 **Synopsis:**
 
 ```better-c
-isize Nst_printf(Nst_WIN_FMT const i8 *fmt, ...) Nst_GNU_FMT(1, 2)
+isize Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
 ```
 
 **Description:**
@@ -253,8 +253,7 @@ error is set. The negative value returned depends on the type of the error:
 **Synopsis:**
 
 ```better-c
-isize Nst_fprintf(Nst_IOFileObj *f, Nst_WIN_FMT const i8 *fmt, ...) Nst_GNU_FMT(2,
-                                                                                3)
+isize Nst_fprintf(Nst_IOFileObj *f, Nst_WIN_FMT const i8 *fmt, ...)
 ```
 
 **Description:**
@@ -301,7 +300,7 @@ isize Nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args)
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_sprintf(Nst_WIN_FMT const i8 *fmt, ...) Nst_GNU_FMT(1, 2)
+Nst_Obj *Nst_sprintf(Nst_WIN_FMT const i8 *fmt, ...)
 ```
 
 **Description:**
@@ -334,4 +333,3 @@ Nst_Obj *Nst_vsprintf(const i8 *fmt, va_list args)
 **Description:**
 
 `va_list` variant of [`Nst_sprintf`](c_api-format.md#nst_sprintf).
-

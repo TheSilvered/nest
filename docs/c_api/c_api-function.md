@@ -6,6 +6,8 @@
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `FUNC`
@@ -13,7 +15,7 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-FUNC(ptr)
+#define FUNC(ptr)
 ```
 
 **Description:**
@@ -27,7 +29,7 @@ Casts `ptr` to [`Nst_FuncObj *`](c_api-function.md#nst_funcobj).
 **Synopsis:**
 
 ```better-c
-Nst_func_set_vt(func, map)
+#define Nst_func_set_vt(func, map)
 ```
 
 **Description:**
@@ -211,4 +213,3 @@ typedef enum _Nst_FuncFlags {
 **Description:**
 
 The flags for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
-

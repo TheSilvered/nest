@@ -6,6 +6,8 @@ Singly-linked list.
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `Nst_LLIST_ITER`
@@ -13,7 +15,7 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-Nst_LLIST_ITER(node, llist)
+#define Nst_LLIST_ITER(node, llist)
 ```
 
 **Description:**
@@ -375,4 +377,3 @@ If to has already some values the new ones are added at the end.
 
 - `from`: the list to move the nodes from
 - `to`: the list to move the nodes to
-

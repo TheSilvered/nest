@@ -6,6 +6,8 @@ Constant objects used in the program.
 
 TheSilvered
 
+---
+
 ## Structs
 
 ### `Nst_StrConsts`
@@ -376,4 +378,3 @@ Nst_StdStreams *Nst_stdio(void)
 
 Returns a [`Nst_StdStreams`](c_api-global_consts.md#nst_stdstreams) struct
 containing all the standard IO streams.
-

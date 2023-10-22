@@ -1,10 +1,12 @@
 # `type.h`
 
-Nest Type object..
+Nest Type object.
 
 ## Authors
 
 TheSilvered
+
+---
 
 ## Macros
 
@@ -13,7 +15,7 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-TYPE(ptr)
+#define TYPE(ptr)
 ```
 
 **Description:**
@@ -27,7 +29,7 @@ Casts `ptr` to [`Nst_TypeObj *`](c_api-type.md#nst_typeobj).
 **Synopsis:**
 
 ```better-c
-CONT_TYPE(ptr)
+#define CONT_TYPE(ptr)
 ```
 
 **Description:**
@@ -163,4 +165,3 @@ void _Nst_type_destroy(Nst_TypeObj *obj)
 **Description:**
 
 Destructor for Nest type objects.
-

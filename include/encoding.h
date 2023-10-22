@@ -20,11 +20,11 @@
 extern "C" {
 #endif // !__cplusplus
 
-/* [docs:link Nst_CP_UNKNOWN c_api-encoding.md#nst_cpid] */
-/* [docs:link Nst_CP_LATIN1 c_api-encoding.md#nst_cpid] */
-/* [docs:link Nst_CP_ISO8859_1 c_api-encoding.md#nst_cpid] */
-/* [docs:link Nst_CP_EXT_UTF8 c_api-encoding.md#nst_cpid] */
-/* [docs:link Nst_CP_EXT_UTF16 c_api-encoding.md#nst_cpid] */
+/* [docs:link Nst_CP_UNKNOWN Nst_CPID] */
+/* [docs:link Nst_CP_LATIN1 Nst_CPID] */
+/* [docs:link Nst_CP_ISO8859_1 Nst_CPID] */
+/* [docs:link Nst_CP_EXT_UTF8 Nst_CPID] */
+/* [docs:link Nst_CP_EXT_UTF16 Nst_CPID] */
 
 /**
  * The supported encodings in Nest.
@@ -346,8 +346,8 @@ NstEXP Nst_CP *NstC Nst_cp(Nst_CPID cpid);
 NstEXP Nst_CPID NstC Nst_acp(void);
 #endif // !Nst_WIN
 
-/* [docs:link strlen https://man7.org/linux/man-pages/man3/strlen.3.html] */
-/* [docs:link wcslen https://man7.org/linux/man-pages/man3/wcslen.3.html] */
+/* [docs:link strlen <https://man7.org/linux/man-pages/man3/strlen.3.html>] */
+/* [docs:link wcslen <https://man7.org/linux/man-pages/man3/wcslen.3.html>] */
 
 /**
  * Translates a UTF-8 string to Unicode (UTF-16).

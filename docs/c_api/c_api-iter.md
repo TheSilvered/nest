@@ -6,6 +6,8 @@ Nst_IterObj interface.
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `ITER`
@@ -13,7 +15,7 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-ITER(ptr)
+#define ITER(ptr)
 ```
 
 **Description:**
@@ -27,7 +29,7 @@ Casts `ptr` to [`Nst_IterObj *`](c_api-iter.md#nst_iterobj).
 **Synopsis:**
 
 ```better-c
-Nst_iter_start(iter)
+#define Nst_iter_start(iter)
 ```
 
 **Description:**
@@ -42,7 +44,7 @@ Alias for [`_Nst_iter_start`](c_api-iter.md#_nst_iter_start) that casts iter to
 **Synopsis:**
 
 ```better-c
-Nst_iter_get_val(iter)
+#define Nst_iter_get_val(iter)
 ```
 
 **Description:**
@@ -293,4 +295,3 @@ Nst_FUNC_SIGN(Nst_iter_map_get_val)
 **Description:**
 
 The `get_val` function of the map iterator.
-

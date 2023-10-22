@@ -6,6 +6,8 @@
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `IOFILE`
@@ -13,7 +15,7 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-IOFILE(ptr)
+#define IOFILE(ptr)
 ```
 
 **Description:**
@@ -27,7 +29,7 @@ Casts ptr to a [`Nst_IOFileObj *`](c_api-file.md#nst_iofileobj).
 **Synopsis:**
 
 ```better-c
-Nst_IOF_IS_CLOSED(f)
+#define Nst_IOF_IS_CLOSED(f)
 ```
 
 **Description:**
@@ -41,7 +43,7 @@ Checks if `f` is closed.
 **Synopsis:**
 
 ```better-c
-Nst_IOF_IS_BIN(f)
+#define Nst_IOF_IS_BIN(f)
 ```
 
 **Description:**
@@ -55,7 +57,7 @@ Checks if `f` was opened in binary mode.
 **Synopsis:**
 
 ```better-c
-Nst_IOF_IS_TTY(f)
+#define Nst_IOF_IS_TTY(f)
 ```
 
 **Description:**
@@ -69,7 +71,7 @@ Checks if `f` is a TTY.
 **Synopsis:**
 
 ```better-c
-Nst_IOF_CAN_WRITE(f)
+#define Nst_IOF_CAN_WRITE(f)
 ```
 
 **Description:**
@@ -83,7 +85,7 @@ Checks if `f` can be written.
 **Synopsis:**
 
 ```better-c
-Nst_IOF_CAN_READ(f)
+#define Nst_IOF_CAN_READ(f)
 ```
 
 **Description:**
@@ -97,7 +99,7 @@ Checks if `f` can be read.
 **Synopsis:**
 
 ```better-c
-Nst_IOF_CAN_SEEK(f)
+#define Nst_IOF_CAN_SEEK(f)
 ```
 
 **Description:**
@@ -777,4 +779,3 @@ typedef enum _Nst_IOFileFlag {
 **Description:**
 
 The flags of a IO file.
-

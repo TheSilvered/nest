@@ -6,6 +6,8 @@ Heap & dynamic memory management functions.
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `Nst_raw_free`
@@ -21,7 +23,7 @@ Alias for C free.
 **Synopsis:**
 
 ```better-c
-Nst_malloc_c(count, type)
+#define Nst_malloc_c(count, type)
 ```
 
 **Description:**
@@ -36,7 +38,7 @@ and casting the result to a pointer of `type`.
 **Synopsis:**
 
 ```better-c
-Nst_calloc_c(count, type, init_value)
+#define Nst_calloc_c(count, type, init_value)
 ```
 
 **Description:**
@@ -51,7 +53,7 @@ and casting the result to a pointer of `type`.
 **Synopsis:**
 
 ```better-c
-Nst_realloc_c(block, new_count, type, count)
+#define Nst_realloc_c(block, new_count, type, count)
 ```
 
 **Description:**
@@ -66,7 +68,7 @@ size and casting the result to a pointer of `type`.
 **Synopsis:**
 
 ```better-c
-Nst_crealloc_c(block, new_count, type, count, init_value)
+#define Nst_crealloc_c(block, new_count, type, count, init_value)
 ```
 
 **Description:**
@@ -721,4 +723,3 @@ void Nst_buffer_destroy(Nst_Buffer *buf)
 **Description:**
 
 Destroys the contents of a buffer. The buffer itself is not freed.
-

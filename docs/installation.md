@@ -40,6 +40,10 @@ machine, in case you want to use Python run `update_exes.bat py`.
 Once done you can navigate to `nest\build\windows\installer` and compile
 `installer-script-x64.iss` and `installer-script-x86.iss`.
 
+### Uninstalling on Windows
+
+To uninstall Nest on Windows you can do so from the control panel.
+
 ## Linux
 
 ### Archive
@@ -76,6 +80,12 @@ Now to install the compiled binaries run
 ```text
 $ sudo bash linux_install_x[ARCHITECTURE].sh
 ```
+
+### Uninstalling on linux
+
+To uninstall Nest on linux, copy
+[`nest/build/linux/uninstall.sh`](https://github.com/TheSilvered/nest/blob/main/build/linux/uninstall.sh)
+and execute it.
 
 ## Plugins
 

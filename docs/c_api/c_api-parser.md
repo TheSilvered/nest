@@ -6,6 +6,8 @@ Token parser into AST.
 
 TheSilvered
 
+---
+
 ## Functions
 
 ### `Nst_parse`
@@ -44,4 +46,3 @@ void Nst_print_ast(Nst_Node *ast)
 **Description:**
 
 Prints the AST to the Nest standard output.
-

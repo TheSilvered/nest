@@ -90,10 +90,10 @@ NstEXP typedef struct _Nst_Buffer {
     i8 *data;
 } Nst_Buffer;
 
-/* [docs:link malloc https://man7.org/linux/man-pages/man3/malloc.3.html] */
-/* [docs:link calloc https://man7.org/linux/man-pages/man3/malloc.3.html] */
-/* [docs:link realloc https://man7.org/linux/man-pages/man3/malloc.3.html] */
-/* [docs:link free https://man7.org/linux/man-pages/man3/malloc.3.html] */
+/* [docs:link malloc <https://man7.org/linux/man-pages/man3/malloc.3.html>] */
+/* [docs:link calloc <https://man7.org/linux/man-pages/man3/malloc.3.html>] */
+/* [docs:link realloc <https://man7.org/linux/man-pages/man3/malloc.3.html>] */
+/* [docs:link free <https://man7.org/linux/man-pages/man3/malloc.3.html>] */
 
 #ifdef Nst_COUNT_ALLOC
 /* Alias for C `malloc`. */
