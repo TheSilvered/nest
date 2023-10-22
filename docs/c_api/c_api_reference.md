@@ -667,4 +667,3 @@
 - [`Nst_wchar_t_to_char`](c_api-encoding.md#nst_wchar_t_to_char)
 - [`Nst_WIN`](c_api-typedefs.md#nst_win)
 - [`Nst_WIN_FMT`](c_api-typedefs.md#nst_win_fmt)
-

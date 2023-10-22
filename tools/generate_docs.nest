@@ -1118,6 +1118,8 @@
         file_blocks link_manager @_write_c_file
     ]
 
+    link_manager @_write_api_reference
+
     old_cwd @sys._set_cwd
 ]
 
@@ -1330,6 +1332,27 @@
             ret lm @_doc_paragraph file @_append_to_file
         ]
     ]
+]
+
+#_write_api_reference lm [
+    'c_api_reference.md' 'w' @io.open = file
+
+    file ('API Reference' 1 @title) @io.write
+
+    Array :: lm.symbols \
+        _sort_mapping_func @sequ.sort \
+        (## x => '[`\(x.0)`](\(x.1))') true @sequ.map \
+    = symbols
+
+    symbols @list file @_append_to_file
+    file @io.close
+]
+
+#_sort_mapping_func symbol [
+    symbol = {name, link}
+    name '_' @su.replace @su.to_lower = name
+    !(name 'nst' @su.starts_with) ? => '__' name ><
+    => name
 ]
 
 -/ ============================= Main program ============================== /-
