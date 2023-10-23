@@ -8,7 +8,7 @@
 
 #endif
 
-#define FUNC_COUNT 38
+#define FUNC_COUNT 40
 #define COORD_TYPE_ERROR do {                                                 \
         Nst_set_value_error_c(                                                \
             "all coordinates must be of type 'Real' or 'Int'");               \
@@ -61,6 +61,8 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(hypot_,  2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_nan_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_inf_, 1);
+    func_list_[idx++] = Nst_MAKE_NAMED_OBJDECLR(Nst_const()->Real_inf, "INF_");
+    func_list_[idx++] = Nst_MAKE_NAMED_OBJDECLR(Nst_const()->Real_nan, "NAN_");
 
 #if __LINE__ - FUNC_COUNT != 27
 #error

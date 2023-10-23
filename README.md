@@ -37,6 +37,7 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
   - [x] `rand.shuffle`
 - [x] Add `extend` to `stdsequtil.nest` (instead of in-place `sequ.merge`)
 - [x] Add `copy` and `deepcopy` to `stdsequtil.nest`
+- [ ] ~Non-recursive JSON parsing & dumping~
 - [x] Add encoding arguments to `load_f` and `dump_f` in `stdjson.nest`
 - [x] Add option for `Infinity` and `NaN` to `stdjson.nest`
 - [x] Add `extUTF-16` encoding (with little and big endian variants) that accept
@@ -46,10 +47,8 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 - [x] Make third argument of `replace_substr` optional to remove the substring
 - [x] Add 'contains' stack operator `<.>`
 - [x] Add `from` and `to` arguments to `lfind` and `rfind`
-- [ ] Automatic documentation generation for standard library
-- [ ] Avoid object to object casts in `Nst_extract_arg_values` if the first
-      object is `null`
-- [ ] Add `INF` and `NAN` constants to `stdmath.nest`
+- [ ] ~Automatic documentation generation for standard library~
+- [x] Add `INF` and `NAN` constants to `stdmath.nest`
 - [ ] Better testing with C
 
 ### Nest 0.15.0 planned features
