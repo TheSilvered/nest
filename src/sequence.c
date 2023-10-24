@@ -39,8 +39,8 @@ Nst_Obj *Nst_vector_new(usize len)
 {
     usize size = (usize)(len * _Nst_VECTOR_GROWTH_RATIO);
 
-    if (size < _Nst_VECTOR_MIN_SIZE)
-        size = _Nst_VECTOR_MIN_SIZE;
+    if (size < _Nst_VECTOR_MIN_CAP)
+        size = _Nst_VECTOR_MIN_CAP;
 
     return new_seq(len, size, Nst_t.Vector);
 }
@@ -74,10 +74,10 @@ bool _Nst_vector_resize(Nst_SeqObj *vect)
         new_size = (usize)(len * _Nst_VECTOR_GROWTH_RATIO);
     else if (size >> 2 >= len) { // if it's three quarters empty or less
         new_size = (usize)(size / _Nst_VECTOR_GROWTH_RATIO);
-        if (new_size < _Nst_VECTOR_MIN_SIZE)
-            new_size = _Nst_VECTOR_MIN_SIZE;
+        if (new_size < _Nst_VECTOR_MIN_CAP)
+            new_size = _Nst_VECTOR_MIN_CAP;
 
-        if (size == _Nst_VECTOR_MIN_SIZE)
+        if (size == _Nst_VECTOR_MIN_CAP)
             return true;
     } else
         return true;

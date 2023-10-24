@@ -1,5 +1,6 @@
 # API Reference
 
+- [`ARRAY`](c_api-sequence.md#array)
 - [`AS_BOOL`](c_api-simple_types.md#as_bool)
 - [`AS_BYTE`](c_api-simple_types.md#as_byte)
 - [`AS_INT`](c_api-simple_types.md#as_int)
@@ -18,6 +19,7 @@
 - [`ITER`](c_api-iter.md#iter)
 - [`MAP`](c_api-map.md#map)
 - [`OBJ`](c_api-obj.md#obj)
+- [`SEQ`](c_api-sequence.md#seq)
 - [`STR`](c_api-str.md#str)
 - [`TYPE`](c_api-type.md#type)
 - [`TYPE_NAME`](c_api-str.md#type_name)
@@ -26,6 +28,7 @@
 - [`u64`](c_api-typedefs.md#u64)
 - [`u8`](c_api-typedefs.md#u8)
 - [`usize`](c_api-typedefs.md#usize)
+- [`VECTOR`](c_api-sequence.md#vector)
 - [`Nst_1250_from_utf32`](c_api-encoding.md#nst_1250_from_utf32)
 - [`Nst_1250_to_utf32`](c_api-encoding.md#nst_1250_to_utf32)
 - [`Nst_1251_from_utf32`](c_api-encoding.md#nst_1251_from_utf32)
@@ -638,6 +641,8 @@
 - [`Nst_vector_create`](c_api-sequence.md#nst_vector_create)
 - [`Nst_vector_create_c`](c_api-sequence.md#nst_vector_create_c)
 - [`Nst_vector_get`](c_api-sequence.md#nst_vector_get)
+- [`_Nst_VECTOR_GROWTH_RATIO`](c_api-sequence.md#_nst_vector_growth_ratio)
+- [`_Nst_VECTOR_MIN_CAP`](c_api-sequence.md#_nst_vector_min_cap)
 - [`Nst_vector_new`](c_api-sequence.md#nst_vector_new)
 - [`Nst_VectorObj`](c_api-sequence.md#nst_vectorobj)
 - [`Nst_vector_pop`](c_api-sequence.md#nst_vector_pop)

@@ -268,7 +268,7 @@ Nst_CatchFrame Nst_cstack_pop(void)
 
 void Nst_cstack_destroy(void)
 {
-    if (Nst_state.v_stack.stack == NULL)
+    if (Nst_state.c_stack.stack == NULL)
         return;
 
     Nst_free(Nst_state.c_stack.stack);

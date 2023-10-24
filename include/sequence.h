@@ -32,10 +32,15 @@
 #include <stdarg.h>
 #include "ggc.h"
 
-#define _Nst_VECTOR_MIN_SIZE 8
+/* The minimum capacity of a `Nst_VectorObj`. */
+#define _Nst_VECTOR_MIN_CAP 8
+/* Growth ratio of a `Nst_VectorObj`. */
 #define _Nst_VECTOR_GROWTH_RATIO 1.8f
+/* Casts `ptr` to `Nst_SeqObj *`. */
 #define SEQ(ptr) ((Nst_SeqObj *)(ptr))
+/* Casts `ptr` to `Nst_ArrayObj *`. */
 #define ARRAY(ptr) ((Nst_SeqObj *)(ptr))
+/* Casts `ptr` to `Nst_VectorObj *`. */
 #define VECTOR(ptr) ((Nst_SeqObj *)(ptr))
 
 /**
@@ -89,9 +94,9 @@ NstEXP typedef struct _Nst_SeqObj {
     usize cap;
 } Nst_SeqObj;
 
-/* Type added for C type completion. */
+/* Alias of `Nst_SeqObj`. */
 NstEXP typedef Nst_SeqObj Nst_ArrayObj;
-/* Type added for C type completion. */
+/* Alias of `Nst_SeqObj`. */
 NstEXP typedef Nst_SeqObj Nst_VectorObj;
 
 /**

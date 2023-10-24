@@ -26,6 +26,64 @@ TheSilvered
 
 ## Macros
 
+### `_Nst_VECTOR_MIN_CAP`
+
+**Description:**
+
+The minimum capacity of a [`Nst_VectorObj`](c_api-sequence.md#nst_vectorobj).
+
+---
+
+### `_Nst_VECTOR_GROWTH_RATIO`
+
+**Description:**
+
+Growth ratio of a [`Nst_VectorObj`](c_api-sequence.md#nst_vectorobj).
+
+---
+
+### `SEQ`
+
+**Synopsis:**
+
+```better-c
+#define SEQ(ptr)
+```
+
+**Description:**
+
+Casts `ptr` to [`Nst_SeqObj *`](c_api-sequence.md#nst_seqobj).
+
+---
+
+### `ARRAY`
+
+**Synopsis:**
+
+```better-c
+#define ARRAY(ptr)
+```
+
+**Description:**
+
+Casts `ptr` to [`Nst_ArrayObj *`](c_api-sequence.md#nst_arrayobj).
+
+---
+
+### `VECTOR`
+
+**Synopsis:**
+
+```better-c
+#define VECTOR(ptr)
+```
+
+**Description:**
+
+Casts `ptr` to [`Nst_VectorObj *`](c_api-sequence.md#nst_vectorobj).
+
+---
+
 ### `Nst_seq_set`
 
 **Synopsis:**
@@ -191,7 +249,7 @@ typedef Nst_SeqObj Nst_ArrayObj
 
 **Description:**
 
-Type added for C type completion.
+Alias of [`Nst_SeqObj`](c_api-sequence.md#nst_seqobj).
 
 ---
 
@@ -205,7 +263,7 @@ typedef Nst_SeqObj Nst_VectorObj
 
 **Description:**
 
-Type added for C type completion.
+Alias of [`Nst_SeqObj`](c_api-sequence.md#nst_seqobj).
 
 ---
 

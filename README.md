@@ -47,9 +47,15 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 - [x] Make third argument of `replace_substr` optional to remove the substring
 - [x] Add 'contains' stack operator `<.>`
 - [x] Add `from` and `to` arguments to `lfind` and `rfind`
-- [ ] ~Automatic documentation generation for standard library~
+- [ ] ~Automatic documentation generation for standard library~ [^3]
 - [x] Add `INF` and `NAN` constants to `stdmath.nest`
-- [ ] Better testing with C
+- [ ] ~Better testing with C~ [^4]
+- [ ] Improve `test_str.nest`
+
+[^3]: removed because generating documentation from C would require everything
+      to be written anyway adding another step
+[^4]: postponed due to changes that were not planned needed in order for good
+      testing
 
 ### Nest 0.15.0 planned features
 
@@ -57,6 +63,14 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 - [ ] Add `is_space`, `remove_prefix` and `remove_suffix` to `stdsutil.nest`
 - [ ] Add `batch` to `stditutil.nest`
 - [ ] Add `enum` to `stdsequtil.nest`
+- [ ] Add `factorial` to `stdmath.nest`
+- [ ] Improve `libnest` usage:
+  - [ ] Separate execution and interpreter states
+  - [ ] Initialize everything with one function
+  - [ ] Quit everything with one function
+  - [ ] Execute a program in one function (given the path of the file)
+- [ ] Better testing with C [^4]
+- [ ] Rewrite parser, nodes and tweak compiler to accomodate for the new parser
 
 ### Future planned features
 

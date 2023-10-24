@@ -19,7 +19,7 @@
 - removed `iter_is_done` from `stditutil.nest`
 - now the iterator of a for-as loop is implicitly casted to `Iter`
 - now `\U` in strings will only accept 6 hex characters instead of 8, since U+10FFFF is the highest codepoint accepted
-- now string length and indexing will match the characters and not the bytes (ex. `'àèì'.1` now is `'è'` and before was `'\xa0'`)
+- now string length and indexing will match the characters and not the bytes (e.g. `'àèì'.1` now is `'è'` and before was `'\xa0'`)
   - removed `to_iter`, `get_len` and `get_at` from `stdcodecs.nest` since they are no longer needed
 - removed `ljust` and `rjust` from `stdsutil.nest` in favour of `justify`
   - with `justify` a positive length means justify left and a negative one means justify right
@@ -38,7 +38,7 @@
 - fixed a crash that occurred when an error was thrown inside a function in `sequ.rscan`
 - fixed `json.load_f` and `json.dump_f` not working correctly with UTF-8 file names on Windows
 - fixed Nest not finding files with non-ASCII charcters (both command-line and libraries) on Windows
-- fixed `su.is_charset` returning an incorrect result on some non-ASCII strings (ex. `'à' 'èĠ' @su.is_charset` now returns `false`, before it would return `true`)
+- fixed `su.is_charset` returning an incorrect result on some non-ASCII strings (e.g. `'à' 'èĠ' @su.is_charset` now returns `false`, before it would return `true`)
 - fixed `io.println` not printing the full string if it contained a NUL character
 - fixed `inf` and `nan` values not being casted correctly to strings
 - fixed a bug where any byte using a hexadecimal literal would be interpreted as zero
@@ -92,6 +92,7 @@
 - now type shorthands for `Nst_extract_arg_values` that are part of type unions will not cast the object automatically
 - renamed `_Nst_string_get_next_ch` and `Nst_string_get_next_ch` to `_Nst_string_next_ch` and `Nst_string_next_ch` respectively
 - optimized exponentation
+- rename `_Nst_VECTOR_MIN_SIZE` to `_Nst_VECTOR_MIN_CAP`
 
 **Bug fixes**
 
@@ -329,3 +330,92 @@
 - now colors work properly on Windows consoles that require the activation of ANSI escapes
 - fixed arguments on Windows not being decoded correctly
 - fixed error message for using `%` with incompatible types
+
+---
+
+## 0.11.2
+
+### Nest
+
+**Additions**
+
+- added `to_title` and `is_title` to `stdsutil.nest`
+- added `count` to `stdsequtil.nest`
+- added `println` to `stdio.nest`
+
+**Changes**
+
+- now identifiers can contain unicode characters (`💻` can be used as a variable name)
+- now `contains` in `stdsequtil.nest` also accepts two strings as an input
+- now `$` accepts also a function and returns the maximum number of arguments it takes (`>>> $(## [])` prints `0`)
+- now `virtual_iof` accepts an optional second argument that specifies the size of the buffer
+
+**Bug Fixes**
+
+- fixed a crash happening when a lambda was not used and the optimization level was above 1
+- fixed a crash happening when calling a C function that expected at least one argument but was given none
+- fixed many issues reguarding the `Str` to `Byte` cast
+- fixed the error message for `-:` writing `'-'` instead of  `'-:'`
+- now errors that contain unicode characters will have the correct number of spaces and carets
+- fixed number positions only including the first character (again)
+- fixed `-//-` that would not close correctly the multiline comment
+
+---
+
+## 0.11.1
+
+### Nest
+
+**Changes**
+
+- removed `_advance_` from iterators and made them around 15% faster
+- improved `itu.chain` to take iterators and strings
+
+---
+
+## 0.11.0
+
+**Additions**
+
+- added `\u` and `\U` string escapes
+- added the `stdutf8.nest` library
+- added `parse_int` to `stdsutil.nest`
+
+**Changes**
+
+- improved `Str` to `Int`, `Str` to `Real` and `Str` to `Byte` casts to support underscores and non-decimal literals
+- now string representations will use `\e` instead of `\x1b` and non-control UTF-8 characters are recognized and remain untouched
+
+**Bug Fixes**
+
+- fixed a crash that occurred when getting the value of an ended string iterator
+
+---
+
+## 0.10.0
+
+### Nest
+
+**Additions**
+
+- added `bin`, `oct` and `hex` to `stdsutil.nest` to have the binary, octal and hexadecimal representation of integers respectively
+- added `center` to `stdsutil.nest`
+- added `_get_cwd` and `_set_cwd` to `stdsys.nest`
+- added the `stdjson.nest` module that can load and dump json data
+
+**Changes**
+
+- from now on the documentation will be packaged into the release to always keep correct information
+- now `co.call` accepts `null` for the first argument and behaves like passing an empty array
+- modified many functions of the standard library to take optional arguments
+- now if you call a function with less arguments than expected the remaining ones are filled with `null` values
+- now the CP1252 encoding is officially supported along with UTF-8 and ASCII
+- now `Real` to `Str` will add `.0` if the number does not contain a dot or is not in scientific notation (`Str :: 1.0` now is `'1.0'` where before it was `'1'`)
+
+**Bug Fixes**
+
+- fixed `co.call` resulting in undefined behaviour when not passing a sequence as the first argument
+- now coroutines are correctly set as `ended` when an error occurs inside the coroutine
+- fixed `Func` to `Str` cast using 'vars' instead of 'var' when the function only accepted one argument
+- fixed error printing when a file that had its new lines changed from CRLF to LF and an error occurred on the last line
+- fixed repr of strings containing unprintable characters being incorrect and possibly causing crashes
