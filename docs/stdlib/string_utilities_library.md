@@ -12,7 +12,9 @@
 
 **Synopsis:**
 
-`[n: Int] @bin -> Str`
+```nest
+[n: Int] @bin -> Str
+```
 
 **Returns:**
 
@@ -21,31 +23,23 @@ without any prefix.
 
 ---
 
-### `@bytearray_to_str`
-
-**Synopsis:**
-
-`[sequence: Array|Vector, encoding: Str] @bytearray_to_str -> Str`
-
-**Returns:**
-
-Transforms an array of `Byte` objects into a string using the given encoding.
-
----
-
 ### `@center`
 
 **Synopsis:**
 
-`[string: Str, length: Int, char: Str?] @center -> Str`
+```nest
+[string: Str, width: Int, char: Str?] @center -> Str
+```
 
 **Description:**
 
-Creates a new string of length `length`, copies `string` centering it and
+Creates a new string of length `width`, copies `string` centering it and
 filling the remaining space with `char`. If the string cannot be perfectly
-centered it will be closer to the left side.
-`char` must be of length 1.
-If `length` is smaller than or equal to `$string`, the string itself is returned.
+centered it will be closer to the left side. `char` must have a length of `1`.
+
+If `length` is smaller than or equal to `$string`, the string itself is
+returned.
+
 If `char` is `null` a space will be used instead.
 
 **Returns:**
@@ -56,9 +50,37 @@ The centered string.
 
 ```nest
 |#| 'stdsutil.nest' = su
-'hello' 11 '*' @su.center --> '***hello***'
+'hello' 11 @su.center --> '   hello   '
 'hello' 10 '.' @su.center --> '..hello...'
 ```
+
+---
+
+### `@decode`
+
+**Synopsis:**
+
+```nest
+[sequence: Array|Vector.Byte, encoding: Str] @decode -> Str
+```
+
+**Returns:**
+
+Transforms an array of `Byte` objects into a string using the given encoding.
+
+---
+
+### `@encode`
+
+**Synopsis:**
+
+```nest
+[string: Str, encoding: Str?] @encode -> Array.Byte
+```
+
+**Returns:**
+
+Transforms a string into an array of `Byte` objects using the given encoding.
 
 ---
 
@@ -66,11 +88,13 @@ The centered string.
 
 **Synopsis:**
 
-`[string: Str, substring: Str] @ends_with -> Bool`
+```nest
+[string: Str, substring: Str] @ends_with -> Bool
+```
 
 **Returns:**
 
-`true` if `substring` is equal to the end of `string` and `false` otherwise.
+`true` if `string` ends with `substring` and `false` otherwise.
 
 ---
 
@@ -78,7 +102,9 @@ The centered string.
 
 **Synopsis:**
 
-`[n: Int] @hex -> Str`
+```nest
+[n: Int] @hex -> Str
+```
 
 **Returns:**
 
@@ -91,11 +117,14 @@ prefix.
 
 **Synopsis:**
 
-`[string: Str] @is_alnum -> Bool`
+```nest
+[string: Str] @is_alnum -> Bool
+```
 
 **Returns:**
 
-Whether all the characters in `string` are numbers or letters.
+`true` if all the characters in `string` are numbers or letters and `false`
+otherwise.
 
 ---
 
@@ -103,12 +132,14 @@ Whether all the characters in `string` are numbers or letters.
 
 **Synopsis:**
 
-`[string: Str] @is_alpha -> Bool`
+```nest
+[string: Str] @is_alpha -> Bool
+```
 
 **Returns:**
 
-Whether all the characters in `string` are letters, both uppercase or
-lowercase.
+`true` if all the characters in `string` are letters (both uppercase and
+lowercase) and `false` otherwise.
 
 ---
 
@@ -116,12 +147,13 @@ lowercase.
 
 **Synopsis:**
 
-`[string: Str, charset: Str] @is_charset -> Bool`
+```nest
+[string: Str, charset: Str] @is_charset -> Bool
+```
 
 **Returns:**
 
-Whether all the characters in `string` are contained in a charset.
-`'hello' LETTERS @is_charset` is equal to `'hello' @is_alpha` but slower.
+Whether all the characters in `string` are also contained in `charset`.
 
 ---
 
@@ -129,12 +161,14 @@ Whether all the characters in `string` are contained in a charset.
 
 **Synopsis:**
 
-`[string: Str] @is_digit -> Bool`
+```nest
+[string: Str] @is_digit -> Bool
+```
 
 **Returns:**
 
-Whether all the characters in `string` are numbers, dots (`.`) and signs
-(`+` and `-`) are not considered digits.
+`true` if all the characters in `string` are numbers and `false` otherwise.
+Dots (`.`) and signs (`+` and `-`) are not considered digits.
 
 ---
 
@@ -142,11 +176,14 @@ Whether all the characters in `string` are numbers, dots (`.`) and signs
 
 **Synopsis:**
 
-`[string: Str] @is_lower -> Bool`
+```nest
+[string: Str] @is_lower -> Bool
+```
 
 **Returns:**
 
-Whether all the letters in `string` are lowercase, any punctuation is ignored.
+`true` if all the letters in `string` are lowercase and `false` otherwise. Any
+non-alphabetical character is ignored.
 
 ---
 
@@ -154,12 +191,14 @@ Whether all the letters in `string` are lowercase, any punctuation is ignored.
 
 **Synopsis:**
 
-`[string: Str] @is_printable -> Bool`
+```nest
+[string: Str] @is_printable -> Bool
+```
 
 **Returns:**
 
 Whether all the characters in `string` are printable. For example `\n`, a line
-feed, is not but `a` is.
+feed, is not but `a`, the character, is.
 
 ---
 
@@ -167,12 +206,15 @@ feed, is not but `a` is.
 
 **Synopsis:**
 
-`[string: Str] @is_title -> Bool`
+```nest
+[string: Str] @is_title -> Bool
+```
 
 **Returns:**
 
-Whether all the words in `string` have the first letter uppercase and the
-others lowercase.
+`true` if all the words in `string` have the first letter uppercase and the
+others lowercase and `false` otherwise. Any non-alphabetical character is
+ignored.
 
 ---
 
@@ -180,11 +222,14 @@ others lowercase.
 
 **Synopsis:**
 
-`[string: Str] @is_upper -> Bool`
+```nest
+[string: Str] @is_upper -> Bool
+```
 
 **Returns:**
 
-Whether all the letters in `string` are uppercase, any punctuation is ignored.
+`true` if all the letters in `string` are uppercase and `false` otherwise. Any
+non-alphabetical character is ignored.
 
 ---
 
@@ -192,7 +237,9 @@ Whether all the letters in `string` are uppercase, any punctuation is ignored.
 
 **Synopsis:**
 
-`[seq: Array|Vector, separator: Str?] @join -> Str`
+```nest
+[seq: Array|Vector, separator: Str?] @join -> Str
+```
 
 **Description:**
 
@@ -206,36 +253,29 @@ A string with all the objects in `seq` joined together.
 
 ---
 
-### `@lfind`
+### `@justify`
 
 **Synopsis:**
 
-`[string: Str, substring: Str] @lfind -> Int`
+```nest
+[string: Str, width: Int, char: Str?] @justify -> Str
+```
 
 **Description:**
 
-Finds the first occurrence of `substring` in `string` starting from the left and
-returns the index of the first character.
+Justifies `string` according to `width`. If `width` is positive the string is
+justified to the left and if negative it is justified to the right. If
+`$string` is greater than the absolute value of `width` the string itself is
+returned.
 
-**Returns:**
+`char` must have a length of one and is used to fill the extra space. If it is
+`null` a space is used.
 
-The index where `substring` starts or `-1` if it is not inside `string`.
+**Arguments:**
 
----
-
-### `@ljust`
-
-**Synopsis:**
-
-`[string: Str, length: Int, char: Str?] @ljust -> Str`
-
-**Description:**
-
-Creates a new string of length `length`, copies `string` justifying it to the
-left and fills the remaining space with `char`.
-`char` must be of length 1.
-If `length` is smaller than or equal to `$string`, the string itself is returned.
-If `char` is `null` it defaults to `' '`.
+- `string`: the string to justify
+- `width`: the minimum length in characters of the final string
+- `char`: the character used to fill the extra space
 
 **Returns:**
 
@@ -243,11 +283,36 @@ The justified string.
 
 ---
 
+### `@lfind`
+
+**Synopsis:**
+
+```nest
+[string: Str, substring: Str, start_idx: Int?, end_idx: Int?] @lfind -> Int
+```
+
+**Description:**
+
+Finds the first occurrence of `substring` in `string` within `start_idx`
+included and `end_idx` excluded starting from the left. If `start_idx` is
+`null`, index `0` is used, if `end_idx` is `null` the end of the string is
+used.
+
+`start_idx` and `end_idx` are clamped back in the string if outside.
+
+**Returns:**
+
+The index where `substring` starts or `-1` if it is not inside `string`.
+
+---
+
 ### `@ltrim`
 
 **Synopsis:**
 
-`[string: Str] @ltrim -> Str`
+```nest
+[string: Str] @ltrim -> Str
+```
 
 **Returns:**
 
@@ -259,7 +324,9 @@ Creates a new string with leading whitespace removed.
 
 **Synopsis:**
 
-`[n: Int] @oct -> Str`
+```nest
+[n: Int] @oct -> Str
+```
 
 **Returns:**
 
@@ -271,15 +338,17 @@ A string containing the octal representation of `n` without any prefix.
 
 **Synopsis:**
 
-`[string: Str, base: Int?] @parse_int -> Int`
+```nest
+[string: Str, base: Int?] @parse_int -> Int
+```
 
 **Description:**
 
 This function parses an integer of base `base` from `string`. `base` can be any
-integer between 2 and 36 inclusive. If it is set to 2, 8 or 16 the corresponding
-prefix (`0b`, `0o` or `0x`) is ignored. If set to 0 it will use base 10 unless
-it finds one of the specified prefixes. Setting `base` to `null` is the same as
-setting it to `0`. Any underscore between the digits is ignored.
+integer between 2 and 36 inclusive. If it is set to 2, 8 or 16 the
+corresponding prefix (`0b`, `0o` or `0x`) is ignored. If set to 0 it will use
+base 10 unless it finds one of the prefixes mentioned. Setting `base` to `null`
+is the same as setting it to `0`. Any underscore between the digits is ignored.
 If `string` does not contain a valid integer literal, an error it thrown.
 
 **Returns:**
@@ -297,16 +366,18 @@ The parsed integer.
 
 ---
 
-### `@replace_substr`
+### `@replace`
 
 **Synopsis:**
 
-`[string: Str, old_substring: Str, new_substing: Str] @replace_substr -> Str`
+```nest
+[string: Str, old_substring: Str, new_substing: Str] @replace -> Str
+```
 
 **Description:**
 
-Replaces all the occurrences of `old_substring` in `string` with `new_substing`.
-`old_substring` and `new_substing` can be of different length.
+Replaces all the occurrences of `old_substring` in `string` with
+`new_substing`. `old_substring` and `new_substing` can be of different length.
 If `new_substing` is an empty string, nothing is replaced.
 
 **Returns:**
@@ -319,14 +390,17 @@ A new string with all the occurrences of the substring replaced.
 
 **Synopsis:**
 
-`[object: Any] @repr -> Str`
+```nest
+[object: Any] @repr -> Str
+```
 
 **Description:**
 
-Creates a representation of the value of `object`. This is the same as a cast to
-a string for most objects except for objects of type `Str` and `Byte`.
-`Str` objects become their literal so a string that when printed outputs `'\n'`,
-becomes `"'\\n'"`.
+Creates a representation of the value of `object`. This is the same as a cast
+to a string for most objects except for objects of type `Str` and `Byte`.
+
+`Str` objects become their literal.
+
 `Byte` object become their literal as well, using a decimal base.
 
 **Returns:**
@@ -351,12 +425,18 @@ b" @su.repr --> "\"a'''\\nb\""
 
 **Synopsis:**
 
-`[string: Str, substring: Str] @rfind -> Int`
+```nest
+[string: Str, substring: Str, start_idx: Int?, end_idx: Int?] @rfind -> Int
+```
 
 **Description:**
 
-Finds the first occurrence of `substring` in `string` starting from the right
-and returns the index of the first character.
+Finds the first occurrence of `substring` in `string` within `start_idx`
+included and `end_idx` excluded starting from the right. If `start_idx` is
+`null`, index `0` is used, if `end_idx` is `null` the end of the string is
+used.
+
+`start_idx` and `end_idx` are clamped back in the string if outside.
 
 **Returns:**
 
@@ -364,31 +444,13 @@ The index where `substring` starts or `-1` if it is not inside `string`.
 
 ---
 
-### `@rjust`
-
-**Synopsis:**
-
-`[string: Str, length: Int, char: Str?] @rjust -> Str`
-
-**Description:**
-
-Creates a new string of length `length`, copies `string` justifying it to the
-right and fills the remaining space with `char`.
-`char` must be of length 1.
-If `length` is smaller than or equal to `$string`, the string itself is returned.
-If `char` is `null` a space will be used instead.
-
-**Returns:**
-
-The justified string.
-
----
-
 ### `@rtrim`
 
 **Synopsis:**
 
-`[string: Str] @rtrim -> Str`
+```nest
+[string: Str] @rtrim -> Str
+```
 
 **Returns:**
 
@@ -400,14 +462,28 @@ Creates a new string with trailing whitespace removed.
 
 **Synopsis:**
 
-`[string: Str, separator: Str?] @split -> Vector`
+```nest
+[string: Str, separator: Str?, max_splits: Int?] @split -> Vector.Str
+```
 
 **Description:**
 
 Splits `string` where it finds `separator` without including it and returns a
-vector with all the resulting strings.
+vector with all the resulting strings. It stops when it has reached the
+specified number of `max_splits` or the last occurrence of the separator is
+found.
+
 If `separator` is `null`, the string is split using spaces. One or more
-continuous space character count as one space.
+continuous space characters count as one space.
+
+If `max_splits` is negative the function will split `string` at all the
+occurrences of `separator`. If `max_splits` is not given, it defaults to `-1`.
+
+**Arguments:**
+
+- `string`: the string to split
+- `separator`: the substring to split `string` at
+- `max_splits`: the maximum number of splits allowed
 
 **Returns:**
 
@@ -417,8 +493,11 @@ A new vector containing the split strings.
 
 ```nest
 |#| 'stdsutil.nest' = su
-'a  b' @su.split --> <{ 'a', 'b' }>
-'a  b' ' ' @su.split --> <{ 'a', '', 'b' }>
+'a  b' @su.split --> <{'a', 'b'}>
+'a  b' ' ' @su.split --> <{'a', '', 'b'}>
+'a.b.c.d' '.' @su.split --> <{'a', 'b', 'c', 'd'}>
+'a.b.c.d' '.' 2 @su.split --> <{'a', 'b', 'c.d'}>
+'a.b.c.d' '.' 1 @su.split --> <{'a', 'b.c.d'}>
 ```
 
 ---
@@ -427,23 +506,13 @@ A new vector containing the split strings.
 
 **Synopsis:**
 
-`[string: Str, substring: Str] @starts_with -> Bool`
+```nest
+[string: Str, substring: Str] @starts_with -> Bool
+```
 
 **Returns:**
 
-`true` if `substring` is equal to the start of `string` and `false` otherwise.
-
----
-
-### `@str_to_bytearray`
-
-**Synopsis:**
-
-`[string: Str] @str_to_bytearray -> Array`
-
-**Returns:**
-
-Transforms a string into an array of `Byte` objects.
+`true` if `string` starts with `stubstring` and `false` otherwise.
 
 ---
 
@@ -451,11 +520,14 @@ Transforms a string into an array of `Byte` objects.
 
 **Synopsis:**
 
-`[string: Str] @to_lower -> Str`
+```nest
+[string: Str] @to_lower -> Str
+```
 
 **Returns:**
 
-A new string is returned with all the letters lowercase.
+A new string is returned with all the letters lowercase. Any non-alphabetical
+character is left untouched.
 
 **Example:**
 
@@ -470,13 +542,15 @@ A new string is returned with all the letters lowercase.
 
 **Synopsis:**
 
-`[string: Str] @to_title -> Str`
+```nest
+[string: Str] @to_title -> Str
+```
 
 **Returns:**
 
 A new string is returned with the first letter of every word uppercase and all
 the others lowercase. A word is defined as a piece of text surrounded by
-whitespace.
+whitespace. Any non-alphabetical character is left untouched.
 
 **Example:**
 
@@ -492,11 +566,14 @@ whitespace.
 
 **Synopsis:**
 
-`[string: Str] @to_upper -> Str`
+```nest
+[string: Str] @to_upper -> Str
+```
 
 **Returns:**
 
-A new string is returned with all the letters uppercase.
+A new string is returned with all the letters uppercase. Any non-alphabetical
+character is left untouched.
 
 **Example:**
 
@@ -511,7 +588,9 @@ A new string is returned with all the letters uppercase.
 
 **Synopsis:**
 
-`[string: Str] @trim -> Str`
+```nest
+[string: Str] @trim -> Str
+```
 
 **Returns:**
 

@@ -144,7 +144,7 @@ and does not throw an error.
 
 !!! note
     The backslash before the triple back ticks is not in the generated markdown,
-    but I added it to not make it close the code block.
+    but I added it to make it not close the code block.
 
 ## Links and images
 
@@ -188,8 +188,8 @@ Links are resolved as following:
 
 1. Normalize the name removing any trailing spaces, asterisks or parenthesis
 2. Check if the symbol is ignored, if so no link is found
-2. Check if the symbol appears in a user-defined link (with the `docs:link`),
-   if so return the corresponding link
+2. Check if the symbol appears in a user-defined link (with the `docs:link`
+   directive), if so return the corresponding link
 3. Check if the symbol exists in the documentation, if so return its link
 4. Else no link is found
 
@@ -218,7 +218,7 @@ symbol starting with `Nst` is not found in the defined ones and `generate_docs`
 prints out a warning.
 
 ```c
-// Ff inside a documentation comment `Nst_abc` is found no link is generated
+// If inside a documentation comment `Nst_abc` is found no link is generated
 
 /* [docs:ignore_sym Nst_abc] */
 ```

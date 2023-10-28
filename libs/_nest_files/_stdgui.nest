@@ -63,42 +63,42 @@ __gui.set_text_			= set_text
 
 __gui._debug_view_ = _debug_view
 
-{ 'fullscreen': 0x00000001,
-  'shown': 0x00000004,
-  'hidden': 0x00000008,
-  'borderless': 0x00000010,
-  'resizable': 0x00000020,
-  'minimized': 0x00000040,
-  'maximized': 0x00000080,
-  'mouse_grabbed': 0x00000100,
-  'input_focus': 0x00000200,
-  'mouse_focus': 0x00000400,
-  'fullscreen_desktop': 0x00001001,
-  'mouse_capture': 0x00004000,
-  'always_on_top': 0x00008000,
-  'skip_taskbar': 0x00010000,
-  'keyboard_grabbed': 0x00100000,
-  'input_grabbed': 0x00000100 } = WINDOW_FLAGS
+{'fullscreen': 0x00000001,
+ 'shown': 0x00000004,
+ 'hidden': 0x00000008,
+ 'borderless': 0x00000010,
+ 'resizable': 0x00000020,
+ 'minimized': 0x00000040,
+ 'maximized': 0x00000080,
+ 'mouse_grabbed': 0x00000100,
+ 'input_focus': 0x00000200,
+ 'mouse_focus': 0x00000400,
+ 'fullscreen_desktop': 0x00001001,
+ 'mouse_capture': 0x00004000,
+ 'always_on_top': 0x00008000,
+ 'skip_taskbar': 0x00010000,
+ 'keyboard_grabbed': 0x00100000,
+ 'input_grabbed': 0x00000100} = WINDOW_FLAGS
 
 |#| 'stditutil.nest' = _itu
 
 #_enum arr start => (?::{}) :: (arr start 1 1 @_itu.enumerate)
 
-{ 'left', 'right', 'top', 'bottom', 'center',
-  'p_left', 'p_right', 'p_top', 'p_bottom', 'p_center' } @_enum = SIDE
+{'left', 'right', 'top', 'bottom', 'center',
+ 'p_left', 'p_right', 'p_top', 'p_bottom', 'p_center'} @_enum = SIDE
 
-{ 'tl', 'tc', 'tr',
-  'cl', 'cc', 'cr',
-  'bl', 'bc', 'br',
+{'tl', 'tc', 'tr',
+ 'cl', 'cc', 'cr',
+ 'bl', 'bc', 'br',
 
-  'p_tl', 'p_tc', 'p_tr',
-  'p_cl', 'p_cc', 'p_cr',
-  'p_bl', 'p_bc', 'p_br' } @_enum = POS
+ 'p_tl', 'p_tc', 'p_tr',
+ 'p_cl', 'p_cc', 'p_cr',
+ 'p_bl', 'p_bc', 'p_br'} @_enum = POS
 
-{ 'light', 'regular', 'bold', 'extra_bold' } @_enum = FW
-{ 'small', 'medium', 'large' } @_enum = FS
+{'light', 'regular', 'bold', 'extra_bold'} @_enum = FW
+{'small', 'medium', 'large'} @_enum = FS
 
-{ 'top_bottom', 'left_right', 'bottom_top', 'right_left' } @_enum = STACK_DIR
-{ 'left': 0, 'top': 0, 'middle': 1, 'center': 1, 'bottom': 2, 'right': 2 } = STACK_ALIGN
+{'top_bottom', 'left_right', 'bottom_top', 'right_left'} @_enum = STACK_DIR
+{'left': 0, 'top': 0, 'middle': 1, 'center': 1, 'bottom': 2, 'right': 2} = STACK_ALIGN
 
 _vars_ '__gui' '_vars_' '_enum' '_itu' -

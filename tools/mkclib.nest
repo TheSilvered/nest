@@ -66,19 +66,19 @@ Iter :: {
     {
         'linux',
         'linux_debug',
-        { 'libnest.so' },
+        {'libnest.so'},
         'Linux x64/x86 Debug'
     },
     {
         'linux',
         'linux_release/x86',
-        { 'libnest.so' },
+        {'libnest.so'},
         'Linux x86 Release'
     },
     {
         'linux',
         'linux_release/x64',
-        { 'libnest.so' },
+        {'libnest.so'},
         'Linux x64 Release'
     }
 } = configs
@@ -110,7 +110,7 @@ _args_.1 'update' == ? [
     path name @fs.join = build_path
 
     header_path @fs.make_dirs
-    ... configs := { _, config, _, _ } [
+    ... configs := {_, config, _, _} [
         build_path '/' config >< @fs.make_dirs
     ]
 ]
@@ -120,7 +120,7 @@ _args_.1 'update' == ? [
 ]
 'Copied headers' @io.println
 
-... configs := { config_path, config, config_files, config_name } [
+... configs := {config_path, config, config_files, config_name} [
     '../build/' config_path '/' config >< = config_path
     false = failed
     ... Iter :: config_files := file [
@@ -145,11 +145,11 @@ build_path @sys._set_cwd
 
 #create_guid upper [
     upper ?
-        { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-          'A', 'B', 'C', 'D', 'E', 'F' } = chars
+        {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+         'A', 'B', 'C', 'D', 'E', 'F'} = chars
     :
-        { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-          'a', 'b', 'c', 'd', 'e', 'f' } = chars
+        {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+         'a', 'b', 'c', 'd', 'e', 'f'} = chars
 
     '{' = s
     ... 8 [

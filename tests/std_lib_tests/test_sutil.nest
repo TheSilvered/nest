@@ -48,16 +48,16 @@
 '"' @su.repr "'\"'" @test.assert_eq
 "'" @su.repr '"\'"' @test.assert_eq
 
-{ 72b, 105b } @su.decode 'Hi' @test.assert_eq
-'Hi' @su.encode { 72b, 105b } @test.assert_eq
+{72b, 105b} @su.decode 'Hi' @test.assert_eq
+'Hi' @su.encode {72b, 105b} @test.assert_eq
 
-'a b' @su.split { 'a', 'b' } @test.assert_eq
-'a  b' @su.split { 'a', 'b' } @test.assert_eq
-' a b' @su.split { 'a', 'b' } @test.assert_eq
-'a b ' @su.split { 'a', 'b' } @test.assert_eq
-' a  b ' @su.split { 'a', 'b' } @test.assert_eq
-{ 'a', 'b', 'c' } @su.join 'a b c' @test.assert_eq
-{ 'a', 'b', 'c' } '' @su.join 'abc' @test.assert_eq
+'a b' @su.split {'a', 'b'} @test.assert_eq
+'a  b' @su.split {'a', 'b'} @test.assert_eq
+' a b' @su.split {'a', 'b'} @test.assert_eq
+'a b ' @su.split {'a', 'b'} @test.assert_eq
+' a  b ' @su.split {'a', 'b'} @test.assert_eq
+{'a', 'b', 'c'} @su.join 'a b c' @test.assert_eq
+{'a', 'b', 'c'} '' @su.join 'abc' @test.assert_eq
 
 ?::su.DIGITS            Str @test.assert_eq
 ?::su.HEX_DIGITS        Str @test.assert_eq

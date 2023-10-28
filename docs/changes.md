@@ -5,11 +5,13 @@
 **Additions**
 
 - added `IEND` constant to `stditutil.nest`
-- added `map_i`, `slice_i`, `filter_i`, `copy` and `deep_copy` to `stdsequtil.nest`
+- added `map_i`, `slice_i`, `filter_i`, `extend`, `copy` and `deep_copy` to `stdsequtil.nest`
 - added `is_nan` and `is_inf` functions to `stdmath.nest`
 - added `inf_and_nan` option to `stdjson.nest` to allow for `NaN` and `Infinity` to be treated as numeric literals
 - added `is_inf` and `is_nan` functions to `stdmath.nest`
 - added the 'contains' stack operator `<.>` to check if an object is inside another
+- added `read_symlink` functio to `stdfs.nest`
+- added `gmt_date` to `stdtime.nest`
 
 **Changes**
 
@@ -29,6 +31,7 @@
 - renamed `allow_comments` and `allow_trailing_commas` in `json.OPTIONS` to `comments` and `trailing_commas` respectively
 - removed `contains` from `stdsequtil.nest` in favour of the new stack operator
 - added `from` and `to` arguments to `lfind` and `rfind` in `stdsutil.nest`
+- now casting a `nan` or `inf` value to an `Int` or `Byte` will throw an error
 
 **Bug fixes**
 
@@ -40,12 +43,14 @@
 - fixed Nest not finding files with non-ASCII charcters (both command-line and libraries) on Windows
 - fixed `su.is_charset` returning an incorrect result on some non-ASCII strings (e.g. `'à' 'èĠ' @su.is_charset` now returns `false`, before it would return `true`)
 - fixed `io.println` not printing the full string if it contained a NUL character
+- fixed some errors passing silently through `io.println`
 - fixed `inf` and `nan` values not being casted correctly to strings
 - fixed a bug where any byte using a hexadecimal literal would be interpreted as zero
 - fixed `CP-1250` encoding not working
 - fixed `join` in `stdsutil.nest` causing a `Memory Error` if the passed sequence was empty
 - fixed `rtrim` and `trim` in `stdsutil.nest` that if used could later cause crashes
 - fixed iterating through strings and creating sequences from strings that contain unicode characters which would create invalid strings
+- fixed many inconsistencies between the documentation and the functions in the standard library
 
 ### C API
 
@@ -57,6 +62,7 @@
 - added `Nst_TYPE_STR` to get the string of a type object
 - added `CONT_TYPE` and `Nst_ContType` for types of containers
 - added `IEnd` field to `Nst_TypeObjs` and `IEnd_iend` to `Nst_Consts`
+- added `c_inf`, `c_nan`, `c_neginf` and `c_negnan` to `Nst_StrConsts`
 - added `Nst_true_ref`, `Nst_false_ref`, `Nst_null_ref`, `Nst_iend` and `Nst_iend_ref` to `global_consts.h`
 - added `Nst_FLAG` macro to create the value of the flag of an object
 - added `indexable_str` and `true_len` fields to `Nst_StrObj`.
@@ -73,6 +79,7 @@
 - added `Nst_obj_contains` and `_Nst_obj_contains` to implement the `<.>` operator
 - added `Nst_TT_CONTAINS` token type
 - added `Nst_string_rfind` to find a substring from the right
+- added `Nst_CLEAR_FLAGS` macro to remove all non-reserved flags from a macro
 
 **Changes**
 
@@ -101,7 +108,7 @@
 - fixed `Nst_extract_arg_values` crashing when deleting any allocated objects if an error occurred
 - fixed `Nst_encoding_from_name` failing to identify valid encoding names
 - fixed some bugs with UTF-16 and its variants not working properly
-- fixed `_Nst_string_next_ch` creating invalid strings
+- added some missing documentation for `_Nst_VECTOR_MIN_CAP`, `_Nst_VECTOR_GROWTH_RATIO`, `SEQ`, `ARRAY` and `VECTOR`
 
 ---
 

@@ -9,7 +9,7 @@
     => content
 ]
 
-{ 72b, 105b } = bytes -- Hi
+{72b, 105b} = bytes -- Hi
 
 'test_files/file.txt' 'wb+' @io.open = f
 f bytes @io.write_bytes

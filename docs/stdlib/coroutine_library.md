@@ -12,13 +12,16 @@
 
 **Synopsis:**
 
-`[co: Coroutine, args: Array|Vector|null] @call -> Any`
+```nest
+[co: Coroutine, args: Array|Vector|null] @call -> Any
+```
 
 **Description:**
+
 Calls the coroutine passing the arguments given. If the coroutine is paused the
 arguments are ignored, if it is suspended or has ended the arguments are
-required. If the coroutine is running an error is thrown since coroutines cannot
-be recursive.
+required. If the coroutine is running an error is thrown since coroutines
+cannot be recursive.
 
 **Arguments:**
 
@@ -51,7 +54,9 @@ coroutine was paused or the value that was returned by the function.
 
 **Synopsis:**
 
-`[function: Func] @create -> Coroutine`
+```nest
+[function: Func] @create -> Coroutine
+```
 
 **Description:**
 
@@ -63,8 +68,8 @@ Creates a `Coroutine` object from `function`.
 
 **Returns:**
 
-A `Coroutine` object or throws an error if the given function was written in
-C or C++.
+A new `Coroutine` object. An error is thrown if the given function is written
+in C or C++.
 
 **Example:**
 
@@ -86,7 +91,9 @@ func @co.create = func_co
 
 **Synopsis:**
 
-`[co: Coroutine] @generator -> Iter`
+```nest
+[co: Coroutine] @generator -> Iter
+```
 
 **Description:**
 
@@ -137,13 +144,9 @@ this program outputs:
 
 **Synopsis:**
 
-`[co: Coroutine] @get_state -> Int`
-
-**Description:**
-
-Returns the current state of the coroutine, either suspended, running, paused or
-ended. To get the state as a string use the return value of this function to
-index the [STR_STATE](#str_state) map
+```nest
+[co: Coroutine] @get_state -> Int
+```
 
 **Arguments:**
 
@@ -151,7 +154,8 @@ index the [STR_STATE](#str_state) map
 
 **Returns:**
 
-The ID of the current state of the coroutine. This function does throw any errors.
+The ID of the current state of the coroutine. To get the state as a string use
+the return value of this function to index the [STR_STATE](#str_state) map.
 
 **Example:**
 
@@ -171,7 +175,7 @@ The ID of the current state of the coroutine. This function does throw any error
 f @co.create = f_co
 
 f_co @print_state --> suspended
-f_co { f_co } @co.call
+f_co {f_co} @co.call
 f_co @print_state --> paused
 f_co @co.call
 f_co @print_state --> ended
@@ -183,7 +187,9 @@ f_co @print_state --> ended
 
 **Synopsis:**
 
-`[return_value: Any] @pause -> null`
+```nest
+[return_value: Any] @pause -> null
+```
 
 **Description:**
 
@@ -193,7 +199,13 @@ error is thrown.
 
 **Arguments:**
 
-- `return_value`: the value that is returned by `call` when the coroutine pauses.
+- `return_value`: the value that is returned by `call` when the coroutine
+  pauses.
+
+**Returns:**
+
+`null`. `return_value` will only make the paused coroutine return the given
+value, not the `pause` function itself.
 
 **Example:**
 
@@ -218,7 +230,9 @@ func_co @co.call --> world!
 
 **Synopsis:**
 
-`[] @_get_co_type_obj -> Type`
+```nest
+[] @_get_co_type_obj -> Type
+```
 
 **Returns:**
 

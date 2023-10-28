@@ -11,14 +11,14 @@ __co.pause_     = pause
 __co._get_co_type_obj_ = _get_co_type_obj
 @__co._get_co_type_obj_ = Coroutine
 
-{ 'suspended': 0b0001,
-  'running':   0b0010,
-  'paused':    0b0100,
-  'ended':     0b1000 } = STATE
+{'suspended': 0b0001,
+ 'running':   0b0010,
+ 'paused':    0b0100,
+ 'ended':     0b1000} = STATE
 
-{ 0b0001: 'suspended',
-  0b0010: 'running',
-  0b0100: 'paused',
-  0b1000: 'ended' } = STR_STATE
+{0b0001: 'suspended',
+ 0b0010: 'running',
+ 0b0100: 'paused',
+ 0b1000: 'ended'} = STR_STATE
 
 _vars_ '__co' '_vars_' -

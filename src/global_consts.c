@@ -128,9 +128,13 @@ bool _Nst_init_objects(void)
         (Nst_ObjDstr)_Nst_iter_destroy,
         (Nst_ObjTrav)_Nst_iter_traverse);
 
-    Nst_s.c_true  = STR(Nst_string_new_c("true",  4, false));
-    Nst_s.c_false = STR(Nst_string_new_c("false", 5, false));
-    Nst_s.c_null  = STR(Nst_string_new_c("null",  4, false));
+    Nst_s.c_true   = STR(Nst_string_new_c("true",  4, false));
+    Nst_s.c_false  = STR(Nst_string_new_c("false", 5, false));
+    Nst_s.c_null   = STR(Nst_string_new_c("null",  4, false));
+    Nst_s.c_inf    = STR(Nst_string_new_c("inf",   3, false));
+    Nst_s.c_nan    = STR(Nst_string_new_c("nan",   3, false));
+    Nst_s.c_neginf = STR(Nst_string_new_c("-inf",  4, false));
+    Nst_s.c_negnan = STR(Nst_string_new_c("-nan",  4, false));
 
     Nst_s.e_SyntaxError = STR(Nst_string_new_c("Syntax Error", 12, false));
     Nst_s.e_ValueError  = STR(Nst_string_new_c("Value Error",  11, false));

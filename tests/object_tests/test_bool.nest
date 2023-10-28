@@ -25,11 +25,11 @@ Bool :: null @test.assert_false
 Bool :: '' @test.assert_false
 Bool :: 'a' @test.assert_true
 Bool :: {,} @test.assert_false
-Bool :: { 0 } @test.assert_true
+Bool :: {0} @test.assert_true
 Bool :: <{}> @test.assert_false
-Bool :: <{ 0 }> @test.assert_true
+Bool :: <{0}> @test.assert_true
 Bool :: {} @test.assert_false
-Bool :: { 'a': 1 } @test.assert_true
+Bool :: {'a': 1} @test.assert_true
 Bool :: ## [] @test.assert_true
 Bool :: (0 -> 1) @test.assert_true
 Bool :: 0b @test.assert_false

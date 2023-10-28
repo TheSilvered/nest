@@ -23,6 +23,7 @@
 'dt.month: ' @@dt.month >< @test.println
 'dt.year: ' @@dt.year >< @test.println
 'dt.date: ' @@dt.date >< @test.println
+'dt.gmt_date: ' @@dt.gmt_date >< @test.println
 'dt.seconds: ' @@dt.seconds >< @test.println
 'dt.minutes: ' @@dt.minutes >< @test.println
 'dt.hours: ' @@dt.hours >< @test.println

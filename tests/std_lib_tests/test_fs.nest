@@ -26,8 +26,8 @@
 'stdfs_file_copied' 'dir/stdfs_file' @fs.equivalent @test.assert_true
 
 sys.PLATFORM 'windows' == ? [
-    'dir_1' @fs.list_dir  { 'dir_1\\dir2' } @test.assert_eq
-    'dir_1' @fs.list_dirs { 'dir_1\\dir2' } @test.assert_eq
+    'dir_1' @fs.list_dir  {'dir_1\\dir2'} @test.assert_eq
+    'dir_1' @fs.list_dirs {'dir_1\\dir2'} @test.assert_eq
 
     'a' 'b' @fs.join 'a\\b' @test.assert_eq
     'a' '\\b' @fs.join '\\b' @test.assert_eq
@@ -39,8 +39,8 @@ sys.PLATFORM 'windows' == ? [
 
     'a/c' 'a/b/d' @fs.relative_path '..\\..\\c' @test.assert_eq
 ] : [
-    'dir_1' @fs.list_dir { 'dir_1/dir2' } @test.assert_eq
-    'dir_1' @fs.list_dirs { 'dir_1/dir2' } @test.assert_eq
+    'dir_1' @fs.list_dir {'dir_1/dir2'} @test.assert_eq
+    'dir_1' @fs.list_dirs {'dir_1/dir2'} @test.assert_eq
     'a' 'b' @fs.join 'a/b' @test.assert_eq
     'a' '\\b' @fs.join '\\b' @test.assert_eq
     'a/b/c' 'd/e/f' @fs.join 'a/b/c/d/e/f' @test.assert_eq

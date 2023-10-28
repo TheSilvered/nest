@@ -42,19 +42,25 @@ Nest to JSON type correlations:
 
 **Synopsis:**
 
-`[path: Str, object: Any, indent: Int?] @dump_f -> null`
+```nest
+[path: Str, object: Any, indent: Int?, encoding: Str?] @dump_f -> null
+```
 
 **Description:**
 
-Writes to the file at `path` the serialization to JSON of `object`. This
-function overwrites any existing content on the file.
-`indent` works exactly like it does in [`dump_s`](#dump_s).
+Writes to the file at `path` the serialization to JSON of `object` encoded with
+`encoding`. This function overwrites any existing content on the file.
+`encoding`, if `null`, defaults to `'ext-utf8'`.
+
+`indent` specifies the indentation level when the object contains maps or
+sequences. If it is set to 0, everything will be written in one continuous line.
+If set to -1, the smallest representation will be used (removing the spaces
+after commas and colons). By default `indent` is set to 0.
 
 **Arguments:**
 
 - `path`: the path of the file to write the contents to
-- `indent`: the indentation to use to format the file, see the argument with the
-            same name in [`dump_s`](#dump_s) for specifications.
+- `indent`: the indentation to use to format the file
 
 ---
 
@@ -62,7 +68,9 @@ function overwrites any existing content on the file.
 
 **Synopsis:**
 
-`[object: Any, indent: Int?] @dump_s -> Str`
+```nest
+[object: Any, indent: Int?] @dump_s -> Str
+```
 
 **Description:**
 
@@ -78,10 +86,7 @@ By default `indent` is set to 0.
 **Arguments:**
 
 - `object`: the object to serialize
-- `indent`: the indentation of the output string. If it is set to 0, everything
-            will be written in one continuous line but keeping spaces after
-            commas and colons. If set to -1, the smallest representation is used
-            by removing even the spaces that 0 keeps.
+- `indent`: the indentation of the output string
 
 **Returns:**
 
@@ -92,9 +97,9 @@ The string that contains the serialized object.
 ```nest
 |#| 'stdjson.nest' = json
 
-{ 1, 2, 3 } @json.dump_s = s1
-{ 1, 2, 3 } -1 @json.dump_s = s2
-{ 1, 2, 3 } 2 @json.dump_s = s3
+{1, 2, 3} @json.dump_s = s1
+{1, 2, 3} -1 @json.dump_s = s2
+{1, 2, 3} 2 @json.dump_s = s3
 
 >>> (s1 '\n' ><)
 >>> (s2 '\n' ><)
@@ -119,7 +124,9 @@ Output:
 
 **Synopsis:**
 
-`[] @get_options -> Int`
+```nest
+[] @get_options -> Int
+```
 
 **Returns:**
 
@@ -131,11 +138,11 @@ a bit-wise and (`&`) between it and all the return value of this function.
 ```nest
 |#| 'stdjson.nest' = json
 
--- allows comments without disabling allow_trailing_commas if it is enabled
-@@json.get_options json.OPTIONS.allow_comments | @json.set_options
+-- enables comments without changing any other option
+@@json.get_options json.OPTIONS.comments | @json.set_options
 
 -- checks if trailing commas are allowed
-@@json.get_options json.OPTIONS.allow_trailing_commas & ?
+@@json.get_options json.OPTIONS.trailing_commas & ?
     >>> 'Trailing commas are allowed\n'
 ```
 
@@ -145,15 +152,19 @@ a bit-wise and (`&`) between it and all the return value of this function.
 
 **Synopsis:**
 
-`[path: Str] @load_f -> Any`
+```nest
+[path: Str, encoding: Str?] @load_f -> Any
+```
 
 **Description:**
 
-Opens the file at `path`, reads its content and parses is as json data.
+Opens the file at `path` with the specified `encoding` and parses its contents
+as JSON data. If `encoding` is `null` it is determined automatically.
 
 **Arguments:**
 
 - `path`: the path to the file to open
+- `encoding`: the encoding the file is opened with
 
 **Returns:**
 
@@ -173,7 +184,7 @@ The code:
 ```nest
 |#| 'stdjson.nest' = json
 
->>> ('example.json' @json.load_s '\n' ><) --> <{ 1, 2, 3, 4 }>
+>>> ('example.json' @json.load_s '\n' ><) --> <{1, 2, 3, 4}>
 ```
 
 ---
@@ -182,7 +193,9 @@ The code:
 
 **Synopsis:**
 
-`[string: Str] @load_s -> Any`
+```nest
+[string: Str] @load_s -> Any
+```
 
 **Description:**
 
@@ -202,7 +215,7 @@ The parsed data as a Nest object according to the
 ```nest
 |#| 'stdjson.nest' = json
 
->>> ('[1, 2, 3, 4]' @json.load_s '\n' ><) --> <{ 1, 2, 3, 4 }>
+>>> ('[1, 2, 3, 4]' @json.load_s '\n' ><) --> <{1, 2, 3, 4}>
 ```
 
 ---
@@ -225,9 +238,7 @@ everything. Every option is disabled by default.
 ```nest
 |#| 'stdjson.nest' = json
 
-    json.OPTIONS.allow_comments \
-    json.OPTIONS.allow_trailing_commas | \
-@json.set_options
+json.OPTIONS.comments json.OPTIONS.trailing_commas | @json.set_options
 ```
 
 ---
@@ -239,12 +250,16 @@ everything. Every option is disabled by default.
 A map containing the options that can be enabled with
 [`set_options`](#set_options).
 
-- `allow_comments`: does not raise an error when a comment is found. Two types
-  of comments are allowed: single-line comments that start with `//` and end
-  at the end of the line, and multi-line comments that start with `/*` and end
+- `comments`: does not raise an error when a comment is found. Two types of
+  comments are allowed: single-line comments that start with `//` and end at
+  the end of the line, and multi-line comments that start with `/*` and end
   with `*/`
-- `allow_trailing_commas`: does not raise an error if a comma is found after the
-  last element of an object or array
+- `trailing_commas`: does not raise an error if a comma is found after the last
+  element of an object or array
+- `nan_and_inf`: allows `NaN` and `Infinity` to be used as number literals that
+  map to [`math.NAN`](math_library.md#nan) and
+  [`math.INF`](math_library.md#inf) respectively; this options also allows to
+  dump any infinite or NaN values
 
 !!!warning
-    Both of these options are not standard and very few parsers support them.
+    These options are not standard and are not implemented in many parsers.

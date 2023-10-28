@@ -138,7 +138,7 @@ Nst_FUNC_SIGN(insert_at_)
         return nullptr;
     }
 
-    // Force the vector to grow
+    // Expand the vector
     Nst_vector_append(vect, Nst_null());
     Nst_dec_ref(Nst_null());
 

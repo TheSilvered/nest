@@ -243,7 +243,8 @@ Nst_FUNC_SIGN(new_iterator_)
 
     if (start->arg_num != 1 || get_val->arg_num != 1)
     {
-        Nst_set_value_error_c("all the functions must accept exactly one argument");
+        Nst_set_value_error_c(
+            "all the functions must accept exactly one argument");
         return nullptr;
     }
 

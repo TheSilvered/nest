@@ -112,6 +112,7 @@
 - [`Nst_check_utf32le_bytes`](c_api-encoding.md#nst_check_utf32le_bytes)
 - [`Nst_check_utf8_bytes`](c_api-encoding.md#nst_check_utf8_bytes)
 - [`Nst_CLArgs`](c_api-argv_parser.md#nst_clargs)
+- [`Nst_CLEAR_FLAGS`](c_api-obj.md#nst_clear_flags)
 - [`Nst_compile`](c_api-compiler.md#nst_compile)
 - [`Nst_const`](c_api-global_consts.md#nst_const)
 - [`Nst_Consts`](c_api-global_consts.md#nst_consts)

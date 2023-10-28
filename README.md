@@ -60,22 +60,39 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 ### Nest 0.15.0 planned features
 
 - [ ] Finish implementing `Nst_fmt` and add a wrapper to `stdsutil.nest`
-- [ ] Add `is_space`, `remove_prefix` and `remove_suffix` to `stdsutil.nest`
-- [ ] Add `batch` to `stditutil.nest`
-- [ ] Add `enum` to `stdsequtil.nest`
-- [ ] Add `factorial` to `stdmath.nest`
 - [ ] Improve `libnest` usage:
   - [ ] Separate execution and interpreter states
   - [ ] Initialize everything with one function
   - [ ] Quit everything with one function
   - [ ] Execute a program in one function (given the path of the file)
 - [ ] Better testing with C [^4]
-- [ ] Rewrite parser, nodes and tweak compiler to accomodate for the new parser
+- [ ] Rewrite parser, nodes and tweak compiler to accommodate for the new
+- [ ] Add `is_space`, `remove_prefix` and `remove_suffix` to `stdsutil.nest`
+- [ ] Rename `split` to `lsplit` and add `rsplit` to `stdsutil.nest`
+- [ ] Add `batch` to `stditutil.nest`
+- [ ] Add `enum` to `stdsequtil.nest`
+- [ ] Add `factorial` to `stdmath.nest`
+  parser
+- [ ] Change `generator` in `stdco.nest` to allow for different arguments of
+  the function
+- [ ] Change `relative_path` in `stdfs.nest` to use the current working
+  directory when no `base` is given
+- [ ] Change `move_fpi` in `stdio.nest` to return the current file position
+  indicator
+- [ ] Maps only add new keys to the end but do not move existing ones
+- [ ] Improve option handling in `stdjson.nest`
+- [ ] Remove `reversed` from `stditutil.nest` and add `reverse` and `reverse_i`
+  to `stdsequtil.nest`
+- [ ] Add `get_capacity` to `stdsys.nest`
+- [ ] Remove `_cwd_` and rename `_get_cwd` and `_set_cwd` to `get_cwd` and
+  `set_cwd` in `stdsys.nest`
 
 ### Future planned features
 
 - Regular expressions in the standard library [^1]
 - A custom graphics and UI standard library built on top of SDL2 [^2]
+- Closures
+- Multithreading
 
 [^1]: will probably be a port of PCRE
 
@@ -141,7 +158,7 @@ $ tar -xzf nest-[VERSION]-[ARCHITECTURE]-linux.tar.gz
 ```
 
 Now run `./linux_install_[ARCHITECTURE].sh` to copy the binaries to
-`/usr/libs/nest` and to `/usr/bin` and install the necessary libaries.
+`/usr/libs/nest` and to `/usr/bin` and install the necessary libraries.
 
 ### Compile from source on Linux
 

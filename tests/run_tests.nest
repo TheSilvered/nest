@@ -57,7 +57,7 @@ sys.SUPPORTS_COLOR ? [
         !(name 'test_' @su.starts_with) ? ..
 
         >>> ('Testing ' (name 5 -5 @sequ.slice) '...' ><)
-        run_test { name, test_path } @err.try = res
+        run_test {name, test_path} @err.try = res
 
         res.error null == ? [
             C_GREEN ' PASSED' C_RESET >< true @io.println

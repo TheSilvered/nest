@@ -14,9 +14,9 @@
 20b 10b - 10b @test.assert_eq
 30b 30b * 132b @test.assert_eq
 25b 5b / 5b @test.assert_eq
-##a b [=> a b /] { 10b, 0b } @test.assert_raises_error
+##a b [=> a b /] {10b, 0b} @test.assert_raises_error
 7b 3b % 1b @test.assert_eq
-##a b [=> a b %] { 10b, 0b } @test.assert_raises_error
+##a b [=> a b %] {10b, 0b} @test.assert_raises_error
 5b 2b ^ 25b @test.assert_eq
 5b 2b | 7b @test.assert_eq
 5b 2b & 0b @test.assert_eq

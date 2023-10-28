@@ -21,6 +21,10 @@ typedef struct _Nst_StrConsts {
     Nst_StrObj *c_true;
     Nst_StrObj *c_false;
     Nst_StrObj *c_null;
+    Nst_StrObj *c_inf;
+    Nst_StrObj *c_nan;
+    Nst_StrObj *c_neginf;
+    Nst_StrObj *c_negnan;
 
     // Standard error names
 

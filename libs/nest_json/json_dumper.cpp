@@ -1,6 +1,7 @@
 #include <cmath>
 #include <cstring>
 #include "json_dumper.h"
+#include "json_lexer.h"
 
 #ifndef Nst_WIN
 
@@ -155,33 +156,48 @@ static void dump_str(Nst_StrObj *str)
 static void dump_num(Nst_Obj *number)
 {
     INC_RECURSION_LVL;
+    f64 val;
+    i8 loc_buf[27];
+    usize len;
+
     if (Nst_T(number, Byte)) {
-        i8 loc_buf[4];
         sprintf(loc_buf, "%i", AS_BYTE(number));
         Nst_buffer_append_c_str(&str_buf, loc_buf);
+        goto finish;
     } else if (Nst_T(number, Int)) {
-        i8 loc_buf[21];
         sprintf(loc_buf, "%lli", AS_INT(number));
         Nst_buffer_append_c_str(&str_buf, loc_buf);
-    } else {
-        f64 val = AS_REAL(number);
-        if (isinf(val) || isnan(val)) {
-            Nst_set_value_error_c("JSON: cannot serialize infinities or NaNs");
+        goto finish;
+    }
+    val = AS_REAL(number);
+    if (isinf(val) || isnan(val)) {
+        if (!nan_and_inf) {
+            Nst_set_value_error_c(
+                "JSON: cannot serialize infinities or NaNs");
             FAIL;
         }
-        i8 loc_buf[27];
-        sprintf(loc_buf, "%.16lg", val);
-        usize len = strlen(loc_buf);
-        for (usize i = 0; i < len; i++) {
-            if (loc_buf[i] == '.' || loc_buf[i] == 'e')
-                goto finish;
-        }
-        loc_buf[len++] = '.';
-        loc_buf[len++] = '0';
-        loc_buf[len++] = '\0';
-    finish:
-        Nst_buffer_append_c_str(&str_buf, loc_buf);
+        if (isinf(val)) {
+            if (val < 0)
+                Nst_buffer_append_c_str(&str_buf, "-Infinity");
+            else
+                Nst_buffer_append_c_str(&str_buf, "Infinity");
+        } else
+            Nst_buffer_append_c_str(&str_buf, "NaN");
+        goto finish;
     }
+    sprintf(loc_buf, "%.16lg", val);
+    len = strlen(loc_buf);
+    for (usize i = 0; i < len; i++) {
+        if (loc_buf[i] == '.' || loc_buf[i] == 'e')
+            goto add_buf;
+    }
+    loc_buf[len++] = '.';
+    loc_buf[len++] = '0';
+    loc_buf[len++] = '\0';
+add_buf:
+    Nst_buffer_append_c_str(&str_buf, loc_buf);
+
+finish:
     DEC_RECURSION_LVL;
 }
 

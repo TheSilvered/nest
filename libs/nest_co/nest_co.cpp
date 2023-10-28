@@ -333,9 +333,7 @@ Nst_FUNC_SIGN(pause_)
 
     Nst_vstack_pop(); // remove NULL from the stack
 
-    Nst_DEL_FLAG(co, FLAG_CO_SUSPENDED);
-    Nst_DEL_FLAG(co, FLAG_CO_RUNNING);
-    Nst_DEL_FLAG(co, FLAG_CO_ENDED);
+    Nst_CLEAR_FLAGS(co);
     Nst_SET_FLAG(co, FLAG_CO_PAUSED);
 
     return Nst_inc_ref(return_value);

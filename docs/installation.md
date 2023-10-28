@@ -56,7 +56,7 @@ $ tar -xzf nest-[VERSION]-[ARCHITECTURE]-linux.tar.gz
 ```
 
 Now run `./linux_install_[ARCHITECTURE].sh` to copy the binaries to
-`/usr/libs/nest` and to `/usr/bin` and install the necessary libaries.
+`/usr/libs/nest` and to `/usr/bin` and install the necessary libraries.
 
 ### Compile from source on Linux
 

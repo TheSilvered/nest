@@ -22,9 +22,10 @@ nav:
   - Tutorials:
     - tutorials/c-lib-tutorial.md
     - tutorials/using-generate_docs.md
-  - Built-in libraries:
+  - Standard Library:
     - stdlib/codecs_library.md
     - stdlib/coroutine_library.md
+    - stdlib/time_library.md
     - stdlib/error_library.md
     - stdlib/filesystem_library.md
     - stdlib/io_library.md
@@ -35,7 +36,6 @@ nav:
     - stdlib/sequence_utilities_library.md
     - stdlib/string_utilities_library.md
     - stdlib/system_library.md
-    - stdlib/time_library.md
   - C API:
     - c_api/c_api_index.md
     - c_api/c_api_reference.md

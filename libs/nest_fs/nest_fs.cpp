@@ -213,9 +213,7 @@ Nst_FUNC_SIGN(remove_dir_)
 
     std::error_code ec;
     if (!fs::is_directory(utf8_path(path))) {
-        Nst_set_value_error(Nst_sprintf(
-            "directory '%.4096s' not found",
-            path->value));
+        Nst_set_value_errorf("directory '%.4096s' not found", path->value);
         return nullptr;
     }
 
@@ -236,9 +234,7 @@ Nst_FUNC_SIGN(remove_dirs_)
     std::error_code ec;
 
     if (!fs::is_directory(utf8_path(path))) {
-        Nst_set_value_error(Nst_sprintf(
-            "directory '%.4096s' not found",
-            path->value));
+        Nst_set_value_errorf("directory '%.4096s' not found", path->value);
         return nullptr;
     }
 
@@ -258,9 +254,7 @@ Nst_FUNC_SIGN(remove_file_)
     std::error_code ec;
 
     if (!check_path(path, fs::exists) || check_path(path, fs::is_directory)) {
-        Nst_set_value_error(Nst_sprintf(
-            "file '%.4096s' not found",
-            path->value));
+        Nst_set_value_errorf("file '%.4096s' not found", path->value);
         return nullptr;
     }
 
@@ -309,6 +303,11 @@ Nst_FUNC_SIGN(read_symlink_)
 
     Nst_DEF_EXTRACT("s", &path);
 
+    if (!check_path(path, fs::is_symlink)) {
+        Nst_set_value_errorf("symlink '%.4096s' not found", path->value);
+        return nullptr;
+    }
+
     fs::path result = fs::read_symlink(utf8_path(path), ec);
     if (ec.value() == 0)
         return OBJ(heap_str(result));
@@ -355,10 +354,10 @@ Nst_FUNC_SIGN(copy_)
     fs::copy(utf8_path(path_from), utf8_path(path_to), cp_options, ec);
 
     if (ec.value() == ERROR_PATH_NOT_FOUND) {
-        Nst_set_value_error(Nst_sprintf(
-            "file '%.100s' or directory '%.4096s' not found",
+        Nst_set_value_errorf(
+            "'%.4096s' or '%.4096s' not found",
             path_from->value,
-            path_to->value));
+            path_to->value);
         return nullptr;
     } else if (ec.value() == 0)
         Nst_RETURN_NULL;
@@ -378,10 +377,10 @@ Nst_FUNC_SIGN(rename_)
     fs::rename(utf8_path(old_path), utf8_path(new_path), ec);
 
     if (ec.value() == ERROR_PATH_NOT_FOUND) {
-        Nst_set_value_error(Nst_sprintf(
-            "file '%.100s' or directory '%.4096s' not found",
+        Nst_set_value_errorf(
+            "file '%.4096s' or directory '%.4096s' not found",
             old_path->value,
-            new_path->value));
+            new_path->value);
         return nullptr;
     } else if (ec.value() == 0)
         Nst_RETURN_NULL;
@@ -397,9 +396,9 @@ Nst_FUNC_SIGN(list_dir_)
 
     std::error_code ec;
     if (!fs::is_directory(utf8_path(path), ec)) {
-        Nst_set_value_error(Nst_sprintf(
+        Nst_set_value_errorf(
             "directory '%.4096s' not found",
-            path->value));
+            path->value);
         return nullptr;
     }
     if (ec.value() != 0)

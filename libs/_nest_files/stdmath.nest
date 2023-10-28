@@ -43,10 +43,10 @@ __math.round_   = round
 __math.sum_     = sum
 
 2.718281828459045 = E
+__math.INF_ = INF
+__math.NAN_ = NAN
 3.141592653589793 = PI
 1.618033988749895 = PHI = GOLDEN_RATIO
 6.283185307179586 = TAU
-__math.INF_ = INF
-__math.NAN_ = NAN
 
 _vars_ '__math' '_vars_' -

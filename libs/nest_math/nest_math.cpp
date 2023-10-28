@@ -314,7 +314,7 @@ Nst_FUNC_SIGN(deg_)
     f64 n;
 
     Nst_DEF_EXTRACT("N", &n);
-    // 57.29577951308232 = 180 / PI
+    // 57.29577951308232 ~ 180 / PI
     return Nst_real_new(n * 57.29577951308232);
 }
 
@@ -323,7 +323,7 @@ Nst_FUNC_SIGN(rad_)
     f64 n;
 
     Nst_DEF_EXTRACT("N", &n);
-    // 0.017453292519943295 = PI / 180
+    // 0.017453292519943295 ~ PI / 180
     return Nst_real_new(n * 0.017453292519943295);
 }
 
@@ -542,7 +542,7 @@ static inline f64 gcd_real(f64 a, f64 b)
     }
 }
 
-Nst_Obj *gcd_or_lcm_seq(Nst_SeqObj *seq, Nst_Obj *(*func)(usize arg_num, Nst_Obj **args))
+Nst_Obj *gcd_or_lcm_seq(Nst_SeqObj *seq, Nst_NestCallable func)
 {
     if (seq->len == 0)
         Nst_RETURN_ZERO;
@@ -679,13 +679,13 @@ Nst_FUNC_SIGN(hypot_)
 Nst_FUNC_SIGN(is_nan_)
 {
     f64 n;
-    Nst_DEF_EXTRACT("N", &n);
+    Nst_DEF_EXTRACT("r", &n);
     Nst_RETURN_COND(isnan(n));
 }
 
 Nst_FUNC_SIGN(is_inf_)
 {
     f64 n;
-    Nst_DEF_EXTRACT("N", &n);
+    Nst_DEF_EXTRACT("r", &n);
     Nst_RETURN_COND(isinf(n));
 }

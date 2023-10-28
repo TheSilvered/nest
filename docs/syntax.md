@@ -161,7 +161,7 @@ Array literals start and end with curly braces (`{` and `}`) and contain various
 expressions separated by a comma.
 
 ```nest
-{ 1, 2, 3, 4 }
+{1, 2, 3, 4}
 ```
 
 !!!note
@@ -171,7 +171,7 @@ expressions separated by a comma.
 You can also create an array with all of the same value like this:
 
 ```nest
-{ 10;30 } --> array of length 30, with all values that are 10
+{10;30} --> array of length 30, with all values that are 10
 ```
 
 This puts the same object in all slots of the array meaning that if an
@@ -179,8 +179,8 @@ object can change values inside of itself (array, vector or map) the values of
 all objects will change:
 
 ```nest
-{ { 1, 2 };2 } = a --> 'a' is equal to { { 1, 2 }, { 1, 2 } }
-3 = a.0 .0 --> 'a' is now equal to { { 3, 2 }, { 3, 2 } }
+{{1, 2};2} = a --> 'a' is equal to {{1, 2}, {1, 2}}
+3 = a.0 .0 --> 'a' is now equal to {{3, 2}, {3, 2}}
 ```
 
 ### Vector literals
@@ -189,14 +189,14 @@ Vector literals start with `<{` and end with `}>` and inside have various
 expressions separated by a comma.
 
 ```nest
-<{ 1, 2, 3, 4 }>
+<{1, 2, 3, 4}>
 ```
 
 Just like arrays, vectors also have a smaller syntax to fill all slots with the
 same value:
 
 ```nest
-<{ 10;30 }> --> vector of length 30, with all values that are 10
+<{10;30}> --> vector of length 30, with all values that are 10
 ```
 
 ### Map literals
@@ -204,7 +204,7 @@ same value:
 Map literals start with `{` and end with `}` and inside have key-value pairs.
 
 ```nest
-{ 'key_1': 1, 'key_2': 2 }
+{'key_1': 1, 'key_2': 2}
 ```
 
 The keys can be of type `Str`, `Int` or `Byte` since only these three types are
@@ -345,19 +345,19 @@ The `/` operator pops a number of values from the end and returns the last value
 popped.
 
 ```nest
->>> (<{ 1, 2, 3 }> 2 + '\n' ><) --> <{ 1, 2, 3, 2 }>
->>> (<{ 1, 2, 3 }> 2 - '\n' ><) --> <{ 1, 3 }>
->>> (<{ 1, 2, 3 }> 2 * '\n' ><) --> <{ 1, 2, 3, 1, 2, 3 }>
->>> (<{ 1, 2, 3 }> 2 / '\n' ><) --> 2
+>>> (<{1, 2, 3}> 2 + '\n' ><) --> <{1, 2, 3, 2}>
+>>> (<{1, 2, 3}> 2 - '\n' ><) --> <{1, 3}>
+>>> (<{1, 2, 3}> 2 * '\n' ><) --> <{1, 2, 3, 1, 2, 3}>
+>>> (<{1, 2, 3}> 2 / '\n' ><) --> 2
 ```
 
 The operator `-` behaves differently with maps too. It will remove a key from a
 map and return the map itself.
 
 ```nest
-{ 'a': 1, 'b': 2 } = m
->>> (m 'a' - '\n' ><) --> { 'b': 2 }
->>> (m 'j' - '\n' ><) --> { 'b': 2 } removing a key that does not exist does not
+{'a': 1, 'b': 2} = m
+>>> (m 'a' - '\n' ><) --> {'b': 2}
+>>> (m 'j' - '\n' ><) --> {'b': 2} removing a key that does not exist does not
                       --             throw an error
 ```
 
@@ -458,7 +458,7 @@ Here the function `func` is called with three arguments:
 an array:
 
 ```nest
-{ 1, 2, 3 } *@func
+{1, 2, 3} *@func
 ```
 
 Both for `@` and `*@`, if there are less arguments than the function expected,
@@ -553,22 +553,22 @@ An unpacking assignment takes a vector or an array and splits its contents into
 the variables.
 
 ```nest
-{ 1, 2 } = { a, b } --> now 'a' is 1 and 'b' is 2
+{1, 2} = {a, b} --> now 'a' is 1 and 'b' is 2
 ```
 
 It can also be nested:
 
 ```nest
-{ 1, { 2, 3 } } = { a, { b, c } } --> now 'a' is 1, 'b' is 2 and 'c' is 3
+{1, {2, 3}} = {a, {b, c}} --> now 'a' is 1, 'b' is 2 and 'c' is 3
 ```
 
 And can be used in for-as loops:
 
 ```nest
 |#| 'stditutil.nest' = itu
-{ 'a', 'b', 'c' } = arr
+{'a', 'b', 'c'} = arr
 
-... arr @itu.enumerate := { idx, ch } [
+... arr @itu.enumerate := {idx, ch} [
     >>> (idx ' ' ch '\n' ><)
 ]
 ```
@@ -602,7 +602,7 @@ You can use also negative integers where `-1` is the last element, `-2` is the
 second to last element etc.
 
 ```nest
-{ 1, 2, 3 } = arr
+{1, 2, 3} = arr
 arr.0 --> 1
 arr. -1 --> 3
 ```
@@ -611,7 +611,7 @@ If you need to index based on a variable you must use parenthesis otherwise the
 variable name is treated like a string.
 
 ```nest
-{ 1, 2, 3 } = arr
+{1, 2, 3} = arr
 2 = idx
 
 arr.idx --> ERROR: arr.idx is equal to arr.'idx'
@@ -623,8 +623,8 @@ extractions since a real number literal would be formed. To prevent this you can
 either put parenthesis around the integer or put a space before the dot.
 
 ```nest
-{{ 1, 2 },
- { 3, 4 }} = arr
+{{1, 2},
+ {3, 4}} = arr
 
 arr.(0).(1) --> 2
 arr.1 .1 --> 4
@@ -637,7 +637,7 @@ To index a map you put the key of the value after the dot. If a key is a string
 that is also a valid variable name you can put the name without any quotes.
 
 ```nest
-{ 'key_1': 2, 'invalid var': 10 } = map
+{'key_1': 2, 'invalid var': 10} = map
 
 map.key_1 --> 10
 map.invalid var --> ERROR: will try to get map.'invalid'

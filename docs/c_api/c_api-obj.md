@@ -179,6 +179,20 @@ Creates a flag from an id. `n` can be between 1 and 28 included.
 
 ---
 
+### `Nst_CLEAR_FLAGS`
+
+**Synopsis:**
+
+```better-c
+#define Nst_CLEAR_FLAGS(obj)
+```
+
+**Description:**
+
+Clears all flags from an object, except for the reserved ones.
+
+---
+
 ### `Nst_OBJ_HEAD`
 
 **Description:**

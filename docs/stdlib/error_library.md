@@ -12,24 +12,29 @@
 
 **Synopsis:**
 
-`[func: Func, args: Array|Vector] @try -> Map`
+```nest
+[func: Func, args: Array|Vector, catch_exit: Bool?] @try -> Map
+```
 
 **Description:**
 
-Calls `func` passing `args` as the arguments and catching any erros that occur.
+Calls `func` passing `args` as the arguments and catching any erros that
+might occur. If `catch_exit` is `null` it defaults to `false`.
 
 **Arguments:**
 
 - `func`: the function to be called
 - `args`: the arguments to be passed to the function
+- `catch_exit`: whether the function should catch the error raised by
+  [`exit`](system_library.md#exit)
 
 **Returns:**
 
 A map containing `value`, `error` and `traceback`:
 
 - `value` is the value returned by the function or `null` if an error occurred.
-- `error` is `null` if everything was successful otherwise it is a map containing
-  `name`, `message` and `pos`.
+- `error` is `null` if everything was successful otherwise it is a map
+   containing `name`, `message` and `pos`.
 - `traceback` is an array of positions that trace back the cause of the error.
 
 A position is a map that contains 3 keys:
@@ -40,7 +45,8 @@ A position is a map that contains 3 keys:
 - `end` is also an array with the line and column of the end of the expression
 
 !!!note
-    The lines start from 0 and the columns from 1 and the end position is inclusive.
+    The lines start from 0 and the columns from 1 and the end position is
+    inclusive.
 
 **Example:**
 
@@ -63,15 +69,15 @@ The formatted output looks like this:
         'message': 'hello this is a message',
         'pos': {
             'file': 'example.nest',
-            'start': { 2, 4 },
-            'end': { 2, 46 }
+            'start': {2, 4},
+            'end': {2, 46}
         }
     },
     'traceback': {
         {
             'file': 'example.nest',
-            'start': { 3, 4 },
-            'end': { 3, 5 }
+            'start': {3, 4},
+            'end': {3, 5}
         }
     }
 }

@@ -8,6 +8,7 @@ __sequ.copy_      = copy
 __sequ.count_     = count
 __sequ.deep_copy_ = deep_copy
 __sequ.empty_     = empty
+__sequ.extend_    = extend
 __sequ.filter_    = filter
 __sequ.filter_i_  = filter_i
 __sequ.insert_at_ = insert_at

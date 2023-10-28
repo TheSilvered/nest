@@ -31,7 +31,9 @@
 
 -- printed when parsing cannot continue on the file
 #fatal message parser [
+    sys.SUPPORTS_COLOR ? >>> '\e[31m'
     'Fatal' message parser @_logging_message >< @io.println
+    sys.SUPPORTS_COLOR ? >>> '\e[0m'
     true = parser.fatal_error
 ]
 

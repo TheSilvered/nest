@@ -92,6 +92,8 @@ Nst_Obj *_Nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2)
     } else if (IS_NUM(ob1) && IS_NUM(ob2)) {
         f64 v1 = Nst_number_to_f64(ob1);
         f64 v2 = Nst_number_to_f64(ob2);
+        if (isnan(v1) || isnan(v2))
+            Nst_RETURN_FALSE;
         Nst_RETURN_COND(fabs(v1 - v2) < REAL_EPSILON);
     } else if (ARE_TYPE(Nst_t.Str)) {
         Nst_RETURN_COND(STR(ob1)->len == STR(ob2)->len &&
@@ -255,6 +257,8 @@ Nst_Obj *_Nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2)
     } else if (IS_NUM(ob1) && IS_NUM(ob2)) {
         f64 v1 = Nst_number_to_f64(ob1);
         f64 v2 = Nst_number_to_f64(ob2);
+        if (isnan(v1) || isnan(v2))
+            Nst_RETURN_FALSE;
         Nst_RETURN_COND(v1 > v2 && !(fabs(v1 - v2) < REAL_EPSILON));
     } else
         RETURN_STACK_OP_TYPE_ERROR(">");
@@ -273,6 +277,8 @@ Nst_Obj *_Nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2)
     } else if (IS_NUM(ob1) && IS_NUM(ob2)) {
         f64 v1 = Nst_number_to_f64(ob1);
         f64 v2 = Nst_number_to_f64(ob2);
+        if (isnan(v1) || isnan(v2))
+            Nst_RETURN_FALSE;
         Nst_RETURN_COND(v1 < v2 && !(fabs(v1 - v2) < REAL_EPSILON));
     } else
         RETURN_STACK_OP_TYPE_ERROR("<");
@@ -779,6 +785,10 @@ Nst_Obj *_Nst_obj_str_cast_map(Nst_MapObj *map_obj, Nst_LList *all_objs)
     return OBJ(Nst_buffer_to_string(&buf));
 }
 
+#ifndef Nst_WIN
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#endif
+
 static Nst_Obj *obj_to_str(Nst_Obj *ob)
 {
     Nst_TypeObj *ob_t = ob->type;
@@ -789,12 +799,26 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
         i32 len = sprintf(buffer, "%lli", AS_INT(ob));
         return Nst_string_new_allocated(buffer, len);
     } else if (ob_t == Nst_t.Real) {
+        f64 val = AS_REAL(ob);
+        if (isinf(val)) {
+            if (*(i64 *)&val & 0x8000000000000000)
+                return Nst_inc_ref(Nst_s.c_neginf);
+            else
+                return Nst_inc_ref(Nst_s.c_inf);
+        }
+        if (isnan(val)) {
+            if (*(i64 *)&val & 0x8000000000000000)
+                return Nst_inc_ref(Nst_s.c_negnan);
+            else
+                return Nst_inc_ref(Nst_s.c_nan);
+        }
+
         i8 *buffer = Nst_malloc_c(MAX_REAL_CHAR_COUNT, i8);
         CHECK_BUFFER(buffer);
-        i32 len = sprintf(buffer, "%." REAL_PRECISION "lg", AS_REAL(ob));
+        i32 len = sprintf(buffer, "%." REAL_PRECISION "lg", val);
         // this is temporary, Nest_fmt will work better
         for (i32 i = 0; i < len; i++) {
-            if (buffer[i] == '.' || buffer[i] == 'e' || buffer[i] == 'n')
+            if (buffer[i] == '.' || buffer[i] == 'e')
                 return Nst_string_new_allocated(buffer, len);
         }
         buffer[len++] = '.';
@@ -904,8 +928,17 @@ static Nst_Obj *obj_to_byte(Nst_Obj *ob)
 {
     Nst_TypeObj *ob_t = ob->type;
 
-    if (ob_t == Nst_t.Int)
-        return Nst_byte_new(AS_INT(ob) & 0xff);
+    if (ob_t == Nst_t.Int) {
+        f64 val = AS_REAL(ob);
+        if (isnan(val)) {
+            Nst_set_value_error_c(_Nst_EM_NAN_TO_BYTE);
+            return NULL;
+        } else if (isinf(val)) {
+            Nst_set_value_error_c(_Nst_EM_INF_TO_BYTE);
+            return NULL;
+        }
+            return Nst_byte_new(AS_INT(ob) & 0xff);
+    }
     else if (ob_t == Nst_t.Real)
         return Nst_byte_new((i64)AS_REAL(ob) & 0xff);
     else if (ob_t == Nst_t.Str)
@@ -917,9 +950,17 @@ static Nst_Obj *obj_to_int(Nst_Obj *ob)
 {
     Nst_TypeObj *ob_t = ob->type;
 
-    if (ob_t == Nst_t.Real)
-        return Nst_int_new((i64)AS_REAL(ob));
-    else if (ob_t == Nst_t.Byte)
+    if (ob_t == Nst_t.Real) {
+        f64 val = AS_REAL(ob);
+        if (isnan(val)) {
+            Nst_set_value_error_c(_Nst_EM_NAN_TO_INT);
+            return NULL;
+        } else if (isinf(val)) {
+            Nst_set_value_error_c(_Nst_EM_INF_TO_INT);
+            return NULL;
+        }
+        return Nst_int_new((i64)val);
+    } else if (ob_t == Nst_t.Byte)
         return Nst_int_new((i64)AS_BYTE(ob));
     else if (ob_t == Nst_t.Str)
         return Nst_string_parse_int(STR(ob), 0);

@@ -446,7 +446,6 @@ Nst_FUNC_SIGN(write_)
         return nullptr;
     }
 
-    // casting to a string never returns an error
     Nst_Obj *str_to_write = Nst_obj_cast(value_to_write, Nst_type()->Str);
     Nst_StrObj *str = STR(str_to_write);
     usize count;
@@ -843,14 +842,37 @@ Nst_FUNC_SIGN(println_)
     if (Nst_IOF_IS_CLOSED(file)) {
         SET_FILE_CLOSED_ERROR;
         return nullptr;
+    } else if (!Nst_IOF_CAN_WRITE(file)) {
+        Nst_set_value_error_c("the file cannot be written");
+        return nullptr;
     }
 
     Nst_StrObj *s_obj = STR(Nst_obj_cast(obj, Nst_type()->Str));
-    Nst_fwrite(s_obj->value, s_obj->len, NULL, file);
+    Nst_IOResult res = Nst_fwrite(s_obj->value, s_obj->len, NULL, file);
     Nst_fprintln(file, "");
 
-    if (flush)
-        Nst_fflush(file);
+    if (res == Nst_IO_SUCCESS and flush)
+        res = Nst_fflush(file);
+
+    if (res == Nst_IO_ALLOC_FAILED) {
+        Nst_failed_allocation();
+        return nullptr;
+    } else if (res == Nst_IO_INVALID_ENCODING) {
+        u32 failed_ch;
+        usize failed_pos;
+        const i8 *name;
+        Nst_io_result_get_details(&failed_ch, &failed_pos, &name);
+        Nst_set_value_errorf(
+            "could not encode U+%0*X at %zi for %s encoding",
+            failed_ch > 0xffff ? 6 : 4,
+            (int)failed_ch,
+            failed_pos,
+            name);
+        return nullptr;
+    } else if (res == Nst_IO_ERROR) {
+        Nst_set_call_error_c("failed to write to the file");
+        return nullptr;
+    }
 
     Nst_dec_ref(s_obj);
     Nst_RETURN_NULL;

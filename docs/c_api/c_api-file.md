@@ -703,7 +703,7 @@ FILE *Nst_fopen_unicode(i8 *path, const i8 *mode)
 
 **Description:**
 
-Opens a file allowing for Unicode characters in UTF-8.
+Opens a file given a path that can contain unicode characters in UTF-8.
 
 **Parameters:**
 
@@ -713,7 +713,7 @@ Opens a file allowing for Unicode characters in UTF-8.
 **Returns:**
 
 The file pointer on success and `NULL` on failure. The error is set only if a
-Memory Error occurs.
+`Memory Error` occurs.
 
 ---
 
