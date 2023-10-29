@@ -24,7 +24,7 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(rand_int_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(rand_perc_, 0);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(choice_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(shuffle_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(shuffle_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(seed_, 1);
 
 #if __LINE__ - FUNC_COUNT != 24
@@ -87,8 +87,14 @@ Nst_FUNC_SIGN(choice_)
 Nst_FUNC_SIGN(shuffle_)
 {
     Nst_SeqObj *seq;
+    bool new_seq;
 
-    Nst_DEF_EXTRACT("A", &seq);
+    Nst_DEF_EXTRACT("A:o y", &seq, &new_seq);
+
+    if (new_seq) {
+        Nst_dec_ref(seq);
+        seq = SEQ(Nst_seq_copy(seq));
+    }
 
     usize seq_len = seq->len;
     Nst_Obj **objs = seq->objs;
@@ -100,7 +106,7 @@ Nst_FUNC_SIGN(shuffle_)
         objs[idx] = obj;
     }
 
-    return Nst_inc_ref(seq);
+    return OBJ(seq);
 }
 
 Nst_FUNC_SIGN(seed_)

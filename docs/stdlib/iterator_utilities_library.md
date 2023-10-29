@@ -12,7 +12,9 @@
 
 **Synopsis:**
 
-`[sequence: Iter|Array|Vector|Str] @chain -> Iter`
+```nest
+[sequence: Iter|Array|Vector|Str] @chain -> Iter
+```
 
 **Returns:**
 
@@ -24,8 +26,8 @@ sequence.
 ```nest
 |#| 'stditutil.nest' = itu
 
-{ 'Hi!', 1 -> 4 } @itu.chain --> 'H', 'i', '!', 1, 2, 3
-'Hi!' @itu.chain --> 'H', 'i', '!' this is the same as { 'H', 'i', '!'} @itu.chain
+{'Hi!', 1 -> 4} @itu.chain --> 'H', 'i', '!', 1, 2, 3
+'Hi!' @itu.chain --> 'H', 'i', '!' this is the same as {'H', 'i', '!'} @itu.chain
 'Hi!' @itu.enumerate @itu.chain --> 0, 'H', 1, 'i', 2, '!'
 ```
 
@@ -35,11 +37,14 @@ sequence.
 
 **Synopsis:**
 
-`[start: Int, step: Int] @count -> Iter`
+```nest
+[start: Int, step: Int?] @count -> Iter
+```
 
 **Returns:**
 
-An iterator that counts indefinitely from `start`, advancing by `step`.
+An iterator that counts indefinitely from `start`, advancing by `step`. If
+`step` is `null` it defaults to `0`.
 
 **Example:**
 
@@ -55,7 +60,9 @@ An iterator that counts indefinitely from `start`, advancing by `step`.
 
 **Synopsis:**
 
-`[sequence: Str|Array|Vector] @cycle -> Iter`
+```nest
+[sequence: Str|Array|Vector|Iter] @cycle -> Iter
+```
 
 **Returns:**
 
@@ -76,30 +83,37 @@ from the first when the sequence ends.
 
 **Synopsis:**
 
-`[iterator: Str|Array|Vector|Iter, start: Int?, step: Int?, invert_order: Bool?] @enumerate -> Iter`
+```nest
+[iterator: Str|Array|Vector|Iter, start: Int?, step: Int?, invert_order: Bool?] @enumerate -> Iter
+```
+
+**Arguments:**
+
+- `iterator`: the iterator to enumerate
+- `start`: the starting number for the numeration, the function will still
+  start from the first element
+- `step` the step of the enumeration, the function will still step through all
+  the elements
 
 **Returns:**
 
-A 2-element array where the first element is the object returned by the
-`iterator` and the second is the index of the current iteration. When
-`invert_order` is set to a truthy value the first element is the object and the
-second the iteration count.
+An iterator that returns a 2-element array where the first element is the
+object returned by the `iterator` and the second is the index of the current
+iteration. When `invert_order` is set to a truthy value the first element is
+the object and the second the iteration count.
 
 `start` by default is set to `0` and `step` to `1` but this behaviour can be
 changed by passing the additional arguments.
-
-If `iterator` is a `Str`, `Array` or `Vector` it is automatically casted to an
-`Iter`.
 
 **Example:**
 
 ```nest
 |#| 'stditutil.nest' = itu
 
-'Hi!' @itu.enumerate --> { 0, 'H' }, { 1, 'i' }, { 2, '!' }
-'Hi!' 5 -1 @itu.enumerate --> { 5, 'H' }, { 4, 'i' }, { 3, '!' }
-'Hi!' @itu.reversed @itu.enumerate --> { 0, '!' }, { 1, 'i' }, { 2, 'H' }
-'Hi!' 0 1 true @itu.enumerate --> { 'H', 0 }, { 'i', 1 }, { '!', 2 }
+'Hi!' @itu.enumerate --> {0, 'H'}, {1, 'i'}, {2, '!'}
+'Hi!' 5 -1 @itu.enumerate --> {5, 'H'}, {4, 'i'}, {3, '!'}
+'Hi!' @itu.reversed @itu.enumerate --> {0, '!'}, {1, 'i'}, {2, 'H'}
+'Hi!' 0 1 true @itu.enumerate --> {'H', 0}, {'i', 1}, {'!', 2}
 ```
 
 ---
@@ -108,7 +122,9 @@ If `iterator` is a `Str`, `Array` or `Vector` it is automatically casted to an
 
 **Synopsis:**
 
-`[iter: Iter] @iter_is_done`
+```nest
+[iter: Iter] @iter_is_done
+```
 
 **Description:**
 
@@ -120,11 +136,14 @@ Calls the `_is_done_` function of an iterator.
 
 **Synopsis:**
 
-`[iter: Iter] @iter_get_val`
+```nest
+[iter: Iter] @iter_get_val
+```
 
 **Description:**
 
-Calls the `_get_val_` function of an iterator.
+Calls the [`get_val`](iterator_utilities_library.md#new_iterator) function of
+an iterator.
 
 ---
 
@@ -132,11 +151,14 @@ Calls the `_get_val_` function of an iterator.
 
 **Synopsis:**
 
-`[iter: Iter] @iter_start`
+```nest
+[iter: Iter] @iter_start
+```
 
 **Description:**
 
-Calls the `_start_` function of an iterator.
+Calls the [`start`](iterator_utilities_library.md#new_iterator) function of an
+iterator.
 
 ---
 
@@ -144,20 +166,21 @@ Calls the `_start_` function of an iterator.
 
 **Synopsis:**
 
-`[map: Map] @keys -> Iter`
+```nest
+[map: Map] @keys -> Iter
+```
 
 **Returns:**
 
-All the keys in a map, the order is not the one in which you put the
-objects in.
+An iterator which goes through all the keys in a map.
 
 **Example:**
 
 ```nest
 |#| 'stditutil.nest' = itu
 
-{ 'key_1': 1, 'key_2': 2 } @itu.keys --> 'key_1', 'key_2'
-{ 'key_2': 2, 'key_1': 1 } @itu.keys --> 'key_2', 'key_1'
+{'key_1': 1, 'key_2': 2} @itu.keys --> 'key_1', 'key_2'
+{'key_2': 2, 'key_1': 1} @itu.keys --> 'key_2', 'key_1'
 ```
 
 ---
@@ -166,12 +189,23 @@ objects in.
 
 **Synopsis:**
 
-`[start: Func, is_done: Func, get_val: Func, data: Any] @new_iterator -> Iter`
+```nest
+[start: Func, get_val: Func, data: Any] @new_iterator -> Iter
+```
 
 **Description:**
 
 Creates a new iterator object that uses custom functions. Any of the given
 functions must take exactly one parameter that will be `data`.
+
+`start` should initialize data to start the iterator and is always called
+before iterating.
+
+`get_val` should return the current value of the iterator. To signal that the
+iterator has ended this function should return
+[`IEND`](iterator_utilities_library.md#iend). If it may return
+[`IEND`](iterator_utilities_library.md#iend) before reaching the actual end, it
+should be replaced by `null`.
 
 **Arguments:**
 
@@ -190,7 +224,9 @@ The new custom iterator.
 
 **Synopsis:**
 
-`[object: Any, times: Int] @repeat -> Iter`
+```nest
+[object: Any, times: Int] @repeat -> Iter
+```
 
 **Returns:**
 
@@ -210,11 +246,14 @@ An iterator that repeats `object` the number of times specified by `times`.
 
 **Synopsis:**
 
-`[sequence: Str|Array|Vector] @reversed -> Iter`
+```nest
+[sequence: Str|Array|Vector] @reversed -> Iter
+```
 
 **Returns:**
 
-The elements of a sequence in reverse order, from the last to the first.
+An iterator which goes through the elements of a sequence in reverse order,
+from the last to the first.
 
 **Example:**
 
@@ -230,20 +269,21 @@ The elements of a sequence in reverse order, from the last to the first.
 
 **Synopsis:**
 
-`[map: Map] @values -> Iter`
+```nest
+[map: Map] @values -> Iter
+```
 
 **Returns:**
 
-All the values in a map, the order is not the one in which you put the
-objects in.
+An iterator which goes through all the keys in a map.
 
 **Example:**
 
 ```nest
 |#| 'stditutil.nest' = itu
 
-{ 'key_1': 1, 'key_2': 2 } @itu.values --> 1, 2
-{ 'key_2': 2, 'key_1': 1 } @itu.values --> 2, 1
+{'key_1': 1, 'key_2': 2} @itu.values --> 1, 2
+{'key_2': 2, 'key_1': 1} @itu.values --> 2, 1
 ```
 
 ---
@@ -252,24 +292,37 @@ objects in.
 
 **Synopsis:**
 
-`[seq_1: Array|Vector|Str|Iter, seq_2: Array|Vector|Str|Iter?] @zip -> Iter`
+```nest
+[seq_1: Array|Vector|Str|Iter, seq_2: Array|Vector|Str|Iter] @zip -> Iter
+[seq: Array|Vector.Array|Vector|Str|Iter] @zip -> Iter
+```
 
 **Returns:**
 
-The function either accepts a sequence containing `Array`, `Vector`, `Str` or
-`Iter` objects in `seq_1` with `seq_2` that is `null` or two sequences.
+The first kind of this function accepts two arguments and returns an iterator
+that zips them together pairing the objects of `seq_1` with the objects of
+`seq_2` at the same index and that ends when the shortest of the two sequences
+ends.
 
-When `seq_2` is `null` the function returns an iterator that constructs an
-array with the values at the same index in all of the sequences.
-
-Otherwise an array of length two is created with the values at the same index
-inside `seq_1` and `seq_2`.
+The second kind only accepts the first argument (the second must be `null`
+since there are no actual overloads in Nest) and returns an iterator that
+zips together all the sequences inside `seq` putting all the arguments with the
+same index in an array. The iterator ends when the shortest of all the
+sequences has ended.
 
 **Example:**
 
 ```nest
 |#| 'stditutil.nest' = itu
 
-'Hi!' { 1, 2, 3 } @itu.zip --> { 'H', 1 }, { 'i', 2 }, { 'i', 3 }
-{ 'Hi!', { 1, 2, 3 }, <{ 9, 8, 7, 6 }> } @itu.zip --> { 'H', 1, 9 }, { 'i', 2, 8 }, { 'i', 3, 7 }
+'Hi!' {1, 2, 3} @itu.zip --> {'H', 1}, {'i', 2}, {'i', 3}
+{'Hi!', 1 -> 3, <{9, 8, 7, 6}>} @itu.zip --> {'H', 1, 9}, {'i', 2, 8}
 ```
+
+---
+
+## Constants
+
+### `IEND`
+
+This is the value returned by an iterator that signals its end.

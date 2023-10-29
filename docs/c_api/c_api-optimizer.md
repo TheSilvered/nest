@@ -6,6 +6,8 @@ Ast and bytecode optimizer.
 
 TheSilvered
 
+---
+
 ## Functions
 
 ### `Nst_optimize_ast`
@@ -59,4 +61,3 @@ The bytecode is destroyed if an error occurs.
 
 The optimized bytecode on success and `NULL` on failure. No operation error is
 set.
-

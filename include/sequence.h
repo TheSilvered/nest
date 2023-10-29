@@ -6,7 +6,7 @@
  * @author TheSilvered
  */
 
-/* [docs:link sequence.h c_api-sequence.md#sequence-creation-format-types] */
+/* [docs:link sequence.h <c_api-sequence.md#sequence-creation-format-types>] */
 
 /* [docs:raw]
 ## Sequence creation format types
@@ -32,10 +32,15 @@
 #include <stdarg.h>
 #include "ggc.h"
 
-#define _Nst_VECTOR_MIN_SIZE 8
+/* The minimum capacity of a `Nst_VectorObj`. */
+#define _Nst_VECTOR_MIN_CAP 8
+/* Growth ratio of a `Nst_VectorObj`. */
 #define _Nst_VECTOR_GROWTH_RATIO 1.8f
+/* Casts `ptr` to `Nst_SeqObj *`. */
 #define SEQ(ptr) ((Nst_SeqObj *)(ptr))
+/* Casts `ptr` to `Nst_ArrayObj *`. */
 #define ARRAY(ptr) ((Nst_SeqObj *)(ptr))
+/* Casts `ptr` to `Nst_VectorObj *`. */
 #define VECTOR(ptr) ((Nst_SeqObj *)(ptr))
 
 /**
@@ -45,6 +50,8 @@
 #define Nst_seq_set(seq, idx, val) _Nst_seq_set(SEQ(seq), idx, OBJ(val))
 /* Alias for `_Nst_seq_get` that casts `seq` to `Nst_SeqObj *`. */
 #define Nst_seq_get(seq, idx) _Nst_seq_get(SEQ(seq), idx)
+/* Alias for `_Nst_seq_copy` that casts `seq` to `Nst_SeqObj *`. */
+#define Nst_seq_copy(seq) _Nst_seq_copy(SEQ(seq))
 
 /* Alias of `Nst_seq_set`. */
 #define Nst_vector_set Nst_seq_set
@@ -87,9 +94,9 @@ NstEXP typedef struct _Nst_SeqObj {
     usize cap;
 } Nst_SeqObj;
 
-/* Type added for C type completion. */
+/* Alias of `Nst_SeqObj`. */
 NstEXP typedef Nst_SeqObj Nst_ArrayObj;
-/* Type added for C type completion. */
+/* Alias of `Nst_SeqObj`. */
 NstEXP typedef Nst_SeqObj Nst_VectorObj;
 
 /**
@@ -170,13 +177,20 @@ NstEXP Nst_Obj *NstC Nst_array_create_c(const i8 *fmt, ...);
  * @return The new array on success or `NULL` on failure. The error is set.
  */
 NstEXP Nst_Obj *NstC Nst_vector_create_c(const i8 *fmt, ...);
+/**
+ * Creates a shallow copy of a sequence.
+ *
+ * @param seq: the sequence to copy
+ *
+ * @return The new sequence or NULL on failure. The error is set.
+ */
+NstEXP Nst_Obj *NstC _Nst_seq_copy(Nst_SeqObj *seq);
 
 /* Destructor for sequence objects. */
 NstEXP void NstC _Nst_seq_destroy(Nst_SeqObj *seq);
 /* Traverse function for sequence objects. */
 NstEXP void NstC _Nst_seq_traverse(Nst_SeqObj *seq);
-/* Track function for sequence objects. */
-NstEXP void NstC _Nst_seq_track(Nst_SeqObj *seq);
+
 
 /**
  * Changes the value of an index in a sequence.

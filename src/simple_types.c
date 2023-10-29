@@ -7,7 +7,7 @@
 #include "obj_ops.h"
 
 #define NEW_SYMPLE_TYPE(type, type_obj)                                       \
-    type *obj = Nst_obj_alloc(type, type_obj, NULL);                          \
+    type *obj = Nst_obj_alloc(type, type_obj);                                \
     if (obj == NULL)                                                          \
         return NULL;                                                          \
     obj->value = value;                                                       \

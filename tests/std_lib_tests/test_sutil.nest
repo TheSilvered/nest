@@ -1,8 +1,8 @@
 |#| '../test_lib.nest' = test
 |#| 'stdsutil.nest' = su
 
-'Hi!' 10 '_' @su.ljust  'Hi!_______' @test.assert_eq
-'Hi!' 10 '_' @su.rjust  '_______Hi!' @test.assert_eq
+'Hi!'  10 '_' @su.justify  'Hi!_______' @test.assert_eq
+'Hi!' -10 '_' @su.justify  '_______Hi!' @test.assert_eq
 'Hi!' 10 '_' @su.center '___Hi!____' @test.assert_eq
 'Hi!' 9  '_' @su.center '___Hi!___'  @test.assert_eq
 
@@ -14,8 +14,8 @@
 'this is a little sentence' 'this us' @su.starts_with @test.assert_false
 'this is a little sentence' 'sntence' @su.ends_with   @test.assert_false
 
-'1word1 2word2' 'word' 'letter' @su.replace_substr '1letter1 2letter2' @test.assert_eq
-'1word1 2word2' 'word' 'wor' @su.replace_substr '1wor1 2wor2' @test.assert_eq
+'1word1 2word2' 'word' 'letter' @su.replace '1letter1 2letter2' @test.assert_eq
+'1word1 2word2' 'word' 'wor' @su.replace '1wor1 2wor2' @test.assert_eq
 
 'HELLO.:()' @su.is_upper @test.assert_true
 'hello.:()' @su.is_lower @test.assert_true
@@ -48,16 +48,16 @@
 '"' @su.repr "'\"'" @test.assert_eq
 "'" @su.repr '"\'"' @test.assert_eq
 
-{ 72b, 105b } @su.bytearray_to_str 'Hi' @test.assert_eq
-'Hi' @su.str_to_bytearray { 72b, 105b } @test.assert_eq
+{72b, 105b} @su.decode 'Hi' @test.assert_eq
+'Hi' @su.encode {72b, 105b} @test.assert_eq
 
-'a b' @su.split { 'a', 'b' } @test.assert_eq
-'a  b' @su.split { 'a', 'b' } @test.assert_eq
-' a b' @su.split { 'a', 'b' } @test.assert_eq
-'a b ' @su.split { 'a', 'b' } @test.assert_eq
-' a  b ' @su.split { 'a', 'b' } @test.assert_eq
-{ 'a', 'b', 'c' } @su.join 'a b c' @test.assert_eq
-{ 'a', 'b', 'c' } '' @su.join 'abc' @test.assert_eq
+'a b' @su.split {'a', 'b'} @test.assert_eq
+'a  b' @su.split {'a', 'b'} @test.assert_eq
+' a b' @su.split {'a', 'b'} @test.assert_eq
+'a b ' @su.split {'a', 'b'} @test.assert_eq
+' a  b ' @su.split {'a', 'b'} @test.assert_eq
+{'a', 'b', 'c'} @su.join 'a b c' @test.assert_eq
+{'a', 'b', 'c'} '' @su.join 'abc' @test.assert_eq
 
 ?::su.DIGITS            Str @test.assert_eq
 ?::su.HEX_DIGITS        Str @test.assert_eq

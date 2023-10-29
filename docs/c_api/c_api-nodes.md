@@ -6,6 +6,8 @@ Nodes of the AST.
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `Nst_NODE`
@@ -13,7 +15,7 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-Nst_NODE(expr)
+#define Nst_NODE(expr)
 ```
 
 **Description:**
@@ -27,7 +29,7 @@ Casts `expr` to [`Nst_Node *`](c_api-nodes.md#nst_node).
 **Synopsis:**
 
 ```better-c
-Nst_NODE_RETUNS_VALUE(node_type)
+#define Nst_NODE_RETUNS_VALUE(node_type)
 ```
 
 **Description:**
@@ -185,4 +187,3 @@ typedef enum _Nst_NodeType {
 **Description:**
 
 The types of nodes in the AST.
-

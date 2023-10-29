@@ -13,6 +13,7 @@
 #include "simple_types.h"
 #include "function.h"
 #include "file.h"
+#include "type.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -21,32 +22,20 @@ extern "C" {
 /**
  * String constants.
  *
- * @brief Fields starting with `t_` are the name of types, the ones starting
- * with `c_` are the name of constants, the one starting with `e_` are the name
- * of errors and the one starting with `o_` are others.
+ * @brief Fields starting with `c_` are the name of language constants (e.g.
+ * true), the one starting with `e_` are the name of errors and the ones
+ * starting with `o_` are others.
  */
 NstEXP typedef struct _Nst_StrConsts {
-    // Type strings
-
-    Nst_StrObj *t_Type;
-    Nst_StrObj *t_Int;
-    Nst_StrObj *t_Real;
-    Nst_StrObj *t_Bool;
-    Nst_StrObj *t_Null;
-    Nst_StrObj *t_Str;
-    Nst_StrObj *t_Array;
-    Nst_StrObj *t_Vector;
-    Nst_StrObj *t_Map;
-    Nst_StrObj *t_Func;
-    Nst_StrObj *t_Iter;
-    Nst_StrObj *t_Byte;
-    Nst_StrObj *t_IOFile;
-
     // Constant strings
 
     Nst_StrObj *c_true;
     Nst_StrObj *c_false;
     Nst_StrObj *c_null;
+    Nst_StrObj *c_inf;
+    Nst_StrObj *c_nan;
+    Nst_StrObj *c_neginf;
+    Nst_StrObj *c_negnan;
 
     // Standard error names
 
@@ -82,6 +71,7 @@ NstEXP typedef struct _Nst_TypeObjs {
     Nst_TypeObj *Iter;
     Nst_TypeObj *Byte;
     Nst_TypeObj *IOFile;
+    Nst_TypeObj *IEnd;
 } Nst_TypeObjs;
 
 /**
@@ -93,11 +83,16 @@ NstEXP typedef struct _Nst_Consts {
     Nst_Obj *Bool_true;
     Nst_Obj *Bool_false;
     Nst_Obj *Null_null;
+    Nst_Obj *IEnd_iend;
     Nst_Obj *Int_0;
     Nst_Obj *Int_1;
     Nst_Obj *Int_neg1;
     Nst_Obj *Real_0;
     Nst_Obj *Real_1;
+    Nst_Obj *Real_nan;
+    Nst_Obj *Real_negnan;
+    Nst_Obj *Real_inf;
+    Nst_Obj *Real_neginf;
     Nst_Obj *Byte_0;
     Nst_Obj *Byte_1;
 } Nst_Consts;
@@ -116,19 +111,15 @@ NstEXP typedef struct _Nst_StdStreams {
 /* The functions of the built-in iterators. */
 NstEXP typedef struct _Nst_IterFunctions {
     Nst_FuncObj *range_start;
-    Nst_FuncObj *range_is_done;
     Nst_FuncObj *range_get_val;
 
     Nst_FuncObj *seq_start;
-    Nst_FuncObj *seq_is_done;
     Nst_FuncObj *seq_get_val;
 
     Nst_FuncObj *str_start;
-    Nst_FuncObj *str_is_done;
     Nst_FuncObj *str_get_val;
 
     Nst_FuncObj *map_start;
-    Nst_FuncObj *map_is_done;
     Nst_FuncObj *map_get_val;
 } Nst_IterFunctions;
 
@@ -143,10 +134,23 @@ NstEXP void NstC _Nst_del_objects(void);
 
 /* Returns the true object constant. */
 NstEXP Nst_Obj *NstC Nst_true(void);
+/* Returns a new reference to the true object constant. */
+NstEXP Nst_Obj *NstC Nst_true_ref(void);
+
 /* Returns the false object constant. */
 NstEXP Nst_Obj *NstC Nst_false(void);
+/* Returns a new reference to the false object constant. */
+NstEXP Nst_Obj *NstC Nst_false_ref(void);
+
 /* Returns the null object constant. */
 NstEXP Nst_Obj *NstC Nst_null(void);
+/* Returns a new reference to the null object constant. */
+NstEXP Nst_Obj *NstC Nst_null_ref(void);
+
+/* Returns the iend object constant. */
+NstEXP Nst_Obj *NstC Nst_iend(void);
+/* Returns a new reference to the iend object constant. */
+NstEXP Nst_Obj *NstC Nst_iend_ref(void);
 
 /* Returns a `Nst_TypeObjs` struct containing all the types. */
 NstEXP const Nst_TypeObjs *NstC Nst_type(void);

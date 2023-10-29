@@ -5,12 +5,12 @@
 #print_clock_datetime [
     'dt - formatted time: ' \
     dt.SHORT_WEEKDAY_NAMES.@@dt.week_day ' ' \
-    (Str :: @dt.day 2 '0' @su.rjust) ' ' \
+    (Str :: @dt.day -2 '0' @su.justify) ' ' \
     dt.SHORTH_MONTH_NAMES.@@dt.month ' ' \
     @@dt.year ', ' \
-    (Str :: @dt.hours   2 '0' @su.rjust) ':' \
-    (Str :: @dt.minutes 2 '0' @su.rjust) ':' \
-    (Str :: @dt.seconds 2 '0' @su.rjust) >< @test.println
+    (Str :: @dt.hours   -2 '0' @su.justify) ':' \
+    (Str :: @dt.minutes -2 '0' @su.justify) ':' \
+    (Str :: @dt.seconds -2 '0' @su.justify) >< @test.println
 ]
 
 'dt.time: ' @@dt.time >< @test.println
@@ -23,6 +23,7 @@
 'dt.month: ' @@dt.month >< @test.println
 'dt.year: ' @@dt.year >< @test.println
 'dt.date: ' @@dt.date >< @test.println
+'dt.gmt_date: ' @@dt.gmt_date >< @test.println
 'dt.seconds: ' @@dt.seconds >< @test.println
 'dt.minutes: ' @@dt.minutes >< @test.println
 'dt.hours: ' @@dt.hours >< @test.println

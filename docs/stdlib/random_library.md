@@ -12,7 +12,9 @@
 
 **Synopsis:**
 
-`[sequence: Str|Array|Vector] @choice -> Any`
+```nest
+[sequence: Str|Array|Vector] @choice -> Any
+```
 
 **Returns:**
 
@@ -24,11 +26,13 @@ A random element choosing between the ones in `sequence`.
 
 **Synopsis:**
 
-`[] @random -> Int`
+```nest
+[] @random -> Int
+```
 
 **Returns:**
 
-A random integer in the range [-2^63, 2^63).
+A random integer in the range `[-2^63, 2^63)`.
 
 ---
 
@@ -36,7 +40,9 @@ A random integer in the range [-2^63, 2^63).
 
 **Synopsis:**
 
-`[min: Int, max: Int] @rand_int -> Int`
+```nest
+[min: Int, max: Int] @rand_int -> Int
+```
 
 **Returns:**
 
@@ -49,11 +55,13 @@ error is thrown.
 
 **Synopsis:**
 
-`[] @rand_perc -> Real`
+```nest
+[] @rand_perc -> Real
+```
 
 **Returns:**
 
-A random real number in the range \[0.0, 1.0\).
+A random real number in the range `[0.0, 1.0)`.
 
 ---
 
@@ -61,7 +69,9 @@ A random real number in the range \[0.0, 1.0\).
 
 **Synopsis:**
 
-`[seed: Int] @seed -> null`
+```nest
+[seed: Int] @seed -> null
+```
 
 **Description:**
 
@@ -74,12 +84,15 @@ Sets the seed for the pseudo random number generator. By default it is
 
 **Synopsis:**
 
-`[sequence: Array|Vector] @shuffle -> Array|Vector`
+```nest
+[sequence: Array|Vector, new_seq: Bool?] @shuffle -> Array|Vector
+```
 
 **Description:**
 
-Shuffles `sequence` in-place, it does not create a new one.
+Shuffles `sequence`. If `new_seq` is omitted or is `false` a new shuffled
+sequence is created otherwise it is shuffled in-place.
 
 **Returns:**
 
-The shuffled sequence, the same object that was passed in.
+The shuffled sequence.

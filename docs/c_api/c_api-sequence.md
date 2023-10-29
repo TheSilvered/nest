@@ -26,12 +26,70 @@ TheSilvered
 
 ## Macros
 
+### `_Nst_VECTOR_MIN_CAP`
+
+**Description:**
+
+The minimum capacity of a [`Nst_VectorObj`](c_api-sequence.md#nst_vectorobj).
+
+---
+
+### `_Nst_VECTOR_GROWTH_RATIO`
+
+**Description:**
+
+Growth ratio of a [`Nst_VectorObj`](c_api-sequence.md#nst_vectorobj).
+
+---
+
+### `SEQ`
+
+**Synopsis:**
+
+```better-c
+#define SEQ(ptr)
+```
+
+**Description:**
+
+Casts `ptr` to [`Nst_SeqObj *`](c_api-sequence.md#nst_seqobj).
+
+---
+
+### `ARRAY`
+
+**Synopsis:**
+
+```better-c
+#define ARRAY(ptr)
+```
+
+**Description:**
+
+Casts `ptr` to [`Nst_ArrayObj *`](c_api-sequence.md#nst_arrayobj).
+
+---
+
+### `VECTOR`
+
+**Synopsis:**
+
+```better-c
+#define VECTOR(ptr)
+```
+
+**Description:**
+
+Casts `ptr` to [`Nst_VectorObj *`](c_api-sequence.md#nst_vectorobj).
+
+---
+
 ### `Nst_seq_set`
 
 **Synopsis:**
 
 ```better-c
-Nst_seq_set(seq, idx, val)
+#define Nst_seq_set(seq, idx, val)
 ```
 
 **Description:**
@@ -47,12 +105,27 @@ Alias for [`_Nst_seq_set`](c_api-sequence.md#_nst_seq_set) that casts `seq` to
 **Synopsis:**
 
 ```better-c
-Nst_seq_get(seq, idx)
+#define Nst_seq_get(seq, idx)
 ```
 
 **Description:**
 
 Alias for [`_Nst_seq_get`](c_api-sequence.md#_nst_seq_get) that casts `seq` to
+[`Nst_SeqObj *`](c_api-sequence.md#nst_seqobj).
+
+---
+
+### `Nst_seq_copy`
+
+**Synopsis:**
+
+```better-c
+#define Nst_seq_copy(seq)
+```
+
+**Description:**
+
+Alias for [`_Nst_seq_copy`](c_api-sequence.md#_nst_seq_copy) that casts `seq` to
 [`Nst_SeqObj *`](c_api-sequence.md#nst_seqobj).
 
 ---
@@ -94,7 +167,7 @@ Alias of [`Nst_seq_set`](c_api-sequence.md#nst_seq_set).
 **Synopsis:**
 
 ```better-c
-Nst_vector_append(vect, val)
+#define Nst_vector_append(vect, val)
 ```
 
 **Description:**
@@ -110,7 +183,7 @@ Alias of [`_Nst_vector_append`](c_api-sequence.md#_nst_vector_append) that casts
 **Synopsis:**
 
 ```better-c
-Nst_vector_remove(vect, val)
+#define Nst_vector_remove(vect, val)
 ```
 
 **Description:**
@@ -126,7 +199,7 @@ Alias of [`_Nst_vector_remove`](c_api-sequence.md#_nst_vector_remove) that casts
 **Synopsis:**
 
 ```better-c
-Nst_vector_pop(vect, quantity)
+#define Nst_vector_pop(vect, quantity)
 ```
 
 **Description:**
@@ -171,12 +244,12 @@ A structure representing a Nest sequence object.
 **Synopsis:**
 
 ```better-c
-typedef Nst_SeqObj Nst_ArrayObj;
+typedef Nst_SeqObj Nst_ArrayObj
 ```
 
 **Description:**
 
-Type added for C type completion.
+Alias of [`Nst_SeqObj`](c_api-sequence.md#nst_seqobj).
 
 ---
 
@@ -185,12 +258,12 @@ Type added for C type completion.
 **Synopsis:**
 
 ```better-c
-typedef Nst_SeqObj Nst_VectorObj;
+typedef Nst_SeqObj Nst_VectorObj
 ```
 
 **Description:**
 
-Type added for C type completion.
+Alias of [`Nst_SeqObj`](c_api-sequence.md#nst_seqobj).
 
 ---
 
@@ -358,6 +431,28 @@ The new array on success or `NULL` on failure. The error is set.
 
 ---
 
+### `_Nst_seq_copy`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_seq_copy(Nst_SeqObj *seq)
+```
+
+**Description:**
+
+Creates a shallow copy of a sequence.
+
+**Parameters:**
+
+- `seq`: the sequence to copy
+
+**Returns:**
+
+The new sequence or NULL on failure. The error is set.
+
+---
+
 ### `_Nst_seq_destroy`
 
 **Synopsis:**
@@ -383,20 +478,6 @@ void _Nst_seq_traverse(Nst_SeqObj *seq)
 **Description:**
 
 Traverse function for sequence objects.
-
----
-
-### `_Nst_seq_track`
-
-**Synopsis:**
-
-```better-c
-void _Nst_seq_track(Nst_SeqObj *seq)
-```
-
-**Description:**
-
-Track function for sequence objects.
 
 ---
 
@@ -517,7 +598,7 @@ Removes the first occurrence of a value inside a vector.
 
 - `vect`: the vector to remove the value from
 - `val`: an object that is equal to the value to remove, the equality is checked
-  with `Nst_obj_eq`
+  with [`Nst_obj_eq`](c_api-obj_ops.md#nst_obj_eq)
 
 **Returns:**
 
@@ -549,4 +630,3 @@ function does not fail.
 **Returns:**
 
 The last value popped or `NULL` if no value was popped. No error is set.
-

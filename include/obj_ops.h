@@ -11,6 +11,7 @@
 
 #include "map.h"
 #include "sequence.h"
+#include "type.h"
 
 /* Alias for `_Nst_obj_eq` that casts both objects to `Nst_Obj *`. */
 #define Nst_obj_eq(ob1, ob2) _Nst_obj_eq(OBJ(ob1), OBJ(ob2))
@@ -57,6 +58,8 @@
  * to `Nst_TypeObj *`.
  */
 #define Nst_obj_cast(ob, type) _Nst_obj_cast(OBJ(ob), TYPE(type))
+/* Alias for `_Nst_obj_contains` that casts both objects to `Nst_Obj *`. */
+#define Nst_obj_contains(ob1, ob2) _Nst_obj_contains(OBJ(ob1), OBJ(ob2))
 /* Alias for `_Nst_obj_concat` that casts both objects to `Nst_Obj *`. */
 #define Nst_obj_concat(ob1, ob2) _Nst_obj_concat(OBJ(ob1), OBJ(ob2))
 /* Alias for `_Nst_obj_range` that casts all objects to `Nst_Obj *`. */
@@ -173,8 +176,8 @@ NstEXP Nst_Obj *NstC _Nst_obj_import(Nst_Obj *ob);
  */
 NstEXP Nst_Obj *NstC _Nst_repr_str_cast(Nst_Obj *ob);
 
-/* [docs:link Nst_obj_cast(seq_obj,\Nst_type()->Str) c_api-obj_ops.md#_nst_obj_cast] */
-/* [docs:link Nst_obj_cast(map_obj,\Nst_type()->Str) c_api-obj_ops.md#_nst_obj_cast] */
+/* [docs:link Nst_obj_cast(seq_obj,\Nst_type()->Str) _Nst_obj_cast] */
+/* [docs:link Nst_obj_cast(map_obj,\Nst_type()->Str) _Nst_obj_cast] */
 
 /**
  * Internal cast from sequence to string.
@@ -217,6 +220,8 @@ NstEXP Nst_Obj *NstC _Nst_obj_str_cast_map(Nst_MapObj *map_obj,
  * @return The casted object or `NULL` on failure. The error is set.
  */
 NstEXP Nst_Obj *NstC _Nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type);
+/* Implements the `<.>` operator. On failure the error is set. */
+NstEXP Nst_Obj *NstC _Nst_obj_contains(Nst_Obj *ob1, Nst_Obj *ob2);
 /**
  * Concatenates two objects into a string.
  *

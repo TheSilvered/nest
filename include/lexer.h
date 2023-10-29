@@ -1,5 +1,5 @@
 /**
- * @file iter.h
+ * @file lexer.h
  *
  * @brief Lexer and tokenizer for Nest code
  *
@@ -61,7 +61,7 @@ NstEXP bool NstC Nst_add_lines(Nst_SourceText *text);
  * Re-encodes a file to be UTF-8.
  *
  * @param text: the text to re-encode
- * @param encoding: the encoding of the text, if `Nst_CP_UNKNWON` it is
+ * @param encoding: the encoding of the text, if `Nst_CP_UNKNOWN` it is
  * detected automatically
  * @param error: where the error is put if it occurs
  *

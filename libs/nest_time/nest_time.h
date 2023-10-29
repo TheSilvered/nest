@@ -22,6 +22,7 @@ Nst_FUNC_SIGN(day_);
 Nst_FUNC_SIGN(month_);
 Nst_FUNC_SIGN(year_);
 Nst_FUNC_SIGN(date_);
+Nst_FUNC_SIGN(gmt_date_);
 Nst_FUNC_SIGN(seconds_);
 Nst_FUNC_SIGN(minutes_);
 Nst_FUNC_SIGN(hours_);

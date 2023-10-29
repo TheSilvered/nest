@@ -9,6 +9,8 @@ Interface for [`Nst_IntObj`](c_api-simple_types.md#nst_intobj),
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `AS_INT`
@@ -16,7 +18,7 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-AS_INT(ptr)
+#define AS_INT(ptr)
 ```
 
 **Description:**
@@ -31,7 +33,7 @@ the value field.
 **Synopsis:**
 
 ```better-c
-AS_REAL(ptr)
+#define AS_REAL(ptr)
 ```
 
 **Description:**
@@ -46,7 +48,7 @@ extracts the value field.
 **Synopsis:**
 
 ```better-c
-AS_BYTE(ptr)
+#define AS_BYTE(ptr)
 ```
 
 **Description:**
@@ -61,7 +63,7 @@ extracts the value field.
 **Synopsis:**
 
 ```better-c
-AS_BOOL(ptr)
+#define AS_BOOL(ptr)
 ```
 
 **Description:**
@@ -76,7 +78,7 @@ extracts the value field.
 **Synopsis:**
 
 ```better-c
-Nst_number_to_u8(number)
+#define Nst_number_to_u8(number)
 ```
 
 **Description:**
@@ -91,7 +93,7 @@ casts `number` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_number_to_int(number)
+#define Nst_number_to_int(number)
 ```
 
 **Description:**
@@ -106,7 +108,7 @@ casts `number` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_number_to_i32(number)
+#define Nst_number_to_i32(number)
 ```
 
 **Description:**
@@ -121,7 +123,7 @@ casts `number` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_number_to_i64(number)
+#define Nst_number_to_i64(number)
 ```
 
 **Description:**
@@ -136,7 +138,7 @@ casts `number` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_number_to_f32(number)
+#define Nst_number_to_f32(number)
 ```
 
 **Description:**
@@ -151,7 +153,7 @@ casts `number` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_number_to_f64(number)
+#define Nst_number_to_f64(number)
 ```
 
 **Description:**
@@ -166,7 +168,7 @@ casts `number` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_to_bool(obj)
+#define Nst_obj_to_bool(obj)
 ```
 
 **Description:**
@@ -362,7 +364,7 @@ The new object on success or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-u8  _Nst_number_to_u8(Nst_Obj *number)
+u8 _Nst_number_to_u8(Nst_Obj *number)
 ```
 
 **Description:**
@@ -371,7 +373,7 @@ Converts the value of a numeric object
 ([`Nst_IntObj`](c_api-simple_types.md#nst_intobj),
 [`Nst_RealObj`](c_api-simple_types.md#nst_realobj),
 [`Nst_ByteObj`](c_api-simple_types.md#nst_byteobj)) to a
-[`u8`](c_api.md#type-definitions).
+[`u8`](c_api_index.md#type-definitions).
 
 **Parameters:**
 
@@ -424,7 +426,7 @@ Converts the value of a numeric object
 ([`Nst_IntObj`](c_api-simple_types.md#nst_intobj),
 [`Nst_RealObj`](c_api-simple_types.md#nst_realobj),
 [`Nst_ByteObj`](c_api-simple_types.md#nst_byteobj)) to an
-[`i32`](c_api.md#type-definitions).
+[`i32`](c_api_index.md#type-definitions).
 
 **Parameters:**
 
@@ -451,7 +453,7 @@ Converts the value of a numeric object
 ([`Nst_IntObj`](c_api-simple_types.md#nst_intobj),
 [`Nst_RealObj`](c_api-simple_types.md#nst_realobj),
 [`Nst_ByteObj`](c_api-simple_types.md#nst_byteobj)) to an
-[`i64`](c_api.md#type-definitions).
+[`i64`](c_api_index.md#type-definitions).
 
 **Parameters:**
 
@@ -478,7 +480,7 @@ Converts the value of a numeric object
 ([`Nst_IntObj`](c_api-simple_types.md#nst_intobj),
 [`Nst_RealObj`](c_api-simple_types.md#nst_realobj),
 [`Nst_ByteObj`](c_api-simple_types.md#nst_byteobj)) to an
-[`f32`](c_api.md#type-definitions).
+[`f32`](c_api_index.md#type-definitions).
 
 **Parameters:**
 
@@ -505,7 +507,7 @@ Converts the value of a numeric object
 ([`Nst_IntObj`](c_api-simple_types.md#nst_intobj),
 [`Nst_RealObj`](c_api-simple_types.md#nst_realobj),
 [`Nst_ByteObj`](c_api-simple_types.md#nst_byteobj)) to an
-[`f64`](c_api.md#type-definitions).
+[`f64`](c_api_index.md#type-definitions).
 
 **Parameters:**
 
@@ -531,4 +533,3 @@ bool _Nst_obj_to_bool(Nst_Obj *obj)
 Converts any object to a boolean. Exactly the same as casting the object to
 [`Nst_type()->Bool`](c_api-global_consts.md#nst_type) and then checking if the
 result matches [`Nst_true()`](c_api-global_consts.md#nst_true).
-

@@ -295,11 +295,7 @@ Nst_FUNC_SIGN(open_)
         return nullptr;
     }
 
-#ifdef Nst_WIN
-    wchar_t bin_mode[4] = { 0, 'b', 0, 0 };
-#else
     char bin_mode[4] = { 0, 'b', 0, 0 };
-#endif
 
     switch (*file_mode) {
     case 'r':
@@ -368,26 +364,18 @@ Nst_FUNC_SIGN(open_)
                     STR(encoding_obj)->value));
             return nullptr;
         }
-        if (cpid == Nst_CP_UTF16)
-            cpid = Nst_CP_UTF16LE;
-        if (cpid == Nst_CP_UTF32)
-            cpid = Nst_CP_UTF32LE;
+
+        cpid = Nst_single_byte_cp(cpid);
 
         encoding = Nst_cp(cpid);
     }
 
-#ifdef Nst_WIN
-    wchar_t *wide_filename = Nst_char_to_wchar_t(file_name, file_name_str->len);
-    if (wide_filename == nullptr)
-        return nullptr;
+    FILE *file_ptr = Nst_fopen_unicode(file_name, bin_mode);
 
-    FILE *file_ptr = _wfopen(wide_filename, bin_mode);
-    Nst_free(wide_filename);
-#else
-    FILE *file_ptr = fopen(file_name, bin_mode);
-#endif
     if (file_ptr == nullptr) {
-        Nst_set_value_error(Nst_sprintf("file '%.4096s' not found", file_name));
+        if (!Nst_error_occurred()) {
+            Nst_set_value_errorf("file '%.4096s' not found", file_name);
+        }
         return nullptr;
     }
 
@@ -411,7 +399,7 @@ Nst_FUNC_SIGN(virtual_file_)
     if (f == nullptr)
         return nullptr;
 
-    if (!Nst_buffer_init(&f->data, buf_size)) {
+    if (!Nst_buffer_init(&f->data, usize(buf_size))) {
         Nst_free(f);
         return nullptr;
     }
@@ -458,7 +446,6 @@ Nst_FUNC_SIGN(write_)
         return nullptr;
     }
 
-    // casting to a string never returns an error
     Nst_Obj *str_to_write = Nst_obj_cast(value_to_write, Nst_type()->Str);
     Nst_StrObj *str = STR(str_to_write);
     usize count;
@@ -565,7 +552,11 @@ Nst_FUNC_SIGN(read_)
 
     i8 *buf;
     usize buf_len;
-    Nst_IOResult result = Nst_fread((i8 *)&buf, 0, bytes_to_read, &buf_len, f);
+    Nst_IOResult result = Nst_fread(
+        (i8 *)&buf, 0,
+        usize(bytes_to_read), &buf_len,
+        f);
+
     if (result == Nst_IO_ALLOC_FAILED) {
         Nst_failed_allocation();
         return nullptr;
@@ -625,7 +616,10 @@ Nst_FUNC_SIGN(read_bytes_)
 
     i8 *buf;
     usize buf_len;
-    Nst_IOResult result = Nst_fread((i8 *)&buf, 0, bytes_to_read, &buf_len, f);
+    Nst_IOResult result = Nst_fread(
+        (i8 *)&buf, 0,
+        usize(bytes_to_read), &buf_len,
+        f);
 
     if (result == Nst_IO_ALLOC_FAILED) {
         Nst_failed_allocation();
@@ -715,10 +709,10 @@ Nst_FUNC_SIGN(move_fpi_)
     if (start == SEEK_END)
         end_pos = size + isize(offset);
     else if (start == SEEK_SET)
-        end_pos = offset;
+        end_pos = isize(offset);
     else {
         if (Nst_ftell(f, (usize *)&end_pos) != Nst_IO_ERROR)
-            end_pos += offset;
+            end_pos += isize(offset);
         else
             end_pos = 0;
     }
@@ -855,13 +849,37 @@ Nst_FUNC_SIGN(println_)
     if (Nst_IOF_IS_CLOSED(file)) {
         SET_FILE_CLOSED_ERROR;
         return nullptr;
+    } else if (!Nst_IOF_CAN_WRITE(file)) {
+        Nst_set_value_error_c("the file cannot be written");
+        return nullptr;
     }
 
     Nst_StrObj *s_obj = STR(Nst_obj_cast(obj, Nst_type()->Str));
-    Nst_fprintln(file, (const i8 *)s_obj->value);
+    Nst_IOResult res = Nst_fwrite(s_obj->value, s_obj->len, NULL, file);
+    Nst_fprintln(file, "");
 
-    if (flush)
-        Nst_fflush(file);
+    if (res == Nst_IO_SUCCESS and flush)
+        res = Nst_fflush(file);
+
+    if (res == Nst_IO_ALLOC_FAILED) {
+        Nst_failed_allocation();
+        return nullptr;
+    } else if (res == Nst_IO_INVALID_ENCODING) {
+        u32 failed_ch;
+        usize failed_pos;
+        const i8 *name;
+        Nst_io_result_get_details(&failed_ch, &failed_pos, &name);
+        Nst_set_value_errorf(
+            "could not encode U+%0*X at %zi for %s encoding",
+            failed_ch > 0xffff ? 6 : 4,
+            (int)failed_ch,
+            failed_pos,
+            name);
+        return nullptr;
+    } else if (res == Nst_IO_ERROR) {
+        Nst_set_call_error_c("failed to write to the file");
+        return nullptr;
+    }
 
     Nst_dec_ref(s_obj);
     Nst_RETURN_NULL;

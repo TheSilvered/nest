@@ -9,8 +9,8 @@ _args_.1 = path
 
 path 'r' @io.open = file
 file -1 @io.read \
-    dbg_path 'std' @su.replace_substr \
-    '.dll' '.cnest' @su.replace_substr = content
+    dbg_path 'std' @su.replace \
+    '.dll' '.cnest' @su.replace = content
 file @io.close
 
 path 'w' @io.open = file

@@ -8,7 +8,7 @@
 #include <unistd.h>
 #endif
 
-#define FUNC_COUNT 21
+#define FUNC_COUNT 22
 
 using namespace std::chrono;
 
@@ -32,6 +32,7 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(month_, 0);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(year_, 0);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(date_, 0);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(gmt_date_, 0);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(seconds_, 0);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(minutes_, 0);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(hours_, 0);
@@ -220,6 +221,15 @@ Nst_FUNC_SIGN(date_)
     Nst_UNUSED(args);
     Nst_MapObj *map = MAP(Nst_map_new());
     add_date(map, localtime);
+    return OBJ(map);
+}
+
+Nst_FUNC_SIGN(gmt_date_)
+{
+    Nst_UNUSED(arg_num);
+    Nst_UNUSED(args);
+    Nst_MapObj *map = MAP(Nst_map_new());
+    add_date(map, gmtime);
     return OBJ(map);
 }
 

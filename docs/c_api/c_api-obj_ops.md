@@ -6,6 +6,8 @@ Various object operations.
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `Nst_obj_eq`
@@ -13,7 +15,7 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-Nst_obj_eq(ob1, ob2)
+#define Nst_obj_eq(ob1, ob2)
 ```
 
 **Description:**
@@ -28,7 +30,7 @@ to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_ne(ob1, ob2)
+#define Nst_obj_ne(ob1, ob2)
 ```
 
 **Description:**
@@ -43,7 +45,7 @@ to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_gt(ob1, ob2)
+#define Nst_obj_gt(ob1, ob2)
 ```
 
 **Description:**
@@ -58,7 +60,7 @@ to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_lt(ob1, ob2)
+#define Nst_obj_lt(ob1, ob2)
 ```
 
 **Description:**
@@ -73,7 +75,7 @@ to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_ge(ob1, ob2)
+#define Nst_obj_ge(ob1, ob2)
 ```
 
 **Description:**
@@ -88,7 +90,7 @@ to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_le(ob1, ob2)
+#define Nst_obj_le(ob1, ob2)
 ```
 
 **Description:**
@@ -103,7 +105,7 @@ to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_add(ob1, ob2)
+#define Nst_obj_add(ob1, ob2)
 ```
 
 **Description:**
@@ -118,7 +120,7 @@ objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_sub(ob1, ob2)
+#define Nst_obj_sub(ob1, ob2)
 ```
 
 **Description:**
@@ -133,7 +135,7 @@ objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_mul(ob1, ob2)
+#define Nst_obj_mul(ob1, ob2)
 ```
 
 **Description:**
@@ -148,7 +150,7 @@ objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_div(ob1, ob2)
+#define Nst_obj_div(ob1, ob2)
 ```
 
 **Description:**
@@ -163,7 +165,7 @@ objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_pow(ob1, ob2)
+#define Nst_obj_pow(ob1, ob2)
 ```
 
 **Description:**
@@ -178,7 +180,7 @@ objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_mod(ob1, ob2)
+#define Nst_obj_mod(ob1, ob2)
 ```
 
 **Description:**
@@ -193,7 +195,7 @@ objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_bwor(ob1, ob2)
+#define Nst_obj_bwor(ob1, ob2)
 ```
 
 **Description:**
@@ -208,7 +210,7 @@ objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_bwand(ob1, ob2)
+#define Nst_obj_bwand(ob1, ob2)
 ```
 
 **Description:**
@@ -223,7 +225,7 @@ objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_bwxor(ob1, ob2)
+#define Nst_obj_bwxor(ob1, ob2)
 ```
 
 **Description:**
@@ -238,7 +240,7 @@ objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_bwls(ob1, ob2)
+#define Nst_obj_bwls(ob1, ob2)
 ```
 
 **Description:**
@@ -253,7 +255,7 @@ objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_bwrs(ob1, ob2)
+#define Nst_obj_bwrs(ob1, ob2)
 ```
 
 **Description:**
@@ -268,7 +270,7 @@ objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_lgor(ob1, ob2)
+#define Nst_obj_lgor(ob1, ob2)
 ```
 
 **Description:**
@@ -283,7 +285,7 @@ objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_lgand(ob1, ob2)
+#define Nst_obj_lgand(ob1, ob2)
 ```
 
 **Description:**
@@ -298,7 +300,7 @@ objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_lgxor(ob1, ob2)
+#define Nst_obj_lgxor(ob1, ob2)
 ```
 
 **Description:**
@@ -313,14 +315,29 @@ objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_cast(ob, type)
+#define Nst_obj_cast(ob, type)
 ```
 
 **Description:**
 
 Alias for [`_Nst_obj_cast`](c_api-obj_ops.md#_nst_obj_cast) that casts `ob` to
 [`Nst_Obj *`](c_api-obj.md#nst_obj) and `type` to
-[`Nst_TypeObj *`](c_api-str.md#nst_typeobj).
+[`Nst_TypeObj *`](c_api-type.md#nst_typeobj).
+
+---
+
+### `Nst_obj_contains`
+
+**Synopsis:**
+
+```better-c
+#define Nst_obj_contains(ob1, ob2)
+```
+
+**Description:**
+
+Alias for [`_Nst_obj_contains`](c_api-obj_ops.md#_nst_obj_contains) that casts
+both objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -329,7 +346,7 @@ Alias for [`_Nst_obj_cast`](c_api-obj_ops.md#_nst_obj_cast) that casts `ob` to
 **Synopsis:**
 
 ```better-c
-Nst_obj_concat(ob1, ob2)
+#define Nst_obj_concat(ob1, ob2)
 ```
 
 **Description:**
@@ -344,7 +361,7 @@ objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_range(ob1, ob2, ob3)
+#define Nst_obj_range(ob1, ob2, ob3)
 ```
 
 **Description:**
@@ -359,7 +376,7 @@ objects to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_neg(ob)
+#define Nst_obj_neg(ob)
 ```
 
 **Description:**
@@ -374,7 +391,7 @@ Alias for [`_Nst_obj_neg`](c_api-obj_ops.md#_nst_obj_neg) that casts `ob` to
 **Synopsis:**
 
 ```better-c
-Nst_obj_len(ob)
+#define Nst_obj_len(ob)
 ```
 
 **Description:**
@@ -389,7 +406,7 @@ Alias for [`_Nst_obj_len`](c_api-obj_ops.md#_nst_obj_len) that casts `ob` to
 **Synopsis:**
 
 ```better-c
-Nst_obj_bwnot(ob)
+#define Nst_obj_bwnot(ob)
 ```
 
 **Description:**
@@ -404,7 +421,7 @@ Alias for [`_Nst_obj_bwnot`](c_api-obj_ops.md#_nst_obj_bwnot) that casts `ob` to
 **Synopsis:**
 
 ```better-c
-Nst_obj_lgnot(ob)
+#define Nst_obj_lgnot(ob)
 ```
 
 **Description:**
@@ -419,7 +436,7 @@ Alias for [`_Nst_obj_lgnot`](c_api-obj_ops.md#_nst_obj_lgnot) that casts `ob` to
 **Synopsis:**
 
 ```better-c
-Nst_obj_stdout(ob)
+#define Nst_obj_stdout(ob)
 ```
 
 **Description:**
@@ -434,7 +451,7 @@ to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_stdin(ob)
+#define Nst_obj_stdin(ob)
 ```
 
 **Description:**
@@ -449,7 +466,7 @@ Alias for [`_Nst_obj_stdin`](c_api-obj_ops.md#_nst_obj_stdin) that casts `ob` to
 **Synopsis:**
 
 ```better-c
-Nst_obj_typeof(ob)
+#define Nst_obj_typeof(ob)
 ```
 
 **Description:**
@@ -464,7 +481,7 @@ to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_import(ob)
+#define Nst_obj_import(ob)
 ```
 
 **Description:**
@@ -479,7 +496,7 @@ to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 **Synopsis:**
 
 ```better-c
-Nst_obj_eq_c(ob1, ob2)
+#define Nst_obj_eq_c(ob1, ob2)
 ```
 
 **Description:**
@@ -493,7 +510,7 @@ Calls [`Nst_obj_eq`](c_api-obj_ops.md#nst_obj_eq) making the result a C bool.
 **Synopsis:**
 
 ```better-c
-Nst_obj_ne_c(ob1, ob2)
+#define Nst_obj_ne_c(ob1, ob2)
 ```
 
 **Description:**
@@ -626,7 +643,7 @@ Nst_Obj *_Nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2)
 
 **Description:**
 
-Implements the `*` operator. On failure the error is set.
+Implements the `null` operator. On failure the error is set.
 
 ---
 
@@ -1003,6 +1020,20 @@ The casted object or `NULL` on failure. The error is set.
 
 ---
 
+### `_Nst_obj_contains`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_contains(Nst_Obj *ob1, Nst_Obj *ob2)
+```
+
+**Description:**
+
+Implements the `<.>` operator. On failure the error is set.
+
+---
+
 ### `_Nst_obj_concat`
 
 **Synopsis:**
@@ -1076,4 +1107,3 @@ checked.
 
 The path on success and `NULL` on failure. The error is set. This function fails
 if the specified library is not found.
-

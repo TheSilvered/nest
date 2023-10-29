@@ -23,35 +23,76 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 
 ### Nest 0.14.0 planned featues and improvements
 
-- [ ] Object pools (optimization)
-- [ ] Remove `is_done` function from iterators & return special object with
+- [x] Object pools (optimization)
+- [x] Remove `is_done` function from iterators & return special object with
       `get_val`
-- [ ] `map` from `stdsequtil.nest` as an iterator
-- [ ] Argument to specify in-place or new for functions that modify accept
-  sequences
-  - [ ] `sequ.map`
-  - [ ] `sequ.sort`
-  - [ ] `sequ.lscan`
-  - [ ] `sequ.rscan`
-  - [ ] `rand.shuffle`
-- [ ] Add `copy` and `deepcopy` to `stdsequtil.nest`
-- [ ] Non-recursive JSON parsing & dumping
-- [ ] Add encoding arguments to `load_f` and `dump_f` in `stdjson.nest`
-- [ ] Add option for `Infinity` and `Nan` to `stdjson.nest`
-- [ ] Add `extUTF-16` encoding (with little and big endian variants) that accept
-- [ ] Rename `replace_substr` to `replace`
-- [ ] Make third argument of `replace_substr` optional to remove the substring
-- [ ] Add 'contains' stack operator `<.>`
-- [ ] Add `pos` argument to `lfind` and `rfind`
-- [ ] Automatic documentation generation for standard library
-- [ ] Avoid object to object casts in `Nst_extract_arg_values` if the first
-      object is `null`
-- [ ] Better testing with C
+- [x] Strings that index to actual characters
+- [x] Add iterator variants in `stdsequtil.nest` of
+  - [x] `map`
+  - [x] `filter`
+  - [x] `slice`
+- [x] Argument to specify in-place or new for functions that accept sequences
+  - [x] `sequ.map`
+  - [x] `sequ.sort`
+  - [x] `rand.shuffle`
+- [x] Add `extend` to `stdsequtil.nest` (instead of in-place `sequ.merge`)
+- [x] Add `copy` and `deepcopy` to `stdsequtil.nest`
+- [ ] ~Non-recursive JSON parsing & dumping~
+- [x] Add encoding arguments to `load_f` and `dump_f` in `stdjson.nest`
+- [x] Add option for `Infinity` and `NaN` to `stdjson.nest`
+- [x] Add `extUTF-16` encoding (with little and big endian variants) that accept
+  unpaired surrogates
+- [x] Rename `replace_substr` to `replace`, `bytearray_to_str` to `decode` and
+  `str_to_bytearray` to `encode`
+- [x] Make third argument of `replace_substr` optional to remove the substring
+- [x] Add 'contains' stack operator `<.>`
+- [x] Add `from` and `to` arguments to `lfind` and `rfind`
+- [ ] ~Automatic documentation generation for standard library~ [^3]
+- [x] Add `INF` and `NAN` constants to `stdmath.nest`
+- [ ] ~Better testing with C~ [^4]
+- [x] Improve `test_str.nest`
 
-### Planned features
+[^3]: removed because generating documentation from C would require everything
+      to be written anyway adding another step
+[^4]: postponed due to changes that were not planned needed in order for good
+      testing
+
+### Nest 0.15.0 planned features
+
+- [ ] Finish implementing `Nst_fmt` and add a wrapper to `stdsutil.nest`
+- [ ] Improve `libnest` usage:
+  - [ ] Separate execution and interpreter states
+  - [ ] Initialize everything with one function
+  - [ ] Quit everything with one function
+  - [ ] Execute a program in one function (given the path of the file)
+- [ ] Better testing with C [^4]
+- [ ] Rewrite parser, nodes and tweak compiler to accommodate for the new
+- [ ] Add `is_space`, `remove_prefix` and `remove_suffix` to `stdsutil.nest`
+- [ ] Rename `split` to `lsplit` and add `rsplit` to `stdsutil.nest`
+- [ ] Add `batch` to `stditutil.nest`
+- [ ] Add `enum` to `stdsequtil.nest`
+- [ ] Add `factorial` to `stdmath.nest`
+  parser
+- [ ] Change `generator` in `stdco.nest` to allow for different arguments of
+  the function
+- [ ] Change `relative_path` in `stdfs.nest` to use the current working
+  directory when no `base` is given
+- [ ] Change `move_fpi` in `stdio.nest` to return the current file position
+  indicator
+- [ ] Maps only add new keys to the end but do not move existing ones
+- [ ] Improve option handling in `stdjson.nest`
+- [ ] Remove `reversed` from `stditutil.nest` and add `reverse` and `reverse_i`
+  to `stdsequtil.nest`
+- [ ] Add `get_capacity` to `stdsys.nest`
+- [ ] Remove `_cwd_` and rename `_get_cwd` and `_set_cwd` to `get_cwd` and
+  `set_cwd` in `stdsys.nest`
+
+### Future planned features
 
 - Regular expressions in the standard library [^1]
 - A custom graphics and UI standard library built on top of SDL2 [^2]
+- Closures
+- Multithreading
 
 [^1]: will probably be a port of PCRE
 
@@ -83,7 +124,7 @@ Once installed you can check that it is working by running this command:
 
 ```text
 PS C:\Users\user> nest -V
-Using Nest version: beta-0.13.2 x64
+Using Nest version: beta-0.14.0 x64
 ```
 
 ### Compile from source on Windows
@@ -117,7 +158,7 @@ $ tar -xzf nest-[VERSION]-[ARCHITECTURE]-linux.tar.gz
 ```
 
 Now run `./linux_install_[ARCHITECTURE].sh` to copy the binaries to
-`/usr/libs/nest` and to `/usr/bin` and install the necessary libaries.
+`/usr/libs/nest` and to `/usr/bin` and install the necessary libraries.
 
 ### Compile from source on Linux
 
@@ -133,7 +174,9 @@ and run `make help` to see what to compile. In general you will want to run
 
 ### Uninstalling on linux
 
-To uninstall Nest on linux, copy `nest/build/linux/uninstall.sh` and execute it.
+To uninstall Nest on linux, copy
+[`nest/build/linux/uninstall.sh`](https://github.com/TheSilvered/nest/blob/main/build/linux/uninstall.sh)
+and execute it.
 
 ## Plugins
 

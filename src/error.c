@@ -46,9 +46,9 @@ static inline void set_error_stream(void)
     }
 }
 
-static inline void err_putc(i8 ch)
+static inline void err_putc(i8 *ch, usize len)
 {
-    Nst_fwrite(&ch, 1, NULL, err_stream);
+    Nst_fwrite(ch, len, NULL, err_stream);
 }
 
 Nst_Pos Nst_copy_pos(Nst_Pos pos)
@@ -74,7 +74,7 @@ static inline void print_repeat(i8 ch, i32 times)
         times = 0;
 
     for (i32 i = 0; i < times; i++)
-        err_putc(ch);
+        err_putc(&ch, 1);
 }
 
 static i32 get_indent(Nst_SourceText *text, i32 lineno)
@@ -128,7 +128,10 @@ static void print_line(Nst_Pos *pos, i32 start_col, i32 end_col,
     } else
         Nst_fprintf(err_stream, " %*li | ", lineno_len, lineno + 1);
 
-    for (i32 i = keep_indent; text[i] != '\n' && text[i] != '\0'; i++) {
+    for (i32 i = keep_indent;
+         i < (isize)tot_len && text[i] != '\n' && text[i] != '\0';
+         i++)
+    {
         if (i < start_col)
             spaces++;
         else if (i <= end_col)
@@ -137,25 +140,22 @@ static void print_line(Nst_Pos *pos, i32 start_col, i32 end_col,
         if (i == start_col && use_color)
             Nst_fprint(err_stream, C_RED);
 
-        err_putc(text[i]);
+        i32 res = Nst_check_ext_utf8_bytes(
+            (u8 *)text + i,
+            tot_len - (start - text)
+        );
+
+        if (res == -1)
+            continue;
+
+        err_putc(text + i, res);
+        i += res - 1;
         line_length++;
 
         if (use_color && i == end_col)
             Nst_fprint(err_stream, C_RES);
-
-        i32 res = Nst_check_utf8_bytes(
-            (u8 *)text + i,
-            tot_len - (start - text)
-        );
-        if (res == 1 || res == -1)
-            continue;
-
-        if (i < start_col)
-            spaces -= res - 1;
-        else if (i <= end_col)
-            carets -= res - 1;
     }
-    err_putc('\n');
+    err_putc("\n", 1);
 
     if (start_col == line_length) carets++;
 
@@ -166,7 +166,7 @@ static void print_line(Nst_Pos *pos, i32 start_col, i32 end_col,
 
     start_col -= keep_indent;
 
-    if (end_col - start_col + 1 == line_length) {
+    if (end_col - start_col + 1 >= line_length) {
         if (use_color)
             Nst_fprint(err_stream, C_RES);
         return;

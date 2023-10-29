@@ -6,6 +6,8 @@ Bytecode instruction interface.
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `Nst_INST_IS_JUMP`
@@ -13,7 +15,7 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-Nst_INST_IS_JUMP(inst_id)
+#define Nst_INST_IS_JUMP(inst_id)
 ```
 
 **Description:**
@@ -27,7 +29,7 @@ Checks whether a given instruction ID represents a jump instruction.
 **Synopsis:**
 
 ```better-c
-Nst_inst_new_val(id, val, start, end)
+#define Nst_inst_new_val(id, val, start, end)
 ```
 
 **Description:**
@@ -210,7 +212,6 @@ typedef enum _Nst_InstID {
     Nst_IC_NO_OP,
     Nst_IC_POP_VAL,
     Nst_IC_FOR_START,
-    Nst_IC_FOR_IS_DONE,
     Nst_IC_FOR_GET_VAL,
     Nst_IC_RETURN_VAL,
     Nst_IC_RETURN_VARS,
@@ -220,6 +221,7 @@ typedef enum _Nst_InstID {
     Nst_IC_JUMPIF_T,
     Nst_IC_JUMPIF_F,
     Nst_IC_JUMPIF_ZERO,
+    Nst_IC_FOR_IS_DONE,
     Nst_IC_PUSH_CATCH,
     Nst_IC_TYPE_CHECK,
     Nst_IC_HASH_CHECK,
@@ -253,4 +255,3 @@ typedef enum _Nst_InstID {
 **Description:**
 
 Instruction IDs in the Nest virtual machine.
-

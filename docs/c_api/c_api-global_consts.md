@@ -6,6 +6,8 @@ Constant objects used in the program.
 
 TheSilvered
 
+---
+
 ## Structs
 
 ### `Nst_StrConsts`
@@ -14,27 +16,15 @@ TheSilvered
 
 ```better-c
 typedef struct _Nst_StrConsts {
-    // Type strings
-
-    Nst_StrObj *t_Type;
-    Nst_StrObj *t_Int;
-    Nst_StrObj *t_Real;
-    Nst_StrObj *t_Bool;
-    Nst_StrObj *t_Null;
-    Nst_StrObj *t_Str;
-    Nst_StrObj *t_Array;
-    Nst_StrObj *t_Vector;
-    Nst_StrObj *t_Map;
-    Nst_StrObj *t_Func;
-    Nst_StrObj *t_Iter;
-    Nst_StrObj *t_Byte;
-    Nst_StrObj *t_IOFile;
-
     // Constant strings
 
     Nst_StrObj *c_true;
     Nst_StrObj *c_false;
     Nst_StrObj *c_null;
+    Nst_StrObj *c_inf;
+    Nst_StrObj *c_nan;
+    Nst_StrObj *c_neginf;
+    Nst_StrObj *c_negnan;
 
     // Standard error names
 
@@ -60,9 +50,9 @@ typedef struct _Nst_StrConsts {
 
 String constants.
 
-Fields starting with `t_` are the name of types, the ones starting with `c_` are
-the name of constants, the one starting with `e_` are the name of errors and the
-one starting with `o_` are others.
+Fields starting with `c_` are the name of language constants (e.g. true), the
+one starting with `e_` are the name of errors and the ones starting with `o_`
+are others.
 
 ---
 
@@ -85,6 +75,7 @@ typedef struct _Nst_TypeObjs {
     Nst_TypeObj *Iter;
     Nst_TypeObj *Byte;
     Nst_TypeObj *IOFile;
+    Nst_TypeObj *IEnd;
 } Nst_TypeObjs
 ```
 
@@ -103,11 +94,16 @@ typedef struct _Nst_Consts {
     Nst_Obj *Bool_true;
     Nst_Obj *Bool_false;
     Nst_Obj *Null_null;
+    Nst_Obj *IEnd_iend;
     Nst_Obj *Int_0;
     Nst_Obj *Int_1;
     Nst_Obj *Int_neg1;
     Nst_Obj *Real_0;
     Nst_Obj *Real_1;
+    Nst_Obj *Real_nan;
+    Nst_Obj *Real_negnan;
+    Nst_Obj *Real_inf;
+    Nst_Obj *Real_neginf;
     Nst_Obj *Byte_0;
     Nst_Obj *Byte_1;
 } Nst_Consts
@@ -149,19 +145,15 @@ Standard IO streams.
 ```better-c
 typedef struct _Nst_IterFunctions {
     Nst_FuncObj *range_start;
-    Nst_FuncObj *range_is_done;
     Nst_FuncObj *range_get_val;
 
     Nst_FuncObj *seq_start;
-    Nst_FuncObj *seq_is_done;
     Nst_FuncObj *seq_get_val;
 
     Nst_FuncObj *str_start;
-    Nst_FuncObj *str_is_done;
     Nst_FuncObj *str_get_val;
 
     Nst_FuncObj *map_start;
-    Nst_FuncObj *map_is_done;
     Nst_FuncObj *map_get_val;
 } Nst_IterFunctions
 ```
@@ -220,6 +212,20 @@ Returns the true object constant.
 
 ---
 
+### `Nst_true_ref`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *Nst_true_ref(void)
+```
+
+**Description:**
+
+Returns a new reference to the true object constant.
+
+---
+
 ### `Nst_false`
 
 **Synopsis:**
@@ -234,6 +240,20 @@ Returns the false object constant.
 
 ---
 
+### `Nst_false_ref`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *Nst_false_ref(void)
+```
+
+**Description:**
+
+Returns a new reference to the false object constant.
+
+---
+
 ### `Nst_null`
 
 **Synopsis:**
@@ -245,6 +265,48 @@ Nst_Obj *Nst_null(void)
 **Description:**
 
 Returns the null object constant.
+
+---
+
+### `Nst_null_ref`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *Nst_null_ref(void)
+```
+
+**Description:**
+
+Returns a new reference to the null object constant.
+
+---
+
+### `Nst_iend`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *Nst_iend(void)
+```
+
+**Description:**
+
+Returns the iend object constant.
+
+---
+
+### `Nst_iend_ref`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *Nst_iend_ref(void)
+```
+
+**Description:**
+
+Returns a new reference to the iend object constant.
 
 ---
 
@@ -320,4 +382,3 @@ Nst_StdStreams *Nst_stdio(void)
 
 Returns a [`Nst_StdStreams`](c_api-global_consts.md#nst_stdstreams) struct
 containing all the standard IO streams.
-

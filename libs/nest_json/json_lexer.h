@@ -4,6 +4,7 @@
 #include "nest.h"
 
 extern bool comments;
+extern bool nan_and_inf;
 
 #define JSON_SYNTAX_ERROR(msg, path, pos)                                     \
     Nst_set_syntax_error(Nst_sprintf(                                         \
@@ -22,6 +23,6 @@ typedef enum _JSONTokenType {
 } JSONTokenType;
 
 Nst_LList *json_tokenize(i8 *path, i8 *text, usize text_len,
-                         bool readonly_text);
+                         bool readonly_text, Nst_CPID encoding);
 
 #endif // !JSON_LEXER_H

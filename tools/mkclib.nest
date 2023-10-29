@@ -66,19 +66,19 @@ Iter :: {
     {
         'linux',
         'linux_debug',
-        { 'libnest.so' },
+        {'libnest.so'},
         'Linux x64/x86 Debug'
     },
     {
         'linux',
         'linux_release/x86',
-        { 'libnest.so' },
+        {'libnest.so'},
         'Linux x86 Release'
     },
     {
         'linux',
         'linux_release/x64',
-        { 'libnest.so' },
+        {'libnest.so'},
         'Linux x64 Release'
     }
 } = configs
@@ -99,8 +99,8 @@ _args_.1 'update' == ? [
         1 @sys.exit
     ]
 ] : [
-    name ' ' '_' @su.replace_substr \
-         '-' '_' @su.replace_substr = name
+    name ' ' '_' @su.replace \
+         '-' '_' @su.replace = name
     !(name (su.LETTERS su.DIGITS '_' ><) @su.is_charset) ? [
         "Invalid name '" name "'" >< @io.println
         1 @sys.exit
@@ -110,7 +110,7 @@ _args_.1 'update' == ? [
     path name @fs.join = build_path
 
     header_path @fs.make_dirs
-    ... configs := { _, config, _, _ } [
+    ... configs := {_, config, _, _} [
         build_path '/' config >< @fs.make_dirs
     ]
 ]
@@ -120,7 +120,7 @@ _args_.1 'update' == ? [
 ]
 'Copied headers' @io.println
 
-... configs := { config_path, config, config_files, config_name } [
+... configs := {config_path, config, config_files, config_name} [
     '../build/' config_path '/' config >< = config_path
     false = failed
     ... Iter :: config_files := file [
@@ -145,11 +145,11 @@ build_path @sys._set_cwd
 
 #create_guid upper [
     upper ?
-        { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-          'A', 'B', 'C', 'D', 'E', 'F' } = chars
+        {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+         'A', 'B', 'C', 'D', 'E', 'F'} = chars
     :
-        { '0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
-          'a', 'b', 'c', 'd', 'e', 'f' } = chars
+        {'0', '1', '2', '3', '4', '5', '6', '7', '8', '9',
+         'a', 'b', 'c', 'd', 'e', 'f'} = chars
 
     '{' = s
     ... 8 [
@@ -300,7 +300,7 @@ name @fs.make_dir
 name @sys._set_cwd
 
 @create_guid = proj_guid
-name '_' '' @su.replace_substr = root_namespace
+name '_' '' @su.replace = root_namespace
 
 "<?xml version=\"1.0\" encoding=\"utf-8\"?>
 <Project DefaultTargets=\"Build\" xmlns=\"http://schemas.microsoft.com/developer/msbuild/2003\">
@@ -376,7 +376,7 @@ name '_' '' @su.replace_substr = root_namespace
     <PropertyGroup Label=\"UserMacros\" />
     <ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|Win32'\">
         <ClCompile>
-            <WarningLevel>Level3</WarningLevel>
+            <WarningLevel>Level4</WarningLevel>
             <SDLCheck>true</SDLCheck>
             <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;TESTLIBFILES_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
             <ConformanceMode>true</ConformanceMode>
@@ -395,7 +395,7 @@ name '_' '' @su.replace_substr = root_namespace
     </ItemDefinitionGroup>
     <ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|Win32'\">
         <ClCompile>
-            <WarningLevel>Level3</WarningLevel>
+            <WarningLevel>Level4</WarningLevel>
             <FunctionLevelLinking>true</FunctionLevelLinking>
             <IntrinsicFunctions>true</IntrinsicFunctions>
             <SDLCheck>true</SDLCheck>
@@ -418,7 +418,7 @@ name '_' '' @su.replace_substr = root_namespace
     </ItemDefinitionGroup>
     <ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Debug|x64'\">
         <ClCompile>
-            <WarningLevel>Level3</WarningLevel>
+            <WarningLevel>Level4</WarningLevel>
             <SDLCheck>true</SDLCheck>
             <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;TESTLIBFILES_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
             <ConformanceMode>true</ConformanceMode>
@@ -437,7 +437,7 @@ name '_' '' @su.replace_substr = root_namespace
     </ItemDefinitionGroup>
     <ItemDefinitionGroup Condition=\"'$(Configuration)|$(Platform)'=='Release|x64'\">
         <ClCompile>
-            <WarningLevel>Level3</WarningLevel>
+            <WarningLevel>Level4</WarningLevel>
             <FunctionLevelLinking>true</FunctionLevelLinking>
             <IntrinsicFunctions>true</IntrinsicFunctions>
             <SDLCheck>true</SDLCheck>

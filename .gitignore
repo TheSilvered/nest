@@ -475,3 +475,4 @@ build/linux/_update_tests.sh
 !libs/nest_gui/SDL2/lib/**/*.lib
 \[ignore\]*
 \[ignore\]*/
+*.old

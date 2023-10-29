@@ -7,7 +7,6 @@ __itu.count_        = count
 __itu.cycle_        = cycle
 __itu.enumerate_    = enumerate
 __itu.items_        = items
-__itu.iter_is_done_ = iter_is_done
 __itu.iter_get_val_ = iter_get_val
 __itu.iter_start_   = iter_start
 __itu.keys_         = keys
@@ -16,5 +15,7 @@ __itu.repeat_       = repeat
 __itu.reversed_     = reversed
 __itu.values_       = values
 __itu.zip_          = zip
+
+@__itu._get_iend_ = IEND
 
 _vars_ '__itu' '_vars_' -

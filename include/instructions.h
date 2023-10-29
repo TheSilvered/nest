@@ -24,12 +24,14 @@
 extern "C" {
 #endif // !__cplusplus
 
+// IMPORTANT when changing the order of the instructions, chance the order of
+// the functions in inst_func in interpreter.c
+
 /* Instruction IDs in the Nest virtual machine. */
 NstEXP typedef enum _Nst_InstID {
     Nst_IC_NO_OP,
     Nst_IC_POP_VAL,
     Nst_IC_FOR_START,
-    Nst_IC_FOR_IS_DONE,
     Nst_IC_FOR_GET_VAL,
     Nst_IC_RETURN_VAL,
     Nst_IC_RETURN_VARS,
@@ -39,6 +41,7 @@ NstEXP typedef enum _Nst_InstID {
     Nst_IC_JUMPIF_T,
     Nst_IC_JUMPIF_F,
     Nst_IC_JUMPIF_ZERO,
+    Nst_IC_FOR_IS_DONE,
     Nst_IC_PUSH_CATCH,
     Nst_IC_TYPE_CHECK,
     Nst_IC_HASH_CHECK,

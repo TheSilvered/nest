@@ -6,7 +6,7 @@
  * @author TheSilvered
  */
 
-/* [docs:link lib_import.h c_api-lib_import.md#usage-of-the-types-argument] */
+/* [docs:link lib_import.h <c_api-lib_import.md#usage-of-the-types-argument>] */
 
 /* [docs:raw]
 ## Usage of the `types` argument
@@ -108,7 +108,7 @@ Nst_DEF_EXTRACT("i_b", &opt);
 ### Implicit casting to C types
 
 If a type is specified as only one of `i`, `r`, `b` or `B` (and not a union
-between these) it is automatically translated to `i_i`, `r_r`, `b_b` and `B_B`
+of types) it is automatically translated to `i_i`, `r_r`, `b_b` and `B_B`
 respectively.
 
 The values are extracted to the following C types:
@@ -125,13 +125,12 @@ f64 real_num;
 Nst_DEF_EXTRACT("i r", &int_num, &real_num);
 ```
 
-If you instead want the object itself you can write `i:i`, `r:r`, `b:b` or
-`B:B` and decrease the reference count right after the call to
-`Nst_extract_arg_values` since it is safe to do so.
+If you instead want the object itself you can write `i|i`, `r|r`, `b|b` or
+`B|B` since the type is in a union.
 
 ### Sequence type checking
 
-You can additionally check the types present inside the matched sequence by
+You can additionally check the types present inside a matched sequence by
 following the type with a dot (`.`). If the type to check is not an `Array` or
 `Vector` object no checking is done. Note that this kind of checking cannot
 occur if the argument is casted to a C type.
@@ -156,9 +155,8 @@ representing commonly used types into a single character.
 - `y` expands into `o_b`
 
 The shorthands that contain a cast (either `:` or `_`) will not cast the object
-the shorthand is used for checking the contents of a sequence. In case a cast
-is added after the type manually, it is overwritten. If it is placed in a
-union, the cast is kept.
+the shorthand is used for checking the contents of a sequence or are part of a
+union. In case a cast is added after the type manually, it is overwritten.
 
 ```better-c
 "S"   // matches Array, Vector and Str and casts the object to Array
@@ -244,15 +242,15 @@ union, the cast is kept.
         STR(Nst_string_new_c_raw(obj_name, false))                            \
     }
 
-/* [docs:link Nst_const()->Int_0 c_api-global_consts.md#nst_const] */
-/* [docs:link Nst_const()->Int_1 c_api-global_consts.md#nst_const] */
+/* [docs:link Nst_const()->Int_0 Nst_const] */
+/* [docs:link Nst_const()->Int_1 Nst_const] */
 
 /* Returns `Nst_true()`. */
-#define Nst_RETURN_TRUE return Nst_inc_ref(Nst_true())
+#define Nst_RETURN_TRUE return Nst_true_ref()
 /* Returns `Nst_false()`. */
-#define Nst_RETURN_FALSE return Nst_inc_ref(Nst_false())
+#define Nst_RETURN_FALSE return Nst_false_ref()
 /* Returns `Nst_null()`. */
-#define Nst_RETURN_NULL return Nst_inc_ref(Nst_null())
+#define Nst_RETURN_NULL return Nst_null_ref()
 /* Returns `Nst_const()->Int_0`. */
 #define Nst_RETURN_ZERO return Nst_inc_ref(Nst_const()->Int_0)
 /* Returns `Nst_const()->Int_1`. */
@@ -262,7 +260,7 @@ union, the cast is kept.
  * `cond` is a C condition.
  */
 #define Nst_RETURN_COND(cond)                                                 \
-    return (cond) ? Nst_inc_ref(Nst_true()) : Nst_inc_ref(Nst_false())
+    return (cond) ? Nst_true_ref() : Nst_false_ref()
 
 /* Function signature for a Nest-callable C function. */
 #define Nst_FUNC_SIGN(name)                                                   \

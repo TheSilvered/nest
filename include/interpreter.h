@@ -53,20 +53,15 @@ NstEXP typedef struct _Nst_ExecutionState {
 /**
  * Runs the main program.
  *
+ * @brief This function requires `Nst_state_init` to be called before. It will
+ * call `Nst_state_free` automatically.
  * @brief Warning: it must never be called inside a library.
  *
  * @param main_func: the function object of the main program
- * @param argc: the command line argument count
- * @param argv: the command line arguments
- * @param filename: the name of the file of the main program
- * @param opt_level: the maximum optimization level
- * @param no_default: whether to initialize the variable table of the main
- * program with built-in values
  *
  * @return The exit code of the program.
  */
-NstEXP i32 NstC Nst_run(Nst_FuncObj *main_func, i32 argc, i8 **argv,
-                        i8 *filename, i32 opt_lvl, bool no_default);
+NstEXP i32 NstC Nst_run(Nst_FuncObj *main_func);
 /**
  * Runs an external Nest file.
  *
@@ -169,7 +164,7 @@ NstEXP void NstC _Nst_unload_libs(void);
 // The global state of the interpreter.
 extern Nst_ExecutionState Nst_state;
 
-/* [docs:link Nst_state c_api-interpreter.md#nst_get_state] */
+/* [docs:link Nst_state Nst_get_state] */
 /* Returns a pointer to the global `Nst_ExecutionState`. */
 NstEXP Nst_ExecutionState *NstC Nst_get_state(void);
 

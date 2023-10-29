@@ -6,6 +6,8 @@ Stacks used for the VM during runtime.
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `Nst_fstack_push`
@@ -13,7 +15,7 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-Nst_fstack_push(func, start, end, vt, idx, cstack_size)
+#define Nst_fstack_push(func, start, end, vt, idx, cstack_size)
 ```
 
 **Description:**
@@ -28,7 +30,7 @@ casts func to [`Nst_FuncObj *`](c_api-function.md#nst_funcobj).
 **Synopsis:**
 
 ```better-c
-Nst_vstack_push(val)
+#define Nst_vstack_push(val)
 ```
 
 **Description:**
@@ -520,4 +522,3 @@ Shrinks a runtime stack if needed.
 - `g_stack`: the stack to shrink
 - `min_size`: the minimum size that the stack can reach
 - `unit_size`: the size of one element in the stack
-

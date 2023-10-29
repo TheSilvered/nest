@@ -14,9 +14,9 @@
 20b 10b - 10b @test.assert_eq
 30b 30b * 132b @test.assert_eq
 25b 5b / 5b @test.assert_eq
-##a b [=> a b /] { 10b, 0b } @test.assert_raises_error
+##a b [=> a b /] {10b, 0b} @test.assert_raises_error
 7b 3b % 1b @test.assert_eq
-##a b [=> a b %] { 10b, 0b } @test.assert_raises_error
+##a b [=> a b %] {10b, 0b} @test.assert_raises_error
 5b 2b ^ 25b @test.assert_eq
 5b 2b | 7b @test.assert_eq
 5b 2b & 0b @test.assert_eq
@@ -48,3 +48,8 @@ Byte :: 256.0 0b @test.assert_eq
 Byte :: 15.6 15b @test.assert_eq
 Byte :: 15.1 15b @test.assert_eq
 Byte :: 16.0 16b @test.assert_eq
+0b10b 2b @test.assert_eq
+0o2b 0b10b @test.assert_eq
+0ha 0o12b @test.assert_eq
+Bool :: 0b @test.assert_false
+Bool :: 1b @test.assert_true

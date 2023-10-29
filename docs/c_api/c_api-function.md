@@ -6,6 +6,8 @@
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `FUNC`
@@ -13,7 +15,7 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-FUNC(ptr)
+#define FUNC(ptr)
 ```
 
 **Description:**
@@ -27,7 +29,7 @@ Casts `ptr` to [`Nst_FuncObj *`](c_api-function.md#nst_funcobj).
 **Synopsis:**
 
 ```better-c
-Nst_func_set_vt(func, map)
+#define Nst_func_set_vt(func, map)
 ```
 
 **Description:**
@@ -125,7 +127,7 @@ The new function object or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_func_new_c(usize arg_num, Nst_Obj *(*cbody)(usize, Nst_Obj **))
+Nst_Obj *Nst_func_new_c(usize arg_num, Nst_NestCallable cbody)
 ```
 
 **Description:**
@@ -182,20 +184,6 @@ Traverse function for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
 
 ---
 
-### `_Nst_func_track`
-
-**Synopsis:**
-
-```better-c
-void _Nst_func_track(Nst_FuncObj *func)
-```
-
-**Description:**
-
-Track function for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
-
----
-
 ### `_Nst_func_destroy`
 
 **Synopsis:**
@@ -218,11 +206,10 @@ Destructor for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
 
 ```better-c
 typedef enum _Nst_FuncFlags {
-    Nst_FLAG_FUNC_IS_C = 0b1
+    Nst_FLAG_FUNC_IS_C = Nst_FLAG(1)
 } Nst_FuncFlags
 ```
 
 **Description:**
 
 The flags for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
-

@@ -26,6 +26,7 @@ __fs.make_file_symlink_ = make_file_symlink
 __fs.make_hard_link_    = make_hard_link
 __fs.normalize_         = normalize
 __fs.parent_path_       = parent_path
+__fs.read_symlink_      = read_symlink
 __fs.relative_path_     = relative_path
 __fs.remove_dir_        = remove_dir
 __fs.remove_dirs_       = remove_dirs

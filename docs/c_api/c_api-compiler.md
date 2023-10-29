@@ -6,6 +6,8 @@ Compiler from AST to bytecode.
 
 TheSilvered
 
+---
+
 ## Functions
 
 ### `Nst_compile`
@@ -53,4 +55,3 @@ This function is called when using the -b option.
 **Parameters:**
 
 - `ls`: the instruction list to print, it is expected to be valid
-

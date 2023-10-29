@@ -6,6 +6,8 @@ Generational Garbage Collector (GGC).
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `_Nst_GEN1_MAX`
@@ -45,7 +47,7 @@ The minimum size of the old generation needed to collect it.
 **Synopsis:**
 
 ```better-c
-GGC_OBJ(obj)
+#define GGC_OBJ(obj)
 ```
 
 **Description:**
@@ -54,18 +56,18 @@ Casts `obj` to [`Nst_GGCObj *`](c_api-ggc.md#nst_ggcobj).
 
 ---
 
-### `Nst_OBJ_IS_TRACKED`
+### `Nst_ggc_obj_reachable`
 
 **Synopsis:**
 
 ```better-c
-Nst_OBJ_IS_TRACKED(obj)
+#define Nst_ggc_obj_reachable(obj)
 ```
 
 **Description:**
 
-Checks whether a [`Nst_GGCObj`](c_api-ggc.md#nst_ggcobj) is tracked by the
-garbage collector.
+Alias for [`_Nst_ggc_obj_reachable`](c_api-ggc.md#_nst_ggc_obj_reachable) that
+casts `obj` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -85,12 +87,13 @@ any other fields.
 **Synopsis:**
 
 ```better-c
-Nst_GGC_OBJ_INIT(obj, trav_func, track_function)
+#define Nst_GGC_OBJ_INIT(obj)
 ```
 
 **Description:**
 
-Initializes the fields of a [`Nst_GGCObj`](c_api-ggc.md#nst_ggcobj).
+Initializes the fields of a [`Nst_GGCObj`](c_api-ggc.md#nst_ggcobj). Should be
+called before initializing other fields of the object.
 
 ---
 
@@ -113,9 +116,6 @@ The struct representing a garbage collector object.
 
 **Fields:**
 
-- `ggc_next`: the next object in the generation it belongs to
-- `ggc_prev`: the previous object in the generation it belongs to
-- `ggc_list`: the generation it belongs to
 - `traverse_func`: the function that sets as reachable all the objects contained
   in the object
 - `track_func`: the function that tracks all the traceable objects that the
@@ -173,6 +173,7 @@ The structure representing the garbage collector.
 - `old_gen`: the old generation
 - `old_gen_pending`: the number of objects in the old generation that have been
   added since its last collection
+- `allow_tracking`: whether the tracking of new objects is allowed
 
 ---
 
@@ -183,8 +184,7 @@ The structure representing the garbage collector.
 **Synopsis:**
 
 ```better-c
-void Nst_ggc_collect_gen(Nst_GGCList *gen, Nst_GGCList *other_gen1,
-                         Nst_GGCList *other_gen2, Nst_GGCList *other_gen3)
+void Nst_ggc_collect_gen(Nst_GGCList *gen)
 ```
 
 **Description:**
@@ -250,6 +250,21 @@ Initializes the garbage collector of
 
 ---
 
+### `_Nst_ggc_obj_reachable`
+
+**Synopsis:**
+
+```better-c
+void _Nst_ggc_obj_reachable(Nst_Obj *obj)
+```
+
+**Description:**
+
+Sets an [`Nst_Obj`](c_api-obj.md#nst_obj) as reachable for the garbage
+collector.
+
+---
+
 ## Enums
 
 ### `Nst_GGCFlags`
@@ -258,14 +273,12 @@ Initializes the garbage collector of
 
 ```better-c
 typedef enum _Nst_GGCFlags {
-    Nst_FLAG_GGC_REACHABLE    = 0x80000000,
-    Nst_FLAG_GGC_UNREACHABLE  = 0x40000000,
-    Nst_FLAG_GGC_DELETED      = 0x20000000,
-    Nst_FLAG_GGC_IS_SUPPORTED = 0x10000000
+    Nst_FLAG_GGC_REACHABLE    = Nst_FLAG(32),
+    Nst_FLAG_GGC_DELETE       = Nst_FLAG(31),
+    Nst_FLAG_GGC_IS_SUPPORTED = Nst_FLAG(30)
 } Nst_GGCFlags
 ```
 
 **Description:**
 
 The flags of a garbage collector object.
-

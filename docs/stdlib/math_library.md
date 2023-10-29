@@ -12,7 +12,9 @@
 
 **Synopsis:**
 
-`[n: Byte|Int|Real] @acos -> Real`
+```nest
+[n: Byte|Int|Real] @acos -> Real
+```
 
 **Returns:**
 
@@ -24,7 +26,9 @@ The arc cosine of `n` radians.
 
 **Synopsis:**
 
-`[n: Byte|Int|Real] @asin -> Real`
+```nest
+[n: Byte|Int|Real] @asin -> Real
+```
 
 **Returns:**
 
@@ -36,7 +40,9 @@ The arc sine of `n` radians.
 
 **Synopsis:**
 
-`[n: Byte|Int|Real] @atan -> Real`
+```nest
+[n: Byte|Int|Real] @atan -> Real
+```
 
 **Returns:**
 
@@ -48,7 +54,9 @@ The arc tangent of `n` radians.
 
 **Synopsis:**
 
-`[n: Byte|Int|Real] @acosh -> Real`
+```nest
+[n: Byte|Int|Real] @acosh -> Real
+```
 
 **Returns:**
 
@@ -60,7 +68,9 @@ The arc hyperbolic cosine of `n` radians.
 
 **Synopsis:**
 
-`[n: Byte|Int|Real] @asinh -> Real`
+```nest
+[n: Byte|Int|Real] @asinh -> Real
+```
 
 **Returns:**
 
@@ -72,7 +82,9 @@ The arc hyperbolic sine of `n` radians.
 
 **Synopsis:**
 
-`[n: Byte|Int|Real] @atanh -> Real`
+```nest
+[n: Byte|Int|Real] @atanh -> Real
+```
 
 **Returns:**
 
@@ -84,12 +96,14 @@ The arc hyperbolic tangent of `n` radians.
 
 **Synopsis:**
 
-`[y: Byte|Int|Real, x: Byte|Int|Real] @atan2 -> Real`
+```nest
+[y: Byte|Int|Real, x: Byte|Int|Real] @atan2 -> Real
+```
 
 **Returns:**
 
-The counter-clockwise angle in radians of the vector from `{0, 0}` to `{x, y}`
-relative to the x axis.
+The angle in radians of the vector from `{0, 0}` to `{x, y}` relative to the x
+axis.
 
 ---
 
@@ -97,7 +111,9 @@ relative to the x axis.
 
 **Synopsis:**
 
-`[n: Byte|Int|Real] @cos -> Real`
+```nest
+[n: Byte|Int|Real] @cos -> Real
+```
 
 **Returns:**
 
@@ -109,7 +125,9 @@ The cosine of `n` radians.
 
 **Synopsis:**
 
-`[n: Byte|Int|Real] @sin -> Real`
+```nest
+[n: Byte|Int|Real] @sin -> Real
+```
 
 **Returns:**
 
@@ -121,7 +139,9 @@ The sine of `n` radians.
 
 **Synopsis:**
 
-`[n: Byte|Int|Real] @tan -> Real`
+```nest
+[n: Byte|Int|Real] @tan -> Real
+```
 
 **Returns:**
 
@@ -133,7 +153,9 @@ The tangent of `n` radians.
 
 **Synopsis:**
 
-`[n: Byte|Int|Real] @cosh -> Real`
+```nest
+[n: Byte|Int|Real] @cosh -> Real
+```
 
 **Returns:**
 
@@ -145,7 +167,9 @@ The hyperbolic cosine of `n` radians.
 
 **Synopsis:**
 
-`[n: Byte|Int|Real] @sinh -> Real`
+```nest
+[n: Byte|Int|Real] @sinh -> Real
+```
 
 **Returns:**
 
@@ -157,7 +181,9 @@ The hyperbolic sine of `n` radians.
 
 **Synopsis:**
 
-`[n: Byte|Int|Real] @tanh -> Real`
+```nest
+[n: Byte|Int|Real] @tanh -> Real
+```
 
 **Returns:**
 
@@ -171,7 +197,9 @@ The hyperbolic tangent of `n` radians.
 
 **Synopsis:**
 
-`[number: Byte|Int|Real] @abs -> Byte|Int|Real`
+```nest
+[number: Byte|Int|Real] @abs -> Byte|Int|Real
+```
 
 **Returns:**
 
@@ -183,7 +211,9 @@ The absolute value of `number`.
 
 **Synopsis:**
 
-`[n: Byte|Int|Real] @ceil -> Int`
+```nest
+[n: Byte|Int|Real] @ceil -> Int
+```
 
 **Description:**
 
@@ -195,13 +225,15 @@ Calculates the ceil of `n`.
 
 **Synopsis:**
 
-`[n: Byte|Int|Real, min: Byte|Int|Real, max: Byte|Int|Real] @clamp -> Real`
+```nest
+[n: Byte|Int|Real, min: Byte|Int|Real, max: Byte|Int|Real] @clamp -> Real
+```
 
 **Returns:**
 
 A value such that `min <= value <= max`. If `n` is greater than `max`, `max` is
 returned, similarly if `n` is smaller than `min` then `min` is returned.
-If `n` is between `min` and `max` inclusive, it is returned.
+If `n` is between `min` and `max` inclusive, `n` itself is returned.
 
 ---
 
@@ -209,7 +241,9 @@ If `n` is between `min` and `max` inclusive, it is returned.
 
 **Synopsis:**
 
-`[n: Byte|Int|Real] @deg -> Real`
+```nest
+[n: Byte|Int|Real] @deg -> Real
+```
 
 **Returns:**
 
@@ -221,13 +255,15 @@ Transforms `n` radians in degrees.
 
 **Synopsis:**
 
-`[a: Array|Vector, b: Array|Vector] @dist_nd -> Real`
+```nest
+[a: Array|Vector, b: Array|Vector] @dist_nd -> Real
+```
 
 **Returns:**
 
 Calculates the euclidean distance of points `a` and `b` with the same number of
-dimensions. The two arrays must have the same length and the coordinates must be
-of type `Int` or `Real`.
+dimensions. The two arrays must have the same length and the coordinates must
+be of type `Byte`, `Int` or `Real`.
 
 ---
 
@@ -235,12 +271,14 @@ of type `Int` or `Real`.
 
 **Synopsis:**
 
-`[a: Array|Vector, b: Array|Vector] @dist_2d -> Real`
+```nest
+[a: Array|Vector, b: Array|Vector] @dist_2d -> Real
+```
 
 **Returns:**
 
 Calculates the euclidean distance of 2D points `a` and `b`. The two arrays must
-have a length of 2 and the coordinates must be of type `Int` or `Real`.
+have a length of 2 and the coordinates must be of type `Byte`, `Int` or `Real`.
 
 ---
 
@@ -248,12 +286,14 @@ have a length of 2 and the coordinates must be of type `Int` or `Real`.
 
 **Synopsis:**
 
-`[a: Array|Vector, b: Array|Vector] @dist_3d -> Real`
+```nest
+[a: Array|Vector, b: Array|Vector] @dist_3d -> Real
+```
 
 **Returns:**
 
 Calculates the euclidean distance of 3D points `a` and `b`. The two arrays must
-have a length of 3 and the coordinates must be of type `Int` or `Real`.
+have a length of 3 and the coordinates must be of type `Byte`, `Int` or `Real`.
 
 ---
 
@@ -261,12 +301,14 @@ have a length of 3 and the coordinates must be of type `Int` or `Real`.
 
 **Synopsis:**
 
-`[a: Int, b: Int] @divmod -> Array`
+```nest
+[a: Int, b: Int] @divmod -> Array
+```
 
 **Description:**
 
 Returns a 2-element array with the first being the result of `a b /` and the
-second being the result of `a b %`, equal to `{ a b /, a b % }`
+second being the result of `a b %`, equal to `{a b /, a b %}`
 
 ---
 
@@ -274,7 +316,9 @@ second being the result of `a b %`, equal to `{ a b /, a b % }`
 
 **Synopsis:**
 
-`[n: Byte|Int|Real] @exp -> Real`
+```nest
+[n: Byte|Int|Real] @exp -> Real
+```
 
 **Description:**
 
@@ -286,7 +330,9 @@ Returns Euler's constant `e` raised to the power of `n`.
 
 **Synopsis:**
 
-`[n: Byte|Int|Real] @floor -> Int`
+```nest
+[n: Byte|Int|Real] @floor -> Int
+```
 
 **Description:**
 
@@ -298,7 +344,9 @@ Calculates the floor of `n`.
 
 **Synopsis:**
 
-`[n: Real] @frexp -> Array`
+```nest
+[n: Real] @frexp -> Array
+```
 
 **Returns:**
 
@@ -311,13 +359,17 @@ exponent as the second.
 
 **Synopsis:**
 
-`[n1: Byte|Int|Real|Vector|Array, n2: Byte|Int|Real|null] @gcd -> Byte|Int|Real`
+```nest
+[a: Byte|Int|Real, b: Byte|Int|Real] @gcd -> Byte|Int|Real
+[seq: Array|Vector.Byte|Int|Real] @gcd -> Byte|Int|Real
+```
 
 **Returns:**
 
-The greatest common divisor between `n1` and `n2`. If `n2` is `null`, `n1` must
-be a sequence and the greatest common divisor of the elements inside it is
-returned.
+The first type returns the greatest common divisor between `a` and `b`.
+
+The second type returns the greatest common divisor between all the elements in
+`seq`.
 
 ---
 
@@ -325,7 +377,9 @@ returned.
 
 **Synopsis:**
 
-`[c1: Byte|Int|Real, c2: Byte|Int|Real] @hypot -> Real`
+```nest
+[c1: Byte|Int|Real, c2: Byte|Int|Real] @hypot -> Real
+```
 
 **Returns:**
 
@@ -333,17 +387,50 @@ Calculates the hypotenuse of a right triangle given the two catheti.
 
 ---
 
+### `@is_inf`
+
+**Synopsis:**
+
+```nest
+[n: Real] @is_inf -> Bool
+```
+
+**Returns:**
+
+`true` if the given real number represents an infinity, either positive or
+negative, and `false` otherwise.
+
+---
+
+### `@is_nan`
+
+**Synopsis:**
+
+```nest
+[n: Real] @is_nan -> Bool
+```
+
+**Returns:**
+
+`true` if the given real number is not a number and `false` otherwise.
+
+---
+
 ### `@lcm`
 
 **Synopsis:**
 
-`[n1: Byte|Int|Real|Vector|Array, n2: Byte|Int|Real|null] @lcm -> Byte|Int|Real`
+```nest
+[a: Byte|Int|Real, b: Byte|Int|Real] @lcm -> Byte|Int|Real
+[seq: Array|Vector.Byte|Int|Real] @lcm -> Byte|Int|Real
+```
 
 **Returns:**
 
-The least common multiple between `n1` and `n2`. If `n2` is `null`, `n1` must
-be a sequence and the least common multiple of the elements inside it is
-returned.
+The first type returns the least common multiple between `a` and `b`.
+
+The second type returns the least common multiple between all the elements in
+`seq`.
 
 ---
 
@@ -351,7 +438,9 @@ returned.
 
 **Synopsis:**
 
-`[m: Real, e: Int] @ldexp -> Real`
+```nest
+[m: Real, e: Int] @ldexp -> Real
+```
 
 **Returns:**
 
@@ -364,7 +453,9 @@ the exponent.
 
 **Synopsis:**
 
-`[n: Byte|Int|Real] @ln -> Real`
+```nest
+[n: Byte|Int|Real] @ln -> Real
+```
 
 **Description:**
 
@@ -376,7 +467,9 @@ Returns the natural logarithm of `n`.
 
 **Synopsis:**
 
-`[n: Byte|Int|Real, m: Byte|Int|Real|null] @log -> Real`
+```nest
+[n: Byte|Int|Real, m: Byte|Int|Real|null] @log -> Real
+```
 
 **Description:**
 
@@ -388,15 +481,18 @@ Returns the logarithm of `n` with base `m`. If `m` is `null` base `10` is used.
 
 **Synopsis:**
 
-To make the synopsis more readable, `Number` means `Byte|Int|Real`.
+```nest
+[n: Num, min1: Num, max1: Num, min2: Num, max2: Num] @map -> Real
+```
 
-`[n: Number, min1: Number, max1: Number, min2: Number, max2: Number] @map -> Real`
+!!!note
+    To make the synopsis more readable, `Num` is `Byte|Int|Real`.
 
 **Description:**
 
-Maps `n` from a range from `min1` to `max2`, to a range from `min2` to `max2`.
-Uses the formula `(n min1 -) (max1 min1 -) / (max2 min2 -) * min2 +`.
-If `min1` and `max1` are equal, `min2` is returned.
+Maps `n` from the range `[min1, max1]`, to the range  `[min2, max2]`. Uses the
+formula `(n min1 -) (max1 min1 -) / (max2 min2 -) * min2 +`. If `min1` and
+`max1` are equal, `min2` is returned.
 
 ---
 
@@ -404,12 +500,16 @@ If `min1` and `max1` are equal, `min2` is returned.
 
 **Synopsis:**
 
-`[a: Any, b: Any] @max -> Any`
+```nest
+[a: Any, b: Any] @max -> Any
+[seq: Array|Vector] @max -> Any
+```
 
 **Returns:**
 
-The biggest object between `a` and `b`. If `b` is `null`, `a` must be either an
-`Array` or a `Vector` and the biggest object inside it is returned instead.
+The first type returns the biggest object between `a` and `b`.
+
+The second type returns the biggest object inside `seq`.
 
 **Example:**
 
@@ -417,7 +517,7 @@ The biggest object between `a` and `b`. If `b` is `null`, `a` must be either an
 |#| 'stdmath.nest' = math
 
 5 2 @math.max --> 5
-{ 2, 3, 5, 1 } @math.max --> 5
+{2, 3, 5, 1} @math.max --> 5
 'foo' 'bar' @math.max --> 'foo'
 ```
 
@@ -427,12 +527,16 @@ The biggest object between `a` and `b`. If `b` is `null`, `a` must be either an
 
 **Synopsis:**
 
-`[a: Any, b: Any] @min -> Any`
+```nest
+[a: Any, b: Any] @min -> Any
+[seq: Array|Vector] @min -> Any
+```
 
 **Returns:**
 
-The smallest object between `a` and `b`. If `b` is `null`, `a` must be either
-an `Array` or a `Vector` and the smallest object inside it is returned instead.
+The first type returns the smallest object between `a` and `b`.
+
+The second type returns the smallest object inside `seq`.
 
 **Example:**
 
@@ -440,7 +544,7 @@ an `Array` or a `Vector` and the smallest object inside it is returned instead.
 |#| 'stdmath.nest' = math
 
 5 2 @math.min --> 2
-{ 2, 3, 5, 1 } @math.min --> 1
+{2, 3, 5, 1} @math.min --> 1
 'foo' 'bar' @math.min --> 'bar'
 ```
 
@@ -450,7 +554,9 @@ an `Array` or a `Vector` and the smallest object inside it is returned instead.
 
 **Synopsis:**
 
-`[n: Byte|Int|Real] @rad -> Real`
+```nest
+[n: Byte|Int|Real] @rad -> Real
+```
 
 **Returns:**
 
@@ -462,7 +568,9 @@ Transforms `n` degrees in radians.
 
 **Synopsis:**
 
-`[n: Byte|Int|Real] @round -> Int`
+```nest
+[n: Byte|Int|Real] @round -> Int
+```
 
 **Description:**
 
@@ -474,7 +582,9 @@ Rounds `n` to the nearest integer. Numbers ending in `.5` get rounded up.
 
 **Synopsis:**
 
-`[sequence: Array|Vector] @sum -> Byte|Int|Real`
+```nest
+[sequence: Array|Vector] @sum -> Any
+```
 
 **Description:**
 
@@ -488,6 +598,18 @@ depends on the type of the elements inside the sequence.
 ### `E`
 
 Euler's constant, about equal to `2.71828`.
+
+---
+
+### `INF`
+
+A positive infinity for double-precision floating point numbers.
+
+---
+
+### `NAN`
+
+Not a number for double-precision floating point numbers.
 
 ---
 

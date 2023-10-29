@@ -29,13 +29,13 @@ not a comment
 $ ! ~ >>> <<< -: ?:: |#| :: ->
 = += /= *= ^= |= &= ^^=
 
-<{ }>
+<{}>
 
 ..? ?.. ... := .. ; ? :
 
-{ a: b }
+{a: b}
 
-#func a b c [ ]
+#func a b c []
 
 @namespace.func
 @@func

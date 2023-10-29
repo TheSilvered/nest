@@ -6,6 +6,8 @@ Heap & dynamic memory management functions.
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `Nst_raw_free`
@@ -21,7 +23,7 @@ Alias for C free.
 **Synopsis:**
 
 ```better-c
-Nst_malloc_c(count, type)
+#define Nst_malloc_c(count, type)
 ```
 
 **Description:**
@@ -36,7 +38,7 @@ and casting the result to a pointer of `type`.
 **Synopsis:**
 
 ```better-c
-Nst_calloc_c(count, type, init_value)
+#define Nst_calloc_c(count, type, init_value)
 ```
 
 **Description:**
@@ -51,7 +53,7 @@ and casting the result to a pointer of `type`.
 **Synopsis:**
 
 ```better-c
-Nst_realloc_c(block, new_count, type, count)
+#define Nst_realloc_c(block, new_count, type, count)
 ```
 
 **Description:**
@@ -66,7 +68,7 @@ size and casting the result to a pointer of `type`.
 **Synopsis:**
 
 ```better-c
-Nst_crealloc_c(block, new_count, type, count, init_value)
+#define Nst_crealloc_c(block, new_count, type, count, init_value)
 ```
 
 **Description:**
@@ -429,6 +431,32 @@ If necessary, the buffer is expanded automatically.
 
 ---
 
+### `Nst_sbuffer_copy`
+
+**Synopsis:**
+
+```better-c
+bool Nst_sbuffer_copy(Nst_SizedBuffer *src, Nst_SizedBuffer *dst)
+```
+
+**Description:**
+
+Copies the contents of a sized buffer into another.
+
+The data of the source buffer is copied into a new block of memory, subsequent
+changes to the source buffer will not modify the copied one.
+
+**Parameters:**
+
+- `src`: the buffer to copy from
+- `dst`: the buffer to copy to
+
+**Returns:**
+
+`true` on success and `false` on failure. The error is set.
+
+---
+
 ### `Nst_sbuffer_destroy`
 
 **Synopsis:**
@@ -583,6 +611,30 @@ The buffer is expanded if needed.
 
 ---
 
+### `Nst_buffer_append_str`
+
+**Synopsis:**
+
+```better-c
+bool Nst_buffer_append_str(Nst_Buffer *buf, i8 *str, usize len)
+```
+
+**Description:**
+
+Appends a string of a known length to the end of the buffer.
+
+**Parameters:**
+
+- `buf`: the buffer to append the string to
+- `str`: the string to append
+- `len`: the length of the string to append, excluding the NUL character
+
+**Returns:**
+
+`true` on success and `false` on failure. The error is set.
+
+---
+
 ### `Nst_buffer_append_char`
 
 **Synopsis:**
@@ -634,6 +686,32 @@ The new string on success and `NULL` on failure. The error is set.
 
 ---
 
+### `Nst_buffer_copy`
+
+**Synopsis:**
+
+```better-c
+bool Nst_buffer_copy(Nst_Buffer *src, Nst_Buffer *dst)
+```
+
+**Description:**
+
+Copies the contents of a buffer into another.
+
+The data of the source buffer is copied into a new block of memory, subsequent
+changes to the source buffer will not modify the copied one.
+
+**Parameters:**
+
+- `src`: the buffer to copy from
+- `dst`: the buffer to copy to
+
+**Returns:**
+
+`true` on success and `false` on failure. The error is set.
+
+---
+
 ### `Nst_buffer_destroy`
 
 **Synopsis:**
@@ -645,4 +723,3 @@ void Nst_buffer_destroy(Nst_Buffer *buf)
 **Description:**
 
 Destroys the contents of a buffer. The buffer itself is not freed.
-

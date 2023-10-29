@@ -7,9 +7,13 @@
 extern "C" {
 #endif // !__cplusplus
 
-bool handle_events(GUI_App *app);
-i32 root_handle_event(SDL_Event *e, GUI_Element *el);
-i32 default_event_handler(SDL_Event *e, GUI_Element *el);
+namespace GUI {
+
+bool handle_events(App *app);
+i32 root_handle_event(SDL_Event *e, Element *el);
+i32 default_event_handler(SDL_Event *e, Element *el);
+
+}
 
 #ifdef __cplusplus
 }

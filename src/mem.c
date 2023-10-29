@@ -96,6 +96,13 @@ void *Nst_crealloc(void *prev_block, usize new_count, usize size,
     if (init_value == NULL) {
         memset(block + (prev_count * size), 0, (new_count - prev_count) * size);
         return (void *)block;
+    } else if (size == 1) {
+        u8 value = *(u8 *)init_value;
+        memset(
+            block + prev_count,
+            value,
+            new_count - prev_count);
+        return (void *)block;
     }
 
     for (usize i = prev_count; i < new_count; i++)
@@ -153,6 +160,19 @@ bool Nst_sbuffer_append(Nst_SizedBuffer *buf, void *element)
     void *data_end = (void *)((i8 *)buf->data + (buf->len * buf->unit_size));
     memcpy(data_end, element, buf->unit_size);
     buf->len++;
+    return true;
+}
+
+bool Nst_sbuffer_copy(Nst_SizedBuffer *src, Nst_SizedBuffer *dst)
+{
+    void *new_data = Nst_calloc(1, src->len, src->data);
+    if (new_data == NULL)
+        return false;
+
+    dst->cap = src->len;
+    dst->len = src->len;
+    dst->unit_size = src->unit_size;
+    dst->data = new_data;
     return true;
 }
 
@@ -221,6 +241,16 @@ bool Nst_buffer_append_c_str(Nst_Buffer *buf, const i8 *str)
     return true;
 }
 
+bool Nst_buffer_append_str(Nst_Buffer *buf, i8 *str, usize len)
+{
+    if (!Nst_buffer_expand_by(buf, len))
+        return false;
+    memcpy(buf->data + buf->len, str, len);
+    buf->len += len;
+    buf->data[buf->len] = '\0';
+    return true;
+}
+
 bool Nst_buffer_append_char(Nst_Buffer *buf, i8 ch)
 {
     if (!Nst_buffer_expand_by(buf, 1))
@@ -241,6 +271,19 @@ Nst_StrObj *Nst_buffer_to_string(Nst_Buffer *buf)
     buf->cap = 0;
     buf->len = 0;
     return str;
+}
+
+bool Nst_buffer_copy(Nst_Buffer *src, Nst_Buffer *dst)
+{
+    void *new_data = Nst_calloc(1, src->len + 1, src->data);
+    if (new_data == NULL)
+        return false;
+
+    dst->cap = src->len;
+    dst->len = src->len;
+    dst->unit_size = src->unit_size;
+    dst->data = new_data;
+    return true;
 }
 
 void Nst_buffer_destroy(Nst_Buffer *buf)

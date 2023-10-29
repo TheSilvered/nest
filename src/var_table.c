@@ -35,19 +35,19 @@ Nst_VarTable *Nst_vt_new(Nst_MapObj *global_table, Nst_StrObj *cwd,
         return vt;
     }
 
-    Nst_map_set(vars, Nst_s.t_Type,   Nst_t.Type);
-    Nst_map_set(vars, Nst_s.t_Int,    Nst_t.Int);
-    Nst_map_set(vars, Nst_s.t_Real,   Nst_t.Real);
-    Nst_map_set(vars, Nst_s.t_Bool,   Nst_t.Bool);
-    Nst_map_set(vars, Nst_s.t_Null,   Nst_t.Null);
-    Nst_map_set(vars, Nst_s.t_Str,    Nst_t.Str);
-    Nst_map_set(vars, Nst_s.t_Array,  Nst_t.Array);
-    Nst_map_set(vars, Nst_s.t_Vector, Nst_t.Vector);
-    Nst_map_set(vars, Nst_s.t_Map,    Nst_t.Map);
-    Nst_map_set(vars, Nst_s.t_Func,   Nst_t.Func);
-    Nst_map_set(vars, Nst_s.t_Iter,   Nst_t.Iter);
-    Nst_map_set(vars, Nst_s.t_Byte,   Nst_t.Byte);
-    Nst_map_set(vars, Nst_s.t_IOFile, Nst_t.IOFile);
+    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Type),   Nst_t.Type);
+    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Int),    Nst_t.Int);
+    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Real),   Nst_t.Real);
+    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Bool),   Nst_t.Bool);
+    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Null),   Nst_t.Null);
+    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Str),    Nst_t.Str);
+    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Array),  Nst_t.Array);
+    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Vector), Nst_t.Vector);
+    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Map),    Nst_t.Map);
+    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Func),   Nst_t.Func);
+    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Iter),   Nst_t.Iter);
+    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Byte),   Nst_t.Byte);
+    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.IOFile), Nst_t.IOFile);
 
     Nst_map_set(vars, Nst_s.c_true,  Nst_c.Bool_true);
     Nst_map_set(vars, Nst_s.c_false, Nst_c.Bool_false);

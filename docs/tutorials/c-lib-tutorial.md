@@ -20,15 +20,15 @@ Here is a little explanation of what all the folders contain:
 
 ```text
 nest
-├── build # various files to compile Nest and the installers
-├── docs # the documentation
-├── examples # some examples of Nest code
-├── include # the header files for the core interpreter
-├── libs # the standard libraries
-├── plugins # the plugins for SublimeText and VSCode
-├── src # the source of the core interpreter
-├── tests # the tests for the libraries and the interpreter
-└── tools # tools for developing Nest
+├── build -- various files to compile Nest and the installers
+├── docs -- the documentation
+├── examples -- some examples of Nest code
+├── include -- the header files for the core interpreter
+├── libs -- the standard libraries
+├── plugins -- the plugins for SublimeText and VSCode
+├── src -- the source of the core interpreter
+├── tests -- the tests for the libraries and the interpreter
+└── tools -- tools for developing Nest
 ```
 
 From here navigate to `tools/` where you will find `mkclib.nest`. This is a

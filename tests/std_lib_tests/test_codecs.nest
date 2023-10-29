@@ -1,14 +1,15 @@
 |#| '../test_lib.nest' = test
 |#| 'stdcodecs.nest' = cc
 
-'àèìòù' = s
-'\xff' = i
+0x300 @cc.from_cp '\u0300' @test.assert_eq
+0x10 @cc.from_cp '\x10' @test.assert_eq
+cc.from_cp {0x110000} @test.assert_raises_error
+cc.from_cp {0xd800} @test.assert_raises_error
 
-s @cc.get_len 5 @test.assert_eq
+'\u0300' @cc.to_cp 0x300 @test.assert_eq
+'😊' @cc.to_cp 0x1f60a @test.assert_eq
+cc.to_cp {'ab'} @test.assert_raises_error
 
-Array :: (s @cc.to_iter) { 'à', 'è', 'ì', 'ò', 'ù' } @test.assert_eq
-
-s 0 @cc.get_at 'à' @test.assert_eq
-s 4 @cc.get_at 'ù' @test.assert_eq
-cc.get_at { s, 5 } @test.assert_raises_error
-cc.get_at { i, 5 } @test.assert_raises_error
+0x300 @cc.cp_is_valid @test.assert_true
+0xd800 @cc.cp_is_valid @test.assert_false
+0x10ffff @cc.cp_is_valid @test.assert_true

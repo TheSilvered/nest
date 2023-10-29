@@ -1,10 +1,12 @@
 #include "gui_event.h"
 
-static i32 handle_event(SDL_Event *e, GUI_Element *el)
+using namespace GUI;
+
+static i32 handle_event(SDL_Event *e, Element *el)
 {
     Nst_SeqObj *children = el->children;
     for (usize i = 0, n = children->len; i < n; i++) {
-        i32 res = handle_event(e, (GUI_Element *)children->objs[n - i - 1]);
+        i32 res = handle_event(e, (Element *)children->objs[n - i - 1]);
         if (res)
             return res;
     }
@@ -13,7 +15,7 @@ static i32 handle_event(SDL_Event *e, GUI_Element *el)
     return 0;
 }
 
-bool handle_events(GUI_App *app)
+bool GUI::handle_events(App *app)
 {
     SDL_Event e;
     app->element_reached = false;
@@ -24,9 +26,9 @@ bool handle_events(GUI_App *app)
     return true;
 }
 
-i32 default_event_handler(SDL_Event *e, GUI_Element *el)
+i32 GUI::default_event_handler(SDL_Event *e, Element *el)
 {
-    if (Nst_FLAG_HAS(el, GUI_FLAG_IS_HIDDEN))
+    if (Nst_HAS_FLAG(el, GUI_FLAG_IS_HIDDEN))
         return 0;
 
     switch (e->type) {
@@ -51,7 +53,7 @@ i32 default_event_handler(SDL_Event *e, GUI_Element *el)
     return 0;
 }
 
-i32 root_handle_event(SDL_Event *e, GUI_Element *el)
+i32 GUI::root_handle_event(SDL_Event *e, Element *el)
 {
     switch (e->type) {
     case SDL_QUIT:
@@ -60,5 +62,4 @@ i32 root_handle_event(SDL_Event *e, GUI_Element *el)
     default:
         return default_event_handler(e, el);
     }
-    return 0;
 }

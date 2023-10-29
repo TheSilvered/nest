@@ -8,7 +8,7 @@
 
 #endif
 
-#define FUNC_COUNT 36
+#define FUNC_COUNT 40
 #define COORD_TYPE_ERROR do {                                                 \
         Nst_set_value_error_c(                                                \
             "all coordinates must be of type 'Real' or 'Int'");               \
@@ -59,6 +59,10 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(lcm_,    2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(abs_,    1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(hypot_,  2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_nan_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_inf_, 1);
+    func_list_[idx++] = Nst_MAKE_NAMED_OBJDECLR(Nst_const()->Real_inf, "INF_");
+    func_list_[idx++] = Nst_MAKE_NAMED_OBJDECLR(Nst_const()->Real_nan, "NAN_");
 
 #if __LINE__ - FUNC_COUNT != 27
 #error
@@ -67,6 +71,11 @@ bool lib_init()
     lib_init_ = !Nst_error_occurred();
     return lib_init_;
 }
+
+#ifndef Nst_WIN
+#define isnan std::isnan
+#define isinf std::isinf
+#endif // !Nst_WIN
 
 Nst_DeclrList *get_func_ptrs()
 {
@@ -305,7 +314,7 @@ Nst_FUNC_SIGN(deg_)
     f64 n;
 
     Nst_DEF_EXTRACT("N", &n);
-    // 57.29577951308232 = 180 / PI
+    // 57.29577951308232 ~ 180 / PI
     return Nst_real_new(n * 57.29577951308232);
 }
 
@@ -314,7 +323,7 @@ Nst_FUNC_SIGN(rad_)
     f64 n;
 
     Nst_DEF_EXTRACT("N", &n);
-    // 0.017453292519943295 = PI / 180
+    // 0.017453292519943295 ~ PI / 180
     return Nst_real_new(n * 0.017453292519943295);
 }
 
@@ -480,9 +489,7 @@ Nst_FUNC_SIGN(clamp_)
     return Nst_real_new(max(min(val, max_val), min_val));
 }
 
-template <typename T>
-
-static inline T gcd_int(T a, T b)
+static inline i64 gcd_int(i64 a, i64 b)
 {
     if (a == 0)
         return b;
@@ -494,7 +501,7 @@ static inline T gcd_int(T a, T b)
     if (b < 0)
         b *= -1;
 
-    T res = 1;
+    i64 res = 1;
     while (true) {
         if (a == b)
             return res * a;
@@ -535,7 +542,7 @@ static inline f64 gcd_real(f64 a, f64 b)
     }
 }
 
-Nst_Obj *gcd_or_lcm_seq(Nst_SeqObj *seq, Nst_Obj *(*func)(usize arg_num, Nst_Obj **args))
+Nst_Obj *gcd_or_lcm_seq(Nst_SeqObj *seq, Nst_NestCallable func)
 {
     if (seq->len == 0)
         Nst_RETURN_ZERO;
@@ -600,7 +607,7 @@ Nst_FUNC_SIGN(gcd_)
     } else {
         u8 n1_byte = AS_BYTE(ob1);
         u8 n2_byte = AS_BYTE(ob2);
-        return Nst_byte_new(gcd_int(n1_byte, n2_byte));
+        return Nst_byte_new((u8)gcd_int((i64)n1_byte, (i64)n2_byte));
     }
 }
 
@@ -667,4 +674,18 @@ Nst_FUNC_SIGN(hypot_)
     Nst_DEF_EXTRACT("N N", &c1, &c2);
 
     return Nst_real_new(sqrt(c1 * c1 + c2 * c2));
+}
+
+Nst_FUNC_SIGN(is_nan_)
+{
+    f64 n;
+    Nst_DEF_EXTRACT("r", &n);
+    Nst_RETURN_COND(isnan(n));
+}
+
+Nst_FUNC_SIGN(is_inf_)
+{
+    f64 n;
+    Nst_DEF_EXTRACT("r", &n);
+    Nst_RETURN_COND(isinf(n));
 }

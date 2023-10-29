@@ -6,7 +6,7 @@
  * @author TheSilvered
  */
 
-/* [docs:link format.h c_api-format.md#format-placeholder-specification] */
+/* [docs:link format.h <c_api-format.md#format-placeholder-specification>] */
 
 /* [docs:raw]
 ## Format placeholder specification
@@ -114,6 +114,9 @@ extern "C" {
 /**
  * Prints a string to the Nest standard output.
  *
+ * @brief Warning: do not use this function to print `Nst_StrObj` objects, use
+ * `Nst_fwrite` instead.
+ *
  * @param buf: the NUL-terminated string to print
  *
  * @return The number of bytes written. If the file is closed `-1` is returned.
@@ -122,6 +125,9 @@ extern "C" {
 NstEXP isize NstC Nst_print(const i8 *buf);
 /**
  * Prints a string to a Nest file object.
+ *
+ * @brief Warning: do not use this function to print `Nst_StrObj` objects, use
+ * `Nst_fwrite` instead.
  *
  * @param f: the file to print the string to
  * @param buf: the NUL-terminated string to print
@@ -133,6 +139,9 @@ NstEXP isize NstC Nst_fprint(Nst_IOFileObj *f, const i8 *buf);
 
 /**
  * Prints a string to the Nest standard output appending a newline character.
+ *
+ * @brief Warning: do not use this function to print `Nst_StrObj` objects, use
+ * `Nst_fwrite` instead.
  *
  * @brief On all platforms only a newline (U+000A) is appended, NOT a carriage
  * return.
@@ -148,6 +157,9 @@ NstEXP isize NstC Nst_println(const i8 *buf);
  *
  * @brief On all platforms only a newline (U+000A) is appended, NOT a carriage
  * return.
+ *
+ * @brief Warning: do not use this function to print `Nst_StrObj` objects, use
+ * `Nst_fwrite` instead.
  *
  * @param f: the file to print the string to
  * @param buf: the NUL-terminated string to print
@@ -168,10 +180,10 @@ NstEXP isize NstC Nst_fprintln(Nst_IOFileObj *f, const i8 *buf);
  * @return The number of characters written. On failure a negative value is
  * returned and no error is set. The negative value returned depends on the
  * type of the error:
- * !`-1` signals a failure of vsprintf,
- * !`-2` that the output file is closed,
- * !`-3` an error in the format string and
- * !`-4` a memory allocation error.
+ *! `-1` signals a failure of vsprintf,
+ *! `-2` that the output file is closed,
+ *! `-3` an error in the format string and
+ *! `-4` a memory allocation error.
  */
 NstEXP isize NstC Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
                              Nst_GNU_FMT(1, 2);
@@ -187,10 +199,10 @@ NstEXP isize NstC Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
  * @return The number of characters written. On failure a negative value is
  * returned and no error is set. The negative value returned depends on the
  * type of the error:
- * !`-1` signals a failure of vsprintf,
- * !`-2` that the output file is closed,
- * !`-3` an error in the format string and
- * !`-4` a memory allocation error.
+ *! `-1` signals a failure of vsprintf,
+ *! `-2` that the output file is closed,
+ *! `-3` an error in the format string and
+ *! `-4` a memory allocation error.
  */
 NstEXP isize NstC Nst_fprintf(Nst_IOFileObj *f, Nst_WIN_FMT const i8 *fmt, ...)
                                                 Nst_GNU_FMT(2, 3);
@@ -212,6 +224,11 @@ NstEXP Nst_Obj *NstC Nst_sprintf(Nst_WIN_FMT const i8 *fmt, ...)
                                  Nst_GNU_FMT(1, 2);
 /* `va_list` variant of `Nst_sprintf`. */
 NstEXP Nst_Obj *NstC Nst_vsprintf(const i8 *fmt, va_list args);
+
+#ifdef ENABLE_NST_FMT
+NstEXP i8 *NstC Nst_fmt(const i8 *fmt, usize *len, ...);
+NstEXP i8 *NstC Nst_vfmt(const i8 *fmt, usize *len, va_list args);
+#endif // !ENABLE_NST_FMT
 
 #ifdef __cplusplus
 }

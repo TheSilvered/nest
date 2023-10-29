@@ -6,6 +6,8 @@ Functions to manage various encodings.
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `Nst_CP_MULTIBYTE_MAX_SIZE`
@@ -55,9 +57,13 @@ The structure that represents an encoding.
 - `mult_min_sz`: the size in bytes of the shortest character (usually the same
   as `ch_size`)
 - `name`: the name of the encoding displayed in errors
-- `check_bytes`: the `Nst_CheckBytesFunc` function of the encoding
-- `to_utf32`: the `Nst_ToUTF32Func` function of the encoding
-- `from_utf32`: the `Nst_FromUTF32Func` function of the encoding
+- `check_bytes`: the
+  [`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) function of the
+  encoding
+- `to_utf32`: the [`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func)
+  function of the encoding
+- `from_utf32`: the [`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func)
+  function of the encoding
 
 ---
 
@@ -359,6 +365,132 @@ i32 Nst_utf16le_from_utf32(u32 ch, u8 *str)
 **Description:**
 
 [`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for UTF-16LE.
+
+---
+
+### `Nst_check_ext_utf16_bytes`
+
+**Synopsis:**
+
+```better-c
+i32 Nst_check_ext_utf16_bytes(u16 *str, usize len)
+```
+
+**Description:**
+
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for extUTF-16.
+
+---
+
+### `Nst_ext_utf16_to_utf32`
+
+**Synopsis:**
+
+```better-c
+u32 Nst_ext_utf16_to_utf32(u16 *str)
+```
+
+**Description:**
+
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for extUTF-16.
+
+---
+
+### `Nst_ext_utf16_from_utf32`
+
+**Synopsis:**
+
+```better-c
+i32 Nst_ext_utf16_from_utf32(u32 ch, u16 *str)
+```
+
+**Description:**
+
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for extUTF-16.
+
+---
+
+### `Nst_check_ext_utf16be_bytes`
+
+**Synopsis:**
+
+```better-c
+i32 Nst_check_ext_utf16be_bytes(u8 *str, usize len)
+```
+
+**Description:**
+
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for extUTF-16BE.
+
+---
+
+### `Nst_ext_utf16be_to_utf32`
+
+**Synopsis:**
+
+```better-c
+u32 Nst_ext_utf16be_to_utf32(u8 *str)
+```
+
+**Description:**
+
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for extUTF-16BE.
+
+---
+
+### `Nst_ext_utf16be_from_utf32`
+
+**Synopsis:**
+
+```better-c
+i32 Nst_ext_utf16be_from_utf32(u32 ch, u8 *str)
+```
+
+**Description:**
+
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for extUTF-16BE.
+
+---
+
+### `Nst_check_ext_utf16le_bytes`
+
+**Synopsis:**
+
+```better-c
+i32 Nst_check_ext_utf16le_bytes(u8 *str, usize len)
+```
+
+**Description:**
+
+[`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) for extUTF-16LE.
+
+---
+
+### `Nst_ext_utf16le_to_utf32`
+
+**Synopsis:**
+
+```better-c
+u32 Nst_ext_utf16le_to_utf32(u8 *str)
+```
+
+**Description:**
+
+[`Nst_ToUTF32Func`](c_api-encoding.md#nst_toutf32func) for extUTF-16LE.
+
+---
+
+### `Nst_ext_utf16le_from_utf32`
+
+**Synopsis:**
+
+```better-c
+i32 Nst_ext_utf16le_from_utf32(u32 ch, u8 *str)
+```
+
+**Description:**
+
+[`Nst_FromUTF32Func`](c_api-encoding.md#nst_fromutf32func) for extUTF-16LE.
 
 ---
 
@@ -1040,7 +1172,8 @@ The new string is heap-allocated. str is assumed to be a valid non-NULL pointer.
 **Parameters:**
 
 - `str`: the string to translate
-- `len`: the length of the string, if 0, it is calculated with `strlen`
+- `len`: the length of the string, if 0, it is calculated with
+  [`strlen`](https://man7.org/linux/man-pages/man3/strlen.3.html)
 
 **Returns:**
 
@@ -1066,7 +1199,8 @@ The new string is heap-allocated. str is assumed to be a valid non-NULL pointer.
 **Parameters:**
 
 - `str`: the string to translate
-- `len`: the length of the string, if `0`, it is calculated with `wcslen`
+- `len`: the length of the string, if `0`, it is calculated with
+  [`wcslen`](https://man7.org/linux/man-pages/man3/wcslen.3.html)
 
 **Returns:**
 
@@ -1151,6 +1285,21 @@ The encoding ID from a C string, if no matching encoding is found,
 
 ---
 
+### `Nst_single_byte_cp`
+
+**Synopsis:**
+
+```better-c
+Nst_CPID Nst_single_byte_cp(Nst_CPID cpid)
+```
+
+**Returns:**
+
+The little endian variation of a multi-byte encoding or the encoding itself,
+though always one with a unit size of one byte.
+
+---
+
 ## Enums
 
 ### `Nst_CPID`
@@ -1166,6 +1315,9 @@ typedef enum _Nst_CPID {
     Nst_CP_UTF16,
     Nst_CP_UTF16BE,
     Nst_CP_UTF16LE,
+    Nst_CP_EXT_UTF16,
+    Nst_CP_EXT_UTF16BE,
+    Nst_CP_EXT_UTF16LE,
     Nst_CP_UTF32,
     Nst_CP_UTF32BE,
     Nst_CP_UTF32LE,
@@ -1191,3 +1343,12 @@ The supported encodings in Nest.
 [`Nst_CP_LATIN1`](c_api-encoding.md#nst_cpid) and
 [`Nst_CP_ISO8859_1`](c_api-encoding.md#nst_cpid) are equivalent.
 
+!!!note
+    [`Nst_CP_EXT_UTF8`](c_api-encoding.md#nst_cpid) is a UTF-8 encoding that
+    allows surrogates to be encoded.
+
+!!!note
+    [`Nst_CP_EXT_UTF16`](c_api-encoding.md#nst_cpid) along with the little and
+    big endian versions are UTF-16 encodings that allow for unpaired surrogates
+    with the only constraint being that a high surrogate cannot be the last
+    character.

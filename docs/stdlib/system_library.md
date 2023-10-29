@@ -15,7 +15,9 @@
 
 **Synopsis:**
 
-`[code: Int?] @exit -> null`
+```nest
+[code: Int?] @exit -> null
+```
 
 **Description:**
 
@@ -28,11 +30,14 @@ If `code` is `null` it defaults to `0`.
 
 **Synopsis:**
 
-`[name: Str] @getenv -> Str?`
+```nest
+[name: Str] @getenv -> Str?
+```
 
 **Returns:**
 
-The environment variable `name`, if it does not exist, `null` is returned.
+The value of the environment variable `name`, if it does not exist,
+`null` is returned.
 
 ---
 
@@ -40,7 +45,9 @@ The environment variable `name`, if it does not exist, `null` is returned.
 
 **Synopsis:**
 
-`[object: Any] @get_addr -> Int`
+```nest
+[object: Any] @get_addr -> Int
+```
 
 **Returns:**
 
@@ -52,11 +59,13 @@ The address of the object in memory.
 
 **Synopsis:**
 
-`[object: Any] @get_ref_count -> Int`
+```nest
+[object: Any] @get_ref_count -> Int
+```
 
 **Returns:**
 
-The reference count of `object`
+The reference count of `object`.
 
 ---
 
@@ -64,12 +73,13 @@ The reference count of `object`
 
 **Synopsis:**
 
-`[object: Any] @hash -> Int`
+```nest
+[object: Any] @hash -> Int
+```
 
 **Returns:**
 
-The hash of the object, used in maps. If the object is not hashable, `-1` is
-returned.
+The hash of the object. If the object is not hashable, `-1` is returned.
 
 ---
 
@@ -77,13 +87,15 @@ returned.
 
 **Synopsis:**
 
-`[name: Str, value: Str] @putenv -> null`
+```nest
+[name: Str, value: Str] @putenv -> null
+```
 
 **Description:**
 
-Sets the value of `name` environment variable to be `value`. Both `name` and
-`value` cannot contain NUL characters and `name` cannot contain an equals sign
-(`=`).
+Sets the value of the `name` environment variable to be `value`. Both `name`
+and `value` cannot contain NUL characters and `name` cannot contain an equals
+sign (`=`).
 
 ---
 
@@ -91,7 +103,9 @@ Sets the value of `name` environment variable to be `value`. Both `name` and
 
 **Synopsis:**
 
-`[cmd: Str] @system -> Int`
+```nest
+[cmd: Str] @system -> Int
+```
 
 **Description:**
 
@@ -101,7 +115,8 @@ Executes `cmd` in a sub-shell.
 
 The return value is the exit status of the shell.
 
-On Linux is always the exit status, on Windows, it depends on the default shell.
+On Linux is always the exit status, on Windows, it depends on the default
+shell.
 
 ---
 
@@ -109,12 +124,14 @@ On Linux is always the exit status, on Windows, it depends on the default shell.
 
 **Synopsis:**
 
-`[] @_get_cwd -> Str`
+```nest
+[] @_get_cwd -> Str
+```
 
 **Description:**
 
-Gets the current working directory. If `_set_cwd` was never called, this is
-equivalent to `_cwd_`.
+Gets the current working directory. If [`_set_cwd`](system_library.md#_set_cwd)
+was never called, this is equivalent to `_cwd_`.
 
 ---
 
@@ -122,7 +139,9 @@ equivalent to `_cwd_`.
 
 **Synopsis:**
 
-`[cwd: Str] @_set_cwd -> null`
+```nest
+[cwd: Str] @_set_cwd -> null
+```
 
 **Description:**
 
@@ -134,15 +153,19 @@ Sets the current working directory. The changes do not reflect in `_cwd_`.
 
 **Synopsis:**
 
-`[code: Int?] @_raw_exit -> null`
+```nest
+[code: Int?] @_raw_exit -> null
+```
 
 **Description:**
 
 Similar to [`exit`](#exit), but instead of throwing a special error, the C
 function is called.
 
+The exit code is `code`. If `code` is `null` it defaults to `0`.
+
 This function cannot be accessed by importing the normal system library, you
-need to import the C source instead.
+need to [import the C source](#importing) instead.
 
 !!!warning
     This function exits the process early rather than ending it with a special
@@ -154,7 +177,7 @@ need to import the C source instead.
 
 ### `ENDIANNESS`
 
-The endiannes of the compiled executable, can be either `little` or `big`.
+The endianness of the compiled executable, can be either `little` or `big`.
 
 ---
 
@@ -172,4 +195,4 @@ Whether the console supports ANSI escape sequences.
 
 ### `VERSION`
 
-The current version of Nest as a string such as `'0.13.2 x64'`.
+The current version of Nest as a string such as `'0.14.0 x64'`.

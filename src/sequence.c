@@ -7,15 +7,15 @@
 #include "obj_ops.h"
 #include "lib_import.h"
 #include "format.h"
+#include "type.h"
 
 static Nst_Obj *new_seq(usize len, usize size, Nst_TypeObj *type)
 {
-    Nst_SeqObj *seq = Nst_obj_alloc(
-        Nst_SeqObj,
-        type,
-        _Nst_seq_destroy);
+    Nst_SeqObj *seq = Nst_obj_alloc(Nst_SeqObj, type);
     if (seq == NULL)
         return NULL;
+
+    Nst_GGC_OBJ_INIT(seq);
 
     Nst_Obj **objs = Nst_calloc_c(size, Nst_Obj *, NULL);
     if (objs == NULL) {
@@ -26,8 +26,6 @@ static Nst_Obj *new_seq(usize len, usize size, Nst_TypeObj *type)
     seq->len = len;
     seq->cap = size;
     seq->objs = objs;
-
-    Nst_GGC_OBJ_INIT(seq, _Nst_seq_traverse, _Nst_seq_track);
 
     return OBJ(seq);
 }
@@ -41,8 +39,8 @@ Nst_Obj *Nst_vector_new(usize len)
 {
     usize size = (usize)(len * _Nst_VECTOR_GROWTH_RATIO);
 
-    if (size < _Nst_VECTOR_MIN_SIZE)
-        size = _Nst_VECTOR_MIN_SIZE;
+    if (size < _Nst_VECTOR_MIN_CAP)
+        size = _Nst_VECTOR_MIN_CAP;
 
     return new_seq(len, size, Nst_t.Vector);
 }
@@ -61,16 +59,7 @@ void _Nst_seq_traverse(Nst_SeqObj *seq)
 {
     Nst_Obj **objs = seq->objs;
     for (usize i = 0, n = seq->len; i < n; i++)
-        Nst_FLAG_SET(objs[i], Nst_FLAG_GGC_REACHABLE);
-}
-
-void _Nst_seq_track(Nst_SeqObj* seq)
-{
-    Nst_Obj **objs = seq->objs;
-    for (usize i = 0, n = seq->len; i < n; i++) {
-        if (Nst_FLAG_HAS(objs[i], Nst_FLAG_GGC_IS_SUPPORTED))
-            Nst_ggc_track_obj((Nst_GGCObj*)objs[i]);
-    }
+        Nst_ggc_obj_reachable(objs[i]);
 }
 
 bool _Nst_vector_resize(Nst_SeqObj *vect)
@@ -85,10 +74,10 @@ bool _Nst_vector_resize(Nst_SeqObj *vect)
         new_size = (usize)(len * _Nst_VECTOR_GROWTH_RATIO);
     else if (size >> 2 >= len) { // if it's three quarters empty or less
         new_size = (usize)(size / _Nst_VECTOR_GROWTH_RATIO);
-        if (new_size < _Nst_VECTOR_MIN_SIZE)
-            new_size = _Nst_VECTOR_MIN_SIZE;
+        if (new_size < _Nst_VECTOR_MIN_CAP)
+            new_size = _Nst_VECTOR_MIN_CAP;
 
-        if (size == _Nst_VECTOR_MIN_SIZE)
+        if (size == _Nst_VECTOR_MIN_CAP)
             return true;
     } else
         return true;
@@ -117,11 +106,6 @@ bool _Nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val)
 
     vect->objs[vect->len++] = Nst_inc_ref(val);
 
-    if (Nst_OBJ_IS_TRACKED(vect)
-        && Nst_FLAG_HAS(val, Nst_FLAG_GGC_IS_SUPPORTED))
-    {
-        Nst_ggc_track_obj((Nst_GGCObj*)val);
-    }
     return true;
 }
 
@@ -134,7 +118,7 @@ bool _Nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val)
         const i8 *fmt = seq->type == Nst_t.Array
           ? _Nst_EM_INDEX_OUT_OF_BOUNDS("Array")
           : _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector");
-        Nst_set_value_error(Nst_sprintf(fmt, idx, seq->len));
+        Nst_set_value_errorf(fmt, idx, seq->len);
         return false;
     }
 
@@ -142,12 +126,6 @@ bool _Nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val)
     if (seq->objs[idx] != NULL)
         Nst_dec_ref(seq->objs[idx]);
     seq->objs[idx] = val;
-
-    if (Nst_OBJ_IS_TRACKED(seq)
-        && Nst_FLAG_HAS(val, Nst_FLAG_GGC_IS_SUPPORTED))
-    {
-        Nst_ggc_track_obj((Nst_GGCObj*)val);
-    }
 
     return true;
 }
@@ -161,7 +139,7 @@ Nst_Obj *_Nst_seq_get(Nst_SeqObj *seq, i64 idx)
         const i8 *fmt = seq->type == Nst_t.Array
           ? _Nst_EM_INDEX_OUT_OF_BOUNDS("Array")
           : _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector");
-        Nst_set_value_error(Nst_sprintf(fmt, idx, seq->len));
+        Nst_set_value_errorf(fmt, idx, seq->len);
         return NULL;
     }
 
@@ -363,4 +341,20 @@ Nst_Obj *Nst_array_create_c(const i8 *fmt, ...)
     array = seq_create_c(array, fmt, args);
     va_end(args);
     return array;
+}
+
+Nst_Obj *_Nst_seq_copy(Nst_SeqObj *seq)
+{
+    Nst_SeqObj *new_seq = seq->type == Nst_t.Array ?
+        SEQ(Nst_array_new(seq->len)) : SEQ(Nst_vector_new(seq->len));
+    if (new_seq == NULL)
+        return NULL;
+
+    Nst_Obj **new_objs = new_seq->objs;
+    Nst_Obj **old_objs = seq->objs;
+
+    for (usize i = 0, n = seq->len; i < n; i++)
+        new_objs[i] = Nst_inc_ref(old_objs[i]);
+
+    return OBJ(new_seq);
 }

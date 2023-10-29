@@ -8,6 +8,8 @@
 #include "global_consts.h"
 #include "format.h"
 
+#define TOK_TYPE_CASE(tok_name) case Nst_TT_ ## tok_name: Nst_print(#tok_name); break
+
 Nst_Tok *Nst_tok_new_value(Nst_Pos start, Nst_Pos end, Nst_TokType type,
                            Nst_Obj *value)
 {
@@ -219,6 +221,8 @@ Nst_TokType Nst_tok_from_str(i8 *str)
             return Nst_TT_STDIN;
         if (str[1] == '<' && str[2] == '=')
             return Nst_TT_LSHIFT_A;
+        if (str[1] == '.' && str[2] == '>')
+            return Nst_TT_CONTAINS;
     } else if (str[0] == '?') {
         if (str[1] == '.' && str[2] == '.')
             return Nst_TT_WHILE;
@@ -252,84 +256,85 @@ void Nst_print_tok(Nst_Tok *token)
         token->end.col);
 
     switch (token->type) {
-    case Nst_TT_ADD:      Nst_print("ADD");      break;
-    case Nst_TT_SUB:      Nst_print("SUB");      break;
-    case Nst_TT_MUL:      Nst_print("MUL");      break;
-    case Nst_TT_DIV:      Nst_print("DIV");      break;
-    case Nst_TT_POW:      Nst_print("POW");      break;
-    case Nst_TT_MOD:      Nst_print("MOD");      break;
-    case Nst_TT_B_AND:    Nst_print("B_AND");    break;
-    case Nst_TT_B_OR:     Nst_print("B_OR");     break;
-    case Nst_TT_B_XOR:    Nst_print("B_XOR");    break;
-    case Nst_TT_LSHIFT:   Nst_print("LSHIFT");   break;
-    case Nst_TT_RSHIFT:   Nst_print("RSHIFT");   break;
-    case Nst_TT_CONCAT:   Nst_print("CONCAT");   break;
-    case Nst_TT_L_AND:    Nst_print("L_AND");    break;
-    case Nst_TT_L_OR:     Nst_print("L_OR");     break;
-    case Nst_TT_L_XOR:    Nst_print("L_XOR");    break;
-    case Nst_TT_GT:       Nst_print("GT");       break;
-    case Nst_TT_LT:       Nst_print("LT");       break;
-    case Nst_TT_EQ:       Nst_print("EQ");       break;
-    case Nst_TT_NEQ:      Nst_print("NEQ");      break;
-    case Nst_TT_GTE:      Nst_print("GTE");      break;
-    case Nst_TT_LTE:      Nst_print("LTE");      break;
-    case Nst_TT_CAST:     Nst_print("CAST");     break;
-    case Nst_TT_CALL:     Nst_print("CALL");     break;
-    case Nst_TT_THROW:    Nst_print("THROW");    break;
-    case Nst_TT_RANGE:    Nst_print("RANGE");    break;
-    case Nst_TT_ASSIGN:   Nst_print("ASSIGN");   break;
-    case Nst_TT_ADD_A:    Nst_print("ADD_A");    break;
-    case Nst_TT_SUB_A:    Nst_print("SUB_A");    break;
-    case Nst_TT_MUL_A:    Nst_print("MUL_A");    break;
-    case Nst_TT_DIV_A:    Nst_print("DIV_A");    break;
-    case Nst_TT_POW_A:    Nst_print("POW_A");    break;
-    case Nst_TT_MOD_A:    Nst_print("MOD_A");    break;
-    case Nst_TT_B_AND_A:  Nst_print("B_AND_A");  break;
-    case Nst_TT_B_OR_A:   Nst_print("B_OR_A");   break;
-    case Nst_TT_B_XOR_A:  Nst_print("B_XOR_A");  break;
-    case Nst_TT_LSHIFT_A: Nst_print("LSHIFT_A"); break;
-    case Nst_TT_RSHIFT_A: Nst_print("RSHIFT_A"); break;
-    case Nst_TT_CONCAT_A: Nst_print("CONCAT_A"); break;
-    case Nst_TT_LEN:      Nst_print("LEN");      break;
-    case Nst_TT_L_NOT:    Nst_print("L_NOT");    break;
-    case Nst_TT_B_NOT:    Nst_print("B_NOT");    break;
-    case Nst_TT_STDOUT:   Nst_print("STDOUT");   break;
-    case Nst_TT_STDIN:    Nst_print("STDIN");    break;
-    case Nst_TT_IMPORT:   Nst_print("IMPORT");   break;
-    case Nst_TT_LOC_CALL: Nst_print("LOC_CALL"); break;
-    case Nst_TT_NEG:      Nst_print("NEG");      break;
-    case Nst_TT_TYPEOF:   Nst_print("TYPEOF");   break;
-    case Nst_TT_IDENT:    Nst_print("IDENT");    break;
-    case Nst_TT_VALUE:    Nst_print("VALUE");    break;
-    case Nst_TT_LAMBDA:   Nst_print("LAMBDA");   break;
-    case Nst_TT_L_PAREN:  Nst_print("L_PAREN");  break;
-    case Nst_TT_L_BRACE:  Nst_print("L_BRACE");  break;
-    case Nst_TT_L_VBRACE: Nst_print("L_VBRACE"); break;
-    case Nst_TT_L_BRACKET:Nst_print("L_BRACKET");break;
-    case Nst_TT_R_PAREN:  Nst_print("R_PAREN");  break;
-    case Nst_TT_R_BRACE:  Nst_print("R_BRACE");  break;
-    case Nst_TT_R_VBRACE: Nst_print("R_VBRACE"); break;
-    case Nst_TT_R_BRACKET:Nst_print("R_BRACKET");break;
-    case Nst_TT_IF:       Nst_print("IF");       break;
-    case Nst_TT_AS:       Nst_print("AS");       break;
-    case Nst_TT_ENDL:     Nst_print("ENDL");     break;
-    case Nst_TT_COMMA:    Nst_print("COMMA");    break;
-    case Nst_TT_COLON:    Nst_print("COLON");    break;
-    case Nst_TT_EOFILE:   Nst_print("EOFILE");   break;
-    case Nst_TT_EXTRACT:  Nst_print("EXTRACT");  break;
-    case Nst_TT_WHILE:    Nst_print("WHILE");    break;
-    case Nst_TT_DOWHILE:  Nst_print("DOWHILE");  break;
-    case Nst_TT_FOR:      Nst_print("FOR");      break;
-    case Nst_TT_FUNC:     Nst_print("FUNC");     break;
-    case Nst_TT_RETURN:   Nst_print("RETURN");   break;
-    case Nst_TT_SWITCH:   Nst_print("SWITCH");   break;
-    case Nst_TT_BREAK:    Nst_print("BREAK");    break;
-    case Nst_TT_CONTINUE: Nst_print("CONTINUE"); break;
-    case Nst_TT_TRY:      Nst_print("TRY");      break;
-    case Nst_TT_CATCH:    Nst_print("CATCH");    break;
-    case Nst_TT_SEQ_CALL: Nst_print("SEQ_CALL"); break;
-    case Nst_TT_FMT_STR:  Nst_print("FMT_STR");  break;
-    default: Nst_print("__UNKNOWN__");
+        TOK_TYPE_CASE(ADD);
+        TOK_TYPE_CASE(SUB);
+        TOK_TYPE_CASE(MUL);
+        TOK_TYPE_CASE(DIV);
+        TOK_TYPE_CASE(POW);
+        TOK_TYPE_CASE(MOD);
+        TOK_TYPE_CASE(B_AND);
+        TOK_TYPE_CASE(B_OR);
+        TOK_TYPE_CASE(B_XOR);
+        TOK_TYPE_CASE(LSHIFT);
+        TOK_TYPE_CASE(RSHIFT);
+        TOK_TYPE_CASE(CONCAT);
+        TOK_TYPE_CASE(L_AND);
+        TOK_TYPE_CASE(L_OR);
+        TOK_TYPE_CASE(L_XOR);
+        TOK_TYPE_CASE(GT);
+        TOK_TYPE_CASE(LT);
+        TOK_TYPE_CASE(EQ);
+        TOK_TYPE_CASE(NEQ);
+        TOK_TYPE_CASE(GTE);
+        TOK_TYPE_CASE(LTE);
+        TOK_TYPE_CASE(CAST);
+        TOK_TYPE_CASE(CALL);
+        TOK_TYPE_CASE(THROW);
+        TOK_TYPE_CASE(RANGE);
+        TOK_TYPE_CASE(ASSIGN);
+        TOK_TYPE_CASE(ADD_A);
+        TOK_TYPE_CASE(SUB_A);
+        TOK_TYPE_CASE(MUL_A);
+        TOK_TYPE_CASE(DIV_A);
+        TOK_TYPE_CASE(POW_A);
+        TOK_TYPE_CASE(MOD_A);
+        TOK_TYPE_CASE(B_AND_A);
+        TOK_TYPE_CASE(B_OR_A);
+        TOK_TYPE_CASE(B_XOR_A);
+        TOK_TYPE_CASE(LSHIFT_A);
+        TOK_TYPE_CASE(RSHIFT_A);
+        TOK_TYPE_CASE(CONCAT_A);
+        TOK_TYPE_CASE(LEN);
+        TOK_TYPE_CASE(L_NOT);
+        TOK_TYPE_CASE(B_NOT);
+        TOK_TYPE_CASE(STDOUT);
+        TOK_TYPE_CASE(STDIN);
+        TOK_TYPE_CASE(IMPORT);
+        TOK_TYPE_CASE(LOC_CALL);
+        TOK_TYPE_CASE(NEG);
+        TOK_TYPE_CASE(TYPEOF);
+        TOK_TYPE_CASE(IDENT);
+        TOK_TYPE_CASE(VALUE);
+        TOK_TYPE_CASE(LAMBDA);
+        TOK_TYPE_CASE(L_PAREN);
+        TOK_TYPE_CASE(L_BRACE);
+        TOK_TYPE_CASE(L_VBRACE);
+        TOK_TYPE_CASE(L_BRACKET);
+        TOK_TYPE_CASE(R_PAREN);
+        TOK_TYPE_CASE(R_BRACE);
+        TOK_TYPE_CASE(R_VBRACE);
+        TOK_TYPE_CASE(R_BRACKET);
+        TOK_TYPE_CASE(IF);
+        TOK_TYPE_CASE(AS);
+        TOK_TYPE_CASE(ENDL);
+        TOK_TYPE_CASE(COMMA);
+        TOK_TYPE_CASE(COLON);
+        TOK_TYPE_CASE(EOFILE);
+        TOK_TYPE_CASE(EXTRACT);
+        TOK_TYPE_CASE(WHILE);
+        TOK_TYPE_CASE(DOWHILE);
+        TOK_TYPE_CASE(FOR);
+        TOK_TYPE_CASE(FUNC);
+        TOK_TYPE_CASE(RETURN);
+        TOK_TYPE_CASE(SWITCH);
+        TOK_TYPE_CASE(BREAK);
+        TOK_TYPE_CASE(CONTINUE);
+        TOK_TYPE_CASE(TRY);
+        TOK_TYPE_CASE(CATCH);
+        TOK_TYPE_CASE(SEQ_CALL);
+        TOK_TYPE_CASE(FMT_STR);
+        TOK_TYPE_CASE(CONTAINS);
+        default: Nst_print("__UNKNOWN__");
     }
 
     if (token->value != NULL) {

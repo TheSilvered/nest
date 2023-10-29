@@ -21,9 +21,8 @@ Nst_FUNC_SIGN(values_);
 Nst_FUNC_SIGN(reversed_);
 Nst_FUNC_SIGN(new_iterator_);
 Nst_FUNC_SIGN(iter_start_);
-Nst_FUNC_SIGN(iter_is_done_);
 Nst_FUNC_SIGN(iter_get_val_);
-Nst_FUNC_SIGN(iter_advance_);
+Nst_FUNC_SIGN(_get_iend_);
 
 #ifdef __cplusplus
 }

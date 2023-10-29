@@ -75,8 +75,7 @@ NstEXP Nst_Obj *NstC Nst_func_new(usize arg_num, Nst_InstList *bytecode);
  *
  * @return The new function object or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_func_new_c(usize arg_num,
-                                    Nst_Obj *(*cbody)(usize, Nst_Obj **));
+NstEXP Nst_Obj *NstC Nst_func_new_c(usize arg_num, Nst_NestCallable cbody);
 /**
  * Sets the `mod_globals` table of a function and all the functions defined
  * inside it.
@@ -91,14 +90,12 @@ NstEXP void NstC _Nst_func_set_vt(Nst_FuncObj *func, Nst_MapObj *map);
 
 /* Traverse function for `Nst_FuncObj`. */
 NstEXP void NstC _Nst_func_traverse(Nst_FuncObj *func);
-/* Track function for `Nst_FuncObj`. */
-NstEXP void NstC _Nst_func_track(Nst_FuncObj *func);
 /* Destructor for `Nst_FuncObj`. */
 NstEXP void NstC _Nst_func_destroy(Nst_FuncObj *func);
 
 /* The flags for `Nst_FuncObj`. */
 NstEXP typedef enum _Nst_FuncFlags {
-    Nst_FLAG_FUNC_IS_C = 0b1
+    Nst_FLAG_FUNC_IS_C = Nst_FLAG(1)
 } Nst_FuncFlags;
 
 #ifdef __cplusplus

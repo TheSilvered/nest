@@ -9,14 +9,11 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct _GUI_FontObj {
-    Nst_OBJ_HEAD;
-    TTF_Font *font;
-} GUI_FontObj;
+namespace GUI {
 
-typedef struct _GUI_App {
-    GUI_Element *root;
-    GUI_Element *focused_element;
+typedef struct _App {
+    Element *root;
+    Element *focused_element;
     SDL_Window *window;
     SDL_Renderer *renderer;
     SDL_Rect clip_window;
@@ -32,21 +29,23 @@ typedef struct _GUI_App {
     SDL_Color bg_color;
     SDL_Color bg_dark;
 
-    GUI_FontObj *builtin_fonts[48];
+    FontObj *builtin_fonts[48];
     Nst_Obj *opened_fonts;
-} GUI_App;
+} App;
+
+void set_sdl_error();
+int imin(int n1, int n2);
+int imax(int n1, int n2);
+void set_focused_element(Element *el);
+Element *get_focused_element();
+void remove_focused_element();
+App *get_global_app();
+
+}
 
 NstEXP bool NstC lib_init();
 NstEXP Nst_DeclrList *NstC get_func_ptrs();
 NstEXP void NstC free_lib();
-
-Nst_Obj *gui_font_new(TTF_Font *font);
-void set_sdl_error();
-int imin(int n1, int n2);
-int imax(int n1, int n2);
-void set_focused_element(GUI_Element *el);
-GUI_Element *get_focused_element();
-void remove_focused_element();
 
 Nst_FUNC_SIGN(init_sdl_and_ttf_);
 Nst_FUNC_SIGN(loop_);
@@ -73,12 +72,36 @@ Nst_FUNC_SIGN(set_auto_height_);
 Nst_FUNC_SIGN(get_auto_height_);
 Nst_FUNC_SIGN(set_font_);
 Nst_FUNC_SIGN(get_font_);
-Nst_FUNC_SIGN(add_child_);
-Nst_FUNC_SIGN(remove_child_);
 Nst_FUNC_SIGN(get_root_);
 Nst_FUNC_SIGN(set_func_);
 Nst_FUNC_SIGN(get_builtin_font_);
 Nst_FUNC_SIGN(open_font_);
+Nst_FUNC_SIGN(match_x_);
+Nst_FUNC_SIGN(match_y_);
+Nst_FUNC_SIGN(match_pos_);
+Nst_FUNC_SIGN(match_w_);
+Nst_FUNC_SIGN(match_h_);
+Nst_FUNC_SIGN(match_size_);
+Nst_FUNC_SIGN(perc_pos_);
+Nst_FUNC_SIGN(diff_pos_);
+Nst_FUNC_SIGN(perc_size_);
+Nst_FUNC_SIGN(diff_size_);
+Nst_FUNC_SIGN(min_x_);
+Nst_FUNC_SIGN(min_y_);
+Nst_FUNC_SIGN(min_pos_);
+Nst_FUNC_SIGN(max_x_);
+Nst_FUNC_SIGN(max_y_);
+Nst_FUNC_SIGN(max_pos_);
+Nst_FUNC_SIGN(min_w_);
+Nst_FUNC_SIGN(min_h_);
+Nst_FUNC_SIGN(min_size_);
+Nst_FUNC_SIGN(max_w_);
+Nst_FUNC_SIGN(max_h_);
+Nst_FUNC_SIGN(max_size_);
+Nst_FUNC_SIGN(fill_w_);
+Nst_FUNC_SIGN(fill_h_);
+Nst_FUNC_SIGN(get_text_);
+Nst_FUNC_SIGN(set_text_);
 Nst_FUNC_SIGN(_debug_view_);
 
 #ifdef __cplusplus

@@ -1,4 +1,4 @@
-# Codecs Library
+# Codecs library
 
 ## Importing
 
@@ -12,7 +12,9 @@
 
 **Synopsis:**
 
-`[cp: Int|Byte] @cp_is_valid -> Bool`
+```nest
+[cp: Int|Byte] @cp_is_valid -> Bool
+```
 
 **Returns:**
 
@@ -24,7 +26,9 @@
 
 **Synopsis:**
 
-`[cp: Int|Byte] @from_cp -> Str`
+```nest
+[cp: Int|Byte] @from_cp -> Str
+```
 
 **Returns:**
 
@@ -34,60 +38,18 @@ A new string containing the character associated with the given code point. If
 
 ---
 
-### `@get_at`
-
-**Synopsis:**
-
-`[string: Str, index: Int] @get_at -> Str`
-
-**Returns:**
-
-The Unicode character at `index` in `string`. Negative indices do not
-work unlike normal extraction operations.
-
-!!!note
-    This function operates in linear time.
-
----
-
-### `@get_len`
-
-**Synopsis:**
-
-`[string: Str] @get_len -> Int`
-
-**Returns:**
-
-The Unicode length of `string`. If it is not valid UTF-8 an error is thrown.
-
-!!!note
-    This function operates in linear time.
-
----
-
 ### `@to_cp`
 
 **Synopsis:**
 
-`[char: Str] @to_cp -> Int`
+```nest
+[char: Str] @to_cp -> Int
+```
 
 **Returns:**
 
-The code point associated with the caracter in `char`. If `char` does not
+The code point associated with the character in `char`. If `char` does not
 contain only one character an error is thrown.
-
----
-
-### `@to_iter`
-
-**Synopsis:**
-
-`[string: Str] @to_iter -> Iter`
-
-**Returns:**
-
-An iterator that iterates over the Unicode characters of `string`, unlike
-`Iter :: string` that would iterate over the bytes.
 
 ---
 
@@ -129,6 +91,28 @@ encoding name.
 
 [UTF-16BE](https://en.wikipedia.org/wiki/UTF-16#Byte-order_encoding_schemes)
 encoding name.
+
+---
+
+### `EXT_UTF_16`
+
+extUTF-16 encoding name. This encoding is Nest-specific and is UTF-16 that
+accepts unpaired surrogates. The only exception is the last character that
+must not be a high surrogate.
+
+---
+
+### `EXT_UTF_16LE`
+
+extUTF-16LE encoding name. Little endian version of
+[extUTF-16.](codecs_library.md#ext_utf_16).
+
+---
+
+### `EXT_UTF_16BE`
+
+extUTF-16BE encoding name. Big endian version of
+[extUTF-16.](codecs_library.md#ext_utf_16).
 
 ---
 
@@ -216,6 +200,8 @@ encoding name.
 ### `LATIN_1`
 
 Latin-1 (a.k.a. ISO/IEC 8859-1) encoding name.
+
+---
 
 ### `ISO_8859_1`
 

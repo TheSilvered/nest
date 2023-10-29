@@ -6,6 +6,8 @@
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `_Nst_MAP_MIN_SIZE`
@@ -21,7 +23,7 @@ The minimum size of a map, must be a power of two.
 **Synopsis:**
 
 ```better-c
-MAP(ptr)
+#define MAP(ptr)
 ```
 
 **Description:**
@@ -35,7 +37,7 @@ Casts `ptr` to [`Nst_MapObj *`](c_api-map.md#nst_mapobj).
 **Synopsis:**
 
 ```better-c
-Nst_map_set(map, key, value)
+#define Nst_map_set(map, key, value)
 ```
 
 **Description:**
@@ -51,7 +53,7 @@ Alias for [`_Nst_map_set`](c_api-map.md#_nst_map_set) which casts `map` to
 **Synopsis:**
 
 ```better-c
-Nst_map_get(map, key)
+#define Nst_map_get(map, key)
 ```
 
 **Description:**
@@ -67,7 +69,7 @@ Alias for [`_Nst_map_get`](c_api-map.md#_nst_map_get) that casts `map` to
 **Synopsis:**
 
 ```better-c
-Nst_map_drop(map, key)
+#define Nst_map_drop(map, key)
 ```
 
 **Description:**
@@ -78,12 +80,27 @@ Alias for [`_Nst_map_drop`](c_api-map.md#_nst_map_drop) that casts `map` to
 
 ---
 
+### `Nst_map_copy`
+
+**Synopsis:**
+
+```better-c
+#define Nst_map_copy(map)
+```
+
+**Description:**
+
+Alias for [`_Nst_map_copy`](c_api-map.md#_nst_map_copy) that casts `map` to
+[`Nst_MapObj *`](c_api-map.md#nst_mapobj).
+
+---
+
 ### `Nst_map_get_next_idx`
 
 **Synopsis:**
 
 ```better-c
-Nst_map_get_next_idx(curr_idx, map)
+#define Nst_map_get_next_idx(curr_idx, map)
 ```
 
 **Description:**
@@ -98,7 +115,7 @@ casts `map` to [`Nst_MapObj *`](c_api-map.md#nst_mapobj).
 **Synopsis:**
 
 ```better-c
-Nst_map_get_prev_idx(curr_idx, map)
+#define Nst_map_get_prev_idx(curr_idx, map)
 ```
 
 **Description:**
@@ -113,7 +130,7 @@ casts `map` to [`Nst_MapObj *`](c_api-map.md#nst_mapobj).
 **Synopsis:**
 
 ```better-c
-Nst_map_set_str(map, key, value)
+#define Nst_map_set_str(map, key, value)
 ```
 
 **Description:**
@@ -129,7 +146,7 @@ to [`Nst_MapObj *`](c_api-map.md#nst_mapobj) and `value` to
 **Synopsis:**
 
 ```better-c
-Nst_map_get_str(map, key)
+#define Nst_map_get_str(map, key)
 ```
 
 **Description:**
@@ -144,7 +161,7 @@ Alias for [`Nst_map_get_str`](c_api-map.md#nst_map_get_str) that casts `map` to
 **Synopsis:**
 
 ```better-c
-Nst_map_drop_str(map, key)
+#define Nst_map_drop_str(map, key)
 ```
 
 **Description:**
@@ -308,6 +325,28 @@ not hashable or is not inside the map. No error is set.
 
 ---
 
+### `_Nst_map_copy`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_map_copy(Nst_MapObj *map)
+```
+
+**Description:**
+
+Creates a shallow copy of a map object.
+
+**Parameters:**
+
+- `map`: the map to copy
+
+**Returns:**
+
+The copied map or `NULL` on failure. The error is set.
+
+---
+
 ### `_Nst_map_destroy`
 
 **Synopsis:**
@@ -333,20 +372,6 @@ void _Nst_map_traverse(Nst_MapObj *map)
 **Description:**
 
 The traverse function for the map object.
-
----
-
-### `_Nst_map_track`
-
-**Synopsis:**
-
-```better-c
-void _Nst_map_track(Nst_MapObj *map)
-```
-
-**Description:**
-
-The track function for the map object.
 
 ---
 
@@ -494,4 +519,3 @@ Drops a key from a map and returns its value.
 
 The object associated with the removed key on success or `NULL` if the key is
 not hashable or is not inside the map. No error is set.
-

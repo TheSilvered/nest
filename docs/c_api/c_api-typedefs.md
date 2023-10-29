@@ -6,6 +6,8 @@ Clearer C types and useful platform-agnostic macros.
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `Nst_WIN`
@@ -61,7 +63,7 @@ Marks an argument as a printf format string on MSVC.
 **Synopsis:**
 
 ```better-c
-Nst_GNU_FMT(m, n)
+#define Nst_GNU_FMT(m, n)
 ```
 
 **Description:**
@@ -109,7 +111,7 @@ Marks a function for for the standard C declaration (`__cdecl`).
 **Synopsis:**
 
 ```better-c
-Nst_UNUSED(v)
+#define Nst_UNUSED(v)
 ```
 
 **Description:**
@@ -134,7 +136,7 @@ creation of Nest objects.
 **Synopsis:**
 
 ```better-c
-typedef char i8;
+typedef char i8
 ```
 
 **Description:**
@@ -148,7 +150,7 @@ typedef char i8;
 **Synopsis:**
 
 ```better-c
-typedef short i16;
+typedef short i16
 ```
 
 **Description:**
@@ -162,7 +164,7 @@ typedef short i16;
 **Synopsis:**
 
 ```better-c
-typedef long i32;
+typedef long i32
 ```
 
 **Description:**
@@ -176,7 +178,7 @@ typedef long i32;
 **Synopsis:**
 
 ```better-c
-typedef long long i64;
+typedef long long i64
 ```
 
 **Description:**
@@ -190,7 +192,7 @@ typedef long long i64;
 **Synopsis:**
 
 ```better-c
-typedef unsigned char u8;
+typedef unsigned char u8
 ```
 
 **Description:**
@@ -204,7 +206,7 @@ typedef unsigned char u8;
 **Synopsis:**
 
 ```better-c
-typedef unsigned short u16;
+typedef unsigned short u16
 ```
 
 **Description:**
@@ -218,7 +220,7 @@ typedef unsigned short u16;
 **Synopsis:**
 
 ```better-c
-typedef unsigned long u32;
+typedef unsigned long u32
 ```
 
 **Description:**
@@ -232,7 +234,7 @@ typedef unsigned long u32;
 **Synopsis:**
 
 ```better-c
-typedef unsigned long long u64;
+typedef unsigned long long u64
 ```
 
 **Description:**
@@ -246,7 +248,7 @@ typedef unsigned long long u64;
 **Synopsis:**
 
 ```better-c
-typedef float f32;
+typedef float f32
 ```
 
 **Description:**
@@ -260,7 +262,7 @@ typedef float f32;
 **Synopsis:**
 
 ```better-c
-typedef double f64;
+typedef double f64
 ```
 
 **Description:**
@@ -274,7 +276,7 @@ typedef double f64;
 **Synopsis:**
 
 ```better-c
-typedef size_t usize;
+typedef size_t usize
 ```
 
 **Description:**
@@ -288,10 +290,23 @@ typedef size_t usize;
 **Synopsis:**
 
 ```better-c
-typedef ptrdiff_t isize;
+typedef ptrdiff_t isize
 ```
 
 **Description:**
 
 `ptrdiff_t` alias.
 
+---
+
+### `Nst_NestCallable`
+
+**Synopsis:**
+
+```better-c
+typedef Nst_Obj *(*Nst_NestCallable)(usize, Nst_Obj **)
+```
+
+**Description:**
+
+The signature of a C function callable by Nest.

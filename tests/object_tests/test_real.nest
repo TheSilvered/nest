@@ -35,3 +35,5 @@
 
 Bool :: 0.0 @test.assert_false
 Bool :: -0.0 @test.assert_false
+Bool :: 1.0 @test.assert_true
+Bool :: -1.0 @test.assert_true

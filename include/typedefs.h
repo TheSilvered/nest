@@ -12,6 +12,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <assert.h>
 
 #if defined(_WIN32) || defined(WIN32)
 /* Defined when compiling on MS Windows. */
@@ -127,13 +128,15 @@
 /* Marks an argument as unused. To be used inside the body of the function. */
 #define Nst_UNUSED(v) (void)(v)
 
-#if 0
+#if 1
 /**
  * @brief Defined to compile with additional arguments that track the location
  * of the creation of Nest objects.
  */
 #define Nst_TRACK_OBJ_INIT_POS
 #endif
+
+#define _Nst_ASSERT_TYPE(ob, t_name) assert((ob)->type == Nst_t.t_name)
 
 #if !defined(_DEBUG) && defined(Nst_TRACK_OBJ_INIT_POS)
 #undef Nst_TRACK_OBJ_INIT_POS
@@ -143,18 +146,18 @@
 extern "C" {
 #endif // !__cplusplus
 
-/* [docs:link i8 c_api.md#type-definitions] */
-/* [docs:link i16 c_api.md#type-definitions] */
-/* [docs:link i32 c_api.md#type-definitions] */
-/* [docs:link i64 c_api.md#type-definitions] */
-/* [docs:link u8 c_api.md#type-definitions] */
-/* [docs:link u16 c_api.md#type-definitions] */
-/* [docs:link u32 c_api.md#type-definitions] */
-/* [docs:link u64 c_api.md#type-definitions] */
-/* [docs:link f32 c_api.md#type-definitions] */
-/* [docs:link f64 c_api.md#type-definitions] */
-/* [docs:link usize c_api.md#type-definitions] */
-/* [docs:link isize c_api.md#type-definitions] */
+/* [docs:link i8 <c_api_index.md#type-definitions>] */
+/* [docs:link i16 <c_api_index.md#type-definitions>] */
+/* [docs:link i32 <c_api_index.md#type-definitions>] */
+/* [docs:link i64 <c_api_index.md#type-definitions>] */
+/* [docs:link u8 <c_api_index.md#type-definitions>] */
+/* [docs:link u16 <c_api_index.md#type-definitions>] */
+/* [docs:link u32 <c_api_index.md#type-definitions>] */
+/* [docs:link u64 <c_api_index.md#type-definitions>] */
+/* [docs:link f32 <c_api_index.md#type-definitions>] */
+/* [docs:link f64 <c_api_index.md#type-definitions>] */
+/* [docs:link usize <c_api_index.md#type-definitions>] */
+/* [docs:link isize <c_api_index.md#type-definitions>] */
 
 /* `char` alias. */
 NstEXP typedef char i8;
@@ -183,6 +186,11 @@ NstEXP typedef double f64;
 NstEXP typedef size_t usize;
 /* `ptrdiff_t` alias. */
 NstEXP typedef ptrdiff_t isize;
+
+typedef struct _Nst_Obj Nst_Obj;
+
+/* The signature of a C function callable by Nest. */
+NstEXP typedef Nst_Obj *(*Nst_NestCallable)(usize, Nst_Obj **);
 
 #ifdef __cplusplus
 }

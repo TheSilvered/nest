@@ -114,6 +114,10 @@ isize Nst_print(const i8 *buf)
 
 Prints a string to the Nest standard output.
 
+!!!warning
+    Do not use this function to print [`Nst_StrObj`](c_api-str.md#nst_strobj)
+    objects, use [`Nst_fwrite`](c_api-file.md#nst_fwrite) instead.
+
 **Parameters:**
 
 - `buf`: the NUL-terminated string to print
@@ -136,6 +140,10 @@ isize Nst_fprint(Nst_IOFileObj *f, const i8 *buf)
 **Description:**
 
 Prints a string to a Nest file object.
+
+!!!warning
+    Do not use this function to print [`Nst_StrObj`](c_api-str.md#nst_strobj)
+    objects, use [`Nst_fwrite`](c_api-file.md#nst_fwrite) instead.
 
 **Parameters:**
 
@@ -160,6 +168,10 @@ isize Nst_println(const i8 *buf)
 **Description:**
 
 Prints a string to the Nest standard output appending a newline character.
+
+!!!warning
+    Do not use this function to print [`Nst_StrObj`](c_api-str.md#nst_strobj)
+    objects, use [`Nst_fwrite`](c_api-file.md#nst_fwrite) instead.
 
 On all platforms only a newline (U+000A) is appended, NOT a carriage return.
 
@@ -188,6 +200,10 @@ Prints a string to a Nest file object appending a newline character.
 
 On all platforms only a newline (U+000A) is appended, NOT a carriage return.
 
+!!!warning
+    Do not use this function to print [`Nst_StrObj`](c_api-str.md#nst_strobj)
+    objects, use [`Nst_fwrite`](c_api-file.md#nst_fwrite) instead.
+
 **Parameters:**
 
 - `f`: the file to print the string to
@@ -205,7 +221,7 @@ closed `-1` is returned. No error is set.
 **Synopsis:**
 
 ```better-c
-isize Nst_printf(Nst_WIN_FMT const i8 *fmt, ...) Nst_GNU_FMT(1, 2)
+isize Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
 ```
 
 **Description:**
@@ -237,8 +253,7 @@ error is set. The negative value returned depends on the type of the error:
 **Synopsis:**
 
 ```better-c
-isize Nst_fprintf(Nst_IOFileObj *f, Nst_WIN_FMT const i8 *fmt, ...) Nst_GNU_FMT(2,
-                                                                                3)
+isize Nst_fprintf(Nst_IOFileObj *f, Nst_WIN_FMT const i8 *fmt, ...)
 ```
 
 **Description:**
@@ -285,7 +300,7 @@ isize Nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args)
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_sprintf(Nst_WIN_FMT const i8 *fmt, ...) Nst_GNU_FMT(1, 2)
+Nst_Obj *Nst_sprintf(Nst_WIN_FMT const i8 *fmt, ...)
 ```
 
 **Description:**
@@ -318,4 +333,3 @@ Nst_Obj *Nst_vsprintf(const i8 *fmt, va_list args)
 **Description:**
 
 `va_list` variant of [`Nst_sprintf`](c_api-format.md#nst_sprintf).
-

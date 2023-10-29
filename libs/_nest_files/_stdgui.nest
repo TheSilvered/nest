@@ -34,40 +34,71 @@ __gui.set_func_         = set_func
 __gui.get_root_         = get_root
 __gui.get_builtin_font_ = get_builtin_font
 __gui.open_font_        = open_font
+__gui.match_pos_        = match_pos
+__gui.match_x_          = match_x
+__gui.match_y_          = match_y
+__gui.match_w_          = match_w
+__gui.match_h_          = match_h
+__gui.match_size_       = match_size
+__gui.perc_pos_         = perc_pos
+__gui.diff_pos_         = diff_pos
+__gui.perc_size_        = perc_size
+__gui.diff_size_        = diff_size
+__gui.min_x_            = min_x
+__gui.min_y_            = min_y
+__gui.min_pos_          = min_pos
+__gui.max_x_            = max_x
+__gui.max_y_            = max_y
+__gui.max_pos_          = max_pos
+__gui.min_w_            = min_w
+__gui.min_h_            = min_h
+__gui.min_size_         = min_size
+__gui.max_w_            = max_w
+__gui.max_h_            = max_h
+__gui.max_size_         = max_size
+__gui.fill_w_           = fill_w
+__gui.fill_h_           = fill_h
+__gui.get_text_			= get_text
+__gui.set_text_			= set_text
 
 __gui._debug_view_ = _debug_view
 
-{ 'fullscreen': 0x00000001,
-  'shown': 0x00000004,
-  'hidden': 0x00000008,
-  'borderless': 0x00000010,
-  'resizable': 0x00000020,
-  'minimized': 0x00000040,
-  'maximized': 0x00000080,
-  'mouse_grabbed': 0x00000100,
-  'input_focus': 0x00000200,
-  'mouse_focus': 0x00000400,
-  'fullscreen_desktop': 0x00001001,
-  'mouse_capture': 0x00004000,
-  'always_on_top': 0x00008000,
-  'skip_taskbar': 0x00010000,
-  'keyboard_grabbed': 0x00100000,
-  'input_grabbed': 0x00000100 } = WINDOW_FLAGS
+{'fullscreen': 0x00000001,
+ 'shown': 0x00000004,
+ 'hidden': 0x00000008,
+ 'borderless': 0x00000010,
+ 'resizable': 0x00000020,
+ 'minimized': 0x00000040,
+ 'maximized': 0x00000080,
+ 'mouse_grabbed': 0x00000100,
+ 'input_focus': 0x00000200,
+ 'mouse_focus': 0x00000400,
+ 'fullscreen_desktop': 0x00001001,
+ 'mouse_capture': 0x00004000,
+ 'always_on_top': 0x00008000,
+ 'skip_taskbar': 0x00010000,
+ 'keyboard_grabbed': 0x00100000,
+ 'input_grabbed': 0x00000100} = WINDOW_FLAGS
 
 |#| 'stditutil.nest' = _itu
 
 #_enum arr start => (?::{}) :: (arr start 1 1 @_itu.enumerate)
 
-{ 'none', 'left', 'middle', 'right' } -1 @_enum = REL_X
--- Though in C GUI_NONE_Y is -2, any negative value works
-{ 'none', 'top', 'center', 'bottom' } -1 @_enum = REL_Y
+{'left', 'right', 'top', 'bottom', 'center',
+ 'p_left', 'p_right', 'p_top', 'p_bottom', 'p_center'} @_enum = SIDE
 
-{ 'light', 'regular', 'bold', 'extra_bold' } @_enum = FW
-{ 'small', 'medium', 'large' } @_enum = FS
+{'tl', 'tc', 'tr',
+ 'cl', 'cc', 'cr',
+ 'bl', 'bc', 'br',
 
-{ 'padding', 'element', 'margin' } @_enum = RECT
+ 'p_tl', 'p_tc', 'p_tr',
+ 'p_cl', 'p_cc', 'p_cr',
+ 'p_bl', 'p_bc', 'p_br'} @_enum = POS
 
-{ 'top_bottom', 'left_right', 'bottom_top', 'right_left' } @_enum = STACK_DIR
-{ 'left': 0, 'top': 0, 'middle': 1, 'center': 1, 'bottom': 2, 'right': 2 } = STACK_ALIGN
+{'light', 'regular', 'bold', 'extra_bold'} @_enum = FW
+{'small', 'medium', 'large'} @_enum = FS
+
+{'top_bottom', 'left_right', 'bottom_top', 'right_left'} @_enum = STACK_DIR
+{'left': 0, 'top': 0, 'middle': 1, 'center': 1, 'bottom': 2, 'right': 2} = STACK_ALIGN
 
 _vars_ '__gui' '_vars_' '_enum' '_itu' -

@@ -1,4 +1,4 @@
-# Input-output library
+# I/O library
 
 ## Importing
 
@@ -12,11 +12,13 @@
 
 **Synopsis:**
 
-`[file: IOFile] @can_read -> Bool`
+```nest
+[file: IOFile] @can_read -> Bool
+```
 
 **Returns:**
 
-`true` if the file can be read and `false` otherwise.
+`true` if `file` can be read and `false` otherwise.
 
 ---
 
@@ -24,11 +26,13 @@
 
 **Synopsis:**
 
-`[file: IOFile] @can_seek -> Bool`
+```nest
+[file: IOFile] @can_seek -> Bool
+```
 
 **Returns:**
 
-`true` if the file can be saught and `false` otherwise.
+`true` if `file` can be sought and `false` otherwise.
 
 ---
 
@@ -36,11 +40,13 @@
 
 **Synopsis:**
 
-`[file: IOFile] @can_write -> Bool`
+```nest
+[file: IOFile] @can_write -> Bool
+```
 
 **Returns:**
 
-`true` if the file can be written and `false` otherwise.
+`true` if `file` can be written and `false` otherwise.
 
 ---
 
@@ -48,7 +54,9 @@
 
 **Synopsis:**
 
-`[file: IOFile] @close -> null`
+```nest
+[file: IOFile] @close -> null
+```
 
 **Description:**
 
@@ -66,7 +74,9 @@ When the program ends any file that is still open gets closed.
 
 **Synopsis:**
 
-`[file: IOFile] @descriptor -> Int`
+```nest
+[file: IOFile] @descriptor -> Int
+```
 
 **Returns:**
 
@@ -79,7 +89,9 @@ descriptor `-1` is returned and no error is thrown.
 
 **Synopsis:**
 
-`[file: IOFile] @encoding -> Str`
+```nest
+[file: IOFile] @encoding -> Str
+```
 
 **Returns:**
 
@@ -92,11 +104,14 @@ this function fails.
 
 **Synopsis:**
 
-`[file: IOFile] @file_size -> Int`
+```nest
+[file: IOFile] @file_size -> Int
+```
 
 **Returns:**
 
-The size of the file in bytes.
+The size of the file in bytes. Throws an error if the file is not seekable or
+is closed.
 
 ---
 
@@ -104,11 +119,14 @@ The size of the file in bytes.
 
 **Synopsis:**
 
-`[file: IOFile] @flush -> null`
+```nest
+[file: IOFile] @flush -> null
+```
 
 **Description:**
 
-Flushes the output buffer of a file.
+Flushes the output buffer of a file. An error is thrown if the file is closed
+or cannot be written.
 
 ---
 
@@ -116,15 +134,21 @@ Flushes the output buffer of a file.
 
 **Synopsis:**
 
-`[file: IOFile] @get_flags -> Str`
+```nest
+[file: IOFile] @get_flags -> Str
+```
 
 **Returns:**
 
-A 5-character string where the first character is `r` if the file can be read
-and `-` otherwise, the second one is `w` if the file can be written and
-`-` otherwise, the third one `b` if the file is opened in binary mode and
-`-` if it is opened normally, the fourth is `s` if the file is seekable and
-`-` otherwise and the last one is `t` if the file is a TTY and `-` otherwise.
+A 5-character string where each character represents a flag as follows:
+
+1. `r` if the file is readable
+2. `w` if the file is writable
+3. `b` if the file is binary
+4. `s` if the file is seekable
+5. `t` if the file is a TTY
+
+If `file` does not have a flag, that character is replaced by a hyphen (`-`).
 
 **Example:**
 
@@ -150,11 +174,14 @@ f3 @io.close
 
 **Synopsis:**
 
-`[file: IOFile] @get_fpi -> Int`
+```nest
+[file: IOFile] @get_fpi -> Int
+```
 
 **Description:**
 
-Returns the position in bytes of the file pointer.
+Returns the position in bytes of the file position indicator. Throws an error
+if the file cannot be sought or is closed.
 
 ---
 
@@ -162,11 +189,13 @@ Returns the position in bytes of the file pointer.
 
 **Synopsis:**
 
-`[file: IOFile] @is_a_tty -> Bool`
+```nest
+[file: IOFile] @is_a_tty -> Bool
+```
 
 **Returns:**
 
-`true` if the file is a TTY and `false` otherwise.
+`true` if `file` is a TTY and `false` otherwise.
 
 ---
 
@@ -174,11 +203,13 @@ Returns the position in bytes of the file pointer.
 
 **Synopsis:**
 
-`[file: IOFile] @is_bin -> Bool`
+```nest
+[file: IOFile] @is_bin -> Bool
+```
 
 **Returns:**
 
-`true` if the file was opened in binary mode and `false` otherwise.
+`true` if `file` was opened in binary mode and `false` otherwise.
 
 ---
 
@@ -186,20 +217,23 @@ Returns the position in bytes of the file pointer.
 
 **Synopsis:**
 
-`[file: IOFile, starting_position: Int, offset: Int] @move_fpi -> null`
+```nest
+[file: IOFile, starting_position: Int, offset: Int] @move_fpi -> null
+```
 
 **Description:**
 
-Moves the file pointer from `starting_position` that can be set with
-`FROM_START`, `FROM_SET`, `FROM_CUR` and `FROM_END` by a number of bytes
-specified by the `offset`.
-`offset` can also be negative.
+Moves the file position indicator from `starting_position` by `offset`. An
+error is thrown if the file is closed, is not seekable or if the file position
+indicator would go outside the file.
 
 **Arguments:**
 
-- `file`: the file of which the file pointer should be moved
-- `starting_position`: the position from which the offset is applied
-- `offset`: the offset in bytes from the starting position
+- `file`: the file of which the file position indicator should be moved
+- `starting_position`: the position from which the offset is applied, this can
+  be either [`FROM_START`](io_library.md#from_start),
+  [`FROM_CUR`](io_library.md#from_cur) or [`FROM_END`](io_library.md#from_end)
+- `offset`: the offset in bytes from the starting position, it can be negative
 
 ---
 
@@ -207,7 +241,9 @@ specified by the `offset`.
 
 **Synopsis:**
 
-`[path: Str, mode: Str?, encoding: Str?, buf_size: Int?] @open -> IOFile`
+```nest
+[path: Str, mode: Str?, encoding: Str?, buf_size: Int?] @open -> IOFile
+```
 
 **Description:**
 
@@ -218,8 +254,8 @@ The file modes are:
 
 | Mode           | Description                                   |
 | -------------- | --------------------------------------------- |
-| `w`            | write                                         |
-| `wb`           | write bytes                                   |
+| `w`            | write, destroying the contents                |
+| `wb`           | write bytes, destroying the contents          |
 | `r`            | read                                          |
 | `rb`           | read bytes                                    |
 | `a`            | append                                        |
@@ -233,34 +269,43 @@ The file modes are:
 
 The encodings are:
 
-| Encoding   | Aliases                                            |
-| ---------- | -------------------------------------------------- |
-| `ascii`    | `us-ascii`                                         |
-| `cp1250`   | `cp-1250`, `windows1250`, `windows-1250`           |
-| `cp1251`   | `cp-1251`, `windows1251`, `windows-1251`           |
-| `cp1252`   | `cp-1252`, `windows1252`, `windows-1252`           |
-| `cp1253`   | `cp-1253`, `windows1253`, `windows-1253`           |
-| `cp1254`   | `cp-1254`, `windows1254`, `windows-1254`           |
-| `cp1255`   | `cp-1255`, `windows1255`, `windows-1255`           |
-| `cp1256`   | `cp-1256`, `windows1256`, `windows-1256`           |
-| `cp1257`   | `cp-1257`, `windows1257`, `windows-1257`           |
-| `cp1258`   | `cp-1258`, `windows1258`, `windows-1258`           |
-| `latin-1`  | `latin1`, `l1`, `latin`, `iso-8859-1`, `iso8859-1` |
-| `utf8`     | `utf-8`                                            |
-| `ext-utf8` | `ext-utf-8`, `extutf8`, `extutf-8`                 |
-| `utf16le`  | `utf-16le`, `utf16`, `utf-16`                      |
-| `utf16be`  | `utf-16be`                                         |
-| `utf32le`  | `utf-32le`, `utf32`, `utf-32`                      |
-| `utf32be`  | `utf-32be`                                         |
+| Encoding      | Aliases                                 |
+| ------------- | --------------------------------------- |
+| `ascii`       | `us-ascii`                              |
+| `cp1250`      | `cp-1250`, `windows[-]1250`             |
+| `cp1251`      | `cp-1251`, `windows[-]1251`             |
+| `cp1252`      | `cp-1252`, `windows[-]1252`             |
+| `cp1253`      | `cp-1253`, `windows[-]1253`             |
+| `cp1254`      | `cp-1254`, `windows[-]1254`             |
+| `cp1255`      | `cp-1255`, `windows[-]1255`             |
+| `cp1256`      | `cp-1256`, `windows[-]1256`             |
+| `cp1257`      | `cp-1257`, `windows[-]1257`             |
+| `cp1258`      | `cp-1258`, `windows[-]1258`             |
+| `latin-1`     | `latin1`, `l1`, `latin`, `iso[-]8859-1` |
+| `utf8`        | `utf-8`                                 |
+| `ext-utf8`    | `ext[-]utf[-]8`                         |
+| `utf16le`     | `utf-16le`, `utf[-]16`                  |
+| `utf16be`     | `utf-16be`                              |
+| `ext-utf16le` | `ext[-]utf[-]16le`, `ext[-]utf[-]16`    |
+| `utf32le`     | `utf-32le`, `utf[-]32`                  |
+| `utf32be`     | `utf-32be`                              |
+
+!!!note
+    `[-]` means that the hyphen is optional, for example both `windows1252` and
+    `windows-1252` are accepted.
 
 The name of the encoding is case insensitive. Underscores (`_`), hyphens (`-`)
 and spaces (` `) are interchangeable. This means that any of the following is
 recognized as UTF-8.
 
-`utf8`, `utf-8`, `utf_8`, `utf 8`, `Utf8`, `Utf-8`,
-`Utf_8`, `Utf 8`, `uTf8`, `uTf-8`, `uTf_8`, `uTf 8`, `UTf8`, `UTf-8`, `UTf_8`,
-`UTf 8`, `utF8`, `utF-8`, `utF_8`, `utF 8`, `UtF8`, `UtF-8`, `UtF_8`, `UtF 8`,
-`uTF8`, `uTF-8`, `uTF_8`, `uTF 8`, `UTF8`, `UTF-8`, `UTF_8`, `UTF 8`.
+`utf8`, `utf-8`, `utf_8`, `utf 8`, `Utf8`, `Utf-8`, `Utf_8`, `Utf 8`, `uTf8`,
+`uTf-8`, `uTf_8`, `uTf 8`, `UTf8`, `UTf-8`, `UTf_8`, `UTf 8`, `utF8`, `utF-8`,
+`utF_8`, `utF 8`, `UtF8`, `UtF-8`, `UtF_8`, `UtF 8`, `uTF8`, `uTF-8`, `uTF_8`,
+`uTF 8`, `UTF8`, `UTF-8`, `UTF_8`, `UTF 8`.
+
+!!!note
+    You should use the encoding constants that are given in the
+    [Codecs Library](codecs_library.md#constants)
 
 **Arguments:**
 
@@ -280,14 +325,15 @@ An `IOFile` object or `null` if the file was not found.
 
 **Synopsis:**
 
-`[object: Any, flush: Bool?, file: IOFile?] @println -> null`
+```nest
+[object: Any, flush: Bool?, file: IOFile?] @println -> null
+```
 
 **Description:**
 
-Will print `object` like `>>>` followed by a newline.
-`flush` specifies if the file must be flushed and is `false` by default.
-`file` is the file where the object should be printed, stdout by default. If it
-is closed an error will be thrown.
+Will print `object` like `>>>` followed by a newline. `flush`, if `null`,
+defaults to `false`. `file`, if `null`, is stdout by default. If `file` is
+closed or cannot be written an error is thrown.
 
 **Arguments:**
 
@@ -301,14 +347,19 @@ is closed an error will be thrown.
 
 **Synopsis:**
 
-`[file: IOFile, size: Int?] @read -> Str`
+```nest
+[file: IOFile, size: Int?] @read -> Str
+```
 
 **Description:**
 
 Reads a number of characters from a file opened in `r`, `r+`, `w+` or `a+` and
 returns a `Str` object. If `size` is negative or `null` the whole file is read.
-If the file is not seekable and the whole file is trying to be read, an error
-is thrown.
+
+!!!warning
+    The file cannot be read entirely if it is not seekable. If you try to read
+    a non-seekable file by omitting the `size` or giving it a negative value an
+    error is thrown.
 
 **Arguments:**
 
@@ -325,14 +376,21 @@ The content that it read as a string.
 
 **Synopsis:**
 
-`[file: IOFile, size: Int?] @read_bytes -> Array.Byte`
+```nest
+[file: IOFile, size: Int?] @read_bytes -> Array.Byte
+```
 
 **Description:**
 
 Reads a number of bytes from a file opened in `rb`, `rb+`, `wb+` or `ab+` and
 returns an `Array` object. To convert the array to a string, use the
-[`bytearray_to_str`](string_utilities_library.md#bytearray_to_str) function in
+[`decode`](string_utilities_library.md#decode) function in
 `stdsutil.nest`. If `size` is negative or `null` the whole file is read.
+
+!!!warning
+    The file cannot be read entirely if it is not seekable. If you try to read
+    a non-seekable file by omitting the `size` or giving it a negative value an
+    error is thrown.
 
 **Arguments:**
 
@@ -349,7 +407,9 @@ The content that it read as an array of `Byte` objects.
 
 **Synopsis:**
 
-`[binary: Bool?, buffer_size: Int?] @virtual_file -> IOFile`
+```nest
+[binary: Bool?, buffer_size: Int?] @virtual_file -> IOFile
+```
 
 Creates a virtual `IOFile` object that works like a normal file but is not an
 actual file.
@@ -369,7 +429,9 @@ The newly created file.
 
 **Synopsis:**
 
-`[file: IOFile, content: Any] @write -> Int`
+```nest
+[file: IOFile, content: Any] @write -> Int
+```
 
 **Description:**
 
@@ -391,10 +453,10 @@ The number of characters written.
 |#| 'stdio.nest' = io
 
 'example.txt' 'w' @io.open = f
-f { 1, 2, 3 } @io.write
+f {1, 2, 3} @io.write
 f @io.close
 'example.txt' @io.open = f
-f @io.read @io.println --> '{ 1, 2, 3 }'
+f @io.read @io.println --> '{1, 2, 3}'
 f @io.close
 ```
 
@@ -404,14 +466,16 @@ f @io.close
 
 **Synopsis:**
 
-`[file: IOFile, content: Array|Vector.Byte] @write_bytes -> Int`
+```nest
+[file: IOFile, content: Array|Vector.Byte] @write_bytes -> Int
+```
 
 **Description:**
 
 Writes to a binary file opened in `wb`, `ab`, `rb+`, `wb+` or `ab+`.
 The second argument is an array or vector containing only `Byte` objects.
 To create such vector from a string, use the
-[`str_to_bytearray`](string_utilities_library.md#str_to_bytearray)
+[`encode`](string_utilities_library.md#encode)
 function in `stdsutil.nest`.
 
 **Arguments:**
@@ -429,7 +493,9 @@ The number of bytes written.
 
 **Synopsis:**
 
-`[] @_get_stdin -> IOFile`
+```nest
+[] @_get_stdin -> IOFile
+```
 
 **Returns:**
 
@@ -442,7 +508,9 @@ same object that `STDIN` points to.
 
 **Synopsis:**
 
-`[] @_get_stdin -> IOFile`
+```nest
+[] @_get_stdin -> IOFile
+```
 
 **Returns:**
 
@@ -455,7 +523,9 @@ same object that `STDERR` points to.
 
 **Synopsis:**
 
-`[] @_get_stdin -> IOFile`
+```nest
+[] @_get_stdin -> IOFile
+```
 
 **Returns:**
 
@@ -468,7 +538,9 @@ the same object that `STDOUT` points to.
 
 **Synopsis:**
 
-`[file: IOFile] @_set_stdin -> null`
+```nest
+[file: IOFile] @_set_stdin -> null
+```
 
 **Description:**
 
@@ -484,7 +556,9 @@ point to the original input stream unless changed manually.
 
 **Synopsis:**
 
-`[file: IOFile] @_set_stderr -> null`
+```nest
+[file: IOFile] @_set_stderr -> null
+```
 
 **Description:**
 
@@ -500,12 +574,14 @@ always point to the original error stream unless changed manually.
 
 **Synopsis:**
 
-`[file: IOFile] @_set_stdout -> null`
+```nest
+[file: IOFile] @_set_stdout -> null
+```
 
 **Description:**
 
-Changes the standard output stream to `file`.
-`file` must support writing and must not be already closed.
+Changes the standard output stream to `file`. `file` must support writing and
+must not be already closed.
 
 The [`STDOUT`](#stdout) constant will **not** reflect any changes and will
 always point to the original output stream unless changed manually.

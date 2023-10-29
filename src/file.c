@@ -25,10 +25,7 @@ static const i8 *io_result_encoding_name;
 Nst_Obj *Nst_iof_new(FILE *value, bool bin, bool read, bool write,
                      Nst_CP *encoding)
 {
-    Nst_IOFileObj *obj = Nst_obj_alloc(
-        Nst_IOFileObj,
-        Nst_t.IOFile,
-        _Nst_iofile_destroy);
+    Nst_IOFileObj *obj = Nst_obj_alloc(Nst_IOFileObj, Nst_t.IOFile);
     if (obj == NULL)
         return NULL;
 
@@ -42,21 +39,21 @@ Nst_Obj *Nst_iof_new(FILE *value, bool bin, bool read, bool write,
     obj->func_set.close = Nst_FILE_close;
 
     if (bin) {
-        Nst_FLAG_SET(obj, Nst_FLAG_IOFILE_IS_BIN);
+        Nst_SET_FLAG(obj, Nst_FLAG_IOFILE_IS_BIN);
         obj->encoding = NULL;
     } else
         obj->encoding = encoding;
 
     if (read)
-        Nst_FLAG_SET(obj, Nst_FLAG_IOFILE_CAN_READ);
+        Nst_SET_FLAG(obj, Nst_FLAG_IOFILE_CAN_READ);
     if (write)
-        Nst_FLAG_SET(obj, Nst_FLAG_IOFILE_CAN_WRITE);
+        Nst_SET_FLAG(obj, Nst_FLAG_IOFILE_CAN_WRITE);
     if (lseek(obj->fd, 1, SEEK_SET) != -1) {
-        Nst_FLAG_SET(obj, Nst_FLAG_IOFILE_CAN_SEEK);
+        Nst_SET_FLAG(obj, Nst_FLAG_IOFILE_CAN_SEEK);
         lseek(obj->fd, 0, SEEK_SET);
     }
     if (isatty(obj->fd))
-        Nst_FLAG_SET(obj, Nst_FLAG_IOFILE_IS_TTY);
+        Nst_SET_FLAG(obj, Nst_FLAG_IOFILE_IS_TTY);
 
     return OBJ(obj);
 }
@@ -64,10 +61,7 @@ Nst_Obj *Nst_iof_new(FILE *value, bool bin, bool read, bool write,
 Nst_Obj *Nst_iof_new_fake(void *value, bool bin, bool read, bool write,
                           bool seek, Nst_CP *encoding, Nst_IOFuncSet func_set)
 {
-    Nst_IOFileObj *obj = Nst_obj_alloc(
-        Nst_IOFileObj,
-        Nst_t.IOFile,
-        _Nst_iofile_destroy);
+    Nst_IOFileObj *obj = Nst_obj_alloc(Nst_IOFileObj, Nst_t.IOFile);
     if (obj == NULL)
         return NULL;
 
@@ -76,17 +70,17 @@ Nst_Obj *Nst_iof_new_fake(void *value, bool bin, bool read, bool write,
     obj->func_set = func_set;
 
     if (bin) {
-        Nst_FLAG_SET(obj, Nst_FLAG_IOFILE_IS_BIN);
+        Nst_SET_FLAG(obj, Nst_FLAG_IOFILE_IS_BIN);
         obj->encoding = NULL;
     } else
         obj->encoding = encoding;
 
     if (read)
-        Nst_FLAG_SET(obj, Nst_FLAG_IOFILE_CAN_READ);
+        Nst_SET_FLAG(obj, Nst_FLAG_IOFILE_CAN_READ);
     if (write)
-        Nst_FLAG_SET(obj, Nst_FLAG_IOFILE_CAN_WRITE);
+        Nst_SET_FLAG(obj, Nst_FLAG_IOFILE_CAN_WRITE);
     if (seek)
-        Nst_FLAG_SET(obj, Nst_FLAG_IOFILE_CAN_SEEK);
+        Nst_SET_FLAG(obj, Nst_FLAG_IOFILE_CAN_SEEK);
 
     return OBJ(obj);
 }
@@ -392,9 +386,30 @@ Nst_IOResult Nst_fclose(Nst_IOFileObj *f)
 
     f->encoding = NULL;
     f->fd = -1;
-    Nst_FLAG_SET(f, Nst_FLAG_IOFILE_IS_CLOSED);
+    Nst_SET_FLAG(f, Nst_FLAG_IOFILE_IS_CLOSED);
 
     return result;
+}
+
+FILE *Nst_fopen_unicode(i8 *path, const i8 *mode)
+{
+#ifdef Nst_WIN
+    wchar_t *wide_path = Nst_char_to_wchar_t(path, strlen(path));
+    if (wide_path == NULL)
+        return NULL;
+    wchar_t *wide_mode = Nst_char_to_wchar_t((i8 *)mode, strlen(mode));
+    if (wide_mode == NULL) {
+        Nst_free(wide_path);
+        return NULL;
+    }
+
+    FILE *f = _wfopen((const wchar_t *)wide_path, (const wchar_t *)wide_mode);
+    Nst_free(wide_path);
+    Nst_free(wide_mode);
+#else
+    FILE *f = fopen(path, mode);
+#endif
+    return f;
 }
 
 void Nst_io_result_get_details(u32 *ill_encoded_ch, usize *position,

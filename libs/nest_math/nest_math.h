@@ -48,6 +48,8 @@ Nst_FUNC_SIGN(gcd_);
 Nst_FUNC_SIGN(lcm_);
 Nst_FUNC_SIGN(abs_);
 Nst_FUNC_SIGN(hypot_);
+Nst_FUNC_SIGN(is_nan_);
+Nst_FUNC_SIGN(is_inf_);
 
 #ifdef __cplusplus
 }

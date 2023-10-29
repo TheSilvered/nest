@@ -94,8 +94,10 @@ Nst_LList *Nst_tokenizef(i8 *filename, Nst_CPID encoding, i32 *opt_level,
     *opt_level = 3;
     *no_default = false;
 
-    FILE *file = fopen(filename, "rb");
+    FILE *file = Nst_fopen_unicode(filename, "rb");
+
     if (file == NULL) {
+        Nst_error_clear();
         Nst_fprint(Nst_io.err, "File \"");
         Nst_fprint(Nst_io.err, (const i8 *)filename);
         Nst_fprintln(Nst_io.err, "\" not found");
@@ -512,7 +514,7 @@ static void make_num_literal(Nst_Tok **tok, Nst_Error *error)
         i32 val = (i32)ch2 + (i32)ch1 * 16;
         if (neg)
             val = -val;
-        Nst_Obj *obj = Nst_byte_new(0);
+        Nst_Obj *obj = Nst_byte_new((u8)val);
         RETURN_IF_OP_ERR(obj == NULL);
         *tok = Nst_tok_new_value(start, cursor.pos, Nst_TT_VALUE, obj);
         RETURN_IF_OP_ERR(*tok == NULL);
@@ -735,7 +737,7 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
         }
         case 'u':
         case 'U': {
-            i32 size = cursor.ch == 'U' ? 8 : 4;
+            i32 size = cursor.ch == 'U' ? 6 : 4;
             if ((usize)cursor.idx + size >= cursor.len)
                 SET_INVALID_ESCAPE_ERROR;
 
@@ -784,7 +786,15 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
                 break;
             }
             i8 ch3 = cursor.ch - '0';
-            Nst_buffer_append_char(&buf, (ch1 << 6) + (ch2 << 3) + ch3);
+            u16 result = (ch1 << 6) + (ch2 << 3) + ch3;
+
+            if (result >= 0x80) {
+                i8 utf8_b1 = 0b11000000 | (i8)(result >> 6);
+                i8 utf8_b2 = 0b10000000 | (i8)(result & 0x3f);
+                Nst_buffer_append_char(&buf, utf8_b1);
+                Nst_buffer_append_char(&buf, utf8_b2);
+            } else
+                Nst_buffer_append_char(&buf, (i8)result);
             break;
         }
         case '(': {
@@ -955,6 +965,7 @@ bool Nst_normalize_encoding(Nst_SourceText *text, Nst_CPID encoding,
     else
         Nst_check_bom(text->text, text->text_len, &bom_size);
 
+    encoding = Nst_single_byte_cp(encoding);
     Nst_CP *from = Nst_cp(encoding);
 
     Nst_Pos pos = { 0, 0, text };
@@ -1070,6 +1081,7 @@ static void parse_first_line(i8 *text, usize len, i32 *opt_level,
                 continue;
             }
             Nst_CPID new_encoding = Nst_encoding_from_name(curr_opt + 11);
+            new_encoding = Nst_single_byte_cp(new_encoding);
             if (new_encoding != Nst_CP_UNKNOWN)
                 *encoding = new_encoding;
         }
@@ -1096,6 +1108,7 @@ static void parse_first_line(i8 *text, usize len, i32 *opt_level,
         if (curr_opt[11] != '=')
             return;
         Nst_CPID new_encoding = Nst_encoding_from_name(curr_opt + 11);
+        new_encoding = Nst_single_byte_cp(new_encoding);
         if (new_encoding != Nst_CP_UNKNOWN)
             *encoding = new_encoding;
     }

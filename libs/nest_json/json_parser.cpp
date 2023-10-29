@@ -6,9 +6,17 @@ bool trailing_commas = false;
 static i8 *file_path; // the text of the position cannot be used
 static i32 recursion_level;
 
+// needed because when debugging on Windows it runs out of stack space quickly
+// does not cause any issues when running on Release mode
+#if defined(Nst_WIN) && defined(_DEBUG)
+#define MAX_RECURSION_LVL 500
+#else
+#define MAX_RECURSION_LVL 1500
+#endif
+
 #define INC_RECURSION_LVL do {                                                \
         recursion_level++;                                                    \
-        if (recursion_level > 1500) {                                         \
+        if (recursion_level > MAX_RECURSION_LVL) {                            \
             Nst_set_memory_error_c(                                           \
                 "over 1500 recursive calls, parsing failed");                 \
             return nullptr;                                                   \
@@ -50,20 +58,22 @@ static Nst_Obj *parse_value(Nst_LList *tokens)
     case JSON_VALUE: {
         Nst_Obj *res = Nst_inc_ref(tok->value);
         Nst_tok_destroy(tok);
+        DEC_RECURSION_LVL;
         return res;
     }
     case JSON_LBRACKET:
         Nst_tok_destroy(tok);
+        DEC_RECURSION_LVL;
         return parse_array(tokens);
     case JSON_LBRACE:
         Nst_tok_destroy(tok);
+        DEC_RECURSION_LVL;
         return parse_object(tokens);
     default:
         JSON_SYNTAX_ERROR("expected value", file_path, tok->start);
         Nst_tok_destroy(tok);
         return nullptr;
     }
-    DEC_RECURSION_LVL;
 }
 
 static Nst_Obj *parse_object(Nst_LList *tokens)
@@ -74,6 +84,7 @@ static Nst_Obj *parse_object(Nst_LList *tokens)
 
     if ((JSONTokenType)tok->type == JSON_RBRACE) {
         Nst_tok_destroy(tok);
+        DEC_RECURSION_LVL;
         return OBJ(map);
     }
 
@@ -113,6 +124,7 @@ static Nst_Obj *parse_object(Nst_LList *tokens)
         tok = Nst_TOK(Nst_llist_pop(tokens));
         if ((JSONTokenType)tok->type == JSON_RBRACE) {
             Nst_tok_destroy(tok);
+            DEC_RECURSION_LVL;
             return OBJ(map);
         } else if ((JSONTokenType)tok->type == JSON_COMMA) {
             Nst_tok_destroy(tok);
@@ -126,10 +138,10 @@ static Nst_Obj *parse_object(Nst_LList *tokens)
 
         if ((JSONTokenType)tok->type == JSON_RBRACE && trailing_commas) {
             Nst_tok_destroy(tok);
+            DEC_RECURSION_LVL;
             return OBJ(map);
         }
     }
-    DEC_RECURSION_LVL;
 }
 
 static Nst_Obj *parse_array(Nst_LList *tokens)
@@ -188,6 +200,6 @@ end:
             vec->cap = vec->len;
         }
     }
-    return OBJ(vec);
     DEC_RECURSION_LVL;
+    return OBJ(vec);
 }

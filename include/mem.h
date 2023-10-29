@@ -90,10 +90,10 @@ NstEXP typedef struct _Nst_Buffer {
     i8 *data;
 } Nst_Buffer;
 
-/* [docs:link malloc https://man7.org/linux/man-pages/man3/malloc.3.html] */
-/* [docs:link calloc https://man7.org/linux/man-pages/man3/malloc.3.html] */
-/* [docs:link realloc https://man7.org/linux/man-pages/man3/malloc.3.html] */
-/* [docs:link free https://man7.org/linux/man-pages/man3/malloc.3.html] */
+/* [docs:link malloc <https://man7.org/linux/man-pages/man3/malloc.3.html>] */
+/* [docs:link calloc <https://man7.org/linux/man-pages/man3/malloc.3.html>] */
+/* [docs:link realloc <https://man7.org/linux/man-pages/man3/malloc.3.html>] */
+/* [docs:link free <https://man7.org/linux/man-pages/man3/malloc.3.html>] */
 
 #ifdef Nst_COUNT_ALLOC
 /* Alias for C `malloc`. */
@@ -232,6 +232,18 @@ NstEXP void NstC Nst_sbuffer_fit(Nst_SizedBuffer *buf);
  * @return `true` on success and `false` on failure. The error is set.
  */
 NstEXP bool NstC Nst_sbuffer_append(Nst_SizedBuffer *buf, void *element);
+/**
+ * Copies the contents of a sized buffer into another.
+ *
+ * @brief The data of the source buffer is copied into a new block of memory,
+ * subsequent changes to the source buffer will not modify the copied one.
+ *
+ * @param src: the buffer to copy from
+ * @param dst: the buffer to copy to
+ *
+ * @return `true` on success and `false` on failure. The error is set.
+ */
+NstEXP bool NstC Nst_sbuffer_copy(Nst_SizedBuffer *src, Nst_SizedBuffer *dst);
 /* Destroys the contents of a sized buffer. The buffer itself is not freed. */
 NstEXP void NstC Nst_sbuffer_destroy(Nst_SizedBuffer *buf);
 
@@ -294,6 +306,16 @@ NstEXP bool NstC Nst_buffer_append(Nst_Buffer *buf, Nst_StrObj *str);
  */
 NstEXP bool NstC Nst_buffer_append_c_str(Nst_Buffer *buf, const i8 *str);
 /**
+ * Appends a string of a known length to the end of the buffer.
+ *
+ * @param buf: the buffer to append the string to
+ * @param str: the string to append
+ * @param len: the length of the string to append, excluding the NUL character
+ *
+ * @return `true` on success and `false` on failure. The error is set.
+ */
+NstEXP bool NstC Nst_buffer_append_str(Nst_Buffer *buf, i8 *str, usize len);
+/**
  * Appends a character to the end of the buffer.
  *
  * @brief The buffer is expanded if needed.
@@ -315,6 +337,18 @@ NstEXP bool NstC Nst_buffer_append_char(Nst_Buffer *buf, i8 ch);
  * @return The new string on success and `NULL` on failure. The error is set.
  */
 NstEXP Nst_StrObj *NstC Nst_buffer_to_string(Nst_Buffer *buf);
+/**
+ * Copies the contents of a buffer into another.
+ *
+ * @brief The data of the source buffer is copied into a new block of memory,
+ * subsequent changes to the source buffer will not modify the copied one.
+ *
+ * @param src: the buffer to copy from
+ * @param dst: the buffer to copy to
+ *
+ * @return `true` on success and `false` on failure. The error is set.
+ */
+NstEXP bool NstC Nst_buffer_copy(Nst_Buffer *src, Nst_Buffer *dst);
 /* Destroys the contents of a buffer. The buffer itself is not freed. */
 NstEXP void NstC Nst_buffer_destroy(Nst_Buffer *buf);
 

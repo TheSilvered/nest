@@ -49,21 +49,23 @@
     "Run 'nest --help' for more information\n"
 
 #define VERSION_MESSAGE                                                       \
-    "Using Nest version: " Nst_VERSION
+    "Using Nest version: " Nst_VERSION " (" __DATE__ ", " __TIME__ ")"
 
-#define ENCODING_MESSAGE                                                           \
-    "The supported encodings are:\n"                                               \
-    "- utf8 (aka utf-8)\n"                                                         \
-    "- ext-utf8 (aka ext-utf-8, extutf-8, extutf8)\n"                              \
-    "- utf16 (aka utf-16, utf16le, utf-16le)\n"                                    \
-    "- utf16be (aka utf-16be)\n"                                                   \
-    "- utf32 (aka utf-32, utf32le, utf-32le)\n"                                    \
-    "- utf32be (aka utf-32be)\n"                                                   \
-    "- windows-1250..windows-1258 (aka windows125x, cp-125x, cp125x)\n"            \
-    "- ascii (aka us-ascii)\n"                                                     \
-    "- iso-8859-1 (aka iso8859-1, latin1, latin-1, latin, l1)\n\n"                 \
-                                                                                   \
-    "All names are case-insensitive. Underscores (_), hyphens (-) and spaces are\n"\
+#define ENCODING_MESSAGE                                                             \
+    "The supported encodings are:\n"                                                 \
+    "- utf8 (aka utf-8)\n"                                                           \
+    "- ext-utf8 (aka ext-utf-8, extutf-8, extutf8)\n"                                \
+    "- utf16 (aka utf-16, utf16le, utf-16le)\n"                                      \
+    "- ext-utf16 (aka ext-utf-16, extutf-16, extutf16, ext-utf16le, ext-utf-16le,\n" \
+    "             extutf-16le, extutf16le)\n"                                        \
+    "- utf16be (aka utf-16be)\n"                                                     \
+    "- utf32 (aka utf-32, utf32le, utf-32le)\n"                                      \
+    "- utf32be (aka utf-32be)\n"                                                     \
+    "- windows-1250..windows-1258 (aka windows125x, cp-125x, cp125x)\n"              \
+    "- ascii (aka us-ascii)\n"                                                       \
+    "- iso-8859-1 (aka iso8859-1, latin1, latin-1, latin, l1)\n\n"                   \
+                                                                                     \
+    "All names are case-insensitive. Underscores (_), hyphens (-) and spaces are\n"  \
     "interchangeable."
 
 bool supports_color = true;
@@ -100,6 +102,7 @@ static i32 long_arg(i8 *arg, Nst_CLArgs *cl_args)
             printf("\n" ENCODING_MESSAGE);
             return -1;
         }
+        cl_args->encoding = Nst_single_byte_cp(cl_args->encoding);
     } else {
         printf("Invalid option: %s\n", arg);
         printf("\n" USAGE_MESSAGE);
@@ -170,6 +173,7 @@ i32 _Nst_parse_args(i32 argc, i8 **argv, Nst_CLArgs *cl_args)
                     printf("\n" ENCODING_MESSAGE);
                     return -1;
                 }
+                cl_args->encoding = Nst_single_byte_cp(cl_args->encoding);
                 j = arg_len;
                 break;
             case 'O': {
@@ -280,7 +284,7 @@ bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv)
         local_argv[i] = argv_ptr;
 
         for (usize j = 0, n = wcslen(warg); j < n; j++) {
-            usize ch_len = Nst_check_utf16_bytes(warg + j, n - j);
+            i32 ch_len = Nst_check_utf16_bytes(warg + j, n - j);
             if (ch_len < 0) {
                 Nst_free(local_argv);
                 puts("Invalid argv enconding");

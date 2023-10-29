@@ -1,4 +1,4 @@
-# Time and date library
+# Date and time library
 
 ## Importing
 
@@ -12,11 +12,14 @@
 
 **Synopsis:**
 
-`[] @clock_datetime -> Map`
+```nest
+[] @clock_datetime -> Map
+```
 
 **Returns:**
 
-A map containing both the information from `clock_time` and `date`.
+A map containing both the information from [`clock_time`](#clock_time) and
+[`date`](#date).
 
 ---
 
@@ -24,7 +27,9 @@ A map containing both the information from `clock_time` and `date`.
 
 **Synopsis:**
 
-`[] @clock_time -> Map`
+```nest
+[] @clock_time -> Map
+```
 
 **Returns:**
 
@@ -37,12 +42,14 @@ and the current hour as `hour`.
 
 **Synopsis:**
 
-`[] @date -> Map`
+```nest
+[] @date -> Map
+```
 
 **Returns:**
 
-A map containing the current month day as `day`, week day as `week_day`, year
-day as `year_day`, month as `month` and year as `year`.
+A map containing the current day of the month as `day`, day of the week as
+`week_day`, day of the year as `year_day`, month as `month` and year as `year`.
 
 ---
 
@@ -50,7 +57,9 @@ day as `year_day`, month as `month` and year as `year`.
 
 **Synopsis:**
 
-`[] @day -> Int`
+```nest
+[] @day -> Int
+```
 
 **Returns:**
 
@@ -62,13 +71,14 @@ The current day of the month, from `1` to `31`.
 
 **Synopsis:**
 
-`[] @gmt_clock_datetime -> Map`
+```nest
+[] @gmt_clock_datetime -> Map
+```
 
 **Returns:**
 
-A map containing both the information from `gmt_clock_time` and `date`. The
-date is take with the Greenwich Main Time too, to there might be discrepancy
-between `date` and `gmt_clock_datetime`.
+A map containing both the information from [`gmt_clock_time`](#gmt_clock_time)
+and [`gmt_date`](#gmt_date).
 
 ---
 
@@ -76,12 +86,29 @@ between `date` and `gmt_clock_datetime`.
 
 **Synopsis:**
 
-`[] @gmt_clock_time -> Map`
+```nest
+[] @gmt_clock_time -> Map
+```
 
 **Returns:**
 
-A map containing the same information as `clock_time`, but the time is taken
-with the Greenwich Main Time.
+A map containing the same information as [`clock_time`](#clock_time), but
+taken with the Greenwich Main Time.
+
+---
+
+### `@gmt_date`
+
+**Synopsis:**
+
+```nest
+[] @gmt_date -> Map
+```
+
+**Returns:**
+
+A map containing the same information as [`date`](#date), but taken with the
+Greenwich Main Time.
 
 ---
 
@@ -89,7 +116,9 @@ with the Greenwich Main Time.
 
 **Synopsis:**
 
-`[] @high_res_time -> Real`
+```nest
+[] @high_res_time -> Real
+```
 
 **Returns:**
 
@@ -102,7 +131,9 @@ meaning only when compared with other values from the same function.
 
 **Synopsis:**
 
-`[] @high_res_time_ns -> Int`
+```nest
+[] @high_res_time_ns -> Int
+```
 
 **Returns:**
 
@@ -115,7 +146,9 @@ has meaning only when compared with other values from the same function.
 
 **Synopsis:**
 
-`[] @hours -> Int`
+```nest
+[] @hours -> Int
+```
 
 **Returns:**
 
@@ -127,7 +160,9 @@ The current hour, from `0` to `23`.
 
 **Synopsis:**
 
-`[] @minutes -> Int`
+```nest
+[] @minutes -> Int
+```
 
 **Returns:**
 
@@ -139,14 +174,16 @@ The current minute, from `0` to `59`.
 
 **Synopsis:**
 
-`[] @monotonic_time -> Real`
+```nest
+[] @monotonic_time -> Real
+```
 
 **Returns:**
 
-A timestamp such that any later timestamps will be always equal or
-greater. This can be for example the time since startup and similarly to
-high_res_time has only meaning when compared with other timestamps from the same
-function.
+A timestamp in seconds such that any later timestamps will be always equal to
+or greater greater than previously take ones. This can be for example the time
+since startup. The return value has only meaning when compared with other
+timestamps from the same function.
 
 ---
 
@@ -154,14 +191,16 @@ function.
 
 **Synopsis:**
 
-`[] @monotonic_time_ns -> Int`
+```nest
+[] @monotonic_time_ns -> Int
+```
 
 **Returns:**
 
-A timestamp in nanoseconds such that any later timestamps will be always
-equal or greater. This can be for example the time since startup and similarly
-to high_res_time_ns has only meaning when compared with other timestamps from
-the same function.
+A timestamp in nanoseconds such that any later timestamps will be always equal
+to or greater greater than previously take ones. This can be for example the
+time since startup. The return value has only meaning when compared with other
+timestamps from the same function.
 
 ---
 
@@ -169,7 +208,9 @@ the same function.
 
 **Synopsis:**
 
-`[] @month -> Int`
+```nest
+[] @month -> Int
+```
 
 **Returns:**
 
@@ -181,7 +222,9 @@ The current month, from `1`, January, to `12`, December.
 
 **Synopsis:**
 
-`[] @seconds -> Int`
+```nest
+[] @seconds -> Int
+```
 
 **Returns:**
 
@@ -193,7 +236,9 @@ The current second, from `0` to `59`.
 
 **Synopsis:**
 
-`[seconds: Byte|Int|Real] @sleep -> null`
+```nest
+[seconds: Byte|Int|Real] @sleep -> null
+```
 
 **Description:**
 
@@ -205,7 +250,9 @@ Pauses the execution for `seconds` seconds.
 
 **Synopsis:**
 
-`[milliseconds: Byte|Int] @sleep_ms -> null`
+```nest
+[milliseconds: Byte|Int] @sleep_ms -> null
+```
 
 **Description:**
 
@@ -217,7 +264,9 @@ Pauses the execution for `milliseconds` milliseconds.
 
 **Synopsis:**
 
-`[] @time -> Real`
+```nest
+[] @time -> Real
+```
 
 **Returns:**
 
@@ -229,7 +278,9 @@ The time since the epoch in seconds.
 
 **Synopsis:**
 
-`[] @time_ns -> Int`
+```nest
+[] @time_ns -> Int
+```
 
 **Returns:**
 
@@ -241,7 +292,9 @@ The time since the epoch in nanoseconds.
 
 **Synopsis:**
 
-`[] @week_day -> Int`
+```nest
+[] @week_day -> Int
+```
 
 **Returns:**
 
@@ -253,7 +306,9 @@ The current day of the week, from `0`, Sunday, to `6`, Saturday.
 
 **Synopsis:**
 
-`[] @year -> Int`
+```nest
+[] @year -> Int
+```
 
 **Returns:**
 
@@ -265,7 +320,9 @@ The current year.
 
 **Synopsis:**
 
-`[] @year_day -> Int`
+```nest
+[] @year_day -> Int
+```
 
 **Returns:**
 

@@ -33,6 +33,8 @@
  * `key` to `Nst_Obj *`.
  */
 #define Nst_map_drop(map, key) _Nst_map_drop(MAP(map), OBJ(key))
+/* Alias for `_Nst_map_copy` that casts `map` to `Nst_MapObj *`. */
+#define Nst_map_copy(map) _Nst_map_copy(MAP(map))
 
 /* Alias for `_Nst_map_get_next_idx` that casts `map` to `Nst_MapObj *`. */
 #define Nst_map_get_next_idx(curr_idx, map) \
@@ -130,13 +132,19 @@ NstEXP Nst_Obj *NstC _Nst_map_get(Nst_MapObj *map, Nst_Obj *key);
  * the key is not hashable or is not inside the map. No error is set.
  */
 NstEXP Nst_Obj *NstC _Nst_map_drop(Nst_MapObj *map, Nst_Obj *key);
+/**
+ * Creates a shallow copy of a map object.
+ * 
+ * @param map: the map to copy
+ * 
+ * @return The copied map or `NULL` on failure. The error is set.
+ */
+NstEXP Nst_Obj *NstC _Nst_map_copy(Nst_MapObj *map);
 
 /* The destructor for the map object. */
 NstEXP void NstC _Nst_map_destroy(Nst_MapObj *map);
 /* The traverse function for the map object. */
 NstEXP void NstC _Nst_map_traverse(Nst_MapObj *map);
-/* The track function for the map object. */
-NstEXP void NstC _Nst_map_track(Nst_MapObj *map);
 
 /**
  * Gets the following index in a map given the current one.

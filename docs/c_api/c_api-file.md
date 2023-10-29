@@ -6,6 +6,8 @@
 
 TheSilvered
 
+---
+
 ## Macros
 
 ### `IOFILE`
@@ -13,7 +15,7 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-IOFILE(ptr)
+#define IOFILE(ptr)
 ```
 
 **Description:**
@@ -27,7 +29,7 @@ Casts ptr to a [`Nst_IOFileObj *`](c_api-file.md#nst_iofileobj).
 **Synopsis:**
 
 ```better-c
-Nst_IOF_IS_CLOSED(f)
+#define Nst_IOF_IS_CLOSED(f)
 ```
 
 **Description:**
@@ -41,7 +43,7 @@ Checks if `f` is closed.
 **Synopsis:**
 
 ```better-c
-Nst_IOF_IS_BIN(f)
+#define Nst_IOF_IS_BIN(f)
 ```
 
 **Description:**
@@ -55,7 +57,7 @@ Checks if `f` was opened in binary mode.
 **Synopsis:**
 
 ```better-c
-Nst_IOF_IS_TTY(f)
+#define Nst_IOF_IS_TTY(f)
 ```
 
 **Description:**
@@ -69,7 +71,7 @@ Checks if `f` is a TTY.
 **Synopsis:**
 
 ```better-c
-Nst_IOF_CAN_WRITE(f)
+#define Nst_IOF_CAN_WRITE(f)
 ```
 
 **Description:**
@@ -83,7 +85,7 @@ Checks if `f` can be written.
 **Synopsis:**
 
 ```better-c
-Nst_IOF_CAN_READ(f)
+#define Nst_IOF_CAN_READ(f)
 ```
 
 **Description:**
@@ -97,7 +99,7 @@ Checks if `f` can be read.
 **Synopsis:**
 
 ```better-c
-Nst_IOF_CAN_SEEK(f)
+#define Nst_IOF_CAN_SEEK(f)
 ```
 
 **Description:**
@@ -194,11 +196,12 @@ The type that represents a read function of a Nest file object.
 
 This function shall read from the given file object count characters or bytes
 when in binary mode. `buf` shall be interpreted as
-[`i8 **`](c_api.md#type-definitions) instead of
-[`i8 *`](c_api.md#type-definitions) and a new buffer shall be allocated with
-[`Nst_malloc`](c_api-mem.md#nst_malloc) or similar functions. The buffer shall
-contain UTF8-encoded text. When buf_len is not `NULL` the function shall fill it
-with the number of characters written (or bytes if it is in binary mode).
+[`i8 **`](c_api_index.md#type-definitions) instead of
+[`i8 *`](c_api_index.md#type-definitions) and a new buffer shall be allocated
+with [`Nst_malloc`](c_api-mem.md#nst_malloc) or similar functions. The buffer
+shall contain UTF8-encoded text. When buf_len is not `NULL` the function shall
+fill it with the number of characters written (or bytes if it is in binary
+mode).
 
 **Returns:**
 
@@ -242,7 +245,7 @@ The type that represents a write function of a Nest file object.
 
 This function shall write the contents of buf to a file. If count is not `NULL`
 it is filled with the number of characters written (or the number of bytes if
-the file is in binary mode). buf shall contain UTF-8 text that allows invalid
+the file is in binary mode). `buf` shall contain UTF-8 text that allows invalid
 characters under U+10FFFF.
 
 **Returns:**
@@ -690,6 +693,30 @@ Sets the values returned with
 
 ---
 
+### `Nst_fopen_unicode`
+
+**Synopsis:**
+
+```better-c
+FILE *Nst_fopen_unicode(i8 *path, const i8 *mode)
+```
+
+**Description:**
+
+Opens a file given a path that can contain unicode characters in UTF-8.
+
+**Parameters:**
+
+- `path`: the path to the file
+- `mode`: the mode to open the file with
+
+**Returns:**
+
+The file pointer on success and `NULL` on failure. The error is set only if a
+`Memory Error` occurs.
+
+---
+
 ## Enums
 
 ### `Nst_IOResult`
@@ -740,16 +767,15 @@ Enumeration of the possible origins for seek file functions.
 
 ```better-c
 typedef enum _Nst_IOFileFlag {
-    Nst_FLAG_IOFILE_IS_CLOSED = 0b000001,
-    Nst_FLAG_IOFILE_IS_BIN    = 0b000010,
-    Nst_FLAG_IOFILE_CAN_WRITE = 0b000100,
-    Nst_FLAG_IOFILE_CAN_READ  = 0b001000,
-    Nst_FLAG_IOFILE_CAN_SEEK  = 0b010000,
-    Nst_FLAG_IOFILE_IS_TTY    = 0b100000
+    Nst_FLAG_IOFILE_IS_CLOSED = Nst_FLAG(1),
+    Nst_FLAG_IOFILE_IS_BIN    = Nst_FLAG(2),
+    Nst_FLAG_IOFILE_CAN_WRITE = Nst_FLAG(3),
+    Nst_FLAG_IOFILE_CAN_READ  = Nst_FLAG(4),
+    Nst_FLAG_IOFILE_CAN_SEEK  = Nst_FLAG(5),
+    Nst_FLAG_IOFILE_IS_TTY    = Nst_FLAG(6)
 } Nst_IOFileFlag
 ```
 
 **Description:**
 
 The flags of a IO file.
-

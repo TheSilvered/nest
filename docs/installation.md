@@ -20,7 +20,7 @@ Once installed you can check that it is working by running this command:
 
 ```text
 PS C:\> nest -V
-Using Nest version: beta-0.13.2 x64
+Using Nest version: beta-0.14.0 x64
 ```
 
 ### Compile from source on Windows
@@ -40,6 +40,10 @@ machine, in case you want to use Python run `update_exes.bat py`.
 Once done you can navigate to `nest\build\windows\installer` and compile
 `installer-script-x64.iss` and `installer-script-x86.iss`.
 
+### Uninstalling on Windows
+
+To uninstall Nest on Windows you can do so from the control panel.
+
 ## Linux
 
 ### Archive
@@ -52,7 +56,7 @@ $ tar -xzf nest-[VERSION]-[ARCHITECTURE]-linux.tar.gz
 ```
 
 Now run `./linux_install_[ARCHITECTURE].sh` to copy the binaries to
-`/usr/libs/nest` and to `/usr/bin` and install the necessary libaries.
+`/usr/libs/nest` and to `/usr/bin` and install the necessary libraries.
 
 ### Compile from source on Linux
 
@@ -76,6 +80,12 @@ Now to install the compiled binaries run
 ```text
 $ sudo bash linux_install_x[ARCHITECTURE].sh
 ```
+
+### Uninstalling on linux
+
+To uninstall Nest on linux, copy
+[`nest/build/linux/uninstall.sh`](https://github.com/TheSilvered/nest/blob/main/build/linux/uninstall.sh)
+and execute it.
 
 ## Plugins
 
