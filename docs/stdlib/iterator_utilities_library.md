@@ -301,7 +301,7 @@ An iterator which goes through all the keys in a map.
 
 The first kind of this function accepts two arguments and returns an iterator
 that zips them together pairing the objects of `seq_1` with the objects of
-`seq_2` at the same index and that ends when the shortes of the two sequences
+`seq_2` at the same index and that ends when the shortest of the two sequences
 ends.
 
 The second kind only accepts the first argument (the second must be `null`

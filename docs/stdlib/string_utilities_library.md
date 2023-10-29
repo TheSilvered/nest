@@ -620,13 +620,13 @@ Hexadecimal digit characters (`0-9a-fA-F`).
 
 ### `LETTERS`
 
-Ascii letter characters both uppercase (`A-Z`) and lowercase (`a-z`).
+ASCII letter characters both uppercase (`A-Z`) and lowercase (`a-z`).
 
 ---
 
 ### `LOWERCASE_LETTERS`
 
-Lowercase ascii letter characters (`a-z`).
+Lowercase ASCII letter characters (`a-z`).
 
 ---
 
@@ -650,4 +650,4 @@ Punctuation characters.
 
 ### `UPPERCASE_LETTERS`
 
-Uppercase ascii letter characters (`A-Z`).
+Uppercase ASCII letter characters (`A-Z`).

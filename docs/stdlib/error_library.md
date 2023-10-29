@@ -18,7 +18,7 @@
 
 **Description:**
 
-Calls `func` passing `args` as the arguments and catching any erros that
+Calls `func` passing `args` as the arguments and catching any errors that
 might occur. If `catch_exit` is `null` it defaults to `false`.
 
 **Arguments:**

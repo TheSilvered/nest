@@ -48,7 +48,7 @@ A new string containing the character associated with the given code point. If
 
 **Returns:**
 
-The code point associated with the caracter in `char`. If `char` does not
+The code point associated with the character in `char`. If `char` does not
 contain only one character an error is thrown.
 
 ---

@@ -198,8 +198,8 @@ timestamps from the same function.
 **Returns:**
 
 A timestamp in nanoseconds such that any later timestamps will be always equal
-to or greater greater than previously take ones. This can be for example the time
-since startup. The return value has only meaning when compared with other
+to or greater greater than previously take ones. This can be for example the
+time since startup. The return value has only meaning when compared with other
 timestamps from the same function.
 
 ---

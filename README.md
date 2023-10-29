@@ -50,7 +50,7 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 - [ ] ~Automatic documentation generation for standard library~ [^3]
 - [x] Add `INF` and `NAN` constants to `stdmath.nest`
 - [ ] ~Better testing with C~ [^4]
-- [ ] Improve `test_str.nest`
+- [x] Improve `test_str.nest`
 
 [^3]: removed because generating documentation from C would require everything
       to be written anyway adding another step

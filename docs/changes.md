@@ -112,6 +112,7 @@
 - fixed `Nst_encoding_from_name` failing to identify valid encoding names
 - fixed some bugs with UTF-16 and its variants not working properly
 - added some missing documentation for `_Nst_VECTOR_MIN_CAP`, `_Nst_VECTOR_GROWTH_RATIO`, `SEQ`, `ARRAY` and `VECTOR`
+- fixed `Nst_string_compare` not working with non-ASCII characters
 
 ---
 

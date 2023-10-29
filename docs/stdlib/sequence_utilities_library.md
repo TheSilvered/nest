@@ -434,7 +434,7 @@ to `stop` separated by a gap of `step`. Negative indices are allowed for
 is positive and to the end when it is negative.
 
 `stop`, if set to `null`, defaults to the end of the sequence when the step is
-positive and to the start whent it is negative.
+positive and to the start when it is negative.
 
 `step`, if set to `null`, defaults to `1`.
 

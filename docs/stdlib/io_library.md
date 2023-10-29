@@ -32,7 +32,7 @@
 
 **Returns:**
 
-`true` if `file` can be saught and `false` otherwise.
+`true` if `file` can be sought and `false` otherwise.
 
 ---
 
@@ -143,7 +143,7 @@ or cannot be written.
 A 5-character string where each character represents a flag as follows:
 
 1. `r` if the file is readable
-2. `w` if the file is writeable
+2. `w` if the file is writable
 3. `b` if the file is binary
 4. `s` if the file is seekable
 5. `t` if the file is a TTY
@@ -181,7 +181,7 @@ f3 @io.close
 **Description:**
 
 Returns the position in bytes of the file position indicator. Throws an error
-if the file cannot be seeked or is closed.
+if the file cannot be sought or is closed.
 
 ---
 
@@ -357,7 +357,7 @@ Reads a number of characters from a file opened in `r`, `r+`, `w+` or `a+` and
 returns a `Str` object. If `size` is negative or `null` the whole file is read.
 
 !!!warning
-    The file cannot be read entielry if it is not seekable. If you try to read
+    The file cannot be read entirely if it is not seekable. If you try to read
     a non-seekable file by omitting the `size` or giving it a negative value an
     error is thrown.
 
@@ -388,7 +388,7 @@ returns an `Array` object. To convert the array to a string, use the
 `stdsutil.nest`. If `size` is negative or `null` the whole file is read.
 
 !!!warning
-    The file cannot be read entielry if it is not seekable. If you try to read
+    The file cannot be read entirely if it is not seekable. If you try to read
     a non-seekable file by omitting the `size` or giving it a negative value an
     error is thrown.
 

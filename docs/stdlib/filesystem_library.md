@@ -671,7 +671,7 @@ Its members are:
 
 | Name              | Description                                                      |
 | ----------------- | ---------------------------------------------------------------- |
-| `none`            | Normal copy, follows symlinks and skips subdirectories           |
+| `none`            | Normal copy, follows symlinks and skips sub-directories          |
 | `skip`            | Skips existing files                                             |
 | `overwrite`       | Overwrites existing files                                        |
 | `update`          | Overwrites existing files if they are older than the file copied |
