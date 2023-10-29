@@ -421,7 +421,7 @@ success:
 #endif
 
 static Nst_IOResult read_std_stream(i8 *buf, usize buf_size, usize count,
-    usize *buf_len, Nst_IOFileObj *f)
+                                    usize *buf_len, Nst_IOFileObj *f)
 {
 #ifdef Nst_WIN
     if (Nst_stdin.hd == NULL)
