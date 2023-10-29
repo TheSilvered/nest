@@ -786,7 +786,15 @@ static void make_str_literal(Nst_Tok **tok, Nst_Error *error)
                 break;
             }
             i8 ch3 = cursor.ch - '0';
-            Nst_buffer_append_char(&buf, (ch1 << 6) + (ch2 << 3) + ch3);
+            u16 result = (ch1 << 6) + (ch2 << 3) + ch3;
+
+            if (result >= 0x80) {
+                i8 utf8_b1 = 0b11000000 | (i8)(result >> 6);
+                i8 utf8_b2 = 0b10000000 | (i8)(result & 0x3f);
+                Nst_buffer_append_char(&buf, utf8_b1);
+                Nst_buffer_append_char(&buf, utf8_b2);
+            } else
+                Nst_buffer_append_char(&buf, (i8)result);
             break;
         }
         case '(': {

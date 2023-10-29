@@ -11,6 +11,11 @@
 
 {72b, 105b} = bytes -- Hi
 
+@io.virtual_file = f
+Bool :: f @test.assert_true
+f @io.close
+Bool :: f @test.assert_false
+
 'test_files/file.txt' 'wb+' @io.open = f
 f bytes @io.write_bytes
 f @io.close

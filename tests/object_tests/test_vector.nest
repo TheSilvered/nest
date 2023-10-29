@@ -34,6 +34,10 @@ vect_2d.0 {1, 2} @test.assert_eq
 <{10;5}> <{10, 10, 10, 10, 10}> @test.assert_eq
 
 Str :: <{1, 2, 3}> '<{1, 2, 3}>' @test.assert_eq
+Array :: <{1, 2, 3}> {1, 2, 3} @test.assert_eq
+Bool :: <{}> @test.assert_false
+Bool :: <{0}> @test.assert_true
+
 <{}> @test.assert_false
 <{1}> @test.assert_true
 

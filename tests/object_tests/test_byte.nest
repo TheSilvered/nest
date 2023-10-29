@@ -51,3 +51,5 @@ Byte :: 16.0 16b @test.assert_eq
 0b10b 2b @test.assert_eq
 0o2b 0b10b @test.assert_eq
 0ha 0o12b @test.assert_eq
+Bool :: 0b @test.assert_false
+Bool :: 1b @test.assert_true

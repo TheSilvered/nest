@@ -1,0 +1,3 @@
+|#| '../test_lib.nest' = test
+
+Bool :: Type @test.assert_true

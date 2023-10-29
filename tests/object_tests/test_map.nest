@@ -31,3 +31,7 @@ Map :: {{'a', 1}, {'b', 2}} {'a': 1, 'b': 2} @test.assert_eq
 {1: 'a', 'b': 2, 3: 'c'} 'c' <.> @test.assert_false
 {1: 'a', 'b': 2, 3: 'c'} 1 <.> @test.assert_true
 {1: 'a', 'b': 2, 3: 'c'} 3 <.> @test.assert_true
+
+Array :: {'a': 1, 'b': 2} {{'a', 1}, {'b', 2}} @test.assert_eq
+Bool :: {} @test.assert_false
+Bool :: {'a': 1} @test.assert_true

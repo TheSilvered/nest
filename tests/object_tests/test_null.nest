@@ -1,6 +1,7 @@
 |#| '../test_lib.nest' = test
 
 null @test.assert_false
+Bool :: null @test.assert_false
 Str :: null 'null' @test.assert_eq
 
 not_a_var null @test.assert_eq

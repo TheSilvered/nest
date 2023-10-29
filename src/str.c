@@ -738,14 +738,14 @@ end:
 
 i32 Nst_string_compare(Nst_StrObj *str1, Nst_StrObj *str2)
 {
-    i8 *p1 = str1->value;
-    i8 *p2 = str2->value;
-    i8 *end1 = p1 + str1->len;
-    i8 *end2 = p2 + str2->len;
+    u8 *p1 = (u8 *)str1->value;
+    u8 *p2 = (u8 *)str2->value;
+    u8 *end1 = p1 + str1->len;
+    u8 *end2 = p2 + str2->len;
 
     while (p1 != end1 && p2 != end2) {
         if (*p1 != *p2)
-            return (i32)(*p1 - *p2);
+            return *p1 < *p2 ? -1 : 1; // fixed values above 0x7f
         else {
             ++p1;
             ++p2;

@@ -325,6 +325,8 @@ static Nst_IOResult write_std_stream(i8 *buf, usize buf_len, usize *count,
 
     while (buf_len > 0) {
         i32 ch_len = Nst_check_ext_utf8_bytes((u8 *)buf, buf_len);
+        if (ch_len < 0)
+            return Nst_IO_ERROR;
         usize written_char = fwrite(buf, 1, ch_len, f->fp);
         if (written_char != (usize)ch_len) {
             if (count != NULL)

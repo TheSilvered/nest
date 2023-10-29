@@ -51,6 +51,9 @@
 - fixed `rtrim` and `trim` in `stdsutil.nest` that if used could later cause crashes
 - fixed iterating through strings and creating sequences from strings that contain unicode characters which would create invalid strings
 - fixed many inconsistencies between the documentation and the functions in the standard library
+- fixed `<` and `>` sometimes not working correctly with non-ASCII characters
+- fixed octal escapes higher than `\177` not working and possibly causing a crash
+- fixed error printing causing a crash when non-ASCII character were present on the line being printed
 
 ### C API
 

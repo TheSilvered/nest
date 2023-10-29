@@ -52,6 +52,10 @@
 -: -9223372036854775808 -9223372036854775808 @test.assert_eq
 ~ -9223372036854775808 9223372036854775807 @test.assert_eq
 
+Bool :: 0 @test.assert_false
+Bool :: 1 @test.assert_true
+Bool :: -1 @test.assert_true
+
 Int :: 123.0 123 @test.assert_eq
 Int :: 1.1 1 @test.assert_eq
 Int :: 1.5 1 @test.assert_eq

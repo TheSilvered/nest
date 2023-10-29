@@ -88,3 +88,4 @@ false @nested_return_4 1 @test.assert_eq
 20 @nested_return_5 2 @test.assert_eq
 @nested_return_5 3 @test.assert_eq
 recursive_func {,} @test.assert_raises_error
+Bool :: ## [] @test.assert_true
