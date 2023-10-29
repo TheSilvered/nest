@@ -399,7 +399,7 @@ Nst_FUNC_SIGN(virtual_file_)
     if (f == nullptr)
         return nullptr;
 
-    if (!Nst_buffer_init(&f->data, buf_size)) {
+    if (!Nst_buffer_init(&f->data, usize(buf_size))) {
         Nst_free(f);
         return nullptr;
     }
@@ -552,7 +552,11 @@ Nst_FUNC_SIGN(read_)
 
     i8 *buf;
     usize buf_len;
-    Nst_IOResult result = Nst_fread((i8 *)&buf, 0, bytes_to_read, &buf_len, f);
+    Nst_IOResult result = Nst_fread(
+        (i8 *)&buf, 0,
+        usize(bytes_to_read), &buf_len,
+        f);
+
     if (result == Nst_IO_ALLOC_FAILED) {
         Nst_failed_allocation();
         return nullptr;
@@ -612,7 +616,10 @@ Nst_FUNC_SIGN(read_bytes_)
 
     i8 *buf;
     usize buf_len;
-    Nst_IOResult result = Nst_fread((i8 *)&buf, 0, bytes_to_read, &buf_len, f);
+    Nst_IOResult result = Nst_fread(
+        (i8 *)&buf, 0,
+        usize(bytes_to_read), &buf_len,
+        f);
 
     if (result == Nst_IO_ALLOC_FAILED) {
         Nst_failed_allocation();
@@ -702,10 +709,10 @@ Nst_FUNC_SIGN(move_fpi_)
     if (start == SEEK_END)
         end_pos = size + isize(offset);
     else if (start == SEEK_SET)
-        end_pos = offset;
+        end_pos = isize(offset);
     else {
         if (Nst_ftell(f, (usize *)&end_pos) != Nst_IO_ERROR)
-            end_pos += offset;
+            end_pos += isize(offset);
         else
             end_pos = 0;
     }

@@ -325,7 +325,7 @@ static void fill_ch_str(i8 *str, i8 *ch, usize ch_size, usize count)
 static Nst_Obj *justify_left(Nst_StrObj *str, i64 just_len, i8 *fill_ch,
                              usize fill_ch_len)
 {
-    usize fill_len = just_len - str->true_len;
+    usize fill_len = usize(just_len - str->true_len);
     usize str_len = str->len;
     usize new_str_len = str_len + fill_ch_len * fill_len;
 
@@ -340,7 +340,7 @@ static Nst_Obj *justify_left(Nst_StrObj *str, i64 just_len, i8 *fill_ch,
     Nst_Obj *new_str_obj = Nst_string_new_len(
         new_str,
         new_str_len,
-        just_len,
+        usize(just_len),
         true);
     if (new_str_obj == nullptr)
         Nst_free(new_str);
@@ -350,7 +350,7 @@ static Nst_Obj *justify_left(Nst_StrObj *str, i64 just_len, i8 *fill_ch,
 static Nst_Obj *justify_right(Nst_StrObj *str, i64 just_len, i8 *fill_ch,
                               usize fill_ch_len)
 {
-    usize fill_len = just_len - str->true_len;
+    usize fill_len = usize(just_len - str->true_len);
     usize str_len = str->len;
     usize new_str_len = str_len + fill_ch_len * fill_len;
 
@@ -364,7 +364,7 @@ static Nst_Obj *justify_right(Nst_StrObj *str, i64 just_len, i8 *fill_ch,
     Nst_Obj *new_str_obj = Nst_string_new_len(
         new_str,
         new_str_len,
-        just_len,
+        usize(just_len),
         true);
     if (new_str_obj == nullptr)
         Nst_free(new_str);
@@ -406,7 +406,7 @@ Nst_FUNC_SIGN(justify_)
     if (!check_just_args(arg_num, args, str, just_len, fill_ch, fill_ch_len))
         return nullptr;
 
-    usize pos_just_len = just_len < 0 ? -just_len : just_len;
+    usize pos_just_len = usize(just_len < 0 ? -just_len : just_len);
 
     if (pos_just_len <= str->true_len)
         return Nst_inc_ref(str);
@@ -427,7 +427,7 @@ Nst_FUNC_SIGN(center_)
     if (!check_just_args(arg_num, args, str, just_len, fill_ch, fill_ch_len))
         return nullptr;
 
-    usize fill_len = just_len - str->true_len;
+    usize fill_len = usize(just_len - str->true_len);
     usize str_len = str->len;
     usize new_str_len = str_len + fill_ch_len * fill_len;
 
@@ -448,7 +448,7 @@ Nst_FUNC_SIGN(center_)
     Nst_Obj *new_str_obj = Nst_string_new_len(
         new_str,
         new_str_len,
-        just_len,
+        usize(just_len),
         true);
     if (new_str_obj == nullptr)
         Nst_free(new_str);
