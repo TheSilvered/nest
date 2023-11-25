@@ -15,7 +15,7 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-Nst_InstList *Nst_compile(Nst_Node *ast, bool is_module, Nst_Error *error)
+Nst_InstList *Nst_compile(Nst_Node *ast, bool is_module)
 ```
 
 **Description:**
@@ -29,12 +29,11 @@ passed to this function.
 
 - `ast`: the AST to compile, will be freed by the function
 - `is_module`: whether the AST is of an imported module or of the main file
-- `error`: the error set if one occurs
 
 **Returns:**
 
 The compiled [`Nst_InstList`](c_api-instructions.md#nst_instlist) or `NULL` if
-an error occurred.
+an error occurred. The error is set.
 
 ---
 

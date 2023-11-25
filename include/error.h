@@ -97,7 +97,7 @@
 #define _Nst_EM_ARG_NUM_DOESNT_MATCH(f)                                       \
     f ": the number of arguments and types does not match"
 #define _Nst_EM_CALL_STACK_SIZE_EXCEEDED                                      \
-    "the maximum call stack size (1000 calls) was exceeded"
+    "the maximum call stack size (%zi calls) was exceeded"
 #define _Nst_EM_LEFT_ARGS_NUM(op, count, s)                                   \
     "'" op "' expects only " count " argument" s " on the left"
 #define _Nst_EM_WRONG_TYPE_FOR_ARG2                                           \
@@ -116,6 +116,15 @@
 #define _Nst_EM_MAP_TO_SEQ_TYPE_ERR(i)                                        \
     "expected each element to be a Vector or an Array, found a '%s' instead " \
     "at " i " %zi"
+
+/* [docs:ignore_sym _Nst_EM_WRONG_ARG_NUM] */
+
+/* Correctly formats the `_Nst_EM_WRONG_ARG_NUM` error message. */
+#define _Nst_EM_WRONG_ARG_NUM_FMT(func_arg_num, arg_num)                \
+    Nst_sprintf(                                                              \
+        _Nst_EM_WRONG_ARG_NUM,                                                \
+        func_arg_num, func_arg_num == 1 ? "" : "s",                           \
+        arg_num, arg_num == 1 ? "was" : "were")
 
 /* Alias for `_Nst_set_error` that casts `name` and `msg` to `Nst_StrObj *`. */
 #define Nst_set_error(name, msg)  _Nst_set_error(STR(name), STR(msg))
@@ -218,42 +227,18 @@ NstEXP typedef struct _Nst_Pos {
 } Nst_Pos;
 
 /**
- * The structure representing an error with a determined position.
- *
- * @param occurred: whether the struct contains a valid error
- * @param start: the start position of the error
- * @param end: the end position of the error
- * @param name: the name of the error (e.g. `Value Error`, `Type Error` etc.)
- * @param message: the message of the error
- */
-NstEXP typedef struct _Nst_Error {
-    bool occurred;
-    Nst_Pos start;
-    Nst_Pos end;
-    Nst_StrObj *name;
-    Nst_StrObj *message;
-} Nst_Error;
-
-/**
- * The structure representing an error occurred during an operation and that
- * does not yet have a position.
- *
- * @param name: the name of the error (e.g. `Value Error`, `Type Error` etc.)
- * @param message: the message of the error
- */
-NstEXP typedef struct _Nst_OpErr {
-    Nst_StrObj *name;
-    Nst_StrObj *message;
-} Nst_OpErr;
-
-/**
  * The structure containing the full traceback of the error.
  *
- * @param error: the error of the traceback
+ * @param error_occurred: whether the traceback contains an error
+ * @param error_name: the name of the error (e.g. `Value Error`, `Type Error`
+ * etc.)
+ * @param error_msg: the message of the error
  * @param positions: the list of positions that led to the error
  */
 NstEXP typedef struct _Nst_Traceback {
-    Nst_Error error;
+    bool error_occurred;
+    Nst_StrObj *error_name;
+    Nst_StrObj *error_msg;
     Nst_LList *positions;
 } Nst_Traceback;
 
@@ -263,10 +248,8 @@ NstEXP void NstC Nst_set_color(bool color);
 NstEXP Nst_Pos NstC Nst_copy_pos(Nst_Pos pos);
 /* Creates an empty position, with no valid text. */
 NstEXP Nst_Pos NstC Nst_no_pos(void);
-/* Prints a formatted `Nst_Error`. */
-NstEXP void NstC Nst_print_error(Nst_Error err);
 /* Prints a formatted `Nst_Traceback`. */
-NstEXP void NstC Nst_print_traceback(Nst_Traceback tb);
+NstEXP void NstC Nst_print_traceback(Nst_Traceback *tb);
 
 /**
  * @brief Frees a heap allocated text source, `text` can be `NULL`. No error
@@ -369,20 +352,48 @@ NstEXP void NstC Nst_set_import_error_c(const i8 *msg);
 /* Sets the global operation error with a memory error of failed allocation. */
 NstEXP void NstC Nst_failed_allocation(void);
 
-/* Returns whether the global operation error is set. */
-NstEXP bool NstC Nst_error_occurred(void);
-/* Returns the global operation error, it does not create a copy. */
-NstEXP Nst_OpErr *NstC Nst_error_get(void);
-/* Clears the global operation error, even if it is not set. */
+/* [docs:ignore_sym Nst_EK_NONE] */
+/* [docs:ignore_sym Nst_EK_LOCAL] */
+/* [docs:ignore_sym Nst_EK_GLOBAL] */
+/**
+ * The kinds of errors that can occur during execution.
+ *
+ * @param Nst_EK_NONE: no error occurred
+ * @param Nst_EK_LOCAL: an error has occurred in the current execution state
+ * @param Nst_EK_GLOBAL: an error has occurred while no execution state was set
+ */
+typedef enum _Nst_ErrorKind {
+    Nst_EK_NONE = 0,
+    Nst_EK_LOCAL,
+    Nst_EK_GLOBAL
+} Nst_ErrorKind;
+
+/**
+ * @return Whether an error has occurred in the current execution. Check
+ * `Nst_ErrorKind` to understand better the return value.
+ */
+NstEXP Nst_ErrorKind NstC Nst_error_occurred(void);
+/**
+ * @return The traceback of the current execution or that of the interpreter if
+ * no execution state is set.
+ */
+NstEXP Nst_Traceback *NstC Nst_error_get(void);
+/**
+ * @brief Clears the traceback of both the current execution and of the
+ * interpreter. If no error has occurred nothing is done.
+ */
 NstEXP void NstC Nst_error_clear(void);
 
 /* Initializes the traceback of the current `Nst_state`. */
-NstEXP bool NstC Nst_traceback_init(void);
+NstEXP bool NstC Nst_traceback_init(Nst_Traceback *tb);
 /* Frees the traceback of the current `Nst_state`. */
-NstEXP void NstC Nst_traceback_delete(void);
+NstEXP void NstC Nst_traceback_destroy(Nst_Traceback *tb);
+/* Adds a pair of positions to an error. */
+NstEXP void NstC Nst_error_add_positions(Nst_Traceback *tb, Nst_Pos start,
+                                         Nst_Pos end);
 
 /**
- * Sets a `Nst_Error` with the given fields.
+ * Sets a `Nst_Traceback` with the given fields.
  *
  * @brief `name` will increment the reference count but `msg` will not.
  *
@@ -391,11 +402,11 @@ NstEXP void NstC Nst_traceback_delete(void);
  * @param end: the end position
  * @param msg: the message of the error
  */
-NstEXP void NstC Nst_set_internal_error(Nst_Error *error, Nst_Pos start,
+NstEXP void NstC Nst_set_internal_error(Nst_Traceback *tb, Nst_Pos start,
                                         Nst_Pos end, Nst_StrObj *name,
                                         Nst_StrObj *msg);
 /**
- * Sets a `Nst_Error` with the given fields and creating the message from a
+ * Sets a `Nst_Traceback` with the given fields and creating the message from a
  * C string.
  *
  * @brief `name` will increment the reference count.
@@ -405,86 +416,83 @@ NstEXP void NstC Nst_set_internal_error(Nst_Error *error, Nst_Pos start,
  * @param end: the end position
  * @param msg: the message of the error
  */
-NstEXP void NstC Nst_set_internal_error_c(Nst_Error *error, Nst_Pos start,
+NstEXP void NstC Nst_set_internal_error_c(Nst_Traceback *tb, Nst_Pos start,
                                           Nst_Pos end, Nst_StrObj *name,
                                           const i8 *msg);
 
 /* Similar to `Nst_set_internal_error` and uses "Syntax Error" as the name. */
-NstEXP void NstC Nst_set_internal_syntax_error(Nst_Error *error, Nst_Pos start,
+NstEXP void NstC Nst_set_internal_syntax_error(Nst_Traceback *tb, Nst_Pos start,
                                                Nst_Pos end, Nst_StrObj *msg);
 /* Similar to `Nst_set_internal_error` and uses "Memory Error" as the name. */
-NstEXP void NstC Nst_set_internal_memory_error(Nst_Error *error, Nst_Pos start,
+NstEXP void NstC Nst_set_internal_memory_error(Nst_Traceback *tb, Nst_Pos start,
                                                Nst_Pos end, Nst_StrObj *msg);
 /* Similar to `Nst_set_internal_error` and uses "Type Error" as the name. */
-NstEXP void NstC Nst_set_internal_type_error(Nst_Error *error, Nst_Pos start,
+NstEXP void NstC Nst_set_internal_type_error(Nst_Traceback *tb, Nst_Pos start,
                                              Nst_Pos end, Nst_StrObj *msg);
 /* Similar to `Nst_set_internal_error` and uses "Value Error" as the name. */
-NstEXP void NstC Nst_set_internal_value_error(Nst_Error *error, Nst_Pos start,
+NstEXP void NstC Nst_set_internal_value_error(Nst_Traceback *tb, Nst_Pos start,
                                               Nst_Pos end, Nst_StrObj *msg);
 /* Similar to `Nst_set_internal_error` and uses "Math Error" as the name. */
-NstEXP void NstC Nst_set_internal_math_error(Nst_Error *error, Nst_Pos start,
+NstEXP void NstC Nst_set_internal_math_error(Nst_Traceback *tb, Nst_Pos start,
                                              Nst_Pos end, Nst_StrObj *msg);
 /* Similar to `Nst_set_internal_error` and uses "Call Error" as the name. */
-NstEXP void NstC Nst_set_internal_call_error(Nst_Error *error, Nst_Pos start,
+NstEXP void NstC Nst_set_internal_call_error(Nst_Traceback *tb, Nst_Pos start,
                                              Nst_Pos end, Nst_StrObj *msg);
 /* Similar to `Nst_set_internal_error` and uses "Import Error" as the name. */
-NstEXP void NstC Nst_set_internal_import_error(Nst_Error *error, Nst_Pos start,
+NstEXP void NstC Nst_set_internal_import_error(Nst_Traceback *tb, Nst_Pos start,
                                                Nst_Pos end, Nst_StrObj *msg);
 /**
  * @brief Similar to `Nst_set_internal_error_c` and uses "Syntax Error" as the
  * name.
  */
-NstEXP void NstC Nst_set_internal_syntax_error_c(Nst_Error *error,
+NstEXP void NstC Nst_set_internal_syntax_error_c(Nst_Traceback *tb,
                                                  Nst_Pos start, Nst_Pos end,
                                                  const i8 *msg);
 /**
  * @brief Similar to `Nst_set_internal_error_c` and uses "Memory Error" as the
  * name.
  */
-NstEXP void NstC Nst_set_internal_memory_error_c(Nst_Error *error,
+NstEXP void NstC Nst_set_internal_memory_error_c(Nst_Traceback *tb,
                                                  Nst_Pos start, Nst_Pos end,
                                                  const i8 *msg);
 /**
  * @brief Similar to `Nst_set_internal_error_c` and uses "Type Error" as the
  * name.
  */
-NstEXP void NstC Nst_set_internal_type_error_c(Nst_Error *error,
+NstEXP void NstC Nst_set_internal_type_error_c(Nst_Traceback *tb,
                                                Nst_Pos start, Nst_Pos end,
                                                const i8 *msg);
 /**
  * @brief Similar to `Nst_set_internal_error_c` and uses "Value Error" as the
  * name.
  */
-NstEXP void NstC Nst_set_internal_value_error_c(Nst_Error *error,
+NstEXP void NstC Nst_set_internal_value_error_c(Nst_Traceback *tb,
                                                 Nst_Pos start, Nst_Pos end,
                                                 const i8 *msg);
 /**
  * @brief Similar to `Nst_set_internal_error_c` and uses "Math Error" as the
  * name.
  */
-NstEXP void NstC Nst_set_internal_math_error_c(Nst_Error *error,
+NstEXP void NstC Nst_set_internal_math_error_c(Nst_Traceback *tb,
                                                Nst_Pos start, Nst_Pos end,
                                                const i8 *msg);
 /**
  * @brief Similar to `Nst_set_internal_error_c` and uses "Call Error" as the
  * name.
  */
-NstEXP void NstC Nst_set_internal_call_error_c(Nst_Error *error,
+NstEXP void NstC Nst_set_internal_call_error_c(Nst_Traceback *tb,
                                                Nst_Pos start, Nst_Pos end,
                                                const i8 *msg);
 /**
  * @brief Similar to `Nst_set_internal_error_c` and uses "Import Error" as the
  * name.
  */
-NstEXP void NstC Nst_set_internal_import_error_c(Nst_Error *error,
+NstEXP void NstC Nst_set_internal_import_error_c(Nst_Traceback *tb,
                                                  Nst_Pos start, Nst_Pos end,
                                                  const i8 *msg);
 /* Sets a memory error for a failed allocation. */
-NstEXP void NstC Nst_internal_failed_allocation(Nst_Error *error,
+NstEXP void NstC Nst_internal_failed_allocation(Nst_Traceback *tb,
                                                 Nst_Pos start, Nst_Pos end);
-/* Sets a `Nst_Error` from the global error and clears it. */
-NstEXP void NstC Nst_set_internal_error_from_op_err(Nst_Error *error,
-                                                    Nst_Pos start, Nst_Pos end);
 
 #ifdef __cplusplus
 }

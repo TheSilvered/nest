@@ -21,45 +21,8 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 - the standard library includes coroutines, a JSON parser and various other
   helper functions
 
-### Nest 0.14.0 planned featues and improvements
-
-- [x] Object pools (optimization)
-- [x] Remove `is_done` function from iterators & return special object with
-      `get_val`
-- [x] Strings that index to actual characters
-- [x] Add iterator variants in `stdsequtil.nest` of
-  - [x] `map`
-  - [x] `filter`
-  - [x] `slice`
-- [x] Argument to specify in-place or new for functions that accept sequences
-  - [x] `sequ.map`
-  - [x] `sequ.sort`
-  - [x] `rand.shuffle`
-- [x] Add `extend` to `stdsequtil.nest` (instead of in-place `sequ.merge`)
-- [x] Add `copy` and `deepcopy` to `stdsequtil.nest`
-- [ ] ~Non-recursive JSON parsing & dumping~
-- [x] Add encoding arguments to `load_f` and `dump_f` in `stdjson.nest`
-- [x] Add option for `Infinity` and `NaN` to `stdjson.nest`
-- [x] Add `extUTF-16` encoding (with little and big endian variants) that accept
-  unpaired surrogates
-- [x] Rename `replace_substr` to `replace`, `bytearray_to_str` to `decode` and
-  `str_to_bytearray` to `encode`
-- [x] Make third argument of `replace_substr` optional to remove the substring
-- [x] Add 'contains' stack operator `<.>`
-- [x] Add `from` and `to` arguments to `lfind` and `rfind`
-- [ ] ~Automatic documentation generation for standard library~ [^3]
-- [x] Add `INF` and `NAN` constants to `stdmath.nest`
-- [ ] ~Better testing with C~ [^4]
-- [x] Improve `test_str.nest`
-
-[^3]: removed because generating documentation from C would require everything
-      to be written anyway adding another step
-[^4]: postponed due to changes that were not planned needed in order for good
-      testing
-
 ### Nest 0.15.0 planned features
 
-- [ ] Finish implementing `Nst_fmt` and add a wrapper to `stdsutil.nest`
 - [ ] Improve `libnest` usage:
   - [ ] Separate execution and interpreter states
   - [ ] Initialize everything with one function
@@ -67,12 +30,13 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
   - [ ] Execute a program in one function (given the path of the file)
 - [ ] Better testing with C [^4]
 - [ ] Rewrite parser, nodes and tweak compiler to accommodate for the new
+  parser
+- [ ] Finish implementing `Nst_fmt` and add a wrapper to `stdsutil.nest`
 - [ ] Add `is_space`, `remove_prefix` and `remove_suffix` to `stdsutil.nest`
 - [ ] Rename `split` to `lsplit` and add `rsplit` to `stdsutil.nest`
 - [ ] Add `batch` to `stditutil.nest`
 - [ ] Add `enum` to `stdsequtil.nest`
 - [ ] Add `factorial` to `stdmath.nest`
-  parser
 - [ ] Change `generator` in `stdco.nest` to allow for different arguments of
   the function
 - [ ] Change `relative_path` in `stdfs.nest` to use the current working

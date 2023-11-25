@@ -15,17 +15,17 @@
 #define CURR_LEN ((i64)(c_state.inst_ls->len))
 
 #define ADD_INST(instruction, ...) do {                                       \
-    RETURN_IF_OP_ERR();                                                       \
+    ADD_POS_AND_QUIT_IF_ERR();                                                \
     Nst_llist_append(c_state.inst_ls, instruction, true);                     \
-    RETURN_IF_OP_ERR(Nst_inst_destroy(instruction); __VA_ARGS__);             \
+    ADD_POS_AND_QUIT_IF_ERR(Nst_inst_destroy(instruction); __VA_ARGS__);      \
     } while (0)
 
 #define PRINT(str, size) Nst_fwrite(str, size, NULL, Nst_io.out)
 
-#define RETURN_IF_OP_ERR(...) do {                                            \
+#define ADD_POS_AND_QUIT_IF_ERR(...) do {                                     \
     if (Nst_error_occurred()) {                                               \
-        Nst_set_internal_error_from_op_err(                                   \
-            c_state.error,                                                    \
+        Nst_error_add_positions(                                              \
+            Nst_error_get(),                                                  \
             node->start,                                                      \
             node->end);                                                       \
         __VA_ARGS__                                                           \
@@ -34,7 +34,7 @@
     } while (0)
 
 #define EXCEPT_ERROR(...) do {                                                \
-    if (c_state.error->occurred) {                                            \
+    if (Nst_error_occurred()) {                                               \
         __VA_ARGS__                                                           \
         return;                                                               \
     }                                                                         \
@@ -43,7 +43,6 @@
 typedef struct _CompilerState {
     i32 loop_id;
     Nst_LList *inst_ls;
-    Nst_Error *error;
 } CompileState;
 
 static CompileState c_state;
@@ -88,9 +87,8 @@ static void compile_break_s(Nst_Node *node);
 static void compile_switch_s(Nst_Node *node);
 static void compile_try_catch_s(Nst_Node *node);
 
-Nst_InstList *Nst_compile(Nst_Node *ast, bool is_module, Nst_Error *error)
+Nst_InstList *Nst_compile(Nst_Node *ast, bool is_module)
 {
-    c_state.error = error;
     return compile_internal(ast, false, is_module);
 }
 
@@ -100,14 +98,12 @@ static Nst_InstList *compile_internal(Nst_Node *node, bool is_func,
     c_state.loop_id = 0;
     c_state.inst_ls = Nst_llist_new();
     if (c_state.inst_ls == NULL) {
-        Nst_set_internal_error_from_op_err(
-            c_state.error,
-            node->start, node->end);
+        Nst_error_add_positions(Nst_error_get(), node->start, node->end);
         return NULL;
     }
 
     compile_node(node);
-    if (c_state.error->occurred) {
+    if (Nst_error_occurred()) {
         Nst_llist_destroy(
             c_state.inst_ls,
             (Nst_LListDestructor)Nst_inst_destroy);
@@ -116,8 +112,8 @@ static Nst_InstList *compile_internal(Nst_Node *node, bool is_func,
 
     Nst_InstList *inst_list = Nst_malloc_c(1, Nst_InstList);
     if (inst_list == NULL) {
-        Nst_set_internal_error_from_op_err(
-            c_state.error,
+        Nst_error_add_positions(
+            Nst_error_get(),
             node->start,
             node->end);
         Nst_llist_destroy(
@@ -141,7 +137,7 @@ static Nst_InstList *compile_internal(Nst_Node *node, bool is_func,
     if (inst_list->instructions == NULL) {
         Nst_free(inst_list);
         Nst_llist_destroy(c_state.inst_ls, Nst_free);
-        Nst_set_internal_error_from_op_err(c_state.error, node->start, node->end);
+        Nst_error_add_positions( Nst_error_get(), node->start, node->end);
         return NULL;
     }
 
@@ -150,7 +146,7 @@ static Nst_InstList *compile_internal(Nst_Node *node, bool is_func,
         Nst_free(inst_list->instructions);
         Nst_free(inst_list);
         Nst_llist_destroy(c_state.inst_ls, Nst_free);
-        Nst_set_internal_error_from_op_err(c_state.error, node->start, node->end);
+        Nst_error_add_positions(Nst_error_get(), node->start, node->end);
         return NULL;
     }
 
@@ -166,8 +162,7 @@ static Nst_InstList *compile_internal(Nst_Node *node, bool is_func,
         {
             Nst_inc_ref(inst->val);
             if (!Nst_llist_append(funcs, inst->val, true)) {
-                Nst_set_internal_error_from_op_err(
-                    c_state.error,
+                Nst_error_add_positions(Nst_error_get(),
                     node->start,
                     node->end);
                 Nst_inst_list_destroy(inst_list);
@@ -634,7 +629,7 @@ static void compile_func_declr(Nst_Node *node)
     Nst_FuncObj *func = FUNC(Nst_func_new(
         node->tokens->len - 1,
         inst_list));
-    RETURN_IF_OP_ERR(
+    ADD_POS_AND_QUIT_IF_ERR(
         Nst_inst_list_destroy(inst_list);
         c_state.inst_ls = prev_inst_ls;);
     c_state.loop_id = prev_loop_id;
@@ -675,7 +670,7 @@ static void compile_lambda(Nst_Node *node)
     Nst_FuncObj *func = FUNC(Nst_func_new(
         node->tokens->len,
         inst_list));
-    RETURN_IF_OP_ERR(
+    ADD_POS_AND_QUIT_IF_ERR(
         Nst_inst_list_destroy(inst_list);
         c_state.inst_ls = prev_inst_ls;);
     c_state.loop_id = prev_loop_id;
@@ -782,7 +777,7 @@ static void compile_comp_op(Nst_Node *node)
     compile_node(HEAD_NODE);
     EXCEPT_ERROR();
     Nst_LList *fix_jumps = Nst_llist_new();
-    RETURN_IF_OP_ERR();
+    ADD_POS_AND_QUIT_IF_ERR();
 
     for (Nst_LLNode *n = node->nodes->head->next;
          n->next != NULL;
@@ -801,7 +796,7 @@ static void compile_comp_op(Nst_Node *node)
         inst = Nst_inst_new(Nst_IC_JUMPIF_F, node->start, node->end);
         ADD_INST(inst, Nst_llist_destroy(fix_jumps, NULL););
         Nst_llist_append(fix_jumps, inst, false);
-        RETURN_IF_OP_ERR(Nst_llist_destroy(fix_jumps, NULL););
+        ADD_POS_AND_QUIT_IF_ERR(Nst_llist_destroy(fix_jumps, NULL););
         inst = Nst_inst_new(Nst_IC_POP_VAL, node->start, node->end);
         ADD_INST(inst, Nst_llist_destroy(fix_jumps, NULL););
     }
@@ -1251,9 +1246,9 @@ static void compile_unpacking_assign_e(Nst_Node *node, Nst_Pos v_start,
 
     Nst_Inst *inst;
     Nst_LList *nodes = Nst_llist_new();
-    RETURN_IF_OP_ERR();
+    ADD_POS_AND_QUIT_IF_ERR();
     Nst_llist_push(nodes, node, false);
-    RETURN_IF_OP_ERR();
+    ADD_POS_AND_QUIT_IF_ERR();
 
     while (nodes->len != 0) {
         Nst_Node *curr_node = Nst_NODE(Nst_llist_pop(nodes));
@@ -1267,7 +1262,7 @@ static void compile_unpacking_assign_e(Nst_Node *node, Nst_Pos v_start,
 
             for (Nst_LLIST_ITER(n, curr_node->nodes)) {
                 Nst_llist_append(nodes, n->value, false);
-                RETURN_IF_OP_ERR(Nst_llist_destroy(nodes, NULL););
+                ADD_POS_AND_QUIT_IF_ERR(Nst_llist_destroy(nodes, NULL););
             }
 
             // the array literal is guaranteed to have at least one item
@@ -1361,7 +1356,7 @@ static void compile_switch_s(Nst_Node *node)
     Nst_LLNode *prev_body_end = NULL;
     Nst_Node *default_body = NULL;
     Nst_LList *jumps_to_switch_end = Nst_llist_new();
-    RETURN_IF_OP_ERR();
+    ADD_POS_AND_QUIT_IF_ERR();
 
     compile_node(HEAD_NODE);
     EXCEPT_ERROR(Nst_llist_destroy(jumps_to_switch_end, NULL););
@@ -1397,7 +1392,7 @@ static void compile_switch_s(Nst_Node *node)
         inst = Nst_inst_new(Nst_IC_JUMP, node->start, node->end);
         ADD_INST(inst, Nst_llist_destroy(jumps_to_switch_end, NULL););
         Nst_llist_append(jumps_to_switch_end, inst, false);
-        RETURN_IF_OP_ERR(Nst_llist_destroy(jumps_to_switch_end, NULL););
+        ADD_POS_AND_QUIT_IF_ERR(Nst_llist_destroy(jumps_to_switch_end, NULL););
         jump_body_end->int_val = CURR_LEN;
         Nst_LLNode *body_end = c_state.inst_ls->tail;
 

@@ -1,3 +1,103 @@
+## 0.15.0
+
+### C API
+
+**Additions**
+
+- added `Nst_ErrorKind` enum
+- added `Nst_error_add_positions` to add a pair of positions to a traceback
+- added `Nst_ggc_was_init` to check if the garbage collector was initialized
+- added `Nst_IntrState` struct
+- added `Nst_gstate_get_es` and `Nst_state_set_es`
+- added `runner.h` along with the following functions:
+  - `Nst_es_init`
+  - `Nst_es_destroy`
+  - `Nst_es_init_vt`
+  - `Nst_execute`
+  - `Nst_es_set_cwd`
+  - `Nst_es_push_module`
+  - `Nst_es_push_func`
+  - `Nst_es_push_paused_coroutine`
+  - `Nst_es_force_function_end`
+- added `Nst_cl_args_init`
+- added `_Nst_override_supports_color`
+- added `_Nst_EM_WRONG_ARG_NUM_FMT` macro to format correctly wrong argument numbers
+- added `Nst_init`, `Nst_quit` and `Nst_was_init`
+
+**Changes**
+
+_New program execution system_:
+
+Programs have been decoupled from the interpreter. Now any program can be
+executed by setting the `es` field (of type `Nst_ExecutionState`) of the global
+`Nst_IntrState`. All the information needed to execute a program is saved in
+the `Nst_ExecutionState` struct and this can be swapped into the interpreter
+when no recursive calls are active and it allows to execute a completely
+different program where it was left off.
+
+_New error handling system_:
+
+Previously errors were handled in a very messy way. There was `Nst_Error` which
+was used internally, `Nst_OpErr` which was used by libraries and
+`Nst_Traceback` which was used during execution. Now interpreter and program
+execution are separate and because of this the interpreter state can be
+initialized well before anything is executed on it. This removes the need for
+`Nst_Error` and `Nst_OpErr` which are replaced in the new `Nst_ExecutionState`
+and `Nst_IntrState` by a `Nst_Traceback` field that contains all the
+information needed.
+
+_General changes_:
+
+- removed `error` parameter from `Nst_compile`
+- removed `Nst_Error` and `Nst_OpErr` structs
+- replaced the `error` field in `Nst_Traceback` with `error_occurred`, `error_name` and `error_msg`
+- removed `Nst_print_error`
+- changed `Nst_print_traceback` to take a pointer instead of a plain traceback
+- changed `Nst_error_occurred` to return a `Nst_ErrorKind` instead of a `bool`
+- changed `Nst_error_get` to return a `Nst_Traceback` instead of a `Nst_OpErr`
+- changed all `Nst_set_internal_*` functions to get a `Nst_Traceback` instead of a `Nst_Error` for the first argument
+- removed `Nst_set_internal_error_from_op_err`
+- changed `Nst_get_state` to return `Nst_IntrState`
+- changed `Nst_ExecutionState` to now only contain information about the running program
+- removed `error` argument from `Nst_tokenizef`, `Nst_tokenize` and `Nst_normalize_encoding`
+- removed `error` argument from `Nst_optimize_ast` and `Nst_optimize_bytecode`
+- removed `error` argument from `Nst_parse`
+- added `v_stack` argument to
+  - `Nst_vstack_init`
+  - `Nst_vstack_push`
+  - `_Nst_vstack_push`
+  - `Nst_vstack_pop`
+  - `Nst_vstack_peek`
+  - `Nst_vstack_dup`
+  - `Nst_vstack_destroy`
+- added `f_stack` argument to
+  - `Nst_fstack_init`
+  - `Nst_fstack_push`
+  - `Nst_fstack_pop`
+  - `Nst_fstack_peek`
+  - `Nst_fstack_destroy`
+- combined `func`, `call_start`, `call_end`, `vt`, `idx` and `cstack_size` arguments of `Nst_fstack_push` into `call`
+- added `c_stack` argument to
+  - `Nst_cstack_init`
+  - `Nst_cstack_push`
+  - `Nst_cstack_peek`
+  - `Nst_cstack_pop`
+  - `Nst_cstack_destroy`
+- combined `inst_idx`, `v_stack_size` and `f_stack_size` arguments of `Nst_cstack_push` into `frame`
+- renamed `Nst_ggc_delete_objs` to `_Nst_ggc_delete_objs`
+- removed `_Nst_unload_libs`
+- removed `argc` and `argv` arguments from `_Nst_parse_args`
+- added `arg_num` argument to `Nst_call_func`
+- renamed `Nst_run_func_context` to `Nst_run_paused_coroutine` and modified its arguments
+- removed `Nst_state_init` and `Nst_state_free`
+
+
+**Bug fixes**
+
+None.
+
+---
+
 ## 0.14.0
 
 ### Nest

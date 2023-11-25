@@ -1034,6 +1034,7 @@
     {} = files
 
     ... '../include/' @fs.list_dir := file [
+        'Parsing \(file @fs.filename @su.repr)' @io.println
         file @_parse_c_file = file_blocks
         file_blocks null == ? [
             '\(file @su.repr) failed' @io.println
@@ -1042,7 +1043,7 @@
         link_manager file_blocks @link_manager_add_symbols
         file_blocks = files.(file)
     ]
-
+    'Parsing complete.' @io.println
     link_manager @link_manager_expand_internal_links
     => {files, link_manager}
 ]

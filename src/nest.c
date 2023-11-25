@@ -157,7 +157,7 @@ int main(int argc, char **argv)
         inst_ls = Nst_optimize_bytecode(inst_ls, optimize_builtins, &error);
     }
     if (inst_ls == NULL) {
-        Nst_ggc_delete_objs();
+        _Nst_ggc_delete_objs();
         ERROR_EXIT;
     }
 

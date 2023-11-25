@@ -15,7 +15,7 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-#define Nst_fstack_push(func, start, end, vt, idx, cstack_size)
+#define Nst_fstack_push(f_stack, call)
 ```
 
 **Description:**
@@ -30,7 +30,7 @@ casts func to [`Nst_FuncObj *`](c_api-function.md#nst_funcobj).
 **Synopsis:**
 
 ```better-c
-#define Nst_vstack_push(val)
+#define Nst_vstack_push(v_stack, val)
 ```
 
 **Description:**
@@ -73,6 +73,7 @@ A structure representing the value stack.
 ```better-c
 typedef struct _Nst_FuncCall {
     Nst_FuncObj *func;
+    Nst_StrObj *cwd;
     Nst_Pos start;
     Nst_Pos end;
     Nst_VarTable *vt;
@@ -88,6 +89,8 @@ A structure representing a function call.
 **Fields:**
 
 - `func`: the function being called
+- `cwd`: the current working directory, changed when the call is back on top of
+  the stack; nothing is done if it is `NULL`
 - `start`: the start position of the call
 - `end`: the end position of the call
 - `vt`: the variable table of the call
@@ -105,6 +108,7 @@ typedef struct _Nst_CallStack {
     Nst_FuncCall *stack;
     usize len;
     usize cap;
+    usize max_recursion_depth;
 } Nst_CallStack
 ```
 
@@ -200,12 +204,16 @@ A structure representing a generic stack.
 **Synopsis:**
 
 ```better-c
-bool Nst_vstack_init(void)
+bool Nst_vstack_init(Nst_ValueStack *v_stack)
 ```
 
 **Description:**
 
-Initializes the value stack.
+Initializes a value stack.
+
+**Parameters:**
+
+- `v_stack`: the value stack to initialize
 
 **Returns:**
 
@@ -218,15 +226,16 @@ Initializes the value stack.
 **Synopsis:**
 
 ```better-c
-bool _Nst_vstack_push(Nst_Obj *obj)
+bool _Nst_vstack_push(Nst_ValueStack *v_stack, Nst_Obj *obj)
 ```
 
 **Description:**
 
-Pushes a value on the value stack.
+Pushes a value on a value stack.
 
 **Parameters:**
 
+- `v_stack`: the value stack push the object onto
 - `obj`: the value to be pushed, if not `NULL` its refcount is increased
 
 **Returns:**
@@ -240,13 +249,20 @@ Pushes a value on the value stack.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_vstack_pop(void)
+Nst_Obj *Nst_vstack_pop(Nst_ValueStack *v_stack)
 ```
 
 **Description:**
 
-Pops the top value from the value stack and returns it. If the stack is empty
-`NULL` is returned. No error is set.
+Pops the top value from a value stack.
+
+**Parameters:**
+
+- `v_stack`: the value stack to pop the value from
+
+**Returns:**
+
+The popped value. If the stack is empty `NULL` is returned. No error is set.
 
 ---
 
@@ -255,8 +271,16 @@ Pops the top value from the value stack and returns it. If the stack is empty
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_vstack_peek(void)
+Nst_Obj *Nst_vstack_peek(Nst_ValueStack *v_stack)
 ```
+
+**Description:**
+
+Peeks at the top value of a value stack.
+
+**Parameters:**
+
+- `v_stack`: the value stack to peek from
 
 **Returns:**
 
@@ -270,14 +294,18 @@ error is set.
 **Synopsis:**
 
 ```better-c
-bool Nst_vstack_dup(void)
+bool Nst_vstack_dup(Nst_ValueStack *v_stack)
 ```
 
 **Description:**
 
-Duplicates the top value of the stack.
+Duplicates the top value of a value stack.
 
 If the stack is empty nothing is done.
+
+**Parameters:**
+
+- `v_stack`: the value stack to duplicate the value of
 
 **Returns:**
 
@@ -291,12 +319,12 @@ always succeeds. The error is set.
 **Synopsis:**
 
 ```better-c
-void Nst_vstack_destroy(void)
+void Nst_vstack_destroy(Nst_ValueStack *v_stack)
 ```
 
 **Description:**
 
-Destroys the value stack.
+Destroys the contents of a value stack.
 
 ---
 
@@ -305,12 +333,16 @@ Destroys the value stack.
 **Synopsis:**
 
 ```better-c
-bool Nst_fstack_init(void)
+bool Nst_fstack_init(Nst_CallStack *f_stack)
 ```
 
 **Description:**
 
-Initializes the call stack.
+Initializes a call stack.
+
+**Parameters:**
+
+- `f_stack`: the call stack to initialize
 
 **Returns:**
 
@@ -323,26 +355,25 @@ Initializes the call stack.
 **Synopsis:**
 
 ```better-c
-bool _Nst_fstack_push(Nst_FuncObj *func, Nst_Pos call_start, Nst_Pos call_end,
-                      Nst_VarTable *vt, i64 idx, usize cstack_size)
+bool _Nst_fstack_push(Nst_CallStack *f_stack, Nst_FuncCall call)
 ```
 
 **Description:**
 
-Pushes a call on the call stack.
+Pushes a call on a call stack.
+
+!!!note
+    The reference count of the function inside `call` is automatically
+    increased. `func` may still be `NULL`.
 
 **Parameters:**
 
-- `func`: the function of the call
-- `call_start`: the start position of the call
-- `call_end`: the end position of the call
-- `vt`: the current variable table
-- `idx`: the current instruction index
-- `cstack_size`: the current size of the catch stack
+- `f_stack`: the call stack to push the call onto
+- `call`: the call to push on the stack
 
 **Returns:**
 
-`true` on success and `false` on failure. The error is not always set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -351,12 +382,20 @@ Pushes a call on the call stack.
 **Synopsis:**
 
 ```better-c
-Nst_FuncCall Nst_fstack_pop(void)
+Nst_FuncCall Nst_fstack_pop(Nst_CallStack *f_stack)
 ```
 
 **Description:**
 
-Pops the top call from the call stack and returns it. If the stack is empty, a
+Pops the top call from a call stack
+
+**Parameters:**
+
+- `f_stack`: the call stack to pop the value from
+
+**Returns:**
+
+The popped value. If the stack is empty, a
 [`Nst_FuncCall`](c_api-runtime_stack.md#nst_funccall) with a `NULL` `func` and
 `vt` is returned. No error is set.
 
@@ -367,12 +406,20 @@ Pops the top call from the call stack and returns it. If the stack is empty, a
 **Synopsis:**
 
 ```better-c
-Nst_FuncCall Nst_fstack_peek(void)
+Nst_FuncCall Nst_fstack_peek(Nst_CallStack *f_stack)
 ```
 
 **Description:**
 
-Returns the top function in the call stack. If the stack is empty, a
+Peeks at the top call of a call stack.
+
+**Parameters:**
+
+- `f_stack`: the call stack to peek from
+
+**Returns:**
+
+The top function in the call stack. If the stack is empty, a
 [`Nst_FuncCall`](c_api-runtime_stack.md#nst_funccall) with a `NULL` `func` and
 `vt` is returned. No error is set.
 
@@ -383,12 +430,12 @@ Returns the top function in the call stack. If the stack is empty, a
 **Synopsis:**
 
 ```better-c
-void Nst_fstack_destroy(void)
+void Nst_fstack_destroy(Nst_CallStack *f_stack)
 ```
 
 **Description:**
 
-Destroys the call stack.
+Destroys the contents of a call stack.
 
 ---
 
@@ -397,12 +444,40 @@ Destroys the call stack.
 **Synopsis:**
 
 ```better-c
-bool Nst_cstack_init(void)
+bool Nst_cstack_init(Nst_CatchStack *c_stack)
 ```
 
 **Description:**
 
-Initializes the catch stack.
+Initializes a catch stack.
+
+**Parameters:**
+
+- `c_stack`: the catch stack to initialize
+
+**Returns:**
+
+`true` on success and `false` on failure. The error is set.
+
+---
+
+### `Nst_cstack_push`
+
+**Synopsis:**
+
+```better-c
+bool Nst_cstack_push(Nst_CatchStack *c_stack, Nst_CatchFrame frame)
+```
+
+**Description:**
+
+Pushes a frame on a catch stack.
+
+**Parameters:**
+
+- `c_stack`: the catch stack to push the frame onto
+- `frame`: the [`Nst_CatchFrame`](c_api-runtime_stack.md#nst_catchframe) to push
+  on the stack
 
 **Returns:**
 
@@ -415,12 +490,20 @@ Initializes the catch stack.
 **Synopsis:**
 
 ```better-c
-Nst_CatchFrame Nst_cstack_peek(void)
+Nst_CatchFrame Nst_cstack_peek(Nst_CatchStack *c_stack)
 ```
 
 **Description:**
 
-Returns the top value of the catch stack. If the stack is empty a
+Peeks at the top frame of a catch stack.
+
+**Parameters:**
+
+- `c_stack`: the catch stack to peek from
+
+**Returns:**
+
+The top value of the catch stack. If the stack is empty a
 [`Nst_CatchFrame`](c_api-runtime_stack.md#nst_catchframe) with an `inst_idx` of
 `-1` is returned. No error is set.
 
@@ -431,12 +514,20 @@ Returns the top value of the catch stack. If the stack is empty a
 **Synopsis:**
 
 ```better-c
-Nst_CatchFrame Nst_cstack_pop(void)
+Nst_CatchFrame Nst_cstack_pop(Nst_CatchStack *c_stack)
 ```
 
 **Description:**
 
-Pops the top value of the catch stack and returns it. If the stack is empty a
+Pops the top value of a catch stack.
+
+**Parameters:**
+
+- `c_stack`: the catch stack to pop the frame from
+
+**Returns:**
+
+The popped frame. If the stack is empty a
 [`Nst_CatchFrame`](c_api-runtime_stack.md#nst_catchframe) with an `inst_idx` of
 `-1` is returned. No error is set.
 
@@ -447,12 +538,12 @@ Pops the top value of the catch stack and returns it. If the stack is empty a
 **Synopsis:**
 
 ```better-c
-void Nst_cstack_destroy(void)
+void Nst_cstack_destroy(Nst_CatchStack *c_stack)
 ```
 
 **Description:**
 
-Destroys the catch stack.
+Destroys the contents of a catch stack.
 
 ---
 

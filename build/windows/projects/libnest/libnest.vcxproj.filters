@@ -114,6 +114,9 @@
     <ClInclude Include="..\..\..\..\include\dtoa.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\include\runner.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp">
@@ -210,6 +213,9 @@
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\dtoa.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\runner.c">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>

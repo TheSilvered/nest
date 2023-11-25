@@ -68,7 +68,27 @@
     "All names are case-insensitive. Underscores (_), hyphens (-) and spaces are\n"  \
     "interchangeable."
 
+#ifdef Nst_WIN
+bool supports_color = false;
+#else
 bool supports_color = true;
+#endif // !Nst_WIN
+
+void Nst_cl_args_init(Nst_CLArgs *args, i32 argc, i8 **argv)
+{
+    args->argc = argc;
+    args->argv = argv;
+    args->print_tokens = false;
+    args->print_ast = false;
+    args->print_bytecode = false;
+    args->force_execution = false;
+    args->encoding = Nst_CP_UNKNOWN;
+    args->no_default = false;
+    args->opt_level = 3;
+    args->command = NULL;
+    args->filename = NULL;
+    args->args_start = argc >= 1 ? 1 : 0;
+}
 
 static i32 long_arg(i8 *arg, Nst_CLArgs *cl_args)
 {
@@ -111,25 +131,17 @@ static i32 long_arg(i8 *arg, Nst_CLArgs *cl_args)
     return 0;
 }
 
-i32 _Nst_parse_args(i32 argc, i8 **argv, Nst_CLArgs *cl_args)
+i32 _Nst_parse_args(Nst_CLArgs *cl_args)
 {
-    cl_args->print_tokens = false;
-    cl_args->print_ast = false;
-    cl_args->print_bytecode = false;
-    cl_args->force_execution = false;
-    cl_args->encoding = Nst_CP_UNKNOWN;
-    cl_args->no_default = false;
-    cl_args->opt_level = 3;
-    cl_args->command = NULL;
-    cl_args->filename = NULL;
-    cl_args->args_start = 1;
-    i32 i;
+    i32 argc = cl_args->argc;
+    i8 **argv = cl_args->argv;
 
     if (argc < 2) {
         printf(USAGE_MESSAGE);
         return -1;
     }
 
+    i32 i;
     for (i = 1; i < argc; i++) {
         i8 *arg = argv[i];
         i32 arg_len = (i32)strlen(arg);
@@ -256,6 +268,11 @@ i32 _Nst_parse_args(i32 argc, i8 **argv, Nst_CLArgs *cl_args)
 bool Nst_supports_color(void)
 {
     return supports_color;
+}
+
+void _Nst_override_supports_color(bool value)
+{
+    supports_color = value;
 }
 
 #ifdef Nst_WIN

@@ -87,8 +87,7 @@ void Nst_vt_destroy(Nst_VarTable *vt)
     Nst_Obj *vars = Nst_map_drop(vt->vars, Nst_s.o__vars_);
     Nst_ndec_ref(vars);
     Nst_dec_ref(vt->vars);
-    if (Nst_state.vt->global_table != NULL)
-        Nst_dec_ref(Nst_state.vt->global_table);
+    Nst_ndec_ref(vt->global_table);
     Nst_free(vt);
 }
 
@@ -96,7 +95,7 @@ Nst_VarTable *Nst_vt_from_func(Nst_FuncObj *f)
 {
     if (f->mod_globals != NULL)
         return Nst_vt_new(f->mod_globals, NULL, NULL, false);
-    else if (Nst_state.vt->global_table == NULL)
-        return Nst_vt_new(Nst_state.vt->vars, NULL, NULL, false);
-    return Nst_vt_new(Nst_state.vt->global_table, NULL, NULL, false);
+    else if (Nst_state.es->vt->global_table == NULL)
+        return Nst_vt_new(Nst_state.es->vt->vars, NULL, NULL, false);
+    return Nst_vt_new(Nst_state.es->vt->global_table, NULL, NULL, false);
 }

@@ -13,18 +13,18 @@
 #define HEAD_TOK Nst_TOK(node->tokens->head->value)
 #define TAIL_TOK Nst_TOK(node->tokens->tail->value)
 
-static void ast_optimize_node(Nst_Node *node, Nst_Error *error);
-static void ast_optimize_node_nodes(Nst_Node *node, Nst_Error *error);
-static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error);
-static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error);
-static void ast_optimize_local_op(Nst_Node *node, Nst_Error *error);
-static void ast_optimize_long_s(Nst_Node *node, Nst_Error *error);
+static void ast_optimize_node(Nst_Node *node);
+static void ast_optimize_node_nodes(Nst_Node *node);
+static void ast_optimize_stack_op(Nst_Node *node);
+static void ast_optimize_comp_op(Nst_Node *node);
+static void ast_optimize_local_op(Nst_Node *node);
+static void ast_optimize_long_s(Nst_Node *node);
 
-Nst_Node *Nst_optimize_ast(Nst_Node *ast, Nst_Error *error)
+Nst_Node *Nst_optimize_ast(Nst_Node *ast)
 {
-    ast_optimize_node(ast, error);
+    ast_optimize_node(ast);
 
-    if (error->occurred) {
+    if (Nst_error_occurred()) {
         Nst_node_destroy(ast);
         return NULL;
     }
@@ -32,44 +32,44 @@ Nst_Node *Nst_optimize_ast(Nst_Node *ast, Nst_Error *error)
     return ast;
 }
 
-static void ast_optimize_node(Nst_Node *node, Nst_Error *error)
+static void ast_optimize_node(Nst_Node *node)
 {
     switch (node->type) {
     case Nst_NT_STACK_OP:
-        ast_optimize_stack_op(node, error);
+        ast_optimize_stack_op(node);
         break;
     case Nst_NT_LOCAL_OP:
-        ast_optimize_local_op(node, error);
+        ast_optimize_local_op(node);
         break;
     case Nst_NT_LONG_S:
-        ast_optimize_long_s(node, error);
+        ast_optimize_long_s(node);
     case Nst_NT_VALUE:
         break;
     default:
-        ast_optimize_node_nodes(node, error);
+        ast_optimize_node_nodes(node);
     }
 }
 
-static void ast_optimize_node_nodes(Nst_Node *node, Nst_Error *error)
+static void ast_optimize_node_nodes(Nst_Node *node)
 {
     for (Nst_LLIST_ITER(n, node->nodes)) {
-        ast_optimize_node(Nst_NODE(n->value), error);
-        if (error->occurred)
+        ast_optimize_node(Nst_NODE(n->value));
+        if (Nst_error_occurred())
             return;
     }
 }
 
-static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
+static void ast_optimize_stack_op(Nst_Node *node)
 {
     if (Nst_IS_COMP_OP(HEAD_TOK->type)) {
-        ast_optimize_comp_op(node, error);
+        ast_optimize_comp_op(node);
         return;
     }
 
-    ast_optimize_node(HEAD_NODE, error);
-    ast_optimize_node(TAIL_NODE, error);
+    ast_optimize_node(HEAD_NODE);
+    ast_optimize_node(TAIL_NODE);
 
-    if (error->occurred)
+    if (Nst_error_occurred())
         return;
 
     if (HEAD_NODE->type != Nst_NT_VALUE || TAIL_NODE->type != Nst_NT_VALUE)
@@ -99,7 +99,7 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
     }
 
     if (res == NULL) {
-        Nst_set_internal_error_from_op_err(error, node->start, node->end);
+        Nst_error_add_positions(Nst_error_get(), node->start, node->end);
         return;
     }
 
@@ -116,21 +116,21 @@ static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
         res);
 
     if (new_tok == NULL) {
-        Nst_set_internal_error_from_op_err(error, node->start, node->end);
+        Nst_error_add_positions(Nst_error_get(), node->start, node->end);
         return;
     }
     node->tokens->head->value = new_tok;
 }
 
-static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
+static void ast_optimize_comp_op(Nst_Node *node)
 {
     Nst_Obj *res = NULL;
     i32 op_tok = HEAD_TOK->type;
     Nst_Obj *ob1 = NULL;
     Nst_Obj *ob2 = NULL;
 
-    ast_optimize_node_nodes(node, error);
-    if (error->occurred)
+    ast_optimize_node_nodes(node);
+    if (Nst_error_occurred())
         return;
 
     for (Nst_LLIST_ITER(n, node->nodes)) {
@@ -158,7 +158,7 @@ static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
         if (res == Nst_c.Bool_false)
             break;
         else if (res == NULL) {
-            Nst_set_internal_error_from_op_err(error, node->start, node->end);
+            Nst_error_add_positions(Nst_error_get(), node->start, node->end);
             return;
         }
     }
@@ -175,17 +175,17 @@ static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
         res);
 
     if (new_tok == NULL) {
-        Nst_set_internal_error_from_op_err(error, node->start, node->end);
+        Nst_error_add_positions(Nst_error_get(), node->start, node->end);
         return;
     }
     node->tokens->head->value = new_tok;
 }
 
-static void ast_optimize_local_op(Nst_Node *node, Nst_Error *error)
+static void ast_optimize_local_op(Nst_Node *node)
 {
-    ast_optimize_node(HEAD_NODE, error);
+    ast_optimize_node(HEAD_NODE);
 
-    if (error->occurred)
+    if (Nst_error_occurred())
         return;
 
     if (HEAD_NODE->type != Nst_NT_VALUE)
@@ -205,7 +205,7 @@ static void ast_optimize_local_op(Nst_Node *node, Nst_Error *error)
     }
 
     if (res == NULL) {
-        Nst_set_internal_error_from_op_err(error, node->start, node->end);
+        Nst_error_add_positions(Nst_error_get(), node->start, node->end);
         return;
     }
 
@@ -221,21 +221,21 @@ static void ast_optimize_local_op(Nst_Node *node, Nst_Error *error)
         res);
 
     if (new_tok == NULL) {
-        Nst_set_internal_error_from_op_err(error, node->start, node->end);
+        Nst_error_add_positions(Nst_error_get(), node->start, node->end);
         return;
     }
     node->tokens->head->value = new_tok;
 }
 
-static void ast_optimize_long_s(Nst_Node *node, Nst_Error *error)
+static void ast_optimize_long_s(Nst_Node *node)
 {
     Nst_LList *nodes = node->nodes;
     Nst_LLNode *prev_valid_node = NULL;
     Nst_Node *curr_node;
 
     for (Nst_LLIST_ITER(n, node->nodes)) {
-        ast_optimize_node(Nst_NODE(n->value), error);
-        if (error->occurred)
+        ast_optimize_node(Nst_NODE(n->value));
+        if (Nst_error_occurred())
             return;
 
         curr_node = Nst_NODE(n->value);
@@ -280,15 +280,14 @@ static void optimize_const(Nst_InstList *bc, const i8 *name, Nst_Obj *val);
 static void remove_push_pop(Nst_InstList *bc);
 static void remove_assign_pop(Nst_InstList *bc);
 static void remove_assign_loc_get_val(Nst_InstList *bc);
-static void remove_push_check(Nst_InstList *bc, Nst_Error *error);
+static void remove_push_check(Nst_InstList *bc);
 static void remove_push_jumpif(Nst_InstList *bc);
 static void remove_inst(Nst_InstList *bc, i64 idx);
-static void optimize_funcs(Nst_InstList *bc, Nst_Error *error);
+static void optimize_funcs(Nst_InstList *bc);
 static void remove_dead_code(Nst_InstList *bc);
 static void optimize_chained_jumps(Nst_InstList *bc);
 
-Nst_InstList *Nst_optimize_bytecode(Nst_InstList *bc, bool optimize_builtins,
-                                    Nst_Error *error)
+Nst_InstList *Nst_optimize_bytecode(Nst_InstList *bc, bool optimize_builtins)
 {
     if (optimize_builtins && can_optimize_consts(bc)) {
         optimize_const(bc, "Type",   OBJ(Nst_t.Type));
@@ -312,8 +311,8 @@ Nst_InstList *Nst_optimize_bytecode(Nst_InstList *bc, bool optimize_builtins,
     i64 initial_size;
     do {
         initial_size = bc->total_size;
-        remove_push_check(bc, error);
-        if (error->occurred) {
+        remove_push_check(bc);
+        if (Nst_error_get()) {
             Nst_inst_list_destroy(bc);
             return NULL;
         }
@@ -325,8 +324,8 @@ Nst_InstList *Nst_optimize_bytecode(Nst_InstList *bc, bool optimize_builtins,
         optimize_chained_jumps(bc);
         remove_dead_code(bc);
 
-        optimize_funcs(bc, error);
-        if (error->occurred) {
+        optimize_funcs(bc);
+        if (Nst_error_occurred()) {
             Nst_inst_list_destroy(bc);
             return NULL;
         }
@@ -623,7 +622,7 @@ static void remove_assign_loc_get_val(Nst_InstList* bc)
     }
 }
 
-static void remove_push_check(Nst_InstList *bc, Nst_Error *error)
+static void remove_push_check(Nst_InstList *bc)
 {
     i64 size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;
@@ -645,7 +644,7 @@ static void remove_push_check(Nst_InstList *bc, Nst_Error *error)
         if (inst_list[i].id == Nst_IC_TYPE_CHECK) {
             if (inst_list[i].val != OBJ(inst_list[i - 1].val->type)) {
                 Nst_set_internal_type_error(
-                    error,
+                    Nst_error_get(),
                     inst_list[i].start,
                     inst_list[i].end,
                     STR(Nst_sprintf(
@@ -659,7 +658,7 @@ static void remove_push_check(Nst_InstList *bc, Nst_Error *error)
             Nst_obj_hash(inst_list[i - 1].val);
             if (inst_list[i - 1].val->hash == -1) {
                 Nst_set_internal_type_error(
-                    error,
+                    Nst_error_get(),
                     inst_list[i].start,
                     inst_list[i].end,
                     STR(Nst_sprintf(
@@ -737,12 +736,11 @@ static void remove_inst(Nst_InstList *bc, i64 idx)
     }
 }
 
-static void optimize_funcs(Nst_InstList *bc, Nst_Error *error)
+static void optimize_funcs(Nst_InstList *bc)
 {
     for (Nst_LLIST_ITER(n, bc->functions)) {
-        Nst_optimize_bytecode(FUNC(n->value)->body.bytecode, false, error);
-
-        if (error->occurred)
+        Nst_optimize_bytecode(FUNC(n->value)->body.bytecode, false);
+        if (Nst_error_occurred())
             break;
     }
 }

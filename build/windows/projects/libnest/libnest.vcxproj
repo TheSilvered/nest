@@ -176,6 +176,7 @@
     <ClInclude Include="..\..\..\..\include\obj_ops.h" />
     <ClInclude Include="..\..\..\..\include\optimizer.h" />
     <ClInclude Include="..\..\..\..\include\parser.h" />
+    <ClInclude Include="..\..\..\..\include\runner.h" />
     <ClInclude Include="..\..\..\..\include\runtime_stack.h" />
     <ClInclude Include="..\..\..\..\include\sequence.h" />
     <ClInclude Include="..\..\..\..\include\simple_types.h" />
@@ -211,6 +212,7 @@
     <ClCompile Include="..\..\..\..\src\obj_ops.c" />
     <ClCompile Include="..\..\..\..\src\optimizer.c" />
     <ClCompile Include="..\..\..\..\src\parser.c" />
+    <ClCompile Include="..\..\..\..\src\runner.c" />
     <ClCompile Include="..\..\..\..\src\runtime_stack.c" />
     <ClCompile Include="..\..\..\..\src\sequence.c" />
     <ClCompile Include="..\..\..\..\src\simple_types.c" />

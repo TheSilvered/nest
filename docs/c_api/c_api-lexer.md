@@ -16,8 +16,7 @@ TheSilvered
 
 ```better-c
 Nst_LList *Nst_tokenizef(i8 *filename, Nst_CPID encoding, i32 *opt_level,
-                         bool *no_default, Nst_SourceText *src_text,
-                         Nst_Error *error)
+                         bool *no_default, Nst_SourceText *src_text)
 ```
 
 **Description:**
@@ -35,11 +34,10 @@ Opens and tokenizes a file.
 - `no_default`: where the `--no-default` option is stored if specified with file
   arguments
 - `src_text`: where the source of the file is saved
-- `error`: where the error is put if it occurs
 
 **Returns:**
 
-A [`Nst_LList`](c_api-llist.md#nst_llist) of tokens or `NULL` on failure. No
+A [`Nst_LList`](c_api-llist.md#nst_llist) of tokens or `NULL` on failure. The
 error is set.
 
 ---
@@ -49,7 +47,7 @@ error is set.
 **Synopsis:**
 
 ```better-c
-Nst_LList *Nst_tokenize(Nst_SourceText *text, Nst_Error *error)
+Nst_LList *Nst_tokenize(Nst_SourceText *text)
 ```
 
 **Description:**
@@ -59,12 +57,11 @@ Tokenizes text.
 **Parameters:**
 
 - `text`: the text to tokenize
-- `error`: where the error is put if it occurs
 
 **Returns:**
 
-A [`Nst_LList`](c_api-llist.md#nst_llist) of tokens or `NULL` on failure. No
-global operation error is set.
+A [`Nst_LList`](c_api-llist.md#nst_llist) of tokens or `NULL` on failure. The
+error is set.
 
 ---
 
@@ -88,7 +85,7 @@ On failure the lines field of the struct is set to `NULL` and lines_len to `0`.
 
 **Returns:**
 
-`true` on success and `false` on failure. No error is set.
+`true` on success and `false` on failure. The error is set.
 
 ---
 
@@ -97,8 +94,7 @@ On failure the lines field of the struct is set to `NULL` and lines_len to `0`.
 **Synopsis:**
 
 ```better-c
-bool Nst_normalize_encoding(Nst_SourceText *text, Nst_CPID encoding,
-                            Nst_Error *error)
+bool Nst_normalize_encoding(Nst_SourceText *text, Nst_CPID encoding)
 ```
 
 **Description:**
@@ -110,8 +106,7 @@ Re-encodes a file to be UTF-8.
 - `text`: the text to re-encode
 - `encoding`: the encoding of the text, if
   [`Nst_CP_UNKNOWN`](c_api-encoding.md#nst_cpid) it is detected automatically
-- `error`: where the error is put if it occurs
 
 **Returns:**
 
-`true` on success and `false` on failure. No global operation error is set.
+`true` on success and `false` on failure. The error is set.

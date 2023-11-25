@@ -122,6 +122,8 @@ void Nst_llist_destroy(Nst_LList *llist, void (*item_destructor)(void*))
 
 void Nst_llist_empty(Nst_LList *llist, void (*item_destructor)(void *))
 {
+    if (llist == NULL)
+        return;
     Nst_LLNode *prev = NULL;
 
     for (Nst_LLNode *cursor = llist->head; cursor != NULL;) {

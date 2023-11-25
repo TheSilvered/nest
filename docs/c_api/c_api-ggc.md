@@ -221,12 +221,12 @@ Adds an object to the tracked objects by the garbage collector.
 
 ---
 
-### `Nst_ggc_delete_objs`
+### `_Nst_ggc_delete_objs`
 
 **Synopsis:**
 
 ```better-c
-void Nst_ggc_delete_objs(void)
+void _Nst_ggc_delete_objs(void)
 ```
 
 **Description:**
@@ -247,6 +247,20 @@ void Nst_ggc_init(void)
 
 Initializes the garbage collector of
 [`Nst_state`](c_api-interpreter.md#nst_get_state).
+
+---
+
+### `Nst_ggc_was_init`
+
+**Synopsis:**
+
+```better-c
+bool Nst_ggc_was_init(void)
+```
+
+**Description:**
+
+Checks if the garbage collector was initialized.
 
 ---
 

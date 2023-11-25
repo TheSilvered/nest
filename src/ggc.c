@@ -6,6 +6,8 @@
 #define REACHABLE(ob) ((ob)->flags & Nst_FLAG_GCC_REACHABLE)
 #define UNREACHABLE(ob) ((ob)->flags & Nst_FLAG_GCC_UNREACHABLE)
 
+static bool is_init = false;
+
 static inline void move_obj(Nst_GGCObj *obj, Nst_GGCList *from, Nst_GGCList *to)
 {
     if (from->len == 1) {
@@ -159,7 +161,7 @@ void Nst_ggc_collect_gen(Nst_GGCList *gen)
     destroy_objects(&uv);
 }
 
-void Nst_ggc_delete_objs(void)
+void _Nst_ggc_delete_objs(void)
 {
     remove_objs_list(&Nst_state.ggc.gen1);
     remove_objs_list(&Nst_state.ggc.gen2);
@@ -188,6 +190,13 @@ void Nst_ggc_init(void)
     Nst_state.ggc.gen3 = gen3;
     Nst_state.ggc.old_gen = old_gen;
     Nst_state.ggc.old_gen_pending = 0;
+
+    is_init = true;
+}
+
+bool Nst_ggc_was_init(void)
+{
+    return is_init;
 }
 
 void _Nst_ggc_obj_reachable(Nst_Obj *obj)

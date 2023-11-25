@@ -8,7 +8,8 @@
 #include "global_consts.h"
 #include "format.h"
 
-#define TOK_TYPE_CASE(tok_name) case Nst_TT_ ## tok_name: Nst_print(#tok_name); break
+#define TOK_TYPE_CASE(tok_name)                                               \
+    case Nst_TT_ ## tok_name: Nst_print(#tok_name); break
 
 Nst_Tok *Nst_tok_new_value(Nst_Pos start, Nst_Pos end, Nst_TokType type,
                            Nst_Obj *value)

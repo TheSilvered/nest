@@ -46,7 +46,18 @@ NstEXP typedef struct _Nst_CLArgs {
     i32 opt_level;
     i8 *command, *filename;
     i32 args_start;
+    i32 argc;
+    i8 **argv;
 } Nst_CLArgs;
+
+/**
+ * Initializes a `Nst_CLArgs` struct with default values.
+ *
+ * @param args: the struct to initialize
+ * @param argc: the number of arguments passed to main
+ * @param argv: the array of arguments passed to main
+ */
+NstEXP void NstC Nst_cl_args_init(Nst_CLArgs *args, i32 argc, i8 **argv);
 
 /**
  * Parses command-line arguments.
@@ -58,13 +69,16 @@ NstEXP typedef struct _Nst_CLArgs {
  * @return `-1` on failure, `0` on success where the program can continue, `1`
  * on success when the program should stop because an info message was printed.
  */
-NstEXP i32 NstC _Nst_parse_args(i32 argc, i8 **argv, Nst_CLArgs *cl_args);
+NstEXP i32 NstC _Nst_parse_args(Nst_CLArgs *cl_args);
 
 /**
  * @return `true` if ANSI escapes are supported on the current console and
  * `false` otherwise.
  */
 NstEXP bool NstC Nst_supports_color(void);
+
+/* Ovverrides the value returned by `Nst_supports_color`. */
+NstEXP void NstC _Nst_override_supports_color(bool value);
 
 #ifdef Nst_WIN
 
@@ -75,7 +89,7 @@ NstEXP bool NstC Nst_supports_color(void);
  * @param wargv: the arguments given
  * @param argv: the pointer where the re-encoded arguments are put
  *
- * @return `true` on success and `false` on failure.
+ * @return `true` on success and `false` on failure. No error is set.
  */
 NstEXP bool NstC _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv);
 

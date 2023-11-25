@@ -39,14 +39,14 @@
 #define INST_SUCCESS 0
 #define INST_NEW_FUNC 1
 
-#define ERROR_OCCURRED (Nst_state.traceback.error.occurred)
-#define GLOBAL_ERROR (&(Nst_state.traceback.error))
-
-#define CHECK_V_STACK assert(Nst_state.v_stack.len != 0)
+#define CHECK_V_STACK Nst_es_assert_vstack_size_at_least(Nst_state.es, 1)
 #define CHECK_V_STACK_SIZE(size)                                              \
-    assert((i64)(Nst_state.v_stack.len) >= size)
+    Nst_es_assert_vstack_size_at_least(Nst_state.es, size)
+#define UNTIL_CURRENT_FUNC_FINISHES Nst_state.es->f_stack.len - 1
+#define UNTIL_ALL_FUNCS_FINISH 0
+#define POP_TOP_VALUE Nst_vstack_pop(&Nst_state.es->v_stack)
 
-Nst_ExecutionState Nst_state;
+Nst_IntrState Nst_state;
 static bool state_init = false;
 
 static void complete_function(usize final_stack_size);
@@ -90,156 +90,137 @@ static i32 exe_pop_catch(Nst_Inst *inst);
 static i32 exe_save_error(Nst_Inst *inst);
 static i32 exe_unpack_seq(Nst_Inst *inst);
 
-static Nst_SeqObj *make_argv(i32 argc, i8 **argv, i8 *filename);
-static Nst_StrObj *make_cwd(i8 *file_path);
-static inline void add_positions(Nst_Pos start, Nst_Pos end);
+static i32 call_c_func(bool is_seq_call, i64 arg_num, Nst_SeqObj *args_seq,
+                       Nst_FuncObj *func);
 static void loaded_libs_destructor(C_LIB_TYPE lib);
 
 i32 (*inst_func[])(Nst_Inst *) = {
-    exe_no_op, exe_pop_val, exe_for_start, exe_for_get_val, exe_return_val,
-    exe_return_vars, exe_set_val_loc, exe_set_cont_loc, exe_jump, exe_jumpif_t,
-    exe_jumpif_f, exe_jumpif_zero, exe_for_is_done, exe_push_catch,
-    exe_type_check, exe_hash_check, exe_throw_err, exe_pop_catch, exe_set_val,
-    exe_get_val, exe_push_val, exe_set_cont_val, exe_op_call, exe_op_cast,
-    exe_op_range, exe_stack_op, exe_local_op, exe_op_import, exe_op_extract,
-    exe_dec_int, exe_new_obj, exe_dup, exe_rot, exe_make_seq,exe_make_seq_rep,
-    exe_make_seq, exe_make_seq_rep, exe_make_map, exe_save_error,
-    exe_unpack_seq
+    [Nst_IC_NO_OP]        = exe_no_op,
+    [Nst_IC_POP_VAL]      = exe_pop_val,
+    [Nst_IC_FOR_START]    = exe_for_start,
+    [Nst_IC_FOR_GET_VAL]  = exe_for_get_val,
+    [Nst_IC_RETURN_VAL]   = exe_return_val,
+    [Nst_IC_RETURN_VARS]  = exe_return_vars,
+    [Nst_IC_SET_VAL_LOC]  = exe_set_val_loc,
+    [Nst_IC_SET_CONT_LOC] = exe_set_cont_loc,
+    [Nst_IC_JUMP]         = exe_jump,
+    [Nst_IC_JUMPIF_T]     = exe_jumpif_t,
+    [Nst_IC_JUMPIF_F]     = exe_jumpif_f,
+    [Nst_IC_JUMPIF_ZERO]  = exe_jumpif_zero,
+    [Nst_IC_FOR_IS_DONE]  = exe_for_is_done,
+    [Nst_IC_PUSH_CATCH]   = exe_push_catch,
+    [Nst_IC_TYPE_CHECK]   = exe_type_check,
+    [Nst_IC_HASH_CHECK]   = exe_hash_check,
+    [Nst_IC_THROW_ERR]    = exe_throw_err,
+    [Nst_IC_POP_CATCH]    = exe_pop_catch,
+    [Nst_IC_SET_VAL]      = exe_set_val,
+    [Nst_IC_GET_VAL]      = exe_get_val,
+    [Nst_IC_PUSH_VAL]     = exe_push_val,
+    [Nst_IC_SET_CONT_VAL] = exe_set_cont_val,
+    [Nst_IC_OP_CALL]      = exe_op_call,
+    [Nst_IC_OP_CAST]      = exe_op_cast,
+    [Nst_IC_OP_RANGE]     = exe_op_range,
+    [Nst_IC_STACK_OP]     = exe_stack_op,
+    [Nst_IC_LOCAL_OP]     = exe_local_op,
+    [Nst_IC_OP_IMPORT]    = exe_op_import,
+    [Nst_IC_OP_EXTRACT]   = exe_op_extract,
+    [Nst_IC_DEC_INT]      = exe_dec_int,
+    [Nst_IC_NEW_OBJ]      = exe_new_obj,
+    [Nst_IC_DUP]          = exe_dup,
+    [Nst_IC_ROT]          = exe_rot,
+    [Nst_IC_MAKE_ARR]     = exe_make_seq,
+    [Nst_IC_MAKE_ARR_REP] = exe_make_seq_rep,
+    [Nst_IC_MAKE_VEC]     = exe_make_seq,
+    [Nst_IC_MAKE_VEC_REP] = exe_make_seq_rep,
+    [Nst_IC_MAKE_MAP]     = exe_make_map,
+    [Nst_IC_SAVE_ERROR]   = exe_save_error,
+    [Nst_IC_UNPACK_SEQ]   = exe_unpack_seq
 };
 
 Nst_Obj *(*stack_op_func[])(Nst_Obj *, Nst_Obj *) = {
-    _Nst_obj_add, _Nst_obj_sub, _Nst_obj_mul, _Nst_obj_div, _Nst_obj_pow,
-    _Nst_obj_mod, _Nst_obj_bwand, _Nst_obj_bwor, _Nst_obj_bwxor, _Nst_obj_bwls,
-    _Nst_obj_bwrs, _Nst_obj_concat, _Nst_obj_lgand, _Nst_obj_lgor,
-    _Nst_obj_lgxor, _Nst_obj_gt, _Nst_obj_lt, _Nst_obj_eq, _Nst_obj_ne,
-    _Nst_obj_ge, _Nst_obj_le, _Nst_obj_contains
+    [Nst_TT_ADD]      = _Nst_obj_add,
+    [Nst_TT_SUB]      = _Nst_obj_sub,
+    [Nst_TT_MUL]      = _Nst_obj_mul,
+    [Nst_TT_DIV]      = _Nst_obj_div,
+    [Nst_TT_POW]      = _Nst_obj_pow,
+    [Nst_TT_MOD]      = _Nst_obj_mod,
+    [Nst_TT_B_AND]    = _Nst_obj_bwand,
+    [Nst_TT_B_OR]     = _Nst_obj_bwor,
+    [Nst_TT_B_XOR]    = _Nst_obj_bwxor,
+    [Nst_TT_LSHIFT]   = _Nst_obj_bwls,
+    [Nst_TT_RSHIFT]   = _Nst_obj_bwrs,
+    [Nst_TT_CONCAT]   = _Nst_obj_concat,
+    [Nst_TT_L_AND]    = _Nst_obj_lgand,
+    [Nst_TT_L_OR]     = _Nst_obj_lgor,
+    [Nst_TT_L_XOR]    = _Nst_obj_lgxor,
+    [Nst_TT_GT]       = _Nst_obj_gt,
+    [Nst_TT_LT]       = _Nst_obj_lt,
+    [Nst_TT_EQ]       = _Nst_obj_eq,
+    [Nst_TT_NEQ]      = _Nst_obj_ne,
+    [Nst_TT_GTE]      = _Nst_obj_ge,
+    [Nst_TT_LTE]      = _Nst_obj_le,
+    [Nst_TT_CONTAINS] = _Nst_obj_contains
 };
 
 Nst_Obj *(*local_op_func[])(Nst_Obj *) = {
-    _Nst_obj_len, _Nst_obj_lgnot, _Nst_obj_bwnot, _Nst_obj_stdout,
-    _Nst_obj_stdin, NULL, /* import */ NULL, /* loc_call */ _Nst_obj_neg,
-    _Nst_obj_typeof
+    [Nst_TT_LEN      - Nst_TT_LEN] = _Nst_obj_len,
+    [Nst_TT_L_NOT    - Nst_TT_LEN] = _Nst_obj_lgnot,
+    [Nst_TT_B_NOT    - Nst_TT_LEN] = _Nst_obj_bwnot,
+    [Nst_TT_STDOUT   - Nst_TT_LEN] = _Nst_obj_stdout,
+    [Nst_TT_STDIN    - Nst_TT_LEN] = _Nst_obj_stdin,
+    [Nst_TT_IMPORT   - Nst_TT_LEN] = NULL, // import
+    [Nst_TT_LOC_CALL - Nst_TT_LEN] = NULL, // loc_call
+    [Nst_TT_NEG      - Nst_TT_LEN] = _Nst_obj_neg,
+    [Nst_TT_TYPEOF   - Nst_TT_LEN] = _Nst_obj_typeof
 };
 
-i32 Nst_run(Nst_FuncObj *main_func)
+bool Nst_init(Nst_CLArgs *args)
 {
-    // Execute main function
-    Nst_fstack_push(
-        main_func,
-        Nst_no_pos(),
-        Nst_no_pos(),
-        NULL,
-        0, 0);
+    Nst_set_color(Nst_supports_color());
 
-    Nst_func_set_vt(main_func, Nst_state.vt->vars);
+    // these need to be set to allow _Nst_init_objects to be called
+    Nst_state.es = NULL;
+    Nst_state.global_traceback.error_occurred = false;
+    Nst_state.global_traceback.positions = NULL;
 
-    complete_function(0);
-    Nst_dec_ref(main_func);
-
-    // Check for errors
-    int exit_code = 0;
-    if (ERROR_OCCURRED) {
-        // When the error name is of type Null it signals an exit call
-        if (OBJ(Nst_state.traceback.error.name) != Nst_c.Null_null) {
-            Nst_print_traceback(Nst_state.traceback);
-            exit_code = 1;
-        } else
-            exit_code = (int)AS_INT(Nst_state.traceback.error.message);
+    if (!_Nst_init_objects()) {
+        fprintf(stderr, "Memory Error - memory allocation failed...\n");
+        return false;
     }
 
-    Nst_state_free();
-    return exit_code;
-}
-
-bool Nst_state_init(i32 argc, i8 **argv, i8 *filename, i32 opt_level,
-                    bool no_default)
-{
-    if (!Nst_traceback_init())
-        return false;
-    Nst_state.curr_path = Nst_getcwd();
-    if (Nst_state.curr_path == NULL) {
+    if (!Nst_traceback_init(&Nst_state.global_traceback)) {
+        fprintf(stderr, "Memory Error - memory allocation failed...\n");
         Nst_error_clear();
-        Nst_state_free();
-        return false;
+        goto cleanup;
     }
-    Nst_state.argv = make_argv(
-        argc, argv,
-        filename == NULL ? (i8 *)"-c" : filename);
+    Nst_ggc_init();
 
-    if (Nst_state.argv == NULL) {
-        Nst_traceback_delete();
-        Nst_state_free();
-        return false;
-    }
-
-    Nst_state.vt = Nst_vt_new(
-        NULL,
-        Nst_state.curr_path,
-        Nst_state.argv,
-        no_default);
-
-    if (Nst_state.vt == NULL) {
-        Nst_error_clear();
-        Nst_state_free();
-        return false;
-    }
-
-    Nst_state.idx = 0;
-    Nst_state.opt_level = opt_level;
-    Nst_vstack_init();
-    Nst_fstack_init();
-    Nst_cstack_init();
+    Nst_state.opt_level = args->opt_level;
     Nst_state.loaded_libs = Nst_llist_new();
     Nst_state.lib_paths = Nst_llist_new();
-    Nst_state.lib_handles = MAP(Nst_map_new());
     Nst_state.lib_srcs = Nst_llist_new();
+    Nst_state.lib_handles = MAP(Nst_map_new());
 
-    if (Nst_error_occurred()) {
-        Nst_error_clear();
-        Nst_state_free();
-        return false;
-    }
+    if (Nst_error_occurred())
+        goto cleanup;
 
-    if (filename != NULL) {
-        i8 *path_main_file;
-        usize path_len = Nst_get_full_path(filename, &path_main_file, NULL);
-        if (path_main_file == NULL) {
-            Nst_error_clear();
-            Nst_state_free();
-            return false;
-        }
-        Nst_Obj *path_str = Nst_string_new(path_main_file, path_len, true);
-        if (path_str == NULL) {
-            Nst_error_clear();
-            Nst_free(path_main_file);
-            Nst_state_free();
-            return false;
-        }
-        if (!Nst_llist_append(Nst_state.lib_paths, path_str, true)) {
-            Nst_error_clear();
-            Nst_dec_ref(path_str);
-            Nst_state_free();
-            return false;
-        }
-    }
     state_init = true;
+
     return true;
+cleanup:
+    if (Nst_error_occurred())
+        Nst_print_traceback(&Nst_state.global_traceback);
+
+    Nst_quit();
+    return false;
 }
 
-NstEXP bool NstC Nst_state_was_init(void)
+void Nst_quit(void)
 {
-    return state_init;
-}
+    state_init = false;
 
-void Nst_state_free(void)
-{
-    Nst_traceback_delete();
-    Nst_ndec_ref(Nst_state.curr_path);
-    Nst_ndec_ref(Nst_state.argv);
-    Nst_ndec_ref(Nst_state.lib_handles);
-    Nst_vstack_destroy();
-    Nst_fstack_destroy();
-    Nst_cstack_destroy();
+    if (Nst_state.global_traceback.positions != NULL)
+        Nst_traceback_destroy(&Nst_state.global_traceback);
     if (Nst_state.lib_paths != NULL) {
         Nst_llist_destroy(
             Nst_state.lib_paths,
@@ -252,17 +233,86 @@ void Nst_state_free(void)
             (Nst_LListDestructor)Nst_free_src_text);
     }
 #endif
-    if (Nst_state.loaded_libs == NULL)
-        goto free_ggc;
-
-    for (Nst_LLIST_ITER(lib, Nst_state.loaded_libs)) {
-        void (*free_lib_func)(void) =
-            (void (*)(void))dlsym(lib->value, "free_lib");
-        if (free_lib_func != NULL)
-            free_lib_func();
+    // call the destructors for any loaded library
+    if (Nst_state.loaded_libs != NULL) {
+        for (Nst_LLIST_ITER(lib, Nst_state.loaded_libs)) {
+            void (*free_lib_func)(void) =
+                (void (*)(void))dlsym(lib->value, "free_lib");
+            if (free_lib_func != NULL)
+                free_lib_func();
+        }
     }
-free_ggc:
-    Nst_ggc_delete_objs();
+
+    _Nst_ggc_delete_objs();
+    _Nst_del_objects();
+
+    // the libraries are freed only after the objects because I/O streams might
+    // contain objects that are created inside a libraray and are deleted when
+    // that library is unloaded
+    if (Nst_state.loaded_libs != NULL) {
+        Nst_llist_destroy(
+            Nst_state.loaded_libs,
+            (Nst_LListDestructor)loaded_libs_destructor);
+    }
+}
+
+bool Nst_was_init(void)
+{
+    return state_init;
+}
+
+i32 Nst_run(Nst_FuncObj *main_func)
+{
+    // Push the path of the current file on the import stack
+    if (Nst_state.es->curr_path != NULL) {
+        bool result = Nst_llist_push(
+            Nst_state.lib_paths,
+            Nst_state.es->curr_path,
+            false);
+        if (!result)
+            return 1;
+    }
+
+    // Execute main function
+    Nst_FuncCall call = {
+        .func = main_func,
+        .start = Nst_no_pos(),
+        .end = Nst_no_pos(),
+        .vt = NULL,
+        .cstack_len = 0,
+        .idx = 0,
+        .cwd = NULL
+    };
+    Nst_fstack_push(&Nst_state.es->f_stack, call);
+    Nst_func_set_vt(main_func, Nst_state.es->vt->vars);
+
+    complete_function(UNTIL_ALL_FUNCS_FINISH);
+    Nst_dec_ref(main_func);
+
+    // Check for errors
+    i32 exit_code = 0;
+    if (Nst_error_occurred()) {
+        Nst_Traceback *error = Nst_error_get();
+        if (OBJ(error->error_name) != Nst_c.Null_null)
+            exit_code = 1;
+        else
+            exit_code = (i32)AS_INT(error->error_msg);
+    }
+
+    return exit_code;
+}
+
+Nst_ExecutionState *Nst_state_get_es(void)
+{
+    return Nst_state.es;
+}
+
+Nst_ExecutionState *Nst_state_set_es(Nst_ExecutionState *es)
+{
+    Nst_ExecutionState *prev_es = Nst_state.es;
+    Nst_state.es = es;
+    Nst_chdir(es->curr_path);
+    return prev_es;
 }
 
 void _Nst_unload_libs(void)
@@ -276,27 +326,28 @@ void _Nst_unload_libs(void)
 
 static inline void destroy_call(Nst_FuncCall *call, i64 offset)
 {
-    while (Nst_state.c_stack.len > call->cstack_len)
-        Nst_cstack_pop();
+    while (Nst_state.es->c_stack.len > call->cstack_len)
+        Nst_cstack_pop(&Nst_state.es->c_stack);
 
-    Nst_state.idx = call->idx + offset;
-    if (Nst_state.vt == call->vt)
+    Nst_state.es->idx = call->idx + offset;
+    if (Nst_state.es->vt == call->vt)
         return;
 
-    Nst_vt_destroy(Nst_state.vt);
+    Nst_vt_destroy(Nst_state.es->vt);
     Nst_dec_ref(call->func);
-    Nst_state.vt = call->vt;
+    Nst_state.es->vt = call->vt;
+    if (call->cwd != NULL) {
+        Nst_chdir(call->cwd);
+        Nst_es_set_cwd(Nst_state.es, call->cwd);
+    }
 }
 
 static inline void set_global_error(usize final_stack_size, Nst_Inst *inst)
 {
-    if (Nst_state.traceback.error.occurred)
-        add_positions(inst->start, inst->end);
-    else
-        Nst_set_internal_error_from_op_err(GLOBAL_ERROR, inst->start, inst->end);
+    Nst_error_add_positions(Nst_error_get(), inst->start, inst->end);
 
-    Nst_CatchFrame top_catch = Nst_cstack_peek();
-    if (OBJ(Nst_state.traceback.error.name) == Nst_c.Null_null) {
+    Nst_CatchFrame top_catch = Nst_cstack_peek(&Nst_state.es->c_stack);
+    if (OBJ(Nst_error_get()->error_name) == Nst_c.Null_null) {
         top_catch.f_stack_len = 0;
         top_catch.v_stack_len = 0;
         top_catch.inst_idx = -1;
@@ -308,53 +359,55 @@ static inline void set_global_error(usize final_stack_size, Nst_Inst *inst)
     if (end_size < final_stack_size)
         end_size = final_stack_size;
 
-    while (Nst_state.f_stack.len > end_size) {
-        Nst_FuncCall call = Nst_fstack_pop();
+    while (Nst_state.es->f_stack.len > end_size) {
+        Nst_FuncCall call = Nst_fstack_pop(&Nst_state.es->f_stack);
         destroy_call(&call, 1);
-        obj = Nst_vstack_pop();
+        obj = Nst_vstack_pop(&Nst_state.es->v_stack);
 
         while (obj != NULL) {
             Nst_dec_ref(obj);
-            obj = Nst_vstack_pop();
+            obj = Nst_vstack_pop(&Nst_state.es->v_stack);
         }
 
-        add_positions(call.start, call.end);
+        Nst_error_add_positions(Nst_error_get(), inst->start, inst->end);
     }
 
     if (end_size == final_stack_size)
         return;
 
-    while (Nst_state.v_stack.len > top_catch.v_stack_len) {
-        obj = Nst_vstack_pop();
+    while (Nst_state.es->v_stack.len > top_catch.v_stack_len) {
+        obj = POP_TOP_VALUE;
         if (obj != NULL)
             Nst_dec_ref(obj);
     }
-    Nst_state.idx = top_catch.inst_idx - 1;
+    Nst_state.es->idx = top_catch.inst_idx - 1;
 }
 
 static void complete_function(usize final_stack_size)
 {
-    if (Nst_state.f_stack.len == 0)
+    if (Nst_state.es->f_stack.len == 0)
         return;
 
-    Nst_InstList *curr_inst_ls = Nst_fstack_peek().func->body.bytecode;
+    Nst_InstList *curr_inst_ls =
+        Nst_fstack_peek(&Nst_state.es->f_stack).func->body.bytecode;
     Nst_Inst *instructions = curr_inst_ls->instructions;
 
-    for (; Nst_state.f_stack.len > final_stack_size;
-         Nst_state.idx++)
+    for (; Nst_state.es->f_stack.len > final_stack_size;
+         Nst_state.es->idx++)
     {
-        if (Nst_state.idx >= (i64)curr_inst_ls->total_size) {
+        if (Nst_state.es->idx >= (i64)curr_inst_ls->total_size) {
             // Free the function call
-            Nst_FuncCall call = Nst_fstack_pop();
+            Nst_FuncCall call = Nst_fstack_pop(&Nst_state.es->f_stack);
             destroy_call(&call, 0);
-            if (Nst_state.f_stack.len == 0)
+            if (Nst_state.es->f_stack.len == 0)
                 return;
-            curr_inst_ls = Nst_fstack_peek().func->body.bytecode;
+            curr_inst_ls =
+                Nst_fstack_peek(&Nst_state.es->f_stack).func->body.bytecode;
             instructions = curr_inst_ls->instructions;
             continue;
         }
 
-        Nst_Inst *inst = &instructions[Nst_state.idx];
+        Nst_Inst *inst = &instructions[Nst_state.es->idx];
         Nst_InstID inst_id = inst->id;
         i32 result = inst_func[inst_id](inst);
 
@@ -365,228 +418,102 @@ static void complete_function(usize final_stack_size)
             continue;
         else if (result == INST_FAILED) {
             set_global_error(final_stack_size, inst);
-            if (Nst_state.f_stack.len == final_stack_size)
+            if (Nst_state.es->f_stack.len == final_stack_size)
                 return;
         }
-        curr_inst_ls = Nst_fstack_peek().func->body.bytecode;
+        curr_inst_ls =
+            Nst_fstack_peek(&Nst_state.es->f_stack).func->body.bytecode;
         instructions = curr_inst_ls->instructions;
     }
 }
 
 Nst_Inst *Nst_current_inst(void)
 {
-    if (!Nst_state_was_init() || Nst_state.f_stack.len == 0)
+    if (Nst_state.es == NULL || Nst_state.es->f_stack.len == 0)
         return NULL;
 
-    Nst_InstList *instructions = Nst_fstack_peek().func->body.bytecode;
-    if (Nst_state.idx >= (i64)instructions->total_size || Nst_state.idx < 0)
+    Nst_InstList *instructions =
+        Nst_fstack_peek(&Nst_state.es->f_stack).func->body.bytecode;
+    if (Nst_state.es->idx >= (i64)instructions->total_size
+        || Nst_state.es->idx < 0)
+    {
         return NULL;
-    return &instructions->instructions[Nst_state.idx];
+    }
+    return &instructions->instructions[Nst_state.es->idx];
 }
 
 bool Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
 {
-    // Compile and optimize the imported module
-    i32 opt_level = Nst_state.opt_level;
-
-    i32 file_opt_lvl;
-    bool no_default;
-
-    // The file is guaranteed to exist
-    Nst_LList *tokens = Nst_tokenizef(
-        filename,
-        Nst_CP_UNKNOWN,
-        &file_opt_lvl,
-        &no_default,
-        lib_src,
-        GLOBAL_ERROR);
-
-    if (file_opt_lvl < opt_level)
-        opt_level = file_opt_lvl;
-
-    if (tokens == NULL)
+    if (!Nst_es_push_module(Nst_state.es, filename, lib_src))
         return false;
 
-    Nst_Node *ast = Nst_parse(tokens, GLOBAL_ERROR);
-    if (ast != NULL && opt_level >= 1)
-        ast = Nst_optimize_ast(ast, GLOBAL_ERROR);
+    complete_function(UNTIL_CURRENT_FUNC_FINISHES);
 
-    if (ast == NULL)
-        return false;
-
-    Nst_InstList *inst_ls = Nst_compile(ast, true, GLOBAL_ERROR);
-    if (opt_level >= 2 && inst_ls != NULL) {
-        inst_ls = Nst_optimize_bytecode(
-            inst_ls,
-            opt_level == 3 && !no_default,
-            GLOBAL_ERROR);
-    }
-    if (inst_ls == NULL)
-        return false;
-
-    Nst_FuncObj *mod_func = FUNC(Nst_func_new(0, inst_ls));
-    if (mod_func == NULL) {
-        Nst_inst_list_destroy(inst_ls);
-        inst_ls = Nst_fstack_peek().func->body.bytecode;
-        Nst_set_internal_error_from_op_err(
-            GLOBAL_ERROR,
-            inst_ls->instructions[Nst_state.idx].start,
-            inst_ls->instructions[Nst_state.idx].end);
-        return false;
-    }
-
-    // Change the cwd
-    Nst_StrObj *prev_path = Nst_state.curr_path;
-
-    Nst_StrObj *path_str = make_cwd(filename);
-    if (path_str == NULL) {
-        Nst_dec_ref(mod_func);
-        inst_ls = Nst_fstack_peek().func->body.bytecode;
-        Nst_set_internal_error_from_op_err(
-            GLOBAL_ERROR,
-            inst_ls->instructions[Nst_state.idx].start,
-            inst_ls->instructions[Nst_state.idx].end);
-        return false;
-    }
-    Nst_state.curr_path = path_str;
-
-    if (Nst_chdir(path_str) != 0) {
-        Nst_dec_ref(mod_func);
-        Nst_dec_ref(path_str);
-        Nst_state.curr_path = prev_path;
-        inst_ls = Nst_fstack_peek().func->body.bytecode;
-        Nst_set_internal_error_from_op_err(
-            GLOBAL_ERROR,
-            inst_ls->instructions[Nst_state.idx].start,
-            inst_ls->instructions[Nst_state.idx].end);
-        return false;
-    }
-
-    Nst_vstack_push(NULL);
-    Nst_fstack_push(
-        mod_func,
-        Nst_no_pos(),
-        Nst_no_pos(),
-        Nst_state.vt,
-        Nst_state.idx - 1,
-        Nst_state.c_stack.len);
-    Nst_state.idx = 0;
-    Nst_VarTable *vt = Nst_vt_new(NULL, path_str, Nst_state.argv, no_default);
-    if (vt == NULL) {
-        Nst_dec_ref(mod_func);
-        Nst_dec_ref(Nst_state.curr_path);
-        Nst_state.curr_path = prev_path;
-        inst_ls = Nst_fstack_peek().func->body.bytecode;
-        Nst_set_internal_error_from_op_err(
-            GLOBAL_ERROR,
-            inst_ls->instructions[Nst_state.idx].start,
-            inst_ls->instructions[Nst_state.idx].end);
-        return false;
-    }
-
-    Nst_state.vt = vt;
-
-    Nst_func_set_vt(mod_func, Nst_state.vt->vars);
-
-    complete_function(Nst_state.f_stack.len - 1);
-    Nst_state.curr_path = prev_path;
-    Nst_dec_ref(path_str);
-    Nst_dec_ref(mod_func);
-
-    if (Nst_chdir(prev_path) != 0) {
-        inst_ls = Nst_fstack_peek().func->body.bytecode;
-        Nst_set_internal_error_from_op_err(
-            GLOBAL_ERROR,
-            inst_ls->instructions[Nst_state.idx].start,
-            inst_ls->instructions[Nst_state.idx].end);
-        return false;
-    }
-
-    if (ERROR_OCCURRED)
+    if (Nst_error_occurred())
         return false;
     else
         return true;
 }
 
-Nst_Obj *Nst_call_func(Nst_FuncObj *func, Nst_Obj **args)
+Nst_Obj *Nst_call_func(Nst_FuncObj *func, i32 arg_num, Nst_Obj **args)
 {
-    if (Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C))
-        return func->body.c_func(func->arg_num, args);
+    if (Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C)) {
+        i64 tot_args = func->arg_num;
+        i64 null_args = (i64)func->arg_num - arg_num;
 
-    Nst_vstack_push(NULL);
-    Nst_fstack_push(
-        func,
-        Nst_no_pos(),
-        Nst_no_pos(),
-        Nst_state.vt,
-        Nst_state.idx - 1,
-        Nst_state.c_stack.len);
-
-    Nst_VarTable *new_vt = Nst_vt_from_func(func);
-    if (new_vt == NULL)
-        return NULL;
-
-    for (usize i = 0, n = func->arg_num; i < n; i++) {
-        if (!Nst_vt_set(new_vt, func->args[i], args[i])) {
-            Nst_dec_ref(new_vt->global_table);
-            Nst_map_drop(new_vt->vars, Nst_s.o__vars_);
-            Nst_dec_ref(new_vt->vars);
-            Nst_free(new_vt);
+        if (tot_args < arg_num) {
+            Nst_set_call_error(_Nst_EM_WRONG_ARG_NUM_FMT(tot_args, arg_num));
             return NULL;
         }
+
+        Nst_Obj **all_args;
+        Nst_Obj *stack_args[10]; // for up to 10 arguments this array is used
+
+        if (tot_args == 0)
+            all_args = NULL;
+        else if (null_args == 0)
+            all_args = args;
+        else if (tot_args <= 10) {
+            memcpy(stack_args, args, (usize)arg_num * sizeof(Nst_Obj *));
+            all_args = stack_args;
+        } else {
+            all_args = Nst_malloc_c((usize)tot_args, Nst_Obj *);
+            if (args == NULL) {
+                return NULL;
+            }
+            memcpy(all_args, args, (usize)arg_num * sizeof(Nst_Obj *));
+        }
+
+        for (i64 i = 0; i < null_args; i++)
+            all_args[arg_num + i] = Nst_inc_ref(Nst_c.Null_null);
+
+        Nst_Obj *res = func->body.c_func((usize)tot_args, all_args);
+        if (all_args != stack_args)
+            Nst_free(all_args);
+
+        return res;
     }
 
-    Nst_state.idx = 0;
-    Nst_state.vt = new_vt;
-    complete_function(Nst_state.f_stack.len - 1);
+    Nst_es_push_func(Nst_state.es, func, arg_num, args);
+    complete_function(UNTIL_CURRENT_FUNC_FINISHES);
 
-    if (ERROR_OCCURRED)
+    if (Nst_error_occurred())
         return NULL;
 
-    return Nst_vstack_pop();
+    return POP_TOP_VALUE;
 }
 
-Nst_Obj *Nst_run_func_context(Nst_FuncObj *func, i64 idx, Nst_MapObj *vars,
-                              Nst_MapObj *globals)
+Nst_Obj *Nst_run_paused_coroutine(Nst_FuncObj *func, i64 idx, Nst_VarTable *vt)
 {
-    assert(!Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C));
-
-    Nst_fstack_push(
-        func,
-        Nst_no_pos(),
-        Nst_no_pos(),
-        Nst_state.vt,
-        Nst_state.idx - 1,
-        Nst_state.c_stack.len);
-
-    Nst_VarTable *new_vt = Nst_malloc_c(1, Nst_VarTable);
-    if (new_vt == NULL) {
-        Nst_set_internal_error_from_op_err(
-            GLOBAL_ERROR,
-            func->body.bytecode->instructions[0].start,
-            func->body.bytecode->instructions[0].end);
-        return NULL;
-    }
-
-    new_vt->vars = MAP(Nst_inc_ref(vars));
-
-    if (globals == NULL) {
-        if (func->mod_globals != NULL)
-            new_vt->global_table = MAP(Nst_inc_ref(func->mod_globals));
-        else if (Nst_state.vt->global_table == NULL)
-            new_vt->global_table = MAP(Nst_inc_ref(Nst_state.vt->vars));
-        else
-            new_vt->global_table = MAP(Nst_inc_ref(Nst_state.vt->global_table));
-    } else
-        new_vt->global_table = MAP(Nst_inc_ref(globals));
-    Nst_state.vt = new_vt;
-    Nst_state.idx = idx;
-    complete_function(Nst_state.f_stack.len - 1);
-
-    if (ERROR_OCCURRED)
+    if (!Nst_es_push_paused_coroutine(Nst_state.es, func, idx, vt))
         return NULL;
 
-    return Nst_vstack_pop();
+    complete_function(UNTIL_CURRENT_FUNC_FINISHES);
+
+    if (Nst_error_occurred())
+        return NULL;
+
+    return POP_TOP_VALUE;
 }
 
 static i32 exe_no_op(Nst_Inst *inst)
@@ -599,7 +526,7 @@ static i32 exe_pop_val(Nst_Inst *inst)
 {
     Nst_UNUSED(inst);
     CHECK_V_STACK;
-    Nst_Obj *obj = Nst_vstack_pop();
+    Nst_Obj *obj = POP_TOP_VALUE;
     Nst_dec_ref(obj);
     return INST_SUCCESS;
 }
@@ -612,12 +539,12 @@ static i32 exe_for_inst(Nst_Inst *inst, Nst_IterObj *iter,
         if (res == NULL)
             return INST_FAILED;
 
-        Nst_vstack_push(res);
+        Nst_vstack_push(&Nst_state.es->v_stack, res);
         Nst_dec_ref(res);
         return INST_SUCCESS;
     }
-    Nst_vstack_push(iter->value);
-    Nst_vstack_push(func);
+    Nst_vstack_push(&Nst_state.es->v_stack, iter->value);
+    Nst_vstack_push(&Nst_state.es->v_stack, func);
     exe_op_call(inst);
     return INST_NEW_FUNC;
 }
@@ -625,13 +552,13 @@ static i32 exe_for_inst(Nst_Inst *inst, Nst_IterObj *iter,
 static i32 exe_for_start(Nst_Inst *inst)
 {
     CHECK_V_STACK;
-    Nst_Obj *iterable = Nst_vstack_peek();
+    Nst_Obj *iterable = Nst_vstack_peek(&Nst_state.es->v_stack);
     Nst_IterObj *iter = ITER(Nst_obj_cast(iterable, Nst_t.Iter));
     if (iter == NULL) {
         Nst_set_type_errorf(_Nst_EM_BAD_CAST("Iter"), TYPE_NAME(iterable));
         return INST_FAILED;
     }
-    Nst_state.v_stack.stack[Nst_state.v_stack.len - 1] = OBJ(iter);
+    Nst_state.es->v_stack.stack[Nst_state.es->v_stack.len - 1] = OBJ(iter);
     Nst_dec_ref(iterable);
     return exe_for_inst(inst, iter, iter->start);
 }
@@ -639,17 +566,17 @@ static i32 exe_for_start(Nst_Inst *inst)
 static i32 exe_for_get_val(Nst_Inst *inst)
 {
     CHECK_V_STACK;
-    Nst_IterObj *iter = ITER(Nst_vstack_peek());
+    Nst_IterObj *iter = ITER(Nst_vstack_peek(&Nst_state.es->v_stack));
     return exe_for_inst(inst, iter, iter->get_val);
 }
 
 static i32 exe_for_is_done(Nst_Inst *inst)
 {
     CHECK_V_STACK_SIZE(2);
-    Nst_Obj *iter_val = Nst_vstack_peek();
+    Nst_Obj *iter_val = Nst_vstack_peek(&Nst_state.es->v_stack);
     if (iter_val == Nst_c.IEnd_iend) {
-        Nst_dec_ref(Nst_vstack_pop());
-        Nst_state.idx = inst->int_val - 1;
+        Nst_dec_ref(Nst_vstack_pop(&Nst_state.es->v_stack));
+        Nst_state.es->idx = inst->int_val - 1;
     }
     return INST_SUCCESS;
 }
@@ -657,16 +584,16 @@ static i32 exe_for_is_done(Nst_Inst *inst)
 static i32 exe_return_val(Nst_Inst *inst)
 {
     Nst_UNUSED(inst);
-    Nst_Obj *result = Nst_vstack_pop();
-    Nst_Obj *obj = Nst_vstack_pop();
+    Nst_Obj *result = Nst_vstack_pop(&Nst_state.es->v_stack);
+    Nst_Obj *obj = Nst_vstack_pop(&Nst_state.es->v_stack);
 
     while (obj != NULL) {
         Nst_dec_ref(obj);
-        obj = Nst_vstack_pop();
+        obj = Nst_vstack_pop(&Nst_state.es->v_stack);
     }
 
-    Nst_vstack_push(result);
-    Nst_state.idx = Nst_fstack_peek().func->body.bytecode->total_size;
+    Nst_vstack_push(&Nst_state.es->v_stack, result);
+    Nst_es_force_function_end(Nst_state.es);
     Nst_dec_ref(result);
     return INST_SUCCESS;
 }
@@ -674,16 +601,16 @@ static i32 exe_return_val(Nst_Inst *inst)
 static i32 exe_return_vars(Nst_Inst *inst)
 {
     Nst_UNUSED(inst);
-    Nst_MapObj *vars = Nst_state.vt->vars;
-    Nst_Obj *obj = Nst_vstack_pop();
+    Nst_MapObj *vars = Nst_state.es->vt->vars;
+    Nst_Obj *obj = Nst_vstack_pop(&Nst_state.es->v_stack);
 
     while (obj != NULL) {
         Nst_dec_ref(obj);
-        obj = Nst_vstack_pop();
+        obj = Nst_vstack_pop(&Nst_state.es->v_stack);
     }
 
-    Nst_vstack_push(vars);
-    Nst_state.idx = Nst_fstack_peek().func->body.bytecode->total_size;
+    Nst_vstack_push(&Nst_state.es->v_stack, vars);
+    Nst_es_force_function_end(Nst_state.es);
     return INST_SUCCESS;
 }
 
@@ -691,8 +618,8 @@ static i32 exe_set_val_loc(Nst_Inst *inst)
 {
     Nst_UNUSED(inst);
     CHECK_V_STACK;
-    Nst_Obj *val = Nst_vstack_pop();
-    i32 res = Nst_vt_set(Nst_state.vt, inst->val, val);
+    Nst_Obj *val = Nst_vstack_pop(&Nst_state.es->v_stack);
+    i32 res = Nst_vt_set(Nst_state.es->vt, inst->val, val);
     Nst_dec_ref(val);
     return res;
 }
@@ -702,22 +629,22 @@ static i32 exe_set_cont_loc(Nst_Inst *inst)
     Nst_UNUSED(inst);
     i32 res = exe_set_cont_val(inst);
     CHECK_V_STACK;
-    Nst_vstack_pop();
+    Nst_vstack_pop(&Nst_state.es->v_stack);
     return res;
 }
 
 static i32 exe_jump(Nst_Inst *inst)
 {
-    Nst_state.idx = inst->int_val - 1;
+    Nst_state.es->idx = inst->int_val - 1;
     return INST_SUCCESS;
 }
 
 static i32 exe_jumpif_t(Nst_Inst *inst)
 {
     CHECK_V_STACK;
-    Nst_Obj *top_val = Nst_vstack_pop();
+    Nst_Obj *top_val = Nst_vstack_pop(&Nst_state.es->v_stack);
     if (Nst_obj_to_bool(top_val))
-        Nst_state.idx = inst->int_val - 1;
+        Nst_state.es->idx = inst->int_val - 1;
     Nst_dec_ref(top_val);
     return INST_SUCCESS;
 }
@@ -725,9 +652,9 @@ static i32 exe_jumpif_t(Nst_Inst *inst)
 static i32 exe_jumpif_f(Nst_Inst *inst)
 {
     CHECK_V_STACK;
-    Nst_Obj *top_val = Nst_vstack_pop();
+    Nst_Obj *top_val = Nst_vstack_pop(&Nst_state.es->v_stack);
     if (!Nst_obj_to_bool(top_val))
-        Nst_state.idx = inst->int_val - 1;
+        Nst_state.es->idx = inst->int_val - 1;
 
     Nst_dec_ref(top_val);
     return INST_SUCCESS;
@@ -736,9 +663,9 @@ static i32 exe_jumpif_f(Nst_Inst *inst)
 static i32 exe_jumpif_zero(Nst_Inst *inst)
 {
     CHECK_V_STACK;
-    Nst_Obj *val = Nst_vstack_peek();
+    Nst_Obj *val = Nst_vstack_peek(&Nst_state.es->v_stack);
     if (AS_INT(val) == 0)
-        Nst_state.idx = inst->int_val - 1;
+        Nst_state.es->idx = inst->int_val - 1;
 
     return INST_SUCCESS;
 }
@@ -746,7 +673,7 @@ static i32 exe_jumpif_zero(Nst_Inst *inst)
 static i32 exe_type_check(Nst_Inst *inst)
 {
     CHECK_V_STACK;
-    Nst_Obj *obj = Nst_vstack_peek();
+    Nst_Obj *obj = Nst_vstack_peek(&Nst_state.es->v_stack);
     if (obj->type != TYPE(inst->val)) {
         Nst_set_type_error(Nst_sprintf(
             _Nst_EM_EXPECTED_TYPES,
@@ -761,7 +688,7 @@ static i32 exe_hash_check(Nst_Inst *inst)
 {
     Nst_UNUSED(inst);
     CHECK_V_STACK;
-    Nst_Obj *obj = Nst_vstack_peek();
+    Nst_Obj *obj = Nst_vstack_peek(&Nst_state.es->v_stack);
     Nst_obj_hash(obj);
     if (obj->hash == -1) {
         Nst_set_type_error(Nst_sprintf(
@@ -776,19 +703,19 @@ static i32 exe_set_val(Nst_Inst *inst)
 {
     CHECK_V_STACK;
     Nst_vt_set(
-        Nst_state.vt,
+        Nst_state.es->vt,
         inst->val,
-        Nst_vstack_peek());
+        Nst_vstack_peek(&Nst_state.es->v_stack));
     return Nst_error_occurred() ? INST_FAILED : INST_SUCCESS;
 }
 
 static i32 exe_get_val(Nst_Inst *inst)
 {
-    Nst_Obj *obj = Nst_vt_get(Nst_state.vt, inst->val);
+    Nst_Obj *obj = Nst_vt_get(Nst_state.es->vt, inst->val);
     if (obj == NULL)
-        Nst_vstack_push(Nst_c.Null_null);
+        Nst_vstack_push(&Nst_state.es->v_stack, Nst_c.Null_null);
     else {
-        Nst_vstack_push(obj);
+        Nst_vstack_push(&Nst_state.es->v_stack, obj);
         Nst_dec_ref(obj);
     }
     return INST_SUCCESS;
@@ -796,7 +723,7 @@ static i32 exe_get_val(Nst_Inst *inst)
 
 static i32 exe_push_val(Nst_Inst *inst)
 {
-    Nst_vstack_push(inst->val);
+    Nst_vstack_push(&Nst_state.es->v_stack, inst->val);
     return INST_SUCCESS;
 }
 
@@ -804,9 +731,9 @@ static i32 exe_set_cont_val(Nst_Inst *inst)
 {
     Nst_UNUSED(inst);
     CHECK_V_STACK_SIZE(3);
-    Nst_Obj *idx = Nst_vstack_pop();
-    Nst_Obj *cont = Nst_vstack_pop();
-    Nst_Obj *val = Nst_vstack_peek();
+    Nst_Obj *idx = Nst_vstack_pop(&Nst_state.es->v_stack);
+    Nst_Obj *cont = Nst_vstack_pop(&Nst_state.es->v_stack);
+    Nst_Obj *val = Nst_vstack_peek(&Nst_state.es->v_stack);
     i32 return_value = 0;
 
     if (cont->type == Nst_t.Array || cont->type == Nst_t.Vector) {
@@ -839,21 +766,28 @@ end:
     return return_value;
 }
 
-static i32 call_c_func(bool is_seq_call, i64 tot_args, i64 arg_num,
-                       i64 null_args, Nst_SeqObj *args_seq,
+static i32 call_c_func(bool is_seq_call, i64 arg_num, Nst_SeqObj *args_seq,
                        Nst_FuncObj *func)
 {
+    i64 tot_args = func->arg_num;
+    i64 null_args = (i64)func->arg_num - arg_num;
+
+    if (tot_args < arg_num) {
+        Nst_set_call_error(_Nst_EM_WRONG_ARG_NUM_FMT(tot_args, arg_num));
+        Nst_dec_ref(func);
+        Nst_ndec_ref(args_seq);
+        return -1;
+    }
+
     Nst_Obj **args;
     Nst_Obj *stack_args[10]; // for up to 10 arguments this array is used
-    bool args_allocated = false;
 
-    if (is_seq_call && null_args == 0)
+    if (tot_args == 0)
+        args = NULL;
+    else if (is_seq_call && null_args == 0)
         args = args_seq->objs;
     else if (is_seq_call && tot_args <= 10) {
-        memcpy(
-            stack_args,
-            args_seq->objs,
-            (usize)arg_num * sizeof(Nst_Obj *));
+        memcpy(stack_args, args_seq->objs, (usize)arg_num * sizeof(Nst_Obj *));
         args = stack_args;
     } else if (is_seq_call) {
         args = Nst_malloc_c((usize)tot_args, Nst_Obj *);
@@ -862,17 +796,10 @@ static i32 call_c_func(bool is_seq_call, i64 tot_args, i64 arg_num,
             Nst_dec_ref(func);
             return -1;
         }
-
-        memcpy(
-            stack_args,
-            args_seq->objs,
-            (usize)arg_num * sizeof(Nst_Obj *));
-        args = stack_args;
-    } else if (tot_args == 0)
-        args = NULL;
-    else if (tot_args <= 10) {
+        memcpy(args, args_seq->objs, (usize)arg_num * sizeof(Nst_Obj *));
+    } else if (tot_args <= 10) {
         for (i64 i = arg_num - 1; i >= 0; i--)
-            stack_args[i] = Nst_vstack_pop();
+            stack_args[i] = Nst_vstack_pop(&Nst_state.es->v_stack);
         args = stack_args;
     } else {
         args = Nst_malloc_c((usize)tot_args, Nst_Obj *);
@@ -880,15 +807,13 @@ static i32 call_c_func(bool is_seq_call, i64 tot_args, i64 arg_num,
             Nst_dec_ref(func);
             return -1;
         }
-
         for (i64 i = arg_num - 1; i >= 0; i--)
-            args[i] = Nst_vstack_pop();
-        args_allocated = true;
+            args[i] = Nst_vstack_pop(&Nst_state.es->v_stack);
     }
 
     for (i64 i = 0; i < null_args; i++)
         args[arg_num + i] = Nst_inc_ref(Nst_c.Null_null);
-;
+
     Nst_Obj *res = func->body.c_func((usize)tot_args, args);
 
     if (!is_seq_call) {
@@ -899,14 +824,14 @@ static i32 call_c_func(bool is_seq_call, i64 tot_args, i64 arg_num,
             Nst_dec_ref(args[arg_num + i]);
     }
 
-    if (args_allocated)
+    if (args != stack_args)
         Nst_free(args);
 
     if (res == NULL) {
         Nst_dec_ref(func);
         return -1;
     } else {
-        Nst_vstack_push(res);
+        Nst_vstack_push(&Nst_state.es->v_stack, res);
         Nst_dec_ref(res);
     }
 
@@ -920,16 +845,16 @@ static i32 exe_op_call(Nst_Inst *inst)
     if (inst->int_val == -1)
         CHECK_V_STACK_SIZE(2);
     else
-        CHECK_V_STACK_SIZE(inst->int_val + 1);
+        CHECK_V_STACK_SIZE((u64)inst->int_val + 1);
 #endif // !_DEBUG
 
     i64 arg_num = inst->int_val;
     bool is_seq_call = false;
-    Nst_FuncObj *func = FUNC(Nst_vstack_pop());
+    Nst_FuncObj *func = FUNC(Nst_vstack_pop(&Nst_state.es->v_stack));
     Nst_SeqObj *args_seq;
 
     if (arg_num == -1) {
-        args_seq = SEQ(Nst_vstack_pop());
+        args_seq = SEQ(Nst_vstack_pop(&Nst_state.es->v_stack));
         if (args_seq->type != Nst_t.Array && args_seq->type != Nst_t.Vector) {
             Nst_set_type_error(Nst_sprintf(
                 _Nst_EM_EXPECTED_TYPE("Array' or 'Vector"),
@@ -944,91 +869,29 @@ static i32 exe_op_call(Nst_Inst *inst)
     } else
         args_seq = NULL;
 
-    if ((i64)(func->arg_num) < arg_num) {
-        Nst_set_call_error(Nst_sprintf(
-            _Nst_EM_WRONG_ARG_NUM,
-            func->arg_num, func->arg_num == 1 ? "" : "s",
-            arg_num, arg_num == 1 ? "was" : "were"));
+    if (Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C))
+        return call_c_func(is_seq_call, arg_num, args_seq, func);
 
-        Nst_dec_ref(func);
-        Nst_ndec_ref(args_seq);
-        return -1;
-    }
-
-    i64 null_args = (i64)func->arg_num - arg_num;
-    i64 tot_args = func->arg_num;
-
-    if (Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C)) {
-        return call_c_func(
-            is_seq_call,
-            tot_args,
-            arg_num,
-            null_args,
-            args_seq,
-            func);
-    }
-
-    bool res = Nst_fstack_push(
-        func,
-        inst->start,
-        inst->end,
-        Nst_state.vt,
-        Nst_state.idx,
-        Nst_state.c_stack.len);
-    Nst_state.idx = -1;
-    Nst_dec_ref(func);
-
-    if (!res) {
-        Nst_set_call_error_c(_Nst_EM_CALL_STACK_SIZE_EXCEEDED);
-        Nst_ndec_ref(args_seq);
-        return -1;
-    }
-
-    Nst_VarTable *new_vt = Nst_vt_from_func(func);
-    if (new_vt == NULL) {
-        Nst_ndec_ref(args_seq);
-        return -1;
-    }
-
-    Nst_state.vt = new_vt;
-
-    for (i64 i = 0; i < arg_num; i++) {
-        Nst_Obj *val;
-        if (is_seq_call)
-            val = Nst_inc_ref(args_seq->objs[i]);
-        else
-            val = Nst_vstack_pop();
-
-        Nst_vt_set(new_vt, func->args[is_seq_call ? i : arg_num - i - 1], val);
-        Nst_dec_ref(val);
-        if (Nst_error_occurred()) {
-            Nst_ndec_ref(args_seq);
-            return -1;
-        }
-    }
+    bool result;
+    if (is_seq_call)
+        result = Nst_es_push_func(Nst_state.es, func, arg_num, args_seq->objs);
+    else
+        result = Nst_es_push_func(Nst_state.es, func, arg_num, NULL);
     Nst_ndec_ref(args_seq);
-
-    for (i64 i = arg_num; i < tot_args; i++) {
-        Nst_vt_set(new_vt, func->args[i], Nst_c.Null_null);
-        if (Nst_error_occurred())
-            return -1;
-    }
-
-    Nst_vstack_push(NULL);
-    return 1;
+    return result ? INST_NEW_FUNC : INST_FAILED;
 }
 
 static i32 exe_op_cast(Nst_Inst *inst)
 {
     Nst_UNUSED(inst);
     CHECK_V_STACK_SIZE(2);
-    Nst_Obj *val = Nst_vstack_pop();
-    Nst_Obj *type = Nst_vstack_pop();
+    Nst_Obj *val = Nst_vstack_pop(&Nst_state.es->v_stack);
+    Nst_Obj *type = Nst_vstack_pop(&Nst_state.es->v_stack);
 
     Nst_Obj *res = Nst_obj_cast(val, type);
 
     if (res != NULL) {
-        Nst_vstack_push(res);
+        Nst_vstack_push(&Nst_state.es->v_stack, res);
         Nst_dec_ref(res);
     }
 
@@ -1039,16 +902,16 @@ static i32 exe_op_cast(Nst_Inst *inst)
 
 static i32 exe_op_range(Nst_Inst *inst)
 {
-    CHECK_V_STACK_SIZE(inst->int_val);
-    Nst_Obj *stop = Nst_vstack_pop();
+    CHECK_V_STACK_SIZE((u64)inst->int_val);
+    Nst_Obj *stop = Nst_vstack_pop(&Nst_state.es->v_stack);
     Nst_Obj *step = NULL;
     Nst_Obj *start = NULL;
 
     if (inst->int_val == 3) {
-        start = Nst_vstack_pop();
-        step  = Nst_vstack_pop();
+        start = Nst_vstack_pop(&Nst_state.es->v_stack);
+        step  = Nst_vstack_pop(&Nst_state.es->v_stack);
     } else {
-        start = Nst_vstack_pop();
+        start = Nst_vstack_pop(&Nst_state.es->v_stack);
 
         if (AS_INT(start) <= AS_INT(stop))
             step = Nst_inc_ref(Nst_c.Int_1);
@@ -1064,7 +927,7 @@ static i32 exe_op_range(Nst_Inst *inst)
 
     if (iter == NULL)
         return -1;
-    Nst_vstack_push(iter);
+    Nst_vstack_push(&Nst_state.es->v_stack, iter);
     Nst_dec_ref(iter);
     return 0;
 }
@@ -1073,8 +936,8 @@ static i32 exe_throw_err(Nst_Inst *inst)
 {
     Nst_UNUSED(inst);
     CHECK_V_STACK_SIZE(2);
-    Nst_Obj *message = Nst_vstack_pop();
-    Nst_Obj *name = Nst_vstack_pop();
+    Nst_Obj *message = Nst_vstack_pop(&Nst_state.es->v_stack);
+    Nst_Obj *name = Nst_vstack_pop(&Nst_state.es->v_stack);
 
     Nst_set_error(name, message);
     return -1;
@@ -1083,12 +946,12 @@ static i32 exe_throw_err(Nst_Inst *inst)
 static i32 exe_stack_op(Nst_Inst *inst)
 {
     CHECK_V_STACK_SIZE(2);
-    Nst_Obj *ob2 = Nst_vstack_pop();
-    Nst_Obj *ob1 = Nst_vstack_pop();
+    Nst_Obj *ob2 = Nst_vstack_pop(&Nst_state.es->v_stack);
+    Nst_Obj *ob1 = Nst_vstack_pop(&Nst_state.es->v_stack);
     Nst_Obj *res = stack_op_func[inst->int_val](ob1, ob2);
 
     if (res != NULL) {
-        Nst_vstack_push(res);
+        Nst_vstack_push(&Nst_state.es->v_stack, res);
         Nst_dec_ref(res);
     }
 
@@ -1100,11 +963,11 @@ static i32 exe_stack_op(Nst_Inst *inst)
 static i32 exe_local_op(Nst_Inst *inst)
 {
     CHECK_V_STACK;
-    Nst_Obj *obj = Nst_vstack_pop();
+    Nst_Obj *obj = Nst_vstack_pop(&Nst_state.es->v_stack);
     Nst_Obj *res = local_op_func[inst->int_val - Nst_TT_LEN](obj);
 
     if (res != NULL) {
-        Nst_vstack_push(res);
+        Nst_vstack_push(&Nst_state.es->v_stack, res);
         Nst_dec_ref(res);
     }
 
@@ -1116,11 +979,11 @@ static i32 exe_op_import(Nst_Inst *inst)
 {
     Nst_UNUSED(inst);
     CHECK_V_STACK;
-    Nst_Obj *name = Nst_vstack_pop();
+    Nst_Obj *name = Nst_vstack_pop(&Nst_state.es->v_stack);
     Nst_Obj *res = Nst_obj_import(name);
 
     if (res != NULL) {
-        Nst_vstack_push(res);
+        Nst_vstack_push(&Nst_state.es->v_stack, res);
         Nst_dec_ref(res);
     }
 
@@ -1132,8 +995,8 @@ static i32 exe_op_extract(Nst_Inst *inst)
 {
     Nst_UNUSED(inst);
     CHECK_V_STACK_SIZE(2);
-    Nst_Obj *idx = Nst_vstack_pop();
-    Nst_Obj *cont = Nst_vstack_pop();
+    Nst_Obj *idx = Nst_vstack_pop(&Nst_state.es->v_stack);
+    Nst_Obj *cont = Nst_vstack_pop(&Nst_state.es->v_stack);
     Nst_Obj *res = NULL;
     i32 return_value = 0;
 
@@ -1152,14 +1015,14 @@ static i32 exe_op_extract(Nst_Inst *inst)
         if (res == NULL)
             return_value = -1;
         else
-            Nst_vstack_push(res);
+            Nst_vstack_push(&Nst_state.es->v_stack, res);
     } else if (cont->type == Nst_t.Map) {
         res = Nst_map_get(cont, idx);
 
         if (res != NULL)
-            Nst_vstack_push(res);
+            Nst_vstack_push(&Nst_state.es->v_stack, res);
         else if (idx->hash != -1)
-            Nst_vstack_push(Nst_c.Null_null);
+            Nst_vstack_push(&Nst_state.es->v_stack, Nst_c.Null_null);
         else {
             Nst_set_type_error(Nst_sprintf(
                 _Nst_EM_UNHASHABLE_TYPE,
@@ -1181,7 +1044,7 @@ static i32 exe_op_extract(Nst_Inst *inst)
         if (res == NULL)
             return_value = -1;
         else
-            Nst_vstack_push(res);
+            Nst_vstack_push(&Nst_state.es->v_stack, res);
     } else {
         Nst_set_type_error(Nst_sprintf(
             _Nst_EM_EXPECTED_TYPE("Array', 'Vector', 'Map' or 'Str"),
@@ -1200,7 +1063,7 @@ static i32 exe_dec_int(Nst_Inst *inst)
 {
     Nst_UNUSED(inst);
     CHECK_V_STACK;
-    Nst_Obj *obj = Nst_vstack_peek();
+    Nst_Obj *obj = Nst_vstack_peek(&Nst_state.es->v_stack);
     AS_INT(obj) -= 1;
     return 0;
 }
@@ -1209,11 +1072,11 @@ static i32 exe_new_obj(Nst_Inst *inst)
 {
     Nst_UNUSED(inst);
     CHECK_V_STACK;
-    Nst_Obj *obj = Nst_vstack_peek();
+    Nst_Obj *obj = Nst_vstack_peek(&Nst_state.es->v_stack);
     Nst_Obj *new_obj = Nst_int_new(AS_INT(obj));
     if (Nst_error_occurred())
         return -1;
-    Nst_vstack_push(new_obj);
+    Nst_vstack_push(&Nst_state.es->v_stack, new_obj);
     Nst_dec_ref(new_obj);
     return 0;
 }
@@ -1222,17 +1085,19 @@ static i32 exe_dup(Nst_Inst *inst)
 {
     Nst_UNUSED(inst);
     CHECK_V_STACK;
-    Nst_vstack_push(Nst_vstack_peek());
+    Nst_vstack_push(
+        &Nst_state.es->v_stack,
+        Nst_vstack_peek(&Nst_state.es->v_stack));
     return 0;
 }
 
 static i32 exe_rot(Nst_Inst *inst)
 {
-    CHECK_V_STACK_SIZE(inst->int_val);
+    CHECK_V_STACK_SIZE((u64)inst->int_val);
 
-    Nst_Obj *obj = Nst_vstack_peek();
-    usize stack_size = Nst_state.v_stack.len - 1;
-    Nst_Obj **stack = Nst_state.v_stack.stack;
+    Nst_Obj *obj = Nst_vstack_peek(&Nst_state.es->v_stack);
+    usize stack_size = Nst_state.es->v_stack.len - 1;
+    Nst_Obj **stack = Nst_state.es->v_stack.stack;
     for (i64 i = 1, n = inst->int_val; i < n; i++)
         stack[stack_size - i + 1] = stack[stack_size - i];
 
@@ -1242,6 +1107,8 @@ static i32 exe_rot(Nst_Inst *inst)
 
 static i32 exe_make_seq(Nst_Inst *inst)
 {
+    CHECK_V_STACK_SIZE((u64)inst->int_val);
+
     i64 seq_size = inst->int_val;
     Nst_Obj *seq = inst->id == Nst_IC_MAKE_ARR
         ? Nst_array_new((usize)seq_size)
@@ -1249,15 +1116,13 @@ static i32 exe_make_seq(Nst_Inst *inst)
     if (Nst_error_occurred())
         return -1;
 
-    CHECK_V_STACK_SIZE(seq_size);
-
     for (i64 i = 1; i <= seq_size; i++) {
-        Nst_Obj *curr_obj = Nst_vstack_pop();
+        Nst_Obj *curr_obj = Nst_vstack_pop(&Nst_state.es->v_stack);
         Nst_seq_set(seq, seq_size - i, curr_obj);
         Nst_dec_ref(curr_obj);
     }
 
-    Nst_vstack_push(seq);
+    Nst_vstack_push(&Nst_state.es->v_stack, seq);
     Nst_dec_ref(seq);
     return 0;
 }
@@ -1266,8 +1131,8 @@ static i32 exe_make_seq_rep(Nst_Inst *inst)
 {
     i64 seq_size = inst->int_val;
     CHECK_V_STACK_SIZE(2);
-    Nst_Obj *size_obj = Nst_vstack_pop();
-    Nst_Obj *val = Nst_vstack_pop();
+    Nst_Obj *size_obj = Nst_vstack_pop(&Nst_state.es->v_stack);
+    Nst_Obj *val = Nst_vstack_pop(&Nst_state.es->v_stack);
 
     i64 size = AS_INT(size_obj);
     Nst_dec_ref(size_obj);
@@ -1280,7 +1145,7 @@ static i32 exe_make_seq_rep(Nst_Inst *inst)
     for (i64 i = 1; i <= size; i++)
         Nst_seq_set(seq, seq_size - i, val);
 
-    Nst_vstack_push(seq);
+    Nst_vstack_push(&Nst_state.es->v_stack, seq);
     Nst_dec_ref(seq);
     Nst_dec_ref(val);
     return 0;
@@ -1288,14 +1153,14 @@ static i32 exe_make_seq_rep(Nst_Inst *inst)
 
 static i32 exe_make_map(Nst_Inst *inst)
 {
+    CHECK_V_STACK_SIZE((u64)inst->int_val);
     i64 map_size = inst->int_val;
     Nst_Obj *map = Nst_map_new();
     if (Nst_error_occurred())
         return -1;
 
-    CHECK_V_STACK_SIZE(map_size);
-    usize stack_size = Nst_state.v_stack.len;
-    Nst_Obj **v_stack = Nst_state.v_stack.stack;
+    usize stack_size = Nst_state.es->v_stack.len;
+    Nst_Obj **v_stack = Nst_state.es->v_stack.stack;
 
     for (i64 i = 0; i < map_size; i++) {
         Nst_Obj *key = v_stack[stack_size - map_size + i];
@@ -1310,47 +1175,42 @@ static i32 exe_make_map(Nst_Inst *inst)
         Nst_dec_ref(val);
         Nst_dec_ref(key);
     }
-    Nst_state.v_stack.len -= (usize)map_size;
-    Nst_vstack_push(map);
+    Nst_state.es->v_stack.len -= (usize)map_size;
+    Nst_vstack_push(&Nst_state.es->v_stack, map);
     Nst_dec_ref(map);
     return 0;
 }
 
 static i32 exe_push_catch(Nst_Inst *inst)
 {
-    Nst_cstack_push(
-        inst->int_val,
-        Nst_state.v_stack.len,
-        Nst_state.f_stack.len);
+    Nst_CatchFrame cf = {
+        .inst_idx = inst->int_val,
+        .v_stack_len = Nst_state.es->v_stack.len,
+        .f_stack_len = Nst_state.es->f_stack.len
+    };
+    Nst_cstack_push(&Nst_state.es->c_stack, cf);
     return 0;
 }
 
 static i32 exe_pop_catch(Nst_Inst *inst)
 {
     Nst_UNUSED(inst);
-    Nst_cstack_pop();
+    Nst_cstack_pop(&Nst_state.es->c_stack);
     return 0;
 }
 
 static i32 exe_save_error(Nst_Inst *inst)
 {
     Nst_UNUSED(inst);
-    assert(GLOBAL_ERROR->occurred);
+    assert(Nst_error_occurred());
 
     Nst_Obj *err_map = Nst_map_new();
-    Nst_map_set_str(err_map, "name", GLOBAL_ERROR->name);
-    Nst_map_set_str(err_map, "message", GLOBAL_ERROR->message);
+    Nst_Traceback *tb = Nst_error_get();
+    Nst_map_set_str(err_map, "name", tb->error_name);
+    Nst_map_set_str(err_map, "message", tb->error_msg);
     Nst_error_clear();
 
-    Nst_state.traceback.error.occurred = false;
-    Nst_dec_ref(GLOBAL_ERROR->name);
-    Nst_dec_ref(GLOBAL_ERROR->message);
-    GLOBAL_ERROR->name = NULL;
-    GLOBAL_ERROR->message = NULL;
-
-    Nst_llist_empty(Nst_state.traceback.positions, Nst_free);
-
-    Nst_vstack_push(err_map);
+    Nst_vstack_push(&Nst_state.es->v_stack, err_map);
     Nst_dec_ref(err_map);
 
     // Remove the source of any libraries that failed to load
@@ -1365,7 +1225,7 @@ static i32 exe_save_error(Nst_Inst *inst)
 static i32 exe_unpack_seq(Nst_Inst *inst)
 {
     CHECK_V_STACK;
-    Nst_SeqObj *seq = SEQ(Nst_vstack_pop());
+    Nst_SeqObj *seq = SEQ(Nst_vstack_pop(&Nst_state.es->v_stack));
 
     if (seq->type != Nst_t.Array && seq->type != Nst_t.Vector) {
         Nst_set_type_error(Nst_sprintf(
@@ -1384,7 +1244,7 @@ static i32 exe_unpack_seq(Nst_Inst *inst)
     }
 
     for (i64 i = seq->len - 1; i >= 0; i--)
-        Nst_vstack_push(seq->objs[i]);
+        Nst_vstack_push(&Nst_state.es->v_stack, seq->objs[i]);
 
     Nst_dec_ref(seq);
     return 0;
@@ -1485,61 +1345,7 @@ usize Nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part)
 #endif // !Nst_WIN
 }
 
-static Nst_SeqObj *make_argv(i32 argc, i8 **argv, i8 *filename)
-{
-    Nst_SeqObj *args = SEQ(Nst_array_new(argc + 1));
-    if (args == NULL) {
-        Nst_error_clear();
-        return NULL;
-    }
-
-    Nst_Obj *val = Nst_string_new_c_raw(filename, false);
-    if (val == NULL) {
-        Nst_error_clear();
-        args->len = 0;
-        Nst_dec_ref(args);
-        return NULL;
-    }
-    Nst_seq_set(args, 0, val);
-    Nst_dec_ref(val);
-
-    for (i32 i = 0; i < argc; i++) {
-        val = Nst_string_new_c_raw(argv[i], false);
-        if (val == NULL) {
-            Nst_error_clear();
-            args->len = i + 1;
-            Nst_dec_ref(args);
-            return NULL;
-        }
-        Nst_seq_set(args, i + 1, val);
-        Nst_dec_ref(val);
-    }
-
-    return args;
-}
-
-static Nst_StrObj *make_cwd(i8 *file_path)
-{
-    i8 *path = NULL;
-    i8 *file_part = NULL;
-
-    Nst_get_full_path(file_path, &path, &file_part);
-    if (path == NULL) {
-        Nst_error_clear();
-        return NULL;
-    }
-
-    *(file_part - 1) = 0;
-    Nst_StrObj *str = STR(Nst_string_new(path, file_part - path - 1, true));
-    if (str == NULL) {
-        Nst_error_clear();
-        Nst_free(file_path);
-        return NULL;
-    }
-    return str;
-}
-
-Nst_ExecutionState *Nst_get_state(void)
+Nst_IntrState *Nst_get_state(void)
 {
     return &Nst_state;
 }
@@ -1592,44 +1398,6 @@ Nst_StrObj *Nst_getcwd(void)
     }
     return STR(Nst_string_new_allocated(cwd_buf, strlen(cwd_buf)));
 #endif // !Nst_WIN
-}
-
-static inline void add_positions(Nst_Pos start, Nst_Pos end)
-{
-    Nst_Pos *positions = Nst_raw_malloc(2 * sizeof(Nst_Pos));
-    if (positions == NULL)
-        return;
-
-    Nst_OpErr prev_err = { NULL, NULL };
-    if (Nst_error_occurred()) {
-        prev_err.name    = STR(Nst_inc_ref(Nst_error_get()->name));
-        prev_err.message = STR(Nst_inc_ref(Nst_error_get()->message));
-    }
-
-    positions[0] = start;
-    positions[1] = end;
-    bool result = Nst_llist_push(
-        Nst_state.traceback.positions,
-        positions + 1,
-        false);
-    if (!result) {
-        Nst_error_clear();
-        if (prev_err.name != NULL)
-            Nst_set_error(prev_err.name, prev_err.message);
-        Nst_free(positions);
-        return;
-    }
-    result = Nst_llist_push(
-        Nst_state.traceback.positions,
-        positions,
-        true);
-    if (!result) {
-        Nst_error_clear();
-        if (prev_err.name != NULL)
-            Nst_set_error(prev_err.name, prev_err.message);
-        Nst_llist_pop(Nst_state.traceback.positions);
-        Nst_free(positions);
-    }
 }
 
 static void loaded_libs_destructor(C_LIB_TYPE lib)

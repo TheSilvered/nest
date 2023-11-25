@@ -44,7 +44,7 @@ void _Nst_iter_traverse(Nst_IterObj* iter)
 
 i32 _Nst_iter_start(Nst_IterObj *iter)
 {
-    Nst_Obj *result = Nst_call_func(iter->start, &iter->value);
+    Nst_Obj *result = Nst_call_func(iter->start, 1, &iter->value);
 
     if (result == NULL)
         return -1;
@@ -55,7 +55,7 @@ i32 _Nst_iter_start(Nst_IterObj *iter)
 
 Nst_Obj *_Nst_iter_get_val(Nst_IterObj *iter)
 {
-    return Nst_call_func(iter->get_val, &iter->value);
+    return Nst_call_func(iter->get_val, 1, &iter->value);
 }
 
 Nst_FUNC_SIGN(Nst_iter_range_start)
