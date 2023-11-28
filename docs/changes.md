@@ -91,10 +91,11 @@ _General changes_:
 - renamed `Nst_run_func_context` to `Nst_run_paused_coroutine` and modified its arguments
 - removed `Nst_state_init` and `Nst_state_free`
 
-
 **Bug fixes**
 
-None.
+- fixed `Nst_obj_eq_c` and `Nst_obj_ne_c` leaving a dangling reference of the resulting boolean object
+- fixed type objects not being freed properly
+- fixed many constants not being destroyed at the end of the program
 
 ---
 

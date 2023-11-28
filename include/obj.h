@@ -11,8 +11,13 @@
 
 #include "typedefs.h"
 
+#ifdef Nst_DISABLE_POOLS
 /* Maximum size for an object pool. */
+#define _Nst_P_LEN_MAX 0
+#else
+/* [docs:ignore] Maximum size for an object pool. */
 #define _Nst_P_LEN_MAX 20
+#endif
 
 /* Casts `obj` to `Nst_Obj *`. */
 #define OBJ(obj) ((Nst_Obj *)(obj))

@@ -6,6 +6,11 @@
 #ifdef Nst_COUNT_ALLOC
 static i32 allocation_count = 0;
 
+void Nst_log_alloc_count()
+{
+    printf("%d\n", allocation_count);
+}
+
 void *Nst_raw_malloc(usize size)
 {
     void *ptr = malloc(size);
@@ -27,7 +32,7 @@ void *Nst_raw_realloc(void *block, usize size)
     return realloc(block, size);
 }
 
-void Nst_free(void *block)
+void Nst_raw_free(void *block)
 {
     if (block != NULL)
         allocation_count--;

@@ -14,6 +14,40 @@
 #include <stdint.h>
 #include <assert.h>
 
+// DO NOT ENABLE, used for documentation purpuses. If you need to define these
+// macros, define them elsewhere in this file.
+#if 0
+/**
+ * If defined enables tracking of the position in the program where objects are
+ * allocated. This macro should be defined in `typedefs.h` when compiling.
+ *
+ * @brief Note: this macro works only when the program is compiled in debug
+ * mode.
+ */
+#define Nst_TRACK_OBJ_INIT_POS
+/**
+ * If defined disables object pools and instead frees the memory of each
+ * object. This macro should be defined in `typedefs.h` when compiling.
+ *
+ * @brief Note: this macro works only when the program is compiled in debug
+ * mode.
+ */
+#define Nst_DISABLE_POOLS
+/**
+ * If defined enables allocation counting and declares the
+ * `Nst_log_alloc_count` function. This macro should be defined in `typedefs.h`
+ * when compiling.
+ *
+ * @brief Note: this macro works only when the program is compiled in debug
+ * mode.
+ */
+#define Nst_COUNT_ALLOC
+#endif // !0
+
+#define Nst_TRACK_OBJ_INIT_POS
+#define Nst_DISABLE_POOLS
+#define Nst_COUNT_ALLOC
+
 #if defined(_WIN32) || defined(WIN32)
 /* Defined when compiling on MS Windows. */
 #define Nst_WIN
@@ -125,21 +159,24 @@
 #undef Nst_UNUSED
 #endif
 
-/* Marks an argument as unused. To be used inside the body of the function. */
+/**
+ * @brief Marks the argument of a function as unused, without rasing any
+ * compiler warnings.
+ */
 #define Nst_UNUSED(v) (void)(v)
 
-#if 1
-/**
- * @brief Defined to compile with additional arguments that track the location
- * of the creation of Nest objects.
- */
-#define Nst_TRACK_OBJ_INIT_POS
-#endif
-
-#define _Nst_ASSERT_TYPE(ob, t_name) assert((ob)->type == Nst_t.t_name)
-
-#if !defined(_DEBUG) && defined(Nst_TRACK_OBJ_INIT_POS)
+#ifndef _DEBUG
+#ifdef Nst_TRACK_OBJ_INIT_POS
 #undef Nst_TRACK_OBJ_INIT_POS
+#endif // !Nst_TRACK_OBJ_INIT_POS
+
+#ifdef Nst_DISABLE_POOLS
+#undef Nst_DISABLE_POOLS
+#endif // !Nst_DISABLE_POOLS
+
+#ifdef Nst_COUNT_ALLOC
+#undef Nst_COUNT_ALLOC
+#endif // !Nst_COUNT_ALLOC
 #endif
 
 #ifdef __cplusplus

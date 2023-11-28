@@ -312,7 +312,7 @@ Nst_InstList *Nst_optimize_bytecode(Nst_InstList *bc, bool optimize_builtins)
     do {
         initial_size = bc->total_size;
         remove_push_check(bc);
-        if (Nst_error_get()) {
+        if (Nst_error_occurred()) {
             Nst_inst_list_destroy(bc);
             return NULL;
         }

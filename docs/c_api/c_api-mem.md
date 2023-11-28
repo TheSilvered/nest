@@ -10,14 +10,6 @@ TheSilvered
 
 ## Macros
 
-### `Nst_raw_free`
-
-**Description:**
-
-Alias for C free.
-
----
-
 ### `Nst_malloc_c`
 
 **Synopsis:**
@@ -75,6 +67,14 @@ size and casting the result to a pointer of `type`.
 
 Calls [`Nst_crealloc`](c_api-mem.md#nst_crealloc) using `sizeof(type)` for the
 size and casting the result to a pointer of `type`.
+
+---
+
+### `Nst_free`
+
+**Description:**
+
+Alias for [`Nst_raw_free`](c_api-mem.md#nst_raw_free).
 
 ---
 
@@ -180,12 +180,12 @@ Alias for C [`realloc`](https://man7.org/linux/man-pages/man3/malloc.3.html).
 
 ---
 
-### `Nst_free`
+### `Nst_raw_free`
 
 **Synopsis:**
 
 ```better-c
-void Nst_free(void *block)
+void Nst_raw_free(void *block)
 ```
 
 **Description:**

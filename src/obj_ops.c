@@ -80,6 +80,22 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path);
 static bool add_to_handle_map(Nst_StrObj *path, Nst_MapObj *map,
                               Nst_SourceText *src_txt);
 
+bool Nst_obj_eq_c(Nst_Obj *ob1, Nst_Obj *ob2)
+{
+    Nst_Obj *result_obj = Nst_obj_eq(ob1, ob2);
+    bool result = Nst_obj_to_bool(result_obj);
+    Nst_dec_ref(result_obj);
+    return result;
+}
+
+bool Nst_obj_ne_c(Nst_Obj *ob1, Nst_Obj *ob2)
+{
+    Nst_Obj *result_obj = Nst_obj_ne(ob1, ob2);
+    bool result = Nst_obj_to_bool(result_obj);
+    Nst_dec_ref(result_obj);
+    return result;
+}
+
 // Comparisons
 Nst_Obj *_Nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2)
 {

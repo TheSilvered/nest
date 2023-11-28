@@ -61,4 +61,6 @@ void _Nst_type_destroy(Nst_TypeObj *type)
         Nst_free(ob);
         ob = next_ob;
     }
+
+    type->p_len = _Nst_P_LEN_MAX + 1;
 }

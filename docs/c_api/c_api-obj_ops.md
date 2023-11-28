@@ -491,12 +491,14 @@ to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
+## Functions
+
 ### `Nst_obj_eq_c`
 
 **Synopsis:**
 
 ```better-c
-#define Nst_obj_eq_c(ob1, ob2)
+bool Nst_obj_eq_c(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -510,7 +512,7 @@ Calls [`Nst_obj_eq`](c_api-obj_ops.md#nst_obj_eq) making the result a C bool.
 **Synopsis:**
 
 ```better-c
-#define Nst_obj_ne_c(ob1, ob2)
+bool Nst_obj_ne_c(Nst_Obj *ob1, Nst_Obj *ob2)
 ```
 
 **Description:**
@@ -518,8 +520,6 @@ Calls [`Nst_obj_eq`](c_api-obj_ops.md#nst_obj_eq) making the result a C bool.
 Calls [`Nst_obj_ne`](c_api-obj_ops.md#nst_obj_ne) making the result a C bool.
 
 ---
-
-## Functions
 
 ### `_Nst_obj_eq`
 

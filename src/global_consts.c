@@ -214,6 +214,10 @@ void _Nst_del_objects(void)
     Nst_ndec_ref(Nst_s.c_true);
     Nst_ndec_ref(Nst_s.c_false);
     Nst_ndec_ref(Nst_s.c_null);
+    Nst_ndec_ref(Nst_s.c_inf);
+    Nst_ndec_ref(Nst_s.c_nan);
+    Nst_ndec_ref(Nst_s.c_neginf);
+    Nst_ndec_ref(Nst_s.c_negnan);
 
     Nst_ndec_ref(Nst_s.e_SyntaxError);
     Nst_ndec_ref(Nst_s.e_MemoryError);
@@ -238,6 +242,10 @@ void _Nst_del_objects(void)
     Nst_ndec_ref(Nst_c.Int_neg1);
     Nst_ndec_ref(Nst_c.Real_0);
     Nst_ndec_ref(Nst_c.Real_1);
+    Nst_ndec_ref(Nst_c.Real_nan);
+    Nst_ndec_ref(Nst_c.Real_negnan);
+    Nst_ndec_ref(Nst_c.Real_inf);
+    Nst_ndec_ref(Nst_c.Real_neginf);
     Nst_ndec_ref(Nst_c.Byte_0);
     Nst_ndec_ref(Nst_c.Byte_1);
 
@@ -251,6 +259,8 @@ void _Nst_del_objects(void)
     Nst_ndec_ref(Nst_itf.str_get_val);
     Nst_ndec_ref(Nst_itf.seq_start);
     Nst_ndec_ref(Nst_itf.seq_get_val);
+    Nst_ndec_ref(Nst_itf.map_start);
+    Nst_ndec_ref(Nst_itf.map_get_val);
 }
 
 Nst_Obj *Nst_true(void)

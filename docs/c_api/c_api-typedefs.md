@@ -10,6 +10,42 @@ TheSilvered
 
 ## Macros
 
+### `Nst_TRACK_OBJ_INIT_POS`
+
+**Description:**
+
+If defined enables tracking of the position in the program where objects are
+allocated. This macro should be defined in `typedefs.h` when compiling.
+
+!!!note
+    This macro works only when the program is compiled in debug mode
+
+---
+
+### `Nst_DISABLE_POOLS`
+
+**Description:**
+
+If defined disables object pools and instead frees the memory of each object.
+This macro should be defined in `typedefs.h` when compiling.
+
+!!!note
+    This macro works only when the program is compiled in debug mode
+
+---
+
+### `Nst_COUNT_ALLOC`
+
+**Description:**
+
+If defined enables allocation counting and declares the `Nst_log_alloc_count`
+function. This macro should be defined in `typedefs.h` when compiling.
+
+!!!note
+    This macro works only when the program is compiled in debug mode
+
+---
+
 ### `Nst_WIN`
 
 **Description:**
@@ -116,16 +152,8 @@ Marks a function for for the standard C declaration (`__cdecl`).
 
 **Description:**
 
-Marks an argument as unused. To be used inside the body of the function.
-
----
-
-### `Nst_TRACK_OBJ_INIT_POS`
-
-**Description:**
-
-Defined to compile with additional arguments that track the location of the
-creation of Nest objects.
+Marks the argument of a function as unused, without rasing any compiler
+warnings.
 
 ---
 

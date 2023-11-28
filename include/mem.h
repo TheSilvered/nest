@@ -13,13 +13,6 @@
 #include "typedefs.h"
 #include "error.h"
 
-#if defined(_DEBUG) && !defined(Nst_NO_ALLOC_COUNT)
-#define Nst_COUNT_ALLOC
-#endif // !Nst_COUNT_ALLOC
-
-/* Alias for C free. */
-#define Nst_raw_free Nst_free
-
 /**
  * @brief Calls `Nst_malloc` using `sizeof(type)` for the size and casting the
  * result to a pointer of `type`.
@@ -103,7 +96,9 @@ NstEXP void *NstC Nst_raw_calloc(usize count, usize size);
 /* Alias for C `realloc`. */
 NstEXP void *NstC Nst_raw_realloc(void *block, usize size);
 /* Alias for C `free`. */
-NstEXP void NstC Nst_free(void *block);
+NstEXP void NstC Nst_raw_free(void *block);
+
+NstEXP void NstC Nst_log_alloc_count();
 #else
 /* [docs:ignore] Alias for C `malloc`. */
 #define Nst_raw_malloc malloc
@@ -112,8 +107,11 @@ NstEXP void NstC Nst_free(void *block);
 /* [docs:ignore] Alias for C `realloc`. */
 #define Nst_raw_realloc realloc
 /* [docs:ignore] Alias for C `free`. */
-#define Nst_free free
+#define Nst_raw_free free
 #endif
+
+/* Alias for `Nst_raw_free`. */
+#define Nst_free Nst_raw_free
 
 /**
  * Allocates memory on the heap.

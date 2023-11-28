@@ -82,14 +82,14 @@
 /* Alias for `_Nst_obj_import` that casts `ob` to `Nst_Obj *`. */
 #define Nst_obj_import(ob) _Nst_obj_import(OBJ(ob))
 
-/* Calls `Nst_obj_eq` making the result a C bool. */
-#define Nst_obj_eq_c(ob1, ob2) _Nst_obj_to_bool(Nst_obj_eq(ob1, ob2))
-/* Calls `Nst_obj_ne` making the result a C bool. */
-#define Nst_obj_ne_c(ob1, ob2) _Nst_obj_to_bool(Nst_obj_ne(ob1, ob2))
-
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
+
+/* Calls `Nst_obj_eq` making the result a C bool. */
+NstEXP bool NstC Nst_obj_eq_c(Nst_Obj *ob1, Nst_Obj *ob2);
+/* Calls `Nst_obj_ne` making the result a C bool. */
+NstEXP bool NstC Nst_obj_ne_c(Nst_Obj *ob1, Nst_Obj *ob2);
 
 // Comparisons
 

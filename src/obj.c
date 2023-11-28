@@ -63,8 +63,6 @@ void _Nst_obj_destroy(Nst_Obj *obj)
     obj->ref_count = 2147483647;
     if (obj->type->dstr != NULL)
         obj->type->dstr(obj);
-    if (obj != OBJ(obj->type))
-        Nst_dec_ref(obj->type);
 
     Nst_SET_FLAG(obj, Nst_FLAG_OBJ_DESTROYED);
 }
@@ -100,7 +98,7 @@ void _Nst_obj_free(Nst_Obj *obj)
 
 free_mem:
     if (obj->type->p_len >= _Nst_P_LEN_MAX) {
-        free(obj);
+        Nst_free(obj);
         return;
     }
 
@@ -121,7 +119,10 @@ void _Nst_dec_ref(Nst_Obj *obj)
 
     assert(obj->ref_count >= 0); // The ref_count should nevere be below zero
     if (obj->ref_count <= 0) {
+        Nst_TypeObj *ob_t = obj->type;
         _Nst_obj_destroy(obj);
         _Nst_obj_free(obj);
+        if (obj != OBJ(ob_t))
+            Nst_dec_ref(ob_t);
     }
 }

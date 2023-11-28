@@ -232,6 +232,11 @@ void Nst_quit(void)
             Nst_state.lib_srcs,
             (Nst_LListDestructor)Nst_free_src_text);
     }
+#else
+    // in debug mode the libraries are not unloaded to allow for debug checks
+    // after quitting libnest
+    if (Nst_state.lib_srcs != NULL)
+        Nst_llist_destroy(Nst_state.lib_srcs, NULL);
 #endif
     // call the destructors for any loaded library
     if (Nst_state.loaded_libs != NULL) {
@@ -243,6 +248,7 @@ void Nst_quit(void)
         }
     }
 
+    Nst_dec_ref(Nst_state.lib_handles);
     _Nst_ggc_delete_objs();
     _Nst_del_objects();
 
@@ -311,7 +317,8 @@ Nst_ExecutionState *Nst_state_set_es(Nst_ExecutionState *es)
 {
     Nst_ExecutionState *prev_es = Nst_state.es;
     Nst_state.es = es;
-    Nst_chdir(es->curr_path);
+    if (es != NULL && es->curr_path != NULL)
+        Nst_chdir(es->curr_path);
     return prev_es;
 }
 
