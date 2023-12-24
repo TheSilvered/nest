@@ -77,7 +77,7 @@
 #include "mem.h"
 #include "dtoa.h"
 
-#if Nst_ENDIANNESS == Nst_LITTLE_ENDIAN
+#if Nst_BYTEORDER == Nst_LITTLE_ENDIAN
 #define IEEE_8087
 #else
 #define IEEE_MC68k

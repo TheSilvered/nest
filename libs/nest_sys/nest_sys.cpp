@@ -215,9 +215,9 @@ Nst_FUNC_SIGN(_get_endianness_)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
-#if Nst_ENDIANNESS == Nst_BIG_ENDIAN
+#if Nst_BYTEORDER == Nst_BIG_ENDIAN
     return Nst_string_new_c("big", 3, false);
-#elif Nst_ENDIANNESS == Nst_LITTLE_ENDIAN
+#elif Nst_BYTEORDER == Nst_LITTLE_ENDIAN
     return Nst_string_new_c("little", 6, false);
 #endif
 }

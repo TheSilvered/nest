@@ -54,6 +54,24 @@ NstEXP bool NstC Nst_es_init(Nst_ExecutionState *es);
 /* Destroys the contents of an execution state. */
 NstEXP void NstC Nst_es_destroy(Nst_ExecutionState *es);
 /**
+ * Initializes a `Nst_FuncCall` using the fields of a `Nst_ExecutionState`.
+ *
+ * @brief Warning: the `cwd` argument is set to `NULL` and its value must be
+ * set manually.
+ *
+ * @param func: the function in the function call
+ * @param start: the starting position of the function call
+ * @param end: the ending position of the function call
+ * @param es: the execution state from which to take `idx`, `cstack_len` and
+ * `vt`
+ *
+ * @return An initialized `Nst_FuncCall` structure.
+ */
+NstEXP Nst_FuncCall NstC Nst_func_call_from_es(Nst_FuncObj *func,
+                                               Nst_Pos start,
+                                               Nst_Pos end,
+                                               Nst_ExecutionState *es);
+/**
  * Initializes the variable table and command-line arguments array of an
  * execution state.
  *
@@ -70,16 +88,19 @@ NstEXP bool NstC Nst_es_init_vt(Nst_ExecutionState *es, Nst_CLArgs *cl_args);
 /**
  * Executes a Nest program given the arguments.
  *
- * @brief Note: `es` is not destroyed when the function ends and it must be
- * done manually with `Nst_es_destroy`
+ * @brief Note: `es` and `src` are not destroyed when the function ends and
+ * must be destroyed manually with `Nst_es_destroy` and
+ * `Nst_source_text_destroy` respectively.
  *
  * @param args: the arguments for the program
  * @param es: the execution state that will be filled by the program
+ * @param src: the source of the opened file that will be filled by the program
  *
  * @return The exit code of the program. If it is different from zero an error
- * could have occurred.
+ * could have occurred, to check use `Nst_error_occurred`.
  */
-NstEXP i32 NstC Nst_execute(Nst_CLArgs args, Nst_ExecutionState *es);
+NstEXP i32 NstC Nst_execute(Nst_CLArgs args, Nst_ExecutionState *es,
+                            Nst_SourceText *src);
 /**
  * Sets the `curr_path` field of an `Nst_ExecutionState`. This function takes a
  * reference from `cwd` and removes one from the previous value in the state.
@@ -108,6 +129,8 @@ NstEXP bool NstC Nst_es_push_module(Nst_ExecutionState *es, i8 *filename,
  *
  * @param es: the execution state to push the function onto
  * @param func: the function to push on the execution state
+ * @param start: the starting position of the call
+ * @param end: the ending position of the call
  * @param arg_num: the number of arguments passed to the function
  * @param args: the values of the arguments to pass to the function, if `NULL`
  * `arg_num` values are taken from the value stack in reverse order
@@ -115,18 +138,24 @@ NstEXP bool NstC Nst_es_push_module(Nst_ExecutionState *es, i8 *filename,
  * @return `true` on success and `false` on failure. The error is set.
  */
 NstEXP bool NstC Nst_es_push_func(Nst_ExecutionState *es, Nst_FuncObj *func,
-                                  i64 arg_num, Nst_Obj **args);
+                                  Nst_Pos start, Nst_Pos end, i64 arg_num,
+                                  Nst_Obj **args);
 /**
  * Pushes a coroutine that is already running on the call stack of the given
  * execution state.
  *
  * @param es: the execution state to push the coroutine onto
  * @param func: the function of the coroutine to push
+ * @param start: the starting position of the call
+ * @param end: the ending position of the call
  * @param idx: the instruction index where the coroutine was paused at
  * @param vt: the variable table of the coroutine
+ *
+ * @return `true` on success and `false` on failure. The error is set.
  */
 NstEXP bool NstC Nst_es_push_paused_coroutine(Nst_ExecutionState *es,
-                                              Nst_FuncObj *func, i64 idx,
+                                              Nst_FuncObj *func, Nst_Pos start,
+                                              Nst_Pos end, i64 idx,
                                               Nst_VarTable *vt);
 /* Forces the top function of the execution state to end. */
 NstEXP void NstC Nst_es_force_function_end(Nst_ExecutionState *es);

@@ -18,7 +18,7 @@ If defined enables tracking of the position in the program where objects are
 allocated. This macro should be defined in `typedefs.h` when compiling.
 
 !!!note
-    This macro works only when the program is compiled in debug mode
+    This macro works only when the program is compiled in debug mode.
 
 ---
 
@@ -30,7 +30,7 @@ If defined disables object pools and instead frees the memory of each object.
 This macro should be defined in `typedefs.h` when compiling.
 
 !!!note
-    This macro works only when the program is compiled in debug mode
+    This macro works only when the program is compiled in debug mode.
 
 ---
 
@@ -38,11 +38,12 @@ This macro should be defined in `typedefs.h` when compiling.
 
 **Description:**
 
-If defined enables allocation counting and declares the `Nst_log_alloc_count`
-function. This macro should be defined in `typedefs.h` when compiling.
+If defined enables allocation counting and declares the
+[`Nst_log_alloc_count`](c_api-mem.md#nst_log_alloc_count) function. This macro
+should be defined in `typedefs.h` when compiling.
 
 !!!note
-    This macro works only when the program is compiled in debug mode
+    This macro works only when the program is compiled in debug mode.
 
 ---
 
@@ -124,7 +125,7 @@ Represents big-endian systems. Always defined.
 
 ---
 
-### `Nst_ENDIANNESS`
+### `Nst_BYTEORDER`
 
 **Description:**
 

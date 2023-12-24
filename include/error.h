@@ -251,11 +251,13 @@ NstEXP Nst_Pos NstC Nst_no_pos(void);
 /* Prints a formatted `Nst_Traceback`. */
 NstEXP void NstC Nst_print_traceback(Nst_Traceback *tb);
 
+/* Initializes the fields of a `Nst_SourceText` struct. */
+NstEXP void NstC Nst_source_text_init(Nst_SourceText *src);
 /**
  * @brief Frees a heap allocated text source, `text` can be `NULL`. No error
  * is set.
  */
-NstEXP void NstC Nst_free_src_text(Nst_SourceText *text);
+NstEXP void NstC Nst_source_text_destroy(Nst_SourceText *text);
 
 /**
  * Sets the global operation error with the given name and message.

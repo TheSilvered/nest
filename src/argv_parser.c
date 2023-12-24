@@ -318,6 +318,8 @@ bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv)
 
 void _Nst_set_console_mode(void)
 {
+    supports_color = true;
+
     SetErrorMode(SEM_FAILCRITICALERRORS);
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);

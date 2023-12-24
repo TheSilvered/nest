@@ -51,7 +51,7 @@ Nst_CP Nst_cp_utf16 = {
     .mult_max_sz = sizeof(u16) * 2,
     .mult_min_sz = sizeof(u16),
     .name = "UTF-16",
-#if Nst_ENDIANNESS == Nst_LITTLE_ENDIAN
+#if Nst_BYTEORDER == Nst_LITTLE_ENDIAN
     .bom = "\xff\xfe",
 #else
     .bom = "\xfe\xff",
@@ -91,7 +91,7 @@ Nst_CP Nst_cp_ext_utf16 = {
     .mult_max_sz = sizeof(u16) * 2,
     .mult_min_sz = sizeof(u16),
     .name = "extUTF-16",
-#if Nst_ENDIANNESS == Nst_LITTLE_ENDIAN
+#if Nst_BYTEORDER == Nst_LITTLE_ENDIAN
     .bom = "\xff\xfe",
 #else
     .bom = "\xfe\xff",
@@ -131,7 +131,7 @@ Nst_CP Nst_cp_utf32 = {
     .mult_max_sz = sizeof(u32),
     .mult_min_sz = sizeof(u32),
     .name = "extUTF-32",
-#if Nst_ENDIANNESS == Nst_LITTLE_ENDIAN
+#if Nst_BYTEORDER == Nst_LITTLE_ENDIAN
     .bom = "\xff\xfe\x00\x00",
 #else
     .bom = "\x00\x00\xfe\xff",
@@ -483,7 +483,7 @@ static u32 utf8_cp(u8 c, u8 *str, i32 len)
         return (u32)c;
     case 2:
         return ((c & 0x1f) << 6) | (*str & 0x3f);
-#if Nst_ENDIANNESS == Nst_BIG_ENDIAN
+#if Nst_BYTEORDER == Nst_BIG_ENDIAN
     case 3: {
         u16 n = *(u16 *)str;
         return ((c & 0xf) << 12) | ((n & 0x3f00) >> 2) | (n & 0x3f);
@@ -549,7 +549,7 @@ i32 Nst_check_ext_utf8_bytes(u8 *str, usize len)
             return -1;
         return 3;
     } else if ((ch1 & 0xf8) == 0xf0) {
-#if Nst_ENDIANNESS == Nst_BIG_ENDIAN
+#if Nst_BYTEORDER == Nst_BIG_ENDIAN
         if (len < 4 || (*(u32 *)(str - 1) & 0xc0c0c0) != 0x808080)
 #else
         if (len < 4 || (*(u32 *)(str - 1) & 0xc0c0c000) != 0x80808000)
@@ -1969,7 +1969,7 @@ Nst_CPID Nst_detect_encoding(i8 *str, usize len, i32 *bom_size)
     if (res == -1)
         return Nst_CP_UTF8;
 
-#if Nst_ENDIANNESS == Nst_LITTLE_ENDIAN
+#if Nst_BYTEORDER == Nst_LITTLE_ENDIAN
     res = Nst_check_string_cp(&Nst_cp_utf16le, str, len);
 #else
     res = Nst_check_string_cp(&Nst_cp_utf16be, str, len);

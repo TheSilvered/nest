@@ -97,8 +97,21 @@ NstEXP void *NstC Nst_raw_calloc(usize count, usize size);
 NstEXP void *NstC Nst_raw_realloc(void *block, usize size);
 /* Alias for C `free`. */
 NstEXP void NstC Nst_raw_free(void *block);
-
+/**
+ * @brief Prints the current allocation count to `stdout`. Declared only if
+ * `Nst_COUNT_ALLOC` is defined.
+ */
 NstEXP void NstC Nst_log_alloc_count();
+
+#ifdef Nst_WIN
+#pragma deprecated(malloc, calloc, realloc, free)
+#else
+void *malloc(size_t size) __attribute__((deprecated("use Nst_raw_malloc or Nst_malloc")));
+void *calloc(size_t nmemb, size_t size) __attribute__((deprecated("use Nst_raw_calloc or Nst_calloc")));
+void *realloc(void *ptr, size_t size) __attribute__((deprecated("use Nst_raw_realloc or Nst_realloc")));
+void free(void *ptr) __attribute__((deprecated("use Nst_raw_free or Nst_free")));
+#endif
+
 #else
 /* [docs:ignore] Alias for C `malloc`. */
 #define Nst_raw_malloc malloc

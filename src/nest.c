@@ -42,8 +42,14 @@ int main(int argc, char **argv)
     }
 
     Nst_ExecutionState es;
-    i32 result = Nst_execute(cl_args, &es);
+    Nst_SourceText src;
+    i32 result = Nst_execute(cl_args, &es, &src);
+
+    if (Nst_error_occurred())
+        Nst_print_traceback(Nst_error_get());
+
     Nst_es_destroy(&es);
+    Nst_source_text_destroy(&src);
     Nst_quit();
 
 #ifdef Nst_WIN
@@ -54,5 +60,5 @@ int main(int argc, char **argv)
     Nst_log_alloc_count();
 #endif
 
-    return 0;
+    return result;
 }

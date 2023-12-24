@@ -403,12 +403,27 @@ Prints a formatted [`Nst_Traceback`](c_api-error.md#nst_traceback).
 
 ---
 
-### `Nst_free_src_text`
+### `Nst_source_text_init`
 
 **Synopsis:**
 
 ```better-c
-void Nst_free_src_text(Nst_SourceText *text)
+void Nst_source_text_init(Nst_SourceText *src)
+```
+
+**Description:**
+
+Initializes the fields of a [`Nst_SourceText`](c_api-error.md#nst_sourcetext)
+struct.
+
+---
+
+### `Nst_source_text_destroy`
+
+**Synopsis:**
+
+```better-c
+void Nst_source_text_destroy(Nst_SourceText *text)
 ```
 
 **Description:**

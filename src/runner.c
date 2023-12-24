@@ -61,6 +61,21 @@ void Nst_es_destroy(Nst_ExecutionState *es)
         Nst_vt_destroy(es->vt);
 }
 
+Nst_FuncCall Nst_func_call_from_es(Nst_FuncObj *func, Nst_Pos start,
+                                   Nst_Pos end, Nst_ExecutionState *es)
+{
+    Nst_FuncCall call = {
+        .func = func,
+        .start = start,
+        .end = end,
+        .vt = es->vt,
+        .idx = es->idx,
+        .cwd = NULL,
+        .cstack_len = es->c_stack.len
+    };
+    return call;
+}
+
 static Nst_SeqObj *make_argv(i32 argc, i8 **argv, i8 *filename)
 {
     Nst_SeqObj *args = SEQ(Nst_array_new(argc + 1));
@@ -117,29 +132,17 @@ bool Nst_es_init_vt(Nst_ExecutionState *es, Nst_CLArgs *cl_args)
         return true;
     }
 
-    i8 *path_main_file;
-    usize path_len = Nst_get_full_path(filename, &path_main_file, NULL);
-    if (path_main_file == NULL)
-        return false;
-
-    Nst_Obj *path_str = Nst_string_new(path_main_file, path_len, true);
-    if (path_str == NULL) {
-        Nst_free(path_main_file);
-        return false;
-    }
-    es->curr_path = STR(path_str);
-
     return true;
 }
 
-i32 Nst_execute(Nst_CLArgs args, Nst_ExecutionState *es)
+i32 Nst_execute(Nst_CLArgs args, Nst_ExecutionState *es, Nst_SourceText *src)
 {
     Nst_state_set_es(NULL);
     Nst_es_init(es);
     Nst_state_set_es(es);
+    Nst_source_text_init(src);
 
     Nst_LList *tokens;
-    Nst_SourceText src_text = { NULL, NULL, NULL, 0, 0 };
     args.opt_level = Nst_state.opt_level;
 
     if (args.filename != NULL) {
@@ -148,14 +151,14 @@ i32 Nst_execute(Nst_CLArgs args, Nst_ExecutionState *es)
             args.encoding,
             &args.opt_level,
             &args.no_default,
-            &src_text);
+            src);
     } else {
-        src_text.path = (i8 *)"<command>";
-        src_text.text_len = strlen(args.command);
-        src_text.text = args.command;
-        src_text.lines_len = 1;
-        src_text.lines = &src_text.text;
-        tokens = Nst_tokenize(&src_text);
+        src->path = (i8 *)"<command>";
+        src->text_len = strlen(args.command);
+        src->text = args.command;
+        src->lines_len = 1;
+        src->lines = &src->text;
+        tokens = Nst_tokenize(src);
     }
 
     if (tokens == NULL)
@@ -294,15 +297,12 @@ bool Nst_es_push_module(Nst_ExecutionState *es, i8 *filename,
         goto cleanup;
     inst_ls = NULL;
 
-    Nst_FuncCall call = {
-        .func = mod_func,
-        .start = Nst_no_pos(),
-        .end = Nst_no_pos(),
-        .vt = es->vt,
-        .idx = es->idx - 1,
-        .cstack_len = es->c_stack.len,
-        .cwd = es->curr_path
-    };
+    Nst_FuncCall call = Nst_func_call_from_es(
+        mod_func,
+        Nst_no_pos(),
+        Nst_no_pos(),
+        es);
+    call.cwd = es->curr_path;
 
     path_str = make_cwd(filename);
     if (path_str == NULL)
@@ -333,29 +333,23 @@ cleanup:
     return false;
 }
 
-bool Nst_es_push_func(Nst_ExecutionState *es, Nst_FuncObj *func,
-                      i64 arg_num, Nst_Obj **args)
+bool Nst_es_push_func(Nst_ExecutionState *es, Nst_FuncObj *func, Nst_Pos start,
+                      Nst_Pos end, i64 arg_num, Nst_Obj **args)
 {
     if (func->arg_num < (u64)arg_num) {
         Nst_set_call_error(_Nst_EM_WRONG_ARG_NUM_FMT(func->arg_num, arg_num));
         return false;
     }
 
-    Nst_vstack_push(&es->v_stack, NULL);
-    Nst_FuncCall call = {
-        .func = func,
-        .start = Nst_no_pos(),
-        .end = Nst_no_pos(),
-        .idx = es->idx - 1,
-        .cstack_len = es->c_stack.len,
-        .cwd = NULL
-    };
+    Nst_FuncCall call = Nst_func_call_from_es(func, start, end, es);
 
     Nst_fstack_push(&es->f_stack, call);
+    es->idx = -1;
 
     Nst_VarTable *new_vt = Nst_vt_from_func(func);
     if (new_vt == NULL)
         return false;
+    es->vt = new_vt;
 
     // add the given arguments
     if (args != NULL) {
@@ -368,7 +362,7 @@ bool Nst_es_push_func(Nst_ExecutionState *es, Nst_FuncObj *func,
     } else {
         for (i64 i = 0; i < arg_num; i++) {
             Nst_Obj *arg = Nst_vstack_pop(&es->v_stack);
-            if (!Nst_vt_set(new_vt, func->args[arg_num - i], arg)) {
+            if (!Nst_vt_set(new_vt, func->args[arg_num - i - 1], arg)) {
                 Nst_dec_ref(arg);
                 Nst_vt_destroy(new_vt);
                 return false;
@@ -391,19 +385,12 @@ bool Nst_es_push_func(Nst_ExecutionState *es, Nst_FuncObj *func,
 }
 
 bool Nst_es_push_paused_coroutine(Nst_ExecutionState *es, Nst_FuncObj *func,
-                                  i64 idx, Nst_VarTable *vt)
+                                  Nst_Pos start, Nst_Pos end, i64 idx,
+                                  Nst_VarTable *vt)
 {
     assert(!Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C));
 
-    Nst_FuncCall call = {
-        .func = func,
-        .start = Nst_no_pos(),
-        .end = Nst_no_pos(),
-        .vt = es->vt,
-        .idx = es->idx - 1,
-        .cwd = NULL,
-        .cstack_len = es->c_stack.len
-    };
+    Nst_FuncCall call = Nst_func_call_from_es(func, start, end, es);
 
     if (!Nst_fstack_push(&es->f_stack, call))
         return false;

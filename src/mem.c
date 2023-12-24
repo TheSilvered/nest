@@ -6,9 +6,13 @@
 #ifdef Nst_COUNT_ALLOC
 static i32 allocation_count = 0;
 
+#ifdef Nst_WIN
+#pragma warning(disable: 4995)
+#endif
+
 void Nst_log_alloc_count()
 {
-    printf("%d\n", allocation_count);
+    printf("\nalloc_count = %d\n", allocation_count);
 }
 
 void *Nst_raw_malloc(usize size)

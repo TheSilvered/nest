@@ -76,8 +76,10 @@ static void move_list(Nst_GGCList *from, Nst_GGCList *to)
 
 static inline void remove_objs_list(Nst_GGCList *gen)
 {
-    for (Nst_GGCObj *ob = gen->head; ob != NULL; ob = GGC_OBJ(ob->p_next))
+    for (Nst_GGCObj *ob = gen->head; ob != NULL; ob = GGC_OBJ(ob->p_next)) {
         ob->ggc_list = NULL;
+        Nst_SET_FLAG(ob, Nst_FLAG_GGC_PRESERVE_MEM);
+    }
 }
 
 static inline void call_objs_destructor(Nst_GGCList *gen)
@@ -93,11 +95,28 @@ static inline void free_obj_memory(Nst_GGCList *gen)
     Nst_GGCObj *new_ob = NULL;
     for (Nst_GGCObj *ob = gen->head; ob != NULL;) {
         new_ob = GGC_OBJ(ob->p_next);
-        Nst_SET_FLAG(ob, Nst_FLAG_GGC_DELETE);
+        Nst_DEL_FLAG(ob, Nst_FLAG_GGC_PRESERVE_MEM);
         _Nst_obj_free(OBJ(ob));
         ob = new_ob;
     }
 }
+
+/**
+ * Object destruction process:
+ *
+ * 1. Remove the pointer in the objects pointing to the Nst_GGCList to NULL to
+ *    signal that they are being deleted during a collection and to not remove
+ *    the object from the list when it is freed.
+ *    In this pass the Nst_FLAG_GGC_PRESERVE_MEM is also added to signal that
+ *    the object's memory should not be freed even if the reference count
+ *    reaches zero.
+ * 2. Call the destructors of all objects. Here, since the objects have the
+ *    Nst_FLAG_GGC_PRESERVE_MEM, their memory is not deleted in the case that
+ *    they reach a ref_count of zero during this phase.
+ * 3. The memory of all the objects is either deleted or added to the object's
+ *    type's pool and all the references of the objects to the types are
+ *    removed
+ */
 
 static inline void destroy_objects(Nst_GGCList *gen)
 {
@@ -105,6 +124,27 @@ static inline void destroy_objects(Nst_GGCList *gen)
     call_objs_destructor(gen);
     free_obj_memory(gen);
 }
+
+
+/**
+ * Garbage collection process:
+ *
+ * 1. Match the ggc_ref_count to the actual ref_count
+ * 2. Traverse all the objects, in this pass we only care about the
+ *    ggc_ref_count, not the Nst_FLAG_GGC_REACHABLE
+ * 3. If an object has a reference count of zero (i.e. all the reference it has
+ *    are from objects inside the same Nst_GGCList) it is put in the
+ *    unreachable objects list, removing any preassigned flags
+ * 4. If the list is completly empty (i.e. all the objects were only
+ *    referencing each other and are not referenced externally) delete the list
+ *    and return.
+ * 5. Now traverse all the currently reachable objects, in this pass we care
+ *    about the Nst_FLAG_GGC_REACHABLE not the ggc_ref_count.
+ * 6. If an object in the unreachable list has the Nst_FLAG_GGC_REACHABLE, it
+ *    is put back in the reachable list and is traversed. This step is repeated
+ *    until no new objects are reachable
+ * 7. Delete the unreachable objects
+*/
 
 void Nst_ggc_collect_gen(Nst_GGCList *gen)
 {

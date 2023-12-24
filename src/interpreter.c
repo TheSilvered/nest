@@ -93,6 +93,7 @@ static i32 exe_unpack_seq(Nst_Inst *inst);
 static i32 call_c_func(bool is_seq_call, i64 arg_num, Nst_SeqObj *args_seq,
                        Nst_FuncObj *func);
 static void loaded_libs_destructor(C_LIB_TYPE lib);
+static void source_text_destructor(Nst_SourceText *src);
 
 i32 (*inst_func[])(Nst_Inst *) = {
     [Nst_IC_NO_OP]        = exe_no_op,
@@ -230,7 +231,7 @@ void Nst_quit(void)
     if (Nst_state.lib_srcs != NULL) {
         Nst_llist_destroy(
             Nst_state.lib_srcs,
-            (Nst_LListDestructor)Nst_free_src_text);
+            (Nst_LListDestructor)source_text_destructor);
     }
 #else
     // in debug mode the libraries are not unloaded to allow for debug checks
@@ -376,7 +377,7 @@ static inline void set_global_error(usize final_stack_size, Nst_Inst *inst)
             obj = Nst_vstack_pop(&Nst_state.es->v_stack);
         }
 
-        Nst_error_add_positions(Nst_error_get(), inst->start, inst->end);
+        Nst_error_add_positions(Nst_error_get(), call.start, call.end);
     }
 
     if (end_size == final_stack_size)
@@ -469,7 +470,8 @@ Nst_Obj *Nst_call_func(Nst_FuncObj *func, i32 arg_num, Nst_Obj **args)
         i64 null_args = (i64)func->arg_num - arg_num;
 
         if (tot_args < arg_num) {
-            Nst_set_call_error(_Nst_EM_WRONG_ARG_NUM_FMT(tot_args, arg_num));
+            Nst_set_call_error(
+                _Nst_EM_WRONG_ARG_NUM_FMT(tot_args, (i64)arg_num));
             return NULL;
         }
 
@@ -501,7 +503,11 @@ Nst_Obj *Nst_call_func(Nst_FuncObj *func, i32 arg_num, Nst_Obj **args)
         return res;
     }
 
-    Nst_es_push_func(Nst_state.es, func, arg_num, args);
+    Nst_es_push_func(
+        Nst_state.es,
+        func,
+        Nst_no_pos(), Nst_no_pos(),
+        arg_num, args);
     complete_function(UNTIL_CURRENT_FUNC_FINISHES);
 
     if (Nst_error_occurred())
@@ -512,7 +518,15 @@ Nst_Obj *Nst_call_func(Nst_FuncObj *func, i32 arg_num, Nst_Obj **args)
 
 Nst_Obj *Nst_run_paused_coroutine(Nst_FuncObj *func, i64 idx, Nst_VarTable *vt)
 {
-    if (!Nst_es_push_paused_coroutine(Nst_state.es, func, idx, vt))
+    bool result = Nst_es_push_paused_coroutine(
+        Nst_state.es,
+        func,
+        Nst_no_pos(),
+        Nst_no_pos(),
+        idx,
+        vt);
+
+    if (!result)
         return NULL;
 
     complete_function(UNTIL_CURRENT_FUNC_FINISHES);
@@ -880,10 +894,23 @@ static i32 exe_op_call(Nst_Inst *inst)
         return call_c_func(is_seq_call, arg_num, args_seq, func);
 
     bool result;
-    if (is_seq_call)
-        result = Nst_es_push_func(Nst_state.es, func, arg_num, args_seq->objs);
-    else
-        result = Nst_es_push_func(Nst_state.es, func, arg_num, NULL);
+    if (is_seq_call) {
+        result = Nst_es_push_func(
+            Nst_state.es,
+            func,
+            inst->start,
+            inst->end,
+            arg_num,
+            args_seq->objs);
+    } else {
+        result = Nst_es_push_func(
+            Nst_state.es,
+            func,
+            inst->start,
+            inst->end,
+            arg_num,
+            NULL);
+    }
     Nst_ndec_ref(args_seq);
     return result ? INST_NEW_FUNC : INST_FAILED;
 }
@@ -1224,7 +1251,7 @@ static i32 exe_save_error(Nst_Inst *inst)
     while (Nst_state.lib_srcs->len > Nst_state.lib_handles->len) {
         Nst_SourceText *txt = (Nst_SourceText *)Nst_llist_pop(
             Nst_state.lib_srcs);
-        Nst_free_src_text(txt);
+        Nst_source_text_destroy(txt);
     }
     return 0;
 }
@@ -1410,4 +1437,10 @@ Nst_StrObj *Nst_getcwd(void)
 static void loaded_libs_destructor(C_LIB_TYPE lib)
 {
     dlclose(lib);
+}
+
+void source_text_destructor(Nst_SourceText *src)
+{
+    Nst_source_text_destroy(src);
+    Nst_free(src);
 }

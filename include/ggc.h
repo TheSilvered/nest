@@ -117,7 +117,7 @@ NstEXP void NstC _Nst_ggc_obj_reachable(Nst_Obj *obj);
 /* The flags of a garbage collector object. */
 NstEXP typedef enum _Nst_GGCFlags {
     Nst_FLAG_GGC_REACHABLE    = Nst_FLAG(32),
-    Nst_FLAG_GGC_DELETE       = Nst_FLAG(31),
+    Nst_FLAG_GGC_PRESERVE_MEM = Nst_FLAG(31),
     Nst_FLAG_GGC_IS_SUPPORTED = Nst_FLAG(30)
 } Nst_GGCFlags;
 

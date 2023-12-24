@@ -51,7 +51,13 @@
 #if defined(_WIN32) || defined(WIN32)
 /* Defined when compiling on MS Windows. */
 #define Nst_WIN
-#endif // !Nst_WIN
+#elif !defined(__GNUC__) || defined(__clang__)
+#error Use MSVC or GCC to compile.
+#else
+#define Nst_BUILD_GGC_VER(maj, min, patch) (maj * 10000 + min * 100 + patch)
+#define Nst_GCC_VER                                                           \
+    Nst_BUILD_GGC_VER(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
+#endif
 
 #if !defined(_Nst_ARCH_x64) && !defined(_Nst_ARCH_x86)
 #if INTPTR_MAX == INT64_MAX
@@ -80,9 +86,12 @@
 #elif defined(Nst_WIN)
 /* [docs:ignore] Marks a function that does not finish. */
 #define Nst_NORETURN __declspec(noreturn)
-#elif defined(__GNUC__)
+#elif defined(__GNUC__) && Nst_GCC_VER > Nst_BUILD_GGC_VER(2, 5, 0)
 /* [docs:ignore] Marks a function that does not finish. */
 #define Nst_NORETURN __attribute__((noreturn))
+#else
+/* [docs:ignore] Marks a function that does not finish. */
+#define Nst_NORETURN
 #endif // !Nst_NORETURN
 #endif // !Nst_NORETURN
 
@@ -111,39 +120,35 @@
 /* Represents big-endian systems. Always defined. */
 #define Nst_BIG_ENDIAN 1234
 
-#ifndef Nst_ENDIANNESS
+#ifndef Nst_BYTEORDER
 #ifdef Nst_WIN
 /**
  * @brief The endianness of the system, either `Nst_LITTLE_ENDIAN` or
  * `Nst_BIG_ENDIAN`.
  */
-#define Nst_ENDIANNESS Nst_LITTLE_ENDIAN
-#elif defined(__BYTE_ORDER) && __BYTE_ORDER == __BIG_ENDIAN || \
-  defined(__BIG_ENDIAN__) || \
-  defined(__ARMEB__) || \
-  defined(__THUMBEB__) || \
-  defined(__AARCH64EB__) || \
-  defined(_MIBSEB) || defined(__MIBSEB) || defined(__MIBSEB__)
+#define Nst_BYTEORDER Nst_LITTLE_ENDIAN
+#elif defined(__BYTE_ORDER) && __BYTE_ORDER == __BIG_ENDIAN ||                \
+      defined(__BIG_ENDIAN__) || defined(__ARMEB__) ||                        \
+      defined(__THUMBEB__) || defined(__AARCH64EB__) ||                       \
+      defined(_MIBSEB) || defined(__MIBSEB) || defined(__MIBSEB__)
 /** [docs:ignore]
  * @brief The endianness of the system, either `Nst_LITTLE_ENDIAN` or
  * `Nst_BIG_ENDIAN`.
  */
-#define Nst_ENDIANNESS Nst_BIG_ENDIAN
-#elif defined(__BYTE_ORDER) && __BYTE_ORDER == __LITTLE_ENDIAN || \
-  defined(__LITTLE_ENDIAN__) || \
-  defined(__ARMEL__) || \
-  defined(__THUMBEL__) || \
-  defined(__AARCH64EL__) || \
-  defined(_MIPSEL) || defined(__MIPSEL) || defined(__MIPSEL__)
+#define Nst_BYTEORDER Nst_BIG_ENDIAN
+#elif defined(__BYTE_ORDER) && __BYTE_ORDER == __LITTLE_ENDIAN ||             \
+      defined(__LITTLE_ENDIAN__) || defined(__ARMEL__) ||                     \
+      defined(__THUMBEL__) || defined(__AARCH64EL__) ||                       \
+      defined(_MIPSEL) || defined(__MIPSEL) || defined(__MIPSEL__)
 /** [docs:ignore]
  * @brief The endianness of the system, either `Nst_LITTLE_ENDIAN` or
  * `Nst_BIG_ENDIAN`.
  */
-#define Nst_ENDIANNESS Nst_LITTLE_ENDIAN
+#define Nst_BYTEORDER Nst_LITTLE_ENDIAN
 #else
-#error Failed to determine endianness, define Nst_ENDIANNESS as 4321 (LE) or 1234 (BE)
-#endif // !Nst_ENDIANNESS
-#endif // !Nst_ENDIANNESS
+#error Failed to determine endianness, define Nst_BYTEORDER as 4321 (LE) or 1234 (BE)
+#endif // !Nst_BYTEORDER
+#endif // !Nst_BYTEORDER
 
 #ifdef Nst_WIN
 /* Marks a function for for the standard C declaration (`__cdecl`). */

@@ -326,7 +326,7 @@ void Nst_print_traceback(Nst_Traceback *tb)
     Nst_dec_ref(err_stream);
 }
 
-void Nst_free_src_text(Nst_SourceText *text)
+void Nst_source_text_destroy(Nst_SourceText *text)
 {
     if (text == NULL)
         return;
@@ -334,7 +334,6 @@ void Nst_free_src_text(Nst_SourceText *text)
     Nst_free(text->text);
     Nst_free(text->lines);
     Nst_free(text->path);
-    Nst_free(text);
 }
 
 static void clear_error(Nst_Traceback *tb)
@@ -362,9 +361,11 @@ void _Nst_set_error(Nst_StrObj *name, Nst_StrObj *msg)
     if (Nst_state.es != NULL) {
         Nst_state.es->traceback.error_name = name;
         Nst_state.es->traceback.error_msg = msg;
+        Nst_state.es->traceback.error_occurred = true;
     } else {
         Nst_state.global_traceback.error_name = name;
         Nst_state.global_traceback.error_msg = msg;
+        Nst_state.global_traceback.error_occurred = true;
     }
 }
 
@@ -504,6 +505,15 @@ void Nst_traceback_destroy(Nst_Traceback *tb)
     tb->positions = NULL;
 }
 
+void Nst_source_text_init(Nst_SourceText *src)
+{
+    src->text = NULL;
+    src->path = NULL;
+    src->lines = NULL;
+    src->text_len = 0;
+    src->lines_len = 0;
+}
+
 void Nst_error_add_positions(Nst_Traceback *tb, Nst_Pos start, Nst_Pos end)
 {
     // when the text is null Nst_no_pos was used and no position should be
@@ -544,7 +554,7 @@ void Nst_set_internal_error(Nst_Traceback *tb, Nst_Pos start, Nst_Pos end,
 
     tb->error_occurred = true;
     tb->error_name = STR(Nst_inc_ref(name));
-    tb->error_msg= msg;
+    tb->error_msg = msg;
 }
 
 void Nst_set_internal_error_c(Nst_Traceback *tb, Nst_Pos start, Nst_Pos end,

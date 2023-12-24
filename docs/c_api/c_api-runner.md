@@ -76,6 +76,36 @@ Destroys the contents of an execution state.
 
 ---
 
+### `Nst_func_call_from_es`
+
+**Synopsis:**
+
+```better-c
+Nst_FuncCall Nst_func_call_from_es(Nst_FuncObj *func, Nst_Pos start,
+                                   Nst_Pos end, Nst_ExecutionState *es)
+```
+
+**Description:**
+
+Initializes a [`Nst_FuncCall`](c_api-runtime_stack.md#nst_funccall) using the
+fields of a [`Nst_ExecutionState`](c_api-runner.md#nst_executionstate).
+
+!!!warning
+    The `cwd` argument is set to `NULL` and its value must be set manually.
+
+**Parameters:**
+
+- `func`: the function in the function call
+- `start`: the starting position of the function call
+- `end`: the ending position of the function call
+- `es`: the execution state from which to take `idx`, `cstack_len` and `vt`
+
+**Returns:**
+
+An initialized [`Nst_FuncCall`](c_api-runtime_stack.md#nst_funccall) structure.
+
+---
+
 ### `Nst_es_init_vt`
 
 **Synopsis:**
@@ -106,7 +136,7 @@ state.
 **Synopsis:**
 
 ```better-c
-i32 Nst_execute(Nst_CLArgs args, Nst_ExecutionState *es)
+i32 Nst_execute(Nst_CLArgs args, Nst_ExecutionState *es, Nst_SourceText *src)
 ```
 
 **Description:**
@@ -114,18 +144,22 @@ i32 Nst_execute(Nst_CLArgs args, Nst_ExecutionState *es)
 Executes a Nest program given the arguments.
 
 !!!note
-    `es` is not destroyed when the function ends and it must be done manually
-    with [`Nst_es_destroy`](c_api-runner.md#nst_es_destroy)
+    `es` and `src` are not destroyed when the function ends and must be
+    destroyed manually with [`Nst_es_destroy`](c_api-runner.md#nst_es_destroy)
+    and [`Nst_source_text_destroy`](c_api-error.md#nst_source_text_destroy)
+    respectively.
 
 **Parameters:**
 
 - `args`: the arguments for the program
 - `es`: the execution state that will be filled by the program
+- `src`: the source of the opened file that will be filled by the program
 
 **Returns:**
 
 The exit code of the program. If it is different from zero an error could have
-occurred.
+occurred, to check use
+[`Nst_error_occurred`](c_api-error.md#nst_error_occurred).
 
 ---
 
@@ -180,8 +214,8 @@ Compiles a module given a path and sets up an execution state to run it.
 **Synopsis:**
 
 ```better-c
-bool Nst_es_push_func(Nst_ExecutionState *es, Nst_FuncObj *func, i64 arg_num,
-                      Nst_Obj **args)
+bool Nst_es_push_func(Nst_ExecutionState *es, Nst_FuncObj *func, Nst_Pos start,
+                      Nst_Pos end, i64 arg_num, Nst_Obj **args)
 ```
 
 **Description:**
@@ -197,6 +231,8 @@ the function.
 
 - `es`: the execution state to push the function onto
 - `func`: the function to push on the execution state
+- `start`: the starting position of the call
+- `end`: the ending position of the call
 - `arg_num`: the number of arguments passed to the function
 - `args`: the values of the arguments to pass to the function, if `NULL`
   `arg_num` values are taken from the value stack in reverse order
@@ -213,7 +249,8 @@ the function.
 
 ```better-c
 bool Nst_es_push_paused_coroutine(Nst_ExecutionState *es, Nst_FuncObj *func,
-                                  i64 idx, Nst_VarTable *vt)
+                                  Nst_Pos start, Nst_Pos end, i64 idx,
+                                  Nst_VarTable *vt)
 ```
 
 **Description:**
@@ -225,8 +262,14 @@ execution state.
 
 - `es`: the execution state to push the coroutine onto
 - `func`: the function of the coroutine to push
+- `start`: the starting position of the call
+- `end`: the ending position of the call
 - `idx`: the instruction index where the coroutine was paused at
 - `vt`: the variable table of the coroutine
+
+**Returns:**
+
+`true` on success and `false` on failure. The error is set.
 
 ---
 
