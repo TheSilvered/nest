@@ -2,9 +2,19 @@
 #define GUI_ANIMATION_H
 
 #include "nest.h"
+
+#ifdef Nst_WIN
+#pragma warning(push)
+#pragma warning(disable: 4995)
+#endif
+
 #include "gui_element.h"
 #include <vector>
 #include <chrono>
+
+#ifdef Nst_WIN
+#pragma warning(pop)
+#endif
 
 #define MATCH_X_ANI_NAME        "stdgui::match_x"
 #define MATCH_Y_ANI_NAME        "stdgui::match_y"

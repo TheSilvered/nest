@@ -1,6 +1,8 @@
 #include "nest_fs.h"
 
 #ifdef Nst_WIN
+#pragma warning(push)
+#pragma warning(disable: 4995)
 #include <winerror.h>
 #else
 // This error does not get thrown on UNIX
@@ -12,6 +14,10 @@
 #include <filesystem>
 #include <cerrno>
 #include <cstring>
+
+#ifdef Nst_WIN
+#pragma warning(pop)
+#endif
 
 #define FUNC_COUNT 31
 #define COPY_OPT(name) Nst_int_new((i64)fs::copy_options::name)
@@ -58,7 +64,7 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(extension_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_copy_options_, 0);
 
-#if __LINE__ - FUNC_COUNT != 30
+#if __LINE__ - FUNC_COUNT != 36
 #error
 #endif
 

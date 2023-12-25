@@ -229,7 +229,7 @@ bool GUI::button_call_nest_func(Button *b)
     Nst_Obj *arg = Nst_int_new(b->current_state);
     if (arg == nullptr)
         return false;
-    Nst_Obj *result = Nst_call_func(b->nest_func, &arg);
+    Nst_Obj *result = Nst_call_func(b->nest_func, 1, &arg);
     Nst_dec_ref(arg);
     if (result == nullptr)
         return false;

@@ -76,7 +76,7 @@ Nst_FUNC_SIGN(map_)
     Nst_Obj **objs = seq->objs;
     for (usize i = 0, n = seq->len; i < n; i++) {
         Nst_Obj *arg = Nst_seq_get(seq, i);
-        Nst_Obj *res = Nst_call_func(func, objs + i);
+        Nst_Obj *res = Nst_call_func(func, 1, objs + i);
 
         if (res == nullptr) {
             if (!map_in_place) {
@@ -544,7 +544,7 @@ Nst_Obj *mapped_sort(Nst_SeqObj *seq, Nst_FuncObj *map_func, bool new_seq)
         return nullptr;
 
     for (usize i = 0; i < seq_len; i++) {
-        Nst_Obj *mapped_value = Nst_call_func(FUNC(map_func), &objs[i]);
+        Nst_Obj *mapped_value = Nst_call_func(FUNC(map_func), 1, objs + i);
         if (mapped_value == nullptr) {
             for (usize j = 0; j < i; j++)
                 Nst_dec_ref(values[j].mapped);
@@ -677,7 +677,7 @@ Nst_FUNC_SIGN(filter_)
     Nst_SeqObj *new_seq = SEQ(Nst_vector_new(0));
 
     for (usize i = 0, n = seq->len; i < n; i++) {
-        Nst_Obj *res = Nst_call_func(func, &seq->objs[i]);
+        Nst_Obj *res = Nst_call_func(func, 1, &seq->objs[i]);
 
         if (res == nullptr)
             return nullptr;
@@ -852,7 +852,7 @@ Nst_FUNC_SIGN(lscan_)
     for (i64 i = 1; i < max_items; i++) {
         func_args[0] = prev_val;
         func_args[1] = seq->objs[i - 1];
-        Nst_Obj *new_val = Nst_call_func(func, func_args);
+        Nst_Obj *new_val = Nst_call_func(func, 2, func_args);
         if (new_val == nullptr) {
             Nst_dec_ref(prev_val);
             new_seq->len = (usize)i;
@@ -901,7 +901,7 @@ Nst_FUNC_SIGN(rscan_)
     for (i64 i = 1; i < max_items; i++) {
         func_args[0] = seq->objs[seq_len - i];
         func_args[1] = prev_val;
-        Nst_Obj *new_val = Nst_call_func(func, func_args);
+        Nst_Obj *new_val = Nst_call_func(func, 2, func_args);
         if (new_val == nullptr) {
             Nst_dec_ref(prev_val);
             for (i64 j = 0; j < i; j++)

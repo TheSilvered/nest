@@ -2,9 +2,19 @@
 #define GUI_ELEMENT_H
 
 #include "nest.h"
+
+#ifdef Nst_WIN
+#pragma warning(push)
+#pragma warning(disable: 4995)
+#endif
+
 #include <SDL.h>
 #include <SDL_ttf.h>
 #include <vector>
+
+#ifdef Nst_WIN
+#pragma warning(pop)
+#endif
 
 #define GUI_ELEMENT_HEAD                                                      \
     Nst_OBJ_HEAD;                                                             \

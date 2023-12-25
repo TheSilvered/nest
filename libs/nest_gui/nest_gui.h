@@ -1,8 +1,13 @@
 #ifndef NEST_GUI_H
 #define NEST_GUI_H
 
-#include <SDL_ttf.h>
 #include "nest.h"
+
+#ifdef Nst_WIN
+#pragma warning(disable: 4995)
+#endif
+
+#include <SDL_ttf.h>
 #include "gui_element.h"
 
 #ifdef __cplusplus

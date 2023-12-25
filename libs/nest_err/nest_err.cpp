@@ -69,76 +69,55 @@ Nst_Obj *failure(bool catch_exit)
 {
     Nst_Obj *map = Nst_map_new();
     Nst_Obj *error_map = Nst_map_new();
-    Nst_Obj *error_name_str;
-    Nst_Obj *error_message_str;
-    Nst_Obj *error_pos;
-    Nst_Obj *error_traceback;
-    Nst_ExecutionState *state = Nst_get_state();
-    Nst_map_set_str(map, "value", Nst_null());
+    Nst_Obj *error_name_str = nullptr;
+    Nst_Obj *error_message_str = nullptr;
+    Nst_Obj *error_traceback = nullptr;
+    Nst_Traceback *error = Nst_error_get();
+    usize i = 0;
 
-    if (state->traceback.error.occurred) {
-        Nst_Error error = state->traceback.error;
-        error_name_str = OBJ(error.name);
-        error_message_str = OBJ(error.message);
-
-        if (OBJ(error_name_str) == Nst_null() && !catch_exit) {
-            Nst_dec_ref(map);
-            Nst_dec_ref(error_map);
-            return nullptr;
-        }
-
-        error_pos = make_pos(error.start, error.end);
-        error_traceback = Nst_array_new(state->traceback.positions->len / 2);
-
-        Nst_LList *positions = state->traceback.positions;
-        i64 skipped = 0;
-        Nst_LLNode *n1 = positions->head;
-        Nst_LLNode *n2 = n1 == nullptr ? n1 : n1->next;
-        for (usize i = 0; n1 != nullptr; i++) {
-            Nst_Obj *pos = make_pos(
-                *(Nst_Pos *)n1->value,
-                *(Nst_Pos *)n2->value);
-
-            n1 = n2->next;
-            n2 = n1 == nullptr ? n1 : n1->next;
-
-            if (pos == nullptr) {
-                SEQ(error_traceback)->len--;
-                skipped++;
-                continue;
-            }
-
-            SEQ(error_traceback)->objs[i - skipped] = pos;
-        }
-
-        Nst_llist_empty(positions, Nst_free);
-        state->traceback.error.occurred = false;
-    } else {
-        Nst_OpErr *err = Nst_error_get();
-        error_name_str = OBJ(err->name);
-        error_message_str = OBJ(err->message);
-
-        if (OBJ(error_name_str) == Nst_null() && !catch_exit) {
-            Nst_dec_ref(map);
-            Nst_dec_ref(error_map);
-            return nullptr;
-        }
-
-        error_pos = Nst_inc_ref(Nst_null());
-        error_traceback = Nst_inc_ref(Nst_null());
+    if (!error->error_occurred) {
+        Nst_set_value_error_c("invalid error state");
+        return nullptr;
     }
+
+    Nst_map_set_str(map, "value", Nst_null());
+    error_name_str = OBJ(error->error_name);
+    error_message_str = OBJ(error->error_msg);
+    if (OBJ(error_name_str) == Nst_null() && !catch_exit) {
+        Nst_ndec_ref(map);
+        map = nullptr;
+        goto cleanup;
+    }
+
+    error_traceback = Nst_array_new(error->positions->len / 2);
+    for (Nst_LLNode *n_start = error->positions->head, *n_end = nullptr;
+         n_start != nullptr && n_start->next != nullptr;
+         n_start = n_end->next)
+    {
+        n_end = n_start->next;
+        Nst_Obj *pos = make_pos(
+            *(Nst_Pos *)n_start->value,
+            *(Nst_Pos *)n_end->value);
+
+        if (pos == nullptr) {
+            SEQ(error_traceback)->len--;
+            continue;
+        }
+        SEQ(error_traceback)->objs[i++] = pos;
+    }
+
+    Nst_error_clear();
 
     Nst_map_set_str(error_map, "name", error_name_str);
     Nst_map_set_str(error_map, "message", error_message_str);
-    Nst_map_set_str(error_map, "pos", error_pos);
     Nst_map_set_str(map, "error", error_map);
     Nst_map_set_str(map, "traceback", error_traceback);
 
-    Nst_dec_ref(error_name_str);
-    Nst_dec_ref(error_message_str);
-    Nst_dec_ref(error_pos);
-    Nst_dec_ref(error_map);
-    Nst_dec_ref(error_traceback);
+cleanup:
+    Nst_ndec_ref(error_map);
+    Nst_ndec_ref(error_name_str);
+    Nst_ndec_ref(error_message_str);
+    Nst_ndec_ref(error_traceback);
 
     return map;
 }
@@ -159,7 +138,10 @@ Nst_FUNC_SIGN(try_)
         return nullptr;
     }
 
-    Nst_Obj *result = Nst_call_func(func, func_args->objs);
+    Nst_Obj *result = Nst_call_func(
+        func,
+        (i32)func_args->len,
+        func_args->objs);
 
     if (result != nullptr)
         return success(result);

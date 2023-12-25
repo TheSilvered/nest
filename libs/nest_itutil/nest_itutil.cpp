@@ -257,7 +257,7 @@ Nst_FUNC_SIGN(iter_start_)
 
     Nst_DEF_EXTRACT("I", &iter);
 
-    return Nst_call_func(iter->start, &iter->value);
+    return Nst_call_func(iter->start, 1, &iter->value);
 }
 
 Nst_FUNC_SIGN(iter_get_val_)
@@ -266,7 +266,7 @@ Nst_FUNC_SIGN(iter_get_val_)
 
     Nst_DEF_EXTRACT("I", &iter);
 
-    return Nst_call_func(iter->get_val, &iter->value);
+    return Nst_call_func(iter->get_val, 1, &iter->value);
 }
 
 Nst_FUNC_SIGN(_get_iend_)

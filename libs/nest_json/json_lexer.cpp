@@ -4,16 +4,18 @@
 #include <cstring>
 #include "json_lexer.h"
 
+#define FILE_INFO ", file \"%s\", line %lli, column %lli"
+
 #define SET_INVALID_ESCAPE_ERROR                                              \
     Nst_set_syntax_error(Nst_sprintf(                                         \
-        "JSON: invalid string escape, file \"%s\", line %lli, column %lli",   \
+        "JSON: invalid string escape" FILE_INFO,                              \
         state.pos.text->path,                                                 \
         (i64)state.pos.line,                                                  \
         (i64)state.pos.col))
 
 #define SET_INVALID_VALUE_ERROR                                               \
     Nst_set_syntax_error(Nst_sprintf(                                         \
-        "JSON: invalid value, file \"%s\", line %lli, column %lli",           \
+        "JSON: invalid value" FILE_INFO,                                      \
         state.pos.text->path,                                                 \
         (i64)state.pos.line,                                                  \
         (i64)state.pos.col))
@@ -79,13 +81,6 @@ Nst_LList *json_tokenize(i8 *path, i8 *text, usize text_len,
         .text_len = text_len,
         .lines_len = 0
     };
-    Nst_Error error = {
-        .occurred = false,
-        .start = Nst_no_pos(),
-        .end = Nst_no_pos(),
-        .name = nullptr,
-        .message = nullptr
-    };
 
     if (readonly_text) {
         i8 *text_copy = Nst_malloc_c(text_len, i8);
@@ -95,16 +90,10 @@ Nst_LList *json_tokenize(i8 *path, i8 *text, usize text_len,
         src_text.text = text_copy;
     }
 
-    bool result = Nst_normalize_encoding(&src_text, encoding, &error);
+    bool result = Nst_normalize_encoding(&src_text, encoding);
     Nst_add_lines(&src_text);
-    if (error.occurred || !result) {
-        Nst_set_error(
-            error.name,
-            error.message);
-        Nst_free(src_text.text);
-        Nst_free(src_text.lines);
+    if (!result || Nst_error_occurred())
         return nullptr;
-    }
 
     Nst_LList *tokens = Nst_llist_new();
     Nst_Tok *tok = nullptr;
@@ -153,7 +142,7 @@ Nst_LList *json_tokenize(i8 *path, i8 *text, usize text_len,
                 tok = nullptr;
         } else {
             Nst_set_syntax_error(Nst_sprintf(
-                "JSON: invalid character, file \"%s\", line %lli, column %lli",
+                "JSON: invalid character" FILE_INFO,
                 path, (i64)state.pos.line, (i64)state.pos.col));
             tok = nullptr;
         }
@@ -196,7 +185,7 @@ static Nst_Tok *parse_json_str()
             if ((u8)state.ch < ' ') {
                 Nst_buffer_destroy(&buf);
                 Nst_set_syntax_error(Nst_sprintf(
-                    "JSON: invalid character, file \"%s\", line %lli, column %lli",
+                    "JSON: invalid character" FILE_INFO,
                     state.pos.text->path,
                     (i64)state.pos.line,
                     (i64)state.pos.col));
@@ -318,7 +307,7 @@ static Nst_Tok *parse_json_num()
         i64 value = strtoll(start_idx, nullptr, 10);
         if (errno == ERANGE) {
             Nst_set_memory_error(Nst_sprintf(
-                "JSON: number too big, file \"%s\", line %lli, column %lli",
+                "JSON: number too big" FILE_INFO,
                 state.path,
                 (i64)state.pos.line,
                 (i64)state.pos.col));

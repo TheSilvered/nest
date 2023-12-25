@@ -17,7 +17,7 @@ Nst_FUNC_SIGN(map_i_get_val)
     if (raw_value == nullptr || raw_value == Nst_iend())
         return raw_value;
 
-    Nst_Obj *mapped_value = Nst_call_func(FUNC(func), &raw_value);
+    Nst_Obj *mapped_value = Nst_call_func(FUNC(func), 1, &raw_value);
     if (mapped_value == nullptr)
         return nullptr;
     if (mapped_value == Nst_iend()) {
@@ -102,7 +102,7 @@ Nst_FUNC_SIGN(filter_i_get_val)
         if (value == nullptr || value == Nst_iend())
             return value;
 
-        Nst_Obj *result_obj = Nst_call_func(FUNC(func), &value);
+        Nst_Obj *result_obj = Nst_call_func(FUNC(func), 1, &value);
         if (result_obj == nullptr)
             return nullptr;
         bool result = Nst_obj_to_bool(result_obj);
