@@ -876,9 +876,11 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
     } else if (ob_t == Nst_t.Null)
         return Nst_inc_ref(Nst_s.c_null);
     else if (ob_t == Nst_t.IOFile) {
-        i8 *buffer = Nst_malloc_c(14, i8);
+        const i8 *empty_val = "<IOFile[-----]>";
+        i8 *buffer = (i8 *)Nst_calloc(
+            1, sizeof(i8) * strlen(empty_val),
+            (void *)empty_val);
         CHECK_BUFFER(buffer);
-        memcpy(buffer, "<IOFile ----- >", 16);
         if (Nst_IOF_CAN_READ(ob))
             buffer[8] = 'r';
         if (Nst_IOF_CAN_WRITE(ob))
@@ -888,19 +890,12 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
         if (Nst_IOF_CAN_SEEK(ob))
             buffer[11]= 's';
         if (Nst_IOF_IS_TTY(ob))
-            buffer[11]= 't';
-        return Nst_string_new_allocated(buffer, 13);
+            buffer[12]= 't';
+        return Nst_string_new_allocated(buffer, strlen(empty_val));
     } else if (ob_t == Nst_t.Func) {
         i8 *buffer = Nst_malloc_c(13 + MAX_INT_CHAR_COUNT, i8);
         CHECK_BUFFER(buffer);
-        i32 len;
-
-        if (FUNC(ob)->arg_num == 1) {
-            memcpy(buffer, "<Func 1 arg>", 13);
-            len = 12;
-        }
-        else
-            len = sprintf(buffer, "<Func %zi args>", FUNC(ob)->arg_num);
+        i32 len = sprintf(buffer, "<Func %zi args>", FUNC(ob)->arg_num);
         return Nst_string_new_allocated(buffer, len);
     } else {
         i8 *buffer = Nst_malloc_c(
@@ -1634,28 +1629,31 @@ static bool add_to_handle_map(Nst_StrObj *path, Nst_MapObj *map,
 static Nst_Obj *import_nest_lib(Nst_StrObj *file_path)
 {
     Nst_SourceText *lib_src = Nst_malloc_c(1, Nst_SourceText);
+    Nst_MapObj *map = NULL;
 
-    if (lib_src == NULL) {
-        Nst_llist_pop(Nst_state.lib_paths);
-        Nst_dec_ref(file_path);
-        return NULL;
-    }
+    if (lib_src == NULL)
+        goto cleanup;
 
     if (!Nst_run_module(file_path->value, lib_src)) {
         Nst_llist_push(Nst_state.lib_srcs, lib_src, true);
-        Nst_llist_pop(Nst_state.lib_paths);
-        Nst_dec_ref(file_path);
-        return NULL;
+        goto cleanup;
     }
 
-    Nst_MapObj *map = MAP(Nst_vstack_pop(&Nst_state.es->v_stack));
+    map = MAP(Nst_vstack_pop(&Nst_state.es->v_stack));
 
     if (!add_to_handle_map(file_path, map, lib_src)) {
-        Nst_dec_ref(map);
-        return NULL;
+        Nst_source_text_destroy(lib_src);
+        Nst_free(lib_src);
+        goto cleanup;
     }
     Nst_llist_pop(Nst_state.lib_paths);
     return OBJ(map);
+
+cleanup:
+    Nst_llist_pop(Nst_state.lib_paths);
+    Nst_dec_ref(file_path);
+    Nst_ndec_ref(map);
+    return NULL;
 }
 
 static Nst_Obj *import_c_lib(Nst_StrObj *file_path)
@@ -1759,89 +1757,120 @@ fail:
     return NULL;
 }
 
-Nst_StrObj *_Nst_get_import_path(i8 *initial_path, usize path_len)
+static Nst_Obj *search_local_directory(i8 *initial_path)
 {
     i8 *file_path;
     usize new_len = Nst_get_full_path(initial_path, &file_path, NULL);
-
-    FILE *file;
-
-    if (file_path != NULL) {
-        file = Nst_fopen_unicode(file_path, "rb");
-
-        if (file != NULL) {
-            fclose(file);
-            Nst_Obj *path_str = Nst_string_new(file_path, new_len, true);
-            if (path_str == NULL)
-                Nst_free(file_path);
-            return STR(path_str);
-        } else if (Nst_error_occurred())
-            return NULL;
-    }
-
-    if (file_path != NULL)
-        Nst_free(file_path);
-
-#ifdef Nst_WIN
- #ifdef _DEBUG
-    // little hack to get the absolute path without using it explicitly
-    usize root_len = strlen(__FILE__) - 13;
-    usize nest_file_len = 17;
-    const i8 *obj_ops_path = __FILE__;
-    const i8 *nest_files = "libs/_nest_files/";
-    usize full_size = path_len + nest_file_len + root_len;
-    file_path = Nst_malloc_c(full_size + 1, i8);
     if (file_path == NULL)
         return NULL;
 
-    memcpy(file_path, obj_ops_path, root_len);
-    memcpy(file_path + root_len, nest_files, nest_file_len);
-    memcpy(file_path + root_len + nest_file_len, initial_path, path_len);
-    file_path[full_size] = '\0';
- #else
-    // In Windows the standard library is stored in %LOCALAPPDATA%/Programs/nest/nest_libs
-
-    i8 *appdata = getenv("LOCALAPPDATA");
-    if (appdata == NULL) {
-        Nst_failed_allocation();
-        return NULL;
-    }
-
-    usize appdata_len = strlen(appdata);
-    file_path = Nst_malloc_c(appdata_len + path_len + 26, i8);
-    if (file_path == NULL)
-        return NULL;
-    sprintf(file_path, "%s/Programs/nest/nest_libs/%s", appdata, initial_path);
- #endif // !_DEBUG
-#else
-
-    // In UNIX the standard library is stored in /usr/lib/nest
-    file_path = Nst_malloc_c(path_len + 15, i8);
-    if (file_path == NULL)
-        return NULL;
-    sprintf(file_path, "/usr/lib/nest/%s", initial_path);
-
-#endif // !Nst_WIN
-
-    file = Nst_fopen_unicode(file_path, "rb");
-
+    FILE *file = Nst_fopen_unicode(file_path, "rb");
     if (file == NULL) {
-        if (!Nst_error_occurred())
-            Nst_set_value_errorf(_Nst_EM_FILE_NOT_FOUND, file_path);
+        Nst_free(file_path);
+        return NULL;
+    }
+    fclose(file);
+    return Nst_string_new_allocated(file_path, new_len);
+}
+
+static Nst_Obj *rel_path_to_abs_path_str_if_found(i8 *file_path)
+{
+    FILE *file = Nst_fopen_unicode(file_path, "rb");
+    if (file == NULL) {
         Nst_free(file_path);
         return NULL;
     }
     fclose(file);
 
     i8 *abs_path;
-    new_len = Nst_get_full_path(file_path, &abs_path, NULL);
+    usize abs_path_len = Nst_get_full_path(file_path, &abs_path, NULL);
     Nst_free(file_path);
+
     if (abs_path == NULL)
         return NULL;
-    Nst_StrObj *str = STR(Nst_string_new(abs_path, new_len, true));
-    if (str == NULL) {
-        Nst_free(abs_path);
+    return Nst_string_new_allocated(abs_path, abs_path_len);
+}
+
+#if defined(_DEBUG) && defined(Nst_WIN)
+
+static Nst_Obj *search_debug_directory(i8 *initial_path, usize path_len)
+{
+    // little hack to get the absolute path without using it explicitly
+    const i8 *root_path = __FILE__;
+    const i8 *obj_ops_path_suffix = "src\\obj_ops.c";
+    const i8 *nest_files = "libs\\_nest_files\\";
+    usize root_len = strlen(root_path) - strlen(obj_ops_path_suffix);
+    usize nest_files_len = strlen(nest_files);
+    usize full_size = root_len + nest_files_len + path_len;
+
+    i8 *file_path = Nst_malloc_c(full_size + 1, i8);
+    if (file_path == NULL)
+        return NULL;
+
+    memcpy(file_path, root_path, root_len);
+    memcpy(file_path + root_len, nest_files, nest_files_len);
+    memcpy(file_path + root_len + nest_files_len, initial_path, path_len);
+    file_path[full_size] = '\0';
+
+    return rel_path_to_abs_path_str_if_found(file_path);
+}
+
+#endif
+
+static Nst_Obj *search_stdlib_directory(i8 *initial_path, usize path_len)
+{
+#if defined(_DEBUG) && defined(Nst_WIN)
+    return search_debug_directory(initial_path, path_len);
+#else
+#ifdef Nst_WIN
+
+    i8 *appdata = getenv("LOCALAPPDATA");
+    if (appdata == NULL) {
+        Nst_failed_allocation();
         return NULL;
     }
-    return str;
+    usize appdata_len = strlen(appdata);
+    const i8 *nest_files = "\\Programs\\nest\\nest_libs\\";
+    usize nest_files_len = strlen(nest_files);
+    usize tot_len = appdata_len + nest_files_len + path_len;
+
+    i8 *file_path = Nst_malloc_c(tot_len + 1, i8);
+    if (file_path == NULL)
+        return NULL;
+    sprintf(file_path, "%s%s%s", appdata, nest_files, initial_path);
+
+#else
+
+    const i8 *nest_files = "/usr/lib/nest/";
+    usize nest_files_len = strlen(nest_files);
+    usize tot_len = nest_files_len + path_len;
+
+    i8 *file_path = Nst_malloc_c(tot_len + 1, i8);
+    if (file_path == NULL)
+        return NULL;
+    sprintf(file_path, "%s%s", nest_files, initial_path);
+
+#endif // !Nst_WIN
+
+    return rel_path_to_abs_path_str_if_found(file_path);
+#endif
+}
+
+Nst_StrObj *_Nst_get_import_path(i8 *initial_path, usize path_len)
+{
+    Nst_Obj *full_path = search_local_directory(initial_path);
+    if (full_path != NULL)
+        return STR(full_path);
+    else if (Nst_error_occurred())
+        return NULL;
+
+    full_path = search_stdlib_directory(initial_path, path_len);
+
+    if (Nst_error_occurred())
+        return NULL;
+    else if (full_path == NULL) {
+        Nst_set_value_errorf(_Nst_EM_FILE_NOT_FOUND, initial_path);
+        return NULL;
+    }
+    return STR(full_path);
 }

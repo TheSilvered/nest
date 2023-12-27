@@ -456,6 +456,9 @@ bool Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
         return false;
 
     complete_function(UNTIL_CURRENT_FUNC_FINISHES);
+    // needed because when obj_import finishes, the instruction index is on the
+    // next instruction
+    Nst_state.es->idx--;
 
     if (Nst_error_occurred())
         return false;
@@ -912,6 +915,12 @@ static i32 exe_op_call(Nst_Inst *inst)
             NULL);
     }
     Nst_ndec_ref(args_seq);
+    if (result) {
+        // needed because the index is already on the first instruction of the
+        // function but it will be incremented one more time before the
+        // function is actually executed
+        Nst_state.es->idx--;
+    }
     return result ? INST_NEW_FUNC : INST_FAILED;
 }
 
@@ -1022,7 +1031,7 @@ static i32 exe_op_import(Nst_Inst *inst)
     }
 
     Nst_dec_ref(name);
-    return res == NULL ? -1 : 0;
+    return res == NULL ? INST_FAILED : INST_SUCCESS;
 }
 
 static i32 exe_op_extract(Nst_Inst *inst)

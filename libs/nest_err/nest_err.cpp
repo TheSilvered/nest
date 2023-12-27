@@ -81,8 +81,8 @@ Nst_Obj *failure(bool catch_exit)
     }
 
     Nst_map_set_str(map, "value", Nst_null());
-    error_name_str = OBJ(error->error_name);
-    error_message_str = OBJ(error->error_msg);
+    error_name_str = Nst_inc_ref(error->error_name);
+    error_message_str = Nst_inc_ref(error->error_msg);
     if (OBJ(error_name_str) == Nst_null() && !catch_exit) {
         Nst_ndec_ref(map);
         map = nullptr;

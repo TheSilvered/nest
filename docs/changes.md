@@ -1,5 +1,15 @@
 ## 0.15.0
 
+### Nest
+
+**Changes**
+
+- changed the file object to string cast from `<IOFile ----- >` to `<IOFile[-----]>`
+
+**Bug fixes**
+
+- fixed a crash that occurred when casting a `IOFile` object to a `Str`
+
 ### C API
 
 **Additions**

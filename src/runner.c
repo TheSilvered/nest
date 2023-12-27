@@ -344,7 +344,7 @@ bool Nst_es_push_func(Nst_ExecutionState *es, Nst_FuncObj *func, Nst_Pos start,
     Nst_FuncCall call = Nst_func_call_from_es(func, start, end, es);
 
     Nst_fstack_push(&es->f_stack, call);
-    es->idx = -1;
+    es->idx = 0;
 
     Nst_VarTable *new_vt = Nst_vt_from_func(func);
     if (new_vt == NULL)

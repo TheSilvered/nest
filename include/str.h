@@ -87,7 +87,7 @@ NstEXP Nst_Obj *NstC Nst_string_new(i8 *val, usize len, bool allocated);
 /**
  * Creates a new string object from a heap-allocated value.
  *
- * @brief val is freed if the string fails to be created.
+ * @brief `val` is freed if the string fails to be created.
  *
  * @param val: the value of the string to create
  * @param len: the length of `val` in bytes

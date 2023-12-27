@@ -33,6 +33,10 @@ void *Nst_raw_calloc(usize count, usize size)
 
 void *Nst_raw_realloc(void *block, usize size)
 {
+    if (block == NULL)
+        allocation_count++;
+    if (size == 0)
+        allocation_count--;
     return realloc(block, size);
 }
 
