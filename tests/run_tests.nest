@@ -34,15 +34,12 @@ sys.SUPPORTS_COLOR ? [
     ]
 ]
 
-#error_location error traceback [
-    error.pos.file @fs.filename 'test_lib.nest' != ?
-        error.pos = pos
-    : [
-        ... traceback @itu.reversed := tb_pos [
-            tb_pos.file @fs.filename 'test_lib.nest' != ? [
-                tb_pos = pos
-                ;
-            ]
+#error_location traceback [
+    !traceback ? => '; <unknwon position>'
+    ... traceback @itu.reversed := tb_pos [
+        tb_pos.file @fs.filename 'test_lib.nest' != ? [
+            tb_pos = pos
+            ;
         ]
     ]
     => '; line ' (pos.start.0 1 +) ' column ' (pos.start.1 1 +) ' file ' (pos.file @fs.filename @su.repr) ><
@@ -67,7 +64,7 @@ sys.SUPPORTS_COLOR ? [
         1 += _globals_.failed_tests
 
         C_RED ' FAILED' C_RESET ': ' res.error.name ' - ' res.error.message >< = s
-        res.error res.traceback @error_location ><= s
+        res.traceback @error_location ><= s
         s true @io.println
     ]
 ]
