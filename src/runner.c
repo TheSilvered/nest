@@ -260,9 +260,6 @@ bool Nst_es_push_module(Nst_ExecutionState *es, i8 *filename,
     i32 file_opt_lvl;
     bool no_default;
 
-    Nst_dec_ref(es->curr_path);
-    es->curr_path = NULL;
-
     Nst_LList *tokens = Nst_tokenizef(
         filename,
         Nst_CP_UNKNOWN,

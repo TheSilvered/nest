@@ -305,8 +305,10 @@ i32 Nst_run(Nst_FuncObj *main_func)
         Nst_Traceback *error = Nst_error_get();
         if (OBJ(error->error_name) != Nst_c.Null_null)
             exit_code = 1;
-        else
+        else {
             exit_code = (i32)AS_INT(error->error_msg);
+            Nst_error_clear();
+        }
     }
 
     return exit_code;
@@ -347,10 +349,8 @@ static inline void destroy_call(Nst_FuncCall *call)
     Nst_vt_destroy(Nst_state.es->vt);
     Nst_dec_ref(call->func);
     Nst_state.es->vt = call->vt;
-    if (call->cwd != NULL) {
+    if (call->cwd != NULL)
         Nst_chdir(call->cwd);
-        Nst_es_set_cwd(Nst_state.es, call->cwd);
-    }
 }
 
 static inline void set_global_error(usize final_stack_size, Nst_Inst *inst)
@@ -391,7 +391,7 @@ static inline void set_global_error(usize final_stack_size, Nst_Inst *inst)
         if (obj != NULL)
             Nst_dec_ref(obj);
     }
-    Nst_state.es->idx = top_catch.inst_idx - 1;
+    Nst_state.es->idx = top_catch.inst_idx;
 }
 
 static void complete_function(usize final_stack_size)
@@ -454,6 +454,7 @@ bool Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
     if (!Nst_es_push_module(Nst_state.es, filename, lib_src))
         return false;
 
+    Nst_chdir(Nst_state.es->curr_path);
     complete_function(UNTIL_CURRENT_FUNC_FINISHES);
 
     if (Nst_error_occurred())
@@ -1396,15 +1397,17 @@ i32 Nst_chdir(Nst_StrObj *str)
         return -1;
     i32 res = _wchdir(wide_cwd);
     Nst_free(wide_cwd);
-    if (res != 0)
-        Nst_set_call_error_c(_Nst_EM_FAILED_CHDIR);
-    return res;
 #else
     i32 res = chdir(str->value);
+#endif // !Nst_WIN
+
     if (res != 0)
         Nst_set_call_error_c(_Nst_EM_FAILED_CHDIR);
+    else if (Nst_state.es != NULL) {
+        Nst_inc_ref(str);
+        Nst_es_set_cwd(Nst_state.es, str);
+    }
     return res != 0 ? -1 : 0;
-#endif // !Nst_WIN
 }
 
 Nst_StrObj *Nst_getcwd(void)
