@@ -1,4 +1,3 @@
-#include <assert.h>
 #include "mem.h"
 #include "instructions.h"
 
@@ -14,8 +13,8 @@ Nst_Inst *Nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end)
     inst->start = start;
     inst->end = end;
 
-    assert(start.text != NULL);
-    assert(end.text != NULL);
+    Nst_assert_c(start.text != NULL);
+    Nst_assert_c(end.text != NULL);
 
     return inst;
 }
@@ -33,8 +32,8 @@ Nst_Inst *_Nst_inst_new_val(Nst_InstID id, Nst_Obj *val, Nst_Pos start,
     inst->start = start;
     inst->end = end;
 
-    assert(start.text != NULL);
-    assert(end.text != NULL);
+    Nst_assert_c(start.text != NULL);
+    Nst_assert_c(end.text != NULL);
 
     return inst;
 }
@@ -52,8 +51,8 @@ Nst_Inst *Nst_inst_new_int(Nst_InstID id, i64 int_val, Nst_Pos start,
     inst->start = start;
     inst->end = end;
 
-    assert(start.text != NULL);
-    assert(end.text != NULL);
+    Nst_assert_c(start.text != NULL);
+    Nst_assert_c(end.text != NULL);
 
     return inst;
 }

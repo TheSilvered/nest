@@ -7,12 +7,16 @@
 static i32 allocation_count = 0;
 
 #ifdef Nst_WIN
+#pragma warning(push)
 #pragma warning(disable: 4995)
+#else
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
 void Nst_log_alloc_count()
 {
-    printf("\nalloc_count = %d\n", allocation_count);
+    printf("\nalloc_count = %li\n", allocation_count);
 }
 
 void *Nst_raw_malloc(usize size)
@@ -46,6 +50,12 @@ void Nst_raw_free(void *block)
         allocation_count--;
     free(block);
 }
+
+#ifdef Nst_WIN
+#pragma warning(pop)
+#else
+#pragma GCC diagnostic pop
+#endif
 
 #endif // !COUNT_ALLOC
 

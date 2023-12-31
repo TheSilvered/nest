@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <errno.h>
 #include <stdlib.h>
 #include "obj_ops.h"
@@ -471,7 +470,7 @@ Nst_Obj *Nst_call_func(Nst_FuncObj *func, i32 arg_num, Nst_Obj **args)
 
         if (tot_args < arg_num) {
             Nst_set_call_error(
-                _Nst_EM_WRONG_ARG_NUM_FMT(tot_args, (i64)arg_num));
+                _Nst_EM_WRONG_ARG_NUM_FMT((usize)tot_args, (i64)arg_num));
             return NULL;
         }
 
@@ -497,7 +496,7 @@ Nst_Obj *Nst_call_func(Nst_FuncObj *func, i32 arg_num, Nst_Obj **args)
             all_args[arg_num + i] = Nst_inc_ref(Nst_c.Null_null);
 
         Nst_Obj *res = func->body.c_func((usize)tot_args, all_args);
-        if (all_args != stack_args)
+        if (all_args != stack_args && all_args != args)
             Nst_free(all_args);
 
         return res;
@@ -653,7 +652,7 @@ static i32 exe_set_cont_loc(Nst_Inst *inst)
         return INST_FAILED;
 
     CHECK_V_STACK;
-    Nst_vstack_pop(&Nst_state.es->v_stack);
+    Nst_dec_ref(Nst_vstack_pop(&Nst_state.es->v_stack));
     return res;
 }
 
@@ -797,7 +796,8 @@ static i32 call_c_func(bool is_seq_call, i64 arg_num, Nst_SeqObj *args_seq,
     i64 null_args = (i64)func->arg_num - arg_num;
 
     if (tot_args < arg_num) {
-        Nst_set_call_error(_Nst_EM_WRONG_ARG_NUM_FMT(tot_args, arg_num));
+        Nst_set_call_error(
+            _Nst_EM_WRONG_ARG_NUM_FMT((usize)tot_args, arg_num));
         Nst_dec_ref(func);
         Nst_ndec_ref(args_seq);
         return INST_FAILED;
@@ -1241,7 +1241,7 @@ static i32 exe_pop_catch(Nst_Inst *inst)
 static i32 exe_save_error(Nst_Inst *inst)
 {
     Nst_UNUSED(inst);
-    assert(Nst_error_occurred());
+    Nst_assert(Nst_error_occurred());
 
     Nst_Obj *err_map = Nst_map_new();
     Nst_Traceback *tb = Nst_error_get();

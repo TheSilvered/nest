@@ -33,6 +33,7 @@
 - added `_Nst_override_supports_color`
 - added `_Nst_EM_WRONG_ARG_NUM_FMT` macro to format correctly wrong argument numbers
 - added `Nst_init`, `Nst_quit` and `Nst_was_init`
+- added `Nst_assert` and `Nst_assert_c` to make assertions
 
 **Changes**
 

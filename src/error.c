@@ -1,4 +1,3 @@
-#include <assert.h>
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
@@ -22,8 +21,6 @@
 #define C_YEL "\x1b[33m"
 #define C_CYN "\x1b[96m"
 #define C_RES "\x1b[0m"
-
-static bool is_init = false;
 
 static bool use_color = true;
 static bool use_stderr = false;
@@ -190,7 +187,7 @@ static void print_line(Nst_Pos *pos, i32 start_col, i32 end_col,
 
 static void print_position(Nst_Pos start, Nst_Pos end)
 {
-    assert(start.text == end.text);
+    Nst_assert_c(start.text == end.text);
 
     if (start.text == NULL)
         return;
@@ -269,7 +266,7 @@ static inline void print_rep_count(i32 count)
 void Nst_print_traceback(Nst_Traceback *tb)
 {
     Nst_fflush(Nst_io.out);
-    assert(tb->positions->len % 2 == 0);
+    Nst_assert_c(tb->positions->len % 2 == 0);
     set_error_stream();
 
     Nst_Pos prev_start = { -1, -1, NULL };
@@ -355,7 +352,7 @@ void _Nst_set_error(Nst_StrObj *name, Nst_StrObj *msg)
         return;
     }
 
-    assert(name != NULL);
+    Nst_assert_c(name != NULL);
 
     Nst_error_clear();
     if (Nst_state.es != NULL) {

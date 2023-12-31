@@ -1,3 +1,4 @@
+#include <string.h>
 #include "runner.h"
 #include "interpreter.h"
 #include "mem.h"
@@ -13,7 +14,7 @@
 
 bool Nst_es_init(Nst_ExecutionState *es)
 {
-    assert(Nst_was_init());
+    Nst_assert_c(Nst_was_init());
 
     es->idx = 0;
     es->argv = NULL;
@@ -385,7 +386,7 @@ bool Nst_es_push_paused_coroutine(Nst_ExecutionState *es, Nst_FuncObj *func,
                                   Nst_Pos start, Nst_Pos end, i64 idx,
                                   Nst_VarTable *vt)
 {
-    assert(!Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C));
+    Nst_assert(!Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C));
 
     Nst_FuncCall call = Nst_func_call_from_es(func, start, end, es);
 

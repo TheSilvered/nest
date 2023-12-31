@@ -9,7 +9,6 @@
 #ifndef RUNNER_H
 #define RUNNER_H
 
-#include "assert.h"
 #include "argv_parser.h"
 #include "runtime_stack.h"
 
@@ -19,7 +18,7 @@ extern "C" {
 
 #ifdef _DEBUG
 #define Nst_es_assert_vstack_size_at_least(es, size)                          \
-    assert(es->v_stack.len >= size)
+    Nst_assert(es->v_stack.len >= size)
 #else
 #define Nst_es_assert_vstack_size_at_least(es, size)
 #endif // !_DEBUG

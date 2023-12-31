@@ -1,4 +1,3 @@
-#include <assert.h>
 #include "mem.h"
 #include "interpreter.h"
 #include "type.h"
@@ -85,7 +84,7 @@ static inline void remove_objs_list(Nst_GGCList *gen)
 static inline void call_objs_destructor(Nst_GGCList *gen)
 {
     for (Nst_GGCObj *ob = gen->head; ob != NULL; ob = GGC_OBJ(ob->p_next)) {
-        assert(ob->ggc_list == NULL);
+        Nst_assert_c(ob->ggc_list == NULL);
         _Nst_obj_destroy(OBJ(ob));
     }
 }
@@ -308,7 +307,7 @@ void Nst_ggc_collect(void)
 
 void Nst_ggc_track_obj(Nst_GGCObj *obj)
 {
-    assert(Nst_HAS_FLAG(obj->type, Nst_FLAG_TYPE_IS_CONTAINER));
+    Nst_assert(Nst_HAS_FLAG(obj->type, Nst_FLAG_TYPE_IS_CONTAINER));
 
     if (Nst_state.ggc.gen1.len == 0)
         Nst_state.ggc.gen1.head = obj;

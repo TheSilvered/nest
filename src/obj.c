@@ -1,15 +1,10 @@
-#include <assert.h>
-
 #include "obj.h"
 #include "map.h"
 #include "ggc.h"
 #include "str.h"
 #include "mem.h"
 #include "type.h"
-
-#ifdef Nst_TRACK_OBJ_INIT_POS
 #include "interpreter.h"
-#endif
 
 static Nst_Obj *pop_p_head(usize size, Nst_TypeObj *type)
 {
@@ -69,7 +64,7 @@ void _Nst_obj_destroy(Nst_Obj *obj)
 
 void _Nst_obj_free(Nst_Obj *obj)
 {
-    assert(Nst_HAS_FLAG(obj, Nst_FLAG_OBJ_DESTROYED));
+    Nst_assert(Nst_HAS_FLAG(obj, Nst_FLAG_OBJ_DESTROYED));
 
     if (Nst_HAS_FLAG(obj, Nst_FLAG_GGC_PRESERVE_MEM))
         return;
@@ -99,6 +94,15 @@ void _Nst_obj_free(Nst_Obj *obj)
     }
 
 free_mem:
+
+// silences the warning of the expression being always true when _Nst_P_LEN_MAX
+// is 0 (e.g. when pools are disabled)
+
+#if defined(Nst_DISABLE_POOLS) && !defined(Nst_WIN)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
+#endif
+
     if (obj->type->p_len >= _Nst_P_LEN_MAX) {
         Nst_free(obj);
 
@@ -107,6 +111,10 @@ free_mem:
 
         return;
     }
+
+#if defined(Nst_DISABLE_POOLS) && !defined(Nst_WIN)
+#pragma GCC diagnostic pop
+#endif
 
     obj->p_next = obj->type->p_head;
     obj->type->p_head = obj;
@@ -126,7 +134,9 @@ void _Nst_dec_ref(Nst_Obj *obj)
 {
     obj->ref_count--;
 
-    assert(obj->ref_count >= 0); // The ref_count should nevere be below zero
+    // The ref_count should nevere be below zero
+    Nst_assert(obj->ref_count >= 0);
+
     if (obj->ref_count <= 0) {
         _Nst_obj_destroy(obj);
         _Nst_obj_free(obj);

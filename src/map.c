@@ -1,6 +1,5 @@
 #include <errno.h>
 #include <math.h>
-#include <assert.h>
 #include "mem.h"
 #include "map.h"
 #include "hash.h"
@@ -37,7 +36,7 @@ Nst_Obj *Nst_map_new(void)
 static i32 set_clean(Nst_MapObj *map, i32 hash, Nst_Obj *key, Nst_Obj *value,
                      i32 prev_idx)
 {
-    assert(key != NULL);
+    Nst_assert(key != NULL);
 
     usize mask = map->mask;
     Nst_MapNode *nodes = map->nodes;

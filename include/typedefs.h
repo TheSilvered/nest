@@ -13,6 +13,7 @@
 #include <stddef.h>
 #include <stdint.h>
 #include <assert.h>
+#include <stdio.h>
 
 // DO NOT ENABLE, used for documentation purpuses. If you need to define these
 // macros, define them elsewhere in this file.
@@ -169,6 +170,64 @@
  * compiler warnings.
  */
 #define Nst_UNUSED(v) (void)(v)
+
+#ifdef _DEBUG
+/**
+ * @brief Aborts with an error message when an expression is false. The error
+ * specifies the expression, the path and line of both the C and Nest file.
+ */
+#define Nst_assert(expr)                                                      \
+    (void)(                                                                   \
+        !!(expr)                                                              \
+    ||                                                                        \
+        ((void)((Nst_current_inst() && fprintf(                               \
+            stderr,                                                           \
+            "Assertion failed: %s (C - %s:%i, Nest - %s:%li)\n",              \
+            #expr,                                                            \
+            __FILE__,                                                         \
+            __LINE__,                                                         \
+            Nst_current_inst()->start.text->path,                             \
+            Nst_current_inst()->start.line) >= 0                              \
+        ) || fprintf(                                                         \
+            stderr,                                                           \
+            "Assertion failed: %s (C - %s:%i, Nest - <unknown>)\n",           \
+            #expr,                                                            \
+            __FILE__,                                                         \
+            __LINE__                                                          \
+        )), (abort(), 0))                                                     \
+    )
+
+/**
+ * @brief Aborts with an error message when an expression is false. The error
+ * specifies the expression and the path and line of the C file.
+ */
+#define Nst_assert_c(expr)                                                    \
+    (void)(                                                                   \
+        !!(expr)                                                              \
+    ||                                                                        \
+        fprintf(                                                              \
+            stderr,                                                           \
+            "Assertion failed: %s (C - %s:%i)\n",                             \
+            #expr,                                                            \
+            __FILE__,                                                         \
+            __LINE__)                                                         \
+    )
+
+#else
+
+/** [docs:ignore]
+ * @brief Aborts with an error message when an expression is false. The error
+ * specifies the expression, the path and line of both the C and Nest file.
+ */
+#define Nst_assert(expr)
+
+/** [docs:ignore]
+ * @brief Aborts with an error message when an expression is false. The error
+ * specifies the expression and the path and line of the C file.
+ */
+#define Nst_assert_c(expr)
+
+#endif // !_DEBUG
 
 #ifndef _DEBUG
 #ifdef Nst_TRACK_OBJ_INIT_POS

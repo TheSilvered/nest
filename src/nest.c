@@ -15,6 +15,8 @@ int wmain(int argc, wchar_t **wargv)
 
 #else
 
+#include <string.h>
+
 int main(int argc, char **argv)
 {
 

@@ -1,4 +1,3 @@
-#include <assert.h>
 #include "mem.h"
 #include "runtime_stack.h"
 #include "interpreter.h"
@@ -17,7 +16,7 @@ void Nst_stack_shrink(Nst_GenericStack *g_stack, usize min_size,
     if (g_stack->cap >> 2 < g_stack->len)
         return;
 
-    assert(g_stack->len <= g_stack->cap);
+    Nst_assert(g_stack->len <= g_stack->cap);
 
     void *new_stack = Nst_realloc(
         g_stack->stack,
