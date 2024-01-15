@@ -195,7 +195,8 @@
 #endif // !Nst_BREAKPOINT_ON_ASSERTION_FAIL
 #endif
 
-#if defined(_DEBUG) && !defined(Nst_BREAKPOINT_ON_ASSERTION_FAIL)
+#if defined(_DEBUG)                                                           \
+    && (!defined(Nst_BREAKPOINT_ON_ASSERTION_FAIL) || !defined(Nst_WIN))
 /**
  * @brief Aborts with an error message when an expression is false. The error
  * specifies the expression, the path and line of both the C and Nest file.
@@ -288,13 +289,13 @@
  * @brief Aborts with an error message when an expression is false. The error
  * specifies the expression, the path and line of both the C and Nest file.
  */
-#define Nst_assert(expr)
+#define Nst_assert(expr) (void)0
 
 /** [docs:ignore]
  * @brief Aborts with an error message when an expression is false. The error
  * specifies the expression and the path and line of the C file.
  */
-#define Nst_assert_c(expr)
+#define Nst_assert_c(expr) (void)0
 
 #endif // !_DEBUG
 

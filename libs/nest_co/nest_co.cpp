@@ -293,6 +293,7 @@ Nst_FUNC_SIGN(pause_)
 
     for (usize i = stack_size; i > 0; i--)
         co->stack[i - 1] = Nst_vstack_pop(&state->v_stack);
+    Nst_vstack_pop(&state->v_stack); // remove NULL from the value stack
 
     Nst_CLEAR_FLAGS(co);
     Nst_SET_FLAG(co, FLAG_CO_PAUSED);
