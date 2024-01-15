@@ -264,32 +264,22 @@ Nst_FUNC_SIGN(pause_)
     Nst_DEF_EXTRACT("o", &return_value);
     Nst_ExecutionState *state = Nst_state_get_es();
     Nst_FuncCall call = Nst_fstack_peek(&state->f_stack);
-
     CoroutineObj *co = co_c_stack_peek();
 
-    if (co == nullptr || call.func != co->func) {
-        Nst_set_call_error_c(
-            "the top function does not match the coroutine");
-        return nullptr;
-    }
-
-    if (state->f_stack.len - 1 != co->call_stack_size
+    if (co == nullptr
+        || call.func != co->func
+        || state->f_stack.len - 1 != co->call_stack_size
         || !Nst_HAS_FLAG(co, FLAG_CO_RUNNING))
     {
         Nst_set_call_error_c("the function was not called with 'call'");
         return nullptr;
     }
 
-    // Now I'm sure that the function was called with co.call
-    call = Nst_fstack_pop(&state->f_stack);
-
     co->vt = state->vt;
     co->idx = state->idx;
-
-    Nst_dec_ref(call.func);
-
-    state->vt = call.vt;
-    state->idx = call.idx;
+    Nst_es_force_function_end(state);
+    // safe because the function finishes before any instructions are executed
+    state->vt = NULL;
 
     usize stack_size = 0;
     Nst_Obj **v_stack_objs = state->v_stack.stack;
@@ -303,8 +293,6 @@ Nst_FUNC_SIGN(pause_)
 
     for (usize i = stack_size; i > 0; i--)
         co->stack[i - 1] = Nst_vstack_pop(&state->v_stack);
-
-    Nst_vstack_pop(&state->v_stack); // remove NULL from the stack
 
     Nst_CLEAR_FLAGS(co);
     Nst_SET_FLAG(co, FLAG_CO_PAUSED);

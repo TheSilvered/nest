@@ -640,6 +640,8 @@ static void free_type_match(MatchType *type)
 {
     if (type->seq_match)
         free_type_match(type->seq_match);
+    if (type->custom_types != NULL)
+        Nst_free(type->custom_types);
     Nst_free(type);
 }
 

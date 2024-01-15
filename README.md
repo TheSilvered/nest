@@ -23,12 +23,12 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 
 ### Nest 0.15.0 planned features
 
-- [ ] Improve `libnest` usage:
-  - [ ] Separate execution and interpreter states
-  - [ ] Initialize everything with one function
-  - [ ] Quit everything with one function
-  - [ ] Execute a program in one function (given the path of the file)
-- [ ] Better testing with C [^4]
+- [x] Improve `libnest` usage:
+  - [x] Separate execution and interpreter states
+  - [x] Initialize everything with one function
+  - [x] Quit everything with one function
+  - [x] Execute a program in one function (given the path of the file)
+- [ ] Better testing with C
 - [ ] Rewrite parser, nodes and tweak compiler to accommodate for the new
   parser
 - [ ] Finish implementing `Nst_fmt` and add a wrapper to `stdsutil.nest`

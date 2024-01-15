@@ -345,7 +345,8 @@ static inline void destroy_call(Nst_FuncCall *call)
     if (Nst_state.es->vt == call->vt)
         return;
 
-    Nst_vt_destroy(Nst_state.es->vt);
+    if (Nst_state.es->vt != NULL)
+        Nst_vt_destroy(Nst_state.es->vt);
     Nst_dec_ref(call->func);
     Nst_state.es->vt = call->vt;
     if (call->cwd != NULL)
@@ -848,7 +849,7 @@ static i32 call_c_func(bool is_seq_call, i64 arg_num, Nst_SeqObj *args_seq,
             Nst_dec_ref(args[arg_num + i]);
     }
 
-    if (args != stack_args)
+    if (args != stack_args && !is_seq_call)
         Nst_free(args);
 
     if (res == NULL) {
