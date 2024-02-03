@@ -102,7 +102,10 @@ NstEXP bool NstC Nst_llist_append(Nst_LList *llist, void *value,
  */
 NstEXP bool NstC Nst_llist_insert(Nst_LList *llist, void *value,
                                   bool allocated, Nst_LLNode *node);
-/* Removes and returns the front value from a list. */
+/**
+* @brief Removes and returns the front value of a list. If the list is empty
+* `NULL` is returned, no error is set.
+*/
 NstEXP void *NstC Nst_llist_pop(Nst_LList *llist);
 /**
  * @brief Returns the front value of a list. If the list is empty `NULL` is

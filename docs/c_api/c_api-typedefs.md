@@ -47,6 +47,15 @@ should be defined in `typedefs.h` when compiling.
 
 ---
 
+### `Nst_BREAKPOINT_ON_ASSERTION_FAIL`
+
+**Description:**
+
+On Windows, instead of calling abort, __debugbreak is called instead when an
+assetion fails.
+
+---
+
 ### `Nst_WIN`
 
 **Description:**
@@ -155,6 +164,36 @@ Marks a function for for the standard C declaration (`__cdecl`).
 
 Marks the argument of a function as unused, without rasing any compiler
 warnings.
+
+---
+
+### `Nst_assert`
+
+**Synopsis:**
+
+```better-c
+#define Nst_assert(expr)
+```
+
+**Description:**
+
+Aborts with an error message when an expression is false. The error specifies
+the expression, the path and line of both the C and Nest file.
+
+---
+
+### `Nst_assert_c`
+
+**Synopsis:**
+
+```better-c
+#define Nst_assert_c(expr)
+```
+
+**Description:**
+
+Aborts with an error message when an expression is false. The error specifies
+the expression and the path and line of the C file.
 
 ---
 

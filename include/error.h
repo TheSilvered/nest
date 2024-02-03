@@ -70,11 +70,13 @@
 #define _Nst_EM_RAN_OUT_OF_MEMORY "ran out of memory"
 #define _Nst_EM_MISSING_FUNC(func) "missing '" func "' for a custom iterator"
 #define _Nst_EM_MAP_TO_SEQ_HASH(i) "non-hashable object found at " i " %zi"
+#define _Nst_EM_RECURSIVE_CALLS(i) "over " i " recursive calls, parsing failed"
 #define _Nst_EM_EXPECTED_R_BRACKET "expected ']'"
 #define _Nst_EM_INVALID_EXPRESSION "invalid expression"
 #define _Nst_EM_NULL_ARG(func, argn) func ": " argn " is NULL"
 #define _Nst_EM_INVALID_TYPE_LETTER(f) f ": invalid type string"
 #define _Nst_EM_EXPECTED_COMMA_OR_BRACE "expected ',' or '}'"
+#define _Nst_EM_EXPECTED_COMMA_OR_VBRACE "expected ',' or '}>'"
 #define _Nst_EM_EXPECTED_RETURN_OR_BRACKET "expected '=>' or '['"
 #define _Nst_EM_INVALID_OPERAND_TYPE(operand)                                 \
     "invalid type '%s' for '" operand "'"

@@ -28,9 +28,9 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
   - [x] Initialize everything with one function
   - [x] Quit everything with one function
   - [x] Execute a program in one function (given the path of the file)
-- [ ] Better testing with C
 - [ ] Rewrite parser, nodes and tweak compiler to accommodate for the new
   parser
+- [ ] Better testing with C
 - [ ] Finish implementing `Nst_fmt` and add a wrapper to `stdsutil.nest`
 - [ ] Add `is_space`, `remove_prefix` and `remove_suffix` to `stdsutil.nest`
 - [ ] Rename `split` to `lsplit` and add `rsplit` to `stdsutil.nest`
@@ -50,6 +50,10 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 - [ ] Add `get_capacity` to `stdsys.nest`
 - [ ] Remove `_cwd_` and rename `_get_cwd` and `_set_cwd` to `get_cwd` and
   `set_cwd` in `stdsys.nest`
+- [ ] Rename `co.pause` to `co.yield`
+- [ ] Make the return value of `co.pause` the arguments passed to the coroutine
+- [ ] Change `co.call` to accept less arguments than the function requires
+- [ ] Change `err.try` to accept less arguments than the function requires
 
 ### Future planned features
 

@@ -63,7 +63,7 @@
     <ClInclude Include="..\..\..\..\include\nest.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\nodes.h">
+    <ClInclude Include="..\..\..\..\include\nodes_old.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\obj.h">
@@ -75,7 +75,7 @@
     <ClInclude Include="..\..\..\..\include\optimizer.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\parser.h">
+    <ClInclude Include="..\..\..\..\include\parser_old.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\runtime_stack.h">
@@ -115,6 +115,12 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\runner.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\nodes.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\include\parser.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -167,7 +173,7 @@
     <ClCompile Include="..\..\..\..\src\map.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\nodes.c">
+    <ClCompile Include="..\..\..\..\src\nodes_old.c">
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\obj.c">
@@ -179,7 +185,7 @@
     <ClCompile Include="..\..\..\..\src\optimizer.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\parser.c">
+    <ClCompile Include="..\..\..\..\src\parser_old.c">
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\runtime_stack.c">
@@ -216,6 +222,12 @@
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\runner.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\nodes.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\parser.c">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>

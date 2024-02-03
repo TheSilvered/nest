@@ -245,7 +245,7 @@ Nst_Obj *Nst_string_new_allocated(i8 *val, usize len)
 
 Creates a new string object from a heap-allocated value.
 
-val is freed if the string fails to be created.
+`val` is freed if the string fails to be created.
 
 **Parameters:**
 

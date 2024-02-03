@@ -1063,6 +1063,8 @@
     file @io.close
     content @_split_lines = lines
 
+    content '/* [docs:ignore_file] */' @su.starts_with ? => null
+
     file_path @fs.filename lines @parser_new = parser
 
     @_file_info_map = file_header

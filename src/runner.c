@@ -177,7 +177,7 @@ i32 Nst_execute(Nst_CLArgs args, Nst_ExecutionState *es, Nst_SourceText *src)
         }
     }
 
-    Nst_Node *ast = Nst_parse(tokens);
+    Nst_Node__old *ast = Nst_parse(tokens);
 
     if (args.opt_level >= 1 && ast != NULL)
         ast = Nst_optimize_ast(ast);
@@ -191,7 +191,7 @@ i32 Nst_execute(Nst_CLArgs args, Nst_ExecutionState *es, Nst_SourceText *src)
         Nst_print_ast(ast);
 
         if (!args.force_execution && !args.print_bytecode) {
-            Nst_node_destroy(ast);
+            Nst_node_destroy__old(ast);
             return 0;
         }
     }
@@ -274,7 +274,7 @@ bool Nst_es_push_module(Nst_ExecutionState *es, i8 *filename,
     if (tokens == NULL)
         goto cleanup;
 
-    Nst_Node *ast = Nst_parse(tokens);
+    Nst_Node__old *ast = Nst_parse(tokens);
     if (ast != NULL && opt_level >= 1)
         ast = Nst_optimize_ast(ast);
 

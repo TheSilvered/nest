@@ -13,26 +13,26 @@
 #define HEAD_TOK Nst_TOK(node->tokens->head->value)
 #define TAIL_TOK Nst_TOK(node->tokens->tail->value)
 
-static void ast_optimize_node(Nst_Node *node);
-static void ast_optimize_node_nodes(Nst_Node *node);
-static void ast_optimize_stack_op(Nst_Node *node);
-static void ast_optimize_comp_op(Nst_Node *node);
-static void ast_optimize_local_op(Nst_Node *node);
-static void ast_optimize_long_s(Nst_Node *node);
+static void ast_optimize_node(Nst_Node__old *node);
+static void ast_optimize_node_nodes(Nst_Node__old *node);
+static void ast_optimize_stack_op(Nst_Node__old *node);
+static void ast_optimize_comp_op(Nst_Node__old *node);
+static void ast_optimize_local_op(Nst_Node__old *node);
+static void ast_optimize_long_s(Nst_Node__old *node);
 
-Nst_Node *Nst_optimize_ast(Nst_Node *ast)
+Nst_Node__old *Nst_optimize_ast(Nst_Node__old *ast)
 {
     ast_optimize_node(ast);
 
     if (Nst_error_occurred()) {
-        Nst_node_destroy(ast);
+        Nst_node_destroy__old(ast);
         return NULL;
     }
 
     return ast;
 }
 
-static void ast_optimize_node(Nst_Node *node)
+static void ast_optimize_node(Nst_Node__old *node)
 {
     switch (node->type) {
     case Nst_NT_STACK_OP:
@@ -50,7 +50,7 @@ static void ast_optimize_node(Nst_Node *node)
     }
 }
 
-static void ast_optimize_node_nodes(Nst_Node *node)
+static void ast_optimize_node_nodes(Nst_Node__old *node)
 {
     for (Nst_LLIST_ITER(n, node->nodes)) {
         ast_optimize_node(Nst_NODE(n->value));
@@ -59,7 +59,7 @@ static void ast_optimize_node_nodes(Nst_Node *node)
     }
 }
 
-static void ast_optimize_stack_op(Nst_Node *node)
+static void ast_optimize_stack_op(Nst_Node__old *node)
 {
     if (Nst_IS_COMP_OP(HEAD_TOK->type)) {
         ast_optimize_comp_op(node);
@@ -103,8 +103,8 @@ static void ast_optimize_stack_op(Nst_Node *node)
         return;
     }
 
-    Nst_node_destroy(Nst_NODE(Nst_llist_pop(node->nodes)));
-    Nst_node_destroy(Nst_NODE(Nst_llist_pop(node->nodes)));
+    Nst_node_destroy__old(Nst_NODE(Nst_llist_pop(node->nodes)));
+    Nst_node_destroy__old(Nst_NODE(Nst_llist_pop(node->nodes)));
     Nst_tok_destroy(Nst_TOK(Nst_llist_peek_front(node->tokens)));
 
     node->type = Nst_NT_VALUE;
@@ -122,7 +122,7 @@ static void ast_optimize_stack_op(Nst_Node *node)
     node->tokens->head->value = new_tok;
 }
 
-static void ast_optimize_comp_op(Nst_Node *node)
+static void ast_optimize_comp_op(Nst_Node__old *node)
 {
     Nst_Obj *res = NULL;
     i32 op_tok = HEAD_TOK->type;
@@ -163,7 +163,7 @@ static void ast_optimize_comp_op(Nst_Node *node)
         }
     }
 
-    Nst_llist_empty(node->nodes, (Nst_LListDestructor)Nst_node_destroy);
+    Nst_llist_empty(node->nodes, (Nst_LListDestructor)Nst_node_destroy__old);
     Nst_tok_destroy(Nst_TOK(Nst_llist_peek_front(node->tokens)));
 
     node->type = Nst_NT_VALUE;
@@ -181,7 +181,7 @@ static void ast_optimize_comp_op(Nst_Node *node)
     node->tokens->head->value = new_tok;
 }
 
-static void ast_optimize_local_op(Nst_Node *node)
+static void ast_optimize_local_op(Nst_Node__old *node)
 {
     ast_optimize_node(HEAD_NODE);
 
@@ -209,7 +209,7 @@ static void ast_optimize_local_op(Nst_Node *node)
         return;
     }
 
-    Nst_node_destroy(Nst_NODE(Nst_llist_pop(node->nodes)));
+    Nst_node_destroy__old(Nst_NODE(Nst_llist_pop(node->nodes)));
     Nst_tok_destroy(Nst_TOK(Nst_llist_peek_front(node->tokens)));
 
     node->type = Nst_NT_VALUE;
@@ -227,11 +227,11 @@ static void ast_optimize_local_op(Nst_Node *node)
     node->tokens->head->value = new_tok;
 }
 
-static void ast_optimize_long_s(Nst_Node *node)
+static void ast_optimize_long_s(Nst_Node__old *node)
 {
     Nst_LList *nodes = node->nodes;
     Nst_LLNode *prev_valid_node = NULL;
-    Nst_Node *curr_node;
+    Nst_Node__old *curr_node;
 
     for (Nst_LLIST_ITER(n, node->nodes)) {
         ast_optimize_node(Nst_NODE(n->value));
@@ -257,7 +257,7 @@ static void ast_optimize_long_s(Nst_Node *node)
                 nodes->tail = prev_valid_node;
         }
 
-        Nst_node_destroy(Nst_NODE(n->value));
+        Nst_node_destroy__old(Nst_NODE(n->value));
         Nst_free(n);
 
         if (prev_valid_node == NULL)

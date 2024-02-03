@@ -172,10 +172,12 @@
     <ClInclude Include="..\..\..\..\include\mem.h" />
     <ClInclude Include="..\..\..\..\include\nest.h" />
     <ClInclude Include="..\..\..\..\include\nodes.h" />
+    <ClInclude Include="..\..\..\..\include\nodes_old.h" />
     <ClInclude Include="..\..\..\..\include\obj.h" />
     <ClInclude Include="..\..\..\..\include\obj_ops.h" />
     <ClInclude Include="..\..\..\..\include\optimizer.h" />
     <ClInclude Include="..\..\..\..\include\parser.h" />
+    <ClInclude Include="..\..\..\..\include\parser_old.h" />
     <ClInclude Include="..\..\..\..\include\runner.h" />
     <ClInclude Include="..\..\..\..\include\runtime_stack.h" />
     <ClInclude Include="..\..\..\..\include\sequence.h" />
@@ -208,10 +210,12 @@
     <ClCompile Include="..\..\..\..\src\map.c" />
     <ClCompile Include="..\..\..\..\src\mem.c" />
     <ClCompile Include="..\..\..\..\src\nodes.c" />
+    <ClCompile Include="..\..\..\..\src\nodes_old.c" />
     <ClCompile Include="..\..\..\..\src\obj.c" />
     <ClCompile Include="..\..\..\..\src\obj_ops.c" />
     <ClCompile Include="..\..\..\..\src\optimizer.c" />
     <ClCompile Include="..\..\..\..\src\parser.c" />
+    <ClCompile Include="..\..\..\..\src\parser_old.c" />
     <ClCompile Include="..\..\..\..\src\runner.c" />
     <ClCompile Include="..\..\..\..\src\runtime_stack.c" />
     <ClCompile Include="..\..\..\..\src\sequence.c" />
