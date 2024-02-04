@@ -19,7 +19,7 @@
     ((token_type) >= Nst_TT_ADD && (token_type) <= Nst_TT_RSHIFT)
 /* Checks if a token is in the `COND_OP` category. */
 #define Nst_IS_COND_OP(token_type)                                            \
-    ((token_type) >= Nst_TT_L_AND && (token_type) <= Nst_TT_L_XOR)
+    ((token_type) >= Nst_TT_L_AND && (token_type) <= Nst_TT_L_OR)
 /* Checks if a token is in the `COMP_OP` category. */
 #define Nst_IS_COMP_OP(token_type)                                            \
     ((token_type) >= Nst_TT_GT && (token_type) <= Nst_TT_LTE)
@@ -76,8 +76,8 @@ NstEXP typedef enum _Nst_TokType {
     Nst_TT_RSHIFT,    // | - num-op end
     Nst_TT_CONCAT,    // |
     Nst_TT_L_AND,     // | + cond-op start
-    Nst_TT_L_OR,      // | |
-    Nst_TT_L_XOR,     // | - cond-op end
+    Nst_TT_L_OR,      // | - cond-op end
+    Nst_TT_L_XOR,     // |
     Nst_TT_GT,        // | + comp-op start
     Nst_TT_LT,        // | |
     Nst_TT_EQ,        // | |

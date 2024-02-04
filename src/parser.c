@@ -335,38 +335,26 @@ static Nst_Node *parse_statement(void)
         }
 
         Nst_Node *expr;
+        Nst_Pos expr_end;
 
         tok_type = top_type();
         if (Nst_IS_EXPR_END(tok_type)) {
-            Nst_Tok *null_value_tok = Nst_tok_new_value(
-                start, end,
-                Nst_TT_VALUE,
-                Nst_inc_ref(Nst_c.Null_null));
-
-            if (null_value_tok == NULL) {
-                Nst_error_add_positions(Nst_error_get(), start, end);
-                return NULL;
-            }
-
-            expr = new_node(Nst_NT_VALUE, start, end);
-            if (null_value_tok == NULL) {
-                Nst_tok_destroy(null_value_tok);
-                return NULL;
-            }
-            Nst_node_set_pos(expr, start, end);
-            expr->value.value = null_value_tok;
+            expr = NULL;
+            expr_end = end;
         } else {
             expr = parse_expr();
             if (expr == NULL)
                 return NULL;
+            expr_end = expr->end;
         }
 
-        Nst_Node *return_s = new_node(Nst_NT_RETURN_S, start, expr->end);
+        Nst_Node *return_s = new_node(Nst_NT_RETURN_S, start, expr_end);
         if (return_s == NULL) {
-            Nst_node_destroy(expr);
+            if (expr != NULL)
+                Nst_node_destroy(expr);
             return NULL;
         }
-        Nst_node_set_pos(return_s, start, expr->end);
+        Nst_node_set_pos(return_s, start, expr_end);
         return_s->return_s.value = expr;
         exit_func(&initial_state);
         return return_s;
