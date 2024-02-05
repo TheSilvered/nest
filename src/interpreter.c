@@ -889,6 +889,12 @@ static i32 exe_op_call(Nst_Inst *inst)
     i64 arg_num = inst->int_val;
     bool is_seq_call = false;
     Nst_FuncObj *func = FUNC(Nst_vstack_pop(&Nst_state.es->v_stack));
+
+    if (!type_check(OBJ(func), Nst_t.Func)) {
+        Nst_dec_ref(func);
+        return INST_FAILED;
+    }
+
     Nst_SeqObj *args_seq;
 
     if (arg_num == -1) {
@@ -939,6 +945,12 @@ static i32 exe_op_cast(Nst_Inst *inst)
     Nst_Obj *val = Nst_vstack_pop(&Nst_state.es->v_stack);
     Nst_Obj *type = Nst_vstack_pop(&Nst_state.es->v_stack);
 
+    if (type_check(type, Nst_t.Type)) {
+        Nst_dec_ref(val);
+        Nst_dec_ref(type);
+        return INST_FAILED;
+    }
+
     Nst_Obj *res = Nst_obj_cast(val, type);
 
     if (res != NULL) {
@@ -958,11 +970,29 @@ static i32 exe_op_range(Nst_Inst *inst)
     Nst_Obj *step = NULL;
     Nst_Obj *start = NULL;
 
+    if (!type_check(stop, Nst_t.Int)) {
+        Nst_dec_ref(stop);
+        return INST_FAILED;
+    }
+
     if (inst->int_val == 3) {
         start = Nst_vstack_pop(&Nst_state.es->v_stack);
         step  = Nst_vstack_pop(&Nst_state.es->v_stack);
+
+        if (!type_check(start, Nst_t.Int) || !type_check(step, Nst_t.Int)) {
+            Nst_dec_ref(stop);
+            Nst_dec_ref(step);
+            Nst_dec_ref(start);
+            return INST_FAILED;
+        }
     } else {
         start = Nst_vstack_pop(&Nst_state.es->v_stack);
+
+        if (!type_check(start, Nst_t.Int)) {
+            Nst_dec_ref(stop);
+            Nst_dec_ref(start);
+            return INST_FAILED;
+        }
 
         if (AS_INT(start) <= AS_INT(stop))
             step = Nst_inc_ref(Nst_c.Int_1);
@@ -990,7 +1020,19 @@ static i32 exe_throw_err(Nst_Inst *inst)
     Nst_Obj *message = Nst_vstack_pop(&Nst_state.es->v_stack);
     Nst_Obj *name = Nst_vstack_pop(&Nst_state.es->v_stack);
 
-    Nst_set_error(name, message);
+    Nst_Obj *message_str = Nst_obj_cast(message, Nst_t.Str);
+    Nst_Obj *name_str = Nst_obj_cast(name, Nst_t.Str);
+
+    Nst_dec_ref(name);
+    Nst_dec_ref(message);
+
+    if (message_str == NULL || name_str == NULL) {
+        Nst_ndec_ref(name_str);
+        Nst_ndec_ref(message_str);
+        return INST_FAILED;
+    }
+
+    Nst_set_error(name_str, message_str);
     return INST_FAILED;
 }
 
@@ -1031,6 +1073,12 @@ static i32 exe_op_import(Nst_Inst *inst)
     Nst_UNUSED(inst);
     CHECK_V_STACK;
     Nst_Obj *name = Nst_vstack_pop(&Nst_state.es->v_stack);
+
+    if (!type_check(name, Nst_t.Str)) {
+        Nst_dec_ref(name);
+        return INST_FAILED;
+    }
+
     Nst_Obj *res = Nst_obj_import(name);
 
     if (res != NULL) {
@@ -1188,6 +1236,12 @@ static i32 exe_make_seq_rep(Nst_Inst *inst)
     i64 seq_size = inst->int_val;
     CHECK_V_STACK_SIZE(2);
     Nst_Obj *size_obj = Nst_vstack_pop(&Nst_state.es->v_stack);
+
+    if (!type_check(size_obj, Nst_t.Int)) {
+        Nst_dec_ref(size_obj);
+        return INST_FAILED;
+    }
+
     Nst_Obj *val = Nst_vstack_pop(&Nst_state.es->v_stack);
 
     i64 size = AS_INT(size_obj);
