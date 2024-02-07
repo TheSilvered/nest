@@ -177,7 +177,7 @@ i32 Nst_execute(Nst_CLArgs args, Nst_ExecutionState *es, Nst_SourceText *src)
         }
     }
 
-    Nst_Node__old *ast = Nst_parse(tokens);
+    Nst_Node *ast = Nst_parse(tokens);
 
     if (args.opt_level >= 1 && ast != NULL)
         ast = Nst_optimize_ast(ast);
@@ -274,7 +274,7 @@ bool Nst_es_push_module(Nst_ExecutionState *es, i8 *filename,
     if (tokens == NULL)
         goto cleanup;
 
-    Nst_Node__old *ast = Nst_parse(tokens);
+    Nst_Node *ast = Nst_parse(tokens);
     if (ast != NULL && opt_level >= 1)
         ast = Nst_optimize_ast(ast);
 

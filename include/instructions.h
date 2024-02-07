@@ -140,6 +140,10 @@ NstEXP Nst_Inst *NstC Nst_inst_new_int(Nst_InstID id, i64 int_val,
 
 /* Destroys a `Nst_Inst` allocated on the heap. */
 NstEXP void NstC Nst_inst_destroy(Nst_Inst *inst);
+
+/* Creates a new `Nst_InstList` from a list of instructions. */
+NstEXP Nst_InstList *NstC Nst_inst_list_new(Nst_LList *instructions);
+
 /* Destroys a `Nst_InstList`. */
 NstEXP void NstC Nst_inst_list_destroy(Nst_InstList *inst_list);
 

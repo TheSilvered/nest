@@ -21,6 +21,18 @@
 extern "C" {
 #endif // !__cplusplus
 
+// IMPORTANT
+// When adding a new node type:
+//  1) Add it to the Nst_NodeType enum as Nst_NT_[UPPERCASE_NAME]
+//  2) Add a struct called Nst_NodeData_[PascalCaseName] that defines its data
+//     if it contains any
+//  3) Add the node data to the Nst_Node union with the identifier in
+//     snake_case
+//  4) Implement an init, destroy and print functions and add them to
+//     initializers, destructors and prints respectively, or set them to NULL
+//     if the node does not contain any data
+//  5) Add the node name to nt_strings
+
 /**
  * The types of nodes in the AST.
  *
@@ -28,6 +40,8 @@ extern "C" {
  * inside parenthesis properly
  */
 NstEXP typedef enum _Nst_NodeType {
+    // Statement nodes
+
     Nst_NT_LONG_S,      // Long statement
     Nst_NT_WHILE_L,     // While or do-while loop
     Nst_NT_FOR_L,       // For or for-as loop
@@ -39,7 +53,7 @@ NstEXP typedef enum _Nst_NodeType {
     Nst_NT_TRY_CATCH_S, // Try-catch statement
     Nst_NT_S_WRAPPER,   // Statement wrapper
 
-    // These nodes represent expressions
+    // Expression nodes
 
     Nst_NT_STACK_OP,       // Stack operation
     Nst_NT_LOCAL_STACK_OP, // Local-stack operation
