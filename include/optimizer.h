@@ -25,7 +25,7 @@ extern "C" {
  * @return The optimized AST on success and `NULL` on failure. The error is
  * set.
  */
-NstEXP Nst_Node__old *NstC Nst_optimize_ast(Nst_Node__old *ast);
+NstEXP Nst_Node *NstC Nst_optimize_ast(Nst_Node *ast);
 
 /**
  * Optimizes bytecode.

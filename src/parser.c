@@ -32,14 +32,14 @@ static inline void skip_blank(void);
 static bool check_local_stack_op_arg_num(usize arg_num, Nst_Pos start,
                                          Nst_Pos end);
 
-static Nst_Node *parse_long_s(void);
-static Nst_Node *parse_long_s_with_brackets(void);
+static Nst_Node *parse_cs(void);
+static Nst_Node *parse_cs_with_brackets(void);
 static Nst_Node *parse_statement(void);
-static Nst_Node *parse_while_l(void);
-static Nst_Node *parse_for_l(void);
+static Nst_Node *parse_wl(void);
+static Nst_Node *parse_fl(void);
 static Nst_Node *parse_expr(void);
 static Nst_Node *parse_switch_s(void);
-static Nst_Node *parse_func_declr(void);
+static Nst_Node *parse_fd(void);
 static Nst_Node *parse_stack_expr(void);
 static Nst_Node *parse_stack_op(Nst_LList **values, Nst_Pos start);
 static Nst_Node *parse_local_stack_op(Nst_LList **values, Nst_Pos start);
@@ -64,7 +64,7 @@ Nst_Node *Nst_parse(Nst_LList *tokens)
     state.recursion_lvl = 0;
     state.tokens = tokens;
 
-    Nst_Node *ast = parse_long_s();
+    Nst_Node *ast = parse_cs();
 
     if (ast != NULL && state.tokens->len > 1) {
         Nst_Pos start = Nst_TOK(Nst_llist_peek_front(state.tokens))->start;
@@ -131,7 +131,7 @@ static inline bool append_tok(Nst_LList *llist, Nst_Tok *tok)
 // Returns the head token on the tokens list
 static inline Nst_Tok *peek_top(void)
 {
-    return Nst_TOK(state.tokens->head);
+    return Nst_TOK(state.tokens->head->value);
 }
 
 // Returns the type of the head token on the tokens list
@@ -198,13 +198,13 @@ static inline void skip_blank(void)
         destroy_top();
 }
 
-static Nst_Node *parse_long_s(void)
+static Nst_Node *parse_cs(void)
 {
     ParsingState initial_state;
     if (!enter_func(&initial_state))
         return NULL;
 
-    Nst_Node *long_s = Nst_node_new(Nst_NT_LONG_S);
+    Nst_Node *long_s = Nst_node_new(Nst_NT_CS);
     Nst_Node *statement = NULL;
 
     if (long_s == NULL)
@@ -222,14 +222,14 @@ static Nst_Node *parse_long_s(void)
         statement = parse_statement();
         if (statement == NULL)
             goto failure;
-        if (!append_node(long_s->long_s.statements, statement))
+        if (!append_node(long_s->v.cs.statements, statement))
             goto failure;
         skip_blank();
     }
 
-    if (long_s->long_s.statements->len != 0) {
-        start = Nst_NODE(long_s->long_s.statements->head->value)->start;
-        end = Nst_NODE(long_s->long_s.statements->tail->value)->start;
+    if (long_s->v.cs.statements->len != 0) {
+        start = Nst_NODE(long_s->v.cs.statements->head->value)->start;
+        end = Nst_NODE(long_s->v.cs.statements->tail->value)->start;
     }
     Nst_node_set_pos(long_s, start, end);
 
@@ -244,7 +244,7 @@ failure:
     return NULL;
 }
 
-static Nst_Node *parse_long_s_with_brackets(void)
+static Nst_Node *parse_cs_with_brackets(void)
 {
     ParsingState initial_state;
     if (!enter_func(&initial_state))
@@ -259,7 +259,7 @@ static Nst_Node *parse_long_s_with_brackets(void)
         return NULL;
     }
     destroy_top();
-    Nst_Node *long_s = parse_long_s();
+    Nst_Node *long_s = parse_cs();
     if (long_s == NULL)
         return NULL;
 
@@ -272,12 +272,12 @@ static Nst_Node *parse_long_s_with_brackets(void)
     end = top_end();
     destroy_top();
 
-    Nst_Node *wrapper = new_node(Nst_NT_S_WRAPPER, start, end);
+    Nst_Node *wrapper = new_node(Nst_NT_WS, start, end);
     if (wrapper == NULL) {
         Nst_node_destroy(long_s);
         return NULL;
     }
-    wrapper->s_wrapper.statement = long_s;
+    wrapper->v.ws.statement = long_s;
     Nst_node_set_pos(wrapper, start, end);
 
     exit_func(&initial_state);
@@ -296,7 +296,7 @@ static Nst_Node *parse_statement(void)
         Nst_Pos start = top_start();
         destroy_top();
 
-        Nst_Node *long_s = parse_long_s();
+        Nst_Node *long_s = parse_cs();
         if (long_s == NULL)
             return NULL;
 
@@ -309,19 +309,19 @@ static Nst_Node *parse_statement(void)
         exit_func(&initial_state);
         return long_s;
     } else if (tok_type == Nst_TT_WHILE || tok_type == Nst_TT_DOWHILE) {
-        Nst_Node *while_l = parse_while_l(state);
+        Nst_Node *while_l = parse_wl();
         exit_func(&initial_state);
         return while_l;
     } else if (tok_type == Nst_TT_FOR) {
-        Nst_Node *for_l = parse_for_l(state);
+        Nst_Node *for_l = parse_fl();
         exit_func(&initial_state);
         return for_l;
     } else if (tok_type == Nst_TT_FUNC) {
-        Nst_Node *func_declr = parse_func_declr(state);
+        Nst_Node *func_declr = parse_fd();
         exit_func(&initial_state);
         return func_declr;
     } else if (tok_type == Nst_TT_SWITCH) {
-        Nst_Node *switch_s = parse_switch_s(state);
+        Nst_Node *switch_s = parse_switch_s();
         exit_func(&initial_state);
         return switch_s;
     } else if (tok_type == Nst_TT_RETURN) {
@@ -348,14 +348,14 @@ static Nst_Node *parse_statement(void)
             expr_end = expr->end;
         }
 
-        Nst_Node *return_s = new_node(Nst_NT_RETURN_S, start, expr_end);
+        Nst_Node *return_s = new_node(Nst_NT_RT, start, expr_end);
         if (return_s == NULL) {
             if (expr != NULL)
                 Nst_node_destroy(expr);
             return NULL;
         }
         Nst_node_set_pos(return_s, start, expr_end);
-        return_s->return_s.value = expr;
+        return_s->v.rt.value = expr;
         exit_func(&initial_state);
         return return_s;
     } else if (tok_type == Nst_TT_CONTINUE) {
@@ -368,7 +368,7 @@ static Nst_Node *parse_statement(void)
             return NULL;
         }
 
-        Nst_Node *continue_s = new_node(Nst_NT_CONTINUE_S, start, end);
+        Nst_Node *continue_s = new_node(Nst_NT_CN, start, end);
         if (continue_s == NULL)
             return NULL;
         Nst_node_set_pos(continue_s, start, end);
@@ -384,7 +384,7 @@ static Nst_Node *parse_statement(void)
             return NULL;
         }
 
-        Nst_Node *break_s = new_node(Nst_NT_BREAK_S, start, end);
+        Nst_Node *break_s = new_node(Nst_NT_BR, start, end);
         if (break_s == NULL)
             return NULL;
         Nst_node_set_pos(break_s, start, end);
@@ -403,10 +403,11 @@ static Nst_Node *parse_statement(void)
         Nst_Pos end = top_end();
         destroy_top();
         set_error(_Nst_EM_UNEXPECTED_TOK, start, end);
+        return NULL;
     }
 }
 
-static Nst_Node *parse_while_l(void)
+static Nst_Node *parse_wl(void)
 {
     ParsingState initial_state;
     if (!enter_func(&initial_state))
@@ -414,10 +415,10 @@ static Nst_Node *parse_while_l(void)
 
     Nst_Pos start = top_start();
     Nst_Pos end = top_end();
-    Nst_Node *while_l = new_node(Nst_NT_WHILE_L, start, end);
+    Nst_Node *while_l = new_node(Nst_NT_WL, start, end);
     if (while_l == NULL)
         return NULL;
-    while_l->while_l.is_dowhile = top_type() == Nst_TT_DOWHILE;
+    while_l->v.wl.is_dowhile = top_type() == Nst_TT_DOWHILE;
     destroy_top();
     skip_blank();
     state.endl_ends_expr = false;
@@ -427,20 +428,20 @@ static Nst_Node *parse_while_l(void)
         Nst_node_destroy(while_l);
         return NULL;
     }
-    while_l->while_l.condition = condition;
-
-    Nst_Node *body = parse_long_s_with_brackets();
+    while_l->v.wl.condition = condition;
+    state.in_loop = true;
+    Nst_Node *body = parse_cs_with_brackets();
     if (body == NULL) {
         Nst_node_destroy(while_l);
         return NULL;
     }
-    while_l->while_l.body = body;
+    while_l->v.wl.body = body;
     Nst_node_set_pos(while_l, start, body->end);
     exit_func(&initial_state);
     return while_l;
 }
 
-static Nst_Node *parse_for_l(void)
+static Nst_Node *parse_fl(void)
 {
     ParsingState initial_state;
     if (!enter_func(&initial_state))
@@ -448,9 +449,10 @@ static Nst_Node *parse_for_l(void)
 
     Nst_Pos start = top_start();
     Nst_Pos end = top_end();
-    Nst_Node *for_l = new_node(Nst_NT_FOR_L, start, end);
+    Nst_Node *for_l = new_node(Nst_NT_FL, start, end);
     if (for_l == NULL)
         return NULL;
+    destroy_top();
     skip_blank();
     state.endl_ends_expr = false;
     Nst_Node *iterator = parse_expr();
@@ -459,7 +461,7 @@ static Nst_Node *parse_for_l(void)
         Nst_node_destroy(for_l);
         return NULL;
     }
-    for_l->for_l.iterator = iterator;
+    for_l->v.fl.iterator = iterator;
     skip_blank();
     if (top_type() == Nst_TT_AS) {
         destroy_top();
@@ -468,16 +470,16 @@ static Nst_Node *parse_for_l(void)
             Nst_node_destroy(for_l);
             return NULL;
         }
-        for_l->for_l.assignment = assignment;
+        for_l->v.fl.assignment = assignment;
         skip_blank();
     }
-
-    Nst_Node *body = parse_long_s_with_brackets();
+    state.in_loop = true;
+    Nst_Node *body = parse_cs_with_brackets();
     if (body == NULL) {
         Nst_node_destroy(for_l);
         return NULL;
     }
-    for_l->for_l.body = body;
+    for_l->v.fl.body = body;
     Nst_node_set_pos(for_l, start, body->end);
     exit_func(&initial_state);
     return for_l;
@@ -485,7 +487,7 @@ static Nst_Node *parse_for_l(void)
 
 static Nst_Node *parse_expr(void)
 {
-    ParsingState *initial_state;
+    ParsingState initial_state;
     if (!enter_func(&initial_state))
         return NULL;
 
@@ -501,19 +503,19 @@ static Nst_Node *parse_expr(void)
         return condition;
     }
     destroy_top();
-    Nst_Node *if_e = new_node(Nst_NT_IF_E, condition->start, condition->end);
+    Nst_Node *if_e = new_node(Nst_NT_IE, condition->start, condition->end);
     if (if_e == NULL) {
         Nst_node_destroy(condition);
         return NULL;
     }
-    if_e->if_e.condition = condition;
+    if_e->v.ie.condition = condition;
     skip_blank();
     Nst_Node *body_if_true = parse_statement();
     if (body_if_true == NULL) {
         Nst_node_destroy(if_e);
         return NULL;
     }
-    if_e->if_e.body_if_true = body_if_true;
+    if_e->v.ie.body_if_true = body_if_true;
     skip_blank();
     if (top_type() != Nst_TT_COLON) {
         Nst_node_set_pos(if_e, condition->start, body_if_true->end);
@@ -527,7 +529,7 @@ static Nst_Node *parse_expr(void)
         Nst_node_destroy(if_e);
         return NULL;
     }
-    if_e->if_e.body_if_false = body_if_false;
+    if_e->v.ie.body_if_false = body_if_false;
     Nst_node_set_pos(if_e, condition->start, body_if_false->end);
     exit_func(&initial_state);
     return if_e;
@@ -543,7 +545,7 @@ static Nst_Node *parse_switch_s(void)
     Nst_Pos end = top_end();
     destroy_top();
 
-    Nst_Node *switch_s = new_node(Nst_NT_SWITCH_S, start, end);
+    Nst_Node *switch_s = new_node(Nst_NT_SW, start, end);
     if (switch_s == NULL)
         return NULL;
 
@@ -554,7 +556,7 @@ static Nst_Node *parse_switch_s(void)
         Nst_node_destroy(switch_s);
         return NULL;
     }
-    switch_s->switch_s.expr = expr;
+    switch_s->v.sw.expr = expr;
     skip_blank();
     if (top_type() != Nst_TT_L_BRACKET) {
         Nst_node_destroy(switch_s);
@@ -575,12 +577,13 @@ static Nst_Node *parse_switch_s(void)
         skip_blank();
 
         if (top_type() == Nst_TT_L_BRACKET) {
-            Nst_Node *default_body = parse_long_s_with_brackets();
+            state.in_switch = true;
+            Nst_Node *default_body = parse_cs_with_brackets();
             if (default_body == NULL) {
                 Nst_node_destroy(switch_s);
                 return NULL;
             }
-            switch_s->switch_s.default_body = default_body;
+            switch_s->v.sw.default_body = default_body;
             break;
         }
         state.endl_ends_expr = false;
@@ -590,23 +593,25 @@ static Nst_Node *parse_switch_s(void)
             Nst_node_destroy(switch_s);
             return NULL;
         }
-        if (!append_node(switch_s->switch_s.values, value)) {
+        if (!append_node(switch_s->v.sw.values, value)) {
             Nst_node_destroy(value);
             Nst_node_destroy(switch_s);
             return NULL;
         }
-        Nst_Node *body = parse_long_s_with_brackets();
+        state.in_switch = true;
+        Nst_Node *body = parse_cs_with_brackets();
+        state.in_switch = initial_state.in_switch;
         if (body == NULL) {
             Nst_node_destroy(switch_s);
             return NULL;
         }
-        if (!append_node(switch_s->switch_s.bodies, body)) {
+        if (!append_node(switch_s->v.sw.bodies, body)) {
             Nst_node_destroy(body);
             Nst_node_destroy(switch_s);
             return NULL;
         }
     }
-
+    skip_blank();
     if (top_type() != Nst_TT_R_BRACKET) {
         Nst_node_destroy(switch_s);
         set_error(_Nst_EM_EXPECTED_R_BRACKET, top_start(), top_end());
@@ -618,7 +623,7 @@ static Nst_Node *parse_switch_s(void)
     return switch_s;
 }
 
-static Nst_Node *parse_func_declr(void)
+static Nst_Node *parse_fd(void)
 {
     ParsingState initial_state;
     if (!enter_func(&initial_state))
@@ -626,7 +631,7 @@ static Nst_Node *parse_func_declr(void)
 
     Nst_Pos start = top_start();
     Nst_Pos end = top_end();
-    Nst_Node *func_declr = new_node(Nst_NT_FUNC_DECLR, start, end);
+    Nst_Node *func_declr = new_node(Nst_NT_FD, start, end);
     if (func_declr == NULL)
         return NULL;
 
@@ -639,12 +644,12 @@ static Nst_Node *parse_func_declr(void)
         return NULL;
     }
     if (!is_lambda)
-        func_declr->func_declr.name = pop_top();
+        func_declr->v.fd.name = pop_top();
 
     skip_blank();
     while (top_type() == Nst_TT_IDENT) {
         Nst_Tok *tok = peek_top();
-        if (!append_tok(func_declr->func_declr.argument_names, tok)) {
+        if (!append_tok(func_declr->v.fd.argument_names, tok)) {
             Nst_node_destroy(func_declr);
             return NULL;
         }
@@ -654,12 +659,13 @@ static Nst_Node *parse_func_declr(void)
 
     if (top_type() == Nst_TT_RETURN) {
         Nst_Pos body_start = top_start();
-        Nst_Node *return_s = new_node(Nst_NT_RETURN_S, body_start, top_end());
+        Nst_Node *return_s = new_node(Nst_NT_RT, body_start, top_end());
         if (return_s == NULL) {
             Nst_node_destroy(func_declr);
             return NULL;
         }
-        func_declr->func_declr.body = return_s;
+        destroy_top();
+        func_declr->v.fd.body = return_s;
         state.endl_ends_expr = false;
         Nst_Node *expr = parse_expr();
         state.endl_ends_expr = initial_state.endl_ends_expr;
@@ -667,16 +673,17 @@ static Nst_Node *parse_func_declr(void)
             Nst_node_destroy(func_declr);
             return NULL;
         }
-        return_s->return_s.value = expr;
+        return_s->v.rt.value = expr;
         Nst_node_set_pos(return_s, body_start, expr->end);
         end = expr->end;
     } else {
-        Nst_Node *body = parse_long_s_with_brackets();
+        state.in_func = true;
+        Nst_Node *body = parse_cs_with_brackets();
         if (body == NULL) {
             Nst_node_destroy(func_declr);
             return NULL;
         }
-        func_declr->func_declr.body = body;
+        func_declr->v.fd.body = body;
         end = body->end;
     }
     Nst_node_set_pos(func_declr, start, end);
@@ -721,7 +728,7 @@ static Nst_Node *parse_stack_expr()
             goto failure;
         }
 
-        Nst_Node *operation_node;
+        Nst_Node *operation_node = NULL;
         if (Nst_IS_STACK_OP(top_type()))
             operation_node = parse_stack_op(&values, start);
         else if (Nst_IS_LOCAL_STACK_OP(top_type()))
@@ -732,8 +739,12 @@ static Nst_Node *parse_stack_expr()
             break;
         else if (Nst_IS_EXPR_END(top_type()) && top_type() != Nst_TT_ENDL)
             break;
-        else if (state.break_ends_expr && top_type() != Nst_TT_BREAK)
+        else if (state.break_ends_expr && top_type() == Nst_TT_BREAK)
             break;
+        else {
+            set_error(_Nst_EM_UNEXPECTED_TOK, top_start(), top_end());
+            goto failure;
+        }
 
         if (operation_node == NULL)
             goto failure;
@@ -763,14 +774,14 @@ failure:
 
 static Nst_Node *parse_stack_op(Nst_LList **values, Nst_Pos start)
 {
-    Nst_Node *stack_op = new_node(Nst_NT_STACK_OP, top_start(), top_end());
+    Nst_Node *stack_op = new_node(Nst_NT_SO, top_start(), top_end());
     if (stack_op == NULL)
         return NULL;
     Nst_node_set_pos(stack_op, start, top_end());
     Nst_LList *temp = *values;
-    *values = stack_op->stack_op.values;
-    stack_op->stack_op.values = temp;
-    stack_op->stack_op.op = top_type();
+    *values = stack_op->v.so.values;
+    stack_op->v.so.values = temp;
+    stack_op->v.so.op = top_type();
     destroy_top();
     return stack_op;
 }
@@ -793,7 +804,7 @@ static Nst_Node *parse_local_stack_op(Nst_LList **values, Nst_Pos start)
     if (special_node == NULL)
         return NULL;
     Nst_Node *local_stack_op = new_node(
-        Nst_NT_LOCAL_STACK_OP,
+        Nst_NT_LS,
         start,
         special_node->end);
     if (local_stack_op == NULL) {
@@ -802,10 +813,10 @@ static Nst_Node *parse_local_stack_op(Nst_LList **values, Nst_Pos start)
     }
     Nst_node_set_pos(local_stack_op, start, special_node->end);
     Nst_LList *temp = *values;
-    *values = local_stack_op->local_stack_op.values;
-    local_stack_op->local_stack_op.values = temp;
-    local_stack_op->local_stack_op.special_value = special_node;
-    local_stack_op->local_stack_op.op = op;
+    *values = local_stack_op->v.ls.values;
+    local_stack_op->v.ls.values = temp;
+    local_stack_op->v.ls.special_value = special_node;
+    local_stack_op->v.ls.op = op;
     return local_stack_op;
 }
 
@@ -843,7 +854,7 @@ static Nst_Node *parse_assignment_name(bool is_compound)
         name = parse_extraction();
         if (name == NULL)
             return NULL;
-        if (name->type != Nst_NT_ACCESS && name->type != Nst_NT_EXTRACT_E) {
+        if (name->type != Nst_NT_AC && name->type != Nst_NT_EX) {
             set_error(_Nst_EM_EXPECTED_IDENT_OR_EXTR, name->start, name->end);
             Nst_node_destroy(name);
             return NULL;
@@ -857,10 +868,10 @@ static Nst_Node *parse_assignment_name(bool is_compound)
         return NULL;
     }
 
-    name = new_node(Nst_NT_SEQ_LIT, top_start(), top_end());
+    name = new_node(Nst_NT_SL, top_start(), top_end());
     if (name == NULL)
         return NULL;
-    name->seq_lit.type = Nst_SNT_ASSIGNMENT_NAMES;
+    name->v.sl.type = Nst_SNT_ASSIGNMENT_NAMES;
     destroy_top();
 
     state.endl_ends_expr = false;
@@ -870,7 +881,7 @@ static Nst_Node *parse_assignment_name(bool is_compound)
         Nst_Node *sub_name = parse_assignment_name(false);
         if (sub_name == NULL)
             goto failure;
-        if (!append_node(name->seq_lit.values, sub_name)) {
+        if (!append_node(name->v.sl.values, sub_name)) {
             Nst_node_destroy(sub_name);
             goto failure;
         }
@@ -905,17 +916,18 @@ static Nst_Node *parse_assignment(Nst_LList **values, Nst_Pos start)
     Nst_TokType type = top_type();
     bool is_compound = type != Nst_TT_ASSIGN;
 
-    if ((*values)->len > 1 && is_compound) {
+    if ((*values)->len > 1 && !is_compound) {
         set_error(_Nst_EM_EXPECTED_OP, top_start(), top_end());
         return NULL;
     }
+    destroy_top();
 
     Nst_Node *name = parse_assignment_name(is_compound);
     if (name == NULL)
         return NULL;
 
     Nst_Node *assignment = new_node(
-        is_compound ? Nst_NT_COMP_ASSIGN_E : Nst_NT_ASSIGN_E,
+        is_compound ? Nst_NT_CA : Nst_NT_AS,
         start,
         name->end);
 
@@ -927,13 +939,13 @@ static Nst_Node *parse_assignment(Nst_LList **values, Nst_Pos start)
 
     if (is_compound) {
         Nst_LList *temp = *values;
-        *values = assignment->comp_assign_e.values;
-        assignment->comp_assign_e.values = temp;
-        assignment->comp_assign_e.name = name;
-        assignment->comp_assign_e.op = Nst_ASSIGNMENT_TO_STACK_OP(type);
+        *values = assignment->v.ca.values;
+        assignment->v.ca.values = temp;
+        assignment->v.ca.name = name;
+        assignment->v.ca.op = Nst_ASSIGNMENT_TO_STACK_OP(type);
     } else {
-        assignment->assign_e.name = name;
-        assignment->assign_e.value = Nst_llist_pop(*values);
+        assignment->v.as.name = name;
+        assignment->v.as.value = Nst_llist_pop(*values);
     }
 
     exit_func(&initial_state);
@@ -955,38 +967,40 @@ static Nst_Node *parse_extraction(void)
 
     while (top_type() == Nst_TT_EXTRACT) {
         destroy_top();
-        Nst_Node *idx;
+        Nst_Node *key;
 
         if (!state.endl_ends_expr)
             skip_blank();
 
         if (top_type() == Nst_TT_IDENT) {
-            idx = new_node(Nst_NT_VALUE, top_start(), top_end());
-            if (idx == NULL) {
+            key = new_node(Nst_NT_VL, top_start(), top_end());
+            if (key == NULL) {
                 Nst_node_destroy(container);
                 return NULL;
             }
-            Nst_node_set_pos(idx, top_start(), top_end());
-            idx->value.value = pop_top();
-            idx->value.value->type = Nst_TT_VALUE;
+            Nst_node_set_pos(key, top_start(), top_end());
+            key->v.vl.value = pop_top();
+            key->v.vl.value->type = Nst_TT_VALUE;
         } else {
-            idx = parse_atom();
-            if (idx == NULL) {
+            key = parse_atom();
+            if (key == NULL) {
                 Nst_node_destroy(container);
                 return NULL;
             }
         }
 
         Nst_Node *extraction = new_node(
-            Nst_NT_EXTRACT_E,
+            Nst_NT_EX,
             container->start,
-            idx->end);
+            key->end);
         if (extraction == NULL) {
-            Nst_node_destroy(idx);
+            Nst_node_destroy(key);
             Nst_node_destroy(container);
             return NULL;
         }
-        Nst_node_set_pos(extraction, container->start, idx->end);
+        Nst_node_set_pos(extraction, container->start, key->end);
+        extraction->v.ex.key = key;
+        extraction->v.ex.container = container;
         container = extraction;
 
         if (!state.endl_ends_expr)
@@ -1005,17 +1019,17 @@ static Nst_Node *parse_atom(void)
     Nst_Node *atom = NULL;
 
     if (top_type() == Nst_TT_VALUE) {
-        atom = new_node(Nst_NT_VALUE, top_start(), top_end());
+        atom = new_node(Nst_NT_VL, top_start(), top_end());
         if (atom == NULL)
             return NULL;
         Nst_node_set_pos(atom, top_start(), top_end());
-        atom->value.value = pop_top();
+        atom->v.vl.value = pop_top();
     } else if (top_type() == Nst_TT_IDENT) {
-        atom = new_node(Nst_NT_ACCESS, top_start(), top_end());
+        atom = new_node(Nst_NT_AC, top_start(), top_end());
         if (atom == NULL)
             return NULL;
         Nst_node_set_pos(atom, top_start(), top_end());
-        atom->access.value = pop_top();
+        atom->v.ac.value = pop_top();
     } else if (top_type() == Nst_TT_L_PAREN) {
         Nst_Pos start = top_start();
         Nst_Pos end = top_end();
@@ -1032,26 +1046,27 @@ static Nst_Node *parse_atom(void)
         end = top_end();
         destroy_top();
 
-        atom = new_node(Nst_NT_E_WRAPPER, expr->start, expr->end);
+        atom = new_node(Nst_NT_WE, expr->start, expr->end);
         if (atom == NULL) {
             Nst_node_destroy(expr);
             return NULL;
         }
-        atom->e_wrapper.expr = expr;
+        atom->v.we.expr = expr;
         Nst_node_set_pos(atom, start, end);
     } else if (Nst_IS_LOCAL_OP(top_type())) {
-        atom = new_node(Nst_NT_LOCAL_OP, top_start(), top_end());
+        atom = new_node(Nst_NT_LO, top_start(), top_end());
         if (atom == NULL)
             return NULL;
         Nst_Pos start = top_start();
-        atom->local_op.op = top_type();
+        atom->v.lo.op = top_type();
+        destroy_top();
 
         Nst_Node *value = parse_extraction();
         if (value == NULL) {
             Nst_node_destroy(atom);
             return NULL;
         }
-        atom->local_op.value = value;
+        atom->v.lo.value = value;
         Nst_node_set_pos(atom, start, value->end);
     } else if (top_type() == Nst_TT_L_VBRACE) {
         atom = parse_vector_literal();
@@ -1062,7 +1077,7 @@ static Nst_Node *parse_atom(void)
         if (atom == NULL)
             return NULL;
     } else if (top_type() == Nst_TT_LAMBDA) {
-        atom = parse_func_declr();
+        atom = parse_fd();
         if (atom == NULL)
             return NULL;
     } else {
@@ -1087,7 +1102,8 @@ static Nst_Node *parse_vector_literal(void)
     skip_blank();
     if (top_type() == Nst_TT_R_VBRACE) {
         destroy_top();
-        vec_lit = new_node(Nst_NT_SEQ_LIT, start, top_end());
+        vec_lit = new_node(Nst_NT_SL, start, top_end());
+        vec_lit->v.sl.type = Nst_SNT_VECTOR;
         if (vec_lit == NULL)
             return NULL;
         Nst_node_set_pos(vec_lit, start, top_end());
@@ -1114,7 +1130,7 @@ static Nst_Node *parse_arr_or_map_literal(void)
     skip_blank();
 
     if (top_type() == Nst_TT_R_BRACE) {
-        Nst_Node *map_lit = new_node(Nst_NT_MAP_LIT, start, top_end());
+        Nst_Node *map_lit = new_node(Nst_NT_ML, start, top_end());
         if (map_lit == NULL)
             return NULL;
         Nst_node_set_pos(map_lit, start, top_end());
@@ -1128,11 +1144,11 @@ static Nst_Node *parse_arr_or_map_literal(void)
             set_error(_Nst_EM_EXPECTED_BRACE, top_start(), top_end());
             return NULL;
         }
-        Nst_Node *arr_lit = new_node(Nst_NT_SEQ_LIT, start, top_end());
+        Nst_Node *arr_lit = new_node(Nst_NT_SL, start, top_end());
         if (arr_lit == NULL)
             return NULL;
         Nst_node_set_pos(arr_lit, start, top_end());
-        arr_lit->seq_lit.type = Nst_SNT_ARRAY;
+        arr_lit->v.sl.type = Nst_SNT_ARRAY;
         destroy_top();
         exit_func(&initial_state);
         return arr_lit;
@@ -1174,7 +1190,7 @@ static Nst_Node *parse_seq_body(Nst_Pos start, Nst_Node *first_node, bool arr)
         ? _Nst_EM_EXPECTED_COMMA_OR_BRACE
         : _Nst_EM_EXPECTED_COMMA_OR_VBRACE;
 
-    Nst_Node *seq_lit = new_node(Nst_NT_SEQ_LIT, start, start);
+    Nst_Node *seq_lit = new_node(Nst_NT_SL, start, start);
     if (seq_lit == NULL)
         goto failure;
 
@@ -1187,7 +1203,7 @@ static Nst_Node *parse_seq_body(Nst_Pos start, Nst_Node *first_node, bool arr)
             goto failure;
     }
 
-    if (!append_node(seq_lit->seq_lit.values, first_node)) {
+    if (!append_node(seq_lit->v.sl.values, first_node)) {
         Nst_node_destroy(first_node);
         Nst_node_destroy(seq_lit);
         return NULL;
@@ -1204,17 +1220,17 @@ static Nst_Node *parse_seq_body(Nst_Pos start, Nst_Node *first_node, bool arr)
             set_error(expected_paren, top_start(), top_end());
             goto failure;
         }
-        if (!append_node(seq_lit->seq_lit.values, length)) {
+        if (!append_node(seq_lit->v.sl.values, length)) {
             Nst_node_destroy(length);
             goto failure;
         }
         Nst_node_set_pos(seq_lit, start, top_end());
         destroy_top();
-        seq_lit->seq_lit.type = arr ? Nst_SNT_ARRAY_REP : Nst_SNT_VECTOR_REP;
+        seq_lit->v.sl.type = arr ? Nst_SNT_ARRAY_REP : Nst_SNT_VECTOR_REP;
         exit_func(&initial_state);
         return seq_lit;
     }
-    seq_lit->seq_lit.type = arr ? Nst_SNT_ARRAY : Nst_SNT_VECTOR;
+    seq_lit->v.sl.type = arr ? Nst_SNT_ARRAY : Nst_SNT_VECTOR;
 
     goto from_comma;
 
@@ -1223,7 +1239,7 @@ static Nst_Node *parse_seq_body(Nst_Pos start, Nst_Node *first_node, bool arr)
         Nst_Node *value = parse_expr();
         if (value == NULL)
             goto failure;
-        if (!append_node(seq_lit->seq_lit.values, value)) {
+        if (!append_node(seq_lit->v.sl.values, value)) {
             Nst_node_destroy(value);
             goto failure;
         }
@@ -1258,11 +1274,11 @@ static Nst_Node *parse_map_body(Nst_Pos start, Nst_Node *key)
         return NULL;
 
     Nst_Node *value = NULL;
-    Nst_Node *map_lit = new_node(Nst_NT_MAP_LIT, start, start);
+    Nst_Node *map_lit = new_node(Nst_NT_ML, start, start);
     if (map_lit == NULL)
         goto failure;
 
-    if (!append_node(map_lit->map_lit.keys, key))
+    if (!append_node(map_lit->v.ml.keys, key))
         goto failure;
     key = NULL;
     goto from_colon;
@@ -1271,7 +1287,7 @@ static Nst_Node *parse_map_body(Nst_Pos start, Nst_Node *key)
         key = parse_expr();
         if (key == NULL)
             goto failure;
-        if (!append_node(map_lit->map_lit.keys, key))
+        if (!append_node(map_lit->v.ml.keys, key))
             goto failure;
         key = NULL;
 
@@ -1281,10 +1297,11 @@ static Nst_Node *parse_map_body(Nst_Pos start, Nst_Node *key)
             set_error(_Nst_EM_EXPECTED_COLON, top_start(), top_end());
             goto failure;
         }
+        destroy_top();
         value = parse_expr();
         if (value == NULL)
             goto failure;
-        if (!append_node(map_lit->map_lit.values, value))
+        if (!append_node(map_lit->v.ml.values, value))
             goto failure;
         value = NULL;
 
@@ -1320,7 +1337,7 @@ static Nst_Node *parse_try_catch(void)
     Nst_Pos start = top_start();
     destroy_top();
 
-    Nst_Node *try_catch_s = new_node(Nst_NT_TRY_CATCH_S, start, start);
+    Nst_Node *try_catch_s = new_node(Nst_NT_TC, start, start);
     if (try_catch_s == NULL)
         goto failure;
 
@@ -1330,7 +1347,7 @@ static Nst_Node *parse_try_catch(void)
     Nst_Node *try_body = parse_statement();
     if (try_body == NULL)
         goto failure;
-    try_catch_s->try_catch_s.try_body = try_body;
+    try_catch_s->v.tc.try_body = try_body;
     skip_blank();
 
     if (top_type() != Nst_TT_CATCH)
@@ -1339,12 +1356,12 @@ static Nst_Node *parse_try_catch(void)
     if (top_type() != Nst_TT_IDENT)
         goto failure;
 
-    try_catch_s->try_catch_s.error_name = pop_top();
+    try_catch_s->v.tc.error_name = pop_top();
     skip_blank();
     Nst_Node *catch_body = parse_statement();
     if (catch_body == NULL)
         goto failure;
-    try_catch_s->try_catch_s.catch_body = catch_body;
+    try_catch_s->v.tc.catch_body = catch_body;
 
     Nst_node_set_pos(try_catch_s, start, catch_body->end);
     exit_func(&initial_state);

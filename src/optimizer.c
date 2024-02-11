@@ -6,268 +6,393 @@
 #include "iter.h"
 #include "hash.h"
 #include "format.h"
+#include "obj_ops.h"
 
-#define HEAD_NODE Nst_NODE(node->nodes->head->value)
-#define TAIL_NODE Nst_NODE(node->nodes->tail->value)
+static bool optimize_node(Nst_Node *node);
 
-#define HEAD_TOK Nst_TOK(node->tokens->head->value)
-#define TAIL_TOK Nst_TOK(node->tokens->tail->value)
+static bool optimize_cs(Nst_Node *node);
+static bool optimize_while_l(Nst_Node *node);
+static bool optimize_fl(Nst_Node *node);
+static bool optimize_func_declr(Nst_Node *node);
+static bool optimize_rt(Nst_Node *node);
+static bool optimize_switch_s(Nst_Node *node);
+static bool optimize_try_catch_s(Nst_Node *node);
+static bool optimize_s_wrapper(Nst_Node *node);
+static bool optimize_stack_op(Nst_Node *node);
+static bool optimize_local_stack_op(Nst_Node *node);
+static bool optimize_local_op(Nst_Node *node);
+static bool optimize_seq_lit(Nst_Node *node);
+static bool optimize_map_lit(Nst_Node *node);
+static bool optimize_extract_e(Nst_Node *node);
+static bool optimize_assign_e(Nst_Node *node);
+static bool optimize_comp_assign_e(Nst_Node *node);
+static bool optimize_if_e(Nst_Node *node);
+static bool optimize_e_wrapper(Nst_Node *node);
 
-static void ast_optimize_node(Nst_Node__old *node);
-static void ast_optimize_node_nodes(Nst_Node__old *node);
-static void ast_optimize_stack_op(Nst_Node__old *node);
-static void ast_optimize_comp_op(Nst_Node__old *node);
-static void ast_optimize_local_op(Nst_Node__old *node);
-static void ast_optimize_long_s(Nst_Node__old *node);
+// Gets the value of the node if it is a Nst_NT_VALUE node and returns NULL
+// otherwise
+static Nst_Obj *get_value(Nst_Node *node);
 
-Nst_Node__old *Nst_optimize_ast(Nst_Node__old *ast)
+bool (*optimizers[])(Nst_Node *) = {
+    [Nst_NT_CS] = optimize_cs,
+    [Nst_NT_WL] = optimize_while_l,
+    [Nst_NT_FL] = optimize_fl,
+    [Nst_NT_FD] = optimize_func_declr,
+    [Nst_NT_RT] = optimize_rt,
+    [Nst_NT_CN] = NULL,
+    [Nst_NT_BR] = NULL,
+    [Nst_NT_SW] = optimize_switch_s,
+    [Nst_NT_TC] = optimize_try_catch_s,
+    [Nst_NT_WS] = optimize_s_wrapper,
+    [Nst_NT_NP] = NULL,
+    [Nst_NT_SO] = optimize_stack_op,
+    [Nst_NT_LS] = optimize_local_stack_op,
+    [Nst_NT_LO] = optimize_local_op,
+    [Nst_NT_SL] = optimize_seq_lit,
+    [Nst_NT_ML] = optimize_map_lit,
+    [Nst_NT_VL] = NULL,
+    [Nst_NT_AC] = NULL,
+    [Nst_NT_EX] = optimize_extract_e,
+    [Nst_NT_AS] = optimize_assign_e,
+    [Nst_NT_CA] = optimize_comp_assign_e,
+    [Nst_NT_IE] = optimize_if_e,
+    [Nst_NT_WE] = optimize_e_wrapper
+};
+
+Nst_Node *NstC Nst_optimize_ast(Nst_Node *ast)
 {
-    ast_optimize_node(ast);
-
-    if (Nst_error_occurred()) {
-        Nst_node_destroy__old(ast);
+    if (!optimize_node(ast)) {
+        // should never happen but if it does, it will not crash
+        if (Nst_error_get()->positions->len == 0)
+            Nst_error_add_positions(Nst_error_get(), ast->start, ast->end);
+        Nst_node_destroy(ast);
         return NULL;
     }
 
     return ast;
 }
 
-static void ast_optimize_node(Nst_Node__old *node)
+static Nst_Obj *get_value(Nst_Node *node)
 {
-    switch (node->type) {
-    case Nst_NT_STACK_OP:
-        ast_optimize_stack_op(node);
-        break;
-    case Nst_NT_LOCAL_OP:
-        ast_optimize_local_op(node);
-        break;
-    case Nst_NT_LONG_S:
-        ast_optimize_long_s(node);
-    case Nst_NT_VALUE:
-        break;
-    default:
-        ast_optimize_node_nodes(node);
-    }
+    if (node->type != Nst_NT_VL)
+        return NULL;
+    else
+        return node->v.vl.value->value;
 }
 
-static void ast_optimize_node_nodes(Nst_Node__old *node)
+static void move_into(Nst_Node *new_node, Nst_Node *old_node)
 {
-    for (Nst_LLIST_ITER(n, node->nodes)) {
-        ast_optimize_node(Nst_NODE(n->value));
-        if (Nst_error_occurred())
-            return;
-    }
+    Nst_node_destroy_contents(old_node);
+    *old_node = *new_node;
+    Nst_free(new_node);
 }
 
-static void ast_optimize_stack_op(Nst_Node__old *node)
+static bool optimize_node(Nst_Node *node)
 {
-    if (Nst_IS_COMP_OP(HEAD_TOK->type)) {
-        ast_optimize_comp_op(node);
-        return;
-    }
-
-    ast_optimize_node(HEAD_NODE);
-    ast_optimize_node(TAIL_NODE);
-
-    if (Nst_error_occurred())
-        return;
-
-    if (HEAD_NODE->type != Nst_NT_VALUE || TAIL_NODE->type != Nst_NT_VALUE)
-        return;
-
-    i32 op_tok = HEAD_TOK->type;
-    Nst_Obj *ob1 = Nst_TOK(HEAD_NODE->tokens->head->value)->value;
-    Nst_Obj *ob2 = Nst_TOK(TAIL_NODE->tokens->head->value)->value;
-    Nst_Obj *res = NULL;
-
-    switch (op_tok) {
-    case Nst_TT_ADD:    res = Nst_obj_add   (ob1, ob2); break;
-    case Nst_TT_SUB:    res = Nst_obj_sub   (ob1, ob2); break;
-    case Nst_TT_MUL:    res = Nst_obj_mul   (ob1, ob2); break;
-    case Nst_TT_DIV:    res = Nst_obj_div   (ob1, ob2); break;
-    case Nst_TT_POW:    res = Nst_obj_pow   (ob1, ob2); break;
-    case Nst_TT_MOD:    res = Nst_obj_mod   (ob1, ob2); break;
-    case Nst_TT_B_AND:  res = Nst_obj_bwand (ob1, ob2); break;
-    case Nst_TT_B_OR:   res = Nst_obj_bwor  (ob1, ob2); break;
-    case Nst_TT_B_XOR:  res = Nst_obj_bwxor (ob1, ob2); break;
-    case Nst_TT_LSHIFT: res = Nst_obj_bwls  (ob1, ob2); break;
-    case Nst_TT_RSHIFT: res = Nst_obj_bwrs  (ob1, ob2); break;
-    case Nst_TT_CONCAT: res = Nst_obj_concat(ob1, ob2); break;
-    case Nst_TT_L_AND:  res = Nst_obj_lgand (ob1, ob2); break;
-    case Nst_TT_L_OR:   res = Nst_obj_lgor  (ob1, ob2); break;
-    case Nst_TT_L_XOR:  res = Nst_obj_lgxor (ob1, ob2); break;
-    }
-
-    if (res == NULL) {
-        Nst_error_add_positions(Nst_error_get(), node->start, node->end);
-        return;
-    }
-
-    Nst_node_destroy__old(Nst_NODE(Nst_llist_pop(node->nodes)));
-    Nst_node_destroy__old(Nst_NODE(Nst_llist_pop(node->nodes)));
-    Nst_tok_destroy(Nst_TOK(Nst_llist_peek_front(node->tokens)));
-
-    node->type = Nst_NT_VALUE;
-
-    Nst_Tok *new_tok = Nst_tok_new_value(
-        node->start,
-        node->end,
-        Nst_TT_VALUE,
-        res);
-
-    if (new_tok == NULL) {
-        Nst_error_add_positions(Nst_error_get(), node->start, node->end);
-        return;
-    }
-    node->tokens->head->value = new_tok;
+    if (node == NULL)
+        return true;
+    if (optimizers[node->type] != NULL)
+        return optimizers[node->type](node);
+    return true;
 }
 
-static void ast_optimize_comp_op(Nst_Node__old *node)
+static bool optimize_cs(Nst_Node *node)
 {
-    Nst_Obj *res = NULL;
-    i32 op_tok = HEAD_TOK->type;
-    Nst_Obj *ob1 = NULL;
-    Nst_Obj *ob2 = NULL;
+    for (Nst_LLIST_ITER(lnode, node->v.cs.statements)) {
+        if (!optimize_node(Nst_NODE(lnode->value)))
+            return false;
+    }
+    return true;
+}
 
-    ast_optimize_node_nodes(node);
-    if (Nst_error_occurred())
-        return;
+static bool optimize_while_l(Nst_Node *node)
+{
+    if (!optimize_node(node->v.wl.condition))
+        return false;
+    if (!optimize_node(node->v.wl.body))
+        return false;
 
-    for (Nst_LLIST_ITER(n, node->nodes)) {
-        if (Nst_NODE(n->value)->type != Nst_NT_VALUE)
-            return;
+    Nst_Obj *cond_value = get_value(node->v.wl.condition);
+
+    if (cond_value == NULL || Nst_obj_to_bool(cond_value))
+        return true;
+
+    if (node->v.wl.is_dowhile) {
+        Nst_Node *body = node->v.wl.body;
+        node->v.wl.body = NULL;
+        move_into(body, node);
+        return true;
+    }
+    Nst_node_change_type(node, Nst_NT_NP);
+    return true;
+}
+
+static bool optimize_fl(Nst_Node *node)
+{
+    if (!optimize_node(node->v.fl.iterator))
+        return false;
+    if (!optimize_node(node->v.fl.body))
+        return false;
+
+    if (node->v.fl.assignment != NULL)
+        return true;
+    Nst_Obj *repetitions = get_value(node->v.fl.iterator);
+    if (repetitions == NULL)
+        return true;
+    if (repetitions->type == Nst_t.Int && AS_INT(repetitions) == 0)
+        Nst_node_change_type(node, Nst_NT_NP);
+    return true;
+}
+
+static bool optimize_func_declr(Nst_Node *node)
+{
+    return optimize_node(node->v.fd.body);
+}
+
+static bool optimize_rt(Nst_Node *node)
+{
+    return optimize_node(node->v.rt.value);
+}
+
+static bool optimize_switch_s(Nst_Node *node)
+{
+    if (!optimize_node(node->v.sw.expr))
+        return false;
+
+    // it cannot be optimized to jump to the correct value if known because of
+    // possible fallthrough
+    for (Nst_LLIST_ITER(lnode, node->v.sw.values)) {
+        if (!optimize_node(Nst_NODE(lnode->value)))
+            return false;
+    }
+    for (Nst_LLIST_ITER(lnode, node->v.sw.bodies)) {
+        if (!optimize_node(Nst_NODE(lnode->value)))
+            return false;
+    }
+    return optimize_node(node->v.sw.default_body);
+}
+
+static bool optimize_try_catch_s(Nst_Node *node)
+{
+    if (!optimize_node(node->v.tc.try_body))
+        return false;
+    if (!optimize_node(node->v.tc.catch_body))
+        return false;
+    return true;
+}
+
+static bool optimize_s_wrapper(Nst_Node *node)
+{
+    if (!optimize_node(node->v.ws.statement))
+        return false;
+    Nst_Node *statement = node->v.ws.statement;
+    node->v.ws.statement = NULL;
+    move_into(statement, node);
+    return true;
+}
+
+static bool optimize_stack_values(Nst_LList *values, Nst_TokType op,
+                                  Nst_Node *node)
+{
+    for (Nst_LLIST_ITER(lnode, values)) {
+        if (!optimize_node(Nst_NODE(lnode->value)))
+            return false;
     }
 
-    for (Nst_LLIST_ITER(n, node->nodes)) {
-        if (n->next == NULL)
-            break;
+    if (values->len == 1)
+        return true;
 
-        ob1 = Nst_TOK(Nst_NODE(n->value)->tokens->head->value)->value;
-        ob2 = Nst_TOK(Nst_NODE(n->next->value)->tokens->head->value)->value;
+    Nst_Obj *(*op_func)(Nst_Obj *, Nst_Obj *) = NULL;
 
-        switch (op_tok) {
-        case Nst_TT_GT:  res = Nst_obj_gt(ob1, ob2); break;
-        case Nst_TT_LT:  res = Nst_obj_lt(ob1, ob2); break;
-        case Nst_TT_EQ:  res = Nst_obj_eq(ob1, ob2); break;
-        case Nst_TT_NEQ: res = Nst_obj_ne(ob1, ob2); break;
-        case Nst_TT_GTE: res = Nst_obj_ge(ob1, ob2); break;
-        case Nst_TT_LTE: res = Nst_obj_le(ob1, ob2); break;
-        default: return;
+    switch (op) {
+    case Nst_TT_ADD:      op_func = _Nst_obj_add;      break;
+    case Nst_TT_SUB:      op_func = _Nst_obj_sub;      break;
+    case Nst_TT_MUL:      op_func = _Nst_obj_mul;      break;
+    case Nst_TT_DIV:      op_func = _Nst_obj_div;      break;
+    case Nst_TT_POW:      op_func = _Nst_obj_pow;      break;
+    case Nst_TT_MOD:      op_func = _Nst_obj_mod;      break;
+    case Nst_TT_B_AND:    op_func = _Nst_obj_bwand;    break;
+    case Nst_TT_B_OR:     op_func = _Nst_obj_bwor;     break;
+    case Nst_TT_B_XOR:    op_func = _Nst_obj_bwxor;    break;
+    case Nst_TT_LSHIFT:   op_func = _Nst_obj_bwls;     break;
+    case Nst_TT_RSHIFT:   op_func = _Nst_obj_bwrs;     break;
+    case Nst_TT_CONCAT:   op_func = _Nst_obj_concat;   break;
+    case Nst_TT_L_AND:    op_func = _Nst_obj_lgand;    break;
+    case Nst_TT_L_OR:     op_func = _Nst_obj_lgor;     break;
+    case Nst_TT_L_XOR:    op_func = _Nst_obj_lgxor;    break;
+    case Nst_TT_GT:       op_func = _Nst_obj_gt;       break;
+    case Nst_TT_LT:       op_func = _Nst_obj_lt;       break;
+    case Nst_TT_EQ:       op_func = _Nst_obj_eq;       break;
+    case Nst_TT_NEQ:      op_func = _Nst_obj_ne;       break;
+    case Nst_TT_GTE:      op_func = _Nst_obj_ge;       break;
+    case Nst_TT_LTE:      op_func = _Nst_obj_le;       break;
+    case Nst_TT_CONTAINS: op_func = _Nst_obj_contains; break;
+    }
+
+    if (op_func == NULL)
+        return true;
+
+    Nst_Obj *curr_value = get_value(Nst_NODE(values->head->value));
+    if (curr_value == NULL)
+        return true;
+    Nst_inc_ref(curr_value);
+    Nst_LLNode *prev_lnode = Nst_llist_pop_llnode(values);
+    Nst_Node *prev_node = Nst_NODE(prev_lnode->value);
+
+    while (values->len != 0) {
+        Nst_Obj *top_value = get_value(Nst_NODE(values->head->value));
+        if (top_value == NULL) {
+            Nst_dec_ref(prev_node->v.vl.value->value);
+            prev_node->v.vl.value->value = curr_value;
+            Nst_llist_push_llnode(values, prev_lnode);
+            return true;
         }
+        Nst_free(prev_lnode);
+        Nst_node_destroy(prev_node);
 
-        if (res == Nst_c.Bool_false)
-            break;
-        else if (res == NULL) {
+        Nst_Obj *result = op_func(curr_value, top_value);
+        Nst_dec_ref(curr_value);
+        if (result == NULL) {
             Nst_error_add_positions(Nst_error_get(), node->start, node->end);
-            return;
+            return false;
         }
+        curr_value = result;
+        prev_lnode = Nst_llist_pop_llnode(values);
+        prev_node = Nst_NODE(prev_lnode->value);
     }
-
-    Nst_llist_empty(node->nodes, (Nst_LListDestructor)Nst_node_destroy__old);
-    Nst_tok_destroy(Nst_TOK(Nst_llist_peek_front(node->tokens)));
-
-    node->type = Nst_NT_VALUE;
-
-    Nst_Tok *new_tok = Nst_tok_new_value(
-        node->start,
-        node->end,
-        Nst_TT_VALUE,
-        res);
-
-    if (new_tok == NULL) {
-        Nst_error_add_positions(Nst_error_get(), node->start, node->end);
-        return;
-    }
-    node->tokens->head->value = new_tok;
+    Nst_dec_ref(prev_node->v.vl.value->value);
+    prev_node->v.vl.value->value = curr_value;
+    Nst_llist_push_llnode(values, prev_lnode);
+    return true;
 }
 
-static void ast_optimize_local_op(Nst_Node__old *node)
+static bool optimize_stack_op(Nst_Node *node)
 {
-    ast_optimize_node(HEAD_NODE);
+    if (!optimize_stack_values(node->v.so.values, node->v.so.op, node))
+        return false;
 
-    if (Nst_error_occurred())
-        return;
-
-    if (HEAD_NODE->type != Nst_NT_VALUE)
-        return;
-
-    i32 op_tok = HEAD_TOK->type;
-    Nst_Obj *ob = Nst_TOK(HEAD_NODE->tokens->head->value)->value;
-    Nst_Obj *res = NULL;
-
-    switch (op_tok) {
-    case Nst_TT_LEN:    res = Nst_obj_len   (ob); break;
-    case Nst_TT_L_NOT:  res = Nst_obj_lgnot (ob); break;
-    case Nst_TT_B_NOT:  res = Nst_obj_bwnot (ob); break;
-    case Nst_TT_TYPEOF: res = Nst_obj_typeof(ob); break;
-    case Nst_TT_NEG:    res = Nst_obj_neg   (ob); break;
-    default: return;
+    if (node->v.so.values->len == 1) {
+        Nst_Node *expr = Nst_llist_pop(node->v.so.values);
+        move_into(expr, node);
     }
-
-    if (res == NULL) {
-        Nst_error_add_positions(Nst_error_get(), node->start, node->end);
-        return;
-    }
-
-    Nst_node_destroy__old(Nst_NODE(Nst_llist_pop(node->nodes)));
-    Nst_tok_destroy(Nst_TOK(Nst_llist_peek_front(node->tokens)));
-
-    node->type = Nst_NT_VALUE;
-
-    Nst_Tok *new_tok = Nst_tok_new_value(
-        node->start,
-        node->end,
-        Nst_TT_VALUE,
-        res);
-
-    if (new_tok == NULL) {
-        Nst_error_add_positions(Nst_error_get(), node->start, node->end);
-        return;
-    }
-    node->tokens->head->value = new_tok;
+    return true;
 }
 
-static void ast_optimize_long_s(Nst_Node__old *node)
+static bool optimize_local_stack_op(Nst_Node *node)
 {
-    Nst_LList *nodes = node->nodes;
-    Nst_LLNode *prev_valid_node = NULL;
-    Nst_Node__old *curr_node;
-
-    for (Nst_LLIST_ITER(n, node->nodes)) {
-        ast_optimize_node(Nst_NODE(n->value));
-        if (Nst_error_occurred())
-            return;
-
-        curr_node = Nst_NODE(n->value);
-
-        if (curr_node->type != Nst_NT_VALUE
-            && curr_node->type != Nst_NT_ACCESS)
-        {
-            prev_valid_node = n;
-            continue;
-        }
-
-        if (prev_valid_node == NULL) {
-            nodes->head = n->next;
-            if (n->next == NULL)
-                nodes->tail = NULL;
-        } else {
-            prev_valid_node->next = n->next;
-            if (n->next == NULL)
-                nodes->tail = prev_valid_node;
-        }
-
-        Nst_node_destroy__old(Nst_NODE(n->value));
-        Nst_free(n);
-
-        if (prev_valid_node == NULL)
-            n = nodes->head;
-        else
-            n = prev_valid_node;
-
-        if (n == NULL)
-            break;
+    for (Nst_LLIST_ITER(lnode, node->v.ls.values)) {
+        if (!optimize_node(lnode->value))
+            return false;
     }
+
+    return optimize_node(node->v.ls.special_value);
+}
+
+static bool optimize_local_op(Nst_Node *node)
+{
+    if (!optimize_node(node->v.lo.value))
+        return false;
+
+    Nst_Obj *value = get_value(node->v.lo.value);
+    if (value == NULL)
+        return true;
+    Nst_Obj *(*op_func)(Nst_Obj *) = NULL;
+    switch (node->v.lo.op) {
+    case Nst_TT_LEN:    op_func = _Nst_obj_len;    break;
+    case Nst_TT_L_NOT:  op_func = _Nst_obj_lgnot;  break;
+    case Nst_TT_B_NOT:  op_func = _Nst_obj_bwnot;  break;
+    case Nst_TT_NEG:    op_func = _Nst_obj_neg;    break;
+    case Nst_TT_TYPEOF: op_func = _Nst_obj_typeof; break;
+    case Nst_TT_STDOUT:
+    case Nst_TT_STDIN:
+    case Nst_TT_IMPORT:
+    case Nst_TT_LOC_CALL:
+        break;
+    }
+    if (op_func == NULL)
+        return true;
+    Nst_Obj *result = op_func(value);
+    if (result == NULL) {
+        Nst_error_add_positions(Nst_error_get(), node->start, node->end);
+        return false;
+    }
+    Nst_Node *value_node = node->v.lo.value;
+    node->v.lo.value = NULL;
+    Nst_dec_ref(value_node->v.vl.value->value);
+    value_node->v.vl.value->value = result;
+    move_into(value_node, node);
+    return true;
+}
+
+static bool optimize_seq_lit(Nst_Node *node)
+{
+    for (Nst_LLIST_ITER(lnode, node->v.sl.values)) {
+        if (!optimize_node(Nst_NODE(lnode->value)))
+            return false;
+    }
+    return true;
+}
+
+static bool optimize_map_lit(Nst_Node *node)
+{
+    for (Nst_LLIST_ITER(lnode, node->v.ml.keys)) {
+        if (!optimize_node(Nst_NODE(lnode->value)))
+            return false;
+    }
+
+    for (Nst_LLIST_ITER(lnode, node->v.ml.values)) {
+        if (!optimize_node(Nst_NODE(lnode->value)))
+            return false;
+    }
+    return true;
+}
+
+static bool optimize_extract_e(Nst_Node *node)
+{
+    if (!optimize_node(node->v.ex.key))
+        return false;
+    if (!optimize_node(node->v.ex.container))
+        return false;
+    return true;
+}
+
+static bool optimize_assign_e(Nst_Node *node)
+{
+    if (!optimize_node(node->v.as.value))
+        return false;
+    if (!optimize_node(node->v.as.name))
+        return false;
+    return true;
+}
+
+static bool optimize_comp_assign_e(Nst_Node *node)
+{
+    if (!optimize_node(node->v.ca.name))
+        return false;
+    if (!optimize_stack_values(node->v.ca.values, node->v.ca.op, node))
+        return false;
+    return true;
+}
+
+static bool optimize_if_e(Nst_Node *node)
+{
+    if (!optimize_node(node->v.ie.condition))
+        return false;
+    if (!optimize_node(node->v.ie.body_if_true))
+        return false;
+    if (!optimize_node(node->v.ie.body_if_false))
+        return false;
+    return true;
+}
+
+static bool optimize_e_wrapper(Nst_Node *node)
+{
+    if (!optimize_node(node->v.we.expr))
+        return false;
+    Nst_Node *statement = node->v.we.expr;
+    node->v.we.expr = NULL;
+    move_into(statement, node);
+    return true;
 }
 
 static bool can_optimize_consts(Nst_InstList *bc);

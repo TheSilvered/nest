@@ -6,7 +6,7 @@
 #include "format.h"
 
 #define CURR_LEN ((i64)(c_state.inst_ls->len))
-#define NULL_OR_APPEND_FAILED(inst) ((inst) != NULL || !append_inst(inst))
+#define NULL_OR_APPEND_FAILED(inst) ((inst) == NULL || !append_inst(inst))
 #define PRINT(str, size) Nst_fwrite(str, size, NULL, Nst_io.out)
 
 typedef enum _CompilationType {
@@ -33,19 +33,22 @@ static void dec_loop_id(void)
 }
 
 static Nst_InstList *compile_internal(Nst_Node *node, CompilationType ct);
-static bool compile_long_s(Nst_Node *node);
-static bool compile_while_l(Nst_Node *node);
+static bool compile_node(Nst_Node *node);
+static bool compile_cs(Nst_Node *node);
+static bool compile_wl(Nst_Node *node);
 static bool compile_dowhile_l(Nst_Node *node);
-static bool compile_for_l(Nst_Node *node);
+static bool compile_fl(Nst_Node *node);
 static bool compile_for_as_l(Nst_Node *node);
-static bool compile_func_declr(Nst_Node *node);
-static bool compile_return_s(Nst_Node *node);
+static bool compile_fd(Nst_Node *node);
+static bool compile_rt(Nst_Node *node);
 static bool compile_continue_s(Nst_Node *node);
 static bool compile_break_s(Nst_Node *node);
 static bool compile_switch_s(Nst_Node *node);
 static bool compile_try_catch_s(Nst_Node *node);
 static bool compile_s_wrapper(Nst_Node *node);
 static bool compile_stack_op(Nst_Node *node);
+static bool compile_comp_op(Nst_Node *node);
+static bool compile_lg_op(Nst_Node *node);
 static bool compile_local_stack_op(Nst_Node *node);
 static bool compile_local_op(Nst_Node *node);
 static bool compile_seq_lit(Nst_Node *node);
@@ -59,6 +62,16 @@ static bool compile_comp_assign_e(Nst_Node *node);
 static bool compile_assignment_name(Nst_Node *node, bool local);
 static bool compile_if_e(Nst_Node *node);
 static bool compile_e_wrapper(Nst_Node *node);
+
+static bool append_inst(Nst_Inst *inst);
+static bool append_list_savable(Nst_Inst *inst);
+static Nst_Inst *new_inst(Nst_InstID id, Nst_Pos start, Nst_Pos end);
+static Nst_Inst *new_inst_v(Nst_InstID id, Nst_Obj *val, Nst_Pos start,
+                            Nst_Pos end);
+static Nst_Inst *new_inst_i(Nst_InstID id, i64 val, Nst_Pos start,
+                            Nst_Pos end);
+static void replace_placeholder_jumps(Nst_LLNode *start, Nst_LLNode *end,
+                                      i64 continue_idx, i64 break_idx);
 
 Nst_InstList *Nst_compile(Nst_Node *ast, bool is_module)
 {
@@ -201,32 +214,36 @@ static void replace_placeholder_jumps(Nst_LLNode *start, Nst_LLNode *end,
 static bool compile_node(Nst_Node *node)
 {
     switch (node->type) {
-    case Nst_NT_LONG_S:         return compile_long_s(node);
-    case Nst_NT_WHILE_L:        return compile_while_l(node);
-    case Nst_NT_FOR_L:          return compile_for_l(node);
-    case Nst_NT_FUNC_DECLR:     return compile_func_declr(node);
-    case Nst_NT_RETURN_S:       return compile_return_s(node);
-    case Nst_NT_CONTINUE_S:     return compile_continue_s(node);
-    case Nst_NT_BREAK_S:        return compile_break_s(node);
-    case Nst_NT_SWITCH_S:       return compile_switch_s(node);
-    case Nst_NT_TRY_CATCH_S:    return compile_try_catch_s(node);
-    case Nst_NT_S_WRAPPER:      return compile_s_wrapper(node);
-    case Nst_NT_STACK_OP:       return compile_stack_op(node);
-    case Nst_NT_LOCAL_STACK_OP: return compile_local_stack_op(node);
-    case Nst_NT_LOCAL_OP:       return compile_local_op(node);
-    case Nst_NT_SEQ_LIT:        return compile_seq_lit(node);
-    case Nst_NT_MAP_LIT:        return compile_map_lit(node);
-    case Nst_NT_VALUE:          return compile_value(node);
-    case Nst_NT_ACCESS:         return compile_access(node);
-    case Nst_NT_EXTRACT_E:      return compile_extract_e(node);
-    case Nst_NT_ASSIGN_E:       return compile_assign_e(node);
-    case Nst_NT_COMP_ASSIGN_E:  return compile_comp_assign_e(node);
-    case Nst_NT_IF_E:           return compile_if_e(node);
-    case Nst_NT_E_WRAPPER:      return compile_e_wrapper(node);
+    case Nst_NT_CS: return compile_cs(node);
+    case Nst_NT_WL: return compile_wl(node);
+    case Nst_NT_FL: return compile_fl(node);
+    case Nst_NT_FD: return compile_fd(node);
+    case Nst_NT_RT: return compile_rt(node);
+    case Nst_NT_CN: return compile_continue_s(node);
+    case Nst_NT_BR: return compile_break_s(node);
+    case Nst_NT_SW: return compile_switch_s(node);
+    case Nst_NT_TC: return compile_try_catch_s(node);
+    case Nst_NT_WS: return compile_s_wrapper(node);
+    case Nst_NT_NP: return true;
+    case Nst_NT_SO: return compile_stack_op(node);
+    case Nst_NT_LS: return compile_local_stack_op(node);
+    case Nst_NT_LO: return compile_local_op(node);
+    case Nst_NT_SL: return compile_seq_lit(node);
+    case Nst_NT_ML: return compile_map_lit(node);
+    case Nst_NT_VL: return compile_value(node);
+    case Nst_NT_AC: return compile_access(node);
+    case Nst_NT_EX: return compile_extract_e(node);
+    case Nst_NT_AS: return compile_assign_e(node);
+    case Nst_NT_CA: return compile_comp_assign_e(node);
+    case Nst_NT_IE: return compile_if_e(node);
+    case Nst_NT_WE: return compile_e_wrapper(node);
+    default:
+        Nst_assert_c(false);
+        return false;
     }
 }
 
-static bool compile_long_s(Nst_Node *node)
+static bool compile_cs(Nst_Node *node)
 {
     /*
     Long statement bytecode
@@ -236,12 +253,12 @@ static bool compile_long_s(Nst_Node *node)
     ^ repeated for every statement
     */
 
-    for (Nst_LLIST_ITER(lnode, node->long_s.statements)) {
+    for (Nst_LLIST_ITER(lnode, node->v.cs.statements)) {
         Nst_Node *statement = Nst_NODE(lnode->value);
         if (!compile_node(statement))
             return false;
         if (Nst_NODE_RETUNS_VALUE(statement->type)) {
-            Nst_Inst *inst = Nst_inst_new(
+            Nst_Inst *inst = new_inst(
                 Nst_IC_POP_VAL,
                 node->start,
                 node->end);
@@ -252,7 +269,7 @@ static bool compile_long_s(Nst_Node *node)
     return true;
 }
 
-static bool compile_while_l(Nst_Node *node)
+static bool compile_wl(Nst_Node *node)
 {
     /*
     While loop bytecode
@@ -264,13 +281,13 @@ static bool compile_while_l(Nst_Node *node)
     exit: [CODE CONTINUATION]
     */
 
-    if (node->while_l.is_dowhile)
+    if (node->v.wl.is_dowhile)
         return compile_dowhile_l(node);
 
     i64 cond_idx = CURR_LEN;
-    if (!compile_node(node->while_l.condition))
+    if (!compile_node(node->v.wl.condition))
         return false;
-    Nst_Inst *jumpif_f_exit = Nst_inst_new(
+    Nst_Inst *jumpif_f_exit = new_inst(
         Nst_IC_JUMPIF_F,
         node->start,
         node->end);
@@ -279,11 +296,11 @@ static bool compile_while_l(Nst_Node *node)
 
     Nst_LLNode *body_start = c_state.inst_ls->tail;
     inc_loop_id();
-    if (!compile_node(node->while_l.body))
+    if (!compile_node(node->v.wl.body))
         return false;
     Nst_LLNode *body_end = c_state.inst_ls->tail;
 
-    Nst_Inst *jump_cond = Nst_inst_new_int(
+    Nst_Inst *jump_cond = new_inst_i(
         Nst_IC_JUMP,
         cond_idx,
         node->start,
@@ -312,13 +329,13 @@ static bool compile_dowhile_l(Nst_Node *node)
     Nst_LLNode *body_start = c_state.inst_ls->tail;
     i64 body_start_idx = CURR_LEN;
     inc_loop_id();
-    if (!compile_node(node->while_l.body))
+    if (!compile_node(node->v.wl.body))
         return false;
     Nst_LLNode *body_end = c_state.inst_ls->tail;
     i64 continue_idx = CURR_LEN;
 
     dec_loop_id();
-    if (!compile_node(node->while_l.condition))
+    if (!compile_node(node->v.wl.condition))
         return false;
     inc_loop_id();
 
@@ -337,7 +354,7 @@ static bool compile_dowhile_l(Nst_Node *node)
     return true;
 }
 
-static bool compile_for_l(Nst_Node *node)
+static bool compile_fl(Nst_Node *node)
 {
     /*
     For loop bytecode
@@ -352,15 +369,15 @@ static bool compile_for_l(Nst_Node *node)
           [CODE CONTINUATION]
     */
 
-    if (node->for_l.assignment != NULL)
+    if (node->v.fl.assignment != NULL)
         return compile_for_as_l(node);
 
-    if (!compile_node(node->for_l.iterator))
+    if (!compile_node(node->v.fl.iterator))
         return false;
     Nst_Inst *new_int = new_inst(
         Nst_IC_NEW_INT,
-        node->for_l.iterator->start,
-        node->for_l.iterator->end);
+        node->v.fl.iterator->start,
+        node->v.fl.iterator->end);
     if (NULL_OR_APPEND_FAILED(new_int))
         return false;
 
@@ -374,7 +391,7 @@ static bool compile_for_l(Nst_Node *node)
 
     Nst_LLNode *body_start = c_state.inst_ls->tail;
     inc_loop_id();
-    if (!compile_node(node->for_l.body))
+    if (!compile_node(node->v.fl.body))
         return false;
     Nst_LLNode *body_end = c_state.inst_ls->tail;
 
@@ -419,13 +436,13 @@ static bool compile_for_as_l(Nst_Node *node)
           [CODE CONTINUATION]
     */
 
-    if (!compile_node(node->for_l.iterator))
+    if (!compile_node(node->v.fl.iterator))
         return false;
 
     Nst_Inst *for_start = new_inst(
         Nst_IC_FOR_START,
-        node->for_l.iterator->start,
-        node->for_l.iterator->end);
+        node->v.fl.iterator->start,
+        node->v.fl.iterator->end);
     if (NULL_OR_APPEND_FAILED(for_start))
         return false;
     Nst_Inst *pop_val = new_inst(Nst_IC_POP_VAL, node->start, node->end);
@@ -435,17 +452,17 @@ static bool compile_for_as_l(Nst_Node *node)
     i64 cond_idx = CURR_LEN;
     Nst_Inst *for_get_val = new_inst(
         Nst_IC_FOR_GET_VAL,
-        node->for_l.iterator->start,
-        node->for_l.iterator->end);
+        node->v.fl.iterator->start,
+        node->v.fl.iterator->end);
     if (NULL_OR_APPEND_FAILED(for_get_val))
         return false;
     Nst_Inst *jumpif_iend_exit = new_inst(
         Nst_IC_JUMPIF_IEND,
-        node->for_l.iterator->start,
-        node->for_l.iterator->end);
+        node->v.fl.iterator->start,
+        node->v.fl.iterator->end);
     if (NULL_OR_APPEND_FAILED(jumpif_iend_exit))
         return false;
-    if (!compile_unpacking_assign_e(node->for_l.assignment))
+    if (!compile_unpacking_assign_e(node->v.fl.assignment))
         return false;
     pop_val = new_inst(Nst_IC_POP_VAL, node->start, node->end);
     if (NULL_OR_APPEND_FAILED(pop_val))
@@ -453,7 +470,7 @@ static bool compile_for_as_l(Nst_Node *node)
 
     Nst_LLNode *body_start = c_state.inst_ls->head;
     inc_loop_id();
-    if (!compile_node(node->for_l.body))
+    if (!compile_node(node->v.fl.body))
         return false;
     Nst_LLNode *body_end = c_state.inst_ls->tail;
 
@@ -520,7 +537,7 @@ static bool compile_if_e(Nst_Node *node)
     after the body
     */
 
-    if (!compile_node(node->if_e.condition))
+    if (!compile_node(node->v.ie.condition))
         return false;
 
     Nst_Inst *jumpif_f_else = new_inst(
@@ -530,14 +547,14 @@ static bool compile_if_e(Nst_Node *node)
     if (NULL_OR_APPEND_FAILED(jumpif_f_else))
         return false;
 
-    if (!compile_node(node->if_e.body_if_true))
+    if (!compile_node(node->v.ie.body_if_true))
         return false;
 
     Nst_Inst *push_val_null = NULL;
     Nst_Inst *jump_exit = NULL;
 
-    if (node->if_e.body_if_false == NULL) {
-        if (Nst_NODE_RETUNS_VALUE(node->if_e.body_if_true->type)) {
+    if (node->v.ie.body_if_false == NULL) {
+        if (Nst_NODE_RETUNS_VALUE(node->v.ie.body_if_true->type)) {
             jump_exit = new_inst(Nst_IC_JUMP, node->start, node->end);
             if (NULL_OR_APPEND_FAILED(jump_exit))
                 return false;
@@ -556,8 +573,8 @@ static bool compile_if_e(Nst_Node *node)
     }
 
     bool both_statements =
-        !Nst_NODE_RETUNS_VALUE(node->if_e.body_if_true->type) &&
-        !Nst_NODE_RETUNS_VALUE(node->if_e.body_if_false->type);
+        !Nst_NODE_RETUNS_VALUE(node->v.ie.body_if_true->type) &&
+        !Nst_NODE_RETUNS_VALUE(node->v.ie.body_if_false->type);
 
     if (!both_statements) {
         push_val_null = new_inst_v(
@@ -574,7 +591,7 @@ static bool compile_if_e(Nst_Node *node)
         return false;
     jumpif_f_else->int_val = CURR_LEN;
 
-    if (!compile_node(node->if_e.body_if_false))
+    if (!compile_node(node->v.ie.body_if_false))
         return false;
 
     if (!both_statements) {
@@ -600,7 +617,7 @@ static bool compile_if_e(Nst_Node *node)
     return true;
 }
 
-static bool compile_func_declr(Nst_Node *node)
+static bool compile_fd(Nst_Node *node)
 {
     /*
     Func declaration bytecode
@@ -612,20 +629,20 @@ static bool compile_func_declr(Nst_Node *node)
     i32 prev_loop_id = c_state.loop_id;
     Nst_LList *prev_inst_ls = c_state.inst_ls;
     Nst_InstList *inst_list = compile_internal(
-        node->func_declr.body,
+        node->v.fd.body,
         CT_FUNCTION);
     c_state.inst_ls = prev_inst_ls;
     c_state.loop_id = prev_loop_id;
 
     Nst_Obj *func = Nst_func_new(
-        node->func_declr.argument_names->len,
+        node->v.fd.argument_names->len,
         inst_list);
     if (func == NULL) {
         Nst_error_add_positions(Nst_error_get(), node->start, node->end);
         return false;
     }
     usize i = 0;
-    for (Nst_LLIST_ITER(lnode, node->func_declr.argument_names))
+    for (Nst_LLIST_ITER(lnode, node->v.fd.argument_names))
         FUNC(func)->args[i++] = Nst_inc_ref(Nst_TOK(lnode->value)->value);
     Nst_Inst *push_val_func = new_inst_v(
         Nst_IC_PUSH_VAL,
@@ -637,20 +654,20 @@ static bool compile_func_declr(Nst_Node *node)
         return false;
 
     // if the function is a lambda it does not have a name to be set
-    if (node->func_declr.name == NULL)
+    if (node->v.fd.name == NULL)
         return true;
 
     Nst_Inst *set_val_loc = new_inst_v(
         Nst_IC_SET_VAL_LOC,
-        node->func_declr.name,
+        node->v.fd.name->value,
         node->start,
         node->end);
-    if (NULL_OR_APPEND_FAILED(push_val_func))
+    if (NULL_OR_APPEND_FAILED(set_val_loc))
         return false;
     return true;
 }
 
-static bool compile_return_s(Nst_Node *node)
+static bool compile_rt(Nst_Node *node)
 {
     /*
     Return bytecode
@@ -660,7 +677,7 @@ static bool compile_return_s(Nst_Node *node)
 
     Pops all values from the stack until it finds a nullptr
     */
-    if (node->return_s.value == NULL) {
+    if (node->v.rt.value == NULL) {
         Nst_Inst *push_val_null = new_inst_v(
             Nst_IC_PUSH_VAL,
             Nst_c.Null_null,
@@ -668,10 +685,10 @@ static bool compile_return_s(Nst_Node *node)
             node->end);
         if (NULL_OR_APPEND_FAILED(push_val_null))
             return false;
-    } else if (!compile_node(node->return_s.value))
+    } else if (!compile_node(node->v.rt.value))
         return false;
 
-    Nst_Inst *return_val = Nst_inst_new(
+    Nst_Inst *return_val = new_inst(
         Nst_IC_RETURN_VAL,
         node->start,
         node->end);
@@ -695,19 +712,19 @@ static bool compile_stack_op(Nst_Node *node)
     STACK_OP - op
     */
 
-    if (!compile_node(node->stack_op.values->head))
+    if (!compile_node(Nst_NODE(node->v.so.values->head->value)))
         return false;
 
-    if (node->stack_op.values->len == 1)
+    if (node->v.so.values->len == 1)
         return true;
 
-    if (Nst_IS_COMP_OP(node->stack_op.op) && node->stack_op.values->len > 2)
+    if (Nst_IS_COMP_OP(node->v.so.op) && node->v.so.values->len > 2)
         return compile_comp_op(node);
 
-    if (Nst_IS_COND_OP(node->stack_op.op))
+    if (Nst_IS_COND_OP(node->v.so.op))
         return compile_lg_op(node);
 
-    for (Nst_LLNode *lnode = node->stack_op.values->head->next;
+    for (Nst_LLNode *lnode = node->v.so.values->head->next;
          lnode != NULL;
          lnode = lnode->next)
     {
@@ -715,7 +732,7 @@ static bool compile_stack_op(Nst_Node *node)
             return false;
         Nst_Inst *inst = new_inst_i(
             Nst_IC_STACK_OP,
-            node->stack_op.op,
+            node->v.so.op,
             node->start,
             node->end);
         if (NULL_OR_APPEND_FAILED(inst))
@@ -754,7 +771,7 @@ static bool compile_comp_op(Nst_Node *node)
     */
 
     Nst_Inst *inst;
-    Nst_TokType op = node->stack_op.op;
+    Nst_TokType op = node->v.so.op;
 
     Nst_LList *jumpif_f_fix_list = Nst_llist_new();
     if (jumpif_f_fix_list == NULL) {
@@ -762,7 +779,7 @@ static bool compile_comp_op(Nst_Node *node)
         goto failure;
     }
 
-    for (Nst_LLNode *lnode = node->stack_op.values->head->next;
+    for (Nst_LLNode *lnode = node->v.so.values->head->next;
          lnode->next != NULL; // safe because the list is always >2 long
          lnode = lnode->next)
     {
@@ -792,7 +809,7 @@ static bool compile_comp_op(Nst_Node *node)
             goto failure;
     }
 
-    if (!compile_node(Nst_NODE(node->stack_op.values->tail)))
+    if (!compile_node(Nst_NODE(node->v.so.values->tail)))
         goto failure;
 
     inst = new_inst_i(Nst_IC_STACK_OP, op, node->start, node->end);
@@ -849,12 +866,12 @@ static bool compile_lg_op(Nst_Node *node)
         goto failure;
     }
 
-    Nst_InstID jump_id = node->stack_op.op == Nst_TT_L_OR
+    Nst_InstID jump_id = node->v.so.op == Nst_TT_L_OR
         ? Nst_IC_JUMPIF_T
         : Nst_IC_JUMPIF_F;
 
     Nst_Inst *inst;
-    for (Nst_LLNode *lnode = node->stack_op.values->head->next;
+    for (Nst_LLNode *lnode = node->v.so.values->head->next;
          lnode != NULL;
          lnode = lnode->next)
     {
@@ -908,16 +925,16 @@ static bool compile_local_stack_op(Nst_Node *node)
     THROW_ERR
     */
 
-    for (Nst_LLIST_ITER(lnode, node->local_stack_op.values)) {
+    for (Nst_LLIST_ITER(lnode, node->v.ls.values)) {
         if (!compile_node(Nst_NODE(lnode->value)))
             return false;
     }
 
-    if (!compile_node(node->local_stack_op.special_value))
+    if (!compile_node(node->v.ls.special_value))
         return false;
 
-    Nst_TokType op = node->local_stack_op.op;
-    i64 node_count = (i64)node->local_stack_op.values->len;
+    Nst_TokType op = node->v.ls.op;
+    i64 node_count = (i64)node->v.ls.values->len;
     Nst_InstID inst_id = Nst_IC_NO_OP;
     i64 int_val = 0;
 
@@ -959,13 +976,13 @@ static bool compile_local_op(Nst_Node *node)
     OP_CALL 1
     */
 
-    if (!compile_node(node->local_op.value))
+    if (!compile_node(node->v.lo.value))
         return false;
 
     Nst_InstID inst_id = Nst_IC_NO_OP;
     i64 int_val = 0;
 
-    switch (node->local_op.op) {
+    switch (node->v.lo.op) {
     case Nst_TT_LOC_CALL:
         inst_id = Nst_IC_OP_CALL;
         int_val = 1;
@@ -975,7 +992,7 @@ static bool compile_local_op(Nst_Node *node)
         break;
     default:
         inst_id = Nst_IC_LOCAL_OP;
-        int_val = (i64)node->local_op.op;
+        int_val = (i64)node->v.lo.op;
     }
 
     Nst_Inst *inst = new_inst_i(inst_id, int_val, node->start, node->end);
@@ -997,16 +1014,16 @@ static bool compile_seq_lit(Nst_Node *node)
     MAKE_ARR_REP | MAKE_VEC_REP
     */
 
-    Nst_assert_c(node->seq_lit.type != Nst_SNT_ASSIGNMENT_NAMES);
+    Nst_assert_c(node->v.sl.type != Nst_SNT_ASSIGNMENT_NAMES);
 
-    for (Nst_LLIST_ITER(lnode, node->seq_lit.values)) {
+    for (Nst_LLIST_ITER(lnode, node->v.sl.values)) {
         if (!compile_node(Nst_NODE(lnode->value)))
             return false;
     }
 
     Nst_InstID inst_id = 0;
 
-    switch (node->seq_lit.type) {
+    switch (node->v.sl.type) {
     case Nst_SNT_ARRAY:      inst_id = Nst_IC_MAKE_ARR; break;
     case Nst_SNT_VECTOR:     inst_id = Nst_IC_MAKE_VEC; break;
     case Nst_SNT_ARRAY_REP:  inst_id = Nst_IC_MAKE_ARR_REP; break;
@@ -1014,7 +1031,7 @@ static bool compile_seq_lit(Nst_Node *node)
     }
 
     i64 int_val = inst_id == Nst_IC_MAKE_ARR || inst_id == Nst_IC_MAKE_VEC
-        ? node->seq_lit.values->len
+        ? node->v.sl.values->len
         : 0;
 
     Nst_Inst *inst = new_inst_i(inst_id, int_val, node->start, node->end);
@@ -1032,10 +1049,10 @@ static bool compile_map_lit(Nst_Node *node)
     MAKE_MAP - number of elements (key-value pairs * 2)
     */
 
-    Nst_assert_c(node->map_lit.keys->len == node->map_lit.values->len);
+    Nst_assert_c(node->v.ml.keys->len == node->v.ml.values->len);
 
-    Nst_LLNode *key_node = node->map_lit.keys->head;
-    Nst_LLNode *val_node = node->map_lit.values->head;
+    Nst_LLNode *key_node = node->v.ml.keys->head;
+    Nst_LLNode *val_node = node->v.ml.values->head;
     while (key_node != NULL && val_node != NULL) {
         if (!compile_node(Nst_NODE(key_node->value)))
             return false;
@@ -1043,6 +1060,8 @@ static bool compile_map_lit(Nst_Node *node)
             Nst_IC_HASH_CHECK,
             Nst_NODE(key_node->value)->start,
             Nst_NODE(key_node->value)->end);
+        if (NULL_OR_APPEND_FAILED(hash_check))
+            return false;
 
         if (!compile_node(Nst_NODE(val_node->value)))
             return false;
@@ -1053,7 +1072,7 @@ static bool compile_map_lit(Nst_Node *node)
 
     Nst_Inst *make_map = new_inst_i(
         Nst_IC_MAKE_MAP,
-        node->map_lit.keys->len * 2,
+        node->v.ml.keys->len * 2,
         node->start,
         node->end);
     return !NULL_OR_APPEND_FAILED(make_map);
@@ -1068,7 +1087,7 @@ static bool compile_value(Nst_Node *node)
     */
     Nst_Inst *push_val_value = new_inst_v(
         Nst_IC_PUSH_VAL,
-        node->value.value->value,
+        node->v.vl.value->value,
         node->start,
         node->end);
     return !NULL_OR_APPEND_FAILED(push_val_value);
@@ -1083,7 +1102,7 @@ static bool compile_access(Nst_Node *node)
     */
     Nst_Inst *get_val_name = new_inst_v(
         Nst_IC_GET_VAL,
-        node->access.value->value,
+        node->v.ac.value->value,
         node->start,
         node->end);
     return !NULL_OR_APPEND_FAILED(get_val_name);
@@ -1098,9 +1117,9 @@ static bool compile_extract_e(Nst_Node *node)
     [INDEX_CODE]
     OP_EXTRACT
     */
-    if (!compile_node(node->extract_e.container))
+    if (!compile_node(node->v.ex.container))
         return false;
-    if (!compile_node(node->extract_e.key))
+    if (!compile_node(node->v.ex.key))
         return false;
 
     Nst_Inst *op_extarct = new_inst(Nst_IC_OP_EXTRACT, node->start, node->end);
@@ -1123,16 +1142,16 @@ static bool compile_assign_e(Nst_Node *node)
     SET_CONT_VAL
     */
 
-    if (!compile_node(node->assign_e.value))
+    if (!compile_node(node->v.as.value))
         return false;
 
-    if (node->assign_e.name->type == Nst_NT_SEQ_LIT) {
+    if (node->v.as.name->type == Nst_NT_SL) {
         Nst_Inst *dup = new_inst(Nst_IC_DUP, node->start, node->end);
         if (NULL_OR_APPEND_FAILED(dup))
             return false;
-        return compile_unpacking_assign_e(node->assign_e.name);
+        return compile_unpacking_assign_e(node->v.as.name);
     } else
-        return compile_assignment_name(node->assign_e.name, false);
+        return compile_assignment_name(node->v.as.name, false);
 }
 
 static bool compile_unpacking_assign_e(Nst_Node *node)
@@ -1151,20 +1170,20 @@ static bool compile_unpacking_assign_e(Nst_Node *node)
     SET_CONTAINER_VAL +
     */
 
-    if (node->type == Nst_NT_SEQ_LIT) {
-        Nst_assert_c(node->seq_lit.type == Nst_SNT_ASSIGNMENT_NAMES);
-        Nst_assert_c(node->seq_lit.values->len >= 1);
+    if (node->type == Nst_NT_SL) {
+        Nst_assert_c(node->v.sl.type == Nst_SNT_ASSIGNMENT_NAMES);
+        Nst_assert_c(node->v.sl.values->len >= 1);
 
         Nst_Inst *unpack_seq = new_inst_i(
             Nst_IC_UNPACK_SEQ,
-            node->seq_lit.values->len,
+            node->v.sl.values->len,
             node->start,
             node->end);
 
         if (NULL_OR_APPEND_FAILED(unpack_seq))
             return false;
 
-        for (Nst_LLIST_ITER(lnode, node->seq_lit.values)) {
+        for (Nst_LLIST_ITER(lnode, node->v.sl.values)) {
             if (!compile_unpacking_assign_e(Nst_NODE(lnode->value)))
                 return false;
         }
@@ -1195,10 +1214,10 @@ static bool compile_comp_assign_e(Nst_Node *node)
     SET_CONT_VAL
     */
 
-    if (!compile_node(node->comp_assign_e.values->head))
+    if (!compile_node(Nst_NODE(node->v.ca.values->head->value)))
         return false;
 
-    for (Nst_LLNode *lnode = node->comp_assign_e.values->head->next;
+    for (Nst_LLNode *lnode = node->v.ca.values->head->next;
         lnode != NULL;
         lnode = lnode->next)
     {
@@ -1206,31 +1225,31 @@ static bool compile_comp_assign_e(Nst_Node *node)
             return false;
         Nst_Inst *inst = new_inst_i(
             Nst_IC_STACK_OP,
-            node->comp_assign_e.op,
+            node->v.ca.op,
             node->start,
             node->end);
         if (NULL_OR_APPEND_FAILED(inst))
             return false;
     }
 
-    if (!compile_node(node->comp_assign_e.name))
+    if (!compile_node(node->v.ca.name))
         return false;
-    return compile_assignment_name(node->comp_assign_e.name, false);
+    return compile_assignment_name(node->v.ca.name, false);
 }
 
 static bool compile_assignment_name(Nst_Node *node, bool local)
 {
-    if (node->type == Nst_NT_ACCESS) {
+    if (node->type == Nst_NT_AC) {
         Nst_Inst *set_val = new_inst_v(
             local ? Nst_IC_SET_VAL_LOC : Nst_IC_SET_VAL,
-            node->access.value->value,
+            node->v.ac.value->value,
             node->start,
             node->end);
         return !NULL_OR_APPEND_FAILED(set_val);
-    } else if (node->type == Nst_NT_EXTRACT_E) {
-        if (!compile_node(node->extract_e.container))
+    } else if (node->type == Nst_NT_EX) {
+        if (!compile_node(node->v.ex.container))
             return false;
-        if (!compile_node(node->extract_e.key))
+        if (!compile_node(node->v.ex.key))
             return false;
 
         Nst_Inst *set_cont = new_inst(
@@ -1302,11 +1321,11 @@ static bool compile_switch_s(Nst_Node *node)
     if (jumps_to_exit == NULL)
         goto failure_add_pos;
 
-    if (!compile_node(node->switch_s.expr))
+    if (!compile_node(node->v.sw.expr))
         return false;
 
-    Nst_LLNode *value_node = node->switch_s.values->head;
-    Nst_LLNode *body_node  = node->switch_s.bodies->head;
+    Nst_LLNode *value_node = node->v.sw.values->head;
+    Nst_LLNode *body_node  = node->v.sw.bodies->head;
 
     Nst_LLNode *prev_start = NULL;
     Nst_LLNode *prev_end = NULL;
@@ -1353,11 +1372,11 @@ static bool compile_switch_s(Nst_Node *node)
         jumpif_f_end->int_val = CURR_LEN;
     }
 
-    if (node->switch_s.default_body != NULL) {
+    if (node->v.sw.default_body != NULL) {
         if (prev_start != NULL)
             replace_placeholder_jumps(prev_start, prev_end, CURR_LEN, 0);
         prev_start = c_state.inst_ls->tail;
-        if (!compile_node(node->switch_s.default_body))
+        if (!compile_node(node->v.sw.default_body))
             goto failure;
         prev_end = c_state.inst_ls->tail;
         // all continue statements in the default body just exit the switch
@@ -1403,10 +1422,10 @@ static bool compile_try_catch_s(Nst_Node* node)
     if (NULL_OR_APPEND_FAILED(push_catch))
         return false;
 
-    if (!compile_node(node->try_catch_s.try_body))
+    if (!compile_node(node->v.tc.try_body))
         return false;
 
-    if (Nst_NODE_RETUNS_VALUE(node->try_catch_s.try_body->type)) {
+    if (Nst_NODE_RETUNS_VALUE(node->v.tc.try_body->type)) {
         Nst_Inst *pop_val = new_inst(Nst_IC_POP_VAL, node->start, node->end);
         if (NULL_OR_APPEND_FAILED(pop_val))
             return false;
@@ -1429,14 +1448,14 @@ static bool compile_try_catch_s(Nst_Node* node)
         return false;
     Nst_Inst *set_val_loc = new_inst_v(
         Nst_IC_SET_VAL_LOC,
-        node->try_catch_s.error_name->value,
-        node->try_catch_s.error_name->start,
-        node->try_catch_s.error_name->end);
+        node->v.tc.error_name->value,
+        node->v.tc.error_name->start,
+        node->v.tc.error_name->end);
     if (NULL_OR_APPEND_FAILED(set_val_loc))
         return false;
-    if (!compile_node(node->try_catch_s.catch_body))
+    if (!compile_node(node->v.tc.catch_body))
         return false;
-    if (Nst_NODE_RETUNS_VALUE(node->try_catch_s.catch_body->type)) {
+    if (Nst_NODE_RETUNS_VALUE(node->v.tc.catch_body->type)) {
         Nst_Inst *pop_val = new_inst(Nst_IC_POP_VAL, node->start, node->end);
         if (NULL_OR_APPEND_FAILED(pop_val))
             return false;
@@ -1447,12 +1466,12 @@ static bool compile_try_catch_s(Nst_Node* node)
 
 static bool compile_s_wrapper(Nst_Node *node)
 {
-    return compile_node(node->s_wrapper.statement);
+    return compile_node(node->v.ws.statement);
 }
 
 static bool compile_e_wrapper(Nst_Node *node)
 {
-    return compile_node(node->e_wrapper.expr);
+    return compile_node(node->v.we.expr);
 }
 
 static void print_bytecode(Nst_InstList *ls, i32 indent)

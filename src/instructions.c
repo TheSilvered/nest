@@ -77,6 +77,7 @@ Nst_InstList *Nst_inst_list_new(Nst_LList *instructions)
         return NULL;
     }
     inst_ls->instructions = inst_array;
+    inst_ls->total_size = instructions->len;
 
     Nst_LList *functions = Nst_llist_new();
     if (inst_ls->functions == NULL) {
@@ -102,6 +103,8 @@ Nst_InstList *Nst_inst_list_new(Nst_LList *instructions)
         memcpy(inst_array + i, inst, sizeof(Nst_Inst));
         i++;
     }
+
+    return inst_ls;
 
 failure:
     Nst_llist_destroy(functions, (Nst_LListDestructor)_Nst_dec_ref);

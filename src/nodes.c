@@ -15,127 +15,131 @@
     Nst_llist_destroy(llist, (Nst_LListDestructor)Nst_tok_destroy)
 
 // extract property, used to avoid mistakes when printing node data
-#define EP(data_name, name) #name, node->data_name.name, levels
+#define EP(data_name, name) #name, node->v.data_name.name, levels
 
-static void print_long_s(Nst_Node *node, Nst_LList *levels);
-static void print_while_l(Nst_Node *node, Nst_LList *levels);
-static void print_for_l(Nst_Node *node, Nst_LList *levels);
-static void print_func_declr(Nst_Node *node, Nst_LList *levels);
-static void print_return_s(Nst_Node *node, Nst_LList *levels);
-static void print_switch_s(Nst_Node *node, Nst_LList *levels);
-static void print_try_catch_s(Nst_Node *node, Nst_LList *levels);
-static void print_s_wrapper(Nst_Node *node, Nst_LList *levels);
-static void print_stack_op(Nst_Node *node, Nst_LList *levels);
-static void print_local_stack_op(Nst_Node *node, Nst_LList *levels);
-static void print_local_op(Nst_Node *node, Nst_LList *levels);
-static void print_seq_lit(Nst_Node *node, Nst_LList *levels);
-static void print_map_lit(Nst_Node *node, Nst_LList *levels);
-static void print_value(Nst_Node *node, Nst_LList *levels);
-static void print_access(Nst_Node *node, Nst_LList *levels);
-static void print_extract_e(Nst_Node *node, Nst_LList *levels);
-static void print_assign_e(Nst_Node *node, Nst_LList *levels);
-static void print_comp_assign_e(Nst_Node *node, Nst_LList *levels);
-static void print_if_e(Nst_Node *node, Nst_LList *levels);
-static void print_e_wrapper(Nst_Node *node, Nst_LList *levels);
+static void print_cs(Nst_Node *node, Nst_LList *levels);
+static void print_wl(Nst_Node *node, Nst_LList *levels);
+static void print_fl(Nst_Node *node, Nst_LList *levels);
+static void print_fd(Nst_Node *node, Nst_LList *levels);
+static void print_rt(Nst_Node *node, Nst_LList *levels);
+static void print_sw(Nst_Node *node, Nst_LList *levels);
+static void print_tc(Nst_Node *node, Nst_LList *levels);
+static void print_ws(Nst_Node *node, Nst_LList *levels);
+static void print_so(Nst_Node *node, Nst_LList *levels);
+static void print_ls(Nst_Node *node, Nst_LList *levels);
+static void print_lo(Nst_Node *node, Nst_LList *levels);
+static void print_sl(Nst_Node *node, Nst_LList *levels);
+static void print_ml(Nst_Node *node, Nst_LList *levels);
+static void print_vl(Nst_Node *node, Nst_LList *levels);
+static void print_ac(Nst_Node *node, Nst_LList *levels);
+static void print_ex(Nst_Node *node, Nst_LList *levels);
+static void print_as(Nst_Node *node, Nst_LList *levels);
+static void print_ca(Nst_Node *node, Nst_LList *levels);
+static void print_ie(Nst_Node *node, Nst_LList *levels);
+static void print_we(Nst_Node *node, Nst_LList *levels);
 
 bool (*initializers[])(Nst_Node *) = {
-    [Nst_NT_LONG_S]         = _Nst_node_long_s_init,
-    [Nst_NT_WHILE_L]        = _Nst_node_while_l_init,
-    [Nst_NT_FOR_L]          = _Nst_node_for_l_init,
-    [Nst_NT_FUNC_DECLR]     = _Nst_node_func_declr_init,
-    [Nst_NT_RETURN_S]       = _Nst_node_return_s_init,
-    [Nst_NT_CONTINUE_S]     = NULL,
-    [Nst_NT_BREAK_S]        = NULL,
-    [Nst_NT_SWITCH_S]       = _Nst_node_switch_s_init,
-    [Nst_NT_TRY_CATCH_S]    = _Nst_node_try_catch_s_init,
-    [Nst_NT_S_WRAPPER]      = _Nst_node_s_wrapper_init,
-    [Nst_NT_STACK_OP]       = _Nst_node_stack_op_init,
-    [Nst_NT_LOCAL_STACK_OP] = _Nst_node_local_stack_op_init,
-    [Nst_NT_LOCAL_OP]       = _Nst_node_local_op_init,
-    [Nst_NT_SEQ_LIT]        = _Nst_node_seq_lit_init,
-    [Nst_NT_MAP_LIT]        = _Nst_node_map_lit_init,
-    [Nst_NT_VALUE]          = _Nst_node_value_init,
-    [Nst_NT_ACCESS]         = _Nst_node_access_init,
-    [Nst_NT_EXTRACT_E]      = _Nst_node_extract_e_init,
-    [Nst_NT_ASSIGN_E]       = _Nst_node_assign_e_init,
-    [Nst_NT_COMP_ASSIGN_E]  = _Nst_node_comp_assign_e_init,
-    [Nst_NT_IF_E]           = _Nst_node_if_e_init,
-    [Nst_NT_E_WRAPPER]      = _Nst_node_e_wrapper_init,
+    [Nst_NT_CS] = _Nst_node_cs_init,
+    [Nst_NT_WL] = _Nst_node_wl_init,
+    [Nst_NT_FL] = _Nst_node_fl_init,
+    [Nst_NT_FD] = _Nst_node_fd_init,
+    [Nst_NT_RT] = _Nst_node_rt_init,
+    [Nst_NT_CN] = NULL,
+    [Nst_NT_BR] = NULL,
+    [Nst_NT_SW] = _Nst_node_sw_init,
+    [Nst_NT_TC] = _Nst_node_tc_init,
+    [Nst_NT_WS] = _Nst_node_ws_init,
+    [Nst_NT_NP] = NULL,
+    [Nst_NT_SO] = _Nst_node_so_init,
+    [Nst_NT_LS] = _Nst_node_ls_init,
+    [Nst_NT_LO] = _Nst_node_lo_init,
+    [Nst_NT_SL] = _Nst_node_sl_init,
+    [Nst_NT_ML] = _Nst_node_ml_init,
+    [Nst_NT_VL] = _Nst_node_vl_init,
+    [Nst_NT_AC] = _Nst_node_ac_init,
+    [Nst_NT_EX] = _Nst_node_ex_init,
+    [Nst_NT_AS] = _Nst_node_as_init,
+    [Nst_NT_CA] = _Nst_node_ca_init,
+    [Nst_NT_IE] = _Nst_node_ie_init,
+    [Nst_NT_WE] = _Nst_node_we_init,
 };
 
 void (*destructors[])(Nst_Node *) = {
-    [Nst_NT_LONG_S]         = _Nst_node_long_s_destroy,
-    [Nst_NT_WHILE_L]        = _Nst_node_while_l_destroy,
-    [Nst_NT_FOR_L]          = _Nst_node_for_l_destroy,
-    [Nst_NT_FUNC_DECLR]     = _Nst_node_func_declr_destroy,
-    [Nst_NT_RETURN_S]       = _Nst_node_return_s_destroy,
-    [Nst_NT_CONTINUE_S]     = NULL,
-    [Nst_NT_BREAK_S]        = NULL,
-    [Nst_NT_SWITCH_S]       = _Nst_node_switch_s_destroy,
-    [Nst_NT_TRY_CATCH_S]    = _Nst_node_try_catch_s_destroy,
-    [Nst_NT_S_WRAPPER]      = _Nst_node_s_wrapper_destroy,
-    [Nst_NT_STACK_OP]       = _Nst_node_stack_op_destroy,
-    [Nst_NT_LOCAL_STACK_OP] = _Nst_node_local_stack_op_destroy,
-    [Nst_NT_LOCAL_OP]       = _Nst_node_local_op_destroy,
-    [Nst_NT_SEQ_LIT]        = _Nst_node_seq_lit_destroy,
-    [Nst_NT_MAP_LIT]        = _Nst_node_map_lit_destroy,
-    [Nst_NT_VALUE]          = _Nst_node_value_destroy,
-    [Nst_NT_ACCESS]         = _Nst_node_access_destroy,
-    [Nst_NT_EXTRACT_E]      = _Nst_node_extract_e_destroy,
-    [Nst_NT_ASSIGN_E]       = _Nst_node_assign_e_destroy,
-    [Nst_NT_COMP_ASSIGN_E]  = _Nst_node_comp_assign_e_destroy,
-    [Nst_NT_IF_E]           = _Nst_node_if_e_destroy,
-    [Nst_NT_E_WRAPPER]      = _Nst_node_e_wrapper_destroy
+    [Nst_NT_CS] = _Nst_node_cs_destroy,
+    [Nst_NT_WL] = _Nst_node_wl_destroy,
+    [Nst_NT_FL] = _Nst_node_fl_destroy,
+    [Nst_NT_FD] = _Nst_node_fd_destroy,
+    [Nst_NT_RT] = _Nst_node_rt_destroy,
+    [Nst_NT_CN] = NULL,
+    [Nst_NT_BR] = NULL,
+    [Nst_NT_SW] = _Nst_node_sw_destroy,
+    [Nst_NT_TC] = _Nst_node_tc_destroy,
+    [Nst_NT_WS] = _Nst_node_ws_destroy,
+    [Nst_NT_NP] = NULL,
+    [Nst_NT_SO] = _Nst_node_so_destroy,
+    [Nst_NT_LS] = _Nst_node_ls_destroy,
+    [Nst_NT_LO] = _Nst_node_lo_destroy,
+    [Nst_NT_SL] = _Nst_node_sl_destroy,
+    [Nst_NT_ML] = _Nst_node_ml_destroy,
+    [Nst_NT_VL] = _Nst_node_vl_destroy,
+    [Nst_NT_AC] = _Nst_node_ac_destroy,
+    [Nst_NT_EX] = _Nst_node_ex_destroy,
+    [Nst_NT_AS] = _Nst_node_as_destroy,
+    [Nst_NT_CA] = _Nst_node_ca_destroy,
+    [Nst_NT_IE] = _Nst_node_ie_destroy,
+    [Nst_NT_WE] = _Nst_node_we_destroy
 };
 
 void (*prints[])(Nst_Node *, Nst_LList *) = {
-    [Nst_NT_LONG_S]         = print_long_s,
-    [Nst_NT_WHILE_L]        = print_while_l,
-    [Nst_NT_FOR_L]          = print_for_l,
-    [Nst_NT_FUNC_DECLR]     = print_func_declr,
-    [Nst_NT_RETURN_S]       = print_return_s,
-    [Nst_NT_CONTINUE_S]     = NULL,
-    [Nst_NT_BREAK_S]        = NULL,
-    [Nst_NT_SWITCH_S]       = print_switch_s,
-    [Nst_NT_TRY_CATCH_S]    = print_try_catch_s,
-    [Nst_NT_S_WRAPPER]      = print_s_wrapper,
-    [Nst_NT_STACK_OP]       = print_stack_op,
-    [Nst_NT_LOCAL_STACK_OP] = print_local_stack_op,
-    [Nst_NT_LOCAL_OP]       = print_local_op,
-    [Nst_NT_SEQ_LIT]        = print_seq_lit,
-    [Nst_NT_MAP_LIT]        = print_map_lit,
-    [Nst_NT_VALUE]          = print_value,
-    [Nst_NT_ACCESS]         = print_access,
-    [Nst_NT_EXTRACT_E]      = print_extract_e,
-    [Nst_NT_ASSIGN_E]       = print_assign_e,
-    [Nst_NT_COMP_ASSIGN_E]  = print_comp_assign_e,
-    [Nst_NT_IF_E]           = print_if_e,
-    [Nst_NT_E_WRAPPER]      = print_e_wrapper
+    [Nst_NT_CS] = print_cs,
+    [Nst_NT_WL] = print_wl,
+    [Nst_NT_FL] = print_fl,
+    [Nst_NT_FD] = print_fd,
+    [Nst_NT_RT] = print_rt,
+    [Nst_NT_CN] = NULL,
+    [Nst_NT_BR] = NULL,
+    [Nst_NT_SW] = print_sw,
+    [Nst_NT_TC] = print_tc,
+    [Nst_NT_WS] = print_ws,
+    [Nst_NT_NP] = NULL,
+    [Nst_NT_SO] = print_so,
+    [Nst_NT_LS] = print_ls,
+    [Nst_NT_LO] = print_lo,
+    [Nst_NT_SL] = print_sl,
+    [Nst_NT_ML] = print_ml,
+    [Nst_NT_VL] = print_vl,
+    [Nst_NT_AC] = print_ac,
+    [Nst_NT_EX] = print_ex,
+    [Nst_NT_AS] = print_as,
+    [Nst_NT_CA] = print_ca,
+    [Nst_NT_IE] = print_ie,
+    [Nst_NT_WE] = print_we
 };
 
 const i8 *nt_strings[] = {
-    [Nst_NT_LONG_S]         = "LONG_S",
-    [Nst_NT_WHILE_L]        = "WHILE_L",
-    [Nst_NT_FOR_L]          = "FOR_L",
-    [Nst_NT_FUNC_DECLR]     = "FUNC_DECLR",
-    [Nst_NT_RETURN_S]       = "RETURN_S",
-    [Nst_NT_CONTINUE_S]     = "CONTINUE_S",
-    [Nst_NT_BREAK_S]        = "BREAK_S",
-    [Nst_NT_SWITCH_S]       = "SWITCH_S",
-    [Nst_NT_TRY_CATCH_S]    = "TRY_CATCH_S",
-    [Nst_NT_S_WRAPPER]      = "S_WRAPPER",
-    [Nst_NT_STACK_OP]       = "STACK_OP",
-    [Nst_NT_LOCAL_STACK_OP] = "LOCAL_STACK_OP",
-    [Nst_NT_LOCAL_OP]       = "LOCAL_OP",
-    [Nst_NT_SEQ_LIT]        = "SEQ_LIT",
-    [Nst_NT_MAP_LIT]        = "MAP_LIT",
-    [Nst_NT_VALUE]          = "VALUE",
-    [Nst_NT_ACCESS]         = "ACCESS",
-    [Nst_NT_EXTRACT_E]      = "EXTRACT_E",
-    [Nst_NT_ASSIGN_E]       = "ASSIGN_E",
-    [Nst_NT_COMP_ASSIGN_E]  = "COMP_ASSIGN_E",
-    [Nst_NT_IF_E]           = "IF_E",
-    [Nst_NT_E_WRAPPER]      = "E_WRAPPER"
+    [Nst_NT_CS] = "CS (Compound statement)",
+    [Nst_NT_WL] = "WL (While loop)",
+    [Nst_NT_FL] = "FL (For loop)",
+    [Nst_NT_FD] = "FD (Function declaration)",
+    [Nst_NT_RT] = "RT (Return statement)",
+    [Nst_NT_CN] = "CN (Continue statement)",
+    [Nst_NT_BR] = "BR (Break statement)",
+    [Nst_NT_SW] = "SW (Switch statement)",
+    [Nst_NT_TC] = "TC (Try-catch statement)",
+    [Nst_NT_WS] = "WS (Statement wrapper)",
+    [Nst_NT_NP] = "NP (No-op statement)",
+    [Nst_NT_SO] = "SO (Stack operation)",
+    [Nst_NT_LS] = "LS (Local-stack operation)",
+    [Nst_NT_LO] = "LO (Local operation)",
+    [Nst_NT_SL] = "SL (Sequence literal)",
+    [Nst_NT_ML] = "ML (Map literal)",
+    [Nst_NT_VL] = "VL (Value)",
+    [Nst_NT_AC] = "AC (Access)",
+    [Nst_NT_EX] = "EX (Extract expression)",
+    [Nst_NT_AS] = "AS (Assignment expression)",
+    [Nst_NT_CA] = "CA (Compound assignment)",
+    [Nst_NT_IE] = "IE (If expression)",
+    [Nst_NT_WE] = "WE (Expression wrapper)"
 };
 
 const i8 *snt_strings[] = {
@@ -171,6 +175,25 @@ static bool print_connection(i8 last, bool add_level, Nst_LList *levels)
     return true;
 }
 
+static void remove_level(Nst_LList *levels)
+{
+    if (levels->len == 0)
+        return;
+    if (levels->len == 1) {
+        Nst_llist_pop(levels);
+        return;
+    }
+    Nst_LLNode *prev = levels->head;
+    for (Nst_LLNode *lnode = prev->next; lnode->next != NULL;) {
+        prev = lnode;
+        lnode = lnode->next;
+    }
+    Nst_free(levels->tail);
+    prev->next = NULL;
+    levels->tail = prev;
+    levels->len--;
+}
+
 static void print_node(const i8 *name, Nst_Node *node, Nst_LList *levels,
                        i8 last)
 {
@@ -187,13 +210,12 @@ static void print_node(const i8 *name, Nst_Node *node, Nst_LList *levels,
             nt_strings[node->type],
             node->start.line, node->start.col,
             node->end.line, node->end.col);
+        if (prints[node->type] != NULL)
+            prints[node->type](node, levels);
     } else
         Nst_print("(null)\n");
 
-    if (prints[node->type] != NULL)
-        prints[node->type](node, levels);
-
-    Nst_llist_pop(levels);
+    remove_level(levels);
 }
 
 static void print_node_list(const i8 *name, Nst_LList *nodes,
@@ -202,12 +224,19 @@ static void print_node_list(const i8 *name, Nst_LList *nodes,
     print_levels(levels);
     if (!print_connection(last, true, levels))
         return;
+
+    if (nodes->len == 0) {
+        Nst_printf("%s: (empty)\n", name);
+        remove_level(levels);
+        return;
+    }
+
     Nst_printf("%s:\n", name);
 
     for (Nst_LLIST_ITER(node, nodes)) {
         print_node(NULL, Nst_NODE(node->value), levels, node == nodes->tail);
     }
-    Nst_llist_pop(levels);
+    remove_level(levels);
 }
 
 static void print_bool(const i8 *name, bool value, Nst_LList *levels, i8 last)
@@ -249,16 +278,23 @@ static void print_tok_list(const i8 *name, Nst_LList *tokens,
     print_levels(levels);
     if (!print_connection(last, true, levels))
         return;
+
+    if (tokens->len == 0) {
+        Nst_printf("%s: (empty)\n", name);
+        remove_level(levels);
+        return;
+    }
+
     Nst_printf("%s:\n", name);
 
     for (Nst_LLIST_ITER(token, tokens)) {
         print_token(
             NULL,
-            Nst_NODE(token->value),
+            Nst_TOK(token->value),
             levels,
             token == tokens->tail);
     }
-    Nst_llist_pop(levels);
+    remove_level(levels);
 }
 
 static void print_seq_node_type(const i8 *name, Nst_SeqNodeType snt,
@@ -271,399 +307,401 @@ static void print_seq_node_type(const i8 *name, Nst_SeqNodeType snt,
     Nst_printf("%s: %s\n", name, snt_strings[snt]);
 }
 
-bool _Nst_node_long_s_init(Nst_Node *node)
+bool _Nst_node_cs_init(Nst_Node *node)
 {
-    node->long_s.statements = Nst_llist_new();
-    return node->long_s.statements != NULL;
+    node->v.cs.statements = Nst_llist_new();
+    return node->v.cs.statements != NULL;
 }
 
-void _Nst_node_long_s_destroy(Nst_Node *node)
+void _Nst_node_cs_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_LLIST(node->long_s.statements);
+    DESTROY_NODE_LLIST(node->v.cs.statements);
 }
 
-void print_long_s(Nst_Node *node, Nst_LList *levels)
+void print_cs(Nst_Node *node, Nst_LList *levels)
 {
-    print_node_list(EP(long_s, statements), true);
+    print_node_list(EP(cs, statements), true);
 }
 
-bool _Nst_node_while_l_init(Nst_Node *node)
+bool _Nst_node_wl_init(Nst_Node *node)
 {
-    node->while_l.condition = NULL;
-    node->while_l.body = NULL;
-    node->while_l.is_dowhile = false;
+    node->v.wl.condition = NULL;
+    node->v.wl.body = NULL;
+    node->v.wl.is_dowhile = false;
     return true;
 }
 
-void _Nst_node_while_l_destroy(Nst_Node *node)
+void _Nst_node_wl_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_IF_NOT_NULL(node->while_l.condition);
-    DESTROY_NODE_IF_NOT_NULL(node->while_l.body);
+    DESTROY_NODE_IF_NOT_NULL(node->v.wl.condition);
+    DESTROY_NODE_IF_NOT_NULL(node->v.wl.body);
 }
 
-void print_while_l(Nst_Node *node, Nst_LList *levels)
+void print_wl(Nst_Node *node, Nst_LList *levels)
 {
-    print_bool(EP(while_l, is_dowhile), false);
-    print_node(EP(while_l, condition), false);
-    print_node(EP(while_l, body), true);
+    print_bool(EP(wl, is_dowhile), false);
+    print_node(EP(wl, condition), false);
+    print_node(EP(wl, body), true);
 }
 
-bool _Nst_node_for_l_init(Nst_Node *node)
+bool _Nst_node_fl_init(Nst_Node *node)
 {
-    node->for_l.iterator = NULL;
-    node->for_l.assignment = NULL;
-    node->for_l.body = NULL;
+    node->v.fl.iterator = NULL;
+    node->v.fl.assignment = NULL;
+    node->v.fl.body = NULL;
     return true;
 }
 
-void _Nst_node_for_l_destroy(Nst_Node *node)
+void _Nst_node_fl_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_IF_NOT_NULL(node->for_l.iterator);
-    DESTROY_NODE_IF_NOT_NULL(node->for_l.assignment);
-    DESTROY_NODE_IF_NOT_NULL(node->for_l.body);
+    DESTROY_NODE_IF_NOT_NULL(node->v.fl.iterator);
+    DESTROY_NODE_IF_NOT_NULL(node->v.fl.assignment);
+    DESTROY_NODE_IF_NOT_NULL(node->v.fl.body);
 }
 
-void print_for_l(Nst_Node *node, Nst_LList *levels)
+void print_fl(Nst_Node *node, Nst_LList *levels)
 {
-    print_node(EP(for_l, iterator), false);
-    print_node(EP(for_l, assignment), false);
-    print_node(EP(for_l, body), true);
+    print_node(EP(fl, iterator), false);
+    print_node(EP(fl, assignment), false);
+    print_node(EP(fl, body), true);
 }
 
-bool _Nst_node_func_declr_init(Nst_Node *node)
+bool _Nst_node_fd_init(Nst_Node *node)
 {
-    node->func_declr.name = NULL;
-    node->func_declr.body = NULL;
-    node->func_declr.argument_names = Nst_llist_new();
-    return node->func_declr.argument_names != NULL;
+    node->v.fd.name = NULL;
+    node->v.fd.body = NULL;
+    node->v.fd.argument_names = Nst_llist_new();
+    return node->v.fd.argument_names != NULL;
 }
 
-void _Nst_node_func_declr_destroy(Nst_Node *node)
+void _Nst_node_fd_destroy(Nst_Node *node)
 {
-    DESTROY_TOK_IF_NOT_NULL(node->func_declr.name);
-    DESTROY_NODE_IF_NOT_NULL(node->func_declr.body);
-    DESTROY_TOK_LLIST(node->func_declr.argument_names);
+    DESTROY_TOK_IF_NOT_NULL(node->v.fd.name);
+    DESTROY_NODE_IF_NOT_NULL(node->v.fd.body);
+    DESTROY_TOK_LLIST(node->v.fd.argument_names);
 }
 
-void print_func_declr(Nst_Node *node, Nst_LList *levels)
+void print_fd(Nst_Node *node, Nst_LList *levels)
 {
-    print_token(EP(func_declr, name), false);
-    print_tok_list(EP(func_declr, argument_names), false);
-    print_node(EP(func_declr, body), true);
+    print_token(EP(fd, name), false);
+    print_tok_list(EP(fd, argument_names), false);
+    print_node(EP(fd, body), true);
 }
 
-bool _Nst_node_return_s_init(Nst_Node *node)
+bool _Nst_node_rt_init(Nst_Node *node)
 {
-    node->return_s.value = NULL;
+    node->v.rt.value = NULL;
     return true;
 }
 
-void _Nst_node_return_s_destroy(Nst_Node *node)
+void _Nst_node_rt_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_IF_NOT_NULL(node->return_s.value);
+    DESTROY_NODE_IF_NOT_NULL(node->v.rt.value);
 }
 
-void print_return_s(Nst_Node *node, Nst_LList *levels)
+void print_rt(Nst_Node *node, Nst_LList *levels)
 {
-    print_node(EP(return_s, value), true);
+    print_node(EP(rt, value), true);
 }
 
-bool _Nst_node_switch_s_init(Nst_Node *node)
+bool _Nst_node_sw_init(Nst_Node *node)
 {
-    node->switch_s.expr = NULL;
-    node->switch_s.values = Nst_llist_new();
-    if (node->switch_s.values == NULL)
+    node->v.sw.expr = NULL;
+    node->v.sw.values = Nst_llist_new();
+    if (node->v.sw.values == NULL)
         return false;
-    node->switch_s.bodies = Nst_llist_new();
-    if (node->switch_s.bodies == NULL) {
-        DESTROY_NODE_LLIST(node->switch_s.values);
-        return false;
-    }
-    node->switch_s.default_body = NULL;
-    return true;
-}
-
-void _Nst_node_switch_s_destroy(Nst_Node *node)
-{
-    DESTROY_NODE_IF_NOT_NULL(node->switch_s.expr);
-    DESTROY_NODE_LLIST(node->switch_s.values);
-    DESTROY_NODE_LLIST(node->switch_s.bodies);
-    DESTROY_NODE_IF_NOT_NULL(node->switch_s.default_body);
-}
-
-void print_switch_s(Nst_Node *node, Nst_LList *levels)
-{
-    print_node(EP(switch_s, expr), false);
-    print_node_list(EP(switch_s, values), false);
-    print_node_list(EP(switch_s, bodies), false);
-    print_node(EP(switch_s, default_body), true);
-}
-
-bool _Nst_node_try_catch_s_init(Nst_Node *node)
-{
-    node->try_catch_s.try_body = NULL;
-    node->try_catch_s.catch_body = NULL;
-    node->try_catch_s.error_name = NULL;
-}
-
-void _Nst_node_try_catch_s_destroy(Nst_Node *node)
-{
-    DESTROY_NODE_IF_NOT_NULL(node->try_catch_s.try_body);
-    DESTROY_NODE_IF_NOT_NULL(node->try_catch_s.catch_body);
-    DESTROY_TOK_IF_NOT_NULL(node->try_catch_s.error_name);
-}
-
-void print_try_catch_s(Nst_Node *node, Nst_LList *levels)
-{
-    print_token(EP(try_catch_s, error_name), false);
-    print_node(EP(try_catch_s, try_body), false);
-    print_node(EP(try_catch_s, catch_body), true);
-}
-
-bool _Nst_node_s_wrapper_init(Nst_Node *node)
-{
-    node->s_wrapper.statement = NULL;
-    return true;
-}
-
-void _Nst_node_s_wrapper_destroy(Nst_Node *node)
-{
-    DESTROY_NODE_IF_NOT_NULL(node->s_wrapper.statement);
-}
-
-void print_s_wrapper(Nst_Node *node, Nst_LList *levels)
-{
-    print_node(EP(s_wrapper, statement), true);
-}
-
-bool _Nst_node_stack_op_init(Nst_Node *node)
-{
-    node->stack_op.values = Nst_llist_new();
-    node->stack_op.op = Nst_TT_INVALID;
-    return node->stack_op.values != NULL;
-}
-
-void _Nst_node_stack_op_destroy(Nst_Node *node)
-{
-    DESTROY_NODE_LLIST(node->stack_op.values);
-}
-
-void print_stack_op(Nst_Node *node, Nst_LList *levels)
-{
-    print_tok_type(EP(stack_op, op), false);
-    print_node_list(EP(stack_op, values), true);
-}
-
-bool _Nst_node_local_stack_op_init(Nst_Node *node)
-{
-    node->local_stack_op.values = Nst_llist_new();
-    node->local_stack_op.special_value = NULL;
-    node->local_stack_op.op = Nst_TT_INVALID;
-    return node->local_stack_op.values != NULL;
-}
-
-void _Nst_node_local_stack_op_destroy(Nst_Node *node)
-{
-    DESTROY_NODE_LLIST(node->local_stack_op.values);
-    DESTROY_NODE_IF_NOT_NULL(node->local_stack_op.special_value);
-}
-
-void print_local_stack_op(Nst_Node *node, Nst_LList *levels)
-{
-    print_tok_type(EP(local_stack_op, op), false);
-    print_node(EP(local_stack_op, special_value), false);
-    print_node_list(EP(local_stack_op, values), true);
-}
-
-bool _Nst_node_local_op_init(Nst_Node *node)
-{
-    node->local_op.value = NULL;
-    node->local_op.op = Nst_TT_INVALID;
-    return true;
-}
-
-void _Nst_node_local_op_destroy(Nst_Node *node)
-{
-    DESTROY_NODE_IF_NOT_NULL(node->local_op.value);
-}
-
-void print_local_op(Nst_Node *node, Nst_LList *levels)
-{
-    print_tok_type(EP(local_op, op), false);
-    print_node(EP(local_op, value), true);
-}
-
-bool _Nst_node_seq_lit_init(Nst_Node *node)
-{
-    node->seq_lit.values = Nst_llist_new();
-    node->seq_lit.type = Nst_SNT_NOT_SET;
-    return node->seq_lit.values != NULL;
-}
-
-void _Nst_node_seq_lit_destroy(Nst_Node *node)
-{
-    DESTROY_NODE_LLIST(node->seq_lit.values);
-}
-
-void print_seq_lit(Nst_Node *node, Nst_LList *levels)
-{
-    print_seq_node_type(EP(seq_lit, type), false);
-    print_node_list(EP(seq_lit, values), true);
-}
-
-bool _Nst_node_map_lit_init(Nst_Node *node)
-{
-    node->map_lit.keys = Nst_llist_new();
-    if (node->map_lit.keys == NULL)
-        return false;
-    node->map_lit.values = Nst_llist_new();
-    if (node->map_lit.values == NULL) {
-        DESTROY_NODE_LLIST(node->map_lit.keys);
+    node->v.sw.bodies = Nst_llist_new();
+    if (node->v.sw.bodies == NULL) {
+        DESTROY_NODE_LLIST(node->v.sw.values);
         return false;
     }
+    node->v.sw.default_body = NULL;
     return true;
 }
 
-void _Nst_node_map_lit_destroy(Nst_Node *node)
+void _Nst_node_sw_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_LLIST(node->map_lit.keys);
-    DESTROY_NODE_LLIST(node->map_lit.values);
+    DESTROY_NODE_IF_NOT_NULL(node->v.sw.expr);
+    DESTROY_NODE_LLIST(node->v.sw.values);
+    DESTROY_NODE_LLIST(node->v.sw.bodies);
+    DESTROY_NODE_IF_NOT_NULL(node->v.sw.default_body);
 }
 
-void print_map_lit(Nst_Node *node, Nst_LList *levels)
+void print_sw(Nst_Node *node, Nst_LList *levels)
 {
-    print_node_list(EP(map_lit, keys), false);
-    print_node_list(EP(map_lit, values), true);
+    print_node(EP(sw, expr), false);
+    print_node_list(EP(sw, values), false);
+    print_node_list(EP(sw, bodies), false);
+    print_node(EP(sw, default_body), true);
 }
 
-bool _Nst_node_value_init(Nst_Node *node)
+bool _Nst_node_tc_init(Nst_Node *node)
 {
-    node->value.value = NULL;
+    node->v.tc.try_body = NULL;
+    node->v.tc.catch_body = NULL;
+    node->v.tc.error_name = NULL;
     return true;
 }
 
-void _Nst_node_value_destroy(Nst_Node *node)
+void _Nst_node_tc_destroy(Nst_Node *node)
 {
-    DESTROY_TOK_IF_NOT_NULL(node->value.value);
+    DESTROY_NODE_IF_NOT_NULL(node->v.tc.try_body);
+    DESTROY_NODE_IF_NOT_NULL(node->v.tc.catch_body);
+    DESTROY_TOK_IF_NOT_NULL(node->v.tc.error_name);
 }
 
-void print_value(Nst_Node *node, Nst_LList *levels)
+void print_tc(Nst_Node *node, Nst_LList *levels)
 {
-    print_node(EP(value, value), true);
+    print_token(EP(tc, error_name), false);
+    print_node(EP(tc, try_body), false);
+    print_node(EP(tc, catch_body), true);
 }
 
-bool _Nst_node_access_init(Nst_Node *node)
+bool _Nst_node_ws_init(Nst_Node *node)
 {
-    node->access.value = NULL;
+    node->v.ws.statement = NULL;
     return true;
 }
 
-void _Nst_node_access_destroy(Nst_Node *node)
+void _Nst_node_ws_destroy(Nst_Node *node)
 {
-    DESTROY_TOK_IF_NOT_NULL(node->value.value);
+    DESTROY_NODE_IF_NOT_NULL(node->v.ws.statement);
 }
 
-void print_access(Nst_Node *node, Nst_LList *levels)
+void print_ws(Nst_Node *node, Nst_LList *levels)
 {
-    print_node(EP(access, value), true);
+    print_node(EP(ws, statement), true);
 }
 
-bool _Nst_node_extract_e_init(Nst_Node *node)
+bool _Nst_node_so_init(Nst_Node *node)
 {
-    node->extract_e.container = NULL;
-    node->extract_e.key = NULL;
+    node->v.so.values = Nst_llist_new();
+    node->v.so.op = Nst_TT_INVALID;
+    return node->v.so.values != NULL;
+}
+
+void _Nst_node_so_destroy(Nst_Node *node)
+{
+    DESTROY_NODE_LLIST(node->v.so.values);
+}
+
+void print_so(Nst_Node *node, Nst_LList *levels)
+{
+    print_tok_type(EP(so, op), false);
+    print_node_list(EP(so, values), true);
+}
+
+bool _Nst_node_ls_init(Nst_Node *node)
+{
+    node->v.ls.values = Nst_llist_new();
+    node->v.ls.special_value = NULL;
+    node->v.ls.op = Nst_TT_INVALID;
+    return node->v.ls.values != NULL;
+}
+
+void _Nst_node_ls_destroy(Nst_Node *node)
+{
+    DESTROY_NODE_LLIST(node->v.ls.values);
+    DESTROY_NODE_IF_NOT_NULL(node->v.ls.special_value);
+}
+
+void print_ls(Nst_Node *node, Nst_LList *levels)
+{
+    print_tok_type(EP(ls, op), false);
+    print_node(EP(ls, special_value), false);
+    print_node_list(EP(ls, values), true);
+}
+
+bool _Nst_node_lo_init(Nst_Node *node)
+{
+    node->v.lo.value = NULL;
+    node->v.lo.op = Nst_TT_INVALID;
     return true;
 }
 
-void _Nst_node_extract_e_destroy(Nst_Node *node)
+void _Nst_node_lo_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_IF_NOT_NULL(node->extract_e.container);
-    DESTROY_NODE_IF_NOT_NULL(node->extract_e.key);
+    DESTROY_NODE_IF_NOT_NULL(node->v.lo.value);
 }
 
-void print_extract_e(Nst_Node *node, Nst_LList *levels)
+void print_lo(Nst_Node *node, Nst_LList *levels)
 {
-    print_node(EP(extract_e, container), false);
-    print_node(EP(extract_e, key), true);
+    print_tok_type(EP(lo, op), false);
+    print_node(EP(lo, value), true);
 }
 
-bool _Nst_node_assign_e_init(Nst_Node *node)
+bool _Nst_node_sl_init(Nst_Node *node)
 {
-    node->assign_e.value = NULL;
-    node->assign_e.name = NULL;
-    return true;
+    node->v.sl.values = Nst_llist_new();
+    node->v.sl.type = Nst_SNT_NOT_SET;
+    return node->v.sl.values != NULL;
 }
 
-void _Nst_node_assign_e_destroy(Nst_Node *node)
+void _Nst_node_sl_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_IF_NOT_NULL(node->assign_e.value);
-    DESTROY_NODE_IF_NOT_NULL(node->assign_e.name);
+    DESTROY_NODE_LLIST(node->v.sl.values);
 }
 
-void print_assign_e(Nst_Node *node, Nst_LList *levels)
+void print_sl(Nst_Node *node, Nst_LList *levels)
 {
-    print_node(EP(assign_e, name), false);
-    print_node(EP(assign_e, value), true);
+    print_seq_node_type(EP(sl, type), false);
+    print_node_list(EP(sl, values), true);
 }
 
-bool _Nst_node_comp_assign_e_init(Nst_Node *node)
+bool _Nst_node_ml_init(Nst_Node *node)
 {
-    node->comp_assign_e.values = Nst_llist_new();
-    if (node->comp_assign_e.values == NULL)
+    node->v.ml.keys = Nst_llist_new();
+    if (node->v.ml.keys == NULL)
         return false;
-    node->comp_assign_e.name = NULL;
-    node->comp_assign_e.op = Nst_TT_INVALID;
+    node->v.ml.values = Nst_llist_new();
+    if (node->v.ml.values == NULL) {
+        DESTROY_NODE_LLIST(node->v.ml.keys);
+        return false;
+    }
     return true;
 }
 
-void _Nst_node_comp_assign_e_destroy(Nst_Node *node)
+void _Nst_node_ml_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_LLIST(node->comp_assign_e.values);
-    DESTROY_NODE_IF_NOT_NULL(node->comp_assign_e.name);
+    DESTROY_NODE_LLIST(node->v.ml.keys);
+    DESTROY_NODE_LLIST(node->v.ml.values);
 }
 
-void print_comp_assign_e(Nst_Node *node, Nst_LList *levels)
+void print_ml(Nst_Node *node, Nst_LList *levels)
 {
-    print_node(EP(comp_assign_e, name), false);
-    print_node_list(EP(comp_assign_e, values), true);
+    print_node_list(EP(ml, keys), false);
+    print_node_list(EP(ml, values), true);
 }
 
-bool _Nst_node_if_e_init(Nst_Node *node)
+bool _Nst_node_vl_init(Nst_Node *node)
 {
-    node->if_e.condition = NULL;
-    node->if_e.body_if_true = NULL;
-    node->if_e.body_if_false = NULL;
+    node->v.vl.value = NULL;
     return true;
 }
 
-void _Nst_node_if_e_destroy(Nst_Node *node)
+void _Nst_node_vl_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_IF_NOT_NULL(node->if_e.condition);
-    DESTROY_NODE_IF_NOT_NULL(node->if_e.body_if_true);
-    DESTROY_NODE_IF_NOT_NULL(node->if_e.body_if_false);
+    DESTROY_TOK_IF_NOT_NULL(node->v.vl.value);
 }
 
-void print_if_e(Nst_Node *node, Nst_LList *levels)
+void print_vl(Nst_Node *node, Nst_LList *levels)
 {
-    print_node(EP(if_e, condition), false);
-    print_node(EP(if_e, body_if_true), false);
-    print_node(EP(if_e, body_if_false), true);
+    print_token(EP(vl, value), true);
 }
 
-bool _Nst_node_e_wrapper_init(Nst_Node *node)
+bool _Nst_node_ac_init(Nst_Node *node)
 {
-    node->e_wrapper.expr = NULL;
+    node->v.ac.value = NULL;
     return true;
 }
 
-void _Nst_node_e_wrapper_destroy(Nst_Node *node)
+void _Nst_node_ac_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_IF_NOT_NULL(node->e_wrapper.expr);
+    DESTROY_TOK_IF_NOT_NULL(node->v.ac.value);
 }
 
-void print_e_wrapper(Nst_Node *node, Nst_LList *levels)
+void print_ac(Nst_Node *node, Nst_LList *levels)
 {
-    print_node(EP(e_wrapper, expr), true);
+    print_token(EP(ac, value), true);
+}
+
+bool _Nst_node_ex_init(Nst_Node *node)
+{
+    node->v.ex.container = NULL;
+    node->v.ex.key = NULL;
+    return true;
+}
+
+void _Nst_node_ex_destroy(Nst_Node *node)
+{
+    DESTROY_NODE_IF_NOT_NULL(node->v.ex.container);
+    DESTROY_NODE_IF_NOT_NULL(node->v.ex.key);
+}
+
+void print_ex(Nst_Node *node, Nst_LList *levels)
+{
+    print_node(EP(ex, container), false);
+    print_node(EP(ex, key), true);
+}
+
+bool _Nst_node_as_init(Nst_Node *node)
+{
+    node->v.as.value = NULL;
+    node->v.as.name = NULL;
+    return true;
+}
+
+void _Nst_node_as_destroy(Nst_Node *node)
+{
+    DESTROY_NODE_IF_NOT_NULL(node->v.as.value);
+    DESTROY_NODE_IF_NOT_NULL(node->v.as.name);
+}
+
+void print_as(Nst_Node *node, Nst_LList *levels)
+{
+    print_node(EP(as, name), false);
+    print_node(EP(as, value), true);
+}
+
+bool _Nst_node_ca_init(Nst_Node *node)
+{
+    node->v.ca.values = Nst_llist_new();
+    if (node->v.ca.values == NULL)
+        return false;
+    node->v.ca.name = NULL;
+    node->v.ca.op = Nst_TT_INVALID;
+    return true;
+}
+
+void _Nst_node_ca_destroy(Nst_Node *node)
+{
+    DESTROY_NODE_LLIST(node->v.ca.values);
+    DESTROY_NODE_IF_NOT_NULL(node->v.ca.name);
+}
+
+void print_ca(Nst_Node *node, Nst_LList *levels)
+{
+    print_tok_type(EP(ca, op), false);
+    print_node(EP(ca, name), false);
+    print_node_list(EP(ca, values), true);
+}
+
+bool _Nst_node_ie_init(Nst_Node *node)
+{
+    node->v.ie.condition = NULL;
+    node->v.ie.body_if_true = NULL;
+    node->v.ie.body_if_false = NULL;
+    return true;
+}
+
+void _Nst_node_ie_destroy(Nst_Node *node)
+{
+    DESTROY_NODE_IF_NOT_NULL(node->v.ie.condition);
+    DESTROY_NODE_IF_NOT_NULL(node->v.ie.body_if_true);
+    DESTROY_NODE_IF_NOT_NULL(node->v.ie.body_if_false);
+}
+
+void print_ie(Nst_Node *node, Nst_LList *levels)
+{
+    print_node(EP(ie, condition), false);
+    print_node(EP(ie, body_if_true), false);
+    print_node(EP(ie, body_if_false), true);
+}
+
+bool _Nst_node_we_init(Nst_Node *node)
+{
+    node->v.we.expr = NULL;
+    return true;
+}
+
+void _Nst_node_we_destroy(Nst_Node *node)
+{
+    DESTROY_NODE_IF_NOT_NULL(node->v.we.expr);
+}
+
+void print_we(Nst_Node *node, Nst_LList *levels)
+{
+    print_node(EP(we, expr), true);
 }
 
 Nst_Node *Nst_node_new(Nst_NodeType type)
@@ -679,17 +717,23 @@ Nst_Node *Nst_node_new(Nst_NodeType type)
    return node;
 }
 
-Nst_Node *Nst_node_set_pos(Nst_Node *node, Nst_Pos start, Nst_Pos end)
+void Nst_node_set_pos(Nst_Node *node, Nst_Pos start, Nst_Pos end)
 {
     node->start = start;
     node->end = end;
 }
 
-Nst_Node *Nst_node_destroy(Nst_Node *node)
+void Nst_node_destroy(Nst_Node *node)
 {
     if (destructors[node->type] != NULL)
         destructors[node->type](node);
     Nst_free(node);
+}
+
+void Nst_node_destroy_contents(Nst_Node *node)
+{
+    if (destructors[node->type] != NULL)
+        destructors[node->type](node);
 }
 
 void Nst_print_node(Nst_Node *node)
@@ -714,4 +758,19 @@ void Nst_print_node(Nst_Node *node)
 const i8 *Nst_node_type_to_str(Nst_NodeType nt)
 {
     return nt_strings[nt];
+}
+
+bool Nst_node_change_type(Nst_Node *node, Nst_NodeType new_type)
+{
+    Nst_Node backup = *node;
+
+    node->type = new_type;
+    if (initializers[new_type] != NULL && !initializers[new_type](node)) {
+        *node = backup;
+        return false;
+    }
+
+    if (destructors[backup.type] != NULL)
+        destructors[backup.type](&backup);
+    return true;
 }

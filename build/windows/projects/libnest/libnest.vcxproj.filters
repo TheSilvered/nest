@@ -63,9 +63,6 @@
     <ClInclude Include="..\..\..\..\include\nest.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\include\nodes_old.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\include\obj.h">
       <Filter>Header files</Filter>
     </ClInclude>
@@ -73,9 +70,6 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\optimizer.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\include\parser_old.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\include\runtime_stack.h">
@@ -173,9 +167,6 @@
     <ClCompile Include="..\..\..\..\src\map.c">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\src\nodes_old.c">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\..\..\src\obj.c">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -183,9 +174,6 @@
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\optimizer.c">
-      <Filter>Source files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\src\parser_old.c">
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\runtime_stack.c">

@@ -188,10 +188,10 @@ i32 Nst_execute(Nst_CLArgs args, Nst_ExecutionState *es, Nst_SourceText *src)
     if (args.print_ast) {
         if (args.print_tokens)
             printf("\n");
-        Nst_print_ast(ast);
+        Nst_print_node(ast);
 
         if (!args.force_execution && !args.print_bytecode) {
-            Nst_node_destroy__old(ast);
+            Nst_node_destroy(ast);
             return 0;
         }
     }
