@@ -1640,6 +1640,7 @@ static Nst_Obj *import_nest_lib(Nst_StrObj *file_path)
     }
 
     map = MAP(Nst_vstack_pop(&Nst_state.es->v_stack));
+    Nst_assert(map != NULL);
 
     if (!add_to_handle_map(file_path, map, lib_src)) {
         Nst_source_text_destroy(lib_src);

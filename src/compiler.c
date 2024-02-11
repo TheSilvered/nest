@@ -103,7 +103,7 @@ static Nst_InstList *compile_internal(Nst_Node *node, CompilationType ct)
                   != Nst_IC_RETURN_VAL)
     {
         Nst_Inst *push_val = new_inst_v(
-            Nst_IC_RETURN_VARS,
+            Nst_IC_PUSH_VAL,
             Nst_c.Null_null,
             node->start,
             node->end);
@@ -633,7 +633,8 @@ static bool compile_fd(Nst_Node *node)
         CT_FUNCTION);
     c_state.inst_ls = prev_inst_ls;
     c_state.loop_id = prev_loop_id;
-
+    if (inst_list == NULL)
+        return false;
     Nst_Obj *func = Nst_func_new(
         node->v.fd.argument_names->len,
         inst_list);
@@ -948,7 +949,7 @@ static bool compile_local_stack_op(Nst_Node *node)
         break;
     case Nst_TT_CALL:
     case Nst_TT_SEQ_CALL:
-        inst_id = Nst_IC_OP_RANGE;
+        inst_id = Nst_IC_OP_CALL;
         int_val = op == Nst_TT_CALL ? node_count : -1;
         break;
     case Nst_TT_THROW:
@@ -985,7 +986,6 @@ static bool compile_local_op(Nst_Node *node)
     switch (node->v.lo.op) {
     case Nst_TT_LOC_CALL:
         inst_id = Nst_IC_OP_CALL;
-        int_val = 1;
         break;
     case Nst_TT_IMPORT:
         inst_id = Nst_IC_OP_IMPORT;
@@ -1035,7 +1035,7 @@ static bool compile_seq_lit(Nst_Node *node)
         : 0;
 
     Nst_Inst *inst = new_inst_i(inst_id, int_val, node->start, node->end);
-    return NULL_OR_APPEND_FAILED(inst);
+    return !NULL_OR_APPEND_FAILED(inst);
 }
 
 static bool compile_map_lit(Nst_Node *node)

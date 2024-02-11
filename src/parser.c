@@ -38,20 +38,20 @@ static Nst_Node *parse_statement(void);
 static Nst_Node *parse_wl(void);
 static Nst_Node *parse_fl(void);
 static Nst_Node *parse_expr(void);
-static Nst_Node *parse_switch_s(void);
+static Nst_Node *parse_sw(void);
 static Nst_Node *parse_fd(void);
 static Nst_Node *parse_stack_expr(void);
-static Nst_Node *parse_stack_op(Nst_LList **values, Nst_Pos start);
-static Nst_Node *parse_local_stack_op(Nst_LList **values, Nst_Pos start);
-static Nst_Node *parse_assignment_name(bool is_compound);
-static Nst_Node *parse_assignment(Nst_LList **values, Nst_Pos start);
-static Nst_Node *parse_extraction(void);
+static Nst_Node *parse_so(Nst_LList **values, Nst_Pos start);
+static Nst_Node *parse_ls(Nst_LList **values, Nst_Pos start);
+static Nst_Node *parse_as_name(bool is_compound);
+static Nst_Node *parse_as(Nst_LList **values, Nst_Pos start);
+static Nst_Node *parse_ex(void);
 static Nst_Node *parse_atom(void);
 static Nst_Node *parse_vector_literal(void);
 static Nst_Node *parse_arr_or_map_literal(void);
 static Nst_Node *parse_seq_body(Nst_Pos start, Nst_Node *first_node, bool arr);
 static Nst_Node *parse_map_body(Nst_Pos start, Nst_Node *key);
-static Nst_Node *parse_try_catch(void);
+static Nst_Node *parse_tc(void);
 
 Nst_Node *Nst_parse(Nst_LList *tokens)
 {
@@ -321,7 +321,7 @@ static Nst_Node *parse_statement(void)
         exit_func(&initial_state);
         return func_declr;
     } else if (tok_type == Nst_TT_SWITCH) {
-        Nst_Node *switch_s = parse_switch_s();
+        Nst_Node *switch_s = parse_sw();
         exit_func(&initial_state);
         return switch_s;
     } else if (tok_type == Nst_TT_RETURN) {
@@ -391,19 +391,13 @@ static Nst_Node *parse_statement(void)
         exit_func(&initial_state);
         return break_s;
     } else if (tok_type == Nst_TT_TRY) {
-        Nst_Node *try_catch_s = parse_try_catch();
+        Nst_Node *try_catch_s = parse_tc();
         exit_func(&initial_state);
         return try_catch_s;
-    } else if (Nst_IS_ATOM(tok_type)) {
+    } else {
         Nst_Node *expr = parse_expr();
         exit_func(&initial_state);
         return expr;
-    } else {
-        Nst_Pos start = top_start();
-        Nst_Pos end = top_end();
-        destroy_top();
-        set_error(_Nst_EM_UNEXPECTED_TOK, start, end);
-        return NULL;
     }
 }
 
@@ -465,7 +459,7 @@ static Nst_Node *parse_fl(void)
     skip_blank();
     if (top_type() == Nst_TT_AS) {
         destroy_top();
-        Nst_Node *assignment = parse_assignment_name(false);
+        Nst_Node *assignment = parse_as_name(false);
         if (assignment == NULL) {
             Nst_node_destroy(for_l);
             return NULL;
@@ -535,7 +529,7 @@ static Nst_Node *parse_expr(void)
     return if_e;
 }
 
-static Nst_Node *parse_switch_s(void)
+static Nst_Node *parse_sw(void)
 {
     ParsingState initial_state;
     if (!enter_func(&initial_state))
@@ -710,7 +704,7 @@ static Nst_Node *parse_stack_expr()
             skip_blank();
 
         while (Nst_IS_ATOM(top_type())) {
-            Nst_Node *atom = parse_extraction();
+            Nst_Node *atom = parse_ex();
             if (atom == NULL)
                 goto failure;
             if (!append_node(values, atom)) {
@@ -730,11 +724,11 @@ static Nst_Node *parse_stack_expr()
 
         Nst_Node *operation_node = NULL;
         if (Nst_IS_STACK_OP(top_type()))
-            operation_node = parse_stack_op(&values, start);
+            operation_node = parse_so(&values, start);
         else if (Nst_IS_LOCAL_STACK_OP(top_type()))
-            operation_node = parse_local_stack_op(&values, start);
+            operation_node = parse_ls(&values, start);
         else if (Nst_IS_ASSIGNMENT(top_type()))
-            operation_node = parse_assignment(&values, start);
+            operation_node = parse_as(&values, start);
         else if (Nst_IS_EXPR_END(top_type()) && state.endl_ends_expr)
             break;
         else if (Nst_IS_EXPR_END(top_type()) && top_type() != Nst_TT_ENDL)
@@ -772,7 +766,7 @@ failure:
     return NULL;
 }
 
-static Nst_Node *parse_stack_op(Nst_LList **values, Nst_Pos start)
+static Nst_Node *parse_so(Nst_LList **values, Nst_Pos start)
 {
     Nst_Node *stack_op = new_node(Nst_NT_SO, top_start(), top_end());
     if (stack_op == NULL)
@@ -786,7 +780,7 @@ static Nst_Node *parse_stack_op(Nst_LList **values, Nst_Pos start)
     return stack_op;
 }
 
-static Nst_Node *parse_local_stack_op(Nst_LList **values, Nst_Pos start)
+static Nst_Node *parse_ls(Nst_LList **values, Nst_Pos start)
 {
     Nst_Pos args_end;
     if ((*values)->len == 0)
@@ -800,7 +794,7 @@ static Nst_Node *parse_local_stack_op(Nst_LList **values, Nst_Pos start)
     Nst_TokType op = top_type();
     destroy_top();
     skip_blank();
-    Nst_Node *special_node = parse_extraction();
+    Nst_Node *special_node = parse_ex();
     if (special_node == NULL)
         return NULL;
     Nst_Node *local_stack_op = new_node(
@@ -811,6 +805,7 @@ static Nst_Node *parse_local_stack_op(Nst_LList **values, Nst_Pos start)
         Nst_node_destroy(special_node);
         return NULL;
     }
+    local_stack_op->v.ls.op = op;
     Nst_node_set_pos(local_stack_op, start, special_node->end);
     Nst_LList *temp = *values;
     *values = local_stack_op->v.ls.values;
@@ -840,7 +835,7 @@ static bool check_local_stack_op_arg_num(usize arg_num, Nst_Pos start,
     return true;
 }
 
-static Nst_Node *parse_assignment_name(bool is_compound)
+static Nst_Node *parse_as_name(bool is_compound)
 {
     ParsingState initial_state;
     if (!enter_func(&initial_state))
@@ -851,7 +846,7 @@ static Nst_Node *parse_assignment_name(bool is_compound)
     Nst_Node *name;
 
     if (top_type() != Nst_TT_L_BRACE) {
-        name = parse_extraction();
+        name = parse_ex();
         if (name == NULL)
             return NULL;
         if (name->type != Nst_NT_AC && name->type != Nst_NT_EX) {
@@ -878,7 +873,7 @@ static Nst_Node *parse_assignment_name(bool is_compound)
 
     while (true) {
         skip_blank();
-        Nst_Node *sub_name = parse_assignment_name(false);
+        Nst_Node *sub_name = parse_as_name(false);
         if (sub_name == NULL)
             goto failure;
         if (!append_node(name->v.sl.values, sub_name)) {
@@ -907,7 +902,7 @@ failure:
     return NULL;
 }
 
-static Nst_Node *parse_assignment(Nst_LList **values, Nst_Pos start)
+static Nst_Node *parse_as(Nst_LList **values, Nst_Pos start)
 {
     ParsingState initial_state;
     if (!enter_func(&initial_state))
@@ -922,7 +917,7 @@ static Nst_Node *parse_assignment(Nst_LList **values, Nst_Pos start)
     }
     destroy_top();
 
-    Nst_Node *name = parse_assignment_name(is_compound);
+    Nst_Node *name = parse_as_name(is_compound);
     if (name == NULL)
         return NULL;
 
@@ -952,7 +947,7 @@ static Nst_Node *parse_assignment(Nst_LList **values, Nst_Pos start)
     return assignment;
 }
 
-static Nst_Node *parse_extraction(void)
+static Nst_Node *parse_ex(void)
 {
     ParsingState initial_state;
     if (!enter_func(&initial_state))
@@ -1061,7 +1056,22 @@ static Nst_Node *parse_atom(void)
         atom->v.lo.op = top_type();
         destroy_top();
 
-        Nst_Node *value = parse_extraction();
+        Nst_Node *value = parse_ex();
+        if (value == NULL) {
+            Nst_node_destroy(atom);
+            return NULL;
+        }
+        atom->v.lo.value = value;
+        Nst_node_set_pos(atom, start, value->end);
+    } else if (top_type() == Nst_TT_CALL) {
+        atom = new_node(Nst_NT_LO, top_start(), top_end());
+        if (atom == NULL)
+            return NULL;
+        Nst_Pos start = top_start();
+        atom->v.lo.op = Nst_TT_LOC_CALL;
+        destroy_top();
+
+        Nst_Node *value = parse_ex();
         if (value == NULL) {
             Nst_node_destroy(atom);
             return NULL;
@@ -1328,7 +1338,7 @@ failure:
     return NULL;
 }
 
-static Nst_Node *parse_try_catch(void)
+static Nst_Node *parse_tc(void)
 {
     ParsingState initial_state;
     if (!enter_func(&initial_state))

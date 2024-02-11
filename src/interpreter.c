@@ -328,15 +328,6 @@ Nst_ExecutionState *Nst_state_set_es(Nst_ExecutionState *es)
     return prev_es;
 }
 
-void _Nst_unload_libs(void)
-{
-    if (Nst_state.loaded_libs != NULL) {
-        Nst_llist_destroy(
-            Nst_state.loaded_libs,
-            (Nst_LListDestructor)loaded_libs_destructor);
-    }
-}
-
 static inline void destroy_call(Nst_FuncCall *call)
 {
     while (Nst_state.es->c_stack.len > call->cstack_len)
