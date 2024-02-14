@@ -660,9 +660,7 @@ static Nst_Node *parse_fd(void)
         }
         destroy_top();
         func_declr->v.fd.body = return_s;
-        state.endl_ends_expr = false;
         Nst_Node *expr = parse_expr();
-        state.endl_ends_expr = initial_state.endl_ends_expr;
         if (expr == NULL) {
             Nst_node_destroy(func_declr);
             return NULL;

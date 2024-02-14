@@ -895,7 +895,12 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
     } else if (ob_t == Nst_t.Func) {
         i8 *buffer = Nst_malloc_c(13 + MAX_INT_CHAR_COUNT, i8);
         CHECK_BUFFER(buffer);
-        i32 len = sprintf(buffer, "<Func %zi args>", FUNC(ob)->arg_num);
+        usize arg_num = FUNC(ob)->arg_num;
+        i32 len = sprintf(
+            buffer,
+            "<Func %zi arg%s>",
+            arg_num,
+            arg_num == 1 ? "" : "s");
         return Nst_string_new_allocated(buffer, len);
     } else {
         i8 *buffer = Nst_malloc_c(

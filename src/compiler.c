@@ -429,7 +429,6 @@ static bool compile_for_as_l(Nst_Node *node)
     cond: FOR_GET_VAL
           JUMPIF_IEND exit
           [ASSIGN_CODE name]
-          POP_VAL
           [BODY CODE]
           JUMP cond
     exit: POP_VAL
@@ -463,9 +462,6 @@ static bool compile_for_as_l(Nst_Node *node)
     if (NULL_OR_APPEND_FAILED(jumpif_iend_exit))
         return false;
     if (!compile_unpacking_assign_e(node->v.fl.assignment))
-        return false;
-    pop_val = new_inst(Nst_IC_POP_VAL, node->start, node->end);
-    if (NULL_OR_APPEND_FAILED(pop_val))
         return false;
 
     Nst_LLNode *body_start = c_state.inst_ls->head;

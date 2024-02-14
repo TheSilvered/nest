@@ -230,8 +230,8 @@ extern Nst_StdIn Nst_stdin;
  */
 NstEXP typedef struct _Nst_IOFileObj {
     Nst_OBJ_HEAD;
-    void *fp;
     int fd;
+    void *fp;
     Nst_CP *encoding;
     Nst_IOFuncSet func_set;
 } Nst_IOFileObj;

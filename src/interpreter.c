@@ -936,7 +936,7 @@ static i32 exe_op_cast(Nst_Inst *inst)
     Nst_Obj *val = Nst_vstack_pop(&Nst_state.es->v_stack);
     Nst_Obj *type = Nst_vstack_pop(&Nst_state.es->v_stack);
 
-    if (type_check(type, Nst_t.Type)) {
+    if (!type_check(type, Nst_t.Type)) {
         Nst_dec_ref(val);
         Nst_dec_ref(type);
         return INST_FAILED;
