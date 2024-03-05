@@ -1109,7 +1109,6 @@ static Nst_Node *parse_vector_literal(void)
     destroy_top();
     skip_blank();
     if (top_type() == Nst_TT_R_VBRACE) {
-        destroy_top();
         vec_lit = new_node(Nst_NT_SL, start, top_end());
         vec_lit->v.sl.type = Nst_SNT_VECTOR;
         if (vec_lit == NULL)

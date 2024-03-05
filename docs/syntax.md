@@ -508,28 +508,35 @@ condition ?
     -- condition is false
 ```
 
-The result of the if expression is the result of the expression evaluated, so
-`a b == ? 2 : 3` means that if a and b are equal, the expression evaluates to
-`2` and to `3` otherwise. When there is no 'else' clause, the expression
-evaluates to `null`.
+This follows the rules of the ternary operator in other languages with the
+exception that it does not require an 'else' branch and that the code inside
+the branches can be both an expression and a statement.
 
-If you want to execute multiple expressions or statements you can use brackets:
-
-```nest
-a b == ? [
-    -- code block here
-] : [
-    -- other code block here
-]
-```
-
-When using a code block the expression evaluates to `null`:
+When an if expression is missing the 'else' branch it is written like so:
 
 ```nest
-(true ? [ true ] : false) = val
+condition ?
+    -- body if true
 ```
 
-Here `val` is set to `null` because `true` is inside a block.
+In case there is no 'else' branch and the condition is `false`, the expression
+evaluates to `null`, otherwise, if the condition is `true`, it evaluates to
+the value of the body of the first branch.
+
+If the body of a branch is a statement the expression will evaluate to `null`.
+
+```nest
+1 2 == ? 5 : 2 = var_1 --> var_1 will be equal to 2
+1 1 == ? 5 : 2 = var_2 --> var_2 will be equal to 5
+
+(1 2 == ? 5) = var_3 --> var_3 will be equal to null
+(1 1 == ? 5) = var_4 --> var_4 will be equal to 5
+
+1 2 == ? [5] : 2 = var_5 --> var_5 will be equal to 2
+1 1 == ? [5] : 2 = var_6 --> var_6 will be equal to null
+1 2 == ? 5 : [2] = var_7 --> var_7 will be equal to null
+1 1 == ? 5 : [2] = var_8 --> var_8 will be equal to 5
+```
 
 ### Assignment expressions
 

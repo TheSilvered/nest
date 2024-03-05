@@ -1043,7 +1043,7 @@
         link_manager file_blocks @link_manager_add_symbols
         file_blocks = files.(file)
     ]
-    'Parsing complete.' @io.println
+    'Parsing complete.\n' @io.println
     link_manager @link_manager_expand_internal_links
     => {files, link_manager}
 ]
@@ -1119,12 +1119,14 @@
     @sys._get_cwd = old_cwd
     '../docs/c_api/' @sys._set_cwd
 
-    ... files := {_, file_blocks} [
+    ... files := {file, file_blocks} [
+        'Writing \(file @fs.filename @su.repr) documentation...' @io.println
         file_blocks link_manager @_write_c_file
     ]
 
+    'Writing API reference...' @io.println
     link_manager @_write_api_reference
-
+    'Writing complete.' @io.println
     old_cwd @sys._set_cwd
 ]
 

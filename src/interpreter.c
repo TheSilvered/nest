@@ -1173,6 +1173,7 @@ static i32 exe_new_int(Nst_Inst *inst)
     if (new_obj == NULL)
         return INST_FAILED;
     Nst_vstack_push(&Nst_state.es->v_stack, new_obj);
+    Nst_dec_ref(new_obj);
     return INST_SUCCESS;
 }
 

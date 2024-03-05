@@ -220,12 +220,6 @@ static bool optimize_stack_values(Nst_LList *values, Nst_TokType op,
     case Nst_TT_L_AND:    op_func = _Nst_obj_lgand;    break;
     case Nst_TT_L_OR:     op_func = _Nst_obj_lgor;     break;
     case Nst_TT_L_XOR:    op_func = _Nst_obj_lgxor;    break;
-    case Nst_TT_GT:       op_func = _Nst_obj_gt;       break;
-    case Nst_TT_LT:       op_func = _Nst_obj_lt;       break;
-    case Nst_TT_EQ:       op_func = _Nst_obj_eq;       break;
-    case Nst_TT_NEQ:      op_func = _Nst_obj_ne;       break;
-    case Nst_TT_GTE:      op_func = _Nst_obj_ge;       break;
-    case Nst_TT_LTE:      op_func = _Nst_obj_le;       break;
     case Nst_TT_CONTAINS: op_func = _Nst_obj_contains; break;
     }
 

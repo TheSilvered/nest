@@ -189,7 +189,8 @@ void *Nst_llist_pop(Nst_LList *llist)
 
 **Description:**
 
-Removes and returns the front value from a list.
+Removes and returns the front value of a list. If the list is empty `NULL` is
+returned, no error is set.
 
 ---
 

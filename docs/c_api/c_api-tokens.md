@@ -150,12 +150,12 @@ Checks if a token is in the `EXPR_END` category.
 
 ---
 
-### `Nst_ASSIGMENT_TO_STACK_OP`
+### `Nst_ASSIGNMENT_TO_STACK_OP`
 
 **Synopsis:**
 
 ```better-c
-#define Nst_ASSIGMENT_TO_STACK_OP(token_type)
+#define Nst_ASSIGNMENT_TO_STACK_OP(token_type)
 ```
 
 **Description:**
@@ -321,6 +321,20 @@ Prints a token to the Nest standard output.
 
 ---
 
+### `Nst_tok_type_to_str`
+
+**Synopsis:**
+
+```better-c
+const i8 *Nst_tok_type_to_str(Nst_TokType type)
+```
+
+**Description:**
+
+Returns the type of the token as a string.
+
+---
+
 ## Enums
 
 ### `Nst_TokType`
@@ -342,8 +356,8 @@ typedef enum _Nst_TokType {
     Nst_TT_RSHIFT,    // | - num-op end
     Nst_TT_CONCAT,    // |
     Nst_TT_L_AND,     // | + cond-op start
-    Nst_TT_L_OR,      // | |
-    Nst_TT_L_XOR,     // | - cond-op end
+    Nst_TT_L_OR,      // | - cond-op end
+    Nst_TT_L_XOR,     // |
     Nst_TT_GT,        // | + comp-op start
     Nst_TT_LT,        // | |
     Nst_TT_EQ,        // | |
@@ -413,7 +427,7 @@ typedef enum _Nst_TokType {
 
     // invalid token
 
-    Nst_TT_INVALID = -1
+    Nst_TT_INVALID
 } Nst_TokType
 ```
 

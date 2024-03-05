@@ -33,6 +33,30 @@ extern "C" {
 //     if the node does not contain any data
 //  5) Add the node name to nt_strings
 
+/* [docs:link Nst_NT_CS Nst_NodeType] */
+/* [docs:link Nst_NT_WL Nst_NodeType] */
+/* [docs:link Nst_NT_FL Nst_NodeType] */
+/* [docs:link Nst_NT_FD Nst_NodeType] */
+/* [docs:link Nst_NT_RT Nst_NodeType] */
+/* [docs:link Nst_NT_CN Nst_NodeType] */
+/* [docs:link Nst_NT_BR Nst_NodeType] */
+/* [docs:link Nst_NT_SW Nst_NodeType] */
+/* [docs:link Nst_NT_TC Nst_NodeType] */
+/* [docs:link Nst_NT_WS Nst_NodeType] */
+/* [docs:link Nst_NT_NP Nst_NodeType] */
+/* [docs:link Nst_NT_SO Nst_NodeType] */
+/* [docs:link Nst_NT_LS Nst_NodeType] */
+/* [docs:link Nst_NT_LO Nst_NodeType] */
+/* [docs:link Nst_NT_SL Nst_NodeType] */
+/* [docs:link Nst_NT_ML Nst_NodeType] */
+/* [docs:link Nst_NT_VL Nst_NodeType] */
+/* [docs:link Nst_NT_AC Nst_NodeType] */
+/* [docs:link Nst_NT_EX Nst_NodeType] */
+/* [docs:link Nst_NT_AS Nst_NodeType] */
+/* [docs:link Nst_NT_CA Nst_NodeType] */
+/* [docs:link Nst_NT_IE Nst_NodeType] */
+/* [docs:link Nst_NT_WE Nst_NodeType] */
+
 /**
  * The types of nodes in the AST.
  *
@@ -42,7 +66,7 @@ extern "C" {
 NstEXP typedef enum _Nst_NodeType {
     // Statement nodes
 
-    Nst_NT_CS, // Compound statement statement
+    Nst_NT_CS, // Compound statement
     Nst_NT_WL, // While or do-while loop
     Nst_NT_FL, // For or for-as loop
     Nst_NT_FD, // Function declaration or lambda
@@ -70,6 +94,7 @@ NstEXP typedef enum _Nst_NodeType {
     Nst_NT_WE  // Expression wrapper
 } Nst_NodeType;
 
+/* The types of a `Nst_Node` of type `Nst_NT_SL` */
 NstEXP typedef enum _Nst_SeqNodeType {
     Nst_SNT_ARRAY,
     Nst_SNT_ARRAY_REP,
@@ -81,32 +106,38 @@ NstEXP typedef enum _Nst_SeqNodeType {
 
 struct _Nst_Node;
 
+/* The data for a `Nst_NT_CS` node. */
 NstEXP typedef struct _Nst_NodeData_Cs {
     Nst_LList *statements;
 } Nst_NodeData_Cs;
 
+/* The data for a `Nst_NT_WL` node. */
 NstEXP typedef struct _Nst_NodeData_Wl {
     struct _Nst_Node *condition;
     struct _Nst_Node *body;
     bool is_dowhile;
 } Nst_NodeData_Wl;
 
+/* The data for a `Nst_NT_FL` node. */
 NstEXP typedef struct _Nst_NodeData_Fl {
     struct _Nst_Node *iterator;
     struct _Nst_Node *assignment;
     struct _Nst_Node *body;
 } Nst_NodeData_Fl;
 
+/* The data for a `Nst_NT_FD` node. */
 NstEXP typedef struct _Nst_NodeData_Fd {
     Nst_Tok *name;
     Nst_LList *argument_names;
     struct _Nst_Node *body;
 } Nst_NodeData_Fd;
 
+/* The data for a `Nst_NT_RT` node. */
 NstEXP typedef struct _Nst_NodeData_Rt {
     struct _Nst_Node *value;
 } Nst_NodeData_Rt;
 
+/* The data for a `Nst_NT_SW` node. */
 NstEXP typedef struct _Nst_NodeData_Sw {
     struct _Nst_Node *expr;
     Nst_LList *values;
@@ -114,76 +145,92 @@ NstEXP typedef struct _Nst_NodeData_Sw {
     struct _Nst_Node *default_body;
 } Nst_NodeData_Sw;
 
+/* The data for a `Nst_NT_TC` node. */
 NstEXP typedef struct _Nst_NodeData_Tc {
     struct _Nst_Node *try_body;
     struct _Nst_Node *catch_body;
     Nst_Tok *error_name;
 } Nst_NodeData_Tc;
 
-NstEXP typedef struct _Nst_NodeData_Ws{
+/* The data for a `Nst_NT_WS` node. */
+NstEXP typedef struct _Nst_NodeData_Ws {
     struct _Nst_Node *statement;
 } Nst_NodeData_Ws;
 
+/* The data for a `Nst_NT_SO` node. */
 NstEXP typedef struct _Nst_NodeData_So {
     Nst_LList *values;
     Nst_TokType op;
 } Nst_NodeData_So;
 
+/* The data for a `Nst_NT_LS` node. */
 NstEXP typedef struct _Nst_NodeData_Ls {
     Nst_LList *values;
     struct _Nst_Node *special_value;
     Nst_TokType op;
 } Nst_NodeData_Ls;
 
+/* The data for a `Nst_NT_LO` node. */
 NstEXP typedef struct _Nst_NodeData_Lo {
     struct _Nst_Node *value;
     Nst_TokType op;
 } Nst_NodeData_Lo;
 
+/* The data for a `Nst_NT_SL` node. */
 NstEXP typedef struct _Nst_NodeData_Sl {
     Nst_LList *values;
     Nst_SeqNodeType type;
 } Nst_NodeData_Sl;
 
+/* The data for a `Nst_NT_ML` node. */
 NstEXP typedef struct _Nst_NodeData_Ml {
     Nst_LList *keys;
     Nst_LList *values;
 } Nst_NodeData_Ml;
 
+/* The data for a `Nst_NT_VL` node. */
 NstEXP typedef struct _Nst_NodeData_Vl {
     Nst_Tok *value;
 } Nst_NodeData_Vl;
-
+/* The data for a `Nst_NT_AC` node. */
 NstEXP typedef struct _Nst_NodeData_Ac {
     Nst_Tok *value;
 } Nst_NodeData_Ac;
-
+/* The data for a `Nst_NT_EX` node. */
 NstEXP typedef struct _Nst_NodeData_Ex {
     struct _Nst_Node *container;
     struct _Nst_Node *key;
 } Nst_NodeData_Ex;
-
+/* The data for a `Nst_NT_AS` node. */
 NstEXP typedef struct _Nst_NodeData_As {
     struct _Nst_Node *value;
     struct _Nst_Node *name;
 } Nst_NodeData_As;
-
+/* The data for a `Nst_NT_CA` node. */
 NstEXP typedef struct _Nst_NodeData_Ca {
     Nst_LList *values;
     struct _Nst_Node *name;
     Nst_TokType op;
 } Nst_NodeData_Ca;
-
+/* The data for a `Nst_NT_IE` node. */
 NstEXP typedef struct _Nst_NodeData_Ie {
     struct _Nst_Node *condition;
     struct _Nst_Node *body_if_true;
     struct _Nst_Node *body_if_false;
 } Nst_NodeData_Ie;
-
-NstEXP typedef struct _Nst_NodeData_We{
+/* The data for a `Nst_NT_WE` node. */
+NstEXP typedef struct _Nst_NodeData_We {
     struct _Nst_Node *expr;
 } Nst_NodeData_We;
 
+/**
+ * The structure representing a parser node.
+ * 
+ * @param start: the starting position of the node
+ * @param end: the ending position of the node
+ * @param type: the `Nst_NodeType` of the node
+ * @param v: a union that contains the node's data
+ */
 NstEXP typedef struct _Nst_Node {
     Nst_Pos start;
     Nst_Pos end;
@@ -328,7 +375,7 @@ NstEXP const i8 *NstC Nst_node_type_to_str(Nst_NodeType nt);
  * Changes the type of a node destroying the previous contents but keeping the
  * position.
  *
- * @biref Note: changing the node to a `Nst_NT_NP` is guaranteed to succeed.
+ * @brief Note: changing the node to a `Nst_NT_NP` is guaranteed to succeed.
  *
  * @param node: the node to change the type of
  * @param new_type: the new type for the node

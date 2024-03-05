@@ -31,17 +31,3 @@ The list of tokens is destroyed when calling this function.
 **Returns:**
 
 The AST or `NULL` on failure. The error is set.
-
----
-
-### `Nst_print_ast`
-
-**Synopsis:**
-
-```better-c
-void Nst_print_ast(Nst_Node *ast)
-```
-
-**Description:**
-
-Prints the AST to the Nest standard output.

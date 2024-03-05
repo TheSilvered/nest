@@ -55,10 +55,6 @@ m @itu.values @string_output '123' @test.assert_eq
     0 = v.0
 ]
 
-#is_done v [
-    => v.0 $v.1 >=
-]
-
 #get_val v [
     => v.0 $v.1 >= ?
        itu.IEND

@@ -386,7 +386,7 @@ static bool compile_fl(Nst_Node *node)
         Nst_IC_JUMPIF_ZERO,
         node->start,
         node->end);
-    if (NULL_OR_APPEND_FAILED(new_int))
+    if (NULL_OR_APPEND_FAILED(jumpif_zero_exit))
         return false;
 
     Nst_LLNode *body_start = c_state.inst_ls->tail;
@@ -572,7 +572,9 @@ static bool compile_if_e(Nst_Node *node)
         !Nst_NODE_RETUNS_VALUE(node->v.ie.body_if_true->type) &&
         !Nst_NODE_RETUNS_VALUE(node->v.ie.body_if_false->type);
 
-    if (!both_statements) {
+    if (!both_statements
+        && !Nst_NODE_RETUNS_VALUE(node->v.ie.body_if_true->type))
+    {
         push_val_null = new_inst_v(
             Nst_IC_PUSH_VAL,
             Nst_c.Null_null,
@@ -590,7 +592,9 @@ static bool compile_if_e(Nst_Node *node)
     if (!compile_node(node->v.ie.body_if_false))
         return false;
 
-    if (!both_statements) {
+    if (!both_statements
+        && !Nst_NODE_RETUNS_VALUE(node->v.ie.body_if_false->type))
+    {
         push_val_null = new_inst_v(
             Nst_IC_PUSH_VAL,
             Nst_c.Null_null,
@@ -806,7 +810,7 @@ static bool compile_comp_op(Nst_Node *node)
             goto failure;
     }
 
-    if (!compile_node(Nst_NODE(node->v.so.values->tail)))
+    if (!compile_node(Nst_NODE(node->v.so.values->tail->value)))
         goto failure;
 
     inst = new_inst_i(Nst_IC_STACK_OP, op, node->start, node->end);
@@ -1193,8 +1197,8 @@ static bool compile_comp_assign_e(Nst_Node *node)
     /*
     Compound assignment bytecode
 
-    [VALUES LIKE STACK OP]
     [NAME NODE RAW]
+    [VALUES LIKE STACK OP]
     STACK_OP - op
 
     Assignment bytecode for variable name
@@ -1209,6 +1213,9 @@ static bool compile_comp_assign_e(Nst_Node *node)
     [KEY CODE]
     SET_CONT_VAL
     */
+
+    if (!compile_node(node->v.ca.name))
+        return false;
 
     if (!compile_node(Nst_NODE(node->v.ca.values->head->value)))
         return false;
@@ -1228,8 +1235,14 @@ static bool compile_comp_assign_e(Nst_Node *node)
             return false;
     }
 
-    if (!compile_node(node->v.ca.name))
+    Nst_Inst *stack_op = new_inst_i(
+        Nst_IC_STACK_OP,
+        node->v.ca.op,
+        node->start,
+        node->end);
+    if (NULL_OR_APPEND_FAILED(stack_op))
         return false;
+
     return compile_assignment_name(node->v.ca.name, false);
 }
 
