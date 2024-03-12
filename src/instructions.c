@@ -1,3 +1,4 @@
+#include <string.h>
 #include "mem.h"
 #include "instructions.h"
 #include "global_consts.h"
@@ -72,7 +73,7 @@ Nst_InstList *Nst_inst_list_new(Nst_LList *instructions)
         return NULL;
 
     Nst_Inst *inst_array = Nst_malloc_c(instructions->len, Nst_Inst);
-    if (inst_ls->instructions == NULL) {
+    if (inst_array == NULL) {
         Nst_free(inst_ls);
         return NULL;
     }
@@ -80,7 +81,7 @@ Nst_InstList *Nst_inst_list_new(Nst_LList *instructions)
     inst_ls->total_size = instructions->len;
 
     Nst_LList *functions = Nst_llist_new();
-    if (inst_ls->functions == NULL) {
+    if (functions == NULL) {
         Nst_free(inst_array);
         Nst_free(inst_ls);
         return false;

@@ -64,7 +64,6 @@ static bool compile_if_e(Nst_Node *node);
 static bool compile_e_wrapper(Nst_Node *node);
 
 static bool append_inst(Nst_Inst *inst);
-static bool append_list_savable(Nst_Inst *inst);
 static Nst_Inst *new_inst(Nst_InstID id, Nst_Pos start, Nst_Pos end);
 static Nst_Inst *new_inst_v(Nst_InstID id, Nst_Obj *val, Nst_Pos start,
                             Nst_Pos end);
@@ -140,14 +139,6 @@ static bool append_inst(Nst_Inst *inst)
         return true;
     Nst_error_add_positions(Nst_error_get(), inst->start, inst->end);
     Nst_inst_destroy(inst);
-    return false;
-}
-
-static bool append_list_savable(Nst_Inst *inst)
-{
-    if (Nst_llist_append(c_state.inst_ls, inst, true))
-        return true;
-    Nst_error_add_positions(Nst_error_get(), inst->start, inst->end);
     return false;
 }
 
@@ -1028,6 +1019,8 @@ static bool compile_seq_lit(Nst_Node *node)
     case Nst_SNT_VECTOR:     inst_id = Nst_IC_MAKE_VEC; break;
     case Nst_SNT_ARRAY_REP:  inst_id = Nst_IC_MAKE_ARR_REP; break;
     case Nst_SNT_VECTOR_REP: inst_id = Nst_IC_MAKE_VEC_REP; break;
+    default:
+        Nst_assert_c(false);
     }
 
     i64 int_val = inst_id == Nst_IC_MAKE_ARR || inst_id == Nst_IC_MAKE_VEC

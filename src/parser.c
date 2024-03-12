@@ -816,7 +816,7 @@ static Nst_Node *parse_ls(Nst_LList **values, Nst_Pos start)
 static bool check_local_stack_op_arg_num(usize arg_num, Nst_Pos start,
                                          Nst_Pos end)
 {
-    Nst_NodeType type = top_type();
+    Nst_TokType type = top_type();
     if (type == Nst_TT_CAST && arg_num != 1) {
         set_error(_Nst_EM_LEFT_ARGS_NUM("::", "1", ""), start, end);
         return false;
@@ -1357,11 +1357,15 @@ static Nst_Node *parse_tc(void)
     try_catch_s->v.tc.try_body = try_body;
     skip_blank();
 
-    if (top_type() != Nst_TT_CATCH)
+    if (top_type() != Nst_TT_CATCH) {
+        set_error(_Nst_EM_EXPECTED_CATCH, top_start(), top_end());
         goto failure;
+    }
     destroy_top();
-    if (top_type() != Nst_TT_IDENT)
+    if (top_type() != Nst_TT_IDENT) {
+        set_error(_Nst_EM_EXPECTED_CATCH, top_start(), top_end());
         goto failure;
+    }
 
     try_catch_s->v.tc.error_name = pop_top();
     skip_blank();

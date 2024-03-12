@@ -221,10 +221,9 @@ static bool optimize_stack_values(Nst_LList *values, Nst_TokType op,
     case Nst_TT_L_OR:     op_func = _Nst_obj_lgor;     break;
     case Nst_TT_L_XOR:    op_func = _Nst_obj_lgxor;    break;
     case Nst_TT_CONTAINS: op_func = _Nst_obj_contains; break;
-    }
-
-    if (op_func == NULL)
+    default:
         return true;
+    }
 
     Nst_Obj *curr_value = get_value(Nst_NODE(values->head->value));
     if (curr_value == NULL)
@@ -297,14 +296,10 @@ static bool optimize_local_op(Nst_Node *node)
     case Nst_TT_B_NOT:  op_func = _Nst_obj_bwnot;  break;
     case Nst_TT_NEG:    op_func = _Nst_obj_neg;    break;
     case Nst_TT_TYPEOF: op_func = _Nst_obj_typeof; break;
-    case Nst_TT_STDOUT:
-    case Nst_TT_STDIN:
-    case Nst_TT_IMPORT:
-    case Nst_TT_LOC_CALL:
-        break;
-    }
-    if (op_func == NULL)
+    default:
         return true;
+    }
+
     Nst_Obj *result = op_func(value);
     if (result == NULL) {
         Nst_error_add_positions(Nst_error_get(), node->start, node->end);

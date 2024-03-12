@@ -35,7 +35,7 @@ sys.SUPPORTS_COLOR ? [
 ]
 
 #error_location traceback [
-    !traceback ? => '; <unknwon position>'
+    !traceback ? => '; <unknown position>'
     ... traceback @itu.reversed := tb_pos [
         tb_pos.file @fs.filename 'test_lib.nest' != ? [
             tb_pos = pos
