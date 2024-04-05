@@ -368,35 +368,33 @@ static isize get_max_size_printf(const i8 *fmt, va_list orig_args)
     return tot_size + 1;
 }
 
-#ifdef ENABLE_NEST_FMT
-
 typedef enum _Alignment {
-    AUTO,
-    LEFT,
-    CENTER,
-    RIGHT
+    Nst_FMT_ALIGN_AUTO,
+    Nst_FMT_ALIGN_LEFT,
+    Nst_FMT_ALIGN_CENTER,
+    Nst_FMT_ALIGN_RIGHT
 } Alignment;
 
 typedef enum _IntReprMode {
-    BIN,
-    OCT,
-    DEC,
-    HEX,
-    UHEX
+    Nst_FMT_INTR_BIN,
+    Nst_FMT_INTR_OCT,
+    Nst_FMT_INTR_DEC,
+    Nst_FMT_INTR_HEX,
+    Nst_FMT_INTR_UPPER_HEX
 } IntReprMode;
 
 typedef enum _AlignSign {
-    NO_SIGN,
-    SPACE,
-    PLUS
+    Nst_FMT_SIGN_NO_SIGN,
+    Nst_FMT_SIGN_SPACE,
+    Nst_FMT_SIGN_PLUS
 } AlignSign;
 
 typedef enum _ReprMode {
-    NO_REPR,
-    SHALLOW,
-    FULL,
-    FULL_ASCII,
-    SHALLOW_ASCII
+    Nst_FMT_REPR_NO_REPR,
+    Nst_FMT_REPR_SHALLOW,
+    Nst_FMT_REPR_FULL,
+    Nst_FMT_REPR_FULL_ASCII,
+    Nst_FMT_REPR_SHALLOW_ASCII
 } ReprMode;
 
 typedef enum _PrefSuffMode {
@@ -416,7 +414,7 @@ static bool nest_fmt_string(Nst_Buffer *buf, i8 *str, isize str_len,
                             ReprMode repr, const i8 *fill_ch, i32 width,
                             Alignment align);
 
-static bool nest_fmt_value(Nst_Buffer *buf, const i8 *fmt, va_list args)
+static const i8 *nest_fmt_value(Nst_Buffer *buf, const i8 *fmt, va_list *args)
 {
     bool nest_obj = false;
     const i8 *type;
@@ -436,21 +434,21 @@ static bool nest_fmt_value(Nst_Buffer *buf, const i8 *fmt, va_list args)
     bool pad_zeroes_precision = false;
     DblRepr dbl_repr = MIN_REPR;
     PrefSuffMode pref_suff = NO_PREF_OR_SUFF;
-    ReprMode repr = NO_REPR;
-    AlignSign sign = NO_SIGN;
-    IntReprMode mode = DEC;
+    ReprMode repr = Nst_FMT_REPR_NO_REPR;
+    AlignSign sign = Nst_FMT_SIGN_NO_SIGN;
+    IntReprMode mode = Nst_FMT_INTR_DEC;
     const i8 *thousand_sep = NULL;
     const i8 *fill_ch = NULL;
     i32 width = -1;
     i32 precision = -1;
-    Alignment align = AUTO;
+    Alignment align = Nst_FMT_ALIGN_AUTO;
 
     fmt++;
     if (*fmt == '}')
         goto format_type;
     else if (*fmt != ':') {
-        Nst_set_value_error("expected ':' in format string");
-        return false;
+        Nst_set_value_error_c("expected ':' in format string");
+        return NULL;
     }
     fmt++;
 
@@ -479,34 +477,34 @@ static bool nest_fmt_value(Nst_Buffer *buf, const i8 *fmt, va_list args)
             exact_width = true;
             break;
         case 'b':
-            mode = BIN;
+            mode = Nst_FMT_INTR_BIN;
             break;
         case 'o':
-            mode = OCT;
+            mode = Nst_FMT_INTR_OCT;
             break;
         case 'x':
-            mode = HEX;
+            mode = Nst_FMT_INTR_HEX;
             break;
         case 'X':
-            mode = UHEX;
+            mode = Nst_FMT_INTR_UPPER_HEX;
             break;
         case ' ':
-            sign = SPACE;
+            sign = Nst_FMT_SIGN_SPACE;
             break;
         case '+':
-            sign = PLUS;
+            sign = Nst_FMT_SIGN_PLUS;
             break;
         case 'r':
-            repr = FULL;
+            repr = Nst_FMT_REPR_FULL;
             break;
         case 'R':
-            repr = SHALLOW;
+            repr = Nst_FMT_REPR_SHALLOW;
             break;
         case 'a':
-            repr = FULL_ASCII;
+            repr = Nst_FMT_REPR_FULL_ASCII;
             break;
         case 'A':
-            repr = SHALLOW_ASCII;
+            repr = Nst_FMT_REPR_SHALLOW_ASCII;
             break;
         case 'u':
             as_unsigned = true;
@@ -516,8 +514,8 @@ static bool nest_fmt_value(Nst_Buffer *buf, const i8 *fmt, va_list args)
             fmt++;
             i32 ch_len = Nst_check_ext_utf8_bytes((u8 *)fmt, strnlen(fmt, 4));
             if (ch_len == -1) {
-                Nst_set_value_error("the fill character is not valid UTF-8");
-                return false;
+                Nst_set_value_error_c("the fill character is not valid UTF-8");
+                return NULL;
             }
             fmt += ch_len - 1;
             break;
@@ -527,8 +525,9 @@ static bool nest_fmt_value(Nst_Buffer *buf, const i8 *fmt, va_list args)
             fmt++;
             i32 ch_len = Nst_check_ext_utf8_bytes((u8 *)fmt, strnlen(fmt, 4));
             if (ch_len == -1) {
-                Nst_set_value_error("the thousand separator is not valid UTF-8");
-                return false;
+                Nst_set_value_error_c(
+                    "the thousand separator is not valid UTF-8");
+                return NULL;
             }
             fmt += ch_len - 1;
             break;
@@ -541,40 +540,53 @@ static bool nest_fmt_value(Nst_Buffer *buf, const i8 *fmt, va_list args)
         fmt++;
     }
 
-    if (*fmt > '0' && *fmt <= '9')
+    if (*fmt > '0' && *fmt <= '9') {
         width = strtol(fmt, (i8 **)&fmt, 10);
-    else if (*fmt == '*')
-        width = va_arg(args, i32);
+        while (*fmt >= 0 && *fmt <= 9)
+            fmt++;
+    }
+    else if (*fmt == '*') {
+        width = va_arg(*args, i32);
+        fmt++;
+    }
 
     if (*fmt == '.') {
         fmt++;
         if ((*fmt < '0' || *fmt > '0') && *fmt != '*') {
-            Nst_set_value_error("expected a number for precision in format");
+            Nst_set_value_error_c("expected a number for precision in format");
             return false;
         }
-        if (*fmt == '*')
-            precision = va_arg(args, i32);
-        else
+        if (*fmt == '*') {
+            precision = va_arg(*args, i32);
+            while (*fmt >= 0 && *fmt <= 9)
+                fmt++;
+        } else {
             precision = strtol(fmt, (i8 **)&fmt, 10);
+            fmt++;
+        }
     }
 
     switch (*fmt) {
     case '<':
-        align = LEFT;
+        align = Nst_FMT_ALIGN_LEFT;
+        fmt++;
         break;
     case '>':
-        align = RIGHT;
+        align = Nst_FMT_ALIGN_RIGHT;
+        fmt++;
         break;
     case '^':
-        align = CENTER;
+        align = Nst_FMT_ALIGN_CENTER;
+        fmt++;
         break;
     case '=':
         fill_zeroes = true;
+        fmt++;
         break;
     }
 
     if (*fmt != '}') {
-        Nst_set_value_error("invalid format sting");
+        Nst_set_value_error_c("invalid format string");
         return false;
     }
 
@@ -596,47 +608,50 @@ format_type:
 
     switch (*type) {
     case 's': {
-        i8 *str = va_arg(args, i8 *);
-        return nest_fmt_string(
+        i8 *str = va_arg(*args, i8 *);
+        bool result = nest_fmt_string(
             buf,
             str, -1,
             exact_width, pref_suff, repr, fill_ch,
             width,
             align);
+        if (!result)
+            return NULL;
+        return fmt;
     }
     case 'i':
-        Nst_set_value_error("formatting for 'int' is not yet supported");
-        return false;
+        Nst_set_value_error_c("formatting for 'int' is not yet supported");
+        return NULL;
     case 'l':
-        Nst_set_value_error("formatting for 'long' is not yet supported");
-        return false;
+        Nst_set_value_error_c("formatting for 'long' is not yet supported");
+        return NULL;
     case 'L':
-        Nst_set_value_error("formatting for 'long long' is not yet supported");
-        return false;
+        Nst_set_value_error_c("formatting for 'long long' is not yet supported");
+        return NULL;
     case 'b':
-        Nst_set_value_error("formatting for 'boolean' is not yet supported");
-        return false;
+        Nst_set_value_error_c("formatting for 'boolean' is not yet supported");
+        return NULL;
     case 'u':
-        Nst_set_value_error("formatting for 'isize' is not yet supported");
-        return false;
+        Nst_set_value_error_c("formatting for 'isize' is not yet supported");
+        return NULL;
     case 'c':
-        Nst_set_value_error("formatting for 'char' is not yet supported");
-        return false;
+        Nst_set_value_error_c("formatting for 'char' is not yet supported");
+        return NULL;
     case 'r':
     case 'f':
-        Nst_set_value_error("formatting for 'float' is not yet supported");
-        return false;
+        Nst_set_value_error_c("formatting for 'float' is not yet supported");
+        return NULL;
     case 'p':
-        Nst_set_value_error("formatting for 'pointer' is not yet supported");
-        return false;
+        Nst_set_value_error_c("formatting for 'pointer' is not yet supported");
+        return NULL;
     default:
         Nst_set_value_errorf("invalid type letter '%c' in format", *type);
-        return false;
+        return NULL;
     }
 
 format_nest_obj:
-    Nst_set_value_error("formatting for Nest objects is not yet supported");
-    return false;
+    Nst_set_value_error_c("formatting for Nest objects is not yet supported");
+    return NULL;
 }
 
 static bool more_double_quotes(u8 *str, usize str_len)
@@ -651,7 +666,7 @@ static bool more_double_quotes(u8 *str, usize str_len)
             double_count++;
     }
 
-    return double_count > single_count;
+    return double_count >= single_count;
 }
 
 static bool is_simple_char(u8 c)
@@ -661,7 +676,7 @@ static bool is_simple_char(u8 c)
 
 static bool write_ascii_escape(Nst_Buffer *buf, u8 c, u8 esc_ap, ReprMode repr)
 {
-    if (repr != SHALLOW && repr != SHALLOW_ASCII) {
+    if (repr != Nst_FMT_REPR_SHALLOW && repr != Nst_FMT_REPR_SHALLOW_ASCII) {
         if (c == '\'') {
             if (esc_ap)
                 return Nst_buffer_append_c_str(buf, "\\'");
@@ -701,13 +716,8 @@ static bool write_unicode_escape(Nst_Buffer *buf, u8 *str, usize str_len,
                                  ReprMode repr)
 {
     i32 ch_len = Nst_check_ext_utf8_bytes(str, str_len);
-    if (ch_len == -1) {
-        Nst_set_value_error("the string to format is not valid UTF-8");
-        return false;
-    }
-
     u32 ch = Nst_ext_utf8_to_utf32(str);
-    if (repr != FULL_ASCII && repr != SHALLOW_ASCII
+    if (repr != Nst_FMT_REPR_FULL_ASCII && repr != Nst_FMT_REPR_SHALLOW_ASCII
         && Nst_is_valid_cp(ch) && !Nst_is_non_character(ch))
     {
         if (!Nst_buffer_expand_by(buf, (usize)ch_len))
@@ -731,27 +741,43 @@ static bool write_unicode_escape(Nst_Buffer *buf, u8 *str, usize str_len,
 
 static i8 *repr_string(u8 *str, usize str_len, usize *out_len, ReprMode repr)
 {
-    // repr is assumed to not be NO_REPR
+    // repr is assumed to not be Nst_FMT_REPR_NO_REPR
     Nst_Buffer buf;
     if (!Nst_buffer_init(&buf, str_len))
         return NULL;
 
     bool escape_single_quotes = more_double_quotes(str, str_len);
 
-    for (usize i = 0; i < str_len; i++) {
+    if (repr != Nst_FMT_REPR_SHALLOW && repr != Nst_FMT_REPR_SHALLOW_ASCII) {
+        if (escape_single_quotes && !Nst_buffer_append_char(&buf, '\''))
+            goto fail;
+        else if (!escape_single_quotes && !Nst_buffer_append_char(&buf, '"'))
+            goto fail;
+    }
+
+    Nst_StrObj str_ob = Nst_string_temp((i8 *)str, str_len);
+    isize i = 0;
+
+    while (i < (isize)str_len && i >= 0) {
         u8 c = str[i];
         if (is_simple_char(c)) {
             if (!Nst_buffer_append_char(&buf, (i8)c))
                 goto fail;
-        }
-
-        if (c < 0x80) {
+        } else if (c < 0x80) {
             if (!write_ascii_escape(&buf, c, escape_single_quotes, repr))
                 goto fail;
-            continue;
-        }
+        } else if (!write_unicode_escape(&buf, str + i, str_len - i, repr))
+            goto fail;
+        _Nst_string_next_ch(&str_ob, &i, NULL);
+    }
 
-        if (!write_unicode_escape(&buf, str + i, str_len - i, repr))
+    if (i < 0)
+        goto fail;
+
+    if (repr != Nst_FMT_REPR_SHALLOW && repr != Nst_FMT_REPR_SHALLOW_ASCII) {
+        if (escape_single_quotes && !Nst_buffer_append_char(&buf, '\''))
+            goto fail;
+        else if (!escape_single_quotes && !Nst_buffer_append_char(&buf, '"'))
             goto fail;
     }
 
@@ -776,14 +802,23 @@ static bool nest_fmt_string(Nst_Buffer *buf, i8 *str, isize str_len,
     if (str_len < 0)
         str_len = strlen(str);
 
-    if (width == -1 && repr == NO_REPR) {
-        Nst_StrObj temp = Nst_string_temp(str, str_len);
-        return Nst_buffer_append(buf, &temp);
+    isize vaild = Nst_check_string_cp(
+        Nst_cp(Nst_CP_EXT_UTF8),
+        (void *)str,
+        str_len);
+    if (vaild != -1) {
+        Nst_set_value_error_c(
+            "Nst_fmt: the string to format is not valid UTF-8");
+        return false;
+    }
+
+    if (width == -1 && repr == Nst_FMT_REPR_NO_REPR) {
+        return Nst_buffer_append_str(buf, str, str_len);
     }
 
     i8 *final_str;
     usize final_str_len;
-    if (repr != NO_REPR)
+    if (repr != Nst_FMT_REPR_NO_REPR)
         final_str = repr_string((u8 *)str, str_len, &final_str_len, repr);
     else {
         final_str = str;
@@ -792,24 +827,72 @@ static bool nest_fmt_string(Nst_Buffer *buf, i8 *str, isize str_len,
     if (final_str == NULL)
         return false;
 
-    i32 fill_ch_len =
-        fill_ch == NULL ? 0 : Nst_check_ext_utf8_bytes((u8 *)fill_ch, 4);
+    if (width == -1) {
+        if (!Nst_buffer_append_str(buf, final_str, final_str_len))
+            goto fail;
+        Nst_free(final_str);
+        return true;
+    }
 
-    usize fill_width = (isize)final_str_len > width ? 0 : width - final_str_len;
-    usize str_width;
-    if (exact_width && width != -1)
-        str_width = (isize)final_str_len > width ? (usize)width : final_str_len;
-    else
-        str_width = final_str_len;
+    usize str_ch_len = Nst_string_utf8_char_len((u8 *)final_str, final_str_len);
 
-    if (!Nst_buffer_expand_by(buf, str_width + fill_width * fill_ch_len))
+    if (exact_width && (isize)str_ch_len > width) {
+        str_ch_len = width;
+        usize curr_len = 0;
+        for (usize i = 0; i < final_str_len; i++) {
+            i8 ch = final_str[i];
+            if ((ch & 0b11000000) == 0b10000000)
+                continue;
+            curr_len += 1;
+            if ((isize)curr_len > width) {
+                final_str_len = i;
+                break;
+            }
+        }
+    } else if ((isize)str_ch_len > width)
+        width = (i32)str_ch_len;
+
+    usize fill_ch_size;
+    if (fill_ch == NULL) {
+        fill_ch_size = 1;
+        fill_ch = " ";
+    } else
+        fill_ch_size = Nst_check_ext_utf8_bytes((u8 *)fill_ch, 4);
+
+    usize fill_width = width - str_ch_len;
+
+    if (!Nst_buffer_expand_by(buf, final_str_len + fill_width * fill_ch_size))
         goto fail;
 
-    (void)align;
+    usize left_chars = 0;
+    usize right_chars = 0;
+
+    switch (align) {
+    case Nst_FMT_ALIGN_AUTO:
+    case Nst_FMT_ALIGN_LEFT:
+        right_chars = fill_width;
+        break;
+    case Nst_FMT_ALIGN_RIGHT:
+        left_chars = fill_width;
+        break;
+    case Nst_FMT_ALIGN_CENTER:
+        left_chars = fill_width / 2;
+        right_chars = fill_width - left_chars;
+        break;
+    }
+
+    for (usize i = 0; i < left_chars; i++)
+        Nst_buffer_append_str(buf, (i8 *)fill_ch, fill_ch_size);
+    Nst_buffer_append_str(buf, final_str, final_str_len);
+    for (usize i = 0; i < right_chars; i++)
+        Nst_buffer_append_str(buf, (i8 *)fill_ch, fill_ch_size);
+
     (void)preff_suff;
 
+    return true;
+
 fail:
-    if (repr != NO_REPR)
+    if (repr != Nst_FMT_REPR_NO_REPR)
         Nst_free(final_str);
     return false;
 }
@@ -824,9 +907,16 @@ i8 *Nst_fmt(const i8 *fmt, usize *len, ...)
 i8 *Nst_vfmt(const i8 *fmt, usize *len, va_list args)
 {
     Nst_Buffer buf;
-    // Nst_SizedBuffer args_list;
+    va_list args_cpy;
+    va_copy(args_cpy, args);
 
-    usize fmtlen = strlen(fmt);
+    usize fmtlen = len != NULL ? *len : strlen(fmt);
+
+    if (Nst_check_string_cp(Nst_cp(Nst_CP_UTF8), (void *)fmt, fmtlen) != -1) {
+        Nst_set_value_error_c("Nst_fmt: `fmt` is not valid UTF-8");
+        return false;
+    }
+
     if (!Nst_buffer_init(&buf, fmtlen))
         return NULL;
 
@@ -838,7 +928,7 @@ i8 *Nst_vfmt(const i8 *fmt, usize *len, va_list args)
 
         if (fmt[i] == '}') {
             if (fmt[i + 1] != '}') {
-                Nst_set_value_error("found single '}' in format string");
+                Nst_set_value_error_c("found single '}' in format string");
                 goto failure;
             }
             if (!Nst_buffer_append_char(&buf, '}'))
@@ -854,9 +944,10 @@ i8 *Nst_vfmt(const i8 *fmt, usize *len, va_list args)
                 i++;
                 continue;
             }
-
-            if (!nest_fmt_value(&buf, fmt + i, args))
+            const i8 *fmt_end = nest_fmt_value(&buf, fmt + i, &args_cpy);
+            if (fmt_end == NULL)
                 goto failure;
+            i += fmt_end - fmt - i - 1;
         }
     }
 
@@ -868,8 +959,6 @@ failure:
     Nst_buffer_destroy(&buf);
     return NULL;
 }
-
-#endif // !ENABLE_NEST_FMT
 
 isize Nst_print(const i8 *buf)
 {

@@ -199,7 +199,10 @@ bool Nst_init(Nst_CLArgs *args)
     }
     Nst_ggc_init();
 
-    Nst_state.opt_level = args->opt_level;
+    if (args != NULL)
+        Nst_state.opt_level = args->opt_level;
+    else
+        Nst_state.opt_level = 3;
     Nst_state.loaded_libs = Nst_llist_new();
     Nst_state.lib_paths = Nst_llist_new();
     Nst_state.lib_srcs = Nst_llist_new();

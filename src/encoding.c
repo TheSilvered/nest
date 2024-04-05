@@ -1801,15 +1801,56 @@ bool Nst_translate_cp(Nst_CP *from, Nst_CP *to, void *from_buf, usize from_len,
 
 isize Nst_check_string_cp(Nst_CP *cp, void *str, usize str_len)
 {
+    Nst_CheckBytesFunc cp_check_bytes = cp->check_bytes;
+    usize cp_ch_size = cp->ch_size;
     for (usize i = 0; i < str_len; i++) {
-        i32 ch_len = cp->check_bytes(str, str_len - i);
+        i32 ch_len = cp_check_bytes(str, str_len - i);
         if (ch_len < 0)
             return i;
-        usize ch_size = ch_len * cp->ch_size;
+        usize ch_size = ch_len * cp_ch_size;
         str = (u8 *)str + ch_size;
         i += ch_len - 1;
     }
     return -1;
+}
+
+isize Nst_string_char_len(Nst_CP *cp, void *str, usize str_len)
+{
+    Nst_CheckBytesFunc cp_check_bytes = cp->check_bytes;
+    usize cp_ch_size = cp->ch_size;
+    isize len = 0;
+    for (usize i = 0; i < str_len; i++) {
+        i32 ch_len = cp_check_bytes(str, str_len - i);
+        if (ch_len < 0) {
+            Nst_set_value_errorf(
+                _Nst_EM_INVALID_ENCODING,
+                *(u8 *)str, cp->name);
+            return -1;
+        }
+        usize ch_size = ch_len * cp_ch_size;
+        str = (u8 *)str + ch_size;
+        i += ch_len - 1;
+        len++;
+    }
+    return len;
+}
+
+usize Nst_string_utf8_char_len(u8 *str, usize str_len)
+{
+    usize len = 0;
+    u8 *s_end = str + str_len;
+    str--;
+    while (++str < s_end) {
+        len++;
+        if (!(*str & 0b10000000))
+            continue;
+        u8 bits = (*str & 0b00110000) >> 4;
+        if (!(bits & 0b10))
+            str += 1;
+        else
+            str += bits;
+    }
+    return len;
 }
 
 Nst_CP *Nst_cp(Nst_CPID cpid)

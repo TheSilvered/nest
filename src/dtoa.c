@@ -72,8 +72,6 @@
  *
  */
 
-#ifdef ENABLE_NEST_FMT
-
 #include "mem.h"
 #include "dtoa.h"
 
@@ -93,10 +91,6 @@
 #ifdef _DEBUG
 #define DEBUG
 #endif
-
-#define dtoa Nst_dtoa
-#define strtod Nst_strtod
-#define freedtoa Nst_freedtoa
 
 #ifdef Nst_WIN
 #pragma warning( disable:4706 4244 4701 )
@@ -121,7 +115,9 @@ typedef unsigned Long ULong;
 #define Debug(x) x
 int dtoa_stats[7]; /* strtod_{64,96,bigcomp},dtoa_{exact,64,96,bigcomp} */
 #else
+#ifndef assert
 #define assert(x) /*nothing*/
+#endif
 #define Debug(x) /*nothing*/
 #endif
 
@@ -1377,8 +1373,8 @@ static unsigned int maxthreads = 0;
 #define Kmax 7
 
 #ifdef __cplusplus
-extern "C" double strtod(const char *s00, char **se);
-extern "C" char *dtoa(double d, int mode, int ndigits,
+extern "C" double Nst_strtod(const char *s00, char **se);
+extern "C" char *Nst_dtoa(double d, int mode, int ndigits,
 			int *decpt, int *sign, char **rve);
 #endif
 
@@ -3303,8 +3299,8 @@ retlow1:
 	}
 #endif /* NO_STRTOD_BIGCOMP */
 
- double
-strtod(const char *s00, char **se)
+ f64
+Nst_strtod(const i8 *s00, i8 **se)
 {
 	int bb2, bb5, bbe, bd2, bd5, bbbits, bs2, c, e, e1;
 	int esign, i, j, k, nd, nd0, nf, nz, nz0, nz1, sign;
@@ -4766,7 +4762,7 @@ nrv_alloc(const char *s, char *s0, size_t s0len, char **rve, int n MTd)
  */
 
  void
-freedtoa(char *s)
+Nst_freedtoa(i8 *s)
 {
 #ifdef MULTIPLE_THREADS
 	ThInfo *TI = 0;
@@ -6045,8 +6041,8 @@ dtoa_r(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve, char
 	return buf;
 	}
 
- char *
-dtoa(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve)
+ i8 *
+Nst_dtoa(f64 dd, int mode, int ndigits, int *decpt, int *sign, i8 **rve)
 {
 	/*	Sufficient space is allocated to the return value
 		to hold the suppressed trailing zeros.
@@ -6058,7 +6054,3 @@ dtoa(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve)
 #ifdef __cplusplus
 }
 #endif
-
-#else
-; // for ANSI compatablilty
-#endif // !ENABLE_NEST_FMT

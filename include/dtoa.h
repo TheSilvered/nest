@@ -10,17 +10,15 @@
 #ifndef DTOA_H
 #define DTOA_H
 
+#include "typedefs.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
-#ifdef ENABLE_NST_FMT
-
-Nst_dtoa
-Nst_strtod
-Nst_freedtoa
-
-#endif ENABLE_NST_FMT
+i8 *Nst_dtoa(f64 dd, int mode, int ndigits, int *decpt, int *sign, i8 **rve);
+f64 Nst_strtod(const i8 *s00, i8 **se);
+void Nst_freedtoa(i8 *s);
 
 #ifdef __cplusplus
 }

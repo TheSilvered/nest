@@ -273,10 +273,12 @@ void Nst_print_traceback(Nst_Traceback *tb)
     Nst_Pos prev_end = { -1, -1, NULL };
     i32 repeat_count = 0;
     i32 i = 0;
-    for (Nst_LLNode *n1 = tb->positions->head, *n2 = n1->next;
+    for (Nst_LLNode *n1 = tb->positions->head, *n2 = NULL;
          n1 != NULL;
          n1 = n2->next, n2 = n1 == NULL ? n1 : n1->next)
     {
+        n2 = n1->next;
+
         i++;
         Nst_Pos *start = (Nst_Pos *)n1->value;
         Nst_Pos *end   = (Nst_Pos *)n2->value;

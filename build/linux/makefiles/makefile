@@ -31,6 +31,7 @@ NEST_LIB_x86 := $(x86_DIR)/libnest.so
 
 .PHONY: debug x86 all all-debug all-x86 help
 .PHONY: __no_libnest_x64 __no_libnest_x86 __no_libnest_dbg
+.PHONY: test-c test-c-x86 test-c-debug
 .PHONY: clean clear
 .PHONY: run
 .PHONY: install install-x86 install-debug uninstall
@@ -61,6 +62,21 @@ $(DBG_TARGET): $(SRCS) $(NEST_LIB_DBG)
 	@mkdir -p $(DBG_DIR)
 	@echo "Compiling $(TARGET_NAME) in debug mode..."
 	@$(CC) $(CFLAGS) $(SRCS) $(CLINKS_DBG) $(DBG_FLAGS) -o $(DBG_TARGET)
+
+test-c:
+	@$(MAKE_FILE) testnest.mk
+	@echo "Running test_nest..."
+	./$(x64_DIR)/test_nest
+
+test-c-x86:
+	@$(MAKE_FILE) testnest.mk x86
+	@echo "Running test_nest..."
+	./$(x86_DIR)/test_nest
+
+test-c-debug:
+	@$(MAKE_FILE) testnest.mk debug
+	@echo "Running test_nest..."
+	./$(DBG_DIR)/test_nest
 
 clear:
 	@$(SILENT_MAKE) clean
@@ -155,6 +171,10 @@ help:
 	@echo "  make __no_libnest_x86  compile nest for 32 bit platforms"
 	@echo "  make __no_libnest_dbg  compile nest with debug symbols"
 	@echo ""
+	@echo "  make test-c            compile C tests for 64 bit platforms and run it"
+	@echo "  make test-c-x86        compile C tests for 32 bit platforms and run it"
+	@echo "  make test-c-debug      compile C tests with debug symbols and run it"
+	@echo ""
 	@echo "  make run               run 'make all-debug', '_update_files.sh',"
 	@echo "                         '_install_debug.sh' and then run '_test.nest'"
 	@echo "                         from 'nest/tests/'; the file needs to be created"
@@ -172,3 +192,5 @@ help:
 	@$(MAKE_FILE) libnest.mk help
 	@echo ""
 	@$(MAKE_FILE) stdlib.mk help
+	@echo ""
+	@$(MAKE_FILE) testnest.mk help

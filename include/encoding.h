@@ -31,10 +31,10 @@ extern "C" {
  *
  * @brief `Nst_CP_UNKNOWN` is -1, `Nst_CP_LATIN1` and `Nst_CP_ISO8859_1` are
  * equivalent.
- * 
+ *
  * @brief Note: `Nst_CP_EXT_UTF8` is a UTF-8 encoding that allows surrogates to
  * be encoded.
- * 
+ *
  * @brief Note: `Nst_CP_EXT_UTF16` along with the little and big endian
  * versions are UTF-16 encodings that allow for unpaired surrogates with the
  * only constraint being that a high surrogate cannot be the last character.
@@ -313,8 +313,8 @@ NstEXP i32 NstC Nst_utf16_to_utf8(i8 *out_str, u16 *in_str, usize in_str_len);
  * @param to_len: the pointer where the length of the translated string is put,
  * it can be `NULL`
  *
- * @return `true` on success and `false` on failure. On failure the error
- * is always set.
+ * @return `true` on success and `false` on failure. On failure the error is
+ * set.
  */
 NstEXP bool NstC Nst_translate_cp(Nst_CP *from, Nst_CP *to, void *from_buf,
                                   usize from_len, void **to_buf, usize *to_len);
@@ -331,6 +331,33 @@ NstEXP bool NstC Nst_translate_cp(Nst_CP *from, Nst_CP *to, void *from_buf,
  * is correctly encoded. No error is set.
  */
 NstEXP isize NstC Nst_check_string_cp(Nst_CP *cp, void *str, usize str_len);
+
+/**
+ * Gets the length in characters of an encoded string.
+ *
+ * @param cp: the encoding of the string
+ * @param str: the string to get the length of
+ * @param str_len: the length in units of the string (a unit is 1 byte for
+ * `char8_t` strings, two bytes for `char16_t` strings etc.)
+ *
+ * @return The length in characters of the string or -1 on failure. The error
+ * is set.
+ */
+NstEXP isize NstC Nst_string_char_len(Nst_CP *cp, void *str, usize str_len);
+
+/**
+ * Gets the length in characters of a UTF-8-encoded string.
+ *
+ * @brief Note: this function assumes that the string is valid UTF-8 and does
+ * no error checking. Use `Nst_check_string_cp` to check it or
+ * `Nst_string_char_len` to get the length in characters safely.
+ *
+ * @param str: the string to get the length of
+ * @param str_len: the length in bytes of the string
+ *
+ * @return The length in characters of the string. No error is set.
+ */
+NstEXP usize NstC Nst_string_utf8_char_len(u8 *str, usize str_len);
 
 /**
  * @return The corresponding encoding structure given its ID. If an invalid ID

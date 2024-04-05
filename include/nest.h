@@ -9,7 +9,7 @@
 #ifndef NEST_H
 #define NEST_H
 
-#define _Nst_VERSION_BASE "beta-0.14.0"
+#define _Nst_VERSION_BASE "beta-0.15.0"
 
 #include "typedefs.h"
 

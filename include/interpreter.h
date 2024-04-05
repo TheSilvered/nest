@@ -44,7 +44,10 @@ NstEXP typedef struct _Nst_IntrState {
  * `Nst_supports_color`.
  *
  * @param args: the options for the libraray, currently only `opt_level` is
- * used
+ * used; if `NULL` is passed `opt_level` is set to 3.
+ *
+ * @return `true` on success and `false` on failure. No error is set as it
+ * failed to initialize.
  */
 NstEXP bool NstC Nst_init(Nst_CLArgs *args);
 

@@ -99,17 +99,6 @@ static bool create_indexable_str(Nst_StrObj *str)
     return true;
 }
 
-static usize get_string_true_len(i8 *s, i8 *s_end)
-{
-    usize len = 0;
-    while (s < s_end) {
-        if ((*s++ & 0b11000000) == 0b10000000)
-            continue;
-        len++;
-    }
-    return len;
-}
-
 Nst_Obj *Nst_string_new_c_raw(const i8 *val, bool allocated)
 {
     return Nst_string_new((i8 *)val, strlen(val), allocated);
@@ -125,7 +114,7 @@ Nst_Obj *Nst_string_new(i8 *val, usize len, bool allocated)
     return Nst_string_new_len(
         val,
         len,
-        get_string_true_len(val, val + len),
+        Nst_string_utf8_char_len((u8 *)val, len),
         allocated);
 }
 

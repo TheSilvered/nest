@@ -28,8 +28,7 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
   - [x] Initialize everything with one function
   - [x] Quit everything with one function
   - [x] Execute a program in one function (given the path of the file)
-- [ ] Rewrite parser, nodes and tweak compiler to accommodate for the new
-  parser
+- [x] Rewrite nodes, parser, compiler and optimizer
 - [ ] Better testing with C
 - [ ] Finish implementing `Nst_fmt` and add a wrapper to `stdsutil.nest`
 - [ ] Add `is_space`, `remove_prefix` and `remove_suffix` to `stdsutil.nest`
@@ -51,7 +50,8 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 - [ ] Remove `_cwd_` and rename `_get_cwd` and `_set_cwd` to `get_cwd` and
   `set_cwd` in `stdsys.nest`
 - [ ] Rename `co.pause` to `co.yield`
-- [ ] Make the return value of `co.pause` the arguments passed to the coroutine
+- [ ] Make the return value of `co.pause` the arguments passed to `co.call`
+  when it is used to restart it
 - [ ] Change `co.call` to accept less arguments than the function requires
 - [ ] Change `err.try` to accept less arguments than the function requires
 
@@ -92,7 +92,7 @@ Once installed you can check that it is working by running this command:
 
 ```text
 PS C:\Users\user> nest -V
-Using Nest version: beta-0.14.0 x64
+Using Nest version: beta-0.15.0 x64
 ```
 
 ### Compile from source on Windows
