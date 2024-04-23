@@ -256,8 +256,8 @@ union. In case a cast is added after the type manually, it is overwritten.
 /* Returns `Nst_const()->Int_1`. */
 #define Nst_RETURN_ONE return Nst_inc_ref(Nst_const()->Int_1)
 /**
- * @brief Returns `Nst_true()` if `cond` is `true` and `Nst_false()` otherwise.
- * `cond` is a C condition.
+ * @brief Returns `Nst_true_ref()` if `cond` is `true` and `Nst_false_ref()`
+ * otherwise. `cond` is a C condition.
  */
 #define Nst_RETURN_COND(cond)                                                 \
     return (cond) ? Nst_true_ref() : Nst_false_ref()

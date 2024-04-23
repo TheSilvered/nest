@@ -15,10 +15,10 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="..\..\..\..\tests\test_nest\test_nest.cpp">
+    <ClCompile Include="..\..\..\..\tests\test_nest\test_nest.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\tests\test_nest\main.cpp">
+    <ClCompile Include="..\..\..\..\tests\test_nest\main.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

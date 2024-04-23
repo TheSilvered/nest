@@ -62,9 +62,8 @@ NstEXP void NstC Nst_cl_args_init(Nst_CLArgs *args, i32 argc, i8 **argv);
 /**
  * Parses command-line arguments.
  *
- * @param argc: length of `argv`
- * @param argv: the command-line arguments array
- * @param cl_args: the struct where to put the parsed arguments
+ * @param cl_args: the struct where to put the parsed arguments, it must be
+ * initialized with `Nst_cl_args_init`
  *
  * @return `-1` on failure, `0` on success where the program can continue, `1`
  * on success when the program should stop because an info message was printed.

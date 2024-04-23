@@ -29,7 +29,7 @@ extern "C" {
 /**
  * The supported encodings in Nest.
  *
- * @brief `Nst_CP_UNKNOWN` is -1, `Nst_CP_LATIN1` and `Nst_CP_ISO8859_1` are
+ * @brief `Nst_CP_UNKNOWN` is `-1`; `Nst_CP_LATIN1` and `Nst_CP_ISO8859_1` are
  * equivalent.
  *
  * @brief Note: `Nst_CP_EXT_UTF8` is a UTF-8 encoding that allows surrogates to
@@ -379,7 +379,7 @@ NstEXP Nst_CPID NstC Nst_acp(void);
 /**
  * Translates a UTF-8 string to Unicode (UTF-16).
  *
- * @brief The new string is heap-allocated. str is assumed to be a valid
+ * @brief The new string is heap-allocated. `str` is assumed to be a valid
  * non-NULL pointer.
  *
  * @param str: the string to translate
@@ -393,7 +393,7 @@ NstEXP wchar_t *NstC Nst_char_to_wchar_t(i8 *str, usize len);
 /**
  * Translates a Unicode (UTF-16) string to UTF-8.
  *
- * @brief The new string is heap-allocated. str is assumed to be a valid
+ * @brief The new string is heap-allocated. `str` is assumed to be a valid
  * non-NULL pointer.
  *
  * @param str: the string to translate
@@ -406,7 +406,7 @@ NstEXP i8 *NstC Nst_wchar_t_to_char(wchar_t *str, usize len);
 
 /**
  * @brief Returns whether a code point is valid. A valid code point is smaller
- * or equal to U+10FFFF and is not a high or low surrogate.
+ * than or equal to U+10FFFF and is not a high or low surrogate.
  */
 NstEXP bool NstC Nst_is_valid_cp(u32 cp);
 
@@ -431,8 +431,9 @@ NstEXP Nst_CPID NstC Nst_detect_encoding(i8 *str, usize len, i32 *bom_size);
  */
 NstEXP Nst_CPID NstC Nst_encoding_from_name(i8 *name);
 /**
- * @return The little endian variation of a multi-byte encoding or the encoding
- * itself, though always one with a unit size of one byte.
+ * @return An encoding ID where `ch_size` is one byte. If the given encoding ID
+ * has a `ch_size` of one byte already the encoding ID itself is returned.
+ * Otherwies the little endian version is always returned.
  */
 NstEXP Nst_CPID NstC Nst_single_byte_cp(Nst_CPID cpid);
 

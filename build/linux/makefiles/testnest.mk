@@ -21,7 +21,7 @@ CLINKS_DBG := $(CLINK_DIR_DBG) $(CLINKS)
 CLINKS_x86 := $(CLINK_DIR_x86) $(CLINKS)
 CLINKS_x64 := $(CLINK_DIR_x64) $(CLINKS)
 
-SRCS = $(SRC_DIR)/main.cpp $(SRC_DIR)/test_nest.cpp
+SRCS = $(SRC_DIR)/main.c $(SRC_DIR)/test_nest.c
 DBG_TARGET := $(DBG_DIR)/$(TARGET_NAME)
 x64_TARGET := $(x64_DIR)/$(TARGET_NAME)
 x86_TARGET := $(x86_DIR)/$(TARGET_NAME)

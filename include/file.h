@@ -17,8 +17,6 @@
 #include <windows.h>
 #endif // !Nst_WIN
 
-#define _Nst_RBUF_SIZE 512
-
 /* Casts ptr to a `Nst_IOFileObj *`. */
 #define IOFILE(ptr) ((Nst_IOFileObj *)(ptr))
 
@@ -318,7 +316,7 @@ NstEXP Nst_IOResult NstC Nst_FILE_close(Nst_IOFileObj *f);
  * @brief This function can only be called when the returned `Nst_IOResult` is
  * either `Nst_IO_INVALID_ENCODING` or `Nst_IO_INVALID_DECODING`. If the result
  * is the former `ill_encoded_ch` will be the code point that could not be
- * encoded, otherwise if the result is the latter `ill_encoded_ch` will
+ * encoded, otherwise, if the result is the latter, `ill_encoded_ch` will
  * represent the byte that could not be decoded. Similarly `encoding_name` is
  * the encoding that failed to encode the code point for
  * `Nst_IO_INVALID_ENCODING` and the name of the one that failed to decode the

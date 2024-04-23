@@ -1763,9 +1763,9 @@ bool Nst_translate_cp(Nst_CP *from, Nst_CP *to, void *from_buf, usize from_len,
         i32 ch_len = from->check_bytes(from_buf, n);
         if (ch_len < 0) {
             Nst_buffer_destroy(&buf);
-            Nst_set_value_error(Nst_sprintf(
+            Nst_set_value_errorf(
                 _Nst_EM_INVALID_ENCODING,
-                *(u8 *)from_buf, from->name));
+                *(u8 *)from_buf, from->name);
             return false;
         }
         usize ch_size = ch_len * from->ch_size;
@@ -1781,9 +1781,9 @@ bool Nst_translate_cp(Nst_CP *from, Nst_CP *to, void *from_buf, usize from_len,
         ch_len = to->from_utf32(utf32_ch, buf.data + buf.len);
         if (ch_len < 0) {
             Nst_buffer_destroy(&buf);
-            Nst_set_value_error(Nst_sprintf(
+            Nst_set_value_errorf(
                 _Nst_EM_INVALID_DECODING,
-                (int)utf32_ch, from->name));
+                (int)utf32_ch, from->name);
         }
         buf.len += ch_len * to->ch_size;
     }
