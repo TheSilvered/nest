@@ -172,7 +172,6 @@
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_draw.h" />
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_element.h" />
     <ClInclude Include="..\..\..\..\libs\nest_gui\nest_gui.h" />
-    <ClInclude Include="gui_draw.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp" />

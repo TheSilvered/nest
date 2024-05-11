@@ -27,9 +27,6 @@
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_app.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="gui_draw.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_draw.h">
       <Filter>Header files</Filter>
     </ClInclude>
