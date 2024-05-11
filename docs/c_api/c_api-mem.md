@@ -446,6 +446,92 @@ If necessary, the buffer is expanded automatically.
 
 ---
 
+### `Nst_sbuffer_pop`
+
+**Synopsis:**
+
+```better-c
+bool Nst_sbuffer_pop(Nst_SizedBuffer *buf)
+```
+
+**Description:**
+
+Pops the last element of a sized buffer.
+
+**Parameters:**
+
+- `buf`: the buffer to pop the element from
+
+**Returns:**
+
+`true` if the buffer was popped successfully and `false` if there was no item to
+pop. No error is set.
+
+---
+
+### `Nst_sbuffer_at`
+
+**Synopsis:**
+
+```better-c
+void *Nst_sbuffer_at(Nst_SizedBuffer *buf, usize index)
+```
+
+**Description:**
+
+Gets the element of a buffer at a specified index.
+
+**Parameters:**
+
+- `buf`: the buffer to index
+- `index`: the index of the element to get
+
+**Returns:**
+
+A pointer to the start of the element in the array or `NULL` if the index was
+out of bounds. No error is set.
+
+---
+
+### `Nst_sbuffer_shrink_auto`
+
+**Synopsis:**
+
+```better-c
+void Nst_sbuffer_shrink_auto(Nst_SizedBuffer *buf)
+```
+
+**Description:**
+
+Shrinks the size of a sized buffer.
+
+The size is not shrunk to the minimum but some slots are kept for possible new
+values.
+
+**Parameters:**
+
+- `buf`: the buffer to shrink
+
+---
+
+### `Nst_sbuffer_shrink_min`
+
+**Synopsis:**
+
+```better-c
+void Nst_sbuffer_shrink_min(Nst_SizedBuffer *buf)
+```
+
+**Description:**
+
+Shrinks the size of a sized buffer to the smallest it can be.
+
+**Parameters:**
+
+- `buf`: the buffer to shrink
+
+---
+
 ### `Nst_sbuffer_copy`
 
 **Synopsis:**

@@ -63,7 +63,13 @@ Initializes the Nest libraray.
 
 **Parameters:**
 
-- `args`: the options for the libraray, currently only `opt_level` is used
+- `args`: the options for the libraray, currently only `opt_level` is used; if
+  `NULL` is passed `opt_level` is set to 3.
+
+**Returns:**
+
+`true` on success and `false` on failure. No error is set as it failed to
+initialize.
 
 ---
 

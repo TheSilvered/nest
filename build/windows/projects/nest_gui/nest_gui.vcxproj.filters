@@ -15,34 +15,22 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="..\..\..\..\libs\dll\framework.h">
+    <ClInclude Include="..\..\..\..\libs\nest_gui\nest_gui.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\libs\nest_gui\nest_gui.h">
+    <ClInclude Include="..\..\..\..\libs\dll\framework.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_element.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_event.h">
+    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_app.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_update.h">
+    <ClInclude Include="gui_draw.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_draw.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_label.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_stack_layout.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_button.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_animation.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -53,28 +41,13 @@
     <ClCompile Include="..\..\..\..\libs\nest_gui\nest_gui.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_element.cpp">
+    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_utils.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_event.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_update.cpp">
+    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_app.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\libs\nest_gui\gui_draw.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_label.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_stack_layout.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_button.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_animation.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>

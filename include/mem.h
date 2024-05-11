@@ -244,6 +244,40 @@ NstEXP void NstC Nst_sbuffer_fit(Nst_SizedBuffer *buf);
  */
 NstEXP bool NstC Nst_sbuffer_append(Nst_SizedBuffer *buf, void *element);
 /**
+ * Pops the last element of a sized buffer.
+ *
+ * @param buf: the buffer to pop the element from
+ *
+ * @return `true` if the buffer was popped successfully and `false` if there
+ * was no item to pop. No error is set.
+ */
+NstEXP bool NstC Nst_sbuffer_pop(Nst_SizedBuffer *buf);
+/**
+ * Gets the element of a buffer at a specified index.
+ *
+ * @param buf: the buffer to index
+ * @param index: the index of the element to get
+ *
+ * @return A pointer to the start of the element in the array or `NULL` if the
+ * index was out of bounds. No error is set.
+ */
+NstEXP void *NstC Nst_sbuffer_at(Nst_SizedBuffer *buf, usize index);
+/**
+ * Shrinks the size of a sized buffer.
+ *
+ * @brief The size is not shrunk to the minimum but some slots are kept for
+ * possible new values.
+ *
+ * @param buf: the buffer to shrink
+ */
+NstEXP void NstC Nst_sbuffer_shrink_auto(Nst_SizedBuffer *buf);
+/**
+ * Shrinks the size of a sized buffer to the smallest it can be.
+ *
+ * @param buf: the buffer to shrink
+ */
+NstEXP void NstC Nst_sbuffer_shrink_min(Nst_SizedBuffer *buf);
+/**
  * Copies the contents of a sized buffer into another.
  *
  * @brief The data of the source buffer is copied into a new block of memory,

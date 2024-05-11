@@ -300,7 +300,7 @@ bool Nst_es_push_module(Nst_ExecutionState *es, i8 *filename,
         Nst_no_pos(),
         Nst_no_pos(),
         es);
-    call.cwd = es->curr_path;
+    call.cwd = STR(Nst_inc_ref(es->curr_path));
 
     path_str = make_cwd(filename);
     if (path_str == NULL)

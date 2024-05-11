@@ -344,8 +344,10 @@ static inline void destroy_call(Nst_FuncCall *call)
         Nst_vt_destroy(Nst_state.es->vt);
     Nst_dec_ref(call->func);
     Nst_state.es->vt = call->vt;
-    if (call->cwd != NULL)
+    if (call->cwd != NULL) {
         Nst_chdir(call->cwd);
+        Nst_dec_ref(call->cwd);
+    }
 }
 
 static inline void set_global_error(usize final_stack_size, Nst_Inst *inst)

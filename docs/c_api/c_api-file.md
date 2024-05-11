@@ -660,7 +660,7 @@ This function can only be called when the returned
 [`Nst_IO_INVALID_ENCODING`](c_api-file.md#nst_ioresult) or
 [`Nst_IO_INVALID_DECODING`](c_api-file.md#nst_ioresult). If the result is the
 former `ill_encoded_ch` will be the code point that could not be encoded,
-otherwise if the result is the latter `ill_encoded_ch` will represent the byte
+otherwise, if the result is the latter, `ill_encoded_ch` will represent the byte
 that could not be decoded. Similarly `encoding_name` is the encoding that failed
 to encode the code point for
 [`Nst_IO_INVALID_ENCODING`](c_api-file.md#nst_ioresult) and the name of the one

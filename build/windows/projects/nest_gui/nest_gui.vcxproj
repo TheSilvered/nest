@@ -168,26 +168,17 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="..\..\..\..\libs\dll\framework.h" />
-    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_animation.h" />
-    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_button.h" />
+    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_app.h" />
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_draw.h" />
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_element.h" />
-    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_event.h" />
-    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_label.h" />
-    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_stack_layout.h" />
-    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_update.h" />
     <ClInclude Include="..\..\..\..\libs\nest_gui\nest_gui.h" />
+    <ClInclude Include="gui_draw.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp" />
-    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_animation.cpp" />
-    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_button.cpp" />
+    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_app.cpp" />
     <ClCompile Include="..\..\..\..\libs\nest_gui\gui_draw.cpp" />
-    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_element.cpp" />
-    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_event.cpp" />
-    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_label.cpp" />
-    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_stack_layout.cpp" />
-    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_update.cpp" />
+    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_utils.cpp" />
     <ClCompile Include="..\..\..\..\libs\nest_gui\nest_gui.cpp" />
   </ItemGroup>
   <ItemGroup>

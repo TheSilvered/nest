@@ -186,6 +186,41 @@ bool Nst_sbuffer_append(Nst_SizedBuffer *buf, void *element)
     return true;
 }
 
+bool Nst_sbuffer_pop(Nst_SizedBuffer *buf)
+{
+    if (buf->len == 0)
+        return false;
+    buf->len--;
+    return true;
+}
+
+void *Nst_sbuffer_at(Nst_SizedBuffer *buf, usize index)
+{
+    if (index >= buf->len)
+        return NULL;
+    return (void *)((u8 *)buf->data + (buf->unit_size * index));
+}
+
+void Nst_sbuffer_shrink_auto(Nst_SizedBuffer *buf)
+{
+    if (buf->cap >> 2 < buf->len)
+        return;
+    usize new_cap = (usize)(buf->cap / _Nst_VECTOR_GROWTH_RATIO);
+    if (new_cap < _Nst_VECTOR_MIN_CAP)
+        return;
+    buf->data = Nst_realloc(buf->data, new_cap, buf->unit_size, buf->cap);
+    buf->cap = new_cap;
+}
+
+void Nst_sbuffer_shrink_min(Nst_SizedBuffer *buf)
+{
+    usize len = buf->len;
+    if (len == 0)
+        len = 1;
+    buf->data = Nst_realloc(buf->data, len, buf->unit_size, buf->cap);
+    buf->cap = len;
+}
+
 bool Nst_sbuffer_copy(Nst_SizedBuffer *src, Nst_SizedBuffer *dst)
 {
     void *new_data = Nst_calloc(1, src->len, src->data);

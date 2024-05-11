@@ -90,9 +90,8 @@ Parses command-line arguments.
 
 **Parameters:**
 
-- `argc`: length of `argv`
-- `argv`: the command-line arguments array
-- `cl_args`: the struct where to put the parsed arguments
+- `cl_args`: the struct where to put the parsed arguments, it must be
+  initialized with [`Nst_cl_args_init`](c_api-argv_parser.md#nst_cl_args_init)
 
 **Returns:**
 

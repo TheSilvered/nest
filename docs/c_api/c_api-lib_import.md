@@ -309,9 +309,9 @@ Returns [`Nst_const()->Int_1`](c_api-global_consts.md#nst_const).
 
 **Description:**
 
-Returns [`Nst_true()`](c_api-global_consts.md#nst_true) if `cond` is `true` and
-[`Nst_false()`](c_api-global_consts.md#nst_false) otherwise. `cond` is a C
-condition.
+Returns [`Nst_true_ref()`](c_api-global_consts.md#nst_true_ref) if `cond` is
+`true` and [`Nst_false_ref()`](c_api-global_consts.md#nst_false_ref) otherwise.
+`cond` is a C condition.
 
 ---
 
