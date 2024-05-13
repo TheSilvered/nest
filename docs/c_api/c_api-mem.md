@@ -514,24 +514,6 @@ values.
 
 ---
 
-### `Nst_sbuffer_shrink_min`
-
-**Synopsis:**
-
-```better-c
-void Nst_sbuffer_shrink_min(Nst_SizedBuffer *buf)
-```
-
-**Description:**
-
-Shrinks the size of a sized buffer to the smallest it can be.
-
-**Parameters:**
-
-- `buf`: the buffer to shrink
-
----
-
 ### `Nst_sbuffer_copy`
 
 **Synopsis:**

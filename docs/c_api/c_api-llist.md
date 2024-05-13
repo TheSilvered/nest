@@ -262,7 +262,8 @@ Nst_LLNode *Nst_llist_pop_llnode(Nst_LList *llist)
 
 **Description:**
 
-Removes the front node of a list and returns it.
+Removes the front node of a list and returns it. If the list is empty `NULL` is
+returned, no error is set.
 
 ---
 
@@ -310,6 +311,9 @@ Nst_LLNode *Nst_llnode_new(void *value, bool allocated)
 
 Creates a new node on the heap.
 
+To free the node use [`Nst_free`](c_api-mem.md#nst_free). The value is *not*
+handeled automatically and must be freed manually.
+
 **Returns:**
 
 The new node or `NULL` on failure. The error is set.
@@ -348,7 +352,7 @@ void Nst_llist_empty(Nst_LList *llist, void (*item_destructor)(void *))
 
 **Description:**
 
-Destroys all the nodes inside list.
+Destroys all the nodes inside a list.
 
 If the value of a node is marked as allocated it will be passed to
 item_destructor otherwise it is left untouched.

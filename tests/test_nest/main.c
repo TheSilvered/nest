@@ -8,6 +8,8 @@ int main() {
     _Nst_set_console_mode();
 #endif
 
+    Nst_printf("Tests running on Nest version %s\n\n", Nst_VERSION);
+
     test_init();
 
     // argv_parser.h
@@ -112,6 +114,9 @@ int main() {
     RUN_TEST(test_sbuffer_expand_to);
     RUN_TEST(test_sbuffer_fit);
     RUN_TEST(test_sbuffer_append);
+    RUN_TEST(test_sbuffer_pop);
+    RUN_TEST(test_sbuffer_at);
+    RUN_TEST(test_sbuffer_shrink_auto);
     RUN_TEST(test_sbuffer_copy);
     RUN_TEST(test_buffer_expand_by);
     RUN_TEST(test_buffer_expand_to);
@@ -161,5 +166,10 @@ int main() {
     RUN_TEST(test_string_rfind);
 
     Nst_quit();
+
+#ifdef Nst_COUNT_ALLOC
+    Nst_log_alloc_count();
+#endif
+
     return 0;
 }

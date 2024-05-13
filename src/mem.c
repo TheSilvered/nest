@@ -168,11 +168,12 @@ bool Nst_sbuffer_expand_to(Nst_SizedBuffer *buf, usize count)
 
 void Nst_sbuffer_fit(Nst_SizedBuffer *buf)
 {
-    if ((buf->cap - buf->len) * buf->unit_size < sizeof(usize))
-        return;
+    usize len = buf->len;
+    if (len == 0)
+        len = 1;
 
-    buf->data = Nst_realloc(buf->data, buf->len, buf->unit_size, buf->cap);
-    buf->cap = buf->len;
+    buf->data = Nst_realloc(buf->data, len, buf->unit_size, buf->cap);
+    buf->cap = len;
 }
 
 bool Nst_sbuffer_append(Nst_SizedBuffer *buf, void *element)
@@ -210,15 +211,6 @@ void Nst_sbuffer_shrink_auto(Nst_SizedBuffer *buf)
         return;
     buf->data = Nst_realloc(buf->data, new_cap, buf->unit_size, buf->cap);
     buf->cap = new_cap;
-}
-
-void Nst_sbuffer_shrink_min(Nst_SizedBuffer *buf)
-{
-    usize len = buf->len;
-    if (len == 0)
-        len = 1;
-    buf->data = Nst_realloc(buf->data, len, buf->unit_size, buf->cap);
-    buf->cap = len;
 }
 
 bool Nst_sbuffer_copy(Nst_SizedBuffer *src, Nst_SizedBuffer *dst)

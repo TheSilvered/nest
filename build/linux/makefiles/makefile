@@ -66,17 +66,17 @@ $(DBG_TARGET): $(SRCS) $(NEST_LIB_DBG)
 test-c:
 	@$(MAKE_FILE) testnest.mk
 	@echo "Running test_nest..."
-	./$(x64_DIR)/test_nest
+	@export LD_LIBRARY_PATH=$(x64_DIR) && cd $(x64_DIR) && ./test_nest
 
 test-c-x86:
 	@$(MAKE_FILE) testnest.mk x86
 	@echo "Running test_nest..."
-	./$(x86_DIR)/test_nest
+	@export LD_LIBRARY_PATH=$(x86_DIR) && cd $(x86_DIR) && ./test_nest
 
 test-c-debug:
 	@$(MAKE_FILE) testnest.mk debug
 	@echo "Running test_nest..."
-	./$(DBG_DIR)/test_nest
+	@export LD_LIBRARY_PATH=$(DBG_DIR) && cd $(DBG_DIR) && ./test_nest
 
 clear:
 	@$(SILENT_MAKE) clean
@@ -171,9 +171,9 @@ help:
 	@echo "  make __no_libnest_x86  compile nest for 32 bit platforms"
 	@echo "  make __no_libnest_dbg  compile nest with debug symbols"
 	@echo ""
-	@echo "  make test-c            compile C tests for 64 bit platforms and run it"
-	@echo "  make test-c-x86        compile C tests for 32 bit platforms and run it"
-	@echo "  make test-c-debug      compile C tests with debug symbols and run it"
+	@echo "  make test-c            compile C tests for 64 bit platforms and run them"
+	@echo "  make test-c-x86        compile C tests for 32 bit platforms and run them"
+	@echo "  make test-c-debug      compile C tests with debug symbols and run them"
 	@echo ""
 	@echo "  make run               run 'make all-debug', '_update_files.sh',"
 	@echo "                         '_install_debug.sh' and then run '_test.nest'"

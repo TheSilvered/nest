@@ -576,7 +576,6 @@
 - [`Nst_sbuffer_init`](c_api-mem.md#nst_sbuffer_init)
 - [`Nst_sbuffer_pop`](c_api-mem.md#nst_sbuffer_pop)
 - [`Nst_sbuffer_shrink_auto`](c_api-mem.md#nst_sbuffer_shrink_auto)
-- [`Nst_sbuffer_shrink_min`](c_api-mem.md#nst_sbuffer_shrink_min)
 - [`Nst_SeekWhence`](c_api-file.md#nst_seekwhence)
 - [`Nst_seq_copy`](c_api-sequence.md#nst_seq_copy)
 - [`_Nst_seq_copy`](c_api-sequence.md#_nst_seq_copy)

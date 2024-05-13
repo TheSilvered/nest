@@ -272,12 +272,6 @@ NstEXP void *NstC Nst_sbuffer_at(Nst_SizedBuffer *buf, usize index);
  */
 NstEXP void NstC Nst_sbuffer_shrink_auto(Nst_SizedBuffer *buf);
 /**
- * Shrinks the size of a sized buffer to the smallest it can be.
- *
- * @param buf: the buffer to shrink
- */
-NstEXP void NstC Nst_sbuffer_shrink_min(Nst_SizedBuffer *buf);
-/**
  * Copies the contents of a sized buffer into another.
  *
  * @brief The data of the source buffer is copied into a new block of memory,

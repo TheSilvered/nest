@@ -2,6 +2,19 @@
 
 #include "test_nest.h"
 
+#define FAIL_IF(cond) do {                                                    \
+    if (cond) {                                                               \
+        Nst_printf("%s  Failure on line %i%s\n", RED, __LINE__, RESET);       \
+        result = TEST_FAILURE;                                                \
+    }} while (0)                                                              \
+
+#define FAIL_EXIT_FUNC_IF(cond) do {                                          \
+    if (cond) {                                                               \
+        Nst_printf("%s  Failure on line %i%s\n", RED, __LINE__, RESET);       \
+        result = TEST_FAILURE;                                                \
+        goto failure;                                                         \
+    }} while (0)
+
 const i8 *RED = "\x1b[31m";
 const i8 *GREEN = "\x1b[32m";
 const i8 *YELLOW = "\x1b[33m";
@@ -40,6 +53,14 @@ void run_test(Test test, const i8 *test_name)
         Nst_printf(
             "%sTest '%s' failed.%s Stopping execution...\n",
             YELLOW, test_name, RESET);
+        Nst_quit();
+        exit(1);
+    case TEST_NEST_ERROR:
+        Nst_printf(
+            "%sDuring test '%s' a Nest error occurred.%s\n",
+            YELLOW, test_name, RESET);
+        Nst_print_traceback(Nst_error_get());
+        Nst_quit();
         exit(1);
     }
 }
@@ -265,57 +286,246 @@ TestResult test_extract_arg_values()
 
 TestResult test_llist_push()
 {
-    return TEST_NOT_IMPL;
+    TestResult result = TEST_SUCCESS;
+    Nst_LList llist;
+    Nst_llist_init(&llist);
+
+    Nst_llist_push(&llist, (void *)1, false);
+    FAIL_IF(llist.len != 1);
+    Nst_llist_push(&llist, (void *)2, false);
+    FAIL_IF(llist.len != 2);
+    Nst_llist_push(&llist, (void *)3, false);
+    FAIL_IF(llist.len != 3);
+
+    FAIL_IF(llist.head->value != (void *)3);
+    FAIL_IF(llist.head->next->value != (void *)2);
+    FAIL_IF(llist.tail->value != (void *)1);
+    FAIL_IF(llist.head->next->next != llist.tail);
+
+    Nst_llist_empty(&llist, NULL);
+    return result;
 }
 
 TestResult test_llist_append()
 {
-    return TEST_NOT_IMPL;
+    TestResult result = TEST_SUCCESS;
+    Nst_LList llist;
+    Nst_llist_init(&llist);
+
+    Nst_llist_append(&llist, (void *)1, false);
+    FAIL_IF(llist.len != 1);
+    Nst_llist_append(&llist, (void *)2, false);
+    FAIL_IF(llist.len != 2);
+    Nst_llist_append(&llist, (void *)3, false);
+    FAIL_IF(llist.len != 3);
+
+    FAIL_IF(llist.head->value != (void *)1);
+    FAIL_IF(llist.head->next->value != (void *)2);
+    FAIL_IF(llist.tail->value != (void *)3);
+    FAIL_IF(llist.head->next->next != llist.tail);
+
+    Nst_llist_empty(&llist, NULL);
+    return result;
 }
 
 TestResult test_llist_insert()
 {
-    return TEST_NOT_IMPL;
+    TestResult result = TEST_SUCCESS;
+    Nst_LList llist;
+    Nst_llist_init(&llist);
+
+    Nst_llist_append(&llist, (void *)1, false);
+    Nst_llist_append(&llist, (void *)2, false);
+
+    Nst_llist_insert(&llist, (void *)3, false, llist.head);
+    FAIL_IF(llist.head->next->value != (void *)3);
+    Nst_llist_insert(&llist, (void *)4, false, llist.tail);
+    FAIL_IF(llist.tail->value != (void *)4);
+    Nst_llist_insert(&llist, (void *)5, false, NULL);
+    FAIL_IF(llist.head->value != (void *)5);
+
+    FAIL_IF(llist.len != 5);
+
+    Nst_llist_empty(&llist, NULL);
+    return result;
 }
 
 TestResult test_llist_pop()
 {
-    return TEST_NOT_IMPL;
+    TestResult result = TEST_SUCCESS;
+    Nst_LList llist;
+    Nst_llist_init(&llist);
+
+    FAIL_IF(Nst_llist_pop(&llist) != NULL);
+    Nst_llist_append(&llist, (void *)1, false);
+    Nst_llist_append(&llist, (void *)2, false);
+    void *value = Nst_llist_pop(&llist);
+    FAIL_IF(llist.len != 1);
+    FAIL_IF(value != (void *)1);
+    Nst_llist_pop(&llist);
+    FAIL_IF(llist.head != NULL);
+    FAIL_IF(llist.tail != NULL);
+
+    Nst_llist_empty(&llist, NULL);
+    return result;
 }
 
 TestResult test_llist_peek_front()
 {
-    return TEST_NOT_IMPL;
+    TestResult result = TEST_SUCCESS;
+    Nst_LList llist;
+    Nst_llist_init(&llist);
+
+    FAIL_IF(Nst_llist_peek_front(&llist) != NULL);
+    Nst_llist_append(&llist, (void *)1, false);
+    Nst_llist_append(&llist, (void *)2, false);
+    void *value = Nst_llist_peek_front(&llist);
+    FAIL_IF(llist.len != 2);
+    FAIL_IF(value != (void *)1);
+
+    Nst_llist_empty(&llist, NULL);
+    return result;
 }
 
 TestResult test_llist_peek_back()
 {
-    return TEST_NOT_IMPL;
+    TestResult result = TEST_SUCCESS;
+    Nst_LList llist;
+    Nst_llist_init(&llist);
+
+    FAIL_IF(Nst_llist_peek_back(&llist) != NULL);
+    Nst_llist_append(&llist, (void *)1, false);
+    Nst_llist_append(&llist, (void *)2, false);
+    void *value = Nst_llist_peek_back(&llist);
+    FAIL_IF(llist.len != 2);
+    FAIL_IF(value != (void *)2);
+
+    Nst_llist_empty(&llist, NULL);
+    return result;
 }
 
 TestResult test_llist_push_llnode()
 {
-    return TEST_NOT_IMPL;
+    TestResult result = TEST_SUCCESS;
+    Nst_LList llist;
+    Nst_llist_init(&llist);
+
+    Nst_LLNode *node1 = Nst_llnode_new((void *)1, false);
+    Nst_LLNode *node2 = Nst_llnode_new((void *)2, false);
+    Nst_llist_push_llnode(&llist, node1);
+    FAIL_IF(llist.len != 1);
+    FAIL_IF(llist.head != node1);
+    FAIL_IF(llist.tail != node1);
+    Nst_llist_push_llnode(&llist, node2);
+    FAIL_IF(llist.len != 2);
+    FAIL_IF(llist.head != node2);
+    FAIL_IF(llist.tail != node1);
+
+    Nst_llist_empty(&llist, NULL);
+    return result;
 }
 
 TestResult test_llist_append_llnode()
 {
-    return TEST_NOT_IMPL;
+    TestResult result = TEST_SUCCESS;
+    Nst_LList llist;
+    Nst_llist_init(&llist);
+
+    Nst_LLNode *node1 = Nst_llnode_new((void *)1, false);
+    Nst_LLNode *node2 = Nst_llnode_new((void *)2, false);
+    Nst_llist_append_llnode(&llist, node1);
+    FAIL_IF(llist.len != 1);
+    FAIL_IF(llist.head != node1);
+    FAIL_IF(llist.tail != node1);
+    Nst_llist_append_llnode(&llist, node2);
+    FAIL_IF(llist.len != 2);
+    FAIL_IF(llist.head != node1);
+    FAIL_IF(llist.tail != node2);
+
+    Nst_llist_empty(&llist, NULL);
+    return result;
 }
 
 TestResult test_llist_pop_llnode()
 {
-    return TEST_NOT_IMPL;
+    TestResult result = TEST_SUCCESS;
+    Nst_LList llist;
+    Nst_llist_init(&llist);
+
+    Nst_LLNode *node1 = NULL;
+    Nst_LLNode *node2 = NULL;
+
+    FAIL_IF(Nst_llist_pop_llnode(&llist) != NULL);
+    Nst_llist_append(&llist, (void *)1, false);
+    Nst_llist_append(&llist, (void *)2, false);
+    node1 = Nst_llist_pop_llnode(&llist);
+    FAIL_IF(llist.len != 1);
+    FAIL_IF(node1->value != (void *)1);
+    node2 = Nst_llist_pop_llnode(&llist);
+    FAIL_IF(llist.head != NULL);
+    FAIL_IF(llist.tail != NULL);
+    FAIL_IF(node2->value != (void *)2);
+
+    if (node1 != NULL)
+        Nst_free(node1);
+    if (node2 != NULL)
+        Nst_free(node2);
+    Nst_llist_empty(&llist, NULL);
+    return result;
 }
 
 TestResult test_llist_empty()
 {
-    return TEST_NOT_IMPL;
+    TestResult result = TEST_SUCCESS;
+    Nst_LList llist;
+    Nst_llist_init(&llist);
+
+    Nst_llist_append(&llist, (void *)1, false);
+    Nst_llist_append(&llist, (void *)2, false);
+    Nst_llist_append(&llist, (void *)3, false);
+    Nst_llist_empty(&llist, NULL);
+    FAIL_IF(llist.len != 0);
+    FAIL_IF(llist.head != NULL);
+    FAIL_IF(llist.tail != NULL);
+
+    void *alloc_v1 = Nst_raw_malloc(1);
+    void *alloc_v2 = Nst_raw_malloc(1);
+    void *alloc_v3 = Nst_raw_malloc(1);
+    Nst_llist_append(&llist, alloc_v1, true);
+    Nst_llist_append(&llist, alloc_v2, true);
+    Nst_llist_append(&llist, alloc_v3, true);
+    Nst_llist_empty(&llist, Nst_free);
+    FAIL_IF(llist.len != 0);
+    FAIL_IF(llist.head != NULL);
+    FAIL_IF(llist.tail != NULL);
+
+    Nst_llist_empty(&llist, NULL);
+    return result;
 }
 
 TestResult test_llist_move_nodes()
 {
-    return TEST_NOT_IMPL;
+    TestResult result = TEST_SUCCESS;
+    Nst_LList from, to;
+    Nst_llist_init(&from);
+    Nst_llist_init(&to);
+
+    Nst_llist_append(&from, (void *)1, false);
+    Nst_llist_append(&from, (void *)2, false);
+    Nst_llist_append(&from, (void *)3, false);
+    Nst_llist_move_nodes(&from, &to);
+
+    FAIL_IF(from.len != 0);
+    FAIL_IF(from.head != NULL);
+    FAIL_IF(from.tail != NULL);
+    FAIL_IF(to.len != 3);
+    FAIL_IF(to.head->value != (void *)1);
+    FAIL_IF(to.tail->value != (void *)3);
+    FAIL_IF(to.head->next->value != (void *)2);
+
+    Nst_llist_empty(&from, NULL);
+    Nst_llist_empty(&to, NULL);
+    return result;
 }
 
 // map.h
@@ -388,6 +598,21 @@ TestResult test_sbuffer_fit()
 }
 
 TestResult test_sbuffer_append()
+{
+    return TEST_NOT_IMPL;
+}
+
+TestResult test_sbuffer_pop()
+{
+    return TEST_NOT_IMPL;
+}
+
+TestResult test_sbuffer_at()
+{
+    return TEST_NOT_IMPL;
+}
+
+TestResult test_sbuffer_shrink_auto()
 {
     return TEST_NOT_IMPL;
 }

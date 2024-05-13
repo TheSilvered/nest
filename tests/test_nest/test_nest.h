@@ -13,7 +13,8 @@ typedef enum _TestResult {
     TEST_SUCCESS,
     TEST_FAILURE,
     TEST_CRITICAL_FAILURE,
-    TEST_NOT_IMPL
+    TEST_NOT_IMPL,
+    TEST_NEST_ERROR
 } TestResult;
 
 typedef TestResult (*Test)();
@@ -123,6 +124,9 @@ TestResult test_sbuffer_expand_by();
 TestResult test_sbuffer_expand_to();
 TestResult test_sbuffer_fit();
 TestResult test_sbuffer_append();
+TestResult test_sbuffer_pop();
+TestResult test_sbuffer_at();
+TestResult test_sbuffer_shrink_auto();
 TestResult test_sbuffer_copy();
 TestResult test_buffer_expand_by();
 TestResult test_buffer_expand_to();

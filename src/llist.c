@@ -61,6 +61,7 @@ bool Nst_llist_insert(Nst_LList *llist, void *value, bool allocated,
     node->next = new_node;
     if (new_node->next == NULL)
         llist->tail = new_node;
+    llist->len++;
     return true;
 }
 
