@@ -2,6 +2,10 @@
 
 ### Nest
 
+**Additions**
+
+- added `is_space` to `stdsutil.nest`
+
 **Changes**
 
 - changed the file object to string cast from `<IOFile ----- >` to `<IOFile[-----]>`

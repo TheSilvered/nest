@@ -202,6 +202,22 @@ feed, is not but `a`, the character, is.
 
 ---
 
+### `@is_space`
+
+**Synopsis:**
+
+```nest
+[string: Str] @is_space -> Bool
+```
+
+**Returns:**
+
+`true` if all the characters in `string` are either a space, a newline (`\n`),
+a carriage return (`\r`), a form feed (`\f`), a horizontal tab (`\t`) or a
+vertical tab (`\v`).
+
+---
+
 ### `@is_title`
 
 **Synopsis:**

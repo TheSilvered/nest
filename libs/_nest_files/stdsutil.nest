@@ -14,6 +14,7 @@ __su.is_charset_   = is_charset
 __su.is_digit_     = is_digit
 __su.is_lower_     = is_lower
 __su.is_printable_ = is_printable
+__su.is_space_     = is_space
 __su.is_title_     = is_title
 __su.is_upper_     = is_upper
 __su.join_         = join

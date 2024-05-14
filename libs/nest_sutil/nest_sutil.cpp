@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include "nest_sutil.h"
 
-#define FUNC_COUNT 30
+#define FUNC_COUNT 31
 
 static Nst_ObjDeclr func_list_[FUNC_COUNT];
 static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
@@ -31,6 +31,7 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_alpha_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_digit_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_alnum_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_space_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_charset_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_printable_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(replace_, 3);
@@ -631,6 +632,23 @@ Nst_FUNC_SIGN(is_alnum_)
 
     while (s != end) {
         if (!isalnum((u8)*s++))
+            Nst_RETURN_FALSE;
+    }
+
+    Nst_RETURN_TRUE;
+}
+
+Nst_FUNC_SIGN(is_space_)
+{
+    Nst_StrObj *str;
+
+    Nst_DEF_EXTRACT("s", &str);
+
+    i8 *s = str->value;
+    i8 *end = s + str->len;
+
+    while (s != end) {
+        if (!isspace((u8)*s++))
             Nst_RETURN_FALSE;
     }
 

@@ -40,6 +40,10 @@
 'hell0' @su.is_alnum @test.assert_true
 'hell0 everybody' @su.is_printable @test.assert_true
 'hell0 everybody\n' @su.is_printable @test.assert_false
+' \n\r\f\t\v' @su.is_space @test.assert_true
+' \n\r\f\t\va' @su.is_space @test.assert_false
+' \n\r\f\t\v1' @su.is_space @test.assert_false
+' \n\r\f\t\v.' @su.is_space @test.assert_false
 
 'hell0 everybody\n' @su.repr "'hell0 everybody\\n'" @test.assert_eq
 'hell0 everybody\x10' @su.repr "'hell0 everybody\\x10'" @test.assert_eq

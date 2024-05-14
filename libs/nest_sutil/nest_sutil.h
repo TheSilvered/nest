@@ -28,6 +28,7 @@ Nst_FUNC_SIGN(is_lower_);
 Nst_FUNC_SIGN(is_alpha_);
 Nst_FUNC_SIGN(is_digit_);
 Nst_FUNC_SIGN(is_alnum_);
+Nst_FUNC_SIGN(is_space_);
 Nst_FUNC_SIGN(is_charset_);
 Nst_FUNC_SIGN(is_printable_);
 Nst_FUNC_SIGN(replace_);
