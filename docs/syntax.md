@@ -42,8 +42,8 @@ optimized and no predefined variables are added.
 ```
 
 !!!note
-    any invalid argument is ignored and when specifying various optimization
-    levels only the last one is considered
+    Any invalid argument is ignored and when specifying various optimization
+    levels only the last one is considered.
 
 ## Value literals
 
@@ -146,14 +146,14 @@ are all the valid escape sequences:
 
 !!!note
     `h` represents a hexadecimal byte (`0-9`, `a-f` or `A-F`) and `o` an
-    octal one (`0-7`)
+    octal one (`0-7`).
 
 !!!note
     Octal escapes can have either one, two or three digits: `\0`, `\12` and
-    `\012` are all valid
+    `\012` are all valid.
 
 !!!note
-    `...` are to be substituted with the expression to evaluate
+    `...` are to be substituted with the expression to evaluate.
 
 ### Array literals
 
@@ -165,8 +165,8 @@ expressions separated by a comma.
 ```
 
 !!!note
-    writing `{}` creates an empty map, not an empty array. To create an
-    empty array you can write `{,}`
+    Writing `{}` creates an empty map, not an empty array. To create an
+    empty array you can write `{,}`.
 
 You can also create an array with all of the same value like this:
 
@@ -256,7 +256,7 @@ See also [function declarations](#function-declaration) and the
 - `_globals_`: a table containing the variables of the global scope
 
 !!!note
-    the value of `_globals_` in the global scope is `null`
+    The value of `_globals_` in the global scope is `null`.
 
 ## Expressions
 
@@ -589,7 +589,7 @@ This program outputs:
 ```
 
 !!!note
-    when using this assignment you cannot use compound assignments.
+    When using this assignment you cannot use compound assignments.
 
 ### Access operator
 
@@ -654,7 +654,7 @@ map.not_a_key --> null
 ```
 
 !!!note
-    if you try to index a key that is not in the map the result will be `null`
+    If you try to index a key that is not in the map the result will be `null`.
 
 ## Statements
 
@@ -772,7 +772,7 @@ When the code for a case is executed, the switch statement ends. To have the
 same behaviour as C when the `break` keyword is omitted, you can use the `..`
 keyword.
 
-The following two codes are equivalent:
+The following two code snippets are equivalent:
 
 ```c
 // C / C++
@@ -834,7 +834,7 @@ If an error occurs, it will be stored inside `error_var` as a map with two keys:
 - `message`: the message of the error
 
 !!!note
-    you can call `error_var` with any valid variable name
+    You can replace `error_var` with any valid variable name.
 
 If you want to also get the position and traceback of the error you can use the
 `try` function of the `stderr` library.

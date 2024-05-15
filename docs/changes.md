@@ -8,6 +8,14 @@
 
 **Changes**
 
+- now line endings will be ignored when the expression should not end, this includes the following cases:
+  - the condition of while and do-while loops
+  - the number of repeats in for loops
+  - the iterator in for-as loops
+  - the expression and the cases in switch statements
+  - expressions inside parenthesis
+  - inside maps, vectors and arrays
+  - when a line ends with a local-stack operator
 - changed the file object to string cast from `<IOFile ----- >` to `<IOFile[-----]>`
 
 **Bug fixes**
@@ -38,28 +46,23 @@
 - added `_Nst_EM_WRONG_ARG_NUM_FMT` macro to format correctly wrong argument numbers
 - added `Nst_init`, `Nst_quit` and `Nst_was_init`
 - added `Nst_assert` and `Nst_assert_c` to make assertions
+- added `Nst_string_char_len` and `Nst_string_utf8_char_len`
+- added `Nst_inst_list_new`
+- new parser, added many new node-related elements
+  - `Nst_SeqNodeType`, `Nst_NodeData_Ac`, `Nst_NodeData_As`, `Nst_NodeData_Ca`, `Nst_NodeData_Cs`, `Nst_NodeData_Ex`, `Nst_NodeData_Fd`, `Nst_NodeData_Fl`, `Nst_NodeData_Ie`, `Nst_NodeData_Lo`, `Nst_NodeData_Ls`, `Nst_NodeData_Ml`, `Nst_NodeData_Rt`, `Nst_NodeData_Sl`, `Nst_NodeData_So`, `Nst_NodeData_Sw`, `Nst_NodeData_Tc`, `Nst_NodeData_Vl`, `Nst_NodeData_We`, `Nst_NodeData_Wl`, `Nst_NodeData_Ws`
+  - `_Nst_node_ac_destroy`, `_Nst_node_ac_init`, `_Nst_node_as_destroy`, `_Nst_node_as_init`, `_Nst_node_ca_destroy`, `_Nst_node_ca_init`, `_Nst_node_cs_destroy`, `_Nst_node_cs_init`, `_Nst_node_ex_destroy`, `_Nst_node_ex_init`, `_Nst_node_fd_destroy`, `_Nst_node_fd_init`, `_Nst_node_fl_destroy`, `_Nst_node_fl_init`, `_Nst_node_ie_destroy`, `_Nst_node_ie_init`, `_Nst_node_lo_destroy`, `_Nst_node_lo_init`, `_Nst_node_ls_destroy`, `_Nst_node_ls_init`, `_Nst_node_ml_destroy`, `_Nst_node_ml_init`, `_Nst_node_rt_destroy`, `_Nst_node_rt_init`, `_Nst_node_sl_destroy`, `_Nst_node_sl_init`, `_Nst_node_so_destroy`, `_Nst_node_so_init`, `_Nst_node_sw_destroy`, `_Nst_node_sw_init`, `_Nst_node_tc_destroy`, `_Nst_node_tc_init`, `_Nst_node_vl_destroy`, `_Nst_node_vl_init`, `_Nst_node_we_destroy`, `_Nst_node_we_init`, `_Nst_node_wl_destroy`, `_Nst_node_wl_init`, `_Nst_node_ws_destroy`, `_Nst_node_ws_init`
+  - `Nst_print_node`
+- added `Nst_sbuffer_at`, `Nst_sbuffer_pop` and `Nst_sbuffer_shrink_auto`
 
 **Changes**
 
 _New program execution system_:
 
-Programs have been decoupled from the interpreter. Now any program can be
-executed by setting the `es` field (of type `Nst_ExecutionState`) of the global
-`Nst_IntrState`. All the information needed to execute a program is saved in
-the `Nst_ExecutionState` struct and this can be swapped into the interpreter
-when no recursive calls are active and it allows to execute a completely
-different program where it was left off.
+Programs have been decoupled from the interpreter. Now any program can be executed by setting the `es` field (of type `Nst_ExecutionState`) of the global `Nst_IntrState`. All the information needed to execute a program is saved in the `Nst_ExecutionState` struct and this can be swapped into the interpreter when no recursive calls are active and it allows to execute a completely different program where it was left off.
 
 _New error handling system_:
 
-Previously errors were handled in a very messy way. There was `Nst_Error` which
-was used internally, `Nst_OpErr` which was used by libraries and
-`Nst_Traceback` which was used during execution. Now interpreter and program
-execution are separate and because of this the interpreter state can be
-initialized well before anything is executed on it. This removes the need for
-`Nst_Error` and `Nst_OpErr` which are replaced in the new `Nst_ExecutionState`
-and `Nst_IntrState` by a `Nst_Traceback` field that contains all the
-information needed.
+Previously errors were handled in a very messy way. There was `Nst_Error` which was used internally, `Nst_OpErr` which was used by libraries and `Nst_Traceback` which was used during execution. Now interpreter and program execution are separate and because of this the interpreter state can be initialized well before anything is executed on it. This removes the need for `Nst_Error` and `Nst_OpErr` which are replaced in the new `Nst_ExecutionState` and `Nst_IntrState` by a `Nst_Traceback` field that contains all the information needed.
 
 _General changes_:
 
@@ -106,6 +109,9 @@ _General changes_:
 - renamed `Nst_run_func_context` to `Nst_run_paused_coroutine` and modified its arguments
 - removed `Nst_state_init` and `Nst_state_free`
 - renamed `Nst_ENDIANNESS` to `Nst_BYTEORDER`
+- renamed `Nst_IC_NEW_OBJ` to `Nst_IC_NEW_INT`
+- replaced `Nst_IC_FOR_IS_DONE` with `Nst_IC_JUMPIF_IEND`
+- removed `Nst_print_ast`
 
 **Bug fixes**
 

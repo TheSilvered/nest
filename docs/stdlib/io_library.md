@@ -415,6 +415,7 @@ Creates a virtual `IOFile` object that works like a normal file but is not an
 actual file.
 
 **Arguments:**
+
 - `binary`: specifies if the file should use `write` and `read` or `write_bytes`
   and `read_bytes`. If set to `null` it is interpreted as false.
 - `buffer_size` specifies the initial size of the file in bytes
