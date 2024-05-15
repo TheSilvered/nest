@@ -92,8 +92,11 @@ Nst_LList *json_tokenize(i8 *path, i8 *text, usize text_len,
 
     bool result = Nst_normalize_encoding(&src_text, encoding);
     Nst_add_lines(&src_text);
-    if (!result || Nst_error_occurred())
+    if (!result || Nst_error_occurred()) {
+        Nst_free(src_text.text);
+        Nst_free(src_text.lines);
         return nullptr;
+    }
 
     Nst_LList *tokens = Nst_llist_new();
     Nst_Tok *tok = nullptr;

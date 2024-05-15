@@ -267,6 +267,7 @@ static Nst_Node *parse_cs_with_brackets(void)
 
     if (top_type() != Nst_TT_R_BRACKET) {
         set_error(_Nst_EM_MISSING_BRACKET, start, end);
+        Nst_node_destroy(long_s);
         return NULL;
     }
     end = top_end();
@@ -1225,6 +1226,7 @@ static Nst_Node *parse_seq_body(Nst_Pos start, Nst_Node *first_node, bool arr)
         skip_blank();
         if (top_type() != closing_paren) {
             set_error(expected_paren, top_start(), top_end());
+            Nst_node_destroy(length);
             goto failure;
         }
         if (!append_node(seq_lit->v.sl.values, length)) {

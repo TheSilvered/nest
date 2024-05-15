@@ -70,11 +70,6 @@ Nst_FUNC_SIGN(load_f_)
         return nullptr;
     }
 
-    if (f == nullptr) {
-        Nst_set_value_error_c("file not found");
-        return nullptr;
-    }
-
     fseek(f, 0, SEEK_END);
     usize buf_size = (usize)ftell(f);
     fseek(f, 0, SEEK_SET);
@@ -159,6 +154,7 @@ Nst_FUNC_SIGN(dump_f_)
 
     fwrite(encoded_str, sizeof(i8), encoded_str_len, f);
     fclose(f);
+    Nst_free(encoded_str);
     Nst_RETURN_NULL;
 }
 

@@ -18,6 +18,7 @@ Nst_FUNC_SIGN(map_i_get_val)
         return raw_value;
 
     Nst_Obj *mapped_value = Nst_call_func(FUNC(func), 1, &raw_value);
+    Nst_dec_ref(raw_value);
     if (mapped_value == nullptr)
         return nullptr;
     if (mapped_value == Nst_iend()) {

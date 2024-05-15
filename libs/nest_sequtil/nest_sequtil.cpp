@@ -83,6 +83,7 @@ Nst_FUNC_SIGN(map_)
                 new_seq->len = i;
                 Nst_dec_ref(new_seq);
             }
+            Nst_dec_ref(arg);
             return nullptr;
         }
 

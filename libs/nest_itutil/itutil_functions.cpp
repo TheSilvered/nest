@@ -142,6 +142,7 @@ Nst_FUNC_SIGN(chain_get_val)
 
     while (val == Nst_iend()) {
         Nst_dec_ref(val);
+        Nst_dec_ref(current_iter);
         Nst_Obj *next_iterable = Nst_iter_get_val(main_iter);
         if (next_iterable == Nst_iend())
             return next_iterable;
@@ -153,7 +154,6 @@ Nst_FUNC_SIGN(chain_get_val)
         if (next_iter == nullptr)
             return nullptr;
 
-        Nst_dec_ref(current_iter);
         current_iter = next_iter;
         if (Nst_iter_start(current_iter))
             return nullptr;

@@ -1326,7 +1326,7 @@ static i32 exe_save_error(Nst_Inst *inst)
     while (Nst_state.lib_srcs->len > Nst_state.lib_handles->len) {
         Nst_SourceText *txt = (Nst_SourceText *)Nst_llist_pop(
             Nst_state.lib_srcs);
-        Nst_source_text_destroy(txt);
+        source_text_destructor(txt);
     }
     return INST_SUCCESS;
 }
