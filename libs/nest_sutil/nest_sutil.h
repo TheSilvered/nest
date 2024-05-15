@@ -41,6 +41,8 @@ Nst_FUNC_SIGN(bin_);
 Nst_FUNC_SIGN(oct_);
 Nst_FUNC_SIGN(hex_);
 Nst_FUNC_SIGN(parse_int_);
+Nst_FUNC_SIGN(lremove_);
+Nst_FUNC_SIGN(rremove_);
 
 #ifdef __cplusplus
 }

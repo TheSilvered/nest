@@ -322,6 +322,21 @@ The index where `substring` starts or `-1` if it is not inside `string`.
 
 ---
 
+### `@lremove`
+
+**Synopsis:**
+
+```nest
+[string: Str, substring: Str] @lremove -> Str
+```
+
+**Returns:**
+
+A string with the prefix `substring` removed if `string` starts with it. The
+string itself is returned if `string` does not begin with `substring`.
+
+---
+
 ### `@ltrim`
 
 **Synopsis:**
@@ -457,6 +472,21 @@ used.
 **Returns:**
 
 The index where `substring` starts or `-1` if it is not inside `string`.
+
+---
+
+### `@rremove`
+
+**Synopsis:**
+
+```nest
+[string: Str, substring: Str] @rremove -> Str
+```
+
+**Returns:**
+
+A string with the suffix `substring` removed if `string` ends with it. The
+string itself is returned if `string` does not end with `substring`.
 
 ---
 

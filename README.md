@@ -31,7 +31,7 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 - [x] Rewrite nodes, parser, compiler and optimizer
 - [ ] Better testing with C
 - [ ] Finish implementing `Nst_fmt` and add a wrapper to `stdsutil.nest`
-- [ ] Add `is_space`, `remove_prefix` and `remove_suffix` to `stdsutil.nest`
+- [x] Add `is_space`, `lremove` and `rremove` to `stdsutil.nest`
 - [ ] Rename `split` to `lsplit` and add `rsplit` to `stdsutil.nest`
 - [ ] Add `batch` to `stditutil.nest`
 - [ ] Add `enum` to `stdsequtil.nest`

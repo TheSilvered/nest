@@ -3,7 +3,7 @@
 #include <cstdlib>
 #include "nest_sutil.h"
 
-#define FUNC_COUNT 31
+#define FUNC_COUNT 33
 
 static Nst_ObjDeclr func_list_[FUNC_COUNT];
 static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
@@ -44,6 +44,8 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(oct_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(hex_, 2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(parse_int_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(lremove_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(rremove_, 2);
 
 #if __LINE__ - FUNC_COUNT != 17
 #error
@@ -1143,4 +1145,55 @@ Nst_FUNC_SIGN(parse_int_)
     i64 base = Nst_DEF_VAL(base_obj, AS_INT(base_obj), 0);
 
     return Nst_string_parse_int(str, i32(base));
+}
+
+Nst_FUNC_SIGN(lremove_)
+{
+    Nst_StrObj *str;
+    Nst_StrObj *substr;
+    Nst_DEF_EXTRACT("s s", &str, &substr);
+
+    if (str->len < substr->len)
+        return Nst_inc_ref(str);
+
+    i8 *str_p = str->value;
+    i8 *sub_p = substr->value;
+    i8 *sub_p_end = sub_p + substr->len;
+
+    while (sub_p != sub_p_end) {
+        if (*str_p++ != *sub_p++)
+            return Nst_inc_ref(str);
+    }
+
+    usize new_len = str->len - substr->len;
+    i8 *new_str_value = (i8 *)Nst_calloc(1, new_len + 1, str_p);
+    if (new_str_value == NULL)
+        return NULL;
+    return Nst_string_new_allocated(new_str_value, new_len);
+}
+
+Nst_FUNC_SIGN(rremove_)
+{
+    Nst_StrObj *str;
+    Nst_StrObj *substr;
+    Nst_DEF_EXTRACT("s s", &str, &substr);
+
+    if (str->len < substr->len)
+        return Nst_inc_ref(str);
+
+    i8 *str_p = str->value + str->len - 1;
+    i8 *sub_p = substr->value + substr->len - 1;
+    i8 *sub_p_end = substr->value - 1;
+
+    while (sub_p != sub_p_end) {
+        if (*str_p-- != *sub_p--)
+            return Nst_inc_ref(str);
+    }
+
+    usize new_len = str->len - substr->len;
+    i8 *new_str_value = (i8 *)Nst_calloc(1, new_len + 1, str->value);
+    if (new_str_value == NULL)
+        return NULL;
+    new_str_value[new_len] = '\0';
+    return Nst_string_new_allocated(new_str_value, new_len);
 }

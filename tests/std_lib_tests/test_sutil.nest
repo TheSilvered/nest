@@ -33,6 +33,15 @@
 'this is a sentence inside a string' 'is' @su.lfind 2 @test.assert_eq
 'this is a sentence inside a string' 'is' @su.rfind 5 @test.assert_eq
 
+'hello' 'he' @su.lremove 'llo' @test.assert_eq
+'hello' 'hello' @su.lremove '' @test.assert_eq
+'hello' 'ello' @su.lremove 'hello' @test.assert_eq
+'hello' 'helloo' @su.lremove 'hello' @test.assert_eq
+'hello' 'he' @su.rremove 'hello' @test.assert_eq
+'hello' 'hello' @su.rremove '' @test.assert_eq
+'hello' 'ello' @su.rremove 'h' @test.assert_eq
+'hello' 'hhello' @su.rremove 'hello' @test.assert_eq
+
 'hello' @su.is_alpha @test.assert_true
 'hell0' @su.is_alpha @test.assert_false
 '110' @su.is_digit @test.assert_true
