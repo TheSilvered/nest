@@ -4,7 +4,8 @@
 
 **Additions**
 
-- added `is_space` to `stdsutil.nest`
+- added `is_space`, `lremove` and `rremove` to `stdsutil.nest`
+- added `del_env` to `stdsys.nest`
 
 **Changes**
 
@@ -17,6 +18,8 @@
   - inside maps, vectors and arrays
   - when a line ends with a local-stack operator
 - changed the file object to string cast from `<IOFile ----- >` to `<IOFile[-----]>`
+- renamed `putenv` in `stdsys.nest` to `set_env` and added an optional argument `overwrite`
+- renamed `getenv` in `stdsys.nest` to `get_env`
 
 **Bug fixes**
 

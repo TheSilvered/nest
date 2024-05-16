@@ -17,7 +17,7 @@
 
 #endif
 
-#define FUNC_COUNT 15
+#define FUNC_COUNT 16
 
 static Nst_ObjDeclr func_list_[FUNC_COUNT];
 static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
@@ -38,8 +38,9 @@ bool lib_init()
 
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(system_,          1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(exit_,            1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(getenv_,          1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(putenv_,          2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_env_,         1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(set_env_,         3);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(del_env_,         1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_ref_count_,   1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_addr_,        1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(hash_,            1);
@@ -111,21 +112,45 @@ Nst_FUNC_SIGN(exit_)
     return nullptr;
 }
 
-Nst_FUNC_SIGN(getenv_)
+Nst_FUNC_SIGN(get_env_)
 {
     Nst_StrObj *name;
 
     Nst_DEF_EXTRACT("s", &name);
 
+    if (strlen(name->value) != name->len) {
+        Nst_set_value_error_c("the name cannot contain NUL characters");
+        return nullptr;
+    }
+
+    if (strchr((const char *)name->value, '=') != nullptr) {
+        Nst_set_value_error_c("the name cannot contain an equals sign (=)");
+        return nullptr;
+    }
+
 #ifdef Nst_WIN
     wchar_t *wide_name = Nst_char_to_wchar_t(name->value, name->len);
     if (wide_name == nullptr)
         return nullptr;
-    wchar_t *wide_env_name = _wgetenv(wide_name);
-    Nst_free(wide_name);
-    if (wide_env_name == nullptr)
+
+    usize buf_size = GetEnvironmentVariable(wide_name, nullptr, 0);
+    if (buf_size == 0) {
+        Nst_free(wide_name);
         Nst_RETURN_NULL;
-    i8 *env_name = Nst_wchar_t_to_char(wide_env_name, 0);
+    }
+
+    wchar_t *wide_env_name = Nst_malloc_c(buf_size, wchar_t);
+    usize buf_len = GetEnvironmentVariable(
+        wide_name,
+        wide_env_name,
+        (DWORD)buf_size);
+    Nst_free(wide_name);
+    if (buf_len == 0) {
+        Nst_free(wide_env_name);
+        Nst_RETURN_NULL;
+    }
+    i8 *env_name = Nst_wchar_t_to_char(wide_env_name, buf_len);
+    Nst_free(wide_env_name);
     if (env_name == nullptr)
         return nullptr;
 #else
@@ -142,12 +167,19 @@ Nst_FUNC_SIGN(getenv_)
     return Nst_string_new_c_raw(env_name, true);
 }
 
-Nst_FUNC_SIGN(putenv_)
+Nst_FUNC_SIGN(set_env_)
 {
     Nst_StrObj *name;
     Nst_StrObj *value;
+    Nst_Obj *overwrite_obj;
+    bool overwrite;
 
-    Nst_DEF_EXTRACT("s s", &name, &value);
+    Nst_DEF_EXTRACT("s s o", &name, &value, &overwrite_obj);
+
+    if (overwrite_obj == Nst_null())
+        overwrite = true;
+    else
+        overwrite = Nst_obj_to_bool(overwrite_obj);
 
     if (strlen(name->value) != name->len
         || strlen(value->value) != value->len)
@@ -161,32 +193,80 @@ Nst_FUNC_SIGN(putenv_)
         return nullptr;
     }
 
-    usize name_len = name->len;
-    usize value_len = value->len;
-    usize buf_len = name_len + value_len + 1;
-
-    i8 *buf = Nst_malloc_c(buf_len + 1, i8);
-    if (buf == nullptr)
-        return nullptr;
-    memcpy(buf, name->value, name_len);
-    buf[name_len] = '=';
-    memcpy(buf + name_len + 1, value->value, value_len);
-    buf[buf_len] = '\0';
-
 #ifdef Nst_WIN
-    wchar_t *wide_buf = Nst_char_to_wchar_t(buf, buf_len);
-    if (wide_buf == nullptr)
+    wchar_t *name_buf = Nst_char_to_wchar_t(name->value, name->len);
+    if (name_buf == nullptr)
         return nullptr;
 
-    if (_wputenv((const wchar_t*)wide_buf) != 0) {
+    if (!overwrite) {
+        if (GetEnvironmentVariable(name_buf, nullptr, 0) != 0) {
+            Nst_free(name_buf);
+            Nst_RETURN_NULL;
+        }
+        if (GetLastError() != ERROR_ENVVAR_NOT_FOUND) {
+            Nst_free(name_buf);
+            Nst_RETURN_NULL;
+        }
+    }
+
+    wchar_t *value_buf = Nst_char_to_wchar_t(value->value, value->len);
+    if (value_buf == nullptr) {
+        Nst_free(name_buf);
+        return nullptr;
+    }
+
+    if (SetEnvironmentVariable(name_buf, value_buf) == 0) {
+        Nst_set_call_error_c("failed to set the environment variable");
+        Nst_free(name_buf);
+        Nst_free(value_buf);
+        return nullptr;
+    }
+    Nst_free(name_buf);
+    Nst_free(value_buf);
+#else
+    i32 result = setenv(
+        (const i8 *)name->value,
+        (const i8 *)value->value,
+        overwrite);
+
+    if (result != 0) {
         Nst_set_call_error_c("failed to set the environment variable");
         return nullptr;
     }
-    Nst_free(buf);
-    Nst_free(wide_buf);
+#endif
+    Nst_RETURN_NULL;
+}
+
+Nst_FUNC_SIGN(del_env_)
+{
+    Nst_StrObj *name;
+
+    Nst_DEF_EXTRACT("s", &name);
+
+    if (strlen(name->value) != name->len) {
+        Nst_set_value_error_c("the name cannot contain NUL characters");
+        return nullptr;
+    }
+
+    if (strchr((const char *)name->value, '=') != nullptr) {
+        Nst_set_value_error_c("the name cannot contain an equals sign (=)");
+        return nullptr;
+    }
+
+#ifdef Nst_WIN
+    wchar_t *name_buf = Nst_char_to_wchar_t(name->value, name->len);
+    if (name_buf == nullptr)
+        return nullptr;
+
+    if (SetEnvironmentVariable(name_buf, NULL) == 0) {
+        Nst_set_call_error_c("failed to delete the environment variable");
+        Nst_free(name_buf);
+        return nullptr;
+    }
+    Nst_free(name_buf);
 #else
-    if (putenv(buf) != 0) {
-        Nst_set_call_error_c("failed to set the environment variable");
+    if (unsetenv(name->value) != 0) {
+        Nst_set_call_error_c("failed to delete the environment variable");
         return nullptr;
     }
 #endif

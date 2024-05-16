@@ -11,6 +11,23 @@
 
 ## Functions
 
+### `@del_env`
+
+**Synopsis:**
+
+```nest
+[name: Str] @del_env -> null
+```
+
+**Description:**
+
+Deletes the environment variable `name`. If it does not exist the environment
+is left unchanged and the function succeeds.
+
+`name` cannot contain NUL characters (`\0`) and equals signs (`=`).
+
+---
+
 ### `@exit`
 
 **Synopsis:**
@@ -26,21 +43,6 @@ If `code` is `null` it defaults to `0`.
 
 ---
 
-### `@getenv`
-
-**Synopsis:**
-
-```nest
-[name: Str] @getenv -> Str?
-```
-
-**Returns:**
-
-The value of the environment variable `name`, if it does not exist,
-`null` is returned.
-
----
-
 ### `@get_addr`
 
 **Synopsis:**
@@ -52,6 +54,23 @@ The value of the environment variable `name`, if it does not exist,
 **Returns:**
 
 The address of the object in memory.
+
+---
+
+### `@get_env`
+
+**Synopsis:**
+
+```nest
+[name: Str] @get_env -> Str?
+```
+
+**Returns:**
+
+The value of the environment variable `name`. If it does not exist, `null` is
+returned instead.
+
+`name` cannot contain NUL characters (`\0`) and equals signs (`=`).
 
 ---
 
@@ -83,12 +102,12 @@ The hash of the object. If the object is not hashable, `-1` is returned.
 
 ---
 
-### `@putenv`
+### `@set_env`
 
 **Synopsis:**
 
 ```nest
-[name: Str, value: Str] @putenv -> null
+[name: Str, value: Str, overwrite: Bool?] @set_env -> null
 ```
 
 **Description:**
@@ -96,6 +115,9 @@ The hash of the object. If the object is not hashable, `-1` is returned.
 Sets the value of the `name` environment variable to be `value`. Both `name`
 and `value` cannot contain NUL characters and `name` cannot contain an equals
 sign (`=`).
+
+If `overwrite` is `false` and in the environment `name` is already defined, its
+value is not changed. Overwrite is `true` by default.
 
 ---
 

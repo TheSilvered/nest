@@ -152,6 +152,8 @@ NstEXP Nst_Obj *NstC Nst_iend(void);
 /* Returns a new reference to the iend object constant. */
 NstEXP Nst_Obj *NstC Nst_iend_ref(void);
 
+/* [docs:link Nst_type()->Bool Nst_type] */
+
 /* Returns a `Nst_TypeObjs` struct containing all the types. */
 NstEXP const Nst_TypeObjs *NstC Nst_type(void);
 /* Returns a `Nst_StrConsts` struct containing all the string constants. */
