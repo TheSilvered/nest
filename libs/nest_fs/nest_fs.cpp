@@ -491,10 +491,19 @@ Nst_FUNC_SIGN(relative_path_)
     Nst_StrObj *path;
     Nst_StrObj *base;
 
-    Nst_DEF_EXTRACT("s s", &path, &base);
+    Nst_DEF_EXTRACT("s ?s", &path, &base);
+
+    if (OBJ(base) == Nst_null()) {
+        base = Nst_getcwd();
+        if (base == NULL)
+            return NULL;
+    } else
+        Nst_inc_ref(base);
 
     std::error_code ec;
     fs::path result = fs::relative(utf8_path(path), utf8_path(base), ec);
+
+    Nst_dec_ref(base);
 
     if (ec.value() == 0)
         return OBJ(heap_str(result));

@@ -38,11 +38,8 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 - [ ] Add `factorial` to `stdmath.nest`
 - [ ] Change `generator` in `stdco.nest` to allow for different arguments of
   the function
-- [ ] Change `relative_path` in `stdfs.nest` to use the current working
+- [x] Change `relative_path` in `stdfs.nest` to use the current working
   directory when no `base` is given
-- [ ] Change `move_fpi` in `stdio.nest` to return the current file position
-  indicator
-- [ ] Maps only add new keys to the end but do not move existing ones
 - [ ] Improve option handling in `stdjson.nest`
 - [ ] Remove `reversed` from `stditutil.nest` and add `reverse` and `reverse_i`
   to `stdsequtil.nest`

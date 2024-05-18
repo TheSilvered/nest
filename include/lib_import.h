@@ -75,17 +75,18 @@ Nst_IOFileObj *file;
 Nst_DEF_EXTRACT("?F", &file); // 'file' can be either a File or NULL object
 ```
 
-### Casting to other `Nst_Obj`
+### Casting to other `Nst_Obj`s
 
 By following the selected type(s) with a colon (`:`) you can specify with one
 letter the type that the object should be casted to after it has been checked.
 When casting to an object a new reference is always put inside the given
 variable that needs to be removed with `Nst_dec_ref` when no longer in use.
 
-The type to cast to be specified by any of the builtin types except `n` in
-addition to `o`. Using `o` will only increase the reference of the argument and
-casting between an Array and a Vector object will not modify the object (apart
-from increasing the reference) since they use the same structure in memory.
+The type to cast to can be specified by any of the builtin types except `n`.
+In addition you can use `o` just to increase the reference of the argument.
+Casting between an Array and a Vector objects will only increase their
+reference count and will not actually create a copy even if the types are
+different.
 
 ```better-c
 // 'num' accepts a Int and Byte objects but it will always contain an Int
@@ -99,6 +100,13 @@ If you follow the selected type(s) with an underscore (`_`), you can extract
 the value of the argument into a C value. This method only accepts `i`, `r`,
 `b` and `B` and cannot be used along with `:`.
 
+The values are extracted to the following C types:
+
+- `i` -> `i64`
+- `r` -> `f64`
+- `b` -> `bool`
+- `B` -> `u8`
+
 ```better-c
 // 'opt' only accepts Int objects but will always contain a boolean
 bool opt;
@@ -111,13 +119,6 @@ If a type is specified as only one of `i`, `r`, `b` or `B` (and not a union
 of types) it is automatically translated to `i_i`, `r_r`, `b_b` and `B_B`
 respectively.
 
-The values are extracted to the following C types:
-
-- `i` -> `i64`
-- `r` -> `f64`
-- `b` -> `bool`
-- `B` -> `u8`
-
 ```better-c
 // even though only 'i' and 'r' are specified, the extracted values are C types
 i64 int_num;
@@ -126,7 +127,7 @@ Nst_DEF_EXTRACT("i r", &int_num, &real_num);
 ```
 
 If you instead want the object itself you can write `i|i`, `r|r`, `b|b` or
-`B|B` since the type is in a union.
+`B|B`. Since the type is in a union the casting will not occur.
 
 ### Sequence type checking
 
@@ -137,7 +138,7 @@ occur if the argument is casted to a C type.
 
 ```better-c
 // 'array_of_ints' can be either an Array or Null object. If it is the
-// former its elements can only be Int and Byte objects.
+// former its elements can only be Int or Byte objects.
 Nst_SeqObj *array_of_ints;
 Nst_DEF_EXTRACT("?a.i|B" &array_of_ints);
 ```
@@ -155,12 +156,12 @@ representing commonly used types into a single character.
 - `y` expands into `o_b`
 
 The shorthands that contain a cast (either `:` or `_`) will not cast the object
-the shorthand is used for checking the contents of a sequence or are part of a
-union. In case a cast is added after the type manually, it is overwritten.
+when used to check the contents of a sequence or when they are part of a union.
+Additionaly, any cast added manually will overwrite the cast of the shorthand.
 
 ```better-c
 "S"   // matches Array, Vector and Str and casts the object to Array
-"I|S" // matches Iter, Array, Vector and Str and casts the object to Array
+"I|S" // matches Iter, Array, Vector and Str, no casting occurs
 "l:r" // matches Int and Byte and casts the object to Real
 "a.S" // matches Array that contains Array, Vector or Str, no casting occurs
 ```

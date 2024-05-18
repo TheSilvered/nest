@@ -548,12 +548,13 @@ The target of the symlink which may not exist.
 **Synopsis:**
 
 ```nest
-[path: Str, base: Str] @relative_path -> Str
+[path: Str, base: Str?] @relative_path -> Str
 ```
 
 **Description:**
 
-Returns a relative path to `path` using `base` as the starting point.
+Returns a relative path to `path` using `base` as the starting point. If base
+is not given the current working directory is used.
 
 **Arguments:**
 

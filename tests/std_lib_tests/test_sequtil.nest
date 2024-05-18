@@ -739,3 +739,10 @@ arr_copy.2 .hello arr_copy @test.assert_obj_eq
 arr_copy.2 .hi arr_copy.1 @test.assert_eq
 arr_copy.1 .1 arr_copy @test.assert_eq
 arr_copy.1 .2 arr_copy.2 @test.assert_eq
+
+{'a', 'b', 'c'} @sequ.enum {'a': 0, 'b': 1, 'c': 2} @test.assert_eq
+{'a', 'b', 'c'} -1 @sequ.enum {'a': -1, 'b': 0, 'c': 1} @test.assert_eq
+{'a', 'b', 'c'} 1 @sequ.enum {'a': 1, 'b': 2, 'c': 3} @test.assert_eq
+sequ.enum {{'a', 'b', 'a'}} @test.assert_raises_error
+sequ.enum {{'a', 'b', 'a'}, -1} @test.assert_raises_error
+sequ.enum {{'a', 'b', 'a'}, 1} @test.assert_raises_error

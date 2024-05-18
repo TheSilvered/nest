@@ -912,24 +912,14 @@ static i32 exe_op_call(Nst_Inst *inst)
     if (Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C))
         return call_c_func(is_seq_call, arg_num, args_seq, func);
 
-    bool result;
-    if (is_seq_call) {
-        result = Nst_es_push_func(
-            Nst_state.es,
-            func,
-            inst->start,
-            inst->end,
-            arg_num,
-            args_seq->objs);
-    } else {
-        result = Nst_es_push_func(
-            Nst_state.es,
-            func,
-            inst->start,
-            inst->end,
-            arg_num,
-            NULL);
-    }
+    bool result = Nst_es_push_func(
+        Nst_state.es,
+        func,
+        inst->start,
+        inst->end,
+        arg_num,
+        is_seq_call ? args_seq->objs : NULL);
+
     Nst_ndec_ref(args_seq);
     return result ? INST_NEW_FUNC : INST_FAILED;
 }

@@ -109,9 +109,9 @@ bool _Nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
     if (hash == -1) {
         hash = Nst_obj_hash(key);
         if (hash == -1) {
-            Nst_set_value_error(Nst_sprintf(
+            Nst_set_value_errorf(
                 _Nst_EM_UNHASHABLE_TYPE,
-                TYPE_NAME(key)));
+                TYPE_NAME(key));
             return false;
         }
     }

@@ -358,10 +358,9 @@ Nst_FUNC_SIGN(open_)
             Nst_encoding_from_name(STR(encoding_obj)->value),
             Nst_CP_UTF8);
         if (cpid == Nst_CP_UNKNOWN) {
-            Nst_set_value_error(
-                Nst_sprintf(
-                    "invalid encoding '%.100s'",
-                    STR(encoding_obj)->value));
+            Nst_set_value_errorf(
+                "invalid encoding '%.100s'",
+                STR(encoding_obj)->value);
             return nullptr;
         }
 
@@ -699,7 +698,7 @@ Nst_FUNC_SIGN(move_fpi_)
     }
 
     if (start < 0 || start > 2) {
-        Nst_set_value_error(Nst_sprintf("invalid origin '%lli'", start));
+        Nst_set_value_errorf("invalid origin '%lli'", start);
         return nullptr;
     }
 
@@ -741,7 +740,7 @@ Nst_FUNC_SIGN(flush_)
         SET_FILE_CLOSED_ERROR;
         return nullptr;
     } else if (!Nst_IOF_CAN_WRITE(f)) {
-        Nst_set_value_error("the file cannot be written");
+        Nst_set_value_error_c("the file cannot be written");
         return nullptr;
     }
 

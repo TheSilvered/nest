@@ -76,7 +76,7 @@ typedef struct _Nst_FuncObj {
     Nst_GGC_HEAD;
     Nst_FuncBody body;
     Nst_Obj **args;
-    usize arg_num;
+    isize arg_num;
     Nst_MapObj *mod_globals;
 } Nst_FuncObj
 ```

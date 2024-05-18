@@ -6,6 +6,7 @@
 
 - added `is_space`, `lremove` and `rremove` to `stdsutil.nest`
 - added `del_env` to `stdsys.nest`
+- added `enum` to `stdsequtil.nest`
 
 **Changes**
 

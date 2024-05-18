@@ -30,6 +30,7 @@ Nst_FUNC_SIGN(lscan_);
 Nst_FUNC_SIGN(rscan_);
 Nst_FUNC_SIGN(copy_);
 Nst_FUNC_SIGN(deep_copy_);
+Nst_FUNC_SIGN(enum_);
 
 #ifdef __cplusplus
 }

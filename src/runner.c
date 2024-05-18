@@ -334,7 +334,7 @@ cleanup:
 bool Nst_es_push_func(Nst_ExecutionState *es, Nst_FuncObj *func, Nst_Pos start,
                       Nst_Pos end, i64 arg_num, Nst_Obj **args)
 {
-    if (func->arg_num < (u64)arg_num) {
+    if (func->arg_num < arg_num) {
         Nst_set_call_error(_Nst_EM_WRONG_ARG_NUM_FMT(func->arg_num, arg_num));
         return false;
     }

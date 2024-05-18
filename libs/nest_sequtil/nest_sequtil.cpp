@@ -3,7 +3,7 @@
 #include "nest_sequtil.h"
 #include "sequtil_i_functions.h"
 
-#define FUNC_COUNT 19
+#define FUNC_COUNT 20
 #define SORT_RUN_SIZE 32
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
@@ -36,6 +36,7 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(rscan_, 4);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(copy_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(deep_copy_, 1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(enum_, 2);
 
 #if __LINE__ - FUNC_COUNT != 21
 #error
@@ -1058,4 +1059,39 @@ Nst_FUNC_SIGN(deep_copy_)
 
     Nst_dec_ref(cont_map);
     return res;
+}
+
+Nst_FUNC_SIGN(enum_)
+{
+    Nst_SeqObj *seq;
+    Nst_Obj *start_obj;
+    Nst_DEF_EXTRACT("A.s ?i", &seq, &start_obj);
+
+    i64 start = Nst_DEF_VAL(start_obj, AS_INT(start_obj), 0);
+    Nst_Obj **objs = seq->objs;
+    isize len = (isize)seq->len;
+
+    Nst_Obj *enum_map = Nst_map_new();
+    if (enum_map == NULL)
+        return NULL;
+    for (i64 i = 0; i < len; i++) {
+        Nst_Obj *prev_value = Nst_map_get(enum_map, objs[i]);
+        if (prev_value != NULL) {
+            Nst_dec_ref(prev_value);
+            Nst_set_value_errorf(
+                "repeated element '%.100s'",
+                STR(objs[i])->value);
+            Nst_dec_ref(enum_map);
+            return NULL;
+        }
+
+        Nst_Obj *value = Nst_int_new(start++);
+        if (!Nst_map_set(enum_map, objs[i], value)) {
+            Nst_dec_ref(value);
+            Nst_dec_ref(enum_map);
+            return NULL;
+        }
+        Nst_dec_ref(value);
+    }
+    return enum_map;
 }

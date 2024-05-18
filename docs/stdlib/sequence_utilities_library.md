@@ -131,6 +131,29 @@ Removes all objects from `vect`.
 
 ---
 
+### `@enum`
+
+**Synopsis:**
+
+```nest
+[elements: Vector|Array, start: Int?] @enum -> Map
+```
+
+**Description**:
+
+`elements` is a sequence of unique strings that will serve as the keys of the
+map. If there is a duplicate in `elements` a `Value Error` is thrown. The
+values associated with the elements will be unique integers starting from
+`start` with the first element and increasing by 1. If `start` is not given or
+is `null` the counter starts at 0.
+
+**Returns:**
+
+A map where the strings in `elements` are the keys which are associated with
+a unique integer.
+
+---
+
 ### `@extend`
 
 **Synopsis:**

@@ -130,7 +130,7 @@ Nst_FUNC_SIGN(try_)
 
     Nst_DEF_EXTRACT("f A y", &func, &func_args, &catch_exit);
 
-    if (func_args->len != func->arg_num) {
+    if ((isize)func_args->len != func->arg_num) {
         Nst_set_call_error(Nst_sprintf(
             "the function expected %zi arguments but the %s had length %zi",
             func->arg_num, TYPE_NAME(func_args), func_args->len));
