@@ -3,7 +3,7 @@
 Nst_FUNC_SIGN(map_i_start)
 {
     Nst_UNUSED(arg_num);
-    if (Nst_iter_start(SEQ(args[0])->objs[0]))
+    if (!Nst_iter_start(SEQ(args[0])->objs[0]))
         return nullptr;
     Nst_RETURN_NULL;
 }
@@ -86,7 +86,7 @@ Nst_FUNC_SIGN(slice_i_str_get_val)
 Nst_FUNC_SIGN(filter_i_start)
 {
     Nst_UNUSED(arg_num);
-    if (Nst_iter_start(SEQ(args[0])->objs[0]))
+    if (!Nst_iter_start(SEQ(args[0])->objs[0]))
         return nullptr;
     Nst_RETURN_NULL;
 }

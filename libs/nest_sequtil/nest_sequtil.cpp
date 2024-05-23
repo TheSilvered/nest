@@ -113,8 +113,8 @@ Nst_FUNC_SIGN(map_i_)
     Nst_Obj *arr = Nst_array_create(2, iter, func);
 
     return Nst_iter_new(
-        FUNC(Nst_func_new_c(1, map_i_start)),
-        FUNC(Nst_func_new_c(1, map_i_get_val)),
+        Nst_func_new_c(1, map_i_start),
+        Nst_func_new_c(1, map_i_get_val),
         arr);
 }
 
@@ -319,13 +319,13 @@ Nst_FUNC_SIGN(slice_i_)
 
     if (Nst_T(seq, Str)) {
         return Nst_iter_new(
-            FUNC(Nst_func_new_c(1, slice_i_start)),
-            FUNC(Nst_func_new_c(1, slice_i_str_get_val)),
+            Nst_func_new_c(1, slice_i_start),
+            Nst_func_new_c(1, slice_i_str_get_val),
             arr);
     } else {
         return Nst_iter_new(
-            FUNC(Nst_func_new_c(1, slice_i_start)),
-            FUNC(Nst_func_new_c(1, slice_i_seq_get_val)),
+            Nst_func_new_c(1, slice_i_start),
+            Nst_func_new_c(1, slice_i_seq_get_val),
             arr);
     }
 }
@@ -725,8 +725,8 @@ Nst_FUNC_SIGN(filter_i_)
     Nst_Obj *arr = Nst_array_create(2, iter, func);
 
     return Nst_iter_new(
-        FUNC(Nst_func_new_c(1, filter_i_start)),
-        FUNC(Nst_func_new_c(1, filter_i_get_val)),
+        Nst_func_new_c(1, filter_i_start),
+        Nst_func_new_c(1, filter_i_get_val),
         arr);
 }
 

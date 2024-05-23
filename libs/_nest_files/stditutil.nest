@@ -2,6 +2,8 @@
 
 |#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_itutil.dll' = __itu
 
+__itu.batch_        = batch
+__itu.batch_padded_ = batch_padded
 __itu.chain_        = chain
 __itu.count_        = count
 __itu.cycle_        = cycle

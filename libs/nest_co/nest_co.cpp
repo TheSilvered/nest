@@ -326,8 +326,8 @@ Nst_FUNC_SIGN(generator_)
     Nst_DEF_EXTRACT("#", t_Coroutine, &co);
 
     return Nst_iter_new(
-        FUNC(Nst_func_new_c(1, generator_start)),
-        FUNC(Nst_func_new_c(1, generator_get_val)),
+        Nst_func_new_c(1, generator_start),
+        Nst_func_new_c(1, generator_get_val),
         Nst_inc_ref(co));
 }
 

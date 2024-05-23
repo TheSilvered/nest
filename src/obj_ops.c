@@ -1040,7 +1040,7 @@ static Nst_Obj *iter_to_seq(Nst_Obj *ob, bool is_vect)
     if (seq == NULL)
         return NULL;
 
-    if (Nst_iter_start(iter)) {
+    if (!Nst_iter_start(iter)) {
         Nst_dec_ref(seq);
         return NULL;
     }
@@ -1226,7 +1226,7 @@ static Nst_Obj *iter_to_map(Nst_Obj *ob)
     if (map == NULL)
         return NULL;
 
-    if (Nst_iter_start(iter)) {
+    if (!Nst_iter_start(iter)) {
         Nst_dec_ref(map);
         return NULL;
     }

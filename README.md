@@ -33,9 +33,8 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 - [ ] Finish implementing `Nst_fmt` and add a wrapper to `stdsutil.nest`
 - [x] Add `is_space`, `lremove` and `rremove` to `stdsutil.nest`
 - [ ] Rename `split` to `lsplit` and add `rsplit` to `stdsutil.nest`
-- [ ] Add `batch` to `stditutil.nest`
-- [ ] Add `enum` to `stdsequtil.nest`
-- [ ] Add `factorial` to `stdmath.nest`
+- [x] Add `batch` to `stditutil.nest`
+- [x] Add `enum` to `stdsequtil.nest`
 - [ ] Change `generator` in `stdco.nest` to allow for different arguments of
   the function
 - [x] Change `relative_path` in `stdfs.nest` to use the current working
@@ -47,7 +46,7 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 - [ ] Remove `_cwd_` and rename `_get_cwd` and `_set_cwd` to `get_cwd` and
   `set_cwd` in `stdsys.nest`
 - [ ] Rename `co.pause` to `co.yield`
-- [ ] Make the return value of `co.pause` the arguments passed to `co.call`
+- [ ] Make the return value of `co.yield` the arguments passed to `co.call`
   when it is used to restart it
 - [ ] Change `co.call` to accept less arguments than the function requires
 - [ ] Change `err.try` to accept less arguments than the function requires

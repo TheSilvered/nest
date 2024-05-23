@@ -4,7 +4,8 @@
 #include "obj_ops.h"
 #include "format.h"
 
-Nst_Obj *Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *get_val, Nst_Obj *value)
+Nst_Obj *_Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *get_val,
+                       Nst_Obj *value)
 {
     Nst_IterObj *iter = Nst_obj_alloc(Nst_IterObj, Nst_t.Iter);
     if (iter == NULL) {
@@ -42,15 +43,15 @@ void _Nst_iter_traverse(Nst_IterObj* iter)
     Nst_ggc_obj_reachable(iter->value);
 }
 
-i32 _Nst_iter_start(Nst_IterObj *iter)
+bool _Nst_iter_start(Nst_IterObj *iter)
 {
     Nst_Obj *result = Nst_call_func(iter->start, 1, &iter->value);
 
     if (result == NULL)
-        return -1;
+        return false;
 
     Nst_dec_ref(result);
-    return 0;
+    return true;
 }
 
 Nst_Obj *_Nst_iter_get_val(Nst_IterObj *iter)

@@ -9,6 +9,7 @@ extern "C" {
 
 NstEXP bool NstC lib_init();
 NstEXP Nst_DeclrList *NstC get_func_ptrs();
+NstEXP void NstC free_lib();
 
 Nst_FUNC_SIGN(count_);
 Nst_FUNC_SIGN(cycle_);
@@ -19,6 +20,8 @@ Nst_FUNC_SIGN(enumerate_);
 Nst_FUNC_SIGN(keys_);
 Nst_FUNC_SIGN(values_);
 Nst_FUNC_SIGN(reversed_);
+Nst_FUNC_SIGN(batch_);
+Nst_FUNC_SIGN(batch_padded_);
 Nst_FUNC_SIGN(new_iterator_);
 Nst_FUNC_SIGN(iter_start_);
 Nst_FUNC_SIGN(iter_get_val_);
