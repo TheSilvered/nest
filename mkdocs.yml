@@ -23,6 +23,7 @@ nav:
     - tutorials/c-lib-tutorial.md
     - tutorials/using-generate_docs.md
   - Standard Library:
+    - stdlib/standard_library.md
     - stdlib/codecs_library.md
     - stdlib/coroutine_library.md
     - stdlib/time_library.md
@@ -41,6 +42,7 @@ nav:
     - c_api/c_api_reference.md
     - argv_parser.h: c_api/c_api-argv_parser.md
     - compiler.h: c_api/c_api-compiler.md
+    - dtoa.h: c_api/c_api-dtoa.md
     - encoding.h: c_api/c_api-encoding.md
     - error.h: c_api/c_api-error.md
     - file.h: c_api/c_api-file.md

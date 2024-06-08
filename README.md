@@ -29,27 +29,27 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
   - [x] Quit everything with one function
   - [x] Execute a program in one function (given the path of the file)
 - [x] Rewrite nodes, parser, compiler and optimizer
-- [ ] Better testing with C
-- [ ] Finish implementing `Nst_fmt` and add a wrapper to `stdsutil.nest`
+- [x] Rename `co.pause` to `co.yield`
+- [x] Make the return value of `co.yield` the arguments passed to `co.call`
+  when it is used to restart it
+- [x] Change `co.call` to accept less arguments than the function requires
+- [x] Change `err.try` to accept less arguments than the function requires
 - [x] Add `is_space`, `lremove` and `rremove` to `stdsutil.nest`
-- [ ] Rename `split` to `lsplit` and add `rsplit` to `stdsutil.nest`
 - [x] Add `batch` to `stditutil.nest`
 - [x] Add `enum` to `stdsequtil.nest`
-- [ ] Change `generator` in `stdco.nest` to allow for different arguments of
+- [x] Change `generator` in `stdco.nest` to allow for different arguments of
   the function
 - [x] Change `relative_path` in `stdfs.nest` to use the current working
   directory when no `base` is given
+- [ ] Better testing with C
+- [ ] Finish implementing `Nst_fmt` and add a wrapper to `stdsutil.nest`
+- [ ] Rename `split` to `lsplit` and add `rsplit` to `stdsutil.nest`
 - [ ] Improve option handling in `stdjson.nest`
 - [ ] Remove `reversed` from `stditutil.nest` and add `reverse` and `reverse_i`
   to `stdsequtil.nest`
 - [ ] Add `get_capacity` to `stdsys.nest`
 - [ ] Remove `_cwd_` and rename `_get_cwd` and `_set_cwd` to `get_cwd` and
   `set_cwd` in `stdsys.nest`
-- [x] Rename `co.pause` to `co.yield`
-- [x] Make the return value of `co.yield` the arguments passed to `co.call`
-  when it is used to restart it
-- [x] Change `co.call` to accept less arguments than the function requires
-- [ ] Change `err.try` to accept less arguments than the function requires
 
 ### Future planned features
 
@@ -60,8 +60,7 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 
 [^1]: will probably be a port of PCRE
 
-[^2]: currently in the workings and undocumented, a preview can be accessed
-      with `_stdgui.nest` or `stdgui.cnest`
+[^2]: currently in the workings and undocumented
 
 ## Documentation
 

@@ -7,6 +7,8 @@
 - added `is_space`, `lremove` and `rremove` to `stdsutil.nest`
 - added `del_env` to `stdsys.nest`
 - added `enum` to `stdsequtil.nest`
+- added `batch` and `batch_padded` to `stditutil.nest`
+- added `std.nest`, a file that imports all the standard library available under standard import names (e.g. `std.io.println`)
 
 **Changes**
 
@@ -21,9 +23,11 @@
 - changed the file object to string cast from `<IOFile ----- >` to `<IOFile[-----]>`
 - renamed `putenv` in `stdsys.nest` to `set_env` and added an optional argument `overwrite`
 - renamed `getenv` in `stdsys.nest` to `get_env`
+- now `relative_path` in `stdfs.nest` will use the current working directory if no base is given
 - renamed `pause` to `yield` in `stdco.nest`
 - now the `args` argument of `co.call` is retuned by `co.yield` when the function resumes
 - now `co.generator` accepts a second argument which is the arguments to use when calling the function
+- now `err.try` will accept fewer arguments than the function requires
 
 **Bug fixes**
 

@@ -460,7 +460,7 @@ bool Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
         return true;
 }
 
-Nst_Obj *Nst_call_func(Nst_FuncObj *func, i32 arg_num, Nst_Obj **args)
+Nst_Obj *Nst_call_func(Nst_FuncObj *func, i64 arg_num, Nst_Obj **args)
 {
     if (Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C)) {
         i64 tot_args = func->arg_num;
@@ -468,7 +468,7 @@ Nst_Obj *Nst_call_func(Nst_FuncObj *func, i32 arg_num, Nst_Obj **args)
 
         if (tot_args < arg_num) {
             Nst_set_call_error(
-                _Nst_EM_WRONG_ARG_NUM_FMT((usize)tot_args, (i64)arg_num));
+                _Nst_EM_WRONG_ARG_NUM_FMT((usize)tot_args, arg_num));
             return NULL;
         }
 

@@ -146,18 +146,16 @@ set but an internal one is, hence the caller must not set the error.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_call_func(Nst_FuncObj *func, i32 arg_num, Nst_Obj **args)
+Nst_Obj *Nst_call_func(Nst_FuncObj *func, i64 arg_num, Nst_Obj **args)
 ```
 
 **Description:**
 
 Calls a [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
 
-It can have both a Nest or C body.
-
 !!!note
     If the function is passed less arguments than it expects, the extra ones are
-    filled with `null` values.
+    filled with `null` objects.
 
 **Parameters:**
 
@@ -167,9 +165,7 @@ It can have both a Nest or C body.
 
 **Returns:**
 
-The result of the function or `NULL` on failure. When a function with a Nest
-body fails the error is set internally and the caller must not set it. When a
-function with a C body fails, the error should always set.
+The result of the function or `NULL` on failure. The error is set.
 
 ---
 

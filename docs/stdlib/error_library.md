@@ -34,7 +34,7 @@ A map containing `value`, `error` and `traceback`:
 
 - `value` is the value returned by the function or `null` if an error occurred.
 - `error` is `null` if everything was successful otherwise it is a map
-   containing `name`, `message` and `pos`.
+   containing `name`, `message`.
 - `traceback` is an array of positions that trace back the cause of the error.
 
 A position is a map that contains 3 keys:

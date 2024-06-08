@@ -301,6 +301,7 @@
 - [`Nst_iter_map_get_val`](c_api-iter.md#nst_iter_map_get_val)
 - [`Nst_iter_map_start`](c_api-iter.md#nst_iter_map_start)
 - [`Nst_iter_new`](c_api-iter.md#nst_iter_new)
+- [`_Nst_iter_new`](c_api-iter.md#_nst_iter_new)
 - [`Nst_IterObj`](c_api-iter.md#nst_iterobj)
 - [`Nst_iter_range_get_val`](c_api-iter.md#nst_iter_range_get_val)
 - [`Nst_iter_range_start`](c_api-iter.md#nst_iter_range_start)

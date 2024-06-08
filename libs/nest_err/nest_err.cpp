@@ -128,20 +128,28 @@ Nst_FUNC_SIGN(try_)
     Nst_SeqObj *func_args;
     bool catch_exit;
 
-    Nst_DEF_EXTRACT("f A y", &func, &func_args, &catch_exit);
+    Nst_DEF_EXTRACT("f ?A y", &func, &func_args, &catch_exit);
 
-    if ((isize)func_args->len != func->arg_num) {
-        Nst_set_call_error(Nst_sprintf(
-            "the function expected %zi arguments but the %s had length %zi",
-            func->arg_num, TYPE_NAME(func_args), func_args->len));
+    i64 func_arg_num;
+    Nst_Obj **objs;
+    if (OBJ(func_args) == Nst_null()) {
+        func_arg_num = 0;
+        objs = nullptr;
+    } else {
+        func_arg_num = func_args->len;
+        objs = func_args->objs;
+    }
 
+    if (func_arg_num > func->arg_num) {
+        Nst_set_call_error(
+            _Nst_EM_WRONG_ARG_NUM_FMT(func->arg_num, func_arg_num));
         return nullptr;
     }
 
     Nst_Obj *result = Nst_call_func(
         func,
-        (i32)func_args->len,
-        func_args->objs);
+        func_arg_num,
+        objs);
 
     if (result != nullptr)
         return success(result);

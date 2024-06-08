@@ -34,8 +34,8 @@ Casts `ptr` to [`Nst_IterObj *`](c_api-iter.md#nst_iterobj).
 
 **Description:**
 
-Alias for [`_Nst_iter_start`](c_api-iter.md#_nst_iter_start) that casts iter to
-[`Nst_IterObj *`](c_api-iter.md#nst_iterobj).
+Alias for [`_Nst_iter_start`](c_api-iter.md#_nst_iter_start) that casts `iter`
+to [`Nst_IterObj *`](c_api-iter.md#nst_iterobj).
 
 ---
 
@@ -49,8 +49,24 @@ Alias for [`_Nst_iter_start`](c_api-iter.md#_nst_iter_start) that casts iter to
 
 **Description:**
 
-Alias for [`_Nst_iter_get_val`](c_api-iter.md#_nst_iter_get_val) that casts iter
-to [`Nst_IterObj *`](c_api-iter.md#nst_iterobj).
+Alias for [`_Nst_iter_get_val`](c_api-iter.md#_nst_iter_get_val) that casts
+`iter` to [`Nst_IterObj *`](c_api-iter.md#nst_iterobj).
+
+---
+
+### `Nst_iter_new`
+
+**Synopsis:**
+
+```better-c
+#define Nst_iter_new(start, end, value)
+```
+
+**Description:**
+
+Alias for [`_Nst_iter_new`](c_api-iter.md#_nst_iter_new) that casts `start` and
+`end` to [`Nst_FuncObj *`](c_api-function.md#nst_funcobj) and casts `value` to
+[`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
@@ -84,12 +100,13 @@ The structure defining a Nest iterator object.
 
 ## Functions
 
-### `Nst_iter_new`
+### `_Nst_iter_new`
 
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *get_val, Nst_Obj *value)
+Nst_Obj *_Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *get_val,
+                       Nst_Obj *value)
 ```
 
 **Description:**
@@ -145,7 +162,7 @@ Traverse function for Nest iter objects.
 **Synopsis:**
 
 ```better-c
-i32 _Nst_iter_start(Nst_IterObj *iter)
+bool _Nst_iter_start(Nst_IterObj *iter)
 ```
 
 **Description:**
@@ -158,8 +175,7 @@ Calls the `start` function of a [`Nst_IterObj`](c_api-iter.md#nst_iterobj).
 
 **Returns:**
 
-`-1` on failure and `0` on success. The error may be set internally and must not
-be set by the caller.
+`true` on success and `false` on success. The error is set.
 
 ---
 
@@ -181,8 +197,7 @@ Calls the `get_val` function of a [`Nst_IterObj`](c_api-iter.md#nst_iterobj).
 
 **Returns:**
 
-The resulting object on success and `NULL` on failure. The error may be set
-internally and must not be set by the caller.
+The resulting object on success and `NULL` on failure. The error is set.
 
 ---
 

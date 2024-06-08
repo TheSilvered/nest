@@ -86,21 +86,16 @@ NstEXP bool NstC Nst_run_module(i8 *file_name, Nst_SourceText *lib_src);
 /**
  * Calls a `Nst_FuncObj`.
  *
- * @brief It can have both a Nest or C body.
- *
  * @brief Note: if the function is passed less arguments than it expects, the
- * extra ones are filled with `null` values.
+ * extra ones are filled with `null` objects.
  *
  * @param func: the function to call
  * @param arg_num: the number of arguments passed
  * @param args: the array of arguments to pass to it
  *
- * @return The result of the function or `NULL` on failure.
- * When a function with a Nest body fails the error is set internally and the
- * caller must not set it. When a function with a C body fails, the error
- * should always set.
+ * @return The result of the function or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_call_func(Nst_FuncObj *func, i32 arg_num,
+NstEXP Nst_Obj *NstC Nst_call_func(Nst_FuncObj *func, i64 arg_num,
                                    Nst_Obj **args);
 
 /**
