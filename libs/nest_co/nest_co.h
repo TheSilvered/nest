@@ -44,7 +44,7 @@ void coroutine_destroy(CoroutineObj *co);
 
 Nst_FUNC_SIGN(create_);
 Nst_FUNC_SIGN(call_);
-Nst_FUNC_SIGN(pause_);
+Nst_FUNC_SIGN(yield_);
 Nst_FUNC_SIGN(get_state_);
 Nst_FUNC_SIGN(generator_);
 Nst_FUNC_SIGN(_get_co_type_obj_);

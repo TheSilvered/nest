@@ -20,18 +20,17 @@
 
 Calls the coroutine passing the arguments given. If the coroutine is paused the
 arguments are ignored, if it is suspended or has ended the arguments are
-required. If the coroutine is running an error is thrown since coroutines
-cannot be recursive.
+required. If the coroutine is already running an error is thrown.
 
 **Arguments:**
 
 - `co`: the coroutine to be called
 - `args`: the arguments passed to the function of the coroutine, this argument
-  is ignored if it is paused
+  is the return value of `yield` when the coroutine is resumed
 
 **Returns:**
 
-Either the value passed to [`pause`](coroutine_library.md#pause) when the
+Either the value passed to [`yield`](coroutine_library.md#yield) when the
 coroutine was paused or the value that was returned by the function.
 
 **Example:**
@@ -40,7 +39,7 @@ coroutine was paused or the value that was returned by the function.
 |#| 'stdco.nest' = co
 
 ## [
-    1 @co.pause
+    1 @co.yield
     => 2
 ] @co.create = my_corotuine
 
@@ -78,7 +77,7 @@ in C or C++.
 
 #func [
     >>> 'Hello,'
-    null @co.pause
+    null @co.yield
     >>> ' world!\n'
 ]
 
@@ -92,21 +91,23 @@ func @co.create = func_co
 **Synopsis:**
 
 ```nest
-[co: Coroutine] @generator -> Iter
+[co: Coroutine, args: Array|Vector|null] @generator -> Iter
 ```
 
 **Description:**
 
-Creates an `Iter` object given a coroutine and each time `pause` is called, the
+Creates an `Iter` object given a coroutine and each time `yield` is called, the
 return value is yielded by the iterator. The return value of the function is
 ignored.
 
-The function of the coroutine must take exactly one argument that is the
-coroutine itself.
+The `args` array is used to call the function of the coroutine. If it is `null`
+an empty array is passed. Passing more arguments than the function accepts will
+result in a `Call Error`.
 
 **Arguments:**
 
 - `co`: the coroutine to turn into an iterator
+- `args`: the arguments to pass to the coroutine
 
 **Returns:**
 
@@ -117,15 +118,15 @@ The iterator created from the coroutine.
 ```nest
 |#| 'stdco.nest' = co
 
-#f self [
-    1 @co.pause
-    2 @co.pause
-    3 @co.pause
+#f a b c [
+    a @co.yield
+    b @co.yield
+    c @co.yield
 ]
 
 f @co.create = f_co
 
-... f_co @co.generator := i [
+... f_co {1, 2} @co.generator := i [
     >>> (i '\n' ><)
 ]
 ```
@@ -135,7 +136,7 @@ this program outputs:
 ```nest
 1
 2
-3
+null
 ```
 
 ---
@@ -168,7 +169,7 @@ the return value of this function to index the [STR_STATE](#str_state) map.
 
 #f self [
     self @print_state --> running
-    @co.pause
+    @co.yield
     self @print_state --> running
 ]
 
@@ -183,12 +184,12 @@ f_co @print_state --> ended
 
 ---
 
-### `@pause`
+### `@yield`
 
 **Synopsis:**
 
 ```nest
-[return_value: Any] @pause -> null
+[return_value: Any] @yield -> null
 ```
 
 **Description:**
@@ -204,8 +205,11 @@ error is thrown.
 
 **Returns:**
 
-`null`. `return_value` will only make the paused coroutine return the given
-value, not the `pause` function itself.
+The arguments passed to `call` to resume the coroutine. If no arguments are
+passed `null` is returned otherwise they are returned inside an array. The
+number of arguments passed is not limited by the number of arguments the
+function accepts. `return_value` will only modify the return value of the
+coroutine when it is yielded, not the return value of `yield` itself.
 
 **Example:**
 
@@ -214,13 +218,13 @@ value, not the `pause` function itself.
 
 #func [
     >>> 'Hello,'
-    10 @co.pause
-    >>> ' world!\n'
+    10 @co.yield = {name}
+    >>> ' \(name)!\n'
 ]
 func @co.create = func_co
 
-func_co {,} @co.call = value_returned --> Hello,
-func_co @co.call --> world!
+func_co @co.call = value_returned --> Hello,
+func_co {'Nest'} @co.call --> Nest!
 >>> (value_returned '\n' ><) --> 10
 ```
 

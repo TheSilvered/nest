@@ -21,10 +21,14 @@
 - changed the file object to string cast from `<IOFile ----- >` to `<IOFile[-----]>`
 - renamed `putenv` in `stdsys.nest` to `set_env` and added an optional argument `overwrite`
 - renamed `getenv` in `stdsys.nest` to `get_env`
+- renamed `pause` to `yield` in `stdco.nest`
+- now the `args` argument of `co.call` is retuned by `co.yield` when the function resumes
+- now `co.generator` accepts a second argument which is the arguments to use when calling the function
 
 **Bug fixes**
 
 - fixed a crash that occurred when casting a `IOFile` object to a `Str`
+- fixed a crash that occurred when using `co.pause` inside an expression
 
 ### C API
 

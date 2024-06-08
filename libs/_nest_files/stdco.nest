@@ -6,7 +6,7 @@ __co.call_      = call
 __co.create_    = create
 __co.generator_ = generator
 __co.get_state_ = get_state
-__co.pause_     = pause
+__co.yield_     = yield
 
 __co._get_co_type_obj_ = _get_co_type_obj
 @__co._get_co_type_obj_ = Coroutine

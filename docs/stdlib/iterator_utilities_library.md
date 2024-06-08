@@ -8,6 +8,39 @@
 
 ## Functions
 
+### `@batch`
+
+**Synopsis:**
+
+```nest
+[sequence: Iter|Array|Vector|Str, size: Int] @batch -> Iter
+```
+
+**Returns:**
+
+An iterator gets the elements from `sequences` in batches of `size` elements.
+Each batch is an array containing the objects in the same order as they were
+returned by the iterator. The last batch may be smaller if the length of the
+iterator is not a multiple of `size`.
+
+---
+
+### `@batch_padded`
+
+```nest
+[sequence: Iter|Array|Vector|Str, size: Int, pad_obj: Any] @batch -> Iter
+```
+
+**Returns:**
+
+An iterator gets the elements from `sequences` in batches of `size` elements.
+Each batch is an array containing the objects in the same order as they were
+returned by the iterator. If the last batch is smaller due to the length of the
+iterator not being a multiple of `size`, the remaining spaces are padded with
+`pad_obj` until the batch is of length `size`.
+
+---
+
 ### `@chain`
 
 **Synopsis:**

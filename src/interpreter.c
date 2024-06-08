@@ -500,11 +500,14 @@ Nst_Obj *Nst_call_func(Nst_FuncObj *func, i32 arg_num, Nst_Obj **args)
         return res;
     }
 
-    Nst_es_push_func(
+    bool result = Nst_es_push_func(
         Nst_state.es,
         func,
         Nst_no_pos(), Nst_no_pos(),
         arg_num, args);
+    if (!result)
+        return NULL;
+
     complete_function(UNTIL_CURRENT_FUNC_FINISHES);
 
     if (Nst_error_occurred())
