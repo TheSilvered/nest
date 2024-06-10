@@ -4,7 +4,7 @@
 #include "json_parser.h"
 #include "json_dumper.h"
 
-#define FUNC_COUNT 6
+#define FUNC_COUNT 7
 
 static Nst_ObjDeclr func_list_[FUNC_COUNT];
 static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
@@ -14,12 +14,13 @@ bool lib_init()
 {
     usize idx = 0;
 
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(load_s_,      1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(load_f_,      2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(dump_s_,      2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(dump_f_,      4);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(set_options_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_options_, 0);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(load_s_,        1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(load_f_,        2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(dump_s_,        2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(dump_f_,        4);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(set_option_,    2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_option_,    1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(clear_options_, 0);
 
 #if __LINE__ - FUNC_COUNT != 18
 #error
@@ -158,25 +159,76 @@ Nst_FUNC_SIGN(dump_f_)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(set_options_)
+Nst_FUNC_SIGN(set_option_)
 {
-    i64 options;
-    Nst_DEF_EXTRACT("i", &options);
+    i64 option;
+    Nst_Obj *value_obj;
 
-    comments        = bool(options & 0b001);
-    trailing_commas = bool(options & 0b010);
-    nan_and_inf     = bool(options & 0b100);
+    Nst_DEF_EXTRACT("i o", &option, &value_obj);
+
+    bool value;
+    if (value_obj == Nst_null()) {
+        switch (JSONOptions(option)) {
+        case JSON_OPT_COMMENTS:
+            comments = comments_default;
+            break;
+        case JSON_OPT_TRAILING_COMMAS:
+            trailing_commas = trailing_commas_default;
+            break;
+        case JSON_OPT_NAN_AND_INF:
+            nan_and_inf = nan_and_inf_default;
+            break;
+        default:
+            Nst_set_value_errorf("option %lli does not exist", option);
+            return nullptr;
+        }
+        Nst_RETURN_NULL;
+    }
+    value = Nst_obj_to_bool(value_obj);
+
+    switch (JSONOptions(option)) {
+    case JSON_OPT_COMMENTS:
+        comments = value;
+        break;
+    case JSON_OPT_TRAILING_COMMAS:
+        trailing_commas = value;
+        break;
+    case JSON_OPT_NAN_AND_INF:
+        nan_and_inf = value;
+        break;
+    default:
+        Nst_set_value_errorf("option %lli does not exist", option);
+        return nullptr;
+    }
 
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(get_options_)
+Nst_FUNC_SIGN(get_option_)
+{
+    i64 option;
+    Nst_DEF_EXTRACT("i", &option);
+
+    switch (JSONOptions(option)) {
+    case JSON_OPT_COMMENTS:
+        Nst_RETURN_COND(comments);
+    case JSON_OPT_TRAILING_COMMAS:
+        Nst_RETURN_COND(trailing_commas);
+    case JSON_OPT_NAN_AND_INF:
+        Nst_RETURN_COND(nan_and_inf);
+    default:
+        Nst_set_value_errorf("option %lli does not exist", option);
+        return nullptr;
+    }
+}
+
+Nst_FUNC_SIGN(clear_options_)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
-    i64 val = 0;
-    val |= comments        ? 0b001 : 0;
-    val |= trailing_commas ? 0b010 : 0;
-    val |= nan_and_inf     ? 0b100 : 0;
-    return Nst_int_new(val);
+
+    comments = comments_default;
+    trailing_commas = trailing_commas_default;
+    nan_and_inf = nan_and_inf_default;
+    Nst_RETURN_NULL;
 }

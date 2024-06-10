@@ -38,6 +38,20 @@ Nest to JSON type correlations:
 
 ## Functions
 
+### `@clear_options`
+
+**Synopsis:**
+
+```nest
+[] @clear_options -> null
+```
+
+**Description:**
+
+Puts all JSON options to their default value.
+
+---
+
 ### `@dump_f`
 
 **Synopsis:**
@@ -120,31 +134,18 @@ Output:
 
 ---
 
-### `@get_options`
+### `@get_option`
 
 **Synopsis:**
 
 ```nest
-[] @get_options -> Int
+[option: Int] @get_option -> Bool
 ```
 
 **Returns:**
 
-The options set with `set_options`. To check if a given option is enabled use
-a bit-wise and (`&`) between it and all the return value of this function.
-
-**Example:**
-
-```nest
-|#| 'stdjson.nest' = json
-
--- enables comments without changing any other option
-@@json.get_options json.OPTIONS.comments | @json.set_options
-
--- checks if trailing commas are allowed
-@@json.get_options json.OPTIONS.trailing_commas & ?
-    >>> 'Trailing commas are allowed\n'
-```
+The value of the option requested, if the option does not exist a `Value Error`
+is thrown. The options are available through [`OPTION`](#option).
 
 ---
 
@@ -220,46 +221,36 @@ The parsed data as a Nest object according to the
 
 ---
 
-### `@set_options`
+### `@set_option`
 
 **Synopsis**
 
-`[options: Int] @set_options -> null`
+`[option: Int, value: Bool|null] @set_option -> null`
 
 **Description:**
 
-Sets any option contained in [`OPTIONS`](#options).
-To set more than one option you can use the `|` operator. The options given are
-set to true and the ones omitted ones are set to false. Passing a `0` disables
-everything. Every option is disabled by default.
-
-**Example:**
-
-```nest
-|#| 'stdjson.nest' = json
-
-json.OPTIONS.comments json.OPTIONS.trailing_commas | @json.set_options
-```
+Sets an option with `value`. If value is `null` the option is given its
+default value. The options are available through [`OPTION`](#option).
 
 ---
 
 ## Constants
 
-### `OPTIONS`
+### `OPTION`
 
 A map containing the options that can be enabled with
-[`set_options`](#set_options).
+[`set_option`](#set_options).
 
-- `comments`: does not raise an error when a comment is found. Two types of
-  comments are allowed: single-line comments that start with `//` and end at
-  the end of the line, and multi-line comments that start with `/*` and end
-  with `*/`
-- `trailing_commas`: does not raise an error if a comma is found after the last
-  element of an object or array
+- `comments`: allows for C-style comments in the JSON file, single line
+  comments begin with `//` and end at the end of the line, they can be inserted
+  in the same line as code; block comments begin with `/*` and end with `*/`,
+  by default this option is disabled
+- `trailing_commas`: allows for trailing commas in objects and arrays, by
+  default this option is disabled
 - `nan_and_inf`: allows `NaN` and `Infinity` to be used as number literals that
   map to [`math.NAN`](math_library.md#nan) and
   [`math.INF`](math_library.md#inf) respectively; this options also allows to
-  dump any infinite or NaN values
+  dump any infinite or NaN values, by default this option is disabled
 
 !!!warning
     These options are not standard and are not implemented in many parsers.

@@ -6,6 +6,9 @@
 extern bool comments;
 extern bool nan_and_inf;
 
+const bool comments_default = false;
+const bool nan_and_inf_default = false;
+
 #define JSON_SYNTAX_ERROR(msg, path, pos)                                     \
     Nst_set_syntax_error(Nst_sprintf(                                         \
         "JSON: " msg ", file \"%s\", line %lli, column %lli",                 \

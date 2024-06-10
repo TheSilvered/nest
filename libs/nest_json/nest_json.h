@@ -14,8 +14,15 @@ Nst_FUNC_SIGN(load_s_);
 Nst_FUNC_SIGN(load_f_);
 Nst_FUNC_SIGN(dump_s_);
 Nst_FUNC_SIGN(dump_f_);
-Nst_FUNC_SIGN(set_options_);
-Nst_FUNC_SIGN(get_options_);
+Nst_FUNC_SIGN(set_option_);
+Nst_FUNC_SIGN(get_option_);
+Nst_FUNC_SIGN(clear_options_);
+
+typedef enum _JSONOptions {
+    JSON_OPT_COMMENTS,
+    JSON_OPT_TRAILING_COMMAS,
+    JSON_OPT_NAN_AND_INF
+} JSONOptions;
 
 #ifdef __cplusplus
 }

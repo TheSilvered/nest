@@ -9,6 +9,7 @@
 - added `enum` to `stdsequtil.nest`
 - added `batch` and `batch_padded` to `stditutil.nest`
 - added `std.nest`, a file that imports all the standard library available under standard import names (e.g. `std.io.println`)
+- added `set_option`, `get_option`, `clear_options` and `OPTION` to `stdjson.nest`
 
 **Changes**
 
@@ -28,11 +29,13 @@
 - now the `args` argument of `co.call` is retuned by `co.yield` when the function resumes
 - now `co.generator` accepts a second argument which is the arguments to use when calling the function
 - now `err.try` will accept fewer arguments than the function requires
+- removed `get_options`, `set_options` and `OPTIONS` in `stdjson.nest`
 
 **Bug fixes**
 
 - fixed a crash that occurred when casting a `IOFile` object to a `Str`
 - fixed a crash that occurred when using `co.pause` inside an expression
+- now months are counted from `1` in `stdtime.nest`
 
 ### C API
 

@@ -2,15 +2,16 @@
 
 |#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_json.dll' = __json
 
-__json.dump_f_      = dump_f
-__json.dump_s_      = dump_s
-__json.get_options_ = get_options
-__json.load_f_      = load_f
-__json.load_s_      = load_s
-__json.set_options_ = set_options
+__json.clear_options_ = clear_options
+__json.dump_f_        = dump_f
+__json.dump_s_        = dump_s
+__json.get_option_    = get_option
+__json.load_f_        = load_f
+__json.load_s_        = load_s
+__json.set_option_    = set_option
 
-{'comments':        0b001,
- 'trailing_commas': 0b010,
- 'nan_and_inf':     0b100} = OPTIONS
+{'comments':        0,
+ 'trailing_commas': 1,
+ 'nan_and_inf':     2} = OPTION
 
 _vars_ '__json' '_vars_' -

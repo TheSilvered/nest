@@ -82,7 +82,7 @@ static void add_date(Nst_MapObj *map, tm *(*time_func)(const time_t*))
     Nst_Obj *day_obj = Nst_int_new(t->tm_mday);
     Nst_Obj *weekday_obj = Nst_int_new(t->tm_wday);
     Nst_Obj *yearday_obj = Nst_int_new(get_year_day_c(t));
-    Nst_Obj *month_obj = Nst_int_new(t->tm_mon);
+    Nst_Obj *month_obj = Nst_int_new(t->tm_mon + 1);
     Nst_Obj *year_obj = Nst_int_new(t->tm_year + 1900);
 
     Nst_map_set_str(map, "year", year_obj);
@@ -202,7 +202,7 @@ Nst_FUNC_SIGN(month_)
     time_t raw_time;
     time(&raw_time);
     tm *t = localtime(&raw_time);
-    return Nst_int_new(t->tm_mon);
+    return Nst_int_new(t->tm_mon + 1);
 }
 
 Nst_FUNC_SIGN(year_)
