@@ -18,6 +18,7 @@ Nst_FUNC_SIGN(set_env_);
 Nst_FUNC_SIGN(del_env_);
 Nst_FUNC_SIGN(get_ref_count_);
 Nst_FUNC_SIGN(get_addr_);
+Nst_FUNC_SIGN(get_capacity_);
 Nst_FUNC_SIGN(hash_);
 Nst_FUNC_SIGN(_get_color_);
 Nst_FUNC_SIGN(_set_cwd_);

@@ -57,6 +57,20 @@ The address of the object in memory.
 
 ---
 
+### `@get_capacity`
+
+**Synopsis:**
+
+```nest
+[container: Vector|Map] @get_capacity -> Int
+```
+
+**Returns:**
+
+The number of elements that can still be inserted without the object expanding.
+
+---
+
 ### `@get_env`
 
 **Synopsis:**

@@ -5,7 +5,7 @@
 **Additions**
 
 - added `is_space`, `lremove` and `rremove` to `stdsutil.nest`
-- added `del_env` to `stdsys.nest`
+- added `del_env` and `get_capacity` to `stdsys.nest`
 - added `enum` to `stdsequtil.nest`
 - added `batch` and `batch_padded` to `stditutil.nest`
 - added `std.nest`, a file that imports all the standard library available under standard import names (e.g. `std.io.println`)

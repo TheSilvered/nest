@@ -17,7 +17,7 @@
 
 #endif
 
-#define FUNC_COUNT 16
+#define FUNC_COUNT 17
 
 static Nst_ObjDeclr func_list_[FUNC_COUNT];
 static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
@@ -43,6 +43,7 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(del_env_,         1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_ref_count_,   1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_addr_,        1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_capacity_,    1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(hash_,            1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_color_,      0);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(_set_cwd_,        1);
@@ -283,6 +284,18 @@ Nst_FUNC_SIGN(get_addr_)
 {
     Nst_UNUSED(arg_num);
     return Nst_int_new((usize)args[0]);
+}
+
+Nst_FUNC_SIGN(get_capacity_)
+{
+    Nst_Obj *container;
+
+    Nst_DEF_EXTRACT("v|m", &container);
+
+    if (Nst_T(container, Map))
+        return Nst_int_new((i64)MAP(container)->cap);
+
+    return Nst_int_new((i64)SEQ(container)->cap);
 }
 
 Nst_FUNC_SIGN(hash_)
