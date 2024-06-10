@@ -7,8 +7,8 @@
 
 A programming language with no keywords.
 
-**This programming language is still in early development and is heavily
-unstable. Beta versions are not properly tested and might crash unexpectedly.**
+**This programming language is still in development and can be unstable. Beta
+versions are not properly tested and might crash unexpectedly.**
 
 ## Features
 
@@ -41,13 +41,13 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
   the function
 - [x] Change `relative_path` in `stdfs.nest` to use the current working
   directory when no `base` is given
+- [x] Add `get_capacity` to `stdsys.nest`
+- [x] Improve option handling in `stdjson.nest`
 - [ ] Better testing with C
 - [ ] Finish implementing `Nst_fmt` and add a wrapper to `stdsutil.nest`
 - [ ] Rename `split` to `lsplit` and add `rsplit` to `stdsutil.nest`
-- [ ] Improve option handling in `stdjson.nest`
 - [ ] Remove `reversed` from `stditutil.nest` and add `reverse` and `reverse_i`
   to `stdsequtil.nest`
-- [ ] Add `get_capacity` to `stdsys.nest`
 - [ ] Remove `_cwd_` and rename `_get_cwd` and `_set_cwd` to `get_cwd` and
   `set_cwd` in `stdsys.nest`
 
