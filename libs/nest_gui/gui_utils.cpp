@@ -4,7 +4,7 @@
 
 Nst_StrObj *sdl_error_name = NULL;
 
-bool GUI_init_utils(void)
+bool GUI_InitUtils(void)
 {
     sdl_error_name = STR(Nst_string_new_c_raw("SDL Error", false));
     if (sdl_error_name == NULL)
@@ -12,7 +12,7 @@ bool GUI_init_utils(void)
     return true;
 }
 
-void GUI_quit_utils(void)
+void GUI_QuitUtils(void)
 {
     if (sdl_error_name != NULL) {
         Nst_dec_ref(sdl_error_name);
@@ -20,7 +20,7 @@ void GUI_quit_utils(void)
     }
 }
 
-void GUI_throw_sdl_error(void)
+void GUI_ThrowSDLError(void)
 {
     const i8 *error = SDL_GetError();
     usize error_len = strlen(error);
@@ -34,12 +34,12 @@ void GUI_throw_sdl_error(void)
     Nst_set_error(Nst_inc_ref(sdl_error_name), error_obj);
 }
 
-int max_int(int a, int b)
+int GUI_MaxInt2(int a, int b)
 {
     return a > b ? a : b;
 }
 
-int min_int(int a, int b)
+int GUI_MinInt2(int a, int b)
 {
     return a < b ? a : b;
 }

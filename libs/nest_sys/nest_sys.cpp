@@ -319,7 +319,7 @@ Nst_FUNC_SIGN(_get_color_)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
-    Nst_RETURN_COND(Nst_supports_color());
+    Nst_RETURN_BOOL(Nst_supports_color());
 }
 
 Nst_FUNC_SIGN(_set_cwd_)

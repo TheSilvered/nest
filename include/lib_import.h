@@ -257,11 +257,11 @@ Additionaly, any cast added manually will overwrite the cast of the shorthand.
 /* Returns `Nst_const()->Int_1`. */
 #define Nst_RETURN_ONE return Nst_inc_ref(Nst_const()->Int_1)
 /**
- * @brief Returns `Nst_true_ref()` if `cond` is `true` and `Nst_false_ref()`
- * otherwise. `cond` is a C condition.
+ * @brief Returns `Nst_true_ref()` if `expr` is `true` and `Nst_false_ref()`
+ * otherwise. `expr` is a C boolean expression.
  */
-#define Nst_RETURN_COND(cond)                                                 \
-    return (cond) ? Nst_true_ref() : Nst_false_ref()
+#define Nst_RETURN_BOOL(expr)                                                 \
+    return (expr) ? Nst_true_ref() : Nst_false_ref()
 
 /* Function signature for a Nest-callable C function. */
 #define Nst_FUNC_SIGN(name)                                                   \

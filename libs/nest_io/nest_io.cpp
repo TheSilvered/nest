@@ -780,35 +780,35 @@ Nst_FUNC_SIGN(can_read_)
 {
     Nst_IOFileObj *f;
     Nst_DEF_EXTRACT("F", &f);
-    Nst_RETURN_COND(Nst_IOF_CAN_READ(f));
+    Nst_RETURN_BOOL(Nst_IOF_CAN_READ(f));
 }
 
 Nst_FUNC_SIGN(can_write_)
 {
     Nst_IOFileObj *f;
     Nst_DEF_EXTRACT("F", &f);
-    Nst_RETURN_COND(Nst_IOF_CAN_WRITE(f));
+    Nst_RETURN_BOOL(Nst_IOF_CAN_WRITE(f));
 }
 
 Nst_FUNC_SIGN(can_seek_)
 {
     Nst_IOFileObj *f;
     Nst_DEF_EXTRACT("F", &f);
-    Nst_RETURN_COND(Nst_IOF_CAN_SEEK(f));
+    Nst_RETURN_BOOL(Nst_IOF_CAN_SEEK(f));
 }
 
 Nst_FUNC_SIGN(is_bin_)
 {
     Nst_IOFileObj *f;
     Nst_DEF_EXTRACT("F", &f);
-    Nst_RETURN_COND(Nst_IOF_IS_BIN(f));
+    Nst_RETURN_BOOL(Nst_IOF_IS_BIN(f));
 }
 
 Nst_FUNC_SIGN(is_a_tty_)
 {
     Nst_IOFileObj *f;
     Nst_DEF_EXTRACT("F", &f);
-    Nst_RETURN_COND(Nst_IOF_IS_TTY(f));
+    Nst_RETURN_BOOL(Nst_IOF_IS_TTY(f));
 }
 
 Nst_FUNC_SIGN(descriptor_)

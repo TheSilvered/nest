@@ -79,5 +79,5 @@ Nst_FUNC_SIGN(cp_is_valid_)
     i64 cp;
     Nst_DEF_EXTRACT("l", &cp);
 
-    Nst_RETURN_COND(cp >= 0 && cp <= UINT32_MAX && Nst_is_valid_cp((u32)cp));
+    Nst_RETURN_BOOL(cp >= 0 && cp <= UINT32_MAX && Nst_is_valid_cp((u32)cp));
 }

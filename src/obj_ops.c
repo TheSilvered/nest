@@ -104,18 +104,18 @@ Nst_Obj *_Nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2)
     else if (IS_INT(ob1) && IS_INT(ob2)) {
         i64 v1 = Nst_number_to_i64(ob1);
         i64 v2 = Nst_number_to_i64(ob2);
-        Nst_RETURN_COND(v1 == v2);
+        Nst_RETURN_BOOL(v1 == v2);
     } else if (IS_NUM(ob1) && IS_NUM(ob2)) {
         f64 v1 = Nst_number_to_f64(ob1);
         f64 v2 = Nst_number_to_f64(ob2);
         if (isnan(v1) || isnan(v2))
             Nst_RETURN_FALSE;
-        Nst_RETURN_COND(fabs(v1 - v2) < REAL_EPSILON);
+        Nst_RETURN_BOOL(fabs(v1 - v2) < REAL_EPSILON);
     } else if (ARE_TYPE(Nst_t.Str)) {
-        Nst_RETURN_COND(STR(ob1)->len == STR(ob2)->len &&
+        Nst_RETURN_BOOL(STR(ob1)->len == STR(ob2)->len &&
             Nst_string_compare(STR(ob1), STR(ob2)) == 0);
     } else if (ARE_TYPE(Nst_t.Bool))
-        Nst_RETURN_COND(ob1 == ob2);
+        Nst_RETURN_BOOL(ob1 == ob2);
     else if (IS_SEQ(ob1) && IS_SEQ(ob2)) {
         Nst_LList *containers = Nst_llist_new();
         if (containers == NULL) {
@@ -263,19 +263,19 @@ Nst_Obj *_Nst_obj_ne(Nst_Obj *ob1, Nst_Obj *ob2)
 Nst_Obj *_Nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ARE_TYPE(Nst_t.Str))
-        Nst_RETURN_COND(Nst_string_compare(STR(ob1), STR(ob2)) > 0);
+        Nst_RETURN_BOOL(Nst_string_compare(STR(ob1), STR(ob2)) > 0);
     else if (ARE_TYPE(Nst_t.Byte))
-        Nst_RETURN_COND(AS_BYTE(ob1) > AS_BYTE(ob2));
+        Nst_RETURN_BOOL(AS_BYTE(ob1) > AS_BYTE(ob2));
     else if (IS_INT(ob1) && IS_INT(ob2)) {
         i64 v1 = Nst_number_to_i64(ob1);
         i64 v2 = Nst_number_to_i64(ob2);
-        Nst_RETURN_COND(v1 > v2);
+        Nst_RETURN_BOOL(v1 > v2);
     } else if (IS_NUM(ob1) && IS_NUM(ob2)) {
         f64 v1 = Nst_number_to_f64(ob1);
         f64 v2 = Nst_number_to_f64(ob2);
         if (isnan(v1) || isnan(v2))
             Nst_RETURN_FALSE;
-        Nst_RETURN_COND(v1 > v2 && !(fabs(v1 - v2) < REAL_EPSILON));
+        Nst_RETURN_BOOL(v1 > v2 && !(fabs(v1 - v2) < REAL_EPSILON));
     } else
         RETURN_STACK_OP_TYPE_ERROR(">");
 }
@@ -283,19 +283,19 @@ Nst_Obj *_Nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2)
 Nst_Obj *_Nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ARE_TYPE(Nst_t.Str))
-        Nst_RETURN_COND(Nst_string_compare(STR(ob1), STR(ob2)) < 0);
+        Nst_RETURN_BOOL(Nst_string_compare(STR(ob1), STR(ob2)) < 0);
     else if (ARE_TYPE(Nst_t.Byte))
-        Nst_RETURN_COND(AS_BYTE(ob1) < AS_BYTE(ob2));
+        Nst_RETURN_BOOL(AS_BYTE(ob1) < AS_BYTE(ob2));
     else if (IS_INT(ob1) && IS_INT(ob2)) {
         i64 v1 = Nst_number_to_i64(ob1);
         i64 v2 = Nst_number_to_i64(ob2);
-        Nst_RETURN_COND(v1 < v2);
+        Nst_RETURN_BOOL(v1 < v2);
     } else if (IS_NUM(ob1) && IS_NUM(ob2)) {
         f64 v1 = Nst_number_to_f64(ob1);
         f64 v2 = Nst_number_to_f64(ob2);
         if (isnan(v1) || isnan(v2))
             Nst_RETURN_FALSE;
-        Nst_RETURN_COND(v1 < v2 && !(fabs(v1 - v2) < REAL_EPSILON));
+        Nst_RETURN_BOOL(v1 < v2 && !(fabs(v1 - v2) < REAL_EPSILON));
     } else
         RETURN_STACK_OP_TYPE_ERROR("<");
 }
@@ -632,7 +632,7 @@ Nst_Obj *_Nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2)
     bool v1 = Nst_obj_to_bool(ob1);
     bool v2 = Nst_obj_to_bool(ob2);
 
-    Nst_RETURN_COND((v1 && !v2) || (!v1  && v2));
+    Nst_RETURN_BOOL((v1 && !v2) || (!v1  && v2));
 }
 
 // Other
@@ -921,21 +921,21 @@ static Nst_Obj *obj_to_bool(Nst_Obj *ob)
 {
     Nst_TypeObj *ob_t = ob->type;
     if (ob_t == Nst_t.Int)
-        Nst_RETURN_COND(AS_INT(ob) != 0);
+        Nst_RETURN_BOOL(AS_INT(ob) != 0);
     else if (ob_t == Nst_t.Real)
-        Nst_RETURN_COND(AS_REAL(ob) != 0.0);
+        Nst_RETURN_BOOL(AS_REAL(ob) != 0.0);
     else if (ob_t == Nst_t.Str)
-        Nst_RETURN_COND(STR(ob)->len != 0);
+        Nst_RETURN_BOOL(STR(ob)->len != 0);
     else if (ob_t == Nst_t.Map)
-        Nst_RETURN_COND(MAP(ob)->len != 0);
+        Nst_RETURN_BOOL(MAP(ob)->len != 0);
     else if (ob_t == Nst_t.Array || ob_t == Nst_t.Vector)
-        Nst_RETURN_COND(SEQ(ob)->len != 0);
+        Nst_RETURN_BOOL(SEQ(ob)->len != 0);
     else if (ob_t == Nst_t.Null)
         Nst_RETURN_FALSE;
     else if (ob_t == Nst_t.Byte)
-        Nst_RETURN_COND(AS_BYTE(ob) != 0);
+        Nst_RETURN_BOOL(AS_BYTE(ob) != 0);
     else if (ob_t == Nst_t.IOFile)
-        Nst_RETURN_COND(!Nst_IOF_IS_CLOSED(ob));
+        Nst_RETURN_BOOL(!Nst_IOF_IS_CLOSED(ob));
     else
         Nst_RETURN_TRUE;
 }
@@ -1338,7 +1338,7 @@ Nst_Obj *_Nst_obj_contains(Nst_Obj *ob1, Nst_Obj *ob2)
         i8 *res = Nst_string_find(
             STR(ob1)->value, STR(ob1)->len,
             STR(ob2)->value, STR(ob2)->len);
-        Nst_RETURN_COND(res != NULL);
+        Nst_RETURN_BOOL(res != NULL);
     } else
         RETURN_STACK_OP_TYPE_ERROR("<.>");
 }

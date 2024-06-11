@@ -211,11 +211,11 @@ Nst_FUNC_SIGN(get_option_)
 
     switch (JSONOptions(option)) {
     case JSON_OPT_COMMENTS:
-        Nst_RETURN_COND(comments);
+        Nst_RETURN_BOOL(comments);
     case JSON_OPT_TRAILING_COMMAS:
-        Nst_RETURN_COND(trailing_commas);
+        Nst_RETURN_BOOL(trailing_commas);
     case JSON_OPT_NAN_AND_INF:
-        Nst_RETURN_COND(nan_and_inf);
+        Nst_RETURN_BOOL(nan_and_inf);
     default:
         Nst_set_value_errorf("option %lli does not exist", option);
         return nullptr;

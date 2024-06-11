@@ -7,13 +7,13 @@
 extern "C" {
 #endif // !__cplusplus
 
-bool GUI_init_utils(void);
-void GUI_quit_utils(void);
+bool GUI_InitUtils(void);
+void GUI_QuitUtils(void);
 
-void GUI_throw_sdl_error(void);
+void GUI_ThrowSDLError(void);
 
-int max_int(int a, int b);
-int min_int(int a, int b);
+int GUI_MaxInt2(int a, int b);
+int GUI_MinInt2(int a, int b);
 
 #ifdef __cplusplus
 }

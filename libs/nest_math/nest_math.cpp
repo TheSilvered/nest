@@ -680,12 +680,12 @@ Nst_FUNC_SIGN(is_nan_)
 {
     f64 n;
     Nst_DEF_EXTRACT("r", &n);
-    Nst_RETURN_COND(isnan(n));
+    Nst_RETURN_BOOL(isnan(n));
 }
 
 Nst_FUNC_SIGN(is_inf_)
 {
     f64 n;
     Nst_DEF_EXTRACT("r", &n);
-    Nst_RETURN_COND(isinf(n));
+    Nst_RETURN_BOOL(isinf(n));
 }

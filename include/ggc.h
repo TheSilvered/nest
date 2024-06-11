@@ -56,11 +56,6 @@ struct _Nst_GGCList;
 
 /**
  * The struct representing a garbage collector object.
- *
- * @param traverse_func: the function that sets as reachable all the objects
- * contained in the object
- * @param track_func: the function that tracks all the traceable objects that
- * the object contains when it itself is tracked
  */
 NstEXP typedef struct _Nst_GGCObj {
     Nst_OBJ_HEAD;

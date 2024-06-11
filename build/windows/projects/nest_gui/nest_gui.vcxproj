@@ -169,6 +169,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\..\..\libs\dll\framework.h" />
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_app.h" />
+    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_constraints.h" />
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_draw.h" />
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_element.h" />
     <ClInclude Include="..\..\..\..\libs\nest_gui\nest_gui.h" />
@@ -176,7 +177,9 @@
   <ItemGroup>
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp" />
     <ClCompile Include="..\..\..\..\libs\nest_gui\gui_app.cpp" />
+    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_constraints.cpp" />
     <ClCompile Include="..\..\..\..\libs\nest_gui\gui_draw.cpp" />
+    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_element.cpp" />
     <ClCompile Include="..\..\..\..\libs\nest_gui\gui_utils.cpp" />
     <ClCompile Include="..\..\..\..\libs\nest_gui\nest_gui.cpp" />
   </ItemGroup>

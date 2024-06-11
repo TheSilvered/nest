@@ -138,49 +138,49 @@ Nst_FUNC_SIGN(is_dir_)
 {
     Nst_StrObj *path;
     Nst_DEF_EXTRACT("s", &path);
-    Nst_RETURN_COND(check_path(path, fs::is_directory));
+    Nst_RETURN_BOOL(check_path(path, fs::is_directory));
 }
 
 Nst_FUNC_SIGN(is_file_)
 {
     Nst_StrObj *path;
     Nst_DEF_EXTRACT("s", &path);
-    Nst_RETURN_COND(check_path(path, fs::is_regular_file));
+    Nst_RETURN_BOOL(check_path(path, fs::is_regular_file));
 }
 
 Nst_FUNC_SIGN(is_symlink_)
 {
     Nst_StrObj *path;
     Nst_DEF_EXTRACT("s", &path);
-    Nst_RETURN_COND(check_path(path, fs::is_symlink));
+    Nst_RETURN_BOOL(check_path(path, fs::is_symlink));
 }
 
 Nst_FUNC_SIGN(is_socket_)
 {
     Nst_StrObj *path;
     Nst_DEF_EXTRACT("s", &path);
-    Nst_RETURN_COND(check_path(path, fs::is_socket));
+    Nst_RETURN_BOOL(check_path(path, fs::is_socket));
 }
 
 Nst_FUNC_SIGN(is_block_device_)
 {
     Nst_StrObj *path;
     Nst_DEF_EXTRACT("s", &path);
-    Nst_RETURN_COND(check_path(path, fs::is_block_file));
+    Nst_RETURN_BOOL(check_path(path, fs::is_block_file));
 }
 
 Nst_FUNC_SIGN(is_char_device_)
 {
     Nst_StrObj *path;
     Nst_DEF_EXTRACT("s", &path);
-    Nst_RETURN_COND(check_path(path, fs::is_character_file));
+    Nst_RETURN_BOOL(check_path(path, fs::is_character_file));
 }
 
 Nst_FUNC_SIGN(is_named_pipe_)
 {
     Nst_StrObj *path;
     Nst_DEF_EXTRACT("s", &path);
-    Nst_RETURN_COND(check_path(path, fs::is_fifo));
+    Nst_RETURN_BOOL(check_path(path, fs::is_fifo));
 }
 
 Nst_FUNC_SIGN(make_dir_)
@@ -340,7 +340,7 @@ Nst_FUNC_SIGN(exists_)
 {
     Nst_StrObj *path;
     Nst_DEF_EXTRACT("s", &path);
-    Nst_RETURN_COND(check_path(path, fs::exists));
+    Nst_RETURN_BOOL(check_path(path, fs::exists));
 }
 
 Nst_FUNC_SIGN(copy_)
@@ -519,7 +519,7 @@ Nst_FUNC_SIGN(equivalent_)
     Nst_DEF_EXTRACT("s s", &path_1, &path_2);
 
     std::error_code ec;
-    Nst_RETURN_COND(fs::equivalent(utf8_path(path_1), utf8_path(path_2), ec));
+    Nst_RETURN_BOOL(fs::equivalent(utf8_path(path_1), utf8_path(path_2), ec));
 }
 
 Nst_FUNC_SIGN(join_)

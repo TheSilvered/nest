@@ -127,6 +127,7 @@ _General changes_:
 - renamed `Nst_IC_NEW_OBJ` to `Nst_IC_NEW_INT`
 - replaced `Nst_IC_FOR_IS_DONE` with `Nst_IC_JUMPIF_IEND`
 - removed `Nst_print_ast`
+- renamed `Nst_RETURN_COND` to `Nst_RETURN_BOOL`
 
 **Bug fixes**
 

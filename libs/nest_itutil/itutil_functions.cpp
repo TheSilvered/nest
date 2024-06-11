@@ -399,7 +399,7 @@ Nst_FUNC_SIGN(reversed_is_done)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
-    Nst_RETURN_COND(AS_INT(objs[0]) == -1);
+    Nst_RETURN_BOOL(AS_INT(objs[0]) == -1);
 }
 
 Nst_FUNC_SIGN(reversed_get_val)
