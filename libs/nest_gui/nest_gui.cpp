@@ -8,7 +8,6 @@ static Nst_ObjDeclr func_list_[FUNC_COUNT];
 static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
 static bool lib_init_ = false;
 static GUI_App app;
-Nst_TypeObj *element_type;
 
 bool lib_init()
 {
@@ -26,17 +25,13 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(window_set_resizable_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(window_get_resizable_, 0);
 
-#if __LINE__ - FUNC_COUNT != 18
+#if __LINE__ - FUNC_COUNT != 17
 #error
 #endif
 
     GUI_InitUtils();
+    GUI_InitTypes();
     app.initialized = false;
-
-    element_type = Nst_cont_type_new(
-        "GUIElement",
-        (Nst_ObjDstr)GUI_Element_Destroy,
-        (Nst_ObjTrav)GUI_Element_Traverse);
 
     lib_init_ = !Nst_error_occurred();
     return lib_init_;
@@ -50,6 +45,7 @@ Nst_DeclrList *get_func_ptrs()
 void free_lib()
 {
     GUI_QuitUtils();
+    GUI_QuitTypes();
     TTF_Quit();
     SDL_Quit();
 }

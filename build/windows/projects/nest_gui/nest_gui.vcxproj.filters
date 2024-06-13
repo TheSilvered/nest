@@ -33,6 +33,12 @@
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_constraints.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_position.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_obj_types.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp">
@@ -54,6 +60,12 @@
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\libs\nest_gui\gui_constraints.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_position.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_obj_types.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>

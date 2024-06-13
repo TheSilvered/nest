@@ -18,6 +18,16 @@ Nst_VarTable *Nst_vt_new(Nst_MapObj *global_table, Nst_StrObj *cwd,
     vt->global_table = no_default ? NULL : global_table;
     Nst_map_set(vars, Nst_s.o__vars_, vars);
 
+#ifdef _DEBUG
+#ifdef _Nst_ARCH_x64
+    Nst_Obj *debug_str = Nst_string_new_c_raw("x64", false);
+#else
+    Nst_Obj *debug_str = Nst_string_new_c_raw("", false);
+#endif // !_Nst_ARCH_x64
+    Nst_map_set_str(vars, "_debug_", debug_str);
+    Nst_dec_ref(debug_str);
+#endif // !_DEBUG
+
     if (no_default)
         return vt;
 

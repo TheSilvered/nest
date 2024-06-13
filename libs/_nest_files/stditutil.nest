@@ -1,6 +1,6 @@
 --$ --no-default
 
-|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_itutil.dll' = __itu
+|#| '__C__:../../build/windows/projects/nest/\(_debug_)/Debug/nest_itutil.dll' = __itu
 
 __itu.batch_        = batch
 __itu.batch_padded_ = batch_padded

@@ -1,6 +1,6 @@
 --$ --no-default
 
-|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_codecs.dll' = __cc
+|#| '__C__:../../build/windows/projects/nest/\(_debug_)/Debug/nest_codecs.dll' = __cc
 
 __cc.cp_is_valid_ = cp_is_valid
 __cc.from_cp_     = from_cp

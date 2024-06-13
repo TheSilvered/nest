@@ -1,6 +1,6 @@
 --$ --no-default
 
-|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_sequtil.dll' = __sequ
+|#| '__C__:../../build/windows/projects/nest/\(_debug_)/Debug/nest_sequtil.dll' = __sequ
 
 __sequ.all_       = all
 __sequ.any_       = any

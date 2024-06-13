@@ -1,6 +1,6 @@
 --$ --no-default
 
-|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_math.dll' = __math
+|#| '__C__:../../build/windows/projects/nest/\(_debug_)/Debug/nest_math.dll' = __math
 
 __math.acos_    = acos
 __math.asin_    = asin

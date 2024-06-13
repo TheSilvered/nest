@@ -1,6 +1,6 @@
 --$ --no-default
 
-|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_sutil.dll' = __su
+|#| '__C__:../../build/windows/projects/nest/\(_debug_)/Debug/nest_sutil.dll' = __su
 
 __su.bin_          = bin
 __su.center_       = center

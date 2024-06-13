@@ -370,7 +370,7 @@ bool Nst_es_push_func(Nst_ExecutionState *es, Nst_FuncObj *func, Nst_Pos start,
     }
 
     // fill the remaining ones with `null`
-    for (usize i = arg_num, n = func->arg_num; i < n; i++) {
+    for (i64 i = arg_num, n = func->arg_num; i < n; i++) {
         if (!Nst_vt_set(new_vt, func->args[i], Nst_null())) {
             Nst_vt_destroy(new_vt);
             return false;

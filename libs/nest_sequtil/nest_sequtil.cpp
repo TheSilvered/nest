@@ -315,7 +315,9 @@ Nst_FUNC_SIGN(slice_i_)
     if (new_size == -1)
         return nullptr;
 
-    Nst_Obj *arr = Nst_array_create_c("iIIIO", 0, start, step, new_size, seq);
+    Nst_Obj *arr = Nst_array_create_c(
+        "iIIIO",
+        0, start, step, i64(new_size), seq);
 
     if (Nst_T(seq, Str)) {
         return Nst_iter_new(

@@ -5,7 +5,7 @@
 $_args_ 2 != ? 1 @sys.exit
 _args_.1 = path
 
-'../../build/windows/projects/nest/x64/Debug/nest_' = dbg_path
+'../../build/windows/projects/nest/\\(_debug_)/Debug/nest_' = dbg_path
 
 path 'r' @io.open = file
 file -1 @io.read \

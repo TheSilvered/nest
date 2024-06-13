@@ -10,6 +10,7 @@
 - added `batch` and `batch_padded` to `stditutil.nest`
 - added `std.nest`, a file that imports all the standard library available under standard import names (e.g. `std.io.println`)
 - added `set_option`, `get_option`, `clear_options` and `OPTION` to `stdjson.nest`
+- added `_debug_` predefined variable when compiling in debug mode, its value is `"x64"` on 64-bit platforms and `""` on 32-bit ones
 
 **Changes**
 
@@ -135,6 +136,7 @@ _General changes_:
 - fixed type objects not being freed properly
 - fixed many constants not being destroyed at the end of the program
 - fixed a possible read-after-free bug in the garbage collector
+- now the standard library is imported when running Nest on Windows in `x86` debug mode
 
 ---
 

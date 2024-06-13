@@ -4728,7 +4728,7 @@ rv_alloc(int i MTd)
 
 	j = sizeof(ULong);
 	for(k = 0;
-		sizeof(Bigint) - sizeof(ULong) - sizeof(int) + j <= i;
+		(int)(sizeof(Bigint) - sizeof(ULong) - sizeof(int)) + j <= i;
 		j <<= 1)
 			k++;
 	r = (int*)Balloc(k MTa);
@@ -4743,7 +4743,7 @@ nrv_alloc(const char *s, char *s0, size_t s0len, char **rve, int n MTd)
 
 	if (!s0)
 		s0 = rv_alloc(n MTa);
-	else if (s0len <= n) {
+	else if ((long long)s0len <= n) {
 		rv = 0;
 		t = rv + n;
 		goto rve_chk;
@@ -5133,7 +5133,7 @@ dtoa_r(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve, char
 		buf = rv_alloc(i MTb);
 		blen = sizeof(Bigint) + ((1 << ((int*)buf)[-1]) - 1)*sizeof(ULong) - sizeof(int);
 		}
-	else if (blen <= i) {
+	else if ((long long)blen <= i) {
 		buf = 0;
 		if (rve)
 			*rve = buf + i;

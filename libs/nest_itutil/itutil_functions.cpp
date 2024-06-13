@@ -456,13 +456,13 @@ Nst_FUNC_SIGN(batch_get_val)
     for (i64 i = 0; i < batch_size; i++) {
         Nst_Obj *obj = Nst_iter_get_val(iter);
         if (obj == nullptr) {
-            batch->len = i;
+            batch->len = usize(i);
             Nst_dec_ref(batch);
             return nullptr;
         } else if (obj == Nst_iend()) {
             Nst_dec_ref(objs[2]);
             objs[2] = Nst_true_ref();
-            batch->len = i;
+            batch->len = usize(i);
             Nst_dec_ref(obj);
             if (i == 0) {
                 Nst_dec_ref(batch);
@@ -495,7 +495,7 @@ Nst_FUNC_SIGN(batch_padded_get_val)
     for (; i < batch_size; i++) {
         Nst_Obj *obj = Nst_iter_get_val(iter);
         if (obj == nullptr) {
-            batch->len = i;
+            batch->len = usize(i);
             Nst_dec_ref(batch);
             return nullptr;
         } else if (obj == Nst_iend()) {

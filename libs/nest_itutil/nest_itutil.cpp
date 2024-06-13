@@ -208,7 +208,7 @@ Nst_FUNC_SIGN(enumerate_)
 
     // Layout: [idx, iterator, start, step, invert_order]
     Nst_Obj *arr = Nst_array_create_c(
-        "ioiio",
+        "ioIIo",
         0, ob, start, step, invert_order);
 
     if (arr == nullptr) {

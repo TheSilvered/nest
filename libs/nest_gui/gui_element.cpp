@@ -1,4 +1,5 @@
 #include "gui_element.h"
+#include "gui_obj_types.h"
 
 GUI_Element *GUI_Element_New(usize size, GUI_Element *parent,
                              struct _GUI_Window *window, struct _GUI_App *app)
@@ -8,8 +9,8 @@ GUI_Element *GUI_Element_New(usize size, GUI_Element *parent,
     Nst_GGC_OBJ_INIT(element);
     element->el_type = GUI_ET_NONE;
     element->rect = { 0, 0, 0, 0 };
-    element->pad_u = 0;
-    element->pad_d = 0;
+    element->pad_t = 0;
+    element->pad_b = 0;
     element->pad_l = 0;
     element->pad_r = 0;
     element->parent = parent;
@@ -40,6 +41,38 @@ void GUI_Element_Traverse(GUI_Element *element)
     Nst_ggc_obj_reachable(element->constraints_before);
     Nst_ggc_obj_reachable(element->constraints_after);
     Nst_ggc_obj_reachable(element->children);
+}
+
+void GUI_Element_SetSize(GUI_Element *element, int w, int h)
+{
+    element->rect.w = w;
+    element->rect.h = h;
+}
+
+void GUI_Element_GetSize(GUI_Element *element, int *w, int *h)
+{
+    *w = element->rect.w;
+    *h = element->rect.h;
+}
+
+void GUI_Element_SetWidth(GUI_Element *element, int w)
+{
+    element->rect.w = w;
+}
+
+int GUI_Element_GetWidth(GUI_Element *element)
+{
+    return element->rect.w;
+}
+
+void GUI_Element_SetHeight(GUI_Element *element, int h)
+{
+    element->rect.h = h;
+}
+
+int GUI_Element_GetHeight(GUI_Element *element)
+{
+    return element->rect.h;
 }
 
 GUI_Element *GUI_Root_New(struct _GUI_Window *window, struct _GUI_App *app)

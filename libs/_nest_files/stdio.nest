@@ -1,6 +1,6 @@
 --$ --no-default
 
-|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_io.dll' = __io
+|#| '__C__:../../build/windows/projects/nest/\(_debug_)/Debug/nest_io.dll' = __io
 
 __io.can_read_    = can_read
 __io.can_seek_    = can_seek

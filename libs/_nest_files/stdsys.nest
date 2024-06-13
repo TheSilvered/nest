@@ -1,6 +1,6 @@
 --$ --no-default
 
-|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_sys.dll' = __sys
+|#| '__C__:../../build/windows/projects/nest/\(_debug_)/Debug/nest_sys.dll' = __sys
 
 __sys.del_env_       = del_env
 __sys.exit_          = exit
