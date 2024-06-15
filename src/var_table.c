@@ -3,8 +3,8 @@
 #include "global_consts.h"
 #include "mem.h"
 
-Nst_VarTable *Nst_vt_new(Nst_MapObj *global_table, Nst_StrObj *cwd,
-                         Nst_SeqObj *args, bool no_default)
+Nst_VarTable *Nst_vt_new(Nst_MapObj *global_table, Nst_SeqObj *args,
+                         bool no_default)
 {
     Nst_VarTable *vt = Nst_malloc_c(1, Nst_VarTable);
     if (vt == NULL)
@@ -63,7 +63,6 @@ Nst_VarTable *Nst_vt_new(Nst_MapObj *global_table, Nst_StrObj *cwd,
     Nst_map_set(vars, Nst_s.c_false, Nst_c.Bool_false);
     Nst_map_set(vars, Nst_s.c_null,  Nst_c.Null_null);
 
-    Nst_map_set(vars, Nst_s.o__cwd_, cwd);
     Nst_map_set(vars, Nst_s.o__args_, args);
 
     if (Nst_error_occurred()) {
@@ -104,8 +103,8 @@ void Nst_vt_destroy(Nst_VarTable *vt)
 Nst_VarTable *Nst_vt_from_func(Nst_FuncObj *f)
 {
     if (f->mod_globals != NULL)
-        return Nst_vt_new(f->mod_globals, NULL, NULL, false);
+        return Nst_vt_new(f->mod_globals, NULL, false);
     else if (Nst_state.es->vt->global_table == NULL)
-        return Nst_vt_new(Nst_state.es->vt->vars, NULL, NULL, false);
-    return Nst_vt_new(Nst_state.es->vt->global_table, NULL, NULL, false);
+        return Nst_vt_new(Nst_state.es->vt->vars, NULL, false);
+    return Nst_vt_new(Nst_state.es->vt->global_table, NULL, false);
 }

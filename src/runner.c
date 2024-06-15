@@ -121,7 +121,6 @@ bool Nst_es_init_vt(Nst_ExecutionState *es, Nst_CLArgs *cl_args)
     es->argv = argv_obj;
     Nst_VarTable *vt = Nst_vt_new(
         NULL,
-        es->curr_path,
         es->argv,
         cl_args->no_default);
     if (vt == NULL)
@@ -306,7 +305,7 @@ bool Nst_es_push_module(Nst_ExecutionState *es, i8 *filename,
     if (path_str == NULL)
         goto cleanup;
 
-    vt = Nst_vt_new(NULL, path_str, es->argv, no_default);
+    vt = Nst_vt_new(NULL, es->argv, no_default);
     if (vt == NULL)
         goto cleanup;
 

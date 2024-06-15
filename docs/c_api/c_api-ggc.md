@@ -114,13 +114,6 @@ typedef struct _Nst_GGCObj {
 
 The struct representing a garbage collector object.
 
-**Fields:**
-
-- `traverse_func`: the function that sets as reachable all the objects contained
-  in the object
-- `track_func`: the function that tracks all the traceable objects that the
-  object contains when it itself is tracked
-
 ---
 
 ### `Nst_GGCList`

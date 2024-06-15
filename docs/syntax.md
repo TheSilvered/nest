@@ -250,7 +250,6 @@ See also [function declarations](#function-declaration) and the
 - `true`: boolean true
 - `false`: boolean false
 - `null`: the only possible value of type `Null`
-- `_cwd_`: a string showing the current working directory
 - `_args_`: an array with the arguments passed in the command line
 - `_vars_`: a table containing the variables of the local scope
 - `_globals_`: a table containing the variables of the global scope

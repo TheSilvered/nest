@@ -71,6 +71,20 @@ The number of elements that can still be inserted without the object expanding.
 
 ---
 
+### `@get_cwd`
+
+**Synopsis:**
+
+```nest
+[] @get_cwd -> Str
+```
+
+**Returns:**
+
+Gets the current working directory.
+
+---
+
 ### `@get_env`
 
 **Synopsis:**
@@ -116,6 +130,20 @@ The hash of the object. If the object is not hashable, `-1` is returned.
 
 ---
 
+### `@set_cwd`
+
+**Synopsis:**
+
+```nest
+[cwd: Str] @_set_cwd -> null
+```
+
+**Description:**
+
+Sets the current working directory to `cwd`.
+
+---
+
 ### `@set_env`
 
 **Synopsis:**
@@ -153,35 +181,6 @@ The return value is the exit status of the shell.
 
 On Linux is always the exit status, on Windows, it depends on the default
 shell.
-
----
-
-### `@_get_cwd`
-
-**Synopsis:**
-
-```nest
-[] @_get_cwd -> Str
-```
-
-**Description:**
-
-Gets the current working directory. If [`_set_cwd`](system_library.md#_set_cwd)
-was never called, this is equivalent to `_cwd_`.
-
----
-
-### `@_set_cwd`
-
-**Synopsis:**
-
-```nest
-[cwd: Str] @_set_cwd -> null
-```
-
-**Description:**
-
-Sets the current working directory. The changes do not reflect in `_cwd_`.
 
 ---
 

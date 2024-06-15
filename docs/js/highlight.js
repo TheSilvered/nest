@@ -7,7 +7,7 @@ hljs.registerLanguage("nest", hljs => {
   const kw = {
     $pattern: /[?..;><#!:=>]+|\w+/,
     keyword: ["?..", "..?", "...", "..", ";", "??", "?!", "?", ":", "=>"],
-    built_in: ["_vars_", "_globals_", "_cwd_", "_args_", ">>>", "<<<", "!!", "::"],
+    built_in: ["_vars_", "_globals_", "_args_", "_debug_", ">>>", "<<<", "!!", "::"],
     literal: ["true", "false", "null"],
     type: ["Int", "Real", "Byte", "Map", "Array", "Vector", "Iter", "Func", "Null", "IOFile", "Str", "Type"]
   };

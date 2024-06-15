@@ -164,7 +164,7 @@
 			"patterns": [
 				{
 					"name": "constant.language.nest",
-					"match": "\\b(true|false|null|_cwd_|_args_|_vars_|_globals_)\\b"
+					"match": "\\b(true|false|null|_args_|_vars_|_globals_|_debug_)\\b"
 				},
 				{
 					"name": "storage.type.nest",

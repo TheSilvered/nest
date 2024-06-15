@@ -45,9 +45,9 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_addr_,        1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_capacity_,    1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(hash_,            1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(set_cwd_,         1);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_cwd_,         0);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_color_,      0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_set_cwd_,        1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_cwd_,        0);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_endianness_, 0);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_version_,    0);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_platform_,   0);
@@ -315,14 +315,7 @@ Nst_FUNC_SIGN(_get_endianness_)
 #endif
 }
 
-Nst_FUNC_SIGN(_get_color_)
-{
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
-    Nst_RETURN_BOOL(Nst_supports_color());
-}
-
-Nst_FUNC_SIGN(_set_cwd_)
+Nst_FUNC_SIGN(set_cwd_)
 {
     Nst_StrObj *new_cwd;
     Nst_DEF_EXTRACT("s", &new_cwd);
@@ -332,12 +325,19 @@ Nst_FUNC_SIGN(_set_cwd_)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(_get_cwd_)
+Nst_FUNC_SIGN(get_cwd_)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
 
     return OBJ(Nst_getcwd());
+}
+
+Nst_FUNC_SIGN(_get_color_)
+{
+    Nst_UNUSED(arg_num);
+    Nst_UNUSED(args);
+    Nst_RETURN_BOOL(Nst_supports_color());
 }
 
 Nst_FUNC_SIGN(_get_version_)

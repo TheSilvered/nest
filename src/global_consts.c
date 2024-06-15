@@ -146,7 +146,6 @@ bool _Nst_init_objects(void)
     Nst_s.o__vars_    = STR(Nst_string_new_c("_vars_",    6, false));
     Nst_s.o__globals_ = STR(Nst_string_new_c("_globals_", 9, false));
     Nst_s.o__args_    = STR(Nst_string_new_c("_args_",    6, false));
-    Nst_s.o__cwd_     = STR(Nst_string_new_c("_cwd_",     5, false));
 
     Nst_c.Bool_true  = Nst_bool_new(true);
     Nst_c.Bool_false = Nst_bool_new(false);
@@ -228,7 +227,6 @@ void _Nst_del_objects(void)
     Nst_ndec_ref(Nst_s.e_ImportError);
 
     Nst_ndec_ref(Nst_s.o__args_);
-    Nst_ndec_ref(Nst_s.o__cwd_);
     Nst_ndec_ref(Nst_s.o__globals_);
     Nst_ndec_ref(Nst_s.o__vars_);
     Nst_ndec_ref(Nst_s.o_failed_alloc);

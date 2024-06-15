@@ -1,4 +1,5 @@
 --$ --no-default
+_vars_ '_vars_' -
 
 |#| 'stdco.nest'      = co
 |#| 'stdcodecs.nest'  = cc

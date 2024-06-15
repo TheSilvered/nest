@@ -300,19 +300,19 @@ Returns [`Nst_const()->Int_1`](c_api-global_consts.md#nst_const).
 
 ---
 
-### `Nst_RETURN_COND`
+### `Nst_RETURN_BOOL`
 
 **Synopsis:**
 
 ```better-c
-#define Nst_RETURN_COND(cond)
+#define Nst_RETURN_BOOL(expr)
 ```
 
 **Description:**
 
-Returns [`Nst_true_ref()`](c_api-global_consts.md#nst_true_ref) if `cond` is
+Returns [`Nst_true_ref()`](c_api-global_consts.md#nst_true_ref) if `expr` is
 `true` and [`Nst_false_ref()`](c_api-global_consts.md#nst_false_ref) otherwise.
-`cond` is a C condition.
+`expr` is a C boolean expression.
 
 ---
 

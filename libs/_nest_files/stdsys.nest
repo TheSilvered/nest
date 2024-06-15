@@ -6,13 +6,13 @@ __sys.del_env_       = del_env
 __sys.exit_          = exit
 __sys.get_addr_      = get_addr
 __sys.get_capacity_  = get_capacity
+__sys.get_cwd_       = get_cwd
 __sys.get_env_       = get_env
 __sys.get_ref_count_ = get_ref_count
 __sys.hash_          = hash
+__sys.set_cwd_       = set_cwd
 __sys.set_env_       = set_env
 __sys.system_        = system
-__sys._get_cwd_      = _get_cwd
-__sys._set_cwd_      = _set_cwd
 
 @__sys._get_endianness_ = ENDIANNESS
 @__sys._get_platform_   = PLATFORM
