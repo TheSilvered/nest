@@ -43,7 +43,7 @@ Nst_FUNC_SIGN(slice_i_seq_get_val)
     i64 max_i = AS_INT(objs[3]);
 
     if (i >= max_i)
-        return Nst_iend_ref();
+        Nst_RETURN_IEND;
 
     i64 start = AS_INT(objs[1]);
     i64 step = AS_INT(objs[2]);
@@ -69,7 +69,7 @@ Nst_FUNC_SIGN(slice_i_str_get_val)
     i64 max_i = AS_INT(objs[3]);
 
     if (i >= max_i)
-        return Nst_iend_ref();
+        Nst_RETURN_IEND;
 
     i64 start = AS_INT(objs[1]);
     i64 step = AS_INT(objs[2]);
@@ -114,4 +114,40 @@ Nst_FUNC_SIGN(filter_i_get_val)
     }
 
     return value;
+}
+
+Nst_FUNC_SIGN(reverse_i_start)
+{
+    Nst_UNUSED(arg_num);
+    Nst_Obj **objs = SEQ(args[0])->objs;
+    AS_INT(objs[0]) = SEQ(objs[1])->len - 1;
+    Nst_RETURN_NULL;
+}
+
+Nst_FUNC_SIGN(reverse_i_get_val)
+{
+    Nst_UNUSED(arg_num);
+    Nst_Obj **objs = SEQ(args[0])->objs;
+    Nst_SeqObj *seq = SEQ(objs[1]);
+    i64 idx = AS_INT(objs[0]);
+
+    if (idx <= -1)
+        Nst_RETURN_IEND;
+
+    Nst_Obj *res = Nst_seq_get(seq, idx);
+
+    if (res == nullptr)
+        return nullptr;
+
+    i64 len = SEQ(objs[1])->len;
+    AS_INT(objs[0]) -= 1;
+
+    if (AS_INT(objs[0]) >= len)
+        AS_INT(objs[0]) = len - 1;
+
+    if (res == Nst_iend()) {
+        Nst_dec_ref(res);
+        Nst_RETURN_NULL;
+    }
+    return res;
 }

@@ -46,8 +46,8 @@ NstEXP typedef struct _Nst_IterObj {
 /**
  * Creates a new Nest iterator object.
  *
- * @brief Note: this function takes one reference of `start`, `is_done`,
- * `get_val` and value both on success and on failure.
+ * @brief Note: this function takes one reference of `start`, `get_val` and
+ * `value` both on success and on failure.
  *
  * @param start: the `start` function for the new iterator
  * @param get_val: the `get_val` function for the new iterator

@@ -141,7 +141,7 @@ _args_.1 'update' == ? [
 _args_.1 'update' == ?
     @sys.exit
 
-build_path @sys._set_cwd
+build_path @sys.set_cwd
 
 #create_guid upper [
     upper ?
@@ -297,7 +297,7 @@ nest_file @io.close
 -------------------------------- .vcxproj file ---------------------------------
 
 name @fs.make_dir
-name @sys._set_cwd
+name @sys.set_cwd
 
 @create_guid = proj_guid
 name '_' '' @su.replace = root_namespace

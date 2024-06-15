@@ -28,8 +28,6 @@ typedef struct _ItutilFunctions {
     Nst_FuncObj *enumerate_get_val;
     Nst_FuncObj *keys_get_val;
     Nst_FuncObj *values_get_val;
-    Nst_FuncObj *reversed_start;
-    Nst_FuncObj *reversed_get_val;
     Nst_FuncObj *batch_start;
     Nst_FuncObj *batch_get_val;
     Nst_FuncObj *batch_padded_get_val;
@@ -69,9 +67,6 @@ Nst_FUNC_SIGN(enumerate_get_val);
 
 Nst_FUNC_SIGN(keys_get_val);
 Nst_FUNC_SIGN(values_get_val);
-
-Nst_FUNC_SIGN(reversed_start);
-Nst_FUNC_SIGN(reversed_get_val);
 
 Nst_FUNC_SIGN(batch_start);
 Nst_FUNC_SIGN(batch_get_val);

@@ -178,7 +178,7 @@ static Nst_FUNC_SIGN(generator_get_val)
 
     if (Nst_HAS_FLAG(co, FLAG_CO_ENDED)) {
         Nst_dec_ref(obj);
-        return Nst_iend_ref();
+        Nst_RETURN_IEND;
     }
 
     if (obj == Nst_iend()) {

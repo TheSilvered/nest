@@ -44,10 +44,6 @@ bool init_itutil_functions()
         FUNC(Nst_func_new_c(1, keys_get_val));
     itutil_functions.values_get_val =
         FUNC(Nst_func_new_c(1, values_get_val));
-    itutil_functions.reversed_start =
-        FUNC(Nst_func_new_c(1, reversed_start));
-    itutil_functions.reversed_get_val =
-        FUNC(Nst_func_new_c(1, reversed_get_val));
     itutil_functions.batch_start =
         FUNC(Nst_func_new_c(1, batch_start));
     itutil_functions.batch_get_val =
@@ -84,8 +80,6 @@ void free_itutil_functions()
     Nst_ndec_ref(itutil_functions.enumerate_get_val);
     Nst_ndec_ref(itutil_functions.keys_get_val);
     Nst_ndec_ref(itutil_functions.values_get_val);
-    Nst_ndec_ref(itutil_functions.reversed_start);
-    Nst_ndec_ref(itutil_functions.reversed_get_val);
     Nst_ndec_ref(itutil_functions.batch_start);
     Nst_ndec_ref(itutil_functions.batch_get_val);
     Nst_ndec_ref(itutil_functions.batch_padded_get_val);
@@ -183,16 +177,6 @@ Nst_FUNC_SIGN(repeat_start)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(repeat_is_done)
-{
-    Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    i64 max_count = AS_INT(objs[2]);
-    if (max_count >= 0 && AS_INT(objs[0]) >= max_count)
-        Nst_RETURN_TRUE;
-    Nst_RETURN_FALSE;
-}
-
 Nst_FUNC_SIGN(repeat_get_val)
 {
     Nst_UNUSED(arg_num);
@@ -200,7 +184,7 @@ Nst_FUNC_SIGN(repeat_get_val)
 
     i64 max_count = AS_INT(objs[2]);
     if (max_count >= 0 && AS_INT(objs[0]) >= max_count)
-        return Nst_iend_ref();
+        Nst_RETURN_IEND;
 
     if (max_count >= 0)
         AS_INT(objs[0]) += 1;
@@ -361,7 +345,7 @@ Nst_FUNC_SIGN(keys_get_val)
     i64 idx = AS_INT(objs[0]);
 
     if (idx == -1)
-        return Nst_iend_ref();
+        Nst_RETURN_IEND;
 
     Nst_MapNode node = MAP(objs[1])->nodes[idx];
     AS_INT(objs[0]) = Nst_map_get_next_idx((i32)idx, MAP(objs[1]));
@@ -377,52 +361,13 @@ Nst_FUNC_SIGN(values_get_val)
     i64 idx = AS_INT(objs[0]);
 
     if (idx == -1)
-        return Nst_iend_ref();
+        Nst_RETURN_IEND;
 
     Nst_MapNode node = MAP(objs[1])->nodes[idx];
     AS_INT(objs[0]) = Nst_map_get_next_idx((i32)idx, MAP(objs[1]));
     if (node.value == Nst_iend())
         Nst_RETURN_NULL;
     return Nst_inc_ref(node.value);
-}
-
-// -------------------------------- Reversed ------------------------------- //
-Nst_FUNC_SIGN(reversed_start)
-{
-    Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    AS_INT(objs[0]) = SEQ(objs[1])->len - 1;
-    Nst_RETURN_NULL;
-}
-
-Nst_FUNC_SIGN(reversed_is_done)
-{
-    Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    Nst_RETURN_BOOL(AS_INT(objs[0]) == -1);
-}
-
-Nst_FUNC_SIGN(reversed_get_val)
-{
-    Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    Nst_SeqObj *seq = SEQ(objs[1]);
-    i64 idx = AS_INT(objs[0]);
-
-    if (idx <= -1)
-        return Nst_iend_ref();
-
-    Nst_Obj *res = Nst_seq_get(seq, idx);
-
-    if (res == nullptr)
-        return nullptr;
-
-    i64 len = SEQ(objs[1])->len;
-    AS_INT(objs[0]) -= 1;
-
-    if (AS_INT(objs[0]) >= len)
-        AS_INT(objs[0]) = len - 1;
-    return res;
 }
 
 // --------------------------------- Batch --------------------------------- //
@@ -444,7 +389,7 @@ Nst_FUNC_SIGN(batch_get_val)
     Nst_Obj **objs = SEQ(args[0])->objs;
 
     if (objs[2] == Nst_true())
-        return Nst_iend_ref();
+        Nst_RETURN_IEND;
 
     Nst_IterObj *iter = ITER(objs[0]);
     i64 batch_size = AS_INT(objs[1]);
@@ -466,7 +411,7 @@ Nst_FUNC_SIGN(batch_get_val)
             Nst_dec_ref(obj);
             if (i == 0) {
                 Nst_dec_ref(batch);
-                return Nst_iend_ref();
+                Nst_RETURN_IEND;
             }
             return OBJ(batch);
         }
@@ -481,7 +426,7 @@ Nst_FUNC_SIGN(batch_padded_get_val)
     Nst_Obj **objs = SEQ(args[0])->objs;
 
     if (objs[2] == Nst_true())
-        return Nst_iend_ref();
+        Nst_RETURN_IEND;
 
     Nst_IterObj *iter = ITER(objs[0]);
     i64 batch_size = AS_INT(objs[1]);
@@ -505,7 +450,7 @@ Nst_FUNC_SIGN(batch_padded_get_val)
             if (i == 0) {
                 batch->len = 0;
                 Nst_dec_ref(batch);
-                return Nst_iend_ref();
+                Nst_RETURN_IEND;
             }
             break;
         }

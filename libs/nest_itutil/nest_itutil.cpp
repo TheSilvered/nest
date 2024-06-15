@@ -1,7 +1,7 @@
 #include "nest_itutil.h"
 #include "itutil_functions.h"
 
-#define FUNC_COUNT 15
+#define FUNC_COUNT 14
 
 #define RETURN_NEW_ITER(start, get_val, value) do {                           \
     Nst_Obj *iter__ = Nst_iter_new(                                           \
@@ -33,7 +33,6 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(enumerate_,    4);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(keys_,         1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(values_,       1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(reversed_,     1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(batch_,        2);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(batch_padded_, 3);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(new_iterator_, 3);
@@ -270,23 +269,6 @@ Nst_FUNC_SIGN(values_)
     return iter;
 }
 
-Nst_FUNC_SIGN(reversed_)
-{
-    Nst_Obj *seq;
-
-    Nst_DEF_EXTRACT("S", &seq);
-
-    // Layout: [idx, seq]
-    Nst_Obj *arr = Nst_array_create_c("io", 0, seq);
-
-    if (arr == nullptr) {
-        Nst_dec_ref(seq);
-        return nullptr;
-    }
-
-    RETURN_NEW_ITER(reversed_start, reversed_get_val, arr);
-}
-
 Nst_FUNC_SIGN(batch_)
 {
     Nst_Obj *seq;
@@ -390,5 +372,5 @@ Nst_FUNC_SIGN(_get_iend_)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
-    return Nst_iend_ref();
+    Nst_RETURN_IEND;
 }

@@ -4,7 +4,6 @@
 |#| 'stdsys.nest' = sys
 |#| 'stderr.nest' = err
 |#| 'stdsequtil.nest' = sequ
-|#| 'stditutil.nest' = itu
 |#| 'test_lib.nest' = test
 
 -- Creates or clears the log file
@@ -36,7 +35,7 @@ sys.SUPPORTS_COLOR ? [
 
 #error_location traceback [
     !traceback ? => '; <unknown position>'
-    ... traceback @itu.reversed := tb_pos [
+    ... traceback @sequ.reverse_i := tb_pos [
         tb_pos.file @fs.filename 'test_lib.nest' != ? [
             tb_pos = pos
             ;

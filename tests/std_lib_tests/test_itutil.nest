@@ -47,10 +47,6 @@ string_output {(0 -> 10) @itu.chain} @test.assert_raises_error
 m @itu.keys @string_output 'abc' @test.assert_eq
 m @itu.values @string_output '123' @test.assert_eq
 
-'Hello' @itu.reversed @string_output 'olleH' @test.assert_eq
-{1, 2, 3} @itu.reversed @string_output '321' @test.assert_eq
-<{1, 2, 3}> @itu.reversed @string_output '321' @test.assert_eq
-
 #start v [
     0 = v.0
 ]

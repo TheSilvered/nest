@@ -3,7 +3,7 @@
 #include "nest_sequtil.h"
 #include "sequtil_i_functions.h"
 
-#define FUNC_COUNT 20
+#define FUNC_COUNT 22
 #define SORT_RUN_SIZE 32
 
 #define MAX(a,b) ((a) > (b) ? (a) : (b))
@@ -37,6 +37,8 @@ bool lib_init()
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(copy_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(deep_copy_, 1);
     func_list_[idx++] = Nst_MAKE_FUNCDECLR(enum_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(reverse_, 2);
+    func_list_[idx++] = Nst_MAKE_FUNCDECLR(reverse_i_, 1);
 
 #if __LINE__ - FUNC_COUNT != 21
 #error
@@ -1096,4 +1098,106 @@ Nst_FUNC_SIGN(enum_)
         Nst_dec_ref(value);
     }
     return enum_map;
+}
+
+Nst_Obj *reverse_string(Nst_StrObj *str_obj)
+{
+    usize old_str_len = str_obj->len;
+
+    i8 *new_str = Nst_malloc_c(old_str_len + 1, i8);
+    u8 *old_str = (u8 *)(str_obj->value);
+
+    usize i = old_str_len;
+
+    for (isize ch_idx = 0;
+         ch_idx < (isize)old_str_len;
+         Nst_string_next_ch(str_obj, &ch_idx, nullptr))
+    {
+        usize ch_size = Nst_check_ext_utf8_bytes(
+            old_str + ch_idx,
+            Nst_CP_MULTIBYTE_MAX_SIZE);
+        i -= ch_size;
+        memcpy(new_str + i, old_str + ch_idx, ch_size * sizeof(u8));
+    }
+
+    new_str[old_str_len] = '\0';
+
+    Nst_Obj *new_str_obj = Nst_string_new_len(
+        new_str,
+        str_obj->len,
+        str_obj->true_len,
+        true);
+    if (new_str_obj == nullptr) {
+        Nst_free(new_str_obj);
+        return nullptr;
+    }
+    return new_str_obj;
+}
+
+Nst_Obj *reverse_in_place(Nst_SeqObj *seq)
+{
+    usize seq_len = seq->len;
+    Nst_Obj **objs = seq->objs;
+    for (usize i = 0, n = seq_len / 2; i < n; i++) {
+        Nst_Obj *temp = objs[i];
+        objs[i] = objs[seq_len - i - 1];
+        objs[seq_len - i - 1] = temp;
+    }
+    return Nst_inc_ref(seq);
+}
+
+Nst_Obj *reverse_new_obj(Nst_SeqObj *seq)
+{
+    usize seq_len = seq->len;
+    Nst_SeqObj *new_seq = Nst_T(seq, Array)
+        ? SEQ(Nst_array_new(seq_len))
+        : SEQ(Nst_vector_new(seq_len));
+    if (new_seq == nullptr)
+        return nullptr;
+    Nst_Obj **objs = seq->objs;
+    Nst_Obj **new_objs = new_seq->objs;
+    for (usize i = 0; i < seq_len; i++) {
+        new_objs[seq_len - i - 1] = Nst_inc_ref(objs[i]);
+    }
+    return OBJ(new_seq);
+}
+
+Nst_FUNC_SIGN(reverse_)
+{
+    Nst_Obj *seq;
+    bool in_place;
+    Nst_DEF_EXTRACT("A|s y", &seq, &in_place);
+
+    if (Nst_T(seq, Str)) {
+        if (in_place) {
+            Nst_set_type_error_c("impossible to reverse a Str in-place");
+            return nullptr;
+        }
+        return reverse_string(STR(seq));
+    }
+
+    if (in_place)
+        return reverse_in_place(SEQ(seq));
+    else
+        return reverse_new_obj(SEQ(seq));
+}
+
+Nst_FUNC_SIGN(reverse_i_)
+{
+    Nst_Obj *seq;
+
+    Nst_DEF_EXTRACT("S", &seq);
+
+    // Layout: [idx, seq]
+    Nst_Obj *arr = Nst_array_create_c("io", 0, seq);
+
+    if (arr == nullptr) {
+        Nst_dec_ref(seq);
+        return nullptr;
+    }
+
+    return Nst_iter_new(
+        Nst_func_new_c(1, reverse_i_start),
+        Nst_func_new_c(1, reverse_i_get_val),
+        arr);
 }

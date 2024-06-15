@@ -264,7 +264,7 @@ Initialized an object declaration with a custom name.
 
 **Description:**
 
-Returns [`Nst_true()`](c_api-global_consts.md#nst_true).
+Returns a reference to `true`.
 
 ---
 
@@ -272,7 +272,7 @@ Returns [`Nst_true()`](c_api-global_consts.md#nst_true).
 
 **Description:**
 
-Returns [`Nst_false()`](c_api-global_consts.md#nst_false).
+Returns a reference to `false`.
 
 ---
 
@@ -280,7 +280,15 @@ Returns [`Nst_false()`](c_api-global_consts.md#nst_false).
 
 **Description:**
 
-Returns [`Nst_null()`](c_api-global_consts.md#nst_null).
+Returns a reference to `null`.
+
+---
+
+### `Nst_RETURN_IEND`
+
+**Description:**
+
+Returns a reference to `IEND`.
 
 ---
 

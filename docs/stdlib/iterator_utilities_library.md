@@ -275,29 +275,6 @@ An iterator that repeats `object` the number of times specified by `times`.
 
 ---
 
-### `@reversed`
-
-**Synopsis:**
-
-```nest
-[sequence: Str|Array|Vector] @reversed -> Iter
-```
-
-**Returns:**
-
-An iterator which goes through the elements of a sequence in reverse order,
-from the last to the first.
-
-**Example:**
-
-```nest
-|#| 'stditutil.nest' = itu
-
-'Hi!' @itu.reversed --> '!', 'i', 'H'
-```
-
----
-
 ### `@values`
 
 **Synopsis:**

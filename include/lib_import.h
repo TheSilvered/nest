@@ -246,12 +246,14 @@ Additionaly, any cast added manually will overwrite the cast of the shorthand.
 /* [docs:link Nst_const()->Int_0 Nst_const] */
 /* [docs:link Nst_const()->Int_1 Nst_const] */
 
-/* Returns `Nst_true()`. */
+/* Returns a reference to `true`. */
 #define Nst_RETURN_TRUE return Nst_true_ref()
-/* Returns `Nst_false()`. */
+/* Returns a reference to `false`. */
 #define Nst_RETURN_FALSE return Nst_false_ref()
-/* Returns `Nst_null()`. */
+/* Returns a reference to `null`. */
 #define Nst_RETURN_NULL return Nst_null_ref()
+/* Returns a reference to `IEND`. */
+#define Nst_RETURN_IEND return Nst_iend_ref()
 /* Returns `Nst_const()->Int_0`. */
 #define Nst_RETURN_ZERO return Nst_inc_ref(Nst_const()->Int_0)
 /* Returns `Nst_const()->Int_1`. */

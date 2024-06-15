@@ -43,13 +43,13 @@ versions are not properly tested and might crash unexpectedly.**
   directory when no `base` is given
 - [x] Add `get_capacity` to `stdsys.nest`
 - [x] Improve option handling in `stdjson.nest`
+- [x] Remove `_cwd_` and rename `_get_cwd` and `_set_cwd` to `get_cwd` and
+  `set_cwd` in `stdsys.nest`
+- [x] Remove `reversed` from `stditutil.nest` and add `reverse` and `reverse_i`
+  to `stdsequtil.nest`
 - [ ] Better testing with C
 - [ ] Finish implementing `Nst_fmt` and add a wrapper to `stdsutil.nest`
 - [ ] Rename `split` to `lsplit` and add `rsplit` to `stdsutil.nest`
-- [ ] Remove `reversed` from `stditutil.nest` and add `reverse` and `reverse_i`
-  to `stdsequtil.nest`
-- [ ] Remove `_cwd_` and rename `_get_cwd` and `_set_cwd` to `get_cwd` and
-  `set_cwd` in `stdsys.nest`
 
 ### Future planned features
 

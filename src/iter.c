@@ -77,9 +77,9 @@ Nst_FUNC_SIGN(Nst_iter_range_get_val)
     i64 step = AS_INT(objs[3]);
 
     if (step > 0 && idx >= stop)
-        return Nst_iend_ref();
+        Nst_RETURN_IEND;
     else if (step <= 0 && idx <= stop)
-        return Nst_iend_ref();
+        Nst_RETURN_IEND;
 
     Nst_Obj *ob = Nst_int_new(idx);
     AS_INT(objs[0]) += step;
@@ -102,7 +102,7 @@ Nst_FUNC_SIGN(Nst_iter_seq_get_val)
     i64 idx = AS_INT(val->objs[0]);
 
     if (idx >= (i64)seq->len)
-        return Nst_iend_ref();
+        Nst_RETURN_IEND;
 
     Nst_Obj *obj = seq->objs[idx];
     AS_INT(val->objs[0]) += 1;
@@ -131,7 +131,7 @@ Nst_FUNC_SIGN(Nst_iter_str_get_val)
     if (!Nst_string_next_ch(str, (isize *)&AS_INT(objs[0]), &ch)) {
         if (AS_INT(objs[0]) == -1)
             return NULL;
-        return Nst_iend_ref();
+        Nst_RETURN_IEND;
     }
 
     return ch;
@@ -152,7 +152,7 @@ Nst_FUNC_SIGN(Nst_iter_map_get_val)
     i64 idx = AS_INT(objs[0]);
 
     if (idx == -1)
-        return Nst_iend_ref();
+        Nst_RETURN_IEND;
 
     Nst_MapNode node = MAP(objs[1])->nodes[idx];
     Nst_Obj *arr = Nst_array_create_c("OO", node.key, node.value);

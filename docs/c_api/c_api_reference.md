@@ -560,6 +560,7 @@
 - [`_Nst_repr_str_cast`](c_api-obj_ops.md#_nst_repr_str_cast)
 - [`Nst_RETURN_BOOL`](c_api-lib_import.md#nst_return_bool)
 - [`Nst_RETURN_FALSE`](c_api-lib_import.md#nst_return_false)
+- [`Nst_RETURN_IEND`](c_api-lib_import.md#nst_return_iend)
 - [`Nst_RETURN_NULL`](c_api-lib_import.md#nst_return_null)
 - [`Nst_RETURN_ONE`](c_api-lib_import.md#nst_return_one)
 - [`Nst_RETURN_TRUE`](c_api-lib_import.md#nst_return_true)

@@ -114,8 +114,8 @@ Nst_Obj *_Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *get_val,
 Creates a new Nest iterator object.
 
 !!!note
-    This function takes one reference of `start`, `is_done`, `get_val` and value
-    both on success and on failure.
+    This function takes one reference of `start`, `get_val` and `value` both on
+    success and on failure.
 
 **Parameters:**
 

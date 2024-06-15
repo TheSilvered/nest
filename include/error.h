@@ -104,8 +104,6 @@
     "'" op "' expects only " count " argument" s " on the left"
 #define _Nst_EM_WRONG_TYPE_FOR_ARG2                                           \
     "expected type '%s' for argument %zi, got type '%s' instead"
-#define _Nst_EM_EXPECTED_BOOL_ITER_IS_DONE                                    \
-    "expected 'Bool' type from '_is_done_', got type '%s' instead"
 #define _Nst_EM_WRONG_ARG_NUM                                                 \
     "the function expected at most %zi argument%s but %lli %s passed"
 #define _Nst_EM_WRONG_TYPE_FOR_ARG(type)                                      \

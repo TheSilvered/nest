@@ -11,6 +11,7 @@
 - added `std.nest`, a file that imports all the standard library available under standard import names (e.g. `std.io.println`)
 - added `set_option`, `get_option`, `clear_options` and `OPTION` to `stdjson.nest`
 - added `_debug_` predefined variable when compiling in debug mode, its value is `"x64"` on 64-bit platforms and `""` on 32-bit ones
+- added `reverse` and `reverse_i` to `stdsequtil.nest`
 
 **Changes**
 
@@ -31,6 +32,8 @@
 - now `co.generator` accepts a second argument which is the arguments to use when calling the function
 - now `err.try` will accept fewer arguments than the function requires
 - removed `get_options`, `set_options` and `OPTIONS` in `stdjson.nest`
+- renamed `_get_cwd` and `_set_cwd` to `get_cwd` and `set_cwd` in `stdsys.nest`
+- removed `reversed` from `stditutil.nest`
 
 **Bug fixes**
 
@@ -69,6 +72,7 @@
   - `_Nst_node_ac_destroy`, `_Nst_node_ac_init`, `_Nst_node_as_destroy`, `_Nst_node_as_init`, `_Nst_node_ca_destroy`, `_Nst_node_ca_init`, `_Nst_node_cs_destroy`, `_Nst_node_cs_init`, `_Nst_node_ex_destroy`, `_Nst_node_ex_init`, `_Nst_node_fd_destroy`, `_Nst_node_fd_init`, `_Nst_node_fl_destroy`, `_Nst_node_fl_init`, `_Nst_node_ie_destroy`, `_Nst_node_ie_init`, `_Nst_node_lo_destroy`, `_Nst_node_lo_init`, `_Nst_node_ls_destroy`, `_Nst_node_ls_init`, `_Nst_node_ml_destroy`, `_Nst_node_ml_init`, `_Nst_node_rt_destroy`, `_Nst_node_rt_init`, `_Nst_node_sl_destroy`, `_Nst_node_sl_init`, `_Nst_node_so_destroy`, `_Nst_node_so_init`, `_Nst_node_sw_destroy`, `_Nst_node_sw_init`, `_Nst_node_tc_destroy`, `_Nst_node_tc_init`, `_Nst_node_vl_destroy`, `_Nst_node_vl_init`, `_Nst_node_we_destroy`, `_Nst_node_we_init`, `_Nst_node_wl_destroy`, `_Nst_node_wl_init`, `_Nst_node_ws_destroy`, `_Nst_node_ws_init`
   - `Nst_print_node`
 - added `Nst_sbuffer_at`, `Nst_sbuffer_pop` and `Nst_sbuffer_shrink_auto`
+- added `Nst_VERSION_MAJOR`, `Nst_VERSION_MINOR` and `Nst_VERSION_PATCH` definitions
 
 **Changes**
 

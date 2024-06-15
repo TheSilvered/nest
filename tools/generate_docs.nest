@@ -879,7 +879,7 @@
     indent null == ? 0 = indent
 
     '' = lines
-    Vector :: (text @su.split @itu.reversed) = words
+    Vector :: (text @su.split) true @sequ.reverse = words
     words (##x => x '[docs:nbsp]' ' ' @su.replace) true @sequ.map
 
     ?.. $words 0 != [
@@ -1116,8 +1116,8 @@
         => null
     ]
     '../docs/c_api/' @fs.make_dir
-    @sys._get_cwd = old_cwd
-    '../docs/c_api/' @sys._set_cwd
+    @sys.get_cwd = old_cwd
+    '../docs/c_api/' @sys.set_cwd
 
     ... files := {file, file_blocks} [
         'Writing \(file @fs.filename @su.repr) documentation...' @io.println
@@ -1127,7 +1127,7 @@
     'Writing API reference...' @io.println
     link_manager @_write_api_reference
     'Writing complete.' @io.println
-    old_cwd @sys._set_cwd
+    old_cwd @sys.set_cwd
 ]
 
 #_write_c_file file_blocks lm [
