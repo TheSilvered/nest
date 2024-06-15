@@ -113,16 +113,20 @@
     => true
 ]
 
-{'sym_info':  0,
- 'file_info': 1,
- 'raw_block': 2,
- 'link_info': 3} = BLOCK_MAP_TYPES
+{
+    'sym_info',
+    'file_info',
+    'raw_block',
+    'link_info'
+} @sequ.enum = BLOCK_MAP_TYPES
 
-{'code':   0,
- 'text':   1,
- 'image':  2,
- 'ignore': 3,
- 'error':  4} = LINK_TYPES
+{
+    'code',
+    'text',
+    'image',
+    'ignore',
+    'error'
+} @sequ.enum = LINK_TYPES
 
 #_sym_info_map [
     => {
@@ -424,17 +428,19 @@
 
 -/ ========================== Parsing symbol data ========================== /-
 
-{'function': 0,
- 'struct':   1,
- 'macro':    2,
- 'typedef':  3,
- 'enum':     4,
- 'union':    5,
- 'r_struct': 6, -- raw struct
- 'r_union':  7, -- raw union
- 'r_enum':   8, -- raw enum
- 't_func':   9, -- function typedef
- 'error':   -1} = SYMBOL_TYPES
+{
+    'error',
+    'function',
+    'struct',
+    'macro',
+    'typedef',
+    'enum',
+    'union',
+    'r_struct', -- raw struct
+    'r_union',  -- raw union
+    'r_enum',   -- raw enum
+    't_func'    -- function typedef
+} -1 @sequ.enum = SYMBOL_TYPES
 
 #get_symbol_data parser [
     parser @_get_symbol_type = {symbol_type, symbol_text}
@@ -510,10 +516,10 @@
     ]
     symbol_text 1 @sequ.slice = symbol_text -- remove the initial line feed
     symbol_text = original_text
-    symbol_text 'NstEXP' @_remove_prefix @su.trim = symbol_text
+    symbol_text 'NstEXP' @su.lremove @su.trim = symbol_text
 
     symbol_text 'typedef' @su.starts_with ? [
-        symbol_text 'typedef' @_remove_prefix @su.trim = symbol_text
+        symbol_text 'typedef' @su.lremove @su.trim = symbol_text
         true = is_typedef
     ] : [
         false = is_typedef
@@ -565,12 +571,6 @@
     => {paren, bracket, brace}
 ]
 
-#_remove_prefix str prefix [
-    str prefix @su.starts_with ?
-        str $prefix @sequ.slice = str
-    => str
-]
-
 #_get_macro parser [
     parser @parser_curr_line = line
     line = macro_text
@@ -591,7 +591,7 @@
 ]
 
 #_get_function_data func_text [
-    func_text 'NstEXP' @_remove_prefix @su.trim = func_text
+    func_text 'NstEXP' @su.lremove @su.trim = func_text
     func_text '\n' ' ' @su.replace = func_text
     func_text @su.split @su.join = func_text
 
@@ -727,7 +727,7 @@
 ]
 
 #_get_macro_data macro_text [
-    macro_text '#define' @_remove_prefix @su.trim = macro_text
+    macro_text '#define' @su.lremove @su.trim = macro_text
     macro_text '(' @su.lfind = open_paren
     macro_text ' ' @su.lfind = space
     macro_text ')' @su.lfind = close_paren
@@ -748,7 +748,7 @@
 ]
 
 #_get_s_e_u_data symbol_type symbol_text [
-    symbol_text 'NstEXP' @_remove_prefix @su.trim = symbol_text
+    symbol_text 'NstEXP' @su.lremove @su.trim = symbol_text
 
     symbol_text '}' @su.rfind = close_brace
     symbol_text (close_brace 1 +) @sequ.slice = name
@@ -767,7 +767,7 @@
 ]
 
 #_get_typedef_data typedef_text [
-    typedef_text 'NstEXP' @_remove_prefix @su.trim = typedef_text
+    typedef_text 'NstEXP' @su.lremove @su.trim = typedef_text
     typedef_text @_split_tokens = tokens
 
     SYMBOL_TYPES.typedef @_symbol_data_map = data_map
@@ -777,13 +777,13 @@
 ]
 
 #_get_raw_s_e_u_data symbol_type symbol_text [
-    symbol_text 'NstEXP' @_remove_prefix @su.trim = symbol_text
+    symbol_text 'NstEXP' @su.lremove @su.trim = symbol_text
     symbol_text = orig_text
 
     symbol_text '\n' ' ' @su.replace \
-        'enum ' @_remove_prefix \
-        'union ' @_remove_prefix \
-        'struct ' @_remove_prefix = symbol_text
+        'enum ' @su.lremove \
+        'union ' @su.lremove \
+        'struct ' @su.lremove = symbol_text
 
     (symbol_text @_split_tokens).0 = name
 
@@ -795,7 +795,7 @@
 ]
 
 #_get_t_func_data t_func_text [
-    t_func_text 'NstEXP' @_remove_prefix @su.trim = t_func_text
+    t_func_text 'NstEXP' @su.lremove @su.trim = t_func_text
     t_func_text '\n' ' ' @su.replace = t_func_text
     t_func_text @su.split @su.join = t_func_text
 
@@ -1209,14 +1209,14 @@
         => introduction '\n' list_str ><
     ]
     text 'Warning:' @su.starts_with ? [
-        text 'Warning:' @_remove_prefix @su.trim = text
+        text 'Warning:' @su.lremove @su.trim = text
         text ? [
             (text.0 @su.to_upper) (text 1 @sequ.slice) >< = text
         ]
         => text @warning_box
     ]
     text 'Note:' @su.starts_with ? [
-        text 'Note:' @_remove_prefix @su.trim = text
+        text 'Note:' @su.lremove @su.trim = text
         text ? [
             (text.0 @su.to_upper) (text 1 @sequ.slice) >< = text
         ]
