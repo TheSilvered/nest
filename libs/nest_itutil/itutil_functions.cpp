@@ -86,7 +86,7 @@ void free_itutil_functions()
 }
 
 // --------------------------------- Count --------------------------------- //
-Nst_FUNC_SIGN(count_start)
+Nst_Obj *NstC count_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -94,7 +94,7 @@ Nst_FUNC_SIGN(count_start)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(count_get_val)
+Nst_Obj *NstC count_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -104,7 +104,7 @@ Nst_FUNC_SIGN(count_get_val)
 }
 
 // ------------------------------ Cycle String ----------------------------- //
-Nst_FUNC_SIGN(cycle_str_start)
+Nst_Obj *NstC cycle_str_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -112,7 +112,7 @@ Nst_FUNC_SIGN(cycle_str_start)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(cycle_str_get_val)
+Nst_Obj *NstC cycle_str_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -123,7 +123,7 @@ Nst_FUNC_SIGN(cycle_str_get_val)
 }
 
 // ----------------------------- Cycle Sequence ---------------------------- //
-Nst_FUNC_SIGN(cycle_seq_start)
+Nst_Obj *NstC cycle_seq_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -131,7 +131,7 @@ Nst_FUNC_SIGN(cycle_seq_start)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(cycle_seq_get_val)
+Nst_Obj *NstC cycle_seq_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -142,7 +142,7 @@ Nst_FUNC_SIGN(cycle_seq_get_val)
 }
 
 // ----------------------------- Cycle Iterator ---------------------------- //
-Nst_FUNC_SIGN(cycle_iter_start)
+Nst_Obj *NstC cycle_iter_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     if (!Nst_iter_start(args[0]))
@@ -150,7 +150,7 @@ Nst_FUNC_SIGN(cycle_iter_start)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(cycle_iter_get_val)
+Nst_Obj *NstC cycle_iter_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj *obj = Nst_iter_get_val(args[0]);
@@ -169,7 +169,7 @@ Nst_FUNC_SIGN(cycle_iter_get_val)
 }
 
 // --------------------------------- Repeat -------------------------------- //
-Nst_FUNC_SIGN(repeat_start)
+Nst_Obj *NstC repeat_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -177,7 +177,7 @@ Nst_FUNC_SIGN(repeat_start)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(repeat_get_val)
+Nst_Obj *NstC repeat_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -193,7 +193,7 @@ Nst_FUNC_SIGN(repeat_get_val)
 
 // --------------------------------- Chain --------------------------------- //
 
-Nst_FUNC_SIGN(chain_start)
+Nst_Obj *NstC chain_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -205,7 +205,7 @@ Nst_FUNC_SIGN(chain_start)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(chain_get_val)
+Nst_Obj *NstC chain_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -242,7 +242,7 @@ Nst_FUNC_SIGN(chain_get_val)
 }
 
 // ---------------------------------- Zip ---------------------------------- //
-Nst_FUNC_SIGN(zip_start)
+Nst_Obj *NstC zip_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -251,7 +251,7 @@ Nst_FUNC_SIGN(zip_start)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(zip_get_val)
+Nst_Obj *NstC zip_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -271,7 +271,7 @@ Nst_FUNC_SIGN(zip_get_val)
 
 // ---------------------------- Zip n sequences ---------------------------- //
 
-Nst_FUNC_SIGN(zipn_start)
+Nst_Obj *NstC zipn_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -282,7 +282,7 @@ Nst_FUNC_SIGN(zipn_start)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(zipn_get_val)
+Nst_Obj *NstC zipn_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -302,7 +302,7 @@ Nst_FUNC_SIGN(zipn_get_val)
 }
 
 // ------------------------------- Enumerate ------------------------------- //
-Nst_FUNC_SIGN(enumerate_start)
+Nst_Obj *NstC enumerate_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -312,7 +312,7 @@ Nst_FUNC_SIGN(enumerate_start)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(enumerate_get_val)
+Nst_Obj *NstC enumerate_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -338,7 +338,7 @@ Nst_FUNC_SIGN(enumerate_get_val)
 
 // ----------------------------- Keys & values ----------------------------- //
 
-Nst_FUNC_SIGN(keys_get_val)
+Nst_Obj *NstC keys_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -354,7 +354,7 @@ Nst_FUNC_SIGN(keys_get_val)
     return Nst_inc_ref(node.key);
 }
 
-Nst_FUNC_SIGN(values_get_val)
+Nst_Obj *NstC values_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -372,7 +372,7 @@ Nst_FUNC_SIGN(values_get_val)
 
 // --------------------------------- Batch --------------------------------- //
 
-Nst_FUNC_SIGN(batch_start)
+Nst_Obj *NstC batch_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -383,7 +383,7 @@ Nst_FUNC_SIGN(batch_start)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(batch_get_val)
+Nst_Obj *NstC batch_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -420,7 +420,7 @@ Nst_FUNC_SIGN(batch_get_val)
     return OBJ(batch);
 }
 
-Nst_FUNC_SIGN(batch_padded_get_val)
+Nst_Obj *NstC batch_padded_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;

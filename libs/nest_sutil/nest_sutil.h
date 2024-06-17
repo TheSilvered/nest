@@ -7,42 +7,41 @@
 extern "C" {
 #endif // !__cplusplus
 
-NstEXP bool NstC lib_init();
-NstEXP Nst_DeclrList *NstC get_func_ptrs();
+NstEXP Nst_Declr *NstC lib_init();
 
-Nst_FUNC_SIGN(lfind_);
-Nst_FUNC_SIGN(rfind_);
-Nst_FUNC_SIGN(starts_with_);
-Nst_FUNC_SIGN(ends_with_);
-Nst_FUNC_SIGN(trim_);
-Nst_FUNC_SIGN(ltrim_);
-Nst_FUNC_SIGN(rtrim_);
-Nst_FUNC_SIGN(justify_);
-Nst_FUNC_SIGN(center_);
-Nst_FUNC_SIGN(to_title_);
-Nst_FUNC_SIGN(to_upper_);
-Nst_FUNC_SIGN(to_lower_);
-Nst_FUNC_SIGN(is_title_);
-Nst_FUNC_SIGN(is_upper_);
-Nst_FUNC_SIGN(is_lower_);
-Nst_FUNC_SIGN(is_alpha_);
-Nst_FUNC_SIGN(is_digit_);
-Nst_FUNC_SIGN(is_alnum_);
-Nst_FUNC_SIGN(is_space_);
-Nst_FUNC_SIGN(is_charset_);
-Nst_FUNC_SIGN(is_printable_);
-Nst_FUNC_SIGN(replace_);
-Nst_FUNC_SIGN(decode_);
-Nst_FUNC_SIGN(encode_);
-Nst_FUNC_SIGN(repr_);
-Nst_FUNC_SIGN(join_);
-Nst_FUNC_SIGN(split_);
-Nst_FUNC_SIGN(bin_);
-Nst_FUNC_SIGN(oct_);
-Nst_FUNC_SIGN(hex_);
-Nst_FUNC_SIGN(parse_int_);
-Nst_FUNC_SIGN(lremove_);
-Nst_FUNC_SIGN(rremove_);
+Nst_Obj *NstC lfind_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC rfind_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC starts_with_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC ends_with_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC trim_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC ltrim_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC rtrim_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC justify_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC center_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC to_title_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC to_upper_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC to_lower_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC is_title_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC is_upper_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC is_lower_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC is_alpha_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC is_digit_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC is_alnum_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC is_space_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC is_charset_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC is_printable_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC replace_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC decode_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC encode_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC repr_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC join_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC split_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC bin_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC oct_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC hex_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC parse_int_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC lremove_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC rremove_(usize arg_num, Nst_Obj **args);
 
 #ifdef __cplusplus
 }

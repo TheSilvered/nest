@@ -1,30 +1,21 @@
 #include <cstdlib>
 #include "nest_err.h"
 
-#define FUNC_COUNT 2
+static Nst_Declr obj_list_[] = {
+    Nst_FUNCDECLR(try_, 3),
+    Nst_CONSTDECLR(SYNTAX_ERROR_),
+    Nst_CONSTDECLR(VALUE_ERROR_),
+    Nst_CONSTDECLR(TYPE_ERROR_),
+    Nst_CONSTDECLR(CALL_ERROR_),
+    Nst_CONSTDECLR(MEMORY_ERROR_),
+    Nst_CONSTDECLR(MATH_ERROR_),
+    Nst_CONSTDECLR(IMPORT_ERROR_),
+    Nst_DECLR_END
+};
 
-static Nst_ObjDeclr func_list_[FUNC_COUNT];
-static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
-static bool lib_init_ = false;
-
-bool lib_init()
+Nst_Declr *lib_init()
 {
-    usize idx = 0;
-
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(try_, 3);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_err_names_, 0);
-
-#if __LINE__ - FUNC_COUNT != 15
-#error
-#endif
-
-    lib_init_ = !Nst_error_occurred();
-    return lib_init_;
-}
-
-Nst_DeclrList *get_func_ptrs()
-{
-    return lib_init_ ? &obj_list_ : nullptr;
+    return obj_list_;
 }
 
 Nst_Obj *make_pos(Nst_Pos start, Nst_Pos end)
@@ -122,13 +113,19 @@ cleanup:
     return map;
 }
 
-Nst_FUNC_SIGN(try_)
+Nst_Obj *NstC try_(usize arg_num, Nst_Obj **args)
 {
     Nst_FuncObj *func;
     Nst_SeqObj *func_args;
     bool catch_exit;
 
-    Nst_DEF_EXTRACT("f ?A y", &func, &func_args, &catch_exit);
+    if (!Nst_extract_args(
+            "f ?A y",
+            arg_num, args,
+            &func, &func_args, &catch_exit))
+    {
+        return nullptr;
+    }
 
     i64 func_arg_num;
     Nst_Obj **objs;
@@ -157,11 +154,8 @@ Nst_FUNC_SIGN(try_)
         return failure(catch_exit);
 }
 
-Nst_FUNC_SIGN(_get_err_names_)
+Nst_Obj *NstC _get_err_names_()
 {
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
-
     Nst_Obj *names = Nst_array_create_c(
         "OOOOOOO",
         Nst_str()->e_SyntaxError,
@@ -173,4 +167,39 @@ Nst_FUNC_SIGN(_get_err_names_)
         Nst_str()->e_ImportError);
 
     return names;
+}
+
+Nst_Obj *NstC SYNTAX_ERROR_()
+{
+    return Nst_inc_ref(Nst_str()->e_SyntaxError);
+}
+
+Nst_Obj *NstC VALUE_ERROR_()
+{
+    return Nst_inc_ref(Nst_str()->e_ValueError);
+}
+
+Nst_Obj *NstC TYPE_ERROR_()
+{
+    return Nst_inc_ref(Nst_str()->e_TypeError);
+}
+
+Nst_Obj *NstC CALL_ERROR_()
+{
+    return Nst_inc_ref(Nst_str()->e_CallError);
+}
+
+Nst_Obj *NstC MEMORY_ERROR_()
+{
+    return Nst_inc_ref(Nst_str()->e_MemoryError);
+}
+
+Nst_Obj *NstC MATH_ERROR_()
+{
+    return Nst_inc_ref(Nst_str()->e_MathError);
+}
+
+Nst_Obj *NstC IMPORT_ERROR_()
+{
+    return Nst_inc_ref(Nst_str()->e_ImportError);
 }

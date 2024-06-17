@@ -3,61 +3,46 @@
 #include <cstdlib>
 #include "nest_sutil.h"
 
-#define FUNC_COUNT 33
+static Nst_Declr obj_list_[] = {
+    Nst_FUNCDECLR(lfind_, 4),
+    Nst_FUNCDECLR(rfind_, 4),
+    Nst_FUNCDECLR(starts_with_, 2),
+    Nst_FUNCDECLR(ends_with_, 2),
+    Nst_FUNCDECLR(trim_,  1),
+    Nst_FUNCDECLR(ltrim_, 1),
+    Nst_FUNCDECLR(rtrim_, 1),
+    Nst_FUNCDECLR(justify_, 3),
+    Nst_FUNCDECLR(center_, 3),
+    Nst_FUNCDECLR(to_title_, 1),
+    Nst_FUNCDECLR(to_upper_, 1),
+    Nst_FUNCDECLR(to_lower_, 1),
+    Nst_FUNCDECLR(is_title_, 1),
+    Nst_FUNCDECLR(is_upper_, 1),
+    Nst_FUNCDECLR(is_lower_, 1),
+    Nst_FUNCDECLR(is_alpha_, 1),
+    Nst_FUNCDECLR(is_digit_, 1),
+    Nst_FUNCDECLR(is_alnum_, 1),
+    Nst_FUNCDECLR(is_space_, 1),
+    Nst_FUNCDECLR(is_charset_, 2),
+    Nst_FUNCDECLR(is_printable_, 1),
+    Nst_FUNCDECLR(replace_, 3),
+    Nst_FUNCDECLR(decode_, 2),
+    Nst_FUNCDECLR(encode_, 2),
+    Nst_FUNCDECLR(repr_, 1),
+    Nst_FUNCDECLR(join_, 2),
+    Nst_FUNCDECLR(split_, 3),
+    Nst_FUNCDECLR(bin_, 1),
+    Nst_FUNCDECLR(oct_, 1),
+    Nst_FUNCDECLR(hex_, 2),
+    Nst_FUNCDECLR(parse_int_, 2),
+    Nst_FUNCDECLR(lremove_, 2),
+    Nst_FUNCDECLR(rremove_, 2),
+    Nst_DECLR_END
+};
 
-static Nst_ObjDeclr func_list_[FUNC_COUNT];
-static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
-static bool lib_init_ = false;
-
-bool lib_init()
+Nst_Declr *lib_init()
 {
-    usize idx = 0;
-
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(lfind_, 4);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(rfind_, 4);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(starts_with_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(ends_with_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(trim_,  1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(ltrim_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(rtrim_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(justify_, 3);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(center_, 3);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(to_title_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(to_upper_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(to_lower_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_title_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_upper_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_lower_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_alpha_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_digit_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_alnum_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_space_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_charset_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_printable_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(replace_, 3);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(decode_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(encode_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(repr_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(join_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(split_, 3);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(bin_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(oct_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(hex_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(parse_int_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(lremove_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(rremove_, 2);
-
-#if __LINE__ - FUNC_COUNT != 17
-#error
-#endif
-
-    lib_init_ = !Nst_error_occurred();
-    return lib_init_;
-}
-
-Nst_DeclrList *get_func_ptrs()
-{
-    return lib_init_ ? &obj_list_ : nullptr;
+    return obj_list_;
 }
 
 void get_in_str(Nst_StrObj *str, Nst_Obj *start_idx, Nst_Obj *end_idx,
@@ -111,14 +96,20 @@ void get_in_str(Nst_StrObj *str, Nst_Obj *start_idx, Nst_Obj *end_idx,
     *out_str_end = str->value + i + 1;
 }
 
-Nst_FUNC_SIGN(lfind_)
+Nst_Obj *NstC lfind_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str1;
     Nst_StrObj *str2;
     Nst_Obj *start_idx;
     Nst_Obj *end_idx;
 
-    Nst_DEF_EXTRACT("s s ?i ?i", &str1, &str2, &start_idx, &end_idx);
+    if (!Nst_extract_args(
+            "s s ?i ?i",
+            arg_num, args,
+            &str1, &str2, &start_idx, &end_idx))
+    {
+        return nullptr;
+    }
 
     i8 *str1_value;
     usize str1_len;
@@ -149,14 +140,20 @@ Nst_FUNC_SIGN(lfind_)
         return Nst_int_new(sub - str1->value);
 }
 
-Nst_FUNC_SIGN(rfind_)
+Nst_Obj *NstC rfind_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str1;
     Nst_StrObj *str2;
     Nst_Obj *start_idx;
     Nst_Obj *end_idx;
 
-    Nst_DEF_EXTRACT("s s ?i ?i", &str1, &str2, &start_idx, &end_idx);
+    if (!Nst_extract_args(
+            "s s ?i ?i",
+            arg_num, args,
+            &str1, &str2, &start_idx, &end_idx))
+    {
+        return nullptr;
+    }
 
     i8 *str1_value;
     usize str1_len;
@@ -187,12 +184,13 @@ Nst_FUNC_SIGN(rfind_)
         return Nst_int_new(sub - str1->value);
 }
 
-Nst_FUNC_SIGN(starts_with_)
+Nst_Obj *NstC starts_with_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
     Nst_StrObj *substr;
 
-    Nst_DEF_EXTRACT("s s", &str, &substr);
+    if (!Nst_extract_args("s s", arg_num, args, &str, &substr))
+        return nullptr;
 
     if (str->len < substr->len)
         Nst_RETURN_FALSE;
@@ -209,12 +207,13 @@ Nst_FUNC_SIGN(starts_with_)
     Nst_RETURN_TRUE;
 }
 
-Nst_FUNC_SIGN(ends_with_)
+Nst_Obj *NstC ends_with_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
     Nst_StrObj *substr;
 
-    Nst_DEF_EXTRACT("s s", &str, &substr);
+    if (!Nst_extract_args("s s", arg_num, args, &str, &substr))
+        return nullptr;
 
     if (str->len < substr->len)
         Nst_RETURN_FALSE;
@@ -231,11 +230,12 @@ Nst_FUNC_SIGN(ends_with_)
     Nst_RETURN_TRUE;
 }
 
-Nst_FUNC_SIGN(trim_)
+Nst_Obj *NstC trim_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
 
-    Nst_DEF_EXTRACT("s", &str);
+    if (!Nst_extract_args("s", arg_num, args, &str))
+        return nullptr;
 
     i8 *s_start = str->value;
     i8 *s_end = str->value + str->len - 1;
@@ -264,11 +264,12 @@ Nst_FUNC_SIGN(trim_)
     return Nst_string_new(new_str, len, true);
 }
 
-Nst_FUNC_SIGN(ltrim_)
+Nst_Obj *NstC ltrim_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
 
-    Nst_DEF_EXTRACT("s", &str);
+    if (!Nst_extract_args("s", arg_num, args, &str))
+        return nullptr;
 
     i8 *s_start = str->value;
     usize len = str->len;
@@ -286,11 +287,12 @@ Nst_FUNC_SIGN(ltrim_)
     return Nst_string_new(new_str, len, true);
 }
 
-Nst_FUNC_SIGN(rtrim_)
+Nst_Obj *NstC rtrim_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
 
-    Nst_DEF_EXTRACT("s", &str);
+    if (!Nst_extract_args("s", arg_num, args, &str))
+        return nullptr;
 
     usize len = str->len;
     i8 *s_start = str->value;
@@ -378,7 +380,13 @@ static bool check_just_args(usize arg_num, Nst_Obj **args, Nst_StrObj *&str,
                             i64 &just_len, i8 *&fill_ch, usize &fill_ch_len)
 {
     Nst_StrObj *just_ch_obj;
-    Nst_DEF_EXTRACT("s i ?s", &str, &just_len, &just_ch_obj);
+    if (!Nst_extract_args(
+            "s i ?s",
+            arg_num, args,
+            &str, &just_len, &just_ch_obj))
+    {
+        return false;
+    }
 
     usize fill_ch_true_len;
 
@@ -399,7 +407,7 @@ static bool check_just_args(usize arg_num, Nst_Obj **args, Nst_StrObj *&str,
     return true;
 }
 
-Nst_FUNC_SIGN(justify_)
+Nst_Obj *NstC justify_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
     i64 just_len;
@@ -420,7 +428,7 @@ Nst_FUNC_SIGN(justify_)
         return justify_right(str, -just_len, fill_ch, fill_ch_len);
 }
 
-Nst_FUNC_SIGN(center_)
+Nst_Obj *NstC center_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
     i64 just_len;
@@ -458,11 +466,12 @@ Nst_FUNC_SIGN(center_)
     return new_str_obj;
 }
 
-Nst_FUNC_SIGN(to_title_)
+Nst_Obj *NstC to_title_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
 
-    Nst_DEF_EXTRACT("s", &str);
+    if (!Nst_extract_args("s", arg_num, args, &str))
+        return nullptr;
 
     Nst_StrObj *new_str = STR(Nst_string_copy(str));
     i8 *s = new_str->value;
@@ -486,11 +495,12 @@ Nst_FUNC_SIGN(to_title_)
     return OBJ(new_str);
 }
 
-Nst_FUNC_SIGN(to_upper_)
+Nst_Obj *NstC to_upper_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
 
-    Nst_DEF_EXTRACT("s", &str);
+    if (!Nst_extract_args("s", arg_num, args, &str))
+        return nullptr;
 
     Nst_StrObj *new_str = STR(Nst_string_copy(str));
     i8 *s = new_str->value;
@@ -504,11 +514,12 @@ Nst_FUNC_SIGN(to_upper_)
     return OBJ(new_str);
 }
 
-Nst_FUNC_SIGN(to_lower_)
+Nst_Obj *NstC to_lower_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
 
-    Nst_DEF_EXTRACT("s", &str);
+    if (!Nst_extract_args("s", arg_num, args, &str))
+        return nullptr;
 
     Nst_StrObj *new_str = STR(Nst_string_copy(str));
     i8 *s = new_str->value;
@@ -522,11 +533,12 @@ Nst_FUNC_SIGN(to_lower_)
     return OBJ(new_str);
 }
 
-Nst_FUNC_SIGN(is_title_)
+Nst_Obj *NstC is_title_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
 
-    Nst_DEF_EXTRACT("s", &str);
+    if (!Nst_extract_args("s", arg_num, args, &str))
+        return nullptr;
 
     i8 *s = str->value;
     i8 *end = s + str->len;
@@ -553,11 +565,12 @@ Nst_FUNC_SIGN(is_title_)
     Nst_RETURN_TRUE;
 }
 
-Nst_FUNC_SIGN(is_upper_)
+Nst_Obj *NstC is_upper_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
 
-    Nst_DEF_EXTRACT("s", &str);
+    if (!Nst_extract_args("s", arg_num, args, &str))
+        return nullptr;
 
     i8 *s = str->value;
     i8 *end = s + str->len;
@@ -571,11 +584,12 @@ Nst_FUNC_SIGN(is_upper_)
     Nst_RETURN_TRUE;
 }
 
-Nst_FUNC_SIGN(is_lower_)
+Nst_Obj *NstC is_lower_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
 
-    Nst_DEF_EXTRACT("s", &str);
+    if (!Nst_extract_args("s", arg_num, args, &str))
+        return nullptr;
 
     i8 *s = str->value;
     i8 *end = s + str->len;
@@ -589,11 +603,12 @@ Nst_FUNC_SIGN(is_lower_)
     Nst_RETURN_TRUE;
 }
 
-Nst_FUNC_SIGN(is_alpha_)
+Nst_Obj *NstC is_alpha_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
 
-    Nst_DEF_EXTRACT("s", &str);
+    if (!Nst_extract_args("s", arg_num, args, &str))
+        return nullptr;
 
     i8 *s = str->value;
     i8 *end = s + str->len;
@@ -606,11 +621,12 @@ Nst_FUNC_SIGN(is_alpha_)
     Nst_RETURN_TRUE;
 }
 
-Nst_FUNC_SIGN(is_digit_)
+Nst_Obj *NstC is_digit_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
 
-    Nst_DEF_EXTRACT("s", &str);
+    if (!Nst_extract_args("s", arg_num, args, &str))
+        return nullptr;
 
     i8 *s = str->value;
     i8 *end = s + str->len;
@@ -623,11 +639,12 @@ Nst_FUNC_SIGN(is_digit_)
     Nst_RETURN_TRUE;
 }
 
-Nst_FUNC_SIGN(is_alnum_)
+Nst_Obj *NstC is_alnum_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
 
-    Nst_DEF_EXTRACT("s", &str);
+    if (!Nst_extract_args("s", arg_num, args, &str))
+        return nullptr;
 
     i8 *s = str->value;
     i8 *end = s + str->len;
@@ -640,11 +657,12 @@ Nst_FUNC_SIGN(is_alnum_)
     Nst_RETURN_TRUE;
 }
 
-Nst_FUNC_SIGN(is_space_)
+Nst_Obj *NstC is_space_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
 
-    Nst_DEF_EXTRACT("s", &str);
+    if (!Nst_extract_args("s", arg_num, args, &str))
+        return nullptr;
 
     i8 *s = str->value;
     i8 *end = s + str->len;
@@ -657,12 +675,13 @@ Nst_FUNC_SIGN(is_space_)
     Nst_RETURN_TRUE;
 }
 
-Nst_FUNC_SIGN(is_charset_)
+Nst_Obj *NstC is_charset_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str1;
     Nst_StrObj *str2;
 
-    Nst_DEF_EXTRACT("s s", &str1, &str2);
+    if (!Nst_extract_args("s s", arg_num, args, &str1, &str2))
+        return nullptr;
 
     if (str1->len == 0)
         Nst_RETURN_TRUE;
@@ -691,11 +710,12 @@ Nst_FUNC_SIGN(is_charset_)
     Nst_RETURN_TRUE;
 }
 
-Nst_FUNC_SIGN(is_printable_)
+Nst_Obj *NstC is_printable_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
 
-    Nst_DEF_EXTRACT("s", &str);
+    if (!Nst_extract_args("s", arg_num, args, &str))
+        return nullptr;
 
     i8 *s = str->value;
     i8 *end = s + str->len;
@@ -716,13 +736,14 @@ Nst_FUNC_SIGN(is_printable_)
     Nst_RETURN_TRUE;
 }
 
-Nst_FUNC_SIGN(replace_)
+Nst_Obj *NstC replace_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
     Nst_StrObj *str_from;
     Nst_StrObj *str_to;
 
-    Nst_DEF_EXTRACT("s s ?s", &str, &str_from, &str_to);
+    if (!Nst_extract_args("s s ?s", arg_num, args, &str, &str_from, &str_to))
+        return nullptr;
 
     usize s_len = str->len;
     usize s_from_len = str_from->len;
@@ -778,12 +799,13 @@ Nst_FUNC_SIGN(replace_)
     return Nst_string_new(new_str, new_str_len, true);
 }
 
-Nst_FUNC_SIGN(decode_)
+Nst_Obj *NstC decode_(usize arg_num, Nst_Obj **args)
 {
     Nst_SeqObj *seq;
     Nst_StrObj *encoding_obj;
 
-    Nst_DEF_EXTRACT("A.B ?s", &seq, &encoding_obj);
+    if (!Nst_extract_args("A.B ?s", arg_num, args, &seq, &encoding_obj))
+        return nullptr;
 
     Nst_CPID cpid = Nst_DEF_VAL(
         encoding_obj,
@@ -827,12 +849,13 @@ Nst_FUNC_SIGN(decode_)
     return Nst_string_new(str, str_len, true);
 }
 
-Nst_FUNC_SIGN(encode_)
+Nst_Obj *NstC encode_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
     Nst_StrObj *encoding_obj;
 
-    Nst_DEF_EXTRACT("s ?s", &str, &encoding_obj);
+    if (!Nst_extract_args("s ?s", arg_num, args, &str, &encoding_obj))
+        return nullptr;
 
     Nst_CPID cpid = Nst_DEF_VAL(
         encoding_obj,
@@ -869,19 +892,21 @@ Nst_FUNC_SIGN(encode_)
     return OBJ(new_arr);
 }
 
-Nst_FUNC_SIGN(repr_)
+Nst_Obj *NstC repr_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *obj;
-    Nst_DEF_EXTRACT("o", &obj);
+    if (!Nst_extract_args("o", arg_num, args, &obj))
+        return nullptr;
     return _Nst_repr_str_cast(obj);
 }
 
-Nst_FUNC_SIGN(join_)
+Nst_Obj *NstC join_(usize arg_num, Nst_Obj **args)
 {
     Nst_SeqObj *seq;
     Nst_Obj *opt_str;
 
-    Nst_DEF_EXTRACT("A ?s", &seq, &opt_str);
+    if (!Nst_extract_args("A ?s", arg_num, args, &seq, &opt_str))
+        return nullptr;
 
     if (seq->len == 0)
         return Nst_string_new_c("", 0, false);
@@ -933,13 +958,19 @@ Nst_FUNC_SIGN(join_)
     return Nst_string_new(new_str, tot_len, true);
 }
 
-Nst_FUNC_SIGN(split_)
+Nst_Obj *NstC split_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
     Nst_Obj *opt_substr;
     Nst_Obj *quantity_obj;
 
-    Nst_DEF_EXTRACT("s ?s ?i", &str, &opt_substr, &quantity_obj);
+    if (!Nst_extract_args(
+            "s ?s ?i",
+            arg_num, args,
+            &str, &opt_substr, &quantity_obj))
+    {
+        return nullptr;
+    }
 
     i64 quantity = Nst_DEF_VAL(quantity_obj, AS_INT(quantity_obj), -1);
     i8 *sub;
@@ -1051,10 +1082,11 @@ static i64 highest_bit(u64 n)
         return str_len;
 }
 
-Nst_FUNC_SIGN(bin_)
+Nst_Obj *NstC bin_(usize arg_num, Nst_Obj **args)
 {
     i64 n;
-    Nst_DEF_EXTRACT("l", &n);
+    if (!Nst_extract_args("l", arg_num, args, &n))
+        return nullptr;
 
     i64 str_len = highest_bit(n) + 1;
 
@@ -1075,10 +1107,11 @@ Nst_FUNC_SIGN(bin_)
     return Nst_string_new(buf, usize(str_len) - 1, true);
 }
 
-Nst_FUNC_SIGN(oct_)
+Nst_Obj *NstC oct_(usize arg_num, Nst_Obj **args)
 {
     i64 n;
-    Nst_DEF_EXTRACT("l", &n);
+    if (!Nst_extract_args("l", arg_num, args, &n))
+        return nullptr;
 
     i64 h_bit = highest_bit(n);
     i64 str_len = h_bit / 3;
@@ -1102,11 +1135,12 @@ Nst_FUNC_SIGN(oct_)
     return Nst_string_new(buf, usize(str_len) - 1, true);
 }
 
-Nst_FUNC_SIGN(hex_)
+Nst_Obj *NstC hex_(usize arg_num, Nst_Obj **args)
 {
     i64 n;
     bool upper;
-    Nst_DEF_EXTRACT("l y", &n, &upper);
+    if (!Nst_extract_args("l y", arg_num, args, &n, &upper))
+        return nullptr;
 
     const i8 *digits;
     if (upper)
@@ -1136,22 +1170,24 @@ Nst_FUNC_SIGN(hex_)
     return Nst_string_new(buf, usize(str_len) - 1, true);
 }
 
-Nst_FUNC_SIGN(parse_int_)
+Nst_Obj *NstC parse_int_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
     Nst_Obj *base_obj;
-    Nst_DEF_EXTRACT("s ?i", &str, &base_obj);
+    if (!Nst_extract_args("s ?i", arg_num, args, &str, &base_obj))
+        return nullptr;
 
     i64 base = Nst_DEF_VAL(base_obj, AS_INT(base_obj), 0);
 
     return Nst_string_parse_int(str, i32(base));
 }
 
-Nst_FUNC_SIGN(lremove_)
+Nst_Obj *NstC lremove_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
     Nst_StrObj *substr;
-    Nst_DEF_EXTRACT("s s", &str, &substr);
+    if (!Nst_extract_args("s s", arg_num, args, &str, &substr))
+        return nullptr;
 
     if (str->len < substr->len)
         return Nst_inc_ref(str);
@@ -1172,11 +1208,12 @@ Nst_FUNC_SIGN(lremove_)
     return Nst_string_new_allocated(new_str_value, new_len);
 }
 
-Nst_FUNC_SIGN(rremove_)
+Nst_Obj *NstC rremove_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
     Nst_StrObj *substr;
-    Nst_DEF_EXTRACT("s s", &str, &substr);
+    if (!Nst_extract_args("s s", arg_num, args, &str, &substr))
+        return nullptr;
 
     if (str->len < substr->len)
         return Nst_inc_ref(str);

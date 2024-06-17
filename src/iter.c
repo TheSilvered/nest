@@ -59,7 +59,7 @@ Nst_Obj *_Nst_iter_get_val(Nst_IterObj *iter)
     return Nst_call_func(iter->get_val, 1, &iter->value);
 }
 
-Nst_FUNC_SIGN(Nst_iter_range_start)
+Nst_Obj *NstC Nst_iter_range_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_SeqObj *val = SEQ(args[0]);
@@ -67,7 +67,7 @@ Nst_FUNC_SIGN(Nst_iter_range_start)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(Nst_iter_range_get_val)
+Nst_Obj *NstC Nst_iter_range_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_SeqObj *val = SEQ(args[0]);
@@ -86,7 +86,7 @@ Nst_FUNC_SIGN(Nst_iter_range_get_val)
     return ob;
 }
 
-Nst_FUNC_SIGN(Nst_iter_seq_start)
+Nst_Obj *NstC Nst_iter_seq_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_SeqObj *val = SEQ(args[0]);
@@ -94,7 +94,7 @@ Nst_FUNC_SIGN(Nst_iter_seq_start)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(Nst_iter_seq_get_val)
+Nst_Obj *NstC Nst_iter_seq_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_SeqObj *val = SEQ(args[0]);
@@ -112,7 +112,7 @@ Nst_FUNC_SIGN(Nst_iter_seq_get_val)
     return Nst_inc_ref(obj);
 }
 
-Nst_FUNC_SIGN(Nst_iter_str_start)
+Nst_Obj *NstC Nst_iter_str_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_SeqObj *val = SEQ(args[0]);
@@ -120,7 +120,7 @@ Nst_FUNC_SIGN(Nst_iter_str_start)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(Nst_iter_str_get_val)
+Nst_Obj *NstC Nst_iter_str_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_SeqObj *val = SEQ(args[0]);
@@ -137,7 +137,7 @@ Nst_FUNC_SIGN(Nst_iter_str_get_val)
     return ch;
 }
 
-Nst_FUNC_SIGN(Nst_iter_map_start)
+Nst_Obj *NstC Nst_iter_map_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -145,7 +145,7 @@ Nst_FUNC_SIGN(Nst_iter_map_start)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(Nst_iter_map_get_val)
+Nst_Obj *NstC Nst_iter_map_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;

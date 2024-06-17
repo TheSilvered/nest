@@ -17,47 +17,31 @@
 
 #endif
 
-#define FUNC_COUNT 17
-
-static Nst_ObjDeclr func_list_[FUNC_COUNT];
-static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
-static bool lib_init_ = false;
+static Nst_Declr obj_list_[] = {
+    Nst_FUNCDECLR(system_,          1),
+    Nst_FUNCDECLR(exit_,            1),
+    Nst_FUNCDECLR(get_env_,         1),
+    Nst_FUNCDECLR(set_env_,         3),
+    Nst_FUNCDECLR(del_env_,         1),
+    Nst_FUNCDECLR(get_ref_count_,   1),
+    Nst_FUNCDECLR(get_addr_,        1),
+    Nst_FUNCDECLR(get_capacity_,    1),
+    Nst_FUNCDECLR(hash_,            1),
+    Nst_FUNCDECLR(set_cwd_,         1),
+    Nst_FUNCDECLR(get_cwd_,         0),
+    Nst_FUNCDECLR(_get_color_,      0),
+    Nst_FUNCDECLR(_get_endianness_, 0),
+    Nst_FUNCDECLR(_get_version_,    0),
+    Nst_FUNCDECLR(_get_platform_,   0),
+    Nst_FUNCDECLR(_raw_exit,        1),
+    Nst_NAMED_CONSTDECLR(_DEBUG_, "_DEBUG"),
+    Nst_DECLR_END
+};
 static Nst_StrObj *version_obj;
 static Nst_StrObj *platform_obj;
-static Nst_Obj *is_debug;
 
-bool lib_init()
+Nst_Declr *lib_init()
 {
-    usize idx = 0;
-
-#ifdef _DEBUG
-    is_debug = Nst_true();
-#else
-    is_debug = Nst_false();
-#endif
-
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(system_,          1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(exit_,            1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_env_,         1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(set_env_,         3);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(del_env_,         1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_ref_count_,   1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_addr_,        1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_capacity_,    1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(hash_,            1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(set_cwd_,         1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_cwd_,         0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_color_,      0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_endianness_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_version_,    0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_platform_,   0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_raw_exit,        1);
-    func_list_[idx++] = Nst_MAKE_NAMED_OBJDECLR(is_debug, "_DEBUG");
-
-#if __LINE__ - FUNC_COUNT != 40
-#error
-#endif
-
     version_obj = STR(Nst_string_new_c_raw(Nst_VERSION, false));
 
 #ifdef Nst_WIN
@@ -66,25 +50,20 @@ bool lib_init()
     platform_obj = STR(Nst_string_new_c("linux", 5, false));
 #endif
 
-    lib_init_ = !Nst_error_occurred();
-    return lib_init_;
+    return Nst_error_occurred() ? nullptr : obj_list_;
 }
 
-Nst_DeclrList *get_func_ptrs()
-{
-    return lib_init_ ? &obj_list_ : nullptr;
-}
-
-void free_lib()
+void lib_quit()
 {
     Nst_dec_ref(version_obj);
     Nst_dec_ref(platform_obj);
 }
 
-Nst_FUNC_SIGN(system_)
+Nst_Obj *NstC system_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *command;
-    Nst_DEF_EXTRACT("s", &command);
+    if (!Nst_extract_args("s", arg_num, args, &command))
+        return nullptr;
 
 #ifdef Nst_WIN
     wchar_t *wide_command = Nst_char_to_wchar_t(command->value, command->len);
@@ -98,11 +77,12 @@ Nst_FUNC_SIGN(system_)
 #endif
 }
 
-Nst_FUNC_SIGN(exit_)
+Nst_Obj *NstC exit_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *exit_code_obj;
 
-    Nst_DEF_EXTRACT("?i", &exit_code_obj);
+    if (!Nst_extract_args("?i", arg_num, args, &exit_code_obj))
+        return nullptr;
 
     if (exit_code_obj == Nst_null())
         exit_code_obj = Nst_inc_ref(Nst_const()->Int_0);
@@ -113,11 +93,12 @@ Nst_FUNC_SIGN(exit_)
     return nullptr;
 }
 
-Nst_FUNC_SIGN(get_env_)
+Nst_Obj *NstC get_env_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *name;
 
-    Nst_DEF_EXTRACT("s", &name);
+    if (!Nst_extract_args("s", arg_num, args, &name))
+        return nullptr;
 
     if (strlen(name->value) != name->len) {
         Nst_set_value_error_c("the name cannot contain NUL characters");
@@ -168,14 +149,20 @@ Nst_FUNC_SIGN(get_env_)
     return Nst_string_new_c_raw(env_name, true);
 }
 
-Nst_FUNC_SIGN(set_env_)
+Nst_Obj *NstC set_env_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *name;
     Nst_StrObj *value;
     Nst_Obj *overwrite_obj;
     bool overwrite;
 
-    Nst_DEF_EXTRACT("s s o", &name, &value, &overwrite_obj);
+    if (!Nst_extract_args(
+            "s s o",
+            arg_num, args,
+            &name, &value, &overwrite_obj))
+    {
+        return nullptr;
+    }
 
     if (overwrite_obj == Nst_null())
         overwrite = true;
@@ -238,11 +225,12 @@ Nst_FUNC_SIGN(set_env_)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(del_env_)
+Nst_Obj *NstC del_env_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *name;
 
-    Nst_DEF_EXTRACT("s", &name);
+    if (!Nst_extract_args("s", arg_num, args, &name))
+        return nullptr;
 
     if (strlen(name->value) != name->len) {
         Nst_set_value_error_c("the name cannot contain NUL characters");
@@ -274,23 +262,24 @@ Nst_FUNC_SIGN(del_env_)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(get_ref_count_)
+Nst_Obj *NstC get_ref_count_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     return Nst_int_new(args[0]->ref_count);
 }
 
-Nst_FUNC_SIGN(get_addr_)
+Nst_Obj *NstC get_addr_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     return Nst_int_new((usize)args[0]);
 }
 
-Nst_FUNC_SIGN(get_capacity_)
+Nst_Obj *NstC get_capacity_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *container;
 
-    Nst_DEF_EXTRACT("v|m", &container);
+    if (!Nst_extract_args("v|m", arg_num, args, &container))
+        return nullptr;
 
     if (Nst_T(container, Map))
         return Nst_int_new((i64)MAP(container)->cap);
@@ -298,13 +287,13 @@ Nst_FUNC_SIGN(get_capacity_)
     return Nst_int_new((i64)SEQ(container)->cap);
 }
 
-Nst_FUNC_SIGN(hash_)
+Nst_Obj *NstC hash_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     return Nst_int_new(Nst_obj_hash(args[0]));
 }
 
-Nst_FUNC_SIGN(_get_endianness_)
+Nst_Obj *NstC _get_endianness_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
@@ -315,17 +304,18 @@ Nst_FUNC_SIGN(_get_endianness_)
 #endif
 }
 
-Nst_FUNC_SIGN(set_cwd_)
+Nst_Obj *NstC set_cwd_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *new_cwd;
-    Nst_DEF_EXTRACT("s", &new_cwd);
+    if (!Nst_extract_args("s", arg_num, args, &new_cwd))
+        return nullptr;
 
     if (Nst_chdir(new_cwd) == -1)
         return nullptr;
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(get_cwd_)
+Nst_Obj *NstC get_cwd_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
@@ -333,35 +323,45 @@ Nst_FUNC_SIGN(get_cwd_)
     return OBJ(Nst_getcwd());
 }
 
-Nst_FUNC_SIGN(_get_color_)
+Nst_Obj *NstC _get_color_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
     Nst_RETURN_BOOL(Nst_supports_color());
 }
 
-Nst_FUNC_SIGN(_get_version_)
+Nst_Obj *NstC _get_version_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
     return Nst_inc_ref(version_obj);
 }
 
-Nst_FUNC_SIGN(_get_platform_)
+Nst_Obj *NstC _get_platform_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
     return Nst_inc_ref(platform_obj);
 }
 
-Nst_FUNC_SIGN(_raw_exit)
+Nst_Obj *NstC _raw_exit(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *exit_code_obj;
 
-    Nst_DEF_EXTRACT("?i", &exit_code_obj);
+    if (!Nst_extract_args("?i", arg_num, args, &exit_code_obj))
+        return nullptr;
 
     if (exit_code_obj == Nst_null())
         exit(0);
     else
         exit((int)AS_INT(exit_code_obj));
+}
+
+Nst_Obj *NstC _DEBUG_()
+{
+#ifdef _DEBUG
+    Nst_RETURN_TRUE;
+#else
+    Nst_RETURN_FALSE;
+#endif
 }

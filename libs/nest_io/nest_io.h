@@ -7,9 +7,8 @@
 extern "C" {
 #endif // !__cplusplus
 
-NstEXP bool NstC lib_init();
-NstEXP Nst_DeclrList *NstC get_func_ptrs();
-NstEXP void NstC free_lib();
+NstEXP Nst_Declr *NstC lib_init();
+NstEXP void NstC lib_quit();
 
 typedef struct _VirtualIOFile_data
 {
@@ -18,32 +17,32 @@ typedef struct _VirtualIOFile_data
 }
 VirtualIOFile_data;
 
-Nst_FUNC_SIGN(open_);
-Nst_FUNC_SIGN(virtual_file_);
-Nst_FUNC_SIGN(close_);
-Nst_FUNC_SIGN(write_);
-Nst_FUNC_SIGN(write_bytes_);
-Nst_FUNC_SIGN(read_);
-Nst_FUNC_SIGN(read_bytes_);
-Nst_FUNC_SIGN(file_size_);
-Nst_FUNC_SIGN(get_fpi_);
-Nst_FUNC_SIGN(move_fpi_);
-Nst_FUNC_SIGN(flush_);
-Nst_FUNC_SIGN(get_flags_);
-Nst_FUNC_SIGN(can_read_);
-Nst_FUNC_SIGN(can_write_);
-Nst_FUNC_SIGN(can_seek_);
-Nst_FUNC_SIGN(is_bin_);
-Nst_FUNC_SIGN(is_a_tty_);
-Nst_FUNC_SIGN(descriptor_);
-Nst_FUNC_SIGN(encoding_);
-Nst_FUNC_SIGN(println_);
-Nst_FUNC_SIGN(_set_stdin_);
-Nst_FUNC_SIGN(_set_stdout_);
-Nst_FUNC_SIGN(_set_stderr_);
-Nst_FUNC_SIGN(_get_stdin_);
-Nst_FUNC_SIGN(_get_stdout_);
-Nst_FUNC_SIGN(_get_stderr_);
+Nst_Obj *NstC open_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC virtual_file_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC close_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC write_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC write_bytes_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC read_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC read_bytes_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC file_size_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC get_fpi_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC move_fpi_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC flush_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC get_flags_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC can_read_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC can_write_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC can_seek_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC is_bin_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC is_a_tty_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC descriptor_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC encoding_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC println_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC _set_stdin_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC _set_stdout_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC _set_stderr_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC _get_stdin_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC _get_stdout_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC _get_stderr_(usize arg_num, Nst_Obj **args);
 
 #ifdef __cplusplus
 }

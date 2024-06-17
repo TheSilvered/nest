@@ -1664,7 +1664,7 @@ cleanup:
 
 static Nst_Obj *import_c_lib(Nst_StrObj *file_path)
 {
-    void (*free_lib_func)();
+    void (*lib_quit_func)();
     lib_t lib = dlopen(file_path->value);
 
     if (!lib) {
@@ -1679,7 +1679,7 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path)
     }
 
     // Initialize library
-    bool (*lib_init)() = (bool (*)())dlsym(lib, "lib_init");
+    Nst_Declr *(*lib_init)() = (Nst_Declr *(*)())dlsym(lib, "lib_init");
     if (lib_init == NULL) {
         Nst_llist_pop(Nst_state.lib_paths);
         Nst_dec_ref(file_path);
@@ -1688,31 +1688,15 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path)
         return NULL;
     }
 
-    if (!lib_init()) {
-        Nst_llist_pop(Nst_state.lib_paths);
-        Nst_dec_ref(file_path);
-        dlclose(lib);
-        Nst_set_import_error_c(_Nst_EM_LIB_INIT_FAILED);
-        return NULL;
-    }
-
-    // Get function pointers
-    Nst_DeclrList *(*get_func_ptrs)() =
-        (Nst_DeclrList *(*)())dlsym(lib, "get_func_ptrs");
-    if (get_func_ptrs == NULL) {
-        Nst_llist_pop(Nst_state.lib_paths);
-        Nst_dec_ref(file_path);
-        Nst_set_import_error_c(_Nst_EM_NO_LIB_FUNC("get_func_ptrs"));
-        goto fail;
-    }
-
-    Nst_DeclrList *obj_ptrs = get_func_ptrs();
+    Nst_Declr *obj_ptrs = lib_init();
 
     if (obj_ptrs == NULL) {
         Nst_llist_pop(Nst_state.lib_paths);
         Nst_dec_ref(file_path);
-        Nst_set_import_error_c(_Nst_EM_LIB_INIT_FAILED);
-        goto fail;
+        dlclose(lib);
+        if (!Nst_error_occurred())
+            Nst_set_import_error_c(_Nst_EM_LIB_INIT_FAILED);
+        return NULL;
     }
 
     // Populate the function map
@@ -1720,27 +1704,27 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path)
     if (obj_map == NULL)
         goto fail;
 
-    for (usize i = 0, n = obj_ptrs->obj_count; i < n; i++) {
-        Nst_ObjDeclr obj_declr = obj_ptrs->objs[i];
+    for (usize i = 0; obj_ptrs[i].ptr != NULL; i++) {
+        Nst_Declr obj_declr = obj_ptrs[i];
         Nst_Obj *obj;
-        if (obj_declr.arg_num >= 0)
-            obj = Nst_func_new_c(obj_declr.arg_num, (Nst_NestCallable)obj_declr.ptr);
-        else
-            obj = Nst_inc_ref(obj_declr.ptr);
+        if (obj_declr.arg_num >= 0) {
+            obj = Nst_func_new_c(
+                obj_declr.arg_num,
+                (Nst_NestCallable)obj_declr.ptr);
+        } else
+            obj = ((Nst_ConstFunc)obj_declr.ptr)();
 
         if (obj == NULL) {
             Nst_dec_ref(obj_map);
             goto fail;
         }
 
-        if (!Nst_map_set(obj_map, obj_declr.name, obj)) {
+        if (!Nst_map_set_str(obj_map, obj_declr.name, obj)) {
             Nst_dec_ref(obj_map);
-            Nst_dec_ref(obj_declr.name);
             Nst_dec_ref(obj);
             goto fail;
         }
 
-        Nst_dec_ref(obj_declr.name);
         Nst_dec_ref(obj);
     }
 
@@ -1756,9 +1740,9 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path)
     Nst_llist_pop(Nst_state.lib_paths);
     return OBJ(obj_map);
 fail:
-    free_lib_func = (void (*)())dlsym(lib, "free_lib");
-    if (free_lib_func)
-        free_lib_func();
+    lib_quit_func = (void (*)())dlsym(lib, "lib_quit");
+    if (lib_quit_func)
+        lib_quit_func();
     dlclose(lib);
     return NULL;
 }

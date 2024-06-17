@@ -5,7 +5,7 @@
 ```nest
 |#| 'stdsys.nest' = sys
 
--- To access _raw_exit use the following
+-- To access _raw_exit and _DEBUG use the following
 |#| '__C__:stdsys.cnest' = __sys
 ```
 
@@ -231,3 +231,12 @@ Whether the console supports ANSI escape sequences.
 ### `VERSION`
 
 The current version of Nest as a string such as `'0.15.0 x64'`.
+
+---
+
+### `_DEBUG`
+
+`true` if running a debug build of Nest and `false` otherwise.
+
+This constant cannot be accessed by importing the normal system library, you
+need to [import the C source](#importing) instead.

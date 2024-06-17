@@ -73,6 +73,8 @@
   - `Nst_print_node`
 - added `Nst_sbuffer_at`, `Nst_sbuffer_pop` and `Nst_sbuffer_shrink_auto`
 - added `Nst_VERSION_MAJOR`, `Nst_VERSION_MINOR` and `Nst_VERSION_PATCH` definitions
+- added `Nst_DECLR_END`
+- added `Nst_ConstFunc`
 
 **Changes**
 
@@ -133,6 +135,13 @@ _General changes_:
 - replaced `Nst_IC_FOR_IS_DONE` with `Nst_IC_JUMPIF_IEND`
 - removed `Nst_print_ast`
 - renamed `Nst_RETURN_COND` to `Nst_RETURN_BOOL`
+- removed `Nst_FUNC_SIGN` and `Nst_DEF_EXTRACT`
+- removed `get_func_ptrs` from libraries, now `lib_init` returns the function pointers
+- removed `Nst_DeclrList` and renamed `Nst_ObjDeclr` to `Nst_Declr`
+- renamed `Nst_MAKE_FUNCDECLR` to `Nst_FUNCDECLR`
+- renamed `Nst_MAKE_NAMED_FUNCDECLR` to `Nst_NAMED_FUNCDECLR`
+- renamed `Nst_MAKE_OBJDECLR` to `Nst_CONSTDECLR`
+- renamed `Nst_MAKE_NAMED_OBJDECLR` to `Nst_NAMED_CONSTDECLR`
 
 **Bug fixes**
 

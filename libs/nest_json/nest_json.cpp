@@ -4,41 +4,27 @@
 #include "json_parser.h"
 #include "json_dumper.h"
 
-#define FUNC_COUNT 7
+static Nst_Declr obj_list_[] = {
+    Nst_FUNCDECLR(load_s_,        1),
+    Nst_FUNCDECLR(load_f_,        2),
+    Nst_FUNCDECLR(dump_s_,        2),
+    Nst_FUNCDECLR(dump_f_,        4),
+    Nst_FUNCDECLR(set_option_,    2),
+    Nst_FUNCDECLR(get_option_,    1),
+    Nst_FUNCDECLR(clear_options_, 0),
+    Nst_DECLR_END
+};
 
-static Nst_ObjDeclr func_list_[FUNC_COUNT];
-static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
-static bool lib_init_ = false;
-
-bool lib_init()
+Nst_Declr *lib_init()
 {
-    usize idx = 0;
-
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(load_s_,        1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(load_f_,        2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(dump_s_,        2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(dump_f_,        4);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(set_option_,    2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_option_,    1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(clear_options_, 0);
-
-#if __LINE__ - FUNC_COUNT != 18
-#error
-#endif
-
-    lib_init_ = !Nst_error_occurred();
-    return lib_init_;
+    return obj_list_;
 }
 
-Nst_DeclrList *get_func_ptrs()
-{
-    return lib_init_ ? &obj_list_ : nullptr;
-}
-
-Nst_FUNC_SIGN(load_s_)
+Nst_Obj *NstC load_s_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
-    Nst_DEF_EXTRACT("s", &str);
+    if (!Nst_extract_args("s", arg_num, args, &str))
+        return nullptr;
 
     Nst_LList *tokens = json_tokenize(
         (i8 *)"<Str>",
@@ -51,11 +37,12 @@ Nst_FUNC_SIGN(load_s_)
     return value;
 }
 
-Nst_FUNC_SIGN(load_f_)
+Nst_Obj *NstC load_f_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
     Nst_StrObj *encoding_obj;
-    Nst_DEF_EXTRACT("s ?s", &path, &encoding_obj);
+    if (!Nst_extract_args("s ?s", arg_num, args, &path, &encoding_obj))
+        return nullptr;
 
     Nst_CPID encoding = Nst_DEF_VAL(
         encoding_obj,
@@ -92,25 +79,32 @@ Nst_FUNC_SIGN(load_f_)
     return value;
 }
 
-Nst_FUNC_SIGN(dump_s_)
+Nst_Obj *NstC dump_s_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *obj;
     Nst_Obj *indent_obj;
 
-    Nst_DEF_EXTRACT("o ?i", &obj, &indent_obj);
-    i64 indent = Nst_DEF_VAL(indent_obj, AS_INT(indent_obj), 0);
+    if (!Nst_extract_args("o ?i", arg_num, args, &obj, &indent_obj))
+        return nullptr;
 
+    i64 indent = Nst_DEF_VAL(indent_obj, AS_INT(indent_obj), 0);
     return json_dump(obj, (i32)indent);
 }
 
-Nst_FUNC_SIGN(dump_f_)
+Nst_Obj *NstC dump_f_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
     Nst_Obj *obj;
     Nst_Obj *indent_obj;
     Nst_StrObj *encoding_obj;
 
-    Nst_DEF_EXTRACT("s o ?i ?s", &path, &obj, &indent_obj, &encoding_obj);
+    if (!Nst_extract_args(
+            "s o ?i ?s",
+            arg_num, args,
+            &path, &obj, &indent_obj, &encoding_obj))
+    {
+        return nullptr;
+    }
     i64 indent = Nst_DEF_VAL(indent_obj, AS_INT(indent_obj), 0);
 
     Nst_CPID encoding = Nst_DEF_VAL(
@@ -159,12 +153,13 @@ Nst_FUNC_SIGN(dump_f_)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(set_option_)
+Nst_Obj *NstC set_option_(usize arg_num, Nst_Obj **args)
 {
     i64 option;
     Nst_Obj *value_obj;
 
-    Nst_DEF_EXTRACT("i o", &option, &value_obj);
+    if (!Nst_extract_args("i o", arg_num, args, &option, &value_obj))
+        return nullptr;
 
     bool value;
     if (value_obj == Nst_null()) {
@@ -204,10 +199,11 @@ Nst_FUNC_SIGN(set_option_)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(get_option_)
+Nst_Obj *NstC get_option_(usize arg_num, Nst_Obj **args)
 {
     i64 option;
-    Nst_DEF_EXTRACT("i", &option);
+    if (!Nst_extract_args("i", arg_num, args, &option))
+        return nullptr;
 
     switch (JSONOptions(option)) {
     case JSON_OPT_COMMENTS:
@@ -222,7 +218,7 @@ Nst_FUNC_SIGN(get_option_)
     }
 }
 
-Nst_FUNC_SIGN(clear_options_)
+Nst_Obj *NstC clear_options_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);

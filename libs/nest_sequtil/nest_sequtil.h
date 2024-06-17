@@ -7,32 +7,31 @@
 extern "C" {
 #endif // !__cplusplus
 
-NstEXP bool NstC lib_init();
-NstEXP Nst_DeclrList *NstC get_func_ptrs();
+NstEXP Nst_Declr *NstC lib_init();
 
-Nst_FUNC_SIGN(map_);
-Nst_FUNC_SIGN(map_i_);
-Nst_FUNC_SIGN(insert_at_);
-Nst_FUNC_SIGN(remove_at_);
-Nst_FUNC_SIGN(slice_);
-Nst_FUNC_SIGN(slice_i_);
-Nst_FUNC_SIGN(merge_);
-Nst_FUNC_SIGN(extend_);
-Nst_FUNC_SIGN(sort_);
-Nst_FUNC_SIGN(empty_);
-Nst_FUNC_SIGN(filter_);
-Nst_FUNC_SIGN(filter_i_);
-Nst_FUNC_SIGN(contains_);
-Nst_FUNC_SIGN(any_);
-Nst_FUNC_SIGN(all_);
-Nst_FUNC_SIGN(count_);
-Nst_FUNC_SIGN(lscan_);
-Nst_FUNC_SIGN(rscan_);
-Nst_FUNC_SIGN(copy_);
-Nst_FUNC_SIGN(deep_copy_);
-Nst_FUNC_SIGN(enum_);
-Nst_FUNC_SIGN(reverse_);
-Nst_FUNC_SIGN(reverse_i_);
+Nst_Obj *NstC map_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC map_i_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC insert_at_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC remove_at_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC slice_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC slice_i_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC merge_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC extend_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC sort_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC empty_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC filter_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC filter_i_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC contains_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC any_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC all_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC count_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC lscan_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC rscan_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC copy_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC deep_copy_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC enum_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC reverse_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC reverse_i_(usize arg_num, Nst_Obj **args);
 
 #ifdef __cplusplus
 }

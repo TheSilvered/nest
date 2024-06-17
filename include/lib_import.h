@@ -195,53 +195,40 @@ Additionaly, any cast added manually will overwrite the cast of the shorthand.
  * @param func_ptr: the function pointer to use
  * @param argc: the number of arguments the function accepts
  */
-#define Nst_MAKE_FUNCDECLR(func_ptr, argc)                                    \
-    {                                                                         \
-        (void *)(func_ptr),                                                   \
-        argc,                                                                 \
-        STR(Nst_string_new_c_raw(#func_ptr, false))                           \
-    }
+#define Nst_FUNCDECLR(func_ptr, argc) { (void *)(func_ptr), argc, #func_ptr }
 
 /**
  * Initializes a function declaration with a custom name.
  *
  * @param func_ptr: the function pointer to use
  * @param argc: the number of arguments the function accepts
- * @param func_name: the name to use as a C string
+ * @param name: the name to use as a C string
  */
-#define Nst_MAKE_NAMED_FUNCDECLR(func_ptr, argc, func_name)                   \
-    {                                                                         \
-        (void *)(func_ptr),                                                   \
-        argc,                                                                 \
-        STR(Nst_string_new_c_raw(func_name, false))                           \
-    }
+#define Nst_NAMED_FUNCDECLR(func_ptr, argc, name)                             \
+    { (void *)(func_ptr), argc, name }
+
+/**
+ * Initialized an object declaration.
+ *
+ * @brief For the name of the object the name of the function pointer is used.
+ *
+ * @param func_ptr: the pointer to a function that returns the value of the
+ * constant, this function is of signature `Nst_ConstFunc`
+ */
+#define Nst_CONSTDECLR(func_ptr) { (void *)(func_ptr), -1, #func_ptr }
 
 /**
  * Initialized an object declaration.
  *
  * @brief For the name of the object the name of the pointer is used.
  *
- * @param obj_pointer: the pointer to the Nest object to declare
+ * @param func_ptr: the pointer to a function that returns the value of the
+ * constant, this function is of signature `Nst_ConstFunc`
+ * @param name: the name to use as a C string
  */
-#define Nst_MAKE_OBJDECLR(obj_ptr)                                            \
-    {                                                                         \
-        (void *)(obj_ptr),                                                    \
-        -1,                                                                   \
-        STR(Nst_string_new_c_raw(#obj_ptr, false))                            \
-    }
+#define Nst_NAMED_CONSTDECLR(func_ptr, name) { (void *)(func_ptr), -1, name }
 
-/**
- * Initialized an object declaration with a custom name.
- *
- * @param obj_pointer: the pointer to the Nest object to declare
- * @param obj_name: the name to use as a C string
- */
-#define Nst_MAKE_NAMED_OBJDECLR(obj_ptr, obj_name)                            \
-    {                                                                         \
-        (void *)(obj_ptr),                                                    \
-        -1,                                                                   \
-        STR(Nst_string_new_c_raw(obj_name, false))                            \
-    }
+#define Nst_DECLR_END { NULL, 0, NULL }
 
 /* [docs:link Nst_const()->Int_0 Nst_const] */
 /* [docs:link Nst_const()->Int_1 Nst_const] */
@@ -265,15 +252,8 @@ Additionaly, any cast added manually will overwrite the cast of the shorthand.
 #define Nst_RETURN_BOOL(expr)                                                 \
     return (expr) ? Nst_true_ref() : Nst_false_ref()
 
-/* Function signature for a Nest-callable C function. */
-#define Nst_FUNC_SIGN(name)                                                   \
-    Nst_Obj *NstC name(usize arg_num, Nst_Obj **args)
-
-/* Default call to `Nst_extract_arg_values` that returns `NULL` on error. */
-#define Nst_DEF_EXTRACT(ltrl, ...) do {                                       \
-    if (!Nst_extract_arg_values(ltrl, arg_num, args, __VA_ARGS__))            \
-        return NULL;                                                          \
-    } while (0)
+/* Boolean expression to check if an object is `null`. */
+#define Nst_IS_NULL(obj) (OBJ(obj) == Nst_null())
 
 /* Results in `def_val` if obj is `Nst_null()` and in `val` otherwise. */
 #define Nst_DEF_VAL(obj, val, def_val)                                        \
@@ -286,30 +266,22 @@ Additionaly, any cast added manually will overwrite the cast of the shorthand.
 extern "C" {
 #endif // !__cplusplus
 
+/* The signarture of a function used to get the constant of a library. */
+typedef Nst_Obj *(*Nst_ConstFunc)(void);
+
 /**
- * Structure defining an object declaration.
+ * Structure defining an object declaration for a C library.
  *
- * @param ptr: the pointer to the object or function
+ * @param ptr: the pointer to the function
  * @param arg_num: the number of arguments if the object is a function, `-1`
  * for other declarations
  * @param name: the name of the declared object
  */
-NstEXP typedef struct _Nst_ObjDeclr {
+NstEXP typedef struct _Nst_Declr {
     void *ptr;
     isize arg_num;
-    Nst_StrObj *name;
-} Nst_ObjDeclr;
-
-/**
- * Structure defining a list of object declarations.
- *
- * @param objs: the array of declared objects
- * @param obj_count: the number of objects inside the array
- */
-NstEXP typedef struct _Nst_DeclrList {
-    Nst_ObjDeclr *objs;
-    usize obj_count;
-} Nst_DeclrList;
+    const i8 *name;
+} Nst_Declr;
 
 /**
  * Checks the types of the arguments and extracts their values.
@@ -325,7 +297,7 @@ NstEXP typedef struct _Nst_DeclrList {
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP bool NstC Nst_extract_arg_values(const i8 *types, usize arg_num,
+NstEXP bool NstC Nst_extract_args(const i8 *types, usize arg_num,
                                         Nst_Obj **args, ...);
 
 #ifdef __cplusplus

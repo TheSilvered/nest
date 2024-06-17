@@ -7,9 +7,8 @@
 extern "C" {
 #endif // !__cplusplus
 
-NstEXP bool NstC lib_init();
-NstEXP Nst_DeclrList *NstC get_func_ptrs();
-NstEXP void NstC free_lib();
+NstEXP Nst_Declr *NstC lib_init();
+NstEXP void NstC lib_quit();
 
 typedef struct _CoroutineObj {
     Nst_OBJ_HEAD;
@@ -42,12 +41,12 @@ Nst_Obj *coroutine_new(Nst_FuncObj *func);
 void coroutine_traverse(CoroutineObj *co);
 void coroutine_destroy(CoroutineObj *co);
 
-Nst_FUNC_SIGN(create_);
-Nst_FUNC_SIGN(call_);
-Nst_FUNC_SIGN(yield_);
-Nst_FUNC_SIGN(get_state_);
-Nst_FUNC_SIGN(generator_);
-Nst_FUNC_SIGN(_get_co_type_obj_);
+Nst_Obj *NstC create_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC call_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC yield_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC get_state_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC generator_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC _get_co_type_obj_(usize arg_num, Nst_Obj **args);
 
 #ifdef __cplusplus
 }

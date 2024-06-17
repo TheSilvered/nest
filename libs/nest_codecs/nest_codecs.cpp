@@ -2,40 +2,26 @@
 #include <cstdlib>
 #include "nest_codecs.h"
 
-#define FUNC_COUNT 3
-
 #define SET_INVALID_UTF8                                                      \
     Nst_set_value_error_c("the string is not valid UTF-8")
 
-static Nst_ObjDeclr func_list_[FUNC_COUNT];
-static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
-static bool lib_init_ = false;
+static Nst_Declr obj_list_[] = {
+    Nst_FUNCDECLR(from_cp_,     1),
+    Nst_FUNCDECLR(to_cp_,       1),
+    Nst_FUNCDECLR(cp_is_valid_, 1),
+    Nst_DECLR_END
+};
 
-bool lib_init()
+Nst_Declr *lib_init()
 {
-    usize idx = 0;
-
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(from_cp_,     1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(to_cp_,       1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(cp_is_valid_, 1);
-
-#if __LINE__ - FUNC_COUNT != 19
-#error
-#endif
-
-    lib_init_ = !Nst_error_occurred();
-    return lib_init_;
+    return obj_list_;
 }
 
-Nst_DeclrList *get_func_ptrs()
-{
-    return lib_init_ ? &obj_list_ : nullptr;
-}
-
-Nst_FUNC_SIGN(from_cp_)
+Nst_Obj *NstC from_cp_(usize arg_num, Nst_Obj **args)
 {
     i64 cp;
-    Nst_DEF_EXTRACT("l", &cp);
+    if (!Nst_extract_args("l", arg_num, args, &cp))
+        return nullptr;
 
     if (cp < 0 || cp > UINT32_MAX) {
         Nst_set_value_error(
@@ -60,10 +46,11 @@ Nst_FUNC_SIGN(from_cp_)
     return Nst_string_new_allocated((i8 *)str, (usize)len);
 }
 
-Nst_FUNC_SIGN(to_cp_)
+Nst_Obj *NstC to_cp_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
-    Nst_DEF_EXTRACT("s", &str);
+    if (!Nst_extract_args("s", arg_num, args, &str))
+        return nullptr;
 
     if (str->true_len != 1) {
         Nst_set_value_error_c("the string must contain only one character");
@@ -74,10 +61,11 @@ Nst_FUNC_SIGN(to_cp_)
     return Nst_int_new(cp);
 }
 
-Nst_FUNC_SIGN(cp_is_valid_)
+Nst_Obj *NstC cp_is_valid_(usize arg_num, Nst_Obj **args)
 {
     i64 cp;
-    Nst_DEF_EXTRACT("l", &cp);
+    if (!Nst_extract_args("l", arg_num, args, &cp))
+        return nullptr;
 
     Nst_RETURN_BOOL(cp >= 0 && cp <= UINT32_MAX && Nst_is_valid_cp((u32)cp));
 }

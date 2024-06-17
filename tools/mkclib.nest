@@ -548,11 +548,10 @@ BOOL APIENTRY DllMain(HMODULE h_module, DWORD reason_for_call, LPVOID reserved)
 extern \"C\" {
 #endif // !__cplusplus
 
-NstEXP bool NstC lib_init();
-NstEXP Nst_DeclrList *NstC get_func_ptrs();
+NstEXP Nst_Declr *NstC lib_init();
 // NstEXP void NstC free_lib();
 
-Nst_FUNC_SIGN(add);
+Nst_Obj *NstC add(usize arg_num, Nst_Obj **args);
 
 #ifdef __cplusplus
 }
@@ -563,36 +562,21 @@ Nst_FUNC_SIGN(add);
 
 "#include \"" name ".h\"
 
-#define FUNC_COUNT 1 // define here the number of functions inside the library
-
-static Nst_ObjDeclr func_list_[FUNC_COUNT];
-static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
-static bool lib_init_ = false;
+static Nst_Declr obj_list_[] = {
+    Nst_FUNCRECLR(add, 2),
+    Nst_DECLR_END
+};
 
 bool lib_init()
 {
-    usize idx = 0;
-
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(add, 2);
-
-#if __LINE__ - FUNC_COUNT != 14 // keep this number as the line after the first
-                                // func_list_[idx++] = ...
-#error
-#endif
-
-    lib_init_ = !Nst_error_occurred();
-    return lib_init_;
+    return obj_list_;
 }
 
-Nst_DeclrList *get_func_ptrs()
-{
-    return lib_init_ ? &obj_list_ : nullptr;
-}
-
-Nst_FUNC_SIGN(add)
+Nst_Obj *NstC add(usize arg_num, Nst_Obj **args)
 {
     i64 a, b;
-    Nst_DEF_EXTRACT(\"ii\", &a, &b);
+    if (!Nst_extract_args(\"ii\", arg_num, args, &a, &b))
+        return nullptr;
     return Nst_int_new(a + b);
 }
 " >< = name_cpp_content

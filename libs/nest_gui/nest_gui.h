@@ -16,21 +16,20 @@
 extern "C" {
 #endif // !__cplusplus
 
-NstEXP bool NstC lib_init();
-NstEXP Nst_DeclrList *NstC get_func_ptrs();
-NstEXP void NstC free_lib();
+NstEXP Nst_Declr *NstC lib_init();
+NstEXP void NstC lib_quit();
 
-Nst_FUNC_SIGN(init_sdl_and_ttf_);
-Nst_FUNC_SIGN(loop_);
-Nst_FUNC_SIGN(window_init_);
-Nst_FUNC_SIGN(window_set_title_);
-Nst_FUNC_SIGN(window_get_title_);
-Nst_FUNC_SIGN(window_set_position_);
-Nst_FUNC_SIGN(window_get_position_);
-Nst_FUNC_SIGN(window_set_size_);
-Nst_FUNC_SIGN(window_get_size_);
-Nst_FUNC_SIGN(window_set_resizable_);
-Nst_FUNC_SIGN(window_get_resizable_);
+Nst_Obj *NstC init_sdl_and_ttf_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC loop_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC window_init_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC window_set_title_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC window_get_title_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC window_set_position_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC window_get_position_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC window_set_size_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC window_get_size_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC window_set_resizable_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC window_get_resizable_(usize arg_num, Nst_Obj **args);
 
 #ifdef __cplusplus
 }

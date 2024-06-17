@@ -109,10 +109,9 @@ extern "C" {
 #endif // !__cplusplus
 
 NstEXP bool NstC lib_init();
-NstEXP Nst_DeclrList *NstC get_func_ptrs();
-// NstEXP void NstC free_lib();
+// NstEXP void NstC lib_quit();
 
-Nst_FUNC_SIGN(add);
+Nst_Obj *NstC add(usize arg_num, Nst_Obj **args);
 
 #ifdef __cplusplus
 }
@@ -121,124 +120,120 @@ Nst_FUNC_SIGN(add);
 #endif // !VEC_LIB_H
 ```
 
-Here, excluding boilerplate code, you will see two three function declarations,
-the third of which is commented out, and another line to which we'll get to in
-a minute. These functions are the means that the main interpreter uses to
-communicate with the library.
+Here, excluding boilerplate code, you will see three function declarations,
+with the second one being commented out. The first two functions (`lib_init`,
+and `lib_quit`) are used by the interpreter to communcate with the library as
+follows:
 
-- `lib_init` is the function that is called when the library is first loaded and
-  should initialize the library
-- `get_func_ptrs` will give to the interpreter all the function and object
-  declarations that the user of the library can access
-- `free_lib` is optional, as you can see here, and is called when the main
-  interpreter is closing and the library is unloaded, here there should be the
-  cleanup of the things initialized with `lib_init`
+- `lib_init` is the function that is called when the library is first loaded
+  and should initialize any objects that last for the lifetime of the library,
+  it returns the list of objects exported by the library and `NULL` if the
+  library fails to be initialized
+- `lib_quit` is optional and is called when the main library is unloaded, this
+  function should de-initialize anything initialized with `lib_init`, this
+  function must not throw any error
 
-Now we can get to the last line: `Nst_FUNC_SIGN(add)`. This is also a function
-declaration that would appear like this without the macro:
-
-```better-c
-Nst_Obj *NstC add(usize arg_num, Nst_Obj **args);
-```
-
-Though using the macro is preferred since other macros rely on the correct
-naming of the arguments.
-
-This kind of function is what can be called by the user of the library, that is
-why it uses the Nest Function Signature.
+Now we can get to the last function: this kind of function is what can be
+called by the user of the library. Note that it takes two arguments: the number
+of arguments being passed to the function (usually called `arg_num`) and the
+array of the arguments themselves (usually called `args`). The arguments are
+always passed exclusively as Nest objects.
 
 Now let's take a look at `vec_lib.cpp`:
 
 ```better-c
 #include "vec_lib.h"
 
-#define FUNC_COUNT 1 // define here the number of functions inside the library
+static Nst_Declr obj_list_[] = {
+    NST_FUNCDECLR(add, 2),
+    Nst_DECLR_END
+};
 
-static Nst_ObjDeclr func_list_[FUNC_COUNT];
-static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
-static bool lib_init_ = false;
-
-bool lib_init()
+Nst_Declr *lib_init()
 {
-    usize idx = 0;
-
-    func_list_[idx++] = NST_MAKE_FUNCDECLR(add, 2);
-
-#if __LINE__ - FUNC_COUNT != 14 // keep this number as the line after the first
-                                // func_list_[idx++] = ...
-#error
-#endif
-
-    lib_init_ = !Nst_error_occurred();
-    return lib_init_;
+    return obj_list_;
 }
 
-Nst_DeclrList *get_func_ptrs()
-{
-    return lib_init_ ? &obj_list_ : nullptr;
-}
-
-Nst_FUNC_SIGN(add)
+Nst_Obj *NstC add(usize arg_num, Nst_Obj **args)
 {
     i64 a, b;
-    Nst_DEF_EXTRACT("ii", &a, &b);
+    if (!Nst_extract_args("ii", arg_num, args, &a, &b))
+        return nullptr;
     return Nst_int_new(a + b);
 }
 ```
 
-First, let's look at the implementation of `lib_init`. The first two lines are
-there to make it easier to set the values of `func_list_` and to catch any
-errors, then line 14 declares the function `add` as a variable to be exported
-as a function that accepts two arguments.
-Now let's address the elephant in the room: `#if __LINE__ - FUNC_COUNT != 14`.
-This is quite odd but is there to prevent `FUNC_COUNT` from being incorrect and
-causing a write-out-of-bounds operation because the `func_list_` array is too
-small. The program will not compile, though, when you add any new statements
-above this line but I reckon is more desirable to fail to compile than to crash
-at run-time.
+First let's look at the function list: here it is called `obj_list_` since it
+can also contain object declarations. This is an array of `Nst_Declr` structs.
+Inside you can see the `add` function declared in `vec_lib.h` added to the
+array through `Nst_FUNCDECLR`, this macro takes the function as the first
+argument and the number of arguments it takes as the second, in this case the
+`add` function takes two arguments. When using this macro the function is
+accessible through Nest with the same name as in C, if you instead want to
+use a different name check
+[`Nst_NAMED_FUNCDECLR`](../c_api/c_api-lib_import.md#nst_named_funcdeclr).
+At the end of the array there must always be a `Nst_DECLR_END` to signal to
+Nest that there are no more functions to export.
 
-Moving our attention at the implementation of `get_func_ptrs`; it will probably
-never be modified, as a matter of fact all the standard library uses that format.
+Now, let's look at the implementation of `lib_init`. Since this library
+doesn't yet need to initialize anything it returns the list of functions
+(called `obj_list_`) directly.
 
-This said, let's take a look at the implementation of `add`. Adding two numbers
-is not a hard task: firstly the values passed from Nest are extracted, as they
-are in the `args` array, and then a new `Int` object is created from the sum
-of the values of the two arguments. I suggest reading the documentation of
-[`Nst_DEF_EXTRACT`](../c_api/c_api-lib_import.md#nst_def_extract) and of the
-other functions and macros declared in `lib_import.h` as they were originally
-thought for external libraries.
+Lastly, let's take a look at the implementation of `add`. Since the values are
+passed as Nest objects they need to be extracted to be used in C, for that
+Nest provides the
+[`Nst_extract_args`](../c_api/c_api-lib_import.md#nst_extract_args) function.
+Check the documentation do see how it works, in this case it extracts two
+integers into `a` and `b`. Then, to return the result we create a new `Int`
+object with the sum as its value and we return it.
 
 ## Creating the `Vec2` type
 
-The first step to creating this library is to make a new `Type` object that will
-be assigned to the instances of the new `Vec2` objects. To create it let's first
-make a global static variable called `t_Vec2` of type `Nst_TypeObj *` to contain
-the new `Type` object. Then we can replace the declaration of `add` with this
-object declaration:
-
-```better-c
-func_list_[idx++] = Nst_MAKE_NAMED_OBJDECLR(t_Vec2, "Vec2");
-```
-
-This creates a new variable when the module is imported with the name `Vec2` and
-the value of `t_Vec2`. But `t_Vec2` has not been yet initialized, that is why
-we add this line after before the declaration and change line 18:
+The first step to creating this library is to make a new `Type` object that
+will be assigned to the instances of the new `Vec2` objects. To create it let's
+first make a global static variable called `t_Vec2` of type `Nst_TypeObj *` to
+contain the new `Type` object. Now in `lib_init` we can initialize it like so:
 
 ```better-c
 t_Vec2 = Nst_type_new("Vec2");
 ```
 
-The last thing to do is implement `free_lib` since we initialized a new object
-in `lib_init`.
+And since `Nst_type_new` can fail we should check for any errors and return
+`nullptr`.
 
 ```better-c
-void free_lib()
+if (t_Vec2 == nullptr)
+    return nullptr;
+```
+
+Now we need to add a `lib_quit` function that will remove the reference of the
+object from `t_Vec2`:
+
+```better-c
+void lib_quit()
 {
     Nst_dec_ref(t_Vec2);
 }
 ```
 
 Without forgetting to export it in `vec_lib.h`.
+
+Now that we have the variable we need to export it to Nest. To do this we first
+need to create a function that returns an instance of the type, this function
+does not take any arguments:
+
+```better-c
+Nst_Obj *Vec2()
+{
+    return Nst_inc_ref(t_Vec2);
+}
+```
+
+Going back to `obj_list_` we can remove the declaration for `add` and add one
+for `Vec2` with `Nst_CONSTDECLR(Vec2)`, note that `Vec2` is the name of the
+function and is the name with which the type will be available through Nest.
+If you have called the function with a different name you can use
+`Nst_NAMED_CONSTDECLR(other_func, "Vec2")` to export the same name.
 
 To test that everything is working, compile it from Visual Studio or with `make`
 and open `vec_lib.nest` and replace the contents with
@@ -255,26 +250,23 @@ since I have the 64-bit release on Windows I will put `x64/Release/vec_lib.dll`.
 Now, if you run it you should see `Vec2` being printed on the console.
 
 !!!note
-    When importing a C library directly you need to add `__C__` in front of the
-    path otherwise Nest will attempt to load it as a `.nest` file.
+    When importing a C library directly you need to add `__C__:` in front of
+    the path otherwise Nest will attempt to load it as a `.nest` file.
 
 ## Creating the `Vec2` object
 
 Now we can move on to create the actual `Vec2` object. The first thing to do is
-creating the struct that will represent it, so in `vec_lib.h` add this before
-the function declarations:
+creating the struct that will represent it, so in `vec_lib.h` add this:
 
 ```better-c
-typedef struct _Vec2Obj
-{
+typedef struct _Vec2Obj {
     Nst_OBJ_HEAD;
     f64 x, y;
-}
-Vec2Obj;
+} Vec2Obj;
 ```
 
 Here, `Nst_OBJ_HEAD` adds all the fields to the struct to be able to manage it
-as an object and `x` and `y` are just additional fields.
+as a Nest object and `x` and `y` are just additional fields.
 
 Then let's declare a new function to create an instance of this object:
 
@@ -298,18 +290,17 @@ Nst_Obj *vec2_new(f64 x, f64 y)
 }
 ```
 
-Now that we have the `Vec2` object ready, we can start working onto implementing
-the functions that the user will be able to call from Nest.
+Now that we have the `Vec2` object ready, we can start working onto
+implementing the functions that the user will be able to call from Nest.
 
 ## Implementing `vec2` and `vec2_to_str`
 
-Now that we can create `Vec2` objects in C, we should let the user do it too! To
-do this we need a wrapper function for `vec2_new` that is callable by Nest
-simply called `vec2` by adding `NST_FUNC_SIGN(vec2);` to `vec_lib.h` and
-the implementation to `vec_lib.cpp`:
+Now that we can create `Vec2` objects in C, we should let the user do it too!
+To do this we need a wrapper function for `vec2_new` that is callable by Nest
+simply called `vec2`:
 
 ```better-c
-Nst_FUNC_SIGN(vec2)
+Nst_Obj *NstC vec2(usize arg_num, Nst_Obj **args)
 {
     f64 x, y;
     Nst_DEF_EXTRACT("NN", &x, &y);
@@ -317,24 +308,26 @@ Nst_FUNC_SIGN(vec2)
 }
 ```
 
-Now let's make it available to the user by adding this line to `lib_init`:
+Now let's make it available to the user by adding `Nst_FUNCDECLR(vec2, 2)` to
+`obj_list_`.
 
-```better-c
-func_list_[idx++] = Nst_MAKE_FUNCDECLR(vec2, 2);
+Now we can try to test it and you should be able to create the vectors:
+
+```nest
+|#| '__C__:vec_lib.cnest' = vec_lib
+
+2 3 @vec_lib.vec2 = vec
+>>> (vec '\n' ><)
 ```
 
-and updating `FUNC_COUNT`. Note that the second argument, `2` is the number of
-arguments that the function takes.
-
-Now we can try to test it and you should be able to create the vectors but if
-you try to print them you will probably be greeted with something like
+But if you try to print them you will probably be greeted with something like
 `<Vec2 object at 0x000001B2A47C36F0>`. That is not ideal, and since there is no
 way to see its contents let's create another function just for that called
 `vec2_to_str`. Here I will just show you the implementation and you can add
 everything else just like you did for `vec2`.
 
 ```better-c
-Nst_FUNC_SIGN(vec2_to_str)
+Nst_Obj *NstC vec2_to_str(usize arg_num, Nst_Obj **args)
 {
     Vec2Obj *vec2;
     Nst_DEF_EXTRACT("#", t_Vec2, &vec2);
@@ -345,8 +338,8 @@ Nst_FUNC_SIGN(vec2_to_str)
 ## Implementing other functions
 
 Now that the basic functions are in place, you can start implementing various
-functions to get back the `x` and `y` values, to normalize, to get the length or
-the cross product etc... all following the general process showed above.
+functions to get back the `x` and `y` values, to normalize, to get the length
+or the cross product etc... all following the general process showed above.
 
 To see my implementation of the library you can check it in the
 [repository](https://github.com/TheSilvered/nest/tree/main/examples/vec_lib).
@@ -354,8 +347,8 @@ To see my implementation of the library you can check it in the
 ## Nest wrapper
 
 After you have implemented all the functions you want to include, you should
-create a wrapper to the library to let the user import a `.nest` file instead of
-the `.cnest` one.
+create a wrapper to the library to let the user import a `.nest` file instead
+of the `.cnest` one.
 
 !!!note
     In Windows, even though the library is compiled as a `.dll` you should

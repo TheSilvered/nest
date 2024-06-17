@@ -2,15 +2,13 @@
 
 |#| '__C__:../../build/windows/projects/nest/\(_debug_)/Debug/nest_err.dll' = __err
 
-__err.try_ = try
-__err._get_err_names_ = _get_err_names
-
-@__err._get_err_names_ = {SYNTAX_ERROR,
-                          VALUE_ERROR,
-                          TYPE_ERROR,
-                          CALL_ERROR,
-                          MEMORY_ERROR,
-                          MATH_ERROR,
-                          IMPORT_ERROR}
+__err.try_          = try
+__err.CALL_ERROR_   = CALL_ERROR
+__err.IMPORT_ERROR_ = IMPORT_ERROR
+__err.MATH_ERROR_   = MATH_ERROR
+__err.MEMORY_ERROR_ = MEMORY_ERROR
+__err.SYNTAX_ERROR_ = SYNTAX_ERROR
+__err.TYPE_ERROR_   = TYPE_ERROR
+__err.VALUE_ERROR_  = VALUE_ERROR
 
 _vars_ '__err' '_vars_' -

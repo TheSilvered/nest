@@ -19,62 +19,48 @@
 #pragma warning(pop)
 #endif
 
-#define FUNC_COUNT 31
 #define COPY_OPT(name) Nst_int_new((i64)fs::copy_options::name)
 
 namespace fs = std::filesystem;
 
-static Nst_ObjDeclr func_list_[FUNC_COUNT];
-static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
-static bool lib_init_ = false;
+static Nst_Declr obj_list_[] = {
+    Nst_FUNCDECLR(is_dir_, 1),
+    Nst_FUNCDECLR(is_file_, 1),
+    Nst_FUNCDECLR(is_symlink_, 1),
+    Nst_FUNCDECLR(is_socket_, 1),
+    Nst_FUNCDECLR(is_block_device_, 1),
+    Nst_FUNCDECLR(is_char_device_, 1),
+    Nst_FUNCDECLR(is_named_pipe_, 1),
+    Nst_FUNCDECLR(make_dir_, 1),
+    Nst_FUNCDECLR(make_dirs_, 1),
+    Nst_FUNCDECLR(remove_dir_, 1),
+    Nst_FUNCDECLR(remove_dirs_, 1),
+    Nst_FUNCDECLR(remove_file_, 1),
+    Nst_FUNCDECLR(make_dir_symlink_, 2),
+    Nst_FUNCDECLR(make_file_symlink_, 2),
+    Nst_FUNCDECLR(read_symlink_, 1),
+    Nst_FUNCDECLR(make_hard_link_, 2),
+    Nst_FUNCDECLR(exists_, 1),
+    Nst_FUNCDECLR(copy_, 3),
+    Nst_FUNCDECLR(rename_, 2),
+    Nst_FUNCDECLR(list_dir_, 1),
+    Nst_FUNCDECLR(list_dirs_, 1),
+    Nst_FUNCDECLR(absolute_path_, 1),
+    Nst_FUNCDECLR(canonical_path_, 1),
+    Nst_FUNCDECLR(relative_path_, 2),
+    Nst_FUNCDECLR(equivalent_, 2),
+    Nst_FUNCDECLR(join_, 2),
+    Nst_FUNCDECLR(normalize_, 1),
+    Nst_FUNCDECLR(parent_path_, 1),
+    Nst_FUNCDECLR(filename_, 1),
+    Nst_FUNCDECLR(extension_, 1),
+    Nst_CONSTDECLR(CPO_),
+    Nst_DECLR_END
+};
 
-bool lib_init()
+Nst_Declr *lib_init()
 {
-    usize idx = 0;
-
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_dir_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_file_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_symlink_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_socket_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_block_device_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_char_device_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_named_pipe_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(make_dir_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(make_dirs_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(remove_dir_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(remove_dirs_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(remove_file_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(make_dir_symlink_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(make_file_symlink_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(read_symlink_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(make_hard_link_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(exists_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(copy_, 3);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(rename_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(list_dir_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(list_dirs_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(absolute_path_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(canonical_path_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(relative_path_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(equivalent_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(join_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(normalize_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(parent_path_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(filename_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(extension_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_copy_options_, 0);
-
-#if __LINE__ - FUNC_COUNT != 36
-#error
-#endif
-
-    lib_init_ = !Nst_error_occurred();
-    return lib_init_;
-}
-
-Nst_DeclrList *get_func_ptrs()
-{
-    return lib_init_ ? &obj_list_ : nullptr;
+    return obj_list_;
 }
 
 static Nst_StrObj *heap_str(const i8 *str, usize len)
@@ -134,61 +120,69 @@ bool check_path(Nst_StrObj *path, bool (*func)(const fs::path&,
     return check;
 }
 
-Nst_FUNC_SIGN(is_dir_)
+Nst_Obj *NstC is_dir_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
-    Nst_DEF_EXTRACT("s", &path);
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
     Nst_RETURN_BOOL(check_path(path, fs::is_directory));
 }
 
-Nst_FUNC_SIGN(is_file_)
+Nst_Obj *NstC is_file_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
-    Nst_DEF_EXTRACT("s", &path);
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
     Nst_RETURN_BOOL(check_path(path, fs::is_regular_file));
 }
 
-Nst_FUNC_SIGN(is_symlink_)
+Nst_Obj *NstC is_symlink_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
-    Nst_DEF_EXTRACT("s", &path);
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
     Nst_RETURN_BOOL(check_path(path, fs::is_symlink));
 }
 
-Nst_FUNC_SIGN(is_socket_)
+Nst_Obj *NstC is_socket_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
-    Nst_DEF_EXTRACT("s", &path);
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
     Nst_RETURN_BOOL(check_path(path, fs::is_socket));
 }
 
-Nst_FUNC_SIGN(is_block_device_)
+Nst_Obj *NstC is_block_device_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
-    Nst_DEF_EXTRACT("s", &path);
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
     Nst_RETURN_BOOL(check_path(path, fs::is_block_file));
 }
 
-Nst_FUNC_SIGN(is_char_device_)
+Nst_Obj *NstC is_char_device_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
-    Nst_DEF_EXTRACT("s", &path);
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
     Nst_RETURN_BOOL(check_path(path, fs::is_character_file));
 }
 
-Nst_FUNC_SIGN(is_named_pipe_)
+Nst_Obj *NstC is_named_pipe_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
-    Nst_DEF_EXTRACT("s", &path);
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
     Nst_RETURN_BOOL(check_path(path, fs::is_fifo));
 }
 
-Nst_FUNC_SIGN(make_dir_)
+Nst_Obj *NstC make_dir_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
     std::error_code ec;
 
-    Nst_DEF_EXTRACT("s", &path);
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
     bool success = fs::create_directory(utf8_path(path), ec);
 
     if (success || ec.value() == ERROR_ALREADY_EXISTS || ec.value() == 0)
@@ -197,11 +191,12 @@ Nst_FUNC_SIGN(make_dir_)
         return throw_system_error(ec);
 }
 
-Nst_FUNC_SIGN(make_dirs_)
+Nst_Obj *NstC make_dirs_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
 
-    Nst_DEF_EXTRACT("s", &path);
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
     std::error_code ec;
     bool success = fs::create_directories(utf8_path(path), ec);
 
@@ -211,11 +206,12 @@ Nst_FUNC_SIGN(make_dirs_)
         return throw_system_error(ec);
 }
 
-Nst_FUNC_SIGN(remove_dir_)
+Nst_Obj *NstC remove_dir_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
 
-    Nst_DEF_EXTRACT("s", &path);
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
 
     std::error_code ec;
     if (!fs::is_directory(utf8_path(path))) {
@@ -231,11 +227,12 @@ Nst_FUNC_SIGN(remove_dir_)
         return throw_system_error(ec);
 }
 
-Nst_FUNC_SIGN(remove_dirs_)
+Nst_Obj *NstC remove_dirs_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
 
-    Nst_DEF_EXTRACT("s", &path);
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
 
     std::error_code ec;
 
@@ -252,11 +249,12 @@ Nst_FUNC_SIGN(remove_dirs_)
         return throw_system_error(ec);
 }
 
-Nst_FUNC_SIGN(remove_file_)
+Nst_Obj *NstC remove_file_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
 
-    Nst_DEF_EXTRACT("s", &path);
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
     std::error_code ec;
 
     if (!check_path(path, fs::exists) || check_path(path, fs::is_directory)) {
@@ -272,13 +270,14 @@ Nst_FUNC_SIGN(remove_file_)
         return throw_system_error(ec);
 }
 
-Nst_FUNC_SIGN(make_dir_symlink_)
+Nst_Obj *NstC make_dir_symlink_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *target;
     Nst_StrObj *link;
     std::error_code ec;
 
-    Nst_DEF_EXTRACT("s s", &target, &link);
+    if (!Nst_extract_args("s s", arg_num, args, &target, &link))
+        return nullptr;
 
     fs::create_directory_symlink(utf8_path(target), utf8_path(link), ec);
     if (ec.value() == 0)
@@ -287,13 +286,14 @@ Nst_FUNC_SIGN(make_dir_symlink_)
         return throw_system_error(ec);
 }
 
-Nst_FUNC_SIGN(make_file_symlink_)
+Nst_Obj *NstC make_file_symlink_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *target;
     Nst_StrObj *link;
     std::error_code ec;
 
-    Nst_DEF_EXTRACT("s s", &target, &link);
+    if (!Nst_extract_args("s s", arg_num, args, &target, &link))
+        return nullptr;
 
     fs::create_symlink(utf8_path(target), utf8_path(link), ec);
     if (ec.value() == 0)
@@ -302,12 +302,13 @@ Nst_FUNC_SIGN(make_file_symlink_)
         return throw_system_error(ec);
 }
 
-Nst_FUNC_SIGN(read_symlink_)
+Nst_Obj *NstC read_symlink_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
     std::error_code ec;
 
-    Nst_DEF_EXTRACT("s", &path);
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
 
     if (!check_path(path, fs::is_symlink)) {
         Nst_set_value_errorf("symlink '%.4096s' not found", path->value);
@@ -321,13 +322,14 @@ Nst_FUNC_SIGN(read_symlink_)
         return throw_system_error(ec);
 }
 
-Nst_FUNC_SIGN(make_hard_link_)
+Nst_Obj *NstC make_hard_link_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *target;
     Nst_StrObj *link;
     std::error_code ec;
 
-    Nst_DEF_EXTRACT("s s", &target, &link);
+    if (!Nst_extract_args("s s", arg_num, args, &target, &link))
+        return nullptr;
 
     fs::create_hard_link(utf8_path(target), utf8_path(link), ec);
     if (ec.value() == 0)
@@ -336,20 +338,27 @@ Nst_FUNC_SIGN(make_hard_link_)
         return throw_system_error(ec);
 }
 
-Nst_FUNC_SIGN(exists_)
+Nst_Obj *NstC exists_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
-    Nst_DEF_EXTRACT("s", &path);
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
     Nst_RETURN_BOOL(check_path(path, fs::exists));
 }
 
-Nst_FUNC_SIGN(copy_)
+Nst_Obj *NstC copy_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path_from;
     Nst_StrObj *path_to;
     Nst_Obj *options;
 
-    Nst_DEF_EXTRACT("s s ?i", &path_from, &path_to, &options);
+    if (!Nst_extract_args(
+            "s s ?i",
+            arg_num, args,
+            &path_from, &path_to, &options))
+    {
+        return nullptr;
+    }
 
     fs::copy_options cp_options = Nst_DEF_VAL(
         options,
@@ -371,12 +380,13 @@ Nst_FUNC_SIGN(copy_)
         return throw_system_error(ec);
 }
 
-Nst_FUNC_SIGN(rename_)
+Nst_Obj *NstC rename_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *old_path;
     Nst_StrObj *new_path;
 
-    Nst_DEF_EXTRACT("s s", &old_path, &new_path);
+    if (!Nst_extract_args("s s", arg_num, args, &old_path, &new_path))
+        return nullptr;
 
     std::error_code ec;
 
@@ -394,11 +404,12 @@ Nst_FUNC_SIGN(rename_)
         return throw_system_error(ec);
 }
 
-Nst_FUNC_SIGN(list_dir_)
+Nst_Obj *NstC list_dir_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
 
-    Nst_DEF_EXTRACT("s", &path);
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
 
     std::error_code ec;
     if (!fs::is_directory(utf8_path(path), ec)) {
@@ -425,11 +436,12 @@ Nst_FUNC_SIGN(list_dir_)
     return OBJ(vector);
 }
 
-Nst_FUNC_SIGN(list_dirs_)
+Nst_Obj *NstC list_dirs_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
 
-    Nst_DEF_EXTRACT("s", &path);
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
 
     std::error_code ec;
     if (!fs::is_directory(utf8_path(path), ec)) {
@@ -456,11 +468,12 @@ Nst_FUNC_SIGN(list_dirs_)
     return OBJ(vector);
 }
 
-Nst_FUNC_SIGN(absolute_path_)
+Nst_Obj *NstC absolute_path_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
 
-    Nst_DEF_EXTRACT("s", &path);
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
 
     std::error_code ec;
     fs::path result = fs::absolute(utf8_path(path), ec);
@@ -471,11 +484,12 @@ Nst_FUNC_SIGN(absolute_path_)
         Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(canonical_path_)
+Nst_Obj *NstC canonical_path_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
 
-    Nst_DEF_EXTRACT("s", &path);
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
 
     std::error_code ec;
     fs::path result = fs::canonical(utf8_path(path), ec);
@@ -486,12 +500,13 @@ Nst_FUNC_SIGN(canonical_path_)
         Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(relative_path_)
+Nst_Obj *NstC relative_path_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
     Nst_StrObj *base;
 
-    Nst_DEF_EXTRACT("s ?s", &path, &base);
+    if (!Nst_extract_args("s ?s", arg_num, args, &path, &base))
+        return nullptr;
 
     if (OBJ(base) == Nst_null()) {
         base = Nst_getcwd();
@@ -511,23 +526,25 @@ Nst_FUNC_SIGN(relative_path_)
         Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(equivalent_)
+Nst_Obj *NstC equivalent_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path_1;
     Nst_StrObj *path_2;
 
-    Nst_DEF_EXTRACT("s s", &path_1, &path_2);
+    if (!Nst_extract_args("s s", arg_num, args, &path_1, &path_2))
+        return nullptr;
 
     std::error_code ec;
     Nst_RETURN_BOOL(fs::equivalent(utf8_path(path_1), utf8_path(path_2), ec));
 }
 
-Nst_FUNC_SIGN(join_)
+Nst_Obj *NstC join_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path_1;
     Nst_StrObj *path_2;
 
-    Nst_DEF_EXTRACT("s s", &path_1, &path_2);
+    if (!Nst_extract_args("s s", arg_num, args, &path_1, &path_2))
+        return nullptr;
 
     i8 *p1 = path_1->value;
     i8 *p2 = path_2->value;
@@ -579,11 +596,12 @@ Nst_FUNC_SIGN(join_)
     return Nst_string_new(new_str, new_len, true);
 }
 
-Nst_FUNC_SIGN(normalize_)
+Nst_Obj *NstC normalize_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
 
-    Nst_DEF_EXTRACT("s", &path);
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
     Nst_StrObj *norm_path = STR(Nst_string_copy(path));
     if (norm_path == nullptr)
         return nullptr;
@@ -602,32 +620,32 @@ Nst_FUNC_SIGN(normalize_)
     return OBJ(norm_path);
 }
 
-Nst_FUNC_SIGN(parent_path_)
+Nst_Obj *NstC parent_path_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
-    Nst_DEF_EXTRACT("s", &path);
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
     return OBJ(heap_str(utf8_path(path).parent_path()));
 }
 
-Nst_FUNC_SIGN(filename_)
+Nst_Obj *NstC filename_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
-    Nst_DEF_EXTRACT("s", &path);
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
     return OBJ(heap_str(utf8_path(path).filename()));
 }
 
-Nst_FUNC_SIGN(extension_)
+Nst_Obj *NstC extension_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
-    Nst_DEF_EXTRACT("s", &path);
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
     return OBJ(heap_str(utf8_path(path).extension()));
 }
 
-Nst_FUNC_SIGN(_get_copy_options_)
+Nst_Obj *NstC CPO_()
 {
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
-
     Nst_MapObj *cpo_map = MAP(Nst_map_new());
 
     Nst_Obj *none_opt            = COPY_OPT(none);

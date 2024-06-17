@@ -79,7 +79,7 @@ int main() {
 
     // lib_import.h
 
-    RUN_TEST(test_extract_arg_values);
+    RUN_TEST(test_extract_args);
 
     // llist.h
 

@@ -180,12 +180,12 @@ Additionaly, any cast added manually will overwrite the cast of the shorthand.
 
 ## Macros
 
-### `Nst_MAKE_FUNCDECLR`
+### `Nst_FUNCDECLR`
 
 **Synopsis:**
 
 ```better-c
-#define Nst_MAKE_FUNCDECLR(func_ptr, argc)
+#define Nst_FUNCDECLR(func_ptr, argc)
 ```
 
 **Description:**
@@ -201,12 +201,12 @@ For the name of the function the name of the function pointer is used.
 
 ---
 
-### `Nst_MAKE_NAMED_FUNCDECLR`
+### `Nst_NAMED_FUNCDECLR`
 
 **Synopsis:**
 
 ```better-c
-#define Nst_MAKE_NAMED_FUNCDECLR(func_ptr, argc, func_name)
+#define Nst_NAMED_FUNCDECLR(func_ptr, argc, name)
 ```
 
 **Description:**
@@ -217,16 +217,38 @@ Initializes a function declaration with a custom name.
 
 - `func_ptr`: the function pointer to use
 - `argc`: the number of arguments the function accepts
-- `func_name`: the name to use as a C string
+- `name`: the name to use as a C string
 
 ---
 
-### `Nst_MAKE_OBJDECLR`
+### `Nst_CONSTDECLR`
 
 **Synopsis:**
 
 ```better-c
-#define Nst_MAKE_OBJDECLR(obj_ptr)
+#define Nst_CONSTDECLR(func_ptr)
+```
+
+**Description:**
+
+Initialized an object declaration.
+
+For the name of the object the name of the function pointer is used.
+
+**Parameters:**
+
+- `func_ptr`: the pointer to a function that returns the value of the constant,
+  this function is of signature
+  [`Nst_ConstFunc`](c_api-lib_import.md#nst_constfunc)
+
+---
+
+### `Nst_NAMED_CONSTDECLR`
+
+**Synopsis:**
+
+```better-c
+#define Nst_NAMED_CONSTDECLR(func_ptr, name)
 ```
 
 **Description:**
@@ -237,26 +259,10 @@ For the name of the object the name of the pointer is used.
 
 **Parameters:**
 
-- `obj_pointer`: the pointer to the Nest object to declare
-
----
-
-### `Nst_MAKE_NAMED_OBJDECLR`
-
-**Synopsis:**
-
-```better-c
-#define Nst_MAKE_NAMED_OBJDECLR(obj_ptr, obj_name)
-```
-
-**Description:**
-
-Initialized an object declaration with a custom name.
-
-**Parameters:**
-
-- `obj_pointer`: the pointer to the Nest object to declare
-- `obj_name`: the name to use as a C string
+- `func_ptr`: the pointer to a function that returns the value of the constant,
+  this function is of signature
+  [`Nst_ConstFunc`](c_api-lib_import.md#nst_constfunc)
+- `name`: the name to use as a C string
 
 ---
 
@@ -324,33 +330,17 @@ Returns [`Nst_true_ref()`](c_api-global_consts.md#nst_true_ref) if `expr` is
 
 ---
 
-### `Nst_FUNC_SIGN`
+### `Nst_IS_NULL`
 
 **Synopsis:**
 
 ```better-c
-#define Nst_FUNC_SIGN(name)
+#define Nst_IS_NULL(obj)
 ```
 
 **Description:**
 
-Function signature for a Nest-callable C function.
-
----
-
-### `Nst_DEF_EXTRACT`
-
-**Synopsis:**
-
-```better-c
-#define Nst_DEF_EXTRACT(ltrl, ...)
-```
-
-**Description:**
-
-Default call to
-[`Nst_extract_arg_values`](c_api-lib_import.md#nst_extract_arg_values) that
-returns `NULL` on error.
+Boolean expression to check if an object is `null`.
 
 ---
 
@@ -385,62 +375,55 @@ Checks if the type of an object is `type_name`.
 
 ## Structs
 
-### `Nst_ObjDeclr`
+### `Nst_Declr`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_ObjDeclr {
+typedef struct _Nst_Declr {
     void *ptr;
     isize arg_num;
-    Nst_StrObj *name;
-} Nst_ObjDeclr
+    const i8 *name;
+} Nst_Declr
 ```
 
 **Description:**
 
-Structure defining an object declaration.
+Structure defining an object declaration for a C library.
 
 **Fields:**
 
-- `ptr`: the pointer to the object or function
+- `ptr`: the pointer to the function
 - `arg_num`: the number of arguments if the object is a function, `-1` for other
   declarations
 - `name`: the name of the declared object
 
 ---
 
-### `Nst_DeclrList`
+## Type aliases
+
+### `Nst_ConstFunc`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_DeclrList {
-    Nst_ObjDeclr *objs;
-    usize obj_count;
-} Nst_DeclrList
+typedef Nst_Obj *(*Nst_ConstFunc)(void)
 ```
 
 **Description:**
 
-Structure defining a list of object declarations.
-
-**Fields:**
-
-- `objs`: the array of declared objects
-- `obj_count`: the number of objects inside the array
+The signarture of a function used to get the constant of a library.
 
 ---
 
 ## Functions
 
-### `Nst_extract_arg_values`
+### `Nst_extract_args`
 
 **Synopsis:**
 
 ```better-c
-bool Nst_extract_arg_values(const i8 *types, usize arg_num, Nst_Obj **args,
-                            ...)
+bool Nst_extract_args(const i8 *types, usize arg_num, Nst_Obj **args, ...)
 ```
 
 **Description:**

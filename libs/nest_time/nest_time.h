@@ -7,31 +7,30 @@
 extern "C" {
 #endif // !__cplusplus
 
-NstEXP bool NstC lib_init();
-NstEXP Nst_DeclrList *NstC get_func_ptrs();
+NstEXP Nst_Declr *NstC lib_init();
 
-Nst_FUNC_SIGN(time_);
-Nst_FUNC_SIGN(time_ns_);
-Nst_FUNC_SIGN(high_res_time_);
-Nst_FUNC_SIGN(high_res_time_ns_);
-Nst_FUNC_SIGN(monotonic_time_);
-Nst_FUNC_SIGN(monotonic_time_ns_);
-Nst_FUNC_SIGN(year_day_);
-Nst_FUNC_SIGN(week_day_);
-Nst_FUNC_SIGN(day_);
-Nst_FUNC_SIGN(month_);
-Nst_FUNC_SIGN(year_);
-Nst_FUNC_SIGN(date_);
-Nst_FUNC_SIGN(gmt_date_);
-Nst_FUNC_SIGN(seconds_);
-Nst_FUNC_SIGN(minutes_);
-Nst_FUNC_SIGN(hours_);
-Nst_FUNC_SIGN(clock_time_);
-Nst_FUNC_SIGN(gmt_clock_time_);
-Nst_FUNC_SIGN(clock_datetime_);
-Nst_FUNC_SIGN(gmt_clock_datetime_);
-Nst_FUNC_SIGN(sleep_);
-Nst_FUNC_SIGN(sleep_ms_);
+Nst_Obj *NstC time_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC time_ns_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC high_res_time_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC high_res_time_ns_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC monotonic_time_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC monotonic_time_ns_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC year_day_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC week_day_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC day_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC month_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC year_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC date_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC gmt_date_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC seconds_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC minutes_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC hours_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC clock_time_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC gmt_clock_time_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC clock_datetime_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC gmt_clock_datetime_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC sleep_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC sleep_ms_(usize arg_num, Nst_Obj **args);
 
 #ifdef __cplusplus
 }

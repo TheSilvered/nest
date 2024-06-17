@@ -2,47 +2,37 @@
 #include <SDL_ttf.h>
 #include "nest_gui.h"
 
-#define FUNC_COUNT 11
-
-static Nst_ObjDeclr func_list_[FUNC_COUNT];
-static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
-static bool lib_init_ = false;
+static Nst_Declr obj_list_[] = {
+    Nst_FUNCDECLR(init_sdl_and_ttf_, 0),
+    Nst_FUNCDECLR(loop_, 0),
+    Nst_FUNCDECLR(window_init_, 2),
+    Nst_FUNCDECLR(window_set_title_, 1),
+    Nst_FUNCDECLR(window_get_title_, 0),
+    Nst_FUNCDECLR(window_set_position_, 2),
+    Nst_FUNCDECLR(window_get_position_, 0),
+    Nst_FUNCDECLR(window_set_size_, 2),
+    Nst_FUNCDECLR(window_get_size_, 0),
+    Nst_FUNCDECLR(window_set_resizable_, 1),
+    Nst_FUNCDECLR(window_get_resizable_, 0),
+    Nst_DECLR_END
+};
 static GUI_App app;
 
-bool lib_init()
+Nst_Declr *lib_init()
 {
-    usize idx = 0;
-
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(init_sdl_and_ttf_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(loop_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(window_init_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(window_set_title_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(window_get_title_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(window_set_position_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(window_get_position_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(window_set_size_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(window_get_size_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(window_set_resizable_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(window_get_resizable_, 0);
-
-#if __LINE__ - FUNC_COUNT != 17
-#error
-#endif
-
-    GUI_InitUtils();
-    GUI_InitTypes();
+    if (!GUI_InitUtils()) {
+        return nullptr;
+    }
+    if (!GUI_InitTypes()) {
+        GUI_QuitUtils();
+        return nullptr;
+    }
     app.initialized = false;
 
-    lib_init_ = !Nst_error_occurred();
-    return lib_init_;
+    return obj_list_;
 }
 
-Nst_DeclrList *get_func_ptrs()
-{
-    return lib_init_ ? &obj_list_ : nullptr;
-}
-
-void free_lib()
+void lib_quit()
 {
     GUI_QuitUtils();
     GUI_QuitTypes();
@@ -58,7 +48,7 @@ static bool not_initialized() {
     return false;
 }
 
-Nst_FUNC_SIGN(init_sdl_and_ttf_)
+Nst_Obj *NstC init_sdl_and_ttf_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(args);
     Nst_UNUSED(arg_num);
@@ -69,7 +59,7 @@ Nst_FUNC_SIGN(init_sdl_and_ttf_)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(loop_)
+Nst_Obj *NstC loop_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(args);
     Nst_UNUSED(arg_num);
@@ -90,10 +80,11 @@ Nst_FUNC_SIGN(loop_)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(window_init_)
+Nst_Obj *NstC window_init_(usize arg_num, Nst_Obj **args)
 {
     i64 w, h;
-    Nst_DEF_EXTRACT("i i", &w, &h);
+    if (!Nst_extract_args("i i", arg_num, args, &w, &h))
+        return nullptr;
 
     if (app.initialized) {
         Nst_set_call_error_c("the app was already initialized");
@@ -105,10 +96,11 @@ Nst_FUNC_SIGN(window_init_)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(window_set_title_)
+Nst_Obj *NstC window_set_title_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *title;
-    Nst_DEF_EXTRACT("s", &title);
+    if (!Nst_extract_args("s", arg_num, args, &title))
+        return nullptr;
     if (not_initialized())
         return nullptr;
 
@@ -116,7 +108,7 @@ Nst_FUNC_SIGN(window_set_title_)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(window_get_title_)
+Nst_Obj *NstC window_get_title_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
@@ -131,10 +123,11 @@ Nst_FUNC_SIGN(window_get_title_)
     return Nst_string_new_allocated(title_copy, title_len);
 }
 
-Nst_FUNC_SIGN(window_set_position_)
+Nst_Obj *NstC window_set_position_(usize arg_num, Nst_Obj **args)
 {
     i64 x, y;
-    Nst_DEF_EXTRACT("i i", &x, &y);
+    if (!Nst_extract_args("i i", arg_num, args, &x, &y))
+        return nullptr;
     if (not_initialized())
         return nullptr;
 
@@ -142,7 +135,7 @@ Nst_FUNC_SIGN(window_set_position_)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(window_get_position_)
+Nst_Obj *NstC window_get_position_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
@@ -155,10 +148,11 @@ Nst_FUNC_SIGN(window_get_position_)
     return Nst_array_create_c("ii", x, y);
 }
 
-Nst_FUNC_SIGN(window_set_size_)
+Nst_Obj *NstC window_set_size_(usize arg_num, Nst_Obj **args)
 {
     i64 w, h;
-    Nst_DEF_EXTRACT("i i", &w, &h);
+    if (!Nst_extract_args("i i", arg_num, args, &w, &h))
+        return nullptr;
     if (not_initialized())
         return nullptr;
 
@@ -166,7 +160,7 @@ Nst_FUNC_SIGN(window_set_size_)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(window_get_size_)
+Nst_Obj *NstC window_get_size_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
@@ -179,10 +173,11 @@ Nst_FUNC_SIGN(window_get_size_)
     return Nst_array_create_c("ii", w, h);
 }
 
-Nst_FUNC_SIGN(window_set_resizable_)
+Nst_Obj *NstC window_set_resizable_(usize arg_num, Nst_Obj **args)
 {
     bool resizable;
-    Nst_DEF_EXTRACT("y", &resizable);
+    if (!Nst_extract_args("y", arg_num, args, &resizable))
+        return nullptr;
     if (not_initialized())
         return nullptr;
 
@@ -190,7 +185,7 @@ Nst_FUNC_SIGN(window_set_resizable_)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(window_get_resizable_)
+Nst_Obj *NstC window_get_resizable_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);

@@ -277,7 +277,7 @@ TestResult test_iter_get_val()
 
 // lib_import.h
 
-TestResult test_extract_arg_values()
+TestResult test_extract_args()
 {
     return TEST_NOT_IMPL;
 }

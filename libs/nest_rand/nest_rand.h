@@ -7,15 +7,14 @@
 extern "C" {
 #endif // !__cplusplus
 
-NstEXP bool NstC lib_init();
-NstEXP Nst_DeclrList *NstC get_func_ptrs();
+NstEXP Nst_Declr *NstC lib_init();
 
-Nst_FUNC_SIGN(random_);
-Nst_FUNC_SIGN(rand_int_);
-Nst_FUNC_SIGN(rand_perc_);
-Nst_FUNC_SIGN(choice_);
-Nst_FUNC_SIGN(shuffle_);
-Nst_FUNC_SIGN(seed_);
+Nst_Obj *NstC random_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC rand_int_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC rand_perc_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC choice_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC shuffle_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC seed_(usize arg_num, Nst_Obj **args);
 
 #ifdef __cplusplus
 }

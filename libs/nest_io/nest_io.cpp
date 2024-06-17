@@ -4,67 +4,52 @@
 #include <cstdlib>
 #include "nest_io.h"
 
-#define FUNC_COUNT 26
-
 #define SET_FILE_CLOSED_ERROR \
     Nst_set_value_error_c("the given file given was previously closed")
 
-static Nst_ObjDeclr func_list_[FUNC_COUNT];
-static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
-static bool lib_init_ = false;
+static Nst_Declr obj_list_[] = {
+    Nst_FUNCDECLR(open_, 4),
+    Nst_FUNCDECLR(virtual_file_, 2),
+    Nst_FUNCDECLR(close_, 1),
+    Nst_FUNCDECLR(write_, 2),
+    Nst_FUNCDECLR(write_bytes_, 2),
+    Nst_FUNCDECLR(read_, 2),
+    Nst_FUNCDECLR(read_bytes_, 2),
+    Nst_FUNCDECLR(file_size_, 1),
+    Nst_FUNCDECLR(move_fpi_, 3),
+    Nst_FUNCDECLR(get_fpi_, 1),
+    Nst_FUNCDECLR(flush_, 1),
+    Nst_FUNCDECLR(get_flags_, 1),
+    Nst_FUNCDECLR(can_read_, 1),
+    Nst_FUNCDECLR(can_write_, 1),
+    Nst_FUNCDECLR(can_seek_, 1),
+    Nst_FUNCDECLR(is_bin_, 1),
+    Nst_FUNCDECLR(is_a_tty_, 1),
+    Nst_FUNCDECLR(descriptor_, 1),
+    Nst_FUNCDECLR(encoding_, 1),
+    Nst_FUNCDECLR(println_, 3),
+    Nst_FUNCDECLR(_set_stdin_, 1),
+    Nst_FUNCDECLR(_set_stdout_, 1),
+    Nst_FUNCDECLR(_set_stderr_, 1),
+    Nst_FUNCDECLR(_get_stdin_, 0),
+    Nst_FUNCDECLR(_get_stdout_, 0),
+    Nst_FUNCDECLR(_get_stderr_, 0),
+    Nst_DECLR_END
+};
 static Nst_Obj *stdin_obj;
 static Nst_Obj *stdout_obj;
 static Nst_Obj *stderr_obj;
 
-bool lib_init()
+Nst_Declr *lib_init()
 {
-    usize idx = 0;
-
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(open_, 4);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(virtual_file_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(close_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(write_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(write_bytes_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(read_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(read_bytes_, 2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(file_size_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(move_fpi_, 3);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_fpi_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(flush_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(get_flags_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(can_read_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(can_write_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(can_seek_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_bin_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(is_a_tty_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(descriptor_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(encoding_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(println_, 3);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_set_stdin_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_set_stdout_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_set_stderr_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_stdin_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_stdout_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_stderr_, 0);
-
-#if __LINE__ - FUNC_COUNT != 24
-#error
-#endif
-
     stdin_obj  = Nst_inc_ref(Nst_stdio()->in);
     stdout_obj = Nst_inc_ref(Nst_stdio()->out);
     stderr_obj = Nst_inc_ref(Nst_stdio()->err);
 
-    lib_init_ = !Nst_error_occurred();
-    return lib_init_;
+    return obj_list_;
 }
 
-Nst_DeclrList *get_func_ptrs()
-{
-    return lib_init_ ? &obj_list_ : nullptr;
-}
-
-void free_lib()
+void lib_quit()
 {
     Nst_dec_ref(stdin_obj);
     Nst_dec_ref(stderr_obj);
@@ -264,18 +249,19 @@ static Nst_IOFuncSet vf_funcs = {
     .close = virtual_iof_close
 };
 
-Nst_FUNC_SIGN(open_)
+Nst_Obj *NstC open_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *file_name_str;
     Nst_Obj *file_mode_str;
     Nst_Obj *encoding_obj;
     Nst_Obj *buf_size;
-    Nst_DEF_EXTRACT(
-        "s ?s ?s ?i",
-        &file_name_str,
-        &file_mode_str,
-        &encoding_obj,
-        &buf_size);
+    if (!Nst_extract_args(
+            "s ?s ?s ?i",
+            arg_num, args,
+            &file_name_str, &file_mode_str, &encoding_obj, &buf_size))
+    {
+        return nullptr;
+    }
 
     i8 *file_name = file_name_str->value;
     i8 *file_mode = Nst_DEF_VAL(
@@ -385,12 +371,13 @@ Nst_FUNC_SIGN(open_)
     return Nst_iof_new(file_ptr, is_bin, can_read, can_write, encoding);
 }
 
-Nst_FUNC_SIGN(virtual_file_)
+Nst_Obj *NstC virtual_file_(usize arg_num, Nst_Obj **args)
 {
     bool bin;
     Nst_Obj *buf_size_obj;
 
-    Nst_DEF_EXTRACT("y ?i", &bin, &buf_size_obj);
+    if (!Nst_extract_args("y ?i", arg_num, args, &bin, &buf_size_obj))
+        return nullptr;
 
     i64 buf_size = Nst_DEF_VAL(buf_size_obj, AS_INT(buf_size_obj), 128);
 
@@ -411,11 +398,12 @@ Nst_FUNC_SIGN(virtual_file_)
         vf_funcs);
 }
 
-Nst_FUNC_SIGN(close_)
+Nst_Obj *NstC close_(usize arg_num, Nst_Obj **args)
 {
     Nst_IOFileObj *f;
 
-    Nst_DEF_EXTRACT("F", &f);
+    if (!Nst_extract_args("F", arg_num, args, &f))
+        return nullptr;
 
     if (Nst_IOF_IS_CLOSED(f)) {
         SET_FILE_CLOSED_ERROR;
@@ -427,12 +415,13 @@ Nst_FUNC_SIGN(close_)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(write_)
+Nst_Obj *NstC write_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *value_to_write;
     Nst_IOFileObj *f;
 
-    Nst_DEF_EXTRACT("F o", &f, &value_to_write);
+    if (!Nst_extract_args("F o", arg_num, args, &f, &value_to_write))
+        return nullptr;
 
     if (Nst_IOF_IS_CLOSED(f)) {
         SET_FILE_CLOSED_ERROR;
@@ -474,12 +463,13 @@ Nst_FUNC_SIGN(write_)
     return Nst_int_new(count);
 }
 
-Nst_FUNC_SIGN(write_bytes_)
+Nst_Obj *NstC write_bytes_(usize arg_num, Nst_Obj **args)
 {
     Nst_IOFileObj *f;
     Nst_SeqObj *seq;
 
-    Nst_DEF_EXTRACT("F A.B", &f, &seq);
+    if (!Nst_extract_args("F A.B", arg_num, args, &f, &seq))
+        return nullptr;
 
     if (Nst_IOF_IS_CLOSED(f)) {
         SET_FILE_CLOSED_ERROR;
@@ -514,12 +504,13 @@ Nst_FUNC_SIGN(write_bytes_)
     return Nst_int_new(count);
 }
 
-Nst_FUNC_SIGN(read_)
+Nst_Obj *NstC read_(usize arg_num, Nst_Obj **args)
 {
     Nst_IOFileObj *f;
     Nst_Obj *bytes_to_read_obj;
 
-    Nst_DEF_EXTRACT("F ?i", &f, &bytes_to_read_obj);
+    if (!Nst_extract_args("F ?i", arg_num, args, &f, &bytes_to_read_obj))
+        return nullptr;
     i64 bytes_to_read = Nst_DEF_VAL(
         bytes_to_read_obj,
         AS_INT(bytes_to_read_obj),
@@ -578,12 +569,13 @@ Nst_FUNC_SIGN(read_)
     return Nst_string_new(buf, buf_len, true);
 }
 
-Nst_FUNC_SIGN(read_bytes_)
+Nst_Obj *NstC read_bytes_(usize arg_num, Nst_Obj **args)
 {
     Nst_IOFileObj *f;
     Nst_Obj *bytes_to_read_obj;
 
-    Nst_DEF_EXTRACT("F ?i", &f, &bytes_to_read_obj);
+    if (!Nst_extract_args("F ?i", arg_num, args, &f, &bytes_to_read_obj))
+        return nullptr;
     i64 bytes_to_read = Nst_DEF_VAL(
         bytes_to_read_obj,
         AS_INT(bytes_to_read_obj),
@@ -637,11 +629,12 @@ Nst_FUNC_SIGN(read_bytes_)
     return OBJ(bytes_array);
 }
 
-Nst_FUNC_SIGN(file_size_)
+Nst_Obj *NstC file_size_(usize arg_num, Nst_Obj **args)
 {
     Nst_IOFileObj *f;
 
-    Nst_DEF_EXTRACT("F", &f);
+    if (!Nst_extract_args("F", arg_num, args, &f))
+        return nullptr;
 
     if (Nst_IOF_IS_CLOSED(f)) {
         SET_FILE_CLOSED_ERROR;
@@ -654,11 +647,12 @@ Nst_FUNC_SIGN(file_size_)
     return Nst_int_new(get_file_size(f));
 }
 
-Nst_FUNC_SIGN(get_fpi_)
+Nst_Obj *NstC get_fpi_(usize arg_num, Nst_Obj **args)
 {
     Nst_IOFileObj *f;
 
-    Nst_DEF_EXTRACT("F", &f);
+    if (!Nst_extract_args("F", arg_num, args, &f))
+        return nullptr;
 
     if (Nst_IOF_IS_CLOSED(f)) {
         SET_FILE_CLOSED_ERROR;
@@ -680,13 +674,14 @@ Nst_FUNC_SIGN(get_fpi_)
 }
 
 
-Nst_FUNC_SIGN(move_fpi_)
+Nst_Obj *NstC move_fpi_(usize arg_num, Nst_Obj **args)
 {
     Nst_IOFileObj *f;
     i64 start;
     i64 offset;
 
-    Nst_DEF_EXTRACT("F i i", &f, &start, &offset);
+    if (!Nst_extract_args("F i i", arg_num, args, &f, &start, &offset))
+        return nullptr;
 
     if (Nst_IOF_IS_CLOSED(f)) {
         SET_FILE_CLOSED_ERROR;
@@ -730,11 +725,12 @@ Nst_FUNC_SIGN(move_fpi_)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(flush_)
+Nst_Obj *NstC flush_(usize arg_num, Nst_Obj **args)
 {
     Nst_IOFileObj *f;
 
-    Nst_DEF_EXTRACT("F", &f);
+    if (!Nst_extract_args("F", arg_num, args, &f))
+        return nullptr;
 
     if (Nst_IOF_IS_CLOSED(f)) {
         SET_FILE_CLOSED_ERROR;
@@ -756,11 +752,12 @@ Nst_FUNC_SIGN(flush_)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(get_flags_)
+Nst_Obj *NstC get_flags_(usize arg_num, Nst_Obj **args)
 {
     Nst_IOFileObj *f;
 
-    Nst_DEF_EXTRACT("F", &f);
+    if (!Nst_extract_args("F", arg_num, args, &f))
+        return nullptr;
 
     i8 *flags = Nst_malloc_c(6, i8);
     if (flags == nullptr)
@@ -776,52 +773,59 @@ Nst_FUNC_SIGN(get_flags_)
     return Nst_string_new(flags, 5, true);
 }
 
-Nst_FUNC_SIGN(can_read_)
+Nst_Obj *NstC can_read_(usize arg_num, Nst_Obj **args)
 {
     Nst_IOFileObj *f;
-    Nst_DEF_EXTRACT("F", &f);
+    if (!Nst_extract_args("F", arg_num, args, &f))
+        return nullptr;
     Nst_RETURN_BOOL(Nst_IOF_CAN_READ(f));
 }
 
-Nst_FUNC_SIGN(can_write_)
+Nst_Obj *NstC can_write_(usize arg_num, Nst_Obj **args)
 {
     Nst_IOFileObj *f;
-    Nst_DEF_EXTRACT("F", &f);
+    if (!Nst_extract_args("F", arg_num, args, &f))
+        return nullptr;
     Nst_RETURN_BOOL(Nst_IOF_CAN_WRITE(f));
 }
 
-Nst_FUNC_SIGN(can_seek_)
+Nst_Obj *NstC can_seek_(usize arg_num, Nst_Obj **args)
 {
     Nst_IOFileObj *f;
-    Nst_DEF_EXTRACT("F", &f);
+    if (!Nst_extract_args("F", arg_num, args, &f))
+        return nullptr;
     Nst_RETURN_BOOL(Nst_IOF_CAN_SEEK(f));
 }
 
-Nst_FUNC_SIGN(is_bin_)
+Nst_Obj *NstC is_bin_(usize arg_num, Nst_Obj **args)
 {
     Nst_IOFileObj *f;
-    Nst_DEF_EXTRACT("F", &f);
+    if (!Nst_extract_args("F", arg_num, args, &f))
+        return nullptr;
     Nst_RETURN_BOOL(Nst_IOF_IS_BIN(f));
 }
 
-Nst_FUNC_SIGN(is_a_tty_)
+Nst_Obj *NstC is_a_tty_(usize arg_num, Nst_Obj **args)
 {
     Nst_IOFileObj *f;
-    Nst_DEF_EXTRACT("F", &f);
+    if (!Nst_extract_args("F", arg_num, args, &f))
+        return nullptr;
     Nst_RETURN_BOOL(Nst_IOF_IS_TTY(f));
 }
 
-Nst_FUNC_SIGN(descriptor_)
+Nst_Obj *NstC descriptor_(usize arg_num, Nst_Obj **args)
 {
     Nst_IOFileObj *f;
-    Nst_DEF_EXTRACT("F", &f);
+    if (!Nst_extract_args("F", arg_num, args, &f))
+        return nullptr;
     return Nst_int_new(f->fd);
 }
 
-Nst_FUNC_SIGN(encoding_)
+Nst_Obj *NstC encoding_(usize arg_num, Nst_Obj **args)
 {
     Nst_IOFileObj *f;
-    Nst_DEF_EXTRACT("F", &f);
+    if (!Nst_extract_args("F", arg_num, args, &f))
+        return nullptr;
     if (f->encoding == NULL) {
         if (Nst_IOF_IS_CLOSED(f))
             SET_FILE_CLOSED_ERROR;
@@ -834,12 +838,14 @@ Nst_FUNC_SIGN(encoding_)
     return Nst_string_new_c_raw(f->encoding->name, false);
 }
 
-Nst_FUNC_SIGN(println_)
+Nst_Obj *NstC println_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *obj;
     bool flush;
     Nst_Obj *file_obj;
-    Nst_DEF_EXTRACT("o y ?F", &obj, &flush, &file_obj);
+    if (!Nst_extract_args("o y ?F", arg_num, args, &obj, &flush, &file_obj))
+        return nullptr;
+
     Nst_IOFileObj *file = Nst_DEF_VAL(
         file_obj,
         IOFILE(file_obj),
@@ -884,11 +890,12 @@ Nst_FUNC_SIGN(println_)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(_set_stdin_)
+Nst_Obj *NstC _set_stdin_(usize arg_num, Nst_Obj **args)
 {
     Nst_IOFileObj *f;
 
-    Nst_DEF_EXTRACT("F", &f);
+    if (!Nst_extract_args("F", arg_num, args, &f))
+        return nullptr;
 
     if (Nst_IOF_IS_CLOSED(f)) {
         SET_FILE_CLOSED_ERROR;
@@ -910,11 +917,12 @@ Nst_FUNC_SIGN(_set_stdin_)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(_set_stdout_)
+Nst_Obj *NstC _set_stdout_(usize arg_num, Nst_Obj **args)
 {
     Nst_IOFileObj *f;
 
-    Nst_DEF_EXTRACT("F", &f);
+    if (!Nst_extract_args("F", arg_num, args, &f))
+        return nullptr;
 
     if (Nst_IOF_IS_CLOSED(f)) {
         SET_FILE_CLOSED_ERROR;
@@ -936,11 +944,12 @@ Nst_FUNC_SIGN(_set_stdout_)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(_set_stderr_)
+Nst_Obj *NstC _set_stderr_(usize arg_num, Nst_Obj **args)
 {
     Nst_IOFileObj *f;
 
-    Nst_DEF_EXTRACT("F", &f);
+    if (!Nst_extract_args("F", arg_num, args, &f))
+        return nullptr;
 
     if (Nst_IOF_IS_CLOSED(f)) {
         SET_FILE_CLOSED_ERROR;
@@ -962,21 +971,21 @@ Nst_FUNC_SIGN(_set_stderr_)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(_get_stdin_)
+Nst_Obj *NstC _get_stdin_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
     return Nst_inc_ref(stdin_obj);
 }
 
-Nst_FUNC_SIGN(_get_stdout_)
+Nst_Obj *NstC _get_stdout_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
     return Nst_inc_ref(stdout_obj);
 }
 
-Nst_FUNC_SIGN(_get_stderr_)
+Nst_Obj *NstC _get_stderr_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);

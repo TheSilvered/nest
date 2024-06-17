@@ -18,6 +18,6 @@ __itu.reversed_     = reversed
 __itu.values_       = values
 __itu.zip_          = zip
 
-@__itu._get_iend_ = IEND
+@__itu.IEND_ = IEND
 
 _vars_ '__itu' '_vars_' -

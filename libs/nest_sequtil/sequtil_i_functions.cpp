@@ -1,6 +1,6 @@
 #include "sequtil_i_functions.h"
 
-Nst_FUNC_SIGN(map_i_start)
+Nst_Obj *NstC map_i_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     if (!Nst_iter_start(SEQ(args[0])->objs[0]))
@@ -8,7 +8,7 @@ Nst_FUNC_SIGN(map_i_start)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(map_i_get_val)
+Nst_Obj *NstC map_i_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj *iter = SEQ(args[0])->objs[0];
@@ -28,14 +28,14 @@ Nst_FUNC_SIGN(map_i_get_val)
     return mapped_value;
 }
 
-Nst_FUNC_SIGN(slice_i_start)
+Nst_Obj *NstC slice_i_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     AS_INT(SEQ(args[0])->objs[0]) = 0;
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(slice_i_seq_get_val)
+Nst_Obj *NstC slice_i_seq_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -61,7 +61,7 @@ Nst_FUNC_SIGN(slice_i_seq_get_val)
     return obj;
 }
 
-Nst_FUNC_SIGN(slice_i_str_get_val)
+Nst_Obj *NstC slice_i_str_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -83,7 +83,7 @@ Nst_FUNC_SIGN(slice_i_str_get_val)
     return obj;
 }
 
-Nst_FUNC_SIGN(filter_i_start)
+Nst_Obj *NstC filter_i_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     if (!Nst_iter_start(SEQ(args[0])->objs[0]))
@@ -91,7 +91,7 @@ Nst_FUNC_SIGN(filter_i_start)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(filter_i_get_val)
+Nst_Obj *NstC filter_i_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj *iter = SEQ(args[0])->objs[0];
@@ -116,7 +116,7 @@ Nst_FUNC_SIGN(filter_i_get_val)
     return value;
 }
 
-Nst_FUNC_SIGN(reverse_i_start)
+Nst_Obj *NstC reverse_i_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -124,7 +124,7 @@ Nst_FUNC_SIGN(reverse_i_start)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(reverse_i_get_val)
+Nst_Obj *NstC reverse_i_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;

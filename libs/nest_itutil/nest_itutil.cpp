@@ -1,8 +1,6 @@
 #include "nest_itutil.h"
 #include "itutil_functions.h"
 
-#define FUNC_COUNT 14
-
 #define RETURN_NEW_ITER(start, get_val, value) do {                           \
     Nst_Obj *iter__ = Nst_iter_new(                                           \
         Nst_inc_ref(itutil_functions.start),                                  \
@@ -17,55 +15,44 @@
     return iter__;                                                            \
     } while (0)
 
-static Nst_ObjDeclr func_list_[FUNC_COUNT];
-static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
-static bool lib_init_ = false;
+static Nst_Declr obj_list_[] = {
+    Nst_FUNCDECLR(count_,        2),
+    Nst_FUNCDECLR(cycle_,        1),
+    Nst_FUNCDECLR(repeat_,       2),
+    Nst_FUNCDECLR(chain_,        1),
+    Nst_FUNCDECLR(zip_,          2),
+    Nst_FUNCDECLR(enumerate_,    4),
+    Nst_FUNCDECLR(keys_,         1),
+    Nst_FUNCDECLR(values_,       1),
+    Nst_FUNCDECLR(batch_,        2),
+    Nst_FUNCDECLR(batch_padded_, 3),
+    Nst_FUNCDECLR(new_iterator_, 3),
+    Nst_FUNCDECLR(iter_start_,   1),
+    Nst_FUNCDECLR(iter_get_val_, 1),
+    Nst_FUNCDECLR(IEND_,         1),
+    Nst_DECLR_END
+};
 
-bool lib_init()
+Nst_Declr *lib_init()
 {
-    usize idx = 0;
+    if (!init_itutil_functions())
+        return nullptr;
 
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(count_,        2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(cycle_,        1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(repeat_,       2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(chain_,        1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(zip_,          2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(enumerate_,    4);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(keys_,         1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(values_,       1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(batch_,        2);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(batch_padded_, 3);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(new_iterator_, 3);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(iter_start_,   1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(iter_get_val_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(_get_iend_,    1);
-
-#if __LINE__ - FUNC_COUNT != 29
-#error
-#endif
-
-    init_itutil_functions();
-
-    lib_init_ = !Nst_error_occurred();
-    return lib_init_;
+    return obj_list_;
 }
 
-Nst_DeclrList *get_func_ptrs()
-{
-    return lib_init_ ? &obj_list_ : nullptr;
-}
-
-void free_lib()
+void lib_quit()
 {
     free_itutil_functions();
 }
 
-Nst_FUNC_SIGN(count_)
+Nst_Obj *NstC count_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *start;
     Nst_Obj *step_obj;
 
-    Nst_DEF_EXTRACT("i:i ?i", &start, &step_obj);
+    if (!Nst_extract_args("i:i ?i", arg_num, args, &start, &step_obj))
+        return nullptr;
     Nst_IntObj *step = Nst_DEF_VAL(
         step_obj,
         (Nst_IntObj *)Nst_inc_ref(step_obj),
@@ -83,11 +70,12 @@ Nst_FUNC_SIGN(count_)
     RETURN_NEW_ITER(count_start, count_get_val, arr);
 }
 
-Nst_FUNC_SIGN(cycle_)
+Nst_Obj *NstC cycle_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *iterable;
 
-    Nst_DEF_EXTRACT("A|s|I:o", &iterable);
+    if (!Nst_extract_args("A|s|I:o", arg_num, args, &iterable))
+        return nullptr;
 
     if (Nst_T(iterable, Iter))
         RETURN_NEW_ITER(cycle_iter_start, cycle_iter_get_val, iterable);
@@ -105,12 +93,13 @@ Nst_FUNC_SIGN(cycle_)
     RETURN_NEW_ITER(cycle_seq_start, cycle_seq_get_val, arr);
 }
 
-Nst_FUNC_SIGN(repeat_)
+Nst_Obj *NstC repeat_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *ob;
     Nst_Obj *times;
 
-    Nst_DEF_EXTRACT("o i:i", &ob, &times);
+    if (!Nst_extract_args("o i:i", arg_num, args, &ob, &times))
+        return nullptr;
 
     // Layout: [count, item, max_times]
     Nst_Obj *arr = Nst_array_create_c("iOo", 0, ob, times);
@@ -123,11 +112,12 @@ Nst_FUNC_SIGN(repeat_)
     RETURN_NEW_ITER(repeat_start, repeat_get_val, arr);
 }
 
-Nst_FUNC_SIGN(chain_)
+Nst_Obj *NstC chain_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *iter;
 
-    Nst_DEF_EXTRACT("R", &iter);
+    if (!Nst_extract_args("R", arg_num, args, &iter))
+        return nullptr;
 
     // Layout: [main_iter, current_iter]
     Nst_Obj *arr = Nst_array_create_c("on", iter, nullptr);
@@ -142,7 +132,7 @@ Nst_FUNC_SIGN(chain_)
 
 Nst_Obj *zipn_(Nst_SeqObj *seq)
 {
-    if (!Nst_extract_arg_values("A.I|a|v|s", 1, (Nst_Obj **)&seq, &seq))
+    if (!Nst_extract_args("A.I|a|v|s", 1, (Nst_Obj **)&seq, &seq))
         return nullptr;
 
     if (seq->len < 2) {
@@ -171,12 +161,13 @@ Nst_Obj *zipn_(Nst_SeqObj *seq)
     RETURN_NEW_ITER(zipn_start, zipn_get_val, arr);
 }
 
-Nst_FUNC_SIGN(zip_)
+Nst_Obj *NstC zip_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *seq1;
     Nst_Obj *seq2;
 
-    Nst_DEF_EXTRACT("I|a|v|s ?R:I", &seq1, &seq2);
+    if (!Nst_extract_args("I|a|v|s ?R:I", arg_num, args, &seq1, &seq2))
+        return nullptr;
 
     if (seq2 == Nst_null())
         return zipn_((Nst_SeqObj *)seq1);
@@ -194,14 +185,20 @@ Nst_FUNC_SIGN(zip_)
     RETURN_NEW_ITER(zip_start, zip_get_val, arr);
 }
 
-Nst_FUNC_SIGN(enumerate_)
+Nst_Obj *NstC enumerate_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *ob;
     Nst_Obj *start_ob;
     Nst_Obj *step_ob;
     Nst_Obj *invert_order;
 
-    Nst_DEF_EXTRACT("R ?i ?i o:b", &ob, &start_ob, &step_ob, &invert_order);
+    if (!Nst_extract_args(
+            "R ?i ?i o:b",
+            arg_num, args,
+            &ob, &start_ob, &step_ob, &invert_order))
+    {
+        return nullptr;
+    }
     i64 start = Nst_DEF_VAL(start_ob, AS_INT(start_ob), 0);
     i64 step = Nst_DEF_VAL(step_ob, AS_INT(step_ob), 1);
 
@@ -219,10 +216,11 @@ Nst_FUNC_SIGN(enumerate_)
     RETURN_NEW_ITER(enumerate_start, enumerate_get_val, arr);
 }
 
-Nst_FUNC_SIGN(keys_)
+Nst_Obj *NstC keys_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *map;
-    Nst_DEF_EXTRACT("m", &map);
+    if (!Nst_extract_args("m", arg_num, args, &map))
+        return nullptr;
 
     // Layout: [idx, map]
     Nst_Obj *arr = Nst_array_create_c("iO", 0, map);
@@ -243,15 +241,15 @@ Nst_FUNC_SIGN(keys_)
     return iter;
 }
 
-Nst_FUNC_SIGN(values_)
+Nst_Obj *NstC values_(usize arg_num, Nst_Obj **args)
 {
     Nst_MapObj *map;
 
-    Nst_DEF_EXTRACT("m", &map);
+    if (!Nst_extract_args("m", arg_num, args, &map))
+        return nullptr;
 
     // Layout: [idx, map]
     Nst_Obj *arr = Nst_array_create_c("iO", 0, map);
-
 
     if (arr == nullptr)
         return nullptr;
@@ -269,12 +267,13 @@ Nst_FUNC_SIGN(values_)
     return iter;
 }
 
-Nst_FUNC_SIGN(batch_)
+Nst_Obj *NstC batch_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *seq;
     Nst_IntObj *batch_size;
 
-    Nst_DEF_EXTRACT("R i|i", &seq, &batch_size);
+    if (!Nst_extract_args("R i|i", arg_num, args, &seq, &batch_size))
+        return nullptr;
 
     if (AS_INT(batch_size) <= 0) {
         Nst_set_value_error_c("the batch size must be a positive integer");
@@ -293,13 +292,19 @@ Nst_FUNC_SIGN(batch_)
     RETURN_NEW_ITER(batch_start, batch_get_val, arr);
 }
 
-Nst_FUNC_SIGN(batch_padded_)
+Nst_Obj *NstC batch_padded_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *seq;
     Nst_IntObj *batch_size;
     Nst_Obj *padding;
 
-    Nst_DEF_EXTRACT("R i|i o", &seq, &batch_size, &padding);
+    if (!Nst_extract_args(
+            "R i|i o",
+            arg_num, args,
+            &seq, &batch_size, &padding))
+    {
+        return nullptr;
+    }
 
     if (AS_INT(batch_size) <= 0) {
         Nst_set_value_error_c("the batch size must be a positive integer");
@@ -318,17 +323,19 @@ Nst_FUNC_SIGN(batch_padded_)
     RETURN_NEW_ITER(batch_start, batch_padded_get_val, arr);
 }
 
-Nst_FUNC_SIGN(new_iterator_)
+Nst_Obj *NstC new_iterator_(usize arg_num, Nst_Obj **args)
 {
     Nst_FuncObj *start;
     Nst_FuncObj *get_val;
     Nst_Obj *data;
 
-    Nst_DEF_EXTRACT(
-        "f:o f:o o:o",
-        &start,
-        &get_val,
-        &data);
+    if (!Nst_extract_args(
+            "f:o f:o o:o",
+            arg_num, args,
+            &start, &get_val, &data))
+    {
+        return nullptr;
+    }
 
     if (start->arg_num != 1 || get_val->arg_num != 1)
     {
@@ -350,27 +357,27 @@ Nst_FUNC_SIGN(new_iterator_)
     return iter;
 }
 
-Nst_FUNC_SIGN(iter_start_)
+Nst_Obj *NstC iter_start_(usize arg_num, Nst_Obj **args)
 {
     Nst_IterObj *iter;
 
-    Nst_DEF_EXTRACT("I", &iter);
+    if (!Nst_extract_args("I", arg_num, args, &iter))
+        return nullptr;
 
     return Nst_call_func(iter->start, 1, &iter->value);
 }
 
-Nst_FUNC_SIGN(iter_get_val_)
+Nst_Obj *NstC iter_get_val_(usize arg_num, Nst_Obj **args)
 {
     Nst_IterObj *iter;
 
-    Nst_DEF_EXTRACT("I", &iter);
+    if (!Nst_extract_args("I", arg_num, args, &iter))
+        return nullptr;
 
     return Nst_call_func(iter->get_val, 1, &iter->value);
 }
 
-Nst_FUNC_SIGN(_get_iend_)
+Nst_Obj *NstC IEND_()
 {
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
     Nst_RETURN_IEND;
 }

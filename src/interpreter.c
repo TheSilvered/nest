@@ -248,10 +248,10 @@ void Nst_quit(void)
     // call the destructors for any loaded library
     if (Nst_state.loaded_libs != NULL) {
         for (Nst_LLIST_ITER(lib, Nst_state.loaded_libs)) {
-            void (*free_lib_func)(void) =
-                (void (*)(void))dlsym(lib->value, "free_lib");
-            if (free_lib_func != NULL)
-                free_lib_func();
+            void (*lib_quit_func)(void) =
+                (void (*)(void))dlsym(lib->value, "lib_quit");
+            if (lib_quit_func != NULL)
+                lib_quit_func();
         }
     }
 

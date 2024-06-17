@@ -206,7 +206,7 @@ The resulting object on success and `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_FUNC_SIGN(Nst_iter_range_start)
+Nst_Obj *Nst_iter_range_start(usize arg_num, Nst_Obj **args)
 ```
 
 **Description:**
@@ -220,7 +220,7 @@ The `start` function of the range iterator.
 **Synopsis:**
 
 ```better-c
-Nst_FUNC_SIGN(Nst_iter_range_get_val)
+Nst_Obj *Nst_iter_range_get_val(usize arg_num, Nst_Obj **args)
 ```
 
 **Description:**
@@ -234,7 +234,7 @@ The `get_val` function of the range iterator.
 **Synopsis:**
 
 ```better-c
-Nst_FUNC_SIGN(Nst_iter_seq_start)
+Nst_Obj *Nst_iter_seq_start(usize arg_num, Nst_Obj **args)
 ```
 
 **Description:**
@@ -248,7 +248,7 @@ The `start` function of the sequence iterator.
 **Synopsis:**
 
 ```better-c
-Nst_FUNC_SIGN(Nst_iter_seq_get_val)
+Nst_Obj *Nst_iter_seq_get_val(usize arg_num, Nst_Obj **args)
 ```
 
 **Description:**
@@ -262,7 +262,7 @@ The `get_val` function of the sequence iterator.
 **Synopsis:**
 
 ```better-c
-Nst_FUNC_SIGN(Nst_iter_str_start)
+Nst_Obj *Nst_iter_str_start(usize arg_num, Nst_Obj **args)
 ```
 
 **Description:**
@@ -276,7 +276,7 @@ The `start` function of the string iterator.
 **Synopsis:**
 
 ```better-c
-Nst_FUNC_SIGN(Nst_iter_str_get_val)
+Nst_Obj *Nst_iter_str_get_val(usize arg_num, Nst_Obj **args)
 ```
 
 **Description:**
@@ -290,7 +290,7 @@ The `get_val` function of the string iterator.
 **Synopsis:**
 
 ```better-c
-Nst_FUNC_SIGN(Nst_iter_map_start)
+Nst_Obj *Nst_iter_map_start(usize arg_num, Nst_Obj **args)
 ```
 
 **Description:**
@@ -304,7 +304,7 @@ The `start` function of the map iterator.
 **Synopsis:**
 
 ```better-c
-Nst_FUNC_SIGN(Nst_iter_map_get_val)
+Nst_Obj *Nst_iter_map_get_val(usize arg_num, Nst_Obj **args)
 ```
 
 **Description:**
