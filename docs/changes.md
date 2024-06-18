@@ -34,12 +34,15 @@
 - removed `get_options`, `set_options` and `OPTIONS` in `stdjson.nest`
 - renamed `_get_cwd` and `_set_cwd` to `get_cwd` and `set_cwd` in `stdsys.nest`
 - removed `reversed` from `stditutil.nest`
+- improved execution times and output printing
+- now when pressing `Ctrl-C` an error is thrown rather than the proccess exiting, this arror canot be cautgh with a normal try-catch statement but `err.try` is needed
 
 **Bug fixes**
 
 - fixed a crash that occurred when casting a `IOFile` object to a `Str`
 - fixed a crash that occurred when using `co.pause` inside an expression
 - now months are counted from `1` in `stdtime.nest`
+- fixed an infinite loop when trying to optimize chaned jumps
 
 ### C API
 

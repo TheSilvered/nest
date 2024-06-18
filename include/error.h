@@ -235,7 +235,7 @@ NstEXP typedef struct _Nst_Pos {
  * @param error_msg: the message of the error
  * @param positions: the list of positions that led to the error
  */
-NstEXP typedef struct _Nst_Traceback {
+NstEXP typedef volatile struct _Nst_Traceback {
     bool error_occurred;
     Nst_StrObj *error_name;
     Nst_StrObj *error_msg;
@@ -391,8 +391,8 @@ NstEXP bool NstC Nst_traceback_init(Nst_Traceback *tb);
 /* Frees the traceback of the current `Nst_state`. */
 NstEXP void NstC Nst_traceback_destroy(Nst_Traceback *tb);
 /* Adds a pair of positions to an error. */
-NstEXP void NstC Nst_error_add_positions(Nst_Traceback *tb, Nst_Pos start,
-                                         Nst_Pos end);
+NstEXP void NstC Nst_error_add_positions(Nst_Traceback *tb,
+                                         Nst_Pos start, Nst_Pos end);
 
 /**
  * Sets a `Nst_Traceback` with the given fields.

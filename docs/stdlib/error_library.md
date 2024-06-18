@@ -13,13 +13,14 @@
 **Synopsis:**
 
 ```nest
-[func: Func, args: Array|Vector, catch_exit: Bool?] @try -> Map
+[func: Func, args: Array|Vector, catch_exit: Bool?, catch_interrupt: Bool?] @try -> Map
 ```
 
 **Description:**
 
 Calls `func` passing `args` as the arguments and catching any errors that
-might occur. If `catch_exit` is `null` it defaults to `false`.
+might occur. If `catch_exit` and `catch_interrupt` are `null` they default to
+`false`.
 
 **Arguments:**
 
@@ -27,6 +28,8 @@ might occur. If `catch_exit` is `null` it defaults to `false`.
 - `args`: the arguments to be passed to the function
 - `catch_exit`: whether the function should catch the error raised by
   [`exit`](system_library.md#exit)
+- `catch_exit`: whether the function should catch `Ctrl-C` when the user tries
+  to exit the process
 
 **Returns:**
 

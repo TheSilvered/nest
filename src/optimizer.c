@@ -917,15 +917,34 @@ static void optimize_chained_jumps(Nst_InstList* bc)
     i64 size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;
 
+    i64 *visited_jumps = Nst_malloc_c(size, i64);
+    if (visited_jumps == NULL)
+        return;
+
     for (i64 i = 0; i < size; i++) {
         if (!Nst_INST_IS_JUMP(inst_list[i].id))
             continue;
 
         i64 end_jump = inst_list[i].int_val;
 
-        while (inst_list[end_jump].id == Nst_IC_JUMP)
-            end_jump = inst_list[end_jump].int_val;
+        for (i64 j = 0; j < size; j++) {
+            if (inst_list[end_jump].id != Nst_IC_JUMP)
+                break;
+            i64 jump = inst_list[end_jump].int_val;
+            bool found = false;
+            for (i64 k = 0; k < j; k++) {
+                if (k == jump) {
+                    end_jump = i;
+                    found = true;
+                }
+            }
+            if (found)
+                break;
+            visited_jumps[j] = jump;
+            end_jump = jump;
+        }
 
         inst_list[i].int_val = end_jump;
     }
+    Nst_free(visited_jumps);
 }

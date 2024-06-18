@@ -46,6 +46,7 @@ NstEXP typedef struct _Nst_StrConsts {
     Nst_StrObj *e_CallError;
     Nst_StrObj *e_MathError;
     Nst_StrObj *e_ImportError;
+    Nst_StrObj *e_Interrupt;
 
     // Other
 

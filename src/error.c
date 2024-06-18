@@ -306,7 +306,11 @@ void Nst_print_traceback(Nst_Traceback *tb)
         print_position(*start, *end);
     }
 
-    if (use_color) {
+    if (OBJ(tb->error_msg) == Nst_null() && use_color)
+        Nst_fprintf(err_stream, C_YEL "%s" C_RES "\n", tb->error_name->value);
+    else if (OBJ(tb->error_msg) == Nst_null())
+        Nst_fprintf(err_stream, "%s\n", tb->error_name->value);
+    else if (use_color) {
         Nst_fprintf(
             err_stream,
             C_YEL "%s" C_RES " - %s\n",

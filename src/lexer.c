@@ -90,9 +90,6 @@ static i32 find_fmt_str_inline_end(void);
 Nst_LList *Nst_tokenizef(i8 *filename, Nst_CPID encoding, i32 *opt_level,
                          bool *no_default, Nst_SourceText *src_text)
 {
-    *opt_level = 3;
-    *no_default = false;
-
     FILE *file = NULL;
     i8 *text = NULL;
     i8 *full_path = NULL;

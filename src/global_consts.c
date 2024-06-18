@@ -142,6 +142,7 @@ bool _Nst_init_objects(void)
     Nst_s.e_CallError   = STR(Nst_string_new_c("Call Error",   10, false));
     Nst_s.e_MathError   = STR(Nst_string_new_c("Math Error",   10, false));
     Nst_s.e_ImportError = STR(Nst_string_new_c("Import Error", 12, false));
+    Nst_s.e_Interrupt   = STR(Nst_string_new_c("Interrupt",     9, false));
 
     Nst_s.o__vars_    = STR(Nst_string_new_c("_vars_",    6, false));
     Nst_s.o__globals_ = STR(Nst_string_new_c("_globals_", 9, false));
@@ -225,6 +226,7 @@ void _Nst_del_objects(void)
     Nst_ndec_ref(Nst_s.e_CallError);
     Nst_ndec_ref(Nst_s.e_MathError);
     Nst_ndec_ref(Nst_s.e_ImportError);
+    Nst_ndec_ref(Nst_s.e_Interrupt);
 
     Nst_ndec_ref(Nst_s.o__args_);
     Nst_ndec_ref(Nst_s.o__globals_);
@@ -329,25 +331,26 @@ Nst_StdStreams *Nst_stdio(void)
 static Nst_IOResult write_std_stream(i8 *buf, usize buf_len, usize *count,
                                      Nst_IOFileObj *f)
 {
-    usize chars_written = 0;
-
-    while (buf_len > 0) {
-        i32 ch_len = Nst_check_ext_utf8_bytes((u8 *)buf, buf_len);
-        if (ch_len < 0)
-            return Nst_IO_ERROR;
-        usize written_char = fwrite(buf, 1, ch_len, f->fp);
-        if (written_char != (usize)ch_len) {
-            if (count != NULL)
-                *count = chars_written;
-            return Nst_IO_ERROR;
-        }
-        chars_written++;
-        buf += ch_len;
-        buf_len -= ch_len;
-    }
     if (count != NULL)
-        *count = chars_written;
-    return Nst_IO_SUCCESS;
+        *count = Nst_string_utf8_char_len((u8 *)buf, buf_len);
+
+    usize bytes_written = fwrite(buf, 1, buf_len, f->fp);
+
+    if (bytes_written >= buf_len) {
+        return Nst_IO_SUCCESS;
+    }
+    if (count != NULL) {
+        isize chars_written = Nst_string_char_len(
+            Nst_cp(Nst_CP_EXT_UTF8),
+            (void *)buf,
+            bytes_written);
+        if (chars_written == -1)
+            *count = 0;
+        else
+            *count = chars_written;
+        return Nst_IO_ERROR;
+    }
+    return Nst_IO_ERROR;
 }
 
 static Nst_IOResult close_std_stream(Nst_IOFileObj *f)

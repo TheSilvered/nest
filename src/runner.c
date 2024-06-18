@@ -257,8 +257,8 @@ bool Nst_es_push_module(Nst_ExecutionState *es, i8 *filename,
     Nst_StrObj *path_str  = NULL;
     Nst_VarTable *vt = NULL;
 
-    i32 file_opt_lvl;
-    bool no_default;
+    i32 file_opt_lvl = 3;
+    bool no_default = false;
 
     Nst_LList *tokens = Nst_tokenizef(
         filename,

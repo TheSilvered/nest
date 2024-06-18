@@ -2,7 +2,7 @@
 #include "nest_err.h"
 
 static Nst_Declr obj_list_[] = {
-    Nst_FUNCDECLR(try_, 3),
+    Nst_FUNCDECLR(try_, 4),
     Nst_CONSTDECLR(SYNTAX_ERROR_),
     Nst_CONSTDECLR(VALUE_ERROR_),
     Nst_CONSTDECLR(TYPE_ERROR_),
@@ -56,7 +56,7 @@ Nst_Obj *success(Nst_Obj *val)
     return map;
 }
 
-Nst_Obj *failure(bool catch_exit)
+Nst_Obj *failure(bool catch_exit, bool catch_interrupt)
 {
     Nst_Obj *map = Nst_map_new();
     Nst_Obj *error_map = Nst_map_new();
@@ -74,7 +74,9 @@ Nst_Obj *failure(bool catch_exit)
     Nst_map_set_str(map, "value", Nst_null());
     error_name_str = Nst_inc_ref(error->error_name);
     error_message_str = Nst_inc_ref(error->error_msg);
-    if (OBJ(error_name_str) == Nst_null() && !catch_exit) {
+    if (((OBJ(error_name_str) == Nst_null() && !catch_exit))
+        || (OBJ(error_message_str) == Nst_null() && !catch_interrupt))
+    {
         Nst_ndec_ref(map);
         map = nullptr;
         goto cleanup;
@@ -118,11 +120,12 @@ Nst_Obj *NstC try_(usize arg_num, Nst_Obj **args)
     Nst_FuncObj *func;
     Nst_SeqObj *func_args;
     bool catch_exit;
+    bool catch_interrupt;
 
     if (!Nst_extract_args(
-            "f ?A y",
+            "f ?A y y",
             arg_num, args,
-            &func, &func_args, &catch_exit))
+            &func, &func_args, &catch_exit, &catch_interrupt))
     {
         return nullptr;
     }
@@ -151,7 +154,7 @@ Nst_Obj *NstC try_(usize arg_num, Nst_Obj **args)
     if (result != nullptr)
         return success(result);
     else
-        return failure(catch_exit);
+        return failure(catch_exit, catch_interrupt);
 }
 
 Nst_Obj *NstC _get_err_names_()
