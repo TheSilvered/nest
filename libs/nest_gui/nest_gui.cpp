@@ -27,6 +27,7 @@ Nst_Declr *lib_init()
         GUI_QuitUtils();
         return nullptr;
     }
+    GUI_InitColors();
     app.initialized = false;
 
     return obj_list_;
@@ -73,6 +74,7 @@ Nst_Obj *NstC loop_(usize arg_num, Nst_Obj **args)
             if (event.type == SDL_QUIT)
                 GUI_Window_Close(app.window);
         }
+        GUI_App_Update(&app);
     }
 
     GUI_App_Quit(&app);

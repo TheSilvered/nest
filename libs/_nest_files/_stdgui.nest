@@ -1,6 +1,6 @@
 --$ --no-default
 
-|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_gui.dll' = __gui
+|#| '__C__:../../build/windows/projects/nest/\(_debug_)/Debug/nest_gui.dll' = __gui
 
 @__gui.init_sdl_and_ttf_
 

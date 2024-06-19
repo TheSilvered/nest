@@ -75,6 +75,7 @@ Nst_LList *json_tokenize(i8 *path, i8 *text, usize text_len,
                          bool readonly_text, Nst_CPID encoding)
 {
     Nst_SourceText src_text = {
+        .allocated = false,
         .text = text,
         .path = path,
         .lines = nullptr,

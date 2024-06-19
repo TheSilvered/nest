@@ -58,6 +58,8 @@ GUI_Constraint *GUI_FillBetweenY_New(GUI_Element *element,
                                      GUI_YSidePos top, GUI_YSidePos bottom,
                                      bool pad_t, bool pad_b);
 
+GUI_Constraint *GUI_MatchWindowSize_New(GUI_Element *element);
+
 #ifdef __cplusplus
 }
 #endif // !__cplusplus

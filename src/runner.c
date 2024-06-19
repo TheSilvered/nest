@@ -158,6 +158,7 @@ i32 Nst_execute(Nst_CLArgs args, Nst_ExecutionState *es, Nst_SourceText *src)
         src->text = args.command;
         src->lines_len = 1;
         src->lines = &src->text;
+        src->allocated = false;
         tokens = Nst_tokenize(src);
     }
 

@@ -1639,6 +1639,7 @@ static Nst_Obj *import_nest_lib(Nst_StrObj *file_path)
     if (lib_src == NULL)
         goto cleanup;
 
+    Nst_source_text_init(lib_src);
     if (!Nst_run_module(file_path->value, lib_src)) {
         Nst_llist_push(Nst_state.lib_srcs, lib_src, true);
         goto cleanup;

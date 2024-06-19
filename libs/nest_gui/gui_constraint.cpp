@@ -1,5 +1,6 @@
-#include "gui_constraints.h"
+#include "gui_constraint.h"
 #include "gui_obj_types.h"
+#include "gui_app.h"
 
 static void fill_between_x_dstr(GUI_FillBetweenXData *data);
 static void fill_between_x_trav(GUI_FillBetweenXData *data);
@@ -7,6 +8,7 @@ static bool fill_between_x_update(GUI_Constraint *constr);
 static void fill_between_y_dstr(GUI_FillBetweenYData *data);
 static void fill_between_y_trav(GUI_FillBetweenYData *data);
 static bool fill_between_y_update(GUI_Constraint *constr);
+static bool match_win_size_update(GUI_Constraint *constr);
 
 static GUI_Constraint *new_constraint(GUI_Element *element,
                                       GUI_ConstraintUpdate update)
@@ -43,12 +45,22 @@ bool GUI_Constraint_Update(GUI_Constraint *constr)
 
 bool GUI_Element_AddConstraintBefore(GUI_Constraint *constr)
 {
-    return Nst_vector_append(constr->element->constraints_before, constr);
+    Nst_Obj *key = Nst_int_new((i64)constr);
+    if (key == nullptr)
+        return false;
+    bool result = Nst_map_set(constr->element->constraints_before, key, constr);
+    Nst_dec_ref(key);
+    return result;
 }
 
 bool GUI_Element_AddConstraintAfter(GUI_Constraint *constr)
 {
-    return Nst_vector_append(constr->element->constraints_after, constr);
+    Nst_Obj *key = Nst_int_new((i64)constr);
+    if (key == nullptr)
+        return false;
+    bool result = Nst_map_set(constr->element->constraints_after, key, constr);
+    Nst_dec_ref(key);
+    return result;
 }
 
 GUI_Constraint *GUI_FillBetweenX_New(GUI_Element *element,
@@ -97,6 +109,11 @@ GUI_Constraint *GUI_FillBetweenY_New(GUI_Element *element,
     data->pad_b = pad_b;
 
     return constr;
+}
+
+GUI_Constraint *GUI_MatchWindowSize_New(GUI_Element *element)
+{
+    return new_constraint(element, match_win_size_update);
 }
 
 static void fill_between_x_dstr(GUI_FillBetweenXData *data)
@@ -172,5 +189,13 @@ static bool fill_between_y_update(GUI_Constraint *constr)
 
     GUI_Element_SetYSide(element, pad_t ? GUI_TP : GUI_T, top);
     GUI_Element_SetHeight(element, height);
+    return true;
+}
+
+static bool match_win_size_update(GUI_Constraint *constr)
+{
+    int w, h;
+    GUI_Window_GetSize(constr->element->app->window, &w, &h);
+    GUI_Element_SetSize(constr->element, w, h);
     return true;
 }

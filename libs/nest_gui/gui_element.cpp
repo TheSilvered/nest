@@ -1,5 +1,8 @@
+#include "gui_app.h"
 #include "gui_element.h"
 #include "gui_obj_types.h"
+#include "gui_constraint.h"
+#include "gui_colors.h"
 
 GUI_Element *GUI_Element_New(usize size, GUI_Element *parent,
                              struct _GUI_Window *window, struct _GUI_App *app)
@@ -75,6 +78,14 @@ int GUI_Element_GetHeight(GUI_Element *element)
     return element->rect.h;
 }
 
+static bool root_update(GUI_Element *root)
+{
+    GUI_Window *window = root->window;
+    GUI_SetDrawColor(window->renderer, GUI_COL_BODY_BG);
+    SDL_RenderClear(window->renderer);
+    return true;
+}
+
 GUI_Element *GUI_Root_New(struct _GUI_Window *window, struct _GUI_App *app)
 {
     GUI_Element *element = GUI_Element_New(
@@ -86,6 +97,9 @@ GUI_Element *GUI_Root_New(struct _GUI_Window *window, struct _GUI_App *app)
         return nullptr;
 
     element->el_type = GUI_ET_ROOT;
+    element->tick_update = root_update;
+
+    GUI_Element_AddConstraintBefore(GUI_MatchWindowSize_New(element));
 
     return element;
 }

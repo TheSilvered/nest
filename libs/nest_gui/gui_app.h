@@ -12,14 +12,15 @@ extern "C" {
 
 typedef GUI_Element GUI_Root;
 struct _GUI_Window;
+struct _GUI_App;
 
 typedef struct _GUI_Window {
     struct _GUI_Window *parent;
+    struct _GUI_App *app;
     SDL_Window *window;
     SDL_Renderer *renderer;
     GUI_Root *root_element;
     Nst_SizedBuffer child_windows; // contains other GUI_Windows
-    SDL_Rect clip;
     bool keep_open;
 } GUI_Window;
 
@@ -30,7 +31,8 @@ typedef struct _GUI_App {
     GUI_Element *focused_element;
 } GUI_App;
 
-GUI_Window *GUI_Window_New(GUI_Window *parent, int width, int height);
+GUI_Window *GUI_Window_New(GUI_Window *parent, GUI_App *app,
+                           int width, int height);
 void GUI_Window_Destroy(GUI_Window *window);
 
 void GUI_Window_SetTitle(GUI_Window *window, const i8 *title);
@@ -41,6 +43,7 @@ void GUI_Window_SetSize(GUI_Window *window, int w, int h);
 void GUI_Window_GetSize(GUI_Window *window, int *w, int *h);
 void GUI_Window_SetResizable(GUI_Window *window, bool resizable);
 bool GUI_Window_GetResizable(GUI_Window *window);
+SDL_Rect GUI_Window_GetClipRect(GUI_Window *window);
 
 bool GUI_Window_IsRunning(GUI_Window *window);
 void GUI_Window_Close(GUI_Window *window);

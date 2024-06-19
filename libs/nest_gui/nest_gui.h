@@ -7,6 +7,8 @@
 #include "gui_element.h"
 #include "gui_utils.h"
 #include "gui_obj_types.h"
+#include "gui_update.h"
+#include "gui_colors.h"
 
 #ifdef Nst_WIN
 #pragma warning(disable: 4995)

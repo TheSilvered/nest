@@ -333,6 +333,8 @@ void Nst_source_text_destroy(Nst_SourceText *text)
 {
     if (text == NULL)
         return;
+    if (!text->allocated)
+        return;
 
     Nst_free(text->text);
     Nst_free(text->lines);
@@ -510,6 +512,7 @@ void Nst_traceback_destroy(Nst_Traceback *tb)
 
 void Nst_source_text_init(Nst_SourceText *src)
 {
+    src->allocated = true;
     src->text = NULL;
     src->path = NULL;
     src->lines = NULL;

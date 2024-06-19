@@ -1,5 +1,5 @@
 #include "gui_obj_types.h"
-#include "gui_constraints.h"
+#include "gui_constraint.h"
 #include "gui_element.h"
 
 Nst_TypeObj *element_type = nullptr;

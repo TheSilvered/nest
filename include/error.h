@@ -199,6 +199,7 @@ extern "C" {
 /**
  * The structure where the source text of a Nest file is kept.
  *
+ * @param allocated: whether `text`, `path` and `lines` are heap allocated
  * @param text: the UTF-8 text of the file
  * @param path: the path of the file
  * @param lines: the beginning of each line of the file
@@ -206,6 +207,7 @@ extern "C" {
  * @param lines_len: the number of lines in the file
  */
 NstEXP typedef struct _Nst_SourceText {
+    bool allocated;
     i8 *text;
     i8 *path;
     i8 **lines;

@@ -30,13 +30,19 @@
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_draw.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_constraints.h">
+    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_constraint.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_position.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="..\..\..\..\libs\nest_gui\gui_obj_types.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_update.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\..\..\libs\nest_gui\gui_colors.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -59,13 +65,19 @@
     <ClCompile Include="..\..\..\..\libs\nest_gui\gui_element.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_constraints.cpp">
+    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_constraint.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\libs\nest_gui\gui_position.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\libs\nest_gui\gui_obj_types.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_update.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\libs\nest_gui\gui_colors.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -3,7 +3,8 @@
 #include "gui_app.h"
 #include "gui_utils.h"
 
-GUI_Window *GUI_Window_New(GUI_Window *parent, int width, int height)
+GUI_Window *GUI_Window_New(GUI_Window *parent, GUI_App *app,
+                           int width, int height)
 {
     GUI_Window *window = nullptr;
     SDL_Window *sdl_window = nullptr;
@@ -30,12 +31,12 @@ GUI_Window *GUI_Window_New(GUI_Window *parent, int width, int height)
     }
 
     window->parent = parent;
+    window->app = app;
     window->window = sdl_window;
     window->renderer = renderer;
-    window->root_element = nullptr;
+    window->root_element = GUI_Root_New(window, app);
     if (!Nst_sbuffer_init(&window->child_windows, sizeof(GUI_Window *), 0))
         goto cleanup;
-    window->clip = { 0, 0, width, height };
     window->keep_open = true;
 
     return window;
@@ -87,8 +88,6 @@ void GUI_Window_GetPosition(GUI_Window *window, int *x, int *y)
 void GUI_Window_SetSize(GUI_Window *window, int w, int h)
 {
     SDL_SetWindowSize(window->window, w, h);
-    window->clip.w = w;
-    window->clip.h = h;
 }
 
 void GUI_Window_GetSize(GUI_Window *window, int *w, int *h)
@@ -106,6 +105,13 @@ bool GUI_Window_GetResizable(GUI_Window *window)
     return bool(SDL_GetWindowFlags(window->window) & SDL_WINDOW_RESIZABLE);
 }
 
+SDL_Rect GUI_Window_GetClipRect(GUI_Window *window)
+{
+    int w, h;
+    GUI_Window_GetSize(window, &w, &h);
+    return SDL_Rect{ 0, 0, w, h };
+}
+
 bool GUI_Window_IsRunning(GUI_Window *window)
 {
     return window->keep_open;
@@ -118,7 +124,7 @@ void GUI_Window_Close(GUI_Window *window)
 
 bool GUI_App_Init(GUI_App *app, int window_width, int window_height)
 {
-    app->window = GUI_Window_New(nullptr, window_width, window_height);
+    app->window = GUI_Window_New(nullptr, app, window_width, window_height);
     if (app->window == nullptr)
         return false;
     app->focused_element = nullptr;
