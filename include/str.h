@@ -30,8 +30,6 @@
 /* Value of `idx` in case an error occurs when iterating over a string. */
 #define Nst_STR_LOOP_ERROR -2
 
-#define Nst_
-
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
