@@ -397,7 +397,7 @@ float_ltrl:
         go_back();
 
     {
-        f64 value = strtod(start_idx, nullptr);
+        f64 value = Nst_strtod(start_idx, nullptr);
         return tok_new_value(
             start,
             state.pos,

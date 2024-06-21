@@ -26,9 +26,11 @@
 #define Nst_string_repr(src) _Nst_string_repr(STR(src))
 /* Alias of `_Nst_string_get` that casts `str` to `Nst_StrObj *`. */
 #define Nst_string_get(str, idx) _Nst_string_get(STR(str), idx)
-/* Alias of `_Nst_string_next_ch` that casts `str` to `Nst_StrObj *`. */
-#define Nst_string_next_ch(str, idx, out_ch)                              \
-    _Nst_string_next_ch(STR(str), idx, out_ch)
+
+/* Value of `idx` in case an error occurs when iterating over a string. */
+#define Nst_STR_LOOP_ERROR -2
+
+#define Nst_
 
 #ifdef __cplusplus
 extern "C" {
@@ -164,27 +166,66 @@ NstEXP Nst_Obj *NstC _Nst_string_repr(Nst_StrObj *src);
  * The function fails if the index falls outside the string.
  */
 NstEXP Nst_Obj *NstC _Nst_string_get(Nst_StrObj *str, i64 idx);
+
 /**
- * Gets a character in a string given an index.
+ * Iterates over the characters of a string.
  *
- * @brief `ch_idx` is an in-out parameter and is set to the starting index of
- * the next character. `out_ch` can be `NULL` in which case only the index is
- * set.
+ * @brief In order to start pass `-1` as `idx`, this will start from the first
+ * character.
  *
- * @param str: the string to get the next character of
- * @param ch_idx: the starting index of the character (it may not correspond
- * to the index in Nest)
- * @param out_ch: the pointer where the new character is placed
+ * @param str: the string to iterate
+ * @param idx: the current index of the iteration
  *
- * @return The function returns `true` if the character was taken succesfully
- * and `false` if an error occurred or `ch_idx` is outside the string. The
- * error is set only when an internal call fails or `ch_idx` does not point to
- * the start of a character. When an error occurrs `ch_idx` is set to `-1`.
- * If `ch_idx` is outside the string's range no error is set and `ch_idx`
- * remains untouched.
+ * @return The index of the first byte of the character currently being
+ * iterated. When there are no more characters to iterate over a negative value
+ * is returned. No errors can occur.
  */
-NstEXP bool NstC _Nst_string_next_ch(Nst_StrObj *str, isize *ch_idx,
-                                     Nst_Obj **out_ch);
+NstEXP isize NstC Nst_string_next(Nst_StrObj *str, isize idx);
+
+/**
+ * Iterates over the characters of a string.
+ *
+ * @brief In order to start set `idx` to `-1`, this will start from the first
+ * character.
+ *
+ * @param str: the string to iterate
+ * @param idx: the address to the current index of the iteration
+ *
+ * @return A `Nst_StrObj` that contains the character being iterated. It
+ * returns `NULL` when there are no more characters to iterate over or when an
+ * error occurs. In case an error occurs `idx` is set to `Nst_STR_LOOP_ERROR`.
+ */
+NstEXP Nst_Obj *NstC Nst_string_next_obj(Nst_StrObj *str, isize *idx);
+/**
+ * Iterates over the characters of a string.
+ *
+ * @brief In order to start set `idx` to `-1`, this will start from the first
+ * character.
+ *
+ * @param str: the string to iterate
+ * @param idx: the address to the current index of the iteration
+ *
+ * @return The Unicode value of the character. It returns `-1` when there are
+ * no more characters to iterate over or when an error occurs. In case an error
+ * occurs `idx` is set to `Nst_STR_LOOP_ERROR`.
+ */
+NstEXP i32 NstC Nst_string_next_utf32(Nst_StrObj *str, isize *idx);
+/**
+ * Iterates over the characters of a string.
+ *
+ * @brief In order to start set `idx` to `-1`, this will start from the first
+ * character.
+ *
+ * @param str: the string to iterate
+ * @param idx: the address to the current index of the iteration
+ * @param ch_buf: a buffer of length 4 where the bytes of the charcter are
+ * copied, any extra bytes are set to `0`
+ *
+ * @return The length of the character in bytes. It returns `0` when there are
+ * no more characters to iterate over or when an error occurs. In case an error
+ * occurs `idx` is set to `Nst_STR_LOOP_ERROR`.
+ */
+NstEXP i32 NstC Nst_string_next_utf8(Nst_StrObj *str, isize *idx, i8 *ch_buf);
 
 /**
  * Parses a `Nst_IntObj` from a string.
@@ -247,9 +288,9 @@ NstEXP void NstC _Nst_string_destroy(Nst_StrObj *str);
  * `s1 <= p < s1 + l1`, where `p` is the pointer.
  *
  * @param s1: the main string
- * @param l1: the length of `s1`
+ * @param l1: the length of `s1` in bytes
  * @param s2: the substring to find inside the main string
- * @param l2: the length of `s2`
+ * @param l2: the length of `s2` in bytes
  *
  * @return The pointer to the start of `s1` or `NULL` if the string could not
  * be found. No error is set.

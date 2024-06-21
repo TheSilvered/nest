@@ -57,8 +57,6 @@ void get_in_str(Nst_StrObj *str, Nst_Obj *start_idx, Nst_Obj *end_idx,
     if (end < 0)
         end += str1_true_len;
 
-    // no need to check start >= str1_true_len or end < 0 see below
-
     if (start < 0)
         start = 0;
     if (end > (isize)str1_true_len)
@@ -70,19 +68,8 @@ void get_in_str(Nst_StrObj *str, Nst_Obj *start_idx, Nst_Obj *end_idx,
         return;
     }
 
-    // start and end are surely inside the string because start is 0 at min and
-    // end is str1_true_len at max. If the start is below end it means that it
-    // is also below str1_true_len, if end is above start it means that is also
-    // above 0 and the remaining bound checking is done
-
-    isize i = 0;
-
-    do {
-        if (i == -1) {
-            *out_str = nullptr;
-            *out_str_end = (i8 *)1; // signals an error
-            return;
-        }
+    isize i;
+    for (i = Nst_string_next(str, -1); i >= 0; i = Nst_string_next(str, i)) {
         if (start == 0)
             *out_str = str->value + i;
         if (end == 0) {
@@ -91,9 +78,9 @@ void get_in_str(Nst_StrObj *str, Nst_Obj *start_idx, Nst_Obj *end_idx,
         }
         start--;
         end--;
-    } while (Nst_string_next_ch(str, &i, nullptr));
+    }
 
-    *out_str_end = str->value + i + 1;
+    *out_str_end = str->value + str->len;
 }
 
 Nst_Obj *NstC lfind_(usize arg_num, Nst_Obj **args)
@@ -117,12 +104,8 @@ Nst_Obj *NstC lfind_(usize arg_num, Nst_Obj **args)
     if (start_idx != Nst_null() || end_idx != Nst_null()) {
         i8 *str1_end;
         get_in_str(str1, start_idx, end_idx, &str1_value, &str1_end);
-        if (str1_value == nullptr) {
-            if (str1_end == nullptr)
-                return Nst_inc_ref(Nst_const()->Int_neg1);
-            else
-                return nullptr;
-        }
+        if (str1_value == nullptr)
+            return Nst_inc_ref(Nst_const()->Int_neg1);
         str1_len = str1_end - str1_value;
     } else {
         str1_value = str1->value;
@@ -158,15 +141,11 @@ Nst_Obj *NstC rfind_(usize arg_num, Nst_Obj **args)
     i8 *str1_value;
     usize str1_len;
 
-    if (start_idx != nullptr || end_idx != nullptr) {
+    if (start_idx != Nst_null() || end_idx != Nst_null()) {
         i8 *str1_end;
         get_in_str(str1, start_idx, end_idx, &str1_value, &str1_end);
-        if (str1_value == nullptr) {
-            if (str1_end == nullptr)
-                return Nst_inc_ref(Nst_const()->Int_neg1);
-            else
-                return nullptr;
-        }
+        if (str1_value == nullptr)
+            return Nst_inc_ref(Nst_const()->Int_neg1);
         str1_len = str1_end - str1_value;
     } else {
         str1_value = str1->value;
@@ -688,25 +667,25 @@ Nst_Obj *NstC is_charset_(usize arg_num, Nst_Obj **args)
     else if (str2->len == 0)
         Nst_RETURN_FALSE;
 
-    isize i = 0;
-    u8 *p1 = (u8 *)str1->value;
-    u8 *p2 = (u8 *)str2->value;
-
-    do {
+    isize i = -1;
+    for (i32 ch1 = Nst_string_next_utf32(str1, &i);
+         ch1 != -1;
+         ch1 = Nst_string_next_utf32(str1, &i))
+    {
+        isize j = -1;
         bool found_ch = false;
-        u32 ch1 = Nst_ext_utf8_to_utf32(p1 + i);
-        isize j = 0;
-        do {
-            u32 ch2 = Nst_ext_utf8_to_utf32(p2 + j);
+        for (i32 ch2 = Nst_string_next_utf32(str2, &j);
+             ch2 != -1;
+             ch2 = Nst_string_next_utf32(str2, &j))
+        {
             if (ch1 == ch2) {
                 found_ch = true;
                 break;
             }
-        } while (Nst_string_next_ch(str2, &j, NULL));
+        }
         if (!found_ch)
             Nst_RETURN_FALSE;
-    } while (Nst_string_next_ch(str1, &i, NULL));
-
+    }
     Nst_RETURN_TRUE;
 }
 

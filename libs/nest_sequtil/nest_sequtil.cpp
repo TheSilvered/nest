@@ -1135,21 +1135,18 @@ Nst_Obj *reverse_string(Nst_StrObj *str_obj)
     usize old_str_len = str_obj->len;
 
     i8 *new_str = Nst_malloc_c(old_str_len + 1, i8);
-    u8 *old_str = (u8 *)(str_obj->value);
 
     usize i = old_str_len;
+    i8 ch_buf[4] = { 0 };
+    isize str_idx = -1;
 
-    for (isize ch_idx = 0;
-         ch_idx < (isize)old_str_len;
-         Nst_string_next_ch(str_obj, &ch_idx, nullptr))
+    for (i32 ch_len = Nst_string_next_utf8(str_obj, &str_idx, ch_buf);
+         ch_len != 0;
+         ch_len = Nst_string_next_utf8(str_obj, &str_idx, ch_buf))
     {
-        usize ch_size = Nst_check_ext_utf8_bytes(
-            old_str + ch_idx,
-            Nst_CP_MULTIBYTE_MAX_SIZE);
-        i -= ch_size;
-        memcpy(new_str + i, old_str + ch_idx, ch_size * sizeof(u8));
+        i -= ch_len;
+        memcpy(new_str + i, ch_buf, ch_len * sizeof(u8));
     }
-
     new_str[old_str_len] = '\0';
 
     Nst_Obj *new_str_obj = Nst_string_new_len(

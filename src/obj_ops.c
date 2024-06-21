@@ -1017,14 +1017,17 @@ static Nst_Obj *str_to_seq(Nst_Obj *ob, bool is_vect)
     if (seq == NULL)
         return NULL;
 
-    Nst_Obj *ch;
-    isize idx = 0;
+    isize str_idx = -1;
     isize i = 0;
 
-    while (Nst_string_next_ch(ob, &idx, &ch))
+    for (Nst_Obj *ch = Nst_string_next_obj(STR(ob), &str_idx);
+         ch != NULL;
+         ch = Nst_string_next_obj(STR(ob), &str_idx))
+    {
         seq->objs[i++] = ch;
+    }
 
-    if (idx == -1) {
+    if (str_idx == Nst_STR_LOOP_ERROR) {
         seq->len = i;
         Nst_dec_ref(seq);
         return NULL;

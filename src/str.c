@@ -9,6 +9,7 @@
 #include "lexer.h"
 #include "encoding.h"
 #include "format.h"
+#include "dtoa.h"
 
 #define IS_WHITESPACE(ch)                                                     \
         (ch == ' ' || ch == '\n' || ch == '\t' || ch == '\r' || ch == '\v'    \
@@ -36,17 +37,17 @@
 
 static i32 get_ch_width(u8 *str, u8 *end)
 {
-    bool can_be_ascii = true;
+    i32 size = sizeof(u8);
     while (str < end) {
         u8 c = *str;
         if (c >= 0x80) {
-            can_be_ascii = false;
+            size = sizeof(u16);
             if ((c & 0xf0) == 0xf0)
-                return 4;
+                return sizeof(u32);
         }
         str++;
     }
-    return can_be_ascii ? 1 : 2;
+    return size;
 }
 
 static void fill_indexable_str_utf16(u16 *i_str, u8 *s, u8 *s_end)
@@ -353,51 +354,74 @@ Nst_Obj *_Nst_string_get(Nst_StrObj *str, i64 idx)
     return NULL;
 }
 
-bool _Nst_string_next_ch(Nst_StrObj *str, isize *ch_idx, Nst_Obj **out_ch)
+isize Nst_string_next(Nst_StrObj *str, isize idx)
 {
-    if (out_ch != NULL)
-        *out_ch = NULL;
-    isize idx = *ch_idx;
-
-    if (idx >= (isize)str->len || idx < 0)
-        return false;
-
+    if (str->len == 0)
+        return -1;
+    if (idx == -1)
+        return 0;
     i32 ch_len = Nst_check_ext_utf8_bytes(
         (u8 *)str->value + idx,
         str->len - idx);
+    if (idx + ch_len == (isize)str->len)
+        return -1;
+    return idx + ch_len;
+}
 
-    if (ch_len == -1) {
-        *ch_idx = -1;
-        Nst_set_value_errorf(
-            _Nst_EM_INVALID_ENCODING,
-            *(u8 *)str->value,
-            Nst_cp_ext_utf8.name);
-        return false;
-    }
+Nst_Obj *Nst_string_next_obj(Nst_StrObj *str, isize *idx)
+{
+    *idx = Nst_string_next(str, *idx);
 
-    if (out_ch == NULL) {
-        *ch_idx += ch_len;
-        return true;
-    }
+    if (*idx == -1)
+        return NULL;
 
+    isize idx_val = *idx;
+    i32 ch_len = Nst_check_ext_utf8_bytes(
+        (u8 *)str->value + idx_val,
+        str->len - idx_val);
     i8 *ch_buf = Nst_malloc_c(ch_len + 1, i8);
     if (ch_buf == NULL) {
-        *ch_idx = -1;
-        return false;
+        *idx = Nst_STR_LOOP_ERROR;
+        return NULL;
     }
 
-    memcpy(ch_buf, str->value + idx, (usize)ch_len);
+    memcpy(ch_buf, str->value + idx_val, (usize)ch_len);
     ch_buf[ch_len] = 0;
 
-    *out_ch = Nst_string_new_len(ch_buf, ch_len, 1, true);
-    *ch_idx += ch_len;
-
-    if (*out_ch == NULL) {
-        *ch_idx = -1;
-        return false;
+    Nst_Obj *out_str = Nst_string_new_len(ch_buf, ch_len, 1, true);
+    if (out_str == NULL) {
+        Nst_free(ch_buf);
+        *idx = Nst_STR_LOOP_ERROR;
+        return NULL;
     }
+    return out_str;
+}
 
-    return true;
+i32 Nst_string_next_utf32(Nst_StrObj *str, isize *idx)
+{
+    *idx = Nst_string_next(str, *idx);
+
+    if (*idx == -1)
+        return -1;
+
+    return (i32)Nst_ext_utf8_to_utf32((u8 *)(str->value + *idx));
+}
+
+i32 Nst_string_next_utf8(Nst_StrObj *str, isize *idx, i8 *ch_buf)
+{
+    *idx = Nst_string_next(str, *idx);
+
+    if (*idx == -1)
+        return 0;
+
+    i32 ch_len = Nst_check_ext_utf8_bytes(
+        (u8 *)str->value + *idx,
+        str->len - *idx);
+    if (ch_buf == NULL)
+        return ch_len;
+    memset(ch_buf, 0, 4);
+    ch_buf = memcpy(ch_buf, str->value + *idx, ch_len);
+    return ch_len;
 }
 
 usize _Nst_str_len(Nst_StrObj *str)
@@ -719,7 +743,7 @@ end:
     } else
         buf = start;
 
-    res = strtod(buf, NULL);
+    res = Nst_strtod(buf, NULL);
     if (contains_underscores)
         Nst_free(buf);
     return Nst_real_new(res);

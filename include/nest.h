@@ -48,5 +48,6 @@
 #include "mem.h"
 #include "format.h"
 #include "file.h"
+#include "dtoa.h"
 
 #endif // !NEST_H

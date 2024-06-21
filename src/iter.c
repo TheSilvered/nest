@@ -116,7 +116,7 @@ Nst_Obj *NstC Nst_iter_str_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_SeqObj *val = SEQ(args[0]);
-    AS_INT(val->objs[0]) = 0;
+    AS_INT(val->objs[0]) = -1;
     Nst_RETURN_NULL;
 }
 
@@ -126,15 +126,12 @@ Nst_Obj *NstC Nst_iter_str_get_val(usize arg_num, Nst_Obj **args)
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
     Nst_StrObj *str = STR(objs[1]);
-    Nst_Obj *ch;
-
-    if (!Nst_string_next_ch(str, (isize *)&AS_INT(objs[0]), &ch)) {
-        if (AS_INT(objs[0]) == -1)
-            return NULL;
-        Nst_RETURN_IEND;
-    }
-
-    return ch;
+    Nst_Obj *ch = Nst_string_next_obj(str, (isize *)&AS_INT(objs[0]));
+    if (ch != NULL)
+        return ch;
+    if (AS_INT(objs[0]) == Nst_STR_LOOP_ERROR)
+        return NULL;
+    Nst_RETURN_IEND;
 }
 
 Nst_Obj *NstC Nst_iter_map_start(usize arg_num, Nst_Obj **args)

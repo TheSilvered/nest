@@ -669,7 +669,7 @@ static bool more_double_quotes(u8 *str, usize str_len)
     return double_count >= single_count;
 }
 
-static bool is_simple_char(u8 c)
+static bool is_simple_char(i32 c)
 {
     return c < 0x7f && c >= ' ' && c != '\\' && c != '\'' && c != '"';
 }
@@ -756,19 +756,20 @@ static i8 *repr_string(u8 *str, usize str_len, usize *out_len, ReprMode repr)
     }
 
     Nst_StrObj str_ob = Nst_string_temp((i8 *)str, str_len);
-    isize i = 0;
+    isize i = -1;
 
-    while (i < (isize)str_len && i >= 0) {
-        u8 c = str[i];
+    for (i32 c = Nst_string_next_utf32(&str_ob, &i);
+         c != -1;
+         c = Nst_string_next_utf32(&str_ob, &i))
+    {
         if (is_simple_char(c)) {
             if (!Nst_buffer_append_char(&buf, (i8)c))
                 goto fail;
         } else if (c < 0x80) {
-            if (!write_ascii_escape(&buf, c, escape_single_quotes, repr))
+            if (!write_ascii_escape(&buf, (u8)c, escape_single_quotes, repr))
                 goto fail;
         } else if (!write_unicode_escape(&buf, str + i, str_len - i, repr))
             goto fail;
-        _Nst_string_next_ch(&str_ob, &i, NULL);
     }
 
     if (i < 0)
