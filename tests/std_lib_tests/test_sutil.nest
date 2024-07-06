@@ -64,11 +64,76 @@
 {72b, 105b} @su.decode 'Hi' @test.assert_eq
 'Hi' @su.encode {72b, 105b} @test.assert_eq
 
-'a b' @su.split {'a', 'b'} @test.assert_eq
-'a  b' @su.split {'a', 'b'} @test.assert_eq
-' a b' @su.split {'a', 'b'} @test.assert_eq
-'a b ' @su.split {'a', 'b'} @test.assert_eq
-' a  b ' @su.split {'a', 'b'} @test.assert_eq
+'a b' @su.lsplit {'a', 'b'} @test.assert_eq
+'a  b' @su.lsplit {'a', 'b'} @test.assert_eq
+'a\n\tb' @su.lsplit {'a', 'b'} @test.assert_eq
+' a b' @su.lsplit {'a', 'b'} @test.assert_eq
+'  a b' @su.lsplit {'a', 'b'} @test.assert_eq
+'  a b ' @su.lsplit {'a', 'b'} @test.assert_eq
+'  a b  ' @su.lsplit {'a', 'b'} @test.assert_eq
+' a b  ' @su.lsplit {'a', 'b'} @test.assert_eq
+'a b  ' @su.lsplit {'a', 'b'} @test.assert_eq
+'a b ' @su.lsplit {'a', 'b'} @test.assert_eq
+'a,b,c' ',' @su.lsplit {'a', 'b', 'c'} @test.assert_eq
+'a,b,c d' ',' @su.lsplit {'a', 'b', 'c d'} @test.assert_eq
+' a,b,c d' ',' @su.lsplit {' a', 'b', 'c d'} @test.assert_eq
+' a, b, c d' ',' @su.lsplit {' a', ' b', ' c d'} @test.assert_eq
+'a,b,c,d' ',' 3 @su.lsplit {'a', 'b', 'c', 'd'} @test.assert_eq
+'a,b,c,d' ',' 2 @su.lsplit {'a', 'b', 'c,d'} @test.assert_eq
+'a,b,c,d' ',' 1 @su.lsplit {'a', 'b,c,d'} @test.assert_eq
+'a,b,c,d' ',' 0 @su.lsplit {'a,b,c,d'} @test.assert_eq
+'a b c d' null 3 @su.lsplit {'a', 'b', 'c', 'd'} @test.assert_eq
+'a  b  c  d' null 3 @su.lsplit {'a', 'b', 'c', 'd'} @test.assert_eq
+'  a  b  c  d  ' null 3 @su.lsplit {'a', 'b', 'c', 'd  '} @test.assert_eq
+'  a b c d' null 3 @su.lsplit {'a', 'b', 'c', 'd'} @test.assert_eq
+'a b c d' null 2 @su.lsplit {'a', 'b', 'c d'} @test.assert_eq
+'a  b  c  d' null 2 @su.lsplit {'a', 'b', 'c  d'} @test.assert_eq
+'  a  b  c  d  ' null 2 @su.lsplit {'a', 'b', 'c  d  '} @test.assert_eq
+'  a b c d' null 2 @su.lsplit {'a', 'b', 'c d'} @test.assert_eq
+'a b c d' null 1 @su.lsplit {'a', 'b c d'} @test.assert_eq
+'a  b  c  d' null 1 @su.lsplit {'a', 'b  c  d'} @test.assert_eq
+'  a  b  c  d  ' null 1 @su.lsplit {'a', 'b  c  d  '} @test.assert_eq
+'  a b c d' null 1 @su.lsplit {'a', 'b c d'} @test.assert_eq
+'a b c d' null 0 @su.lsplit {'a b c d'} @test.assert_eq
+'a  b  c  d' null 0 @su.lsplit {'a  b  c  d'} @test.assert_eq
+'  a  b  c  d  ' null 0 @su.lsplit {'  a  b  c  d  '} @test.assert_eq
+'  a b c d' null 0 @su.lsplit {'  a b c d'} @test.assert_eq
+
+'a b' @su.rsplit {'a', 'b'} @test.assert_eq
+'a  b' @su.rsplit {'a', 'b'} @test.assert_eq
+'a\n\tb' @su.rsplit {'a', 'b'} @test.assert_eq
+' a b' @su.rsplit {'a', 'b'} @test.assert_eq
+'  a b' @su.rsplit {'a', 'b'} @test.assert_eq
+'  a b ' @su.rsplit {'a', 'b'} @test.assert_eq
+'  a b  ' @su.rsplit {'a', 'b'} @test.assert_eq
+' a b  ' @su.rsplit {'a', 'b'} @test.assert_eq
+'a b  ' @su.rsplit {'a', 'b'} @test.assert_eq
+'a b ' @su.rsplit {'a', 'b'} @test.assert_eq
+'a,b,c' ',' @su.rsplit {'a', 'b', 'c'} @test.assert_eq
+'a,b,c d' ',' @su.rsplit {'a', 'b', 'c d'} @test.assert_eq
+' a,b,c d' ',' @su.rsplit {' a', 'b', 'c d'} @test.assert_eq
+' a, b, c d' ',' @su.rsplit {' a', ' b', ' c d'} @test.assert_eq
+'a,b,c,d' ',' 3 @su.rsplit {'a', 'b', 'c', 'd'} @test.assert_eq
+'a,b,c,d' ',' 2 @su.rsplit {'a,b', 'c', 'd'} @test.assert_eq
+'a,b,c,d' ',' 1 @su.rsplit {'a,b,c', 'd'} @test.assert_eq
+'a,b,c,d' ',' 0 @su.rsplit {'a,b,c,d'} @test.assert_eq
+'a b c d' null 3 @su.rsplit {'a', 'b', 'c', 'd'} @test.assert_eq
+'a  b  c  d' null 3 @su.rsplit {'a', 'b', 'c', 'd'} @test.assert_eq
+'  a  b  c  d  ' null 3 @su.rsplit {'  a', 'b', 'c', 'd'} @test.assert_eq
+'  a b c d' null 3 @su.rsplit {'  a', 'b', 'c', 'd'} @test.assert_eq
+'a b c d' null 2 @su.rsplit {'a b', 'c', 'd'} @test.assert_eq
+'a  b  c  d' null 2 @su.rsplit {'a  b', 'c', 'd'} @test.assert_eq
+'  a  b  c  d  ' null 2 @su.rsplit {'  a  b', 'c', 'd'} @test.assert_eq
+'  a b c d' null 2 @su.rsplit {'  a b', 'c', 'd'} @test.assert_eq
+'a b c d' null 1 @su.rsplit {'a b c', 'd'} @test.assert_eq
+'a  b  c  d' null 1 @su.rsplit {'a  b  c', 'd'} @test.assert_eq
+'  a  b  c  d  ' null 1 @su.rsplit {'  a  b  c', 'd'} @test.assert_eq
+'  a b c d' null 1 @su.rsplit {'  a b c', 'd'} @test.assert_eq
+'a b c d' null 0 @su.rsplit {'a b c d'} @test.assert_eq
+'a  b  c  d' null 0 @su.rsplit {'a  b  c  d'} @test.assert_eq
+'  a  b  c  d  ' null 0 @su.rsplit {'  a  b  c  d  '} @test.assert_eq
+'  a b c d' null 0 @su.rsplit {'  a b c d'} @test.assert_eq
+
 {'a', 'b', 'c'} @su.join 'a b c' @test.assert_eq
 {'a', 'b', 'c'} '' @su.join 'abc' @test.assert_eq
 

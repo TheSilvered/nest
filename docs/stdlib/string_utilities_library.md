@@ -337,6 +337,58 @@ string itself is returned if `string` does not begin with `substring`.
 
 ---
 
+### `@lsplit`
+
+**Synopsis:**
+
+```nest
+[string: Str, separator: Str?, max_cuts: Int?] @lsplit -> Vector.Str
+```
+
+**Description:**
+
+Splits `string` where it finds `separator` without including it and returns a
+vector with all the resulting strings. It stops when it has reached the
+specified number of `max_cuts` or when there are no more separators in the
+string.
+
+If `separator` is `null`, the string is split on whitespace and empty strings
+are ignored, meaning that contiguous whitespace is treated as one character.
+When `separator` is `null` and the string has reached the number of cuts
+specified by `max_cuts` any subsequent whitespace is left untouched.
+
+If `max_cuts` is negative the function will split `string` at all the
+occurrences of `separator`. If `max_cuts` is not given, it defaults to `-1` and
+if `max_cuts` is `0` a vector is returned containing `string` unmodified.
+
+This function splits the string from left to right.
+
+**Arguments:**
+
+- `string`: the string to split
+- `separator`: the substring to split `string` at
+- `max_cuts`: the maximum number of splits allowed
+
+**Returns:**
+
+A new vector containing the split strings.
+
+**Example:**
+
+```nest
+|#| 'stdsutil.nest' = su
+'a  b' @su.lsplit --> <{'a', 'b'}>
+'a  b  ' @su.lsplit --> <{'a', 'b'}>
+'  a  b' @su.lsplit --> <{'a', 'b'}>
+'a  b  ' null 1 @su.lsplit --> <{'a', 'b  '}>
+'a  b' ' ' @su.lsplit --> <{'a', '', 'b'}>
+'a.b.c.d' '.' @su.lsplit --> <{'a', 'b', 'c', 'd'}>
+'a.b.c.d' '.' 2 @su.lsplit --> <{'a', 'b', 'c.d'}>
+'a.b.c.d' '.' 1 @su.lsplit --> <{'a', 'b.c.d'}>
+```
+
+---
+
 ### `@ltrim`
 
 **Synopsis:**
@@ -490,6 +542,58 @@ string itself is returned if `string` does not end with `substring`.
 
 ---
 
+### `@rsplit`
+
+**Synopsis:**
+
+```nest
+[string: Str, separator: Str?, max_cuts: Int?] @rsplit -> Vector.Str
+```
+
+**Description:**
+
+Splits `string` where it finds `separator` without including it and returns a
+vector with all the resulting strings. It stops when it has reached the
+specified number of `max_cuts` or when there are no more separators in the
+string.
+
+If `separator` is `null`, the string is split on whitespace and empty strings
+are ignored, meaning that contiguous whitespace is treated as one character.
+When `separator` is `null` and the string has reached the number of cuts
+specified by `max_cuts` any subsequent whitespace is left untouched.
+
+If `max_cuts` is negative the function will split `string` at all the
+occurrences of `separator`. If `max_cuts` is not given, it defaults to `-1` and
+if `max_cuts` is `0` a vector is returned containing `string` unmodified.
+
+This function splits the string from right to left.
+
+**Arguments:**
+
+- `string`: the string to split
+- `separator`: the substring to split `string` at
+- `max_cuts`: the maximum number of splits allowed
+
+**Returns:**
+
+A new vector containing the split strings.
+
+**Example:**
+
+```nest
+|#| 'stdsutil.nest' = su
+'a  b' @su.lsplit --> <{'a', 'b'}>
+'a  b  ' @su.lsplit --> <{'a', 'b'}>
+'  a  b' @su.lsplit --> <{'a', 'b'}>
+'  a  b' null 1 @su.lsplit --> <{'  a', 'b'}>
+'a  b' ' ' @su.lsplit --> <{'a', '', 'b'}>
+'a.b.c.d' '.' @su.lsplit --> <{'a', 'b', 'c', 'd'}>
+'a.b.c.d' '.' 2 @su.lsplit --> <{'a.b', 'c', 'd'}>
+'a.b.c.d' '.' 1 @su.lsplit --> <{'a.b.c', 'd'}>
+```
+
+---
+
 ### `@rtrim`
 
 **Synopsis:**
@@ -501,50 +605,6 @@ string itself is returned if `string` does not end with `substring`.
 **Returns:**
 
 Creates a new string with trailing whitespace removed.
-
----
-
-### `@split`
-
-**Synopsis:**
-
-```nest
-[string: Str, separator: Str?, max_splits: Int?] @split -> Vector.Str
-```
-
-**Description:**
-
-Splits `string` where it finds `separator` without including it and returns a
-vector with all the resulting strings. It stops when it has reached the
-specified number of `max_splits` or the last occurrence of the separator is
-found.
-
-If `separator` is `null`, the string is split using spaces. One or more
-continuous space characters count as one space.
-
-If `max_splits` is negative the function will split `string` at all the
-occurrences of `separator`. If `max_splits` is not given, it defaults to `-1`.
-
-**Arguments:**
-
-- `string`: the string to split
-- `separator`: the substring to split `string` at
-- `max_splits`: the maximum number of splits allowed
-
-**Returns:**
-
-A new vector containing the split strings.
-
-**Example:**
-
-```nest
-|#| 'stdsutil.nest' = su
-'a  b' @su.split --> <{'a', 'b'}>
-'a  b' ' ' @su.split --> <{'a', '', 'b'}>
-'a.b.c.d' '.' @su.split --> <{'a', 'b', 'c', 'd'}>
-'a.b.c.d' '.' 2 @su.split --> <{'a', 'b', 'c.d'}>
-'a.b.c.d' '.' 1 @su.split --> <{'a', 'b.c.d'}>
-```
 
 ---
 

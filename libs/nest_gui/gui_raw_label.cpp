@@ -55,9 +55,11 @@ static void raw_label_destructor(GUI_RawLabel *label)
     Nst_free(label->text);
 }
 
+/*
 static bool raw_label_update(GUI_RawLabel *label)
 {
     Nst_assert(label->el_type == GUI_ET_RAW_LABEL);
 
 
 }
+*/
