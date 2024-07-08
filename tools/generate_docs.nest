@@ -354,8 +354,8 @@
 #_docs_link_data parser line [
     @_link_info_map = data_map
 
-    line @su.split = args
-    args.0 ':' @su.split = {_, link_action}
+    line @su.lsplit = args
+    args.0 ':' @su.lsplit = {_, link_action}
 
     !({'ignore_sym', 'link'} link_action <.>) ? [
         'invalid action \(link_action @su.repr)' parser @error
@@ -538,6 +538,8 @@
             => {SYMBOL_TYPES.function, original_text}
     ]
 
+    symbol_text 'volatile' @su.lremove @su.trim = symbol_text
+
     symbol_text 'enum' @su.starts_with ? [
         is_typedef ?
             SYMBOL_TYPES.enum = symbol_type
@@ -593,7 +595,7 @@
 #_get_function_data func_text [
     func_text 'NstEXP' @su.lremove @su.trim = func_text
     func_text '\n' ' ' @su.replace = func_text
-    func_text @su.split @su.join = func_text
+    func_text @su.lsplit @su.join = func_text
 
     SYMBOL_TYPES.function @_symbol_data_map = data_map
 
@@ -682,7 +684,7 @@
 ]
 
 #_split_args text [
-    text ',' @su.split su.trim @sequ.map = maybe_args
+    text ',' @su.lsplit su.trim @sequ.map = maybe_args
 
     <{}> = args
     '' = curr_arg
@@ -797,7 +799,7 @@
 #_get_t_func_data t_func_text [
     t_func_text 'NstEXP' @su.lremove @su.trim = t_func_text
     t_func_text '\n' ' ' @su.replace = t_func_text
-    t_func_text @su.split @su.join = t_func_text
+    t_func_text @su.lsplit @su.join = t_func_text
 
     SYMBOL_TYPES.t_func @_symbol_data_map = data_map
 
@@ -879,7 +881,7 @@
     indent null == ? 0 = indent
 
     '' = lines
-    Vector :: (text @su.split) true @sequ.reverse = words
+    Vector :: (text @su.lsplit) true @sequ.reverse = words
     words (##x => x '[docs:nbsp]' ' ' @su.replace) true @sequ.map
 
     ?.. $words 0 != [
@@ -914,7 +916,7 @@
 
 #link_manager_add_symbols link_manager file_blocks [
     file_blocks.header.file.0 = file
-    'c_api-' (file '.' @su.split).0 '.md' >< = file
+    'c_api-' (file '.' @su.lsplit).0 '.md' >< = file
 
     ... file_blocks.symbols := symbol [
         symbol.sym.name = name
@@ -1105,7 +1107,7 @@
 
 #_split_lines content [
     content '\r\n' '\n' @su.replace '\r' '\n' @su.replace = content
-    => content '\n' @su.split
+    => content '\n' @su.lsplit
 ]
 
 -/ ============================= C API Writing ============================= /-
@@ -1148,7 +1150,7 @@
 
     file_description.-1 '.' != ? '.' ><= file_description
 
-    'c_api-' (file_name '.' @su.split).0 '.md' >< 'w' @io.open = file
+    'c_api-' (file_name '.' @su.lsplit).0 '.md' >< 'w' @io.open = file
 
     file ('`' file_name '`' >< 1 @title) @io.write
     file_description lm @_doc_paragraph file @_append_to_file
@@ -1203,7 +1205,7 @@
     text 'WINDOWS ONLY' '**WINDOWS ONLY**' @su.replace = text
 
     text '\n' <.> ? [
-        text '\n' @su.split = items
+        text '\n' @su.lsplit = items
         items.0 @paragraph = introduction
         items 1 @sequ.slice @list = list_str
         => introduction '\n' list_str ><
@@ -1327,7 +1329,7 @@
 
         title_name 0 @title file @_append_to_file
         doc.param ##x [
-            x ':' 1 @su.split = {name, desc}
+            x ':' 1 @su.lsplit = {name, desc}
             => '`\(name @su.trim)`: \(desc @su.trim)'
         ] @sequ.map = params
         params lm @_doc_list file @_append_to_file

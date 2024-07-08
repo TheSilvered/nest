@@ -1,4 +1,5 @@
 #include <errno.h>
+#include <string.h>
 #include "mem.h"
 #include "optimizer.h"
 #include "obj_ops.h"
@@ -399,7 +400,7 @@ static void remove_push_jumpif(Nst_InstList *bc);
 static void remove_inst(Nst_InstList *bc, i64 idx);
 static void optimize_funcs(Nst_InstList *bc);
 static void remove_dead_code(Nst_InstList *bc);
-static void optimize_chained_jumps(Nst_InstList *bc);
+static bool optimize_chained_jumps(Nst_InstList *bc);
 
 Nst_InstList *Nst_optimize_bytecode(Nst_InstList *bc, bool optimize_builtins)
 {
@@ -430,7 +431,6 @@ Nst_InstList *Nst_optimize_bytecode(Nst_InstList *bc, bool optimize_builtins)
             Nst_inst_list_destroy(bc);
             return NULL;
         }
-
         remove_push_pop(bc);
         remove_assign_pop(bc);
         remove_assign_loc_get_val(bc);
@@ -912,39 +912,33 @@ static void remove_dead_code(Nst_InstList *bc)
     }
 }
 
-static void optimize_chained_jumps(Nst_InstList* bc)
+static bool optimize_chained_jumps(Nst_InstList* bc)
 {
     i64 size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;
 
-    i64 *visited_jumps = Nst_malloc_c(size, i64);
+    bool *visited_jumps = Nst_malloc_c(size, bool);
     if (visited_jumps == NULL)
-        return;
+        return false;
 
     for (i64 i = 0; i < size; i++) {
         if (!Nst_INST_IS_JUMP(inst_list[i].id))
             continue;
 
+        memset(visited_jumps, false, sizeof(bool) * size);
         i64 end_jump = inst_list[i].int_val;
+        visited_jumps[end_jump] = true;
 
-        for (i64 j = 0; j < size; j++) {
-            if (inst_list[end_jump].id != Nst_IC_JUMP)
+        while (inst_list[end_jump].id == Nst_IC_JUMP) {
+            i64 new_end_jump = inst_list[end_jump].int_val;
+            if (visited_jumps[new_end_jump])
                 break;
-            i64 jump = inst_list[end_jump].int_val;
-            bool found = false;
-            for (i64 k = 0; k < j; k++) {
-                if (k == jump) {
-                    end_jump = i;
-                    found = true;
-                }
-            }
-            if (found)
-                break;
-            visited_jumps[j] = jump;
-            end_jump = jump;
+            end_jump = new_end_jump;
+            visited_jumps[new_end_jump] = true;
         }
 
         inst_list[i].int_val = end_jump;
     }
     Nst_free(visited_jumps);
+    return true;
 }

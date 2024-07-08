@@ -4,7 +4,7 @@
 
 **Additions**
 
-- added `is_space`, `lremove` and `rremove` to `stdsutil.nest`
+- added `is_space`, `lremove`, `rremove` and `rsplit` to `stdsutil.nest`
 - added `del_env` and `get_capacity` to `stdsys.nest`
 - added `enum` to `stdsequtil.nest`
 - added `batch` and `batch_padded` to `stditutil.nest`
@@ -36,6 +36,7 @@
 - removed `reversed` from `stditutil.nest`
 - improved execution times and output printing
 - now when pressing `Ctrl-C` an error is thrown rather than the proccess exiting, this arror canot be cautgh with a normal try-catch statement but `err.try` is needed
+- renamed `su.split` to `su.lsplit`
 
 **Bug fixes**
 

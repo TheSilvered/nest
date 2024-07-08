@@ -410,7 +410,7 @@ typedef enum _DblRepr {
 } DblRepr;
 
 static bool nest_fmt_string(Nst_Buffer *buf, i8 *str, isize str_len,
-                            bool exact_width, PrefSuffMode preff_suff,
+                            bool exact_width, PrefSuffMode pref_suff,
                             ReprMode repr, const i8 *fill_ch, i32 width,
                             Alignment align);
 
@@ -429,7 +429,6 @@ static const i8 *nest_fmt_value(Nst_Buffer *buf, const i8 *fmt, va_list *args)
 
     bool normalize_neg_zero = false;
     bool exact_width = false;
-    bool fill_zeroes = false;
     bool as_unsigned = false;
     bool pad_zeroes_precision = false;
     DblRepr dbl_repr = MIN_REPR;
@@ -579,10 +578,6 @@ static const i8 *nest_fmt_value(Nst_Buffer *buf, const i8 *fmt, va_list *args)
         align = Nst_FMT_ALIGN_CENTER;
         fmt++;
         break;
-    case '=':
-        fill_zeroes = true;
-        fmt++;
-        break;
     }
 
     if (*fmt != '}') {
@@ -596,7 +591,6 @@ static const i8 *nest_fmt_value(Nst_Buffer *buf, const i8 *fmt, va_list *args)
     (void)dbl_repr;
     (void)pad_zeroes_precision;
     (void)as_unsigned;
-    (void)fill_zeroes;
     (void)normalize_neg_zero;
     (void)mode;
 
@@ -791,7 +785,7 @@ fail:
 }
 
 static bool nest_fmt_string(Nst_Buffer *buf, i8 *str, isize str_len,
-                            bool exact_width, PrefSuffMode preff_suff,
+                            bool exact_width, PrefSuffMode pref_suff,
                             ReprMode repr, const i8 *fill_ch, i32 width,
                             Alignment align)
 {
@@ -888,7 +882,7 @@ static bool nest_fmt_string(Nst_Buffer *buf, i8 *str, isize str_len,
     for (usize i = 0; i < right_chars; i++)
         Nst_buffer_append_str(buf, (i8 *)fill_ch, fill_ch_size);
 
-    (void)preff_suff;
+    (void)pref_suff;
 
     return true;
 

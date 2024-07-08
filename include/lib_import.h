@@ -14,17 +14,17 @@
 ### Builtin types
 
 - `t`: `Type`
-- `i`: `Integer`
+- `i`: `Int`
 - `r`: `Real`
 - `b`: `Bool`
 - `n`: `Null`
-- `s`: `String`
+- `s`: `Str`
 - `v`: `Vector`
 - `a`: `Array`
 - `m`: `Map`
 - `f`: `Func`
 - `I`: `Iter`
-- `B`: `Bite`
+- `B`: `Byte`
 - `F`: `IOFile`
 
 ### Other

@@ -111,18 +111,11 @@ Alias of [`_Nst_string_get`](c_api-str.md#_nst_string_get) that casts `str` to
 
 ---
 
-### `Nst_string_next_ch`
-
-**Synopsis:**
-
-```better-c
-#define Nst_string_next_ch(str, idx, out_ch)
-```
+### `Nst_STR_LOOP_ERROR`
 
 **Description:**
 
-Alias of [`_Nst_string_next_ch`](c_api-str.md#_nst_string_next_ch) that casts
-`str` to [`Nst_StrObj *`](c_api-str.md#nst_strobj).
+Value of `idx` in case an error occurs when iterating over a string.
 
 ---
 
@@ -391,35 +384,114 @@ fails if the index falls outside the string.
 
 ---
 
-### `_Nst_string_next_ch`
+### `Nst_string_next`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_string_next_ch(Nst_StrObj *str, isize *ch_idx, Nst_Obj **out_ch)
+isize Nst_string_next(Nst_StrObj *str, isize idx)
 ```
 
 **Description:**
 
-Gets a character in a string given an index.
+Iterates over the characters of a string.
 
-`ch_idx` is an in-out parameter and is set to the starting index of the next
-character. `out_ch` can be `NULL` in which case only the index is set.
+In order to start pass `-1` as `idx`, this will start from the first character.
 
 **Parameters:**
 
-- `str`: the string to get the next character of
-- `ch_idx`: the starting index of the character (it may not correspond to the
-  index in Nest)
-- `out_ch`: the pointer where the new character is placed
+- `str`: the string to iterate
+- `idx`: the current index of the iteration
 
 **Returns:**
 
-The function returns `true` if the character was taken succesfully and `false`
-if an error occurred or `ch_idx` is outside the string. The error is set only
-when an internal call fails or `ch_idx` does not point to the start of a
-character. When an error occurrs `ch_idx` is set to `-1`. If `ch_idx` is outside
-the string's range no error is set and `ch_idx` remains untouched.
+The index of the first byte of the character currently being iterated. When
+there are no more characters to iterate over a negative value is returned. No
+errors can occur.
+
+---
+
+### `Nst_string_next_obj`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *Nst_string_next_obj(Nst_StrObj *str, isize *idx)
+```
+
+**Description:**
+
+Iterates over the characters of a string.
+
+In order to start set `idx` to `-1`, this will start from the first character.
+
+**Parameters:**
+
+- `str`: the string to iterate
+- `idx`: the address to the current index of the iteration
+
+**Returns:**
+
+A [`Nst_StrObj`](c_api-str.md#nst_strobj) that contains the character being
+iterated. It returns `NULL` when there are no more characters to iterate over or
+when an error occurs. In case an error occurs `idx` is set to
+[`Nst_STR_LOOP_ERROR`](c_api-str.md#nst_str_loop_error).
+
+---
+
+### `Nst_string_next_utf32`
+
+**Synopsis:**
+
+```better-c
+i32 Nst_string_next_utf32(Nst_StrObj *str, isize *idx)
+```
+
+**Description:**
+
+Iterates over the characters of a string.
+
+In order to start set `idx` to `-1`, this will start from the first character.
+
+**Parameters:**
+
+- `str`: the string to iterate
+- `idx`: the address to the current index of the iteration
+
+**Returns:**
+
+The Unicode value of the character. It returns `-1` when there are no more
+characters to iterate over or when an error occurs. In case an error occurs
+`idx` is set to [`Nst_STR_LOOP_ERROR`](c_api-str.md#nst_str_loop_error).
+
+---
+
+### `Nst_string_next_utf8`
+
+**Synopsis:**
+
+```better-c
+i32 Nst_string_next_utf8(Nst_StrObj *str, isize *idx, i8 *ch_buf)
+```
+
+**Description:**
+
+Iterates over the characters of a string.
+
+In order to start set `idx` to `-1`, this will start from the first character.
+
+**Parameters:**
+
+- `str`: the string to iterate
+- `idx`: the address to the current index of the iteration
+- `ch_buf`: a buffer of length 4 where the bytes of the charcter are copied, any
+  extra bytes are set to `0`
+
+**Returns:**
+
+The length of the character in bytes. It returns `0` when there are no more
+characters to iterate over or when an error occurs. In case an error occurs
+`idx` is set to [`Nst_STR_LOOP_ERROR`](c_api-str.md#nst_str_loop_error).
 
 ---
 
@@ -562,9 +634,9 @@ s1 + l1`, where `p` is the pointer.
 **Parameters:**
 
 - `s1`: the main string
-- `l1`: the length of `s1`
+- `l1`: the length of `s1` in bytes
 - `s2`: the substring to find inside the main string
-- `l2`: the length of `s2`
+- `l2`: the length of `s2` in bytes
 
 **Returns:**
 

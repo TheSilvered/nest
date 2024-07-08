@@ -273,6 +273,7 @@ builds a formatted string with `fmt`.
 
 ```better-c
 typedef struct _Nst_SourceText {
+    bool allocated;
     i8 *text;
     i8 *path;
     i8 **lines;
@@ -287,6 +288,7 @@ The structure where the source text of a Nest file is kept.
 
 **Fields:**
 
+- `allocated`: whether `text`, `path` and `lines` are heap allocated
 - `text`: the UTF-8 text of the file
 - `path`: the path of the file
 - `lines`: the beginning of each line of the file
@@ -324,7 +326,7 @@ The structure representing a position inside a source file.
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_Traceback {
+typedef volatile struct _Nst_Traceback {
     bool error_occurred;
     Nst_StrObj *error_name;
     Nst_StrObj *error_msg;
