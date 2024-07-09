@@ -329,6 +329,35 @@ returned with no error.
 
 ---
 
+### `Nst_memset`
+
+**Synopsis:**
+
+```better-c
+void Nst_memset(void *block, usize size, usize count, void *value)
+```
+
+**Description:**
+
+Sets the value of an array in memory.
+
+!!!note
+    Unlike [`memset`](https://man7.org/linux/man-pages/man3/memset.3.html) in
+    `string.h` this function does not return a value.
+
+!!!warning
+    The behaviour of this function is undefined if `block` and `value` overlap.
+
+**Parameters:**
+
+- `block`: the pointer to the block of memory to edit
+- `size`: the size in bytes of a unit inside `block`
+- `count`: the number of units inside `block`
+- `value`: a pointer to the value to copy for each unit, if it is NULL the block
+  is filled with zeroes
+
+---
+
 ### `Nst_sbuffer_init`
 
 **Synopsis:**

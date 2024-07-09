@@ -133,6 +133,16 @@ void *Nst_crealloc(void *prev_block, usize new_count, usize size,
     return (void *)block;
 }
 
+void Nst_memset(void *block, usize size, usize count, void *value)
+{
+    if (value == NULL) {
+        memset(block, 0, size * count);
+        return;
+    }
+    for (usize i = 0; i < count; i++)
+        memcpy((i8 *)block + i * size, value, size);
+}
+
 bool Nst_sbuffer_init(Nst_SizedBuffer *buf, usize unit_size, usize count)
 {
     void *data = Nst_malloc(count, unit_size);

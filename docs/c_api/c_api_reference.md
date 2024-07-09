@@ -362,6 +362,7 @@
 - [`Nst_map_set_str`](c_api-map.md#nst_map_set_str)
 - [`_Nst_map_set_str`](c_api-map.md#_nst_map_set_str)
 - [`_Nst_map_traverse`](c_api-map.md#_nst_map_traverse)
+- [`Nst_memset`](c_api-mem.md#nst_memset)
 - [`Nst_NAMED_CONSTDECLR`](c_api-lib_import.md#nst_named_constdeclr)
 - [`Nst_NAMED_FUNCDECLR`](c_api-lib_import.md#nst_named_funcdeclr)
 - [`Nst_ndec_ref`](c_api-obj.md#nst_ndec_ref)

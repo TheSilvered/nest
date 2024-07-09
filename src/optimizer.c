@@ -912,12 +912,50 @@ static void remove_dead_code(Nst_InstList *bc)
     }
 }
 
-static bool optimize_chained_jumps(Nst_InstList* bc)
+typedef u8 *bool_arr_t;
+
+static inline bool_arr_t bool_arr_new(usize size)
+{
+    usize length = size / 8;
+    if (size % 8 != 0)
+        length++;
+    return Nst_calloc_c(length, u8, NULL);
+}
+
+static inline void bool_arr_free(bool_arr_t array)
+{
+    Nst_free(array);
+}
+
+static inline bool bool_arr_get(bool_arr_t array, usize idx)
+{
+    return (bool)(array[idx / 8] & (1 << (idx % 8)));
+}
+
+static inline void bool_arr_set(bool_arr_t array, usize idx, bool value)
+{
+    u8 byte = array[idx / 8];
+    if (value)
+        array[idx / 8] = byte | (1 << (idx % 8));
+    else
+        array[idx / 8] = byte & ~(1 << (idx % 8));
+}
+
+static inline void bool_arr_fill(bool_arr_t array, usize size, bool value)
+{
+    usize length = size / 8;
+    if (size % 8 != 0)
+        length++;
+    u8 set_value = value ? 255 : 0;
+    memset(array, set_value, length);
+}
+
+static bool optimize_chained_jumps(Nst_InstList *bc)
 {
     i64 size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;
 
-    bool *visited_jumps = Nst_malloc_c(size, bool);
+    bool_arr_t visited_jumps = bool_arr_new(size);
     if (visited_jumps == NULL)
         return false;
 
@@ -925,16 +963,16 @@ static bool optimize_chained_jumps(Nst_InstList* bc)
         if (!Nst_INST_IS_JUMP(inst_list[i].id))
             continue;
 
-        memset(visited_jumps, false, sizeof(bool) * size);
+        bool_arr_fill(visited_jumps, size, false);
         i64 end_jump = inst_list[i].int_val;
-        visited_jumps[end_jump] = true;
+        bool_arr_set(visited_jumps, end_jump, true);
 
         while (inst_list[end_jump].id == Nst_IC_JUMP) {
             i64 new_end_jump = inst_list[end_jump].int_val;
-            if (visited_jumps[new_end_jump])
+            if (bool_arr_get(visited_jumps, new_end_jump))
                 break;
             end_jump = new_end_jump;
-            visited_jumps[new_end_jump] = true;
+            bool_arr_set(visited_jumps, end_jump, true);
         }
 
         inst_list[i].int_val = end_jump;

@@ -79,6 +79,7 @@
 - added `Nst_VERSION_MAJOR`, `Nst_VERSION_MINOR` and `Nst_VERSION_PATCH` definitions
 - added `Nst_DECLR_END`
 - added `Nst_ConstFunc`
+- added `Nst_memset`
 
 **Changes**
 

@@ -193,6 +193,25 @@ NstEXP void *NstC Nst_realloc(void *block, usize new_count, usize size,
 NstEXP void *NstC Nst_crealloc(void *block, usize new_count, usize size,
                                usize count, void *init_value);
 
+/* [docs:link memset <https://man7.org/linux/man-pages/man3/memset.3.html>] */
+
+/**
+ * Sets the value of an array in memory.
+ *
+ * @brief Note: unlike `memset` in `string.h` this function does not return a
+ * value.
+ *
+ * @brief Warning: the behaviour of this function is undefined if `block` and
+ * `value` overlap.
+ *
+ * @param block: the pointer to the block of memory to edit
+ * @param size: the size in bytes of a unit inside `block`
+ * @param count: the number of units inside `block`
+ * @param value: a pointer to the value to copy for each unit, if it is NULL
+ * the block is filled with zeroes
+ */
+NstEXP void NstC Nst_memset(void *block, usize size, usize count, void *value);
+
 /**
  * Initializes a `Nst_SizedBuffer`.
  *
