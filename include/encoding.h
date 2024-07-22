@@ -69,19 +69,38 @@ NstEXP typedef enum _Nst_CPID {
 /**
  * @brief The signature of a function that checks the length of the first
  * character in a string of a certain encoding.
+ *
+ * @brief Note: if the length is unknown but it is certain that the string
+ * contains at least one character you can use `Nst_CP_MULTIBYTE_MAX_SIZE` to
+ * ensure that the function does not fail due to a length too small.
+ *
+ * @return The length in bytes of the first character of the string. If the
+ * sequence of bytes is not valid or incomplete this function returns `-1`.
  */
 NstEXP typedef i32 (*Nst_CheckBytesFunc)(void *str, usize len);
 
 /**
  * @brief The signature of a function that returns the code point of the first
- * character in a string of a certain encoding, expecting a valid sequence of
- * bytes.
+ * character in a string decoded with a certain encoding.
+ *
+ * @brief Warning: `str` is expected to be a valid string, you can check that
+ * it is valid with a function of type `Nst_CheckBytesFunc`. Since the string
+ * is assumed to be valid this function never fails.
  */
 NstEXP typedef u32 (*Nst_ToUTF32Func)(void *str);
 
 /**
- * @brief The signature of a function that encodesa code point in a certain
- * encoding and writes the output to a buffer.
+ * @brief The signature of a function that encodesa a code point with a certain
+ * encoding writing the output to a buffer.
+ *
+ * @brief Warning: `buf` is expected to be large enough to hold the full
+ * character, if the final length of the character is unknown you can ensure
+ * that `buf` has space for at least `Nst_CP_MULTIBYTE_MAX_SIZE` bytes. This
+ * type of functions are guaranteed to never write more than
+ * `Nst_CP_MULTIBYTE_MAX_SIZE` bytes.
+ *
+ * @return The number of bytes written. If the character could not be encoded
+ * this function returns `-1`.
  */
 NstEXP typedef i32 (*Nst_FromUTF32Func)(u32 ch, void *buf);
 

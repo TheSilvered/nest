@@ -239,9 +239,9 @@ This field has different interpretations depending on the type being formatted:
   significant digits to use
 - for integers it specifies the minimum number of digits to use
 - for strings it specifies the maximum amount of characters to write, if a
-  string is longer than specified it is cut to size using the same rules as;
-  the `c` flag. When using both the precision and the `c` flag and a width is
-  specified the precision is ignored
+  string is longer than specified it is cut to size removing characters from
+  the right (unlike the `c` flag). When using both the precision and the `c`
+  flag and a width is specified the precision is ignored
 
 ### Alignment
 
