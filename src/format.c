@@ -32,9 +32,6 @@
 #define E_EXTRA_SIZE 8 // the length of "+1.e+308"
 #define G_EXTRA_SIZE 7 // the length of "+.e+308"
 
-#define REPR_FULL 0b100
-#define REPR_ASCII 0b10
-
 static int get_f_size(f64 val)
 {
     if (isinf(val) || isnan(val))
@@ -508,12 +505,15 @@ typedef enum _AlignSign {
     Nst_FMT_SIGN_PLUS
 } AlignSign;
 
+#define REPR_FULL 0b100
+#define REPR_ASCII 0b10
+
 typedef enum _StrRepr {
-    Nst_FMT_REPR_NO_REPR       = 0b000,
-    Nst_FMT_REPR_SHALLOW       = 0b001,
-    Nst_FMT_REPR_SHALLOW_ASCII = 0b011,
-    Nst_FMT_REPR_FULL          = 0b101,
-    Nst_FMT_REPR_FULL_ASCII    = 0b111
+    Nst_FMT_REPR_NO_REPR       = 0,
+    Nst_FMT_REPR_SHALLOW       = 1,
+    Nst_FMT_REPR_SHALLOW_ASCII = 1 | REPR_ASCII,
+    Nst_FMT_REPR_FULL          = 1 | REPR_FULL,
+    Nst_FMT_REPR_FULL_ASCII    = 1 | REPR_ASCII | REPR_FULL
 } StrRepr;
 
 typedef enum _PrefSuffMode {
@@ -585,7 +585,9 @@ static void format_init(Format *format)
         return 1;
     else if (format->thousand_sep[2] == 0)
         return 2;
-    return 3;
+    else if (format->thousand_sep[3] == 0)
+        return 3;
+    return 4;
 }
 
 static const i8 *format_set_fill_ch(Format *format, const i8 *ch)
@@ -607,7 +609,9 @@ static usize format_fill_ch_len(Format *format)
         return 1;
     else if (format->fill_ch[2] == 0)
         return 2;
-    return 3;
+    else if (format->fill_ch[3] == 0)
+        return 3;
+    return 4;
 }
 
 static const i8 *fmt_value(Nst_Buffer *buf, const i8 *fmt, va_list *args);
@@ -618,7 +622,6 @@ static isize fmt_str_repr(Nst_Buffer *buf, i8 *str, usize str_len,
 static bool more_double_quotes(u8 *str, usize str_len);
 static isize ascii_escape(Nst_Buffer *buf, u8 c, Format *format);
 static isize unicode_escape(Nst_Buffer *buf, i32 c, Format *format);
-static isize apply_precision(i8 *str, usize str_len, i32 precision);
 static bool fmt_str_align(Nst_Buffer *buf, i8 *str, usize str_len,
                           usize char_str_len, Format *format);
 
@@ -632,20 +635,29 @@ static void fmt_cut(i8 *str, usize str_len, usize char_len, i8 **out_str,
                     usize *out_len, Format *format,
                     Alignment default_alignment);
 
-i8 *Nst_fmt(const i8 *fmt, usize *len, ...)
+i8 *Nst_fmt(const i8 *fmt, usize fmt_len, usize *out_len, ...)
 {
     va_list args;
-    va_start(args, len);
-    return Nst_vfmt(fmt, len, args);
+    va_start(args, out_len);
+    return Nst_vfmt(fmt, fmt_len, out_len, args);
 }
 
-i8 *Nst_vfmt(const i8 *fmt, usize *len, va_list args)
+i8 *Nst_vfmt(const i8 *fmt, usize fmt_len, usize *out_len, va_list args)
 {
     Nst_Buffer buf;
     va_list args_cpy;
     va_copy(args_cpy, args);
 
-    usize fmtlen = len != NULL ? *len : strlen(fmt);
+    usize fmtlen = fmt_len != 0 ? fmt_len : strlen(fmt);
+    if (out_len != NULL)
+        *out_len = 0;
+    if (fmtlen == 0) {
+        i8 *out_str = Nst_malloc_c(1, i8);
+        if (out_str == NULL)
+            return NULL;
+        out_str[0] = 0;
+        return out_str;
+    }
 
     if (Nst_check_string_cp(Nst_cp(Nst_CP_UTF8), (void *)fmt, fmtlen) != -1) {
         Nst_set_value_error_c("Nst_fmt: `fmt` is not valid UTF-8");
@@ -674,7 +686,7 @@ i8 *Nst_vfmt(const i8 *fmt, usize *len, va_list args)
 
         if (fmt[i] == '{') {
             if (fmt[i + 1] == '{') {
-                if (!Nst_buffer_append_char(&buf, '}'))
+                if (!Nst_buffer_append_char(&buf, '{'))
                     goto failure;
                 i++;
                 continue;
@@ -686,8 +698,8 @@ i8 *Nst_vfmt(const i8 *fmt, usize *len, va_list args)
         }
     }
 
-    if (len != NULL)
-        *len = buf.len;
+    if (out_len != NULL)
+        *out_len = buf.len;
     return buf.data;
 
 failure:
@@ -772,11 +784,8 @@ static const i8 *parse_format(const i8 *fmt, Format *format, va_list *args)
         fmt++;
     }
 
-    if (*fmt > '0' && *fmt <= '9') {
+    if (*fmt > '0' && *fmt <= '9')
         format->width = strtol(fmt, (i8 **)&fmt, 10);
-        while (*fmt >= 0 && *fmt <= 9)
-            fmt++;
-    }
     else if (*fmt == '*') {
         format->width = va_arg(*args, i32);
         fmt++;
@@ -784,18 +793,15 @@ static const i8 *parse_format(const i8 *fmt, Format *format, va_list *args)
 
     if (*fmt == '.') {
         fmt++;
-        if ((*fmt < '0' || *fmt > '0') && *fmt != '*') {
+        if ((*fmt < '0' || *fmt > '9') && *fmt != '*') {
             Nst_set_value_error_c("expected a number for precision in format");
             return NULL;
         }
         if (*fmt == '*') {
             format->precision = va_arg(*args, i32);
-            while (*fmt >= 0 && *fmt <= 9)
-                fmt++;
-        } else {
-            format->precision = strtol(fmt, (i8 **)&fmt, 10);
             fmt++;
-        }
+        } else
+            format->precision = strtol(fmt, (i8 **)&fmt, 10);
     }
 
     switch (*fmt) {
@@ -923,14 +929,28 @@ static void fmt_cut_left(i8 *str, usize str_len, usize char_len, i8 **out_str,
 {
     Nst_UNUSED(char_len);
     *out_str = str;
-    *out_len = apply_precision(str, str_len, (i32)width);
+    *out_len = str_len;
+
+    Nst_StrObj str_ob = Nst_string_temp((i8 *)str, str_len);
+    usize count = 0;
+
+    for (isize i = Nst_string_next(&str_ob, -1);
+        i >= 0;
+        i = Nst_string_next(&str_ob, i))
+    {
+        if (count == (usize)width) {
+            *out_len = i;
+            return;
+        }
+        count++;
+    }
 }
 
 /* Cuts a string keeping it right-aligned. */
 static void fmt_cut_right(i8 *str, usize str_len, usize char_len, i8 **out_str,
                           usize *out_len, usize width)
 {
-    usize cut_size = width - char_len;
+    usize cut_size = char_len - width;
     *out_str = str;
     *out_len = str_len;
     Nst_StrObj str_ob = Nst_string_temp(str, str_len);
@@ -952,13 +972,13 @@ static void fmt_cut_right(i8 *str, usize str_len, usize char_len, i8 **out_str,
 static void fmt_cut_center(i8 *str, usize str_len, usize char_len,
                            i8 **out_str, usize *out_len, usize width)
 {
-    usize cut_size = width - char_len;
+    usize cut_size = char_len - width;
     // characters to remove from the left
     usize left_chars = cut_size / 2;
     // characters to remove from the right
     usize right_chars = cut_size - left_chars;
 
-    // removing the characters from the right first ensurest that no
+    // removing the characters from the left first ensurest that no
     // character is iterated on more than once
     fmt_cut_right(str, str_len, char_len, &str, &str_len, width + left_chars);
     fmt_cut_left(str, str_len, char_len - right_chars, out_str, out_len, width);
@@ -1019,7 +1039,7 @@ static bool fmt_str(Nst_Buffer *buf, i8 *str, isize str_len, Format *format)
         : format->precision;
 
     Nst_Buffer *temp_buf;
-    if (format->width <= 0 && precision <= 0)
+    if (format->width <= 0 && precision < 0)
         temp_buf = buf;
     else {
         temp_buf = Nst_malloc_c(1, Nst_Buffer);
@@ -1036,19 +1056,20 @@ static bool fmt_str(Nst_Buffer *buf, i8 *str, isize str_len, Format *format)
         result = false;
         goto finish;
     }
-    if (format->width <= 0 && precision <= 0) {
-        result = Nst_buffer_append_str(buf, temp_buf->data, temp_buf->len);
-        goto finish;
-    }
+    if (format->width <= 0 && precision < 0)
+        goto finish; // the buffer was already appended in fmt_str_repr
 
-    // from here we are sure that temp_buf is a new buffer and not another
-    // reference to buf
+    // from here until finish we are sure that temp_buf is a new buffer and not
+    // a reference to buf
 
     str = temp_buf->data;
     str_len = temp_buf->len;
 
-    if (precision > 0 && precision < char_str_len) {
-        str_len = apply_precision(str, str_len, precision);
+    if (precision >= 0 && precision < char_str_len) {
+        fmt_cut_left(
+            str, str_len, char_str_len,
+            &str, (usize *)&str_len,
+            precision);
         char_str_len = precision;
     }
 
@@ -1127,12 +1148,13 @@ static isize fmt_str_repr(Nst_Buffer *buf, i8 *str, usize str_len,
                 return -1;
             tot_char_len += char_len;
         } else {
-            if (!Nst_buffer_expand_by(buf, Nst_CP_MULTIBYTE_MAX_SIZE))
+            if (!Nst_buffer_expand_by(buf, Nst_CP_MULTIBYTE_MAX_SIZE + 1))
                 return -1;
             i32 bytes_written = Nst_ext_utf8_from_utf32(
                 (u32)c,
-                (u8 *)buf->data);
+                (u8 *)buf->data + buf->len);
             buf->len += bytes_written;
+            buf->data[buf->len] = 0;
             tot_char_len += 1;
         }
     }
@@ -1177,6 +1199,7 @@ static isize ascii_escape(Nst_Buffer *buf, u8 c, Format *format)
     case '\r': Nst_buffer_append_c_str(buf, "\\r"); return 2;
     case '\t': Nst_buffer_append_c_str(buf, "\\t"); return 2;
     case '\v': Nst_buffer_append_c_str(buf, "\\v"); return 2;
+    case '\\': Nst_buffer_append_c_str(buf, "\\\\");return 2;
     default:
         if (!Nst_buffer_append_c_str(buf, "\\x"))
             return -1;
@@ -1201,24 +1224,6 @@ static isize unicode_escape(Nst_Buffer *buf, i32 c, Format *format)
     for (usize i = 1, n = c <= 0xffff ? 4 : 6; i <= n; i++)
         Nst_buffer_append_char(buf, hex_chars[(c >> ((n - i) * 4)) & 0xf]);
     return c <= 0xffff ? 6 : 8;
-}
-
-static isize apply_precision(i8 *str, usize str_len, i32 precision)
-{
-    Nst_StrObj str_ob = Nst_string_temp((i8 *)str, str_len);
-    usize count = 0;
-
-    for (isize i = Nst_string_next(&str_ob, -1);
-         i >= 0;
-         i = Nst_string_next(&str_ob, i))
-    {
-        if (count == (usize)precision)
-            return i;
-        count++;
-    }
-
-    // should never reach this point
-    return str_len;
 }
 
 static bool fmt_str_align(Nst_Buffer *buf, i8 *str, usize str_len,

@@ -1,19 +1,14 @@
 #include <stdlib.h>
+#include <string.h>
 
 #include "test_nest.h"
 
-#define FAIL_IF(cond) do {                                                    \
-    if (cond) {                                                               \
-        Nst_printf("%s  Failure on line %i%s\n", RED, __LINE__, RESET);       \
-        result = TEST_FAILURE;                                                \
-    }} while (0)                                                              \
+#ifndef Nst_WIN
+#pragma GCC diagnostic ignored "-Wunused-function"
+#endif
 
-#define FAIL_EXIT_FUNC_IF(cond) do {                                          \
-    if (cond) {                                                               \
-        Nst_printf("%s  Failure on line %i%s\n", RED, __LINE__, RESET);       \
-        result = TEST_FAILURE;                                                \
-        goto failure;                                                         \
-    }} while (0)
+#define ENTER_TEST TestResult test_result__ = TEST_SUCCESS
+#define EXIT_TEST return test_result__
 
 const i8 *RED = "\x1b[31m";
 const i8 *GREEN = "\x1b[32m";
@@ -63,6 +58,57 @@ void run_test(Test test, const i8 *test_name)
         Nst_quit();
         exit(1);
     }
+}
+
+static void fail(TestResult *result, int line)
+{
+    Nst_printf("%s  Failure on line %i%s\n", RED, line, RESET);
+    *result = TEST_FAILURE;
+}
+
+static void crit_fail(TestResult *result, int line)
+{
+    Nst_printf("%s  Critical failure on line %i%s\n", RED, line, RESET);
+    *result = TEST_CRITICAL_FAILURE;
+}
+
+#define fail_if(cond) fail_if_((cond), &test_result__, __LINE__)
+static bool fail_if_(bool cond, TestResult *result, int line)
+{
+    if (cond)
+        fail(result, line);
+    return cond;
+}
+
+#define crit_fail_if(cond)                                                    \
+    if (crit_fail_if_((cond), &test_result__, __LINE__))                      \
+        goto failure
+static bool crit_fail_if_(bool cond, TestResult *result, int line)
+{
+    if (cond)
+        crit_fail(result, line);
+    return cond;
+}
+
+static bool is_null(void *ptr)
+{
+    if (ptr == NULL) {
+        return true;
+    }
+    Nst_free(ptr);
+    return false;
+}
+
+static bool str_neq(i8 *str1, const i8 *str2)
+{
+    if (str1 == NULL)
+        return true;
+    if (strcmp((const i8 *)(str1), str2) != 0) {
+        Nst_free(str1);
+        return true;
+    }
+    Nst_free(str1);
+    return false;
 }
 
 // argv_parser.h
@@ -246,7 +292,194 @@ TestResult test_sprintf()
 
 TestResult test_fmt()
 {
-    return TEST_NOT_IMPL;
+    ENTER_TEST;
+    i8 *str = NULL;
+    usize len = 0;
+
+    str = Nst_fmt("Hello", 0, &len);
+    fail_if(str_neq(str, "Hello"));
+    fail_if(len != 5);
+    str = Nst_fmt("", 0, &len);
+    fail_if(str_neq(str, ""));
+    fail_if(len != 0);
+    str = Nst_fmt("{{", 0, &len);
+    fail_if(str_neq(str, "{"));
+    fail_if(len != 1);
+    str = Nst_fmt("}}", 0, &len);
+    fail_if(str_neq(str, "}"));
+    fail_if(len != 1);
+    str = Nst_fmt("{{}}", 0, &len);
+    fail_if(str_neq(str, "{}"));
+    fail_if(len != 2);
+
+    // Formatting C strings
+
+    str = Nst_fmt("{s}", 0, &len, "Hello");
+    fail_if(str_neq(str, "Hello"));
+    fail_if(len != 5);
+    str = Nst_fmt("{s}", 0, &len, NULL);
+    fail_if(str_neq(str, "(null)"));
+    fail_if(len != 6);
+    str = Nst_fmt("{s}", 0, NULL, "😀🎺");
+    fail_if(str_neq(str, "😀🎺"));
+
+    str = Nst_fmt("{s:r}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "'Hello'"));
+    str = Nst_fmt("{s:r}", 0, NULL, "Hello\x10\a\b\x1b\f\n\r\t\v\\è😀🎺");
+    fail_if(str_neq(str, "'Hello\\x10\\a\\b\\e\\f\\n\\r\\t\\v\\\\è😀🎺'"));
+    str = Nst_fmt("{s:r}", 0, NULL, "Hello'''");
+    fail_if(str_neq(str, "\"Hello'''\""));
+    str = Nst_fmt("{s:r}", 0, NULL, "Hello\"\"\"");
+    fail_if(str_neq(str, "'Hello\"\"\"'"));
+    str = Nst_fmt("{s:r}", 0, NULL, "Hello'\"'");
+    fail_if(str_neq(str, "\"Hello'\\\"'\""));
+    str = Nst_fmt("{s:r}", 0, NULL, "Hello\"'\"");
+    fail_if(str_neq(str, "'Hello\"\\'\"'"));
+
+    str = Nst_fmt("{s:R}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "Hello"));
+    str = Nst_fmt("{s:R}", 0, NULL, "Hello\x10\a\b\x1b\f\n\r\t\v\\è😀🎺");
+    fail_if(str_neq(str, "Hello\\x10\\a\\b\\e\\f\\n\\r\\t\\v\\\\è😀🎺"));
+    str = Nst_fmt("{s:R}", 0, NULL, "Hello'''");
+    fail_if(str_neq(str, "Hello'''"));
+    str = Nst_fmt("{s:R}", 0, NULL, "Hello\"\"\"");
+    fail_if(str_neq(str, "Hello\"\"\""));
+    str = Nst_fmt("{s:R}", 0, NULL, "Hello'\"'");
+    fail_if(str_neq(str, "Hello'\"'"));
+    str = Nst_fmt("{s:R}", 0, NULL, "Hello\"'\"");
+    fail_if(str_neq(str, "Hello\"'\""));
+
+    str = Nst_fmt("{s:a}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "'Hello'"));
+    str = Nst_fmt("{s:a}", 0, NULL, "Hello\x10\a\b\x1b\f\n\r\t\v\\è😀🎺");
+    fail_if(str_neq(str, "'Hello\\x10\\a\\b\\e\\f\\n\\r\\t\\v\\\\\\u00e8\\U01f600\\U01f3ba'"));
+    str = Nst_fmt("{s:a}", 0, NULL, "Hello'''");
+    fail_if(str_neq(str, "\"Hello'''\""));
+    str = Nst_fmt("{s:a}", 0, NULL, "Hello\"\"\"");
+    fail_if(str_neq(str, "'Hello\"\"\"'"));
+    str = Nst_fmt("{s:a}", 0, NULL, "Hello'\"'");
+    fail_if(str_neq(str, "\"Hello'\\\"'\""));
+    str = Nst_fmt("{s:a}", 0, NULL, "Hello\"'\"");
+    fail_if(str_neq(str, "'Hello\"\\'\"'"));
+
+    str = Nst_fmt("{s:A}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "Hello"));
+    str = Nst_fmt("{s:A}", 0, NULL, "Hello\x10\a\b\x1b\f\n\r\t\v\\è😀🎺");
+    fail_if(str_neq(str, "Hello\\x10\\a\\b\\e\\f\\n\\r\\t\\v\\\\\\u00e8\\U01f600\\U01f3ba"));
+    str = Nst_fmt("{s:A}", 0, NULL, "Hello'''");
+    fail_if(str_neq(str, "Hello'''"));
+    str = Nst_fmt("{s:A}", 0, NULL, "Hello\"\"\"");
+    fail_if(str_neq(str, "Hello\"\"\""));
+    str = Nst_fmt("{s:A}", 0, NULL, "Hello'\"'");
+    fail_if(str_neq(str, "Hello'\"'"));
+    str = Nst_fmt("{s:A}", 0, NULL, "Hello\"'\"");
+    fail_if(str_neq(str, "Hello\"'\""));
+
+    str = Nst_fmt("{s:.10}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "Hello"));
+    str = Nst_fmt("{s:.5}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "Hello"));
+    str = Nst_fmt("{s:.2}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "He"));
+    str = Nst_fmt("{s:.0}", 0, NULL, "Hello");
+    fail_if(str_neq(str, ""));
+    str = Nst_fmt("{s:.2}", 0, NULL, "😀🎺");
+    fail_if(str_neq(str, "😀🎺"));
+    str = Nst_fmt("{s:.1}", 0, NULL, "😀🎺");
+    fail_if(str_neq(str, "😀"));
+    str = Nst_fmt("{s:.0}", 0, NULL, "😀🎺");
+    fail_if(str_neq(str, ""));
+    str = Nst_fmt("{s:.*}", 0, NULL, 3, "Hello");
+    fail_if(str_neq(str, "Hel"));
+
+    str = Nst_fmt("{s:10}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "Hello     "));
+    str = Nst_fmt("{s:10>}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "     Hello"));
+    str = Nst_fmt("{s:10^}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "  Hello   "));
+    str = Nst_fmt("{s:*}", 0, NULL, 8, "Hello");
+    fail_if(str_neq(str, "Hello   "));
+    str = Nst_fmt("{s:_.10}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "Hello....."));
+    str = Nst_fmt("{s:_.10>}", 0, NULL, "Hello");
+    fail_if(str_neq(str, ".....Hello"));
+    str = Nst_fmt("{s:_.10^}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "..Hello..."));
+    str = Nst_fmt("{s:_è10}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "Helloèèèèè"));
+    str = Nst_fmt("{s:_è10>}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "èèèèèHello"));
+    str = Nst_fmt("{s:_è10^}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "èèHelloèèè"));
+    str = Nst_fmt("{s:_😀10}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "Hello😀😀😀😀😀"));
+    str = Nst_fmt("{s:_😀10>}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "😀😀😀😀😀Hello"));
+    str = Nst_fmt("{s:_😀10^}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "😀😀Hello😀😀😀"));
+
+    str = Nst_fmt("{s:6}", 0, NULL, "🎺🎺");
+    fail_if(str_neq(str, "🎺🎺    "));
+    str = Nst_fmt("{s:6>}", 0, NULL, "🎺🎺");
+    fail_if(str_neq(str, "    🎺🎺"));
+    str = Nst_fmt("{s:6^}", 0, NULL, "🎺🎺");
+    fail_if(str_neq(str, "  🎺🎺  "));
+    str = Nst_fmt("{s:_.6}", 0, NULL, "🎺🎺");
+    fail_if(str_neq(str, "🎺🎺...."));
+    str = Nst_fmt("{s:_.6>}", 0, NULL, "🎺🎺");
+    fail_if(str_neq(str, "....🎺🎺"));
+    str = Nst_fmt("{s:_.6^}", 0, NULL, "🎺🎺");
+    fail_if(str_neq(str, "..🎺🎺.."));
+    str = Nst_fmt("{s:_è6}", 0, NULL, "🎺🎺");
+    fail_if(str_neq(str, "🎺🎺èèèè"));
+    str = Nst_fmt("{s:_è6>}", 0, NULL, "🎺🎺");
+    fail_if(str_neq(str, "èèèè🎺🎺"));
+    str = Nst_fmt("{s:_è6^}", 0, NULL, "🎺🎺");
+    fail_if(str_neq(str, "èè🎺🎺èè"));
+    str = Nst_fmt("{s:_😀6}", 0, NULL, "🎺🎺");
+    fail_if(str_neq(str, "🎺🎺😀😀😀😀"));
+    str = Nst_fmt("{s:_😀6>}", 0, NULL, "🎺🎺");
+    fail_if(str_neq(str, "😀😀😀😀🎺🎺"));
+    str = Nst_fmt("{s:_😀6^}", 0, NULL, "🎺🎺");
+    fail_if(str_neq(str, "😀😀🎺🎺😀😀"));
+
+    str = Nst_fmt("{s:9.3}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "Hel      "));
+    str = Nst_fmt("{s:*.3}", 0, NULL, 9, "Hello");
+    fail_if(str_neq(str, "Hel      "));
+    str = Nst_fmt("{s:9.*}", 0, NULL, 3, "Hello");
+    fail_if(str_neq(str, "Hel      "));
+    str = Nst_fmt("{s:*.*}", 0, NULL, 9, 3, "Hello");
+    fail_if(str_neq(str, "Hel      "));
+
+    str = Nst_fmt("{s:c3}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "Hel"));
+    str = Nst_fmt("{s:c7}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "Hello  "));
+    str = Nst_fmt("{s:c3>}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "llo"));
+    str = Nst_fmt("{s:c7>}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "  Hello"));
+    str = Nst_fmt("{s:c3^}", 0, NULL, "Hello");
+    fail_if(str_neq(str, "ell"));
+    str = Nst_fmt("{s:c7^}", 0, NULL, "Hello");
+    fail_if(str_neq(str, " Hello "));
+
+    str = Nst_fmt("{s:c3}", 0, NULL, "àèìòù");
+    fail_if(str_neq(str, "àèì"));
+    str = Nst_fmt("{s:c7}", 0, NULL, "àèìòù");
+    fail_if(str_neq(str, "àèìòù  "));
+    str = Nst_fmt("{s:c3>}", 0, NULL, "àèìòù");
+    fail_if(str_neq(str, "ìòù"));
+    str = Nst_fmt("{s:c7>}", 0, NULL, "àèìòù");
+    fail_if(str_neq(str, "  àèìòù"));
+    str = Nst_fmt("{s:c3^}", 0, NULL, "àèìòù");
+    fail_if(str_neq(str, "èìò"));
+    str = Nst_fmt("{s:c7^}", 0, NULL, "àèìòù");
+    fail_if(str_neq(str, " àèìòù "));
+
+    EXIT_TEST;
 }
 
 // function.h
@@ -286,51 +519,51 @@ TestResult test_extract_args()
 
 TestResult test_llist_push()
 {
-    TestResult result = TEST_SUCCESS;
+    ENTER_TEST;
     Nst_LList llist;
     Nst_llist_init(&llist);
 
     Nst_llist_push(&llist, (void *)1, false);
-    FAIL_IF(llist.len != 1);
+    fail_if(llist.len != 1);
     Nst_llist_push(&llist, (void *)2, false);
-    FAIL_IF(llist.len != 2);
+    fail_if(llist.len != 2);
     Nst_llist_push(&llist, (void *)3, false);
-    FAIL_IF(llist.len != 3);
+    fail_if(llist.len != 3);
 
-    FAIL_IF(llist.head->value != (void *)3);
-    FAIL_IF(llist.head->next->value != (void *)2);
-    FAIL_IF(llist.tail->value != (void *)1);
-    FAIL_IF(llist.head->next->next != llist.tail);
+    fail_if(llist.head->value != (void *)3);
+    fail_if(llist.head->next->value != (void *)2);
+    fail_if(llist.tail->value != (void *)1);
+    fail_if(llist.head->next->next != llist.tail);
 
     Nst_llist_empty(&llist, NULL);
-    return result;
+    EXIT_TEST;
 }
 
 TestResult test_llist_append()
 {
-    TestResult result = TEST_SUCCESS;
+    ENTER_TEST;
     Nst_LList llist;
     Nst_llist_init(&llist);
 
     Nst_llist_append(&llist, (void *)1, false);
-    FAIL_IF(llist.len != 1);
+    fail_if(llist.len != 1);
     Nst_llist_append(&llist, (void *)2, false);
-    FAIL_IF(llist.len != 2);
+    fail_if(llist.len != 2);
     Nst_llist_append(&llist, (void *)3, false);
-    FAIL_IF(llist.len != 3);
+    fail_if(llist.len != 3);
 
-    FAIL_IF(llist.head->value != (void *)1);
-    FAIL_IF(llist.head->next->value != (void *)2);
-    FAIL_IF(llist.tail->value != (void *)3);
-    FAIL_IF(llist.head->next->next != llist.tail);
+    fail_if(llist.head->value != (void *)1);
+    fail_if(llist.head->next->value != (void *)2);
+    fail_if(llist.tail->value != (void *)3);
+    fail_if(llist.head->next->next != llist.tail);
 
     Nst_llist_empty(&llist, NULL);
-    return result;
+    EXIT_TEST;
 }
 
 TestResult test_llist_insert()
 {
-    TestResult result = TEST_SUCCESS;
+    ENTER_TEST;
     Nst_LList llist;
     Nst_llist_init(&llist);
 
@@ -338,145 +571,145 @@ TestResult test_llist_insert()
     Nst_llist_append(&llist, (void *)2, false);
 
     Nst_llist_insert(&llist, (void *)3, false, llist.head);
-    FAIL_IF(llist.head->next->value != (void *)3);
+    fail_if(llist.head->next->value != (void *)3);
     Nst_llist_insert(&llist, (void *)4, false, llist.tail);
-    FAIL_IF(llist.tail->value != (void *)4);
+    fail_if(llist.tail->value != (void *)4);
     Nst_llist_insert(&llist, (void *)5, false, NULL);
-    FAIL_IF(llist.head->value != (void *)5);
+    fail_if(llist.head->value != (void *)5);
 
-    FAIL_IF(llist.len != 5);
+    fail_if(llist.len != 5);
 
     Nst_llist_empty(&llist, NULL);
-    return result;
+    EXIT_TEST;
 }
 
 TestResult test_llist_pop()
 {
-    TestResult result = TEST_SUCCESS;
+    ENTER_TEST;
     Nst_LList llist;
     Nst_llist_init(&llist);
 
-    FAIL_IF(Nst_llist_pop(&llist) != NULL);
+    fail_if(Nst_llist_pop(&llist) != NULL);
     Nst_llist_append(&llist, (void *)1, false);
     Nst_llist_append(&llist, (void *)2, false);
     void *value = Nst_llist_pop(&llist);
-    FAIL_IF(llist.len != 1);
-    FAIL_IF(value != (void *)1);
+    fail_if(llist.len != 1);
+    fail_if(value != (void *)1);
     Nst_llist_pop(&llist);
-    FAIL_IF(llist.head != NULL);
-    FAIL_IF(llist.tail != NULL);
+    fail_if(llist.head != NULL);
+    fail_if(llist.tail != NULL);
 
     Nst_llist_empty(&llist, NULL);
-    return result;
+    EXIT_TEST;
 }
 
 TestResult test_llist_peek_front()
 {
-    TestResult result = TEST_SUCCESS;
+    ENTER_TEST;
     Nst_LList llist;
     Nst_llist_init(&llist);
 
-    FAIL_IF(Nst_llist_peek_front(&llist) != NULL);
+    fail_if(Nst_llist_peek_front(&llist) != NULL);
     Nst_llist_append(&llist, (void *)1, false);
     Nst_llist_append(&llist, (void *)2, false);
     void *value = Nst_llist_peek_front(&llist);
-    FAIL_IF(llist.len != 2);
-    FAIL_IF(value != (void *)1);
+    fail_if(llist.len != 2);
+    fail_if(value != (void *)1);
 
     Nst_llist_empty(&llist, NULL);
-    return result;
+    EXIT_TEST;
 }
 
 TestResult test_llist_peek_back()
 {
-    TestResult result = TEST_SUCCESS;
+    ENTER_TEST;
     Nst_LList llist;
     Nst_llist_init(&llist);
 
-    FAIL_IF(Nst_llist_peek_back(&llist) != NULL);
+    fail_if(Nst_llist_peek_back(&llist) != NULL);
     Nst_llist_append(&llist, (void *)1, false);
     Nst_llist_append(&llist, (void *)2, false);
     void *value = Nst_llist_peek_back(&llist);
-    FAIL_IF(llist.len != 2);
-    FAIL_IF(value != (void *)2);
+    fail_if(llist.len != 2);
+    fail_if(value != (void *)2);
 
     Nst_llist_empty(&llist, NULL);
-    return result;
+    EXIT_TEST;
 }
 
 TestResult test_llist_push_llnode()
 {
-    TestResult result = TEST_SUCCESS;
+    ENTER_TEST;
     Nst_LList llist;
     Nst_llist_init(&llist);
 
     Nst_LLNode *node1 = Nst_llnode_new((void *)1, false);
     Nst_LLNode *node2 = Nst_llnode_new((void *)2, false);
     Nst_llist_push_llnode(&llist, node1);
-    FAIL_IF(llist.len != 1);
-    FAIL_IF(llist.head != node1);
-    FAIL_IF(llist.tail != node1);
+    fail_if(llist.len != 1);
+    fail_if(llist.head != node1);
+    fail_if(llist.tail != node1);
     Nst_llist_push_llnode(&llist, node2);
-    FAIL_IF(llist.len != 2);
-    FAIL_IF(llist.head != node2);
-    FAIL_IF(llist.tail != node1);
+    fail_if(llist.len != 2);
+    fail_if(llist.head != node2);
+    fail_if(llist.tail != node1);
 
     Nst_llist_empty(&llist, NULL);
-    return result;
+    EXIT_TEST;
 }
 
 TestResult test_llist_append_llnode()
 {
-    TestResult result = TEST_SUCCESS;
+    ENTER_TEST;
     Nst_LList llist;
     Nst_llist_init(&llist);
 
     Nst_LLNode *node1 = Nst_llnode_new((void *)1, false);
     Nst_LLNode *node2 = Nst_llnode_new((void *)2, false);
     Nst_llist_append_llnode(&llist, node1);
-    FAIL_IF(llist.len != 1);
-    FAIL_IF(llist.head != node1);
-    FAIL_IF(llist.tail != node1);
+    fail_if(llist.len != 1);
+    fail_if(llist.head != node1);
+    fail_if(llist.tail != node1);
     Nst_llist_append_llnode(&llist, node2);
-    FAIL_IF(llist.len != 2);
-    FAIL_IF(llist.head != node1);
-    FAIL_IF(llist.tail != node2);
+    fail_if(llist.len != 2);
+    fail_if(llist.head != node1);
+    fail_if(llist.tail != node2);
 
     Nst_llist_empty(&llist, NULL);
-    return result;
+    EXIT_TEST;
 }
 
 TestResult test_llist_pop_llnode()
 {
-    TestResult result = TEST_SUCCESS;
+    ENTER_TEST;
     Nst_LList llist;
     Nst_llist_init(&llist);
 
     Nst_LLNode *node1 = NULL;
     Nst_LLNode *node2 = NULL;
 
-    FAIL_IF(Nst_llist_pop_llnode(&llist) != NULL);
+    fail_if(Nst_llist_pop_llnode(&llist) != NULL);
     Nst_llist_append(&llist, (void *)1, false);
     Nst_llist_append(&llist, (void *)2, false);
     node1 = Nst_llist_pop_llnode(&llist);
-    FAIL_IF(llist.len != 1);
-    FAIL_IF(node1->value != (void *)1);
+    fail_if(llist.len != 1);
+    fail_if(node1->value != (void *)1);
     node2 = Nst_llist_pop_llnode(&llist);
-    FAIL_IF(llist.head != NULL);
-    FAIL_IF(llist.tail != NULL);
-    FAIL_IF(node2->value != (void *)2);
+    fail_if(llist.head != NULL);
+    fail_if(llist.tail != NULL);
+    fail_if(node2->value != (void *)2);
 
     if (node1 != NULL)
         Nst_free(node1);
     if (node2 != NULL)
         Nst_free(node2);
     Nst_llist_empty(&llist, NULL);
-    return result;
+    EXIT_TEST;
 }
 
 TestResult test_llist_empty()
 {
-    TestResult result = TEST_SUCCESS;
+    ENTER_TEST;
     Nst_LList llist;
     Nst_llist_init(&llist);
 
@@ -484,9 +717,9 @@ TestResult test_llist_empty()
     Nst_llist_append(&llist, (void *)2, false);
     Nst_llist_append(&llist, (void *)3, false);
     Nst_llist_empty(&llist, NULL);
-    FAIL_IF(llist.len != 0);
-    FAIL_IF(llist.head != NULL);
-    FAIL_IF(llist.tail != NULL);
+    fail_if(llist.len != 0);
+    fail_if(llist.head != NULL);
+    fail_if(llist.tail != NULL);
 
     void *alloc_v1 = Nst_raw_malloc(1);
     void *alloc_v2 = Nst_raw_malloc(1);
@@ -495,17 +728,17 @@ TestResult test_llist_empty()
     Nst_llist_append(&llist, alloc_v2, true);
     Nst_llist_append(&llist, alloc_v3, true);
     Nst_llist_empty(&llist, Nst_free);
-    FAIL_IF(llist.len != 0);
-    FAIL_IF(llist.head != NULL);
-    FAIL_IF(llist.tail != NULL);
+    fail_if(llist.len != 0);
+    fail_if(llist.head != NULL);
+    fail_if(llist.tail != NULL);
 
     Nst_llist_empty(&llist, NULL);
-    return result;
+    EXIT_TEST;
 }
 
 TestResult test_llist_move_nodes()
 {
-    TestResult result = TEST_SUCCESS;
+    ENTER_TEST;
     Nst_LList from, to;
     Nst_llist_init(&from);
     Nst_llist_init(&to);
@@ -515,17 +748,17 @@ TestResult test_llist_move_nodes()
     Nst_llist_append(&from, (void *)3, false);
     Nst_llist_move_nodes(&from, &to);
 
-    FAIL_IF(from.len != 0);
-    FAIL_IF(from.head != NULL);
-    FAIL_IF(from.tail != NULL);
-    FAIL_IF(to.len != 3);
-    FAIL_IF(to.head->value != (void *)1);
-    FAIL_IF(to.tail->value != (void *)3);
-    FAIL_IF(to.head->next->value != (void *)2);
+    fail_if(from.len != 0);
+    fail_if(from.head != NULL);
+    fail_if(from.tail != NULL);
+    fail_if(to.len != 3);
+    fail_if(to.head->value != (void *)1);
+    fail_if(to.tail->value != (void *)3);
+    fail_if(to.head->next->value != (void *)2);
 
     Nst_llist_empty(&from, NULL);
     Nst_llist_empty(&to, NULL);
-    return result;
+    EXIT_TEST;
 }
 
 // map.h

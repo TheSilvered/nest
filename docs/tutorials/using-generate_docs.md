@@ -49,7 +49,7 @@ blocks in the order in which they appear. These blocks, with a special start,
 can also create `Note` and `Warning` notices for the declaration they describe.
 
 To create these notices the line should start with either ` * @brief Note:` or
-` * @brief Warning:`. The letter after the color is automatically capitalized.
+` * @brief Warning:`. The letter after the colon is automatically capitalized.
 
 ### `param` blocks
 
@@ -191,7 +191,7 @@ Links are resolved as following:
 2. Check if the symbol appears in a user-defined link (with the `docs:link`
    directive), if so return the corresponding link
 3. Check if the symbol exists in the documentation, if so return its link
-4. Else no link is found
+4. Otherwise no link is found
 
 ## Other directives
 

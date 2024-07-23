@@ -6,7 +6,8 @@
  * @author TheSilvered
  */
 
-/* [docs:link format.h <c_api-format.md#format-placeholder-specification>] */
+/* [docs:link printf\format\rules <c_api-format.md#nst_printf-format-rules> t] */
+/* [docs:link full\format\rules <c_api-format.md#nst_fmt-format-rules> t] */
 
 /* [docs:raw]
 ## `Nst_*printf` format rules
@@ -205,14 +206,22 @@ The type specifiers for Nest objects are the following:
        escaping non-printable, special or non-ASCII characters but surrounding
        quotes are not added and not escaped inside the string
 - `u`: treat the integer as unsigned
-- `'`: the character following this flag is used as the thousand separator in
-       integers and floats, it is not interpreted for the formatted string
-       (e.g. it can be anything like ` ` (a space), `.` or `'`)
+- `'`: the character following this flag is used as the separator in integers
+  and floats, it is not interpreted for the formatted string (e.g. it can be
+  anything like ` ` (a space), `.` or `'`), this separator is written as
+  follows:
+  - for decimal integers it is placed every three digits from the right
+    (e.g. 2,863,311,530)
+  - for binary integers it is placed every eight digits from the right
+    (e.g. 110,01011011,11010110)
+  - for octal integers it is placed every three digits from the right
+    (e.g. 73,627,452,474)
+  - for hexadecimal integers it is placed every four digits from the right
+    (e.g. D1,DC44,5250,244C)
 - `_`: the character following this flag is used as the padding character to
        reach the specified width in any formatted value, it is not interpreted
        for the formatted string (e.g. it can be anything like ` ` (a space),
        `.` or `'`), by default the padding character is a space (` `)
-
 !!!note
     If flags are incompatible only the last one is considered (e.g. if you
     write `pP` the prefixes will be uppercase), if the flag is incompatible
@@ -229,6 +238,8 @@ When paired with the `c` flag is instead specifies the exact width of the
 formatted string, any string longer than width is cut to size as specified
 in the description of the `c` flag.
 
+A negative width is ignored.
+
 ### Precision
 
 This field has different interpretations depending on the type being formatted:
@@ -243,6 +254,8 @@ This field has different interpretations depending on the type being formatted:
   the right (unlike the `c` flag). When using both the precision and the `c`
   flag and a width is specified the precision is ignored
 
+A negative precision is ignored.
+
 ### Alignment
 
 This field specifies the alignment of the formatted string and is used when
@@ -254,7 +267,6 @@ The alignment can be one of three values:
 - `<`: align left (default behaviour for strings)
 - `>`: align right (default behaviour for floats and integers)
 - `^`: align center
-
 */
 
 #ifndef FORMAT_H
@@ -327,7 +339,7 @@ NstEXP isize NstC Nst_fprintln(Nst_IOFileObj *f, const i8 *buf);
 /**
  * Prints a formatted string to the Nest standard output.
  *
- * @brief Check the full format placeholder specification in `format.h`.
+ * @brief Check the full `printf format rules`.
  *
  * @param fmt: the format placeholder
  * @param ...: the arguments to be formatted
@@ -345,7 +357,7 @@ NstEXP isize NstC Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
 /**
  * Prints a formatted string to a Nest file object.
  *
- * @brief Check the full format placeholder specification in `format.h`.
+ * @brief Check the full `printf format rules`.
  *
  * @param f: the file to print the string to
  * @param fmt: the format placeholder
@@ -367,21 +379,38 @@ NstEXP isize NstC Nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args);
 /**
  * Creates a Nest string object from a format placeholder.
  *
- * @brief Check the full format placeholder specification in `format.h`.
+ * @brief Check the full `printf format rules`.
  *
  * @param fmt: the format placeholder
  * @param ...: the arguments to be formatted
  *
- * @return The function returns the number of characters written or `-1` on
- * failure. No error is set.
+ * @return The function returns the newly created string object.
  */
 NstEXP Nst_Obj *NstC Nst_sprintf(Nst_WIN_FMT const i8 *fmt, ...)
                                  Nst_GNU_FMT(1, 2);
 /* `va_list` variant of `Nst_sprintf`. */
 NstEXP Nst_Obj *NstC Nst_vsprintf(const i8 *fmt, va_list args);
 
-NstEXP i8 *NstC Nst_fmt(const i8 *fmt, usize *len, ...);
-NstEXP i8 *NstC Nst_vfmt(const i8 *fmt, usize *len, va_list args);
+/**
+ * Creates a heap-allocated string formatted with a more customizable format
+ * placeholder.
+ *
+ * @brief Check the `full format rules` for this function.
+ *
+ * @param fmt: the format placeholder
+ * @param fmt_len: the length of `fmt`, if set to `0` is it determined using
+ * `strlen`
+ * @param out_len: pointer to a value filled with the final lenght of the
+ * formatted string, it can be `NULL`
+ * @param ...: the values to format
+ *
+ * @return The newly created string or `NULL` on failure, the error is set.
+ * When the function fails and `out_len` is not `NULL` it is set to `0`.
+ */
+NstEXP i8 *NstC Nst_fmt(const i8 *fmt, usize fmt_len, usize *out_len, ...);
+/* `va_list` variant of `Nst_fmt`. */
+NstEXP i8 *NstC Nst_vfmt(const i8 *fmt, usize fmt_len, usize *out_len,
+                         va_list args);
 
 #ifdef __cplusplus
 }
