@@ -335,6 +335,10 @@ TestResult test_fmt()
     fail_if(str_neq(str, "\"Hello'\\\"'\""));
     str = Nst_fmt("{s:r}", 0, NULL, "Hello\"'\"");
     fail_if(str_neq(str, "'Hello\"\\'\"'"));
+    str = Nst_fmt("{s:r}", 0, NULL, "\x0e");
+    fail_if(str_neq(str, "'\\x0e'"));
+    str = Nst_fmt("{s:rP}", 0, NULL, "\x0e");
+    fail_if(str_neq(str, "'\\x0E'"));
 
     str = Nst_fmt("{s:R}", 0, NULL, "Hello");
     fail_if(str_neq(str, "Hello"));
@@ -348,6 +352,10 @@ TestResult test_fmt()
     fail_if(str_neq(str, "Hello'\"'"));
     str = Nst_fmt("{s:R}", 0, NULL, "Hello\"'\"");
     fail_if(str_neq(str, "Hello\"'\""));
+    str = Nst_fmt("{s:R}", 0, NULL, "\x0e");
+    fail_if(str_neq(str, "\\x0e"));
+    str = Nst_fmt("{s:RP}", 0, NULL, "\x0e");
+    fail_if(str_neq(str, "\\x0E"));
 
     str = Nst_fmt("{s:a}", 0, NULL, "Hello");
     fail_if(str_neq(str, "'Hello'"));
@@ -361,6 +369,10 @@ TestResult test_fmt()
     fail_if(str_neq(str, "\"Hello'\\\"'\""));
     str = Nst_fmt("{s:a}", 0, NULL, "Hello\"'\"");
     fail_if(str_neq(str, "'Hello\"\\'\"'"));
+    str = Nst_fmt("{s:a}", 0, NULL, "\x0e");
+    fail_if(str_neq(str, "'\\x0e'"));
+    str = Nst_fmt("{s:aP}", 0, NULL, "\x0e");
+    fail_if(str_neq(str, "'\\x0E'"));
 
     str = Nst_fmt("{s:A}", 0, NULL, "Hello");
     fail_if(str_neq(str, "Hello"));
@@ -374,6 +386,10 @@ TestResult test_fmt()
     fail_if(str_neq(str, "Hello'\"'"));
     str = Nst_fmt("{s:A}", 0, NULL, "Hello\"'\"");
     fail_if(str_neq(str, "Hello\"'\""));
+    str = Nst_fmt("{s:A}", 0, NULL, "\x0e");
+    fail_if(str_neq(str, "\\x0e"));
+    str = Nst_fmt("{s:AP}", 0, NULL, "\x0e");
+    fail_if(str_neq(str, "\\x0E"));
 
     str = Nst_fmt("{s:.10}", 0, NULL, "Hello");
     fail_if(str_neq(str, "Hello"));
@@ -478,6 +494,68 @@ TestResult test_fmt()
     fail_if(str_neq(str, "èìò"));
     str = Nst_fmt("{s:c7^}", 0, NULL, "àèìòù");
     fail_if(str_neq(str, " àèìòù "));
+
+    // Formatting Booleans
+
+    str = Nst_fmt("{b}", 0, NULL, true);
+    fail_if(str_neq(str, "true"));
+    str = Nst_fmt("{b:8}", 0, NULL, true);
+    fail_if(str_neq(str, "true    "));
+    str = Nst_fmt("{b:8>}", 0, NULL, true);
+    fail_if(str_neq(str, "    true"));
+    str = Nst_fmt("{b:8^}", 0, NULL, true);
+    fail_if(str_neq(str, "  true  "));
+    str = Nst_fmt("{b:c2}", 0, NULL, true);
+    fail_if(str_neq(str, "tr"));
+    str = Nst_fmt("{b:c2>}", 0, NULL, true);
+    fail_if(str_neq(str, "ue"));
+    str = Nst_fmt("{b:c2^}", 0, NULL, true);
+    fail_if(str_neq(str, "ru"));
+
+    str = Nst_fmt("{b}", 0, NULL, false);
+    fail_if(str_neq(str, "false"));
+    str = Nst_fmt("{b:8}", 0, NULL, false);
+    fail_if(str_neq(str, "false   "));
+    str = Nst_fmt("{b:8>}", 0, NULL, false);
+    fail_if(str_neq(str, "   false"));
+    str = Nst_fmt("{b:8^}", 0, NULL, false);
+    fail_if(str_neq(str, " false  "));
+    str = Nst_fmt("{b:c2}", 0, NULL, false);
+    fail_if(str_neq(str, "fa"));
+    str = Nst_fmt("{b:c2>}", 0, NULL, false);
+    fail_if(str_neq(str, "se"));
+    str = Nst_fmt("{b:c2^}", 0, NULL, false);
+    fail_if(str_neq(str, "al"));
+
+    str = Nst_fmt("{b:P}", 0, NULL, true);
+    fail_if(str_neq(str, "TRUE"));
+    str = Nst_fmt("{b:P8}", 0, NULL, true);
+    fail_if(str_neq(str, "TRUE    "));
+    str = Nst_fmt("{b:P8>}", 0, NULL, true);
+    fail_if(str_neq(str, "    TRUE"));
+    str = Nst_fmt("{b:P8^}", 0, NULL, true);
+    fail_if(str_neq(str, "  TRUE  "));
+    str = Nst_fmt("{b:Pc2}", 0, NULL, true);
+    fail_if(str_neq(str, "TR"));
+    str = Nst_fmt("{b:Pc2>}", 0, NULL, true);
+    fail_if(str_neq(str, "UE"));
+    str = Nst_fmt("{b:Pc2^}", 0, NULL, true);
+    fail_if(str_neq(str, "RU"));
+
+    str = Nst_fmt("{b:P}", 0, NULL, false);
+    fail_if(str_neq(str, "FALSE"));
+    str = Nst_fmt("{b:P8}", 0, NULL, false);
+    fail_if(str_neq(str, "FALSE   "));
+    str = Nst_fmt("{b:P8>}", 0, NULL, false);
+    fail_if(str_neq(str, "   FALSE"));
+    str = Nst_fmt("{b:P8^}", 0, NULL, false);
+    fail_if(str_neq(str, " FALSE  "));
+    str = Nst_fmt("{b:Pc2}", 0, NULL, false);
+    fail_if(str_neq(str, "FA"));
+    str = Nst_fmt("{b:Pc2>}", 0, NULL, false);
+    fail_if(str_neq(str, "SE"));
+    str = Nst_fmt("{b:Pc2^}", 0, NULL, false);
+    fail_if(str_neq(str, "AL"));
 
     EXIT_TEST;
 }

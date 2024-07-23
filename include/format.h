@@ -161,30 +161,26 @@ The type specifiers for Nest objects are the following:
        length representation is used
 - `e`: represent floats in standard (or scientific) notation, by default the
        minimum length representation is used
-- `p`: adds prefixes and specifies that prefixes, suffixes and infixes are
-  written in lowercase, this flag applies to
+- `p`: adds lowercase prefixes and suffixes, this flag applies to:
   - integers: along the flags `x` and `X` adds the prefix `0x`, with the flag
     `o` adds the prefix `0o` and with the flag `b` adds the prefix `0b`, the
-    prefix is added before the sign
-  - floats when written in standard notation (the `e` is lowercase, default
-    behaviour)
-  - strings when using a different representation non-printable characters or
-    non-ASCII characters will have the digits in the escape sequence in
-    lowercase (es `\xff` or `\u00e8`, this is the default behaviour)
-  - Nest Byte objects the suffix `b` is in lowercase (default behaviour)
-- `P`: adds prefixes and specifies that prefixes, suffixes and infixes are
-  written in uppercase, this flag applies to
+    prefix is added after the sign
+  - Nest Byte objects: adds the suffix `b`
+- `P`: adds uppercase prefixes to ingegers and specifies that some lowercase
+  parts of other types is uppercase, specifically this flag applies to:
   - integers: along the flags `x` and `X` adds the prefix `0X`, with the flag
     `o` adds the prefix `0O` and with the flag `b` adds the prefix `0B`, the
-    prefix is added before the sign
-  - floats when written in standard notation (the `E` is uppercase)
-  - in strings when using a different representation non-printable characters
+    prefix is added after the sign
+  - floats: when written in standard notation the `E` is in uppercase, by
+    default it is lowercase
+  - strings: when using a different representation non-printable characters
     or non-ASCII characters will have the digits in the escape sequence in
-    lowercase (es `\xFF` or `\u00E8`)
-  - Nest Byte objects the suffix `B` is in uppercase
+    uppercase (es `\xFF` or `\u00E8`), by default they are lowercase
+  - booleans: writes `TRUE` and `FALSE` in uppercase
+  - Nest Byte objects: adds the suffix `B`
 - `c`: cut the formatted value to the specified width if it exceeds it, it cuts
-       from the right if the value is left aligned, from the right if the value
-       is left aligned and from both sides if it is center-aligned, this flag
+       from the right if the value is left-aligned, from the left if the value
+       is right-aligned and from both sides if it is center-aligned, this flag
        ignores the type of value that is formatted
 - `b`: represent integers in binary format without the prefix
 - `o`: represent integers in octal format without the prefix
