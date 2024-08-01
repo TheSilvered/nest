@@ -251,7 +251,7 @@ NstEXP Nst_Obj *NstC Nst_string_parse_int(Nst_StrObj *str, i32 base);
  *
  * @return The new byte object or NULL on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_string_parse_byte(Nst_StrObj* str);
+NstEXP Nst_Obj *NstC Nst_string_parse_byte(Nst_StrObj *str);
 /**
  * Parses a `Nst_RealObj` from a string.
  *

@@ -883,7 +883,7 @@ static void make_str_literal(Nst_Tok **tok)
     *tok = Nst_tok_new_noend(cursor.pos, Nst_TT_R_PAREN);
 }
 
-bool Nst_add_lines(Nst_SourceText* text)
+bool Nst_add_lines(Nst_SourceText *text)
 {
     i8 *text_p = text->text;
     i8 **starts = (i8 **)Nst_calloc(100, sizeof(i8 *), NULL);

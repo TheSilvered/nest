@@ -637,7 +637,7 @@ Nst_Obj *_Nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2)
 
 // Other
 
-Nst_Obj* _Nst_repr_str_cast(Nst_Obj* ob)
+Nst_Obj *_Nst_repr_str_cast(Nst_Obj *ob)
 {
     Nst_TypeObj *ob_t = ob->type;
 

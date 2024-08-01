@@ -1401,7 +1401,7 @@ failure:
     return false;
 }
 
-static bool compile_try_catch_s(Nst_Node* node)
+static bool compile_try_catch_s(Nst_Node *node)
 {
     /*
     Switch statement bytecode
@@ -1615,7 +1615,7 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
 
         if (inst.val != NULL) {
             Nst_printf(" (%s) ", TYPE_NAME(inst.val));
-            Nst_StrObj* s = STR(_Nst_repr_str_cast(inst.val));
+            Nst_StrObj *s = STR(_Nst_repr_str_cast(inst.val));
             if (Nst_error_occurred())
                 Nst_error_clear();
             else {

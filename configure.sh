@@ -1,3 +1,4 @@
+#! usr/bin/bash
 x64=true
 x86=true
 

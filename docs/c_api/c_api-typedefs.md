@@ -283,6 +283,20 @@ typedef unsigned short u16
 
 ---
 
+### `uint`
+
+**Synopsis:**
+
+```better-c
+typedef unsigned int uint
+```
+
+**Description:**
+
+`unsigned int` alias.
+
+---
+
 ### `u32`
 
 **Synopsis:**

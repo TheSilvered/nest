@@ -563,8 +563,8 @@ Nst_Obj *Nst_string_parse_byte(Nst_StrObj *str)
             RETURN_BYTE_ERR;
     }
 
-    i8* s = str->value;
-    i8* end = s + str->len;
+    i8 *s = str->value;
+    i8 *end = s + str->len;
     i8 ch = *s;
     i32 num = 0;
     i32 ch_val = 0;

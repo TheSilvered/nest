@@ -696,7 +696,7 @@ static void remove_assign_pop(Nst_InstList *bc)
     }
 }
 
-static void remove_assign_loc_get_val(Nst_InstList* bc)
+static void remove_assign_loc_get_val(Nst_InstList *bc)
 {
     i64 size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;

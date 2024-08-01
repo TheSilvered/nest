@@ -529,7 +529,7 @@ The new int object or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_string_parse_byte(Nst_StrObj* str)
+Nst_Obj *Nst_string_parse_byte(Nst_StrObj *str)
 ```
 
 **Description:**

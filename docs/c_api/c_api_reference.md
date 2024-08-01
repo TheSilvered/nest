@@ -27,6 +27,7 @@
 - [`u32`](c_api-typedefs.md#u32)
 - [`u64`](c_api-typedefs.md#u64)
 - [`u8`](c_api-typedefs.md#u8)
+- [`uint`](c_api-typedefs.md#uint)
 - [`usize`](c_api-typedefs.md#usize)
 - [`VECTOR`](c_api-sequence.md#vector)
 - [`Nst_1250_from_utf32`](c_api-encoding.md#nst_1250_from_utf32)

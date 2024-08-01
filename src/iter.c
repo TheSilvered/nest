@@ -36,7 +36,7 @@ void _Nst_iter_destroy(Nst_IterObj *iter)
     Nst_dec_ref(iter->value);
 }
 
-void _Nst_iter_traverse(Nst_IterObj* iter)
+void _Nst_iter_traverse(Nst_IterObj *iter)
 {
     Nst_ggc_obj_reachable(iter->start);
     Nst_ggc_obj_reachable(iter->get_val);

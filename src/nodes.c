@@ -247,7 +247,7 @@ static void print_bool(const i8 *name, bool value, Nst_LList *levels, i8 last)
     Nst_printf("%s: %s\n", name, value ? "true" : "false");
 }
 
-static void print_token(const i8 *name, Nst_Tok* tok, Nst_LList *levels,
+static void print_token(const i8 *name, Nst_Tok *tok, Nst_LList *levels,
                         i8 last)
 {
     print_levels(levels);

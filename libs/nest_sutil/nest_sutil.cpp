@@ -1271,23 +1271,15 @@ Nst_Obj *NstC rsplit_(usize arg_num, Nst_Obj **args)
     return reverse_vector(vector);
 }
 
-static i64 highest_bit(u64 n)
-{
-    u64 str_len = 63;
-    u64 part_size = 32;
-    // binary search to find the highest true bit
-    for (i32 i = 0; i < 6; i++) {
-        if (n < (1ull << str_len >> part_size))
-            str_len -= part_size;
-
-        part_size >>= 1;
-    }
-
-    // if the highest bit is a 1
-    if (1ull << 63ull & n)
-        return str_len + 1;
-    else
-        return str_len;
+static u8 msb64(u64 val) {
+    u8  k = 0;
+    if (val > 0xFFFFFFFFu) { val >>= 32; k  = 32; }
+    if (val > 0x0000FFFFu) { val >>= 16; k |= 16; }
+    if (val > 0x000000FFu) { val >>= 8;  k |= 8;  }
+    if (val > 0x0000000Fu) { val >>= 4;  k |= 4;  }
+    if (val > 0x00000003u) { val >>= 2;  k |= 2;  }
+    k |= (val & 2) >> 1;
+    return k;
 }
 
 Nst_Obj *NstC bin_(usize arg_num, Nst_Obj **args)
@@ -1296,7 +1288,7 @@ Nst_Obj *NstC bin_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("l", arg_num, args, &n))
         return nullptr;
 
-    i64 str_len = highest_bit(n) + 1;
+    i64 str_len = (i64)msb64(n) + 1;
 
     i8 *buf = Nst_malloc_c((usize)str_len, i8);
     if (buf == nullptr) {
@@ -1321,7 +1313,7 @@ Nst_Obj *NstC oct_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("l", arg_num, args, &n))
         return nullptr;
 
-    i64 h_bit = highest_bit(n);
+    i64 h_bit = (i64)msb64(n);
     i64 str_len = h_bit / 3;
     if (h_bit % 3)
         str_len += 2;
@@ -1356,7 +1348,7 @@ Nst_Obj *NstC hex_(usize arg_num, Nst_Obj **args)
     else
         digits = "0123456789ABCDEF";
 
-    i64 h_bit = highest_bit(n);
+    i64 h_bit = (i64)msb64(n);
     i64 str_len = h_bit / 4;
     if (h_bit % 4)
         str_len += 2;

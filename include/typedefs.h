@@ -329,6 +329,8 @@ NstEXP typedef long long i64;
 NstEXP typedef unsigned char u8;
 /* `unsigned short` alias. */
 NstEXP typedef unsigned short u16;
+/* `unsigned int` alias. */
+NstEXP typedef unsigned int uint;
 /* `unsigned long` alias. */
 NstEXP typedef unsigned long u32;
 /* `unsigned long long` alias. */
