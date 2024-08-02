@@ -104,7 +104,7 @@ This parameter specifies the size of the argument passed:
 
 ### General format
 
-`{Type[:[Flags][Width][.Precision][Alignment]]}`
+`{Type[:[Flags][Width][.Precision][,SeparatorWidth][Alignment]]}`
 
 Note that the things inside the square brackets are optional.
 
@@ -230,6 +230,10 @@ When paired with the `c` flag is instead specifies the exact width of the
 formatted string, any string longer than width is cut to size as specified
 in the description of the `c` flag.
 
+The width can be specified directly with a number after the flags or by writing
+an asterisk and passing an `int` value in the arguments after the value to be
+formatted.
+
 A negative width is ignored.
 
 ### Precision
@@ -246,7 +250,24 @@ This field has different interpretations depending on the type being formatted:
   the right (unlike the `c` flag). When using both the precision and the `c`
   flag and a width is specified the precision is ignored
 
+The precision can be specified directly with a number after the dot (`.`) or by
+writing an asterisk and passing an `int` value in the arguments after the value
+to be formatted and, if specified, the width.
+
 A negative precision is ignored.
+
+### Separator width
+
+This field applies to numbers and changes the amount of digits between
+separators from the default. For example using `{i:b' ,4}` will write a binary
+number with groups of four digits separated by a space, `{i:b' } would write
+groups of eight digits. This field is ignored when it has a value below one.
+
+The separator width can be specified directly with a number after the comma
+(`,`) or by writing an asterisk and passing an `int` value in the arguments
+after the value to be formatted and, if specified, the width and the precision.
+
+A separator width smaller than or equal to zero is ignored.
 
 ### Alignment
 

@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <limits.h>
 
 #include "test_nest.h"
 
@@ -28,6 +29,13 @@ void run_test(Test test, const i8 *test_name)
 {
     TestResult result = test();
 
+    if (Nst_error_occurred()) {
+        Nst_print_traceback(Nst_error_get());
+        Nst_error_clear();
+        if (result == TEST_SUCCESS)
+            result = TEST_FAILURE;
+    }
+
     switch (result) {
     case TEST_SUCCESS:
         Nst_printf(
@@ -48,13 +56,6 @@ void run_test(Test test, const i8 *test_name)
         Nst_printf(
             "%sTest '%s' failed.%s Stopping execution...\n",
             YELLOW, test_name, RESET);
-        Nst_quit();
-        exit(1);
-    case TEST_NEST_ERROR:
-        Nst_printf(
-            "%sDuring test '%s' a Nest error occurred.%s\n",
-            YELLOW, test_name, RESET);
-        Nst_print_traceback(Nst_error_get());
         Nst_quit();
         exit(1);
     }
@@ -405,7 +406,7 @@ TestResult test_fmt()
     fail_if(str_neq(str, "😀"));
     str = Nst_fmt("{s:.0}", 0, NULL, "😀🎺");
     fail_if(str_neq(str, ""));
-    str = Nst_fmt("{s:.*}", 0, NULL, 3, "Hello");
+    str = Nst_fmt("{s:.*}", 0, NULL, "Hello", 3);
     fail_if(str_neq(str, "Hel"));
 
     str = Nst_fmt("{s:10}", 0, NULL, "Hello");
@@ -414,7 +415,7 @@ TestResult test_fmt()
     fail_if(str_neq(str, "     Hello"));
     str = Nst_fmt("{s:10^}", 0, NULL, "Hello");
     fail_if(str_neq(str, "  Hello   "));
-    str = Nst_fmt("{s:*}", 0, NULL, 8, "Hello");
+    str = Nst_fmt("{s:*}", 0, NULL, "Hello", 8);
     fail_if(str_neq(str, "Hello   "));
     str = Nst_fmt("{s:_.10}", 0, NULL, "Hello");
     fail_if(str_neq(str, "Hello....."));
@@ -462,11 +463,11 @@ TestResult test_fmt()
 
     str = Nst_fmt("{s:9.3}", 0, NULL, "Hello");
     fail_if(str_neq(str, "Hel      "));
-    str = Nst_fmt("{s:*.3}", 0, NULL, 9, "Hello");
+    str = Nst_fmt("{s:*.3}", 0, NULL, "Hello", 9);
     fail_if(str_neq(str, "Hel      "));
-    str = Nst_fmt("{s:9.*}", 0, NULL, 3, "Hello");
+    str = Nst_fmt("{s:9.*}", 0, NULL, "Hello", 3);
     fail_if(str_neq(str, "Hel      "));
-    str = Nst_fmt("{s:*.*}", 0, NULL, 9, 3, "Hello");
+    str = Nst_fmt("{s:*.*}", 0, NULL, "Hello", 9, 3);
     fail_if(str_neq(str, "Hel      "));
 
     str = Nst_fmt("{s:c3}", 0, NULL, "Hello");
@@ -494,6 +495,298 @@ TestResult test_fmt()
     fail_if(str_neq(str, "èìò"));
     str = Nst_fmt("{s:c7^}", 0, NULL, "àèìòù");
     fail_if(str_neq(str, " àèìòù "));
+
+    // Formatting Unsigned Integers
+
+    str = Nst_fmt("{i:u}", 0, NULL, 10u);
+    fail_if(str_neq(str, "10"));
+    str = Nst_fmt("{l:u}", 0, NULL, 10ul);
+    fail_if(str_neq(str, "10"));
+    str = Nst_fmt("{L:u}", 0, NULL, 10ull);
+    fail_if(str_neq(str, "10"));
+    str = Nst_fmt("{i:u+}", 0, NULL, 10u);
+    fail_if(str_neq(str, "+10"));
+    str = Nst_fmt("{l:u+}", 0, NULL, 10ul);
+    fail_if(str_neq(str, "+10"));
+    str = Nst_fmt("{L:u+}", 0, NULL, 10ull);
+    fail_if(str_neq(str, "+10"));
+    str = Nst_fmt("{i:u }", 0, NULL, 10u);
+    fail_if(str_neq(str, " 10"));
+    str = Nst_fmt("{l:u }", 0, NULL, 10ul);
+    fail_if(str_neq(str, " 10"));
+    str = Nst_fmt("{L:u }", 0, NULL, 10ull);
+    fail_if(str_neq(str, " 10"));
+
+    str = Nst_fmt("{i:ubp}", 0, NULL, 10u);
+    fail_if(str_neq(str, "0b1010"));
+    str = Nst_fmt("{l:ubP}", 0, NULL, 10ul);
+    fail_if(str_neq(str, "0B1010"));
+    str = Nst_fmt("{i:ubp+}", 0, NULL, 10u);
+    fail_if(str_neq(str, "+0b1010"));
+    str = Nst_fmt("{l:ubP+}", 0, NULL, 10ul);
+    fail_if(str_neq(str, "+0B1010"));
+    str = Nst_fmt("{i:ubp }", 0, NULL, 10u);
+    fail_if(str_neq(str, " 0b1010"));
+    str = Nst_fmt("{l:ubP }", 0, NULL, 10ul);
+    fail_if(str_neq(str, " 0B1010"));
+    str = Nst_fmt("{i:uop}", 0, NULL, 10u);
+    fail_if(str_neq(str, "0o12"));
+    str = Nst_fmt("{l:uoP}", 0, NULL, 10ul);
+    fail_if(str_neq(str, "0O12"));
+    str = Nst_fmt("{i:up}", 0, NULL, 10u);
+    fail_if(str_neq(str, "10"));
+    str = Nst_fmt("{l:uP}", 0, NULL, 10ul);
+    fail_if(str_neq(str, "10"));
+    str = Nst_fmt("{i:uxp}", 0, NULL, 10u);
+    fail_if(str_neq(str, "0xa"));
+    str = Nst_fmt("{l:uxP}", 0, NULL, 10ul);
+    fail_if(str_neq(str, "0Xa"));
+    str = Nst_fmt("{i:uXp}", 0, NULL, 10u);
+    fail_if(str_neq(str, "0xA"));
+    str = Nst_fmt("{l:uXP}", 0, NULL, 10ul);
+    fail_if(str_neq(str, "0XA"));
+
+    str = Nst_fmt("{i:ub}", 0, NULL, 0u);
+    fail_if(str_neq(str, "0"));
+    str = Nst_fmt("{l:ub}", 0, NULL, 0ul);
+    fail_if(str_neq(str, "0"));
+    str = Nst_fmt("{L:ub}", 0, NULL, 0ull);
+    fail_if(str_neq(str, "0"));
+    str = Nst_fmt("{i:uo}", 0, NULL, 0u);
+    fail_if(str_neq(str, "0"));
+    str = Nst_fmt("{l:uo}", 0, NULL, 0ul);
+    fail_if(str_neq(str, "0"));
+    str = Nst_fmt("{L:uo}", 0, NULL, 0ull);
+    fail_if(str_neq(str, "0"));
+    str = Nst_fmt("{i:u}", 0, NULL, 0u);
+    fail_if(str_neq(str, "0"));
+    str = Nst_fmt("{l:u}", 0, NULL, 0ul);
+    fail_if(str_neq(str, "0"));
+    str = Nst_fmt("{L:u}", 0, NULL, 0ull);
+    fail_if(str_neq(str, "0"));
+    str = Nst_fmt("{i:ux}", 0, NULL, 0u);
+    fail_if(str_neq(str, "0"));
+    str = Nst_fmt("{l:ux}", 0, NULL, 0ul);
+    fail_if(str_neq(str, "0"));
+    str = Nst_fmt("{L:ux}", 0, NULL, 0ull);
+    fail_if(str_neq(str, "0"));
+    str = Nst_fmt("{i:uX}", 0, NULL, 0u);
+    fail_if(str_neq(str, "0"));
+    str = Nst_fmt("{l:uX}", 0, NULL, 0ul);
+    fail_if(str_neq(str, "0"));
+    str = Nst_fmt("{L:uX}", 0, NULL, 0ull);
+    fail_if(str_neq(str, "0"));
+
+    str = Nst_fmt("{i:ub}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "111010110111100110100010101"));
+    str = Nst_fmt("{l:ub}", 0, NULL, 123456789ul);
+    fail_if(str_neq(str, "111010110111100110100010101"));
+    str = Nst_fmt("{L:ub}", 0, NULL, 123456789ull);
+    fail_if(str_neq(str, "111010110111100110100010101"));
+    str = Nst_fmt("{i:uo}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "726746425"));
+    str = Nst_fmt("{l:uo}", 0, NULL, 123456789ul);
+    fail_if(str_neq(str, "726746425"));
+    str = Nst_fmt("{L:uo}", 0, NULL, 123456789ull);
+    fail_if(str_neq(str, "726746425"));
+    str = Nst_fmt("{i:u}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "123456789"));
+    str = Nst_fmt("{l:u}", 0, NULL, 123456789ul);
+    fail_if(str_neq(str, "123456789"));
+    str = Nst_fmt("{L:u}", 0, NULL, 123456789ull);
+    fail_if(str_neq(str, "123456789"));
+    str = Nst_fmt("{i:ux}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "75bcd15"));
+    str = Nst_fmt("{l:ux}", 0, NULL, 123456789ul);
+    fail_if(str_neq(str, "75bcd15"));
+    str = Nst_fmt("{L:ux}", 0, NULL, 123456789ull);
+    fail_if(str_neq(str, "75bcd15"));
+    str = Nst_fmt("{i:uX}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "75BCD15"));
+    str = Nst_fmt("{l:uX}", 0, NULL, 123456789ul);
+    fail_if(str_neq(str, "75BCD15"));
+    str = Nst_fmt("{L:uX}", 0, NULL, 123456789ull);
+    fail_if(str_neq(str, "75BCD15"));
+
+    str = Nst_fmt("{i:ub}", 0, NULL, 4294967295u);
+    fail_if(str_neq(str, "11111111111111111111111111111111"));
+    str = Nst_fmt("{l:ub}", 0, NULL, 4294967295ul);
+    fail_if(str_neq(str, "11111111111111111111111111111111"));
+    str = Nst_fmt("{L:ub}", 0, NULL, 18446744073709551615ull);
+    fail_if(str_neq(str, "1111111111111111111111111111111111111111111111111111111111111111"));
+    str = Nst_fmt("{i:uo}", 0, NULL, 4294967295u);
+    fail_if(str_neq(str, "37777777777"));
+    str = Nst_fmt("{l:uo}", 0, NULL, 4294967295ul);
+    fail_if(str_neq(str, "37777777777"));
+    str = Nst_fmt("{L:uo}", 0, NULL, 18446744073709551615ull);
+    fail_if(str_neq(str, "1777777777777777777777"));
+    str = Nst_fmt("{i:u}", 0, NULL, 4294967295u);
+    fail_if(str_neq(str, "4294967295"));
+    str = Nst_fmt("{l:u}", 0, NULL, 4294967295ul);
+    fail_if(str_neq(str, "4294967295"));
+    str = Nst_fmt("{L:u}", 0, NULL, 18446744073709551615ull);
+    fail_if(str_neq(str, "18446744073709551615"));
+    str = Nst_fmt("{i:ux}", 0, NULL, 4294967295u);
+    fail_if(str_neq(str, "ffffffff"));
+    str = Nst_fmt("{l:ux}", 0, NULL, 4294967295ul);
+    fail_if(str_neq(str, "ffffffff"));
+    str = Nst_fmt("{L:ux}", 0, NULL, 18446744073709551615ull);
+    fail_if(str_neq(str, "ffffffffffffffff"));
+    str = Nst_fmt("{i:uX}", 0, NULL, 4294967295u);
+    fail_if(str_neq(str, "FFFFFFFF"));
+    str = Nst_fmt("{l:uX}", 0, NULL, 4294967295ul);
+    fail_if(str_neq(str, "FFFFFFFF"));
+    str = Nst_fmt("{L:uX}", 0, NULL, 18446744073709551615ull);
+    fail_if(str_neq(str, "FFFFFFFFFFFFFFFF"));
+
+    str = Nst_fmt("{i:ub''}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "111'01011011'11001101'00010101"));
+    str = Nst_fmt("{i:uo''}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "726'746'425"));
+    str = Nst_fmt("{i:u''}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "123'456'789"));
+    str = Nst_fmt("{i:ux''}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "75b'cd15"));
+    str = Nst_fmt("{i:uX''}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "75B'CD15"));
+    str = Nst_fmt("{i:ub'è}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "111è01011011è11001101è00010101"));
+    str = Nst_fmt("{i:uo'è}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "726è746è425"));
+    str = Nst_fmt("{i:u'è}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "123è456è789"));
+    str = Nst_fmt("{i:ux'è}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "75bècd15"));
+    str = Nst_fmt("{i:uX'è}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "75BèCD15"));
+    str = Nst_fmt("{i:ub'😀}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "111😀01011011😀11001101😀00010101"));
+    str = Nst_fmt("{i:uo'😀}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "726😀746😀425"));
+    str = Nst_fmt("{i:u'😀}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "123😀456😀789"));
+    str = Nst_fmt("{i:ux'😀}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "75b😀cd15"));
+    str = Nst_fmt("{i:uX'😀}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "75B😀CD15"));
+
+    str = Nst_fmt("{i:ub'',2}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "1'11'01'01'10'11'11'00'11'01'00'01'01'01"));
+    str = Nst_fmt("{i:uo'',2}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "7'26'74'64'25"));
+    str = Nst_fmt("{i:u'',2}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "1'23'45'67'89"));
+    str = Nst_fmt("{i:ux'',2}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "7'5b'cd'15"));
+    str = Nst_fmt("{i:uX'',2}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "7'5B'CD'15"));
+    str = Nst_fmt("{i:ub'è,2}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "1è11è01è01è10è11è11è00è11è01è00è01è01è01"));
+    str = Nst_fmt("{i:uo'è,2}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "7è26è74è64è25"));
+    str = Nst_fmt("{i:u'è,2}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "1è23è45è67è89"));
+    str = Nst_fmt("{i:ux'è,2}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "7è5bècdè15"));
+    str = Nst_fmt("{i:uX'è,2}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "7è5BèCDè15"));
+    str = Nst_fmt("{i:ub'😀,2}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "1😀11😀01😀01😀10😀11😀11😀00😀11😀01😀00😀01😀01😀01"));
+    str = Nst_fmt("{i:uo'😀,2}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "7😀26😀74😀64😀25"));
+    str = Nst_fmt("{i:u'😀,2}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "1😀23😀45😀67😀89"));
+    str = Nst_fmt("{i:ux'😀,2}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "7😀5b😀cd😀15"));
+    str = Nst_fmt("{i:uX'😀,2}", 0, NULL, 123456789u);
+    fail_if(str_neq(str, "7😀5B😀CD😀15"));
+
+    str = Nst_fmt("{i:ub.6}", 0, NULL, 10u);
+    fail_if(str_neq(str, "  1010"));
+    str = Nst_fmt("{i:ub0.6}", 0, NULL, 10u);
+    fail_if(str_neq(str, "001010"));
+    str = Nst_fmt("{i:ub+.6}", 0, NULL, 10u);
+    fail_if(str_neq(str, "+  1010"));
+    str = Nst_fmt("{i:ub+0.6}", 0, NULL, 10u);
+    fail_if(str_neq(str, "+001010"));
+    str = Nst_fmt("{i:ub .6}", 0, NULL, 10u);
+    fail_if(str_neq(str, "   1010"));
+    str = Nst_fmt("{i:ub 0.6}", 0, NULL, 10u);
+    fail_if(str_neq(str, " 001010"));
+    str = Nst_fmt("{i:uo.6}", 0, NULL, 10u);
+    fail_if(str_neq(str, "    12"));
+    str = Nst_fmt("{i:uo0.6}", 0, NULL, 10u);
+    fail_if(str_neq(str, "000012"));
+    str = Nst_fmt("{i:u.6}", 0, NULL, 10u);
+    fail_if(str_neq(str, "    10"));
+    str = Nst_fmt("{i:u0.6}", 0, NULL, 10u);
+    fail_if(str_neq(str, "000010"));
+    str = Nst_fmt("{i:ux.6}", 0, NULL, 10u);
+    fail_if(str_neq(str, "     a"));
+    str = Nst_fmt("{i:ux0.6}", 0, NULL, 10u);
+    fail_if(str_neq(str, "00000a"));
+    str = Nst_fmt("{i:uX.6}", 0, NULL, 10u);
+    fail_if(str_neq(str, "     A"));
+    str = Nst_fmt("{i:uX0.6}", 0, NULL, 10u);
+    fail_if(str_neq(str, "00000A"));
+
+    str = Nst_fmt("{i:ub''.6,2}", 0, NULL, 10u);
+    fail_if(str_neq(str, "   10'10"));
+    str = Nst_fmt("{i:ub0''.6,2}", 0, NULL, 10u);
+    fail_if(str_neq(str, "00'10'10"));
+    str = Nst_fmt("{i:ub''+.6,2}", 0, NULL, 10u);
+    fail_if(str_neq(str, "+   10'10"));
+    str = Nst_fmt("{i:ub''+0.6,2}", 0, NULL, 10u);
+    fail_if(str_neq(str, "+00'10'10"));
+    str = Nst_fmt("{i:ub'' .6,2}", 0, NULL, 10u);
+    fail_if(str_neq(str, "    10'10"));
+    str = Nst_fmt("{i:ub'' 0.6,2}", 0, NULL, 10u);
+    fail_if(str_neq(str, " 00'10'10"));
+    str = Nst_fmt("{i:uo''.6,2}", 0, NULL, 103u);
+    fail_if(str_neq(str, "    1'47"));
+    str = Nst_fmt("{i:uo''0.6,2}", 0, NULL, 103u);
+    fail_if(str_neq(str, "00'01'47"));
+    str = Nst_fmt("{i:u''.6,2}", 0, NULL, 103u);
+    fail_if(str_neq(str, "    1'03"));
+    str = Nst_fmt("{i:u''0.6,2}", 0, NULL, 103u);
+    fail_if(str_neq(str, "00'01'03"));
+    str = Nst_fmt("{i:ux''.6,2}", 0, NULL, 1744u);
+    fail_if(str_neq(str, "    6'd0"));
+    str = Nst_fmt("{i:ux''0.6,2}", 0, NULL, 1744u);
+    fail_if(str_neq(str, "00'06'd0"));
+    str = Nst_fmt("{i:uX''.6,2}", 0, NULL, 1744u);
+    fail_if(str_neq(str, "    6'D0"));
+    str = Nst_fmt("{i:uX''0.6,2}", 0, NULL, 1744u);
+    fail_if(str_neq(str, "00'06'D0"));
+
+    str = Nst_fmt("{i:ubp''.6,2}", 0, NULL, 10u);
+    fail_if(str_neq(str, "0b   10'10"));
+    str = Nst_fmt("{i:ubP0''.6,2}", 0, NULL, 10u);
+    fail_if(str_neq(str, "0B00'10'10"));
+    str = Nst_fmt("{i:ubp''+.6,2}", 0, NULL, 10u);
+    fail_if(str_neq(str, "+0b   10'10"));
+    str = Nst_fmt("{i:ubP''+0.6,2}", 0, NULL, 10u);
+    fail_if(str_neq(str, "+0B00'10'10"));
+    str = Nst_fmt("{i:ubp'' .6,2}", 0, NULL, 10u);
+    fail_if(str_neq(str, " 0b   10'10"));
+    str = Nst_fmt("{i:ubP'' 0.6,2}", 0, NULL, 10u);
+    fail_if(str_neq(str, " 0B00'10'10"));
+    str = Nst_fmt("{i:uop''.6,2}", 0, NULL, 103u);
+    fail_if(str_neq(str, "0o    1'47"));
+    str = Nst_fmt("{i:uoP''0.6,2}", 0, NULL, 103u);
+    fail_if(str_neq(str, "0O00'01'47"));
+    str = Nst_fmt("{i:up''.6,2}", 0, NULL, 103u);
+    fail_if(str_neq(str, "    1'03"));
+    str = Nst_fmt("{i:uP''0.6,2}", 0, NULL, 103u);
+    fail_if(str_neq(str, "00'01'03"));
+    str = Nst_fmt("{i:uxp''.6,2}", 0, NULL, 1744u);
+    fail_if(str_neq(str, "0x    6'd0"));
+    str = Nst_fmt("{i:uxP''0.6,2}", 0, NULL, 1744u);
+    fail_if(str_neq(str, "0X00'06'd0"));
+    str = Nst_fmt("{i:uXp''.6,2}", 0, NULL, 1744u);
+    fail_if(str_neq(str, "0x    6'D0"));
+    str = Nst_fmt("{i:uXP''0.6,2}", 0, NULL, 1744u);
+    fail_if(str_neq(str, "0X00'06'D0"));
 
     // Formatting Booleans
 

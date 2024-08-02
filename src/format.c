@@ -543,6 +543,7 @@ typedef struct _Format {
     u8 fill_ch[4];
     i32 width;
     i32 precision;
+    i32 separator_width;
 } Format;
 
 static void format_init(Format *format)
@@ -551,16 +552,17 @@ static void format_init(Format *format)
     format->cut = false;
     format->as_unsigned = false;
     format->pad_zeroes_precision = false;
-    format->double_repr = Nst_FMT_MIN_REPR;
-    format->pref_suff = Nst_FMT_PREF_SUFF_NONE;
-    format->str_repr = Nst_FMT_REPR_NO_REPR;
     format->sign = Nst_FMT_SIGN_NONE;
+    format->alignment = Nst_FMT_ALIGN_AUTO;
+    format->pref_suff = Nst_FMT_PREF_SUFF_NONE;
+    format->double_repr = Nst_FMT_MIN_REPR;
     format->int_repr = Nst_FMT_INTR_DEC;
+    format->str_repr = Nst_FMT_REPR_NO_REPR;
     memset(format->separator, 255, 4);
     memset(format->fill_ch, 255, 4);
     format->width = -1;
     format->precision = -1;
-    format->alignment = Nst_FMT_ALIGN_AUTO;
+    format->separator_width = -1;
 }
 
 static const i8 *format_set_separator(Format *format, const i8 *ch)
@@ -717,7 +719,7 @@ failure:
     return NULL;
 }
 
-static const i8 *parse_format(const i8 *fmt, Format *format, va_list *args)
+static const i8 *parse_format(const i8 *fmt, Format *format)
 {
     while (true) {
         bool end_loop = false;
@@ -797,7 +799,7 @@ static const i8 *parse_format(const i8 *fmt, Format *format, va_list *args)
     if (*fmt > '0' && *fmt <= '9')
         format->width = strtol(fmt, (i8 **)&fmt, 10);
     else if (*fmt == '*') {
-        format->width = va_arg(*args, i32);
+        format->width = -2;
         fmt++;
     }
 
@@ -808,10 +810,24 @@ static const i8 *parse_format(const i8 *fmt, Format *format, va_list *args)
             return NULL;
         }
         if (*fmt == '*') {
-            format->precision = va_arg(*args, i32);
+            format->precision = -2;
             fmt++;
         } else
             format->precision = strtol(fmt, (i8 **)&fmt, 10);
+    }
+
+    if (*fmt == ',') {
+        fmt++;
+        if ((*fmt < '0' || *fmt > '9') && *fmt != '*') {
+            Nst_set_value_error_c(
+                "expected a number for separator width in format");
+            return NULL;
+        }
+        if (*fmt == '*') {
+            format->separator_width = -2;
+            fmt++;
+        } else
+            format->separator_width = strtol(fmt, (i8 **)&fmt, 10);
     }
 
     switch (*fmt) {
@@ -829,6 +845,16 @@ static const i8 *parse_format(const i8 *fmt, Format *format, va_list *args)
         break;
     }
     return fmt;
+}
+
+static void add_format_values(Format *format, va_list *args)
+{
+    if (format->width == -2)
+        format->width = va_arg(*args, i32);
+    if (format->precision == -2)
+        format->precision = va_arg(*args, i32);
+    if (format->separator_width == -2)
+        format->separator_width = va_arg(*args, i32);
 }
 
 static const i8 *fmt_value(Nst_Buffer *buf, const i8 *fmt, va_list *args)
@@ -856,7 +882,7 @@ static const i8 *fmt_value(Nst_Buffer *buf, const i8 *fmt, va_list *args)
     }
     fmt++;
 
-    fmt = parse_format(fmt, &format, args);
+    fmt = parse_format(fmt, &format);
     if (fmt == NULL)
         return NULL;
 
@@ -874,59 +900,71 @@ format_type:
     switch (*type) {
     case 's': {
         i8 *str = va_arg(*args, i8 *);
+        add_format_values(&format, args);
         result = fmt_str(buf, str, -1, &format);
         break;
     }
     case 'i':
         if (format.as_unsigned) {
             uint val = va_arg(*args, uint);
+            add_format_values(&format, args);
             result = fmt_uint(buf, (u64)val, &format);
         } else {
             int val = va_arg(*args, int);
+            add_format_values(&format, args);
             result = fmt_int(buf, (i64)val, &format);
         }
         break;
     case 'l':
         if (format.as_unsigned) {
             u32 val = va_arg(*args, u32);
+            add_format_values(&format, args);
             result = fmt_uint(buf, (u64)val, &format);
         } else {
             i32 val = va_arg(*args, i32);
+            add_format_values(&format, args);
             result = fmt_int(buf, (i64)val, &format);
         }
         break;
     case 'L':
         if (format.as_unsigned) {
             u64 val = va_arg(*args, u64);
+            add_format_values(&format, args);
             result = fmt_uint(buf, val, &format);
         } else {
             i64 val = va_arg(*args, i64);
+            add_format_values(&format, args);
             result = fmt_int(buf, val, &format);
         }
         break;
     case 'b': {
         int val = va_arg(*args, int);
+        add_format_values(&format, args);
         result = fmt_bool(buf, (bool)val, &format);
         break;
     }
     case 'u': {
         isize val = va_arg(*args, isize);
+        add_format_values(&format, args);
         result = fmt_int(buf, (i64)val, &format);
         break;
     }
     case 'c': {
         int val = va_arg(*args, int);
+        add_format_values(&format, args);
         result = fmt_char(buf, (i8)val, &format);
         break;
     }
     case 'r':
     case 'f': {
         f64 val = va_arg(*args, f64);
+        add_format_values(&format, args);
         result = fmt_float(buf, val, &format);
         break;
     }
     case 'p': {
         void *ptr = va_arg(*args, void *);
+        add_format_values(&format, args);
         result = fmt_ptr(buf, ptr, &format);
         break;
     }
@@ -1433,28 +1471,28 @@ static bool fmt_uint_bin(Nst_Buffer *buf, u64 val)
     if (!Nst_buffer_expand_by(buf, msb + 1))
         return false;
     for (i32 i = 0; i < msb + 1; i++) {
-        buf->data[buf->len + msb - i - 1] = val & 1 ? '1' : '0';
+        buf->data[buf->len + msb - i] = val & 1 ? '1' : '0';
         val >>= 1;
     }
-    buf->data[msb] = 0;
-    buf->len += msb;
+    buf->data[buf->len + msb + 1] = 0;
+    buf->len += msb + 1;
     return true;
 }
 
 static bool fmt_uint_oct(Nst_Buffer *buf, u64 val)
 {
     u8 msb = fmt_uint_msb64(val); // most significant bit
-    u8 str_len = msb / 3 + 1;
-    if (msb % 3 != 0)
+    u8 str_len = (msb + 1) / 3;
+    if ((msb + 1) % 3 != 0)
         str_len++;
-    if (!Nst_buffer_expand_by(buf, str_len + 1))
+    if (!Nst_buffer_expand_by(buf, str_len))
         return false;
-    for (i32 i = 0; i < str_len + 1; i++) {
+    for (i32 i = 0; i < str_len; i++) {
         i8 ch = (val & 0b111) + '0';
         buf->data[buf->len + str_len - i - 1] = ch;
         val >>= 3;
     }
-    buf->data[str_len] = 0;
+    buf->data[buf->len + str_len] = 0;
     buf->len += str_len;
     return true;
 }
@@ -1472,7 +1510,7 @@ static bool fmt_uint_dec(Nst_Buffer *buf, u64 val)
     }
     usize final_len = buf->len;
     // reverse the digits
-    for (usize i = 0; i < final_len - initial_len; i++) {
+    for (usize i = 0, n = (final_len - initial_len) / 2; i < n; i++) {
         i8 temp = buf->data[final_len - i - 1];
         buf->data[final_len - i - 1] = buf->data[initial_len + i];
         buf->data[initial_len + i] = temp;
@@ -1483,17 +1521,17 @@ static bool fmt_uint_dec(Nst_Buffer *buf, u64 val)
 static bool fmt_uint_hex(Nst_Buffer *buf, u64 val, bool upper)
 {
     u8 msb = fmt_uint_msb64(val); // most significant bit
-    u8 str_len = msb / 4 + 1;
-    if (msb % 4 != 0)
+    u8 str_len = (msb + 1) / 4;
+    if ((msb + 1) % 4 != 0)
         str_len++;
-    if (!Nst_buffer_expand_by(buf, str_len + 1))
+    if (!Nst_buffer_expand_by(buf, str_len))
         return false;
     const i8 *hex_chars = upper ? "0123456789ABCDEF" : "0123456789abcdef";
-    for (i32 i = 0; i < str_len + 1; i++) {
+    for (i32 i = 0; i < str_len; i++) {
         buf->data[buf->len + str_len - i - 1] = hex_chars[val & 0xF];
         val >>= 4;
     }
-    buf->data[str_len] = 0;
+    buf->data[buf->len + str_len] = 0;
     buf->len += str_len;
     return true;
 }
@@ -1510,20 +1548,22 @@ static bool fmt_uint_sep_and_precision(Nst_Buffer *buf, i8 *digits,
     usize digit_count = format->precision > (isize)digits_len
         ? (usize)format->precision
         : digits_len;
-    usize sep_dist;
-    switch (format->int_repr) {
-    case Nst_FMT_INTR_BIN:
-        sep_dist = 8;
-        break;
-    case Nst_FMT_INTR_HEX:
-    case Nst_FMT_INTR_UPPER_HEX:
-        sep_dist = 4;
-        break;
-    case Nst_FMT_INTR_OCT:
-    case Nst_FMT_INTR_DEC:
-    default:
-        sep_dist = 3;
-        break;
+    usize sep_dist = format->separator_width;
+    if (format->separator_width <= 0) {
+        switch (format->int_repr) {
+        case Nst_FMT_INTR_BIN:
+            sep_dist = 8;
+            break;
+        case Nst_FMT_INTR_HEX:
+        case Nst_FMT_INTR_UPPER_HEX:
+            sep_dist = 4;
+            break;
+        case Nst_FMT_INTR_OCT:
+        case Nst_FMT_INTR_DEC:
+        default:
+            sep_dist = 3;
+            break;
+        }
     }
     // guarantees always enough bytes (sometimes it's a little more)
     bool result = Nst_buffer_expand_by(
@@ -1536,19 +1576,23 @@ static bool fmt_uint_sep_and_precision(Nst_Buffer *buf, i8 *digits,
     u8 fill_digit = format->pad_zeroes_precision ? '0' : ' ';
     usize precision_digits = digit_count - digits_len;
     for (usize i = 0; i < digit_count - digits_len; i++) {
-        if (sep_len != 0 && i != 0 && (digit_count - i) % sep_dist == 0) {
+        Nst_buffer_append_char(buf, fill_digit);
+        if (sep_len != 0 && (digit_count - i - 1) % sep_dist == 0) {
             if (fill_digit == ' ')
                 Nst_buffer_append_char(buf, ' ');
             else
                 Nst_buffer_append_str(buf, (i8 *)sep, sep_len);
         }
-        Nst_buffer_append_char(buf, fill_digit);
     }
     // add digits
     for (usize i = precision_digits; i < digit_count; i++) {
-        if (sep_len != 0 && i != 0 && (digit_count - i) % sep_dist == 0)
-            Nst_buffer_append_str(buf, (i8 *)sep, sep_len);
         Nst_buffer_append_char(buf, digits[i - precision_digits]);
+        if (sep_len != 0
+            && i + 1 != digit_count
+            && (digit_count - i - 1) % sep_dist == 0)
+        {
+            Nst_buffer_append_str(buf, (i8 *)sep, sep_len);
+        }
     }
     return true;
 }

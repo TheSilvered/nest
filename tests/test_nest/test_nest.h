@@ -13,8 +13,7 @@ typedef enum _TestResult {
     TEST_SUCCESS,
     TEST_FAILURE,
     TEST_CRITICAL_FAILURE,
-    TEST_NOT_IMPL,
-    TEST_NEST_ERROR
+    TEST_NOT_IMPL
 } TestResult;
 
 typedef TestResult (*Test)();
