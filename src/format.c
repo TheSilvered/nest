@@ -1364,11 +1364,10 @@ static bool fmt_uint(Nst_Buffer *buf, u64 val, Format *format)
         digit_buf = &stack_digit_buf;
     }
 
-    if (format->sign == Nst_FMT_SIGN_PLUS) {
+    if (format->sign == Nst_FMT_SIGN_PLUS)
         result = Nst_buffer_append_char(temp_buf, '+');
-    } else if (format->sign == Nst_FMT_SIGN_SPACE) {
+    else if (format->sign == Nst_FMT_SIGN_SPACE)
         result = Nst_buffer_append_char(temp_buf, ' ');
-    }
     if (!result)
         goto finish;
 
@@ -1601,11 +1600,74 @@ static bool fmt_uint_sep_and_precision(Nst_Buffer *buf, i8 *digits,
 
 static bool fmt_int(Nst_Buffer *buf, i64 val, Format *format)
 {
-    Nst_UNUSED(buf);
-    Nst_UNUSED(val);
-    Nst_UNUSED(format);
-    Nst_set_type_error_c("formatting integers is not supported");
-    return false;
+    bool result = true;
+    Nst_Buffer stack_buf, stack_digit_buf;
+    Nst_Buffer *temp_buf, *digit_buf;
+    if (format->width < 0)
+        temp_buf = buf;
+    else {
+        if (!Nst_buffer_init(&stack_buf, 10))
+            return false;
+        temp_buf = &stack_buf;
+    }
+
+    if (format->precision <= 0 && !format_has_separator(format))
+        digit_buf = temp_buf;
+    else {
+        if (!Nst_buffer_init(&stack_digit_buf, 10))
+            return false;
+        digit_buf = &stack_digit_buf;
+    }
+
+    u64 uval = val > 0 ? (u64)val : (u64)(-val);
+
+    if (val < 0)
+        result = Nst_buffer_append_char(temp_buf, '-');
+    else if (format->sign == Nst_FMT_SIGN_PLUS)
+        result = Nst_buffer_append_char(temp_buf, '+');
+    else if (format->sign == Nst_FMT_SIGN_SPACE)
+        result = Nst_buffer_append_char(temp_buf, ' ');
+    if (!result)
+        goto finish;
+
+    if (!fmt_uint_prefix(temp_buf, format)) {
+        result = false;
+        goto finish;
+    }
+
+    if (!fmt_uint_digits(digit_buf, uval, format)) {
+        result = false;
+        goto finish;
+    }
+
+    if (format->precision <= 0 && !format_has_separator(format))
+        goto align_or_cut;
+
+    result = fmt_uint_sep_and_precision(
+        temp_buf,
+        digit_buf->data, digit_buf->len,
+        format);
+    if (!result)
+        goto finish;
+
+align_or_cut:
+    if (format->width < 0)
+        goto finish;
+    result = fmt_align_or_cut(
+        buf,
+        temp_buf->data,
+        temp_buf->len,
+        Nst_string_utf8_char_len(
+        (u8 *)temp_buf->data,
+        temp_buf->len),
+        format, Nst_FMT_ALIGN_RIGHT);
+
+finish:
+    if (temp_buf != buf)
+        Nst_buffer_destroy(temp_buf);
+    if (digit_buf != temp_buf)
+        Nst_buffer_destroy(digit_buf);
+    return result;
 }
 
 /* ============================ Float formatting =========================== */
