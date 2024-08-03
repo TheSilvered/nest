@@ -104,7 +104,7 @@ This parameter specifies the size of the argument passed:
 
 ---
 
-## `nst_fmt` format rules
+## `Nst_fmt` format rules
 
 ### General format
 

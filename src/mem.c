@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "mem.h"
-#include "lib_import.h"
+#include "sequence.h" // _Nst_VECTOR_GROWTH_RATIO, _Nst_VECTOR_MIN_CAP
 
 #ifdef Nst_COUNT_ALLOC
 static i32 allocation_count = 0;

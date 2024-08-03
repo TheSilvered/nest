@@ -8,6 +8,7 @@
 #include "global_consts.h"
 #include "mem.h"
 #include "file.h"
+#include "dtoa.h"
 
 #define MIN(a, b) ((b) < (a) ? (b) : (a))
 #define MAX(a, b) ((b) > (a) ? (b) : (a))
@@ -277,8 +278,8 @@ static isize get_seq_size(const i8 **fmt, va_list *args)
             return -1;
         }
         i8 *str = va_arg(*args, i8 *);
-        total_size = strlen(str);
-        if (precision >= 0)
+        total_size = str == NULL ? 6 : strlen(str);
+        if (precision >= 0 && str != NULL)
             total_size = MIN((isize)total_size, precision);
         total_size = MAX((isize)total_size, width);
         (*fmt)++;
@@ -485,28 +486,28 @@ isize Nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args)
 /* ============================== Nest format ============================== */
 
 typedef enum _IntRepr {
-    Nst_FMT_INTR_BIN,
-    Nst_FMT_INTR_OCT,
-    Nst_FMT_INTR_DEC,
-    Nst_FMT_INTR_HEX,
-    Nst_FMT_INTR_UPPER_HEX
+    Nst_FMT_INT_BIN,
+    Nst_FMT_INT_OCT,
+    Nst_FMT_INT_DEC,
+    Nst_FMT_INT_HEX,
+    Nst_FMT_INT_HEX_UPPER
 } IntRepr;
 
 typedef enum _DoubleRepr {
-    Nst_FMT_MIN_REPR,
-    Nst_FMT_DEC_REPR,
-    Nst_FMT_STD_FORM
+    Nst_FMT_DBL_MIN_REPR,
+    Nst_FMT_DBL_DEC_REPR,
+    Nst_FMT_DBL_STD_FORM
 } DoubleRepr;
 
 #define REPR_FULL 0b100
 #define REPR_ASCII 0b10
 
 typedef enum _StrRepr {
-    Nst_FMT_REPR_NO_REPR       = 0,
-    Nst_FMT_REPR_SHALLOW       = 1,
-    Nst_FMT_REPR_SHALLOW_ASCII = 1 | REPR_ASCII,
-    Nst_FMT_REPR_FULL          = 1 | REPR_FULL,
-    Nst_FMT_REPR_FULL_ASCII    = 1 | REPR_ASCII | REPR_FULL
+    Nst_FMT_STR_NO_REPR       = 0,
+    Nst_FMT_STR_SHALLOW       = 1,
+    Nst_FMT_STR_SHALLOW_ASCII = 1 | REPR_ASCII,
+    Nst_FMT_STR_FULL          = 1 | REPR_FULL,
+    Nst_FMT_STR_FULL_ASCII    = 1 | REPR_ASCII | REPR_FULL
 } StrRepr;
 
 typedef enum _Sign {
@@ -555,9 +556,9 @@ static void format_init(Format *format)
     format->sign = Nst_FMT_SIGN_NONE;
     format->alignment = Nst_FMT_ALIGN_AUTO;
     format->pref_suff = Nst_FMT_PREF_SUFF_NONE;
-    format->double_repr = Nst_FMT_MIN_REPR;
-    format->int_repr = Nst_FMT_INTR_DEC;
-    format->str_repr = Nst_FMT_REPR_NO_REPR;
+    format->double_repr = Nst_FMT_DBL_MIN_REPR;
+    format->int_repr = Nst_FMT_INT_DEC;
+    format->str_repr = Nst_FMT_STR_NO_REPR;
     memset(format->separator, 255, 4);
     memset(format->fill_ch, 255, 4);
     format->width = -1;
@@ -645,7 +646,12 @@ static bool fmt_uint_hex(Nst_Buffer *buf, u64 val, bool upper);
 static bool fmt_uint_sep_and_precision(Nst_Buffer *buf, i8 *digits,
                                        usize digits_len, Format *format);
 static bool fmt_int(Nst_Buffer *buf, i64 val, Format *format);
-static bool fmt_float(Nst_Buffer *buf, f64 val, Format *format);
+
+static bool fmt_double(Nst_Buffer *buf, f64 val, Format *format);
+static bool fmt_double_dec(Nst_Buffer *buf, f64 val, Format *format);
+static bool fmt_double_std(Nst_Buffer *buf, f64 val, Format *format);
+static bool fmt_double_min(Nst_Buffer *buf, f64 val, Format *format);
+
 static bool fmt_bool(Nst_Buffer *buf, bool val, Format *format);
 static bool fmt_ptr(Nst_Buffer *buf, void *val, Format *format);
 static bool fmt_char(Nst_Buffer *buf, i8 val, Format *format);
@@ -734,10 +740,10 @@ static const i8 *parse_format(const i8 *fmt, Format *format)
             format->pad_zeroes_precision = true;
             break;
         case 'f':
-            format->double_repr = Nst_FMT_DEC_REPR;
+            format->double_repr = Nst_FMT_DBL_DEC_REPR;
             break;
         case 'e':
-            format->double_repr = Nst_FMT_STD_FORM;
+            format->double_repr = Nst_FMT_DBL_STD_FORM;
             break;
         case 'p':
             format->pref_suff = Nst_FMT_PREF_SUFF_LOWER;
@@ -749,16 +755,16 @@ static const i8 *parse_format(const i8 *fmt, Format *format)
             format->cut = true;
             break;
         case 'b':
-            format->int_repr = Nst_FMT_INTR_BIN;
+            format->int_repr = Nst_FMT_INT_BIN;
             break;
         case 'o':
-            format->int_repr = Nst_FMT_INTR_OCT;
+            format->int_repr = Nst_FMT_INT_OCT;
             break;
         case 'x':
-            format->int_repr = Nst_FMT_INTR_HEX;
+            format->int_repr = Nst_FMT_INT_HEX;
             break;
         case 'X':
-            format->int_repr = Nst_FMT_INTR_UPPER_HEX;
+            format->int_repr = Nst_FMT_INT_HEX_UPPER;
             break;
         case ' ':
             format->sign = Nst_FMT_SIGN_SPACE;
@@ -767,16 +773,16 @@ static const i8 *parse_format(const i8 *fmt, Format *format)
             format->sign = Nst_FMT_SIGN_PLUS;
             break;
         case 'r':
-            format->str_repr = Nst_FMT_REPR_FULL;
+            format->str_repr = Nst_FMT_STR_FULL;
             break;
         case 'R':
-            format->str_repr = Nst_FMT_REPR_SHALLOW;
+            format->str_repr = Nst_FMT_STR_SHALLOW;
             break;
         case 'a':
-            format->str_repr = Nst_FMT_REPR_FULL_ASCII;
+            format->str_repr = Nst_FMT_STR_FULL_ASCII;
             break;
         case 'A':
-            format->str_repr = Nst_FMT_REPR_SHALLOW_ASCII;
+            format->str_repr = Nst_FMT_STR_SHALLOW_ASCII;
             break;
         case 'u':
             format->as_unsigned = true;
@@ -962,7 +968,7 @@ format_type:
     case 'f': {
         f64 val = va_arg(*args, f64);
         add_format_values(&format, args);
-        result = fmt_float(buf, val, &format);
+        result = fmt_double(buf, val, &format);
         break;
     }
     case 'p': {
@@ -1261,7 +1267,7 @@ static isize fmt_str_repr(Nst_Buffer *buf, i8 *str, usize str_len,
         return -1;
 
     StrRepr repr = format->str_repr;
-    if (repr == Nst_FMT_REPR_NO_REPR) {
+    if (repr == Nst_FMT_STR_NO_REPR) {
         Nst_buffer_append_str(buf, str, str_len);
         return Nst_string_utf8_char_len((u8 *)str, str_len);
     }
@@ -1462,16 +1468,16 @@ static bool fmt_uint_prefix(Nst_Buffer *buf, Format *format)
     const i8 *pref = NULL;
     bool pref_upper = format->pref_suff == Nst_FMT_PREF_SUFF_UPPER;
     switch (format->int_repr) {
-    case Nst_FMT_INTR_BIN:
+    case Nst_FMT_INT_BIN:
         pref = pref_upper ? "0B" : "0b";
         break;
-    case Nst_FMT_INTR_OCT:
+    case Nst_FMT_INT_OCT:
         pref = pref_upper ? "0O" : "0o";
         break;
-    case Nst_FMT_INTR_DEC:
+    case Nst_FMT_INT_DEC:
         break;
-    case Nst_FMT_INTR_HEX:
-    case Nst_FMT_INTR_UPPER_HEX:
+    case Nst_FMT_INT_HEX:
+    case Nst_FMT_INT_HEX_UPPER:
         pref = pref_upper ? "0X" : "0x";
         break;
     }
@@ -1483,15 +1489,15 @@ static bool fmt_uint_prefix(Nst_Buffer *buf, Format *format)
 static bool fmt_uint_digits(Nst_Buffer *buf, u64 val, Format *format)
 {
     switch (format->int_repr) {
-    case Nst_FMT_INTR_BIN:
+    case Nst_FMT_INT_BIN:
         return fmt_uint_bin(buf, val);
-    case Nst_FMT_INTR_OCT:
+    case Nst_FMT_INT_OCT:
         return fmt_uint_oct(buf, val);
-    case Nst_FMT_INTR_DEC:
+    case Nst_FMT_INT_DEC:
         return fmt_uint_dec(buf, val);
-    case Nst_FMT_INTR_HEX:
+    case Nst_FMT_INT_HEX:
         return fmt_uint_hex(buf, val, false);
-    case Nst_FMT_INTR_UPPER_HEX:
+    case Nst_FMT_INT_HEX_UPPER:
         return fmt_uint_hex(buf, val, true);
     }
     return true;
@@ -1592,15 +1598,15 @@ static bool fmt_uint_sep_and_precision(Nst_Buffer *buf, i8 *digits,
     usize sep_width = format->separator_width;
     if (format->separator_width <= 0) {
         switch (format->int_repr) {
-        case Nst_FMT_INTR_BIN:
+        case Nst_FMT_INT_BIN:
             sep_width = 8;
             break;
-        case Nst_FMT_INTR_HEX:
-        case Nst_FMT_INTR_UPPER_HEX:
+        case Nst_FMT_INT_HEX:
+        case Nst_FMT_INT_HEX_UPPER:
             sep_width = 4;
             break;
-        case Nst_FMT_INTR_OCT:
-        case Nst_FMT_INTR_DEC:
+        case Nst_FMT_INT_OCT:
+        case Nst_FMT_INT_DEC:
         default:
             sep_width = 3;
             break;
@@ -1687,14 +1693,80 @@ finish:
     return result;
 }
 
-/* ============================ Float formatting =========================== */
+/* =========================== Double formatting =========================== */
 
-static bool fmt_float(Nst_Buffer *buf, f64 val, Format *format)
+static bool fmt_double(Nst_Buffer *buf, f64 val, Format *format)
+{
+    if (format->precision < 0)
+        format->precision = 6;
+    if (format->normalize_neg_zero && val == -0.0)
+        val = 0.0;
+    switch (format->double_repr) {
+    case Nst_FMT_DBL_MIN_REPR:
+        return fmt_double_min(buf, val, format);
+    case Nst_FMT_DBL_STD_FORM:
+        return fmt_double_std(buf, val, format);
+    case Nst_FMT_DBL_DEC_REPR:
+    default:
+        return fmt_double_dec(buf, val, format);
+    }
+}
+
+static bool fmt_double_dec(Nst_Buffer *buf, f64 val, Format *format)
+{
+    if (val < 0) {
+        if (!Nst_buffer_append_char(buf, '-'))
+            return false;
+    }
+
+    i32 precision = format->precision;
+    int decpt, sign;
+    i8 *str_end;
+    i8 *digits = Nst_dtoa(val, 3, precision, &decpt, &sign, &str_end);
+    Nst_UNUSED(sign);
+
+    usize digits_len = str_end - digits;
+    usize digits_before_dot = MAX(1, decpt);
+    if (!Nst_buffer_expand_by(buf, digits_before_dot + 1 + precision))
+        return false;
+
+    // before the decimal point
+    if (decpt <= 0) {
+        Nst_buffer_append_char(buf, '0');
+    } else if ((usize)decpt < digits_len) {
+        Nst_buffer_append_str(buf, digits, decpt);
+    } else {
+        Nst_buffer_append_str(buf, digits, digits_len);
+        for (usize i = digits_len; i < (usize)decpt; i++)
+            Nst_buffer_append_char(buf, '0');
+    }
+
+    if (precision > 0)
+        Nst_buffer_append_char(buf, '.');
+
+    // after the decimal point
+    for (i32 i = 0; i < precision; i++) {
+        if (i + decpt < 0 || (usize)(i + decpt) >= digits_len)
+            Nst_buffer_append_char(buf, '0');
+        else
+            Nst_buffer_append_char(buf, digits[i + decpt]);
+    }
+    return true;
+}
+
+static bool fmt_double_std(Nst_Buffer *buf, f64 val, Format *format)
 {
     Nst_UNUSED(buf);
     Nst_UNUSED(val);
     Nst_UNUSED(format);
-    Nst_set_type_error_c("formatting floats is not supported");
+    return false;
+}
+
+static bool fmt_double_min(Nst_Buffer *buf, f64 val, Format *format)
+{
+    Nst_UNUSED(buf);
+    Nst_UNUSED(val);
+    Nst_UNUSED(format);
     return false;
 }
 
