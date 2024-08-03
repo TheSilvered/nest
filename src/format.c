@@ -617,6 +617,16 @@ static usize format_fill_ch_len(Format *format)
 
 static const i8 *fmt_value(Nst_Buffer *buf, const i8 *fmt, va_list *args);
 
+static void fmt_cut(i8 *str, usize str_len, usize char_len, i8 **out_str,
+                    usize *out_len, Format *format,
+                    Alignment default_alignment);
+static bool fmt_align(Nst_Buffer *buf, i8 *str, usize str_len,
+                      usize char_str_len, Format *format,
+                      Alignment default_alignment);
+static bool fmt_sep_and_ndigits(Nst_Buffer *buf, i8 *digits, usize digits_len,
+                                usize min_digits, i8 *sep, usize sep_len,
+                                usize sep_width, bool pad_zeroes);
+
 static bool  fmt_str(Nst_Buffer *buf, i8 *str, isize str_len, Format *format);
 static isize fmt_str_repr(Nst_Buffer *buf, i8 *str, usize str_len,
                           Format *format);
@@ -639,13 +649,6 @@ static bool fmt_float(Nst_Buffer *buf, f64 val, Format *format);
 static bool fmt_bool(Nst_Buffer *buf, bool val, Format *format);
 static bool fmt_ptr(Nst_Buffer *buf, void *val, Format *format);
 static bool fmt_char(Nst_Buffer *buf, i8 val, Format *format);
-
-static void fmt_cut(i8 *str, usize str_len, usize char_len, i8 **out_str,
-                    usize *out_len, Format *format,
-                    Alignment default_alignment);
-static bool fmt_align(Nst_Buffer *buf, i8 *str, usize str_len,
-                      usize char_str_len, Format *format,
-                      Alignment default_alignment);
 
 i8 *Nst_fmt(const i8 *fmt, usize fmt_len, usize *out_len, ...)
 {
@@ -1119,6 +1122,47 @@ static bool fmt_align(Nst_Buffer *buf, i8 *str, usize str_len,
     return true;
 }
 
+static bool fmt_sep_and_ndigits(Nst_Buffer *buf, i8 *digits, usize digits_len,
+                                usize min_digits, i8 *sep, usize sep_len,
+                                usize sep_width, bool pad_zeroes)
+{
+    if (sep == NULL)
+        sep_len = 0;
+    usize digit_count = MAX(min_digits, digits_len);
+    if (sep_width == 0)
+        sep_width = 3;
+    // guarantees always enough bytes (sometimes it's a little more)
+    bool result = Nst_buffer_expand_by(
+        buf,
+        digit_count + sep_len * (digit_count / sep_width));
+    if (!result)
+        return false;
+
+    // add precision
+    u8 fill_digit = pad_zeroes ? '0' : ' ';
+    usize precision_digits = digit_count - digits_len;
+    for (usize i = 0; i < digit_count - digits_len; i++) {
+        Nst_buffer_append_char(buf, fill_digit);
+        if (sep_len != 0 && (digit_count - i - 1) % sep_width == 0) {
+            if (fill_digit == ' ')
+                Nst_buffer_append_char(buf, ' ');
+            else
+                Nst_buffer_append_str(buf, (i8 *)sep, sep_len);
+        }
+    }
+    // add digits
+    for (usize i = precision_digits; i < digit_count; i++) {
+        Nst_buffer_append_char(buf, digits[i - precision_digits]);
+        if (sep_len != 0
+            && i + 1 != digit_count
+            && (digit_count - i - 1) % sep_width == 0)
+        {
+            Nst_buffer_append_str(buf, (i8 *)sep, sep_len);
+        }
+    }
+    return true;
+}
+
 static bool fmt_align_or_cut(Nst_Buffer *buf, i8 *str, usize str_len,
                              usize char_str_len, Format *format,
                              Alignment default_alignment)
@@ -1538,62 +1582,35 @@ static bool fmt_uint_hex(Nst_Buffer *buf, u64 val, bool upper)
 static bool fmt_uint_sep_and_precision(Nst_Buffer *buf, i8 *digits,
                                        usize digits_len, Format *format)
 {
-    u8 *sep = NULL;
+    i8 *sep = NULL;
     usize sep_len = 0;
     if (format_has_separator(format)) {
-        sep = format->separator;
+        sep = (i8 *)format->separator;
         sep_len = format_separator_len(format);
     }
-    usize digit_count = format->precision > (isize)digits_len
-        ? (usize)format->precision
-        : digits_len;
-    usize sep_dist = format->separator_width;
+    usize min_digits = format->precision < 0 ? 0 : (usize)format->precision;
+    usize sep_width = format->separator_width;
     if (format->separator_width <= 0) {
         switch (format->int_repr) {
         case Nst_FMT_INTR_BIN:
-            sep_dist = 8;
+            sep_width = 8;
             break;
         case Nst_FMT_INTR_HEX:
         case Nst_FMT_INTR_UPPER_HEX:
-            sep_dist = 4;
+            sep_width = 4;
             break;
         case Nst_FMT_INTR_OCT:
         case Nst_FMT_INTR_DEC:
         default:
-            sep_dist = 3;
+            sep_width = 3;
             break;
         }
     }
-    // guarantees always enough bytes (sometimes it's a little more)
-    bool result = Nst_buffer_expand_by(
+    return fmt_sep_and_ndigits(
         buf,
-        digit_count + sep_len * (digit_count / sep_dist));
-    if (!result)
-        return false;
-
-    // add precision
-    u8 fill_digit = format->pad_zeroes_precision ? '0' : ' ';
-    usize precision_digits = digit_count - digits_len;
-    for (usize i = 0; i < digit_count - digits_len; i++) {
-        Nst_buffer_append_char(buf, fill_digit);
-        if (sep_len != 0 && (digit_count - i - 1) % sep_dist == 0) {
-            if (fill_digit == ' ')
-                Nst_buffer_append_char(buf, ' ');
-            else
-                Nst_buffer_append_str(buf, (i8 *)sep, sep_len);
-        }
-    }
-    // add digits
-    for (usize i = precision_digits; i < digit_count; i++) {
-        Nst_buffer_append_char(buf, digits[i - precision_digits]);
-        if (sep_len != 0
-            && i + 1 != digit_count
-            && (digit_count - i - 1) % sep_dist == 0)
-        {
-            Nst_buffer_append_str(buf, (i8 *)sep, sep_len);
-        }
-    }
-    return true;
+        digits, digits_len, min_digits,
+        sep, sep_len, sep_width,
+        format->pad_zeroes_precision);
 }
 
 /* =========================== Integer formatting ========================== */
