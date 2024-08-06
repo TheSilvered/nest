@@ -66,17 +66,17 @@ $(DBG_TARGET): $(SRCS) $(NEST_LIB_DBG)
 test-c:
 	@$(MAKE_FILE) testnest.mk
 	@echo "Running test_nest..."
-	@export LD_LIBRARY_PATH=$(x64_DIR) && cd $(x64_DIR) && ./test_nest
+	@export LD_LIBRARY_PATH=. && echo $(x64_DIR) && cd $(x64_DIR) && ./test_nest
 
 test-c-x86:
 	@$(MAKE_FILE) testnest.mk x86
 	@echo "Running test_nest..."
-	@export LD_LIBRARY_PATH=$(x86_DIR) && cd $(x86_DIR) && ./test_nest
+	@export LD_LIBRARY_PATH=. && cd $(x86_DIR) && ./test_nest
 
 test-c-debug:
 	@$(MAKE_FILE) testnest.mk debug
 	@echo "Running test_nest..."
-	@export LD_LIBRARY_PATH=$(DBG_DIR) && cd $(DBG_DIR) && ./test_nest
+	@export LD_LIBRARY_PATH=. && echo $(DBG_DIR) && cd $(DBG_DIR) && ./test_nest
 
 clear:
 	@$(SILENT_MAKE) clean

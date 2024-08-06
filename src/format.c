@@ -1734,10 +1734,20 @@ static bool fmt_double(Nst_Buffer *buf, f64 val, Format *format)
     if (format->normalize_neg_zero && val == -0.0)
         val = 0.0;
 
+#ifndef Nst_WIN
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wstrict-aliasing"
+#endif
+
     result = fmt_int_add_sign(
         temp_buf,
         (*(i64 *)(f64 *)&val >> 63) & 1,
         format);
+
+#ifndef Nst_WIN
+#pragma GCC diagnostic pop
+#endif
+
     if (!result)
         goto finish;
     if (isinf(val)) {
@@ -2005,9 +2015,8 @@ static bool fmt_ptr(Nst_Buffer *buf, void *val, Format *format)
 
 static bool fmt_char(Nst_Buffer *buf, i8 val, Format *format)
 {
-    Nst_UNUSED(buf);
-    Nst_UNUSED(val);
-    Nst_UNUSED(format);
-    Nst_set_type_error_c("formatting chars is not supported");
-    return false;
+    u8 ch_buf[3];
+    i32 ch_len = Nst_ext_utf8_from_utf32((u32)(u8)val, ch_buf);
+    ch_buf[ch_len] = '\0';
+    return fmt_str(buf, (i8 *)ch_buf, ch_len, format);
 }

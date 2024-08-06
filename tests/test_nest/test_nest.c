@@ -1293,6 +1293,15 @@ TestResult test_fmt()
     str = Nst_fmt("{b:Pc2^}", 0, NULL, false);
     fail_if(str_neq(str, "AL"));
 
+    // Formatting Characters
+
+    str = Nst_fmt("{c}", 0, NULL, 'a');
+    fail_if(str_neq(str, "a"));
+    str = Nst_fmt("{c:a}", 0, NULL, '\xa');
+    fail_if(str_neq(str, "'\\n'"));
+    str = Nst_fmt("{c}", 0, NULL, '\xe8');
+    fail_if(str_neq(str, "è"));
+
     EXIT_TEST;
 }
 

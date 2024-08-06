@@ -43,11 +43,7 @@
 
 #ifdef DEBUG
 #define Bug(x) { Nst_fprintf(Nst_io.err, "%s\n", x); exit(1); }
-#define Debug(x) x
 int dtoa_stats[7]; /* strtod_{64,96,bigcomp},dtoa_{exact,64,96,bigcomp} */
-#else
-#define assert(x)
-#define Debug(x)
 #endif
 
 #define PRIVATE_MEM 2304

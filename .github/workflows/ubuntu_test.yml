@@ -31,8 +31,11 @@ jobs:
         sudo cp ./build/linux/linux_release/x64/nest /usr/bin
         sudo cp ./build/linux/linux_release/x64/libnest.so /usr/lib
         sudo ldconfig
-    - name: Run Tests
+    - name: Run Nest Tests
       working-directory: ./tests
       run: |
         nest run_tests.nest
         cat test_output.txt
+    - name: Run C Tests
+      working-directory: ./build/linux/makefiles
+      run: make test-c
