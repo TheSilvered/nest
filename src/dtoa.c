@@ -26,8 +26,8 @@
 #include <math.h>
 #include <stdlib.h>
 #include <string.h>
+#include "dtoa.h"
 #include "mem.h"
-#include "typedefs.h"
 #include "format.h" // Nst_fprintf
 #include "global_consts.h" // Nst_io.err
 
@@ -40,9 +40,6 @@
 #ifdef _DEBUG
 #define DEBUG
 #endif
-
-#define Long int
-#define ULong uint
 
 #ifdef DEBUG
 #define Bug(x) { Nst_fprintf(Nst_io.err, "%s\n", x); exit(1); }
@@ -116,23 +113,15 @@ static double private_mem[PRIVATE_mem], *pmem_next = private_mem;
 
 #define FFFFFFFF 0xffffffffUL
 
-#ifdef MULTIPLE_THREADS
-#define MTa , PTI
-#define MTb , &TI
-#define MTd , ThInfo **PTI
-static unsigned int maxthreads = 0;
-#else
-#define MTa
-#define MTb
-#define MTd
-#endif
-
 enum {
     Round_zero = 0,
     Round_near = 1,
     Round_up = 2,
     Round_down = 3
 };
+
+typedef int Long;
+typedef uint ULong;
 
 typedef union {
     double d;
@@ -185,73 +174,22 @@ static unsigned char hexdig[256] = {
      0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0
 };
 
-#ifdef MULTIPLE_THREADS
-static ThInfo *TI1;
-static int TI0_used;
-
-void set_max_dtoa_threads(unsigned int n)
-{
-    size_t L;
-
-    if (n > maxthreads) {
-        L = n*sizeof(ThInfo);
-        if (TI1) {
-            TI1 = (ThInfo *)Nst_raw_realloc(TI1, L);
-            memset(TI1 + maxthreads, 0, (n-maxthreads)*sizeof(ThInfo));
-        } else {
-            TI1 = (ThInfo *)Nst_raw_malloc(L);
-            if (TI0_used) {
-                memcpy(TI1, &TI0, sizeof(ThInfo));
-                if (n > 1)
-                    memset(TI1 + 1, 0, L - sizeof(ThInfo));
-                memset(&TI0, 0, sizeof(ThInfo));
-            } else
-                memset(TI1, 0, L);
-        }
-        maxthreads = n;
-    }
-}
-
-static ThInfo *get_TI(void)
-{
-    unsigned int thno = dtoa_get_threadno();
-    if (thno < maxthreads)
-        return TI1 + thno;
-    if (thno == 0)
-        TI0_used = 1;
-    return &TI0;
-}
-#define freelist TI->Freelist
-#define p5s TI->P5s
-#else
 #define freelist TI0.Freelist
 #define p5s TI0.P5s
-#endif
 
-static Bigint *Balloc(int k MTd)
+static Bigint *Balloc(int k)
 {
     int x;
     Bigint *rv;
     unsigned int len;
-#ifdef MULTIPLE_THREADS
-    ThInfo *TI;
 
-    if (!(TI = *PTI))
-        *PTI = TI = get_TI();
-    if (TI == &TI0)
-        ACQUIRE_DTOA_LOCK(0);
-#endif
     if (k <= Kmax && (rv = freelist[k]))
         freelist[k] = rv->next;
     else {
         x = 1 << k;
         len = (sizeof(Bigint) + (x-1)*sizeof(ULong) + sizeof(double) - 1)
             /sizeof(double);
-        if (k <= Kmax && pmem_next - private_mem + len <= (uint)PRIVATE_mem
-#ifdef MULTIPLE_THREADS
-            && TI == TI1
-#endif
-            ) {
+        if (k <= Kmax && pmem_next - private_mem + len <= (uint)PRIVATE_mem) {
             rv = (Bigint *)pmem_next;
             pmem_next += len;
         } else
@@ -259,40 +197,23 @@ static Bigint *Balloc(int k MTd)
         rv->k = k;
         rv->maxwds = x;
     }
-#ifdef MULTIPLE_THREADS
-    if (TI == &TI0)
-        FREE_DTOA_LOCK(0);
-#endif
     rv->sign = rv->wds = 0;
     return rv;
 }
 
-static void Bfree(Bigint *v MTd)
+static void Bfree(Bigint *v)
 {
-#ifdef MULTIPLE_THREADS
-    ThInfo *TI;
-#endif
     if (v) {
         if (v->k > Kmax)
             Nst_raw_free((void *)v);
         else {
-#ifdef MULTIPLE_THREADS
-            if (!(TI = *PTI))
-                *PTI = TI = get_TI();
-            if (TI == &TI0)
-                ACQUIRE_DTOA_LOCK(0);
-#endif
             v->next = freelist[v->k];
             freelist[v->k] = v;
-#ifdef MULTIPLE_THREADS
-            if (TI == &TI0)
-                FREE_DTOA_LOCK(0);
-#endif
         }
     }
 }
 
-static Bigint *multadd(Bigint *b, int m, int a MTd)
+static Bigint *multadd(Bigint *b, int m, int a)
 {
     int i, wds;
     ULong carry, *x, y;
@@ -312,9 +233,9 @@ static Bigint *multadd(Bigint *b, int m, int a MTd)
     } while (++i < wds);
     if (carry) {
         if (wds >= b->maxwds) {
-            b1 = Balloc(b->k+1 MTa);
+            b1 = Balloc(b->k+1);
             Bcopy(b1, b);
-            Bfree(b MTa);
+            Bfree(b);
             b = b1;
         }
         b->x[wds++] = carry;
@@ -323,7 +244,7 @@ static Bigint *multadd(Bigint *b, int m, int a MTd)
     return b;
 }
 
-static Bigint *s2b(const char *s, int nd0, int nd, ULong y9, int dplen MTd)
+static Bigint *s2b(const char *s, int nd0, int nd, ULong y9, int dplen)
 {
     Bigint *b;
     int i, k;
@@ -331,20 +252,20 @@ static Bigint *s2b(const char *s, int nd0, int nd, ULong y9, int dplen MTd)
 
     x = (nd + 8) / 9;
     for (k = 0, y = 1; x > y; y <<= 1, k++);
-    b = Balloc(k MTa);
+    b = Balloc(k);
     b->x[0] = y9;
     b->wds = 1;
 
     i = 9;
     if (9 < nd0) {
         s += 9;
-        do b = multadd(b, 10, *s++ - '0' MTa);
+        do b = multadd(b, 10, *s++ - '0');
         while (++i < nd0);
         s += dplen;
     } else
         s += dplen + 9;
     for (; i < nd; i++)
-        b = multadd(b, 10, *s++ - '0' MTa);
+        b = multadd(b, 10, *s++ - '0');
     return b;
 }
 
@@ -418,17 +339,17 @@ static int lo0bits(ULong *y)
     return k;
 }
 
-static Bigint *i2b(int i MTd)
+static Bigint *i2b(int i)
 {
     Bigint *b;
 
-    b = Balloc(1 MTa);
+    b = Balloc(1);
     b->x[0] = i;
     b->wds = 1;
     return b;
 }
 
-static Bigint *mult(Bigint *a, Bigint *b MTd)
+static Bigint *mult(Bigint *a, Bigint *b)
 {
     Bigint *c;
     int k, wa, wb, wc;
@@ -448,7 +369,7 @@ static Bigint *mult(Bigint *a, Bigint *b MTd)
     wc = wa + wb;
     if (wc > a->maxwds)
         k++;
-    c = Balloc(k MTa);
+    c = Balloc(k);
     for (x = c->x, xa = x + wc; x < xa; x++)
         *x = 0;
     xa = a->x;
@@ -492,72 +413,39 @@ static Bigint *mult(Bigint *a, Bigint *b MTd)
     return c;
 }
 
-static Bigint *pow5mult(Bigint *b, int k MTd)
+static Bigint *pow5mult(Bigint *b, int k)
 {
     Bigint *b1, *p5, *p51;
-#ifdef MULTIPLE_THREADS
-    ThInfo *TI;
-#endif
     int i;
     static int p05[3] = { 5, 25, 125 };
 
     if ((i = k & 3))
-        b = multadd(b, p05[i-1], 0 MTa);
+        b = multadd(b, p05[i-1], 0);
 
     if (!(k >>= 2))
         return b;
-#ifdef  MULTIPLE_THREADS
-    if (!(TI = *PTI))
-        *PTI = TI = get_TI();
-#endif
     if (!(p5 = p5s)) {
-#ifdef MULTIPLE_THREADS
-        if (!(TI = *PTI))
-            *PTI = TI = get_TI();
-        if (TI == &TI0)
-            ACQUIRE_DTOA_LOCK(1);
-        if (!(p5 = p5s)) {
-            p5 = p5s = i2b(625 MTa);
-            p5->next = 0;
-        }
-        if (TI == &TI0)
-            FREE_DTOA_LOCK(1);
-#else
-        p5 = p5s = i2b(625 MTa);
+        p5 = p5s = i2b(625);
         p5->next = 0;
-#endif
     }
     for (;;) {
         if (k & 1) {
-            b1 = mult(b, p5 MTa);
-            Bfree(b MTa);
+            b1 = mult(b, p5);
+            Bfree(b);
             b = b1;
         }
         if (!(k >>= 1))
             break;
         if (!(p51 = p5->next)) {
-#ifdef MULTIPLE_THREADS
-            if (!TI && !(TI = *PTI))
-                *PTI = TI = get_TI();
-            if (TI == &TI0)
-                ACQUIRE_DTOA_LOCK(1);
-            if (!(p51 = p5->next)) {
-                p51 = p5->next = mult(p5, p5 MTa);
-                p51->next = 0;
-            }
-            if (TI == &TI0)
-                FREE_DTOA_LOCK(1);
-#else
             p51 = p5->next = mult(p5, p5);
             p51->next = 0;
-#endif
         }
         p5 = p51;
     }
     return b;
 }
 
-static Bigint *lshift(Bigint *b, int k MTd)
+static Bigint *lshift(Bigint *b, int k)
 {
     int i, k1, n, n1;
     Bigint *b1;
@@ -568,7 +456,7 @@ static Bigint *lshift(Bigint *b, int k MTd)
     n1 = n + b->wds + 1;
     for (i = b->maxwds; n1 > i; i <<= 1)
         k1++;
-    b1 = Balloc(k1 MTa);
+    b1 = Balloc(k1);
     x1 = b1->x;
     for (i = 0; i < n; i++)
         *x1++ = 0;
@@ -587,7 +475,7 @@ static Bigint *lshift(Bigint *b, int k MTd)
         *x1++ = *x++;
     while (x < xe);
     b1->wds = n1 - 1;
-    Bfree(b MTa);
+    Bfree(b);
     return b1;
 }
 
@@ -619,7 +507,7 @@ static int cmp(Bigint *a, Bigint *b)
     return 0;
 }
 
-static Bigint *diff(Bigint *a, Bigint *b MTd)
+static Bigint *diff(Bigint *a, Bigint *b)
 {
     Bigint *c;
     int i, wa, wb;
@@ -629,7 +517,7 @@ static Bigint *diff(Bigint *a, Bigint *b MTd)
 
     i = cmp(a, b);
     if (!i) {
-        c = Balloc(0 MTa);
+        c = Balloc(0);
         c->wds = 1;
         c->x[0] = 0;
         return c;
@@ -641,7 +529,7 @@ static Bigint *diff(Bigint *a, Bigint *b MTd)
         i = 1;
     } else
         i = 0;
-    c = Balloc(a->k MTa);
+    c = Balloc(a->k);
     c->sign = i;
     wa = a->wds;
     xa = a->x;
@@ -724,7 +612,7 @@ ret_d:
     return dval(&d);
 }
 
-static Bigint *d2b(U *d, int *e, int *bits MTd)
+static Bigint *d2b(U *d, int *e, int *bits)
 {
     Bigint *b;
     int de, k;
@@ -734,7 +622,7 @@ static Bigint *d2b(U *d, int *e, int *bits MTd)
 #define d0 word0(d)
 #define d1 word1(d)
 
-    b = Balloc(1 MTa);
+    b = Balloc(1);
     x = b->x;
 
     z = d0 & Frac_mask;
@@ -851,7 +739,7 @@ static void hexnan(U *rvp, const char **sp)
     }
 }
 
-static Bigint *increment(Bigint *b MTd)
+static Bigint *increment(Bigint *b)
 {
     ULong *x, *xe;
     Bigint *b1;
@@ -867,9 +755,9 @@ static Bigint *increment(Bigint *b MTd)
     } while (x < xe);
     {
         if (b->wds >= b->maxwds) {
-            b1 = Balloc(b->k+1 MTa);
+            b1 = Balloc(b->k+1);
             Bcopy(b1, b);
-            Bfree(b MTa);
+            Bfree(b);
             b = b1;
         }
         b->x[b->wds++] = 1;
@@ -929,7 +817,7 @@ static ULong any_on(Bigint *b, int k)
     return 0;
 }
 
-void gethex(const char **sp, U *rvp, int rounding, int sign MTd)
+void gethex(const char **sp, U *rvp, int rounding, int sign)
 {
     Bigint *b;
     char d;
@@ -1023,7 +911,7 @@ pcheck:
             }
             goto retz;
         ret_tinyf:
-            Bfree(b MTa);
+            Bfree(b);
         ret_tiny:
             word0(rvp) = 0;
             word1(rvp) = 1;
@@ -1049,7 +937,7 @@ pcheck:
     n = (int)(s1 - s0 - 1);
     for (k = 0; n > (1 << (kshift-2)) - 1; n >>= 1)
         k++;
-    b = Balloc(k MTa);
+    b = Balloc(k);
     x = b->x;
     havedig = n = nz = 0;
     L = 0;
@@ -1092,13 +980,13 @@ pcheck:
         e += n;
     } else if (nb < nbits) {
         n = nbits - nb;
-        b = lshift(b, n MTa);
+        b = lshift(b, n);
         e -= n;
         x = b->x;
     }
     if (e > emax) {
     ovfl:
-        Bfree(b MTa);
+        Bfree(b);
     ovfl1:
         word0(rvp) = Exp_mask;
         word1(rvp) = 0;
@@ -1122,7 +1010,7 @@ pcheck:
                 if (sign)
                     goto ret_tinyf;
             }
-            Bfree(b MTa);
+            Bfree(b);
         retz:
         retz1:
             rvp->d = 0.;
@@ -1133,7 +1021,7 @@ pcheck:
             switch (rounding) {
             case Round_near:
                 if (((b->x[0] & 3) == 3) || (lostbits && (b->x[0] & 1))) {
-                    multadd(b, 1, 1 MTa);
+                    multadd(b, 1, 1);
                 emin_check:
                     if (b->x[1] == (1 << (Exp_shift + 1))) {
                         rshift(b, 1);
@@ -1145,7 +1033,7 @@ pcheck:
             case Round_up:
                 if (!sign && (lostbits || (b->x[0] & 1))) {
                 incr_denorm:
-                    multadd(b, 1, 2 MTa);
+                    multadd(b, 1, 2);
                     check_denorm = 1;
                     lostbits = 0;
                     goto emin_check;
@@ -1189,7 +1077,7 @@ pcheck:
         }
         if (up) {
             k = b->wds;
-            b = increment(b MTa);
+            b = increment(b);
             x = b->x;
             if (!denorm && (b->wds > k
                 || ((n = nbits & kmask) !=0
@@ -1209,7 +1097,7 @@ pcheck:
     }
     word1(rvp) = b->x[0];
 
-    Bfree(b MTa);
+    Bfree(b);
 }
 
 static int dshift(Bigint *b, int p2)
@@ -1306,7 +1194,7 @@ static double sulp(U *x, BCinfo *bc)
     return rv * u.d;
 }
 
-static void bigcomp(U *rv, const char *s0, BCinfo *bc MTd)
+static void bigcomp(U *rv, const char *s0, BCinfo *bc)
 {
     Bigint *b, *d;
     int b2, bbits, d2, dd = 0, dig, dsign, i, j, nd, nd0, p2, p5, speccase;
@@ -1317,7 +1205,7 @@ static void bigcomp(U *rv, const char *s0, BCinfo *bc MTd)
     p5 = nd + bc->e0 - 1;
     speccase = 0;
     if (rv->d == 0.) {
-        b = i2b(1 MTa);
+        b = i2b(1);
         p2 = Emin - P + 1;
         bbits = 1;
         word0(rv) = (P+2) << Exp_shift;
@@ -1327,21 +1215,21 @@ static void bigcomp(U *rv, const char *s0, BCinfo *bc MTd)
         dsign = 0;
         goto have_i;
     } else
-        b = d2b(rv, &p2, &bbits MTa);
+        b = d2b(rv, &p2, &bbits);
     p2 -= bc->scale;
     i = P - bbits;
     if (i > (j = P - Emin - 1 + p2)) {
         i = j;
     }
-    b = lshift(b, ++i MTa);
+    b = lshift(b, ++i);
     b->x[0] |= 1;
 have_i:
     p2 -= p5 + i;
-    d = i2b(1 MTa);
+    d = i2b(1);
     if (p5 > 0)
-        d = pow5mult(d, p5 MTa);
+        d = pow5mult(d, p5);
     else if (p5 < 0)
-        b = pow5mult(b, -p5 MTa);
+        b = pow5mult(b, -p5);
     if (p2 > 0) {
         b2 = p2;
         d2 = 0;
@@ -1351,12 +1239,12 @@ have_i:
     }
     i = dshift(d, d2);
     if ((b2 += i) > 0)
-        b = lshift(b, b2 MTa);
+        b = lshift(b, b2);
     if ((d2 += i) > 0)
-        d = lshift(d, d2 MTa);
+        d = lshift(d, d2);
 
     if (!(dig = quorem(b, d))) {
-        b = multadd(b, 10, 0 MTa);
+        b = multadd(b, 10, 0);
         dig = quorem(b, d);
     }
 
@@ -1368,7 +1256,7 @@ have_i:
                 dd = 1;
             goto ret;
         }
-        b = multadd(b, 10, 0 MTa);
+        b = multadd(b, 10, 0);
         dig = quorem(b, d);
     }
     for (j = bc->dp1; i++ < nd;) {
@@ -1379,14 +1267,14 @@ have_i:
                 dd = 1;
             goto ret;
         }
-        b = multadd(b, 10, 0 MTa);
+        b = multadd(b, 10, 0);
         dig = quorem(b, d);
     }
     if (dig > 0 || b->x[0] || b->wds > 1)
         dd = -1;
 ret:
-    Bfree(b MTa);
-    Bfree(d MTa);
+    Bfree(b);
+    Bfree(d);
 
     if (speccase) {
         if (dd <= 0)
@@ -1417,7 +1305,7 @@ ret:
     }
 }
 
-double Nst_strtod(const char *s00, char **se)
+f64 Nst_strtod(const i8 *s00, i8 **se)
 {
     int bb2, bb5, bbe, bd2, bd5, bbbits, bs2, c, e, e1;
     int esign, i, j, k, nd, nd0, nf, nz, nz0, nz1, sign;
@@ -1430,10 +1318,6 @@ double Nst_strtod(const char *s00, char **se)
     Bigint *bb = NULL, *bb1, *bd = NULL, *bd0, *bs = NULL, *delta = NULL;
     ULong Lsb, Lsb1;
     int req_bigcomp = 0;
-
-#ifdef MULTIPLE_THREADS
-    ThInfo *TI = 0;
-#endif
 
     sign = nz0 = nz1 = nz = bc.dplen = bc.uflchk = 0;
     dval(&rv) = 0.;
@@ -1462,7 +1346,7 @@ break2:
         switch (s[1]) {
         case 'x':
         case 'X':
-            gethex(&s, &rv, 1, sign MTb);
+            gethex(&s, &rv, 1, sign);
             goto ret;
         }
         nz0 = 1;
@@ -1631,11 +1515,11 @@ dig_done:
                 word1(&rv) = 0;
             range_err:
                 if (bd0) {
-                    Bfree(bb MTb);
-                    Bfree(bd MTb);
-                    Bfree(bs MTb);
-                    Bfree(bd0 MTb);
-                    Bfree(delta MTb);
+                    Bfree(bb);
+                    Bfree(bd);
+                    Bfree(bs);
+                    Bfree(bd0);
+                    Bfree(delta);
                 }
                 goto ret;
             }
@@ -1712,13 +1596,13 @@ dig_done:
                 y = 10*y + s0[j++] - '0';
         }
     }
-    bd0 = s2b(s0, nd0, nd, y, bc.dplen MTb);
+    bd0 = s2b(s0, nd0, nd, y, bc.dplen);
 
     for (;;) {
-        bd = Balloc(bd0->k MTb);
+        bd = Balloc(bd0->k);
         Bcopy(bd, bd0);
-        bb = d2b(&rv, &bbe, &bbbits MTb);
-        bs = i2b(1 MTb);
+        bb = d2b(&rv, &bbe, &bbbits);
+        bs = i2b(1);
 
         if (e >= 0) {
             bb2 = bb5 = 0;
@@ -1759,20 +1643,20 @@ dig_done:
             bs2 -= i;
         }
         if (bb5 > 0) {
-            bs = pow5mult(bs, bb5 MTb);
-            bb1 = mult(bs, bb MTb);
-            Bfree(bb MTb);
+            bs = pow5mult(bs, bb5);
+            bb1 = mult(bs, bb);
+            Bfree(bb);
             bb = bb1;
         }
         if (bb2 > 0)
-            bb = lshift(bb, bb2 MTb);
+            bb = lshift(bb, bb2);
         if (bd5 > 0)
-            bd = pow5mult(bd, bd5 MTb);
+            bd = pow5mult(bd, bd5);
         if (bd2 > 0)
-            bd = lshift(bd, bd2 MTb);
+            bd = lshift(bd, bd2);
         if (bs2 > 0)
-            bs = lshift(bs, bs2 MTb);
-        delta = diff(bb, bd MTb);
+            bs = lshift(bs, bs2);
+        delta = diff(bb, bd);
         bc.dsign = delta->sign;
         delta->sign = 0;
         i = cmp(delta, bs);
@@ -1793,7 +1677,7 @@ dig_done:
             if (!delta->x[0] && delta->wds <= 1) {
                 break;
             }
-            delta = lshift(delta, Log2P MTb);
+            delta = lshift(delta, Log2P);
             if (cmp(delta, bs) > 0)
                 goto drop_down;
             break;
@@ -1804,8 +1688,7 @@ dig_done:
                     &&  word1(&rv) == (
                     (bc.scale && (y = word0(&rv) & Exp_mask) <= 2*P*Exp_msk1)
                     ? (0xffffffff & (0xffffffff << (2*P+1-(y>>Exp_shift)))) :
-                    0xffffffff))
-                {
+                    0xffffffff)) {
                     if (word0(&rv) == Big0 && word1(&rv) == Big1)
                         goto ovfl;
                     word0(&rv) = (word0(&rv) & Exp_mask) + Exp_msk1;
@@ -1910,8 +1793,7 @@ dig_done:
                 aadj1 = dval(&aadj2);
                 adj.d = aadj1 * ulp(&rv);
                 dval(&rv) += adj.d;
-                if (rv.d == 0.)
-                {
+                if (rv.d == 0.) {
                     req_bigcomp = 1;
                     break;
                 }
@@ -1935,20 +1817,20 @@ dig_done:
             }
         }
     cont:
-        Bfree(bb MTb);
-        Bfree(bd MTb);
-        Bfree(bs MTb);
-        Bfree(delta MTb);
+        Bfree(bb);
+        Bfree(bd);
+        Bfree(bs);
+        Bfree(delta);
     }
-    Bfree(bb MTb);
-    Bfree(bd MTb);
-    Bfree(bs MTb);
-    Bfree(bd0 MTb);
-    Bfree(delta MTb);
+    Bfree(bb);
+    Bfree(bd);
+    Bfree(bs);
+    Bfree(bd0);
+    Bfree(delta);
     if (req_bigcomp) {
         bd0 = 0;
         bc.e0 += nz1;
-        bigcomp(&rv, s0, &bc MTb);
+        bigcomp(&rv, s0, &bc);
         y = word0(&rv) & Exp_mask;
         if (y == Exp_mask)
             goto ovfl;
@@ -1966,7 +1848,7 @@ ret:
     return sign ? -dval(&rv) : dval(&rv);
 }
 
-static char *rv_alloc(int i MTd)
+static char *rv_alloc(int i)
 {
     int j, k, *r;
 
@@ -1975,17 +1857,17 @@ static char *rv_alloc(int i MTd)
          (int)(sizeof(Bigint) - sizeof(ULong) - sizeof(int) + j) <= i;
          j <<= 1)
         k++;
-    r = (int *)Balloc(k MTa);
+    r = (int *)Balloc(k);
     *r = k;
     return (char *)(r+1);
 }
 
-static char *nrv_alloc(const char *s, char *s0, size_t s0len, char **rve, int n MTd)
+static char *nrv_alloc(const char *s, char *s0, size_t s0len, char **rve, int n)
 {
     char *rv, *t;
 
     if (!s0)
-        s0 = rv_alloc(n MTa);
+        s0 = rv_alloc(n);
     else if ((isize)s0len <= n) {
         rv = 0;
         t = rv + n;
@@ -2002,19 +1884,15 @@ rve_chk:
 
 void Nst_freedtoa(i8 *s)
 {
-#ifdef MULTIPLE_THREADS
-    ThInfo *TI = 0;
-#endif
     Bigint *b = (Bigint *)((int *)s - 1);
     b->maxwds = 1 << (b->k = *(int *)b);
-    Bfree(b MTb);
+    Bfree(b);
 }
 
-char *dtoa_r(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve, char *buf, size_t blen)
+i8 *Nst_dtoa(f64 dd, int mode, int ndigits, int *decpt, int *sign, i8 **rve)
 {
-#ifdef MULTIPLE_THREADS
-    ThInfo *TI = 0;
-#endif
+    char *buf = NULL;
+    size_t blen = 0;
     int bbits, b2, b5, be, dig, i, ilim, ilim1,
         j, j1, k, leftright, m2, m5, s2, s5, spec_case;
     int denorm;
@@ -2031,25 +1909,26 @@ char *dtoa_r(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve
     u.d = dd;
     if (word0(&u) & Sign_bit) {
         /* set sign for everything, including 0's and NaNs */
-        *sign = 1;
+        if (sign)
+            *sign = 1;
         word0(&u) &= ~Sign_bit; /* clear sign bit */
-    } else
+    } else if (sign)
         *sign = 0;
 
     if ((word0(&u) & Exp_mask) == Exp_mask) {
         /* Infinity or NaN */
         *decpt = 9999;
         if (!word1(&u) && !(word0(&u) & 0xfffff))
-            return nrv_alloc("Infinity", buf, blen, rve, 8 MTb);
-        return nrv_alloc("NaN", buf, blen, rve, 3 MTb);
+            return nrv_alloc("Infinity", buf, blen, rve, 8);
+        return nrv_alloc("NaN", buf, blen, rve, 3);
     }
 
     if (!dval(&u)) {
         *decpt = 1;
-        return nrv_alloc("0", buf, blen, rve, 1 MTb);
+        return nrv_alloc("0", buf, blen, rve, 1);
     }
 
-    b = d2b(&u, &be, &bbits MTb);
+    b = d2b(&u, &be, &bbits);
     if ((i = (int)(word0(&u) >> Exp_shift & (Exp_mask>>Exp_shift)))) {
         dval(&d2) = dval(&u);
         word0(&d2) &= Frac_mask1;
@@ -2132,7 +2011,7 @@ char *dtoa_r(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve
             i = 1;
     }
     if (!buf) {
-        buf = rv_alloc(i MTb);
+        buf = rv_alloc(i);
         blen = sizeof(Bigint) + ((1 << ((int *)buf)[-1]) - 1)*sizeof(ULong) - sizeof(int);
     } else if ((isize)blen <= i) {
         buf = 0;
@@ -2305,7 +2184,7 @@ char *dtoa_r(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve
         i = denorm ? be + (Bias + (P-1) - 1 + 1) : 1 + P - bbits;
         b2 += i;
         s2 += i;
-        mhi = i2b(1 MTb);
+        mhi = i2b(1);
     }
     if (m2 > 0 && s2 > 0) {
         i = m2 < s2 ? m2 : s2;
@@ -2316,19 +2195,19 @@ char *dtoa_r(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve
     if (b5 > 0) {
         if (leftright) {
             if (m5 > 0) {
-                mhi = pow5mult(mhi, m5 MTb);
-                b1 = mult(mhi, b MTb);
-                Bfree(b MTb);
+                mhi = pow5mult(mhi, m5);
+                b1 = mult(mhi, b);
+                Bfree(b);
                 b = b1;
             }
             if ((j = b5 - m5))
-                b = pow5mult(b, j MTb);
+                b = pow5mult(b, j);
         } else
-            b = pow5mult(b, b5 MTb);
+            b = pow5mult(b, b5);
     }
-    S = i2b(1 MTb);
+    S = i2b(1);
     if (s5 > 0)
-        S = pow5mult(S, s5 MTb);
+        S = pow5mult(S, s5);
 
     if (spec_case) {
         b2 += Log2P;
@@ -2340,20 +2219,20 @@ char *dtoa_r(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve
     m2 += i;
     s2 += i;
     if (b2 > 0)
-        b = lshift(b, b2 MTb);
+        b = lshift(b, b2);
     if (s2 > 0)
-        S = lshift(S, s2 MTb);
+        S = lshift(S, s2);
     if (k_check) {
         if (cmp(b, S) < 0) {
             k--;
-            b = multadd(b, 10, 0 MTb);
+            b = multadd(b, 10, 0);
             if (leftright)
-                mhi = multadd(mhi, 10, 0 MTb);
+                mhi = multadd(mhi, 10, 0);
             ilim = ilim1;
         }
     }
     if (ilim <= 0 && (mode == 3 || mode == 5)) {
-        if (ilim < 0 || cmp(b, S = multadd(S, 5, 0 MTb)) <= 0) {
+        if (ilim < 0 || cmp(b, S = multadd(S, 5, 0)) <= 0) {
         no_digits:
             k = -1 - ndigits;
             goto ret;
@@ -2365,21 +2244,21 @@ char *dtoa_r(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve
     }
     if (leftright) {
         if (m2 > 0)
-            mhi = lshift(mhi, m2 MTb);
+            mhi = lshift(mhi, m2);
 
         mlo = mhi;
         if (spec_case) {
-            mhi = Balloc(mhi->k MTb);
+            mhi = Balloc(mhi->k);
             Bcopy(mhi, mlo);
-            mhi = lshift(mhi, Log2P MTb);
+            mhi = lshift(mhi, Log2P);
         }
 
         for (i = 1;; i++) {
             dig = quorem(b, S) + '0';
             j = cmp(b, mlo);
-            delta = diff(S, mhi MTb);
+            delta = diff(S, mhi);
             j1 = delta->sign ? 1 : cmp(b, delta);
-            Bfree(delta MTb);
+            Bfree(delta);
             if (j1 == 0 && mode != 1 && !(word1(&u) & 1)) {
                 if (dig == '9')
                     goto round_9_up;
@@ -2393,7 +2272,7 @@ char *dtoa_r(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve
                     goto accept_dig;
                 }
                 if (j1 > 0) {
-                    b = lshift(b, 1 MTb);
+                    b = lshift(b, 1);
                     j1 = cmp(b, S);
                     if ((j1 > 0 || (j1 == 0 && dig & 1))
                         && dig++ == '9')
@@ -2415,12 +2294,12 @@ char *dtoa_r(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve
             *s++ = (char)dig;
             if (i == ilim)
                 break;
-            b = multadd(b, 10, 0 MTb);
+            b = multadd(b, 10, 0);
             if (mlo == mhi)
-                mlo = mhi = multadd(mhi, 10, 0 MTb);
+                mlo = mhi = multadd(mhi, 10, 0);
             else {
-                mlo = multadd(mlo, 10, 0 MTb);
-                mhi = multadd(mhi, 10, 0 MTb);
+                mlo = multadd(mlo, 10, 0);
+                mhi = multadd(mhi, 10, 0);
             }
         }
     } else {
@@ -2432,11 +2311,11 @@ char *dtoa_r(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve
             }
             if (i >= ilim)
                 break;
-            b = multadd(b, 10, 0 MTb);
+            b = multadd(b, 10, 0);
         }
     }
 
-    b = lshift(b, 1 MTb);
+    b = lshift(b, 1);
     j = cmp(b, S);
     if (j > 0 || (j == 0 && dig & 1)) {
     roundoff:
@@ -2449,26 +2328,21 @@ char *dtoa_r(double dd, int mode, int ndigits, int *decpt, int *sign, char **rve
         ++*s++;
     }
 ret:
-    Bfree(S MTb);
+    Bfree(S);
     if (mhi) {
         if (mlo && mlo != mhi)
-            Bfree(mlo MTb);
-        Bfree(mhi MTb);
+            Bfree(mlo);
+        Bfree(mhi);
     }
 retc:
     while (s > buf && s[-1] == '0')
         --s;
 ret1:
     if (b)
-        Bfree(b MTb);
+        Bfree(b);
     *s = 0;
     *decpt = k + 1;
     if (rve)
         *rve = s;
     return buf;
-}
-
-i8 *Nst_dtoa(f64 dd, int mode, int ndigits, int *decpt, int *sign, i8 **rve)
-{
-    return dtoa_r(dd, mode, ndigits, decpt, sign, rve, 0, 0);
 }

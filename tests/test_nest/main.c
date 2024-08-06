@@ -165,11 +165,15 @@ int main() {
     RUN_TEST(test_string_find);
     RUN_TEST(test_string_rfind);
 
+    Nst_printf("\nTests failed: %li\n", tests_failed_count());
+
     Nst_quit();
 
 #ifdef Nst_COUNT_ALLOC
     Nst_log_alloc_count();
 #endif
 
+    if (tests_failed_count() != 0)
+        return 1;
     return 0;
 }

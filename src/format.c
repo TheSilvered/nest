@@ -494,7 +494,7 @@ typedef enum _IntRepr {
 } IntRepr;
 
 typedef enum _DoubleRepr {
-    Nst_FMT_DBL_MIN_REPR,
+    Nst_FMT_DBL_GEN_REPR,
     Nst_FMT_DBL_DEC_REPR,
     Nst_FMT_DBL_STD_FORM
 } DoubleRepr;
@@ -556,7 +556,7 @@ static void format_init(Format *format)
     format->sign = Nst_FMT_SIGN_NONE;
     format->alignment = Nst_FMT_ALIGN_AUTO;
     format->pref_suff = Nst_FMT_PREF_SUFF_NONE;
-    format->double_repr = Nst_FMT_DBL_MIN_REPR;
+    format->double_repr = Nst_FMT_DBL_GEN_REPR;
     format->int_repr = Nst_FMT_INT_DEC;
     format->str_repr = Nst_FMT_STR_NO_REPR;
     memset(format->separator, 255, 4);
@@ -627,6 +627,9 @@ static bool fmt_align(Nst_Buffer *buf, i8 *str, usize str_len,
 static bool fmt_sep_and_ndigits(Nst_Buffer *buf, i8 *digits, usize digits_len,
                                 usize min_digits, i8 *sep, usize sep_len,
                                 usize sep_width, bool pad_zeroes);
+static bool fmt_align_or_cut(Nst_Buffer *buf, i8 *str, usize str_len,
+                             usize char_str_len, Format *format,
+                             Alignment default_alignment);
 
 static bool  fmt_str(Nst_Buffer *buf, i8 *str, isize str_len, Format *format);
 static isize fmt_str_repr(Nst_Buffer *buf, i8 *str, usize str_len,
@@ -645,12 +648,20 @@ static bool fmt_uint_dec(Nst_Buffer *buf, u64 val);
 static bool fmt_uint_hex(Nst_Buffer *buf, u64 val, bool upper);
 static bool fmt_uint_sep_and_precision(Nst_Buffer *buf, i8 *digits,
                                        usize digits_len, Format *format);
+
 static bool fmt_int(Nst_Buffer *buf, i64 val, Format *format);
+static bool fmt_int_add_sign(Nst_Buffer *buf, bool negative, Format *format);
 
 static bool fmt_double(Nst_Buffer *buf, f64 val, Format *format);
 static bool fmt_double_dec(Nst_Buffer *buf, f64 val, Format *format);
+static bool fmt_double_dec_digits(Nst_Buffer *buf, i8 *digits,
+                                  usize digits_len, int decpt,
+                                  bool min_digits, Format *format);
 static bool fmt_double_std(Nst_Buffer *buf, f64 val, Format *format);
-static bool fmt_double_min(Nst_Buffer *buf, f64 val, Format *format);
+static bool fmt_double_std_digits(Nst_Buffer *buf, i8 *digits,
+                                  usize digits_len, int decpt,
+                                  bool min_digits, Format *format);
+static bool fmt_double_gen(Nst_Buffer *buf, f64 val, Format *format);
 
 static bool fmt_bool(Nst_Buffer *buf, bool val, Format *format);
 static bool fmt_ptr(Nst_Buffer *buf, void *val, Format *format);
@@ -946,16 +957,21 @@ format_type:
             result = fmt_int(buf, val, &format);
         }
         break;
+    case 'z':
+        if (format.as_unsigned) {
+            usize val = va_arg(*args, usize);
+            add_format_values(&format, args);
+            result = fmt_uint(buf, (u64)val, &format);
+        } else {
+            isize val = va_arg(*args, isize);
+            add_format_values(&format, args);
+            result = fmt_int(buf, (i64)val, &format);
+        }
+        break;
     case 'b': {
         int val = va_arg(*args, int);
         add_format_values(&format, args);
         result = fmt_bool(buf, (bool)val, &format);
-        break;
-    }
-    case 'u': {
-        isize val = va_arg(*args, isize);
-        add_format_values(&format, args);
-        result = fmt_int(buf, (i64)val, &format);
         break;
     }
     case 'c': {
@@ -964,7 +980,6 @@ format_type:
         result = fmt_char(buf, (i8)val, &format);
         break;
     }
-    case 'r':
     case 'f': {
         f64 val = va_arg(*args, f64);
         add_format_values(&format, args);
@@ -1644,12 +1659,7 @@ static bool fmt_int(Nst_Buffer *buf, i64 val, Format *format)
 
     u64 uval = val > 0 ? (u64)val : (u64)(-val);
 
-    if (val < 0)
-        result = Nst_buffer_append_char(temp_buf, '-');
-    else if (format->sign == Nst_FMT_SIGN_PLUS)
-        result = Nst_buffer_append_char(temp_buf, '+');
-    else if (format->sign == Nst_FMT_SIGN_SPACE)
-        result = Nst_buffer_append_char(temp_buf, ' ');
+    result = fmt_int_add_sign(temp_buf, val < 0, format);
     if (!result)
         goto finish;
 
@@ -1681,8 +1691,8 @@ align_or_cut:
         temp_buf->data,
         temp_buf->len,
         Nst_string_utf8_char_len(
-        (u8 *)temp_buf->data,
-        temp_buf->len),
+            (u8 *)temp_buf->data,
+            temp_buf->len),
         format, Nst_FMT_ALIGN_RIGHT);
 
 finish:
@@ -1693,62 +1703,169 @@ finish:
     return result;
 }
 
+static bool fmt_int_add_sign(Nst_Buffer *buf, bool negative, Format *format)
+{
+    if (negative)
+        return Nst_buffer_append_char(buf, '-');
+    else if (format->sign == Nst_FMT_SIGN_PLUS)
+        return Nst_buffer_append_char(buf, '+');
+    else if (format->sign == Nst_FMT_SIGN_SPACE)
+        return Nst_buffer_append_char(buf, ' ');
+    return true;
+}
+
 /* =========================== Double formatting =========================== */
 
 static bool fmt_double(Nst_Buffer *buf, f64 val, Format *format)
 {
+    bool result = true;
+    Nst_Buffer *temp_buf, stack_buf;
+    if (format->width < 0)
+        temp_buf = buf;
+    else {
+        if (!Nst_buffer_init(&stack_buf, 10))
+            return false;
+        temp_buf = &stack_buf;
+    }
+
     if (format->precision < 0)
         format->precision = 6;
+
     if (format->normalize_neg_zero && val == -0.0)
         val = 0.0;
-    switch (format->double_repr) {
-    case Nst_FMT_DBL_MIN_REPR:
-        return fmt_double_min(buf, val, format);
-    case Nst_FMT_DBL_STD_FORM:
-        return fmt_double_std(buf, val, format);
-    case Nst_FMT_DBL_DEC_REPR:
-    default:
-        return fmt_double_dec(buf, val, format);
+
+    result = fmt_int_add_sign(
+        temp_buf,
+        (*(i64 *)(f64 *)&val >> 63) & 1,
+        format);
+    if (!result)
+        goto finish;
+    if (isinf(val)) {
+        switch (format->pref_suff) {
+        case Nst_FMT_PREF_SUFF_LOWER:
+            result = Nst_buffer_append_c_str(temp_buf, "inf");
+            break;
+        case Nst_FMT_PREF_SUFF_UPPER:
+            result = Nst_buffer_append_c_str(temp_buf, "INF");
+            break;
+        default:
+            result = Nst_buffer_append_c_str(temp_buf, "Inf");
+        }
+    } else if (isnan(val)) {
+        switch (format->pref_suff) {
+        case Nst_FMT_PREF_SUFF_LOWER:
+            result = Nst_buffer_append_c_str(temp_buf, "nan");
+            break;
+        case Nst_FMT_PREF_SUFF_UPPER:
+            result = Nst_buffer_append_c_str(temp_buf, "NAN");
+            break;
+        default:
+            result = Nst_buffer_append_c_str(temp_buf, "NaN");
+        }
+    } else {
+        switch (format->double_repr) {
+        case Nst_FMT_DBL_GEN_REPR:
+            result = fmt_double_gen(temp_buf, val, format);
+            break;
+        case Nst_FMT_DBL_STD_FORM:
+            result = fmt_double_std(temp_buf, val, format);
+            break;
+        case Nst_FMT_DBL_DEC_REPR:
+        default:
+            result = fmt_double_dec(temp_buf, val, format);
+        }
     }
+    if (!result || format->width < 0)
+        goto finish;
+
+    result = fmt_align_or_cut(
+        buf,
+        temp_buf->data,
+        temp_buf->len,
+        Nst_string_utf8_char_len(
+            (u8 *)temp_buf->data,
+            temp_buf->len),
+        format, Nst_FMT_ALIGN_RIGHT);
+
+finish:
+    if (temp_buf != buf)
+        Nst_buffer_destroy(temp_buf);
+    return result;
 }
 
 static bool fmt_double_dec(Nst_Buffer *buf, f64 val, Format *format)
 {
-    if (val < 0) {
-        if (!Nst_buffer_append_char(buf, '-'))
-            return false;
-    }
-
-    i32 precision = format->precision;
-    int decpt, sign;
+    int decpt;
     i8 *str_end;
-    i8 *digits = Nst_dtoa(val, 3, precision, &decpt, &sign, &str_end);
-    Nst_UNUSED(sign);
+    i8 *digits = Nst_dtoa(val, 3, format->precision, &decpt, NULL, &str_end);
 
-    usize digits_len = str_end - digits;
-    usize digits_before_dot = MAX(1, decpt);
-    if (!Nst_buffer_expand_by(buf, digits_before_dot + 1 + precision))
-        return false;
+    bool result = fmt_double_dec_digits(
+        buf,
+        digits, str_end - digits,
+        decpt,
+        false,
+        format);
+    Nst_freedtoa(digits);
+    return result;
+}
+
+static bool fmt_double_dec_digits(Nst_Buffer *buf, i8 *digits,
+                                  usize digits_len, int decpt,
+                                  bool min_digits, Format *format)
+{
+    i32 precision = format->precision;
 
     // before the decimal point
     if (decpt <= 0) {
         Nst_buffer_append_char(buf, '0');
     } else if ((usize)decpt < digits_len) {
-        Nst_buffer_append_str(buf, digits, decpt);
+        if (format_has_separator(format)) {
+            fmt_sep_and_ndigits(
+                buf,
+                digits, decpt, decpt,
+                (i8 *)format->separator, format_separator_len(format),
+                (usize)MAX(format->separator_width, 0),
+                false);
+        } else
+            Nst_buffer_append_str(buf, digits, decpt);
     } else {
+        if (format_has_separator(format)) {
+            i8 *all_digits = Nst_malloc_c(decpt, i8);
+            if (all_digits == NULL)
+                return false;
+            memcpy(all_digits, digits, digits_len);
+            memset(all_digits + digits_len, (int)'0', decpt - digits_len);
+            fmt_sep_and_ndigits(
+                buf,
+                all_digits, decpt, decpt,
+                (i8 *)format->separator, format_separator_len(format),
+                format->separator_width,
+                false);
+            Nst_free(all_digits);
+        } else {
         Nst_buffer_append_str(buf, digits, digits_len);
         for (usize i = digits_len; i < (usize)decpt; i++)
             Nst_buffer_append_char(buf, '0');
+        }
     }
 
-    if (precision > 0)
-        Nst_buffer_append_char(buf, '.');
+    if (precision == 0)
+        return true;
+
+    if (!Nst_buffer_expand_by(buf, precision + 1))
+        return false;
+
+    Nst_buffer_append_char(buf, '.');
 
     // after the decimal point
     for (i32 i = 0; i < precision; i++) {
-        if (i + decpt < 0 || (usize)(i + decpt) >= digits_len)
+        if (i + decpt < 0)
             Nst_buffer_append_char(buf, '0');
-        else
+        else if ((usize)(i + decpt) >= digits_len) {
+            if (min_digits)
+                break;
+            Nst_buffer_append_char(buf, '0');
+        } else
             Nst_buffer_append_char(buf, digits[i + decpt]);
     }
     return true;
@@ -1756,18 +1873,94 @@ static bool fmt_double_dec(Nst_Buffer *buf, f64 val, Format *format)
 
 static bool fmt_double_std(Nst_Buffer *buf, f64 val, Format *format)
 {
-    Nst_UNUSED(buf);
-    Nst_UNUSED(val);
-    Nst_UNUSED(format);
-    return false;
+    int decpt;
+    i8 *str_end;
+    i8 *digits = Nst_dtoa(
+        val, 2,
+        format->precision + 1,
+        &decpt, NULL, &str_end);
+
+    bool result = fmt_double_std_digits(
+        buf,
+        digits, str_end - digits,
+        decpt,
+        false,
+        format);
+    Nst_freedtoa(digits);
+    return result;
 }
 
-static bool fmt_double_min(Nst_Buffer *buf, f64 val, Format *format)
+static bool fmt_double_std_digits(Nst_Buffer *buf, i8 *digits,
+                                  usize digits_len, int decpt,
+                                  bool min_digits, Format *format)
 {
-    Nst_UNUSED(buf);
-    Nst_UNUSED(val);
-    Nst_UNUSED(format);
-    return false;
+    i32 exponent = decpt - 1;
+    i32 precision = format->precision;
+
+    if (!Nst_buffer_expand_by(buf, 2 + precision + 5))
+        return false;
+
+    if (digits_len > 0)
+        Nst_buffer_append_char(buf, digits[0]);
+    else
+        Nst_buffer_append_char(buf, '0');
+
+    if (precision > 0)
+        Nst_buffer_append_char(buf, '.');
+
+    for (i32 i = 1; i < precision + 1; i++) {
+        if ((usize)i < digits_len)
+            Nst_buffer_append_char(buf, digits[i]);
+        else {
+            if (min_digits)
+                break;
+            Nst_buffer_append_char(buf, '0');
+        }
+    }
+
+    if (format->pref_suff == Nst_FMT_PREF_SUFF_UPPER)
+        Nst_buffer_append_char(buf, 'E');
+    else
+        Nst_buffer_append_char(buf, 'e');
+    if (exponent < 0) {
+        Nst_buffer_append_char(buf, '-');
+        exponent = -exponent;
+    } else
+        Nst_buffer_append_char(buf, '+');
+    if (exponent < 10)
+        Nst_buffer_append_char(buf, '0');
+    fmt_uint_dec(buf, (u64)(exponent));
+    return true;
+}
+
+static bool fmt_double_gen(Nst_Buffer *buf, f64 val, Format *format)
+{
+    i32 precision = format->precision;
+    int decpt;
+    i8 *str_end;
+    i8 *digits = Nst_dtoa(val, 2, precision, &decpt, NULL, &str_end);
+    i32 exponent = decpt - 1;
+    bool result;
+
+    if (-4 <= exponent && exponent < precision - 1) {
+        format->precision = precision - (exponent + 1);
+        result = fmt_double_dec_digits(
+            buf,
+            digits, str_end - digits,
+            decpt,
+            true,
+            format);
+    } else {
+        format->precision = precision - 1;
+        result = fmt_double_std_digits(
+            buf,
+            digits, str_end - digits,
+            decpt,
+            true,
+            format);
+    }
+    Nst_freedtoa(digits);
+    return result;
 }
 
 /* =========================== Boolean formatting ========================== */

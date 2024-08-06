@@ -118,14 +118,14 @@ The type determines how the argument passed is read. The following types are
 allowed:
 
 - `s` for `char *` (string)
-- `i` for `int`
-- `l` for `i32` (`long`)
-- `L` for `i64` (`long long`)
+- `i` for `int` or `uint` (`unsigned int`)
+- `l` for `i32` (`long`) or `u32` (`unsigned long`)
+- `L` for `i64` (`long long`) or `u64` (`unsigned long long`)
+- `z` for `isize` (`size_t`) or `usize` (`ptrdiff_t`)
 - `b` for `bool` (takes an int but writes `true` or `false` instead of `1` and
   `0`)
-- `u` for `isize` (`size_t`)
+- `f` for `f32` (`float`) or `f64` (`double`)
 - `c` for `char`
-- `r` or `f` for `double` or `float`
 - `p` for `void *`
 
 Additionally you can pass a Nest object to be formatted, in this case the
@@ -137,15 +137,15 @@ before being formatted.
 The type specifiers for Nest objects are the following:
 
 - `#` any Nest object
-- `#i` an object casted to an Int
-- `#r` an object casted to a Real
-- `#b` an object casted to a Bool
-- `#s` an object casted to a Str
-- `#v` an object casted to a Vector
-- `#a` an object casted to an Array
-- `#m` an object casted to a Map
-- `#I` an object casted to an Iter
-- `#B` an object casted to a Byte
+- `#i` a Nest object casted to an `Int`
+- `#r` a Nest object casted to a `Real`
+- `#b` a Nest object casted to a `Bool`
+- `#s` a Nest object casted to a `Str`
+- `#v` a Nest object casted to a `Vector`
+- `#a` a Nest object casted to an `Array`
+- `#m` a Nest object casted to a `Map`
+- `#I` a Nest object casted to an `Iter`
+- `#B` a Nest object casted to a `Byte`
 
 !!!note
     The letters for the type casts are the same used in `Nst_extract_args`, but
@@ -157,14 +157,15 @@ The type specifiers for Nest objects are the following:
 - `z`: normalize negative zero (`-0`) to zero (`0`) for floating point numbers
 - `0`: with integers pad with zeroes to reach the number of digits specified
        in the precision before the prefix and any sign
-- `f`: represent floats with a decimal representation, by default the minimum
-       length representation is used
+- `f`: represent floats with a decimal representation, by default the general
+       representation is used
 - `e`: represent floats in standard (or scientific) notation, by default the
-       minimum length representation is used
+       gemeral representation is used
 - `p`: adds lowercase prefixes and suffixes, this flag applies to:
   - integers: along the flags `x` and `X` adds the prefix `0x`, with the flag
     `o` adds the prefix `0o` and with the flag `b` adds the prefix `0b`, the
     prefix is added after the sign
+  - floats: causes `Inf` and `NaN` to be written `inf` and `nan` respectively
   - Nest Byte objects: adds the suffix `b`
 - `P`: adds uppercase prefixes to ingegers and specifies that some lowercase
   parts of other types is uppercase, specifically this flag applies to:
@@ -172,7 +173,8 @@ The type specifiers for Nest objects are the following:
     `o` adds the prefix `0O` and with the flag `b` adds the prefix `0B`, the
     prefix is added after the sign
   - floats: when written in standard notation the `E` is in uppercase, by
-    default it is lowercase
+    default it is lowercase, and causes `Inf` and `NaN` to be written `INF` and
+    `NAN` respectively
   - strings: when using a different representation non-printable characters
     or non-ASCII characters will have the digits in the escape sequence in
     uppercase (es `\xFF` or `\u00E8`), by default they are lowercase
@@ -244,10 +246,10 @@ A negative width is ignored.
 
 This field has different interpretations depending on the type being formatted:
 
-- for floating point numbers in decimal notations it specifies the number of
-  digits after the dot
-- for floating point numbers in standard notation it specifies the number of
-  significant digits to use
+- for floating point numbers in decimal and standard notation it specifies the
+  number of digits after the dot
+- for floating point numbers in general notation it specifies the number of
+  significant digits to show
 - for integers it specifies the minimum number of digits to use
 - for strings it specifies the maximum amount of characters to write, if a
   string is longer than specified it is cut to size removing characters from

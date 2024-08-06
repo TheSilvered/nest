@@ -1,6 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-#include <limits.h>
+#include <math.h>
 
 #include "test_nest.h"
 
@@ -16,13 +16,17 @@ const i8 *GREEN = "\x1b[32m";
 const i8 *YELLOW = "\x1b[33m";
 const i8 *RESET = "\x1b[0m";
 
-void test_init()
+static i32 tests_failed = 0;
+
+void test_init(void)
 {
     if (!Nst_supports_color()) {
         RED = "";
         GREEN = "";
         YELLOW = "";
+        RESET = "";
     }
+    tests_failed = 0;
 }
 
 void run_test(Test test, const i8 *test_name)
@@ -46,6 +50,7 @@ void run_test(Test test, const i8 *test_name)
         Nst_printf(
             "%sTest '%s' failed.%s\n",
             RED, test_name, RESET);
+        tests_failed += 1;
         break;
     case TEST_NOT_IMPL:
         Nst_printf(
@@ -59,6 +64,11 @@ void run_test(Test test, const i8 *test_name)
         Nst_quit();
         exit(1);
     }
+}
+
+i32 tests_failed_count(void)
+{
+    return tests_failed;
 }
 
 static void fail(TestResult *result, int line)
@@ -796,11 +806,15 @@ TestResult test_fmt()
     fail_if(str_neq(str, "10"));
     str = Nst_fmt("{L}", 0, NULL, 10ll);
     fail_if(str_neq(str, "10"));
+    str = Nst_fmt("{z}", 0, NULL, (isize)10);
+    fail_if(str_neq(str, "10"));
     str = Nst_fmt("{i:+}", 0, NULL, 10);
     fail_if(str_neq(str, "+10"));
     str = Nst_fmt("{l:+}", 0, NULL, 10l);
     fail_if(str_neq(str, "+10"));
     str = Nst_fmt("{L:+}", 0, NULL, 10ll);
+    fail_if(str_neq(str, "+10"));
+    str = Nst_fmt("{z:+}", 0, NULL, (isize)10);
     fail_if(str_neq(str, "+10"));
     str = Nst_fmt("{i: }", 0, NULL, 10);
     fail_if(str_neq(str, " 10"));
@@ -808,14 +822,18 @@ TestResult test_fmt()
     fail_if(str_neq(str, " 10"));
     str = Nst_fmt("{L: }", 0, NULL, 10ll);
     fail_if(str_neq(str, " 10"));
+    str = Nst_fmt("{z: }", 0, NULL, (isize)10);
+    fail_if(str_neq(str, " 10"));
     str = Nst_fmt("{i}", 0, NULL, -10);
     fail_if(str_neq(str, "-10"));
     str = Nst_fmt("{l}", 0, NULL, -10l);
     fail_if(str_neq(str, "-10"));
     str = Nst_fmt("{L}", 0, NULL, -10ll);
     fail_if(str_neq(str, "-10"));
+    str = Nst_fmt("{z}", 0, NULL, (isize)-10);
+    fail_if(str_neq(str, "-10"));
 
-    str = Nst_fmt("{i:bp}", 0, NULL, 10u);
+    str = Nst_fmt("{i:bp}", 0, NULL, 10);
     fail_if(str_neq(str, "0b1010"));
     str = Nst_fmt("{l:bP}", 0, NULL, 10l);
     fail_if(str_neq(str, "0B1010"));
@@ -871,11 +889,15 @@ TestResult test_fmt()
     fail_if(str_neq(str, "0"));
     str = Nst_fmt("{L:b}", 0, NULL, 0ll);
     fail_if(str_neq(str, "0"));
+    str = Nst_fmt("{z:b}", 0, NULL, (isize)0);
+    fail_if(str_neq(str, "0"));
     str = Nst_fmt("{i:o}", 0, NULL, 0);
     fail_if(str_neq(str, "0"));
     str = Nst_fmt("{l:o}", 0, NULL, 0l);
     fail_if(str_neq(str, "0"));
     str = Nst_fmt("{L:o}", 0, NULL, 0ll);
+    fail_if(str_neq(str, "0"));
+    str = Nst_fmt("{z:o}", 0, NULL, (isize)0);
     fail_if(str_neq(str, "0"));
     str = Nst_fmt("{i}", 0, NULL, 0);
     fail_if(str_neq(str, "0"));
@@ -883,17 +905,23 @@ TestResult test_fmt()
     fail_if(str_neq(str, "0"));
     str = Nst_fmt("{L}", 0, NULL, 0ll);
     fail_if(str_neq(str, "0"));
+    str = Nst_fmt("{z}", 0, NULL, (isize)0);
+    fail_if(str_neq(str, "0"));
     str = Nst_fmt("{i:x}", 0, NULL, 0);
     fail_if(str_neq(str, "0"));
     str = Nst_fmt("{l:x}", 0, NULL, 0l);
     fail_if(str_neq(str, "0"));
     str = Nst_fmt("{L:x}", 0, NULL, 0ll);
     fail_if(str_neq(str, "0"));
+    str = Nst_fmt("{z:x}", 0, NULL, (isize)0);
+    fail_if(str_neq(str, "0"));
     str = Nst_fmt("{i:X}", 0, NULL, 0);
     fail_if(str_neq(str, "0"));
     str = Nst_fmt("{l:X}", 0, NULL, 0l);
     fail_if(str_neq(str, "0"));
     str = Nst_fmt("{L:X}", 0, NULL, 0ll);
+    fail_if(str_neq(str, "0"));
+    str = Nst_fmt("{z:X}", 0, NULL, (isize)0);
     fail_if(str_neq(str, "0"));
 
     str = Nst_fmt("{i:b}", 0, NULL, 123456789);
@@ -902,11 +930,15 @@ TestResult test_fmt()
     fail_if(str_neq(str, "111010110111100110100010101"));
     str = Nst_fmt("{L:b}", 0, NULL, 123456789ll);
     fail_if(str_neq(str, "111010110111100110100010101"));
+    str = Nst_fmt("{z:b}", 0, NULL, (isize)123456789);
+    fail_if(str_neq(str, "111010110111100110100010101"));
     str = Nst_fmt("{i:o}", 0, NULL, 123456789);
     fail_if(str_neq(str, "726746425"));
     str = Nst_fmt("{l:o}", 0, NULL, 123456789l);
     fail_if(str_neq(str, "726746425"));
     str = Nst_fmt("{L:o}", 0, NULL, 123456789ll);
+    fail_if(str_neq(str, "726746425"));
+    str = Nst_fmt("{z:o}", 0, NULL, (isize)123456789);
     fail_if(str_neq(str, "726746425"));
     str = Nst_fmt("{i}", 0, NULL, 123456789);
     fail_if(str_neq(str, "123456789"));
@@ -914,17 +946,23 @@ TestResult test_fmt()
     fail_if(str_neq(str, "123456789"));
     str = Nst_fmt("{L}", 0, NULL, 123456789ll);
     fail_if(str_neq(str, "123456789"));
+    str = Nst_fmt("{z}", 0, NULL, (isize)123456789);
+    fail_if(str_neq(str, "123456789"));
     str = Nst_fmt("{i:x}", 0, NULL, 123456789);
     fail_if(str_neq(str, "75bcd15"));
     str = Nst_fmt("{l:x}", 0, NULL, 123456789l);
     fail_if(str_neq(str, "75bcd15"));
     str = Nst_fmt("{L:x}", 0, NULL, 123456789ll);
     fail_if(str_neq(str, "75bcd15"));
+    str = Nst_fmt("{z:x}", 0, NULL, (isize)123456789);
+    fail_if(str_neq(str, "75bcd15"));
     str = Nst_fmt("{i:X}", 0, NULL, 123456789);
     fail_if(str_neq(str, "75BCD15"));
     str = Nst_fmt("{l:X}", 0, NULL, 123456789l);
     fail_if(str_neq(str, "75BCD15"));
     str = Nst_fmt("{L:X}", 0, NULL, 123456789ll);
+    fail_if(str_neq(str, "75BCD15"));
+    str = Nst_fmt("{z:X}", 0, NULL, (isize)123456789);
     fail_if(str_neq(str, "75BCD15"));
 
     str = Nst_fmt("{i:b}", 0, NULL, 2147483647);
@@ -988,6 +1026,210 @@ TestResult test_fmt()
     fail_if(str_neq(str, "-80000000"));
     str = Nst_fmt("{L:X}", 0, NULL, -9223372036854775807ll - 1);
     fail_if(str_neq(str, "-8000000000000000"));
+
+    // Formatting Floating Point Numbers
+
+    str = Nst_fmt("{f}", 0, NULL, 1.234567);
+    fail_if(str_neq(str, "1.23457"));
+    str = Nst_fmt("{f}", 0, NULL, 12.34567);
+    fail_if(str_neq(str, "12.3457"));
+    str = Nst_fmt("{f}", 0, NULL, 123.4567);
+    fail_if(str_neq(str, "123.457"));
+    str = Nst_fmt("{f}", 0, NULL, 1234.567);
+    fail_if(str_neq(str, "1234.57"));
+    str = Nst_fmt("{f}", 0, NULL, 12345.67);
+    fail_if(str_neq(str, "12345.7"));
+    str = Nst_fmt("{f}", 0, NULL, 123456.7);
+    fail_if(str_neq(str, "1.23457e+05"));
+    str = Nst_fmt("{f}", 0, NULL, 0.1234567);
+    fail_if(str_neq(str, "0.123457"));
+    str = Nst_fmt("{f}", 0, NULL, 0.01234567);
+    fail_if(str_neq(str, "0.0123457"));
+    str = Nst_fmt("{f}", 0, NULL, 0.001234567);
+    fail_if(str_neq(str, "0.00123457"));
+    str = Nst_fmt("{f}", 0, NULL, 0.0001234567);
+    fail_if(str_neq(str, "0.000123457"));
+    str = Nst_fmt("{f}", 0, NULL, 0.00001234567);
+    fail_if(str_neq(str, "1.23457e-05"));
+    str = Nst_fmt("{f}", 0, NULL, 0.000001234567);
+    fail_if(str_neq(str, "1.23457e-06"));
+    str = Nst_fmt("{f}", 0, NULL, 0.0000001234567);
+    fail_if(str_neq(str, "1.23457e-07"));
+
+    str = Nst_fmt("{f:''.10}", 0, NULL, 5971023.634);
+    fail_if(str_neq(str, "5'971'023.634"));
+    str = Nst_fmt("{f:',.10,4}", 0, NULL, 5971023.634);
+    fail_if(str_neq(str, "597,1023.634"));
+    str = Nst_fmt("{f:',.10,2}", 0, NULL, 5971023.634);
+    fail_if(str_neq(str, "5,97,10,23.634"));
+
+    str = Nst_fmt("{f:.3}", 0, NULL, 1.234567);
+    fail_if(str_neq(str, "1.23"));
+    str = Nst_fmt("{f:.3}", 0, NULL, 12.34567);
+    fail_if(str_neq(str, "12.3"));
+    str = Nst_fmt("{f:.3}", 0, NULL, 123.4567);
+    fail_if(str_neq(str, "1.23e+02"));
+    str = Nst_fmt("{f:.3}", 0, NULL, 1234.567);
+    fail_if(str_neq(str, "1.23e+03"));
+    str = Nst_fmt("{f:.3}", 0, NULL, 12345.67);
+    fail_if(str_neq(str, "1.23e+04"));
+    str = Nst_fmt("{f:.3}", 0, NULL, 123456.7);
+    fail_if(str_neq(str, "1.23e+05"));
+    str = Nst_fmt("{f:.3}", 0, NULL, 0.1234567);
+    fail_if(str_neq(str, "0.123"));
+    str = Nst_fmt("{f:.3}", 0, NULL, 0.01234567);
+    fail_if(str_neq(str, "0.0123"));
+    str = Nst_fmt("{f:.3}", 0, NULL, 0.001234567);
+    fail_if(str_neq(str, "0.00123"));
+    str = Nst_fmt("{f:.3}", 0, NULL, 0.0001234567);
+    fail_if(str_neq(str, "0.000123"));
+    str = Nst_fmt("{f:.3}", 0, NULL, 0.00001234567);
+    fail_if(str_neq(str, "1.23e-05"));
+    str = Nst_fmt("{f:.3}", 0, NULL, 0.000001234567);
+    fail_if(str_neq(str, "1.23e-06"));
+    str = Nst_fmt("{f:P.3}", 0, NULL, 0.0000001234567);
+    fail_if(str_neq(str, "1.23E-07"));
+
+    str = Nst_fmt("{f:f}", 0, NULL, 1.234567);
+    fail_if(str_neq(str, "1.234567"));
+    str = Nst_fmt("{f:f}", 0, NULL, 12.34567);
+    fail_if(str_neq(str, "12.345670"));
+    str = Nst_fmt("{f:f}", 0, NULL, 123.4567);
+    fail_if(str_neq(str, "123.456700"));
+    str = Nst_fmt("{f:f}", 0, NULL, 1234.567);
+    fail_if(str_neq(str, "1234.567000"));
+    str = Nst_fmt("{f:f}", 0, NULL, 12345.67);
+    fail_if(str_neq(str, "12345.670000"));
+    str = Nst_fmt("{f:f}", 0, NULL, 123456.7);
+    fail_if(str_neq(str, "123456.700000"));
+    str = Nst_fmt("{f:f}", 0, NULL, 0.1234567);
+    fail_if(str_neq(str, "0.123457"));
+    str = Nst_fmt("{f:f}", 0, NULL, 0.01234567);
+    fail_if(str_neq(str, "0.012346"));
+    str = Nst_fmt("{f:f}", 0, NULL, 0.001234567);
+    fail_if(str_neq(str, "0.001235"));
+    str = Nst_fmt("{f:f}", 0, NULL, 0.0001234567);
+    fail_if(str_neq(str, "0.000123"));
+    str = Nst_fmt("{f:f}", 0, NULL, 0.00001234567);
+    fail_if(str_neq(str, "0.000012"));
+    str = Nst_fmt("{f:f}", 0, NULL, 0.000001234567);
+    fail_if(str_neq(str, "0.000001"));
+    str = Nst_fmt("{f:f}", 0, NULL, 0.0000001234567);
+    fail_if(str_neq(str, "0.000000"));
+
+    str = Nst_fmt("{f:f''.3}", 0, NULL, 5971023.634);
+    fail_if(str_neq(str, "5'971'023.634"));
+    str = Nst_fmt("{f:f',.3,4}", 0, NULL, 5971023.634);
+    fail_if(str_neq(str, "597,1023.634"));
+    str = Nst_fmt("{f:f',.3,2}", 0, NULL, 5971023.634);
+    fail_if(str_neq(str, "5,97,10,23.634"));
+
+    str = Nst_fmt("{f:f.3}", 0, NULL, 1.234567);
+    fail_if(str_neq(str, "1.235"));
+    str = Nst_fmt("{f:f.3}", 0, NULL, 12.34567);
+    fail_if(str_neq(str, "12.346"));
+    str = Nst_fmt("{f:f.3}", 0, NULL, 123.4567);
+    fail_if(str_neq(str, "123.457"));
+    str = Nst_fmt("{f:f.3}", 0, NULL, 1234.567);
+    fail_if(str_neq(str, "1234.567"));
+    str = Nst_fmt("{f:f.3}", 0, NULL, 12345.67);
+    fail_if(str_neq(str, "12345.670"));
+    str = Nst_fmt("{f:f.3}", 0, NULL, 123456.7);
+    fail_if(str_neq(str, "123456.700"));
+    str = Nst_fmt("{f:f.3}", 0, NULL, 0.1234567);
+    fail_if(str_neq(str, "0.123"));
+    str = Nst_fmt("{f:f.3}", 0, NULL, 0.01234567);
+    fail_if(str_neq(str, "0.012"));
+    str = Nst_fmt("{f:f.3}", 0, NULL, 0.001234567);
+    fail_if(str_neq(str, "0.001"));
+    str = Nst_fmt("{f:f.3}", 0, NULL, 0.0001234567);
+    fail_if(str_neq(str, "0.000"));
+    str = Nst_fmt("{f:f.3}", 0, NULL, 0.00001234567);
+    fail_if(str_neq(str, "0.000"));
+    str = Nst_fmt("{f:f.3}", 0, NULL, 0.000001234567);
+    fail_if(str_neq(str, "0.000"));
+    str = Nst_fmt("{f:f.3}", 0, NULL, 0.0000001234567);
+    fail_if(str_neq(str, "0.000"));
+
+    str = Nst_fmt("{f:e}", 0, NULL, 1.234567);
+    fail_if(str_neq(str, "1.234567e+00"));
+    str = Nst_fmt("{f:e}", 0, NULL, 12.34567);
+    fail_if(str_neq(str, "1.234567e+01"));
+    str = Nst_fmt("{f:e}", 0, NULL, 123.4567);
+    fail_if(str_neq(str, "1.234567e+02"));
+    str = Nst_fmt("{f:e}", 0, NULL, 1234.567);
+    fail_if(str_neq(str, "1.234567e+03"));
+    str = Nst_fmt("{f:e}", 0, NULL, 12345.67);
+    fail_if(str_neq(str, "1.234567e+04"));
+    str = Nst_fmt("{f:e}", 0, NULL, 123456.7);
+    fail_if(str_neq(str, "1.234567e+05"));
+    str = Nst_fmt("{f:e}", 0, NULL, 0.1234567);
+    fail_if(str_neq(str, "1.234567e-01"));
+    str = Nst_fmt("{f:e}", 0, NULL, 0.01234567);
+    fail_if(str_neq(str, "1.234567e-02"));
+    str = Nst_fmt("{f:e}", 0, NULL, 0.001234567);
+    fail_if(str_neq(str, "1.234567e-03"));
+    str = Nst_fmt("{f:e}", 0, NULL, 0.0001234567);
+    fail_if(str_neq(str, "1.234567e-04"));
+    str = Nst_fmt("{f:e}", 0, NULL, 0.00001234567);
+    fail_if(str_neq(str, "1.234567e-05"));
+    str = Nst_fmt("{f:e}", 0, NULL, 0.000001234567);
+    fail_if(str_neq(str, "1.234567e-06"));
+    str = Nst_fmt("{f:eP}", 0, NULL, 0.0000001234567);
+    fail_if(str_neq(str, "1.234567E-07"));
+
+    str = Nst_fmt("{f:e.3}", 0, NULL, 1.234567);
+    fail_if(str_neq(str, "1.235e+00"));
+    str = Nst_fmt("{f:e.3}", 0, NULL, 12.34567);
+    fail_if(str_neq(str, "1.235e+01"));
+    str = Nst_fmt("{f:e.3}", 0, NULL, 123.4567);
+    fail_if(str_neq(str, "1.235e+02"));
+    str = Nst_fmt("{f:e.3}", 0, NULL, 1234.567);
+    fail_if(str_neq(str, "1.235e+03"));
+    str = Nst_fmt("{f:e.3}", 0, NULL, 12345.67);
+    fail_if(str_neq(str, "1.235e+04"));
+    str = Nst_fmt("{f:e.3}", 0, NULL, 123456.7);
+    fail_if(str_neq(str, "1.235e+05"));
+    str = Nst_fmt("{f:e.3}", 0, NULL, 0.1234567);
+    fail_if(str_neq(str, "1.235e-01"));
+    str = Nst_fmt("{f:e.3}", 0, NULL, 0.01234567);
+    fail_if(str_neq(str, "1.235e-02"));
+    str = Nst_fmt("{f:e.3}", 0, NULL, 0.001234567);
+    fail_if(str_neq(str, "1.235e-03"));
+    str = Nst_fmt("{f:e.3}", 0, NULL, 0.0001234567);
+    fail_if(str_neq(str, "1.235e-04"));
+    str = Nst_fmt("{f:e.3}", 0, NULL, 0.00001234567);
+    fail_if(str_neq(str, "1.235e-05"));
+    str = Nst_fmt("{f:e.3}", 0, NULL, 0.000001234567);
+    fail_if(str_neq(str, "1.235e-06"));
+    str = Nst_fmt("{f:eP.3}", 0, NULL, 0.0000001234567);
+    fail_if(str_neq(str, "1.235E-07"));
+
+    str = Nst_fmt("{f}", 0, NULL, INFINITY);
+    fail_if(str_neq(str, "Inf"));
+    str = Nst_fmt("{f}", 0, NULL, -INFINITY);
+    fail_if(str_neq(str, "-Inf"));
+    str = Nst_fmt("{f:p}", 0, NULL, INFINITY);
+    fail_if(str_neq(str, "inf"));
+    str = Nst_fmt("{f:p}", 0, NULL, -INFINITY);
+    fail_if(str_neq(str, "-inf"));
+    str = Nst_fmt("{f:P}", 0, NULL, INFINITY);
+    fail_if(str_neq(str, "INF"));
+    str = Nst_fmt("{f:P}", 0, NULL, -INFINITY);
+    fail_if(str_neq(str, "-INF"));
+
+    str = Nst_fmt("{f}", 0, NULL, NAN);
+    fail_if(str_neq(str, "NaN"));
+    str = Nst_fmt("{f}", 0, NULL, -NAN);
+    fail_if(str_neq(str, "-NaN"));
+    str = Nst_fmt("{f:p}", 0, NULL, NAN);
+    fail_if(str_neq(str, "nan"));
+    str = Nst_fmt("{f:p}", 0, NULL, -NAN);
+    fail_if(str_neq(str, "-nan"));
+    str = Nst_fmt("{f:P}", 0, NULL, NAN);
+    fail_if(str_neq(str, "NAN"));
+    str = Nst_fmt("{f:P}", 0, NULL, -NAN);
+    fail_if(str_neq(str, "-NAN"));
 
     // Formatting Booleans
 
