@@ -48,8 +48,8 @@ versions are not properly tested and might crash unexpectedly.**
 - [x] Remove `reversed` from `stditutil.nest` and add `reverse` and `reverse_i`
   to `stdsequtil.nest`
 - [x] Rename `split` to `lsplit` and add `rsplit` to `stdsutil.nest`
+- [x] Finish implementing `Nst_fmt` and add a wrapper to `stdsutil.nest`
 - [ ] Better testing with C
-- [ ] Finish implementing `Nst_fmt` and add a wrapper to `stdsutil.nest`
 
 ### Future planned features
 

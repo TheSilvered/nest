@@ -12,6 +12,8 @@
 - added `set_option`, `get_option`, `clear_options` and `OPTION` to `stdjson.nest`
 - added `_debug_` predefined variable when compiling in debug mode, its value is `"x64"` on 64-bit platforms and `""` on 32-bit ones
 - added `reverse` and `reverse_i` to `stdsequtil.nest`
+- added `rsplit` to `stdsutil.nest`
+- added `fmt` function to `stdsutil.nest` to format values
 
 **Changes**
 
@@ -80,6 +82,7 @@
 - added `Nst_DECLR_END`
 - added `Nst_ConstFunc`
 - added `Nst_memset`
+- added `Nst_fmt`, `Nst_vfmt` and `Nst_fmt_objs`
 
 **Changes**
 
