@@ -7,18 +7,18 @@
 #define FILE_INFO ", file \"%s\", line %lli, column %lli"
 
 #define SET_INVALID_ESCAPE_ERROR                                              \
-    Nst_set_syntax_error(Nst_sprintf(                                         \
+    Nst_set_syntax_errorf(                                                    \
         "JSON: invalid string escape" FILE_INFO,                              \
         state.pos.text->path,                                                 \
         (i64)state.pos.line,                                                  \
-        (i64)state.pos.col))
+        (i64)state.pos.col)
 
 #define SET_INVALID_VALUE_ERROR                                               \
-    Nst_set_syntax_error(Nst_sprintf(                                         \
+    Nst_set_syntax_errorf(                                                    \
         "JSON: invalid value" FILE_INFO,                                      \
         state.pos.text->path,                                                 \
         (i64)state.pos.line,                                                  \
-        (i64)state.pos.col))
+        (i64)state.pos.col)
 
 #define IS_HEX(ch) ((ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f'))
 #define HEX_TO_INT(ch) (ch <= '9' ? ch - '0' : ch - 'a' + 10)
@@ -145,9 +145,9 @@ Nst_LList *json_tokenize(i8 *path, i8 *text, usize text_len,
             else
                 tok = nullptr;
         } else {
-            Nst_set_syntax_error(Nst_sprintf(
+            Nst_set_syntax_errorf(
                 "JSON: invalid character" FILE_INFO,
-                path, (i64)state.pos.line, (i64)state.pos.col));
+                path, (i64)state.pos.line, (i64)state.pos.col);
             tok = nullptr;
         }
 
@@ -188,11 +188,11 @@ static Nst_Tok *parse_json_str()
         if (!escape) {
             if ((u8)state.ch < ' ') {
                 Nst_buffer_destroy(&buf);
-                Nst_set_syntax_error(Nst_sprintf(
+                Nst_set_syntax_errorf(
                     "JSON: invalid character" FILE_INFO,
                     state.pos.text->path,
                     (i64)state.pos.line,
-                    (i64)state.pos.col));
+                    (i64)state.pos.col);
                 return nullptr;
             } else if (state.ch == '\\') {
                 escape = true;
@@ -310,11 +310,11 @@ static Nst_Tok *parse_json_num()
         errno = 0;
         i64 value = strtoll(start_idx, nullptr, 10);
         if (errno == ERANGE) {
-            Nst_set_memory_error(Nst_sprintf(
+            Nst_set_memory_errorf(
                 "JSON: number too big" FILE_INFO,
                 state.path,
                 (i64)state.pos.line,
-                (i64)state.pos.col));
+                (i64)state.pos.col);
             return nullptr;
         }
         return tok_new_value(

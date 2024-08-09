@@ -9,6 +9,7 @@
 #include "mem.h"
 #include "file.h"
 #include "dtoa.h"
+#include "obj_ops.h"
 
 #define MIN(a, b) ((b) < (a) ? (b) : (a))
 #define MAX(a, b) ((b) > (a) ? (b) : (a))
@@ -534,6 +535,45 @@ typedef enum _PrefSuff {
     Nst_FMT_PREF_SUFF_UPPER
 } PrefSuff;
 
+typedef enum _FmtValueType {
+    Nst_VALUES_VA_ARGS,
+    Nst_VALUES_ARR
+} FmtValueType;
+
+typedef struct _FmtValues {
+    FmtValueType type;
+    union {
+        va_list *va;
+        struct {
+            Nst_SeqObj *obj;
+            usize i;
+        } arr;
+    } v;
+} FmtValues;
+
+void fmt_values_init_va_args(FmtValues *values, va_list *args)
+{
+    values->type = Nst_VALUES_VA_ARGS;
+    values->v.va = args;
+}
+
+void fmt_values_init_sequence(FmtValues *values, Nst_SeqObj *obj)
+{
+    values->type = Nst_VALUES_ARR;
+    values->v.arr.obj = obj;
+    values->v.arr.i = 0;
+}
+
+#define fmt_values_get_va_arg(fmt_vals, type)                                 \
+    va_arg(*((fmt_vals).v.va), type)
+
+static Nst_Obj *fmt_values_get_obj(FmtValues values)
+{
+    if (values.v.arr.obj->len <= values.v.arr.i)
+        return NULL;
+    return values.v.arr.obj->objs[values.v.arr.i++];
+}
+
 typedef struct _Format {
     bool normalize_neg_zero;
     bool cut;
@@ -619,7 +659,10 @@ static usize format_fill_ch_len(Format *format)
     return 4;
 }
 
-static const i8 *fmt_value(Nst_Buffer *buf, const i8 *fmt, va_list *args);
+static i8 *general_fmt(const i8 *fmt, usize fmt_len, usize *out_len,
+                       FmtValues values);
+
+static const i8 *fmt_value(Nst_Buffer *buf, const i8 *fmt, FmtValues values);
 
 static void fmt_cut(i8 *str, usize str_len, usize char_len, i8 **out_str,
                     usize *out_len, Format *format,
@@ -680,12 +723,39 @@ i8 *Nst_fmt(const i8 *fmt, usize fmt_len, usize *out_len, ...)
     return Nst_vfmt(fmt, fmt_len, out_len, args);
 }
 
+NstEXP Nst_Obj *NstC Nst_fmt_objs(Nst_StrObj *fmt, Nst_SeqObj *values)
+{
+    FmtValues fmt_values;
+    fmt_values_init_sequence(&fmt_values, values);
+    usize str_len;
+    i8 *str = general_fmt(
+        (const i8 *)fmt->value,
+        fmt->len,
+        &str_len,
+        fmt_values);
+    if (str == NULL)
+        return NULL;
+    if (fmt_values.v.arr.i != fmt_values.v.arr.obj->len) {
+        Nst_set_value_error_c("too many values for the format placeholder");
+        Nst_free(str);
+        return NULL;
+    }
+    return Nst_string_new_allocated(str, str_len);
+}
+
 i8 *Nst_vfmt(const i8 *fmt, usize fmt_len, usize *out_len, va_list args)
 {
-    Nst_Buffer buf;
     va_list args_cpy;
     va_copy(args_cpy, args);
+    FmtValues values;
+    fmt_values_init_va_args(&values, &args_cpy);
+    return general_fmt(fmt, fmt_len, out_len, values);
+}
 
+static i8 *general_fmt(const i8 *fmt, usize fmt_len, usize *out_len,
+                       FmtValues values)
+{
+    Nst_Buffer buf;
     usize fmtlen = fmt_len != 0 ? fmt_len : strlen(fmt);
     if (out_len != NULL)
         *out_len = 0;
@@ -729,7 +799,7 @@ i8 *Nst_vfmt(const i8 *fmt, usize fmt_len, usize *out_len, va_list args)
                 i++;
                 continue;
             }
-            const i8 *fmt_end = fmt_value(&buf, fmt + i, &args_cpy);
+            const i8 *fmt_end = fmt_value(&buf, fmt + i, values);
             if (fmt_end == NULL)
                 goto failure;
             i += fmt_end - fmt - i - 1;
@@ -885,40 +955,85 @@ static const i8 *parse_format(const i8 *fmt, Format *format)
     return fmt;
 }
 
-static void add_format_values(Format *format, va_list *args)
+static bool set_fmt_field(FmtValues values, const i8 *field_name, i32 *field)
 {
-    if (format->width == -2)
-        format->width = va_arg(*args, i32);
-    if (format->precision == -2)
-        format->precision = va_arg(*args, i32);
-    if (format->separator_width == -2)
-        format->separator_width = va_arg(*args, i32);
+    if (*field != -2)
+        return true;
+
+    Nst_Obj *obj = fmt_values_get_obj(values);
+    if (obj == NULL) {
+        Nst_set_value_error_c("not enough values for the format placeholder");
+        return false;
+    }
+    if (obj->type != Nst_t.Int) {
+        Nst_set_type_errorf("the value for '%s' is not an Int", field_name);
+        return false;
+    }
+    i64 val = AS_INT(obj);
+    if (val > INT32_MAX) {
+        Nst_set_value_errorf("the value for '%s' is too big", field_name);
+        return false;
+    } else if (val < INT32_MIN)
+        *field = -1;
+    else
+        *field = (i32)val;
+    return true;
 }
 
-static const i8 *fmt_value(Nst_Buffer *buf, const i8 *fmt, va_list *args)
+static bool add_format_values(Format *format, FmtValues values)
 {
-    bool nest_obj = false;
-    const i8 *type;
+    if (values.type == Nst_VALUES_VA_ARGS) {
+        if (format->width == -2)
+            format->width = fmt_values_get_va_arg(values, i32);
+        if (format->precision == -2)
+            format->precision = fmt_values_get_va_arg(values, i32);
+        if (format->separator_width == -2)
+            format->separator_width = fmt_values_get_va_arg(values, i32);
+        return true;
+    }
+    if (!set_fmt_field(values, "width", &format->width))
+        return false;
+    if (!set_fmt_field(values, "precision", &format->precision))
+        return false;
+    if (!set_fmt_field(values, "separator width", &format->separator_width))
+        return false;
+    return true;
+}
+
+static const i8 *fmt_value(Nst_Buffer *buf, const i8 *fmt, FmtValues values)
+{
+    const i8 *type = NULL;
+    Nst_Obj *obj = NULL;
+    bool result = true;
+
     Format format;
     format_init(&format);
 
     fmt++;
-    if (*fmt == '#') {
-        nest_obj = true;
+    if (values.type == Nst_VALUES_VA_ARGS) {
+        type = fmt++;
+        if (*fmt == '}') {
+            fmt++;
+            goto format_type;
+        } else if (*fmt != ':') {
+            Nst_set_value_error_c("expected ':' in format string");
+            return NULL;
+        }
         fmt++;
-        type = fmt;
-    } else
-        type = fmt;
-    fmt++;
-
-    if (*fmt == '}') {
-        fmt++;
-        goto format_type;
-    } else if (*fmt != ':') {
-        Nst_set_value_error_c("expected ':' in format string");
-        return NULL;
+    } else {
+        obj = fmt_values_get_obj(values);
+        if (obj == NULL) {
+            Nst_set_value_error_c(
+                "not enough values for the format placeholder");
+            return NULL;
+        }
+        if (!add_format_values(&format, values))
+            return NULL;
+        if (*fmt == '}') {
+            fmt++;
+            goto format_type;
+        }
     }
-    fmt++;
 
     fmt = parse_format(fmt, &format);
     if (fmt == NULL)
@@ -931,88 +1046,108 @@ static const i8 *fmt_value(Nst_Buffer *buf, const i8 *fmt, va_list *args)
     fmt++;
 
 format_type:
-    if (nest_obj)
-        goto format_nest_obj;
+    if (obj != NULL) {
+        if (obj->type == Nst_t.Str)
+            result = fmt_str(buf, STR(obj)->value, STR(obj)->len, &format);
+        else if (obj->type == Nst_t.Int) {
+            if (format.as_unsigned)
+                result = fmt_uint(buf, (u64)AS_INT(obj), &format);
+            else
+                result = fmt_int(buf, AS_INT(obj), &format);
+        } else if (obj->type == Nst_t.Real)
+            result = fmt_double(buf, AS_REAL(obj), &format);
+        else if (obj->type == Nst_t.Bool)
+            result = fmt_bool(buf, AS_BOOL(obj), &format);
+        else if (obj->type == Nst_t.Byte)
+            result = fmt_byte(buf, AS_BYTE(obj), &format);
+        else {
+            Nst_StrObj *casted_obj = STR(Nst_obj_cast(obj, Nst_t.Str));
+            if (casted_obj == NULL)
+                return NULL;
+            result = fmt_str(buf, casted_obj->value, casted_obj->len, &format);
+            Nst_dec_ref(casted_obj);
+        }
+        goto end;
+    }
 
-    bool result = true;
     switch (*type) {
     case 's': {
-        i8 *str = va_arg(*args, i8 *);
-        add_format_values(&format, args);
+        i8 *str = fmt_values_get_va_arg(values, i8 *);
+        add_format_values(&format, values);
         result = fmt_str(buf, str, -1, &format);
         break;
     }
     case 'i':
         if (format.as_unsigned) {
-            uint val = va_arg(*args, uint);
-            add_format_values(&format, args);
+            uint val = fmt_values_get_va_arg(values, uint);
+            add_format_values(&format, values);
             result = fmt_uint(buf, (u64)val, &format);
         } else {
-            int val = va_arg(*args, int);
-            add_format_values(&format, args);
+            int val = fmt_values_get_va_arg(values, int);
+            add_format_values(&format, values);
             result = fmt_int(buf, (i64)val, &format);
         }
         break;
     case 'l':
         if (format.as_unsigned) {
-            u32 val = va_arg(*args, u32);
-            add_format_values(&format, args);
+            u32 val = fmt_values_get_va_arg(values, u32);
+            add_format_values(&format, values);
             result = fmt_uint(buf, (u64)val, &format);
         } else {
-            i32 val = va_arg(*args, i32);
-            add_format_values(&format, args);
+            i32 val = fmt_values_get_va_arg(values, i32);
+            add_format_values(&format, values);
             result = fmt_int(buf, (i64)val, &format);
         }
         break;
     case 'L':
         if (format.as_unsigned) {
-            u64 val = va_arg(*args, u64);
-            add_format_values(&format, args);
+            u64 val = fmt_values_get_va_arg(values, u64);
+            add_format_values(&format, values);
             result = fmt_uint(buf, val, &format);
         } else {
-            i64 val = va_arg(*args, i64);
-            add_format_values(&format, args);
+            i64 val = fmt_values_get_va_arg(values, i64);
+            add_format_values(&format, values);
             result = fmt_int(buf, val, &format);
         }
         break;
     case 'z':
         if (format.as_unsigned) {
-            usize val = va_arg(*args, usize);
-            add_format_values(&format, args);
+            usize val = fmt_values_get_va_arg(values, usize);
+            add_format_values(&format, values);
             result = fmt_uint(buf, (u64)val, &format);
         } else {
-            isize val = va_arg(*args, isize);
-            add_format_values(&format, args);
+            isize val = fmt_values_get_va_arg(values, isize);
+            add_format_values(&format, values);
             result = fmt_int(buf, (i64)val, &format);
         }
         break;
     case 'b': {
-        int val = va_arg(*args, int);
-        add_format_values(&format, args);
+        int val = fmt_values_get_va_arg(values, int);
+        add_format_values(&format, values);
         result = fmt_bool(buf, (bool)val, &format);
         break;
     }
     case 'B': {
-        int val = va_arg(*args, int);
-        add_format_values(&format, args);
+        int val = fmt_values_get_va_arg(values, int);
+        add_format_values(&format, values);
         result = fmt_byte(buf, (u8)val, &format);
         break;
     }
     case 'c': {
-        int val = va_arg(*args, int);
-        add_format_values(&format, args);
+        int val = fmt_values_get_va_arg(values, int);
+        add_format_values(&format, values);
         result = fmt_char(buf, (i8)val, &format);
         break;
     }
     case 'f': {
-        f64 val = va_arg(*args, f64);
-        add_format_values(&format, args);
+        f64 val = fmt_values_get_va_arg(values, f64);
+        add_format_values(&format, values);
         result = fmt_double(buf, val, &format);
         break;
     }
     case 'p': {
-        void *ptr = va_arg(*args, void *);
-        add_format_values(&format, args);
+        void *ptr = fmt_values_get_va_arg(values, void *);
+        add_format_values(&format, values);
         result = fmt_ptr(buf, ptr, &format);
         break;
     }
@@ -1021,13 +1156,10 @@ format_type:
         return NULL;
     }
 
+end:
     if (!result)
         return NULL;
     return fmt;
-
-format_nest_obj:
-    Nst_set_value_error_c("formatting for Nest objects is not yet supported");
-    return NULL;
 }
 
 /* Cuts a string keeping it left-aligned. */

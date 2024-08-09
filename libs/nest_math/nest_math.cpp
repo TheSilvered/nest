@@ -589,21 +589,19 @@ Nst_Obj *NstC gcd_(usize arg_num, Nst_Obj **args)
         if (ob2 == Nst_null())
             return gcd_or_lcm_seq(SEQ(ob1), gcd_);
         else {
-            Nst_set_type_error(Nst_sprintf(
+            Nst_set_type_errorf(
                 "the two objects must a sequence and null or two numbers,"
                 " got '%s' and '%s'",
-                TYPE_NAME(ob1), TYPE_NAME(ob2)
-            ));
+                TYPE_NAME(ob1), TYPE_NAME(ob2));
             return nullptr;
         }
     }
 
     if (ob2 == Nst_null()) {
-        Nst_set_type_error(Nst_sprintf(
+        Nst_set_type_errorf(
             "the two objects must a sequence and null or two numbers,"
             " got '%s' and '%s'",
-            TYPE_NAME(ob1), TYPE_NAME(ob2)
-        ));
+            TYPE_NAME(ob1), TYPE_NAME(ob2));
         return nullptr;
     }
 
@@ -634,21 +632,19 @@ Nst_Obj *NstC lcm_(usize arg_num, Nst_Obj **args)
         if (ob2 == Nst_null())
             return gcd_or_lcm_seq(SEQ(ob1), lcm_);
         else {
-            Nst_set_type_error(Nst_sprintf(
+            Nst_set_type_errorf(
                 "the two objects must a sequence and null or two numbers,"
                 " got '%s' and '%s'",
-                TYPE_NAME(ob1), TYPE_NAME(ob2)
-            ));
+                TYPE_NAME(ob1), TYPE_NAME(ob2));
             return nullptr;
         }
     }
 
     if (ob2 == Nst_null()) {
-        Nst_set_type_error(Nst_sprintf(
+        Nst_set_type_errorf(
             "the two objects must a sequence and null or two numbers,"
             " got '%s' and '%s'",
-            TYPE_NAME(ob1), TYPE_NAME(ob2)
-        ));
+            TYPE_NAME(ob1), TYPE_NAME(ob2));
         return nullptr;
     }
 

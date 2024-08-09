@@ -38,6 +38,7 @@ static Nst_Declr obj_list_[] = {
     Nst_FUNCDECLR(parse_int_, 2),
     Nst_FUNCDECLR(lremove_, 2),
     Nst_FUNCDECLR(rremove_, 2),
+    Nst_FUNCDECLR(fmt_, 2),
     Nst_DECLR_END
 };
 
@@ -1433,4 +1434,14 @@ Nst_Obj *NstC rremove_(usize arg_num, Nst_Obj **args)
         return NULL;
     new_str_value[new_len] = '\0';
     return Nst_string_new_allocated(new_str_value, new_len);
+}
+
+Nst_Obj *NstC fmt_(usize arg_num, Nst_Obj **args)
+{
+    Nst_StrObj *format_str;
+    Nst_SeqObj *format_values;
+    if (!Nst_extract_args("s A", arg_num, args, &format_str, &format_values))
+        return nullptr;
+
+    return Nst_fmt_objs(format_str, format_values);
 }

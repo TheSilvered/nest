@@ -123,10 +123,10 @@ Nst_Obj *NstC insert_at_(usize arg_num, Nst_Obj **args)
         new_idx = vect->len + idx;
 
     if (new_idx < 0 || new_idx >= (i64)vect->len) {
-        Nst_set_value_error(Nst_sprintf(
+        Nst_set_value_errorf(
             _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector"),
             idx,
-            vect->len));
+            vect->len);
 
         return nullptr;
     }
@@ -156,10 +156,10 @@ Nst_Obj *NstC remove_at_(usize arg_num, Nst_Obj **args)
         new_idx = vect->len + idx;
 
     if (new_idx < 0 || new_idx >= (i64)vect->len) {
-        Nst_set_value_error(Nst_sprintf(
+        Nst_set_value_errorf(
             _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector"),
             idx,
-            vect->len));
+            vect->len);
 
         return nullptr;
     }

@@ -189,6 +189,7 @@
 - [`Nst_FILE_write`](c_api-file.md#nst_file_write)
 - [`Nst_FLAG`](c_api-obj.md#nst_flag)
 - [`Nst_fmt`](c_api-format.md#nst_fmt)
+- [`Nst_fmt_objs`](c_api-format.md#nst_fmt_objs)
 - [`Nst_fopen_unicode`](c_api-file.md#nst_fopen_unicode)
 - [`Nst_fprint`](c_api-format.md#nst_fprint)
 - [`Nst_fprintf`](c_api-format.md#nst_fprintf)

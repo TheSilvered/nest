@@ -445,9 +445,9 @@ Nst_Obj *NstC list_dirs_(usize arg_num, Nst_Obj **args)
 
     std::error_code ec;
     if (!fs::is_directory(utf8_path(path), ec)) {
-        Nst_set_value_error(Nst_sprintf(
+        Nst_set_value_errorf(
             "directory '%.4096s' not found",
-            path->value));
+            path->value);
         return nullptr;
     }
     if (ec.value() != 0)

@@ -576,10 +576,10 @@ Nst_Obj *Nst_run_paused_coroutine(Nst_FuncObj *func, i64 idx, Nst_VarTable *vt)
 static bool type_check(Nst_Obj *obj, Nst_TypeObj *type)
 {
     if (obj->type != type) {
-        Nst_set_type_error(Nst_sprintf(
+        Nst_set_type_errorf(
             _Nst_EM_EXPECTED_TYPES,
             Nst_TYPE_STR(type)->value,
-            TYPE_NAME(obj)));
+            TYPE_NAME(obj));
         return false;
     }
     return true;
@@ -745,10 +745,10 @@ static i32 exe_type_check()
     CHECK_V_STACK;
     Nst_Obj *obj = FAST_TOP_VAL;
     if (obj->type != TYPE(inst->val)) {
-        Nst_set_type_error(Nst_sprintf(
+        Nst_set_type_errorf(
             _Nst_EM_EXPECTED_TYPES,
             Nst_TYPE_STR(inst->val)->value,
-            TYPE_NAME(obj)));
+            TYPE_NAME(obj));
         return INST_FAILED;
     }
     return INST_SUCCESS;
@@ -761,9 +761,9 @@ static i32 exe_hash_check()
     Nst_Obj *obj = Nst_vstack_peek(&Nst_state.es->v_stack);
     Nst_obj_hash(obj);
     if (obj->hash == -1) {
-        Nst_set_type_error(Nst_sprintf(
+        Nst_set_type_errorf(
             _Nst_EM_UNHASHABLE_TYPE,
-            TYPE_NAME(obj)));
+            TYPE_NAME(obj));
         return INST_FAILED;
     }
     return INST_SUCCESS;
@@ -808,9 +808,9 @@ static i32 exe_set_cont_val()
 
     if (cont->type == Nst_t.Array || cont->type == Nst_t.Vector) {
         if (idx->type != Nst_t.Int) {
-            Nst_set_type_error(Nst_sprintf(
+            Nst_set_type_errorf(
                 _Nst_EM_EXPECTED_TYPE("Int"),
-                TYPE_NAME(idx)));
+                TYPE_NAME(idx));
 
             return_value = INST_FAILED;
             goto end;
@@ -825,9 +825,9 @@ static i32 exe_set_cont_val()
         goto end;
     }
 
-    Nst_set_type_error(Nst_sprintf(
+    Nst_set_type_errorf(
         _Nst_EM_EXPECTED_TYPE("Array', 'Vector', or 'Map"),
-        TYPE_NAME(cont)));
+        TYPE_NAME(cont));
     return_value = INST_FAILED;
 
 end:
@@ -933,9 +933,9 @@ static i32 exe_op_call()
     if (arg_num == -1) {
         args_seq = SEQ(POP_TOP_VALUE);
         if (args_seq->type != Nst_t.Array && args_seq->type != Nst_t.Vector) {
-            Nst_set_type_error(Nst_sprintf(
+            Nst_set_type_errorf(
                 _Nst_EM_EXPECTED_TYPE("Array' or 'Vector"),
-                TYPE_NAME(args_seq)));
+                TYPE_NAME(args_seq));
 
             Nst_dec_ref(args_seq);
             Nst_dec_ref(func);
@@ -1124,9 +1124,9 @@ static i32 exe_op_extract()
 
     if (cont->type == Nst_t.Array || cont->type == Nst_t.Vector) {
         if (idx->type != Nst_t.Int) {
-            Nst_set_type_error(Nst_sprintf(
+            Nst_set_type_errorf(
                 _Nst_EM_EXPECTED_TYPE("Int"),
-                TYPE_NAME(idx)));
+                TYPE_NAME(idx));
 
             return_value = INST_FAILED;
             goto end;
@@ -1146,16 +1146,16 @@ static i32 exe_op_extract()
         else if (idx->hash != -1)
             Nst_vstack_push(&Nst_state.es->v_stack, Nst_c.Null_null);
         else {
-            Nst_set_type_error(Nst_sprintf(
+            Nst_set_type_errorf(
                 _Nst_EM_UNHASHABLE_TYPE,
-                TYPE_NAME(idx)));
+                TYPE_NAME(idx));
             return_value = INST_FAILED;
         }
     } else if (cont->type == Nst_t.Str) {
         if (idx->type != Nst_t.Int) {
-            Nst_set_type_error(Nst_sprintf(
+            Nst_set_type_errorf(
                 _Nst_EM_EXPECTED_TYPE("Int"),
-                TYPE_NAME(idx)));
+                TYPE_NAME(idx));
 
             return_value = INST_FAILED;
             goto end;
@@ -1168,9 +1168,9 @@ static i32 exe_op_extract()
         else
             Nst_vstack_push(&Nst_state.es->v_stack, res);
     } else {
-        Nst_set_type_error(Nst_sprintf(
+        Nst_set_type_errorf(
             _Nst_EM_EXPECTED_TYPE("Array', 'Vector', 'Map' or 'Str"),
-            TYPE_NAME(cont)));
+            TYPE_NAME(cont));
         return_value = INST_FAILED;
     }
 
@@ -1384,17 +1384,17 @@ static i32 exe_unpack_seq()
     Nst_SeqObj *seq = SEQ(POP_TOP_VALUE);
 
     if (seq->type != Nst_t.Array && seq->type != Nst_t.Vector) {
-        Nst_set_type_error(Nst_sprintf(
+        Nst_set_type_errorf(
             _Nst_EM_EXPECTED_TYPE("Array' or 'Vector"),
-            TYPE_NAME(seq)));
+            TYPE_NAME(seq));
         Nst_dec_ref(seq);
         return INST_FAILED;
     }
 
     if ((i64)seq->len != inst->int_val) {
-        Nst_set_value_error(Nst_sprintf(
+        Nst_set_value_errorf(
             _Nst_EM_WRONG_UNPACK_LENGTH,
-            inst->int_val, seq->len));
+            inst->int_val, seq->len);
         Nst_dec_ref(seq);
         return INST_FAILED;
     }
@@ -1431,7 +1431,7 @@ usize Nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part)
     if (full_path_len == 0) {
         Nst_free(wide_full_path);
         Nst_free(wide_file_path);
-        Nst_set_value_error(Nst_sprintf(_Nst_EM_FILE_NOT_FOUND, file_path));
+        Nst_set_value_errorf(_Nst_EM_FILE_NOT_FOUND, file_path);
         return 0;
     }
 
@@ -1451,7 +1451,7 @@ usize Nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part)
         if (full_path_len == 0) {
             Nst_free(wide_full_path);
             Nst_free(wide_file_path);
-            Nst_set_value_error(Nst_sprintf(_Nst_EM_FILE_NOT_FOUND, file_path));
+            Nst_set_value_errorf(_Nst_EM_FILE_NOT_FOUND, file_path);
             return 0;
         }
     }

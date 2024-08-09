@@ -43,6 +43,7 @@ Nst_Obj *NstC hex_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC parse_int_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC lremove_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC rremove_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC fmt_(usize arg_num, Nst_Obj **args);
 
 #ifdef __cplusplus
 }

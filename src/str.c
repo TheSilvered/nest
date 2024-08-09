@@ -311,10 +311,10 @@ Nst_Obj *_Nst_string_get(Nst_StrObj *str, i64 idx)
         idx += str->true_len;
 
     if (idx < 0 || idx >= (i64)str->true_len) {
-        Nst_set_value_error(Nst_sprintf(
+        Nst_set_value_errorf(
             _Nst_EM_INDEX_OUT_OF_BOUNDS("Str"),
             idx,
-            str->true_len));
+            str->true_len);
         return NULL;
     }
 

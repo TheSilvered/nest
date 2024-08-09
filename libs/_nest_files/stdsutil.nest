@@ -7,6 +7,7 @@ __su.center_       = center
 __su.decode_       = decode
 __su.encode_       = encode
 __su.ends_with_    = ends_with
+__su.fmt_          = fmt
 __su.hex_          = hex
 __su.is_alnum_     = is_alnum
 __su.is_alpha_     = is_alpha

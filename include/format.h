@@ -110,7 +110,9 @@ This parameter specifies the size of the argument passed:
 
 `{Type[:[Flags][Width][.Precision][,SeparatorWidth][Alignment]]}`
 
-Things inside the square brackets are optional.
+The things inside the square brackets are optional.
+
+To write a curly brace `{`, write `{{`, and to write `}`, write `}}` instead.
 
 ### Type
 
@@ -129,46 +131,20 @@ allowed:
 - `c` for `char`
 - `p` for `void *`
 
-Additionally you can pass a Nest object to be formatted, in this case the
-`Type` field should begin with a hash symbol (`#`) and no type needs to be
-specified (since it is already inside the object itself). Optionally you can
-add a letter after the hash to specify a type the object should be casted to
-before being formatted.
-
-The type specifiers for Nest objects are the following:
-
-- `#` any Nest object
-- `#i` a Nest object casted to an `Int`
-- `#r` a Nest object casted to a `Real`
-- `#b` a Nest object casted to a `Bool`
-- `#s` a Nest object casted to a `Str`
-- `#v` a Nest object casted to a `Vector`
-- `#a` a Nest object casted to an `Array`
-- `#m` a Nest object casted to a `Map`
-- `#I` a Nest object casted to an `Iter`
-- `#B` a Nest object casted to a `Byte`
-
-!!!note
-    The letters for the type casts are the same used in `Nst_extract_args`, but
-    `n`, `f`, `F` and `t` are omitted since no objects can be casted to these
-    types other than objects of the same type.
-
 ### Flags
 
 The available flags are:
 
-For floating point numbers it
-
 - `z`: normalize negative zero (`-0.0`) to zero (`0.0`)
-- `0`: fill with zeroes
-- `g`, `G`: general representation for floats
-- `f`, `F`: decimal representation for floats
-- `e`, `E`: standard (or scientific) notation for floats
+- `g`, `G`: general representation for `Real`s
+- `f`, `F`: decimal representation for `Real`s
+- `e`, `E`: standard (or scientific) notation for `Real`s
 - `b`: binary integer representation
 - `o`: octal integer representation
 - `x`: hexadecimal integer representation
 - `X`: uppercase hexadecimal integer representation
 - `u`: treat the integer as unsigned
+- `0`: fill with zeroes
 - ` ` (space): add a space in front of positive numbers
 - `+`: add a plus sign in front of positive numbers
 - `r`: Nest literal string representation
@@ -177,9 +153,14 @@ For floating point numbers it
 - `A`: escape special and non-ASCII characters
 - `p`: lowercase affixes/general lowercase
 - `P`: uppercase affixes/general uppercase
-- `c`: cut to width
 - `'`: thousand separator
 - `_`: padding character
+- `c`: cut to width
+
+!!!note
+    If a flag is not supported by the type it is used with it is ignored. If
+    incompatible flags are used in the same format, such as `{i:bo}`, only the
+    latter will be used.
 
 #### The `z` flag
 
@@ -497,7 +478,7 @@ that will be the actual character used.
 For example:
 
 ```better-c
-Nst_fmt("{i}", 0, NULL, 1000000); // results in "1000000"
+Nst_fmt("{i}",    0, NULL, 1000000); // results in "1000000"
 Nst_fmt("{i:''}", 0, NULL, 1000000); // results in "1'000'000"
 Nst_fmt("{i:',}", 0, NULL, 1000000); // results in "1,000,000"
 Nst_fmt("{i:' }", 0, NULL, 1000000); // results in "1 000 000"
@@ -679,6 +660,7 @@ and the right.
 #define FORMAT_H
 
 #include "file.h"
+#include "sequence.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -817,6 +799,16 @@ NstEXP i8 *NstC Nst_fmt(const i8 *fmt, usize fmt_len, usize *out_len, ...);
 /* `va_list` variant of `Nst_fmt`. */
 NstEXP i8 *NstC Nst_vfmt(const i8 *fmt, usize fmt_len, usize *out_len,
                          va_list args);
+/**
+ * Similar to `Nst_fmt`, creates a string object formatted with the values
+ * given.
+ *
+ * @param fmt: the format placeholder
+ * @param values: the values to format
+ *
+ * @return A new object of type `Str` or `NULL` on failure. The error is set.
+ */
+NstEXP Nst_Obj *NstC Nst_fmt_objs(Nst_StrObj *fmt, Nst_SeqObj *values);
 
 #ifdef __cplusplus
 }

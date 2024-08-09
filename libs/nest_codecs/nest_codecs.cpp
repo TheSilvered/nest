@@ -31,9 +31,9 @@ Nst_Obj *NstC from_cp_(usize arg_num, Nst_Obj **args)
 
     if (!Nst_is_valid_cp((u32)cp)) {
         if (cp <= 0xffff)
-            Nst_set_value_error(Nst_sprintf("invalid code point U+%04llX", cp));
+            Nst_set_value_errorf("invalid code point U+%04llX", cp);
         else
-            Nst_set_value_error(Nst_sprintf("invalid code point U+%06llX", cp));
+            Nst_set_value_errorf("invalid code point U+%06llX", cp);
 
         return nullptr;
     }
