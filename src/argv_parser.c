@@ -165,7 +165,7 @@ i32 _Nst_parse_args(Nst_CLArgs *cl_args)
             case 'b': cl_args->print_bytecode  = true; break;
             case 'f': cl_args->force_execution = true; break;
             case 'D': cl_args->no_default      = true; break;
-            case 'm': supports_color        = false;break;
+            case 'm': supports_color           = false;break;
             case 'h':
             case '?':
                 printf(HELP_MESSAGE);

@@ -952,27 +952,27 @@ static inline void bool_arr_fill(bool_arr_t array, usize size, bool value)
 
 static bool optimize_chained_jumps(Nst_InstList *bc)
 {
-    i64 size = bc->total_size;
+    usize size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;
 
     bool_arr_t visited_jumps = bool_arr_new(size);
     if (visited_jumps == NULL)
         return false;
 
-    for (i64 i = 0; i < size; i++) {
+    for (usize i = 0; i < size; i++) {
         if (!Nst_INST_IS_JUMP(inst_list[i].id))
             continue;
 
         bool_arr_fill(visited_jumps, size, false);
         i64 end_jump = inst_list[i].int_val;
-        bool_arr_set(visited_jumps, end_jump, true);
+        bool_arr_set(visited_jumps, (usize)end_jump, true);
 
         while (inst_list[end_jump].id == Nst_IC_JUMP) {
             i64 new_end_jump = inst_list[end_jump].int_val;
-            if (bool_arr_get(visited_jumps, new_end_jump))
+            if (bool_arr_get(visited_jumps, (usize)new_end_jump))
                 break;
             end_jump = new_end_jump;
-            bool_arr_set(visited_jumps, end_jump, true);
+            bool_arr_set(visited_jumps, (usize)end_jump, true);
         }
 
         inst_list[i].int_val = end_jump;

@@ -50,7 +50,8 @@ Modes:
 - `decimal_point`: pointer where to place the position of the decimal point
   relative to the string of digits returned, it is set to `9999` if `value` is
   NaN or Infinity
-- `sign`: set to `0` for positive values and to `1` for negative values
+- `sign`: set to `0` for positive values and to `1` for negative values, it is
+  ignored if set to `NULL`
 - `str_end`: a pointer set to the end of the returned string, it is ignored if
   set to `NULL`
 
