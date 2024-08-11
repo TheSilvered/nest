@@ -565,13 +565,13 @@ void fmt_values_init_sequence(FmtValues *values, Nst_SeqObj *obj)
 }
 
 #define fmt_values_get_va_arg(fmt_vals, type)                                 \
-    va_arg(*((fmt_vals).v.va), type)
+    va_arg(*((fmt_vals)->v.va), type)
 
-static Nst_Obj *fmt_values_get_obj(FmtValues values)
+static Nst_Obj *fmt_values_get_obj(FmtValues *values)
 {
-    if (values.v.arr.obj->len <= values.v.arr.i)
+    if (values->v.arr.obj->len <= values->v.arr.i)
         return NULL;
-    return values.v.arr.obj->objs[values.v.arr.i++];
+    return values->v.arr.obj->objs[values->v.arr.i++];
 }
 
 typedef struct _Format {
@@ -660,9 +660,9 @@ static usize format_fill_ch_len(Format *format)
 }
 
 static i8 *general_fmt(const i8 *fmt, usize fmt_len, usize *out_len,
-                       FmtValues values);
+                       FmtValues *values);
 
-static const i8 *fmt_value(Nst_Buffer *buf, const i8 *fmt, FmtValues values);
+static const i8 *fmt_value(Nst_Buffer *buf, const i8 *fmt, FmtValues *values);
 
 static void fmt_cut(i8 *str, usize str_len, usize char_len, i8 **out_str,
                     usize *out_len, Format *format,
@@ -732,7 +732,7 @@ NstEXP Nst_Obj *NstC Nst_fmt_objs(Nst_StrObj *fmt, Nst_SeqObj *values)
         (const i8 *)fmt->value,
         fmt->len,
         &str_len,
-        fmt_values);
+        &fmt_values);
     if (str == NULL)
         return NULL;
     if (fmt_values.v.arr.i != fmt_values.v.arr.obj->len) {
@@ -749,11 +749,11 @@ i8 *Nst_vfmt(const i8 *fmt, usize fmt_len, usize *out_len, va_list args)
     va_copy(args_cpy, args);
     FmtValues values;
     fmt_values_init_va_args(&values, &args_cpy);
-    return general_fmt(fmt, fmt_len, out_len, values);
+    return general_fmt(fmt, fmt_len, out_len, &values);
 }
 
 static i8 *general_fmt(const i8 *fmt, usize fmt_len, usize *out_len,
-                       FmtValues values)
+                       FmtValues *values)
 {
     Nst_Buffer buf;
     usize fmtlen = fmt_len != 0 ? fmt_len : strlen(fmt);
@@ -820,9 +820,6 @@ static const i8 *parse_format(const i8 *fmt, Format *format)
     while (true) {
         bool end_loop = false;
         switch (*fmt) {
-        case 'z':
-            format->normalize_neg_zero = true;
-            break;
         case '0':
             format->pad_zeroes_precision = true;
             break;
@@ -955,7 +952,7 @@ static const i8 *parse_format(const i8 *fmt, Format *format)
     return fmt;
 }
 
-static bool set_fmt_field(FmtValues values, const i8 *field_name, i32 *field)
+static bool set_fmt_field(FmtValues *values, const i8 *field_name, i32 *field)
 {
     if (*field != -2)
         return true;
@@ -980,9 +977,9 @@ static bool set_fmt_field(FmtValues values, const i8 *field_name, i32 *field)
     return true;
 }
 
-static bool add_format_values(Format *format, FmtValues values)
+static bool add_format_values(Format *format, FmtValues *values)
 {
-    if (values.type == Nst_VALUES_VA_ARGS) {
+    if (values->type == Nst_VALUES_VA_ARGS) {
         if (format->width == -2)
             format->width = fmt_values_get_va_arg(values, i32);
         if (format->precision == -2)
@@ -1000,7 +997,7 @@ static bool add_format_values(Format *format, FmtValues values)
     return true;
 }
 
-static const i8 *fmt_value(Nst_Buffer *buf, const i8 *fmt, FmtValues values)
+static const i8 *fmt_value(Nst_Buffer *buf, const i8 *fmt, FmtValues *values)
 {
     const i8 *type = NULL;
     Nst_Obj *obj = NULL;
@@ -1010,7 +1007,7 @@ static const i8 *fmt_value(Nst_Buffer *buf, const i8 *fmt, FmtValues values)
     format_init(&format);
 
     fmt++;
-    if (values.type == Nst_VALUES_VA_ARGS) {
+    if (values->type == Nst_VALUES_VA_ARGS) {
         type = fmt++;
         if (*fmt == '}') {
             fmt++;
@@ -1850,9 +1847,6 @@ static bool fmt_double(Nst_Buffer *buf, f64 val, Format *format)
 
     if (format->precision < 0)
         format->precision = 6;
-
-    if (format->normalize_neg_zero && val == -0.0)
-        val = 0.0;
 
 #ifndef Nst_WIN
 #pragma GCC diagnostic push

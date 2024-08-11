@@ -135,7 +135,6 @@ allowed:
 
 The available flags are:
 
-- `z`: normalize negative zero (`-0.0`) to zero (`0.0`)
 - `g`, `G`: general representation for `Real`s
 - `f`, `F`: decimal representation for `Real`s
 - `e`, `E`: standard (or scientific) notation for `Real`s
@@ -161,18 +160,6 @@ The available flags are:
     If a flag is not supported by the type it is used with it is ignored. If
     incompatible flags are used in the same format, such as `{i:bo}`, only the
     latter will be used.
-
-#### The `z` flag
-
-This flag is only supported by the `f` type and will treat negative zero as
-positive zero instead of differentiating them.
-
-For example:
-
-```better-c
-Nst_fmt("{f}",   0, NULL, -0.0); // results in `-0`
-Nst_fmt("{f:z}", 0, NULL, -0.0); // results in `0`
-```
 
 #### The `g` and `G` flags
 

@@ -1499,19 +1499,19 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
 
     while (tot_size >= 10) {
         tot_size /= 10;
-        ++idx_width;
+        idx_width++;
     }
     while (max_col >= 10) {
         max_col /= 10;
-        ++col_width;
+        col_width++;
     }
     while (max_row >= 10) {
         max_row /= 10;
-        ++row_width;
+        row_width++;
     }
     while (max_int >= 10) {
         max_int /= 10;
-        ++int_width;
+        int_width++;
     }
 
     idx_width = idx_width < 3 ? 3 : idx_width;

@@ -11,8 +11,9 @@ static Nst_Declr obj_list_[] = {
     Nst_FUNCDECLR(trim_,  1),
     Nst_FUNCDECLR(ltrim_, 1),
     Nst_FUNCDECLR(rtrim_, 1),
-    Nst_FUNCDECLR(justify_, 3),
-    Nst_FUNCDECLR(center_, 3),
+    Nst_FUNCDECLR(ljust_, 3),
+    Nst_FUNCDECLR(rjust_, 3),
+    Nst_FUNCDECLR(cjust_, 3),
     Nst_FUNCDECLR(to_title_, 1),
     Nst_FUNCDECLR(to_upper_, 1),
     Nst_FUNCDECLR(to_lower_, 1),
@@ -121,8 +122,11 @@ Nst_Obj *NstC lfind_(usize arg_num, Nst_Obj **args)
 
     if (sub == nullptr)
         return Nst_inc_ref(Nst_const()->Int_neg1);
-    else
-        return Nst_int_new(sub - str1->value);
+
+    return Nst_int_new(
+        i64(Nst_string_utf8_char_len(
+            (u8 *)str1->value,
+            sub - str1->value)));
 }
 
 Nst_Obj *NstC rfind_(usize arg_num, Nst_Obj **args)
@@ -161,8 +165,11 @@ Nst_Obj *NstC rfind_(usize arg_num, Nst_Obj **args)
 
     if (sub == nullptr)
         return Nst_inc_ref(Nst_const()->Int_neg1);
-    else
-        return Nst_int_new(sub - str1->value);
+
+    return Nst_int_new(
+        i64(Nst_string_utf8_char_len(
+            (u8 *)str1->value,
+            sub - str1->value)));
 }
 
 Nst_Obj *NstC starts_with_(usize arg_num, Nst_Obj **args)
@@ -223,7 +230,7 @@ Nst_Obj *NstC trim_(usize arg_num, Nst_Obj **args)
     usize len = str->len;
 
     while (isspace((u8)*s_start)) {
-        ++s_start;
+        s_start++;
         --len;
     }
 
@@ -239,7 +246,7 @@ Nst_Obj *NstC trim_(usize arg_num, Nst_Obj **args)
     if (new_str == nullptr)
         return nullptr;
 
-    strncpy(new_str, s_start, len);
+    memcpy(new_str, s_start, len);
     new_str[len] = '\0';
 
     return Nst_string_new(new_str, len, true);
@@ -256,14 +263,15 @@ Nst_Obj *NstC ltrim_(usize arg_num, Nst_Obj **args)
     usize len = str->len;
 
     while (isspace((u8)*s_start)) {
-        ++s_start;
+        s_start++;
         --len;
     }
 
     i8 *new_str = Nst_malloc_c(len + 1, i8);
     if (new_str == nullptr)
         return nullptr;
-    strcpy(new_str, s_start);
+    memcpy(new_str, s_start, len);
+    new_str[len] = '\0';
 
     return Nst_string_new(new_str, len, true);
 }
@@ -292,79 +300,21 @@ Nst_Obj *NstC rtrim_(usize arg_num, Nst_Obj **args)
         Nst_failed_allocation();
         return nullptr;
     }
-    strncpy(new_str, s_start, len);
+    memcpy(new_str, s_start, len);
     new_str[len] = '\0';
 
     return Nst_string_new(new_str, len, true);
 }
 
-static void fill_ch_str(i8 *str, i8 *ch, usize ch_size, usize count)
-{
-    if (ch_size == 1)
-        memset(str, *ch, count);
-    else {
-        for (usize i = 0, n = count * ch_size; i < n; i += ch_size)
-            memcpy(str + i, ch, ch_size);
-    }
-}
-
-static Nst_Obj *justify_left(Nst_StrObj *str, i64 just_len, i8 *fill_ch,
-                             usize fill_ch_len)
-{
-    usize fill_len = usize(just_len - str->true_len);
-    usize str_len = str->len;
-    usize new_str_len = str_len + fill_ch_len * fill_len;
-
-    i8 *new_str = Nst_malloc_c(new_str_len + 1, i8);
-    if (new_str == nullptr)
-        return nullptr;
-
-    memcpy(new_str, str->value, str_len);
-    fill_ch_str(new_str + str_len, fill_ch, fill_ch_len, fill_len);
-
-    new_str[str_len + fill_ch_len * fill_len] = 0;
-    Nst_Obj *new_str_obj = Nst_string_new_len(
-        new_str,
-        new_str_len,
-        usize(just_len),
-        true);
-    if (new_str_obj == nullptr)
-        Nst_free(new_str);
-    return new_str_obj;
-}
-
-static Nst_Obj *justify_right(Nst_StrObj *str, i64 just_len, i8 *fill_ch,
-                              usize fill_ch_len)
-{
-    usize fill_len = usize(just_len - str->true_len);
-    usize str_len = str->len;
-    usize new_str_len = str_len + fill_ch_len * fill_len;
-
-    i8 *new_str = Nst_malloc_c(new_str_len + 1, i8);
-    if (new_str == nullptr)
-        return nullptr;
-
-    fill_ch_str(new_str, fill_ch, fill_ch_len, fill_len);
-    memcpy(new_str + fill_len * fill_ch_len, str->value, str_len);
-    new_str[str_len + fill_ch_len * fill_len] = 0;
-    Nst_Obj *new_str_obj = Nst_string_new_len(
-        new_str,
-        new_str_len,
-        usize(just_len),
-        true);
-    if (new_str_obj == nullptr)
-        Nst_free(new_str);
-    return new_str_obj;
-}
-
 static bool check_just_args(usize arg_num, Nst_Obj **args, Nst_StrObj *&str,
-                            i64 &just_len, i8 *&fill_ch, usize &fill_ch_len)
+                            usize &just_len, i8 *&fill_ch, usize &fill_ch_len)
 {
     Nst_StrObj *just_ch_obj;
+    i64 just_len_signed;
     if (!Nst_extract_args(
             "s i ?s",
             arg_num, args,
-            &str, &just_len, &just_ch_obj))
+            &str, &just_len_signed, &just_ch_obj))
     {
         return false;
     }
@@ -385,39 +335,23 @@ static bool check_just_args(usize arg_num, Nst_Obj **args, Nst_StrObj *&str,
         Nst_set_value_error_c("filling string must be one character long");
         return false;
     }
+
+    just_len = just_len_signed < 0 ? 0 : just_len_signed;
     return true;
 }
 
-Nst_Obj *NstC justify_(usize arg_num, Nst_Obj **args)
+Nst_Obj *ljust_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
-    i64 just_len;
+    usize just_len;
     i8 *fill_ch;
     usize fill_ch_len;
 
     if (!check_just_args(arg_num, args, str, just_len, fill_ch, fill_ch_len))
         return nullptr;
 
-    usize pos_just_len = usize(just_len < 0 ? -just_len : just_len);
-
-    if (pos_just_len <= str->true_len)
+    if (just_len <= str->true_len)
         return Nst_inc_ref(str);
-
-    if (just_len > 0)
-        return justify_left(str, just_len, fill_ch, fill_ch_len);
-    else
-        return justify_right(str, -just_len, fill_ch, fill_ch_len);
-}
-
-Nst_Obj *NstC center_(usize arg_num, Nst_Obj **args)
-{
-    Nst_StrObj *str;
-    i64 just_len;
-    i8 *fill_ch;
-    usize fill_ch_len;
-
-    if (!check_just_args(arg_num, args, str, just_len, fill_ch, fill_ch_len))
-        return nullptr;
 
     usize fill_len = usize(just_len - str->true_len);
     usize str_len = str->len;
@@ -427,20 +361,90 @@ Nst_Obj *NstC center_(usize arg_num, Nst_Obj **args)
     if (new_str == nullptr)
         return nullptr;
 
-    usize half_fill = fill_len / 2;
-
-    fill_ch_str(new_str, fill_ch, fill_ch_len, half_fill);
-    memcpy(new_str + half_fill * fill_ch_len, str->value, str_len);
-    fill_ch_str(
-        new_str + half_fill * fill_ch_len + str_len,
-        fill_ch, fill_ch_len,
-        fill_len - half_fill); // not half_fill again becaues of odd fills
+    memcpy(new_str, str->value, str_len);
+    Nst_memset(new_str + str_len, fill_ch_len, fill_len, (void *)fill_ch);
 
     new_str[str_len + fill_ch_len * fill_len] = 0;
     Nst_Obj *new_str_obj = Nst_string_new_len(
         new_str,
         new_str_len,
-        usize(just_len),
+        just_len,
+        true);
+    if (new_str_obj == nullptr)
+        Nst_free(new_str);
+    return new_str_obj;
+}
+
+Nst_Obj *rjust_(usize arg_num, Nst_Obj **args)
+{
+    Nst_StrObj *str;
+    usize just_len;
+    i8 *fill_ch;
+    usize fill_ch_len;
+
+    if (!check_just_args(arg_num, args, str, just_len, fill_ch, fill_ch_len))
+        return nullptr;
+
+    if (just_len <= str->true_len)
+        return Nst_inc_ref(str);
+
+    usize fill_len = usize(just_len - str->true_len);
+    usize str_len = str->len;
+    usize new_str_len = str_len + fill_ch_len * fill_len;
+
+    i8 *new_str = Nst_malloc_c(new_str_len + 1, i8);
+    if (new_str == nullptr)
+        return nullptr;
+
+    Nst_memset(new_str, fill_ch_len, fill_len, (void *)fill_ch);
+    memcpy(new_str + fill_len * fill_ch_len, str->value, str_len);
+    new_str[str_len + fill_ch_len * fill_len] = 0;
+    Nst_Obj *new_str_obj = Nst_string_new_len(
+        new_str,
+        new_str_len,
+        just_len,
+        true);
+    if (new_str_obj == nullptr)
+        Nst_free(new_str);
+    return new_str_obj;
+}
+
+Nst_Obj *NstC cjust_(usize arg_num, Nst_Obj **args)
+{
+    Nst_StrObj *str;
+    usize just_len;
+    i8 *fill_ch;
+    usize fill_ch_len;
+
+    if (!check_just_args(arg_num, args, str, just_len, fill_ch, fill_ch_len))
+        return nullptr;
+
+    if (just_len <= str->true_len)
+        return Nst_inc_ref(str);
+
+    usize fill_len = usize(just_len - str->true_len);
+    usize str_len = str->len;
+    usize new_str_len = str_len + fill_ch_len * fill_len;
+
+    i8 *new_str = Nst_malloc_c(new_str_len + 1, i8);
+    if (new_str == nullptr)
+        return nullptr;
+
+    usize left_fill = fill_len / 2;
+
+    Nst_memset(new_str, fill_ch_len, left_fill, (void *)fill_ch);
+    memcpy(new_str + left_fill * fill_ch_len, str->value, str_len);
+    Nst_memset(
+        new_str + left_fill * fill_ch_len + str_len,
+        fill_ch_len,
+        fill_len - left_fill,
+        (void *)fill_ch);
+
+    new_str[str_len + fill_ch_len * fill_len] = 0;
+    Nst_Obj *new_str_obj = Nst_string_new_len(
+        new_str,
+        new_str_len,
+        just_len,
         true);
     if (new_str_obj == nullptr)
         Nst_free(new_str);
@@ -462,7 +466,7 @@ Nst_Obj *NstC to_title_(usize arg_num, Nst_Obj **args)
     while (s != end) {
         if (isspace((u8)*s)) {
             new_word = true;
-            ++s;
+            s++;
             continue;
         }
         if (new_word) {
@@ -470,7 +474,7 @@ Nst_Obj *NstC to_title_(usize arg_num, Nst_Obj **args)
             new_word = false;
         } else
             *s = (i8)tolower((u8)*s);
-        ++s;
+        s++;
     }
 
     return OBJ(new_str);
@@ -489,7 +493,7 @@ Nst_Obj *NstC to_upper_(usize arg_num, Nst_Obj **args)
 
     while (s != end) {
         *s = (i8)toupper((u8)*s);
-        ++s;
+        s++;
     }
 
     return OBJ(new_str);
@@ -508,7 +512,7 @@ Nst_Obj *NstC to_lower_(usize arg_num, Nst_Obj **args)
 
     while (s != end) {
         *s = (i8)tolower((u8)*s);
-        ++s;
+        s++;
     }
 
     return OBJ(new_str);
@@ -528,16 +532,17 @@ Nst_Obj *NstC is_title_(usize arg_num, Nst_Obj **args)
     while (s != end) {
         if (isspace((u8)*s)) {
             new_word = true;
-            ++s;
+            s++;
             continue;
         } else if (!isalpha((u8)*s)) {
-            ++s;
+            new_word = false;
+            s++;
             continue;
         }
 
         if ((new_word && isupper((u8)*s)) || (!new_word && islower((u8)*s))) {
             new_word = false;
-            ++s;
+            s++;
             continue;
         }
         Nst_RETURN_FALSE;
@@ -559,7 +564,7 @@ Nst_Obj *NstC is_upper_(usize arg_num, Nst_Obj **args)
     while (s != end) {
         if (isalpha((u8)*s) && !isupper((u8)*s))
             Nst_RETURN_FALSE;
-        ++s;
+        s++;
     }
 
     Nst_RETURN_TRUE;
@@ -578,7 +583,7 @@ Nst_Obj *NstC is_lower_(usize arg_num, Nst_Obj **args)
     while (s != end) {
         if (isalpha((u8)*s) && !islower((u8)*s))
             Nst_RETURN_FALSE;
-        ++s;
+        s++;
     }
 
     Nst_RETURN_TRUE;

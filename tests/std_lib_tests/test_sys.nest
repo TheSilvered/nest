@@ -45,7 +45,7 @@ sys.del_env {'Invalid\0name'} @test.assert_raises_error
 sys.del_env {'Invalid=name'} @test.assert_raises_error
 
 'Hello' @sys.get_ref_count 2 @test.assert_eq
-'sys.get_addr: 0x'(10 @sys.get_addr @su.hex -16 '0' @su.justify) >< @test.println
+'sys.get_addr: {0xp16}' {10 @sys.get_addr} @su.fmt @test.println
 10 @sys.hash 10 @test.assert_eq
 -1 @sys.hash -2 @test.assert_eq
 ?::sys.VERSION Str @test.assert_eq

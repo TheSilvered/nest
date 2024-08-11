@@ -39,6 +39,8 @@
 - improved execution times and output printing
 - now when pressing `Ctrl-C` an error is thrown rather than the proccess exiting, this arror canot be cautgh with a normal try-catch statement but `err.try` is needed
 - renamed `su.split` to `su.lsplit`
+- reverted the merging of `su.ljust` and `su.rjust` into `su.justify`, now they are again two separate functions
+- renamed `su.center` to `su.cjust`
 
 **Bug fixes**
 
@@ -46,6 +48,10 @@
 - fixed a crash that occurred when using `co.pause` inside an expression
 - now months are counted from `1` in `stdtime.nest`
 - fixed an infinite loop when trying to optimize chaned jumps
+- fixed `su.lfind` and `su.rfind` that did not work with non-ASCII characters
+- fixed `su.center` causing a crash with a negative width
+- fixed `su.trim`, `su.ltrim` and `su.rtrim` not working with NUL characters
+- fixed `su.is_title` returning an incorrect value when a word had a character that was not a space or a letter before it
 
 ### C API
 

@@ -28,7 +28,6 @@ when applying the flags.
 
 The available flags are:
 
-- `z`: normalize negative zero (`-0.0`) to zero (`0.0`)
 - `g`, `G`: general representation for `Real`s
 - `f`, `F`: decimal representation for `Real`s
 - `e`, `E`: standard (or scientific) notation for `Real`s
@@ -54,18 +53,6 @@ The available flags are:
     If a flag is not supported by the type it is used with it is ignored. If
     incompatible flags are used in the same format, such as `{bo}`, only the
     latter will be used.
-
-#### The `z` flag
-
-This flag is only supported by `Real`s and will treat negative zero as
-positive zero instead of differentiating them.
-
-For example:
-
-```nest
-'{}'  {-0.0} @su.fmt --> '-0'
-'{z}' {-0.0} @su.fmt --> '0'
-```
 
 #### The `g` and `G` flags
 
@@ -538,12 +525,12 @@ without any prefix.
 
 ---
 
-### `@center`
+### `@cjust`
 
 **Synopsis:**
 
 ```nest
-[string: Str, width: Int, char: Str?] @center -> Str
+[string: Str, width: Int, char: Str?] @cjust -> Str
 ```
 
 **Description:**
@@ -552,10 +539,16 @@ Creates a new string of length `width`, copies `string` centering it and
 filling the remaining space with `char`. If the string cannot be perfectly
 centered it will be closer to the left side. `char` must have a length of `1`.
 
-If `length` is smaller than or equal to `$string`, the string itself is
-returned.
+If `length` is smaller than or equal to the length of `string`, the string
+itself is returned.
 
 If `char` is `null` a space will be used instead.
+
+**Arguments:**
+
+- `string`: the string to center
+- `width`: the minimum length in characters of the final string
+- `char`: the character used to fill the extra space
 
 **Returns:**
 
@@ -565,8 +558,8 @@ The centered string.
 
 ```nest
 |#| 'stdsutil.nest' = su
-'hello' 11 @su.center --> '   hello   '
-'hello' 10 '.' @su.center --> '..hello...'
+'hello' 7 @su.cjust --> ' hello '
+'hello' 8 '.' @su.cjust --> '.hello..'
 ```
 
 ---
@@ -808,36 +801,6 @@ A string with all the objects in `seq` joined together.
 
 ---
 
-### `@justify`
-
-**Synopsis:**
-
-```nest
-[string: Str, width: Int, char: Str?] @justify -> Str
-```
-
-**Description:**
-
-Justifies `string` according to `width`. If `width` is positive the string is
-justified to the left and if negative it is justified to the right. If
-`$string` is greater than the absolute value of `width` the string itself is
-returned.
-
-`char` must have a length of one and is used to fill the extra space. If it is
-`null` a space is used.
-
-**Arguments:**
-
-- `string`: the string to justify
-- `width`: the minimum length in characters of the final string
-- `char`: the character used to fill the extra space
-
-**Returns:**
-
-The justified string.
-
----
-
 ### `@lfind`
 
 **Synopsis:**
@@ -858,6 +821,45 @@ used.
 **Returns:**
 
 The index where `substring` starts or `-1` if it is not inside `string`.
+
+---
+
+### `@ljust`
+
+**Synopsis:**
+
+```nest
+[string: Str, width: Int, char: Str?] @ljust -> Str
+```
+
+**Description:**
+
+Creates a new string of length `width`, copies `string` justifying it to the
+left and filling the remaining space with `char`. `char` must have a length
+of `1`.
+
+If `length` is smaller than or equal to the length of `string`, the string
+itself is returned.
+
+If `char` is `null` a space will be used instead.
+
+**Arguments:**
+
+- `string`: the string to justify
+- `width`: the minimum length in characters of the final string
+- `char`: the character used to fill the extra space
+
+**Returns:**
+
+The justified string.
+
+**Example:**
+
+```nest
+|#| 'stdsutil.nest' = su
+'hello' 7 @su.ljust --> 'hello  '
+'hello' 8 '.' @su.ljust --> 'hello...'
+```
 
 ---
 
@@ -1063,6 +1065,45 @@ used.
 **Returns:**
 
 The index where `substring` starts or `-1` if it is not inside `string`.
+
+---
+
+### `@rjust`
+
+**Synopsis:**
+
+```nest
+[string: Str, width: Int, char: Str?] @rjust -> Str
+```
+
+**Description:**
+
+Creates a new string of length `width`, copies `string` justifying it to the
+right and filling the remaining space with `char`. `char` must have a length
+of `1`.
+
+If `length` is smaller than or equal to the length of `string`, the string
+itself is returned.
+
+If `char` is `null` a space will be used instead.
+
+**Arguments:**
+
+- `string`: the string to justify
+- `width`: the minimum length in characters of the final string
+- `char`: the character used to fill the extra space
+
+**Returns:**
+
+The justified string.
+
+**Example:**
+
+```nest
+|#| 'stdsutil.nest' = su
+'hello' 7 @su.rjust --> '  hello'
+'hello' 8 '.' @su.rjust --> '...hello'
+```
 
 ---
 

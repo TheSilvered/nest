@@ -552,10 +552,7 @@ Nst_Obj *Nst_string_parse_int(Nst_StrObj *str, i32 base)
 
 Nst_Obj *Nst_string_parse_byte(Nst_StrObj *str)
 {
-    if (str->len == 1)
-        return Nst_byte_new(str->value[0]);
-
-    if (str->len == 2 && (u8)str->value[0] > 0x7f) {
+    if (str->true_len == 1) {
         u32 utf32_ch = Nst_ext_utf8_to_utf32((u8 *)str->value);
         if (utf32_ch <= 0xff)
             return Nst_byte_new((u8)utf32_ch);
@@ -760,8 +757,8 @@ i32 Nst_string_compare(Nst_StrObj *str1, Nst_StrObj *str2)
         if (*p1 != *p2)
             return *p1 < *p2 ? -1 : 1; // fixed values above 0x7f
         else {
-            ++p1;
-            ++p2;
+            p1++;
+            p2++;
         }
     }
 
@@ -783,8 +780,8 @@ i8 *Nst_string_find(i8 *s1, usize l1, i8 *s2, usize l2)
         p2 = s2;
 
         while (p1 != end1 && p2 != end2 && *p1 == *p2) {
-            ++p1;
-            ++p2;
+            p1++;
+            p2++;
         }
 
         if (p2 == end2)
