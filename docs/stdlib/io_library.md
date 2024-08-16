@@ -267,45 +267,8 @@ The file modes are:
 | `a+`           | read and append, keeping the contents         |
 | `ab+` or `a+b` | read and append bytes, keeping the contents   |
 
-The encodings are:
-
-| Encoding      | Aliases                                 |
-| ------------- | --------------------------------------- |
-| `ascii`       | `us-ascii`                              |
-| `cp1250`      | `cp-1250`, `windows[-]1250`             |
-| `cp1251`      | `cp-1251`, `windows[-]1251`             |
-| `cp1252`      | `cp-1252`, `windows[-]1252`             |
-| `cp1253`      | `cp-1253`, `windows[-]1253`             |
-| `cp1254`      | `cp-1254`, `windows[-]1254`             |
-| `cp1255`      | `cp-1255`, `windows[-]1255`             |
-| `cp1256`      | `cp-1256`, `windows[-]1256`             |
-| `cp1257`      | `cp-1257`, `windows[-]1257`             |
-| `cp1258`      | `cp-1258`, `windows[-]1258`             |
-| `latin-1`     | `latin1`, `l1`, `latin`, `iso[-]8859-1` |
-| `utf8`        | `utf-8`                                 |
-| `ext-utf8`    | `ext[-]utf[-]8`                         |
-| `utf16le`     | `utf-16le`, `utf[-]16`                  |
-| `utf16be`     | `utf-16be`                              |
-| `ext-utf16le` | `ext[-]utf[-]16le`, `ext[-]utf[-]16`    |
-| `utf32le`     | `utf-32le`, `utf[-]32`                  |
-| `utf32be`     | `utf-32be`                              |
-
-!!!note
-    `[-]` means that the hyphen is optional, for example both `windows1252` and
-    `windows-1252` are accepted.
-
-The name of the encoding is case insensitive. Underscores (`_`), hyphens (`-`)
-and spaces (` `) are interchangeable. This means that any of the following is
-recognized as UTF-8.
-
-`utf8`, `utf-8`, `utf_8`, `utf 8`, `Utf8`, `Utf-8`, `Utf_8`, `Utf 8`, `uTf8`,
-`uTf-8`, `uTf_8`, `uTf 8`, `UTf8`, `UTf-8`, `UTf_8`, `UTf 8`, `utF8`, `utF-8`,
-`utF_8`, `utF 8`, `UtF8`, `UtF-8`, `UtF_8`, `UtF 8`, `uTF8`, `uTF-8`, `uTF_8`,
-`uTF 8`, `UTF8`, `UTF-8`, `UTF_8`, `UTF 8`.
-
-!!!note
-    You should use the encoding constants that are given in the
-    [Codecs Library](codecs_library.md#constants)
+To see all available encodings check
+[this page](codecs_library.md#nest-encodings).
 
 **Arguments:**
 

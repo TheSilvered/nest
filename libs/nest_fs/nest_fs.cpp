@@ -566,10 +566,8 @@ Nst_Obj *NstC join_(usize arg_num, Nst_Obj **args)
     }
 
     i8 *new_str = Nst_malloc_c(new_len + 1, i8);
-    if (new_str == nullptr) {
-        Nst_failed_allocation();
+    if (new_str == nullptr)
         return nullptr;
-    }
 
     memcpy(new_str, p1, p1_len);
 

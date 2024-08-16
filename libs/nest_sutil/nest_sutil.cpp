@@ -296,10 +296,8 @@ Nst_Obj *NstC rtrim_(usize arg_num, Nst_Obj **args)
     }
 
     i8 *new_str = Nst_malloc_c(len + 1, i8);
-    if (new_str == nullptr) {
-        Nst_failed_allocation();
+    if (new_str == nullptr)
         return nullptr;
-    }
     memcpy(new_str, s_start, len);
     new_str[len] = '\0';
 
@@ -763,7 +761,7 @@ Nst_Obj *NstC replace_(usize arg_num, Nst_Obj **args)
     if (new_str == nullptr)
         return nullptr;
 
-    // Copy replacing the occurrence
+    // Copy replacing the occurrences
     while (true) {
         sub = Nst_string_find(s, s_len, s_from, s_from_len);
         if (sub == nullptr)
@@ -782,7 +780,7 @@ Nst_Obj *NstC replace_(usize arg_num, Nst_Obj **args)
     new_str_len += s_len;
 
     new_str[new_str_len] = 0;
-    return Nst_string_new(new_str, new_str_len, true);
+    return Nst_string_new_allocated(new_str, new_str_len);
 }
 
 Nst_Obj *NstC decode_(usize arg_num, Nst_Obj **args)
@@ -796,7 +794,7 @@ Nst_Obj *NstC decode_(usize arg_num, Nst_Obj **args)
     Nst_CPID cpid = Nst_DEF_VAL(
         encoding_obj,
         Nst_encoding_from_name(STR(encoding_obj)->value),
-        Nst_CP_UTF8);
+        Nst_CP_EXT_UTF8);
     if (cpid == Nst_CP_UNKNOWN) {
         Nst_set_value_error(
             Nst_sprintf(
@@ -810,10 +808,8 @@ Nst_Obj *NstC decode_(usize arg_num, Nst_Obj **args)
 
     usize len = seq->len;
     i8 *byte_array = Nst_malloc_c(len + 1, i8);
-    if (byte_array == nullptr) {
-        Nst_failed_allocation();
+    if (byte_array == nullptr)
         return nullptr;
-    }
     Nst_Obj **objs = seq->objs;
 
     for (usize i = 0; i < len; i++)
@@ -824,7 +820,7 @@ Nst_Obj *NstC decode_(usize arg_num, Nst_Obj **args)
     i8 *str;
     usize str_len;
     bool result = Nst_translate_cp(
-        encoding, Nst_cp(Nst_CP_UTF8),
+        encoding, Nst_cp(Nst_CP_EXT_UTF8),
         byte_array, len,
         (void **)&str, &str_len);
 
@@ -861,7 +857,7 @@ Nst_Obj *NstC encode_(usize arg_num, Nst_Obj **args)
     u8 *byte_array;
     usize array_len;
     bool result = Nst_translate_cp(
-        Nst_cp(Nst_CP_UTF8), encoding,
+        Nst_cp(Nst_CP_EXT_UTF8), encoding,
         str->value, str->len,
         (void **)&byte_array, &array_len);
 
@@ -911,10 +907,8 @@ Nst_Obj *NstC join_(usize arg_num, Nst_Obj **args)
     usize len = seq->len;
     usize tot_len = str_len * (len - 1);
     Nst_Obj **objs = Nst_malloc_c(len, Nst_Obj *);
-    if (objs == nullptr) {
-        Nst_failed_allocation();
+    if (objs == nullptr)
         return nullptr;
-    }
 
     for (usize i = 0; i < len; i++) {
         objs[i] = Nst_obj_cast(seq->objs[i], Nst_type()->Str);
@@ -924,7 +918,6 @@ Nst_Obj *NstC join_(usize arg_num, Nst_Obj **args)
     i8 *new_str = Nst_malloc_c(tot_len + 1, i8);
     if (new_str == nullptr) {
         Nst_free(objs);
-        Nst_failed_allocation();
         return nullptr;
     }
     usize str_idx = 0;
@@ -982,7 +975,6 @@ Nst_Obj *NstC lsplit_whitespace(Nst_StrObj *str_obj, i64 quantity)
         i8 *new_str_val = Nst_malloc_c(new_str_len + 1, i8);
         if (new_str_val == nullptr) {
             Nst_dec_ref(vector);
-            Nst_failed_allocation();
             return nullptr;
         }
 
@@ -1071,7 +1063,6 @@ Nst_Obj *NstC lsplit_(usize arg_num, Nst_Obj **args)
         i8 *new_str_val = Nst_malloc_c(new_str_len + 1, i8);
         if (new_str_val == nullptr) {
             Nst_dec_ref(vector);
-            Nst_failed_allocation();
             return nullptr;
         }
 
@@ -1155,7 +1146,6 @@ Nst_Obj *NstC rsplit_whitespace(Nst_StrObj *str_obj, i64 quantity)
         i8 *new_str_val = Nst_malloc_c(new_str_len + 1, i8);
         if (new_str_val == nullptr) {
             Nst_dec_ref(vector);
-            Nst_failed_allocation();
             return nullptr;
         }
 
@@ -1244,7 +1234,6 @@ Nst_Obj *NstC rsplit_(usize arg_num, Nst_Obj **args)
         i8 *new_str_val = Nst_malloc_c(new_str_len + 1, i8);
         if (new_str_val == nullptr) {
             Nst_dec_ref(vector);
-            Nst_failed_allocation();
             return nullptr;
         }
 
@@ -1277,40 +1266,18 @@ Nst_Obj *NstC rsplit_(usize arg_num, Nst_Obj **args)
     return reverse_vector(vector);
 }
 
-static u8 msb64(u64 val) {
-    u8  k = 0;
-    if (val > 0xFFFFFFFFu) { val >>= 32; k  = 32; }
-    if (val > 0x0000FFFFu) { val >>= 16; k |= 16; }
-    if (val > 0x000000FFu) { val >>= 8;  k |= 8;  }
-    if (val > 0x0000000Fu) { val >>= 4;  k |= 4;  }
-    if (val > 0x00000003u) { val >>= 2;  k |= 2;  }
-    k |= (val & 2) >> 1;
-    return k;
-}
-
 Nst_Obj *NstC bin_(usize arg_num, Nst_Obj **args)
 {
     i64 n;
     if (!Nst_extract_args("l", arg_num, args, &n))
         return nullptr;
 
-    i64 str_len = (i64)msb64(n) + 1;
-
-    i8 *buf = Nst_malloc_c((usize)str_len, i8);
-    if (buf == nullptr) {
-        Nst_failed_allocation();
+    usize str_len;
+    i8 *str = Nst_fmt("{L:ub}", 6, &str_len, n);
+    if (str == nullptr)
         return nullptr;
-    }
 
-    for (i64 i = 0; i < i64(str_len - 1); i++) {
-        if (1ll << i & n)
-            buf[str_len - i - 2] = '1';
-        else
-            buf[str_len - i - 2] = '0';
-    }
-    buf[str_len - 1] = '\0';
-
-    return Nst_string_new(buf, usize(str_len) - 1, true);
+    return Nst_string_new_allocated(str, str_len);
 }
 
 Nst_Obj *NstC oct_(usize arg_num, Nst_Obj **args)
@@ -1319,26 +1286,12 @@ Nst_Obj *NstC oct_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("l", arg_num, args, &n))
         return nullptr;
 
-    i64 h_bit = (i64)msb64(n);
-    i64 str_len = h_bit / 3;
-    if (h_bit % 3)
-        str_len += 2;
-    else
-        str_len += 1;
-
-    i8 *buf = Nst_malloc_c((usize)str_len, i8);
-    if (buf == nullptr) {
-        Nst_failed_allocation();
+    usize str_len;
+    i8 *str = Nst_fmt("{L:uo}", 6, &str_len, n);
+    if (str == nullptr)
         return nullptr;
-    }
 
-    for (i64 i = 0; i < i64(str_len - 1); i++) {
-        i8 ch = i8((07ull << (i * 3) & u64(n)) >> (i * 3));
-        buf[str_len - i - 2] = '0' + ch;
-    }
-    buf[str_len - 1] = '\0';
-
-    return Nst_string_new(buf, usize(str_len) - 1, true);
+    return Nst_string_new_allocated(str, str_len);
 }
 
 Nst_Obj *NstC hex_(usize arg_num, Nst_Obj **args)
@@ -1348,32 +1301,13 @@ Nst_Obj *NstC hex_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("l y", arg_num, args, &n, &upper))
         return nullptr;
 
-    const i8 *digits;
-    if (upper)
-        digits = "0123456789abcdef";
-    else
-        digits = "0123456789ABCDEF";
-
-    i64 h_bit = (i64)msb64(n);
-    i64 str_len = h_bit / 4;
-    if (h_bit % 4)
-        str_len += 2;
-    else
-        str_len += 1;
-
-    i8 *buf = Nst_malloc_c((usize)str_len, i8);
-    if (buf == nullptr) {
-        Nst_failed_allocation();
+    usize str_len;
+    const i8 *fmt = upper ? "{L:uX}" : "{L:ux}";
+    i8 *str = Nst_fmt(fmt, 6, &str_len, n);
+    if (str == nullptr)
         return nullptr;
-    }
 
-    for (i64 i = 0; i < i64(str_len - 1); i++) {
-        u64 ch_idx = (0xfull << (i * 4) & u64(n)) >> (i * 4);
-        buf[str_len - i - 2] = digits[ch_idx];
-    }
-    buf[str_len - 1] = '\0';
-
-    return Nst_string_new(buf, usize(str_len) - 1, true);
+    return Nst_string_new_allocated(str, str_len);
 }
 
 Nst_Obj *NstC parse_int_(usize arg_num, Nst_Obj **args)

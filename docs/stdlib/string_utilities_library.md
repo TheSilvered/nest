@@ -520,8 +520,8 @@ and the right.
 
 **Returns:**
 
-The function returns a string containing the binary representation of `n`
-without any prefix.
+A string containing the binary representation of `n` without any prefix. `n` is
+treated like an unsigned integer.
 
 ---
 
@@ -569,12 +569,28 @@ The centered string.
 **Synopsis:**
 
 ```nest
-[sequence: Array|Vector.Byte, encoding: Str] @decode -> Str
+[bytes_array: Array|Vector.Byte, encoding: Str?] @decode -> Str
 ```
+
+**Description:**
+
+Decodes a string from an array of `Byte` objects with a specific encoding. If
+an encoding is not provided the extUTF-8 encoding is used. To see the full list
+of available encodings go [here](codecs_library.md#nest-encodings).
+
+**Arguments:**
+
+- `bytes_array`: the array of bytes to decode
+- `encoding`: the encoding used to decode the `bytes_array`
 
 **Returns:**
 
-Transforms an array of `Byte` objects into a string using the given encoding.
+The decoded string.
+
+!!!warning
+    If the encoding of the bytes does not match the given encoding you could
+    end up with an error or worse with
+    [mojibake](https://en.wikipedia.org/wiki/Mojibake).
 
 ---
 
@@ -586,9 +602,25 @@ Transforms an array of `Byte` objects into a string using the given encoding.
 [string: Str, encoding: Str?] @encode -> Array.Byte
 ```
 
+**Description:**
+
+Encodes a string into an array of `Byte` objects using a specific encoding. If
+an encoding is not provided the UTF-8 encoding is used. To see the full list of
+available encodings go [here](codecs_library.md#nest-encodings).
+
+**Arguments:**
+
+- `string`: the string to encode
+- `encoding`: the encoding used to encode the `string`
+
 **Returns:**
 
-Transforms a string into an array of `Byte` objects using the given encoding.
+The array containing the encoded bytes.
+
+!!!warning
+    This function by default will not be able to encode all valid Nest strings
+    as they are encoded with extUTF-8 which is the same as UTF-8 but more
+    characters are allowed.
 
 ---
 
@@ -635,13 +667,15 @@ The newly formatted string.
 **Synopsis:**
 
 ```nest
-[n: Int] @hex -> Str
+[n: Int, upper: Bool?] @hex -> Str
 ```
 
 **Returns:**
 
 A string containing the hexadecimal representation of `n` without any
-prefix.
+prefix. `n` is treated like an unsigned integer. If `upper` is true the
+function will used letters `A-F` instead of `a-f`. If `upper` is not given it
+is considered `false`.
 
 ---
 
@@ -954,7 +988,8 @@ Creates a new string with leading whitespace removed.
 
 **Returns:**
 
-A string containing the octal representation of `n` without any prefix.
+A string containing the octal representation of `n` without any prefix. `n` is
+treated like an unsigned integer.
 
 ---
 
@@ -968,12 +1003,24 @@ A string containing the octal representation of `n` without any prefix.
 
 **Description:**
 
-This function parses an integer of base `base` from `string`. `base` can be any
-integer between 2 and 36 inclusive. If it is set to 2, 8 or 16 the
-corresponding prefix (`0b`, `0o` or `0x`) is ignored. If set to 0 it will use
-base 10 unless it finds one of the prefixes mentioned. Setting `base` to `null`
-is the same as setting it to `0`. Any underscore between the digits is ignored.
-If `string` does not contain a valid integer literal, an error it thrown.
+This function parses an integer from `string`. `base` specifies the base with
+which to parse the number and can be any value between `2` and `36` inclusive
+or `0`.
+
+When using a base higher than `10` letters are used and the function is
+case-insensitive.
+
+If `base` is set to `0` it is inferred by the number: with the prefix `0b` or
+`0B` the digits after are parsed in base `2`; with the prefix `0o` or `0O` the
+base is `8` and with the prefix `0x` or `0X` the base is `16`. When explicitly
+setting `base` to `2`, `8` or `16` the corresponding prefixes are ignored if
+present.
+
+By default
+`base` is set to zero.
+
+Additionally this function ignores any whitespace before and after the number
+and ignores any underscores (`_`) between the digits.
 
 **Returns:**
 

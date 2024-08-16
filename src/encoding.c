@@ -1753,8 +1753,10 @@ bool Nst_translate_cp(Nst_CP *from, Nst_CP *to, void *from_buf, usize from_len,
 
     // skip BOM of initial string
     if (from->bom != NULL && from_len >= from->bom_size) {
-        if (memcmp(from->bom, from_buf, from->bom_size) == 0)
+        if (memcmp(from->bom, from_buf, from->bom_size) == 0) {
             from_buf = (void *)((i8 *)from_buf + from->bom_size);
+            from_len -= from->bom_size;
+        }
     }
 
     isize n = (isize)from_len; // avoids accidental underflow

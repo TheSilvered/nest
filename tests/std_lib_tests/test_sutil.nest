@@ -239,6 +239,37 @@ su.PRINTABLE @su.is_printable @test.assert_true
 '\0' @su.is_printable @test.assert_false
 '\n' @su.is_printable @test.assert_false
 
+'aabc abc' 'ab' 'ef' @su.replace 'aefc efc' @test.assert_eq
+'aabc abc' 'ab' 'efg' @su.replace 'aefgc efgc' @test.assert_eq
+'aabc abc' 'ab' 'e' @su.replace 'aec ec' @test.assert_eq
+'abc' 'abc' @su.replace '' @test.assert_eq
+'abc' 'abc' '' @su.replace '' @test.assert_eq
+'abc abc' 'abc' @su.replace ' ' @test.assert_eq
+'abc abc' 'abc' '' @su.replace ' ' @test.assert_eq
+'abc abc' 'abc' 'defghijkl' @su.replace 'defghijkl defghijkl' @test.assert_eq
+'a\0c a\0c a\0' 'a\0c' 'test' @su.replace 'test test a\0' @test.assert_eq
+'abc abc' 'd' 'e' @su.replace 'abc abc' @test.assert_eq
+
+{
+    97b, 98b, 99b, 195b, 160b, 195b, 168b, 195b, 172b, 195b,
+    178b, 240b, 159b, 152b, 138b, 240b, 159b, 142b, 186b
+} @su.decode 'abcàèìò😊🎺' @test.assert_eq
+
+{
+    97b, 0b, 98b, 0b, 99b, 0b, 224b, 0b, 232b, 0b, 236b, 0b,
+    242b, 0b, 61b, 216b, 10b, 222b, 60b, 216b, 186b, 223b
+} 'utf16' @su.decode 'abcàèìò😊🎺' @test.assert_eq
+
+'abcàèìò😊🎺' @su.encode {
+    97b, 98b, 99b, 195b, 160b, 195b, 168b, 195b, 172b, 195b,
+    178b, 240b, 159b, 152b, 138b, 240b, 159b, 142b, 186b
+} @test.assert_eq
+
+'abcàèìò😊🎺' 'utf16' @su.encode {
+    97b, 0b, 98b, 0b, 99b, 0b, 224b, 0b, 232b, 0b, 236b, 0b,
+    242b, 0b, 61b, 216b, 10b, 222b, 60b, 216b, 186b, 223b
+} @test.assert_eq
+
 'a b' @su.lsplit {'a', 'b'} @test.assert_eq
 'a  b' @su.lsplit {'a', 'b'} @test.assert_eq
 'a\n\tb' @su.lsplit {'a', 'b'} @test.assert_eq
@@ -308,6 +339,65 @@ su.PRINTABLE @su.is_printable @test.assert_true
 'a  b  c  d' null 0 @su.rsplit {'a  b  c  d'} @test.assert_eq
 '  a  b  c  d  ' null 0 @su.rsplit {'  a  b  c  d  '} @test.assert_eq
 '  a b c d' null 0 @su.rsplit {'  a b c d'} @test.assert_eq
+
+0 @su.bin '0' @test.assert_eq
+10 @su.bin '1010' @test.assert_eq
+-10 @su.bin '1111111111111111111111111111111111111111111111111111111111110110' @test.assert_eq
+123456789 @su.bin '111010110111100110100010101' @test.assert_eq
+9223372036854775807 @su.bin '111111111111111111111111111111111111111111111111111111111111111' @test.assert_eq
+-1 @su.bin '1111111111111111111111111111111111111111111111111111111111111111' @test.assert_eq
+
+0 @su.oct '0' @test.assert_eq
+10 @su.oct '12' @test.assert_eq
+-10 @su.oct '1777777777777777777766' @test.assert_eq
+123456789 @su.oct '726746425' @test.assert_eq
+9223372036854775807 @su.oct '777777777777777777777' @test.assert_eq
+-1 @su.oct '1777777777777777777777' @test.assert_eq
+
+0 @su.hex '0' @test.assert_eq
+10 @su.hex 'a' @test.assert_eq
+-10 @su.hex 'fffffffffffffff6' @test.assert_eq
+123456789 @su.hex '75bcd15' @test.assert_eq
+123456789 false @su.hex '75bcd15' @test.assert_eq
+123456789 true @su.hex '75BCD15' @test.assert_eq
+9223372036854775807 @su.hex '7fffffffffffffff' @test.assert_eq
+-1 @su.hex 'ffffffffffffffff' @test.assert_eq
+
+'1234' @su.parse_int 1234 @test.assert_eq
+'   1234' @su.parse_int 1234 @test.assert_eq
+'1234   ' @su.parse_int 1234 @test.assert_eq
+'   1234   ' @su.parse_int 1234 @test.assert_eq
+'+1234' @su.parse_int 1234 @test.assert_eq
+'-1234' @su.parse_int -1234 @test.assert_eq
+'-1234' @su.parse_int -1234 @test.assert_eq
+'0b1010' @su.parse_int 10 @test.assert_eq
+'0B1010' @su.parse_int 10 @test.assert_eq
+'-0b1010' @su.parse_int -10 @test.assert_eq
+'-0B1010' @su.parse_int -10 @test.assert_eq
+'1010' 2 @su.parse_int 10 @test.assert_eq
+'0b1010' 2 @su.parse_int 10 @test.assert_eq
+'0B1010' 2 @su.parse_int 10 @test.assert_eq
+'0o12' @su.parse_int 10 @test.assert_eq
+'0O12' @su.parse_int 10 @test.assert_eq
+'-0o12' @su.parse_int -10 @test.assert_eq
+'-0O12' @su.parse_int -10 @test.assert_eq
+'12' 8 @su.parse_int 10 @test.assert_eq
+'0o12' 8 @su.parse_int 10 @test.assert_eq
+'0O12' 8 @su.parse_int 10 @test.assert_eq
+'0xc3' @su.parse_int 195 @test.assert_eq
+'0Xc3' @su.parse_int 195 @test.assert_eq
+'-0xc3' @su.parse_int -195 @test.assert_eq
+'-0Xc3' @su.parse_int -195 @test.assert_eq
+'c3' 16 @su.parse_int 195 @test.assert_eq
+'0xc3' 16 @su.parse_int 195 @test.assert_eq
+'0Xc3' 16 @su.parse_int 195 @test.assert_eq
+'C3' 16 @su.parse_int 195 @test.assert_eq
+'0xC3' 16 @su.parse_int 195 @test.assert_eq
+'9223372036854775807' @su.parse_int 9223372036854775807 @test.assert_eq
+'-9223372036854775808' @su.parse_int -9223372036854775808 @test.assert_eq
+su.parse_int {'hello'} @test.assert_raises_error
+su.parse_int {'123a'} @test.assert_raises_error
+su.parse_int {'9223372036854775808'} @test.assert_raises_error
 
 'hello' 'he' @su.lremove 'llo' @test.assert_eq
 'hello' 'hello' @su.lremove '' @test.assert_eq

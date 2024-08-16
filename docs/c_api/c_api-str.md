@@ -507,11 +507,12 @@ Nst_Obj *Nst_string_parse_int(Nst_StrObj *str, i32 base)
 
 Parses a [`Nst_IntObj`](c_api-simple_types.md#nst_intobj) from a string.
 
-If an invalid literal is found, the function fails rather than returning zero.
 `base` can be any number between `2` and `36`, where above `10` letters start to
-be used. If the base is `0` the function uses prefixes such as `0x`, `0b` and
-`0o` to change the base. If the base is `2`, `8` or `16` the prefix is optional
-and is ignored if found.
+be used and the function is case-insensitive. If the base is `0` the function
+uses prefixes such as `0x`, `0b` and `0o` to change the base to `16`, `2` and
+`8` respectively. If `base` is set to `2`, `8` or `16` when calling the function
+the prefix is optional and is ignored if found. Any underscores (`_`) inside the
+number are ignored and any whitespace around the number is ignored.
 
 **Parameters:**
 

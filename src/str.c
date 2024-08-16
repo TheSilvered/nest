@@ -11,10 +11,6 @@
 #include "format.h"
 #include "dtoa.h"
 
-#define IS_WHITESPACE(ch)                                                     \
-        (ch == ' ' || ch == '\n' || ch == '\t' || ch == '\r' || ch == '\v'    \
-         || ch == '\f')
-
 #define RETURN_INT_ERR do {                                                   \
     Nst_set_value_error_c(_Nst_EM_BAD_INT_LITERAL);                           \
     return NULL;                                                              \
@@ -467,7 +463,7 @@ Nst_Obj *Nst_string_parse_int(Nst_StrObj *str, i32 base)
     ERR_IF_END(s, end, RETURN_INT_ERR);
 
     ch = *s;
-    while (IS_WHITESPACE(ch))
+    while (isspace((u8)ch))
         ch = *++s;
     ERR_IF_END(s, end, RETURN_INT_ERR);
 
@@ -541,7 +537,7 @@ Nst_Obj *Nst_string_parse_int(Nst_StrObj *str, i32 base)
         ch = *++s;
     }
 
-    while (IS_WHITESPACE(ch))
+    while (isspace((u8)ch))
         ch = *++s;
 
     if (s != end)
@@ -570,7 +566,7 @@ Nst_Obj *Nst_string_parse_byte(Nst_StrObj *str)
 
     ERR_IF_END(s, end, RETURN_BYTE_ERR);
 
-    while (IS_WHITESPACE(ch))
+    while (isspace((u8)ch))
         ch = *++s;
     ERR_IF_END(s, end, RETURN_BYTE_ERR);
 
@@ -636,7 +632,7 @@ Nst_Obj *Nst_string_parse_byte(Nst_StrObj *str)
     if ((base != 2 || has_digits) && base != 16)
         ch = *++s;
 
-    while (IS_WHITESPACE(ch))
+    while (isspace((u8)ch))
         ch = *++s;
     if (s != end)
         RETURN_BYTE_ERR;
@@ -661,7 +657,7 @@ Nst_Obj *Nst_string_parse_real(Nst_StrObj *str)
     if (s == end)
         RETURN_REAL_ERR;
 
-    while (IS_WHITESPACE(ch)) {
+    while (isspace((u8)ch)) {
         ch = *++s;
         start++;
     }
@@ -683,7 +679,7 @@ Nst_Obj *Nst_string_parse_real(Nst_StrObj *str)
     }
 
     if (ch != '.') {
-        while (IS_WHITESPACE(ch))
+        while (isspace((u8)ch))
             ch = *++s;
         if (s != end)
             RETURN_REAL_ERR;
@@ -722,7 +718,7 @@ Nst_Obj *Nst_string_parse_real(Nst_StrObj *str)
         }
     }
 
-    while (IS_WHITESPACE(ch))
+    while (isspace((u8)ch))
         ch = *++s;
     if (s != end)
         RETURN_REAL_ERR;

@@ -1,8 +1,8 @@
 #include <cmath>
 #include "nest_math.h"
 
-using std::min;
-using std::max;
+using std::fmin;
+using std::fmax;
 using std::isnan;
 using std::isinf;
 
@@ -496,7 +496,7 @@ Nst_Obj *NstC clamp_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("N N N", arg_num, args, &val, &min_val, &max_val))
         return nullptr;
 
-    return Nst_real_new(max(min(val, max_val), min_val));
+    return Nst_real_new(fmax(fmin(val, max_val), min_val));
 }
 
 static inline i64 gcd_int(i64 a, i64 b)
