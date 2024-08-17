@@ -12,14 +12,11 @@ versions are not properly tested and might crash unexpectedly.**
 
 ## Features
 
-- Dynamically typed
+- Dynamic types
 - Memory safe
 - Interpreted
-- Has hash maps, vectors and arrays built in
-- Can be expanded with C/C++
-- Aimed at being consistent within its design
-- the standard library includes coroutines, a JSON parser and various other
-  helper functions
+- Garbage collected
+- Expandable with C and C++
 
 ### Nest 0.15.0 planned features
 
@@ -79,14 +76,14 @@ Redistributable that can be downloaded here:
 | <https://aka.ms/vs/17/release/vc_redist.x64.exe> | 64-bit             |
 | <https://aka.ms/vs/17/release/vc_redist.x86.exe> | 32-bit             |
 
-After insalling it you can download the installer from the desired release and
+After installing it you can download the installer from the desired release and
 run it. It is recommended to add Nest to the PATH environment variable to use
 it from the terminal.
 
 Once installed you can check that it is working by running this command:
 
 ```text
-PS C:\Users\user> nest -V
+PS C:\> nest -V
 Using Nest version: beta-0.15.0 x64
 ```
 
@@ -137,7 +134,7 @@ and run `make help` to see what to compile. In general you will want to run
 
 ### Uninstalling on linux
 
-To uninstall Nest on linux, copy
+To uninstall Nest on Linux, copy
 [`nest/build/linux/uninstall.sh`](https://github.com/TheSilvered/nest/blob/main/build/linux/uninstall.sh)
 and execute it.
 
@@ -164,7 +161,7 @@ from the latest release and extract it into `%APPDATA%/SublimeText/Packages`
 on Windows or into `~/.config/sublime-text/Packages` on Linux.
 
 In Sublime Text, in addition to syntax highlighting you can also run a script
-with `CTRL + B` and you can comment and un-comment with the default keyboard
+with `CTRL + B` and you can add and remove comments with the default keyboard
 shortcuts.
 
 Since Sublime Text does not support input from the user in the output panel,

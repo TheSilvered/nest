@@ -12,9 +12,9 @@ Redistributable that can be downloaded here:
 | <https://aka.ms/vs/17/release/vc_redist.x64.exe> | 64-bit             |
 | <https://aka.ms/vs/17/release/vc_redist.x86.exe> | 32-bit             |
 
-After insalling it you can download the installer from the desired release and
-run it. It is recommended to add Nest to the PATH environment variable to use it
-from the terminal.
+After installing it you can download the installer from the desired release and
+run it. It is recommended to add Nest to the PATH environment variable to use
+it from the terminal.
 
 Once installed you can check that it is working by running this command:
 
@@ -34,8 +34,8 @@ Once installed you can clone the repository and open the solution located in
 To create the installer you need to install InnoSetup, then navigate to
 `nest\build\windows` and run `update_exes.bat`.
 
-For this step you need to have either Nest already installed or Python 3 on your
-machine, in case you want to use Python run `update_exes.bat py`.
+For this step you need to have either Nest already installed or Python 3 on
+your machine, in case you want to use Python run `update_exes.bat py`.
 
 Once done you can navigate to `nest\build\windows\installer` and compile
 `installer-script-x64.iss` and `installer-script-x86.iss`.
@@ -69,21 +69,11 @@ libraries.
 
 Once you have installed the libraries you can enter `nest/build/linux/makefiles/`
 and run `make help` to see what to compile. In general you will want to run
-`make all`.
-
-After having compiled the C code you can go back to the parent directory
-(`nest/build/linux/`) and run `./_update_files.sh` if you already have a version
-of Nest installed or `./_update_files.sh py` to use Python 3 instead.
-
-Now to install the compiled binaries run
-
-```text
-$ sudo bash linux_install_x[ARCHITECTURE].sh
-```
+`make install` or `make install-x86`.
 
 ### Uninstalling on linux
 
-To uninstall Nest on linux, copy
+To uninstall Nest on Linux, copy
 [`nest/build/linux/uninstall.sh`](https://github.com/TheSilvered/nest/blob/main/build/linux/uninstall.sh)
 and execute it.
 
@@ -97,11 +87,11 @@ extract it into `%USERPROFILE%\.vscode\extensions` on Windows or into
 
 Currently VS Code supports only syntax highlighting and commenting with keyboard
 shortcuts, to run the Nest file you can install Code Runner and add
-`"nest": "cd $dir && nest -m $fileName"` inside `"code-runner.executorMap"` in
+`"nest": "cd $dir && nest $fileName"` inside `"code-runner.executorMap"` in
 `settings.json`.
 
 This method does not support input, to do that you can select the option to run
-Code Runner in the terminal and remove `-m` from the command.
+Code Runner in the terminal.
 
 ### Sublime Text
 
@@ -110,7 +100,7 @@ from the latest release and extract it into `%APPDATA%/SublimeText/Packages`
 on Windows or into `~/.config/sublime-text/Packages` on Linux.
 
 In Sublime Text, in addition to syntax highlighting you can also run a script
-with `CTRL + B` and you can comment and un-comment with the default keyboard
+with `CTRL + B` and you can add and remove comments with the default keyboard
 shortcuts.
 
 Since Sublime Text does not support input from the user in the output panel,
