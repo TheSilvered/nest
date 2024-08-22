@@ -581,6 +581,9 @@ void Nst_sbuffer_destroy(Nst_SizedBuffer *buf)
 
 Destroys the contents of a sized buffer. The buffer itself is not freed.
 
+If the data is set to `NULL` the function returns immediately and and leaves the
+buffer untouched.
+
 ---
 
 ### `Nst_buffer_init`
@@ -835,3 +838,6 @@ void Nst_buffer_destroy(Nst_Buffer *buf)
 **Description:**
 
 Destroys the contents of a buffer. The buffer itself is not freed.
+
+If the data is set to `NULL` the function returns immediately and and leaves the
+buffer untouched.

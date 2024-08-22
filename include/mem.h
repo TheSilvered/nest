@@ -302,7 +302,12 @@ NstEXP void NstC Nst_sbuffer_shrink_auto(Nst_SizedBuffer *buf);
  * @return `true` on success and `false` on failure. The error is set.
  */
 NstEXP bool NstC Nst_sbuffer_copy(Nst_SizedBuffer *src, Nst_SizedBuffer *dst);
-/* Destroys the contents of a sized buffer. The buffer itself is not freed. */
+/**
+ * Destroys the contents of a sized buffer. The buffer itself is not freed.
+ *
+ * @brief If the data is set to `NULL` the function returns immediately and
+ * and leaves the buffer untouched.
+ */
 NstEXP void NstC Nst_sbuffer_destroy(Nst_SizedBuffer *buf);
 
 /**
@@ -407,7 +412,12 @@ NstEXP Nst_StrObj *NstC Nst_buffer_to_string(Nst_Buffer *buf);
  * @return `true` on success and `false` on failure. The error is set.
  */
 NstEXP bool NstC Nst_buffer_copy(Nst_Buffer *src, Nst_Buffer *dst);
-/* Destroys the contents of a buffer. The buffer itself is not freed. */
+/**
+ * Destroys the contents of a buffer. The buffer itself is not freed.
+ *
+ * @brief If the data is set to `NULL` the function returns immediately and
+ * and leaves the buffer untouched.
+ */
 NstEXP void NstC Nst_buffer_destroy(Nst_Buffer *buf);
 
 #ifdef __cplusplus
