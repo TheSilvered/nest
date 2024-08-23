@@ -41,6 +41,7 @@
 - renamed `su.split` to `su.lsplit`
 - reverted the merging of `su.ljust` and `su.rjust` into `su.justify`, now they are again two separate functions
 - renamed `su.center` to `su.cjust`
+- now when a string is not closed only the end is highlighted rather than the whole string
 
 **Bug fixes**
 

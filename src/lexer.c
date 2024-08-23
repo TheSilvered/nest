@@ -402,8 +402,11 @@ static i32 oct_ltrl_size(Nst_Pos start, bool *is_byte)
 
 static i32 hex_ltrl_size(Nst_Pos start, bool *is_byte)
 {
-    if (cursor.ch == 'h' || cursor.ch == 'H')
+    const i8 *err_msg = _Nst_EM_BAD_INT_LITERAL;
+    if (cursor.ch == 'h' || cursor.ch == 'H') {
         *is_byte = true;
+        err_msg = _Nst_EM_BAD_BYTE_LITERAL;
+    }
     advance();
     if (!CH_IS_HEX(cursor.ch)) {
         go_back();
@@ -411,7 +414,7 @@ static i32 hex_ltrl_size(Nst_Pos start, bool *is_byte)
             Nst_error_get(),
             start,
             cursor.pos,
-            _Nst_EM_BAD_INT_LITERAL);
+            err_msg);
         return -1;
     }
     i32 ltrl_size = 2;
@@ -424,7 +427,7 @@ static i32 hex_ltrl_size(Nst_Pos start, bool *is_byte)
             Nst_error_get(),
             start,
             cursor.pos,
-            _Nst_EM_BAD_INT_LITERAL);
+            err_msg);
         return -1;
     }
     go_back();
@@ -751,7 +754,7 @@ static bool format_escape(Nst_Buffer *buf, bool is_format_string,
     Nst_Obj *val_obj = OBJ(Nst_buffer_to_string(buf));
     if (val_obj == NULL) {
         ADD_ERR_POS;
-        return NULL;
+        return false;
     }
     Nst_obj_hash(val_obj);
 

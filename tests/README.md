@@ -8,7 +8,7 @@ Index:
 The current state of tests:
 
 - 🔴 Error tests
-  - 🟡 Lexer errors
+  - 🟢 Lexer errors
   - 🔴 Parser errors
   - 🔴 Runtime errors
 - 🟡 Object tests
