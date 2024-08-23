@@ -21,7 +21,6 @@ Nst_Obj *NstC sort_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC empty_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC filter_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC filter_i_(usize arg_num, Nst_Obj **args);
-Nst_Obj *NstC contains_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC any_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC all_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC count_(usize arg_num, Nst_Obj **args);

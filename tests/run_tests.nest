@@ -34,13 +34,8 @@ sys.SUPPORTS_COLOR ? [
 ]
 
 #error_location traceback [
-    !traceback ? => '; <unknown position>'
-    ... traceback @sequ.reverse_i := tb_pos [
-        tb_pos.file @fs.filename 'test_lib.nest' != ? [
-            tb_pos = pos
-            ;
-        ]
-    ]
+    !traceback ($traceback 2 <) || ? => '; <unknown position>'
+    traceback.1 = pos
     => '; line ' (pos.start.0 1 +) ' column ' (pos.start.1 1 +) ' file ' (pos.file @fs.filename @su.repr) ><
 ]
 

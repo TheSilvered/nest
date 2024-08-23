@@ -1,51 +1,173 @@
 |#| '../test_lib.nest' = test
 |#| 'stditutil.nest' = itu
 
-#string_output iterator max_iterations [
+#limit_inifinite_iterator iterator max_iterations [
     null max_iterations == ? -1 = max_iterations
     0 = count
-    '' = s
+    <{}> = output
     ... iterator := i [
-        i ><= s
+        output i +
         1 += count
-        0 max_iterations count < ? => s
+        0 max_iterations count <= ? => output
     ]
-    => s
+    => output -- this line should never be reached
 ]
 
-10  2 @itu.count 5 @string_output '101214161820' @test.assert_eq
- 4    @itu.count 5 @string_output '456789' @test.assert_eq
--3    @itu.count 5 @string_output '-3-2-1012' @test.assert_eq
--3 -1 @itu.count 5 @string_output '-3-4-5-6-7-8' @test.assert_eq
+10  2 @itu.count = count_1
+ 4    @itu.count = count_2
+-3    @itu.count = count_3
+-3 -1 @itu.count = count_4
 
-'Hi!' @itu.cycle 6 @string_output 'Hi!Hi!H' @test.assert_eq
-{1, 2, 3} @itu.cycle 6 @string_output '1231231' @test.assert_eq
-<{1, 2, 3}> @itu.cycle 6 @string_output '1231231' @test.assert_eq
+count_1 5 @limit_inifinite_iterator {10, 12, 14, 16, 18} @test.assert_eq
+count_1 5 @limit_inifinite_iterator {10, 12, 14, 16, 18} @test.assert_eq
+count_2 5 @limit_inifinite_iterator {4, 5, 6, 7, 8} @test.assert_eq
+count_2 5 @limit_inifinite_iterator {4, 5, 6, 7, 8} @test.assert_eq
+count_3 5 @limit_inifinite_iterator {-3, -2, -1, 0, 1} @test.assert_eq
+count_3 5 @limit_inifinite_iterator {-3, -2, -1, 0, 1} @test.assert_eq
+count_4 5 @limit_inifinite_iterator {-3, -4, -5, -6, -7} @test.assert_eq
+count_4 5 @limit_inifinite_iterator {-3, -4, -5, -6, -7} @test.assert_eq
 
-10 3 @itu.repeat @string_output '101010' @test.assert_eq
+'😊aè' @itu.cycle = cycle_1
+{1, 2, 3} @itu.cycle = cycle_2
+0 -> 3 @itu.cycle = cycle_3
 
-{{1, 2}, 'Hi'} @itu.chain @string_output '12Hi' @test.assert_eq
-{3 -> 5, <{2, 3}>} @itu.chain @string_output '3423' @test.assert_eq
-{3 -> 5} @itu.chain @string_output '34' @test.assert_eq
-{,} @itu.chain @string_output '' @test.assert_eq
-'abc' @itu.enumerate @itu.chain @string_output '0a1b2c' @test.assert_eq
-string_output {{1} @itu.chain} @test.assert_raises_error
-string_output {{'hi', 5.6} @itu.chain} @test.assert_raises_error
-string_output {(0 -> 10) @itu.chain} @test.assert_raises_error
+cycle_1 6 @limit_inifinite_iterator {'😊', 'a', 'è', '😊', 'a', 'è'} @test.assert_eq
+cycle_1 6 @limit_inifinite_iterator {'😊', 'a', 'è', '😊', 'a', 'è'} @test.assert_eq
+cycle_1 5 @limit_inifinite_iterator {'😊', 'a', 'è', '😊', 'a'} @test.assert_eq
+cycle_1 5 @limit_inifinite_iterator {'😊', 'a', 'è', '😊', 'a'} @test.assert_eq
+cycle_2 6 @limit_inifinite_iterator {1, 2, 3, 1, 2, 3} @test.assert_eq
+cycle_2 6 @limit_inifinite_iterator {1, 2, 3, 1, 2, 3} @test.assert_eq
+cycle_2 5 @limit_inifinite_iterator {1, 2, 3, 1, 2} @test.assert_eq
+cycle_2 5 @limit_inifinite_iterator {1, 2, 3, 1, 2} @test.assert_eq
+cycle_3 6 @limit_inifinite_iterator {0, 1, 2, 0, 1, 2} @test.assert_eq
+cycle_3 6 @limit_inifinite_iterator {0, 1, 2, 0, 1, 2} @test.assert_eq
+cycle_3 5 @limit_inifinite_iterator {0, 1, 2, 0, 1} @test.assert_eq
+cycle_3 5 @limit_inifinite_iterator {0, 1, 2, 0, 1} @test.assert_eq
 
-{1, 2, 3} 'Hi' @itu.zip @string_output "{1, 'H'}{2, 'i'}" @test.assert_eq
-(2 0 -> 100) <{'a', 'b', 'c'}> @itu.zip @string_output "{0, 'a'}{2, 'b'}{4, 'c'}" @test.assert_eq
-{{1, 2, 3}, 'Hi', <{9, 8, 7, 6, 5}>} @itu.zip @string_output "{1, 'H', 9}{2, 'i', 8}" @test.assert_eq
-{0 -> 3, 'Hello'} @itu.zip @string_output "{0, 'H'}{1, 'e'}{2, 'l'}" @test.assert_eq
+10 3 @itu.repeat = repeat_1
+10 0 @itu.repeat = repeat_2
+10   @itu.repeat = repeat_3
 
-'Hello' @itu.enumerate @string_output "{0, 'H'}{1, 'e'}{2, 'l'}{3, 'l'}{4, 'o'}" @test.assert_eq
-'Hi!' 5 @itu.enumerate @string_output "{5, 'H'}{6, 'i'}{7, '!'}" @test.assert_eq
-'Hi!' 5 -1 @itu.enumerate @string_output "{5, 'H'}{4, 'i'}{3, '!'}" @test.assert_eq
-'Hi!' 5 -1 true @itu.enumerate @string_output "{'H', 5}{'i', 4}{'!', 3}" @test.assert_eq
+Array :: repeat_1 {10, 10, 10} @test.assert_eq
+Array :: repeat_1 {10, 10, 10} @test.assert_eq
+Array :: repeat_2 {,} @test.assert_eq
+Array :: repeat_2 {,} @test.assert_eq
+repeat_3 5 @limit_inifinite_iterator {10, 10, 10, 10, 10} @test.assert_eq
+repeat_3 5 @limit_inifinite_iterator {10, 10, 10, 10, 10} @test.assert_eq
 
-{'a': 1, 'b': 2, 'c': 3} = m
-m @itu.keys @string_output 'abc' @test.assert_eq
-m @itu.values @string_output '123' @test.assert_eq
+{{1, 2}, 'Hi'} @itu.chain = chain_1
+{3 -> 5, <{2, 3}>} @itu.chain = chain_2
+{3 -> 5} @itu.chain = chain_3
+{,} @itu.chain = chain_4
+'abc' @itu.enumerate @itu.chain = chain_5
+{1} @itu.chain = chain_6
+{'hi', 5.6} @itu.chain = chain_7
+(0 -> 10) @itu.chain = chain_8
+
+Array :: chain_1 {1, 2, 'H', 'i'} @test.assert_eq
+Array :: chain_1 {1, 2, 'H', 'i'} @test.assert_eq
+Array :: chain_2 {3, 4, 2, 3} @test.assert_eq
+Array :: chain_2 {3, 4, 2, 3} @test.assert_eq
+Array :: chain_3 {3, 4} @test.assert_eq
+Array :: chain_3 {3, 4} @test.assert_eq
+Array :: chain_4 {,} @test.assert_eq
+Array :: chain_4 {,} @test.assert_eq
+Array :: chain_5 {0, 'a', 1, 'b', 2, 'c'} @test.assert_eq
+Array :: chain_5 {0, 'a', 1, 'b', 2, 'c'} @test.assert_eq
+chain_6 Array @test.assert_cast_error
+chain_6 Array @test.assert_cast_error
+chain_7 Array @test.assert_cast_error
+chain_7 Array @test.assert_cast_error
+chain_8 Array @test.assert_cast_error
+chain_8 Array @test.assert_cast_error
+
+{1, 2, 3} 'Hi' @itu.zip = zip_1
+(2 0 -> 100) <{'a', 'b', 'c'}> @itu.zip = zip_2
+{{1, 2, 3}, 'Hi', <{9, 8, 7, 6, 5}>} @itu.zip = zip_3
+{0 -> 3, 'Hello'} @itu.zip = zip_4
+itu.zip {{0 -> 3, 1}} @test.assert_raises_error
+itu.zip {{0 -> 3}} @test.assert_raises_error
+
+Array :: zip_1 {{1, 'H'}, {2, 'i'}} @test.assert_eq
+Array :: zip_1 {{1, 'H'}, {2, 'i'}} @test.assert_eq
+Array :: zip_2 {{0, 'a'}, {2, 'b'}, {4, 'c'}} @test.assert_eq
+Array :: zip_2 {{0, 'a'}, {2, 'b'}, {4, 'c'}} @test.assert_eq
+Array :: zip_3 {{1, 'H', 9}, {2, 'i', 8}} @test.assert_eq
+Array :: zip_3 {{1, 'H', 9}, {2, 'i', 8}} @test.assert_eq
+Array :: zip_4 {{0, 'H'}, {1, 'e'}, {2, 'l'}} @test.assert_eq
+Array :: zip_4 {{0, 'H'}, {1, 'e'}, {2, 'l'}} @test.assert_eq
+
+'Hi!' @itu.enumerate = enumerate_1
+'Hi!' 5 @itu.enumerate = enumerate_2
+'Hi!' 5 -1 @itu.enumerate = enumerate_3
+'Hi!' 5 -1 true @itu.enumerate = enumerate_4
+
+Array :: enumerate_1 {{0, 'H'}, {1, 'i'}, {2, '!'}} @test.assert_eq
+Array :: enumerate_1 {{0, 'H'}, {1, 'i'}, {2, '!'}} @test.assert_eq
+Array :: enumerate_2 {{5, 'H'}, {6, 'i'}, {7, '!'}} @test.assert_eq
+Array :: enumerate_2 {{5, 'H'}, {6, 'i'}, {7, '!'}} @test.assert_eq
+Array :: enumerate_3 {{5, 'H'}, {4, 'i'}, {3, '!'}} @test.assert_eq
+Array :: enumerate_3 {{5, 'H'}, {4, 'i'}, {3, '!'}} @test.assert_eq
+Array :: enumerate_4 {{'H', 5}, {'i', 4}, {'!', 3}} @test.assert_eq
+Array :: enumerate_4 {{'H', 5}, {'i', 4}, {'!', 3}} @test.assert_eq
+
+{'a': 1, 'b': 2, 'c': 3} = map_1
+{} = map_2
+map_1 @itu.keys = keys1
+map_2 @itu.keys = keys2
+map_1 @itu.values = values1
+map_2 @itu.values = values2
+
+Array :: keys1 {'a', 'b', 'c'} @test.assert_eq
+Array :: keys1 {'a', 'b', 'c'} @test.assert_eq
+Array :: keys2 {,} @test.assert_eq
+Array :: keys2 {,} @test.assert_eq
+Array :: values1 {1, 2, 3} @test.assert_eq
+Array :: values1 {1, 2, 3} @test.assert_eq
+Array :: values2 {,} @test.assert_eq
+Array :: values2 {,} @test.assert_eq
+
+{1, 2, 3, 4} 2 @itu.batch = batch_1
+'hello' 2 @itu.batch = batch_2
+0 -> 4 2 @itu.batch = batch_3
+{1, 2, 3} 2 @itu.batch = batch_4
+{1, 2, 3} 3 @itu.batch = batch_5
+{1, 2, 3} 4 @itu.batch = batch_6
+itu.batch {{1, 2, 3}, 0} @test.assert_raises_error
+
+Array :: batch_1 {{1, 2}, {3, 4}} @test.assert_eq
+Array :: batch_1 {{1, 2}, {3, 4}} @test.assert_eq
+Array :: batch_2 {{'h', 'e'}, {'l', 'l'}, {'o'}} @test.assert_eq
+Array :: batch_2 {{'h', 'e'}, {'l', 'l'}, {'o'}} @test.assert_eq
+Array :: batch_3 {{0, 1}, {2, 3}} @test.assert_eq
+Array :: batch_3 {{0, 1}, {2, 3}} @test.assert_eq
+Array :: batch_4 {{1, 2}, {3}} @test.assert_eq
+Array :: batch_4 {{1, 2}, {3}} @test.assert_eq
+Array :: batch_5 {{1, 2, 3}} @test.assert_eq
+Array :: batch_5 {{1, 2, 3}} @test.assert_eq
+Array :: batch_6 {{1, 2, 3}} @test.assert_eq
+Array :: batch_6 {{1, 2, 3}} @test.assert_eq
+
+{1, 2, 3, 4} 2 @itu.batch_padded = batch_padded_1
+'hello' 2 '😊' @itu.batch_padded = batch_padded_2
+0 -> 4 2 @itu.batch_padded = batch_padded_3
+{1, 2, 3} 2 @itu.batch_padded = batch_padded_4
+{1, 2, 3} 3 @itu.batch_padded = batch_padded_5
+{1, 2, 3} 4 @itu.batch_padded = batch_padded_6
+itu.batch_padded {{1, 2, 3}, 0} @test.assert_raises_error
+
+Array :: batch_padded_1 {{1, 2}, {3, 4}} @test.assert_eq
+Array :: batch_padded_1 {{1, 2}, {3, 4}} @test.assert_eq
+Array :: batch_padded_2 {{'h', 'e'}, {'l', 'l'}, {'o', '😊'}} @test.assert_eq
+Array :: batch_padded_2 {{'h', 'e'}, {'l', 'l'}, {'o', '😊'}} @test.assert_eq
+Array :: batch_padded_3 {{0, 1}, {2, 3}} @test.assert_eq
+Array :: batch_padded_3 {{0, 1}, {2, 3}} @test.assert_eq
+Array :: batch_padded_4 {{1, 2}, {3, null}} @test.assert_eq
+Array :: batch_padded_4 {{1, 2}, {3, null}} @test.assert_eq
+Array :: batch_padded_5 {{1, 2, 3}} @test.assert_eq
+Array :: batch_padded_5 {{1, 2, 3}} @test.assert_eq
+Array :: batch_padded_6 {{1, 2, 3, null}} @test.assert_eq
+Array :: batch_padded_6 {{1, 2, 3, null}} @test.assert_eq
 
 #start v [
     0 = v.0

@@ -96,13 +96,15 @@ Nst_Obj *NstC cycle_(usize arg_num, Nst_Obj **args)
 Nst_Obj *NstC repeat_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *ob;
-    Nst_Obj *times;
+    Nst_Obj *times_obj;
 
-    if (!Nst_extract_args("o i:i", arg_num, args, &ob, &times))
+    if (!Nst_extract_args("o ?i", arg_num, args, &ob, &times_obj))
         return nullptr;
 
+    i64 times = Nst_DEF_VAL(times_obj, AS_INT(times_obj), -1);
+
     // Layout: [count, item, max_times]
-    Nst_Obj *arr = Nst_array_create_c("iOo", 0, ob, times);
+    Nst_Obj *arr = Nst_array_create_c("iOI", 0, ob, times);
 
     if (arr == nullptr) {
         Nst_dec_ref(times);
@@ -156,6 +158,7 @@ Nst_Obj *zipn_(Nst_SeqObj *seq)
 
     arr->objs[0] = seq_len_obj;
     for (usize i = 0, n = seq->len; i < n; i++)
+        // successful cast guaranteed by the type in Nst_extract_args
         arr->objs[i + 1] = Nst_obj_cast(objs[i], Nst_type()->Iter);
 
     RETURN_NEW_ITER(zipn_start, zipn_get_val, arr);
@@ -172,6 +175,7 @@ Nst_Obj *NstC zip_(usize arg_num, Nst_Obj **args)
     if (seq2 == Nst_null())
         return zipn_((Nst_SeqObj *)seq1);
 
+    // successful cast guaranteed by the type in Nst_extract_args
     seq1 = Nst_obj_cast(seq1, Nst_type()->Iter);
 
     // Layout: [iter1, iter2]

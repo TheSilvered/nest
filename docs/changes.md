@@ -42,6 +42,7 @@
 - reverted the merging of `su.ljust` and `su.rjust` into `su.justify`, now they are again two separate functions
 - renamed `su.center` to `su.cjust`
 - now when a string is not closed only the end is highlighted rather than the whole string
+- now the second argument of `itu.repeat` is optional and it will repeat infinitely if not given, it would repeat infinitely even if the number was negative even if it was not specified in the documentation
 
 **Bug fixes**
 
@@ -53,6 +54,8 @@
 - fixed `su.center` causing a crash with a negative width
 - fixed `su.trim`, `su.ltrim` and `su.rtrim` not working with NUL characters
 - fixed `su.is_title` returning an incorrect value when a word had a character that was not a space or a letter before it
+- fixed `itu.cycle` not working with Unicode strings
+- fixed `itu.chain` not resetting correctly after being iterated over the first time
 
 ### C API
 

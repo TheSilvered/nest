@@ -258,12 +258,15 @@ The new custom iterator.
 **Synopsis:**
 
 ```nest
-[object: Any, times: Int] @repeat -> Iter
+[object: Any, times: Int?] @repeat -> Iter
 ```
 
 **Returns:**
 
 An iterator that repeats `object` the number of times specified by `times`.
+
+If `times` is a negative number or `null` the function will repeat the value
+indefinitely.
 
 **Example:**
 
@@ -271,6 +274,7 @@ An iterator that repeats `object` the number of times specified by `times`.
 |#| 'stditutil.nest' = itu
 
 'Hi!' 3 @itu.repeat --> 'Hi!', 'Hi!', 'Hi!'
+'Hi!' @itu.repeat --> 'Hi!', 'Hi!', 'Hi!', 'Hi!', 'Hi!', ...
 ```
 
 ---
