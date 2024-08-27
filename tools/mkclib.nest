@@ -522,12 +522,15 @@ filters_file @io.close
 --------------------------------------------------------------------------------
 
 "#include \"framework.h\"
+#include \"nest.h\"
 
 BOOL APIENTRY DllMain(HMODULE h_module, DWORD reason_for_call, LPVOID reserved)
 {
+    Nst_UNUSED(h_module);
+    Nst_UNUSED(reason_for_call);
+    Nst_UNUSED(reserved);
     return TRUE;
 }
-
 " = dllmain_content
 
 "#ifndef FRAMEWORK_H
@@ -548,8 +551,8 @@ BOOL APIENTRY DllMain(HMODULE h_module, DWORD reason_for_call, LPVOID reserved)
 extern \"C\" {
 #endif // !__cplusplus
 
-NstEXP Nst_Declr *NstC lib_init();
-// NstEXP void NstC free_lib();
+NstEXP Nst_Declr *NstC lib_init(void);
+// NstEXP void NstC lib_quit(void);
 
 Nst_Obj *NstC add(usize arg_num, Nst_Obj **args);
 
@@ -563,11 +566,11 @@ Nst_Obj *NstC add(usize arg_num, Nst_Obj **args);
 "#include \"" name ".h\"
 
 static Nst_Declr obj_list_[] = {
-    Nst_FUNCRECLR(add, 2),
+    Nst_FUNCDECLR(add, 2),
     Nst_DECLR_END
 };
 
-bool lib_init()
+Nst_Declr *lib_init(void)
 {
     return obj_list_;
 }
