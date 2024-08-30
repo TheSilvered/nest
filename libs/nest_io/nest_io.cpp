@@ -165,7 +165,7 @@ static Nst_IOResult virtual_iof_write(i8 *buf, usize buf_len, usize *count,
     if (vf->ptr > vf->data.len)
         return Nst_IO_ERROR;
 
-    Nst_StrObj temp = Nst_string_temp(buf, buf_len);
+    Nst_StrObj temp = Nst_str_temp(buf, buf_len);
     if (!Nst_buffer_append(&vf->data, &temp)) {
         return Nst_IO_ALLOC_FAILED;
     }
@@ -566,7 +566,7 @@ Nst_Obj *NstC read_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    return Nst_string_new(buf, buf_len, true);
+    return Nst_str_new(buf, buf_len, true);
 }
 
 Nst_Obj *NstC read_bytes_(usize arg_num, Nst_Obj **args)
@@ -770,7 +770,7 @@ Nst_Obj *NstC get_flags_(usize arg_num, Nst_Obj **args)
     flags[4] = Nst_IOF_IS_TTY(f)    ? 't' : '-';
     flags[5] = 0;
 
-    return Nst_string_new(flags, 5, true);
+    return Nst_str_new(flags, 5, true);
 }
 
 Nst_Obj *NstC can_read_(usize arg_num, Nst_Obj **args)
@@ -835,7 +835,7 @@ Nst_Obj *NstC encoding_(usize arg_num, Nst_Obj **args)
             Nst_set_value_error_c("failed to get the encoding of the file");
         return nullptr;
     }
-    return Nst_string_new_c_raw(f->encoding->name, false);
+    return Nst_str_new_c_raw(f->encoding->name, false);
 }
 
 Nst_Obj *NstC println_(usize arg_num, Nst_Obj **args)

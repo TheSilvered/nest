@@ -11,42 +11,23 @@
 
 #include "error.h"
 
-/* Checks if a token is in the `STACK_OP` category. */
-#define Nst_IS_STACK_OP(token_type)                                           \
+#define _Nst_TOK_IS_STACK_OP(token_type)                                      \
     ((token_type) >= Nst_TT_ADD && (token_type) <= Nst_TT_CONTAINS)
-/* Checks if a token is in the `NUM_OP` category. */
-#define Nst_IS_NUM_OP(token_type)                                             \
-    ((token_type) >= Nst_TT_ADD && (token_type) <= Nst_TT_RSHIFT)
-/* Checks if a token is in the `COND_OP` category. */
-#define Nst_IS_COND_OP(token_type)                                            \
+#define _Nst_TOK_IS_COND_OP(token_type)                                       \
     ((token_type) >= Nst_TT_L_AND && (token_type) <= Nst_TT_L_OR)
-/* Checks if a token is in the `COMP_OP` category. */
-#define Nst_IS_COMP_OP(token_type)                                            \
+#define _Nst_TOK_IS_COMP_OP(token_type)                                       \
     ((token_type) >= Nst_TT_GT && (token_type) <= Nst_TT_LTE)
-/* Checks if a token is in the `LOCAL_STACK_OP` category. */
-#define Nst_IS_LOCAL_STACK_OP(token_type)                                     \
+#define _Nst_TOK_IS_LOCAL_STACK_OP(token_type)                                \
     ((token_type) >= Nst_TT_CAST && (token_type) <= Nst_TT_RANGE)
-/* Checks if a token is in the `ASSIGNMENT` category. */
-#define Nst_IS_ASSIGNMENT(token_type)                                         \
+#define _Nst_TOK_IS_ASSIGNMENT(token_type)                                    \
     ((token_type) >= Nst_TT_ASSIGN && (token_type) <= Nst_TT_CONCAT_A)
-/* Checks if a token is in the `LOCAL_OP` category. */
-#define Nst_IS_LOCAL_OP(token_type)                                           \
+#define _Nst_TOK_IS_LOCAL_OP(token_type)                                      \
     ((token_type) >= Nst_TT_LEN && (token_type) <= Nst_TT_TYPEOF)
-/* Checks if a token is in the `ATOM` category. */
-#define Nst_IS_ATOM(token_type)                                               \
+#define _Nst_TOK_IS_ATOM(token_type)                                          \
     ((token_type) >= Nst_TT_LEN && (token_type) <= Nst_TT_L_VBRACE)
-/* Checks if a token is in the `VALUE` category. */
-#define Nst_IS_VALUE(token_type)                                              \
-    ((token_type) == Nst_TT_IDENT || (token_type) == Nst_TT_VALUE)
-/* Checks if a token is in the `EXPR_END` category. */
-#define Nst_IS_EXPR_END(token_type)                                           \
+#define _Nst_TOK_IS_EXPR_END(token_type)                                      \
     ((token_type) >= Nst_TT_L_BRACKET && (token_type) <= Nst_TT_EOFILE)
-
-#define Nst_IS_EXPR_END_W_BREAK(token_type)                                   \
-    ((token_type) >= Nst_TT_L_BRACKET && (token_type) <= Nst_TT_BREAK)
-
-/* Transforms a compound-assignment token type into a `STACK_OP` one. */
-#define Nst_ASSIGNMENT_TO_STACK_OP(token_type) \
+#define _Nst_TOK_ASSIGNMENT_TO_STACK_OP(token_type)                           \
     ((Nst_TokType)((token_type) - Nst_TT_ADD_A))
 
 /* Casts expr to `Nst_Tok *`. */

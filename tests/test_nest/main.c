@@ -5,7 +5,7 @@ int main() {
     Nst_init(NULL);
 
 #ifdef Nst_WIN
-    _Nst_set_console_mode();
+    _Nst_console_mode_init();
 #endif
 
     Nst_printf("Tests running on Nest version %s\n\n", Nst_VERSION);

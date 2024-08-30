@@ -111,7 +111,7 @@ static Nst_Obj *call_coroutine(CoroutineObj *co, usize arg_num, Nst_Obj **args)
         co->vt = nullptr;
         result = Nst_run_paused_coroutine(co->func, co->idx + 1, vt);
     } else
-        result = Nst_call_func(co->func, (i32)arg_num, args);
+        result = Nst_func_call(co->func, (i32)arg_num, args);
 
     co_c_stack_pop();
 

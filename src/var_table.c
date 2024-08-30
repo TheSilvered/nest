@@ -20,9 +20,9 @@ Nst_VarTable *Nst_vt_new(Nst_MapObj *global_table, Nst_SeqObj *args,
 
 #ifdef _DEBUG
 #ifdef _Nst_ARCH_x64
-    Nst_Obj *debug_str = Nst_string_new_c_raw("x64", false);
+    Nst_Obj *debug_str = Nst_str_new_c_raw("x64", false);
 #else
-    Nst_Obj *debug_str = Nst_string_new_c_raw("", false);
+    Nst_Obj *debug_str = Nst_str_new_c_raw("", false);
 #endif // !_Nst_ARCH_x64
     Nst_map_set_str(vars, "_debug_", debug_str);
     Nst_dec_ref(debug_str);

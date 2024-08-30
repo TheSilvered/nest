@@ -39,7 +39,7 @@ static Nst_TypeObj *type_obj_no_err(const i8 *name, Nst_ObjDstr dstr)
     type->p_head = NULL;
     type->p_len = 0;
     type->dstr = dstr;
-    type->name = Nst_string_temp((i8 *)name, strlen(name));
+    type->name = Nst_str_temp((i8 *)name, strlen(name));
 
     type->type = Nst_t.Type;
     Nst_ninc_ref(Nst_t.Type);
@@ -71,14 +71,14 @@ static Nst_StrObj *str_obj_no_err(const i8 *value)
     return str;
 }
 
-bool _Nst_init_objects(void)
+bool _Nst_globals_init(void)
 {
     Nst_t.Type = type_obj_no_err("Type", (Nst_ObjDstr)_Nst_type_destroy);
     if (Nst_t.Type == NULL)
         return false;
     Nst_t.Type->type = Nst_t.Type;
 
-    Nst_t.Str = type_obj_no_err("Str", (Nst_ObjDstr)_Nst_string_destroy);
+    Nst_t.Str = type_obj_no_err("Str", (Nst_ObjDstr)_Nst_str_destroy);
     if (Nst_t.Str == NULL) {
         Nst_free(Nst_t.Type);
         return false;
@@ -128,25 +128,25 @@ bool _Nst_init_objects(void)
         (Nst_ObjDstr)_Nst_iter_destroy,
         (Nst_ObjTrav)_Nst_iter_traverse);
 
-    Nst_s.c_true   = STR(Nst_string_new_c("true",  4, false));
-    Nst_s.c_false  = STR(Nst_string_new_c("false", 5, false));
-    Nst_s.c_null   = STR(Nst_string_new_c("null",  4, false));
-    Nst_s.c_inf    = STR(Nst_string_new_c("inf",   3, false));
-    Nst_s.c_nan    = STR(Nst_string_new_c("nan",   3, false));
-    Nst_s.c_neginf = STR(Nst_string_new_c("-inf",  4, false));
-    Nst_s.c_negnan = STR(Nst_string_new_c("-nan",  4, false));
+    Nst_s.c_true   = STR(Nst_str_new_c("true",  4, false));
+    Nst_s.c_false  = STR(Nst_str_new_c("false", 5, false));
+    Nst_s.c_null   = STR(Nst_str_new_c("null",  4, false));
+    Nst_s.c_inf    = STR(Nst_str_new_c("inf",   3, false));
+    Nst_s.c_nan    = STR(Nst_str_new_c("nan",   3, false));
+    Nst_s.c_neginf = STR(Nst_str_new_c("-inf",  4, false));
+    Nst_s.c_negnan = STR(Nst_str_new_c("-nan",  4, false));
 
-    Nst_s.e_SyntaxError = STR(Nst_string_new_c("Syntax Error", 12, false));
-    Nst_s.e_ValueError  = STR(Nst_string_new_c("Value Error",  11, false));
-    Nst_s.e_TypeError   = STR(Nst_string_new_c("Type Error",   10, false));
-    Nst_s.e_CallError   = STR(Nst_string_new_c("Call Error",   10, false));
-    Nst_s.e_MathError   = STR(Nst_string_new_c("Math Error",   10, false));
-    Nst_s.e_ImportError = STR(Nst_string_new_c("Import Error", 12, false));
-    Nst_s.e_Interrupt   = STR(Nst_string_new_c("Interrupt",     9, false));
+    Nst_s.e_SyntaxError = STR(Nst_str_new_c("Syntax Error", 12, false));
+    Nst_s.e_ValueError  = STR(Nst_str_new_c("Value Error",  11, false));
+    Nst_s.e_TypeError   = STR(Nst_str_new_c("Type Error",   10, false));
+    Nst_s.e_CallError   = STR(Nst_str_new_c("Call Error",   10, false));
+    Nst_s.e_MathError   = STR(Nst_str_new_c("Math Error",   10, false));
+    Nst_s.e_ImportError = STR(Nst_str_new_c("Import Error", 12, false));
+    Nst_s.e_Interrupt   = STR(Nst_str_new_c("Interrupt",     9, false));
 
-    Nst_s.o__vars_    = STR(Nst_string_new_c("_vars_",    6, false));
-    Nst_s.o__globals_ = STR(Nst_string_new_c("_globals_", 9, false));
-    Nst_s.o__args_    = STR(Nst_string_new_c("_args_",    6, false));
+    Nst_s.o__vars_    = STR(Nst_str_new_c("_vars_",    6, false));
+    Nst_s.o__globals_ = STR(Nst_str_new_c("_globals_", 9, false));
+    Nst_s.o__args_    = STR(Nst_str_new_c("_args_",    6, false));
 
     Nst_c.Bool_true  = Nst_bool_new(true);
     Nst_c.Bool_false = Nst_bool_new(false);
@@ -188,13 +188,13 @@ bool _Nst_init_objects(void)
 
     if (Nst_error_occurred()) {
         Nst_error_clear();
-        _Nst_del_objects();
+        _Nst_globals_quit();
         return false;
     }
     return true;
 }
 
-void _Nst_del_objects(void)
+void _Nst_globals_quit(void)
 {
     Nst_ndec_ref(Nst_t.Type);
     Nst_ndec_ref(Nst_t.Int);

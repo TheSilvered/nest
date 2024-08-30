@@ -368,7 +368,7 @@ Nst_Obj *NstC iter_start_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("I", arg_num, args, &iter))
         return nullptr;
 
-    return Nst_call_func(iter->start, 1, &iter->value);
+    return Nst_func_call(iter->start, 1, &iter->value);
 }
 
 Nst_Obj *NstC iter_get_val_(usize arg_num, Nst_Obj **args)
@@ -378,7 +378,7 @@ Nst_Obj *NstC iter_get_val_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("I", arg_num, args, &iter))
         return nullptr;
 
-    return Nst_call_func(iter->get_val, 1, &iter->value);
+    return Nst_func_call(iter->get_val, 1, &iter->value);
 }
 
 Nst_Obj *NstC IEND_()

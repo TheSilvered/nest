@@ -128,9 +128,9 @@ NstEXP typedef struct _Nst_IterFunctions {
  *
  * @return `true` on success and `false` on failure. No error is set.
  */
-NstEXP bool NstC _Nst_init_objects(void);
+NstEXP bool NstC _Nst_globals_init(void);
 /* Deletes all the global constants and IO streams. */
-NstEXP void NstC _Nst_del_objects(void);
+NstEXP void NstC _Nst_globals_quit(void);
 
 /* Returns the true object constant. */
 NstEXP Nst_Obj *NstC Nst_true(void);

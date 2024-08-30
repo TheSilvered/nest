@@ -492,7 +492,7 @@ static bool is_accessed(Nst_InstList *bc, Nst_StrObj *name)
     for (i64 i = 0; i < size; i++) {
         if (inst_list[i].id == Nst_IC_PUSH_VAL
             && inst_list[i].val->type == Nst_t.Str
-            && Nst_string_compare(STR(inst_list[i].val), name) == 0)
+            && Nst_str_compare(STR(inst_list[i].val), name) == 0)
         {
             if (inst_list[++i].id == Nst_IC_OP_EXTRACT)
                 return true;
@@ -500,7 +500,7 @@ static bool is_accessed(Nst_InstList *bc, Nst_StrObj *name)
         }
 
         if (inst_list[i].id != Nst_IC_GET_VAL
-            || Nst_string_compare(STR(inst_list[i].val), name) != 0)
+            || Nst_str_compare(STR(inst_list[i].val), name) != 0)
         {
             continue;
         }
@@ -558,7 +558,7 @@ static bool has_assignments(Nst_InstList *bc, Nst_StrObj *name)
             Nst_Inst prev_inst = inst_list[i - 1];
             if (prev_inst.id == Nst_IC_PUSH_VAL
                 && prev_inst.val->type == Nst_t.Str
-                && Nst_string_compare(name, STR(prev_inst.val)) == 0)
+                && Nst_str_compare(name, STR(prev_inst.val)) == 0)
             {
                 return true;
             }
@@ -570,7 +570,7 @@ static bool has_assignments(Nst_InstList *bc, Nst_StrObj *name)
             continue;
         }
 
-        if (Nst_string_compare(name, STR(inst_list[i].val)) == 0)
+        if (Nst_str_compare(name, STR(inst_list[i].val)) == 0)
             return true;
     }
 
@@ -591,7 +591,7 @@ static void replace_access(Nst_InstList *bc, Nst_StrObj *name, Nst_Obj *val)
         if (inst_list[i].id != Nst_IC_GET_VAL)
             continue;
 
-        if (Nst_string_compare(name, STR(inst_list[i].val)) == 0) {
+        if (Nst_str_compare(name, STR(inst_list[i].val)) == 0) {
             inst_list[i].id = Nst_IC_PUSH_VAL;
             Nst_dec_ref(inst_list[i].val);
             inst_list[i].val = Nst_inc_ref(val);
@@ -604,7 +604,7 @@ static void replace_access(Nst_InstList *bc, Nst_StrObj *name, Nst_Obj *val)
 
 static void optimize_const(Nst_InstList *bc, const i8 *name, Nst_Obj *val)
 {
-    Nst_StrObj *str_obj = STR(Nst_string_new_c_raw(name, false));
+    Nst_StrObj *str_obj = STR(Nst_str_new_c_raw(name, false));
     if (str_obj == NULL) {
         Nst_error_clear();
         return;
@@ -711,7 +711,7 @@ static void remove_assign_loc_get_val(Nst_InstList *bc)
         } else if (!expect_get_val
                    || inst_list[i].id != Nst_IC_GET_VAL
                    || has_jumps_to(bc, i, -1, -1)
-                   || Nst_string_compare(
+                   || Nst_str_compare(
                         expected_name,
                         STR(inst_list[i].val)) != 0)
         {
@@ -720,7 +720,7 @@ static void remove_assign_loc_get_val(Nst_InstList *bc)
             continue;
         }
 
-        if (Nst_string_compare(expected_name, STR(inst_list[i].val)) != 0) {
+        if (Nst_str_compare(expected_name, STR(inst_list[i].val)) != 0) {
             expect_get_val = false;
             expected_name = NULL;
             continue;

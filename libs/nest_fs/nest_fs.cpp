@@ -71,7 +71,7 @@ static Nst_StrObj *heap_str(const i8 *str, usize len)
 
     memcpy(heap_s, str, len);
     heap_s[len] = 0;
-    return STR(Nst_string_new(heap_s, len, true));
+    return STR(Nst_str_new(heap_s, len, true));
 }
 
 static Nst_StrObj *heap_str(fs::path path)
@@ -91,7 +91,7 @@ static Nst_StrObj *error_str(std::string str)
     if (!result)
         return STR(Nst_inc_ref(Nst_str()->o_failed_alloc));
 
-    return STR(Nst_string_new_allocated(val, len));
+    return STR(Nst_str_new_allocated(val, len));
 #else
     return heap_str(str.c_str(), str.length());
 #endif
@@ -591,7 +591,7 @@ Nst_Obj *NstC join_(usize arg_num, Nst_Obj **args)
 #endif
     }
 
-    return Nst_string_new(new_str, new_len, true);
+    return Nst_str_new(new_str, new_len, true);
 }
 
 Nst_Obj *NstC normalize_(usize arg_num, Nst_Obj **args)
@@ -600,7 +600,7 @@ Nst_Obj *NstC normalize_(usize arg_num, Nst_Obj **args)
 
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
-    Nst_StrObj *norm_path = STR(Nst_string_copy(path));
+    Nst_StrObj *norm_path = STR(Nst_str_copy(path));
     if (norm_path == nullptr)
         return nullptr;
 

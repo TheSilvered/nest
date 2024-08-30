@@ -411,7 +411,7 @@ void _Nst_set_import_error(Nst_StrObj *msg)
 
 static void set_error_c(Nst_StrObj *name, const i8 *msg)
 {
-    Nst_StrObj *msg_obj = STR(Nst_string_new_c_raw(msg, false));
+    Nst_StrObj *msg_obj = STR(Nst_str_new_c_raw(msg, false));
     if (msg_obj == NULL)
         return;
 
@@ -566,7 +566,7 @@ void Nst_set_internal_error(Nst_Traceback *tb, Nst_Pos start, Nst_Pos end,
 void Nst_set_internal_error_c(Nst_Traceback *tb, Nst_Pos start, Nst_Pos end,
                               Nst_StrObj *name, const i8 *msg)
 {
-    Nst_StrObj *msg_obj = STR(Nst_string_new_c_raw(msg, false));
+    Nst_StrObj *msg_obj = STR(Nst_str_new_c_raw(msg, false));
     if (msg_obj == NULL)
         return;
 

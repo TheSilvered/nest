@@ -239,7 +239,7 @@ void Nst_ggc_init(void)
 **Description:**
 
 Initializes the garbage collector of
-[`Nst_state`](c_api-interpreter.md#nst_get_state).
+[`Nst_state`](c_api-interpreter.md#nst_state_get).
 
 ---
 

@@ -85,7 +85,7 @@ static Nst_SeqObj *make_argv(i32 argc, i8 **argv, i8 *filename)
         return NULL;
     }
 
-    Nst_Obj *val = Nst_string_new_c_raw(filename, false);
+    Nst_Obj *val = Nst_str_new_c_raw(filename, false);
     if (val == NULL) {
         Nst_error_clear();
         args->len = 0;
@@ -96,7 +96,7 @@ static Nst_SeqObj *make_argv(i32 argc, i8 **argv, i8 *filename)
     Nst_dec_ref(val);
 
     for (i32 i = 0; i < argc; i++) {
-        val = Nst_string_new_c_raw(argv[i], false);
+        val = Nst_str_new_c_raw(argv[i], false);
         if (val == NULL) {
             Nst_error_clear();
             args->len = i + 1;
@@ -209,7 +209,7 @@ i32 Nst_execute(Nst_CLArgs args, Nst_ExecutionState *es, Nst_SourceText *src)
     if (args.print_bytecode) {
         if (args.print_tokens || args.print_ast)
             printf("\n");
-        Nst_print_bytecode(inst_ls);
+        Nst_inst_list_print(inst_ls);
 
         if (!args.force_execution) {
             Nst_inst_list_destroy(inst_ls);
@@ -240,7 +240,7 @@ static Nst_StrObj *make_cwd(i8 *file_path)
     }
 
     *(file_part - 1) = 0;
-    Nst_StrObj *str = STR(Nst_string_new(path, file_part - path - 1, true));
+    Nst_StrObj *str = STR(Nst_str_new(path, file_part - path - 1, true));
     if (str == NULL) {
         Nst_error_clear();
         Nst_free(file_path);

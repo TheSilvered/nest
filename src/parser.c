@@ -339,7 +339,7 @@ static Nst_Node *parse_statement(void)
         Nst_Pos expr_end;
 
         tok_type = top_type();
-        if (Nst_IS_EXPR_END(tok_type)) {
+        if (_Nst_TOK_IS_EXPR_END(tok_type)) {
             expr = NULL;
             expr_end = end;
         } else {
@@ -702,7 +702,7 @@ static Nst_Node *parse_stack_expr()
         if (!state.endl_ends_expr)
             skip_blank();
 
-        while (Nst_IS_ATOM(top_type())) {
+        while (_Nst_TOK_IS_ATOM(top_type())) {
             Nst_Node *atom = parse_ex();
             if (atom == NULL)
                 goto failure;
@@ -716,21 +716,21 @@ static Nst_Node *parse_stack_expr()
 
         // this can be true only in the first iteration, all other subsequent
         // iterations will have at least the values from the previous one
-        if (values->len == 0 && !Nst_IS_LOCAL_STACK_OP(top_type())) {
+        if (values->len == 0 && !_Nst_TOK_IS_LOCAL_STACK_OP(top_type())) {
             set_error(_Nst_EM_EXPECTED_VALUE, top_start(), top_end());
             goto failure;
         }
 
         Nst_Node *operation_node = NULL;
-        if (Nst_IS_STACK_OP(top_type()))
+        if (_Nst_TOK_IS_STACK_OP(top_type()))
             operation_node = parse_so(&values, start);
-        else if (Nst_IS_LOCAL_STACK_OP(top_type()))
+        else if (_Nst_TOK_IS_LOCAL_STACK_OP(top_type()))
             operation_node = parse_ls(&values, start);
-        else if (Nst_IS_ASSIGNMENT(top_type()))
+        else if (_Nst_TOK_IS_ASSIGNMENT(top_type()))
             operation_node = parse_as(&values, start);
-        else if (Nst_IS_EXPR_END(top_type()) && state.endl_ends_expr)
+        else if (_Nst_TOK_IS_EXPR_END(top_type()) && state.endl_ends_expr)
             break;
-        else if (Nst_IS_EXPR_END(top_type()) && top_type() != Nst_TT_ENDL)
+        else if (_Nst_TOK_IS_EXPR_END(top_type()) && top_type() != Nst_TT_ENDL)
             break;
         else if (state.break_ends_expr && top_type() == Nst_TT_BREAK)
             break;
@@ -936,7 +936,7 @@ static Nst_Node *parse_as(Nst_LList **values, Nst_Pos start)
         *values = assignment->v.ca.values;
         assignment->v.ca.values = temp;
         assignment->v.ca.name = name;
-        assignment->v.ca.op = Nst_ASSIGNMENT_TO_STACK_OP(type);
+        assignment->v.ca.op = _Nst_TOK_ASSIGNMENT_TO_STACK_OP(type);
     } else {
         assignment->v.as.name = name;
         assignment->v.as.value = Nst_llist_pop(*values);
@@ -1047,7 +1047,7 @@ static Nst_Node *parse_atom(void)
         }
         atom->v.we.expr = expr;
         Nst_node_set_pos(atom, start, end);
-    } else if (Nst_IS_LOCAL_OP(top_type())) {
+    } else if (_Nst_TOK_IS_LOCAL_OP(top_type())) {
         atom = new_node(Nst_NT_LO, top_start(), top_end());
         if (atom == NULL)
             return NULL;

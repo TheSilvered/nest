@@ -80,17 +80,17 @@ Alias for [`Nst_raw_free`](c_api-mem.md#nst_raw_free).
 
 ## Structs
 
-### `Nst_SizedBuffer`
+### `Nst_SBuffer`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_SizedBuffer {
+typedef struct _Nst_SBuffer {
     usize len;
     usize cap;
     usize unit_size;
     void *data;
-} Nst_SizedBuffer
+} Nst_SBuffer
 ```
 
 **Description:**
@@ -123,9 +123,9 @@ typedef struct _Nst_Buffer {
 
 Structure representing a buffer of chars.
 
-Uses the same layout of [`Nst_SizedBuffer`](c_api-mem.md#nst_sizedbuffer) to
-re-use the same functions. Ensures to always contain a valid string if not
-modified by external functions.
+Uses the same layout of [`Nst_SBuffer`](c_api-mem.md#nst_sbuffer) to re-use the
+same functions. Ensures to always contain a valid string if not modified by
+external functions.
 
 **Fields:**
 
@@ -363,12 +363,12 @@ Sets the value of an array in memory.
 **Synopsis:**
 
 ```better-c
-bool Nst_sbuffer_init(Nst_SizedBuffer *buf, usize unit_size, usize count)
+bool Nst_sbuffer_init(Nst_SBuffer *buf, usize unit_size, usize count)
 ```
 
 **Description:**
 
-Initializes a [`Nst_SizedBuffer`](c_api-mem.md#nst_sizedbuffer).
+Initializes a [`Nst_SBuffer`](c_api-mem.md#nst_sbuffer).
 
 **Parameters:**
 
@@ -387,7 +387,7 @@ Initializes a [`Nst_SizedBuffer`](c_api-mem.md#nst_sizedbuffer).
 **Synopsis:**
 
 ```better-c
-bool Nst_sbuffer_expand_by(Nst_SizedBuffer *buf, usize amount)
+bool Nst_sbuffer_expand_by(Nst_SBuffer *buf, usize amount)
 ```
 
 **Description:**
@@ -412,7 +412,7 @@ The buffer is expanded only if needed.
 **Synopsis:**
 
 ```better-c
-bool Nst_sbuffer_expand_to(Nst_SizedBuffer *buf, usize count)
+bool Nst_sbuffer_expand_to(Nst_SBuffer *buf, usize count)
 ```
 
 **Description:**
@@ -438,7 +438,7 @@ current one nothing is done.
 **Synopsis:**
 
 ```better-c
-void Nst_sbuffer_fit(Nst_SizedBuffer *buf)
+void Nst_sbuffer_fit(Nst_SBuffer *buf)
 ```
 
 **Description:**
@@ -452,7 +452,7 @@ Shrinks the capacity of a sized buffer to match its length.
 **Synopsis:**
 
 ```better-c
-bool Nst_sbuffer_append(Nst_SizedBuffer *buf, void *element)
+bool Nst_sbuffer_append(Nst_SBuffer *buf, void *element)
 ```
 
 **Description:**
@@ -480,7 +480,7 @@ If necessary, the buffer is expanded automatically.
 **Synopsis:**
 
 ```better-c
-bool Nst_sbuffer_pop(Nst_SizedBuffer *buf)
+bool Nst_sbuffer_pop(Nst_SBuffer *buf)
 ```
 
 **Description:**
@@ -503,7 +503,7 @@ pop. No error is set.
 **Synopsis:**
 
 ```better-c
-void *Nst_sbuffer_at(Nst_SizedBuffer *buf, usize index)
+void *Nst_sbuffer_at(Nst_SBuffer *buf, usize index)
 ```
 
 **Description:**
@@ -527,7 +527,7 @@ out of bounds. No error is set.
 **Synopsis:**
 
 ```better-c
-void Nst_sbuffer_shrink_auto(Nst_SizedBuffer *buf)
+void Nst_sbuffer_shrink_auto(Nst_SBuffer *buf)
 ```
 
 **Description:**
@@ -548,7 +548,7 @@ values.
 **Synopsis:**
 
 ```better-c
-bool Nst_sbuffer_copy(Nst_SizedBuffer *src, Nst_SizedBuffer *dst)
+bool Nst_sbuffer_copy(Nst_SBuffer *src, Nst_SBuffer *dst)
 ```
 
 **Description:**
@@ -574,7 +574,7 @@ changes to the source buffer will not modify the copied one.
 **Synopsis:**
 
 ```better-c
-void Nst_sbuffer_destroy(Nst_SizedBuffer *buf)
+void Nst_sbuffer_destroy(Nst_SBuffer *buf)
 ```
 
 **Description:**

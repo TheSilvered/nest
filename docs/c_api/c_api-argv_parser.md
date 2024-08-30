@@ -76,12 +76,12 @@ default values.
 
 ---
 
-### `_Nst_parse_args`
+### `_Nst_cl_args_parse`
 
 **Synopsis:**
 
 ```better-c
-i32 _Nst_parse_args(Nst_CLArgs *cl_args)
+i32 _Nst_cl_args_parse(Nst_CLArgs *cl_args)
 ```
 
 **Description:**
@@ -115,12 +115,12 @@ otherwise.
 
 ---
 
-### `_Nst_override_supports_color`
+### `_Nst_supports_color_override`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_override_supports_color(bool value)
+void _Nst_supports_color_override(bool value)
 ```
 
 **Description:**
@@ -154,12 +154,12 @@ bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv)
 
 ---
 
-### `_Nst_set_console_mode`
+### `_Nst_console_mode_init`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_set_console_mode(void)
+void _Nst_console_mode_init(void)
 ```
 
 **Description:**

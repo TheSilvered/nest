@@ -6,7 +6,7 @@ Nst_StrObj *sdl_error_name = NULL;
 
 bool GUI_InitUtils(void)
 {
-    sdl_error_name = STR(Nst_string_new_c_raw("SDL Error", false));
+    sdl_error_name = STR(Nst_str_new_c_raw("SDL Error", false));
     if (sdl_error_name == NULL)
         return false;
     return true;
@@ -28,7 +28,7 @@ void GUI_ThrowSDLError(void)
     if (error_copy == NULL)
         return;
 
-    Nst_Obj *error_obj = Nst_string_new_allocated(error_copy, error_len);
+    Nst_Obj *error_obj = Nst_str_new_allocated(error_copy, error_len);
     if (error_obj == NULL)
         return;
     Nst_set_error(Nst_inc_ref(sdl_error_name), error_obj);

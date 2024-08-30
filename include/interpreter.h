@@ -95,7 +95,7 @@ NstEXP bool NstC Nst_run_module(i8 *file_name, Nst_SourceText *lib_src);
  *
  * @return The result of the function or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_call_func(Nst_FuncObj *func, i64 arg_num,
+NstEXP Nst_Obj *NstC Nst_func_call(Nst_FuncObj *func, i64 arg_num,
                                    Nst_Obj **args);
 
 /**
@@ -159,9 +159,9 @@ NstEXP Nst_ExecutionState *NstC Nst_state_set_es(Nst_ExecutionState *es);
 // The global state of the interpreter.
 extern Nst_IntrState Nst_state;
 
-/* [docs:link Nst_state Nst_get_state] */
+/* [docs:link Nst_state Nst_state_get] */
 /* Returns a pointer to the global `Nst_IntrState`. */
-NstEXP Nst_IntrState *NstC Nst_get_state(void);
+NstEXP Nst_IntrState *NstC Nst_state_get(void);
 
 /**
  * Changes the current working directory using a `Nst_StrObj`.

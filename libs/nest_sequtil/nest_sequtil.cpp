@@ -66,7 +66,7 @@ Nst_Obj *NstC map_(usize arg_num, Nst_Obj **args)
     Nst_Obj **objs = seq->objs;
     for (usize i = 0, n = seq->len; i < n; i++) {
         Nst_Obj *arg = Nst_seq_get(seq, i);
-        Nst_Obj *res = Nst_call_func(func, 1, objs + i);
+        Nst_Obj *res = Nst_func_call(func, 1, objs + i);
 
         if (res == nullptr) {
             if (!map_in_place) {
@@ -258,7 +258,7 @@ Nst_Obj *NstC slice_(usize arg_num, Nst_Obj **args)
         return nullptr;
     else if (new_size == 0) {
         if (seq_t == Nst_type()->Str)
-            return Nst_string_new((i8 *)"", 0, false);
+            return Nst_str_new((i8 *)"", 0, false);
         else if (seq_t == Nst_type()->Array)
             return Nst_array_new(0);
         else
@@ -291,7 +291,7 @@ Nst_Obj *NstC slice_(usize arg_num, Nst_Obj **args)
         }
         buf[new_len] = 0;
         Nst_dec_ref(seq);
-        return Nst_string_new(buf, new_len, true);
+        return Nst_str_new(buf, new_len, true);
     }
 }
 
@@ -554,7 +554,7 @@ Nst_Obj *mapped_sort(Nst_SeqObj *seq, Nst_FuncObj *map_func, bool new_seq)
         return nullptr;
 
     for (usize i = 0; i < seq_len; i++) {
-        Nst_Obj *mapped_value = Nst_call_func(FUNC(map_func), 1, objs + i);
+        Nst_Obj *mapped_value = Nst_func_call(FUNC(map_func), 1, objs + i);
         if (mapped_value == nullptr) {
             for (usize j = 0; j < i; j++)
                 Nst_dec_ref(values[j].mapped);
@@ -694,7 +694,7 @@ Nst_Obj *NstC filter_(usize arg_num, Nst_Obj **args)
     Nst_SeqObj *new_seq = SEQ(Nst_vector_new(0));
 
     for (usize i = 0, n = seq->len; i < n; i++) {
-        Nst_Obj *res = Nst_call_func(func, 1, &seq->objs[i]);
+        Nst_Obj *res = Nst_func_call(func, 1, &seq->objs[i]);
 
         if (res == nullptr)
             return nullptr;
@@ -807,7 +807,7 @@ Nst_Obj *NstC count_(usize arg_num, Nst_Obj **args)
         usize sub_len = STR(obj)->len;
 
         while (true) {
-            i8 *res = Nst_string_find(str, str_len, sub, sub_len);
+            i8 *res = Nst_str_find(str, str_len, sub, sub_len);
             if (res == nullptr)
                 break;
             str_len -= res - str + sub_len;
@@ -879,7 +879,7 @@ Nst_Obj *NstC lscan_(usize arg_num, Nst_Obj **args)
     for (i64 i = 1; i < max_items; i++) {
         func_args[0] = prev_val;
         func_args[1] = seq->objs[i - 1];
-        Nst_Obj *new_val = Nst_call_func(func, 2, func_args);
+        Nst_Obj *new_val = Nst_func_call(func, 2, func_args);
         if (new_val == nullptr) {
             Nst_dec_ref(prev_val);
             new_seq->len = (usize)i;
@@ -934,7 +934,7 @@ Nst_Obj *NstC rscan_(usize arg_num, Nst_Obj **args)
     for (i64 i = 1; i < max_items; i++) {
         func_args[0] = seq->objs[seq_len - i];
         func_args[1] = prev_val;
-        Nst_Obj *new_val = Nst_call_func(func, 2, func_args);
+        Nst_Obj *new_val = Nst_func_call(func, 2, func_args);
         if (new_val == nullptr) {
             Nst_dec_ref(prev_val);
             for (i64 j = 0; j < i; j++)
@@ -1140,16 +1140,16 @@ Nst_Obj *reverse_string(Nst_StrObj *str_obj)
     i8 ch_buf[4] = { 0 };
     isize str_idx = -1;
 
-    for (i32 ch_len = Nst_string_next_utf8(str_obj, &str_idx, ch_buf);
+    for (i32 ch_len = Nst_str_next_utf8(str_obj, &str_idx, ch_buf);
          ch_len != 0;
-         ch_len = Nst_string_next_utf8(str_obj, &str_idx, ch_buf))
+         ch_len = Nst_str_next_utf8(str_obj, &str_idx, ch_buf))
     {
         i -= ch_len;
         memcpy(new_str + i, ch_buf, ch_len * sizeof(u8));
     }
     new_str[old_str_len] = '\0';
 
-    Nst_Obj *new_str_obj = Nst_string_new_len(
+    Nst_Obj *new_str_obj = Nst_str_new_len(
         new_str,
         str_obj->len,
         str_obj->true_len,

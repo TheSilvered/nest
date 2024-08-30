@@ -141,12 +141,12 @@ set but an internal one is, hence the caller must not set the error.
 
 ---
 
-### `Nst_call_func`
+### `Nst_func_call`
 
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_call_func(Nst_FuncObj *func, i64 arg_num, Nst_Obj **args)
+Nst_Obj *Nst_func_call(Nst_FuncObj *func, i64 arg_num, Nst_Obj **args)
 ```
 
 **Description:**
@@ -299,12 +299,12 @@ check.
 
 ---
 
-### `Nst_get_state`
+### `Nst_state_get`
 
 **Synopsis:**
 
 ```better-c
-Nst_IntrState *Nst_get_state(void)
+Nst_IntrState *Nst_state_get(void)
 ```
 
 **Description:**

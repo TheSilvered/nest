@@ -6,7 +6,7 @@
 
 int wmain(int argc, wchar_t **wargv)
 {
-    _Nst_set_console_mode();
+    _Nst_console_mode_init();
 
     i8 **argv;
 
@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 
     Nst_CLArgs cl_args;
     Nst_cl_args_init(&cl_args, argc, argv);
-    i32 parse_result = _Nst_parse_args(&cl_args);
+    i32 parse_result = _Nst_cl_args_parse(&cl_args);
     if (parse_result == -1)
         return -1;
     else if (parse_result == 1)

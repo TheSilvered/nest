@@ -561,14 +561,14 @@ end:
     ltrl[0] = neg ? '-' : '+';
     memcpy(ltrl + 1, start_p, ltrl_size);
     ltrl[ltrl_size + 1] = '\0';
-    s = Nst_string_temp(ltrl, ltrl_size + 1);
+    s = Nst_str_temp(ltrl, ltrl_size + 1);
 
     if (is_real)
-        res = Nst_string_parse_real(&s);
+        res = Nst_str_parse_real(&s);
     else if (is_byte)
-        res = Nst_string_parse_byte(&s);
+        res = Nst_str_parse_byte(&s);
     else
-        res = Nst_string_parse_int(&s, 0);
+        res = Nst_str_parse_int(&s, 0);
     Nst_free(ltrl);
 
     if (res == NULL) {
@@ -612,7 +612,7 @@ static Nst_Tok *make_ident(void)
     str[str_len] = '\0';
 
     Nst_Pos end = Nst_copy_pos(cursor.pos);
-    Nst_StrObj *val_obj = STR(Nst_string_new_c_raw(str, true));
+    Nst_StrObj *val_obj = STR(Nst_str_new_c_raw(str, true));
     if (val_obj == NULL) {
         Nst_free(str);
         ADD_ERR_POS;

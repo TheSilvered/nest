@@ -131,7 +131,7 @@ static i32 long_arg(i8 *arg, Nst_CLArgs *cl_args)
     return 0;
 }
 
-i32 _Nst_parse_args(Nst_CLArgs *cl_args)
+i32 _Nst_cl_args_parse(Nst_CLArgs *cl_args)
 {
     i32 argc = cl_args->argc;
     i8 **argv = cl_args->argv;
@@ -270,7 +270,7 @@ bool Nst_supports_color(void)
     return supports_color;
 }
 
-void _Nst_override_supports_color(bool value)
+void _Nst_supports_color_override(bool value)
 {
     supports_color = value;
 }
@@ -316,7 +316,7 @@ bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv)
     return true;
 }
 
-void _Nst_set_console_mode(void)
+void _Nst_console_mode_init(void)
 {
     supports_color = true;
 

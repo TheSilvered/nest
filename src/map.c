@@ -328,7 +328,7 @@ void _Nst_map_destroy(Nst_MapObj *map)
 
 bool _Nst_map_set_str(Nst_MapObj *map, const i8 *key, Nst_Obj *value)
 {
-    Nst_Obj *key_obj = Nst_string_new_c_raw(key, false);
+    Nst_Obj *key_obj = Nst_str_new_c_raw(key, false);
     if (key_obj == NULL)
         return false;
     bool res = Nst_map_set(map, key_obj, value);

@@ -67,7 +67,7 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
     if (match_type == NULL)
         return NULL;
 
-    Nst_SizedBuffer custom_types;
+    Nst_SBuffer custom_types;
     if (!Nst_sbuffer_init(&custom_types, sizeof(Nst_TypeObj *), 4)) {
         Nst_free(match_type);
         return NULL;

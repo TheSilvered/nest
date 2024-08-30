@@ -37,12 +37,12 @@ an error occurred. The error is set.
 
 ---
 
-### `Nst_print_bytecode`
+### `Nst_inst_list_print`
 
 **Synopsis:**
 
 ```better-c
-void Nst_print_bytecode(Nst_InstList *ls)
+void Nst_inst_list_print(Nst_InstList *ls)
 ```
 
 **Description:**

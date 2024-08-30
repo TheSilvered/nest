@@ -43,7 +43,7 @@ Nst_Obj *NstC from_cp_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     i32 len = Nst_utf8_from_utf32((u32)cp, str);
-    return Nst_string_new_allocated((i8 *)str, (usize)len);
+    return Nst_str_new_allocated((i8 *)str, (usize)len);
 }
 
 Nst_Obj *NstC to_cp_(usize arg_num, Nst_Obj **args)

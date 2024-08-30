@@ -34,7 +34,7 @@ Nst_StrObj *GUI_RawLabel_GetTextObj(GUI_RawLabel *label)
     i8 *value = (i8 *)Nst_calloc(1, label->text_len + 1, label->text);
     if (value == nullptr)
         return nullptr;
-    return STR(Nst_string_new_allocated(value, label->text_len));
+    return STR(Nst_str_new_allocated(value, label->text_len));
 }
 
 bool GUI_RawLabel_SetTextObj(GUI_RawLabel *label, Nst_StrObj *text)

@@ -745,7 +745,7 @@ bool Nst_traceback_init(Nst_Traceback *tb)
 **Description:**
 
 Initializes the traceback of the current
-[`Nst_state`](c_api-interpreter.md#nst_get_state).
+[`Nst_state`](c_api-interpreter.md#nst_state_get).
 
 ---
 
@@ -760,7 +760,7 @@ void Nst_traceback_destroy(Nst_Traceback *tb)
 **Description:**
 
 Frees the traceback of the current
-[`Nst_state`](c_api-interpreter.md#nst_get_state).
+[`Nst_state`](c_api-interpreter.md#nst_state_get).
 
 ---
 

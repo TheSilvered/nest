@@ -72,7 +72,7 @@ void get_in_str(Nst_StrObj *str, Nst_Obj *start_idx, Nst_Obj *end_idx,
     }
 
     isize i;
-    for (i = Nst_string_next(str, -1); i >= 0; i = Nst_string_next(str, i)) {
+    for (i = Nst_str_next(str, -1); i >= 0; i = Nst_str_next(str, i)) {
         if (start == 0)
             *out_str = str->value + i;
         if (end == 0) {
@@ -118,7 +118,7 @@ Nst_Obj *NstC lfind_(usize arg_num, Nst_Obj **args)
     if (str1_value == str2->value)
         Nst_RETURN_ZERO;
 
-    i8 *sub = Nst_string_find(str1_value, str1_len, str2->value, str2->len);
+    i8 *sub = Nst_str_find(str1_value, str1_len, str2->value, str2->len);
 
     if (sub == nullptr)
         return Nst_inc_ref(Nst_const()->Int_neg1);
@@ -161,7 +161,7 @@ Nst_Obj *NstC rfind_(usize arg_num, Nst_Obj **args)
     if (str1_value == str2->value)
         Nst_RETURN_ZERO;
 
-    i8 *sub = Nst_string_rfind(str1_value, str1_len, str2->value, str2->len);
+    i8 *sub = Nst_str_rfind(str1_value, str1_len, str2->value, str2->len);
 
     if (sub == nullptr)
         return Nst_inc_ref(Nst_const()->Int_neg1);
@@ -235,7 +235,7 @@ Nst_Obj *NstC trim_(usize arg_num, Nst_Obj **args)
     }
 
     if (s_start == s_end + 1)
-        return Nst_string_new_c("", 0, false);
+        return Nst_str_new_c("", 0, false);
 
     while (isspace((u8)*s_end)) {
         --s_end;
@@ -249,7 +249,7 @@ Nst_Obj *NstC trim_(usize arg_num, Nst_Obj **args)
     memcpy(new_str, s_start, len);
     new_str[len] = '\0';
 
-    return Nst_string_new(new_str, len, true);
+    return Nst_str_new(new_str, len, true);
 }
 
 Nst_Obj *NstC ltrim_(usize arg_num, Nst_Obj **args)
@@ -273,7 +273,7 @@ Nst_Obj *NstC ltrim_(usize arg_num, Nst_Obj **args)
     memcpy(new_str, s_start, len);
     new_str[len] = '\0';
 
-    return Nst_string_new(new_str, len, true);
+    return Nst_str_new(new_str, len, true);
 }
 
 Nst_Obj *NstC rtrim_(usize arg_num, Nst_Obj **args)
@@ -288,7 +288,7 @@ Nst_Obj *NstC rtrim_(usize arg_num, Nst_Obj **args)
     i8 *s_end = s_start + len - 1;
 
     if (len == 0)
-        return Nst_string_new((i8 *)"", 0, false);
+        return Nst_str_new((i8 *)"", 0, false);
 
     while (s_end + 1 != s_start && isspace((u8)*s_end)) {
         --s_end;
@@ -301,7 +301,7 @@ Nst_Obj *NstC rtrim_(usize arg_num, Nst_Obj **args)
     memcpy(new_str, s_start, len);
     new_str[len] = '\0';
 
-    return Nst_string_new(new_str, len, true);
+    return Nst_str_new(new_str, len, true);
 }
 
 static bool check_just_args(usize arg_num, Nst_Obj **args, Nst_StrObj *&str,
@@ -363,7 +363,7 @@ Nst_Obj *ljust_(usize arg_num, Nst_Obj **args)
     Nst_memset(new_str + str_len, fill_ch_len, fill_len, (void *)fill_ch);
 
     new_str[str_len + fill_ch_len * fill_len] = 0;
-    Nst_Obj *new_str_obj = Nst_string_new_len(
+    Nst_Obj *new_str_obj = Nst_str_new_len(
         new_str,
         new_str_len,
         just_len,
@@ -397,7 +397,7 @@ Nst_Obj *rjust_(usize arg_num, Nst_Obj **args)
     Nst_memset(new_str, fill_ch_len, fill_len, (void *)fill_ch);
     memcpy(new_str + fill_len * fill_ch_len, str->value, str_len);
     new_str[str_len + fill_ch_len * fill_len] = 0;
-    Nst_Obj *new_str_obj = Nst_string_new_len(
+    Nst_Obj *new_str_obj = Nst_str_new_len(
         new_str,
         new_str_len,
         just_len,
@@ -439,7 +439,7 @@ Nst_Obj *NstC cjust_(usize arg_num, Nst_Obj **args)
         (void *)fill_ch);
 
     new_str[str_len + fill_ch_len * fill_len] = 0;
-    Nst_Obj *new_str_obj = Nst_string_new_len(
+    Nst_Obj *new_str_obj = Nst_str_new_len(
         new_str,
         new_str_len,
         just_len,
@@ -456,7 +456,7 @@ Nst_Obj *NstC to_title_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &str))
         return nullptr;
 
-    Nst_StrObj *new_str = STR(Nst_string_copy(str));
+    Nst_StrObj *new_str = STR(Nst_str_copy(str));
     i8 *s = new_str->value;
     i8 *end = s + new_str->len;
     bool new_word = true;
@@ -485,7 +485,7 @@ Nst_Obj *NstC to_upper_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &str))
         return nullptr;
 
-    Nst_StrObj *new_str = STR(Nst_string_copy(str));
+    Nst_StrObj *new_str = STR(Nst_str_copy(str));
     i8 *s = new_str->value;
     i8 *end = s + new_str->len;
 
@@ -504,7 +504,7 @@ Nst_Obj *NstC to_lower_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &str))
         return nullptr;
 
-    Nst_StrObj *new_str = STR(Nst_string_copy(str));
+    Nst_StrObj *new_str = STR(Nst_str_copy(str));
     i8 *s = new_str->value;
     i8 *end = s + new_str->len;
 
@@ -673,15 +673,15 @@ Nst_Obj *NstC is_charset_(usize arg_num, Nst_Obj **args)
         Nst_RETURN_FALSE;
 
     isize i = -1;
-    for (i32 ch1 = Nst_string_next_utf32(str1, &i);
+    for (i32 ch1 = Nst_str_next_utf32(str1, &i);
          ch1 != -1;
-         ch1 = Nst_string_next_utf32(str1, &i))
+         ch1 = Nst_str_next_utf32(str1, &i))
     {
         isize j = -1;
         bool found_ch = false;
-        for (i32 ch2 = Nst_string_next_utf32(str2, &j);
+        for (i32 ch2 = Nst_str_next_utf32(str2, &j);
              ch2 != -1;
-             ch2 = Nst_string_next_utf32(str2, &j))
+             ch2 = Nst_str_next_utf32(str2, &j))
         {
             if (ch1 == ch2) {
                 found_ch = true;
@@ -741,7 +741,7 @@ Nst_Obj *NstC replace_(usize arg_num, Nst_Obj **args)
     i32 count = 0;
 
     while (true) {
-        sub = Nst_string_find(s, s_len, s_from, s_from_len);
+        sub = Nst_str_find(s, s_len, s_from, s_from_len);
         if (sub == nullptr)
             break;
 
@@ -763,7 +763,7 @@ Nst_Obj *NstC replace_(usize arg_num, Nst_Obj **args)
 
     // Copy replacing the occurrences
     while (true) {
-        sub = Nst_string_find(s, s_len, s_from, s_from_len);
+        sub = Nst_str_find(s, s_len, s_from, s_from_len);
         if (sub == nullptr)
             break;
 
@@ -780,7 +780,7 @@ Nst_Obj *NstC replace_(usize arg_num, Nst_Obj **args)
     new_str_len += s_len;
 
     new_str[new_str_len] = 0;
-    return Nst_string_new_allocated(new_str, new_str_len);
+    return Nst_str_new_allocated(new_str, new_str_len);
 }
 
 Nst_Obj *NstC decode_(usize arg_num, Nst_Obj **args)
@@ -828,7 +828,7 @@ Nst_Obj *NstC decode_(usize arg_num, Nst_Obj **args)
     if (!result)
         return nullptr;
 
-    return Nst_string_new(str, str_len, true);
+    return Nst_str_new(str, str_len, true);
 }
 
 Nst_Obj *NstC encode_(usize arg_num, Nst_Obj **args)
@@ -891,7 +891,7 @@ Nst_Obj *NstC join_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (seq->len == 0)
-        return Nst_string_new_c("", 0, false);
+        return Nst_str_new_c("", 0, false);
 
     usize str_len;
     i8 *str_val;
@@ -934,7 +934,7 @@ Nst_Obj *NstC join_(usize arg_num, Nst_Obj **args)
     }
     Nst_free(objs);
     new_str[tot_len] = '\0';
-    return Nst_string_new(new_str, tot_len, true);
+    return Nst_str_new(new_str, tot_len, true);
 }
 
 Nst_Obj *NstC lsplit_whitespace(Nst_StrObj *str_obj, i64 quantity)
@@ -980,7 +980,7 @@ Nst_Obj *NstC lsplit_whitespace(Nst_StrObj *str_obj, i64 quantity)
 
         memcpy(new_str_val, str, new_str_len);
         new_str_val[new_str_len] = '\0';
-        Nst_Obj *new_str = Nst_string_new(new_str_val, new_str_len, true);
+        Nst_Obj *new_str = Nst_str_new(new_str_val, new_str_len, true);
         Nst_vector_append(vector, new_str);
         Nst_dec_ref(new_str);
         str_len -= new_str_len;
@@ -1008,7 +1008,7 @@ Nst_Obj *NstC lsplit_whitespace(Nst_StrObj *str_obj, i64 quantity)
         }
         memcpy(new_str_val, str, str_len);
         new_str_val[str_len] = '\0';
-        Nst_Obj *new_str = Nst_string_new(new_str_val, str_len, true);
+        Nst_Obj *new_str = Nst_str_new(new_str_val, str_len, true);
         Nst_vector_append(vector, new_str);
         Nst_dec_ref(new_str);
     }
@@ -1055,7 +1055,7 @@ Nst_Obj *NstC lsplit_(usize arg_num, Nst_Obj **args)
     usize str_len = str_obj->len;
 
     while (str_len > 0) {
-        i8 *sub_idx = Nst_string_find(str, str_len, sub, sub_len);
+        i8 *sub_idx = Nst_str_find(str, str_len, sub, sub_len);
         if (sub_idx == nullptr)
             break;
 
@@ -1068,7 +1068,7 @@ Nst_Obj *NstC lsplit_(usize arg_num, Nst_Obj **args)
 
         memcpy(new_str_val, str, new_str_len);
         new_str_val[new_str_len] = '\0';
-        Nst_Obj *new_str = Nst_string_new(new_str_val, new_str_len, true);
+        Nst_Obj *new_str = Nst_str_new(new_str_val, new_str_len, true);
         Nst_vector_append(vector, new_str);
         Nst_dec_ref(new_str);
         str_len -= new_str_len + sub_len;
@@ -1088,7 +1088,7 @@ Nst_Obj *NstC lsplit_(usize arg_num, Nst_Obj **args)
         }
         memcpy(new_str_val, str, str_len);
         new_str_val[str_len] = '\0';
-        Nst_Obj *new_str = Nst_string_new(new_str_val, str_len, true);
+        Nst_Obj *new_str = Nst_str_new(new_str_val, str_len, true);
         Nst_vector_append(vector, new_str);
         Nst_dec_ref(new_str);
     }
@@ -1151,7 +1151,7 @@ Nst_Obj *NstC rsplit_whitespace(Nst_StrObj *str_obj, i64 quantity)
 
         memcpy(new_str_val, sub_idx, new_str_len);
         new_str_val[new_str_len] = '\0';
-        Nst_Obj *new_str = Nst_string_new(new_str_val, new_str_len, true);
+        Nst_Obj *new_str = Nst_str_new(new_str_val, new_str_len, true);
         Nst_vector_append(vector, new_str);
         Nst_dec_ref(new_str);
         str_len -= new_str_len;
@@ -1179,7 +1179,7 @@ Nst_Obj *NstC rsplit_whitespace(Nst_StrObj *str_obj, i64 quantity)
         }
         memcpy(new_str_val, str, str_len);
         new_str_val[str_len] = '\0';
-        Nst_Obj *new_str = Nst_string_new(new_str_val, str_len, true);
+        Nst_Obj *new_str = Nst_str_new(new_str_val, str_len, true);
         Nst_vector_append(vector, new_str);
         Nst_dec_ref(new_str);
     }
@@ -1226,7 +1226,7 @@ Nst_Obj *NstC rsplit_(usize arg_num, Nst_Obj **args)
     usize str_len = str_obj->len;
 
     while (str_len > 0) {
-        i8 *sub_idx = Nst_string_rfind(str, str_len, sub, sub_len);
+        i8 *sub_idx = Nst_str_rfind(str, str_len, sub, sub_len);
         if (sub_idx == nullptr)
             break;
 
@@ -1239,7 +1239,7 @@ Nst_Obj *NstC rsplit_(usize arg_num, Nst_Obj **args)
 
         memcpy(new_str_val, sub_idx + sub_len, new_str_len);
         new_str_val[new_str_len] = '\0';
-        Nst_Obj *new_str = Nst_string_new(new_str_val, new_str_len, true);
+        Nst_Obj *new_str = Nst_str_new(new_str_val, new_str_len, true);
         Nst_vector_append(vector, new_str);
         Nst_dec_ref(new_str);
         str_len -= new_str_len + sub_len;
@@ -1258,7 +1258,7 @@ Nst_Obj *NstC rsplit_(usize arg_num, Nst_Obj **args)
         }
         memcpy(new_str_val, str, str_len);
         new_str_val[str_len] = '\0';
-        Nst_Obj *new_str = Nst_string_new(new_str_val, str_len, true);
+        Nst_Obj *new_str = Nst_str_new(new_str_val, str_len, true);
         Nst_vector_append(vector, new_str);
         Nst_dec_ref(new_str);
     }
@@ -1277,7 +1277,7 @@ Nst_Obj *NstC bin_(usize arg_num, Nst_Obj **args)
     if (str == nullptr)
         return nullptr;
 
-    return Nst_string_new_allocated(str, str_len);
+    return Nst_str_new_allocated(str, str_len);
 }
 
 Nst_Obj *NstC oct_(usize arg_num, Nst_Obj **args)
@@ -1291,7 +1291,7 @@ Nst_Obj *NstC oct_(usize arg_num, Nst_Obj **args)
     if (str == nullptr)
         return nullptr;
 
-    return Nst_string_new_allocated(str, str_len);
+    return Nst_str_new_allocated(str, str_len);
 }
 
 Nst_Obj *NstC hex_(usize arg_num, Nst_Obj **args)
@@ -1307,7 +1307,7 @@ Nst_Obj *NstC hex_(usize arg_num, Nst_Obj **args)
     if (str == nullptr)
         return nullptr;
 
-    return Nst_string_new_allocated(str, str_len);
+    return Nst_str_new_allocated(str, str_len);
 }
 
 Nst_Obj *NstC parse_int_(usize arg_num, Nst_Obj **args)
@@ -1319,7 +1319,7 @@ Nst_Obj *NstC parse_int_(usize arg_num, Nst_Obj **args)
 
     i64 base = Nst_DEF_VAL(base_obj, AS_INT(base_obj), 0);
 
-    return Nst_string_parse_int(str, i32(base));
+    return Nst_str_parse_int(str, i32(base));
 }
 
 Nst_Obj *NstC lremove_(usize arg_num, Nst_Obj **args)
@@ -1345,7 +1345,7 @@ Nst_Obj *NstC lremove_(usize arg_num, Nst_Obj **args)
     i8 *new_str_value = (i8 *)Nst_calloc(1, new_len + 1, str_p);
     if (new_str_value == NULL)
         return NULL;
-    return Nst_string_new_allocated(new_str_value, new_len);
+    return Nst_str_new_allocated(new_str_value, new_len);
 }
 
 Nst_Obj *NstC rremove_(usize arg_num, Nst_Obj **args)
@@ -1372,7 +1372,7 @@ Nst_Obj *NstC rremove_(usize arg_num, Nst_Obj **args)
     if (new_str_value == NULL)
         return NULL;
     new_str_value[new_len] = '\0';
-    return Nst_string_new_allocated(new_str_value, new_len);
+    return Nst_str_new_allocated(new_str_value, new_len);
 }
 
 Nst_Obj *NstC fmt_(usize arg_num, Nst_Obj **args)

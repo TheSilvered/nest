@@ -68,7 +68,7 @@ NstEXP void NstC Nst_cl_args_init(Nst_CLArgs *args, i32 argc, i8 **argv);
  * @return `-1` on failure, `0` on success where the program can continue, `1`
  * on success when the program should stop because an info message was printed.
  */
-NstEXP i32 NstC _Nst_parse_args(Nst_CLArgs *cl_args);
+NstEXP i32 NstC _Nst_cl_args_parse(Nst_CLArgs *cl_args);
 
 /**
  * @return `true` if ANSI escapes are supported on the current console and
@@ -77,7 +77,7 @@ NstEXP i32 NstC _Nst_parse_args(Nst_CLArgs *cl_args);
 NstEXP bool NstC Nst_supports_color(void);
 
 /* Ovverrides the value returned by `Nst_supports_color`. */
-NstEXP void NstC _Nst_override_supports_color(bool value);
+NstEXP void NstC _Nst_supports_color_override(bool value);
 
 #ifdef Nst_WIN
 
@@ -93,7 +93,7 @@ NstEXP void NstC _Nst_override_supports_color(bool value);
 NstEXP bool NstC _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv);
 
 /* WINDOWS ONLY Initializes the console. */
-NstEXP void NstC _Nst_set_console_mode(void);
+NstEXP void NstC _Nst_console_mode_init(void);
 
 #endif // !Nst_WIN
 

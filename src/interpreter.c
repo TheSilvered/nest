@@ -203,12 +203,12 @@ bool Nst_init(Nst_CLArgs *args)
 {
     Nst_set_color(Nst_supports_color());
 
-    // these need to be set to allow _Nst_init_objects to be called
+    // these need to be set to allow _Nst_globals_init to be called
     Nst_state.es = NULL;
     Nst_state.global_traceback.error_occurred = false;
     Nst_state.global_traceback.positions = NULL;
 
-    if (!_Nst_init_objects()) {
+    if (!_Nst_globals_init()) {
         fprintf(stderr, "Memory Error - memory allocation failed...\n");
         return false;
     }
@@ -278,7 +278,7 @@ void Nst_quit(void)
 
     Nst_dec_ref(Nst_state.lib_handles);
     _Nst_ggc_delete_objs();
-    _Nst_del_objects();
+    _Nst_globals_quit();
 
     // the libraries are freed only after the objects because I/O streams might
     // contain objects that are created inside a libraray and are deleted when
@@ -496,7 +496,7 @@ bool Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
         return true;
 }
 
-Nst_Obj *Nst_call_func(Nst_FuncObj *func, i64 arg_num, Nst_Obj **args)
+Nst_Obj *Nst_func_call(Nst_FuncObj *func, i64 arg_num, Nst_Obj **args)
 {
     if (Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C)) {
         i64 tot_args = func->arg_num;
@@ -1161,7 +1161,7 @@ static i32 exe_op_extract()
             goto end;
         }
 
-        res = Nst_string_get(cont, AS_INT(idx));
+        res = Nst_str_get(cont, AS_INT(idx));
 
         if (res == NULL)
             return_value = INST_FAILED;
@@ -1501,7 +1501,7 @@ usize Nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part)
 #endif // !Nst_WIN
 }
 
-Nst_IntrState *Nst_get_state(void)
+Nst_IntrState *Nst_state_get(void)
 {
     return &Nst_state;
 }
@@ -1543,7 +1543,7 @@ Nst_StrObj *Nst_getcwd(void)
     Nst_free(wide_cwd);
     if (cwd_buf == NULL)
         return NULL;
-    return STR(Nst_string_new_allocated(cwd_buf, strlen(cwd_buf)));
+    return STR(Nst_str_new_allocated(cwd_buf, strlen(cwd_buf)));
 #else
     i8 *cwd_buf = Nst_malloc_c(PATH_MAX, i8);
     if (cwd_buf == NULL)
@@ -1554,7 +1554,7 @@ Nst_StrObj *Nst_getcwd(void)
         Nst_set_call_error_c(_Nst_EM_FAILED_GETCWD);
         return NULL;
     }
-    return STR(Nst_string_new_allocated(cwd_buf, strlen(cwd_buf)));
+    return STR(Nst_str_new_allocated(cwd_buf, strlen(cwd_buf)));
 #endif // !Nst_WIN
 }
 

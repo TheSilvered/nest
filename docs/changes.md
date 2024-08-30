@@ -56,6 +56,7 @@
 - fixed `su.is_title` returning an incorrect value when a word had a character that was not a space or a letter before it
 - fixed `itu.cycle` not working with Unicode strings
 - fixed `itu.chain` not resetting correctly after being iterated over the first time
+- fixed many memory leaks
 
 ### C API
 
@@ -160,6 +161,17 @@ _General changes_:
 - renamed `Nst_MAKE_NAMED_FUNCDECLR` to `Nst_NAMED_FUNCDECLR`
 - renamed `Nst_MAKE_OBJDECLR` to `Nst_CONSTDECLR`
 - renamed `Nst_MAKE_NAMED_OBJDECLR` to `Nst_NAMED_CONSTDECLR`
+- reanamed many functions to better fit the naming style:
+  - `_Nst_parse_args` to `_Nst_cl_args_parse`
+  - `_Nst_override_supports_color` to `_Nst_supports_color_override`
+  - `_Nst_set_console_mode` to `_Nst_console_mode_init`
+  - `Nst_print_bytecode` to `Nst_inst_list_print`
+  - `_Nst_init_objects` to `_Nst_globals_init`
+  - `_Nst_del_objects` to `_Nst_globals_quit`
+  - `_Nst_call_func` to `_Nst_func_call`
+  - `_Nst_get_state` to `_Nst_state_get`
+  - all `Nst_string_*` to `Nst_str_*`
+- macros to check token type ranges have been made private
 
 **Bug fixes**
 

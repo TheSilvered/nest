@@ -710,10 +710,10 @@ static bool compile_stack_op(Nst_Node *node)
     if (node->v.so.values->len == 1)
         return true;
 
-    if (Nst_IS_COMP_OP(node->v.so.op) && node->v.so.values->len > 2)
+    if (_Nst_TOK_IS_COMP_OP(node->v.so.op) && node->v.so.values->len > 2)
         return compile_comp_op(node);
 
-    if (Nst_IS_COND_OP(node->v.so.op))
+    if (_Nst_TOK_IS_COND_OP(node->v.so.op))
         return compile_lg_op(node);
 
     for (Nst_LLNode *lnode = node->v.so.values->head->next;
@@ -1671,7 +1671,7 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
     }
 }
 
-void Nst_print_bytecode(Nst_InstList *ls)
+void Nst_inst_list_print(Nst_InstList *ls)
 {
     print_bytecode(ls, 0);
 }

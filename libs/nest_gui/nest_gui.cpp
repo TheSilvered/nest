@@ -122,7 +122,7 @@ Nst_Obj *NstC window_get_title_(usize arg_num, Nst_Obj **args)
     i8 *title_copy = (i8 *)Nst_calloc(1, title_len + 1, (void *)title);
     if (title_copy == nullptr)
         return nullptr;
-    return Nst_string_new_allocated(title_copy, title_len);
+    return Nst_str_new_allocated(title_copy, title_len);
 }
 
 Nst_Obj *NstC window_set_position_(usize arg_num, Nst_Obj **args)

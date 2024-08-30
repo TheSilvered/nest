@@ -166,12 +166,12 @@ The functions of the built-in iterators.
 
 ## Functions
 
-### `_Nst_init_objects`
+### `_Nst_globals_init`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_init_objects(void)
+bool _Nst_globals_init(void)
 ```
 
 **Description:**
@@ -184,12 +184,12 @@ Initializes all the global constants and IO streams.
 
 ---
 
-### `_Nst_del_objects`
+### `_Nst_globals_quit`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_del_objects(void)
+void _Nst_globals_quit(void)
 ```
 
 **Description:**

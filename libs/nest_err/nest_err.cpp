@@ -27,7 +27,7 @@ Nst_Obj *make_pos(Nst_Pos start, Nst_Pos end)
 
     Nst_Obj *arr1 = Nst_array_new(2);
     Nst_Obj *arr2 = Nst_array_new(2);
-    Nst_Obj *file_str = Nst_string_new_c_raw(start.text->path, false);
+    Nst_Obj *file_str = Nst_str_new_c_raw(start.text->path, false);
 
     SEQ(arr1)->objs[0] = Nst_int_new(start.line);
     SEQ(arr1)->objs[1] = Nst_int_new(start.col);
@@ -146,7 +146,7 @@ Nst_Obj *NstC try_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    Nst_Obj *result = Nst_call_func(
+    Nst_Obj *result = Nst_func_call(
         func,
         func_arg_num,
         objs);

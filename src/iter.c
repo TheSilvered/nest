@@ -45,7 +45,7 @@ void _Nst_iter_traverse(Nst_IterObj *iter)
 
 bool _Nst_iter_start(Nst_IterObj *iter)
 {
-    Nst_Obj *result = Nst_call_func(iter->start, 1, &iter->value);
+    Nst_Obj *result = Nst_func_call(iter->start, 1, &iter->value);
 
     if (result == NULL)
         return false;
@@ -56,7 +56,7 @@ bool _Nst_iter_start(Nst_IterObj *iter)
 
 Nst_Obj *_Nst_iter_get_val(Nst_IterObj *iter)
 {
-    return Nst_call_func(iter->get_val, 1, &iter->value);
+    return Nst_func_call(iter->get_val, 1, &iter->value);
 }
 
 Nst_Obj *NstC Nst_iter_range_start(usize arg_num, Nst_Obj **args)
@@ -126,7 +126,7 @@ Nst_Obj *NstC Nst_iter_str_get_val(usize arg_num, Nst_Obj **args)
     Nst_SeqObj *val = SEQ(args[0]);
     Nst_Obj **objs = val->objs;
     Nst_StrObj *str = STR(objs[1]);
-    Nst_Obj *ch = Nst_string_next_obj(str, (isize *)&AS_INT(objs[0]));
+    Nst_Obj *ch = Nst_str_next_obj(str, (isize *)&AS_INT(objs[0]));
     if (ch != NULL)
         return ch;
     if (AS_INT(objs[0]) == Nst_STR_LOOP_ERROR)

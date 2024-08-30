@@ -143,7 +143,7 @@ void Nst_memset(void *block, usize size, usize count, void *value)
         memcpy((i8 *)block + i * size, value, size);
 }
 
-bool Nst_sbuffer_init(Nst_SizedBuffer *buf, usize unit_size, usize count)
+bool Nst_sbuffer_init(Nst_SBuffer *buf, usize unit_size, usize count)
 {
     void *data = Nst_malloc(count, unit_size);
     if (data == NULL)
@@ -156,12 +156,12 @@ bool Nst_sbuffer_init(Nst_SizedBuffer *buf, usize unit_size, usize count)
     return true;
 }
 
-bool Nst_sbuffer_expand_by(Nst_SizedBuffer *buf, usize amount)
+bool Nst_sbuffer_expand_by(Nst_SBuffer *buf, usize amount)
 {
     return Nst_sbuffer_expand_to(buf, buf->len + amount);
 }
 
-bool Nst_sbuffer_expand_to(Nst_SizedBuffer *buf, usize count)
+bool Nst_sbuffer_expand_to(Nst_SBuffer *buf, usize count)
 {
     if (buf->cap >= count)
         return true;
@@ -176,7 +176,7 @@ bool Nst_sbuffer_expand_to(Nst_SizedBuffer *buf, usize count)
     return true;
 }
 
-void Nst_sbuffer_fit(Nst_SizedBuffer *buf)
+void Nst_sbuffer_fit(Nst_SBuffer *buf)
 {
     usize len = buf->len;
     if (len == 0)
@@ -186,7 +186,7 @@ void Nst_sbuffer_fit(Nst_SizedBuffer *buf)
     buf->cap = len;
 }
 
-bool Nst_sbuffer_append(Nst_SizedBuffer *buf, void *element)
+bool Nst_sbuffer_append(Nst_SBuffer *buf, void *element)
 {
     if (!Nst_sbuffer_expand_by(buf, 1))
         return false;
@@ -197,7 +197,7 @@ bool Nst_sbuffer_append(Nst_SizedBuffer *buf, void *element)
     return true;
 }
 
-bool Nst_sbuffer_pop(Nst_SizedBuffer *buf)
+bool Nst_sbuffer_pop(Nst_SBuffer *buf)
 {
     if (buf->len == 0)
         return false;
@@ -205,14 +205,14 @@ bool Nst_sbuffer_pop(Nst_SizedBuffer *buf)
     return true;
 }
 
-void *Nst_sbuffer_at(Nst_SizedBuffer *buf, usize index)
+void *Nst_sbuffer_at(Nst_SBuffer *buf, usize index)
 {
     if (index >= buf->len)
         return NULL;
     return (void *)((u8 *)buf->data + (buf->unit_size * index));
 }
 
-void Nst_sbuffer_shrink_auto(Nst_SizedBuffer *buf)
+void Nst_sbuffer_shrink_auto(Nst_SBuffer *buf)
 {
     if (buf->cap >> 2 < buf->len)
         return;
@@ -223,7 +223,7 @@ void Nst_sbuffer_shrink_auto(Nst_SizedBuffer *buf)
     buf->cap = new_cap;
 }
 
-bool Nst_sbuffer_copy(Nst_SizedBuffer *src, Nst_SizedBuffer *dst)
+bool Nst_sbuffer_copy(Nst_SBuffer *src, Nst_SBuffer *dst)
 {
     void *new_data = Nst_calloc(1, src->len, src->data);
     if (new_data == NULL)
@@ -236,7 +236,7 @@ bool Nst_sbuffer_copy(Nst_SizedBuffer *src, Nst_SizedBuffer *dst)
     return true;
 }
 
-void Nst_sbuffer_destroy(Nst_SizedBuffer *buf)
+void Nst_sbuffer_destroy(Nst_SBuffer *buf)
 {
     if (buf->data != NULL)
         Nst_free(buf->data);
@@ -248,7 +248,7 @@ void Nst_sbuffer_destroy(Nst_SizedBuffer *buf)
 
 bool Nst_buffer_init(Nst_Buffer *buf, usize initial_size)
 {
-    if (!Nst_sbuffer_init((Nst_SizedBuffer *)buf, sizeof(i8), initial_size))
+    if (!Nst_sbuffer_init((Nst_SBuffer *)buf, sizeof(i8), initial_size))
         return false;
 
     if (initial_size > 0)
@@ -259,12 +259,12 @@ bool Nst_buffer_init(Nst_Buffer *buf, usize initial_size)
 
 bool Nst_buffer_expand_by(Nst_Buffer *buf, usize amount)
 {
-    return Nst_sbuffer_expand_to((Nst_SizedBuffer *)buf, buf->len + amount + 1);
+    return Nst_sbuffer_expand_to((Nst_SBuffer *)buf, buf->len + amount + 1);
 }
 
 bool Nst_buffer_expand_to(Nst_Buffer *buf, usize size)
 {
-    return Nst_sbuffer_expand_to((Nst_SizedBuffer *)buf, size + 1);
+    return Nst_sbuffer_expand_to((Nst_SBuffer *)buf, size + 1);
 }
 
 void Nst_buffer_fit(Nst_Buffer *buf)
@@ -324,7 +324,7 @@ bool Nst_buffer_append_char(Nst_Buffer *buf, i8 ch)
 Nst_StrObj *Nst_buffer_to_string(Nst_Buffer *buf)
 {
     Nst_buffer_fit(buf);
-    Nst_StrObj *str = STR(Nst_string_new(buf->data, buf->len, true));
+    Nst_StrObj *str = STR(Nst_str_new(buf->data, buf->len, true));
     if (str == NULL)
         Nst_free(buf->data);
     buf->data = NULL;
@@ -348,5 +348,5 @@ bool Nst_buffer_copy(Nst_Buffer *src, Nst_Buffer *dst)
 
 void Nst_buffer_destroy(Nst_Buffer *buf)
 {
-    Nst_sbuffer_destroy((Nst_SizedBuffer *)buf);
+    Nst_sbuffer_destroy((Nst_SBuffer *)buf);
 }
