@@ -9,7 +9,7 @@ The current state of tests:
 
 - 🔴 Error tests
   - 🟢 Lexer errors
-  - 🔴 Parser errors
+  - 🟢 Parser errors
   - 🔴 Runtime errors
 - 🟡 Object tests
   - 🟢 `Array`

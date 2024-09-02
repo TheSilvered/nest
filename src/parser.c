@@ -1365,7 +1365,7 @@ static Nst_Node *parse_tc(void)
     }
     destroy_top();
     if (top_type() != Nst_TT_IDENT) {
-        set_error(_Nst_EM_EXPECTED_CATCH, top_start(), top_end());
+        set_error(_Nst_EM_EXPECTED_IDENT, top_start(), top_end());
         goto failure;
     }
 
