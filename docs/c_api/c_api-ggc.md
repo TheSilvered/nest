@@ -228,32 +228,18 @@ Deletes all objects still present in the garbage collector.
 
 ---
 
-### `Nst_ggc_init`
+### `_Nst_ggc_init`
 
 **Synopsis:**
 
 ```better-c
-void Nst_ggc_init(void)
+void _Nst_ggc_init(void)
 ```
 
 **Description:**
 
 Initializes the garbage collector of
 [`Nst_state`](c_api-interpreter.md#nst_state_get).
-
----
-
-### `Nst_ggc_was_init`
-
-**Synopsis:**
-
-```better-c
-bool Nst_ggc_was_init(void)
-```
-
-**Description:**
-
-Checks if the garbage collector was initialized.
 
 ---
 

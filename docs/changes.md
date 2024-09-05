@@ -64,7 +64,6 @@
 
 - added `Nst_ErrorKind` enum
 - added `Nst_error_add_positions` to add a pair of positions to a traceback
-- added `Nst_ggc_was_init` to check if the garbage collector was initialized
 - added `Nst_IntrState` struct
 - added `Nst_gstate_get_es` and `Nst_state_set_es`
 - added `runner.h` along with the following functions:
@@ -121,6 +120,7 @@ _General changes_:
 - removed `error` argument from `Nst_tokenizef`, `Nst_tokenize` and `Nst_normalize_encoding`
 - removed `error` argument from `Nst_optimize_ast` and `Nst_optimize_bytecode`
 - removed `error` argument from `Nst_parse`
+- renamed `Nst_ggc_init` to `_Nst_ggc_init`
 - added `v_stack` argument to
   - `Nst_vstack_init`
   - `Nst_vstack_push`

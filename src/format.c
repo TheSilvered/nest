@@ -415,8 +415,8 @@ static i8 *general_fmt(const i8 *fmt, usize fmt_len, usize *out_len,
         return out_str;
     }
 
-    if (Nst_check_string_cp(Nst_cp(Nst_CP_UTF8), (void *)fmt, fmtlen) != -1) {
-        Nst_set_value_error_c("Nst_fmt: `fmt` is not valid UTF-8");
+    if (Nst_check_string_cp(Nst_cp(Nst_CP_EXT_UTF8), (void *)fmt, fmtlen) != -1) {
+        Nst_set_value_error_c("`fmt` is not valid UTF-8");
         return false;
     }
 
@@ -1023,8 +1023,7 @@ static bool fmt_str(Nst_Buffer *buf, i8 *str, isize str_len, Format *format)
         (void *)str,
         str_len);
     if (vaild != -1) {
-        Nst_set_value_error_c(
-            "Nst_fmt: the string to format is not valid UTF-8");
+        Nst_set_value_error_c("the string to format is not valid UTF-8");
         return false;
     }
 

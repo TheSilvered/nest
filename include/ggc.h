@@ -103,9 +103,7 @@ NstEXP void NstC Nst_ggc_track_obj(Nst_GGCObj *obj);
 /* Deletes all objects still present in the garbage collector. */
 NstEXP void NstC _Nst_ggc_delete_objs(void);
 /* Initializes the garbage collector of `Nst_state`. */
-NstEXP void NstC Nst_ggc_init(void);
-/* Checks if the garbage collector was initialized. */
-NstEXP bool NstC Nst_ggc_was_init(void);
+NstEXP void NstC _Nst_ggc_init(void);
 /* Sets an `Nst_Obj` as reachable for the garbage collector. */
 NstEXP void NstC _Nst_ggc_obj_reachable(Nst_Obj *obj);
 

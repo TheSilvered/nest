@@ -1559,7 +1559,6 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
         case Nst_IC_JUMPIF_T:      PRINT("JUMPIF_T     ", 13); break;
         case Nst_IC_JUMPIF_F:      PRINT("JUMPIF_F     ", 13); break;
         case Nst_IC_JUMPIF_ZERO:   PRINT("JUMPIF_ZERO  ", 13); break;
-        case Nst_IC_TYPE_CHECK:    PRINT("TYPE_CHECK   ", 13); break;
         case Nst_IC_HASH_CHECK:    PRINT("HASH_CHECK   ", 13); break;
         case Nst_IC_THROW_ERR:     PRINT("THROW_ERR    ", 13); break;
         case Nst_IC_PUSH_CATCH:    PRINT("PUSH_CATCH   ", 13); break;

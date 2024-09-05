@@ -10,6 +10,7 @@ The current state of tests:
 - 🔴 Error tests
   - 🟢 Lexer errors
   - 🟢 Parser errors
+  - 🟢 Optimizer errors
   - 🔴 Runtime errors
 - 🟡 Object tests
   - 🟢 `Array`

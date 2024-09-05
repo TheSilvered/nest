@@ -17,10 +17,10 @@
 #include <direct.h>
 
 #define dlclose FreeLibrary
-#define dlsym(lib, name) GetProcAddress((HMODULE)lib, name)
+#define dlsym GetProcAddress
 #define PATH_MAX 4096
 
-#define C_LIB_TYPE HMODULE
+typedef HMODULE lib_t;
 
 #else
 
@@ -29,16 +29,11 @@
 #include <limits.h>
 #include <string.h>
 
-#define C_LIB_TYPE void *
+typedef void *lib_t;
 
 #endif // !Nst_WIN
 
 #include "mem.h"
-
-#define INST_FAILED -1
-#define INST_SUCCESS 0
-#define INST_NEW_FUNC 1
-#define INST_SUCCESS_ALREADY_ADVANCED 2
 
 #define CHECK_V_STACK Nst_es_assert_vstack_size_at_least(Nst_state.es, 1)
 #define CHECK_V_STACK_SIZE(size)                                              \
@@ -51,6 +46,13 @@
 #define FAST_TOP_VAL                                                          \
     (Nst_state.es->v_stack.stack[Nst_state.es->v_stack.len - 1])
 
+typedef enum _InstResult {
+    INST_FAILED = -1,
+    INST_SUCCESS = 0,
+    INST_NEW_FUNC = 1,
+    INST_SUCCESS_ALREADY_ADVANCED = 2
+} InstResult;
+
 Nst_IntrState Nst_state;
 static bool state_init = false;
 
@@ -60,53 +62,52 @@ static bool type_check(Nst_Obj *obj, Nst_TypeObj *type);
 Nst_Inst *inst;
 static volatile bool interrupt = false;
 
-static i32 exe_no_op();
-static i32 exe_pop_val();
-static i32 exe_for_start();
-static i32 exe_jumpif_iend();
-static i32 exe_for_get_val();
-static i32 exe_return_val();
-static i32 exe_return_vars();
-static i32 exe_set_val_loc();
-static i32 exe_set_cont_loc();
-static i32 exe_jump();
-static i32 exe_jumpif_t();
-static i32 exe_jumpif_f();
-static i32 exe_jumpif_zero();
-static i32 exe_type_check();
-static i32 exe_hash_check();
-static i32 exe_set_val();
-static i32 exe_get_val();
-static i32 exe_push_val();
-static i32 exe_set_cont_val();
-static i32 exe_op_call();
-static i32 exe_op_cast();
-static i32 exe_op_range();
-static i32 exe_throw_err();
-static i32 exe_stack_op();
-static i32 exe_local_op();
-static i32 exe_op_import();
-static i32 exe_op_extract();
-static i32 exe_dec_int();
-static i32 exe_new_int();
-static i32 exe_dup();
-static i32 exe_rot();
-static i32 exe_make_arr();
-static i32 exe_make_vec();
-static i32 exe_make_arr_rep();
-static i32 exe_make_vec_rep();
-static i32 exe_make_map();
-static i32 exe_push_catch();
-static i32 exe_pop_catch();
-static i32 exe_save_error();
-static i32 exe_unpack_seq();
+static InstResult exe_no_op();
+static InstResult exe_pop_val();
+static InstResult exe_for_start();
+static InstResult exe_jumpif_iend();
+static InstResult exe_for_get_val();
+static InstResult exe_return_val();
+static InstResult exe_return_vars();
+static InstResult exe_set_val_loc();
+static InstResult exe_set_cont_loc();
+static InstResult exe_jump();
+static InstResult exe_jumpif_t();
+static InstResult exe_jumpif_f();
+static InstResult exe_jumpif_zero();
+static InstResult exe_hash_check();
+static InstResult exe_set_val();
+static InstResult exe_get_val();
+static InstResult exe_push_val();
+static InstResult exe_set_cont_val();
+static InstResult exe_op_call();
+static InstResult exe_op_cast();
+static InstResult exe_op_range();
+static InstResult exe_throw_err();
+static InstResult exe_stack_op();
+static InstResult exe_local_op();
+static InstResult exe_op_import();
+static InstResult exe_op_extract();
+static InstResult exe_dec_int();
+static InstResult exe_new_int();
+static InstResult exe_dup();
+static InstResult exe_rot();
+static InstResult exe_make_arr();
+static InstResult exe_make_vec();
+static InstResult exe_make_arr_rep();
+static InstResult exe_make_vec_rep();
+static InstResult exe_make_map();
+static InstResult exe_push_catch();
+static InstResult exe_pop_catch();
+static InstResult exe_save_error();
+static InstResult exe_unpack_seq();
 
-static i32 call_c_func(bool is_seq_call, i64 arg_num, Nst_SeqObj *args_seq,
-                       Nst_FuncObj *func);
-static void loaded_libs_destructor(C_LIB_TYPE lib);
+static InstResult call_c_func(bool is_seq_call, i64 arg_num,
+                              Nst_SeqObj *args_seq, Nst_FuncObj *func);
+static void loaded_libs_destructor(lib_t lib);
 static void source_text_destructor(Nst_SourceText *src);
 
-i32 (*inst_func[])() = {
+InstResult (*inst_func[])() = {
     [Nst_IC_NO_OP]        = exe_no_op,
     [Nst_IC_POP_VAL]      = exe_pop_val,
     [Nst_IC_FOR_START]    = exe_for_start,
@@ -121,7 +122,6 @@ i32 (*inst_func[])() = {
     [Nst_IC_JUMPIF_ZERO]  = exe_jumpif_zero,
     [Nst_IC_JUMPIF_IEND]  = exe_jumpif_iend,
     [Nst_IC_PUSH_CATCH]   = exe_push_catch,
-    [Nst_IC_TYPE_CHECK]   = exe_type_check,
     [Nst_IC_HASH_CHECK]   = exe_hash_check,
     [Nst_IC_THROW_ERR]    = exe_throw_err,
     [Nst_IC_POP_CATCH]    = exe_pop_catch,
@@ -201,6 +201,9 @@ static void interrupt_handler(int sig)
 
 bool Nst_init(Nst_CLArgs *args)
 {
+    if (state_init)
+        return true;
+
     Nst_set_color(Nst_supports_color());
 
     // these need to be set to allow _Nst_globals_init to be called
@@ -218,7 +221,7 @@ bool Nst_init(Nst_CLArgs *args)
         Nst_error_clear();
         goto cleanup;
     }
-    Nst_ggc_init();
+    _Nst_ggc_init();
 
     if (args != NULL)
         Nst_state.opt_level = args->opt_level;
@@ -245,6 +248,9 @@ cleanup:
 
 void Nst_quit(void)
 {
+    if (!state_init)
+        return;
+
     state_init = false;
 
     if (Nst_state.global_traceback.positions != NULL)
@@ -270,7 +276,7 @@ void Nst_quit(void)
     if (Nst_state.loaded_libs != NULL) {
         for (Nst_LLIST_ITER(lib, Nst_state.loaded_libs)) {
             void (*lib_quit_func)(void) =
-                (void (*)(void))dlsym(lib->value, "lib_quit");
+                (void (*)(void))dlsym((lib_t)lib->value, "lib_quit");
             if (lib_quit_func != NULL)
                 lib_quit_func();
         }
@@ -441,7 +447,7 @@ static void complete_function(usize final_stack_size)
         }
 
         inst = &instructions[idx];
-        i32 result = inst_func[inst->id]();
+        InstResult result = inst_func[inst->id]();
 
         if (Nst_state.ggc.gen1.len > _Nst_GEN1_MAX)
             Nst_ggc_collect();
@@ -585,13 +591,13 @@ static bool type_check(Nst_Obj *obj, Nst_TypeObj *type)
     return true;
 }
 
-static i32 exe_no_op()
+static InstResult exe_no_op()
 {
     Nst_UNUSED(inst);
     return INST_SUCCESS;
 }
 
-static i32 exe_pop_val()
+static InstResult exe_pop_val()
 {
     Nst_UNUSED(inst);
     CHECK_V_STACK;
@@ -600,7 +606,7 @@ static i32 exe_pop_val()
     return INST_SUCCESS;
 }
 
-static i32 exe_for_inst(Nst_IterObj *iter, Nst_FuncObj *func)
+static InstResult exe_for_inst(Nst_IterObj *iter, Nst_FuncObj *func)
 {
     if (Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C)) {
         Nst_Obj *res = func->body.c_func((usize)inst->int_val, &iter->value);
@@ -617,7 +623,7 @@ static i32 exe_for_inst(Nst_IterObj *iter, Nst_FuncObj *func)
     return INST_NEW_FUNC;
 }
 
-static i32 exe_for_start()
+static InstResult exe_for_start()
 {
     CHECK_V_STACK;
     Nst_Obj *iterable = Nst_vstack_peek(&Nst_state.es->v_stack);
@@ -631,14 +637,14 @@ static i32 exe_for_start()
     return exe_for_inst(iter, iter->start);
 }
 
-static i32 exe_for_get_val()
+static InstResult exe_for_get_val()
 {
     CHECK_V_STACK;
     Nst_IterObj *iter = ITER(FAST_TOP_VAL);
     return exe_for_inst(iter, iter->get_val);
 }
 
-static i32 exe_jumpif_iend()
+static InstResult exe_jumpif_iend()
 {
     CHECK_V_STACK_SIZE(2);
     Nst_Obj *iter_val = FAST_TOP_VAL;
@@ -649,7 +655,7 @@ static i32 exe_jumpif_iend()
     return INST_SUCCESS;
 }
 
-static i32 exe_return_val()
+static InstResult exe_return_val()
 {
     Nst_UNUSED(inst);
     Nst_Obj *result = POP_TOP_VALUE;
@@ -666,7 +672,7 @@ static i32 exe_return_val()
     return INST_NEW_FUNC;
 }
 
-static i32 exe_return_vars()
+static InstResult exe_return_vars()
 {
     Nst_UNUSED(inst);
     Nst_MapObj *vars = Nst_state.es->vt->vars;
@@ -682,7 +688,7 @@ static i32 exe_return_vars()
     return INST_NEW_FUNC;
 }
 
-static i32 exe_set_val_loc()
+static InstResult exe_set_val_loc()
 {
     Nst_UNUSED(inst);
     CHECK_V_STACK;
@@ -692,7 +698,7 @@ static i32 exe_set_val_loc()
     return res ? INST_SUCCESS : INST_FAILED;
 }
 
-static i32 exe_set_cont_loc()
+static InstResult exe_set_cont_loc()
 {
     Nst_UNUSED(inst);
     i32 res = exe_set_cont_val(inst);
@@ -704,13 +710,13 @@ static i32 exe_set_cont_loc()
     return res;
 }
 
-static i32 exe_jump()
+static InstResult exe_jump()
 {
     Nst_state.es->idx = inst->int_val - 1;
     return INST_SUCCESS;
 }
 
-static i32 exe_jumpif_t()
+static InstResult exe_jumpif_t()
 {
     CHECK_V_STACK;
     Nst_Obj *top_val = POP_TOP_VALUE;
@@ -720,7 +726,7 @@ static i32 exe_jumpif_t()
     return INST_SUCCESS;
 }
 
-static i32 exe_jumpif_f()
+static InstResult exe_jumpif_f()
 {
     CHECK_V_STACK;
     Nst_Obj *top_val = POP_TOP_VALUE;
@@ -731,7 +737,7 @@ static i32 exe_jumpif_f()
     return INST_SUCCESS;
 }
 
-static i32 exe_jumpif_zero()
+static InstResult exe_jumpif_zero()
 {
     CHECK_V_STACK;
     if (AS_INT(FAST_TOP_VAL) == 0)
@@ -740,21 +746,7 @@ static i32 exe_jumpif_zero()
     return INST_SUCCESS;
 }
 
-static i32 exe_type_check()
-{
-    CHECK_V_STACK;
-    Nst_Obj *obj = FAST_TOP_VAL;
-    if (obj->type != TYPE(inst->val)) {
-        Nst_set_type_errorf(
-            _Nst_EM_EXPECTED_TYPES,
-            Nst_TYPE_STR(inst->val)->value,
-            TYPE_NAME(obj));
-        return INST_FAILED;
-    }
-    return INST_SUCCESS;
-}
-
-static i32 exe_hash_check()
+static InstResult exe_hash_check()
 {
     Nst_UNUSED(inst);
     CHECK_V_STACK;
@@ -769,7 +761,7 @@ static i32 exe_hash_check()
     return INST_SUCCESS;
 }
 
-static i32 exe_set_val()
+static InstResult exe_set_val()
 {
     CHECK_V_STACK;
     Nst_vt_set(
@@ -779,7 +771,7 @@ static i32 exe_set_val()
     return Nst_error_occurred() ? INST_FAILED : INST_SUCCESS;
 }
 
-static i32 exe_get_val()
+static InstResult exe_get_val()
 {
     Nst_Obj *obj = Nst_vt_get(Nst_state.es->vt, inst->val);
     if (obj == NULL)
@@ -791,13 +783,13 @@ static i32 exe_get_val()
     return INST_SUCCESS;
 }
 
-static i32 exe_push_val()
+static InstResult exe_push_val()
 {
     bool res = Nst_vstack_push(&Nst_state.es->v_stack, inst->val);
     return res ? INST_SUCCESS : INST_FAILED;
 }
 
-static i32 exe_set_cont_val()
+static InstResult exe_set_cont_val()
 {
     Nst_UNUSED(inst);
     CHECK_V_STACK_SIZE(3);
@@ -836,8 +828,8 @@ end:
     return return_value;
 }
 
-static i32 call_c_func(bool is_seq_call, i64 arg_num, Nst_SeqObj *args_seq,
-                       Nst_FuncObj *func)
+static InstResult call_c_func(bool is_seq_call, i64 arg_num,
+                              Nst_SeqObj *args_seq, Nst_FuncObj *func)
 {
     i64 tot_args = func->arg_num;
     i64 null_args = (i64)func->arg_num - arg_num;
@@ -910,7 +902,7 @@ static i32 call_c_func(bool is_seq_call, i64 arg_num, Nst_SeqObj *args_seq,
     return INST_SUCCESS;
 }
 
-static i32 exe_op_call()
+static InstResult exe_op_call()
 {
 #ifdef _DEBUG
     if (inst->int_val == -1)
@@ -961,7 +953,7 @@ static i32 exe_op_call()
     return result ? INST_NEW_FUNC : INST_FAILED;
 }
 
-static i32 exe_op_cast()
+static InstResult exe_op_cast()
 {
     Nst_UNUSED(inst);
     CHECK_V_STACK_SIZE(2);
@@ -986,7 +978,7 @@ static i32 exe_op_cast()
     return res == NULL ? INST_FAILED : INST_SUCCESS;
 }
 
-static i32 exe_op_range()
+static InstResult exe_op_range()
 {
     CHECK_V_STACK_SIZE((u64)inst->int_val);
     Nst_Obj *stop = POP_TOP_VALUE;
@@ -1036,7 +1028,7 @@ static i32 exe_op_range()
     return INST_SUCCESS;
 }
 
-static i32 exe_throw_err()
+static InstResult exe_throw_err()
 {
     Nst_UNUSED(inst);
     CHECK_V_STACK_SIZE(2);
@@ -1059,7 +1051,7 @@ static i32 exe_throw_err()
     return INST_FAILED;
 }
 
-static i32 exe_stack_op()
+static InstResult exe_stack_op()
 {
     CHECK_V_STACK_SIZE(2);
     Nst_Obj *ob2 = POP_TOP_VALUE;
@@ -1076,7 +1068,7 @@ static i32 exe_stack_op()
     return res == NULL ? INST_FAILED : INST_SUCCESS;
 }
 
-static i32 exe_local_op()
+static InstResult exe_local_op()
 {
     CHECK_V_STACK;
     Nst_Obj *obj = POP_TOP_VALUE;
@@ -1091,7 +1083,7 @@ static i32 exe_local_op()
     return res == NULL ? INST_FAILED : INST_SUCCESS;
 }
 
-static i32 exe_op_import()
+static InstResult exe_op_import()
 {
     Nst_UNUSED(inst);
     CHECK_V_STACK;
@@ -1113,7 +1105,7 @@ static i32 exe_op_import()
     return res == NULL ? INST_FAILED : INST_SUCCESS;
 }
 
-static i32 exe_op_extract()
+static InstResult exe_op_extract()
 {
     Nst_UNUSED(inst);
     CHECK_V_STACK_SIZE(2);
@@ -1181,7 +1173,7 @@ end:
     return return_value;
 }
 
-static i32 exe_dec_int()
+static InstResult exe_dec_int()
 {
     Nst_UNUSED(inst);
     CHECK_V_STACK;
@@ -1189,7 +1181,7 @@ static i32 exe_dec_int()
     return INST_SUCCESS;
 }
 
-static i32 exe_new_int()
+static InstResult exe_new_int()
 {
     Nst_UNUSED(inst);
     CHECK_V_STACK;
@@ -1208,7 +1200,7 @@ static i32 exe_new_int()
     return INST_SUCCESS;
 }
 
-static i32 exe_dup()
+static InstResult exe_dup()
 {
     Nst_UNUSED(inst);
     CHECK_V_STACK;
@@ -1218,7 +1210,7 @@ static i32 exe_dup()
     return INST_SUCCESS;
 }
 
-static i32 exe_rot()
+static InstResult exe_rot()
 {
     CHECK_V_STACK_SIZE((u64)inst->int_val);
 
@@ -1248,13 +1240,13 @@ static i32 complete_seq(Nst_Obj *seq)
     return INST_SUCCESS;
 }
 
-static i32 exe_make_arr()
+static InstResult exe_make_arr()
 {
     CHECK_V_STACK_SIZE((u64)inst->int_val);
     return complete_seq(Nst_array_new((usize)inst->int_val));
 }
 
-static i32 exe_make_vec()
+static InstResult exe_make_vec()
 {
     CHECK_V_STACK_SIZE((u64)inst->int_val);
     return complete_seq(Nst_vector_new((usize)inst->int_val));
@@ -1275,7 +1267,7 @@ static i32 complete_seq_rep(Nst_Obj *seq, i64 size)
     return INST_SUCCESS;
 }
 
-static i32 exe_make_arr_rep()
+static InstResult exe_make_arr_rep()
 {
     CHECK_V_STACK_SIZE(2);
     Nst_Obj *size_obj = POP_TOP_VALUE;
@@ -1291,7 +1283,7 @@ static i32 exe_make_arr_rep()
     return complete_seq_rep(seq, size);
 }
 
-static i32 exe_make_vec_rep()
+static InstResult exe_make_vec_rep()
 {
     CHECK_V_STACK_SIZE(2);
     Nst_Obj *size_obj = POP_TOP_VALUE;
@@ -1307,7 +1299,7 @@ static i32 exe_make_vec_rep()
     return complete_seq_rep(seq, size);
 }
 
-static i32 exe_make_map()
+static InstResult exe_make_map()
 {
     CHECK_V_STACK_SIZE((u64)inst->int_val);
     i64 map_size = inst->int_val;
@@ -1337,7 +1329,7 @@ static i32 exe_make_map()
     return INST_SUCCESS;
 }
 
-static i32 exe_push_catch()
+static InstResult exe_push_catch()
 {
     Nst_CatchFrame cf = {
         .inst_idx = inst->int_val,
@@ -1348,14 +1340,14 @@ static i32 exe_push_catch()
     return INST_SUCCESS;
 }
 
-static i32 exe_pop_catch()
+static InstResult exe_pop_catch()
 {
     Nst_UNUSED(inst);
     Nst_cstack_pop(&Nst_state.es->c_stack);
     return INST_SUCCESS;
 }
 
-static i32 exe_save_error()
+static InstResult exe_save_error()
 {
     Nst_UNUSED(inst);
     Nst_assert(Nst_error_occurred());
@@ -1378,7 +1370,7 @@ static i32 exe_save_error()
     return INST_SUCCESS;
 }
 
-static i32 exe_unpack_seq()
+static InstResult exe_unpack_seq()
 {
     CHECK_V_STACK;
     Nst_SeqObj *seq = SEQ(POP_TOP_VALUE);
@@ -1558,7 +1550,7 @@ Nst_StrObj *Nst_getcwd(void)
 #endif // !Nst_WIN
 }
 
-static void loaded_libs_destructor(C_LIB_TYPE lib)
+static void loaded_libs_destructor(lib_t lib)
 {
     dlclose(lib);
 }

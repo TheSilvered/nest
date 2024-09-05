@@ -238,7 +238,6 @@ typedef enum _Nst_InstID {
     Nst_IC_JUMPIF_ZERO,
     Nst_IC_JUMPIF_IEND,
     Nst_IC_PUSH_CATCH,
-    Nst_IC_TYPE_CHECK,
     Nst_IC_HASH_CHECK,
     Nst_IC_THROW_ERR,
     Nst_IC_POP_CATCH,

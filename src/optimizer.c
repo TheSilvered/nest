@@ -385,6 +385,7 @@ static bool optimize_e_wrapper(Nst_Node *node)
     return true;
 }
 
+static bool optimize_bytecode(Nst_InstList *bc, bool optimize_builtins);
 static bool can_optimize_consts(Nst_InstList *bc);
 static bool is_accessed(Nst_InstList *bc, Nst_StrObj *name);
 static bool has_assignments(Nst_InstList *bc, Nst_StrObj *name);
@@ -395,14 +396,23 @@ static void optimize_const(Nst_InstList *bc, const i8 *name, Nst_Obj *val);
 static void remove_push_pop(Nst_InstList *bc);
 static void remove_assign_pop(Nst_InstList *bc);
 static void remove_assign_loc_get_val(Nst_InstList *bc);
-static void remove_push_check(Nst_InstList *bc);
+static bool remove_push_check(Nst_InstList *bc);
 static void remove_push_jumpif(Nst_InstList *bc);
 static void remove_inst(Nst_InstList *bc, i64 idx);
-static void optimize_funcs(Nst_InstList *bc);
+static bool optimize_funcs(Nst_InstList *bc);
 static void remove_dead_code(Nst_InstList *bc);
 static bool optimize_chained_jumps(Nst_InstList *bc);
 
 Nst_InstList *Nst_optimize_bytecode(Nst_InstList *bc, bool optimize_builtins)
+{
+    if (!optimize_bytecode(bc, optimize_builtins)) {
+        Nst_inst_list_destroy(bc);
+        return NULL;
+    }
+    return bc;
+}
+
+static bool optimize_bytecode(Nst_InstList *bc, bool optimize_builtins)
 {
     if (optimize_builtins && can_optimize_consts(bc)) {
         optimize_const(bc, "Type",   OBJ(Nst_t.Type));
@@ -426,23 +436,17 @@ Nst_InstList *Nst_optimize_bytecode(Nst_InstList *bc, bool optimize_builtins)
     i64 initial_size;
     do {
         initial_size = bc->total_size;
-        remove_push_check(bc);
-        if (Nst_error_occurred()) {
-            Nst_inst_list_destroy(bc);
-            return NULL;
-        }
+        if (!remove_push_check(bc))
+            return false;
         remove_push_pop(bc);
         remove_assign_pop(bc);
         remove_assign_loc_get_val(bc);
         remove_push_jumpif(bc);
-        optimize_chained_jumps(bc);
+        if (!optimize_chained_jumps(bc))
+            return false;
         remove_dead_code(bc);
-
-        optimize_funcs(bc);
-        if (Nst_error_occurred()) {
-            Nst_inst_list_destroy(bc);
-            return NULL;
-        }
+        if (!optimize_funcs(bc))
+            return false;
 
         // remove NO_OP instructions and compact the bytecode
         i64 size = bc->total_size;
@@ -456,7 +460,7 @@ Nst_InstList *Nst_optimize_bytecode(Nst_InstList *bc, bool optimize_builtins)
         }
     } while (initial_size != (i64)bc->total_size);
 
-    return bc;
+    return true;
 }
 
 static bool can_optimize_consts(Nst_InstList *bc)
@@ -506,15 +510,13 @@ static bool is_accessed(Nst_InstList *bc, Nst_StrObj *name)
         }
 
         if (inst_list[i + 1].id == Nst_IC_LOCAL_OP
-            || inst_list[i + 1].id == Nst_IC_HASH_CHECK
-            || inst_list[i + 1].id == Nst_IC_TYPE_CHECK)
+            || inst_list[i + 1].id == Nst_IC_HASH_CHECK)
         {
             i += 2;
 
             while (i < size
                    && (inst_list[i].id == Nst_IC_LOCAL_OP
-                       || inst_list[i].id == Nst_IC_HASH_CHECK
-                       || inst_list[i].id == Nst_IC_TYPE_CHECK))
+                       || inst_list[i].id == Nst_IC_HASH_CHECK))
             {
                 i++;
             }
@@ -736,7 +738,7 @@ static void remove_assign_loc_get_val(Nst_InstList *bc)
     }
 }
 
-static void remove_push_check(Nst_InstList *bc)
+static bool remove_push_check(Nst_InstList *bc)
 {
     i64 size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;
@@ -747,40 +749,22 @@ static void remove_push_check(Nst_InstList *bc)
             was_push = true;
             continue;
         } else if (!was_push
-                   || (inst_list[i].id != Nst_IC_TYPE_CHECK
-                       && inst_list[i].id != Nst_IC_HASH_CHECK)
+                   || inst_list[i].id != Nst_IC_HASH_CHECK
                    || has_jumps_to(bc, i, -1, -1))
         {
             was_push = false;
             continue;
         }
 
-        if (inst_list[i].id == Nst_IC_TYPE_CHECK) {
-            if (inst_list[i].val != OBJ(inst_list[i - 1].val->type)) {
-                Nst_set_internal_type_error(
-                    Nst_error_get(),
-                    inst_list[i].start,
-                    inst_list[i].end,
-                    STR(Nst_sprintf(
-                        _Nst_EM_EXPECTED_TYPES,
-                        Nst_TYPE_STR(inst_list[i].val)->value,
-                        TYPE_NAME(inst_list[i - 1].val))));
-
-                return;
-            }
-        } else {
-            Nst_obj_hash(inst_list[i - 1].val);
-            if (inst_list[i - 1].val->hash == -1) {
-                Nst_set_internal_type_error(
-                    Nst_error_get(),
-                    inst_list[i].start,
-                    inst_list[i].end,
-                    STR(Nst_sprintf(
-                        _Nst_EM_UNHASHABLE_TYPE,
-                        TYPE_NAME(inst_list[i - 1].val))));
-
-                return;
-            }
+        Nst_Obj *obj = inst_list[i - 1].val;
+        Nst_obj_hash(obj);
+        if (obj->hash == -1) {
+            Nst_set_internal_type_error(
+                Nst_error_get(),
+                inst_list[i].start,
+                inst_list[i].end,
+                STR(Nst_sprintf(_Nst_EM_UNHASHABLE_TYPE, TYPE_NAME(obj))));
+            return false;
         }
 
         inst_list[i].id = Nst_IC_NO_OP;
@@ -789,7 +773,7 @@ static void remove_push_check(Nst_InstList *bc)
         inst_list[i].val = NULL;
         was_push = false;
     }
-    return;
+    return true;
 }
 
 static void remove_push_jumpif(Nst_InstList *bc)
@@ -850,13 +834,14 @@ static void remove_inst(Nst_InstList *bc, i64 idx)
     }
 }
 
-static void optimize_funcs(Nst_InstList *bc)
+static bool optimize_funcs(Nst_InstList *bc)
 {
     for (Nst_LLIST_ITER(n, bc->functions)) {
-        Nst_optimize_bytecode(FUNC(n->value)->body.bytecode, false);
-        if (Nst_error_occurred())
-            break;
+        Nst_InstList *func_bc = FUNC(n->value)->body.bytecode;
+        if (!optimize_bytecode(func_bc, false))
+            return false;
     }
+    return true;
 }
 
 static void remove_dead_code(Nst_InstList *bc)
