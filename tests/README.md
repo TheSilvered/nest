@@ -7,11 +7,11 @@ Index:
 
 The current state of tests:
 
-- 🔴 Error tests
+- 🟢 Error tests
   - 🟢 Lexer errors
   - 🟢 Parser errors
   - 🟢 Optimizer errors
-  - 🔴 Runtime errors
+  - 🟢 Runtime errors
 - 🟡 Object tests
   - 🟢 `Array`
   - 🟢 `Bool`
@@ -19,7 +19,7 @@ The current state of tests:
   - 🟢 `Func`
   - 🟢 `Int`
   - 🟢 `Iter`
-  - 🟡 `Map`
+  - 🟢 `Map`
   - 🟢 `Null`
   - 🟡 `Real`
   - 🟢 `Str`

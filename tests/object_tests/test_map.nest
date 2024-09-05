@@ -18,7 +18,7 @@ m 'h' - {'a': 1, 'b': 2, 'd': 4} @test.assert_eq
 
 Str :: m "{'a': 1, 'b': 2, 'd': 4}" @test.assert_eq
 {} @test.assert_false
-{'smth': 1} @test.assert_true
+{'some_key': 1} @test.assert_true
 
 m 'a' -
 m 'b' -
@@ -35,3 +35,10 @@ Map :: {{'a', 1}, {'b', 2}} {'a': 1, 'b': 2} @test.assert_eq
 Array :: {'a': 1, 'b': 2} {{'a', 1}, {'b', 2}} @test.assert_eq
 Bool :: {} @test.assert_false
 Bool :: {'a': 1} @test.assert_true
+
+{'a': 1, 'b': 2, 'c': 3, 'd': 4} = m
+
+Iter :: {'a': 1, 'b': 2} = m_iterator
+
+Array :: m_iterator {{'a', 1}, {'b', 2}} @test.assert_eq
+Array :: m_iterator {{'a', 1}, {'b', 2}} @test.assert_eq

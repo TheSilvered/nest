@@ -593,13 +593,11 @@ static bool type_check(Nst_Obj *obj, Nst_TypeObj *type)
 
 static InstResult exe_no_op()
 {
-    Nst_UNUSED(inst);
     return INST_SUCCESS;
 }
 
 static InstResult exe_pop_val()
 {
-    Nst_UNUSED(inst);
     CHECK_V_STACK;
     Nst_Obj *obj = POP_TOP_VALUE;
     Nst_dec_ref(obj);
@@ -657,7 +655,6 @@ static InstResult exe_jumpif_iend()
 
 static InstResult exe_return_val()
 {
-    Nst_UNUSED(inst);
     Nst_Obj *result = POP_TOP_VALUE;
     Nst_Obj *obj = POP_TOP_VALUE;
 
@@ -674,7 +671,6 @@ static InstResult exe_return_val()
 
 static InstResult exe_return_vars()
 {
-    Nst_UNUSED(inst);
     Nst_MapObj *vars = Nst_state.es->vt->vars;
     Nst_Obj *obj = POP_TOP_VALUE;
 
@@ -690,7 +686,6 @@ static InstResult exe_return_vars()
 
 static InstResult exe_set_val_loc()
 {
-    Nst_UNUSED(inst);
     CHECK_V_STACK;
     Nst_Obj *val = POP_TOP_VALUE;
     bool res = Nst_vt_set(Nst_state.es->vt, inst->val, val);
@@ -700,7 +695,6 @@ static InstResult exe_set_val_loc()
 
 static InstResult exe_set_cont_loc()
 {
-    Nst_UNUSED(inst);
     i32 res = exe_set_cont_val(inst);
     if (res == INST_FAILED)
         return INST_FAILED;
@@ -748,7 +742,6 @@ static InstResult exe_jumpif_zero()
 
 static InstResult exe_hash_check()
 {
-    Nst_UNUSED(inst);
     CHECK_V_STACK;
     Nst_Obj *obj = Nst_vstack_peek(&Nst_state.es->v_stack);
     Nst_obj_hash(obj);
@@ -791,7 +784,6 @@ static InstResult exe_push_val()
 
 static InstResult exe_set_cont_val()
 {
-    Nst_UNUSED(inst);
     CHECK_V_STACK_SIZE(3);
     Nst_Obj *idx = POP_TOP_VALUE;
     Nst_Obj *cont = POP_TOP_VALUE;
@@ -955,7 +947,6 @@ static InstResult exe_op_call()
 
 static InstResult exe_op_cast()
 {
-    Nst_UNUSED(inst);
     CHECK_V_STACK_SIZE(2);
     Nst_Obj *val = POP_TOP_VALUE;
     Nst_Obj *type = POP_TOP_VALUE;
@@ -1030,7 +1021,6 @@ static InstResult exe_op_range()
 
 static InstResult exe_throw_err()
 {
-    Nst_UNUSED(inst);
     CHECK_V_STACK_SIZE(2);
     Nst_Obj *message = POP_TOP_VALUE;
     Nst_Obj *name = POP_TOP_VALUE;
@@ -1085,7 +1075,6 @@ static InstResult exe_local_op()
 
 static InstResult exe_op_import()
 {
-    Nst_UNUSED(inst);
     CHECK_V_STACK;
     Nst_Obj *name = POP_TOP_VALUE;
 
@@ -1107,7 +1096,6 @@ static InstResult exe_op_import()
 
 static InstResult exe_op_extract()
 {
-    Nst_UNUSED(inst);
     CHECK_V_STACK_SIZE(2);
     Nst_Obj *idx = POP_TOP_VALUE;
     Nst_Obj *cont = POP_TOP_VALUE;
@@ -1175,7 +1163,6 @@ end:
 
 static InstResult exe_dec_int()
 {
-    Nst_UNUSED(inst);
     CHECK_V_STACK;
     AS_INT(FAST_TOP_VAL) -= 1;
     return INST_SUCCESS;
@@ -1183,7 +1170,6 @@ static InstResult exe_dec_int()
 
 static InstResult exe_new_int()
 {
-    Nst_UNUSED(inst);
     CHECK_V_STACK;
     Nst_Obj *obj = POP_TOP_VALUE;
     if (!type_check(obj, Nst_t.Int)) {
@@ -1202,7 +1188,6 @@ static InstResult exe_new_int()
 
 static InstResult exe_dup()
 {
-    Nst_UNUSED(inst);
     CHECK_V_STACK;
     Nst_vstack_push(
         &Nst_state.es->v_stack,
@@ -1342,14 +1327,12 @@ static InstResult exe_push_catch()
 
 static InstResult exe_pop_catch()
 {
-    Nst_UNUSED(inst);
     Nst_cstack_pop(&Nst_state.es->c_stack);
     return INST_SUCCESS;
 }
 
 static InstResult exe_save_error()
 {
-    Nst_UNUSED(inst);
     Nst_assert(Nst_error_occurred());
 
     Nst_Obj *err_map = Nst_map_new();
