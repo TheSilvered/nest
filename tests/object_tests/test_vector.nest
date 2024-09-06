@@ -59,3 +59,31 @@ Bool :: <{0}> @test.assert_true
 <{1, '2', 3, {}}> '2' <.> @test.assert_true
 <{1, '2', 3, {}}> 1 <.> @test.assert_true
 <{1, '2', 3, {}}> {} <.> @test.assert_true
+
+<{1, 2, 3, 4, 5}> = vec
+Iter :: vec = vector_iter1
+Iter :: <{1}> = vector_iter2
+Iter :: <{}> = vector_iter3
+Iter :: <{0, 0, 1, 0}> = vector_iter4
+
+Array :: vector_iter1 {1, 2, 3, 4, 5} @test.assert_eq
+Array :: vector_iter1 {1, 2, 3, 4, 5} @test.assert_eq
+Array :: vector_iter2 {1} @test.assert_eq
+Array :: vector_iter2 {1} @test.assert_eq
+Array :: vector_iter3 {,} @test.assert_eq
+Array :: vector_iter3 {,} @test.assert_eq
+Array :: vector_iter4 {0, 0, 1, 0} @test.assert_eq
+Array :: vector_iter4 {0, 0, 1, 0} @test.assert_eq
+
+10 = vec.2
+Array :: vector_iter1 {1, 2, 10, 4, 5} @test.assert_eq
+Array :: vector_iter1 {1, 2, 10, 4, 5} @test.assert_eq
+vec 3 +
+Array :: vector_iter1 {1, 2, 10, 4, 5, 3} @test.assert_eq
+Array :: vector_iter1 {1, 2, 10, 4, 5, 3} @test.assert_eq
+vec 2 -
+Array :: vector_iter1 {1, 10, 4, 5, 3} @test.assert_eq
+Array :: vector_iter1 {1, 10, 4, 5, 3} @test.assert_eq
+vec 1 /
+Array :: vector_iter1 {1, 10, 4, 5} @test.assert_eq
+Array :: vector_iter1 {1, 10, 4, 5} @test.assert_eq

@@ -168,7 +168,7 @@
 				},
 				{
 					"name": "storage.type.nest",
-					"match": "\\b(Type|Int|Real|Bool|Null|Str|Array|Vector|Map|Func|Iter|Byte|IOfile)\\b"
+					"match": "\\b(Type|Int|Real|Bool|Null|Str|Array|Vector|Map|Func|Iter|Byte|IOFile)\\b"
 				}
 			]
 		},

@@ -1,10 +1,12 @@
 |#| '../test_lib.nest' = test
 
+-- Test syntax
 ?::Array Type @test.assert_eq
 ?::Bool Type @test.assert_eq
 ?::Byte Type @test.assert_eq
 ?::Func Type @test.assert_eq
 ?::Int Type @test.assert_eq
+?::IOFile Type @test.assert_eq
 ?::Iter Type @test.assert_eq
 ?::Map Type @test.assert_eq
 ?::Null Type @test.assert_eq

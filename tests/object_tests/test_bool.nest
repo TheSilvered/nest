@@ -1,13 +1,15 @@
 |#| '../test_lib.nest' = test
 
+-- Test syntax
 true  @test.assert_true
 false @test.assert_false
 
-0 0 == @test.assert_true
-0 1 == @test.assert_false
-0 1 != @test.assert_true
-0 0 != @test.assert_false
-0 1 < @test.assert_true
-1 0 < @test.assert_false
-1 0 > @test.assert_true
-0 1 > @test.assert_false
+-- Test '==' operator
+false false == @test.assert_true
+true true == @test.assert_true
+true false == @test.assert_false
+false true == @test.assert_false
+
+-- Test '::' operator
+Str :: true 'true' @test.assert_eq
+Str :: false 'false' @test.assert_eq

@@ -13,18 +13,18 @@ The current state of tests:
   - 🟢 Optimizer errors
   - 🟢 Runtime errors
 - 🟡 Object tests
-  - 🟢 `Array`
+  - 🟡 `Array`
   - 🟢 `Bool`
-  - 🟢 `Byte`
-  - 🟢 `Func`
-  - 🟢 `Int`
+  - 🟡 `Byte`
+  - 🟡 `Func`
+  - 🟡 `Int`
   - 🟢 `Iter`
   - 🟢 `Map`
   - 🟢 `Null`
   - 🟡 `Real`
-  - 🟢 `Str`
+  - 🟡 `Str`
   - 🟢 `Type`
-  - 🟢 `Vector`
+  - 🟡 `Vector`
 - 🔴 Standard library tests
   - 🟢 `stdco.nest`
   - 🟢 `stdcodecs.nest`

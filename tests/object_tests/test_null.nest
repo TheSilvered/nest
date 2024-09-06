@@ -1,7 +1,13 @@
 |#| '../test_lib.nest' = test
 
-null @test.assert_false
+-- Test syntax
+not_a_var null @test.assert_eq
+null = v
+?::v Null @test.assert_eq
+
+-- Test '==' operator
+null null == @test.assert_true
+
+-- Test '::' operator
 Bool :: null @test.assert_false
 Str :: null 'null' @test.assert_eq
-
-not_a_var null @test.assert_eq
