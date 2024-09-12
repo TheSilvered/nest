@@ -400,6 +400,38 @@ i8 *Nst_vfmt(const i8 *fmt, usize fmt_len, usize *out_len, va_list args)
     return general_fmt(fmt, fmt_len, out_len, &values);
 }
 
+i8 *NstC Nst_repr(i8 *str, usize str_len, usize *out_len, bool shallow,
+                  bool ascii)
+{
+    if (str_len == 0)
+        str_len = strlen((const i8 *)str);
+    if (out_len != NULL)
+        *out_len = 0;
+
+    Format format;
+    format_init(&format);
+    if (shallow && ascii)
+        format.str_repr = Nst_FMT_STR_SHALLOW_ASCII;
+    else if (shallow)
+        format.str_repr = Nst_FMT_STR_SHALLOW;
+    else if (ascii)
+        format.str_repr = Nst_FMT_STR_FULL_ASCII;
+    else
+        format.str_repr = Nst_FMT_STR_FULL;
+
+    Nst_Buffer buf;
+    if (!Nst_buffer_init(&buf, str_len))
+        return NULL;
+    isize char_len = fmt_str_repr(&buf, str, str_len, &format);
+    if (char_len < 0) {
+        Nst_buffer_destroy(&buf);
+        return NULL;
+    }
+    if (out_len != NULL)
+        *out_len = buf.len;
+    return buf.data;
+}
+
 static i8 *general_fmt(const i8 *fmt, usize fmt_len, usize *out_len,
                        FmtValues *values)
 {
@@ -1117,7 +1149,7 @@ static isize fmt_str_repr(Nst_Buffer *buf, i8 *str, usize str_len,
             if (!Nst_buffer_append_char(buf, (i8)c))
                 return -1;
             tot_char_len += 1;
-        } else if (c <= 0x7f) {
+        } else if (c <= 0x9f) {
             isize char_len = fmt_str_ascii_escape(buf, (u8)c, format);
             if (char_len < 0)
                 return -1;

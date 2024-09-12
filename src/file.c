@@ -117,7 +117,10 @@ static Nst_IOResult FILE_read_get_ch(Nst_IOFileObj *f, Nst_Buffer *buf,
             goto success;
         }
     }
-    Nst_io_result_set_details((u32)ch_buf[0], *bytes_read, f->encoding->name);
+    Nst_io_result_set_details(
+        (u32)(u8)ch_buf[0],
+        *bytes_read,
+        f->encoding->name);
     return Nst_IO_INVALID_DECODING;
 
 success:
@@ -128,8 +131,7 @@ success:
     *bytes_read += ch_len;
 
     ch = f->encoding->to_utf32(ch_buf);
-    Nst_ext_utf8_from_utf32(ch, (u8 *)(buf->data + buf->len));
-    buf->len += ch_len;
+    buf->len += Nst_ext_utf8_from_utf32(ch, (u8 *)(buf->data + buf->len));;
     return Nst_IO_SUCCESS;
 }
 

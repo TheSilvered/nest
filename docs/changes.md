@@ -57,6 +57,8 @@
 - fixed `itu.cycle` not working with Unicode strings
 - fixed `itu.chain` not resetting correctly after being iterated over the first time
 - fixed many memory leaks
+- fixed `cp-1251`, `utf32` and `latin1` encodings not working properly
+- fixed `utf32` encoding name
 
 ### C API
 
@@ -180,6 +182,7 @@ _General changes_:
 - fixed many constants not being destroyed at the end of the program
 - fixed a possible read-after-free bug in the garbage collector
 - now the standard library is imported when running Nest on Windows in `x86` debug mode
+- fixed the value store in `ill_encoded_byte` retrived with `Nst_io_result_get_details`
 
 ---
 

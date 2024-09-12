@@ -556,7 +556,7 @@ Nst_Obj *NstC read_(usize arg_num, Nst_Obj **args)
         const i8 *name;
         Nst_io_result_get_details(&failed_ch, &failed_pos, &name);
         Nst_set_value_errorf(
-            "could not decode byte %#x at %zi for %s encoding",
+            "could not decode byte %#x at position %zi for %s encoding",
             (int)failed_ch,
             failed_pos,
             name);

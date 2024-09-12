@@ -130,7 +130,7 @@ Nst_CP Nst_cp_utf32 = {
     .ch_size = sizeof(u32),
     .mult_max_sz = sizeof(u32),
     .mult_min_sz = sizeof(u32),
-    .name = "extUTF-32",
+    .name = "UTF-32",
 #if Nst_BYTEORDER == Nst_LITTLE_ENDIAN
     .bom = "\xff\xfe\x00\x00",
 #else
@@ -281,9 +281,9 @@ Nst_CP Nst_cp_iso8859_1 = {
     .name = "ISO-8859-1",
     .bom = NULL,
     .bom_size = 0,
-    .check_bytes = (Nst_CheckBytesFunc)Nst_check_1258_bytes,
-    .to_utf32    = (Nst_ToUTF32Func)Nst_1258_to_utf32,
-    .from_utf32  = (Nst_FromUTF32Func)Nst_1258_from_utf32,
+    .check_bytes = (Nst_CheckBytesFunc)Nst_check_iso8859_1_bytes,
+    .to_utf32    = (Nst_ToUTF32Func)Nst_iso8859_1_to_utf32,
+    .from_utf32  = (Nst_FromUTF32Func)Nst_iso8859_1_from_utf32,
 };
 
 i32 cp_1250_map[128] = {
@@ -307,9 +307,9 @@ i32 cp_1250_map[128] = {
 
 i32 cp_1251_map[128] = {
     0x0402, 0x0403, 0x201a, 0x0453, 0x201e, 0x2026, 0x2020, 0x2021,
-    0x20ac,     -1, 0x0409, 0x2039, 0x040a, 0x040c, 0x040b, 0x040f,
+    0x20ac, 0x2030, 0x0409, 0x2039, 0x040a, 0x040c, 0x040b, 0x040f,
     0x0452, 0x2018, 0x2019, 0x201c, 0x201d, 0x2022, 0x2013, 0x2014,
-    0x0098, 0x2122, 0x0459, 0x203a, 0x045a, 0x045c, 0x045b, 0x045f,
+        -1, 0x2122, 0x0459, 0x203a, 0x045a, 0x045c, 0x045b, 0x045f,
     0x00a0, 0x040e, 0x045e, 0x0408, 0x00a4, 0x0490, 0x00a6, 0x00a7,
     0x0401, 0x00a9, 0x0404, 0x00ab, 0x00ac, 0x00ad, 0x00ae, 0x0407,
     0x00b0, 0x00b1, 0x0406, 0x0456, 0x0491, 0x00b5, 0x00b6, 0x00b7,
@@ -501,9 +501,9 @@ static u32 utf8_cp(u8 c, u8 *str, i32 len)
     } default: {
         u32 n = *(u32 *)(str - 1);
         return ((c & 0x7) << 18)
-            | ((n & 0x3f00) << 4)
-            | ((n & 0x3f0000) >> 10)
-            | ((n & 0x3f000000) >> 24);
+             | ((n & 0x3f00) << 4)
+             | ((n & 0x3f0000) >> 10)
+             | ((n & 0x3f000000) >> 24);
     }
 #endif
     }
@@ -886,14 +886,14 @@ i32 Nst_check_utf32be_bytes(u8 *str, usize len)
 
 u32 Nst_utf32be_to_utf32(u8 *str)
 {
-    return (str[0] << 12) + (str[1] << 8) + (str[2] << 4) + str[3];
+    return (str[0] << 24) + (str[1] << 16) + (str[2] << 8) + str[3];
 }
 
 i32 Nst_utf32be_from_utf32(u32 ch, u8 *str)
 {
-    str[0] = (u8)(ch >> 12);
-    str[1] = (u8)((ch >> 8) & 0xff);
-    str[2] = (u8)((ch >> 4) & 0xff);
+    str[0] = (u8)(ch >> 24);
+    str[1] = (u8)((ch >> 16) & 0xff);
+    str[2] = (u8)((ch >> 8) & 0xff);
     str[3] = (u8)(ch & 0xff);
     return 4;
 }
@@ -908,14 +908,14 @@ i32 Nst_check_utf32le_bytes(u8 *str, usize len)
 
 u32 Nst_utf32le_to_utf32(u8 *str)
 {
-    return (str[3] << 12) + (str[2] << 8) + (str[1] << 4) + str[0];
+    return (str[3] << 24) + (str[2] << 16) + (str[1] << 8) + str[0];
 }
 
 i32 Nst_utf32le_from_utf32(u32 ch, u8 *str)
 {
-    str[3] = (u8)(ch >> 12);
-    str[2] = (u8)((ch >> 8) & 0xff);
-    str[1] = (u8)((ch >> 4) & 0xff);
+    str[3] = (u8)(ch >> 24);
+    str[2] = (u8)((ch >> 16) & 0xff);
+    str[1] = (u8)((ch >> 8) & 0xff);
     str[0] = (u8)(ch & 0xff);
     return 4;
 }
@@ -1042,14 +1042,14 @@ i32 Nst_1251_from_utf32(u32 ch, u8 *str)
     case 0x201a: *str = 0x82; break; case 0x0453: *str = 0x83; break;
     case 0x201e: *str = 0x84; break; case 0x2026: *str = 0x85; break;
     case 0x2020: *str = 0x86; break; case 0x2021: *str = 0x87; break;
-    case 0x20ac: *str = 0x88; break; case 0x0409: *str = 0x8a; break;
-    case 0x2039: *str = 0x8b; break; case 0x040a: *str = 0x8c; break;
-    case 0x040c: *str = 0x8d; break; case 0x040b: *str = 0x8e; break;
-    case 0x040f: *str = 0x8f; break; case 0x0452: *str = 0x90; break;
-    case 0x2018: *str = 0x91; break; case 0x2019: *str = 0x92; break;
-    case 0x201c: *str = 0x93; break; case 0x201d: *str = 0x94; break;
-    case 0x2022: *str = 0x95; break; case 0x2013: *str = 0x96; break;
-    case 0x2014: *str = 0x97; break; case 0x0098: *str = 0x98; break;
+    case 0x20ac: *str = 0x88; break; case 0x2030: *str = 0x89; break;
+    case 0x0409: *str = 0x8a; break; case 0x2039: *str = 0x8b; break;
+    case 0x040a: *str = 0x8c; break; case 0x040c: *str = 0x8d; break;
+    case 0x040b: *str = 0x8e; break; case 0x040f: *str = 0x8f; break;
+    case 0x0452: *str = 0x90; break; case 0x2018: *str = 0x91; break;
+    case 0x2019: *str = 0x92; break; case 0x201c: *str = 0x93; break;
+    case 0x201d: *str = 0x94; break; case 0x2022: *str = 0x95; break;
+    case 0x2013: *str = 0x96; break; case 0x2014: *str = 0x97; break;
     case 0x2122: *str = 0x99; break; case 0x0459: *str = 0x9a; break;
     case 0x203a: *str = 0x9b; break; case 0x045a: *str = 0x9c; break;
     case 0x045c: *str = 0x9d; break; case 0x045b: *str = 0x9e; break;

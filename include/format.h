@@ -702,6 +702,26 @@ NstEXP i8 *NstC Nst_vfmt(const i8 *fmt, usize fmt_len, usize *out_len,
  */
 NstEXP Nst_Obj *NstC Nst_fmt_objs(Nst_StrObj *fmt, Nst_SeqObj *values);
 
+/**
+ * Make a string into its representation, like using the `r`, `R`, `a` and `A`
+ * flags in `Nst_fmt`.
+ *
+ * @param str: the initial string
+ * @parma str_len: the length in bytes of the string, if set to zero it will be
+ * calculated with `strlen`
+ * @param out_len: pointer to be set with the lengh of the output string, if
+ * set to `NULL` it will be ignored
+ * @param shallow: if set to true it will only escape special characters, like
+ * the `R` and `A` flags
+ * @param ascii: if set to true it will produce an output that uses only
+ * printable ASCII characters
+ *
+ * @return A pointer to the string representation or `NULL` on failure. The
+ * error is set.
+ */
+NstEXP i8 *NstC Nst_repr(i8 *str, usize str_len, usize *out_len,
+                         bool shallow, bool ascii);
+
 #ifdef __cplusplus
 }
 #endif // !__cplusplus

@@ -1,19 +1,3 @@
-|#| '../test_lib.nest' = test
-|#| 'stdio.nest' = io
-
-io.open {'test_files/file.txt', ''} @test.assert_raises_error
-io.open {'test_files/file.txt', 'rb+a'} @test.assert_raises_error
-io.open {'test_files/file.txt', 'x'} @test.assert_raises_error
-io.open {'test_files/file.txt', 'wa'} @test.assert_raises_error
-io.open {'test_files/file.txt', 'wba'} @test.assert_raises_error
-io.open {'test_files/file.txt', 'rb', 'utf-8'} @test.assert_raises_error
-io.open {'test_files/file.txt', 'r+', 'notanencoding'} @test.assert_raises_error
-io.open {'test_files/notafile.txt'} @test.assert_raises_error
-
-'test_files/ùnicode😊.txt' @io.open = file
-file @io.read '' @test.assert_eq
-file @io.close
-
 '\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f' \
     = ascii_text
 '\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\u20ac\u201a\u201e\u2026\u2020\u2021\u2030\u0160\u2039\u015a\u0164\u017d\u0179\u2018\u2019\u201c\u201d\u2022\u2013\u2014\u2122\u0161\u203a\u015b\u0165\u017e\u017a\xa0\u02c7\u02d8\u0141\xa4\u0104\xa6\xa7\xa8\xa9\u015e\xab\xac\xad\xae\u017b\xb0\xb1\u02db\u0142\xb4\xb5\xb6\xb7\xb8\u0105\u015f\xbb\u013d\u02dd\u013e\u017c\u0154\xc1\xc2\u0102\xc4\u0139\u0106\xc7\u010c\xc9\u0118\xcb\u011a\xcd\xce\u010e\u0110\u0143\u0147\xd3\xd4\u0150\xd6\xd7\u0158\u016e\xda\u0170\xdc\xdd\u0162\xdf\u0155\xe1\xe2\u0103\xe4\u013a\u0107\xe7\u010d\xe9\u0119\xeb\u011b\xed\xee\u010f\u0111\u0144\u0148\xf3\xf4\u0151\xf6\xf7\u0159\u016f\xfa\u0171\xfc\xfd\u0163\u02d9' \
@@ -36,57 +20,5 @@ file @io.close
     = cp1258_text
 ' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff' \
     = latin1_text
-'{|}~\x7f\x80\x81\x82\x83\x84\x85\u07fb\u07fc\u07fd\u07fe\u07ff\u0800\u0801\u0802\u0803\u0804\u0805\ufffb\ufffc\ufffd\ufffe\uffff\U010000\U010001\U010002\U010003\U010004\U010005' \
+'{|}~\x7f\x80\x81\x82\x83\x84\x85\u07fb\u07fc\u07fd\u07fe\u07ff\u0800\u0801\u0802\u0803\u0804\u0805\ufffb\ufffc\ufffd\ufffe\uffff\U00010000\U00010001\U00010002\U00010003\U00010004\U00010005' \
     = unicode_text
-
-#test_cp_file cp text [
-    'test_files/encodings/file_\(cp).txt' 'r' cp @io.open = file
-    file @io.read text @test.assert_eq
-    file @io.close
-    'test_files/encodings/file_\(cp)_out.txt' 'w' cp @io.open = file
-    file text @io.write
-    file @io.close
-    'test_files/encodings/file_\(cp)_out.txt' 'r' cp @io.open = file
-    file @io.read text @test.assert_eq
-    file @io.close
-]
-
-#test_unicode_file encoding [
-    'test_files/encodings/file_\(encoding).txt' 'r' encoding @io.open = file
-    file @io.read unicode_text @test.assert_eq
-    file @io.close
-    -- 'test_files/encodings/file_\(encoding)_out.txt' 'w' encoding @io.open = file
-    -- file unicode_text @io.write
-    -- file @io.close
-    -- 'test_files/encodings/file_\(encoding)_out.txt' 'r' encoding @io.open = file
-    -- file @io.read unicode_text @test.assert_eq
-    -- file @io.close
-]
-
-#test_unicode_file_with_bom encoding [
-    'test_files/encodings/file_\(encoding)_bom.txt' 'r' encoding @io.open = file
-    file @io.read unicode_text @test.assert_eq
-    file @io.close
-]
-
-'ascii'   ascii_text @test_cp_file
-'cp1250' cp1250_text @test_cp_file
-'cp1251' cp1251_text @test_cp_file
-'cp1252' cp1252_text @test_cp_file
-'cp1253' cp1253_text @test_cp_file
-'cp1254' cp1254_text @test_cp_file
-'cp1255' cp1255_text @test_cp_file
-'cp1256' cp1256_text @test_cp_file
-'cp1257' cp1257_text @test_cp_file
-'cp1258' cp1258_text @test_cp_file
-'latin1' latin1_text @test_cp_file
-'utf8'    @test_unicode_file
-'utf8'    @test_unicode_file_with_bom
-'utf16le' @test_unicode_file
-'utf16le' @test_unicode_file_with_bom
-'utf16be' @test_unicode_file
-'utf16be' @test_unicode_file_with_bom
-'utf32le' @test_unicode_file
-'utf32le' @test_unicode_file_with_bom
-'utf32be' @test_unicode_file
-'utf32be' @test_unicode_file_with_bom

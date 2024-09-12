@@ -170,135 +170,13 @@ Nst_Obj *_Nst_str_copy(Nst_StrObj *src)
     return str;
 }
 
-static i32 get_unicode_escape_len(u8 *str)
-{
-    u32 ch = Nst_ext_utf8_to_utf32(str);
-    if (!Nst_is_valid_cp(ch) || Nst_is_non_character(ch)) {
-        return ch <= 0xffff ? 6 : 8;
-    }
-    return 0;
-}
-
-static i32 ch_repr_len(u8 *str, usize i, usize s_len)
-{
-    if (str[i] < 0x80) {
-        switch (str[i]) {
-        case '\\':
-        case '\a':
-        case '\b':
-        case '\x1b':
-        case '\f':
-        case '\n':
-        case '\r':
-        case '\t':
-        case '\v': return 2;
-        }
-
-        if (!isprint(str[i]))
-            return 4;
-        return 1;
-    }
-
-    i32 res = Nst_check_ext_utf8_bytes(str + i, s_len - i);
-
-    if (res == -1)
-        return 0;
-
-    i32 escape_len = get_unicode_escape_len(str + i);
-    if (escape_len)
-        return escape_len;
-    else
-        return res;
-}
-
 Nst_Obj *_Nst_str_repr(Nst_StrObj *src)
 {
-    const i8 *hex_chars = "0123456789abcdef";
-    u8 *orig = (u8 *)src->value;
-    usize l = src->len;
-    usize new_size = 2;
-    i32 double_quotes_count = 0;
-    i32 single_quotes_count = 0;
-
-    for (usize i = 0; i < l; i++) {
-        new_size += ch_repr_len(orig, i, l);
-        if (orig[i] == '\'')
-            single_quotes_count++;
-        else if (orig[i] == '"')
-            double_quotes_count++;
-    }
-
-    bool using_doub = single_quotes_count > double_quotes_count;
-
-    if (using_doub)
-        new_size += double_quotes_count;
-    else
-        new_size += single_quotes_count;
-
-    i8 *new_str = Nst_malloc_c(new_size + 1, i8);
-    if (new_str == NULL)
+    usize repr_len;
+    i8 *repr_str = Nst_repr(src->value, src->len, &repr_len, false, false);
+    if (repr_str == NULL)
         return NULL;
-
-    *new_str = using_doub ? '"' : '\'';
-
-    usize i = 1;
-    for (usize j = 0; j < l; j++) {
-        switch (orig[j]) {
-        case '\\': new_str[i++] = '\\'; new_str[i++] = '\\';continue;
-        case '\a': new_str[i++] = '\\'; new_str[i++] = 'a'; continue;
-        case '\b': new_str[i++] = '\\'; new_str[i++] = 'b'; continue;
-        case'\x1b':new_str[i++] = '\\'; new_str[i++] = 'e'; continue;
-        case '\f': new_str[i++] = '\\'; new_str[i++] = 'f'; continue;
-        case '\n': new_str[i++] = '\\'; new_str[i++] = 'n'; continue;
-        case '\r': new_str[i++] = '\\'; new_str[i++] = 'r'; continue;
-        case '\t': new_str[i++] = '\\'; new_str[i++] = 't'; continue;
-        case '\v': new_str[i++] = '\\'; new_str[i++] = 'v'; continue;
-        case '\'':
-            if (!using_doub)
-                new_str[i++] = '\\';
-            new_str[i++] = '\'';
-            continue;
-        case '"':
-            if (using_doub)
-                new_str[i++] = '\\';
-            new_str[i++] = '"';
-            continue;
-        }
-        if (orig[j] < 0x80) {
-            if (isprint(orig[j])) {
-                new_str[i++] = orig[j];
-                continue;
-            }
-
-            new_str[i++] = '\\';
-            new_str[i++] = 'x';
-            new_str[i++] = hex_chars[(orig[j] & 0xf0) >> 4];
-            new_str[i++] = hex_chars[orig[j] & 0x0f];
-            continue;
-        }
-
-        i32 res = Nst_check_ext_utf8_bytes(orig + j, l - j);
-        i32 escape_len = get_unicode_escape_len(orig + j);
-        if (escape_len) {
-            new_str[i++] = '\\';
-            new_str[i++] = escape_len == 8 ? 'U' : 'u';
-            i32 cp = Nst_ext_utf8_to_utf32(orig + j);
-            for (escape_len -= 3; escape_len >= 0; escape_len--) {
-                new_str[i++] = hex_chars[(cp >> (escape_len * 4)) & 0xf];
-            }
-            j += res - 1;
-            continue;
-        }
-
-        memcpy(new_str + i, orig + j, res);
-        i += res;
-        j += res - 1;
-    }
-
-    new_str[new_size - 1] = using_doub ? '"' : '\'';
-    new_str[new_size] = 0;
-
-    return Nst_str_new_allocated(new_str, new_size);
+    return Nst_str_new_allocated(repr_str, repr_len);
 }
 
 Nst_Obj *_Nst_str_get(Nst_StrObj *str, i64 idx)
