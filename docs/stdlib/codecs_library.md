@@ -60,6 +60,37 @@ and `UtF 8` are all valid ways of specifying the UTF-8 encoding.
 
 ---
 
+### `@encoding_info`
+
+**Synopsis:**
+
+```nest
+[encoding: Str] @encoding_info -> Map
+```
+
+**Returns:**
+
+A new map containing various information about a particular encoding. The keys
+in the map are the following:
+
+| Key       | Type          | Value                                                                                         |
+| --------- | ------------- | --------------------------------------------------------------------------------------------- |
+| `name`    | `Str`         | The name of the encoding.                                                                     |
+| `min_len` | `Int`         | The minimum length of a code point (character) in bytes.                                      |
+| `max_len` | `Int`         | The maximum length of a code point (character) in bytes.                                      |
+| `bom`     | `Array?.Byte` | The Byte Order Mark, an array of bytes if it exists for the encoding and `null` if it doesn't |
+
+**Example:**
+
+```nest
+|#| 'stdcodecs.nest' = cc
+
+'utf16'  @cc.encoding_info --> {'name': 'UTF-16LE', 'min_len': 2, 'max_len': 4, 'bom': {255b, 254b}}
+'latin1' @cc.encoding_info --> {'name': 'ISO-8859-1', 'min_len': 1, 'max_len': 1, 'bom': null}
+```
+
+---
+
 ### `@from_cp`
 
 **Synopsis:**

@@ -625,7 +625,7 @@ i32 Nst_utf16_from_utf32(u32 ch, u16 *str)
 {
     if (ch > 0x10ffff || (ch >= 0xd800 && ch <= 0xdfff))
         return -1;
-    if (ch < 0xffff) {
+    if (ch <= 0xffff) {
         *str = (u16)ch;
         return 1;
     }
@@ -664,7 +664,7 @@ i32 Nst_utf16be_from_utf32(u32 ch, u8 *str)
 {
     if (ch > 0x10FFFF || (ch >= 0xd800 && ch <= 0xdfff))
         return -1;
-    if (ch < 0xffff) {
+    if (ch <= 0xffff) {
         str[0] = (u8)(ch >> 8);
         str[1] = (u8)(ch & 0xff);
         return 2;
@@ -709,7 +709,7 @@ i32 Nst_utf16le_from_utf32(u32 ch, u8 *str)
     if (ch > 0x10FFFF || (ch >= 0xd800 && ch <= 0xdfff))
         return -1;
 
-    if (ch < 0xffff) {
+    if (ch <= 0xffff) {
         str[1] = (u8)(ch >> 8);
         str[0] = (u8)(ch & 0xff);
         return 2;

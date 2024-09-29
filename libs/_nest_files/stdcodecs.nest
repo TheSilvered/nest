@@ -2,12 +2,10 @@
 
 |#| '__C__:../../build/windows/projects/nest/\(_debug_)/Debug/nest_codecs.dll' = __cc
 
-__cc.cp_is_valid_ = cp_is_valid
-__cc.from_cp_     = from_cp
-__cc.get_at_      = get_at
-__cc.get_len_     = get_len
-__cc.to_cp_       = to_cp
-__cc.to_iter_     = to_iter
+__cc.cp_is_valid_   = cp_is_valid
+__cc.encoding_info_ = encoding_info
+__cc.from_cp_       = from_cp
+__cc.to_cp_         = to_cp
 
 'ascii' = ASCII
 'utf8' = UTF_8

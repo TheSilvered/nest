@@ -13,7 +13,9 @@
 - added `_debug_` predefined variable when compiling in debug mode, its value is `"x64"` on 64-bit platforms and `""` on 32-bit ones
 - added `reverse` and `reverse_i` to `stdsequtil.nest`
 - added `rsplit` to `stdsutil.nest`
-- added `fmt` function to `stdsutil.nest` to format values
+- added `fmt` to `stdsutil.nest` to format values
+- added `encoding_info` to `stdcodecs.nest`
+- merged `get_fpi` and `move_fpi` into `seek`
 
 **Changes**
 
@@ -57,8 +59,10 @@
 - fixed `itu.cycle` not working with Unicode strings
 - fixed `itu.chain` not resetting correctly after being iterated over the first time
 - fixed many memory leaks
-- fixed `cp-1251`, `utf32` and `latin1` encodings not working properly
+- fixed `cp-1251`, `utf32`, `latin1` encodings not working properly
 - fixed `utf32` encoding name
+- fixed encoding on `utf16`, `utf16le` and `utf16be` for `U+FFFF`
+- fixed various bugs with virtual files
 
 ### C API
 

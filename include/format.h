@@ -707,7 +707,7 @@ NstEXP Nst_Obj *NstC Nst_fmt_objs(Nst_StrObj *fmt, Nst_SeqObj *values);
  * flags in `Nst_fmt`.
  *
  * @param str: the initial string
- * @parma str_len: the length in bytes of the string, if set to zero it will be
+ * @param str_len: the length in bytes of the string, if set to zero it will be
  * calculated with `strlen`
  * @param out_len: pointer to be set with the lengh of the output string, if
  * set to `NULL` it will be ignored

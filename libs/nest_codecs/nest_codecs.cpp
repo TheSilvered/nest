@@ -6,9 +6,10 @@
     Nst_set_value_error_c("the string is not valid UTF-8")
 
 static Nst_Declr obj_list_[] = {
-    Nst_FUNCDECLR(from_cp_,     1),
-    Nst_FUNCDECLR(to_cp_,       1),
-    Nst_FUNCDECLR(cp_is_valid_, 1),
+    Nst_FUNCDECLR(from_cp_,       1),
+    Nst_FUNCDECLR(to_cp_,         1),
+    Nst_FUNCDECLR(cp_is_valid_,   1),
+    Nst_FUNCDECLR(encoding_info_, 1),
     Nst_DECLR_END
 };
 
@@ -68,4 +69,44 @@ Nst_Obj *NstC cp_is_valid_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     Nst_RETURN_BOOL(cp >= 0 && cp <= UINT32_MAX && Nst_is_valid_cp((u32)cp));
+}
+
+Nst_Obj *NstC encoding_info_(usize arg_num, Nst_Obj **args)
+{
+    Nst_StrObj *name_str;
+    if (!Nst_extract_args("s", arg_num, args, &name_str))
+        return nullptr;
+
+    Nst_CPID cpid = Nst_encoding_from_name(name_str->value);
+    if (cpid == Nst_CP_UNKNOWN) {
+        Nst_set_value_errorf("unknown encoding '%.100s'", name_str->value);
+        return nullptr;
+    }
+    Nst_CP *cp = Nst_cp(cpid);
+    Nst_Obj *info = Nst_map_new();
+
+    Nst_Obj *mult_max_sz = Nst_int_new(cp->mult_max_sz);
+    Nst_Obj *mult_min_sz = Nst_int_new(cp->mult_min_sz);
+    Nst_Obj *name = Nst_str_new_c_raw(cp->name, false);
+    Nst_Obj *bom;
+
+    if (cp->bom_size == 0)
+        bom = Nst_null_ref();
+    else {
+        bom = Nst_array_new(cp->bom_size);
+        for (usize i = 0, n = cp->bom_size; i < n; i++)
+            SEQ(bom)->objs[i] = Nst_byte_new(cp->bom[i]);
+    }
+
+    Nst_map_set_str(info, "name", name);
+    Nst_map_set_str(info, "min_len", mult_min_sz);
+    Nst_map_set_str(info, "max_len", mult_max_sz);
+    Nst_map_set_str(info, "bom", bom);
+
+    Nst_dec_ref(mult_max_sz);
+    Nst_dec_ref(mult_min_sz);
+    Nst_dec_ref(name);
+    Nst_dec_ref(bom);
+
+    return info;
 }

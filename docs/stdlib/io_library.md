@@ -170,21 +170,6 @@ f3 @io.close
 
 ---
 
-### `@get_fpi`
-
-**Synopsis:**
-
-```nest
-[file: IOFile] @get_fpi -> Int
-```
-
-**Description:**
-
-Returns the position in bytes of the file position indicator. Throws an error
-if the file cannot be sought or is closed.
-
----
-
 ### `@is_a_tty`
 
 **Synopsis:**
@@ -210,30 +195,6 @@ if the file cannot be sought or is closed.
 **Returns:**
 
 `true` if `file` was opened in binary mode and `false` otherwise.
-
----
-
-### `@move_fpi`
-
-**Synopsis:**
-
-```nest
-[file: IOFile, starting_position: Int, offset: Int] @move_fpi -> null
-```
-
-**Description:**
-
-Moves the file position indicator from `starting_position` by `offset`. An
-error is thrown if the file is closed, is not seekable or if the file position
-indicator would go outside the file.
-
-**Arguments:**
-
-- `file`: the file of which the file position indicator should be moved
-- `starting_position`: the position from which the offset is applied, this can
-  be either [`FROM_START`](io_library.md#from_start),
-  [`FROM_CUR`](io_library.md#from_cur) or [`FROM_END`](io_library.md#from_end)
-- `offset`: the offset in bytes from the starting position, it can be negative
 
 ---
 
@@ -363,6 +324,40 @@ returns an `Array` object. To convert the array to a string, use the
 **Returns:**
 
 The content that it read as an array of `Byte` objects.
+
+---
+
+### `@seek`
+
+**Synopsis:**
+
+```nest
+[file: IOFile, starting_position: Int?, offset: Int?] @seek -> Int
+```
+
+**Description:**
+
+Moves the file position indicator from `starting_position` by `offset` bytes.
+An error is thrown if the file is closed, is not seekable or if the file
+position indicator would go outside the file.
+
+If `starting_position` is `null`, `FROM_CUR` will be used.
+
+If `offset` is `null`, `0` will be used.
+
+**Arguments:**
+
+- `file`: the file of which the file position indicator should be moved
+- `starting_position`: the position from which the offset is applied, this can
+  be either [`FROM_START`](io_library.md#from_start),
+  [`FROM_CUR`](io_library.md#from_cur) or [`FROM_END`](io_library.md#from_end)
+- `offset`: the offset in bytes from the starting position, it can be negative
+
+**Returns:**
+
+The end position of the indicator in bytes from the start of the file. Calling
+this function without `starting_position` and `offset` will simply return the
+current position (like `ftell` in C).
 
 ---
 

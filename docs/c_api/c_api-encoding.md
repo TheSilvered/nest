@@ -57,6 +57,9 @@ The structure that represents an encoding.
 - `mult_min_sz`: the size in bytes of the shortest character (usually the same
   as `ch_size`)
 - `name`: the name of the encoding displayed in errors
+- `bom`: the Byte Order Mark of the encoding, is set to `NULL` if it does not
+  have one
+- `bom_size`: the length of `bom`, set to `0` if it is `NULL`
 - `check_bytes`: the
   [`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) function of the
   encoding

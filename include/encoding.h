@@ -113,6 +113,9 @@ NstEXP typedef i32 (*Nst_FromUTF32Func)(u32 ch, void *buf);
  * @param mult_min_sz: the size in bytes of the shortest character (usually the
  * same as `ch_size`)
  * @param name: the name of the encoding displayed in errors
+ * @param bom: the Byte Order Mark of the encoding, is set to `NULL` if it does
+ * not have one
+ * @param bom_size: the length of `bom`, set to `0` if it is `NULL`
  * @param check_bytes: the `Nst_CheckBytesFunc` function of the encoding
  * @param to_utf32: the `Nst_ToUTF32Func` function of the encoding
  * @param from_utf32: the `Nst_FromUTF32Func` function of the encoding

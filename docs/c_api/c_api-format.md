@@ -846,3 +846,35 @@ formatted with the values given.
 **Returns:**
 
 A new object of type `Str` or `NULL` on failure. The error is set.
+
+---
+
+### `Nst_repr`
+
+**Synopsis:**
+
+```better-c
+i8 *Nst_repr(i8 *str, usize str_len, usize *out_len, bool shallow, bool ascii)
+```
+
+**Description:**
+
+Make a string into its representation, like using the `r`, `R`, `a` and `A`
+flags in [`Nst_fmt`](c_api-format.md#nst_fmt).
+
+**Parameters:**
+
+- `str`: the initial string
+- `str_len`: the length in bytes of the string, if set to zero it will be
+  calculated with
+  [`strlen`](https://man7.org/linux/man-pages/man3/strlen.3.html)
+- `out_len`: pointer to be set with the lengh of the output string, if set to
+  `NULL` it will be ignored
+- `shallow`: if set to true it will only escape special characters, like the `R`
+  and `A` flags
+- `ascii`: if set to true it will produce an output that uses only printable
+  ASCII characters
+
+**Returns:**
+
+A pointer to the string representation or `NULL` on failure. The error is set.

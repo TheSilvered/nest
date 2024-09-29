@@ -549,6 +549,7 @@
 - [`Nst_realloc_c`](c_api-mem.md#nst_realloc_c)
 - [`Nst_real_new`](c_api-simple_types.md#nst_real_new)
 - [`Nst_RealObj`](c_api-simple_types.md#nst_realobj)
+- [`Nst_repr`](c_api-format.md#nst_repr)
 - [`_Nst_repr_str_cast`](c_api-obj_ops.md#_nst_repr_str_cast)
 - [`Nst_RETURN_BOOL`](c_api-lib_import.md#nst_return_bool)
 - [`Nst_RETURN_FALSE`](c_api-lib_import.md#nst_return_false)

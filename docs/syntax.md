@@ -435,11 +435,15 @@ The valid type casts in Nest are the following:
 
 When `Int`, `Real` or `Byte` objects are casted to `Bool`, they become `false`
 if they are zero and `true` otherwise.
+
 When `Str`, `Array`, `Vector` or `Map` objects are casted to a boolean, it
 returns `false` if their length zero and `true` otherwise.
+
 When an `IOFile` is casted to `Bool`, it returns `true` if the file is open and
 `false` if it has been closed.
+
 When `Null` is casted to `Bool`, it always returns `false`.
+
 When any other object is casted to a `Bool`, it always returns `true`.
 
 ---
