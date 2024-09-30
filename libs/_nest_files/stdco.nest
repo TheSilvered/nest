@@ -1,6 +1,7 @@
 --$ --no-default
 
-|#| '__C__:../../build/windows/projects/nest/\(_debug_)/Debug/nest_co.dll' = __co
+(_debug_arch_ 'x86' == ? '' : 'x64/') = arch
+|#| '__C__:../../build/windows/projects/nest/\(arch)Debug/nest_co.dll' = __co
 
 __co.call_      = call
 __co.create_    = create

@@ -30,7 +30,7 @@ variables:
 
   identifier: '[A-Za-z_][A-Za-z0-9_]*'
   constant: '([A-Z][A-Z0-9_]*\b|_+\d*[A-Z][A-Z0-9_]*\b)'
-  lang_constants: '\b(true|false|null|_args_|_vars_|_globals_|_debug_)\b'
+  lang_constants: '\b(true|false|null|_args_|_vars_|_globals_|_debug_|_debug_arch_)\b'
   lang_types: '\b(Type|Int|Real|Bool|Null|Str|Array|Vector|Map|Func|Iter|Byte|IOFile)\b'
   lang_keywords: '(\?\.\.|\.\.\?|\.\.\.|\?\?|\?!|\?|:=|\.\.|;)'
   lang_arith_operators: '(-:|\+|-|\*|/|//|\^|%|><)'

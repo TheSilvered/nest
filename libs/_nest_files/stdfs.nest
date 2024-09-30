@@ -1,6 +1,7 @@
 --$ --no-default
 
-|#| '__C__:../../build/windows/projects/nest/\(_debug_)/Debug/nest_fs.dll' = __fs
+(_debug_arch_ 'x86' == ? '' : 'x64/') = arch
+|#| '__C__:../../build/windows/projects/nest/\(arch)Debug/nest_fs.dll' = __fs
 
 __fs.absolute_path_     = absolute_path
 __fs.canonical_path_    = canonical_path

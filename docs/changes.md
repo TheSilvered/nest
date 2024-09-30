@@ -10,7 +10,7 @@
 - added `batch` and `batch_padded` to `stditutil.nest`
 - added `std.nest`, a file that imports all the standard library available under standard import names (e.g. `std.io.println`)
 - added `set_option`, `get_option`, `clear_options` and `OPTION` to `stdjson.nest`
-- added `_debug_` predefined variable when compiling in debug mode, its value is `"x64"` on 64-bit platforms and `""` on 32-bit ones
+- added `_debug_` and `_debug_arch_` predefined variables when compiling in debug mode, `_debug_` is set to `true` and `_debug_arch_` is set to `x64` on 64-bit platforms and `x86` on 32-bit ones
 - added `reverse` and `reverse_i` to `stdsequtil.nest`
 - added `rsplit` to `stdsutil.nest`
 - added `fmt` to `stdsutil.nest` to format values

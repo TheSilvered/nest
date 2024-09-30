@@ -1,18 +1,22 @@
-|#| 'stdio.nest' = io
-|#| 'stdsutil.nest' = su
-|#| 'stdsys.nest' = sys
+|#| 'std.nest' = std
 
-$_args_ 2 != ? 1 @sys.exit
+$_args_ 2 != ? 1 @std.sys.exit
 _args_.1 = path
 
-'../../build/windows/projects/nest/\\(_debug_)/Debug/nest_' = dbg_path
+'../../build/windows/projects/nest/\\(arch)Debug/nest_' = dbg_path
+"(_debug_arch_ 'x86' == ? '' : 'x64/') = arch\n" = arch_str
 
-path 'r' @io.open = file
-file -1 @io.read \
-    dbg_path 'std' @su.replace \
-    '.dll' '.cnest' @su.replace = content
-file @io.close
+path 'r' @std.io.open = file
+(
+    file @std.io.read
+    '\r\n' '\n' @std.su.replace
+    '\r' '\n' @std.su.replace
+    dbg_path 'std' @std.su.replace
+    '.dll' '.cnest' @std.su.replace
+    arch_str @std.su.replace
+) = content
+file @std.io.close
 
-path 'w' @io.open = file
-file content @io.write
-file @io.close
+path 'w' @std.io.open = file
+file content @std.io.write
+file @std.io.close

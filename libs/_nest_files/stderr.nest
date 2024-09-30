@@ -1,6 +1,7 @@
 --$ --no-default
 
-|#| '__C__:../../build/windows/projects/nest/\(_debug_)/Debug/nest_err.dll' = __err
+(_debug_arch_ 'x86' == ? '' : 'x64/') = arch
+|#| '__C__:../../build/windows/projects/nest/\(arch)Debug/nest_err.dll' = __err
 
 __err.try_          = try
 __err.CALL_ERROR_   = CALL_ERROR

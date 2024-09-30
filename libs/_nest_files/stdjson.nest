@@ -1,6 +1,7 @@
 --$ --no-default
 
-|#| '__C__:../../build/windows/projects/nest/\(_debug_)/Debug/nest_json.dll' = __json
+(_debug_arch_ 'x86' == ? '' : 'x64/') = arch
+|#| '__C__:../../build/windows/projects/nest/\(arch)Debug/nest_json.dll' = __json
 
 __json.clear_options_ = clear_options
 __json.dump_f_        = dump_f

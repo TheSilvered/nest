@@ -120,7 +120,7 @@ Nst_Obj *NstC reverse_i_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
-    AS_INT(objs[0]) = SEQ(objs[1])->len - 1;
+    AS_INT(objs[0]) = (isize)SEQ(objs[1])->len - 1;
     Nst_RETURN_NULL;
 }
 

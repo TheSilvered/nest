@@ -1,6 +1,7 @@
 --$ --no-default
 
-|#| '__C__:../../build/windows/projects/nest/\(_debug_)/Debug/nest_time.dll' = __dt
+(_debug_arch_ 'x86' == ? '' : 'x64/') = arch
+|#| '__C__:../../build/windows/projects/nest/\(arch)Debug/nest_time.dll' = __dt
 
 __dt.clock_datetime_     = clock_datetime
 __dt.clock_time_         = clock_time
