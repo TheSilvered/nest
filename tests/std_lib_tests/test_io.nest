@@ -234,6 +234,20 @@ io.read {bin_file, ''} @test.assert_raises_error
 bin_file @io.close
 
 -- Test 'io.read_bytes'
+true @io.virtual_file = file
+file {20b, 21b, 22b, 23b, 24b} @io.write_bytes
+file io.FROM_START @io.seek
+file 3 @io.read_bytes {20b, 21b, 22b} @test.assert_eq
+file 3 @io.read_bytes {23b, 24b} @test.assert_eq
+file @io.close
+
+'test_files/file.txt' 'wb+' @io.open = file
+file {20b, 21b, 22b, 23b, 24b} @io.write_bytes
+file io.FROM_START @io.seek
+file 3 @io.read_bytes {20b, 21b, 22b} @test.assert_eq
+file 3 @io.read_bytes {23b, 24b} @test.assert_eq
+file @io.close
+
 io.read_bytes {closed_file, ''} @test.assert_raises_error
 'test_files/file.txt' 'wb' @io.open = no_read
 io.read_bytes {no_read, ''} @test.assert_raises_error
@@ -241,3 +255,189 @@ no_read @io.close
 'test_files/file.txt' 'r' @io.open = normal_file
 io.read_bytes {normal_file, ''} @test.assert_raises_error
 normal_file @io.close
+
+-- Test 'io.file_size'
+@io.virtual_file = file
+file 'Hello, world!' @io.write
+file @io.seek = prev_pos
+file @io.file_size 13 @test.assert_eq
+file @io.seek prev_pos @test.assert_eq
+file io.FROM_START 3 @io.seek = prev_pos
+file @io.file_size 13 @test.assert_eq
+file @io.seek prev_pos @test.assert_eq
+file @io.close
+
+'test_files/file.txt' 'w+' @io.open = file
+file 'Hello, world!' @io.write
+file @io.seek = prev_pos
+file @io.file_size 13 @test.assert_eq
+file @io.seek prev_pos @test.assert_eq
+file io.FROM_START 3 @io.seek = prev_pos
+file @io.file_size 13 @test.assert_eq
+file @io.seek prev_pos @test.assert_eq
+file @io.close
+
+-- Test 'io.seek'
+@io.virtual_file = file
+file 'Hello, world!' @io.write
+file @io.seek 13 @test.assert_eq
+file io.FROM_START @io.seek 0 @test.assert_eq
+file io.FROM_END @io.seek 13 @test.assert_eq
+file io.FROM_END -2 @io.seek 11 @test.assert_eq
+file io.FROM_START 5 @io.seek 5 @test.assert_eq
+file io.FROM_CUR 5 @io.seek 10 @test.assert_eq
+file io.FROM_CUR -3 @io.seek 7 @test.assert_eq
+file @io.close
+
+'test_files/file.txt' 'w+' @io.open = file
+file 'Hello, world!' @io.write
+file @io.seek 13 @test.assert_eq
+file io.FROM_START @io.seek 0 @test.assert_eq
+file io.FROM_END @io.seek 13 @test.assert_eq
+file io.FROM_END -2 @io.seek 11 @test.assert_eq
+file io.FROM_START 5 @io.seek 5 @test.assert_eq
+file io.FROM_CUR 5 @io.seek 10 @test.assert_eq
+file io.FROM_CUR -3 @io.seek 7 @test.assert_eq
+file @io.close
+
+io.seek {closed_file} @test.assert_raises_error
+
+-- Test 'io.flush'
+io.flush {closed_file} @test.assert_raises_error
+'test_files/file.txt' @io.open = file
+io.flush {file} @test.assert_raises_error
+file @io.close
+
+-- Test 'io.get_flags'
+'test_files/file.txt' @io.open = file
+file @io.get_flags 'r--s-' @test.assert_eq
+file @io.close
+'test_files/file.txt' 'wb' @io.open = file
+file @io.get_flags '-wbs-' @test.assert_eq
+file @io.close
+'test_files/file.txt' 'wb+' @io.open = file
+file @io.get_flags 'rwbs-' @test.assert_eq
+file @io.close
+
+io.get_flags {closed_file} @test.assert_raises_error
+
+-- Test 'io.can_read'
+'test_files/file.txt' @io.open = file
+file @io.can_read @test.assert_true
+file @io.close
+'test_files/file.txt' 'w' @io.open = file
+file @io.can_read @test.assert_false
+file @io.close
+'test_files/file.txt' 'w+' @io.open = file
+file @io.can_read @test.assert_true
+file @io.close
+
+io.can_read {closed_file} @test.assert_raises_error
+
+-- Test 'io.can_write'
+'test_files/file.txt' @io.open = file
+file @io.can_write @test.assert_false
+file @io.close
+'test_files/file.txt' 'w' @io.open = file
+file @io.can_write @test.assert_true
+file @io.close
+'test_files/file.txt' 'w+' @io.open = file
+file @io.can_write @test.assert_true
+file @io.close
+
+io.can_write {closed_file} @test.assert_raises_error
+
+-- Test 'io.can_seek'
+io.can_seek {closed_file} @test.assert_raises_error
+
+-- Test 'io.is_bin'
+'test_files/file.txt' 'w+' @io.open = file
+file @io.is_bin @test.assert_false
+file @io.close
+'test_files/file.txt' 'rb' @io.open = file
+file @io.is_bin @test.assert_true
+file @io.close
+'test_files/file.txt' 'wb' @io.open = file
+file @io.is_bin @test.assert_true
+file @io.close
+'test_files/file.txt' 'wb+' @io.open = file
+file @io.is_bin @test.assert_true
+file @io.close
+
+io.is_bin {closed_file} @test.assert_raises_error
+
+-- Test 'io.is_a_tty'
+'test_files/file.txt' @io.open = file
+file @io.is_a_tty @test.assert_false
+file @io.close
+io.STDIN @io.is_a_tty @test.assert_true
+
+io.is_a_tty {closed_file} @test.assert_raises_error
+
+-- Test 'io.descriptor'
+io.descriptor {closed_file} @test.assert_raises_error
+
+-- Test 'io.encoding'
+'test_files/file.txt' @io.open = file
+file @io.encoding 'UTF-8' @test.assert_eq
+file @io.close
+'test_files/file.txt' 'r' 'latin1' @io.open = file
+file @io.encoding 'ISO-8859-1' @test.assert_eq
+file @io.close
+
+io.encoding {closed_file} @test.assert_raises_error
+'test_files/file.txt' 'rb' @io.open = bin_file
+io.encoding {bin_file} @test.assert_raises_error
+bin_file @io.close
+
+-- Test 'io.println'
+'test_files/file.txt' 'w+' @io.open = file
+'Hello' true file @io.println
+123 true file @io.println
+file io.FROM_START @io.seek
+file @io.read 'Hello\n123\n' @test.assert_eq
+file @io.close
+
+io.println {'a', true, closed_file} @test.assert_raises_error
+'test_files/file.txt' @io.open = read_file
+io.println {'a', true, read_file} @test.assert_raises_error
+read_file @io.close
+
+-- Test 'io._set_stdin' & 'io._get_stdin'
+@io._get_stdin = prev
+'test_files/file.txt' @io.open = file
+file @io._set_stdin
+@io._get_stdin file @test.assert_eq
+prev @io._set_stdin
+file @io.close
+
+io._set_stdin {closed_file} @test.assert_raises_error
+'test_files/file.txt' 'w' @io.open = write_file
+io._set_stdin {write_file} @test.assert_raises_error
+write_file @io.close
+
+-- Test 'io._set_stdout' & 'io._get_stdout'
+@io._get_stdout = prev
+'test_files/file.txt' 'w' @io.open = file
+file @io._set_stdout
+@io._get_stdout file @test.assert_eq
+prev @io._set_stdout
+file @io.close
+
+io._set_stdout {closed_file} @test.assert_raises_error
+'test_files/file.txt' @io.open = read_file
+io._set_stdout {read_file} @test.assert_raises_error
+read_file @io.close
+
+-- Test 'io._set_stderr' & 'io._get_stderr'
+@io._get_stderr = prev
+'test_files/file.txt' 'w' @io.open = file
+file @io._set_stderr
+@io._get_stderr file @test.assert_eq
+prev @io._set_stderr
+file @io.close
+
+io._set_stderr {closed_file} @test.assert_raises_error
+'test_files/file.txt' @io.open = read_file
+io._set_stderr {read_file} @test.assert_raises_error
+read_file @io.close

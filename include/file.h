@@ -238,13 +238,15 @@ NstEXP typedef struct _Nst_IOFuncSet {
 
 #ifdef Nst_WIN
 
+#define _Nst_WIN_STDIN_BUF_SIZE 2048
+
 /**
  * @brief WINDOWS ONLY A structure representing the standard input file on
  * Windows.
  */
 NstEXP typedef struct _Nst_StdIn {
     HANDLE hd;
-    wchar_t buf[1024];
+    wchar_t buf[_Nst_WIN_STDIN_BUF_SIZE];
     FILE *fp;
     i32 buf_size;
     i32 buf_ptr;

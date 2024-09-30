@@ -367,7 +367,7 @@ static bool read_characters(usize offset)
     BOOL result = ReadConsoleW(
         Nst_stdin.hd,
         Nst_stdin.buf + offset,
-        (DWORD)(1024 - offset),
+        (DWORD)(_Nst_WIN_STDIN_BUF_SIZE - offset),
         &len,
         NULL);
     if (!result)

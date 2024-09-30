@@ -27,10 +27,10 @@ The current state of tests:
   - 🟡 `Vector`
 - 🔴 Standard library tests
   - 🟢 `stdco.nest`
-  - 🟢 `stdcodecs.nest`
+  - 🟡 `stdcodecs.nest`
   - 🟡 `stderr.nest`
   - 🔴 `stdfs.nest`
-  - 🔴 `stdio.nest`
+  - 🟢 `stdio.nest`
   - 🟢 `stditutil.nest`
   - 🟢 `stdjson.nest`
   - 🟡 `stdmath.nest`

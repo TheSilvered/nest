@@ -32,7 +32,7 @@
 
 **Returns:**
 
-`true` if `file` can be sought and `false` otherwise.
+`true` if `file` is seekable and `false` otherwise.
 
 ---
 

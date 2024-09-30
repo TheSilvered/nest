@@ -675,7 +675,7 @@ Nst_Obj *NstC seek_(usize arg_num, Nst_Obj **args)
     }
 
     i64 start = Nst_DEF_VAL(start_obj, AS_INT(start_obj), 1);
-    i64 offset = Nst_DEF_VAL(start_obj, AS_INT(start_obj), 0);
+    i64 offset = Nst_DEF_VAL(offset_obj, AS_INT(offset_obj), 0);
 
     if (start < 0 || start > 2) {
         Nst_set_value_errorf("invalid origin '%lli'", start);
@@ -749,6 +749,11 @@ Nst_Obj *NstC get_flags_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("F", arg_num, args, &f))
         return nullptr;
 
+    if (Nst_IOF_IS_CLOSED(f)) {
+        SET_FILE_CLOSED_ERROR;
+        return nullptr;
+    }
+
     i8 *flags = Nst_malloc_c(6, i8);
     if (flags == nullptr)
         return nullptr;
@@ -768,6 +773,10 @@ Nst_Obj *NstC can_read_(usize arg_num, Nst_Obj **args)
     Nst_IOFileObj *f;
     if (!Nst_extract_args("F", arg_num, args, &f))
         return nullptr;
+    if (Nst_IOF_IS_CLOSED(f)) {
+        SET_FILE_CLOSED_ERROR;
+        return nullptr;
+    }
     Nst_RETURN_BOOL(Nst_IOF_CAN_READ(f));
 }
 
@@ -776,6 +785,10 @@ Nst_Obj *NstC can_write_(usize arg_num, Nst_Obj **args)
     Nst_IOFileObj *f;
     if (!Nst_extract_args("F", arg_num, args, &f))
         return nullptr;
+    if (Nst_IOF_IS_CLOSED(f)) {
+        SET_FILE_CLOSED_ERROR;
+        return nullptr;
+    }
     Nst_RETURN_BOOL(Nst_IOF_CAN_WRITE(f));
 }
 
@@ -784,6 +797,10 @@ Nst_Obj *NstC can_seek_(usize arg_num, Nst_Obj **args)
     Nst_IOFileObj *f;
     if (!Nst_extract_args("F", arg_num, args, &f))
         return nullptr;
+    if (Nst_IOF_IS_CLOSED(f)) {
+        SET_FILE_CLOSED_ERROR;
+        return nullptr;
+    }
     Nst_RETURN_BOOL(Nst_IOF_CAN_SEEK(f));
 }
 
@@ -792,6 +809,10 @@ Nst_Obj *NstC is_bin_(usize arg_num, Nst_Obj **args)
     Nst_IOFileObj *f;
     if (!Nst_extract_args("F", arg_num, args, &f))
         return nullptr;
+    if (Nst_IOF_IS_CLOSED(f)) {
+        SET_FILE_CLOSED_ERROR;
+        return nullptr;
+    }
     Nst_RETURN_BOOL(Nst_IOF_IS_BIN(f));
 }
 
@@ -800,6 +821,10 @@ Nst_Obj *NstC is_a_tty_(usize arg_num, Nst_Obj **args)
     Nst_IOFileObj *f;
     if (!Nst_extract_args("F", arg_num, args, &f))
         return nullptr;
+    if (Nst_IOF_IS_CLOSED(f)) {
+        SET_FILE_CLOSED_ERROR;
+        return nullptr;
+    }
     Nst_RETURN_BOOL(Nst_IOF_IS_TTY(f));
 }
 
@@ -808,6 +833,10 @@ Nst_Obj *NstC descriptor_(usize arg_num, Nst_Obj **args)
     Nst_IOFileObj *f;
     if (!Nst_extract_args("F", arg_num, args, &f))
         return nullptr;
+    if (Nst_IOF_IS_CLOSED(f)) {
+        SET_FILE_CLOSED_ERROR;
+        return nullptr;
+    }
     return Nst_int_new(f->fd);
 }
 
@@ -816,10 +845,12 @@ Nst_Obj *NstC encoding_(usize arg_num, Nst_Obj **args)
     Nst_IOFileObj *f;
     if (!Nst_extract_args("F", arg_num, args, &f))
         return nullptr;
+    if (Nst_IOF_IS_CLOSED(f)) {
+        SET_FILE_CLOSED_ERROR;
+        return nullptr;
+    }
     if (f->encoding == NULL) {
-        if (Nst_IOF_IS_CLOSED(f))
-            SET_FILE_CLOSED_ERROR;
-        else if (Nst_IOF_IS_BIN(f))
+        if (Nst_IOF_IS_BIN(f))
             Nst_set_type_error_c("cannot get the encoding of a binary file");
         else
             Nst_set_value_error_c("failed to get the encoding of the file");

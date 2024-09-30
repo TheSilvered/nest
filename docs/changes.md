@@ -63,6 +63,7 @@
 - fixed `utf32` encoding name
 - fixed encoding on `utf16`, `utf16le` and `utf16be` for `U+FFFF`
 - fixed various bugs with virtual files
+- now `io.get_flags`, `io.can_read`, `io.can_write`, `io.is_bin`, `io.can_seek` and `io.is_a_tty` will throw an error if the file is closed
 
 ### C API
 
