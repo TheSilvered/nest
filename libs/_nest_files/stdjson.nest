@@ -1,7 +1,6 @@
 --$ --no-default
 
-(_debug_arch_ 'x86' == ? '' : 'x64/') = arch
-|#| '__C__:../../build/windows/projects/nest/\(arch)Debug/nest_json.dll' = __json
+|#| '__C__:../../build/windows/projects/nest/\(_debug_arch_ 'x86' == ? '' : 'x64/')Debug/nest_json.dll' = __json
 
 __json.clear_options_ = clear_options
 __json.dump_f_        = dump_f
@@ -11,8 +10,10 @@ __json.load_f_        = load_f
 __json.load_s_        = load_s
 __json.set_option_    = set_option
 
-{'comments':        0,
- 'trailing_commas': 1,
- 'nan_and_inf':     2} = OPTION
+{
+    'comments':        0,
+    'trailing_commas': 1,
+    'nan_and_inf':     2
+} = OPTION
 
 _vars_ '__json' '_vars_' -

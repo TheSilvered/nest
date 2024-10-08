@@ -16,6 +16,8 @@
 - added `fmt` to `stdsutil.nest` to format values
 - added `encoding_info` to `stdcodecs.nest`
 - merged `get_fpi` and `move_fpi` into `seek`
+- added `time_creation`, `time_last_access` and `time_last_write` to `stdfs.nest`
+- added `path.stem` to `stdfs.nest`
 
 **Changes**
 
@@ -45,6 +47,8 @@
 - renamed `su.center` to `su.cjust`
 - now when a string is not closed only the end is highlighted rather than the whole string
 - now the second argument of `itu.repeat` is optional and it will repeat infinitely if not given, it would repeat infinitely even if the number was negative even if it was not specified in the documentation
+- added `timestamp` argument to many `stdtime.nest` functions
+- reorganized `extension`, `filename`, `join`, `normalize` and `parent_path` to be inside `path` in `stdfs.nest`
 
 **Bug fixes**
 

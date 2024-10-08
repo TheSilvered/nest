@@ -1,14 +1,20 @@
 #include "nest_fs.h"
 
 #ifdef Nst_WIN
+
 #pragma warning(push)
 #pragma warning(disable: 4995)
-#include <winerror.h>
+#include <windows.h>
+
 #else
+
 // This error does not get thrown on UNIX
 #define ERROR_ALREADY_EXISTS 0
 // ERROR_PATH_NOT_FOUND and ERROR_FILE_NOT_FOUND are the same on UNIX
 #define ERROR_PATH_NOT_FOUND ENOENT
+
+#include <sys/stat.h> // needed for file time
+
 #endif
 
 #include <filesystem>
@@ -49,11 +55,14 @@ static Nst_Declr obj_list_[] = {
     Nst_FUNCDECLR(canonical_path_, 1),
     Nst_FUNCDECLR(relative_path_, 2),
     Nst_FUNCDECLR(equivalent_, 2),
-    Nst_FUNCDECLR(join_, 2),
-    Nst_FUNCDECLR(normalize_, 1),
-    Nst_FUNCDECLR(parent_path_, 1),
-    Nst_FUNCDECLR(filename_, 1),
-    Nst_FUNCDECLR(extension_, 1),
+    Nst_FUNCDECLR(path_join_, 2),
+    Nst_FUNCDECLR(path_normalize_, 1),
+    Nst_FUNCDECLR(path_parent_, 1),
+    Nst_FUNCDECLR(path_filename_, 1),
+    Nst_FUNCDECLR(path_extension_, 1),
+    Nst_FUNCDECLR(time_creation_, 1),
+    Nst_FUNCDECLR(time_last_access_, 1),
+    Nst_FUNCDECLR(time_last_write_, 1),
     Nst_CONSTDECLR(CPO_),
     Nst_DECLR_END
 };
@@ -102,6 +111,33 @@ static Nst_Obj *throw_system_error(std::error_code ec)
     Nst_set_error(
         Nst_sprintf("System Error %d", ec.value()),
         error_str(ec.message()));
+    return NULL;
+}
+
+static Nst_Obj *throw_c_error(void)
+{
+#ifdef Nst_WIN
+    DWORD error = GetLastError();
+    wchar_t *wide_msg;
+    FormatMessageW(
+        FORMAT_MESSAGE_ALLOCATE_BUFFER,
+        NULL,
+        error,
+        LANG_USER_DEFAULT,
+        (LPWSTR)&wide_msg,
+        0,
+        NULL);
+    i8 *msg_str = Nst_wchar_t_to_char(wide_msg, wcslen(wide_msg));
+    LocalFree(wide_msg);
+    Nst_StrObj *msg = STR(Nst_str_new_allocated(msg_str, strlen(msg_str)));
+#else
+    i8 *val = strerror(errno);
+    int error = errno;
+    Nst_StrObj *msg = heap_str((const i8 *)val, strlen(val));
+#endif // !Nst_WIN
+    Nst_set_error(
+        Nst_sprintf("System Error %d", error),
+        msg);
     return NULL;
 }
 
@@ -538,7 +574,7 @@ Nst_Obj *NstC equivalent_(usize arg_num, Nst_Obj **args)
     Nst_RETURN_BOOL(fs::equivalent(utf8_path(path_1), utf8_path(path_2), ec));
 }
 
-Nst_Obj *NstC join_(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC path_join_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path_1;
     Nst_StrObj *path_2;
@@ -594,7 +630,7 @@ Nst_Obj *NstC join_(usize arg_num, Nst_Obj **args)
     return Nst_str_new(new_str, new_len, true);
 }
 
-Nst_Obj *NstC normalize_(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC path_normalize_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
 
@@ -618,7 +654,7 @@ Nst_Obj *NstC normalize_(usize arg_num, Nst_Obj **args)
     return OBJ(norm_path);
 }
 
-Nst_Obj *NstC parent_path_(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC path_parent_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
     if (!Nst_extract_args("s", arg_num, args, &path))
@@ -626,7 +662,7 @@ Nst_Obj *NstC parent_path_(usize arg_num, Nst_Obj **args)
     return OBJ(heap_str(utf8_path(path).parent_path()));
 }
 
-Nst_Obj *NstC filename_(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC path_filename_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
     if (!Nst_extract_args("s", arg_num, args, &path))
@@ -634,12 +670,120 @@ Nst_Obj *NstC filename_(usize arg_num, Nst_Obj **args)
     return OBJ(heap_str(utf8_path(path).filename()));
 }
 
-Nst_Obj *NstC extension_(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC path_stem_(usize arg_num, Nst_Obj **args)
+{
+    Nst_StrObj *path;
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
+    return OBJ(heap_str(utf8_path(path).stem()));
+}
+
+Nst_Obj *NstC path_extension_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
     return OBJ(heap_str(utf8_path(path).extension()));
+}
+
+#ifdef Nst_WIN
+static i64 FILETIME_to_unix_time(FILETIME time)
+{
+    // January 1, 1970 (start of Unix epoch) in "ticks"
+    const i64 UNIX_TIME_START = 0x019DB1DED53E8000;
+    // a tick is 100ns
+    const i64 TICKS_PER_SECOND = 10000000;
+
+    ULARGE_INTEGER large_int;
+    large_int.HighPart = time.dwHighDateTime;
+    large_int.LowPart = time.dwLowDateTime;
+
+    return (large_int.QuadPart - UNIX_TIME_START) / TICKS_PER_SECOND;
+}
+#endif // !Nst_WIN
+
+Nst_Obj *NstC time_creation_(usize arg_num, Nst_Obj **args)
+{
+    Nst_StrObj *path;
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
+
+#ifdef Nst_WIN
+    wchar_t *wide_path = Nst_char_to_wchar_t(path->value, path->len);
+    if (wide_path == nullptr)
+        return nullptr;
+    WIN32_FILE_ATTRIBUTE_DATA data;
+    BOOL result = GetFileAttributesExW(wide_path, GetFileExInfoStandard, &data);
+    Nst_free(wide_path);
+    if (result == 0) {
+        throw_c_error();
+        return nullptr;
+    }
+    return Nst_int_new(FILETIME_to_unix_time(data.ftCreationTime));
+#else
+    struct stat file_info;
+    if (stat(path->value, &file_info) == -1) {
+        throw_c_error();
+        return nullptr;
+    }
+    return Nst_int_new(file_info.st_ctime);
+#endif // !Nst_WIN
+}
+
+Nst_Obj *NstC time_last_access_(usize arg_num, Nst_Obj **args)
+{
+    Nst_StrObj *path;
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
+
+#ifdef Nst_WIN
+    wchar_t *wide_path = Nst_char_to_wchar_t(path->value, path->len);
+    if (wide_path == nullptr)
+        return nullptr;
+    WIN32_FILE_ATTRIBUTE_DATA data;
+    BOOL result = GetFileAttributesExW(wide_path, GetFileExInfoStandard, &data);
+    Nst_free(wide_path);
+    if (result == 0) {
+        throw_c_error();
+        return nullptr;
+    }
+    return Nst_int_new(FILETIME_to_unix_time(data.ftLastAccessTime));
+#else
+    struct stat file_info;
+    if (stat(path->value, &file_info) == -1) {
+        throw_c_error();
+        return nullptr;
+    }
+    return Nst_int_new(file_info.st_atime);
+#endif // !Nst_WIN
+}
+
+Nst_Obj *NstC time_last_write_(usize arg_num, Nst_Obj **args)
+{
+    Nst_StrObj *path;
+    if (!Nst_extract_args("s", arg_num, args, &path))
+        return nullptr;
+
+#ifdef Nst_WIN
+    wchar_t *wide_path = Nst_char_to_wchar_t(path->value, path->len);
+    if (wide_path == nullptr)
+        return nullptr;
+    WIN32_FILE_ATTRIBUTE_DATA data;
+    BOOL result = GetFileAttributesExW(wide_path, GetFileExInfoStandard, &data);
+    Nst_free(wide_path);
+    if (result == 0) {
+        throw_c_error();
+        return nullptr;
+    }
+    return Nst_int_new(FILETIME_to_unix_time(data.ftLastWriteTime));
+#else
+    struct stat file_info;
+    if (stat(path->value, &file_info) == -1) {
+        throw_c_error();
+        return nullptr;
+    }
+    return Nst_int_new(file_info.st_mtime);
+#endif // !Nst_WIN
 }
 
 Nst_Obj *NstC CPO_()

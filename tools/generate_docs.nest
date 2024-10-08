@@ -1036,7 +1036,7 @@
     {} = files
 
     ... '../include/' @fs.list_dir := file [
-        'Parsing \(file @fs.filename @su.repr)' @io.println
+        'Parsing \(file @fs.path.filename @su.repr)' @io.println
         file @_parse_c_file = file_blocks
         file_blocks null == ? [
             '\(file @su.repr) failed' @io.println
@@ -1067,7 +1067,7 @@
 
     content '/* [docs:ignore_file] */' @su.starts_with ? => null
 
-    file_path @fs.filename lines @parser_new = parser
+    file_path @fs.path.filename lines @parser_new = parser
 
     @_file_info_map = file_header
     parser file_header @get_next_doc_block = file_header
@@ -1080,7 +1080,7 @@
     file_header @_file_blocks_map = file_blocks
     file_blocks.header.file.0 = header_name
 
-    header_name (file_path @fs.filename) != ? [
+    header_name (file_path @fs.path.filename) != ? [
         'file name in header \(header_name @su.repr) does not correspond ' \
             'to the one of the file' >< parser @warning
     ]
@@ -1122,7 +1122,8 @@
     '../docs/c_api/' @sys.set_cwd
 
     ... files := {file, file_blocks} [
-        'Writing \(file @fs.filename @su.repr) documentation...' @io.println
+        'Writing \(file @fs.path.filename @su.repr) documentation...' \
+            @io.println
         file_blocks link_manager @_write_c_file
     ]
 

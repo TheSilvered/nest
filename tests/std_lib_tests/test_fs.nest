@@ -1,62 +1,75 @@
 |#| '../test_lib.nest' = test
 |#| 'stdfs.nest' = fs
-|#| 'stdio.nest' = io
 |#| 'stdsys.nest' = sys
+|#| 'stdio.nest' = io
 
--- if the file already exists the test will fail
-'stdfs_file_copied' @fs.is_file ? 'stdfs_file_copied' @fs.remove_file
-
-'test_fs.nest' @fs.is_file @test.assert_true
+-- Test 'is_dir'
 'test_files' @fs.is_dir @test.assert_true
+'not_a_directory' @fs.is_dir @test.assert_false
+'' @fs.is_dir @test.assert_false
+'test_files/encodings' @fs.is_dir @test.assert_true
+'test_files/file.txt' @fs.is_dir @test.assert_false
 
+-- Test 'is_file'
+'test_fs.nest' @fs.is_file @test.assert_true
+'not_a_file' @fs.is_file @test.assert_false
+'' @fs.is_file @test.assert_false
+'test_files/file.txt' @fs.is_file @test.assert_true
+'test_files' @fs.is_file @test.assert_false
+
+-- No tests for 'is_socket', 'is_block_device', 'is_char_device' and 'is_named_pipe'
+
+-- Test 'make_dir'
+'dir' @fs.is_dir ? 'dir' @fs.remove_dirs
+'test_files/dir' @fs.is_dir ? 'test_files/dir' @fs.remove_dir
+
+'dir' @fs.is_dir @test.assert_false
 'dir' @fs.make_dir
-'dir_1/dir2' @fs.make_dirs
-'stdfs_file' 'w' @io.open @io.close -- creates a file
-'stdfs_file' 'dir/stdfs_file' @fs.rename
-'dir/stdfs_file' 'stdfs_file_copied' fs.CPO.make_hard_links @fs.copy
-?? 'dir/stdfs_file' 'link' fs.CPO.make_symlinks @fs.copy
-?! e [
-    0 = res
-    'fs - failed to create symlink' @test.println
-]
+'dir' @fs.is_dir @test.assert_true
+'dir' @fs.make_dir
+'dir' @fs.is_dir @test.assert_true
+'test_files/dir' @fs.make_dir
+'test_files/dir' @fs.is_dir @test.assert_true
+fs.make_dir {'dir/sub1/sub2'} @test.assert_raises_error
 
-'fs.absolute_path: ' ('dir/stdfs_file' @fs.absolute_path = abs_path) >< \
-    @test.println
-(abs_path.0 '/' ==) (abs_path.1 ':' ==) || @test.assert_true
-'stdfs_file_copied' 'dir/stdfs_file' @fs.equivalent @test.assert_true
+-- Test 'make_dirs'
+'dir/sub1' @fs.is_dir @test.assert_false
+'dir/sub1/sub2' @fs.make_dirs
+'dir/sub1' @fs.is_dir @test.assert_true
+'dir/sub1/sub2' @fs.is_dir @test.assert_true
 
-sys.PLATFORM 'windows' == ? [
-    'dir_1' @fs.list_dir  {'dir_1\\dir2'} @test.assert_eq
-    'dir_1' @fs.list_dirs {'dir_1\\dir2'} @test.assert_eq
+-- Test 'remove_dir'
+'test_files/dir' @fs.is_dir @test.assert_true
+'test_files/dir' @fs.remove_dir
+'test_files/dir' @fs.is_dir @test.assert_false
+fs.remove_dir {'dir'} @test.assert_raises_error
+fs.remove_dir {'not/a/dir'} @test.assert_raises_error
 
-    'a' 'b' @fs.join 'a\\b' @test.assert_eq
-    'a' '\\b' @fs.join '\\b' @test.assert_eq
-    'a/b/c' 'd/e/f' @fs.join 'a\\b\\c\\d\\e\\f' @test.assert_eq
-    'a/b/c' 'C:\\d/e/f' @fs.join 'C:\\d/e/f' @test.assert_eq
-    'a/b/c/' 'd\\e\\f' @fs.join 'a\\b\\c\\d\\e\\f' @test.assert_eq
+-- Test 'remove_dirs'
+'dir/sub1/sub2' @fs.is_dir @test.assert_true
+'dir' @fs.remove_dirs
+'dir' @fs.is_dir @test.assert_false
+fs.remove_dirs {'not/a/dir'} @test.assert_raises_error
 
-    res null == ? 'link' @fs.canonical_path abs_path @test.assert_eq
+-- Test 'exists'
+'test_files' @fs.exists @test.assert_true
+'test_files/encodings' @fs.exists @test.assert_true
+'test_files/file.txt' @fs.exists @test.assert_true
+'test_fs.nest' @fs.exists @test.assert_true
+'test_fs' @fs.exists @test.assert_false
+'not_a_directory' @fs.exists @test.assert_false
+'not/a/directory' @fs.exists @test.assert_false
 
-    'a/c' 'a/b/d' @fs.relative_path '..\\..\\c' @test.assert_eq
-] : [
-    'dir_1' @fs.list_dir {'dir_1/dir2'} @test.assert_eq
-    'dir_1' @fs.list_dirs {'dir_1/dir2'} @test.assert_eq
-    'a' 'b' @fs.join 'a/b' @test.assert_eq
-    'a' '\\b' @fs.join '\\b' @test.assert_eq
-    'a/b/c' 'd/e/f' @fs.join 'a/b/c/d/e/f' @test.assert_eq
-    'a/b/c' 'C:\\d/e/f' @fs.join 'C:\\d/e/f' @test.assert_eq
-    'a/b/c/' 'd\\e\\f' @fs.join 'a/b/c/d/e/f' @test.assert_eq
+-- Test 'copy'
+'test_files/file_copy.txt' @fs.is_file ? 'test_files/file_copy.txt' @fs.remove_file
+'test_files/file_copy.txt' @fs.is_file @test.assert_false
+'test_files/file.txt' 'test_files/file_copy.txt' @fs.copy
+fs.copy {'test_files/file.txt', 'test_files/file_copy.txt'} @test.assert_raises_error
+'test_files/file.txt' 'test_files/file_copy.txt' fs.CPO.skip @fs.copy
+'test_files/file.txt' 'test_files/file_copy.txt' fs.CPO.overwrite @fs.copy
+'test_files/file.txt' 'test_files/file_copy.txt' fs.CPO.update @fs.copy
 
-    res null == ? 'link' @fs.canonical_path abs_path @test.assert_eq
-
-    'a/c' 'a/b/d' @fs.relative_path '../../c' @test.assert_eq
-]
-
-'stdfs_file_copied' @fs.remove_file
-'link' @fs.is_file ? 'link' @fs.remove_file
-'dir/stdfs_file' @fs.remove_file
-'dir' @fs.remove_dir
-'dir_1' @fs.remove_dirs
-'dir/subdir/file.txt' @fs.parent_path 'dir/subdir' @test.assert_eq
-'dir/subdir/file.txt' @fs.filename 'file.txt' @test.assert_eq
-'dir/subdir/file.txt' @fs.extension '.txt' @test.assert_eq
+-- Test 'remove_file'
+'test_files/file_copy.txt' @fs.is_file @test.assert_true
+'test_files/file_copy.txt' @fs.remove_file
+'test_files/file_copy.txt' @fs.is_file @test.assert_false

@@ -5,7 +5,7 @@
 @json.clear_options
 
 ... Iter :: ('test_files/json_files' @fs.list_dir) := path [
-    |> (path @fs.filename).0 [
+    |> (path @fs.path.filename).0 [
           ? 'y' [
             path @json.load_f
         ] ? 'n' [

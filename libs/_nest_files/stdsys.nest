@@ -1,7 +1,6 @@
 --$ --no-default
 
-(_debug_arch_ 'x86' == ? '' : 'x64/') = arch
-|#| '__C__:../../build/windows/projects/nest/\(arch)Debug/nest_sys.dll' = __sys
+|#| '__C__:../../build/windows/projects/nest/\(_debug_arch_ 'x86' == ? '' : 'x64/')Debug/nest_sys.dll' = __sys
 
 __sys.del_env_       = del_env
 __sys.exit_          = exit

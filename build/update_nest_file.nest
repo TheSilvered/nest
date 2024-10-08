@@ -3,17 +3,13 @@
 $_args_ 2 != ? 1 @std.sys.exit
 _args_.1 = path
 
-'../../build/windows/projects/nest/\\(arch)Debug/nest_' = dbg_path
-"(_debug_arch_ 'x86' == ? '' : 'x64/') = arch\n" = arch_str
+"../../build/windows/projects/nest/\\(_debug_arch_ 'x86' == ? '' : 'x64/')Debug/nest_" = dbg_path
 
 path 'r' @std.io.open = file
 (
     file @std.io.read
-    '\r\n' '\n' @std.su.replace
-    '\r' '\n' @std.su.replace
     dbg_path 'std' @std.su.replace
     '.dll' '.cnest' @std.su.replace
-    arch_str @std.su.replace
 ) = content
 file @std.io.close
 

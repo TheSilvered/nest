@@ -1,34 +1,33 @@
 --$ --no-default
 
-(_debug_arch_ 'x86' == ? '' : 'x64/') = arch
-|#| '__C__:../../build/windows/projects/nest/\(arch)Debug/nest_codecs.dll' = __cc
+|#| '__C__:../../build/windows/projects/nest/\(_debug_arch_ 'x86' == ? '' : 'x64/')Debug/nest_codecs.dll' = __cc
 
 __cc.cp_is_valid_   = cp_is_valid
 __cc.encoding_info_ = encoding_info
 __cc.from_cp_       = from_cp
 __cc.to_cp_         = to_cp
 
-'ascii' = ASCII
-'utf8' = UTF_8
-'extutf8' = EXT_UTF_8
-'utf16' = UTF_16
-'utf16le' = UTF_16LE
-'utf16be' = UTF_16BE
-'extutf16' = EXT_UTF_16
-'extutf16le' = EXT_UTF_16LE
+'ascii'      = ASCII
+'cp1250'     = CP1250
+'cp1251'     = CP1251
+'cp1252'     = CP1252
+'cp1253'     = CP1253
+'cp1254'     = CP1254
+'cp1255'     = CP1255
+'cp1256'     = CP1256
+'cp1257'     = CP1257
+'cp1258'     = CP1258
+'extutf16'   = EXT_UTF_16
 'extutf16be' = EXT_UTF_16BE
-'utf32' = UTF_32
-'utf32le' = UTF_32LE
-'utf32be' = UTF_32BE
-'cp1250' = CP1250
-'cp1251' = CP1251
-'cp1252' = CP1252
-'cp1253' = CP1253
-'cp1254' = CP1254
-'cp1255' = CP1255
-'cp1256' = CP1256
-'cp1257' = CP1257
-'cp1258' = CP1258
-'iso8859-1' = LATIN_1 = ISO_8859_1
+'extutf16le' = EXT_UTF_16LE
+'extutf8'    = EXT_UTF_8
+'iso8859-1'  = ISO_8859_1 = LATIN_1
+'utf16'      = UTF_16
+'utf16be'    = UTF_16BE
+'utf16le'    = UTF_16LE
+'utf32'      = UTF_32
+'utf32be'    = UTF_32BE
+'utf32le'    = UTF_32LE
+'utf8'       = UTF_8
 
 _vars_ '__cc' '_vars_' -

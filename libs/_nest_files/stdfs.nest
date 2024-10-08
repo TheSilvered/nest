@@ -1,7 +1,6 @@
 --$ --no-default
 
-(_debug_arch_ 'x86' == ? '' : 'x64/') = arch
-|#| '__C__:../../build/windows/projects/nest/\(arch)Debug/nest_fs.dll' = __fs
+|#| '__C__:../../build/windows/projects/nest/\(_debug_arch_ 'x86' == ? '' : 'x64/')Debug/nest_fs.dll' = __fs
 
 __fs.absolute_path_     = absolute_path
 __fs.canonical_path_    = canonical_path
@@ -17,7 +16,6 @@ __fs.is_file_           = is_file
 __fs.is_named_pipe_     = is_named_pipe
 __fs.is_socket_         = is_socket
 __fs.is_symlink_        = is_symlink
-__fs.join_              = join
 __fs.list_dir_          = list_dir
 __fs.list_dirs_         = list_dirs
 __fs.make_dir_          = make_dir
@@ -25,28 +23,24 @@ __fs.make_dir_symlink_  = make_dir_symlink
 __fs.make_dirs_         = make_dirs
 __fs.make_file_symlink_ = make_file_symlink
 __fs.make_hard_link_    = make_hard_link
-__fs.normalize_         = normalize
-__fs.parent_path_       = parent_path
+{
+	'extension': __fs.path_extension_
+	'filename':  __fs.path_filename_,
+	'join':      __fs.path_join_,
+	'normalize': __fs.path_normalize_,
+	'parent':    __fs.path_parent_,
+	'stem':      __fs.path_stem_,
+} = path
 __fs.read_symlink_      = read_symlink
 __fs.relative_path_     = relative_path
 __fs.remove_dir_        = remove_dir
 __fs.remove_dirs_       = remove_dirs
 __fs.remove_file_       = remove_file
 __fs.rename_            = rename
+__fs.time_creation_     = time_creation
+__fs.time_last_access_  = time_last_access
+__fs.time_last_write_   = time_last_write
 
--/
-  Contents of CPO:
-  - none: C++ none
-  - skip: C++ skip_existing
-  - overwrite: C++ overwrite_existing
-  - update: C++ update_existing
-  - recursive: C++ recursive
-  - copy_symlinks: C++ copy_symlinks
-  - skip_symlinks: C++ skip_symlinks
-  - dirs_only: C++ directories_only
-  - make_symlinks: C++ create_symlinks
-  - make_hard_links: C++ create_hard_links
-/-
 __fs.CPO_ = CPO
 
 _vars_ '__fs' '_vars_' -

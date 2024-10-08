@@ -13,13 +13,16 @@
 **Synopsis:**
 
 ```nest
-[] @clock_datetime -> Map
+[timestamp: Int?] @clock_datetime -> Map
 ```
 
 **Returns:**
 
 A map containing both the information from [`clock_time`](#clock_time) and
 [`date`](#date).
+
+If `timestamp` is given it is used to calculate the values otherwise the
+current time is used.
 
 ---
 
@@ -28,13 +31,16 @@ A map containing both the information from [`clock_time`](#clock_time) and
 **Synopsis:**
 
 ```nest
-[] @clock_time -> Map
+[timestamp: Int?] @clock_time -> Map
 ```
 
 **Returns:**
 
 A map containing the current second as `second`, the current minute as `minute`
 and the current hour as `hour`.
+
+If `timestamp` is given it is used to calculate the values otherwise the
+current time is used.
 
 ---
 
@@ -43,13 +49,16 @@ and the current hour as `hour`.
 **Synopsis:**
 
 ```nest
-[] @date -> Map
+[timestamp: Int?] @date -> Map
 ```
 
 **Returns:**
 
 A map containing the current day of the month as `day`, day of the week as
 `week_day`, day of the year as `year_day`, month as `month` and year as `year`.
+
+If `timestamp` is given it is used to calculate the values otherwise the
+current time is used.
 
 ---
 
@@ -58,12 +67,15 @@ A map containing the current day of the month as `day`, day of the week as
 **Synopsis:**
 
 ```nest
-[] @day -> Int
+[timestamp: Int?] @day -> Int
 ```
 
 **Returns:**
 
 The current day of the month, from `1` to `31`.
+
+If `timestamp` is given it is used to calculate the value otherwise the
+current time is used.
 
 ---
 
@@ -72,13 +84,16 @@ The current day of the month, from `1` to `31`.
 **Synopsis:**
 
 ```nest
-[] @gmt_clock_datetime -> Map
+[timestamp: Int?] @gmt_clock_datetime -> Map
 ```
 
 **Returns:**
 
 A map containing both the information from [`gmt_clock_time`](#gmt_clock_time)
 and [`gmt_date`](#gmt_date).
+
+If `timestamp` is given it is used to calculate the values otherwise the
+current time is used.
 
 ---
 
@@ -87,13 +102,16 @@ and [`gmt_date`](#gmt_date).
 **Synopsis:**
 
 ```nest
-[] @gmt_clock_time -> Map
+[timestamp: Int?] @gmt_clock_time -> Map
 ```
 
 **Returns:**
 
 A map containing the same information as [`clock_time`](#clock_time), but
 taken with the Greenwich Main Time.
+
+If `timestamp` is given it is used to calculate the values otherwise the
+current time is used.
 
 ---
 
@@ -102,13 +120,16 @@ taken with the Greenwich Main Time.
 **Synopsis:**
 
 ```nest
-[] @gmt_date -> Map
+[timestamp: Int?] @gmt_date -> Map
 ```
 
 **Returns:**
 
 A map containing the same information as [`date`](#date), but taken with the
 Greenwich Main Time.
+
+If `timestamp` is given it is used to calculate the values otherwise the
+current time is used.
 
 ---
 
@@ -147,12 +168,15 @@ has meaning only when compared with other values from the same function.
 **Synopsis:**
 
 ```nest
-[] @hours -> Int
+[timestamp: Int?] @hours -> Int
 ```
 
 **Returns:**
 
-The current hour, from `0` to `23`.
+The current hour, from `0` to `23` in local time.
+
+If `timestamp` is given it is used to calculate the value otherwise the
+current time is used.
 
 ---
 
@@ -161,12 +185,15 @@ The current hour, from `0` to `23`.
 **Synopsis:**
 
 ```nest
-[] @minutes -> Int
+[timestamp: Int?] @minutes -> Int
 ```
 
 **Returns:**
 
-The current minute, from `0` to `59`.
+The current minute, from `0` to `59` in local time.
+
+If `timestamp` is given it is used to calculate the value otherwise the
+current time is used.
 
 ---
 
@@ -209,12 +236,15 @@ timestamps from the same function.
 **Synopsis:**
 
 ```nest
-[] @month -> Int
+[timestamp: Int?] @month -> Int
 ```
 
 **Returns:**
 
-The current month, from `1`, January, to `12`, December.
+The current month, from `1` (January) to `12` (December) in local time.
+
+If `timestamp` is given it is used to calculate the value otherwise the
+current time is used.
 
 ---
 
@@ -223,12 +253,15 @@ The current month, from `1`, January, to `12`, December.
 **Synopsis:**
 
 ```nest
-[] @seconds -> Int
+[timestamp: Int?] @seconds -> Int
 ```
 
 **Returns:**
 
-The current second, from `0` to `59`.
+The current second, from `0` to `61` in local time.
+
+If `timestamp` is given it is used to calculate the value otherwise the
+current time is used.
 
 ---
 
@@ -293,12 +326,15 @@ The time since the epoch in nanoseconds.
 **Synopsis:**
 
 ```nest
-[] @week_day -> Int
+[timestamp: Int?] @week_day -> Int
 ```
 
 **Returns:**
 
-The current day of the week, from `0`, Sunday, to `6`, Saturday.
+The current day of the week, from `0` (Sunday) to `6` (Saturday) in local time.
+
+If `timestamp` is given it is used to calculate the value otherwise the
+current time is used.
 
 ---
 
@@ -307,12 +343,15 @@ The current day of the week, from `0`, Sunday, to `6`, Saturday.
 **Synopsis:**
 
 ```nest
-[] @year -> Int
+[timestamp: Int?] @year -> Int
 ```
 
 **Returns:**
 
-The current year.
+The current year in local time.
+
+If `timestamp` is given it is used to calculate the value otherwise the
+current time is used.
 
 ---
 
@@ -321,12 +360,15 @@ The current year.
 **Synopsis:**
 
 ```nest
-[] @year_day -> Int
+[timestamp: Int?] @year_day -> Int
 ```
 
 **Returns:**
 
-The current day of the year, from `0` to `366`.
+The current day of the year, from `0` to `365` in local time.
+
+If `timestamp` is given it is used to calculate the value otherwise the
+current time is used.
 
 ---
 

@@ -1,7 +1,6 @@
 --$ --no-default
 
-(_debug_arch_ 'x86' == ? '' : 'x64/') = arch
-|#| '__C__:../../build/windows/projects/nest/\(arch)Debug/nest_io.dll' = __io
+|#| '__C__:../../build/windows/projects/nest/\(_debug_arch_ 'x86' == ? '' : 'x64/')Debug/nest_io.dll' = __io
 
 __io.can_read_    = can_read
 __io.can_seek_    = can_seek

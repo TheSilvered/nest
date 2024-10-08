@@ -35,11 +35,15 @@ Nst_Obj *NstC absolute_path_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC canonical_path_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC relative_path_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC equivalent_(usize arg_num, Nst_Obj **args);
-Nst_Obj *NstC join_(usize arg_num, Nst_Obj **args);
-Nst_Obj *NstC normalize_(usize arg_num, Nst_Obj **args);
-Nst_Obj *NstC parent_path_(usize arg_num, Nst_Obj **args);
-Nst_Obj *NstC filename_(usize arg_num, Nst_Obj **args);
-Nst_Obj *NstC extension_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC path_join_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC path_normalize_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC path_parent_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC path_filename_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC path_stem_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC path_extension_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC time_creation_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC time_last_access_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC time_last_write_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC CPO_();
 
 #ifdef __cplusplus

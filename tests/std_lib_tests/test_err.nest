@@ -13,4 +13,4 @@ res.error.message 'f' @test.assert_eq
 $res.traceback 0 > @test.assert_true
 res.traceback.0 .start {5, 4} @test.assert_eq
 res.traceback.0 .end {5, 17} @test.assert_eq
-res.traceback.0 .file @fs.filename 'test_err.nest' @test.assert_eq
+res.traceback.0 .file @fs.path.filename 'test_err.nest' @test.assert_eq

@@ -84,17 +84,17 @@ Iter :: {
 } = configs
 
 _args_.1 'update' == ? [
-    path 'nest_source' @fs.join = header_path
+    path 'nest_source' @fs.path.join = header_path
     path = build_path
 
-    (!(path 'Debug'             @fs.join @fs.is_dir)) \
-    (!(path 'linux_debug'       @fs.join @fs.is_dir)) \
-    (!(path 'linux_release/x64' @fs.join @fs.is_dir)) \
-    (!(path 'linux_release/x86' @fs.join @fs.is_dir)) \
-    (!(path 'nest_source'       @fs.join @fs.is_dir)) \
-    (!(path 'Release'           @fs.join @fs.is_dir)) \
-    (!(path 'x64/Debug'         @fs.join @fs.is_dir)) \
-    (!(path 'x64/Release'       @fs.join @fs.is_dir)) || ? [
+    (!(path 'Debug'             @fs.path.join @fs.is_dir)) \
+    (!(path 'linux_debug'       @fs.path.join @fs.is_dir)) \
+    (!(path 'linux_release/x64' @fs.path.join @fs.is_dir)) \
+    (!(path 'linux_release/x86' @fs.path.join @fs.is_dir)) \
+    (!(path 'nest_source'       @fs.path.join @fs.is_dir)) \
+    (!(path 'Release'           @fs.path.join @fs.is_dir)) \
+    (!(path 'x64/Debug'         @fs.path.join @fs.is_dir)) \
+    (!(path 'x64/Release'       @fs.path.join @fs.is_dir)) || ? [
         'The selected directory does not contain a Nest library' @io.println
         1 @sys.exit
     ]
@@ -106,8 +106,8 @@ _args_.1 'update' == ? [
         1 @sys.exit
     ]
     name @su.to_lower = name
-    path (name '/nest_source' ><) @fs.join = header_path
-    path name @fs.join = build_path
+    path (name '/nest_source' ><) @fs.path.join = header_path
+    path name @fs.path.join = build_path
 
     header_path @fs.make_dirs
     ... configs := {_, config, _, _} [

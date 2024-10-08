@@ -38,7 +38,7 @@ The current state of tests:
   - 🟢 `stdsequtil.nest`
   - 🟢 `stdsutil.nest`
   - 🟡 `stdsys.nest`
-  - 🟢 `stdtime.nest`
+  - 🔴 `stdtime.nest`
 - 🔴 C tests
   - 🔴 `test_check_bytes`
   - 🔴 `test_to_utf32`

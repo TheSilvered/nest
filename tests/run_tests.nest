@@ -36,15 +36,15 @@ sys.SUPPORTS_COLOR ? [
 #error_location traceback [
     !traceback ($traceback 2 <) || ? => '; <unknown position>'
     traceback.1 = pos
-    => '; line ' (pos.start.0 1 +) ' column ' (pos.start.1 1 +) ' file ' (pos.file @fs.filename @su.repr) ><
+    => '; line ' (pos.start.0 1 +) ' column ' (pos.start.1 1 +) ' file ' (pos.file @fs.path.filename @su.repr) ><
 ]
 
 #run_tests dir [
     C_BLUE '** Testing directory ' (dir @su.repr) ' **' C_RESET >< @io.println
 
     ... Iter :: (dir @fs.list_dirs) := test_path [
-        test_path @fs.extension '.nest' != ? ..
-        test_path @fs.filename = name
+        test_path @fs.path.extension '.nest' != ? ..
+        test_path @fs.path.filename = name
         !(name 'test_' @su.starts_with) ? ..
 
         >>> ('Testing ' (name 5 -5 @sequ.slice) '...' ><)
