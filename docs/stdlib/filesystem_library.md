@@ -598,61 +598,41 @@ is not given the current working directory is used.
 
 ---
 
-### `@remove_dir`
+### `@remove`
 
 **Synopsis:**
 
 ```nest
-[path: Str] @remove_dir -> null
+[path: Str] @remove -> null
 ```
 
 **Description:**
 
-Removes a directory at `path` which must be empty. An error is thrown if the
-directory contains any sub directories or files, the path does not point to a
-valid directory or if a system error occurs.
+Removes the filesystem object at `path`. If `path` is a non-empty directory
+the function fails.
 
 **Arguments:**
 
-- `path`: the path of the directory to delete
+- `path`: the path to the filesystem object
 
 ---
 
-### `@remove_dirs`
+### `@remove_all`
 
 **Synopsis:**
 
 ```nest
-[path: Str] @remove_dirs -> null
+[path: Str] @remove_all -> null
 ```
 
 **Description:**
 
-Removes a directory at `path` and all of its contents, throws an error if the
-directory does not exist or a system error occurs.
+Removes the filesystem object at `path`. If `path` points to a non-empty
+directory all its contents will be removed recursively.
 
 **Arguments:**
 
-- `path`: the path of the directory to delete
-
----
-
-### `@remove_file`
-
-**Synopsis:**
-
-```nest
-[path: Str] @remove_file -> null
-```
-
-**Description:**
-
-Removes a file at `path`, throws an error if the file does not exist or a
-system error occurs.
-
-**Arguments:**
-
-- `path`: the path of the file to delete
+- `path`: the path to the filesystem object
 
 ---
 

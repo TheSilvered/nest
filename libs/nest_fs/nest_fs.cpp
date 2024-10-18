@@ -39,9 +39,8 @@ static Nst_Declr obj_list_[] = {
     Nst_FUNCDECLR(is_named_pipe_, 1),
     Nst_FUNCDECLR(make_dir_, 1),
     Nst_FUNCDECLR(make_dirs_, 1),
-    Nst_FUNCDECLR(remove_dir_, 1),
-    Nst_FUNCDECLR(remove_dirs_, 1),
-    Nst_FUNCDECLR(remove_file_, 1),
+    Nst_FUNCDECLR(remove_, 1),
+    Nst_FUNCDECLR(remove_all_, 1),
     Nst_FUNCDECLR(make_dir_symlink_, 2),
     Nst_FUNCDECLR(make_file_symlink_, 2),
     Nst_FUNCDECLR(read_symlink_, 1),
@@ -108,10 +107,17 @@ static Nst_StrObj *error_str(std::string str)
 
 static Nst_Obj *throw_system_error(std::error_code ec)
 {
+    if (ec.value() == 0) {
+        Nst_set_error(
+            Nst_str_new_c_raw("System Error <unknown>", false),
+            Nst_str_new_c_raw("an unknown error occurred", false));
+        return nullptr;
+    }
+
     Nst_set_error(
         Nst_sprintf("System Error %d", ec.value()),
         error_str(ec.message()));
-    return NULL;
+    return nullptr;
 }
 
 static Nst_Obj *throw_c_error(void)
@@ -121,12 +127,12 @@ static Nst_Obj *throw_c_error(void)
     wchar_t *wide_msg;
     FormatMessageW(
         FORMAT_MESSAGE_ALLOCATE_BUFFER,
-        NULL,
+        nullptr,
         error,
         LANG_USER_DEFAULT,
         (LPWSTR)&wide_msg,
         0,
-        NULL);
+        nullptr);
     i8 *msg_str = Nst_wchar_t_to_char(wide_msg, wcslen(wide_msg));
     LocalFree(wide_msg);
     Nst_StrObj *msg = STR(Nst_str_new_allocated(msg_str, strlen(msg_str)));
@@ -138,7 +144,7 @@ static Nst_Obj *throw_c_error(void)
     Nst_set_error(
         Nst_sprintf("System Error %d", error),
         msg);
-    return NULL;
+    return nullptr;
 }
 
 static fs::path utf8_path(Nst_StrObj *str)
@@ -242,7 +248,7 @@ Nst_Obj *NstC make_dirs_(usize arg_num, Nst_Obj **args)
         return throw_system_error(ec);
 }
 
-Nst_Obj *NstC remove_dir_(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC remove_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
 
@@ -250,20 +256,15 @@ Nst_Obj *NstC remove_dir_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     std::error_code ec;
-    if (!fs::is_directory(utf8_path(path))) {
-        Nst_set_value_errorf("directory '%.4096s' not found", path->value);
-        return nullptr;
-    }
-
     bool success = fs::remove(utf8_path(path), ec);
 
-    if (success || ec.value() == 0)
+    if (success)
         Nst_RETURN_NULL;
     else
         return throw_system_error(ec);
 }
 
-Nst_Obj *NstC remove_dirs_(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC remove_all_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path;
 
@@ -271,36 +272,9 @@ Nst_Obj *NstC remove_dirs_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     std::error_code ec;
-
-    if (!fs::is_directory(utf8_path(path))) {
-        Nst_set_value_errorf("directory '%.4096s' not found", path->value);
-        return nullptr;
-    }
-
     bool success = fs::remove_all(utf8_path(path), ec);
 
-    if (success || ec.value() == 0)
-        Nst_RETURN_NULL;
-    else
-        return throw_system_error(ec);
-}
-
-Nst_Obj *NstC remove_file_(usize arg_num, Nst_Obj **args)
-{
-    Nst_StrObj *path;
-
-    if (!Nst_extract_args("s", arg_num, args, &path))
-        return nullptr;
-    std::error_code ec;
-
-    if (!check_path(path, fs::exists) || check_path(path, fs::is_directory)) {
-        Nst_set_value_errorf("file '%.4096s' not found", path->value);
-        return nullptr;
-    }
-
-    bool success = fs::remove(utf8_path(path), ec);
-
-    if (success || ec.value() == 0)
+    if (success)
         Nst_RETURN_NULL;
     else
         return throw_system_error(ec);
@@ -546,8 +520,8 @@ Nst_Obj *NstC relative_path_(usize arg_num, Nst_Obj **args)
 
     if (OBJ(base) == Nst_null()) {
         base = Nst_getcwd();
-        if (base == NULL)
-            return NULL;
+        if (base == nullptr)
+            return nullptr;
     } else
         Nst_inc_ref(base);
 

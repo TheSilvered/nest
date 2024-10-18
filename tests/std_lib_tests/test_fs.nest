@@ -20,8 +20,8 @@
 -- No tests for 'is_socket', 'is_block_device', 'is_char_device' and 'is_named_pipe'
 
 -- Test 'make_dir'
-'dir' @fs.is_dir ? 'dir' @fs.remove_dirs
-'test_files/dir' @fs.is_dir ? 'test_files/dir' @fs.remove_dir
+'dir' @fs.is_dir ? 'dir' @fs.remove_all
+'test_files/dir' @fs.is_dir ? 'test_files/dir' @fs.remove_all
 
 'dir' @fs.is_dir @test.assert_false
 'dir' @fs.make_dir
@@ -38,18 +38,18 @@ fs.make_dir {'dir/sub1/sub2'} @test.assert_raises_error
 'dir/sub1' @fs.is_dir @test.assert_true
 'dir/sub1/sub2' @fs.is_dir @test.assert_true
 
--- Test 'remove_dir'
+-- Test 'remove' on directories
 'test_files/dir' @fs.is_dir @test.assert_true
-'test_files/dir' @fs.remove_dir
+'test_files/dir' @fs.remove
 'test_files/dir' @fs.is_dir @test.assert_false
-fs.remove_dir {'dir'} @test.assert_raises_error
-fs.remove_dir {'not/a/dir'} @test.assert_raises_error
+fs.remove {'dir'} @test.assert_raises_error
+fs.remove {'not/a/dir'} @test.assert_raises_error
 
--- Test 'remove_dirs'
+-- Test 'remove_all'
 'dir/sub1/sub2' @fs.is_dir @test.assert_true
-'dir' @fs.remove_dirs
+'dir' @fs.remove_all
 'dir' @fs.is_dir @test.assert_false
-fs.remove_dirs {'not/a/dir'} @test.assert_raises_error
+fs.remove_all {'not/a/dir'} @test.assert_raises_error
 
 -- Test 'exists'
 'test_files' @fs.exists @test.assert_true
@@ -61,7 +61,7 @@ fs.remove_dirs {'not/a/dir'} @test.assert_raises_error
 'not/a/directory' @fs.exists @test.assert_false
 
 -- Test 'copy'
-'test_files/file_copy.txt' @fs.is_file ? 'test_files/file_copy.txt' @fs.remove_file
+'test_files/file_copy.txt' @fs.is_file ? 'test_files/file_copy.txt' @fs.remove
 'test_files/file_copy.txt' @fs.is_file @test.assert_false
 'test_files/file.txt' 'test_files/file_copy.txt' @fs.copy
 fs.copy {'test_files/file.txt', 'test_files/file_copy.txt'} @test.assert_raises_error
@@ -69,7 +69,39 @@ fs.copy {'test_files/file.txt', 'test_files/file_copy.txt'} @test.assert_raises_
 'test_files/file.txt' 'test_files/file_copy.txt' fs.CPO.overwrite @fs.copy
 'test_files/file.txt' 'test_files/file_copy.txt' fs.CPO.update @fs.copy
 
--- Test 'remove_file'
+-- Test 'remove' on files
 'test_files/file_copy.txt' @fs.is_file @test.assert_true
-'test_files/file_copy.txt' @fs.remove_file
+'test_files/file_copy.txt' @fs.remove
 'test_files/file_copy.txt' @fs.is_file @test.assert_false
+
+-- Test 'make_dir_symlink' and 'read_symlink'
+'dir_symlink' @fs.exists ? 'dir_symlink' @fs.remove
+?? [
+    'test_files' 'dir_symlink' @fs.make_dir_symlink
+    "'dir_symlink' created." @test.println
+] ?! error [
+    true = dir_symlink_failed
+    "'dir_symlink' creation failed (\(error.name) - \(error.message))" @test.println
+]
+
+!dir_symlink_failed ? [
+    'dir_symlink' @fs.read_symlink 'test_files' @test.assert_eq
+    'dir_symlink' @fs.remove
+]
+
+-- Test 'make_file_symlink' and 'read_symlink'
+
+'file_symlink' @fs.exists ? 'file_symlink' @fs.remove
+?? [
+    'test_files/file.txt' 'file_symlink' @fs.make_dir_symlink
+    "'file_symlink' created." @test.println
+] ?! error [
+    true = file_symlink_failed
+    "'file_symlink' creation failed (\(error.name) - \(error.message))" @test.println
+]
+
+!file_symlink_failed ? [
+    'test_files/file.txt' @fs.path.normalize = normalized_path
+    'file_symlink' @fs.read_symlink normalized_path @test.assert_eq
+    'file_symlink' @fs.remove
+]

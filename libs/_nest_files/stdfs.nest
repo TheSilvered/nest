@@ -24,18 +24,17 @@ __fs.make_dirs_         = make_dirs
 __fs.make_file_symlink_ = make_file_symlink
 __fs.make_hard_link_    = make_hard_link
 {
-	'extension': __fs.path_extension_
-	'filename':  __fs.path_filename_,
-	'join':      __fs.path_join_,
-	'normalize': __fs.path_normalize_,
-	'parent':    __fs.path_parent_,
-	'stem':      __fs.path_stem_,
+    'extension': __fs.path_extension_,
+    'filename':  __fs.path_filename_,
+    'join':      __fs.path_join_,
+    'normalize': __fs.path_normalize_,
+    'parent':    __fs.path_parent_,
+    'stem':      __fs.path_stem_
 } = path
 __fs.read_symlink_      = read_symlink
 __fs.relative_path_     = relative_path
-__fs.remove_dir_        = remove_dir
-__fs.remove_dirs_       = remove_dirs
-__fs.remove_file_       = remove_file
+__fs.remove_            = remove
+__fs.remove_all_        = remove_all
 __fs.rename_            = rename
 __fs.time_creation_     = time_creation
 __fs.time_last_access_  = time_last_access

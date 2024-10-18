@@ -34,14 +34,14 @@
 - renamed `getenv` in `stdsys.nest` to `get_env`
 - now `relative_path` in `stdfs.nest` will use the current working directory if no base is given
 - renamed `pause` to `yield` in `stdco.nest`
-- now the `args` argument of `co.call` is retuned by `co.yield` when the function resumes
+- now the `args` argument of `co.call` is returned by `co.yield` when the function resumes
 - now `co.generator` accepts a second argument which is the arguments to use when calling the function
 - now `err.try` will accept fewer arguments than the function requires
 - removed `get_options`, `set_options` and `OPTIONS` in `stdjson.nest`
 - renamed `_get_cwd` and `_set_cwd` to `get_cwd` and `set_cwd` in `stdsys.nest`
 - removed `reversed` from `stditutil.nest`
 - improved execution times and output printing
-- now when pressing `Ctrl-C` an error is thrown rather than the proccess exiting, this arror canot be cautgh with a normal try-catch statement but `err.try` is needed
+- now when pressing `Ctrl-C` an error is thrown rather than the process exiting, this error cannot be caught with a normal try-catch statement but `err.try` is needed
 - renamed `su.split` to `su.lsplit`
 - reverted the merging of `su.ljust` and `su.rjust` into `su.justify`, now they are again two separate functions
 - renamed `su.center` to `su.cjust`
@@ -49,13 +49,14 @@
 - now the second argument of `itu.repeat` is optional and it will repeat infinitely if not given, it would repeat infinitely even if the number was negative even if it was not specified in the documentation
 - added `timestamp` argument to many `stdtime.nest` functions
 - reorganized `extension`, `filename`, `join`, `normalize` and `parent_path` to be inside `path` in `stdfs.nest`
+- removed `remove_dir`, `remove_dirs` and `remove_file` in favor of 
 
 **Bug fixes**
 
 - fixed a crash that occurred when casting a `IOFile` object to a `Str`
 - fixed a crash that occurred when using `co.pause` inside an expression
 - now months are counted from `1` in `stdtime.nest`
-- fixed an infinite loop when trying to optimize chaned jumps
+- fixed an infinite loop when trying to optimize changed jumps
 - fixed `su.lfind` and `su.rfind` that did not work with non-ASCII characters
 - fixed `su.center` causing a crash with a negative width
 - fixed `su.trim`, `su.ltrim` and `su.rtrim` not working with NUL characters
@@ -172,7 +173,7 @@ _General changes_:
 - renamed `Nst_MAKE_NAMED_FUNCDECLR` to `Nst_NAMED_FUNCDECLR`
 - renamed `Nst_MAKE_OBJDECLR` to `Nst_CONSTDECLR`
 - renamed `Nst_MAKE_NAMED_OBJDECLR` to `Nst_NAMED_CONSTDECLR`
-- reanamed many functions to better fit the naming style:
+- renamed many functions to better fit the naming style:
   - `_Nst_parse_args` to `_Nst_cl_args_parse`
   - `_Nst_override_supports_color` to `_Nst_supports_color_override`
   - `_Nst_set_console_mode` to `_Nst_console_mode_init`
@@ -191,7 +192,7 @@ _General changes_:
 - fixed many constants not being destroyed at the end of the program
 - fixed a possible read-after-free bug in the garbage collector
 - now the standard library is imported when running Nest on Windows in `x86` debug mode
-- fixed the value store in `ill_encoded_byte` retrived with `Nst_io_result_get_details`
+- fixed the value store in `ill_encoded_byte` retrieved with `Nst_io_result_get_details`
 
 ---
 
@@ -207,7 +208,7 @@ _General changes_:
 - added `inf_and_nan` option to `stdjson.nest` to allow for `NaN` and `Infinity` to be treated as numeric literals
 - added `is_inf` and `is_nan` functions to `stdmath.nest`
 - added the 'contains' stack operator `<.>` to check if an object is inside another
-- added `read_symlink` functio to `stdfs.nest`
+- added `read_symlink` function to `stdfs.nest`
 - added `gmt_date` to `stdtime.nest`
 
 **Changes**
@@ -237,7 +238,7 @@ _General changes_:
 - fixed incorrect behaviour of `sequ.slice` on some occasions
 - fixed a crash that occurred when an error was thrown inside a function in `sequ.rscan`
 - fixed `json.load_f` and `json.dump_f` not working correctly with UTF-8 file names on Windows
-- fixed Nest not finding files with non-ASCII charcters (both command-line and libraries) on Windows
+- fixed Nest not finding files with non-ASCII characters (both command-line and libraries) on Windows
 - fixed `su.is_charset` returning an incorrect result on some non-ASCII strings (e.g. `'à' 'èĠ' @su.is_charset` now returns `false`, before it would return `true`)
 - fixed `io.println` not printing the full string if it contained a NUL character
 - fixed some errors passing silently through `io.println`
@@ -246,7 +247,7 @@ _General changes_:
 - fixed `CP-1250` encoding not working
 - fixed `join` in `stdsutil.nest` causing a `Memory Error` if the passed sequence was empty
 - fixed `rtrim` and `trim` in `stdsutil.nest` that if used could later cause crashes
-- fixed iterating through strings and creating sequences from strings that contain unicode characters which would create invalid strings
+- fixed iterating through strings and creating sequences from strings that contain Unicode characters which would create invalid strings
 - fixed many inconsistencies between the documentation and the functions in the standard library
 - fixed `<` and `>` sometimes not working correctly with non-ASCII characters
 - fixed octal escapes higher than `\177` not working and possibly causing a crash
@@ -267,7 +268,7 @@ _General changes_:
 - added `Nst_FLAG` macro to create the value of the flag of an object
 - added `indexable_str` and `true_len` fields to `Nst_StrObj`.
 - added `Nst_string_new_len` to create strings with a known character length
-- added `Nst_string_get_next_ch` to iterate over a string's characters without generaing the `indexable_str` field
+- added `Nst_string_get_next_ch` to iterate over a string's characters without generating the `indexable_str` field
 - added `Nst_FLAG_STR_IS_ASCII`, `Nst_FLAG_STR_INDEX_16`, `Nst_FLAG_STR_INDEX_32` and `Nst_FLAG_STR_CAN_INDEX` variants to `Nst_StrFlags`
 - added `Nst_seq_copy` and `_Nst_seq_copy` to create a shallow copy of sequences
 - added `Nst_map_copy` and `_Nst_map_copy` to create a shallow copy of a map
@@ -298,7 +299,7 @@ _General changes_:
 - removed `Nst_iter_range_is_done`, `Nst_iter_seq_is_done`, `Nst_iter_str_is_done` and `Nst_iter_map_is_done`
 - now type shorthands for `Nst_extract_arg_values` that are part of type unions will not cast the object automatically
 - renamed `_Nst_string_get_next_ch` and `Nst_string_get_next_ch` to `_Nst_string_next_ch` and `Nst_string_next_ch` respectively
-- optimized exponentation
+- optimized exponentiation
 - rename `_Nst_VECTOR_MIN_SIZE` to `_Nst_VECTOR_MIN_CAP`
 
 **Bug fixes**

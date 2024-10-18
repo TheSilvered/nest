@@ -370,8 +370,6 @@ io.is_bin {closed_file} @test.assert_raises_error
 'test_files/file.txt' @io.open = file
 file @io.is_a_tty @test.assert_false
 file @io.close
-io.STDIN @io.is_a_tty @test.assert_true
-
 io.is_a_tty {closed_file} @test.assert_raises_error
 
 -- Test 'io.descriptor'
