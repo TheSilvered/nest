@@ -26,7 +26,7 @@ i32 tests_failed_count(void);
 
 TestResult test_parse_args();
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 TestResult test_wargv_to_argv();
 #endif
 

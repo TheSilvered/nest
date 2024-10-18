@@ -1,9 +1,9 @@
 #include <string.h>
 #include "nest.h"
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 #include "windows.h"
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
 #include "file.h"
 
@@ -68,11 +68,11 @@
     "All names are case-insensitive. Underscores (_), hyphens (-) and spaces are\n"  \
     "interchangeable."
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 bool supports_color = false;
 #else
 bool supports_color = true;
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
 void Nst_cl_args_init(Nst_CLArgs *args, i32 argc, i8 **argv)
 {
@@ -275,7 +275,7 @@ void _Nst_supports_color_override(bool value)
     supports_color = value;
 }
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 
 bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv)
 {
@@ -359,4 +359,4 @@ try_stdin:
     Nst_stdin.hd = stdin_handle;
 }
 
-#endif // !Nst_WIN
+#endif // !Nst_MSVC

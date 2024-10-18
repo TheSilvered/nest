@@ -907,11 +907,6 @@ static inline bool_arr_t bool_arr_new(usize size)
     return Nst_calloc_c(length, u8, NULL);
 }
 
-static inline void bool_arr_free(bool_arr_t array)
-{
-    Nst_free(array);
-}
-
 static inline bool bool_arr_get(bool_arr_t array, usize idx)
 {
     return (bool)(array[idx / 8] & (1 << (idx % 8)));

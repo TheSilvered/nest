@@ -359,7 +359,7 @@ static Nst_IOResult close_std_stream(Nst_IOFileObj *f)
     return Nst_IO_SUCCESS;
 }
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 
 static bool read_characters(usize offset)
 {
@@ -434,12 +434,12 @@ success:
 static Nst_IOResult read_std_stream(i8 *buf, usize buf_size, usize count,
                                     usize *buf_len, Nst_IOFileObj *f)
 {
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     if (Nst_stdin.hd == NULL)
         return Nst_FILE_read(buf, buf_size, count, buf_len, f);
 #else
     Nst_UNUSED(f);
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
     Nst_Buffer buffer;
 

@@ -4,7 +4,7 @@
 int main() {
     Nst_init(NULL);
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     _Nst_console_mode_init();
 #endif
 
@@ -16,7 +16,7 @@ int main() {
 
     RUN_TEST(test_parse_args);
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     RUN_TEST(test_wargv_to_argv);
 #endif
 

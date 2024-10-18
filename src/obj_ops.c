@@ -12,7 +12,7 @@
 #include "format.h"
 #include "hash.h"
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 
 #include <windows.h>
 #define dlsym GetProcAddress
@@ -801,7 +801,7 @@ Nst_Obj *_Nst_obj_str_cast_map(Nst_MapObj *map_obj, Nst_LList *all_objs)
     return OBJ(Nst_buffer_to_string(&buf));
 }
 
-#ifndef Nst_WIN
+#ifndef Nst_MSVC
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
 
@@ -1645,7 +1645,7 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path)
     if (!lib) {
         Nst_llist_pop(Nst_state.lib_paths);
         Nst_dec_ref(file_path);
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
         Nst_set_import_error_c(_Nst_EM_FILE_NOT_DLL);
 #else
         Nst_set_import_error_c(dlerror());
@@ -1756,7 +1756,7 @@ static Nst_Obj *rel_path_to_abs_path_str_if_found(i8 *file_path)
     return Nst_str_new_allocated(abs_path, abs_path_len);
 }
 
-#if defined(_DEBUG) && defined(Nst_WIN)
+#if defined(_DEBUG) && defined(Nst_MSVC)
 
 static Nst_Obj *search_debug_directory(i8 *initial_path, usize path_len)
 {
@@ -1784,10 +1784,10 @@ static Nst_Obj *search_debug_directory(i8 *initial_path, usize path_len)
 
 static Nst_Obj *search_stdlib_directory(i8 *initial_path, usize path_len)
 {
-#if defined(_DEBUG) && defined(Nst_WIN)
+#if defined(_DEBUG) && defined(Nst_MSVC)
     return search_debug_directory(initial_path, path_len);
 #else
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 
     i8 *appdata = getenv("LOCALAPPDATA");
     if (appdata == NULL) {
@@ -1815,7 +1815,7 @@ static Nst_Obj *search_stdlib_directory(i8 *initial_path, usize path_len)
         return NULL;
     sprintf(file_path, "%s%s", nest_files, initial_path);
 
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
     return rel_path_to_abs_path_str_if_found(file_path);
 #endif

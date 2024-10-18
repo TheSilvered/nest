@@ -1,6 +1,6 @@
 #include "nest_fs.h"
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 
 #pragma warning(push)
 #pragma warning(disable: 4995)
@@ -21,7 +21,7 @@
 #include <cerrno>
 #include <cstring>
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 #pragma warning(pop)
 #endif
 
@@ -90,7 +90,7 @@ static Nst_StrObj *heap_str(fs::path path)
 
 static Nst_StrObj *error_str(std::string str)
 {
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     i8 *val;
     usize len;
     bool result = Nst_translate_cp(
@@ -122,7 +122,7 @@ static Nst_Obj *throw_system_error(std::error_code ec)
 
 static Nst_Obj *throw_c_error(void)
 {
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     DWORD error = GetLastError();
     wchar_t *wide_msg;
     FormatMessageW(
@@ -140,7 +140,7 @@ static Nst_Obj *throw_c_error(void)
     i8 *val = strerror(errno);
     int error = errno;
     Nst_StrObj *msg = heap_str((const i8 *)val, strlen(val));
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
     Nst_set_error(
         Nst_sprintf("System Error %d", error),
         msg);
@@ -582,7 +582,7 @@ Nst_Obj *NstC path_join_(usize arg_num, Nst_Obj **args)
     memcpy(new_str, p1, p1_len);
 
     if (add_slash) {
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
         new_str[p1_len] = '\\';
 #else
         new_str[p1_len] = '/';
@@ -592,7 +592,7 @@ Nst_Obj *NstC path_join_(usize arg_num, Nst_Obj **args)
     new_str[new_len] = 0;
 
     for (usize i = 0; i < new_len; i++) {
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
         if (new_str[i] == '/')
             new_str[i] = '\\';
 #else
@@ -617,7 +617,7 @@ Nst_Obj *NstC path_normalize_(usize arg_num, Nst_Obj **args)
     i8 *val = norm_path->value;
 
     for (usize i = 0, n = norm_path->len; i < n; i++) {
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
         if (val[i] == '/')
             val[i] = '\\';
 #else
@@ -660,7 +660,7 @@ Nst_Obj *NstC path_extension_(usize arg_num, Nst_Obj **args)
     return OBJ(heap_str(utf8_path(path).extension()));
 }
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 static i64 FILETIME_to_unix_time(FILETIME time)
 {
     // January 1, 1970 (start of Unix epoch) in "ticks"
@@ -674,7 +674,7 @@ static i64 FILETIME_to_unix_time(FILETIME time)
 
     return (large_int.QuadPart - UNIX_TIME_START) / TICKS_PER_SECOND;
 }
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
 Nst_Obj *NstC time_creation_(usize arg_num, Nst_Obj **args)
 {
@@ -682,7 +682,7 @@ Nst_Obj *NstC time_creation_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     wchar_t *wide_path = Nst_char_to_wchar_t(path->value, path->len);
     if (wide_path == nullptr)
         return nullptr;
@@ -701,7 +701,7 @@ Nst_Obj *NstC time_creation_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
     return Nst_int_new(file_info.st_ctime);
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 }
 
 Nst_Obj *NstC time_last_access_(usize arg_num, Nst_Obj **args)
@@ -710,7 +710,7 @@ Nst_Obj *NstC time_last_access_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     wchar_t *wide_path = Nst_char_to_wchar_t(path->value, path->len);
     if (wide_path == nullptr)
         return nullptr;
@@ -729,7 +729,7 @@ Nst_Obj *NstC time_last_access_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
     return Nst_int_new(file_info.st_atime);
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 }
 
 Nst_Obj *NstC time_last_write_(usize arg_num, Nst_Obj **args)
@@ -738,7 +738,7 @@ Nst_Obj *NstC time_last_write_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     wchar_t *wide_path = Nst_char_to_wchar_t(path->value, path->len);
     if (wide_path == nullptr)
         return nullptr;
@@ -757,7 +757,7 @@ Nst_Obj *NstC time_last_write_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
     return Nst_int_new(file_info.st_mtime);
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 }
 
 Nst_Obj *NstC CPO_()

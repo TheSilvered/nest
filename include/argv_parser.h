@@ -11,9 +11,9 @@
 
 #include "encoding.h"
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 #include <windows.h>
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
 #ifdef __cplusplus
 extern "C" {
@@ -79,7 +79,7 @@ NstEXP bool NstC Nst_supports_color(void);
 /* Ovverrides the value returned by `Nst_supports_color`. */
 NstEXP void NstC _Nst_supports_color_override(bool value);
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 
 /**
  * WINDOWS ONLY Re-encodes Unicode arguments to UTF-8.
@@ -95,7 +95,7 @@ NstEXP bool NstC _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv);
 /* WINDOWS ONLY Initializes the console. */
 NstEXP void NstC _Nst_console_mode_init(void);
 
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
 #ifdef __cplusplus
 }

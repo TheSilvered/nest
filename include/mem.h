@@ -103,7 +103,7 @@ NstEXP void NstC Nst_raw_free(void *block);
  */
 NstEXP void NstC Nst_log_alloc_count();
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 #pragma deprecated(malloc, calloc, realloc, free)
 #else
 void *malloc(size_t size) __attribute__((deprecated("use Nst_raw_malloc or Nst_malloc")));

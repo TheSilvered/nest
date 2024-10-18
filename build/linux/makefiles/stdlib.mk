@@ -5,18 +5,21 @@ endif
 
 MAKE_FILE = $(MAKE) --no-print-directory -f
 
-CC = g++
+CC = gcc
 CFLAGS = $(LIB_FLAGS) -D_FILE_OFFSET_BITS=64 -I../../../include -Wall -Wextra \
-         -Wlogical-op -Wnull-dereference -Wduplicated-cond -Wshadow -shared   \
-         -Wduplicated-branches -fPIC -rdynamic -std=c++2a
+         -Wnull-dereference -Wshadow -shared -fPIC -rdynamic -std=c++2a
 DBG_FLAGS = -D_DEBUG -g -O0
 TARGET_NAME = std$(LIB_NAME).cnest
+
+ifneq ($(CC),clang)
+    CFLAGS += -Wlogical-op -Wduplicated-cond -Wduplicated-branches
+endif
 
 x64_DIR = ../linux_release/x64
 x86_DIR = ../linux_release/x86
 DBG_DIR = ../linux_debug
 
-CLINKS = -lm -ldl -lnest $(LIB_LINKS)
+CLINKS = -lm -ldl -lnest -lstdc++ $(LIB_LINKS)
 CLINK_DIR_DBG := -L$(DBG_DIR)
 CLINK_DIR_x86 := -L$(x86_DIR)
 CLINK_DIR_x64 := -L$(x64_DIR)
@@ -73,26 +76,25 @@ $(DBG_TARGET): $(SRCS) $(HEADERS) $(NEST_LIB_DBG)
 
 help:
 	@echo "stdlib.mk help:"
-	@echo "  This file always expects LIB_NAME to be defined except for help. It is the"
-	@echo "  name of the library that will be compiled without 'std' at the front. For"
-	@echo "  example LIB_NAME=fs will compile stdfs.cnest, LIB_NAME=io will compile"
-	@echo "  stdio.cnest and so on."
+	@echo "  This file expects LIB_NAME to be defined except for 'help'. The library"
+	@echo "  compiled is in the form 'std<LIB_NAME>.cnest', for example LIB_NAME=fs"
+	@echo "  will compile stdfs.cnest."
 	@echo ""
-	@echo "  make -f stdlib.mk LIB_NAME=example                   compile libnest.so and"
-	@echo "                                                       stdexample.cnest for 64"
-	@echo "                                                       bit platforms"
-	@echo "  make -f stdlib.mk x86 LIB_NAME=example               compile libnest.so and"
-	@echo "                                                       stdexample.cnest for 32"
-	@echo "                                                       bit platforms"
-	@echo "  make -f stdlib.mk debug LIB_NAME=example             compile libnest.so and"
-	@echo "                                                       stdexample.cnest with"
-	@echo "                                                       debug symbols"
+	@echo "  make -f stdlib.mk LIB_NAME=libname"
+	@echo "                             compile libnest.so and stdlibname.cnest for 64 bit"
+	@echo "                             platforms"
+	@echo "  make -f stdlib.mk x86 LIB_NAME=libname"
+	@echo "                             compile libnest.so and stdlibname.cnest for 32 bit"
+	@echo "                             platforms"
+	@echo "  make -f stdlib.mk debug LIB_NAME=libname"
+	@echo "                             compile libnest.so and stdlibname.cnest for 64 with"
+	@echo "                             debug symbols"
 	@echo ""
-	@echo "  make -f stdlib.mk __no_libnest_x64 LIB_NAME=example  compile stdexample.cnest"
-	@echo "                                                       for 64 bit platforms"
-	@echo "  make -f stdlib.mk __no_libnest_x86 LIB_NAME=example  compile stdexample.cnest"
-	@echo "                                                       for 32 bit platforms"
-	@echo "  make -f stdlib.mk __no_libnest_dbg LIB_NAME=example  compile stdexample.cnest"
-	@echo "                                                       with debug symbols"
+	@echo "  make -f stdlib.mk __no_libnest_x64 LIB_NAME=libname"
+	@echo "                             compile stdlibname.cnest for 64 bit platforms"
+	@echo "  make -f stdlib.mk __no_libnest_x86 LIB_NAME=libname"
+	@echo "                             compile stdlibname.cnest for 32 bit platforms"
+	@echo "  make -f stdlib.mk __no_libnest_dbg LIB_NAME=libname"
+	@echo "                             compile stdlibname.cnest with debug symbols"
 	@echo ""
-	@echo "  make -f stdlib.mk help                               prints this message"
+	@echo "  make -f stdlib.mk help     print this message"

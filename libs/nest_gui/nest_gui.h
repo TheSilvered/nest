@@ -10,7 +10,7 @@
 #include "gui_update.h"
 #include "gui_colors.h"
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 #pragma warning(disable: 4995)
 #endif
 

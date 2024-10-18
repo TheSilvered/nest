@@ -2,7 +2,7 @@
 #include <cstring>
 #include "nest_sys.h"
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 
 #include <direct.h>
 #include <windows.h>
@@ -44,7 +44,7 @@ Nst_Declr *lib_init()
 {
     version_obj = STR(Nst_str_new_c_raw(Nst_VERSION, false));
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     platform_obj = STR(Nst_str_new_c("windows", 7, false));
 #else
     platform_obj = STR(Nst_str_new_c("linux", 5, false));
@@ -65,7 +65,7 @@ Nst_Obj *NstC system_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &command))
         return nullptr;
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     wchar_t *wide_command = Nst_char_to_wchar_t(command->value, command->len);
     if (wide_command == nullptr)
         return nullptr;
@@ -110,7 +110,7 @@ Nst_Obj *NstC get_env_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     wchar_t *wide_name = Nst_char_to_wchar_t(name->value, name->len);
     if (wide_name == nullptr)
         return nullptr;
@@ -181,7 +181,7 @@ Nst_Obj *NstC set_env_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     wchar_t *name_buf = Nst_char_to_wchar_t(name->value, name->len);
     if (name_buf == nullptr)
         return nullptr;
@@ -242,7 +242,7 @@ Nst_Obj *NstC del_env_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     wchar_t *name_buf = Nst_char_to_wchar_t(name->value, name->len);
     if (name_buf == nullptr)
         return nullptr;

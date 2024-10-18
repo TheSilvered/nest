@@ -6,9 +6,9 @@
 #include "lib_import.h"
 #include "format.h"
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 #include <windows.h>
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
 Nst_CP Nst_cp_ascii = {
     .ch_size = sizeof(u8),
@@ -1882,7 +1882,7 @@ Nst_CP *Nst_cp(Nst_CPID cpid)
     }
 }
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 
 Nst_CPID Nst_acp(void)
 {
@@ -1909,7 +1909,7 @@ Nst_CPID Nst_acp(void)
     }
 }
 
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
 wchar_t *Nst_char_to_wchar_t(i8 *str, usize len)
 {
@@ -2021,14 +2021,14 @@ Nst_CPID Nst_detect_encoding(i8 *str, usize len, i32 *bom_size)
     if (res == -1)
         return Nst_CP_UTF16LE;
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     cpid = Nst_acp();
     if (cpid != Nst_CP_UTF8 && cpid != Nst_CP_ISO8859_1) {
         res = Nst_check_string_cp(Nst_cp(cpid), str, len);
         if (res == -1)
             return cpid;
     }
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
     return Nst_CP_ISO8859_1;
 }

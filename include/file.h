@@ -13,9 +13,9 @@
 #include "obj.h"
 #include "encoding.h"
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 #include <windows.h>
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
 /* Casts ptr to a `Nst_IOFileObj *`. */
 #define IOFILE(ptr) ((Nst_IOFileObj *)(ptr))
@@ -236,7 +236,7 @@ NstEXP typedef struct _Nst_IOFuncSet {
     Nst_IOFile_close_f close;
 } Nst_IOFuncSet;
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 
 #define _Nst_WIN_STDIN_BUF_SIZE 2048
 
@@ -254,7 +254,7 @@ NstEXP typedef struct _Nst_StdIn {
 
 extern Nst_StdIn Nst_stdin;
 
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
 /**
  * A structure representing a Nest IO file object.

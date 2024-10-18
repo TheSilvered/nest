@@ -1527,7 +1527,7 @@ static bool fmt_double(Nst_Buffer *buf, f64 val, Format *format)
     if (format->precision < 0)
         format->precision = 6;
 
-#ifndef Nst_WIN
+#ifndef Nst_MSVC
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wstrict-aliasing"
 #endif
@@ -1537,7 +1537,7 @@ static bool fmt_double(Nst_Buffer *buf, f64 val, Format *format)
         (*(i64 *)(f64 *)&val >> 63) & 1,
         format);
 
-#ifndef Nst_WIN
+#ifndef Nst_MSVC
 #pragma GCC diagnostic pop
 #endif
 

@@ -4,7 +4,7 @@
 
 #include "test_nest.h"
 
-#ifndef Nst_WIN
+#ifndef Nst_MSVC
 #pragma GCC diagnostic ignored "-Wunused-function"
 #endif
 
@@ -149,7 +149,7 @@ TestResult test_parse_args()
     return TEST_NOT_IMPL;
 }
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 
 TestResult test_wargv_to_argv()
 {

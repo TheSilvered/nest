@@ -1,9 +1,12 @@
 CC = gcc
-CFLAGS = -D_FILE_OFFSET_BITS=64 -I../../../include -Wall -Wextra -Wlogical-op \
-         -Wnull-dereference -Wduplicated-cond -Wduplicated-branches -Wshadow  \
-         -shared -fPIC -rdynamic
+CFLAGS = -D_FILE_OFFSET_BITS=64 -I../../../include -Wall -Wextra -Wshadow     \
+         -Wnull-dereference -shared -fPIC -rdynamic
 DBG_FLAGS = -D_DEBUG -g -O0
 TARGET_NAME = libnest.so
+
+ifneq ($(CC),clang)
+    CFLAGS += -Wlogical-op -Wduplicated-cond -Wduplicated-branches
+endif
 
 SRC_DIR = ../../../src
 x64_DIR = ../linux_release/x64
@@ -39,8 +42,8 @@ $(DBG_TARGET): $(SRCS) $(HEADERS)
 
 help:
 	@echo "libnest.mk help:"
-	@echo "  make -f libnest.mk        compile libnest.so for 64 bit platforms"
-	@echo "  make -f libnest.mk x86    compile libnest.so for 32 bit platforms"
-	@echo "  make -f libnest.mk debug  compile libnest.so with debug symbols"
+	@echo "  make -f libnest.mk         compile libnest.so for 64 bit platforms"
+	@echo "  make -f libnest.mk x86     compile libnest.so for 32 bit platforms"
+	@echo "  make -f libnest.mk debug   compile libnest.so with debug symbols"
 	@echo ""
-	@echo "  make -f libnest.mk help   prints this message"
+	@echo "  make -f libnest.mk help    print this message"

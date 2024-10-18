@@ -2,7 +2,7 @@
 #include <ctime>
 #include "nest_time.h"
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 #include "../dll/framework.h"
 #else
 #include <unistd.h>
@@ -324,7 +324,7 @@ Nst_Obj *NstC sleep_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("N", arg_num, args, &time))
         return nullptr;
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     Sleep(DWORD(time * 1000));
 #else
     usleep(useconds_t(time * 1000000));
@@ -339,7 +339,7 @@ Nst_Obj *NstC sleep_ms_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("l", arg_num, args, &time))
         return nullptr;
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     Sleep(DWORD(time));
 #else
     usleep(useconds_t(time * 1000));

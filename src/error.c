@@ -8,9 +8,9 @@
 #include "format.h"
 #include "interpreter.h"
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 #include <windows.h>
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
 #include <errno.h>
 #include "mem.h"

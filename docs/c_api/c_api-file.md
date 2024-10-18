@@ -138,7 +138,7 @@ A structure representing the functions necessary to operate a Nest file object.
 ```better-c
 typedef struct _Nst_StdIn {
     HANDLE hd;
-    wchar_t buf[1024];
+    wchar_t buf[_Nst_WIN_STDIN_BUF_SIZE];
     FILE *fp;
     i32 buf_size;
     i32 buf_ptr;

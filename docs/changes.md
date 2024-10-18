@@ -1,5 +1,7 @@
 ## 0.15.0
 
+**Nest can now be compiled with `clang`!** Check `make help` for more info.
+
 ### Nest
 
 **Additions**
@@ -105,6 +107,7 @@
 - added `Nst_ConstFunc`
 - added `Nst_memset`
 - added `Nst_fmt`, `Nst_vfmt` and `Nst_fmt_objs`
+- added `Nst_MSVC`, `Nst_GCC` and `Nst_CLANG`
 
 **Changes**
 
@@ -184,6 +187,8 @@ _General changes_:
   - `_Nst_get_state` to `_Nst_state_get`
   - all `Nst_string_*` to `Nst_str_*`
 - macros to check token type ranges have been made private
+- removed `Nst_WIN` in favour of `Nst_MSVC`
+- renamed `Nst_GNU_FMT` to `Nst_NIX_FMT` since it is used with clang too
 
 **Bug fixes**
 

@@ -2,10 +2,14 @@ SILENT_MAKE = $(MAKE) --no-print-directory
 MAKE_FILE = $(SILENT_MAKE) -f
 
 CC = gcc
-CFLAGS = -D_FILE_OFFSET_BITS=64 -I../../../include -Wall -Wextra -Wlogical-op \
-         -Wnull-dereference -Wduplicated-cond -Wduplicated-branches -Wshadow
+CFLAGS = -D_FILE_OFFSET_BITS=64 -I../../../include -Wall -Wextra -Wshadow     \
+         -Wnull-dereference
 DBG_FLAGS = -D_DEBUG -g -O0
 TARGET_NAME = nest
+
+ifneq ($(CC),clang)
+    CFLAGS += -Wlogical-op -Wduplicated-cond -Wduplicated-branches
+endif
 
 SRC_DIR = ../../../src
 EXE_DIR = ../linux_release
@@ -160,37 +164,40 @@ uninstall:
 
 help:
 	@echo "makefile help:"
-	@echo "  make                   compile nest and libnest.so for 64 bit platforms"
-	@echo "  make x86               compile nest and libnest.so for 32 bit platforms"
-	@echo "  make debug             compile nest and libnest.so with debug symbols"
-	@echo "  make all               compile everything for 64 bit platforms"
-	@echo "  make all-x86           compile everything for 32 bit platforms"
-	@echo "  make all-debug         compile everything with debug symbols"
+	@echo "  make                       compile nest and libnest.so for 64 bit platforms"
+	@echo "  make x86                   compile nest and libnest.so for 32 bit platforms"
+	@echo "  make debug                 compile nest and libnest.so with debug symbols"
+	@echo "  make all                   compile everything for 64 bit platforms"
+	@echo "  make all-x86               compile everything for 32 bit platforms"
+	@echo "  make all-debug             compile everything with debug symbols"
 	@echo ""
-	@echo "  make __no_libnest_x64  compile nest for 64 bit platforms"
-	@echo "  make __no_libnest_x86  compile nest for 32 bit platforms"
-	@echo "  make __no_libnest_dbg  compile nest with debug symbols"
+	@echo "  make __no_libnest_x64      compile nest for 64 bit platforms"
+	@echo "  make __no_libnest_x86      compile nest for 32 bit platforms"
+	@echo "  make __no_libnest_dbg      compile nest with debug symbols"
 	@echo ""
-	@echo "  make test-c            compile C tests for 64 bit platforms and run them"
-	@echo "  make test-c-x86        compile C tests for 32 bit platforms and run them"
-	@echo "  make test-c-debug      compile C tests with debug symbols and run them"
+	@echo "  make test-c                compile C tests for 64 bit platforms and run them"
+	@echo "  make test-c-x86            compile C tests for 32 bit platforms and run them"
+	@echo "  make test-c-debug          compile C tests with debug symbols and run them"
 	@echo ""
-	@echo "  make run               run 'make all-debug', '_update_files.sh',"
-	@echo "                         '_install_debug.sh' and then run '_test.nest'"
-	@echo "                         from 'nest/tests/'; the file needs to be created"
+	@echo "  make run                   run 'make all-debug', '_update_files.sh',"
+	@echo "                             '_install_debug.sh' and then run '_test.nest'"
+	@echo "                             from 'nest/tests/'; the file needs to be created"
 	@echo ""
-	@echo "  make install           run 'make all' and 'linux_install_x64.sh'"
-	@echo "  make install-x86       run 'make all-x86' and 'linux_install_x86.sh'"
-	@echo "  make install-debug     run 'make all-debug' and '_install_debug.sh'"
-	@echo "  make uninstall         run 'uninstall.sh'"
+	@echo "  make install               run 'make all' and 'linux_install_x64.sh'"
+	@echo "  make install-x86           run 'make all-x86' and 'linux_install_x86.sh'"
+	@echo "  make install-debug         run 'make all-debug' and '_install_debug.sh'"
+	@echo "  make uninstall             run 'uninstall.sh'"
 	@echo ""
-	@echo "  make clean             removes the output folders"
-	@echo "  make clear             alias of clean"
+	@echo "  make clean, make clear     remove the output folders"
 	@echo ""
-	@echo "  make help              prints this message"
+	@echo "  make help                  print this message"
 	@echo ""
 	@$(MAKE_FILE) libnest.mk help
 	@echo ""
 	@$(MAKE_FILE) stdlib.mk help
 	@echo ""
 	@$(MAKE_FILE) testnest.mk help
+	@echo ""
+	@echo ""
+	@echo "By default this makefile uses gcc. To compile with clang add 'CC=clang' to the"
+	@echo "end of the command (e.g. 'make all CC=clang')."

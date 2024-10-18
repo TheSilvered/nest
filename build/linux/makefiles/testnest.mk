@@ -1,11 +1,14 @@
 SILENT_MAKE = $(MAKE) --no-print-directory
 MAKE_FILE = $(SILENT_MAKE) -f
 
-CC = g++
-CFLAGS = -I../../../include -Wall -Wextra -Wlogical-op -Wnull-dereference     \
-		 -Wduplicated-cond -Wduplicated-branches -Wshadow
+CC = gcc
+CFLAGS = -I../../../include -Wall -Wextra -Wnull-dereference -Wshadow
 DBG_FLAGS = -D_DEBUG -g -O0
 TARGET_NAME = test_nest
+
+ifneq ($(CC),clang)
+    CFLAGS += -Wlogical-op -Wduplicated-cond -Wduplicated-branches
+endif
 
 SRC_DIR = ../../../tests/test_nest
 EXE_DIR = ../linux_release
@@ -61,13 +64,15 @@ $(DBG_TARGET): $(SRCS) $(NEST_LIB_DBG)
 
 help:
 	@echo "testnest.mk help:"
-	@echo "  make -f testnest.mk                   compile C tests and libnest.so for 64"
-	@echo "                                        bit platforms"
-	@echo "  make -f testnest.mk x86               compile C tests and libnest.so for 32"
-	@echo "                                        bit platforms"
-	@echo "  make -f testnest.mk debug             compile C tests and libnest.so with"
-	@echo "                                        debug symbols"
+	@echo "  make -f testnest.mk        compile C tests and libnest.so for 64 bit platforms"
+	@echo "  make -f testnest.mk x86    compile C tests and libnest.so for 32 bit platforms"
+	@echo "  make -f testnest.mk debug  compile C tests and libnest.so with debug symbols"
 	@echo ""
-	@echo "  make -f testnest.mk __no_libnest_x64  compile C tests for 64 bit platforms"
-	@echo "  make -f testnest.mk __no_libnest_x86  compile C tests for 32 bit platforms"
-	@echo "  make -f testnest.mk __no_libnest_dbg  compile C tests with debug symbols"
+	@echo "  make -f testnest.mk __no_libnest_x64"
+	@echo "                             compile C tests for 64 bit platforms"
+	@echo "  make -f testnest.mk __no_libnest_x86"
+	@echo "                             compile C tests for 32 bit platforms"
+	@echo "  make -f testnest.mk __no_libnest_dbg"
+	@echo "                             compile C tests with debug symbols"
+	@echo ""
+	@echo " make -f testnest.mk help    print this message"

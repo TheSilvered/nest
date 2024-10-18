@@ -56,14 +56,26 @@
 #define Nst_BREAKPOINT_ON_ASSERTION_FAIL
 
 #if defined(_WIN32) || defined(WIN32)
-/* Defined when compiling on MS Windows. */
-#define Nst_WIN
-#elif !defined(__GNUC__) || defined(__clang__)
-#error Use MSVC or GCC to compile.
+
+/* Defined when compiling with MSVC. */
+#define Nst_MSVC
+
+#elif defined(__GNUC__)
+
+/* Defined when compiling with GCC. */
+#define Nsg_GCC
+
+#define BUILD_GGC_VER(maj, min, patch) (maj * 10000 + min * 100 + patch)
+#define GCC_VER                                                           \
+    BUILD_GGC_VER(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
+
+#elif defined(__clang__)
+
+/* Defined when compiling with Clang. */
+#define Nsg_CLANG
+
 #else
-#define Nst_BUILD_GGC_VER(maj, min, patch) (maj * 10000 + min * 100 + patch)
-#define Nst_GCC_VER                                                           \
-    Nst_BUILD_GGC_VER(__GNUC__, __GNUC_MINOR__, __GNUC_PATCHLEVEL__)
+#error Use MSVC, GCC or clang to compile.
 #endif
 
 #if !defined(_Nst_ARCH_x64) && !defined(_Nst_ARCH_x86)
@@ -78,7 +90,7 @@
 #endif // !_Nst_ARCHxx
 #endif // !_Nst_ARCHxx
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 /* Exports a symbol in a dynamic library. */
 #define NstEXP __declspec(dllexport)
 #else
@@ -90,10 +102,10 @@
 #if __STDC_VERSION__ >= 201112L
 /* Marks a function that does not finish. */
 #define Nst_NORETURN _Noreturn
-#elif defined(Nst_WIN)
+#elif defined(Nst_MSVC)
 /* [docs:ignore] Marks a function that does not finish. */
 #define Nst_NORETURN __declspec(noreturn)
-#elif defined(__GNUC__) && Nst_GCC_VER > Nst_BUILD_GGC_VER(2, 5, 0)
+#elif (defined(Nst_GCC) && GCC_VER > BUILD_GGC_VER(2, 5, 0)) || defined(Nst_CLANG)
 /* [docs:ignore] Marks a function that does not finish. */
 #define Nst_NORETURN __attribute__((noreturn))
 #else
@@ -102,7 +114,12 @@
 #endif // !Nst_NORETURN
 #endif // !Nst_NORETURN
 
-#if !defined(Nst_WIN_FMT) && defined(Nst_WIN)
+#ifdef Nst_GCC
+#undef GGC_VER
+#undef BUILD_GGC_VER
+#endif // !Nst_GCC
+
+#if !defined(Nst_WIN_FMT) && defined(Nst_MSVC)
 /* Marks an argument as a printf format string on MSVC. */
 #define Nst_WIN_FMT _Printf_format_string_
 #else
@@ -110,25 +127,27 @@
 #define Nst_WIN_FMT
 #endif // !Nst_WIN_FMT
 
-#if !defined(Nst_GNU_FMT) && defined(__GNUC__)
-/* Marks an argument as a printf format string on GCC. */
-#define Nst_GNU_FMT(m, n) __attribute__((format(printf,m,n)))
+#if !defined(Nst_NIX_FMT) && (defined(Nst_GCC) || defined(Nst_CLANG))
+/* Marks an argument as a printf format string on GCC or CLANG. */
+#define Nst_NIX_FMT(m, n) __attribute__((format(printf,m,n)))
 #else
-/* [docs:ignore]  Marks an argument as a printf format string on GCC. */
-#define Nst_GNU_FMT(m, n)
-#endif // !Nst_GNU_FMT
+/** [docs:ignore]
+ * @brief Marks an argument as a printf format string on GCC or CLANG.
+ */
+#define Nst_NIX_FMT(m, n)
+#endif // !Nst_NIX_FMT
 
-#ifndef Nst_WIN
+#ifndef Nst_MSVC
 #include <endian.h>
 #endif // !endian.h
 
-/* Represents little-endian systems. Always defined. */
+/* Represents little-endian systems, check against Nst_BYTEORDER. */
 #define Nst_LITTLE_ENDIAN 4321
-/* Represents big-endian systems. Always defined. */
+/* Represents big-endian systems, check against Nst_BYTEORDER. */
 #define Nst_BIG_ENDIAN 1234
 
 #ifndef Nst_BYTEORDER
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 /**
  * @brief The endianness of the system, either `Nst_LITTLE_ENDIAN` or
  * `Nst_BIG_ENDIAN`.
@@ -153,11 +172,11 @@
  */
 #define Nst_BYTEORDER Nst_LITTLE_ENDIAN
 #else
-#error Failed to determine endianness, define Nst_BYTEORDER as 4321 (LE) or 1234 (BE)
+#error Failed to determine endianness, define Nst_BYTEORDER as Nst_LITTLE_ENDIAN or Nst_BIG_ENDIAN
 #endif // !Nst_BYTEORDER
 #endif // !Nst_BYTEORDER
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 /* Marks a function for for the standard C declaration (`__cdecl`). */
 #define NstC __cdecl
 #else
@@ -196,7 +215,7 @@
 #endif
 
 #if defined(_DEBUG)                                                           \
-    && (!defined(Nst_BREAKPOINT_ON_ASSERTION_FAIL) || !defined(Nst_WIN))
+    && (!defined(Nst_BREAKPOINT_ON_ASSERTION_FAIL) || !defined(Nst_MSVC))
 /**
  * @brief Aborts with an error message when an expression is false. The error
  * specifies the expression, the path and line of both the C and Nest file.
@@ -239,7 +258,7 @@
         (abort(), 0))                                                         \
     )
 
-#elif defined(Nst_WIN) && defined(Nst_BREAKPOINT_ON_ASSERTION_FAIL)
+#elif defined(Nst_MSVC) && defined(Nst_BREAKPOINT_ON_ASSERTION_FAIL)
 
 /** [docs:ignore]
  * @brief Aborts with an error message when an expression is false. The error

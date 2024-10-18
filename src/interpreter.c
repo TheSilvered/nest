@@ -11,7 +11,7 @@
 #include "format.h"
 #include "encoding.h"
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 
 #include <windows.h>
 #include <direct.h>
@@ -31,7 +31,7 @@ typedef HMODULE lib_t;
 
 typedef void *lib_t;
 
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
 #include "mem.h"
 
@@ -1387,7 +1387,7 @@ usize Nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part)
     if (file_part != NULL)
         *file_part = NULL;
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     wchar_t *wide_full_path = Nst_malloc_c(PATH_MAX, wchar_t);
     if (wide_full_path == NULL)
         return 0;
@@ -1473,7 +1473,7 @@ usize Nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part)
 
     *buf = path;
     return strlen(path);
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 }
 
 Nst_IntrState *Nst_state_get(void)
@@ -1483,7 +1483,7 @@ Nst_IntrState *Nst_state_get(void)
 
 i32 Nst_chdir(Nst_StrObj *str)
 {
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     wchar_t *wide_cwd = Nst_char_to_wchar_t(str->value, str->len);
     if (wide_cwd == NULL)
         return -1;
@@ -1491,7 +1491,7 @@ i32 Nst_chdir(Nst_StrObj *str)
     Nst_free(wide_cwd);
 #else
     i32 res = chdir(str->value);
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
     if (res != 0)
         Nst_set_call_error_c(_Nst_EM_FAILED_CHDIR);
@@ -1504,7 +1504,7 @@ i32 Nst_chdir(Nst_StrObj *str)
 
 Nst_StrObj *Nst_getcwd(void)
 {
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     wchar_t *wide_cwd = Nst_malloc_c(PATH_MAX, wchar_t);
     if (wide_cwd == NULL)
         return NULL;
@@ -1530,7 +1530,7 @@ Nst_StrObj *Nst_getcwd(void)
         return NULL;
     }
     return STR(Nst_str_new_allocated(cwd_buf, strlen(cwd_buf)));
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 }
 
 static void loaded_libs_destructor(lib_t lib)

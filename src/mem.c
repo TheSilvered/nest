@@ -6,7 +6,7 @@
 #ifdef Nst_COUNT_ALLOC
 static i32 allocation_count = 0;
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 #pragma warning(push)
 #pragma warning(disable: 4995)
 #else
@@ -51,7 +51,7 @@ void Nst_raw_free(void *block)
     free(block);
 }
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 #pragma warning(pop)
 #else
 #pragma GCC diagnostic pop

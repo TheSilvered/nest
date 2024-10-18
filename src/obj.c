@@ -98,7 +98,7 @@ free_mem:
 // silences the warning of the expression being always true when _Nst_P_LEN_MAX
 // is 0 (e.g. when pools are disabled)
 
-#if defined(Nst_DISABLE_POOLS) && !defined(Nst_WIN)
+#if defined(Nst_DISABLE_POOLS) && !defined(Nst_MSVC)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wtype-limits"
 #endif
@@ -112,7 +112,7 @@ free_mem:
         return;
     }
 
-#if defined(Nst_DISABLE_POOLS) && !defined(Nst_WIN)
+#if defined(Nst_DISABLE_POOLS) && !defined(Nst_MSVC)
 #pragma GCC diagnostic pop
 #endif
 

@@ -633,7 +633,7 @@ NstEXP isize NstC Nst_fprintln(Nst_IOFileObj *f, const i8 *buf);
  *! `-4` a memory allocation error.
  */
 NstEXP isize NstC Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
-                             Nst_GNU_FMT(1, 2);
+                             Nst_NIX_FMT(1, 2);
 /**
  * Prints a formatted string to a Nest file object. The format specifier
  * works like that of C's `printf`.
@@ -651,7 +651,7 @@ NstEXP isize NstC Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
  *! `-4` a memory allocation error.
  */
 NstEXP isize NstC Nst_fprintf(Nst_IOFileObj *f, Nst_WIN_FMT const i8 *fmt, ...)
-                                                Nst_GNU_FMT(2, 3);
+                                                Nst_NIX_FMT(2, 3);
 /* `va_list` variant of `Nst_fprintf`. */
 NstEXP isize NstC Nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args);
 
@@ -667,7 +667,7 @@ NstEXP isize NstC Nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args);
  * @return The function returns the newly created string object.
  */
 NstEXP Nst_Obj *NstC Nst_sprintf(Nst_WIN_FMT const i8 *fmt, ...)
-                                 Nst_GNU_FMT(1, 2);
+                                 Nst_NIX_FMT(1, 2);
 /* `va_list` variant of `Nst_sprintf`. */
 NstEXP Nst_Obj *NstC Nst_vsprintf(const i8 *fmt, va_list args);
 

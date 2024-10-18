@@ -56,11 +56,27 @@ assetion fails.
 
 ---
 
-### `Nst_WIN`
+### `Nst_MSVC`
 
 **Description:**
 
-Defined when compiling on MS Windows.
+Defined when compiling with MSVC.
+
+---
+
+### `Nsg_GCC`
+
+**Description:**
+
+Defined when compiling with GCC.
+
+---
+
+### `Nsg_CLANG`
+
+**Description:**
+
+Defined when compiling with Clang.
 
 ---
 
@@ -104,17 +120,17 @@ Marks an argument as a printf format string on MSVC.
 
 ---
 
-### `Nst_GNU_FMT`
+### `Nst_NIX_FMT`
 
 **Synopsis:**
 
 ```better-c
-#define Nst_GNU_FMT(m, n)
+#define Nst_NIX_FMT(m, n)
 ```
 
 **Description:**
 
-Marks an argument as a printf format string on GCC.
+Marks an argument as a printf format string on GCC or CLANG.
 
 ---
 
@@ -122,7 +138,7 @@ Marks an argument as a printf format string on GCC.
 
 **Description:**
 
-Represents little-endian systems. Always defined.
+Represents little-endian systems, check against Nst_BYTEORDER.
 
 ---
 
@@ -130,7 +146,7 @@ Represents little-endian systems. Always defined.
 
 **Description:**
 
-Represents big-endian systems. Always defined.
+Represents big-endian systems, check against Nst_BYTEORDER.
 
 ---
 

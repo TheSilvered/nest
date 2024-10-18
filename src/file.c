@@ -3,7 +3,7 @@
 #include "global_consts.h"
 #include "mem.h"
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 
 #include <io.h>
 #define lseek _lseek
@@ -318,11 +318,11 @@ Nst_IOResult Nst_FILE_tell(Nst_IOFileObj *f, usize *pos)
     if (!Nst_IOF_CAN_SEEK(f))
         return Nst_IO_OP_FAILED;
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     i64 fpi_pos = _ftelli64(f->fp);
 #else
     off_t fpi_pos = ftello(f->fp);
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
     if (fpi_pos == -1) {
         *pos = 0;
@@ -340,7 +340,7 @@ Nst_IOResult Nst_FILE_seek(Nst_SeekWhence origin, isize offset,
     if (!Nst_IOF_CAN_SEEK(f))
         return Nst_IO_OP_FAILED;
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     int result = _fseeki64(f->fp, (i64)offset, origin);
 #else
     int result = fseeko(f->fp, (off_t)offset, origin);
@@ -395,7 +395,7 @@ Nst_IOResult Nst_fclose(Nst_IOFileObj *f)
 
 FILE *Nst_fopen_unicode(i8 *path, const i8 *mode)
 {
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     wchar_t *wide_path = Nst_char_to_wchar_t(path, strlen(path));
     if (wide_path == NULL)
         return NULL;

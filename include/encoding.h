@@ -387,13 +387,13 @@ NstEXP usize NstC Nst_string_utf8_char_len(u8 *str, usize str_len);
  */
 NstEXP Nst_CP *NstC Nst_cp(Nst_CPID cpid);
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 /**
  * @brief WINDOWS ONLY Returns the Nest code page ID of the local ANSI code
  * page. If the ANSI code page is not supported, `Nst_CP_LATIN1` is returned.
  */
 NstEXP Nst_CPID NstC Nst_acp(void);
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
 /* [docs:link strlen <https://man7.org/linux/man-pages/man3/strlen.3.html>] */
 /* [docs:link wcslen <https://man7.org/linux/man-pages/man3/wcslen.3.html>] */

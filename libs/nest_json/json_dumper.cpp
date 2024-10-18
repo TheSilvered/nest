@@ -3,7 +3,7 @@
 #include "json_dumper.h"
 #include "json_lexer.h"
 
-#ifndef Nst_WIN
+#ifndef Nst_MSVC
 
 #define isinf std::isinf
 #define isnan std::isnan

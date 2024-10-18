@@ -8,7 +8,7 @@ static i32 recursion_level;
 
 // needed because when debugging on Windows it runs out of stack space quickly
 // does not cause any issues when running on Release mode
-#if defined(Nst_WIN) && defined(_DEBUG)
+#if defined(Nst_MSVC) && defined(_DEBUG)
 #define MAX_RECURSION_LVL 500
 #else
 #define MAX_RECURSION_LVL 1500
@@ -54,7 +54,7 @@ static Nst_Obj *parse_value(Nst_LList *tokens)
     INC_RECURSION_LVL;
     Nst_Tok *tok = Nst_TOK(Nst_llist_pop(tokens));
 
-    switch (tok->type) {
+    switch ((JSONTokenType)tok->type) {
     case JSON_VALUE: {
         Nst_Obj *res = Nst_inc_ref(tok->value);
         Nst_tok_destroy(tok);
