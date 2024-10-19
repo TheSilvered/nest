@@ -163,12 +163,12 @@ has meaning only when compared with other values from the same function.
 
 ---
 
-### `@hours`
+### `@hour`
 
 **Synopsis:**
 
 ```nest
-[timestamp: Int?] @hours -> Int
+[timestamp: Int?] @hour -> Int
 ```
 
 **Returns:**
@@ -180,12 +180,12 @@ current time is used.
 
 ---
 
-### `@minutes`
+### `@minute`
 
 **Synopsis:**
 
 ```nest
-[timestamp: Int?] @minutes -> Int
+[timestamp: Int?] @minute -> Int
 ```
 
 **Returns:**
@@ -248,12 +248,12 @@ current time is used.
 
 ---
 
-### `@seconds`
+### `@second`
 
 **Synopsis:**
 
 ```nest
-[timestamp: Int?] @seconds -> Int
+[timestamp: Int?] @second -> Int
 ```
 
 **Returns:**

@@ -25,7 +25,7 @@ The current state of tests:
   - 🟡 `Str`
   - 🟢 `Type`
   - 🟡 `Vector`
-- 🔴 Standard library tests
+- 🟡 Standard library tests
   - 🟢 `stdco.nest`
   - 🟡 `stdcodecs.nest`
   - 🟡 `stderr.nest`
@@ -38,7 +38,7 @@ The current state of tests:
   - 🟢 `stdsequtil.nest`
   - 🟢 `stdsutil.nest`
   - 🟡 `stdsys.nest`
-  - 🔴 `stdtime.nest`
+  - 🟢 `stdtime.nest`
 - 🔴 C tests
   - 🔴 `test_check_bytes`
   - 🔴 `test_to_utf32`

@@ -50,8 +50,9 @@
 - now when a string is not closed only the end is highlighted rather than the whole string
 - now the second argument of `itu.repeat` is optional and it will repeat infinitely if not given, it would repeat infinitely even if the number was negative even if it was not specified in the documentation
 - added `timestamp` argument to many `stdtime.nest` functions
+- renamed `hours`, `minutes` and `seconds` to `hour`, `minute` and `second`
 - reorganized `extension`, `filename`, `join`, `normalize` and `parent_path` to be inside `path` in `stdfs.nest`
-- removed `remove_dir`, `remove_dirs` and `remove_file` in favor of 
+- removed `remove_dir`, `remove_dirs` and `remove_file` in favor of `remove` and `remove_all`
 
 **Bug fixes**
 

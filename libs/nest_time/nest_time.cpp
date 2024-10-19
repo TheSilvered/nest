@@ -24,9 +24,9 @@ static Nst_Declr obj_list_[] = {
     Nst_FUNCDECLR(year_, 1),
     Nst_FUNCDECLR(date_, 1),
     Nst_FUNCDECLR(gmt_date_, 1),
-    Nst_FUNCDECLR(seconds_, 1),
-    Nst_FUNCDECLR(minutes_, 1),
-    Nst_FUNCDECLR(hours_, 1),
+    Nst_FUNCDECLR(second_, 1),
+    Nst_FUNCDECLR(minute_, 1),
+    Nst_FUNCDECLR(hour_, 1),
     Nst_FUNCDECLR(clock_time_, 1),
     Nst_FUNCDECLR(gmt_clock_time_, 1),
     Nst_FUNCDECLR(clock_datetime_, 1),
@@ -218,7 +218,7 @@ Nst_Obj *NstC gmt_date_(usize arg_num, Nst_Obj **args)
     return OBJ(map);
 }
 
-Nst_Obj *NstC seconds_(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC second_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *time_obj;
     if (!Nst_extract_args("?i", arg_num, args, &time_obj))
@@ -231,7 +231,7 @@ Nst_Obj *NstC seconds_(usize arg_num, Nst_Obj **args)
     return Nst_int_new(t->tm_sec);
 }
 
-Nst_Obj *NstC minutes_(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC minute_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *time_obj;
     if (!Nst_extract_args("?i", arg_num, args, &time_obj))
@@ -244,7 +244,7 @@ Nst_Obj *NstC minutes_(usize arg_num, Nst_Obj **args)
     return Nst_int_new(t->tm_min);
 }
 
-Nst_Obj *NstC hours_(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC hour_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *time_obj;
     if (!Nst_extract_args("?i", arg_num, args, &time_obj))
