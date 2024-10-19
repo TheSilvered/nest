@@ -1,7 +1,5 @@
 |#| '../test_lib.nest' = test
 |#| 'stdfs.nest' = fs
-|#| 'stdsys.nest' = sys
-|#| 'stdio.nest' = io
 
 -- Test 'is_dir'
 'test_files' @fs.is_dir @test.assert_true
@@ -74,7 +72,7 @@ fs.copy {'test_files/file.txt', 'test_files/file_copy.txt'} @test.assert_raises_
 'test_files/file_copy.txt' @fs.remove
 'test_files/file_copy.txt' @fs.is_file @test.assert_false
 
--- Test 'make_dir_symlink' and 'read_symlink'
+-- Test 'make_dir_symlink', 'is_symlink' and 'read_symlink'
 'dir_symlink' @fs.exists ? 'dir_symlink' @fs.remove
 ?? [
     'test_files' 'dir_symlink' @fs.make_dir_symlink
@@ -85,12 +83,12 @@ fs.copy {'test_files/file.txt', 'test_files/file_copy.txt'} @test.assert_raises_
 ]
 
 !dir_symlink_failed ? [
+    'dir_symlink' @fs.is_symlink @test.assert_true
     'dir_symlink' @fs.read_symlink 'test_files' @test.assert_eq
     'dir_symlink' @fs.remove
 ]
 
--- Test 'make_file_symlink' and 'read_symlink'
-
+-- Test 'make_file_symlink', 'is_symlink' and 'read_symlink'
 'file_symlink' @fs.exists ? 'file_symlink' @fs.remove
 ?? [
     'test_files/file.txt' 'file_symlink' @fs.make_dir_symlink
@@ -101,7 +99,46 @@ fs.copy {'test_files/file.txt', 'test_files/file_copy.txt'} @test.assert_raises_
 ]
 
 !file_symlink_failed ? [
+    'file_symlink' @fs.is_symlink @test.assert_true
     'test_files/file.txt' @fs.path.normalize = normalized_path
     'file_symlink' @fs.read_symlink normalized_path @test.assert_eq
     'file_symlink' @fs.remove
 ]
+
+-- Test 'make_hard_link' and 'equivalent'
+'test_files/file_hl.txt' @fs.is_file ? 'test_files/file_hl.txt' @fs.remove
+'test_files/file.txt' 'test_files/file_hl.txt' @fs.make_hard_link
+'test_files/file.txt' 'test_files/file_hl.txt' @fs.equivalent @test.assert_true
+'test_files/file_hl.txt' @fs.remove
+
+-- Test 'list_dir' and 'list_dirs'
+'dir' @fs.is_dir ? 'dir' @fs.remove_all
+'dir/sub1/sub2' @fs.make_dirs
+'test_files/file.txt' 'dir/file.txt' @fs.copy
+'test_files/ùnicode😊.txt' 'dir/ùnicode😊.txt' @fs.copy
+'test_files/file.txt' 'dir/sub1/file1.txt' @fs.copy
+'test_files/file.txt' 'dir/sub1/sub2/file2.txt' @fs.copy
+
+#to_set arr mapping_func [
+    {} = map
+    mapping_func null == ? (##x => x) = mapping_func
+    ... arr := el [null = map.(el @mapping_func)]
+    => map
+]
+
+{
+    'dir/file.txt',
+    'dir/ùnicode😊.txt',
+    'dir/sub1'
+} fs.path.normalize @to_set = dir_paths
+'dir' @fs.list_dir @to_set dir_paths @test.assert_eq
+{
+    'dir/file.txt',
+    'dir/ùnicode😊.txt',
+    'dir/sub1',
+    'dir/sub1/file1.txt',
+    'dir/sub1/sub2',
+    'dir/sub1/sub2/file2.txt'
+} fs.path.normalize @to_set = dirs_paths
+'dir' @fs.list_dirs @to_set dirs_paths @test.assert_eq
+'dir' @fs.remove_all

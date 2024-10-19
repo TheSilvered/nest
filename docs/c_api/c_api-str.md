@@ -129,7 +129,7 @@ Value of `idx` in case an error occurs when iterating over a string.
 typedef struct _Nst_StrObj {
     Nst_OBJ_HEAD;
     usize len;
-    usize true_len;
+    usize char_len;
     i8 *value;
     u8 *indexable_str;
 } Nst_StrObj
@@ -142,7 +142,7 @@ Structure representing a Nest string.
 **Fields:**
 
 - `len`: the length in bytes of `value`
-- `true_len`: the length in characters of `value`
+- `char_len`: the length in characters of `value`
 - `value`: the value of the string
 - `indexable_str`: the string in UTF-16 or UTF-32 depending on the characters it
   contains
@@ -256,7 +256,7 @@ The new string on success and `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_str_new_len(i8 *val, usize len, usize true_len, bool allocated)
+Nst_Obj *Nst_str_new_len(i8 *val, usize len, usize char_len, bool allocated)
 ```
 
 **Description:**
@@ -266,8 +266,8 @@ Creates a new string object with known length.
 **Parameters:**
 
 - `val`: the value of the string to create
-- `len`: the length in characters of `val`
-- `true_len`: the length in bytes of `val`
+- `len`: the length in bytes of `val`
+- `char_len`: the length in characters of `val`
 - `allocated`: whether `val` is allocated on the heap
 
 **Returns:**

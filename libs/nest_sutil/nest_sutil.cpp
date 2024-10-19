@@ -51,7 +51,7 @@ Nst_Declr *lib_init()
 void get_in_str(Nst_StrObj *str, Nst_Obj *start_idx, Nst_Obj *end_idx,
                 i8 **out_str, i8 **out_str_end)
 {
-    usize str1_true_len = str->true_len;
+    usize str1_true_len = str->char_len;
     i64 start = Nst_DEF_VAL(start_idx, AS_INT(start_idx), 0);
     i64 end = Nst_DEF_VAL(end_idx, AS_INT(end_idx), str1_true_len);
 
@@ -326,7 +326,7 @@ static bool check_just_args(usize arg_num, Nst_Obj **args, Nst_StrObj *&str,
     } else {
         fill_ch = just_ch_obj->value;
         fill_ch_len = just_ch_obj->len;
-        fill_ch_true_len = just_ch_obj->true_len;
+        fill_ch_true_len = just_ch_obj->char_len;
     }
 
     if (fill_ch_true_len != 1) {
@@ -348,10 +348,10 @@ Nst_Obj *ljust_(usize arg_num, Nst_Obj **args)
     if (!check_just_args(arg_num, args, str, just_len, fill_ch, fill_ch_len))
         return nullptr;
 
-    if (just_len <= str->true_len)
+    if (just_len <= str->char_len)
         return Nst_inc_ref(str);
 
-    usize fill_len = usize(just_len - str->true_len);
+    usize fill_len = usize(just_len - str->char_len);
     usize str_len = str->len;
     usize new_str_len = str_len + fill_ch_len * fill_len;
 
@@ -383,10 +383,10 @@ Nst_Obj *rjust_(usize arg_num, Nst_Obj **args)
     if (!check_just_args(arg_num, args, str, just_len, fill_ch, fill_ch_len))
         return nullptr;
 
-    if (just_len <= str->true_len)
+    if (just_len <= str->char_len)
         return Nst_inc_ref(str);
 
-    usize fill_len = usize(just_len - str->true_len);
+    usize fill_len = usize(just_len - str->char_len);
     usize str_len = str->len;
     usize new_str_len = str_len + fill_ch_len * fill_len;
 
@@ -417,10 +417,10 @@ Nst_Obj *NstC cjust_(usize arg_num, Nst_Obj **args)
     if (!check_just_args(arg_num, args, str, just_len, fill_ch, fill_ch_len))
         return nullptr;
 
-    if (just_len <= str->true_len)
+    if (just_len <= str->char_len)
         return Nst_inc_ref(str);
 
-    usize fill_len = usize(just_len - str->true_len);
+    usize fill_len = usize(just_len - str->char_len);
     usize str_len = str->len;
     usize new_str_len = str_len + fill_ch_len * fill_len;
 

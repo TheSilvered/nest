@@ -47,18 +47,18 @@ static Nst_Declr obj_list_[] = {
     Nst_FUNCDECLR(make_hard_link_, 2),
     Nst_FUNCDECLR(exists_, 1),
     Nst_FUNCDECLR(copy_, 3),
-    Nst_FUNCDECLR(rename_, 2),
+    Nst_FUNCDECLR(rename_, 2),//
     Nst_FUNCDECLR(list_dir_, 1),
     Nst_FUNCDECLR(list_dirs_, 1),
-    Nst_FUNCDECLR(absolute_path_, 1),
-    Nst_FUNCDECLR(canonical_path_, 1),
-    Nst_FUNCDECLR(relative_path_, 2),
+    Nst_FUNCDECLR(absolute_path_, 1),//
+    Nst_FUNCDECLR(canonical_path_, 1),//
+    Nst_FUNCDECLR(relative_path_, 2),//
     Nst_FUNCDECLR(equivalent_, 2),
-    Nst_FUNCDECLR(path_join_, 2),
-    Nst_FUNCDECLR(path_normalize_, 1),
-    Nst_FUNCDECLR(path_parent_, 1),
-    Nst_FUNCDECLR(path_filename_, 1),
-    Nst_FUNCDECLR(path_extension_, 1),
+    Nst_FUNCDECLR(path_join_, 2),//
+    Nst_FUNCDECLR(path_normalize_, 1),//
+    Nst_FUNCDECLR(path_parent_, 1),//
+    Nst_FUNCDECLR(path_filename_, 1),//
+    Nst_FUNCDECLR(path_extension_, 1),//
     Nst_FUNCDECLR(time_creation_, 1),
     Nst_FUNCDECLR(time_last_access_, 1),
     Nst_FUNCDECLR(time_last_write_, 1),
@@ -548,6 +548,24 @@ Nst_Obj *NstC equivalent_(usize arg_num, Nst_Obj **args)
     Nst_RETURN_BOOL(fs::equivalent(utf8_path(path_1), utf8_path(path_2), ec));
 }
 
+static void normalize_path(i8 *path, usize len)
+{
+    if (len >= 4 && strncmp((const i8 *)path, "\\\\?\\", 4) == 0) {
+        path += 4;
+        len -= 4;
+    }
+
+    for (usize i = 0; i < len; i++) {
+#ifdef Nst_MSVC
+        if (path[i] == '/')
+            path[i] = '\\';
+#else
+        if (path[i] == '\\')
+            path[i] = '/';
+#endif // !Nst_MSVC
+    }
+}
+
 Nst_Obj *NstC path_join_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *path_1;
@@ -561,11 +579,29 @@ Nst_Obj *NstC path_join_(usize arg_num, Nst_Obj **args)
     usize p1_len = path_1->len;
     usize p2_len = path_2->len;
 
-    if (p2_len == 0)
-        return Nst_inc_ref(path_1);
+    if (p2_len == 0) {
+        Nst_StrObj *norm_path = STR(Nst_str_copy(path_1));
+        if (norm_path == nullptr)
+            return nullptr;
+        normalize_path(norm_path->value, norm_path->len);
+        return OBJ(norm_path);
+    }
 
-    if (p2[0] == '/' || p2[0] == '\\' || p2[1] == ':')
-        return Nst_inc_ref(path_2);
+    // These conditions work on:
+    // - Unix absolute paths (/dir)
+    // - Windows absolute paths (C:\dir or C:/dir)
+    // - Windows drive-relative paths (C:dir)
+    // - Windows current drive absolute paths (\dir or /dir)
+    // - Windows extended paths (\\?\C:\dir)
+    // All of which should not be joined after another path
+
+    if (p2[0] == '/' || p2[0] == '\\' || p2[1] == ':' || p1_len == 0) {
+        Nst_StrObj *norm_path = STR(Nst_str_copy(path_2));
+        if (norm_path == nullptr)
+            return nullptr;
+        normalize_path(norm_path->value, norm_path->len);
+        return OBJ(norm_path);
+    }
 
     usize new_len = p1_len + p2_len;
     bool add_slash = false;
@@ -581,26 +617,11 @@ Nst_Obj *NstC path_join_(usize arg_num, Nst_Obj **args)
 
     memcpy(new_str, p1, p1_len);
 
-    if (add_slash) {
-#ifdef Nst_MSVC
-        new_str[p1_len] = '\\';
-#else
+    if (add_slash)
         new_str[p1_len] = '/';
-#endif
-    }
     memcpy(new_str + p1_len + (add_slash ? 1 : 0), p2, p2_len);
     new_str[new_len] = 0;
-
-    for (usize i = 0; i < new_len; i++) {
-#ifdef Nst_MSVC
-        if (new_str[i] == '/')
-            new_str[i] = '\\';
-#else
-        if (new_str[i] == '\\')
-            new_str[i] = '/';
-#endif
-    }
-
+    normalize_path(new_str, new_len);
     return Nst_str_new(new_str, new_len, true);
 }
 
@@ -613,18 +634,7 @@ Nst_Obj *NstC path_normalize_(usize arg_num, Nst_Obj **args)
     Nst_StrObj *norm_path = STR(Nst_str_copy(path));
     if (norm_path == nullptr)
         return nullptr;
-
-    i8 *val = norm_path->value;
-
-    for (usize i = 0, n = norm_path->len; i < n; i++) {
-#ifdef Nst_MSVC
-        if (val[i] == '/')
-            val[i] = '\\';
-#else
-        if (val[i] == '\\')
-            val[i] = '/';
-#endif
-    }
+    normalize_path(norm_path->value, norm_path->len);
     return OBJ(norm_path);
 }
 

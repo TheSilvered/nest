@@ -71,6 +71,8 @@
 - fixed encoding on `utf16`, `utf16le` and `utf16be` for `U+FFFF`
 - fixed various bugs with virtual files
 - now `io.get_flags`, `io.can_read`, `io.can_write`, `io.is_bin`, `io.can_seek` and `io.is_a_tty` will throw an error if the file is closed
+- now `fs.path.normalize` will no longer normalize `\\?\` at the beginning of a path
+- now `fs.path.join` will not add a slash if the first path is an empty string
 
 ### C API
 
@@ -187,8 +189,9 @@ _General changes_:
   - `_Nst_get_state` to `_Nst_state_get`
   - all `Nst_string_*` to `Nst_str_*`
 - macros to check token type ranges have been made private
-- removed `Nst_WIN` in favour of `Nst_MSVC`
+- removed `Nst_WIN` in favor of `Nst_MSVC`
 - renamed `Nst_GNU_FMT` to `Nst_NIX_FMT` since it is used with clang too
+- renamed `true_len` field in strings to `char_len`
 
 **Bug fixes**
 
@@ -198,6 +201,7 @@ _General changes_:
 - fixed a possible read-after-free bug in the garbage collector
 - now the standard library is imported when running Nest on Windows in `x86` debug mode
 - fixed the value store in `ill_encoded_byte` retrieved with `Nst_io_result_get_details`
+- fixed `Nst_str_copy` that swapped `true_len` and `len`
 
 ---
 

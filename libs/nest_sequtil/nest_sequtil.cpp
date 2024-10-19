@@ -1152,7 +1152,7 @@ Nst_Obj *reverse_string(Nst_StrObj *str_obj)
     Nst_Obj *new_str_obj = Nst_str_new_len(
         new_str,
         str_obj->len,
-        str_obj->true_len,
+        str_obj->char_len,
         true);
     if (new_str_obj == nullptr) {
         Nst_free(new_str_obj);

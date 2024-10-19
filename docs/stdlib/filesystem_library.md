@@ -452,7 +452,20 @@ The name of the file `path` points to.
 
 **Description:**
 
-Joins two paths by adding, if needed, a slash between them.
+Joins two paths by adding, if needed, a slash between them. The resulting path
+is normalized.
+
+If `path_2` falls on one of the following cases it will not be joined but
+returned directly:
+
+- it is a Unix absolute path (`/dir`)
+- it is a Windows absolute path (`C:\dir` or `C:/dir`)
+- it is a Windows drive-relative path (`C:dir`)
+- it is a Windows current drive absolute path (`\dir` or `/dir`)
+- it is a Windows extended path (`\\?\C:\dir`)
+
+It will still be normalized as specified in
+[`fs.path.normalize`](#path-normalize).
 
 **Arguments:**
 
@@ -461,9 +474,7 @@ Joins two paths by adding, if needed, a slash between them.
 
 **Returns**:
 
-Returns the two paths joint. If `path_2` is an absolute path it is returned
-without any modifications. This function normalizes the slashes after joining:
-on Windows `/` becomes `\` and on Linux `\` becomes `/`.
+Returns the two paths joint.
 
 ---
 
@@ -479,6 +490,8 @@ on Windows `/` becomes `\` and on Linux `\` becomes `/`.
 
 Translates any slashes in the path to the native separators. This means that on
 Windows `/` becomes `\` and on Linux `\` becomes `/`.
+
+If a path begins with `\\?\` that part is not modified.
 
 **Returns:**
 

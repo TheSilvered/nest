@@ -38,7 +38,7 @@ extern "C" {
  * Structure representing a Nest string.
  *
  * @param len: the length in bytes of `value`
- * @param true_len: the length in characters of `value`
+ * @param char_len: the length in characters of `value`
  * @param value: the value of the string
  * @param indexable_str: the string in UTF-16 or UTF-32 depending on the
  * characters it contains
@@ -46,7 +46,7 @@ extern "C" {
 NstEXP typedef struct _Nst_StrObj {
     Nst_OBJ_HEAD;
     usize len;
-    usize true_len;
+    usize char_len;
     i8 *value;
     u8 *indexable_str;
 } Nst_StrObj;
@@ -100,13 +100,13 @@ NstEXP Nst_Obj *NstC Nst_str_new_allocated(i8 *val, usize len);
  * Creates a new string object with known length.
  *
  * @param val: the value of the string to create
- * @param len: the length in characters of `val`
- * @param true_len: the length in bytes  of `val`
+ * @param len: the length in bytes of `val`
+ * @param char_len: the length in characters of `val`
  * @param allocated: whether `val` is allocated on the heap
  *
  * @return The new string on success and `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_str_new_len(i8 *val, usize len, usize true_len,
+NstEXP Nst_Obj *NstC Nst_str_new_len(i8 *val, usize len, usize char_len,
                                      bool allocated);
 
 /**

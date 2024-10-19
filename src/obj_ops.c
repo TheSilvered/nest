@@ -982,7 +982,7 @@ static Nst_Obj *seq_to_seq(Nst_Obj *ob, bool is_vect)
 
 static Nst_Obj *str_to_seq(Nst_Obj *ob, bool is_vect)
 {
-    usize str_len = STR(ob)->true_len;
+    usize str_len = STR(ob)->char_len;
     Nst_SeqObj *seq = is_vect ? SEQ(Nst_vector_new(str_len))
                               : SEQ(Nst_array_new(str_len));
     if (seq == NULL)
@@ -1342,7 +1342,7 @@ Nst_Obj *_Nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2)
     Nst_Obj *new_obj = Nst_str_new_len(
         buffer,
         tot_len,
-        nst_s1->true_len + nst_s2->true_len,
+        nst_s1->char_len + nst_s2->char_len,
         true);
 
     if (new_obj == NULL)
@@ -1410,7 +1410,7 @@ Nst_Obj *_Nst_obj_neg(Nst_Obj *ob)
 Nst_Obj *_Nst_obj_len(Nst_Obj *ob)
 {
     if (ob->type == Nst_t.Str)
-        return Nst_int_new(STR(ob)->true_len);
+        return Nst_int_new(STR(ob)->char_len);
     else if (ob->type == Nst_t.Map)
         return Nst_int_new(MAP(ob)->len);
     else if (IS_SEQ(ob))

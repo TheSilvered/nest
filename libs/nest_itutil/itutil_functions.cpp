@@ -118,7 +118,7 @@ Nst_Obj *NstC cycle_str_get_val(usize arg_num, Nst_Obj **args)
     Nst_Obj **objs = SEQ(args[0])->objs;
     Nst_Obj *ob = Nst_str_get(objs[1], AS_INT(objs[0]));
     AS_INT(objs[0]) += 1;
-    AS_INT(objs[0]) %= STR(objs[1])->true_len;
+    AS_INT(objs[0]) %= STR(objs[1])->char_len;
     return ob;
 }
 

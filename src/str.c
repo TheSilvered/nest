@@ -79,7 +79,7 @@ static bool create_indexable_str(Nst_StrObj *str)
         return true;
     }
 
-    u8 *indexable_str = (u8 *)Nst_malloc(str->true_len, ch_width);
+    u8 *indexable_str = (u8 *)Nst_malloc(str->char_len, ch_width);
     if (indexable_str == NULL)
         return false;
 
@@ -115,7 +115,7 @@ Nst_Obj *Nst_str_new(i8 *val, usize len, bool allocated)
         allocated);
 }
 
-Nst_Obj *Nst_str_new_len(i8 *val, usize len, usize true_len, bool allocated)
+Nst_Obj *Nst_str_new_len(i8 *val, usize len, usize char_len, bool allocated)
 {
     Nst_StrObj *str = Nst_obj_alloc(Nst_StrObj, Nst_t.Str);
     if (str == NULL)
@@ -125,7 +125,7 @@ Nst_Obj *Nst_str_new_len(i8 *val, usize len, usize true_len, bool allocated)
         str->flags |= Nst_FLAG_STR_IS_ALLOC;
     str->len = len;
     str->value = val;
-    str->true_len = true_len;
+    str->char_len = char_len;
     str->indexable_str = NULL;
 
     return OBJ(str);
@@ -151,7 +151,7 @@ Nst_StrObj Nst_str_temp(i8 *val, usize len)
     obj.flags = Nst_FLAG_STR_CAN_INDEX | Nst_FLAG_STR_IS_ASCII;
     obj.value = val;
     obj.len = len;
-    obj.true_len = len;
+    obj.char_len = len;
     obj.indexable_str = NULL;
     return obj;
 }
@@ -164,7 +164,7 @@ Nst_Obj *_Nst_str_copy(Nst_StrObj *src)
 
     memcpy(buffer, src->value, src->len);
 
-    Nst_Obj *str = Nst_str_new_len(buffer, src->true_len, src->len, true);
+    Nst_Obj *str = Nst_str_new_len(buffer, src->len, src->char_len, true);
     if (str == NULL)
         Nst_free(buffer);
     return str;
@@ -182,13 +182,13 @@ Nst_Obj *_Nst_str_repr(Nst_StrObj *src)
 Nst_Obj *_Nst_str_get(Nst_StrObj *str, i64 idx)
 {
     if (idx < 0)
-        idx += str->true_len;
+        idx += str->char_len;
 
-    if (idx < 0 || idx >= (i64)str->true_len) {
+    if (idx < 0 || idx >= (i64)str->char_len) {
         Nst_set_value_errorf(
             _Nst_EM_INDEX_OUT_OF_BOUNDS("Str"),
             idx,
-            str->true_len);
+            str->char_len);
         return NULL;
     }
 
@@ -300,7 +300,7 @@ i32 Nst_str_next_utf8(Nst_StrObj *str, isize *idx, i8 *ch_buf)
 
 usize _Nst_str_len(Nst_StrObj *str)
 {
-    return str->true_len;
+    return str->char_len;
 }
 
 usize _Nst_str_buf_len(Nst_StrObj *str)
@@ -426,7 +426,7 @@ Nst_Obj *Nst_str_parse_int(Nst_StrObj *str, i32 base)
 
 Nst_Obj *Nst_str_parse_byte(Nst_StrObj *str)
 {
-    if (str->true_len == 1) {
+    if (str->char_len == 1) {
         u32 utf32_ch = Nst_ext_utf8_to_utf32((u8 *)str->value);
         if (utf32_ch <= 0xff)
             return Nst_byte_new((u8)utf32_ch);
