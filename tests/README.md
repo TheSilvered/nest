@@ -29,7 +29,7 @@ The current state of tests:
   - 🟢 `stdco.nest`
   - 🟡 `stdcodecs.nest`
   - 🟡 `stderr.nest`
-  - 🔴 `stdfs.nest`
+  - 🟢 `stdfs.nest`
   - 🟢 `stdio.nest`
   - 🟢 `stditutil.nest`
   - 🟢 `stdjson.nest`

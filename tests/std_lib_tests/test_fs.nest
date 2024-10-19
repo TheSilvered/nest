@@ -72,7 +72,7 @@ fs.copy {'test_files/file.txt', 'test_files/file_copy.txt'} @test.assert_raises_
 'test_files/file_copy.txt' @fs.remove
 'test_files/file_copy.txt' @fs.is_file @test.assert_false
 
--- Test 'make_dir_symlink', 'is_symlink' and 'read_symlink'
+-- Test 'make_dir_symlink', 'is_symlink', 'canonical_path' and 'read_symlink'
 'dir_symlink' @fs.exists ? 'dir_symlink' @fs.remove
 ?? [
     'test_files' 'dir_symlink' @fs.make_dir_symlink
@@ -84,14 +84,17 @@ fs.copy {'test_files/file.txt', 'test_files/file_copy.txt'} @test.assert_raises_
 
 !dir_symlink_failed ? [
     'dir_symlink' @fs.is_symlink @test.assert_true
+    'dir_symlink' @fs.canonical_path @fs.path.normalize = can_path
+    'test_files' @fs.absolute_path @fs.path.normalize = abs_path
+    can_path abs_path @test.assert_eq
     'dir_symlink' @fs.read_symlink 'test_files' @test.assert_eq
     'dir_symlink' @fs.remove
 ]
 
--- Test 'make_file_symlink', 'is_symlink' and 'read_symlink'
+-- Test 'make_file_symlink', 'is_symlink', 'canonical_path' and 'read_symlink'
 'file_symlink' @fs.exists ? 'file_symlink' @fs.remove
 ?? [
-    'test_files/file.txt' 'file_symlink' @fs.make_dir_symlink
+    'test_files/file.txt' 'file_symlink' @fs.make_file_symlink
     "'file_symlink' created." @test.println
 ] ?! error [
     true = file_symlink_failed
@@ -100,6 +103,9 @@ fs.copy {'test_files/file.txt', 'test_files/file_copy.txt'} @test.assert_raises_
 
 !file_symlink_failed ? [
     'file_symlink' @fs.is_symlink @test.assert_true
+    'file_symlink' @fs.canonical_path @fs.path.normalize = can_path
+    'test_files/file.txt' @fs.absolute_path @fs.path.normalize = abs_path
+    can_path abs_path @test.assert_eq
     'test_files/file.txt' @fs.path.normalize = normalized_path
     'file_symlink' @fs.read_symlink normalized_path @test.assert_eq
     'file_symlink' @fs.remove
@@ -110,6 +116,17 @@ fs.copy {'test_files/file.txt', 'test_files/file_copy.txt'} @test.assert_raises_
 'test_files/file.txt' 'test_files/file_hl.txt' @fs.make_hard_link
 'test_files/file.txt' 'test_files/file_hl.txt' @fs.equivalent @test.assert_true
 'test_files/file_hl.txt' @fs.remove
+
+-- Test 'rename'
+'test_files/file_copy.txt' @fs.is_file ? 'test_files/file_copy.txt' @fs.remove
+'test_files/file_copy2.txt' @fs.is_file ? 'test_files/file_copy2.txt' @fs.remove
+'test_files/file.txt' 'test_files/file_copy.txt' @fs.copy
+'test_files/file_copy.txt' @fs.is_file @test.assert_true
+'test_files/file_copy2.txt' @fs.is_file @test.assert_false
+'test_files/file_copy.txt''test_files/file_copy2.txt' @fs.rename
+'test_files/file_copy.txt' @fs.is_file @test.assert_false
+'test_files/file_copy2.txt' @fs.is_file @test.assert_true
+'test_files/file_copy2.txt' @fs.remove
 
 -- Test 'list_dir' and 'list_dirs'
 'dir' @fs.is_dir ? 'dir' @fs.remove_all
@@ -142,3 +159,48 @@ fs.copy {'test_files/file.txt', 'test_files/file_copy.txt'} @test.assert_raises_
 } fs.path.normalize @to_set = dirs_paths
 'dir' @fs.list_dirs @to_set dirs_paths @test.assert_eq
 'dir' @fs.remove_all
+
+-- Test 'absolute_path'
+'test_files/file.txt' @fs.absolute_path = abs_path
+(abs_path.0 '/' ==) (abs_path.1 ':' ==) || @test.assert_true
+
+-- Test 'relative_path'
+'/a/c' '/a/b/d' @fs.relative_path @fs.path.normalize ('../../c' @fs.path.normalize) @test.assert_eq
+'/a/b' '/a/b/d' @fs.relative_path @fs.path.normalize ('..' @fs.path.normalize) @test.assert_eq
+
+-- Test 'path.join'
+'a/b' 'c/d' @fs.path.join @fs.path.normalize ('a/b/c/d' @fs.path.normalize) @test.assert_eq
+'a/b/' 'c/d' @fs.path.join @fs.path.normalize ('a/b/c/d' @fs.path.normalize) @test.assert_eq
+'a/b' '/c/d' @fs.path.join @fs.path.normalize ('/c/d' @fs.path.normalize) @test.assert_eq
+'a/b' 'C:/c/d' @fs.path.join @fs.path.normalize ('C:/c/d' @fs.path.normalize) @test.assert_eq
+'a/b' '\\c\\d' @fs.path.join @fs.path.normalize ('/c/d' @fs.path.normalize) @test.assert_eq
+'a/b' '\\\\?\\C:/c/d' @fs.path.join @fs.path.normalize ('\\\\?\\C:/c/d' @fs.path.normalize) @test.assert_eq
+'a/b' 'C:c/d' @fs.path.join @fs.path.normalize ('C:c/d' @fs.path.normalize) @test.assert_eq
+
+-- Test 'path.normalize'
+('a/b/c' @fs.path.normalize) ('a\\b\\c' @fs.path.normalize) @test.assert_eq
+('a/b\\c' @fs.path.normalize) ('a\\b/c' @fs.path.normalize) @test.assert_eq
+('\\\\?\\a/b\\c' @fs.path.normalize) ('\\\\?\\a\\b/c' @fs.path.normalize) @test.assert_eq
+('\\\\?\\a/b\\c' @fs.path.normalize).0 '\\' @test.assert_eq
+
+-- Test 'path.parent'
+'dir/subdir/file.txt' @fs.path.parent @fs.path.normalize ('dir/subdir' @fs.path.normalize) @test.assert_eq
+'dir/subdir/subdir2'  @fs.path.parent @fs.path.normalize ('dir/subdir' @fs.path.normalize) @test.assert_eq
+'dir/subdir/subdir2/' @fs.path.parent @fs.path.normalize ('dir/subdir/subdir2' @fs.path.normalize) @test.assert_eq
+
+-- Test 'path.filename'
+'dir/subdir/file.txt' @fs.path.filename 'file.txt' @test.assert_eq
+'dir/subdir/subdir2'  @fs.path.filename 'subdir2' @test.assert_eq
+'dir/subdir/subdir2/' @fs.path.filename '' @test.assert_eq
+
+-- Test 'path.extension'
+'dir/subdir/file.txt' @fs.path.extension '.txt' @test.assert_eq
+'dir/subdir/file.tar.gz' @fs.path.extension '.gz' @test.assert_eq
+'dir/subdir/file' @fs.path.extension '' @test.assert_eq
+'dir/subdir/subdir2' @fs.path.extension '' @test.assert_eq
+'dir/subdir/subdir2/' @fs.path.extension '' @test.assert_eq
+
+-- Test 'path.stem'
+'dir/subdir/file.txt' @fs.path.stem 'file' @test.assert_eq
+'dir/subdir/subdir2'  @fs.path.stem 'subdir2' @test.assert_eq
+'dir/subdir/subdir2/' @fs.path.stem '' @test.assert_eq

@@ -594,7 +594,8 @@ The target of the symlink which may not exist.
 **Description:**
 
 Returns a relative path to `path` using `base` as the starting point. If base
-is not given the current working directory is used.
+is not given the current working directory is used and if a path is relative it
+will be expanded to an absolute one first.
 
 **Arguments:**
 

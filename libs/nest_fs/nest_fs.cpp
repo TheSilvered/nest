@@ -47,18 +47,19 @@ static Nst_Declr obj_list_[] = {
     Nst_FUNCDECLR(make_hard_link_, 2),
     Nst_FUNCDECLR(exists_, 1),
     Nst_FUNCDECLR(copy_, 3),
-    Nst_FUNCDECLR(rename_, 2),//
+    Nst_FUNCDECLR(rename_, 2),
     Nst_FUNCDECLR(list_dir_, 1),
     Nst_FUNCDECLR(list_dirs_, 1),
-    Nst_FUNCDECLR(absolute_path_, 1),//
-    Nst_FUNCDECLR(canonical_path_, 1),//
-    Nst_FUNCDECLR(relative_path_, 2),//
+    Nst_FUNCDECLR(absolute_path_, 1),
+    Nst_FUNCDECLR(canonical_path_, 1),
+    Nst_FUNCDECLR(relative_path_, 2),
     Nst_FUNCDECLR(equivalent_, 2),
-    Nst_FUNCDECLR(path_join_, 2),//
-    Nst_FUNCDECLR(path_normalize_, 1),//
-    Nst_FUNCDECLR(path_parent_, 1),//
-    Nst_FUNCDECLR(path_filename_, 1),//
-    Nst_FUNCDECLR(path_extension_, 1),//
+    Nst_FUNCDECLR(path_join_, 2),
+    Nst_FUNCDECLR(path_normalize_, 1),
+    Nst_FUNCDECLR(path_parent_, 1),
+    Nst_FUNCDECLR(path_filename_, 1),
+    Nst_FUNCDECLR(path_extension_, 1),
+    Nst_FUNCDECLR(path_stem_, 1),
     Nst_FUNCDECLR(time_creation_, 1),
     Nst_FUNCDECLR(time_last_access_, 1),
     Nst_FUNCDECLR(time_last_write_, 1),
