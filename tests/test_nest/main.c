@@ -151,19 +151,25 @@ int main() {
 
     // str.h
 
-    RUN_TEST(test_string_copy);
-    RUN_TEST(test_string_repr);
-    RUN_TEST(test_string_get);
-    RUN_TEST(test_string_next_ch);
-    RUN_TEST(test_string_new_c_raw);
-    RUN_TEST(test_string_new_c);
-    RUN_TEST(test_string_new);
-    RUN_TEST(test_string_parse_int);
-    RUN_TEST(test_string_parse_byte);
-    RUN_TEST(test_string_parse_real);
-    RUN_TEST(test_string_compare);
-    RUN_TEST(test_string_find);
-    RUN_TEST(test_string_rfind);
+    RUN_TEST(test_str_copy);
+    RUN_TEST(test_str_repr);
+    RUN_TEST(test_str_get);
+    RUN_TEST(test_str_new_c_raw);
+    RUN_TEST(test_str_new_c);
+    RUN_TEST(test_str_new);
+    RUN_TEST(test_str_new_allocated);
+    RUN_TEST(test_str_new_len);
+    RUN_TEST(test_str_temp);
+    RUN_TEST(test_str_next);
+    RUN_TEST(test_str_next_obj);
+    RUN_TEST(test_str_next_utf32);
+    RUN_TEST(test_str_next_utf8);
+    RUN_TEST(test_str_parse_int);
+    RUN_TEST(test_str_parse_byte);
+    RUN_TEST(test_str_parse_real);
+    RUN_TEST(test_str_compare);
+    RUN_TEST(test_str_find);
+    RUN_TEST(test_str_rfind);
 
     Nst_printf("\nTests failed: %li\n", tests_failed_count());
 

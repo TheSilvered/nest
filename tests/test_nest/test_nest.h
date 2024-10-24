@@ -161,19 +161,25 @@ TestResult test_obj_to_bool();
 
 // str.h
 
-TestResult test_string_copy();
-TestResult test_string_repr();
-TestResult test_string_get();
-TestResult test_string_next_ch();
-TestResult test_string_new_c_raw();
-TestResult test_string_new_c();
-TestResult test_string_new();
-TestResult test_string_parse_int();
-TestResult test_string_parse_byte();
-TestResult test_string_parse_real();
-TestResult test_string_compare();
-TestResult test_string_find();
-TestResult test_string_rfind();
+TestResult test_str_copy();
+TestResult test_str_repr();
+TestResult test_str_get();
+TestResult test_str_new_c_raw();
+TestResult test_str_new_c();
+TestResult test_str_new();
+TestResult test_str_new_allocated();
+TestResult test_str_new_len();
+TestResult test_str_temp();
+TestResult test_str_next();
+TestResult test_str_next_obj();
+TestResult test_str_next_utf32();
+TestResult test_str_next_utf8();
+TestResult test_str_parse_int();
+TestResult test_str_parse_byte();
+TestResult test_str_parse_real();
+TestResult test_str_compare();
+TestResult test_str_find();
+TestResult test_str_rfind();
 
 #ifdef __cplusplus
 }

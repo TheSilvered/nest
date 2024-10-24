@@ -63,7 +63,7 @@
 #elif defined(__GNUC__)
 
 /* Defined when compiling with GCC. */
-#define Nsg_GCC
+#define Nst_GCC
 
 #define BUILD_GGC_VER(maj, min, patch) (maj * 10000 + min * 100 + patch)
 #define GCC_VER                                                           \
@@ -72,7 +72,7 @@
 #elif defined(__clang__)
 
 /* Defined when compiling with Clang. */
-#define Nsg_CLANG
+#define Nst_CLANG
 
 #else
 #error Use MSVC, GCC or clang to compile.

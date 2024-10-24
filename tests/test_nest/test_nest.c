@@ -4,12 +4,15 @@
 
 #include "test_nest.h"
 
-#ifndef Nst_MSVC
+#if defined(Nst_GCC) || defined(Nst_CLANG)
 #pragma GCC diagnostic ignored "-Wunused-function"
+#pragma GCC diagnostic ignored "-Wunused-label"
+#elif defined(Nst_MSVC)
+#pragma warning(disable: 4102)
 #endif
 
 #define ENTER_TEST TestResult test_result__ = TEST_SUCCESS
-#define EXIT_TEST return test_result__
+#define EXIT_TEST failure: return test_result__
 
 #define logerr(call) ()
 
@@ -103,21 +106,95 @@ static void crit_fail(TestResult *result, int line)
     cases_failed++;
 }
 
-#define fail_if(cond) fail_if_((cond), &test_result__, __LINE__)
-static bool fail_if_(bool cond, TestResult *result, int line)
+// Pass to fail_if to begin freeing objects (with Nst_dec_ref)
+#define F_O ((void *) 2)
+// Pass to fail_if to begin freeing pointers (with Nst_free)
+#define F_P ((void *) 3)
+// Pass to fail_if to begin freeing custom pointers, the first parameter after
+// this will be the function used
+#define F_C ((void *) 4)
+
+#define F_END ((void *) 1)
+
+#define F_ENDIF(ptr) (void *)((usize)(ptr) * (usize)F_END))
+
+static void free_args_va(va_list args)
 {
-    if (cond)
+    bool free_ptrs = false;
+    void (*custom_func)(void *) = NULL;
+    for (void *ptr = va_arg(args, void *);
+         ptr != F_END;
+         ptr = va_arg(args, void *))
+    {
+        if (ptr == F_O) {
+            free_ptrs = false;
+            custom_func = NULL;
+        } else if (ptr == F_P) {
+            free_ptrs = true;
+            custom_func = NULL;
+        } else if (ptr == F_C) {
+            free_ptrs = true;
+            custom_func = (void (*)(void *))va_arg(args, void *);
+        } else if (!free_ptrs)
+            Nst_ndec_ref(ptr);
+        else if (custom_func && ptr)
+            custom_func(ptr);
+        else if (ptr)
+            Nst_free(ptr);
+    }
+}
+
+// To this function are passed the va_args of fail_if and crit_fail_if
+// By default they will free pointers as Nest objects with Nst_dec_ref,
+// Pass F_P to begin freeing pointers with Nst_free
+// Pass F_O to start freeing objects again
+// Pass F_C followed by a function of type void (*)(void *), the pointers
+// will then be passed to that function
+// Any NULL pointer is automatically skipped
+// F_END will end the series even with pointers still in the series, it is
+// added automatically after all aruments when calling fail_if or crit_fail_if
+// F_ENDIF will stop if the given pointer is NULL.
+#define free_args(...) free_args_(0, __VA_ARGS__)
+
+static void free_args_(int dummy, ...)
+{
+    va_list args;
+    va_start(args, dummy);
+    free_args_va(args);
+}
+
+#define fail_if(cond, ...)                                                    \
+    fail_if_((cond), &test_result__, __LINE__, ## __VA_ARGS__, F_END)
+static bool fail_if_(bool cond, TestResult *result, int line, ...)
+{
+    va_list args;
+    va_start(args, line);
+
+    if (cond) {
+        free_args_va(args);
         fail(result, line);
+    }
     return cond;
 }
 
-#define crit_fail_if(cond)                                                    \
-    if (crit_fail_if_((cond), &test_result__, __LINE__))                      \
-        goto failure
-static bool crit_fail_if_(bool cond, TestResult *result, int line)
+#define crit_fail_if(cond, ...) do {                                          \
+    if (crit_fail_if_(                                                        \
+            (cond),                                                           \
+            &test_result__,                                                   \
+            __LINE__, ## __VA_ARGS__,                                         \
+            F_END))                                                           \
+    {                                                                         \
+        goto failure;                                                         \
+    }} while (0)
+static bool crit_fail_if_(bool cond, TestResult *result, int line, ...)
 {
-    if (cond)
+    va_list args;
+    va_start(args, line);
+
+    if (cond) {
+        free_args_va(args);
         crit_fail(result, line);
+    }
     return cond;
 }
 
@@ -140,6 +217,14 @@ static bool str_neq(i8 *str1, const i8 *str2)
     }
     Nst_free(str1);
     return false;
+}
+
+// Object to bool, takes a reference from the object
+static bool ref_obj_to_bool(Nst_Obj *obj)
+{
+    bool result = Nst_obj_to_bool(obj);
+    Nst_dec_ref(obj);
+    return result;
 }
 
 // argv_parser.h
@@ -2557,67 +2642,109 @@ TestResult test_obj_to_bool()
 
 // str.h
 
-TestResult test_string_copy()
+TestResult test_str_copy()
+{
+    ENTER_TEST;
+    Nst_StrObj *str = STR(Nst_str_new_c_raw("hèllo\xf0\x9f\x98\x8a", false));
+    crit_fail_if(str == NULL);
+    Nst_StrObj *copy = STR(Nst_str_copy(str));
+    crit_fail_if(str == NULL, str);
+
+    fail_if(str->len != copy->len);
+    fail_if(str->char_len != copy->char_len);
+    fail_if(ref_obj_to_bool(Nst_obj_ne(str, copy)));
+
+    Nst_dec_ref(str);
+    Nst_dec_ref(copy);
+    EXIT_TEST;
+}
+
+TestResult test_str_repr()
 {
     return TEST_NOT_IMPL;
 }
 
-TestResult test_string_repr()
+TestResult test_str_get()
 {
     return TEST_NOT_IMPL;
 }
 
-TestResult test_string_get()
+TestResult test_str_new_c_raw()
 {
     return TEST_NOT_IMPL;
 }
 
-TestResult test_string_next_ch()
+TestResult test_str_new_c()
 {
     return TEST_NOT_IMPL;
 }
 
-TestResult test_string_new_c_raw()
+TestResult test_str_new()
 {
     return TEST_NOT_IMPL;
 }
 
-TestResult test_string_new_c()
+TestResult test_str_new_allocated()
 {
     return TEST_NOT_IMPL;
 }
 
-TestResult test_string_new()
+TestResult test_str_new_len()
 {
     return TEST_NOT_IMPL;
 }
 
-TestResult test_string_parse_int()
+TestResult test_str_temp()
 {
     return TEST_NOT_IMPL;
 }
 
-TestResult test_string_parse_byte()
+TestResult test_str_next()
 {
     return TEST_NOT_IMPL;
 }
 
-TestResult test_string_parse_real()
+TestResult test_str_next_obj()
 {
     return TEST_NOT_IMPL;
 }
 
-TestResult test_string_compare()
+TestResult test_str_next_utf32()
 {
     return TEST_NOT_IMPL;
 }
 
-TestResult test_string_find()
+TestResult test_str_next_utf8()
 {
     return TEST_NOT_IMPL;
 }
 
-TestResult test_string_rfind()
+TestResult test_str_parse_int()
+{
+    return TEST_NOT_IMPL;
+}
+
+TestResult test_str_parse_byte()
+{
+    return TEST_NOT_IMPL;
+}
+
+TestResult test_str_parse_real()
+{
+    return TEST_NOT_IMPL;
+}
+
+TestResult test_str_compare()
+{
+    return TEST_NOT_IMPL;
+}
+
+TestResult test_str_find()
+{
+    return TEST_NOT_IMPL;
+}
+
+TestResult test_str_rfind()
 {
     return TEST_NOT_IMPL;
 }
