@@ -12,13 +12,13 @@ The current state of tests:
   - 🟢 Parser errors
   - 🟢 Optimizer errors
   - 🟢 Runtime errors
-- 🔴 Object tests
+- 🟡 Object tests
   - 🟡 `Array`
   - 🟢 `Bool`
   - 🟢 `Byte`
   - 🟡 `Func`
   - 🟢 `Int`
-  - 🔴 `IOFile`
+  - 🟢 `IOFile`
   - 🟢 `Iter`
   - 🟢 `Map`
   - 🟢 `Null`
