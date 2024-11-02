@@ -74,6 +74,7 @@
 - now `io.get_flags`, `io.can_read`, `io.can_write`, `io.is_bin`, `io.can_seek` and `io.is_a_tty` will throw an error if the file is closed
 - now `fs.path.normalize` will no longer normalize `\\?\` at the beginning of a path
 - now `fs.path.join` will not add a slash if the first path is an empty string
+- fixed `Real` and `Int` to `Byte` casts not working properly
 
 ### C API
 

@@ -12,12 +12,13 @@ The current state of tests:
   - 🟢 Parser errors
   - 🟢 Optimizer errors
   - 🟢 Runtime errors
-- 🟡 Object tests
+- 🔴 Object tests
   - 🟡 `Array`
   - 🟢 `Bool`
-  - 🟡 `Byte`
+  - 🟢 `Byte`
   - 🟡 `Func`
-  - 🟡 `Int`
+  - 🟢 `Int`
+  - 🔴 `IOFile`
   - 🟢 `Iter`
   - 🟢 `Map`
   - 🟢 `Null`
@@ -130,16 +131,22 @@ The current state of tests:
   - 🔴 `test_number_to_f32`
   - 🔴 `test_number_to_f64`
   - 🔴 `test_obj_to_bool`
-  - 🔴 `test_string_copy`
-  - 🔴 `test_string_repr`
-  - 🔴 `test_string_get`
-  - 🔴 `test_string_next_ch`
-  - 🔴 `test_string_new_c_raw`
-  - 🔴 `test_string_new_c`
-  - 🔴 `test_string_new`
-  - 🔴 `test_string_parse_int`
-  - 🔴 `test_string_parse_byte`
-  - 🔴 `test_string_parse_real`
-  - 🔴 `test_string_compare`
-  - 🔴 `test_string_find`
-  - 🔴 `test_string_rfind`
+  - 🟢 `test_str_copy`
+  - 🔴 `test_str_repr`
+  - 🔴 `test_str_get`
+  - 🔴 `test_str_new_c_raw`
+  - 🔴 `test_str_new_c`
+  - 🔴 `test_str_new`
+  - 🔴 `test_str_new_allocated`
+  - 🔴 `test_str_new_len`
+  - 🔴 `test_str_temp`
+  - 🔴 `test_str_next`
+  - 🔴 `test_str_next_obj`
+  - 🔴 `test_str_next_utf32`
+  - 🔴 `test_str_next_utf8`
+  - 🔴 `test_str_parse_int`
+  - 🔴 `test_str_parse_byte`
+  - 🔴 `test_str_parse_real`
+  - 🔴 `test_str_compare`
+  - 🔴 `test_str_find`
+  - 🔴 `test_str_rfind`

@@ -915,7 +915,7 @@ static Nst_Obj *obj_to_byte(Nst_Obj *ob)
 {
     Nst_TypeObj *ob_t = ob->type;
 
-    if (ob_t == Nst_t.Int) {
+    if (ob_t == Nst_t.Real) {
         f64 val = AS_REAL(ob);
         if (isnan(val)) {
             Nst_set_value_error_c(_Nst_EM_NAN_TO_BYTE);
@@ -924,10 +924,10 @@ static Nst_Obj *obj_to_byte(Nst_Obj *ob)
             Nst_set_value_error_c(_Nst_EM_INF_TO_BYTE);
             return NULL;
         }
-            return Nst_byte_new(AS_INT(ob) & 0xff);
+        return Nst_byte_new((i64)val & 0xff);
     }
-    else if (ob_t == Nst_t.Real)
-        return Nst_byte_new((i64)AS_REAL(ob) & 0xff);
+    else if (ob_t == Nst_t.Int)
+        return Nst_byte_new(AS_INT(ob) & 0xff);
     else if (ob_t == Nst_t.Str)
         return Nst_str_parse_byte(STR(ob));
     RETURN_CAST_TYPE_ERROR(Nst_t.Byte);
