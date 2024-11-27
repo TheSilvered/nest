@@ -1,7 +1,7 @@
 #include "gui_draw.h"
 #include "gui_utils.h"
 
-void GUI_DrawRect(SDL_Renderer *renderer, SDL_Rect *rect)
+void GUI_DrawRectBorder(SDL_Renderer *renderer, SDL_Rect *rect)
 {
     if (rect == nullptr)
         return;
@@ -14,10 +14,8 @@ void GUI_DrawRect(SDL_Renderer *renderer, SDL_Rect *rect)
     int t = rect->y;
     int b = t + rect->h - 1;
 
-    SDL_RenderDrawLine(renderer, l, t, r, t);
-    SDL_RenderDrawLine(renderer, r, t, r, b);
-    SDL_RenderDrawLine(renderer, l, b, r, b);
-    SDL_RenderDrawLine(renderer, l, t, l, b);
+    const SDL_Point points[] = { { l, t }, { r, t }, { r, b }, { l, b }};
+    SDL_RenderDrawLines(renderer, points, 4);
 }
 
 static int fix_radius(int min_side, int r)
@@ -77,7 +75,7 @@ static void draw_angle_border_point(SDL_Surface *surf, int rad, int border,
     }
 }
 
-SDL_Texture *GUI_DrawRoundRect(SDL_Renderer *renderer, SDL_Rect rect,
+SDL_Texture *GUI_MakeRoundRect(SDL_Renderer *renderer, SDL_Rect rect,
                                int rtl, int rtr, int rbl, int rbr,
                                u8 r, u8 g, u8 b, u8 a)
 {
@@ -148,14 +146,14 @@ SDL_Texture *GUI_DrawRoundRect(SDL_Renderer *renderer, SDL_Rect rect,
     return texture;
 }
 
-SDL_Texture *GUI_DrawRoundBorderRect(SDL_Renderer *renderer, SDL_Rect rect,
+SDL_Texture *GUI_MakeRoundBorderRect(SDL_Renderer *renderer, SDL_Rect rect,
                                      int border_thickness,
                                      int rtl, int rtr, int rbl, int rbr,
                                      u8 r_i, u8 g_i, u8 b_i, u8 a_i,
                                      u8 r_b, u8 g_b, u8 b_b, u8 a_b)
 {
     if (border_thickness == 0) {
-        return GUI_DrawRoundRect(
+        return GUI_MakeRoundRect(
             renderer,
             rect,
             rtl, rtr, rbl, rbr,
@@ -244,8 +242,8 @@ SDL_Texture *GUI_DrawRoundBorderRect(SDL_Renderer *renderer, SDL_Rect rect,
     return texture;
 }
 
-void GUI_DrawTexture(SDL_Renderer *renderer, int x, int y,
-                      SDL_Texture *texture, SDL_Rect *clip)
+void GUI_DrawClippedTexture(SDL_Renderer *renderer, int x, int y,
+                            SDL_Texture *texture, SDL_Rect *clip)
 {
     int w, h;
     SDL_QueryTexture(texture, nullptr, nullptr, &w, &h);

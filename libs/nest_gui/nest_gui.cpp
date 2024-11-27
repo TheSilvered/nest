@@ -3,8 +3,9 @@
 #include "nest_gui.h"
 
 static Nst_Declr obj_list_[] = {
-    Nst_FUNCDECLR(init_sdl_and_ttf_, 0),
-    Nst_FUNCDECLR(loop_, 0),
+    Nst_FUNCDECLR(app_run_, 0),
+    Nst_FUNCDECLR(app_is_running_, 0),
+    Nst_FUNCDECLR(app_close_, 0),
     Nst_FUNCDECLR(window_init_, 2),
     Nst_FUNCDECLR(window_set_title_, 1),
     Nst_FUNCDECLR(window_get_title_, 0),
@@ -28,8 +29,15 @@ Nst_Declr *lib_init()
         return nullptr;
     }
     GUI_InitColors();
-    app.initialized = false;
 
+    if (SDL_Init(SDL_INIT_EVERYTHING) || TTF_Init()) {
+        GUI_ThrowSDLError();
+        return nullptr;
+    }
+
+    SDL_SetHint(SDL_HINT_RENDER_SCALE_QUALITY, "best");
+
+    app.initialized = false;
     return obj_list_;
 }
 
@@ -49,18 +57,7 @@ static bool not_initialized() {
     return false;
 }
 
-Nst_Obj *NstC init_sdl_and_ttf_(usize arg_num, Nst_Obj **args)
-{
-    Nst_UNUSED(args);
-    Nst_UNUSED(arg_num);
-    if (SDL_Init(SDL_INIT_EVERYTHING) || TTF_Init()) {
-        GUI_ThrowSDLError();
-        return NULL;
-    }
-    Nst_RETURN_NULL;
-}
-
-Nst_Obj *NstC loop_(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC app_run_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(args);
     Nst_UNUSED(arg_num);
@@ -68,17 +65,29 @@ Nst_Obj *NstC loop_(usize arg_num, Nst_Obj **args)
     if (not_initialized())
         return nullptr;
 
-    while (GUI_Window_IsRunning(app.window)) {
-        SDL_Event event;
-        while (SDL_PollEvent(&event)) {
-            if (event.type == SDL_QUIT)
-                GUI_Window_Close(app.window);
-        }
-        GUI_App_Update(&app);
-    }
+    if (!GUI_App_Run(&app))
+        return nullptr;
 
-    GUI_App_Quit(&app);
+    Nst_RETURN_NULL;
+}
 
+Nst_Obj *NstC app_is_running_(usize arg_num, Nst_Obj **args)
+{
+    Nst_UNUSED(args);
+    Nst_UNUSED(arg_num);
+
+    Nst_RETURN_BOOL(GUI_App_IsRunning(&app));
+}
+
+Nst_Obj *NstC app_close_(usize arg_num, Nst_Obj **args)
+{
+    Nst_UNUSED(args);
+    Nst_UNUSED(arg_num);
+
+    if (not_initialized())
+        return nullptr;
+
+    GUI_App_Close(&app);
     Nst_RETURN_NULL;
 }
 

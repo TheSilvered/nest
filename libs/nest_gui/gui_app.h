@@ -49,7 +49,9 @@ bool GUI_Window_IsRunning(GUI_Window *window);
 void GUI_Window_Close(GUI_Window *window);
 
 bool GUI_App_Init(GUI_App *app, int window_width, int window_height);
-void GUI_App_Quit(GUI_App *app);
+bool GUI_App_Run(GUI_App *app);
+bool GUI_App_IsRunning(GUI_App *app);
+void GUI_App_Close(GUI_App *app);
 
 #ifdef __cplusplus
 }

@@ -2,6 +2,8 @@
 
 #include "gui_app.h"
 #include "gui_utils.h"
+#include "gui_update.h"
+#include "gui_events.h"
 
 GUI_Window *GUI_Window_New(GUI_Window *parent, GUI_App *app,
                            int width, int height)
@@ -15,7 +17,7 @@ GUI_Window *GUI_Window_New(GUI_Window *parent, GUI_App *app,
         goto cleanup;
 
     sdl_window = SDL_CreateWindow(
-        "Nest GUI",
+        "Nest",
         SDL_WINDOWPOS_CENTERED,
         SDL_WINDOWPOS_CENTERED,
         width, height,
@@ -53,6 +55,7 @@ void GUI_Window_Destroy(GUI_Window *window)
 {
     SDL_DestroyRenderer(window->renderer);
     SDL_DestroyWindow(window->window);
+    Nst_dec_ref(window->root_element);
 
     for (usize i = 0, n = window->child_windows.len; i < n; i++) {
         GUI_Window *child = (GUI_Window *)Nst_sbuffer_at(
@@ -133,9 +136,36 @@ bool GUI_App_Init(GUI_App *app, int window_width, int window_height)
     return true;
 }
 
-void GUI_App_Quit(GUI_App *app)
+bool GUI_App_IsRunning(GUI_App *app)
 {
+    return !app->initialized || GUI_Window_IsRunning(app->window);
+}
+
+bool GUI_App_Run(GUI_App *app)
+{
+    bool return_value = true;
+    while (GUI_App_IsRunning(app)) {
+        SDL_Event event;
+        while (SDL_PollEvent(&event)) {
+            if (!GUI_App_HandleEvent(app, &event)) {
+                return_value = false;
+                goto cleanup;
+            }
+        }
+        if (!GUI_App_Update(app)) {
+            return_value = false;
+            goto cleanup;
+        }
+    }
+
+cleanup:
     GUI_Window_Destroy(app->window);
     Nst_llist_empty(&app->loaded_fonts, (Nst_LListDestructor)TTF_CloseFont);
     app->initialized = false;
+    return return_value;
+}
+
+void GUI_App_Close(GUI_App *app)
+{
+    GUI_Window_Close(app->window);
 }

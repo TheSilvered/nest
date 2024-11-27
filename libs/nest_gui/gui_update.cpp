@@ -24,6 +24,9 @@ static bool update_window(GUI_Window *window)
         GUI_Window *child_window = (GUI_Window *)Nst_sbuffer_at(
             &window->child_windows,
             child_windows_len - i - 1);
+        if (!GUI_Window_IsRunning(child_window)) {
+            GUI_Window_Destroy(child_window);
+        }
         if (!update_window(child_window))
             return false;
     }

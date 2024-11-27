@@ -2,9 +2,11 @@
 
 |#| '__C__:../../build/windows/projects/nest/\(_debug_arch_ 'x86' == ? '' : 'x64/')Debug/nest_gui.dll' = __gui
 
-@__gui.init_sdl_and_ttf_
-
-__gui.loop_ = loop
+{
+    'run':        __gui.app_run_,
+    'is_running': __gui.app_is_running_,
+    'close':      __gui.app_close
+} = app
 
 {
     'init':          __gui.window_init_,

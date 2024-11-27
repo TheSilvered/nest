@@ -21,8 +21,9 @@ extern "C" {
 NstEXP Nst_Declr *NstC lib_init();
 NstEXP void NstC lib_quit();
 
-Nst_Obj *NstC init_sdl_and_ttf_(usize arg_num, Nst_Obj **args);
-Nst_Obj *NstC loop_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC app_run_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC app_is_running_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC app_close_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC window_init_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC window_set_title_(usize arg_num, Nst_Obj **args);
 Nst_Obj *NstC window_get_title_(usize arg_num, Nst_Obj **args);
