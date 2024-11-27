@@ -16,8 +16,8 @@
     --md-default-bg-color: #1e1e1e;
     --md-code-fg-color: #d4d4d4;
     --md-code-bg-color: #151515;
-    --md-footer-bg-color: #12131d;
-    --md-footer-bg-color--dark: #12131d;
+    --md-footer-bg-color: #000000;
+    --md-footer-bg-color--dark: #000000;
     --md-typeset-a-color: #4faaff;
     --md-text-font: "Inter";
     --md-code-font: "JetBrains Mono";
@@ -72,4 +72,24 @@ code.hljs {
 
 .admonition {
     border-radius: 10px !important;
+}
+
+.admonition-title {
+    border-radius: 8px 8px 0 0 !important;
+}
+
+.admonition.note {
+    border-width: 2px;
+    border-color: #448aff50 !important;
+}
+
+.admonition.warning {
+    border-width: 2px;
+    border-color: #ff910050 !important;
+}
+
+/* Disable selection */
+
+.md-ellipsis, .md-nav__title {
+    user-select: none;
 }
