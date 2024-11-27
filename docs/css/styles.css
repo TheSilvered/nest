@@ -19,6 +19,7 @@
     --md-footer-bg-color: #000000;
     --md-footer-bg-color--dark: #000000;
     --md-typeset-a-color: #4faaff;
+    --md-typeset-table-color: #2d2d2d;
     --md-text-font: "Inter";
     --md-code-font: "JetBrains Mono";
 }
@@ -46,36 +47,39 @@ td {
 }
 
 code:not(.hljs) {
-    border: #282828 solid 2px;
+    border: #282828 solid 0.15em;
     padding: 0.2em !important;
     border-radius: 0.4em !important;
 }
 
 code.hljs {
-    border-radius: 10px !important;
+    border-radius: 7px !important;
 }
 
 @media screen and (min-width: 60em) {
     .md-search__form {
-        border-radius: 10px;
+        border-radius: 7px;
     }
 }
 
 [data-md-toggle=search]:checked~.md-header .md-search__form {
-    border-radius: 10px 10px 0 0;
+    border-radius: 7px 7px 0 0;
+}
+
+table {
+    border-radius: 7px !important;
 }
 
 .md-search__scrollwrap {
-    border-radius: 0 0 10px 10px;
-    transition: border-radius 0s;
+    border-radius: 0 0 7px 7px;
 }
 
 .admonition {
-    border-radius: 10px !important;
+    border-radius: 7px !important;
 }
 
 .admonition-title {
-    border-radius: 8px 8px 0 0 !important;
+    border-radius: 5px 5px 0 0 !important;
 }
 
 .admonition.note {
