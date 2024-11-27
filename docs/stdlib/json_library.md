@@ -239,7 +239,7 @@ default value. The options are available through [`OPTION`](#option).
 ### `OPTION`
 
 A map containing the options that can be enabled with
-[`set_option`](#set_options).
+[`set_option`](#set_option).
 
 - `comments`: allows for C-style comments in the JSON file, single line
   comments begin with `//` and end at the end of the line, they can be inserted

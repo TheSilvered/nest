@@ -20,7 +20,7 @@ To write a curly brace `{`, write `{{`, and to write `}`, write `}}` instead.
 
 ### Format types
 
-The `fmt` function has a special behaviour for `Int`,s `Real`s, `Byte`s and
+The `fmt` function has a special behaviour for `Int`s, `Real`s, `Byte`s and
 `Bool`s; any other type is first converted to a string and then treated as one
 when applying the flags.
 
@@ -83,7 +83,7 @@ For example:
 When using the `G` mode significant digits are automatically increased to
 properly display at least one digit after the decimal point, for example:
 
-```better-c
+```nest
 '{G.3}' {123.4} @su.fmt --> '123.4' even with a precision of 3
 ```
 
@@ -97,7 +97,7 @@ decimal point though trailing zeroes are removed by default.
 
 For example:
 
-```better-c
+```nest
 '{f}' {13.5871558} @su.fmt --> '13.587156'
 '{f}' {13.5} @su.fmt --> '13.5'
 '{f}' {10.0} @su.fmt --> '10'
@@ -107,7 +107,7 @@ For example:
 Similarly to `G` and `E`, the `F` flag will always include a decimal point,
 for example:
 
-```better-c
+```nest
 '{F}' {10.0} @su.fmt --> '10.0'
 ```
 
@@ -122,7 +122,7 @@ digits after the dot, any trailing zeroes are removed by default.
 
 For example:
 
-```better-c
+```nest
 '{e}' {13.5871558} @su.fmt --> '1.358716e+01'
 '{e}' {13.5} @su.fmt --> '1.35e+01'
 '{e}' {10.0} @su.fmt --> '1e+01'
@@ -132,7 +132,7 @@ For example:
 Similarly to `G` and `F`, the `E` flag will always include a decimal point,
 for example:
 
-```better-c
+```nest
 '{e}' {10.0} @su.fmt --> '1.0e+01'
 ```
 
@@ -145,7 +145,7 @@ The `b` flag will use binary, the `o` flag will use octal, the `x` flag will
 use hexadecimal with lower-case `a-f` digits and `X` will used hexadecimal with
 upper-case `A-F` digits. For example:
 
-```better-c
+```nest
 '{b}' {28} @su.fmt --> '11100'
 '{o}' {28} @su.fmt --> '34'
 '{}'  {28} @su.fmt --> '28'
@@ -168,7 +168,7 @@ For `Int`s it will add zeroes between the number and the sign until the number
 of digits matches the precision. When using this flag the thousand separator is
 put between the zeroes. For example:
 
-```better-c
+```nest
 '{0.4}'   {16} @su.fmt --> '0016'
 "{0',.4}" {16} @su.fmt --> '0,016'
 ```
@@ -176,7 +176,7 @@ put between the zeroes. For example:
 For `Real`s this flag will stop any trailing zeroes from being removed, for
 example:
 
-```better-c
+```nest
 '{g0}' {10.0} @su.fmt --> '10.0000'
 '{f0}' {10.0} @su.fmt --> '10.000000'
 '{e0}' {10.0} @su.fmt --> '1.000000e+01'
@@ -187,7 +187,7 @@ example:
 These flags are supported by `Int`s and `Real`s and add either a space or a
 plus sign before positive numbers. For example:
 
-```better-c
+```nest
 '{}'  {10} @su.fmt --> '10'
 '{+}' {10} @su.fmt --> '+10'
 '{ }' {10} @su.fmt --> ' 10'
@@ -196,7 +196,7 @@ plus sign before positive numbers. For example:
 If the number is unsigned it is treated as positive and thus a space or a plus
 is added in front.
 
-```better-c
+```nest
 '{u+}' {10} @su.fmt --> '+10'
 ```
 
@@ -209,28 +209,28 @@ The `r` flag will make the string into a valid Nest literal, adding either
 single or double quotes around it and escaping non-printable or special
 characters.
 
-```better-c
+```nest
 '{r}' {'hello😊\n'} @su.fmt --> "'hello😊\\n'"
 ```
 
 The `R` flag will instad only escape special characters (including the
 backslash `\` but not quotes) and leaving everything else untouched.
 
-```better-c
+```nest
 '{R}' {'hello😊\n'} @su.fmt --> 'hello😊\\n'
 ```
 
 The `a` flag is similar to the `r` flag but the string will be translated into
 printable ASCII using unicode escapes for non-ASCII characters.
 
-```better-c
+```nest
 '{R}' {'hello😊\n'} @su.fmt --> "'hello\\U01f60a\\n'"
 ```
 
 The `A` flag is similar to the `R` flag but it will also escape any non-ASCII
 character.
 
-```better-c
+```nest
 '{R}' {'hello😊\n'} @su.fmt --> 'hello\\U01f60a\\n'
 ```
 
@@ -243,7 +243,7 @@ For `Byte`s it will add the `0b` prefix and the `b` suffix in binary mode, the
 and the `0h` prefix in hexadecimal mode (both upper and lower-case). For
 example:
 
-```better-c
+```nest
 '{bp}' {28b} @su.fmt --> '0b11100b'
 '{op}' {28b} @su.fmt --> '0o34b'
 '{p}'  {28b} @su.fmt --> '28b'
@@ -255,7 +255,7 @@ For `Int`s it will add the `0b` prefix in binary mode, the `0o` prefix in octal
 mode and the `0x` prefix in hexadecimal mode (both upper and lower-case). For
 example:
 
-```better-c
+```nest
 '{bp}' {28} @su.fmt --> '0b11100'
 '{op}' {28} @su.fmt --> '0o34'
 '{p}'  {28} @su.fmt --> '28'
@@ -265,7 +265,7 @@ example:
 
 For `Real`s type it will format `NaN` and `Inf` as `nan` and `inf`.
 
-```better-c
+```nest
 '{}'  {math.INF} @su.fmt --> 'Inf'
 '{p}' {math.INF} @su.fmt --> 'inf'
 '{}'  {math.NAN} @su.fmt --> 'NaN'
@@ -281,7 +281,7 @@ For `Byte`s it will add the `0B` prefix and the `B` suffix in binary mode, the
 and the `0H` prefix in hexadecimal mode (both upper and lower-case). For
 example:
 
-```better-c
+```nest
 '{bP}' {28b} @su.fmt --> '0B11100b'
 '{oP}' {28b} @su.fmt --> '0O34b'
 '{P}'  {28b} @su.fmt --> '28B'
@@ -293,7 +293,7 @@ For `Int`s it will add the `0B` prefix in binary mode, the `0O` prefix in octal
 mode and the `0X` prefix in hexadecimal mode (both upper and lower-case). For
 example:
 
-```better-c
+```nest
 '{bp}' {28} @su.fmt --> '0B11100'
 '{op}' {28} @su.fmt --> '0O34'
 '{p}'  {28} @su.fmt --> '28'
@@ -304,7 +304,7 @@ example:
 For `Real`s it will format `NaN` and `Inf` as `NAN` and `INF` and the `e` in
 standard notation will be an upper-case `E`.
 
-```better-c
+```nest
 '{}'  {math.INF} @su.fmt --> 'Inf'
 '{P}' {math.INF} @su.fmt --> 'INF'
 '{}'  {math.NAN} @su.fmt --> 'NaN'
@@ -314,7 +314,7 @@ standard notation will be an upper-case `E`.
 
 For `Bool`s it will format `true` and `false` as `TRUE` and `FALSE`.
 
-```better-c
+```nest
 '{}'  true @su.fmt --> 'true'
 '{P}' true @su.fmt --> 'TRUE'
 ```
@@ -329,7 +329,7 @@ that will be the actual character used.
 
 For example:
 
-```better-c
+```nest
 '{}'   {1000000} @su.fmt --> '1000000'
 "{''}" {1000000} @su.fmt --> "1'000'000"
 "{',}" {1000000} @su.fmt --> '1,000,000'
@@ -349,7 +349,7 @@ By default the padding character is a space.
 
 For example:
 
-```better-c
+```nest
 '{}'    {'hi'} @su.fmt --> 'hi'
 '{5}'   {'hi'} @su.fmt --> 'hi   '
 '{_.5}' {'hi'} @su.fmt --> 'hi...'
@@ -362,7 +362,7 @@ This flag is supported by all types and will make the formatted value exactly
 `width` characters long. If the string is shorter than `width` it will be
 padded normally but if it is longer it will be trimmed.
 
-```better-c
+```nest
 '{4}'  {'hi'} @su.fmt --> 'hi  '
 '{4}'  {'hello'} @su.fmt --> 'hello'
 '{c4}' {'hi'} @su.fmt --> 'hi  '
@@ -388,7 +388,7 @@ The width can be specified directly with a number after the flags or by writing
 an asterisk and passing an `int` value in the arguments after the value to be
 formatted. For example:
 
-```better-c
+```nest
 '{5}' {123}    @su.fmt --> '  123'
 '{*}' {123, 4} @su.fmt --> ' 123'
 ```
@@ -403,7 +403,7 @@ This field has different interpretations depending on the type being formatted:
 For `Real`s in decimal and standard notation (with the `f` and `e` flags) it
 specifies the number of digits after the dot. By default the precision is `6`.
 
-```better-c
+```nest
 '{f.3}' {1.234567} @su.fmt --> '1.235'
 '{e.3}' {1.234567} @su.fmt --> '1.235e+00'
 '{f}' {1.234567} @su.fmt --> '1.234567'
@@ -413,7 +413,7 @@ specifies the number of digits after the dot. By default the precision is `6`.
 For `Real`s in general notation the precision specifies the number of
 significant digits to show. By default the precision is `6`.
 
-```better-c
+```nest
 '{.3}' {1.234567} @su.fmt --> '1.23'
 '{}' {1.234567} @su.fmt --> '1.23457'
 ```
@@ -422,7 +422,7 @@ For `Byte`s and `Int`s it specifies the minimum number of characters before the
 sign, by default the extra characters are spaces but using the `0` flag they
 become zeroes.
 
-```better-c
+```nest
 '{}'    {123} @su.fmt --> '123'
 '{.5}'  {123} @su.fmt --> '  123'
 '{0.5}' {123} @su.fmt --> '00123'
@@ -432,7 +432,7 @@ When using a thousand separator it is displayed when using the `0` flag and is
 otherwise accounted for with extra spaces in order to reach the same number of
 characters in the final output.
 
-```better-c
+```nest
 "{0',.5}" {123} @su.fmt --> '00,123'
 "{',.5}"  {123} @su.fmt --> '   123'
 '{.5}'    {123} @su.fmt --> '  123'
@@ -442,7 +442,7 @@ For `Str`s it specifies the maximum amount of characters to write, if a string
 is longer than specified it is shortened to size removing characters from the
 right and adding an ellipsis (`...`) at the end.
 
-```better-c
+```nest
 '{.10}' {'short'} @su.fmt --> 'short'
 '{.10}' {'somewhat long'} @su.fmt --> 'somewhat l...'
 ```
@@ -451,7 +451,7 @@ The precision can be specified directly with a number after the dot (`.`) or by
 writing an asterisk and passing an `int` value in the arguments after the value
 to be formatted and, if specified, the width. For example:
 
-```better-c
+```nest
 '{.5}' {123} @su.fmt --> '  123'
 '{.*}' {123, 4} @su.fmt --> ' 123'
 '{0*.*}' {123, 6, 4} @su.fmt --> '  0123'
@@ -475,7 +475,7 @@ after the comma (`,`) or by writing an asterisk and passing an `int` value in
 the arguments after the value to be formatted and, if specified, the width and
 the precision. For example:
 
-```better-c
+```nest
 "{''}" {12345} @su.fmt --> "12'345"
 "{'',4}" {12345} @su.fmt --> "1'2345"
 "{''.*}" {12345, 2} @su.fmt --> "1'23'45"

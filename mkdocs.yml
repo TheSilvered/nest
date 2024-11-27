@@ -79,6 +79,7 @@ extra_javascript:
   - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js
   - js/highlight.js
 extra_css:
-  - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css
-  - https://fonts.googleapis.com/css?family=Fira Code
+  - https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap
+  - css/jetbrainsmono.css
   - css/styles.css
+  - css/color_scheme.css

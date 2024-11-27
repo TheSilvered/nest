@@ -440,6 +440,7 @@ The name of the file `path` points to.
 'dir/subdir/subdir2'  @fs.path.filename --> 'subdir2'
 'dir/subdir/subdir2/' @fs.path.filename --> ''
 ```
+
 ---
 
 ### `@path.join`
@@ -465,7 +466,7 @@ returned directly:
 - it is a Windows extended path (`\\?\C:\dir`)
 
 It will still be normalized as specified in
-[`fs.path.normalize`](#path-normalize).
+[`fs.path.normalize`](#pathnormalize).
 
 **Arguments:**
 
