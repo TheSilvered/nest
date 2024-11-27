@@ -18,36 +18,6 @@ versions are not properly tested and might crash unexpectedly.**
 - Garbage collected
 - Expandable with C and C++
 
-### Nest 0.15.0 planned features
-
-- [x] Improve `libnest` usage:
-  - [x] Separate execution and interpreter states
-  - [x] Initialize everything with one function
-  - [x] Quit everything with one function
-  - [x] Execute a program in one function (given the path of the file)
-- [x] Rewrite nodes, parser, compiler and optimizer
-- [x] Rename `co.pause` to `co.yield`
-- [x] Make the return value of `co.yield` the arguments passed to `co.call`
-  when it is used to restart it
-- [x] Change `co.call` to accept less arguments than the function requires
-- [x] Change `err.try` to accept less arguments than the function requires
-- [x] Add `is_space`, `lremove` and `rremove` to `stdsutil.nest`
-- [x] Add `batch` to `stditutil.nest`
-- [x] Add `enum` to `stdsequtil.nest`
-- [x] Change `generator` in `stdco.nest` to allow for different arguments of
-  the function
-- [x] Change `relative_path` in `stdfs.nest` to use the current working
-  directory when no `base` is given
-- [x] Add `get_capacity` to `stdsys.nest`
-- [x] Improve option handling in `stdjson.nest`
-- [x] Remove `_cwd_` and rename `_get_cwd` and `_set_cwd` to `get_cwd` and
-  `set_cwd` in `stdsys.nest`
-- [x] Remove `reversed` from `stditutil.nest` and add `reverse` and `reverse_i`
-  to `stdsequtil.nest`
-- [x] Rename `split` to `lsplit` and add `rsplit` to `stdsutil.nest`
-- [x] Finish implementing `Nst_fmt` and add a wrapper to `stdsutil.nest`
-- [ ] Better testing with C
-
 ### Future planned features
 
 - Regular expressions in the standard library [^1]
