@@ -1831,7 +1831,7 @@ static bool fmt_ptr(Nst_Buffer *buf, void *val, Format *format)
         temp_buf = &stack_buf;
     }
 
-    u64 int_val = (u64)val;
+    u64 int_val = (u64)(usize)val;
     Nst_buffer_append_c_str(
         temp_buf,
         format->pref_suff == Nst_FMT_PREF_SUFF_UPPER ? "0X" : "0x");

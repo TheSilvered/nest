@@ -334,7 +334,7 @@ static bool check_just_args(usize arg_num, Nst_Obj **args, Nst_StrObj *&str,
         return false;
     }
 
-    just_len = just_len_signed < 0 ? 0 : just_len_signed;
+    just_len = just_len_signed < 0 ? 0 : (usize)just_len_signed;
     return true;
 }
 
