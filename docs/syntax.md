@@ -253,6 +253,10 @@ See also [function declarations](#function-declaration) and the
 - `_args_`: an array with the arguments passed in the command line
 - `_vars_`: a table containing the variables of the local scope
 - `_globals_`: a table containing the variables of the global scope
+- `_debug_`: this variable is defined as `true` if Nest is compiled in debug
+  mode
+- `_debug_arch_`: this variable is defined only when Nest is compiled in debug
+  mode and contains the string `x64` or `x86` depending on the architecture
 
 !!!note
     The value of `_globals_` in the global scope is `null`.
