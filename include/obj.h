@@ -11,8 +11,13 @@
 
 #include "typedefs.h"
 
+#ifdef Nst_DISABLE_POOLS
 /* Maximum size for an object pool. */
+#define _Nst_P_LEN_MAX 0
+#else
+/* [docs:ignore] Maximum size for an object pool. */
 #define _Nst_P_LEN_MAX 20
+#endif
 
 /* Casts `obj` to `Nst_Obj *`. */
 #define OBJ(obj) ((Nst_Obj *)(obj))
@@ -53,9 +58,23 @@
 struct _Nst_StrObj;
 struct _Nst_TypeObj;
 
-/* The type of an object destructor. */
+/**
+ * The type of an object destructor.
+ *
+ * @brief This function, in an object's type, is called when the object is
+ * deleted and should free any memory associated with it apart from the
+ * object's own memory, which is handled by Nest. This function should also
+ * remove any references that the object being deleted has with other objects.
+ */
 NstEXP typedef void (*Nst_ObjDstr)(void *);
-/* The type of an object traverse function for the garbage collector. */
+/**
+ * The type of an object traverse function for the garbage collector.
+ *
+ * @brief This function is called during a garbage collection and should call
+ * the function `Nst_ggc_obj_reachable` with any object that it directly
+ * references. Any indirect references, such as objects within objects, should
+ * be left untouched.
+ */
 NstEXP typedef void (*Nst_ObjTrav)(void *);
 
 #ifdef Nst_TRACK_OBJ_INIT_POS
@@ -146,12 +165,12 @@ NstEXP Nst_Obj *NstC _Nst_obj_alloc(usize size, struct _Nst_TypeObj *type);
 NstEXP void NstC _Nst_obj_destroy(Nst_Obj *obj);
 
 /**
- * Frees the memory of the object or adds it to the object pool.
+ * Frees the memory of the object or adds it to the object pool. The reference
+ * to the object's type is removed.
  *
  * @param obj: the pointer to the object to free
  */
 NstEXP void NstC _Nst_obj_free(Nst_Obj *obj);
-
 /* Increases the reference count of an object. */
 NstEXP Nst_Obj *NstC _Nst_inc_ref(Nst_Obj *obj);
 /**

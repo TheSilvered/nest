@@ -7,22 +7,23 @@
 extern "C" {
 #endif // !__cplusplus
 
-NstEXP bool NstC lib_init();
-NstEXP Nst_DeclrList *NstC get_func_ptrs();
+NstEXP Nst_Declr *NstC lib_init();
+NstEXP void NstC lib_quit();
 
-Nst_FUNC_SIGN(count_);
-Nst_FUNC_SIGN(cycle_);
-Nst_FUNC_SIGN(repeat_);
-Nst_FUNC_SIGN(chain_);
-Nst_FUNC_SIGN(zip_);
-Nst_FUNC_SIGN(enumerate_);
-Nst_FUNC_SIGN(keys_);
-Nst_FUNC_SIGN(values_);
-Nst_FUNC_SIGN(reversed_);
-Nst_FUNC_SIGN(new_iterator_);
-Nst_FUNC_SIGN(iter_start_);
-Nst_FUNC_SIGN(iter_get_val_);
-Nst_FUNC_SIGN(_get_iend_);
+Nst_Obj *NstC count_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC cycle_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC repeat_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC chain_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC zip_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC enumerate_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC keys_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC values_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC batch_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC batch_padded_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC new_iterator_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC iter_start_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC iter_get_val_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC IEND_();
 
 #ifdef __cplusplus
 }

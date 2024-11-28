@@ -42,7 +42,7 @@ NstEXP typedef struct _Nst_VarTable {
  * `NULL` or `no_default` is `true`
  * @param no_default: whether to create predefined variables
  */
-NstEXP Nst_VarTable *NstC Nst_vt_new(Nst_MapObj *global_table, Nst_StrObj *cwd,
+NstEXP Nst_VarTable *NstC Nst_vt_new(Nst_MapObj *global_table,
                                      Nst_SeqObj *args, bool no_default);
 /* `Nst_VarTable` destructor. */
 NstEXP void NstC Nst_vt_destroy(Nst_VarTable *vt);

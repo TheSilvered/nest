@@ -1,14 +1,14 @@
 #include "sequtil_i_functions.h"
 
-Nst_FUNC_SIGN(map_i_start)
+Nst_Obj *NstC map_i_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    if (Nst_iter_start(SEQ(args[0])->objs[0]))
+    if (!Nst_iter_start(SEQ(args[0])->objs[0]))
         return nullptr;
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(map_i_get_val)
+Nst_Obj *NstC map_i_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj *iter = SEQ(args[0])->objs[0];
@@ -17,7 +17,8 @@ Nst_FUNC_SIGN(map_i_get_val)
     if (raw_value == nullptr || raw_value == Nst_iend())
         return raw_value;
 
-    Nst_Obj *mapped_value = Nst_call_func(FUNC(func), &raw_value);
+    Nst_Obj *mapped_value = Nst_func_call(FUNC(func), 1, &raw_value);
+    Nst_dec_ref(raw_value);
     if (mapped_value == nullptr)
         return nullptr;
     if (mapped_value == Nst_iend()) {
@@ -27,14 +28,14 @@ Nst_FUNC_SIGN(map_i_get_val)
     return mapped_value;
 }
 
-Nst_FUNC_SIGN(slice_i_start)
+Nst_Obj *NstC slice_i_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     AS_INT(SEQ(args[0])->objs[0]) = 0;
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(slice_i_seq_get_val)
+Nst_Obj *NstC slice_i_seq_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -42,7 +43,7 @@ Nst_FUNC_SIGN(slice_i_seq_get_val)
     i64 max_i = AS_INT(objs[3]);
 
     if (i >= max_i)
-        return Nst_iend_ref();
+        Nst_RETURN_IEND;
 
     i64 start = AS_INT(objs[1]);
     i64 step = AS_INT(objs[2]);
@@ -60,7 +61,7 @@ Nst_FUNC_SIGN(slice_i_seq_get_val)
     return obj;
 }
 
-Nst_FUNC_SIGN(slice_i_str_get_val)
+Nst_Obj *NstC slice_i_str_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **objs = SEQ(args[0])->objs;
@@ -68,13 +69,13 @@ Nst_FUNC_SIGN(slice_i_str_get_val)
     i64 max_i = AS_INT(objs[3]);
 
     if (i >= max_i)
-        return Nst_iend_ref();
+        Nst_RETURN_IEND;
 
     i64 start = AS_INT(objs[1]);
     i64 step = AS_INT(objs[2]);
     Nst_StrObj *seq = STR(objs[4]);
 
-    Nst_Obj *obj = Nst_string_get(seq, i * step + start);
+    Nst_Obj *obj = Nst_str_get(seq, i * step + start);
     AS_INT(objs[0]) += 1;
 
     if (obj == nullptr)
@@ -82,15 +83,15 @@ Nst_FUNC_SIGN(slice_i_str_get_val)
     return obj;
 }
 
-Nst_FUNC_SIGN(filter_i_start)
+Nst_Obj *NstC filter_i_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    if (Nst_iter_start(SEQ(args[0])->objs[0]))
+    if (!Nst_iter_start(SEQ(args[0])->objs[0]))
         return nullptr;
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(filter_i_get_val)
+Nst_Obj *NstC filter_i_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj *iter = SEQ(args[0])->objs[0];
@@ -102,7 +103,7 @@ Nst_FUNC_SIGN(filter_i_get_val)
         if (value == nullptr || value == Nst_iend())
             return value;
 
-        Nst_Obj *result_obj = Nst_call_func(FUNC(func), &value);
+        Nst_Obj *result_obj = Nst_func_call(FUNC(func), 1, &value);
         if (result_obj == nullptr)
             return nullptr;
         bool result = Nst_obj_to_bool(result_obj);
@@ -113,4 +114,40 @@ Nst_FUNC_SIGN(filter_i_get_val)
     }
 
     return value;
+}
+
+Nst_Obj *NstC reverse_i_start(usize arg_num, Nst_Obj **args)
+{
+    Nst_UNUSED(arg_num);
+    Nst_Obj **objs = SEQ(args[0])->objs;
+    AS_INT(objs[0]) = (isize)SEQ(objs[1])->len - 1;
+    Nst_RETURN_NULL;
+}
+
+Nst_Obj *NstC reverse_i_get_val(usize arg_num, Nst_Obj **args)
+{
+    Nst_UNUSED(arg_num);
+    Nst_Obj **objs = SEQ(args[0])->objs;
+    Nst_SeqObj *seq = SEQ(objs[1]);
+    i64 idx = AS_INT(objs[0]);
+
+    if (idx <= -1)
+        Nst_RETURN_IEND;
+
+    Nst_Obj *res = Nst_seq_get(seq, idx);
+
+    if (res == nullptr)
+        return nullptr;
+
+    i64 len = SEQ(objs[1])->len;
+    AS_INT(objs[0]) -= 1;
+
+    if (AS_INT(objs[0]) >= len)
+        AS_INT(objs[0]) = len - 1;
+
+    if (res == Nst_iend()) {
+        Nst_dec_ref(res);
+        Nst_RETURN_NULL;
+    }
+    return res;
 }

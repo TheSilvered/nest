@@ -187,6 +187,21 @@ Destroys a [`Nst_Inst`](c_api-instructions.md#nst_inst) allocated on the heap.
 
 ---
 
+### `Nst_inst_list_new`
+
+**Synopsis:**
+
+```better-c
+Nst_InstList *Nst_inst_list_new(Nst_LList *instructions)
+```
+
+**Description:**
+
+Creates a new [`Nst_InstList`](c_api-instructions.md#nst_instlist) from a list
+of instructions.
+
+---
+
 ### `Nst_inst_list_destroy`
 
 **Synopsis:**
@@ -221,9 +236,8 @@ typedef enum _Nst_InstID {
     Nst_IC_JUMPIF_T,
     Nst_IC_JUMPIF_F,
     Nst_IC_JUMPIF_ZERO,
-    Nst_IC_FOR_IS_DONE,
+    Nst_IC_JUMPIF_IEND,
     Nst_IC_PUSH_CATCH,
-    Nst_IC_TYPE_CHECK,
     Nst_IC_HASH_CHECK,
     Nst_IC_THROW_ERR,
     Nst_IC_POP_CATCH,
@@ -239,7 +253,7 @@ typedef enum _Nst_InstID {
     Nst_IC_OP_IMPORT,
     Nst_IC_OP_EXTRACT,
     Nst_IC_DEC_INT,
-    Nst_IC_NEW_OBJ,
+    Nst_IC_NEW_INT,
     Nst_IC_DUP,
     Nst_IC_ROT,
     Nst_IC_MAKE_ARR,

@@ -1,5 +1,5 @@
 {
-    "cmd": ["nest", "--monochrome", "$file"],
+    "shell_cmd": "nest --monochrome \"$file\"",
     "selector": "source.nest",
     "file_patterns": ["*.nest"],
     "file_regex": "^File \"(...*?)\" at lines? ([0-9]*)",
@@ -7,15 +7,15 @@
     "variants": [
         {
             "name": "Nest Tokens",
-            "cmd": ["nest", "--monochrome", "--tokens", "$file"]
+            "shell_cmd": "nest --monochrome --tokens \"$file\"",
         },
         {
             "name": "Nest AST",
-            "cmd": ["nest", "--monochrome", "--ast", "$file"]
+            "shell_cmd": "nest --monochrome --ast \"$file\"",
         },
         {
             "name": "Nest Bytecode",
-            "cmd": ["nest", "--monochrome", "--bytecode", "$file"]
+            "shell_cmd": "nest --monochrome --bytecode \"$file\"",
         }
     ]
 }

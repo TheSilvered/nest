@@ -10,160 +10,6 @@ TheSilvered
 
 ## Macros
 
-### `Nst_IS_STACK_OP`
-
-**Synopsis:**
-
-```better-c
-#define Nst_IS_STACK_OP(token_type)
-```
-
-**Description:**
-
-Checks if a token is in the `STACK_OP` category.
-
----
-
-### `Nst_IS_NUM_OP`
-
-**Synopsis:**
-
-```better-c
-#define Nst_IS_NUM_OP(token_type)
-```
-
-**Description:**
-
-Checks if a token is in the `NUM_OP` category.
-
----
-
-### `Nst_IS_COND_OP`
-
-**Synopsis:**
-
-```better-c
-#define Nst_IS_COND_OP(token_type)
-```
-
-**Description:**
-
-Checks if a token is in the `COND_OP` category.
-
----
-
-### `Nst_IS_COMP_OP`
-
-**Synopsis:**
-
-```better-c
-#define Nst_IS_COMP_OP(token_type)
-```
-
-**Description:**
-
-Checks if a token is in the `COMP_OP` category.
-
----
-
-### `Nst_IS_LOCAL_STACK_OP`
-
-**Synopsis:**
-
-```better-c
-#define Nst_IS_LOCAL_STACK_OP(token_type)
-```
-
-**Description:**
-
-Checks if a token is in the `LOCAL_STACK_OP` category.
-
----
-
-### `Nst_IS_ASSIGNMENT`
-
-**Synopsis:**
-
-```better-c
-#define Nst_IS_ASSIGNMENT(token_type)
-```
-
-**Description:**
-
-Checks if a token is in the `ASSIGNMENT` category.
-
----
-
-### `Nst_IS_LOCAL_OP`
-
-**Synopsis:**
-
-```better-c
-#define Nst_IS_LOCAL_OP(token_type)
-```
-
-**Description:**
-
-Checks if a token is in the `LOCAL_OP` category.
-
----
-
-### `Nst_IS_ATOM`
-
-**Synopsis:**
-
-```better-c
-#define Nst_IS_ATOM(token_type)
-```
-
-**Description:**
-
-Checks if a token is in the `ATOM` category.
-
----
-
-### `Nst_IS_VALUE`
-
-**Synopsis:**
-
-```better-c
-#define Nst_IS_VALUE(token_type)
-```
-
-**Description:**
-
-Checks if a token is in the `VALUE` category.
-
----
-
-### `Nst_IS_EXPR_END`
-
-**Synopsis:**
-
-```better-c
-#define Nst_IS_EXPR_END(token_type)
-```
-
-**Description:**
-
-Checks if a token is in the `EXPR_END` category.
-
----
-
-### `Nst_ASSIGMENT_TO_STACK_OP`
-
-**Synopsis:**
-
-```better-c
-#define Nst_ASSIGMENT_TO_STACK_OP(token_type)
-```
-
-**Description:**
-
-Transforms a compound-assignment token type into a `STACK_OP` one.
-
----
-
 ### `Nst_TOK`
 
 **Synopsis:**
@@ -321,6 +167,20 @@ Prints a token to the Nest standard output.
 
 ---
 
+### `Nst_tok_type_to_str`
+
+**Synopsis:**
+
+```better-c
+const i8 *Nst_tok_type_to_str(Nst_TokType type)
+```
+
+**Description:**
+
+Returns the type of the token as a string.
+
+---
+
 ## Enums
 
 ### `Nst_TokType`
@@ -342,8 +202,8 @@ typedef enum _Nst_TokType {
     Nst_TT_RSHIFT,    // | - num-op end
     Nst_TT_CONCAT,    // |
     Nst_TT_L_AND,     // | + cond-op start
-    Nst_TT_L_OR,      // | |
-    Nst_TT_L_XOR,     // | - cond-op end
+    Nst_TT_L_OR,      // | - cond-op end
+    Nst_TT_L_XOR,     // |
     Nst_TT_GT,        // | + comp-op start
     Nst_TT_LT,        // | |
     Nst_TT_EQ,        // | |
@@ -413,7 +273,7 @@ typedef enum _Nst_TokType {
 
     // invalid token
 
-    Nst_TT_INVALID = -1
+    Nst_TT_INVALID
 } Nst_TokType
 ```
 

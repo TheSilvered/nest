@@ -155,3 +155,20 @@ Bool :: '' @test.assert_false
 '' '' <.> @test.assert_false
 '' 'abcd' <.> @test.assert_false
 'hello' 'helloa' <.> @test.assert_false
+
+Iter :: 'hello' = str_iter1
+Iter :: 'he\0llo' = str_iter2
+Iter :: '' = str_iter3
+Iter :: '\0\0\0' = str_iter4
+Iter :: 'a' = str_iter5
+
+Array :: str_iter1 {'h', 'e', 'l', 'l', 'o'} @test.assert_eq
+Array :: str_iter1 {'h', 'e', 'l', 'l', 'o'} @test.assert_eq
+Array :: str_iter2 {'h', 'e', '\0', 'l', 'l', 'o'} @test.assert_eq
+Array :: str_iter2 {'h', 'e', '\0', 'l', 'l', 'o'} @test.assert_eq
+Array :: str_iter3 {,} @test.assert_eq
+Array :: str_iter3 {,} @test.assert_eq
+Array :: str_iter4 {'\0', '\0', '\0'} @test.assert_eq
+Array :: str_iter4 {'\0', '\0', '\0'} @test.assert_eq
+Array :: str_iter5 {'a'} @test.assert_eq
+Array :: str_iter5 {'a'} @test.assert_eq

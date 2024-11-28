@@ -3,7 +3,7 @@
 #include "json_dumper.h"
 #include "json_lexer.h"
 
-#ifndef Nst_WIN
+#ifndef Nst_MSVC
 
 #define isinf std::isinf
 #define isnan std::isnan
@@ -73,9 +73,9 @@ static void dump_obj(Nst_Obj *obj, i32 indent)
     else if (obj == Nst_false())
         Nst_buffer_append_c_str(&str_buf, "false");
     else {
-        Nst_set_type_error(Nst_sprintf(
+        Nst_set_type_errorf(
             "JSON: an object of type %s is not serializable",
-            TYPE_NAME(obj)));
+            TYPE_NAME(obj));
         FAIL;
     }
     DEC_RECURSION_LVL;

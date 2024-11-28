@@ -7,12 +7,12 @@
 extern "C" {
 #endif // !__cplusplus
 
-NstEXP bool NstC lib_init();
-NstEXP Nst_DeclrList *NstC get_func_ptrs();
+NstEXP Nst_Declr *NstC lib_init();
 
-Nst_FUNC_SIGN(from_cp_);
-Nst_FUNC_SIGN(to_cp_);
-Nst_FUNC_SIGN(cp_is_valid_);
+Nst_Obj *NstC from_cp_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC to_cp_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC cp_is_valid_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC encoding_info_(usize arg_num, Nst_Obj **args);
 
 #ifdef __cplusplus
 }

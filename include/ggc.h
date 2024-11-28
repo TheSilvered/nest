@@ -32,8 +32,8 @@
  * @brief It must be placed after `Nst_OBJ_HEAD` and before any other fields.
  */
 #define Nst_GGC_HEAD                                                          \
-    Nst_Obj *p_prev;                                                          \
     i32 ggc_ref_count;                                                        \
+    Nst_Obj *p_prev;                                                          \
     struct _Nst_GGCList *ggc_list
 
 /**
@@ -56,11 +56,6 @@ struct _Nst_GGCList;
 
 /**
  * The struct representing a garbage collector object.
- *
- * @param traverse_func: the function that sets as reachable all the objects
- * contained in the object
- * @param track_func: the function that tracks all the traceable objects that
- * the object contains when it itself is tracked
  */
 NstEXP typedef struct _Nst_GGCObj {
     Nst_OBJ_HEAD;
@@ -106,16 +101,16 @@ NstEXP void NstC Nst_ggc_collect(void);
 /* Adds an object to the tracked objects by the garbage collector. */
 NstEXP void NstC Nst_ggc_track_obj(Nst_GGCObj *obj);
 /* Deletes all objects still present in the garbage collector. */
-NstEXP void NstC Nst_ggc_delete_objs(void);
+NstEXP void NstC _Nst_ggc_delete_objs(void);
 /* Initializes the garbage collector of `Nst_state`. */
-NstEXP void NstC Nst_ggc_init(void);
+NstEXP void NstC _Nst_ggc_init(void);
 /* Sets an `Nst_Obj` as reachable for the garbage collector. */
 NstEXP void NstC _Nst_ggc_obj_reachable(Nst_Obj *obj);
 
 /* The flags of a garbage collector object. */
 NstEXP typedef enum _Nst_GGCFlags {
     Nst_FLAG_GGC_REACHABLE    = Nst_FLAG(32),
-    Nst_FLAG_GGC_DELETE       = Nst_FLAG(31),
+    Nst_FLAG_GGC_PRESERVE_MEM = Nst_FLAG(31),
     Nst_FLAG_GGC_IS_SUPPORTED = Nst_FLAG(30)
 } Nst_GGCFlags;
 

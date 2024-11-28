@@ -8,6 +8,39 @@
 
 ## Functions
 
+### `@batch`
+
+**Synopsis:**
+
+```nest
+[sequence: Iter|Array|Vector|Str, size: Int] @batch -> Iter
+```
+
+**Returns:**
+
+An iterator gets the elements from `sequences` in batches of `size` elements.
+Each batch is an array containing the objects in the same order as they were
+returned by the iterator. The last batch may be smaller if the length of the
+iterator is not a multiple of `size`.
+
+---
+
+### `@batch_padded`
+
+```nest
+[sequence: Iter|Array|Vector|Str, size: Int, pad_obj: Any] @batch -> Iter
+```
+
+**Returns:**
+
+An iterator gets the elements from `sequences` in batches of `size` elements.
+Each batch is an array containing the objects in the same order as they were
+returned by the iterator. If the last batch is smaller due to the length of the
+iterator not being a multiple of `size`, the remaining spaces are padded with
+`pad_obj` until the batch is of length `size`.
+
+---
+
 ### `@chain`
 
 **Synopsis:**
@@ -225,12 +258,15 @@ The new custom iterator.
 **Synopsis:**
 
 ```nest
-[object: Any, times: Int] @repeat -> Iter
+[object: Any, times: Int?] @repeat -> Iter
 ```
 
 **Returns:**
 
 An iterator that repeats `object` the number of times specified by `times`.
+
+If `times` is a negative number or `null` the function will repeat the value
+indefinitely.
 
 **Example:**
 
@@ -238,29 +274,7 @@ An iterator that repeats `object` the number of times specified by `times`.
 |#| 'stditutil.nest' = itu
 
 'Hi!' 3 @itu.repeat --> 'Hi!', 'Hi!', 'Hi!'
-```
-
----
-
-### `@reversed`
-
-**Synopsis:**
-
-```nest
-[sequence: Str|Array|Vector] @reversed -> Iter
-```
-
-**Returns:**
-
-An iterator which goes through the elements of a sequence in reverse order,
-from the last to the first.
-
-**Example:**
-
-```nest
-|#| 'stditutil.nest' = itu
-
-'Hi!' @itu.reversed --> '!', 'i', 'H'
+'Hi!' @itu.repeat --> 'Hi!', 'Hi!', 'Hi!', 'Hi!', 'Hi!', ...
 ```
 
 ---

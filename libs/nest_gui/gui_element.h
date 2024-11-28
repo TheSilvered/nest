@@ -3,167 +3,149 @@
 
 #include "nest.h"
 #include <SDL.h>
-#include <SDL_ttf.h>
-#include <vector>
+#include <cinttypes>
 
 #define GUI_ELEMENT_HEAD                                                      \
     Nst_OBJ_HEAD;                                                             \
     Nst_GGC_HEAD;                                                             \
-    ElementType el_type;                                                      \
+    GUI_ElementType el_type;                                                  \
+    GUI_ElementState state;                                                   \
+    GUI_ElementState prev_state;                                              \
+    bool important;                                                           \
     SDL_Rect rect;                                                            \
-    i32 padding_top, padding_left, padding_bottom, padding_right;             \
+    i32 pad_t, pad_b, pad_l, pad_r;                                           \
+    struct _GUI_Element *parent;                                              \
     Nst_VectorObj *children;                                                  \
-    struct _Element *parent;                                                  \
-    void (*el_destructor)(void *);                                            \
-    HandleEventFunc handle_event_func;                                        \
-    UpdateFunc frame_update_func;                                             \
-    UpdateFunc tick_update_func;                                              \
-    bool clip_content;                                                        \
-    struct _App *app;                                                         \
-    Nst_MapObj *animations
-
-#define IS_HIDDEN(element) Nst_HAS_FLAG(element, GUI_FLAG_IS_HIDDEN)
+    struct _GUI_Window *window;                                               \
+    struct _GUI_App *app;                                                     \
+    Nst_MapObj *constraints_before;                                           \
+    Nst_MapObj *constraints_after;                                            \
+    GUI_EventHandler event_handler;                                           \
+    GUI_UpdateFunc frame_update;                                              \
+    GUI_UpdateFunc tick_update;                                               \
+    GUI_ElementDestructor el_destructor
 
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
-namespace GUI {
+struct _GUI_Element;
+struct _GUI_Window;
+struct _GUI_App;
 
-struct _Element;
+typedef i32 (*GUI_EventHandler)(struct _GUI_Element *, SDL_Event *);
+typedef bool (*GUI_UpdateFunc)(struct _GUI_Element *);
+typedef void (*GUI_ElementDestructor)(struct _GUI_Element *);
 
-typedef i32 (*HandleEventFunc)(SDL_Event *, struct _Element *);
-typedef bool (*UpdateFunc)(struct _Element *);
-typedef bool (*OnChildAdded)(struct _Element *, usize);
+typedef enum _GUI_ElementType {
+    GUI_ET_NONE,
+    GUI_ET_ROOT,
+    GUI_ET_RAW_LABEL
+} GUI_ElementType;
 
-typedef enum _Flags {
-    GUI_FLAG_IS_HIDDEN = Nst_FLAG(3)
-} Flags;
+typedef enum _GUI_ElementState : i8 {
+    GUI_ES_NONE,
+    GUI_ES_ENABLED,
+    GUI_ES_READONLY,
+    GUI_ES_DISABLED
+} GUI_ElementState;
 
-typedef enum _Side {
-    LEFT,
-    RIGHT,
-    TOP,
-    BOTTOM,
-    CENTER,
-
-    // padding rect sides
-
-    P_LEFT,
-    P_RIGHT,
-    P_TOP,
-    P_BOTTOM,
-    P_CENTER
-} Side;
-
-typedef enum _Pos {
-    TL, TC, TR,
-    CL, CC, CR,
-    BL, BC, BR,
-
-    // padding rect positions
-
-    P_TL, P_TC, P_TR,
-    P_CL, P_CC, P_CR,
-    P_BL, P_BC, P_BR
-} Pos;
-
-typedef enum _ElementType {
-    GUI_ET_BASE,
-    GUI_ET_LABEL,
-    GUI_ET_STACK_LAYOUT,
-    GUI_ET_BUTTON
-} ElementType;
-
-typedef enum _UserEventCode {
-    GUI_UE_CHILD_ADDED,
-    GUI_UE_RESIZED,
-    GUI_UE_MOVED,
-    GUI_UE_CHANGED_PADDING
-} UserEventCode;
-
-struct _Element;
-struct _App;
-
-typedef struct _Element {
+typedef struct _GUI_Element {
     GUI_ELEMENT_HEAD;
-} Element;
+} GUI_Element;
 
-extern Nst_TypeObj *gui_element_type;
+GUI_Element *GUI_Element_New(usize size, GUI_Element *parent,
+                             struct _GUI_Window *window, struct _GUI_App *app);
+void GUI_Element_Destroy(GUI_Element *element);
+void GUI_Element_Traverse(GUI_Element *element);
 
-bool element_init();
-void element_quit();
+/**
+ * @brief Changes the size of an element, generates a GUI_E_RESIZE event only
+ * if the size actually changes.
+ */
+void GUI_Element_SetSize(GUI_Element *element, int w, int h);
+/**
+ * @brief Fills `w` and `h` with the size of the element, `w` and `h` may be
+ * `nullptr` in which case they are ignored.
+ */
+void GUI_Element_GetSize(GUI_Element *element, int *w, int *h);
+/**
+ * @brief Changes the width of an element, generates a GUI_E_RESIZE event only
+ * if the width actually changes.
+ */
+void GUI_Element_SetWidth(GUI_Element *element, int w);
+/* Returns the width of an element. */
+int GUI_Element_GetWidth(GUI_Element *element);
+/**
+ * @brief Changes the height of an element, generates a GUI_E_RESIZE event only
+ * if the height actually changes.
+ */
+void GUI_Element_SetHeight(GUI_Element *element, int h);
+/* Returns the height of an element. */
+int GUI_Element_GetHeight(GUI_Element *element);
+/* Sets whether an element is an important element. */
+void GUI_Element_SetImportant(GUI_Element *element, bool important);
+/* Gets whether an element is an important element. */
+bool GUI_Element_IsImportant(GUI_Element *element);
 
-Element *element_new(ElementType t, usize size, int x, int y, int w, int h,
-                     struct _App *app, void (*el_destructor)(void *));
-Nst_Obj *get_element_type();
+void GUI_Element_SetPadding(GUI_Element *element, i32 t, i32 b, i32 l, i32 r);
+void GUI_Element_GetPadding(GUI_Element *element,
+                            i32 *t, i32 *b, i32 *l, i32 *r);
+void GUI_Element_SetPaddingTop(GUI_Element *element, i32 pad_top);
+i32 GUI_Element_GetPaddingTop(GUI_Element *element);
+void GUI_Element_SetPaddingBottom(GUI_Element *element, i32 pad_bottom);
+i32 GUI_Element_GetPaddingBottom(GUI_Element *element);
+void GUI_Element_SetPaddingLeft(GUI_Element *element, i32 pad_left);
+i32 GUI_Element_GetPaddingLeft(GUI_Element *element);
+void GUI_Element_SetPaddingRight(GUI_Element *element, i32 pad_left);
+i32 GUI_Element_GetPaddingRight(GUI_Element *element);
 
-void element_destroy(Element *obj);
-void element_traverse(Element *obj);
-void element_set_padding(Element *obj, i32 padding_top, i32 padding_left,
-                         i32 padding_bottom, i32 padding_right);
-void element_get_padding(Element *obj, i32 &padding_top, i32 &padding_left,
-                         i32 &padding_bottom, i32 &padding_right);
+/* Gets whether an element is disabled. */
+bool GUI_Element_IsDisabled(GUI_Element *element);
+/**
+ * @brief Disables an element and its children, the previous state is saved and
+ * set when the element is enabled.
+ */
+void GUI_Element_Disable(GUI_Element *element);
+/**
+ * @brief Disables an element and its children, the previous state is not taken
+ * into consideration and is not saved.
+ */
+void GUI_Element_DisableAll(GUI_Element *element);
 
-void element_set_parent(Element *obj, Element *parent);
+/* Gets whether an element is enabled in readonly mode. */
+bool GUI_Element_IsReadonly(GUI_Element *element);
+/**
+ * @brief Enables an element and its children in readonly mode, the previous
+ * state is saved and set when the element is fully enabled. If an element was
+ * disabled and had a previously saved state, the previous state is restored
+ * and forgotten.
+ */
+void GUI_Element_EnableReadonly(GUI_Element *element);
+/**
+ * @brief Enables an element and its children in readonly mode, the previous
+ * state is not taken into consideration and is not saved.
+ */
+void GUI_Element_EnableReadonlyAll(GUI_Element *element);
 
-int element_get_x(Element *obj, Side side);
-int element_get_y(Element *obj, Side side);
-void element_get_pos(Element *obj, Pos pos, int &x, int &y);
-int element_get_w(Element *obj, bool from_padding);
-int element_get_h(Element *obj, bool from_padding);
-void element_get_size(Element *obj, int &w, int &h, bool from_padding);
+/* Checks whether an element is fully enabled. */
+bool GUI_Element_IsEnabled(GUI_Element *element);
+/**
+ * @brief Fully enables an element and its children. If an element was enabled
+ * in readonly mode or disabled and had a previously saved state, the previous
+ * state is restored and forgotten.
+ */
+void GUI_Element_Enable(GUI_Element *element);
+/**
+ * @brief Fully enables an element and its children, the previous state is not
+ * taken into consideration and is not saved.
+ */
+void GUI_Element_EnableAll(GUI_Element *element);
 
-void pos_to_sides(Pos pos, Side &x_side, Side &y_side);
-Pos sides_to_pos(Side x_side, Side y_side);
+/* Makes an element and its children forget their previous state. */
+void GUI_Element_ForgetPrevState(GUI_Element *element);
 
-void element_set_x(Element *obj, Side side, int x);
-void element_set_y(Element *obj, Side side, int y);
-void element_set_pos(Element *obj, Pos pos, int x, int y);
-void element_set_w(Element *obj, int w, bool to_padding);
-void element_set_h(Element *obj, int h, bool to_padding);
-void element_set_size(Element *obj, int w, int h, bool to_padding);
-
-const i8 *element_get_type_name(Element *obj);
-
-struct _AniObj;
-
-bool element_set_ani(Element *obj, const i8 *name, struct _AniObj *ani);
-struct _AniObj *element_get_ani(Element *obj, const i8 *name);
-
-SDL_Rect element_get_padding_rect(Element *obj);
-SDL_Rect element_get_clip_rect(Element *obj);
-
-bool element_add_child(Element *parent, Element *child);
-bool element_remove_child(Element *parent, Element *child);
-
-void element_set_clip(Element *element, bool clip);
-
-typedef enum _FontWeight {
-    GUI_FW_LIGHT,
-    GUI_FW_REGULAR,
-    GUI_FW_BOLD,
-    GUI_FW_EXTRA_BOLD
-} FontWeight;
-
-typedef enum _FontSize {
-    GUI_FS_SMALL,
-    GUI_FS_MEDIUM,
-    GUI_FS_LARGE,
-} FontSize;
-
-typedef struct _FontObj {
-    Nst_OBJ_HEAD;
-    TTF_Font *font;
-} FontObj;
-
-FontObj *get_font(struct _App *app, FontWeight weight, FontSize size,
-                  bool italic, bool monospace);
-
-Nst_Obj *font_new(TTF_Font *font);
-Nst_Obj *get_font_type();
-void font_destroy(FontObj *f);
-}
+GUI_Element *GUI_Root_New(struct _GUI_Window *window, struct _GUI_App *app);
 
 #ifdef __cplusplus
 }

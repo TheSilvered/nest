@@ -94,6 +94,11 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "nest_gui", "..\nest_gui\nes
 		{36221DFB-A5C4-4712-BD34-134F9A6DAA20} = {36221DFB-A5C4-4712-BD34-134F9A6DAA20}
 	EndProjectSection
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "test_nest", "..\test_nest\test_nest.vcxproj", "{42F63972-105A-4A42-A2F5-50915DD7D675}"
+	ProjectSection(ProjectDependencies) = postProject
+		{36221DFB-A5C4-4712-BD34-134F9A6DAA20} = {36221DFB-A5C4-4712-BD34-134F9A6DAA20}
+	EndProjectSection
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -230,6 +235,14 @@ Global
 		{112D7E9C-F46E-46C9-85D7-D45453CC9570}.Release|x64.Build.0 = Release|x64
 		{112D7E9C-F46E-46C9-85D7-D45453CC9570}.Release|x86.ActiveCfg = Release|Win32
 		{112D7E9C-F46E-46C9-85D7-D45453CC9570}.Release|x86.Build.0 = Release|Win32
+		{42F63972-105A-4A42-A2F5-50915DD7D675}.Debug|x64.ActiveCfg = Debug|x64
+		{42F63972-105A-4A42-A2F5-50915DD7D675}.Debug|x64.Build.0 = Debug|x64
+		{42F63972-105A-4A42-A2F5-50915DD7D675}.Debug|x86.ActiveCfg = Debug|Win32
+		{42F63972-105A-4A42-A2F5-50915DD7D675}.Debug|x86.Build.0 = Debug|Win32
+		{42F63972-105A-4A42-A2F5-50915DD7D675}.Release|x64.ActiveCfg = Release|x64
+		{42F63972-105A-4A42-A2F5-50915DD7D675}.Release|x64.Build.0 = Release|x64
+		{42F63972-105A-4A42-A2F5-50915DD7D675}.Release|x86.ActiveCfg = Release|Win32
+		{42F63972-105A-4A42-A2F5-50915DD7D675}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

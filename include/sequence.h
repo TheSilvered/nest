@@ -22,8 +22,7 @@
   is preferred
 
 !!!note
-    The `fmt` string **cannot** contain whitespace since its length is used to
-    determine the length of the sequence.
+    The `fmt` string **cannot** contain whitespace.
 */
 
 #ifndef SEQUENCE_H

@@ -3,14 +3,18 @@
 |#| 'stdsutil.nest' = su
 
 #print_clock_datetime [
-    'dt - formatted time: ' \
-    dt.SHORT_WEEKDAY_NAMES.@@dt.week_day ' ' \
-    (Str :: @dt.day -2 '0' @su.justify) ' ' \
-    dt.SHORTH_MONTH_NAMES.@@dt.month ' ' \
-    @@dt.year ', ' \
-    (Str :: @dt.hours   -2 '0' @su.justify) ':' \
-    (Str :: @dt.minutes -2 '0' @su.justify) ':' \
-    (Str :: @dt.seconds -2 '0' @su.justify) >< @test.println
+    (
+        'dt - formatted time: {} {02} {} {}, {02}:{02}:{02}'
+        {
+            dt.SHORT_WEEKDAY_NAMES.@@dt.week_day,
+            @dt.day,
+            dt.SHORTH_MONTH_NAMES.@@dt.month,
+            @@dt.year,
+            @dt.hour,
+            @dt.minute,
+            @dt.second
+        }
+    @su.fmt) @test.println
 ]
 
 'dt.time: ' @@dt.time >< @test.println
@@ -24,12 +28,23 @@
 'dt.year: ' @@dt.year >< @test.println
 'dt.date: ' @@dt.date >< @test.println
 'dt.gmt_date: ' @@dt.gmt_date >< @test.println
-'dt.seconds: ' @@dt.seconds >< @test.println
-'dt.minutes: ' @@dt.minutes >< @test.println
-'dt.hours: ' @@dt.hours >< @test.println
+'dt.second: ' @@dt.second >< @test.println
+'dt.minute: ' @@dt.minute >< @test.println
+'dt.hour: ' @@dt.hour >< @test.println
 'dt.clock_time: ' @@dt.clock_time >< @test.println
 'dt.gmt_clock_time: ' @@dt.gmt_clock_time >< @test.println
 'dt.clock_datetime: ' @@dt.clock_datetime >< @test.println
 'dt.gmt_clock_datetime: ' @@dt.gmt_clock_datetime >< @test.println
+
+0 @dt.gmt_clock_datetime {
+    'year': 1970,
+    'month': 1,
+    'year_day': 0,
+    'day': 1,
+    'week_day': 4,
+    'hour': 0,
+    'minute': 0,
+    'second': 0
+} @test.assert_eq
 
 @print_clock_datetime

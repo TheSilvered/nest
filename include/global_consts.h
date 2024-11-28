@@ -46,13 +46,13 @@ NstEXP typedef struct _Nst_StrConsts {
     Nst_StrObj *e_CallError;
     Nst_StrObj *e_MathError;
     Nst_StrObj *e_ImportError;
+    Nst_StrObj *e_Interrupt;
 
     // Other
 
     Nst_StrObj *o__vars_;
     Nst_StrObj *o__globals_;
     Nst_StrObj *o__args_;
-    Nst_StrObj *o__cwd_;
     Nst_StrObj *o_failed_alloc;
 } Nst_StrConsts;
 
@@ -128,9 +128,9 @@ NstEXP typedef struct _Nst_IterFunctions {
  *
  * @return `true` on success and `false` on failure. No error is set.
  */
-NstEXP bool NstC _Nst_init_objects(void);
+NstEXP bool NstC _Nst_globals_init(void);
 /* Deletes all the global constants and IO streams. */
-NstEXP void NstC _Nst_del_objects(void);
+NstEXP void NstC _Nst_globals_quit(void);
 
 /* Returns the true object constant. */
 NstEXP Nst_Obj *NstC Nst_true(void);
@@ -151,6 +151,8 @@ NstEXP Nst_Obj *NstC Nst_null_ref(void);
 NstEXP Nst_Obj *NstC Nst_iend(void);
 /* Returns a new reference to the iend object constant. */
 NstEXP Nst_Obj *NstC Nst_iend_ref(void);
+
+/* [docs:link Nst_type()->Bool Nst_type] */
 
 /* Returns a `Nst_TypeObjs` struct containing all the types. */
 NstEXP const Nst_TypeObjs *NstC Nst_type(void);

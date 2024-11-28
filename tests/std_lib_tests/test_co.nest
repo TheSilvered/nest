@@ -1,39 +1,82 @@
 |#| '../test_lib.nest' = test
 |#| 'stdco.nest' = co
 
-#f a b [
+#f1 a b [
     a b + = v
-    co.call {f_co, {1, 2}} @test.assert_raises_error
-    v @co.pause
+    co.call {f1_co, {1, 2}} @test.assert_raises_error
+    v @co.yield
     => 3 v +
 ]
 
-f @co.create = f_co
+f1 @co.create = f1_co
 co.create {co.create} @test.assert_raises_error -- coroutine from a C function
 co.create {'1'} @test.assert_raises_error
 
-f_co @co.get_state co.STATE.suspended @test.assert_eq
-f_co {1, 2} @co.call 3 @test.assert_eq
+f1_co @co.get_state co.STATE.suspended @test.assert_eq
+f1_co {1, 2} @co.call 3 @test.assert_eq
 
-f_co @co.get_state co.STATE.paused @test.assert_eq
-f_co @co.call 6 @test.assert_eq
+f1_co @co.get_state co.STATE.paused @test.assert_eq
+f1_co @co.call 6 @test.assert_eq
 
-f_co @co.get_state co.STATE.ended @test.assert_eq
+f1_co @co.get_state co.STATE.ended @test.assert_eq
 
-f {1, 2} @test.assert_raises_error
+f1 {1, 2} @test.assert_raises_error
 
-#g self [
-    1 @co.pause
-    2 @co.pause
-    3 @co.pause
+#f2 [
+    ... 2 [
+        @co.yield
+    ]
 ]
 
-g @co.create = g_co
+f2 @co.create = f2_co
+f2_co @co.call
+f2_co @co.call
 
-Array :: (g_co @co.generator) {1, 2, 3} @test.assert_eq
+#f3 [
+    => 3 (@co.yield).0 +
+]
 
-## [@h] @co.create = bad_co
+f3 @co.create = f3_co
+f3_co @co.call
+f3_co {2} @co.call 5 @test.assert_eq
 
-#h [@co.pause]
+#f4 [
+    1 @co.yield
+    2 @co.yield
+    3 @co.yield
+    => 4
+]
 
-co.call {bad_co, {,}} @test.assert_raises_error
+f4 @co.create = f4_co
+f4_co @co.generator = f4_gen
+
+Array :: f4_gen {1, 2, 3} @test.assert_eq
+Array :: f4_gen {1, 2, 3} @test.assert_eq
+co.generator {f4_co, {1}} @test.assert_raises_error
+co.generator {f4_co, {1, 2}} @test.assert_raises_error
+
+#f5 a b c [
+    a @co.yield
+    b @co.yield
+    c @co.yield
+    => 4
+]
+
+f5 @co.create = f5_co
+f5_co @co.generator = f5_gen1
+Array :: f5_gen1 {null, null, null} @test.assert_eq
+Array :: f5_gen1 {null, null, null} @test.assert_eq
+f5_co {1} @co.generator = f5_gen2
+Array :: f5_gen2 {1, null, null} @test.assert_eq
+Array :: f5_gen2 {1, null, null} @test.assert_eq
+f5_co {1, 2} @co.generator = f5_gen3
+Array :: f5_gen3 {1, 2, null} @test.assert_eq
+Array :: f5_gen3 {1, 2, null} @test.assert_eq
+f5_co {1, 2, 3} @co.generator = f5_gen4
+Array :: f5_gen4 {1, 2, 3} @test.assert_eq
+Array :: f5_gen4 {1, 2, 3} @test.assert_eq
+co.generator {f5_co, {1, 2, 3, 4}} @test.assert_raises_error
+
+## [@f6] @co.create = bad_co
+#f6 [@co.yield]
+co.call {bad_co} @test.assert_raises_error

@@ -8,7 +8,89 @@
 #include "global_consts.h"
 #include "format.h"
 
-#define TOK_TYPE_CASE(tok_name) case Nst_TT_ ## tok_name: Nst_print(#tok_name); break
+#define TOK_TYPE_CASE(tok_name)                                               \
+    case Nst_TT_ ## tok_name: Nst_print(#tok_name); break
+
+const i8 *tt_strings[] = {
+    [Nst_TT_ADD] = "ADD",
+    [Nst_TT_SUB] = "SUB",
+    [Nst_TT_MUL] = "MUL",
+    [Nst_TT_DIV] = "DIV",
+    [Nst_TT_POW] = "POW",
+    [Nst_TT_MOD] = "MOD",
+    [Nst_TT_B_AND] = "B_AND",
+    [Nst_TT_B_OR] = "B_OR",
+    [Nst_TT_B_XOR] = "B_XOR",
+    [Nst_TT_LSHIFT] = "LSHIFT",
+    [Nst_TT_RSHIFT] = "RSHIFT",
+    [Nst_TT_CONCAT] = "CONCAT",
+    [Nst_TT_L_AND] = "L_AND",
+    [Nst_TT_L_OR] = "L_OR",
+    [Nst_TT_L_XOR] = "L_XOR",
+    [Nst_TT_GT] = "GT",
+    [Nst_TT_LT] = "LT",
+    [Nst_TT_EQ] = "EQ",
+    [Nst_TT_NEQ] = "NEQ",
+    [Nst_TT_GTE] = "GTE",
+    [Nst_TT_LTE] = "LTE",
+    [Nst_TT_CAST] = "CAST",
+    [Nst_TT_CALL] = "CALL",
+    [Nst_TT_THROW] = "THROW",
+    [Nst_TT_RANGE] = "RANGE",
+    [Nst_TT_ASSIGN] = "ASSIGN",
+    [Nst_TT_ADD_A] = "ADD_A",
+    [Nst_TT_SUB_A] = "SUB_A",
+    [Nst_TT_MUL_A] = "MUL_A",
+    [Nst_TT_DIV_A] = "DIV_A",
+    [Nst_TT_POW_A] = "POW_A",
+    [Nst_TT_MOD_A] = "MOD_A",
+    [Nst_TT_B_AND_A] = "B_AND_A",
+    [Nst_TT_B_OR_A] = "B_OR_A",
+    [Nst_TT_B_XOR_A] = "B_XOR_A",
+    [Nst_TT_LSHIFT_A] = "LSHIFT_A",
+    [Nst_TT_RSHIFT_A] = "RSHIFT_A",
+    [Nst_TT_CONCAT_A] = "CONCAT_A",
+    [Nst_TT_LEN] = "LEN",
+    [Nst_TT_L_NOT] = "L_NOT",
+    [Nst_TT_B_NOT] = "B_NOT",
+    [Nst_TT_STDOUT] = "STDOUT",
+    [Nst_TT_STDIN] = "STDIN",
+    [Nst_TT_IMPORT] = "IMPORT",
+    [Nst_TT_LOC_CALL] = "LOC_CALL",
+    [Nst_TT_NEG] = "NEG",
+    [Nst_TT_TYPEOF] = "TYPEOF",
+    [Nst_TT_IDENT] = "IDENT",
+    [Nst_TT_VALUE] = "VALUE",
+    [Nst_TT_LAMBDA] = "LAMBDA",
+    [Nst_TT_L_PAREN] = "L_PAREN",
+    [Nst_TT_L_BRACE] = "L_BRACE",
+    [Nst_TT_L_VBRACE] = "L_VBRACE",
+    [Nst_TT_L_BRACKET] = "L_BRACKET",
+    [Nst_TT_R_PAREN] = "R_PAREN",
+    [Nst_TT_R_BRACE] = "R_BRACE",
+    [Nst_TT_R_VBRACE] = "R_VBRACE",
+    [Nst_TT_R_BRACKET] = "R_BRACKET",
+    [Nst_TT_IF] = "IF",
+    [Nst_TT_AS] = "AS",
+    [Nst_TT_ENDL] = "ENDL",
+    [Nst_TT_COMMA] = "COMMA",
+    [Nst_TT_COLON] = "COLON",
+    [Nst_TT_EOFILE] = "EOFILE",
+    [Nst_TT_EXTRACT] = "EXTRACT",
+    [Nst_TT_WHILE] = "WHILE",
+    [Nst_TT_DOWHILE] = "DOWHILE",
+    [Nst_TT_FOR] = "FOR",
+    [Nst_TT_FUNC] = "FUNC",
+    [Nst_TT_RETURN] = "RETURN",
+    [Nst_TT_SWITCH] = "SWITCH",
+    [Nst_TT_BREAK] = "BREAK",
+    [Nst_TT_CONTINUE] = "CONTINUE",
+    [Nst_TT_TRY] = "TRY",
+    [Nst_TT_CATCH] = "CATCH",
+    [Nst_TT_SEQ_CALL] = "SEQ_CALL",
+    [Nst_TT_FMT_STR] = "FMT_STR",
+    [Nst_TT_CONTAINS] = "CONTAINS"
+};
 
 Nst_Tok *Nst_tok_new_value(Nst_Pos start, Nst_Pos end, Nst_TokType type,
                            Nst_Obj *value)
@@ -248,99 +330,17 @@ Nst_TokType Nst_tok_from_str(i8 *str)
 
 void Nst_print_tok(Nst_Tok *token)
 {
-    Nst_printf(
-        "(%02li:%02li, %02li:%02li | ",
+    Nst_printf("%s (%02li:%02li, %02li:%02li",
+        tt_strings[token->type],
         token->start.line,
         token->start.col,
         token->end.line,
         token->end.col);
 
-    switch (token->type) {
-        TOK_TYPE_CASE(ADD);
-        TOK_TYPE_CASE(SUB);
-        TOK_TYPE_CASE(MUL);
-        TOK_TYPE_CASE(DIV);
-        TOK_TYPE_CASE(POW);
-        TOK_TYPE_CASE(MOD);
-        TOK_TYPE_CASE(B_AND);
-        TOK_TYPE_CASE(B_OR);
-        TOK_TYPE_CASE(B_XOR);
-        TOK_TYPE_CASE(LSHIFT);
-        TOK_TYPE_CASE(RSHIFT);
-        TOK_TYPE_CASE(CONCAT);
-        TOK_TYPE_CASE(L_AND);
-        TOK_TYPE_CASE(L_OR);
-        TOK_TYPE_CASE(L_XOR);
-        TOK_TYPE_CASE(GT);
-        TOK_TYPE_CASE(LT);
-        TOK_TYPE_CASE(EQ);
-        TOK_TYPE_CASE(NEQ);
-        TOK_TYPE_CASE(GTE);
-        TOK_TYPE_CASE(LTE);
-        TOK_TYPE_CASE(CAST);
-        TOK_TYPE_CASE(CALL);
-        TOK_TYPE_CASE(THROW);
-        TOK_TYPE_CASE(RANGE);
-        TOK_TYPE_CASE(ASSIGN);
-        TOK_TYPE_CASE(ADD_A);
-        TOK_TYPE_CASE(SUB_A);
-        TOK_TYPE_CASE(MUL_A);
-        TOK_TYPE_CASE(DIV_A);
-        TOK_TYPE_CASE(POW_A);
-        TOK_TYPE_CASE(MOD_A);
-        TOK_TYPE_CASE(B_AND_A);
-        TOK_TYPE_CASE(B_OR_A);
-        TOK_TYPE_CASE(B_XOR_A);
-        TOK_TYPE_CASE(LSHIFT_A);
-        TOK_TYPE_CASE(RSHIFT_A);
-        TOK_TYPE_CASE(CONCAT_A);
-        TOK_TYPE_CASE(LEN);
-        TOK_TYPE_CASE(L_NOT);
-        TOK_TYPE_CASE(B_NOT);
-        TOK_TYPE_CASE(STDOUT);
-        TOK_TYPE_CASE(STDIN);
-        TOK_TYPE_CASE(IMPORT);
-        TOK_TYPE_CASE(LOC_CALL);
-        TOK_TYPE_CASE(NEG);
-        TOK_TYPE_CASE(TYPEOF);
-        TOK_TYPE_CASE(IDENT);
-        TOK_TYPE_CASE(VALUE);
-        TOK_TYPE_CASE(LAMBDA);
-        TOK_TYPE_CASE(L_PAREN);
-        TOK_TYPE_CASE(L_BRACE);
-        TOK_TYPE_CASE(L_VBRACE);
-        TOK_TYPE_CASE(L_BRACKET);
-        TOK_TYPE_CASE(R_PAREN);
-        TOK_TYPE_CASE(R_BRACE);
-        TOK_TYPE_CASE(R_VBRACE);
-        TOK_TYPE_CASE(R_BRACKET);
-        TOK_TYPE_CASE(IF);
-        TOK_TYPE_CASE(AS);
-        TOK_TYPE_CASE(ENDL);
-        TOK_TYPE_CASE(COMMA);
-        TOK_TYPE_CASE(COLON);
-        TOK_TYPE_CASE(EOFILE);
-        TOK_TYPE_CASE(EXTRACT);
-        TOK_TYPE_CASE(WHILE);
-        TOK_TYPE_CASE(DOWHILE);
-        TOK_TYPE_CASE(FOR);
-        TOK_TYPE_CASE(FUNC);
-        TOK_TYPE_CASE(RETURN);
-        TOK_TYPE_CASE(SWITCH);
-        TOK_TYPE_CASE(BREAK);
-        TOK_TYPE_CASE(CONTINUE);
-        TOK_TYPE_CASE(TRY);
-        TOK_TYPE_CASE(CATCH);
-        TOK_TYPE_CASE(SEQ_CALL);
-        TOK_TYPE_CASE(FMT_STR);
-        TOK_TYPE_CASE(CONTAINS);
-        default: Nst_print("__UNKNOWN__");
-    }
-
     if (token->value != NULL) {
         Nst_print(" - ");
 
-        Nst_StrObj* s = STR(_Nst_repr_str_cast(token->value));
+        Nst_StrObj *s = STR(_Nst_repr_str_cast(token->value));
         if (s != NULL) {
             Nst_error_clear();
             Nst_fwrite(s->value, s->len, NULL, Nst_io.out);
@@ -349,6 +349,9 @@ void Nst_print_tok(Nst_Tok *token)
     }
 
     Nst_print(")");
+}
 
-    Nst_fflush(Nst_io.out);
+const i8 *Nst_tok_type_to_str(Nst_TokType type)
+{
+    return tt_strings[type];
 }

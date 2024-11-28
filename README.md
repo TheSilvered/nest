@@ -7,85 +7,16 @@
 
 A programming language with no keywords.
 
-**This programming language is still in early development and is heavily
-unstable. Beta versions are not properly tested and might crash unexpectedly.**
+**This programming language is still in development and can be unstable. Beta
+versions are not properly tested and might crash unexpectedly.**
 
 ## Features
 
-- Dynamically typed
+- Dynamic types
 - Memory safe
 - Interpreted
-- Has hash maps, vectors and arrays built in
-- Can be expanded with C/C++
-- Aimed at being consistent within its design
-- the standard library includes coroutines, a JSON parser and various other
-  helper functions
-
-### Nest 0.14.0 planned featues and improvements
-
-- [x] Object pools (optimization)
-- [x] Remove `is_done` function from iterators & return special object with
-      `get_val`
-- [x] Strings that index to actual characters
-- [x] Add iterator variants in `stdsequtil.nest` of
-  - [x] `map`
-  - [x] `filter`
-  - [x] `slice`
-- [x] Argument to specify in-place or new for functions that accept sequences
-  - [x] `sequ.map`
-  - [x] `sequ.sort`
-  - [x] `rand.shuffle`
-- [x] Add `extend` to `stdsequtil.nest` (instead of in-place `sequ.merge`)
-- [x] Add `copy` and `deepcopy` to `stdsequtil.nest`
-- [ ] ~Non-recursive JSON parsing & dumping~
-- [x] Add encoding arguments to `load_f` and `dump_f` in `stdjson.nest`
-- [x] Add option for `Infinity` and `NaN` to `stdjson.nest`
-- [x] Add `extUTF-16` encoding (with little and big endian variants) that accept
-  unpaired surrogates
-- [x] Rename `replace_substr` to `replace`, `bytearray_to_str` to `decode` and
-  `str_to_bytearray` to `encode`
-- [x] Make third argument of `replace_substr` optional to remove the substring
-- [x] Add 'contains' stack operator `<.>`
-- [x] Add `from` and `to` arguments to `lfind` and `rfind`
-- [ ] ~Automatic documentation generation for standard library~ [^3]
-- [x] Add `INF` and `NAN` constants to `stdmath.nest`
-- [ ] ~Better testing with C~ [^4]
-- [x] Improve `test_str.nest`
-
-[^3]: removed because generating documentation from C would require everything
-      to be written anyway adding another step
-[^4]: postponed due to changes that were not planned needed in order for good
-      testing
-
-### Nest 0.15.0 planned features
-
-- [ ] Finish implementing `Nst_fmt` and add a wrapper to `stdsutil.nest`
-- [ ] Improve `libnest` usage:
-  - [ ] Separate execution and interpreter states
-  - [ ] Initialize everything with one function
-  - [ ] Quit everything with one function
-  - [ ] Execute a program in one function (given the path of the file)
-- [ ] Better testing with C [^4]
-- [ ] Rewrite parser, nodes and tweak compiler to accommodate for the new
-- [ ] Add `is_space`, `remove_prefix` and `remove_suffix` to `stdsutil.nest`
-- [ ] Rename `split` to `lsplit` and add `rsplit` to `stdsutil.nest`
-- [ ] Add `batch` to `stditutil.nest`
-- [ ] Add `enum` to `stdsequtil.nest`
-- [ ] Add `factorial` to `stdmath.nest`
-  parser
-- [ ] Change `generator` in `stdco.nest` to allow for different arguments of
-  the function
-- [ ] Change `relative_path` in `stdfs.nest` to use the current working
-  directory when no `base` is given
-- [ ] Change `move_fpi` in `stdio.nest` to return the current file position
-  indicator
-- [ ] Maps only add new keys to the end but do not move existing ones
-- [ ] Improve option handling in `stdjson.nest`
-- [ ] Remove `reversed` from `stditutil.nest` and add `reverse` and `reverse_i`
-  to `stdsequtil.nest`
-- [ ] Add `get_capacity` to `stdsys.nest`
-- [ ] Remove `_cwd_` and rename `_get_cwd` and `_set_cwd` to `get_cwd` and
-  `set_cwd` in `stdsys.nest`
+- Garbage collected
+- Expandable with C and C++
 
 ### Future planned features
 
@@ -96,8 +27,7 @@ unstable. Beta versions are not properly tested and might crash unexpectedly.**
 
 [^1]: will probably be a port of PCRE
 
-[^2]: currently in the workings and undocumented, a preview can be accessed
-      with `_stdgui.nest` or `stdgui.cnest`
+[^2]: currently in the workings and undocumented
 
 ## Documentation
 
@@ -116,15 +46,15 @@ Redistributable that can be downloaded here:
 | <https://aka.ms/vs/17/release/vc_redist.x64.exe> | 64-bit             |
 | <https://aka.ms/vs/17/release/vc_redist.x86.exe> | 32-bit             |
 
-After insalling it you can download the installer from the desired release and
+After installing it you can download the installer from the desired release and
 run it. It is recommended to add Nest to the PATH environment variable to use
 it from the terminal.
 
 Once installed you can check that it is working by running this command:
 
 ```text
-PS C:\Users\user> nest -V
-Using Nest version: beta-0.14.0 x64
+PS C:\> nest -V
+Using Nest version: beta-0.15.0 x64
 ```
 
 ### Compile from source on Windows
@@ -174,7 +104,7 @@ and run `make help` to see what to compile. In general you will want to run
 
 ### Uninstalling on linux
 
-To uninstall Nest on linux, copy
+To uninstall Nest on Linux, copy
 [`nest/build/linux/uninstall.sh`](https://github.com/TheSilvered/nest/blob/main/build/linux/uninstall.sh)
 and execute it.
 
@@ -201,7 +131,7 @@ from the latest release and extract it into `%APPDATA%/SublimeText/Packages`
 on Windows or into `~/.config/sublime-text/Packages` on Linux.
 
 In Sublime Text, in addition to syntax highlighting you can also run a script
-with `CTRL + B` and you can comment and un-comment with the default keyboard
+with `CTRL + B` and you can add and remove comments with the default keyboard
 shortcuts.
 
 Since Sublime Text does not support input from the user in the output panel,

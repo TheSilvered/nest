@@ -1,5 +1,4 @@
 #include <errno.h>
-#include <assert.h>
 #include <stdarg.h>
 #include <string.h>
 #include "mem.h"
@@ -68,7 +67,7 @@ bool _Nst_vector_resize(Nst_SeqObj *vect)
     usize size = vect->cap;
     usize new_size;
 
-    assert(len <= size);
+    Nst_assert(len <= size);
 
     if (size == len)
         new_size = (usize)(len * _Nst_VECTOR_GROWTH_RATIO);

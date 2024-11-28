@@ -1,135 +1,58 @@
 |#| '../test_lib.nest' = test
 
-0 -> 5 = range_iter1
-1 -> 5 = range_iter2
-5 -> 0 = range_iter3
-5 -> 1 = range_iter4
-2 0 -> 10 = range_iter5
-2 0 -> 9 = range_iter6
-2 1 -> 10 = range_iter7
-2 1 -> 11 = range_iter8
--2 10 -> 0 = range_iter9
--2 10 -> 1 = range_iter10
--2 9 -> 0 = range_iter11
--2 9 -> 1 = range_iter12
+-- Test syntax
+0 -> 5 = iter1
+1 -> 5 = iter2
+5 -> 0 = iter3
+5 -> 1 = iter4
+2 0 -> 10 = iter5
+2 0 -> 9 = iter6
+2 1 -> 10 = iter7
+2 1 -> 11 = iter8
+-2 10 -> 0 = iter9
+-2 10 -> 1 = iter10
+-2 9 -> 0 = iter11
+-2 9 -> 1 = iter12
 
-{1, 2, 3, 4, 5} = arr
-Iter :: arr = array_iter1
-Iter :: {1} = array_iter2
-Iter :: {,} = array_iter3
-Iter :: {0, 0, 1, 0} = array_iter4
-
-<{1, 2, 3, 4, 5}> = vec
-Iter :: vec = vector_iter1
-Iter :: <{1}> = vector_iter2
-Iter :: <{}> = vector_iter3
-Iter :: <{0, 0, 1, 0}> = vector_iter4
-
-{'a': 1, 'b': 2} = map
-Iter :: map = map_iter1
-Iter :: {1: 2} = map_iter2
-Iter :: {} = map_iter3
-Iter :: {0: 1, 1: 0, 'a': 3} = map_iter4
-
-Iter :: 'hello' = str_iter1
-Iter :: 'he\0llo' = str_iter2
-Iter :: '' = str_iter3
-Iter :: '\0\0\0' = str_iter4
-Iter :: 'a' = str_iter5
-
--- casting each iterator twice checks that it is reset correctly
-
-Array :: range_iter1  {0, 1, 2, 3, 4}  @test.assert_eq
-Array :: range_iter1  {0, 1, 2, 3, 4}  @test.assert_eq
-Array :: range_iter2  {1, 2, 3, 4}     @test.assert_eq
-Array :: range_iter2  {1, 2, 3, 4}     @test.assert_eq
-Array :: range_iter3  {5, 4, 3, 2, 1}  @test.assert_eq
-Array :: range_iter3  {5, 4, 3, 2, 1}  @test.assert_eq
-Array :: range_iter4  {5, 4, 3, 2}     @test.assert_eq
-Array :: range_iter4  {5, 4, 3, 2}     @test.assert_eq
-Array :: range_iter5  {0, 2, 4, 6, 8}  @test.assert_eq
-Array :: range_iter5  {0, 2, 4, 6, 8}  @test.assert_eq
-Array :: range_iter6  {0, 2, 4, 6, 8}  @test.assert_eq
-Array :: range_iter6  {0, 2, 4, 6, 8}  @test.assert_eq
-Array :: range_iter7  {1, 3, 5, 7, 9}  @test.assert_eq
-Array :: range_iter7  {1, 3, 5, 7, 9}  @test.assert_eq
-Array :: range_iter8  {1, 3, 5, 7, 9}  @test.assert_eq
-Array :: range_iter8  {1, 3, 5, 7, 9}  @test.assert_eq
-Array :: range_iter9  {10, 8, 6, 4, 2} @test.assert_eq
-Array :: range_iter9  {10, 8, 6, 4, 2} @test.assert_eq
-Array :: range_iter10 {10, 8, 6, 4, 2} @test.assert_eq
-Array :: range_iter10 {10, 8, 6, 4, 2} @test.assert_eq
-Array :: range_iter11 {9, 7, 5, 3, 1}  @test.assert_eq
-Array :: range_iter11 {9, 7, 5, 3, 1}  @test.assert_eq
-Array :: range_iter12 {9, 7, 5, 3}     @test.assert_eq
-Array :: range_iter12 {9, 7, 5, 3}     @test.assert_eq
+?::iter1 Iter @test.assert_eq
+?::iter5 Iter @test.assert_eq
 
 ##[0 1 -> 5] {,} @test.assert_raises_error
 ##[0 5 -> 1] {,} @test.assert_raises_error
 
-Array :: array_iter1 {1, 2, 3, 4, 5} @test.assert_eq
-Array :: array_iter1 {1, 2, 3, 4, 5} @test.assert_eq
-Array :: array_iter2 {1} @test.assert_eq
-Array :: array_iter2 {1} @test.assert_eq
-Array :: array_iter3 {,} @test.assert_eq
-Array :: array_iter3 {,} @test.assert_eq
-Array :: array_iter4 {0, 0, 1, 0} @test.assert_eq
-Array :: array_iter4 {0, 0, 1, 0} @test.assert_eq
+-- Test '::' operator
+Array :: iter1  {0, 1, 2, 3, 4}  @test.assert_eq
+Array :: iter2  {1, 2, 3, 4}     @test.assert_eq
+Array :: iter3  {5, 4, 3, 2, 1}  @test.assert_eq
+Array :: iter4  {5, 4, 3, 2}     @test.assert_eq
+Array :: iter5  {0, 2, 4, 6, 8}  @test.assert_eq
+Array :: iter6  {0, 2, 4, 6, 8}  @test.assert_eq
+Array :: iter7  {1, 3, 5, 7, 9}  @test.assert_eq
+Array :: iter8  {1, 3, 5, 7, 9}  @test.assert_eq
+Array :: iter9  {10, 8, 6, 4, 2} @test.assert_eq
+Array :: iter10 {10, 8, 6, 4, 2} @test.assert_eq
+Array :: iter11 {9, 7, 5, 3, 1}  @test.assert_eq
+Array :: iter12 {9, 7, 5, 3}     @test.assert_eq
 
-10 = arr.2
-Array :: array_iter1 {1, 2, 10, 4, 5} @test.assert_eq
-Array :: array_iter1 {1, 2, 10, 4, 5} @test.assert_eq
+Vector :: iter1  <{0, 1, 2, 3, 4}>  @test.assert_eq
+Vector :: iter2  <{1, 2, 3, 4}>     @test.assert_eq
+Vector :: iter3  <{5, 4, 3, 2, 1}>  @test.assert_eq
+Vector :: iter4  <{5, 4, 3, 2}>     @test.assert_eq
+Vector :: iter5  <{0, 2, 4, 6, 8}>  @test.assert_eq
+Vector :: iter6  <{0, 2, 4, 6, 8}>  @test.assert_eq
+Vector :: iter7  <{1, 3, 5, 7, 9}>  @test.assert_eq
+Vector :: iter8  <{1, 3, 5, 7, 9}>  @test.assert_eq
+Vector :: iter9  <{10, 8, 6, 4, 2}> @test.assert_eq
+Vector :: iter10 <{10, 8, 6, 4, 2}> @test.assert_eq
+Vector :: iter11 <{9, 7, 5, 3, 1}>  @test.assert_eq
+Vector :: iter12 <{9, 7, 5, 3}>     @test.assert_eq
 
-Array :: vector_iter1 {1, 2, 3, 4, 5} @test.assert_eq
-Array :: vector_iter1 {1, 2, 3, 4, 5} @test.assert_eq
-Array :: vector_iter2 {1} @test.assert_eq
-Array :: vector_iter2 {1} @test.assert_eq
-Array :: vector_iter3 {,} @test.assert_eq
-Array :: vector_iter3 {,} @test.assert_eq
-Array :: vector_iter4 {0, 0, 1, 0} @test.assert_eq
-Array :: vector_iter4 {0, 0, 1, 0} @test.assert_eq
-
-10 = vec.2
-Array :: vector_iter1 {1, 2, 10, 4, 5} @test.assert_eq
-Array :: vector_iter1 {1, 2, 10, 4, 5} @test.assert_eq
-vec 3 +
-Array :: vector_iter1 {1, 2, 10, 4, 5, 3} @test.assert_eq
-Array :: vector_iter1 {1, 2, 10, 4, 5, 3} @test.assert_eq
-vec 2 -
-Array :: vector_iter1 {1, 10, 4, 5, 3} @test.assert_eq
-Array :: vector_iter1 {1, 10, 4, 5, 3} @test.assert_eq
-vec 1 /
-Array :: vector_iter1 {1, 10, 4, 5} @test.assert_eq
-Array :: vector_iter1 {1, 10, 4, 5} @test.assert_eq
-
-Array :: map_iter1 {{'a', 1}, {'b', 2}} @test.assert_eq
-Array :: map_iter1 {{'a', 1}, {'b', 2}} @test.assert_eq
-Array :: map_iter2 {{1, 2}} @test.assert_eq
-Array :: map_iter2 {{1, 2}} @test.assert_eq
-Array :: map_iter3 {,} @test.assert_eq
-Array :: map_iter3 {,} @test.assert_eq
-Array :: map_iter4 {{0, 1}, {1, 0}, {'a', 3}} @test.assert_eq
-Array :: map_iter4 {{0, 1}, {1, 0}, {'a', 3}} @test.assert_eq
-
-3 = map.a
-Array :: map_iter1 {{'a', 3}, {'b', 2}} @test.assert_eq
-Array :: map_iter1 {{'a', 3}, {'b', 2}} @test.assert_eq
-4 = map.c
-Array :: map_iter1 {{'a', 3}, {'b', 2}, {'c', 4}} @test.assert_eq
-Array :: map_iter1 {{'a', 3}, {'b', 2}, {'c', 4}} @test.assert_eq
-map 'b' -
-Array :: map_iter1 {{'a', 3}, {'c', 4}} @test.assert_eq
-Array :: map_iter1 {{'a', 3}, {'c', 4}} @test.assert_eq
-
-Array :: str_iter1 {'h', 'e', 'l', 'l', 'o'} @test.assert_eq
-Array :: str_iter1 {'h', 'e', 'l', 'l', 'o'} @test.assert_eq
-Array :: str_iter2 {'h', 'e', '\0', 'l', 'l', 'o'} @test.assert_eq
-Array :: str_iter2 {'h', 'e', '\0', 'l', 'l', 'o'} @test.assert_eq
-Array :: str_iter3 {,} @test.assert_eq
-Array :: str_iter3 {,} @test.assert_eq
-Array :: str_iter4 {'\0', '\0', '\0'} @test.assert_eq
-Array :: str_iter4 {'\0', '\0', '\0'} @test.assert_eq
-Array :: str_iter5 {'a'} @test.assert_eq
-Array :: str_iter5 {'a'} @test.assert_eq
-
-Bool :: (0 -> 1) @test.assert_true
+Iter :: {{'a', 1}, {'b', 2}} = map_iter1
+Iter :: {{'a', 1}} = map_iter2
+Iter :: {,} = map_iter3
+Map :: map_iter1 {'a': 1, 'b': 2} @test.assert_eq
+Map :: map_iter1 {'a': 1, 'b': 2} @test.assert_eq
+Map :: map_iter2 {'a': 1} @test.assert_eq
+Map :: map_iter2 {'a': 1} @test.assert_eq
+Map :: map_iter3 {} @test.assert_eq
+Map :: map_iter3 {} @test.assert_eq

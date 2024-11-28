@@ -42,8 +42,8 @@ optimized and no predefined variables are added.
 ```
 
 !!!note
-    any invalid argument is ignored and when specifying various optimization
-    levels only the last one is considered
+    Any invalid argument is ignored and when specifying various optimization
+    levels only the last one is considered.
 
 ## Value literals
 
@@ -146,14 +146,14 @@ are all the valid escape sequences:
 
 !!!note
     `h` represents a hexadecimal byte (`0-9`, `a-f` or `A-F`) and `o` an
-    octal one (`0-7`)
+    octal one (`0-7`).
 
 !!!note
     Octal escapes can have either one, two or three digits: `\0`, `\12` and
-    `\012` are all valid
+    `\012` are all valid.
 
 !!!note
-    `...` are to be substituted with the expression to evaluate
+    `...` are to be substituted with the expression to evaluate.
 
 ### Array literals
 
@@ -165,8 +165,8 @@ expressions separated by a comma.
 ```
 
 !!!note
-    writing `{}` creates an empty map, not an empty array. To create an
-    empty array you can write `{,}`
+    Writing `{}` creates an empty map, not an empty array. To create an
+    empty array you can write `{,}`.
 
 You can also create an array with all of the same value like this:
 
@@ -250,13 +250,16 @@ See also [function declarations](#function-declaration) and the
 - `true`: boolean true
 - `false`: boolean false
 - `null`: the only possible value of type `Null`
-- `_cwd_`: a string showing the current working directory
 - `_args_`: an array with the arguments passed in the command line
 - `_vars_`: a table containing the variables of the local scope
 - `_globals_`: a table containing the variables of the global scope
+- `_debug_`: this variable is defined as `true` if Nest is compiled in debug
+  mode
+- `_debug_arch_`: this variable is defined only when Nest is compiled in debug
+  mode and contains the string `x64` or `x86` depending on the architecture
 
 !!!note
-    the value of `_globals_` in the global scope is `null`
+    The value of `_globals_` in the global scope is `null`.
 
 ## Expressions
 
@@ -418,29 +421,33 @@ Byte :: 10
 
 The valid type casts in Nest are the following:
 
-| ↱            | `Int` | `Real` | `Bool` | `Null` | `Str` | `Array` | `Vector` | `Map` | `Func` | `Iter` | `Byte` | `IOFile` | `Type` |
-|:------------:|:-----:|:------:|:------:|:------:|:-----:|:-------:|:--------:|:-----:|:------:|:------:|:------:|:--------:|:------:|
-| **`Int`**    |   ✓   |   ✓    |    ✓   |        |   ✓   |         |          |       |        |        |    ✓   |          |        |
-| **`Real`**   |   ✓   |   ✓    |    ✓   |        |   ✓   |         |          |       |        |        |    ✓   |          |        |
-| **`Bool`**   |       |        |    ✓   |        |   ✓   |         |          |       |        |        |        |          |        |
-| **`Null`**   |       |        |    ✓   |    ✓   |   ✓   |         |          |       |        |        |        |          |        |
-| **`Str`**    |   ✓   |   ✓    |    ✓   |        |   ✓   |    ✓    |     ✓    |       |        |    ✓   |    ✓   |          |        |
-| **`Array`**  |       |        |    ✓   |        |   ✓   |    ✓    |     ✓    |   ✓   |        |    ✓   |        |          |        |
-| **`Vector`** |       |        |    ✓   |        |   ✓   |    ✓    |     ✓    |   ✓   |        |    ✓   |        |          |        |
-| **`Map`**    |       |        |    ✓   |        |   ✓   |    ✓    |     ✓    |   ✓   |        |    ✓   |        |          |        |
-| **`Func`**   |       |        |    ✓   |        |   ✓   |         |          |       |    ✓   |        |        |          |        |
-| **`Iter`**   |       |        |    ✓   |        |   ✓   |    ✓    |     ✓    |   ✓   |        |    ✓   |        |          |        |
-| **`Byte`**   |   ✓   |   ✓    |    ✓   |        |   ✓   |         |          |       |        |        |    ✓   |          |        |
-| **`IOFile`** |       |        |    ✓   |        |   ✓   |         |          |       |        |        |        |     ✓    |        |
-| **`Type`**   |       |        |    ✓   |        |   ✓   |         |          |       |        |        |        |          |    ✓   |
+| ↱            | `Str` | `Bool` | `Int` | `Real` | `Byte` | `Iter` | `Array` | `Vector` | `Map` | `Func` | `IOFile` | `Type` | `Null` |
+|:------------:|:-----:|:------:|:-----:|:------:|:------:|:------:|:-------:|:--------:|:-----:|:------:|:--------:|:------:|:------:|
+| **`Str`**    |   ✓   |    ✓   |   ✓   |   ✓    |    ✓   |    ✓   |    ✓    |     ✓    |       |        |          |        |        |
+| **`Bool`**   |   ✓   |    ✓   |       |        |        |        |         |          |       |        |          |        |        |
+| **`Int`**    |   ✓   |    ✓   |   ✓   |   ✓    |    ✓   |        |         |          |       |        |          |        |        |
+| **`Real`**   |   ✓   |    ✓   |   ✓   |   ✓    |    ✓   |        |         |          |       |        |          |        |        |
+| **`Byte`**   |   ✓   |    ✓   |   ✓   |   ✓    |    ✓   |        |         |          |       |        |          |        |        |
+| **`Iter`**   |   ✓   |    ✓   |       |        |        |    ✓   |    ✓    |     ✓    |   ✓   |        |          |        |        |
+| **`Array`**  |   ✓   |    ✓   |       |        |        |    ✓   |    ✓    |     ✓    |   ✓   |        |          |        |        |
+| **`Vector`** |   ✓   |    ✓   |       |        |        |    ✓   |    ✓    |     ✓    |   ✓   |        |          |        |        |
+| **`Map`**    |   ✓   |    ✓   |       |        |        |    ✓   |    ✓    |     ✓    |   ✓   |        |          |        |        |
+| **`Func`**   |   ✓   |    ✓   |       |        |        |        |         |          |       |    ✓   |          |        |        |
+| **`IOFile`** |   ✓   |    ✓   |       |        |        |        |         |          |       |        |     ✓    |        |        |
+| **`Type`**   |   ✓   |    ✓   |       |        |        |        |         |          |       |        |          |    ✓   |        |
+| **`Null`**   |   ✓   |    ✓   |       |        |        |        |         |          |       |        |          |        |    ✓   |
 
 When `Int`, `Real` or `Byte` objects are casted to `Bool`, they become `false`
 if they are zero and `true` otherwise.
+
 When `Str`, `Array`, `Vector` or `Map` objects are casted to a boolean, it
 returns `false` if their length zero and `true` otherwise.
+
 When an `IOFile` is casted to `Bool`, it returns `true` if the file is open and
 `false` if it has been closed.
+
 When `Null` is casted to `Bool`, it always returns `false`.
+
 When any other object is casted to a `Bool`, it always returns `true`.
 
 ---
@@ -508,28 +515,35 @@ condition ?
     -- condition is false
 ```
 
-The result of the if expression is the result of the expression evaluated, so
-`a b == ? 2 : 3` means that if a and b are equal, the expression evaluates to
-`2` and to `3` otherwise. When there is no 'else' clause, the expression
-evaluates to `null`.
+This follows the rules of the ternary operator in other languages with the
+exception that it does not require an 'else' branch and that the code inside
+the branches can be both an expression and a statement.
 
-If you want to execute multiple expressions or statements you can use brackets:
-
-```nest
-a b == ? [
-    -- code block here
-] : [
-    -- other code block here
-]
-```
-
-When using a code block the expression evaluates to `null`:
+When an if expression is missing the 'else' branch it is written like so:
 
 ```nest
-(true ? [ true ] : false) = val
+condition ?
+    -- body if true
 ```
 
-Here `val` is set to `null` because `true` is inside a block.
+In case there is no 'else' branch and the condition is `false`, the expression
+evaluates to `null`, otherwise, if the condition is `true`, it evaluates to
+the value of the body of the first branch.
+
+If the body of a branch is a statement the expression will evaluate to `null`.
+
+```nest
+1 2 == ? 5 : 2 = var_1 --> var_1 will be equal to 2
+1 1 == ? 5 : 2 = var_2 --> var_2 will be equal to 5
+
+(1 2 == ? 5) = var_3 --> var_3 will be equal to null
+(1 1 == ? 5) = var_4 --> var_4 will be equal to 5
+
+1 2 == ? [5] : 2 = var_5 --> var_5 will be equal to 2
+1 1 == ? [5] : 2 = var_6 --> var_6 will be equal to null
+1 2 == ? 5 : [2] = var_7 --> var_7 will be equal to null
+1 1 == ? 5 : [2] = var_8 --> var_8 will be equal to 5
+```
 
 ### Assignment expressions
 
@@ -582,7 +596,7 @@ This program outputs:
 ```
 
 !!!note
-    when using this assignment you cannot use compound assignments.
+    When using this assignment you cannot use compound assignments.
 
 ### Access operator
 
@@ -647,7 +661,7 @@ map.not_a_key --> null
 ```
 
 !!!note
-    if you try to index a key that is not in the map the result will be `null`
+    If you try to index a key that is not in the map the result will be `null`.
 
 ## Statements
 
@@ -765,7 +779,7 @@ When the code for a case is executed, the switch statement ends. To have the
 same behaviour as C when the `break` keyword is omitted, you can use the `..`
 keyword.
 
-The following two codes are equivalent:
+The following two code snippets are equivalent:
 
 ```c
 // C / C++
@@ -827,7 +841,7 @@ If an error occurs, it will be stored inside `error_var` as a map with two keys:
 - `message`: the message of the error
 
 !!!note
-    you can call `error_var` with any valid variable name
+    You can replace `error_var` with any valid variable name.
 
 If you want to also get the position and traceback of the error you can use the
 `try` function of the `stderr` library.

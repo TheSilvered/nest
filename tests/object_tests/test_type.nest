@@ -1,3 +1,16 @@
 |#| '../test_lib.nest' = test
 
-Bool :: Type @test.assert_true
+-- Test syntax
+?::Array Type @test.assert_eq
+?::Bool Type @test.assert_eq
+?::Byte Type @test.assert_eq
+?::Func Type @test.assert_eq
+?::Int Type @test.assert_eq
+?::IOFile Type @test.assert_eq
+?::Iter Type @test.assert_eq
+?::Map Type @test.assert_eq
+?::Null Type @test.assert_eq
+?::Real Type @test.assert_eq
+?::Str Type @test.assert_eq
+?::Type Type @test.assert_eq
+?::Vector Type @test.assert_eq

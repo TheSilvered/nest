@@ -10,14 +10,6 @@ TheSilvered
 
 ## Macros
 
-### `Nst_raw_free`
-
-**Description:**
-
-Alias for C free.
-
----
-
 ### `Nst_malloc_c`
 
 **Synopsis:**
@@ -78,19 +70,27 @@ size and casting the result to a pointer of `type`.
 
 ---
 
+### `Nst_free`
+
+**Description:**
+
+Alias for [`Nst_raw_free`](c_api-mem.md#nst_raw_free).
+
+---
+
 ## Structs
 
-### `Nst_SizedBuffer`
+### `Nst_SBuffer`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_SizedBuffer {
+typedef struct _Nst_SBuffer {
     usize len;
     usize cap;
     usize unit_size;
     void *data;
-} Nst_SizedBuffer
+} Nst_SBuffer
 ```
 
 **Description:**
@@ -123,9 +123,9 @@ typedef struct _Nst_Buffer {
 
 Structure representing a buffer of chars.
 
-Uses the same layout of [`Nst_SizedBuffer`](c_api-mem.md#nst_sizedbuffer) to
-re-use the same functions. Ensures to always contain a valid string if not
-modified by external functions.
+Uses the same layout of [`Nst_SBuffer`](c_api-mem.md#nst_sbuffer) to re-use the
+same functions. Ensures to always contain a valid string if not modified by
+external functions.
 
 **Fields:**
 
@@ -180,17 +180,32 @@ Alias for C [`realloc`](https://man7.org/linux/man-pages/man3/malloc.3.html).
 
 ---
 
-### `Nst_free`
+### `Nst_raw_free`
 
 **Synopsis:**
 
 ```better-c
-void Nst_free(void *block)
+void Nst_raw_free(void *block)
 ```
 
 **Description:**
 
 Alias for C [`free`](https://man7.org/linux/man-pages/man3/malloc.3.html).
+
+---
+
+### `Nst_log_alloc_count`
+
+**Synopsis:**
+
+```better-c
+void Nst_log_alloc_count()
+```
+
+**Description:**
+
+Prints the current allocation count to `stdout`. Declared only if
+[`Nst_COUNT_ALLOC`](c_api-typedefs.md#nst_count_alloc) is defined.
 
 ---
 
@@ -314,17 +329,46 @@ returned with no error.
 
 ---
 
+### `Nst_memset`
+
+**Synopsis:**
+
+```better-c
+void Nst_memset(void *block, usize size, usize count, void *value)
+```
+
+**Description:**
+
+Sets the value of an array in memory.
+
+!!!note
+    Unlike [`memset`](https://man7.org/linux/man-pages/man3/memset.3.html) in
+    `string.h` this function does not return a value.
+
+!!!warning
+    The behaviour of this function is undefined if `block` and `value` overlap.
+
+**Parameters:**
+
+- `block`: the pointer to the block of memory to edit
+- `size`: the size in bytes of a unit inside `block`
+- `count`: the number of units inside `block`
+- `value`: a pointer to the value to copy for each unit, if it is NULL the block
+  is filled with zeroes
+
+---
+
 ### `Nst_sbuffer_init`
 
 **Synopsis:**
 
 ```better-c
-bool Nst_sbuffer_init(Nst_SizedBuffer *buf, usize unit_size, usize count)
+bool Nst_sbuffer_init(Nst_SBuffer *buf, usize unit_size, usize count)
 ```
 
 **Description:**
 
-Initializes a [`Nst_SizedBuffer`](c_api-mem.md#nst_sizedbuffer).
+Initializes a [`Nst_SBuffer`](c_api-mem.md#nst_sbuffer).
 
 **Parameters:**
 
@@ -343,7 +387,7 @@ Initializes a [`Nst_SizedBuffer`](c_api-mem.md#nst_sizedbuffer).
 **Synopsis:**
 
 ```better-c
-bool Nst_sbuffer_expand_by(Nst_SizedBuffer *buf, usize amount)
+bool Nst_sbuffer_expand_by(Nst_SBuffer *buf, usize amount)
 ```
 
 **Description:**
@@ -368,7 +412,7 @@ The buffer is expanded only if needed.
 **Synopsis:**
 
 ```better-c
-bool Nst_sbuffer_expand_to(Nst_SizedBuffer *buf, usize count)
+bool Nst_sbuffer_expand_to(Nst_SBuffer *buf, usize count)
 ```
 
 **Description:**
@@ -394,7 +438,7 @@ current one nothing is done.
 **Synopsis:**
 
 ```better-c
-void Nst_sbuffer_fit(Nst_SizedBuffer *buf)
+void Nst_sbuffer_fit(Nst_SBuffer *buf)
 ```
 
 **Description:**
@@ -408,7 +452,7 @@ Shrinks the capacity of a sized buffer to match its length.
 **Synopsis:**
 
 ```better-c
-bool Nst_sbuffer_append(Nst_SizedBuffer *buf, void *element)
+bool Nst_sbuffer_append(Nst_SBuffer *buf, void *element)
 ```
 
 **Description:**
@@ -431,12 +475,80 @@ If necessary, the buffer is expanded automatically.
 
 ---
 
+### `Nst_sbuffer_pop`
+
+**Synopsis:**
+
+```better-c
+bool Nst_sbuffer_pop(Nst_SBuffer *buf)
+```
+
+**Description:**
+
+Pops the last element of a sized buffer.
+
+**Parameters:**
+
+- `buf`: the buffer to pop the element from
+
+**Returns:**
+
+`true` if the buffer was popped successfully and `false` if there was no item to
+pop. No error is set.
+
+---
+
+### `Nst_sbuffer_at`
+
+**Synopsis:**
+
+```better-c
+void *Nst_sbuffer_at(Nst_SBuffer *buf, usize index)
+```
+
+**Description:**
+
+Gets the element of a buffer at a specified index.
+
+**Parameters:**
+
+- `buf`: the buffer to index
+- `index`: the index of the element to get
+
+**Returns:**
+
+A pointer to the start of the element in the array or `NULL` if the index was
+out of bounds. No error is set.
+
+---
+
+### `Nst_sbuffer_shrink_auto`
+
+**Synopsis:**
+
+```better-c
+void Nst_sbuffer_shrink_auto(Nst_SBuffer *buf)
+```
+
+**Description:**
+
+Shrinks the size of a sized buffer.
+
+The size is not shrunk to the minimum but some slots are kept for possible new
+values.
+
+**Parameters:**
+
+- `buf`: the buffer to shrink
+
+---
+
 ### `Nst_sbuffer_copy`
 
 **Synopsis:**
 
 ```better-c
-bool Nst_sbuffer_copy(Nst_SizedBuffer *src, Nst_SizedBuffer *dst)
+bool Nst_sbuffer_copy(Nst_SBuffer *src, Nst_SBuffer *dst)
 ```
 
 **Description:**
@@ -462,12 +574,15 @@ changes to the source buffer will not modify the copied one.
 **Synopsis:**
 
 ```better-c
-void Nst_sbuffer_destroy(Nst_SizedBuffer *buf)
+void Nst_sbuffer_destroy(Nst_SBuffer *buf)
 ```
 
 **Description:**
 
 Destroys the contents of a sized buffer. The buffer itself is not freed.
+
+If the data is set to `NULL` the function returns immediately and and leaves the
+buffer untouched.
 
 ---
 
@@ -723,3 +838,6 @@ void Nst_buffer_destroy(Nst_Buffer *buf)
 **Description:**
 
 Destroys the contents of a buffer. The buffer itself is not freed.
+
+If the data is set to `NULL` the function returns immediately and and leaves the
+buffer untouched.

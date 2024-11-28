@@ -3,8 +3,8 @@
 #include "global_consts.h"
 #include "mem.h"
 
-Nst_VarTable *Nst_vt_new(Nst_MapObj *global_table, Nst_StrObj *cwd,
-                         Nst_SeqObj *args, bool no_default)
+Nst_VarTable *Nst_vt_new(Nst_MapObj *global_table, Nst_SeqObj *args,
+                         bool no_default)
 {
     Nst_VarTable *vt = Nst_malloc_c(1, Nst_VarTable);
     if (vt == NULL)
@@ -17,6 +17,17 @@ Nst_VarTable *Nst_vt_new(Nst_MapObj *global_table, Nst_StrObj *cwd,
     vt->vars = vars;
     vt->global_table = no_default ? NULL : global_table;
     Nst_map_set(vars, Nst_s.o__vars_, vars);
+
+#ifdef _DEBUG
+#ifdef _Nst_ARCH_x64
+    Nst_Obj *debug_str = Nst_str_new_c_raw("x64", false);
+#else
+    Nst_Obj *debug_str = Nst_str_new_c_raw("x86", false);
+#endif // !_Nst_ARCH_x64
+    Nst_map_set_str(vars, "_debug_", Nst_c.Bool_true);
+    Nst_map_set_str(vars, "_debug_arch_", debug_str);
+    Nst_dec_ref(debug_str);
+#endif // !_DEBUG
 
     if (no_default)
         return vt;
@@ -53,7 +64,6 @@ Nst_VarTable *Nst_vt_new(Nst_MapObj *global_table, Nst_StrObj *cwd,
     Nst_map_set(vars, Nst_s.c_false, Nst_c.Bool_false);
     Nst_map_set(vars, Nst_s.c_null,  Nst_c.Null_null);
 
-    Nst_map_set(vars, Nst_s.o__cwd_, cwd);
     Nst_map_set(vars, Nst_s.o__args_, args);
 
     if (Nst_error_occurred()) {
@@ -87,16 +97,15 @@ void Nst_vt_destroy(Nst_VarTable *vt)
     Nst_Obj *vars = Nst_map_drop(vt->vars, Nst_s.o__vars_);
     Nst_ndec_ref(vars);
     Nst_dec_ref(vt->vars);
-    if (Nst_state.vt->global_table != NULL)
-        Nst_dec_ref(Nst_state.vt->global_table);
+    Nst_ndec_ref(vt->global_table);
     Nst_free(vt);
 }
 
 Nst_VarTable *Nst_vt_from_func(Nst_FuncObj *f)
 {
     if (f->mod_globals != NULL)
-        return Nst_vt_new(f->mod_globals, NULL, NULL, false);
-    else if (Nst_state.vt->global_table == NULL)
-        return Nst_vt_new(Nst_state.vt->vars, NULL, NULL, false);
-    return Nst_vt_new(Nst_state.vt->global_table, NULL, NULL, false);
+        return Nst_vt_new(f->mod_globals, NULL, false);
+    else if (Nst_state.es->vt->global_table == NULL)
+        return Nst_vt_new(Nst_state.es->vt->vars, NULL, false);
+    return Nst_vt_new(Nst_state.es->vt->global_table, NULL, false);
 }

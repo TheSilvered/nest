@@ -1,6 +1,5 @@
 #include <errno.h>
 #include <math.h>
-#include <assert.h>
 #include "mem.h"
 #include "map.h"
 #include "hash.h"
@@ -37,7 +36,7 @@ Nst_Obj *Nst_map_new(void)
 static i32 set_clean(Nst_MapObj *map, i32 hash, Nst_Obj *key, Nst_Obj *value,
                      i32 prev_idx)
 {
-    assert(key != NULL);
+    Nst_assert(key != NULL);
 
     usize mask = map->mask;
     Nst_MapNode *nodes = map->nodes;
@@ -110,9 +109,9 @@ bool _Nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
     if (hash == -1) {
         hash = Nst_obj_hash(key);
         if (hash == -1) {
-            Nst_set_value_error(Nst_sprintf(
+            Nst_set_value_errorf(
                 _Nst_EM_UNHASHABLE_TYPE,
-                TYPE_NAME(key)));
+                TYPE_NAME(key));
             return false;
         }
     }
@@ -329,7 +328,7 @@ void _Nst_map_destroy(Nst_MapObj *map)
 
 bool _Nst_map_set_str(Nst_MapObj *map, const i8 *key, Nst_Obj *value)
 {
-    Nst_Obj *key_obj = Nst_string_new_c_raw(key, false);
+    Nst_Obj *key_obj = Nst_str_new_c_raw(key, false);
     if (key_obj == NULL)
         return false;
     bool res = Nst_map_set(map, key_obj, value);

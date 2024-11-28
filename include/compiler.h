@@ -25,12 +25,11 @@ extern "C" {
  * @param ast: the AST to compile, will be freed by the function
  * @param is_module: whether the AST is of an imported module or of the main
  * file
- * @param error: the error set if one occurs
  *
- * @return The compiled `Nst_InstList` or `NULL` if an error occurred.
+ * @return The compiled `Nst_InstList` or `NULL` if an error occurred. The
+ * error is set.
  */
-NstEXP Nst_InstList *NstC Nst_compile(Nst_Node *ast, bool is_module,
-                                      Nst_Error *error);
+NstEXP Nst_InstList *NstC Nst_compile(Nst_Node *ast, bool is_module);
 
 /**
  * Prints an `Nst_InstList`.
@@ -39,7 +38,7 @@ NstEXP Nst_InstList *NstC Nst_compile(Nst_Node *ast, bool is_module,
  *
  * @param ls: the instruction list to print, it is expected to be valid
  */
-NstEXP void NstC Nst_print_bytecode(Nst_InstList *ls);
+NstEXP void NstC Nst_inst_list_print(Nst_InstList *ls);
 
 #ifdef __cplusplus
 }

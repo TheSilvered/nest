@@ -30,7 +30,10 @@
         "str.h": "c",
         "tokens.h": "c",
         "typedefs.h": "c",
-        "var_table.h": "c"
+        "var_table.h": "c",
+        "chrono": "c",
+        "xiosbase": "c",
+        "cmath": "c"
     },
     "makefile.makeDirectory": "build/linux/makefiles",
     "makefile.dryrunSwitches": [
@@ -38,5 +41,6 @@
         "--keep-going"
     ],
     "makefile.makefilePath": "build/linux/makefiles/makefile",
-    "C_Cpp.default.cStandard": "c23"
+    "C_Cpp.default.cStandard": "c23",
+    "makefile.configureOnOpen": false
 }

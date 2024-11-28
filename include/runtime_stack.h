@@ -14,10 +14,10 @@
 #include "var_table.h"
 
 /* Alias for `_Nst_fstack_push` that casts func to `Nst_FuncObj *`. */
-#define Nst_fstack_push(func, start, end, vt, idx, cstack_size) \
-        _Nst_fstack_push(FUNC(func), start, end, vt, idx, cstack_size)
+#define Nst_fstack_push(f_stack, call) \
+        _Nst_fstack_push(f_stack, call)
 /* Alias for `_Nst_vstack_push` that casts val to `Nst_Obj *`. */
-#define Nst_vstack_push(val) _Nst_vstack_push(OBJ(val))
+#define Nst_vstack_push(v_stack, val) _Nst_vstack_push(v_stack, OBJ(val))
 
 #ifdef __cplusplus
 extern "C" {
@@ -41,6 +41,8 @@ NstEXP typedef struct _Nst_ValueStack {
  * A structure representing a function call.
  *
  * @param func: the function being called
+ * @param cwd: the current working directory, changed when the call is back on
+ * top of the stack; nothing is done if it is `NULL`
  * @param start: the start position of the call
  * @param end: the end position of the call
  * @param vt: the variable table of the call
@@ -49,6 +51,7 @@ NstEXP typedef struct _Nst_ValueStack {
  */
 NstEXP typedef struct _Nst_FuncCall {
     Nst_FuncObj *func;
+    Nst_StrObj *cwd;
     Nst_Pos start;
     Nst_Pos end;
     Nst_VarTable *vt;
@@ -68,6 +71,7 @@ NstEXP typedef struct _Nst_CallStack {
     Nst_FuncCall *stack;
     usize len;
     usize cap;
+    usize max_recursion_depth;
 } Nst_CallStack;
 
 /**
@@ -111,99 +115,132 @@ NstEXP typedef struct _Nst_GenericStack {
 } Nst_GenericStack;
 
 /**
- * Initializes the value stack.
+ * Initializes a value stack.
+ *
+ * @param v_stack: the value stack to initialize
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP bool NstC Nst_vstack_init(void);
+NstEXP bool NstC Nst_vstack_init(Nst_ValueStack *v_stack);
 /**
- * Pushes a value on the value stack.
+ * Pushes a value on a value stack.
  *
+ * @param v_stack: the value stack push the object onto
  * @param obj: the value to be pushed, if not `NULL` its refcount is increased
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP bool NstC _Nst_vstack_push(Nst_Obj *obj);
+NstEXP bool NstC _Nst_vstack_push(Nst_ValueStack *v_stack, Nst_Obj *obj);
 /**
- * @brief Pops the top value from the value stack and returns it. If the stack
- * is empty `NULL` is returned. No error is set.
+ * Pops the top value from a value stack.
+ *
+ * @param v_stack: the value stack to pop the value from
+ *
+ * @return The popped value. If the stack is empty `NULL` is returned. No error
+ * is set.
  */
-NstEXP Nst_Obj *NstC Nst_vstack_pop(void);
+NstEXP Nst_Obj *NstC Nst_vstack_pop(Nst_ValueStack *v_stack);
 /**
+ * Peeks at the top value of a value stack.
+ *
+ * @param v_stack: the value stack to peek from
+ *
  * @return The top value from the value stack. If the stack is empty `NULL` is
  * returned. No error is set.
  */
-NstEXP Nst_Obj *NstC Nst_vstack_peek(void);
+NstEXP Nst_Obj *NstC Nst_vstack_peek(Nst_ValueStack *v_stack);
 /**
- * Duplicates the top value of the stack.
+ * Duplicates the top value of a value stack.
  *
  * @brief If the stack is empty nothing is done.
+ *
+ * @param v_stack: the value stack to duplicate the value of
  *
  * @return `true` on success and `false` on failure. If the stack is empty the
  * function always succeeds. The error is set.
  */
-NstEXP bool NstC Nst_vstack_dup(void);
-/* Destroys the value stack. */
-NstEXP void NstC Nst_vstack_destroy(void);
+NstEXP bool NstC Nst_vstack_dup(Nst_ValueStack *v_stack);
+/* Destroys the contents of a value stack. */
+NstEXP void NstC Nst_vstack_destroy(Nst_ValueStack *v_stack);
 
 /**
- * Initializes the call stack.
+ * Initializes a call stack.
+ *
+ * @param f_stack: the call stack to initialize
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP bool NstC Nst_fstack_init(void);
+NstEXP bool NstC Nst_fstack_init(Nst_CallStack *f_stack);
 /**
- * Pushes a call on the call stack.
+ * Pushes a call on a call stack.
  *
- * @param func: the function of the call
- * @param call_start: the start position of the call
- * @param call_end: the end position of the call
- * @param vt: the current variable table
- * @param idx: the current instruction index
- * @param cstack_size: the current size of the catch stack
+ * @brief Note: the reference count of the function inside `call` is
+ * automatically increased. `func` may still be `NULL`.
  *
- * @return `true` on success and `false` on failure. The error is not always
- * set.
+ * @param f_stack: the call stack to push the call onto
+ * @param call: the call to push on the stack
+ *
+ * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP bool NstC _Nst_fstack_push(Nst_FuncObj *func, Nst_Pos call_start,
-                                  Nst_Pos call_end, Nst_VarTable *vt,
-                                  i64 idx, usize cstack_size);
+NstEXP bool NstC _Nst_fstack_push(Nst_CallStack *f_stack, Nst_FuncCall call);
 /**
- * @brief Pops the top call from the call stack and returns it. If the stack
- * is empty, a `Nst_FuncCall` with a `NULL` `func` and `vt` is returned. No
- * error is set.
+ * Pops the top call from a call stack
+ *
+ * @param f_stack: the call stack to pop the value from
+ *
+ * @return The popped value. If the stack is empty, a `Nst_FuncCall` with a
+ * `NULL` `func` and `vt` is returned. No error is set.
  */
-NstEXP Nst_FuncCall NstC Nst_fstack_pop(void);
+NstEXP Nst_FuncCall NstC Nst_fstack_pop(Nst_CallStack *f_stack);
 /**
- * @brief Returns the top function in the call stack. If the stack is empty, a
+ * Peeks at the top call of a call stack.
+ *
+ * @param f_stack: the call stack to peek from
+ *
+ * @return The top function in the call stack. If the stack is empty, a
  * `Nst_FuncCall` with a `NULL` `func` and `vt` is returned. No error is set.
  */
-NstEXP Nst_FuncCall NstC Nst_fstack_peek(void);
-/* Destroys the call stack. */
-NstEXP void NstC Nst_fstack_destroy(void);
+NstEXP Nst_FuncCall NstC Nst_fstack_peek(Nst_CallStack *f_stack);
+/* Destroys the contents of a call stack. */
+NstEXP void NstC Nst_fstack_destroy(Nst_CallStack *f_stack);
 
 /**
- * Initializes the catch stack.
+ * Initializes a catch stack.
+ *
+ * @param c_stack: the catch stack to initialize
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP bool NstC Nst_cstack_init(void);
-// Pushes a value on the catch stack
-NstEXP bool NstC Nst_cstack_push(i64 inst_idx, usize v_stack_size,
-                                 usize f_stack_size);
+NstEXP bool NstC Nst_cstack_init(Nst_CatchStack *c_stack);
 /**
- * @brief Returns the top value of the catch stack. If the stack is empty a
+ * Pushes a frame on a catch stack.
+ *
+ * @param c_stack: the catch stack to push the frame onto
+ * @param frame: the `Nst_CatchFrame` to push on the stack
+ *
+ * @return `true` on success and `false` on failure. The error is set.
+ */
+NstEXP bool NstC Nst_cstack_push(Nst_CatchStack *c_stack, Nst_CatchFrame frame);
+/**
+ * Peeks at the top frame of a catch stack.
+ *
+ * @param c_stack: the catch stack to peek from
+ *
+ * @return The top value of the catch stack. If the stack is empty a
  * `Nst_CatchFrame` with an `inst_idx` of `-1` is returned. No error is set.
  */
-NstEXP Nst_CatchFrame NstC Nst_cstack_peek(void);
+NstEXP Nst_CatchFrame NstC Nst_cstack_peek(Nst_CatchStack *c_stack);
 /**
- * @brief Pops the top value of the catch stack and returns it. If the stack is
- * empty a `Nst_CatchFrame` with an `inst_idx` of `-1` is returned. No error is
- * set.
+ * Pops the top value of a catch stack.
+ *
+ * @param c_stack: the catch stack to pop the frame from
+ *
+ * @return The popped frame. If the stack is empty a `Nst_CatchFrame` with an
+ * `inst_idx` of `-1` is returned. No error is set.
  */
-NstEXP Nst_CatchFrame NstC Nst_cstack_pop(void);
-/* Destroys the catch stack. */
-NstEXP void NstC Nst_cstack_destroy(void);
+NstEXP Nst_CatchFrame NstC Nst_cstack_pop(Nst_CatchStack *c_stack);
+/* Destroys the contents of a catch stack. */
+NstEXP void NstC Nst_cstack_destroy(Nst_CatchStack *c_stack);
 
 /**
  * Initializes a new generic stack.

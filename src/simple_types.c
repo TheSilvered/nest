@@ -6,7 +6,7 @@
 #include "global_consts.h"
 #include "obj_ops.h"
 
-#define NEW_SYMPLE_TYPE(type, type_obj)                                       \
+#define NEW_SIMPLE_TYPE(type, type_obj)                                       \
     type *obj = Nst_obj_alloc(type, type_obj);                                \
     if (obj == NULL)                                                          \
         return NULL;                                                          \
@@ -15,22 +15,22 @@
 
 Nst_Obj *Nst_int_new(i64 value)
 {
-    NEW_SYMPLE_TYPE(Nst_IntObj, Nst_t.Int);
+    NEW_SIMPLE_TYPE(Nst_IntObj, Nst_t.Int);
 }
 
 Nst_Obj *Nst_real_new(f64 value)
 {
-    NEW_SYMPLE_TYPE(Nst_RealObj, Nst_t.Real);
+    NEW_SIMPLE_TYPE(Nst_RealObj, Nst_t.Real);
 }
 
 Nst_Obj *Nst_byte_new(u8 value)
 {
-    NEW_SYMPLE_TYPE(Nst_ByteObj, Nst_t.Byte);
+    NEW_SIMPLE_TYPE(Nst_ByteObj, Nst_t.Byte);
 }
 
 Nst_Obj *Nst_bool_new(bool value)
 {
-    NEW_SYMPLE_TYPE(Nst_BoolObj, Nst_t.Bool);
+    NEW_SIMPLE_TYPE(Nst_BoolObj, Nst_t.Bool);
 }
 
 u8 _Nst_number_to_u8(Nst_Obj *number)

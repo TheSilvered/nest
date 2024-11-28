@@ -6,6 +6,44 @@
 |#| 'stdcodecs.nest' = cc
 ```
 
+## Nest encodings
+
+!!!note
+    To avoid any mistakes or confusion it is recommended that the
+    [constants defined in this library](#constants) be used.
+
+Nest supports the following encodings:
+
+| Encoding      | Aliases                                 | Link                                                                         |
+| ------------- | --------------------------------------- | ---------------------------------------------------------------------------- |
+| `ascii`       | `us-ascii`                              | [ASCII](https://en.wikipedia.org/wiki/ASCII)                                 |
+| `cp1250`      | `cp-1250`, `windows[-]1250`             | [CP1250](https://en.wikipedia.org/wiki/Windows-1250)                         |
+| `cp1251`      | `cp-1251`, `windows[-]1251`             | [CP1251](https://en.wikipedia.org/wiki/Windows-1251)                         |
+| `cp1252`      | `cp-1252`, `windows[-]1252`             | [CP1252](https://en.wikipedia.org/wiki/Windows-1252)                         |
+| `cp1253`      | `cp-1253`, `windows[-]1253`             | [CP1253](https://en.wikipedia.org/wiki/Windows-1253)                         |
+| `cp1254`      | `cp-1254`, `windows[-]1254`             | [CP1254](https://en.wikipedia.org/wiki/Windows-1254)                         |
+| `cp1255`      | `cp-1255`, `windows[-]1255`             | [CP1255](https://en.wikipedia.org/wiki/Windows-1255)                         |
+| `cp1256`      | `cp-1256`, `windows[-]1256`             | [CP1256](https://en.wikipedia.org/wiki/Windows-1256)                         |
+| `cp1257`      | `cp-1257`, `windows[-]1257`             | [CP1257](https://en.wikipedia.org/wiki/Windows-1257)                         |
+| `cp1258`      | `cp-1258`, `windows[-]1258`             | [CP1258](https://en.wikipedia.org/wiki/Windows-1258)                         |
+| `latin-1`     | `latin1`, `l1`, `latin`, `iso[-]8859-1` | [latin1](https://en.wikipedia.org/wiki/ISO/IEC_8859-1)                       |
+| `utf8`        | `utf-8`                                 | [UTF-8](https://en.wikipedia.org/wiki/UTF-8)                                 |
+| `ext-utf8`    | `ext[-]utf[-]8`                         | -                                                                            |
+| `utf16le`     | `utf-16le`, `utf[-]16`                  | [UTF-16LE](https://en.wikipedia.org/wiki/UTF-16#Byte-order_encoding_schemes) |
+| `utf16be`     | `utf-16be`                              | [UTF-16BE](https://en.wikipedia.org/wiki/UTF-16#Byte-order_encoding_schemes) |
+| `ext-utf16le` | `ext[-]utf[-]16le`, `ext[-]utf[-]16`    | -                                                                            |
+| `ext-utf16be` | `ext[-]utf[-]16be`                      | -                                                                            |
+| `utf32le`     | `utf-32le`, `utf[-]32`                  | [UTF-32LE](https://en.wikipedia.org/wiki/UTF-32)                             |
+| `utf32be`     | `utf-32be`                              | [UTF-32BE](https://en.wikipedia.org/wiki/UTF-32)                             |
+
+!!!note
+    `[-]` means that the hyphen is optional, for example `windows1252` and
+    `windows-1252` are both accepted.
+
+The name of the encoding is case insensitive. Underscores (`_`), hyphens (`-`)
+and spaces (` `) are interchangeable. This means that `utf8`, `UTF-8`, `uTf_8`
+and `UtF 8` are all valid ways of specifying the UTF-8 encoding.
+
 ## Functions
 
 ### `@cp_is_valid`
@@ -19,6 +57,37 @@
 **Returns:**
 
 `true` if `cp` is a valid Unicode code point and `false` otherwise.
+
+---
+
+### `@encoding_info`
+
+**Synopsis:**
+
+```nest
+[encoding: Str] @encoding_info -> Map
+```
+
+**Returns:**
+
+A new map containing various information about a particular encoding. The keys
+in the map are the following:
+
+| Key       | Type          | Value                                                                                         |
+| --------- | ------------- | --------------------------------------------------------------------------------------------- |
+| `name`    | `Str`         | The name of the encoding.                                                                     |
+| `min_len` | `Int`         | The minimum length of a code point (character) in bytes.                                      |
+| `max_len` | `Int`         | The maximum length of a code point (character) in bytes.                                      |
+| `bom`     | `Array?.Byte` | The Byte Order Mark, an array of bytes if it exists for the encoding and `null` if it doesn't |
+
+**Example:**
+
+```nest
+|#| 'stdcodecs.nest' = cc
+
+'utf16'  @cc.encoding_info --> {'name': 'UTF-16LE', 'min_len': 2, 'max_len': 4, 'bom': {255b, 254b}}
+'latin1' @cc.encoding_info --> {'name': 'ISO-8859-1', 'min_len': 1, 'max_len': 1, 'bom': null}
+```
 
 ---
 

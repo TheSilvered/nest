@@ -739,3 +739,55 @@ arr_copy.2 .hello arr_copy @test.assert_obj_eq
 arr_copy.2 .hi arr_copy.1 @test.assert_eq
 arr_copy.1 .1 arr_copy @test.assert_eq
 arr_copy.1 .2 arr_copy.2 @test.assert_eq
+
+{'a', 'b', 'c'} @sequ.enum {'a': 0, 'b': 1, 'c': 2} @test.assert_eq
+{'a', 'b', 'c'} -1 @sequ.enum {'a': -1, 'b': 0, 'c': 1} @test.assert_eq
+{'a', 'b', 'c'} 1 @sequ.enum {'a': 1, 'b': 2, 'c': 3} @test.assert_eq
+sequ.enum {{'a', 'b', 'a'}} @test.assert_raises_error
+sequ.enum {{'a', 'b', 'a'}, -1} @test.assert_raises_error
+sequ.enum {{'a', 'b', 'a'}, 1} @test.assert_raises_error
+
+{,} @sequ.reverse {,} @test.assert_eq
+{1} @sequ.reverse {1} @test.assert_eq
+{1, 2} @sequ.reverse {2, 1} @test.assert_eq
+{1, 2, 3} @sequ.reverse {3, 2, 1} @test.assert_eq
+?::({1, 2, 3} @sequ.reverse) Array @test.assert_eq
+{1, 2, 3} = arr
+arr true @sequ.reverse arr @test.assert_obj_eq
+arr {3, 2, 1} @test.assert_eq
+
+<{}> @sequ.reverse <{}> @test.assert_eq
+<{1}> @sequ.reverse <{1}> @test.assert_eq
+<{1, 2}> @sequ.reverse <{2, 1}> @test.assert_eq
+<{1, 2, 3}> @sequ.reverse <{3, 2, 1}> @test.assert_eq
+?::(<{1, 2, 3}> @sequ.reverse) Vector @test.assert_eq
+<{1, 2, 3}> = vec
+vec true @sequ.reverse vec @test.assert_obj_eq
+vec <{3, 2, 1}> @test.assert_eq
+
+'' @sequ.reverse '' @test.assert_eq
+'a' @sequ.reverse 'a' @test.assert_eq
+'ab' @sequ.reverse 'ba' @test.assert_eq
+'abc' @sequ.reverse 'cba' @test.assert_eq
+sequ.reverse {'abc', true} @test.assert_raises_error
+'àa' @sequ.reverse 'aà' @test.assert_eq
+'àèa' @sequ.reverse 'aèà' @test.assert_eq
+'🎺a😀è' @sequ.reverse 'è😀a🎺' @test.assert_eq
+
+Array :: ({,} @sequ.reverse_i) {,} @test.assert_eq
+Array :: ({1} @sequ.reverse_i) {1} @test.assert_eq
+Array :: ({1, 2} @sequ.reverse_i) {2, 1} @test.assert_eq
+Array :: ({1, 2, 3} @sequ.reverse_i) {3, 2, 1} @test.assert_eq
+
+Array :: (<{}> @sequ.reverse_i) {,} @test.assert_eq
+Array :: (<{1}> @sequ.reverse_i) {1} @test.assert_eq
+Array :: (<{1, 2}> @sequ.reverse_i) {2, 1} @test.assert_eq
+Array :: (<{1, 2, 3}> @sequ.reverse_i) {3, 2, 1} @test.assert_eq
+
+Array :: ('' @sequ.reverse_i) {,} @test.assert_eq
+Array :: ('a' @sequ.reverse_i) {'a'} @test.assert_eq
+Array :: ('ab' @sequ.reverse_i) {'b', 'a'} @test.assert_eq
+Array :: ('abc' @sequ.reverse_i) {'c', 'b', 'a'} @test.assert_eq
+Array :: ('àa' @sequ.reverse_i) {'a', 'à'} @test.assert_eq
+Array :: ('àèa' @sequ.reverse_i) {'a', 'è', 'à'} @test.assert_eq
+Array :: ('🎺a😀è' @sequ.reverse_i) {'è', '😀', 'a', '🎺'} @test.assert_eq

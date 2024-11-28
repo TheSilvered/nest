@@ -7,11 +7,16 @@
 extern "C" {
 #endif // !__cplusplus
 
-NstEXP bool NstC lib_init();
-NstEXP Nst_DeclrList *NstC get_func_ptrs();
+NstEXP Nst_Declr *NstC lib_init();
 
-Nst_FUNC_SIGN(try_);
-Nst_FUNC_SIGN(_get_err_names_);
+Nst_Obj *NstC try_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC SYNTAX_ERROR_();
+Nst_Obj *NstC VALUE_ERROR_();
+Nst_Obj *NstC TYPE_ERROR_();
+Nst_Obj *NstC CALL_ERROR_();
+Nst_Obj *NstC MEMORY_ERROR_();
+Nst_Obj *NstC MATH_ERROR_();
+Nst_Obj *NstC IMPORT_ERROR_();
 
 #ifdef __cplusplus
 }

@@ -1,6 +1,6 @@
 --$ --no-default
 
-|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_math.dll' = __math
+|#| '__C__:../../build/windows/projects/nest/\(_debug_arch_ 'x86' == ? '' : 'x64/')Debug/nest_math.dll' = __math
 
 __math.acos_    = acos
 __math.asin_    = asin
@@ -43,10 +43,11 @@ __math.round_   = round
 __math.sum_     = sum
 
 2.718281828459045 = E
-__math.INF_ = INF
-__math.NAN_ = NAN
+__math.INF_       = INF
+1.618033988749895 = GOLDEN_RATIO
+__math.NAN_       = NAN
 3.141592653589793 = PI
-1.618033988749895 = PHI = GOLDEN_RATIO
+GOLDEN_RATIO      = PHI
 6.283185307179586 = TAU
 
 _vars_ '__math' '_vars_' -

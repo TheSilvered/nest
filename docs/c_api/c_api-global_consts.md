@@ -35,13 +35,13 @@ typedef struct _Nst_StrConsts {
     Nst_StrObj *e_CallError;
     Nst_StrObj *e_MathError;
     Nst_StrObj *e_ImportError;
+    Nst_StrObj *e_Interrupt;
 
     // Other
 
     Nst_StrObj *o__vars_;
     Nst_StrObj *o__globals_;
     Nst_StrObj *o__args_;
-    Nst_StrObj *o__cwd_;
     Nst_StrObj *o_failed_alloc;
 } Nst_StrConsts
 ```
@@ -166,12 +166,12 @@ The functions of the built-in iterators.
 
 ## Functions
 
-### `_Nst_init_objects`
+### `_Nst_globals_init`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_init_objects(void)
+bool _Nst_globals_init(void)
 ```
 
 **Description:**
@@ -184,12 +184,12 @@ Initializes all the global constants and IO streams.
 
 ---
 
-### `_Nst_del_objects`
+### `_Nst_globals_quit`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_del_objects(void)
+void _Nst_globals_quit(void)
 ```
 
 **Description:**

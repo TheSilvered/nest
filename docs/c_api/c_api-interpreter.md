@@ -10,53 +10,84 @@ TheSilvered
 
 ## Structs
 
-### `Nst_ExecutionState`
+### `Nst_IntrState`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_ExecutionState {
-    Nst_Traceback traceback;
-    Nst_VarTable *vt;
-    i64 idx;
+typedef struct _Nst_IntrState {
     Nst_GarbageCollector ggc;
-    Nst_StrObj *curr_path;
-    Nst_SeqObj *argv;
     i32 opt_level;
-    Nst_ValueStack v_stack;
-    Nst_CallStack  f_stack;
-    Nst_CatchStack c_stack;
     Nst_LList *loaded_libs;
     Nst_LList *lib_paths;
     Nst_MapObj *lib_handles;
     Nst_LList *lib_srcs;
-} Nst_ExecutionState
+    Nst_ExecutionState *es;
+    Nst_Traceback global_traceback;
+} Nst_IntrState
 ```
 
 **Description:**
 
-Global execution state of Nest.
+Global state of the Nest interpreter.
 
 **Fields:**
 
-- `traceback`: traceback of the current running program
-- `vt`: current variable table
-- `idx`: current instruction index
 - `ggc`: generational garbage collector
-- `curr_path`: current working directory
-- `argv`: arguments passed to the program
 - `opt_level`: maximum optimization level when importing libraries
-- `v_stack`: value stack
-- `f_stack`: call stack
-- `c_stack`: catch stack
 - `loaded_libs`: dynamic library handles
 - `lib_paths`: import stack
-- `lib_handles`: maps of the imported libraries
-- `lib_srcs`: sources of the imported Nest libraries
+- `lib_handles`: maps of imported libraries
+- `lib_srcs`: sources of imported Nest libraries
+- `es`: the program that is being executed
 
 ---
 
 ## Functions
+
+### `Nst_init`
+
+**Synopsis:**
+
+```better-c
+bool Nst_init(Nst_CLArgs *args)
+```
+
+**Description:**
+
+Initializes the Nest libraray.
+
+!!!note
+    [`Nst_set_color`](c_api-error.md#nst_set_color) is called with the value
+    returned by [`Nst_supports_color`](c_api-argv_parser.md#nst_supports_color).
+
+**Parameters:**
+
+- `args`: the options for the libraray, currently only `opt_level` is used; if
+  `NULL` is passed `opt_level` is set to 3.
+
+**Returns:**
+
+`true` on success and `false` on failure. No error is set as it failed to
+initialize.
+
+---
+
+### `Nst_quit`
+
+**Synopsis:**
+
+```better-c
+void Nst_quit(void)
+```
+
+**Description:**
+
+Destroys all the components of the libraray. It is not safe to access any object
+created while the library was initialized after this function is called. Any
+destructors that may access Nest objects must be called before.
+
+---
 
 ### `Nst_run`
 
@@ -69,10 +100,6 @@ i32 Nst_run(Nst_FuncObj *main_func)
 **Description:**
 
 Runs the main program.
-
-This function requires [`Nst_state_init`](c_api-interpreter.md#nst_state_init)
-to be called before. It will call
-[`Nst_state_free`](c_api-interpreter.md#nst_state_free) automatically.
 
 !!!warning
     It must never be called inside a library.
@@ -114,44 +141,40 @@ set but an internal one is, hence the caller must not set the error.
 
 ---
 
-### `Nst_call_func`
+### `Nst_func_call`
 
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_call_func(Nst_FuncObj *func, Nst_Obj **args)
+Nst_Obj *Nst_func_call(Nst_FuncObj *func, i64 arg_num, Nst_Obj **args)
 ```
 
 **Description:**
 
 Calls a [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
 
-It can have both a Nest or C body.
-
-!!!warning
-    No checking is done on the number of arguments.
+!!!note
+    If the function is passed less arguments than it expects, the extra ones are
+    filled with `null` objects.
 
 **Parameters:**
 
 - `func`: the function to call
-- `args`: the array of arguments to pass to it, the correct number of arguments
-  must be given, no `null` arguments are added
+- `arg_num`: the number of arguments passed
+- `args`: the array of arguments to pass to it
 
 **Returns:**
 
-The result of the function or `NULL` on failure. When a function with a Nest
-body fails the error is set internally and the caller must not set it. When a
-function with a C body fails, the error should always set.
+The result of the function or `NULL` on failure. The error is set.
 
 ---
 
-### `Nst_run_func_context`
+### `Nst_run_paused_coroutine`
 
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_run_func_context(Nst_FuncObj *func, i64 idx, Nst_MapObj *vars,
-                              Nst_MapObj *globals)
+Nst_Obj *Nst_run_paused_coroutine(Nst_FuncObj *func, i64 idx, Nst_VarTable *vt)
 ```
 
 **Description:**
@@ -220,41 +243,12 @@ is returned. No error is set.
 
 ---
 
-### `Nst_state_init`
+### `Nst_was_init`
 
 **Synopsis:**
 
 ```better-c
-bool Nst_state_init(i32 argc, i8 **argv, i8 *filename, i32 opt_level,
-                    bool no_default)
-```
-
-**Description:**
-
-Initializes the global [`Nst_state`](c_api-interpreter.md#nst_get_state).
-
-**Parameters:**
-
-- `argc`: the command line argument count
-- `argv`: the command line arguments
-- `filename`: the name of the file of the main program
-- `opt_level`: the maximum optimization level
-- `no_default`: whether to initialize the variable table of the main program
-  with built-in values
-
-**Returns:**
-
-`true` if the state initialized successfully and `false` otherwise. No error is
-set.
-
----
-
-### `Nst_state_was_init`
-
-**Synopsis:**
-
-```better-c
-bool Nst_state_was_init(void)
+bool Nst_was_init(void)
 ```
 
 **Description:**
@@ -263,48 +257,60 @@ Returns `true` if the state was initialized and `false` otherwise.
 
 ---
 
-### `Nst_state_free`
+### `Nst_state_get_es`
 
 **Synopsis:**
 
 ```better-c
-void Nst_state_free(void)
+Nst_ExecutionState *Nst_state_get_es(void)
 ```
 
 **Description:**
 
-Frees the variables inside the global state, calls `free_lib` in the libraries
-that define it and deletes the objects inside the garbage collector.
+Gets the current execution state.
 
 ---
 
-### `_Nst_unload_libs`
+### `Nst_state_set_es`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_unload_libs(void)
+Nst_ExecutionState *Nst_state_set_es(Nst_ExecutionState *es)
 ```
 
 **Description:**
 
-Frees `loaded_libs`, must be called after
-[`_Nst_del_objects`](c_api-global_consts.md#_nst_del_objects).
+Sets a new execution state in the global interpreter state.
+
+!!!note
+    The current working directory is changed according to `curr_path` in `es`.
+
+**Parameters:**
+
+- `es`: the new [`Nst_ExecutionState`](c_api-runner.md#nst_executionstate) to
+  set
+
+**Returns:**
+
+The previous execution state. The error is set but it is not reflected in the
+return value. Use [`Nst_error_occurred`](c_api-error.md#nst_error_occurred) to
+check.
 
 ---
 
-### `Nst_get_state`
+### `Nst_state_get`
 
 **Synopsis:**
 
 ```better-c
-Nst_ExecutionState *Nst_get_state(void)
+Nst_IntrState *Nst_state_get(void)
 ```
 
 **Description:**
 
 Returns a pointer to the global
-[`Nst_ExecutionState`](c_api-interpreter.md#nst_executionstate).
+[`Nst_IntrState`](c_api-interpreter.md#nst_intrstate).
 
 ---
 

@@ -13,11 +13,9 @@
 #include "obj.h"
 #include "encoding.h"
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 #include <windows.h>
-#endif // !Nst_WIN
-
-#define _Nst_RBUF_SIZE 512
+#endif // !Nst_MSVC
 
 /* Casts ptr to a `Nst_IOFileObj *`. */
 #define IOFILE(ptr) ((Nst_IOFileObj *)(ptr))
@@ -78,15 +76,30 @@ struct _Nst_IOFileObj;
 /**
  * The type that represents a read function of a Nest file object.
  *
- * @brief This function shall read from the given file object count characters
- * or bytes when in binary mode. `buf` shall be interpreted as `i8 **` instead
- * of `i8 *` and a new buffer shall be allocated with `Nst_malloc` or similar
- * functions. The buffer shall contain UTF8-encoded text. When buf_len is not
- * `NULL` the function shall fill it with the number of characters written (or
- * bytes if it is in binary mode).
+ * @brief This function shall read from the given file object `count`
+ * characters (or `count` bytes when in binary mode) starting from the file
+ * position indicator.
  *
- * @return This function shall return any `Nst_IOResult` variant except for
- * `Nst_IO_INVALID_ENCODING` as follows:
+ * @param buf: the buffer where the read text is written. If `buf_size` is
+ * `0` this parameter should be interpreted as `i8 **` and a malloc'd buffer
+ * of the right size shall be put in it. When the file is opened in normal
+ * mode the contents of the buffer must be in `extUTF8` encoding and must
+ * terminate with a NUL character.
+ * @param buf_size: the size of `buf` in bytes, if set to `0` the buffer will
+ * be allocated instead
+ * @param count: the number of characters to read when opened in normal mode or
+ * the number of bytes to read when opened in binary mode, a valid value can
+ * be expected only when the function returns `Nst_IO_SUCCESS` or
+ * `Nst_IO_EOF_REACHED`
+ * @param buf_len: this is an out parameter set to the length in bytes of the
+ * data written in `buf` ignoring the NUL character, it may be `NULL` to not
+ * recieve the information
+ * read when the file is opened in normal mode and to the number of bytes read
+ * when opened in binary mode
+ * @param f: the file to read
+ *
+ * @return This function shall return one of the following `Nst_IOResult`
+ * variants:
  *! `Nst_IO_BUF_FULL` when `buf` is not allocated and cannot store all
  * requested characters or bytes.
  *! `Nst_IO_EOF_REACHED` when the end of the file has been reached.
@@ -94,7 +107,8 @@ struct _Nst_IOFileObj;
  *! `Nst_IO_ALLOC_FAILED` when the buffer fails to be allocated.
  *! `Nst_IO_INVALID_DECODING` when the text read cannot be decoded. This
  * variant cannot be returned if the file is in binary mode. When it is
- * returned `Nst_io_result_set_details` must be called.
+ * returned `Nst_io_result_set_details` must be called to communicate the
+ * appropriate information.
  *! `Nst_IO_OP_FAILED` if the file does not support reading.
  *! `Nst_IO_CLOSED` if the file is closed.
  *! `Nst_IO_ERROR` for any other error that might occur.
@@ -105,20 +119,29 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_read_f)(i8 *buf, usize buf_size,
 /**
  * The type that represents a write function of a Nest file object.
  *
- * @brief This function shall write the contents of buf to a file. If count is
+ * @brief This function shall write the contents of buf to a file starting from
+ * the file position indicator and overwriting any previous content. If count is
  * not `NULL` it is filled with the number of characters written (or the number
  * of bytes if the file is in binary mode). `buf` shall contain UTF-8 text that
  * allows invalid characters under U+10FFFF.
  *
- * @return This function shall not return `Nst_IO_BUF_FULL`,
- * `Nst_IO_EOF_REACHED` and `Nst_IO_INVALID_DECODING` variants of
- * `Nst_IOResult`. The other ones shall be returned as follows:
+ * @param buf: the content to write to the file
+ * @param buf_len: the length in bytes of `buf`
+ * @param count: an out parameter set to the number of characters written when
+ * the file is opened in normal mode or to the number of bytes written when
+ * it is in binary mode, it may be `NULL` to not recieve the information,a
+ * valid value can be expected only when the function returns `Nst_IO_SUCCESS`
+ * @param f: the file to write to
+ *
+ * @return This function shall return one of the following `Nst_IOResult`
+ * variants:
  *! `Nst_IO_SUCCESS` when the function successfully writes the characters to
  * the file.
  *! `Nst_IO_ALLOC_FAILED` if a memory allocation fails.
  *! `Nst_IO_INVALID_ENCODING` if a character cannot be encoded in the encoding
  * the file is opened in. This variant can only be returned when the file is
- * not binary. When it is returned `Nst_io_result_set_details` must be called.
+ * not binary. When it is returned `Nst_io_result_set_details` must be called
+ * to communicate the appropriate information.
  *! `Nst_IO_OP_FAILED` if the file does not support writing.
  *! `Nst_IO_CLOSED` if the file is closed.
  *! `Nst_IO_ERROR` for any other error that might occur.
@@ -131,9 +154,10 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_write_f)(i8 *buf, usize buf_len,
  *
  * @brief This function shall write any buffered bytes to the file.
  *
- * @return This function shall return only either `Nst_IO_CLOSED`,
- * `Nst_IO_ERROR`, `Nst_IO_OP_FAILED`, `Nst_IO_SUCCESS` or
- * `Nst_IO_ALLOC_FAILED` as follows:
+ * @param f: the file to flush
+ *
+ * @return This function shall return one of the following `Nst_IOResult`
+ * variants:
  *! `Nst_IO_CLOSED` when the file is closed.
  *! `Nst_IO_OP_FAILED` if the file does not support writing.
  *! `Nst_IO_SUCCESS` if the function exits successfully.
@@ -144,11 +168,15 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_flush_f)(struct _Nst_IOFileObj *f);
 /**
  * The type that represents a tell function of a Nest file object.
  *
- * @brief This function shall fill pos with the current position in bytes from
+ * @brief This function shall get the current position in bytes from
  * the start of the file of the file-position indicator.
  *
- * @return This function shall return only either `Nst_IO_CLOSED`,
- * `Nst_IO_ERROR`, `Nst_IO_OP_FAILED` or `Nst_IO_SUCCESS` as follows:
+ * @param f: the file to get the position from
+ * @param pos: the pointer filled with the retrived position, a valid value can
+ * be expected only when the function returns `Nst_IO_SUCCESS`
+ *
+ * @return This function shall return one of the following `Nst_IOResult`
+ * variants:
  *! `Nst_IO_CLOSED` when the file is closed.
  *! `Nst_IO_OP_FAILED` if the file does not support seeking.
  *! `Nst_IO_SUCCESS` if the function exits successfully.
@@ -159,13 +187,18 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_tell_f)(struct _Nst_IOFileObj *f,
 /**
  * The type that represents a seek function of a Nest file object.
  *
- * @brief This function shall move the file-position indicator by an offset
- * starting from origin. `Nst_SEEK_SET` is the start of the file,
+ * @brief This function shall move the file-position indicator. `Nst_SEEK_SET` is the start of the file,
  * `Nst_SEEK_CUR` is the current position of the file-position indicator and
  * `Nst_SEEK_END` is the end of the file.
  *
- * @return This function shall return only either `Nst_IO_CLOSED`,
- * `Nst_IO_ERROR`, `Nst_IO_OP_FAILED` or `Nst_IO_SUCCESS` as follows:
+ * @param origin: where to calculate the offset from, `Nst_SEEK_SET` is the
+ * start of the file, `Nst_SEEK_CUR` is the current position of the indicator
+ * and `Nst_SEEK_END` is the end of the file
+ * @param offset: an offset in bytes from `origin` to move the indicator
+ * @param f: the file to move the indicator of
+ *
+ * @return This function shall return one of the following `Nst_IOResult`
+ * variants:
  *! `Nst_IO_CLOSED` when the file is closed.
  *! `Nst_IO_OP_FAILED` if the file does not support seeking.
  *! `Nst_IO_SUCCESS` if the function exits successfully.
@@ -180,8 +213,10 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_seek_f)(Nst_SeekWhence origin,
  * @brief This function shall close the given file and free any allocated
  * memory.
  *
- * @return This function shall return only either `Nst_IO_CLOSED`,
- * `Nst_IO_ERROR` or `Nst_IO_SUCCESS` as follows:
+ * @param f: the file to close
+ *
+ * @return This function shall return one of the following `Nst_IOResult`
+ * variants:
  *! `Nst_IO_CLOSED` when the file was already closed.
  *! `Nst_IO_SUCCESS` if the function exits successfully.
  *! `Nst_IO_ERROR` for any other error.
@@ -201,7 +236,9 @@ NstEXP typedef struct _Nst_IOFuncSet {
     Nst_IOFile_close_f close;
 } Nst_IOFuncSet;
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
+
+#define _Nst_WIN_STDIN_BUF_SIZE 2048
 
 /**
  * @brief WINDOWS ONLY A structure representing the standard input file on
@@ -209,7 +246,7 @@ NstEXP typedef struct _Nst_IOFuncSet {
  */
 NstEXP typedef struct _Nst_StdIn {
     HANDLE hd;
-    wchar_t buf[1024];
+    wchar_t buf[_Nst_WIN_STDIN_BUF_SIZE];
     FILE *fp;
     i32 buf_size;
     i32 buf_ptr;
@@ -217,7 +254,7 @@ NstEXP typedef struct _Nst_StdIn {
 
 extern Nst_StdIn Nst_stdin;
 
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
 /**
  * A structure representing a Nest IO file object.
@@ -230,8 +267,8 @@ extern Nst_StdIn Nst_stdin;
  */
 NstEXP typedef struct _Nst_IOFileObj {
     Nst_OBJ_HEAD;
-    void *fp;
     int fd;
+    void *fp;
     Nst_CP *encoding;
     Nst_IOFuncSet func_set;
 } Nst_IOFileObj;
@@ -318,7 +355,7 @@ NstEXP Nst_IOResult NstC Nst_FILE_close(Nst_IOFileObj *f);
  * @brief This function can only be called when the returned `Nst_IOResult` is
  * either `Nst_IO_INVALID_ENCODING` or `Nst_IO_INVALID_DECODING`. If the result
  * is the former `ill_encoded_ch` will be the code point that could not be
- * encoded, otherwise if the result is the latter `ill_encoded_ch` will
+ * encoded, otherwise, if the result is the latter, `ill_encoded_ch` will
  * represent the byte that could not be decoded. Similarly `encoding_name` is
  * the encoding that failed to encode the code point for
  * `Nst_IO_INVALID_ENCODING` and the name of the one that failed to decode the

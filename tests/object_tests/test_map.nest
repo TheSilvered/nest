@@ -1,37 +1,97 @@
 |#| '../test_lib.nest' = test
 
+-- Test map syntax
 {} = empty_m
+{'a': 1, 'b': 2, 'c': 3, 'd': 4} = m
 
 ?::empty_m Map @test.assert_eq
-empty_m.not_a_key null @test.assert_eq
-
-{'a': 1, 'b': 2, 'c': 3, 'd': 4} = m
 ?::m Map @test.assert_eq
-$m 4 @test.assert_eq
+
+-- Test extraction
+empty_m.not_a_key null @test.assert_eq
+empty_m.1 null @test.assert_eq
+
 m.a 1 @test.assert_eq
 m.b 2 @test.assert_eq
 m.c 3 @test.assert_eq
 m.d 4 @test.assert_eq
 
+-- Test '$' operator
+$m 4 @test.assert_eq
+$empty_m 0 @test.assert_eq
+
+-- Test '-' operator
 m 'c' - {'a': 1, 'b': 2, 'd': 4} @test.assert_eq
 m 'h' - {'a': 1, 'b': 2, 'd': 4} @test.assert_eq
-
-Str :: m "{'a': 1, 'b': 2, 'd': 4}" @test.assert_eq
-{} @test.assert_false
-{'smth': 1} @test.assert_true
-
-m 'a' -
-m 'b' -
-m 'd' -
+m 'a' 'b' 'd' -
 $m 0 @test.assert_eq
-Map :: {{'a', 1}, {'b', 2}} {'a': 1, 'b': 2} @test.assert_eq
 
+-- Test '<.>' operator
 {1: 'a', 'b': 2, 3: 'c'} 'b' <.> @test.assert_true
 {1: 'a', 'b': 2, 3: 'c'} 2 <.> @test.assert_false
 {1: 'a', 'b': 2, 3: 'c'} 'c' <.> @test.assert_false
 {1: 'a', 'b': 2, 3: 'c'} 1 <.> @test.assert_true
 {1: 'a', 'b': 2, 3: 'c'} 3 <.> @test.assert_true
 
+-- Test '::' operator
 Array :: {'a': 1, 'b': 2} {{'a', 1}, {'b', 2}} @test.assert_eq
-Bool :: {} @test.assert_false
+Array :: {'a': 1} {{'a', 1}} @test.assert_eq
+Array :: {} {,} @test.assert_eq
+
+Vector :: {'a': 1, 'b': 2} <{{'a', 1}, {'b', 2}}> @test.assert_eq
+Vector :: {'a': 1} <{{'a', 1}}> @test.assert_eq
+Vector :: {} <{}> @test.assert_eq
+
+Bool :: {'a': 1, 'b': 2} @test.assert_true
 Bool :: {'a': 1} @test.assert_true
+Bool :: {} @test.assert_false
+
+{'a': 1, 'b': 2} = map
+Iter :: map = map_iter1
+Iter :: {'a': 1} = map_iter2
+Iter :: {} = map_iter3
+
+Array :: map_iter1 {{'a', 1}, {'b', 2}} @test.assert_eq
+Array :: map_iter1 {{'a', 1}, {'b', 2}} @test.assert_eq
+Array :: map_iter2 {{'a', 1}} @test.assert_eq
+Array :: map_iter2 {{'a', 1}} @test.assert_eq
+Array :: map_iter3 {,} @test.assert_eq
+Array :: map_iter3 {,} @test.assert_eq
+
+3 = map.a
+Array :: map_iter1 {{'a', 3}, {'b', 2}} @test.assert_eq
+Array :: map_iter1 {{'a', 3}, {'b', 2}} @test.assert_eq
+4 = map.c
+Array :: map_iter1 {{'a', 3}, {'b', 2}, {'c', 4}} @test.assert_eq
+Array :: map_iter1 {{'a', 3}, {'b', 2}, {'c', 4}} @test.assert_eq
+map 'b' -
+Array :: map_iter1 {{'a', 3}, {'c', 4}} @test.assert_eq
+Array :: map_iter1 {{'a', 3}, {'c', 4}} @test.assert_eq
+
+Str :: {'a': 1, 'b': 2} "{'a': 1, 'b': 2}" @test.assert_eq
+Str :: {'a': 1} "{'a': 1}" @test.assert_eq
+Str :: {} "{}" @test.assert_eq
+
+{} = m_recursive
+m_recursive = m_recursive.self
+Str :: m_recursive "{'self': {.}}" @test.assert_eq
+
+-- Test '==' operator
+{'a': 1, 'b': 2} {'b': 2, 'a': 1} == @test.assert_true
+{'a': 1, 'b': 2} {'b': 1, 'a': 2} == @test.assert_false
+{'a': 1} {'a': 1} == @test.assert_true
+{'a': 1} {'a': 2} == @test.assert_false
+{} {} == @test.assert_true
+
+{} = m1
+m1 = m1.self
+{} = m2
+m2 = m2.self
+
+m1 m2 == @test.assert_true
+
+{} = m1
+{} = m2
+m2 = m1.m2
+m1 = m2.m1
+m1 m2 == @test.assert_false

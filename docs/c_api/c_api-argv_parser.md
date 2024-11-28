@@ -23,6 +23,8 @@ typedef struct _Nst_CLArgs {
     i32 opt_level;
     i8 *command, *filename;
     i32 args_start;
+    i32 argc;
+    i8 **argv;
 } Nst_CLArgs
 ```
 
@@ -53,12 +55,33 @@ A structure representing the command-line arguments of Nest.
 
 ## Functions
 
-### `_Nst_parse_args`
+### `Nst_cl_args_init`
 
 **Synopsis:**
 
 ```better-c
-i32 _Nst_parse_args(i32 argc, i8 **argv, Nst_CLArgs *cl_args)
+void Nst_cl_args_init(Nst_CLArgs *args, i32 argc, i8 **argv)
+```
+
+**Description:**
+
+Initializes a [`Nst_CLArgs`](c_api-argv_parser.md#nst_clargs) struct with
+default values.
+
+**Parameters:**
+
+- `args`: the struct to initialize
+- `argc`: the number of arguments passed to main
+- `argv`: the array of arguments passed to main
+
+---
+
+### `_Nst_cl_args_parse`
+
+**Synopsis:**
+
+```better-c
+i32 _Nst_cl_args_parse(Nst_CLArgs *cl_args)
 ```
 
 **Description:**
@@ -67,9 +90,8 @@ Parses command-line arguments.
 
 **Parameters:**
 
-- `argc`: length of `argv`
-- `argv`: the command-line arguments array
-- `cl_args`: the struct where to put the parsed arguments
+- `cl_args`: the struct where to put the parsed arguments, it must be
+  initialized with [`Nst_cl_args_init`](c_api-argv_parser.md#nst_cl_args_init)
 
 **Returns:**
 
@@ -93,6 +115,21 @@ otherwise.
 
 ---
 
+### `_Nst_supports_color_override`
+
+**Synopsis:**
+
+```better-c
+void _Nst_supports_color_override(bool value)
+```
+
+**Description:**
+
+Ovverrides the value returned by
+[`Nst_supports_color`](c_api-argv_parser.md#nst_supports_color).
+
+---
+
 ### `_Nst_wargv_to_argv`
 
 **Synopsis:**
@@ -113,16 +150,16 @@ bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv)
 
 **Returns:**
 
-`true` on success and `false` on failure.
+`true` on success and `false` on failure. No error is set.
 
 ---
 
-### `_Nst_set_console_mode`
+### `_Nst_console_mode_init`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_set_console_mode(void)
+void _Nst_console_mode_init(void)
 ```
 
 **Description:**

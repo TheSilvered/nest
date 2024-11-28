@@ -1,8 +1,7 @@
 #include "gui_draw.h"
+#include "gui_utils.h"
 
-using namespace GUI;
-
-void draw_rect(SDL_Renderer *renderer, SDL_Rect *rect)
+void GUI_DrawRectBorder(SDL_Renderer *renderer, SDL_Rect *rect)
 {
     if (rect == nullptr)
         return;
@@ -15,10 +14,8 @@ void draw_rect(SDL_Renderer *renderer, SDL_Rect *rect)
     int t = rect->y;
     int b = t + rect->h - 1;
 
-    SDL_RenderDrawLine(renderer, l, t, r, t);
-    SDL_RenderDrawLine(renderer, r, t, r, b);
-    SDL_RenderDrawLine(renderer, l, b, r, b);
-    SDL_RenderDrawLine(renderer, l, t, l, b);
+    const SDL_Point points[] = { { l, t }, { r, t }, { r, b }, { l, b }};
+    SDL_RenderDrawLines(renderer, points, 4);
 }
 
 static int fix_radius(int min_side, int r)
@@ -78,9 +75,9 @@ static void draw_angle_border_point(SDL_Surface *surf, int rad, int border,
     }
 }
 
-SDL_Texture *draw_round_rect(SDL_Renderer *renderer, SDL_Rect rect,
-                             int rtl, int rtr, int rbl, int rbr,
-                             u8 r, u8 g, u8 b, u8 a)
+SDL_Texture *GUI_MakeRoundRect(SDL_Renderer *renderer, SDL_Rect rect,
+                               int rtl, int rtr, int rbl, int rbr,
+                               u8 r, u8 g, u8 b, u8 a)
 {
     SDL_Surface *surf = SDL_CreateRGBSurface(
         0, rect.w, rect.h, 32,
@@ -121,7 +118,7 @@ SDL_Texture *draw_round_rect(SDL_Renderer *renderer, SDL_Rect rect,
     cr = { rect.w - rbr, rect.h - rbr, rbr, rbr };
     SDL_FillRect(surf, &cr, 0);
 
-    int max_rad = imax(imax(rtl, rtr), imax(rbl, rbr));
+    int max_rad = GUI_MaxInt2(GUI_MaxInt2(rtl, rtr), GUI_MaxInt2(rbl, rbr));
 
     for (int i = 0; i < max_rad; i++) {
         for (int j = 0; j < max_rad; j++) {
@@ -149,14 +146,14 @@ SDL_Texture *draw_round_rect(SDL_Renderer *renderer, SDL_Rect rect,
     return texture;
 }
 
-SDL_Texture *draw_round_border_rect(SDL_Renderer *renderer, SDL_Rect rect,
-                                    int border_thickness,
-                                    int rtl, int rtr, int rbl, int rbr,
-                                    u8 r_i, u8 g_i, u8 b_i, u8 a_i,
-                                    u8 r_b, u8 g_b, u8 b_b, u8 a_b)
+SDL_Texture *GUI_MakeRoundBorderRect(SDL_Renderer *renderer, SDL_Rect rect,
+                                     int border_thickness,
+                                     int rtl, int rtr, int rbl, int rbr,
+                                     u8 r_i, u8 g_i, u8 b_i, u8 a_i,
+                                     u8 r_b, u8 g_b, u8 b_b, u8 a_b)
 {
     if (border_thickness == 0) {
-        return draw_round_rect(
+        return GUI_MakeRoundRect(
             renderer,
             rect,
             rtl, rtr, rbl, rbr,
@@ -209,7 +206,7 @@ SDL_Texture *draw_round_border_rect(SDL_Renderer *renderer, SDL_Rect rect,
     cr = { rect.w - rbr, rect.h - rbr, rbr, rbr };
     SDL_FillRect(surf, &cr, 0);
 
-    int max_rad = imax(imax(rtl, rtr), imax(rbl, rbr));
+    int max_rad = GUI_MaxInt2(GUI_MaxInt2(rtl, rtr), GUI_MaxInt2(rbl, rbr));
 
     for (int i = 0; i < max_rad; i++) {
         for (int j = 0; j < max_rad; j++) {
@@ -245,21 +242,24 @@ SDL_Texture *draw_round_border_rect(SDL_Renderer *renderer, SDL_Rect rect,
     return texture;
 }
 
-void draw_texture(App *app, int x, int y, SDL_Texture *texture,
-                  SDL_Rect *clip)
+void GUI_DrawClippedTexture(SDL_Renderer *renderer, int x, int y,
+                            SDL_Texture *texture, SDL_Rect *clip)
 {
     int w, h;
     SDL_QueryTexture(texture, nullptr, nullptr, &w, &h);
     SDL_Rect texture_rect = { x, y, w, h };
 
     if (clip == nullptr) {
-        SDL_RenderCopy(app->renderer, texture, nullptr, &texture_rect);
+        SDL_RenderCopy(renderer, texture, nullptr, &texture_rect);
         return;
     }
 
     SDL_Rect dst_rect;
     if (!SDL_IntersectRect(clip, &texture_rect, &dst_rect))
         return;
-    SDL_Rect src_rect = { dst_rect.x - x, dst_rect.y - y, dst_rect.w, dst_rect.h };
-    SDL_RenderCopy(app->renderer, texture, &src_rect, &dst_rect);
+    SDL_Rect src_rect = {
+        dst_rect.x - x, dst_rect.y - y,
+        dst_rect.w, dst_rect.h
+    };
+    SDL_RenderCopy(renderer, texture, &src_rect, &dst_rect);
 }

@@ -138,7 +138,7 @@ A structure representing the functions necessary to operate a Nest file object.
 ```better-c
 typedef struct _Nst_StdIn {
     HANDLE hd;
-    wchar_t buf[1024];
+    wchar_t buf[_Nst_WIN_STDIN_BUF_SIZE];
     FILE *fp;
     i32 buf_size;
     i32 buf_ptr;
@@ -158,8 +158,8 @@ typedef struct _Nst_StdIn {
 ```better-c
 typedef struct _Nst_IOFileObj {
     Nst_OBJ_HEAD;
-    void *fp;
     int fd;
+    void *fp;
     Nst_CP *encoding;
     Nst_IOFuncSet func_set;
 } Nst_IOFileObj
@@ -194,20 +194,33 @@ typedef Nst_IOResult (*Nst_IOFile_read_f)(i8 *buf, usize buf_size, usize count,
 
 The type that represents a read function of a Nest file object.
 
-This function shall read from the given file object count characters or bytes
-when in binary mode. `buf` shall be interpreted as
-[`i8 **`](c_api_index.md#type-definitions) instead of
-[`i8 *`](c_api_index.md#type-definitions) and a new buffer shall be allocated
-with [`Nst_malloc`](c_api-mem.md#nst_malloc) or similar functions. The buffer
-shall contain UTF8-encoded text. When buf_len is not `NULL` the function shall
-fill it with the number of characters written (or bytes if it is in binary
-mode).
+This function shall read from the given file object `count` characters (or
+`count` bytes when in binary mode) starting from the file position indicator.
+
+**Parameters:**
+
+- `buf`: the buffer where the read text is written. If `buf_size` is `0` this
+  parameter should be interpreted as [`i8 **`](c_api_index.md#type-definitions)
+  and a malloc'd buffer of the right size shall be put in it. When the file is
+  opened in normal mode the contents of the buffer must be in `extUTF8` encoding
+  and must terminate with a NUL character.
+- `buf_size`: the size of `buf` in bytes, if set to `0` the buffer will be
+  allocated instead
+- `count`: the number of characters to read when opened in normal mode or the
+  number of bytes to read when opened in binary mode, a valid value can be
+  expected only when the function returns
+  [`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult) or
+  [`Nst_IO_EOF_REACHED`](c_api-file.md#nst_ioresult)
+- `buf_len`: this is an out parameter set to the length in bytes of the data
+  written in `buf` ignoring the NUL character, it may be `NULL` to not recieve
+  the information read when the file is opened in normal mode and to the number
+  of bytes read when opened in binary mode
+- `f`: the file to read
 
 **Returns:**
 
-This function shall return any [`Nst_IOResult`](c_api-file.md#nst_ioresult)
-variant except for [`Nst_IO_INVALID_ENCODING`](c_api-file.md#nst_ioresult) as
-follows:
+This function shall return one of the following
+[`Nst_IOResult`](c_api-file.md#nst_ioresult) variants:
 
 - [`Nst_IO_BUF_FULL`](c_api-file.md#nst_ioresult) when `buf` is not allocated
   and cannot store all requested characters or bytes.
@@ -221,7 +234,7 @@ follows:
   cannot be decoded. This variant cannot be returned if the file is in binary
   mode. When it is returned
   [`Nst_io_result_set_details`](c_api-file.md#nst_io_result_set_details) must be
-  called.
+  called to communicate the appropriate information.
 - [`Nst_IO_OP_FAILED`](c_api-file.md#nst_ioresult) if the file does not support
   reading.
 - [`Nst_IO_CLOSED`](c_api-file.md#nst_ioresult) if the file is closed.
@@ -243,18 +256,27 @@ typedef Nst_IOResult (*Nst_IOFile_write_f)(i8 *buf, usize buf_len,
 
 The type that represents a write function of a Nest file object.
 
-This function shall write the contents of buf to a file. If count is not `NULL`
+This function shall write the contents of buf to a file starting from the file
+position indicator and overwriting any previous content. If count is not `NULL`
 it is filled with the number of characters written (or the number of bytes if
 the file is in binary mode). `buf` shall contain UTF-8 text that allows invalid
 characters under U+10FFFF.
 
+**Parameters:**
+
+- `buf`: the content to write to the file
+- `buf_len`: the length in bytes of `buf`
+- `count`: an out parameter set to the number of characters written when the
+  file is opened in normal mode or to the number of bytes written when it is in
+  binary mode, it may be `NULL` to not recieve the information,a valid value can
+  be expected only when the function returns
+  [`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult)
+- `f`: the file to write to
+
 **Returns:**
 
-This function shall not return [`Nst_IO_BUF_FULL`](c_api-file.md#nst_ioresult),
-[`Nst_IO_EOF_REACHED`](c_api-file.md#nst_ioresult) and
-[`Nst_IO_INVALID_DECODING`](c_api-file.md#nst_ioresult) variants of
-[`Nst_IOResult`](c_api-file.md#nst_ioresult). The other ones shall be returned
-as follows:
+This function shall return one of the following
+[`Nst_IOResult`](c_api-file.md#nst_ioresult) variants:
 
 - [`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult) when the function successfully
   writes the characters to the file.
@@ -264,7 +286,7 @@ as follows:
   be encoded in the encoding the file is opened in. This variant can only be
   returned when the file is not binary. When it is returned
   [`Nst_io_result_set_details`](c_api-file.md#nst_io_result_set_details) must be
-  called.
+  called to communicate the appropriate information.
 - [`Nst_IO_OP_FAILED`](c_api-file.md#nst_ioresult) if the file does not support
   writing.
 - [`Nst_IO_CLOSED`](c_api-file.md#nst_ioresult) if the file is closed.
@@ -287,14 +309,14 @@ The type that represents a flush function of a Nest file object.
 
 This function shall write any buffered bytes to the file.
 
+**Parameters:**
+
+- `f`: the file to flush
+
 **Returns:**
 
-This function shall return only either
-[`Nst_IO_CLOSED`](c_api-file.md#nst_ioresult),
-[`Nst_IO_ERROR`](c_api-file.md#nst_ioresult),
-[`Nst_IO_OP_FAILED`](c_api-file.md#nst_ioresult),
-[`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult) or
-[`Nst_IO_ALLOC_FAILED`](c_api-file.md#nst_ioresult) as follows:
+This function shall return one of the following
+[`Nst_IOResult`](c_api-file.md#nst_ioresult) variants:
 
 - [`Nst_IO_CLOSED`](c_api-file.md#nst_ioresult) when the file is closed.
 - [`Nst_IO_OP_FAILED`](c_api-file.md#nst_ioresult) if the file does not support
@@ -319,16 +341,20 @@ typedef Nst_IOResult (*Nst_IOFile_tell_f)(Nst_IOFileObj *f, usize *pos)
 
 The type that represents a tell function of a Nest file object.
 
-This function shall fill pos with the current position in bytes from the start
-of the file of the file-position indicator.
+This function shall get the current position in bytes from the start of the file
+of the file-position indicator.
+
+**Parameters:**
+
+- `f`: the file to get the position from
+- `pos`: the pointer filled with the retrived position, a valid value can be
+  expected only when the function returns
+  [`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult)
 
 **Returns:**
 
-This function shall return only either
-[`Nst_IO_CLOSED`](c_api-file.md#nst_ioresult),
-[`Nst_IO_ERROR`](c_api-file.md#nst_ioresult),
-[`Nst_IO_OP_FAILED`](c_api-file.md#nst_ioresult) or
-[`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult) as follows:
+This function shall return one of the following
+[`Nst_IOResult`](c_api-file.md#nst_ioresult) variants:
 
 - [`Nst_IO_CLOSED`](c_api-file.md#nst_ioresult) when the file is closed.
 - [`Nst_IO_OP_FAILED`](c_api-file.md#nst_ioresult) if the file does not support
@@ -352,19 +378,26 @@ typedef Nst_IOResult (*Nst_IOFile_seek_f)(Nst_SeekWhence origin, isize offset,
 
 The type that represents a seek function of a Nest file object.
 
-This function shall move the file-position indicator by an offset starting from
-origin. [`Nst_SEEK_SET`](c_api-file.md#nst_seekwhence) is the start of the file,
+This function shall move the file-position indicator.
+[`Nst_SEEK_SET`](c_api-file.md#nst_seekwhence) is the start of the file,
 [`Nst_SEEK_CUR`](c_api-file.md#nst_seekwhence) is the current position of the
 file-position indicator and [`Nst_SEEK_END`](c_api-file.md#nst_seekwhence) is
 the end of the file.
 
+**Parameters:**
+
+- `origin`: where to calculate the offset from,
+  [`Nst_SEEK_SET`](c_api-file.md#nst_seekwhence) is the start of the file,
+  [`Nst_SEEK_CUR`](c_api-file.md#nst_seekwhence) is the current position of the
+  indicator and [`Nst_SEEK_END`](c_api-file.md#nst_seekwhence) is the end of the
+  file
+- `offset`: an offset in bytes from `origin` to move the indicator
+- `f`: the file to move the indicator of
+
 **Returns:**
 
-This function shall return only either
-[`Nst_IO_CLOSED`](c_api-file.md#nst_ioresult),
-[`Nst_IO_ERROR`](c_api-file.md#nst_ioresult),
-[`Nst_IO_OP_FAILED`](c_api-file.md#nst_ioresult) or
-[`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult) as follows:
+This function shall return one of the following
+[`Nst_IOResult`](c_api-file.md#nst_ioresult) variants:
 
 - [`Nst_IO_CLOSED`](c_api-file.md#nst_ioresult) when the file is closed.
 - [`Nst_IO_OP_FAILED`](c_api-file.md#nst_ioresult) if the file does not support
@@ -389,12 +422,14 @@ The type that represents a close function of a Nest file object.
 
 This function shall close the given file and free any allocated memory.
 
+**Parameters:**
+
+- `f`: the file to close
+
 **Returns:**
 
-This function shall return only either
-[`Nst_IO_CLOSED`](c_api-file.md#nst_ioresult),
-[`Nst_IO_ERROR`](c_api-file.md#nst_ioresult) or
-[`Nst_IO_SUCCESS`](c_api-file.md#nst_ioresult) as follows:
+This function shall return one of the following
+[`Nst_IOResult`](c_api-file.md#nst_ioresult) variants:
 
 - [`Nst_IO_CLOSED`](c_api-file.md#nst_ioresult) when the file was already
   closed.
@@ -660,7 +695,7 @@ This function can only be called when the returned
 [`Nst_IO_INVALID_ENCODING`](c_api-file.md#nst_ioresult) or
 [`Nst_IO_INVALID_DECODING`](c_api-file.md#nst_ioresult). If the result is the
 former `ill_encoded_ch` will be the code point that could not be encoded,
-otherwise if the result is the latter `ill_encoded_ch` will represent the byte
+otherwise, if the result is the latter, `ill_encoded_ch` will represent the byte
 that could not be decoded. Similarly `encoding_name` is the encoding that failed
 to encode the code point for
 [`Nst_IO_INVALID_ENCODING`](c_api-file.md#nst_ioresult) and the name of the one

@@ -2,87 +2,51 @@
 #include <ctime>
 #include "nest_time.h"
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 #include "../dll/framework.h"
 #else
 #include <unistd.h>
 #endif
 
-#define FUNC_COUNT 22
-
 using namespace std::chrono;
 
-static Nst_ObjDeclr func_list_[FUNC_COUNT];
-static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
-static bool lib_init_ = false;
+static Nst_Declr obj_list_[] = {
+    Nst_FUNCDECLR(time_, 1),
+    Nst_FUNCDECLR(time_ns_, 1),
+    Nst_FUNCDECLR(high_res_time_, 1),
+    Nst_FUNCDECLR(high_res_time_ns_, 1),
+    Nst_FUNCDECLR(monotonic_time_, 1),
+    Nst_FUNCDECLR(monotonic_time_ns_, 1),
+    Nst_FUNCDECLR(year_day_, 1),
+    Nst_FUNCDECLR(week_day_, 1),
+    Nst_FUNCDECLR(day_, 1),
+    Nst_FUNCDECLR(month_, 1),
+    Nst_FUNCDECLR(year_, 1),
+    Nst_FUNCDECLR(date_, 1),
+    Nst_FUNCDECLR(gmt_date_, 1),
+    Nst_FUNCDECLR(second_, 1),
+    Nst_FUNCDECLR(minute_, 1),
+    Nst_FUNCDECLR(hour_, 1),
+    Nst_FUNCDECLR(clock_time_, 1),
+    Nst_FUNCDECLR(gmt_clock_time_, 1),
+    Nst_FUNCDECLR(clock_datetime_, 1),
+    Nst_FUNCDECLR(gmt_clock_datetime_, 1),
+    Nst_FUNCDECLR(sleep_, 1),
+    Nst_FUNCDECLR(sleep_ms_, 1),
+    Nst_DECLR_END
+};
 
-bool lib_init()
+Nst_Declr *lib_init()
 {
-    usize idx = 0;
-
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(time_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(time_ns_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(high_res_time_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(high_res_time_ns_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(monotonic_time_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(monotonic_time_ns_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(year_day_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(week_day_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(day_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(month_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(year_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(date_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(gmt_date_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(seconds_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(minutes_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(hours_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(clock_time_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(gmt_clock_time_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(clock_datetime_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(gmt_clock_datetime_, 0);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(sleep_, 1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(sleep_ms_, 1);
-
-#if __LINE__ - FUNC_COUNT != 24
-#error
-#endif
-
-    lib_init_ = !Nst_error_occurred();
-    return lib_init_;
+    return obj_list_;
 }
 
-Nst_DeclrList *get_func_ptrs()
+static void add_date(Nst_MapObj *map, tm *t)
 {
-    return lib_init_ ? &obj_list_ : nullptr;
-}
-
-static i64 get_year_day_c(tm *t)
-{
-    i64 y = t->tm_year + 1900;
-    i64 m = t->tm_mon;
-    i64 d = t->tm_mday;
-
-    i32 days_per_moth[] = {   0,   0,  31,  59,  90, 120, 151,
-                            181, 212, 243, 273, 304, 334       };
-
-    i64 day_of_the_year = days_per_moth[m] + d;
-    // If it's a leap year and it's at least March
-    if (((y % 4 == 0 && y % 100 != 0) || (y % 400)) && m > 2)
-        day_of_the_year += 1;
-
-    return day_of_the_year;
-}
-
-static void add_date(Nst_MapObj *map, tm *(*time_func)(const time_t*))
-{
-    time_t raw_time;
-    time(&raw_time);
-    tm *t = time_func(&raw_time);
-
     Nst_Obj *day_obj = Nst_int_new(t->tm_mday);
     Nst_Obj *weekday_obj = Nst_int_new(t->tm_wday);
-    Nst_Obj *yearday_obj = Nst_int_new(get_year_day_c(t));
-    Nst_Obj *month_obj = Nst_int_new(t->tm_mon);
+    Nst_Obj *yearday_obj = Nst_int_new(t->tm_yday);
+    Nst_Obj *month_obj = Nst_int_new(t->tm_mon + 1);
     Nst_Obj *year_obj = Nst_int_new(t->tm_year + 1900);
 
     Nst_map_set_str(map, "year", year_obj);
@@ -98,12 +62,8 @@ static void add_date(Nst_MapObj *map, tm *(*time_func)(const time_t*))
     Nst_dec_ref(year_obj);
 }
 
-static void add_time(Nst_MapObj *map, tm *(*time_func)(const time_t *))
+static void add_time(Nst_MapObj *map, tm *t)
 {
-    time_t raw_time;
-    time(&raw_time);
-    tm *t = time_func(&raw_time);
-
     Nst_Obj *second = Nst_int_new(t->tm_sec);
     Nst_Obj *minute = Nst_int_new(t->tm_min);
     Nst_Obj *hour = Nst_int_new(t->tm_hour);
@@ -117,7 +77,7 @@ static void add_time(Nst_MapObj *map, tm *(*time_func)(const time_t *))
     Nst_dec_ref(hour);
 }
 
-Nst_FUNC_SIGN(time_)
+Nst_Obj *NstC time_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
@@ -125,7 +85,7 @@ Nst_FUNC_SIGN(time_)
         system_clock::now().time_since_epoch()).count());
 }
 
-Nst_FUNC_SIGN(time_ns_)
+Nst_Obj *NstC time_ns_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
@@ -133,7 +93,7 @@ Nst_FUNC_SIGN(time_ns_)
         system_clock::now().time_since_epoch()).count()));
 }
 
-Nst_FUNC_SIGN(high_res_time_)
+Nst_Obj *NstC high_res_time_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
@@ -141,7 +101,7 @@ Nst_FUNC_SIGN(high_res_time_)
         high_resolution_clock::now().time_since_epoch()).count());
 }
 
-Nst_FUNC_SIGN(high_res_time_ns_)
+Nst_Obj *NstC high_res_time_ns_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
@@ -149,7 +109,7 @@ Nst_FUNC_SIGN(high_res_time_ns_)
         high_resolution_clock::now().time_since_epoch()).count()));
 }
 
-Nst_FUNC_SIGN(monotonic_time_)
+Nst_Obj *NstC monotonic_time_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
@@ -157,7 +117,7 @@ Nst_FUNC_SIGN(monotonic_time_)
         steady_clock::now().time_since_epoch()).count());
 }
 
-Nst_FUNC_SIGN(monotonic_time_ns_)
+Nst_Obj *NstC monotonic_time_ns_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
@@ -165,149 +125,206 @@ Nst_FUNC_SIGN(monotonic_time_ns_)
         steady_clock::now().time_since_epoch()).count()));
 }
 
-Nst_FUNC_SIGN(year_day_)
+Nst_Obj *NstC year_day_(usize arg_num, Nst_Obj **args)
 {
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
-    time_t raw_time;
-    time(&raw_time);
+    Nst_Obj *time_obj;
+    if (!Nst_extract_args("?i", arg_num, args, &time_obj))
+        return nullptr;
+    time_t raw_time = Nst_DEF_VAL(
+        time_obj,
+        (time_t)AS_INT(time_obj),
+        time(nullptr));
     tm *t = localtime(&raw_time);
-    return Nst_int_new(get_year_day_c(t));
+    return Nst_int_new(t->tm_yday);
 }
 
-Nst_FUNC_SIGN(week_day_)
+Nst_Obj *NstC week_day_(usize arg_num, Nst_Obj **args)
 {
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
-    time_t raw_time;
-    time(&raw_time);
+    Nst_Obj *time_obj;
+    if (!Nst_extract_args("?i", arg_num, args, &time_obj))
+        return nullptr;
+    time_t raw_time = Nst_DEF_VAL(
+        time_obj,
+        (time_t)AS_INT(time_obj),
+        time(nullptr));
     tm *t = localtime(&raw_time);
     return Nst_int_new(t->tm_wday);
 }
 
-Nst_FUNC_SIGN(day_)
+Nst_Obj *NstC day_(usize arg_num, Nst_Obj **args)
 {
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
-    time_t raw_time;
-    time(&raw_time);
+    Nst_Obj *time_obj;
+    if (!Nst_extract_args("?i", arg_num, args, &time_obj))
+        return nullptr;
+    time_t raw_time = Nst_DEF_VAL(
+        time_obj,
+        (time_t)AS_INT(time_obj),
+        time(nullptr));
     tm *t = localtime(&raw_time);
     return Nst_int_new(t->tm_mday);
 }
 
-Nst_FUNC_SIGN(month_)
+Nst_Obj *NstC month_(usize arg_num, Nst_Obj **args)
 {
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
-    time_t raw_time;
-    time(&raw_time);
+    Nst_Obj *time_obj;
+    if (!Nst_extract_args("?i", arg_num, args, &time_obj))
+        return nullptr;
+    time_t raw_time = Nst_DEF_VAL(
+        time_obj,
+        (time_t)AS_INT(time_obj),
+        time(nullptr));
     tm *t = localtime(&raw_time);
-    return Nst_int_new(t->tm_mon);
+    return Nst_int_new(t->tm_mon + 1);
 }
 
-Nst_FUNC_SIGN(year_)
+Nst_Obj *NstC year_(usize arg_num, Nst_Obj **args)
 {
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
-    time_t raw_time;
-    time(&raw_time);
+    Nst_Obj *time_obj;
+    if (!Nst_extract_args("?i", arg_num, args, &time_obj))
+        return nullptr;
+    time_t raw_time = Nst_DEF_VAL(
+        time_obj,
+        (time_t)AS_INT(time_obj),
+        time(nullptr));
     tm *t = localtime(&raw_time);
     return Nst_int_new(t->tm_year + 1900);
 }
 
-Nst_FUNC_SIGN(date_)
+Nst_Obj *NstC date_(usize arg_num, Nst_Obj **args)
 {
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
+    Nst_Obj *time_obj;
+    if (!Nst_extract_args("?i", arg_num, args, &time_obj))
+        return nullptr;
+    time_t raw_time = Nst_DEF_VAL(
+        time_obj,
+        (time_t)AS_INT(time_obj),
+        time(nullptr));
     Nst_MapObj *map = MAP(Nst_map_new());
-    add_date(map, localtime);
+    add_date(map, localtime(&raw_time));
     return OBJ(map);
 }
 
-Nst_FUNC_SIGN(gmt_date_)
+Nst_Obj *NstC gmt_date_(usize arg_num, Nst_Obj **args)
 {
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
+    Nst_Obj *time_obj;
+    if (!Nst_extract_args("?i", arg_num, args, &time_obj))
+        return nullptr;
+    time_t raw_time = Nst_DEF_VAL(
+        time_obj,
+        (time_t)AS_INT(time_obj),
+        time(nullptr));
     Nst_MapObj *map = MAP(Nst_map_new());
-    add_date(map, gmtime);
+    add_date(map, gmtime(&raw_time));
     return OBJ(map);
 }
 
-Nst_FUNC_SIGN(seconds_)
+Nst_Obj *NstC second_(usize arg_num, Nst_Obj **args)
 {
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
-    time_t raw_time;
-    time(&raw_time);
+    Nst_Obj *time_obj;
+    if (!Nst_extract_args("?i", arg_num, args, &time_obj))
+        return nullptr;
+    time_t raw_time = Nst_DEF_VAL(
+        time_obj,
+        (time_t)AS_INT(time_obj),
+        time(nullptr));
     tm *t = localtime(&raw_time);
     return Nst_int_new(t->tm_sec);
 }
 
-Nst_FUNC_SIGN(minutes_)
+Nst_Obj *NstC minute_(usize arg_num, Nst_Obj **args)
 {
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
-    time_t raw_time;
-    time(&raw_time);
+    Nst_Obj *time_obj;
+    if (!Nst_extract_args("?i", arg_num, args, &time_obj))
+        return nullptr;
+    time_t raw_time = Nst_DEF_VAL(
+        time_obj,
+        (time_t)AS_INT(time_obj),
+        time(nullptr));
     tm *t = localtime(&raw_time);
     return Nst_int_new(t->tm_min);
 }
 
-Nst_FUNC_SIGN(hours_)
+Nst_Obj *NstC hour_(usize arg_num, Nst_Obj **args)
 {
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
-    time_t raw_time;
-    time(&raw_time);
+    Nst_Obj *time_obj;
+    if (!Nst_extract_args("?i", arg_num, args, &time_obj))
+        return nullptr;
+    time_t raw_time = Nst_DEF_VAL(
+        time_obj,
+        (time_t)AS_INT(time_obj),
+        time(nullptr));
     tm *t = localtime(&raw_time);
     return Nst_int_new(t->tm_hour);
 }
 
-Nst_FUNC_SIGN(clock_time_)
+Nst_Obj *NstC clock_time_(usize arg_num, Nst_Obj **args)
 {
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
+    Nst_Obj *time_obj;
+    if (!Nst_extract_args("?i", arg_num, args, &time_obj))
+        return nullptr;
+    time_t raw_time = Nst_DEF_VAL(
+        time_obj,
+        (time_t)AS_INT(time_obj),
+        time(nullptr));
     Nst_MapObj *map = MAP(Nst_map_new());
-    add_time(map, localtime);
+    add_time(map, localtime(&raw_time));
     return OBJ(map);
 }
 
-Nst_FUNC_SIGN(gmt_clock_time_)
+Nst_Obj *NstC gmt_clock_time_(usize arg_num, Nst_Obj **args)
 {
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
+    Nst_Obj *time_obj;
+    if (!Nst_extract_args("?i", arg_num, args, &time_obj))
+        return nullptr;
+    time_t raw_time = Nst_DEF_VAL(
+        time_obj,
+        (time_t)AS_INT(time_obj),
+        time(nullptr));
     Nst_MapObj *map = MAP(Nst_map_new());
-    add_time(map, gmtime);
+    add_time(map, gmtime(&raw_time));
     return OBJ(map);
 }
 
-Nst_FUNC_SIGN(clock_datetime_)
+Nst_Obj *NstC clock_datetime_(usize arg_num, Nst_Obj **args)
 {
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
+    Nst_Obj *time_obj;
+    if (!Nst_extract_args("?i", arg_num, args, &time_obj))
+        return nullptr;
+    time_t raw_time = Nst_DEF_VAL(
+        time_obj,
+        (time_t)AS_INT(time_obj),
+        time(nullptr));
+    tm *t = localtime(&raw_time);
     Nst_MapObj *map = MAP(Nst_map_new());
-    add_date(map, localtime);
-    add_time(map, localtime);
+    add_date(map, t);
+    add_time(map, t);
     return OBJ(map);
 }
 
-Nst_FUNC_SIGN(gmt_clock_datetime_)
+Nst_Obj *NstC gmt_clock_datetime_(usize arg_num, Nst_Obj **args)
 {
-    Nst_UNUSED(arg_num);
-    Nst_UNUSED(args);
+    Nst_Obj *time_obj;
+    if (!Nst_extract_args("?i", arg_num, args, &time_obj))
+        return nullptr;
+    time_t raw_time = Nst_DEF_VAL(
+        time_obj,
+        (time_t)AS_INT(time_obj),
+        time(nullptr));
+    tm *t = gmtime(&raw_time);
     Nst_MapObj *map = MAP(Nst_map_new());
-    add_date(map, gmtime);
-    add_time(map, gmtime);
+    add_date(map, t);
+    add_time(map, t);
     return OBJ(map);
 }
 
-Nst_FUNC_SIGN(sleep_)
+Nst_Obj *NstC sleep_(usize arg_num, Nst_Obj **args)
 {
     f64 time;
 
-    Nst_DEF_EXTRACT("N", &time);
+    if (!Nst_extract_args("N", arg_num, args, &time))
+        return nullptr;
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     Sleep(DWORD(time * 1000));
 #else
     usleep(useconds_t(time * 1000000));
@@ -315,13 +332,14 @@ Nst_FUNC_SIGN(sleep_)
     Nst_RETURN_NULL;
 }
 
-Nst_FUNC_SIGN(sleep_ms_)
+Nst_Obj *NstC sleep_ms_(usize arg_num, Nst_Obj **args)
 {
     i64 time;
 
-    Nst_DEF_EXTRACT("l", &time);
+    if (!Nst_extract_args("l", arg_num, args, &time))
+        return nullptr;
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     Sleep(DWORD(time));
 #else
     usleep(useconds_t(time * 1000));

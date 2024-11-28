@@ -252,6 +252,11 @@ typedef void (*Nst_ObjDstr)(void *)
 
 The type of an object destructor.
 
+This function, in an object's type, is called when the object is deleted and
+should free any memory associated with it apart from the object's own memory,
+which is handled by Nest. This function should also remove any references that
+the object being deleted has with other objects.
+
 ---
 
 ### `Nst_ObjTrav`
@@ -265,6 +270,11 @@ typedef void (*Nst_ObjTrav)(void *)
 **Description:**
 
 The type of an object traverse function for the garbage collector.
+
+This function is called during a garbage collection and should call the function
+[`Nst_ggc_obj_reachable`](c_api-ggc.md#nst_ggc_obj_reachable) with any object
+that it directly references. Any indirect references, such as objects within
+objects, should be left untouched.
 
 ---
 
@@ -337,7 +347,8 @@ void _Nst_obj_free(Nst_Obj *obj)
 
 **Description:**
 
-Frees the memory of the object or adds it to the object pool.
+Frees the memory of the object or adds it to the object pool. The reference to
+the object's type is removed.
 
 **Parameters:**
 

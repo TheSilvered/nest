@@ -9,52 +9,58 @@
 #ifndef INTERPRETER_H
 #define INTERPRETER_H
 
-#include "runtime_stack.h"
+#include "runner.h"
 
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
 /**
- * Global execution state of Nest.
+ * Global state of the Nest interpreter.
  *
- * @param traceback: traceback of the current running program
- * @param vt: current variable table
- * @param idx: current instruction index
  * @param ggc: generational garbage collector
- * @param curr_path: current working directory
- * @param argv: arguments passed to the program
  * @param opt_level: maximum optimization level when importing libraries
- * @param v_stack: value stack
- * @param f_stack: call stack
- * @param c_stack: catch stack
  * @param loaded_libs: dynamic library handles
  * @param lib_paths: import stack
- * @param lib_handles: maps of the imported libraries
- * @param lib_srcs: sources of the imported Nest libraries
+ * @param lib_handles: maps of imported libraries
+ * @param lib_srcs: sources of imported Nest libraries
+ * @param es: the program that is being executed
  */
-NstEXP typedef struct _Nst_ExecutionState {
-    Nst_Traceback traceback;
-    Nst_VarTable *vt;
-    i64 idx;
+NstEXP typedef struct _Nst_IntrState {
     Nst_GarbageCollector ggc;
-    Nst_StrObj *curr_path;
-    Nst_SeqObj *argv;
     i32 opt_level;
-    Nst_ValueStack v_stack;
-    Nst_CallStack  f_stack;
-    Nst_CatchStack c_stack;
     Nst_LList *loaded_libs;
     Nst_LList *lib_paths;
     Nst_MapObj *lib_handles;
     Nst_LList *lib_srcs;
-} Nst_ExecutionState;
+    Nst_ExecutionState *es;
+    Nst_Traceback global_traceback;
+} Nst_IntrState;
+
+/**
+ * Initializes the Nest libraray.
+ *
+ * @brief Note: `Nst_set_color` is called with the value returned by
+ * `Nst_supports_color`.
+ *
+ * @param args: the options for the libraray, currently only `opt_level` is
+ * used; if `NULL` is passed `opt_level` is set to 3.
+ *
+ * @return `true` on success and `false` on failure. No error is set as it
+ * failed to initialize.
+ */
+NstEXP bool NstC Nst_init(Nst_CLArgs *args);
+
+/**
+ * @brief Destroys all the components of the libraray. It is not safe to access
+ * any object created while the library was initialized after this function is
+ * called. Any destructors that may access Nest objects must be called before.
+ */
+NstEXP void NstC Nst_quit(void);
 
 /**
  * Runs the main program.
  *
- * @brief This function requires `Nst_state_init` to be called before. It will
- * call `Nst_state_free` automatically.
  * @brief Warning: it must never be called inside a library.
  *
  * @param main_func: the function object of the main program
@@ -80,19 +86,17 @@ NstEXP bool NstC Nst_run_module(i8 *file_name, Nst_SourceText *lib_src);
 /**
  * Calls a `Nst_FuncObj`.
  *
- * @brief It can have both a Nest or C body.
- * @brief Warning: No checking is done on the number of arguments.
+ * @brief Note: if the function is passed less arguments than it expects, the
+ * extra ones are filled with `null` objects.
  *
  * @param func: the function to call
- * @param args: the array of arguments to pass to it, the correct number of
- * arguments must be given, no `null` arguments are added
+ * @param arg_num: the number of arguments passed
+ * @param args: the array of arguments to pass to it
  *
- * @return The result of the function or `NULL` on failure.
- * When a function with a Nest body fails the error is set internally and the
- * caller must not set it. When a function with a C body fails, the error
- * should always set.
+ * @return The result of the function or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_call_func(Nst_FuncObj *func, Nst_Obj **args);
+NstEXP Nst_Obj *NstC Nst_func_call(Nst_FuncObj *func, i64 arg_num,
+                                   Nst_Obj **args);
 
 /**
  * Executes the body of a `Nst_FuncObj` that has a Nest body using a given
@@ -110,9 +114,8 @@ NstEXP Nst_Obj *NstC Nst_call_func(Nst_FuncObj *func, Nst_Obj **args);
  * @return The result of the function or `NULL` on failure. The error is set
  * internally and must not be set by the caller.
  */
-NstEXP Nst_Obj *NstC Nst_run_func_context(Nst_FuncObj *func, i64 idx,
-                                          Nst_MapObj *vars,
-                                          Nst_MapObj *globals);
+NstEXP Nst_Obj *NstC Nst_run_paused_coroutine(Nst_FuncObj *func, i64 idx,
+                                              Nst_VarTable *vt);
 /**
  * Returns the absolute path to a file system object.
  *
@@ -134,39 +137,31 @@ NstEXP usize NstC Nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part);
  * failure `NULL` is returned. No error is set.
  */
 NstEXP Nst_Inst *NstC Nst_current_inst(void);
-/**
- * Initializes the global `Nst_state`.
- *
- * @param argc: the command line argument count
- * @param argv: the command line arguments
- * @param filename: the name of the file of the main program
- * @param opt_level: the maximum optimization level
- * @param no_default: whether to initialize the variable table of the main
- * program with built-in values
- *
- * @return `true` if the state initialized successfully and `false` otherwise.
- * No error is set.
- */
-NstEXP bool NstC Nst_state_init(i32 argc, i8 **argv, i8 *filename,
-                                i32 opt_level, bool no_default);
-/* Returns `true` if the state was initialized and `false` otherwise. */
-NstEXP bool NstC Nst_state_was_init(void);
-/**
- * @brief Frees the variables inside the global state, calls `free_lib` in the
- * libraries that define it and deletes the objects inside the garbage
- * collector.
- */
-NstEXP void NstC Nst_state_free(void);
 
-/* Frees `loaded_libs`, must be called after `_Nst_del_objects`. */
-NstEXP void NstC _Nst_unload_libs(void);
+/* Returns `true` if the state was initialized and `false` otherwise. */
+NstEXP bool NstC Nst_was_init(void);
+
+/* Gets the current execution state. */
+NstEXP Nst_ExecutionState *NstC Nst_state_get_es(void);
+/**
+ * Sets a new execution state in the global interpreter state.
+ *
+ * @brief Note: the current working directory is changed according to
+ * `curr_path` in `es`.
+ *
+ * @param es: the new `Nst_ExecutionState` to set
+ *
+ * @return The previous execution state. The error is set but it is not
+ * reflected in the return value. Use `Nst_error_occurred` to check.
+ */
+NstEXP Nst_ExecutionState *NstC Nst_state_set_es(Nst_ExecutionState *es);
 
 // The global state of the interpreter.
-extern Nst_ExecutionState Nst_state;
+extern Nst_IntrState Nst_state;
 
-/* [docs:link Nst_state Nst_get_state] */
-/* Returns a pointer to the global `Nst_ExecutionState`. */
-NstEXP Nst_ExecutionState *NstC Nst_get_state(void);
+/* [docs:link Nst_state Nst_state_get] */
+/* Returns a pointer to the global `Nst_IntrState`. */
+NstEXP Nst_IntrState *NstC Nst_state_get(void);
 
 /**
  * Changes the current working directory using a `Nst_StrObj`.

@@ -1,4 +1,5 @@
 #include <errno.h>
+#include <string.h>
 #include "mem.h"
 #include "optimizer.h"
 #include "obj_ops.h"
@@ -6,25 +7,65 @@
 #include "iter.h"
 #include "hash.h"
 #include "format.h"
+#include "obj_ops.h"
 
-#define HEAD_NODE Nst_NODE(node->nodes->head->value)
-#define TAIL_NODE Nst_NODE(node->nodes->tail->value)
+static bool optimize_node(Nst_Node *node);
 
-#define HEAD_TOK Nst_TOK(node->tokens->head->value)
-#define TAIL_TOK Nst_TOK(node->tokens->tail->value)
+static bool optimize_cs(Nst_Node *node);
+static bool optimize_while_l(Nst_Node *node);
+static bool optimize_fl(Nst_Node *node);
+static bool optimize_func_declr(Nst_Node *node);
+static bool optimize_rt(Nst_Node *node);
+static bool optimize_switch_s(Nst_Node *node);
+static bool optimize_try_catch_s(Nst_Node *node);
+static bool optimize_s_wrapper(Nst_Node *node);
+static bool optimize_stack_op(Nst_Node *node);
+static bool optimize_local_stack_op(Nst_Node *node);
+static bool optimize_local_op(Nst_Node *node);
+static bool optimize_seq_lit(Nst_Node *node);
+static bool optimize_map_lit(Nst_Node *node);
+static bool optimize_extract_e(Nst_Node *node);
+static bool optimize_assign_e(Nst_Node *node);
+static bool optimize_comp_assign_e(Nst_Node *node);
+static bool optimize_if_e(Nst_Node *node);
+static bool optimize_e_wrapper(Nst_Node *node);
 
-static void ast_optimize_node(Nst_Node *node, Nst_Error *error);
-static void ast_optimize_node_nodes(Nst_Node *node, Nst_Error *error);
-static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error);
-static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error);
-static void ast_optimize_local_op(Nst_Node *node, Nst_Error *error);
-static void ast_optimize_long_s(Nst_Node *node, Nst_Error *error);
+// Gets the value of the node if it is a Nst_NT_VALUE node and returns NULL
+// otherwise
+static Nst_Obj *get_value(Nst_Node *node);
 
-Nst_Node *Nst_optimize_ast(Nst_Node *ast, Nst_Error *error)
+bool (*optimizers[])(Nst_Node *) = {
+    [Nst_NT_CS] = optimize_cs,
+    [Nst_NT_WL] = optimize_while_l,
+    [Nst_NT_FL] = optimize_fl,
+    [Nst_NT_FD] = optimize_func_declr,
+    [Nst_NT_RT] = optimize_rt,
+    [Nst_NT_CN] = NULL,
+    [Nst_NT_BR] = NULL,
+    [Nst_NT_SW] = optimize_switch_s,
+    [Nst_NT_TC] = optimize_try_catch_s,
+    [Nst_NT_WS] = optimize_s_wrapper,
+    [Nst_NT_NP] = NULL,
+    [Nst_NT_SO] = optimize_stack_op,
+    [Nst_NT_LS] = optimize_local_stack_op,
+    [Nst_NT_LO] = optimize_local_op,
+    [Nst_NT_SL] = optimize_seq_lit,
+    [Nst_NT_ML] = optimize_map_lit,
+    [Nst_NT_VL] = NULL,
+    [Nst_NT_AC] = NULL,
+    [Nst_NT_EX] = optimize_extract_e,
+    [Nst_NT_AS] = optimize_assign_e,
+    [Nst_NT_CA] = optimize_comp_assign_e,
+    [Nst_NT_IE] = optimize_if_e,
+    [Nst_NT_WE] = optimize_e_wrapper
+};
+
+Nst_Node *NstC Nst_optimize_ast(Nst_Node *ast)
 {
-    ast_optimize_node(ast, error);
-
-    if (error->occurred) {
+    if (!optimize_node(ast)) {
+        // should never happen but if it does, it will not crash
+        if (Nst_error_get()->positions->len == 0)
+            Nst_error_add_positions(Nst_error_get(), ast->start, ast->end);
         Nst_node_destroy(ast);
         return NULL;
     }
@@ -32,244 +73,319 @@ Nst_Node *Nst_optimize_ast(Nst_Node *ast, Nst_Error *error)
     return ast;
 }
 
-static void ast_optimize_node(Nst_Node *node, Nst_Error *error)
+static Nst_Obj *get_value(Nst_Node *node)
 {
-    switch (node->type) {
-    case Nst_NT_STACK_OP:
-        ast_optimize_stack_op(node, error);
-        break;
-    case Nst_NT_LOCAL_OP:
-        ast_optimize_local_op(node, error);
-        break;
-    case Nst_NT_LONG_S:
-        ast_optimize_long_s(node, error);
-    case Nst_NT_VALUE:
-        break;
+    if (node->type != Nst_NT_VL)
+        return NULL;
+    else
+        return node->v.vl.value->value;
+}
+
+static void move_into(Nst_Node *new_node, Nst_Node *old_node)
+{
+    Nst_node_destroy_contents(old_node);
+    *old_node = *new_node;
+    Nst_free(new_node);
+}
+
+static bool optimize_node(Nst_Node *node)
+{
+    if (node == NULL)
+        return true;
+    if (optimizers[node->type] != NULL)
+        return optimizers[node->type](node);
+    return true;
+}
+
+static bool optimize_cs(Nst_Node *node)
+{
+    for (Nst_LLIST_ITER(lnode, node->v.cs.statements)) {
+        if (!optimize_node(Nst_NODE(lnode->value)))
+            return false;
+    }
+    return true;
+}
+
+static bool optimize_while_l(Nst_Node *node)
+{
+    if (!optimize_node(node->v.wl.condition))
+        return false;
+    if (!optimize_node(node->v.wl.body))
+        return false;
+
+    Nst_Obj *cond_value = get_value(node->v.wl.condition);
+
+    if (cond_value == NULL || Nst_obj_to_bool(cond_value))
+        return true;
+
+    if (node->v.wl.is_dowhile) {
+        Nst_Node *body = node->v.wl.body;
+        node->v.wl.body = NULL;
+        move_into(body, node);
+        return true;
+    }
+    Nst_node_change_type(node, Nst_NT_NP);
+    return true;
+}
+
+static bool optimize_fl(Nst_Node *node)
+{
+    if (!optimize_node(node->v.fl.iterator))
+        return false;
+    if (!optimize_node(node->v.fl.body))
+        return false;
+
+    if (node->v.fl.assignment != NULL)
+        return true;
+    Nst_Obj *repetitions = get_value(node->v.fl.iterator);
+    if (repetitions == NULL)
+        return true;
+    if (repetitions->type == Nst_t.Int && AS_INT(repetitions) == 0)
+        Nst_node_change_type(node, Nst_NT_NP);
+    return true;
+}
+
+static bool optimize_func_declr(Nst_Node *node)
+{
+    return optimize_node(node->v.fd.body);
+}
+
+static bool optimize_rt(Nst_Node *node)
+{
+    return optimize_node(node->v.rt.value);
+}
+
+static bool optimize_switch_s(Nst_Node *node)
+{
+    if (!optimize_node(node->v.sw.expr))
+        return false;
+
+    // it cannot be optimized to jump to the correct value if known because of
+    // possible fallthrough
+    for (Nst_LLIST_ITER(lnode, node->v.sw.values)) {
+        if (!optimize_node(Nst_NODE(lnode->value)))
+            return false;
+    }
+    for (Nst_LLIST_ITER(lnode, node->v.sw.bodies)) {
+        if (!optimize_node(Nst_NODE(lnode->value)))
+            return false;
+    }
+    return optimize_node(node->v.sw.default_body);
+}
+
+static bool optimize_try_catch_s(Nst_Node *node)
+{
+    if (!optimize_node(node->v.tc.try_body))
+        return false;
+    if (!optimize_node(node->v.tc.catch_body))
+        return false;
+    return true;
+}
+
+static bool optimize_s_wrapper(Nst_Node *node)
+{
+    if (!optimize_node(node->v.ws.statement))
+        return false;
+    Nst_Node *statement = node->v.ws.statement;
+    node->v.ws.statement = NULL;
+    move_into(statement, node);
+    return true;
+}
+
+static bool optimize_stack_values(Nst_LList *values, Nst_TokType op,
+                                  Nst_Node *node)
+{
+    for (Nst_LLIST_ITER(lnode, values)) {
+        if (!optimize_node(Nst_NODE(lnode->value)))
+            return false;
+    }
+
+    if (values->len == 1)
+        return true;
+
+    Nst_Obj *(*op_func)(Nst_Obj *, Nst_Obj *) = NULL;
+
+    switch (op) {
+    case Nst_TT_ADD:      op_func = _Nst_obj_add;      break;
+    case Nst_TT_SUB:      op_func = _Nst_obj_sub;      break;
+    case Nst_TT_MUL:      op_func = _Nst_obj_mul;      break;
+    case Nst_TT_DIV:      op_func = _Nst_obj_div;      break;
+    case Nst_TT_POW:      op_func = _Nst_obj_pow;      break;
+    case Nst_TT_MOD:      op_func = _Nst_obj_mod;      break;
+    case Nst_TT_B_AND:    op_func = _Nst_obj_bwand;    break;
+    case Nst_TT_B_OR:     op_func = _Nst_obj_bwor;     break;
+    case Nst_TT_B_XOR:    op_func = _Nst_obj_bwxor;    break;
+    case Nst_TT_LSHIFT:   op_func = _Nst_obj_bwls;     break;
+    case Nst_TT_RSHIFT:   op_func = _Nst_obj_bwrs;     break;
+    case Nst_TT_CONCAT:   op_func = _Nst_obj_concat;   break;
+    case Nst_TT_L_AND:    op_func = _Nst_obj_lgand;    break;
+    case Nst_TT_L_OR:     op_func = _Nst_obj_lgor;     break;
+    case Nst_TT_L_XOR:    op_func = _Nst_obj_lgxor;    break;
+    case Nst_TT_CONTAINS: op_func = _Nst_obj_contains; break;
     default:
-        ast_optimize_node_nodes(node, error);
-    }
-}
-
-static void ast_optimize_node_nodes(Nst_Node *node, Nst_Error *error)
-{
-    for (Nst_LLIST_ITER(n, node->nodes)) {
-        ast_optimize_node(Nst_NODE(n->value), error);
-        if (error->occurred)
-            return;
-    }
-}
-
-static void ast_optimize_stack_op(Nst_Node *node, Nst_Error *error)
-{
-    if (Nst_IS_COMP_OP(HEAD_TOK->type)) {
-        ast_optimize_comp_op(node, error);
-        return;
+        return true;
     }
 
-    ast_optimize_node(HEAD_NODE, error);
-    ast_optimize_node(TAIL_NODE, error);
+    Nst_Obj *curr_value = get_value(Nst_NODE(values->head->value));
+    if (curr_value == NULL)
+        return true;
+    Nst_inc_ref(curr_value);
+    Nst_LLNode *prev_lnode = Nst_llist_pop_llnode(values);
+    Nst_Node *prev_node = Nst_NODE(prev_lnode->value);
 
-    if (error->occurred)
-        return;
-
-    if (HEAD_NODE->type != Nst_NT_VALUE || TAIL_NODE->type != Nst_NT_VALUE)
-        return;
-
-    i32 op_tok = HEAD_TOK->type;
-    Nst_Obj *ob1 = Nst_TOK(HEAD_NODE->tokens->head->value)->value;
-    Nst_Obj *ob2 = Nst_TOK(TAIL_NODE->tokens->head->value)->value;
-    Nst_Obj *res = NULL;
-
-    switch (op_tok) {
-    case Nst_TT_ADD:    res = Nst_obj_add   (ob1, ob2); break;
-    case Nst_TT_SUB:    res = Nst_obj_sub   (ob1, ob2); break;
-    case Nst_TT_MUL:    res = Nst_obj_mul   (ob1, ob2); break;
-    case Nst_TT_DIV:    res = Nst_obj_div   (ob1, ob2); break;
-    case Nst_TT_POW:    res = Nst_obj_pow   (ob1, ob2); break;
-    case Nst_TT_MOD:    res = Nst_obj_mod   (ob1, ob2); break;
-    case Nst_TT_B_AND:  res = Nst_obj_bwand (ob1, ob2); break;
-    case Nst_TT_B_OR:   res = Nst_obj_bwor  (ob1, ob2); break;
-    case Nst_TT_B_XOR:  res = Nst_obj_bwxor (ob1, ob2); break;
-    case Nst_TT_LSHIFT: res = Nst_obj_bwls  (ob1, ob2); break;
-    case Nst_TT_RSHIFT: res = Nst_obj_bwrs  (ob1, ob2); break;
-    case Nst_TT_CONCAT: res = Nst_obj_concat(ob1, ob2); break;
-    case Nst_TT_L_AND:  res = Nst_obj_lgand (ob1, ob2); break;
-    case Nst_TT_L_OR:   res = Nst_obj_lgor  (ob1, ob2); break;
-    case Nst_TT_L_XOR:  res = Nst_obj_lgxor (ob1, ob2); break;
-    }
-
-    if (res == NULL) {
-        Nst_set_internal_error_from_op_err(error, node->start, node->end);
-        return;
-    }
-
-    Nst_node_destroy(Nst_NODE(Nst_llist_pop(node->nodes)));
-    Nst_node_destroy(Nst_NODE(Nst_llist_pop(node->nodes)));
-    Nst_tok_destroy(Nst_TOK(Nst_llist_peek_front(node->tokens)));
-
-    node->type = Nst_NT_VALUE;
-
-    Nst_Tok *new_tok = Nst_tok_new_value(
-        node->start,
-        node->end,
-        Nst_TT_VALUE,
-        res);
-
-    if (new_tok == NULL) {
-        Nst_set_internal_error_from_op_err(error, node->start, node->end);
-        return;
-    }
-    node->tokens->head->value = new_tok;
-}
-
-static void ast_optimize_comp_op(Nst_Node *node, Nst_Error *error)
-{
-    Nst_Obj *res = NULL;
-    i32 op_tok = HEAD_TOK->type;
-    Nst_Obj *ob1 = NULL;
-    Nst_Obj *ob2 = NULL;
-
-    ast_optimize_node_nodes(node, error);
-    if (error->occurred)
-        return;
-
-    for (Nst_LLIST_ITER(n, node->nodes)) {
-        if (Nst_NODE(n->value)->type != Nst_NT_VALUE)
-            return;
-    }
-
-    for (Nst_LLIST_ITER(n, node->nodes)) {
-        if (n->next == NULL)
-            break;
-
-        ob1 = Nst_TOK(Nst_NODE(n->value)->tokens->head->value)->value;
-        ob2 = Nst_TOK(Nst_NODE(n->next->value)->tokens->head->value)->value;
-
-        switch (op_tok) {
-        case Nst_TT_GT:  res = Nst_obj_gt(ob1, ob2); break;
-        case Nst_TT_LT:  res = Nst_obj_lt(ob1, ob2); break;
-        case Nst_TT_EQ:  res = Nst_obj_eq(ob1, ob2); break;
-        case Nst_TT_NEQ: res = Nst_obj_ne(ob1, ob2); break;
-        case Nst_TT_GTE: res = Nst_obj_ge(ob1, ob2); break;
-        case Nst_TT_LTE: res = Nst_obj_le(ob1, ob2); break;
-        default: return;
+    while (values->len != 0) {
+        Nst_Obj *top_value = get_value(Nst_NODE(values->head->value));
+        if (top_value == NULL) {
+            Nst_dec_ref(prev_node->v.vl.value->value);
+            prev_node->v.vl.value->value = curr_value;
+            Nst_llist_push_llnode(values, prev_lnode);
+            return true;
         }
+        Nst_free(prev_lnode);
+        Nst_node_destroy(prev_node);
 
-        if (res == Nst_c.Bool_false)
-            break;
-        else if (res == NULL) {
-            Nst_set_internal_error_from_op_err(error, node->start, node->end);
-            return;
+        Nst_Obj *result = op_func(curr_value, top_value);
+        Nst_dec_ref(curr_value);
+        if (result == NULL) {
+            Nst_error_add_positions(Nst_error_get(), node->start, node->end);
+            return false;
         }
+        curr_value = result;
+        prev_lnode = Nst_llist_pop_llnode(values);
+        prev_node = Nst_NODE(prev_lnode->value);
     }
-
-    Nst_llist_empty(node->nodes, (Nst_LListDestructor)Nst_node_destroy);
-    Nst_tok_destroy(Nst_TOK(Nst_llist_peek_front(node->tokens)));
-
-    node->type = Nst_NT_VALUE;
-
-    Nst_Tok *new_tok = Nst_tok_new_value(
-        node->start,
-        node->end,
-        Nst_TT_VALUE,
-        res);
-
-    if (new_tok == NULL) {
-        Nst_set_internal_error_from_op_err(error, node->start, node->end);
-        return;
-    }
-    node->tokens->head->value = new_tok;
+    Nst_dec_ref(prev_node->v.vl.value->value);
+    prev_node->v.vl.value->value = curr_value;
+    Nst_llist_push_llnode(values, prev_lnode);
+    return true;
 }
 
-static void ast_optimize_local_op(Nst_Node *node, Nst_Error *error)
+static bool optimize_stack_op(Nst_Node *node)
 {
-    ast_optimize_node(HEAD_NODE, error);
+    if (!optimize_stack_values(node->v.so.values, node->v.so.op, node))
+        return false;
 
-    if (error->occurred)
-        return;
-
-    if (HEAD_NODE->type != Nst_NT_VALUE)
-        return;
-
-    i32 op_tok = HEAD_TOK->type;
-    Nst_Obj *ob = Nst_TOK(HEAD_NODE->tokens->head->value)->value;
-    Nst_Obj *res = NULL;
-
-    switch (op_tok) {
-    case Nst_TT_LEN:    res = Nst_obj_len   (ob); break;
-    case Nst_TT_L_NOT:  res = Nst_obj_lgnot (ob); break;
-    case Nst_TT_B_NOT:  res = Nst_obj_bwnot (ob); break;
-    case Nst_TT_TYPEOF: res = Nst_obj_typeof(ob); break;
-    case Nst_TT_NEG:    res = Nst_obj_neg   (ob); break;
-    default: return;
+    if (node->v.so.values->len == 1) {
+        Nst_Node *expr = Nst_llist_pop(node->v.so.values);
+        move_into(expr, node);
     }
-
-    if (res == NULL) {
-        Nst_set_internal_error_from_op_err(error, node->start, node->end);
-        return;
-    }
-
-    Nst_node_destroy(Nst_NODE(Nst_llist_pop(node->nodes)));
-    Nst_tok_destroy(Nst_TOK(Nst_llist_peek_front(node->tokens)));
-
-    node->type = Nst_NT_VALUE;
-
-    Nst_Tok *new_tok = Nst_tok_new_value(
-        node->start,
-        node->end,
-        Nst_TT_VALUE,
-        res);
-
-    if (new_tok == NULL) {
-        Nst_set_internal_error_from_op_err(error, node->start, node->end);
-        return;
-    }
-    node->tokens->head->value = new_tok;
+    return true;
 }
 
-static void ast_optimize_long_s(Nst_Node *node, Nst_Error *error)
+static bool optimize_local_stack_op(Nst_Node *node)
 {
-    Nst_LList *nodes = node->nodes;
-    Nst_LLNode *prev_valid_node = NULL;
-    Nst_Node *curr_node;
-
-    for (Nst_LLIST_ITER(n, node->nodes)) {
-        ast_optimize_node(Nst_NODE(n->value), error);
-        if (error->occurred)
-            return;
-
-        curr_node = Nst_NODE(n->value);
-
-        if (curr_node->type != Nst_NT_VALUE
-            && curr_node->type != Nst_NT_ACCESS)
-        {
-            prev_valid_node = n;
-            continue;
-        }
-
-        if (prev_valid_node == NULL) {
-            nodes->head = n->next;
-            if (n->next == NULL)
-                nodes->tail = NULL;
-        } else {
-            prev_valid_node->next = n->next;
-            if (n->next == NULL)
-                nodes->tail = prev_valid_node;
-        }
-
-        Nst_node_destroy(Nst_NODE(n->value));
-        Nst_free(n);
-
-        if (prev_valid_node == NULL)
-            n = nodes->head;
-        else
-            n = prev_valid_node;
-
-        if (n == NULL)
-            break;
+    for (Nst_LLIST_ITER(lnode, node->v.ls.values)) {
+        if (!optimize_node(lnode->value))
+            return false;
     }
+
+    return optimize_node(node->v.ls.special_value);
 }
 
+static bool optimize_local_op(Nst_Node *node)
+{
+    if (!optimize_node(node->v.lo.value))
+        return false;
+
+    Nst_Obj *value = get_value(node->v.lo.value);
+    if (value == NULL)
+        return true;
+    Nst_Obj *(*op_func)(Nst_Obj *) = NULL;
+    switch (node->v.lo.op) {
+    case Nst_TT_LEN:    op_func = _Nst_obj_len;    break;
+    case Nst_TT_L_NOT:  op_func = _Nst_obj_lgnot;  break;
+    case Nst_TT_B_NOT:  op_func = _Nst_obj_bwnot;  break;
+    case Nst_TT_NEG:    op_func = _Nst_obj_neg;    break;
+    case Nst_TT_TYPEOF: op_func = _Nst_obj_typeof; break;
+    default:
+        return true;
+    }
+
+    Nst_Obj *result = op_func(value);
+    if (result == NULL) {
+        Nst_error_add_positions(Nst_error_get(), node->start, node->end);
+        return false;
+    }
+    Nst_Node *value_node = node->v.lo.value;
+    node->v.lo.value = NULL;
+    Nst_dec_ref(value_node->v.vl.value->value);
+    value_node->v.vl.value->value = result;
+    move_into(value_node, node);
+    return true;
+}
+
+static bool optimize_seq_lit(Nst_Node *node)
+{
+    for (Nst_LLIST_ITER(lnode, node->v.sl.values)) {
+        if (!optimize_node(Nst_NODE(lnode->value)))
+            return false;
+    }
+    return true;
+}
+
+static bool optimize_map_lit(Nst_Node *node)
+{
+    for (Nst_LLIST_ITER(lnode, node->v.ml.keys)) {
+        if (!optimize_node(Nst_NODE(lnode->value)))
+            return false;
+    }
+
+    for (Nst_LLIST_ITER(lnode, node->v.ml.values)) {
+        if (!optimize_node(Nst_NODE(lnode->value)))
+            return false;
+    }
+    return true;
+}
+
+static bool optimize_extract_e(Nst_Node *node)
+{
+    if (!optimize_node(node->v.ex.key))
+        return false;
+    if (!optimize_node(node->v.ex.container))
+        return false;
+    return true;
+}
+
+static bool optimize_assign_e(Nst_Node *node)
+{
+    if (!optimize_node(node->v.as.value))
+        return false;
+    if (!optimize_node(node->v.as.name))
+        return false;
+    return true;
+}
+
+static bool optimize_comp_assign_e(Nst_Node *node)
+{
+    if (!optimize_node(node->v.ca.name))
+        return false;
+    if (!optimize_stack_values(node->v.ca.values, node->v.ca.op, node))
+        return false;
+    return true;
+}
+
+static bool optimize_if_e(Nst_Node *node)
+{
+    if (!optimize_node(node->v.ie.condition))
+        return false;
+    if (!optimize_node(node->v.ie.body_if_true))
+        return false;
+    if (!optimize_node(node->v.ie.body_if_false))
+        return false;
+    return true;
+}
+
+static bool optimize_e_wrapper(Nst_Node *node)
+{
+    if (!optimize_node(node->v.we.expr))
+        return false;
+    Nst_Node *statement = node->v.we.expr;
+    node->v.we.expr = NULL;
+    move_into(statement, node);
+    return true;
+}
+
+static bool optimize_bytecode(Nst_InstList *bc, bool optimize_builtins);
 static bool can_optimize_consts(Nst_InstList *bc);
 static bool is_accessed(Nst_InstList *bc, Nst_StrObj *name);
 static bool has_assignments(Nst_InstList *bc, Nst_StrObj *name);
@@ -280,15 +396,23 @@ static void optimize_const(Nst_InstList *bc, const i8 *name, Nst_Obj *val);
 static void remove_push_pop(Nst_InstList *bc);
 static void remove_assign_pop(Nst_InstList *bc);
 static void remove_assign_loc_get_val(Nst_InstList *bc);
-static void remove_push_check(Nst_InstList *bc, Nst_Error *error);
+static bool remove_push_check(Nst_InstList *bc);
 static void remove_push_jumpif(Nst_InstList *bc);
 static void remove_inst(Nst_InstList *bc, i64 idx);
-static void optimize_funcs(Nst_InstList *bc, Nst_Error *error);
+static bool optimize_funcs(Nst_InstList *bc);
 static void remove_dead_code(Nst_InstList *bc);
-static void optimize_chained_jumps(Nst_InstList *bc);
+static bool optimize_chained_jumps(Nst_InstList *bc);
 
-Nst_InstList *Nst_optimize_bytecode(Nst_InstList *bc, bool optimize_builtins,
-                                    Nst_Error *error)
+Nst_InstList *Nst_optimize_bytecode(Nst_InstList *bc, bool optimize_builtins)
+{
+    if (!optimize_bytecode(bc, optimize_builtins)) {
+        Nst_inst_list_destroy(bc);
+        return NULL;
+    }
+    return bc;
+}
+
+static bool optimize_bytecode(Nst_InstList *bc, bool optimize_builtins)
 {
     if (optimize_builtins && can_optimize_consts(bc)) {
         optimize_const(bc, "Type",   OBJ(Nst_t.Type));
@@ -312,24 +436,17 @@ Nst_InstList *Nst_optimize_bytecode(Nst_InstList *bc, bool optimize_builtins,
     i64 initial_size;
     do {
         initial_size = bc->total_size;
-        remove_push_check(bc, error);
-        if (error->occurred) {
-            Nst_inst_list_destroy(bc);
-            return NULL;
-        }
-
+        if (!remove_push_check(bc))
+            return false;
         remove_push_pop(bc);
         remove_assign_pop(bc);
         remove_assign_loc_get_val(bc);
         remove_push_jumpif(bc);
-        optimize_chained_jumps(bc);
+        if (!optimize_chained_jumps(bc))
+            return false;
         remove_dead_code(bc);
-
-        optimize_funcs(bc, error);
-        if (error->occurred) {
-            Nst_inst_list_destroy(bc);
-            return NULL;
-        }
+        if (!optimize_funcs(bc))
+            return false;
 
         // remove NO_OP instructions and compact the bytecode
         i64 size = bc->total_size;
@@ -343,7 +460,7 @@ Nst_InstList *Nst_optimize_bytecode(Nst_InstList *bc, bool optimize_builtins,
         }
     } while (initial_size != (i64)bc->total_size);
 
-    return bc;
+    return true;
 }
 
 static bool can_optimize_consts(Nst_InstList *bc)
@@ -379,7 +496,7 @@ static bool is_accessed(Nst_InstList *bc, Nst_StrObj *name)
     for (i64 i = 0; i < size; i++) {
         if (inst_list[i].id == Nst_IC_PUSH_VAL
             && inst_list[i].val->type == Nst_t.Str
-            && Nst_string_compare(STR(inst_list[i].val), name) == 0)
+            && Nst_str_compare(STR(inst_list[i].val), name) == 0)
         {
             if (inst_list[++i].id == Nst_IC_OP_EXTRACT)
                 return true;
@@ -387,21 +504,19 @@ static bool is_accessed(Nst_InstList *bc, Nst_StrObj *name)
         }
 
         if (inst_list[i].id != Nst_IC_GET_VAL
-            || Nst_string_compare(STR(inst_list[i].val), name) != 0)
+            || Nst_str_compare(STR(inst_list[i].val), name) != 0)
         {
             continue;
         }
 
         if (inst_list[i + 1].id == Nst_IC_LOCAL_OP
-            || inst_list[i + 1].id == Nst_IC_HASH_CHECK
-            || inst_list[i + 1].id == Nst_IC_TYPE_CHECK)
+            || inst_list[i + 1].id == Nst_IC_HASH_CHECK)
         {
             i += 2;
 
             while (i < size
                    && (inst_list[i].id == Nst_IC_LOCAL_OP
-                       || inst_list[i].id == Nst_IC_HASH_CHECK
-                       || inst_list[i].id == Nst_IC_TYPE_CHECK))
+                       || inst_list[i].id == Nst_IC_HASH_CHECK))
             {
                 i++;
             }
@@ -445,7 +560,7 @@ static bool has_assignments(Nst_InstList *bc, Nst_StrObj *name)
             Nst_Inst prev_inst = inst_list[i - 1];
             if (prev_inst.id == Nst_IC_PUSH_VAL
                 && prev_inst.val->type == Nst_t.Str
-                && Nst_string_compare(name, STR(prev_inst.val)) == 0)
+                && Nst_str_compare(name, STR(prev_inst.val)) == 0)
             {
                 return true;
             }
@@ -457,7 +572,7 @@ static bool has_assignments(Nst_InstList *bc, Nst_StrObj *name)
             continue;
         }
 
-        if (Nst_string_compare(name, STR(inst_list[i].val)) == 0)
+        if (Nst_str_compare(name, STR(inst_list[i].val)) == 0)
             return true;
     }
 
@@ -478,7 +593,7 @@ static void replace_access(Nst_InstList *bc, Nst_StrObj *name, Nst_Obj *val)
         if (inst_list[i].id != Nst_IC_GET_VAL)
             continue;
 
-        if (Nst_string_compare(name, STR(inst_list[i].val)) == 0) {
+        if (Nst_str_compare(name, STR(inst_list[i].val)) == 0) {
             inst_list[i].id = Nst_IC_PUSH_VAL;
             Nst_dec_ref(inst_list[i].val);
             inst_list[i].val = Nst_inc_ref(val);
@@ -491,7 +606,7 @@ static void replace_access(Nst_InstList *bc, Nst_StrObj *name, Nst_Obj *val)
 
 static void optimize_const(Nst_InstList *bc, const i8 *name, Nst_Obj *val)
 {
-    Nst_StrObj *str_obj = STR(Nst_string_new_c_raw(name, false));
+    Nst_StrObj *str_obj = STR(Nst_str_new_c_raw(name, false));
     if (str_obj == NULL) {
         Nst_error_clear();
         return;
@@ -583,7 +698,7 @@ static void remove_assign_pop(Nst_InstList *bc)
     }
 }
 
-static void remove_assign_loc_get_val(Nst_InstList* bc)
+static void remove_assign_loc_get_val(Nst_InstList *bc)
 {
     i64 size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;
@@ -598,7 +713,7 @@ static void remove_assign_loc_get_val(Nst_InstList* bc)
         } else if (!expect_get_val
                    || inst_list[i].id != Nst_IC_GET_VAL
                    || has_jumps_to(bc, i, -1, -1)
-                   || Nst_string_compare(
+                   || Nst_str_compare(
                         expected_name,
                         STR(inst_list[i].val)) != 0)
         {
@@ -607,7 +722,7 @@ static void remove_assign_loc_get_val(Nst_InstList* bc)
             continue;
         }
 
-        if (Nst_string_compare(expected_name, STR(inst_list[i].val)) != 0) {
+        if (Nst_str_compare(expected_name, STR(inst_list[i].val)) != 0) {
             expect_get_val = false;
             expected_name = NULL;
             continue;
@@ -623,7 +738,7 @@ static void remove_assign_loc_get_val(Nst_InstList* bc)
     }
 }
 
-static void remove_push_check(Nst_InstList *bc, Nst_Error *error)
+static bool remove_push_check(Nst_InstList *bc)
 {
     i64 size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;
@@ -634,40 +749,22 @@ static void remove_push_check(Nst_InstList *bc, Nst_Error *error)
             was_push = true;
             continue;
         } else if (!was_push
-                   || (inst_list[i].id != Nst_IC_TYPE_CHECK
-                       && inst_list[i].id != Nst_IC_HASH_CHECK)
+                   || inst_list[i].id != Nst_IC_HASH_CHECK
                    || has_jumps_to(bc, i, -1, -1))
         {
             was_push = false;
             continue;
         }
 
-        if (inst_list[i].id == Nst_IC_TYPE_CHECK) {
-            if (inst_list[i].val != OBJ(inst_list[i - 1].val->type)) {
-                Nst_set_internal_type_error(
-                    error,
-                    inst_list[i].start,
-                    inst_list[i].end,
-                    STR(Nst_sprintf(
-                        _Nst_EM_EXPECTED_TYPES,
-                        Nst_TYPE_STR(inst_list[i].val)->value,
-                        TYPE_NAME(inst_list[i - 1].val))));
-
-                return;
-            }
-        } else {
-            Nst_obj_hash(inst_list[i - 1].val);
-            if (inst_list[i - 1].val->hash == -1) {
-                Nst_set_internal_type_error(
-                    error,
-                    inst_list[i].start,
-                    inst_list[i].end,
-                    STR(Nst_sprintf(
-                        _Nst_EM_UNHASHABLE_TYPE,
-                        TYPE_NAME(inst_list[i - 1].val))));
-
-                return;
-            }
+        Nst_Obj *obj = inst_list[i - 1].val;
+        Nst_obj_hash(obj);
+        if (obj->hash == -1) {
+            Nst_set_internal_type_error(
+                Nst_error_get(),
+                inst_list[i].start,
+                inst_list[i].end,
+                STR(Nst_sprintf(_Nst_EM_UNHASHABLE_TYPE, TYPE_NAME(obj))));
+            return false;
         }
 
         inst_list[i].id = Nst_IC_NO_OP;
@@ -676,7 +773,7 @@ static void remove_push_check(Nst_InstList *bc, Nst_Error *error)
         inst_list[i].val = NULL;
         was_push = false;
     }
-    return;
+    return true;
 }
 
 static void remove_push_jumpif(Nst_InstList *bc)
@@ -737,14 +834,14 @@ static void remove_inst(Nst_InstList *bc, i64 idx)
     }
 }
 
-static void optimize_funcs(Nst_InstList *bc, Nst_Error *error)
+static bool optimize_funcs(Nst_InstList *bc)
 {
     for (Nst_LLIST_ITER(n, bc->functions)) {
-        Nst_optimize_bytecode(FUNC(n->value)->body.bytecode, false, error);
-
-        if (error->occurred)
-            break;
+        Nst_InstList *func_bc = FUNC(n->value)->body.bytecode;
+        if (!optimize_bytecode(func_bc, false))
+            return false;
     }
+    return true;
 }
 
 static void remove_dead_code(Nst_InstList *bc)
@@ -800,20 +897,66 @@ static void remove_dead_code(Nst_InstList *bc)
     }
 }
 
-static void optimize_chained_jumps(Nst_InstList* bc)
+typedef u8 *bool_arr_t;
+
+static inline bool_arr_t bool_arr_new(usize size)
 {
-    i64 size = bc->total_size;
+    usize length = size / 8;
+    if (size % 8 != 0)
+        length++;
+    return Nst_calloc_c(length, u8, NULL);
+}
+
+static inline bool bool_arr_get(bool_arr_t array, usize idx)
+{
+    return (bool)(array[idx / 8] & (1 << (idx % 8)));
+}
+
+static inline void bool_arr_set(bool_arr_t array, usize idx, bool value)
+{
+    u8 byte = array[idx / 8];
+    if (value)
+        array[idx / 8] = byte | (1 << (idx % 8));
+    else
+        array[idx / 8] = byte & ~(1 << (idx % 8));
+}
+
+static inline void bool_arr_fill(bool_arr_t array, usize size, bool value)
+{
+    usize length = size / 8;
+    if (size % 8 != 0)
+        length++;
+    u8 set_value = value ? 255 : 0;
+    memset(array, set_value, length);
+}
+
+static bool optimize_chained_jumps(Nst_InstList *bc)
+{
+    usize size = bc->total_size;
     Nst_Inst *inst_list = bc->instructions;
 
-    for (i64 i = 0; i < size; i++) {
+    bool_arr_t visited_jumps = bool_arr_new(size);
+    if (visited_jumps == NULL)
+        return false;
+
+    for (usize i = 0; i < size; i++) {
         if (!Nst_INST_IS_JUMP(inst_list[i].id))
             continue;
 
+        bool_arr_fill(visited_jumps, size, false);
         i64 end_jump = inst_list[i].int_val;
+        bool_arr_set(visited_jumps, (usize)end_jump, true);
 
-        while (inst_list[end_jump].id == Nst_IC_JUMP)
-            end_jump = inst_list[end_jump].int_val;
+        while (inst_list[end_jump].id == Nst_IC_JUMP) {
+            i64 new_end_jump = inst_list[end_jump].int_val;
+            if (bool_arr_get(visited_jumps, (usize)new_end_jump))
+                break;
+            end_jump = new_end_jump;
+            bool_arr_set(visited_jumps, (usize)end_jump, true);
+        }
 
         inst_list[i].int_val = end_jump;
     }
+    Nst_free(visited_jumps);
+    return true;
 }

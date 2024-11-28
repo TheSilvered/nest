@@ -26,24 +26,20 @@ extern "C" {
  * @param no_default: where the `--no-default` option is stored if specified
  * with file arguments
  * @param src_text: where the source of the file is saved
- * @param error: where the error is put if it occurs
  *
- * @return A `Nst_LList` of tokens or `NULL` on failure. No error is set.
+ * @return A `Nst_LList` of tokens or `NULL` on failure. The error is set.
  */
 NstEXP Nst_LList *NstC Nst_tokenizef(i8 *filename, Nst_CPID encoding,
                                      i32 *opt_level, bool *no_default,
-                                     Nst_SourceText *src_text,
-                                     Nst_Error *error);
+                                     Nst_SourceText *src_text);
 /**
  * Tokenizes text.
  *
  * @param text: the text to tokenize
- * @param error: where the error is put if it occurs
  *
- * @return A `Nst_LList` of tokens or `NULL` on failure. No global operation
- * error is set.
+ * @return A `Nst_LList` of tokens or `NULL` on failure. The error is set.
  */
-NstEXP Nst_LList *NstC Nst_tokenize(Nst_SourceText *text, Nst_Error *error);
+NstEXP Nst_LList *NstC Nst_tokenize(Nst_SourceText *text);
 
 /**
  * Adds the `lines` array to the given text.
@@ -53,7 +49,7 @@ NstEXP Nst_LList *NstC Nst_tokenize(Nst_SourceText *text, Nst_Error *error);
  *
  * @param text: the text to add the line starts to
  *
- * @return `true` on success and `false` on failure. No error is set.
+ * @return `true` on success and `false` on failure. The error is set.
  */
 NstEXP bool NstC Nst_add_lines(Nst_SourceText *text);
 
@@ -63,13 +59,11 @@ NstEXP bool NstC Nst_add_lines(Nst_SourceText *text);
  * @param text: the text to re-encode
  * @param encoding: the encoding of the text, if `Nst_CP_UNKNOWN` it is
  * detected automatically
- * @param error: where the error is put if it occurs
  *
- * @return `true` on success and `false` on failure. No global operation error
- * is set.
+ * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP bool NstC Nst_normalize_encoding(Nst_SourceText *text, Nst_CPID encoding,
-                                        Nst_Error *error);
+NstEXP bool NstC Nst_normalize_encoding(Nst_SourceText *text,
+                                        Nst_CPID encoding);
 
 #ifdef __cplusplus
 }

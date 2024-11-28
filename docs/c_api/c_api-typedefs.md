@@ -10,11 +10,73 @@ TheSilvered
 
 ## Macros
 
-### `Nst_WIN`
+### `Nst_TRACK_OBJ_INIT_POS`
 
 **Description:**
 
-Defined when compiling on MS Windows.
+If defined enables tracking of the position in the program where objects are
+allocated. This macro should be defined in `typedefs.h` when compiling.
+
+!!!note
+    This macro works only when the program is compiled in debug mode.
+
+---
+
+### `Nst_DISABLE_POOLS`
+
+**Description:**
+
+If defined disables object pools and instead frees the memory of each object.
+This macro should be defined in `typedefs.h` when compiling.
+
+!!!note
+    This macro works only when the program is compiled in debug mode.
+
+---
+
+### `Nst_COUNT_ALLOC`
+
+**Description:**
+
+If defined enables allocation counting and declares the
+[`Nst_log_alloc_count`](c_api-mem.md#nst_log_alloc_count) function. This macro
+should be defined in `typedefs.h` when compiling.
+
+!!!note
+    This macro works only when the program is compiled in debug mode.
+
+---
+
+### `Nst_BREAKPOINT_ON_ASSERTION_FAIL`
+
+**Description:**
+
+On Windows, instead of calling abort, __debugbreak is called instead when an
+assetion fails.
+
+---
+
+### `Nst_MSVC`
+
+**Description:**
+
+Defined when compiling with MSVC.
+
+---
+
+### `Nsg_GCC`
+
+**Description:**
+
+Defined when compiling with GCC.
+
+---
+
+### `Nsg_CLANG`
+
+**Description:**
+
+Defined when compiling with Clang.
 
 ---
 
@@ -58,17 +120,17 @@ Marks an argument as a printf format string on MSVC.
 
 ---
 
-### `Nst_GNU_FMT`
+### `Nst_NIX_FMT`
 
 **Synopsis:**
 
 ```better-c
-#define Nst_GNU_FMT(m, n)
+#define Nst_NIX_FMT(m, n)
 ```
 
 **Description:**
 
-Marks an argument as a printf format string on GCC.
+Marks an argument as a printf format string on GCC or CLANG.
 
 ---
 
@@ -76,7 +138,7 @@ Marks an argument as a printf format string on GCC.
 
 **Description:**
 
-Represents little-endian systems. Always defined.
+Represents little-endian systems, check against Nst_BYTEORDER.
 
 ---
 
@@ -84,11 +146,11 @@ Represents little-endian systems. Always defined.
 
 **Description:**
 
-Represents big-endian systems. Always defined.
+Represents big-endian systems, check against Nst_BYTEORDER.
 
 ---
 
-### `Nst_ENDIANNESS`
+### `Nst_BYTEORDER`
 
 **Description:**
 
@@ -116,16 +178,38 @@ Marks a function for for the standard C declaration (`__cdecl`).
 
 **Description:**
 
-Marks an argument as unused. To be used inside the body of the function.
+Marks the argument of a function as unused, without rasing any compiler
+warnings.
 
 ---
 
-### `Nst_TRACK_OBJ_INIT_POS`
+### `Nst_assert`
+
+**Synopsis:**
+
+```better-c
+#define Nst_assert(expr)
+```
 
 **Description:**
 
-Defined to compile with additional arguments that track the location of the
-creation of Nest objects.
+Aborts with an error message when an expression is false. The error specifies
+the expression, the path and line of both the C and Nest file.
+
+---
+
+### `Nst_assert_c`
+
+**Synopsis:**
+
+```better-c
+#define Nst_assert_c(expr)
+```
+
+**Description:**
+
+Aborts with an error message when an expression is false. The error specifies
+the expression and the path and line of the C file.
 
 ---
 
@@ -212,6 +296,20 @@ typedef unsigned short u16
 **Description:**
 
 `unsigned short` alias.
+
+---
+
+### `uint`
+
+**Synopsis:**
+
+```better-c
+typedef unsigned int uint
+```
+
+**Description:**
+
+`unsigned int` alias.
 
 ---
 

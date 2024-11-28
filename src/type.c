@@ -28,7 +28,7 @@ Nst_TypeObj *Nst_type_new(const i8 *name, Nst_ObjDstr dstr)
     type->p_head = NULL;
     type->p_len = 0;
     type->dstr = dstr;
-    type->name = Nst_string_temp((i8 *)name, strlen(name));
+    type->name = Nst_str_temp((i8 *)name, strlen(name));
 
     return type;
 }
@@ -47,7 +47,7 @@ Nst_TypeObj *Nst_cont_type_new(const i8 *name, Nst_ObjDstr dstr,
     type->p_len = 0;
     type->dstr = dstr;
     type->trav = trav;
-    type->name = Nst_string_temp((i8 *)name, strlen(name));
+    type->name = Nst_str_temp((i8 *)name, strlen(name));
 
     Nst_SET_FLAG(type, Nst_FLAG_TYPE_IS_CONTAINER);
 
@@ -61,4 +61,6 @@ void _Nst_type_destroy(Nst_TypeObj *type)
         Nst_free(ob);
         ob = next_ob;
     }
+
+    type->p_len = _Nst_P_LEN_MAX + 1;
 }

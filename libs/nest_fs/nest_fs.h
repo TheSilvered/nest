@@ -7,41 +7,43 @@
 extern "C" {
 #endif // !__cplusplus
 
-NstEXP bool NstC lib_init();
-NstEXP Nst_DeclrList *NstC get_func_ptrs();
-NstEXP void NstC free_lib();
+NstEXP Nst_Declr *NstC lib_init();
+NstEXP void NstC lib_quit();
 
-Nst_FUNC_SIGN(is_dir_);
-Nst_FUNC_SIGN(is_file_);
-Nst_FUNC_SIGN(is_symlink_);
-Nst_FUNC_SIGN(is_socket_);
-Nst_FUNC_SIGN(is_block_device_);
-Nst_FUNC_SIGN(is_char_device_);
-Nst_FUNC_SIGN(is_named_pipe_);
-Nst_FUNC_SIGN(make_dir_);
-Nst_FUNC_SIGN(make_dirs_);
-Nst_FUNC_SIGN(remove_dir_);
-Nst_FUNC_SIGN(remove_dirs_);
-Nst_FUNC_SIGN(remove_file_);
-Nst_FUNC_SIGN(make_dir_symlink_);
-Nst_FUNC_SIGN(make_file_symlink_);
-Nst_FUNC_SIGN(read_symlink_);
-Nst_FUNC_SIGN(make_hard_link_);
-Nst_FUNC_SIGN(exists_);
-Nst_FUNC_SIGN(copy_);
-Nst_FUNC_SIGN(rename_);
-Nst_FUNC_SIGN(list_dir_);
-Nst_FUNC_SIGN(list_dirs_);
-Nst_FUNC_SIGN(absolute_path_);
-Nst_FUNC_SIGN(canonical_path_);
-Nst_FUNC_SIGN(relative_path_);
-Nst_FUNC_SIGN(equivalent_);
-Nst_FUNC_SIGN(join_);
-Nst_FUNC_SIGN(normalize_);
-Nst_FUNC_SIGN(parent_path_);
-Nst_FUNC_SIGN(filename_);
-Nst_FUNC_SIGN(extension_);
-Nst_FUNC_SIGN(_get_copy_options_);
+Nst_Obj *NstC is_dir_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC is_file_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC is_symlink_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC is_socket_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC is_block_device_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC is_char_device_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC is_named_pipe_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC make_dir_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC make_dirs_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC remove_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC remove_all_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC make_dir_symlink_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC make_file_symlink_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC read_symlink_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC make_hard_link_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC exists_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC copy_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC rename_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC list_dir_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC list_dirs_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC absolute_path_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC canonical_path_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC relative_path_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC equivalent_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC path_join_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC path_normalize_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC path_parent_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC path_filename_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC path_stem_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC path_extension_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC time_creation_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC time_last_access_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC time_last_write_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC CPO_();
 
 #ifdef __cplusplus
 }

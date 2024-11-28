@@ -5,11 +5,28 @@
 ```nest
 |#| 'stdsys.nest' = sys
 
--- To access _raw_exit use the following
+-- To access _raw_exit and _DEBUG use the following
 |#| '__C__:stdsys.cnest' = __sys
 ```
 
 ## Functions
+
+### `@del_env`
+
+**Synopsis:**
+
+```nest
+[name: Str] @del_env -> null
+```
+
+**Description:**
+
+Deletes the environment variable `name`. If it does not exist the environment
+is left unchanged and the function succeeds.
+
+`name` cannot contain NUL characters (`\0`) and equals signs (`=`).
+
+---
 
 ### `@exit`
 
@@ -26,21 +43,6 @@ If `code` is `null` it defaults to `0`.
 
 ---
 
-### `@getenv`
-
-**Synopsis:**
-
-```nest
-[name: Str] @getenv -> Str?
-```
-
-**Returns:**
-
-The value of the environment variable `name`, if it does not exist,
-`null` is returned.
-
----
-
 ### `@get_addr`
 
 **Synopsis:**
@@ -52,6 +54,51 @@ The value of the environment variable `name`, if it does not exist,
 **Returns:**
 
 The address of the object in memory.
+
+---
+
+### `@get_capacity`
+
+**Synopsis:**
+
+```nest
+[container: Vector|Map] @get_capacity -> Int
+```
+
+**Returns:**
+
+The number of elements that can still be inserted without the object expanding.
+
+---
+
+### `@get_cwd`
+
+**Synopsis:**
+
+```nest
+[] @get_cwd -> Str
+```
+
+**Returns:**
+
+Gets the current working directory.
+
+---
+
+### `@get_env`
+
+**Synopsis:**
+
+```nest
+[name: Str] @get_env -> Str?
+```
+
+**Returns:**
+
+The value of the environment variable `name`. If it does not exist, `null` is
+returned instead.
+
+`name` cannot contain NUL characters (`\0`) and equals signs (`=`).
 
 ---
 
@@ -83,12 +130,26 @@ The hash of the object. If the object is not hashable, `-1` is returned.
 
 ---
 
-### `@putenv`
+### `@set_cwd`
 
 **Synopsis:**
 
 ```nest
-[name: Str, value: Str] @putenv -> null
+[cwd: Str] @_set_cwd -> null
+```
+
+**Description:**
+
+Sets the current working directory to `cwd`.
+
+---
+
+### `@set_env`
+
+**Synopsis:**
+
+```nest
+[name: Str, value: Str, overwrite: Bool?] @set_env -> null
 ```
 
 **Description:**
@@ -96,6 +157,9 @@ The hash of the object. If the object is not hashable, `-1` is returned.
 Sets the value of the `name` environment variable to be `value`. Both `name`
 and `value` cannot contain NUL characters and `name` cannot contain an equals
 sign (`=`).
+
+If `overwrite` is `false` and in the environment `name` is already defined, its
+value is not changed. Overwrite is `true` by default.
 
 ---
 
@@ -117,35 +181,6 @@ The return value is the exit status of the shell.
 
 On Linux is always the exit status, on Windows, it depends on the default
 shell.
-
----
-
-### `@_get_cwd`
-
-**Synopsis:**
-
-```nest
-[] @_get_cwd -> Str
-```
-
-**Description:**
-
-Gets the current working directory. If [`_set_cwd`](system_library.md#_set_cwd)
-was never called, this is equivalent to `_cwd_`.
-
----
-
-### `@_set_cwd`
-
-**Synopsis:**
-
-```nest
-[cwd: Str] @_set_cwd -> null
-```
-
-**Description:**
-
-Sets the current working directory. The changes do not reflect in `_cwd_`.
 
 ---
 
@@ -195,4 +230,13 @@ Whether the console supports ANSI escape sequences.
 
 ### `VERSION`
 
-The current version of Nest as a string such as `'0.14.0 x64'`.
+The current version of Nest as a string such as `'0.15.0 x64'`.
+
+---
+
+### `_DEBUG`
+
+`true` if running a debug build of Nest and `false` otherwise.
+
+This constant cannot be accessed by importing the normal system library, you
+need to [import the C source](#importing) instead.

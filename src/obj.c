@@ -1,15 +1,10 @@
-#include <assert.h>
-
 #include "obj.h"
 #include "map.h"
 #include "ggc.h"
 #include "str.h"
 #include "mem.h"
 #include "type.h"
-
-#ifdef Nst_TRACK_OBJ_INIT_POS
 #include "interpreter.h"
-#endif
 
 static Nst_Obj *pop_p_head(usize size, Nst_TypeObj *type)
 {
@@ -63,15 +58,18 @@ void _Nst_obj_destroy(Nst_Obj *obj)
     obj->ref_count = 2147483647;
     if (obj->type->dstr != NULL)
         obj->type->dstr(obj);
-    if (obj != OBJ(obj->type))
-        Nst_dec_ref(obj->type);
 
     Nst_SET_FLAG(obj, Nst_FLAG_OBJ_DESTROYED);
 }
 
 void _Nst_obj_free(Nst_Obj *obj)
 {
-    assert(Nst_HAS_FLAG(obj, Nst_FLAG_OBJ_DESTROYED));
+    Nst_assert(Nst_HAS_FLAG(obj, Nst_FLAG_OBJ_DESTROYED));
+
+    if (Nst_HAS_FLAG(obj, Nst_FLAG_GGC_PRESERVE_MEM))
+        return;
+
+    Nst_TypeObj *ob_t = obj->type;
 
     if (Nst_HAS_FLAG(obj, Nst_FLAG_GGC_IS_SUPPORTED)) {
         Nst_GGCObj *ggc_obj = GGC_OBJ(obj);
@@ -79,11 +77,8 @@ void _Nst_obj_free(Nst_Obj *obj)
 
         // if ls is NULL it means that the object is being deleted in a garbage
         // collection
-        if (ls == NULL) {
-            if (Nst_HAS_FLAG(obj, Nst_FLAG_GGC_DELETE))
-                goto free_mem;
-            return;
-        }
+        if (ls == NULL)
+            goto free_mem;
 
         if (ls->head == ggc_obj)
             ls->head = GGC_OBJ(ggc_obj->p_next);
@@ -99,14 +94,34 @@ void _Nst_obj_free(Nst_Obj *obj)
     }
 
 free_mem:
+
+// silences the warning of the expression being always true when _Nst_P_LEN_MAX
+// is 0 (e.g. when pools are disabled)
+
+#if defined(Nst_DISABLE_POOLS) && !defined(Nst_MSVC)
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wtype-limits"
+#endif
+
     if (obj->type->p_len >= _Nst_P_LEN_MAX) {
-        free(obj);
+        Nst_free(obj);
+
+        if (obj != OBJ(ob_t))
+            Nst_dec_ref(ob_t);
+
         return;
     }
+
+#if defined(Nst_DISABLE_POOLS) && !defined(Nst_MSVC)
+#pragma GCC diagnostic pop
+#endif
 
     obj->p_next = obj->type->p_head;
     obj->type->p_head = obj;
     obj->type->p_len++;
+
+    if (obj != OBJ(ob_t))
+        Nst_dec_ref(ob_t);
 }
 
 Nst_Obj *_Nst_inc_ref(Nst_Obj *obj)
@@ -119,7 +134,9 @@ void _Nst_dec_ref(Nst_Obj *obj)
 {
     obj->ref_count--;
 
-    assert(obj->ref_count >= 0); // The ref_count should nevere be below zero
+    // The ref_count should nevere be below zero
+    Nst_assert(obj->ref_count >= 0);
+
     if (obj->ref_count <= 0) {
         _Nst_obj_destroy(obj);
         _Nst_obj_free(obj);

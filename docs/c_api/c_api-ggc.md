@@ -114,13 +114,6 @@ typedef struct _Nst_GGCObj {
 
 The struct representing a garbage collector object.
 
-**Fields:**
-
-- `traverse_func`: the function that sets as reachable all the objects contained
-  in the object
-- `track_func`: the function that tracks all the traceable objects that the
-  object contains when it itself is tracked
-
 ---
 
 ### `Nst_GGCList`
@@ -221,12 +214,12 @@ Adds an object to the tracked objects by the garbage collector.
 
 ---
 
-### `Nst_ggc_delete_objs`
+### `_Nst_ggc_delete_objs`
 
 **Synopsis:**
 
 ```better-c
-void Nst_ggc_delete_objs(void)
+void _Nst_ggc_delete_objs(void)
 ```
 
 **Description:**
@@ -235,18 +228,18 @@ Deletes all objects still present in the garbage collector.
 
 ---
 
-### `Nst_ggc_init`
+### `_Nst_ggc_init`
 
 **Synopsis:**
 
 ```better-c
-void Nst_ggc_init(void)
+void _Nst_ggc_init(void)
 ```
 
 **Description:**
 
 Initializes the garbage collector of
-[`Nst_state`](c_api-interpreter.md#nst_get_state).
+[`Nst_state`](c_api-interpreter.md#nst_state_get).
 
 ---
 
@@ -274,7 +267,7 @@ collector.
 ```better-c
 typedef enum _Nst_GGCFlags {
     Nst_FLAG_GGC_REACHABLE    = Nst_FLAG(32),
-    Nst_FLAG_GGC_DELETE       = Nst_FLAG(31),
+    Nst_FLAG_GGC_PRESERVE_MEM = Nst_FLAG(31),
     Nst_FLAG_GGC_IS_SUPPORTED = Nst_FLAG(30)
 } Nst_GGCFlags
 ```

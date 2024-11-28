@@ -18,19 +18,48 @@ test.log_file io.STDOUT == ? [
     '../test_output.txt' 'a+' @io.open = test.log_file
 ]
 
-'sys.getenv (appdata): \('APPDATA' @sys.getenv)' @test.println
-'sys.getenv (home): \('HOME' @sys.getenv)' @test.println
+'sys.getenv (appdata): \('APPDATA' @sys.get_env)' @test.println
+'sys.getenv (home): \('HOME' @sys.get_env)' @test.println
 
 sys.ENDIANNESS @test.println
 
-'Nst:TESTENV' 'test-value' @sys.putenv
-'Nst:TESTENV' @sys.getenv 'test-value' @test.assert_eq
-sys.putenv {'Invalid=name', 'hello value'} @test.assert_raises_error
-sys.putenv {'Invalid\0name', 'hellovalue'} @test.assert_raises_error
-sys.putenv {'validname', 'invalid\0value'} @test.assert_raises_error
+'Nst:TESTENV' 'test-value' @sys.set_env
+'Nst:TESTENV' @sys.get_env 'test-value' @test.assert_eq
+'THISDOESNOTEXIST' @sys.get_env null @test.assert_eq
+'Nst:TESTENV' 'new-value' false @sys.set_env
+'Nst:TESTENV' @sys.get_env 'test-value' @test.assert_eq
+'Nst:TESTENV' 'new-value' true @sys.set_env
+'Nst:TESTENV' @sys.get_env 'new-value' @test.assert_eq
+'Nst:TESTENV' 'newer-value' @sys.set_env
+'Nst:TESTENV' @sys.get_env 'newer-value' @test.assert_eq
+'Nst:TESTENV' @sys.del_env
+'Nst:TESTENV' @sys.get_env null @test.assert_eq
+'Nst:TESTENV' @sys.del_env
+'Nst:TESTENV' @sys.get_env null @test.assert_eq
+sys.set_env {'Invalid=name', 'hello value'} @test.assert_raises_error
+sys.set_env {'Invalid\0name', 'hellovalue'} @test.assert_raises_error
+sys.set_env {'validname', 'invalid\0value'} @test.assert_raises_error
+sys.get_env {'Invalid\0name'} @test.assert_raises_error
+sys.get_env {'Invalid=name'} @test.assert_raises_error
+sys.del_env {'Invalid\0name'} @test.assert_raises_error
+sys.del_env {'Invalid=name'} @test.assert_raises_error
 
 'Hello' @sys.get_ref_count 2 @test.assert_eq
-'sys.get_addr: 0x'(10 @sys.get_addr @su.hex -16 '0' @su.justify) >< @test.println
+'sys.get_addr: {0xp.16}' {10 @sys.get_addr} @su.fmt @test.println
 10 @sys.hash 10 @test.assert_eq
 -1 @sys.hash -2 @test.assert_eq
 ?::sys.VERSION Str @test.assert_eq
+
+<{}> = v
+v @sys.get_capacity 8 @test.assert_eq
+v 1 2 3 4 5 6 7 8 +
+v @sys.get_capacity 8 @test.assert_eq
+v 9 +
+v @sys.get_capacity 14 @test.assert_eq
+
+{} = m
+m @sys.get_capacity 32 @test.assert_eq
+... 0 -> 25 := i [i = m.(i)]
+m @sys.get_capacity 32 @test.assert_eq
+25 = m.25
+m @sys.get_capacity 64 @test.assert_eq

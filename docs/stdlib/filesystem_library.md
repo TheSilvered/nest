@@ -103,64 +103,6 @@ same file.
 
 ---
 
-### `@extension`
-
-**Synopsis:**
-
-```nest
-[path: Str] @extension -> Str
-```
-
-**Arguments:**
-
-- `path`: the path of a file
-
-**Returns:**
-
-The extension of the file pointed to by `path`.
-
-**Example:**
-
-```nest
-|#| 'stdfs.nest' = fs
-
-'dir/subdir/file.txt' @fs.extension --> '.txt'
-'dir/subdir/file.tar.gz' @fs.extension --> '.gz'
-'dir/subdir/file' @fs.extension --> ''
-'dir/subdir/subdir2' @fs.extension --> ''
-'dir/subdir/subdir2/' @fs.extension --> ''
-```
-
----
-
-### `@filename`
-
-**Synopsis:**
-
-```nest
-[path: Str] @filename -> Str
-```
-
-**Arguments:**
-
-- `path`: the path of a file
-
-**Returns:**
-
-The name of the file `path` points to.
-
-**Example:**
-
-```nest
-|#| 'stdfs.nest' = fs
-
-'dir/subdir/file.txt' @fs.filename --> 'file.txt'
-'dir/subdir/subdir2'  @fs.filename --> 'subdir2'
-'dir/subdir/subdir2/' @fs.filename --> ''
-```
-
----
-
 ### `@is_block_device`
 
 **Synopsis:**
@@ -292,31 +234,6 @@ Checks if a file exists at `path`.
 **Returns:**
 
 `true` if the path is a symlink and `false` otherwise.
-
----
-
-### `@join`
-
-**Synopsis:**
-
-```nest
-[path_1: Str, path_2: Str] @join -> Str
-```
-
-**Description:**
-
-Joins two paths by adding, if needed, a slash between them.
-
-**Arguments:**
-
-- `path_1`: the first path
-- `path_2`: the path to append to `path_1`
-
-**Returns**:
-
-Returns the two paths joint. If `path_2` is an absolute path it is returned
-without any modifications. This function normalizes the slashes after joining:
-on Windows `/` becomes `\` and on Linux `\` becomes `/`.
 
 ---
 
@@ -468,18 +385,114 @@ Creates a new hard link that points either to a file or a directory.
 
 ---
 
-### `@normalize`
+### `@path.extension`
 
 **Synopsis:**
 
 ```nest
-[path: Str] @normalize -> Str
+[path: Str] @path.extension -> Str
+```
+
+**Arguments:**
+
+- `path`: the path of a file
+
+**Returns:**
+
+The extension of the file pointed to by `path`.
+
+**Example:**
+
+```nest
+|#| 'stdfs.nest' = fs
+
+'dir/subdir/file.txt' @fs.path.extension --> '.txt'
+'dir/subdir/file.tar.gz' @fs.path.extension --> '.gz'
+'dir/subdir/file' @fs.path.extension --> ''
+'dir/subdir/subdir2' @fs.path.extension --> ''
+'dir/subdir/subdir2/' @fs.path.extension --> ''
+```
+
+---
+
+### `@path.filename`
+
+**Synopsis:**
+
+```nest
+[path: Str] @path.filename -> Str
+```
+
+**Arguments:**
+
+- `path`: the path of a file
+
+**Returns:**
+
+The name of the file `path` points to.
+
+**Example:**
+
+```nest
+|#| 'stdfs.nest' = fs
+
+'dir/subdir/file.txt' @fs.path.filename --> 'file.txt'
+'dir/subdir/subdir2'  @fs.path.filename --> 'subdir2'
+'dir/subdir/subdir2/' @fs.path.filename --> ''
+```
+
+---
+
+### `@path.join`
+
+**Synopsis:**
+
+```nest
+[path_1: Str, path_2: Str] @path.join -> Str
+```
+
+**Description:**
+
+Joins two paths by adding, if needed, a slash between them. The resulting path
+is normalized.
+
+If `path_2` falls on one of the following cases it will not be joined but
+returned directly:
+
+- it is a Unix absolute path (`/dir`)
+- it is a Windows absolute path (`C:\dir` or `C:/dir`)
+- it is a Windows drive-relative path (`C:dir`)
+- it is a Windows current drive absolute path (`\dir` or `/dir`)
+- it is a Windows extended path (`\\?\C:\dir`)
+
+It will still be normalized as specified in
+[`fs.path.normalize`](#pathnormalize).
+
+**Arguments:**
+
+- `path_1`: the first path
+- `path_2`: the path to append to `path_1`
+
+**Returns**:
+
+Returns the two paths joint.
+
+---
+
+### `@path.normalize`
+
+**Synopsis:**
+
+```nest
+[path: Str] @path.normalize -> Str
 ```
 
 **Description:**
 
 Translates any slashes in the path to the native separators. This means that on
 Windows `/` becomes `\` and on Linux `\` becomes `/`.
+
+If a path begins with `\\?\` that part is not modified.
 
 **Returns:**
 
@@ -492,12 +505,12 @@ The normalized path.
 
 ---
 
-### `@parent_path`
+### `@path.parent`
 
 **Synopsis:**
 
 ```nest
-[path: Str] @parent_path -> Str
+[path: Str] @path.parent -> Str
 ```
 
 **Arguments:**
@@ -513,9 +526,37 @@ The path of the directory where the element is contained.
 ```nest
 |#| 'stdfs.nest' = fs
 
-'dir/subdir/file.txt' @fs.parent_path --> 'dir/subdir'
-'dir/subdir/subdir2'  @fs.parent_path --> 'dir/subdir'
-'dir/subdir/subdir2/' @fs.parent_path --> 'dir/subdir/subdir2'
+'dir/subdir/file.txt' @fs.path.parent --> 'dir/subdir'
+'dir/subdir/subdir2'  @fs.path.parent --> 'dir/subdir'
+'dir/subdir/subdir2/' @fs.path.parent --> 'dir/subdir/subdir2'
+```
+
+---
+
+### `@path.stem`
+
+**Synopsis:**
+
+```nest
+[path: Str] @path.stem -> Str
+```
+
+**Arguments:**
+
+- `path`: the path of a file
+
+**Returns:**
+
+The name of the file `path` points to without the extension.
+
+**Example:**
+
+```nest
+|#| 'stdfs.nest' = fs
+
+'dir/subdir/file.txt' @fs.path.stem --> 'file'
+'dir/subdir/subdir2'  @fs.path.stem --> 'subdir2'
+'dir/subdir/subdir2/' @fs.path.stem --> ''
 ```
 
 ---
@@ -548,12 +589,14 @@ The target of the symlink which may not exist.
 **Synopsis:**
 
 ```nest
-[path: Str, base: Str] @relative_path -> Str
+[path: Str, base: Str?] @relative_path -> Str
 ```
 
 **Description:**
 
-Returns a relative path to `path` using `base` as the starting point.
+Returns a relative path to `path` using `base` as the starting point. If base
+is not given the current working directory is used and if a path is relative it
+will be expanded to an absolute one first.
 
 **Arguments:**
 
@@ -570,61 +613,41 @@ Returns a relative path to `path` using `base` as the starting point.
 
 ---
 
-### `@remove_dir`
+### `@remove`
 
 **Synopsis:**
 
 ```nest
-[path: Str] @remove_dir -> null
+[path: Str] @remove -> null
 ```
 
 **Description:**
 
-Removes a directory at `path` which must be empty. An error is thrown if the
-directory contains any sub directories or files, the path does not point to a
-valid directory or if a system error occurs.
+Removes the filesystem object at `path`. If `path` is a non-empty directory
+the function fails.
 
 **Arguments:**
 
-- `path`: the path of the directory to delete
+- `path`: the path to the filesystem object
 
 ---
 
-### `@remove_dirs`
+### `@remove_all`
 
 **Synopsis:**
 
 ```nest
-[path: Str] @remove_dirs -> null
+[path: Str] @remove_all -> null
 ```
 
 **Description:**
 
-Removes a directory at `path` and all of its contents, throws an error if the
-directory does not exist or a system error occurs.
+Removes the filesystem object at `path`. If `path` points to a non-empty
+directory all its contents will be removed recursively.
 
 **Arguments:**
 
-- `path`: the path of the directory to delete
-
----
-
-### `@remove_file`
-
-**Synopsis:**
-
-```nest
-[path: Str] @remove_file -> null
-```
-
-**Description:**
-
-Removes a file at `path`, throws an error if the file does not exist or a
-system error occurs.
-
-**Arguments:**
-
-- `path`: the path of the file to delete
+- `path`: the path to the filesystem object
 
 ---
 
@@ -648,17 +671,51 @@ exist or if a system error occurs.
 
 ---
 
-### `@_get_copy_options`
+### `@time_creation`
 
 **Synopsis:**
 
 ```nest
-[] @_get_copy_options -> Map
+[path: Str] @time_creation -> Int
 ```
 
 **Returns:**
 
-A new [`CPO`](filesystem_library.md#cpo) map.
+The timestamp of when the element at `path` was created. To get meaningful
+information you can use any of the function in
+[`stdtime.nest`](time_library.md) that accept a timestamp.
+
+---
+
+### `@time_last_access`
+
+**Synopsis:**
+
+```nest
+[path: Str] @time_last_access -> Int
+```
+
+**Returns:**
+
+The timestamp of when the element at `path` was last accessed. To get
+meaningful information you can use any of the function in
+[`stdtime.nest`](time_library.md) that accept a timestamp.
+
+---
+
+### `@time_last_write`
+
+**Synopsis:**
+
+```nest
+[path: Str] @time_last_write -> Int
+```
+
+**Returns:**
+
+The timestamp of when the element at `path` was last modified. To get
+meaningful information you can use any of the function in
+[`stdtime.nest`](time_library.md) that accept a timestamp.
 
 ---
 

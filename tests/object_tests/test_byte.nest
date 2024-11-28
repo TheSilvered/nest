@@ -1,55 +1,308 @@
 |#| '../test_lib.nest' = test
 
-256b 0b @test.assert_eq
--1b 255b @test.assert_eq
-10b 10.0 @test.assert_eq
-?::10b Byte @test.assert_eq
-?::10B Byte @test.assert_eq
-?::0ha Byte @test.assert_eq
+-- Test byte syntax
+
+  -- Decimal
+?::0b Byte @test.assert_eq
+?::1234567890b Byte @test.assert_eq
+?::0001b Byte @test.assert_eq
+?::12_3__456_7890b Byte @test.assert_eq
+?::+0b Byte @test.assert_eq
+?::+1234567890b Byte @test.assert_eq
+?::+0001b Byte @test.assert_eq
+?::+12_3__456_7890b Byte @test.assert_eq
+?::-0b Byte @test.assert_eq
+?::-1234567890b Byte @test.assert_eq
+?::-0001b Byte @test.assert_eq
+?::-12_3__456_7890b Byte @test.assert_eq
+?::0B Byte @test.assert_eq
+?::1234567890B Byte @test.assert_eq
+?::0001B Byte @test.assert_eq
+?::12_3__456_7890B Byte @test.assert_eq
+?::+0B Byte @test.assert_eq
+?::+1234567890B Byte @test.assert_eq
+?::+0001B Byte @test.assert_eq
+?::+12_3__456_7890B Byte @test.assert_eq
+?::-0B Byte @test.assert_eq
+?::-1234567890B Byte @test.assert_eq
+?::-0001B Byte @test.assert_eq
+?::-12_3__456_7890B Byte @test.assert_eq
+  -- Binary (lowercase b)
 ?::0b0b Byte @test.assert_eq
-(Byte :: 'A') (Byte :: '65b') @test.assert_eq
-(Byte :: '0h41') (Byte :: '0b0100_0001b') @test.assert_eq
-(Byte :: '0o101b') (Byte :: '65B') @test.assert_eq
-10b 10b + 20b @test.assert_eq
-20b 10b - 10b @test.assert_eq
-30b 30b * 132b @test.assert_eq
-25b 5b / 5b @test.assert_eq
-##a b [=> a b /] {10b, 0b} @test.assert_raises_error
-7b 3b % 1b @test.assert_eq
-##a b [=> a b %] {10b, 0b} @test.assert_raises_error
-5b 2b ^ 25b @test.assert_eq
-5b 2b | 7b @test.assert_eq
-5b 2b & 0b @test.assert_eq
-5b 2b ^^ 7b @test.assert_eq
-~10b 245b @test.assert_eq
--:1b 255b @test.assert_eq
-'' Byte @test.assert_cast_error
-'  ' Byte @test.assert_cast_error
-' +' Byte @test.assert_cast_error
-' -' Byte @test.assert_cast_error
-'0bb' Byte @test.assert_cast_error
-'0x' Byte @test.assert_cast_error
-'0o' Byte @test.assert_cast_error
-'0O' Byte @test.assert_cast_error
-'0h' Byte @test.assert_cast_error
-'0H' Byte @test.assert_cast_error
-'10' Byte @test.assert_cast_error
-'0b1' Byte @test.assert_cast_error
-'0o34' Byte @test.assert_cast_error
-'ab' Byte @test.assert_cast_error
-'0b2b' Byte @test.assert_cast_error
-'0o9b' Byte @test.assert_cast_error
-'0hgb' Byte @test.assert_cast_error
-'10b a' Byte @test.assert_cast_error
-Byte :: 10 10b @test.assert_eq
-Byte :: 256 0b @test.assert_eq
-Byte :: 10.0 10b @test.assert_eq
-Byte :: 256.0 0b @test.assert_eq
-Byte :: 15.6 15b @test.assert_eq
-Byte :: 15.1 15b @test.assert_eq
-Byte :: 16.0 16b @test.assert_eq
-0b10b 2b @test.assert_eq
-0o2b 0b10b @test.assert_eq
-0ha 0o12b @test.assert_eq
-Bool :: 0b @test.assert_false
-Bool :: 1b @test.assert_true
+?::0b101101b Byte @test.assert_eq
+?::0b0001b Byte @test.assert_eq
+?::0b0_0__01b Byte @test.assert_eq
+?::+0b0b Byte @test.assert_eq
+?::+0b101101b Byte @test.assert_eq
+?::+0b0001b Byte @test.assert_eq
+?::+0b0_0__01b Byte @test.assert_eq
+?::-0b0b Byte @test.assert_eq
+?::-0b101101b Byte @test.assert_eq
+?::-0b0001b Byte @test.assert_eq
+?::-0b0_0__01b Byte @test.assert_eq
+?::0b0B Byte @test.assert_eq
+?::0b101101B Byte @test.assert_eq
+?::0b0001B Byte @test.assert_eq
+?::0b0_0__01B Byte @test.assert_eq
+?::+0b0B Byte @test.assert_eq
+?::+0b101101B Byte @test.assert_eq
+?::+0b0001B Byte @test.assert_eq
+?::+0b0_0__01B Byte @test.assert_eq
+?::-0b0B Byte @test.assert_eq
+?::-0b101101B Byte @test.assert_eq
+?::-0b0001B Byte @test.assert_eq
+?::-0b0_0__01B Byte @test.assert_eq
+  -- Binary (uppercase b)
+?::0B0b Byte @test.assert_eq
+?::0B101101b Byte @test.assert_eq
+?::0B0001b Byte @test.assert_eq
+?::0B0_0__01b Byte @test.assert_eq
+?::+0B0b Byte @test.assert_eq
+?::+0B101101b Byte @test.assert_eq
+?::+0B0001b Byte @test.assert_eq
+?::+0B0_0__01b Byte @test.assert_eq
+?::-0B0b Byte @test.assert_eq
+?::-0B101101b Byte @test.assert_eq
+?::-0B0001b Byte @test.assert_eq
+?::-0B0_0__01b Byte @test.assert_eq
+?::0B0B Byte @test.assert_eq
+?::0B101101B Byte @test.assert_eq
+?::0B0001B Byte @test.assert_eq
+?::0B0_0__01B Byte @test.assert_eq
+?::+0B0B Byte @test.assert_eq
+?::+0B101101B Byte @test.assert_eq
+?::+0B0001B Byte @test.assert_eq
+?::+0B0_0__01B Byte @test.assert_eq
+?::-0B0B Byte @test.assert_eq
+?::-0B101101B Byte @test.assert_eq
+?::-0B0001B Byte @test.assert_eq
+?::-0B0_0__01B Byte @test.assert_eq
+  -- Octal (lowercase o)
+?::0o0b Byte @test.assert_eq
+?::0o12345670b Byte @test.assert_eq
+?::0o000123b Byte @test.assert_eq
+?::0o12__3_45_670b Byte @test.assert_eq
+?::+0o0b Byte @test.assert_eq
+?::+0o12345670b Byte @test.assert_eq
+?::+0o000123b Byte @test.assert_eq
+?::+0o12__3_45_670b Byte @test.assert_eq
+?::-0o0b Byte @test.assert_eq
+?::-0o12345670b Byte @test.assert_eq
+?::-0o000123b Byte @test.assert_eq
+?::-0o12__3_45_670b Byte @test.assert_eq
+?::0o0B Byte @test.assert_eq
+?::0o12345670B Byte @test.assert_eq
+?::0o000123B Byte @test.assert_eq
+?::0o12__3_45_670B Byte @test.assert_eq
+?::+0o0B Byte @test.assert_eq
+?::+0o12345670B Byte @test.assert_eq
+?::+0o000123B Byte @test.assert_eq
+?::+0o12__3_45_670B Byte @test.assert_eq
+?::-0o0B Byte @test.assert_eq
+?::-0o12345670B Byte @test.assert_eq
+?::-0o000123B Byte @test.assert_eq
+?::-0o12__3_45_670B Byte @test.assert_eq
+  -- Octal (uppercase o)
+?::0O0b Byte @test.assert_eq
+?::0O12345670b Byte @test.assert_eq
+?::0O000123b Byte @test.assert_eq
+?::0O12__3_45_670b Byte @test.assert_eq
+?::+0O0b Byte @test.assert_eq
+?::+0O12345670b Byte @test.assert_eq
+?::+0O000123b Byte @test.assert_eq
+?::+0O12__3_45_670b Byte @test.assert_eq
+?::-0O0b Byte @test.assert_eq
+?::-0O12345670b Byte @test.assert_eq
+?::-0O000123b Byte @test.assert_eq
+?::-0O12__3_45_670b Byte @test.assert_eq
+?::0O0B Byte @test.assert_eq
+?::0O12345670B Byte @test.assert_eq
+?::0O000123B Byte @test.assert_eq
+?::0O12__3_45_670B Byte @test.assert_eq
+?::+0O0B Byte @test.assert_eq
+?::+0O12345670B Byte @test.assert_eq
+?::+0O000123B Byte @test.assert_eq
+?::+0O12__3_45_670B Byte @test.assert_eq
+?::-0O0B Byte @test.assert_eq
+?::-0O12345670B Byte @test.assert_eq
+?::-0O000123B Byte @test.assert_eq
+?::-0O12__3_45_670B Byte @test.assert_eq
+  -- Hexadecimal (lowercase h and digits)
+?::0h0 Byte @test.assert_eq
+?::0h1234567890abcdef Byte @test.assert_eq
+?::0h00000abc Byte @test.assert_eq
+?::0h00_000__a_bc Byte @test.assert_eq
+?::+0h0 Byte @test.assert_eq
+?::+0h1234567890abcdef Byte @test.assert_eq
+?::+0h00000abc Byte @test.assert_eq
+?::+0h00_000__a_bc Byte @test.assert_eq
+?::-0h0 Byte @test.assert_eq
+?::-0h1234567890abcdef Byte @test.assert_eq
+?::-0h00000abc Byte @test.assert_eq
+?::-0h00_000__a_bc Byte @test.assert_eq
+  -- Hexadecimal (uppercase h and lowercase digits)
+?::0H0 Byte @test.assert_eq
+?::0H1234567890abcdef Byte @test.assert_eq
+?::0H00000abc Byte @test.assert_eq
+?::0H00_000__a_bc Byte @test.assert_eq
+?::+0H0 Byte @test.assert_eq
+?::+0H1234567890abcdef Byte @test.assert_eq
+?::+0H00000abc Byte @test.assert_eq
+?::+0H00_000__a_bc Byte @test.assert_eq
+?::-0H0 Byte @test.assert_eq
+?::-0H1234567890abcdef Byte @test.assert_eq
+?::-0H00000abc Byte @test.assert_eq
+?::-0H00_000__a_bc Byte @test.assert_eq
+  -- Hexadecimal (lowercase x and uppercase digits)
+?::0h1234567890ABCDEF Byte @test.assert_eq
+?::0h00000ABC Byte @test.assert_eq
+?::0h00_000__A_BC Byte @test.assert_eq
+?::+0h1234567890ABCDEF Byte @test.assert_eq
+?::+0h00000ABC Byte @test.assert_eq
+?::+0h00_000__A_BC Byte @test.assert_eq
+?::-0h1234567890ABCDEF Byte @test.assert_eq
+?::-0h00000ABC Byte @test.assert_eq
+?::-0h00_000__A_BC Byte @test.assert_eq
+  -- Hexadecimal (uppercase x and digits)
+?::0H1234567890ABCDEF Byte @test.assert_eq
+?::0H00000ABC Byte @test.assert_eq
+?::0H00_000__A_BC Byte @test.assert_eq
+?::+0H1234567890ABCDEF Byte @test.assert_eq
+?::+0H00000ABC Byte @test.assert_eq
+?::+0H00_000__A_BC Byte @test.assert_eq
+?::-0H1234567890ABCDEF Byte @test.assert_eq
+?::-0H00000ABC Byte @test.assert_eq
+?::-0H00_000__A_BC Byte @test.assert_eq
+
+  -- Test byte limits & wrapping
+?::255b Byte @test.assert_eq
+?::0b Byte @test.assert_eq
+-1b 255b @test.assert_eq
+-2b 254b @test.assert_eq
+256b 0b @test.assert_eq
+257b 1b @test.assert_eq
+
+-- Test '=='
+1b 1b == @test.assert_true
+1b 1 == @test.assert_true
+1b 1.0 == @test.assert_true
+1b 2b == @test.assert_false
+1b 2 == @test.assert_false
+1b -1.0 == @test.assert_false
+0b 0b == @test.assert_true
+0b 0 == @test.assert_true
+0b 0.0 == @test.assert_true
+
+-- Test '>'
+1b 1b > @test.assert_false
+1b 1 > @test.assert_false
+1b 1.0 > @test.assert_false
+0b 1b > @test.assert_false
+0b 1 > @test.assert_false
+0b 1.0 > @test.assert_false
+1b 0b > @test.assert_true
+1b 0 > @test.assert_true
+1b 0.0 > @test.assert_true
+
+-- Test '<'
+1b 1b < @test.assert_false
+1b 1 < @test.assert_false
+1b 1.0 < @test.assert_false
+0b 1b < @test.assert_true
+0b 1 < @test.assert_true
+0b 1.0 < @test.assert_true
+1b 0b < @test.assert_false
+1b 0 < @test.assert_false
+1b 0.0 < @test.assert_false
+
+-- Test '+'
+1b 1b + 2b @test.assert_eq
+1b 1 + 2 @test.assert_eq
+?::(1b 1 +) Int @test.assert_eq
+1b 1.0 + 2.0 @test.assert_eq
+?::(1b 1.0 +) Real @test.assert_eq
+
+-- Test '-'
+1b 1b - 0b @test.assert_eq
+1b 1 - 0 @test.assert_eq
+?::(1b 1 -) Int @test.assert_eq
+1b 1.0 - 0.0 @test.assert_eq
+?::(1b 1.0 -) Real @test.assert_eq
+
+-- Test '*'
+1b 1b * 1b @test.assert_eq
+1b 1 * 1 @test.assert_eq
+?::(1b 1 *) Int @test.assert_eq
+1b 1.0 * 1.0 @test.assert_eq
+?::(1b 1.0 *) Real @test.assert_eq
+
+-- Test '/'
+6b 2b / 3b @test.assert_eq
+6b 2 / 3 @test.assert_eq
+?::(6b 2 /) Int @test.assert_eq
+6b 2.0 / 3.0 @test.assert_eq
+?::(6b 2.0 /) Real @test.assert_eq
+## a [=> a 0b /] {1b} @test.assert_raises_error
+## a [=> a 0b /] {0b} @test.assert_raises_error
+
+-- Test '^'
+2b 3b ^ 8b @test.assert_eq
+2b 3 ^ 8 @test.assert_eq
+?::(2b 3 ^) Int @test.assert_eq
+2b 3.0 ^ 8.0 @test.assert_eq
+?::(2b 3.0 ^) Real @test.assert_eq
+
+-- Test '%'
+6b 2b % 0b @test.assert_eq
+6b 2 % 0 @test.assert_eq
+?::(6b 2 %) Int @test.assert_eq
+6b 2.0 % 0.0 @test.assert_eq
+?::(6b 2.0 %) Real @test.assert_eq
+## a [=> a 0b %] {1b} @test.assert_raises_error
+## a [=> a 0b %] {0b} @test.assert_raises_error
+
+-- Test '|'
+0b1001b 0b1100b | 0b1101b @test.assert_eq
+0b1001b 0b1100 | 0b1101 @test.assert_eq
+?::(0b1001b 0b1100 |) Int @test.assert_eq
+
+-- Test '&'
+0b1001b 0b1100b & 0b1000b @test.assert_eq
+0b1001b 0b1100 & 0b1000 @test.assert_eq
+?::(0b1001b 0b1100 &) Int @test.assert_eq
+
+-- Test '^^'
+0b1001b 0b1100b ^^ 0b0101b @test.assert_eq
+0b1001b 0b1100 ^^ 0b0101 @test.assert_eq
+?::(0b1001b 0b1100 ^^) Int @test.assert_eq
+
+-- Test '>>'
+0b1010b 1b >> 0b101b @test.assert_eq
+0b1010b 1 >> 0b101b @test.assert_eq
+?::(0b1010b 1 >>) Int @test.assert_eq
+
+-- Test '<<'
+0b1010b 1b << 0b10100b @test.assert_eq
+0b1010b 1 << 0b10100b @test.assert_eq
+?::(0b1010b 1 <<) Int @test.assert_eq
+
+-- Test '::'
+Str :: 0b '\0' @test.assert_eq
+Str :: 32b ' ' @test.assert_eq
+Str :: 65b 'A' @test.assert_eq
+Str :: 232b 'è' @test.assert_eq -- above 0x7f (two utf8 bytes)
+
+Bool :: 0b false @test.assert_eq
+Bool :: 1b true @test.assert_eq
+Bool :: 255b true @test.assert_eq
+Bool :: 256b false @test.assert_eq
+
+Int :: 0b 0 @test.assert_eq
+Int :: 10b 10 @test.assert_eq
+Int :: 255b 255 @test.assert_eq
+Int :: 256b 0 @test.assert_eq
+
+Real :: 0b 0.0 @test.assert_eq
+Real :: 10b 10.0 @test.assert_eq
+Real :: 255b 255.0 @test.assert_eq
+Real :: 256b 0.0 @test.assert_eq

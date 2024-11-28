@@ -1,3 +1,212 @@
+## 0.15.0
+
+**Nest can now be compiled with `clang`!** Check `make help` for more info.
+
+### Nest
+
+**Additions**
+
+- added `is_space`, `lremove`, `rremove` and `rsplit` to `stdsutil.nest`
+- added `del_env` and `get_capacity` to `stdsys.nest`
+- added `enum` to `stdsequtil.nest`
+- added `batch` and `batch_padded` to `stditutil.nest`
+- added `std.nest`, a file that imports all the standard library available under standard import names (e.g. `std.io.println`)
+- added `set_option`, `get_option`, `clear_options` and `OPTION` to `stdjson.nest`
+- added `_debug_` and `_debug_arch_` predefined variables when compiling in debug mode, `_debug_` is set to `true` and `_debug_arch_` is set to `x64` on 64-bit platforms and `x86` on 32-bit ones
+- added `reverse` and `reverse_i` to `stdsequtil.nest`
+- added `rsplit` to `stdsutil.nest`
+- added `fmt` to `stdsutil.nest` to format values
+- added `encoding_info` to `stdcodecs.nest`
+- merged `get_fpi` and `move_fpi` into `seek`
+- added `time_creation`, `time_last_access` and `time_last_write` to `stdfs.nest`
+- added `path.stem` to `stdfs.nest`
+
+**Changes**
+
+- now line endings will be ignored when the expression should not end, this includes the following cases:
+  - the condition of while and do-while loops
+  - the number of repeats in for loops
+  - the iterator in for-as loops
+  - the expression and the cases in switch statements
+  - expressions inside parenthesis
+  - inside maps, vectors and arrays
+  - when a line ends with a local-stack operator
+- changed the file object to string cast from `<IOFile ----- >` to `<IOFile[-----]>`
+- renamed `putenv` in `stdsys.nest` to `set_env` and added an optional argument `overwrite`
+- renamed `getenv` in `stdsys.nest` to `get_env`
+- now `relative_path` in `stdfs.nest` will use the current working directory if no base is given
+- renamed `pause` to `yield` in `stdco.nest`
+- now the `args` argument of `co.call` is returned by `co.yield` when the function resumes
+- now `co.generator` accepts a second argument which is the arguments to use when calling the function
+- now `err.try` will accept fewer arguments than the function requires
+- removed `get_options`, `set_options` and `OPTIONS` in `stdjson.nest`
+- renamed `_get_cwd` and `_set_cwd` to `get_cwd` and `set_cwd` in `stdsys.nest`
+- removed `reversed` from `stditutil.nest`
+- improved execution times and output printing
+- now when pressing `Ctrl-C` an error is thrown rather than the process exiting, this error cannot be caught with a normal try-catch statement but `err.try` is needed
+- renamed `su.split` to `su.lsplit`
+- reverted the merging of `su.ljust` and `su.rjust` into `su.justify`, now they are again two separate functions
+- renamed `su.center` to `su.cjust`
+- now when a string is not closed only the end is highlighted rather than the whole string
+- now the second argument of `itu.repeat` is optional and it will repeat infinitely if not given, it would repeat infinitely even if the number was negative even if it was not specified in the documentation
+- added `timestamp` argument to many `stdtime.nest` functions
+- renamed `hours`, `minutes` and `seconds` to `hour`, `minute` and `second`
+- reorganized `extension`, `filename`, `join`, `normalize` and `parent_path` to be inside `path` in `stdfs.nest`
+- removed `remove_dir`, `remove_dirs` and `remove_file` in favor of `remove` and `remove_all`
+
+**Bug fixes**
+
+- fixed a crash that occurred when casting a `IOFile` object to a `Str`
+- fixed a crash that occurred when using `co.pause` inside an expression
+- now months are counted from `1` in `stdtime.nest`
+- fixed an infinite loop when trying to optimize changed jumps
+- fixed `su.lfind` and `su.rfind` that did not work with non-ASCII characters
+- fixed `su.center` causing a crash with a negative width
+- fixed `su.trim`, `su.ltrim` and `su.rtrim` not working with NUL characters
+- fixed `su.is_title` returning an incorrect value when a word had a character that was not a space or a letter before it
+- fixed `itu.cycle` not working with Unicode strings
+- fixed `itu.chain` not resetting correctly after being iterated over the first time
+- fixed many memory leaks
+- fixed `cp-1251`, `utf32`, `latin1` encodings not working properly
+- fixed `utf32` encoding name
+- fixed encoding on `utf16`, `utf16le` and `utf16be` for `U+FFFF`
+- fixed various bugs with virtual files
+- now `io.get_flags`, `io.can_read`, `io.can_write`, `io.is_bin`, `io.can_seek` and `io.is_a_tty` will throw an error if the file is closed
+- now `fs.path.normalize` will no longer normalize `\\?\` at the beginning of a path
+- now `fs.path.join` will not add a slash if the first path is an empty string
+- fixed `Real` and `Int` to `Byte` casts not working properly
+
+### C API
+
+**Additions**
+
+- added `Nst_ErrorKind` enum
+- added `Nst_error_add_positions` to add a pair of positions to a traceback
+- added `Nst_IntrState` struct
+- added `Nst_gstate_get_es` and `Nst_state_set_es`
+- added `runner.h` along with the following functions:
+  - `Nst_es_init`
+  - `Nst_es_destroy`
+  - `Nst_es_init_vt`
+  - `Nst_execute`
+  - `Nst_es_set_cwd`
+  - `Nst_es_push_module`
+  - `Nst_es_push_func`
+  - `Nst_es_push_paused_coroutine`
+  - `Nst_es_force_function_end`
+- added `Nst_cl_args_init`
+- added `_Nst_override_supports_color`
+- added `_Nst_EM_WRONG_ARG_NUM_FMT` macro to format correctly wrong argument numbers
+- added `Nst_init`, `Nst_quit` and `Nst_was_init`
+- added `Nst_assert` and `Nst_assert_c` to make assertions
+- added `Nst_string_char_len` and `Nst_string_utf8_char_len`
+- added `Nst_inst_list_new`
+- new parser, added many new node-related elements
+  - `Nst_SeqNodeType`, `Nst_NodeData_Ac`, `Nst_NodeData_As`, `Nst_NodeData_Ca`, `Nst_NodeData_Cs`, `Nst_NodeData_Ex`, `Nst_NodeData_Fd`, `Nst_NodeData_Fl`, `Nst_NodeData_Ie`, `Nst_NodeData_Lo`, `Nst_NodeData_Ls`, `Nst_NodeData_Ml`, `Nst_NodeData_Rt`, `Nst_NodeData_Sl`, `Nst_NodeData_So`, `Nst_NodeData_Sw`, `Nst_NodeData_Tc`, `Nst_NodeData_Vl`, `Nst_NodeData_We`, `Nst_NodeData_Wl`, `Nst_NodeData_Ws`
+  - `_Nst_node_ac_destroy`, `_Nst_node_ac_init`, `_Nst_node_as_destroy`, `_Nst_node_as_init`, `_Nst_node_ca_destroy`, `_Nst_node_ca_init`, `_Nst_node_cs_destroy`, `_Nst_node_cs_init`, `_Nst_node_ex_destroy`, `_Nst_node_ex_init`, `_Nst_node_fd_destroy`, `_Nst_node_fd_init`, `_Nst_node_fl_destroy`, `_Nst_node_fl_init`, `_Nst_node_ie_destroy`, `_Nst_node_ie_init`, `_Nst_node_lo_destroy`, `_Nst_node_lo_init`, `_Nst_node_ls_destroy`, `_Nst_node_ls_init`, `_Nst_node_ml_destroy`, `_Nst_node_ml_init`, `_Nst_node_rt_destroy`, `_Nst_node_rt_init`, `_Nst_node_sl_destroy`, `_Nst_node_sl_init`, `_Nst_node_so_destroy`, `_Nst_node_so_init`, `_Nst_node_sw_destroy`, `_Nst_node_sw_init`, `_Nst_node_tc_destroy`, `_Nst_node_tc_init`, `_Nst_node_vl_destroy`, `_Nst_node_vl_init`, `_Nst_node_we_destroy`, `_Nst_node_we_init`, `_Nst_node_wl_destroy`, `_Nst_node_wl_init`, `_Nst_node_ws_destroy`, `_Nst_node_ws_init`
+  - `Nst_print_node`
+- added `Nst_sbuffer_at`, `Nst_sbuffer_pop` and `Nst_sbuffer_shrink_auto`
+- added `Nst_VERSION_MAJOR`, `Nst_VERSION_MINOR` and `Nst_VERSION_PATCH` definitions
+- added `Nst_DECLR_END`
+- added `Nst_ConstFunc`
+- added `Nst_memset`
+- added `Nst_fmt`, `Nst_vfmt` and `Nst_fmt_objs`
+- added `Nst_MSVC`, `Nst_GCC` and `Nst_CLANG`
+
+**Changes**
+
+_New program execution system_:
+
+Programs have been decoupled from the interpreter. Now any program can be executed by setting the `es` field (of type `Nst_ExecutionState`) of the global `Nst_IntrState`. All the information needed to execute a program is saved in the `Nst_ExecutionState` struct and this can be swapped into the interpreter when no recursive calls are active and it allows to execute a completely different program where it was left off.
+
+_New error handling system_:
+
+Previously errors were handled in a very messy way. There was `Nst_Error` which was used internally, `Nst_OpErr` which was used by libraries and `Nst_Traceback` which was used during execution. Now interpreter and program execution are separate and because of this the interpreter state can be initialized well before anything is executed on it. This removes the need for `Nst_Error` and `Nst_OpErr` which are replaced in the new `Nst_ExecutionState` and `Nst_IntrState` by a `Nst_Traceback` field that contains all the information needed.
+
+_General changes_:
+
+- removed `error` parameter from `Nst_compile`
+- removed `Nst_Error` and `Nst_OpErr` structs
+- replaced the `error` field in `Nst_Traceback` with `error_occurred`, `error_name` and `error_msg`
+- removed `Nst_print_error`
+- changed `Nst_print_traceback` to take a pointer instead of a plain traceback
+- changed `Nst_error_occurred` to return a `Nst_ErrorKind` instead of a `bool`
+- changed `Nst_error_get` to return a `Nst_Traceback` instead of a `Nst_OpErr`
+- changed all `Nst_set_internal_*` functions to get a `Nst_Traceback` instead of a `Nst_Error` for the first argument
+- removed `Nst_set_internal_error_from_op_err`
+- changed `Nst_get_state` to return `Nst_IntrState`
+- changed `Nst_ExecutionState` to now only contain information about the running program
+- removed `error` argument from `Nst_tokenizef`, `Nst_tokenize` and `Nst_normalize_encoding`
+- removed `error` argument from `Nst_optimize_ast` and `Nst_optimize_bytecode`
+- removed `error` argument from `Nst_parse`
+- renamed `Nst_ggc_init` to `_Nst_ggc_init`
+- added `v_stack` argument to
+  - `Nst_vstack_init`
+  - `Nst_vstack_push`
+  - `_Nst_vstack_push`
+  - `Nst_vstack_pop`
+  - `Nst_vstack_peek`
+  - `Nst_vstack_dup`
+  - `Nst_vstack_destroy`
+- added `f_stack` argument to
+  - `Nst_fstack_init`
+  - `Nst_fstack_push`
+  - `Nst_fstack_pop`
+  - `Nst_fstack_peek`
+  - `Nst_fstack_destroy`
+- combined `func`, `call_start`, `call_end`, `vt`, `idx` and `cstack_size` arguments of `Nst_fstack_push` into `call`
+- added `c_stack` argument to
+  - `Nst_cstack_init`
+  - `Nst_cstack_push`
+  - `Nst_cstack_peek`
+  - `Nst_cstack_pop`
+  - `Nst_cstack_destroy`
+- combined `inst_idx`, `v_stack_size` and `f_stack_size` arguments of `Nst_cstack_push` into `frame`
+- renamed `Nst_ggc_delete_objs` to `_Nst_ggc_delete_objs`
+- removed `_Nst_unload_libs`
+- removed `argc` and `argv` arguments from `_Nst_parse_args`
+- added `arg_num` argument to `Nst_call_func`
+- renamed `Nst_run_func_context` to `Nst_run_paused_coroutine` and modified its arguments
+- removed `Nst_state_init` and `Nst_state_free`
+- renamed `Nst_ENDIANNESS` to `Nst_BYTEORDER`
+- renamed `Nst_IC_NEW_OBJ` to `Nst_IC_NEW_INT`
+- replaced `Nst_IC_FOR_IS_DONE` with `Nst_IC_JUMPIF_IEND`
+- removed `Nst_print_ast`
+- renamed `Nst_RETURN_COND` to `Nst_RETURN_BOOL`
+- removed `Nst_FUNC_SIGN` and `Nst_DEF_EXTRACT`
+- removed `get_func_ptrs` from libraries, now `lib_init` returns the function pointers
+- removed `Nst_DeclrList` and renamed `Nst_ObjDeclr` to `Nst_Declr`
+- renamed `Nst_MAKE_FUNCDECLR` to `Nst_FUNCDECLR`
+- renamed `Nst_MAKE_NAMED_FUNCDECLR` to `Nst_NAMED_FUNCDECLR`
+- renamed `Nst_MAKE_OBJDECLR` to `Nst_CONSTDECLR`
+- renamed `Nst_MAKE_NAMED_OBJDECLR` to `Nst_NAMED_CONSTDECLR`
+- renamed many functions to better fit the naming style:
+  - `_Nst_parse_args` to `_Nst_cl_args_parse`
+  - `_Nst_override_supports_color` to `_Nst_supports_color_override`
+  - `_Nst_set_console_mode` to `_Nst_console_mode_init`
+  - `Nst_print_bytecode` to `Nst_inst_list_print`
+  - `_Nst_init_objects` to `_Nst_globals_init`
+  - `_Nst_del_objects` to `_Nst_globals_quit`
+  - `_Nst_call_func` to `_Nst_func_call`
+  - `_Nst_get_state` to `_Nst_state_get`
+  - all `Nst_string_*` to `Nst_str_*`
+- macros to check token type ranges have been made private
+- removed `Nst_WIN` in favor of `Nst_MSVC`
+- renamed `Nst_GNU_FMT` to `Nst_NIX_FMT` since it is used with clang too
+- renamed `true_len` field in strings to `char_len`
+
+**Bug fixes**
+
+- fixed `Nst_obj_eq_c` and `Nst_obj_ne_c` leaving a dangling reference of the resulting boolean object
+- fixed type objects not being freed properly
+- fixed many constants not being destroyed at the end of the program
+- fixed a possible read-after-free bug in the garbage collector
+- now the standard library is imported when running Nest on Windows in `x86` debug mode
+- fixed the value store in `ill_encoded_byte` retrieved with `Nst_io_result_get_details`
+- fixed `Nst_str_copy` that swapped `true_len` and `len`
+
+---
+
 ## 0.14.0
 
 ### Nest
@@ -10,7 +219,7 @@
 - added `inf_and_nan` option to `stdjson.nest` to allow for `NaN` and `Infinity` to be treated as numeric literals
 - added `is_inf` and `is_nan` functions to `stdmath.nest`
 - added the 'contains' stack operator `<.>` to check if an object is inside another
-- added `read_symlink` functio to `stdfs.nest`
+- added `read_symlink` function to `stdfs.nest`
 - added `gmt_date` to `stdtime.nest`
 
 **Changes**
@@ -40,7 +249,7 @@
 - fixed incorrect behaviour of `sequ.slice` on some occasions
 - fixed a crash that occurred when an error was thrown inside a function in `sequ.rscan`
 - fixed `json.load_f` and `json.dump_f` not working correctly with UTF-8 file names on Windows
-- fixed Nest not finding files with non-ASCII charcters (both command-line and libraries) on Windows
+- fixed Nest not finding files with non-ASCII characters (both command-line and libraries) on Windows
 - fixed `su.is_charset` returning an incorrect result on some non-ASCII strings (e.g. `'à' 'èĠ' @su.is_charset` now returns `false`, before it would return `true`)
 - fixed `io.println` not printing the full string if it contained a NUL character
 - fixed some errors passing silently through `io.println`
@@ -49,7 +258,7 @@
 - fixed `CP-1250` encoding not working
 - fixed `join` in `stdsutil.nest` causing a `Memory Error` if the passed sequence was empty
 - fixed `rtrim` and `trim` in `stdsutil.nest` that if used could later cause crashes
-- fixed iterating through strings and creating sequences from strings that contain unicode characters which would create invalid strings
+- fixed iterating through strings and creating sequences from strings that contain Unicode characters which would create invalid strings
 - fixed many inconsistencies between the documentation and the functions in the standard library
 - fixed `<` and `>` sometimes not working correctly with non-ASCII characters
 - fixed octal escapes higher than `\177` not working and possibly causing a crash
@@ -70,7 +279,7 @@
 - added `Nst_FLAG` macro to create the value of the flag of an object
 - added `indexable_str` and `true_len` fields to `Nst_StrObj`.
 - added `Nst_string_new_len` to create strings with a known character length
-- added `Nst_string_get_next_ch` to iterate over a string's characters without generaing the `indexable_str` field
+- added `Nst_string_get_next_ch` to iterate over a string's characters without generating the `indexable_str` field
 - added `Nst_FLAG_STR_IS_ASCII`, `Nst_FLAG_STR_INDEX_16`, `Nst_FLAG_STR_INDEX_32` and `Nst_FLAG_STR_CAN_INDEX` variants to `Nst_StrFlags`
 - added `Nst_seq_copy` and `_Nst_seq_copy` to create a shallow copy of sequences
 - added `Nst_map_copy` and `_Nst_map_copy` to create a shallow copy of a map
@@ -101,7 +310,7 @@
 - removed `Nst_iter_range_is_done`, `Nst_iter_seq_is_done`, `Nst_iter_str_is_done` and `Nst_iter_map_is_done`
 - now type shorthands for `Nst_extract_arg_values` that are part of type unions will not cast the object automatically
 - renamed `_Nst_string_get_next_ch` and `Nst_string_get_next_ch` to `_Nst_string_next_ch` and `Nst_string_next_ch` respectively
-- optimized exponentation
+- optimized exponentiation
 - rename `_Nst_VECTOR_MIN_SIZE` to `_Nst_VECTOR_MIN_CAP`
 
 **Bug fixes**
@@ -245,8 +454,6 @@
 - fixed `<<<` having a weird behaviour
 - fixed many functions in `stdfs.nest`, `stdsys.nest` and `stdio.nest` not supporting unicode strings on Windows
 
----
-
 ### C API
 
 **Additions**
@@ -386,6 +593,8 @@
 
 ## 0.11.0
 
+### Nest
+
 **Additions**
 
 - added `\u` and `\U` string escapes
@@ -430,3 +639,530 @@
 - fixed `Func` to `Str` cast using 'vars' instead of 'var' when the function only accepted one argument
 - fixed error printing when a file that had its new lines changed from CRLF to LF and an error occurred on the last line
 - fixed repr of strings containing unprintable characters being incorrect and possibly causing crashes
+
+---
+
+## 0.9.2
+
+### Nest
+
+**Changes**
+
+- now `&&` and `||` work consistently always returning either the first false element (for `&&`) or the first true element (for `||`)
+  ```text
+  0 10 || --> 10
+  0 10 && --> 0
+  ```
+- added a custom syntax to create an empty array: `{,}`, changed the string cast of an empty array to `{,}`
+
+**Bug Fixes**
+
+- fixed the end position of value tokens containing a `Real`
+- fixed many crashes reguarding coroutines
+
+---
+
+## 0.9.1
+
+### Nest
+
+**Changes**
+
+- improved many casts to `Str`:
+  - `IOFile`s now show their flags
+  - arrays, vectors and maps, when empty no longer have a space between the opening and closing brackets (`{ }` becomes `{}`)
+  - recursive vector references now use `<{.}>` instead of `{.}`
+  - if the object does not have a custom cast, it now shows its address in memory (`Str :: (0 -> 10)` can return `<Iter object at 0x00000206A188B8D0>`)
+  - now functions show their number of arguments (`Str :: (## a b [])` returns `<Func 2 args>`)
+- improved import speed when importing a large number of modules and libraries
+
+**Bug Fixes**
+
+- fixed a crash or incorrect behaviour when comparing two almost identical strings where one has an extra `\0` character at the end
+- fixed a crash when passing an empty sequence to `min_seq` or `max_seq` in `stdmath.nest`
+
+---
+
+## 0.9.0
+
+### Nest
+
+**Changes**
+
+- added `generator` to `stdco.nest`
+- added `virtual_iof`, `get_flags`, `_set_stdin`, `_set_stdout` and `_set_stderr` to `stdio.nest`, now stdin, stdout and stderr can be redirected to other files
+- now `=>` no longer requires an expression after it, instead it will return `null`
+- now casting an `IOFile` to a `Bool` will return `true` if the file is open and `false` otherwise
+- now negative steps in `sequ.slice` are allowed and do not just return an empty sequence
+- removed `from_iter` from `stdsequtil.nest` as it can be replaced with a cast to a vector
+- now functions can be written like lambdas, with a signle expression, and lambdas can be written with a block:
+  ```
+  #add a b => a b +
+
+  ##a b [
+      >>> (a ' + ' b '\n' ><)
+      => a b +
+  ] = add_with_print
+  ```
+- now error messages will always show the full path to the file
+- added the following type casts:
+  -  `Map` to `Vector`
+  - `Map` to `Array`
+  - `Array` to `Map`
+  - `Vector` to `Map`
+  - `Iter` to `Vector`
+  - `Iter` to `Array`
+  - `Iter` to `Map`
+  - `Real` to `Byte`
+
+**Bug Fixes**
+
+- fixed a crash that occurred when calling a coroutine while it was running, now an error is thrown instead
+- fixed `rb+`, `r+b`, `wb+`, `w+b`, `ab+` and `a+b` in `io.open` being considered invalid file modes
+- fixed a crash caused by `shrink_stack` not allocating enough memory
+- fixed a crash caused by having a step of 0 in `sequ.slice`
+- fixed an infinite loop that could occur when a switch statement of an imported file was not closed properly and then a file with a continue statement outside a loop was imported
+
+---
+
+## 0.8.0
+
+### Nest
+
+**Changes**
+
+- **added Linux support!**
+- added the unpacking assignment that can be written with curly braces: `{ 1, 2 } = { a, b }`, it also works in for-as loops
+- added the sequence call operator (`*@`) that allows you to call a function passing the arguments as a sequence
+- renamed `rand_seed` to `seed` in `stdrand.nest`
+- added `canonical_path`, `relative_path`, `join`, `path`, `filename` and `extension` functions to `stdfs.nest`
+- added `hypot` to `stdmath.nest`
+
+**Bug Fixes**
+
+- comparison operators no longer execute more than once each expression, the following code now prints `Called` only once where before it would be printed twice:
+  ```
+  #f [
+      >>> 'Called\n'
+      => 2
+  ]
+
+  1 @@f 3 <
+  ```
+- now all line endings (`\n`, `\r\n` or `\r`) are parsed correctly
+
+---
+
+## 0.7.3
+
+### Nest
+
+**Changes**
+
+- added `gcd`, `lcm`, `gcd_seq`, `lcm_seq` and `abs` to `stdmath.nest`
+- the keys in the map returned by `clock_time` and `gmt_clock_time` now are `hour`, `minute` and `second` instead of `hours`, `minutes` and `seconds`
+- now runtime stacks (value stack, call stack and catch stack) shrink when they are small enough, before they could only grow
+
+**Bug Fixes**
+
+- now the process ends with exit code 1 when an error occurs
+- now `-O3` will not optimize built-in constants if they are repurpused in any scope or if they might be changed through `_vars_` or `_globals_`, now the code will not change its behaviour if you have this enabled
+  The following code before would have given different results depending on the optimization level, now everyghing is coherent:
+  ```
+  'true' = a
+  false = _vars_.(a)
+  >>> true
+  ```
+- when vectors are shrinked the program no longer crashes
+
+---
+
+## 0.7.2
+
+### Nest
+
+**Changes**
+
+- now random numbers are generated in the range [-2^63, 2^63) using the Mersenne Twister algorithm, because of this `RAND_MAX` has been removed from `stdrand.nest`
+
+**Bug Fixes**
+
+- fixed `0o` being read as `0b`, now a syntax error is correctly thrown
+- fixed hexadecimal literals skipping the next character in the code while lexing (`0 = var [] 0xabc(var +` was valid)
+- fixed error positions on some numeric literals where the end was one column off
+- fixed a crash that occurred when there was no identifier after `#`
+- fixed a crash that occurred when there was a missing `}` or `}>` on repeated sequences
+- fixed error message on for loops missing `]`, it now says `unmatched '['` instead of `unexpected token`
+- fixed error messages for extractions and container assignments showing the wrong types
+- fixed error positions for container assignments
+- fixed error printing when there was an indented line
+
+---
+
+## 0.7.1
+
+### Nest
+
+**Changes**
+
+- added `zipn` in `stditutil.nest` to simultaiously iterate over an arbitrary number of sequences
+- now if-expressions use less instructions when both cases return `null`
+- removed multiline comment spaces in the Sublime Text plugin
+
+**Bug fixes**
+
+- fixed `replace_substr` in `stdsutil.nest` that would sometimes crash
+- fixed a crash when an error occurred during the optimization of the bytecode
+
+---
+
+## 0.7.0
+
+### Nest
+
+**Changes**
+
+- Added `stdco.nest` library to create and run coroutines
+- Added `starts_with`, `ends_with` and `str_to_bytearray` in `stdsutil.nest`
+- Improved error printing on multiple lines
+- Printing a lot of lines when printing errors is now much faster
+- added binary, octal and hexadecimal integer literals and scientific notation for real literals
+  - to write bytes with hexadecimal integer start with `0h` instead of `0x`
+  - scientific notation still needs a literal with a decimal point and digitds on both sides
+- now underscores (`_`) can be added inside numbers to make them more legible (`100_000_000`)
+- changed "Add to PATH variable" to "Add to PATH environment variable" in the installer
+- now `clock_time`, `gmt_clock_time`, `clock_datetime` and `gmt_clock_datetime` insert the keys from the least specifit to the most specific, for example calling `dt.clock_time` will now return `{ 'hours': 17, 'minutes': 32, 'seconds': 59 }` instead of `{ 'seconds': 59, 'minutes': 32, 'hours': 17 }`
+- added operators when displaying bytecode
+- now the bytecode of large programs is displayed faster
+
+**Bug fixes**
+
+- fixed a crash that happened when an error occurred inside a call from a C function
+- fixed the indentation of carets when pointing to an indented error
+- now when executing code from the `-c` argument no path is added to the import stack
+- fixed crashes caused by the garbage collector deleting still reachable objects
+- fixed `slice` in `stdsequtil` that would crash in many occasions
+- fixed `contains` in `stdsequtil` that would crash when returning a type error
+
+---
+
+## 0.6.3
+
+### Nest
+
+### Fixes
+
+- fixed a lot of memory leaks
+- fixed maps causing a crash when iterated on after changing one of the middle keys
+- fixed circular import error reporting showing twice the lines of the first file
+- optimized `replace_substr` in `stdsutil.nest`
+- fixed `sort` in `stdsequtil.nest` sometimes causing a crash
+
+---
+
+## 0.6.2
+
+### Nest
+
+**Changes**
+
+- now you can have new lines before and after the expression in loops
+
+### Fixes
+
+- now functions defined in the main file access the variable of the file they were defined and not the file where they were called
+- fixed maps not always decreasing the reference count of the keys when destroyed
+- slight performance improvements
+- try-catch no longer leaves values behind
+- fixed if expression not setting a value when a statement does not return one
+
+---
+
+## 0.6.1
+
+### Nest
+
+**Changes**
+
+- added the '!!' operator to throw an error and removed the `throw` function from `stderr.nest`
+- added the try-catch statement but kept the `try` function as it gives more details on the error
+- added some optimizations to the bytecode
+
+**Bug fixes**
+
+- fixed the `try` function not working
+- fixed passing a non-existent file causing a crash
+- fixed the x86 installer not showing the `add to PATH` option
+
+---
+
+## 0.6.0
+
+### Nest
+
+**Installer**
+
+- you can now add Nest to PATH through the installer, the variable is removed if Nest is uninstalled and is not duplicated
+
+**Changes**
+
+- added the `stderr.nest` module, the 'throw' and 'try' functions are temporary as they will be substituted with a special syntax
+- added the `\e` escape sequence that is equivalent to `\x1b` and can be used for ANSI escape codes such as `\e[33m` for the color yellow
+- changed `~=` to `:=`
+- the message displayed when `-c` is used incorrectly is now `Invalid usage of the option: -c` instead of `Invalid option: -c`
+- swapped the start and the step in the range operator, it now is `[step] <start> -> <stop>`
+- changed the behaviour of `-` for maps and vectors, now it will return the map or the vector to which it was applied instead of `true` or `false`
+
+
+**Bug fixes**
+
+- now when printing the call traceback of a function the whole call expression is highlighted instead of only the first letter
+- fixed functions called from C libraries not being able to access other variables in their module
+- fixed `..` in for loops and switch statements causing an infinite loop
+- fixed a crash that could occur when a library called the function `nst_call_func`
+- now when using a step of 0 with the range operator an error is thrown
+- fixed circular references not throwing an error when encountered
+- fixed some crashes related to error handling and reporting
+- now Nest should use less memory when many libraries are imported
+
+---
+
+## 0.5.2
+
+### Nest
+
+**Changes**
+
+- `Byte` objects can now be used as map keys
+- the `==` operator can now be used with maps
+- maps are now slightly faster when re-inserting the items (this happens when an item is dropped or the map changes the internal size)
+- clearer explaination in the help message for `-O0` and `-O1`
+
+**Bug fixes**
+
+- fixed `..` statement causing the for-as loop to not call the `_advance_` function
+
+---
+
+## 0.5.1
+
+### Nest
+
+**Changes**
+
+- added the functions `filter` and `contains` to `stdsequtil.nest`
+- added the constant `VERSION` to `stdsys.nest`
+- now the standard modules drop all the default variables
+- now the error messages are colorful and this can be disabled with the `-m` or `--monochrome` flag in the command
+- now the error messages for the wrong type of a C function tells the argument index starting from 1 instead of 0
+
+**Bug fixes**
+
+- fixed a crash that occurred when an argument of the wrong type was fed to a C function
+- fixed a crash that occurred when comparing self-referencing arrays or vectors, now if a cycle is detected the equality is automatically false
+- fixed error messages displaying in the wrong order when an error occurred while a nest module was tokenized, parsed or optimized
+
+---
+
+## 0.5.0
+
+### Command improvements
+
+- standardized command-line arguments parsing according to GNU specifications
+  - `--` marks the end of the arguments
+  - you can combine multiple one-letter options under one dash (such as `-bf`)
+- added `-f` or `--force-execution` option to force the execution of the program when `-t`, `-a` or `-b` are used
+- added `-O0` to `-O3` command line arguments to specify the optimization level, if specified more than one only the last one counts
+- added `-c` option that executes the next argument as nest code (`nest -c ">>> 'Hello, world!'"` prints `Hello, world!`)
+- now you can specify more than one compilation insight flag (`-t`, `-a` or `-b`) meaning that the command `nest -ta file.nest` will print both the tokens and the abstract syntax tree
+
+### Nest
+
+**Changes**
+
+- now maps maintain the order of the elements that were put in, this affects map iterators in `stditutil.nest` and the casting to string
+- renamed `IOfile` to `IOFile` to match the naming convention of other types
+- now real numbers are printed with up to 15 significant digits (before it was 6)
+- real numbers are compared up to 15 significant digits (now `0.1 0.2 + 0.3 ==` is `true`)
+- added documentation for `split` and `join` in `string_utilities_library.md`
+- now vectors allow newlines after the comma
+- now you can put the argument names of a function definition on separate lines without backslashes
+- now the `repr` function in `stdsutil.nest` will accept any type of object
+- now numbers can have a leading plus sign (`1 2 +3` and `1 2 3` are equivalent)
+- added byte literal by putting `b` or `B` after an integer
+- now you can use a byte literal when casting a string to a byte (`Byte :: 'A'` and `Byte :: '65b'` are equivalent)
+- now bytes inside of maps, arrays or vectors will be printed with the literal instead of the character
+- improved error messages for operators and function calls
+- now `bytearray_to_str` in `stdsutil.nest` does not raise an error when there is a NUL byte in the array
+
+**Bug fixes**
+
+- fixed item dropping for maps that sometimes resulted in a crash
+- fixed `_cwd_` having the wrong length
+- functions from external modules now reference the module's global variables rather than the ones of the module they are imported to
+- now `-9223372036854775808` is considered a valid integer literal
+- fixed nest module imports sometimes failing
+- now the error message for an index outside of bounds for a string displays the correct index
+- fixed for loop not popping the iterator off the stack, this resulted in nested loops not working sometimes
+- opening an invalid DLL now no longer opens a pop-up error window
+- now all the functions in in `stdsutil.nest` end at the end of the string at not at the first NUL byte
+
+**Other**
+
+- added a VSCode plugin, to paste in `%USERPROFILE%\.vscode\extensions`
+- updated the syntax highlighting for sublime text
+
+---
+
+## 0.4.1
+
+### Nest
+
+- added lambda expressions
+- fixed error traceback on call stack causing a crash
+- fixed for-as loop crashing when a non-iterator object was given
+- you can once again index strings
+- updated documentation
+
+---
+
+## 0.4.0
+
+### Nest
+
+- added the `stdsys.nest` standard library
+- added the `stdsequtil.nest` standart library
+- added `min`, `max`, `min_seq`, `max_seq`. `sum_seq`, `frexp`, `ldexp`, `map` and `clamp` functions to `stdmath.nest`
+- added `iter_start`, `iter_is_done`, `iter_get_val` and `iter_advance` functions to `stditutil.nest`
+- improved error tracing with C function calls
+- improved single-line escapes in comment parsing, now an even number of backslashes correctly escapes the newline
+- added octal character escapes in string literals
+
+---
+
+## 0.3.1
+
+### Nest
+
+- fixed `nst_map_drop`, now the reference is removed correctly
+- fixed `_vars_` object deleted when it shouldn't
+
+---
+
+## 0.3.0
+
+### Nest
+
+- nest now compiles internally to bytecode
+- fixed `_vars_` being deleted even when returned by a function
+- added `_globals_`, in functions accesses the global variables, in the global scope is `null`
+- greatly improved memory usage
+- the program is now optimized
+   - expressions with known values are evaluated
+   - the bytecode optimizes the instructions used
+   - built-in variables are swapped with their value if it is never changed
+   - more error checking is performed before runtime
+   - unreachable code is removed
+- the `-v` option was renamed to `-V`
+- added the `-?` option, equivalent to `-h` or `--help`
+- added `-b` and `--bytecode` options to see the compilation result
+- better printing for tokens and ast when using the `-t` or `-a` options
+- from now on there will be a windows 32-bit build as well
+
+---
+
+## 0.2.2
+
+### Nest
+
+- `Byte` objects now support `+`, `-`, `*`, `/`, `%` and `^`
+- `==` now works correctly on `Real` objects
+- fixed a bug that caused a crash when trying to parse an expression
+
+---
+
+## 0.2.1
+
+### Nest
+
+- fixed `<`, `<=`, `>` and `>=` yeilding unexpected results when comparing reals and integers
+- now `IOfile` objects throw errors with unsupported operations such as `read` on a file opened with `rb`
+- increased performance
+
+---
+
+## 0.2.0
+
+### Nest
+
+- added the ability to import modules and call functions from C libraries
+- now `-` will remove a key from a map, `{ 'a': 1, 'b': 2 } 'a' - --> true, the map is now { 'b': 2 }`
+- added switch statement
+- added `split` and `join` functions to `stdsutil.nest`
+- added `mkdirs`, `rmdir_recursive`, `copy`, `rename`, `list_dir`, `list_dir_recursive`, `absolute_path` and `equivalent` functions to `stdfs.nest`
+- added `_vars_`, a variable pointing to the dictionary with all the current variables
+- fixed maps not changing their maximum size after increasing it
+- now the current working directory changes when importing a module
+- fixed `replace_substr` failing when replacing the first occurrence caused the string to be bigger than the original
+- fixed not-closed multiline comments not resulting in a syntax error
+
+---
+
+## 0.1.4
+
+### Nest
+
+- added `Map` to `Str` cast
+- added ability to pass a `Str` object to `cycle`, `zip`, `enumerate` and `reverse` in `stditutil.nest`
+- added ability to pass a `Str` object to `choice`, in `stdrand.nest`
+- added `repr` function to `stdsutil.nest`
+- changed `yearday` to `year_day` and `weekday` to `week_day` for `date`, `clock_datetime` and `gmt_clock_datetime` in `stdtime.nest`
+- fixed `year` being the same as `month` for `date`, `clock_datetime` and `gmt_clock_datetime` in `stdtime.nest`
+- fixed parser parsing some expressions incorrectly
+- fixed `move_fptr` and `get_fptr` requesting the incorrect number of arguments
+- fixed math module not working
+- fixed `shuffle` in `stdrand.nest` where an object could not remain in its position
+
+---
+
+## 0.1.3
+
+### Nest
+
+- added `stdmath.nest` library
+- added `stditutils.nest` library (iterator utities)
+- added `-:` operator for negation `-:a` is equal to `(0 a -)`
+- added `@@` operator to call a function with no arguments: `10 @@func +` is equal to `10 (@func) +`
+- added an optional `free_lib` function to C libraries to free any globally allocated memory
+- modified `_cwd_`, now it shows the full path and not the relative path to the main file
+- added a native `Array` or `Vector` to `Str` cast and vice versa
+- fixed `flush` function in `stdio.nest` expecting two arguments but taking only one
+
+---
+
+## 0.1.2
+
+### Nest
+
+- now circular imports correctly show an error
+- added `stdtime.nest` to the standard library
+- added `flush` function to `stdio.nest`
+- now `_cwd_` containst the full path and not the relative path
+
+---
+
+## 0.1.1
+
+### Nest
+
+- fixed maps halting when searching the index in rare occasions
+- added a third character argument to ljust and rjust in stdsutil
+- fixed `shuffle` in `stdrand.nest`
+
+---
+
+## 0.1.0
+
+### Nest
+
+First Release of Nest.

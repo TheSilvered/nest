@@ -41,9 +41,8 @@ NstEXP typedef enum _Nst_InstID {
     Nst_IC_JUMPIF_T,
     Nst_IC_JUMPIF_F,
     Nst_IC_JUMPIF_ZERO,
-    Nst_IC_FOR_IS_DONE,
+    Nst_IC_JUMPIF_IEND,
     Nst_IC_PUSH_CATCH,
-    Nst_IC_TYPE_CHECK,
     Nst_IC_HASH_CHECK,
     Nst_IC_THROW_ERR,
     Nst_IC_POP_CATCH,
@@ -59,7 +58,7 @@ NstEXP typedef enum _Nst_InstID {
     Nst_IC_OP_IMPORT,
     Nst_IC_OP_EXTRACT,
     Nst_IC_DEC_INT,
-    Nst_IC_NEW_OBJ,
+    Nst_IC_NEW_INT,
     Nst_IC_DUP,
     Nst_IC_ROT,
     Nst_IC_MAKE_ARR,
@@ -140,6 +139,10 @@ NstEXP Nst_Inst *NstC Nst_inst_new_int(Nst_InstID id, i64 int_val,
 
 /* Destroys a `Nst_Inst` allocated on the heap. */
 NstEXP void NstC Nst_inst_destroy(Nst_Inst *inst);
+
+/* Creates a new `Nst_InstList` from a list of instructions. */
+NstEXP Nst_InstList *NstC Nst_inst_list_new(Nst_LList *instructions);
+
 /* Destroys a `Nst_InstList`. */
 NstEXP void NstC Nst_inst_list_destroy(Nst_InstList *inst_list);
 

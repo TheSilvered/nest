@@ -13,10 +13,16 @@
 
 /* Casts `ptr` to `Nst_IterObj *`. */
 #define ITER(ptr) ((Nst_IterObj *)(ptr))
-/* Alias for `_Nst_iter_start` that casts iter to `Nst_IterObj *`. */
+/* Alias for `_Nst_iter_start` that casts `iter` to `Nst_IterObj *`. */
 #define Nst_iter_start(iter) _Nst_iter_start(ITER(iter))
-/* Alias for `_Nst_iter_get_val` that casts iter to `Nst_IterObj *`. */
+/* Alias for `_Nst_iter_get_val` that casts `iter` to `Nst_IterObj *`. */
 #define Nst_iter_get_val(iter) _Nst_iter_get_val(ITER(iter))
+/**
+ * @brief Alias for `_Nst_iter_new` that casts `start` and `end` to
+ * `Nst_FuncObj *` and casts `value` to `Nst_Obj *`.
+ */
+#define Nst_iter_new(start, end, value)                                       \
+    _Nst_iter_new(FUNC(start), FUNC(end), OBJ(value))
 
 #ifdef __cplusplus
 extern "C" {
@@ -40,8 +46,8 @@ NstEXP typedef struct _Nst_IterObj {
 /**
  * Creates a new Nest iterator object.
  *
- * @brief Note: this function takes one reference of `start`, `is_done`,
- * `get_val` and value both on success and on failure.
+ * @brief Note: this function takes one reference of `start`, `get_val` and
+ * `value` both on success and on failure.
  *
  * @param start: the `start` function for the new iterator
  * @param get_val: the `get_val` function for the new iterator
@@ -49,7 +55,7 @@ NstEXP typedef struct _Nst_IterObj {
  *
  * @return The new object or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *get_val,
+NstEXP Nst_Obj *NstC _Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *get_val,
                                   Nst_Obj *value);
 /* Destructor for Nest iter objects. */
 NstEXP void NstC _Nst_iter_destroy(Nst_IterObj *iter);
@@ -61,48 +67,47 @@ NstEXP void NstC _Nst_iter_traverse(Nst_IterObj *iter);
  *
  * @param iter: the iterator to start
  *
- * @return `-1` on failure and `0` on success. The error may be set internally
- * and must not be set by the caller.
+ * @return `true` on success and `false` on success. The error is set.
  */
-NstEXP i32 NstC _Nst_iter_start(Nst_IterObj *iter);
+NstEXP bool NstC _Nst_iter_start(Nst_IterObj *iter);
 
 /**
  * Calls the `get_val` function of a `Nst_IterObj`.
  *
  * @param iter: the iterator to get the value from
  *
- * @return The resulting object on success and `NULL` on failure. The error may
- * be set internally and must not be set by the caller.
+ * @return The resulting object on success and `NULL` on failure. The error is
+ * set.
  */
 NstEXP Nst_Obj *NstC _Nst_iter_get_val(Nst_IterObj *iter);
 
 // Functions for range iterators
 
 /* The `start` function of the range iterator. */
-NstEXP Nst_FUNC_SIGN(Nst_iter_range_start);
+NstEXP Nst_Obj *NstC Nst_iter_range_start(usize arg_num, Nst_Obj **args);
 /* The `get_val` function of the range iterator. */
-NstEXP Nst_FUNC_SIGN(Nst_iter_range_get_val);
+NstEXP Nst_Obj *NstC Nst_iter_range_get_val(usize arg_num, Nst_Obj **args);
 
 // Functions for sequence iterators
 
 /* The `start` function of the sequence iterator. */
-NstEXP Nst_FUNC_SIGN(Nst_iter_seq_start);
+NstEXP Nst_Obj *NstC Nst_iter_seq_start(usize arg_num, Nst_Obj **args);
 /* The `get_val` function of the sequence iterator. */
-NstEXP Nst_FUNC_SIGN(Nst_iter_seq_get_val);
+NstEXP Nst_Obj *NstC Nst_iter_seq_get_val(usize arg_num, Nst_Obj **args);
 
 // Functions for string iterators
 
 /* The `start` function of the string iterator. */
-NstEXP Nst_FUNC_SIGN(Nst_iter_str_start);
+NstEXP Nst_Obj *NstC Nst_iter_str_start(usize arg_num, Nst_Obj **args);
 /* The `get_val` function of the string iterator. */
-NstEXP Nst_FUNC_SIGN(Nst_iter_str_get_val);
+NstEXP Nst_Obj *NstC Nst_iter_str_get_val(usize arg_num, Nst_Obj **args);
 
 // Functions for map iterators
 
 /* The `start` function of the map iterator. */
-NstEXP Nst_FUNC_SIGN(Nst_iter_map_start);
+NstEXP Nst_Obj *NstC Nst_iter_map_start(usize arg_num, Nst_Obj **args);
 /* The `get_val` function of the map iterator. */
-NstEXP Nst_FUNC_SIGN(Nst_iter_map_get_val);
+NstEXP Nst_Obj *NstC Nst_iter_map_get_val(usize arg_num, Nst_Obj **args);
 
 #ifdef __cplusplus
 }

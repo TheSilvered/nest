@@ -1,10 +1,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include "mem.h"
-#include "lib_import.h"
+#include "sequence.h" // _Nst_VECTOR_GROWTH_RATIO, _Nst_VECTOR_MIN_CAP
 
 #ifdef Nst_COUNT_ALLOC
 static i32 allocation_count = 0;
+
+#ifdef Nst_MSVC
+#pragma warning(push)
+#pragma warning(disable: 4995)
+#else
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#endif
+
+void Nst_log_alloc_count()
+{
+    printf("\nalloc_count = %li\n", allocation_count);
+}
 
 void *Nst_raw_malloc(usize size)
 {
@@ -24,15 +37,25 @@ void *Nst_raw_calloc(usize count, usize size)
 
 void *Nst_raw_realloc(void *block, usize size)
 {
+    if (block == NULL)
+        allocation_count++;
+    if (size == 0)
+        allocation_count--;
     return realloc(block, size);
 }
 
-void Nst_free(void *block)
+void Nst_raw_free(void *block)
 {
     if (block != NULL)
         allocation_count--;
     free(block);
 }
+
+#ifdef Nst_MSVC
+#pragma warning(pop)
+#else
+#pragma GCC diagnostic pop
+#endif
 
 #endif // !COUNT_ALLOC
 
@@ -110,7 +133,17 @@ void *Nst_crealloc(void *prev_block, usize new_count, usize size,
     return (void *)block;
 }
 
-bool Nst_sbuffer_init(Nst_SizedBuffer *buf, usize unit_size, usize count)
+void Nst_memset(void *block, usize size, usize count, void *value)
+{
+    if (value == NULL) {
+        memset(block, 0, size * count);
+        return;
+    }
+    for (usize i = 0; i < count; i++)
+        memcpy((i8 *)block + i * size, value, size);
+}
+
+bool Nst_sbuffer_init(Nst_SBuffer *buf, usize unit_size, usize count)
 {
     void *data = Nst_malloc(count, unit_size);
     if (data == NULL)
@@ -123,12 +156,12 @@ bool Nst_sbuffer_init(Nst_SizedBuffer *buf, usize unit_size, usize count)
     return true;
 }
 
-bool Nst_sbuffer_expand_by(Nst_SizedBuffer *buf, usize amount)
+bool Nst_sbuffer_expand_by(Nst_SBuffer *buf, usize amount)
 {
     return Nst_sbuffer_expand_to(buf, buf->len + amount);
 }
 
-bool Nst_sbuffer_expand_to(Nst_SizedBuffer *buf, usize count)
+bool Nst_sbuffer_expand_to(Nst_SBuffer *buf, usize count)
 {
     if (buf->cap >= count)
         return true;
@@ -143,16 +176,17 @@ bool Nst_sbuffer_expand_to(Nst_SizedBuffer *buf, usize count)
     return true;
 }
 
-void Nst_sbuffer_fit(Nst_SizedBuffer *buf)
+void Nst_sbuffer_fit(Nst_SBuffer *buf)
 {
-    if ((buf->cap - buf->len) * buf->unit_size < sizeof(usize))
-        return;
+    usize len = buf->len;
+    if (len == 0)
+        len = 1;
 
-    buf->data = Nst_realloc(buf->data, buf->len, buf->unit_size, buf->cap);
-    buf->cap = buf->len;
+    buf->data = Nst_realloc(buf->data, len, buf->unit_size, buf->cap);
+    buf->cap = len;
 }
 
-bool Nst_sbuffer_append(Nst_SizedBuffer *buf, void *element)
+bool Nst_sbuffer_append(Nst_SBuffer *buf, void *element)
 {
     if (!Nst_sbuffer_expand_by(buf, 1))
         return false;
@@ -163,7 +197,33 @@ bool Nst_sbuffer_append(Nst_SizedBuffer *buf, void *element)
     return true;
 }
 
-bool Nst_sbuffer_copy(Nst_SizedBuffer *src, Nst_SizedBuffer *dst)
+bool Nst_sbuffer_pop(Nst_SBuffer *buf)
+{
+    if (buf->len == 0)
+        return false;
+    buf->len--;
+    return true;
+}
+
+void *Nst_sbuffer_at(Nst_SBuffer *buf, usize index)
+{
+    if (index >= buf->len)
+        return NULL;
+    return (void *)((u8 *)buf->data + (buf->unit_size * index));
+}
+
+void Nst_sbuffer_shrink_auto(Nst_SBuffer *buf)
+{
+    if (buf->cap >> 2 < buf->len)
+        return;
+    usize new_cap = (usize)(buf->cap / _Nst_VECTOR_GROWTH_RATIO);
+    if (new_cap < _Nst_VECTOR_MIN_CAP)
+        return;
+    buf->data = Nst_realloc(buf->data, new_cap, buf->unit_size, buf->cap);
+    buf->cap = new_cap;
+}
+
+bool Nst_sbuffer_copy(Nst_SBuffer *src, Nst_SBuffer *dst)
 {
     void *new_data = Nst_calloc(1, src->len, src->data);
     if (new_data == NULL)
@@ -176,7 +236,7 @@ bool Nst_sbuffer_copy(Nst_SizedBuffer *src, Nst_SizedBuffer *dst)
     return true;
 }
 
-void Nst_sbuffer_destroy(Nst_SizedBuffer *buf)
+void Nst_sbuffer_destroy(Nst_SBuffer *buf)
 {
     if (buf->data != NULL)
         Nst_free(buf->data);
@@ -188,7 +248,7 @@ void Nst_sbuffer_destroy(Nst_SizedBuffer *buf)
 
 bool Nst_buffer_init(Nst_Buffer *buf, usize initial_size)
 {
-    if (!Nst_sbuffer_init((Nst_SizedBuffer *)buf, sizeof(i8), initial_size))
+    if (!Nst_sbuffer_init((Nst_SBuffer *)buf, sizeof(i8), initial_size))
         return false;
 
     if (initial_size > 0)
@@ -199,12 +259,12 @@ bool Nst_buffer_init(Nst_Buffer *buf, usize initial_size)
 
 bool Nst_buffer_expand_by(Nst_Buffer *buf, usize amount)
 {
-    return Nst_sbuffer_expand_to((Nst_SizedBuffer *)buf, buf->len + amount + 1);
+    return Nst_sbuffer_expand_to((Nst_SBuffer *)buf, buf->len + amount + 1);
 }
 
 bool Nst_buffer_expand_to(Nst_Buffer *buf, usize size)
 {
-    return Nst_sbuffer_expand_to((Nst_SizedBuffer *)buf, size + 1);
+    return Nst_sbuffer_expand_to((Nst_SBuffer *)buf, size + 1);
 }
 
 void Nst_buffer_fit(Nst_Buffer *buf)
@@ -264,7 +324,7 @@ bool Nst_buffer_append_char(Nst_Buffer *buf, i8 ch)
 Nst_StrObj *Nst_buffer_to_string(Nst_Buffer *buf)
 {
     Nst_buffer_fit(buf);
-    Nst_StrObj *str = STR(Nst_string_new(buf->data, buf->len, true));
+    Nst_StrObj *str = STR(Nst_str_new(buf->data, buf->len, true));
     if (str == NULL)
         Nst_free(buf->data);
     buf->data = NULL;
@@ -288,5 +348,5 @@ bool Nst_buffer_copy(Nst_Buffer *src, Nst_Buffer *dst)
 
 void Nst_buffer_destroy(Nst_Buffer *buf)
 {
-    Nst_sbuffer_destroy((Nst_SizedBuffer *)buf);
+    Nst_sbuffer_destroy((Nst_SBuffer *)buf);
 }

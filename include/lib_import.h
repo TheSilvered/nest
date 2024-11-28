@@ -14,17 +14,17 @@
 ### Builtin types
 
 - `t`: `Type`
-- `i`: `Integer`
+- `i`: `Int`
 - `r`: `Real`
 - `b`: `Bool`
 - `n`: `Null`
-- `s`: `String`
+- `s`: `Str`
 - `v`: `Vector`
 - `a`: `Array`
 - `m`: `Map`
 - `f`: `Func`
 - `I`: `Iter`
-- `B`: `Bite`
+- `B`: `Byte`
 - `F`: `IOFile`
 
 ### Other
@@ -75,17 +75,18 @@ Nst_IOFileObj *file;
 Nst_DEF_EXTRACT("?F", &file); // 'file' can be either a File or NULL object
 ```
 
-### Casting to other `Nst_Obj`
+### Casting to other `Nst_Obj`s
 
 By following the selected type(s) with a colon (`:`) you can specify with one
 letter the type that the object should be casted to after it has been checked.
 When casting to an object a new reference is always put inside the given
 variable that needs to be removed with `Nst_dec_ref` when no longer in use.
 
-The type to cast to be specified by any of the builtin types except `n` in
-addition to `o`. Using `o` will only increase the reference of the argument and
-casting between an Array and a Vector object will not modify the object (apart
-from increasing the reference) since they use the same structure in memory.
+The type to cast to can be specified by any of the builtin types except `n`.
+In addition you can use `o` just to increase the reference of the argument.
+Casting between an Array and a Vector objects will only increase their
+reference count and will not actually create a copy even if the types are
+different.
 
 ```better-c
 // 'num' accepts a Int and Byte objects but it will always contain an Int
@@ -99,6 +100,13 @@ If you follow the selected type(s) with an underscore (`_`), you can extract
 the value of the argument into a C value. This method only accepts `i`, `r`,
 `b` and `B` and cannot be used along with `:`.
 
+The values are extracted to the following C types:
+
+- `i` -> `i64`
+- `r` -> `f64`
+- `b` -> `bool`
+- `B` -> `u8`
+
 ```better-c
 // 'opt' only accepts Int objects but will always contain a boolean
 bool opt;
@@ -111,13 +119,6 @@ If a type is specified as only one of `i`, `r`, `b` or `B` (and not a union
 of types) it is automatically translated to `i_i`, `r_r`, `b_b` and `B_B`
 respectively.
 
-The values are extracted to the following C types:
-
-- `i` -> `i64`
-- `r` -> `f64`
-- `b` -> `bool`
-- `B` -> `u8`
-
 ```better-c
 // even though only 'i' and 'r' are specified, the extracted values are C types
 i64 int_num;
@@ -126,7 +127,7 @@ Nst_DEF_EXTRACT("i r", &int_num, &real_num);
 ```
 
 If you instead want the object itself you can write `i|i`, `r|r`, `b|b` or
-`B|B` since the type is in a union.
+`B|B`. Since the type is in a union the casting will not occur.
 
 ### Sequence type checking
 
@@ -137,7 +138,7 @@ occur if the argument is casted to a C type.
 
 ```better-c
 // 'array_of_ints' can be either an Array or Null object. If it is the
-// former its elements can only be Int and Byte objects.
+// former its elements can only be Int or Byte objects.
 Nst_SeqObj *array_of_ints;
 Nst_DEF_EXTRACT("?a.i|B" &array_of_ints);
 ```
@@ -155,12 +156,12 @@ representing commonly used types into a single character.
 - `y` expands into `o_b`
 
 The shorthands that contain a cast (either `:` or `_`) will not cast the object
-the shorthand is used for checking the contents of a sequence or are part of a
-union. In case a cast is added after the type manually, it is overwritten.
+when used to check the contents of a sequence or when they are part of a union.
+Additionaly, any cast added manually will overwrite the cast of the shorthand.
 
 ```better-c
 "S"   // matches Array, Vector and Str and casts the object to Array
-"I|S" // matches Iter, Array, Vector and Str and casts the object to Array
+"I|S" // matches Iter, Array, Vector and Str, no casting occurs
 "l:r" // matches Int and Byte and casts the object to Real
 "a.S" // matches Array that contains Array, Vector or Str, no casting occurs
 ```
@@ -194,83 +195,65 @@ union. In case a cast is added after the type manually, it is overwritten.
  * @param func_ptr: the function pointer to use
  * @param argc: the number of arguments the function accepts
  */
-#define Nst_MAKE_FUNCDECLR(func_ptr, argc)                                    \
-    {                                                                         \
-        (void *)(func_ptr),                                                   \
-        argc,                                                                 \
-        STR(Nst_string_new_c_raw(#func_ptr, false))                           \
-    }
+#define Nst_FUNCDECLR(func_ptr, argc) { (void *)(func_ptr), argc, #func_ptr }
 
 /**
  * Initializes a function declaration with a custom name.
  *
  * @param func_ptr: the function pointer to use
  * @param argc: the number of arguments the function accepts
- * @param func_name: the name to use as a C string
+ * @param name: the name to use as a C string
  */
-#define Nst_MAKE_NAMED_FUNCDECLR(func_ptr, argc, func_name)                   \
-    {                                                                         \
-        (void *)(func_ptr),                                                   \
-        argc,                                                                 \
-        STR(Nst_string_new_c_raw(func_name, false))                           \
-    }
+#define Nst_NAMED_FUNCDECLR(func_ptr, argc, name)                             \
+    { (void *)(func_ptr), argc, name }
+
+/**
+ * Initialized an object declaration.
+ *
+ * @brief For the name of the object the name of the function pointer is used.
+ *
+ * @param func_ptr: the pointer to a function that returns the value of the
+ * constant, this function is of signature `Nst_ConstFunc`
+ */
+#define Nst_CONSTDECLR(func_ptr) { (void *)(func_ptr), -1, #func_ptr }
 
 /**
  * Initialized an object declaration.
  *
  * @brief For the name of the object the name of the pointer is used.
  *
- * @param obj_pointer: the pointer to the Nest object to declare
+ * @param func_ptr: the pointer to a function that returns the value of the
+ * constant, this function is of signature `Nst_ConstFunc`
+ * @param name: the name to use as a C string
  */
-#define Nst_MAKE_OBJDECLR(obj_ptr)                                            \
-    {                                                                         \
-        (void *)(obj_ptr),                                                    \
-        -1,                                                                   \
-        STR(Nst_string_new_c_raw(#obj_ptr, false))                            \
-    }
+#define Nst_NAMED_CONSTDECLR(func_ptr, name) { (void *)(func_ptr), -1, name }
 
-/**
- * Initialized an object declaration with a custom name.
- *
- * @param obj_pointer: the pointer to the Nest object to declare
- * @param obj_name: the name to use as a C string
- */
-#define Nst_MAKE_NAMED_OBJDECLR(obj_ptr, obj_name)                            \
-    {                                                                         \
-        (void *)(obj_ptr),                                                    \
-        -1,                                                                   \
-        STR(Nst_string_new_c_raw(obj_name, false))                            \
-    }
+#define Nst_DECLR_END { NULL, 0, NULL }
 
 /* [docs:link Nst_const()->Int_0 Nst_const] */
 /* [docs:link Nst_const()->Int_1 Nst_const] */
 
-/* Returns `Nst_true()`. */
+/* Returns a reference to `true`. */
 #define Nst_RETURN_TRUE return Nst_true_ref()
-/* Returns `Nst_false()`. */
+/* Returns a reference to `false`. */
 #define Nst_RETURN_FALSE return Nst_false_ref()
-/* Returns `Nst_null()`. */
+/* Returns a reference to `null`. */
 #define Nst_RETURN_NULL return Nst_null_ref()
+/* Returns a reference to `IEND`. */
+#define Nst_RETURN_IEND return Nst_iend_ref()
 /* Returns `Nst_const()->Int_0`. */
 #define Nst_RETURN_ZERO return Nst_inc_ref(Nst_const()->Int_0)
 /* Returns `Nst_const()->Int_1`. */
 #define Nst_RETURN_ONE return Nst_inc_ref(Nst_const()->Int_1)
 /**
- * @brief Returns `Nst_true()` if `cond` is `true` and `Nst_false()` otherwise.
- * `cond` is a C condition.
+ * @brief Returns `Nst_true_ref()` if `expr` is `true` and `Nst_false_ref()`
+ * otherwise. `expr` is a C boolean expression.
  */
-#define Nst_RETURN_COND(cond)                                                 \
-    return (cond) ? Nst_true_ref() : Nst_false_ref()
+#define Nst_RETURN_BOOL(expr)                                                 \
+    return (expr) ? Nst_true_ref() : Nst_false_ref()
 
-/* Function signature for a Nest-callable C function. */
-#define Nst_FUNC_SIGN(name)                                                   \
-    Nst_Obj *NstC name(usize arg_num, Nst_Obj **args)
-
-/* Default call to `Nst_extract_arg_values` that returns `NULL` on error. */
-#define Nst_DEF_EXTRACT(ltrl, ...) do {                                       \
-    if (!Nst_extract_arg_values(ltrl, arg_num, args, __VA_ARGS__))            \
-        return NULL;                                                          \
-    } while (0)
+/* Boolean expression to check if an object is `null`. */
+#define Nst_IS_NULL(obj) (OBJ(obj) == Nst_null())
 
 /* Results in `def_val` if obj is `Nst_null()` and in `val` otherwise. */
 #define Nst_DEF_VAL(obj, val, def_val)                                        \
@@ -283,30 +266,22 @@ union. In case a cast is added after the type manually, it is overwritten.
 extern "C" {
 #endif // !__cplusplus
 
+/* The signarture of a function used to get the constant of a library. */
+typedef Nst_Obj *(*Nst_ConstFunc)(void);
+
 /**
- * Structure defining an object declaration.
+ * Structure defining an object declaration for a C library.
  *
- * @param ptr: the pointer to the object or function
+ * @param ptr: the pointer to the function
  * @param arg_num: the number of arguments if the object is a function, `-1`
  * for other declarations
  * @param name: the name of the declared object
  */
-NstEXP typedef struct _Nst_ObjDeclr {
+NstEXP typedef struct _Nst_Declr {
     void *ptr;
     isize arg_num;
-    Nst_StrObj *name;
-} Nst_ObjDeclr;
-
-/**
- * Structure defining a list of object declarations.
- *
- * @param objs: the array of declared objects
- * @param obj_count: the number of objects inside the array
- */
-NstEXP typedef struct _Nst_DeclrList {
-    Nst_ObjDeclr *objs;
-    usize obj_count;
-} Nst_DeclrList;
+    const i8 *name;
+} Nst_Declr;
 
 /**
  * Checks the types of the arguments and extracts their values.
@@ -322,7 +297,7 @@ NstEXP typedef struct _Nst_DeclrList {
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP bool NstC Nst_extract_arg_values(const i8 *types, usize arg_num,
+NstEXP bool NstC Nst_extract_args(const i8 *types, usize arg_num,
                                         Nst_Obj **args, ...);
 
 #ifdef __cplusplus

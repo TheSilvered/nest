@@ -84,17 +84,17 @@ Iter :: {
 } = configs
 
 _args_.1 'update' == ? [
-    path 'nest_source' @fs.join = header_path
+    path 'nest_source' @fs.path.join = header_path
     path = build_path
 
-    (!(path 'Debug'             @fs.join @fs.is_dir)) \
-    (!(path 'linux_debug'       @fs.join @fs.is_dir)) \
-    (!(path 'linux_release/x64' @fs.join @fs.is_dir)) \
-    (!(path 'linux_release/x86' @fs.join @fs.is_dir)) \
-    (!(path 'nest_source'       @fs.join @fs.is_dir)) \
-    (!(path 'Release'           @fs.join @fs.is_dir)) \
-    (!(path 'x64/Debug'         @fs.join @fs.is_dir)) \
-    (!(path 'x64/Release'       @fs.join @fs.is_dir)) || ? [
+    (!(path 'Debug'             @fs.path.join @fs.is_dir)) \
+    (!(path 'linux_debug'       @fs.path.join @fs.is_dir)) \
+    (!(path 'linux_release/x64' @fs.path.join @fs.is_dir)) \
+    (!(path 'linux_release/x86' @fs.path.join @fs.is_dir)) \
+    (!(path 'nest_source'       @fs.path.join @fs.is_dir)) \
+    (!(path 'Release'           @fs.path.join @fs.is_dir)) \
+    (!(path 'x64/Debug'         @fs.path.join @fs.is_dir)) \
+    (!(path 'x64/Release'       @fs.path.join @fs.is_dir)) || ? [
         'The selected directory does not contain a Nest library' @io.println
         1 @sys.exit
     ]
@@ -106,8 +106,8 @@ _args_.1 'update' == ? [
         1 @sys.exit
     ]
     name @su.to_lower = name
-    path (name '/nest_source' ><) @fs.join = header_path
-    path name @fs.join = build_path
+    path (name '/nest_source' ><) @fs.path.join = header_path
+    path name @fs.path.join = build_path
 
     header_path @fs.make_dirs
     ... configs := {_, config, _, _} [
@@ -141,7 +141,7 @@ _args_.1 'update' == ? [
 _args_.1 'update' == ?
     @sys.exit
 
-build_path @sys._set_cwd
+build_path @sys.set_cwd
 
 #create_guid upper [
     upper ?
@@ -297,7 +297,7 @@ nest_file @io.close
 -------------------------------- .vcxproj file ---------------------------------
 
 name @fs.make_dir
-name @sys._set_cwd
+name @sys.set_cwd
 
 @create_guid = proj_guid
 name '_' '' @su.replace = root_namespace
@@ -522,12 +522,15 @@ filters_file @io.close
 --------------------------------------------------------------------------------
 
 "#include \"framework.h\"
+#include \"nest.h\"
 
 BOOL APIENTRY DllMain(HMODULE h_module, DWORD reason_for_call, LPVOID reserved)
 {
+    Nst_UNUSED(h_module);
+    Nst_UNUSED(reason_for_call);
+    Nst_UNUSED(reserved);
     return TRUE;
 }
-
 " = dllmain_content
 
 "#ifndef FRAMEWORK_H
@@ -548,11 +551,10 @@ BOOL APIENTRY DllMain(HMODULE h_module, DWORD reason_for_call, LPVOID reserved)
 extern \"C\" {
 #endif // !__cplusplus
 
-NstEXP bool NstC lib_init();
-NstEXP Nst_DeclrList *NstC get_func_ptrs();
-// NstEXP void NstC free_lib();
+NstEXP Nst_Declr *NstC lib_init(void);
+// NstEXP void NstC lib_quit(void);
 
-Nst_FUNC_SIGN(add);
+Nst_Obj *NstC add(usize arg_num, Nst_Obj **args);
 
 #ifdef __cplusplus
 }
@@ -563,36 +565,21 @@ Nst_FUNC_SIGN(add);
 
 "#include \"" name ".h\"
 
-#define FUNC_COUNT 1 // define here the number of functions inside the library
+static Nst_Declr obj_list_[] = {
+    Nst_FUNCDECLR(add, 2),
+    Nst_DECLR_END
+};
 
-static Nst_ObjDeclr func_list_[FUNC_COUNT];
-static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
-static bool lib_init_ = false;
-
-bool lib_init()
+Nst_Declr *lib_init(void)
 {
-    usize idx = 0;
-
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(add, 2);
-
-#if __LINE__ - FUNC_COUNT != 14 // keep this number as the line after the first
-                                // func_list_[idx++] = ...
-#error
-#endif
-
-    lib_init_ = !Nst_error_occurred();
-    return lib_init_;
+    return obj_list_;
 }
 
-Nst_DeclrList *get_func_ptrs()
-{
-    return lib_init_ ? &obj_list_ : nullptr;
-}
-
-Nst_FUNC_SIGN(add)
+Nst_Obj *NstC add(usize arg_num, Nst_Obj **args)
 {
     i64 a, b;
-    Nst_DEF_EXTRACT(\"ii\", &a, &b);
+    if (!Nst_extract_args(\"ii\", arg_num, args, &a, &b))
+        return nullptr;
     return Nst_int_new(a + b);
 }
 " >< = name_cpp_content

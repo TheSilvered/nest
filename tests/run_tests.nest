@@ -4,7 +4,6 @@
 |#| 'stdsys.nest' = sys
 |#| 'stderr.nest' = err
 |#| 'stdsequtil.nest' = sequ
-|#| 'stditutil.nest' = itu
 |#| 'test_lib.nest' = test
 
 -- Creates or clears the log file
@@ -34,26 +33,18 @@ sys.SUPPORTS_COLOR ? [
     ]
 ]
 
-#error_location error traceback [
-    error.pos.file @fs.filename 'test_lib.nest' != ?
-        error.pos = pos
-    : [
-        ... traceback @itu.reversed := tb_pos [
-            tb_pos.file @fs.filename 'test_lib.nest' != ? [
-                tb_pos = pos
-                ;
-            ]
-        ]
-    ]
-    => '; line ' (pos.start.0 1 +) ' column ' (pos.start.1 1 +) ' file ' (pos.file @fs.filename @su.repr) ><
+#error_location traceback [
+    !traceback ($traceback 2 <) || ? => '; <unknown position>'
+    traceback.1 = pos
+    => '; line ' (pos.start.0 1 +) ' column ' (pos.start.1 1 +) ' file ' (pos.file @fs.path.filename @su.repr) ><
 ]
 
 #run_tests dir [
     C_BLUE '** Testing directory ' (dir @su.repr) ' **' C_RESET >< @io.println
 
     ... Iter :: (dir @fs.list_dirs) := test_path [
-        test_path @fs.extension '.nest' != ? ..
-        test_path @fs.filename = name
+        test_path @fs.path.extension '.nest' != ? ..
+        test_path @fs.path.filename = name
         !(name 'test_' @su.starts_with) ? ..
 
         >>> ('Testing ' (name 5 -5 @sequ.slice) '...' ><)
@@ -67,7 +58,7 @@ sys.SUPPORTS_COLOR ? [
         1 += _globals_.failed_tests
 
         C_RED ' FAILED' C_RESET ': ' res.error.name ' - ' res.error.message >< = s
-        res.error res.traceback @error_location ><= s
+        res.traceback @error_location ><= s
         s true @io.println
     ]
 ]

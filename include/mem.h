@@ -13,13 +13,6 @@
 #include "typedefs.h"
 #include "error.h"
 
-#if defined(_DEBUG) && !defined(Nst_NO_ALLOC_COUNT)
-#define Nst_COUNT_ALLOC
-#endif // !Nst_COUNT_ALLOC
-
-/* Alias for C free. */
-#define Nst_raw_free Nst_free
-
 /**
  * @brief Calls `Nst_malloc` using `sizeof(type)` for the size and casting the
  * result to a pointer of `type`.
@@ -64,17 +57,17 @@ extern "C" {
  * @param unit_size: the size in bytes of one object
  * @param data: the array of objects
  */
-NstEXP typedef struct _Nst_SizedBuffer {
+NstEXP typedef struct _Nst_SBuffer {
     usize len;
     usize cap;
     usize unit_size;
     void *data;
-} Nst_SizedBuffer;
+} Nst_SBuffer;
 
 /**
  * Structure representing a buffer of chars.
  *
- * @brief Uses the same layout of `Nst_SizedBuffer` to re-use the same
+ * @brief Uses the same layout of `Nst_SBuffer` to re-use the same
  * functions. Ensures to always contain a valid string if not modified by
  * external functions.
  *
@@ -103,7 +96,22 @@ NstEXP void *NstC Nst_raw_calloc(usize count, usize size);
 /* Alias for C `realloc`. */
 NstEXP void *NstC Nst_raw_realloc(void *block, usize size);
 /* Alias for C `free`. */
-NstEXP void NstC Nst_free(void *block);
+NstEXP void NstC Nst_raw_free(void *block);
+/**
+ * @brief Prints the current allocation count to `stdout`. Declared only if
+ * `Nst_COUNT_ALLOC` is defined.
+ */
+NstEXP void NstC Nst_log_alloc_count();
+
+#ifdef Nst_MSVC
+#pragma deprecated(malloc, calloc, realloc, free)
+#else
+void *malloc(size_t size) __attribute__((deprecated("use Nst_raw_malloc or Nst_malloc")));
+void *calloc(size_t nmemb, size_t size) __attribute__((deprecated("use Nst_raw_calloc or Nst_calloc")));
+void *realloc(void *ptr, size_t size) __attribute__((deprecated("use Nst_raw_realloc or Nst_realloc")));
+void free(void *ptr) __attribute__((deprecated("use Nst_raw_free or Nst_free")));
+#endif
+
 #else
 /* [docs:ignore] Alias for C `malloc`. */
 #define Nst_raw_malloc malloc
@@ -112,8 +120,11 @@ NstEXP void NstC Nst_free(void *block);
 /* [docs:ignore] Alias for C `realloc`. */
 #define Nst_raw_realloc realloc
 /* [docs:ignore] Alias for C `free`. */
-#define Nst_free free
+#define Nst_raw_free free
 #endif
+
+/* Alias for `Nst_raw_free`. */
+#define Nst_free Nst_raw_free
 
 /**
  * Allocates memory on the heap.
@@ -182,8 +193,27 @@ NstEXP void *NstC Nst_realloc(void *block, usize new_count, usize size,
 NstEXP void *NstC Nst_crealloc(void *block, usize new_count, usize size,
                                usize count, void *init_value);
 
+/* [docs:link memset <https://man7.org/linux/man-pages/man3/memset.3.html>] */
+
 /**
- * Initializes a `Nst_SizedBuffer`.
+ * Sets the value of an array in memory.
+ *
+ * @brief Note: unlike `memset` in `string.h` this function does not return a
+ * value.
+ *
+ * @brief Warning: the behaviour of this function is undefined if `block` and
+ * `value` overlap.
+ *
+ * @param block: the pointer to the block of memory to edit
+ * @param size: the size in bytes of a unit inside `block`
+ * @param count: the number of units inside `block`
+ * @param value: a pointer to the value to copy for each unit, if it is NULL
+ * the block is filled with zeroes
+ */
+NstEXP void NstC Nst_memset(void *block, usize size, usize count, void *value);
+
+/**
+ * Initializes a `Nst_SBuffer`.
  *
  * @param buf: the buffer to initialize
  * @param unit_size: the size of the elements the buffer will contain
@@ -191,7 +221,7 @@ NstEXP void *NstC Nst_crealloc(void *block, usize new_count, usize size,
  *
  * @return `true` on succes and `false` on failure. The error is set.
  */
-NstEXP bool NstC Nst_sbuffer_init(Nst_SizedBuffer *buf, usize unit_size,
+NstEXP bool NstC Nst_sbuffer_init(Nst_SBuffer *buf, usize unit_size,
                                   usize count);
 /**
  * Expands a sized buffer to contain a specified amount new elements.
@@ -203,7 +233,7 @@ NstEXP bool NstC Nst_sbuffer_init(Nst_SizedBuffer *buf, usize unit_size,
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP bool NstC Nst_sbuffer_expand_by(Nst_SizedBuffer *buf, usize amount);
+NstEXP bool NstC Nst_sbuffer_expand_by(Nst_SBuffer *buf, usize amount);
 /**
  * Expands a sized buffer to contain a total amount of elements.
  *
@@ -215,9 +245,9 @@ NstEXP bool NstC Nst_sbuffer_expand_by(Nst_SizedBuffer *buf, usize amount);
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP bool NstC Nst_sbuffer_expand_to(Nst_SizedBuffer *buf, usize count);
+NstEXP bool NstC Nst_sbuffer_expand_to(Nst_SBuffer *buf, usize count);
 /* Shrinks the capacity of a sized buffer to match its length. */
-NstEXP void NstC Nst_sbuffer_fit(Nst_SizedBuffer *buf);
+NstEXP void NstC Nst_sbuffer_fit(Nst_SBuffer *buf);
 /**
  * Appends an element to the end of the buffer.
  *
@@ -231,7 +261,35 @@ NstEXP void NstC Nst_sbuffer_fit(Nst_SizedBuffer *buf);
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP bool NstC Nst_sbuffer_append(Nst_SizedBuffer *buf, void *element);
+NstEXP bool NstC Nst_sbuffer_append(Nst_SBuffer *buf, void *element);
+/**
+ * Pops the last element of a sized buffer.
+ *
+ * @param buf: the buffer to pop the element from
+ *
+ * @return `true` if the buffer was popped successfully and `false` if there
+ * was no item to pop. No error is set.
+ */
+NstEXP bool NstC Nst_sbuffer_pop(Nst_SBuffer *buf);
+/**
+ * Gets the element of a buffer at a specified index.
+ *
+ * @param buf: the buffer to index
+ * @param index: the index of the element to get
+ *
+ * @return A pointer to the start of the element in the array or `NULL` if the
+ * index was out of bounds. No error is set.
+ */
+NstEXP void *NstC Nst_sbuffer_at(Nst_SBuffer *buf, usize index);
+/**
+ * Shrinks the size of a sized buffer.
+ *
+ * @brief The size is not shrunk to the minimum but some slots are kept for
+ * possible new values.
+ *
+ * @param buf: the buffer to shrink
+ */
+NstEXP void NstC Nst_sbuffer_shrink_auto(Nst_SBuffer *buf);
 /**
  * Copies the contents of a sized buffer into another.
  *
@@ -243,9 +301,14 @@ NstEXP bool NstC Nst_sbuffer_append(Nst_SizedBuffer *buf, void *element);
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP bool NstC Nst_sbuffer_copy(Nst_SizedBuffer *src, Nst_SizedBuffer *dst);
-/* Destroys the contents of a sized buffer. The buffer itself is not freed. */
-NstEXP void NstC Nst_sbuffer_destroy(Nst_SizedBuffer *buf);
+NstEXP bool NstC Nst_sbuffer_copy(Nst_SBuffer *src, Nst_SBuffer *dst);
+/**
+ * Destroys the contents of a sized buffer. The buffer itself is not freed.
+ *
+ * @brief If the data is set to `NULL` the function returns immediately and
+ * and leaves the buffer untouched.
+ */
+NstEXP void NstC Nst_sbuffer_destroy(Nst_SBuffer *buf);
 
 /**
  * Initializes a `Nst_Buffer`.
@@ -349,7 +412,12 @@ NstEXP Nst_StrObj *NstC Nst_buffer_to_string(Nst_Buffer *buf);
  * @return `true` on success and `false` on failure. The error is set.
  */
 NstEXP bool NstC Nst_buffer_copy(Nst_Buffer *src, Nst_Buffer *dst);
-/* Destroys the contents of a buffer. The buffer itself is not freed. */
+/**
+ * Destroys the contents of a buffer. The buffer itself is not freed.
+ *
+ * @brief If the data is set to `NULL` the function returns immediately and
+ * and leaves the buffer untouched.
+ */
 NstEXP void NstC Nst_buffer_destroy(Nst_Buffer *buf);
 
 #ifdef __cplusplus

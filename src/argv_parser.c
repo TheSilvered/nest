@@ -1,9 +1,9 @@
 #include <string.h>
 #include "nest.h"
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 #include "windows.h"
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
 #include "file.h"
 
@@ -68,7 +68,27 @@
     "All names are case-insensitive. Underscores (_), hyphens (-) and spaces are\n"  \
     "interchangeable."
 
+#ifdef Nst_MSVC
+bool supports_color = false;
+#else
 bool supports_color = true;
+#endif // !Nst_MSVC
+
+void Nst_cl_args_init(Nst_CLArgs *args, i32 argc, i8 **argv)
+{
+    args->argc = argc;
+    args->argv = argv;
+    args->print_tokens = false;
+    args->print_ast = false;
+    args->print_bytecode = false;
+    args->force_execution = false;
+    args->encoding = Nst_CP_UNKNOWN;
+    args->no_default = false;
+    args->opt_level = 3;
+    args->command = NULL;
+    args->filename = NULL;
+    args->args_start = argc >= 1 ? 1 : 0;
+}
 
 static i32 long_arg(i8 *arg, Nst_CLArgs *cl_args)
 {
@@ -111,25 +131,17 @@ static i32 long_arg(i8 *arg, Nst_CLArgs *cl_args)
     return 0;
 }
 
-i32 _Nst_parse_args(i32 argc, i8 **argv, Nst_CLArgs *cl_args)
+i32 _Nst_cl_args_parse(Nst_CLArgs *cl_args)
 {
-    cl_args->print_tokens = false;
-    cl_args->print_ast = false;
-    cl_args->print_bytecode = false;
-    cl_args->force_execution = false;
-    cl_args->encoding = Nst_CP_UNKNOWN;
-    cl_args->no_default = false;
-    cl_args->opt_level = 3;
-    cl_args->command = NULL;
-    cl_args->filename = NULL;
-    cl_args->args_start = 1;
-    i32 i;
+    i32 argc = cl_args->argc;
+    i8 **argv = cl_args->argv;
 
     if (argc < 2) {
         printf(USAGE_MESSAGE);
         return -1;
     }
 
+    i32 i;
     for (i = 1; i < argc; i++) {
         i8 *arg = argv[i];
         i32 arg_len = (i32)strlen(arg);
@@ -153,7 +165,7 @@ i32 _Nst_parse_args(i32 argc, i8 **argv, Nst_CLArgs *cl_args)
             case 'b': cl_args->print_bytecode  = true; break;
             case 'f': cl_args->force_execution = true; break;
             case 'D': cl_args->no_default      = true; break;
-            case 'm': supports_color        = false;break;
+            case 'm': supports_color           = false;break;
             case 'h':
             case '?':
                 printf(HELP_MESSAGE);
@@ -258,7 +270,12 @@ bool Nst_supports_color(void)
     return supports_color;
 }
 
-#ifdef Nst_WIN
+void _Nst_supports_color_override(bool value)
+{
+    supports_color = value;
+}
+
+#ifdef Nst_MSVC
 
 bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv)
 {
@@ -299,8 +316,10 @@ bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv)
     return true;
 }
 
-void _Nst_set_console_mode(void)
+void _Nst_console_mode_init(void)
 {
+    supports_color = true;
+
     SetErrorMode(SEM_FAILCRITICALERRORS);
     SetConsoleOutputCP(CP_UTF8);
     SetConsoleCP(CP_UTF8);
@@ -340,4 +359,4 @@ try_stdin:
     Nst_stdin.hd = stdin_handle;
 }
 
-#endif // !Nst_WIN
+#endif // !Nst_MSVC

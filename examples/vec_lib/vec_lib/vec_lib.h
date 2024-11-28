@@ -7,27 +7,24 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct _Vec2Obj
-{
+NstEXP Nst_Declr *NstC lib_init();
+NstEXP void NstC lib_quit();
+
+typedef struct _Vec2Obj {
     Nst_OBJ_HEAD;
     f64 x, y;
-}
-Vec2Obj;
-
-NstEXP bool NstC lib_init();
-NstEXP Nst_DeclrList *NstC get_func_ptrs();
-NstEXP void NstC free_lib();
+} Vec2Obj;
 
 Nst_Obj *vec2_new(f64 x, f64 y);
 
-Nst_FUNC_SIGN(vec2_);
-Nst_FUNC_SIGN(vec2_to_str_);
-Nst_FUNC_SIGN(x_);
-Nst_FUNC_SIGN(y_);
-Nst_FUNC_SIGN(len_);
-Nst_FUNC_SIGN(dot_);
-Nst_FUNC_SIGN(cross_);
-Nst_FUNC_SIGN(normalized_);
+Nst_Obj *NstC vec2_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC vec2_to_str_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC x_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC y_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC len_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC dot_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC cross_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC normalized_(usize arg_num, Nst_Obj **args);
 
 #ifdef __cplusplus
 }

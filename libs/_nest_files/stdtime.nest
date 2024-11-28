@@ -1,6 +1,6 @@
 --$ --no-default
 
-|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_time.dll' = __dt
+|#| '__C__:../../build/windows/projects/nest/\(_debug_arch_ 'x86' == ? '' : 'x64/')Debug/nest_time.dll' = __dt
 
 __dt.clock_datetime_     = clock_datetime
 __dt.clock_time_         = clock_time
@@ -11,12 +11,12 @@ __dt.gmt_clock_time_     = gmt_clock_time
 __dt.gmt_date_           = gmt_date
 __dt.high_res_time_      = high_res_time
 __dt.high_res_time_ns_   = high_res_time_ns
-__dt.hours_              = hours
-__dt.minutes_            = minutes
+__dt.hour_               = hour
+__dt.minute_             = minute
 __dt.monotonic_time_     = monotonic_time
 __dt.monotonic_time_ns_  = monotonic_time_ns
 __dt.month_              = month
-__dt.seconds_            = seconds
+__dt.second_             = second
 __dt.sleep_              = sleep
 __dt.sleep_ms_           = sleep_ms
 __dt.time_               = time
@@ -25,46 +25,54 @@ __dt.week_day_           = week_day
 __dt.year_               = year
 __dt.year_day_           = year_day
 
-{1: 'January',
- 2: 'February',
- 3: 'March',
- 4: 'April',
- 5: 'May',
- 6: 'June',
- 7: 'July',
- 8: 'August',
- 9: 'September',
- 10: 'October',
- 11: 'November',
- 12: 'December'} = MONTH_NAMES
+{
+    1: 'January',
+    2: 'February',
+    3: 'March',
+    4: 'April',
+    5: 'May',
+    6: 'June',
+    7: 'July',
+    8: 'August',
+    9: 'September',
+    10: 'October',
+    11: 'November',
+    12: 'December'
+} = MONTH_NAMES
 
-{1: 'Jan',
- 2: 'Feb',
- 3: 'Mar',
- 4: 'Apr',
- 5: 'May',
- 6: 'Jun',
- 7: 'Jul',
- 8: 'Aug',
- 9: 'Sep',
- 10: 'Oct',
- 11: 'Nov',
- 12: 'Dec'} = SHORTH_MONTH_NAMES
+{
+    1: 'Jan',
+    2: 'Feb',
+    3: 'Mar',
+    4: 'Apr',
+    5: 'May',
+    6: 'Jun',
+    7: 'Jul',
+    8: 'Aug',
+    9: 'Sep',
+    10: 'Oct',
+    11: 'Nov',
+    12: 'Dec'
+} = SHORTH_MONTH_NAMES
 
-{0: 'Sunday',
- 1: 'Monday',
- 2: 'Tuesday',
- 3: 'Wednesday',
- 4: 'Thursday',
- 5: 'Friday',
- 6: 'Saturday'} = WEEKDAY_NAMES
+{
+    0: 'Sun',
+    1: 'Mon',
+    2: 'Tue',
+    3: 'Wed',
+    4: 'Thu',
+    5: 'Fri',
+    6: 'Sat'
+} = SHORT_WEEKDAY_NAMES
 
-{0: 'Sun',
- 1: 'Mon',
- 2: 'Tue',
- 3: 'Wed',
- 4: 'Thu',
- 5: 'Fri',
- 6: 'Sat'} = SHORT_WEEKDAY_NAMES
+{
+    0: 'Sunday',
+    1: 'Monday',
+    2: 'Tuesday',
+    3: 'Wednesday',
+    4: 'Thursday',
+    5: 'Friday',
+    6: 'Saturday'
+} = WEEKDAY_NAMES
 
 _vars_ '__dt' '_vars_' -

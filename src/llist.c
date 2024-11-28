@@ -61,6 +61,7 @@ bool Nst_llist_insert(Nst_LList *llist, void *value, bool allocated,
     node->next = new_node;
     if (new_node->next == NULL)
         llist->tail = new_node;
+    llist->len++;
     return true;
 }
 
@@ -122,6 +123,8 @@ void Nst_llist_destroy(Nst_LList *llist, void (*item_destructor)(void*))
 
 void Nst_llist_empty(Nst_LList *llist, void (*item_destructor)(void *))
 {
+    if (llist == NULL)
+        return;
     Nst_LLNode *prev = NULL;
 
     for (Nst_LLNode *cursor = llist->head; cursor != NULL;) {

@@ -1,6 +1,6 @@
 --$ --no-default
 
-|#| '__C__:../../build/windows/projects/nest/x64/Debug/nest_sequtil.dll' = __sequ
+|#| '__C__:../../build/windows/projects/nest/\(_debug_arch_ 'x86' == ? '' : 'x64/')Debug/nest_sequtil.dll' = __sequ
 
 __sequ.all_       = all
 __sequ.any_       = any
@@ -8,6 +8,7 @@ __sequ.copy_      = copy
 __sequ.count_     = count
 __sequ.deep_copy_ = deep_copy
 __sequ.empty_     = empty
+__sequ.enum_      = enum
 __sequ.extend_    = extend
 __sequ.filter_    = filter
 __sequ.filter_i_  = filter_i
@@ -17,6 +18,8 @@ __sequ.map_       = map
 __sequ.map_i_     = map_i
 __sequ.merge_     = merge
 __sequ.remove_at_ = remove_at
+__sequ.reverse_   = reverse
+__sequ.reverse_i_ = reverse_i
 __sequ.rscan_     = rscan
 __sequ.slice_     = slice
 __sequ.slice_i_   = slice_i

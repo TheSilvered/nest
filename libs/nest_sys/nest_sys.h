@@ -7,24 +7,26 @@
 extern "C" {
 #endif // !__cplusplus
 
-NstEXP bool NstC lib_init();
-NstEXP Nst_DeclrList *NstC get_func_ptrs();
-NstEXP void NstC free_lib();
+NstEXP Nst_Declr *NstC lib_init();
+NstEXP void NstC lib_quit();
 
-Nst_FUNC_SIGN(system_);
-Nst_FUNC_SIGN(exit_);
-Nst_FUNC_SIGN(getenv_);
-Nst_FUNC_SIGN(putenv_);
-Nst_FUNC_SIGN(get_ref_count_);
-Nst_FUNC_SIGN(get_addr_);
-Nst_FUNC_SIGN(hash_);
-Nst_FUNC_SIGN(_get_color_);
-Nst_FUNC_SIGN(_set_cwd_);
-Nst_FUNC_SIGN(_get_cwd_);
-Nst_FUNC_SIGN(_get_endianness_);
-Nst_FUNC_SIGN(_get_version_);
-Nst_FUNC_SIGN(_get_platform_);
-Nst_FUNC_SIGN(_raw_exit);
+Nst_Obj *NstC system_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC exit_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC get_env_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC set_env_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC del_env_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC get_ref_count_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC get_addr_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC get_capacity_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC hash_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC set_cwd_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC get_cwd_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC _get_color_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC _get_endianness_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC _get_version_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC _get_platform_(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC _raw_exit(usize arg_num, Nst_Obj **args);
+Nst_Obj *NstC _DEBUG_();
 
 #ifdef __cplusplus
 }

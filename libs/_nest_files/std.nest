@@ -1,0 +1,16 @@
+--$ --no-default
+_vars_ '_vars_' -
+
+|#| 'stdco.nest'      = co
+|#| 'stdcodecs.nest'  = cc
+|#| 'stderr.nest'     = err
+|#| 'stdfs.nest'      = fs
+|#| 'stdio.nest'      = io
+|#| 'stditutil.nest'  = itu
+|#| 'stdjson.nest'    = json
+|#| 'stdmath.nest'    = math
+|#| 'stdrand.nest'    = rand
+|#| 'stdsequtil.nest' = sequ
+|#| 'stdsutil.nest'   = su
+|#| 'stdsys.nest'     = sys
+|#| 'stdtime.nest'    = dt

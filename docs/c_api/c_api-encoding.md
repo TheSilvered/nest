@@ -57,6 +57,9 @@ The structure that represents an encoding.
 - `mult_min_sz`: the size in bytes of the shortest character (usually the same
   as `ch_size`)
 - `name`: the name of the encoding displayed in errors
+- `bom`: the Byte Order Mark of the encoding, is set to `NULL` if it does not
+  have one
+- `bom_size`: the length of `bom`, set to `0` if it is `NULL`
 - `check_bytes`: the
   [`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc) function of the
   encoding
@@ -82,6 +85,17 @@ typedef i32 (*Nst_CheckBytesFunc)(void *str, usize len)
 The signature of a function that checks the length of the first character in a
 string of a certain encoding.
 
+!!!note
+    If the length is unknown but it is certain that the string contains at least
+    one character you can use
+    [`Nst_CP_MULTIBYTE_MAX_SIZE`](c_api-encoding.md#nst_cp_multibyte_max_size)
+    to ensure that the function does not fail due to a length too small.
+
+**Returns:**
+
+The length in bytes of the first character of the string. If the sequence of
+bytes is not valid or incomplete this function returns `-1`.
+
 ---
 
 ### `Nst_ToUTF32Func`
@@ -95,7 +109,13 @@ typedef u32 (*Nst_ToUTF32Func)(void *str)
 **Description:**
 
 The signature of a function that returns the code point of the first character
-in a string of a certain encoding, expecting a valid sequence of bytes.
+in a string decoded with a certain encoding.
+
+!!!warning
+    `str` is expected to be a valid string, you can check that it is valid with
+    a function of type
+    [`Nst_CheckBytesFunc`](c_api-encoding.md#nst_checkbytesfunc). Since the
+    string is assumed to be valid this function never fails.
 
 ---
 
@@ -109,8 +129,22 @@ typedef i32 (*Nst_FromUTF32Func)(u32 ch, void *buf)
 
 **Description:**
 
-The signature of a function that encodesa code point in a certain encoding and
-writes the output to a buffer.
+The signature of a function that encodesa a code point with a certain encoding
+writing the output to a buffer.
+
+!!!warning
+    `buf` is expected to be large enough to hold the full character, if the
+    final length of the character is unknown you can ensure that `buf` has space
+    for at least
+    [`Nst_CP_MULTIBYTE_MAX_SIZE`](c_api-encoding.md#nst_cp_multibyte_max_size)
+    bytes. This type of functions are guaranteed to never write more than
+    [`Nst_CP_MULTIBYTE_MAX_SIZE`](c_api-encoding.md#nst_cp_multibyte_max_size)
+    bytes.
+
+**Returns:**
+
+The number of bytes written. If the character could not be encoded this function
+returns `-1`.
 
 ---
 
@@ -1094,7 +1128,7 @@ can be `NULL` if there is no need to get the length of the output string.
 
 **Returns:**
 
-`true` on success and `false` on failure. On failure the error is always set.
+`true` on success and `false` on failure. On failure the error is set.
 
 ---
 
@@ -1121,6 +1155,61 @@ Checks the validity of the encoding of a string.
 
 The index in units of the first invalid byte or `-1` if the string is correctly
 encoded. No error is set.
+
+---
+
+### `Nst_string_char_len`
+
+**Synopsis:**
+
+```better-c
+isize Nst_string_char_len(Nst_CP *cp, void *str, usize str_len)
+```
+
+**Description:**
+
+Gets the length in characters of an encoded string.
+
+**Parameters:**
+
+- `cp`: the encoding of the string
+- `str`: the string to get the length of
+- `str_len`: the length in units of the string (a unit is 1 byte for `char8_t`
+  strings, two bytes for `char16_t` strings etc.)
+
+**Returns:**
+
+The length in characters of the string or -1 on failure. The error is set.
+
+---
+
+### `Nst_string_utf8_char_len`
+
+**Synopsis:**
+
+```better-c
+usize Nst_string_utf8_char_len(u8 *str, usize str_len)
+```
+
+**Description:**
+
+Gets the length in characters of a UTF-8-encoded string.
+
+!!!note
+    This function assumes that the string is valid UTF-8 and does no error
+    checking. Use [`Nst_check_string_cp`](c_api-encoding.md#nst_check_string_cp)
+    to check it or
+    [`Nst_string_char_len`](c_api-encoding.md#nst_string_char_len) to get the
+    length in characters safely.
+
+**Parameters:**
+
+- `str`: the string to get the length of
+- `str_len`: the length in bytes of the string
+
+**Returns:**
+
+The length in characters of the string. No error is set.
 
 ---
 
@@ -1167,7 +1256,8 @@ wchar_t *Nst_char_to_wchar_t(i8 *str, usize len)
 
 Translates a UTF-8 string to Unicode (UTF-16).
 
-The new string is heap-allocated. str is assumed to be a valid non-NULL pointer.
+The new string is heap-allocated. `str` is assumed to be a valid non-NULL
+pointer.
 
 **Parameters:**
 
@@ -1194,7 +1284,8 @@ i8 *Nst_wchar_t_to_char(wchar_t *str, usize len)
 
 Translates a Unicode (UTF-16) string to UTF-8.
 
-The new string is heap-allocated. str is assumed to be a valid non-NULL pointer.
+The new string is heap-allocated. `str` is assumed to be a valid non-NULL
+pointer.
 
 **Parameters:**
 
@@ -1219,8 +1310,8 @@ bool Nst_is_valid_cp(u32 cp)
 
 **Description:**
 
-Returns whether a code point is valid. A valid code point is smaller or equal to
-U+10FFFF and is not a high or low surrogate.
+Returns whether a code point is valid. A valid code point is smaller than or
+equal to U+10FFFF and is not a high or low surrogate.
 
 ---
 
@@ -1295,8 +1386,9 @@ Nst_CPID Nst_single_byte_cp(Nst_CPID cpid)
 
 **Returns:**
 
-The little endian variation of a multi-byte encoding or the encoding itself,
-though always one with a unit size of one byte.
+An encoding ID where `ch_size` is one byte. If the given encoding ID has a
+`ch_size` of one byte already the encoding ID itself is returned. Otherwies the
+little endian version is always returned.
 
 ---
 
@@ -1339,7 +1431,7 @@ typedef enum _Nst_CPID {
 
 The supported encodings in Nest.
 
-[`Nst_CP_UNKNOWN`](c_api-encoding.md#nst_cpid) is -1,
+[`Nst_CP_UNKNOWN`](c_api-encoding.md#nst_cpid) is `-1`;
 [`Nst_CP_LATIN1`](c_api-encoding.md#nst_cpid) and
 [`Nst_CP_ISO8859_1`](c_api-encoding.md#nst_cpid) are equivalent.
 

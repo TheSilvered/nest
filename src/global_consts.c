@@ -39,7 +39,7 @@ static Nst_TypeObj *type_obj_no_err(const i8 *name, Nst_ObjDstr dstr)
     type->p_head = NULL;
     type->p_len = 0;
     type->dstr = dstr;
-    type->name = Nst_string_temp((i8 *)name, strlen(name));
+    type->name = Nst_str_temp((i8 *)name, strlen(name));
 
     type->type = Nst_t.Type;
     Nst_ninc_ref(Nst_t.Type);
@@ -71,14 +71,14 @@ static Nst_StrObj *str_obj_no_err(const i8 *value)
     return str;
 }
 
-bool _Nst_init_objects(void)
+bool _Nst_globals_init(void)
 {
     Nst_t.Type = type_obj_no_err("Type", (Nst_ObjDstr)_Nst_type_destroy);
     if (Nst_t.Type == NULL)
         return false;
     Nst_t.Type->type = Nst_t.Type;
 
-    Nst_t.Str = type_obj_no_err("Str", (Nst_ObjDstr)_Nst_string_destroy);
+    Nst_t.Str = type_obj_no_err("Str", (Nst_ObjDstr)_Nst_str_destroy);
     if (Nst_t.Str == NULL) {
         Nst_free(Nst_t.Type);
         return false;
@@ -128,25 +128,25 @@ bool _Nst_init_objects(void)
         (Nst_ObjDstr)_Nst_iter_destroy,
         (Nst_ObjTrav)_Nst_iter_traverse);
 
-    Nst_s.c_true   = STR(Nst_string_new_c("true",  4, false));
-    Nst_s.c_false  = STR(Nst_string_new_c("false", 5, false));
-    Nst_s.c_null   = STR(Nst_string_new_c("null",  4, false));
-    Nst_s.c_inf    = STR(Nst_string_new_c("inf",   3, false));
-    Nst_s.c_nan    = STR(Nst_string_new_c("nan",   3, false));
-    Nst_s.c_neginf = STR(Nst_string_new_c("-inf",  4, false));
-    Nst_s.c_negnan = STR(Nst_string_new_c("-nan",  4, false));
+    Nst_s.c_true   = STR(Nst_str_new_c("true",  4, false));
+    Nst_s.c_false  = STR(Nst_str_new_c("false", 5, false));
+    Nst_s.c_null   = STR(Nst_str_new_c("null",  4, false));
+    Nst_s.c_inf    = STR(Nst_str_new_c("inf",   3, false));
+    Nst_s.c_nan    = STR(Nst_str_new_c("nan",   3, false));
+    Nst_s.c_neginf = STR(Nst_str_new_c("-inf",  4, false));
+    Nst_s.c_negnan = STR(Nst_str_new_c("-nan",  4, false));
 
-    Nst_s.e_SyntaxError = STR(Nst_string_new_c("Syntax Error", 12, false));
-    Nst_s.e_ValueError  = STR(Nst_string_new_c("Value Error",  11, false));
-    Nst_s.e_TypeError   = STR(Nst_string_new_c("Type Error",   10, false));
-    Nst_s.e_CallError   = STR(Nst_string_new_c("Call Error",   10, false));
-    Nst_s.e_MathError   = STR(Nst_string_new_c("Math Error",   10, false));
-    Nst_s.e_ImportError = STR(Nst_string_new_c("Import Error", 12, false));
+    Nst_s.e_SyntaxError = STR(Nst_str_new_c("Syntax Error", 12, false));
+    Nst_s.e_ValueError  = STR(Nst_str_new_c("Value Error",  11, false));
+    Nst_s.e_TypeError   = STR(Nst_str_new_c("Type Error",   10, false));
+    Nst_s.e_CallError   = STR(Nst_str_new_c("Call Error",   10, false));
+    Nst_s.e_MathError   = STR(Nst_str_new_c("Math Error",   10, false));
+    Nst_s.e_ImportError = STR(Nst_str_new_c("Import Error", 12, false));
+    Nst_s.e_Interrupt   = STR(Nst_str_new_c("Interrupt",     9, false));
 
-    Nst_s.o__vars_    = STR(Nst_string_new_c("_vars_",    6, false));
-    Nst_s.o__globals_ = STR(Nst_string_new_c("_globals_", 9, false));
-    Nst_s.o__args_    = STR(Nst_string_new_c("_args_",    6, false));
-    Nst_s.o__cwd_     = STR(Nst_string_new_c("_cwd_",     5, false));
+    Nst_s.o__vars_    = STR(Nst_str_new_c("_vars_",    6, false));
+    Nst_s.o__globals_ = STR(Nst_str_new_c("_globals_", 9, false));
+    Nst_s.o__args_    = STR(Nst_str_new_c("_args_",    6, false));
 
     Nst_c.Bool_true  = Nst_bool_new(true);
     Nst_c.Bool_false = Nst_bool_new(false);
@@ -188,13 +188,13 @@ bool _Nst_init_objects(void)
 
     if (Nst_error_occurred()) {
         Nst_error_clear();
-        _Nst_del_objects();
+        _Nst_globals_quit();
         return false;
     }
     return true;
 }
 
-void _Nst_del_objects(void)
+void _Nst_globals_quit(void)
 {
     Nst_ndec_ref(Nst_t.Type);
     Nst_ndec_ref(Nst_t.Int);
@@ -214,6 +214,10 @@ void _Nst_del_objects(void)
     Nst_ndec_ref(Nst_s.c_true);
     Nst_ndec_ref(Nst_s.c_false);
     Nst_ndec_ref(Nst_s.c_null);
+    Nst_ndec_ref(Nst_s.c_inf);
+    Nst_ndec_ref(Nst_s.c_nan);
+    Nst_ndec_ref(Nst_s.c_neginf);
+    Nst_ndec_ref(Nst_s.c_negnan);
 
     Nst_ndec_ref(Nst_s.e_SyntaxError);
     Nst_ndec_ref(Nst_s.e_MemoryError);
@@ -222,9 +226,9 @@ void _Nst_del_objects(void)
     Nst_ndec_ref(Nst_s.e_CallError);
     Nst_ndec_ref(Nst_s.e_MathError);
     Nst_ndec_ref(Nst_s.e_ImportError);
+    Nst_ndec_ref(Nst_s.e_Interrupt);
 
     Nst_ndec_ref(Nst_s.o__args_);
-    Nst_ndec_ref(Nst_s.o__cwd_);
     Nst_ndec_ref(Nst_s.o__globals_);
     Nst_ndec_ref(Nst_s.o__vars_);
     Nst_ndec_ref(Nst_s.o_failed_alloc);
@@ -238,6 +242,10 @@ void _Nst_del_objects(void)
     Nst_ndec_ref(Nst_c.Int_neg1);
     Nst_ndec_ref(Nst_c.Real_0);
     Nst_ndec_ref(Nst_c.Real_1);
+    Nst_ndec_ref(Nst_c.Real_nan);
+    Nst_ndec_ref(Nst_c.Real_negnan);
+    Nst_ndec_ref(Nst_c.Real_inf);
+    Nst_ndec_ref(Nst_c.Real_neginf);
     Nst_ndec_ref(Nst_c.Byte_0);
     Nst_ndec_ref(Nst_c.Byte_1);
 
@@ -251,6 +259,8 @@ void _Nst_del_objects(void)
     Nst_ndec_ref(Nst_itf.str_get_val);
     Nst_ndec_ref(Nst_itf.seq_start);
     Nst_ndec_ref(Nst_itf.seq_get_val);
+    Nst_ndec_ref(Nst_itf.map_start);
+    Nst_ndec_ref(Nst_itf.map_get_val);
 }
 
 Nst_Obj *Nst_true(void)
@@ -321,25 +331,26 @@ Nst_StdStreams *Nst_stdio(void)
 static Nst_IOResult write_std_stream(i8 *buf, usize buf_len, usize *count,
                                      Nst_IOFileObj *f)
 {
-    usize chars_written = 0;
-
-    while (buf_len > 0) {
-        i32 ch_len = Nst_check_ext_utf8_bytes((u8 *)buf, buf_len);
-        if (ch_len < 0)
-            return Nst_IO_ERROR;
-        usize written_char = fwrite(buf, 1, ch_len, f->fp);
-        if (written_char != (usize)ch_len) {
-            if (count != NULL)
-                *count = chars_written;
-            return Nst_IO_ERROR;
-        }
-        chars_written++;
-        buf += ch_len;
-        buf_len -= ch_len;
-    }
     if (count != NULL)
-        *count = chars_written;
-    return Nst_IO_SUCCESS;
+        *count = Nst_string_utf8_char_len((u8 *)buf, buf_len);
+
+    usize bytes_written = fwrite(buf, 1, buf_len, f->fp);
+
+    if (bytes_written >= buf_len) {
+        return Nst_IO_SUCCESS;
+    }
+    if (count != NULL) {
+        isize chars_written = Nst_string_char_len(
+            Nst_cp(Nst_CP_EXT_UTF8),
+            (void *)buf,
+            bytes_written);
+        if (chars_written == -1)
+            *count = 0;
+        else
+            *count = chars_written;
+        return Nst_IO_ERROR;
+    }
+    return Nst_IO_ERROR;
 }
 
 static Nst_IOResult close_std_stream(Nst_IOFileObj *f)
@@ -348,7 +359,7 @@ static Nst_IOResult close_std_stream(Nst_IOFileObj *f)
     return Nst_IO_SUCCESS;
 }
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 
 static bool read_characters(usize offset)
 {
@@ -356,7 +367,7 @@ static bool read_characters(usize offset)
     BOOL result = ReadConsoleW(
         Nst_stdin.hd,
         Nst_stdin.buf + offset,
-        (DWORD)(1024 - offset),
+        (DWORD)(_Nst_WIN_STDIN_BUF_SIZE - offset),
         &len,
         NULL);
     if (!result)
@@ -423,12 +434,12 @@ success:
 static Nst_IOResult read_std_stream(i8 *buf, usize buf_size, usize count,
                                     usize *buf_len, Nst_IOFileObj *f)
 {
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
     if (Nst_stdin.hd == NULL)
         return Nst_FILE_read(buf, buf_size, count, buf_len, f);
 #else
     Nst_UNUSED(f);
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
     Nst_Buffer buffer;
 

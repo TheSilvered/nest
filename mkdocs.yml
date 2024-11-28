@@ -23,6 +23,7 @@ nav:
     - tutorials/c-lib-tutorial.md
     - tutorials/using-generate_docs.md
   - Standard Library:
+    - stdlib/standard_library.md
     - stdlib/codecs_library.md
     - stdlib/coroutine_library.md
     - stdlib/time_library.md
@@ -41,6 +42,7 @@ nav:
     - c_api/c_api_reference.md
     - argv_parser.h: c_api/c_api-argv_parser.md
     - compiler.h: c_api/c_api-compiler.md
+    - dtoa.h: c_api/c_api-dtoa.md
     - encoding.h: c_api/c_api-encoding.md
     - error.h: c_api/c_api-error.md
     - file.h: c_api/c_api-file.md
@@ -63,6 +65,7 @@ nav:
     - obj_ops.h: c_api/c_api-obj_ops.md
     - optimizer.h: c_api/c_api-optimizer.md
     - parser.h: c_api/c_api-parser.md
+    - runner.h: c_api/c_api-runner.md
     - runtime_stack.h: c_api/c_api-runtime_stack.md
     - sequence.h: c_api/c_api-sequence.md
     - simple_types.h: c_api/c_api-simple_types.md
@@ -76,6 +79,7 @@ extra_javascript:
   - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/highlight.min.js
   - js/highlight.js
 extra_css:
-  - https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.7.0/styles/atom-one-dark.min.css
-  - https://fonts.googleapis.com/css?family=Fira Code
+  - https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap
+  - css/jetbrainsmono.css
   - css/styles.css
+  - css/color_scheme.css

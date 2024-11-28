@@ -11,9 +11,9 @@
 
 #include "encoding.h"
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 #include <windows.h>
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
 #ifdef __cplusplus
 extern "C" {
@@ -46,19 +46,29 @@ NstEXP typedef struct _Nst_CLArgs {
     i32 opt_level;
     i8 *command, *filename;
     i32 args_start;
+    i32 argc;
+    i8 **argv;
 } Nst_CLArgs;
+
+/**
+ * Initializes a `Nst_CLArgs` struct with default values.
+ *
+ * @param args: the struct to initialize
+ * @param argc: the number of arguments passed to main
+ * @param argv: the array of arguments passed to main
+ */
+NstEXP void NstC Nst_cl_args_init(Nst_CLArgs *args, i32 argc, i8 **argv);
 
 /**
  * Parses command-line arguments.
  *
- * @param argc: length of `argv`
- * @param argv: the command-line arguments array
- * @param cl_args: the struct where to put the parsed arguments
+ * @param cl_args: the struct where to put the parsed arguments, it must be
+ * initialized with `Nst_cl_args_init`
  *
  * @return `-1` on failure, `0` on success where the program can continue, `1`
  * on success when the program should stop because an info message was printed.
  */
-NstEXP i32 NstC _Nst_parse_args(i32 argc, i8 **argv, Nst_CLArgs *cl_args);
+NstEXP i32 NstC _Nst_cl_args_parse(Nst_CLArgs *cl_args);
 
 /**
  * @return `true` if ANSI escapes are supported on the current console and
@@ -66,7 +76,10 @@ NstEXP i32 NstC _Nst_parse_args(i32 argc, i8 **argv, Nst_CLArgs *cl_args);
  */
 NstEXP bool NstC Nst_supports_color(void);
 
-#ifdef Nst_WIN
+/* Ovverrides the value returned by `Nst_supports_color`. */
+NstEXP void NstC _Nst_supports_color_override(bool value);
+
+#ifdef Nst_MSVC
 
 /**
  * WINDOWS ONLY Re-encodes Unicode arguments to UTF-8.
@@ -75,14 +88,14 @@ NstEXP bool NstC Nst_supports_color(void);
  * @param wargv: the arguments given
  * @param argv: the pointer where the re-encoded arguments are put
  *
- * @return `true` on success and `false` on failure.
+ * @return `true` on success and `false` on failure. No error is set.
  */
 NstEXP bool NstC _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv);
 
 /* WINDOWS ONLY Initializes the console. */
-NstEXP void NstC _Nst_set_console_mode(void);
+NstEXP void NstC _Nst_console_mode_init(void);
 
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
 #ifdef __cplusplus
 }

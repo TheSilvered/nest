@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#! /usr/bin/bash
 
 if [[ ! -d /usr/lib/nest || ! -f /usr/bin/nest || ! -f /usr/lib/libnest.so ]]; then
     echo Nest does not seem to be installed, exiting...

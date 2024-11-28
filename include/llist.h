@@ -102,7 +102,10 @@ NstEXP bool NstC Nst_llist_append(Nst_LList *llist, void *value,
  */
 NstEXP bool NstC Nst_llist_insert(Nst_LList *llist, void *value,
                                   bool allocated, Nst_LLNode *node);
-/* Removes and returns the front value from a list. */
+/**
+ * @brief Removes and returns the front value of a list. If the list is empty
+ * `NULL` is returned, no error is set.
+ */
 NstEXP void *NstC Nst_llist_pop(Nst_LList *llist);
 /**
  * @brief Returns the front value of a list. If the list is empty `NULL` is
@@ -118,7 +121,10 @@ NstEXP void *NstC Nst_llist_peek_back(Nst_LList *llist);
 NstEXP void NstC Nst_llist_push_llnode(Nst_LList *llist, Nst_LLNode *node);
 /* Adds a node to the back of a list. */
 NstEXP void NstC Nst_llist_append_llnode(Nst_LList *llist, Nst_LLNode *node);
-/* Removes the front node of a list and returns it. */
+/**
+ * @brief Removes the front node of a list and returns it. If the list is empty
+ * `NULL` is returned, no error is set.
+ */
 NstEXP Nst_LLNode *NstC Nst_llist_pop_llnode(Nst_LList *llist);
 
 /**
@@ -132,6 +138,9 @@ NstEXP void NstC Nst_llist_init(Nst_LList *llist);
 
 /**
  * Creates a new node on the heap.
+ *
+ * @brief To free the node use `Nst_free`. The value is *not* handeled
+ * automatically and must be freed manually.
  *
  * @return The new node or `NULL` on failure. The error is set.
  */
@@ -149,7 +158,7 @@ NstEXP Nst_LLNode *NstC Nst_llnode_new(void *value, bool allocated);
 NstEXP void NstC Nst_llist_destroy(Nst_LList *llist,
                                    void (*item_destructor)(void *));
 /**
- * Destroys all the nodes inside list.
+ * Destroys all the nodes inside a list.
  *
  * @brief If the value of a node is marked as allocated it will be passed to
  * item_destructor otherwise it is left untouched.

@@ -21,13 +21,10 @@ extern "C" {
  * @brief The list of tokens is destroyed when calling this function.
  *
  * @param tokens: the tokens to be parsed
- * @param error: a pointer to put the error into
  *
- * @return The AST or `NULL` on failure. No operation error is set.
+ * @return The AST or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Node *NstC Nst_parse(Nst_LList *tokens, Nst_Error *error);
-/* Prints the AST to the Nest standard output. */
-NstEXP void NstC Nst_print_ast(Nst_Node *ast);
+NstEXP Nst_Node *NstC Nst_parse(Nst_LList *tokens);
 
 #ifdef __cplusplus
 }

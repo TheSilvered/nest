@@ -113,16 +113,20 @@
     => true
 ]
 
-{'sym_info':  0,
- 'file_info': 1,
- 'raw_block': 2,
- 'link_info': 3} = BLOCK_MAP_TYPES
+{
+    'sym_info',
+    'file_info',
+    'raw_block',
+    'link_info'
+} @sequ.enum = BLOCK_MAP_TYPES
 
-{'code':   0,
- 'text':   1,
- 'image':  2,
- 'ignore': 3,
- 'error':  4} = LINK_TYPES
+{
+    'code',
+    'text',
+    'image',
+    'ignore',
+    'error'
+} @sequ.enum = LINK_TYPES
 
 #_sym_info_map [
     => {
@@ -350,8 +354,8 @@
 #_docs_link_data parser line [
     @_link_info_map = data_map
 
-    line @su.split = args
-    args.0 ':' @su.split = {_, link_action}
+    line @su.lsplit = args
+    args.0 ':' @su.lsplit = {_, link_action}
 
     !({'ignore_sym', 'link'} link_action <.>) ? [
         'invalid action \(link_action @su.repr)' parser @error
@@ -424,17 +428,19 @@
 
 -/ ========================== Parsing symbol data ========================== /-
 
-{'function': 0,
- 'struct':   1,
- 'macro':    2,
- 'typedef':  3,
- 'enum':     4,
- 'union':    5,
- 'r_struct': 6, -- raw struct
- 'r_union':  7, -- raw union
- 'r_enum':   8, -- raw enum
- 't_func':   9, -- function typedef
- 'error':   -1} = SYMBOL_TYPES
+{
+    'error',
+    'function',
+    'struct',
+    'macro',
+    'typedef',
+    'enum',
+    'union',
+    'r_struct', -- raw struct
+    'r_union',  -- raw union
+    'r_enum',   -- raw enum
+    't_func'    -- function typedef
+} -1 @sequ.enum = SYMBOL_TYPES
 
 #get_symbol_data parser [
     parser @_get_symbol_type = {symbol_type, symbol_text}
@@ -510,10 +516,10 @@
     ]
     symbol_text 1 @sequ.slice = symbol_text -- remove the initial line feed
     symbol_text = original_text
-    symbol_text 'NstEXP' @_remove_prefix @su.trim = symbol_text
+    symbol_text 'NstEXP' @su.lremove @su.trim = symbol_text
 
     symbol_text 'typedef' @su.starts_with ? [
-        symbol_text 'typedef' @_remove_prefix @su.trim = symbol_text
+        symbol_text 'typedef' @su.lremove @su.trim = symbol_text
         true = is_typedef
     ] : [
         false = is_typedef
@@ -531,6 +537,8 @@
         :
             => {SYMBOL_TYPES.function, original_text}
     ]
+
+    symbol_text 'volatile' @su.lremove @su.trim = symbol_text
 
     symbol_text 'enum' @su.starts_with ? [
         is_typedef ?
@@ -565,12 +573,6 @@
     => {paren, bracket, brace}
 ]
 
-#_remove_prefix str prefix [
-    str prefix @su.starts_with ?
-        str $prefix @sequ.slice = str
-    => str
-]
-
 #_get_macro parser [
     parser @parser_curr_line = line
     line = macro_text
@@ -591,9 +593,9 @@
 ]
 
 #_get_function_data func_text [
-    func_text 'NstEXP' @_remove_prefix @su.trim = func_text
+    func_text 'NstEXP' @su.lremove @su.trim = func_text
     func_text '\n' ' ' @su.replace = func_text
-    func_text @su.split @su.join = func_text
+    func_text @su.lsplit @su.join = func_text
 
     SYMBOL_TYPES.function @_symbol_data_map = data_map
 
@@ -682,7 +684,7 @@
 ]
 
 #_split_args text [
-    text ',' @su.split su.trim @sequ.map = maybe_args
+    text ',' @su.lsplit su.trim @sequ.map = maybe_args
 
     <{}> = args
     '' = curr_arg
@@ -727,7 +729,7 @@
 ]
 
 #_get_macro_data macro_text [
-    macro_text '#define' @_remove_prefix @su.trim = macro_text
+    macro_text '#define' @su.lremove @su.trim = macro_text
     macro_text '(' @su.lfind = open_paren
     macro_text ' ' @su.lfind = space
     macro_text ')' @su.lfind = close_paren
@@ -748,7 +750,7 @@
 ]
 
 #_get_s_e_u_data symbol_type symbol_text [
-    symbol_text 'NstEXP' @_remove_prefix @su.trim = symbol_text
+    symbol_text 'NstEXP' @su.lremove @su.trim = symbol_text
 
     symbol_text '}' @su.rfind = close_brace
     symbol_text (close_brace 1 +) @sequ.slice = name
@@ -767,7 +769,7 @@
 ]
 
 #_get_typedef_data typedef_text [
-    typedef_text 'NstEXP' @_remove_prefix @su.trim = typedef_text
+    typedef_text 'NstEXP' @su.lremove @su.trim = typedef_text
     typedef_text @_split_tokens = tokens
 
     SYMBOL_TYPES.typedef @_symbol_data_map = data_map
@@ -777,13 +779,13 @@
 ]
 
 #_get_raw_s_e_u_data symbol_type symbol_text [
-    symbol_text 'NstEXP' @_remove_prefix @su.trim = symbol_text
+    symbol_text 'NstEXP' @su.lremove @su.trim = symbol_text
     symbol_text = orig_text
 
     symbol_text '\n' ' ' @su.replace \
-        'enum ' @_remove_prefix \
-        'union ' @_remove_prefix \
-        'struct ' @_remove_prefix = symbol_text
+        'enum ' @su.lremove \
+        'union ' @su.lremove \
+        'struct ' @su.lremove = symbol_text
 
     (symbol_text @_split_tokens).0 = name
 
@@ -795,9 +797,9 @@
 ]
 
 #_get_t_func_data t_func_text [
-    t_func_text 'NstEXP' @_remove_prefix @su.trim = t_func_text
+    t_func_text 'NstEXP' @su.lremove @su.trim = t_func_text
     t_func_text '\n' ' ' @su.replace = t_func_text
-    t_func_text @su.split @su.join = t_func_text
+    t_func_text @su.lsplit @su.join = t_func_text
 
     SYMBOL_TYPES.t_func @_symbol_data_map = data_map
 
@@ -879,7 +881,7 @@
     indent null == ? 0 = indent
 
     '' = lines
-    Vector :: (text @su.split @itu.reversed) = words
+    Vector :: (text @su.lsplit) true @sequ.reverse = words
     words (##x => x '[docs:nbsp]' ' ' @su.replace) true @sequ.map
 
     ?.. $words 0 != [
@@ -914,7 +916,7 @@
 
 #link_manager_add_symbols link_manager file_blocks [
     file_blocks.header.file.0 = file
-    'c_api-' (file '.' @su.split).0 '.md' >< = file
+    'c_api-' (file '.' @su.lsplit).0 '.md' >< = file
 
     ... file_blocks.symbols := symbol [
         symbol.sym.name = name
@@ -1034,6 +1036,7 @@
     {} = files
 
     ... '../include/' @fs.list_dir := file [
+        'Parsing \(file @fs.path.filename @su.repr)' @io.println
         file @_parse_c_file = file_blocks
         file_blocks null == ? [
             '\(file @su.repr) failed' @io.println
@@ -1042,7 +1045,7 @@
         link_manager file_blocks @link_manager_add_symbols
         file_blocks = files.(file)
     ]
-
+    'Parsing complete.\n' @io.println
     link_manager @link_manager_expand_internal_links
     => {files, link_manager}
 ]
@@ -1062,7 +1065,9 @@
     file @io.close
     content @_split_lines = lines
 
-    file_path @fs.filename lines @parser_new = parser
+    content '/* [docs:ignore_file] */' @su.starts_with ? => null
+
+    file_path @fs.path.filename lines @parser_new = parser
 
     @_file_info_map = file_header
     parser file_header @get_next_doc_block = file_header
@@ -1075,7 +1080,7 @@
     file_header @_file_blocks_map = file_blocks
     file_blocks.header.file.0 = header_name
 
-    header_name (file_path @fs.filename) != ? [
+    header_name (file_path @fs.path.filename) != ? [
         'file name in header \(header_name @su.repr) does not correspond ' \
             'to the one of the file' >< parser @warning
     ]
@@ -1102,7 +1107,7 @@
 
 #_split_lines content [
     content '\r\n' '\n' @su.replace '\r' '\n' @su.replace = content
-    => content '\n' @su.split
+    => content '\n' @su.lsplit
 ]
 
 -/ ============================= C API Writing ============================= /-
@@ -1113,16 +1118,19 @@
         => null
     ]
     '../docs/c_api/' @fs.make_dir
-    @sys._get_cwd = old_cwd
-    '../docs/c_api/' @sys._set_cwd
+    @sys.get_cwd = old_cwd
+    '../docs/c_api/' @sys.set_cwd
 
-    ... files := {_, file_blocks} [
+    ... files := {file, file_blocks} [
+        'Writing \(file @fs.path.filename @su.repr) documentation...' \
+            @io.println
         file_blocks link_manager @_write_c_file
     ]
 
+    'Writing API reference...' @io.println
     link_manager @_write_api_reference
-
-    old_cwd @sys._set_cwd
+    'Writing complete.' @io.println
+    old_cwd @sys.set_cwd
 ]
 
 #_write_c_file file_blocks lm [
@@ -1143,7 +1151,7 @@
 
     file_description.-1 '.' != ? '.' ><= file_description
 
-    'c_api-' (file_name '.' @su.split).0 '.md' >< 'w' @io.open = file
+    'c_api-' (file_name '.' @su.lsplit).0 '.md' >< 'w' @io.open = file
 
     file ('`' file_name '`' >< 1 @title) @io.write
     file_description lm @_doc_paragraph file @_append_to_file
@@ -1198,20 +1206,20 @@
     text 'WINDOWS ONLY' '**WINDOWS ONLY**' @su.replace = text
 
     text '\n' <.> ? [
-        text '\n' @su.split = items
+        text '\n' @su.lsplit = items
         items.0 @paragraph = introduction
         items 1 @sequ.slice @list = list_str
         => introduction '\n' list_str ><
     ]
     text 'Warning:' @su.starts_with ? [
-        text 'Warning:' @_remove_prefix @su.trim = text
+        text 'Warning:' @su.lremove @su.trim = text
         text ? [
             (text.0 @su.to_upper) (text 1 @sequ.slice) >< = text
         ]
         => text @warning_box
     ]
     text 'Note:' @su.starts_with ? [
-        text 'Note:' @_remove_prefix @su.trim = text
+        text 'Note:' @su.lremove @su.trim = text
         text ? [
             (text.0 @su.to_upper) (text 1 @sequ.slice) >< = text
         ]
@@ -1322,7 +1330,7 @@
 
         title_name 0 @title file @_append_to_file
         doc.param ##x [
-            x ':' 1 @su.split = {name, desc}
+            x ':' 1 @su.lsplit = {name, desc}
             => '`\(name @su.trim)`: \(desc @su.trim)'
         ] @sequ.map = params
         params lm @_doc_list file @_append_to_file

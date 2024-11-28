@@ -1,68 +1,441 @@
 |#| '../test_lib.nest' = test
 |#| 'stdio.nest' = io
 
-#read_whole_file f [
-    f @io.get_fpi = start
-    f io.FROM_START 0 @io.move_fpi
-    f @io.read = content
-    f io.FROM_START start @io.move_fpi
-    => content
+'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f' \
+    = ascii_text
+'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\u20ac\u201a\u201e\u2026\u2020\u2021\u2030\u0160\u2039\u015a\u0164\u017d\u0179\u2018\u2019\u201c\u201d\u2022\u2013\u2014\u2122\u0161\u203a\u015b\u0165\u017e\u017a\xa0\u02c7\u02d8\u0141\xa4\u0104\xa6\xa7\xa8\xa9\u015e\xab\xac\xad\xae\u017b\xb0\xb1\u02db\u0142\xb4\xb5\xb6\xb7\xb8\u0105\u015f\xbb\u013d\u02dd\u013e\u017c\u0154\xc1\xc2\u0102\xc4\u0139\u0106\xc7\u010c\xc9\u0118\xcb\u011a\xcd\xce\u010e\u0110\u0143\u0147\xd3\xd4\u0150\xd6\xd7\u0158\u016e\xda\u0170\xdc\xdd\u0162\xdf\u0155\xe1\xe2\u0103\xe4\u013a\u0107\xe7\u010d\xe9\u0119\xeb\u011b\xed\xee\u010f\u0111\u0144\u0148\xf3\xf4\u0151\xf6\xf7\u0159\u016f\xfa\u0171\xfc\xfd\u0163\u02d9' \
+    = cp1250_text
+'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\u0402\u0403\u201a\u0453\u201e\u2026\u2020\u2021\u20ac\u2030\u0409\u2039\u040a\u040c\u040b\u040f\u0452\u2018\u2019\u201c\u201d\u2022\u2013\u2014\u2122\u0459\u203a\u045a\u045c\u045b\u045f\xa0\u040e\u045e\u0408\xa4\u0490\xa6\xa7\u0401\xa9\u0404\xab\xac\xad\xae\u0407\xb0\xb1\u0406\u0456\u0491\xb5\xb6\xb7\u0451\u2116\u0454\xbb\u0458\u0405\u0455\u0457\u0410\u0411\u0412\u0413\u0414\u0415\u0416\u0417\u0418\u0419\u041a\u041b\u041c\u041d\u041e\u041f\u0420\u0421\u0422\u0423\u0424\u0425\u0426\u0427\u0428\u0429\u042a\u042b\u042c\u042d\u042e\u042f\u0430\u0431\u0432\u0433\u0434\u0435\u0436\u0437\u0438\u0439\u043a\u043b\u043c\u043d\u043e\u043f\u0440\u0441\u0442\u0443\u0444\u0445\u0446\u0447\u0448\u0449\u044a\u044b\u044c\u044d\u044e\u044f' \
+    = cp1251_text
+'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\u20ac\u201a\u0192\u201e\u2026\u2020\u2021\u02c6\u2030\u0160\u2039\u0152\u017d\u2018\u2019\u201c\u201d\u2022\u2013\u2014\u02dc\u2122\u0161\u203a\u0153\u017e\u0178\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff' \
+    = cp1252_text
+'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\u20ac\u201a\u0192\u201e\u2026\u2020\u2021\u2030\u2039\u2018\u2019\u201c\u201d\u2022\u2013\u2014\u2122\u203a\xa0\u0385\u0386\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xab\xac\xad\xae\u2015\xb0\xb1\xb2\xb3\u0384\xb5\xb6\xb7\u0388\u0389\u038a\xbb\u038c\xbd\u038e\u038f\u0390\u0391\u0392\u0393\u0394\u0395\u0396\u0397\u0398\u0399\u039a\u039b\u039c\u039d\u039e\u039f\u03a0\u03a1\u03a3\u03a4\u03a5\u03a6\u03a7\u03a8\u03a9\u03aa\u03ab\u03ac\u03ad\u03ae\u03af\u03b0\u03b1\u03b2\u03b3\u03b4\u03b5\u03b6\u03b7\u03b8\u03b9\u03ba\u03bb\u03bc\u03bd\u03be\u03bf\u03c0\u03c1\u03c2\u03c3\u03c4\u03c5\u03c6\u03c7\u03c8\u03c9\u03ca\u03cb\u03cc\u03cd\u03ce' \
+    = cp1253_text
+'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\u20ac\u201a\u0192\u201e\u2026\u2020\u2021\u02c6\u2030\u0160\u2039\u0152\u2018\u2019\u201c\u201d\u2022\u2013\u2014\u02dc\u2122\u0161\u203a\u0153\u0178\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\u011e\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\u0130\u015e\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\u011f\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\u0131\u015f\xff' \
+    = cp1254_text
+'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\u20ac\u201a\u0192\u201e\u2026\u2020\u2021\u02c6\u2030\u2039\u2018\u2019\u201c\u201d\u2022\u2013\u2014\u02dc\u2122\u203a\xa0\xa1\xa2\xa3\u20aa\xa5\xa6\xa7\xa8\xa9\xd7\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xf7\xbb\xbc\xbd\xbe\xbf\u05b0\u05b1\u05b2\u05b3\u05b4\u05b5\u05b6\u05b7\u05b8\u05b9\u05bb\u05bc\u05bd\u05be\u05bf\u05c0\u05c1\u05c2\u05c3\u05f0\u05f1\u05f2\u05f3\u05f4\u05d0\u05d1\u05d2\u05d3\u05d4\u05d5\u05d6\u05d7\u05d8\u05d9\u05da\u05db\u05dc\u05dd\u05de\u05df\u05e0\u05e1\u05e2\u05e3\u05e4\u05e5\u05e6\u05e7\u05e8\u05e9\u05ea\u200e\u200f' \
+    = cp1255_text
+'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\u20ac\u067e\u201a\u0192\u201e\u2026\u2020\u2021\u02c6\u2030\u0679\u2039\u0152\u0686\u0698\u0688\u06af\u2018\u2019\u201c\u201d\u2022\u2013\u2014\u06a9\u2122\u0691\u203a\u0153\u200c\u200d\u06ba\xa0\u060c\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\u06be\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\u061b\xbb\xbc\xbd\xbe\u061f\u06c1\u0621\u0622\u0623\u0624\u0625\u0626\u0627\u0628\u0629\u062a\u062b\u062c\u062d\u062e\u062f\u0630\u0631\u0632\u0633\u0634\u0635\u0636\xd7\u0637\u0638\u0639\u063a\u0640\u0641\u0642\u0643\xe0\u0644\xe2\u0645\u0646\u0647\u0648\xe7\xe8\xe9\xea\xeb\u0649\u064a\xee\xef\u064b\u064c\u064d\u064e\xf4\u064f\u0650\xf7\u0651\xf9\u0652\xfb\xfc\u200e\u200f\u06d2' \
+    = cp1256_text
+'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\u20ac\u201a\u201e\u2026\u2020\u2021\u2030\u2039\xa8\u02c7\xb8\u2018\u2019\u201c\u201d\u2022\u2013\u2014\u2122\u203a\xaf\u02db\xa0\xa2\xa3\xa4\xa6\xa7\xd8\xa9\u0156\xab\xac\xad\xae\xc6\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xf8\xb9\u0157\xbb\xbc\xbd\xbe\xe6\u0104\u012e\u0100\u0106\xc4\xc5\u0118\u0112\u010c\xc9\u0179\u0116\u0122\u0136\u012a\u013b\u0160\u0143\u0145\xd3\u014c\xd5\xd6\xd7\u0172\u0141\u015a\u016a\xdc\u017b\u017d\xdf\u0105\u012f\u0101\u0107\xe4\xe5\u0119\u0113\u010d\xe9\u017a\u0117\u0123\u0137\u012b\u013c\u0161\u0144\u0146\xf3\u014d\xf5\xf6\xf7\u0173\u0142\u015b\u016b\xfc\u017c\u017e\u02d9' \
+    = cp1257_text
+'\x00\x01\x02\x03\x04\x05\x06\x07\x08\t\n\x0b\x0c\r\x0e\x0f\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b\x1c\x1d\x1e\x1f !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\x7f\u20ac\u201a\u0192\u201e\u2026\u2020\u2021\u02c6\u2030\u2039\u0152\u2018\u2019\u201c\u201d\u2022\u2013\u2014\u02dc\u2122\u203a\u0153\u0178\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0\xc1\xc2\u0102\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\u0300\xcd\xce\xcf\u0110\xd1\u0309\xd3\xd4\u01a0\xd6\xd7\xd8\xd9\xda\xdb\xdc\u01af\u0303\xdf\xe0\xe1\xe2\u0103\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\u0301\xed\xee\xef\u0111\xf1\u0323\xf3\xf4\u01a1\xf6\xf7\xf8\xf9\xfa\xfb\xfc\u01b0\u20ab\xff' \
+    = cp1258_text
+' !"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~\xa0\xa1\xa2\xa3\xa4\xa5\xa6\xa7\xa8\xa9\xaa\xab\xac\xad\xae\xaf\xb0\xb1\xb2\xb3\xb4\xb5\xb6\xb7\xb8\xb9\xba\xbb\xbc\xbd\xbe\xbf\xc0\xc1\xc2\xc3\xc4\xc5\xc6\xc7\xc8\xc9\xca\xcb\xcc\xcd\xce\xcf\xd0\xd1\xd2\xd3\xd4\xd5\xd6\xd7\xd8\xd9\xda\xdb\xdc\xdd\xde\xdf\xe0\xe1\xe2\xe3\xe4\xe5\xe6\xe7\xe8\xe9\xea\xeb\xec\xed\xee\xef\xf0\xf1\xf2\xf3\xf4\xf5\xf6\xf7\xf8\xf9\xfa\xfb\xfc\xfd\xfe\xff' \
+    = latin1_text
+'{|}~\x7f\x80\x81\x82\x83\x84\x85\u07fb\u07fc\u07fd\u07fe\u07ff\u0800\u0801\u0802\u0803\u0804\u0805\ufffb\ufffc\ufffd\ufffe\uffff\U010000\U010001\U010002\U010003\U010004\U010005' \
+    = unicode_text
+
+-- Test 'io.open'
+io.open {'test_files/file.txt', ''} @test.assert_raises_error
+io.open {'test_files/file.txt', 'rb+a'} @test.assert_raises_error
+io.open {'test_files/file.txt', 'x'} @test.assert_raises_error
+io.open {'test_files/file.txt', 'wa'} @test.assert_raises_error
+io.open {'test_files/file.txt', 'wba'} @test.assert_raises_error
+io.open {'test_files/file.txt', 'rb', 'utf-8'} @test.assert_raises_error
+io.open {'test_files/file.txt', 'r+', 'notanencoding'} @test.assert_raises_error
+io.open {'test_files/notafile.txt'} @test.assert_raises_error
+
+'test_files/ùnicode😊.txt' @io.open = file
+file @io.read '' @test.assert_eq
+file @io.close
+
+file = closed_file
+
+-- Test 'io.virtual_file'
+false @io.virtual_file = vf
+vf @io.is_bin @test.assert_false
+vf @io.can_read @test.assert_true
+vf @io.can_write @test.assert_true
+vf @io.can_seek @test.assert_true
+vf @io.is_a_tty @test.assert_false
+vf @io.descriptor -1 @test.assert_eq
+vf @test.assert_true
+vf @io.close
+vf @test.assert_false
+
+true @io.virtual_file = vf
+vf @io.is_bin @test.assert_true
+vf @io.close
+
+-- Test 'io.close'
+io.close {closed_file} @test.assert_raises_error
+
+-- Test 'io.write'
+#test_write_cp_file cp text [
+    'test_files/encodings/file_\(cp)_out.txt' 'w' cp @io.open = file
+    file text @io.write $text @test.assert_eq
+    file @io.close
+    'test_files/encodings/file_\(cp)_out.txt' 'r' cp @io.open = file
+    file @io.read text @test.assert_eq
+    file @io.close
 ]
 
-{72b, 105b} = bytes -- Hi
+#test_write_unicode_file encoding [
+    'test_files/encodings/file_\(encoding)_out.txt' 'w' encoding @io.open = file
+    file unicode_text @io.write $unicode_text @test.assert_eq
+    file @io.close
+    'test_files/encodings/file_\(encoding)_out.txt' 'r' encoding @io.open = file
+    file @io.read unicode_text @test.assert_eq
+    file @io.close
+]
 
-@io.virtual_file = f
-Bool :: f @test.assert_true
-f @io.close
-Bool :: f @test.assert_false
+'ascii'   ascii_text @test_write_cp_file
+'cp1250' cp1250_text @test_write_cp_file
+'cp1251' cp1251_text @test_write_cp_file
+'cp1252' cp1252_text @test_write_cp_file
+'cp1253' cp1253_text @test_write_cp_file
+'cp1254' cp1254_text @test_write_cp_file
+'cp1255' cp1255_text @test_write_cp_file
+'cp1256' cp1256_text @test_write_cp_file
+'cp1257' cp1257_text @test_write_cp_file
+'cp1258' cp1258_text @test_write_cp_file
+'latin1' latin1_text @test_write_cp_file
+'utf8'    @test_write_unicode_file
+'utf16le' @test_write_unicode_file
+'utf16be' @test_write_unicode_file
+'utf32le' @test_write_unicode_file
+'utf32be' @test_write_unicode_file
 
-'test_files/file.txt' 'wb+' @io.open = f
-f bytes @io.write_bytes
-f @io.close
+@io.virtual_file = file
+file 'Hello, world!' @io.write
+file io.FROM_START @io.seek
+file @io.read 'Hello, world!' @test.assert_eq
+file io.FROM_START @io.seek
+file 'hELLO' @io.write
+file 'ab' @io.write
+file io.FROM_START @io.seek
+file @io.read 'hELLOabworld!' @test.assert_eq
+file @io.close
 
-'test_files/file.txt' 'rb' @io.open = f
-f -1 @io.read_bytes bytes @test.assert_eq
-f @io.close
+'test_files/file.txt' 'w+' @io.open = file
+file 'Hello, world!' @io.write
+file io.FROM_START @io.seek
+file @io.read 'Hello, world!' @test.assert_eq
+file io.FROM_START @io.seek
+file 'hELLO' @io.write
+file 'ab' @io.write
+file io.FROM_START @io.seek
+file @io.read 'hELLOabworld!' @test.assert_eq
+file @io.close
 
-'test_files/file.txt' 'w' @io.open = f
-f 'Hello' @io.write
-f @io.close
+io.write {closed_file, ''} @test.assert_raises_error
+'test_files/file.txt' @io.open = no_write
+io.write {no_write, ''} @test.assert_raises_error
+no_write @io.close
+'test_files/file.txt' 'wb' @io.open = bin_file
+io.write {bin_file, ''} @test.assert_raises_error
+bin_file @io.close
 
-f @io.get_flags '-w-s-' @test.assert_eq
+-- Test 'io.write_bytes'
+true @io.virtual_file = file
+file {Byte::'H', Byte::'i', Byte::'!'} @io.write_bytes
+file io.FROM_START @io.seek
+file @io.read_bytes {Byte::'H', Byte::'i', Byte::'!'} @test.assert_eq
+file io.FROM_START @io.seek
+file {0b, 255b} @io.write_bytes
+file io.FROM_START @io.seek
+file @io.read_bytes {0b, 255b, Byte::'!'} @test.assert_eq
+file io.FROM_START @io.seek
+file {20b} @io.write_bytes
+file {21b, 22b} @io.write_bytes
+file io.FROM_START @io.seek
+file @io.read_bytes {20b, 21b, 22b} @test.assert_eq
+file @io.close
 
-'test_files/file.txt' 'r+' @io.open = f
+'test_files/file.txt' 'wb+' @io.open = file
+file {Byte::'H', Byte::'i', Byte::'!'} @io.write_bytes
+file io.FROM_START @io.seek
+file @io.read_bytes {Byte::'H', Byte::'i', Byte::'!'} @test.assert_eq
+file io.FROM_START @io.seek
+file {0b, 255b} @io.write_bytes
+file io.FROM_START @io.seek
+file @io.read_bytes {0b, 255b, Byte::'!'} @test.assert_eq
+file io.FROM_START @io.seek
+file {20b} @io.write_bytes
+file {21b, 22b} @io.write_bytes
+file io.FROM_START @io.seek
+file @io.read_bytes {20b, 21b, 22b} @test.assert_eq
+file @io.close
 
-f -1 @io.read 'Hello' @test.assert_eq
-f @io.file_size 5 @test.assert_eq
-f io.FROM_CUR -2 @io.move_fpi
-f @io.get_fpi 3 @test.assert_eq
-f -1 @io.read 'lo' @test.assert_eq
+io.write_bytes {closed_file, ''} @test.assert_raises_error
+'test_files/file.txt' @io.open = no_write
+io.write_bytes {no_write, ''} @test.assert_raises_error
+no_write @io.close
+'test_files/file.txt' 'w' @io.open = normal_file
+io.write_bytes {normal_file, ''} @test.assert_raises_error
+normal_file @io.close
 
-f @io._set_stdout
-', world!' @io.println
-io.STDOUT @io._set_stdout
+-- Test 'io.read'
+#test_read_cp_file cp text [
+    'test_files/encodings/file_\(cp).txt' 'r' cp @io.open = file
+    file @io.read text @test.assert_eq
+    file @io.close
+]
 
-f @read_whole_file 'Hello, world!\n' @test.assert_eq
+#test_read_unicode_file encoding [
+    'test_files/encodings/file_\(encoding).txt' 'r' encoding @io.open = file
+    file @io.read unicode_text @test.assert_eq
+    file @io.close
+]
 
-f @io.close
+#test_read_unicode_file_with_bom encoding [
+    'test_files/encodings/file_\(encoding)_bom.txt' 'r' encoding @io.open = file
+    file @io.read unicode_text @test.assert_eq
+    file @io.close
+]
 
-false @io.virtual_file = f
-f 'Hello' @io.write
-f @io.flush
-f @read_whole_file 'Hello' @test.assert_eq
-f @io.get_flags 'rw-s-' @test.assert_eq
-f @io.close
+'ascii'   ascii_text @test_read_cp_file
+'cp1250' cp1250_text @test_read_cp_file
+'cp1251' cp1251_text @test_read_cp_file
+'cp1252' cp1252_text @test_read_cp_file
+'cp1253' cp1253_text @test_read_cp_file
+'cp1254' cp1254_text @test_read_cp_file
+'cp1255' cp1255_text @test_read_cp_file
+'cp1256' cp1256_text @test_read_cp_file
+'cp1257' cp1257_text @test_read_cp_file
+'cp1258' cp1258_text @test_read_cp_file
+'latin1' latin1_text @test_read_cp_file
+'utf8'    @test_read_unicode_file
+'utf8'    @test_read_unicode_file_with_bom
+'utf16le' @test_read_unicode_file
+'utf16le' @test_read_unicode_file_with_bom
+'utf16be' @test_read_unicode_file
+'utf16be' @test_read_unicode_file_with_bom
+'utf32le' @test_read_unicode_file
+'utf32le' @test_read_unicode_file_with_bom
+'utf32be' @test_read_unicode_file
+'utf32be' @test_read_unicode_file_with_bom
 
-true @io.virtual_file = f
-f @io.get_flags 'rwbs-' @test.assert_eq
-f @io.close
+@io.virtual_file = file
+file 'Helloàèìòù😊🎺😁' @io.write
+file io.FROM_START @io.seek
+file 4 @io.read 'Hell' @test.assert_eq
+file 4 @io.read 'oàèì' @test.assert_eq
+file 4 @io.read 'òù😊🎺' @test.assert_eq
+file @io.read '😁' @test.assert_eq
+file @io.close
 
-'test_files/utf16le_file.txt' 'w' 'utf16le' @io.open = f
-f 'àèìòù§°ç' @io.write
-f @io.close
+'test_files/file.txt' 'w+' @io.open = file
+file 'Helloàèìòù😊🎺😁' @io.write
+file io.FROM_START @io.seek
+file 4 @io.read 'Hell' @test.assert_eq
+file 4 @io.read 'oàèì' @test.assert_eq
+file 4 @io.read 'òù😊🎺' @test.assert_eq
+file @io.read '😁' @test.assert_eq
+file @io.close
 
-'test_files/utf16le_file.txt' 'r' 'utf16le' @io.open = f
-f 3 @io.read 'àèì' @test.assert_eq
-f @io.read 'òù§°ç' @test.assert_eq
-f @io.close
+io.read {closed_file, ''} @test.assert_raises_error
+'test_files/file.txt' 'w' @io.open = no_read
+io.read {no_read, ''} @test.assert_raises_error
+no_read @io.close
+'test_files/file.txt' 'rb' @io.open = bin_file
+io.read {bin_file, ''} @test.assert_raises_error
+bin_file @io.close
 
+-- Test 'io.read_bytes'
+true @io.virtual_file = file
+file {20b, 21b, 22b, 23b, 24b} @io.write_bytes
+file io.FROM_START @io.seek
+file 3 @io.read_bytes {20b, 21b, 22b} @test.assert_eq
+file 3 @io.read_bytes {23b, 24b} @test.assert_eq
+file @io.close
+
+'test_files/file.txt' 'wb+' @io.open = file
+file {20b, 21b, 22b, 23b, 24b} @io.write_bytes
+file io.FROM_START @io.seek
+file 3 @io.read_bytes {20b, 21b, 22b} @test.assert_eq
+file 3 @io.read_bytes {23b, 24b} @test.assert_eq
+file @io.close
+
+io.read_bytes {closed_file, ''} @test.assert_raises_error
+'test_files/file.txt' 'wb' @io.open = no_read
+io.read_bytes {no_read, ''} @test.assert_raises_error
+no_read @io.close
+'test_files/file.txt' 'r' @io.open = normal_file
+io.read_bytes {normal_file, ''} @test.assert_raises_error
+normal_file @io.close
+
+-- Test 'io.file_size'
+@io.virtual_file = file
+file 'Hello, world!' @io.write
+file @io.seek = prev_pos
+file @io.file_size 13 @test.assert_eq
+file @io.seek prev_pos @test.assert_eq
+file io.FROM_START 3 @io.seek = prev_pos
+file @io.file_size 13 @test.assert_eq
+file @io.seek prev_pos @test.assert_eq
+file @io.close
+
+'test_files/file.txt' 'w+' @io.open = file
+file 'Hello, world!' @io.write
+file @io.seek = prev_pos
+file @io.file_size 13 @test.assert_eq
+file @io.seek prev_pos @test.assert_eq
+file io.FROM_START 3 @io.seek = prev_pos
+file @io.file_size 13 @test.assert_eq
+file @io.seek prev_pos @test.assert_eq
+file @io.close
+
+-- Test 'io.seek'
+@io.virtual_file = file
+file 'Hello, world!' @io.write
+file @io.seek 13 @test.assert_eq
+file io.FROM_START @io.seek 0 @test.assert_eq
+file io.FROM_END @io.seek 13 @test.assert_eq
+file io.FROM_END -2 @io.seek 11 @test.assert_eq
+file io.FROM_START 5 @io.seek 5 @test.assert_eq
+file io.FROM_CUR 5 @io.seek 10 @test.assert_eq
+file io.FROM_CUR -3 @io.seek 7 @test.assert_eq
+file @io.close
+
+'test_files/file.txt' 'w+' @io.open = file
+file 'Hello, world!' @io.write
+file @io.seek 13 @test.assert_eq
+file io.FROM_START @io.seek 0 @test.assert_eq
+file io.FROM_END @io.seek 13 @test.assert_eq
+file io.FROM_END -2 @io.seek 11 @test.assert_eq
+file io.FROM_START 5 @io.seek 5 @test.assert_eq
+file io.FROM_CUR 5 @io.seek 10 @test.assert_eq
+file io.FROM_CUR -3 @io.seek 7 @test.assert_eq
+file @io.close
+
+io.seek {closed_file} @test.assert_raises_error
+
+-- Test 'io.flush'
+io.flush {closed_file} @test.assert_raises_error
+'test_files/file.txt' @io.open = file
+io.flush {file} @test.assert_raises_error
+file @io.close
+
+-- Test 'io.get_flags'
+'test_files/file.txt' @io.open = file
+file @io.get_flags 'r--s-' @test.assert_eq
+file @io.close
+'test_files/file.txt' 'wb' @io.open = file
+file @io.get_flags '-wbs-' @test.assert_eq
+file @io.close
+'test_files/file.txt' 'wb+' @io.open = file
+file @io.get_flags 'rwbs-' @test.assert_eq
+file @io.close
+
+io.get_flags {closed_file} @test.assert_raises_error
+
+-- Test 'io.can_read'
+'test_files/file.txt' @io.open = file
+file @io.can_read @test.assert_true
+file @io.close
+'test_files/file.txt' 'w' @io.open = file
+file @io.can_read @test.assert_false
+file @io.close
+'test_files/file.txt' 'w+' @io.open = file
+file @io.can_read @test.assert_true
+file @io.close
+
+io.can_read {closed_file} @test.assert_raises_error
+
+-- Test 'io.can_write'
+'test_files/file.txt' @io.open = file
+file @io.can_write @test.assert_false
+file @io.close
+'test_files/file.txt' 'w' @io.open = file
+file @io.can_write @test.assert_true
+file @io.close
+'test_files/file.txt' 'w+' @io.open = file
+file @io.can_write @test.assert_true
+file @io.close
+
+io.can_write {closed_file} @test.assert_raises_error
+
+-- Test 'io.can_seek'
+io.can_seek {closed_file} @test.assert_raises_error
+
+-- Test 'io.is_bin'
+'test_files/file.txt' 'w+' @io.open = file
+file @io.is_bin @test.assert_false
+file @io.close
+'test_files/file.txt' 'rb' @io.open = file
+file @io.is_bin @test.assert_true
+file @io.close
+'test_files/file.txt' 'wb' @io.open = file
+file @io.is_bin @test.assert_true
+file @io.close
+'test_files/file.txt' 'wb+' @io.open = file
+file @io.is_bin @test.assert_true
+file @io.close
+
+io.is_bin {closed_file} @test.assert_raises_error
+
+-- Test 'io.is_a_tty'
+'test_files/file.txt' @io.open = file
+file @io.is_a_tty @test.assert_false
+file @io.close
+io.is_a_tty {closed_file} @test.assert_raises_error
+
+-- Test 'io.descriptor'
+io.descriptor {closed_file} @test.assert_raises_error
+
+-- Test 'io.encoding'
+'test_files/file.txt' @io.open = file
+file @io.encoding 'UTF-8' @test.assert_eq
+file @io.close
+'test_files/file.txt' 'r' 'latin1' @io.open = file
+file @io.encoding 'ISO-8859-1' @test.assert_eq
+file @io.close
+
+io.encoding {closed_file} @test.assert_raises_error
+'test_files/file.txt' 'rb' @io.open = bin_file
+io.encoding {bin_file} @test.assert_raises_error
+bin_file @io.close
+
+-- Test 'io.println'
+'test_files/file.txt' 'w+' @io.open = file
+'Hello' true file @io.println
+123 true file @io.println
+file io.FROM_START @io.seek
+file @io.read 'Hello\n123\n' @test.assert_eq
+file @io.close
+
+io.println {'a', true, closed_file} @test.assert_raises_error
+'test_files/file.txt' @io.open = read_file
+io.println {'a', true, read_file} @test.assert_raises_error
+read_file @io.close
+
+-- Test 'io._set_stdin' & 'io._get_stdin'
+@io._get_stdin = prev
+'test_files/file.txt' @io.open = file
+file @io._set_stdin
+@io._get_stdin file @test.assert_eq
+prev @io._set_stdin
+file @io.close
+
+io._set_stdin {closed_file} @test.assert_raises_error
+'test_files/file.txt' 'w' @io.open = write_file
+io._set_stdin {write_file} @test.assert_raises_error
+write_file @io.close
+
+-- Test 'io._set_stdout' & 'io._get_stdout'
+@io._get_stdout = prev
+'test_files/file.txt' 'w' @io.open = file
+file @io._set_stdout
+@io._get_stdout file @test.assert_eq
+prev @io._set_stdout
+file @io.close
+
+io._set_stdout {closed_file} @test.assert_raises_error
+'test_files/file.txt' @io.open = read_file
+io._set_stdout {read_file} @test.assert_raises_error
+read_file @io.close
+
+-- Test 'io._set_stderr' & 'io._get_stderr'
+@io._get_stderr = prev
+'test_files/file.txt' 'w' @io.open = file
+file @io._set_stderr
+@io._get_stderr file @test.assert_eq
+prev @io._set_stderr
+file @io.close
+
+io._set_stderr {closed_file} @test.assert_raises_error
+'test_files/file.txt' @io.open = read_file
+io._set_stderr {read_file} @test.assert_raises_error
+read_file @io.close

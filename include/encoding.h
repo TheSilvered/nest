@@ -29,12 +29,12 @@ extern "C" {
 /**
  * The supported encodings in Nest.
  *
- * @brief `Nst_CP_UNKNOWN` is -1, `Nst_CP_LATIN1` and `Nst_CP_ISO8859_1` are
+ * @brief `Nst_CP_UNKNOWN` is `-1`; `Nst_CP_LATIN1` and `Nst_CP_ISO8859_1` are
  * equivalent.
- * 
+ *
  * @brief Note: `Nst_CP_EXT_UTF8` is a UTF-8 encoding that allows surrogates to
  * be encoded.
- * 
+ *
  * @brief Note: `Nst_CP_EXT_UTF16` along with the little and big endian
  * versions are UTF-16 encodings that allow for unpaired surrogates with the
  * only constraint being that a high surrogate cannot be the last character.
@@ -69,19 +69,38 @@ NstEXP typedef enum _Nst_CPID {
 /**
  * @brief The signature of a function that checks the length of the first
  * character in a string of a certain encoding.
+ *
+ * @brief Note: if the length is unknown but it is certain that the string
+ * contains at least one character you can use `Nst_CP_MULTIBYTE_MAX_SIZE` to
+ * ensure that the function does not fail due to a length too small.
+ *
+ * @return The length in bytes of the first character of the string. If the
+ * sequence of bytes is not valid or incomplete this function returns `-1`.
  */
 NstEXP typedef i32 (*Nst_CheckBytesFunc)(void *str, usize len);
 
 /**
  * @brief The signature of a function that returns the code point of the first
- * character in a string of a certain encoding, expecting a valid sequence of
- * bytes.
+ * character in a string decoded with a certain encoding.
+ *
+ * @brief Warning: `str` is expected to be a valid string, you can check that
+ * it is valid with a function of type `Nst_CheckBytesFunc`. Since the string
+ * is assumed to be valid this function never fails.
  */
 NstEXP typedef u32 (*Nst_ToUTF32Func)(void *str);
 
 /**
- * @brief The signature of a function that encodesa code point in a certain
- * encoding and writes the output to a buffer.
+ * @brief The signature of a function that encodesa a code point with a certain
+ * encoding writing the output to a buffer.
+ *
+ * @brief Warning: `buf` is expected to be large enough to hold the full
+ * character, if the final length of the character is unknown you can ensure
+ * that `buf` has space for at least `Nst_CP_MULTIBYTE_MAX_SIZE` bytes. This
+ * type of functions are guaranteed to never write more than
+ * `Nst_CP_MULTIBYTE_MAX_SIZE` bytes.
+ *
+ * @return The number of bytes written. If the character could not be encoded
+ * this function returns `-1`.
  */
 NstEXP typedef i32 (*Nst_FromUTF32Func)(u32 ch, void *buf);
 
@@ -94,6 +113,9 @@ NstEXP typedef i32 (*Nst_FromUTF32Func)(u32 ch, void *buf);
  * @param mult_min_sz: the size in bytes of the shortest character (usually the
  * same as `ch_size`)
  * @param name: the name of the encoding displayed in errors
+ * @param bom: the Byte Order Mark of the encoding, is set to `NULL` if it does
+ * not have one
+ * @param bom_size: the length of `bom`, set to `0` if it is `NULL`
  * @param check_bytes: the `Nst_CheckBytesFunc` function of the encoding
  * @param to_utf32: the `Nst_ToUTF32Func` function of the encoding
  * @param from_utf32: the `Nst_FromUTF32Func` function of the encoding
@@ -313,8 +335,8 @@ NstEXP i32 NstC Nst_utf16_to_utf8(i8 *out_str, u16 *in_str, usize in_str_len);
  * @param to_len: the pointer where the length of the translated string is put,
  * it can be `NULL`
  *
- * @return `true` on success and `false` on failure. On failure the error
- * is always set.
+ * @return `true` on success and `false` on failure. On failure the error is
+ * set.
  */
 NstEXP bool NstC Nst_translate_cp(Nst_CP *from, Nst_CP *to, void *from_buf,
                                   usize from_len, void **to_buf, usize *to_len);
@@ -333,18 +355,45 @@ NstEXP bool NstC Nst_translate_cp(Nst_CP *from, Nst_CP *to, void *from_buf,
 NstEXP isize NstC Nst_check_string_cp(Nst_CP *cp, void *str, usize str_len);
 
 /**
+ * Gets the length in characters of an encoded string.
+ *
+ * @param cp: the encoding of the string
+ * @param str: the string to get the length of
+ * @param str_len: the length in units of the string (a unit is 1 byte for
+ * `char8_t` strings, two bytes for `char16_t` strings etc.)
+ *
+ * @return The length in characters of the string or -1 on failure. The error
+ * is set.
+ */
+NstEXP isize NstC Nst_string_char_len(Nst_CP *cp, void *str, usize str_len);
+
+/**
+ * Gets the length in characters of a UTF-8-encoded string.
+ *
+ * @brief Note: this function assumes that the string is valid UTF-8 and does
+ * no error checking. Use `Nst_check_string_cp` to check it or
+ * `Nst_string_char_len` to get the length in characters safely.
+ *
+ * @param str: the string to get the length of
+ * @param str_len: the length in bytes of the string
+ *
+ * @return The length in characters of the string. No error is set.
+ */
+NstEXP usize NstC Nst_string_utf8_char_len(u8 *str, usize str_len);
+
+/**
  * @return The corresponding encoding structure given its ID. If an invalid ID
  * is given, `NULL` is returned and no error is set.
  */
 NstEXP Nst_CP *NstC Nst_cp(Nst_CPID cpid);
 
-#ifdef Nst_WIN
+#ifdef Nst_MSVC
 /**
  * @brief WINDOWS ONLY Returns the Nest code page ID of the local ANSI code
  * page. If the ANSI code page is not supported, `Nst_CP_LATIN1` is returned.
  */
 NstEXP Nst_CPID NstC Nst_acp(void);
-#endif // !Nst_WIN
+#endif // !Nst_MSVC
 
 /* [docs:link strlen <https://man7.org/linux/man-pages/man3/strlen.3.html>] */
 /* [docs:link wcslen <https://man7.org/linux/man-pages/man3/wcslen.3.html>] */
@@ -352,7 +401,7 @@ NstEXP Nst_CPID NstC Nst_acp(void);
 /**
  * Translates a UTF-8 string to Unicode (UTF-16).
  *
- * @brief The new string is heap-allocated. str is assumed to be a valid
+ * @brief The new string is heap-allocated. `str` is assumed to be a valid
  * non-NULL pointer.
  *
  * @param str: the string to translate
@@ -366,7 +415,7 @@ NstEXP wchar_t *NstC Nst_char_to_wchar_t(i8 *str, usize len);
 /**
  * Translates a Unicode (UTF-16) string to UTF-8.
  *
- * @brief The new string is heap-allocated. str is assumed to be a valid
+ * @brief The new string is heap-allocated. `str` is assumed to be a valid
  * non-NULL pointer.
  *
  * @param str: the string to translate
@@ -379,7 +428,7 @@ NstEXP i8 *NstC Nst_wchar_t_to_char(wchar_t *str, usize len);
 
 /**
  * @brief Returns whether a code point is valid. A valid code point is smaller
- * or equal to U+10FFFF and is not a high or low surrogate.
+ * than or equal to U+10FFFF and is not a high or low surrogate.
  */
 NstEXP bool NstC Nst_is_valid_cp(u32 cp);
 
@@ -404,8 +453,9 @@ NstEXP Nst_CPID NstC Nst_detect_encoding(i8 *str, usize len, i32 *bom_size);
  */
 NstEXP Nst_CPID NstC Nst_encoding_from_name(i8 *name);
 /**
- * @return The little endian variation of a multi-byte encoding or the encoding
- * itself, though always one with a unit size of one byte.
+ * @return An encoding ID where `ch_size` is one byte. If the given encoding ID
+ * has a `ch_size` of one byte already the encoding ID itself is returned.
+ * Otherwies the little endian version is always returned.
  */
 NstEXP Nst_CPID NstC Nst_single_byte_cp(Nst_CPID cpid);
 

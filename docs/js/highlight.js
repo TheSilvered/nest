@@ -7,9 +7,9 @@ hljs.registerLanguage("nest", hljs => {
   const kw = {
     $pattern: /[?..;><#!:=>]+|\w+/,
     keyword: ["?..", "..?", "...", "..", ";", "??", "?!", "?", ":", "=>"],
-    built_in: ["_vars_", "_globals_", "_cwd_", "_args_", ">>>", "<<<", "!!", "::"],
+    built_in: ["_vars_", "_globals_", "_args_", "_debug_", "_debug_arch_", ">>>", "<<<", "!!", "::"],
     literal: ["true", "false", "null"],
-    type: ["Int", "Real", "Byte", "Map", "Array", "Vector", "Iter", "Func", "Null", "IOFile", "Str", "Type"]
+    type: ["Int", "Real", "Byte", "Bool", "Map", "Array", "Vector", "Iter", "Func", "Null", "IOFile", "Str", "Type"]
   };
   const string_escape = {
     begin: /\\([abefnrtv\\"']|x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|U[0-9a-fA-F]{8}|[0-7]{1,3})/
@@ -81,11 +81,11 @@ hljs.registerLanguage("nest", hljs => {
     scope: "literal"
   };
   const fix_kw2 = {
-    begin: /_vars_|_globals_|_cwd_|_args_/,
+    begin: /_vars_|_globals_|_args_|_debug_|_debug_arch_/,
     scope: "built_in"
   };
   const fix_kw3 = {
-    begin: /Int|Real|Byte|Map|Array|Vector|Iter|Func|Null|IOFile|Str|Type/,
+    begin: /Int|Real|Byte|Bool|Map|Array|Vector|Iter|Func|Null|IOFile|Str|Type/,
     scope: "built_in"
   };
 

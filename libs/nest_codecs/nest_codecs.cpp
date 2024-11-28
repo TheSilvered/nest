@@ -2,40 +2,27 @@
 #include <cstdlib>
 #include "nest_codecs.h"
 
-#define FUNC_COUNT 3
-
 #define SET_INVALID_UTF8                                                      \
     Nst_set_value_error_c("the string is not valid UTF-8")
 
-static Nst_ObjDeclr func_list_[FUNC_COUNT];
-static Nst_DeclrList obj_list_ = { func_list_, FUNC_COUNT };
-static bool lib_init_ = false;
+static Nst_Declr obj_list_[] = {
+    Nst_FUNCDECLR(from_cp_,       1),
+    Nst_FUNCDECLR(to_cp_,         1),
+    Nst_FUNCDECLR(cp_is_valid_,   1),
+    Nst_FUNCDECLR(encoding_info_, 1),
+    Nst_DECLR_END
+};
 
-bool lib_init()
+Nst_Declr *lib_init()
 {
-    usize idx = 0;
-
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(from_cp_,     1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(to_cp_,       1);
-    func_list_[idx++] = Nst_MAKE_FUNCDECLR(cp_is_valid_, 1);
-
-#if __LINE__ - FUNC_COUNT != 19
-#error
-#endif
-
-    lib_init_ = !Nst_error_occurred();
-    return lib_init_;
+    return obj_list_;
 }
 
-Nst_DeclrList *get_func_ptrs()
-{
-    return lib_init_ ? &obj_list_ : nullptr;
-}
-
-Nst_FUNC_SIGN(from_cp_)
+Nst_Obj *NstC from_cp_(usize arg_num, Nst_Obj **args)
 {
     i64 cp;
-    Nst_DEF_EXTRACT("l", &cp);
+    if (!Nst_extract_args("l", arg_num, args, &cp))
+        return nullptr;
 
     if (cp < 0 || cp > UINT32_MAX) {
         Nst_set_value_error(
@@ -45,9 +32,9 @@ Nst_FUNC_SIGN(from_cp_)
 
     if (!Nst_is_valid_cp((u32)cp)) {
         if (cp <= 0xffff)
-            Nst_set_value_error(Nst_sprintf("invalid code point U+%04llX", cp));
+            Nst_set_value_errorf("invalid code point U+%04llX", cp);
         else
-            Nst_set_value_error(Nst_sprintf("invalid code point U+%06llX", cp));
+            Nst_set_value_errorf("invalid code point U+%06llX", cp);
 
         return nullptr;
     }
@@ -57,15 +44,16 @@ Nst_FUNC_SIGN(from_cp_)
         return nullptr;
 
     i32 len = Nst_utf8_from_utf32((u32)cp, str);
-    return Nst_string_new_allocated((i8 *)str, (usize)len);
+    return Nst_str_new_allocated((i8 *)str, (usize)len);
 }
 
-Nst_FUNC_SIGN(to_cp_)
+Nst_Obj *NstC to_cp_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *str;
-    Nst_DEF_EXTRACT("s", &str);
+    if (!Nst_extract_args("s", arg_num, args, &str))
+        return nullptr;
 
-    if (str->true_len != 1) {
+    if (str->char_len != 1) {
         Nst_set_value_error_c("the string must contain only one character");
         return nullptr;
     }
@@ -74,10 +62,51 @@ Nst_FUNC_SIGN(to_cp_)
     return Nst_int_new(cp);
 }
 
-Nst_FUNC_SIGN(cp_is_valid_)
+Nst_Obj *NstC cp_is_valid_(usize arg_num, Nst_Obj **args)
 {
     i64 cp;
-    Nst_DEF_EXTRACT("l", &cp);
+    if (!Nst_extract_args("l", arg_num, args, &cp))
+        return nullptr;
 
-    Nst_RETURN_COND(cp >= 0 && cp <= UINT32_MAX && Nst_is_valid_cp((u32)cp));
+    Nst_RETURN_BOOL(cp >= 0 && cp <= UINT32_MAX && Nst_is_valid_cp((u32)cp));
+}
+
+Nst_Obj *NstC encoding_info_(usize arg_num, Nst_Obj **args)
+{
+    Nst_StrObj *name_str;
+    if (!Nst_extract_args("s", arg_num, args, &name_str))
+        return nullptr;
+
+    Nst_CPID cpid = Nst_encoding_from_name(name_str->value);
+    if (cpid == Nst_CP_UNKNOWN) {
+        Nst_set_value_errorf("unknown encoding '%.100s'", name_str->value);
+        return nullptr;
+    }
+    Nst_CP *cp = Nst_cp(cpid);
+    Nst_Obj *info = Nst_map_new();
+
+    Nst_Obj *mult_max_sz = Nst_int_new(cp->mult_max_sz);
+    Nst_Obj *mult_min_sz = Nst_int_new(cp->mult_min_sz);
+    Nst_Obj *name = Nst_str_new_c_raw(cp->name, false);
+    Nst_Obj *bom;
+
+    if (cp->bom_size == 0)
+        bom = Nst_null_ref();
+    else {
+        bom = Nst_array_new(cp->bom_size);
+        for (usize i = 0, n = cp->bom_size; i < n; i++)
+            SEQ(bom)->objs[i] = Nst_byte_new(cp->bom[i]);
+    }
+
+    Nst_map_set_str(info, "name", name);
+    Nst_map_set_str(info, "min_len", mult_min_sz);
+    Nst_map_set_str(info, "max_len", mult_max_sz);
+    Nst_map_set_str(info, "bom", bom);
+
+    Nst_dec_ref(mult_max_sz);
+    Nst_dec_ref(mult_min_sz);
+    Nst_dec_ref(name);
+    Nst_dec_ref(bom);
+
+    return info;
 }
