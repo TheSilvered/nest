@@ -55,6 +55,7 @@ static Nst_Tok *make_symbol(void);
 static Nst_Tok *make_num_literal(void);
 static Nst_Tok *make_ident(void);
 static Nst_Tok *make_str_literal(void);
+static Nst_Tok *make_raw_str_literal(void);
 static void invalid_escape_error(Nst_Buffer *buf, Nst_Pos escape_start);
 static i32 find_fmt_str_inline_end(void);
 static void parse_first_line(i8 *text, usize len, i32 *opt_level,
@@ -176,6 +177,8 @@ bool tokenize_internal(i32 max_idx)
             tok = make_ident();
         else if (cursor.ch == '"' || cursor.ch == '\'')
             tok = make_str_literal();
+        else if (cursor.ch == '`')
+            tok = make_raw_str_literal();
         else if (cursor.ch == '\n') {
             tok = Nst_tok_new_noend(Nst_copy_pos(cursor.pos), Nst_TT_ENDL);
             if (tok == NULL)
@@ -966,6 +969,7 @@ static i32 find_fmt_str_inline_end(void)
                 break;
             if (cursor.ch == '-' || cursor.ch == '/')
                 return -1;
+            go_back();
         }
         advance();
     }
@@ -977,6 +981,62 @@ static i32 find_fmt_str_inline_end(void)
     cursor.pos = initial_pos;
     cursor.idx = initial_idx;
     return max_idx;
+}
+
+static Nst_Tok *make_raw_str_literal(void)
+{
+    Nst_Pos start = Nst_copy_pos(cursor.pos);
+    Nst_Pos end = start;
+    Nst_Tok *tok;
+
+    Nst_Buffer buf;
+    if (!Nst_buffer_init(&buf, START_CH_SIZE)) {
+        ADD_ERR_POS;
+        return NULL;
+    }
+    advance(); // still on the opening character
+
+    while (!CUR_AT_END) {
+        if (cursor.ch == '`') {
+            end = Nst_copy_pos(cursor.pos);
+            advance();
+            if (CUR_AT_END || cursor.ch != '`') {
+                go_back();
+                break;
+            }
+        }
+
+        if (!Nst_buffer_expand_by(&buf, 1)) {
+            ADD_ERR_POS;
+            goto failure;
+        }
+        Nst_buffer_append_char(&buf, cursor.ch);
+        advance();
+    }
+
+    if (cursor.ch != '`') {
+        Nst_set_internal_syntax_error_c(
+            Nst_error_get(),
+            cursor.pos,
+            cursor.pos,
+            _Nst_EM_OPEN_STR_LITERAL);
+        goto failure;
+    }
+
+    Nst_Obj *val_obj = OBJ(Nst_buffer_to_string(&buf));
+    if (val_obj == NULL) {
+        ADD_ERR_POS;
+        return NULL;
+    }
+    Nst_obj_hash(val_obj);
+
+    tok = Nst_tok_new_value(start, end, Nst_TT_VALUE, val_obj);
+    if (tok == NULL)
+        ADD_ERR_POS;
+    return tok;
+failure:
+    Nst_buffer_destroy(&buf);
+    return NULL;
 }
 
 bool Nst_add_lines(Nst_SourceText *text)

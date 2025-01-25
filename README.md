@@ -54,7 +54,7 @@ Once installed you can check that it is working by running this command:
 
 ```text
 PS C:\> nest -V
-Using Nest version: beta-0.15.0 x64
+Using Nest version: beta-0.15.1 x64
 ```
 
 ### Compile from source on Windows

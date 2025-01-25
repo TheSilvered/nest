@@ -14,9 +14,9 @@
 /* The minor version of Nest. */
 #define Nst_VERSION_MINOR 15
 /* The patch version of Nest. */
-#define Nst_VERSION_PATCH 0
+#define Nst_VERSION_PATCH 1
 
-#define _Nst_VERSION_BASE "beta-0.15.0"
+#define _Nst_VERSION_BASE "beta-0.15.1"
 
 #include "typedefs.h"
 
