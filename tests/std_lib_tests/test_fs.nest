@@ -173,15 +173,15 @@ fs.copy {'test_files/file.txt', 'test_files/file_copy.txt'} @test.assert_raises_
 'a/b/' 'c/d' @fs.path.join @fs.path.normalize ('a/b/c/d' @fs.path.normalize) @test.assert_eq
 'a/b' '/c/d' @fs.path.join @fs.path.normalize ('/c/d' @fs.path.normalize) @test.assert_eq
 'a/b' 'C:/c/d' @fs.path.join @fs.path.normalize ('C:/c/d' @fs.path.normalize) @test.assert_eq
-'a/b' '\\c\\d' @fs.path.join @fs.path.normalize ('/c/d' @fs.path.normalize) @test.assert_eq
-'a/b' '\\\\?\\C:/c/d' @fs.path.join @fs.path.normalize ('\\\\?\\C:/c/d' @fs.path.normalize) @test.assert_eq
+'a/b' `\c\d` @fs.path.join @fs.path.normalize ('/c/d' @fs.path.normalize) @test.assert_eq
+'a/b' `\\?\C:/c/d` @fs.path.join @fs.path.normalize (`\\?\C:/c/d` @fs.path.normalize) @test.assert_eq
 'a/b' 'C:c/d' @fs.path.join @fs.path.normalize ('C:c/d' @fs.path.normalize) @test.assert_eq
 
 -- Test 'path.normalize'
-('a/b/c' @fs.path.normalize) ('a\\b\\c' @fs.path.normalize) @test.assert_eq
-('a/b\\c' @fs.path.normalize) ('a\\b/c' @fs.path.normalize) @test.assert_eq
-('\\\\?\\a/b\\c' @fs.path.normalize) ('\\\\?\\a\\b/c' @fs.path.normalize) @test.assert_eq
-('\\\\?\\a/b\\c' @fs.path.normalize).0 '\\' @test.assert_eq
+('a/b/c' @fs.path.normalize) (`a\b\c` @fs.path.normalize) @test.assert_eq
+(`a/b\c` @fs.path.normalize) (`a\b/c` @fs.path.normalize) @test.assert_eq
+(`\\?\a/b\c` @fs.path.normalize) (`\\?\a\b/c` @fs.path.normalize) @test.assert_eq
+(`\\?\a/b\c` @fs.path.normalize).0 `\` @test.assert_eq
 
 -- Test 'path.parent'
 'dir/subdir/file.txt' @fs.path.parent @fs.path.normalize ('dir/subdir' @fs.path.normalize) @test.assert_eq

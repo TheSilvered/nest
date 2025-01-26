@@ -118,9 +118,21 @@ literal but that could cause confusion, so it is better to keep a space.
 
 ### String literals
 
-String literals begin and end with either single or double quotes but there
-is a difference between the two: strings with double quotes can span multiple
-lines.
+String literals can be enclosed in single or double quotes. If double quotes
+are used the string can span multiple lines. You can use single quotes inside
+double-quoted strings and the opposite is also true.
+
+```nest
+"this is a string"
+'this is also a string'
+
+"There's an apostrophe"
+'Here there is a "citation"'
+
+"And here I have
+Multiple
+Lines"
+```
 
 To escape a character you can use a backslash `\` before the character and here
 are all the valid escape sequences:
@@ -138,22 +150,50 @@ are all the valid escape sequences:
 | `\r`       | `0d`      | Carriage return           |
 | `\t`       | `09`      | Horizontal tab            |
 | `\v`       | `0b`      | Vertical tab              |
-| `\xhh`     | -         | Hexadecimal byte          |
-| `\ooo`     | -         | Octal byte                |
+| `\xhh`     | -         | Hexadecimal character     |
+| `\ooo`     | -         | Octal character           |
 | `\uhhhh`   | -         | Any BMP Unicode character |
 | `\Uhhhhhh` | -         | Any Unicode character     |
 | `\(...)`   | -         | A Nest expression         |
 
-!!!note
-    `h` represents a hexadecimal byte (`0-9`, `a-f` or `A-F`) and `o` an
-    octal one (`0-7`).
+In this table `h` represents a hexadecimal digit (`0-9`, `a-f` or `A-F`) and
+`o` represents an octal digit (`0-7`).
 
 !!!note
     Octal escapes can have either one, two or three digits: `\0`, `\12` and
     `\012` are all valid.
 
-!!!note
-    `...` are to be substituted with the expression to evaluate.
+The character referenced by `\xhh` and `\ooo` are also Unicode code points and
+not bytes. This means that `'\xe8'` ('è') will be stored in memory as `C3 A8`.
+
+The `\()` syntax really flexible as it allows for any expression inside the
+parenthesis, even another string, however comments are not allowed.
+
+```nest
+'1 + 1 = \(1 1 +)'
+'Hello has \($'hello') letters'
+'You can even \('escape \('inside an escape') without') problems'
+```
+
+### Raw string literals
+
+Nest also offers raw string literals, where the backslash is treated as any
+other character. This kind of literal is surrounded by back ticks (`` ` ``).
+To write a back tick inside the string literal you can double it.
+
+Because of the way Nest treats source code, carriage return characters (`\r`)
+are either deleted when before a newline character (`\r\n` becomes just `\n`)
+or become newlines if they are by themselves.
+
+```nest
+`C:\Users\user\Documents\`
+
+`This literal has a `` back tick`
+
+`This literal
+spans multiple
+lines`
+```
 
 ### Array literals
 

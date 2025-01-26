@@ -27,6 +27,11 @@ hljs.registerLanguage("nest", hljs => {
     illegal: '\\n',
     contains: [string_escape]
   };
+  const raw_string = {
+    scope: "string",
+    begin: "`",
+    end: "[^`]`"
+  };
   const line_comment = {
     scope: "comment",
     begin: "--",
@@ -101,6 +106,7 @@ hljs.registerLanguage("nest", hljs => {
       multiline_comment,
       double_quote_string,
       single_quote_string,
+      raw_string,
       fix_kw1,
       fix_kw2,
       fix_kw3,

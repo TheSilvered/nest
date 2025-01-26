@@ -28,8 +28,8 @@ variables:
   num_ltrl: '[+-]?({{bin_ltrl}}|{{oct_ltrl}}|{{hex_ltrl}}|{{real_ltrl}}|{{dec_ltrl}})'
   illegal_num_literals: '({{real_illegal}}|{{hex_illegal}}|{{oct_illegal}}|{{bin_illegal}})'
 
-  identifier: '[A-Za-z_][A-Za-z0-9_]*'
-  constant: '([A-Z][A-Z0-9_]*\b|_+\d*[A-Z][A-Z0-9_]*\b)'
+  identifier: '[[:alpha:]_][[:alnum:]_]*'
+  constant: '(?:[\p{Lu}_][\p{Lu}_\d]*)?[\p{Lu}]{2,}[\p{Lu}_\d]*\b'
   lang_constants: '\b(true|false|null|_args_|_vars_|_globals_|_debug_|_debug_arch_)\b'
   lang_types: '\b(Type|Int|Real|Bool|Null|Str|Array|Vector|Map|Func|Iter|Byte|IOFile)\b'
   lang_keywords: '(\?\.\.|\.\.\?|\.\.\.|\?\?|\?!|\?|:=|\.\.|;)'
@@ -81,6 +81,12 @@ contexts:
         2: constant.character.escape.nest
       push: string-single
 
+    - match: '(?<=\|#\|)\s*(`)(__C__:)'
+      captures:
+        1: punctuation.definition.string.begin.nest
+        2: constant.character.escape.nest
+      push: string-raw
+
     - match: '"'
       scope: punctuation.definition.string.begin.nest
       push: string-double
@@ -88,6 +94,10 @@ contexts:
     - match: "'"
       scope: punctuation.definition.string.begin.nest
       push: string-single
+
+    - match: '`'
+      scope: punctuation.definition.string.begin.nest
+      push: string-raw
 
   values:
     - include: builtins
@@ -244,6 +254,14 @@ contexts:
     - meta_scope: string.quoted.single.nest
     - include: string-escape
     - match: '(''|$)'
+      scope: punctuation.definition.string.end.nest
+      pop: true
+
+  string-raw:
+    - meta_scope: string.regexp.nest
+    - match: '``'
+      scope: constant.character.escape.nest
+    - match: '`'
       scope: punctuation.definition.string.end.nest
       pop: true
 

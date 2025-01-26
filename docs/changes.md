@@ -1,3 +1,17 @@
+## 0.15.1
+
+### Nest
+
+**Additions**
+
+- added a new syntax for raw strings with backticks
+
+**Bug fixes**
+
+- fixed expressions escapes in strings that would not close properly when the last character was `-`
+- fixed an infinte loop occurring when escaping a non-ASCII character in the source code
+
+
 ## 0.15.0
 
 **Nest can now be compiled with `clang`!** Check `make help` for more info.

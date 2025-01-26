@@ -64,13 +64,15 @@ sys.SUPPORTS_COLOR ? [
 ]
 
 sys.PLATFORM 'windows' == ? [
-    '.\\object_tests' @run_tests
-    '.\\std_lib_tests' @run_tests
-    '.\\error_tests' @run_tests
+    `.\object_tests` @run_tests
+    `.\std_lib_tests` @run_tests
+    `.\error_tests` @run_tests
+    `.\lexer_tests` @run_tests
 ] : [
     './object_tests' @run_tests
     './std_lib_tests' @run_tests
     './error_tests' @run_tests
+    './lexer_tests' @run_tests
 ]
 
 test.log_file @io.flush

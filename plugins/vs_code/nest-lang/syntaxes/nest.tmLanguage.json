@@ -36,7 +36,8 @@
 		"strings": {
 			"patterns": [
 				{ "include": "#str-double" },
-				{ "include": "#str-single" }
+				{ "include": "#str-single" },
+				{ "include": "#str-raw" }
 			]
 		},
 		"str-double": {
@@ -63,6 +64,22 @@
 			"end": "('|\\r?\\n)",
 			"patterns": [
 				{ "include": "#string-escapes" }
+			]
+		},
+		"str-raw": {
+			"name": "string.quoted.single.nest",
+			"begin": "((?<=\\|#\\|)\\s*(`)(__C__:))|(`)",
+			"beginCaptures": {
+				"2": { "name": "string.quoted.single.nest" },
+				"3": { "name": "constant.character.escape.nest" },
+				"4": { "name": "string.quoted.single.nest" }
+			},
+			"end": "(?<!`)`",
+			"patterns": [
+				{
+					"name": "constant.character.escape.nest",
+					"match": "``"
+				}
 			]
 		},
 		"string-escapes": {

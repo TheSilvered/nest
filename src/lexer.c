@@ -183,9 +183,14 @@ bool tokenize_internal(i32 max_idx)
             tok = Nst_tok_new_noend(Nst_copy_pos(cursor.pos), Nst_TT_ENDL);
             if (tok == NULL)
                 ADD_ERR_POS;
-        } else if (cursor.ch == '\\')
+        } else if (cursor.ch == '\\') {
             advance();
-        else {
+            i32 res = Nst_check_utf8_bytes(
+                (u8 *)cursor.text + cursor.idx,
+                (usize)(cursor.text - cursor.idx));
+            for (i32 i = 0; i < res - 1; i++)
+                advance();
+        } else {
             Nst_set_internal_syntax_error_c(
                 Nst_error_get(),
                 cursor.pos,
@@ -963,6 +968,12 @@ static i32 find_fmt_str_inline_end(void)
         } else if (cursor.ch == '"' || cursor.ch == '\'') {
             if (!skip_inline_str())
                 return -1;
+        } else if (cursor.ch == '`') {
+            advance();
+            // Escaped backtics can be thought as "splitting" the raw string
+            // in two, so `a``b` will just run `a` first and `b` next
+            while (!CUR_AT_END && cursor.ch != '`')
+                advance();
         } else if (cursor.ch == '-') {
             advance();
             if (CUR_AT_END)
