@@ -378,7 +378,7 @@ name '_' '' @su.replace = root_namespace
         <ClCompile>
             <WarningLevel>Level4</WarningLevel>
             <SDLCheck>true</SDLCheck>
-            <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;TESTLIBFILES_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+            <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;_DEBUG;\(name @su.to_upper)_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
             <ConformanceMode>true</ConformanceMode>
             <PrecompiledHeader>NotUsing</PrecompiledHeader>
             <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -399,7 +399,7 @@ name '_' '' @su.replace = root_namespace
             <FunctionLevelLinking>true</FunctionLevelLinking>
             <IntrinsicFunctions>true</IntrinsicFunctions>
             <SDLCheck>true</SDLCheck>
-            <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;TESTLIBFILES_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+            <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;WIN32;NDEBUG;\(name @su.to_upper)_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
             <ConformanceMode>true</ConformanceMode>
             <PrecompiledHeader>NotUsing</PrecompiledHeader>
             <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -420,7 +420,7 @@ name '_' '' @su.replace = root_namespace
         <ClCompile>
             <WarningLevel>Level4</WarningLevel>
             <SDLCheck>true</SDLCheck>
-            <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;TESTLIBFILES_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+            <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;_DEBUG;\(name @su.to_upper)_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
             <ConformanceMode>true</ConformanceMode>
             <PrecompiledHeader>NotUsing</PrecompiledHeader>
             <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
@@ -441,7 +441,7 @@ name '_' '' @su.replace = root_namespace
             <FunctionLevelLinking>true</FunctionLevelLinking>
             <IntrinsicFunctions>true</IntrinsicFunctions>
             <SDLCheck>true</SDLCheck>
-            <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;TESTLIBFILES_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+            <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;NDEBUG;\(name @su.to_upper)_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
             <ConformanceMode>true</ConformanceMode>
             <PrecompiledHeader>NotUsing</PrecompiledHeader>
             <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>

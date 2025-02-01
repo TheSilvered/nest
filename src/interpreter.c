@@ -449,7 +449,7 @@ static void complete_function(usize final_stack_size)
         inst = &instructions[idx];
         InstResult result = inst_func[inst->id]();
 
-        if (Nst_state.ggc.gen1.len > _Nst_GEN1_MAX)
+        if (Nst_state.ggc.gen1.len > _Nst_GEN1_MAX && final_stack_size == 0)
             Nst_ggc_collect();
 
         if (interrupt) {

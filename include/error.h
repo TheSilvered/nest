@@ -109,7 +109,7 @@
 #define _Nst_EM_WRONG_TYPE_FOR_ARG(type)                                      \
     "expected type '" type "' for argument %zi, got type '%s' instead"
 #define _Nst_EM_WRONG_UNPACK_LENGTH                                           \
-    "expected %lli items to unpack but the sequence only contains %zi"
+    "expected %lli items to unpack but the sequence contains %zi"
 #define _Nst_EM_MAP_TO_SEQ_LEN_ERR(i)                                         \
     "expected a sequence of length 2, found one of length %zi instead at " i  \
     " %zi"

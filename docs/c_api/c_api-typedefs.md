@@ -64,7 +64,7 @@ Defined when compiling with MSVC.
 
 ---
 
-### `Nsg_GCC`
+### `Nst_GCC`
 
 **Description:**
 
@@ -72,7 +72,7 @@ Defined when compiling with GCC.
 
 ---
 
-### `Nsg_CLANG`
+### `Nst_CLANG`
 
 **Description:**
 

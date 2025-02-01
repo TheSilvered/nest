@@ -16,7 +16,7 @@
 #define _Nst_P_LEN_MAX 0
 #else
 /* [docs:ignore] Maximum size for an object pool. */
-#define _Nst_P_LEN_MAX 20
+#define _Nst_P_LEN_MAX 256
 #endif
 
 /* Casts `obj` to `Nst_Obj *`. */

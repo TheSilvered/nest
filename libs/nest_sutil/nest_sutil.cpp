@@ -1080,7 +1080,7 @@ Nst_Obj *NstC lsplit_(usize arg_num, Nst_Obj **args)
             break;
     }
 
-    if (str_len != 0) {
+    {
         i8 *new_str_val = Nst_malloc_c(str_len + 1, i8);
         if (new_str_val == nullptr) {
             Nst_dec_ref(vector);
@@ -1250,7 +1250,7 @@ Nst_Obj *NstC rsplit_(usize arg_num, Nst_Obj **args)
             break;
     }
 
-    if (str_len != 0) {
+    {
         i8 *new_str_val = Nst_malloc_c(str_len + 1, i8);
         if (new_str_val == nullptr) {
             Nst_dec_ref(vector);

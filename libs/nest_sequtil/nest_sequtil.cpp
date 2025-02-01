@@ -63,17 +63,16 @@ Nst_Obj *NstC map_(usize arg_num, Nst_Obj **args)
             : SEQ(Nst_vector_new(seq->len));
     }
 
-    Nst_Obj **objs = seq->objs;
     for (usize i = 0, n = seq->len; i < n; i++) {
         Nst_Obj *arg = Nst_seq_get(seq, i);
-        Nst_Obj *res = Nst_func_call(func, 1, objs + i);
+        Nst_Obj *res = Nst_func_call(func, 1, &arg);
+        Nst_dec_ref(arg);
 
         if (res == nullptr) {
             if (!map_in_place) {
                 new_seq->len = i;
                 Nst_dec_ref(new_seq);
             }
-            Nst_dec_ref(arg);
             return nullptr;
         }
 
@@ -81,7 +80,6 @@ Nst_Obj *NstC map_(usize arg_num, Nst_Obj **args)
             Nst_dec_ref(new_seq->objs[i]);
 
         new_seq->objs[i] = res;
-        Nst_dec_ref(arg);
     }
 
     return map_in_place ? Nst_inc_ref(new_seq) : OBJ(new_seq);
@@ -173,7 +171,7 @@ Nst_Obj *NstC remove_at_(usize arg_num, Nst_Obj **args)
     return obj;
 }
 
-static isize clapm_slice_arguments(usize seq_len, Nst_Obj *start_obj,
+static isize clamp_slice_arguments(usize seq_len, Nst_Obj *start_obj,
                                    Nst_Obj *stop_obj, Nst_Obj *step_obj,
                                    i64 &start, i64 &step)
 {
@@ -247,7 +245,7 @@ Nst_Obj *NstC slice_(usize arg_num, Nst_Obj **args)
     }
 
     i64 start, step;
-    isize new_size = clapm_slice_arguments(
+    isize new_size = clamp_slice_arguments(
         seq->len,
         start_obj, stop_obj, step_obj,
         start, step);
@@ -311,7 +309,7 @@ Nst_Obj *NstC slice_i_(usize arg_num, Nst_Obj **args)
     }
 
     i64 start, step;
-    isize new_size = clapm_slice_arguments(
+    isize new_size = clamp_slice_arguments(
         Nst_T(seq, Str) ? STR(seq)->len : SEQ(seq)->len,
         start_obj, stop_obj, step_obj,
         start, step);

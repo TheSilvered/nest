@@ -184,6 +184,7 @@
     <ClInclude Include="..\..\..\..\include\tokens.h" />
     <ClInclude Include="..\..\..\..\include\type.h" />
     <ClInclude Include="..\..\..\..\include\typedefs.h" />
+    <ClInclude Include="..\..\..\..\include\unicode_db.h" />
     <ClInclude Include="..\..\..\..\include\var_table.h" />
   </ItemGroup>
   <ItemGroup>
@@ -219,6 +220,7 @@
     <ClCompile Include="..\..\..\..\src\str.c" />
     <ClCompile Include="..\..\..\..\src\tokens.c" />
     <ClCompile Include="..\..\..\..\src\type.c" />
+    <ClCompile Include="..\..\..\..\src\unicode_db.c" />
     <ClCompile Include="..\..\..\..\src\var_table.c" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

@@ -8,6 +8,7 @@ ifneq ($(CC),clang)
     CFLAGS += -Wlogical-op -Wduplicated-cond -Wduplicated-branches
 endif
 
+INCLUDE_DIR = ../../../include
 SRC_DIR = ../../../src
 x64_DIR = ../linux_release/x64
 x86_DIR = ../linux_release/x86
@@ -16,7 +17,7 @@ DBG_DIR = ../linux_debug
 CLINKS = -lm -ldl
 
 SRCS := $(filter-out $(SRC_DIR)/nest.c, $(wildcard $(SRC_DIR)/*.c))
-HEADERS := $(wildcard $(SRC_DIR)/*.h)
+HEADERS := $(wildcard $(INCLUDE_DIR)/*.h)
 DBG_TARGET := $(DBG_DIR)/$(TARGET_NAME)
 x64_TARGET := $(x64_DIR)/$(TARGET_NAME)
 x86_TARGET := $(x86_DIR)/$(TARGET_NAME)

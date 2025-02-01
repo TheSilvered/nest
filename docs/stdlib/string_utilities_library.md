@@ -638,6 +638,8 @@ The array containing the encoded bytes.
 
 ---
 
+### `@fmt`
+
 **Synopsis:**
 
 ```nest

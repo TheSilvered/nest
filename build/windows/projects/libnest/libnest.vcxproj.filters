@@ -117,6 +117,9 @@
     <ClInclude Include="..\..\..\..\include\parser.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\include\unicode_db.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp">
@@ -216,6 +219,9 @@
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\parser.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\unicode_db.c">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>

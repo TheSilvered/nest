@@ -287,8 +287,7 @@ contexts:
     - match: '=>'
       scope: keyword.control.nest
       pop: true
-    - match: .
-      scope: invalid.illegal.nest
+    - include: comment
 
   arr-obj-vect:
     - include: strings
