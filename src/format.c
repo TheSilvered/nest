@@ -10,6 +10,7 @@
 #include "file.h"
 #include "dtoa.h"
 #include "obj_ops.h"
+#include "unicode_db.h"
 
 #define MIN(a, b) ((b) < (a) ? (b) : (a))
 #define MAX(a, b) ((b) > (a) ? (b) : (a))
@@ -1164,14 +1165,17 @@ static isize fmt_str_repr(Nst_Buffer *buf, i8 *str, usize str_len,
                 return -1;
             tot_char_len += char_len;
         } else {
-            if (!Nst_buffer_expand_by(buf, Nst_ENCODING_MULTIBYTE_MAX_SIZE + 1))
-                return -1;
-            i32 bytes_written = Nst_ext_utf8_from_utf32(
-                (u32)c,
-                (u8 *)buf->data + buf->len);
-            buf->len += bytes_written;
-            buf->data[buf->len] = 0;
-            tot_char_len += 1;
+            Nst_UnicodeChInfo info = Nst_unicode_get_ch_info((u32)c);
+            if (info.flags & Nst_UCD_MASK_PRINTABLE) {
+                if (!Nst_buffer_append_cps(buf, (u32 *)&c, 1))
+                    return -1;
+                tot_char_len += 1;
+            } else {
+                isize char_len = fmt_str_unicode_escape(buf, c, format);
+                if (char_len < 0)
+                    return -1;
+                tot_char_len += char_len;
+            }
         }
     }
 

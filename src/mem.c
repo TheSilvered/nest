@@ -331,6 +331,7 @@ bool NstC Nst_buffer_append_cps(Nst_Buffer *buf, u32 *cps, usize count)
             cp,
             (u8 *)buf->data + buf->len);
         buf->len += expanded_size;
+        buf->data[buf->len] = '\0';
     }
     return true;
 }
