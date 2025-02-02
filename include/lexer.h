@@ -20,7 +20,7 @@ extern "C" {
  *
  * @param filename: the path to the file
  * @param encoding: the supposed encoding of the file, if set to
- * `Nst_CP_UNKNOWN` it will be detected automatically
+ * `Nst_EID_UNKNOWN` it will be detected automatically
  * @param opt_level: where the optimization level is stored if specified with
  * file arguments
  * @param no_default: where the `--no-default` option is stored if specified
@@ -29,7 +29,7 @@ extern "C" {
  *
  * @return A `Nst_LList` of tokens or `NULL` on failure. The error is set.
  */
-NstEXP Nst_LList *NstC Nst_tokenizef(i8 *filename, Nst_CPID encoding,
+NstEXP Nst_LList *NstC Nst_tokenizef(i8 *filename, Nst_EncodingID encoding,
                                      i32 *opt_level, bool *no_default,
                                      Nst_SourceText *src_text);
 /**
@@ -57,13 +57,13 @@ NstEXP bool NstC Nst_add_lines(Nst_SourceText *text);
  * Re-encodes a file to be UTF-8.
  *
  * @param text: the text to re-encode
- * @param encoding: the encoding of the text, if `Nst_CP_UNKNOWN` it is
+ * @param encoding: the encoding of the text, if `Nst_EID_UNKNOWN` it is
  * detected automatically
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
 NstEXP bool NstC Nst_normalize_encoding(Nst_SourceText *text,
-                                        Nst_CPID encoding);
+                                        Nst_EncodingID encoding);
 
 #ifdef __cplusplus
 }

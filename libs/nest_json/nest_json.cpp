@@ -29,7 +29,7 @@ Nst_Obj *NstC load_s_(usize arg_num, Nst_Obj **args)
     Nst_LList *tokens = json_tokenize(
         (i8 *)"<Str>",
         str->value, str->len,
-        true, Nst_CP_EXT_UTF8);
+        true, Nst_EID_EXT_UTF8);
     if (tokens == nullptr)
         return nullptr;
 
@@ -44,11 +44,11 @@ Nst_Obj *NstC load_f_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s ?s", arg_num, args, &path, &encoding_obj))
         return nullptr;
 
-    Nst_CPID encoding = Nst_DEF_VAL(
+    Nst_EncodingID encoding = Nst_DEF_VAL(
         encoding_obj,
         Nst_encoding_from_name(encoding_obj->value),
-        Nst_CP_UNKNOWN);
-    encoding = Nst_single_byte_cp(encoding);
+        Nst_EID_UNKNOWN);
+    encoding = Nst_single_byte_encoding(encoding);
 
     FILE *f = Nst_fopen_unicode(path->value, "rb");
 
@@ -107,11 +107,11 @@ Nst_Obj *NstC dump_f_(usize arg_num, Nst_Obj **args)
     }
     i64 indent = Nst_DEF_VAL(indent_obj, AS_INT(indent_obj), 0);
 
-    Nst_CPID encoding = Nst_DEF_VAL(
+    Nst_EncodingID encoding = Nst_DEF_VAL(
         encoding_obj,
         Nst_encoding_from_name(encoding_obj->value),
-        Nst_CP_EXT_UTF8);
-    encoding = Nst_single_byte_cp(encoding);
+        Nst_EID_EXT_UTF8);
+    encoding = Nst_single_byte_encoding(encoding);
 
     FILE *f = Nst_fopen_unicode(path->value, "wb");
 
@@ -133,9 +133,9 @@ Nst_Obj *NstC dump_f_(usize arg_num, Nst_Obj **args)
     i8 *encoded_str;
     usize encoded_str_len;
 
-    bool result = Nst_translate_cp(
-        Nst_cp(Nst_CP_EXT_UTF8),
-        Nst_cp(encoding),
+    bool result = Nst_encoding_translate(
+        Nst_encoding(Nst_EID_EXT_UTF8),
+        Nst_encoding(encoding),
         (void *)STR(res)->value,
         STR(res)->len,
         (void **)&encoded_str,

@@ -26,6 +26,6 @@ typedef enum _JSONTokenType {
 } JSONTokenType;
 
 Nst_LList *json_tokenize(i8 *path, i8 *text, usize text_len,
-                         bool readonly_text, Nst_CPID encoding);
+                         bool readonly_text, Nst_EncodingID encoding);
 
 #endif // !JSON_LEXER_H

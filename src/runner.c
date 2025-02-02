@@ -263,7 +263,7 @@ bool Nst_es_push_module(Nst_ExecutionState *es, i8 *filename,
 
     Nst_LList *tokens = Nst_tokenizef(
         filename,
-        Nst_CP_UNKNOWN,
+        Nst_EID_UNKNOWN,
         &file_opt_lvl,
         &no_default,
         source_text);

@@ -13,6 +13,39 @@
 - fixed `su.lsplit` and `su.rsplit` that would ignore separators at the end and at the beginning respectively
 - fixed a rare crash that could occur when the GGC would run while calling a C function
 
+### C API
+
+**Additions**
+
+- added `unicode_db.h` which declares the following symbols
+  - `Nst_UCD_MASK_UPPERCASE`
+  - `Nst_UCD_MASK_LOWERCASE`
+  - `Nst_UCD_MASK_CASED`
+  - `Nst_UCD_MASK_ALPHABETIC`
+  - `Nst_UCD_MASK_DECIMAL`
+  - `Nst_UCD_MASK_DIGIT`
+  - `Nst_UCD_MASK_NUMERIC`
+  - `Nst_UCD_MASK_XID_START`
+  - `Nst_UCD_MASK_XID_CONTINUE`
+  - `Nst_UCD_MASK_PRINTABLE`
+  - `Nst_UCD_MAX_CASE_EXPANSION`
+  - `Nst_UCD_IS_TITLECASE`
+  - `Nst_UnicodeChInfo`
+  - `Nst_unicode_get_ch_info`
+  - `Nst_unicode_expand_case`
+  - `Nst_unicode_is_whitespace`
+
+**Changes**
+
+- renamed `Nst_CP_MULTIBYTE_MAX_SIZE` to `Nst_ENCODING_MULTIBYTE_MAX_SIZE`
+- renamed `Nst_CP_BOM_MAX_SIZE` to `Nst_ENCODING_BOM_MAX_SIZE`
+- renamed `Nst_CPID` to `Nst_EncodingID` and all its fields begin with `Nst_EID_*` instead of `Nst_CP_*`
+- renamed `Nst_CP` to `Nst_Encoding`
+- renamed `Nst_translate_cp` to `Nst_encoding_translate`
+- renamed `Nst_check_string_cp` to `Nst_encoding_check`
+- renamed `Nst_cp` to `Nst_encoding`
+- renamed `Nst_single_byte_cp` to `Nst_single_byte_encoding`
+
 ## 0.15.0
 
 **Nest can now be compiled with `clang`!** Check `make help` for more info.

@@ -59,7 +59,7 @@ static Nst_Tok *make_raw_str_literal(void);
 static void invalid_escape_error(Nst_Buffer *buf, Nst_Pos escape_start);
 static i32 find_fmt_str_inline_end(void);
 static void parse_first_line(i8 *text, usize len, i32 *opt_level,
-                             Nst_CPID *encoding, bool *no_default);
+                             Nst_EncodingID *encoding, bool *no_default);
 bool tokenize_internal(i32 max_idx);
 
 static void cursor_init(Nst_SourceText *text, Nst_LList *tokens)
@@ -75,7 +75,7 @@ static void cursor_init(Nst_SourceText *text, Nst_LList *tokens)
     advance();
 }
 
-Nst_LList *Nst_tokenizef(i8 *filename, Nst_CPID encoding, i32 *opt_level,
+Nst_LList *Nst_tokenizef(i8 *filename, Nst_EncodingID encoding, i32 *opt_level,
                          bool *no_default, Nst_SourceText *src_text)
 {
     FILE *file = NULL;
@@ -1120,16 +1120,16 @@ bool Nst_add_lines(Nst_SourceText *text)
     return true;
 }
 
-bool Nst_normalize_encoding(Nst_SourceText *text, Nst_CPID encoding)
+bool Nst_normalize_encoding(Nst_SourceText *text, Nst_EncodingID encoding)
 {
     i32 bom_size = 0;
-    if (encoding == Nst_CP_UNKNOWN)
+    if (encoding == Nst_EID_UNKNOWN)
         encoding = Nst_detect_encoding(text->text, text->text_len, &bom_size);
     else
         Nst_check_bom(text->text, text->text_len, &bom_size);
 
-    encoding = Nst_single_byte_cp(encoding);
-    Nst_CP *from = Nst_cp(encoding);
+    encoding = Nst_single_byte_encoding(encoding);
+    Nst_Encoding *from = Nst_encoding(encoding);
 
     Nst_Pos pos = { 0, 0, text };
     Nst_Buffer buf;
@@ -1180,7 +1180,7 @@ bool Nst_normalize_encoding(Nst_SourceText *text, Nst_CPID encoding)
             Nst_error_add_positions(Nst_error_get(), pos, pos);
             return false;
         }
-        ch_len = Nst_cp_ext_utf8.from_utf32(utf32_ch, buf.data + buf.len);
+        ch_len = Nst_encoding_ext_utf8.from_utf32(utf32_ch, buf.data + buf.len);
         buf.len += ch_len;
         pos.col++;
     }
@@ -1192,7 +1192,7 @@ bool Nst_normalize_encoding(Nst_SourceText *text, Nst_CPID encoding)
     return true;
 }
 
-static void parse_option(i8 *opt, i32 *opt_level, Nst_CPID *encoding,
+static void parse_option(i8 *opt, i32 *opt_level, Nst_EncodingID *encoding,
                          bool *no_default)
 {
     if (strcmp(opt, "-O0") == 0)
@@ -1206,15 +1206,15 @@ static void parse_option(i8 *opt, i32 *opt_level, Nst_CPID *encoding,
     else if (strcmp(opt, "--no-default") == 0)
         *no_default = true;
     else if (strncmp(opt, "--encoding=", 11) == 0) {
-        Nst_CPID new_encoding = Nst_encoding_from_name(opt + 11);
-        new_encoding = Nst_single_byte_cp(new_encoding);
-        if (new_encoding != Nst_CP_UNKNOWN)
+        Nst_EncodingID new_encoding = Nst_encoding_from_name(opt + 11);
+        new_encoding = Nst_single_byte_encoding(new_encoding);
+        if (new_encoding != Nst_EID_UNKNOWN)
             *encoding = new_encoding;
     }
 }
 
 static void parse_first_line(i8 *text, usize len, i32 *opt_level,
-                             Nst_CPID *encoding, bool *no_default)
+                             Nst_EncodingID *encoding, bool *no_default)
 {
     i32 bom_size;
     Nst_check_bom(text, len, &bom_size);

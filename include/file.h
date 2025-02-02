@@ -269,7 +269,7 @@ NstEXP typedef struct _Nst_IOFileObj {
     Nst_OBJ_HEAD;
     int fd;
     void *fp;
-    Nst_CP *encoding;
+    Nst_Encoding *encoding;
     Nst_IOFuncSet func_set;
 } Nst_IOFileObj;
 
@@ -295,7 +295,7 @@ NstEXP typedef enum _Nst_IOFileFlag {
  * @return The new object on success or `NULL` on failure. The error is set.
  */
 NstEXP Nst_Obj *NstC Nst_iof_new(FILE *value, bool bin, bool read,
-                                 bool write, Nst_CP *encoding);
+                                 bool write, Nst_Encoding *encoding);
 /**
  * Creates a new `Nst_IOFileObj` that is not a C file pointer.
  *
@@ -311,7 +311,8 @@ NstEXP Nst_Obj *NstC Nst_iof_new(FILE *value, bool bin, bool read,
  * @return The new object on success or `NULL` on failure. The error is set.
  */
 NstEXP Nst_Obj *NstC Nst_iof_new_fake(void *value, bool bin, bool read,
-                                      bool write, bool seek, Nst_CP *encoding,
+                                      bool write, bool seek,
+                                      Nst_Encoding *encoding,
                                       Nst_IOFuncSet func_set);
 
 /* Destructor of a `Nst_IOFileObj`. */

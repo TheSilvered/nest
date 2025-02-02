@@ -10,7 +10,7 @@ TheSilvered
 
 ## Macros
 
-### `Nst_CP_MULTIBYTE_MAX_SIZE`
+### `Nst_ENCODING_MULTIBYTE_MAX_SIZE`
 
 **Description:**
 
@@ -18,7 +18,7 @@ Maximum size of a multi-byte character across all supported encodings.
 
 ---
 
-### `Nst_CP_BOM_MAX_SIZE`
+### `Nst_ENCODING_BOM_MAX_SIZE`
 
 **Description:**
 
@@ -28,12 +28,12 @@ Maximum size of the BOM across all supported encodings.
 
 ## Structs
 
-### `Nst_CP`
+### `Nst_Encoding`
 
 **Synopsis:**
 
 ```better-c
-typedef struct _Nst_CP {
+typedef struct _Nst_Encoding {
     const usize ch_size;
     const usize mult_max_sz;
     const usize mult_min_sz;
@@ -43,7 +43,7 @@ typedef struct _Nst_CP {
     const Nst_CheckBytesFunc check_bytes;
     const Nst_ToUTF32Func to_utf32;
     const Nst_FromUTF32Func from_utf32;
-} Nst_CP
+} Nst_Encoding
 ```
 
 **Description:**
@@ -88,7 +88,7 @@ string of a certain encoding.
 !!!note
     If the length is unknown but it is certain that the string contains at least
     one character you can use
-    [`Nst_CP_MULTIBYTE_MAX_SIZE`](c_api-encoding.md#nst_cp_multibyte_max_size)
+    [`Nst_ENCODING_MULTIBYTE_MAX_SIZE`](c_api-encoding.md#nst_encoding_multibyte_max_size)
     to ensure that the function does not fail due to a length too small.
 
 **Returns:**
@@ -136,9 +136,9 @@ writing the output to a buffer.
     `buf` is expected to be large enough to hold the full character, if the
     final length of the character is unknown you can ensure that `buf` has space
     for at least
-    [`Nst_CP_MULTIBYTE_MAX_SIZE`](c_api-encoding.md#nst_cp_multibyte_max_size)
+    [`Nst_ENCODING_MULTIBYTE_MAX_SIZE`](c_api-encoding.md#nst_encoding_multibyte_max_size)
     bytes. This type of functions are guaranteed to never write more than
-    [`Nst_CP_MULTIBYTE_MAX_SIZE`](c_api-encoding.md#nst_cp_multibyte_max_size)
+    [`Nst_ENCODING_MULTIBYTE_MAX_SIZE`](c_api-encoding.md#nst_encoding_multibyte_max_size)
     bytes.
 
 **Returns:**
@@ -1099,13 +1099,14 @@ set.
 
 ---
 
-### `Nst_translate_cp`
+### `Nst_encoding_translate`
 
 **Synopsis:**
 
 ```better-c
-bool Nst_translate_cp(Nst_CP *from, Nst_CP *to, void *from_buf, usize from_len,
-                      void **to_buf, usize *to_len)
+bool Nst_encoding_translate(Nst_Encoding *from, Nst_Encoding *to,
+                            void *from_buf, usize from_len, void **to_buf,
+                            usize *to_len)
 ```
 
 **Description:**
@@ -1132,12 +1133,12 @@ can be `NULL` if there is no need to get the length of the output string.
 
 ---
 
-### `Nst_check_string_cp`
+### `Nst_encoding_check`
 
 **Synopsis:**
 
 ```better-c
-isize Nst_check_string_cp(Nst_CP *cp, void *str, usize str_len)
+isize Nst_encoding_check(Nst_Encoding *encoding, void *str, usize str_len)
 ```
 
 **Description:**
@@ -1146,7 +1147,7 @@ Checks the validity of the encoding of a string.
 
 **Parameters:**
 
-- `cp`: the expected encoding of the string
+- `encoding`: the expected encoding of the string
 - `str`: the string to check
 - `str_len`: the length in units of the string (a unit is 1 byte for `char8_t`
   strings, two bytes for `char16_t` strings etc.)
@@ -1163,7 +1164,7 @@ encoded. No error is set.
 **Synopsis:**
 
 ```better-c
-isize Nst_string_char_len(Nst_CP *cp, void *str, usize str_len)
+isize Nst_string_char_len(Nst_Encoding *encoding, void *str, usize str_len)
 ```
 
 **Description:**
@@ -1172,7 +1173,7 @@ Gets the length in characters of an encoded string.
 
 **Parameters:**
 
-- `cp`: the encoding of the string
+- `encoding`: the encoding of the string
 - `str`: the string to get the length of
 - `str_len`: the length in units of the string (a unit is 1 byte for `char8_t`
   strings, two bytes for `char16_t` strings etc.)
@@ -1197,7 +1198,7 @@ Gets the length in characters of a UTF-8-encoded string.
 
 !!!note
     This function assumes that the string is valid UTF-8 and does no error
-    checking. Use [`Nst_check_string_cp`](c_api-encoding.md#nst_check_string_cp)
+    checking. Use [`Nst_encoding_check`](c_api-encoding.md#nst_encoding_check)
     to check it or
     [`Nst_string_char_len`](c_api-encoding.md#nst_string_char_len) to get the
     length in characters safely.
@@ -1213,12 +1214,12 @@ The length in characters of the string. No error is set.
 
 ---
 
-### `Nst_cp`
+### `Nst_encoding`
 
 **Synopsis:**
 
 ```better-c
-Nst_CP *Nst_cp(Nst_CPID cpid)
+Nst_Encoding *Nst_encoding(Nst_EncodingID eid)
 ```
 
 **Returns:**
@@ -1233,14 +1234,14 @@ The corresponding encoding structure given its ID. If an invalid ID is given,
 **Synopsis:**
 
 ```better-c
-Nst_CPID Nst_acp(void)
+Nst_EncodingID Nst_acp(void)
 ```
 
 **Description:**
 
 **WINDOWS ONLY** Returns the Nest code page ID of the local ANSI code page. If
 the ANSI code page is not supported,
-[`Nst_CP_LATIN1`](c_api-encoding.md#nst_cpid) is returned.
+[`Nst_EID_LATIN1`](c_api-encoding.md#nst_encodingid) is returned.
 
 ---
 
@@ -1334,13 +1335,14 @@ Returns whether a code is a non character.
 **Synopsis:**
 
 ```better-c
-Nst_CPID Nst_check_bom(i8 *str, usize len, i32 *bom_size)
+Nst_EncodingID Nst_check_bom(i8 *str, usize len, i32 *bom_size)
 ```
 
 **Returns:**
 
-The [`Nst_CPID`](c_api-encoding.md#nst_cpid) deduced from the Byte Order Mark or
-[`Nst_CP_UNKNOWN`](c_api-encoding.md#nst_cpid) if no BOM was detected.
+The [`Nst_EncodingID`](c_api-encoding.md#nst_encodingid) deduced from the Byte
+Order Mark or [`Nst_EID_UNKNOWN`](c_api-encoding.md#nst_encodingid) if no BOM
+was detected.
 
 ---
 
@@ -1349,15 +1351,16 @@ The [`Nst_CPID`](c_api-encoding.md#nst_cpid) deduced from the Byte Order Mark or
 **Synopsis:**
 
 ```better-c
-Nst_CPID Nst_detect_encoding(i8 *str, usize len, i32 *bom_size)
+Nst_EncodingID Nst_detect_encoding(i8 *str, usize len, i32 *bom_size)
 ```
 
 **Description:**
 
 Detects the encoding of a file.
 
-If no valid encoding is detected, [`Nst_CP_LATIN1`](c_api-encoding.md#nst_cpid)
-is returned. No error is set.
+If no valid encoding is detected,
+[`Nst_EID_LATIN1`](c_api-encoding.md#nst_encodingid) is returned. No error is
+set.
 
 ---
 
@@ -1366,22 +1369,23 @@ is returned. No error is set.
 **Synopsis:**
 
 ```better-c
-Nst_CPID Nst_encoding_from_name(i8 *name)
+Nst_EncodingID Nst_encoding_from_name(i8 *name)
 ```
 
 **Returns:**
 
 The encoding ID from a C string, if no matching encoding is found,
-[`Nst_CP_UNKNOWN`](c_api-encoding.md#nst_cpid) is returned. No error is set.
+[`Nst_EID_UNKNOWN`](c_api-encoding.md#nst_encodingid) is returned. No error is
+set.
 
 ---
 
-### `Nst_single_byte_cp`
+### `Nst_single_byte_encoding`
 
 **Synopsis:**
 
 ```better-c
-Nst_CPID Nst_single_byte_cp(Nst_CPID cpid)
+Nst_EncodingID Nst_single_byte_encoding(Nst_EncodingID encoding)
 ```
 
 **Returns:**
@@ -1394,53 +1398,53 @@ little endian version is always returned.
 
 ## Enums
 
-### `Nst_CPID`
+### `Nst_EncodingID`
 
 **Synopsis:**
 
 ```better-c
-typedef enum _Nst_CPID {
-    Nst_CP_UNKNOWN = -1,
-    Nst_CP_ASCII,
-    Nst_CP_UTF8,
-    Nst_CP_EXT_UTF8,
-    Nst_CP_UTF16,
-    Nst_CP_UTF16BE,
-    Nst_CP_UTF16LE,
-    Nst_CP_EXT_UTF16,
-    Nst_CP_EXT_UTF16BE,
-    Nst_CP_EXT_UTF16LE,
-    Nst_CP_UTF32,
-    Nst_CP_UTF32BE,
-    Nst_CP_UTF32LE,
-    Nst_CP_1250,
-    Nst_CP_1251,
-    Nst_CP_1252,
-    Nst_CP_1253,
-    Nst_CP_1254,
-    Nst_CP_1255,
-    Nst_CP_1256,
-    Nst_CP_1257,
-    Nst_CP_1258,
-    Nst_CP_LATIN1,
-    Nst_CP_ISO8859_1 = Nst_CP_LATIN1
-} Nst_CPID
+typedef enum _Nst_EncodingID {
+    Nst_EID_UNKNOWN = -1,
+    Nst_EID_ASCII,
+    Nst_EID_UTF8,
+    Nst_EID_EXT_UTF8,
+    Nst_EID_UTF16,
+    Nst_EID_UTF16BE,
+    Nst_EID_UTF16LE,
+    Nst_EID_EXT_UTF16,
+    Nst_EID_EXT_UTF16BE,
+    Nst_EID_EXT_UTF16LE,
+    Nst_EID_UTF32,
+    Nst_EID_UTF32BE,
+    Nst_EID_UTF32LE,
+    Nst_EID_1250,
+    Nst_EID_1251,
+    Nst_EID_1252,
+    Nst_EID_1253,
+    Nst_EID_1254,
+    Nst_EID_1255,
+    Nst_EID_1256,
+    Nst_EID_1257,
+    Nst_EID_1258,
+    Nst_EID_LATIN1,
+    Nst_EID_ISO8859_1 = Nst_EID_LATIN1
+} Nst_EncodingID
 ```
 
 **Description:**
 
 The supported encodings in Nest.
 
-[`Nst_CP_UNKNOWN`](c_api-encoding.md#nst_cpid) is `-1`;
-[`Nst_CP_LATIN1`](c_api-encoding.md#nst_cpid) and
-[`Nst_CP_ISO8859_1`](c_api-encoding.md#nst_cpid) are equivalent.
+[`Nst_EID_UNKNOWN`](c_api-encoding.md#nst_encodingid) is `-1`;
+[`Nst_EID_LATIN1`](c_api-encoding.md#nst_encodingid) and
+[`Nst_EID_ISO8859_1`](c_api-encoding.md#nst_encodingid) are equivalent.
 
 !!!note
-    [`Nst_CP_EXT_UTF8`](c_api-encoding.md#nst_cpid) is a UTF-8 encoding that
-    allows surrogates to be encoded.
+    [`Nst_EID_EXT_UTF8`](c_api-encoding.md#nst_encodingid) is a UTF-8 encoding
+    that allows surrogates to be encoded.
 
 !!!note
-    [`Nst_CP_EXT_UTF16`](c_api-encoding.md#nst_cpid) along with the little and
-    big endian versions are UTF-16 encodings that allow for unpaired surrogates
-    with the only constraint being that a high surrogate cannot be the last
-    character.
+    [`Nst_EID_EXT_UTF16`](c_api-encoding.md#nst_encodingid) along with the
+    little and big endian versions are UTF-16 encodings that allow for unpaired
+    surrogates with the only constraint being that a high surrogate cannot be
+    the last character.

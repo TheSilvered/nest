@@ -72,7 +72,7 @@ static bool ignore_comment();
 static bool check_ident(const i8 *name);
 
 Nst_LList *json_tokenize(i8 *path, i8 *text, usize text_len,
-                         bool readonly_text, Nst_CPID encoding)
+                         bool readonly_text, Nst_EncodingID encoding)
 {
     Nst_SourceText src_text = {
         .allocated = false,

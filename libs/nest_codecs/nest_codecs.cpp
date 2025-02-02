@@ -77,12 +77,12 @@ Nst_Obj *NstC encoding_info_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &name_str))
         return nullptr;
 
-    Nst_CPID cpid = Nst_encoding_from_name(name_str->value);
-    if (cpid == Nst_CP_UNKNOWN) {
+    Nst_EncodingID cpid = Nst_encoding_from_name(name_str->value);
+    if (cpid == Nst_EID_UNKNOWN) {
         Nst_set_value_errorf("unknown encoding '%.100s'", name_str->value);
         return nullptr;
     }
-    Nst_CP *cp = Nst_cp(cpid);
+    Nst_Encoding *cp = Nst_encoding(cpid);
     Nst_Obj *info = Nst_map_new();
 
     Nst_Obj *mult_max_sz = Nst_int_new(cp->mult_max_sz);

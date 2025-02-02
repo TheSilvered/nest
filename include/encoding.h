@@ -12,67 +12,68 @@
 #include "error.h"
 
 /* Maximum size of a multi-byte character across all supported encodings. */
-#define Nst_CP_MULTIBYTE_MAX_SIZE 4
+#define Nst_ENCODING_MULTIBYTE_MAX_SIZE 4
 /* Maximum size of the BOM across all supported encodings. */
-#define Nst_CP_BOM_MAX_SIZE 4
+#define Nst_ENCODING_BOM_MAX_SIZE 4
 
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
-/* [docs:link Nst_CP_UNKNOWN Nst_CPID] */
-/* [docs:link Nst_CP_LATIN1 Nst_CPID] */
-/* [docs:link Nst_CP_ISO8859_1 Nst_CPID] */
-/* [docs:link Nst_CP_EXT_UTF8 Nst_CPID] */
-/* [docs:link Nst_CP_EXT_UTF16 Nst_CPID] */
+/* [docs:link Nst_EID_UNKNOWN Nst_EncodingID] */
+/* [docs:link Nst_EID_LATIN1 Nst_EncodingID] */
+/* [docs:link Nst_EID_ISO8859_1 Nst_EncodingID] */
+/* [docs:link Nst_EID_EXT_UTF8 Nst_EncodingID] */
+/* [docs:link Nst_EID_EXT_UTF16 Nst_EncodingID] */
 
 /**
  * The supported encodings in Nest.
  *
- * @brief `Nst_CP_UNKNOWN` is `-1`; `Nst_CP_LATIN1` and `Nst_CP_ISO8859_1` are
+ * @brief `Nst_EID_UNKNOWN` is `-1`; `Nst_EID_LATIN1` and `Nst_EID_ISO8859_1` are
  * equivalent.
  *
- * @brief Note: `Nst_CP_EXT_UTF8` is a UTF-8 encoding that allows surrogates to
+ * @brief Note: `Nst_EID_EXT_UTF8` is a UTF-8 encoding that allows surrogates to
  * be encoded.
  *
- * @brief Note: `Nst_CP_EXT_UTF16` along with the little and big endian
+ * @brief Note: `Nst_EID_EXT_UTF16` along with the little and big endian
  * versions are UTF-16 encodings that allow for unpaired surrogates with the
  * only constraint being that a high surrogate cannot be the last character.
  */
-NstEXP typedef enum _Nst_CPID {
-    Nst_CP_UNKNOWN = -1,
-    Nst_CP_ASCII,
-    Nst_CP_UTF8,
-    Nst_CP_EXT_UTF8,
-    Nst_CP_UTF16,
-    Nst_CP_UTF16BE,
-    Nst_CP_UTF16LE,
-    Nst_CP_EXT_UTF16,
-    Nst_CP_EXT_UTF16BE,
-    Nst_CP_EXT_UTF16LE,
-    Nst_CP_UTF32,
-    Nst_CP_UTF32BE,
-    Nst_CP_UTF32LE,
-    Nst_CP_1250,
-    Nst_CP_1251,
-    Nst_CP_1252,
-    Nst_CP_1253,
-    Nst_CP_1254,
-    Nst_CP_1255,
-    Nst_CP_1256,
-    Nst_CP_1257,
-    Nst_CP_1258,
-    Nst_CP_LATIN1,
-    Nst_CP_ISO8859_1 = Nst_CP_LATIN1
-} Nst_CPID;
+NstEXP typedef enum _Nst_EncodingID {
+    Nst_EID_UNKNOWN = -1,
+    Nst_EID_ASCII,
+    Nst_EID_UTF8,
+    Nst_EID_EXT_UTF8,
+    Nst_EID_UTF16,
+    Nst_EID_UTF16BE,
+    Nst_EID_UTF16LE,
+    Nst_EID_EXT_UTF16,
+    Nst_EID_EXT_UTF16BE,
+    Nst_EID_EXT_UTF16LE,
+    Nst_EID_UTF32,
+    Nst_EID_UTF32BE,
+    Nst_EID_UTF32LE,
+    Nst_EID_1250,
+    Nst_EID_1251,
+    Nst_EID_1252,
+    Nst_EID_1253,
+    Nst_EID_1254,
+    Nst_EID_1255,
+    Nst_EID_1256,
+    Nst_EID_1257,
+    Nst_EID_1258,
+    Nst_EID_LATIN1,
+    Nst_EID_ISO8859_1 = Nst_EID_LATIN1
+} Nst_EncodingID;
 
 /**
  * @brief The signature of a function that checks the length of the first
  * character in a string of a certain encoding.
  *
  * @brief Note: if the length is unknown but it is certain that the string
- * contains at least one character you can use `Nst_CP_MULTIBYTE_MAX_SIZE` to
- * ensure that the function does not fail due to a length too small.
+ * contains at least one character you can use
+ * `Nst_ENCODING_MULTIBYTE_MAX_SIZE` to ensure that the function does not fail
+ * due to a length too small.
  *
  * @return The length in bytes of the first character of the string. If the
  * sequence of bytes is not valid or incomplete this function returns `-1`.
@@ -95,9 +96,9 @@ NstEXP typedef u32 (*Nst_ToUTF32Func)(void *str);
  *
  * @brief Warning: `buf` is expected to be large enough to hold the full
  * character, if the final length of the character is unknown you can ensure
- * that `buf` has space for at least `Nst_CP_MULTIBYTE_MAX_SIZE` bytes. This
- * type of functions are guaranteed to never write more than
- * `Nst_CP_MULTIBYTE_MAX_SIZE` bytes.
+ * that `buf` has space for at least `Nst_ENCODING_MULTIBYTE_MAX_SIZE` bytes.
+ * This type of functions are guaranteed to never write more than
+ * `Nst_ENCODING_MULTIBYTE_MAX_SIZE` bytes.
  *
  * @return The number of bytes written. If the character could not be encoded
  * this function returns `-1`.
@@ -120,7 +121,7 @@ NstEXP typedef i32 (*Nst_FromUTF32Func)(u32 ch, void *buf);
  * @param to_utf32: the `Nst_ToUTF32Func` function of the encoding
  * @param from_utf32: the `Nst_FromUTF32Func` function of the encoding
  */
-NstEXP typedef struct _Nst_CP {
+NstEXP typedef struct _Nst_Encoding {
     const usize ch_size;
     const usize mult_max_sz;
     const usize mult_min_sz;
@@ -130,27 +131,27 @@ NstEXP typedef struct _Nst_CP {
     const Nst_CheckBytesFunc check_bytes;
     const Nst_ToUTF32Func to_utf32;
     const Nst_FromUTF32Func from_utf32;
-} Nst_CP;
+} Nst_Encoding;
 
-extern Nst_CP Nst_cp_ascii;
-extern Nst_CP Nst_cp_utf8;
-extern Nst_CP Nst_cp_ext_utf8;
-extern Nst_CP Nst_cp_utf16;
-extern Nst_CP Nst_cp_utf16be;
-extern Nst_CP Nst_cp_utf16le;
-extern Nst_CP Nst_cp_utf32;
-extern Nst_CP Nst_cp_utf32be;
-extern Nst_CP Nst_cp_utf32le;
-extern Nst_CP Nst_cp_1250;
-extern Nst_CP Nst_cp_1251;
-extern Nst_CP Nst_cp_1252;
-extern Nst_CP Nst_cp_1253;
-extern Nst_CP Nst_cp_1254;
-extern Nst_CP Nst_cp_1255;
-extern Nst_CP Nst_cp_1256;
-extern Nst_CP Nst_cp_1257;
-extern Nst_CP Nst_cp_1258;
-extern Nst_CP Nst_cp_iso8859_1;
+extern Nst_Encoding Nst_encoding_ascii;
+extern Nst_Encoding Nst_encoding_utf8;
+extern Nst_Encoding Nst_encoding_ext_utf8;
+extern Nst_Encoding Nst_encoding_utf16;
+extern Nst_Encoding Nst_encoding_utf16be;
+extern Nst_Encoding Nst_encoding_utf16le;
+extern Nst_Encoding Nst_encoding_utf32;
+extern Nst_Encoding Nst_encoding_utf32be;
+extern Nst_Encoding Nst_encoding_utf32le;
+extern Nst_Encoding Nst_encoding_1250;
+extern Nst_Encoding Nst_encoding_1251;
+extern Nst_Encoding Nst_encoding_1252;
+extern Nst_Encoding Nst_encoding_1253;
+extern Nst_Encoding Nst_encoding_1254;
+extern Nst_Encoding Nst_encoding_1255;
+extern Nst_Encoding Nst_encoding_1256;
+extern Nst_Encoding Nst_encoding_1257;
+extern Nst_Encoding Nst_encoding_1258;
+extern Nst_Encoding Nst_encoding_iso8859_1;
 
 /* `Nst_CheckBytesFunc` for ASCII. */
 NstEXP i32 NstC Nst_check_ascii_bytes(u8 *str, usize len);
@@ -338,13 +339,14 @@ NstEXP i32 NstC Nst_utf16_to_utf8(i8 *out_str, u16 *in_str, usize in_str_len);
  * @return `true` on success and `false` on failure. On failure the error is
  * set.
  */
-NstEXP bool NstC Nst_translate_cp(Nst_CP *from, Nst_CP *to, void *from_buf,
-                                  usize from_len, void **to_buf, usize *to_len);
+NstEXP bool NstC Nst_encoding_translate(Nst_Encoding *from, Nst_Encoding *to,
+                                        void *from_buf, usize from_len,
+                                        void **to_buf, usize *to_len);
 
 /**
  * Checks the validity of the encoding of a string.
  *
- * @param cp: the expected encoding of the string
+ * @param encoding: the expected encoding of the string
  * @param str: the string to check
  * @param str_len: the length in units of the string (a unit is 1 byte for
  * `char8_t` strings, two bytes for `char16_t` strings etc.)
@@ -352,12 +354,13 @@ NstEXP bool NstC Nst_translate_cp(Nst_CP *from, Nst_CP *to, void *from_buf,
  * @return The index in units of the first invalid byte or `-1` if the string
  * is correctly encoded. No error is set.
  */
-NstEXP isize NstC Nst_check_string_cp(Nst_CP *cp, void *str, usize str_len);
+NstEXP isize NstC Nst_encoding_check(Nst_Encoding *encoding, void *str,
+                                     usize str_len);
 
 /**
  * Gets the length in characters of an encoded string.
  *
- * @param cp: the encoding of the string
+ * @param encoding: the encoding of the string
  * @param str: the string to get the length of
  * @param str_len: the length in units of the string (a unit is 1 byte for
  * `char8_t` strings, two bytes for `char16_t` strings etc.)
@@ -365,13 +368,14 @@ NstEXP isize NstC Nst_check_string_cp(Nst_CP *cp, void *str, usize str_len);
  * @return The length in characters of the string or -1 on failure. The error
  * is set.
  */
-NstEXP isize NstC Nst_string_char_len(Nst_CP *cp, void *str, usize str_len);
+NstEXP isize NstC Nst_string_char_len(Nst_Encoding *encoding, void *str,
+                                      usize str_len);
 
 /**
  * Gets the length in characters of a UTF-8-encoded string.
  *
  * @brief Note: this function assumes that the string is valid UTF-8 and does
- * no error checking. Use `Nst_check_string_cp` to check it or
+ * no error checking. Use `Nst_encoding_check` to check it or
  * `Nst_string_char_len` to get the length in characters safely.
  *
  * @param str: the string to get the length of
@@ -385,14 +389,14 @@ NstEXP usize NstC Nst_string_utf8_char_len(u8 *str, usize str_len);
  * @return The corresponding encoding structure given its ID. If an invalid ID
  * is given, `NULL` is returned and no error is set.
  */
-NstEXP Nst_CP *NstC Nst_cp(Nst_CPID cpid);
+NstEXP Nst_Encoding *NstC Nst_encoding(Nst_EncodingID eid);
 
 #ifdef Nst_MSVC
 /**
  * @brief WINDOWS ONLY Returns the Nest code page ID of the local ANSI code
- * page. If the ANSI code page is not supported, `Nst_CP_LATIN1` is returned.
+ * page. If the ANSI code page is not supported, `Nst_EID_LATIN1` is returned.
  */
-NstEXP Nst_CPID NstC Nst_acp(void);
+NstEXP Nst_EncodingID NstC Nst_acp(void);
 #endif // !Nst_MSVC
 
 /* [docs:link strlen <https://man7.org/linux/man-pages/man3/strlen.3.html>] */
@@ -436,28 +440,29 @@ NstEXP bool NstC Nst_is_valid_cp(u32 cp);
 NstEXP bool NstC Nst_is_non_character(u32 cp);
 
 /**
- * @return The `Nst_CPID` deduced from the Byte Order Mark or `Nst_CP_UNKNOWN`
- * if no BOM was detected.
+ * @return The `Nst_EncodingID` deduced from the Byte Order Mark or
+ * `Nst_EID_UNKNOWN` if no BOM was detected.
  */
-NstEXP Nst_CPID NstC Nst_check_bom(i8 *str, usize len, i32 *bom_size);
+NstEXP Nst_EncodingID NstC Nst_check_bom(i8 *str, usize len, i32 *bom_size);
 /**
  * Detects the encoding of a file.
  *
- * @brief If no valid encoding is detected, `Nst_CP_LATIN1` is returned.
+ * @brief If no valid encoding is detected, `Nst_EID_LATIN1` is returned.
  * No error is set.
  */
-NstEXP Nst_CPID NstC Nst_detect_encoding(i8 *str, usize len, i32 *bom_size);
+NstEXP Nst_EncodingID NstC Nst_detect_encoding(i8 *str, usize len,
+                                               i32 *bom_size);
 /**
  * @return The encoding ID from a C string, if no matching encoding is found,
- * `Nst_CP_UNKNOWN` is returned. No error is set.
+ * `Nst_EID_UNKNOWN` is returned. No error is set.
  */
-NstEXP Nst_CPID NstC Nst_encoding_from_name(i8 *name);
+NstEXP Nst_EncodingID NstC Nst_encoding_from_name(i8 *name);
 /**
  * @return An encoding ID where `ch_size` is one byte. If the given encoding ID
  * has a `ch_size` of one byte already the encoding ID itself is returned.
  * Otherwies the little endian version is always returned.
  */
-NstEXP Nst_CPID NstC Nst_single_byte_cp(Nst_CPID cpid);
+NstEXP Nst_EncodingID NstC Nst_single_byte_encoding(Nst_EncodingID encoding);
 
 #ifdef __cplusplus
 }

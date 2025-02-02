@@ -1,3 +1,11 @@
+/**
+ * @file unicode_db.h
+ *
+ * @brief Unicode Character Database
+ *
+ * @author TheSilvered
+ */
+
 #ifndef UNICODE_DB_H
 #define UNICODE_DB_H
 
@@ -41,6 +49,8 @@
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
+
+/* [docs:ignore_sym Nst_UCD_MASK_*] */
 
 /**
  * Unicode character information.

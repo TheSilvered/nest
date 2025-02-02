@@ -262,7 +262,7 @@ static void format_init(Format *format)
 static const i8 *format_set_separator(Format *format, const i8 *ch)
 {
     memset(format->separator, 0, 4);
-    i32 ch_len = Nst_check_utf8_bytes((u8 *)ch, Nst_CP_MULTIBYTE_MAX_SIZE);
+    i32 ch_len = Nst_check_utf8_bytes((u8 *)ch, Nst_ENCODING_MULTIBYTE_MAX_SIZE);
     memcpy(format->separator, ch, (usize)ch_len);
     return ch + ch_len;
 }
@@ -286,7 +286,7 @@ static usize format_separator_len(Format *format)
 static const i8 *format_set_fill_ch(Format *format, const i8 *ch)
 {
     memset(format->fill_ch, 0, 4);
-    i32 ch_len = Nst_check_utf8_bytes((u8 *)ch, Nst_CP_MULTIBYTE_MAX_SIZE);
+    i32 ch_len = Nst_check_utf8_bytes((u8 *)ch, Nst_ENCODING_MULTIBYTE_MAX_SIZE);
     memcpy(format->fill_ch, ch, (usize)ch_len);
     return ch + ch_len;
 }
@@ -447,7 +447,11 @@ static i8 *general_fmt(const i8 *fmt, usize fmt_len, usize *out_len,
         return out_str;
     }
 
-    if (Nst_check_string_cp(Nst_cp(Nst_CP_EXT_UTF8), (void *)fmt, fmtlen) != -1) {
+    isize encoding_error = Nst_encoding_check(
+        Nst_encoding(Nst_EID_EXT_UTF8),
+        (void *)fmt,
+        fmtlen);
+    if (encoding_error != -1) {
         Nst_set_value_error_c("`fmt` is not valid UTF-8");
         return false;
     }
@@ -1050,8 +1054,8 @@ static bool fmt_str(Nst_Buffer *buf, i8 *str, isize str_len, Format *format)
     if (str_len < 0)
         str_len = strlen(str);
 
-    isize vaild = Nst_check_string_cp(
-        Nst_cp(Nst_CP_EXT_UTF8),
+    isize vaild = Nst_encoding_check(
+        Nst_encoding(Nst_EID_EXT_UTF8),
         (void *)str,
         str_len);
     if (vaild != -1) {
@@ -1160,7 +1164,7 @@ static isize fmt_str_repr(Nst_Buffer *buf, i8 *str, usize str_len,
                 return -1;
             tot_char_len += char_len;
         } else {
-            if (!Nst_buffer_expand_by(buf, Nst_CP_MULTIBYTE_MAX_SIZE + 1))
+            if (!Nst_buffer_expand_by(buf, Nst_ENCODING_MULTIBYTE_MAX_SIZE + 1))
                 return -1;
             i32 bytes_written = Nst_ext_utf8_from_utf32(
                 (u32)c,

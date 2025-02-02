@@ -341,7 +341,7 @@ static Nst_IOResult write_std_stream(i8 *buf, usize buf_len, usize *count,
     }
     if (count != NULL) {
         isize chars_written = Nst_string_char_len(
-            Nst_cp(Nst_CP_EXT_UTF8),
+            Nst_encoding(Nst_EID_EXT_UTF8),
             (void *)buf,
             bytes_written);
         if (chars_written == -1)

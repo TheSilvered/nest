@@ -160,7 +160,7 @@ typedef struct _Nst_IOFileObj {
     Nst_OBJ_HEAD;
     int fd;
     void *fp;
-    Nst_CP *encoding;
+    Nst_Encoding *encoding;
     Nst_IOFuncSet func_set;
 } Nst_IOFileObj
 ```
@@ -447,7 +447,7 @@ This function shall return one of the following
 
 ```better-c
 Nst_Obj *Nst_iof_new(FILE *value, bool bin, bool read, bool write,
-                     Nst_CP *encoding)
+                     Nst_Encoding *encoding)
 ```
 
 **Description:**
@@ -475,7 +475,8 @@ The new object on success or `NULL` on failure. The error is set.
 
 ```better-c
 Nst_Obj *Nst_iof_new_fake(void *value, bool bin, bool read, bool write,
-                          bool seek, Nst_CP *encoding, Nst_IOFuncSet func_set)
+                          bool seek, Nst_Encoding *encoding,
+                          Nst_IOFuncSet func_set)
 ```
 
 **Description:**

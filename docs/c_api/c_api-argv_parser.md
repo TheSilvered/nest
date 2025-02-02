@@ -18,7 +18,7 @@ TheSilvered
 typedef struct _Nst_CLArgs {
     bool print_tokens, print_ast, print_bytecode;
     bool force_execution;
-    Nst_CPID encoding;
+    Nst_EncodingID encoding;
     bool no_default;
     i32 opt_level;
     i8 *command, *filename;

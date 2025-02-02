@@ -23,7 +23,7 @@ static usize io_result_position;
 static const i8 *io_result_encoding_name;
 
 Nst_Obj *Nst_iof_new(FILE *value, bool bin, bool read, bool write,
-                     Nst_CP *encoding)
+                     Nst_Encoding *encoding)
 {
     Nst_IOFileObj *obj = Nst_obj_alloc(Nst_IOFileObj, Nst_t.IOFile);
     if (obj == NULL)
@@ -59,7 +59,8 @@ Nst_Obj *Nst_iof_new(FILE *value, bool bin, bool read, bool write,
 }
 
 Nst_Obj *Nst_iof_new_fake(void *value, bool bin, bool read, bool write,
-                          bool seek, Nst_CP *encoding, Nst_IOFuncSet func_set)
+                          bool seek, Nst_Encoding *encoding,
+                          Nst_IOFuncSet func_set)
 {
     Nst_IOFileObj *obj = Nst_obj_alloc(Nst_IOFileObj, Nst_t.IOFile);
     if (obj == NULL)
@@ -96,11 +97,14 @@ void _Nst_iofile_destroy(Nst_IOFileObj *obj)
 static Nst_IOResult FILE_read_get_ch(Nst_IOFileObj *f, Nst_Buffer *buf,
                                      bool expand_buf, usize *bytes_read)
 {
-    i8 ch_buf[Nst_CP_MULTIBYTE_MAX_SIZE + 1] = { 0 };
+    i8 ch_buf[Nst_ENCODING_MULTIBYTE_MAX_SIZE + 1] = { 0 };
     usize ch_len = 0;
     u32 ch;
-    if (!expand_buf || !Nst_buffer_expand_by(buf, Nst_cp_utf8.mult_max_sz + 1))
+    if (!expand_buf
+        || !Nst_buffer_expand_by(buf, Nst_encoding_utf8.mult_max_sz + 1))
+    {
         return Nst_IO_ALLOC_FAILED;
+    }
 
     for (usize i = 0; i < f->encoding->mult_max_sz; i++) {
         if (fread(ch_buf + i, 1, 1, f->fp) == 0) {
@@ -179,7 +183,7 @@ Nst_IOResult Nst_FILE_read(i8 *buf, usize buf_size, usize count,
         && ftell((FILE *)f->fp) == 0
         && f->encoding->bom != NULL)
     {
-        i8 bom[Nst_CP_BOM_MAX_SIZE];
+        i8 bom[Nst_ENCODING_BOM_MAX_SIZE];
         usize b_size = f->encoding->bom_size;
         if (fread(&bom, 1, b_size, (FILE *)f->fp) != b_size
             || memcmp(bom, f->encoding->bom, b_size) != 0)
@@ -258,8 +262,8 @@ Nst_IOResult Nst_FILE_write(i8 *buf, usize buf_len, usize *count,
     if (Nst_IOF_CAN_SEEK(f)
         && ftell((FILE *)f->fp) == 0
         && f->encoding->bom != NULL
-        && f->encoding != &Nst_cp_utf8
-        && f->encoding != &Nst_cp_ext_utf8)
+        && f->encoding != &Nst_encoding_utf8
+        && f->encoding != &Nst_encoding_ext_utf8)
     {
         usize written_bytes = fwrite(
             f->encoding->bom,
@@ -271,7 +275,7 @@ Nst_IOResult Nst_FILE_write(i8 *buf, usize buf_len, usize *count,
     }
 
     usize chars_written = 0;
-    i8 ch_buf[Nst_CP_MULTIBYTE_MAX_SIZE];
+    i8 ch_buf[Nst_ENCODING_MULTIBYTE_MAX_SIZE];
 
     usize initial_len = buf_len;
     while (buf_len > 0) {

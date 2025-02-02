@@ -119,7 +119,7 @@ static Nst_IOResult virtual_file_read(i8 *buf, usize buf_size, usize count,
             Nst_io_result_set_details(
                 (u32)*((i8 *)vf->data.data + vf->ptr + byte_count),
                 vf->ptr + byte_count,
-                Nst_cp(Nst_CP_EXT_UTF8)->name);
+                Nst_encoding(Nst_EID_EXT_UTF8)->name);
             return Nst_IO_ALLOC_FAILED;
         }
         if (buf_size != 0 && byte_count + ch_size >= buf_size)
@@ -333,7 +333,7 @@ Nst_Obj *NstC open_(usize arg_num, Nst_Obj **args)
         }
     }
 
-    Nst_CP *encoding;
+    Nst_Encoding *encoding;
     if (is_bin) {
         if (encoding_obj != Nst_null()) {
             Nst_set_value_error_c(
@@ -343,20 +343,20 @@ Nst_Obj *NstC open_(usize arg_num, Nst_Obj **args)
         }
         encoding = NULL;
     } else {
-        Nst_CPID cpid = Nst_DEF_VAL(
+        Nst_EncodingID cpid = Nst_DEF_VAL(
             encoding_obj,
             Nst_encoding_from_name(STR(encoding_obj)->value),
-            Nst_CP_UTF8);
-        if (cpid == Nst_CP_UNKNOWN) {
+            Nst_EID_UTF8);
+        if (cpid == Nst_EID_UNKNOWN) {
             Nst_set_value_errorf(
                 "invalid encoding '%.100s'",
                 STR(encoding_obj)->value);
             return nullptr;
         }
 
-        cpid = Nst_single_byte_cp(cpid);
+        cpid = Nst_single_byte_encoding(cpid);
 
-        encoding = Nst_cp(cpid);
+        encoding = Nst_encoding(cpid);
     }
 
     FILE *file_ptr = Nst_fopen_unicode(file_name, bin_mode);
@@ -398,7 +398,7 @@ Nst_Obj *NstC virtual_file_(usize arg_num, Nst_Obj **args)
     return Nst_iof_new_fake(
         (void *)vf,
         bin, true, true, true,
-        Nst_cp(Nst_CP_UTF8),
+        Nst_encoding(Nst_EID_UTF8),
         vf_funcs);
 }
 

@@ -15,7 +15,7 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-Nst_LList *Nst_tokenizef(i8 *filename, Nst_CPID encoding, i32 *opt_level,
+Nst_LList *Nst_tokenizef(i8 *filename, Nst_EncodingID encoding, i32 *opt_level,
                          bool *no_default, Nst_SourceText *src_text)
 ```
 
@@ -27,7 +27,7 @@ Opens and tokenizes a file.
 
 - `filename`: the path to the file
 - `encoding`: the supposed encoding of the file, if set to
-  [`Nst_CP_UNKNOWN`](c_api-encoding.md#nst_cpid) it will be detected
+  [`Nst_EID_UNKNOWN`](c_api-encoding.md#nst_encodingid) it will be detected
   automatically
 - `opt_level`: where the optimization level is stored if specified with file
   arguments
@@ -94,7 +94,7 @@ On failure the lines field of the struct is set to `NULL` and lines_len to `0`.
 **Synopsis:**
 
 ```better-c
-bool Nst_normalize_encoding(Nst_SourceText *text, Nst_CPID encoding)
+bool Nst_normalize_encoding(Nst_SourceText *text, Nst_EncodingID encoding)
 ```
 
 **Description:**
@@ -105,7 +105,8 @@ Re-encodes a file to be UTF-8.
 
 - `text`: the text to re-encode
 - `encoding`: the encoding of the text, if
-  [`Nst_CP_UNKNOWN`](c_api-encoding.md#nst_cpid) it is detected automatically
+  [`Nst_EID_UNKNOWN`](c_api-encoding.md#nst_encodingid) it is detected
+  automatically
 
 **Returns:**
 

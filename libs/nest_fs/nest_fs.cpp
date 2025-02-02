@@ -94,8 +94,8 @@ static Nst_StrObj *error_str(std::string str)
 #ifdef Nst_MSVC
     i8 *val;
     usize len;
-    bool result = Nst_translate_cp(
-        Nst_cp(Nst_acp()), Nst_cp(Nst_CP_UTF8),
+    bool result = Nst_encoding_translate(
+        Nst_encoding(Nst_acp()), Nst_encoding(Nst_EID_UTF8),
         (void *)str.c_str(), str.length(), (void **)&val, &len);
     if (!result)
         return STR(Nst_inc_ref(Nst_str()->o_failed_alloc));

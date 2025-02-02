@@ -82,7 +82,7 @@ void Nst_cl_args_init(Nst_CLArgs *args, i32 argc, i8 **argv)
     args->print_ast = false;
     args->print_bytecode = false;
     args->force_execution = false;
-    args->encoding = Nst_CP_UNKNOWN;
+    args->encoding = Nst_EID_UNKNOWN;
     args->no_default = false;
     args->opt_level = 3;
     args->command = NULL;
@@ -117,12 +117,12 @@ static i32 long_arg(i8 *arg, Nst_CLArgs *cl_args)
             return -1;
         }
         cl_args->encoding = Nst_encoding_from_name(arg + 11);
-        if (cl_args->encoding == Nst_CP_UNKNOWN) {
+        if (cl_args->encoding == Nst_EID_UNKNOWN) {
             printf("Unknown encoding %s\n", arg + 11);
             printf("\n" ENCODING_MESSAGE);
             return -1;
         }
-        cl_args->encoding = Nst_single_byte_cp(cl_args->encoding);
+        cl_args->encoding = Nst_single_byte_encoding(cl_args->encoding);
     } else {
         printf("Invalid option: %s\n", arg);
         printf("\n" USAGE_MESSAGE);
@@ -180,12 +180,12 @@ i32 _Nst_cl_args_parse(Nst_CLArgs *cl_args)
                     return -1;
                 }
                 cl_args->encoding = Nst_encoding_from_name(arg + 3);
-                if (cl_args->encoding == Nst_CP_UNKNOWN) {
+                if (cl_args->encoding == Nst_EID_UNKNOWN) {
                     printf("Unknown encoding %s\n", arg + 3);
                     printf("\n" ENCODING_MESSAGE);
                     return -1;
                 }
-                cl_args->encoding = Nst_single_byte_cp(cl_args->encoding);
+                cl_args->encoding = Nst_single_byte_encoding(cl_args->encoding);
                 j = arg_len;
                 break;
             case 'O': {

@@ -791,20 +791,20 @@ Nst_Obj *NstC decode_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("A.B ?s", arg_num, args, &seq, &encoding_obj))
         return nullptr;
 
-    Nst_CPID cpid = Nst_DEF_VAL(
+    Nst_EncodingID cpid = Nst_DEF_VAL(
         encoding_obj,
         Nst_encoding_from_name(STR(encoding_obj)->value),
-        Nst_CP_EXT_UTF8);
-    if (cpid == Nst_CP_UNKNOWN) {
+        Nst_EID_EXT_UTF8);
+    if (cpid == Nst_EID_UNKNOWN) {
         Nst_set_value_error(
             Nst_sprintf(
                 "invalid encoding '%.100s'",
                 STR(encoding_obj)->value));
         return nullptr;
     }
-    cpid = Nst_single_byte_cp(cpid);
+    cpid = Nst_single_byte_encoding(cpid);
 
-    Nst_CP *encoding = Nst_cp(cpid);
+    Nst_Encoding *encoding = Nst_encoding(cpid);
 
     usize len = seq->len;
     i8 *byte_array = Nst_malloc_c(len + 1, i8);
@@ -819,8 +819,8 @@ Nst_Obj *NstC decode_(usize arg_num, Nst_Obj **args)
 
     i8 *str;
     usize str_len;
-    bool result = Nst_translate_cp(
-        encoding, Nst_cp(Nst_CP_EXT_UTF8),
+    bool result = Nst_encoding_translate(
+        encoding, Nst_encoding(Nst_EID_EXT_UTF8),
         byte_array, len,
         (void **)&str, &str_len);
 
@@ -839,25 +839,25 @@ Nst_Obj *NstC encode_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s ?s", arg_num, args, &str, &encoding_obj))
         return nullptr;
 
-    Nst_CPID cpid = Nst_DEF_VAL(
+    Nst_EncodingID cpid = Nst_DEF_VAL(
         encoding_obj,
         Nst_encoding_from_name(STR(encoding_obj)->value),
-        Nst_CP_UTF8);
-    if (cpid == Nst_CP_UNKNOWN) {
+        Nst_EID_UTF8);
+    if (cpid == Nst_EID_UNKNOWN) {
         Nst_set_value_error(
             Nst_sprintf(
                 "invalid encoding '%.100s'",
                 STR(encoding_obj)->value));
         return nullptr;
     }
-    cpid = Nst_single_byte_cp(cpid);
+    cpid = Nst_single_byte_encoding(cpid);
 
-    Nst_CP *encoding = Nst_cp(cpid);
+    Nst_Encoding *encoding = Nst_encoding(cpid);
 
     u8 *byte_array;
     usize array_len;
-    bool result = Nst_translate_cp(
-        Nst_cp(Nst_CP_EXT_UTF8), encoding,
+    bool result = Nst_encoding_translate(
+        Nst_encoding(Nst_EID_EXT_UTF8), encoding,
         str->value, str->len,
         (void **)&byte_array, &array_len);
 
