@@ -22,10 +22,13 @@ static Nst_Declr obj_list_[] = {
     Nst_FUNCDECLR(is_lower_, 1),
     Nst_FUNCDECLR(is_alpha_, 1),
     Nst_FUNCDECLR(is_digit_, 1),
+    Nst_FUNCDECLR(is_decimal_, 1),
+    Nst_FUNCDECLR(is_numeric_, 1),
     Nst_FUNCDECLR(is_alnum_, 1),
     Nst_FUNCDECLR(is_space_, 1),
     Nst_FUNCDECLR(is_charset_, 2),
     Nst_FUNCDECLR(is_printable_, 1),
+    Nst_FUNCDECLR(is_ascii_, 1),
     Nst_FUNCDECLR(replace_, 3),
     Nst_FUNCDECLR(decode_, 2),
     Nst_FUNCDECLR(encode_, 2),
@@ -124,7 +127,7 @@ Nst_Obj *NstC lfind_(usize arg_num, Nst_Obj **args)
         return Nst_inc_ref(Nst_const()->Int_neg1);
 
     return Nst_int_new(
-        i64(Nst_string_utf8_char_len(
+        i64(Nst_str_utf8_char_len(
             (u8 *)str1->value,
             sub - str1->value)));
 }
@@ -167,7 +170,7 @@ Nst_Obj *NstC rfind_(usize arg_num, Nst_Obj **args)
         return Nst_inc_ref(Nst_const()->Int_neg1);
 
     return Nst_int_new(
-        i64(Nst_string_utf8_char_len(
+        i64(Nst_str_utf8_char_len(
             (u8 *)str1->value,
             sub - str1->value)));
 }
@@ -456,26 +459,36 @@ Nst_Obj *NstC to_title_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &str))
         return nullptr;
 
-    Nst_StrObj *new_str = STR(Nst_str_copy(str));
-    i8 *s = new_str->value;
-    i8 *end = s + new_str->len;
+    Nst_Buffer buf;
+    u32 out_cps[Nst_UCD_MAX_CASE_EXPANSION] = { 0 };
     bool new_word = true;
 
-    while (s != end) {
-        if (isspace((u8)*s)) {
+    if (!Nst_buffer_init(&buf, str->len))
+        return nullptr;
+
+    isize idx = -1;
+    for (i32 cp = Nst_str_next_utf32(str, &idx);
+         idx != -1;
+         cp = Nst_str_next_utf32(str, &idx))
+    {
+        bool is_ws = Nst_unicode_is_whitespace(cp);
+        if (is_ws)
             new_word = true;
-            s++;
-            continue;
+
+        Nst_UnicodeChInfo ch_info = Nst_unicode_get_ch_info(cp);
+        usize cp_count = Nst_unicode_expand_case(
+            cp,
+            new_word ? ch_info.title : ch_info.lower,
+            out_cps);
+        if (!Nst_buffer_append_cps(&buf, out_cps, cp_count)) {
+            Nst_buffer_destroy(&buf);
+            return nullptr;
         }
-        if (new_word) {
-            *s = (i8)toupper((u8)*s);
+        if (!is_ws)
             new_word = false;
-        } else
-            *s = (i8)tolower((u8)*s);
-        s++;
     }
 
-    return OBJ(new_str);
+    return OBJ(Nst_buffer_to_string(&buf));
 }
 
 Nst_Obj *NstC to_upper_(usize arg_num, Nst_Obj **args)
@@ -485,16 +498,26 @@ Nst_Obj *NstC to_upper_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &str))
         return nullptr;
 
-    Nst_StrObj *new_str = STR(Nst_str_copy(str));
-    i8 *s = new_str->value;
-    i8 *end = s + new_str->len;
+    Nst_Buffer buf;
+    u32 out_cps[Nst_UCD_MAX_CASE_EXPANSION] = { 0 };
 
-    while (s != end) {
-        *s = (i8)toupper((u8)*s);
-        s++;
+    if (!Nst_buffer_init(&buf, str->len))
+        return nullptr;
+
+    isize idx = -1;
+    for (i32 cp = Nst_str_next_utf32(str, &idx);
+         idx != -1;
+         cp = Nst_str_next_utf32(str, &idx))
+    {
+        Nst_UnicodeChInfo ch_info = Nst_unicode_get_ch_info(cp);
+        usize cp_count = Nst_unicode_expand_case(cp, ch_info.upper, out_cps);
+        if (!Nst_buffer_append_cps(&buf, out_cps, cp_count)) {
+            Nst_buffer_destroy(&buf);
+            return nullptr;
+        }
     }
 
-    return OBJ(new_str);
+    return OBJ(Nst_buffer_to_string(&buf));
 }
 
 Nst_Obj *NstC to_lower_(usize arg_num, Nst_Obj **args)
@@ -504,16 +527,26 @@ Nst_Obj *NstC to_lower_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &str))
         return nullptr;
 
-    Nst_StrObj *new_str = STR(Nst_str_copy(str));
-    i8 *s = new_str->value;
-    i8 *end = s + new_str->len;
+    Nst_Buffer buf;
+    u32 out_cps[Nst_UCD_MAX_CASE_EXPANSION] = { 0 };
 
-    while (s != end) {
-        *s = (i8)tolower((u8)*s);
-        s++;
+    if (!Nst_buffer_init(&buf, str->len))
+        return nullptr;
+
+    isize idx = -1;
+    for (i32 cp = Nst_str_next_utf32(str, &idx);
+         idx != -1;
+         cp = Nst_str_next_utf32(str, &idx))
+    {
+        Nst_UnicodeChInfo ch_info = Nst_unicode_get_ch_info(cp);
+        usize cp_count = Nst_unicode_expand_case(cp, ch_info.lower, out_cps);
+        if (!Nst_buffer_append_cps(&buf, out_cps, cp_count)) {
+            Nst_buffer_destroy(&buf);
+            return nullptr;
+        }
     }
 
-    return OBJ(new_str);
+    return OBJ(Nst_buffer_to_string(&buf));
 }
 
 Nst_Obj *NstC is_title_(usize arg_num, Nst_Obj **args)
@@ -523,27 +556,29 @@ Nst_Obj *NstC is_title_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &str))
         return nullptr;
 
-    i8 *s = str->value;
-    i8 *end = s + str->len;
     bool new_word = true;
 
-    while (s != end) {
-        if (isspace((u8)*s)) {
+    isize idx = -1;
+    for (i32 cp = Nst_str_next_utf32(str, &idx);
+         idx != -1;
+         cp = Nst_str_next_utf32(str, &idx))
+    {
+        if (Nst_unicode_is_whitespace(cp)) {
             new_word = true;
-            s++;
-            continue;
-        } else if (!isalpha((u8)*s)) {
-            new_word = false;
-            s++;
             continue;
         }
 
-        if ((new_word && isupper((u8)*s)) || (!new_word && islower((u8)*s))) {
+        Nst_UnicodeChInfo info = Nst_unicode_get_ch_info(cp);
+        if (!(info.flags & Nst_UCD_MASK_ALPHABETIC)
+            || !(info.flags & Nst_UCD_MASK_CASED)) {
             new_word = false;
-            s++;
             continue;
         }
-        Nst_RETURN_FALSE;
+        if (new_word && !Nst_unicode_is_titlecase(info))
+            Nst_RETURN_FALSE;
+        else if (!new_word && !(info.flags & Nst_UCD_MASK_LOWERCASE))
+            Nst_RETURN_FALSE;
+        new_word = false;
     }
 
     Nst_RETURN_TRUE;
@@ -556,13 +591,17 @@ Nst_Obj *NstC is_upper_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &str))
         return nullptr;
 
-    i8 *s = str->value;
-    i8 *end = s + str->len;
-
-    while (s != end) {
-        if (isalpha((u8)*s) && !isupper((u8)*s))
+    isize idx = -1;
+    for (i32 cp = Nst_str_next_utf32(str, &idx);
+         idx != -1;
+         cp = Nst_str_next_utf32(str, &idx))
+    {
+        Nst_UnicodeChInfo info = Nst_unicode_get_ch_info(cp);
+        if (info.flags & Nst_UCD_MASK_CASED
+            && !(info.flags & Nst_UCD_MASK_UPPERCASE))
+        {
             Nst_RETURN_FALSE;
-        s++;
+        }
     }
 
     Nst_RETURN_TRUE;
@@ -575,13 +614,17 @@ Nst_Obj *NstC is_lower_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &str))
         return nullptr;
 
-    i8 *s = str->value;
-    i8 *end = s + str->len;
-
-    while (s != end) {
-        if (isalpha((u8)*s) && !islower((u8)*s))
+    isize idx = -1;
+    for (i32 cp = Nst_str_next_utf32(str, &idx);
+         idx != -1;
+         cp = Nst_str_next_utf32(str, &idx))
+    {
+        Nst_UnicodeChInfo info = Nst_unicode_get_ch_info(cp);
+        if (info.flags & Nst_UCD_MASK_CASED
+            && !(info.flags & Nst_UCD_MASK_LOWERCASE))
+        {
             Nst_RETURN_FALSE;
-        s++;
+        }
     }
 
     Nst_RETURN_TRUE;
@@ -594,11 +637,13 @@ Nst_Obj *NstC is_alpha_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &str))
         return nullptr;
 
-    i8 *s = str->value;
-    i8 *end = s + str->len;
-
-    while (s != end) {
-        if (!isalpha((u8)*s++))
+    isize idx = -1;
+    for (i32 cp = Nst_str_next_utf32(str, &idx);
+         idx != -1;
+         cp = Nst_str_next_utf32(str, &idx))
+    {
+        Nst_UnicodeChInfo info = Nst_unicode_get_ch_info(cp);
+        if (!(info.flags & Nst_UCD_MASK_ALPHABETIC))
             Nst_RETURN_FALSE;
     }
 
@@ -612,11 +657,53 @@ Nst_Obj *NstC is_digit_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &str))
         return nullptr;
 
-    i8 *s = str->value;
-    i8 *end = s + str->len;
+    isize idx = -1;
+    for (i32 cp = Nst_str_next_utf32(str, &idx);
+         idx != -1;
+         cp = Nst_str_next_utf32(str, &idx))
+    {
+        Nst_UnicodeChInfo info = Nst_unicode_get_ch_info(cp);
+        if (!(info.flags & Nst_UCD_MASK_DIGIT))
+            Nst_RETURN_FALSE;
+    }
 
-    while (s != end) {
-        if (!isdigit((u8)*s++))
+    Nst_RETURN_TRUE;
+}
+
+Nst_Obj *NstC is_decimal_(usize arg_num, Nst_Obj **args)
+{
+    Nst_StrObj *str;
+
+    if (!Nst_extract_args("s", arg_num, args, &str))
+        return nullptr;
+
+    isize idx = -1;
+    for (i32 cp = Nst_str_next_utf32(str, &idx);
+         idx != -1;
+         cp = Nst_str_next_utf32(str, &idx))
+    {
+        Nst_UnicodeChInfo info = Nst_unicode_get_ch_info(cp);
+        if (!(info.flags & Nst_UCD_MASK_DECIMAL))
+            Nst_RETURN_FALSE;
+    }
+
+    Nst_RETURN_TRUE;
+}
+
+Nst_Obj *NstC is_numeric_(usize arg_num, Nst_Obj **args)
+{
+    Nst_StrObj *str;
+
+    if (!Nst_extract_args("s", arg_num, args, &str))
+        return nullptr;
+
+    isize idx = -1;
+    for (i32 cp = Nst_str_next_utf32(str, &idx);
+         idx != -1;
+         cp = Nst_str_next_utf32(str, &idx))
+    {
+        Nst_UnicodeChInfo info = Nst_unicode_get_ch_info(cp);
+        if (!(info.flags & Nst_UCD_MASK_NUMERIC))
             Nst_RETURN_FALSE;
     }
 
@@ -630,11 +717,14 @@ Nst_Obj *NstC is_alnum_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &str))
         return nullptr;
 
-    i8 *s = str->value;
-    i8 *end = s + str->len;
-
-    while (s != end) {
-        if (!isalnum((u8)*s++))
+    isize idx = -1;
+    for (i32 cp = Nst_str_next_utf32(str, &idx);
+         idx != -1;
+         cp = Nst_str_next_utf32(str, &idx))
+    {
+        Nst_UnicodeChInfo info = Nst_unicode_get_ch_info(cp);
+        if (!(info.flags & Nst_UCD_MASK_ALPHABETIC)
+            && !(info.flags & Nst_UCD_MASK_NUMERIC))
             Nst_RETURN_FALSE;
     }
 
@@ -648,11 +738,12 @@ Nst_Obj *NstC is_space_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &str))
         return nullptr;
 
-    i8 *s = str->value;
-    i8 *end = s + str->len;
-
-    while (s != end) {
-        if (!isspace((u8)*s++))
+    isize idx = -1;
+    for (i32 cp = Nst_str_next_utf32(str, &idx);
+         idx != -1;
+         cp = Nst_str_next_utf32(str, &idx))
+    {
+        if (!Nst_unicode_is_whitespace(cp))
             Nst_RETURN_FALSE;
     }
 
@@ -701,20 +792,32 @@ Nst_Obj *NstC is_printable_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &str))
         return nullptr;
 
+    isize idx = -1;
+    for (i32 cp = Nst_str_next_utf32(str, &idx);
+         idx != -1;
+         cp = Nst_str_next_utf32(str, &idx))
+    {
+        Nst_UnicodeChInfo info = Nst_unicode_get_ch_info(cp);
+        if (!(info.flags & Nst_UCD_MASK_PRINTABLE))
+            Nst_RETURN_FALSE;
+    }
+
+    Nst_RETURN_TRUE;
+}
+
+Nst_Obj *NstC is_ascii_(usize arg_num, Nst_Obj **args)
+{
+    Nst_StrObj *str;
+
+    if (!Nst_extract_args("s", arg_num, args, &str))
+        return nullptr;
+
     i8 *s = str->value;
     i8 *end = s + str->len;
 
-    while (s < end) {
-        i32 res = Nst_check_ext_utf8_bytes((u8 *)s, end - s);
-        u32 ch = Nst_ext_utf8_to_utf32((u8 *)s);
-        s += res;
-
-        if ((ch < 0x80 && !isprint((int)ch))
-            || !Nst_is_valid_cp(ch)
-            || Nst_is_non_character(ch))
-        {
+    while (s != end) {
+        if ((u8)*s++ > 0x7f)
             Nst_RETURN_FALSE;
-        }
     }
 
     Nst_RETURN_TRUE;
@@ -802,7 +905,7 @@ Nst_Obj *NstC decode_(usize arg_num, Nst_Obj **args)
                 STR(encoding_obj)->value));
         return nullptr;
     }
-    cpid = Nst_single_byte_encoding(cpid);
+    cpid = Nst_encoding_to_single_byte(cpid);
 
     Nst_Encoding *encoding = Nst_encoding(cpid);
 
@@ -850,7 +953,7 @@ Nst_Obj *NstC encode_(usize arg_num, Nst_Obj **args)
                 STR(encoding_obj)->value));
         return nullptr;
     }
-    cpid = Nst_single_byte_encoding(cpid);
+    cpid = Nst_encoding_to_single_byte(cpid);
 
     Nst_Encoding *encoding = Nst_encoding(cpid);
 

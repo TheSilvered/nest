@@ -35,17 +35,6 @@
 /* Maximum number of characters that `Nst_unicode_expand_case` can produce. */
 #define Nst_UCD_MAX_CASE_EXPANSION 3
 
-/**
- * Check if a character is titlecase. The character is titlecase if it is
- * cased but not uppercase nor lowercase.
- *
- * @param flags: the character's flags from its `Nst_UnicodeChInfo`
- */
-#define Nst_UCD_IS_TITLECASE(flags) \
-    (((flags) & Nst_UCD_MASK_CASED) \
-        && !((flags) & Nst_UCD_MASK_UPPERCASE) \
-        && !((flags) & Nst_UCD_MASK_LOWERCASE))
-
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
@@ -66,7 +55,7 @@ typedef struct _Nst_UnicodeChInfo {
 } Nst_UnicodeChInfo;
 
 /* Get the `Nst_UnicodeChInfo` about a character. */
-Nst_UnicodeChInfo Nst_unicode_get_ch_info(u32 codepoint);
+NstEXP Nst_UnicodeChInfo Nst_unicode_get_ch_info(u32 codepoint);
 /**
  * Changes a codepoint's case.
  *
@@ -80,9 +69,12 @@ Nst_UnicodeChInfo Nst_unicode_get_ch_info(u32 codepoint);
  * the number of codepoints written to `out_codepoints` if it is not `NULL`.
  * This number is less than or equal to `Nst_UCD_MAX_CASE_EXPANSION`
  */
-usize Nst_unicode_expand_case(u32 codepoint, u32 casing, u32 *out_codepoints);
+NstEXP usize Nst_unicode_expand_case(u32 codepoint, i32 casing,
+                                     u32 *out_codepoints);
 /* Check if a character is whitespace. */
-bool Nst_unicode_is_whitespace(u32 codepoint);
+NstEXP bool Nst_unicode_is_whitespace(u32 codepoint);
+/* Check if a character is titlecase. */
+NstEXP bool Nst_unicode_is_titlecase(Nst_UnicodeChInfo ch_info);
 
 #ifdef __cplusplus
 }

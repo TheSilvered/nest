@@ -100,26 +100,6 @@ produce.
 
 ---
 
-### `Nst_UCD_IS_TITLECASE`
-
-**Synopsis:**
-
-```better-c
-#define Nst_UCD_IS_TITLECASE(flags)
-```
-
-**Description:**
-
-Check if a character is titlecase. The character is titlecase if it is cased but
-not uppercase nor lowercase.
-
-**Parameters:**
-
-- `flags`: the character's flags from its
-  [`Nst_UnicodeChInfo`](c_api-unicode_db.md#nst_unicodechinfo)
-
----
-
 ## Structs
 
 ### `Nst_UnicodeChInfo`
@@ -171,7 +151,7 @@ character.
 **Synopsis:**
 
 ```better-c
-usize Nst_unicode_expand_case(u32 codepoint, u32 casing, u32 *out_codepoints)
+usize Nst_unicode_expand_case(u32 codepoint, i32 casing, u32 *out_codepoints)
 ```
 
 **Description:**
@@ -206,3 +186,17 @@ bool Nst_unicode_is_whitespace(u32 codepoint)
 **Description:**
 
 Check if a character is whitespace.
+
+---
+
+### `Nst_unicode_is_titlecase`
+
+**Synopsis:**
+
+```better-c
+bool Nst_unicode_is_titlecase(Nst_UnicodeChInfo ch_info)
+```
+
+**Description:**
+
+Check if a character is titlecase.

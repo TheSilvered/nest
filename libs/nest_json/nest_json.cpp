@@ -48,7 +48,7 @@ Nst_Obj *NstC load_f_(usize arg_num, Nst_Obj **args)
         encoding_obj,
         Nst_encoding_from_name(encoding_obj->value),
         Nst_EID_UNKNOWN);
-    encoding = Nst_single_byte_encoding(encoding);
+    encoding = Nst_encoding_to_single_byte(encoding);
 
     FILE *f = Nst_fopen_unicode(path->value, "rb");
 
@@ -111,7 +111,7 @@ Nst_Obj *NstC dump_f_(usize arg_num, Nst_Obj **args)
         encoding_obj,
         Nst_encoding_from_name(encoding_obj->value),
         Nst_EID_EXT_UTF8);
-    encoding = Nst_single_byte_encoding(encoding);
+    encoding = Nst_encoding_to_single_byte(encoding);
 
     FILE *f = Nst_fopen_unicode(path->value, "wb");
 

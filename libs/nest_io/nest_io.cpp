@@ -354,7 +354,7 @@ Nst_Obj *NstC open_(usize arg_num, Nst_Obj **args)
             return nullptr;
         }
 
-        cpid = Nst_single_byte_encoding(cpid);
+        cpid = Nst_encoding_to_single_byte(cpid);
 
         encoding = Nst_encoding(cpid);
     }

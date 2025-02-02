@@ -6,9 +6,9 @@
 #define MAX_BLOCK_IDX 8703
 
 const Nst_UnicodeChInfo unicode_ch_info[302] = {
-    { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 512 }, { 0, 0, 0, 784 },
+    { 0, 0, 0, 0 }, { 0, 0, 0, 0 }, { 0, 0, 0, 512 }, { 0, 0, 0, 880 },
     { 32, 0, 0, 909 }, { 0, 0, 0, 768 }, { 0, -32, -32, 910 }, { 0, 0, 0, 910 },
-    { 0, 0, 0, 544 }, { 0, 743, 743, 910 }, { 0, 0, 0, 576 },
+    { 0, 0, 0, 608 }, { 0, 743, 743, 910 }, { 0, 0, 0, 576 },
     { 0, 16777215, 16777217, 910 }, { 0, 121, 121, 910 }, { 1, 0, 0, 909 },
     { 0, -1, -1, 910 }, { 16777219, 0, 0, 909 }, { 0, -232, -232, 910 },
     { 0, 16777221, 16777223, 910 }, { -121, 0, 0, 909 }, { 0, -300, -300, 910 },
@@ -47,7 +47,7 @@ const Nst_UnicodeChInfo unicode_ch_info[302] = {
     { 80, 0, 0, 909 }, { 15, 0, 0, 909 }, { 0, -15, -15, 910 },
     { 48, 0, 0, 909 }, { 0, -48, -48, 910 }, { 0, 16777241, 16777243, 910 },
     { 0, 0, 0, 776 }, { 7264, 0, 0, 909 }, { 0, 3008, 0, 910 },
-    { 0, 0, 0, 800 }, { 38864, 0, 0, 909 }, { 0, 0, 0, 968 }, { 0, 0, 0, 392 },
+    { 0, 0, 0, 864 }, { 38864, 0, 0, 909 }, { 0, 0, 0, 968 }, { 0, 0, 0, 392 },
     { 0, -6254, -6254, 910 }, { 0, -6253, -6253, 910 },
     { 0, -6244, -6244, 910 }, { 0, -6242, -6242, 910 },
     { 0, -6243, -6243, 910 }, { 0, -6236, -6236, 910 },
@@ -5144,7 +5144,7 @@ Nst_UnicodeChInfo Nst_unicode_get_ch_info(u32 codepoint) {
     return unicode_ch_info[ch_info_idx];
 }
 
-usize Nst_unicode_expand_case(u32 codepoint, u32 casing, u32 *out_codepoints) {
+usize Nst_unicode_expand_case(u32 codepoint, i32 casing, u32 *out_codepoints) {
     if (casing <= 0x10FFFF) {
         if (out_codepoints != NULL)
             *out_codepoints = codepoint + casing;
@@ -5194,3 +5194,17 @@ bool Nst_unicode_is_whitespace(u32 codepoint) {
     }
     return false;
 }
+
+bool Nst_unicode_is_titlecase(Nst_UnicodeChInfo info) {
+    if (!(info.flags & Nst_UCD_MASK_CASED)
+        || info.flags & Nst_UCD_MASK_LOWERCASE)
+    {
+        return false;
+    }
+    // If the uppercase and titlecase variats are the same and the
+    // character is uppercase then it is also titlecase
+    if (info.flags & Nst_UCD_MASK_UPPERCASE && info.title == 0)
+        return true;
+    return (info.flags & Nst_UCD_MASK_UPPERCASE) == 0;
+}
+

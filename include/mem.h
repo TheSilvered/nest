@@ -390,6 +390,18 @@ NstEXP bool NstC Nst_buffer_append_str(Nst_Buffer *buf, i8 *str, usize len);
  */
 NstEXP bool NstC Nst_buffer_append_char(Nst_Buffer *buf, i8 ch);
 /**
+ * Appends an array of Unicode codepoints.
+ *
+ * @brief The buffer is expanded if needed.
+ *
+ * @param buf: the buffer to append the codepoints to
+ * @param cps: the array of codepoints
+ * @param count: the length of `cps`
+ *
+ * @return `true` on success and `false` on failure. The error is set.
+ */
+NstEXP bool NstC Nst_buffer_append_cps(Nst_Buffer *buf, u32 *cps, usize count);
+/**
  * Creates a `Nst_StrObj` from a buffer.
  *
  * @brief The data of the buffer is set to `NULL` and its `len` and `cap` are

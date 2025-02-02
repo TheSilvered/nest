@@ -332,7 +332,7 @@ static Nst_IOResult write_std_stream(i8 *buf, usize buf_len, usize *count,
                                      Nst_IOFileObj *f)
 {
     if (count != NULL)
-        *count = Nst_string_utf8_char_len((u8 *)buf, buf_len);
+        *count = Nst_str_utf8_char_len((u8 *)buf, buf_len);
 
     usize bytes_written = fwrite(buf, 1, buf_len, f->fp);
 
@@ -340,7 +340,7 @@ static Nst_IOResult write_std_stream(i8 *buf, usize buf_len, usize *count,
         return Nst_IO_SUCCESS;
     }
     if (count != NULL) {
-        isize chars_written = Nst_string_char_len(
+        isize chars_written = Nst_str_char_len(
             Nst_encoding(Nst_EID_EXT_UTF8),
             (void *)buf,
             bytes_written);

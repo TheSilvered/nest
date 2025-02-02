@@ -321,6 +321,20 @@ bool Nst_buffer_append_char(Nst_Buffer *buf, i8 ch)
     return true;
 }
 
+bool NstC Nst_buffer_append_cps(Nst_Buffer *buf, u32 *cps, usize count)
+{
+    for (usize i = 0; i < count; i++) {
+        u32 cp = cps[i];
+        if (!Nst_buffer_expand_by(buf, Nst_ENCODING_MULTIBYTE_MAX_SIZE))
+            return false;
+        usize expanded_size = Nst_ext_utf8_from_utf32(
+            cp,
+            (u8 *)buf->data + buf->len);
+        buf->len += expanded_size;
+    }
+    return true;
+}
+
 Nst_StrObj *Nst_buffer_to_string(Nst_Buffer *buf)
 {
     Nst_buffer_fit(buf);

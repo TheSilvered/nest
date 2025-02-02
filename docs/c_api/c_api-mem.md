@@ -775,6 +775,32 @@ The buffer is expanded if needed.
 
 ---
 
+### `Nst_buffer_append_cps`
+
+**Synopsis:**
+
+```better-c
+bool Nst_buffer_append_cps(Nst_Buffer *buf, u32 *cps, usize count)
+```
+
+**Description:**
+
+Appends an array of Unicode codepoints.
+
+The buffer is expanded if needed.
+
+**Parameters:**
+
+- `buf`: the buffer to append the codepoints to
+- `cps`: the array of codepoints
+- `count`: the length of `cps`
+
+**Returns:**
+
+`true` on success and `false` on failure. The error is set.
+
+---
+
 ### `Nst_buffer_to_string`
 
 **Synopsis:**

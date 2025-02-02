@@ -122,7 +122,7 @@ static i32 long_arg(i8 *arg, Nst_CLArgs *cl_args)
             printf("\n" ENCODING_MESSAGE);
             return -1;
         }
-        cl_args->encoding = Nst_single_byte_encoding(cl_args->encoding);
+        cl_args->encoding = Nst_encoding_to_single_byte(cl_args->encoding);
     } else {
         printf("Invalid option: %s\n", arg);
         printf("\n" USAGE_MESSAGE);
@@ -185,7 +185,7 @@ i32 _Nst_cl_args_parse(Nst_CLArgs *cl_args)
                     printf("\n" ENCODING_MESSAGE);
                     return -1;
                 }
-                cl_args->encoding = Nst_single_byte_encoding(cl_args->encoding);
+                cl_args->encoding = Nst_encoding_to_single_byte(cl_args->encoding);
                 j = arg_len;
                 break;
             case 'O': {

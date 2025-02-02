@@ -111,7 +111,7 @@ Nst_Obj *Nst_str_new(i8 *val, usize len, bool allocated)
     return Nst_str_new_len(
         val,
         len,
-        Nst_string_utf8_char_len((u8 *)val, len),
+        Nst_str_utf8_char_len((u8 *)val, len),
         allocated);
 }
 

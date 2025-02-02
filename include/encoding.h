@@ -368,7 +368,7 @@ NstEXP isize NstC Nst_encoding_check(Nst_Encoding *encoding, void *str,
  * @return The length in characters of the string or -1 on failure. The error
  * is set.
  */
-NstEXP isize NstC Nst_string_char_len(Nst_Encoding *encoding, void *str,
+NstEXP isize NstC Nst_str_char_len(Nst_Encoding *encoding, void *str,
                                       usize str_len);
 
 /**
@@ -383,7 +383,7 @@ NstEXP isize NstC Nst_string_char_len(Nst_Encoding *encoding, void *str,
  *
  * @return The length in characters of the string. No error is set.
  */
-NstEXP usize NstC Nst_string_utf8_char_len(u8 *str, usize str_len);
+NstEXP usize NstC Nst_str_utf8_char_len(u8 *str, usize str_len);
 
 /**
  * @return The corresponding encoding structure given its ID. If an invalid ID
@@ -450,7 +450,7 @@ NstEXP Nst_EncodingID NstC Nst_check_bom(i8 *str, usize len, i32 *bom_size);
  * @brief If no valid encoding is detected, `Nst_EID_LATIN1` is returned.
  * No error is set.
  */
-NstEXP Nst_EncodingID NstC Nst_detect_encoding(i8 *str, usize len,
+NstEXP Nst_EncodingID NstC Nst_encoding_detect(i8 *str, usize len,
                                                i32 *bom_size);
 /**
  * @return The encoding ID from a C string, if no matching encoding is found,
@@ -462,7 +462,7 @@ NstEXP Nst_EncodingID NstC Nst_encoding_from_name(i8 *name);
  * has a `ch_size` of one byte already the encoding ID itself is returned.
  * Otherwies the little endian version is always returned.
  */
-NstEXP Nst_EncodingID NstC Nst_single_byte_encoding(Nst_EncodingID encoding);
+NstEXP Nst_EncodingID NstC Nst_encoding_to_single_byte(Nst_EncodingID encoding);
 
 #ifdef __cplusplus
 }

@@ -29,11 +29,12 @@
   - `Nst_UCD_MASK_XID_CONTINUE`
   - `Nst_UCD_MASK_PRINTABLE`
   - `Nst_UCD_MAX_CASE_EXPANSION`
-  - `Nst_UCD_IS_TITLECASE`
   - `Nst_UnicodeChInfo`
   - `Nst_unicode_get_ch_info`
   - `Nst_unicode_expand_case`
   - `Nst_unicode_is_whitespace`
+  - `Nst_unicode_is_titlecase`
+- added `Nst_buffer_append_cps` to append an array of Unicode codepoints
 
 **Changes**
 
@@ -44,7 +45,10 @@
 - renamed `Nst_translate_cp` to `Nst_encoding_translate`
 - renamed `Nst_check_string_cp` to `Nst_encoding_check`
 - renamed `Nst_cp` to `Nst_encoding`
-- renamed `Nst_single_byte_cp` to `Nst_single_byte_encoding`
+- renamed `Nst_detect_encoding` to `Nst_encoding_detect`
+- renamed `Nst_single_byte_cp` to `Nst_encoding_to_single_byte`
+- renamed `Nst_string_char_len` to `Nst_str_char_len`
+- renamed `Nst_string_utf8_char_len` to `Nst_str_utf8_char_len`
 
 ## 0.15.0
 

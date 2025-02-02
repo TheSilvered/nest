@@ -681,6 +681,21 @@ is considered `false`.
 
 ---
 
+### `@is_ascii`
+
+**Synopsis:**
+
+```nest
+[string: Str] @is_ascii -> Bool
+```
+
+**Returns:**
+
+`true` if all the characters in `string` are in the ASCII charset and `false`
+otherwise. ASCII is any Unicode codepoint below `U+0080`.
+
+---
+
 ### `@is_alnum`
 
 **Synopsis:**
@@ -692,7 +707,9 @@ is considered `false`.
 **Returns:**
 
 `true` if all the characters in `string` are numbers or letters and `false`
-otherwise.
+otherwise. A number is any character that has its `Numeric_Type` Unicode
+property as `Numeric`, `Decimal` or `Digit` and a letter is any character that
+has the `Alphabetic` property.
 
 ---
 
@@ -707,7 +724,8 @@ otherwise.
 **Returns:**
 
 `true` if all the characters in `string` are letters (both uppercase and
-lowercase) and `false` otherwise.
+lowercase) and `false` otherwise. More precisely, a letter is any character
+that has the `Alphabetic` property.
 
 ---
 
@@ -725,6 +743,26 @@ Whether all the characters in `string` are also contained in `charset`.
 
 ---
 
+### `@is_decimal`
+
+**Synopsis:**
+
+```nest
+[string: Str] @is_decimal -> Bool
+```
+
+**Returns:**
+
+`true` if all the characters in `string` are decimal digits and `false`
+otherwise. Dots (`.`) and signs (`+` and `-`) are not considered digits.
+Decimal digits are any characters that are digits in a positional base-ten
+system. These include ASCII digits `0-9` as well as eastern arabic numerals
+(٠, ١, ٢, ٣, ٤, ٥, ٦, ٧, ٨, ٩) and others. More precisely it is
+considered a digit any character with the `Numeric_Type=Decimal` Unicode
+property.
+
+---
+
 ### `@is_digit`
 
 **Synopsis:**
@@ -735,8 +773,11 @@ Whether all the characters in `string` are also contained in `charset`.
 
 **Returns:**
 
-`true` if all the characters in `string` are numbers and `false` otherwise.
-Dots (`.`) and signs (`+` and `-`) are not considered digits.
+`true` if all the characters in `string` are decimal digits and `false`
+otherwise. This function differs from `is_decimal` in that it considers digits
+also other characters such as superscripts. More precisely it is considered a
+digit any character with the `Numeric_Type=Decimal` or `Numeric_Type=Digit`
+Unicode property.
 
 ---
 
@@ -755,6 +796,26 @@ non-alphabetical character is ignored.
 
 ---
 
+### `@is_numeric`
+
+**Synopsis:**
+
+```nest
+[string: Str] @is_numeric -> Bool
+```
+
+**Returns:**
+
+`true` if all the characters in `string` are numeric and `false` otherwise.
+This function differs from `is_digit` in that it considers numeric characters
+that are not used as digits or that are not used in a base-ten system such as
+fractions (½, ¾, ...) and Chinese numerals (一, 二, 三, ...)
+also other characters such as superscripts. More precisely it is considered a
+digit any character with the `Numeric_Type=Decimal`, `Numeric_Type=Digit` or
+`Numeric_Type=Numeric` Unicode property.
+
+---
+
 ### `@is_printable`
 
 **Synopsis:**
@@ -766,7 +827,8 @@ non-alphabetical character is ignored.
 **Returns:**
 
 Whether all the characters in `string` are printable. For example `\n`, a line
-feed, is not but `a`, the character, is.
+feed, is not but `a`, the character, is. A printable character is defined as
+any character in the L, N, P, S or Zs category.
 
 ---
 

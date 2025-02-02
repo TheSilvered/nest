@@ -1124,11 +1124,11 @@ bool Nst_normalize_encoding(Nst_SourceText *text, Nst_EncodingID encoding)
 {
     i32 bom_size = 0;
     if (encoding == Nst_EID_UNKNOWN)
-        encoding = Nst_detect_encoding(text->text, text->text_len, &bom_size);
+        encoding = Nst_encoding_detect(text->text, text->text_len, &bom_size);
     else
         Nst_check_bom(text->text, text->text_len, &bom_size);
 
-    encoding = Nst_single_byte_encoding(encoding);
+    encoding = Nst_encoding_to_single_byte(encoding);
     Nst_Encoding *from = Nst_encoding(encoding);
 
     Nst_Pos pos = { 0, 0, text };
@@ -1207,7 +1207,7 @@ static void parse_option(i8 *opt, i32 *opt_level, Nst_EncodingID *encoding,
         *no_default = true;
     else if (strncmp(opt, "--encoding=", 11) == 0) {
         Nst_EncodingID new_encoding = Nst_encoding_from_name(opt + 11);
-        new_encoding = Nst_single_byte_encoding(new_encoding);
+        new_encoding = Nst_encoding_to_single_byte(new_encoding);
         if (new_encoding != Nst_EID_UNKNOWN)
             *encoding = new_encoding;
     }

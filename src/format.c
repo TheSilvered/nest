@@ -1120,7 +1120,7 @@ static isize fmt_str_repr(Nst_Buffer *buf, i8 *str, usize str_len,
     StrRepr repr = format->str_repr;
     if (repr == Nst_FMT_STR_NO_REPR) {
         Nst_buffer_append_str(buf, str, str_len);
-        return Nst_string_utf8_char_len((u8 *)str, str_len);
+        return Nst_str_utf8_char_len((u8 *)str, str_len);
     }
 
     usize tot_char_len = 0;
@@ -1309,7 +1309,7 @@ suffix:
         buf,
         temp_buf->data,
         temp_buf->len,
-        Nst_string_utf8_char_len(
+        Nst_str_utf8_char_len(
             (u8 *)temp_buf->data,
             temp_buf->len),
         format, Nst_FMT_ALIGN_RIGHT);
@@ -1592,7 +1592,7 @@ static bool fmt_double(Nst_Buffer *buf, f64 val, Format *format)
         buf,
         temp_buf->data,
         temp_buf->len,
-        Nst_string_utf8_char_len(
+        Nst_str_utf8_char_len(
             (u8 *)temp_buf->data,
             temp_buf->len),
         format, Nst_FMT_ALIGN_RIGHT);

@@ -43,5 +43,6 @@
 #include "format.h"
 #include "file.h"
 #include "dtoa.h"
+#include "unicode_db.h"
 
 #endif // !NEST_H

@@ -37,7 +37,7 @@ The current state of tests:
   - 🟡 `stdmath.nest`
   - 🟡 `stdrand.nest`
   - 🟢 `stdsequtil.nest`
-  - 🟢 `stdsutil.nest`
+  - 🟡 `stdsutil.nest`
   - 🟡 `stdsys.nest`
   - 🟢 `stdtime.nest`
 - 🔴 C tests

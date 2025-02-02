@@ -1817,7 +1817,7 @@ isize Nst_encoding_check(Nst_Encoding *encoding, void *str, usize str_len)
     return -1;
 }
 
-isize Nst_string_char_len(Nst_Encoding *encoding, void *str, usize str_len)
+isize Nst_str_char_len(Nst_Encoding *encoding, void *str, usize str_len)
 {
     Nst_CheckBytesFunc encoding_check_bytes = encoding->check_bytes;
     usize encoding_ch_size = encoding->ch_size;
@@ -1838,7 +1838,7 @@ isize Nst_string_char_len(Nst_Encoding *encoding, void *str, usize str_len)
     return len;
 }
 
-usize Nst_string_utf8_char_len(u8 *str, usize str_len)
+usize Nst_str_utf8_char_len(u8 *str, usize str_len)
 {
     usize len = 0;
     u8 *s_end = str + str_len;
@@ -1997,7 +1997,7 @@ end:
     return cpid;
 }
 
-Nst_EncodingID Nst_detect_encoding(i8 *str, usize len, i32 *bom_size)
+Nst_EncodingID Nst_encoding_detect(i8 *str, usize len, i32 *bom_size)
 {
     Nst_EncodingID cpid = Nst_check_bom(str, len, bom_size);
     if (cpid != Nst_EID_UNKNOWN)
@@ -2128,7 +2128,7 @@ Nst_EncodingID Nst_encoding_from_name(i8 *name)
     return Nst_EID_UNKNOWN;
 }
 
-Nst_EncodingID Nst_single_byte_encoding(Nst_EncodingID encoding)
+Nst_EncodingID Nst_encoding_to_single_byte(Nst_EncodingID encoding)
 {
     if (encoding == Nst_EID_UTF16)
         return Nst_EID_UTF16LE;

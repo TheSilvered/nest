@@ -1159,12 +1159,12 @@ encoded. No error is set.
 
 ---
 
-### `Nst_string_char_len`
+### `Nst_str_char_len`
 
 **Synopsis:**
 
 ```better-c
-isize Nst_string_char_len(Nst_Encoding *encoding, void *str, usize str_len)
+isize Nst_str_char_len(Nst_Encoding *encoding, void *str, usize str_len)
 ```
 
 **Description:**
@@ -1184,12 +1184,12 @@ The length in characters of the string or -1 on failure. The error is set.
 
 ---
 
-### `Nst_string_utf8_char_len`
+### `Nst_str_utf8_char_len`
 
 **Synopsis:**
 
 ```better-c
-usize Nst_string_utf8_char_len(u8 *str, usize str_len)
+usize Nst_str_utf8_char_len(u8 *str, usize str_len)
 ```
 
 **Description:**
@@ -1199,9 +1199,7 @@ Gets the length in characters of a UTF-8-encoded string.
 !!!note
     This function assumes that the string is valid UTF-8 and does no error
     checking. Use [`Nst_encoding_check`](c_api-encoding.md#nst_encoding_check)
-    to check it or
-    [`Nst_string_char_len`](c_api-encoding.md#nst_string_char_len) to get the
-    length in characters safely.
+    to check it or `Nst_string_char_len` to get the length in characters safely.
 
 **Parameters:**
 
