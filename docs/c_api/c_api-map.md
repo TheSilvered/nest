@@ -263,7 +263,8 @@ bool _Nst_map_set(Nst_MapObj *map, Nst_Obj *key, Nst_Obj *value)
 
 **Description:**
 
-Inserts or modifies a value in the map.
+Inserts or modifies a value in the map. Adds a reference to both the key and the
+value.
 
 **Parameters:**
 

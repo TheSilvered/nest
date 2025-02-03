@@ -5,7 +5,7 @@ static bool update_window(GUI_Window *window);
 static bool update_element(GUI_Element *element);
 static bool update_constraints(Nst_MapObj *constrs);
 static bool update_single_element(GUI_Element *element);
-static bool update_children(Nst_VectorObj *children);
+static bool update_children(Nst_Obj *children);
 
 bool GUI_App_Update(GUI_App *app)
 {
@@ -66,10 +66,10 @@ static bool update_single_element(GUI_Element *element)
     return true;
 }
 
-static bool update_children(Nst_VectorObj *children)
+static bool update_children(Nst_Obj *children)
 {
-    for (i64 i = 0, n = children->len; i < n; i++) {
-        GUI_Element *child = (GUI_Element *)(children->objs[i]);
+    for (i64 i = 0, n = Nst_seq_len(children); i < n; i++) {
+        GUI_Element *child = (GUI_Element *)Nst_seq_getnf(children, i);
         if (!update_element(child))
             return false;
     }

@@ -284,7 +284,7 @@ Nst_Obj *NstC get_capacity_(usize arg_num, Nst_Obj **args)
     if (Nst_T(container, Map))
         return Nst_int_new((i64)MAP(container)->cap);
 
-    return Nst_int_new((i64)SEQ(container)->cap);
+    return Nst_int_new((i64)Nst_vector_cap(container));
 }
 
 Nst_Obj *NstC hash_(usize arg_num, Nst_Obj **args)

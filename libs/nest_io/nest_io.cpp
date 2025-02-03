@@ -470,7 +470,7 @@ Nst_Obj *NstC write_(usize arg_num, Nst_Obj **args)
 Nst_Obj *NstC write_bytes_(usize arg_num, Nst_Obj **args)
 {
     Nst_IOFileObj *f;
-    Nst_SeqObj *seq;
+    Nst_Obj *seq;
 
     if (!Nst_extract_args("F A.B", arg_num, args, &f, &seq))
         return nullptr;
@@ -486,8 +486,8 @@ Nst_Obj *NstC write_bytes_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    usize seq_len = seq->len;
-    Nst_Obj **objs = seq->objs;
+    usize seq_len = Nst_seq_len(seq);
+    Nst_Obj **objs = _Nst_seq_objs(seq);
     i8 *bytes = Nst_malloc_c(seq_len + 1, i8);
     if (bytes == nullptr)
         return nullptr;
@@ -624,10 +624,10 @@ Nst_Obj *NstC read_bytes_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    Nst_SeqObj *bytes_array = SEQ(Nst_array_new(buf_len));
+    Nst_Obj *bytes_array = Nst_array_new(buf_len);
 
     for (usize i = 0; i < buf_len; i++)
-        bytes_array->objs[i] = Nst_byte_new(buf[i]);
+        Nst_seq_setnf(bytes_array, i, Nst_byte_new(buf[i]));
 
     Nst_free(buf);
     return OBJ(bytes_array);

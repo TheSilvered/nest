@@ -31,78 +31,18 @@
 #include <stdarg.h>
 #include "ggc.h"
 
-/* The minimum capacity of a `Nst_VectorObj`. */
+/* The minimum capacity of a Vector object. */
 #define _Nst_VECTOR_MIN_CAP 8
-/* Growth ratio of a `Nst_VectorObj`. */
+/* Growth ratio of a Vector object. */
 #define _Nst_VECTOR_GROWTH_RATIO 1.8f
-/* Casts `ptr` to `Nst_SeqObj *`. */
-#define SEQ(ptr) ((Nst_SeqObj *)(ptr))
-/* Casts `ptr` to `Nst_ArrayObj *`. */
-#define ARRAY(ptr) ((Nst_SeqObj *)(ptr))
-/* Casts `ptr` to `Nst_VectorObj *`. */
-#define VECTOR(ptr) ((Nst_SeqObj *)(ptr))
-
-/**
- * @brief Alias for `_Nst_seq_set` that casts `seq` to `Nst_SeqObj *` and `val`
- * to `Nst_Obj *`.
- */
-#define Nst_seq_set(seq, idx, val) _Nst_seq_set(SEQ(seq), idx, OBJ(val))
-/* Alias for `_Nst_seq_get` that casts `seq` to `Nst_SeqObj *`. */
-#define Nst_seq_get(seq, idx) _Nst_seq_get(SEQ(seq), idx)
-/* Alias for `_Nst_seq_copy` that casts `seq` to `Nst_SeqObj *`. */
-#define Nst_seq_copy(seq) _Nst_seq_copy(SEQ(seq))
-
-/* Alias of `Nst_seq_set`. */
-#define Nst_vector_set Nst_seq_set
-/* Alias of `Nst_seq_get`. */
-#define Nst_vector_get Nst_seq_get
-/* Alias of `Nst_seq_set`. */
-#define Nst_array_set Nst_seq_set
-/* Alias of `Nst_seq_set`. */
-#define Nst_array_get Nst_seq_get
-
-/**
- * @brief Alias of `_Nst_vector_append` that casts `vect` to `Nst_SeqObj *` and
- * `val` to `Nst_Obj *`.
- */
-#define Nst_vector_append(vect, val) _Nst_vector_append(SEQ(vect), OBJ(val))
-/**
- * @brief Alias of `_Nst_vector_remove` that casts `vect` to `Nst_SeqObj *` and
- * `val` to `Nst_Obj *`.
- */
-#define Nst_vector_remove(vect, val) _Nst_vector_remove(SEQ(vect), OBJ(val))
-/* Alias of `_Nst_vector_pop` that casts `vect` to `Nst_SeqObj *`. */
-#define Nst_vector_pop(vect, quantity) _Nst_vector_pop(SEQ(vect), quantity)
 
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
 
 /**
- * A structure representing a Nest sequence object.
- *
- * @param objs: the array of objects inside the sequence
- * @param len: the length of the sequence
- * @param cap: the capacity of the sequence
- */
-NstEXP typedef struct _Nst_SeqObj {
-    Nst_OBJ_HEAD;
-    Nst_GGC_HEAD;
-    Nst_Obj **objs;
-    usize len;
-    usize cap;
-} Nst_SeqObj;
-
-/* Alias of `Nst_SeqObj`. */
-NstEXP typedef Nst_SeqObj Nst_ArrayObj;
-/* Alias of `Nst_SeqObj`. */
-NstEXP typedef Nst_SeqObj Nst_VectorObj;
-
-/**
- * Creates a new array object of the specified length.
- *
- * @brief Warning: the objects inside the array must be set manually, each
- * entry in the array takes one reference of the object inserted.
+ * Creates a new array object of the specified length. The slots are filled
+ * with `null` values.
  *
  * @param len: the length of the array to create
  *
@@ -110,16 +50,55 @@ NstEXP typedef Nst_SeqObj Nst_VectorObj;
  */
 NstEXP Nst_Obj *NstC Nst_array_new(usize len);
 /**
- * Creates a new vector object of the specified length.
- *
- * @brief Warning: the objects inside the vector must be set manually, each
- * entry in the vector takes one reference of the object inserted.
+ * Creates a new vector object of the specified length. The slots are filled
+ * with `null` values.
  *
  * @param len: the length of the vector to create
  *
  * @return The new object on success or `NULL` on failure. The error is set.
  */
 NstEXP Nst_Obj *NstC Nst_vector_new(usize len);
+
+/**
+ * Create a new Array object given an array of objects. A reference is added to
+ * each object.
+ *
+ * @param len: the number of objects in `objs`
+ * @param objs: the objects to use to initialize the array
+ *
+ * @return The new object on success and `NULL` on failure. The error is set.
+ */
+NstEXP Nst_Obj *NstC Nst_array_from_objs(usize len, Nst_Obj **objs);
+/**
+ * Create a new Vector object given an array of objects. A reference is added
+ * to each object.
+ *
+ * @param len: the number of objects in `objs`
+ * @param objs: the objects to use to initialize the array
+ *
+ * @return The new object on success and `NULL` on failure. The error is set.
+ */
+NstEXP Nst_Obj *NstC Nst_vector_from_objs(usize len, Nst_Obj **objs);
+/**
+ * Create a new Array object given an array of objects. A reference is taken
+ * from each object.
+ *
+ * @param len: the number of objects in `objs`
+ * @param objs: the objects to use to initialize the array
+ *
+ * @return The new object on success and `NULL` on failure. The error is set.
+ */
+NstEXP Nst_Obj *NstC Nst_array_from_objsn(usize len, Nst_Obj **objs);
+/**
+ * Create a new Vector object given an array of objects. A reference is taken
+ * from each object.
+ *
+ * @param len: the number of objects in `objs`
+ * @param objs: the objects to use to initialize the array
+ *
+ * @return The new object on success and `NULL` on failure. The error is set.
+ */
+NstEXP Nst_Obj *NstC Nst_vector_from_objsn(usize len, Nst_Obj **objs);
 
 /**
  * Creates an array object of the length specified, inserting the objects
@@ -183,20 +162,28 @@ NstEXP Nst_Obj *NstC Nst_vector_create_c(const i8 *fmt, ...);
  *
  * @return The new sequence or NULL on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC _Nst_seq_copy(Nst_SeqObj *seq);
+NstEXP Nst_Obj *NstC Nst_seq_copy(Nst_Obj *seq);
 
 /* Destructor for sequence objects. */
-NstEXP void NstC _Nst_seq_destroy(Nst_SeqObj *seq);
+NstEXP void NstC _Nst_seq_destroy(Nst_Obj *seq);
 /* Traverse function for sequence objects. */
-NstEXP void NstC _Nst_seq_traverse(Nst_SeqObj *seq);
+NstEXP void NstC _Nst_seq_traverse(Nst_Obj *seq);
 
+/* Get the length of a sequence. */
+NstEXP usize NstC Nst_seq_len(Nst_Obj *seq);
+/* Get the capacity of a vector. */
+NstEXP usize NstC Nst_vector_cap(Nst_Obj *vect);
+/**
+ * @brief Get the undelying object array of a sequence. Use this only if you
+ * know what you are doing.
+ */
+NstEXP Nst_Obj **NstC _Nst_seq_objs(Nst_Obj *seq);
 
 /**
- * Changes the value of an index in a sequence.
+ * Changes the value of an index in a sequence. Adds a reference to `val`.
  *
- * @brief The sequence to change must already contain valid values. `idx` can
- * be negative in which case it is subtracted from the length of the sequence
- * to get the new index.
+ * @brief `idx` can be negative in which case it is subtracted from the length
+ * of the sequence to get the new index.
  *
  * @param seq: the sequence to modify
  * @param idx: the index to update
@@ -205,11 +192,47 @@ NstEXP void NstC _Nst_seq_traverse(Nst_SeqObj *seq);
  * @return `true` on success and `false` on failure. The error is set. This
  * function fails when the index is outside the sequence.
  */
-NstEXP bool NstC _Nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val);
+NstEXP bool NstC Nst_seq_set(Nst_Obj *seq, i64 idx, Nst_Obj *val);
 /**
- * Gets the value at an index of a sequence.
+ * Changes the value of an index in a sequence quickly. Adds a reference to
+ * `val`. Negative indices are not supported.
  *
- * @brief The sequence must already contain valid values.
+ * @brief Warning: use this function only if you are certain that `idx` is
+ * inside `seq`. Bound checks are only performed in debug mode.
+ *
+ * @param seq: the sequence to modify
+ * @param idx: the index to update
+ * @param val: the value to set the index to
+ */
+NstEXP void NstC Nst_seq_setf(Nst_Obj *seq, usize idx, Nst_Obj *val);
+/**
+ * Changes the value of an index in a sequence. Takes a reference from `val`.
+ *
+ * @brief `idx` can be negative in which case it is subtracted from the length
+ * of the sequence to get the new index.
+ *
+ * @param seq: the sequence to modify
+ * @param idx: the index to update
+ * @param val: the value to set the index to
+ *
+ * @return `true` on success and `false` on failure. The error is set. This
+ * function fails when the index is outside the sequence.
+ */
+NstEXP bool NstC Nst_seq_setn(Nst_Obj *seq, i64 idx, Nst_Obj *val);
+/**
+ * Changes the value of an index in a sequence quickly. Takes a reference from
+ * `val`. Negative indices are not supported.
+ *
+ * @brief Warning: use this function only if you are certain that `idx` is
+ * inside `seq`. Bound checks are only performed in debug mode.
+ *
+ * @param seq: the sequence to modify
+ * @param idx: the index to update
+ * @param val: the value to set the index to
+ */
+NstEXP void NstC Nst_seq_setnf(Nst_Obj *seq, usize idx, Nst_Obj *val);
+/**
+ * Gets a reference to a value in a sequence.
  *
  * @param seq: the sequence to get the value from
  * @param idx: the index of the value to get
@@ -218,26 +241,51 @@ NstEXP bool NstC _Nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val);
  * failure. The error is set. The function fails when the index is outside the
  * sequence.
  */
-NstEXP Nst_Obj *NstC _Nst_seq_get(Nst_SeqObj *seq, i64 idx);
+NstEXP Nst_Obj *NstC Nst_seq_get(Nst_Obj *seq, i64 idx);
+/**
+ * Gets a reference to a value in a sequence quickly.
+ *
+ * @brief Warning: use this function only if you are certain that `idx` is
+ * inside `seq`. Bound checks are only performed in debug mode.
+ *
+ * @param seq: the sequence to get the value from
+ * @param idx: the index of the value to get
+ *
+ * @return A new reference to the object at `idx`.
+ */
+NstEXP Nst_Obj *NstC Nst_seq_getf(Nst_Obj *seq, usize idx);
+/**
+ * Gets a value in a sequence without taking a reference.
+ *
+ * @param seq: the sequence to get the value from
+ * @param idx: the index of the value to get
+ *
+ * @return A pointer to the object at `idx` on success and `NULL` on failure.
+ * The error is set. The function fails when the index is outside the sequence.
+ */
+NstEXP Nst_Obj *NstC Nst_seq_getn(Nst_Obj *seq, i64 idx);
+/**
+ * Gets a value in a sequence without taking a reference quickly.
+ *
+ * @brief Warning: use this function only if you are certain that `idx` is
+ * inside `seq`. Bound checks are only performed in debug mode.
+ *
+ * @param seq: the sequence to get the value from
+ * @param idx: the index of the value to get
+ *
+ * @return A pointer to the object at `idx`.
+ */
+NstEXP Nst_Obj *NstC Nst_seq_getnf(Nst_Obj *seq, usize idx);
 
 /**
- * Resizes a vector if needed.
- *
- * @param vect: the vector to resize
- *
- * @return `true` on success and `false` on failure. The error is set. The
- * function never fails if the vector is untouched or is shrunk.
- */
-NstEXP bool NstC _Nst_vector_resize(Nst_SeqObj *vect);
-/**
- * Appends a value to the end of a vector.
+ * Appends a value to the end of a vector adding a reference to `val`.
  *
  * @param vect: the vector to append the value to
  * @param val: the value to append
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP bool NstC _Nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val);
+NstEXP bool NstC Nst_vector_append(Nst_Obj *vect, Nst_Obj *val);
 /**
  * Removes the first occurrence of a value inside a vector.
  *
@@ -248,7 +296,7 @@ NstEXP bool NstC _Nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val);
  * @return `true` if the object was removed and `false` if there was no object
  * that matched. No error is set.
  */
-NstEXP bool NstC _Nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val);
+NstEXP bool NstC Nst_vector_remove(Nst_Obj *vect, Nst_Obj *val);
 /**
  * Pops a certain number of values from the end of a vector.
  *
@@ -261,7 +309,7 @@ NstEXP bool NstC _Nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val);
  * @return The last value popped or `NULL` if no value was popped. No error is
  * set.
  */
-NstEXP Nst_Obj *NstC _Nst_vector_pop(Nst_SeqObj *vect, usize quantity);
+NstEXP Nst_Obj *NstC Nst_vector_pop(Nst_Obj *vect, usize quantity);
 
 #ifdef __cplusplus
 }

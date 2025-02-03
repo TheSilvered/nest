@@ -29,7 +29,7 @@ TheSilvered
 
 **Description:**
 
-The minimum capacity of a [`Nst_VectorObj`](c_api-sequence.md#nst_vectorobj).
+The minimum capacity of a Vector object.
 
 ---
 
@@ -37,232 +37,7 @@ The minimum capacity of a [`Nst_VectorObj`](c_api-sequence.md#nst_vectorobj).
 
 **Description:**
 
-Growth ratio of a [`Nst_VectorObj`](c_api-sequence.md#nst_vectorobj).
-
----
-
-### `SEQ`
-
-**Synopsis:**
-
-```better-c
-#define SEQ(ptr)
-```
-
-**Description:**
-
-Casts `ptr` to [`Nst_SeqObj *`](c_api-sequence.md#nst_seqobj).
-
----
-
-### `ARRAY`
-
-**Synopsis:**
-
-```better-c
-#define ARRAY(ptr)
-```
-
-**Description:**
-
-Casts `ptr` to [`Nst_ArrayObj *`](c_api-sequence.md#nst_arrayobj).
-
----
-
-### `VECTOR`
-
-**Synopsis:**
-
-```better-c
-#define VECTOR(ptr)
-```
-
-**Description:**
-
-Casts `ptr` to [`Nst_VectorObj *`](c_api-sequence.md#nst_vectorobj).
-
----
-
-### `Nst_seq_set`
-
-**Synopsis:**
-
-```better-c
-#define Nst_seq_set(seq, idx, val)
-```
-
-**Description:**
-
-Alias for [`_Nst_seq_set`](c_api-sequence.md#_nst_seq_set) that casts `seq` to
-[`Nst_SeqObj *`](c_api-sequence.md#nst_seqobj) and `val` to
-[`Nst_Obj *`](c_api-obj.md#nst_obj).
-
----
-
-### `Nst_seq_get`
-
-**Synopsis:**
-
-```better-c
-#define Nst_seq_get(seq, idx)
-```
-
-**Description:**
-
-Alias for [`_Nst_seq_get`](c_api-sequence.md#_nst_seq_get) that casts `seq` to
-[`Nst_SeqObj *`](c_api-sequence.md#nst_seqobj).
-
----
-
-### `Nst_seq_copy`
-
-**Synopsis:**
-
-```better-c
-#define Nst_seq_copy(seq)
-```
-
-**Description:**
-
-Alias for [`_Nst_seq_copy`](c_api-sequence.md#_nst_seq_copy) that casts `seq` to
-[`Nst_SeqObj *`](c_api-sequence.md#nst_seqobj).
-
----
-
-### `Nst_vector_set`
-
-**Description:**
-
-Alias of [`Nst_seq_set`](c_api-sequence.md#nst_seq_set).
-
----
-
-### `Nst_vector_get`
-
-**Description:**
-
-Alias of [`Nst_seq_get`](c_api-sequence.md#nst_seq_get).
-
----
-
-### `Nst_array_set`
-
-**Description:**
-
-Alias of [`Nst_seq_set`](c_api-sequence.md#nst_seq_set).
-
----
-
-### `Nst_array_get`
-
-**Description:**
-
-Alias of [`Nst_seq_set`](c_api-sequence.md#nst_seq_set).
-
----
-
-### `Nst_vector_append`
-
-**Synopsis:**
-
-```better-c
-#define Nst_vector_append(vect, val)
-```
-
-**Description:**
-
-Alias of [`_Nst_vector_append`](c_api-sequence.md#_nst_vector_append) that casts
-`vect` to [`Nst_SeqObj *`](c_api-sequence.md#nst_seqobj) and `val` to
-[`Nst_Obj *`](c_api-obj.md#nst_obj).
-
----
-
-### `Nst_vector_remove`
-
-**Synopsis:**
-
-```better-c
-#define Nst_vector_remove(vect, val)
-```
-
-**Description:**
-
-Alias of [`_Nst_vector_remove`](c_api-sequence.md#_nst_vector_remove) that casts
-`vect` to [`Nst_SeqObj *`](c_api-sequence.md#nst_seqobj) and `val` to
-[`Nst_Obj *`](c_api-obj.md#nst_obj).
-
----
-
-### `Nst_vector_pop`
-
-**Synopsis:**
-
-```better-c
-#define Nst_vector_pop(vect, quantity)
-```
-
-**Description:**
-
-Alias of [`_Nst_vector_pop`](c_api-sequence.md#_nst_vector_pop) that casts
-`vect` to [`Nst_SeqObj *`](c_api-sequence.md#nst_seqobj).
-
----
-
-## Structs
-
-### `Nst_SeqObj`
-
-**Synopsis:**
-
-```better-c
-typedef struct _Nst_SeqObj {
-    Nst_OBJ_HEAD;
-    Nst_GGC_HEAD;
-    Nst_Obj **objs;
-    usize len;
-    usize cap;
-} Nst_SeqObj
-```
-
-**Description:**
-
-A structure representing a Nest sequence object.
-
-**Fields:**
-
-- `objs`: the array of objects inside the sequence
-- `len`: the length of the sequence
-- `cap`: the capacity of the sequence
-
----
-
-## Type aliases
-
-### `Nst_ArrayObj`
-
-**Synopsis:**
-
-```better-c
-typedef Nst_SeqObj Nst_ArrayObj
-```
-
-**Description:**
-
-Alias of [`Nst_SeqObj`](c_api-sequence.md#nst_seqobj).
-
----
-
-### `Nst_VectorObj`
-
-**Synopsis:**
-
-```better-c
-typedef Nst_SeqObj Nst_VectorObj
-```
-
-**Description:**
-
-Alias of [`Nst_SeqObj`](c_api-sequence.md#nst_seqobj).
+Growth ratio of a Vector object.
 
 ---
 
@@ -278,11 +53,8 @@ Nst_Obj *Nst_array_new(usize len)
 
 **Description:**
 
-Creates a new array object of the specified length.
-
-!!!warning
-    The objects inside the array must be set manually, each entry in the array
-    takes one reference of the object inserted.
+Creates a new array object of the specified length. The slots are filled with
+`null` values.
 
 **Parameters:**
 
@@ -304,11 +76,8 @@ Nst_Obj *Nst_vector_new(usize len)
 
 **Description:**
 
-Creates a new vector object of the specified length.
-
-!!!warning
-    The objects inside the vector must be set manually, each entry in the vector
-    takes one reference of the object inserted.
+Creates a new vector object of the specified length. The slots are filled with
+`null` values.
 
 **Parameters:**
 
@@ -317,6 +86,102 @@ Creates a new vector object of the specified length.
 **Returns:**
 
 The new object on success or `NULL` on failure. The error is set.
+
+---
+
+### `Nst_array_from_objs`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *Nst_array_from_objs(usize len, Nst_Obj **objs)
+```
+
+**Description:**
+
+Create a new Array object given an array of objects. A reference is added to
+each object.
+
+**Parameters:**
+
+- `len`: the number of objects in `objs`
+- `objs`: the objects to use to initialize the array
+
+**Returns:**
+
+The new object on success and `NULL` on failure. The error is set.
+
+---
+
+### `Nst_vector_from_objs`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *Nst_vector_from_objs(usize len, Nst_Obj **objs)
+```
+
+**Description:**
+
+Create a new Vector object given an array of objects. A reference is added to
+each object.
+
+**Parameters:**
+
+- `len`: the number of objects in `objs`
+- `objs`: the objects to use to initialize the array
+
+**Returns:**
+
+The new object on success and `NULL` on failure. The error is set.
+
+---
+
+### `Nst_array_from_objsn`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *Nst_array_from_objsn(usize len, Nst_Obj **objs)
+```
+
+**Description:**
+
+Create a new Array object given an array of objects. A reference is taken from
+each object.
+
+**Parameters:**
+
+- `len`: the number of objects in `objs`
+- `objs`: the objects to use to initialize the array
+
+**Returns:**
+
+The new object on success and `NULL` on failure. The error is set.
+
+---
+
+### `Nst_vector_from_objsn`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *Nst_vector_from_objsn(usize len, Nst_Obj **objs)
+```
+
+**Description:**
+
+Create a new Vector object given an array of objects. A reference is taken from
+each object.
+
+**Parameters:**
+
+- `len`: the number of objects in `objs`
+- `objs`: the objects to use to initialize the array
+
+**Returns:**
+
+The new object on success and `NULL` on failure. The error is set.
 
 ---
 
@@ -430,12 +295,12 @@ The new array on success or `NULL` on failure. The error is set.
 
 ---
 
-### `_Nst_seq_copy`
+### `Nst_seq_copy`
 
 **Synopsis:**
 
 ```better-c
-Nst_Obj *_Nst_seq_copy(Nst_SeqObj *seq)
+Nst_Obj *Nst_seq_copy(Nst_Obj *seq)
 ```
 
 **Description:**
@@ -457,7 +322,7 @@ The new sequence or NULL on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-void _Nst_seq_destroy(Nst_SeqObj *seq)
+void _Nst_seq_destroy(Nst_Obj *seq)
 ```
 
 **Description:**
@@ -471,7 +336,7 @@ Destructor for sequence objects.
 **Synopsis:**
 
 ```better-c
-void _Nst_seq_traverse(Nst_SeqObj *seq)
+void _Nst_seq_traverse(Nst_Obj *seq)
 ```
 
 **Description:**
@@ -480,21 +345,63 @@ Traverse function for sequence objects.
 
 ---
 
-### `_Nst_seq_set`
+### `Nst_seq_len`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_seq_set(Nst_SeqObj *seq, i64 idx, Nst_Obj *val)
+usize Nst_seq_len(Nst_Obj *seq)
 ```
 
 **Description:**
 
-Changes the value of an index in a sequence.
+Get the length of a sequence.
 
-The sequence to change must already contain valid values. `idx` can be negative
-in which case it is subtracted from the length of the sequence to get the new
-index.
+---
+
+### `Nst_vector_cap`
+
+**Synopsis:**
+
+```better-c
+usize Nst_vector_cap(Nst_Obj *vect)
+```
+
+**Description:**
+
+Get the capacity of a vector.
+
+---
+
+### `_Nst_seq_objs`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj **_Nst_seq_objs(Nst_Obj *seq)
+```
+
+**Description:**
+
+Get the undelying object array of a sequence. Use this only if you know what you
+are doing.
+
+---
+
+### `Nst_seq_set`
+
+**Synopsis:**
+
+```better-c
+bool Nst_seq_set(Nst_Obj *seq, i64 idx, Nst_Obj *val)
+```
+
+**Description:**
+
+Changes the value of an index in a sequence. Adds a reference to `val`.
+
+`idx` can be negative in which case it is subtracted from the length of the
+sequence to get the new index.
 
 **Parameters:**
 
@@ -509,19 +416,95 @@ when the index is outside the sequence.
 
 ---
 
-### `_Nst_seq_get`
+### `Nst_seq_setf`
 
 **Synopsis:**
 
 ```better-c
-Nst_Obj *_Nst_seq_get(Nst_SeqObj *seq, i64 idx)
+void Nst_seq_setf(Nst_Obj *seq, usize idx, Nst_Obj *val)
 ```
 
 **Description:**
 
-Gets the value at an index of a sequence.
+Changes the value of an index in a sequence quickly. Adds a reference to `val`.
+Negative indices are not supported.
 
-The sequence must already contain valid values.
+!!!warning
+    Use this function only if you are certain that `idx` is inside `seq`. Bound
+    checks are only performed in debug mode.
+
+**Parameters:**
+
+- `seq`: the sequence to modify
+- `idx`: the index to update
+- `val`: the value to set the index to
+
+---
+
+### `Nst_seq_setn`
+
+**Synopsis:**
+
+```better-c
+bool Nst_seq_setn(Nst_Obj *seq, i64 idx, Nst_Obj *val)
+```
+
+**Description:**
+
+Changes the value of an index in a sequence. Takes a reference from `val`.
+
+`idx` can be negative in which case it is subtracted from the length of the
+sequence to get the new index.
+
+**Parameters:**
+
+- `seq`: the sequence to modify
+- `idx`: the index to update
+- `val`: the value to set the index to
+
+**Returns:**
+
+`true` on success and `false` on failure. The error is set. This function fails
+when the index is outside the sequence.
+
+---
+
+### `Nst_seq_setnf`
+
+**Synopsis:**
+
+```better-c
+void Nst_seq_setnf(Nst_Obj *seq, usize idx, Nst_Obj *val)
+```
+
+**Description:**
+
+Changes the value of an index in a sequence quickly. Takes a reference from
+`val`. Negative indices are not supported.
+
+!!!warning
+    Use this function only if you are certain that `idx` is inside `seq`. Bound
+    checks are only performed in debug mode.
+
+**Parameters:**
+
+- `seq`: the sequence to modify
+- `idx`: the index to update
+- `val`: the value to set the index to
+
+---
+
+### `Nst_seq_get`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *Nst_seq_get(Nst_Obj *seq, i64 idx)
+```
+
+**Description:**
+
+Gets a reference to a value in a sequence.
 
 **Parameters:**
 
@@ -535,40 +518,95 @@ error is set. The function fails when the index is outside the sequence.
 
 ---
 
-### `_Nst_vector_resize`
+### `Nst_seq_getf`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_vector_resize(Nst_SeqObj *vect)
+Nst_Obj *Nst_seq_getf(Nst_Obj *seq, usize idx)
 ```
 
 **Description:**
 
-Resizes a vector if needed.
+Gets a reference to a value in a sequence quickly.
+
+!!!warning
+    Use this function only if you are certain that `idx` is inside `seq`. Bound
+    checks are only performed in debug mode.
 
 **Parameters:**
 
-- `vect`: the vector to resize
+- `seq`: the sequence to get the value from
+- `idx`: the index of the value to get
 
 **Returns:**
 
-`true` on success and `false` on failure. The error is set. The function never
-fails if the vector is untouched or is shrunk.
+A new reference to the object at `idx`.
 
 ---
 
-### `_Nst_vector_append`
+### `Nst_seq_getn`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_vector_append(Nst_SeqObj *vect, Nst_Obj *val)
+Nst_Obj *Nst_seq_getn(Nst_Obj *seq, i64 idx)
 ```
 
 **Description:**
 
-Appends a value to the end of a vector.
+Gets a value in a sequence without taking a reference.
+
+**Parameters:**
+
+- `seq`: the sequence to get the value from
+- `idx`: the index of the value to get
+
+**Returns:**
+
+A pointer to the object at `idx` on success and `NULL` on failure. The error is
+set. The function fails when the index is outside the sequence.
+
+---
+
+### `Nst_seq_getnf`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *Nst_seq_getnf(Nst_Obj *seq, usize idx)
+```
+
+**Description:**
+
+Gets a value in a sequence without taking a reference quickly.
+
+!!!warning
+    Use this function only if you are certain that `idx` is inside `seq`. Bound
+    checks are only performed in debug mode.
+
+**Parameters:**
+
+- `seq`: the sequence to get the value from
+- `idx`: the index of the value to get
+
+**Returns:**
+
+A pointer to the object at `idx`.
+
+---
+
+### `Nst_vector_append`
+
+**Synopsis:**
+
+```better-c
+bool Nst_vector_append(Nst_Obj *vect, Nst_Obj *val)
+```
+
+**Description:**
+
+Appends a value to the end of a vector adding a reference to `val`.
 
 **Parameters:**
 
@@ -581,12 +619,12 @@ Appends a value to the end of a vector.
 
 ---
 
-### `_Nst_vector_remove`
+### `Nst_vector_remove`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_vector_remove(Nst_SeqObj *vect, Nst_Obj *val)
+bool Nst_vector_remove(Nst_Obj *vect, Nst_Obj *val)
 ```
 
 **Description:**
@@ -606,12 +644,12 @@ matched. No error is set.
 
 ---
 
-### `_Nst_vector_pop`
+### `Nst_vector_pop`
 
 **Synopsis:**
 
 ```better-c
-Nst_Obj *_Nst_vector_pop(Nst_SeqObj *vect, usize quantity)
+Nst_Obj *Nst_vector_pop(Nst_Obj *vect, usize quantity)
 ```
 
 **Description:**

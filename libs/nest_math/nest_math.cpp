@@ -230,21 +230,21 @@ Nst_Obj *NstC atanh_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC dist_2d_(usize arg_num, Nst_Obj **args)
 {
-    Nst_SeqObj *p1;
-    Nst_SeqObj *p2;
+    Nst_Obj *p1;
+    Nst_Obj *p2;
 
     if (!Nst_extract_args("A.N A.N", arg_num, args, &p1, &p2))
         return nullptr;
 
-    if (p1->len != 2 || p2->len != 2) {
+    if (Nst_seq_len(p1) != 2 || Nst_seq_len(p2) != 2) {
         Nst_set_value_error_c("the points must have exactly two values");
         return nullptr;
     }
 
-    f64 x1 = Nst_number_to_f64(p1->objs[0]);
-    f64 y1 = Nst_number_to_f64(p1->objs[1]);
-    f64 x2 = Nst_number_to_f64(p2->objs[0]);
-    f64 y2 = Nst_number_to_f64(p2->objs[1]);
+    f64 x1 = Nst_number_to_f64(Nst_seq_getnf(p1, 0));
+    f64 y1 = Nst_number_to_f64(Nst_seq_getnf(p1, 1));
+    f64 x2 = Nst_number_to_f64(Nst_seq_getnf(p2, 0));
+    f64 y2 = Nst_number_to_f64(Nst_seq_getnf(p2, 1));
 
     // sqrt((x1 - x2)^2 + (y1 - y2)^2)
     f64 c2 = (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2);
@@ -253,23 +253,23 @@ Nst_Obj *NstC dist_2d_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC dist_3d_(usize arg_num, Nst_Obj **args)
 {
-    Nst_SeqObj *p1;
-    Nst_SeqObj *p2;
+    Nst_Obj *p1;
+    Nst_Obj *p2;
 
     if (!Nst_extract_args("A.N A.N", arg_num, args, &p1, &p2))
         return nullptr;
 
-    if (p1->len != 3 || p2->len != 3) {
+    if (Nst_seq_len(p1) != 3 || Nst_seq_len(p2) != 3) {
         Nst_set_value_error_c("the points must have exactly three values");
         return nullptr;
     }
 
-    f64 x1 = Nst_number_to_f64(p1->objs[0]);
-    f64 y1 = Nst_number_to_f64(p1->objs[1]);
-    f64 z1 = Nst_number_to_f64(p1->objs[2]);
-    f64 x2 = Nst_number_to_f64(p2->objs[0]);
-    f64 y2 = Nst_number_to_f64(p2->objs[1]);
-    f64 z2 = Nst_number_to_f64(p2->objs[2]);
+    f64 x1 = Nst_number_to_f64(Nst_seq_getnf(p1, 0));
+    f64 y1 = Nst_number_to_f64(Nst_seq_getnf(p1, 1));
+    f64 z1 = Nst_number_to_f64(Nst_seq_getnf(p1, 2));
+    f64 x2 = Nst_number_to_f64(Nst_seq_getnf(p2, 0));
+    f64 y2 = Nst_number_to_f64(Nst_seq_getnf(p2, 1));
+    f64 z2 = Nst_number_to_f64(Nst_seq_getnf(p2, 2));
 
     // sqrt((x1 - x2)^2 + (y1 - y2)^2 + (z1 - z2)^2)
     f64 d2 = (x1 - x2)*(x1 - x2) + (y1 - y2)*(y1 - y2) + (z1 - z2)*(z1 - z2);
@@ -278,24 +278,24 @@ Nst_Obj *NstC dist_3d_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC dist_nd_(usize arg_num, Nst_Obj **args)
 {
-    Nst_SeqObj *p1;
-    Nst_SeqObj *p2;
+    Nst_Obj *p1;
+    Nst_Obj *p2;
 
     if (!Nst_extract_args("A.N A.N", arg_num, args, &p1, &p2))
         return nullptr;
 
-    if (p1->len != p2->len) {
+    if (Nst_seq_len(p1) != Nst_seq_len(p2)) {
         Nst_set_value_error_c(
             "the points must have the same number of values");
         return nullptr;
     }
 
-    Nst_Obj **objs1 = p1->objs;
-    Nst_Obj **objs2 = p2->objs;
+    Nst_Obj **objs1 = _Nst_seq_objs(p1);
+    Nst_Obj **objs2 = _Nst_seq_objs(p2);
 
     f64 tot = 0;
 
-    for (usize i = 0, len = p1->len; i < len; i++) {
+    for (usize i = 0, len = Nst_seq_len(p1); i < len; i++) {
         f64 t1 = Nst_number_to_f64(objs1[i]);
         f64 t2 = Nst_number_to_f64(objs2[i]);
 
@@ -334,23 +334,23 @@ Nst_Obj *NstC min_(usize arg_num, Nst_Obj **args)
 
     Nst_Obj *res;
     if (ob_b == Nst_null() && (Nst_T(ob_a, Array) || Nst_T(ob_a, Vector))) {
-        Nst_SeqObj *seq = SEQ(ob_a);
-        usize seq_len = seq->len;
+        usize seq_len = Nst_seq_len(ob_a);
 
         if (seq_len == 0) {
             Nst_set_value_error_c("sequence length is zero");
             return nullptr;
         }
 
-        Nst_Obj *min_obj = seq->objs[0];
+        Nst_Obj *min_obj = Nst_seq_getnf(ob_a, 0);
 
         for (usize i = 1; i < seq_len; i++) {
-            res = Nst_obj_lt(seq->objs[i], min_obj);
+            Nst_Obj *curr_obj = Nst_seq_getnf(ob_a, i);
+            res = Nst_obj_lt(curr_obj, min_obj);
             if (res == nullptr)
                 return nullptr;
 
             if (res == Nst_true())
-                min_obj = seq->objs[i];
+                min_obj = curr_obj;
             Nst_dec_ref(res);
         }
 
@@ -378,23 +378,23 @@ Nst_Obj *NstC max_(usize arg_num, Nst_Obj **args)
 
     Nst_Obj *res;
     if (ob_b == Nst_null() && (Nst_T(ob_a, Array) || Nst_T(ob_a, Vector))) {
-        Nst_SeqObj *seq = SEQ(ob_a);
-        usize seq_len = seq->len;
+        usize seq_len = Nst_seq_len(ob_a);
 
         if (seq_len == 0) {
             Nst_set_value_error_c("sequence length is zero");
             return nullptr;
         }
 
-        Nst_Obj *max_obj = seq->objs[0];
+        Nst_Obj *max_obj = Nst_seq_getnf(ob_a, 0);
 
         for (usize i = 1; i < seq_len; i++) {
-            res = Nst_obj_gt(seq->objs[i], max_obj);
+            Nst_Obj *curr_obj = Nst_seq_getnf(ob_a, i);
+            res = Nst_obj_gt(curr_obj, max_obj);
             if (res == nullptr)
                 return nullptr;
 
             if (res == Nst_true())
-                max_obj = seq->objs[i];
+                max_obj = curr_obj;
             Nst_dec_ref(res);
         }
 
@@ -415,19 +415,19 @@ Nst_Obj *NstC max_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC sum_(usize arg_num, Nst_Obj **args)
 {
-    Nst_SeqObj *seq;
+    Nst_Obj *seq;
 
     if (!Nst_extract_args("A", arg_num, args, &seq))
         return nullptr;
 
-    if (seq->len == 0)
+    if (Nst_seq_len(seq) == 0)
         Nst_RETURN_ZERO;
 
     Nst_Obj *tot = Nst_inc_ref(Nst_const()->Byte_0);
     Nst_Obj *new_tot = nullptr;
 
-    for (usize i = 0, n = seq->len; i < n; i++) {
-        new_tot = Nst_obj_add(tot, seq->objs[i]);
+    for (usize i = 0, n = Nst_seq_len(seq); i < n; i++) {
+        new_tot = Nst_obj_add(tot, Nst_seq_getnf(seq, i));
         Nst_dec_ref(tot);
 
         if (new_tot == nullptr)
@@ -447,11 +447,9 @@ Nst_Obj *NstC frexp_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     int num;
-    Nst_SeqObj *arr = SEQ(Nst_array_new(2));
-    arr->objs[0] = Nst_real_new(frexp(n, &num));
-    arr->objs[1] = Nst_int_new(num);
+    f64 exp = frexp(n, &num);
 
-    return OBJ(arr);
+    return Nst_array_create_c("fi", exp, (i32)num);
 }
 
 Nst_Obj *NstC ldexp_(usize arg_num, Nst_Obj **args)
@@ -552,17 +550,17 @@ static inline f64 gcd_real(f64 a, f64 b)
     }
 }
 
-Nst_Obj *gcd_or_lcm_seq(Nst_SeqObj *seq, Nst_NestCallable func)
+Nst_Obj *gcd_or_lcm_seq(Nst_Obj *seq, Nst_NestCallable func)
 {
-    if (seq->len == 0)
+    if (Nst_seq_len(seq) == 0)
         Nst_RETURN_ZERO;
 
-    Nst_Obj **objs = seq->objs;
+    Nst_Obj **objs = _Nst_seq_objs(seq);
     Nst_Obj *prev = Nst_inc_ref(objs[0]);
     Nst_Obj *curr = nullptr;
     Nst_Obj *gcd_args[2] = { prev, nullptr };
 
-    for (usize i = 1, n = seq->len; i < n; i++) {
+    for (usize i = 1, n = Nst_seq_len(seq); i < n; i++) {
         gcd_args[0] = prev;
         gcd_args[1] = objs[i];
         curr = func(2, gcd_args);
@@ -587,7 +585,7 @@ Nst_Obj *NstC gcd_(usize arg_num, Nst_Obj **args)
 
     if (Nst_T(ob1, Array) || Nst_T(ob1, Vector)) {
         if (ob2 == Nst_null())
-            return gcd_or_lcm_seq(SEQ(ob1), gcd_);
+            return gcd_or_lcm_seq(ob1, gcd_);
         else {
             Nst_set_type_errorf(
                 "the two objects must a sequence and null or two numbers,"
@@ -630,7 +628,7 @@ Nst_Obj *NstC lcm_(usize arg_num, Nst_Obj **args)
 
     if (Nst_T(ob1, Array) || Nst_T(ob1, Vector)) {
         if (ob2 == Nst_null())
-            return gcd_or_lcm_seq(SEQ(ob1), lcm_);
+            return gcd_or_lcm_seq(ob1, lcm_);
         else {
             Nst_set_type_errorf(
                 "the two objects must a sequence and null or two numbers,"

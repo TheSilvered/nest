@@ -20,7 +20,7 @@ GUI_Element *GUI_Element_New(usize size, GUI_Element *parent,
     element->pad_l = 0;
     element->pad_r = 0;
     element->parent = parent;
-    element->children = VECTOR(Nst_vector_new(0));
+    element->children = Nst_vector_new(0);
     element->window = window;
     element->app = app;
     element->constraints_before = MAP(Nst_map_new());
@@ -198,8 +198,8 @@ void GUI_Element_Disable(GUI_Element *element)
     if (element->state != initial_state)
         GUI_Event_PushUserEvent(element, GUI_E_STATE);
 
-    for (usize i = 0, n = element->children->len; i < n; i++) {
-        GUI_Element *child = (GUI_Element *)(element->children->objs[i]);
+    for (usize i = 0, n = Nst_seq_len(element->children); i < n; i++) {
+        GUI_Element *child = (GUI_Element *)Nst_seq_getnf(element->children, i);
         GUI_Element_Disable(child);
     }
 }
@@ -210,8 +210,8 @@ void GUI_Element_DisableAll(GUI_Element *element)
         GUI_Event_PushUserEvent(element, GUI_E_STATE);
     element->state = GUI_ES_DISABLED;
     element->prev_state = GUI_ES_NONE;
-    for (usize i = 0, n = element->children->len; i < n; i++) {
-        GUI_Element *child = (GUI_Element *)(element->children->objs[i]);
+    for (usize i = 0, n = Nst_seq_len(element->children); i < n; i++) {
+        GUI_Element *child = (GUI_Element *)Nst_seq_getnf(element->children, i);
         GUI_Element_DisableAll(child);
     }
 }
@@ -239,8 +239,8 @@ void GUI_Element_EnableReadonly(GUI_Element *element)
     else
         element->prev_state = GUI_ES_NONE;
 
-    for (usize i = 0, n = element->children->len; i < n; i++) {
-        GUI_Element *child = (GUI_Element *)(element->children->objs[i]);
+    for (usize i = 0, n = Nst_seq_len(element->children); i < n; i++) {
+        GUI_Element *child = (GUI_Element *)Nst_seq_getnf(element->children, i);
         GUI_Element_EnableReadonly(child);
     }
 }
@@ -251,8 +251,8 @@ void GUI_Element_EnableReadonlyAll(GUI_Element *element)
         GUI_Event_PushUserEvent(element, GUI_E_STATE);
     element->state = GUI_ES_READONLY;
     element->prev_state = GUI_ES_NONE;
-    for (usize i = 0, n = element->children->len; i < n; i++) {
-        GUI_Element *child = (GUI_Element *)(element->children->objs[i]);
+    for (usize i = 0, n = Nst_seq_len(element->children); i < n; i++) {
+        GUI_Element *child = (GUI_Element *)Nst_seq_getnf(element->children, i);
         GUI_Element_EnableReadonlyAll(child);
     }
 }
@@ -280,8 +280,8 @@ void GUI_Element_Enable(GUI_Element *element)
     else
         element->prev_state = GUI_ES_NONE;
 
-    for (usize i = 0, n = element->children->len; i < n; i++) {
-        GUI_Element *child = (GUI_Element *)(element->children->objs[i]);
+    for (usize i = 0, n = Nst_seq_len(element->children); i < n; i++) {
+        GUI_Element *child = (GUI_Element *)Nst_seq_getnf(element->children, i);
         GUI_Element_Enable(child);
     }
 }
@@ -292,8 +292,8 @@ void GUI_Element_EnableAll(GUI_Element *element)
         GUI_Event_PushUserEvent(element, GUI_E_STATE);
     element->state = GUI_ES_ENABLED;
     element->prev_state = GUI_ES_NONE;
-    for (usize i = 0, n = element->children->len; i < n; i++) {
-        GUI_Element *child = (GUI_Element *)(element->children->objs[i]);
+    for (usize i = 0, n = Nst_seq_len(element->children); i < n; i++) {
+        GUI_Element *child = (GUI_Element *)Nst_seq_getnf(element->children, i);
         GUI_Element_EnableAll(child);
     }
 }
@@ -301,8 +301,8 @@ void GUI_Element_EnableAll(GUI_Element *element)
 void GUI_Element_ForgetPrevState(GUI_Element *element)
 {
     element->prev_state = GUI_ES_NONE;
-    for (usize i = 0, n = element->children->len; i < n; i++) {
-        GUI_Element *child = (GUI_Element *)(element->children->objs[i]);
+    for (usize i = 0, n = Nst_seq_len(element->children); i < n; i++) {
+        GUI_Element *child = (GUI_Element *)Nst_seq_getnf(element->children, i);
         GUI_Element_ForgetPrevState(child);
     }
 }

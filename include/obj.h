@@ -53,7 +53,7 @@
 /* Creates a flag from an id. `n` can be between 1 and 28 included.  */
 #define Nst_FLAG(n) (1 << ((n) - 1))
 /* Clears all flags from an object, except for the reserved ones. */
-#define Nst_CLEAR_FLAGS(obj) ((obj)->flags &= 0xff00000000000000)
+#define Nst_CLEAR_FLAGS(obj) ((obj)->flags &= 0xff000000)
 
 struct _Nst_StrObj;
 struct _Nst_TypeObj;

@@ -98,11 +98,11 @@ static Nst_Obj *call_coroutine(CoroutineObj *co, usize arg_num, Nst_Obj **args)
         if (arg_num == 0)
             Nst_vstack_push(&state->v_stack, Nst_null());
         else {
-            Nst_SeqObj *arr = SEQ(Nst_array_new(arg_num));
+            Nst_Obj *arr = Nst_array_new(arg_num);
             if (arr == nullptr)
                 return nullptr;
             for (usize i = 0; i < arg_num; i++)
-                arr->objs[i] = Nst_inc_ref(args[i]);
+                Nst_seq_setf(arr, i, args[i]);
             Nst_vstack_push(&state->v_stack, arr);
             Nst_dec_ref(arr);
         }
@@ -154,10 +154,14 @@ static Nst_Obj *NstC generator_start(usize arg_num, Nst_Obj **args)
 static Nst_Obj *NstC generator_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
+    Nst_Obj **c_args = _Nst_seq_objs(args[0]);
 
-    CoroutineObj *co = (CoroutineObj *)(SEQ(args[0])->objs[0]);
-    Nst_SeqObj *co_args = SEQ(SEQ(args[0])->objs[1]);
-    Nst_Obj *obj = call_coroutine(co, co_args->len, co_args->objs);
+    CoroutineObj *co = (CoroutineObj *)(c_args[0]);
+    Nst_Obj *co_args = c_args[1];
+    Nst_Obj *obj = call_coroutine(
+        co,
+        Nst_seq_len(co_args),
+        _Nst_seq_objs(co_args));
 
     if (obj == nullptr)
         return nullptr;
@@ -255,7 +259,7 @@ Nst_Obj *NstC call_(usize arg_num, Nst_Obj **args)
     if (co_args == Nst_null())
         return call_coroutine(co, 0, nullptr);
     else
-        return call_coroutine(co, SEQ(co_args)->len, SEQ(co_args)->objs);
+        return call_coroutine(co, Nst_seq_len(co_args), _Nst_seq_objs(co_args));
 }
 
 Nst_Obj *NstC yield_(usize arg_num, Nst_Obj **args)
@@ -333,12 +337,12 @@ Nst_Obj *NstC generator_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (co_args != Nst_null() &&
-        (isize)SEQ(co_args)->len > co->func->arg_num)
+        (isize)Nst_seq_len(co_args) > co->func->arg_num)
     {
         Nst_set_call_errorf(
             "the coroutine expects at most %zi arguments but %zi were given",
             co->func->arg_num,
-            SEQ(co_args)->len);
+            Nst_seq_len(co_args));
         return nullptr;
     }
 

@@ -1199,7 +1199,8 @@ Gets the length in characters of a UTF-8-encoded string.
 !!!note
     This function assumes that the string is valid UTF-8 and does no error
     checking. Use [`Nst_encoding_check`](c_api-encoding.md#nst_encoding_check)
-    to check it or `Nst_string_char_len` to get the length in characters safely.
+    to check it or [`Nst_str_char_len`](c_api-encoding.md#nst_str_char_len) to
+    get the length in characters safely.
 
 **Parameters:**
 
@@ -1344,12 +1345,12 @@ was detected.
 
 ---
 
-### `Nst_detect_encoding`
+### `Nst_encoding_detect`
 
 **Synopsis:**
 
 ```better-c
-Nst_EncodingID Nst_detect_encoding(i8 *str, usize len, i32 *bom_size)
+Nst_EncodingID Nst_encoding_detect(i8 *str, usize len, i32 *bom_size)
 ```
 
 **Description:**
@@ -1378,12 +1379,12 @@ set.
 
 ---
 
-### `Nst_single_byte_encoding`
+### `Nst_encoding_to_single_byte`
 
 **Synopsis:**
 
 ```better-c
-Nst_EncodingID Nst_single_byte_encoding(Nst_EncodingID encoding)
+Nst_EncodingID Nst_encoding_to_single_byte(Nst_EncodingID encoding)
 ```
 
 **Returns:**

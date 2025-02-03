@@ -376,7 +376,7 @@ NstEXP isize NstC Nst_str_char_len(Nst_Encoding *encoding, void *str,
  *
  * @brief Note: this function assumes that the string is valid UTF-8 and does
  * no error checking. Use `Nst_encoding_check` to check it or
- * `Nst_string_char_len` to get the length in characters safely.
+ * `Nst_str_char_len` to get the length in characters safely.
  *
  * @param str: the string to get the length of
  * @param str_len: the length in bytes of the string

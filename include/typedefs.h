@@ -282,7 +282,7 @@
             #expr,                                                            \
             __FILE__,                                                         \
             __LINE__)),                                                       \
-        (__debugbreak(), 0))                                                  \
+        (DebugBreak(), 0))                                                    \
     )
 
 /** [docs:ignore]
@@ -299,7 +299,7 @@
             #expr,                                                            \
             __FILE__,                                                         \
             __LINE__),                                                        \
-        (__debugbreak(), 0))                                                  \
+        (DebugBreak(), 0))                                                    \
     )
 
 #else

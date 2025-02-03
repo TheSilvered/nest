@@ -103,7 +103,8 @@ NstEXP typedef struct _Nst_MapObj {
  */
 NstEXP Nst_Obj *NstC Nst_map_new(void);
 /**
- * Inserts or modifies a value in the map.
+ * Inserts or modifies a value in the map. Adds a reference to both the key and
+ * the value.
  *
  * @param map: the map to update
  * @param key: the key to insert or modify
@@ -134,9 +135,9 @@ NstEXP Nst_Obj *NstC _Nst_map_get(Nst_MapObj *map, Nst_Obj *key);
 NstEXP Nst_Obj *NstC _Nst_map_drop(Nst_MapObj *map, Nst_Obj *key);
 /**
  * Creates a shallow copy of a map object.
- * 
+ *
  * @param map: the map to copy
- * 
+ *
  * @return The copied map or `NULL` on failure. The error is set.
  */
 NstEXP Nst_Obj *NstC _Nst_map_copy(Nst_MapObj *map);

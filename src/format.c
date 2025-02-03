@@ -194,7 +194,7 @@ typedef struct _FmtValues {
     union {
         va_list *va;
         struct {
-            Nst_SeqObj *obj;
+            Nst_Obj *obj;
             usize i;
         } arr;
     } v;
@@ -206,7 +206,7 @@ void fmt_values_init_va_args(FmtValues *values, va_list *args)
     values->v.va = args;
 }
 
-void fmt_values_init_sequence(FmtValues *values, Nst_SeqObj *obj)
+void fmt_values_init_sequence(FmtValues *values, Nst_Obj *obj)
 {
     values->type = Nst_VALUES_ARR;
     values->v.arr.obj = obj;
@@ -218,9 +218,9 @@ void fmt_values_init_sequence(FmtValues *values, Nst_SeqObj *obj)
 
 static Nst_Obj *fmt_values_get_obj(FmtValues *values)
 {
-    if (values->v.arr.obj->len <= values->v.arr.i)
+    if (Nst_seq_len(values->v.arr.obj) <= values->v.arr.i)
         return NULL;
-    return values->v.arr.obj->objs[values->v.arr.i++];
+    return Nst_seq_getnf(values->v.arr.obj, values->v.arr.i++);
 }
 
 typedef struct _Format {
@@ -372,7 +372,7 @@ i8 *Nst_fmt(const i8 *fmt, usize fmt_len, usize *out_len, ...)
     return Nst_vfmt(fmt, fmt_len, out_len, args);
 }
 
-NstEXP Nst_Obj *NstC Nst_fmt_objs(Nst_StrObj *fmt, Nst_SeqObj *values)
+NstEXP Nst_Obj *NstC Nst_fmt_objs(Nst_StrObj *fmt, Nst_Obj *values)
 {
     FmtValues fmt_values;
     fmt_values_init_sequence(&fmt_values, values);
@@ -384,7 +384,7 @@ NstEXP Nst_Obj *NstC Nst_fmt_objs(Nst_StrObj *fmt, Nst_SeqObj *values)
         &fmt_values);
     if (str == NULL)
         return NULL;
-    if (fmt_values.v.arr.i != fmt_values.v.arr.obj->len) {
+    if (fmt_values.v.arr.i != Nst_seq_len(fmt_values.v.arr.obj)) {
         Nst_set_value_error_c("too many values for the format placeholder");
         Nst_free(str);
         return NULL;

@@ -15,7 +15,7 @@
     SDL_Rect rect;                                                            \
     i32 pad_t, pad_b, pad_l, pad_r;                                           \
     struct _GUI_Element *parent;                                              \
-    Nst_VectorObj *children;                                                  \
+    Nst_Obj *children;                                                        \
     struct _GUI_Window *window;                                               \
     struct _GUI_App *app;                                                     \
     Nst_MapObj *constraints_before;                                           \

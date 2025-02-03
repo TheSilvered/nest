@@ -19,7 +19,7 @@ typedef struct _Nst_ExecutionState {
     Nst_Traceback traceback;
     Nst_VarTable *vt;
     i64 idx;
-    Nst_SeqObj *argv;
+    Nst_Obj *argv;
     Nst_StrObj *curr_path;
     Nst_StrObj *source_path;
     Nst_ValueStack v_stack;

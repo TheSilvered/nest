@@ -103,7 +103,7 @@ static InstResult exe_save_error();
 static InstResult exe_unpack_seq();
 
 static InstResult call_c_func(bool is_seq_call, i64 arg_num,
-                              Nst_SeqObj *args_seq, Nst_FuncObj *func);
+                              Nst_Obj *args_seq, Nst_FuncObj *func);
 static void loaded_libs_destructor(lib_t lib);
 static void source_text_destructor(Nst_SourceText *src);
 
@@ -449,7 +449,7 @@ static void complete_function(usize final_stack_size)
         inst = &instructions[idx];
         InstResult result = inst_func[inst->id]();
 
-        if (Nst_state.ggc.gen1.len > _Nst_GEN1_MAX && final_stack_size == 0)
+        if (Nst_state.ggc.gen1.len > _Nst_GEN1_MAX)
             Nst_ggc_collect();
 
         if (interrupt) {
@@ -821,7 +821,7 @@ end:
 }
 
 static InstResult call_c_func(bool is_seq_call, i64 arg_num,
-                              Nst_SeqObj *args_seq, Nst_FuncObj *func)
+                              Nst_Obj *args_seq, Nst_FuncObj *func)
 {
     i64 tot_args = func->arg_num;
     i64 null_args = (i64)func->arg_num - arg_num;
@@ -840,9 +840,12 @@ static InstResult call_c_func(bool is_seq_call, i64 arg_num,
     if (tot_args == 0)
         args = NULL;
     else if (is_seq_call && null_args == 0)
-        args = args_seq->objs;
+        args = _Nst_seq_objs(args_seq);
     else if (is_seq_call && tot_args <= 10) {
-        memcpy(stack_args, args_seq->objs, (usize)arg_num * sizeof(Nst_Obj *));
+        memcpy(
+            stack_args,
+            _Nst_seq_objs(args_seq),
+            (usize)arg_num * sizeof(Nst_Obj *));
         args = stack_args;
     } else if (is_seq_call) {
         args = Nst_malloc_c((usize)tot_args, Nst_Obj *);
@@ -851,7 +854,10 @@ static InstResult call_c_func(bool is_seq_call, i64 arg_num,
             Nst_dec_ref(func);
             return INST_FAILED;
         }
-        memcpy(args, args_seq->objs, (usize)arg_num * sizeof(Nst_Obj *));
+        memcpy(
+            args,
+            _Nst_seq_objs(args_seq),
+            (usize)arg_num * sizeof(Nst_Obj *));
     } else if (tot_args <= 10) {
         for (i64 i = arg_num - 1; i >= 0; i--)
             stack_args[i] = POP_TOP_VALUE;
@@ -912,10 +918,10 @@ static InstResult exe_op_call()
         return INST_FAILED;
     }
 
-    Nst_SeqObj *args_seq;
+    Nst_Obj *args_seq;
 
     if (arg_num == -1) {
-        args_seq = SEQ(POP_TOP_VALUE);
+        args_seq = POP_TOP_VALUE;
         if (args_seq->type != Nst_t.Array && args_seq->type != Nst_t.Vector) {
             Nst_set_type_errorf(
                 _Nst_EM_EXPECTED_TYPE("Array' or 'Vector"),
@@ -926,7 +932,7 @@ static InstResult exe_op_call()
             return INST_FAILED;
         }
         is_seq_call = true;
-        arg_num = args_seq->len;
+        arg_num = Nst_seq_len(args_seq);
     } else
         args_seq = NULL;
 
@@ -939,7 +945,7 @@ static InstResult exe_op_call()
         inst->start,
         inst->end,
         arg_num,
-        is_seq_call ? args_seq->objs : NULL);
+        is_seq_call ? _Nst_seq_objs(args_seq) : NULL);
 
     Nst_ndec_ref(args_seq);
     return result ? INST_NEW_FUNC : INST_FAILED;
@@ -1356,7 +1362,7 @@ static InstResult exe_save_error()
 static InstResult exe_unpack_seq()
 {
     CHECK_V_STACK;
-    Nst_SeqObj *seq = SEQ(POP_TOP_VALUE);
+    Nst_Obj *seq = POP_TOP_VALUE;
 
     if (seq->type != Nst_t.Array && seq->type != Nst_t.Vector) {
         Nst_set_type_errorf(
@@ -1366,16 +1372,19 @@ static InstResult exe_unpack_seq()
         return INST_FAILED;
     }
 
-    if ((i64)seq->len != inst->int_val) {
+    if ((i64)Nst_seq_len(seq) != inst->int_val) {
         Nst_set_value_errorf(
             _Nst_EM_WRONG_UNPACK_LENGTH,
-            inst->int_val, seq->len);
+            inst->int_val, Nst_seq_len(seq));
         Nst_dec_ref(seq);
         return INST_FAILED;
     }
 
-    for (i64 i = seq->len - 1; i >= 0; i--)
-        Nst_vstack_push(&Nst_state.es->v_stack, seq->objs[i]);
+    for (i64 i = Nst_seq_len(seq) - 1; i >= 0; i--) {
+        Nst_Obj *obj = Nst_seq_getf(seq, i);
+        Nst_vstack_push(&Nst_state.es->v_stack, obj);
+        Nst_dec_ref(obj);
+    }
 
     Nst_dec_ref(seq);
     return INST_SUCCESS;

@@ -119,13 +119,12 @@ static inline void destroy_objects(Nst_GGCList *gen)
     free_obj_memory(gen);
 }
 
-
 /**
  * Garbage collection process:
  *
- * 1. Match the ggc_ref_count to the actual ref_count
+ * 1. Match the ggc_ref_count to the actual ref_count.
  * 2. Traverse all the objects, in this pass we only care about the
- *    ggc_ref_count, not the Nst_FLAG_GGC_REACHABLE
+ *    ggc_ref_count, not the Nst_FLAG_GGC_REACHABLE.
  * 3. If an object has a reference count of zero (i.e. all the reference it has
  *    are from objects inside the same Nst_GGCList) it is put in the
  *    unreachable objects list, removing any preassigned flags
@@ -136,8 +135,8 @@ static inline void destroy_objects(Nst_GGCList *gen)
  *    about the Nst_FLAG_GGC_REACHABLE not the ggc_ref_count.
  * 6. If an object in the unreachable list has the Nst_FLAG_GGC_REACHABLE, it
  *    is put back in the reachable list and is traversed. This step is repeated
- *    until no new objects are reachable
- * 7. Delete the unreachable objects
+ *    until no new objects are reachable.
+ * 7. Delete the unreachable objects.
 */
 
 void Nst_ggc_collect_gen(Nst_GGCList *gen)
@@ -169,7 +168,6 @@ void Nst_ggc_collect_gen(Nst_GGCList *gen)
 
     for (ob = gen->head; ob != NULL; ob = GGC_OBJ(ob->p_next))
         CONT_TYPE(ob->type)->trav(OBJ(ob));
-
 
     while (true) {
         Nst_GGCObj *last_traversed = gen->tail;

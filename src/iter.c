@@ -62,19 +62,18 @@ Nst_Obj *_Nst_iter_get_val(Nst_IterObj *iter)
 Nst_Obj *NstC Nst_iter_range_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_SeqObj *val = SEQ(args[0]);
-    AS_INT(val->objs[0]) = AS_INT(val->objs[1]);
+    Nst_Obj **c_args = _Nst_seq_objs(args[0]);
+    AS_INT(c_args[0]) = AS_INT(c_args[1]);
     Nst_RETURN_NULL;
 }
 
 Nst_Obj *NstC Nst_iter_range_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_SeqObj *val = SEQ(args[0]);
-    Nst_Obj **objs = val->objs;
-    i64 idx = AS_INT(objs[0]);
-    i64 stop = AS_INT(objs[2]);
-    i64 step = AS_INT(objs[3]);
+    Nst_Obj **c_args = _Nst_seq_objs(args[0]);
+    i64 idx = AS_INT(c_args[0]);
+    i64 stop = AS_INT(c_args[2]);
+    i64 step = AS_INT(c_args[3]);
 
     if (step > 0 && idx >= stop)
         Nst_RETURN_IEND;
@@ -82,30 +81,30 @@ Nst_Obj *NstC Nst_iter_range_get_val(usize arg_num, Nst_Obj **args)
         Nst_RETURN_IEND;
 
     Nst_Obj *ob = Nst_int_new(idx);
-    AS_INT(objs[0]) += step;
+    AS_INT(c_args[0]) += step;
     return ob;
 }
 
 Nst_Obj *NstC Nst_iter_seq_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_SeqObj *val = SEQ(args[0]);
-    AS_INT(val->objs[0]) = 0;
+    Nst_Obj **c_args = _Nst_seq_objs(args[0]);
+    AS_INT(c_args[0]) = 0;
     Nst_RETURN_NULL;
 }
 
 Nst_Obj *NstC Nst_iter_seq_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_SeqObj *val = SEQ(args[0]);
-    Nst_SeqObj *seq = SEQ(val->objs[1]);
-    i64 idx = AS_INT(val->objs[0]);
+    Nst_Obj **c_args = _Nst_seq_objs(args[0]);
+    Nst_Obj *seq = c_args[1];
+    i64 idx = AS_INT(c_args[0]);
 
-    if (idx >= (i64)seq->len)
+    if (idx >= (i64)Nst_seq_len(seq))
         Nst_RETURN_IEND;
 
-    Nst_Obj *obj = seq->objs[idx];
-    AS_INT(val->objs[0]) += 1;
+    Nst_Obj *obj = Nst_seq_getn(seq, idx);
+    AS_INT(c_args[0]) += 1;
 
     if (obj == Nst_c.IEnd_iend)
         Nst_RETURN_NULL;
@@ -115,21 +114,20 @@ Nst_Obj *NstC Nst_iter_seq_get_val(usize arg_num, Nst_Obj **args)
 Nst_Obj *NstC Nst_iter_str_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_SeqObj *val = SEQ(args[0]);
-    AS_INT(val->objs[0]) = -1;
+    Nst_Obj **c_args = _Nst_seq_objs(args[0]);
+    AS_INT(c_args[0]) = -1;
     Nst_RETURN_NULL;
 }
 
 Nst_Obj *NstC Nst_iter_str_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_SeqObj *val = SEQ(args[0]);
-    Nst_Obj **objs = val->objs;
-    Nst_StrObj *str = STR(objs[1]);
-    Nst_Obj *ch = Nst_str_next_obj(str, (isize *)&AS_INT(objs[0]));
+    Nst_Obj **c_args = _Nst_seq_objs(args[0]);
+    Nst_StrObj *str = STR(c_args[1]);
+    Nst_Obj *ch = Nst_str_next_obj(str, (isize *)&AS_INT(c_args[0]));
     if (ch != NULL)
         return ch;
-    if (AS_INT(objs[0]) == Nst_STR_LOOP_ERROR)
+    if (AS_INT(c_args[0]) == Nst_STR_LOOP_ERROR)
         return NULL;
     Nst_RETURN_IEND;
 }
@@ -137,23 +135,23 @@ Nst_Obj *NstC Nst_iter_str_get_val(usize arg_num, Nst_Obj **args)
 Nst_Obj *NstC Nst_iter_map_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    AS_INT(objs[0]) = Nst_map_get_next_idx(-1, objs[1]);
+    Nst_Obj **c_args = _Nst_seq_objs(args[0]);
+    AS_INT(c_args[0]) = Nst_map_get_next_idx(-1, c_args[1]);
     Nst_RETURN_NULL;
 }
 
 Nst_Obj *NstC Nst_iter_map_get_val(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **objs = SEQ(args[0])->objs;
-    i64 idx = AS_INT(objs[0]);
+    Nst_Obj **c_args = _Nst_seq_objs(args[0]);
+    i64 idx = AS_INT(c_args[0]);
 
     if (idx == -1)
         Nst_RETURN_IEND;
 
-    Nst_MapNode node = MAP(objs[1])->nodes[idx];
+    Nst_MapNode node = MAP(c_args[1])->nodes[idx];
     Nst_Obj *arr = Nst_array_create_c("OO", node.key, node.value);
 
-    AS_INT(objs[0]) = Nst_map_get_next_idx((i32)idx, MAP(objs[1]));
+    AS_INT(c_args[0]) = Nst_map_get_next_idx((i32)idx, c_args[1]);
     return arr;
 }

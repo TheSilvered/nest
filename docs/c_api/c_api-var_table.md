@@ -71,7 +71,7 @@ Structure representing the Nest variable table
 **Synopsis:**
 
 ```better-c
-Nst_VarTable *Nst_vt_new(Nst_MapObj *global_table, Nst_SeqObj *args,
+Nst_VarTable *Nst_vt_new(Nst_MapObj *global_table, Nst_Obj *args,
                          bool no_default)
 ```
 

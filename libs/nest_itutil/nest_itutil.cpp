@@ -132,34 +132,33 @@ Nst_Obj *NstC chain_(usize arg_num, Nst_Obj **args)
     RETURN_NEW_ITER(chain_start, chain_get_val, arr);
 }
 
-Nst_Obj *zipn_(Nst_SeqObj *seq)
+Nst_Obj *zipn_(Nst_Obj *seq)
 {
     if (!Nst_extract_args("A.I|a|v|s", 1, (Nst_Obj **)&seq, &seq))
         return nullptr;
 
-    if (seq->len < 2) {
+    usize seq_len = Nst_seq_len(seq);
+    if (seq_len < 2) {
         Nst_set_value_error_c("the sequence must be at least of length two");
         return nullptr;
     }
 
-    Nst_Obj **objs = seq->objs;
-
     // Layout: [count, iter1, iter2, ...]
-    Nst_SeqObj *arr = SEQ(Nst_array_new(seq->len + 1));
+    Nst_Obj *arr = Nst_array_new(seq_len + 1);
     if (arr == nullptr)
         return nullptr;
 
-    Nst_Obj *seq_len_obj = Nst_int_new(seq->len);
+    Nst_Obj *seq_len_obj = Nst_int_new(seq_len);
     if (seq_len_obj == nullptr) {
-        arr->len = 0;
         Nst_dec_ref(arr);
         return nullptr;
     }
 
-    arr->objs[0] = seq_len_obj;
-    for (usize i = 0, n = seq->len; i < n; i++)
-        // successful cast guaranteed by the type in Nst_extract_args
-        arr->objs[i + 1] = Nst_obj_cast(objs[i], Nst_type()->Iter);
+    Nst_seq_setnf(arr, 0, seq_len_obj);
+    for (usize i = 0; i < seq_len; i++) {
+        Nst_Obj *iter = Nst_obj_cast(Nst_seq_getnf(seq, i), Nst_type()->Iter);
+        Nst_seq_setnf(arr, i + 1, iter);
+    }
 
     RETURN_NEW_ITER(zipn_start, zipn_get_val, arr);
 }
@@ -173,7 +172,7 @@ Nst_Obj *NstC zip_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (seq2 == Nst_null())
-        return zipn_((Nst_SeqObj *)seq1);
+        return zipn_(seq1);
 
     // successful cast guaranteed by the type in Nst_extract_args
     seq1 = Nst_obj_cast(seq1, Nst_type()->Iter);

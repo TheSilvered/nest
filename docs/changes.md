@@ -16,7 +16,6 @@
 - fixed expressions escapes in strings that would not close properly when the last character was `-`
 - fixed an infinte loop occurring when escaping a non-ASCII character in the source code
 - fixed `su.lsplit` and `su.rsplit` that would ignore separators at the end and at the beginning respectively
-- fixed a rare crash that could occur when the GGC would run while calling a C function
 
 ### C API
 
@@ -40,6 +39,20 @@
   - `Nst_unicode_is_whitespace`
   - `Nst_unicode_is_titlecase`
 - added `Nst_buffer_append_cps` to append an array of Unicode codepoints
+- added the following symbols to `sequence.h`
+  - `Nst_seq_len`
+  - `Nst_vector_cap`
+  - `_Nst_seq_objs`
+  - `Nst_seq_setn`
+  - `Nst_seq_setf`
+  - `Nst_seq_setnf`
+  - `Nst_seq_getf`
+  - `Nst_seq_getn`
+  - `Nst_seq_getnf`
+  - `Nst_array_from_objs`
+  - `Nst_vector_from_objs`
+  - `Nst_array_from_objsn`
+  - `Nst_vector_from_objsn`
 
 **Changes**
 
@@ -55,6 +68,29 @@
 - renamed `Nst_string_char_len` to `Nst_str_char_len`
 - renamed `Nst_string_utf8_char_len` to `Nst_str_utf8_char_len`
 - now `Nst_repr` and `Nst_fmt` with the flags `r` or `R` will escape non-printable characters
+- removed the following symbols from `sequence.h`
+  - `Nst_SeqObj`
+  - `Nst_ArrayObj`
+  - `Nst_VectorObj`
+  - `SEQ`
+  - `ARRAY`
+  - `VECTOR`
+  - `Nst_array_set`
+  - `Nst_array_get`
+  - `Nst_vector_set`
+  - `Nst_vector_get`
+  - `_Nst_seq_copy` (now there is only `Nst_seq_copy`)
+  - `_Nst_seq_set` (now there is only `Nst_seq_set`)
+  - `_Nst_seq_get` (now there is only `Nst_seq_get`)
+  - `_Nst_vector_append` (now there is only `Nst_vector_append`)
+  - `_Nst_vector_remove` (now there is only `Nst_vector_remove`)
+  - `_Nst_vector_pop` (now there is only `Nst_vector_pop`)
+  - `_Nst_vector_resize`
+
+**Bug fixes**
+
+- now sequences are never exposed when invalid
+- fixed `Nst_CLEAR_FLAGS` that would incorrectly clear all flags
 
 ## 0.15.0
 

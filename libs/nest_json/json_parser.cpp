@@ -147,7 +147,7 @@ static Nst_Obj *parse_object(Nst_LList *tokens)
 static Nst_Obj *parse_array(Nst_LList *tokens)
 {
     INC_RECURSION_LVL;
-    Nst_VectorObj *vec = SEQ(Nst_vector_new(0));
+    Nst_Obj *vec = Nst_vector_new(0);
     Nst_Tok *tok = Nst_TOK(Nst_llist_peek_front(tokens));
 
     if ((JSONTokenType)tok->type == JSON_RBRACKET) {
@@ -189,17 +189,6 @@ static Nst_Obj *parse_array(Nst_LList *tokens)
 end:
     vec->type = TYPE(Nst_inc_ref(Nst_type()->Array));
     Nst_dec_ref(Nst_type()->Vector);
-    if (vec->len < vec->cap && vec->len != 0) {
-        Nst_Obj **new_objs = Nst_realloc_c(
-            vec->objs,
-            vec->len,
-            Nst_Obj *,
-            0);
-        if (new_objs != nullptr) {
-            vec->objs = new_objs;
-            vec->cap = vec->len;
-        }
-    }
     DEC_RECURSION_LVL;
     return OBJ(vec);
 }

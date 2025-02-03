@@ -830,7 +830,7 @@ i8 *Nst_vfmt(const i8 *fmt, usize fmt_len, usize *out_len, va_list args)
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_fmt_objs(Nst_StrObj *fmt, Nst_SeqObj *values)
+Nst_Obj *Nst_fmt_objs(Nst_StrObj *fmt, Nst_Obj *values)
 ```
 
 **Description:**

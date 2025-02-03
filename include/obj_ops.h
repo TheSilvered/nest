@@ -176,37 +176,6 @@ NstEXP Nst_Obj *NstC _Nst_obj_import(Nst_Obj *ob);
  */
 NstEXP Nst_Obj *NstC _Nst_repr_str_cast(Nst_Obj *ob);
 
-/* [docs:link Nst_obj_cast(seq_obj,\Nst_type()->Str) _Nst_obj_cast] */
-/* [docs:link Nst_obj_cast(map_obj,\Nst_type()->Str) _Nst_obj_cast] */
-
-/**
- * Internal cast from sequence to string.
- *
- * @brief It is recommended to use `Nst_obj_cast(seq_obj, Nst_type()->Str)`,
- * this is used internally.
- *
- * @param seq_obj: the object to cast
- * @param all_objs: a list containing all collections encountered up to that
- * point, on the first call it is empty and is populated automatically
- *
- * @return The new string object or `NULL` on failure. The error is set.
- */
-NstEXP Nst_Obj *NstC _Nst_obj_str_cast_seq(Nst_SeqObj *seq_obj,
-                                           Nst_LList *all_objs);
-/**
- * Internal cast from map to string.
- *
- * @brief It is recommended to use `Nst_obj_cast(map_obj, Nst_type()->Str)`,
- * this is used internally.
- *
- * @param map_obj: the object to cast
- * @param all_objs: a list containing all collections encountered up to that
- * point, on the first call it is empty and is populated automatically
- *
- * @return The new string object or `NULL` on failure. The error is set.
- */
-NstEXP Nst_Obj *NstC _Nst_obj_str_cast_map(Nst_MapObj *map_obj,
-                                           Nst_LList *all_objs);
 /**
  * Casts an object from a type to another.
  *

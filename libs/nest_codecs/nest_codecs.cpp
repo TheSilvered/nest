@@ -95,7 +95,7 @@ Nst_Obj *NstC encoding_info_(usize arg_num, Nst_Obj **args)
     else {
         bom = Nst_array_new(cp->bom_size);
         for (usize i = 0, n = cp->bom_size; i < n; i++)
-            SEQ(bom)->objs[i] = Nst_byte_new(cp->bom[i]);
+            Nst_seq_setnf(bom, i, Nst_byte_new(cp->bom[i]));
     }
 
     Nst_map_set_str(info, "name", name);

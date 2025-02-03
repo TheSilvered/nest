@@ -432,7 +432,7 @@ Nst_Obj *NstC list_dir_(usize arg_num, Nst_Obj **args)
     if (ec.value() != 0)
         return throw_system_error(ec);
 
-    Nst_SeqObj *vector = SEQ(Nst_vector_new(0));
+    Nst_Obj *vector = Nst_vector_new(0);
 
     for (fs::directory_entry const &entry
          : fs::directory_iterator{ utf8_path(path) })
@@ -464,7 +464,7 @@ Nst_Obj *NstC list_dirs_(usize arg_num, Nst_Obj **args)
     if (ec.value() != 0)
         return throw_system_error(ec);
 
-    Nst_SeqObj *vector = SEQ(Nst_vector_new(0));
+    Nst_Obj *vector = Nst_vector_new(0);
 
     for (fs::directory_entry const &entry
         : fs::recursive_directory_iterator{ utf8_path(path) })

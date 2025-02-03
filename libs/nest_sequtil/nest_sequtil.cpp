@@ -41,7 +41,7 @@ Nst_Declr *lib_init()
 
 Nst_Obj *NstC map_(usize arg_num, Nst_Obj **args)
 {
-    Nst_SeqObj *seq;
+    Nst_Obj *seq;
     Nst_FuncObj *func;
     bool map_in_place;
 
@@ -53,33 +53,29 @@ Nst_Obj *NstC map_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    Nst_SeqObj *new_seq;
+    usize seq_len = Nst_seq_len(seq);
+    Nst_Obj *new_seq;
 
     if (map_in_place)
         new_seq = seq;
     else {
         new_seq = Nst_T(seq, Array)
-            ? SEQ(Nst_array_new(seq->len))
-            : SEQ(Nst_vector_new(seq->len));
+            ? Nst_array_new(seq_len)
+            : Nst_vector_new(seq_len);
     }
 
-    for (usize i = 0, n = seq->len; i < n; i++) {
+    for (usize i = 0; i < seq_len; i++) {
         Nst_Obj *arg = Nst_seq_get(seq, i);
         Nst_Obj *res = Nst_func_call(func, 1, &arg);
         Nst_dec_ref(arg);
 
         if (res == nullptr) {
-            if (!map_in_place) {
-                new_seq->len = i;
+            if (!map_in_place)
                 Nst_dec_ref(new_seq);
-            }
             return nullptr;
         }
 
-        if (map_in_place)
-            Nst_dec_ref(new_seq->objs[i]);
-
-        new_seq->objs[i] = res;
+        Nst_seq_setnf(new_seq, i, res);
     }
 
     return map_in_place ? Nst_inc_ref(new_seq) : OBJ(new_seq);
@@ -108,7 +104,7 @@ Nst_Obj *NstC map_i_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC insert_at_(usize arg_num, Nst_Obj **args)
 {
-    Nst_SeqObj *vect;
+    Nst_Obj *vect;
     i64 idx;
     Nst_Obj *obj;
 
@@ -116,15 +112,16 @@ Nst_Obj *NstC insert_at_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     i64 new_idx = idx;
+    usize vect_len = Nst_seq_len(vect);
 
     if (idx < 0)
-        new_idx = vect->len + idx;
+        new_idx = vect_len + idx;
 
-    if (new_idx < 0 || new_idx >= (i64)vect->len) {
+    if (new_idx < 0 || new_idx >= (i64)vect_len) {
         Nst_set_value_errorf(
             _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector"),
             idx,
-            vect->len);
+            vect_len);
 
         return nullptr;
     }
@@ -132,42 +129,46 @@ Nst_Obj *NstC insert_at_(usize arg_num, Nst_Obj **args)
     // Expand the vector
     Nst_vector_append(vect, Nst_null());
     Nst_dec_ref(Nst_null());
+    Nst_Obj **objs = _Nst_seq_objs(vect);
 
-    for (i64 i = vect->len - 1; i >= new_idx; i--)
-        vect->objs[i + 1] = vect->objs[i];
-    vect->objs[new_idx] = Nst_inc_ref(obj);
+    for (i64 i = vect_len - 1; i >= new_idx; i--)
+        objs[i + 1] = objs[i];
+    objs[new_idx] = Nst_inc_ref(obj);
 
     Nst_RETURN_NULL;
 }
 
 Nst_Obj *NstC remove_at_(usize arg_num, Nst_Obj **args)
 {
-    Nst_SeqObj *vect;
+    Nst_Obj *vect;
     i64 idx;
 
     if (!Nst_extract_args("v i", arg_num, args, &vect, &idx))
         return nullptr;
 
     i64 new_idx = idx;
+    usize vect_len = Nst_seq_len(vect);
 
     if (idx < 0)
-        new_idx = vect->len + idx;
+        new_idx = vect_len + idx;
 
-    if (new_idx < 0 || new_idx >= (i64)vect->len) {
+    if (new_idx < 0 || new_idx >= (i64)vect_len) {
         Nst_set_value_errorf(
             _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector"),
             idx,
-            vect->len);
+            vect_len);
 
         return nullptr;
     }
 
-    Nst_Obj *obj = vect->objs[new_idx];
-    vect->len--;
-    for (; new_idx < (i64)vect->len; new_idx++)
-        vect->objs[new_idx] = vect->objs[new_idx + 1];
+    // Move the object to remove to the end
+    Nst_Obj **objs = _Nst_seq_objs(vect);
+    Nst_Obj *obj = objs[new_idx];
+    for (; new_idx < (i64)vect_len; new_idx++)
+        objs[new_idx] = objs[new_idx + 1];
+    objs[vect_len - 1] = obj;
 
-    _Nst_vector_resize(vect);
+    Nst_vector_pop(vect, 1);
     return obj;
 }
 
@@ -231,7 +232,7 @@ static isize clamp_slice_arguments(usize seq_len, Nst_Obj *start_obj,
 
 Nst_Obj *NstC slice_(usize arg_num, Nst_Obj **args)
 {
-    Nst_SeqObj *seq;
+    Nst_Obj *seq;
     Nst_Obj *start_obj;
     Nst_Obj *stop_obj;
     Nst_Obj *step_obj;
@@ -246,15 +247,18 @@ Nst_Obj *NstC slice_(usize arg_num, Nst_Obj **args)
 
     i64 start, step;
     isize new_size = clamp_slice_arguments(
-        seq->len,
+        Nst_seq_len(seq),
         start_obj, stop_obj, step_obj,
         start, step);
 
     Nst_TypeObj *seq_t = args[0]->type;
 
-    if (new_size == -1)
+    if (new_size == -1) {
+        Nst_dec_ref(seq);
         return nullptr;
+    }
     else if (new_size == 0) {
+        Nst_dec_ref(seq);
         if (seq_t == Nst_type()->Str)
             return Nst_str_new((i8 *)"", 0, false);
         else if (seq_t == Nst_type()->Array)
@@ -263,27 +267,30 @@ Nst_Obj *NstC slice_(usize arg_num, Nst_Obj **args)
             return Nst_vector_new(0);
     }
 
+    Nst_Obj **objs = _Nst_seq_objs(seq);
     if (seq_t == Nst_type()->Array || seq_t == Nst_type()->Vector) {
         Nst_Obj *new_seq = seq_t == Nst_type()->Array
             ? Nst_array_new(new_size)
             : Nst_vector_new(new_size);
 
         for (isize i = 0; i < new_size; i++)
-            Nst_seq_set(new_seq, i, seq->objs[i * step + start]);
+            Nst_seq_set(new_seq, i, objs[i * step + start]);
 
         Nst_dec_ref(seq);
         return new_seq;
     } else {
         isize new_len = 0;
         for (isize i = 0; i < new_size; i++)
-            new_len += STR(seq->objs[i * step + start])->len;
+            new_len += STR(objs[i * step + start])->len;
 
         i8 *buf = Nst_malloc_c(new_len + 1, i8);
-        if (buf == nullptr)
+        if (buf == nullptr) {
+            Nst_dec_ref(seq);
             return nullptr;
+        }
 
         for (isize i = 0; i < new_len;) {
-            Nst_StrObj *s = STR(seq->objs[i * step + start]);
+            Nst_StrObj *s = STR(objs[i * step + start]);
             memcpy(buf + i, s->value, s->len);
             i += s->len;
         }
@@ -310,7 +317,7 @@ Nst_Obj *NstC slice_i_(usize arg_num, Nst_Obj **args)
 
     i64 start, step;
     isize new_size = clamp_slice_arguments(
-        Nst_T(seq, Str) ? STR(seq)->len : SEQ(seq)->len,
+        Nst_T(seq, Str) ? STR(seq)->len : Nst_seq_len(seq),
         start_obj, stop_obj, step_obj,
         start, step);
 
@@ -336,41 +343,42 @@ Nst_Obj *NstC slice_i_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC merge_(usize arg_num, Nst_Obj **args)
 {
-    Nst_SeqObj *seq1;
-    Nst_SeqObj *seq2;
+    Nst_Obj *seq1;
+    Nst_Obj *seq2;
 
     if (!Nst_extract_args("A A", arg_num, args, &seq1, &seq2))
         return nullptr;
 
-    Nst_SeqObj *new_seq;
+    Nst_Obj *new_seq;
+    usize len1 = Nst_seq_len(seq1);
+    usize len2 = Nst_seq_len(seq2);
 
     if (Nst_T(seq1, Vector) || Nst_T(seq2, Vector))
-        new_seq = SEQ(Nst_vector_new(seq1->len + seq2->len));
+        new_seq = Nst_vector_new(len1 + len2);
     else
-        new_seq = SEQ(Nst_array_new(seq1->len + seq2->len));
+        new_seq = Nst_array_new(len1 + len2);
 
     i64 i = 0;
 
-    for (i64 n = (i64)seq1->len; i < n; i++)
-        Nst_seq_set(new_seq, i, seq1->objs[i]);
+    for (i64 n = (i64)len1; i < n; i++)
+        Nst_seq_set(new_seq, i, Nst_seq_getnf(seq1, i));
 
-    for (i64 j = i, n = (i64)seq2->len; j - i < n; j++)
-        Nst_seq_set(new_seq, j, seq2->objs[j - i]);
+    for (i64 j = i, n = (i64)len1; j - i < n; j++)
+        Nst_seq_set(new_seq, j, Nst_seq_getnf(seq2, j - i));
 
-    return OBJ(new_seq);
+    return new_seq;
 }
 
 Nst_Obj *NstC extend_(usize arg_num, Nst_Obj **args)
 {
-    Nst_SeqObj *vec;
-    Nst_SeqObj *seq;
+    Nst_Obj *vec;
+    Nst_Obj *seq;
 
     if (!Nst_extract_args("v v|a|s|I:a", arg_num, args, &vec, &seq))
         return nullptr;
 
-    Nst_Obj **seq_objs = seq->objs;
-    for (usize i = 0, n = seq->len; i < n; i++)
-        Nst_vector_append(vec, seq_objs[i]);
+    for (usize i = 0, n = Nst_seq_len(seq); i < n; i++)
+        Nst_vector_append(vec, Nst_seq_getnf(seq, i));
 
     return Nst_inc_ref(vec);
 }
@@ -532,7 +540,7 @@ bool merge(Nst_Obj **values, usize left, usize mid, usize right,
     return true;
 }
 
-Nst_Obj *mapped_sort(Nst_SeqObj *seq, Nst_FuncObj *map_func, bool new_seq)
+static Nst_Obj *mapped_sort(Nst_Obj *seq, Nst_FuncObj *map_func, bool new_seq)
 {
     if (map_func->arg_num != 1) {
         Nst_set_call_error_c("the function must take exactly one argument");
@@ -540,10 +548,10 @@ Nst_Obj *mapped_sort(Nst_SeqObj *seq, Nst_FuncObj *map_func, bool new_seq)
     }
 
     if (new_seq)
-        seq = SEQ(Nst_seq_copy(seq));
+        seq = Nst_seq_copy(seq);
 
-    usize seq_len = seq->len;
-    Nst_Obj **objs = seq->objs;
+    usize seq_len = Nst_seq_len(seq);
+    Nst_Obj **objs = _Nst_seq_objs(seq);
     MappedValue *buf = nullptr;
     usize buf_size = 0;
 
@@ -605,7 +613,7 @@ fail:
 
 Nst_Obj *NstC sort_(usize arg_num, Nst_Obj **args)
 {
-    Nst_SeqObj *seq;
+    Nst_Obj *seq;
     Nst_Obj *map_func;
     bool new_seq;
 
@@ -620,10 +628,10 @@ Nst_Obj *NstC sort_(usize arg_num, Nst_Obj **args)
         return mapped_sort(seq, FUNC(map_func), new_seq);
 
     if (new_seq)
-        seq = SEQ(Nst_seq_copy(seq));
+        seq = Nst_seq_copy(seq);
 
-    usize seq_len = seq->len;
-    Nst_Obj **objs = seq->objs;
+    usize seq_len = Nst_seq_len(seq);
+    Nst_Obj **objs = _Nst_seq_objs(seq);
     Nst_Obj **buf = nullptr;
     usize buf_size = 0;
 
@@ -663,22 +671,19 @@ Nst_Obj *NstC sort_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC empty_(usize arg_num, Nst_Obj **args)
 {
-    Nst_SeqObj *vect;
+    Nst_Obj *vect;
 
     if (!Nst_extract_args("v", arg_num, args, &vect))
         return nullptr;
 
-    for (usize i = 0, n = vect->len; i < n; i++)
-        Nst_dec_ref(vect->objs[i]);
-
-    vect->len = 0;
+    Nst_vector_pop(vect, Nst_seq_len(vect));
 
     return Nst_inc_ref(vect);
 }
 
 Nst_Obj *NstC filter_(usize arg_num, Nst_Obj **args)
 {
-    Nst_SeqObj *seq;
+    Nst_Obj *seq;
     Nst_FuncObj *func;
 
     if (!Nst_extract_args("A f", arg_num, args, &seq, &func))
@@ -689,33 +694,22 @@ Nst_Obj *NstC filter_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    Nst_SeqObj *new_seq = SEQ(Nst_vector_new(0));
+    Nst_Obj *new_seq = Nst_vector_new(0);
 
-    for (usize i = 0, n = seq->len; i < n; i++) {
-        Nst_Obj *res = Nst_func_call(func, 1, &seq->objs[i]);
+    for (usize i = 0, n = Nst_seq_len(seq); i < n; i++) {
+        Nst_Obj *arg = Nst_seq_getnf(seq, i);
+        Nst_Obj *res = Nst_func_call(func, 1, &arg);
 
         if (res == nullptr)
             return nullptr;
 
-        if (Nst_obj_cast(res, Nst_type()->Bool) == Nst_true()) {
-            Nst_vector_append(new_seq, seq->objs[i]);
-            Nst_dec_ref(Nst_true());
-        } else
-            Nst_dec_ref(Nst_false());
+        if (Nst_obj_to_bool(res))
+            Nst_vector_append(new_seq, arg);
 
         Nst_dec_ref(res);
     }
 
     if (Nst_T(seq, Array)) {
-        Nst_Obj **new_objs = Nst_realloc_c(
-            new_seq->objs,
-            new_seq->len,
-            Nst_Obj *,
-            new_seq->cap);
-        if (new_objs != new_seq->objs)
-            new_seq->cap = new_seq->len;
-        new_seq->objs = new_objs;
-
         Nst_dec_ref(new_seq->type);
         new_seq->type = TYPE(Nst_inc_ref(Nst_type()->Array));
     }
@@ -746,13 +740,13 @@ Nst_Obj *NstC filter_i_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC any_(usize arg_num, Nst_Obj **args)
 {
-    Nst_SeqObj *seq;
+    Nst_Obj *seq;
 
     if (!Nst_extract_args("A", arg_num, args, &seq))
         return nullptr;
 
-    for (usize i = 0, n = seq->len; i < n; i++) {
-        if (Nst_obj_to_bool(seq->objs[i]))
+    for (usize i = 0, n = Nst_seq_len(seq); i < n; i++) {
+        if (Nst_obj_to_bool(Nst_seq_getnf(seq, i)))
             Nst_RETURN_TRUE;
     }
 
@@ -761,13 +755,13 @@ Nst_Obj *NstC any_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC all_(usize arg_num, Nst_Obj **args)
 {
-    Nst_SeqObj *seq;
+    Nst_Obj *seq;
 
     if (!Nst_extract_args("A", arg_num, args, &seq))
         return nullptr;
 
-    for (usize i = 0, n = seq->len; i < n; i++) {
-        if (!Nst_obj_to_bool(seq->objs[i]))
+    for (usize i = 0, n = Nst_seq_len(seq); i < n; i++) {
+        if (!Nst_obj_to_bool(Nst_seq_getnf(seq, i)))
             Nst_RETURN_FALSE;
     }
 
@@ -784,10 +778,8 @@ Nst_Obj *NstC count_(usize arg_num, Nst_Obj **args)
     usize count = 0;
 
     if (Nst_T(container, Array) || Nst_T(container, Vector)) {
-        Nst_SeqObj *seq = SEQ(container);
-
-        for (usize i = 0, n = seq->len; i < n; i++) {
-            if (Nst_obj_eq(seq->objs[i], obj) == Nst_true()) {
+        for (usize i = 0, n = Nst_seq_len(container); i < n; i++) {
+            if (Nst_obj_eq(Nst_seq_getnf(container, i), obj) == Nst_true()) {
                 Nst_dec_ref(Nst_true());
                 count++;
             } else
@@ -842,7 +834,7 @@ static i64 check_scan_args(usize seq_len, usize func_arg_num,
 
 Nst_Obj *NstC lscan_(usize arg_num, Nst_Obj **args)
 {
-    Nst_SeqObj *seq;
+    Nst_Obj *seq;
     Nst_FuncObj *func;
     Nst_Obj *prev_val;
     Nst_Obj *max_items_obj;
@@ -854,16 +846,19 @@ Nst_Obj *NstC lscan_(usize arg_num, Nst_Obj **args)
     {
         return nullptr;
     }
-    i64 max_items = check_scan_args(seq->len, func->arg_num, max_items_obj);
+    i64 max_items = check_scan_args(
+        Nst_seq_len(seq),
+        func->arg_num,
+        max_items_obj);
 
     if (max_items < 0) {
         Nst_dec_ref(seq);
         return nullptr;
     }
 
-    Nst_SeqObj *new_seq = Nst_T(seq, Array)
-        ? SEQ(Nst_array_new((usize)max_items))
-        : SEQ(Nst_vector_new((usize)max_items));
+    Nst_Obj *new_seq = Nst_T(seq, Array)
+        ? Nst_array_new((usize)max_items)
+        : Nst_vector_new((usize)max_items);
     if (max_items == 0) {
         Nst_dec_ref(seq);
         return OBJ(new_seq);
@@ -876,11 +871,10 @@ Nst_Obj *NstC lscan_(usize arg_num, Nst_Obj **args)
 
     for (i64 i = 1; i < max_items; i++) {
         func_args[0] = prev_val;
-        func_args[1] = seq->objs[i - 1];
+        func_args[1] = Nst_seq_getnf(seq, i - 1);
         Nst_Obj *new_val = Nst_func_call(func, 2, func_args);
         if (new_val == nullptr) {
             Nst_dec_ref(prev_val);
-            new_seq->len = (usize)i;
             Nst_dec_ref(new_seq);
             Nst_dec_ref(seq);
             return nullptr;
@@ -896,7 +890,7 @@ Nst_Obj *NstC lscan_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC rscan_(usize arg_num, Nst_Obj **args)
 {
-    Nst_SeqObj *seq;
+    Nst_Obj *seq;
     Nst_FuncObj *func;
     Nst_Obj *prev_val;
     Nst_Obj *max_items_obj;
@@ -908,16 +902,19 @@ Nst_Obj *NstC rscan_(usize arg_num, Nst_Obj **args)
     {
         return nullptr;
     }
-    i64 max_items = check_scan_args(seq->len, func->arg_num, max_items_obj);
+    i64 max_items = check_scan_args(
+        Nst_seq_len(seq),
+        func->arg_num,
+        max_items_obj);
 
     if (max_items < 0) {
         Nst_dec_ref(seq);
         return nullptr;
     }
 
-    Nst_SeqObj *new_seq = Nst_T(seq, Array)
-        ? SEQ(Nst_array_new((usize)max_items))
-        : SEQ(Nst_vector_new((usize)max_items));
+    Nst_Obj *new_seq = Nst_T(seq, Array)
+        ? Nst_array_new((usize)max_items)
+        : Nst_vector_new((usize)max_items);
     if (max_items == 0) {
         Nst_dec_ref(seq);
         return OBJ(new_seq);
@@ -927,17 +924,14 @@ Nst_Obj *NstC rscan_(usize arg_num, Nst_Obj **args)
     Nst_seq_set(new_seq, max_items - 1, prev_val);
 
     Nst_Obj *func_args[2];
-    i64 seq_len = (i64)seq->len;
+    i64 seq_len = (i64)Nst_seq_len(seq);
 
     for (i64 i = 1; i < max_items; i++) {
-        func_args[0] = seq->objs[seq_len - i];
+        func_args[0] = Nst_seq_getnf(seq, seq_len - i);
         func_args[1] = prev_val;
         Nst_Obj *new_val = Nst_func_call(func, 2, func_args);
         if (new_val == nullptr) {
             Nst_dec_ref(prev_val);
-            for (i64 j = 0; j < i; j++)
-                Nst_dec_ref(new_seq->objs[max_items - j - 1]);
-            new_seq->len = 0;
             Nst_dec_ref(new_seq);
             Nst_dec_ref(seq);
             return nullptr;
@@ -964,24 +958,24 @@ Nst_Obj *NstC copy_(usize arg_num, Nst_Obj **args)
 }
 
 static Nst_Obj *obj_deep_copy(Nst_Obj *obj, Nst_Obj *cont_map);
-static Nst_Obj *seq_deep_copy(Nst_SeqObj *seq, Nst_Obj *cont_map);
+static Nst_Obj *seq_deep_copy(Nst_Obj *seq, Nst_Obj *cont_map);
 static Nst_Obj *map_deep_copy(Nst_MapObj *map, Nst_Obj *cont_map);
 
-static Nst_Obj *seq_deep_copy(Nst_SeqObj *seq, Nst_Obj *cont_map)
+static Nst_Obj *seq_deep_copy(Nst_Obj *seq, Nst_Obj *cont_map)
 {
-    Nst_Obj **new_objs, **old_objs;
+    Nst_Obj **old_objs;
 
     Nst_Obj *seq_id = Nst_int_new((i64)seq);
     if (seq_id == nullptr)
         return nullptr;
 
-    Nst_SeqObj *new_seq = SEQ(Nst_map_get(cont_map, seq_id));
+    Nst_Obj *new_seq = Nst_map_get(cont_map, seq_id);
     if (new_seq != nullptr)
         goto end;
 
     new_seq = Nst_T(seq, Array)
-        ? SEQ(Nst_array_new(seq->len))
-        : SEQ(Nst_vector_new(seq->len));
+        ? Nst_array_new(Nst_seq_len(seq))
+        : Nst_vector_new(Nst_seq_len(seq));
 
     if (new_seq == nullptr)
         goto end;
@@ -992,22 +986,16 @@ static Nst_Obj *seq_deep_copy(Nst_SeqObj *seq, Nst_Obj *cont_map)
         goto end;
     }
 
-    new_seq->len = 0;
-    new_objs = new_seq->objs;
-    old_objs = seq->objs;
-
-    for (usize i = 0, n = seq->len; i < n; i++) {
+    old_objs = _Nst_seq_objs(seq);
+    for (usize i = 0, n = Nst_seq_len(new_seq); i < n; i++) {
         Nst_Obj *copied_obj = obj_deep_copy(old_objs[i], cont_map);
         if (copied_obj == nullptr) {
             Nst_dec_ref(new_seq);
             new_seq = nullptr;
             goto end;
         }
-        new_objs[i] = copied_obj;
-        new_seq->len++;
+        Nst_seq_setnf(new_seq, i, copied_obj);
     }
-
-    new_seq->len = seq->len;
 
 end:
     Nst_dec_ref(seq_id);
@@ -1067,7 +1055,7 @@ static Nst_Obj *obj_deep_copy(Nst_Obj *obj, Nst_Obj *cont_map)
     if (Nst_T(obj, Map))
         return map_deep_copy(MAP(obj), cont_map);
     else if (Nst_T(obj, Array) || Nst_T(obj, Vector))
-        return seq_deep_copy(SEQ(obj), cont_map);
+        return seq_deep_copy(obj, cont_map);
     return Nst_inc_ref(obj);
 }
 
@@ -1086,7 +1074,7 @@ Nst_Obj *NstC deep_copy_(usize arg_num, Nst_Obj **args)
     if (Nst_T(obj, Map))
         res = map_deep_copy(MAP(obj), cont_map);
     else
-        res = seq_deep_copy(SEQ(obj), cont_map);
+        res = seq_deep_copy(obj, cont_map);
 
     Nst_dec_ref(cont_map);
     return res;
@@ -1094,14 +1082,14 @@ Nst_Obj *NstC deep_copy_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC enum_(usize arg_num, Nst_Obj **args)
 {
-    Nst_SeqObj *seq;
+    Nst_Obj *seq;
     Nst_Obj *start_obj;
     if (!Nst_extract_args("A.s ?i", arg_num, args, &seq, &start_obj))
         return nullptr;
 
     i64 start = Nst_DEF_VAL(start_obj, AS_INT(start_obj), 0);
-    Nst_Obj **objs = seq->objs;
-    isize len = (isize)seq->len;
+    Nst_Obj **objs = _Nst_seq_objs(seq);
+    isize len = (isize)Nst_seq_len(seq);
 
     Nst_Obj *enum_map = Nst_map_new();
     if (enum_map == NULL)
@@ -1159,10 +1147,10 @@ Nst_Obj *reverse_string(Nst_StrObj *str_obj)
     return new_str_obj;
 }
 
-Nst_Obj *reverse_in_place(Nst_SeqObj *seq)
+Nst_Obj *reverse_in_place(Nst_Obj *seq)
 {
-    usize seq_len = seq->len;
-    Nst_Obj **objs = seq->objs;
+    usize seq_len = Nst_seq_len(seq);
+    Nst_Obj **objs = _Nst_seq_objs(seq);
     for (usize i = 0, n = seq_len / 2; i < n; i++) {
         Nst_Obj *temp = objs[i];
         objs[i] = objs[seq_len - i - 1];
@@ -1171,16 +1159,16 @@ Nst_Obj *reverse_in_place(Nst_SeqObj *seq)
     return Nst_inc_ref(seq);
 }
 
-Nst_Obj *reverse_new_obj(Nst_SeqObj *seq)
+Nst_Obj *reverse_new_obj(Nst_Obj *seq)
 {
-    usize seq_len = seq->len;
-    Nst_SeqObj *new_seq = Nst_T(seq, Array)
-        ? SEQ(Nst_array_new(seq_len))
-        : SEQ(Nst_vector_new(seq_len));
+    usize seq_len = Nst_seq_len(seq);
+    Nst_Obj *new_seq = Nst_T(seq, Array)
+        ? Nst_array_new(seq_len)
+        : Nst_vector_new(seq_len);
     if (new_seq == nullptr)
         return nullptr;
-    Nst_Obj **objs = seq->objs;
-    Nst_Obj **new_objs = new_seq->objs;
+    Nst_Obj **objs = _Nst_seq_objs(seq);
+    Nst_Obj **new_objs = _Nst_seq_objs(new_seq);
     for (usize i = 0; i < seq_len; i++) {
         new_objs[seq_len - i - 1] = Nst_inc_ref(objs[i]);
     }
@@ -1203,9 +1191,9 @@ Nst_Obj *NstC reverse_(usize arg_num, Nst_Obj **args)
     }
 
     if (in_place)
-        return reverse_in_place(SEQ(seq));
+        return reverse_in_place(seq);
     else
-        return reverse_new_obj(SEQ(seq));
+        return reverse_new_obj(seq);
 }
 
 Nst_Obj *NstC reverse_i_(usize arg_num, Nst_Obj **args)

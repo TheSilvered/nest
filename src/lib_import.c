@@ -51,7 +51,7 @@ enum BuiltinIdx {
     BOOL_C_CAST= 0b0110000000000000
 };
 
-static Nst_SeqObj *allocated_objects;
+static Nst_Obj *allocated_objects;
 
 static void destroy_match_type(MatchType *mt)
 {
@@ -525,8 +525,8 @@ content_check:
         return true;
     }
 
-    for (usize i = 0, n = SEQ(ob)->len; i < n; i++) {
-        if (!check_type(type->seq_match, SEQ(ob)->objs[i], arg)) {
+    for (usize i = 0, n = Nst_seq_len(ob); i < n; i++) {
+        if (!check_type(type->seq_match, Nst_seq_getnf(ob, i), arg)) {
             if (final_type != NULL)
                 Nst_dec_ref(ob);
             return false;
@@ -652,7 +652,7 @@ bool Nst_extract_args(const i8 *types, usize arg_num, Nst_Obj **args,
     va_start(args_list, args);
     i8 *t = (i8 *)types;
     usize idx = 0;
-    allocated_objects = SEQ(Nst_vector_new(0));
+    allocated_objects = Nst_vector_new(0);
     if (allocated_objects == NULL)
         return false;
 
@@ -660,8 +660,8 @@ bool Nst_extract_args(const i8 *types, usize arg_num, Nst_Obj **args,
         MatchType *type = compile_type_match(t, &t, &args_list, true);
         if (type == NULL) {
             va_end(args_list);
-            for (usize i = 0, n = allocated_objects->len; i < n; i++)
-                Nst_dec_ref(allocated_objects->objs[n]);
+            for (usize i = 0, n = Nst_seq_len(allocated_objects); i < n; i++)
+                Nst_dec_ref(Nst_seq_getnf(allocated_objects, n));
             Nst_dec_ref(allocated_objects);
             return false;
         }
@@ -672,8 +672,8 @@ bool Nst_extract_args(const i8 *types, usize arg_num, Nst_Obj **args,
         if (!check_type(type, ob, arg)) {
             set_err(type, ob, idx);
             free_type_match(type);
-            for (usize i = 0, n = allocated_objects->len; i < n; i++)
-                Nst_dec_ref(allocated_objects->objs[i]);
+            for (usize i = 0, n = Nst_seq_len(allocated_objects); i < n; i++)
+                Nst_dec_ref(Nst_seq_getnf(allocated_objects, n));
             Nst_dec_ref(allocated_objects);
             return false;
         }

@@ -888,7 +888,7 @@ Nst_Obj *NstC replace_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC decode_(usize arg_num, Nst_Obj **args)
 {
-    Nst_SeqObj *seq;
+    Nst_Obj *seq;
     Nst_StrObj *encoding_obj;
 
     if (!Nst_extract_args("A.B ?s", arg_num, args, &seq, &encoding_obj))
@@ -909,11 +909,11 @@ Nst_Obj *NstC decode_(usize arg_num, Nst_Obj **args)
 
     Nst_Encoding *encoding = Nst_encoding(cpid);
 
-    usize len = seq->len;
+    usize len = Nst_seq_len(seq);
     i8 *byte_array = Nst_malloc_c(len + 1, i8);
     if (byte_array == nullptr)
         return nullptr;
-    Nst_Obj **objs = seq->objs;
+    Nst_Obj **objs = _Nst_seq_objs(seq);
 
     for (usize i = 0; i < len; i++)
         byte_array[i] = AS_BYTE(objs[i]);
@@ -967,11 +967,10 @@ Nst_Obj *NstC encode_(usize arg_num, Nst_Obj **args)
     if (!result)
         return nullptr;
 
-    Nst_SeqObj *new_arr = SEQ(Nst_array_new(array_len));
-    Nst_Obj **objs = new_arr->objs;
+    Nst_Obj *new_arr = Nst_array_new(array_len);
 
     for (usize i = 0; i < array_len; i++)
-        objs[i] = Nst_byte_new(byte_array[i]);
+        Nst_seq_setnf(new_arr, i, Nst_byte_new(byte_array[i]));
     Nst_free(byte_array);
 
     return OBJ(new_arr);
@@ -987,13 +986,13 @@ Nst_Obj *NstC repr_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC join_(usize arg_num, Nst_Obj **args)
 {
-    Nst_SeqObj *seq;
+    Nst_Obj *seq;
     Nst_Obj *opt_str;
 
     if (!Nst_extract_args("A ?s", arg_num, args, &seq, &opt_str))
         return nullptr;
 
-    if (seq->len == 0)
+    if (Nst_seq_len(seq) == 0)
         return Nst_str_new_c("", 0, false);
 
     usize str_len;
@@ -1007,14 +1006,14 @@ Nst_Obj *NstC join_(usize arg_num, Nst_Obj **args)
         str_val = STR(opt_str)->value;
     }
 
-    usize len = seq->len;
+    usize len = Nst_seq_len(seq);
     usize tot_len = str_len * (len - 1);
     Nst_Obj **objs = Nst_malloc_c(len, Nst_Obj *);
     if (objs == nullptr)
         return nullptr;
 
     for (usize i = 0; i < len; i++) {
-        objs[i] = Nst_obj_cast(seq->objs[i], Nst_type()->Str);
+        objs[i] = Nst_obj_cast(Nst_seq_getnf(seq, i), Nst_type()->Str);
         tot_len += STR(objs[i])->len;
     }
 
@@ -1042,14 +1041,14 @@ Nst_Obj *NstC join_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC lsplit_whitespace(Nst_StrObj *str_obj, i64 quantity)
 {
-    Nst_SeqObj *vector = SEQ(Nst_vector_new(0));
+    Nst_Obj *vector = Nst_vector_new(0);
 
     if (quantity == 0) {
-        if (!Nst_vector_append(vector, str_obj)) {
+        if (!Nst_vector_append(vector, OBJ(str_obj))) {
             Nst_dec_ref(vector);
             return nullptr;
         }
-        return OBJ(vector);
+        return vector;
     }
 
     i8 *str = str_obj->value;
@@ -1061,7 +1060,7 @@ Nst_Obj *NstC lsplit_whitespace(Nst_StrObj *str_obj, i64 quantity)
     }
 
     if (str_len == 0)
-        return OBJ(vector);
+        return vector;
 
     while (str_len > 0) {
         i8 *sub_idx = str;
@@ -1095,7 +1094,7 @@ Nst_Obj *NstC lsplit_whitespace(Nst_StrObj *str_obj, i64 quantity)
         }
 
         if (str_len == 0)
-            return OBJ(vector);
+            return vector;
 
         if (quantity > 0)
             quantity--;
@@ -1116,7 +1115,7 @@ Nst_Obj *NstC lsplit_whitespace(Nst_StrObj *str_obj, i64 quantity)
         Nst_dec_ref(new_str);
     }
 
-    return OBJ(vector);
+    return vector;
 }
 
 Nst_Obj *NstC lsplit_(usize arg_num, Nst_Obj **args)
@@ -1141,16 +1140,16 @@ Nst_Obj *NstC lsplit_(usize arg_num, Nst_Obj **args)
         Nst_set_value_error_c("separator must be at least one character");
         return nullptr;
     }
-    Nst_SeqObj *vector = SEQ(Nst_vector_new(0));
+    Nst_Obj *vector = Nst_vector_new(0);
 
     if (quantity == 0) {
-        if (!Nst_vector_append(vector, str_obj)) {
+        if (!Nst_vector_append(vector, OBJ(str_obj))) {
             Nst_dec_ref(vector);
             return nullptr;
         }
-        return OBJ(vector);
+        return vector;
     } else if (str_obj->len == 0)
-        return OBJ(vector);
+        return vector;
 
     i8 *sub = STR(opt_substr)->value;
     usize sub_len = STR(opt_substr)->len;
@@ -1196,31 +1195,31 @@ Nst_Obj *NstC lsplit_(usize arg_num, Nst_Obj **args)
         Nst_dec_ref(new_str);
     }
 
-    return OBJ(vector);
+    return vector;
 }
 
-Nst_Obj *reverse_vector(Nst_VectorObj *vector)
+Nst_Obj *reverse_vector(Nst_Obj *vector)
 {
-    usize vec_len = vector->len;
-    Nst_Obj **objs = vector->objs;
+    usize vec_len = Nst_seq_len(vector);
+    Nst_Obj **objs = _Nst_seq_objs(vector);
     for (usize i = 0, n = vec_len / 2; i < n; i++) {
         Nst_Obj *temp = objs[i];
         objs[i] = objs[vec_len - i - 1];
         objs[vec_len - i - 1] = temp;
     }
-    return OBJ(vector);
+    return vector;
 }
 
 Nst_Obj *NstC rsplit_whitespace(Nst_StrObj *str_obj, i64 quantity)
 {
-    Nst_SeqObj *vector = SEQ(Nst_vector_new(0));
+    Nst_Obj *vector = Nst_vector_new(0);
 
     if (quantity == 0) {
-        if (!Nst_vector_append(vector, str_obj)) {
+        if (!Nst_vector_append(vector, OBJ(str_obj))) {
             Nst_dec_ref(vector);
             return nullptr;
         }
-        return OBJ(vector);
+        return vector;
     }
 
     i8 *str = str_obj->value;
@@ -1231,7 +1230,7 @@ Nst_Obj *NstC rsplit_whitespace(Nst_StrObj *str_obj, i64 quantity)
     }
 
     if (str_len == 0)
-        return OBJ(vector);
+        return vector;
 
     while (str_len > 0) {
         i8 *sub_idx = str + str_len - 1;
@@ -1312,10 +1311,10 @@ Nst_Obj *NstC rsplit_(usize arg_num, Nst_Obj **args)
         Nst_set_value_error_c("separator must be at least one character");
         return nullptr;
     }
-    Nst_SeqObj *vector = SEQ(Nst_vector_new(0));
+    Nst_Obj *vector = Nst_vector_new(0);
 
     if (quantity == 0) {
-        if (!Nst_vector_append(vector, str_obj)) {
+        if (!Nst_vector_append(vector, OBJ(str_obj))) {
             Nst_dec_ref(vector);
             return nullptr;
         }
@@ -1481,7 +1480,7 @@ Nst_Obj *NstC rremove_(usize arg_num, Nst_Obj **args)
 Nst_Obj *NstC fmt_(usize arg_num, Nst_Obj **args)
 {
     Nst_StrObj *format_str;
-    Nst_SeqObj *format_values;
+    Nst_Obj *format_values;
     if (!Nst_extract_args("s A", arg_num, args, &format_str, &format_values))
         return nullptr;
 

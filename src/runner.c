@@ -77,9 +77,9 @@ Nst_FuncCall Nst_func_call_from_es(Nst_FuncObj *func, Nst_Pos start,
     return call;
 }
 
-static Nst_SeqObj *make_argv(i32 argc, i8 **argv, i8 *filename)
+static Nst_Obj *make_argv(i32 argc, i8 **argv, i8 *filename)
 {
-    Nst_SeqObj *args = SEQ(Nst_array_new(argc + 1));
+    Nst_Obj *args = Nst_array_new(argc + 1);
     if (args == NULL) {
         Nst_error_clear();
         return NULL;
@@ -88,23 +88,19 @@ static Nst_SeqObj *make_argv(i32 argc, i8 **argv, i8 *filename)
     Nst_Obj *val = Nst_str_new_c_raw(filename, false);
     if (val == NULL) {
         Nst_error_clear();
-        args->len = 0;
         Nst_dec_ref(args);
         return NULL;
     }
-    Nst_seq_set(args, 0, val);
-    Nst_dec_ref(val);
+    Nst_seq_setn(args, 0, val);
 
     for (i32 i = 0; i < argc; i++) {
         val = Nst_str_new_c_raw(argv[i], false);
         if (val == NULL) {
             Nst_error_clear();
-            args->len = i + 1;
             Nst_dec_ref(args);
             return NULL;
         }
-        Nst_seq_set(args, i + 1, val);
-        Nst_dec_ref(val);
+        Nst_seq_setn(args, i + 1, val);
     }
 
     return args;
@@ -115,7 +111,7 @@ bool Nst_es_init_vt(Nst_ExecutionState *es, Nst_CLArgs *cl_args)
     i32 argc = cl_args->argc - cl_args->args_start;
     i8 **argv = cl_args->argv + cl_args->args_start;
     i8 *filename = cl_args->filename != NULL ? cl_args->filename : (i8 *)"-c";
-    Nst_SeqObj *argv_obj = make_argv(argc, argv, filename);
+    Nst_Obj *argv_obj = make_argv(argc, argv, filename);
     if (argv_obj == NULL)
         return false;
     es->argv = argv_obj;

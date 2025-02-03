@@ -33,7 +33,7 @@
 static void dump_obj(Nst_Obj *obj, i32 indent);
 static void dump_str(Nst_StrObj *str);
 static void dump_num(Nst_Obj *number);
-static void dump_seq(Nst_SeqObj *seq, i32 indent);
+static void dump_seq(Nst_Obj *seq, i32 indent);
 static void dump_map(Nst_MapObj *map, i32 indent);
 static void add_comma(i32 indent);
 static void add_indent(i32 indent);
@@ -65,7 +65,7 @@ static void dump_obj(Nst_Obj *obj, i32 indent)
     else if (Nst_T(obj, Map))
         dump_map(MAP(obj), indent);
     else if (Nst_T(obj, Array) || Nst_T(obj, Vector))
-        dump_seq(SEQ(obj), indent);
+        dump_seq(obj, indent);
     else if (obj == Nst_null())
         Nst_buffer_append_c_str(&str_buf, "null");
     else if (obj == Nst_true())
@@ -201,9 +201,9 @@ finish:
     DEC_RECURSION_LVL;
 }
 
-static void dump_seq(Nst_SeqObj *seq, i32 indent)
+static void dump_seq(Nst_Obj *seq, i32 indent)
 {
-    if (seq->len == 0) {
+    if (Nst_seq_len(seq) == 0) {
         Nst_buffer_append_c_str(&str_buf, "[]");
         return;
     }
@@ -221,8 +221,8 @@ static void dump_seq(Nst_SeqObj *seq, i32 indent)
             Nst_buffer_append_char(&str_buf, ' ');
     }
 
-    for (usize i = 0, n = seq->len; i < n; i++) {
-        dump_obj(seq->objs[i], indent);
+    for (usize i = 0, n = Nst_seq_len(seq); i < n; i++) {
+        dump_obj(Nst_seq_getnf(seq, i), indent);
         EXCEPT_ERROR;
 
         if (i + 1 == n) {

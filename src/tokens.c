@@ -8,9 +8,6 @@
 #include "global_consts.h"
 #include "format.h"
 
-#define TOK_TYPE_CASE(tok_name)                                               \
-    case Nst_TT_ ## tok_name: Nst_print(#tok_name); break
-
 const i8 *tt_strings[] = {
     [Nst_TT_ADD] = "ADD",
     [Nst_TT_SUB] = "SUB",
