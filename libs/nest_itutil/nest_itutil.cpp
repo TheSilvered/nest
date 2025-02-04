@@ -1,14 +1,14 @@
 #include "nest_itutil.h"
 #include "itutil_functions.h"
 
-#define RETURN_NEW_ITER(start, get_val, value) do {                           \
+#define RETURN_NEW_ITER(start, next, value) do {                           \
     Nst_Obj *iter__ = Nst_iter_new(                                           \
         Nst_inc_ref(itutil_functions.start),                                  \
-        Nst_inc_ref(itutil_functions.get_val),                                \
+        Nst_inc_ref(itutil_functions.next),                                \
         value);                                                               \
     if (iter__ == nullptr) {                                                  \
         Nst_dec_ref(itutil_functions.start);                                  \
-        Nst_dec_ref(itutil_functions.get_val);                                \
+        Nst_dec_ref(itutil_functions.next);                                \
         Nst_dec_ref(value);                                                   \
         return nullptr;                                                       \
     }                                                                         \
@@ -28,7 +28,7 @@ static Nst_Declr obj_list_[] = {
     Nst_FUNCDECLR(batch_padded_, 3),
     Nst_FUNCDECLR(new_iterator_, 3),
     Nst_FUNCDECLR(iter_start_,   1),
-    Nst_FUNCDECLR(iter_get_val_, 1),
+    Nst_FUNCDECLR(iter_next_, 1),
     Nst_FUNCDECLR(IEND_,         1),
     Nst_DECLR_END
 };
@@ -67,7 +67,7 @@ Nst_Obj *NstC count_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    RETURN_NEW_ITER(count_start, count_get_val, arr);
+    RETURN_NEW_ITER(count_start, count_next, arr);
 }
 
 Nst_Obj *NstC cycle_(usize arg_num, Nst_Obj **args)
@@ -78,7 +78,7 @@ Nst_Obj *NstC cycle_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (Nst_T(iterable, Iter))
-        RETURN_NEW_ITER(cycle_iter_start, cycle_iter_get_val, iterable);
+        RETURN_NEW_ITER(cycle_iter_start, cycle_iter_next, iterable);
 
     // Layout: [idx, iterable]
     Nst_Obj *arr = Nst_array_create_c("io", 0, iterable);
@@ -88,9 +88,9 @@ Nst_Obj *NstC cycle_(usize arg_num, Nst_Obj **args)
     }
 
     if (Nst_T(iterable, Str))
-        RETURN_NEW_ITER(cycle_str_start, cycle_str_get_val, arr);
+        RETURN_NEW_ITER(cycle_str_start, cycle_str_next, arr);
 
-    RETURN_NEW_ITER(cycle_seq_start, cycle_seq_get_val, arr);
+    RETURN_NEW_ITER(cycle_seq_start, cycle_seq_next, arr);
 }
 
 Nst_Obj *NstC repeat_(usize arg_num, Nst_Obj **args)
@@ -111,7 +111,7 @@ Nst_Obj *NstC repeat_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    RETURN_NEW_ITER(repeat_start, repeat_get_val, arr);
+    RETURN_NEW_ITER(repeat_start, repeat_next, arr);
 }
 
 Nst_Obj *NstC chain_(usize arg_num, Nst_Obj **args)
@@ -129,7 +129,7 @@ Nst_Obj *NstC chain_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    RETURN_NEW_ITER(chain_start, chain_get_val, arr);
+    RETURN_NEW_ITER(chain_start, chain_next, arr);
 }
 
 Nst_Obj *zipn_(Nst_Obj *seq)
@@ -160,7 +160,7 @@ Nst_Obj *zipn_(Nst_Obj *seq)
         Nst_seq_setnf(arr, i + 1, iter);
     }
 
-    RETURN_NEW_ITER(zipn_start, zipn_get_val, arr);
+    RETURN_NEW_ITER(zipn_start, zipn_next, arr);
 }
 
 Nst_Obj *NstC zip_(usize arg_num, Nst_Obj **args)
@@ -185,7 +185,7 @@ Nst_Obj *NstC zip_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    RETURN_NEW_ITER(zip_start, zip_get_val, arr);
+    RETURN_NEW_ITER(zip_start, zip_next, arr);
 }
 
 Nst_Obj *NstC enumerate_(usize arg_num, Nst_Obj **args)
@@ -216,7 +216,7 @@ Nst_Obj *NstC enumerate_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    RETURN_NEW_ITER(enumerate_start, enumerate_get_val, arr);
+    RETURN_NEW_ITER(enumerate_start, enumerate_next, arr);
 }
 
 Nst_Obj *NstC keys_(usize arg_num, Nst_Obj **args)
@@ -233,11 +233,11 @@ Nst_Obj *NstC keys_(usize arg_num, Nst_Obj **args)
 
     Nst_Obj *iter = Nst_iter_new(
         Nst_inc_ref(Nst_iter_func()->map_start),
-        Nst_inc_ref(itutil_functions.keys_get_val),
+        Nst_inc_ref(itutil_functions.keys_next),
         arr);
     if (iter == nullptr) {
         Nst_dec_ref(Nst_iter_func()->map_start);
-        Nst_dec_ref(itutil_functions.keys_get_val);
+        Nst_dec_ref(itutil_functions.keys_next);
         Nst_dec_ref(arr);
         return nullptr;
     }
@@ -259,11 +259,11 @@ Nst_Obj *NstC values_(usize arg_num, Nst_Obj **args)
 
     Nst_Obj *iter = Nst_iter_new(
         Nst_inc_ref(Nst_iter_func()->map_start),
-        Nst_inc_ref(itutil_functions.values_get_val),
+        Nst_inc_ref(itutil_functions.values_next),
         arr);
     if (iter == nullptr) {
         Nst_dec_ref(Nst_iter_func()->map_start);
-        Nst_dec_ref(itutil_functions.values_get_val);
+        Nst_dec_ref(itutil_functions.values_next);
         Nst_dec_ref(arr);
         return nullptr;
     }
@@ -292,7 +292,7 @@ Nst_Obj *NstC batch_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    RETURN_NEW_ITER(batch_start, batch_get_val, arr);
+    RETURN_NEW_ITER(batch_start, batch_next, arr);
 }
 
 Nst_Obj *NstC batch_padded_(usize arg_num, Nst_Obj **args)
@@ -323,37 +323,37 @@ Nst_Obj *NstC batch_padded_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    RETURN_NEW_ITER(batch_start, batch_padded_get_val, arr);
+    RETURN_NEW_ITER(batch_start, batch_padded_next, arr);
 }
 
 Nst_Obj *NstC new_iterator_(usize arg_num, Nst_Obj **args)
 {
     Nst_FuncObj *start;
-    Nst_FuncObj *get_val;
+    Nst_FuncObj *next;
     Nst_Obj *data;
 
     if (!Nst_extract_args(
             "f:o f:o o:o",
             arg_num, args,
-            &start, &get_val, &data))
+            &start, &next, &data))
     {
         return nullptr;
     }
 
-    if (start->arg_num != 1 || get_val->arg_num != 1)
+    if (start->arg_num != 1 || next->arg_num != 1)
     {
         Nst_set_value_error_c(
             "all the functions must accept exactly one argument");
         Nst_dec_ref(start);
-        Nst_dec_ref(get_val);
+        Nst_dec_ref(next);
         Nst_dec_ref(data);
         return nullptr;
     }
 
-    Nst_Obj *iter = Nst_iter_new(start, get_val, data);
+    Nst_Obj *iter = Nst_iter_new(start, next, data);
     if (iter == nullptr) {
         Nst_dec_ref(start);
-        Nst_dec_ref(get_val);
+        Nst_dec_ref(next);
         Nst_dec_ref(data);
         return nullptr;
     }
@@ -362,22 +362,28 @@ Nst_Obj *NstC new_iterator_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC iter_start_(usize arg_num, Nst_Obj **args)
 {
-    Nst_IterObj *iter;
+    Nst_Obj *iter;
 
     if (!Nst_extract_args("I", arg_num, args, &iter))
         return nullptr;
 
-    return Nst_func_call(iter->start, 1, &iter->value);
+    Nst_FuncObj *start = Nst_iter_start_func(iter);
+    Nst_Obj *value = Nst_iter_value(iter);
+
+    return Nst_func_call(start, 1, &value);
 }
 
-Nst_Obj *NstC iter_get_val_(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC iter_next_(usize arg_num, Nst_Obj **args)
 {
-    Nst_IterObj *iter;
+    Nst_Obj *iter;
 
     if (!Nst_extract_args("I", arg_num, args, &iter))
         return nullptr;
 
-    return Nst_func_call(iter->get_val, 1, &iter->value);
+    Nst_FuncObj *next = Nst_iter_next_func(iter);
+    Nst_Obj *value = Nst_iter_value(iter);
+
+    return Nst_func_call(next, 1, &value);
 }
 
 Nst_Obj *NstC IEND_()

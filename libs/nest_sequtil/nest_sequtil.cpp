@@ -83,7 +83,7 @@ Nst_Obj *NstC map_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC map_i_(usize arg_num, Nst_Obj **args)
 {
-    Nst_IterObj *iter;
+    Nst_Obj *iter;
     Nst_FuncObj *func;
 
     if (!Nst_extract_args("R f:o", arg_num, args, &iter, &func))
@@ -98,7 +98,7 @@ Nst_Obj *NstC map_i_(usize arg_num, Nst_Obj **args)
 
     return Nst_iter_new(
         Nst_func_new_c(1, map_i_start),
-        Nst_func_new_c(1, map_i_get_val),
+        Nst_func_new_c(1, map_i_next),
         arr);
 }
 
@@ -331,12 +331,12 @@ Nst_Obj *NstC slice_i_(usize arg_num, Nst_Obj **args)
     if (Nst_T(seq, Str)) {
         return Nst_iter_new(
             Nst_func_new_c(1, slice_i_start),
-            Nst_func_new_c(1, slice_i_str_get_val),
+            Nst_func_new_c(1, slice_i_str_next),
             arr);
     } else {
         return Nst_iter_new(
             Nst_func_new_c(1, slice_i_start),
-            Nst_func_new_c(1, slice_i_seq_get_val),
+            Nst_func_new_c(1, slice_i_seq_next),
             arr);
     }
 }
@@ -720,7 +720,7 @@ Nst_Obj *NstC filter_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC filter_i_(usize arg_num, Nst_Obj **args)
 {
-    Nst_IterObj *iter;
+    Nst_Obj *iter;
     Nst_FuncObj *func;
 
     if (!Nst_extract_args("R f:o", arg_num, args, &iter, &func))
@@ -735,7 +735,7 @@ Nst_Obj *NstC filter_i_(usize arg_num, Nst_Obj **args)
 
     return Nst_iter_new(
         Nst_func_new_c(1, filter_i_start),
-        Nst_func_new_c(1, filter_i_get_val),
+        Nst_func_new_c(1, filter_i_next),
         arr);
 }
 
@@ -1212,6 +1212,6 @@ Nst_Obj *NstC reverse_i_(usize arg_num, Nst_Obj **args)
 
     return Nst_iter_new(
         Nst_func_new_c(1, reverse_i_start),
-        Nst_func_new_c(1, reverse_i_get_val),
+        Nst_func_new_c(1, reverse_i_next),
         arr);
 }

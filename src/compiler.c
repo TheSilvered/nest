@@ -417,7 +417,7 @@ static bool compile_for_as_l(Nst_Node *node)
           [ITERATOR CODE]
           FOR_START
           POP_VAL
-    cond: FOR_GET_VAL
+    cond: FOR_NEXT
           JUMPIF_IEND exit
           [ASSIGN_CODE name]
           [BODY CODE]
@@ -440,11 +440,11 @@ static bool compile_for_as_l(Nst_Node *node)
         return false;
 
     i64 cond_idx = CURR_LEN;
-    Nst_Inst *for_get_val = new_inst(
-        Nst_IC_FOR_GET_VAL,
+    Nst_Inst *for_next = new_inst(
+        Nst_IC_FOR_NEXT,
         node->v.fl.iterator->start,
         node->v.fl.iterator->end);
-    if (NULL_OR_APPEND_FAILED(for_get_val))
+    if (NULL_OR_APPEND_FAILED(for_next))
         return false;
     Nst_Inst *jumpif_iend_exit = new_inst(
         Nst_IC_JUMPIF_IEND,
@@ -1584,7 +1584,7 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
         case Nst_IC_MAKE_VEC_REP:  PRINT("MAKE_VEC_REP ", 13); break;
         case Nst_IC_MAKE_MAP:      PRINT("MAKE_MAP     ", 13); break;
         case Nst_IC_JUMPIF_IEND:   PRINT("FOR_IS_DONE  ", 13); break;
-        case Nst_IC_FOR_GET_VAL:   PRINT("FOR_GET_VAL  ", 13); break;
+        case Nst_IC_FOR_NEXT:      PRINT("FOR_NEXT     ", 13); break;
         case Nst_IC_SAVE_ERROR:    PRINT("SAVE_ERROR   ", 13); break;
         case Nst_IC_UNPACK_SEQ:    PRINT("UNPACK_SEQ   ", 13); break;
         default:                   PRINT("__UNKNOWN__  ", 13); break;

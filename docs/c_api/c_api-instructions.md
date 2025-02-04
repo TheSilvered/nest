@@ -227,7 +227,7 @@ typedef enum _Nst_InstID {
     Nst_IC_NO_OP,
     Nst_IC_POP_VAL,
     Nst_IC_FOR_START,
-    Nst_IC_FOR_GET_VAL,
+    Nst_IC_FOR_NEXT,
     Nst_IC_RETURN_VAL,
     Nst_IC_RETURN_VARS,
     Nst_IC_SET_VAL_LOC,

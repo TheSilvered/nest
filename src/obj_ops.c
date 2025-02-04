@@ -1008,17 +1008,16 @@ static Nst_Obj *str_to_seq(Nst_Obj *ob, bool is_vect)
 static Nst_Obj *iter_to_seq(Nst_Obj *ob, bool is_vect)
 {
     Nst_Obj *seq = Nst_vector_new(0);
-    Nst_IterObj *iter = ITER(ob);
     if (seq == NULL)
         return NULL;
 
-    if (!Nst_iter_start(iter)) {
+    if (!Nst_iter_start(ob)) {
         Nst_dec_ref(seq);
         return NULL;
     }
 
     while (true) {
-        Nst_Obj *result = Nst_iter_get_val(iter);
+        Nst_Obj *result = Nst_iter_next(ob);
         if (result == NULL) {
             Nst_dec_ref(seq);
             return NULL;
@@ -1089,10 +1088,10 @@ static Nst_Obj *str_to_iter(Nst_Obj *ob)
         return NULL;
 
     Nst_inc_ref(Nst_itf.str_start);
-    Nst_inc_ref(Nst_itf.str_get_val);
+    Nst_inc_ref(Nst_itf.str_next);
     return Nst_iter_new(
         Nst_itf.str_start,
-        Nst_itf.str_get_val,
+        Nst_itf.str_next,
         OBJ(data));
 }
 
@@ -1103,10 +1102,10 @@ static Nst_Obj *seq_to_iter(Nst_Obj *ob)
         return NULL;
 
     Nst_inc_ref(Nst_itf.seq_start);
-    Nst_inc_ref(Nst_itf.seq_get_val);
+    Nst_inc_ref(Nst_itf.seq_next);
     return Nst_iter_new(
         Nst_itf.seq_start,
-        Nst_itf.seq_get_val,
+        Nst_itf.seq_next,
         OBJ(data));
 }
 
@@ -1117,10 +1116,10 @@ static Nst_Obj *map_to_iter(Nst_Obj *ob)
         return NULL;
 
     Nst_inc_ref(Nst_itf.map_start);
-    Nst_inc_ref(Nst_itf.map_get_val);
+    Nst_inc_ref(Nst_itf.map_next);
     return Nst_iter_new(
         Nst_itf.map_start,
-        Nst_itf.map_get_val,
+        Nst_itf.map_next,
         OBJ(data));
 }
 
@@ -1185,12 +1184,11 @@ static Nst_Obj *seq_to_map(Nst_Obj *ob)
 
 static Nst_Obj *iter_to_map(Nst_Obj *ob)
 {
-    Nst_IterObj *iter = ITER(ob);
     Nst_MapObj *map = MAP(Nst_map_new());
     if (map == NULL)
         return NULL;
 
-    if (!Nst_iter_start(iter)) {
+    if (!Nst_iter_start(ob)) {
         Nst_dec_ref(map);
         return NULL;
     }
@@ -1198,7 +1196,7 @@ static Nst_Obj *iter_to_map(Nst_Obj *ob)
     usize iter_count = 1;
 
     while (true) {
-        Nst_Obj *result = Nst_iter_get_val(iter);
+        Nst_Obj *result = Nst_iter_next(ob);
         if (result == NULL) {
             Nst_dec_ref(map);
             return NULL;
@@ -1380,10 +1378,10 @@ Nst_Obj *_Nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step)
         return NULL;
 
     Nst_inc_ref(Nst_itf.range_start);
-    Nst_inc_ref(Nst_itf.range_get_val);
+    Nst_inc_ref(Nst_itf.range_next);
     return Nst_iter_new(
         Nst_itf.range_start,
-        Nst_itf.range_get_val,
+        Nst_itf.range_next,
         data_seq);
 }
 

@@ -145,16 +145,16 @@ Standard IO streams.
 ```better-c
 typedef struct _Nst_IterFunctions {
     Nst_FuncObj *range_start;
-    Nst_FuncObj *range_get_val;
+    Nst_FuncObj *range_next;
 
     Nst_FuncObj *seq_start;
-    Nst_FuncObj *seq_get_val;
+    Nst_FuncObj *seq_next;
 
     Nst_FuncObj *str_start;
-    Nst_FuncObj *str_get_val;
+    Nst_FuncObj *str_next;
 
     Nst_FuncObj *map_start;
-    Nst_FuncObj *map_get_val;
+    Nst_FuncObj *map_next;
 } Nst_IterFunctions
 ```
 

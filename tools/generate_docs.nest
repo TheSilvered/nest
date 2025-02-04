@@ -18,21 +18,21 @@
 -- printed when the syntax does not adhere to the standard
 #warning message parser [
     sys.SUPPORTS_COLOR ? >>> '\e[33m'
-    'Warning' message parser @_logging_message @io.println
+    '  Warning' message parser @_logging_message @io.println
     sys.SUPPORTS_COLOR ? >>> '\e[0m'
 ]
 
 -- printed when data may be lost
 #error message parser [
     sys.SUPPORTS_COLOR ? >>> '\e[31m'
-    'Error' message parser @_logging_message @io.println
+    '  Error' message parser @_logging_message @io.println
     sys.SUPPORTS_COLOR ? >>> '\e[0m'
 ]
 
 -- printed when parsing cannot continue on the file
 #fatal message parser [
     sys.SUPPORTS_COLOR ? >>> '\e[31m'
-    'Fatal' message parser @_logging_message >< @io.println
+    '  Fatal' message parser @_logging_message >< @io.println
     sys.SUPPORTS_COLOR ? >>> '\e[0m'
     true = parser.fatal_error
 ]

@@ -66,7 +66,7 @@ static InstResult exe_no_op();
 static InstResult exe_pop_val();
 static InstResult exe_for_start();
 static InstResult exe_jumpif_iend();
-static InstResult exe_for_get_val();
+static InstResult exe_for_next();
 static InstResult exe_return_val();
 static InstResult exe_return_vars();
 static InstResult exe_set_val_loc();
@@ -111,7 +111,7 @@ InstResult (*inst_func[])() = {
     [Nst_IC_NO_OP]        = exe_no_op,
     [Nst_IC_POP_VAL]      = exe_pop_val,
     [Nst_IC_FOR_START]    = exe_for_start,
-    [Nst_IC_FOR_GET_VAL]  = exe_for_get_val,
+    [Nst_IC_FOR_NEXT]     = exe_for_next,
     [Nst_IC_RETURN_VAL]   = exe_return_val,
     [Nst_IC_RETURN_VARS]  = exe_return_vars,
     [Nst_IC_SET_VAL_LOC]  = exe_set_val_loc,
@@ -604,10 +604,14 @@ static InstResult exe_pop_val()
     return INST_SUCCESS;
 }
 
-static InstResult exe_for_inst(Nst_IterObj *iter, Nst_FuncObj *func)
+static InstResult exe_for_inst(Nst_Obj *iter, Nst_FuncObj *func)
 {
+    Nst_assert(iter->type == Nst_t.Iter);
     if (Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C)) {
-        Nst_Obj *res = func->body.c_func((usize)inst->int_val, &iter->value);
+        Nst_Obj *iter_value = Nst_iter_value(iter);
+        Nst_Obj *res = func->body.c_func(
+            (usize)inst->int_val,
+            &iter_value);
         if (res == NULL)
             return INST_FAILED;
 
@@ -615,7 +619,7 @@ static InstResult exe_for_inst(Nst_IterObj *iter, Nst_FuncObj *func)
         Nst_dec_ref(res);
         return INST_SUCCESS;
     }
-    Nst_vstack_push(&Nst_state.es->v_stack, iter->value);
+    Nst_vstack_push(&Nst_state.es->v_stack, Nst_iter_value(iter));
     Nst_vstack_push(&Nst_state.es->v_stack, func);
     exe_op_call(inst);
     return INST_NEW_FUNC;
@@ -625,21 +629,21 @@ static InstResult exe_for_start()
 {
     CHECK_V_STACK;
     Nst_Obj *iterable = Nst_vstack_peek(&Nst_state.es->v_stack);
-    Nst_IterObj *iter = ITER(Nst_obj_cast(iterable, Nst_t.Iter));
+    Nst_Obj *iter = Nst_obj_cast(iterable, Nst_t.Iter);
     if (iter == NULL) {
         Nst_set_type_errorf(_Nst_EM_BAD_CAST("Iter"), TYPE_NAME(iterable));
         return INST_FAILED;
     }
     Nst_state.es->v_stack.stack[Nst_state.es->v_stack.len - 1] = OBJ(iter);
     Nst_dec_ref(iterable);
-    return exe_for_inst(iter, iter->start);
+    return exe_for_inst(iter, Nst_iter_start_func(iter));
 }
 
-static InstResult exe_for_get_val()
+static InstResult exe_for_next()
 {
     CHECK_V_STACK;
-    Nst_IterObj *iter = ITER(FAST_TOP_VAL);
-    return exe_for_inst(iter, iter->get_val);
+    Nst_Obj *iter = FAST_TOP_VAL;
+    return exe_for_inst(iter, Nst_iter_next_func(iter));
 }
 
 static InstResult exe_jumpif_iend()

@@ -40,20 +40,24 @@
   - `Nst_unicode_is_titlecase`
 - added `Nst_buffer_append_cps` to append an array of Unicode codepoints
 - added the following symbols to `sequence.h`
-  - `Nst_seq_len`
-  - `Nst_vector_cap`
-  - `_Nst_seq_objs`
-  - `Nst_seq_setn`
-  - `Nst_seq_setf`
-  - `Nst_seq_setnf`
-  - `Nst_seq_getf`
-  - `Nst_seq_getn`
-  - `Nst_seq_getnf`
-  - `Nst_array_from_objs`
-  - `Nst_vector_from_objs`
-  - `Nst_array_from_objsn`
-  - `Nst_vector_from_objsn`
+    - `Nst_seq_len`
+    - `Nst_vector_cap`
+    - `_Nst_seq_objs`
+    - `Nst_seq_setn`
+    - `Nst_seq_setf`
+    - `Nst_seq_setnf`
+    - `Nst_seq_getf`
+    - `Nst_seq_getn`
+    - `Nst_seq_getnf`
+    - `Nst_array_from_objs`
+    - `Nst_vector_from_objs`
+    - `Nst_array_from_objsn`
+    - `Nst_vector_from_objsn`
 - added `Nst_log_alloc_info`
+- added the following symbols to `iter.h`
+  - `Nst_iter_start_func`
+  - `Nst_iter_next_func`
+  - `Nst_iter_value`
 
 **Changes**
 
@@ -89,6 +93,12 @@
   - `_Nst_vector_resize`
 - now `Nst_log_alloc_count` can be used without `Nst_COUNT_ALLOC` but will do nothing
 - now `Nst_ndec_ref` evaluates `obj` only once
+- removed the following symbols from `iter.h`
+  - `Nst_IterObj`
+  - `ITER`
+  - `_Nst_iter_start` (now there is only `Nst_iter_start`)
+  - `_Nst_iter_get_val`
+- renamed all `_get_val` functions related to iterators as `_next`
 
 **Bug fixes**
 

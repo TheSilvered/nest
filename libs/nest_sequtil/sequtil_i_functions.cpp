@@ -9,13 +9,13 @@ Nst_Obj *NstC map_i_start(usize arg_num, Nst_Obj **args)
     Nst_RETURN_NULL;
 }
 
-Nst_Obj *NstC map_i_get_val(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC map_i_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
     Nst_Obj *iter = c_args[0];
     Nst_Obj *func = c_args[1];
-    Nst_Obj *raw_value = Nst_iter_get_val(iter);
+    Nst_Obj *raw_value = Nst_iter_next(iter);
     if (raw_value == nullptr || raw_value == Nst_iend())
         return raw_value;
 
@@ -38,7 +38,7 @@ Nst_Obj *NstC slice_i_start(usize arg_num, Nst_Obj **args)
     Nst_RETURN_NULL;
 }
 
-Nst_Obj *NstC slice_i_seq_get_val(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC slice_i_seq_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
@@ -64,7 +64,7 @@ Nst_Obj *NstC slice_i_seq_get_val(usize arg_num, Nst_Obj **args)
     return obj;
 }
 
-Nst_Obj *NstC slice_i_str_get_val(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC slice_i_str_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
@@ -95,7 +95,7 @@ Nst_Obj *NstC filter_i_start(usize arg_num, Nst_Obj **args)
     Nst_RETURN_NULL;
 }
 
-Nst_Obj *NstC filter_i_get_val(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC filter_i_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
@@ -104,7 +104,7 @@ Nst_Obj *NstC filter_i_get_val(usize arg_num, Nst_Obj **args)
     Nst_Obj *value;
 
     while (true) {
-        value = Nst_iter_get_val(iter);
+        value = Nst_iter_next(iter);
         if (value == nullptr || value == Nst_iend())
             return value;
 
@@ -129,7 +129,7 @@ Nst_Obj *NstC reverse_i_start(usize arg_num, Nst_Obj **args)
     Nst_RETURN_NULL;
 }
 
-Nst_Obj *NstC reverse_i_get_val(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC reverse_i_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);

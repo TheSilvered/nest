@@ -151,7 +151,7 @@ static Nst_Obj *NstC generator_start(usize arg_num, Nst_Obj **args)
     Nst_RETURN_NULL;
 }
 
-static Nst_Obj *NstC generator_get_val(usize arg_num, Nst_Obj **args)
+static Nst_Obj *NstC generator_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
@@ -363,7 +363,7 @@ Nst_Obj *NstC generator_(usize arg_num, Nst_Obj **args)
 
     return Nst_iter_new(
         Nst_func_new_c(1, generator_start),
-        Nst_func_new_c(1, generator_get_val),
+        Nst_func_new_c(1, generator_next),
         arr);
 }
 

@@ -4,48 +4,64 @@
 #include "obj_ops.h"
 #include "format.h"
 
-Nst_Obj *_Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *get_val,
+typedef struct _Nst_IterObj {
+    Nst_OBJ_HEAD;
+    Nst_GGC_HEAD;
+    Nst_FuncObj *start;
+    Nst_FuncObj *next;
+    Nst_Obj *value;
+} Nst_IterObj;
+
+#define ITER(ptr) ((Nst_IterObj *)(ptr))
+
+Nst_Obj *_Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *next,
                        Nst_Obj *value)
 {
     Nst_IterObj *iter = Nst_obj_alloc(Nst_IterObj, Nst_t.Iter);
     if (iter == NULL) {
         Nst_dec_ref(start);
-        Nst_dec_ref(get_val);
+        Nst_dec_ref(next);
         Nst_dec_ref(value);
         return NULL;
     }
 
     if (Nst_HAS_FLAG(start, Nst_FLAG_GGC_IS_SUPPORTED)
-        || Nst_HAS_FLAG(get_val, Nst_FLAG_GGC_IS_SUPPORTED)
+        || Nst_HAS_FLAG(next, Nst_FLAG_GGC_IS_SUPPORTED)
         || Nst_HAS_FLAG(value, Nst_FLAG_GGC_IS_SUPPORTED))
     {
         Nst_GGC_OBJ_INIT(iter);
     }
 
     iter->start = start;
-    iter->get_val = get_val;
+    iter->next  = next;
     iter->value = value;
 
     return OBJ(iter);
 }
 
-void _Nst_iter_destroy(Nst_IterObj *iter)
+void _Nst_iter_destroy(Nst_Obj *iter)
 {
-    Nst_dec_ref(iter->start);
-    Nst_dec_ref(iter->get_val);
-    Nst_dec_ref(iter->value);
+    Nst_assert(iter->type == Nst_t.Iter);
+
+    Nst_dec_ref(ITER(iter)->start);
+    Nst_dec_ref(ITER(iter)->next);
+    Nst_dec_ref(ITER(iter)->value);
 }
 
-void _Nst_iter_traverse(Nst_IterObj *iter)
+void _Nst_iter_traverse(Nst_Obj *iter)
 {
-    Nst_ggc_obj_reachable(iter->start);
-    Nst_ggc_obj_reachable(iter->get_val);
-    Nst_ggc_obj_reachable(iter->value);
+    Nst_assert(iter->type == Nst_t.Iter);
+
+    Nst_ggc_obj_reachable(ITER(iter)->start);
+    Nst_ggc_obj_reachable(ITER(iter)->next);
+    Nst_ggc_obj_reachable(ITER(iter)->value);
 }
 
-bool _Nst_iter_start(Nst_IterObj *iter)
+bool Nst_iter_start(Nst_Obj *iter)
 {
-    Nst_Obj *result = Nst_func_call(iter->start, 1, &iter->value);
+    Nst_assert(iter->type == Nst_t.Iter);
+
+    Nst_Obj *result = Nst_func_call(ITER(iter)->start, 1, &ITER(iter)->value);
 
     if (result == NULL)
         return false;
@@ -54,10 +70,31 @@ bool _Nst_iter_start(Nst_IterObj *iter)
     return true;
 }
 
-Nst_Obj *_Nst_iter_get_val(Nst_IterObj *iter)
+Nst_Obj *Nst_iter_next(Nst_Obj *iter)
 {
-    return Nst_func_call(iter->get_val, 1, &iter->value);
+    Nst_assert(iter->type == Nst_t.Iter);
+
+    return Nst_func_call(ITER(iter)->next, 1, &ITER(iter)->value);
 }
+
+Nst_FuncObj *Nst_iter_start_func(Nst_Obj *iter)
+{
+    Nst_assert(iter->type == Nst_t.Iter);
+    return ITER(iter)->start;
+}
+
+Nst_FuncObj *Nst_iter_next_func(Nst_Obj *iter)
+{
+    Nst_assert(iter->type == Nst_t.Iter);
+    return ITER(iter)->next;
+}
+
+Nst_Obj *Nst_iter_value(Nst_Obj *iter)
+{
+    Nst_assert(iter->type == Nst_t.Iter);
+    return ITER(iter)->value;
+}
+
 
 Nst_Obj *NstC Nst_iter_range_start(usize arg_num, Nst_Obj **args)
 {
@@ -67,7 +104,7 @@ Nst_Obj *NstC Nst_iter_range_start(usize arg_num, Nst_Obj **args)
     Nst_RETURN_NULL;
 }
 
-Nst_Obj *NstC Nst_iter_range_get_val(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC Nst_iter_range_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
@@ -93,7 +130,7 @@ Nst_Obj *NstC Nst_iter_seq_start(usize arg_num, Nst_Obj **args)
     Nst_RETURN_NULL;
 }
 
-Nst_Obj *NstC Nst_iter_seq_get_val(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC Nst_iter_seq_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
@@ -119,7 +156,7 @@ Nst_Obj *NstC Nst_iter_str_start(usize arg_num, Nst_Obj **args)
     Nst_RETURN_NULL;
 }
 
-Nst_Obj *NstC Nst_iter_str_get_val(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC Nst_iter_str_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
@@ -140,7 +177,7 @@ Nst_Obj *NstC Nst_iter_map_start(usize arg_num, Nst_Obj **args)
     Nst_RETURN_NULL;
 }
 
-Nst_Obj *NstC Nst_iter_map_get_val(usize arg_num, Nst_Obj **args)
+Nst_Obj *NstC Nst_iter_map_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);

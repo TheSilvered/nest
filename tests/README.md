@@ -32,7 +32,7 @@ The current state of tests:
   - 🟡 `stderr.nest`
   - 🟢 `stdfs.nest`
   - 🟢 `stdio.nest`
-  - 🟢 `stditutil.nest`
+  - 🟡 `stditutil.nest`
   - 🟢 `stdjson.nest`
   - 🟡 `stdmath.nest`
   - 🟡 `stdrand.nest`

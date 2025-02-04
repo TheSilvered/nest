@@ -177,14 +177,14 @@ bool _Nst_globals_init(void)
     Nst_io.out->func_set.close = close_std_stream;
     Nst_io.err->func_set.close = close_std_stream;
 
-    Nst_itf.range_start   = FUNC(Nst_func_new_c(1, Nst_iter_range_start));
-    Nst_itf.range_get_val = FUNC(Nst_func_new_c(1, Nst_iter_range_get_val));
-    Nst_itf.str_start     = FUNC(Nst_func_new_c(1, Nst_iter_str_start));
-    Nst_itf.str_get_val   = FUNC(Nst_func_new_c(1, Nst_iter_str_get_val));
-    Nst_itf.seq_start     = FUNC(Nst_func_new_c(1, Nst_iter_seq_start));
-    Nst_itf.seq_get_val   = FUNC(Nst_func_new_c(1, Nst_iter_seq_get_val));
-    Nst_itf.map_start     = FUNC(Nst_func_new_c(1, Nst_iter_map_start));
-    Nst_itf.map_get_val   = FUNC(Nst_func_new_c(1, Nst_iter_map_get_val));
+    Nst_itf.range_start = FUNC(Nst_func_new_c(1, Nst_iter_range_start));
+    Nst_itf.range_next  = FUNC(Nst_func_new_c(1, Nst_iter_range_next));
+    Nst_itf.str_start = FUNC(Nst_func_new_c(1, Nst_iter_str_start));
+    Nst_itf.str_next  = FUNC(Nst_func_new_c(1, Nst_iter_str_next));
+    Nst_itf.seq_start = FUNC(Nst_func_new_c(1, Nst_iter_seq_start));
+    Nst_itf.seq_next  = FUNC(Nst_func_new_c(1, Nst_iter_seq_next));
+    Nst_itf.map_start = FUNC(Nst_func_new_c(1, Nst_iter_map_start));
+    Nst_itf.map_next  = FUNC(Nst_func_new_c(1, Nst_iter_map_next));
 
     if (Nst_error_occurred()) {
         Nst_error_clear();
@@ -254,13 +254,13 @@ void _Nst_globals_quit(void)
     Nst_ndec_ref(Nst_io.err);
 
     Nst_ndec_ref(Nst_itf.range_start);
-    Nst_ndec_ref(Nst_itf.range_get_val);
+    Nst_ndec_ref(Nst_itf.range_next);
     Nst_ndec_ref(Nst_itf.str_start);
-    Nst_ndec_ref(Nst_itf.str_get_val);
+    Nst_ndec_ref(Nst_itf.str_next);
     Nst_ndec_ref(Nst_itf.seq_start);
-    Nst_ndec_ref(Nst_itf.seq_get_val);
+    Nst_ndec_ref(Nst_itf.seq_next);
     Nst_ndec_ref(Nst_itf.map_start);
-    Nst_ndec_ref(Nst_itf.map_get_val);
+    Nst_ndec_ref(Nst_itf.map_next);
 }
 
 Nst_Obj *Nst_true(void)
