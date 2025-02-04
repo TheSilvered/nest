@@ -30,8 +30,9 @@
 #define Nst_dec_ref(obj) _Nst_dec_ref(OBJ(obj))
 /* Calls `Nst_dec_ref` if the object is not a `NULL` pointer. */
 #define Nst_ndec_ref(obj) do {                                                \
-    if (obj != NULL)                                                          \
-        _Nst_dec_ref(OBJ(obj));                                               \
+    Nst_Obj *__Nst_temp_obj = OBJ(obj);                                       \
+    if (__Nst_temp_obj != NULL)                                               \
+        _Nst_dec_ref(__Nst_temp_obj);                                         \
     } while (0)
 /* Alias for `_Nst_obj_destroy` that casts obj to `Nst_Obj *`. */
 #define Nst_obj_destroy(obj) _Nst_obj_destroy(OBJ(obj))

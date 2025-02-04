@@ -88,6 +88,7 @@
   - `_Nst_vector_pop` (now there is only `Nst_vector_pop`)
   - `_Nst_vector_resize`
 - now `Nst_log_alloc_count` can be used without `Nst_COUNT_ALLOC` but will do nothing
+- now `Nst_ndec_ref` evaluates `obj` only once
 
 **Bug fixes**
 
