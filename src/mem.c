@@ -4,7 +4,15 @@
 #include "sequence.h" // _Nst_VECTOR_GROWTH_RATIO, _Nst_VECTOR_MIN_CAP
 
 #ifdef Nst_COUNT_ALLOC
+
+typedef struct AllocHeader {
+    usize size;
+    struct AllocHeader *next;
+    struct AllocHeader *prev;
+} AllocHeader;
+
 static i32 allocation_count = 0;
+AllocHeader *allocs_head = NULL;
 
 #ifdef Nst_MSVC
 #pragma warning(push)
@@ -14,41 +22,112 @@ static i32 allocation_count = 0;
 #pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 #endif
 
-void Nst_log_alloc_count()
+void Nst_log_alloc_count(void)
 {
-    printf("\nalloc_count = %li\n", allocation_count);
+    printf("\nAllocation count: %li\n", allocation_count);
+}
+
+void Nst_log_alloc_info(void)
+{
+    if (allocs_head == NULL) {
+        printf("\nAllocation info: no allocations.\n");
+        return;
+    }
+    printf("\nAllocation info:\n");
+    AllocHeader *head = allocs_head;
+    while (head != NULL) {
+        printf("    Size: %zi bytes, Pointer: %p\n", head->size, head + 1);
+        head = head->next;
+    }
+}
+
+void add_header(AllocHeader *header)
+{
+    if (allocs_head == NULL)
+        allocs_head = header;
+    else {
+        allocs_head->prev = header;
+        header->next = allocs_head;
+        allocs_head = header;
+    }
+}
+
+void remove_header(AllocHeader *header)
+{
+    if (header->next != NULL)
+        header->next->prev = header->prev;
+    if (header->prev != NULL)
+        header->prev->next = header->next;
+    if (allocs_head == header)
+        allocs_head = header->next;
+    header->next = NULL;
+    header->prev = NULL;
 }
 
 void *Nst_raw_malloc(usize size)
 {
-    void *ptr = malloc(size);
-    if (ptr != NULL)
-        allocation_count++;
-    return ptr;
+    AllocHeader *header = malloc(size + sizeof(AllocHeader));
+    if (header == NULL)
+        return NULL;
+
+    allocation_count++;
+
+    header->size = size;
+    header->prev = NULL;
+    header->next = NULL;
+
+    add_header(header);
+
+    return (void *)(header + 1);
 }
 
 void *Nst_raw_calloc(usize count, usize size)
 {
-    void *ptr = calloc(count, size);
-    if (ptr != NULL)
-        allocation_count++;
+    void *ptr = Nst_raw_malloc(count * size);
+    if (ptr == NULL)
+        return NULL;
+    memset(ptr, 0, count * size);
     return ptr;
 }
 
 void *Nst_raw_realloc(void *block, usize size)
 {
-    if (block == NULL)
+    AllocHeader *header;
+
+    if (block == NULL) {
         allocation_count++;
-    if (size == 0)
-        allocation_count--;
-    return realloc(block, size);
+        header = NULL;
+    } else {
+        header = (AllocHeader *)block - 1;
+        remove_header(header);
+    }
+
+    if (size == 0) {
+        if (block != NULL)
+            allocation_count--;
+        return realloc(header, size);
+    }
+
+    AllocHeader *new_header = realloc(header, size + sizeof(AllocHeader));
+    if (new_header == NULL) {
+        add_header(header);
+        return NULL;
+    }
+    new_header->size = size;
+    new_header->next = NULL;
+    new_header->prev = NULL;
+    add_header(new_header);
+    return (void *)(new_header + 1);
 }
 
 void Nst_raw_free(void *block)
 {
-    if (block != NULL)
-        allocation_count--;
-    free(block);
+    if (block == NULL)
+        return;
+    allocation_count--;
+    AllocHeader *header = (AllocHeader *)block - 1;
+    remove_header(header);
+    free(header);
 }
 
 #ifdef Nst_MSVC

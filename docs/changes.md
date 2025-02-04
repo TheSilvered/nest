@@ -53,6 +53,7 @@
   - `Nst_vector_from_objs`
   - `Nst_array_from_objsn`
   - `Nst_vector_from_objsn`
+- added `Nst_log_alloc_info`
 
 **Changes**
 
@@ -86,6 +87,7 @@
   - `_Nst_vector_remove` (now there is only `Nst_vector_remove`)
   - `_Nst_vector_pop` (now there is only `Nst_vector_pop`)
   - `_Nst_vector_resize`
+- now `Nst_log_alloc_count` can be used without `Nst_COUNT_ALLOC` but will do nothing
 
 **Bug fixes**
 

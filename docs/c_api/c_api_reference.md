@@ -330,6 +330,7 @@
 - [`Nst_LLNode`](c_api-llist.md#nst_llnode)
 - [`Nst_llnode_new`](c_api-llist.md#nst_llnode_new)
 - [`Nst_log_alloc_count`](c_api-mem.md#nst_log_alloc_count)
+- [`Nst_log_alloc_info`](c_api-mem.md#nst_log_alloc_info)
 - [`Nst_malloc`](c_api-mem.md#nst_malloc)
 - [`Nst_malloc_c`](c_api-mem.md#nst_malloc_c)
 - [`Nst_map_copy`](c_api-map.md#nst_map_copy)

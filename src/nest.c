@@ -58,9 +58,8 @@ int main(int argc, char **argv)
     Nst_free(argv);
 #endif // !Nst_MSVC
 
-#ifdef Nst_COUNT_ALLOC
     Nst_log_alloc_count();
-#endif
+    Nst_log_alloc_info();
 
     return result;
 }

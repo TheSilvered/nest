@@ -199,13 +199,30 @@ Alias for C [`free`](https://man7.org/linux/man-pages/man3/malloc.3.html).
 **Synopsis:**
 
 ```better-c
-void Nst_log_alloc_count()
+void Nst_log_alloc_count(void)
 ```
 
 **Description:**
 
-Prints the current allocation count to `stdout`. Declared only if
-[`Nst_COUNT_ALLOC`](c_api-typedefs.md#nst_count_alloc) is defined.
+Prints the current allocation count to `stdout`. Works only if
+[`Nst_COUNT_ALLOC`](c_api-typedefs.md#nst_count_alloc) is defined, otherwise
+does nothing.
+
+---
+
+### `Nst_log_alloc_info`
+
+**Synopsis:**
+
+```better-c
+void Nst_log_alloc_info(void)
+```
+
+**Description:**
+
+Prints information about the current allocations to `stdout`. Works only if
+[`Nst_COUNT_ALLOC`](c_api-typedefs.md#nst_count_alloc) is defined, otherwise
+does nothing.
 
 ---
 

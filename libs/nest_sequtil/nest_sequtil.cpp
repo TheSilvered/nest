@@ -274,7 +274,7 @@ Nst_Obj *NstC slice_(usize arg_num, Nst_Obj **args)
             : Nst_vector_new(new_size);
 
         for (isize i = 0; i < new_size; i++)
-            Nst_seq_set(new_seq, i, objs[i * step + start]);
+            Nst_seq_setf(new_seq, i, objs[i * step + start]);
 
         Nst_dec_ref(seq);
         return new_seq;
@@ -361,10 +361,10 @@ Nst_Obj *NstC merge_(usize arg_num, Nst_Obj **args)
     i64 i = 0;
 
     for (i64 n = (i64)len1; i < n; i++)
-        Nst_seq_set(new_seq, i, Nst_seq_getnf(seq1, i));
+        Nst_seq_setf(new_seq, i, Nst_seq_getnf(seq1, i));
 
     for (i64 j = i, n = (i64)len1; j - i < n; j++)
-        Nst_seq_set(new_seq, j, Nst_seq_getnf(seq2, j - i));
+        Nst_seq_setf(new_seq, j, Nst_seq_getnf(seq2, j - i));
 
     return new_seq;
 }
@@ -676,7 +676,8 @@ Nst_Obj *NstC empty_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("v", arg_num, args, &vect))
         return nullptr;
 
-    Nst_vector_pop(vect, Nst_seq_len(vect));
+    Nst_Obj *popped_obj = Nst_vector_pop(vect, Nst_seq_len(vect));
+    Nst_ndec_ref(popped_obj);
 
     return Nst_inc_ref(vect);
 }
@@ -865,7 +866,7 @@ Nst_Obj *NstC lscan_(usize arg_num, Nst_Obj **args)
     }
 
     Nst_inc_ref(prev_val);
-    Nst_seq_set(new_seq, 0, prev_val);
+    Nst_seq_setf(new_seq, 0, prev_val);
 
     Nst_Obj *func_args[2];
 
@@ -879,7 +880,7 @@ Nst_Obj *NstC lscan_(usize arg_num, Nst_Obj **args)
             Nst_dec_ref(seq);
             return nullptr;
         }
-        Nst_seq_set(new_seq, i, new_val);
+        Nst_seq_setf(new_seq, i, new_val);
         Nst_dec_ref(prev_val);
         prev_val = new_val;
     }
@@ -921,7 +922,7 @@ Nst_Obj *NstC rscan_(usize arg_num, Nst_Obj **args)
     }
 
     Nst_inc_ref(prev_val);
-    Nst_seq_set(new_seq, max_items - 1, prev_val);
+    Nst_seq_setf(new_seq, max_items - 1, prev_val);
 
     Nst_Obj *func_args[2];
     i64 seq_len = (i64)Nst_seq_len(seq);
@@ -936,7 +937,7 @@ Nst_Obj *NstC rscan_(usize arg_num, Nst_Obj **args)
             Nst_dec_ref(seq);
             return nullptr;
         }
-        Nst_seq_set(new_seq, max_items - i - 1, new_val);
+        Nst_seq_setf(new_seq, max_items - i - 1, new_val);
         Nst_dec_ref(prev_val);
         prev_val = new_val;
     }
@@ -1168,11 +1169,9 @@ Nst_Obj *reverse_new_obj(Nst_Obj *seq)
     if (new_seq == nullptr)
         return nullptr;
     Nst_Obj **objs = _Nst_seq_objs(seq);
-    Nst_Obj **new_objs = _Nst_seq_objs(new_seq);
-    for (usize i = 0; i < seq_len; i++) {
-        new_objs[seq_len - i - 1] = Nst_inc_ref(objs[i]);
-    }
-    return OBJ(new_seq);
+    for (usize i = 0; i < seq_len; i++)
+        Nst_seq_setf(new_seq, seq_len - i - 1, objs[i]);
+    return new_seq;
 }
 
 Nst_Obj *NstC reverse_(usize arg_num, Nst_Obj **args)
