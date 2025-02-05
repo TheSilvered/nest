@@ -8,32 +8,14 @@ TheSilvered
 
 ---
 
-## Macros
+## Functions
 
 ### `Nst_iter_new`
 
 **Synopsis:**
 
 ```better-c
-#define Nst_iter_new(start, end, value)
-```
-
-**Description:**
-
-Alias for [`_Nst_iter_new`](c_api-iter.md#_nst_iter_new) that casts `start` and
-`end` to [`Nst_FuncObj *`](c_api-function.md#nst_funcobj) and casts `value` to
-[`Nst_Obj *`](c_api-obj.md#nst_obj).
-
----
-
-## Functions
-
-### `_Nst_iter_new`
-
-**Synopsis:**
-
-```better-c
-Nst_Obj *_Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *next, Nst_Obj *value)
+Nst_Obj *Nst_iter_new(Nst_Obj *start, Nst_Obj *next, Nst_Obj *value)
 ```
 
 **Description:**
@@ -133,7 +115,7 @@ The resulting object on success and `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_FuncObj *Nst_iter_start_func(Nst_Obj *iter)
+Nst_Obj *Nst_iter_start_func(Nst_Obj *iter)
 ```
 
 **Description:**
@@ -147,7 +129,7 @@ Get the `start` function of an iterator. No reference is added.
 **Synopsis:**
 
 ```better-c
-Nst_FuncObj *Nst_iter_next_func(Nst_Obj *iter)
+Nst_Obj *Nst_iter_next_func(Nst_Obj *iter)
 ```
 
 **Description:**

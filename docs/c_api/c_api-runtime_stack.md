@@ -10,21 +10,6 @@ TheSilvered
 
 ## Macros
 
-### `Nst_fstack_push`
-
-**Synopsis:**
-
-```better-c
-#define Nst_fstack_push(f_stack, call)
-```
-
-**Description:**
-
-Alias for [`_Nst_fstack_push`](c_api-runtime_stack.md#_nst_fstack_push) that
-casts func to [`Nst_FuncObj *`](c_api-function.md#nst_funcobj).
-
----
-
 ### `Nst_vstack_push`
 
 **Synopsis:**
@@ -72,7 +57,7 @@ A structure representing the value stack.
 
 ```better-c
 typedef struct _Nst_FuncCall {
-    Nst_FuncObj *func;
+    Nst_Obj *func;
     Nst_StrObj *cwd;
     Nst_Pos start;
     Nst_Pos end;
@@ -350,12 +335,12 @@ Initializes a call stack.
 
 ---
 
-### `_Nst_fstack_push`
+### `Nst_fstack_push`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_fstack_push(Nst_CallStack *f_stack, Nst_FuncCall call)
+bool Nst_fstack_push(Nst_CallStack *f_stack, Nst_FuncCall call)
 ```
 
 **Description:**

@@ -5,51 +5,51 @@ ItutilFunctions itutil_functions;
 bool init_itutil_functions()
 {
     itutil_functions.count_start =
-        FUNC(Nst_func_new_c(1, count_start));
+        Nst_func_new_c(1, count_start);
     itutil_functions.count_next =
-        FUNC(Nst_func_new_c(1, count_next));
+        Nst_func_new_c(1, count_next);
     itutil_functions.cycle_str_start =
-        FUNC(Nst_func_new_c(1, cycle_str_start));
+        Nst_func_new_c(1, cycle_str_start);
     itutil_functions.cycle_str_next =
-        FUNC(Nst_func_new_c(1, cycle_str_next));
+        Nst_func_new_c(1, cycle_str_next);
     itutil_functions.cycle_seq_start =
-        FUNC(Nst_func_new_c(1, cycle_seq_start));
+        Nst_func_new_c(1, cycle_seq_start);
     itutil_functions.cycle_seq_next =
-        FUNC(Nst_func_new_c(1, cycle_seq_next));
+        Nst_func_new_c(1, cycle_seq_next);
     itutil_functions.cycle_iter_start =
-        FUNC(Nst_func_new_c(1, cycle_iter_start));
+        Nst_func_new_c(1, cycle_iter_start);
     itutil_functions.cycle_iter_next =
-        FUNC(Nst_func_new_c(1, cycle_iter_next));
+        Nst_func_new_c(1, cycle_iter_next);
     itutil_functions.repeat_start =
-        FUNC(Nst_func_new_c(1, repeat_start));
+        Nst_func_new_c(1, repeat_start);
     itutil_functions.repeat_next =
-        FUNC(Nst_func_new_c(1, repeat_next));
+        Nst_func_new_c(1, repeat_next);
     itutil_functions.chain_start =
-        FUNC(Nst_func_new_c(1, chain_start));
+        Nst_func_new_c(1, chain_start);
     itutil_functions.chain_next =
-        FUNC(Nst_func_new_c(1, chain_next));
+        Nst_func_new_c(1, chain_next);
     itutil_functions.zip_start =
-        FUNC(Nst_func_new_c(1, zip_start));
+        Nst_func_new_c(1, zip_start);
     itutil_functions.zip_next =
-        FUNC(Nst_func_new_c(1, zip_next));
+        Nst_func_new_c(1, zip_next);
     itutil_functions.zipn_start =
-        FUNC(Nst_func_new_c(1, zipn_start));
+        Nst_func_new_c(1, zipn_start);
     itutil_functions.zipn_next =
-        FUNC(Nst_func_new_c(1, zipn_next));
+        Nst_func_new_c(1, zipn_next);
     itutil_functions.enumerate_start =
-        FUNC(Nst_func_new_c(1, enumerate_start));
+        Nst_func_new_c(1, enumerate_start);
     itutil_functions.enumerate_next =
-        FUNC(Nst_func_new_c(1, enumerate_next));
+        Nst_func_new_c(1, enumerate_next);
     itutil_functions.keys_next =
-        FUNC(Nst_func_new_c(1, keys_next));
+        Nst_func_new_c(1, keys_next);
     itutil_functions.values_next =
-        FUNC(Nst_func_new_c(1, values_next));
+        Nst_func_new_c(1, values_next);
     itutil_functions.batch_start =
-        FUNC(Nst_func_new_c(1, batch_start));
+        Nst_func_new_c(1, batch_start);
     itutil_functions.batch_next =
-        FUNC(Nst_func_new_c(1, batch_next));
+        Nst_func_new_c(1, batch_next);
     itutil_functions.batch_padded_next =
-        FUNC(Nst_func_new_c(1, batch_padded_next));
+        Nst_func_new_c(1, batch_padded_next);
 
     if (Nst_error_occurred()) {
         free_itutil_functions();

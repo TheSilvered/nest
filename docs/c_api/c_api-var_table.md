@@ -158,7 +158,7 @@ Sets a value in a variable table.
 **Synopsis:**
 
 ```better-c
-Nst_VarTable *Nst_vt_from_func(Nst_FuncObj *f)
+Nst_VarTable *Nst_vt_from_func(Nst_Obj *f)
 ```
 
 **Description:**

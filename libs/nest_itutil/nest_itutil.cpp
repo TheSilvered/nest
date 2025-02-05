@@ -328,8 +328,8 @@ Nst_Obj *NstC batch_padded_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC new_iterator_(usize arg_num, Nst_Obj **args)
 {
-    Nst_FuncObj *start;
-    Nst_FuncObj *next;
+    Nst_Obj *start;
+    Nst_Obj *next;
     Nst_Obj *data;
 
     if (!Nst_extract_args(
@@ -340,7 +340,7 @@ Nst_Obj *NstC new_iterator_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    if (start->arg_num != 1 || next->arg_num != 1)
+    if (Nst_func_arg_num(start) != 1 || Nst_func_arg_num(next) != 1)
     {
         Nst_set_value_error_c(
             "all the functions must accept exactly one argument");
@@ -367,7 +367,7 @@ Nst_Obj *NstC iter_start_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("I", arg_num, args, &iter))
         return nullptr;
 
-    Nst_FuncObj *start = Nst_iter_start_func(iter);
+    Nst_Obj *start = Nst_iter_start_func(iter);
     Nst_Obj *value = Nst_iter_value(iter);
 
     return Nst_func_call(start, 1, &value);
@@ -380,7 +380,7 @@ Nst_Obj *NstC iter_next_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("I", arg_num, args, &iter))
         return nullptr;
 
-    Nst_FuncObj *next = Nst_iter_next_func(iter);
+    Nst_Obj *next = Nst_iter_next_func(iter);
     Nst_Obj *value = Nst_iter_value(iter);
 
     return Nst_func_call(next, 1, &value);

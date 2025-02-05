@@ -11,13 +11,6 @@
 
 #include "lib_import.h"
 
-/**
- * @brief Alias for `_Nst_iter_new` that casts `start` and `end` to
- * `Nst_FuncObj *` and casts `value` to `Nst_Obj *`.
- */
-#define Nst_iter_new(start, end, value)                                       \
-    _Nst_iter_new(FUNC(start), FUNC(end), OBJ(value))
-
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
@@ -34,7 +27,7 @@ extern "C" {
  *
  * @return The new object or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC _Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *next,
+NstEXP Nst_Obj *NstC Nst_iter_new(Nst_Obj *start, Nst_Obj *next,
                                   Nst_Obj *value);
 /* Destructor for Nest iter objects. */
 NstEXP void NstC _Nst_iter_destroy(Nst_Obj *iter);
@@ -61,9 +54,9 @@ NstEXP bool NstC Nst_iter_start(Nst_Obj *iter);
 NstEXP Nst_Obj *NstC Nst_iter_next(Nst_Obj *iter);
 
 /* Get the `start` function of an iterator. No reference is added. */
-NstEXP Nst_FuncObj *NstC Nst_iter_start_func(Nst_Obj *iter);
+NstEXP Nst_Obj *NstC Nst_iter_start_func(Nst_Obj *iter);
 /* Get the `next` function of an iterator. No reference is added. */
-NstEXP Nst_FuncObj *NstC Nst_iter_next_func(Nst_Obj *iter);
+NstEXP Nst_Obj *NstC Nst_iter_next_func(Nst_Obj *iter);
 /**
  * @brief Get the `value` passed to `start` and `next` of an iterator. No
  * reference is added.

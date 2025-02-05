@@ -63,6 +63,13 @@
     - `Nst_iof_fp`
     - `Nst_iof_func_set`
     - `Nst_iof_encoding`
+- added the following symbols to `function.h`
+    - `Nst_FUNC_IS_C`
+    - `Nst_func_arg_num`
+    - `Nst_func_args`
+    - `Nst_func_c_body`
+    - `Nst_func_nest_body`
+    - `Nst_func_mod_globals`
 
 **Changes**
 
@@ -101,12 +108,19 @@
 - removed the following symbols from `iter.h`
     - `Nst_IterObj`
     - `ITER`
+    - `_Nst_iter_new` (now there is only `Nst_iter_new`)
     - `_Nst_iter_start` (now there is only `Nst_iter_start`)
     - `_Nst_iter_get_val`
 - renamed all `_get_val` functions related to iterators as `_next`
 - removed the following symbols from `file.h`
     - `Nst_IOFileObj`
     - `IOFILE`
+- removed the following symbols from `function.h`
+    - `Nst_FuncObj`
+    - `Nst_FuncBody`
+    - `FUNC`
+    - `_Nst_func_set_vt` (now there is only `Nst_func_set_vt`)
+- removed `_Nst_fstack_push`, now there is only `Nst_fstack_push`
 
 **Bug fixes**
 

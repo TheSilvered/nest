@@ -74,7 +74,7 @@ NstEXP bool NstC _Nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val);
  *
  * @return The new var table or `NULL` on failure. The error is set.
  */
-NstEXP Nst_VarTable *NstC Nst_vt_from_func(Nst_FuncObj *f);
+NstEXP Nst_VarTable *NstC Nst_vt_from_func(Nst_Obj *f);
 
 #ifdef __cplusplus
 }

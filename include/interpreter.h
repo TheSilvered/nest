@@ -67,7 +67,7 @@ NstEXP void NstC Nst_quit(void);
  *
  * @return The exit code of the program.
  */
-NstEXP i32 NstC Nst_run(Nst_FuncObj *main_func);
+NstEXP i32 NstC Nst_run(Nst_Obj *main_func);
 /**
  * Runs an external Nest file.
  *
@@ -84,7 +84,7 @@ NstEXP i32 NstC Nst_run(Nst_FuncObj *main_func);
  */
 NstEXP bool NstC Nst_run_module(i8 *file_name, Nst_SourceText *lib_src);
 /**
- * Calls a `Nst_FuncObj`.
+ * Calls a `Func` object.
  *
  * @brief Note: if the function is passed less arguments than it expects, the
  * extra ones are filled with `null` objects.
@@ -95,11 +95,10 @@ NstEXP bool NstC Nst_run_module(i8 *file_name, Nst_SourceText *lib_src);
  *
  * @return The result of the function or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_func_call(Nst_FuncObj *func, i64 arg_num,
-                                   Nst_Obj **args);
+NstEXP Nst_Obj *NstC Nst_func_call(Nst_Obj *func, i64 arg_num, Nst_Obj **args);
 
 /**
- * Executes the body of a `Nst_FuncObj` that has a Nest body using a given
+ * Executes the body of a `Func` object that has a Nest body using a given
  * context.
  *
  * @brief The context is set according to the arguments passed.
@@ -114,7 +113,7 @@ NstEXP Nst_Obj *NstC Nst_func_call(Nst_FuncObj *func, i64 arg_num,
  * @return The result of the function or `NULL` on failure. The error is set
  * internally and must not be set by the caller.
  */
-NstEXP Nst_Obj *NstC Nst_run_paused_coroutine(Nst_FuncObj *func, i64 idx,
+NstEXP Nst_Obj *NstC Nst_run_paused_coroutine(Nst_Obj *func, i64 idx,
                                               Nst_VarTable *vt);
 /**
  * Returns the absolute path to a file system object.

@@ -139,7 +139,7 @@ bool Nst_fstack_init(Nst_CallStack *f_stack)
         F_STACK_MIN_SIZE);
 }
 
-bool _Nst_fstack_push(Nst_CallStack *f_stack, Nst_FuncCall call)
+bool Nst_fstack_push(Nst_CallStack *f_stack, Nst_FuncCall call)
 {
     usize max_size = f_stack->cap;
 

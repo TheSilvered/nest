@@ -42,13 +42,13 @@ Nst_Declr *lib_init()
 Nst_Obj *NstC map_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *seq;
-    Nst_FuncObj *func;
+    Nst_Obj *func;
     bool map_in_place;
 
     if (!Nst_extract_args("A f y", arg_num, args, &seq, &func, &map_in_place))
         return nullptr;
 
-    if (func->arg_num != 1) {
+    if (Nst_func_arg_num(func) != 1) {
         Nst_set_value_error_c("the function must take exactly one argument");
         return nullptr;
     }
@@ -84,12 +84,12 @@ Nst_Obj *NstC map_(usize arg_num, Nst_Obj **args)
 Nst_Obj *NstC map_i_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *iter;
-    Nst_FuncObj *func;
+    Nst_Obj *func;
 
     if (!Nst_extract_args("R f:o", arg_num, args, &iter, &func))
         return nullptr;
 
-    if (func->arg_num != 1) {
+    if (Nst_func_arg_num(func) != 1) {
         Nst_set_call_error_c("the function must take exactly one argument");
         return nullptr;
     }
@@ -540,9 +540,9 @@ bool merge(Nst_Obj **values, usize left, usize mid, usize right,
     return true;
 }
 
-static Nst_Obj *mapped_sort(Nst_Obj *seq, Nst_FuncObj *map_func, bool new_seq)
+static Nst_Obj *mapped_sort(Nst_Obj *seq, Nst_Obj *map_func, bool new_seq)
 {
-    if (map_func->arg_num != 1) {
+    if (Nst_func_arg_num(map_func) != 1) {
         Nst_set_call_error_c("the function must take exactly one argument");
         return nullptr;
     }
@@ -560,7 +560,7 @@ static Nst_Obj *mapped_sort(Nst_Obj *seq, Nst_FuncObj *map_func, bool new_seq)
         return nullptr;
 
     for (usize i = 0; i < seq_len; i++) {
-        Nst_Obj *mapped_value = Nst_func_call(FUNC(map_func), 1, objs + i);
+        Nst_Obj *mapped_value = Nst_func_call(map_func, 1, objs + i);
         if (mapped_value == nullptr) {
             for (usize j = 0; j < i; j++)
                 Nst_dec_ref(values[j].mapped);
@@ -625,7 +625,7 @@ Nst_Obj *NstC sort_(usize arg_num, Nst_Obj **args)
     }
 
     if (map_func != Nst_null())
-        return mapped_sort(seq, FUNC(map_func), new_seq);
+        return mapped_sort(seq, map_func, new_seq);
 
     if (new_seq)
         seq = Nst_seq_copy(seq);
@@ -685,12 +685,12 @@ Nst_Obj *NstC empty_(usize arg_num, Nst_Obj **args)
 Nst_Obj *NstC filter_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *seq;
-    Nst_FuncObj *func;
+    Nst_Obj *func;
 
     if (!Nst_extract_args("A f", arg_num, args, &seq, &func))
         return nullptr;
 
-    if (func->arg_num != 1) {
+    if (Nst_func_arg_num(func) != 1) {
         Nst_set_call_error_c("the function must take exactly one argument");
         return nullptr;
     }
@@ -721,12 +721,12 @@ Nst_Obj *NstC filter_(usize arg_num, Nst_Obj **args)
 Nst_Obj *NstC filter_i_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *iter;
-    Nst_FuncObj *func;
+    Nst_Obj *func;
 
     if (!Nst_extract_args("R f:o", arg_num, args, &iter, &func))
         return nullptr;
 
-    if (func->arg_num != 1) {
+    if (Nst_func_arg_num(func) != 1) {
         Nst_set_call_error_c("the function must take exactly one argument");
         return nullptr;
     }
@@ -836,7 +836,7 @@ static i64 check_scan_args(usize seq_len, usize func_arg_num,
 Nst_Obj *NstC lscan_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *seq;
-    Nst_FuncObj *func;
+    Nst_Obj *func;
     Nst_Obj *prev_val;
     Nst_Obj *max_items_obj;
 
@@ -849,7 +849,7 @@ Nst_Obj *NstC lscan_(usize arg_num, Nst_Obj **args)
     }
     i64 max_items = check_scan_args(
         Nst_seq_len(seq),
-        func->arg_num,
+        Nst_func_arg_num(func),
         max_items_obj);
 
     if (max_items < 0) {
@@ -892,7 +892,7 @@ Nst_Obj *NstC lscan_(usize arg_num, Nst_Obj **args)
 Nst_Obj *NstC rscan_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *seq;
-    Nst_FuncObj *func;
+    Nst_Obj *func;
     Nst_Obj *prev_val;
     Nst_Obj *max_items_obj;
 
@@ -905,7 +905,7 @@ Nst_Obj *NstC rscan_(usize arg_num, Nst_Obj **args)
     }
     i64 max_items = check_scan_args(
         Nst_seq_len(seq),
-        func->arg_num,
+        Nst_func_arg_num(func),
         max_items_obj);
 
     if (max_items < 0) {

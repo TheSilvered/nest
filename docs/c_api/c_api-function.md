@@ -1,96 +1,10 @@
 # `function.h`
 
-[`Nst_FuncObj`](c_api-function.md#nst_funcobj) interface.
+`Func` object interface.
 
 ## Authors
 
 TheSilvered
-
----
-
-## Macros
-
-### `FUNC`
-
-**Synopsis:**
-
-```better-c
-#define FUNC(ptr)
-```
-
-**Description:**
-
-Casts `ptr` to [`Nst_FuncObj *`](c_api-function.md#nst_funcobj).
-
----
-
-### `Nst_func_set_vt`
-
-**Synopsis:**
-
-```better-c
-#define Nst_func_set_vt(func, map)
-```
-
-**Description:**
-
-Alias for [`_Nst_func_set_vt`](c_api-function.md#_nst_func_set_vt) that casts
-`func` to [`Nst_FuncObj *`](c_api-function.md#nst_funcobj) and `map` to
-[`Nst_MapObj *`](c_api-map.md#nst_mapobj).
-
----
-
-## Unions
-
-### `Nst_FuncBody`
-
-**Synopsis:**
-
-```better-c
-typedef union _Nst_FuncBody {
-    Nst_InstList *bytecode;
-    Nst_Obj *(*c_func)(usize arg_num, Nst_Obj **args);
-} Nst_FuncBody
-```
-
-**Description:**
-
-The union representing the body of a function object.
-
-**Variants:**
-
-- `bytecode`: the body is an instruction list
-- `c_func`: the body is a C function
-
----
-
-## Structs
-
-### `Nst_FuncObj`
-
-**Synopsis:**
-
-```better-c
-typedef struct _Nst_FuncObj {
-    Nst_OBJ_HEAD;
-    Nst_GGC_HEAD;
-    Nst_FuncBody body;
-    Nst_Obj **args;
-    isize arg_num;
-    Nst_MapObj *mod_globals;
-} Nst_FuncObj
-```
-
-**Description:**
-
-The structure representing a Nest function object.
-
-**Fields:**
-
-- `body`: the body of the function
-- `args`: the array of names of the arguments
-- `arg_num`: the maximum number of arguments
-- `mod_globals`: the global variable table when the function was defined
 
 ---
 
@@ -148,12 +62,12 @@ The new function object or `NULL` on failure. The error is set.
 
 ---
 
-### `_Nst_func_set_vt`
+### `Nst_func_set_vt`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_func_set_vt(Nst_FuncObj *func, Nst_MapObj *map)
+void Nst_func_set_vt(Nst_Obj *func, Nst_MapObj *map)
 ```
 
 **Description:**
@@ -170,17 +84,88 @@ If the field is already set or the function has a C body, it is not modified.
 
 ---
 
+### `Nst_func_arg_num`
+
+**Synopsis:**
+
+```better-c
+usize Nst_func_arg_num(Nst_Obj *func)
+```
+
+**Description:**
+
+Gets the number of arguments a function takes.
+
+---
+
+### `Nst_func_args`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj **Nst_func_args(Nst_Obj *func)
+```
+
+**Description:**
+
+Gets the argument names as a list of objects.
+
+---
+
+### `Nst_func_c_body`
+
+**Synopsis:**
+
+```better-c
+Nst_NestCallable Nst_func_c_body(Nst_Obj *func)
+```
+
+**Description:**
+
+Gets the body of a C-function wrapper.
+
+---
+
+### `Nst_func_nest_body`
+
+**Synopsis:**
+
+```better-c
+Nst_InstList *Nst_func_nest_body(Nst_Obj *func)
+```
+
+**Description:**
+
+Gets the body of a Nest function.
+
+---
+
+### `Nst_func_mod_globals`
+
+**Synopsis:**
+
+```better-c
+Nst_MapObj *Nst_func_mod_globals(Nst_Obj *func)
+```
+
+**Description:**
+
+Gets the `_globals_` variable map of a function. No reference is added. It may
+be `NULL`.
+
+---
+
 ### `_Nst_func_traverse`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_func_traverse(Nst_FuncObj *func)
+void _Nst_func_traverse(Nst_Obj *func)
 ```
 
 **Description:**
 
-Traverse function for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
+Traverse function for `Func` objects.
 
 ---
 
@@ -189,12 +174,12 @@ Traverse function for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
 **Synopsis:**
 
 ```better-c
-void _Nst_func_destroy(Nst_FuncObj *func)
+void _Nst_func_destroy(Nst_Obj *func)
 ```
 
 **Description:**
 
-Destructor for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
+Destructor for `Func` objects.
 
 ---
 
@@ -212,4 +197,4 @@ typedef enum _Nst_FuncFlags {
 
 **Description:**
 
-The flags for [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
+Flags for `Func` objects.

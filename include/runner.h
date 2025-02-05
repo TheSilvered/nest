@@ -66,8 +66,7 @@ NstEXP void NstC Nst_es_destroy(Nst_ExecutionState *es);
  *
  * @return An initialized `Nst_FuncCall` structure.
  */
-NstEXP Nst_FuncCall NstC Nst_func_call_from_es(Nst_FuncObj *func,
-                                               Nst_Pos start,
+NstEXP Nst_FuncCall NstC Nst_func_call_from_es(Nst_Obj *func, Nst_Pos start,
                                                Nst_Pos end,
                                                Nst_ExecutionState *es);
 /**
@@ -136,7 +135,7 @@ NstEXP bool NstC Nst_es_push_module(Nst_ExecutionState *es, i8 *filename,
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP bool NstC Nst_es_push_func(Nst_ExecutionState *es, Nst_FuncObj *func,
+NstEXP bool NstC Nst_es_push_func(Nst_ExecutionState *es, Nst_Obj *func,
                                   Nst_Pos start, Nst_Pos end, i64 arg_num,
                                   Nst_Obj **args);
 /**
@@ -153,7 +152,7 @@ NstEXP bool NstC Nst_es_push_func(Nst_ExecutionState *es, Nst_FuncObj *func,
  * @return `true` on success and `false` on failure. The error is set.
  */
 NstEXP bool NstC Nst_es_push_paused_coroutine(Nst_ExecutionState *es,
-                                              Nst_FuncObj *func, Nst_Pos start,
+                                              Nst_Obj *func, Nst_Pos start,
                                               Nst_Pos end, i64 idx,
                                               Nst_VarTable *vt);
 /* Forces the top function of the execution state to end. */

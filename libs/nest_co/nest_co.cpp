@@ -178,7 +178,7 @@ static Nst_Obj *NstC generator_next(usize arg_num, Nst_Obj **args)
     return obj;
 }
 
-Nst_Obj *coroutine_new(Nst_FuncObj *func)
+Nst_Obj *coroutine_new(Nst_Obj *func)
 {
     CoroutineObj *co = Nst_obj_alloc(CoroutineObj, t_Coroutine);
     if (co == nullptr)
@@ -234,12 +234,12 @@ void coroutine_destroy(CoroutineObj *co)
 
 Nst_Obj *NstC create_(usize arg_num, Nst_Obj **args)
 {
-    Nst_FuncObj *func;
+    Nst_Obj *func;
 
     if (!Nst_extract_args("f", arg_num, args, &func))
         return nullptr;
 
-    if (Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C)) {
+    if (Nst_FUNC_IS_C(func)) {
         Nst_set_type_error_c("cannot create a coroutine from a C function");
         return nullptr;
     }
@@ -336,12 +336,13 @@ Nst_Obj *NstC generator_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("# ?A", arg_num, args, t_Coroutine, &co, &co_args))
         return nullptr;
 
+    usize co_func_arg_num = Nst_func_arg_num(co->func);
     if (co_args != Nst_null() &&
-        (isize)Nst_seq_len(co_args) > co->func->arg_num)
+        (isize)Nst_seq_len(co_args) > co_func_arg_num)
     {
         Nst_set_call_errorf(
             "the coroutine expects at most %zi arguments but %zi were given",
-            co->func->arg_num,
+            co_func_arg_num,
             Nst_seq_len(co_args));
         return nullptr;
     }

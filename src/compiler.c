@@ -634,8 +634,9 @@ static bool compile_fd(Nst_Node *node)
         return false;
     }
     usize i = 0;
+    Nst_Obj **func_args = Nst_func_args(func);
     for (Nst_LLIST_ITER(lnode, node->v.fd.argument_names))
-        FUNC(func)->args[i++] = Nst_inc_ref(Nst_TOK(lnode->value)->value);
+        func_args[i++] = Nst_inc_ref(Nst_TOK(lnode->value)->value);
     Nst_Inst *push_val_func = new_inst_v(
         Nst_IC_PUSH_VAL,
         func,
@@ -1627,7 +1628,7 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
                 for (i32 j = 0; j < indent + 1; j++)
                     PRINT("    ", 4);
                 PRINT("<Func object> bytecode:\n", 24);
-                print_bytecode(FUNC(inst.val)->body.bytecode, indent + 1);
+                print_bytecode(Nst_func_nest_body(inst.val), indent + 1);
             }
         } else if (inst.id == Nst_IC_STACK_OP || inst.id == Nst_IC_LOCAL_OP) {
             PRINT(" [", 2);

@@ -94,7 +94,7 @@ destructors that may access Nest objects must be called before.
 **Synopsis:**
 
 ```better-c
-i32 Nst_run(Nst_FuncObj *main_func)
+i32 Nst_run(Nst_Obj *main_func)
 ```
 
 **Description:**
@@ -146,12 +146,12 @@ set but an internal one is, hence the caller must not set the error.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_func_call(Nst_FuncObj *func, i64 arg_num, Nst_Obj **args)
+Nst_Obj *Nst_func_call(Nst_Obj *func, i64 arg_num, Nst_Obj **args)
 ```
 
 **Description:**
 
-Calls a [`Nst_FuncObj`](c_api-function.md#nst_funcobj).
+Calls a `Func` object.
 
 !!!note
     If the function is passed less arguments than it expects, the extra ones are
@@ -174,13 +174,12 @@ The result of the function or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_run_paused_coroutine(Nst_FuncObj *func, i64 idx, Nst_VarTable *vt)
+Nst_Obj *Nst_run_paused_coroutine(Nst_Obj *func, i64 idx, Nst_VarTable *vt)
 ```
 
 **Description:**
 
-Executes the body of a [`Nst_FuncObj`](c_api-function.md#nst_funcobj) that has a
-Nest body using a given context.
+Executes the body of a `Func` object that has a Nest body using a given context.
 
 The context is set according to the arguments passed.
 

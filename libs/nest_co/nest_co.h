@@ -13,7 +13,7 @@ NstEXP void NstC lib_quit();
 typedef struct _CoroutineObj {
     Nst_OBJ_HEAD;
     Nst_GGC_HEAD;
-    Nst_FuncObj *func;
+    Nst_Obj *func;
     Nst_VarTable *vt;
     Nst_Obj **stack;
     usize stack_size;
@@ -37,7 +37,7 @@ enum _CoroutineFlags {
     FLAG_FUNC_IS_CO   = Nst_FLAG(4)
 } CoroutineFlags;
 
-Nst_Obj *coroutine_new(Nst_FuncObj *func);
+Nst_Obj *coroutine_new(Nst_Obj *func);
 void coroutine_traverse(CoroutineObj *co);
 void coroutine_destroy(CoroutineObj *co);
 

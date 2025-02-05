@@ -7,16 +7,17 @@
 typedef struct _Nst_IterObj {
     Nst_OBJ_HEAD;
     Nst_GGC_HEAD;
-    Nst_FuncObj *start;
-    Nst_FuncObj *next;
+    Nst_Obj *start;
+    Nst_Obj *next;
     Nst_Obj *value;
 } Nst_IterObj;
 
 #define ITER(ptr) ((Nst_IterObj *)(ptr))
 
-Nst_Obj *_Nst_iter_new(Nst_FuncObj *start, Nst_FuncObj *next,
-                       Nst_Obj *value)
+Nst_Obj *Nst_iter_new(Nst_Obj *start, Nst_Obj *next, Nst_Obj *value)
 {
+    Nst_assert(start->type == Nst_t.Func);
+    Nst_assert(next->type == Nst_t.Func);
     Nst_IterObj *iter = Nst_obj_alloc(Nst_IterObj, Nst_t.Iter);
     if (iter == NULL) {
         Nst_dec_ref(start);
@@ -77,13 +78,13 @@ Nst_Obj *Nst_iter_next(Nst_Obj *iter)
     return Nst_func_call(ITER(iter)->next, 1, &ITER(iter)->value);
 }
 
-Nst_FuncObj *Nst_iter_start_func(Nst_Obj *iter)
+Nst_Obj *Nst_iter_start_func(Nst_Obj *iter)
 {
     Nst_assert(iter->type == Nst_t.Iter);
     return ITER(iter)->start;
 }
 
-Nst_FuncObj *Nst_iter_next_func(Nst_Obj *iter)
+Nst_Obj *Nst_iter_next_func(Nst_Obj *iter)
 {
     Nst_assert(iter->type == Nst_t.Iter);
     return ITER(iter)->next;

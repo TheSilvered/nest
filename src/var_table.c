@@ -101,10 +101,11 @@ void Nst_vt_destroy(Nst_VarTable *vt)
     Nst_free(vt);
 }
 
-Nst_VarTable *Nst_vt_from_func(Nst_FuncObj *f)
+Nst_VarTable *Nst_vt_from_func(Nst_Obj *f)
 {
-    if (f->mod_globals != NULL)
-        return Nst_vt_new(f->mod_globals, NULL, false);
+    Nst_MapObj *func_globals = Nst_func_mod_globals(f);
+    if (func_globals != NULL)
+        return Nst_vt_new(func_globals, NULL, false);
     else if (Nst_state.es->vt->global_table == NULL)
         return Nst_vt_new(Nst_state.es->vt->vars, NULL, false);
     return Nst_vt_new(Nst_state.es->vt->global_table, NULL, false);

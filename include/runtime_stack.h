@@ -13,9 +13,6 @@
 #include "function.h"
 #include "var_table.h"
 
-/* Alias for `_Nst_fstack_push` that casts func to `Nst_FuncObj *`. */
-#define Nst_fstack_push(f_stack, call) \
-        _Nst_fstack_push(f_stack, call)
 /* Alias for `_Nst_vstack_push` that casts val to `Nst_Obj *`. */
 #define Nst_vstack_push(v_stack, val) _Nst_vstack_push(v_stack, OBJ(val))
 
@@ -50,7 +47,7 @@ NstEXP typedef struct _Nst_ValueStack {
  * @param cstack_len: the size of the catch stack when the function was called
  */
 NstEXP typedef struct _Nst_FuncCall {
-    Nst_FuncObj *func;
+    Nst_Obj *func;
     Nst_StrObj *cwd;
     Nst_Pos start;
     Nst_Pos end;
@@ -182,7 +179,7 @@ NstEXP bool NstC Nst_fstack_init(Nst_CallStack *f_stack);
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP bool NstC _Nst_fstack_push(Nst_CallStack *f_stack, Nst_FuncCall call);
+NstEXP bool NstC Nst_fstack_push(Nst_CallStack *f_stack, Nst_FuncCall call);
 /**
  * Pops the top call from a call stack
  *

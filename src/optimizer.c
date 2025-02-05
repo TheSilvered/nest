@@ -543,7 +543,7 @@ static bool is_accessed(Nst_InstList *bc, Nst_StrObj *name)
     }
 
     for (Nst_LLIST_ITER(n, bc->functions)) {
-        if (is_accessed(FUNC(n->value)->body.bytecode, name))
+        if (is_accessed(Nst_func_nest_body(n->value), name))
             return true;
     }
 
@@ -577,7 +577,7 @@ static bool has_assignments(Nst_InstList *bc, Nst_StrObj *name)
     }
 
     for (Nst_LLIST_ITER(n, bc->functions)) {
-        if (has_assignments(FUNC(n->value)->body.bytecode, name))
+        if (has_assignments(Nst_func_nest_body(n->value), name))
             return true;
     }
 
@@ -601,7 +601,7 @@ static void replace_access(Nst_InstList *bc, Nst_StrObj *name, Nst_Obj *val)
     }
 
     for (Nst_LLIST_ITER(n, bc->functions))
-        replace_access(FUNC(n->value)->body.bytecode, name, val);
+        replace_access(Nst_func_nest_body(n->value), name, val);
 }
 
 static void optimize_const(Nst_InstList *bc, const i8 *name, Nst_Obj *val)
@@ -837,7 +837,7 @@ static void remove_inst(Nst_InstList *bc, i64 idx)
 static bool optimize_funcs(Nst_InstList *bc)
 {
     for (Nst_LLIST_ITER(n, bc->functions)) {
-        Nst_InstList *func_bc = FUNC(n->value)->body.bytecode;
+        Nst_InstList *func_bc = Nst_func_nest_body(n->value);
         if (!optimize_bytecode(func_bc, false))
             return false;
     }

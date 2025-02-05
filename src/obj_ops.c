@@ -870,7 +870,7 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
         return Nst_str_new_allocated(buffer, strlen(empty_val));
     } else if (ob_t == Nst_t.Func) {
         usize str_len;
-        usize arg_num = FUNC(ob)->arg_num;
+        usize arg_num = Nst_func_arg_num(ob);
         i8 *str = Nst_fmt(
             "<Func {z} arg{s}>", 17, &str_len,
             arg_num, arg_num == 1 ? "" : "s");
@@ -1407,7 +1407,7 @@ Nst_Obj *_Nst_obj_len(Nst_Obj *ob)
     else if (IS_SEQ(ob))
         return Nst_int_new(Nst_seq_len(ob));
     else if (ob->type == Nst_t.Func)
-        return Nst_int_new(FUNC(ob)->arg_num);
+        return Nst_int_new((i64)Nst_func_arg_num(ob));
     else
         RETURN_LOCAL_OP_TYPE_ERROR("$");
 }

@@ -62,9 +62,10 @@ void Nst_es_destroy(Nst_ExecutionState *es)
         Nst_vt_destroy(es->vt);
 }
 
-Nst_FuncCall Nst_func_call_from_es(Nst_FuncObj *func, Nst_Pos start,
+Nst_FuncCall Nst_func_call_from_es(Nst_Obj *func, Nst_Pos start,
                                    Nst_Pos end, Nst_ExecutionState *es)
 {
+    Nst_assert(func->type == Nst_t.Func);
     Nst_FuncCall call = {
         .func = func,
         .start = start,
@@ -214,7 +215,7 @@ i32 Nst_execute(Nst_CLArgs args, Nst_ExecutionState *es, Nst_SourceText *src)
     }
 
     Nst_es_init_vt(es, &args);
-    Nst_FuncObj *main_func = FUNC(Nst_func_new(0, inst_ls));
+    Nst_Obj *main_func = Nst_func_new(0, inst_ls);
     return Nst_run(main_func);
 }
 
@@ -250,7 +251,7 @@ bool Nst_es_push_module(Nst_ExecutionState *es, i8 *filename,
 {
     i32 opt_level = Nst_state.opt_level;
     Nst_InstList *inst_ls = NULL;
-    Nst_FuncObj *mod_func = NULL;
+    Nst_Obj *mod_func = NULL;
     Nst_StrObj *path_str  = NULL;
     Nst_VarTable *vt = NULL;
 
@@ -286,7 +287,7 @@ bool Nst_es_push_module(Nst_ExecutionState *es, i8 *filename,
     if (inst_ls == NULL)
         goto cleanup;
 
-    mod_func = FUNC(Nst_func_new(0, inst_ls));
+    mod_func = Nst_func_new(0, inst_ls);
     if (mod_func == NULL)
         goto cleanup;
     inst_ls = NULL;
@@ -327,11 +328,12 @@ cleanup:
     return false;
 }
 
-bool Nst_es_push_func(Nst_ExecutionState *es, Nst_FuncObj *func, Nst_Pos start,
+bool Nst_es_push_func(Nst_ExecutionState *es, Nst_Obj *func, Nst_Pos start,
                       Nst_Pos end, i64 arg_num, Nst_Obj **args)
 {
-    if (func->arg_num < arg_num) {
-        Nst_set_call_error(_Nst_EM_WRONG_ARG_NUM_FMT(func->arg_num, arg_num));
+    usize func_arg_num = Nst_func_arg_num(func);
+    if ((i64)func_arg_num < arg_num) {
+        Nst_set_call_error(_Nst_EM_WRONG_ARG_NUM_FMT(func_arg_num, arg_num));
         return false;
     }
 
@@ -346,9 +348,10 @@ bool Nst_es_push_func(Nst_ExecutionState *es, Nst_FuncObj *func, Nst_Pos start,
     es->vt = new_vt;
 
     // add the given arguments
+    Nst_Obj **func_args = Nst_func_args(func);
     if (args != NULL) {
         for (i64 i = 0; i < arg_num; i++) {
-            if (!Nst_vt_set(new_vt, func->args[i], args[i])) {
+            if (!Nst_vt_set(new_vt, func_args[i], args[i])) {
                 Nst_vt_destroy(new_vt);
                 return false;
             }
@@ -356,7 +359,7 @@ bool Nst_es_push_func(Nst_ExecutionState *es, Nst_FuncObj *func, Nst_Pos start,
     } else {
         for (i64 i = 0; i < arg_num; i++) {
             Nst_Obj *arg = Nst_vstack_pop(&es->v_stack);
-            if (!Nst_vt_set(new_vt, func->args[arg_num - i - 1], arg)) {
+            if (!Nst_vt_set(new_vt, func_args[arg_num - i - 1], arg)) {
                 Nst_dec_ref(arg);
                 Nst_vt_destroy(new_vt);
                 return false;
@@ -366,8 +369,8 @@ bool Nst_es_push_func(Nst_ExecutionState *es, Nst_FuncObj *func, Nst_Pos start,
     }
 
     // fill the remaining ones with `null`
-    for (i64 i = arg_num, n = func->arg_num; i < n; i++) {
-        if (!Nst_vt_set(new_vt, func->args[i], Nst_null())) {
+    for (i64 i = arg_num; i < (i64)func_arg_num; i++) {
+        if (!Nst_vt_set(new_vt, func_args[i], Nst_null())) {
             Nst_vt_destroy(new_vt);
             return false;
         }
@@ -378,11 +381,12 @@ bool Nst_es_push_func(Nst_ExecutionState *es, Nst_FuncObj *func, Nst_Pos start,
     return true;
 }
 
-bool Nst_es_push_paused_coroutine(Nst_ExecutionState *es, Nst_FuncObj *func,
+bool Nst_es_push_paused_coroutine(Nst_ExecutionState *es, Nst_Obj *func,
                                   Nst_Pos start, Nst_Pos end, i64 idx,
                                   Nst_VarTable *vt)
 {
-    Nst_assert(!Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C));
+    Nst_assert(func->type == Nst_t.Func);
+    Nst_assert(!Nst_FUNC_IS_C(func));
 
     Nst_FuncCall call = Nst_func_call_from_es(func, start, end, es);
 
@@ -396,5 +400,6 @@ bool Nst_es_push_paused_coroutine(Nst_ExecutionState *es, Nst_FuncObj *func,
 
 void Nst_es_force_function_end(Nst_ExecutionState *es)
 {
-    es->idx = Nst_fstack_peek(&es->f_stack).func->body.bytecode->total_size;
+    es->idx =
+        Nst_func_nest_body(Nst_fstack_peek(&es->f_stack).func)->total_size;
 }

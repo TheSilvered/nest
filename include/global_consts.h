@@ -110,17 +110,17 @@ NstEXP typedef struct _Nst_StdStreams {
 
 /* The functions of the built-in iterators. */
 NstEXP typedef struct _Nst_IterFunctions {
-    Nst_FuncObj *range_start;
-    Nst_FuncObj *range_next;
+    Nst_Obj *range_start;
+    Nst_Obj *range_next;
 
-    Nst_FuncObj *seq_start;
-    Nst_FuncObj *seq_next;
+    Nst_Obj *seq_start;
+    Nst_Obj *seq_next;
 
-    Nst_FuncObj *str_start;
-    Nst_FuncObj *str_next;
+    Nst_Obj *str_start;
+    Nst_Obj *str_next;
 
-    Nst_FuncObj *map_start;
-    Nst_FuncObj *map_next;
+    Nst_Obj *map_start;
+    Nst_Obj *map_next;
 } Nst_IterFunctions;
 
 /**

@@ -42,7 +42,7 @@ typedef void *lib_t;
 #define UNTIL_ALL_FUNCS_FINISH 0
 #define POP_TOP_VALUE Nst_vstack_pop(&Nst_state.es->v_stack)
 #define GET_CURRENT_INST_LS                                                   \
-    Nst_fstack_peek(&Nst_state.es->f_stack).func->body.bytecode
+    Nst_func_nest_body(Nst_fstack_peek(&Nst_state.es->f_stack).func)
 #define FAST_TOP_VAL                                                          \
     (Nst_state.es->v_stack.stack[Nst_state.es->v_stack.len - 1])
 
@@ -103,7 +103,7 @@ static InstResult exe_save_error();
 static InstResult exe_unpack_seq();
 
 static InstResult call_c_func(bool is_seq_call, i64 arg_num,
-                              Nst_Obj *args_seq, Nst_FuncObj *func);
+                              Nst_Obj *args_seq, Nst_Obj *func);
 static void loaded_libs_destructor(lib_t lib);
 static void source_text_destructor(Nst_SourceText *src);
 
@@ -301,8 +301,10 @@ bool Nst_was_init(void)
     return state_init;
 }
 
-i32 Nst_run(Nst_FuncObj *main_func)
+i32 Nst_run(Nst_Obj *main_func)
 {
+    Nst_assert(main_func->type == Nst_t.Func);
+
     signal(SIGINT, interrupt_handler);
 
     // Push the path of the current file on the import stack
@@ -478,8 +480,7 @@ Nst_Inst *Nst_current_inst(void)
     if (Nst_state.es == NULL || Nst_state.es->f_stack.len == 0)
         return NULL;
 
-    Nst_InstList *inst_list =
-        Nst_fstack_peek(&Nst_state.es->f_stack).func->body.bytecode;
+    Nst_InstList *inst_list = GET_CURRENT_INST_LS;
     if (Nst_state.es->idx >= (i64)inst_list->total_size
         || Nst_state.es->idx < 0)
     {
@@ -502,11 +503,12 @@ bool Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
         return true;
 }
 
-Nst_Obj *Nst_func_call(Nst_FuncObj *func, i64 arg_num, Nst_Obj **args)
+Nst_Obj *Nst_func_call(Nst_Obj *func, i64 arg_num, Nst_Obj **args)
 {
-    if (Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C)) {
-        i64 tot_args = func->arg_num;
-        i64 null_args = (i64)func->arg_num - arg_num;
+    Nst_assert(func->type == Nst_t.Func);
+    if (Nst_FUNC_IS_C(func)) {
+        i64 tot_args = (i64)Nst_func_arg_num(func);
+        i64 null_args = tot_args - arg_num;
 
         if (tot_args < arg_num) {
             Nst_set_call_error(
@@ -535,7 +537,7 @@ Nst_Obj *Nst_func_call(Nst_FuncObj *func, i64 arg_num, Nst_Obj **args)
         for (i64 i = 0; i < null_args; i++)
             all_args[arg_num + i] = Nst_inc_ref(Nst_c.Null_null);
 
-        Nst_Obj *res = func->body.c_func((usize)tot_args, all_args);
+        Nst_Obj *res = Nst_func_c_body(func)((usize)tot_args, all_args);
         if (all_args != stack_args && all_args != args)
             Nst_free(all_args);
 
@@ -558,8 +560,9 @@ Nst_Obj *Nst_func_call(Nst_FuncObj *func, i64 arg_num, Nst_Obj **args)
     return POP_TOP_VALUE;
 }
 
-Nst_Obj *Nst_run_paused_coroutine(Nst_FuncObj *func, i64 idx, Nst_VarTable *vt)
+Nst_Obj *Nst_run_paused_coroutine(Nst_Obj *func, i64 idx, Nst_VarTable *vt)
 {
+    Nst_assert(func->type == Nst_t.Func);
     bool result = Nst_es_push_paused_coroutine(
         Nst_state.es,
         func,
@@ -604,12 +607,12 @@ static InstResult exe_pop_val()
     return INST_SUCCESS;
 }
 
-static InstResult exe_for_inst(Nst_Obj *iter, Nst_FuncObj *func)
+static InstResult exe_for_inst(Nst_Obj *iter, Nst_Obj *func)
 {
     Nst_assert(iter->type == Nst_t.Iter);
-    if (Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C)) {
+    if (Nst_FUNC_IS_C(func)) {
         Nst_Obj *iter_value = Nst_iter_value(iter);
-        Nst_Obj *res = func->body.c_func(
+        Nst_Obj *res = Nst_func_c_body(func)(
             (usize)inst->int_val,
             &iter_value);
         if (res == NULL)
@@ -825,10 +828,10 @@ end:
 }
 
 static InstResult call_c_func(bool is_seq_call, i64 arg_num,
-                              Nst_Obj *args_seq, Nst_FuncObj *func)
+                              Nst_Obj *args_seq, Nst_Obj *func)
 {
-    i64 tot_args = func->arg_num;
-    i64 null_args = (i64)func->arg_num - arg_num;
+    i64 tot_args = (i64)Nst_func_arg_num(func);
+    i64 null_args = tot_args - arg_num;
 
     if (tot_args < arg_num) {
         Nst_set_call_error(
@@ -879,7 +882,7 @@ static InstResult call_c_func(bool is_seq_call, i64 arg_num,
     for (i64 i = 0; i < null_args; i++)
         args[arg_num + i] = Nst_inc_ref(Nst_c.Null_null);
 
-    Nst_Obj *res = func->body.c_func((usize)tot_args, args);
+    Nst_Obj *res = Nst_func_c_body(func)((usize)tot_args, args);
 
     if (!is_seq_call) {
         for (i64 i = 0; i < tot_args; i++)
@@ -915,7 +918,7 @@ static InstResult exe_op_call()
 
     i64 arg_num = inst->int_val;
     bool is_seq_call = false;
-    Nst_FuncObj *func = FUNC(POP_TOP_VALUE);
+    Nst_Obj *func = POP_TOP_VALUE;
 
     if (!type_check(OBJ(func), Nst_t.Func)) {
         Nst_dec_ref(func);
@@ -940,7 +943,7 @@ static InstResult exe_op_call()
     } else
         args_seq = NULL;
 
-    if (Nst_HAS_FLAG(func, Nst_FLAG_FUNC_IS_C))
+    if (Nst_FUNC_IS_C(func))
         return call_c_func(is_seq_call, arg_num, args_seq, func);
 
     bool result = Nst_es_push_func(

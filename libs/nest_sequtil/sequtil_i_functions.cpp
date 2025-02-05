@@ -19,7 +19,7 @@ Nst_Obj *NstC map_i_next(usize arg_num, Nst_Obj **args)
     if (raw_value == nullptr || raw_value == Nst_iend())
         return raw_value;
 
-    Nst_Obj *mapped_value = Nst_func_call(FUNC(func), 1, &raw_value);
+    Nst_Obj *mapped_value = Nst_func_call(func, 1, &raw_value);
     Nst_dec_ref(raw_value);
     if (mapped_value == nullptr)
         return nullptr;
@@ -108,7 +108,7 @@ Nst_Obj *NstC filter_i_next(usize arg_num, Nst_Obj **args)
         if (value == nullptr || value == Nst_iend())
             return value;
 
-        Nst_Obj *result_obj = Nst_func_call(FUNC(func), 1, &value);
+        Nst_Obj *result_obj = Nst_func_call(func, 1, &value);
         if (result_obj == nullptr)
             return nullptr;
         bool result = Nst_obj_to_bool(result_obj);

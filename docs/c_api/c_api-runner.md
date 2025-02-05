@@ -81,8 +81,8 @@ Destroys the contents of an execution state.
 **Synopsis:**
 
 ```better-c
-Nst_FuncCall Nst_func_call_from_es(Nst_FuncObj *func, Nst_Pos start,
-                                   Nst_Pos end, Nst_ExecutionState *es)
+Nst_FuncCall Nst_func_call_from_es(Nst_Obj *func, Nst_Pos start, Nst_Pos end,
+                                   Nst_ExecutionState *es)
 ```
 
 **Description:**
@@ -214,7 +214,7 @@ Compiles a module given a path and sets up an execution state to run it.
 **Synopsis:**
 
 ```better-c
-bool Nst_es_push_func(Nst_ExecutionState *es, Nst_FuncObj *func, Nst_Pos start,
+bool Nst_es_push_func(Nst_ExecutionState *es, Nst_Obj *func, Nst_Pos start,
                       Nst_Pos end, i64 arg_num, Nst_Obj **args)
 ```
 
@@ -248,7 +248,7 @@ the function.
 **Synopsis:**
 
 ```better-c
-bool Nst_es_push_paused_coroutine(Nst_ExecutionState *es, Nst_FuncObj *func,
+bool Nst_es_push_paused_coroutine(Nst_ExecutionState *es, Nst_Obj *func,
                                   Nst_Pos start, Nst_Pos end, i64 idx,
                                   Nst_VarTable *vt)
 ```

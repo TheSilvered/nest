@@ -8,29 +8,29 @@ extern "C" {
 #endif // !__cplusplus
 
 typedef struct _ItutilFunctions {
-    Nst_FuncObj *count_start;
-    Nst_FuncObj *count_next;
-    Nst_FuncObj *cycle_str_start;
-    Nst_FuncObj *cycle_str_next;
-    Nst_FuncObj *cycle_seq_start;
-    Nst_FuncObj *cycle_seq_next;
-    Nst_FuncObj *cycle_iter_start;
-    Nst_FuncObj *cycle_iter_next;
-    Nst_FuncObj *repeat_start;
-    Nst_FuncObj *repeat_next;
-    Nst_FuncObj *chain_start;
-    Nst_FuncObj *chain_next;
-    Nst_FuncObj *zip_start;
-    Nst_FuncObj *zip_next;
-    Nst_FuncObj *zipn_start;
-    Nst_FuncObj *zipn_next;
-    Nst_FuncObj *enumerate_start;
-    Nst_FuncObj *enumerate_next;
-    Nst_FuncObj *keys_next;
-    Nst_FuncObj *values_next;
-    Nst_FuncObj *batch_start;
-    Nst_FuncObj *batch_next;
-    Nst_FuncObj *batch_padded_next;
+    Nst_Obj *count_start;
+    Nst_Obj *count_next;
+    Nst_Obj *cycle_str_start;
+    Nst_Obj *cycle_str_next;
+    Nst_Obj *cycle_seq_start;
+    Nst_Obj *cycle_seq_next;
+    Nst_Obj *cycle_iter_start;
+    Nst_Obj *cycle_iter_next;
+    Nst_Obj *repeat_start;
+    Nst_Obj *repeat_next;
+    Nst_Obj *chain_start;
+    Nst_Obj *chain_next;
+    Nst_Obj *zip_start;
+    Nst_Obj *zip_next;
+    Nst_Obj *zipn_start;
+    Nst_Obj *zipn_next;
+    Nst_Obj *enumerate_start;
+    Nst_Obj *enumerate_next;
+    Nst_Obj *keys_next;
+    Nst_Obj *values_next;
+    Nst_Obj *batch_start;
+    Nst_Obj *batch_next;
+    Nst_Obj *batch_padded_next;
 } ItutilFunctions;
 
 extern ItutilFunctions itutil_functions;

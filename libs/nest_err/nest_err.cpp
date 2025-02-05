@@ -116,7 +116,7 @@ cleanup:
 
 Nst_Obj *NstC try_(usize arg_num, Nst_Obj **args)
 {
-    Nst_FuncObj *func;
+    Nst_Obj *func;
     Nst_Obj *func_args;
     bool catch_exit;
     bool catch_interrupt;
@@ -129,25 +129,26 @@ Nst_Obj *NstC try_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    i64 func_arg_num;
+    i64 func_args_len;
     Nst_Obj **objs;
     if (OBJ(func_args) == Nst_null()) {
-        func_arg_num = 0;
+        func_args_len = 0;
         objs = nullptr;
     } else {
-        func_arg_num = Nst_seq_len(func_args);
+        func_args_len = Nst_seq_len(func_args);
         objs = _Nst_seq_objs(func_args);
     }
+    usize func_arg_num = Nst_func_arg_num(func);
 
-    if (func_arg_num > func->arg_num) {
+    if (func_args_len > (i64)func_arg_num) {
         Nst_set_call_error(
-            _Nst_EM_WRONG_ARG_NUM_FMT(func->arg_num, func_arg_num));
+            _Nst_EM_WRONG_ARG_NUM_FMT(func_arg_num, func_args_len));
         return nullptr;
     }
 
     Nst_Obj *result = Nst_func_call(
         func,
-        func_arg_num,
+        func_args_len,
         objs);
 
     if (result != nullptr)
