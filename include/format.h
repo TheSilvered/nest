@@ -583,7 +583,7 @@ NstEXP isize NstC Nst_print(const i8 *buf);
  * @return The number of bytes written. If the file is closed `-1` is returned.
  * No error is set.
  */
-NstEXP isize NstC Nst_fprint(Nst_IOFileObj *f, const i8 *buf);
+NstEXP isize NstC Nst_fprint(Nst_Obj *f, const i8 *buf);
 
 /**
  * Prints a string to the Nest standard output appending a newline character.
@@ -615,7 +615,7 @@ NstEXP isize NstC Nst_println(const i8 *buf);
  * @return The number of bytes written, including the newline character. If the
  * file is closed `-1` is returned. No error is set.
  */
-NstEXP isize NstC Nst_fprintln(Nst_IOFileObj *f, const i8 *buf);
+NstEXP isize NstC Nst_fprintln(Nst_Obj *f, const i8 *buf);
 
 /**
  * Prints a formatted string to the Nest standard output. The format specifier
@@ -650,10 +650,10 @@ NstEXP isize NstC Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
  *! `-3` an error in the format string and
  *! `-4` a memory allocation error.
  */
-NstEXP isize NstC Nst_fprintf(Nst_IOFileObj *f, Nst_WIN_FMT const i8 *fmt, ...)
-                                                Nst_NIX_FMT(2, 3);
+NstEXP isize NstC Nst_fprintf(Nst_Obj *f, Nst_WIN_FMT const i8 *fmt, ...)
+                                          Nst_NIX_FMT(2, 3);
 /* `va_list` variant of `Nst_fprintf`. */
-NstEXP isize NstC Nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args);
+NstEXP isize NstC Nst_vfprintf(Nst_Obj *f, const i8 *fmt, va_list args);
 
 /**
  * Creates a Nest string object from a format placeholder. The format specifier

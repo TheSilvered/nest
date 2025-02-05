@@ -24,7 +24,7 @@
 
 static bool use_color = true;
 static bool use_stderr = false;
-static Nst_IOFileObj *err_stream = NULL;
+static Nst_Obj *err_stream = NULL;
 static i8 *printf_buf = NULL;
 static usize buf_size = 0;
 
@@ -35,7 +35,7 @@ void Nst_set_color(bool color)
 
 static inline void set_error_stream(void)
 {
-    err_stream = IOFILE(Nst_inc_ref(Nst_io.err));
+    err_stream = Nst_inc_ref(Nst_io.err);
     if (Nst_IOF_IS_CLOSED(err_stream)) {
         Nst_dec_ref(err_stream);
         use_stderr = true;

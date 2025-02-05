@@ -14,11 +14,11 @@ Nst_StdStreams Nst_io;
 Nst_IterFunctions Nst_itf;
 
 static Nst_IOResult write_std_stream(i8 *buf, usize buf_len, usize *count,
-                                     Nst_IOFileObj *f);
-static Nst_IOResult close_std_stream(Nst_IOFileObj *f);
+                                     Nst_Obj *f);
+static Nst_IOResult close_std_stream(Nst_Obj *f);
 
 static Nst_IOResult read_std_stream(i8 *buf, usize buf_size, usize count,
-                                    usize *buf_len, Nst_IOFileObj *f);
+                                    usize *buf_len, Nst_Obj *f);
 
 static Nst_TypeObj *type_obj_no_err(const i8 *name, Nst_ObjDstr dstr)
 {
@@ -164,18 +164,25 @@ bool _Nst_globals_init(void)
     Nst_c.Byte_0     = Nst_byte_new(0);
     Nst_c.Byte_1     = Nst_byte_new(1);
 
-    Nst_io.in  = IOFILE(Nst_iof_new(stdin,  false, true, false, NULL));
-    Nst_io.out = IOFILE(Nst_iof_new(stdout, false, false, true, NULL));
-    Nst_io.err = IOFILE(Nst_iof_new(stderr, false, false, true, NULL));
+    Nst_io.in  = Nst_iof_new(stdin,  false, true, false, NULL);
+    Nst_io.out = Nst_iof_new(stdout, false, false, true, NULL);
+    Nst_io.err = Nst_iof_new(stderr, false, false, true, NULL);
 
-    Nst_io.in->func_set.read = read_std_stream;
-
-    Nst_io.out->func_set.write = write_std_stream;
-    Nst_io.err->func_set.write = write_std_stream;
-
-    Nst_io.in ->func_set.close = close_std_stream;
-    Nst_io.out->func_set.close = close_std_stream;
-    Nst_io.err->func_set.close = close_std_stream;
+    if (Nst_io.in != NULL) {
+        Nst_IOFuncSet *in_funcs = Nst_iof_func_set(Nst_io.in);
+        in_funcs->read = read_std_stream;
+        in_funcs->close = close_std_stream;
+    }
+    if (Nst_io.out != NULL) {
+        Nst_IOFuncSet *out_funcs = Nst_iof_func_set(Nst_io.out);
+        out_funcs->write = write_std_stream;
+        out_funcs->close = close_std_stream;
+    }
+    if (Nst_io.err != NULL) {
+        Nst_IOFuncSet *err_funcs = Nst_iof_func_set(Nst_io.err);
+        err_funcs->write = write_std_stream;
+        err_funcs->close = close_std_stream;
+    }
 
     Nst_itf.range_start = FUNC(Nst_func_new_c(1, Nst_iter_range_start));
     Nst_itf.range_next  = FUNC(Nst_func_new_c(1, Nst_iter_range_next));
@@ -329,12 +336,12 @@ Nst_StdStreams *Nst_stdio(void)
 }
 
 static Nst_IOResult write_std_stream(i8 *buf, usize buf_len, usize *count,
-                                     Nst_IOFileObj *f)
+                                     Nst_Obj *f)
 {
     if (count != NULL)
         *count = Nst_str_utf8_char_len((u8 *)buf, buf_len);
 
-    usize bytes_written = fwrite(buf, 1, buf_len, f->fp);
+    usize bytes_written = fwrite(buf, 1, buf_len, (FILE *)Nst_iof_fp(f));
 
     if (bytes_written >= buf_len) {
         return Nst_IO_SUCCESS;
@@ -353,7 +360,7 @@ static Nst_IOResult write_std_stream(i8 *buf, usize buf_len, usize *count,
     return Nst_IO_ERROR;
 }
 
-static Nst_IOResult close_std_stream(Nst_IOFileObj *f)
+static Nst_IOResult close_std_stream(Nst_Obj *f)
 {
     Nst_UNUSED(f);
     return Nst_IO_SUCCESS;
@@ -414,9 +421,9 @@ static bool get_ch(Nst_Buffer *buf)
 static bool get_ch(Nst_Buffer *buf)
 {
     i8 ch_buf[5] = { 0 };
-
+    FILE *fp = Nst_iof_fp(Nst_io.in);
     for (i32 i = 0; i < 4; i++) {
-        if (fread(ch_buf + i, 1, 1, Nst_io.in->fp) == 0)
+        if (fread(ch_buf + i, 1, 1, fp) == 0)
             return false;
 
         if (Nst_check_ext_utf8_bytes((u8 *)ch_buf, i + 1) > 0) {
@@ -432,7 +439,7 @@ success:
 #endif
 
 static Nst_IOResult read_std_stream(i8 *buf, usize buf_size, usize count,
-                                    usize *buf_len, Nst_IOFileObj *f)
+                                    usize *buf_len, Nst_Obj *f)
 {
 #ifdef Nst_MSVC
     if (Nst_stdin.hd == NULL)

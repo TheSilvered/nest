@@ -123,9 +123,9 @@ Each constants is preceded by the name of its type.
 
 ```better-c
 typedef struct _Nst_StdStreams {
-    Nst_IOFileObj *in;
-    Nst_IOFileObj *out;
-    Nst_IOFileObj *err;
+    Nst_Obj *in;
+    Nst_Obj *out;
+    Nst_Obj *err;
 } Nst_StdStreams
 ```
 

@@ -103,9 +103,9 @@ NstEXP typedef struct _Nst_Consts {
  * @brief Note: these are not constant and can change at run-time.
  */
 NstEXP typedef struct _Nst_StdStreams {
-    Nst_IOFileObj *in;
-    Nst_IOFileObj *out;
-    Nst_IOFileObj *err;
+    Nst_Obj *in;
+    Nst_Obj *out;
+    Nst_Obj *err;
 } Nst_StdStreams;
 
 /* The functions of the built-in iterators. */

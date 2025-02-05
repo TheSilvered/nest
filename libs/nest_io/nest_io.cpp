@@ -55,7 +55,7 @@ void lib_quit()
     Nst_dec_ref(stdout_obj);
 }
 
-static usize get_file_size(Nst_IOFileObj *f)
+static usize get_file_size(Nst_Obj *f)
 {
     usize start, end;
     Nst_ftell(f, &start);
@@ -66,14 +66,14 @@ static usize get_file_size(Nst_IOFileObj *f)
 }
 
 static Nst_IOResult virtual_file_read(i8 *buf, usize buf_size, usize count,
-                                      usize *buf_len, Nst_IOFileObj *f)
+                                      usize *buf_len, Nst_Obj *f)
 {
     if (Nst_IOF_IS_CLOSED(f))
         return Nst_IO_CLOSED;
 
     // virtual files always support reading
 
-    VirtualFile *vf = (VirtualFile *)f->fp;
+    VirtualFile *vf = (VirtualFile *)Nst_iof_fp(f);
     i8 *out_buf = buf_size == 0 ? NULL : buf;
 
     if (Nst_IOF_IS_BIN(f)) {
@@ -150,14 +150,14 @@ static Nst_IOResult virtual_file_read(i8 *buf, usize buf_size, usize count,
 }
 
 static Nst_IOResult virtual_file_write(i8 *buf, usize buf_len, usize *count,
-                                       Nst_IOFileObj *f)
+                                       Nst_Obj *f)
 {
     if (Nst_IOF_IS_CLOSED(f))
         return Nst_IO_CLOSED;
 
     // virtual files always support writing
 
-    VirtualFile *vf = (VirtualFile *)f->fp;
+    VirtualFile *vf = (VirtualFile *)Nst_iof_fp(f);
 
     if (count != NULL && Nst_IOF_IS_BIN(f))
         *count = buf_len;
@@ -188,7 +188,7 @@ static Nst_IOResult virtual_file_write(i8 *buf, usize buf_len, usize *count,
     return Nst_IO_SUCCESS;
 }
 
-static Nst_IOResult virtual_file_flush(Nst_IOFileObj *f)
+static Nst_IOResult virtual_file_flush(Nst_Obj *f)
 {
     if (Nst_IOF_IS_CLOSED(f))
         return Nst_IO_CLOSED;
@@ -196,22 +196,22 @@ static Nst_IOResult virtual_file_flush(Nst_IOFileObj *f)
     return Nst_IO_SUCCESS;
 }
 
-static Nst_IOResult virtual_file_tell(Nst_IOFileObj *f, usize *pos)
+static Nst_IOResult virtual_file_tell(Nst_Obj *f, usize *pos)
 {
     if (Nst_IOF_IS_CLOSED(f))
         return Nst_IO_CLOSED;
 
-    *pos = ((VirtualFile *)f->fp)->ptr;
+    *pos = ((VirtualFile *)Nst_iof_fp(f))->ptr;
     return Nst_IO_SUCCESS;
 }
 
 static Nst_IOResult virtual_file_seek(Nst_SeekWhence origin, isize offset,
-                                      Nst_IOFileObj *f)
+                                      Nst_Obj *f)
 {
     if (Nst_IOF_IS_CLOSED(f))
         return Nst_IO_CLOSED;
 
-    VirtualFile *vf = (VirtualFile *)f->fp;
+    VirtualFile *vf = (VirtualFile *)Nst_iof_fp(f);
 
     isize new_pos;
     if (origin == Nst_SEEK_CUR)
@@ -232,12 +232,12 @@ static Nst_IOResult virtual_file_seek(Nst_SeekWhence origin, isize offset,
     return Nst_IO_SUCCESS;
 }
 
-static Nst_IOResult virtual_file_close(Nst_IOFileObj *f)
+static Nst_IOResult virtual_file_close(Nst_Obj *f)
 {
     if (Nst_IOF_IS_CLOSED(f))
         return Nst_IO_CLOSED;
 
-    VirtualFile *vf = (VirtualFile *)f->fp;
+    VirtualFile *vf = (VirtualFile *)Nst_iof_fp(f);
     Nst_sbuffer_destroy(&vf->data);
     Nst_free(vf);
 
@@ -404,7 +404,7 @@ Nst_Obj *NstC virtual_file_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC close_(usize arg_num, Nst_Obj **args)
 {
-    Nst_IOFileObj *f;
+    Nst_Obj *f;
 
     if (!Nst_extract_args("F", arg_num, args, &f))
         return nullptr;
@@ -422,7 +422,7 @@ Nst_Obj *NstC close_(usize arg_num, Nst_Obj **args)
 Nst_Obj *NstC write_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *value_to_write;
-    Nst_IOFileObj *f;
+    Nst_Obj *f;
 
     if (!Nst_extract_args("F o", arg_num, args, &f, &value_to_write))
         return nullptr;
@@ -469,7 +469,7 @@ Nst_Obj *NstC write_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC write_bytes_(usize arg_num, Nst_Obj **args)
 {
-    Nst_IOFileObj *f;
+    Nst_Obj *f;
     Nst_Obj *seq;
 
     if (!Nst_extract_args("F A.B", arg_num, args, &f, &seq))
@@ -510,7 +510,7 @@ Nst_Obj *NstC write_bytes_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC read_(usize arg_num, Nst_Obj **args)
 {
-    Nst_IOFileObj *f;
+    Nst_Obj *f;
     Nst_Obj *bytes_to_read_obj;
 
     if (!Nst_extract_args("F ?i", arg_num, args, &f, &bytes_to_read_obj))
@@ -575,7 +575,7 @@ Nst_Obj *NstC read_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC read_bytes_(usize arg_num, Nst_Obj **args)
 {
-    Nst_IOFileObj *f;
+    Nst_Obj *f;
     Nst_Obj *bytes_to_read_obj;
 
     if (!Nst_extract_args("F ?i", arg_num, args, &f, &bytes_to_read_obj))
@@ -635,7 +635,7 @@ Nst_Obj *NstC read_bytes_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC file_size_(usize arg_num, Nst_Obj **args)
 {
-    Nst_IOFileObj *f;
+    Nst_Obj *f;
 
     if (!Nst_extract_args("F", arg_num, args, &f))
         return nullptr;
@@ -653,7 +653,7 @@ Nst_Obj *NstC file_size_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC seek_(usize arg_num, Nst_Obj **args)
 {
-    Nst_IOFileObj *f;
+    Nst_Obj *f;
     Nst_Obj *start_obj;
     Nst_Obj *offset_obj;
 
@@ -717,7 +717,7 @@ Nst_Obj *NstC seek_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC flush_(usize arg_num, Nst_Obj **args)
 {
-    Nst_IOFileObj *f;
+    Nst_Obj *f;
 
     if (!Nst_extract_args("F", arg_num, args, &f))
         return nullptr;
@@ -744,7 +744,7 @@ Nst_Obj *NstC flush_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC get_flags_(usize arg_num, Nst_Obj **args)
 {
-    Nst_IOFileObj *f;
+    Nst_Obj *f;
 
     if (!Nst_extract_args("F", arg_num, args, &f))
         return nullptr;
@@ -770,7 +770,7 @@ Nst_Obj *NstC get_flags_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC can_read_(usize arg_num, Nst_Obj **args)
 {
-    Nst_IOFileObj *f;
+    Nst_Obj *f;
     if (!Nst_extract_args("F", arg_num, args, &f))
         return nullptr;
     if (Nst_IOF_IS_CLOSED(f)) {
@@ -782,7 +782,7 @@ Nst_Obj *NstC can_read_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC can_write_(usize arg_num, Nst_Obj **args)
 {
-    Nst_IOFileObj *f;
+    Nst_Obj *f;
     if (!Nst_extract_args("F", arg_num, args, &f))
         return nullptr;
     if (Nst_IOF_IS_CLOSED(f)) {
@@ -794,7 +794,7 @@ Nst_Obj *NstC can_write_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC can_seek_(usize arg_num, Nst_Obj **args)
 {
-    Nst_IOFileObj *f;
+    Nst_Obj *f;
     if (!Nst_extract_args("F", arg_num, args, &f))
         return nullptr;
     if (Nst_IOF_IS_CLOSED(f)) {
@@ -806,7 +806,7 @@ Nst_Obj *NstC can_seek_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC is_bin_(usize arg_num, Nst_Obj **args)
 {
-    Nst_IOFileObj *f;
+    Nst_Obj *f;
     if (!Nst_extract_args("F", arg_num, args, &f))
         return nullptr;
     if (Nst_IOF_IS_CLOSED(f)) {
@@ -818,7 +818,7 @@ Nst_Obj *NstC is_bin_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC is_a_tty_(usize arg_num, Nst_Obj **args)
 {
-    Nst_IOFileObj *f;
+    Nst_Obj *f;
     if (!Nst_extract_args("F", arg_num, args, &f))
         return nullptr;
     if (Nst_IOF_IS_CLOSED(f)) {
@@ -830,33 +830,34 @@ Nst_Obj *NstC is_a_tty_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC descriptor_(usize arg_num, Nst_Obj **args)
 {
-    Nst_IOFileObj *f;
+    Nst_Obj *f;
     if (!Nst_extract_args("F", arg_num, args, &f))
         return nullptr;
     if (Nst_IOF_IS_CLOSED(f)) {
         SET_FILE_CLOSED_ERROR;
         return nullptr;
     }
-    return Nst_int_new(f->fd);
+    return Nst_int_new(Nst_iof_fd(f));
 }
 
 Nst_Obj *NstC encoding_(usize arg_num, Nst_Obj **args)
 {
-    Nst_IOFileObj *f;
+    Nst_Obj *f;
     if (!Nst_extract_args("F", arg_num, args, &f))
         return nullptr;
     if (Nst_IOF_IS_CLOSED(f)) {
         SET_FILE_CLOSED_ERROR;
         return nullptr;
     }
-    if (f->encoding == NULL) {
+    Nst_Encoding *encoding = Nst_iof_encoding(f);
+    if (encoding == NULL) {
         if (Nst_IOF_IS_BIN(f))
             Nst_set_type_error_c("cannot get the encoding of a binary file");
         else
             Nst_set_value_error_c("failed to get the encoding of the file");
         return nullptr;
     }
-    return Nst_str_new_c_raw(f->encoding->name, false);
+    return Nst_str_new_c_raw(encoding->name, false);
 }
 
 Nst_Obj *NstC println_(usize arg_num, Nst_Obj **args)
@@ -867,10 +868,7 @@ Nst_Obj *NstC println_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("o y ?F", arg_num, args, &obj, &flush, &file_obj))
         return nullptr;
 
-    Nst_IOFileObj *file = Nst_DEF_VAL(
-        file_obj,
-        IOFILE(file_obj),
-        Nst_stdio()->out);
+    Nst_Obj *file = Nst_DEF_VAL(file_obj, file_obj, Nst_stdio()->out);
 
     if (Nst_IOF_IS_CLOSED(file)) {
         SET_FILE_CLOSED_ERROR;
@@ -913,7 +911,7 @@ Nst_Obj *NstC println_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC _set_stdin_(usize arg_num, Nst_Obj **args)
 {
-    Nst_IOFileObj *f;
+    Nst_Obj *f;
 
     if (!Nst_extract_args("F", arg_num, args, &f))
         return nullptr;
@@ -933,14 +931,14 @@ Nst_Obj *NstC _set_stdin_(usize arg_num, Nst_Obj **args)
 
     Nst_dec_ref(Nst_stdio()->in);
     Nst_dec_ref(stdin_obj);
-    Nst_stdio()->in = IOFILE(Nst_inc_ref(f));
+    Nst_stdio()->in = Nst_inc_ref(f);
     stdin_obj = Nst_inc_ref(f);
     Nst_RETURN_NULL;
 }
 
 Nst_Obj *NstC _set_stdout_(usize arg_num, Nst_Obj **args)
 {
-    Nst_IOFileObj *f;
+    Nst_Obj *f;
 
     if (!Nst_extract_args("F", arg_num, args, &f))
         return nullptr;
@@ -960,14 +958,14 @@ Nst_Obj *NstC _set_stdout_(usize arg_num, Nst_Obj **args)
 
     Nst_dec_ref(Nst_stdio()->out);
     Nst_dec_ref(stdout_obj);
-    Nst_stdio()->out = IOFILE(Nst_inc_ref(f));
+    Nst_stdio()->out = Nst_inc_ref(f);
     stdout_obj = Nst_inc_ref(f);
     Nst_RETURN_NULL;
 }
 
 Nst_Obj *NstC _set_stderr_(usize arg_num, Nst_Obj **args)
 {
-    Nst_IOFileObj *f;
+    Nst_Obj *f;
 
     if (!Nst_extract_args("F", arg_num, args, &f))
         return nullptr;
@@ -987,7 +985,7 @@ Nst_Obj *NstC _set_stderr_(usize arg_num, Nst_Obj **args)
 
     Nst_dec_ref(Nst_stdio()->err);
     Nst_dec_ref(stderr_obj);
-    Nst_stdio()->err = IOFILE(Nst_inc_ref(f));
+    Nst_stdio()->err = Nst_inc_ref(f);
     stderr_obj = Nst_inc_ref(f);
     Nst_RETURN_NULL;
 }

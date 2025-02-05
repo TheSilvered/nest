@@ -1,7 +1,7 @@
 /**
  * @file file.h
  *
- * @brief `Nst_IOFileObj` interface
+ * @brief `IOFile` object interface
  *
  * @author TheSilvered
  */
@@ -16,9 +16,6 @@
 #ifdef Nst_MSVC
 #include <windows.h>
 #endif // !Nst_MSVC
-
-/* Casts ptr to a `Nst_IOFileObj *`. */
-#define IOFILE(ptr) ((Nst_IOFileObj *)(ptr))
 
 /* Checks if `f` is closed. */
 #define Nst_IOF_IS_CLOSED(f) Nst_HAS_FLAG(f, Nst_FLAG_IOFILE_IS_CLOSED)
@@ -71,8 +68,6 @@ NstEXP typedef enum _Nst_SeekWhence {
     Nst_SEEK_END = 2
 } Nst_SeekWhence;
 
-struct _Nst_IOFileObj;
-
 /**
  * The type that represents a read function of a Nest file object.
  *
@@ -115,7 +110,7 @@ struct _Nst_IOFileObj;
  */
 NstEXP typedef Nst_IOResult (*Nst_IOFile_read_f)(i8 *buf, usize buf_size,
                                                  usize count, usize *buf_len,
-                                                 struct _Nst_IOFileObj *f);
+                                                 Nst_Obj *f);
 /**
  * The type that represents a write function of a Nest file object.
  *
@@ -147,8 +142,7 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_read_f)(i8 *buf, usize buf_size,
  *! `Nst_IO_ERROR` for any other error that might occur.
  */
 NstEXP typedef Nst_IOResult (*Nst_IOFile_write_f)(i8 *buf, usize buf_len,
-                                                  usize *count,
-                                                  struct _Nst_IOFileObj *f);
+                                                  usize *count, Nst_Obj *f);
 /**
  * The type that represents a flush function of a Nest file object.
  *
@@ -164,7 +158,7 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_write_f)(i8 *buf, usize buf_len,
  *! `Nst_IO_ALLOC_FAILED` if a memory allocation fails.
  *! `Nst_IO_ERROR` for any other error.
  */
-NstEXP typedef Nst_IOResult (*Nst_IOFile_flush_f)(struct _Nst_IOFileObj *f);
+NstEXP typedef Nst_IOResult (*Nst_IOFile_flush_f)(Nst_Obj *f);
 /**
  * The type that represents a tell function of a Nest file object.
  *
@@ -182,7 +176,7 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_flush_f)(struct _Nst_IOFileObj *f);
  *! `Nst_IO_SUCCESS` if the function exits successfully.
  *! `Nst_IO_ERROR` for any other error.
  */
-NstEXP typedef Nst_IOResult (*Nst_IOFile_tell_f)(struct _Nst_IOFileObj *f,
+NstEXP typedef Nst_IOResult (*Nst_IOFile_tell_f)(Nst_Obj *f,
                                                  usize *pos);
 /**
  * The type that represents a seek function of a Nest file object.
@@ -205,8 +199,7 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_tell_f)(struct _Nst_IOFileObj *f,
  *! `Nst_IO_ERROR` for any other error.
  */
 NstEXP typedef Nst_IOResult (*Nst_IOFile_seek_f)(Nst_SeekWhence origin,
-                                                 isize offset,
-                                                 struct _Nst_IOFileObj *f);
+                                                 isize offset, Nst_Obj *f);
 /**
  * The type that represents a close function of a Nest file object.
  *
@@ -221,7 +214,7 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_seek_f)(Nst_SeekWhence origin,
  *! `Nst_IO_SUCCESS` if the function exits successfully.
  *! `Nst_IO_ERROR` for any other error.
  */
-NstEXP typedef Nst_IOResult (*Nst_IOFile_close_f)(struct _Nst_IOFileObj *f);
+NstEXP typedef Nst_IOResult (*Nst_IOFile_close_f)(Nst_Obj *f);
 
 /**
  * @brief A structure representing the functions necessary to operate a Nest
@@ -256,23 +249,6 @@ extern Nst_StdIn Nst_stdin;
 
 #endif // !Nst_MSVC
 
-/**
- * A structure representing a Nest IO file object.
- *
- * @param fp: the pointer to the file, it may not be a `FILE *`
- * @param fd: the file descriptor, `-1` if not supported
- * @param encoding: the encoding the file was opened in, `NULL` when opened in
- * binary mode
- * @param func_set: the functions used to operate the file
- */
-NstEXP typedef struct _Nst_IOFileObj {
-    Nst_OBJ_HEAD;
-    int fd;
-    void *fp;
-    Nst_Encoding *encoding;
-    Nst_IOFuncSet func_set;
-} Nst_IOFileObj;
-
 /* The flags of a IO file. */
 NstEXP typedef enum _Nst_IOFileFlag {
     Nst_FLAG_IOFILE_IS_CLOSED = Nst_FLAG(1),
@@ -284,7 +260,7 @@ NstEXP typedef enum _Nst_IOFileFlag {
 } Nst_IOFileFlag;
 
 /**
- * Creates a new `Nst_IOFileObj` from a C file pointer.
+ * Creates a new `IOFile` object from a C file pointer.
  *
  * @param value: the value of the new object
  * @param bin: if the file is in binary mode
@@ -297,7 +273,7 @@ NstEXP typedef enum _Nst_IOFileFlag {
 NstEXP Nst_Obj *NstC Nst_iof_new(FILE *value, bool bin, bool read,
                                  bool write, Nst_Encoding *encoding);
 /**
- * Creates a new `Nst_IOFileObj` that is not a C file pointer.
+ * Creates a new `IOFile` object that is not a C file pointer.
  *
  * @param value: the value of the new object
  * @param bin: if the file is in binary mode
@@ -315,40 +291,52 @@ NstEXP Nst_Obj *NstC Nst_iof_new_fake(void *value, bool bin, bool read,
                                       Nst_Encoding *encoding,
                                       Nst_IOFuncSet func_set);
 
-/* Destructor of a `Nst_IOFileObj`. */
-NstEXP void NstC _Nst_iofile_destroy(Nst_IOFileObj *obj);
+/* Get the `Nst_IOFuncSet` of a file. */
+NstEXP Nst_IOFuncSet *NstC Nst_iof_func_set(Nst_Obj *f);
+/* Get the file descriptor, if it's negative the file is fake. */
+NstEXP int NstC Nst_iof_fd(Nst_Obj *f);
+/**
+ * @brief Get a pointer to the file's data. If the descriptor is positive this
+ * is of type `FILE *`.
+ */
+NstEXP void *NstC Nst_iof_fp(Nst_Obj *f);
+/* Get the encoding of a file. */
+NstEXP Nst_Encoding *NstC Nst_iof_encoding(Nst_Obj *f);
+
+/* Destructor of a `IOFile` object. */
+NstEXP void NstC _Nst_iofile_destroy(Nst_Obj *obj);
 
 /* Calls the read function of the file, see `Nst_IOFile_read_f`. */
 NstEXP Nst_IOResult NstC Nst_fread(i8 *buf, usize buf_size, usize count,
-                                   usize *buf_len, Nst_IOFileObj *f);
+                                   usize *buf_len, Nst_Obj *f);
 /* Calls the write function of the file, see `Nst_IOFile_write_f`. */
 NstEXP Nst_IOResult NstC Nst_fwrite(i8 *buf, usize buf_len, usize *count,
-                                    Nst_IOFileObj *f);
+                                    Nst_Obj *f);
 /* Calls the flush function of the file, see `Nst_IOFile_flush_f`. */
-NstEXP Nst_IOResult NstC Nst_fflush(Nst_IOFileObj *f);
+NstEXP Nst_IOResult NstC Nst_fflush(Nst_Obj *f);
 /* Calls the tell function of the file, see `Nst_IOFile_tell_f`. */
-NstEXP Nst_IOResult NstC Nst_ftell(Nst_IOFileObj *f, usize *pos);
+NstEXP Nst_IOResult NstC Nst_ftell(Nst_Obj *f, usize *pos);
 /* Calls the seek function of the file, see `Nst_IOFile_seek_f`. */
 NstEXP Nst_IOResult NstC Nst_fseek(Nst_SeekWhence origin, isize offset,
-                                   Nst_IOFileObj *f);
+                                   Nst_Obj *f);
 /* Calls the close function of the file, see `Nst_IOFile_close_f`. */
-NstEXP Nst_IOResult NstC Nst_fclose(Nst_IOFileObj *f);
+NstEXP Nst_IOResult NstC Nst_fclose(Nst_Obj *f);
 
 /* Read function for standard C file descriptors. */
 NstEXP Nst_IOResult NstC Nst_FILE_read(i8 *buf, usize buf_size, usize count,
-                                        usize *buf_len, Nst_IOFileObj *f);
+                                       usize *buf_len, Nst_Obj *f);
 /* Write function for standard C file descriptors. */
 NstEXP Nst_IOResult NstC Nst_FILE_write(i8 *buf, usize buf_len, usize *count,
-                                         Nst_IOFileObj *f);
+                                        Nst_Obj *f);
 /* Flush function for standard C file descriptors. */
-NstEXP Nst_IOResult NstC Nst_FILE_flush(Nst_IOFileObj *f);
+NstEXP Nst_IOResult NstC Nst_FILE_flush(Nst_Obj *f);
 /* Tell function for standard C file descriptors. */
-NstEXP Nst_IOResult NstC Nst_FILE_tell(Nst_IOFileObj *f, usize *pos);
+NstEXP Nst_IOResult NstC Nst_FILE_tell(Nst_Obj *f, usize *pos);
 
 NstEXP Nst_IOResult NstC Nst_FILE_seek(Nst_SeekWhence origin, isize offset,
-                                        Nst_IOFileObj *f);
+                                       Nst_Obj *f);
 /* Close function for standard C file descriptors. */
-NstEXP Nst_IOResult NstC Nst_FILE_close(Nst_IOFileObj *f);
+NstEXP Nst_IOResult NstC Nst_FILE_close(Nst_Obj *f);
 
 /**
  * Gets the details of the `Nst_IOResult` returned by the functions.

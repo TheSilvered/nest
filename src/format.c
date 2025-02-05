@@ -11,6 +11,7 @@
 #include "dtoa.h"
 #include "obj_ops.h"
 #include "unicode_db.h"
+#include "interpreter.h"
 
 #define MIN(a, b) ((b) < (a) ? (b) : (a))
 #define MAX(a, b) ((b) > (a) ? (b) : (a))
@@ -32,8 +33,9 @@ isize Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
     return Nst_vfprintf(Nst_io.out, fmt, args);
 }
 
-isize Nst_fprint(Nst_IOFileObj *f, const i8 *buf)
+isize Nst_fprint(Nst_Obj *f, const i8 *buf)
 {
+    Nst_assert(f->type == Nst_t.IOFile);
     usize len = strlen(buf);
     usize count;
     if (Nst_fwrite((i8 *)buf, (usize)len, &count, f) < 0)
@@ -41,8 +43,9 @@ isize Nst_fprint(Nst_IOFileObj *f, const i8 *buf)
     return count;
 }
 
-isize Nst_fprintln(Nst_IOFileObj *f, const i8 *buf)
+isize Nst_fprintln(Nst_Obj *f, const i8 *buf)
 {
+    Nst_assert(f->type == Nst_t.IOFile);
     if (Nst_IOF_IS_CLOSED(f))
         return -1;
 
@@ -55,8 +58,9 @@ isize Nst_fprintln(Nst_IOFileObj *f, const i8 *buf)
     return count_a + count_b;
 }
 
-isize Nst_fprintf(Nst_IOFileObj *f, Nst_WIN_FMT const i8 *fmt, ...)
+isize Nst_fprintf(Nst_Obj *f, Nst_WIN_FMT const i8 *fmt, ...)
 {
+    Nst_assert(f->type == Nst_t.IOFile);
     va_list args;
     va_start(args, fmt);
     return Nst_vfprintf(f, fmt, args);
@@ -100,8 +104,9 @@ Nst_Obj *Nst_vsprintf(const i8 *fmt, va_list args)
     return str;
 }
 
-isize Nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args)
+isize Nst_vfprintf(Nst_Obj *f, const i8 *fmt, va_list args)
 {
+    Nst_assert(f->type == Nst_t.IOFile);
     if (Nst_IOF_IS_CLOSED(f)) {
         va_end(args);
         return -2;

@@ -580,7 +580,7 @@ set.
 **Synopsis:**
 
 ```better-c
-isize Nst_fprint(Nst_IOFileObj *f, const i8 *buf)
+isize Nst_fprint(Nst_Obj *f, const i8 *buf)
 ```
 
 **Description:**
@@ -637,7 +637,7 @@ closed `-1` is returned. No error is set.
 **Synopsis:**
 
 ```better-c
-isize Nst_fprintln(Nst_IOFileObj *f, const i8 *buf)
+isize Nst_fprintln(Nst_Obj *f, const i8 *buf)
 ```
 
 **Description:**
@@ -698,7 +698,7 @@ error is set. The negative value returned depends on the type of the error:
 **Synopsis:**
 
 ```better-c
-isize Nst_fprintf(Nst_IOFileObj *f, Nst_WIN_FMT const i8 *fmt, ...)
+isize Nst_fprintf(Nst_Obj *f, Nst_WIN_FMT const i8 *fmt, ...)
 ```
 
 **Description:**
@@ -729,7 +729,7 @@ error is set. The negative value returned depends on the type of the error:
 **Synopsis:**
 
 ```better-c
-isize Nst_vfprintf(Nst_IOFileObj *f, const i8 *fmt, va_list args)
+isize Nst_vfprintf(Nst_Obj *f, const i8 *fmt, va_list args)
 ```
 
 **Description:**

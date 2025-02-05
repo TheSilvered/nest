@@ -22,22 +22,22 @@
 **Additions**
 
 - added `unicode_db.h` which declares the following symbols
-  - `Nst_UCD_MASK_UPPERCASE`
-  - `Nst_UCD_MASK_LOWERCASE`
-  - `Nst_UCD_MASK_CASED`
-  - `Nst_UCD_MASK_ALPHABETIC`
-  - `Nst_UCD_MASK_DECIMAL`
-  - `Nst_UCD_MASK_DIGIT`
-  - `Nst_UCD_MASK_NUMERIC`
-  - `Nst_UCD_MASK_XID_START`
-  - `Nst_UCD_MASK_XID_CONTINUE`
-  - `Nst_UCD_MASK_PRINTABLE`
-  - `Nst_UCD_MAX_CASE_EXPANSION`
-  - `Nst_UnicodeChInfo`
-  - `Nst_unicode_get_ch_info`
-  - `Nst_unicode_expand_case`
-  - `Nst_unicode_is_whitespace`
-  - `Nst_unicode_is_titlecase`
+    - `Nst_UCD_MASK_UPPERCASE`
+    - `Nst_UCD_MASK_LOWERCASE`
+    - `Nst_UCD_MASK_CASED`
+    - `Nst_UCD_MASK_ALPHABETIC`
+    - `Nst_UCD_MASK_DECIMAL`
+    - `Nst_UCD_MASK_DIGIT`
+    - `Nst_UCD_MASK_NUMERIC`
+    - `Nst_UCD_MASK_XID_START`
+    - `Nst_UCD_MASK_XID_CONTINUE`
+    - `Nst_UCD_MASK_PRINTABLE`
+    - `Nst_UCD_MAX_CASE_EXPANSION`
+    - `Nst_UnicodeChInfo`
+    - `Nst_unicode_get_ch_info`
+    - `Nst_unicode_expand_case`
+    - `Nst_unicode_is_whitespace`
+    - `Nst_unicode_is_titlecase`
 - added `Nst_buffer_append_cps` to append an array of Unicode codepoints
 - added the following symbols to `sequence.h`
     - `Nst_seq_len`
@@ -55,9 +55,9 @@
     - `Nst_vector_from_objsn`
 - added `Nst_log_alloc_info`
 - added the following symbols to `iter.h`
-  - `Nst_iter_start_func`
-  - `Nst_iter_next_func`
-  - `Nst_iter_value`
+    - `Nst_iter_start_func`
+    - `Nst_iter_next_func`
+    - `Nst_iter_value`
 
 **Changes**
 
@@ -74,30 +74,30 @@
 - renamed `Nst_string_utf8_char_len` to `Nst_str_utf8_char_len`
 - now `Nst_repr` and `Nst_fmt` with the flags `r` or `R` will escape non-printable characters
 - removed the following symbols from `sequence.h`
-  - `Nst_SeqObj`
-  - `Nst_ArrayObj`
-  - `Nst_VectorObj`
-  - `SEQ`
-  - `ARRAY`
-  - `VECTOR`
-  - `Nst_array_set`
-  - `Nst_array_get`
-  - `Nst_vector_set`
-  - `Nst_vector_get`
-  - `_Nst_seq_copy` (now there is only `Nst_seq_copy`)
-  - `_Nst_seq_set` (now there is only `Nst_seq_set`)
-  - `_Nst_seq_get` (now there is only `Nst_seq_get`)
-  - `_Nst_vector_append` (now there is only `Nst_vector_append`)
-  - `_Nst_vector_remove` (now there is only `Nst_vector_remove`)
-  - `_Nst_vector_pop` (now there is only `Nst_vector_pop`)
-  - `_Nst_vector_resize`
+    - `Nst_SeqObj`
+    - `Nst_ArrayObj`
+    - `Nst_VectorObj`
+    - `SEQ`
+    - `ARRAY`
+    - `VECTOR`
+    - `Nst_array_set`
+    - `Nst_array_get`
+    - `Nst_vector_set`
+    - `Nst_vector_get`
+    - `_Nst_seq_copy` (now there is only `Nst_seq_copy`)
+    - `_Nst_seq_set` (now there is only `Nst_seq_set`)
+    - `_Nst_seq_get` (now there is only `Nst_seq_get`)
+    - `_Nst_vector_append` (now there is only `Nst_vector_append`)
+    - `_Nst_vector_remove` (now there is only `Nst_vector_remove`)
+    - `_Nst_vector_pop` (now there is only `Nst_vector_pop`)
+    - `_Nst_vector_resize`
 - now `Nst_log_alloc_count` can be used without `Nst_COUNT_ALLOC` but will do nothing
 - now `Nst_ndec_ref` evaluates `obj` only once
 - removed the following symbols from `iter.h`
-  - `Nst_IterObj`
-  - `ITER`
-  - `_Nst_iter_start` (now there is only `Nst_iter_start`)
-  - `_Nst_iter_get_val`
+    - `Nst_IterObj`
+    - `ITER`
+    - `_Nst_iter_start` (now there is only `Nst_iter_start`)
+    - `_Nst_iter_get_val`
 - renamed all `_get_val` functions related to iterators as `_next`
 
 **Bug fixes**
@@ -131,13 +131,13 @@
 **Changes**
 
 - now line endings will be ignored when the expression should not end, this includes the following cases:
-  - the condition of while and do-while loops
-  - the number of repeats in for loops
-  - the iterator in for-as loops
-  - the expression and the cases in switch statements
-  - expressions inside parenthesis
-  - inside maps, vectors and arrays
-  - when a line ends with a local-stack operator
+    - the condition of while and do-while loops
+    - the number of repeats in for loops
+    - the iterator in for-as loops
+    - the expression and the cases in switch statements
+    - expressions inside parenthesis
+    - inside maps, vectors and arrays
+    - when a line ends with a local-stack operator
 - changed the file object to string cast from `<IOFile ----- >` to `<IOFile[-----]>`
 - renamed `putenv` in `stdsys.nest` to `set_env` and added an optional argument `overwrite`
 - renamed `getenv` in `stdsys.nest` to `get_env`
@@ -192,15 +192,15 @@
 - added `Nst_IntrState` struct
 - added `Nst_gstate_get_es` and `Nst_state_set_es`
 - added `runner.h` along with the following functions:
-  - `Nst_es_init`
-  - `Nst_es_destroy`
-  - `Nst_es_init_vt`
-  - `Nst_execute`
-  - `Nst_es_set_cwd`
-  - `Nst_es_push_module`
-  - `Nst_es_push_func`
-  - `Nst_es_push_paused_coroutine`
-  - `Nst_es_force_function_end`
+    - `Nst_es_init`
+    - `Nst_es_destroy`
+    - `Nst_es_init_vt`
+    - `Nst_execute`
+    - `Nst_es_set_cwd`
+    - `Nst_es_push_module`
+    - `Nst_es_push_func`
+    - `Nst_es_push_paused_coroutine`
+    - `Nst_es_force_function_end`
 - added `Nst_cl_args_init`
 - added `_Nst_override_supports_color`
 - added `_Nst_EM_WRONG_ARG_NUM_FMT` macro to format correctly wrong argument numbers
@@ -209,9 +209,9 @@
 - added `Nst_string_char_len` and `Nst_string_utf8_char_len`
 - added `Nst_inst_list_new`
 - new parser, added many new node-related elements
-  - `Nst_SeqNodeType`, `Nst_NodeData_Ac`, `Nst_NodeData_As`, `Nst_NodeData_Ca`, `Nst_NodeData_Cs`, `Nst_NodeData_Ex`, `Nst_NodeData_Fd`, `Nst_NodeData_Fl`, `Nst_NodeData_Ie`, `Nst_NodeData_Lo`, `Nst_NodeData_Ls`, `Nst_NodeData_Ml`, `Nst_NodeData_Rt`, `Nst_NodeData_Sl`, `Nst_NodeData_So`, `Nst_NodeData_Sw`, `Nst_NodeData_Tc`, `Nst_NodeData_Vl`, `Nst_NodeData_We`, `Nst_NodeData_Wl`, `Nst_NodeData_Ws`
-  - `_Nst_node_ac_destroy`, `_Nst_node_ac_init`, `_Nst_node_as_destroy`, `_Nst_node_as_init`, `_Nst_node_ca_destroy`, `_Nst_node_ca_init`, `_Nst_node_cs_destroy`, `_Nst_node_cs_init`, `_Nst_node_ex_destroy`, `_Nst_node_ex_init`, `_Nst_node_fd_destroy`, `_Nst_node_fd_init`, `_Nst_node_fl_destroy`, `_Nst_node_fl_init`, `_Nst_node_ie_destroy`, `_Nst_node_ie_init`, `_Nst_node_lo_destroy`, `_Nst_node_lo_init`, `_Nst_node_ls_destroy`, `_Nst_node_ls_init`, `_Nst_node_ml_destroy`, `_Nst_node_ml_init`, `_Nst_node_rt_destroy`, `_Nst_node_rt_init`, `_Nst_node_sl_destroy`, `_Nst_node_sl_init`, `_Nst_node_so_destroy`, `_Nst_node_so_init`, `_Nst_node_sw_destroy`, `_Nst_node_sw_init`, `_Nst_node_tc_destroy`, `_Nst_node_tc_init`, `_Nst_node_vl_destroy`, `_Nst_node_vl_init`, `_Nst_node_we_destroy`, `_Nst_node_we_init`, `_Nst_node_wl_destroy`, `_Nst_node_wl_init`, `_Nst_node_ws_destroy`, `_Nst_node_ws_init`
-  - `Nst_print_node`
+    - `Nst_SeqNodeType`, `Nst_NodeData_Ac`, `Nst_NodeData_As`, `Nst_NodeData_Ca`, `Nst_NodeData_Cs`, `Nst_NodeData_Ex`, `Nst_NodeData_Fd`, `Nst_NodeData_Fl`, `Nst_NodeData_Ie`, `Nst_NodeData_Lo`, `Nst_NodeData_Ls`, `Nst_NodeData_Ml`, `Nst_NodeData_Rt`, `Nst_NodeData_Sl`, `Nst_NodeData_So`, `Nst_NodeData_Sw`, `Nst_NodeData_Tc`, `Nst_NodeData_Vl`, `Nst_NodeData_We`, `Nst_NodeData_Wl`, `Nst_NodeData_Ws`
+    - `_Nst_node_ac_destroy`, `_Nst_node_ac_init`, `_Nst_node_as_destroy`, `_Nst_node_as_init`, `_Nst_node_ca_destroy`, `_Nst_node_ca_init`, `_Nst_node_cs_destroy`, `_Nst_node_cs_init`, `_Nst_node_ex_destroy`, `_Nst_node_ex_init`, `_Nst_node_fd_destroy`, `_Nst_node_fd_init`, `_Nst_node_fl_destroy`, `_Nst_node_fl_init`, `_Nst_node_ie_destroy`, `_Nst_node_ie_init`, `_Nst_node_lo_destroy`, `_Nst_node_lo_init`, `_Nst_node_ls_destroy`, `_Nst_node_ls_init`, `_Nst_node_ml_destroy`, `_Nst_node_ml_init`, `_Nst_node_rt_destroy`, `_Nst_node_rt_init`, `_Nst_node_sl_destroy`, `_Nst_node_sl_init`, `_Nst_node_so_destroy`, `_Nst_node_so_init`, `_Nst_node_sw_destroy`, `_Nst_node_sw_init`, `_Nst_node_tc_destroy`, `_Nst_node_tc_init`, `_Nst_node_vl_destroy`, `_Nst_node_vl_init`, `_Nst_node_we_destroy`, `_Nst_node_we_init`, `_Nst_node_wl_destroy`, `_Nst_node_wl_init`, `_Nst_node_ws_destroy`, `_Nst_node_ws_init`
+    - `Nst_print_node`
 - added `Nst_sbuffer_at`, `Nst_sbuffer_pop` and `Nst_sbuffer_shrink_auto`
 - added `Nst_VERSION_MAJOR`, `Nst_VERSION_MINOR` and `Nst_VERSION_PATCH` definitions
 - added `Nst_DECLR_END`
@@ -248,26 +248,26 @@ _General changes_:
 - removed `error` argument from `Nst_parse`
 - renamed `Nst_ggc_init` to `_Nst_ggc_init`
 - added `v_stack` argument to
-  - `Nst_vstack_init`
-  - `Nst_vstack_push`
-  - `_Nst_vstack_push`
-  - `Nst_vstack_pop`
-  - `Nst_vstack_peek`
-  - `Nst_vstack_dup`
-  - `Nst_vstack_destroy`
+    - `Nst_vstack_init`
+    - `Nst_vstack_push`
+    - `_Nst_vstack_push`
+    - `Nst_vstack_pop`
+    - `Nst_vstack_peek`
+    - `Nst_vstack_dup`
+    - `Nst_vstack_destroy`
 - added `f_stack` argument to
-  - `Nst_fstack_init`
-  - `Nst_fstack_push`
-  - `Nst_fstack_pop`
-  - `Nst_fstack_peek`
-  - `Nst_fstack_destroy`
+    - `Nst_fstack_init`
+    - `Nst_fstack_push`
+    - `Nst_fstack_pop`
+    - `Nst_fstack_peek`
+    - `Nst_fstack_destroy`
 - combined `func`, `call_start`, `call_end`, `vt`, `idx` and `cstack_size` arguments of `Nst_fstack_push` into `call`
 - added `c_stack` argument to
-  - `Nst_cstack_init`
-  - `Nst_cstack_push`
-  - `Nst_cstack_peek`
-  - `Nst_cstack_pop`
-  - `Nst_cstack_destroy`
+    - `Nst_cstack_init`
+    - `Nst_cstack_push`
+    - `Nst_cstack_peek`
+    - `Nst_cstack_pop`
+    - `Nst_cstack_destroy`
 - combined `inst_idx`, `v_stack_size` and `f_stack_size` arguments of `Nst_cstack_push` into `frame`
 - renamed `Nst_ggc_delete_objs` to `_Nst_ggc_delete_objs`
 - removed `_Nst_unload_libs`
@@ -288,15 +288,15 @@ _General changes_:
 - renamed `Nst_MAKE_OBJDECLR` to `Nst_CONSTDECLR`
 - renamed `Nst_MAKE_NAMED_OBJDECLR` to `Nst_NAMED_CONSTDECLR`
 - renamed many functions to better fit the naming style:
-  - `_Nst_parse_args` to `_Nst_cl_args_parse`
-  - `_Nst_override_supports_color` to `_Nst_supports_color_override`
-  - `_Nst_set_console_mode` to `_Nst_console_mode_init`
-  - `Nst_print_bytecode` to `Nst_inst_list_print`
-  - `_Nst_init_objects` to `_Nst_globals_init`
-  - `_Nst_del_objects` to `_Nst_globals_quit`
-  - `_Nst_call_func` to `_Nst_func_call`
-  - `_Nst_get_state` to `_Nst_state_get`
-  - all `Nst_string_*` to `Nst_str_*`
+    - `_Nst_parse_args` to `_Nst_cl_args_parse`
+    - `_Nst_override_supports_color` to `_Nst_supports_color_override`
+    - `_Nst_set_console_mode` to `_Nst_console_mode_init`
+    - `Nst_print_bytecode` to `Nst_inst_list_print`
+    - `_Nst_init_objects` to `_Nst_globals_init`
+    - `_Nst_del_objects` to `_Nst_globals_quit`
+    - `_Nst_call_func` to `_Nst_func_call`
+    - `_Nst_get_state` to `_Nst_state_get`
+    - all `Nst_string_*` to `Nst_str_*`
 - macros to check token type ranges have been made private
 - removed `Nst_WIN` in favor of `Nst_MSVC`
 - renamed `Nst_GNU_FMT` to `Nst_NIX_FMT` since it is used with clang too
@@ -338,9 +338,9 @@ _General changes_:
 - now the iterator of a for-as loop is implicitly casted to `Iter`
 - now `\U` in strings will only accept 6 hex characters instead of 8, since U+10FFFF is the highest codepoint accepted
 - now string length and indexing will match the characters and not the bytes (e.g. `'àèì'.1` now is `'è'` and before was `'\xa0'`)
-  - removed `to_iter`, `get_len` and `get_at` from `stdcodecs.nest` since they are no longer needed
+    - removed `to_iter`, `get_len` and `get_at` from `stdcodecs.nest` since they are no longer needed
 - removed `ljust` and `rjust` from `stdsutil.nest` in favour of `justify`
-  - with `justify` a positive length means justify left and a negative one means justify right
+    - with `justify` a positive length means justify left and a negative one means justify right
 - now `su.repr` will display in `\xhh`, `\uhhhh` or `\Uhhhhhh` unprintable characters (control characters, non-characters, surrogates)
 - added an argument to `sequ.map`, `sequ.sort` and `rand.shuffle` to specify whether the sequence should be modified in-place or a new one should be created
 - added an argument to `json.load_f` and `json.dump_f` to specify the encoding of the file
@@ -530,16 +530,16 @@ _General changes_:
 
 - added an experimental and undocumented library `_stdgui.nest` that only has text labels, it will be gradually getting more features
 - added many functions to `stdfs.nest`
-  - `exists`
-  - `is_block_device`
-  - `is_char_device`
-  - `is_named_pipe`
-  - `is_socket`
-  - `is_symlink`
-  - `make_dir_symlink`
-  - `make_file_symlink`
-  - `make_hard_link`
-  - `normalize`
+    - `exists`
+    - `is_block_device`
+    - `is_char_device`
+    - `is_named_pipe`
+    - `is_socket`
+    - `is_symlink`
+    - `make_dir_symlink`
+    - `make_file_symlink`
+    - `make_hard_link`
+    - `normalize`
 
 **Changes**
 
@@ -680,7 +680,7 @@ _General changes_:
 - fixed a crash happening when a lambda was not used and the optimization level was above 1
 - fixed a crash happening when calling a C function that expected at least one argument but was given none
 - fixed many issues reguarding the `Str` to `Byte` cast
-- fixed the error message for `-:` writing `'-'` instead of  `'-:'`
+- fixed the error message for `-:` writing `'-'` instead of `'-:'`
 - now errors that contain unicode characters will have the correct number of spaces and carets
 - fixed number positions only including the first character (again)
 - fixed `-//-` that would not close correctly the multiline comment
@@ -776,11 +776,11 @@ _General changes_:
 **Changes**
 
 - improved many casts to `Str`:
-  - `IOFile`s now show their flags
-  - arrays, vectors and maps, when empty no longer have a space between the opening and closing brackets (`{ }` becomes `{}`)
-  - recursive vector references now use `<{.}>` instead of `{.}`
-  - if the object does not have a custom cast, it now shows its address in memory (`Str :: (0 -> 10)` can return `<Iter object at 0x00000206A188B8D0>`)
-  - now functions show their number of arguments (`Str :: (## a b [])` returns `<Func 2 args>`)
+    - `IOFile`s now show their flags
+    - arrays, vectors and maps, when empty no longer have a space between the opening and closing brackets (`{ }` becomes `{}`)
+    - recursive vector references now use `<{.}>` instead of `{.}`
+    - if the object does not have a custom cast, it now shows its address in memory (`Str :: (0 -> 10)` can return `<Iter object at 0x00000206A188B8D0>`)
+    - now functions show their number of arguments (`Str :: (## a b [])` returns `<Func 2 args>`)
 - improved import speed when importing a large number of modules and libraries
 
 **Bug Fixes**
@@ -813,14 +813,14 @@ _General changes_:
   ```
 - now error messages will always show the full path to the file
 - added the following type casts:
-  -  `Map` to `Vector`
-  - `Map` to `Array`
-  - `Array` to `Map`
-  - `Vector` to `Map`
-  - `Iter` to `Vector`
-  - `Iter` to `Array`
-  - `Iter` to `Map`
-  - `Real` to `Byte`
+    - `Map` to `Vector`
+    - `Map` to `Array`
+    - `Array` to `Map`
+    - `Vector` to `Map`
+    - `Iter` to `Vector`
+    - `Iter` to `Array`
+    - `Iter` to `Map`
+    - `Real` to `Byte`
 
 **Bug Fixes**
 
@@ -934,8 +934,8 @@ _General changes_:
 - Improved error printing on multiple lines
 - Printing a lot of lines when printing errors is now much faster
 - added binary, octal and hexadecimal integer literals and scientific notation for real literals
-  - to write bytes with hexadecimal integer start with `0h` instead of `0x`
-  - scientific notation still needs a literal with a decimal point and digitds on both sides
+    - to write bytes with hexadecimal integer start with `0h` instead of `0x`
+    - scientific notation still needs a literal with a decimal point and digitds on both sides
 - now underscores (`_`) can be added inside numbers to make them more legible (`100_000_000`)
 - changed "Add to PATH variable" to "Add to PATH environment variable" in the installer
 - now `clock_time`, `gmt_clock_time`, `clock_datetime` and `gmt_clock_datetime` insert the keys from the least specifit to the most specific, for example calling `dt.clock_time` will now return `{ 'hours': 17, 'minutes': 32, 'seconds': 59 }` instead of `{ 'seconds': 59, 'minutes': 32, 'hours': 17 }`
@@ -1076,8 +1076,8 @@ _General changes_:
 ### Command improvements
 
 - standardized command-line arguments parsing according to GNU specifications
-  - `--` marks the end of the arguments
-  - you can combine multiple one-letter options under one dash (such as `-bf`)
+    - `--` marks the end of the arguments
+    - you can combine multiple one-letter options under one dash (such as `-bf`)
 - added `-f` or `--force-execution` option to force the execution of the program when `-t`, `-a` or `-b` are used
 - added `-O0` to `-O3` command line arguments to specify the optimization level, if specified more than one only the last one counts
 - added `-c` option that executes the next argument as nest code (`nest -c ">>> 'Hello, world!'"` prints `Hello, world!`)
