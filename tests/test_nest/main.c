@@ -175,9 +175,8 @@ int main() {
 
     Nst_quit();
 
-#ifdef Nst_COUNT_ALLOC
     Nst_log_alloc_count();
-#endif
+    Nst_log_alloc_info();
 
     if (tests_failed_count() != 0)
         return 1;

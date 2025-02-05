@@ -229,11 +229,11 @@ The structure representing a basic Nest object.
 - `hash`: the hash of the object, `-1` if it has not yet been hashed or is not
   hashable
 - `flags`: the flags of the object
-- `init_line`: **THIS FIELD ONLY EXISTS WHEN `Nst_TRACK_OBJ_INIT_POS` IS
+- `init_line`: **THIS FIELD ONLY EXISTS WHEN `Nst_DBG_TRACK_OBJ_INIT_POS` IS
   DEFINED** the line of the instruction that initialized the object
-- `init_col`: **THIS FIELD ONLY EXISTS WHEN `Nst_TRACK_OBJ_INIT_POS` IS
+- `init_col`: **THIS FIELD ONLY EXISTS WHEN `Nst_DBG_TRACK_OBJ_INIT_POS` IS
   DEFINED** the column of the instruction that initialized the object
-- `init_path`: **THIS FIELD ONLY EXISTS WHEN `Nst_TRACK_OBJ_INIT_POS` IS
+- `init_path`: **THIS FIELD ONLY EXISTS WHEN `Nst_DBG_TRACK_OBJ_INIT_POS` IS
   DEFINED** the path to the file where the object was initialized
 
 ---

@@ -58,6 +58,11 @@
     - `Nst_iter_start_func`
     - `Nst_iter_next_func`
     - `Nst_iter_value`
+- added the following symbols to `file.h`
+    - `Nst_iof_fd`
+    - `Nst_iof_fp`
+    - `Nst_iof_func_set`
+    - `Nst_iof_encoding`
 
 **Changes**
 
@@ -99,6 +104,9 @@
     - `_Nst_iter_start` (now there is only `Nst_iter_start`)
     - `_Nst_iter_get_val`
 - renamed all `_get_val` functions related to iterators as `_next`
+- removed the following symbols from `file.h`
+    - `Nst_IOFileObj`
+    - `IOFILE`
 
 **Bug fixes**
 

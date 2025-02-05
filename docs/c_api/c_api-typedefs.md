@@ -10,7 +10,7 @@ TheSilvered
 
 ## Macros
 
-### `Nst_TRACK_OBJ_INIT_POS`
+### `Nst_DBG_TRACK_OBJ_INIT_POS`
 
 **Description:**
 
@@ -22,7 +22,7 @@ allocated. This macro should be defined in `typedefs.h` when compiling.
 
 ---
 
-### `Nst_DISABLE_POOLS`
+### `Nst_DBG_DISABLE_POOLS`
 
 **Description:**
 
@@ -34,7 +34,7 @@ This macro should be defined in `typedefs.h` when compiling.
 
 ---
 
-### `Nst_COUNT_ALLOC`
+### `Nst_DBG_COUNT_ALLOC`
 
 **Description:**
 
@@ -47,12 +47,13 @@ should be defined in `typedefs.h` when compiling.
 
 ---
 
-### `Nst_BREAKPOINT_ON_ASSERTION_FAIL`
+### `Nst_DBG_ASSERT_CALLBACK`
 
 **Description:**
 
-On Windows, instead of calling abort, __debugbreak is called instead when an
-assetion fails.
+Used in [`Nst_assert`](c_api-typedefs.md#nst_assert) and
+[`Nst_assert_c`](c_api-typedefs.md#nst_assert_c), in debug mode is `abort()` by
+default.
 
 ---
 

@@ -260,7 +260,7 @@ void Nst_quit(void)
             Nst_state.lib_paths,
             (Nst_LListDestructor)_Nst_dec_ref);
     }
-#if !defined(_DEBUG) || !defined(Nst_TRACK_OBJ_INIT_POS)
+#if !defined(_DEBUG) || !defined(Nst_DBG_TRACK_OBJ_INIT_POS)
     if (Nst_state.lib_srcs != NULL) {
         Nst_llist_destroy(
             Nst_state.lib_srcs,

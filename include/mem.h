@@ -88,7 +88,7 @@ NstEXP typedef struct _Nst_Buffer {
 /* [docs:link realloc <https://man7.org/linux/man-pages/man3/malloc.3.html>] */
 /* [docs:link free <https://man7.org/linux/man-pages/man3/malloc.3.html>] */
 
-#ifdef Nst_COUNT_ALLOC
+#ifdef Nst_DBG_COUNT_ALLOC
 /* Alias for C `malloc`. */
 NstEXP void *NstC Nst_raw_malloc(usize size);
 /* Alias for C `calloc`. */
@@ -99,12 +99,12 @@ NstEXP void *NstC Nst_raw_realloc(void *block, usize size);
 NstEXP void NstC Nst_raw_free(void *block);
 /**
  * @brief Prints the current allocation count to `stdout`. Works only if
- * `Nst_COUNT_ALLOC` is defined, otherwise does nothing.
+ * `Nst_DBG_COUNT_ALLOC` is defined, otherwise does nothing.
  */
 NstEXP void NstC Nst_log_alloc_count(void);
 /**
  * @brief Prints information about the current allocations to `stdout`. Works
- * only if `Nst_COUNT_ALLOC` is defined, otherwise does nothing.
+ * only if `Nst_DBG_COUNT_ALLOC` is defined, otherwise does nothing.
  */
 NstEXP void NstC Nst_log_alloc_info(void);
 

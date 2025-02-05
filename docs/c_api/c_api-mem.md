@@ -205,8 +205,8 @@ void Nst_log_alloc_count(void)
 **Description:**
 
 Prints the current allocation count to `stdout`. Works only if
-[`Nst_COUNT_ALLOC`](c_api-typedefs.md#nst_count_alloc) is defined, otherwise
-does nothing.
+[`Nst_DBG_COUNT_ALLOC`](c_api-typedefs.md#nst_dbg_count_alloc) is defined,
+otherwise does nothing.
 
 ---
 
@@ -221,8 +221,8 @@ void Nst_log_alloc_info(void)
 **Description:**
 
 Prints information about the current allocations to `stdout`. Works only if
-[`Nst_COUNT_ALLOC`](c_api-typedefs.md#nst_count_alloc) is defined, otherwise
-does nothing.
+[`Nst_DBG_COUNT_ALLOC`](c_api-typedefs.md#nst_dbg_count_alloc) is defined,
+otherwise does nothing.
 
 ---
 

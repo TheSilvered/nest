@@ -27,7 +27,7 @@ Nst_Obj *_Nst_obj_alloc(usize size, struct _Nst_TypeObj *type)
     if (obj == NULL)
         return NULL;
 
-#ifdef Nst_TRACK_OBJ_INIT_POS
+#ifdef Nst_DBG_TRACK_OBJ_INIT_POS
     Nst_Inst *inst = Nst_current_inst();
     if (inst == NULL) {
         obj->init_line = -1;
@@ -98,7 +98,7 @@ free_mem:
 // silences the warning of the expression being always true when _Nst_P_LEN_MAX
 // is 0 (e.g. when pools are disabled)
 
-#if defined(Nst_DISABLE_POOLS) && !defined(Nst_MSVC)
+#if defined(Nst_DBG_DISABLE_POOLS) && !defined(Nst_MSVC)
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wtype-limits"
 #endif
@@ -112,7 +112,7 @@ free_mem:
         return;
     }
 
-#if defined(Nst_DISABLE_POOLS) && !defined(Nst_MSVC)
+#if defined(Nst_DBG_DISABLE_POOLS) && !defined(Nst_MSVC)
 #pragma GCC diagnostic pop
 #endif
 

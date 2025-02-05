@@ -3,7 +3,7 @@
 #include "mem.h"
 #include "sequence.h" // _Nst_VECTOR_GROWTH_RATIO, _Nst_VECTOR_MIN_CAP
 
-#ifdef Nst_COUNT_ALLOC
+#ifdef Nst_DBG_COUNT_ALLOC
 
 typedef struct AllocHeader {
     usize size;

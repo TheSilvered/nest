@@ -26,7 +26,7 @@ static Nst_TypeObj *type_obj_no_err(const i8 *name, Nst_ObjDstr dstr)
     if (type == NULL)
         return NULL;
 
-#ifdef Nst_TRACK_OBJ_INIT_POS
+#ifdef Nst_DBG_TRACK_OBJ_INIT_POS
     type->init_line = -1;
     type->init_col = -1;
     type->init_path = NULL;
@@ -52,7 +52,7 @@ static Nst_StrObj *str_obj_no_err(const i8 *value)
     if (str == NULL)
         return NULL;
 
-#ifdef Nst_TRACK_OBJ_INIT_POS
+#ifdef Nst_DBG_TRACK_OBJ_INIT_POS
     str->init_line = -1;
     str->init_col = -1;
     str->init_path = NULL;

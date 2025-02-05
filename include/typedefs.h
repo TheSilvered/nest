@@ -25,7 +25,7 @@
  * @brief Note: this macro works only when the program is compiled in debug
  * mode.
  */
-#define Nst_TRACK_OBJ_INIT_POS
+#define Nst_DBG_TRACK_OBJ_INIT_POS
 /**
  * If defined disables object pools and instead frees the memory of each
  * object. This macro should be defined in `typedefs.h` when compiling.
@@ -33,7 +33,7 @@
  * @brief Note: this macro works only when the program is compiled in debug
  * mode.
  */
-#define Nst_DISABLE_POOLS
+#define Nst_DBG_DISABLE_POOLS
 /**
  * If defined enables allocation counting and declares the
  * `Nst_log_alloc_count` function. This macro should be defined in `typedefs.h`
@@ -42,18 +42,17 @@
  * @brief Note: this macro works only when the program is compiled in debug
  * mode.
  */
-#define Nst_COUNT_ALLOC
+#define Nst_DBG_COUNT_ALLOC
 /**
- * On Windows, instead of calling abort, __debugbreak is called instead when an
- * assetion fails.
+ * @brief Used in `Nst_assert` and `Nst_assert_c`, in debug mode is `abort()`
+ * by default.
  */
-#define Nst_BREAKPOINT_ON_ASSERTION_FAIL
+#define Nst_DBG_ASSERT_CALLBACK
 #endif // !0
 
-// #define Nst_TRACK_OBJ_INIT_POS
-#define Nst_DISABLE_POOLS
-#define Nst_COUNT_ALLOC
-#define Nst_BREAKPOINT_ON_ASSERTION_FAIL
+// #define Nst_DBG_TRACK_OBJ_INIT_POS
+#define Nst_DBG_DISABLE_POOLS
+#define Nst_DBG_COUNT_ALLOC
 
 #if defined(_WIN32) || defined(WIN32)
 
@@ -77,6 +76,10 @@
 #else
 #error Use MSVC, GCC or clang to compile.
 #endif
+
+#ifdef Nst_MSVC
+#define Nst_DBG_ASSERT_CALLBACK DebugBreak()
+#endif // !Nst_MSVC
 
 #if !defined(_Nst_ARCH_x64) && !defined(_Nst_ARCH_x86)
 #if INTPTR_MAX == INT64_MAX
@@ -197,25 +200,32 @@
 #define Nst_UNUSED(v) (void)(v)
 
 #ifndef _DEBUG
-#ifdef Nst_TRACK_OBJ_INIT_POS
-#undef Nst_TRACK_OBJ_INIT_POS
-#endif // !Nst_TRACK_OBJ_INIT_POS
 
-#ifdef Nst_DISABLE_POOLS
-#undef Nst_DISABLE_POOLS
-#endif // !Nst_DISABLE_POOLS
+#ifdef Nst_DBG_TRACK_OBJ_INIT_POS
+#undef Nst_DBG_TRACK_OBJ_INIT_POS
+#endif // !Nst_DBG_TRACK_OBJ_INIT_POS
 
-#ifdef Nst_COUNT_ALLOC
-#undef Nst_COUNT_ALLOC
-#endif // !Nst_COUNT_ALLOC
+#ifdef Nst_DBG_DISABLE_POOLS
+#undef Nst_DBG_DISABLE_POOLS
+#endif // !Nst_DBG_DISABLE_POOLS
 
-#ifdef Nst_BREAKPOINT_ON_ASSERTION_FAIL
-#undef Nst_BREAKPOINT_ON_ASSERTION_FAIL
-#endif // !Nst_BREAKPOINT_ON_ASSERTION_FAIL
-#endif
+#ifdef Nst_DBG_COUNT_ALLOC
+#undef Nst_DBG_COUNT_ALLOC
+#endif // !Nst_DBG_COUNT_ALLOC
 
-#if defined(_DEBUG)                                                           \
-    && (!defined(Nst_BREAKPOINT_ON_ASSERTION_FAIL) || !defined(Nst_MSVC))
+#ifdef Nst_DBG_ASSERT_CALLBACK
+#undef Nst_DBG_ASSERT_CALLBACK
+#endif // !Nst_DBG_ASSERT_CALLBACK
+
+#else
+
+#ifndef Nst_DBG_ASSERT_CALLBACK
+#define Nst_DBG_ASSERT_CALLBACK abort()
+#endif // !Nst_DBG_ASSERT_CALLBACK
+
+#endif // !_DEBUG
+
+#if defined(_DEBUG)
 /**
  * @brief Aborts with an error message when an expression is false. The error
  * specifies the expression, the path and line of both the C and Nest file.
@@ -238,7 +248,7 @@
             #expr,                                                            \
             __FILE__,                                                         \
             __LINE__)),                                                       \
-        (abort(), 0))                                                         \
+        (Nst_DBG_ASSERT_CALLBACK, 0))                                         \
     )
 
 /**
@@ -255,51 +265,7 @@
             #expr,                                                            \
             __FILE__,                                                         \
             __LINE__),                                                        \
-        (abort(), 0))                                                         \
-    )
-
-#elif defined(Nst_MSVC) && defined(Nst_BREAKPOINT_ON_ASSERTION_FAIL)
-
-/** [docs:ignore]
- * @brief Aborts with an error message when an expression is false. The error
- * specifies the expression, the path and line of both the C and Nest file.
- */
-#define Nst_assert(expr)                                                      \
-    (void)(                                                                   \
-        !!(expr)                                                              \
-    ||                                                                        \
-        ((void)((Nst_current_inst() && fprintf(                               \
-            stderr,                                                           \
-            "Assertion failed: %s (C - %s:%i, Nest - %s:%li)\n",              \
-            #expr,                                                            \
-            __FILE__,                                                         \
-            __LINE__,                                                         \
-            Nst_current_inst()->start.text->path,                             \
-            Nst_current_inst()->start.line) >= 0                              \
-        ) || fprintf(                                                         \
-            stderr,                                                           \
-            "Assertion failed: %s (C - %s:%i, Nest - <unknown>)\n",           \
-            #expr,                                                            \
-            __FILE__,                                                         \
-            __LINE__)),                                                       \
-        (DebugBreak(), 0))                                                    \
-    )
-
-/** [docs:ignore]
- * @brief Aborts with an error message when an expression is false. The error
- * specifies the expression and the path and line of the C file.
- */
-#define Nst_assert_c(expr)                                                    \
-    (void)(                                                                   \
-        !!(expr)                                                              \
-    ||                                                                        \
-        ((void)fprintf(                                                       \
-            stderr,                                                           \
-            "Assertion failed: %s (C - %s:%i)\n",                             \
-            #expr,                                                            \
-            __FILE__,                                                         \
-            __LINE__),                                                        \
-        (DebugBreak(), 0))                                                    \
+        (Nst_DBG_ASSERT_CALLBACK, 0))                                         \
     )
 
 #else
@@ -308,13 +274,13 @@
  * @brief Aborts with an error message when an expression is false. The error
  * specifies the expression, the path and line of both the C and Nest file.
  */
-#define Nst_assert(expr) (void)0
+#define Nst_assert(expr)
 
 /** [docs:ignore]
  * @brief Aborts with an error message when an expression is false. The error
  * specifies the expression and the path and line of the C file.
  */
-#define Nst_assert_c(expr) (void)0
+#define Nst_assert_c(expr)
 
 #endif // !_DEBUG
 

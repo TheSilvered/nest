@@ -11,7 +11,7 @@
 
 #include "typedefs.h"
 
-#ifdef Nst_DISABLE_POOLS
+#ifdef Nst_DBG_DISABLE_POOLS
 /* Maximum size for an object pool. */
 #define _Nst_P_LEN_MAX 0
 #else
@@ -78,7 +78,7 @@ NstEXP typedef void (*Nst_ObjDstr)(void *);
  */
 NstEXP typedef void (*Nst_ObjTrav)(void *);
 
-#ifdef Nst_TRACK_OBJ_INIT_POS
+#ifdef Nst_DBG_TRACK_OBJ_INIT_POS
 
 /** [docs:ignore]
  * The macro used to make a struct an object.
@@ -118,7 +118,7 @@ NstEXP typedef void (*Nst_ObjTrav)(void *);
 extern "C" {
 #endif // !__cplusplus
 
-/* [docs:ignore_sym Nst_TRACK_OBJ_INIT_POS] */
+/* [docs:ignore_sym Nst_DBG_TRACK_OBJ_INIT_POS] */
 
 /**
  * The structure representing a basic Nest object.
@@ -129,12 +129,12 @@ extern "C" {
  * @param hash: the hash of the object, `-1` if it has not yet been hashed or
  * is not hashable
  * @param flags: the flags of the object
- * @param init_line: **THIS FIELD ONLY EXISTS WHEN `Nst_TRACK_OBJ_INIT_POS` IS
- * DEFINED** the line of the instruction that initialized the object
- * @param init_col: **THIS FIELD ONLY EXISTS WHEN `Nst_TRACK_OBJ_INIT_POS` IS
- * DEFINED** the column of the instruction that initialized the object
- * @param init_path: **THIS FIELD ONLY EXISTS WHEN `Nst_TRACK_OBJ_INIT_POS` IS
- * DEFINED** the path to the file where the object was initialized
+ * @param init_line: **THIS FIELD ONLY EXISTS WHEN `Nst_DBG_TRACK_OBJ_INIT_POS`
+ * IS DEFINED** the line of the instruction that initialized the object
+ * @param init_col: **THIS FIELD ONLY EXISTS WHEN `Nst_DBG_TRACK_OBJ_INIT_POS`
+ * IS DEFINED** the column of the instruction that initialized the object
+ * @param init_path: **THIS FIELD ONLY EXISTS WHEN `Nst_DBG_TRACK_OBJ_INIT_POS`
+ * IS DEFINED** the path to the file where the object was initialized
  */
 NstEXP typedef struct _Nst_Obj {
     Nst_OBJ_HEAD;
