@@ -95,36 +95,6 @@ Alias for [`_Nst_map_copy`](c_api-map.md#_nst_map_copy) that casts `map` to
 
 ---
 
-### `Nst_map_get_next_idx`
-
-**Synopsis:**
-
-```better-c
-#define Nst_map_get_next_idx(curr_idx, map)
-```
-
-**Description:**
-
-Alias for [`_Nst_map_get_next_idx`](c_api-map.md#_nst_map_get_next_idx) that
-casts `map` to [`Nst_MapObj *`](c_api-map.md#nst_mapobj).
-
----
-
-### `Nst_map_get_prev_idx`
-
-**Synopsis:**
-
-```better-c
-#define Nst_map_get_prev_idx(curr_idx, map)
-```
-
-**Description:**
-
-Alias for [`_Nst_map_get_prev_idx`](c_api-map.md#_nst_map_get_prev_idx) that
-casts `map` to [`Nst_MapObj *`](c_api-map.md#nst_mapobj).
-
----
-
 ### `Nst_map_set_str`
 
 **Synopsis:**
@@ -376,53 +346,69 @@ The traverse function for the map object.
 
 ---
 
-### `_Nst_map_get_next_idx`
+### `Nst_map_next`
 
 **Synopsis:**
 
 ```better-c
-i32 _Nst_map_get_next_idx(i32 curr_idx, Nst_MapObj *map)
+isize Nst_map_next(isize idx, Nst_MapObj *map, Nst_Obj **out_key,
+                   Nst_Obj **out_val)
 ```
 
 **Description:**
 
-Gets the following index in a map given the current one.
+Get the next key-value pair in the map given an index.
 
-If curr_idx is `-1`, the first index is returned.
+To get the first item pass `-1` to `idx` and to continue looping pass the
+previously returned value as `idx`. The function returns `-1` when there are no
+more items.
 
 **Parameters:**
 
-- `curr_idx`: the current index
-- `map`: the map to get the index from
+- `idx`: the previous returned index or `-1` for the first item
+- `map`: the map to iterate over
+- `out_key`: pointer set to the key, can be `NULL`, no reference is added to the
+  key
+- `out_val`: pointer set to the value, can be `NULL`, no reference is added to
+  the value
 
 **Returns:**
 
-The following index or `-1` if the given index is the last one. No error is set.
+The index of the current pair or `-1` if the map contains no more pairs. If the
+return value is `-1`, `out_key` and `out_val` are set to `NULL`.
 
 ---
 
-### `_Nst_map_get_prev_idx`
+### `Nst_map_prev`
 
 **Synopsis:**
 
 ```better-c
-i32 _Nst_map_get_prev_idx(i32 curr_idx, Nst_MapObj *map)
+isize Nst_map_prev(isize idx, Nst_MapObj *map, Nst_Obj **out_key,
+                   Nst_Obj **out_val)
 ```
 
 **Description:**
 
-Gets the preceding index in a map given the current one.
+Get the previous key-value pair in the map given an index.
 
-If curr_idx is `-1`, the first index is returned.
+To get the last item pass `-1` to `idx` and to continue looping pass the
+previously returned value as `idx`. The function returns `-1` when there are no
+more items.
 
 **Parameters:**
 
-- `curr_idx`: the current index
-- `map`: the map to get the index from
+- `idx`: the previous returned index or `-1` for the first item
+- `map`: the map to iterate over
+- `out_key`: pointer set to the key, can be `NULL`, no reference is added to the
+  key
+- `out_val`: pointer set to the value, can be `NULL`, no reference is added to
+  the value
 
 **Returns:**
 
-The preceding index or `-1` if the given index is the last one. No error is set.
+The index of the current pair or `-1` if the map contains no more pairs. If the
+return value is `-1`, `out_key` and `out_val` are set to `NULL`.
 
 ---
 

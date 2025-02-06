@@ -36,13 +36,6 @@
 /* Alias for `_Nst_map_copy` that casts `map` to `Nst_MapObj *`. */
 #define Nst_map_copy(map) _Nst_map_copy(MAP(map))
 
-/* Alias for `_Nst_map_get_next_idx` that casts `map` to `Nst_MapObj *`. */
-#define Nst_map_get_next_idx(curr_idx, map) \
-    _Nst_map_get_next_idx(curr_idx, MAP(map))
-/* Alias for `_Nst_map_get_prev_idx` that casts `map` to `Nst_MapObj *`. */
-#define Nst_map_get_prev_idx(curr_idx, map) \
-    _Nst_map_get_prev_idx(curr_idx, MAP(map))
-
 /**
  * @brief Alias for `_Nst_map_set_str` that casts `map` to `Nst_MapObj *` and
  * `value` to `Nst_Obj *`.
@@ -148,29 +141,45 @@ NstEXP void NstC _Nst_map_destroy(Nst_MapObj *map);
 NstEXP void NstC _Nst_map_traverse(Nst_MapObj *map);
 
 /**
- * Gets the following index in a map given the current one.
+ * Get the next key-value pair in the map given an index.
  *
- * @brief If curr_idx is `-1`, the first index is returned.
+ * @brief To get the first item pass `-1` to `idx` and to continue looping pass
+ * the previously returned value as `idx`. The function returns `-1` when there
+ * are no more items.
  *
- * @param curr_idx: the current index
- * @param map: the map to get the index from
+ * @param idx: the previous returned index or `-1` for the first item
+ * @param map: the map to iterate over
+ * @param out_key: pointer set to the key, can be `NULL`, no reference is added
+ * to the key
+ * @param out_val: pointer set to the value, can be `NULL`, no reference is
+ * added to the value
  *
- * @return The following index or `-1` if the given index is the last one. No
- * error is set.
+ * @return The index of the current pair or `-1` if the map contains no more
+ * pairs. If the return value is `-1`, `out_key` and `out_val` are set to
+ * `NULL`.
  */
-NstEXP i32 NstC _Nst_map_get_next_idx(i32 curr_idx, Nst_MapObj *map);
+NstEXP isize NstC Nst_map_next(isize idx, Nst_MapObj *map, Nst_Obj **out_key,
+                               Nst_Obj **out_val);
 /**
- * Gets the preceding index in a map given the current one.
+ * Get the previous key-value pair in the map given an index.
  *
- * @brief If curr_idx is `-1`, the first index is returned.
+ * @brief To get the last item pass `-1` to `idx` and to continue looping pass
+ * the previously returned value as `idx`. The function returns `-1` when there
+ * are no more items.
  *
- * @param curr_idx: the current index
- * @param map: the map to get the index from
+ * @param idx: the previous returned index or `-1` for the first item
+ * @param map: the map to iterate over
+ * @param out_key: pointer set to the key, can be `NULL`, no reference is added
+ * to the key
+ * @param out_val: pointer set to the value, can be `NULL`, no reference is
+ * added to the value
  *
- * @return The preceding index or `-1` if the given index is the last one. No
- * error is set.
+ * @return The index of the current pair or `-1` if the map contains no more
+ * pairs. If the return value is `-1`, `out_key` and `out_val` are set to
+ * `NULL`.
  */
-NstEXP i32 NstC _Nst_map_get_prev_idx(i32 curr_idx, Nst_MapObj *map);
+NstEXP isize NstC Nst_map_prev(isize idx, Nst_MapObj *map, Nst_Obj **out_key,
+                               Nst_Obj **out_val);
 
 /**
  * Resizes the node array if necessary.

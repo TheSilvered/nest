@@ -215,13 +215,10 @@ static Nst_Obj *map_eq(Nst_MapObj *map1, Nst_MapObj *map2,
     Nst_Obj *ob1 = NULL;
     Nst_Obj *ob2 = NULL;
     Nst_Obj *result = NULL;
-    for (i32 i = Nst_map_get_next_idx(-1, map1);
+    for (isize i = Nst_map_next(-1, map1, &key, &ob1);
          i != -1;
-         i = Nst_map_get_next_idx(i, map1))
+         i = Nst_map_next(i, map1, &key, &ob1))
     {
-        key = map1->nodes[i].key;
-        ob1 = map1->nodes[i].value;
-
         ob2 = _Nst_map_get(map2, key);
         if (ob2 == NULL)
             Nst_RETURN_FALSE;
@@ -748,13 +745,12 @@ Nst_Obj *_Nst_obj_str_cast_map(Nst_MapObj *map_obj, Nst_LList *all_objs)
         return NULL;
     Nst_buffer_append_c_str(&buf, "{");
 
-    for (i32 idx = Nst_map_get_next_idx(-1, map_obj);
+    Nst_Obj *key;
+    Nst_Obj *val;
+    for (isize idx = Nst_map_next(-1, map_obj, &key, &val);
          idx != -1;
-         idx = Nst_map_get_next_idx(idx, map_obj))
+         idx = Nst_map_next(idx, map_obj, &key, &val))
     {
-        Nst_Obj *key = map_obj->nodes[idx].key;
-        Nst_Obj *val = map_obj->nodes[idx].value;
-
         // Key cannot be a vector, an array or a map
         Nst_StrObj *key_str = STR(_Nst_repr_str_cast(key));
         Nst_StrObj *val_str;
@@ -1048,14 +1044,13 @@ static Nst_Obj *map_to_seq(Nst_Obj *ob, bool is_vect)
                            : Nst_array_new(seq_len);
 
     usize seq_i = 0;
-    for (i32 i = Nst_map_get_next_idx(-1, map);
+    Nst_Obj *key;
+    Nst_Obj *val;
+    for (isize i = Nst_map_next(-1, map, &key, &val);
          i != -1;
-         i = Nst_map_get_next_idx(i, map))
+         i = Nst_map_next(i, map, &key, &val))
     {
-        Nst_Obj *node_arr = Nst_array_create_c(
-            "OO",
-            map->nodes[i].key,
-            map->nodes[i].value);
+        Nst_Obj *node_arr = Nst_array_create_c("OO", key, val);
         if (node_arr == NULL) {
             Nst_dec_ref(seq);
             return NULL;

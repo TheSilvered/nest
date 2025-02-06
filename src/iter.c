@@ -174,7 +174,7 @@ Nst_Obj *NstC Nst_iter_map_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
-    AS_INT(c_args[0]) = Nst_map_get_next_idx(-1, c_args[1]);
+    AS_INT(c_args[0]) = -1;
     Nst_RETURN_NULL;
 }
 
@@ -182,14 +182,16 @@ Nst_Obj *NstC Nst_iter_map_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
-    i64 idx = AS_INT(c_args[0]);
+    isize idx = (isize)AS_INT(c_args[0]);
 
+    Nst_Obj *key;
+    Nst_Obj *value;
+    idx = Nst_map_next(idx, MAP(c_args[1]), &key, &value);
     if (idx == -1)
         Nst_RETURN_IEND;
 
-    Nst_MapNode node = MAP(c_args[1])->nodes[idx];
-    Nst_Obj *arr = Nst_array_create_c("OO", node.key, node.value);
+    Nst_Obj *arr = Nst_array_create_c("OO", key, value);
 
-    AS_INT(c_args[0]) = Nst_map_get_next_idx((i32)idx, c_args[1]);
+    AS_INT(c_args[0]) = idx;
     return arr;
 }

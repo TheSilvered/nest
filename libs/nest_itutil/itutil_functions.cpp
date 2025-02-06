@@ -341,16 +341,19 @@ Nst_Obj *NstC keys_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
-    i64 idx = AS_INT(c_args[0]);
+    isize idx = (isize)AS_INT(c_args[0]);
+
+    Nst_Obj *key;
+    idx = Nst_map_next(idx, MAP(c_args[1]), &key, nullptr);
 
     if (idx == -1)
         Nst_RETURN_IEND;
 
-    Nst_MapNode node = MAP(c_args[1])->nodes[idx];
-    AS_INT(c_args[0]) = Nst_map_get_next_idx((i32)idx, MAP(c_args[1]));
-    if (node.key == Nst_iend())
+    AS_INT(c_args[0]) = idx;
+    if (key == Nst_iend())
         Nst_RETURN_NULL;
-    return Nst_inc_ref(node.key);
+
+    return Nst_inc_ref(key);
 }
 
 Nst_Obj *NstC values_next(usize arg_num, Nst_Obj **args)
@@ -359,14 +362,16 @@ Nst_Obj *NstC values_next(usize arg_num, Nst_Obj **args)
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
     i64 idx = AS_INT(c_args[0]);
 
+    Nst_Obj *value;
+    idx = Nst_map_next(idx, MAP(c_args[1]), nullptr, &value);
+
     if (idx == -1)
         Nst_RETURN_IEND;
 
-    Nst_MapNode node = MAP(c_args[1])->nodes[idx];
-    AS_INT(c_args[0]) = Nst_map_get_next_idx((i32)idx, MAP(c_args[1]));
-    if (node.value == Nst_iend())
+    AS_INT(c_args[0]) = idx;
+    if (value == Nst_iend())
         Nst_RETURN_NULL;
-    return Nst_inc_ref(node.value);
+    return Nst_inc_ref(value);
 }
 
 // --------------------------------- Batch --------------------------------- //

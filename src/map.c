@@ -315,12 +315,14 @@ Nst_Obj *_Nst_map_copy(Nst_MapObj *map)
 
 void _Nst_map_destroy(Nst_MapObj *map)
 {
-    for (i32 i = Nst_map_get_next_idx(-1, map);
+    Nst_Obj *key;
+    Nst_Obj *val;
+    for (isize i = Nst_map_next(-1, map, &key, &val);
          i != -1;
-         i = Nst_map_get_next_idx(i, map))
+         i = Nst_map_next(i, map, &key, &val))
     {
-        Nst_dec_ref(map->nodes[i].key);
-        Nst_dec_ref(map->nodes[i].value);
+        Nst_dec_ref(key);
+        Nst_dec_ref(val);
     }
 
     Nst_free(map->nodes);
@@ -362,12 +364,14 @@ Nst_Obj *_Nst_map_drop_str(Nst_MapObj *map, const i8 *key)
 
 void _Nst_map_traverse(Nst_MapObj *map)
 {
-    for (i32 i = Nst_map_get_next_idx(-1, map);
+    Nst_Obj *key;
+    Nst_Obj *val;
+    for (isize i = Nst_map_next(-1, map, &key, &val);
          i != -1;
-         i = Nst_map_get_next_idx(i, map))
+         i = Nst_map_next(i, map, &key, &val))
     {
-        Nst_ggc_obj_reachable(map->nodes[i].key);
-        Nst_ggc_obj_reachable(map->nodes[i].value);
+        Nst_ggc_obj_reachable(key);
+        Nst_ggc_obj_reachable(val);
     }
 }
 
@@ -385,4 +389,26 @@ i32 _Nst_map_get_prev_idx(i32 curr_idx, Nst_MapObj *map)
         return map->tail_idx;
     else
         return map->nodes[curr_idx].prev_idx;
+}
+
+isize Nst_map_next(isize idx, Nst_MapObj *map, Nst_Obj **out_key,
+                   Nst_Obj **out_val)
+{
+    isize new_idx = idx == -1 ? map->head_idx : map->nodes[idx].next_idx;
+    if (out_key != NULL)
+        *out_key = map->nodes[new_idx].key;
+    if (out_val != NULL)
+        *out_val = map->nodes[new_idx].value;
+    return new_idx;
+}
+
+isize Nst_map_prev(isize idx, Nst_MapObj *map, Nst_Obj **out_key,
+                   Nst_Obj **out_val)
+{
+    isize new_idx = idx == -1 ? map->tail_idx : map->nodes[idx].prev_idx;
+    if (out_key != NULL)
+        *out_key = map->nodes[new_idx].key;
+    if (out_val != NULL)
+        *out_val = map->nodes[new_idx].value;
+    return new_idx;
 }

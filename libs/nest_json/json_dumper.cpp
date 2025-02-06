@@ -269,14 +269,13 @@ static void dump_map(Nst_MapObj *map, i32 indent)
 
     usize count = 0;
     usize tot = map->len;
-    Nst_MapNode *nodes = map->nodes;
-    for (i32 i = Nst_map_get_next_idx(-1, map);
+    Nst_Obj *key;
+    Nst_Obj *value;
+    for (isize i = Nst_map_next(-1, map, &key, &value);
          i != -1;
-         i = Nst_map_get_next_idx(i, map))
+         i = Nst_map_next(i, map, &key, &value))
     {
         count++;
-        Nst_Obj *key = nodes[i].key;
-        Nst_Obj *value = nodes[i].value;
         if (!Nst_T(key, Str)) {
             Nst_set_type_error_c("JSON: all keys of a map must be strings");
             FAIL;

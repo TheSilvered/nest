@@ -337,9 +337,7 @@ Nst_Obj *NstC generator_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     usize co_func_arg_num = Nst_func_arg_num(co->func);
-    if (co_args != Nst_null() &&
-        (isize)Nst_seq_len(co_args) > co_func_arg_num)
-    {
+    if (co_args != Nst_null() && Nst_seq_len(co_args) > co_func_arg_num) {
         Nst_set_call_errorf(
             "the coroutine expects at most %zi arguments but %zi were given",
             co_func_arg_num,

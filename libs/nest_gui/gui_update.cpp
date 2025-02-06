@@ -48,11 +48,11 @@ bool update_element(GUI_Element *element)
 
 static bool update_constraints(Nst_MapObj *constrs)
 {
-    for (i32 i = Nst_map_get_next_idx(-1, constrs);
+    GUI_Constraint *constr = nullptr;
+    for (isize i = Nst_map_next(-1, constrs, nullptr, (Nst_Obj **)(&constr));
          i != -1;
-         i = Nst_map_get_next_idx(i, constrs))
+         i = Nst_map_next(i, constrs, nullptr, (Nst_Obj **)(&constr)))
     {
-        GUI_Constraint *constr = (GUI_Constraint *)(constrs->nodes[i].value);
         if (!constr->update(constr))
             return false;
     }

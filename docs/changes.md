@@ -70,6 +70,9 @@
     - `Nst_func_c_body`
     - `Nst_func_nest_body`
     - `Nst_func_mod_globals`
+- added the following symbols to `map.h`
+    - `Nst_map_next`
+    - `Nst_map_prev`
 
 **Changes**
 
@@ -121,6 +124,9 @@
     - `FUNC`
     - `_Nst_func_set_vt` (now there is only `Nst_func_set_vt`)
 - removed `_Nst_fstack_push`, now there is only `Nst_fstack_push`
+- removed the following symbols from `map.h`
+    - `Nst_map_get_next_idx`, `_Nst_map_get_next_idx` in favour of `Nst_map_next`
+    - `Nst_map_get_prev_idx`, `_Nst_map_get_prev_idx` in favour of `Nst_map_prev`
 
 **Bug fixes**
 

@@ -1024,12 +1024,13 @@ static Nst_Obj *map_deep_copy(Nst_MapObj *map, Nst_Obj *cont_map)
         goto end;
     }
 
-    for (i32 i = Nst_map_get_next_idx(-1, map);
+    Nst_Obj *key;
+    Nst_Obj *value;
+    for (isize i = Nst_map_next(-1, map, &key, &value);
          i != -1;
-         i = Nst_map_get_next_idx(i, map))
+         i = Nst_map_next(i, map, &key, &value))
     {
-        Nst_Obj *key = map->nodes[i].key;
-        Nst_Obj *value = obj_deep_copy(map->nodes[i].value, cont_map);
+        value = obj_deep_copy(value, cont_map);
 
         if (value == nullptr) {
             Nst_dec_ref(new_map);
