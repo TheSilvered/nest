@@ -79,7 +79,7 @@ static Nst_Obj *parse_value(Nst_LList *tokens)
 static Nst_Obj *parse_object(Nst_LList *tokens)
 {
     INC_RECURSION_LVL;
-    Nst_MapObj *map = MAP(Nst_map_new());
+    Nst_Obj *map = Nst_map_new();
     Nst_Tok *tok = Nst_TOK(Nst_llist_pop(tokens));
 
     if ((JSONTokenType)tok->type == JSON_RBRACE) {

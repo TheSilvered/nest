@@ -230,7 +230,7 @@ bool Nst_init(Nst_CLArgs *args)
     Nst_state.loaded_libs = Nst_llist_new();
     Nst_state.lib_paths = Nst_llist_new();
     Nst_state.lib_srcs = Nst_llist_new();
-    Nst_state.lib_handles = MAP(Nst_map_new());
+    Nst_state.lib_handles = Nst_map_new();
 
     if (Nst_error_occurred())
         goto cleanup;
@@ -678,7 +678,7 @@ static InstResult exe_return_val()
 
 static InstResult exe_return_vars()
 {
-    Nst_MapObj *vars = Nst_state.es->vt->vars;
+    Nst_Obj *vars = Nst_state.es->vt->vars;
     Nst_Obj *obj = POP_TOP_VALUE;
 
     while (obj != NULL) {
@@ -1350,15 +1350,15 @@ static InstResult exe_save_error()
 
     Nst_Obj *err_map = Nst_map_new();
     Nst_Traceback *tb = Nst_error_get();
-    Nst_map_set_str(err_map, "name", tb->error_name);
-    Nst_map_set_str(err_map, "message", tb->error_msg);
+    Nst_map_set_str(err_map, "name", OBJ(tb->error_name));
+    Nst_map_set_str(err_map, "message", OBJ(tb->error_msg));
     Nst_error_clear();
 
     Nst_vstack_push(&Nst_state.es->v_stack, err_map);
     Nst_dec_ref(err_map);
 
     // Remove the source of any libraries that failed to load
-    while (Nst_state.lib_srcs->len > Nst_state.lib_handles->len) {
+    while (Nst_state.lib_srcs->len > Nst_map_len(Nst_state.lib_handles)) {
         Nst_SourceText *txt = (Nst_SourceText *)Nst_llist_pop(
             Nst_state.lib_srcs);
         source_text_destructor(txt);

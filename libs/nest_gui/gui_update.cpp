@@ -3,7 +3,7 @@
 
 static bool update_window(GUI_Window *window);
 static bool update_element(GUI_Element *element);
-static bool update_constraints(Nst_MapObj *constrs);
+static bool update_constraints(Nst_Obj *constrs);
 static bool update_single_element(GUI_Element *element);
 static bool update_children(Nst_Obj *children);
 
@@ -46,7 +46,7 @@ bool update_element(GUI_Element *element)
     return true;
 }
 
-static bool update_constraints(Nst_MapObj *constrs)
+static bool update_constraints(Nst_Obj *constrs)
 {
     GUI_Constraint *constr = nullptr;
     for (isize i = Nst_map_next(-1, constrs, nullptr, (Nst_Obj **)(&constr));

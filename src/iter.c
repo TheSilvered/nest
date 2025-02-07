@@ -186,7 +186,7 @@ Nst_Obj *NstC Nst_iter_map_next(usize arg_num, Nst_Obj **args)
 
     Nst_Obj *key;
     Nst_Obj *value;
-    idx = Nst_map_next(idx, MAP(c_args[1]), &key, &value);
+    idx = Nst_map_next(idx, c_args[1], &key, &value);
     if (idx == -1)
         Nst_RETURN_IEND;
 

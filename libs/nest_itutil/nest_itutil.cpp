@@ -246,7 +246,7 @@ Nst_Obj *NstC keys_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC values_(usize arg_num, Nst_Obj **args)
 {
-    Nst_MapObj *map;
+    Nst_Obj *map;
 
     if (!Nst_extract_args("m", arg_num, args, &map))
         return nullptr;

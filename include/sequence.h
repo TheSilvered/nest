@@ -1,7 +1,7 @@
 /**
  * @file sequence.h
  *
- * @brief Nst_SeqObject interface for Arrays and Vectors
+ * @brief `Array` and `Vector` objects interface
  *
  * @author TheSilvered
  */

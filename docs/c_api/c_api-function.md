@@ -67,7 +67,7 @@ The new function object or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-void Nst_func_set_vt(Nst_Obj *func, Nst_MapObj *map)
+void Nst_func_set_vt(Nst_Obj *func, Nst_Obj *map)
 ```
 
 **Description:**
@@ -145,7 +145,7 @@ Gets the body of a Nest function.
 **Synopsis:**
 
 ```better-c
-Nst_MapObj *Nst_func_mod_globals(Nst_Obj *func)
+Nst_Obj *Nst_func_mod_globals(Nst_Obj *func)
 ```
 
 **Description:**

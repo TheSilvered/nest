@@ -73,6 +73,8 @@
 - added the following symbols to `map.h`
     - `Nst_map_next`
     - `Nst_map_prev`
+    - `Nst_map_len`
+    - `Nst_map_cap`
 
 **Changes**
 
@@ -125,8 +127,18 @@
     - `_Nst_func_set_vt` (now there is only `Nst_func_set_vt`)
 - removed `_Nst_fstack_push`, now there is only `Nst_fstack_push`
 - removed the following symbols from `map.h`
+    - `Nst_MapObj`
+    - `Nst_MapNode`
+    - `MAP`
     - `Nst_map_get_next_idx`, `_Nst_map_get_next_idx` in favour of `Nst_map_next`
     - `Nst_map_get_prev_idx`, `_Nst_map_get_prev_idx` in favour of `Nst_map_prev`
+    - `_Nst_map_set` (now there is only `Nst_map_set`)
+    - `_Nst_map_get` (now there is only `Nst_map_get`)
+    - `_Nst_map_drop` (now there is only `Nst_map_drop`)
+    - `_Nst_map_set_str` (now there is only `Nst_map_set_str`)
+    - `_Nst_map_get_str` (now there is only `Nst_map_get_str`)
+    - `_Nst_map_drop_str` (now there is only `Nst_map_drop_str`)
+    - `_Nst_map_resize`
 
 **Bug fixes**
 

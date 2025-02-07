@@ -282,7 +282,7 @@ Nst_Obj *NstC get_capacity_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (Nst_T(container, Map))
-        return Nst_int_new((i64)MAP(container)->cap);
+        return Nst_int_new((i64)Nst_map_cap(container));
 
     return Nst_int_new((i64)Nst_vector_cap(container));
 }

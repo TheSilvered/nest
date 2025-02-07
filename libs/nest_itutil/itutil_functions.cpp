@@ -344,7 +344,7 @@ Nst_Obj *NstC keys_next(usize arg_num, Nst_Obj **args)
     isize idx = (isize)AS_INT(c_args[0]);
 
     Nst_Obj *key;
-    idx = Nst_map_next(idx, MAP(c_args[1]), &key, nullptr);
+    idx = Nst_map_next(idx, c_args[1], &key, nullptr);
 
     if (idx == -1)
         Nst_RETURN_IEND;
@@ -363,7 +363,7 @@ Nst_Obj *NstC values_next(usize arg_num, Nst_Obj **args)
     i64 idx = AS_INT(c_args[0]);
 
     Nst_Obj *value;
-    idx = Nst_map_next(idx, MAP(c_args[1]), nullptr, &value);
+    idx = Nst_map_next(idx, c_args[1], nullptr, &value);
 
     if (idx == -1)
         Nst_RETURN_IEND;

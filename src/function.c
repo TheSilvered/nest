@@ -15,7 +15,7 @@ typedef struct _Nst_FuncObj {
     Nst_FuncBody body;
     Nst_Obj **args;
     isize arg_num;
-    Nst_MapObj *mod_globals;
+    Nst_Obj *mod_globals;
 } Nst_FuncObj;
 
 #define FUNC(ptr) ((Nst_FuncObj *)(ptr))
@@ -78,14 +78,15 @@ void _Nst_func_destroy(Nst_Obj *func)
         Nst_dec_ref(FUNC(func)->mod_globals);
 }
 
-void Nst_func_set_vt(Nst_Obj *func, Nst_MapObj *map)
+void Nst_func_set_vt(Nst_Obj *func, Nst_Obj *map)
 {
     Nst_assert(func->type == Nst_t.Func);
+    Nst_assert(map->type == Nst_t.Map);
 
     if (Nst_FUNC_IS_C(func) || FUNC(func)->mod_globals != NULL)
         return;
 
-    FUNC(func)->mod_globals = MAP(Nst_inc_ref(map));
+    FUNC(func)->mod_globals = Nst_inc_ref(map);
 
     for (Nst_LLNode *n = FUNC(func)->body.bytecode->functions->head;
          n != NULL;
@@ -121,7 +122,7 @@ Nst_InstList *Nst_func_nest_body(Nst_Obj *func)
     return FUNC(func)->body.bytecode;
 }
 
-Nst_MapObj *Nst_func_mod_globals(Nst_Obj *func)
+Nst_Obj *Nst_func_mod_globals(Nst_Obj *func)
 {
     Nst_assert(func->type == Nst_t.Func);
     return FUNC(func)->mod_globals;

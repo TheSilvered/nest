@@ -23,8 +23,8 @@ GUI_Element *GUI_Element_New(usize size, GUI_Element *parent,
     element->children = Nst_vector_new(0);
     element->window = window;
     element->app = app;
-    element->constraints_before = MAP(Nst_map_new());
-    element->constraints_after = MAP(Nst_map_new());
+    element->constraints_before = Nst_map_new();
+    element->constraints_after = Nst_map_new();
     element->event_handler = nullptr;
     element->frame_update = nullptr;
     element->tick_update = nullptr;

@@ -3,20 +3,20 @@
 #include "global_consts.h"
 #include "mem.h"
 
-Nst_VarTable *Nst_vt_new(Nst_MapObj *global_table, Nst_Obj *args,
+Nst_VarTable *Nst_vt_new(Nst_Obj *global_table, Nst_Obj *args,
                          bool no_default)
 {
     Nst_VarTable *vt = Nst_malloc_c(1, Nst_VarTable);
     if (vt == NULL)
         return NULL;
-    Nst_MapObj *vars = MAP(Nst_map_new());
+    Nst_Obj *vars = Nst_map_new();
     if (vars == NULL) {
         Nst_free(vt);
         return NULL;
     }
     vt->vars = vars;
     vt->global_table = no_default ? NULL : global_table;
-    Nst_map_set(vars, Nst_s.o__vars_, vars);
+    Nst_map_set(vars, OBJ(Nst_s.o__vars_), vars);
 
 #ifdef _DEBUG
 #ifdef _Nst_ARCH_x64
@@ -33,12 +33,13 @@ Nst_VarTable *Nst_vt_new(Nst_MapObj *global_table, Nst_Obj *args,
         return vt;
 
     if (global_table == NULL)
-        Nst_map_set(vars, Nst_s.o__globals_, Nst_c.Null_null);
+        Nst_map_set(vars, OBJ(Nst_s.o__globals_), Nst_c.Null_null);
     else {
+        Nst_assert(global_table->type == Nst_t.Map);
         Nst_inc_ref(global_table);
-        Nst_map_set(vars, Nst_s.o__globals_, global_table);
+        Nst_map_set(vars, OBJ(Nst_s.o__globals_), global_table);
         if (Nst_error_occurred()) {
-            Nst_map_drop(vars, Nst_s.o__vars_);
+            Nst_map_drop(vars, OBJ(Nst_s.o__vars_));
             Nst_dec_ref(vars);
             Nst_free(vt);
             return NULL;
@@ -46,28 +47,28 @@ Nst_VarTable *Nst_vt_new(Nst_MapObj *global_table, Nst_Obj *args,
         return vt;
     }
 
-    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Type),   Nst_t.Type);
-    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Int),    Nst_t.Int);
-    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Real),   Nst_t.Real);
-    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Bool),   Nst_t.Bool);
-    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Null),   Nst_t.Null);
-    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Str),    Nst_t.Str);
-    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Array),  Nst_t.Array);
-    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Vector), Nst_t.Vector);
-    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Map),    Nst_t.Map);
-    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Func),   Nst_t.Func);
-    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Iter),   Nst_t.Iter);
-    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.Byte),   Nst_t.Byte);
-    Nst_map_set(vars, Nst_TYPE_STR(Nst_t.IOFile), Nst_t.IOFile);
+    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Type)),   OBJ(Nst_t.Type));
+    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Int)),    OBJ(Nst_t.Int));
+    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Real)),   OBJ(Nst_t.Real));
+    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Bool)),   OBJ(Nst_t.Bool));
+    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Null)),   OBJ(Nst_t.Null));
+    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Str)),    OBJ(Nst_t.Str));
+    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Array)),  OBJ(Nst_t.Array));
+    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Vector)), OBJ(Nst_t.Vector));
+    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Map)),    OBJ(Nst_t.Map));
+    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Func)),   OBJ(Nst_t.Func));
+    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Iter)),   OBJ(Nst_t.Iter));
+    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Byte)),   OBJ(Nst_t.Byte));
+    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.IOFile)), OBJ(Nst_t.IOFile));
 
-    Nst_map_set(vars, Nst_s.c_true,  Nst_c.Bool_true);
-    Nst_map_set(vars, Nst_s.c_false, Nst_c.Bool_false);
-    Nst_map_set(vars, Nst_s.c_null,  Nst_c.Null_null);
+    Nst_map_set(vars, OBJ(Nst_s.c_true),  Nst_c.Bool_true);
+    Nst_map_set(vars, OBJ(Nst_s.c_false), Nst_c.Bool_false);
+    Nst_map_set(vars, OBJ(Nst_s.c_null),  Nst_c.Null_null);
 
-    Nst_map_set(vars, Nst_s.o__args_, args);
+    Nst_map_set(vars, OBJ(Nst_s.o__args_), args);
 
     if (Nst_error_occurred()) {
-        Nst_map_drop(vars, Nst_s.o__vars_);
+        Nst_map_drop(vars, OBJ(Nst_s.o__vars_));
         Nst_dec_ref(vars);
         Nst_free(vt);
         return NULL;
@@ -77,10 +78,10 @@ Nst_VarTable *Nst_vt_new(Nst_MapObj *global_table, Nst_Obj *args,
 
 Nst_Obj *_Nst_vt_get(Nst_VarTable *vt, Nst_Obj *name)
 {
-    Nst_Obj *val = _Nst_map_get(vt->vars, name);
+    Nst_Obj *val = Nst_map_get(vt->vars, name);
 
     if (val == NULL && vt->global_table != NULL)
-        val = _Nst_map_get(vt->global_table, name);
+        val = Nst_map_get(vt->global_table, name);
 
     if (val == NULL)
         Nst_RETURN_NULL;
@@ -94,7 +95,7 @@ bool _Nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val)
 
 void Nst_vt_destroy(Nst_VarTable *vt)
 {
-    Nst_Obj *vars = Nst_map_drop(vt->vars, Nst_s.o__vars_);
+    Nst_Obj *vars = Nst_map_drop(vt->vars, OBJ(Nst_s.o__vars_));
     Nst_ndec_ref(vars);
     Nst_dec_ref(vt->vars);
     Nst_ndec_ref(vt->global_table);
@@ -103,7 +104,7 @@ void Nst_vt_destroy(Nst_VarTable *vt)
 
 Nst_VarTable *Nst_vt_from_func(Nst_Obj *f)
 {
-    Nst_MapObj *func_globals = Nst_func_mod_globals(f);
+    Nst_Obj *func_globals = Nst_func_mod_globals(f);
     if (func_globals != NULL)
         return Nst_vt_new(func_globals, NULL, false);
     else if (Nst_state.es->vt->global_table == NULL)

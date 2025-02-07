@@ -73,11 +73,10 @@ typedef void * lib_t;
 
 static Nst_Obj *seq_eq(Nst_Obj *seq1, Nst_Obj *seq2,
                        Nst_LList *containers);
-static Nst_Obj *map_eq(Nst_MapObj *map1, Nst_MapObj *map2,
-                       Nst_LList *containers);
+static Nst_Obj *map_eq(Nst_Obj *map1, Nst_Obj *map2, Nst_LList *containers);
 static Nst_Obj *import_nest_lib(Nst_StrObj *file_path);
 static Nst_Obj *import_c_lib(Nst_StrObj *file_path);
-static bool add_to_handle_map(Nst_StrObj *path, Nst_MapObj *map,
+static bool add_to_handle_map(Nst_StrObj *path, Nst_Obj *map,
                               Nst_SourceText *src_txt);
 
 bool Nst_obj_eq_c(Nst_Obj *ob1, Nst_Obj *ob2)
@@ -129,7 +128,7 @@ Nst_Obj *_Nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2)
         Nst_LList *containers = Nst_llist_new();
         if (containers == NULL)
             return NULL;
-        Nst_Obj *res = map_eq(MAP(ob1), MAP(ob2), containers);
+        Nst_Obj *res = map_eq(ob1, ob2, containers);
         Nst_llist_destroy(containers, NULL);
         return res;
     } else
@@ -169,7 +168,7 @@ static Nst_Obj *seq_eq(Nst_Obj *seq1, Nst_Obj *seq2,
         if (IS_SEQ(ob1) && IS_SEQ(ob2))
             result = seq_eq(ob1, ob2, containers);
         else if (ARE_TYPE(Nst_t.Map))
-            result = map_eq(MAP(ob1), MAP(ob2), containers);
+            result = map_eq(ob1, ob2, containers);
         else
             result = Nst_obj_eq(ob1, ob2);
 
@@ -188,10 +187,10 @@ static Nst_Obj *seq_eq(Nst_Obj *seq1, Nst_Obj *seq2,
     Nst_RETURN_TRUE;
 }
 
-static Nst_Obj *map_eq(Nst_MapObj *map1, Nst_MapObj *map2,
+static Nst_Obj *map_eq(Nst_Obj *map1, Nst_Obj *map2,
                        Nst_LList *containers)
 {
-    if (map1->len != map2->len)
+    if (Nst_map_len(map1) != Nst_map_len(map2))
         Nst_RETURN_FALSE;
 
     for (Nst_LLNode *n = containers->head; n != NULL; n = n->next) {
@@ -219,7 +218,7 @@ static Nst_Obj *map_eq(Nst_MapObj *map1, Nst_MapObj *map2,
          i != -1;
          i = Nst_map_next(i, map1, &key, &ob1))
     {
-        ob2 = _Nst_map_get(map2, key);
+        ob2 = Nst_map_get(map2, key);
         if (ob2 == NULL)
             Nst_RETURN_FALSE;
         else
@@ -228,7 +227,7 @@ static Nst_Obj *map_eq(Nst_MapObj *map1, Nst_MapObj *map2,
         if (IS_SEQ(ob1) && IS_SEQ(ob2))
             result = seq_eq(ob1, ob2, containers);
         else if (ARE_TYPE(Nst_t.Map))
-            result = map_eq(MAP(ob1), MAP(ob2), containers);
+            result = map_eq(ob1, ob2, containers);
         else
             result = Nst_obj_eq(ob1, ob2);
 
@@ -646,7 +645,7 @@ Nst_Obj *_Nst_repr_str_cast(Nst_Obj *ob)
         return Nst_obj_cast(ob, Nst_t.Str);
 }
 
-Nst_Obj *_Nst_obj_str_cast_map(Nst_MapObj *map_obj, Nst_LList *all_objs);
+Nst_Obj *_Nst_obj_str_cast_map(Nst_Obj *map_obj, Nst_LList *all_objs);
 
 Nst_Obj *_Nst_obj_str_cast_seq(Nst_Obj *seq_obj, Nst_LList *all_objs)
 {
@@ -694,7 +693,7 @@ Nst_Obj *_Nst_obj_str_cast_seq(Nst_Obj *seq_obj, Nst_LList *all_objs)
         if (IS_SEQ(ob))
             ob_str = STR(_Nst_obj_str_cast_seq(ob, all_objs));
         else if (ob->type == Nst_t.Map)
-            ob_str = STR(_Nst_obj_str_cast_map(MAP(ob), all_objs));
+            ob_str = STR(_Nst_obj_str_cast_map(ob, all_objs));
         else
             ob_str = STR(_Nst_repr_str_cast(ob));
         if (ob_str == NULL) {
@@ -727,14 +726,14 @@ Nst_Obj *_Nst_obj_str_cast_seq(Nst_Obj *seq_obj, Nst_LList *all_objs)
     return OBJ(Nst_buffer_to_string(&buf));
 }
 
-Nst_Obj *_Nst_obj_str_cast_map(Nst_MapObj *map_obj, Nst_LList *all_objs)
+Nst_Obj *_Nst_obj_str_cast_map(Nst_Obj *map_obj, Nst_LList *all_objs)
 {
     for (Nst_LLNode *n = all_objs->head; n != NULL; n = n->next) {
         if (map_obj == n->value)
             return Nst_str_new_c("{.}", 3, false);
     }
 
-    if (MAP(map_obj)->len == 0)
+    if (Nst_map_len(map_obj) == 0)
         return Nst_str_new_c("{}", 2, false);
 
     if (!Nst_llist_push(all_objs, map_obj, false))
@@ -763,7 +762,7 @@ Nst_Obj *_Nst_obj_str_cast_map(Nst_MapObj *map_obj, Nst_LList *all_objs)
         if (IS_SEQ(val))
             val_str = STR(_Nst_obj_str_cast_seq(val, all_objs));
         else if (val->type == Nst_t.Map)
-            val_str = STR(_Nst_obj_str_cast_map(MAP(val), all_objs));
+            val_str = STR(_Nst_obj_str_cast_map(val, all_objs));
         else
             val_str = STR(_Nst_repr_str_cast(val));
 
@@ -842,7 +841,7 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
         Nst_LList *all_objs = Nst_llist_new();
         if (all_objs == NULL)
             return NULL;
-        Nst_Obj *str = _Nst_obj_str_cast_map(MAP(ob), all_objs);
+        Nst_Obj *str = _Nst_obj_str_cast_map(ob, all_objs);
         Nst_llist_destroy(all_objs, NULL);
         return str;
     } else if (ob_t == Nst_t.Null)
@@ -892,7 +891,7 @@ static Nst_Obj *obj_to_bool(Nst_Obj *ob)
     else if (ob_t == Nst_t.Str)
         Nst_RETURN_BOOL(STR(ob)->len != 0);
     else if (ob_t == Nst_t.Map)
-        Nst_RETURN_BOOL(MAP(ob)->len != 0);
+        Nst_RETURN_BOOL(Nst_map_len(ob) != 0);
     else if (ob_t == Nst_t.Array || ob_t == Nst_t.Vector)
         Nst_RETURN_BOOL(Nst_seq_len(ob) != 0);
     else if (ob_t == Nst_t.Null)
@@ -1038,17 +1037,16 @@ static Nst_Obj *iter_to_seq(Nst_Obj *ob, bool is_vect)
 
 static Nst_Obj *map_to_seq(Nst_Obj *ob, bool is_vect)
 {
-    Nst_MapObj *map = MAP(ob);
-    usize seq_len = map->len;
+    usize seq_len = Nst_map_len(ob);
     Nst_Obj *seq = is_vect ? Nst_vector_new(seq_len)
                            : Nst_array_new(seq_len);
 
     usize seq_i = 0;
     Nst_Obj *key;
     Nst_Obj *val;
-    for (isize i = Nst_map_next(-1, map, &key, &val);
+    for (isize i = Nst_map_next(-1, ob, &key, &val);
          i != -1;
-         i = Nst_map_next(i, map, &key, &val))
+         i = Nst_map_next(i, ob, &key, &val))
     {
         Nst_Obj *node_arr = Nst_array_create_c("OO", key, val);
         if (node_arr == NULL) {
@@ -1135,7 +1133,7 @@ static Nst_Obj *obj_to_iter(Nst_Obj *ob)
 static Nst_Obj *seq_to_map(Nst_Obj *ob)
 {
     Nst_Obj **objs = _Nst_seq_objs(ob);
-    Nst_MapObj *map = MAP(Nst_map_new());
+    Nst_Obj *map = Nst_map_new();
     if (map == NULL)
         return NULL;
 
@@ -1174,12 +1172,12 @@ static Nst_Obj *seq_to_map(Nst_Obj *ob)
         }
     }
 
-    return OBJ(map);
+    return map;
 }
 
 static Nst_Obj *iter_to_map(Nst_Obj *ob)
 {
-    Nst_MapObj *map = MAP(Nst_map_new());
+    Nst_Obj *map = Nst_map_new();
     if (map == NULL)
         return NULL;
 
@@ -1236,7 +1234,7 @@ static Nst_Obj *iter_to_map(Nst_Obj *ob)
         iter_count++;
     }
 
-    return OBJ(map);
+    return map;
 }
 
 static Nst_Obj *obj_to_map(Nst_Obj *ob)
@@ -1398,7 +1396,7 @@ Nst_Obj *_Nst_obj_len(Nst_Obj *ob)
     if (ob->type == Nst_t.Str)
         return Nst_int_new(STR(ob)->char_len);
     else if (ob->type == Nst_t.Map)
-        return Nst_int_new(MAP(ob)->len);
+        return Nst_int_new(Nst_map_len(ob));
     else if (IS_SEQ(ob))
         return Nst_int_new(Nst_seq_len(ob));
     else if (ob->type == Nst_t.Func)
@@ -1562,7 +1560,7 @@ Nst_Obj *_Nst_obj_import(Nst_Obj *ob)
         }
     }
 
-    Nst_Obj *obj_map = Nst_map_get(Nst_state.lib_handles, import_path);
+    Nst_Obj *obj_map = Nst_map_get(Nst_state.lib_handles, OBJ(import_path));
     if (obj_map != NULL) {
         Nst_dec_ref(import_path);
         return obj_map;
@@ -1579,14 +1577,14 @@ Nst_Obj *_Nst_obj_import(Nst_Obj *ob)
         return import_c_lib(import_path);
 }
 
-static bool add_to_handle_map(Nst_StrObj *path, Nst_MapObj *map,
+static bool add_to_handle_map(Nst_StrObj *path, Nst_Obj *map,
                               Nst_SourceText *src_txt)
 {
     if (!Nst_llist_push(Nst_state.lib_srcs, src_txt, true)) {
         Nst_dec_ref(path);
         return false;
     }
-    bool res = Nst_map_set(Nst_state.lib_handles, path, map);
+    bool res = Nst_map_set(Nst_state.lib_handles, OBJ(path), map);
     Nst_dec_ref(path);
     return res;
 }
@@ -1594,7 +1592,7 @@ static bool add_to_handle_map(Nst_StrObj *path, Nst_MapObj *map,
 static Nst_Obj *import_nest_lib(Nst_StrObj *file_path)
 {
     Nst_SourceText *lib_src = Nst_malloc_c(1, Nst_SourceText);
-    Nst_MapObj *map = NULL;
+    Nst_Obj *map = NULL;
 
     if (lib_src == NULL)
         goto cleanup;
@@ -1605,7 +1603,7 @@ static Nst_Obj *import_nest_lib(Nst_StrObj *file_path)
         goto cleanup;
     }
 
-    map = MAP(Nst_vstack_pop(&Nst_state.es->v_stack));
+    map = Nst_vstack_pop(&Nst_state.es->v_stack);
     Nst_assert(map != NULL);
 
     if (!add_to_handle_map(file_path, map, lib_src)) {
@@ -1661,7 +1659,7 @@ static Nst_Obj *import_c_lib(Nst_StrObj *file_path)
     }
 
     // Populate the function map
-    Nst_MapObj *obj_map = MAP(Nst_map_new());
+    Nst_Obj *obj_map = Nst_map_new();
     if (obj_map == NULL)
         goto fail;
 

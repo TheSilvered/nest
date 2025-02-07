@@ -50,7 +50,7 @@ NstEXP Nst_Obj *NstC Nst_func_new_c(usize arg_num, Nst_NestCallable cbody);
  * @param func: the function to change the `mod_globals` field of
  * @param map: the map to set as the new value
  */
-NstEXP void NstC Nst_func_set_vt(Nst_Obj *func, Nst_MapObj *map);
+NstEXP void NstC Nst_func_set_vt(Nst_Obj *func, Nst_Obj *map);
 
 /* Gets the number of arguments a function takes. */
 NstEXP usize NstC Nst_func_arg_num(Nst_Obj *func);
@@ -64,7 +64,7 @@ NstEXP Nst_InstList *NstC Nst_func_nest_body(Nst_Obj *func);
  * @brief Gets the `_globals_` variable map of a function. No reference is
  * added. It may be `NULL`.
  */
-NstEXP Nst_MapObj *NstC Nst_func_mod_globals(Nst_Obj *func);
+NstEXP Nst_Obj *NstC Nst_func_mod_globals(Nst_Obj *func);
 
 /* Traverse function for `Func` objects. */
 NstEXP void NstC _Nst_func_traverse(Nst_Obj *func);

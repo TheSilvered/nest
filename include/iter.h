@@ -29,10 +29,21 @@ extern "C" {
  */
 NstEXP Nst_Obj *NstC Nst_iter_new(Nst_Obj *start, Nst_Obj *next,
                                   Nst_Obj *value);
+
 /* Destructor for Nest iter objects. */
 NstEXP void NstC _Nst_iter_destroy(Nst_Obj *iter);
 /* Traverse function for Nest iter objects. */
 NstEXP void NstC _Nst_iter_traverse(Nst_Obj *iter);
+
+/* Get the `start` function of an iterator. No reference is added. */
+NstEXP Nst_Obj *NstC Nst_iter_start_func(Nst_Obj *iter);
+/* Get the `next` function of an iterator. No reference is added. */
+NstEXP Nst_Obj *NstC Nst_iter_next_func(Nst_Obj *iter);
+/**
+ * @brief Get the `value` passed to `start` and `next` of an iterator. No
+ * reference is added.
+ */
+NstEXP Nst_Obj *NstC Nst_iter_value(Nst_Obj *iter);
 
 /**
  * Calls the `start` function of an `Iter` object.
@@ -52,16 +63,6 @@ NstEXP bool NstC Nst_iter_start(Nst_Obj *iter);
  * set.
  */
 NstEXP Nst_Obj *NstC Nst_iter_next(Nst_Obj *iter);
-
-/* Get the `start` function of an iterator. No reference is added. */
-NstEXP Nst_Obj *NstC Nst_iter_start_func(Nst_Obj *iter);
-/* Get the `next` function of an iterator. No reference is added. */
-NstEXP Nst_Obj *NstC Nst_iter_next_func(Nst_Obj *iter);
-/**
- * @brief Get the `value` passed to `start` and `next` of an iterator. No
- * reference is added.
- */
-NstEXP Nst_Obj *NstC Nst_iter_value(Nst_Obj *iter);
 
 // Functions for range iterators
 

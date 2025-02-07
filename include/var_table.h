@@ -28,8 +28,8 @@ extern "C" {
  * @param global_table: the map of global variables
  */
 NstEXP typedef struct _Nst_VarTable {
-    Nst_MapObj *vars;
-    Nst_MapObj *global_table;
+    Nst_Obj *vars;
+    Nst_Obj *global_table;
 } Nst_VarTable;
 
 /**
@@ -42,7 +42,7 @@ NstEXP typedef struct _Nst_VarTable {
  * `NULL` or `no_default` is `true`
  * @param no_default: whether to create predefined variables
  */
-NstEXP Nst_VarTable *NstC Nst_vt_new(Nst_MapObj *global_table, Nst_Obj *args,
+NstEXP Nst_VarTable *NstC Nst_vt_new(Nst_Obj *global_table, Nst_Obj *args,
                                      bool no_default);
 /* `Nst_VarTable` destructor. */
 NstEXP void NstC Nst_vt_destroy(Nst_VarTable *vt);

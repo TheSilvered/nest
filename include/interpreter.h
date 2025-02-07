@@ -31,7 +31,7 @@ NstEXP typedef struct _Nst_IntrState {
     i32 opt_level;
     Nst_LList *loaded_libs;
     Nst_LList *lib_paths;
-    Nst_MapObj *lib_handles;
+    Nst_Obj *lib_handles;
     Nst_LList *lib_srcs;
     Nst_ExecutionState *es;
     Nst_Traceback global_traceback;

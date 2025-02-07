@@ -1,6 +1,6 @@
 # `sequence.h`
 
-Nst_SeqObject interface for Arrays and Vectors.
+`Array` and `Vector` objects interface.
 
 ## Authors
 

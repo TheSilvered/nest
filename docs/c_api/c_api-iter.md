@@ -66,6 +66,49 @@ Traverse function for Nest iter objects.
 
 ---
 
+### `Nst_iter_start_func`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *Nst_iter_start_func(Nst_Obj *iter)
+```
+
+**Description:**
+
+Get the `start` function of an iterator. No reference is added.
+
+---
+
+### `Nst_iter_next_func`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *Nst_iter_next_func(Nst_Obj *iter)
+```
+
+**Description:**
+
+Get the `next` function of an iterator. No reference is added.
+
+---
+
+### `Nst_iter_value`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *Nst_iter_value(Nst_Obj *iter)
+```
+
+**Description:**
+
+Get the `value` passed to `start` and `next` of an iterator. No reference is
+added.
+
+---
+
 ### `Nst_iter_start`
 
 **Synopsis:**
@@ -107,49 +150,6 @@ Calls the `next` function of an `Iter` object.
 **Returns:**
 
 The resulting object on success and `NULL` on failure. The error is set.
-
----
-
-### `Nst_iter_start_func`
-
-**Synopsis:**
-
-```better-c
-Nst_Obj *Nst_iter_start_func(Nst_Obj *iter)
-```
-
-**Description:**
-
-Get the `start` function of an iterator. No reference is added.
-
----
-
-### `Nst_iter_next_func`
-
-**Synopsis:**
-
-```better-c
-Nst_Obj *Nst_iter_next_func(Nst_Obj *iter)
-```
-
-**Description:**
-
-Get the `next` function of an iterator. No reference is added.
-
----
-
-### `Nst_iter_value`
-
-**Synopsis:**
-
-```better-c
-Nst_Obj *Nst_iter_value(Nst_Obj *iter)
-```
-
-**Description:**
-
-Get the `value` passed to `start` and `next` of an iterator. No reference is
-added.
 
 ---
 

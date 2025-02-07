@@ -960,7 +960,7 @@ Nst_Obj *NstC copy_(usize arg_num, Nst_Obj **args)
 
 static Nst_Obj *obj_deep_copy(Nst_Obj *obj, Nst_Obj *cont_map);
 static Nst_Obj *seq_deep_copy(Nst_Obj *seq, Nst_Obj *cont_map);
-static Nst_Obj *map_deep_copy(Nst_MapObj *map, Nst_Obj *cont_map);
+static Nst_Obj *map_deep_copy(Nst_Obj *map, Nst_Obj *cont_map);
 
 static Nst_Obj *seq_deep_copy(Nst_Obj *seq, Nst_Obj *cont_map)
 {
@@ -1003,17 +1003,17 @@ end:
     return OBJ(new_seq);
 }
 
-static Nst_Obj *map_deep_copy(Nst_MapObj *map, Nst_Obj *cont_map)
+static Nst_Obj *map_deep_copy(Nst_Obj *map, Nst_Obj *cont_map)
 {
     Nst_Obj *seq_id = Nst_int_new((i64)map);
     if (seq_id == nullptr)
         return nullptr;
 
-    Nst_MapObj *new_map = MAP(Nst_map_get(cont_map, seq_id));
+    Nst_Obj *new_map = Nst_map_get(cont_map, seq_id);
     if (new_map != nullptr)
         goto end;
 
-    new_map = MAP(Nst_map_new());
+    new_map = Nst_map_new();
 
     if (new_map == nullptr)
         goto end;
@@ -1055,7 +1055,7 @@ end:
 static Nst_Obj *obj_deep_copy(Nst_Obj *obj, Nst_Obj *cont_map)
 {
     if (Nst_T(obj, Map))
-        return map_deep_copy(MAP(obj), cont_map);
+        return map_deep_copy(obj, cont_map);
     else if (Nst_T(obj, Array) || Nst_T(obj, Vector))
         return seq_deep_copy(obj, cont_map);
     return Nst_inc_ref(obj);
@@ -1074,7 +1074,7 @@ Nst_Obj *NstC deep_copy_(usize arg_num, Nst_Obj **args)
     Nst_Obj *res;
 
     if (Nst_T(obj, Map))
-        res = map_deep_copy(MAP(obj), cont_map);
+        res = map_deep_copy(obj, cont_map);
     else
         res = seq_deep_copy(obj, cont_map);
 

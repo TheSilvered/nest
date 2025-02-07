@@ -48,7 +48,9 @@ bool GUI_Element_AddConstraintBefore(GUI_Constraint *constr)
     Nst_Obj *key = Nst_int_new((i64)constr);
     if (key == nullptr)
         return false;
-    bool result = Nst_map_set(constr->element->constraints_before, key, constr);
+    bool result = Nst_map_set(
+        constr->element->constraints_before,
+        key, OBJ(constr));
     Nst_dec_ref(key);
     return result;
 }
@@ -58,7 +60,9 @@ bool GUI_Element_AddConstraintAfter(GUI_Constraint *constr)
     Nst_Obj *key = Nst_int_new((i64)constr);
     if (key == nullptr)
         return false;
-    bool result = Nst_map_set(constr->element->constraints_after, key, constr);
+    bool result = Nst_map_set(
+        constr->element->constraints_after,
+        key, OBJ(constr));
     Nst_dec_ref(key);
     return result;
 }

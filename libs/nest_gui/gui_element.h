@@ -18,8 +18,8 @@
     Nst_Obj *children;                                                        \
     struct _GUI_Window *window;                                               \
     struct _GUI_App *app;                                                     \
-    Nst_MapObj *constraints_before;                                           \
-    Nst_MapObj *constraints_after;                                            \
+    Nst_Obj *constraints_before;                                              \
+    Nst_Obj *constraints_after;                                               \
     GUI_EventHandler event_handler;                                           \
     GUI_UpdateFunc frame_update;                                              \
     GUI_UpdateFunc tick_update;                                               \

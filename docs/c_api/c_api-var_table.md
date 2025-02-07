@@ -48,8 +48,8 @@ Alias of [`_Nst_vt_set`](c_api-var_table.md#_nst_vt_set) that casts `name` and
 
 ```better-c
 typedef struct _Nst_VarTable {
-    Nst_MapObj *vars;
-    Nst_MapObj *global_table;
+    Nst_Obj *vars;
+    Nst_Obj *global_table;
 } Nst_VarTable
 ```
 
@@ -71,8 +71,7 @@ Structure representing the Nest variable table
 **Synopsis:**
 
 ```better-c
-Nst_VarTable *Nst_vt_new(Nst_MapObj *global_table, Nst_Obj *args,
-                         bool no_default)
+Nst_VarTable *Nst_vt_new(Nst_Obj *global_table, Nst_Obj *args, bool no_default)
 ```
 
 **Description:**

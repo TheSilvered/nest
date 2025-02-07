@@ -34,7 +34,7 @@ static void dump_obj(Nst_Obj *obj, i32 indent);
 static void dump_str(Nst_StrObj *str);
 static void dump_num(Nst_Obj *number);
 static void dump_seq(Nst_Obj *seq, i32 indent);
-static void dump_map(Nst_MapObj *map, i32 indent);
+static void dump_map(Nst_Obj *map, i32 indent);
 static void add_comma(i32 indent);
 static void add_indent(i32 indent);
 
@@ -63,7 +63,7 @@ static void dump_obj(Nst_Obj *obj, i32 indent)
     else if (Nst_T(obj, Int) || Nst_T(obj, Real) || Nst_T(obj, Byte))
         dump_num(obj);
     else if (Nst_T(obj, Map))
-        dump_map(MAP(obj), indent);
+        dump_map(obj, indent);
     else if (Nst_T(obj, Array) || Nst_T(obj, Vector))
         dump_seq(obj, indent);
     else if (obj == Nst_null())
@@ -248,9 +248,9 @@ static void dump_seq(Nst_Obj *seq, i32 indent)
     }
 }
 
-static void dump_map(Nst_MapObj *map, i32 indent)
+static void dump_map(Nst_Obj *map, i32 indent)
 {
-    if (map->len == 0) {
+    if (Nst_map_len(map) == 0) {
         Nst_buffer_append_c_str(&str_buf, "{}");
         return;
     }
@@ -268,7 +268,7 @@ static void dump_map(Nst_MapObj *map, i32 indent)
     }
 
     usize count = 0;
-    usize tot = map->len;
+    usize tot = Nst_map_len(map);
     Nst_Obj *key;
     Nst_Obj *value;
     for (isize i = Nst_map_next(-1, map, &key, &value);

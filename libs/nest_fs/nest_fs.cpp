@@ -773,7 +773,7 @@ Nst_Obj *NstC time_last_write_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC CPO_()
 {
-    Nst_MapObj *cpo_map = MAP(Nst_map_new());
+    Nst_Obj *cpo_map = Nst_map_new();
 
     Nst_Obj *none_opt            = COPY_OPT(none);
     Nst_Obj *skip_opt            = COPY_OPT(skip_existing);
