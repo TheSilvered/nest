@@ -27,33 +27,50 @@ extern "C" {
  * starting with `o_` are others.
  */
 NstEXP typedef struct _Nst_StrConsts {
+    // Built-in type names
+
+    Nst_Obj *t_Type;
+    Nst_Obj *t_Int;
+    Nst_Obj *t_Real;
+    Nst_Obj *t_Bool;
+    Nst_Obj *t_Null;
+    Nst_Obj *t_Str;
+    Nst_Obj *t_Array;
+    Nst_Obj *t_Vector;
+    Nst_Obj *t_Map;
+    Nst_Obj *t_Func;
+    Nst_Obj *t_Iter;
+    Nst_Obj *t_Byte;
+    Nst_Obj *t_IOFile;
+    Nst_Obj *t_IEnd;
+
     // Constant strings
 
-    Nst_StrObj *c_true;
-    Nst_StrObj *c_false;
-    Nst_StrObj *c_null;
-    Nst_StrObj *c_inf;
-    Nst_StrObj *c_nan;
-    Nst_StrObj *c_neginf;
-    Nst_StrObj *c_negnan;
+    Nst_Obj *c_true;
+    Nst_Obj *c_false;
+    Nst_Obj *c_null;
+    Nst_Obj *c_inf;
+    Nst_Obj *c_nan;
+    Nst_Obj *c_neginf;
+    Nst_Obj *c_negnan;
 
     // Standard error names
 
-    Nst_StrObj *e_SyntaxError;
-    Nst_StrObj *e_MemoryError;
-    Nst_StrObj *e_ValueError;
-    Nst_StrObj *e_TypeError;
-    Nst_StrObj *e_CallError;
-    Nst_StrObj *e_MathError;
-    Nst_StrObj *e_ImportError;
-    Nst_StrObj *e_Interrupt;
+    Nst_Obj *e_SyntaxError;
+    Nst_Obj *e_MemoryError;
+    Nst_Obj *e_ValueError;
+    Nst_Obj *e_TypeError;
+    Nst_Obj *e_CallError;
+    Nst_Obj *e_MathError;
+    Nst_Obj *e_ImportError;
+    Nst_Obj *e_Interrupt;
 
     // Other
 
-    Nst_StrObj *o__vars_;
-    Nst_StrObj *o__globals_;
-    Nst_StrObj *o__args_;
-    Nst_StrObj *o_failed_alloc;
+    Nst_Obj *o__vars_;
+    Nst_Obj *o__globals_;
+    Nst_Obj *o__args_;
+    Nst_Obj *o_failed_alloc;
 } Nst_StrConsts;
 
 /* Type constants. */

@@ -49,16 +49,16 @@ Nst_Obj *NstC from_cp_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC to_cp_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *str;
+    Nst_Obj *str;
     if (!Nst_extract_args("s", arg_num, args, &str))
         return nullptr;
 
-    if (str->char_len != 1) {
+    if (Nst_str_ch_len(str) != 1) {
         Nst_set_value_error_c("the string must contain only one character");
         return nullptr;
     }
 
-    u32 cp = Nst_ext_utf8_to_utf32((u8 *)str->value);
+    u32 cp = Nst_ext_utf8_to_utf32((u8 *)Nst_str_value(str));
     return Nst_int_new(cp);
 }
 
@@ -73,13 +73,15 @@ Nst_Obj *NstC cp_is_valid_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC encoding_info_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *name_str;
+    Nst_Obj *name_str;
     if (!Nst_extract_args("s", arg_num, args, &name_str))
         return nullptr;
 
-    Nst_EncodingID cpid = Nst_encoding_from_name(name_str->value);
+    Nst_EncodingID cpid = Nst_encoding_from_name(Nst_str_value(name_str));
     if (cpid == Nst_EID_UNKNOWN) {
-        Nst_set_value_errorf("unknown encoding '%.100s'", name_str->value);
+        Nst_set_value_errorf(
+            "unknown encoding '%.100s'",
+            Nst_str_value(name_str));
         return nullptr;
     }
     Nst_Encoding *cp = Nst_encoding(cpid);

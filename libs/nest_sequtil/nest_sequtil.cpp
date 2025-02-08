@@ -281,7 +281,7 @@ Nst_Obj *NstC slice_(usize arg_num, Nst_Obj **args)
     } else {
         isize new_len = 0;
         for (isize i = 0; i < new_size; i++)
-            new_len += STR(objs[i * step + start])->len;
+            new_len += Nst_str_len(objs[i * step + start]);
 
         i8 *buf = Nst_malloc_c(new_len + 1, i8);
         if (buf == nullptr) {
@@ -290,9 +290,9 @@ Nst_Obj *NstC slice_(usize arg_num, Nst_Obj **args)
         }
 
         for (isize i = 0; i < new_len;) {
-            Nst_StrObj *s = STR(objs[i * step + start]);
-            memcpy(buf + i, s->value, s->len);
-            i += s->len;
+            Nst_Obj *s = objs[i * step + start];
+            memcpy(buf + i, Nst_str_value(s), Nst_str_len(s));
+            i += Nst_str_len(s);
         }
         buf[new_len] = 0;
         Nst_dec_ref(seq);
@@ -317,7 +317,7 @@ Nst_Obj *NstC slice_i_(usize arg_num, Nst_Obj **args)
 
     i64 start, step;
     isize new_size = clamp_slice_arguments(
-        Nst_T(seq, Str) ? STR(seq)->len : Nst_seq_len(seq),
+        Nst_T(seq, Str) ? Nst_str_len(seq) : Nst_seq_len(seq),
         start_obj, stop_obj, step_obj,
         start, step);
 
@@ -789,13 +789,13 @@ Nst_Obj *NstC count_(usize arg_num, Nst_Obj **args)
 
         return Nst_int_new(count);
     } else {
-        if (!Nst_T(obj, Str) || STR(obj)->len == 0)
+        if (!Nst_T(obj, Str) || Nst_str_len(obj) == 0)
             Nst_RETURN_ZERO;
 
-        i8 *str = STR(container)->value;
-        usize str_len = STR(container)->len;
-        i8 *sub = STR(obj)->value;
-        usize sub_len = STR(obj)->len;
+        i8 *str = Nst_str_value(container);
+        usize str_len = Nst_str_len(container);
+        i8 *sub = Nst_str_value(obj);
+        usize sub_len = Nst_str_len(obj);
 
         while (true) {
             i8 *res = Nst_str_find(str, str_len, sub, sub_len);
@@ -1102,7 +1102,7 @@ Nst_Obj *NstC enum_(usize arg_num, Nst_Obj **args)
             Nst_dec_ref(prev_value);
             Nst_set_value_errorf(
                 "repeated element '%.100s'",
-                STR(objs[i])->value);
+                Nst_str_value(objs[i]));
             Nst_dec_ref(enum_map);
             return NULL;
         }
@@ -1118,9 +1118,9 @@ Nst_Obj *NstC enum_(usize arg_num, Nst_Obj **args)
     return enum_map;
 }
 
-Nst_Obj *reverse_string(Nst_StrObj *str_obj)
+Nst_Obj *reverse_string(Nst_Obj *str_obj)
 {
-    usize old_str_len = str_obj->len;
+    usize old_str_len = Nst_str_len(str_obj);
 
     i8 *new_str = Nst_malloc_c(old_str_len + 1, i8);
 
@@ -1139,8 +1139,8 @@ Nst_Obj *reverse_string(Nst_StrObj *str_obj)
 
     Nst_Obj *new_str_obj = Nst_str_new_len(
         new_str,
-        str_obj->len,
-        str_obj->char_len,
+        old_str_len,
+        Nst_str_ch_len(str_obj),
         true);
     if (new_str_obj == nullptr) {
         Nst_free(new_str_obj);
@@ -1187,7 +1187,7 @@ Nst_Obj *NstC reverse_(usize arg_num, Nst_Obj **args)
             Nst_set_type_error_c("impossible to reverse a Str in-place");
             return nullptr;
         }
-        return reverse_string(STR(seq));
+        return reverse_string(seq);
     }
 
     if (in_place)

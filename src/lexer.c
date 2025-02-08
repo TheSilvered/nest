@@ -513,7 +513,6 @@ static Nst_Tok *make_num_literal(void)
     bool neg = false;
     bool is_real = false;
     bool is_byte = false;
-    Nst_StrObj s;
     Nst_Obj *res;
 
     if (cursor.ch == '-' || cursor.ch == '+') {
@@ -569,14 +568,13 @@ end:
     ltrl[0] = neg ? '-' : '+';
     memcpy(ltrl + 1, start_p, ltrl_size);
     ltrl[ltrl_size + 1] = '\0';
-    s = Nst_str_temp(ltrl, ltrl_size + 1);
 
     if (is_real)
-        res = Nst_str_parse_real(&s);
+        res = Nst_sv_parse_real(Nst_sv_new(ltrl, ltrl_size + 1));
     else if (is_byte)
-        res = Nst_str_parse_byte(&s);
+        res = Nst_sv_parse_byte(Nst_sv_new(ltrl, ltrl_size + 1));
     else
-        res = Nst_str_parse_int(&s, 0);
+        res = Nst_sv_parse_int(Nst_sv_new(ltrl, ltrl_size + 1), 0);
     Nst_free(ltrl);
 
     if (res == NULL) {
@@ -620,15 +618,15 @@ static Nst_Tok *make_ident(void)
     str[str_len] = '\0';
 
     Nst_Pos end = Nst_copy_pos(cursor.pos);
-    Nst_StrObj *val_obj = STR(Nst_str_new_c_raw(str, true));
+    Nst_Obj *val_obj = Nst_str_new_c_raw(str, true);
     if (val_obj == NULL) {
         Nst_free(str);
         ADD_ERR_POS;
         return NULL;
     }
-    Nst_obj_hash(OBJ(val_obj));
+    Nst_obj_hash(val_obj);
 
-    Nst_Tok *tok = Nst_tok_new_value(start, end, Nst_TT_IDENT, OBJ(val_obj));
+    Nst_Tok *tok = Nst_tok_new_value(start, end, Nst_TT_IDENT, val_obj);
     if (tok == NULL)
         ADD_ERR_POS;
     return tok;
@@ -893,7 +891,7 @@ static Nst_Tok *make_str_literal(void)
             ADD_ERR_POS;
         return tok;
     }
-    if (STR(val_obj)->len == 0)
+    if (Nst_str_len(val_obj) == 0)
         Nst_dec_ref(val_obj);
     else {
         tok = Nst_tok_new_value(start, cursor.pos, Nst_TT_VALUE, val_obj);
@@ -1151,9 +1149,7 @@ bool Nst_normalize_encoding(Nst_SourceText *text, Nst_EncodingID encoding)
             Nst_set_internal_syntax_error(
                 Nst_error_get(),
                 pos, pos,
-                STR(Nst_sprintf(
-                    _Nst_EM_INVALID_ENCODING,
-                    *text_p, from->name)));
+                Nst_sprintf(_Nst_EM_INVALID_ENCODING, *text_p, from->name));
             return false;
         }
         usize ch_size = ch_len * from->ch_size;

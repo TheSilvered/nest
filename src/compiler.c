@@ -1615,11 +1615,11 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
 
         if (inst.val != NULL) {
             Nst_printf(" (%s) ", TYPE_NAME(inst.val));
-            Nst_StrObj *s = STR(_Nst_repr_str_cast(inst.val));
+            Nst_Obj *s = _Nst_repr_str_cast(inst.val);
             if (Nst_error_occurred())
                 Nst_error_clear();
             else {
-                Nst_fwrite(s->value, s->len, NULL, Nst_io.out);
+                Nst_fwrite(Nst_str_value(s), Nst_str_len(s), NULL, Nst_io.out);
                 Nst_dec_ref(s);
             }
 

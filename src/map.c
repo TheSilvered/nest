@@ -385,26 +385,23 @@ bool Nst_map_set_str(Nst_Obj *map, const i8 *key, Nst_Obj *value)
 Nst_Obj *Nst_map_get_str(Nst_Obj *map, const i8 *key)
 {
     Nst_assert(map->type == Nst_t.Map);
-    Nst_StrObj key_obj;
-    key_obj.value = (i8 *)key;
-    key_obj.len = strlen(key);
-    key_obj.hash = -1;
-    key_obj.type = Nst_t.Str;
 
-    Nst_Obj *value = Nst_map_get(map, OBJ(&key_obj));
+    Nst_Obj *key_ob = Nst_str_new_c_raw(key, false);
+    if (key_ob == NULL)
+        return NULL;
+    Nst_Obj *value = Nst_map_get(map, key_ob);
+    Nst_dec_ref(key_ob);
     return value;
 }
 
 Nst_Obj *Nst_map_drop_str(Nst_Obj *map, const i8 *key)
 {
     Nst_assert(map->type == Nst_t.Map);
-    Nst_StrObj key_obj;
-    key_obj.value = (i8 *)key;
-    key_obj.len = strlen(key);
-    key_obj.hash = -1;
-    key_obj.type = Nst_t.Str;
-    Nst_Obj *value = Nst_map_drop(map, OBJ(&key_obj));
-
+    Nst_Obj *key_ob = Nst_str_new_c_raw(key, false);
+    if (key_ob == NULL)
+        return NULL;
+    Nst_Obj *value = Nst_map_drop(map, key_ob);
+    Nst_dec_ref(key_ob);
     return value;
 }
 

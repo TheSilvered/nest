@@ -364,7 +364,7 @@ NstEXP void NstC Nst_buffer_fit(Nst_Buffer *buf);
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP bool NstC Nst_buffer_append(Nst_Buffer *buf, Nst_StrObj *str);
+NstEXP bool NstC Nst_buffer_append(Nst_Buffer *buf, Nst_Obj *str);
 /**
  * Appends a C string to the end of the buffer.
  *
@@ -419,7 +419,7 @@ NstEXP bool NstC Nst_buffer_append_cps(Nst_Buffer *buf, u32 *cps, usize count);
  *
  * @return The new string on success and `NULL` on failure. The error is set.
  */
-NstEXP Nst_StrObj *NstC Nst_buffer_to_string(Nst_Buffer *buf);
+NstEXP Nst_Obj *NstC Nst_buffer_to_string(Nst_Buffer *buf);
 /**
  * Copies the contents of a buffer into another.
  *

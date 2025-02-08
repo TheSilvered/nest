@@ -72,7 +72,7 @@ Nst_Declr *lib_init()
     return obj_list_;
 }
 
-static Nst_StrObj *heap_str(const i8 *str, usize len)
+static Nst_Obj *heap_str(const i8 *str, usize len)
 {
     i8 *heap_s = Nst_malloc_c(len + 1, i8);
     if (heap_s == nullptr)
@@ -80,16 +80,16 @@ static Nst_StrObj *heap_str(const i8 *str, usize len)
 
     memcpy(heap_s, str, len);
     heap_s[len] = 0;
-    return STR(Nst_str_new(heap_s, len, true));
+    return Nst_str_new(heap_s, len, true);
 }
 
-static Nst_StrObj *heap_str(fs::path path)
+static Nst_Obj *heap_str(fs::path path)
 {
     std::u8string str = path.u8string();
     return heap_str((const i8 *)str.c_str(), str.length());
 }
 
-static Nst_StrObj *error_str(std::string str)
+static Nst_Obj *error_str(std::string str)
 {
 #ifdef Nst_MSVC
     i8 *val;
@@ -98,9 +98,9 @@ static Nst_StrObj *error_str(std::string str)
         Nst_encoding(Nst_acp()), Nst_encoding(Nst_EID_UTF8),
         (void *)str.c_str(), str.length(), (void **)&val, &len);
     if (!result)
-        return STR(Nst_inc_ref(Nst_str()->o_failed_alloc));
+        return Nst_inc_ref(Nst_str()->o_failed_alloc);
 
-    return STR(Nst_str_new_allocated(val, len));
+    return Nst_str_new_allocated(val, len);
 #else
     return heap_str(str.c_str(), str.length());
 #endif
@@ -136,11 +136,11 @@ static Nst_Obj *throw_c_error(void)
         nullptr);
     i8 *msg_str = Nst_wchar_t_to_char(wide_msg, wcslen(wide_msg));
     LocalFree(wide_msg);
-    Nst_StrObj *msg = STR(Nst_str_new_allocated(msg_str, strlen(msg_str)));
+    Nst_Obj *msg = Nst_str_new_allocated(msg_str, strlen(msg_str));
 #else
     i8 *val = strerror(errno);
     int error = errno;
-    Nst_StrObj *msg = heap_str((const i8 *)val, strlen(val));
+    Nst_Obj *msg = heap_str((const i8 *)val, strlen(val));
 #endif // !Nst_MSVC
     Nst_set_error(
         Nst_sprintf("System Error %d", error),
@@ -148,14 +148,13 @@ static Nst_Obj *throw_c_error(void)
     return nullptr;
 }
 
-static fs::path utf8_path(Nst_StrObj *str)
+static fs::path utf8_path(Nst_Obj *str)
 {
-    std::u8string s { (char8_t *)str->value };
+    std::u8string s { (char8_t *)Nst_str_value(str) };
     return fs::path(s);
 }
 
-bool check_path(Nst_StrObj *path, bool (*func)(const fs::path&,
-                                               std::error_code&))
+bool check_path(Nst_Obj *path, bool (*func)(const fs::path&, std::error_code&))
 {
     std::error_code ec;
     bool check = func(utf8_path(path), ec);
@@ -165,7 +164,7 @@ bool check_path(Nst_StrObj *path, bool (*func)(const fs::path&,
 
 Nst_Obj *NstC is_dir_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
     Nst_RETURN_BOOL(check_path(path, fs::is_directory));
@@ -173,7 +172,7 @@ Nst_Obj *NstC is_dir_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC is_file_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
     Nst_RETURN_BOOL(check_path(path, fs::is_regular_file));
@@ -181,7 +180,7 @@ Nst_Obj *NstC is_file_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC is_symlink_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
     Nst_RETURN_BOOL(check_path(path, fs::is_symlink));
@@ -189,7 +188,7 @@ Nst_Obj *NstC is_symlink_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC is_socket_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
     Nst_RETURN_BOOL(check_path(path, fs::is_socket));
@@ -197,7 +196,7 @@ Nst_Obj *NstC is_socket_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC is_block_device_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
     Nst_RETURN_BOOL(check_path(path, fs::is_block_file));
@@ -205,7 +204,7 @@ Nst_Obj *NstC is_block_device_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC is_char_device_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
     Nst_RETURN_BOOL(check_path(path, fs::is_character_file));
@@ -213,7 +212,7 @@ Nst_Obj *NstC is_char_device_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC is_named_pipe_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
     Nst_RETURN_BOOL(check_path(path, fs::is_fifo));
@@ -221,7 +220,7 @@ Nst_Obj *NstC is_named_pipe_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC make_dir_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
     std::error_code ec;
 
     if (!Nst_extract_args("s", arg_num, args, &path))
@@ -236,7 +235,7 @@ Nst_Obj *NstC make_dir_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC make_dirs_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
 
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
@@ -251,7 +250,7 @@ Nst_Obj *NstC make_dirs_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC remove_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
 
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
@@ -267,7 +266,7 @@ Nst_Obj *NstC remove_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC remove_all_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
 
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
@@ -283,8 +282,8 @@ Nst_Obj *NstC remove_all_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC make_dir_symlink_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *target;
-    Nst_StrObj *link;
+    Nst_Obj *target;
+    Nst_Obj *link;
     std::error_code ec;
 
     if (!Nst_extract_args("s s", arg_num, args, &target, &link))
@@ -299,8 +298,8 @@ Nst_Obj *NstC make_dir_symlink_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC make_file_symlink_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *target;
-    Nst_StrObj *link;
+    Nst_Obj *target;
+    Nst_Obj *link;
     std::error_code ec;
 
     if (!Nst_extract_args("s s", arg_num, args, &target, &link))
@@ -315,14 +314,16 @@ Nst_Obj *NstC make_file_symlink_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC read_symlink_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
     std::error_code ec;
 
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
 
     if (!check_path(path, fs::is_symlink)) {
-        Nst_set_value_errorf("symlink '%.4096s' not found", path->value);
+        Nst_set_value_errorf(
+            "symlink '%.4096s' not found",
+            Nst_str_value(path));
         return nullptr;
     }
 
@@ -335,8 +336,8 @@ Nst_Obj *NstC read_symlink_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC make_hard_link_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *target;
-    Nst_StrObj *link;
+    Nst_Obj *target;
+    Nst_Obj *link;
     std::error_code ec;
 
     if (!Nst_extract_args("s s", arg_num, args, &target, &link))
@@ -351,7 +352,7 @@ Nst_Obj *NstC make_hard_link_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC exists_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
     Nst_RETURN_BOOL(check_path(path, fs::exists));
@@ -359,8 +360,8 @@ Nst_Obj *NstC exists_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC copy_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path_from;
-    Nst_StrObj *path_to;
+    Nst_Obj *path_from;
+    Nst_Obj *path_to;
     Nst_Obj *options;
 
     if (!Nst_extract_args(
@@ -382,8 +383,8 @@ Nst_Obj *NstC copy_(usize arg_num, Nst_Obj **args)
     if (ec.value() == ERROR_PATH_NOT_FOUND) {
         Nst_set_value_errorf(
             "'%.4096s' or '%.4096s' not found",
-            path_from->value,
-            path_to->value);
+            Nst_str_value(path_from),
+            Nst_str_value(path_to));
         return nullptr;
     } else if (ec.value() == 0)
         Nst_RETURN_NULL;
@@ -393,8 +394,8 @@ Nst_Obj *NstC copy_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC rename_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *old_path;
-    Nst_StrObj *new_path;
+    Nst_Obj *old_path;
+    Nst_Obj *new_path;
 
     if (!Nst_extract_args("s s", arg_num, args, &old_path, &new_path))
         return nullptr;
@@ -406,8 +407,8 @@ Nst_Obj *NstC rename_(usize arg_num, Nst_Obj **args)
     if (ec.value() == ERROR_PATH_NOT_FOUND) {
         Nst_set_value_errorf(
             "file '%.4096s' or directory '%.4096s' not found",
-            old_path->value,
-            new_path->value);
+            Nst_str_value(old_path),
+            Nst_str_value(new_path));
         return nullptr;
     } else if (ec.value() == 0)
         Nst_RETURN_NULL;
@@ -417,7 +418,7 @@ Nst_Obj *NstC rename_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC list_dir_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
 
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
@@ -426,7 +427,7 @@ Nst_Obj *NstC list_dir_(usize arg_num, Nst_Obj **args)
     if (!fs::is_directory(utf8_path(path), ec)) {
         Nst_set_value_errorf(
             "directory '%.4096s' not found",
-            path->value);
+            Nst_str_value(path));
         return nullptr;
     }
     if (ec.value() != 0)
@@ -437,7 +438,7 @@ Nst_Obj *NstC list_dir_(usize arg_num, Nst_Obj **args)
     for (fs::directory_entry const &entry
          : fs::directory_iterator{ utf8_path(path) })
     {
-        Nst_StrObj *str = heap_str(entry.path());
+        Nst_Obj *str = heap_str(entry.path());
         if (str == nullptr)
             return nullptr;
         Nst_vector_append(vector, OBJ(str));
@@ -449,7 +450,7 @@ Nst_Obj *NstC list_dir_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC list_dirs_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
 
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
@@ -458,7 +459,7 @@ Nst_Obj *NstC list_dirs_(usize arg_num, Nst_Obj **args)
     if (!fs::is_directory(utf8_path(path), ec)) {
         Nst_set_value_errorf(
             "directory '%.4096s' not found",
-            path->value);
+            Nst_str_value(path));
         return nullptr;
     }
     if (ec.value() != 0)
@@ -469,7 +470,7 @@ Nst_Obj *NstC list_dirs_(usize arg_num, Nst_Obj **args)
     for (fs::directory_entry const &entry
         : fs::recursive_directory_iterator{ utf8_path(path) })
     {
-        Nst_StrObj *str = heap_str(entry.path());
+        Nst_Obj *str = heap_str(entry.path());
         if (str == nullptr)
             return nullptr;
         Nst_vector_append(vector, OBJ(str));
@@ -481,7 +482,7 @@ Nst_Obj *NstC list_dirs_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC absolute_path_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
 
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
@@ -497,7 +498,7 @@ Nst_Obj *NstC absolute_path_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC canonical_path_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
 
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
@@ -513,8 +514,8 @@ Nst_Obj *NstC canonical_path_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC relative_path_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
-    Nst_StrObj *base;
+    Nst_Obj *path;
+    Nst_Obj *base;
 
     if (!Nst_extract_args("s ?s", arg_num, args, &path, &base))
         return nullptr;
@@ -539,8 +540,8 @@ Nst_Obj *NstC relative_path_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC equivalent_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path_1;
-    Nst_StrObj *path_2;
+    Nst_Obj *path_1;
+    Nst_Obj *path_2;
 
     if (!Nst_extract_args("s s", arg_num, args, &path_1, &path_2))
         return nullptr;
@@ -569,23 +570,23 @@ static void normalize_path(i8 *path, usize len)
 
 Nst_Obj *NstC path_join_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path_1;
-    Nst_StrObj *path_2;
+    Nst_Obj *path_1;
+    Nst_Obj *path_2;
 
     if (!Nst_extract_args("s s", arg_num, args, &path_1, &path_2))
         return nullptr;
 
-    i8 *p1 = path_1->value;
-    i8 *p2 = path_2->value;
-    usize p1_len = path_1->len;
-    usize p2_len = path_2->len;
+    i8 *p1 = Nst_str_value(path_1);
+    i8 *p2 = Nst_str_value(path_2);
+    usize p1_len = Nst_str_len(path_1);
+    usize p2_len = Nst_str_len(path_2);
 
     if (p2_len == 0) {
-        Nst_StrObj *norm_path = STR(Nst_str_copy(path_1));
+        Nst_Obj *norm_path = Nst_str_copy(path_1);
         if (norm_path == nullptr)
             return nullptr;
-        normalize_path(norm_path->value, norm_path->len);
-        return OBJ(norm_path);
+        normalize_path(Nst_str_value(norm_path), Nst_str_len(norm_path));
+        return norm_path;
     }
 
     // These conditions work on:
@@ -597,11 +598,11 @@ Nst_Obj *NstC path_join_(usize arg_num, Nst_Obj **args)
     // All of which should not be joined after another path
 
     if (p2[0] == '/' || p2[0] == '\\' || p2[1] == ':' || p1_len == 0) {
-        Nst_StrObj *norm_path = STR(Nst_str_copy(path_2));
+        Nst_Obj *norm_path = Nst_str_copy(path_2);
         if (norm_path == nullptr)
             return nullptr;
-        normalize_path(norm_path->value, norm_path->len);
-        return OBJ(norm_path);
+        normalize_path(Nst_str_value(norm_path), Nst_str_len(norm_path));
+        return norm_path;
     }
 
     usize new_len = p1_len + p2_len;
@@ -628,47 +629,47 @@ Nst_Obj *NstC path_join_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC path_normalize_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
 
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
-    Nst_StrObj *norm_path = STR(Nst_str_copy(path));
+    Nst_Obj *norm_path = Nst_str_copy(path);
     if (norm_path == nullptr)
         return nullptr;
-    normalize_path(norm_path->value, norm_path->len);
-    return OBJ(norm_path);
+    normalize_path(Nst_str_value(norm_path), Nst_str_len(norm_path));
+    return norm_path;
 }
 
 Nst_Obj *NstC path_parent_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
-    return OBJ(heap_str(utf8_path(path).parent_path()));
+    return heap_str(utf8_path(path).parent_path());
 }
 
 Nst_Obj *NstC path_filename_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
-    return OBJ(heap_str(utf8_path(path).filename()));
+    return heap_str(utf8_path(path).filename());
 }
 
 Nst_Obj *NstC path_stem_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
-    return OBJ(heap_str(utf8_path(path).stem()));
+    return heap_str(utf8_path(path).stem());
 }
 
 Nst_Obj *NstC path_extension_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
-    return OBJ(heap_str(utf8_path(path).extension()));
+    return heap_str(utf8_path(path).extension());
 }
 
 #ifdef Nst_MSVC
@@ -689,12 +690,14 @@ static i64 FILETIME_to_unix_time(FILETIME time)
 
 Nst_Obj *NstC time_creation_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
 
 #ifdef Nst_MSVC
-    wchar_t *wide_path = Nst_char_to_wchar_t(path->value, path->len);
+    wchar_t *wide_path = Nst_char_to_wchar_t(
+        Nst_str_value(path),
+        Nst_str_len(path));
     if (wide_path == nullptr)
         return nullptr;
     WIN32_FILE_ATTRIBUTE_DATA data;
@@ -707,7 +710,7 @@ Nst_Obj *NstC time_creation_(usize arg_num, Nst_Obj **args)
     return Nst_int_new(FILETIME_to_unix_time(data.ftCreationTime));
 #else
     struct stat file_info;
-    if (stat(path->value, &file_info) == -1) {
+    if (stat(Nst_str_value(path), &file_info) == -1) {
         throw_c_error();
         return nullptr;
     }
@@ -717,12 +720,14 @@ Nst_Obj *NstC time_creation_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC time_last_access_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
 
 #ifdef Nst_MSVC
-    wchar_t *wide_path = Nst_char_to_wchar_t(path->value, path->len);
+    wchar_t *wide_path = Nst_char_to_wchar_t(
+        Nst_str_value(path),
+        Nst_str_len(path));
     if (wide_path == nullptr)
         return nullptr;
     WIN32_FILE_ATTRIBUTE_DATA data;
@@ -735,7 +740,7 @@ Nst_Obj *NstC time_last_access_(usize arg_num, Nst_Obj **args)
     return Nst_int_new(FILETIME_to_unix_time(data.ftLastAccessTime));
 #else
     struct stat file_info;
-    if (stat(path->value, &file_info) == -1) {
+    if (stat(Nst_str_value(path), &file_info) == -1) {
         throw_c_error();
         return nullptr;
     }
@@ -745,12 +750,14 @@ Nst_Obj *NstC time_last_access_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC time_last_write_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
     if (!Nst_extract_args("s", arg_num, args, &path))
         return nullptr;
 
 #ifdef Nst_MSVC
-    wchar_t *wide_path = Nst_char_to_wchar_t(path->value, path->len);
+    wchar_t *wide_path = Nst_char_to_wchar_t(
+        Nst_str_value(path),
+        Nst_str_len(path));
     if (wide_path == nullptr)
         return nullptr;
     WIN32_FILE_ATTRIBUTE_DATA data;
@@ -763,7 +770,7 @@ Nst_Obj *NstC time_last_write_(usize arg_num, Nst_Obj **args)
     return Nst_int_new(FILETIME_to_unix_time(data.ftLastWriteTime));
 #else
     struct stat file_info;
-    if (stat(path->value, &file_info) == -1) {
+    if (stat(Nst_str_value(path), &file_info) == -1) {
         throw_c_error();
         return nullptr;
     }

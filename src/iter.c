@@ -161,7 +161,7 @@ Nst_Obj *NstC Nst_iter_str_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
-    Nst_StrObj *str = STR(c_args[1]);
+    Nst_Obj *str = c_args[1];
     Nst_Obj *ch = Nst_str_next_obj(str, (isize *)&AS_INT(c_args[0]));
     if (ch != NULL)
         return ch;

@@ -255,7 +255,7 @@ static Nst_IOFuncSet vf_funcs = {
 
 Nst_Obj *NstC open_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *file_name_str;
+    Nst_Obj *file_name_str;
     Nst_Obj *file_mode_str;
     Nst_Obj *encoding_obj;
     Nst_Obj *buf_size;
@@ -267,14 +267,14 @@ Nst_Obj *NstC open_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    i8 *file_name = file_name_str->value;
+    i8 *file_name = Nst_str_value(file_name_str);
     i8 *file_mode = Nst_DEF_VAL(
         file_mode_str,
-        STR(file_mode_str)->value,
+        Nst_str_value(file_mode_str),
         (i8 *)"r");
     usize file_mode_len = Nst_DEF_VAL(
         file_mode_str,
-        STR(file_mode_str)->len, 1);
+        Nst_str_len(file_mode_str), 1);
 
     bool is_bin = false;
     bool can_read = false;
@@ -345,12 +345,12 @@ Nst_Obj *NstC open_(usize arg_num, Nst_Obj **args)
     } else {
         Nst_EncodingID cpid = Nst_DEF_VAL(
             encoding_obj,
-            Nst_encoding_from_name(STR(encoding_obj)->value),
+            Nst_encoding_from_name(Nst_str_value(encoding_obj)),
             Nst_EID_UTF8);
         if (cpid == Nst_EID_UNKNOWN) {
             Nst_set_value_errorf(
                 "invalid encoding '%.100s'",
-                STR(encoding_obj)->value);
+                Nst_str_value(encoding_obj));
             return nullptr;
         }
 
@@ -439,9 +439,12 @@ Nst_Obj *NstC write_(usize arg_num, Nst_Obj **args)
     }
 
     Nst_Obj *str_to_write = Nst_obj_cast(value_to_write, Nst_type()->Str);
-    Nst_StrObj *str = STR(str_to_write);
+    Nst_Obj *str = str_to_write;
     usize count;
-    Nst_IOResult result = Nst_fwrite(str->value, str->len, &count, f);
+    Nst_IOResult result = Nst_fwrite(
+        Nst_str_value(str),
+        Nst_str_len(str),
+        &count, f);
     Nst_dec_ref(str_to_write);
 
     if (result == Nst_IO_INVALID_ENCODING) {
@@ -878,8 +881,11 @@ Nst_Obj *NstC println_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    Nst_StrObj *s_obj = STR(Nst_obj_cast(obj, Nst_type()->Str));
-    Nst_IOResult res = Nst_fwrite(s_obj->value, s_obj->len, NULL, file);
+    Nst_Obj *s_obj = Nst_obj_cast(obj, Nst_type()->Str);
+    Nst_IOResult res = Nst_fwrite(
+        Nst_str_value(s_obj),
+        Nst_str_len(s_obj),
+        NULL, file);
     Nst_fprintln(file, "");
 
     if (res == Nst_IO_SUCCESS and flush)

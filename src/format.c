@@ -336,7 +336,7 @@ static isize fmt_str_repr(Nst_Buffer *buf, i8 *str, usize str_len,
                           Format *format);
 static bool  fmt_str_more_double_quotes(u8 *str, usize str_len);
 static isize fmt_str_ascii_escape(Nst_Buffer *buf, u8 c, Format *format);
-static isize fmt_str_unicode_escape(Nst_Buffer *buf, i32 c, Format *format);
+static isize fmt_str_unicode_escape(Nst_Buffer *buf, u32 c, Format *format);
 
 static bool fmt_general_int(Nst_Buffer *buf, u64 val, bool negative,
                             bool is_byte, Format *format);
@@ -377,14 +377,14 @@ i8 *Nst_fmt(const i8 *fmt, usize fmt_len, usize *out_len, ...)
     return Nst_vfmt(fmt, fmt_len, out_len, args);
 }
 
-NstEXP Nst_Obj *NstC Nst_fmt_objs(Nst_StrObj *fmt, Nst_Obj *values)
+NstEXP Nst_Obj *NstC Nst_fmt_objs(Nst_Obj *fmt, Nst_Obj *values)
 {
     FmtValues fmt_values;
     fmt_values_init_sequence(&fmt_values, values);
     usize str_len;
     i8 *str = general_fmt(
-        (const i8 *)fmt->value,
-        fmt->len,
+        (const i8 *)Nst_str_value(fmt),
+        Nst_str_len(fmt),
         &str_len,
         &fmt_values);
     if (str == NULL)
@@ -735,7 +735,7 @@ static const i8 *fmt_value(Nst_Buffer *buf, const i8 *fmt, FmtValues *values)
 format_type:
     if (obj != NULL) {
         if (obj->type == Nst_t.Str)
-            result = fmt_str(buf, STR(obj)->value, STR(obj)->len, &format);
+            result = fmt_str(buf, Nst_str_value(obj), Nst_str_len(obj), &format);
         else if (obj->type == Nst_t.Int) {
             if (format.as_unsigned)
                 result = fmt_uint(buf, (u64)AS_INT(obj), &format);
@@ -748,10 +748,14 @@ format_type:
         else if (obj->type == Nst_t.Byte)
             result = fmt_byte(buf, AS_BYTE(obj), &format);
         else {
-            Nst_StrObj *casted_obj = STR(Nst_obj_cast(obj, Nst_t.Str));
+            Nst_Obj *casted_obj = Nst_obj_cast(obj, Nst_t.Str);
             if (casted_obj == NULL)
                 return NULL;
-            result = fmt_str(buf, casted_obj->value, casted_obj->len, &format);
+            result = fmt_str(
+                buf,
+                Nst_str_value(casted_obj),
+                Nst_str_len(casted_obj),
+                &format);
             Nst_dec_ref(casted_obj);
         }
         goto end;
@@ -857,14 +861,14 @@ static void fmt_cut_left(i8 *str, usize str_len, usize char_len, i8 **out_str,
     *out_str = str;
     *out_len = str_len;
 
-    Nst_StrObj str_ob = Nst_str_temp((i8 *)str, str_len);
+    Nst_StrView sv = Nst_sv_new(str, str_len);
     usize count = 0;
 
-    for (isize i = Nst_str_next(&str_ob, -1);
-        i >= 0;
-        i = Nst_str_next(&str_ob, i))
+    for (isize i = Nst_sv_next(sv, -1, NULL);
+         i >= 0;
+         i = Nst_sv_next(sv, i, NULL))
     {
-        if (count == (usize)width) {
+        if (count == width) {
             *out_len = i;
             return;
         }
@@ -879,11 +883,11 @@ static void fmt_cut_right(i8 *str, usize str_len, usize char_len, i8 **out_str,
     usize cut_size = char_len - width;
     *out_str = str;
     *out_len = str_len;
-    Nst_StrObj str_ob = Nst_str_temp(str, str_len);
+    Nst_StrView sv = Nst_sv_new(str, str_len);
 
-    for (isize i = Nst_str_next(&str_ob, -1);
-        i >= 0;
-        i = Nst_str_next(&str_ob, i))
+    for (isize i = Nst_sv_next(sv, -1, NULL);
+         i >= 0;
+         i = Nst_sv_next(sv, i, NULL))
     {
         if (cut_size == 0) {
             *out_str = str + i;
@@ -1140,12 +1144,11 @@ static isize fmt_str_repr(Nst_Buffer *buf, i8 *str, usize str_len,
         tot_char_len += 1;
     }
 
-    Nst_StrObj str_ob = Nst_str_temp((i8 *)str, str_len);
-    isize i = -1;
-
-    for (i32 c = Nst_str_next_utf32(&str_ob, &i);
-         c != -1;
-         c = Nst_str_next_utf32(&str_ob, &i))
+    Nst_StrView sv = Nst_sv_new(str, str_len);
+    u32 c = 0;
+    for (isize i = Nst_sv_next(sv, -1, &c);
+         i >= 0;
+         i = Nst_sv_next(sv, i, &c))
     {
         if (c == '"' && escape_double_quotes) {
             if (!Nst_buffer_append_str(buf, "\\\"", 2))
@@ -1236,7 +1239,7 @@ static isize fmt_str_ascii_escape(Nst_Buffer *buf, u8 c, Format *format)
     }
 }
 
-static isize fmt_str_unicode_escape(Nst_Buffer *buf, i32 c, Format *format)
+static isize fmt_str_unicode_escape(Nst_Buffer *buf, u32 c, Format *format)
 {
     const i8 *hex_chars = format->pref_suff == Nst_FMT_PREF_SUFF_UPPER
         ? "0123456789ABCDEF"

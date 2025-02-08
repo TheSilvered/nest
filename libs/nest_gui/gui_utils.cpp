@@ -2,11 +2,11 @@
 #include <cstring>
 #include "gui_utils.h"
 
-Nst_StrObj *sdl_error_name = NULL;
+Nst_Obj *sdl_error_name = NULL;
 
 bool GUI_InitUtils(void)
 {
-    sdl_error_name = STR(Nst_str_new_c_raw("SDL Error", false));
+    sdl_error_name = Nst_str_new_c_raw("SDL Error", false);
     if (sdl_error_name == NULL)
         return false;
     return true;

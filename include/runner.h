@@ -41,8 +41,8 @@ NstEXP typedef struct _Nst_ExecutionState {
     Nst_VarTable *vt;
     i64 idx;
     Nst_Obj *argv;
-    Nst_StrObj *curr_path;
-    Nst_StrObj *source_path;
+    Nst_Obj *curr_path;
+    Nst_Obj *source_path;
     Nst_ValueStack v_stack;
     Nst_CallStack  f_stack;
     Nst_CatchStack c_stack;
@@ -106,7 +106,7 @@ NstEXP i32 NstC Nst_execute(Nst_CLArgs args, Nst_ExecutionState *es,
  * @param es: the execution state of which to change `curr_path`
  * @param cwd: the new value for `curr_path`
  */
-NstEXP void NstC Nst_es_set_cwd(Nst_ExecutionState *es, Nst_StrObj *cwd);
+NstEXP void NstC Nst_es_set_cwd(Nst_ExecutionState *es, Nst_Obj *cwd);
 /**
  * Compiles a module given a path and sets up an execution state to run it.
  *

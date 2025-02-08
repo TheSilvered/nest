@@ -219,13 +219,13 @@ i32 Nst_execute(Nst_CLArgs args, Nst_ExecutionState *es, Nst_SourceText *src)
     return Nst_run(main_func);
 }
 
-void Nst_es_set_cwd(Nst_ExecutionState *es, Nst_StrObj *cwd)
+void Nst_es_set_cwd(Nst_ExecutionState *es, Nst_Obj *cwd)
 {
     Nst_ndec_ref(es->curr_path);
     es->curr_path = cwd;
 }
 
-static Nst_StrObj *make_cwd(i8 *file_path)
+static Nst_Obj *make_cwd(i8 *file_path)
 {
     i8 *path = NULL;
     i8 *file_part = NULL;
@@ -237,7 +237,7 @@ static Nst_StrObj *make_cwd(i8 *file_path)
     }
 
     *(file_part - 1) = 0;
-    Nst_StrObj *str = STR(Nst_str_new(path, file_part - path - 1, true));
+    Nst_Obj *str = Nst_str_new(path, file_part - path - 1, true);
     if (str == NULL) {
         Nst_error_clear();
         Nst_free(file_path);
@@ -252,7 +252,7 @@ bool Nst_es_push_module(Nst_ExecutionState *es, i8 *filename,
     i32 opt_level = Nst_state.opt_level;
     Nst_InstList *inst_ls = NULL;
     Nst_Obj *mod_func = NULL;
-    Nst_StrObj *path_str  = NULL;
+    Nst_Obj *path_str  = NULL;
     Nst_VarTable *vt = NULL;
 
     i32 file_opt_lvl = 3;
@@ -297,7 +297,7 @@ bool Nst_es_push_module(Nst_ExecutionState *es, i8 *filename,
         Nst_no_pos(),
         Nst_no_pos(),
         es);
-    call.cwd = STR(Nst_inc_ref(es->curr_path));
+    call.cwd = Nst_inc_ref(es->curr_path);
 
     path_str = make_cwd(filename);
     if (path_str == NULL)

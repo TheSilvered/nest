@@ -28,7 +28,7 @@ Nst_TypeObj *Nst_type_new(const i8 *name, Nst_ObjDstr dstr)
     type->p_head = NULL;
     type->p_len = 0;
     type->dstr = dstr;
-    type->name = Nst_str_temp((i8 *)name, strlen(name));
+    type->name = Nst_sv_new_c(name);
 
     return type;
 }
@@ -47,7 +47,7 @@ Nst_TypeObj *Nst_cont_type_new(const i8 *name, Nst_ObjDstr dstr,
     type->p_len = 0;
     type->dstr = dstr;
     type->trav = trav;
-    type->name = Nst_str_temp((i8 *)name, strlen(name));
+    type->name = Nst_sv_new_c(name);
 
     Nst_SET_FLAG(type, Nst_FLAG_TYPE_IS_CONTAINER);
 

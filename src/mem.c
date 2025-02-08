@@ -355,13 +355,13 @@ void Nst_buffer_fit(Nst_Buffer *buf)
     buf->cap = buf->len + 1;
 }
 
-bool Nst_buffer_append(Nst_Buffer *buf, Nst_StrObj *str)
+bool Nst_buffer_append(Nst_Buffer *buf, Nst_Obj *str)
 {
-    usize str_len = str->len;
+    usize str_len = Nst_str_len(str);
     if (!Nst_buffer_expand_by(buf, str_len))
         return false;
 
-    memcpy(buf->data + buf->len, str->value, str_len + 1);
+    memcpy(buf->data + buf->len, Nst_str_value(str), str_len + 1);
     buf->len += str_len;
     return true;
 }
@@ -415,10 +415,10 @@ bool NstC Nst_buffer_append_cps(Nst_Buffer *buf, u32 *cps, usize count)
     return true;
 }
 
-Nst_StrObj *Nst_buffer_to_string(Nst_Buffer *buf)
+Nst_Obj *Nst_buffer_to_string(Nst_Buffer *buf)
 {
     Nst_buffer_fit(buf);
-    Nst_StrObj *str = STR(Nst_str_new(buf->data, buf->len, true));
+    Nst_Obj *str = Nst_str_new(buf->data, buf->len, true);
     if (str == NULL)
         Nst_free(buf->data);
     buf->data = NULL;

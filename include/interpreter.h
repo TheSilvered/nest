@@ -163,17 +163,17 @@ extern Nst_IntrState Nst_state;
 NstEXP Nst_IntrState *NstC Nst_state_get(void);
 
 /**
- * Changes the current working directory using a `Nst_StrObj`.
+ * Changes the current working directory using a Nest `Str` object.
  *
  * @return `0` on success and `-1` on failure. The error is set.
  */
-NstEXP i32 NstC Nst_chdir(Nst_StrObj *str);
+NstEXP i32 NstC Nst_chdir(Nst_Obj *str);
 /**
- * Gets the current working directory as a `Nst_StrObj`.
+ * Gets the current working directory as a Nest `Str` object.
  *
  * @return the new string or `NULL` on failure. The error is set.
  */
-NstEXP Nst_StrObj *NstC Nst_getcwd(void);
+NstEXP Nst_Obj *NstC Nst_getcwd(void);
 
 #ifdef __cplusplus
 }

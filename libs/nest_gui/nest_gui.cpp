@@ -109,13 +109,13 @@ Nst_Obj *NstC window_init_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC window_set_title_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *title;
+    Nst_Obj *title;
     if (!Nst_extract_args("s", arg_num, args, &title))
         return nullptr;
     if (not_initialized())
         return nullptr;
 
-    GUI_Window_SetTitle(app.window, (const i8*)(title->value));
+    GUI_Window_SetTitle(app.window, (const i8*)Nst_str_value(title));
     Nst_RETURN_NULL;
 }
 

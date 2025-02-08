@@ -24,7 +24,7 @@ extern "C" {
 #define _Nst_TYPE_HEAD                                                        \
     Nst_Obj *p_head;                                                          \
     usize p_len;                                                              \
-    Nst_StrObj name;                                                          \
+    Nst_StrView name;                                                         \
     Nst_ObjDstr dstr
 
 /**

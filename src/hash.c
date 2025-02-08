@@ -6,7 +6,7 @@
 #define FNV_PRIME 0x00000100000001B3
 #define LOWER_HALF 0xffffffff
 
-static i32 hash_str(Nst_StrObj *str);
+static i32 hash_str(Nst_Obj *str);
 static i32 hash_int(Nst_IntObj *num);
 static i32 hash_byte(Nst_ByteObj *byte);
 static i32 hash_ptr(void *ptr);
@@ -28,11 +28,11 @@ i32 Nst_obj_hash(Nst_Obj *obj)
         hash = hash_ptr(obj);
     }
     else if (obj->type == Nst_t.Str)
-        hash = hash_str(STR(obj));
+        hash = hash_str(obj);
     else if (obj->type == Nst_t.Int)
-        hash = hash_int((Nst_IntObj*)obj);
+        hash = hash_int((Nst_IntObj *)obj);
     else if (obj->type == Nst_t.Byte)
-        hash = hash_byte((Nst_ByteObj*)obj);
+        hash = hash_byte((Nst_ByteObj *)obj);
     else
         return -1;
 
@@ -49,12 +49,12 @@ static i32 hash_ptr(void *ptr)
     return (i32)x == -1 ? -2 : (i32)x;
 }
 
-static i32 hash_str(Nst_StrObj *str)
+static i32 hash_str(Nst_Obj *str)
 {
     // taken from https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
     i64 hash = FNV_OFFSET_BASIS;
-    i8 *s = str->value;
-    i8 *s_end = s + str->len;
+    i8 *s = Nst_str_value(str);
+    i8 *s_end = s + Nst_str_len(str);
 
     while (s != s_end) {
         hash ^= *s++;

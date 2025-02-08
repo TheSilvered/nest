@@ -31,6 +31,53 @@
         err_macro;                                                            \
     } while (0)
 
+/**
+ * Structure representing a Nest string.
+ *
+ * @param len: the length in bytes of `value`
+ * @param char_len: the length in characters of `value`
+ * @param value: the value of the string
+ * @param indexable_str: the string in UTF-16 or UTF-32 depending on the
+ * characters it contains
+ */
+NstEXP typedef struct _Nst_StrObj {
+    Nst_OBJ_HEAD;
+    usize len;
+    usize char_len;
+    i8 *value;
+    u8 *indexable_str;
+} Nst_StrObj;
+
+#define STR(ptr) ((Nst_StrObj *)(ptr))
+
+Nst_StrView Nst_sv_new(i8 *value, usize len)
+{
+    Nst_StrView sv = {
+        .value = value,
+        .len = len
+    };
+    return sv;
+}
+
+Nst_StrView Nst_sv_new_c(const i8 *value)
+{
+    Nst_StrView sv = {
+        .value = (i8 *)value,
+        .len = strlen(value)
+    };
+    return sv;
+}
+
+Nst_StrView Nst_sv_from_str(Nst_Obj *str)
+{
+    Nst_assert(str->type == Nst_t.Str);
+    Nst_StrView sv = {
+        .value = STR(str)->value,
+        .len = STR(str)->len
+    };
+    return sv;
+}
+
 static i32 get_ch_width(u8 *str, u8 *end)
 {
     i32 size = sizeof(u8);
@@ -96,6 +143,31 @@ static bool create_indexable_str(Nst_StrObj *str)
     return true;
 }
 
+Nst_Obj *_Nst_str_new_no_err(const i8 *value)
+{
+    Nst_StrObj *str = STR(Nst_raw_malloc(sizeof(Nst_StrObj)));
+    if (str == NULL)
+        return NULL;
+
+#ifdef Nst_DBG_TRACK_OBJ_INIT_POS
+    str->init_line = -1;
+    str->init_col = -1;
+    str->init_path = NULL;
+#endif
+
+    str->ref_count = 1;
+    str->p_next = NULL;
+    str->hash = -1;
+    str->flags = 0;
+    str->len = strlen(value);
+    str->value = (i8 *)value;
+    str->indexable_str = NULL;
+
+    str->type = Nst_t.Str;
+    Nst_inc_ref(Nst_t.Str);
+    return OBJ(str);
+}
+
 Nst_Obj *Nst_str_new_c_raw(const i8 *val, bool allocated)
 {
     return Nst_str_new((i8 *)val, strlen(val), allocated);
@@ -141,59 +213,62 @@ Nst_Obj *Nst_str_new_allocated(i8 *val, usize len)
     return str;
 }
 
-Nst_StrObj Nst_str_temp(i8 *val, usize len)
+Nst_Obj *Nst_str_from_sv(Nst_StrView sv)
 {
-    Nst_StrObj obj;
-    obj.type = Nst_t.Str;
-    obj.ref_count = 1;
-    obj.p_next = NULL;
-    obj.hash = -1;
-    obj.flags = Nst_FLAG_STR_CAN_INDEX | Nst_FLAG_STR_IS_ASCII;
-    obj.value = val;
-    obj.len = len;
-    obj.char_len = len;
-    obj.indexable_str = NULL;
-    return obj;
+    i8 *buf = (i8 *)Nst_calloc(1, sv.len + 1, sv.value);
+    if (buf == NULL)
+        return NULL;
+    return Nst_str_new_allocated(buf, sv.len);
 }
 
-Nst_Obj *_Nst_str_copy(Nst_StrObj *src)
+Nst_Obj *Nst_str_copy(Nst_Obj *src)
 {
-    i8 *buffer = Nst_malloc_c(src->len + 1, i8);
+    Nst_assert(src->type == Nst_t.Str);
+    i8 *buffer = Nst_malloc_c(STR(src)->len + 1, i8);
     if (buffer == NULL)
         return NULL;
 
-    memcpy(buffer, src->value, src->len);
+    memcpy(buffer, STR(src)->value, STR(src)->len);
 
-    Nst_Obj *str = Nst_str_new_len(buffer, src->len, src->char_len, true);
+    Nst_Obj *str = Nst_str_new_len(
+        buffer,
+        STR(src)->len, STR(src)->char_len,
+        true);
     if (str == NULL)
         Nst_free(buffer);
     return str;
 }
 
-Nst_Obj *_Nst_str_repr(Nst_StrObj *src)
+Nst_Obj *Nst_str_repr(Nst_Obj *src)
 {
+    Nst_assert(src->type == Nst_t.Str);
     usize repr_len;
-    i8 *repr_str = Nst_repr(src->value, src->len, &repr_len, false, false);
+    i8 *repr_str = Nst_repr(
+        STR(src)->value,
+        STR(src)->len,
+        &repr_len,
+        false, false);
     if (repr_str == NULL)
         return NULL;
     return Nst_str_new_allocated(repr_str, repr_len);
 }
 
-Nst_Obj *_Nst_str_get(Nst_StrObj *str, i64 idx)
+Nst_Obj *Nst_str_get(Nst_Obj *str, i64 idx)
 {
+    Nst_assert(str->type == Nst_t.Str);
     if (idx < 0)
-        idx += str->char_len;
+        idx += STR(str)->char_len;
 
-    if (idx < 0 || idx >= (i64)str->char_len) {
+    if (idx < 0 || idx >= (i64)STR(str)->char_len) {
         Nst_set_value_errorf(
             _Nst_EM_INDEX_OUT_OF_BOUNDS("Str"),
             idx,
-            str->char_len);
+            STR(str)->char_len);
         return NULL;
     }
 
     if (!Nst_HAS_FLAG(str, Nst_FLAG_STR_CAN_INDEX)) {
-        if (!create_indexable_str(str))
+        if (!create_indexable_str(STR(str)))
             return NULL;
     }
 
@@ -201,7 +276,7 @@ Nst_Obj *_Nst_str_get(Nst_StrObj *str, i64 idx)
         i8 *c_buf = Nst_malloc_c(2, i8);
         if (c_buf == NULL)
             return NULL;
-        c_buf[0] = str->value[idx];
+        c_buf[0] = STR(str)->value[idx];
         c_buf[1] = 0;
         return Nst_str_new_allocated(c_buf, 1);
     }
@@ -210,7 +285,7 @@ Nst_Obj *_Nst_str_get(Nst_StrObj *str, i64 idx)
         i8 *c_buf = Nst_calloc_c(4, i8, NULL);
         if (c_buf == NULL)
             return NULL;
-        u32 c = ((u16 *)(str->indexable_str))[idx];
+        u32 c = ((u16 *)(STR(str)->indexable_str))[idx];
         Nst_ext_utf8_from_utf32(c, (u8 *)c_buf);
         return Nst_str_new_allocated(c_buf, strlen(c_buf));
     }
@@ -219,7 +294,7 @@ Nst_Obj *_Nst_str_get(Nst_StrObj *str, i64 idx)
         i8 *c_buf = Nst_calloc_c(5, i8, NULL);
         if (c_buf == NULL)
             return NULL;
-        u32 c = ((u32 *)(str->indexable_str))[idx];
+        u32 c = ((u32 *)(STR(str)->indexable_str))[idx];
         Nst_ext_utf8_from_utf32(c, (u8 *)c_buf);
         return Nst_str_new_allocated(c_buf, strlen(c_buf));
     }
@@ -228,22 +303,40 @@ Nst_Obj *_Nst_str_get(Nst_StrObj *str, i64 idx)
     return NULL;
 }
 
-isize Nst_str_next(Nst_StrObj *str, isize idx)
+isize Nst_str_next(Nst_Obj *str, isize idx)
 {
-    if (str->len == 0)
+    Nst_assert(str->type == Nst_t.Str);
+    if (STR(str)->len == 0)
         return -1;
     if (idx == -1)
         return 0;
     i32 ch_len = Nst_check_ext_utf8_bytes(
-        (u8 *)str->value + idx,
-        str->len - idx);
-    if (idx + ch_len == (isize)str->len)
+        (u8 *)STR(str)->value + idx,
+        STR(str)->len - idx);
+    if (idx + ch_len == (isize)STR(str)->len)
         return -1;
     return idx + ch_len;
 }
 
-Nst_Obj *Nst_str_next_obj(Nst_StrObj *str, isize *idx)
+isize Nst_sv_next(Nst_StrView sv, isize idx, u32 *ch)
 {
+    if (sv.len == 0) {
+        if (ch != NULL) *ch = 0;
+        return -1;
+    }
+    i32 len = Nst_check_ext_utf8_bytes((u8 *)sv.value + idx, sv.len - idx);
+    if (len < 0 || idx + (usize)len >= sv.len) {
+        if (ch != NULL) *ch = 0;
+        return -1;
+    }
+    if (ch != NULL)
+        *ch = Nst_ext_utf8_to_utf32((u8 *)sv.value + idx + len);
+    return idx + len;
+}
+
+Nst_Obj *Nst_str_next_obj(Nst_Obj *str, isize *idx)
+{
+    Nst_assert(str->type == Nst_t.Str);
     *idx = Nst_str_next(str, *idx);
 
     if (*idx == -1)
@@ -251,15 +344,15 @@ Nst_Obj *Nst_str_next_obj(Nst_StrObj *str, isize *idx)
 
     isize idx_val = *idx;
     i32 ch_len = Nst_check_ext_utf8_bytes(
-        (u8 *)str->value + idx_val,
-        str->len - idx_val);
+        (u8 *)STR(str)->value + idx_val,
+        STR(str)->len - idx_val);
     i8 *ch_buf = Nst_malloc_c(ch_len + 1, i8);
     if (ch_buf == NULL) {
         *idx = Nst_STR_LOOP_ERROR;
         return NULL;
     }
 
-    memcpy(ch_buf, str->value + idx_val, (usize)ch_len);
+    memcpy(ch_buf, STR(str)->value + idx_val, (usize)ch_len);
     ch_buf[ch_len] = 0;
 
     Nst_Obj *out_str = Nst_str_new_len(ch_buf, ch_len, 1, true);
@@ -271,62 +364,50 @@ Nst_Obj *Nst_str_next_obj(Nst_StrObj *str, isize *idx)
     return out_str;
 }
 
-i32 Nst_str_next_utf32(Nst_StrObj *str, isize *idx)
+i32 Nst_str_next_utf32(Nst_Obj *str, isize *idx)
 {
+    Nst_assert(str->type == Nst_t.Str);
     *idx = Nst_str_next(str, *idx);
 
     if (*idx == -1)
         return -1;
 
-    return (i32)Nst_ext_utf8_to_utf32((u8 *)(str->value + *idx));
+    return (i32)Nst_ext_utf8_to_utf32((u8 *)(STR(str)->value + *idx));
 }
 
-i32 Nst_str_next_utf8(Nst_StrObj *str, isize *idx, i8 *ch_buf)
+i32 Nst_str_next_utf8(Nst_Obj *str, isize *idx, i8 *ch_buf)
 {
+    Nst_assert(str->type == Nst_t.Str);
     *idx = Nst_str_next(str, *idx);
 
     if (*idx == -1)
         return 0;
 
     i32 ch_len = Nst_check_ext_utf8_bytes(
-        (u8 *)str->value + *idx,
-        str->len - *idx);
+        (u8 *)STR(str)->value + *idx,
+        STR(str)->len - *idx);
     if (ch_buf == NULL)
         return ch_len;
     memset(ch_buf, 0, 4);
-    ch_buf = memcpy(ch_buf, str->value + *idx, ch_len);
+    ch_buf = memcpy(ch_buf, STR(str)->value + *idx, ch_len);
     return ch_len;
 }
 
-usize _Nst_str_len(Nst_StrObj *str)
+void _Nst_str_destroy(Nst_Obj *str)
 {
-    return str->char_len;
-}
-
-usize _Nst_str_buf_len(Nst_StrObj *str)
-{
-    return str->len;
-}
-
-const i8 *_Nst_str_buf(Nst_StrObj *str)
-{
-    return (const i8 *)str->value;
-}
-
-void _Nst_str_destroy(Nst_StrObj *str)
-{
+    Nst_assert(str->type == Nst_t.Str);
     if (str == NULL)
         return;
-    if (Nst_STR_IS_ALLOC(str))
-        Nst_free(str->value);
-    if (str->indexable_str != NULL)
-        Nst_free(str->indexable_str);
+    if (str->flags & Nst_FLAG_STR_IS_ALLOC)
+        Nst_free(STR(str)->value);
+    if (STR(str)->indexable_str != NULL)
+        Nst_free(STR(str)->indexable_str);
 }
 
-Nst_Obj *Nst_str_parse_int(Nst_StrObj *str, i32 base)
+Nst_Obj *Nst_sv_parse_int(Nst_StrView sv, i32 base)
 {
-    i8 *s = str->value;
-    i8 *end = s + str->len;
+    i8 *s = sv.value;
+    i8 *end = s + sv.len;
     i8 ch;
     i32 ch_val;
     i32 sign = 1;
@@ -424,18 +505,24 @@ Nst_Obj *Nst_str_parse_int(Nst_StrObj *str, i32 base)
     return Nst_int_new(num * sign);
 }
 
-Nst_Obj *Nst_str_parse_byte(Nst_StrObj *str)
+Nst_Obj *Nst_str_parse_int(Nst_Obj *str, i32 base)
 {
-    if (str->char_len == 1) {
-        u32 utf32_ch = Nst_ext_utf8_to_utf32((u8 *)str->value);
+    Nst_assert(str->type == Nst_t.Str);
+    return Nst_sv_parse_int(Nst_sv_from_str(str), base);
+}
+
+Nst_Obj *Nst_sv_parse_byte(Nst_StrView sv)
+{
+    if (Nst_check_ext_utf8_bytes((u8 *)sv.value, sv.len) == (isize)sv.len) {
+        u32 utf32_ch = Nst_ext_utf8_to_utf32((u8 *)sv.value);
         if (utf32_ch <= 0xff)
             return Nst_byte_new((u8)utf32_ch);
         else
             RETURN_BYTE_ERR;
     }
 
-    i8 *s = str->value;
-    i8 *end = s + str->len;
+    i8 *s = sv.value;
+    i8 *end = s + sv.len;
     i8 ch = *s;
     i32 num = 0;
     i32 ch_val = 0;
@@ -517,14 +604,20 @@ Nst_Obj *Nst_str_parse_byte(Nst_StrObj *str)
     return Nst_byte_new(num & 0xff);
 }
 
-Nst_Obj *Nst_str_parse_real(Nst_StrObj *str)
+Nst_Obj *Nst_str_parse_byte(Nst_Obj *str)
+{
+    Nst_assert(str->type == Nst_t.Str);
+    return Nst_sv_parse_byte(Nst_sv_from_str(str));
+}
+
+Nst_Obj *Nst_sv_parse_real(Nst_StrView sv)
 {
     // \s*[+-]?\d+\.\d+(?:[eE][+-]?\d+)
 
     // strtod accepts also things like .5, 1e2, -1., ecc. that I do not
     // so I need to check if the literal is valid first
-    i8 *s = str->value;
-    i8 *end = s + str->len;
+    i8 *s = sv.value;
+    i8 *end = s + sv.len;
     i8 *start = s;
     usize len = 0;
     i8 ch = *s;
@@ -620,12 +713,20 @@ end:
     return Nst_real_new(res);
 }
 
-i32 Nst_str_compare(Nst_StrObj *str1, Nst_StrObj *str2)
+Nst_Obj *Nst_str_parse_real(Nst_Obj *str)
 {
-    u8 *p1 = (u8 *)str1->value;
-    u8 *p2 = (u8 *)str2->value;
-    u8 *end1 = p1 + str1->len;
-    u8 *end2 = p2 + str2->len;
+    Nst_assert(str->type == Nst_t.Str);
+    return Nst_sv_parse_real(Nst_sv_from_str(str));
+}
+
+i32 Nst_str_compare(Nst_Obj *str1, Nst_Obj *str2)
+{
+    Nst_assert(str1->type == Nst_t.Str);
+    Nst_assert(str2->type == Nst_t.Str);
+    u8 *p1 = (u8 *)STR(str1)->value;
+    u8 *p2 = (u8 *)STR(str2)->value;
+    u8 *end1 = p1 + STR(str1)->len;
+    u8 *end2 = p2 + STR(str2)->len;
 
     while (p1 != end1 && p2 != end2) {
         if (*p1 != *p2)
@@ -636,7 +737,7 @@ i32 Nst_str_compare(Nst_StrObj *str1, Nst_StrObj *str2)
         }
     }
 
-    return (i32)((i64)str1->len - (i64)str2->len);
+    return (i32)((i64)STR(str1)->len - (i64)STR(str2)->len);
 }
 
 i8 *Nst_str_find(i8 *s1, usize l1, i8 *s2, usize l2)
@@ -681,4 +782,22 @@ i8 *Nst_str_rfind(i8 *s1, usize l1, i8 *s2, usize l2)
     }
 
     return NULL;
+}
+
+i8 *Nst_str_value(Nst_Obj *str)
+{
+    Nst_assert(str->type == Nst_t.Str);
+    return STR(str)->value;
+}
+
+usize Nst_str_len(Nst_Obj *str)
+{
+    Nst_assert(str->type == Nst_t.Str);
+    return STR(str)->len;
+}
+
+usize Nst_str_ch_len(Nst_Obj *str)
+{
+    Nst_assert(str->type == Nst_t.Str);
+    return STR(str)->char_len;
 }

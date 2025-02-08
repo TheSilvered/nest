@@ -587,7 +587,7 @@ static bool type_check(Nst_Obj *obj, Nst_TypeObj *type)
     if (obj->type != type) {
         Nst_set_type_errorf(
             _Nst_EM_EXPECTED_TYPES,
-            Nst_TYPE_STR(type)->value,
+            type->name.value,
             TYPE_NAME(obj));
         return false;
     }
@@ -1497,16 +1497,18 @@ Nst_IntrState *Nst_state_get(void)
     return &Nst_state;
 }
 
-i32 Nst_chdir(Nst_StrObj *str)
+i32 Nst_chdir(Nst_Obj *str)
 {
 #ifdef Nst_MSVC
-    wchar_t *wide_cwd = Nst_char_to_wchar_t(str->value, str->len);
+    wchar_t *wide_cwd = Nst_char_to_wchar_t(
+        Nst_str_value(str),
+        Nst_str_len(str));
     if (wide_cwd == NULL)
         return -1;
     i32 res = _wchdir(wide_cwd);
     Nst_free(wide_cwd);
 #else
-    i32 res = chdir(str->value);
+    i32 res = chdir(Nst_str_value(str));
 #endif // !Nst_MSVC
 
     if (res != 0)
@@ -1518,7 +1520,7 @@ i32 Nst_chdir(Nst_StrObj *str)
     return res != 0 ? -1 : 0;
 }
 
-Nst_StrObj *Nst_getcwd(void)
+Nst_Obj *Nst_getcwd(void)
 {
 #ifdef Nst_MSVC
     wchar_t *wide_cwd = Nst_malloc_c(PATH_MAX, wchar_t);
@@ -1534,7 +1536,7 @@ Nst_StrObj *Nst_getcwd(void)
     Nst_free(wide_cwd);
     if (cwd_buf == NULL)
         return NULL;
-    return STR(Nst_str_new_allocated(cwd_buf, strlen(cwd_buf)));
+    return Nst_str_new_allocated(cwd_buf, strlen(cwd_buf));
 #else
     i8 *cwd_buf = Nst_malloc_c(PATH_MAX, i8);
     if (cwd_buf == NULL)
@@ -1545,7 +1547,7 @@ Nst_StrObj *Nst_getcwd(void)
         Nst_set_call_error_c(_Nst_EM_FAILED_GETCWD);
         return NULL;
     }
-    return STR(Nst_str_new_allocated(cwd_buf, strlen(cwd_buf)));
+    return Nst_str_new_allocated(cwd_buf, strlen(cwd_buf));
 #endif // !Nst_MSVC
 }
 

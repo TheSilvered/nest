@@ -700,7 +700,7 @@ NstEXP i8 *NstC Nst_vfmt(const i8 *fmt, usize fmt_len, usize *out_len,
  *
  * @return A new object of type `Str` or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_fmt_objs(Nst_StrObj *fmt, Nst_Obj *values);
+NstEXP Nst_Obj *NstC Nst_fmt_objs(Nst_Obj *fmt, Nst_Obj *values);
 
 /**
  * Make a string into its representation, like using the `r`, `R`, `a` and `A`

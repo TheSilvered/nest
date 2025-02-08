@@ -22,13 +22,13 @@ Nst_Declr *lib_init()
 
 Nst_Obj *NstC load_s_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *str;
+    Nst_Obj *str;
     if (!Nst_extract_args("s", arg_num, args, &str))
         return nullptr;
 
     Nst_LList *tokens = json_tokenize(
         (i8 *)"<Str>",
-        str->value, str->len,
+        Nst_str_value(str), Nst_str_len(str),
         true, Nst_EID_EXT_UTF8);
     if (tokens == nullptr)
         return nullptr;
@@ -39,22 +39,24 @@ Nst_Obj *NstC load_s_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC load_f_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
-    Nst_StrObj *encoding_obj;
+    Nst_Obj *path;
+    Nst_Obj *encoding_obj;
     if (!Nst_extract_args("s ?s", arg_num, args, &path, &encoding_obj))
         return nullptr;
 
     Nst_EncodingID encoding = Nst_DEF_VAL(
         encoding_obj,
-        Nst_encoding_from_name(encoding_obj->value),
+        Nst_encoding_from_name(Nst_str_value(encoding_obj)),
         Nst_EID_UNKNOWN);
     encoding = Nst_encoding_to_single_byte(encoding);
 
-    FILE *f = Nst_fopen_unicode(path->value, "rb");
+    FILE *f = Nst_fopen_unicode(Nst_str_value(path), "rb");
 
     if (f == nullptr) {
         if (!Nst_error_occurred())
-            Nst_set_value_errorf("file '%.4096s' not found", path->value);
+            Nst_set_value_errorf(
+                "file '%.4096s' not found",
+                Nst_str_value(path));
         return nullptr;
     }
 
@@ -71,11 +73,14 @@ Nst_Obj *NstC load_f_(usize arg_num, Nst_Obj **args)
     usize len = fread(buf, sizeof(i8), buf_size, f);
     fclose(f);
     buf[len] = 0;
-    Nst_LList *tokens = json_tokenize(path->value, buf, len, false, encoding);
+    Nst_LList *tokens = json_tokenize(
+        Nst_str_value(path),
+        buf, len,
+        false, encoding);
     if (tokens == nullptr)
         return nullptr;
 
-    Nst_Obj *value = json_parse(path->value, tokens);
+    Nst_Obj *value = json_parse(Nst_str_value(path), tokens);
     return value;
 }
 
@@ -93,10 +98,10 @@ Nst_Obj *NstC dump_s_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC dump_f_(usize arg_num, Nst_Obj **args)
 {
-    Nst_StrObj *path;
+    Nst_Obj *path;
     Nst_Obj *obj;
     Nst_Obj *indent_obj;
-    Nst_StrObj *encoding_obj;
+    Nst_Obj *encoding_obj;
 
     if (!Nst_extract_args(
             "s o ?i ?s",
@@ -109,17 +114,17 @@ Nst_Obj *NstC dump_f_(usize arg_num, Nst_Obj **args)
 
     Nst_EncodingID encoding = Nst_DEF_VAL(
         encoding_obj,
-        Nst_encoding_from_name(encoding_obj->value),
+        Nst_encoding_from_name(Nst_str_value(encoding_obj)),
         Nst_EID_EXT_UTF8);
     encoding = Nst_encoding_to_single_byte(encoding);
 
-    FILE *f = Nst_fopen_unicode(path->value, "wb");
+    FILE *f = Nst_fopen_unicode(Nst_str_value(path), "wb");
 
     if (f == nullptr) {
         if (!Nst_error_occurred()) {
             Nst_set_value_errorf(
                 "could not open the file '%.4096s'",
-                path->value);
+                Nst_str_value(path));
         }
         return nullptr;
     }
@@ -136,8 +141,8 @@ Nst_Obj *NstC dump_f_(usize arg_num, Nst_Obj **args)
     bool result = Nst_encoding_translate(
         Nst_encoding(Nst_EID_EXT_UTF8),
         Nst_encoding(encoding),
-        (void *)STR(res)->value,
-        STR(res)->len,
+        (void *)Nst_str_value(res),
+        Nst_str_len(res),
         (void **)&encoded_str,
         &encoded_str_len);
     Nst_dec_ref(res);

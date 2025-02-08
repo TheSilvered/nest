@@ -39,36 +39,11 @@ static Nst_TypeObj *type_obj_no_err(const i8 *name, Nst_ObjDstr dstr)
     type->p_head = NULL;
     type->p_len = 0;
     type->dstr = dstr;
-    type->name = Nst_str_temp((i8 *)name, strlen(name));
+    type->name = Nst_sv_new_c(name);
 
     type->type = Nst_t.Type;
     Nst_ninc_ref(Nst_t.Type);
     return type;
-}
-
-static Nst_StrObj *str_obj_no_err(const i8 *value)
-{
-    Nst_StrObj *str = STR(Nst_raw_malloc(sizeof(Nst_StrObj)));
-    if (str == NULL)
-        return NULL;
-
-#ifdef Nst_DBG_TRACK_OBJ_INIT_POS
-    str->init_line = -1;
-    str->init_col = -1;
-    str->init_path = NULL;
-#endif
-
-    str->ref_count = 1;
-    str->p_next = NULL;
-    str->hash = -1;
-    str->flags = 0;
-    str->len = strlen(value);
-    str->value = (i8 *)value;
-    str->indexable_str = NULL;
-
-    str->type = Nst_t.Str;
-    Nst_inc_ref(Nst_t.Str);
-    return str;
 }
 
 bool _Nst_globals_init(void)
@@ -83,16 +58,14 @@ bool _Nst_globals_init(void)
         Nst_free(Nst_t.Type);
         return false;
     }
-    Nst_t.Type->name.type = Nst_t.Str;
-    Nst_t.Str->name.type  = Nst_t.Str;
 
-    Nst_s.e_MemoryError = str_obj_no_err("Memory Error");
+    Nst_s.e_MemoryError = _Nst_str_new_no_err("Memory Error");
     if (Nst_s.e_MemoryError == NULL) {
         Nst_free(Nst_t.Type);
         Nst_free(Nst_t.Str);
         return false;
     }
-    Nst_s.o_failed_alloc = str_obj_no_err("failed allocation");
+    Nst_s.o_failed_alloc = _Nst_str_new_no_err("failed allocation");
     if (Nst_s.o_failed_alloc == NULL) {
         Nst_free(Nst_t.Type);
         Nst_free(Nst_t.Str);
@@ -128,25 +101,40 @@ bool _Nst_globals_init(void)
         (Nst_ObjDstr)_Nst_iter_destroy,
         (Nst_ObjTrav)_Nst_iter_traverse);
 
-    Nst_s.c_true   = STR(Nst_str_new_c("true",  4, false));
-    Nst_s.c_false  = STR(Nst_str_new_c("false", 5, false));
-    Nst_s.c_null   = STR(Nst_str_new_c("null",  4, false));
-    Nst_s.c_inf    = STR(Nst_str_new_c("inf",   3, false));
-    Nst_s.c_nan    = STR(Nst_str_new_c("nan",   3, false));
-    Nst_s.c_neginf = STR(Nst_str_new_c("-inf",  4, false));
-    Nst_s.c_negnan = STR(Nst_str_new_c("-nan",  4, false));
+    Nst_s.t_Type   = Nst_str_new_c("Type",   4, false);
+    Nst_s.t_Int    = Nst_str_new_c("Int",    3, false);
+    Nst_s.t_Real   = Nst_str_new_c("Real",   4, false);
+    Nst_s.t_Bool   = Nst_str_new_c("Bool",   4, false);
+    Nst_s.t_Null   = Nst_str_new_c("Null",   4, false);
+    Nst_s.t_Str    = Nst_str_new_c("Str",    3, false);
+    Nst_s.t_Array  = Nst_str_new_c("Array",  5, false);
+    Nst_s.t_Vector = Nst_str_new_c("Vector", 6, false);
+    Nst_s.t_Map    = Nst_str_new_c("Map",    3, false);
+    Nst_s.t_Func   = Nst_str_new_c("Func",   4, false);
+    Nst_s.t_Iter   = Nst_str_new_c("Iter",   4, false);
+    Nst_s.t_Byte   = Nst_str_new_c("Byte",   4, false);
+    Nst_s.t_IOFile = Nst_str_new_c("IOFile", 6, false);
+    Nst_s.t_IEnd   = Nst_str_new_c("IEnd",   4, false);
 
-    Nst_s.e_SyntaxError = STR(Nst_str_new_c("Syntax Error", 12, false));
-    Nst_s.e_ValueError  = STR(Nst_str_new_c("Value Error",  11, false));
-    Nst_s.e_TypeError   = STR(Nst_str_new_c("Type Error",   10, false));
-    Nst_s.e_CallError   = STR(Nst_str_new_c("Call Error",   10, false));
-    Nst_s.e_MathError   = STR(Nst_str_new_c("Math Error",   10, false));
-    Nst_s.e_ImportError = STR(Nst_str_new_c("Import Error", 12, false));
-    Nst_s.e_Interrupt   = STR(Nst_str_new_c("Interrupt",     9, false));
+    Nst_s.c_true   = Nst_str_new_c("true",  4, false);
+    Nst_s.c_false  = Nst_str_new_c("false", 5, false);
+    Nst_s.c_null   = Nst_str_new_c("null",  4, false);
+    Nst_s.c_inf    = Nst_str_new_c("inf",   3, false);
+    Nst_s.c_nan    = Nst_str_new_c("nan",   3, false);
+    Nst_s.c_neginf = Nst_str_new_c("-inf",  4, false);
+    Nst_s.c_negnan = Nst_str_new_c("-nan",  4, false);
 
-    Nst_s.o__vars_    = STR(Nst_str_new_c("_vars_",    6, false));
-    Nst_s.o__globals_ = STR(Nst_str_new_c("_globals_", 9, false));
-    Nst_s.o__args_    = STR(Nst_str_new_c("_args_",    6, false));
+    Nst_s.e_SyntaxError = Nst_str_new_c("Syntax Error", 12, false);
+    Nst_s.e_ValueError  = Nst_str_new_c("Value Error",  11, false);
+    Nst_s.e_TypeError   = Nst_str_new_c("Type Error",   10, false);
+    Nst_s.e_CallError   = Nst_str_new_c("Call Error",   10, false);
+    Nst_s.e_MathError   = Nst_str_new_c("Math Error",   10, false);
+    Nst_s.e_ImportError = Nst_str_new_c("Import Error", 12, false);
+    Nst_s.e_Interrupt   = Nst_str_new_c("Interrupt",     9, false);
+
+    Nst_s.o__vars_    = Nst_str_new_c("_vars_",    6, false);
+    Nst_s.o__globals_ = Nst_str_new_c("_globals_", 9, false);
+    Nst_s.o__args_    = Nst_str_new_c("_args_",    6, false);
 
     Nst_c.Bool_true  = Nst_bool_new(true);
     Nst_c.Bool_false = Nst_bool_new(false);
@@ -217,6 +205,21 @@ void _Nst_globals_quit(void)
     Nst_ndec_ref(Nst_t.Byte);
     Nst_ndec_ref(Nst_t.IOFile);
     Nst_ndec_ref(Nst_t.IEnd);
+
+    Nst_ndec_ref(Nst_s.t_Type);
+    Nst_ndec_ref(Nst_s.t_Int);
+    Nst_ndec_ref(Nst_s.t_Real);
+    Nst_ndec_ref(Nst_s.t_Bool);
+    Nst_ndec_ref(Nst_s.t_Null);
+    Nst_ndec_ref(Nst_s.t_Str);
+    Nst_ndec_ref(Nst_s.t_Array);
+    Nst_ndec_ref(Nst_s.t_Vector);
+    Nst_ndec_ref(Nst_s.t_Map);
+    Nst_ndec_ref(Nst_s.t_Func);
+    Nst_ndec_ref(Nst_s.t_Iter);
+    Nst_ndec_ref(Nst_s.t_Byte);
+    Nst_ndec_ref(Nst_s.t_IOFile);
+    Nst_ndec_ref(Nst_s.t_IEnd);
 
     Nst_ndec_ref(Nst_s.c_true);
     Nst_ndec_ref(Nst_s.c_false);

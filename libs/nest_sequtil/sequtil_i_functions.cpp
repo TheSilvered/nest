@@ -76,7 +76,7 @@ Nst_Obj *NstC slice_i_str_next(usize arg_num, Nst_Obj **args)
 
     i64 start = AS_INT(c_args[1]);
     i64 step = AS_INT(c_args[2]);
-    Nst_StrObj *seq = STR(c_args[4]);
+    Nst_Obj *seq = c_args[4];
 
     Nst_Obj *obj = Nst_str_get(seq, i * step + start);
     AS_INT(c_args[0]) += 1;

@@ -48,7 +48,7 @@ NstEXP typedef struct _Nst_ValueStack {
  */
 NstEXP typedef struct _Nst_FuncCall {
     Nst_Obj *func;
-    Nst_StrObj *cwd;
+    Nst_Obj *cwd;
     Nst_Pos start;
     Nst_Pos end;
     Nst_VarTable *vt;

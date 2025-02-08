@@ -31,7 +31,7 @@
 #define DEC_RECURSION_LVL recursion_level--
 
 static void dump_obj(Nst_Obj *obj, i32 indent);
-static void dump_str(Nst_StrObj *str);
+static void dump_str(Nst_Obj *str);
 static void dump_num(Nst_Obj *number);
 static void dump_seq(Nst_Obj *seq, i32 indent);
 static void dump_map(Nst_Obj *map, i32 indent);
@@ -59,7 +59,7 @@ static void dump_obj(Nst_Obj *obj, i32 indent)
 {
     INC_RECURSION_LVL;
     if (Nst_T(obj, Str))
-        dump_str(STR(obj));
+        dump_str(obj);
     else if (Nst_T(obj, Int) || Nst_T(obj, Real) || Nst_T(obj, Byte))
         dump_num(obj);
     else if (Nst_T(obj, Map))
@@ -81,12 +81,12 @@ static void dump_obj(Nst_Obj *obj, i32 indent)
     DEC_RECURSION_LVL;
 }
 
-static void dump_str(Nst_StrObj *str)
+static void dump_str(Nst_Obj *str)
 {
     INC_RECURSION_LVL;
     usize unicode_bytes = 0;
-    i8 *s_val = str->value;
-    usize s_len = str->len;
+    i8 *s_val = Nst_str_value(str);
+    usize s_len = Nst_str_len(str);
     const i8 *hex_digits = "0123456789abcdef";
 
     for (usize i = 0; i < s_len; i++) {
@@ -281,7 +281,7 @@ static void dump_map(Nst_Obj *map, i32 indent)
             FAIL;
         }
 
-        dump_str(STR(key));
+        dump_str(key);
         EXCEPT_ERROR;
 
         if (indent == -1)

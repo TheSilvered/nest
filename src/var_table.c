@@ -47,28 +47,28 @@ Nst_VarTable *Nst_vt_new(Nst_Obj *global_table, Nst_Obj *args,
         return vt;
     }
 
-    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Type)),   OBJ(Nst_t.Type));
-    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Int)),    OBJ(Nst_t.Int));
-    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Real)),   OBJ(Nst_t.Real));
-    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Bool)),   OBJ(Nst_t.Bool));
-    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Null)),   OBJ(Nst_t.Null));
-    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Str)),    OBJ(Nst_t.Str));
-    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Array)),  OBJ(Nst_t.Array));
-    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Vector)), OBJ(Nst_t.Vector));
-    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Map)),    OBJ(Nst_t.Map));
-    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Func)),   OBJ(Nst_t.Func));
-    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Iter)),   OBJ(Nst_t.Iter));
-    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.Byte)),   OBJ(Nst_t.Byte));
-    Nst_map_set(vars, OBJ(Nst_TYPE_STR(Nst_t.IOFile)), OBJ(Nst_t.IOFile));
+    Nst_map_set(vars, Nst_s.t_Type,   OBJ(Nst_t.Type));
+    Nst_map_set(vars, Nst_s.t_Int,    OBJ(Nst_t.Int));
+    Nst_map_set(vars, Nst_s.t_Real,   OBJ(Nst_t.Real));
+    Nst_map_set(vars, Nst_s.t_Bool,   OBJ(Nst_t.Bool));
+    Nst_map_set(vars, Nst_s.t_Null,   OBJ(Nst_t.Null));
+    Nst_map_set(vars, Nst_s.t_Str,    OBJ(Nst_t.Str));
+    Nst_map_set(vars, Nst_s.t_Array,  OBJ(Nst_t.Array));
+    Nst_map_set(vars, Nst_s.t_Vector, OBJ(Nst_t.Vector));
+    Nst_map_set(vars, Nst_s.t_Map,    OBJ(Nst_t.Map));
+    Nst_map_set(vars, Nst_s.t_Func,   OBJ(Nst_t.Func));
+    Nst_map_set(vars, Nst_s.t_Iter,   OBJ(Nst_t.Iter));
+    Nst_map_set(vars, Nst_s.t_Byte,   OBJ(Nst_t.Byte));
+    Nst_map_set(vars, Nst_s.t_IOFile, OBJ(Nst_t.IOFile));
 
-    Nst_map_set(vars, OBJ(Nst_s.c_true),  Nst_c.Bool_true);
-    Nst_map_set(vars, OBJ(Nst_s.c_false), Nst_c.Bool_false);
-    Nst_map_set(vars, OBJ(Nst_s.c_null),  Nst_c.Null_null);
+    Nst_map_set(vars, Nst_s.c_true,  Nst_c.Bool_true);
+    Nst_map_set(vars, Nst_s.c_false, Nst_c.Bool_false);
+    Nst_map_set(vars, Nst_s.c_null,  Nst_c.Null_null);
 
-    Nst_map_set(vars, OBJ(Nst_s.o__args_), args);
+    Nst_map_set(vars, Nst_s.o__args_, args);
 
     if (Nst_error_occurred()) {
-        Nst_map_drop(vars, OBJ(Nst_s.o__vars_));
+        Nst_map_drop(vars, Nst_s.o__vars_);
         Nst_dec_ref(vars);
         Nst_free(vt);
         return NULL;

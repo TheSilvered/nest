@@ -306,20 +306,21 @@ void Nst_print_traceback(Nst_Traceback *tb)
         print_position(*start, *end);
     }
 
+    i8 *err_name = Nst_str_value(tb->error_name);
     if (OBJ(tb->error_msg) == Nst_null() && use_color)
-        Nst_fprintf(err_stream, C_YEL "%s" C_RES "\n", tb->error_name->value);
+        Nst_fprintf(err_stream, C_YEL "%s" C_RES "\n", err_name);
     else if (OBJ(tb->error_msg) == Nst_null())
-        Nst_fprintf(err_stream, "%s\n", tb->error_name->value);
+        Nst_fprintf(err_stream, "%s\n", err_name);
     else if (use_color) {
         Nst_fprintf(
             err_stream,
             C_YEL "%s" C_RES " - %s\n",
-            tb->error_name->value, tb->error_msg->value);
+            err_name, Nst_str_value(tb->error_msg));
     } else {
         Nst_fprintf(
             err_stream,
             "%s - %s\n",
-            tb->error_name->value, tb->error_msg->value);
+            err_name, Nst_str_value(tb->error_msg));
     }
 
     Nst_fflush(err_stream);
@@ -353,7 +354,7 @@ static void clear_error(Nst_Traceback *tb)
     tb->error_occurred = false;
 }
 
-void _Nst_set_error(Nst_StrObj *name, Nst_StrObj *msg)
+void Nst_set_error(Nst_Obj *name, Nst_Obj *msg)
 {
     if (msg == NULL) {
         Nst_failed_allocation();
@@ -374,44 +375,44 @@ void _Nst_set_error(Nst_StrObj *name, Nst_StrObj *msg)
     }
 }
 
-void _Nst_set_syntax_error(Nst_StrObj *msg)
+void Nst_set_syntax_error(Nst_Obj *msg)
 {
     Nst_set_error(Nst_inc_ref(Nst_s.e_SyntaxError), msg);
 }
 
-void _Nst_set_memory_error(Nst_StrObj *msg)
+void Nst_set_memory_error(Nst_Obj *msg)
 {
     Nst_set_error(Nst_inc_ref(Nst_s.e_MemoryError), msg);
 }
 
-void _Nst_set_type_error(Nst_StrObj *msg)
+void Nst_set_type_error(Nst_Obj *msg)
 {
     Nst_set_error(Nst_inc_ref(Nst_s.e_TypeError), msg);
 }
 
-void _Nst_set_value_error(Nst_StrObj *msg)
+void Nst_set_value_error(Nst_Obj *msg)
 {
     Nst_set_error(Nst_inc_ref(Nst_s.e_ValueError), msg);
 }
 
-void _Nst_set_math_error(Nst_StrObj *msg)
+void Nst_set_math_error(Nst_Obj *msg)
 {
     Nst_set_error(Nst_inc_ref(Nst_s.e_MathError), msg);
 }
 
-void _Nst_set_call_error(Nst_StrObj *msg)
+void Nst_set_call_error(Nst_Obj *msg)
 {
     Nst_set_error(Nst_inc_ref(Nst_s.e_CallError), msg);
 }
 
-void _Nst_set_import_error(Nst_StrObj *msg)
+void Nst_set_import_error(Nst_Obj *msg)
 {
     Nst_set_error(Nst_inc_ref(Nst_s.e_ImportError), msg);
 }
 
-static void set_error_c(Nst_StrObj *name, const i8 *msg)
+static void set_error_c(Nst_Obj *name, const i8 *msg)
 {
-    Nst_StrObj *msg_obj = STR(Nst_str_new_c_raw(msg, false));
+    Nst_Obj *msg_obj = Nst_str_new_c_raw(msg, false);
     if (msg_obj == NULL)
         return;
 
@@ -552,21 +553,21 @@ void Nst_error_add_positions(Nst_Traceback *tb, Nst_Pos start, Nst_Pos end)
 }
 
 void Nst_set_internal_error(Nst_Traceback *tb, Nst_Pos start, Nst_Pos end,
-                            Nst_StrObj *name, Nst_StrObj *msg)
+                            Nst_Obj *name, Nst_Obj *msg)
 {
     clear_error(tb);
 
     Nst_error_add_positions(tb, start, end);
 
     tb->error_occurred = true;
-    tb->error_name = STR(Nst_inc_ref(name));
+    tb->error_name = Nst_inc_ref(name);
     tb->error_msg = msg;
 }
 
 void Nst_set_internal_error_c(Nst_Traceback *tb, Nst_Pos start, Nst_Pos end,
-                              Nst_StrObj *name, const i8 *msg)
+                              Nst_Obj *name, const i8 *msg)
 {
-    Nst_StrObj *msg_obj = STR(Nst_str_new_c_raw(msg, false));
+    Nst_Obj *msg_obj = Nst_str_new_c_raw(msg, false);
     if (msg_obj == NULL)
         return;
 
@@ -574,43 +575,43 @@ void Nst_set_internal_error_c(Nst_Traceback *tb, Nst_Pos start, Nst_Pos end,
 }
 
 void Nst_set_internal_syntax_error(Nst_Traceback *tb, Nst_Pos start,
-                                   Nst_Pos end, Nst_StrObj *msg)
+                                   Nst_Pos end, Nst_Obj *msg)
 {
     Nst_set_internal_error(tb, start, end, Nst_s.e_SyntaxError, msg);
 }
 
 void Nst_set_internal_memory_error(Nst_Traceback *tb, Nst_Pos start,
-                                   Nst_Pos end, Nst_StrObj *msg)
+                                   Nst_Pos end, Nst_Obj *msg)
 {
     Nst_set_internal_error(tb, start, end, Nst_s.e_MemoryError, msg);
 }
 
 void Nst_set_internal_type_error(Nst_Traceback *tb, Nst_Pos start, Nst_Pos end,
-                                 Nst_StrObj *msg)
+                                 Nst_Obj *msg)
 {
     Nst_set_internal_error(tb, start, end, Nst_s.e_TypeError, msg);
 }
 
 void Nst_set_internal_value_error(Nst_Traceback *tb, Nst_Pos start, Nst_Pos end,
-                                  Nst_StrObj *msg)
+                                  Nst_Obj *msg)
 {
     Nst_set_internal_error(tb, start, end, Nst_s.e_ValueError, msg);
 }
 
 void Nst_set_internal_math_error(Nst_Traceback *tb, Nst_Pos start, Nst_Pos end,
-                                 Nst_StrObj *msg)
+                                 Nst_Obj *msg)
 {
     Nst_set_internal_error(tb, start, end, Nst_s.e_MathError, msg);
 }
 
 void Nst_set_internal_call_error(Nst_Traceback *tb, Nst_Pos start, Nst_Pos end,
-                                 Nst_StrObj *msg)
+                                 Nst_Obj *msg)
 {
     Nst_set_internal_error(tb, start, end, Nst_s.e_CallError, msg);
 }
 
 void Nst_set_internal_import_error(Nst_Traceback *tb, Nst_Pos start,
-                                   Nst_Pos end, Nst_StrObj *msg)
+                                   Nst_Pos end, Nst_Obj *msg)
 {
     Nst_set_internal_error(tb, start, end, Nst_s.e_ImportError, msg);
 }
@@ -664,5 +665,5 @@ void Nst_internal_failed_allocation(Nst_Traceback *tb, Nst_Pos start,
         tb,
         start, end,
         Nst_s.e_MemoryError,
-        STR(Nst_inc_ref(Nst_s.o_failed_alloc)));
+        Nst_inc_ref(Nst_s.o_failed_alloc));
 }
