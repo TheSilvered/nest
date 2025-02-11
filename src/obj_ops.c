@@ -8,9 +8,9 @@
 #include "lib_import.h"
 #include "map.h"
 #include "error.h"
-#include "lib_import.h"
 #include "format.h"
 #include "hash.h"
+#include "str_builder.h"
 
 #ifdef Nst_MSVC
 
@@ -680,11 +680,11 @@ Nst_Obj *_Nst_obj_str_cast_seq(Nst_Obj *seq_obj, Nst_LList *all_objs)
 
     usize seq_len = Nst_seq_len(seq_obj);
 
-    Nst_Buffer buf;
-    if (!Nst_buffer_init(&buf, 6))
+    Nst_StrBuilder sb;
+    if (!Nst_sb_init(&sb, 6))
         return NULL;
 
-    Nst_buffer_append_c_str(&buf, open);
+    Nst_sb_push_c(&sb, open);
 
     for (usize i = 0; i < seq_len; i++) {
         Nst_Obj *ob = Nst_seq_getnf(seq_obj, i);
@@ -697,12 +697,12 @@ Nst_Obj *_Nst_obj_str_cast_seq(Nst_Obj *seq_obj, Nst_LList *all_objs)
         else
             ob_str = _Nst_repr_str_cast(ob);
         if (ob_str == NULL) {
-            Nst_buffer_destroy(&buf);
+            Nst_sb_destroy(&sb);
             return NULL;
         }
 
-        if (!Nst_buffer_append(&buf, ob_str)) {
-            Nst_buffer_destroy(&buf);
+        if (!Nst_sb_push_str(&sb, ob_str)) {
+            Nst_sb_destroy(&sb);
             return NULL;
         }
 
@@ -711,19 +711,19 @@ Nst_Obj *_Nst_obj_str_cast_seq(Nst_Obj *seq_obj, Nst_LList *all_objs)
         if (i == seq_len - 1)
             break;
 
-        if (!Nst_buffer_append_c_str(&buf, ", ")) {
-            Nst_buffer_destroy(&buf);
+        if (!Nst_sb_push_c(&sb, ", ")) {
+            Nst_sb_destroy(&sb);
             return NULL;
         }
     }
 
-    if (!Nst_buffer_append_c_str(&buf, close)) {
-        Nst_buffer_destroy(&buf);
+    if (!Nst_sb_push_c(&sb, close)) {
+        Nst_sb_destroy(&sb);
         return NULL;
     }
 
     Nst_llist_pop(all_objs);
-    return OBJ(Nst_buffer_to_string(&buf));
+    return Nst_str_from_sb(&sb);
 }
 
 Nst_Obj *_Nst_obj_str_cast_map(Nst_Obj *map_obj, Nst_LList *all_objs)
@@ -739,10 +739,10 @@ Nst_Obj *_Nst_obj_str_cast_map(Nst_Obj *map_obj, Nst_LList *all_objs)
     if (!Nst_llist_push(all_objs, map_obj, false))
         return NULL;
 
-    Nst_Buffer buf;
-    if (!Nst_buffer_init(&buf, 7))
+    Nst_StrBuilder sb;
+    if (!Nst_sb_init(&sb, 7))
         return NULL;
-    Nst_buffer_append_c_str(&buf, "{");
+    Nst_sb_push_char(&sb, '{');
 
     Nst_Obj *key;
     Nst_Obj *val;
@@ -755,7 +755,7 @@ Nst_Obj *_Nst_obj_str_cast_map(Nst_Obj *map_obj, Nst_LList *all_objs)
         Nst_Obj *val_str;
 
         if (key_str == NULL) {
-            Nst_buffer_destroy(&buf);
+            Nst_sb_destroy(&sb);
             return NULL;
         }
 
@@ -768,32 +768,32 @@ Nst_Obj *_Nst_obj_str_cast_map(Nst_Obj *map_obj, Nst_LList *all_objs)
 
         if (key_str == NULL) {
             Nst_dec_ref(key_str);
-            Nst_buffer_destroy(&buf);
+            Nst_sb_destroy(&sb);
             return NULL;
         }
 
         usize expantion_amount = Nst_str_len(key_str)
                                + Nst_str_len(val_str)
                                + 4;
-        if (!Nst_buffer_expand_by(&buf, expantion_amount)) {
-            Nst_buffer_destroy(&buf);
+        if (!Nst_sb_reserve(&sb, expantion_amount)) {
+            Nst_sb_destroy(&sb);
             return NULL;
         }
 
-        Nst_buffer_append(&buf, key_str);
-        Nst_buffer_append_c_str(&buf, ": ");
-        Nst_buffer_append(&buf, val_str);
-        Nst_buffer_append_c_str(&buf, ", ");
+        Nst_sb_push_str(&sb, key_str);
+        Nst_sb_push_c(&sb, ": ");
+        Nst_sb_push_str(&sb, val_str);
+        Nst_sb_push_c(&sb, ", ");
 
         Nst_dec_ref(key_str);
         Nst_dec_ref(val_str);
     }
 
-    buf.len -= 2;
-    Nst_buffer_append_c_str(&buf, "}");
+    sb.len -= 2;
+    Nst_sb_push_char(&sb, '}');
     Nst_llist_pop(all_objs);
 
-    return OBJ(Nst_buffer_to_string(&buf));
+    return Nst_str_from_sb(&sb);
 }
 
 #ifndef Nst_MSVC
@@ -978,7 +978,7 @@ static Nst_Obj *seq_to_seq(Nst_Obj *ob, bool is_vect)
 
 static Nst_Obj *str_to_seq(Nst_Obj *ob, bool is_vect)
 {
-    usize str_len = Nst_str_ch_len(ob);
+    usize str_len = Nst_str_char_len(ob);
     Nst_Obj *seq = is_vect ? Nst_vector_new(str_len)
                            : Nst_array_new(str_len);
     if (seq == NULL)
@@ -1295,7 +1295,7 @@ Nst_Obj *_Nst_obj_contains(Nst_Obj *ob1, Nst_Obj *ob2)
             Nst_RETURN_TRUE;
         }
     } else if (ob1->type == Nst_t.Str && ob2->type == Nst_t.Str) {
-        i8 *res = Nst_str_find(
+        i8 *res = Nst_str_lfind(
             Nst_str_value(ob1), Nst_str_len(ob1),
             Nst_str_value(ob2), Nst_str_len(ob2));
         Nst_RETURN_BOOL(res != NULL);
@@ -1325,7 +1325,7 @@ Nst_Obj *_Nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2)
     Nst_Obj *new_obj = Nst_str_new_len(
         buffer,
         tot_len,
-        Nst_str_ch_len(ob1) + Nst_str_ch_len(ob2),
+        Nst_str_char_len(ob1) + Nst_str_char_len(ob2),
         true);
 
     if (new_obj == NULL)
@@ -1393,7 +1393,7 @@ Nst_Obj *_Nst_obj_neg(Nst_Obj *ob)
 Nst_Obj *_Nst_obj_len(Nst_Obj *ob)
 {
     if (ob->type == Nst_t.Str)
-        return Nst_int_new(Nst_str_ch_len(ob));
+        return Nst_int_new(Nst_str_char_len(ob));
     else if (ob->type == Nst_t.Map)
         return Nst_int_new(Nst_map_len(ob));
     else if (IS_SEQ(ob))
@@ -1492,8 +1492,8 @@ Nst_Obj *_Nst_obj_stdin(Nst_Obj *ob)
     Nst_fflush(Nst_io.out);
     Nst_dec_ref(ob);
 
-    Nst_Buffer buf;
-    if (!Nst_buffer_init(&buf, 4))
+    Nst_StrBuilder sb;
+    if (!Nst_sb_init(&sb, 4))
         return NULL;
 
     i8 ch[5];
@@ -1503,13 +1503,13 @@ Nst_Obj *_Nst_obj_stdin(Nst_Obj *ob)
         if (ch[0] == '\n')
             break;
 
-        if (!Nst_buffer_append_c_str(&buf, (const i8 *)ch)) {
-            Nst_buffer_destroy(&buf);
+        if (!Nst_sb_push_c(&sb, (const i8 *)ch)) {
+            Nst_sb_destroy(&sb);
             return NULL;
         }
     }
 
-    return OBJ(Nst_buffer_to_string(&buf));
+    return Nst_str_from_sb(&sb);
 }
 
 Nst_Obj *_Nst_obj_typeof(Nst_Obj *ob)

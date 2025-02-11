@@ -87,8 +87,8 @@
 - renamed `Nst_cp` to `Nst_encoding`
 - renamed `Nst_detect_encoding` to `Nst_encoding_detect`
 - renamed `Nst_single_byte_cp` to `Nst_encoding_to_single_byte`
-- renamed `Nst_string_char_len` to `Nst_str_char_len`
-- renamed `Nst_string_utf8_char_len` to `Nst_str_utf8_char_len`
+- renamed `Nst_string_char_len` to `Nst_encoding_char_len`
+- renamed `Nst_string_utf8_char_len` to `Nst_encoding_utf8_char_len`
 - now `Nst_repr` and `Nst_fmt` with the flags `r` or `R` will escape non-printable characters
 - removed the following symbols from `sequence.h`
     - `Nst_SeqObj`

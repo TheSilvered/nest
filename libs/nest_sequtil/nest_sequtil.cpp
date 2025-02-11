@@ -798,7 +798,7 @@ Nst_Obj *NstC count_(usize arg_num, Nst_Obj **args)
         usize sub_len = Nst_str_len(obj);
 
         while (true) {
-            i8 *res = Nst_str_find(str, str_len, sub, sub_len);
+            i8 *res = Nst_str_lfind(str, str_len, sub, sub_len);
             if (res == nullptr)
                 break;
             str_len -= res - str + sub_len;
@@ -1140,7 +1140,7 @@ Nst_Obj *reverse_string(Nst_Obj *str_obj)
     Nst_Obj *new_str_obj = Nst_str_new_len(
         new_str,
         old_str_len,
-        Nst_str_ch_len(str_obj),
+        Nst_str_char_len(str_obj),
         true);
     if (new_str_obj == nullptr) {
         Nst_free(new_str_obj);

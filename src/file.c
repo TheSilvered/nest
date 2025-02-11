@@ -2,6 +2,7 @@
 #include "file.h"
 #include "global_consts.h"
 #include "mem.h"
+#include "str_builder.h"
 #include "interpreter.h" // To use Nst_assert
 
 #ifdef Nst_MSVC
@@ -130,17 +131,14 @@ void _Nst_iofile_destroy(Nst_Obj *obj)
     }
 }
 
-static Nst_IOResult FILE_read_get_ch(Nst_IOFileObj *f, Nst_Buffer *buf,
+static Nst_IOResult FILE_read_get_ch(Nst_IOFileObj *f, Nst_StrBuilder *sb,
                                      bool expand_buf, usize *bytes_read)
 {
     i8 ch_buf[Nst_ENCODING_MULTIBYTE_MAX_SIZE + 1] = { 0 };
     usize ch_len = 0;
     u32 ch;
-    if (!expand_buf
-        || !Nst_buffer_expand_by(buf, Nst_encoding_utf8.mult_max_sz + 1))
-    {
+    if (!expand_buf || !Nst_sb_reserve(sb, Nst_encoding_utf8.mult_max_sz + 1))
         return Nst_IO_ALLOC_FAILED;
-    }
 
     for (usize i = 0; i < f->encoding->mult_max_sz; i++) {
         if (fread(ch_buf + i, 1, 1, f->fp) == 0) {
@@ -164,14 +162,14 @@ static Nst_IOResult FILE_read_get_ch(Nst_IOFileObj *f, Nst_Buffer *buf,
     return Nst_IO_INVALID_DECODING;
 
 success:
-    if (!expand_buf && buf->cap - buf->len - 1 < ch_len) {
+    if (!expand_buf && sb->cap - sb->len - 1 < ch_len) {
         fseek((FILE *)f->fp, (long)ch_len, SEEK_CUR);
         return Nst_IO_BUF_FULL;
     }
     *bytes_read += ch_len;
 
     ch = f->encoding->to_utf32(ch_buf);
-    buf->len += Nst_ext_utf8_from_utf32(ch, (u8 *)(buf->data + buf->len));;
+    sb->len += Nst_ext_utf8_from_utf32(ch, (u8 *)(sb->value + sb->len));;
     return Nst_IO_SUCCESS;
 }
 
@@ -230,26 +228,27 @@ Nst_IOResult Nst_FILE_read(i8 *buf, usize buf_size, usize count,
     }
 
     bool expand_buf = buf_size == 0;
-    Nst_Buffer buffer;
+
+    Nst_StrBuilder sb;
     if (expand_buf) {
-        if (!Nst_buffer_init(&buffer, count + 1))
+        if (!Nst_sb_init(&sb, count + 1))
             return Nst_IO_ALLOC_FAILED;
     } else {
-        buffer.data = buf;
-        buffer.cap = buf_size;
-        buffer.len = 0;
+        sb.value = buf;
+        sb.cap = buf_size;
+        sb.len = 0;
     }
 
     bytes_read = 0;
     for (usize i = 0; i < count; i++) {
         Nst_IOResult result = FILE_read_get_ch(
             IOFILE(f),
-            &buffer, expand_buf,
+            &sb, expand_buf,
             &bytes_read);
         if (result != Nst_IO_SUCCESS) {
             if (result < 0) {
                 if (expand_buf) {
-                    Nst_buffer_destroy(&buffer);
+                    Nst_sb_destroy(&sb);
                     *(i8 **)buf = NULL;
                 } else
                     memset(buf, 0, buf_size);
@@ -258,21 +257,21 @@ Nst_IOResult Nst_FILE_read(i8 *buf, usize buf_size, usize count,
                     *buf_len = 0;
             } else {
                 if (expand_buf)
-                    *(i8 **)buf = buffer.data;
+                    *(i8 **)buf = sb.value;
 
                 if (buf_len != NULL)
-                    *buf_len = buffer.len;
+                    *buf_len = sb.len;
             }
             return result;
         }
     }
 
-    buffer.data[buffer.len] = '\0';
+    sb.value[sb.len] = '\0';
 
     if (expand_buf)
-        *(i8 **)buf = buffer.data;
+        *(i8 **)buf = sb.value;
     if (buf_len != NULL)
-        *buf_len = buffer.len;
+        *buf_len = sb.len;
     return Nst_IO_SUCCESS;
 }
 

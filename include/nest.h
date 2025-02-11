@@ -44,5 +44,7 @@
 #include "file.h"
 #include "dtoa.h"
 #include "unicode_db.h"
+#include "str_builder.h"
+#include "str_view.h"
 
 #endif // !NEST_H

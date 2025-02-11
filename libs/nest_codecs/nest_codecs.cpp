@@ -53,7 +53,7 @@ Nst_Obj *NstC to_cp_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &str))
         return nullptr;
 
-    if (Nst_str_ch_len(str) != 1) {
+    if (Nst_str_char_len(str) != 1) {
         Nst_set_value_error_c("the string must contain only one character");
         return nullptr;
     }

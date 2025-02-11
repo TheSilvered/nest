@@ -126,50 +126,47 @@
         func_arg_num, func_arg_num == 1 ? "" : "s",                           \
         arg_num, arg_num == 1 ? "was" : "were")
 
-/**
- * @brief Alias for `_Nst_set_error` that casts `name` to `Nst_StrObj *` and
- * builds a formatted string with `fmt`.
- */
+/* Alias for `Nst_set_error` that builds a formatted string with `fmt`. */
 #define Nst_set_errorf(name, fmt, ...)                                        \
     Nst_set_error(name, Nst_sprintf(fmt, __VA_ARGS__))
 /**
- * @brief Alias for `_Nst_set_syntax_error` that builds a formatted string with
+ * @brief Alias for `Nst_set_syntax_error` that builds a formatted string with
  * `fmt`.
  */
 #define Nst_set_syntax_errorf(fmt, ...)                                       \
     Nst_set_syntax_error(Nst_sprintf(fmt, __VA_ARGS__))
 /**
- * @brief Alias for `_Nst_set_memory_error` that builds a formatted string with
+ * @brief Alias for `Nst_set_memory_error` that builds a formatted string with
  * `fmt`.
  */
 #define Nst_set_memory_errorf(fmt, ...)                                       \
     Nst_set_memory_error(Nst_sprintf(fmt, __VA_ARGS__))
 /**
- * @brief Alias for `_Nst_set_type_error` that builds a formatted string with
+ * @brief Alias for `Nst_set_type_error` that builds a formatted string with
  * `fmt`.
  */
 #define Nst_set_type_errorf(fmt, ...)                                         \
     Nst_set_type_error(Nst_sprintf(fmt, __VA_ARGS__))
 /**
- * @brief Alias for `_Nst_set_value_error` that builds a formatted string with
+ * @brief Alias for `Nst_set_value_error` that builds a formatted string with
  * `fmt`.
  */
 #define Nst_set_value_errorf(fmt, ...)                                        \
     Nst_set_value_error(Nst_sprintf(fmt, __VA_ARGS__))
 /**
- * @brief Alias for `_Nst_set_math_error` that builds a formatted string with
+ * @brief Alias for `Nst_set_math_error` that builds a formatted string with
  * `fmt`.
  */
 #define Nst_set_math_errorf(fmt, ...)                                         \
     Nst_set_math_error(Nst_sprintf(fmt, __VA_ARGS__))
 /**
- * @brief Alias for `_Nst_set_call_error` that builds a formatted string with
+ * @brief Alias for `Nst_set_call_error` that builds a formatted string with
  * `fmt`.
  */
 #define Nst_set_call_errorf(fmt, ...)                                         \
     Nst_set_call_error(Nst_sprintf(fmt, __VA_ARGS__))
 /**
- * @brief Alias for `_Nst_set_import_error` that builds a formatted string with
+ * @brief Alias for `Nst_set_import_error` that builds a formatted string with
  * `fmt`.
  */
 #define Nst_set_import_errorf(fmt, ...)                                       \

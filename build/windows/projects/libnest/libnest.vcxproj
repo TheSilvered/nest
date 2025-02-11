@@ -181,6 +181,8 @@
     <ClInclude Include="..\..\..\..\include\sequence.h" />
     <ClInclude Include="..\..\..\..\include\simple_types.h" />
     <ClInclude Include="..\..\..\..\include\str.h" />
+    <ClInclude Include="..\..\..\..\include\str_builder.h" />
+    <ClInclude Include="..\..\..\..\include\str_view.h" />
     <ClInclude Include="..\..\..\..\include\tokens.h" />
     <ClInclude Include="..\..\..\..\include\type.h" />
     <ClInclude Include="..\..\..\..\include\typedefs.h" />
@@ -218,6 +220,8 @@
     <ClCompile Include="..\..\..\..\src\sequence.c" />
     <ClCompile Include="..\..\..\..\src\simple_types.c" />
     <ClCompile Include="..\..\..\..\src\str.c" />
+    <ClCompile Include="..\..\..\..\src\str_builder.c" />
+    <ClCompile Include="..\..\..\..\src\str_view.c" />
     <ClCompile Include="..\..\..\..\src\tokens.c" />
     <ClCompile Include="..\..\..\..\src\type.c" />
     <ClCompile Include="..\..\..\..\src\unicode_db.c" />

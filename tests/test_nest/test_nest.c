@@ -2645,13 +2645,13 @@ TestResult test_obj_to_bool()
 TestResult test_str_copy()
 {
     ENTER_TEST;
-    Nst_StrObj *str = STR(Nst_str_new_c_raw("hèllo\xf0\x9f\x98\x8a", false));
+    Nst_Obj *str = Nst_str_new_c_raw("hèllo\xf0\x9f\x98\x8a", false);
     crit_fail_if(str == NULL);
-    Nst_StrObj *copy = STR(Nst_str_copy(str));
+    Nst_Obj *copy = Nst_str_copy(str);
     crit_fail_if(str == NULL, str);
 
-    fail_if(str->len != copy->len);
-    fail_if(str->char_len != copy->char_len);
+    fail_if(Nst_str_len(str) != Nst_str_len(copy));
+    fail_if(Nst_str_char_len(str) != Nst_str_char_len(copy));
     fail_if(ref_obj_to_bool(Nst_obj_ne(str, copy)));
 
     Nst_dec_ref(str);

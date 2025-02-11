@@ -368,22 +368,22 @@ NstEXP isize NstC Nst_encoding_check(Nst_Encoding *encoding, void *str,
  * @return The length in characters of the string or -1 on failure. The error
  * is set.
  */
-NstEXP isize NstC Nst_str_char_len(Nst_Encoding *encoding, void *str,
-                                      usize str_len);
+NstEXP isize NstC Nst_encoding_char_len(Nst_Encoding *encoding, void *str,
+                                        usize str_len);
 
 /**
  * Gets the length in characters of a UTF-8-encoded string.
  *
  * @brief Note: this function assumes that the string is valid UTF-8 and does
  * no error checking. Use `Nst_encoding_check` to check it or
- * `Nst_str_char_len` to get the length in characters safely.
+ * `Nst_encoding_char_len` to get the length in characters safely.
  *
  * @param str: the string to get the length of
  * @param str_len: the length in bytes of the string
  *
  * @return The length in characters of the string. No error is set.
  */
-NstEXP usize NstC Nst_str_utf8_char_len(u8 *str, usize str_len);
+NstEXP usize NstC Nst_encoding_utf8_char_len(u8 *str, usize str_len);
 
 /**
  * @return The corresponding encoding structure given its ID. If an invalid ID

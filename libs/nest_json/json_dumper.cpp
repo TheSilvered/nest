@@ -16,7 +16,7 @@
     } while (0)
 
 #define FAIL do {                                                             \
-    Nst_buffer_destroy(&str_buf);                                             \
+    Nst_sb_destroy(&sb);                                                      \
     return;                                                                   \
     } while (0)
 
@@ -38,21 +38,21 @@ static void dump_map(Nst_Obj *map, i32 indent);
 static void add_comma(i32 indent);
 static void add_indent(i32 indent);
 
-static Nst_Buffer str_buf;
+static Nst_StrBuilder sb;
 static i32 indent_level;
 static i32 recursion_level;
 
 Nst_Obj *json_dump(Nst_Obj *obj, i32 indent)
 {
     recursion_level = 0;
-    if (!Nst_buffer_init(&str_buf, 255))
+    if (!Nst_sb_init(&sb, 255))
         return nullptr;
 
     dump_obj(obj, indent);
     if (Nst_error_occurred())
         return nullptr;
 
-    return OBJ(Nst_buffer_to_string(&str_buf));
+    return Nst_str_from_sb(&sb);
 }
 
 static void dump_obj(Nst_Obj *obj, i32 indent)
@@ -67,11 +67,11 @@ static void dump_obj(Nst_Obj *obj, i32 indent)
     else if (Nst_T(obj, Array) || Nst_T(obj, Vector))
         dump_seq(obj, indent);
     else if (obj == Nst_null())
-        Nst_buffer_append_c_str(&str_buf, "null");
+        Nst_sb_push_c(&sb, "null");
     else if (obj == Nst_true())
-        Nst_buffer_append_c_str(&str_buf, "true");
+        Nst_sb_push_c(&sb, "true");
     else if (obj == Nst_false())
-        Nst_buffer_append_c_str(&str_buf, "false");
+        Nst_sb_push_c(&sb, "false");
     else {
         Nst_set_type_errorf(
             "JSON: an object of type %s is not serializable",
@@ -84,6 +84,7 @@ static void dump_obj(Nst_Obj *obj, i32 indent)
 static void dump_str(Nst_Obj *str)
 {
     INC_RECURSION_LVL;
+
     usize unicode_bytes = 0;
     i8 *s_val = Nst_str_value(str);
     usize s_len = Nst_str_len(str);
@@ -97,39 +98,39 @@ static void dump_str(Nst_Obj *str)
             i += res - 1;
     }
 
-    Nst_buffer_expand_by(&str_buf, s_len + unicode_bytes * 5 + 2);
+    Nst_sb_reserve(&sb, s_len + unicode_bytes * 5 + 2);
     EXCEPT_ERROR;
 
-    Nst_buffer_append_char(&str_buf, '"');
+    Nst_sb_push_char(&sb, '"');
     for (usize i = 0; i < s_len; i++) {
         i32 res = Nst_check_ext_utf8_bytes((u8 *)s_val + i, s_len - i);
         switch (res) {
         case 1:
-            Nst_buffer_append_char(&str_buf, s_val[i]);
+            Nst_sb_push_char(&sb, s_val[i]);
             break;
         case -1: {
-            Nst_buffer_append_c_str(&str_buf, "\\u00");
+            Nst_sb_push_c(&sb, "\\u00");
             u8 c1 = u8(s_val[i]) >> 4;
             u8 c2 = u8(s_val[i]) & 0xf;
-            Nst_buffer_append_char(&str_buf, hex_digits[c1]);
-            Nst_buffer_append_char(&str_buf, hex_digits[c2]);
+            Nst_sb_push_char(&sb, hex_digits[c1]);
+            Nst_sb_push_char(&sb, hex_digits[c2]);
             break;
         }
         case 2: {
-            Nst_buffer_append_c_str(&str_buf, "\\u0");
+            Nst_sb_push_c(&sb, "\\u0");
             u8 c1 = u8(s_val[i]) >> 2 & 0xf;
             u8 c2 = ((u8(s_val[i]) & 0x3) << 2)
                   + ((u8(s_val[i + 1]) >> 4) & 0x3);
             u8 c3 = u8(s_val[i + 1]) & 0xf;
             i++;
 
-            Nst_buffer_append_char(&str_buf, hex_digits[c1]);
-            Nst_buffer_append_char(&str_buf, hex_digits[c2]);
-            Nst_buffer_append_char(&str_buf, hex_digits[c3]);
+            Nst_sb_push_char(&sb, hex_digits[c1]);
+            Nst_sb_push_char(&sb, hex_digits[c2]);
+            Nst_sb_push_char(&sb, hex_digits[c3]);
             break;
         }
         case 3: {
-            Nst_buffer_append_c_str(&str_buf, "\\u");
+            Nst_sb_push_c(&sb, "\\u");
             u8 c1 = u8(s_val[i++]) & 0xf;
             u8 c2 = (u8(s_val[i]) >> 2) & 0xf;
             u8 c3 = ((u8(s_val[i]) & 0x3) << 2)
@@ -137,10 +138,10 @@ static void dump_str(Nst_Obj *str)
             u8 c4 = (u8)(s_val[i + 1]) & 0xf;
             i++;
 
-            Nst_buffer_append_char(&str_buf, hex_digits[c1]);
-            Nst_buffer_append_char(&str_buf, hex_digits[c2]);
-            Nst_buffer_append_char(&str_buf, hex_digits[c3]);
-            Nst_buffer_append_char(&str_buf, hex_digits[c4]);
+            Nst_sb_push_char(&sb, hex_digits[c1]);
+            Nst_sb_push_char(&sb, hex_digits[c2]);
+            Nst_sb_push_char(&sb, hex_digits[c3]);
+            Nst_sb_push_char(&sb, hex_digits[c4]);
             break;
         }
         case 4:
@@ -149,7 +150,7 @@ static void dump_str(Nst_Obj *str)
             FAIL;
         }
     }
-    Nst_buffer_append_char(&str_buf, '"');
+    Nst_sb_push_char(&sb, '"');
     DEC_RECURSION_LVL;
 }
 
@@ -162,11 +163,11 @@ static void dump_num(Nst_Obj *number)
 
     if (Nst_T(number, Byte)) {
         sprintf(loc_buf, "%i", AS_BYTE(number));
-        Nst_buffer_append_c_str(&str_buf, loc_buf);
+        Nst_sb_push_c(&sb, loc_buf);
         goto finish;
     } else if (Nst_T(number, Int)) {
         sprintf(loc_buf, "%lli", AS_INT(number));
-        Nst_buffer_append_c_str(&str_buf, loc_buf);
+        Nst_sb_push_c(&sb, loc_buf);
         goto finish;
     }
     val = AS_REAL(number);
@@ -178,11 +179,11 @@ static void dump_num(Nst_Obj *number)
         }
         if (isinf(val)) {
             if (val < 0)
-                Nst_buffer_append_c_str(&str_buf, "-Infinity");
+                Nst_sb_push_c(&sb, "-Infinity");
             else
-                Nst_buffer_append_c_str(&str_buf, "Infinity");
+                Nst_sb_push_c(&sb, "Infinity");
         } else
-            Nst_buffer_append_c_str(&str_buf, "NaN");
+            Nst_sb_push_c(&sb, "NaN");
         goto finish;
     }
     sprintf(loc_buf, "%.16lg", val);
@@ -195,7 +196,7 @@ static void dump_num(Nst_Obj *number)
     loc_buf[len++] = '0';
     loc_buf[len++] = '\0';
 add_buf:
-    Nst_buffer_append_c_str(&str_buf, loc_buf);
+    Nst_sb_push_c(&sb, loc_buf);
 
 finish:
     DEC_RECURSION_LVL;
@@ -204,21 +205,21 @@ finish:
 static void dump_seq(Nst_Obj *seq, i32 indent)
 {
     if (Nst_seq_len(seq) == 0) {
-        Nst_buffer_append_c_str(&str_buf, "[]");
+        Nst_sb_push_c(&sb, "[]");
         return;
     }
     INC_RECURSION_LVL;
 
-    Nst_buffer_append_char(&str_buf, '[');
+    Nst_sb_push_char(&sb, '[');
     EXCEPT_ERROR;
     indent_level++;
 
     if (indent > 1) {
-        Nst_buffer_expand_by(&str_buf, indent * indent_level + 1);
+        Nst_sb_reserve(&sb, indent * indent_level + 1);
         EXCEPT_ERROR;
-        Nst_buffer_append_char(&str_buf, '\n');
+        Nst_sb_push_char(&sb, '\n');
         for (i8 i = 0; i < indent * indent_level; i++)
-            Nst_buffer_append_char(&str_buf, ' ');
+            Nst_sb_push_char(&sb, ' ');
     }
 
     for (usize i = 0, n = Nst_seq_len(seq); i < n; i++) {
@@ -228,18 +229,18 @@ static void dump_seq(Nst_Obj *seq, i32 indent)
         if (i + 1 == n) {
             DEC_RECURSION_LVL;
             indent_level--;
-            Nst_buffer_expand_by(&str_buf, 1);
+            Nst_sb_reserve(&sb, 1);
             EXCEPT_ERROR;
             if (indent < 1) {
-                Nst_buffer_append_char(&str_buf, ']');
+                Nst_sb_push_char(&sb, ']');
                 return;
             }
-            Nst_buffer_append_char(&str_buf, '\n');
+            Nst_sb_push_char(&sb, '\n');
             add_indent(indent);
             EXCEPT_ERROR;
-            Nst_buffer_expand_by(&str_buf, 1);
+            Nst_sb_reserve(&sb, 1);
             EXCEPT_ERROR;
-            Nst_buffer_append_char(&str_buf, ']');
+            Nst_sb_push_char(&sb, ']');
             return;
         }
 
@@ -251,20 +252,20 @@ static void dump_seq(Nst_Obj *seq, i32 indent)
 static void dump_map(Nst_Obj *map, i32 indent)
 {
     if (Nst_map_len(map) == 0) {
-        Nst_buffer_append_c_str(&str_buf, "{}");
+        Nst_sb_push_c(&sb, "{}");
         return;
     }
     INC_RECURSION_LVL;
-    Nst_buffer_append_char(&str_buf, '{');
+    Nst_sb_push_char(&sb, '{');
     EXCEPT_ERROR;
     indent_level++;
 
     if (indent > 1) {
-        Nst_buffer_expand_by(&str_buf, indent * indent_level + 1);
+        Nst_sb_reserve(&sb, indent * indent_level + 1);
         EXCEPT_ERROR;
-        Nst_buffer_append_char(&str_buf, '\n');
+        Nst_sb_push_char(&sb, '\n');
         for (i8 i = 0; i < indent * indent_level; i++)
-            Nst_buffer_append_char(&str_buf, ' ');
+            Nst_sb_push_char(&sb, ' ');
     }
 
     usize count = 0;
@@ -285,9 +286,9 @@ static void dump_map(Nst_Obj *map, i32 indent)
         EXCEPT_ERROR;
 
         if (indent == -1)
-            Nst_buffer_append_char(&str_buf, ':');
+            Nst_sb_push_char(&sb, ':');
         else
-            Nst_buffer_append_c_str(&str_buf, ": ");
+            Nst_sb_push_c(&sb, ": ");
         EXCEPT_ERROR;
 
         dump_obj(value, indent);
@@ -297,15 +298,15 @@ static void dump_map(Nst_Obj *map, i32 indent)
             DEC_RECURSION_LVL;
             indent_level--;
             if (indent < 1) {
-                Nst_buffer_append_char(&str_buf, '}');
+                Nst_sb_push_char(&sb, '}');
                 return;
             } else {
-                Nst_buffer_append_char(&str_buf, '\n');
+                Nst_sb_push_char(&sb, '\n');
                 EXCEPT_ERROR;
             }
             add_indent(indent);
             EXCEPT_ERROR;
-            Nst_buffer_append_char(&str_buf, '}');
+            Nst_sb_push_char(&sb, '}');
             return;
         }
 
@@ -318,15 +319,15 @@ static void add_comma(i32 indent)
 {
     INC_RECURSION_LVL;
     if (indent == -1)
-        Nst_buffer_expand_by(&str_buf, 1);
+        Nst_sb_reserve(&sb, 1);
     else
-        Nst_buffer_expand_by(&str_buf, 2);
+        Nst_sb_reserve(&sb, 2);
     EXCEPT_ERROR;
-    Nst_buffer_append_char(&str_buf, ',');
+    Nst_sb_push_char(&sb, ',');
     if (indent == 0)
-        Nst_buffer_append_char(&str_buf, ' ');
+        Nst_sb_push_char(&sb, ' ');
     else if (indent > 0) {
-        Nst_buffer_append_char(&str_buf, '\n');
+        Nst_sb_push_char(&sb, '\n');
         add_indent(indent);
     }
     DEC_RECURSION_LVL;
@@ -335,9 +336,9 @@ static void add_comma(i32 indent)
 static void add_indent(i32 indent)
 {
     INC_RECURSION_LVL;
-    Nst_buffer_expand_by(&str_buf, indent * indent_level);
+    Nst_sb_reserve(&sb, indent * indent_level);
     EXCEPT_ERROR;
     for (i32 i = 0; i < indent * indent_level; i++)
-        Nst_buffer_append_char(&str_buf, ' ');
+        Nst_sb_push_char(&sb, ' ');
     DEC_RECURSION_LVL;
 }

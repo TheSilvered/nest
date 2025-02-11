@@ -1,7 +1,7 @@
 /**
  * @file str.h
  *
- * @brief Nst_StrObj interface
+ * @brief Nest `Str` object interface
  *
  * @author TheSilvered
  */
@@ -20,15 +20,6 @@
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
-
-NstEXP typedef struct _Nst_StrView {
-    i8 *value;
-    usize len;
-} Nst_StrView;
-
-NstEXP Nst_StrView NstC Nst_sv_new(i8 *value, usize len);
-NstEXP Nst_StrView NstC Nst_sv_new_c(const i8 *value);
-NstEXP Nst_StrView NstC Nst_sv_from_str(Nst_Obj *str);
 
 Nst_Obj *NstC _Nst_str_new_no_err(const i8 *val);
 
@@ -76,8 +67,6 @@ NstEXP Nst_Obj *NstC Nst_str_new(i8 *val, usize len, bool allocated);
  * @return The new string on success and `NULL` on failure. The error is set.
  */
 NstEXP Nst_Obj *NstC Nst_str_new_allocated(i8 *val, usize len);
-
-NstEXP Nst_Obj *NstC Nst_str_from_sv(Nst_StrView sv);
 
 /**
  * Creates a new string object with known length.
@@ -145,8 +134,6 @@ NstEXP Nst_Obj *NstC Nst_str_get(Nst_Obj *str, i64 idx);
  */
 NstEXP isize NstC Nst_str_next(Nst_Obj *str, isize idx);
 
-NstEXP isize NstC Nst_sv_next(Nst_StrView sv, isize idx, u32 *ch);
-
 /**
  * Iterates over the characters of a string.
  *
@@ -156,7 +143,7 @@ NstEXP isize NstC Nst_sv_next(Nst_StrView sv, isize idx, u32 *ch);
  * @param str: the string to iterate
  * @param idx: the address to the current index of the iteration
  *
- * @return A `Nst_StrObj` that contains the character being iterated. It
+ * @return A `Str` object that contains the character being iterated. It
  * returns `NULL` when there are no more characters to iterate over or when an
  * error occurs. In case an error occurs `idx` is set to `Nst_STR_LOOP_ERROR`.
  */
@@ -209,7 +196,6 @@ NstEXP i32 NstC Nst_str_next_utf8(Nst_Obj *str, isize *idx, i8 *ch_buf);
  * @return The new int object or `NULL` on failure. The error is set.
  */
 NstEXP Nst_Obj *NstC Nst_str_parse_int(Nst_Obj *str, i32 base);
-NstEXP Nst_Obj *NstC Nst_sv_parse_int(Nst_StrView sv, i32 base);
 /**
  * Parses a Nst_ByteObj from a string.
  *
@@ -222,7 +208,6 @@ NstEXP Nst_Obj *NstC Nst_sv_parse_int(Nst_StrView sv, i32 base);
  * @return The new byte object or NULL on failure. The error is set.
  */
 NstEXP Nst_Obj *NstC Nst_str_parse_byte(Nst_Obj *str);
-NstEXP Nst_Obj *NstC Nst_sv_parse_byte(Nst_StrView sv);
 /**
  * Parses a `Nst_RealObj` from a string.
  *
@@ -235,7 +220,6 @@ NstEXP Nst_Obj *NstC Nst_sv_parse_byte(Nst_StrView sv);
  * @return The new real object or `NULL` on failure. The error is set.
  */
 NstEXP Nst_Obj *NstC Nst_str_parse_real(Nst_Obj *str);
-NstEXP Nst_Obj *NstC Nst_sv_parse_real(Nst_StrView sv);
 /* [docs:link strcmp <https://man7.org/linux/man-pages/man3/strcmp.3.html>] */
 /**
  * Compares two Nest strings, similarly to `strcmp` but takes into account
@@ -265,7 +249,7 @@ NstEXP void NstC _Nst_str_destroy(Nst_Obj *str);
  * @return The pointer to the start of `s1` or `NULL` if the string could not
  * be found. No error is set.
  */
-NstEXP i8 *NstC Nst_str_find(i8 *s1, usize l1, i8 *s2, usize l2);
+NstEXP i8 *NstC Nst_str_lfind(i8 *s1, usize l1, i8 *s2, usize l2);
 /**
  * Finds the first occurrence of a substring inside a string starting from the
  * right.
@@ -283,11 +267,14 @@ NstEXP i8 *NstC Nst_str_find(i8 *s1, usize l1, i8 *s2, usize l2);
  */
 NstEXP i8 *NstC Nst_str_rfind(i8 *s1, usize l1, i8 *s2, usize l2);
 
+/* Get the value of a Nest `Str` object. */
 NstEXP i8 *NstC Nst_str_value(Nst_Obj *str);
+/* Get the length in bytes of the value of a Nest `Str` object. */
 NstEXP usize NstC Nst_str_len(Nst_Obj *str);
-NstEXP usize NstC Nst_str_ch_len(Nst_Obj *str);
+/* Get the number of characters in a Nest `Str` object. */
+NstEXP usize NstC Nst_str_char_len(Nst_Obj *str);
 
-/* `Nst_StrObj`-specific flags. */
+/* Flags for `Str` objects. */
 NstEXP typedef enum _Nst_StrFlags {
     Nst_FLAG_STR_IS_ALLOC  = Nst_FLAG(1),
     Nst_FLAG_STR_IS_ASCII  = Nst_FLAG(2),

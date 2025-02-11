@@ -13,7 +13,8 @@
 extern "C" {
 #endif // !__cplusplus
 
-#include "str.h"
+#include "obj.h"
+#include "str_view.h"
 
 /* Casts `ptr` to `Nst_TypeObj *`. */
 #define TYPE(ptr) ((Nst_TypeObj *)(ptr))

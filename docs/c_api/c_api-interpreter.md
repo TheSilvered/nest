@@ -318,13 +318,12 @@ Returns a pointer to the global
 **Synopsis:**
 
 ```better-c
-i32 Nst_chdir(Nst_StrObj *str)
+i32 Nst_chdir(Nst_Obj *str)
 ```
 
 **Description:**
 
-Changes the current working directory using a
-[`Nst_StrObj`](c_api-str.md#nst_strobj).
+Changes the current working directory using a Nest `Str` object.
 
 **Returns:**
 
@@ -337,12 +336,12 @@ Changes the current working directory using a
 **Synopsis:**
 
 ```better-c
-Nst_StrObj *Nst_getcwd(void)
+Nst_Obj *Nst_getcwd(void)
 ```
 
 **Description:**
 
-Gets the current working directory as a [`Nst_StrObj`](c_api-str.md#nst_strobj).
+Gets the current working directory as a Nest `Str` object.
 
 **Returns:**
 

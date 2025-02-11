@@ -20,8 +20,8 @@ typedef struct _Nst_ExecutionState {
     Nst_VarTable *vt;
     i64 idx;
     Nst_Obj *argv;
-    Nst_StrObj *curr_path;
-    Nst_StrObj *source_path;
+    Nst_Obj *curr_path;
+    Nst_Obj *source_path;
     Nst_ValueStack v_stack;
     Nst_CallStack  f_stack;
     Nst_CatchStack c_stack;
@@ -168,7 +168,7 @@ occurred, to check use
 **Synopsis:**
 
 ```better-c
-void Nst_es_set_cwd(Nst_ExecutionState *es, Nst_StrObj *cwd)
+void Nst_es_set_cwd(Nst_ExecutionState *es, Nst_Obj *cwd)
 ```
 
 **Description:**

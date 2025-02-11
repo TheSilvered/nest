@@ -6,6 +6,7 @@
 #include "obj_ops.h"
 #include "format.h"
 #include "mem.h"
+#include "str_builder.h"
 
 /*
 
@@ -537,33 +538,33 @@ content_check:
     return true;
 }
 
-static bool append_type(Nst_StrView *type, Nst_Buffer *buf, usize tot_types)
+static bool append_type(Nst_StrView type, Nst_StrBuilder *sb, usize tot_types)
 {
-    if (!Nst_buffer_expand_by(buf, type->len + 6)) {
+    if (!Nst_sb_reserve(sb, type.len + 6)) {
         Nst_error_clear();
         return false;
     }
 
-    Nst_buffer_append_char(buf, '\'');
-    Nst_buffer_append_str(buf, type->value, type->len);
-    Nst_buffer_append_char(buf, '\'');
+    Nst_sb_push(sb, "'", 1);
+    Nst_sb_push_sv(sb, type);
+    Nst_sb_push(sb, "'", 1);
 
     switch (tot_types) {
     case 0:
-        Nst_buffer_append_char(buf, ' ');
+        Nst_sb_push(sb, " ", 1);
         break;
     case 1:
-        Nst_buffer_append_c_str(buf, " or ");
+        Nst_sb_push_c(sb, " or ");
         break;
     default:
-        Nst_buffer_append_c_str(buf, ", ");
+        Nst_sb_push_c(sb, ", ");
         break;
     }
 
     return true;
 }
 
-static bool append_types(MatchType *type, Nst_Buffer *buf)
+static bool append_types(MatchType *type, Nst_StrBuilder *sb)
 {
     u16 accepted_types = type->accepted_types;
     usize tot_types = 0;
@@ -593,23 +594,23 @@ static bool append_types(MatchType *type, Nst_Buffer *buf)
         case 11: type_str = Nst_t.Func; break;
         default: type_str = Nst_t.Type; break;
         }
-        if (!append_type(&type_str->name, buf, tot_types))
+        if (!append_type(type_str->name, sb, tot_types))
             return false;
     }
 
     for (usize i = 0, n = type->custom_types_size; i < n; i++) {
         type_str = type->custom_types[i];
         tot_types--;
-        if (!append_type(&type_str->name, buf, tot_types))
+        if (!append_type(type_str->name, sb, tot_types))
             return false;
     }
 
     if (type->seq_match != NULL) {
-        if (!Nst_buffer_append_c_str(buf, "containing only ")) {
+        if (!Nst_sb_push_c(sb, "containing only ")) {
             Nst_error_clear();
             return false;
         }
-        return append_types(type->seq_match, buf);
+        return append_types(type->seq_match, sb);
     }
     return true;
 }
@@ -623,16 +624,16 @@ static void set_err(MatchType *type, Nst_Obj *ob, usize idx)
     } else
         fmt = "expected type %sfor argument %zi but got type '%s' instead";
 
-    Nst_Buffer buf;
-    if (!Nst_buffer_init(&buf, 256) || !append_types(type, &buf)) {
+    Nst_StrBuilder sb;
+    if (!Nst_sb_init(&sb, 256) || !append_types(type, &sb)) {
         Nst_error_clear();
-        Nst_buffer_destroy(&buf);
+        Nst_sb_destroy(&sb);
         Nst_failed_allocation();
         return;
     }
 
-    Nst_Obj *str = Nst_sprintf(fmt, buf.data, idx, ob->type->name.value);
-    Nst_buffer_destroy(&buf);
+    Nst_Obj *str = Nst_sprintf(fmt, sb.value, idx, ob->type->name.value);
+    Nst_sb_destroy(&sb);
     Nst_set_type_error(str);
 }
 
@@ -645,8 +646,7 @@ static void free_type_match(MatchType *type)
     Nst_free(type);
 }
 
-bool Nst_extract_args(const i8 *types, usize arg_num, Nst_Obj **args,
-                            ...)
+bool Nst_extract_args(const i8 *types, usize arg_num, Nst_Obj **args, ...)
 {
     va_list args_list;
     va_start(args_list, args);

@@ -2,6 +2,8 @@
 #include <string.h>
 #include "mem.h"
 #include "sequence.h" // _Nst_VECTOR_GROWTH_RATIO, _Nst_VECTOR_MIN_CAP
+#include "global_consts.h"
+#include "interpreter.h"
 
 #ifdef Nst_DBG_COUNT_ALLOC
 
@@ -323,124 +325,4 @@ void Nst_sbuffer_destroy(Nst_SBuffer *buf)
     buf->cap = 0;
     buf->len = 0;
     buf->unit_size = 0;
-}
-
-bool Nst_buffer_init(Nst_Buffer *buf, usize initial_size)
-{
-    if (!Nst_sbuffer_init((Nst_SBuffer *)buf, sizeof(i8), initial_size))
-        return false;
-
-    if (initial_size > 0)
-        buf->data[0] = '\0';
-
-    return true;
-}
-
-bool Nst_buffer_expand_by(Nst_Buffer *buf, usize amount)
-{
-    return Nst_sbuffer_expand_to((Nst_SBuffer *)buf, buf->len + amount + 1);
-}
-
-bool Nst_buffer_expand_to(Nst_Buffer *buf, usize size)
-{
-    return Nst_sbuffer_expand_to((Nst_SBuffer *)buf, size + 1);
-}
-
-void Nst_buffer_fit(Nst_Buffer *buf)
-{
-    if ((buf->cap - buf->len) * buf->unit_size < sizeof(usize))
-        return;
-
-    buf->data = Nst_realloc(buf->data, buf->len + 1, buf->unit_size, buf->cap);
-    buf->cap = buf->len + 1;
-}
-
-bool Nst_buffer_append(Nst_Buffer *buf, Nst_Obj *str)
-{
-    usize str_len = Nst_str_len(str);
-    if (!Nst_buffer_expand_by(buf, str_len))
-        return false;
-
-    memcpy(buf->data + buf->len, Nst_str_value(str), str_len + 1);
-    buf->len += str_len;
-    return true;
-}
-
-bool Nst_buffer_append_c_str(Nst_Buffer *buf, const i8 *str)
-{
-    if (*str == 0)
-        return true;
-
-    usize str_len = strlen(str);
-    if (!Nst_buffer_expand_by(buf, str_len))
-        return false;
-
-    memcpy(buf->data + buf->len, str, str_len + 1);
-    buf->len += str_len;
-    return true;
-}
-
-bool Nst_buffer_append_str(Nst_Buffer *buf, i8 *str, usize len)
-{
-    if (!Nst_buffer_expand_by(buf, len))
-        return false;
-    memcpy(buf->data + buf->len, str, len);
-    buf->len += len;
-    buf->data[buf->len] = '\0';
-    return true;
-}
-
-bool Nst_buffer_append_char(Nst_Buffer *buf, i8 ch)
-{
-    if (!Nst_buffer_expand_by(buf, 1))
-        return false;
-
-    buf->data[buf->len++] = ch;
-    buf->data[buf->len] = '\0';
-    return true;
-}
-
-bool NstC Nst_buffer_append_cps(Nst_Buffer *buf, u32 *cps, usize count)
-{
-    for (usize i = 0; i < count; i++) {
-        u32 cp = cps[i];
-        if (!Nst_buffer_expand_by(buf, Nst_ENCODING_MULTIBYTE_MAX_SIZE))
-            return false;
-        usize expanded_size = Nst_ext_utf8_from_utf32(
-            cp,
-            (u8 *)buf->data + buf->len);
-        buf->len += expanded_size;
-        buf->data[buf->len] = '\0';
-    }
-    return true;
-}
-
-Nst_Obj *Nst_buffer_to_string(Nst_Buffer *buf)
-{
-    Nst_buffer_fit(buf);
-    Nst_Obj *str = Nst_str_new(buf->data, buf->len, true);
-    if (str == NULL)
-        Nst_free(buf->data);
-    buf->data = NULL;
-    buf->cap = 0;
-    buf->len = 0;
-    return str;
-}
-
-bool Nst_buffer_copy(Nst_Buffer *src, Nst_Buffer *dst)
-{
-    void *new_data = Nst_calloc(1, src->len + 1, src->data);
-    if (new_data == NULL)
-        return false;
-
-    dst->cap = src->len;
-    dst->len = src->len;
-    dst->unit_size = src->unit_size;
-    dst->data = new_data;
-    return true;
-}
-
-void Nst_buffer_destroy(Nst_Buffer *buf)
-{
-    Nst_sbuffer_destroy((Nst_SBuffer *)buf);
 }

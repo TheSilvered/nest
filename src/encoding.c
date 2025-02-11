@@ -3,6 +3,7 @@
 #include <ctype.h>
 #include "encoding.h"
 #include "mem.h"
+#include "str_builder.h"
 #include "lib_import.h"
 #include "format.h"
 
@@ -1748,8 +1749,8 @@ bool Nst_encoding_translate(Nst_Encoding *from, Nst_Encoding *to,
         return true;
     }
 
-    Nst_Buffer buf;
-    if (!Nst_buffer_init(&buf, from_len * to->mult_min_sz + 40 + to->bom_size))
+    Nst_StrBuilder sb;
+    if (!Nst_sb_init(&sb, from_len * to->mult_min_sz + 40 + to->bom_size))
         return false;
 
     // skip BOM of initial string
@@ -1765,7 +1766,7 @@ bool Nst_encoding_translate(Nst_Encoding *from, Nst_Encoding *to,
         // Decode character
         i32 ch_len = from->check_bytes(from_buf, n);
         if (ch_len < 0) {
-            Nst_buffer_destroy(&buf);
+            Nst_sb_destroy(&sb);
             Nst_set_value_errorf(
                 _Nst_EM_INVALID_ENCODING,
                 *(u8 *)from_buf, from->name);
@@ -1777,28 +1778,28 @@ bool Nst_encoding_translate(Nst_Encoding *from, Nst_Encoding *to,
         n -= ch_len;
 
         // Re-encode character
-        if (!Nst_buffer_expand_by(&buf, to->mult_max_sz + to->ch_size)) {
-            Nst_buffer_destroy(&buf);
+        if (!Nst_sb_reserve(&sb, to->mult_max_sz + to->ch_size)) {
+            Nst_sb_destroy(&sb);
             return false;
         }
-        ch_len = to->from_utf32(utf32_ch, buf.data + buf.len);
+        ch_len = to->from_utf32(utf32_ch, sb.value + sb.len);
         if (ch_len < 0) {
-            Nst_buffer_destroy(&buf);
+            Nst_sb_destroy(&sb);
             Nst_set_value_errorf(
                 _Nst_EM_INVALID_DECODING,
                 (int)utf32_ch, from->name);
         }
-        buf.len += ch_len * to->ch_size;
+        sb.len += ch_len * to->ch_size;
     }
-    if (!Nst_buffer_expand_by(&buf, to->ch_size)) {
-        Nst_buffer_destroy(&buf);
+    if (!Nst_sb_reserve(&sb, to->ch_size)) {
+        Nst_sb_destroy(&sb);
         return false;
     }
-    memset(buf.data + buf.len, 0, to->ch_size);
+    memset(sb.value + sb.len, 0, to->ch_size);
 
-    *to_buf = buf.data;
+    *to_buf = sb.value;
     if (to_len != NULL)
-        *to_len = buf.len;
+        *to_len = sb.len;
     return true;
 }
 
@@ -1817,7 +1818,7 @@ isize Nst_encoding_check(Nst_Encoding *encoding, void *str, usize str_len)
     return -1;
 }
 
-isize Nst_str_char_len(Nst_Encoding *encoding, void *str, usize str_len)
+isize Nst_encoding_char_len(Nst_Encoding *encoding, void *str, usize str_len)
 {
     Nst_CheckBytesFunc encoding_check_bytes = encoding->check_bytes;
     usize encoding_ch_size = encoding->ch_size;
@@ -1838,7 +1839,7 @@ isize Nst_str_char_len(Nst_Encoding *encoding, void *str, usize str_len)
     return len;
 }
 
-usize Nst_str_utf8_char_len(u8 *str, usize str_len)
+usize Nst_encoding_utf8_char_len(u8 *str, usize str_len)
 {
     usize len = 0;
     u8 *s_end = str + str_len;
