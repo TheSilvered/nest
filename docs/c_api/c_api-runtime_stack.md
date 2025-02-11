@@ -8,23 +8,6 @@ TheSilvered
 
 ---
 
-## Macros
-
-### `Nst_vstack_push`
-
-**Synopsis:**
-
-```better-c
-#define Nst_vstack_push(v_stack, val)
-```
-
-**Description:**
-
-Alias for [`_Nst_vstack_push`](c_api-runtime_stack.md#_nst_vstack_push) that
-casts val to [`Nst_Obj *`](c_api-obj.md#nst_obj).
-
----
-
 ## Structs
 
 ### `Nst_ValueStack`
@@ -206,12 +189,12 @@ Initializes a value stack.
 
 ---
 
-### `_Nst_vstack_push`
+### `Nst_vstack_push`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_vstack_push(Nst_ValueStack *v_stack, Nst_Obj *obj)
+bool Nst_vstack_push(Nst_ValueStack *v_stack, Nst_Obj *obj)
 ```
 
 **Description:**

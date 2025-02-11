@@ -96,7 +96,7 @@ bool Nst_obj_ne_c(Nst_Obj *ob1, Nst_Obj *ob2)
 }
 
 // Comparisons
-Nst_Obj *_Nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_Obj *Nst_obj_eq(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ob1 == ob2)
         Nst_RETURN_TRUE;
@@ -245,7 +245,7 @@ static Nst_Obj *map_eq(Nst_Obj *map1, Nst_Obj *map2,
     Nst_RETURN_TRUE;
 }
 
-Nst_Obj *_Nst_obj_ne(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_Obj *Nst_obj_ne(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (Nst_obj_eq(ob1, ob2) == Nst_c.Bool_true) {
         Nst_dec_ref(Nst_c.Bool_true);
@@ -256,7 +256,7 @@ Nst_Obj *_Nst_obj_ne(Nst_Obj *ob1, Nst_Obj *ob2)
     }
 }
 
-Nst_Obj *_Nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_Obj *Nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ARE_TYPE(Nst_t.Str))
         Nst_RETURN_BOOL(Nst_str_compare(ob1, ob2) > 0);
@@ -276,7 +276,7 @@ Nst_Obj *_Nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2)
         RETURN_STACK_OP_TYPE_ERROR(">");
 }
 
-Nst_Obj *_Nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_Obj *Nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ARE_TYPE(Nst_t.Str))
         Nst_RETURN_BOOL(Nst_str_compare(ob1, ob2) < 0);
@@ -296,7 +296,7 @@ Nst_Obj *_Nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2)
         RETURN_STACK_OP_TYPE_ERROR("<");
 }
 
-Nst_Obj *_Nst_obj_ge(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_Obj *Nst_obj_ge(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     Nst_Obj *res = Nst_obj_eq(ob1, ob2);
     if (res == NULL)
@@ -315,7 +315,7 @@ Nst_Obj *_Nst_obj_ge(Nst_Obj *ob1, Nst_Obj *ob2)
     return res;
 }
 
-Nst_Obj *_Nst_obj_le(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_Obj *Nst_obj_le(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     Nst_Obj *res = Nst_obj_eq(ob1, ob2);
     if (res == Nst_c.Bool_true)
@@ -335,7 +335,7 @@ Nst_Obj *_Nst_obj_le(Nst_Obj *ob1, Nst_Obj *ob2)
 }
 
 // Arithmetic operations
-Nst_Obj *_Nst_obj_add(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_Obj *Nst_obj_add(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ob1->type == Nst_t.Vector) {
         if (!Nst_vector_append(ob1, ob2))
@@ -355,7 +355,7 @@ Nst_Obj *_Nst_obj_add(Nst_Obj *ob1, Nst_Obj *ob2)
         RETURN_STACK_OP_TYPE_ERROR("+");
 }
 
-Nst_Obj *_Nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_Obj *Nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ob1->type == Nst_t.Vector) {
         Nst_vector_remove(ob1, ob2);
@@ -385,7 +385,7 @@ Nst_Obj *_Nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2)
         RETURN_STACK_OP_TYPE_ERROR("-");
 }
 
-Nst_Obj *_Nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_Obj *Nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ob1->type == Nst_t.Vector && ob2->type == Nst_t.Int) {
         if (AS_INT(ob2) == 0)
@@ -414,7 +414,7 @@ Nst_Obj *_Nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2)
         RETURN_STACK_OP_TYPE_ERROR("*");
 }
 
-Nst_Obj *_Nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_Obj *Nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ob1->type == Nst_t.Vector && ob2->type == Nst_t.Int)
         return Nst_vector_pop(ob1, (usize)AS_INT(ob2));
@@ -479,7 +479,7 @@ static i64 fast_int_pow(i64 base, i64 exp)
     }
 }
 
-Nst_Obj *_Nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_Obj *Nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ARE_TYPE(Nst_t.Byte)) {
         u8 base = AS_BYTE(ob1);
@@ -508,7 +508,7 @@ Nst_Obj *_Nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2)
         RETURN_STACK_OP_TYPE_ERROR("^");
 }
 
-Nst_Obj *_Nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_Obj *Nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ARE_TYPE(Nst_t.Byte)) {
         if (AS_BYTE(ob2) == 0) {
@@ -542,7 +542,7 @@ Nst_Obj *_Nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2)
 }
 
 // Bitwise operations
-Nst_Obj *_Nst_obj_bwor(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_Obj *Nst_obj_bwor(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ARE_TYPE(Nst_t.Byte))
         return Nst_byte_new(AS_BYTE(ob1) | AS_BYTE(ob2));
@@ -554,7 +554,7 @@ Nst_Obj *_Nst_obj_bwor(Nst_Obj *ob1, Nst_Obj *ob2)
         RETURN_STACK_OP_TYPE_ERROR("|");
 }
 
-Nst_Obj *_Nst_obj_bwand(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_Obj *Nst_obj_bwand(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ARE_TYPE(Nst_t.Byte))
         return Nst_byte_new(AS_BYTE(ob1) & AS_BYTE(ob2));
@@ -566,7 +566,7 @@ Nst_Obj *_Nst_obj_bwand(Nst_Obj *ob1, Nst_Obj *ob2)
         RETURN_STACK_OP_TYPE_ERROR("&");
 }
 
-Nst_Obj *_Nst_obj_bwxor(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_Obj *Nst_obj_bwxor(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ARE_TYPE(Nst_t.Byte))
         return Nst_byte_new(AS_BYTE(ob1) ^ AS_BYTE(ob2));
@@ -578,7 +578,7 @@ Nst_Obj *_Nst_obj_bwxor(Nst_Obj *ob1, Nst_Obj *ob2)
         RETURN_STACK_OP_TYPE_ERROR("^^");
 }
 
-Nst_Obj *_Nst_obj_bwls(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_Obj *Nst_obj_bwls(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ARE_TYPE(Nst_t.Byte))
         return Nst_byte_new(AS_BYTE(ob1) << AS_BYTE(ob2));
@@ -590,7 +590,7 @@ Nst_Obj *_Nst_obj_bwls(Nst_Obj *ob1, Nst_Obj *ob2)
         RETURN_STACK_OP_TYPE_ERROR("<<");
 }
 
-Nst_Obj *_Nst_obj_bwrs(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_Obj *Nst_obj_bwrs(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ARE_TYPE(Nst_t.Byte))
         return Nst_byte_new(AS_BYTE(ob1) >> AS_BYTE(ob2));
@@ -603,7 +603,7 @@ Nst_Obj *_Nst_obj_bwrs(Nst_Obj *ob1, Nst_Obj *ob2)
 }
 
 // Logical operations
-Nst_Obj *_Nst_obj_lgor(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_Obj *Nst_obj_lgor(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (Nst_obj_to_bool(ob1))
         return Nst_inc_ref(ob1);
@@ -611,7 +611,7 @@ Nst_Obj *_Nst_obj_lgor(Nst_Obj *ob1, Nst_Obj *ob2)
         return Nst_inc_ref(ob2);
 }
 
-Nst_Obj *_Nst_obj_lgand(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_Obj *Nst_obj_lgand(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (!Nst_obj_to_bool(ob1))
         return Nst_inc_ref(ob1);
@@ -619,7 +619,7 @@ Nst_Obj *_Nst_obj_lgand(Nst_Obj *ob1, Nst_Obj *ob2)
         return Nst_inc_ref(ob2);
 }
 
-Nst_Obj *_Nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_Obj *Nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     bool v1 = Nst_obj_to_bool(ob1);
     bool v2 = Nst_obj_to_bool(ob2);
@@ -1030,7 +1030,7 @@ static Nst_Obj *iter_to_seq(Nst_Obj *ob, bool is_vect)
     }
 
     if (is_vect)
-        return OBJ(seq);
+        return seq;
 
     seq->type = TYPE(Nst_inc_ref(Nst_t.Array));
     Nst_dec_ref(Nst_t.Vector);
@@ -1087,7 +1087,7 @@ static Nst_Obj *str_to_iter(Nst_Obj *ob)
     return Nst_iter_new(
         Nst_itf.str_start,
         Nst_itf.str_next,
-        OBJ(data));
+        data);
 }
 
 static Nst_Obj *seq_to_iter(Nst_Obj *ob)
@@ -1101,7 +1101,7 @@ static Nst_Obj *seq_to_iter(Nst_Obj *ob)
     return Nst_iter_new(
         Nst_itf.seq_start,
         Nst_itf.seq_next,
-        OBJ(data));
+        data);
 }
 
 static Nst_Obj *map_to_iter(Nst_Obj *ob)
@@ -1115,7 +1115,7 @@ static Nst_Obj *map_to_iter(Nst_Obj *ob)
     return Nst_iter_new(
         Nst_itf.map_start,
         Nst_itf.map_next,
-        OBJ(data));
+        data);
 }
 
 static Nst_Obj *obj_to_iter(Nst_Obj *ob)
@@ -1195,7 +1195,7 @@ static Nst_Obj *iter_to_map(Nst_Obj *ob)
         if (result == NULL) {
             Nst_dec_ref(map);
             return NULL;
-        } else if (OBJ(result) == Nst_c.IEnd_iend) {
+        } else if (result == Nst_c.IEnd_iend) {
             Nst_dec_ref(result);
             break;
         }
@@ -1250,7 +1250,7 @@ static Nst_Obj *obj_to_map(Nst_Obj *ob)
     RETURN_CAST_TYPE_ERROR(Nst_t.Map);
 }
 
-Nst_Obj *_Nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type)
+Nst_Obj *Nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type)
 {
     if (ob->type == type)
         return Nst_inc_ref(ob);
@@ -1274,7 +1274,7 @@ Nst_Obj *_Nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type)
     RETURN_CAST_TYPE_ERROR(type);
 }
 
-Nst_Obj *_Nst_obj_contains(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_Obj *Nst_obj_contains(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ob1->type == Nst_t.Array || ob1->type == Nst_t.Vector) {
         Nst_Obj **objs = _Nst_seq_objs(ob1);
@@ -1303,7 +1303,7 @@ Nst_Obj *_Nst_obj_contains(Nst_Obj *ob1, Nst_Obj *ob2)
         RETURN_STACK_OP_TYPE_ERROR("<.>");
 }
 
-Nst_Obj *_Nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2)
+Nst_Obj *Nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     ob1 = Nst_obj_cast(ob1, Nst_t.Str);
     ob2 = Nst_obj_cast(ob2, Nst_t.Str);
@@ -1337,7 +1337,7 @@ Nst_Obj *_Nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2)
     return new_obj;
 }
 
-Nst_Obj *_Nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step)
+Nst_Obj *Nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step)
 {
     if (start->type != Nst_t.Int) {
         Nst_set_type_errorf(
@@ -1378,7 +1378,7 @@ Nst_Obj *_Nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step)
 }
 
 // Local operations
-Nst_Obj *_Nst_obj_neg(Nst_Obj *ob)
+Nst_Obj *Nst_obj_neg(Nst_Obj *ob)
 {
     if (ob->type == Nst_t.Byte)
         return Nst_byte_new(-AS_BYTE(ob));
@@ -1390,7 +1390,7 @@ Nst_Obj *_Nst_obj_neg(Nst_Obj *ob)
         RETURN_LOCAL_OP_TYPE_ERROR("-:");
 }
 
-Nst_Obj *_Nst_obj_len(Nst_Obj *ob)
+Nst_Obj *Nst_obj_len(Nst_Obj *ob)
 {
     if (ob->type == Nst_t.Str)
         return Nst_int_new(Nst_str_char_len(ob));
@@ -1404,7 +1404,7 @@ Nst_Obj *_Nst_obj_len(Nst_Obj *ob)
         RETURN_LOCAL_OP_TYPE_ERROR("$");
 }
 
-Nst_Obj *_Nst_obj_bwnot(Nst_Obj *ob)
+Nst_Obj *Nst_obj_bwnot(Nst_Obj *ob)
 {
     if (ob->type == Nst_t.Byte)
         return Nst_byte_new(~AS_BYTE(ob));
@@ -1414,7 +1414,7 @@ Nst_Obj *_Nst_obj_bwnot(Nst_Obj *ob)
         RETURN_LOCAL_OP_TYPE_ERROR("~");
 }
 
-Nst_Obj *_Nst_obj_lgnot(Nst_Obj *ob)
+Nst_Obj *Nst_obj_lgnot(Nst_Obj *ob)
 {
     if (Nst_obj_to_bool(ob))
         Nst_RETURN_FALSE;
@@ -1422,7 +1422,7 @@ Nst_Obj *_Nst_obj_lgnot(Nst_Obj *ob)
         Nst_RETURN_TRUE;
 }
 
-Nst_Obj *_Nst_obj_stdout(Nst_Obj *ob)
+Nst_Obj *Nst_obj_stdout(Nst_Obj *ob)
 {
     if (Nst_IOF_IS_CLOSED(Nst_io.out))
         return Nst_inc_ref(ob);
@@ -1482,7 +1482,7 @@ static inline i8 get_one_char(i8 *ch)
         return false;
 }
 
-Nst_Obj *_Nst_obj_stdin(Nst_Obj *ob)
+Nst_Obj *Nst_obj_stdin(Nst_Obj *ob)
 {
     if (Nst_IOF_IS_CLOSED(Nst_io.in))
         return Nst_str_new_c("", 0, false);
@@ -1512,12 +1512,12 @@ Nst_Obj *_Nst_obj_stdin(Nst_Obj *ob)
     return Nst_str_from_sb(&sb);
 }
 
-Nst_Obj *_Nst_obj_typeof(Nst_Obj *ob)
+Nst_Obj *Nst_obj_typeof(Nst_Obj *ob)
 {
     return Nst_inc_ref(ob->type);
 }
 
-Nst_Obj *_Nst_obj_import(Nst_Obj *ob)
+Nst_Obj *Nst_obj_import(Nst_Obj *ob)
 {
     if (ob->type != Nst_t.Str) {
         Nst_set_type_errorf(
@@ -1559,7 +1559,7 @@ Nst_Obj *_Nst_obj_import(Nst_Obj *ob)
         }
     }
 
-    Nst_Obj *obj_map = Nst_map_get(Nst_state.lib_handles, OBJ(import_path));
+    Nst_Obj *obj_map = Nst_map_get(Nst_state.lib_handles, import_path);
     if (obj_map != NULL) {
         Nst_dec_ref(import_path);
         return obj_map;
@@ -1611,7 +1611,7 @@ static Nst_Obj *import_nest_lib(Nst_Obj *file_path)
         goto cleanup;
     }
     Nst_llist_pop(Nst_state.lib_paths);
-    return OBJ(map);
+    return map;
 
 cleanup:
     Nst_llist_pop(Nst_state.lib_paths);
@@ -1696,7 +1696,7 @@ static Nst_Obj *import_c_lib(Nst_Obj *file_path)
         return NULL;
     }
     Nst_llist_pop(Nst_state.lib_paths);
-    return OBJ(obj_map);
+    return obj_map;
 fail:
     lib_quit_func = (void (*)())dlsym(lib, "lib_quit");
     if (lib_quit_func)

@@ -8,38 +8,6 @@ TheSilvered
 
 ---
 
-## Macros
-
-### `Nst_vt_get`
-
-**Synopsis:**
-
-```better-c
-#define Nst_vt_get(vt, name)
-```
-
-**Description:**
-
-Alias of [`_Nst_vt_get`](c_api-var_table.md#_nst_vt_get) that casts `name` to
-[`Nst_Obj *`](c_api-obj.md#nst_obj).
-
----
-
-### `Nst_vt_set`
-
-**Synopsis:**
-
-```better-c
-#define Nst_vt_set(vt, name, val)
-```
-
-**Description:**
-
-Alias of [`_Nst_vt_set`](c_api-var_table.md#_nst_vt_set) that casts `name` and
-`val` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
-
----
-
 ## Structs
 
 ### `Nst_VarTable`
@@ -103,12 +71,12 @@ void Nst_vt_destroy(Nst_VarTable *vt)
 
 ---
 
-### `_Nst_vt_get`
+### `Nst_vt_get`
 
 **Synopsis:**
 
 ```better-c
-Nst_Obj *_Nst_vt_get(Nst_VarTable *vt, Nst_Obj *name)
+Nst_Obj *Nst_vt_get(Nst_VarTable *vt, Nst_Obj *name)
 ```
 
 **Description:**
@@ -128,12 +96,12 @@ table.
 
 ---
 
-### `_Nst_vt_set`
+### `Nst_vt_set`
 
 **Synopsis:**
 
 ```better-c
-bool _Nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val)
+bool Nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val)
 ```
 
 **Description:**

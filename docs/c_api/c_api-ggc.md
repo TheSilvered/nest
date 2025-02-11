@@ -56,21 +56,6 @@ Casts `obj` to [`Nst_GGCObj *`](c_api-ggc.md#nst_ggcobj).
 
 ---
 
-### `Nst_ggc_obj_reachable`
-
-**Synopsis:**
-
-```better-c
-#define Nst_ggc_obj_reachable(obj)
-```
-
-**Description:**
-
-Alias for [`_Nst_ggc_obj_reachable`](c_api-ggc.md#_nst_ggc_obj_reachable) that
-casts `obj` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
-
----
-
 ### `Nst_GGC_HEAD`
 
 **Description:**
@@ -243,12 +228,12 @@ Initializes the garbage collector of
 
 ---
 
-### `_Nst_ggc_obj_reachable`
+### `Nst_ggc_obj_reachable`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_ggc_obj_reachable(Nst_Obj *obj)
+void Nst_ggc_obj_reachable(Nst_Obj *obj)
 ```
 
 **Description:**

@@ -96,7 +96,7 @@ Nst_Obj *NstC shuffle_(usize arg_num, Nst_Obj **args)
         objs[idx] = obj;
     }
 
-    return OBJ(seq);
+    return seq;
 }
 
 Nst_Obj *NstC seed_(usize arg_num, Nst_Obj **args)

@@ -157,7 +157,7 @@ void GUI_PointPos_Destroy(GUI_PointPos *pos)
 void GUI_PointPos_Traverse(GUI_PointPos *pos)
 {
     if (!pos->is_abs)
-        Nst_ggc_obj_reachable(pos->rel.element);
+        Nst_ggc_obj_reachable(OBJ(pos->rel.element));
 }
 
 void GUI_PointPos_Value(GUI_PointPos *pos, int *x, int *y)
@@ -194,7 +194,7 @@ void GUI_XSidePos_Destroy(GUI_XSidePos *pos)
 void GUI_XSidePos_Traverse(GUI_XSidePos *pos)
 {
     if (!pos->is_abs)
-        Nst_ggc_obj_reachable(pos->rel.element);
+        Nst_ggc_obj_reachable(OBJ(pos->rel.element));
 }
 
 int GUI_XSidePos_Value(GUI_XSidePos *pos)
@@ -228,7 +228,7 @@ void GUI_YSidePos_Destroy(GUI_YSidePos *pos)
 void GUI_YSidePos_Traverse(GUI_YSidePos *pos)
 {
     if (!pos->is_abs)
-        Nst_ggc_obj_reachable(pos->rel.element);
+        Nst_ggc_obj_reachable(OBJ(pos->rel.element));
 }
 
 int GUI_YSidePos_Value(GUI_YSidePos *pos)

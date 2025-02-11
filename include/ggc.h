@@ -23,9 +23,6 @@
 /* Casts `obj` to `Nst_GGCObj *`. */
 #define GGC_OBJ(obj) ((Nst_GGCObj *)(obj))
 
-/* Alias for `_Nst_ggc_obj_reachable` that casts `obj` to `Nst_Obj *`. */
-#define Nst_ggc_obj_reachable(obj) _Nst_ggc_obj_reachable(OBJ(obj))
-
 /**
  * The macro to add support to the GGC to an object structure.
  *
@@ -105,7 +102,7 @@ NstEXP void NstC _Nst_ggc_delete_objs(void);
 /* Initializes the garbage collector of `Nst_state`. */
 NstEXP void NstC _Nst_ggc_init(void);
 /* Sets an `Nst_Obj` as reachable for the garbage collector. */
-NstEXP void NstC _Nst_ggc_obj_reachable(Nst_Obj *obj);
+NstEXP void NstC Nst_ggc_obj_reachable(Nst_Obj *obj);
 
 /* The flags of a garbage collector object. */
 NstEXP typedef enum _Nst_GGCFlags {

@@ -85,7 +85,7 @@ static Nst_Obj *parse_object(Nst_LList *tokens)
     if ((JSONTokenType)tok->type == JSON_RBRACE) {
         Nst_tok_destroy(tok);
         DEC_RECURSION_LVL;
-        return OBJ(map);
+        return map;
     }
 
     while (true) {
@@ -125,7 +125,7 @@ static Nst_Obj *parse_object(Nst_LList *tokens)
         if ((JSONTokenType)tok->type == JSON_RBRACE) {
             Nst_tok_destroy(tok);
             DEC_RECURSION_LVL;
-            return OBJ(map);
+            return map;
         } else if ((JSONTokenType)tok->type == JSON_COMMA) {
             Nst_tok_destroy(tok);
             tok = Nst_TOK(Nst_llist_pop(tokens));
@@ -139,7 +139,7 @@ static Nst_Obj *parse_object(Nst_LList *tokens)
         if ((JSONTokenType)tok->type == JSON_RBRACE && trailing_commas) {
             Nst_tok_destroy(tok);
             DEC_RECURSION_LVL;
-            return OBJ(map);
+            return map;
         }
     }
 }
@@ -190,5 +190,5 @@ end:
     vec->type = TYPE(Nst_inc_ref(Nst_type()->Array));
     Nst_dec_ref(Nst_type()->Vector);
     DEC_RECURSION_LVL;
-    return OBJ(vec);
+    return vec;
 }

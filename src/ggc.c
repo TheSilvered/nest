@@ -224,7 +224,7 @@ void _Nst_ggc_init(void)
     Nst_state.ggc.old_gen_pending = 0;
 }
 
-void _Nst_ggc_obj_reachable(Nst_Obj *obj)
+void Nst_ggc_obj_reachable(Nst_Obj *obj)
 {
     if (Nst_HAS_FLAG(obj, Nst_FLAG_GGC_IS_SUPPORTED)) {
         Nst_SET_FLAG(obj, Nst_FLAG_GGC_REACHABLE);

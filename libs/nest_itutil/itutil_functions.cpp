@@ -213,7 +213,7 @@ Nst_Obj *NstC chain_next(usize arg_num, Nst_Obj **args)
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
     Nst_Obj *main_iter = c_args[0];
     Nst_Obj *current_iter = Nst_inc_ref(c_args[1]);
-    Nst_Obj *val = OBJ(current_iter) == Nst_null()
+    Nst_Obj *val = current_iter == Nst_null()
         ? Nst_iend_ref()
         : Nst_iter_next(current_iter);
 
@@ -300,7 +300,7 @@ Nst_Obj *NstC zipn_next(usize arg_num, Nst_Obj **args)
         Nst_seq_setnf(arr, i, res);
     }
 
-    return OBJ(arr);
+    return arr;
 }
 
 // ------------------------------- Enumerate ------------------------------- //
@@ -332,7 +332,7 @@ Nst_Obj *NstC enumerate_next(usize arg_num, Nst_Obj **args)
         arr = Nst_array_create_c("Io", idx, res);
 
     AS_INT(c_args[0]) += AS_INT(c_args[3]);
-    return OBJ(arr);
+    return arr;
 }
 
 // ----------------------------- Keys & values ----------------------------- //

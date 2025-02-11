@@ -150,40 +150,40 @@ InstResult (*inst_func[])() = {
 };
 
 Nst_Obj *(*stack_op_func[])(Nst_Obj *, Nst_Obj *) = {
-    [Nst_TT_ADD]      = _Nst_obj_add,
-    [Nst_TT_SUB]      = _Nst_obj_sub,
-    [Nst_TT_MUL]      = _Nst_obj_mul,
-    [Nst_TT_DIV]      = _Nst_obj_div,
-    [Nst_TT_POW]      = _Nst_obj_pow,
-    [Nst_TT_MOD]      = _Nst_obj_mod,
-    [Nst_TT_B_AND]    = _Nst_obj_bwand,
-    [Nst_TT_B_OR]     = _Nst_obj_bwor,
-    [Nst_TT_B_XOR]    = _Nst_obj_bwxor,
-    [Nst_TT_LSHIFT]   = _Nst_obj_bwls,
-    [Nst_TT_RSHIFT]   = _Nst_obj_bwrs,
-    [Nst_TT_CONCAT]   = _Nst_obj_concat,
-    [Nst_TT_L_AND]    = _Nst_obj_lgand,
-    [Nst_TT_L_OR]     = _Nst_obj_lgor,
-    [Nst_TT_L_XOR]    = _Nst_obj_lgxor,
-    [Nst_TT_GT]       = _Nst_obj_gt,
-    [Nst_TT_LT]       = _Nst_obj_lt,
-    [Nst_TT_EQ]       = _Nst_obj_eq,
-    [Nst_TT_NEQ]      = _Nst_obj_ne,
-    [Nst_TT_GTE]      = _Nst_obj_ge,
-    [Nst_TT_LTE]      = _Nst_obj_le,
-    [Nst_TT_CONTAINS] = _Nst_obj_contains
+    [Nst_TT_ADD]      = Nst_obj_add,
+    [Nst_TT_SUB]      = Nst_obj_sub,
+    [Nst_TT_MUL]      = Nst_obj_mul,
+    [Nst_TT_DIV]      = Nst_obj_div,
+    [Nst_TT_POW]      = Nst_obj_pow,
+    [Nst_TT_MOD]      = Nst_obj_mod,
+    [Nst_TT_B_AND]    = Nst_obj_bwand,
+    [Nst_TT_B_OR]     = Nst_obj_bwor,
+    [Nst_TT_B_XOR]    = Nst_obj_bwxor,
+    [Nst_TT_LSHIFT]   = Nst_obj_bwls,
+    [Nst_TT_RSHIFT]   = Nst_obj_bwrs,
+    [Nst_TT_CONCAT]   = Nst_obj_concat,
+    [Nst_TT_L_AND]    = Nst_obj_lgand,
+    [Nst_TT_L_OR]     = Nst_obj_lgor,
+    [Nst_TT_L_XOR]    = Nst_obj_lgxor,
+    [Nst_TT_GT]       = Nst_obj_gt,
+    [Nst_TT_LT]       = Nst_obj_lt,
+    [Nst_TT_EQ]       = Nst_obj_eq,
+    [Nst_TT_NEQ]      = Nst_obj_ne,
+    [Nst_TT_GTE]      = Nst_obj_ge,
+    [Nst_TT_LTE]      = Nst_obj_le,
+    [Nst_TT_CONTAINS] = Nst_obj_contains
 };
 
 Nst_Obj *(*local_op_func[])(Nst_Obj *) = {
-    [Nst_TT_LEN      - Nst_TT_LEN] = _Nst_obj_len,
-    [Nst_TT_L_NOT    - Nst_TT_LEN] = _Nst_obj_lgnot,
-    [Nst_TT_B_NOT    - Nst_TT_LEN] = _Nst_obj_bwnot,
-    [Nst_TT_STDOUT   - Nst_TT_LEN] = _Nst_obj_stdout,
-    [Nst_TT_STDIN    - Nst_TT_LEN] = _Nst_obj_stdin,
+    [Nst_TT_LEN      - Nst_TT_LEN] = Nst_obj_len,
+    [Nst_TT_L_NOT    - Nst_TT_LEN] = Nst_obj_lgnot,
+    [Nst_TT_B_NOT    - Nst_TT_LEN] = Nst_obj_bwnot,
+    [Nst_TT_STDOUT   - Nst_TT_LEN] = Nst_obj_stdout,
+    [Nst_TT_STDIN    - Nst_TT_LEN] = Nst_obj_stdin,
     [Nst_TT_IMPORT   - Nst_TT_LEN] = NULL,
     [Nst_TT_LOC_CALL - Nst_TT_LEN] = NULL,
-    [Nst_TT_NEG      - Nst_TT_LEN] = _Nst_obj_neg,
-    [Nst_TT_TYPEOF   - Nst_TT_LEN] = _Nst_obj_typeof
+    [Nst_TT_NEG      - Nst_TT_LEN] = Nst_obj_neg,
+    [Nst_TT_TYPEOF   - Nst_TT_LEN] = Nst_obj_typeof
 };
 
 static void interrupt_handler(int sig)
@@ -339,7 +339,7 @@ i32 Nst_run(Nst_Obj *main_func)
     i32 exit_code = 0;
     if (Nst_error_occurred()) {
         Nst_Traceback *error = Nst_error_get();
-        if (OBJ(error->error_name) != Nst_c.Null_null)
+        if (error->error_name != Nst_c.Null_null)
             exit_code = 1;
         else {
             exit_code = (i32)AS_INT(error->error_msg);
@@ -389,8 +389,8 @@ static inline void set_global_error(usize final_stack_size,
     Nst_error_add_positions(Nst_error_get(), start, end);
 
     Nst_CatchFrame top_catch = Nst_cstack_peek(&Nst_state.es->c_stack);
-    if (OBJ(Nst_error_get()->error_name) == Nst_c.Null_null
-        || OBJ(Nst_error_get()->error_msg) == Nst_c.Null_null)
+    if (Nst_error_get()->error_name == Nst_c.Null_null
+        || Nst_error_get()->error_msg == Nst_c.Null_null)
     {
         top_catch.f_stack_len = 0;
         top_catch.v_stack_len = 0;
@@ -637,7 +637,7 @@ static InstResult exe_for_start()
         Nst_set_type_errorf(_Nst_EM_BAD_CAST("Iter"), TYPE_NAME(iterable));
         return INST_FAILED;
     }
-    Nst_state.es->v_stack.stack[Nst_state.es->v_stack.len - 1] = OBJ(iter);
+    Nst_state.es->v_stack.stack[Nst_state.es->v_stack.len - 1] = iter;
     Nst_dec_ref(iterable);
     return exe_for_inst(iter, Nst_iter_start_func(iter));
 }
@@ -920,7 +920,7 @@ static InstResult exe_op_call()
     bool is_seq_call = false;
     Nst_Obj *func = POP_TOP_VALUE;
 
-    if (!type_check(OBJ(func), Nst_t.Func)) {
+    if (!type_check(func, Nst_t.Func)) {
         Nst_dec_ref(func);
         return INST_FAILED;
     }
@@ -970,7 +970,7 @@ static InstResult exe_op_cast()
         return INST_FAILED;
     }
 
-    Nst_Obj *res = Nst_obj_cast(val, type);
+    Nst_Obj *res = Nst_obj_cast(val, TYPE(type));
 
     if (res != NULL) {
         Nst_vstack_push(&Nst_state.es->v_stack, res);
@@ -1019,7 +1019,7 @@ static InstResult exe_op_range()
             step = Nst_inc_ref(Nst_c.Int_neg1);
     }
 
-    Nst_Obj *iter = _Nst_obj_range(start, stop, step);
+    Nst_Obj *iter = Nst_obj_range(start, stop, step);
 
     Nst_dec_ref(start);
     Nst_dec_ref(stop);
@@ -1350,8 +1350,8 @@ static InstResult exe_save_error()
 
     Nst_Obj *err_map = Nst_map_new();
     Nst_Traceback *tb = Nst_error_get();
-    Nst_map_set_str(err_map, "name", OBJ(tb->error_name));
-    Nst_map_set_str(err_map, "message", OBJ(tb->error_msg));
+    Nst_map_set_str(err_map, "name", tb->error_name);
+    Nst_map_set_str(err_map, "message", tb->error_msg);
     Nst_error_clear();
 
     Nst_vstack_push(&Nst_state.es->v_stack, err_map);

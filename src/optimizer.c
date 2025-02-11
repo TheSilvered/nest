@@ -206,22 +206,22 @@ static bool optimize_stack_values(Nst_LList *values, Nst_TokType op,
     Nst_Obj *(*op_func)(Nst_Obj *, Nst_Obj *) = NULL;
 
     switch (op) {
-    case Nst_TT_ADD:      op_func = _Nst_obj_add;      break;
-    case Nst_TT_SUB:      op_func = _Nst_obj_sub;      break;
-    case Nst_TT_MUL:      op_func = _Nst_obj_mul;      break;
-    case Nst_TT_DIV:      op_func = _Nst_obj_div;      break;
-    case Nst_TT_POW:      op_func = _Nst_obj_pow;      break;
-    case Nst_TT_MOD:      op_func = _Nst_obj_mod;      break;
-    case Nst_TT_B_AND:    op_func = _Nst_obj_bwand;    break;
-    case Nst_TT_B_OR:     op_func = _Nst_obj_bwor;     break;
-    case Nst_TT_B_XOR:    op_func = _Nst_obj_bwxor;    break;
-    case Nst_TT_LSHIFT:   op_func = _Nst_obj_bwls;     break;
-    case Nst_TT_RSHIFT:   op_func = _Nst_obj_bwrs;     break;
-    case Nst_TT_CONCAT:   op_func = _Nst_obj_concat;   break;
-    case Nst_TT_L_AND:    op_func = _Nst_obj_lgand;    break;
-    case Nst_TT_L_OR:     op_func = _Nst_obj_lgor;     break;
-    case Nst_TT_L_XOR:    op_func = _Nst_obj_lgxor;    break;
-    case Nst_TT_CONTAINS: op_func = _Nst_obj_contains; break;
+    case Nst_TT_ADD:      op_func = Nst_obj_add;      break;
+    case Nst_TT_SUB:      op_func = Nst_obj_sub;      break;
+    case Nst_TT_MUL:      op_func = Nst_obj_mul;      break;
+    case Nst_TT_DIV:      op_func = Nst_obj_div;      break;
+    case Nst_TT_POW:      op_func = Nst_obj_pow;      break;
+    case Nst_TT_MOD:      op_func = Nst_obj_mod;      break;
+    case Nst_TT_B_AND:    op_func = Nst_obj_bwand;    break;
+    case Nst_TT_B_OR:     op_func = Nst_obj_bwor;     break;
+    case Nst_TT_B_XOR:    op_func = Nst_obj_bwxor;    break;
+    case Nst_TT_LSHIFT:   op_func = Nst_obj_bwls;     break;
+    case Nst_TT_RSHIFT:   op_func = Nst_obj_bwrs;     break;
+    case Nst_TT_CONCAT:   op_func = Nst_obj_concat;   break;
+    case Nst_TT_L_AND:    op_func = Nst_obj_lgand;    break;
+    case Nst_TT_L_OR:     op_func = Nst_obj_lgor;     break;
+    case Nst_TT_L_XOR:    op_func = Nst_obj_lgxor;    break;
+    case Nst_TT_CONTAINS: op_func = Nst_obj_contains; break;
     default:
         return true;
     }
@@ -292,11 +292,11 @@ static bool optimize_local_op(Nst_Node *node)
         return true;
     Nst_Obj *(*op_func)(Nst_Obj *) = NULL;
     switch (node->v.lo.op) {
-    case Nst_TT_LEN:    op_func = _Nst_obj_len;    break;
-    case Nst_TT_L_NOT:  op_func = _Nst_obj_lgnot;  break;
-    case Nst_TT_B_NOT:  op_func = _Nst_obj_bwnot;  break;
-    case Nst_TT_NEG:    op_func = _Nst_obj_neg;    break;
-    case Nst_TT_TYPEOF: op_func = _Nst_obj_typeof; break;
+    case Nst_TT_LEN:    op_func = Nst_obj_len;    break;
+    case Nst_TT_L_NOT:  op_func = Nst_obj_lgnot;  break;
+    case Nst_TT_B_NOT:  op_func = Nst_obj_bwnot;  break;
+    case Nst_TT_NEG:    op_func = Nst_obj_neg;    break;
+    case Nst_TT_TYPEOF: op_func = Nst_obj_typeof; break;
     default:
         return true;
     }

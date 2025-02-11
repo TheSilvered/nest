@@ -201,7 +201,7 @@ Nst_Obj *NstC date_(usize arg_num, Nst_Obj **args)
         time(nullptr));
     Nst_Obj *map = Nst_map_new();
     add_date(map, localtime(&raw_time));
-    return OBJ(map);
+    return map;
 }
 
 Nst_Obj *NstC gmt_date_(usize arg_num, Nst_Obj **args)
@@ -215,7 +215,7 @@ Nst_Obj *NstC gmt_date_(usize arg_num, Nst_Obj **args)
         time(nullptr));
     Nst_Obj *map = Nst_map_new();
     add_date(map, gmtime(&raw_time));
-    return OBJ(map);
+    return map;
 }
 
 Nst_Obj *NstC second_(usize arg_num, Nst_Obj **args)
@@ -268,7 +268,7 @@ Nst_Obj *NstC clock_time_(usize arg_num, Nst_Obj **args)
         time(nullptr));
     Nst_Obj *map = Nst_map_new();
     add_time(map, localtime(&raw_time));
-    return OBJ(map);
+    return map;
 }
 
 Nst_Obj *NstC gmt_clock_time_(usize arg_num, Nst_Obj **args)
@@ -282,7 +282,7 @@ Nst_Obj *NstC gmt_clock_time_(usize arg_num, Nst_Obj **args)
         time(nullptr));
     Nst_Obj *map = Nst_map_new();
     add_time(map, gmtime(&raw_time));
-    return OBJ(map);
+    return map;
 }
 
 Nst_Obj *NstC clock_datetime_(usize arg_num, Nst_Obj **args)
@@ -298,7 +298,7 @@ Nst_Obj *NstC clock_datetime_(usize arg_num, Nst_Obj **args)
     Nst_Obj *map = Nst_map_new();
     add_date(map, t);
     add_time(map, t);
-    return OBJ(map);
+    return map;
 }
 
 Nst_Obj *NstC gmt_clock_datetime_(usize arg_num, Nst_Obj **args)
@@ -314,7 +314,7 @@ Nst_Obj *NstC gmt_clock_datetime_(usize arg_num, Nst_Obj **args)
     Nst_Obj *map = Nst_map_new();
     add_date(map, t);
     add_time(map, t);
-    return OBJ(map);
+    return map;
 }
 
 Nst_Obj *NstC sleep_(usize arg_num, Nst_Obj **args)

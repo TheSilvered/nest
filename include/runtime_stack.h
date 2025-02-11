@@ -13,9 +13,6 @@
 #include "function.h"
 #include "var_table.h"
 
-/* Alias for `_Nst_vstack_push` that casts val to `Nst_Obj *`. */
-#define Nst_vstack_push(v_stack, val) _Nst_vstack_push(v_stack, OBJ(val))
-
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
@@ -127,7 +124,7 @@ NstEXP bool NstC Nst_vstack_init(Nst_ValueStack *v_stack);
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP bool NstC _Nst_vstack_push(Nst_ValueStack *v_stack, Nst_Obj *obj);
+NstEXP bool NstC Nst_vstack_push(Nst_ValueStack *v_stack, Nst_Obj *obj);
 /**
  * Pops the top value from a value stack.
  *

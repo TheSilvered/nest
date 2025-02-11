@@ -74,7 +74,7 @@ bool Nst_vstack_init(Nst_ValueStack *v_stack)
         V_STACK_MIN_SIZE);
 }
 
-bool _Nst_vstack_push(Nst_ValueStack *v_stack, Nst_Obj *obj)
+bool Nst_vstack_push(Nst_ValueStack *v_stack, Nst_Obj *obj)
 {
     bool result = Nst_stack_expand(
         (Nst_GenericStack *)v_stack,

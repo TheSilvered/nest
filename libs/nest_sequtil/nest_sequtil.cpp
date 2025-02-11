@@ -78,7 +78,7 @@ Nst_Obj *NstC map_(usize arg_num, Nst_Obj **args)
         Nst_seq_setnf(new_seq, i, res);
     }
 
-    return map_in_place ? Nst_inc_ref(new_seq) : OBJ(new_seq);
+    return map_in_place ? Nst_inc_ref(new_seq) : new_seq;
 }
 
 Nst_Obj *NstC map_i_(usize arg_num, Nst_Obj **args)
@@ -600,7 +600,7 @@ static Nst_Obj *mapped_sort(Nst_Obj *seq, Nst_Obj *map_func, bool new_seq)
         Nst_dec_ref(values[i].mapped);
     }
     Nst_free(values);
-    return new_seq ? OBJ(seq) : Nst_inc_ref(seq);
+    return new_seq ? seq : Nst_inc_ref(seq);
 
 fail:
     for (usize i = 0; i < seq_len; i++)
@@ -666,7 +666,7 @@ Nst_Obj *NstC sort_(usize arg_num, Nst_Obj **args)
     if (buf != nullptr)
         Nst_free(buf);
 
-    return new_seq ? OBJ(seq) : Nst_inc_ref(seq);
+    return new_seq ? seq : Nst_inc_ref(seq);
 }
 
 Nst_Obj *NstC empty_(usize arg_num, Nst_Obj **args)
@@ -715,7 +715,7 @@ Nst_Obj *NstC filter_(usize arg_num, Nst_Obj **args)
         new_seq->type = TYPE(Nst_inc_ref(Nst_type()->Array));
     }
 
-    return OBJ(new_seq);
+    return new_seq;
 }
 
 Nst_Obj *NstC filter_i_(usize arg_num, Nst_Obj **args)
@@ -862,7 +862,7 @@ Nst_Obj *NstC lscan_(usize arg_num, Nst_Obj **args)
         : Nst_vector_new((usize)max_items);
     if (max_items == 0) {
         Nst_dec_ref(seq);
-        return OBJ(new_seq);
+        return new_seq;
     }
 
     Nst_inc_ref(prev_val);
@@ -886,7 +886,7 @@ Nst_Obj *NstC lscan_(usize arg_num, Nst_Obj **args)
     }
     Nst_dec_ref(prev_val);
     Nst_dec_ref(seq);
-    return OBJ(new_seq);
+    return new_seq;
 }
 
 Nst_Obj *NstC rscan_(usize arg_num, Nst_Obj **args)
@@ -918,7 +918,7 @@ Nst_Obj *NstC rscan_(usize arg_num, Nst_Obj **args)
         : Nst_vector_new((usize)max_items);
     if (max_items == 0) {
         Nst_dec_ref(seq);
-        return OBJ(new_seq);
+        return new_seq;
     }
 
     Nst_inc_ref(prev_val);
@@ -943,7 +943,7 @@ Nst_Obj *NstC rscan_(usize arg_num, Nst_Obj **args)
     }
     Nst_dec_ref(prev_val);
     Nst_dec_ref(seq);
-    return OBJ(new_seq);
+    return new_seq;
 }
 
 Nst_Obj *NstC copy_(usize arg_num, Nst_Obj **args)
@@ -1000,7 +1000,7 @@ static Nst_Obj *seq_deep_copy(Nst_Obj *seq, Nst_Obj *cont_map)
 
 end:
     Nst_dec_ref(seq_id);
-    return OBJ(new_seq);
+    return new_seq;
 }
 
 static Nst_Obj *map_deep_copy(Nst_Obj *map, Nst_Obj *cont_map)
@@ -1049,7 +1049,7 @@ static Nst_Obj *map_deep_copy(Nst_Obj *map, Nst_Obj *cont_map)
 
 end:
     Nst_dec_ref(seq_id);
-    return OBJ(new_map);
+    return new_map;
 }
 
 static Nst_Obj *obj_deep_copy(Nst_Obj *obj, Nst_Obj *cont_map)

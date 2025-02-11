@@ -326,7 +326,7 @@ static bool check_just_args(usize arg_num, Nst_Obj **args, Nst_Obj *&str,
 
     usize fill_ch_true_len;
 
-    if (OBJ(just_ch_obj) == Nst_null()) {
+    if (just_ch_obj == Nst_null()) {
         fill_ch = (i8 *)" ";
         fill_ch_len = 1;
         fill_ch_true_len = 1;
@@ -977,7 +977,7 @@ Nst_Obj *NstC encode_(usize arg_num, Nst_Obj **args)
         Nst_seq_setnf(new_arr, i, Nst_byte_new(byte_array[i]));
     Nst_free(byte_array);
 
-    return OBJ(new_arr);
+    return new_arr;
 }
 
 Nst_Obj *NstC repr_(usize arg_num, Nst_Obj **args)
@@ -1051,7 +1051,7 @@ Nst_Obj *NstC lsplit_whitespace(Nst_Obj *str_obj, i64 quantity)
     Nst_Obj *vector = Nst_vector_new(0);
 
     if (quantity == 0) {
-        if (!Nst_vector_append(vector, OBJ(str_obj))) {
+        if (!Nst_vector_append(vector, str_obj)) {
             Nst_dec_ref(vector);
             return nullptr;
         }
@@ -1150,7 +1150,7 @@ Nst_Obj *NstC lsplit_(usize arg_num, Nst_Obj **args)
     Nst_Obj *vector = Nst_vector_new(0);
 
     if (quantity == 0) {
-        if (!Nst_vector_append(vector, OBJ(str_obj))) {
+        if (!Nst_vector_append(vector, str_obj)) {
             Nst_dec_ref(vector);
             return nullptr;
         }
@@ -1222,7 +1222,7 @@ Nst_Obj *NstC rsplit_whitespace(Nst_Obj *str_obj, i64 quantity)
     Nst_Obj *vector = Nst_vector_new(0);
 
     if (quantity == 0) {
-        if (!Nst_vector_append(vector, OBJ(str_obj))) {
+        if (!Nst_vector_append(vector, str_obj)) {
             Nst_dec_ref(vector);
             return nullptr;
         }
@@ -1321,13 +1321,13 @@ Nst_Obj *NstC rsplit_(usize arg_num, Nst_Obj **args)
     Nst_Obj *vector = Nst_vector_new(0);
 
     if (quantity == 0) {
-        if (!Nst_vector_append(vector, OBJ(str_obj))) {
+        if (!Nst_vector_append(vector, str_obj)) {
             Nst_dec_ref(vector);
             return nullptr;
         }
-        return OBJ(vector);
+        return vector;
     } else if (Nst_str_len(str_obj) == 0)
-        return OBJ(vector);
+        return vector;
 
     i8 *sub = Nst_str_value(opt_substr);
     usize sub_len = Nst_str_len(opt_substr);

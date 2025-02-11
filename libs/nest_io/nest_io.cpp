@@ -633,7 +633,7 @@ Nst_Obj *NstC read_bytes_(usize arg_num, Nst_Obj **args)
         Nst_seq_setnf(bytes_array, i, Nst_byte_new(buf[i]));
 
     Nst_free(buf);
-    return OBJ(bytes_array);
+    return bytes_array;
 }
 
 Nst_Obj *NstC file_size_(usize arg_num, Nst_Obj **args)

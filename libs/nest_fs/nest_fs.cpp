@@ -329,7 +329,7 @@ Nst_Obj *NstC read_symlink_(usize arg_num, Nst_Obj **args)
 
     fs::path result = fs::read_symlink(utf8_path(path), ec);
     if (ec.value() == 0)
-        return OBJ(heap_str(result));
+        return heap_str(result);
     else
         return throw_system_error(ec);
 }
@@ -441,11 +441,11 @@ Nst_Obj *NstC list_dir_(usize arg_num, Nst_Obj **args)
         Nst_Obj *str = heap_str(entry.path());
         if (str == nullptr)
             return nullptr;
-        Nst_vector_append(vector, OBJ(str));
+        Nst_vector_append(vector, str);
         Nst_dec_ref(str);
     }
 
-    return OBJ(vector);
+    return vector;
 }
 
 Nst_Obj *NstC list_dirs_(usize arg_num, Nst_Obj **args)
@@ -473,11 +473,11 @@ Nst_Obj *NstC list_dirs_(usize arg_num, Nst_Obj **args)
         Nst_Obj *str = heap_str(entry.path());
         if (str == nullptr)
             return nullptr;
-        Nst_vector_append(vector, OBJ(str));
+        Nst_vector_append(vector, str);
         Nst_dec_ref(str);
     }
 
-    return OBJ(vector);
+    return vector;
 }
 
 Nst_Obj *NstC absolute_path_(usize arg_num, Nst_Obj **args)
@@ -491,7 +491,7 @@ Nst_Obj *NstC absolute_path_(usize arg_num, Nst_Obj **args)
     fs::path result = fs::absolute(utf8_path(path), ec);
 
     if (ec.value() == 0)
-        return OBJ(heap_str(result));
+        return heap_str(result);
     else
         Nst_RETURN_NULL;
 }
@@ -507,7 +507,7 @@ Nst_Obj *NstC canonical_path_(usize arg_num, Nst_Obj **args)
     fs::path result = fs::canonical(utf8_path(path), ec);
 
     if (ec.value() == 0)
-        return OBJ(heap_str(result));
+        return heap_str(result);
     else
         Nst_RETURN_NULL;
 }
@@ -520,7 +520,7 @@ Nst_Obj *NstC relative_path_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s ?s", arg_num, args, &path, &base))
         return nullptr;
 
-    if (OBJ(base) == Nst_null()) {
+    if (base == Nst_null()) {
         base = Nst_getcwd();
         if (base == nullptr)
             return nullptr;
@@ -533,7 +533,7 @@ Nst_Obj *NstC relative_path_(usize arg_num, Nst_Obj **args)
     Nst_dec_ref(base);
 
     if (ec.value() == 0)
-        return OBJ(heap_str(result));
+        return heap_str(result);
     else
         Nst_RETURN_NULL;
 }
@@ -815,5 +815,5 @@ Nst_Obj *NstC CPO_()
     Nst_dec_ref(make_symlinks_opt);
     Nst_dec_ref(make_hard_links_opt);
 
-    return OBJ(cpo_map);
+    return cpo_map;
 }

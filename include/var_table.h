@@ -12,11 +12,6 @@
 #include "map.h"
 #include "sequence.h"
 
-/* Alias of `_Nst_vt_get` that casts `name` to `Nst_Obj *`. */
-#define Nst_vt_get(vt, name) _Nst_vt_get(vt, OBJ(name))
-/* Alias of `_Nst_vt_set` that casts `name` and `val` to `Nst_Obj *`. */
-#define Nst_vt_set(vt, name, val) _Nst_vt_set(vt, OBJ(name), OBJ(val))
-
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
@@ -55,7 +50,7 @@ NstEXP void NstC Nst_vt_destroy(Nst_VarTable *vt);
  * @return The value associated with the key or `Nst_null()` if the key is not
  * present in the table.
  */
-NstEXP Nst_Obj *NstC _Nst_vt_get(Nst_VarTable *vt, Nst_Obj *name);
+NstEXP Nst_Obj *NstC Nst_vt_get(Nst_VarTable *vt, Nst_Obj *name);
 /**
  * Sets a value in a variable table.
  *
@@ -65,7 +60,7 @@ NstEXP Nst_Obj *NstC _Nst_vt_get(Nst_VarTable *vt, Nst_Obj *name);
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP bool NstC _Nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val);
+NstEXP bool NstC Nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val);
 
 /**
  * Creates a new variable table with the correct global table of the function.

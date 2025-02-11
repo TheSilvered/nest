@@ -68,8 +68,8 @@ Nst_Obj *failure(bool catch_exit, bool catch_interrupt)
     Nst_map_set_str(map, "value", Nst_null());
     error_name_str = Nst_inc_ref(error->error_name);
     error_message_str = Nst_inc_ref(error->error_msg);
-    if (((OBJ(error_name_str) == Nst_null() && !catch_exit))
-        || (OBJ(error_message_str) == Nst_null() && !catch_interrupt))
+    if (((error_name_str == Nst_null() && !catch_exit))
+        || (error_message_str == Nst_null() && !catch_interrupt))
     {
         Nst_ndec_ref(map);
         map = nullptr;
@@ -131,7 +131,7 @@ Nst_Obj *NstC try_(usize arg_num, Nst_Obj **args)
 
     i64 func_args_len;
     Nst_Obj **objs;
-    if (OBJ(func_args) == Nst_null()) {
+    if (func_args == Nst_null()) {
         func_args_len = 0;
         objs = nullptr;
     } else {

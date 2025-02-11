@@ -307,9 +307,9 @@ void Nst_print_traceback(Nst_Traceback *tb)
     }
 
     i8 *err_name = Nst_str_value(tb->error_name);
-    if (OBJ(tb->error_msg) == Nst_null() && use_color)
+    if (tb->error_msg == Nst_null() && use_color)
         Nst_fprintf(err_stream, C_YEL "%s" C_RES "\n", err_name);
-    else if (OBJ(tb->error_msg) == Nst_null())
+    else if (tb->error_msg == Nst_null())
         Nst_fprintf(err_stream, "%s\n", err_name);
     else if (use_color) {
         Nst_fprintf(
