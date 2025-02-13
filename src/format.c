@@ -1288,7 +1288,7 @@ static bool fmt_general_int(Nst_StrBuilder *sb, u64 val, bool negative,
         goto finish;
     }
 
-    if (!fmt_uint_digits(temp_sb, val, format)) {
+    if (!fmt_uint_digits(digit_sb, val, format)) {
         result = false;
         goto finish;
     }

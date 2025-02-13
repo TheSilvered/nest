@@ -69,14 +69,19 @@ isize Nst_sv_next(Nst_StrView sv, isize idx, u32 *ch)
         if (ch != NULL) *ch = 0;
         return -1;
     }
-    i32 len = Nst_check_ext_utf8_bytes((u8 *)sv.value + idx, sv.len - idx);
-    if (len < 0 || idx + (usize)len >= sv.len) {
-        if (ch != NULL) *ch = 0;
-        return -1;
-    }
+
+    if (idx != -1) {
+        i32 len = Nst_check_ext_utf8_bytes((u8 *)sv.value + idx, sv.len - idx);
+        if (len < 0 || idx + (usize)len >= sv.len) {
+            if (ch != NULL) *ch = 0;
+            return -1;
+        }
+        idx += len;
+    } else
+        idx = 0;
     if (ch != NULL)
-        *ch = Nst_ext_utf8_to_utf32((u8 *)sv.value + idx + len);
-    return idx + len;
+        *ch = Nst_ext_utf8_to_utf32((u8 *)sv.value + idx);
+    return idx;
 }
 
 Nst_Obj *Nst_sv_parse_int(Nst_StrView sv, i32 base)
