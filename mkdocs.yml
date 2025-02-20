@@ -70,9 +70,12 @@ nav:
     - sequence.h: c_api/c_api-sequence.md
     - simple_types.h: c_api/c_api-simple_types.md
     - str.h: c_api/c_api-str.md
+    - str_builder.h: c_api/c_api-str_builder.md
+    - str_view.h: c_api/c_api-str_view.md
     - tokens.h: c_api/c_api-tokens.md
     - type.h: c_api/c_api-type.md
     - typedefs.h: c_api/c_api-typedefs.md
+    - unicode_db.h: c_api/c_api-unicode_db.md
     - var_table.h: c_api/c_api-var_table.md
   - Version History: changes.md
 extra_javascript:
