@@ -513,20 +513,6 @@ Get the encoding of a file.
 
 ---
 
-### `_Nst_iofile_destroy`
-
-**Synopsis:**
-
-```better-c
-void _Nst_iofile_destroy(Nst_Obj *obj)
-```
-
-**Description:**
-
-Destructor of a `IOFile` object.
-
----
-
 ### `Nst_fread`
 
 **Synopsis:**

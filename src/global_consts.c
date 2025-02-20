@@ -43,7 +43,7 @@ static Nst_TypeObj *type_obj_no_err(const i8 *name, Nst_ObjDstr dstr)
     type->name = Nst_sv_new_c(name);
 
     type->type = Nst_t.Type;
-    Nst_ninc_ref(Nst_t.Type);
+    Nst_ninc_ref(OBJ(Nst_t.Type));
     return type;
 }
 
@@ -137,8 +137,8 @@ bool _Nst_globals_init(void)
     Nst_s.o__globals_ = Nst_str_new_c("_globals_", 9, false);
     Nst_s.o__args_    = Nst_str_new_c("_args_",    6, false);
 
-    Nst_c.Bool_true  = Nst_bool_new(true);
-    Nst_c.Bool_false = Nst_bool_new(false);
+    Nst_c.Bool_true  = _Nst_obj_alloc(sizeof(Nst_Obj), Nst_t.Bool);
+    Nst_c.Bool_false = _Nst_obj_alloc(sizeof(Nst_Obj), Nst_t.Bool);
     Nst_c.Null_null  = _Nst_obj_alloc(sizeof(Nst_Obj), Nst_t.Null);
     Nst_c.IEnd_iend  = _Nst_obj_alloc(sizeof(Nst_Obj), Nst_t.IEnd);
     Nst_c.Int_0      = Nst_int_new(0);
@@ -192,20 +192,20 @@ bool _Nst_globals_init(void)
 
 void _Nst_globals_quit(void)
 {
-    Nst_ndec_ref(Nst_t.Type);
-    Nst_ndec_ref(Nst_t.Int);
-    Nst_ndec_ref(Nst_t.Real);
-    Nst_ndec_ref(Nst_t.Bool);
-    Nst_ndec_ref(Nst_t.Null);
-    Nst_ndec_ref(Nst_t.Str);
-    Nst_ndec_ref(Nst_t.Array);
-    Nst_ndec_ref(Nst_t.Vector);
-    Nst_ndec_ref(Nst_t.Map);
-    Nst_ndec_ref(Nst_t.Func);
-    Nst_ndec_ref(Nst_t.Iter);
-    Nst_ndec_ref(Nst_t.Byte);
-    Nst_ndec_ref(Nst_t.IOFile);
-    Nst_ndec_ref(Nst_t.IEnd);
+    Nst_ndec_ref(OBJ(Nst_t.Type));
+    Nst_ndec_ref(OBJ(Nst_t.Int));
+    Nst_ndec_ref(OBJ(Nst_t.Real));
+    Nst_ndec_ref(OBJ(Nst_t.Bool));
+    Nst_ndec_ref(OBJ(Nst_t.Null));
+    Nst_ndec_ref(OBJ(Nst_t.Str));
+    Nst_ndec_ref(OBJ(Nst_t.Array));
+    Nst_ndec_ref(OBJ(Nst_t.Vector));
+    Nst_ndec_ref(OBJ(Nst_t.Map));
+    Nst_ndec_ref(OBJ(Nst_t.Func));
+    Nst_ndec_ref(OBJ(Nst_t.Iter));
+    Nst_ndec_ref(OBJ(Nst_t.Byte));
+    Nst_ndec_ref(OBJ(Nst_t.IOFile));
+    Nst_ndec_ref(OBJ(Nst_t.IEnd));
 
     Nst_ndec_ref(Nst_s.t_Type);
     Nst_ndec_ref(Nst_s.t_Int);

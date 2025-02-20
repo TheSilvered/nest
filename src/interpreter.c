@@ -258,7 +258,7 @@ void Nst_quit(void)
     if (Nst_state.lib_paths != NULL) {
         Nst_llist_destroy(
             Nst_state.lib_paths,
-            (Nst_LListDestructor)_Nst_dec_ref);
+            (Nst_LListDestructor)Nst_dec_ref);
     }
 #if !defined(_DEBUG) || !defined(Nst_DBG_TRACK_OBJ_INIT_POS)
     if (Nst_state.lib_srcs != NULL) {

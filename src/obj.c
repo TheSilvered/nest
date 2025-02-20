@@ -46,7 +46,7 @@ Nst_Obj *_Nst_obj_alloc(usize size, struct _Nst_TypeObj *type)
     obj->flags = 0;
 
     obj->type = type;
-    Nst_inc_ref(type);
+    Nst_inc_ref(OBJ(type));
     return obj;
 }
 
@@ -107,7 +107,7 @@ free_mem:
         Nst_free(obj);
 
         if (obj != OBJ(ob_t))
-            Nst_dec_ref(ob_t);
+            Nst_dec_ref(OBJ(ob_t));
 
         return;
     }
@@ -121,17 +121,26 @@ free_mem:
     obj->type->p_len++;
 
     if (obj != OBJ(ob_t))
-        Nst_dec_ref(ob_t);
+        Nst_dec_ref(OBJ(ob_t));
 }
 
-Nst_Obj *_Nst_inc_ref(Nst_Obj *obj)
+Nst_Obj *Nst_inc_ref(Nst_Obj *obj)
 {
+    Nst_assert(obj != NULL);
     obj->ref_count++;
     return obj;
 }
 
-void _Nst_dec_ref(Nst_Obj *obj)
+Nst_Obj *Nst_ninc_ref(Nst_Obj *obj)
 {
+    if (obj != NULL)
+        return Nst_inc_ref(obj);
+    return NULL;
+}
+
+void Nst_dec_ref(Nst_Obj *obj)
+{
+    Nst_assert(obj != NULL);
     obj->ref_count--;
 
     // The ref_count should nevere be below zero
@@ -141,4 +150,10 @@ void _Nst_dec_ref(Nst_Obj *obj)
         _Nst_obj_destroy(obj);
         _Nst_obj_free(obj);
     }
+}
+
+void Nst_ndec_ref(Nst_Obj *obj)
+{
+    if (obj != NULL)
+        Nst_dec_ref(obj);
 }

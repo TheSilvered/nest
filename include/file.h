@@ -303,8 +303,7 @@ NstEXP void *NstC Nst_iof_fp(Nst_Obj *f);
 /* Get the encoding of a file. */
 NstEXP Nst_Encoding *NstC Nst_iof_encoding(Nst_Obj *f);
 
-/* Destructor of a `IOFile` object. */
-NstEXP void NstC _Nst_iofile_destroy(Nst_Obj *obj);
+void NstC _Nst_iofile_destroy(Nst_Obj *obj);
 
 /* Calls the read function of the file, see `Nst_IOFile_read_f`. */
 NstEXP Nst_IOResult NstC Nst_fread(i8 *buf, usize buf_size, usize count,

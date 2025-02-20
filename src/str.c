@@ -115,7 +115,7 @@ Nst_Obj *_Nst_str_new_no_err(const i8 *value)
     str->indexable_str = NULL;
 
     str->type = Nst_t.Str;
-    Nst_inc_ref(Nst_t.Str);
+    Nst_inc_ref(OBJ(Nst_t.Str));
     return OBJ(str);
 }
 

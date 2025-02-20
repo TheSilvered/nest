@@ -8,7 +8,7 @@
 
 static i32 hash_str(Nst_Obj *str);
 static i32 hash_int(Nst_IntObj *num);
-static i32 hash_byte(Nst_ByteObj *byte);
+static i32 hash_byte(Nst_Obj *byte);
 static i32 hash_ptr(void *ptr);
 
 i32 Nst_obj_hash(Nst_Obj *obj)
@@ -32,7 +32,7 @@ i32 Nst_obj_hash(Nst_Obj *obj)
     else if (obj->type == Nst_t.Int)
         hash = hash_int((Nst_IntObj *)obj);
     else if (obj->type == Nst_t.Byte)
-        hash = hash_byte((Nst_ByteObj *)obj);
+        hash = hash_byte(obj);
     else
         return -1;
 
@@ -69,7 +69,7 @@ static i32 hash_int(Nst_IntObj *num)
     return num->value == -1 ? -2 : (i32)(num->value);
 }
 
-static i32 hash_byte(Nst_ByteObj *byte)
+static i32 hash_byte(Nst_Obj *byte)
 {
-    return (i32)(byte->value);
+    return (i32)(Nst_byte_u8(byte));
 }

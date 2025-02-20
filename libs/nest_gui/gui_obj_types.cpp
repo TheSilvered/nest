@@ -25,6 +25,6 @@ bool GUI_InitTypes()
 
 void GUI_QuitTypes()
 {
-    Nst_ndec_ref(element_type);
-    Nst_ndec_ref(constr_type);
+    Nst_ndec_ref(OBJ(element_type));
+    Nst_ndec_ref(OBJ(constr_type));
 }

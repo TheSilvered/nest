@@ -13,6 +13,16 @@
     obj->value = value;                                                       \
     return OBJ(obj)
 
+typedef struct _Nst_RealObj {
+    Nst_OBJ_HEAD;
+    f64 value;
+} Nst_RealObj;
+
+typedef struct _Nst_ByteObj {
+    Nst_OBJ_HEAD;
+    u8 value;
+} Nst_ByteObj;
+
 Nst_Obj *Nst_int_new(i64 value)
 {
     NEW_SIMPLE_TYPE(Nst_IntObj, Nst_t.Int);
@@ -23,63 +33,73 @@ Nst_Obj *Nst_real_new(f64 value)
     NEW_SIMPLE_TYPE(Nst_RealObj, Nst_t.Real);
 }
 
+f64 Nst_real_f64(Nst_Obj *obj)
+{
+    return ((Nst_RealObj *)obj)->value;
+}
+
+f32 Nst_real_f32(Nst_Obj *obj)
+{
+    return (f32)((Nst_RealObj *)obj)->value;
+}
+
 Nst_Obj *Nst_byte_new(u8 value)
 {
     NEW_SIMPLE_TYPE(Nst_ByteObj, Nst_t.Byte);
 }
 
-Nst_Obj *Nst_bool_new(bool value)
+u8 Nst_byte_u8(Nst_Obj *obj)
 {
-    NEW_SIMPLE_TYPE(Nst_BoolObj, Nst_t.Bool);
+    return ((Nst_ByteObj *)obj)->value;
 }
 
-u8 _Nst_number_to_u8(Nst_Obj *number)
+u8 Nst_number_to_u8(Nst_Obj *number)
 {
-    return (u8)_Nst_number_to_i64(number);
+    return (u8)Nst_number_to_i64(number);
 }
 
-int _Nst_number_to_int(Nst_Obj *number)
+int Nst_number_to_int(Nst_Obj *number)
 {
-    return (int)_Nst_number_to_i64(number);
+    return (int)Nst_number_to_i64(number);
 }
 
-i32 _Nst_number_to_i32(Nst_Obj *number)
+i32 Nst_number_to_i32(Nst_Obj *number)
 {
-    return (i32)_Nst_number_to_i64(number);
+    return (i32)Nst_number_to_i64(number);
 }
 
-i64 _Nst_number_to_i64(Nst_Obj *number)
+i64 Nst_number_to_i64(Nst_Obj *number)
 {
     Nst_TypeObj *t = number->type;
 
     if (t == Nst_t.Byte)
-        return (i64)AS_BYTE(number);
+        return (i64)Nst_byte_u8(number);
     else if (t == Nst_t.Int)
         return AS_INT(number);
     else if (t == Nst_t.Real)
-        return (i64)AS_REAL(number);
+        return (i64)Nst_real_f64(number);
     return 0;
 }
 
-f32 _Nst_number_to_f32(Nst_Obj *number)
+f32 Nst_number_to_f32(Nst_Obj *number)
 {
-    return (f32)_Nst_number_to_f64(number);
+    return (f32)Nst_number_to_f64(number);
 }
 
-f64 _Nst_number_to_f64(Nst_Obj *number)
+f64 Nst_number_to_f64(Nst_Obj *number)
 {
     Nst_TypeObj *t = number->type;
 
     if (t == Nst_t.Byte)
-        return (f64)AS_BYTE(number);
+        return (f64)Nst_byte_u8(number);
     else if (t == Nst_t.Int)
         return (f64)AS_INT(number);
     else if (t == Nst_t.Real)
-        return AS_REAL(number);
+        return Nst_real_f64(number);
     return 0.0;
 }
 
-bool _Nst_obj_to_bool(Nst_Obj *obj)
+bool Nst_obj_to_bool(Nst_Obj *obj)
 {
     Nst_Obj *bool_obj = Nst_obj_cast(obj, Nst_t.Bool);
     Nst_dec_ref(bool_obj);

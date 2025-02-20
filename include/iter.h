@@ -30,8 +30,8 @@ extern "C" {
 NstEXP Nst_Obj *NstC Nst_iter_new(Nst_Obj *start, Nst_Obj *next,
                                   Nst_Obj *value);
 
-/* Destructor for Nest iter objects. */
-NstEXP void NstC _Nst_iter_destroy(Nst_Obj *iter);
+void NstC _Nst_iter_destroy(Nst_Obj *iter);
+
 /* Traverse function for Nest iter objects. */
 NstEXP void NstC _Nst_iter_traverse(Nst_Obj *iter);
 

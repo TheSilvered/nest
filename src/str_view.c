@@ -55,6 +55,29 @@ Nst_StrView Nst_sv_from_str(Nst_Obj *str)
     return sv;
 }
 
+Nst_StrView Nst_sv_from_str_slice(Nst_Obj *str, usize start_idx, usize end_idx)
+{
+    usize char_len = Nst_str_char_len(str);
+    if (end_idx > Nst_str_char_len(str))
+        end_idx = char_len;
+
+    if (start_idx >= end_idx) {
+        return Nst_sv_new(NULL, 0);
+    }
+
+    isize i_start = 0;
+    for (isize i = Nst_str_next(str, -1); i >= 0; i = Nst_str_next(str, i)) {
+        if (start_idx == 0)
+            i_start = i;
+        if (end_idx == 0)
+            return Nst_sv_new(Nst_str_value(str) + i_start, i - i_start);
+        start_idx--;
+        end_idx--;
+    }
+
+    return Nst_sv_new(Nst_str_value(str) + i_start, Nst_str_len(str) - i_start);
+}
+
 Nst_Obj *Nst_str_from_sv(Nst_StrView sv)
 {
     i8 *buf = (i8 *)Nst_calloc(1, sv.len + 1, sv.value);

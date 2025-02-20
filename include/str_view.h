@@ -32,6 +32,19 @@ NstEXP Nst_StrView NstC Nst_sv_new(i8 *value, usize len);
 NstEXP Nst_StrView NstC Nst_sv_new_c(const i8 *value);
 /* Create a new `Nst_StrView` from a Nest `Str` object. */
 NstEXP Nst_StrView NstC Nst_sv_from_str(Nst_Obj *str);
+/**
+ * Create a new `Nst_StrView` from a slice of a Nest `Str` object.
+ *
+ * @param str: the string to slice
+ * @param start_idx: the starting character index, included in the slice
+ * @param end_idx: the ending character index, excluded from the slice
+ *
+ * @return The new `Nst_StrView`. It will have a `len` of `0` and a `value` of
+ * `NULL` if the indices are the same or are invalid. Any `end_idx` beyond the
+ * end of the string is clamped to the length of the string.
+ */
+NstEXP Nst_StrView NstC Nst_sv_from_str_slice(Nst_Obj *str, usize start_idx,
+                                              usize end_idx);
 
 /* Create a new Nest `Str` object from an `Nst_StrView`. */
 NstEXP Nst_Obj *NstC Nst_str_from_sv(Nst_StrView sv);

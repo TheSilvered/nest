@@ -711,8 +711,8 @@ Nst_Obj *NstC filter_(usize arg_num, Nst_Obj **args)
     }
 
     if (Nst_T(seq, Array)) {
-        Nst_dec_ref(new_seq->type);
-        new_seq->type = TYPE(Nst_inc_ref(Nst_type()->Array));
+        Nst_dec_ref(OBJ(new_seq->type));
+        new_seq->type = TYPE(Nst_inc_ref(OBJ(Nst_type()->Array)));
     }
 
     return new_seq;
@@ -792,17 +792,16 @@ Nst_Obj *NstC count_(usize arg_num, Nst_Obj **args)
         if (!Nst_T(obj, Str) || Nst_str_len(obj) == 0)
             Nst_RETURN_ZERO;
 
-        i8 *str = Nst_str_value(container);
-        usize str_len = Nst_str_len(container);
-        i8 *sub = Nst_str_value(obj);
-        usize sub_len = Nst_str_len(obj);
+        Nst_StrView str = Nst_sv_from_str(container);
+        Nst_StrView sub = Nst_sv_from_str(obj);
 
         while (true) {
-            i8 *res = Nst_str_lfind(str, str_len, sub, sub_len);
-            if (res == nullptr)
+            isize res = Nst_sv_lfind(str, sub);
+            if (res == -1)
                 break;
-            str_len -= res - str + sub_len;
-            str = res + sub_len;
+            str = Nst_sv_new(
+                str.value + res + sub.len,
+                str.len - res - sub.len);
             count++;
         }
         return Nst_int_new(count);

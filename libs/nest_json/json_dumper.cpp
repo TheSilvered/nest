@@ -162,7 +162,7 @@ static void dump_num(Nst_Obj *number)
     usize len;
 
     if (Nst_T(number, Byte)) {
-        sprintf(loc_buf, "%i", AS_BYTE(number));
+        sprintf(loc_buf, "%i", Nst_byte_u8(number));
         Nst_sb_push_c(&sb, loc_buf);
         goto finish;
     } else if (Nst_T(number, Int)) {
@@ -170,7 +170,7 @@ static void dump_num(Nst_Obj *number)
         Nst_sb_push_c(&sb, loc_buf);
         goto finish;
     }
-    val = AS_REAL(number);
+    val = Nst_real_f64(number);
     if (isinf(val) || isnan(val)) {
         if (!nan_and_inf) {
             Nst_set_value_error_c(

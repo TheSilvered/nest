@@ -32,81 +32,6 @@ Casts `obj` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
 
 ---
 
-### `Nst_inc_ref`
-
-**Synopsis:**
-
-```better-c
-#define Nst_inc_ref(obj)
-```
-
-**Description:**
-
-Alias for [`_Nst_inc_ref`](c_api-obj.md#_nst_inc_ref) that casts `obj` to
-[`Nst_Obj *`](c_api-obj.md#nst_obj).
-
----
-
-### `Nst_ninc_ref`
-
-**Synopsis:**
-
-```better-c
-#define Nst_ninc_ref(obj)
-```
-
-**Description:**
-
-Calls [`Nst_inc_ref`](c_api-obj.md#nst_inc_ref) if `obj` is not a `NULL`
-pointer.
-
----
-
-### `Nst_dec_ref`
-
-**Synopsis:**
-
-```better-c
-#define Nst_dec_ref(obj)
-```
-
-**Description:**
-
-Alias for [`_Nst_dec_ref`](c_api-obj.md#_nst_dec_ref) that casts `obj` to
-[`Nst_Obj *`](c_api-obj.md#nst_obj).
-
----
-
-### `Nst_ndec_ref`
-
-**Synopsis:**
-
-```better-c
-#define Nst_ndec_ref(obj)
-```
-
-**Description:**
-
-Calls [`Nst_dec_ref`](c_api-obj.md#nst_dec_ref) if the object is not a `NULL`
-pointer.
-
----
-
-### `Nst_obj_destroy`
-
-**Synopsis:**
-
-```better-c
-#define Nst_obj_destroy(obj)
-```
-
-**Description:**
-
-Alias for [`_Nst_obj_destroy`](c_api-obj.md#_nst_obj_destroy) that casts obj to
-[`Nst_Obj *`](c_api-obj.md#nst_obj).
-
----
-
 ### `Nst_obj_alloc`
 
 **Synopsis:**
@@ -320,68 +245,61 @@ The newly allocate object or `NULL` on failure. The error is set.
 
 ---
 
-### `_Nst_obj_destroy`
+### `Nst_inc_ref`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_obj_destroy(Nst_Obj *obj)
+Nst_Obj *Nst_inc_ref(Nst_Obj *obj)
 ```
 
 **Description:**
 
-Calls an object's destructor.
-
-This function should not be called on most occasions, use
-[`Nst_dec_ref`](c_api-obj.md#nst_dec_ref) instead.
+Increases the reference count of an object. Returns `obj`.
 
 ---
 
-### `_Nst_obj_free`
+### `Nst_ninc_ref`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_obj_free(Nst_Obj *obj)
+Nst_Obj *Nst_ninc_ref(Nst_Obj *obj)
 ```
 
 **Description:**
 
-Frees the memory of the object or adds it to the object pool. The reference to
-the object's type is removed.
-
-**Parameters:**
-
-- `obj`: the pointer to the object to free
+Calls [`Nst_inc_ref`](c_api-obj.md#nst_inc_ref) if `obj` is not a `NULL`
+pointer. Returns `obj`.
 
 ---
 
-### `_Nst_inc_ref`
+### `Nst_dec_ref`
 
 **Synopsis:**
 
 ```better-c
-Nst_Obj *_Nst_inc_ref(Nst_Obj *obj)
+void Nst_dec_ref(Nst_Obj *obj)
 ```
 
 **Description:**
 
-Increases the reference count of an object.
+Decreases the reference count of an object.
 
 ---
 
-### `_Nst_dec_ref`
+### `Nst_ndec_ref`
 
 **Synopsis:**
 
 ```better-c
-void _Nst_dec_ref(Nst_Obj *obj)
+void Nst_ndec_ref(Nst_Obj *obj)
 ```
 
 **Description:**
 
-Decreases the reference count of an object and calls
-[`_Nst_obj_destroy`](c_api-obj.md#_nst_obj_destroy) if it reaches zero.
+Calls [`Nst_dec_ref`](c_api-obj.md#nst_dec_ref) if `obj` is not a `NULL`
+pointer. Returns `obj`.
 
 ---
 

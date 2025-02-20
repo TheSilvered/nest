@@ -180,7 +180,7 @@ NstEXP i32 NstC Nst_str_next_utf32(Nst_Obj *str, isize *idx);
 NstEXP i32 NstC Nst_str_next_utf8(Nst_Obj *str, isize *idx, i8 *ch_buf);
 
 /**
- * Parses a `Nst_IntObj` from a string.
+ * Parses an `Int` object from a string.
  *
  * @brief `base` can be any number between `2` and `36`, where above `10`
  * letters start to be used and the function is case-insensitive. If the base
@@ -197,7 +197,7 @@ NstEXP i32 NstC Nst_str_next_utf8(Nst_Obj *str, isize *idx, i8 *ch_buf);
  */
 NstEXP Nst_Obj *NstC Nst_str_parse_int(Nst_Obj *str, i32 base);
 /**
- * Parses a Nst_ByteObj from a string.
+ * Parses a `Byte` object from a string.
  *
  * @brief If an invalid literal is found, the function fails rather than
  * returning zero. Valid literals follow Nest's byte syntax, because of this 10
@@ -209,7 +209,7 @@ NstEXP Nst_Obj *NstC Nst_str_parse_int(Nst_Obj *str, i32 base);
  */
 NstEXP Nst_Obj *NstC Nst_str_parse_byte(Nst_Obj *str);
 /**
- * Parses a `Nst_RealObj` from a string.
+ * Parses a `Real` object from a string.
  *
  * @brief If an invalid literal is found, the function fails rather than
  * returning zero. Valid literals follow Nest's real syntax, because of this

@@ -75,6 +75,31 @@
     - `Nst_map_prev`
     - `Nst_map_len`
     - `Nst_map_cap`
+- added the following symbols to `simple_types.h`
+    - `Nst_byte_u8`
+    - `Nst_real_f32`, `Nst_real_f64`
+- added `str_view.h` header which includes the following symbols
+    - `Nst_StrView`
+    - `Nst_sv_new`, `Nst_sv_new_c`, `Nst_sv_from_str`
+    - `Nst_sv_from_str_slice`
+    - `Nst_str_from_sv`
+    - `Nst_sv_next`
+    - `Nst_sv_compare`
+    - `Nst_sv_lfind`
+    - `Nst_sv_rfind`
+- added `str_builder.h` header which includes the following symbols
+    - `Nst_StrBuilder`
+    - `Nst_sb_init`
+    - `Nst_sb_destroy`
+    - `Nst_sb_reverse`
+    - `Nst_sb_push`
+    - `Nst_sb_push_sv`
+    - `Nst_sb_push_str`
+    - `Nst_sb_push_c`
+    - `Nst_sb_push_cps`
+    - `Nst_sb_push_char`
+    - `Nst_str_from_sb`
+    - `Nst_sv_from_sb`
 
 **Changes**
 
@@ -139,6 +164,23 @@
     - `_Nst_map_get_str` (now there is only `Nst_map_get_str`)
     - `_Nst_map_drop_str` (now there is only `Nst_map_drop_str`)
     - `_Nst_map_resize`
+- removed the following symbols from `simple_types.h`
+    - `AS_BOOL`, `AS_BYTE`, `AS_REAL`
+    - `Nst_BoolObj`, `Nst_ByteObj`, `Nst_RealObj`
+    - `Nst_bool_new`
+    - `_Nst_number_to_f32` (now there is only `Nst_number_to_f32`)
+    - `_Nst_number_to_f64` (now there is only `Nst_number_to_f64`)
+    - `_Nst_number_to_i32` (now there is only `Nst_number_to_i32`)
+    - `_Nst_number_to_i64` (now there is only `Nst_number_to_i64`)
+    - `_Nst_number_to_int` (now there is only `Nst_number_to_int`)
+    - `_Nst_number_to_u8` (now there is only `Nst_number_to_u8`)
+    - `_Nst_obj_to_bool` (now there is only `Nst_obj_to_bool`)
+- removed the following symbols from `obj.h`
+    - `_Nst_dec_ref` (now there is only `Nst_dec_ref`)
+    - `_Nst_inc_ref` (now there is only `Nst_inc_ref`)
+    - `Nst_obj_destroy`, `_Nst_obj_destroy`
+    - `_Nst_obj_free`
+- removed `Nst_Buffer` and all `Nst_buffer_*` functions, use `Nst_StrBuilder` instead
 
 **Bug fixes**
 

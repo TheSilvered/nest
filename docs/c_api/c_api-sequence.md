@@ -317,20 +317,6 @@ The new sequence or NULL on failure. The error is set.
 
 ---
 
-### `_Nst_seq_destroy`
-
-**Synopsis:**
-
-```better-c
-void _Nst_seq_destroy(Nst_Obj *seq)
-```
-
-**Description:**
-
-Destructor for sequence objects.
-
----
-
 ### `_Nst_seq_traverse`
 
 **Synopsis:**

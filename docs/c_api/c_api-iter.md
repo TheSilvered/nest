@@ -38,20 +38,6 @@ The new object or `NULL` on failure. The error is set.
 
 ---
 
-### `_Nst_iter_destroy`
-
-**Synopsis:**
-
-```better-c
-void _Nst_iter_destroy(Nst_Obj *iter)
-```
-
-**Description:**
-
-Destructor for Nest iter objects.
-
----
-
 ### `_Nst_iter_traverse`
 
 **Synopsis:**

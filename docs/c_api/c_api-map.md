@@ -60,20 +60,6 @@ The copied map or `NULL` on failure. The error is set.
 
 ---
 
-### `_Nst_map_destroy`
-
-**Synopsis:**
-
-```better-c
-void _Nst_map_destroy(Nst_Obj *map)
-```
-
-**Description:**
-
-The destructor for the map object.
-
----
-
 ### `_Nst_map_traverse`
 
 **Synopsis:**

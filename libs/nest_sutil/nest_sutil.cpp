@@ -920,7 +920,7 @@ Nst_Obj *NstC decode_(usize arg_num, Nst_Obj **args)
     Nst_Obj **objs = _Nst_seq_objs(seq);
 
     for (usize i = 0; i < len; i++)
-        byte_array[i] = AS_BYTE(objs[i]);
+        byte_array[i] = Nst_byte_u8(objs[i]);
 
     byte_array[len] = 0;
 

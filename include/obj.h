@@ -22,20 +22,6 @@
 /* Casts `obj` to `Nst_Obj *`. */
 #define OBJ(obj) ((Nst_Obj *)(obj))
 
-/* Alias for `_Nst_inc_ref` that casts `obj` to `Nst_Obj *`. */
-#define Nst_inc_ref(obj) _Nst_inc_ref(OBJ(obj))
-/* Calls `Nst_inc_ref` if `obj` is not a `NULL` pointer. */
-#define Nst_ninc_ref(obj) (obj == NULL ? NULL : _Nst_inc_ref(OBJ(obj)))
-/* Alias for `_Nst_dec_ref` that casts `obj` to `Nst_Obj *`. */
-#define Nst_dec_ref(obj) _Nst_dec_ref(OBJ(obj))
-/* Calls `Nst_dec_ref` if the object is not a `NULL` pointer. */
-#define Nst_ndec_ref(obj) do {                                                \
-    Nst_Obj *__Nst_temp_obj = OBJ(obj);                                       \
-    if (__Nst_temp_obj != NULL)                                               \
-        _Nst_dec_ref(__Nst_temp_obj);                                         \
-    } while (0)
-/* Alias for `_Nst_obj_destroy` that casts obj to `Nst_Obj *`. */
-#define Nst_obj_destroy(obj) _Nst_obj_destroy(OBJ(obj))
 /**
  * @brief Wrapper for `_Nst_obj_alloc`. `type` is used to get the size of the
  * object to allocate and to cast the result into the correct pointer type.
@@ -157,28 +143,18 @@ NstEXP typedef Nst_Obj Nst_NullObj;
  * @return The newly allocate object or `NULL` on failure. The error is set.
  */
 NstEXP Nst_Obj *NstC _Nst_obj_alloc(usize size, struct _Nst_TypeObj *type);
-/**
- * Calls an object's destructor.
- *
- * @brief This function should not be called on most occasions, use
- * `Nst_dec_ref` instead.
- */
-NstEXP void NstC _Nst_obj_destroy(Nst_Obj *obj);
 
-/**
- * Frees the memory of the object or adds it to the object pool. The reference
- * to the object's type is removed.
- *
- * @param obj: the pointer to the object to free
- */
-NstEXP void NstC _Nst_obj_free(Nst_Obj *obj);
-/* Increases the reference count of an object. */
-NstEXP Nst_Obj *NstC _Nst_inc_ref(Nst_Obj *obj);
-/**
- * @brief Decreases the reference count of an object and calls
- * `_Nst_obj_destroy` if it reaches zero.
- */
-NstEXP void NstC _Nst_dec_ref(Nst_Obj *obj);
+void NstC _Nst_obj_destroy(Nst_Obj *obj);
+void NstC _Nst_obj_free(Nst_Obj *obj);
+
+/* Increases the reference count of an object. Returns `obj`. */
+NstEXP Nst_Obj *NstC Nst_inc_ref(Nst_Obj *obj);
+/* Calls `Nst_inc_ref` if `obj` is not a `NULL` pointer. Returns `obj`. */
+NstEXP Nst_Obj *NstC Nst_ninc_ref(Nst_Obj *obj);
+/* Decreases the reference count of an object. */
+NstEXP void NstC Nst_dec_ref(Nst_Obj *obj);
+/* Calls `Nst_dec_ref` if `obj` is not a `NULL` pointer. Returns `obj`. */
+NstEXP void NstC Nst_ndec_ref(Nst_Obj *obj);
 
 /* Flags of a Nest object. */
 NstEXP typedef enum _Nst_ObjFlags {

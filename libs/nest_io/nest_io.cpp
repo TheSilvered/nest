@@ -496,7 +496,7 @@ Nst_Obj *NstC write_bytes_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     for (usize i = 0; i < seq_len; i++)
-        bytes[i] = AS_BYTE(objs[i]);
+        bytes[i] = Nst_byte_u8(objs[i]);
 
     usize count;
     Nst_IOResult result = Nst_fwrite(bytes, seq_len, &count, f);

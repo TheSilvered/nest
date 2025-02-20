@@ -743,11 +743,11 @@ format_type:
             else
                 result = fmt_int(sb, AS_INT(obj), &format);
         } else if (obj->type == Nst_t.Real)
-            result = fmt_double(sb, AS_REAL(obj), &format);
+            result = fmt_double(sb, Nst_real_f64(obj), &format);
         else if (obj->type == Nst_t.Bool)
-            result = fmt_bool(sb, AS_BOOL(obj), &format);
+            result = fmt_bool(sb, obj == Nst_c.Bool_true, &format);
         else if (obj->type == Nst_t.Byte)
-            result = fmt_byte(sb, AS_BYTE(obj), &format);
+            result = fmt_byte(sb, Nst_byte_u8(obj), &format);
         else {
             Nst_Obj *casted_obj = Nst_obj_cast(obj, Nst_t.Str);
             if (casted_obj == NULL)

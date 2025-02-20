@@ -169,20 +169,6 @@ Traverse function for `Func` objects.
 
 ---
 
-### `_Nst_func_destroy`
-
-**Synopsis:**
-
-```better-c
-void _Nst_func_destroy(Nst_Obj *func)
-```
-
-**Description:**
-
-Destructor for `Func` objects.
-
----
-
 ## Enums
 
 ### `Nst_FuncFlags`

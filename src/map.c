@@ -335,7 +335,7 @@ Nst_Obj *Nst_map_copy(Nst_Obj *map)
         NULL);
 
     if (new_nodes == NULL) {
-        Nst_dec_ref(new_map);
+        Nst_dec_ref(OBJ(new_map));
         return NULL;
     }
 

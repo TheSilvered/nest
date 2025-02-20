@@ -256,7 +256,7 @@ static Nst_SeqObj *seq_create_c(Nst_SeqObj *seq, const i8 *fmt, va_list args)
     return seq;
 failed:
     seq->len = i;
-    Nst_dec_ref(seq);
+    Nst_dec_ref(OBJ(seq));
     return NULL;
 }
 

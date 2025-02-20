@@ -18,7 +18,7 @@ GUI_RawLabel *GUI_RawLabel_New(GUI_Element *parent, i8 *text, isize text_len)
         label->text_len = text_len;
     label->text = (i8 *)Nst_calloc(1, label->text_len + 1, text);
     if (label->text == nullptr) {
-        Nst_dec_ref(label);
+        Nst_dec_ref(OBJ(label));
         return nullptr;
     }
 

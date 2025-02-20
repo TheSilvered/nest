@@ -68,8 +68,8 @@ NstEXP Nst_Obj *NstC Nst_func_mod_globals(Nst_Obj *func);
 
 /* Traverse function for `Func` objects. */
 NstEXP void NstC _Nst_func_traverse(Nst_Obj *func);
-/* Destructor for `Func` objects. */
-NstEXP void NstC _Nst_func_destroy(Nst_Obj *func);
+
+void NstC _Nst_func_destroy(Nst_Obj *func);
 
 /* Flags for `Func` objects. */
 NstEXP typedef enum _Nst_FuncFlags {

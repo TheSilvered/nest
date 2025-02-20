@@ -108,7 +108,7 @@ Nst_InstList *Nst_inst_list_new(Nst_LList *instructions)
     return inst_ls;
 
 failure:
-    Nst_llist_destroy(functions, (Nst_LListDestructor)_Nst_dec_ref);
+    Nst_llist_destroy(functions, (Nst_LListDestructor)Nst_dec_ref);
     Nst_free(inst_array);
     Nst_free(inst_ls);
     return NULL;
@@ -123,6 +123,6 @@ void Nst_inst_list_destroy(Nst_InstList *inst_list)
     }
 
     Nst_free(instructions);
-    Nst_llist_destroy(inst_list->functions, (Nst_LListDestructor)_Nst_dec_ref);
+    Nst_llist_destroy(inst_list->functions, (Nst_LListDestructor)Nst_dec_ref);
     Nst_free(inst_list);
 }

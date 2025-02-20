@@ -36,14 +36,14 @@ Nst_Declr *lib_init()
 
 void lib_quit()
 {
-    Nst_dec_ref(t_Coroutine);
+    Nst_dec_ref(OBJ(t_Coroutine));
     Nst_dec_ref(state_suspended);
     Nst_dec_ref(state_running);
     Nst_dec_ref(state_paused);
     Nst_dec_ref(state_ended);
 
     for (usize i = 0, n = co_c_stack.len; i < n; i++)
-        Nst_dec_ref(co_c_stack.stack[i]);
+        Nst_dec_ref(OBJ(co_c_stack.stack[i]));
     Nst_free(co_c_stack.stack);
 }
 
@@ -52,12 +52,12 @@ static void co_c_stack_push(CoroutineObj *co)
     Nst_stack_expand((Nst_GenericStack *)&co_c_stack, sizeof(CoroutineObj *));
     co_c_stack.stack[co_c_stack.len] = co;
     co_c_stack.len++;
-    Nst_inc_ref(co);
+    Nst_inc_ref(OBJ(co));
 }
 
 static void co_c_stack_pop()
 {
-    Nst_dec_ref(co_c_stack.stack[co_c_stack.len - 1]);
+    Nst_dec_ref(OBJ(co_c_stack.stack[co_c_stack.len - 1]));
     co_c_stack.len--;
     Nst_stack_shrink((Nst_GenericStack *)&co_c_stack, 8, sizeof(CoroutineObj *));
 }
@@ -353,9 +353,9 @@ Nst_Obj *NstC generator_(usize arg_num, Nst_Obj **args)
     if (co_args == nullptr)
         return nullptr;
 
-    Nst_Obj *arr = Nst_array_create(2, Nst_inc_ref(co), co_args);
+    Nst_Obj *arr = Nst_array_create(2, Nst_inc_ref(OBJ(co)), co_args);
     if (arr == nullptr) {
-        Nst_dec_ref(co);
+        Nst_dec_ref(OBJ(co));
         Nst_dec_ref(co_args);
         return nullptr;
     }
@@ -370,5 +370,5 @@ Nst_Obj *NstC _get_co_type_obj_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
-    return Nst_inc_ref(t_Coroutine);
+    return Nst_inc_ref(OBJ(t_Coroutine));
 }

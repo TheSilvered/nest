@@ -141,7 +141,7 @@ void GUI_PointPos_InitAbs(GUI_PointPos *pos, int x, int y)
 void GUI_PointPos_InitRel(GUI_PointPos *pos, GUI_Element *element,
                           GUI_Point point)
 {
-    Nst_inc_ref(element);
+    Nst_inc_ref(OBJ(element));
     pos->rel.element = element;
     pos->rel.point = point;
     pos->is_abs = false;
@@ -150,7 +150,7 @@ void GUI_PointPos_InitRel(GUI_PointPos *pos, GUI_Element *element,
 void GUI_PointPos_Destroy(GUI_PointPos *pos)
 {
     if (!pos->is_abs)
-        Nst_dec_ref(pos->rel.element);
+        Nst_dec_ref(OBJ(pos->rel.element));
 }
 
 
@@ -179,7 +179,7 @@ void GUI_XSidePos_InitAbs(GUI_XSidePos *pos, int x)
 void GUI_XSidePos_InitRel(GUI_XSidePos *pos, GUI_Element *element,
                           GUI_XSide x_side)
 {
-    Nst_inc_ref(element);
+    Nst_inc_ref(OBJ(element));
     pos->rel.element = element;
     pos->rel.x_side = x_side;
     pos->is_abs = false;
@@ -188,7 +188,7 @@ void GUI_XSidePos_InitRel(GUI_XSidePos *pos, GUI_Element *element,
 void GUI_XSidePos_Destroy(GUI_XSidePos *pos)
 {
     if (!pos->is_abs)
-        Nst_dec_ref(pos->rel.element);
+        Nst_dec_ref(OBJ(pos->rel.element));
 }
 
 void GUI_XSidePos_Traverse(GUI_XSidePos *pos)
@@ -213,7 +213,7 @@ void GUI_YSidePos_InitAbs(GUI_YSidePos *pos, int y)
 void GUI_YSidePos_InitRel(GUI_YSidePos *pos, GUI_Element *element,
                           GUI_YSide y_side)
 {
-    Nst_inc_ref(pos->rel.element);
+    Nst_inc_ref(OBJ(pos->rel.element));
     pos->rel.element = element;
     pos->rel.y_side = y_side;
     pos->is_abs = false;
@@ -222,7 +222,7 @@ void GUI_YSidePos_InitRel(GUI_YSidePos *pos, GUI_Element *element,
 void GUI_YSidePos_Destroy(GUI_YSidePos *pos)
 {
     if (!pos->is_abs)
-        Nst_dec_ref(pos->rel.element);
+        Nst_dec_ref(OBJ(pos->rel.element));
 }
 
 void GUI_YSidePos_Traverse(GUI_YSidePos *pos)

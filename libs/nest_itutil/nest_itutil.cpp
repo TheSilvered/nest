@@ -53,10 +53,10 @@ Nst_Obj *NstC count_(usize arg_num, Nst_Obj **args)
 
     if (!Nst_extract_args("i:i ?i", arg_num, args, &start, &step_obj))
         return nullptr;
-    Nst_IntObj *step = Nst_DEF_VAL(
+    Nst_Obj *step = Nst_DEF_VAL(
         step_obj,
-        (Nst_IntObj *)Nst_inc_ref(step_obj),
-        (Nst_IntObj *)Nst_int_new(1));
+        Nst_inc_ref(step_obj),
+        Nst_int_new(1));
 
     // Layout: [idx, start, step]
     Nst_Obj *arr = Nst_array_create_c("ioo", 0, start, step);
@@ -106,10 +106,8 @@ Nst_Obj *NstC repeat_(usize arg_num, Nst_Obj **args)
     // Layout: [count, item, max_times]
     Nst_Obj *arr = Nst_array_create_c("iOI", 0, ob, times);
 
-    if (arr == nullptr) {
-        Nst_dec_ref(times);
+    if (arr == nullptr)
         return nullptr;
-    }
 
     RETURN_NEW_ITER(repeat_start, repeat_next, arr);
 }

@@ -79,6 +79,33 @@ object.
 
 ---
 
+### `Nst_sv_from_str_slice`
+
+**Synopsis:**
+
+```better-c
+Nst_StrView Nst_sv_from_str_slice(Nst_Obj *str, usize start_idx, usize end_idx)
+```
+
+**Description:**
+
+Create a new [`Nst_StrView`](c_api-str_view.md#nst_strview) from a slice of a
+Nest `Str` object.
+
+**Parameters:**
+
+- `str`: the string to slice
+- `start_idx`: the starting character index, included in the slice
+- `end_idx`: the ending character index, excluded from the slice
+
+**Returns:**
+
+The new [`Nst_StrView`](c_api-str_view.md#nst_strview). It will have a `len` of
+`0` and a `value` of `NULL` if the indices are the same or are invalid. Any
+`end_idx` beyond the end of the string is clamped to the length of the string.
+
+---
+
 ### `Nst_str_from_sv`
 
 **Synopsis:**

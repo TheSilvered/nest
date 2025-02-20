@@ -104,7 +104,7 @@ Nst_Obj *NstC log_(usize arg_num, Nst_Obj **args)
 
     if (base_obj == Nst_null())
         return Nst_real_new(log10(n));
-    f64 base = AS_REAL(base_obj);
+    f64 base = Nst_real_f64(base_obj);
 
     if (base == 2.0)
         return Nst_real_new(log2(n));
@@ -612,8 +612,8 @@ Nst_Obj *NstC gcd_(usize arg_num, Nst_Obj **args)
         i64 n2_int = Nst_number_to_i64(ob2);
         return Nst_int_new(gcd_int(n1_int, n2_int));
     } else {
-        u8 n1_byte = AS_BYTE(ob1);
-        u8 n2_byte = AS_BYTE(ob2);
+        u8 n1_byte = Nst_byte_u8(ob1);
+        u8 n2_byte = Nst_byte_u8(ob2);
         return Nst_byte_new((u8)gcd_int((i64)n1_byte, (i64)n2_byte));
     }
 }

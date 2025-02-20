@@ -261,7 +261,7 @@ Nst_Obj *Nst_obj_gt(Nst_Obj *ob1, Nst_Obj *ob2)
     if (ARE_TYPE(Nst_t.Str))
         Nst_RETURN_BOOL(Nst_str_compare(ob1, ob2) > 0);
     else if (ARE_TYPE(Nst_t.Byte))
-        Nst_RETURN_BOOL(AS_BYTE(ob1) > AS_BYTE(ob2));
+        Nst_RETURN_BOOL(Nst_byte_u8(ob1) > Nst_byte_u8(ob2));
     else if (IS_INT(ob1) && IS_INT(ob2)) {
         i64 v1 = Nst_number_to_i64(ob1);
         i64 v2 = Nst_number_to_i64(ob2);
@@ -281,7 +281,7 @@ Nst_Obj *Nst_obj_lt(Nst_Obj *ob1, Nst_Obj *ob2)
     if (ARE_TYPE(Nst_t.Str))
         Nst_RETURN_BOOL(Nst_str_compare(ob1, ob2) < 0);
     else if (ARE_TYPE(Nst_t.Byte))
-        Nst_RETURN_BOOL(AS_BYTE(ob1) < AS_BYTE(ob2));
+        Nst_RETURN_BOOL(Nst_byte_u8(ob1) < Nst_byte_u8(ob2));
     else if (IS_INT(ob1) && IS_INT(ob2)) {
         i64 v1 = Nst_number_to_i64(ob1);
         i64 v2 = Nst_number_to_i64(ob2);
@@ -342,7 +342,7 @@ Nst_Obj *Nst_obj_add(Nst_Obj *ob1, Nst_Obj *ob2)
             return NULL;
         return Nst_inc_ref(ob1);
     } else if (ARE_TYPE(Nst_t.Byte))
-        return Nst_byte_new(AS_BYTE(ob1) + AS_BYTE(ob2));
+        return Nst_byte_new(Nst_byte_u8(ob1) + Nst_byte_u8(ob2));
     else if (IS_INT(ob1) && IS_INT(ob2)) {
         i64 v1 = Nst_number_to_i64(ob1);
         i64 v2 = Nst_number_to_i64(ob2);
@@ -372,7 +372,7 @@ Nst_Obj *Nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2)
         Nst_ndec_ref(res);
         return Nst_inc_ref(ob1);
     } else if (ARE_TYPE(Nst_t.Byte))
-        return Nst_byte_new(AS_BYTE(ob1) - AS_BYTE(ob2));
+        return Nst_byte_new(Nst_byte_u8(ob1) - Nst_byte_u8(ob2));
     else if (IS_INT(ob1) && IS_INT(ob2)) {
         i64 v1 = Nst_number_to_i64(ob1);
         i64 v2 = Nst_number_to_i64(ob2);
@@ -401,7 +401,7 @@ Nst_Obj *Nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2)
         }
         return Nst_inc_ref(ob1);
     } else if (ARE_TYPE(Nst_t.Byte))
-        return Nst_byte_new(AS_BYTE(ob1) * AS_BYTE(ob2));
+        return Nst_byte_new(Nst_byte_u8(ob1) * Nst_byte_u8(ob2));
     else if (IS_INT(ob1) && IS_INT(ob2)) {
         i64 v1 = Nst_number_to_i64(ob1);
         i64 v2 = Nst_number_to_i64(ob2);
@@ -419,12 +419,12 @@ Nst_Obj *Nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2)
     if (ob1->type == Nst_t.Vector && ob2->type == Nst_t.Int)
         return Nst_vector_pop(ob1, (usize)AS_INT(ob2));
     else if (ARE_TYPE(Nst_t.Byte)) {
-        if (AS_BYTE(ob2) == 0) {
+        if (Nst_byte_u8(ob2) == 0) {
             Nst_set_math_error_c(_Nst_EM_DIVISION_BY_ZERO);
             return NULL;
         }
 
-        return Nst_byte_new(AS_BYTE(ob1) / AS_BYTE(ob2));
+        return Nst_byte_new(Nst_byte_u8(ob1) / Nst_byte_u8(ob2));
     } else if (IS_INT(ob1) && IS_INT(ob2)) {
         i64 v1 = Nst_number_to_i64(ob1);
         i64 v2 = Nst_number_to_i64(ob2);
@@ -482,8 +482,8 @@ static i64 fast_int_pow(i64 base, i64 exp)
 Nst_Obj *Nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ARE_TYPE(Nst_t.Byte)) {
-        u8 base = AS_BYTE(ob1);
-        u8 exp = AS_BYTE(ob2);
+        u8 base = Nst_byte_u8(ob1);
+        u8 exp = Nst_byte_u8(ob2);
         return Nst_byte_new(fast_byte_pow(base, exp));
     } else if (IS_INT(ob1) && IS_INT(ob2)) {
         i64 base = Nst_number_to_i64(ob1);
@@ -511,12 +511,12 @@ Nst_Obj *Nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2)
 Nst_Obj *Nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ARE_TYPE(Nst_t.Byte)) {
-        if (AS_BYTE(ob2) == 0) {
+        if (Nst_byte_u8(ob2) == 0) {
             Nst_set_math_error_c(_Nst_EM_MODULO_BY_ZERO);
             return NULL;
         }
 
-        return Nst_byte_new(AS_BYTE(ob1) % AS_BYTE(ob2));
+        return Nst_byte_new(Nst_byte_u8(ob1) % Nst_byte_u8(ob2));
     } else if (IS_INT(ob1) && IS_INT(ob2)) {
         i64 v1 = Nst_number_to_i64(ob1);
         i64 v2 = Nst_number_to_i64(ob2);
@@ -545,7 +545,7 @@ Nst_Obj *Nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2)
 Nst_Obj *Nst_obj_bwor(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ARE_TYPE(Nst_t.Byte))
-        return Nst_byte_new(AS_BYTE(ob1) | AS_BYTE(ob2));
+        return Nst_byte_new(Nst_byte_u8(ob1) | Nst_byte_u8(ob2));
     else if (IS_INT(ob1) && IS_INT(ob2)) {
         i64 v1 = Nst_number_to_i64(ob1);
         i64 v2 = Nst_number_to_i64(ob2);
@@ -557,7 +557,7 @@ Nst_Obj *Nst_obj_bwor(Nst_Obj *ob1, Nst_Obj *ob2)
 Nst_Obj *Nst_obj_bwand(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ARE_TYPE(Nst_t.Byte))
-        return Nst_byte_new(AS_BYTE(ob1) & AS_BYTE(ob2));
+        return Nst_byte_new(Nst_byte_u8(ob1) & Nst_byte_u8(ob2));
     else if (IS_INT(ob1) && IS_INT(ob2)) {
         i64 v1 = Nst_number_to_i64(ob1);
         i64 v2 = Nst_number_to_i64(ob2);
@@ -569,7 +569,7 @@ Nst_Obj *Nst_obj_bwand(Nst_Obj *ob1, Nst_Obj *ob2)
 Nst_Obj *Nst_obj_bwxor(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ARE_TYPE(Nst_t.Byte))
-        return Nst_byte_new(AS_BYTE(ob1) ^ AS_BYTE(ob2));
+        return Nst_byte_new(Nst_byte_u8(ob1) ^ Nst_byte_u8(ob2));
     else if (IS_INT(ob1) && IS_INT(ob2)) {
         i64 v1 = Nst_number_to_i64(ob1);
         i64 v2 = Nst_number_to_i64(ob2);
@@ -581,7 +581,7 @@ Nst_Obj *Nst_obj_bwxor(Nst_Obj *ob1, Nst_Obj *ob2)
 Nst_Obj *Nst_obj_bwls(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ARE_TYPE(Nst_t.Byte))
-        return Nst_byte_new(AS_BYTE(ob1) << AS_BYTE(ob2));
+        return Nst_byte_new(Nst_byte_u8(ob1) << Nst_byte_u8(ob2));
     else if (IS_INT(ob1) && IS_INT(ob2)) {
         i64 v1 = Nst_number_to_i64(ob1);
         i64 v2 = Nst_number_to_i64(ob2);
@@ -593,7 +593,7 @@ Nst_Obj *Nst_obj_bwls(Nst_Obj *ob1, Nst_Obj *ob2)
 Nst_Obj *Nst_obj_bwrs(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ARE_TYPE(Nst_t.Byte))
-        return Nst_byte_new(AS_BYTE(ob1) >> AS_BYTE(ob2));
+        return Nst_byte_new(Nst_byte_u8(ob1) >> Nst_byte_u8(ob2));
     else if (IS_INT(ob1) && IS_INT(ob2)) {
         i64 v1 = Nst_number_to_i64(ob1);
         i64 v2 = Nst_number_to_i64(ob2);
@@ -639,7 +639,7 @@ Nst_Obj *_Nst_repr_str_cast(Nst_Obj *ob)
         i8 *str = Nst_calloc_c(5, i8, NULL);
         CHECK_BUFFER(str);
 
-        sprintf(str, "%lib", (i32)AS_BYTE(ob));
+        sprintf(str, "%lib", (i32)Nst_byte_u8(ob));
         return Nst_str_new_c_raw((const i8 *)str, true);
     } else
         return Nst_obj_cast(ob, Nst_t.Str);
@@ -811,7 +811,11 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
         return Nst_str_new_allocated(str, str_len);
     } else if (ob_t == Nst_t.Real) {
         usize str_len;
-        i8 *str = Nst_fmt("{f:Gp.*}", 8, &str_len, AS_REAL(ob), REAL_PRECISION);
+        i8 *str = Nst_fmt(
+            "{f:Gp.*}", 8,
+            &str_len,
+            Nst_real_f64(ob),
+            REAL_PRECISION);
         CHECK_BUFFER(str);
         return Nst_str_new_allocated(str, str_len);
     } else if (ob_t == Nst_t.Bool) {
@@ -822,11 +826,11 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
     } else if (ob_t == Nst_t.Type) {
         return Nst_str_from_sv(TYPE(ob)->name);
     } else if (ob_t == Nst_t.Byte) {
-        u8 value = AS_BYTE(ob);
+        u8 value = Nst_byte_u8(ob);
         i8 *str = Nst_calloc_c(3, i8, NULL);
         CHECK_BUFFER(str);
         if (value <= 0x7f) {
-            str[0] = AS_BYTE(ob);
+            str[0] = (i8)value;
             return Nst_str_new_allocated(str, 1);
         }
         str[0] = 0b11000000 | (value >> 6);
@@ -889,7 +893,7 @@ static Nst_Obj *obj_to_bool(Nst_Obj *ob)
     if (ob_t == Nst_t.Int)
         Nst_RETURN_BOOL(AS_INT(ob) != 0);
     else if (ob_t == Nst_t.Real)
-        Nst_RETURN_BOOL(AS_REAL(ob) != 0.0);
+        Nst_RETURN_BOOL(Nst_real_f64(ob) != 0.0);
     else if (ob_t == Nst_t.Str)
         Nst_RETURN_BOOL(Nst_str_len(ob) != 0);
     else if (ob_t == Nst_t.Map)
@@ -899,7 +903,7 @@ static Nst_Obj *obj_to_bool(Nst_Obj *ob)
     else if (ob_t == Nst_t.Null)
         Nst_RETURN_FALSE;
     else if (ob_t == Nst_t.Byte)
-        Nst_RETURN_BOOL(AS_BYTE(ob) != 0);
+        Nst_RETURN_BOOL(Nst_byte_u8(ob) != 0);
     else if (ob_t == Nst_t.IOFile)
         Nst_RETURN_BOOL(!Nst_IOF_IS_CLOSED(ob));
     else
@@ -911,7 +915,7 @@ static Nst_Obj *obj_to_byte(Nst_Obj *ob)
     Nst_TypeObj *ob_t = ob->type;
 
     if (ob_t == Nst_t.Real) {
-        f64 val = AS_REAL(ob);
+        f64 val = Nst_real_f64(ob);
         if (isnan(val)) {
             Nst_set_value_error_c(_Nst_EM_NAN_TO_BYTE);
             return NULL;
@@ -933,7 +937,7 @@ static Nst_Obj *obj_to_int(Nst_Obj *ob)
     Nst_TypeObj *ob_t = ob->type;
 
     if (ob_t == Nst_t.Real) {
-        f64 val = AS_REAL(ob);
+        f64 val = Nst_real_f64(ob);
         if (isnan(val)) {
             Nst_set_value_error_c(_Nst_EM_NAN_TO_INT);
             return NULL;
@@ -943,7 +947,7 @@ static Nst_Obj *obj_to_int(Nst_Obj *ob)
         }
         return Nst_int_new((i64)val);
     } else if (ob_t == Nst_t.Byte)
-        return Nst_int_new((i64)AS_BYTE(ob));
+        return Nst_int_new((i64)Nst_byte_u8(ob));
     else if (ob_t == Nst_t.Str)
         return Nst_str_parse_int(ob, 0);
     RETURN_CAST_TYPE_ERROR(Nst_t.Int);
@@ -956,7 +960,7 @@ static Nst_Obj *obj_to_real(Nst_Obj *ob)
     if (ob_t == Nst_t.Int)
         return Nst_real_new((f64)AS_INT(ob));
     else if (ob_t == Nst_t.Byte)
-        return Nst_real_new((f64)AS_BYTE(ob));
+        return Nst_real_new((f64)Nst_byte_u8(ob));
     else if (ob_t == Nst_t.Str)
         return Nst_str_parse_real(ob);
     RETURN_CAST_TYPE_ERROR(Nst_t.Real);
@@ -1032,8 +1036,8 @@ static Nst_Obj *iter_to_seq(Nst_Obj *ob, bool is_vect)
     if (is_vect)
         return seq;
 
-    seq->type = TYPE(Nst_inc_ref(Nst_t.Array));
-    Nst_dec_ref(Nst_t.Vector);
+    seq->type = TYPE(Nst_inc_ref(OBJ(Nst_t.Array)));
+    Nst_dec_ref(OBJ(Nst_t.Vector));
     return seq;
 }
 
@@ -1381,11 +1385,11 @@ Nst_Obj *Nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step)
 Nst_Obj *Nst_obj_neg(Nst_Obj *ob)
 {
     if (ob->type == Nst_t.Byte)
-        return Nst_byte_new(-AS_BYTE(ob));
+        return Nst_byte_new(-Nst_byte_u8(ob));
     else if (ob->type == Nst_t.Int)
         return Nst_int_new(-AS_INT(ob));
     else if (ob->type == Nst_t.Real)
-        return Nst_real_new(-AS_REAL(ob));
+        return Nst_real_new(-Nst_real_f64(ob));
     else
         RETURN_LOCAL_OP_TYPE_ERROR("-:");
 }
@@ -1407,7 +1411,7 @@ Nst_Obj *Nst_obj_len(Nst_Obj *ob)
 Nst_Obj *Nst_obj_bwnot(Nst_Obj *ob)
 {
     if (ob->type == Nst_t.Byte)
-        return Nst_byte_new(~AS_BYTE(ob));
+        return Nst_byte_new(~Nst_byte_u8(ob));
     else if (ob->type == Nst_t.Int)
         return Nst_int_new(~AS_INT(ob));
     else
@@ -1514,7 +1518,7 @@ Nst_Obj *Nst_obj_stdin(Nst_Obj *ob)
 
 Nst_Obj *Nst_obj_typeof(Nst_Obj *ob)
 {
-    return Nst_inc_ref(ob->type);
+    return Nst_inc_ref(OBJ(ob->type));
 }
 
 Nst_Obj *Nst_obj_import(Nst_Obj *ob)
