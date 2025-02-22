@@ -416,7 +416,7 @@ Nst_Obj *NstC close_(usize arg_num, Nst_Obj **args)
 
     Nst_fclose(f);
 
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC write_(usize arg_num, Nst_Obj **args)
@@ -742,7 +742,7 @@ Nst_Obj *NstC flush_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC get_flags_(usize arg_num, Nst_Obj **args)
@@ -912,7 +912,7 @@ Nst_Obj *NstC println_(usize arg_num, Nst_Obj **args)
     }
 
     Nst_dec_ref(s_obj);
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC _set_stdin_(usize arg_num, Nst_Obj **args)
@@ -933,13 +933,13 @@ Nst_Obj *NstC _set_stdin_(usize arg_num, Nst_Obj **args)
     }
 
     if (f == Nst_stdio()->in)
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
 
     Nst_dec_ref(Nst_stdio()->in);
     Nst_dec_ref(stdin_obj);
     Nst_stdio()->in = Nst_inc_ref(f);
     stdin_obj = Nst_inc_ref(f);
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC _set_stdout_(usize arg_num, Nst_Obj **args)
@@ -960,13 +960,13 @@ Nst_Obj *NstC _set_stdout_(usize arg_num, Nst_Obj **args)
     }
 
     if (f == Nst_stdio()->out)
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
 
     Nst_dec_ref(Nst_stdio()->out);
     Nst_dec_ref(stdout_obj);
     Nst_stdio()->out = Nst_inc_ref(f);
     stdout_obj = Nst_inc_ref(f);
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC _set_stderr_(usize arg_num, Nst_Obj **args)
@@ -987,13 +987,13 @@ Nst_Obj *NstC _set_stderr_(usize arg_num, Nst_Obj **args)
     }
 
     if (f == Nst_stdio()->err)
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
 
     Nst_dec_ref(Nst_stdio()->err);
     Nst_dec_ref(stderr_obj);
     Nst_stdio()->err = Nst_inc_ref(f);
     stderr_obj = Nst_inc_ref(f);
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC _get_stdin_(usize arg_num, Nst_Obj **args)

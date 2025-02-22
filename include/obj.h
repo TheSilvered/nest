@@ -27,9 +27,7 @@
  * object to allocate and to cast the result into the correct pointer type.
  */
 #define Nst_obj_alloc(type, type_obj)                                         \
-    (type *)_Nst_obj_alloc(                                                   \
-        sizeof(type),                                                         \
-        (struct _Nst_TypeObj *)(type_obj))
+    (type *)_Nst_obj_alloc(sizeof(type), (type_obj))
 
 /* Sets `flag` of `obj` to `true`. */
 #define Nst_SET_FLAG(obj, flag) ((obj)->flags |= (flag))
@@ -41,9 +39,6 @@
 #define Nst_FLAG(n) (1 << ((n) - 1))
 /* Clears all flags from an object, except for the reserved ones. */
 #define Nst_CLEAR_FLAGS(obj) ((obj)->flags &= 0xff000000)
-
-struct _Nst_StrObj;
-struct _Nst_TypeObj;
 
 /**
  * The type of an object destructor.
@@ -74,7 +69,7 @@ NstEXP typedef void (*Nst_ObjTrav)(void *);
  * because they are reserved for the garbage collector.
  */
 #define Nst_OBJ_HEAD                                                          \
-    struct _Nst_TypeObj *type;                                                \
+    struct _Nst_Obj *type;                                                    \
     struct _Nst_Obj *p_next;                                                  \
     i32 ref_count;                                                            \
     i32 hash;                                                                 \
@@ -93,7 +88,7 @@ NstEXP typedef void (*Nst_ObjTrav)(void *);
  * because they are reserved for the garbage collector.
  */
 #define Nst_OBJ_HEAD                                                          \
-    struct _Nst_TypeObj *type;                                                \
+    struct _Nst_Obj *type;                                                    \
     struct _Nst_Obj *p_next;                                                  \
     i32 ref_count;                                                            \
     i32 hash;                                                                 \
@@ -127,12 +122,6 @@ NstEXP typedef struct _Nst_Obj {
 } Nst_Obj;
 
 /**
- * @brief A `Nst_NullObj` is just a `Nst_Obj` as it does not have any special
- * fields.
- */
-NstEXP typedef Nst_Obj Nst_NullObj;
-
-/**
  * Allocates an object on the heap and initializes the fields in
  * `Nst_OBJ_HEAD`.
  *
@@ -142,7 +131,13 @@ NstEXP typedef Nst_Obj Nst_NullObj;
  *
  * @return The newly allocate object or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC _Nst_obj_alloc(usize size, struct _Nst_TypeObj *type);
+NstEXP Nst_Obj *NstC _Nst_obj_alloc(usize size, Nst_Obj *type);
+
+/**
+ * @brief Traverse an object for the GGC. If the object's type does not have a
+ * traverse function, this function does nothing.
+ */
+NstEXP void NstC Nst_obj_traverse(Nst_Obj *obj);
 
 void NstC _Nst_obj_destroy(Nst_Obj *obj);
 void NstC _Nst_obj_free(Nst_Obj *obj);

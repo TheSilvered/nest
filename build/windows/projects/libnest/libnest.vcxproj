@@ -223,7 +223,6 @@
     <ClCompile Include="..\..\..\..\src\str_builder.c" />
     <ClCompile Include="..\..\..\..\src\str_view.c" />
     <ClCompile Include="..\..\..\..\src\tokens.c" />
-    <ClCompile Include="..\..\..\..\src\type.c" />
     <ClCompile Include="..\..\..\..\src\unicode_db.c" />
     <ClCompile Include="..\..\..\..\src\var_table.c" />
   </ItemGroup>

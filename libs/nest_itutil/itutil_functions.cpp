@@ -91,7 +91,7 @@ Nst_Obj *NstC count_start(usize arg_num, Nst_Obj **args)
     Nst_UNUSED(arg_num);
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
     AS_INT(c_args[0]) = AS_INT(c_args[1]);
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC count_next(usize arg_num, Nst_Obj **args)
@@ -109,7 +109,7 @@ Nst_Obj *NstC cycle_str_start(usize arg_num, Nst_Obj **args)
     Nst_UNUSED(arg_num);
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
     AS_INT(c_args[0]) = 0;
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC cycle_str_next(usize arg_num, Nst_Obj **args)
@@ -128,7 +128,7 @@ Nst_Obj *NstC cycle_seq_start(usize arg_num, Nst_Obj **args)
     Nst_UNUSED(arg_num);
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
     AS_INT(c_args[0]) = 0;
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC cycle_seq_next(usize arg_num, Nst_Obj **args)
@@ -147,7 +147,7 @@ Nst_Obj *NstC cycle_iter_start(usize arg_num, Nst_Obj **args)
     Nst_UNUSED(arg_num);
     if (!Nst_iter_start(args[0]))
         return nullptr;
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC cycle_iter_next(usize arg_num, Nst_Obj **args)
@@ -165,7 +165,7 @@ Nst_Obj *NstC cycle_iter_next(usize arg_num, Nst_Obj **args)
     if (obj != Nst_iend())
         return obj;
     Nst_dec_ref(obj);
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 // --------------------------------- Repeat -------------------------------- //
@@ -174,7 +174,7 @@ Nst_Obj *NstC repeat_start(usize arg_num, Nst_Obj **args)
     Nst_UNUSED(arg_num);
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
     AS_INT(c_args[0]) = 0;
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC repeat_next(usize arg_num, Nst_Obj **args)
@@ -184,7 +184,7 @@ Nst_Obj *NstC repeat_next(usize arg_num, Nst_Obj **args)
 
     i64 max_count = AS_INT(c_args[2]);
     if (max_count >= 0 && AS_INT(c_args[0]) >= max_count)
-        Nst_RETURN_IEND;
+        return Nst_iend_ref();
 
     if (max_count >= 0)
         AS_INT(c_args[0]) += 1;
@@ -204,7 +204,7 @@ Nst_Obj *NstC chain_start(usize arg_num, Nst_Obj **args)
     Nst_dec_ref(c_args[1]);
     c_args[1] = Nst_null_ref();
 
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC chain_next(usize arg_num, Nst_Obj **args)
@@ -250,7 +250,7 @@ Nst_Obj *NstC zip_start(usize arg_num, Nst_Obj **args)
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
     if (!Nst_iter_start(c_args[0]) || !Nst_iter_start(c_args[1]))
         return nullptr;
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC zip_next(usize arg_num, Nst_Obj **args)
@@ -281,7 +281,7 @@ Nst_Obj *NstC zipn_start(usize arg_num, Nst_Obj **args)
         if (!Nst_iter_start(c_args[i + 1]))
             return nullptr;
     }
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC zipn_next(usize arg_num, Nst_Obj **args)
@@ -311,7 +311,7 @@ Nst_Obj *NstC enumerate_start(usize arg_num, Nst_Obj **args)
     AS_INT(c_args[0]) = AS_INT(c_args[2]);
     if (!Nst_iter_start(c_args[1]))
         return nullptr;
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC enumerate_next(usize arg_num, Nst_Obj **args)
@@ -347,11 +347,11 @@ Nst_Obj *NstC keys_next(usize arg_num, Nst_Obj **args)
     idx = Nst_map_next(idx, c_args[1], &key, nullptr);
 
     if (idx == -1)
-        Nst_RETURN_IEND;
+        return Nst_iend_ref();
 
     AS_INT(c_args[0]) = idx;
     if (key == Nst_iend())
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
 
     return Nst_inc_ref(key);
 }
@@ -366,11 +366,11 @@ Nst_Obj *NstC values_next(usize arg_num, Nst_Obj **args)
     idx = Nst_map_next(idx, c_args[1], nullptr, &value);
 
     if (idx == -1)
-        Nst_RETURN_IEND;
+        return Nst_iend_ref();
 
     AS_INT(c_args[0]) = idx;
     if (value == Nst_iend())
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
     return Nst_inc_ref(value);
 }
 
@@ -384,7 +384,7 @@ Nst_Obj *NstC batch_start(usize arg_num, Nst_Obj **args)
         return nullptr;
     Nst_dec_ref(c_args[2]);
     c_args[2] = Nst_false_ref();
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC batch_next(usize arg_num, Nst_Obj **args)
@@ -393,7 +393,7 @@ Nst_Obj *NstC batch_next(usize arg_num, Nst_Obj **args)
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
 
     if (c_args[2] == Nst_true())
-        Nst_RETURN_IEND;
+        return Nst_iend_ref();
 
     Nst_Obj *iter = c_args[0];
     i64 batch_size = AS_INT(c_args[1]);
@@ -413,7 +413,7 @@ Nst_Obj *NstC batch_next(usize arg_num, Nst_Obj **args)
             Nst_dec_ref(obj);
             if (i == 0) {
                 Nst_dec_ref(batch);
-                Nst_RETURN_IEND;
+                return Nst_iend_ref();
             }
             // Make the batch array the correct size
             Nst_Obj *correct_batch =
@@ -432,7 +432,7 @@ Nst_Obj *NstC batch_padded_next(usize arg_num, Nst_Obj **args)
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
 
     if (c_args[2] == Nst_true())
-        Nst_RETURN_IEND;
+        return Nst_iend_ref();
 
     Nst_Obj *iter = c_args[0];
     i64 batch_size = AS_INT(c_args[1]);
@@ -454,7 +454,7 @@ Nst_Obj *NstC batch_padded_next(usize arg_num, Nst_Obj **args)
             Nst_dec_ref(obj);
             if (i == 0) {
                 Nst_dec_ref(batch);
-                Nst_RETURN_IEND;
+                return Nst_iend_ref();
             }
             break;
         }

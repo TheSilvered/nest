@@ -1614,7 +1614,7 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
         }
 
         if (inst.val != NULL) {
-            Nst_printf(" (%s) ", TYPE_NAME(inst.val));
+            Nst_printf(" (%s) ", Nst_type_name(inst.val->type).value);
             Nst_Obj *s = _Nst_repr_str_cast(inst.val);
             if (Nst_error_occurred())
                 Nst_error_clear();

@@ -119,7 +119,7 @@ NstEXP Nst_Obj *NstC _Nst_repr_str_cast(Nst_Obj *ob);
  *
  * @return The casted object or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type);
+NstEXP Nst_Obj *NstC Nst_obj_cast(Nst_Obj *ob, Nst_Obj *type);
 /* Implements the `<.>` operator. On failure the error is set. */
 NstEXP Nst_Obj *NstC Nst_obj_contains(Nst_Obj *ob1, Nst_Obj *ob2);
 /**

@@ -135,7 +135,7 @@ Nst_Obj *NstC insert_at_(usize arg_num, Nst_Obj **args)
         objs[i + 1] = objs[i];
     objs[new_idx] = Nst_inc_ref(obj);
 
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC remove_at_(usize arg_num, Nst_Obj **args)
@@ -251,7 +251,7 @@ Nst_Obj *NstC slice_(usize arg_num, Nst_Obj **args)
         start_obj, stop_obj, step_obj,
         start, step);
 
-    Nst_TypeObj *seq_t = args[0]->type;
+    Nst_Obj *seq_t = args[0]->type;
 
     if (new_size == -1) {
         Nst_dec_ref(seq);
@@ -711,8 +711,8 @@ Nst_Obj *NstC filter_(usize arg_num, Nst_Obj **args)
     }
 
     if (Nst_T(seq, Array)) {
-        Nst_dec_ref(OBJ(new_seq->type));
-        new_seq->type = TYPE(Nst_inc_ref(OBJ(Nst_type()->Array)));
+        Nst_dec_ref(new_seq->type);
+        new_seq->type = Nst_inc_ref(Nst_type()->Array);
     }
 
     return new_seq;
@@ -748,10 +748,10 @@ Nst_Obj *NstC any_(usize arg_num, Nst_Obj **args)
 
     for (usize i = 0, n = Nst_seq_len(seq); i < n; i++) {
         if (Nst_obj_to_bool(Nst_seq_getnf(seq, i)))
-            Nst_RETURN_TRUE;
+            return Nst_true_ref();
     }
 
-    Nst_RETURN_FALSE;
+    return Nst_false_ref();
 }
 
 Nst_Obj *NstC all_(usize arg_num, Nst_Obj **args)
@@ -763,10 +763,10 @@ Nst_Obj *NstC all_(usize arg_num, Nst_Obj **args)
 
     for (usize i = 0, n = Nst_seq_len(seq); i < n; i++) {
         if (!Nst_obj_to_bool(Nst_seq_getnf(seq, i)))
-            Nst_RETURN_FALSE;
+            return Nst_false_ref();
     }
 
-    Nst_RETURN_TRUE;
+    return Nst_true_ref();
 }
 
 Nst_Obj *NstC count_(usize arg_num, Nst_Obj **args)
@@ -790,7 +790,7 @@ Nst_Obj *NstC count_(usize arg_num, Nst_Obj **args)
         return Nst_int_new(count);
     } else {
         if (!Nst_T(obj, Str) || Nst_str_len(obj) == 0)
-            Nst_RETURN_ZERO;
+            return Nst_inc_ref(Nst_const()->Int_0);
 
         Nst_StrView str = Nst_sv_from_str(container);
         Nst_StrView sub = Nst_sv_from_str(obj);

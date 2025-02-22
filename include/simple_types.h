@@ -38,6 +38,8 @@ NstEXP typedef struct _Nst_IntObj {
  * @return The new object on success or `NULL` on failure. The error is set.
  */
 NstEXP Nst_Obj *NstC Nst_int_new(i64 value);
+/* Get the value of an `Int` object as an `i64`. */
+NstEXP i64 NstC Nst_int_i64(Nst_Obj *obj);
 
 /**
  * Creates a new `Real` object.

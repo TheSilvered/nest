@@ -16,10 +16,6 @@
 #define Nst_INST_IS_JUMP(inst_id)                                             \
     ((inst_id) >= Nst_IC_JUMP && (inst_id) <= Nst_IC_PUSH_CATCH)
 
-/* Alias for `_Nst_inst_new_val` that casts `val` to `Nst_Obj *`. */
-#define Nst_inst_new_val(id, val, start, end)                                 \
-    _Nst_inst_new_val(id, OBJ(val), start, end)
-
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
@@ -122,7 +118,7 @@ NstEXP Nst_Inst *NstC Nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end);
  *
  * @return The new instruction or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Inst *NstC _Nst_inst_new_val(Nst_InstID id, Nst_Obj *val,
+NstEXP Nst_Inst *NstC Nst_inst_new_val(Nst_InstID id, Nst_Obj *val,
                                         Nst_Pos start, Nst_Pos end);
 /**
  * Creates a new instruction on the heap with an integer value.

@@ -2,8 +2,8 @@
 #include "gui_constraint.h"
 #include "gui_element.h"
 
-Nst_TypeObj *element_type = nullptr;
-Nst_TypeObj *constr_type = nullptr;
+Nst_Obj *element_type = nullptr;
+Nst_Obj *constr_type = nullptr;
 
 bool GUI_InitTypes()
 {
@@ -25,6 +25,6 @@ bool GUI_InitTypes()
 
 void GUI_QuitTypes()
 {
-    Nst_ndec_ref(OBJ(element_type));
-    Nst_ndec_ref(OBJ(constr_type));
+    Nst_ndec_ref(element_type);
+    Nst_ndec_ref(constr_type);
 }

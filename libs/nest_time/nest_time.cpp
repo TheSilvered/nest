@@ -329,7 +329,7 @@ Nst_Obj *NstC sleep_(usize arg_num, Nst_Obj **args)
 #else
     usleep(useconds_t(time * 1000000));
 #endif
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC sleep_ms_(usize arg_num, Nst_Obj **args)
@@ -344,5 +344,5 @@ Nst_Obj *NstC sleep_ms_(usize arg_num, Nst_Obj **args)
 #else
     usleep(useconds_t(time * 1000));
 #endif
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }

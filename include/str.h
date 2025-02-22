@@ -11,9 +11,6 @@
 
 #include "obj.h"
 
-/* Gets the name of the type of an object as a C string. */
-#define TYPE_NAME(obj) (obj->type->name.value)
-
 /* Value of `idx` in case an error occurs when iterating over a string. */
 #define Nst_STR_LOOP_ERROR -2
 

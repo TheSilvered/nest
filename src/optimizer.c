@@ -415,22 +415,22 @@ Nst_InstList *Nst_optimize_bytecode(Nst_InstList *bc, bool optimize_builtins)
 static bool optimize_bytecode(Nst_InstList *bc, bool optimize_builtins)
 {
     if (optimize_builtins && can_optimize_consts(bc)) {
-        optimize_const(bc, "Type",   OBJ(Nst_t.Type));
-        optimize_const(bc, "Int",    OBJ(Nst_t.Int));
-        optimize_const(bc, "Real",   OBJ(Nst_t.Real));
-        optimize_const(bc, "Bool",   OBJ(Nst_t.Bool));
-        optimize_const(bc, "Null",   OBJ(Nst_t.Null));
-        optimize_const(bc, "Str",    OBJ(Nst_t.Str));
-        optimize_const(bc, "Array",  OBJ(Nst_t.Array));
-        optimize_const(bc, "Vector", OBJ(Nst_t.Vector));
-        optimize_const(bc, "Map",    OBJ(Nst_t.Map));
-        optimize_const(bc, "Func",   OBJ(Nst_t.Func));
-        optimize_const(bc, "Iter",   OBJ(Nst_t.Iter));
-        optimize_const(bc, "Byte",   OBJ(Nst_t.Byte));
-        optimize_const(bc, "IOFile", OBJ(Nst_t.IOFile));
-        optimize_const(bc, "true",   OBJ(Nst_c.Bool_true));
-        optimize_const(bc, "false",  OBJ(Nst_c.Bool_false));
-        optimize_const(bc, "null",   OBJ(Nst_c.Null_null));
+        optimize_const(bc, "Type",   Nst_t.Type);
+        optimize_const(bc, "Int",    Nst_t.Int);
+        optimize_const(bc, "Real",   Nst_t.Real);
+        optimize_const(bc, "Bool",   Nst_t.Bool);
+        optimize_const(bc, "Null",   Nst_t.Null);
+        optimize_const(bc, "Str",    Nst_t.Str);
+        optimize_const(bc, "Array",  Nst_t.Array);
+        optimize_const(bc, "Vector", Nst_t.Vector);
+        optimize_const(bc, "Map",    Nst_t.Map);
+        optimize_const(bc, "Func",   Nst_t.Func);
+        optimize_const(bc, "Iter",   Nst_t.Iter);
+        optimize_const(bc, "Byte",   Nst_t.Byte);
+        optimize_const(bc, "IOFile", Nst_t.IOFile);
+        optimize_const(bc, "true",   Nst_c.Bool_true);
+        optimize_const(bc, "false",  Nst_c.Bool_false);
+        optimize_const(bc, "null",   Nst_c.Null_null);
     }
 
     i64 initial_size;
@@ -766,7 +766,9 @@ static bool remove_push_check(Nst_InstList *bc)
                 Nst_error_get(),
                 inst_list[i].start,
                 inst_list[i].end,
-                Nst_sprintf(_Nst_EM_UNHASHABLE_TYPE, TYPE_NAME(obj)));
+                Nst_sprintf(
+                _Nst_EM_UNHASHABLE_TYPE,
+                Nst_type_name(obj->type).value));
             return false;
         }
 

@@ -386,5 +386,5 @@ Nst_Obj *NstC iter_next_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC IEND_()
 {
-    Nst_RETURN_IEND;
+    return Nst_iend_ref();
 }

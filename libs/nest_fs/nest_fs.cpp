@@ -228,7 +228,7 @@ Nst_Obj *NstC make_dir_(usize arg_num, Nst_Obj **args)
     bool success = fs::create_directory(utf8_path(path), ec);
 
     if (success || ec.value() == ERROR_ALREADY_EXISTS || ec.value() == 0)
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
     else
         return throw_system_error(ec);
 }
@@ -243,7 +243,7 @@ Nst_Obj *NstC make_dirs_(usize arg_num, Nst_Obj **args)
     bool success = fs::create_directories(utf8_path(path), ec);
 
     if (success || ec.value() == ERROR_ALREADY_EXISTS || ec.value() == 0)
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
     else
         return throw_system_error(ec);
 }
@@ -259,7 +259,7 @@ Nst_Obj *NstC remove_(usize arg_num, Nst_Obj **args)
     bool success = fs::remove(utf8_path(path), ec);
 
     if (success)
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
     else
         return throw_system_error(ec);
 }
@@ -275,7 +275,7 @@ Nst_Obj *NstC remove_all_(usize arg_num, Nst_Obj **args)
     bool success = fs::remove_all(utf8_path(path), ec);
 
     if (success)
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
     else
         return throw_system_error(ec);
 }
@@ -291,7 +291,7 @@ Nst_Obj *NstC make_dir_symlink_(usize arg_num, Nst_Obj **args)
 
     fs::create_directory_symlink(utf8_path(target), utf8_path(link), ec);
     if (ec.value() == 0)
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
     else
         return throw_system_error(ec);
 }
@@ -307,7 +307,7 @@ Nst_Obj *NstC make_file_symlink_(usize arg_num, Nst_Obj **args)
 
     fs::create_symlink(utf8_path(target), utf8_path(link), ec);
     if (ec.value() == 0)
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
     else
         return throw_system_error(ec);
 }
@@ -345,7 +345,7 @@ Nst_Obj *NstC make_hard_link_(usize arg_num, Nst_Obj **args)
 
     fs::create_hard_link(utf8_path(target), utf8_path(link), ec);
     if (ec.value() == 0)
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
     else
         return throw_system_error(ec);
 }
@@ -387,7 +387,7 @@ Nst_Obj *NstC copy_(usize arg_num, Nst_Obj **args)
             Nst_str_value(path_to));
         return nullptr;
     } else if (ec.value() == 0)
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
     else
         return throw_system_error(ec);
 }
@@ -411,7 +411,7 @@ Nst_Obj *NstC rename_(usize arg_num, Nst_Obj **args)
             Nst_str_value(new_path));
         return nullptr;
     } else if (ec.value() == 0)
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
     else
         return throw_system_error(ec);
 }
@@ -493,7 +493,7 @@ Nst_Obj *NstC absolute_path_(usize arg_num, Nst_Obj **args)
     if (ec.value() == 0)
         return heap_str(result);
     else
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
 }
 
 Nst_Obj *NstC canonical_path_(usize arg_num, Nst_Obj **args)
@@ -509,7 +509,7 @@ Nst_Obj *NstC canonical_path_(usize arg_num, Nst_Obj **args)
     if (ec.value() == 0)
         return heap_str(result);
     else
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
 }
 
 Nst_Obj *NstC relative_path_(usize arg_num, Nst_Obj **args)
@@ -535,7 +535,7 @@ Nst_Obj *NstC relative_path_(usize arg_num, Nst_Obj **args)
     if (ec.value() == 0)
         return heap_str(result);
     else
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
 }
 
 Nst_Obj *NstC equivalent_(usize arg_num, Nst_Obj **args)

@@ -7,8 +7,8 @@
 extern "C" {
 #endif // !__cplusplus
 
-extern Nst_TypeObj *element_type;
-extern Nst_TypeObj *constr_type;
+extern Nst_Obj *element_type;
+extern Nst_Obj *constr_type;
 
 bool GUI_InitTypes();
 void GUI_QuitTypes();

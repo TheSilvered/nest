@@ -47,19 +47,19 @@ Nst_VarTable *Nst_vt_new(Nst_Obj *global_table, Nst_Obj *args,
         return vt;
     }
 
-    Nst_map_set(vars, Nst_s.t_Type,   OBJ(Nst_t.Type));
-    Nst_map_set(vars, Nst_s.t_Int,    OBJ(Nst_t.Int));
-    Nst_map_set(vars, Nst_s.t_Real,   OBJ(Nst_t.Real));
-    Nst_map_set(vars, Nst_s.t_Bool,   OBJ(Nst_t.Bool));
-    Nst_map_set(vars, Nst_s.t_Null,   OBJ(Nst_t.Null));
-    Nst_map_set(vars, Nst_s.t_Str,    OBJ(Nst_t.Str));
-    Nst_map_set(vars, Nst_s.t_Array,  OBJ(Nst_t.Array));
-    Nst_map_set(vars, Nst_s.t_Vector, OBJ(Nst_t.Vector));
-    Nst_map_set(vars, Nst_s.t_Map,    OBJ(Nst_t.Map));
-    Nst_map_set(vars, Nst_s.t_Func,   OBJ(Nst_t.Func));
-    Nst_map_set(vars, Nst_s.t_Iter,   OBJ(Nst_t.Iter));
-    Nst_map_set(vars, Nst_s.t_Byte,   OBJ(Nst_t.Byte));
-    Nst_map_set(vars, Nst_s.t_IOFile, OBJ(Nst_t.IOFile));
+    Nst_map_set(vars, Nst_s.t_Type,   Nst_t.Type);
+    Nst_map_set(vars, Nst_s.t_Int,    Nst_t.Int);
+    Nst_map_set(vars, Nst_s.t_Real,   Nst_t.Real);
+    Nst_map_set(vars, Nst_s.t_Bool,   Nst_t.Bool);
+    Nst_map_set(vars, Nst_s.t_Null,   Nst_t.Null);
+    Nst_map_set(vars, Nst_s.t_Str,    Nst_t.Str);
+    Nst_map_set(vars, Nst_s.t_Array,  Nst_t.Array);
+    Nst_map_set(vars, Nst_s.t_Vector, Nst_t.Vector);
+    Nst_map_set(vars, Nst_s.t_Map,    Nst_t.Map);
+    Nst_map_set(vars, Nst_s.t_Func,   Nst_t.Func);
+    Nst_map_set(vars, Nst_s.t_Iter,   Nst_t.Iter);
+    Nst_map_set(vars, Nst_s.t_Byte,   Nst_t.Byte);
+    Nst_map_set(vars, Nst_s.t_IOFile, Nst_t.IOFile);
 
     Nst_map_set(vars, Nst_s.c_true,  Nst_c.Bool_true);
     Nst_map_set(vars, Nst_s.c_false, Nst_c.Bool_false);
@@ -84,7 +84,7 @@ Nst_Obj *Nst_vt_get(Nst_VarTable *vt, Nst_Obj *name)
         val = Nst_map_get(vt->global_table, name);
 
     if (val == NULL)
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
     return val;
 }
 

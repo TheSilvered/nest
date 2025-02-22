@@ -187,8 +187,8 @@ static Nst_Obj *parse_array(Nst_LList *tokens)
     }
 
 end:
-    vec->type = TYPE(Nst_inc_ref(OBJ(Nst_type()->Array)));
-    Nst_dec_ref(OBJ(Nst_type()->Vector));
+    vec->type = Nst_inc_ref(Nst_type()->Array);
+    Nst_dec_ref(Nst_type()->Vector);
     DEC_RECURSION_LVL;
     return vec;
 }

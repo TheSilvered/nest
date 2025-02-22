@@ -122,7 +122,7 @@ Nst_Obj *NstC get_env_(usize arg_num, Nst_Obj **args)
     usize buf_size = GetEnvironmentVariable(wide_name, nullptr, 0);
     if (buf_size == 0) {
         Nst_free(wide_name);
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
     }
 
     wchar_t *wide_env_name = Nst_malloc_c(buf_size, wchar_t);
@@ -133,7 +133,7 @@ Nst_Obj *NstC get_env_(usize arg_num, Nst_Obj **args)
     Nst_free(wide_name);
     if (buf_len == 0) {
         Nst_free(wide_env_name);
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
     }
     i8 *env_name = Nst_wchar_t_to_char(wide_env_name, buf_len);
     Nst_free(wide_env_name);
@@ -142,7 +142,7 @@ Nst_Obj *NstC get_env_(usize arg_num, Nst_Obj **args)
 #else
     i8 *env_name_str = getenv(Nst_str_value(name));
     if (env_name_str == nullptr)
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
 
     i8 *env_name = Nst_malloc_c(strlen(env_name_str) + 1, i8);
     if (env_name == nullptr)
@@ -195,11 +195,11 @@ Nst_Obj *NstC set_env_(usize arg_num, Nst_Obj **args)
     if (!overwrite) {
         if (GetEnvironmentVariable(name_buf, nullptr, 0) != 0) {
             Nst_free(name_buf);
-            Nst_RETURN_NULL;
+            return Nst_null_ref();
         }
         if (GetLastError() != ERROR_ENVVAR_NOT_FOUND) {
             Nst_free(name_buf);
-            Nst_RETURN_NULL;
+            return Nst_null_ref();
         }
     }
 
@@ -230,7 +230,7 @@ Nst_Obj *NstC set_env_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 #endif
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC del_env_(usize arg_num, Nst_Obj **args)
@@ -269,7 +269,7 @@ Nst_Obj *NstC del_env_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 #endif
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC get_ref_count_(usize arg_num, Nst_Obj **args)
@@ -322,7 +322,7 @@ Nst_Obj *NstC set_cwd_(usize arg_num, Nst_Obj **args)
 
     if (Nst_chdir(new_cwd) == -1)
         return nullptr;
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC get_cwd_(usize arg_num, Nst_Obj **args)
@@ -370,8 +370,8 @@ Nst_Obj *NstC _raw_exit(usize arg_num, Nst_Obj **args)
 Nst_Obj *NstC _DEBUG_()
 {
 #ifdef _DEBUG
-    Nst_RETURN_TRUE;
+    return Nst_true_ref();
 #else
-    Nst_RETURN_FALSE;
+    return Nst_false_ref();
 #endif
 }

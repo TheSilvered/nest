@@ -15,6 +15,11 @@
 extern "C" {
 #endif // !__cplusplus
 
+typedef struct _Nst_IterRange {
+    i64 count;
+    i64 start, stop, step;
+} _Nst_IterRange;
+
 /**
  * Creates a new Nest iterator object.
  *

@@ -57,7 +57,7 @@ Nst_IntrState Nst_state;
 static bool state_init = false;
 
 static void complete_function(usize final_stack_size);
-static bool type_check(Nst_Obj *obj, Nst_TypeObj *type);
+static bool type_check(Nst_Obj *obj, Nst_Obj *type);
 
 Nst_Inst *inst;
 static volatile bool interrupt = false;
@@ -582,13 +582,13 @@ Nst_Obj *Nst_run_paused_coroutine(Nst_Obj *func, i64 idx, Nst_VarTable *vt)
     return POP_TOP_VALUE;
 }
 
-static bool type_check(Nst_Obj *obj, Nst_TypeObj *type)
+static bool type_check(Nst_Obj *obj, Nst_Obj *type)
 {
     if (obj->type != type) {
         Nst_set_type_errorf(
             _Nst_EM_EXPECTED_TYPES,
-            type->name.value,
-            TYPE_NAME(obj));
+            Nst_type_name(type).value,
+            Nst_type_name(obj->type).value);
         return false;
     }
     return true;
@@ -634,7 +634,9 @@ static InstResult exe_for_start()
     Nst_Obj *iterable = Nst_vstack_peek(&Nst_state.es->v_stack);
     Nst_Obj *iter = Nst_obj_cast(iterable, Nst_t.Iter);
     if (iter == NULL) {
-        Nst_set_type_errorf(_Nst_EM_BAD_CAST("Iter"), TYPE_NAME(iterable));
+        Nst_set_type_errorf(
+            _Nst_EM_BAD_CAST("Iter"),
+            Nst_type_name(iterable->type).value);
         return INST_FAILED;
     }
     Nst_state.es->v_stack.stack[Nst_state.es->v_stack.len - 1] = iter;
@@ -755,7 +757,7 @@ static InstResult exe_hash_check()
     if (obj->hash == -1) {
         Nst_set_type_errorf(
             _Nst_EM_UNHASHABLE_TYPE,
-            TYPE_NAME(obj));
+            Nst_type_name(obj->type).value);
         return INST_FAILED;
     }
     return INST_SUCCESS;
@@ -801,7 +803,7 @@ static InstResult exe_set_cont_val()
         if (idx->type != Nst_t.Int) {
             Nst_set_type_errorf(
                 _Nst_EM_EXPECTED_TYPE("Int"),
-                TYPE_NAME(idx));
+                Nst_type_name(idx->type).value);
 
             return_value = INST_FAILED;
             goto end;
@@ -818,7 +820,7 @@ static InstResult exe_set_cont_val()
 
     Nst_set_type_errorf(
         _Nst_EM_EXPECTED_TYPE("Array', 'Vector', or 'Map"),
-        TYPE_NAME(cont));
+        Nst_type_name(cont->type).value);
     return_value = INST_FAILED;
 
 end:
@@ -932,7 +934,7 @@ static InstResult exe_op_call()
         if (args_seq->type != Nst_t.Array && args_seq->type != Nst_t.Vector) {
             Nst_set_type_errorf(
                 _Nst_EM_EXPECTED_TYPE("Array' or 'Vector"),
-                TYPE_NAME(args_seq));
+                Nst_type_name(args_seq->type).value);
 
             Nst_dec_ref(args_seq);
             Nst_dec_ref(func);
@@ -970,7 +972,7 @@ static InstResult exe_op_cast()
         return INST_FAILED;
     }
 
-    Nst_Obj *res = Nst_obj_cast(val, TYPE(type));
+    Nst_Obj *res = Nst_obj_cast(val, type);
 
     if (res != NULL) {
         Nst_vstack_push(&Nst_state.es->v_stack, res);
@@ -1119,7 +1121,7 @@ static InstResult exe_op_extract()
         if (idx->type != Nst_t.Int) {
             Nst_set_type_errorf(
                 _Nst_EM_EXPECTED_TYPE("Int"),
-                TYPE_NAME(idx));
+                Nst_type_name(idx->type).value);
 
             return_value = INST_FAILED;
             goto end;
@@ -1141,14 +1143,14 @@ static InstResult exe_op_extract()
         else {
             Nst_set_type_errorf(
                 _Nst_EM_UNHASHABLE_TYPE,
-                TYPE_NAME(idx));
+                Nst_type_name(idx->type).value);
             return_value = INST_FAILED;
         }
     } else if (cont->type == Nst_t.Str) {
         if (idx->type != Nst_t.Int) {
             Nst_set_type_errorf(
                 _Nst_EM_EXPECTED_TYPE("Int"),
-                TYPE_NAME(idx));
+                Nst_type_name(idx->type).value);
 
             return_value = INST_FAILED;
             goto end;
@@ -1163,7 +1165,7 @@ static InstResult exe_op_extract()
     } else {
         Nst_set_type_errorf(
             _Nst_EM_EXPECTED_TYPE("Array', 'Vector', 'Map' or 'Str"),
-            TYPE_NAME(cont));
+            Nst_type_name(cont->type).value);
         return_value = INST_FAILED;
     }
 
@@ -1374,7 +1376,7 @@ static InstResult exe_unpack_seq()
     if (seq->type != Nst_t.Array && seq->type != Nst_t.Vector) {
         Nst_set_type_errorf(
             _Nst_EM_EXPECTED_TYPE("Array' or 'Vector"),
-            TYPE_NAME(seq));
+            Nst_type_name(seq->type).value);
         Nst_dec_ref(seq);
         return INST_FAILED;
     }

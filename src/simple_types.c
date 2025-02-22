@@ -28,6 +28,11 @@ Nst_Obj *Nst_int_new(i64 value)
     NEW_SIMPLE_TYPE(Nst_IntObj, Nst_t.Int);
 }
 
+i64 Nst_int_i64(Nst_Obj *obj)
+{
+    return ((Nst_IntObj *)obj)->value;
+}
+
 Nst_Obj *Nst_real_new(f64 value)
 {
     NEW_SIMPLE_TYPE(Nst_RealObj, Nst_t.Real);
@@ -70,7 +75,7 @@ i32 Nst_number_to_i32(Nst_Obj *number)
 
 i64 Nst_number_to_i64(Nst_Obj *number)
 {
-    Nst_TypeObj *t = number->type;
+    Nst_Obj *t = number->type;
 
     if (t == Nst_t.Byte)
         return (i64)Nst_byte_u8(number);
@@ -88,7 +93,7 @@ f32 Nst_number_to_f32(Nst_Obj *number)
 
 f64 Nst_number_to_f64(Nst_Obj *number)
 {
-    Nst_TypeObj *t = number->type;
+    Nst_Obj *t = number->type;
 
     if (t == Nst_t.Byte)
         return (f64)Nst_byte_u8(number);

@@ -7,6 +7,7 @@
 #include "format.h"
 #include "mem.h"
 #include "str_builder.h"
+#include "error.h"
 
 /*
 
@@ -25,8 +26,8 @@ Setting both B and C to 0 means accept anything
 typedef struct _MatchType {
     u16 accepted_types;
     usize custom_types_size;
-    Nst_TypeObj **custom_types;
-    Nst_TypeObj *final_type;
+    Nst_Obj **custom_types;
+    Nst_Obj *final_type;
     struct _MatchType *seq_match;
 } MatchType;
 
@@ -69,7 +70,7 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
         return NULL;
 
     Nst_SBuffer custom_types;
-    if (!Nst_sbuffer_init(&custom_types, sizeof(Nst_TypeObj *), 4)) {
+    if (!Nst_sbuffer_init(&custom_types, sizeof(Nst_Obj *), 4)) {
         Nst_free(match_type);
         return NULL;
     }
@@ -81,12 +82,12 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
     bool allow_optional = true;
     bool allow_or = false;
     bool match_any = false;
-    Nst_TypeObj *custom_type = NULL;
+    Nst_Obj *custom_type = NULL;
     i8 *t = (i8 *)types;
     u16 accepted_types = 0;
     u16 pending_cast_types = 0;
     u16 pending_c_cast = 0;
-    Nst_TypeObj *pending_final_type = NULL;
+    Nst_Obj *pending_final_type = NULL;
     bool can_cast = true;
 
     while (true) {
@@ -231,7 +232,16 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
             }
             goto normal_type;
         case '#':
-            custom_type = va_arg(*args, Nst_TypeObj *);
+            custom_type = va_arg(*args, Nst_Obj *);
+            if (custom_type->type != Nst_t.Type) {
+                Nst_set_type_errorf(
+                    "Nst_extract_args: expected a 'Type' object, got '%s'",
+                    Nst_type_name(custom_type->type).value);
+                Nst_sbuffer_destroy(&custom_types);
+                Nst_free(match_type);
+                return NULL;
+            }
+
             if (!Nst_sbuffer_append(&custom_types, &custom_type)) {
                 Nst_sbuffer_destroy(&custom_types);
                 Nst_free(match_type);
@@ -280,7 +290,7 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
     }
 
     Nst_sbuffer_fit(&custom_types);
-    match_type->custom_types = (Nst_TypeObj **)custom_types.data;
+    match_type->custom_types = (Nst_Obj **)custom_types.data;
     match_type->custom_types_size = custom_types.len;
 
     if (allow_casting
@@ -393,8 +403,8 @@ static bool check_type(MatchType *type, Nst_Obj *ob, void *arg)
 {
     // Any object is type-checked, casted and content-checked in this order
     u16 accepted_types = type->accepted_types;
-    Nst_TypeObj *ob_t = ob->type;
-    Nst_TypeObj *final_type = type->final_type;
+    Nst_Obj *ob_t = ob->type;
+    Nst_Obj *final_type = type->final_type;
 
     if ((accepted_types & NULL_IDX) && ob == Nst_c.Null_null) {
         if (arg != NULL)
@@ -568,7 +578,7 @@ static bool append_types(MatchType *type, Nst_StrBuilder *sb)
 {
     u16 accepted_types = type->accepted_types;
     usize tot_types = 0;
-    Nst_TypeObj *type_str;
+    Nst_Obj *type_str;
     for (u16 i = 0; i < 13; i++) {
         // if the type is selected and is not Nst_NullIdx
         if (((accepted_types >> i) & 1) != 0 && i != 5)
@@ -594,14 +604,14 @@ static bool append_types(MatchType *type, Nst_StrBuilder *sb)
         case 11: type_str = Nst_t.Func; break;
         default: type_str = Nst_t.Type; break;
         }
-        if (!append_type(type_str->name, sb, tot_types))
+        if (!append_type(Nst_type_name(type_str), sb, tot_types))
             return false;
     }
 
     for (usize i = 0, n = type->custom_types_size; i < n; i++) {
         type_str = type->custom_types[i];
         tot_types--;
-        if (!append_type(type_str->name, sb, tot_types))
+        if (!append_type(Nst_type_name(type_str), sb, tot_types))
             return false;
     }
 
@@ -632,7 +642,11 @@ static void set_err(MatchType *type, Nst_Obj *ob, usize idx)
         return;
     }
 
-    Nst_Obj *str = Nst_sprintf(fmt, sb.value, idx, ob->type->name.value);
+    Nst_Obj *str = Nst_sprintf(
+        fmt,
+        sb.value,
+        idx,
+        Nst_type_name(ob->type).value);
     Nst_sb_destroy(&sb);
     Nst_set_type_error(str);
 }
@@ -689,4 +703,22 @@ bool Nst_extract_args(const i8 *types, usize arg_num, Nst_Obj **args, ...)
         return false;
     }
     return true;
+}
+
+Nst_Obj *_Nst_obj_custom(usize size, void *data, const i8 *name)
+{
+    Nst_Obj *type = Nst_type_new(name, NULL);
+    if (type == NULL)
+        return NULL;
+    Nst_Obj *obj = _Nst_obj_alloc(sizeof(Nst_Obj) + size, type);
+    Nst_dec_ref(type);
+    if (obj == NULL)
+        return NULL;
+    memcpy(obj + 1, data, size);
+    return obj;
+}
+
+void *Nst_obj_custom_data(Nst_Obj *obj)
+{
+    return (void *)(obj + 1);
 }

@@ -105,5 +105,5 @@ Nst_Obj *NstC seed_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("i", arg_num, args, &seed))
         return nullptr;
     rand_num.seed(u64(seed));
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }

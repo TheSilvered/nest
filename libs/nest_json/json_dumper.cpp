@@ -75,7 +75,7 @@ static void dump_obj(Nst_Obj *obj, i32 indent)
     else {
         Nst_set_type_errorf(
             "JSON: an object of type %s is not serializable",
-            TYPE_NAME(obj));
+            Nst_type_name(obj->type).value);
         FAIL;
     }
     DEC_RECURSION_LVL;

@@ -75,20 +75,20 @@ NstEXP typedef struct _Nst_StrConsts {
 
 /* Type constants. */
 NstEXP typedef struct _Nst_TypeObjs {
-    Nst_TypeObj *Type;
-    Nst_TypeObj *Int;
-    Nst_TypeObj *Real;
-    Nst_TypeObj *Bool;
-    Nst_TypeObj *Null;
-    Nst_TypeObj *Str;
-    Nst_TypeObj *Array;
-    Nst_TypeObj *Vector;
-    Nst_TypeObj *Map;
-    Nst_TypeObj *Func;
-    Nst_TypeObj *Iter;
-    Nst_TypeObj *Byte;
-    Nst_TypeObj *IOFile;
-    Nst_TypeObj *IEnd;
+    Nst_Obj *Type;
+    Nst_Obj *Int;
+    Nst_Obj *Real;
+    Nst_Obj *Bool;
+    Nst_Obj *Null;
+    Nst_Obj *Str;
+    Nst_Obj *Array;
+    Nst_Obj *Vector;
+    Nst_Obj *Map;
+    Nst_Obj *Func;
+    Nst_Obj *Iter;
+    Nst_Obj *Byte;
+    Nst_Obj *IOFile;
+    Nst_Obj *IEnd;
 } Nst_TypeObjs;
 
 /**

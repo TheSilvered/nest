@@ -68,7 +68,7 @@ Nst_Obj *NstC app_run_(usize arg_num, Nst_Obj **args)
     if (!GUI_App_Run(&app))
         return nullptr;
 
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC app_is_running_(usize arg_num, Nst_Obj **args)
@@ -88,7 +88,7 @@ Nst_Obj *NstC app_close_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     GUI_App_Close(&app);
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC window_init_(usize arg_num, Nst_Obj **args)
@@ -104,7 +104,7 @@ Nst_Obj *NstC window_init_(usize arg_num, Nst_Obj **args)
 
     if (!GUI_App_Init(&app, int(w), int(h)))
         return nullptr;
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC window_set_title_(usize arg_num, Nst_Obj **args)
@@ -116,7 +116,7 @@ Nst_Obj *NstC window_set_title_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     GUI_Window_SetTitle(app.window, (const i8*)Nst_str_value(title));
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC window_get_title_(usize arg_num, Nst_Obj **args)
@@ -143,7 +143,7 @@ Nst_Obj *NstC window_set_position_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     GUI_Window_SetPosition(app.window, int(x), int(y));
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC window_get_position_(usize arg_num, Nst_Obj **args)
@@ -168,7 +168,7 @@ Nst_Obj *NstC window_set_size_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     GUI_Window_SetSize(app.window, int(w), int(h));
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC window_get_size_(usize arg_num, Nst_Obj **args)
@@ -193,7 +193,7 @@ Nst_Obj *NstC window_set_resizable_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     GUI_Window_SetResizable(app.window, resizable);
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC window_get_resizable_(usize arg_num, Nst_Obj **args)

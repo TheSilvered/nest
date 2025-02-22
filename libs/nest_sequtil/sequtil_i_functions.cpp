@@ -6,7 +6,7 @@ Nst_Obj *NstC map_i_start(usize arg_num, Nst_Obj **args)
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
     if (!Nst_iter_start(c_args[0]))
         return nullptr;
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC map_i_next(usize arg_num, Nst_Obj **args)
@@ -25,7 +25,7 @@ Nst_Obj *NstC map_i_next(usize arg_num, Nst_Obj **args)
         return nullptr;
     if (mapped_value == Nst_iend()) {
         Nst_dec_ref(mapped_value);
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
     }
     return mapped_value;
 }
@@ -35,7 +35,7 @@ Nst_Obj *NstC slice_i_start(usize arg_num, Nst_Obj **args)
     Nst_UNUSED(arg_num);
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
     AS_INT(c_args[0]) = 0;
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC slice_i_seq_next(usize arg_num, Nst_Obj **args)
@@ -46,7 +46,7 @@ Nst_Obj *NstC slice_i_seq_next(usize arg_num, Nst_Obj **args)
     i64 max_i = AS_INT(c_args[3]);
 
     if (i >= max_i)
-        Nst_RETURN_IEND;
+        return Nst_iend_ref();
 
     i64 start = AS_INT(c_args[1]);
     i64 step = AS_INT(c_args[2]);
@@ -59,7 +59,7 @@ Nst_Obj *NstC slice_i_seq_next(usize arg_num, Nst_Obj **args)
         return obj;
     if (obj == Nst_iend()) {
         Nst_dec_ref(obj);
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
     }
     return obj;
 }
@@ -72,7 +72,7 @@ Nst_Obj *NstC slice_i_str_next(usize arg_num, Nst_Obj **args)
     i64 max_i = AS_INT(c_args[3]);
 
     if (i >= max_i)
-        Nst_RETURN_IEND;
+        return Nst_iend_ref();
 
     i64 start = AS_INT(c_args[1]);
     i64 step = AS_INT(c_args[2]);
@@ -92,7 +92,7 @@ Nst_Obj *NstC filter_i_start(usize arg_num, Nst_Obj **args)
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
     if (!Nst_iter_start(c_args[0]))
         return nullptr;
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC filter_i_next(usize arg_num, Nst_Obj **args)
@@ -126,7 +126,7 @@ Nst_Obj *NstC reverse_i_start(usize arg_num, Nst_Obj **args)
     Nst_UNUSED(arg_num);
     Nst_Obj **c_args = _Nst_seq_objs(args[0]);
     AS_INT(c_args[0]) = (isize)Nst_seq_len(c_args[1]) - 1;
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC reverse_i_next(usize arg_num, Nst_Obj **args)
@@ -137,7 +137,7 @@ Nst_Obj *NstC reverse_i_next(usize arg_num, Nst_Obj **args)
     i64 idx = AS_INT(c_args[0]);
 
     if (idx <= -1)
-        Nst_RETURN_IEND;
+        return Nst_iend_ref();
 
     Nst_Obj *res = Nst_seq_get(seq, idx);
 
@@ -152,7 +152,7 @@ Nst_Obj *NstC reverse_i_next(usize arg_num, Nst_Obj **args)
 
     if (res == Nst_iend()) {
         Nst_dec_ref(res);
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
     }
     return res;
 }

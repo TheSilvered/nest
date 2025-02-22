@@ -230,21 +230,6 @@ Additionaly, any cast added manually will overwrite the cast of the shorthand.
 
 #define Nst_DECLR_END { NULL, 0, NULL }
 
-/* [docs:link Nst_const()->Int_0 Nst_const] */
-/* [docs:link Nst_const()->Int_1 Nst_const] */
-
-/* Returns a reference to `true`. */
-#define Nst_RETURN_TRUE return Nst_true_ref()
-/* Returns a reference to `false`. */
-#define Nst_RETURN_FALSE return Nst_false_ref()
-/* Returns a reference to `null`. */
-#define Nst_RETURN_NULL return Nst_null_ref()
-/* Returns a reference to `IEND`. */
-#define Nst_RETURN_IEND return Nst_iend_ref()
-/* Returns `Nst_const()->Int_0`. */
-#define Nst_RETURN_ZERO return Nst_inc_ref(Nst_const()->Int_0)
-/* Returns `Nst_const()->Int_1`. */
-#define Nst_RETURN_ONE return Nst_inc_ref(Nst_const()->Int_1)
 /**
  * @brief Returns `Nst_true_ref()` if `expr` is `true` and `Nst_false_ref()`
  * otherwise. `expr` is a C boolean expression.
@@ -252,15 +237,25 @@ Additionaly, any cast added manually will overwrite the cast of the shorthand.
 #define Nst_RETURN_BOOL(expr)                                                 \
     return (expr) ? Nst_true_ref() : Nst_false_ref()
 
-/* Boolean expression to check if an object is `null`. */
-#define Nst_IS_NULL(obj) (OBJ(obj) == Nst_null())
-
 /* Results in `def_val` if obj is `Nst_null()` and in `val` otherwise. */
 #define Nst_DEF_VAL(obj, val, def_val)                                        \
     (OBJ(obj) == Nst_null() ? (def_val) : (val))
 
 /* Checks if the type of an object is `type_name`. */
 #define Nst_T(obj, type_name) ((obj)->type == Nst_type()->type_name)
+
+/**
+ * Create an object with custom data. This is a wrapper for `_Nst_obj_custom`.
+ *
+ * @brief The `size` and `name` parameters are derived from `type`.
+ *
+ * @param type: the type of the data to insert
+ * @param data: the data to copy
+ *
+ * @return The new object or `NULL` on error.
+ */
+#define Nst_obj_custom(type, data) \
+    _Nst_obj_custom(sizeof(type), (void *)(data), #type)
 
 #ifdef __cplusplus
 extern "C" {
@@ -298,7 +293,18 @@ NstEXP typedef struct _Nst_Declr {
  * @return `true` on success and `false` on failure. The error is set.
  */
 NstEXP bool NstC Nst_extract_args(const i8 *types, usize arg_num,
-                                        Nst_Obj **args, ...);
+                                  Nst_Obj **args, ...);
+
+/**
+ * Create an object with custmo data.
+ *
+ * @param size: the size of the data to insert
+ * @param data: the data to copy
+ * @param name: the name of the object's type
+ */
+NstEXP Nst_Obj *NstC _Nst_obj_custom(usize size, void *data, const i8 *name);
+/* Get the data of an object created with `Nst_obj_custom`. */
+NstEXP void *NstC Nst_obj_custom_data(Nst_Obj *obj);
 
 #ifdef __cplusplus
 }

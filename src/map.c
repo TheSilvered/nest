@@ -150,7 +150,7 @@ bool Nst_map_set(Nst_Obj *map, Nst_Obj *key, Nst_Obj *value)
         if (hash == -1) {
             Nst_set_value_errorf(
                 _Nst_EM_UNHASHABLE_TYPE,
-                TYPE_NAME(key));
+                Nst_type_name(key->type).value);
             return false;
         }
     }

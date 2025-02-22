@@ -155,7 +155,7 @@ Nst_Obj *NstC dump_f_(usize arg_num, Nst_Obj **args)
     fwrite(encoded_str, sizeof(i8), encoded_str_len, f);
     fclose(f);
     Nst_free(encoded_str);
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC set_option_(usize arg_num, Nst_Obj **args)
@@ -182,7 +182,7 @@ Nst_Obj *NstC set_option_(usize arg_num, Nst_Obj **args)
             Nst_set_value_errorf("option %lli does not exist", option);
             return nullptr;
         }
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
     }
     value = Nst_obj_to_bool(value_obj);
 
@@ -201,7 +201,7 @@ Nst_Obj *NstC set_option_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 Nst_Obj *NstC get_option_(usize arg_num, Nst_Obj **args)
@@ -231,5 +231,5 @@ Nst_Obj *NstC clear_options_(usize arg_num, Nst_Obj **args)
     comments = comments_default;
     trailing_commas = trailing_commas_default;
     nan_and_inf = nan_and_inf_default;
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }

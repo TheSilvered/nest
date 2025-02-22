@@ -421,7 +421,7 @@ Nst_Obj *NstC sum_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (Nst_seq_len(seq) == 0)
-        Nst_RETURN_ZERO;
+        return Nst_inc_ref(Nst_const()->Int_0);
 
     Nst_Obj *tot = Nst_inc_ref(Nst_const()->Byte_0);
     Nst_Obj *new_tot = nullptr;
@@ -553,7 +553,7 @@ static inline f64 gcd_real(f64 a, f64 b)
 Nst_Obj *gcd_or_lcm_seq(Nst_Obj *seq, Nst_NestCallable func)
 {
     if (Nst_seq_len(seq) == 0)
-        Nst_RETURN_ZERO;
+        return Nst_inc_ref(Nst_const()->Int_0);
 
     Nst_Obj **objs = _Nst_seq_objs(seq);
     Nst_Obj *prev = Nst_inc_ref(objs[0]);
@@ -590,7 +590,8 @@ Nst_Obj *NstC gcd_(usize arg_num, Nst_Obj **args)
             Nst_set_type_errorf(
                 "the two objects must a sequence and null or two numbers,"
                 " got '%s' and '%s'",
-                TYPE_NAME(ob1), TYPE_NAME(ob2));
+                Nst_type_name(ob1->type).value,
+                Nst_type_name(ob2->type).value);
             return nullptr;
         }
     }
@@ -599,7 +600,8 @@ Nst_Obj *NstC gcd_(usize arg_num, Nst_Obj **args)
         Nst_set_type_errorf(
             "the two objects must a sequence and null or two numbers,"
             " got '%s' and '%s'",
-            TYPE_NAME(ob1), TYPE_NAME(ob2));
+            Nst_type_name(ob1->type).value,
+            Nst_type_name(ob2->type).value);
         return nullptr;
     }
 
@@ -633,7 +635,8 @@ Nst_Obj *NstC lcm_(usize arg_num, Nst_Obj **args)
             Nst_set_type_errorf(
                 "the two objects must a sequence and null or two numbers,"
                 " got '%s' and '%s'",
-                TYPE_NAME(ob1), TYPE_NAME(ob2));
+                Nst_type_name(ob1->type).value,
+                Nst_type_name(ob2->type).value);
             return nullptr;
         }
     }
@@ -642,7 +645,8 @@ Nst_Obj *NstC lcm_(usize arg_num, Nst_Obj **args)
         Nst_set_type_errorf(
             "the two objects must a sequence and null or two numbers,"
             " got '%s' and '%s'",
-            TYPE_NAME(ob1), TYPE_NAME(ob2));
+            Nst_type_name(ob1->type).value,
+            Nst_type_name(ob2->type).value);
         return nullptr;
     }
 

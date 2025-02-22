@@ -1,7 +1,7 @@
 #include <cstdlib>
 #include "nest_co.h"
 
-static Nst_TypeObj *t_Coroutine;
+static Nst_Obj *t_Coroutine;
 static Nst_Obj *state_suspended;
 static Nst_Obj *state_running;
 static Nst_Obj *state_paused;
@@ -36,7 +36,7 @@ Nst_Declr *lib_init()
 
 void lib_quit()
 {
-    Nst_dec_ref(OBJ(t_Coroutine));
+    Nst_dec_ref(t_Coroutine);
     Nst_dec_ref(state_suspended);
     Nst_dec_ref(state_running);
     Nst_dec_ref(state_paused);
@@ -148,7 +148,7 @@ static Nst_Obj *NstC generator_start(usize arg_num, Nst_Obj **args)
         Nst_SET_FLAG(co, FLAG_CO_SUSPENDED);
     }
 
-    Nst_RETURN_NULL;
+    return Nst_null_ref();
 }
 
 static Nst_Obj *NstC generator_next(usize arg_num, Nst_Obj **args)
@@ -168,12 +168,12 @@ static Nst_Obj *NstC generator_next(usize arg_num, Nst_Obj **args)
 
     if (Nst_HAS_FLAG(co, FLAG_CO_ENDED)) {
         Nst_dec_ref(obj);
-        Nst_RETURN_IEND;
+        return Nst_iend_ref();
     }
 
     if (obj == Nst_iend()) {
         Nst_dec_ref(obj);
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
     }
     return obj;
 }
@@ -370,5 +370,5 @@ Nst_Obj *NstC _get_co_type_obj_(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     Nst_UNUSED(args);
-    return Nst_inc_ref(OBJ(t_Coroutine));
+    return Nst_inc_ref(t_Coroutine);
 }

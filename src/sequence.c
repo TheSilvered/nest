@@ -23,15 +23,15 @@ typedef struct _Nst_SeqObj {
 #define SEQ(ptr) ((Nst_SeqObj *)(ptr))
 
 static bool resize_vector(Nst_Obj *vect);
-static Nst_SeqObj *new_seq_empty(usize len, usize size, Nst_TypeObj *type);
+static Nst_SeqObj *new_seq_empty(usize len, usize size, Nst_Obj *type);
 static Nst_SeqObj *new_array(usize len);
 static Nst_SeqObj *new_vector(usize len);
-static Nst_Obj *new_seq(usize len, usize size, Nst_TypeObj *type);
+static Nst_Obj *new_seq(usize len, usize size, Nst_Obj *type);
 static void seq_from_objs(usize len, Nst_SeqObj *seq, Nst_Obj **objs, bool ref);
 static void seq_create(usize len, Nst_SeqObj *seq, va_list args);
 static Nst_SeqObj *seq_create_c(Nst_SeqObj *seq, const i8 *fmt, va_list args);
 
-static Nst_SeqObj *new_seq_empty(usize len, usize size, Nst_TypeObj *type)
+static Nst_SeqObj *new_seq_empty(usize len, usize size, Nst_Obj *type)
 {
     Nst_SeqObj *seq = Nst_obj_alloc(Nst_SeqObj, type);
     if (seq == NULL)
@@ -67,7 +67,7 @@ static Nst_SeqObj *new_vector(usize len)
     return new_seq_empty(len, size, Nst_t.Vector);
 }
 
-static Nst_Obj *new_seq(usize len, usize size, Nst_TypeObj *type)
+static Nst_Obj *new_seq(usize len, usize size, Nst_Obj *type)
 {
     Nst_SeqObj *seq = new_seq_empty(len, size, type);
     if (seq == NULL)
@@ -518,7 +518,7 @@ Nst_Obj *Nst_vector_pop(Nst_Obj *vect, usize quantity)
 {
     assert_vector(vect);
     if (SEQ(vect)->len == 0)
-        Nst_RETURN_NULL;
+        return Nst_null_ref();
 
     if (quantity > SEQ(vect)->len)
         quantity = SEQ(vect)->len;

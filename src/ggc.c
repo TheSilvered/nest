@@ -150,7 +150,7 @@ void Nst_ggc_collect_gen(Nst_GGCList *gen)
         ob->ggc_ref_count = ob->ref_count;
 
     for (ob = gen->head; ob != NULL; ob = GGC_OBJ(ob->p_next))
-        CONT_TYPE(ob->type)->trav(OBJ(ob));
+        Nst_obj_traverse(OBJ(ob));
 
     for (ob = gen->head; ob != NULL;) {
         new_ob = GGC_OBJ(ob->p_next);
@@ -167,7 +167,7 @@ void Nst_ggc_collect_gen(Nst_GGCList *gen)
     }
 
     for (ob = gen->head; ob != NULL; ob = GGC_OBJ(ob->p_next))
-        CONT_TYPE(ob->type)->trav(OBJ(ob));
+        Nst_obj_traverse(OBJ(ob));
 
     while (true) {
         Nst_GGCObj *last_traversed = gen->tail;
@@ -186,7 +186,7 @@ void Nst_ggc_collect_gen(Nst_GGCList *gen)
              ob != NULL;
              ob = GGC_OBJ(ob->p_next))
         {
-            CONT_TYPE(ob->type)->trav(OBJ(ob));
+            Nst_obj_traverse(OBJ(ob));
         }
     }
 
@@ -293,7 +293,7 @@ void Nst_ggc_collect(void)
 
 void Nst_ggc_track_obj(Nst_GGCObj *obj)
 {
-    Nst_assert(Nst_HAS_FLAG(obj->type, Nst_FLAG_TYPE_IS_CONTAINER));
+    Nst_assert(Nst_type_trav(obj->type) != NULL);
 
     if (Nst_state.ggc.gen1.len == 0)
         Nst_state.ggc.gen1.head = obj;

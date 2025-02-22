@@ -21,7 +21,7 @@ Nst_Inst *Nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end)
     return inst;
 }
 
-Nst_Inst *_Nst_inst_new_val(Nst_InstID id, Nst_Obj *val, Nst_Pos start,
+Nst_Inst *Nst_inst_new_val(Nst_InstID id, Nst_Obj *val, Nst_Pos start,
                             Nst_Pos end)
 {
     Nst_Inst *inst = Nst_malloc_c(1, Nst_Inst);
