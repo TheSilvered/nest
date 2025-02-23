@@ -34,7 +34,7 @@ NstEXP Nst_Obj *NstC Nst_map_new(void);
  */
 NstEXP Nst_Obj *NstC Nst_map_copy(Nst_Obj *map);
 
-void NstC _Nst_map_destroy(Nst_Obj *map);
+void _Nst_map_destroy(Nst_Obj *map);
 
 /* The traverse function for the map object. */
 NstEXP void NstC _Nst_map_traverse(Nst_Obj *map);

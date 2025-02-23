@@ -48,11 +48,18 @@
  * by default.
  */
 #define Nst_DBG_ASSERT_CALLBACK
+/**
+ * @brief If defined dynamic libraries are not closed when calling `Nst_quit`
+ * to allow the checking of stack traces in memory allocations after the
+ * library is closed.
+ */
+#define Nst_DBG_KEEP_DYN_LIBS
 #endif // !0
 
 // #define Nst_DBG_TRACK_OBJ_INIT_POS
 #define Nst_DBG_DISABLE_POOLS
 #define Nst_DBG_COUNT_ALLOC
+// #define Nst_DBG_KEEP_DYN_LIBS
 
 #if defined(_WIN32) || defined(WIN32)
 
@@ -216,6 +223,10 @@
 #ifdef Nst_DBG_ASSERT_CALLBACK
 #undef Nst_DBG_ASSERT_CALLBACK
 #endif // !Nst_DBG_ASSERT_CALLBACK
+
+#ifdef Nst_DBG_KEEP_DYN_LIBS
+#undef Nst_DBG_KEEP_DYN_LIBS
+#endif // !Nst_DBG_KEEP_DYN_LIBS
 
 #else
 

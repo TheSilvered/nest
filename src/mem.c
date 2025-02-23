@@ -38,7 +38,10 @@ void Nst_log_alloc_info(void)
     printf("\nAllocation info:\n");
     AllocHeader *head = allocs_head;
     while (head != NULL) {
-        printf("    Size: %zi bytes, Pointer: %p\n", head->size, head + 1);
+        printf("    Size: %zi bytes, Pointer: %p (%p)\n",
+            head->size,
+            head + 1,
+            head);
         head = head->next;
     }
 }

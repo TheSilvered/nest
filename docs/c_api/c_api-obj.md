@@ -18,12 +18,12 @@ Maximum size for an object pool.
 
 ---
 
-### `OBJ`
+### `NstOBJ`
 
 **Synopsis:**
 
 ```better-c
-#define OBJ(obj)
+#define NstOBJ(obj)
 ```
 
 **Description:**
@@ -170,7 +170,7 @@ The structure representing a basic Nest object.
 **Synopsis:**
 
 ```better-c
-typedef void (*Nst_ObjDstr)(void *)
+typedef void (*Nst_ObjDstr)(Nst_Obj *)
 ```
 
 **Description:**
@@ -189,7 +189,7 @@ the object being deleted has with other objects.
 **Synopsis:**
 
 ```better-c
-typedef void (*Nst_ObjTrav)(void *)
+typedef void (*Nst_ObjTrav)(Nst_Obj *)
 ```
 
 **Description:**
@@ -203,21 +203,6 @@ objects, should be left untouched.
 
 ---
 
-### `Nst_NullObj`
-
-**Synopsis:**
-
-```better-c
-typedef Nst_Obj Nst_NullObj
-```
-
-**Description:**
-
-A [`Nst_NullObj`](c_api-obj.md#nst_nullobj) is just a
-[`Nst_Obj`](c_api-obj.md#nst_obj) as it does not have any special fields.
-
----
-
 ## Functions
 
 ### `_Nst_obj_alloc`
@@ -225,7 +210,7 @@ A [`Nst_NullObj`](c_api-obj.md#nst_nullobj) is just a
 **Synopsis:**
 
 ```better-c
-Nst_Obj *_Nst_obj_alloc(usize size, Nst_TypeObj *type)
+Nst_Obj *_Nst_obj_alloc(usize size, Nst_Obj *type)
 ```
 
 **Description:**
@@ -242,6 +227,21 @@ Allocates an object on the heap and initializes the fields in
 **Returns:**
 
 The newly allocate object or `NULL` on failure. The error is set.
+
+---
+
+### `Nst_obj_traverse`
+
+**Synopsis:**
+
+```better-c
+void Nst_obj_traverse(Nst_Obj *obj)
+```
+
+**Description:**
+
+Traverse an object for the GGC. If the object's type does not have a traverse
+function, this function does nothing.
 
 ---
 

@@ -266,51 +266,11 @@ For the name of the object the name of the pointer is used.
 
 ---
 
-### `Nst_RETURN_TRUE`
+### `Nst_DECLR_END`
 
 **Description:**
 
-Returns a reference to `true`.
-
----
-
-### `Nst_RETURN_FALSE`
-
-**Description:**
-
-Returns a reference to `false`.
-
----
-
-### `Nst_RETURN_NULL`
-
-**Description:**
-
-Returns a reference to `null`.
-
----
-
-### `Nst_RETURN_IEND`
-
-**Description:**
-
-Returns a reference to `IEND`.
-
----
-
-### `Nst_RETURN_ZERO`
-
-**Description:**
-
-Returns [`Nst_const()->Int_0`](c_api-global_consts.md#nst_const).
-
----
-
-### `Nst_RETURN_ONE`
-
-**Description:**
-
-Returns [`Nst_const()->Int_1`](c_api-global_consts.md#nst_const).
+Used to end the declarations array.
 
 ---
 
@@ -327,20 +287,6 @@ Returns [`Nst_const()->Int_1`](c_api-global_consts.md#nst_const).
 Returns [`Nst_true_ref()`](c_api-global_consts.md#nst_true_ref) if `expr` is
 `true` and [`Nst_false_ref()`](c_api-global_consts.md#nst_false_ref) otherwise.
 `expr` is a C boolean expression.
-
----
-
-### `Nst_IS_NULL`
-
-**Synopsis:**
-
-```better-c
-#define Nst_IS_NULL(obj)
-```
-
-**Description:**
-
-Boolean expression to check if an object is `null`.
 
 ---
 
@@ -370,6 +316,32 @@ and in `val` otherwise.
 **Description:**
 
 Checks if the type of an object is `type_name`.
+
+---
+
+### `Nst_obj_custom`
+
+**Synopsis:**
+
+```better-c
+#define Nst_obj_custom(type, data)
+```
+
+**Description:**
+
+Create an object with custom data. This is a wrapper for
+[`_Nst_obj_custom`](c_api-lib_import.md#_nst_obj_custom).
+
+The `size` and `name` parameters are derived from `type`.
+
+**Parameters:**
+
+- `type`: the type of the data to insert
+- `data`: the data to copy
+
+**Returns:**
+
+The new object or `NULL` on error.
 
 ---
 
@@ -445,3 +417,63 @@ Check the syntax for the types argument in
 **Returns:**
 
 `true` on success and `false` on failure. The error is set.
+
+---
+
+### `_Nst_obj_custom`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_custom(usize size, void *data, const i8 *name)
+```
+
+**Description:**
+
+Create an object with custom data.
+
+**Parameters:**
+
+- `size`: the size of the data to insert
+- `data`: the data to copy
+- `name`: the name of the object's type
+
+---
+
+### `_Nst_obj_custom_ex`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *_Nst_obj_custom_ex(usize size, void *data, const i8 *name,
+                            Nst_ObjDstr dstr)
+```
+
+**Description:**
+
+[`_Nst_obj_custom`](c_api-lib_import.md#_nst_obj_custom) which allows to specify
+a destructor.
+
+!!!note
+    The destructor takes the object itself, call
+    [`Nst_obj_custom_data`](c_api-lib_import.md#nst_obj_custom_data) to access
+    the data to destroy.
+
+!!!warning
+    The destructor **must not** free the object. It should just destroy its
+    data.
+
+---
+
+### `Nst_obj_custom_data`
+
+**Synopsis:**
+
+```better-c
+void *Nst_obj_custom_data(Nst_Obj *obj)
+```
+
+**Description:**
+
+Get the data of an object created with
+[`Nst_obj_custom`](c_api-lib_import.md#nst_obj_custom).

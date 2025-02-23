@@ -374,7 +374,7 @@ Nst_Obj *NstC copy_(usize arg_num, Nst_Obj **args)
 
     fs::copy_options cp_options = Nst_DEF_VAL(
         options,
-        (fs::copy_options)AS_INT(options),
+        (fs::copy_options)Nst_int_i64(options),
         fs::copy_options::none);
 
     std::error_code ec;

@@ -42,20 +42,6 @@ The minimum size of the old generation needed to collect it.
 
 ---
 
-### `GGC_OBJ`
-
-**Synopsis:**
-
-```better-c
-#define GGC_OBJ(obj)
-```
-
-**Description:**
-
-Casts `obj` to [`Nst_GGCObj *`](c_api-ggc.md#nst_ggcobj).
-
----
-
 ### `Nst_GGC_HEAD`
 
 **Description:**

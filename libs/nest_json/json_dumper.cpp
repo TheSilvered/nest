@@ -166,7 +166,7 @@ static void dump_num(Nst_Obj *number)
         Nst_sb_push_c(&sb, loc_buf);
         goto finish;
     } else if (Nst_T(number, Int)) {
-        sprintf(loc_buf, "%lli", AS_INT(number));
+        sprintf(loc_buf, "%lli", Nst_int_i64(number));
         Nst_sb_push_c(&sb, loc_buf);
         goto finish;
     }

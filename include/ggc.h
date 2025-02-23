@@ -20,9 +20,6 @@
 /* The minimum size of the old generation needed to collect it. */
 #define _Nst_OLD_GEN_MIN 100
 
-/* Casts `obj` to `Nst_GGCObj *`. */
-#define GGC_OBJ(obj) ((Nst_GGCObj *)(obj))
-
 /**
  * The macro to add support to the GGC to an object structure.
  *
@@ -42,7 +39,7 @@
     obj->ggc_list = NULL;                                                     \
     obj->ggc_ref_count = 0;                                                   \
     Nst_SET_FLAG(obj, Nst_FLAG_GGC_IS_SUPPORTED);                             \
-    Nst_ggc_track_obj(GGC_OBJ(obj));                                          \
+    Nst_ggc_track_obj((Nst_GGCObj *)(obj));                                   \
     } while (0)
 
 #ifdef __cplusplus

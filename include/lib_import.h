@@ -228,6 +228,7 @@ Additionaly, any cast added manually will overwrite the cast of the shorthand.
  */
 #define Nst_NAMED_CONSTDECLR(func_ptr, name) { (void *)(func_ptr), -1, name }
 
+/* Used to end the declarations array. */
 #define Nst_DECLR_END { NULL, 0, NULL }
 
 /**
@@ -239,7 +240,7 @@ Additionaly, any cast added manually will overwrite the cast of the shorthand.
 
 /* Results in `def_val` if obj is `Nst_null()` and in `val` otherwise. */
 #define Nst_DEF_VAL(obj, val, def_val)                                        \
-    (OBJ(obj) == Nst_null() ? (def_val) : (val))
+    (NstOBJ(obj) == Nst_null() ? (def_val) : (val))
 
 /* Checks if the type of an object is `type_name`. */
 #define Nst_T(obj, type_name) ((obj)->type == Nst_type()->type_name)
@@ -254,8 +255,11 @@ Additionaly, any cast added manually will overwrite the cast of the shorthand.
  *
  * @return The new object or `NULL` on error.
  */
-#define Nst_obj_custom(type, data) \
+#define Nst_obj_custom(type, data)                                            \
     _Nst_obj_custom(sizeof(type), (void *)(data), #type)
+
+#define Nst_obj_custom_ex(type, data, dstr)                                   \
+    _Nst_obj_custom_ex(sizeof(type), (void *)(data), #type, dstr)
 
 #ifdef __cplusplus
 extern "C" {
@@ -296,13 +300,24 @@ NstEXP bool NstC Nst_extract_args(const i8 *types, usize arg_num,
                                   Nst_Obj **args, ...);
 
 /**
- * Create an object with custmo data.
+ * Create an object with custom data.
  *
  * @param size: the size of the data to insert
  * @param data: the data to copy
  * @param name: the name of the object's type
  */
 NstEXP Nst_Obj *NstC _Nst_obj_custom(usize size, void *data, const i8 *name);
+/**
+ * `_Nst_obj_custom` which allows to specify a destructor.
+ *
+ * @brief Note: the destructor takes the object itself, call
+ * `Nst_obj_custom_data` to access the data to destroy.
+ *
+ * @brief Warning: The destructor **must not** free the object. It should just
+ * destroy its data.
+ */
+NstEXP Nst_Obj *NstC _Nst_obj_custom_ex(usize size, void *data, const i8 *name,
+                                        Nst_ObjDstr dstr);
 /* Get the data of an object created with `Nst_obj_custom`. */
 NstEXP void *NstC Nst_obj_custom_data(Nst_Obj *obj);
 

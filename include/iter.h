@@ -15,11 +15,6 @@
 extern "C" {
 #endif // !__cplusplus
 
-typedef struct _Nst_IterRange {
-    i64 count;
-    i64 start, stop, step;
-} _Nst_IterRange;
-
 /**
  * Creates a new Nest iterator object.
  *
@@ -35,7 +30,7 @@ typedef struct _Nst_IterRange {
 NstEXP Nst_Obj *NstC Nst_iter_new(Nst_Obj *start, Nst_Obj *next,
                                   Nst_Obj *value);
 
-void NstC _Nst_iter_destroy(Nst_Obj *iter);
+void _Nst_iter_destroy(Nst_Obj *iter);
 
 /* Traverse function for Nest iter objects. */
 NstEXP void NstC _Nst_iter_traverse(Nst_Obj *iter);
@@ -68,6 +63,15 @@ NstEXP bool NstC Nst_iter_start(Nst_Obj *iter);
  * set.
  */
 NstEXP Nst_Obj *NstC Nst_iter_next(Nst_Obj *iter);
+
+/* Create a new range object. */
+NstEXP Nst_Obj *NstC Nst_iter_range_new(i64 start, i64 stop, i64 step);
+/* Create a sequence iterator. */
+NstEXP Nst_Obj *NstC Nst_iter_seq_new(Nst_Obj *seq);
+/* Create a string iterator. */
+NstEXP Nst_Obj *NstC Nst_iter_str_new(Nst_Obj *seq);
+/* Create a map iterator. */
+NstEXP Nst_Obj *NstC Nst_iter_map_new(Nst_Obj *seq);
 
 // Functions for range iterators
 

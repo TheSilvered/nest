@@ -2,6 +2,8 @@
 #include "interpreter.h"
 #include "type.h"
 
+#define GGC_OBJ(obj) ((Nst_GGCObj *)(obj))
+
 static inline void move_obj(Nst_GGCObj *obj, Nst_GGCList *from, Nst_GGCList *to)
 {
     if (from->len == 1) {
@@ -27,8 +29,8 @@ static inline void move_obj(Nst_GGCObj *obj, Nst_GGCList *from, Nst_GGCList *to)
     if (to->len == 0)
         to->head = obj;
     else
-        to->tail->p_next = OBJ(obj);
-    obj->p_prev = OBJ(to->tail);
+        to->tail->p_next = NstOBJ(obj);
+    obj->p_prev = NstOBJ(to->tail);
     obj->p_next = NULL;
     to->tail = obj;
     to->len++;
@@ -58,8 +60,8 @@ static void move_list(Nst_GGCList *from, Nst_GGCList *to)
         return;
     }
 
-    from->head->p_prev = OBJ(to->tail);
-    to->tail->p_next = OBJ(from->head);
+    from->head->p_prev = NstOBJ(to->tail);
+    to->tail->p_next = NstOBJ(from->head);
     to->tail = from->tail;
     to->len += from->len;
 
@@ -80,7 +82,7 @@ static inline void call_objs_destructor(Nst_GGCList *gen)
 {
     for (Nst_GGCObj *ob = gen->head; ob != NULL; ob = GGC_OBJ(ob->p_next)) {
         Nst_assert_c(ob->ggc_list == NULL);
-        _Nst_obj_destroy(OBJ(ob));
+        _Nst_obj_destroy(NstOBJ(ob));
     }
 }
 
@@ -90,7 +92,7 @@ static inline void free_obj_memory(Nst_GGCList *gen)
     for (Nst_GGCObj *ob = gen->head; ob != NULL;) {
         new_ob = GGC_OBJ(ob->p_next);
         Nst_DEL_FLAG(ob, Nst_FLAG_GGC_PRESERVE_MEM);
-        _Nst_obj_free(OBJ(ob));
+        _Nst_obj_free(NstOBJ(ob));
         ob = new_ob;
     }
 }
@@ -150,7 +152,7 @@ void Nst_ggc_collect_gen(Nst_GGCList *gen)
         ob->ggc_ref_count = ob->ref_count;
 
     for (ob = gen->head; ob != NULL; ob = GGC_OBJ(ob->p_next))
-        Nst_obj_traverse(OBJ(ob));
+        Nst_obj_traverse(NstOBJ(ob));
 
     for (ob = gen->head; ob != NULL;) {
         new_ob = GGC_OBJ(ob->p_next);
@@ -167,7 +169,7 @@ void Nst_ggc_collect_gen(Nst_GGCList *gen)
     }
 
     for (ob = gen->head; ob != NULL; ob = GGC_OBJ(ob->p_next))
-        Nst_obj_traverse(OBJ(ob));
+        Nst_obj_traverse(NstOBJ(ob));
 
     while (true) {
         Nst_GGCObj *last_traversed = gen->tail;
@@ -186,7 +188,7 @@ void Nst_ggc_collect_gen(Nst_GGCList *gen)
              ob != NULL;
              ob = GGC_OBJ(ob->p_next))
         {
-            Nst_obj_traverse(OBJ(ob));
+            Nst_obj_traverse(NstOBJ(ob));
         }
     }
 
@@ -298,8 +300,8 @@ void Nst_ggc_track_obj(Nst_GGCObj *obj)
     if (Nst_state.ggc.gen1.len == 0)
         Nst_state.ggc.gen1.head = obj;
     else {
-        obj->p_prev = OBJ(Nst_state.ggc.gen1.tail);
-        Nst_state.ggc.gen1.tail->p_next = OBJ(obj);
+        obj->p_prev = NstOBJ(Nst_state.ggc.gen1.tail);
+        Nst_state.ggc.gen1.tail->p_next = NstOBJ(obj);
     }
 
     Nst_state.ggc.gen1.tail = obj;

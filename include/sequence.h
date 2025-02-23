@@ -164,7 +164,7 @@ NstEXP Nst_Obj *NstC Nst_vector_create_c(const i8 *fmt, ...);
  */
 NstEXP Nst_Obj *NstC Nst_seq_copy(Nst_Obj *seq);
 
-void NstC _Nst_seq_destroy(Nst_Obj *seq);
+void _Nst_seq_destroy(Nst_Obj *seq);
 
 /* Traverse function for sequence objects. */
 NstEXP void NstC _Nst_seq_traverse(Nst_Obj *seq);

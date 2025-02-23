@@ -132,7 +132,7 @@ Nst_Obj *NstC year_day_(usize arg_num, Nst_Obj **args)
         return nullptr;
     time_t raw_time = Nst_DEF_VAL(
         time_obj,
-        (time_t)AS_INT(time_obj),
+        (time_t)Nst_int_i64(time_obj),
         time(nullptr));
     tm *t = localtime(&raw_time);
     return Nst_int_new(t->tm_yday);
@@ -145,7 +145,7 @@ Nst_Obj *NstC week_day_(usize arg_num, Nst_Obj **args)
         return nullptr;
     time_t raw_time = Nst_DEF_VAL(
         time_obj,
-        (time_t)AS_INT(time_obj),
+        (time_t)Nst_int_i64(time_obj),
         time(nullptr));
     tm *t = localtime(&raw_time);
     return Nst_int_new(t->tm_wday);
@@ -158,7 +158,7 @@ Nst_Obj *NstC day_(usize arg_num, Nst_Obj **args)
         return nullptr;
     time_t raw_time = Nst_DEF_VAL(
         time_obj,
-        (time_t)AS_INT(time_obj),
+        (time_t)Nst_int_i64(time_obj),
         time(nullptr));
     tm *t = localtime(&raw_time);
     return Nst_int_new(t->tm_mday);
@@ -171,7 +171,7 @@ Nst_Obj *NstC month_(usize arg_num, Nst_Obj **args)
         return nullptr;
     time_t raw_time = Nst_DEF_VAL(
         time_obj,
-        (time_t)AS_INT(time_obj),
+        (time_t)Nst_int_i64(time_obj),
         time(nullptr));
     tm *t = localtime(&raw_time);
     return Nst_int_new(t->tm_mon + 1);
@@ -184,7 +184,7 @@ Nst_Obj *NstC year_(usize arg_num, Nst_Obj **args)
         return nullptr;
     time_t raw_time = Nst_DEF_VAL(
         time_obj,
-        (time_t)AS_INT(time_obj),
+        (time_t)Nst_int_i64(time_obj),
         time(nullptr));
     tm *t = localtime(&raw_time);
     return Nst_int_new(t->tm_year + 1900);
@@ -197,7 +197,7 @@ Nst_Obj *NstC date_(usize arg_num, Nst_Obj **args)
         return nullptr;
     time_t raw_time = Nst_DEF_VAL(
         time_obj,
-        (time_t)AS_INT(time_obj),
+        (time_t)Nst_int_i64(time_obj),
         time(nullptr));
     Nst_Obj *map = Nst_map_new();
     add_date(map, localtime(&raw_time));
@@ -211,7 +211,7 @@ Nst_Obj *NstC gmt_date_(usize arg_num, Nst_Obj **args)
         return nullptr;
     time_t raw_time = Nst_DEF_VAL(
         time_obj,
-        (time_t)AS_INT(time_obj),
+        (time_t)Nst_int_i64(time_obj),
         time(nullptr));
     Nst_Obj *map = Nst_map_new();
     add_date(map, gmtime(&raw_time));
@@ -225,7 +225,7 @@ Nst_Obj *NstC second_(usize arg_num, Nst_Obj **args)
         return nullptr;
     time_t raw_time = Nst_DEF_VAL(
         time_obj,
-        (time_t)AS_INT(time_obj),
+        (time_t)Nst_int_i64(time_obj),
         time(nullptr));
     tm *t = localtime(&raw_time);
     return Nst_int_new(t->tm_sec);
@@ -238,7 +238,7 @@ Nst_Obj *NstC minute_(usize arg_num, Nst_Obj **args)
         return nullptr;
     time_t raw_time = Nst_DEF_VAL(
         time_obj,
-        (time_t)AS_INT(time_obj),
+        (time_t)Nst_int_i64(time_obj),
         time(nullptr));
     tm *t = localtime(&raw_time);
     return Nst_int_new(t->tm_min);
@@ -251,7 +251,7 @@ Nst_Obj *NstC hour_(usize arg_num, Nst_Obj **args)
         return nullptr;
     time_t raw_time = Nst_DEF_VAL(
         time_obj,
-        (time_t)AS_INT(time_obj),
+        (time_t)Nst_int_i64(time_obj),
         time(nullptr));
     tm *t = localtime(&raw_time);
     return Nst_int_new(t->tm_hour);
@@ -264,7 +264,7 @@ Nst_Obj *NstC clock_time_(usize arg_num, Nst_Obj **args)
         return nullptr;
     time_t raw_time = Nst_DEF_VAL(
         time_obj,
-        (time_t)AS_INT(time_obj),
+        (time_t)Nst_int_i64(time_obj),
         time(nullptr));
     Nst_Obj *map = Nst_map_new();
     add_time(map, localtime(&raw_time));
@@ -278,7 +278,7 @@ Nst_Obj *NstC gmt_clock_time_(usize arg_num, Nst_Obj **args)
         return nullptr;
     time_t raw_time = Nst_DEF_VAL(
         time_obj,
-        (time_t)AS_INT(time_obj),
+        (time_t)Nst_int_i64(time_obj),
         time(nullptr));
     Nst_Obj *map = Nst_map_new();
     add_time(map, gmtime(&raw_time));
@@ -292,7 +292,7 @@ Nst_Obj *NstC clock_datetime_(usize arg_num, Nst_Obj **args)
         return nullptr;
     time_t raw_time = Nst_DEF_VAL(
         time_obj,
-        (time_t)AS_INT(time_obj),
+        (time_t)Nst_int_i64(time_obj),
         time(nullptr));
     tm *t = localtime(&raw_time);
     Nst_Obj *map = Nst_map_new();
@@ -308,7 +308,7 @@ Nst_Obj *NstC gmt_clock_datetime_(usize arg_num, Nst_Obj **args)
         return nullptr;
     time_t raw_time = Nst_DEF_VAL(
         time_obj,
-        (time_t)AS_INT(time_obj),
+        (time_t)Nst_int_i64(time_obj),
         time(nullptr));
     tm *t = gmtime(&raw_time);
     Nst_Obj *map = Nst_map_new();

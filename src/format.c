@@ -657,7 +657,7 @@ static bool set_fmt_field(FmtValues *values, const i8 *field_name, i32 *field)
         Nst_set_type_errorf("the value for '%s' is not an Int", field_name);
         return false;
     }
-    i64 val = AS_INT(obj);
+    i64 val = Nst_int_i64(obj);
     if (val > INT32_MAX) {
         Nst_set_value_errorf("the value for '%s' is too big", field_name);
         return false;
@@ -739,9 +739,9 @@ format_type:
             result = fmt_str(sb, Nst_str_value(obj), Nst_str_len(obj), &format);
         else if (obj->type == Nst_t.Int) {
             if (format.as_unsigned)
-                result = fmt_uint(sb, (u64)AS_INT(obj), &format);
+                result = fmt_uint(sb, (u64)Nst_int_i64(obj), &format);
             else
-                result = fmt_int(sb, AS_INT(obj), &format);
+                result = fmt_int(sb, Nst_int_i64(obj), &format);
         } else if (obj->type == Nst_t.Real)
             result = fmt_double(sb, Nst_real_f64(obj), &format);
         else if (obj->type == Nst_t.Bool)

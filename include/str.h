@@ -230,8 +230,7 @@ NstEXP Nst_Obj *NstC Nst_str_parse_real(Nst_Obj *str);
  */
 NstEXP i32 NstC Nst_str_compare(Nst_Obj *str1, Nst_Obj *str2);
 
-/* String object destructor. */
-NstEXP void NstC _Nst_str_destroy(Nst_Obj *str);
+void _Nst_str_destroy(Nst_Obj *str);
 /**
  * Finds the first occurrence of a substring inside a string.
  *

@@ -1,5 +1,17 @@
 #include "sequtil_i_functions.h"
 
+void destroy_slice_data(Nst_Obj *data_obj)
+{
+    SliceData *data = (SliceData *)Nst_obj_custom_data(data_obj);
+    Nst_dec_ref(data->obj);
+}
+
+void destroy_reverse_data(Nst_Obj *data_obj)
+{
+    ReverseData *data = (ReverseData *)Nst_obj_custom_data(data_obj);
+    Nst_dec_ref(data->seq);
+}
+
 Nst_Obj *NstC map_i_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
@@ -33,27 +45,23 @@ Nst_Obj *NstC map_i_next(usize arg_num, Nst_Obj **args)
 Nst_Obj *NstC slice_i_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **c_args = _Nst_seq_objs(args[0]);
-    AS_INT(c_args[0]) = 0;
+    SliceData *data = (SliceData *)Nst_obj_custom_data(args[0]);
+    data->idx = 0;
     return Nst_null_ref();
 }
 
 Nst_Obj *NstC slice_i_seq_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **c_args = _Nst_seq_objs(args[0]);
-    i64 i = AS_INT(c_args[0]);
-    i64 max_i = AS_INT(c_args[3]);
+    SliceData *data = (SliceData *)Nst_obj_custom_data(args[0]);
+    isize idx = data->idx;
+    isize max_idx = data->max_idx;
 
-    if (i >= max_i)
+    if (idx >= max_idx)
         return Nst_iend_ref();
 
-    i64 start = AS_INT(c_args[1]);
-    i64 step = AS_INT(c_args[2]);
-    Nst_Obj *seq = c_args[4];
-
-    Nst_Obj *obj = Nst_seq_get(seq, i * step + start);
-    AS_INT(c_args[0]) += 1;
+    Nst_Obj *obj = Nst_seq_get(data->obj, idx * data->step + data->start);
+    data->idx += 1;
 
     if (obj == nullptr)
         return obj;
@@ -67,19 +75,15 @@ Nst_Obj *NstC slice_i_seq_next(usize arg_num, Nst_Obj **args)
 Nst_Obj *NstC slice_i_str_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **c_args = _Nst_seq_objs(args[0]);
-    i64 i = AS_INT(c_args[0]);
-    i64 max_i = AS_INT(c_args[3]);
+    SliceData *data = (SliceData *)Nst_obj_custom_data(args[0]);
+    isize idx = data->idx;
+    isize max_idx = data->max_idx;
 
-    if (i >= max_i)
+    if (idx >= max_idx)
         return Nst_iend_ref();
 
-    i64 start = AS_INT(c_args[1]);
-    i64 step = AS_INT(c_args[2]);
-    Nst_Obj *seq = c_args[4];
-
-    Nst_Obj *obj = Nst_str_get(seq, i * step + start);
-    AS_INT(c_args[0]) += 1;
+    Nst_Obj *obj = Nst_str_get(data->obj, idx * data->step + data->start);
+    data->idx += 1;
 
     if (obj == nullptr)
         return obj;
@@ -124,31 +128,25 @@ Nst_Obj *NstC filter_i_next(usize arg_num, Nst_Obj **args)
 Nst_Obj *NstC reverse_i_start(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **c_args = _Nst_seq_objs(args[0]);
-    AS_INT(c_args[0]) = (isize)Nst_seq_len(c_args[1]) - 1;
+    ReverseData *data = (ReverseData *)Nst_obj_custom_data(args[0]);
+    data->idx = (isize)Nst_seq_len(data->seq) - 1;
     return Nst_null_ref();
 }
 
 Nst_Obj *NstC reverse_i_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
-    Nst_Obj **c_args = _Nst_seq_objs(args[0]);
-    Nst_Obj *seq = c_args[1];
-    i64 idx = AS_INT(c_args[0]);
+    ReverseData *data = (ReverseData *)Nst_obj_custom_data(args[0]);
+    i64 idx = data->idx;
 
     if (idx <= -1)
         return Nst_iend_ref();
 
-    Nst_Obj *res = Nst_seq_get(seq, idx);
+    Nst_Obj *res = Nst_seq_get(data->seq, idx);
 
     if (res == nullptr)
         return nullptr;
-
-    i64 len = Nst_seq_len(c_args[1]);
-    AS_INT(c_args[0]) -= 1;
-
-    if (AS_INT(c_args[0]) >= len)
-        AS_INT(c_args[0]) = len - 1;
+    data->idx -= 1;
 
     if (res == Nst_iend()) {
         Nst_dec_ref(res);

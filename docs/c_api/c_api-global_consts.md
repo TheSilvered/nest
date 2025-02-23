@@ -79,20 +79,20 @@ are others.
 
 ```better-c
 typedef struct _Nst_TypeObjs {
-    Nst_TypeObj *Type;
-    Nst_TypeObj *Int;
-    Nst_TypeObj *Real;
-    Nst_TypeObj *Bool;
-    Nst_TypeObj *Null;
-    Nst_TypeObj *Str;
-    Nst_TypeObj *Array;
-    Nst_TypeObj *Vector;
-    Nst_TypeObj *Map;
-    Nst_TypeObj *Func;
-    Nst_TypeObj *Iter;
-    Nst_TypeObj *Byte;
-    Nst_TypeObj *IOFile;
-    Nst_TypeObj *IEnd;
+    Nst_Obj *Type;
+    Nst_Obj *Int;
+    Nst_Obj *Real;
+    Nst_Obj *Bool;
+    Nst_Obj *Null;
+    Nst_Obj *Str;
+    Nst_Obj *Array;
+    Nst_Obj *Vector;
+    Nst_Obj *Map;
+    Nst_Obj *Func;
+    Nst_Obj *Iter;
+    Nst_Obj *Byte;
+    Nst_Obj *IOFile;
+    Nst_Obj *IEnd;
 } Nst_TypeObjs
 ```
 
@@ -152,32 +152,6 @@ Standard IO streams.
 
 !!!note
     These are not constant and can change at run-time.
-
----
-
-### `Nst_IterFunctions`
-
-**Synopsis:**
-
-```better-c
-typedef struct _Nst_IterFunctions {
-    Nst_Obj *range_start;
-    Nst_Obj *range_next;
-
-    Nst_Obj *seq_start;
-    Nst_Obj *seq_next;
-
-    Nst_Obj *str_start;
-    Nst_Obj *str_next;
-
-    Nst_Obj *map_start;
-    Nst_Obj *map_next;
-} Nst_IterFunctions
-```
-
-**Description:**
-
-The functions of the built-in iterators.
 
 ---
 
@@ -369,21 +343,6 @@ const Nst_Consts *Nst_const(void)
 
 Returns a [`Nst_Consts`](c_api-global_consts.md#nst_consts) struct containing
 all the object constants.
-
----
-
-### `Nst_iter_func`
-
-**Synopsis:**
-
-```better-c
-const Nst_IterFunctions *Nst_iter_func(void)
-```
-
-**Description:**
-
-Returns a [`Nst_IterFunctions`](c_api-global_consts.md#nst_iterfunctions) struct
-containing all the function constants.
 
 ---
 

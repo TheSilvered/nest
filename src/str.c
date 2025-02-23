@@ -116,7 +116,7 @@ Nst_Obj *_Nst_str_new_no_err(const i8 *value)
 
     str->type = Nst_t.Str;
     Nst_inc_ref(Nst_t.Str);
-    return OBJ(str);
+    return NstOBJ(str);
 }
 
 Nst_Obj *Nst_str_new_c_raw(const i8 *val, bool allocated)
@@ -151,7 +151,7 @@ Nst_Obj *Nst_str_new_len(i8 *val, usize len, usize char_len, bool allocated)
     str->char_len = char_len;
     str->indexable_str = NULL;
 
-    return OBJ(str);
+    return NstOBJ(str);
 }
 
 Nst_Obj *Nst_str_new_allocated(i8 *val, usize len)

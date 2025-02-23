@@ -10,20 +10,6 @@ TheSilvered
 
 ## Macros
 
-### `TYPE_NAME`
-
-**Synopsis:**
-
-```better-c
-#define TYPE_NAME(obj)
-```
-
-**Description:**
-
-Gets the name of the type of an object as a C string.
-
----
-
 ### `Nst_STR_LOOP_ERROR`
 
 **Description:**
@@ -451,20 +437,6 @@ account possible `NUL` bytes inside the compared string.
 
 `0` if the two strings are equal, a value `< 0` if `str2` is greater than `str1`
 and a value `> 0` if `str1` is greater than `str2`.
-
----
-
-### `_Nst_str_destroy`
-
-**Synopsis:**
-
-```better-c
-void _Nst_str_destroy(Nst_Obj *str)
-```
-
-**Description:**
-
-String object destructor.
 
 ---
 

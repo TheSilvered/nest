@@ -140,7 +140,7 @@ static bool optimize_fl(Nst_Node *node)
     Nst_Obj *repetitions = get_value(node->v.fl.iterator);
     if (repetitions == NULL)
         return true;
-    if (repetitions->type == Nst_t.Int && AS_INT(repetitions) == 0)
+    if (repetitions->type == Nst_t.Int && Nst_int_i64(repetitions) == 0)
         Nst_node_change_type(node, Nst_NT_NP);
     return true;
 }

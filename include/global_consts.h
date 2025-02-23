@@ -125,8 +125,7 @@ NstEXP typedef struct _Nst_StdStreams {
     Nst_Obj *err;
 } Nst_StdStreams;
 
-/* The functions of the built-in iterators. */
-NstEXP typedef struct _Nst_IterFunctions {
+typedef struct _Nst_IterFunctions {
     Nst_Obj *range_start;
     Nst_Obj *range_next;
 
@@ -177,11 +176,6 @@ NstEXP const Nst_TypeObjs *NstC Nst_type(void);
 NstEXP const Nst_StrConsts *NstC Nst_str(void);
 /* Returns a `Nst_Consts` struct containing all the object constants. */
 NstEXP const Nst_Consts *NstC Nst_const(void);
-/**
- * @brief Returns a `Nst_IterFunctions` struct containing all the function
- * constants.
- */
-NstEXP const Nst_IterFunctions *NstC Nst_iter_func(void);
 /* Returns a `Nst_StdStreams` struct containing all the standard IO streams. */
 NstEXP Nst_StdStreams *NstC Nst_stdio(void);
 

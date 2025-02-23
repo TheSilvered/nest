@@ -55,8 +55,8 @@ void get_in_str(Nst_Obj *str, Nst_Obj *start_idx, Nst_Obj *end_idx,
                 i8 **out_str, i8 **out_str_end)
 {
     usize str1_true_len = Nst_str_char_len(str);
-    i64 start = Nst_DEF_VAL(start_idx, AS_INT(start_idx), 0);
-    i64 end = Nst_DEF_VAL(end_idx, AS_INT(end_idx), str1_true_len);
+    i64 start = Nst_DEF_VAL(start_idx, Nst_int_i64(start_idx), 0);
+    i64 end = Nst_DEF_VAL(end_idx, Nst_int_i64(end_idx), str1_true_len);
 
     if (start < 0)
         start += str1_true_len;
@@ -1139,7 +1139,7 @@ Nst_Obj *NstC lsplit_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    i64 quantity = Nst_DEF_VAL(quantity_obj, AS_INT(quantity_obj), -1);
+    i64 quantity = Nst_DEF_VAL(quantity_obj, Nst_int_i64(quantity_obj), -1);
 
     if (opt_substr == Nst_null())
         return lsplit_whitespace(str_obj, quantity);
@@ -1310,7 +1310,7 @@ Nst_Obj *NstC rsplit_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    i64 quantity = Nst_DEF_VAL(quantity_obj, AS_INT(quantity_obj), -1);
+    i64 quantity = Nst_DEF_VAL(quantity_obj, Nst_int_i64(quantity_obj), -1);
 
     if (opt_substr == Nst_null())
         return rsplit_whitespace(str_obj, quantity);
@@ -1426,7 +1426,7 @@ Nst_Obj *NstC parse_int_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s ?i", arg_num, args, &str, &base_obj))
         return nullptr;
 
-    i64 base = Nst_DEF_VAL(base_obj, AS_INT(base_obj), 0);
+    i64 base = Nst_DEF_VAL(base_obj, Nst_int_i64(base_obj), 0);
 
     return Nst_str_parse_int(str, i32(base));
 }

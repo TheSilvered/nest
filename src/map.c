@@ -68,7 +68,7 @@ Nst_Obj *Nst_map_new(void)
     map->head_idx = -1;
     map->tail_idx = -1;
 
-    return OBJ(map);
+    return NstOBJ(map);
 }
 
 static i32 set_clean(Nst_MapObj *map, i32 hash, Nst_Obj *key, Nst_Obj *value,
@@ -335,7 +335,7 @@ Nst_Obj *Nst_map_copy(Nst_Obj *map)
         NULL);
 
     if (new_nodes == NULL) {
-        Nst_dec_ref(OBJ(new_map));
+        Nst_dec_ref(NstOBJ(new_map));
         return NULL;
     }
 
@@ -352,7 +352,7 @@ Nst_Obj *Nst_map_copy(Nst_Obj *map)
         new_nodes[i].prev_idx = old_nodes[i].prev_idx;
     }
 
-    return OBJ(new_map);
+    return NstOBJ(new_map);
 }
 
 void _Nst_map_destroy(Nst_Obj *map)

@@ -494,7 +494,7 @@ cast_obj:
         if (res == NULL)
             return false;
         if (arg != NULL)
-            *(i64 *)arg = AS_INT(res);
+            *(i64 *)arg = Nst_int_i64(res);
         Nst_dec_ref(res);
         return true;
     } else if ((accepted_types & 0x7000) == REAL_C_CAST) {
@@ -707,7 +707,13 @@ bool Nst_extract_args(const i8 *types, usize arg_num, Nst_Obj **args, ...)
 
 Nst_Obj *_Nst_obj_custom(usize size, void *data, const i8 *name)
 {
-    Nst_Obj *type = Nst_type_new(name, NULL);
+    return _Nst_obj_custom_ex(size, data, name, NULL);
+}
+
+Nst_Obj *_Nst_obj_custom_ex(usize size, void *data, const i8 *name,
+                            Nst_ObjDstr dstr)
+{
+    Nst_Obj *type = Nst_type_new(name, dstr);
     if (type == NULL)
         return NULL;
     Nst_Obj *obj = _Nst_obj_alloc(sizeof(Nst_Obj) + size, type);

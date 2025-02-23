@@ -139,6 +139,62 @@ The resulting object on success and `NULL` on failure. The error is set.
 
 ---
 
+### `Nst_iter_range_new`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *Nst_iter_range_new(i64 start, i64 stop, i64 step)
+```
+
+**Description:**
+
+Create a new range object.
+
+---
+
+### `Nst_iter_seq_new`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *Nst_iter_seq_new(Nst_Obj *seq)
+```
+
+**Description:**
+
+Create a sequence iterator.
+
+---
+
+### `Nst_iter_str_new`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *Nst_iter_str_new(Nst_Obj *seq)
+```
+
+**Description:**
+
+Create a string iterator.
+
+---
+
+### `Nst_iter_map_new`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *Nst_iter_map_new(Nst_Obj *seq)
+```
+
+**Description:**
+
+Create a map iterator.
+
+---
+
 ### `Nst_iter_range_start`
 
 **Synopsis:**

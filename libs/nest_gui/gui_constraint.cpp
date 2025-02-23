@@ -50,7 +50,7 @@ bool GUI_Element_AddConstraintBefore(GUI_Constraint *constr)
         return false;
     bool result = Nst_map_set(
         constr->element->constraints_before,
-        key, OBJ(constr));
+        key, NstOBJ(constr));
     Nst_dec_ref(key);
     return result;
 }
@@ -62,7 +62,7 @@ bool GUI_Element_AddConstraintAfter(GUI_Constraint *constr)
         return false;
     bool result = Nst_map_set(
         constr->element->constraints_after,
-        key, OBJ(constr));
+        key, NstOBJ(constr));
     Nst_dec_ref(key);
     return result;
 }

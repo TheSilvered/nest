@@ -34,7 +34,7 @@ Nst_Obj *Nst_func_new(usize arg_num, Nst_InstList *bytecode)
     func->arg_num = arg_num;
     func->mod_globals = NULL;
 
-    return OBJ(func);
+    return NstOBJ(func);
 }
 
 Nst_Obj *Nst_func_new_c(usize arg_num, Nst_NestCallable cbody)
@@ -54,7 +54,7 @@ Nst_Obj *Nst_func_new_c(usize arg_num, Nst_NestCallable cbody)
     // Functions with a C body never have mod_globals set
     // so there is not need to track them in the ggc
 
-    return OBJ(func);
+    return NstOBJ(func);
 }
 
 void _Nst_func_traverse(Nst_Obj *func)

@@ -369,7 +369,11 @@ Nst_Obj *NstC open_(usize arg_num, Nst_Obj **args)
     }
 
     if (buf_size != Nst_null()) {
-        setvbuf(file_ptr, nullptr, _IOFBF, (usize)AS_INT(buf_size));
+        if (Nst_int_i64(buf_size) < 0) {
+            Nst_set_value_error_c("the buffer size is negative");
+            return nullptr;
+        }
+        setvbuf(file_ptr, nullptr, _IOFBF, (usize)Nst_int_i64(buf_size));
     }
 
     return Nst_iof_new(file_ptr, is_bin, can_read, can_write, encoding);
@@ -383,7 +387,7 @@ Nst_Obj *NstC virtual_file_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("y ?i", arg_num, args, &bin, &buf_size_obj))
         return nullptr;
 
-    i64 buf_size = Nst_DEF_VAL(buf_size_obj, AS_INT(buf_size_obj), 128);
+    i64 buf_size = Nst_DEF_VAL(buf_size_obj, Nst_int_i64(buf_size_obj), 128);
 
     VirtualFile *vf = Nst_malloc_c(1, VirtualFile);
     if (vf == nullptr)
@@ -520,7 +524,7 @@ Nst_Obj *NstC read_(usize arg_num, Nst_Obj **args)
         return nullptr;
     i64 bytes_to_read = Nst_DEF_VAL(
         bytes_to_read_obj,
-        AS_INT(bytes_to_read_obj),
+        Nst_int_i64(bytes_to_read_obj),
         -1);
 
     if (Nst_IOF_IS_CLOSED(f)) {
@@ -585,7 +589,7 @@ Nst_Obj *NstC read_bytes_(usize arg_num, Nst_Obj **args)
         return nullptr;
     i64 bytes_to_read = Nst_DEF_VAL(
         bytes_to_read_obj,
-        AS_INT(bytes_to_read_obj),
+        Nst_int_i64(bytes_to_read_obj),
         -1);
 
     if (Nst_IOF_IS_CLOSED(f)) {
@@ -677,8 +681,8 @@ Nst_Obj *NstC seek_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    i64 start = Nst_DEF_VAL(start_obj, AS_INT(start_obj), 1);
-    i64 offset = Nst_DEF_VAL(offset_obj, AS_INT(offset_obj), 0);
+    i64 start = Nst_DEF_VAL(start_obj, Nst_int_i64(start_obj), 1);
+    i64 offset = Nst_DEF_VAL(offset_obj, Nst_int_i64(offset_obj), 0);
 
     if (start < 0 || start > 2) {
         Nst_set_value_errorf("invalid origin '%lli'", start);

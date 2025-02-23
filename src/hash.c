@@ -7,7 +7,7 @@
 #define LOWER_HALF 0xffffffff
 
 static i32 hash_str(Nst_Obj *str);
-static i32 hash_int(Nst_IntObj *num);
+static i32 hash_int(Nst_Obj *num);
 static i32 hash_byte(Nst_Obj *byte);
 static i32 hash_ptr(void *ptr);
 
@@ -30,7 +30,7 @@ i32 Nst_obj_hash(Nst_Obj *obj)
     else if (obj->type == Nst_t.Str)
         hash = hash_str(obj);
     else if (obj->type == Nst_t.Int)
-        hash = hash_int((Nst_IntObj *)obj);
+        hash = hash_int(obj);
     else if (obj->type == Nst_t.Byte)
         hash = hash_byte(obj);
     else
@@ -64,9 +64,10 @@ static i32 hash_str(Nst_Obj *str)
     return (i32)((hash >> 32) ^ (hash & LOWER_HALF));
 }
 
-static i32 hash_int(Nst_IntObj *num)
+static i32 hash_int(Nst_Obj *num)
 {
-    return num->value == -1 ? -2 : (i32)(num->value);
+    i64 value = Nst_int_i64(num);
+    return value == -1 ? -2 : (i32)(value);
 }
 
 static i32 hash_byte(Nst_Obj *byte)

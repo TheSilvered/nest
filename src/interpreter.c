@@ -16,7 +16,12 @@
 #include <windows.h>
 #include <direct.h>
 
+#ifdef Nst_DBG_KEEP_DYN_LIBS
+#define dlclose (void)
+#else
 #define dlclose FreeLibrary
+#endif
+
 #define dlsym GetProcAddress
 #define PATH_MAX 4096
 
@@ -30,6 +35,10 @@ typedef HMODULE lib_t;
 #include <string.h>
 
 typedef void *lib_t;
+
+#ifdef Nst_DBG_KEEP_DYN_LIBS
+#define dlclose (void)
+#endif
 
 #endif // !Nst_MSVC
 
@@ -342,7 +351,7 @@ i32 Nst_run(Nst_Obj *main_func)
         if (error->error_name != Nst_c.Null_null)
             exit_code = 1;
         else {
-            exit_code = (i32)AS_INT(error->error_msg);
+            exit_code = (i32)Nst_int_i64(error->error_msg);
             Nst_error_clear();
         }
     }
@@ -743,7 +752,7 @@ static InstResult exe_jumpif_f()
 static InstResult exe_jumpif_zero()
 {
     CHECK_V_STACK;
-    if (AS_INT(FAST_TOP_VAL) == 0)
+    if (Nst_int_i64(FAST_TOP_VAL) == 0)
         Nst_state.es->idx = inst->int_val - 1;
 
     return INST_SUCCESS;
@@ -809,7 +818,7 @@ static InstResult exe_set_cont_val()
             goto end;
         }
 
-        if (!Nst_seq_set(cont, AS_INT(idx), val))
+        if (!Nst_seq_set(cont, Nst_int_i64(idx), val))
             return_value = INST_FAILED;
         goto end;
     } else if (cont->type == Nst_t.Map) {
@@ -1015,7 +1024,7 @@ static InstResult exe_op_range()
             return INST_FAILED;
         }
 
-        if (AS_INT(start) <= AS_INT(stop))
+        if (Nst_int_i64(start) <= Nst_int_i64(stop))
             step = Nst_inc_ref(Nst_c.Int_1);
         else
             step = Nst_inc_ref(Nst_c.Int_neg1);
@@ -1127,7 +1136,7 @@ static InstResult exe_op_extract()
             goto end;
         }
 
-        res = Nst_seq_get(cont, AS_INT(idx));
+        res = Nst_seq_get(cont, Nst_int_i64(idx));
 
         if (res == NULL)
             return_value = INST_FAILED;
@@ -1156,7 +1165,7 @@ static InstResult exe_op_extract()
             goto end;
         }
 
-        res = Nst_str_get(cont, AS_INT(idx));
+        res = Nst_str_get(cont, Nst_int_i64(idx));
 
         if (res == NULL)
             return_value = INST_FAILED;
@@ -1179,7 +1188,7 @@ end:
 static InstResult exe_dec_int()
 {
     CHECK_V_STACK;
-    AS_INT(FAST_TOP_VAL) -= 1;
+    _Nst_counter_dec(FAST_TOP_VAL);
     return INST_SUCCESS;
 }
 
@@ -1192,7 +1201,7 @@ static InstResult exe_new_int()
         return INST_FAILED;
     }
 
-    Nst_Obj *new_obj = Nst_int_new(AS_INT(obj));
+    Nst_Obj *new_obj = Nst_int_new(Nst_int_i64(obj));
     Nst_dec_ref(obj);
     if (new_obj == NULL)
         return INST_FAILED;
@@ -1277,7 +1286,7 @@ static InstResult exe_make_arr_rep()
         return INST_FAILED;
     }
 
-    i64 size = AS_INT(size_obj);
+    i64 size = Nst_int_i64(size_obj);
     Nst_dec_ref(size_obj);
     Nst_Obj *seq = Nst_array_new((usize)size);
     return complete_seq_rep(seq, size);
@@ -1293,7 +1302,7 @@ static InstResult exe_make_vec_rep()
         return INST_FAILED;
     }
 
-    i64 size = AS_INT(size_obj);
+    i64 size = Nst_int_i64(size_obj);
     Nst_dec_ref(size_obj);
     Nst_Obj *seq = Nst_array_new((usize)size);
     return complete_seq_rep(seq, size);

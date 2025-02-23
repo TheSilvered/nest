@@ -57,6 +57,16 @@ default.
 
 ---
 
+### `Nst_DBG_KEEP_DYN_LIBS`
+
+**Description:**
+
+If defined dynamic libraries are not closed when calling
+[`Nst_quit`](c_api-interpreter.md#nst_quit) to allow the checking of stack
+traces in memory allocations after the library is closed.
+
+---
+
 ### `Nst_MSVC`
 
 **Description:**

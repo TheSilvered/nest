@@ -176,7 +176,7 @@ static isize clamp_slice_arguments(usize seq_len, Nst_Obj *start_obj,
                                    Nst_Obj *stop_obj, Nst_Obj *step_obj,
                                    i64 &start, i64 &step)
 {
-    step = Nst_DEF_VAL(step_obj,  AS_INT(step_obj), 1);
+    step = Nst_DEF_VAL(step_obj,  Nst_int_i64(step_obj), 1);
 
     if (step == 0) {
         Nst_set_value_error_c("the step cannot be zero");
@@ -188,11 +188,11 @@ static isize clamp_slice_arguments(usize seq_len, Nst_Obj *start_obj,
 
     start = Nst_DEF_VAL(
         start_obj,
-        AS_INT(start_obj),
+        Nst_int_i64(start_obj),
         step > 0 ? 0 : seq_len - 1);
     i64 stop = Nst_DEF_VAL(
         stop_obj,
-        AS_INT(stop_obj),
+        Nst_int_i64(stop_obj),
         step > 0 ? seq_len : -(i64)seq_len - 1);
 
     if (start < 0)
@@ -317,27 +317,36 @@ Nst_Obj *NstC slice_i_(usize arg_num, Nst_Obj **args)
 
     i64 start, step;
     isize new_size = clamp_slice_arguments(
-        Nst_T(seq, Str) ? Nst_str_len(seq) : Nst_seq_len(seq),
+        Nst_T(seq, Str) ? Nst_str_char_len(seq) : Nst_seq_len(seq),
         start_obj, stop_obj, step_obj,
         start, step);
 
     if (new_size == -1)
         return nullptr;
 
-    Nst_Obj *arr = Nst_array_create_c(
-        "iIIIO",
-        0, start, step, i64(new_size), seq);
+    SliceData data = {
+        .idx = 0,
+        .max_idx = new_size,
+        .start = start,
+        .step = step,
+        .obj = Nst_inc_ref(seq)
+    };
+
+    Nst_Obj *slice_data = Nst_obj_custom_ex(
+        SliceData,
+        &data,
+        destroy_slice_data);
 
     if (Nst_T(seq, Str)) {
         return Nst_iter_new(
             Nst_func_new_c(1, slice_i_start),
             Nst_func_new_c(1, slice_i_str_next),
-            arr);
+            slice_data);
     } else {
         return Nst_iter_new(
             Nst_func_new_c(1, slice_i_start),
             Nst_func_new_c(1, slice_i_seq_next),
-            arr);
+            slice_data);
     }
 }
 
@@ -728,6 +737,7 @@ Nst_Obj *NstC filter_i_(usize arg_num, Nst_Obj **args)
 
     if (Nst_func_arg_num(func) != 1) {
         Nst_set_call_error_c("the function must take exactly one argument");
+        Nst_dec_ref(iter);
         return nullptr;
     }
 
@@ -813,7 +823,7 @@ static i64 check_scan_args(usize seq_len, usize func_arg_num,
 {
     i64 max_items = Nst_DEF_VAL(
         max_items_obj,
-        AS_INT(max_items_obj),
+        Nst_int_i64(max_items_obj),
         seq_len + 1);
 
     if (func_arg_num != 2) {
@@ -1088,7 +1098,7 @@ Nst_Obj *NstC enum_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("A.s ?i", arg_num, args, &seq, &start_obj))
         return nullptr;
 
-    i64 start = Nst_DEF_VAL(start_obj, AS_INT(start_obj), 0);
+    i64 start = Nst_DEF_VAL(start_obj, Nst_int_i64(start_obj), 0);
     Nst_Obj **objs = _Nst_seq_objs(seq);
     isize len = (isize)Nst_seq_len(seq);
 
@@ -1202,10 +1212,17 @@ Nst_Obj *NstC reverse_i_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("S", arg_num, args, &seq))
         return nullptr;
 
-    // Layout: [idx, seq]
-    Nst_Obj *arr = Nst_array_create_c("io", 0, seq);
+    ReverseData data = {
+        .idx = 0,
+        .seq = seq
+    };
 
-    if (arr == nullptr) {
+    Nst_Obj *reverse_data = Nst_obj_custom_ex(
+        ReverseData,
+        &data,
+        destroy_reverse_data);
+
+    if (reverse_data == nullptr) {
         Nst_dec_ref(seq);
         return nullptr;
     }
@@ -1213,5 +1230,5 @@ Nst_Obj *NstC reverse_i_(usize arg_num, Nst_Obj **args)
     return Nst_iter_new(
         Nst_func_new_c(1, reverse_i_start),
         Nst_func_new_c(1, reverse_i_next),
-        arr);
+        reverse_data);
 }

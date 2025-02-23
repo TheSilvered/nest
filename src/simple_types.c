@@ -11,7 +11,12 @@
     if (obj == NULL)                                                          \
         return NULL;                                                          \
     obj->value = value;                                                       \
-    return OBJ(obj)
+    return NstOBJ(obj)
+
+NstEXP typedef struct _Nst_IntObj {
+    Nst_OBJ_HEAD;
+    i64 value;
+} Nst_IntObj;
 
 typedef struct _Nst_RealObj {
     Nst_OBJ_HEAD;
@@ -31,6 +36,11 @@ Nst_Obj *Nst_int_new(i64 value)
 i64 Nst_int_i64(Nst_Obj *obj)
 {
     return ((Nst_IntObj *)obj)->value;
+}
+
+void _Nst_counter_dec(Nst_Obj *counter)
+{
+    --((Nst_IntObj *)counter)->value;
 }
 
 Nst_Obj *Nst_real_new(f64 value)
@@ -80,7 +90,7 @@ i64 Nst_number_to_i64(Nst_Obj *number)
     if (t == Nst_t.Byte)
         return (i64)Nst_byte_u8(number);
     else if (t == Nst_t.Int)
-        return AS_INT(number);
+        return Nst_int_i64(number);
     else if (t == Nst_t.Real)
         return (i64)Nst_real_f64(number);
     return 0;
@@ -98,7 +108,7 @@ f64 Nst_number_to_f64(Nst_Obj *number)
     if (t == Nst_t.Byte)
         return (f64)Nst_byte_u8(number);
     else if (t == Nst_t.Int)
-        return (f64)AS_INT(number);
+        return (f64)Nst_int_i64(number);
     else if (t == Nst_t.Real)
         return Nst_real_f64(number);
     return 0.0;

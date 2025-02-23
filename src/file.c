@@ -67,7 +67,7 @@ Nst_Obj *Nst_iof_new(FILE *value, bool bin, bool read, bool write,
     if (isatty(obj->fd))
         Nst_SET_FLAG(obj, Nst_FLAG_IOFILE_IS_TTY);
 
-    return OBJ(obj);
+    return NstOBJ(obj);
 }
 
 Nst_Obj *Nst_iof_new_fake(void *value, bool bin, bool read, bool write,
@@ -95,7 +95,7 @@ Nst_Obj *Nst_iof_new_fake(void *value, bool bin, bool read, bool write,
     if (seek)
         Nst_SET_FLAG(obj, Nst_FLAG_IOFILE_CAN_SEEK);
 
-    return OBJ(obj);
+    return NstOBJ(obj);
 }
 
 Nst_IOFuncSet *Nst_iof_func_set(Nst_Obj *f)

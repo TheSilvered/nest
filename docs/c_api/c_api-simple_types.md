@@ -8,46 +8,6 @@ TheSilvered
 
 ---
 
-## Macros
-
-### `AS_INT`
-
-**Synopsis:**
-
-```better-c
-#define AS_INT(ptr)
-```
-
-**Description:**
-
-Casts `ptr` to a [`Nst_IntObj *`](c_api-simple_types.md#nst_intobj) and extracts
-the value field.
-
----
-
-## Structs
-
-### `Nst_IntObj`
-
-**Synopsis:**
-
-```better-c
-typedef struct _Nst_IntObj {
-    Nst_OBJ_HEAD;
-    i64 value;
-} Nst_IntObj
-```
-
-**Description:**
-
-A structure representing a Nest integer object.
-
-**Fields:**
-
-- `value`: the value of the integer
-
----
-
 ## Functions
 
 ### `Nst_int_new`
@@ -69,6 +29,20 @@ Creates a new `Int` object.
 **Returns:**
 
 The new object on success or `NULL` on failure. The error is set.
+
+---
+
+### `Nst_int_i64`
+
+**Synopsis:**
+
+```better-c
+i64 Nst_int_i64(Nst_Obj *obj)
+```
+
+**Description:**
+
+Get the value of an `Int` object as an [`i64`](c_api_index.md#type-definitions).
 
 ---
 

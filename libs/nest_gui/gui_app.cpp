@@ -55,7 +55,7 @@ void GUI_Window_Destroy(GUI_Window *window)
 {
     SDL_DestroyRenderer(window->renderer);
     SDL_DestroyWindow(window->window);
-    Nst_dec_ref(OBJ(window->root_element));
+    Nst_dec_ref(NstOBJ(window->root_element));
 
     for (usize i = 0, n = window->child_windows.len; i < n; i++) {
         GUI_Window *child = (GUI_Window *)Nst_sbuffer_at(

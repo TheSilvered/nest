@@ -13,22 +13,9 @@
 #include "error.h"
 #include "encoding.h"
 
-/* Casts `ptr` to a `Nst_IntObj *` and extracts the value field. */
-#define AS_INT(ptr)  (((Nst_IntObj  *)(ptr))->value)
-
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
-
-/**
- * A structure representing a Nest integer object.
- *
- * @param value: the value of the integer
- */
-NstEXP typedef struct _Nst_IntObj {
-    Nst_OBJ_HEAD;
-    i64 value;
-} Nst_IntObj;
 
 /**
  * Creates a new `Int` object.
@@ -40,6 +27,8 @@ NstEXP typedef struct _Nst_IntObj {
 NstEXP Nst_Obj *NstC Nst_int_new(i64 value);
 /* Get the value of an `Int` object as an `i64`. */
 NstEXP i64 NstC Nst_int_i64(Nst_Obj *obj);
+
+void _Nst_counter_dec(Nst_Obj *counter);
 
 /**
  * Creates a new `Real` object.

@@ -1,7 +1,7 @@
 /**
  * @file type.h
  *
- * @brief Nest Type object.
+ * @brief Nest `Type` object.
  *
  * @author TheSilvered
  */
@@ -17,9 +17,9 @@ extern "C" {
 #include "str_view.h"
 
 /**
- * Creates a new `Nst_TypeObj`.
+ * Creates a new `Type` object.
  *
- * @brief Note: `name` can only contain 7-bit ASCII characters
+ * @brief Note: `name` must be encoded in UTF-8
  *
  * @param name: the name of the type
  * @param dstr: the destructor of the type
@@ -28,9 +28,9 @@ extern "C" {
  */
 NstEXP Nst_Obj *NstC Nst_type_new(const i8 *name, Nst_ObjDstr dstr);
 /**
- * Creates a new `Nst_ContTypeObj`.
+ * Creates a new `Type` for containers.
  *
- * @brief Note: `name` can only contain 7-bit ASCII characters
+ * @brief Note: `name` must be encoded in UTF-8
  *
  * @param name: the name of the type
  * @param dstr: the destructor of the type

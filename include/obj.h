@@ -20,7 +20,7 @@
 #endif
 
 /* Casts `obj` to `Nst_Obj *`. */
-#define OBJ(obj) ((Nst_Obj *)(obj))
+#define NstOBJ(obj) ((Nst_Obj *)(obj))
 
 /**
  * @brief Wrapper for `_Nst_obj_alloc`. `type` is used to get the size of the
@@ -40,6 +40,8 @@
 /* Clears all flags from an object, except for the reserved ones. */
 #define Nst_CLEAR_FLAGS(obj) ((obj)->flags &= 0xff000000)
 
+struct _Nst_Obj;
+
 /**
  * The type of an object destructor.
  *
@@ -48,7 +50,7 @@
  * object's own memory, which is handled by Nest. This function should also
  * remove any references that the object being deleted has with other objects.
  */
-NstEXP typedef void (*Nst_ObjDstr)(void *);
+NstEXP typedef void (*Nst_ObjDstr)(struct _Nst_Obj *);
 /**
  * The type of an object traverse function for the garbage collector.
  *
@@ -57,7 +59,7 @@ NstEXP typedef void (*Nst_ObjDstr)(void *);
  * references. Any indirect references, such as objects within objects, should
  * be left untouched.
  */
-NstEXP typedef void (*Nst_ObjTrav)(void *);
+NstEXP typedef void (*Nst_ObjTrav)(struct _Nst_Obj *);
 
 #ifdef Nst_DBG_TRACK_OBJ_INIT_POS
 
@@ -139,8 +141,8 @@ NstEXP Nst_Obj *NstC _Nst_obj_alloc(usize size, Nst_Obj *type);
  */
 NstEXP void NstC Nst_obj_traverse(Nst_Obj *obj);
 
-void NstC _Nst_obj_destroy(Nst_Obj *obj);
-void NstC _Nst_obj_free(Nst_Obj *obj);
+void _Nst_obj_destroy(Nst_Obj *obj);
+void _Nst_obj_free(Nst_Obj *obj);
 
 /* Increases the reference count of an object. Returns `obj`. */
 NstEXP Nst_Obj *NstC Nst_inc_ref(Nst_Obj *obj);

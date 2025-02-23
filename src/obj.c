@@ -1,3 +1,4 @@
+#include <string.h>
 #include "obj.h"
 #include "map.h"
 #include "ggc.h"
@@ -6,6 +7,8 @@
 #include "type.h"
 #include "interpreter.h"
 #include "global_consts.h"
+
+#define GGC_OBJ(obj) ((Nst_GGCObj *)(obj))
 
 #define TYPE_HEAD                                                             \
     Nst_Obj *p_head;                                                          \
@@ -32,6 +35,11 @@ NstEXP typedef struct _Nst_TypeObj {
 
 Nst_Obj *Nst_type_new(const i8 *name, Nst_ObjDstr dstr)
 {
+    Nst_assert_c(Nst_encoding_check(
+        Nst_encoding(Nst_EID_EXT_UTF8),
+        (void *)name,
+        strlen(name)) == -1);
+
     Nst_TypeObj *type = Nst_obj_alloc(Nst_TypeObj, Nst_t.Type);
     if (type == NULL)
         return NULL;
@@ -42,12 +50,17 @@ Nst_Obj *Nst_type_new(const i8 *name, Nst_ObjDstr dstr)
     type->trav = NULL;
     type->name = Nst_sv_new_c(name);
 
-    return OBJ(type);
+    return NstOBJ(type);
 }
 
 Nst_Obj *Nst_cont_type_new(const i8 *name, Nst_ObjDstr dstr,
-                               Nst_ObjTrav trav)
+                           Nst_ObjTrav trav)
 {
+    Nst_assert_c(Nst_encoding_check(
+        Nst_encoding(Nst_EID_EXT_UTF8),
+        (void *)name,
+        strlen(name)) == -1);
+
     Nst_TypeObj *type = Nst_obj_alloc(Nst_TypeObj, Nst_t.Type);
     if (type == NULL)
         return NULL;
@@ -58,7 +71,7 @@ Nst_Obj *Nst_cont_type_new(const i8 *name, Nst_ObjDstr dstr,
     type->trav = trav;
     type->name = Nst_sv_new_c(name);
 
-    return OBJ(type);
+    return NstOBJ(type);
 }
 
 Nst_Obj *_Nst_type_new_no_err(const i8 *name, Nst_ObjDstr dstr)
@@ -84,7 +97,7 @@ Nst_Obj *_Nst_type_new_no_err(const i8 *name, Nst_ObjDstr dstr)
 
     type->type = Nst_t.Type;
     Nst_ninc_ref(Nst_t.Type);
-    return OBJ(type);
+    return NstOBJ(type);
 }
 
 void _Nst_type_destroy(Nst_Obj *type)
@@ -120,7 +133,7 @@ static Nst_Obj *pop_p_head(usize size, Nst_Obj *type)
         TYPE(type)->p_len--;
         // p_next is taken care of in _Nst_obj_alloc
     } else
-        obj = OBJ(Nst_malloc(1, size));
+        obj = NstOBJ(Nst_malloc(1, size));
 
     return obj;
 }

@@ -24,21 +24,6 @@ Checks whether a given instruction ID represents a jump instruction.
 
 ---
 
-### `Nst_inst_new_val`
-
-**Synopsis:**
-
-```better-c
-#define Nst_inst_new_val(id, val, start, end)
-```
-
-**Description:**
-
-Alias for [`_Nst_inst_new_val`](c_api-instructions.md#_nst_inst_new_val) that
-casts `val` to [`Nst_Obj *`](c_api-obj.md#nst_obj).
-
----
-
 ## Structs
 
 ### `Nst_Inst`
@@ -119,13 +104,13 @@ The new instruction or `NULL` on failure. The error is set.
 
 ---
 
-### `_Nst_inst_new_val`
+### `Nst_inst_new_val`
 
 **Synopsis:**
 
 ```better-c
-Nst_Inst *_Nst_inst_new_val(Nst_InstID id, Nst_Obj *val, Nst_Pos start,
-                            Nst_Pos end)
+Nst_Inst *Nst_inst_new_val(Nst_InstID id, Nst_Obj *val, Nst_Pos start,
+                           Nst_Pos end)
 ```
 
 **Description:**

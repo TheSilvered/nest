@@ -92,7 +92,7 @@ Nst_Obj *NstC dump_s_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("o ?i", arg_num, args, &obj, &indent_obj))
         return nullptr;
 
-    i64 indent = Nst_DEF_VAL(indent_obj, AS_INT(indent_obj), 0);
+    i64 indent = Nst_DEF_VAL(indent_obj, Nst_int_i64(indent_obj), 0);
     return json_dump(obj, (i32)indent);
 }
 
@@ -110,7 +110,7 @@ Nst_Obj *NstC dump_f_(usize arg_num, Nst_Obj **args)
     {
         return nullptr;
     }
-    i64 indent = Nst_DEF_VAL(indent_obj, AS_INT(indent_obj), 0);
+    i64 indent = Nst_DEF_VAL(indent_obj, Nst_int_i64(indent_obj), 0);
 
     Nst_EncodingID encoding = Nst_DEF_VAL(
         encoding_obj,

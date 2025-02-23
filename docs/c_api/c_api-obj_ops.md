@@ -460,7 +460,7 @@ The new string or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_obj_cast(Nst_Obj *ob, Nst_TypeObj *type)
+Nst_Obj *Nst_obj_cast(Nst_Obj *ob, Nst_Obj *type)
 ```
 
 **Description:**

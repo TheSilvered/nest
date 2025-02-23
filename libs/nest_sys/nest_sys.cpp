@@ -364,7 +364,7 @@ Nst_Obj *NstC _raw_exit(usize arg_num, Nst_Obj **args)
     if (exit_code_obj == Nst_null())
         exit(0);
     else
-        exit((int)AS_INT(exit_code_obj));
+        exit((int)Nst_int_i64(exit_code_obj));
 }
 
 Nst_Obj *NstC _DEBUG_()
