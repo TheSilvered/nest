@@ -237,7 +237,7 @@ Nst_Obj *NstC dist_2d_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (Nst_seq_len(p1) != 2 || Nst_seq_len(p2) != 2) {
-        Nst_set_value_error_c("the points must have exactly two values");
+        Nst_error_setc_value("the points must have exactly two values");
         return nullptr;
     }
 
@@ -260,7 +260,7 @@ Nst_Obj *NstC dist_3d_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (Nst_seq_len(p1) != 3 || Nst_seq_len(p2) != 3) {
-        Nst_set_value_error_c("the points must have exactly three values");
+        Nst_error_setc_value("the points must have exactly three values");
         return nullptr;
     }
 
@@ -285,7 +285,7 @@ Nst_Obj *NstC dist_nd_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (Nst_seq_len(p1) != Nst_seq_len(p2)) {
-        Nst_set_value_error_c(
+        Nst_error_setc_value(
             "the points must have the same number of values");
         return nullptr;
     }
@@ -337,7 +337,7 @@ Nst_Obj *NstC min_(usize arg_num, Nst_Obj **args)
         usize seq_len = Nst_seq_len(ob_a);
 
         if (seq_len == 0) {
-            Nst_set_value_error_c("sequence length is zero");
+            Nst_error_setc_value("sequence length is zero");
             return nullptr;
         }
 
@@ -381,7 +381,7 @@ Nst_Obj *NstC max_(usize arg_num, Nst_Obj **args)
         usize seq_len = Nst_seq_len(ob_a);
 
         if (seq_len == 0) {
-            Nst_set_value_error_c("sequence length is zero");
+            Nst_error_setc_value("sequence length is zero");
             return nullptr;
         }
 
@@ -587,7 +587,7 @@ Nst_Obj *NstC gcd_(usize arg_num, Nst_Obj **args)
         if (ob2 == Nst_null())
             return gcd_or_lcm_seq(ob1, gcd_);
         else {
-            Nst_set_type_errorf(
+            Nst_error_setf_type(
                 "the two objects must a sequence and null or two numbers,"
                 " got '%s' and '%s'",
                 Nst_type_name(ob1->type).value,
@@ -597,7 +597,7 @@ Nst_Obj *NstC gcd_(usize arg_num, Nst_Obj **args)
     }
 
     if (ob2 == Nst_null()) {
-        Nst_set_type_errorf(
+        Nst_error_setf_type(
             "the two objects must a sequence and null or two numbers,"
             " got '%s' and '%s'",
             Nst_type_name(ob1->type).value,
@@ -632,7 +632,7 @@ Nst_Obj *NstC lcm_(usize arg_num, Nst_Obj **args)
         if (ob2 == Nst_null())
             return gcd_or_lcm_seq(ob1, lcm_);
         else {
-            Nst_set_type_errorf(
+            Nst_error_setf_type(
                 "the two objects must a sequence and null or two numbers,"
                 " got '%s' and '%s'",
                 Nst_type_name(ob1->type).value,
@@ -642,7 +642,7 @@ Nst_Obj *NstC lcm_(usize arg_num, Nst_Obj **args)
     }
 
     if (ob2 == Nst_null()) {
-        Nst_set_type_errorf(
+        Nst_error_setf_type(
             "the two objects must a sequence and null or two numbers,"
             " got '%s' and '%s'",
             Nst_type_name(ob1->type).value,

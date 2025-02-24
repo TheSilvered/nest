@@ -109,13 +109,13 @@ static Nst_Obj *error_str(std::string str)
 static Nst_Obj *throw_system_error(std::error_code ec)
 {
     if (ec.value() == 0) {
-        Nst_set_error(
+        Nst_error_set(
             Nst_str_new_c_raw("System Error <unknown>", false),
             Nst_str_new_c_raw("an unknown error occurred", false));
         return nullptr;
     }
 
-    Nst_set_error(
+    Nst_error_set(
         Nst_sprintf("System Error %d", ec.value()),
         error_str(ec.message()));
     return nullptr;
@@ -142,7 +142,7 @@ static Nst_Obj *throw_c_error(void)
     int error = errno;
     Nst_Obj *msg = heap_str((const i8 *)val, strlen(val));
 #endif // !Nst_MSVC
-    Nst_set_error(
+    Nst_error_set(
         Nst_sprintf("System Error %d", error),
         msg);
     return nullptr;
@@ -321,7 +321,7 @@ Nst_Obj *NstC read_symlink_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (!check_path(path, fs::is_symlink)) {
-        Nst_set_value_errorf(
+        Nst_error_setf_value(
             "symlink '%.4096s' not found",
             Nst_str_value(path));
         return nullptr;
@@ -381,7 +381,7 @@ Nst_Obj *NstC copy_(usize arg_num, Nst_Obj **args)
     fs::copy(utf8_path(path_from), utf8_path(path_to), cp_options, ec);
 
     if (ec.value() == ERROR_PATH_NOT_FOUND) {
-        Nst_set_value_errorf(
+        Nst_error_setf_value(
             "'%.4096s' or '%.4096s' not found",
             Nst_str_value(path_from),
             Nst_str_value(path_to));
@@ -405,7 +405,7 @@ Nst_Obj *NstC rename_(usize arg_num, Nst_Obj **args)
     fs::rename(utf8_path(old_path), utf8_path(new_path), ec);
 
     if (ec.value() == ERROR_PATH_NOT_FOUND) {
-        Nst_set_value_errorf(
+        Nst_error_setf_value(
             "file '%.4096s' or directory '%.4096s' not found",
             Nst_str_value(old_path),
             Nst_str_value(new_path));
@@ -425,7 +425,7 @@ Nst_Obj *NstC list_dir_(usize arg_num, Nst_Obj **args)
 
     std::error_code ec;
     if (!fs::is_directory(utf8_path(path), ec)) {
-        Nst_set_value_errorf(
+        Nst_error_setf_value(
             "directory '%.4096s' not found",
             Nst_str_value(path));
         return nullptr;
@@ -457,7 +457,7 @@ Nst_Obj *NstC list_dirs_(usize arg_num, Nst_Obj **args)
 
     std::error_code ec;
     if (!fs::is_directory(utf8_path(path), ec)) {
-        Nst_set_value_errorf(
+        Nst_error_setf_value(
             "directory '%.4096s' not found",
             Nst_str_value(path));
         return nullptr;

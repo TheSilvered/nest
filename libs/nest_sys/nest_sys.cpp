@@ -91,7 +91,7 @@ Nst_Obj *NstC exit_(usize arg_num, Nst_Obj **args)
     else
         Nst_inc_ref(exit_code_obj);
 
-    Nst_set_error(Nst_inc_ref(Nst_null()), exit_code_obj);
+    Nst_error_set(Nst_inc_ref(Nst_null()), exit_code_obj);
     return nullptr;
 }
 
@@ -103,12 +103,12 @@ Nst_Obj *NstC get_env_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (strlen(Nst_str_value(name)) != Nst_str_len(name)) {
-        Nst_set_value_error_c("the name cannot contain NUL characters");
+        Nst_error_setc_value("the name cannot contain NUL characters");
         return nullptr;
     }
 
     if (strchr((const char *)Nst_str_value(name), '=') != nullptr) {
-        Nst_set_value_error_c("the name cannot contain an equals sign (=)");
+        Nst_error_setc_value("the name cannot contain an equals sign (=)");
         return nullptr;
     }
 
@@ -176,12 +176,12 @@ Nst_Obj *NstC set_env_(usize arg_num, Nst_Obj **args)
     if (strlen(Nst_str_value(name)) != Nst_str_len(name)
         || strlen(Nst_str_value(value)) != Nst_str_len(value))
     {
-        Nst_set_value_error_c("the strings cannot contain NUL characters");
+        Nst_error_setc_value("the strings cannot contain NUL characters");
         return nullptr;
     }
 
     if (strchr((const char *)Nst_str_value(name), '=') != nullptr) {
-        Nst_set_value_error_c("the name cannot contain an equals sign (=)");
+        Nst_error_setc_value("the name cannot contain an equals sign (=)");
         return nullptr;
     }
 
@@ -212,7 +212,7 @@ Nst_Obj *NstC set_env_(usize arg_num, Nst_Obj **args)
     }
 
     if (SetEnvironmentVariable(name_buf, value_buf) == 0) {
-        Nst_set_call_error_c("failed to set the environment variable");
+        Nst_error_setc_call("failed to set the environment variable");
         Nst_free(name_buf);
         Nst_free(value_buf);
         return nullptr;
@@ -226,7 +226,7 @@ Nst_Obj *NstC set_env_(usize arg_num, Nst_Obj **args)
         overwrite);
 
     if (result != 0) {
-        Nst_set_call_error_c("failed to set the environment variable");
+        Nst_error_setc_call("failed to set the environment variable");
         return nullptr;
     }
 #endif
@@ -241,12 +241,12 @@ Nst_Obj *NstC del_env_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (strlen(Nst_str_value(name)) != Nst_str_len(name)) {
-        Nst_set_value_error_c("the name cannot contain NUL characters");
+        Nst_error_setc_value("the name cannot contain NUL characters");
         return nullptr;
     }
 
     if (strchr((const char *)Nst_str_value(name), '=') != nullptr) {
-        Nst_set_value_error_c("the name cannot contain an equals sign (=)");
+        Nst_error_setc_value("the name cannot contain an equals sign (=)");
         return nullptr;
     }
 
@@ -258,14 +258,14 @@ Nst_Obj *NstC del_env_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (SetEnvironmentVariable(name_buf, NULL) == 0) {
-        Nst_set_call_error_c("failed to delete the environment variable");
+        Nst_error_setc_call("failed to delete the environment variable");
         Nst_free(name_buf);
         return nullptr;
     }
     Nst_free(name_buf);
 #else
     if (unsetenv(Nst_str_value(name)) != 0) {
-        Nst_set_call_error_c("failed to delete the environment variable");
+        Nst_error_setc_call("failed to delete the environment variable");
         return nullptr;
     }
 #endif

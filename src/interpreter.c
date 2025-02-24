@@ -204,7 +204,7 @@ static void interrupt_handler(int sig)
         exit(1);
     else {
         interrupt = true;
-        Nst_set_error(Nst_inc_ref(Nst_s.e_Interrupt), Nst_null_ref());
+        Nst_error_set(Nst_inc_ref(Nst_s.e_Interrupt), Nst_null_ref());
     }
 }
 
@@ -213,7 +213,7 @@ bool Nst_init(Nst_CLArgs *args)
     if (state_init)
         return true;
 
-    Nst_set_color(Nst_supports_color());
+    Nst_error_set_color(Nst_supports_color());
 
     // these need to be set to allow _Nst_globals_init to be called
     Nst_state.es = NULL;
@@ -225,7 +225,7 @@ bool Nst_init(Nst_CLArgs *args)
         return false;
     }
 
-    if (!Nst_traceback_init(&Nst_state.global_traceback)) {
+    if (!Nst_tb_init(&Nst_state.global_traceback)) {
         fprintf(stderr, "Memory Error - memory allocation failed...\n");
         Nst_error_clear();
         goto cleanup;
@@ -249,7 +249,7 @@ bool Nst_init(Nst_CLArgs *args)
     return true;
 cleanup:
     if (Nst_error_occurred())
-        Nst_print_traceback(&Nst_state.global_traceback);
+        Nst_tb_print(&Nst_state.global_traceback);
 
     Nst_quit();
     return false;
@@ -263,7 +263,7 @@ void Nst_quit(void)
     state_init = false;
 
     if (Nst_state.global_traceback.positions != NULL)
-        Nst_traceback_destroy(&Nst_state.global_traceback);
+        Nst_tb_destroy(&Nst_state.global_traceback);
     if (Nst_state.lib_paths != NULL) {
         Nst_llist_destroy(
             Nst_state.lib_paths,
@@ -329,8 +329,8 @@ i32 Nst_run(Nst_Obj *main_func)
     // Execute main function
     Nst_FuncCall call = {
         .func = main_func,
-        .start = Nst_no_pos(),
-        .end = Nst_no_pos(),
+        .start = Nst_pos_empty(),
+        .end = Nst_pos_empty(),
         .vt = NULL,
         .cstack_len = 0,
         .idx = 0,
@@ -395,7 +395,7 @@ static inline void destroy_call(Nst_FuncCall *call)
 static inline void set_global_error(usize final_stack_size,
                                     Nst_Pos start, Nst_Pos end)
 {
-    Nst_error_add_positions(Nst_error_get(), start, end);
+    Nst_error_add_pos(start, end);
 
     Nst_CatchFrame top_catch = Nst_cstack_peek(&Nst_state.es->c_stack);
     if (Nst_error_get()->error_name == Nst_c.Null_null
@@ -422,7 +422,7 @@ static inline void set_global_error(usize final_stack_size,
             obj = POP_TOP_VALUE;
         }
 
-        Nst_error_add_positions(Nst_error_get(), call.start, call.end);
+        Nst_error_add_pos(call.start, call.end);
     }
 
     if (end_size == final_stack_size)
@@ -520,8 +520,8 @@ Nst_Obj *Nst_func_call(Nst_Obj *func, i64 arg_num, Nst_Obj **args)
         i64 null_args = tot_args - arg_num;
 
         if (tot_args < arg_num) {
-            Nst_set_call_error(
-                _Nst_EM_WRONG_ARG_NUM_FMT((usize)tot_args, arg_num));
+            Nst_error_set_call(
+                _Nst_WRONG_ARG_NUM((usize)tot_args, arg_num));
             return NULL;
         }
 
@@ -556,7 +556,7 @@ Nst_Obj *Nst_func_call(Nst_Obj *func, i64 arg_num, Nst_Obj **args)
     bool result = Nst_es_push_func(
         Nst_state.es,
         func,
-        Nst_no_pos(), Nst_no_pos(),
+        Nst_pos_empty(), Nst_pos_empty(),
         arg_num, args);
     if (!result)
         return NULL;
@@ -575,8 +575,8 @@ Nst_Obj *Nst_run_paused_coroutine(Nst_Obj *func, i64 idx, Nst_VarTable *vt)
     bool result = Nst_es_push_paused_coroutine(
         Nst_state.es,
         func,
-        Nst_no_pos(),
-        Nst_no_pos(),
+        Nst_pos_empty(),
+        Nst_pos_empty(),
         idx,
         vt);
 
@@ -594,8 +594,8 @@ Nst_Obj *Nst_run_paused_coroutine(Nst_Obj *func, i64 idx, Nst_VarTable *vt)
 static bool type_check(Nst_Obj *obj, Nst_Obj *type)
 {
     if (obj->type != type) {
-        Nst_set_type_errorf(
-            _Nst_EM_EXPECTED_TYPES,
+        Nst_error_setf_type(
+            "expected type '%s', got '%s' instead",
             Nst_type_name(type).value,
             Nst_type_name(obj->type).value);
         return false;
@@ -643,8 +643,8 @@ static InstResult exe_for_start()
     Nst_Obj *iterable = Nst_vstack_peek(&Nst_state.es->v_stack);
     Nst_Obj *iter = Nst_obj_cast(iterable, Nst_t.Iter);
     if (iter == NULL) {
-        Nst_set_type_errorf(
-            _Nst_EM_BAD_CAST("Iter"),
+        Nst_error_setf_type(
+            "invalid type cast from '%s' to 'Iter'",
             Nst_type_name(iterable->type).value);
         return INST_FAILED;
     }
@@ -764,8 +764,8 @@ static InstResult exe_hash_check()
     Nst_Obj *obj = Nst_vstack_peek(&Nst_state.es->v_stack);
     Nst_obj_hash(obj);
     if (obj->hash == -1) {
-        Nst_set_type_errorf(
-            _Nst_EM_UNHASHABLE_TYPE,
+        Nst_error_setf_type(
+            "type '%s' is not hashable",
             Nst_type_name(obj->type).value);
         return INST_FAILED;
     }
@@ -810,8 +810,8 @@ static InstResult exe_set_cont_val()
 
     if (cont->type == Nst_t.Array || cont->type == Nst_t.Vector) {
         if (idx->type != Nst_t.Int) {
-            Nst_set_type_errorf(
-                _Nst_EM_EXPECTED_TYPE("Int"),
+            Nst_error_setf_type(
+                "expected type 'Int', got '%s' instead",
                 Nst_type_name(idx->type).value);
 
             return_value = INST_FAILED;
@@ -827,8 +827,8 @@ static InstResult exe_set_cont_val()
         goto end;
     }
 
-    Nst_set_type_errorf(
-        _Nst_EM_EXPECTED_TYPE("Array', 'Vector', or 'Map"),
+    Nst_error_setf_type(
+        "expected type 'Array', 'Vector', or 'Map', got '%s' instead",
         Nst_type_name(cont->type).value);
     return_value = INST_FAILED;
 
@@ -845,8 +845,8 @@ static InstResult call_c_func(bool is_seq_call, i64 arg_num,
     i64 null_args = tot_args - arg_num;
 
     if (tot_args < arg_num) {
-        Nst_set_call_error(
-            _Nst_EM_WRONG_ARG_NUM_FMT((usize)tot_args, arg_num));
+        Nst_error_set_call(
+            _Nst_WRONG_ARG_NUM((usize)tot_args, arg_num));
         Nst_dec_ref(func);
         Nst_ndec_ref(args_seq);
         return INST_FAILED;
@@ -941,8 +941,8 @@ static InstResult exe_op_call()
     if (arg_num == -1) {
         args_seq = POP_TOP_VALUE;
         if (args_seq->type != Nst_t.Array && args_seq->type != Nst_t.Vector) {
-            Nst_set_type_errorf(
-                _Nst_EM_EXPECTED_TYPE("Array' or 'Vector"),
+            Nst_error_setf_type(
+                "expected type 'Array' or 'Vector', got '%s' instead",
                 Nst_type_name(args_seq->type).value);
 
             Nst_dec_ref(args_seq);
@@ -1061,7 +1061,7 @@ static InstResult exe_throw_err()
         return INST_FAILED;
     }
 
-    Nst_set_error(name_str, message_str);
+    Nst_error_set(name_str, message_str);
     return INST_FAILED;
 }
 
@@ -1128,8 +1128,8 @@ static InstResult exe_op_extract()
 
     if (cont->type == Nst_t.Array || cont->type == Nst_t.Vector) {
         if (idx->type != Nst_t.Int) {
-            Nst_set_type_errorf(
-                _Nst_EM_EXPECTED_TYPE("Int"),
+            Nst_error_setf_type(
+                "expected type 'Int', got '%s' instead",
                 Nst_type_name(idx->type).value);
 
             return_value = INST_FAILED;
@@ -1150,15 +1150,15 @@ static InstResult exe_op_extract()
         else if (idx->hash != -1)
             Nst_vstack_push(&Nst_state.es->v_stack, Nst_c.Null_null);
         else {
-            Nst_set_type_errorf(
-                _Nst_EM_UNHASHABLE_TYPE,
+            Nst_error_setf_type(
+                "type '%s' is not hashable",
                 Nst_type_name(idx->type).value);
             return_value = INST_FAILED;
         }
     } else if (cont->type == Nst_t.Str) {
         if (idx->type != Nst_t.Int) {
-            Nst_set_type_errorf(
-                _Nst_EM_EXPECTED_TYPE("Int"),
+            Nst_error_setf_type(
+                "expected type 'Int', got '%s' instead",
                 Nst_type_name(idx->type).value);
 
             return_value = INST_FAILED;
@@ -1172,8 +1172,8 @@ static InstResult exe_op_extract()
         else
             Nst_vstack_push(&Nst_state.es->v_stack, res);
     } else {
-        Nst_set_type_errorf(
-            _Nst_EM_EXPECTED_TYPE("Array', 'Vector', 'Map' or 'Str"),
+        Nst_error_setf_type(
+            "expected type 'Array', 'Vector', 'Map' or 'Str', got '%s' instead",
             Nst_type_name(cont->type).value);
         return_value = INST_FAILED;
     }
@@ -1287,6 +1287,12 @@ static InstResult exe_make_arr_rep()
     }
 
     i64 size = Nst_int_i64(size_obj);
+    if (size < 0) {
+        Nst_error_setc_value("the length of the array cannot be negative");
+        Nst_dec_ref(size_obj);
+        return INST_FAILED;
+    }
+
     Nst_dec_ref(size_obj);
     Nst_Obj *seq = Nst_array_new((usize)size);
     return complete_seq_rep(seq, size);
@@ -1303,6 +1309,12 @@ static InstResult exe_make_vec_rep()
     }
 
     i64 size = Nst_int_i64(size_obj);
+    if (size < 0) {
+        Nst_error_setc_value("the length of the vector cannot be negative");
+        Nst_dec_ref(size_obj);
+        return INST_FAILED;
+    }
+
     Nst_dec_ref(size_obj);
     Nst_Obj *seq = Nst_array_new((usize)size);
     return complete_seq_rep(seq, size);
@@ -1312,6 +1324,7 @@ static InstResult exe_make_map()
 {
     CHECK_V_STACK_SIZE((u64)inst->int_val);
     i64 map_size = inst->int_val;
+    Nst_assert(map_size >= 0);
     Nst_Obj *map = Nst_map_new();
     if (map == NULL)
         return INST_FAILED;
@@ -1383,16 +1396,16 @@ static InstResult exe_unpack_seq()
     Nst_Obj *seq = POP_TOP_VALUE;
 
     if (seq->type != Nst_t.Array && seq->type != Nst_t.Vector) {
-        Nst_set_type_errorf(
-            _Nst_EM_EXPECTED_TYPE("Array' or 'Vector"),
+        Nst_error_setf_type(
+            "expected type 'Array' or 'Vector', got '%s' instead",
             Nst_type_name(seq->type).value);
         Nst_dec_ref(seq);
         return INST_FAILED;
     }
 
     if ((i64)Nst_seq_len(seq) != inst->int_val) {
-        Nst_set_value_errorf(
-            _Nst_EM_WRONG_UNPACK_LENGTH,
+        Nst_error_setf_value(
+            "expected %lli items to unpack but the sequence contains %zi",
             inst->int_val, Nst_seq_len(seq));
         Nst_dec_ref(seq);
         return INST_FAILED;
@@ -1433,7 +1446,7 @@ usize Nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part)
     if (full_path_len == 0) {
         Nst_free(wide_full_path);
         Nst_free(wide_file_path);
-        Nst_set_value_errorf(_Nst_EM_FILE_NOT_FOUND, file_path);
+        Nst_error_setf_value("file '%.4096s' not found", file_path);
         return 0;
     }
 
@@ -1453,7 +1466,7 @@ usize Nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part)
         if (full_path_len == 0) {
             Nst_free(wide_full_path);
             Nst_free(wide_file_path);
-            Nst_set_value_errorf(_Nst_EM_FILE_NOT_FOUND, file_path);
+            Nst_error_setf_value("file '%.4096s' not found", file_path);
             return 0;
         }
     }
@@ -1523,7 +1536,7 @@ i32 Nst_chdir(Nst_Obj *str)
 #endif // !Nst_MSVC
 
     if (res != 0)
-        Nst_set_call_error_c(_Nst_EM_FAILED_CHDIR);
+        Nst_error_setc_call("failed to change the current working directory");
     else if (Nst_state.es != NULL) {
         Nst_inc_ref(str);
         Nst_es_set_cwd(Nst_state.es, str);
@@ -1540,7 +1553,7 @@ Nst_Obj *Nst_getcwd(void)
     wchar_t *result = _wgetcwd(wide_cwd, PATH_MAX);
     if (result == NULL) {
         Nst_free(wide_cwd);
-        Nst_set_call_error_c(_Nst_EM_FAILED_GETCWD);
+        Nst_error_setc_call("failed to get the current working directory");
         return NULL;
     }
     i8 *cwd_buf = Nst_wchar_t_to_char(wide_cwd, 0);
@@ -1555,7 +1568,7 @@ Nst_Obj *Nst_getcwd(void)
     i8 *cwd_result = getcwd(cwd_buf, PATH_MAX);
     if (cwd_result == NULL) {
         Nst_free(cwd_buf);
-        Nst_set_call_error_c(_Nst_EM_FAILED_GETCWD);
+        Nst_error_setc_call("failed to get the current working directory");
         return NULL;
     }
     return Nst_str_new_allocated(cwd_buf, strlen(cwd_buf));

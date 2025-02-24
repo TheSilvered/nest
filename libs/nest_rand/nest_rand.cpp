@@ -46,7 +46,7 @@ Nst_Obj *NstC rand_int_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (min > max) {
-        Nst_set_value_error_c("'min' is greater than 'max'");
+        Nst_error_setc_value("'min' is greater than 'max'");
         return nullptr;
     }
 

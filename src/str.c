@@ -203,8 +203,8 @@ Nst_Obj *Nst_str_get(Nst_Obj *str, i64 idx)
         idx += STR(str)->char_len;
 
     if (idx < 0 || idx >= (i64)STR(str)->char_len) {
-        Nst_set_value_errorf(
-            _Nst_EM_INDEX_OUT_OF_BOUNDS("Str"),
+        Nst_error_setf_value(
+            "index %lli out of bounds for 'Str' of size %zi",
             idx,
             STR(str)->char_len);
         return NULL;
@@ -242,7 +242,7 @@ Nst_Obj *Nst_str_get(Nst_Obj *str, i64 idx)
         return Nst_str_new_allocated(c_buf, strlen(c_buf));
     }
 
-    Nst_set_value_error_c(_Nst_EM_STR_INDEX_FAILED);
+    Nst_error_setc_value("failed to index string");
     return NULL;
 }
 

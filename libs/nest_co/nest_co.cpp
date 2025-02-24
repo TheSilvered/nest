@@ -72,7 +72,7 @@ static CoroutineObj *co_c_stack_peek()
 static Nst_Obj *call_coroutine(CoroutineObj *co, usize arg_num, Nst_Obj **args)
 {
     if (Nst_HAS_FLAG(co, FLAG_CO_RUNNING)) {
-        Nst_set_call_error_c("the coroutine is already running");
+        Nst_error_setc_call("the coroutine is already running");
         return nullptr;
     }
 
@@ -253,7 +253,7 @@ Nst_Obj *NstC create_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (Nst_FUNC_IS_C(func)) {
-        Nst_set_type_error_c("cannot create a coroutine from a C function");
+        Nst_error_setc_type("cannot create a coroutine from a C function");
         return nullptr;
     }
 
@@ -291,7 +291,7 @@ Nst_Obj *NstC yield_(usize arg_num, Nst_Obj **args)
         || state->f_stack.len - 1 != co->call_stack_size
         || !Nst_HAS_FLAG(co, FLAG_CO_RUNNING))
     {
-        Nst_set_call_error_c("the function was not called with 'call'");
+        Nst_error_setc_call("the function was not called with 'call'");
         return nullptr;
     }
 
@@ -351,7 +351,7 @@ Nst_Obj *NstC generator_(usize arg_num, Nst_Obj **args)
 
     usize co_func_arg_num = Nst_func_arg_num(co->func);
     if (co_args != Nst_null() && Nst_seq_len(co_args) > co_func_arg_num) {
-        Nst_set_call_errorf(
+        Nst_error_setf_call(
             "the coroutine expects at most %zi arguments but %zi were given",
             co_func_arg_num,
             Nst_seq_len(co_args));

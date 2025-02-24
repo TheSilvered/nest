@@ -148,8 +148,8 @@ bool Nst_map_set(Nst_Obj *map, Nst_Obj *key, Nst_Obj *value)
     if (hash == -1) {
         hash = Nst_obj_hash(key);
         if (hash == -1) {
-            Nst_set_value_errorf(
-                _Nst_EM_UNHASHABLE_TYPE,
+            Nst_error_setf_value(
+                "type '%s' is not hashable",
                 Nst_type_name(key->type).value);
             return false;
         }

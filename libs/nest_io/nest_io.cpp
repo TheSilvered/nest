@@ -5,7 +5,7 @@
 #include "nest_io.h"
 
 #define SET_FILE_CLOSED_ERROR \
-    Nst_set_value_error_c("the given file given was previously closed")
+    Nst_error_setc_value("the given file given was previously closed")
 
 static Nst_Declr obj_list_[] = {
     Nst_FUNCDECLR(open_, 4),
@@ -281,7 +281,7 @@ Nst_Obj *NstC open_(usize arg_num, Nst_Obj **args)
     bool can_write = false;
 
     if (file_mode_len < 1 || file_mode_len > 3) {
-        Nst_set_value_error_c("the file mode is not valid");
+        Nst_error_setc_value("the file mode is not valid");
         return nullptr;
     }
 
@@ -301,7 +301,7 @@ Nst_Obj *NstC open_(usize arg_num, Nst_Obj **args)
         bin_mode[0] = 'w';
         break;
     default:
-        Nst_set_value_error_c("the file mode is not valid");
+        Nst_error_setc_value("the file mode is not valid");
         return nullptr;
     }
 
@@ -316,7 +316,7 @@ Nst_Obj *NstC open_(usize arg_num, Nst_Obj **args)
             bin_mode[2] = '+';
             break;
         default:
-            Nst_set_value_error_c("the file mode is not valid");
+            Nst_error_setc_value("the file mode is not valid");
             return nullptr;
         }
     } else if (file_mode_len == 3) {
@@ -328,7 +328,7 @@ Nst_Obj *NstC open_(usize arg_num, Nst_Obj **args)
         if (!(file_mode[1] == 'b' && file_mode[2] == '+')
             && !(file_mode[1] == '+' && file_mode[2] == 'b'))
         {
-            Nst_set_value_error_c("the file mode is not valid");
+            Nst_error_setc_value("the file mode is not valid");
             return nullptr;
         }
     }
@@ -336,7 +336,7 @@ Nst_Obj *NstC open_(usize arg_num, Nst_Obj **args)
     Nst_Encoding *encoding;
     if (is_bin) {
         if (encoding_obj != Nst_null()) {
-            Nst_set_value_error_c(
+            Nst_error_setc_value(
                 "encoding is not supported when the file is opened in binary"
                 " mode");
             return nullptr;
@@ -348,7 +348,7 @@ Nst_Obj *NstC open_(usize arg_num, Nst_Obj **args)
             Nst_encoding_from_name(Nst_str_value(encoding_obj)),
             Nst_EID_UTF8);
         if (cpid == Nst_EID_UNKNOWN) {
-            Nst_set_value_errorf(
+            Nst_error_setf_value(
                 "invalid encoding '%.100s'",
                 Nst_str_value(encoding_obj));
             return nullptr;
@@ -363,14 +363,14 @@ Nst_Obj *NstC open_(usize arg_num, Nst_Obj **args)
 
     if (file_ptr == nullptr) {
         if (!Nst_error_occurred()) {
-            Nst_set_value_errorf("file '%.4096s' not found", file_name);
+            Nst_error_setf_value("file '%.4096s' not found", file_name);
         }
         return nullptr;
     }
 
     if (buf_size != Nst_null()) {
         if (Nst_int_i64(buf_size) < 0) {
-            Nst_set_value_error_c("the buffer size is negative");
+            Nst_error_setc_value("the buffer size is negative");
             return nullptr;
         }
         setvbuf(file_ptr, nullptr, _IOFBF, (usize)Nst_int_i64(buf_size));
@@ -435,10 +435,10 @@ Nst_Obj *NstC write_(usize arg_num, Nst_Obj **args)
         SET_FILE_CLOSED_ERROR;
         return nullptr;
     } else if (!Nst_IOF_CAN_WRITE(f)) {
-        Nst_set_value_error_c("the file does not support writing");
+        Nst_error_setc_value("the file does not support writing");
         return nullptr;
     } else if (Nst_IOF_IS_BIN(f)) {
-        Nst_set_value_error_c("the file is binary, try using 'write_bytes'");
+        Nst_error_setc_value("the file is binary, try using 'write_bytes'");
         return nullptr;
     }
 
@@ -456,7 +456,7 @@ Nst_Obj *NstC write_(usize arg_num, Nst_Obj **args)
         usize failed_pos;
         const i8 *name;
         Nst_io_result_get_details(&failed_ch, &failed_pos, &name);
-        Nst_set_value_errorf(
+        Nst_error_setf_value(
             "could not encode U+%0*X at %zi for %s encoding",
             failed_ch > 0xffff ? 6 : 4,
             (int)failed_ch,
@@ -464,10 +464,10 @@ Nst_Obj *NstC write_(usize arg_num, Nst_Obj **args)
             name);
         return nullptr;
     } else if (result == Nst_IO_ERROR) {
-        Nst_set_call_error_c("failed to write the entire string");
+        Nst_error_setc_call("failed to write the entire string");
         return nullptr;
     } else if (result == Nst_IO_ALLOC_FAILED) {
-        Nst_failed_allocation();
+        Nst_error_failed_alloc();
         return nullptr;
     }
 
@@ -486,10 +486,10 @@ Nst_Obj *NstC write_bytes_(usize arg_num, Nst_Obj **args)
         SET_FILE_CLOSED_ERROR;
         return nullptr;
     } else if (!Nst_IOF_CAN_WRITE(f)) {
-        Nst_set_value_error_c("the file does not support writing");
+        Nst_error_setc_value("the file does not support writing");
         return nullptr;
     } else if (!Nst_IOF_IS_BIN(f)) {
-        Nst_set_value_error_c("the file is not binary, try using 'write'");
+        Nst_error_setc_value("the file is not binary, try using 'write'");
         return nullptr;
     }
 
@@ -506,10 +506,10 @@ Nst_Obj *NstC write_bytes_(usize arg_num, Nst_Obj **args)
     Nst_IOResult result = Nst_fwrite(bytes, seq_len, &count, f);
     Nst_free(bytes);
     if (result == Nst_IO_ERROR) {
-        Nst_set_call_error_c("failed to write all bytes");
+        Nst_error_setc_call("failed to write all bytes");
         return nullptr;
     } else if (result == Nst_IO_ALLOC_FAILED) {
-        Nst_failed_allocation();
+        Nst_error_failed_alloc();
         return nullptr;
     }
     return Nst_int_new(count);
@@ -531,15 +531,15 @@ Nst_Obj *NstC read_(usize arg_num, Nst_Obj **args)
         SET_FILE_CLOSED_ERROR;
         return nullptr;
     } else if (!Nst_IOF_CAN_READ(f)) {
-        Nst_set_value_error_c("the file does not support reading");
+        Nst_error_setc_value("the file does not support reading");
         return nullptr;
     } else if (Nst_IOF_IS_BIN(f)) {
-        Nst_set_value_error_c("the file is binary, try using 'read_bytes'");
+        Nst_error_setc_value("the file is binary, try using 'read_bytes'");
         return nullptr;
     }
 
     if (!Nst_IOF_CAN_SEEK(f) && bytes_to_read < 0) {
-        Nst_set_value_error_c("the file must be seekable to read it entierly");
+        Nst_error_setc_value("the file must be seekable to read it entierly");
         return nullptr;
     } else if (Nst_IOF_CAN_SEEK(f)) {
         usize start;
@@ -559,21 +559,21 @@ Nst_Obj *NstC read_(usize arg_num, Nst_Obj **args)
         f);
 
     if (result == Nst_IO_ALLOC_FAILED) {
-        Nst_failed_allocation();
+        Nst_error_failed_alloc();
         return nullptr;
     } else if (result == Nst_IO_INVALID_DECODING) {
         u32 failed_ch;
         usize failed_pos;
         const i8 *name;
         Nst_io_result_get_details(&failed_ch, &failed_pos, &name);
-        Nst_set_value_errorf(
+        Nst_error_setf_value(
             "could not decode byte %#x at position %zi for %s encoding",
             (int)failed_ch,
             failed_pos,
             name);
         return nullptr;
     } else if (result == Nst_IO_ERROR) {
-        Nst_set_call_error_c("failed to read the file");
+        Nst_error_setc_call("failed to read the file");
         return nullptr;
     }
 
@@ -596,15 +596,15 @@ Nst_Obj *NstC read_bytes_(usize arg_num, Nst_Obj **args)
         SET_FILE_CLOSED_ERROR;
         return nullptr;
     } else if (!Nst_IOF_CAN_READ(f)) {
-        Nst_set_value_error_c("the file does not support reading");
+        Nst_error_setc_value("the file does not support reading");
         return nullptr;
     } else if (!Nst_IOF_IS_BIN(f)) {
-        Nst_set_value_error_c("the file is not binary, try using 'read'");
+        Nst_error_setc_value("the file is not binary, try using 'read'");
         return nullptr;
     }
 
     if (!Nst_IOF_CAN_SEEK(f) && bytes_to_read < 0) {
-        Nst_set_value_error_c("the file must be seekable to read it entierly");
+        Nst_error_setc_value("the file must be seekable to read it entierly");
         return nullptr;
     } else if (Nst_IOF_CAN_SEEK(f)) {
         usize start;
@@ -624,10 +624,10 @@ Nst_Obj *NstC read_bytes_(usize arg_num, Nst_Obj **args)
         f);
 
     if (result == Nst_IO_ALLOC_FAILED) {
-        Nst_failed_allocation();
+        Nst_error_failed_alloc();
         return nullptr;
     } else if (result == Nst_IO_ERROR) {
-        Nst_set_call_error_c("failed to read the file");
+        Nst_error_setc_call("failed to read the file");
         return nullptr;
     }
 
@@ -651,7 +651,7 @@ Nst_Obj *NstC file_size_(usize arg_num, Nst_Obj **args)
         SET_FILE_CLOSED_ERROR;
         return nullptr;
     } else if (!Nst_IOF_CAN_SEEK(f)) {
-        Nst_set_value_error_c("the file cannot be seeked");
+        Nst_error_setc_value("the file cannot be seeked");
         return nullptr;
     }
 
@@ -677,7 +677,7 @@ Nst_Obj *NstC seek_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
     if (!Nst_IOF_CAN_SEEK(f)) {
-        Nst_set_value_error_c("the file cannot be seeked");
+        Nst_error_setc_value("the file cannot be seeked");
         return nullptr;
     }
 
@@ -685,7 +685,7 @@ Nst_Obj *NstC seek_(usize arg_num, Nst_Obj **args)
     i64 offset = Nst_DEF_VAL(offset_obj, Nst_int_i64(offset_obj), 0);
 
     if (start < 0 || start > 2) {
-        Nst_set_value_errorf("invalid origin '%lli'", start);
+        Nst_error_setf_value("invalid origin '%lli'", start);
         return nullptr;
     }
 
@@ -708,14 +708,14 @@ Nst_Obj *NstC seek_(usize arg_num, Nst_Obj **args)
         if (size == -1)
             size = get_file_size(f);
         if (end_pos < 0 || end_pos > (isize)size) {
-            Nst_set_value_error_c(
+            Nst_error_setc_value(
                 "the file-position indicator goes outside the file");
             return nullptr;
         }
     }
 
     if (Nst_fseek((Nst_SeekWhence)start, (isize)offset, f) == Nst_IO_ERROR) {
-        Nst_set_call_error_c(
+        Nst_error_setc_call(
             "failed to change the position of the file-position indicator");
     }
 
@@ -733,16 +733,16 @@ Nst_Obj *NstC flush_(usize arg_num, Nst_Obj **args)
         SET_FILE_CLOSED_ERROR;
         return nullptr;
     } else if (!Nst_IOF_CAN_WRITE(f)) {
-        Nst_set_value_error_c("the file cannot be written");
+        Nst_error_setc_value("the file cannot be written");
         return nullptr;
     }
 
     Nst_IOResult result = Nst_fflush(f);
     if (result == Nst_IO_ERROR) {
-        Nst_set_memory_error_c("failed to flush the file");
+        Nst_error_setc_memory("failed to flush the file");
         return nullptr;
     } else if (result == Nst_IO_ALLOC_FAILED) {
-        Nst_failed_allocation();
+        Nst_error_failed_alloc();
         return nullptr;
     }
 
@@ -859,9 +859,9 @@ Nst_Obj *NstC encoding_(usize arg_num, Nst_Obj **args)
     Nst_Encoding *encoding = Nst_iof_encoding(f);
     if (encoding == NULL) {
         if (Nst_IOF_IS_BIN(f))
-            Nst_set_type_error_c("cannot get the encoding of a binary file");
+            Nst_error_setc_type("cannot get the encoding of a binary file");
         else
-            Nst_set_value_error_c("failed to get the encoding of the file");
+            Nst_error_setc_value("failed to get the encoding of the file");
         return nullptr;
     }
     return Nst_str_new_c_raw(encoding->name, false);
@@ -881,7 +881,7 @@ Nst_Obj *NstC println_(usize arg_num, Nst_Obj **args)
         SET_FILE_CLOSED_ERROR;
         return nullptr;
     } else if (!Nst_IOF_CAN_WRITE(file)) {
-        Nst_set_value_error_c("the file cannot be written");
+        Nst_error_setc_value("the file cannot be written");
         return nullptr;
     }
 
@@ -896,14 +896,14 @@ Nst_Obj *NstC println_(usize arg_num, Nst_Obj **args)
         res = Nst_fflush(file);
 
     if (res == Nst_IO_ALLOC_FAILED) {
-        Nst_failed_allocation();
+        Nst_error_failed_alloc();
         return nullptr;
     } else if (res == Nst_IO_INVALID_ENCODING) {
         u32 failed_ch;
         usize failed_pos;
         const i8 *name;
         Nst_io_result_get_details(&failed_ch, &failed_pos, &name);
-        Nst_set_value_errorf(
+        Nst_error_setf_value(
             "could not encode U+%0*X at %zi for %s encoding",
             failed_ch > 0xffff ? 6 : 4,
             (int)failed_ch,
@@ -911,7 +911,7 @@ Nst_Obj *NstC println_(usize arg_num, Nst_Obj **args)
             name);
         return nullptr;
     } else if (res == Nst_IO_ERROR) {
-        Nst_set_call_error_c("failed to write to the file");
+        Nst_error_setc_call("failed to write to the file");
         return nullptr;
     }
 
@@ -932,7 +932,7 @@ Nst_Obj *NstC _set_stdin_(usize arg_num, Nst_Obj **args)
     }
 
     if (!Nst_IOF_CAN_READ(f)) {
-        Nst_set_value_error_c("the file must support reading");
+        Nst_error_setc_value("the file must support reading");
         return nullptr;
     }
 
@@ -959,7 +959,7 @@ Nst_Obj *NstC _set_stdout_(usize arg_num, Nst_Obj **args)
     }
 
     if (!Nst_IOF_CAN_WRITE(f)) {
-        Nst_set_value_error_c("the file must support writing");
+        Nst_error_setc_value("the file must support writing");
         return nullptr;
     }
 
@@ -986,7 +986,7 @@ Nst_Obj *NstC _set_stderr_(usize arg_num, Nst_Obj **args)
     }
 
     if (!Nst_IOF_CAN_WRITE(f)) {
-        Nst_set_value_error_c("the file must support writing");
+        Nst_error_setc_value("the file must support writing");
         return nullptr;
     }
 

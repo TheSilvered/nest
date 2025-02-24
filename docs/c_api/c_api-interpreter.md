@@ -58,8 +58,9 @@ bool Nst_init(Nst_CLArgs *args)
 Initializes the Nest libraray.
 
 !!!note
-    [`Nst_set_color`](c_api-error.md#nst_set_color) is called with the value
-    returned by [`Nst_supports_color`](c_api-argv_parser.md#nst_supports_color).
+    [`Nst_error_set_color`](c_api-error.md#nst_error_set_color) is called with
+    the value returned by
+    [`Nst_supports_color`](c_api-argv_parser.md#nst_supports_color).
 
 **Parameters:**
 

@@ -23,7 +23,7 @@
 #define INC_RECURSION_LVL do {                                                \
     recursion_level++;                                                        \
     if (recursion_level > 1500) {                                             \
-        Nst_set_memory_error_c("over 1500 recursive calls, dump failed");     \
+        Nst_error_setc_memory("over 1500 recursive calls, dump failed");     \
         FAIL;                                                                 \
     }                                                                         \
     } while (0)
@@ -73,7 +73,7 @@ static void dump_obj(Nst_Obj *obj, i32 indent)
     else if (obj == Nst_false())
         Nst_sb_push_c(&sb, "false");
     else {
-        Nst_set_type_errorf(
+        Nst_error_setf_type(
             "JSON: an object of type %s is not serializable",
             Nst_type_name(obj->type).value);
         FAIL;
@@ -145,7 +145,7 @@ static void dump_str(Nst_Obj *str)
             break;
         }
         case 4:
-            Nst_set_value_error_c(
+            Nst_error_setc_value(
                 "JSON: cannot serialize characters above U+FFFF");
             FAIL;
         }
@@ -173,7 +173,7 @@ static void dump_num(Nst_Obj *number)
     val = Nst_real_f64(number);
     if (isinf(val) || isnan(val)) {
         if (!nan_and_inf) {
-            Nst_set_value_error_c(
+            Nst_error_setc_value(
                 "JSON: cannot serialize infinities or NaNs");
             FAIL;
         }
@@ -278,7 +278,7 @@ static void dump_map(Nst_Obj *map, i32 indent)
     {
         count++;
         if (!Nst_T(key, Str)) {
-            Nst_set_type_error_c("JSON: all keys of a map must be strings");
+            Nst_error_setc_type("JSON: all keys of a map must be strings");
             FAIL;
         }
 

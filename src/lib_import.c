@@ -62,7 +62,8 @@ static void destroy_match_type(MatchType *mt)
     Nst_free(mt);
 }
 
-static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
+static MatchType *compile_type_match(i8 *types, i8 **type_end,
+                                     const i8 *full_types, va_list *args,
                                      bool allow_casting)
 {
     MatchType *match_type = Nst_malloc_c(1, MatchType);
@@ -103,7 +104,7 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
             continue;
         case 't':
             accepted_types |= TYPE_IDX;
-            goto normal_type;
+            break;
         case 'i':
             accepted_types |= INT_IDX;
             if (pending_c_cast != 0 || pending_final_type != NULL)
@@ -113,7 +114,7 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
                 pending_cast_types = INT_IDX;
                 pending_c_cast = C_CAST | INT_C_CAST;
             }
-            goto normal_type;
+            break;
         case 'r':
             accepted_types |= REAL_IDX;
             if (pending_c_cast != 0 || pending_final_type != NULL)
@@ -123,7 +124,7 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
                 pending_cast_types = REAL_IDX;
                 pending_c_cast = C_CAST | REAL_C_CAST;
             }
-            goto normal_type;
+            break;
         case 'b':
             accepted_types |= BOOL_IDX;
             if (pending_c_cast != 0 || pending_final_type != NULL)
@@ -133,28 +134,28 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
                 pending_cast_types = BOOL_IDX;
                 pending_c_cast = C_CAST | BOOL_C_CAST;
             }
-            goto normal_type;
+            break;
         case 'n':
             accepted_types |= NULL_IDX;
-            goto normal_type;
+            break;
         case 's':
             accepted_types |= STR_IDX;
-            goto normal_type;
+            break;
         case 'v':
             accepted_types |= VECTOR_IDX;
-            goto normal_type;
+            break;
         case 'a':
             accepted_types |= ARRAY_IDX;
-            goto normal_type;
+            break;
         case 'm':
             accepted_types |= MAP_IDX;
-            goto normal_type;
+            break;
         case 'f':
             accepted_types |= FUNC_IDX;
-            goto normal_type;
+            break;
         case 'I':
             accepted_types |= ITER_IDX;
-            goto normal_type;
+            break;
         case 'B':
             accepted_types |= BYTE_IDX;
             if (pending_c_cast != 0 || pending_final_type != NULL)
@@ -164,13 +165,13 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
                 pending_cast_types = BYTE_IDX;
                 pending_c_cast = C_CAST | BYTE_C_CAST;
             }
-            goto normal_type;
+            break;
         case 'F':
             accepted_types |= IOFILE_IDX;
-            goto normal_type;
+            break;
         case 'o':
             match_any = true;
-            goto normal_type;
+            break;
         case 'l':
             accepted_types |= INT_IDX;
             accepted_types |= BYTE_IDX;
@@ -181,7 +182,7 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
                 pending_cast_types = INT_IDX | BYTE_IDX;
                 pending_c_cast = C_CAST | INT_C_CAST;
             }
-            goto normal_type;
+            break;
         case 'N':
             accepted_types |= INT_IDX;
             accepted_types |= BYTE_IDX;
@@ -193,11 +194,11 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
                 pending_cast_types = INT_IDX | BYTE_IDX | REAL_IDX;
                 pending_c_cast = C_CAST | REAL_C_CAST;
             }
-            goto normal_type;
+            break;
         case 'A':
             accepted_types |= ARRAY_IDX;
             accepted_types |= VECTOR_IDX;
-            goto normal_type;
+            break;
         case 'S':
             accepted_types |= ARRAY_IDX;
             accepted_types |= VECTOR_IDX;
@@ -209,7 +210,7 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
                 pending_cast_types = ARRAY_IDX | VECTOR_IDX | STR_IDX;
                 pending_final_type = Nst_t.Array;
             }
-            goto normal_type;
+            break;
         case 'R':
             accepted_types |= ARRAY_IDX;
             accepted_types |= VECTOR_IDX;
@@ -220,7 +221,7 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
                                    | STR_IDX   | ITER_IDX;
                 pending_final_type = Nst_t.Iter;
             }
-            goto normal_type;
+            break;
         case 'y':
             match_any = true;
             if (pending_c_cast != 0 || pending_final_type != NULL)
@@ -230,12 +231,14 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
                 pending_cast_types = 0;
                 pending_c_cast = C_CAST | BOOL_C_CAST;
             }
-            goto normal_type;
+            break;
         case '#':
             custom_type = va_arg(*args, Nst_Obj *);
             if (custom_type->type != Nst_t.Type) {
-                Nst_set_type_errorf(
-                    "Nst_extract_args: expected a 'Type' object, got '%s'",
+                Nst_error_setf_type(
+                    "argument extraction: expected a 'Type' object at %zi, got"
+                    " '%s'",
+                    (t - full_types) + 1,
                     Nst_type_name(custom_type->type).value);
                 Nst_sbuffer_destroy(&custom_types);
                 Nst_free(match_type);
@@ -247,11 +250,12 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
                 Nst_free(match_type);
                 return NULL;
             }
-            goto normal_type;
+            break;
         case '?':
             if (!allow_optional) {
-                Nst_set_value_error_c(
-                    _Nst_EM_INVALID_TYPE_LETTER("Nst_extract_args"));
+                Nst_error_setf_value(
+                    "argument extraction: '?' not allowed at %zi",
+                    (t - full_types) + 1);
                 Nst_sbuffer_destroy(&custom_types);
                 Nst_free(match_type);
                 return NULL;
@@ -263,8 +267,9 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
             continue;
         case '|':
             if (!allow_or) {
-                Nst_set_value_error_c(
-                    _Nst_EM_INVALID_TYPE_LETTER("Nst_extract_args"));
+                Nst_error_setf_value(
+                    "argument extraction: '|' not allowed at %zi",
+                    (t - full_types) + 1);
                 Nst_sbuffer_destroy(&custom_types);
                 Nst_free(match_type);
                 return NULL;
@@ -273,17 +278,15 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
             allow_or = false;
             t++;
             continue;
-        }
-        if (!allow_or) {
-            Nst_set_value_error_c(
-                _Nst_EM_INVALID_TYPE_LETTER("Nst_extract_args"));
+        default:
+            Nst_error_setf_value(
+                "argument extraction: syntax error at %zi",
+                (t - full_types) + 1);
             Nst_sbuffer_destroy(&custom_types);
             Nst_free(match_type);
             return NULL;
-        } else
-            break;
+        }
 
-    normal_type:
         allow_optional = false;
         allow_or = true;
         t++;
@@ -307,8 +310,9 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
 
     if (*t == '_') {
         if (!allow_casting || accepted_types & NULL_IDX) {
-            Nst_set_value_error_c(
-                _Nst_EM_INVALID_TYPE_LETTER("Nst_extract_args"));
+            Nst_error_setf_value(
+                "argument extraction: casting is not allowed at %zi",
+                (t - full_types) + 1);
             destroy_match_type(match_type);
             return NULL;
         }
@@ -329,15 +333,17 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
             accepted_types |= BYTE_C_CAST;
             break;
         default:
-            Nst_set_value_error_c(
-                _Nst_EM_INVALID_TYPE_LETTER("Nst_extract_args"));
+            Nst_error_setf_value(
+                "argument extraction: unknown C cast at %zi",
+                (t - full_types) + 1);
             destroy_match_type(match_type);
             return NULL;
         }
     } else if (*t == ':') {
         if (!allow_casting) {
-            Nst_set_value_error_c(
-                _Nst_EM_INVALID_TYPE_LETTER("Nst_extract_args"));
+            Nst_error_setf_value(
+                "argument extraction: casting is not allowed at %zi",
+                (t - full_types) + 1);
             destroy_match_type(match_type);
             return NULL;
         }
@@ -359,8 +365,9 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
         case 'F': match_type->final_type = Nst_t.IOFile; break;
         case 'o': match_type->final_type = Nst_t.Null;   break;
         default:
-            Nst_set_value_error_c(
-                _Nst_EM_INVALID_TYPE_LETTER("Nst_extract_args"));
+            Nst_error_setf_value(
+                "argument extraction: unknown cast at %zi",
+                (t - full_types) + 1);
             Nst_sbuffer_destroy(&custom_types);
             destroy_match_type(match_type);
             return NULL;
@@ -370,13 +377,18 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end, va_list *args,
 
     if (*t == '.') {
         if (accepted_types & C_CAST) {
-            Nst_set_value_error_c(
-                _Nst_EM_INVALID_TYPE_LETTER("Nst_extract_args"));
+            Nst_error_setf_value(
+                "argument extraction: sequence matching is not allowed with a "
+                "C cast at %zi",
+                (t - full_types) + 1);
             destroy_match_type(match_type);
             return NULL;
         }
         t++;
-        match_type->seq_match = compile_type_match(t, type_end, args, false);
+        match_type->seq_match = compile_type_match(
+            t, type_end, full_types,
+            args,
+            false);
         if (match_type->seq_match == NULL) {
             destroy_match_type(match_type);
             return NULL;
@@ -638,7 +650,7 @@ static void set_err(MatchType *type, Nst_Obj *ob, usize idx)
     if (!Nst_sb_init(&sb, 256) || !append_types(type, &sb)) {
         Nst_error_clear();
         Nst_sb_destroy(&sb);
-        Nst_failed_allocation();
+        Nst_error_failed_alloc();
         return;
     }
 
@@ -648,7 +660,7 @@ static void set_err(MatchType *type, Nst_Obj *ob, usize idx)
         idx,
         Nst_type_name(ob->type).value);
     Nst_sb_destroy(&sb);
-    Nst_set_type_error(str);
+    Nst_error_set_type(str);
 }
 
 static void free_type_match(MatchType *type)
@@ -671,9 +683,18 @@ bool Nst_extract_args(const i8 *types, usize arg_num, Nst_Obj **args, ...)
         return false;
 
     do {
-        MatchType *type = compile_type_match(t, &t, &args_list, true);
+        MatchType *type = compile_type_match(t, &t, types, &args_list, true);
         if (type == NULL) {
             va_end(args_list);
+            for (usize i = 0, n = Nst_seq_len(allocated_objects); i < n; i++)
+                Nst_dec_ref(Nst_seq_getnf(allocated_objects, n));
+            Nst_dec_ref(allocated_objects);
+            return false;
+        }
+
+        if (idx == arg_num) {
+            Nst_error_setc_value("argument extraction: too few arguments");
+            free_type_match(type);
             for (usize i = 0, n = Nst_seq_len(allocated_objects); i < n; i++)
                 Nst_dec_ref(Nst_seq_getnf(allocated_objects, n));
             Nst_dec_ref(allocated_objects);
@@ -698,8 +719,7 @@ bool Nst_extract_args(const i8 *types, usize arg_num, Nst_Obj **args, ...)
     Nst_dec_ref(allocated_objects);
 
     if (idx != arg_num) {
-        Nst_set_value_error_c(
-            _Nst_EM_INVALID_TYPE_LETTER("Nst_extract_args"));
+        Nst_error_setc_value("argument extraction: too many arguments");
         return false;
     }
     return true;

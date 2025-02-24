@@ -48,7 +48,7 @@ int main(int argc, char **argv)
     i32 result = Nst_execute(cl_args, &es, &src);
 
     if (Nst_error_occurred())
-        Nst_print_traceback(Nst_error_get());
+        Nst_tb_print(Nst_error_get());
 
     Nst_es_destroy(&es);
     Nst_source_text_destroy(&src);

@@ -17,7 +17,7 @@ static i32 recursion_level;
 #define INC_RECURSION_LVL do {                                                \
         recursion_level++;                                                    \
         if (recursion_level > MAX_RECURSION_LVL) {                            \
-            Nst_set_memory_error_c(                                           \
+            Nst_error_setc_memory(                                           \
                 "over 1500 recursive calls, parsing failed");                 \
             return nullptr;                                                   \
         }                                                                     \

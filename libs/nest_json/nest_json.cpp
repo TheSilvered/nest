@@ -54,7 +54,7 @@ Nst_Obj *NstC load_f_(usize arg_num, Nst_Obj **args)
 
     if (f == nullptr) {
         if (!Nst_error_occurred())
-            Nst_set_value_errorf(
+            Nst_error_setf_value(
                 "file '%.4096s' not found",
                 Nst_str_value(path));
         return nullptr;
@@ -122,7 +122,7 @@ Nst_Obj *NstC dump_f_(usize arg_num, Nst_Obj **args)
 
     if (f == nullptr) {
         if (!Nst_error_occurred()) {
-            Nst_set_value_errorf(
+            Nst_error_setf_value(
                 "could not open the file '%.4096s'",
                 Nst_str_value(path));
         }
@@ -179,7 +179,7 @@ Nst_Obj *NstC set_option_(usize arg_num, Nst_Obj **args)
             nan_and_inf = nan_and_inf_default;
             break;
         default:
-            Nst_set_value_errorf("option %lli does not exist", option);
+            Nst_error_setf_value("option %lli does not exist", option);
             return nullptr;
         }
         return Nst_null_ref();
@@ -197,7 +197,7 @@ Nst_Obj *NstC set_option_(usize arg_num, Nst_Obj **args)
         nan_and_inf = value;
         break;
     default:
-        Nst_set_value_errorf("option %lli does not exist", option);
+        Nst_error_setf_value("option %lli does not exist", option);
         return nullptr;
     }
 
@@ -218,7 +218,7 @@ Nst_Obj *NstC get_option_(usize arg_num, Nst_Obj **args)
     case JSON_OPT_NAN_AND_INF:
         Nst_RETURN_BOOL(nan_and_inf);
     default:
-        Nst_set_value_errorf("option %lli does not exist", option);
+        Nst_error_setf_value("option %lli does not exist", option);
         return nullptr;
     }
 }

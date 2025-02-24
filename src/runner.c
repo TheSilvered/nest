@@ -25,7 +25,7 @@ bool Nst_es_init(Nst_ExecutionState *es)
     if (es->curr_path == NULL)
         goto cleanup;
 
-    if (!Nst_traceback_init(&es->traceback))
+    if (!Nst_tb_init(&es->traceback))
         goto cleanup;
 
     if (!Nst_vstack_init(&es->v_stack))
@@ -47,7 +47,7 @@ cleanup:
 void Nst_es_destroy(Nst_ExecutionState *es)
 {
     if (es->traceback.positions != NULL)
-        Nst_traceback_destroy(&es->traceback);
+        Nst_tb_destroy(&es->traceback);
     if (es->v_stack.stack != NULL)
         Nst_vstack_destroy(&es->v_stack);
     if (es->f_stack.stack != NULL)
@@ -294,8 +294,8 @@ bool Nst_es_push_module(Nst_ExecutionState *es, i8 *filename,
 
     Nst_FuncCall call = Nst_func_call_from_es(
         mod_func,
-        Nst_no_pos(),
-        Nst_no_pos(),
+        Nst_pos_empty(),
+        Nst_pos_empty(),
         es);
     call.cwd = Nst_inc_ref(es->curr_path);
 
@@ -333,7 +333,7 @@ bool Nst_es_push_func(Nst_ExecutionState *es, Nst_Obj *func, Nst_Pos start,
 {
     usize func_arg_num = Nst_func_arg_num(func);
     if ((i64)func_arg_num < arg_num) {
-        Nst_set_call_error(_Nst_EM_WRONG_ARG_NUM_FMT(func_arg_num, arg_num));
+        Nst_error_set_call(_Nst_WRONG_ARG_NUM(func_arg_num, arg_num));
         return false;
     }
 

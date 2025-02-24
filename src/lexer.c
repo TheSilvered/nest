@@ -36,7 +36,7 @@
                        ||  ch == ']' || ch == '^')
 
 #define ADD_ERR_POS                                                           \
-    Nst_error_add_positions(Nst_error_get(), cursor.pos, cursor.pos)
+    Nst_error_add_pos(cursor.pos, cursor.pos)
 
 typedef struct LexerCursor {
     i8 *text;
@@ -87,7 +87,7 @@ Nst_LList *Nst_tokenizef(i8 *filename, Nst_EncodingID encoding, i32 *opt_level,
 
     if (file == NULL) {
         if (!Nst_error_occurred())
-            Nst_set_value_errorf("File \"%.100s\" not found.", filename);
+            Nst_error_setf_value("File \"%.100s\" not found.", filename);
         return NULL;
     }
 
@@ -181,7 +181,7 @@ bool tokenize_internal(i32 max_idx)
         else if (cursor.ch == '`')
             tok = make_raw_str_literal();
         else if (cursor.ch == '\n') {
-            tok = Nst_tok_new_noend(Nst_copy_pos(cursor.pos), Nst_TT_ENDL);
+            tok = Nst_tok_new_noend(Nst_pos_copy(cursor.pos), Nst_TT_ENDL);
             if (tok == NULL)
                 ADD_ERR_POS;
         } else if (cursor.ch == '\\') {
@@ -192,11 +192,8 @@ bool tokenize_internal(i32 max_idx)
             for (i32 i = 0; i < res - 1; i++)
                 advance();
         } else {
-            Nst_set_internal_syntax_error_c(
-                Nst_error_get(),
-                cursor.pos,
-                cursor.pos,
-                _Nst_EM_INVALID_CHAR);
+            Nst_error_setc_syntax("invalid character");
+            Nst_error_add_pos(cursor.pos, cursor.pos);
         }
 
         if (Nst_error_occurred()) {
@@ -250,7 +247,7 @@ inline static void go_back(void)
 
 static Nst_Tok *make_symbol()
 {
-    Nst_Pos start = Nst_copy_pos(cursor.pos);
+    Nst_Pos start = Nst_pos_copy(cursor.pos);
     i8 symbol[4] = { cursor.ch, 0, 0, 0 };
     advance();
     if (!CUR_AT_END && CH_IS_SYMBOL(cursor.ch)) {
@@ -295,11 +292,8 @@ static Nst_Tok *make_symbol()
         go_back();
 
         if (!was_closed) {
-            Nst_set_internal_syntax_error_c(
-                Nst_error_get(),
-                start,
-                cursor.pos,
-                _Nst_EM_OPEN_COMMENT);
+            Nst_error_setc_syntax("multi-line comment was never closed");
+            Nst_error_add_pos(start, cursor.pos);
         }
 
         return NULL;
@@ -337,7 +331,7 @@ static Nst_Tok *make_symbol()
 
     Nst_Tok *tok = Nst_tok_new_noval(
         start,
-        Nst_copy_pos(cursor.pos),
+        Nst_pos_copy(cursor.pos),
         token_type);
     if (tok == NULL)
         ADD_ERR_POS;
@@ -360,11 +354,8 @@ static i32 bin_ltrl_size(Nst_Pos start, bool *is_byte)
         advance();
     } while (CH_IS_BIN(cursor.ch) || cursor.ch == '_');
     if (CH_IS_DEC(cursor.ch)) {
-        Nst_set_internal_syntax_error_c(
-            Nst_error_get(),
-            start,
-            cursor.pos,
-            _Nst_EM_BAD_INT_LITERAL);
+        Nst_error_setc_syntax("invalid Int literal");
+        Nst_error_add_pos(start, cursor.pos);
         return -1;
     }
     if (cursor.ch == 'b' || cursor.ch == 'B') {
@@ -381,11 +372,8 @@ static i32 oct_ltrl_size(Nst_Pos start, bool *is_byte)
 
     if (!CH_IS_OCT(cursor.ch)) {
         go_back();
-        Nst_set_internal_syntax_error_c(
-            Nst_error_get(),
-            start,
-            cursor.pos,
-            _Nst_EM_BAD_INT_LITERAL);
+        Nst_error_setc_syntax("invalid Int literal");
+        Nst_error_add_pos(start, cursor.pos);
         return -1;
     }
     i32 ltrl_size = 2;
@@ -394,11 +382,8 @@ static i32 oct_ltrl_size(Nst_Pos start, bool *is_byte)
         advance();
     } while (CH_IS_OCT(cursor.ch) || cursor.ch == '_');
     if (CH_IS_DEC(cursor.ch)) {
-        Nst_set_internal_syntax_error_c(
-            Nst_error_get(),
-            start,
-            cursor.pos,
-            _Nst_EM_BAD_INT_LITERAL);
+        Nst_error_setc_syntax("invalid Int literal");
+        Nst_error_add_pos(start, cursor.pos);
         return -1;
     }
     if (cursor.ch == 'b' || cursor.ch == 'B') {
@@ -411,19 +396,16 @@ static i32 oct_ltrl_size(Nst_Pos start, bool *is_byte)
 
 static i32 hex_ltrl_size(Nst_Pos start, bool *is_byte)
 {
-    const i8 *err_msg = _Nst_EM_BAD_INT_LITERAL;
+    const i8 *err_msg = "invalid Int literal";
     if (cursor.ch == 'h' || cursor.ch == 'H') {
         *is_byte = true;
-        err_msg = _Nst_EM_BAD_BYTE_LITERAL;
+        err_msg = "invalid Byte literal";
     }
     advance();
     if (!CH_IS_HEX(cursor.ch)) {
         go_back();
-        Nst_set_internal_syntax_error_c(
-            Nst_error_get(),
-            start,
-            cursor.pos,
-            err_msg);
+        Nst_error_setc_syntax(err_msg);
+        Nst_error_add_pos(start, cursor.pos);
         return -1;
     }
     i32 ltrl_size = 2;
@@ -432,11 +414,8 @@ static i32 hex_ltrl_size(Nst_Pos start, bool *is_byte)
         advance();
     } while (CH_IS_HEX(cursor.ch) || cursor.ch == '_');
     if (CH_IS_ALPHA(cursor.ch)) {
-        Nst_set_internal_syntax_error_c(
-            Nst_error_get(),
-            start,
-            cursor.pos,
-            err_msg);
+        Nst_error_setc_syntax(err_msg);
+        Nst_error_add_pos(start, cursor.pos);
         return -1;
     }
     go_back();
@@ -465,11 +444,8 @@ static i32 dec_ltrl_size(Nst_Pos start, bool *is_byte, bool *is_real)
     ltrl_size++;
 
     if (!CH_IS_DEC(cursor.ch)) {
-        Nst_set_internal_syntax_error_c(
-            Nst_error_get(),
-            start,
-            cursor.pos,
-            _Nst_EM_BAD_REAL_LITERAL);
+        Nst_error_setc_syntax("invalid Real literal");
+        Nst_error_add_pos(start, cursor.pos);
         return -1;
     }
     do {
@@ -488,11 +464,8 @@ static i32 dec_ltrl_size(Nst_Pos start, bool *is_byte, bool *is_real)
         ltrl_size++;
     }
     if (!CH_IS_DEC(cursor.ch)) {
-        Nst_set_internal_syntax_error_c(
-            Nst_error_get(),
-            start,
-            cursor.pos,
-            _Nst_EM_BAD_REAL_LITERAL);
+        Nst_error_setc_syntax("invalid Real literal");
+        Nst_error_add_pos(start, cursor.pos);
         return -1;
     }
     do {
@@ -506,7 +479,7 @@ static i32 dec_ltrl_size(Nst_Pos start, bool *is_byte, bool *is_real)
 static Nst_Tok *make_num_literal(void)
 {
     i8 *start_p = cursor.text + cursor.idx;
-    Nst_Pos start = Nst_copy_pos(cursor.pos);
+    Nst_Pos start = Nst_pos_copy(cursor.pos);
     Nst_Tok *tok = NULL;
 
     i32 ltrl_size = 0;
@@ -590,7 +563,7 @@ end:
 
 static Nst_Tok *make_ident(void)
 {
-    Nst_Pos start = Nst_copy_pos(cursor.pos);
+    Nst_Pos start = Nst_pos_copy(cursor.pos);
     i8 *str;
     i8 *str_start = cursor.text + cursor.idx;
     usize str_len = 0;
@@ -618,7 +591,7 @@ static Nst_Tok *make_ident(void)
     memcpy(str, str_start, str_len);
     str[str_len] = '\0';
 
-    Nst_Pos end = Nst_copy_pos(cursor.pos);
+    Nst_Pos end = Nst_pos_copy(cursor.pos);
     Nst_Obj *val_obj = Nst_str_new_c_raw(str, true);
     if (val_obj == NULL) {
         Nst_free(str);
@@ -730,11 +703,8 @@ static bool format_escape(Nst_StrBuilder *sb, bool is_format_string,
 {
     i32 max_idx = find_fmt_str_inline_end();
     if (max_idx == -1) {
-        Nst_set_internal_syntax_error_c(
-            Nst_error_get(),
-            cursor.pos,
-            cursor.pos,
-            "invalid format string");
+        Nst_error_setc_syntax("invalid format string");
+        Nst_error_add_pos(cursor.pos, cursor.pos);
         return false;
     }
     advance();
@@ -778,13 +748,13 @@ static bool format_escape(Nst_StrBuilder *sb, bool is_format_string,
         ADD_ERR_POS;
         return false;
     }
-    *start = Nst_copy_pos(cursor.pos);
+    *start = Nst_pos_copy(cursor.pos);
     return true;
 }
 
 static Nst_Tok *make_str_literal(void)
 {
-    Nst_Pos start = Nst_copy_pos(cursor.pos);
+    Nst_Pos start = Nst_pos_copy(cursor.pos);
     Nst_Pos escape_start = start;
     i8 closing_ch = cursor.ch;
     bool allow_multiline = cursor.ch == '"';
@@ -808,14 +778,12 @@ static Nst_Tok *make_str_literal(void)
         }
 
         if (cursor.ch == '\n' && !allow_multiline) {
-            Nst_set_internal_syntax_error_c(
-                Nst_error_get(),
-                cursor.pos,
-                cursor.pos,
-                _Nst_EM_UNEXPECTED_NEWLINE);
+            Nst_error_setc_syntax(
+                "single-quote strings cannot span multiple lines");
+            Nst_error_add_pos(cursor.pos, cursor.pos);
             goto failure;
         } else if (cursor.ch == '\\') {
-            escape_start = Nst_copy_pos(cursor.pos);
+            escape_start = Nst_pos_copy(cursor.pos);
             advance();
         } else {
             Nst_sb_push_char(&sb, cursor.ch);
@@ -862,11 +830,8 @@ static Nst_Tok *make_str_literal(void)
     }
 
     if (cursor.ch != closing_ch) {
-        Nst_set_internal_syntax_error_c(
-            Nst_error_get(),
-            cursor.pos,
-            cursor.pos,
-            _Nst_EM_OPEN_STR_LITERAL);
+        Nst_error_setc_syntax("string literal was never closed");
+        Nst_error_add_pos(cursor.pos, cursor.pos);
         goto failure;
     }
 
@@ -904,11 +869,8 @@ failure:
 
 static void invalid_escape_error(Nst_Pos escape_start)
 {
-    Nst_set_internal_syntax_error_c(
-        Nst_error_get(),
-        escape_start,
-        cursor.pos,
-        _Nst_EM_INVALID_ESCAPE);
+    Nst_error_setc_syntax("invalid escape sequence");
+    Nst_error_add_pos(escape_start, cursor.pos);
 }
 
 static bool skip_inline_str(void)
@@ -985,7 +947,7 @@ static i32 find_fmt_str_inline_end(void)
 
 static Nst_Tok *make_raw_str_literal(void)
 {
-    Nst_Pos start = Nst_copy_pos(cursor.pos);
+    Nst_Pos start = Nst_pos_copy(cursor.pos);
     Nst_Pos end = start;
     Nst_Tok *tok;
 
@@ -998,7 +960,7 @@ static Nst_Tok *make_raw_str_literal(void)
 
     while (!CUR_AT_END) {
         if (cursor.ch == '`') {
-            end = Nst_copy_pos(cursor.pos);
+            end = Nst_pos_copy(cursor.pos);
             advance();
             if (CUR_AT_END || cursor.ch != '`') {
                 go_back();
@@ -1014,11 +976,8 @@ static Nst_Tok *make_raw_str_literal(void)
     }
 
     if (cursor.ch != '`') {
-        Nst_set_internal_syntax_error_c(
-            Nst_error_get(),
-            cursor.pos,
-            cursor.pos,
-            _Nst_EM_OPEN_STR_LITERAL);
+        Nst_error_setc_syntax("string literal was never closed");
+        Nst_error_add_pos(cursor.pos, cursor.pos);
         goto failure;
     }
 
@@ -1122,7 +1081,7 @@ bool Nst_normalize_encoding(Nst_SourceText *text, Nst_EncodingID encoding)
     Nst_Pos pos = { 0, 0, text };
     Nst_StrBuilder sb;
     if (!Nst_sb_init(&sb, text->text_len + 40)) {
-        Nst_error_add_positions(Nst_error_get(), pos, pos);
+        Nst_error_add_pos(pos, pos);
         return false;
     }
 
@@ -1136,10 +1095,10 @@ bool Nst_normalize_encoding(Nst_SourceText *text, Nst_EncodingID encoding)
         i32 ch_len = from->check_bytes(text_p, n);
         if (ch_len < 0) {
             Nst_sb_destroy(&sb);
-            Nst_set_internal_syntax_error(
-                Nst_error_get(),
-                pos, pos,
-                Nst_sprintf(_Nst_EM_INVALID_ENCODING, *text_p, from->name));
+            Nst_error_setf_syntax(
+                "could not encode byte %ib for %s encoding",
+                *text_p, from->name);
+            Nst_error_add_pos(pos, pos);
             return false;
         }
         usize ch_size = ch_len * from->ch_size;
@@ -1163,7 +1122,7 @@ bool Nst_normalize_encoding(Nst_SourceText *text, Nst_EncodingID encoding)
         // Re-encode character
         if (!Nst_sb_reserve(&sb, 5)) {
             Nst_sb_destroy(&sb);
-            Nst_error_add_positions(Nst_error_get(), pos, pos);
+            Nst_error_add_pos(pos, pos);
             return false;
         }
         ch_len = Nst_encoding_ext_utf8.from_utf32(utf32_ch, sb.value + sb.len);

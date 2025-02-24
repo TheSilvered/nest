@@ -114,7 +114,7 @@ Nst_Obj *Nst_iter_value(Nst_Obj *iter)
 Nst_Obj *Nst_iter_range_new(i64 start, i64 stop, i64 step)
 {
     if (step == 0) {
-        Nst_set_value_error_c(_Nst_EM_RANGE_STEP_ZERO);
+        Nst_error_setc_value("the step cannot be zero");
         return NULL;
     }
 

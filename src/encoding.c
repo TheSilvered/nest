@@ -1767,8 +1767,8 @@ bool Nst_encoding_translate(Nst_Encoding *from, Nst_Encoding *to,
         i32 ch_len = from->check_bytes(from_buf, n);
         if (ch_len < 0) {
             Nst_sb_destroy(&sb);
-            Nst_set_value_errorf(
-                _Nst_EM_INVALID_ENCODING,
+            Nst_error_setf_value(
+                "could not encode byte %ib for %s encoding",
                 *(u8 *)from_buf, from->name);
             return false;
         }
@@ -1785,8 +1785,8 @@ bool Nst_encoding_translate(Nst_Encoding *from, Nst_Encoding *to,
         ch_len = to->from_utf32(utf32_ch, sb.value + sb.len);
         if (ch_len < 0) {
             Nst_sb_destroy(&sb);
-            Nst_set_value_errorf(
-                _Nst_EM_INVALID_DECODING,
+            Nst_error_setf_value(
+                "could not decode code point U+%06X for %s encoding",
                 (int)utf32_ch, from->name);
         }
         sb.len += ch_len * to->ch_size;
@@ -1826,8 +1826,8 @@ isize Nst_encoding_char_len(Nst_Encoding *encoding, void *str, usize str_len)
     for (usize i = 0; i < str_len; i++) {
         i32 ch_len = encoding_check_bytes(str, str_len - i);
         if (ch_len < 0) {
-            Nst_set_value_errorf(
-                _Nst_EM_INVALID_ENCODING,
+            Nst_error_setf_value(
+                "could not encode byte %ib for %s encoding",
                 *(u8 *)str, encoding->name);
             return -1;
         }

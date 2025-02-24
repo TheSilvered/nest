@@ -707,8 +707,8 @@ void print_we(Nst_Node *node, Nst_LList *levels)
 Nst_Node *Nst_node_new(Nst_NodeType type)
 {
    Nst_Node *node = Nst_malloc_c(1, Nst_Node);
-   node->start = Nst_no_pos();
-   node->end = Nst_no_pos();
+   node->start = Nst_pos_empty();
+   node->end = Nst_pos_empty();
    node->type = type;
    if (initializers[type] != NULL && !initializers[type](node)) {
        Nst_free(node);

@@ -61,7 +61,7 @@ Nst_Obj *failure(bool catch_exit, bool catch_interrupt)
     Nst_Obj **tb_objs = nullptr;
 
     if (!error->error_occurred) {
-        Nst_set_value_error_c("invalid error state");
+        Nst_error_setc_value("invalid error state");
         return nullptr;
     }
 
@@ -141,8 +141,8 @@ Nst_Obj *NstC try_(usize arg_num, Nst_Obj **args)
     usize func_arg_num = Nst_func_arg_num(func);
 
     if (func_args_len > (i64)func_arg_num) {
-        Nst_set_call_error(
-            _Nst_EM_WRONG_ARG_NUM_FMT(func_arg_num, func_args_len));
+        Nst_error_set_call(
+            _Nst_WRONG_ARG_NUM(func_arg_num, func_args_len));
         return nullptr;
     }
 

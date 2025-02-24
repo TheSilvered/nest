@@ -10,7 +10,7 @@ const bool comments_default = false;
 const bool nan_and_inf_default = false;
 
 #define JSON_SYNTAX_ERROR(msg, path, pos)                                     \
-    Nst_set_syntax_errorf(                                                    \
+    Nst_error_setf_syntax(                                                    \
         "JSON: " msg ", file \"%s\", line %lli, column %lli",                 \
         path, (i64)(pos).line, (i64)(pos).col)
 

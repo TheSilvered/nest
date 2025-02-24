@@ -51,7 +51,7 @@ void lib_quit()
 
 static bool not_initialized() {
     if (!app.initialized) {
-        Nst_set_call_error_c("the app is not initialized");
+        Nst_error_setc_call("the app is not initialized");
         return true;
     }
     return false;
@@ -98,7 +98,7 @@ Nst_Obj *NstC window_init_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (app.initialized) {
-        Nst_set_call_error_c("the app was already initialized");
+        Nst_error_setc_call("the app was already initialized");
         return nullptr;
     }
 

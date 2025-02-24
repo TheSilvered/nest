@@ -337,7 +337,7 @@ static bool check_just_args(usize arg_num, Nst_Obj **args, Nst_Obj *&str,
     }
 
     if (fill_ch_true_len != 1) {
-        Nst_set_value_error_c("filling string must be one character long");
+        Nst_error_setc_value("filling string must be one character long");
         return false;
     }
 
@@ -903,7 +903,7 @@ Nst_Obj *NstC decode_(usize arg_num, Nst_Obj **args)
         Nst_encoding_from_name(Nst_str_value(encoding_obj)),
         Nst_EID_EXT_UTF8);
     if (cpid == Nst_EID_UNKNOWN) {
-        Nst_set_value_error(
+        Nst_error_set_value(
             Nst_sprintf(
                 "invalid encoding '%.100s'",
                 Nst_str_value(encoding_obj)));
@@ -951,7 +951,7 @@ Nst_Obj *NstC encode_(usize arg_num, Nst_Obj **args)
         Nst_encoding_from_name(Nst_str_value(encoding_obj)),
         Nst_EID_UTF8);
     if (cpid == Nst_EID_UNKNOWN) {
-        Nst_set_value_error(
+        Nst_error_set_value(
             Nst_sprintf(
                 "invalid encoding '%.100s'",
                 Nst_str_value(encoding_obj)));
@@ -1144,7 +1144,7 @@ Nst_Obj *NstC lsplit_(usize arg_num, Nst_Obj **args)
     if (opt_substr == Nst_null())
         return lsplit_whitespace(str_obj, quantity);
     if (Nst_str_len(opt_substr) == 0) {
-        Nst_set_value_error_c("separator must be at least one character");
+        Nst_error_setc_value("separator must be at least one character");
         return nullptr;
     }
     Nst_Obj *vector = Nst_vector_new(0);
@@ -1315,7 +1315,7 @@ Nst_Obj *NstC rsplit_(usize arg_num, Nst_Obj **args)
     if (opt_substr == Nst_null())
         return rsplit_whitespace(str_obj, quantity);
     if (Nst_str_len(opt_substr) == 0) {
-        Nst_set_value_error_c("separator must be at least one character");
+        Nst_error_setc_value("separator must be at least one character");
         return nullptr;
     }
     Nst_Obj *vector = Nst_vector_new(0);

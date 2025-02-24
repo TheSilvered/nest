@@ -40,7 +40,7 @@ NstEXP typedef struct _Nst_IntrState {
 /**
  * Initializes the Nest libraray.
  *
- * @brief Note: `Nst_set_color` is called with the value returned by
+ * @brief Note: `Nst_error_set_color` is called with the value returned by
  * `Nst_supports_color`.
  *
  * @param args: the options for the libraray, currently only `opt_level` is

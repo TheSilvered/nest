@@ -70,10 +70,8 @@ Nst_Node *Nst_parse(Nst_LList *tokens)
         Nst_Pos start = Nst_TOK(Nst_llist_peek_front(state.tokens))->start;
         Nst_Pos end = Nst_TOK(Nst_llist_peek_front(state.tokens))->end;
 
-        Nst_set_internal_syntax_error_c(
-            Nst_error_get(),
-            start, end,
-            _Nst_EM_UNEXPECTED_TOK);
+        Nst_error_setc_syntax("unexpected token");
+        Nst_error_add_pos(start, end);
         Nst_node_destroy(ast);
         ast = NULL;
     }
@@ -94,8 +92,8 @@ static inline bool enter_func(ParsingState *initial_state)
     if (state.recursion_lvl > 1500) {
         Nst_Pos start = top_start();
         Nst_Pos end = top_end();
-        Nst_set_memory_error_c(_Nst_EM_RECURSIVE_CALLS("1500"));
-        Nst_error_add_positions(Nst_error_get(), start, end);
+        Nst_error_setc_memory("too many nested structures, parsing failed");
+        Nst_error_add_pos(start, end);
         return false;
     }
 
@@ -116,7 +114,7 @@ static inline bool append_node(Nst_LList *llist, Nst_Node *node)
 {
     bool result = Nst_llist_append(llist, node, true);
     if (!result)
-        Nst_error_add_positions(Nst_error_get(), node->start, node->end);
+        Nst_error_add_pos(node->start, node->end);
     return result;
 }
 
@@ -124,7 +122,7 @@ static inline bool append_tok(Nst_LList *llist, Nst_Tok *tok)
 {
     bool result = Nst_llist_append(llist, tok, true);
     if (!result)
-        Nst_error_add_positions(Nst_error_get(), tok->start, tok->end);
+        Nst_error_add_pos(tok->start, tok->end);
     return result;
 }
 
@@ -148,7 +146,7 @@ static inline Nst_Pos top_start(void)
 {
     Nst_Tok *head = peek_top();
     if (head == NULL)
-        return Nst_no_pos();
+        return Nst_pos_empty();
     return head->start;
 }
 
@@ -157,7 +155,7 @@ static inline Nst_Pos top_end(void)
 {
     Nst_Tok *head = peek_top();
     if (head == NULL)
-        return Nst_no_pos();
+        return Nst_pos_empty();
     return head->end;
 }
 
@@ -178,8 +176,8 @@ static inline void destroy_top(void)
 // Sets a syntax error with the given message and adds the positions
 static inline void set_error(const char *msg, Nst_Pos start, Nst_Pos end)
 {
-    Nst_set_syntax_error_c(msg);
-    Nst_error_add_positions(Nst_error_get(), start, end);
+    Nst_error_setc_syntax(msg);
+    Nst_error_add_pos(start, end);
 }
 
 // Creates a new node adding the given positions if an error occurs.
@@ -188,7 +186,7 @@ static Nst_Node *new_node(Nst_NodeType type, Nst_Pos start, Nst_Pos end)
 {
     Nst_Node *node = Nst_node_new(type);
     if (node == NULL)
-        Nst_error_add_positions(Nst_error_get(), start, end);
+        Nst_error_add_pos(start, end);
     return node;
 }
 
@@ -255,7 +253,7 @@ static Nst_Node *parse_cs_with_brackets(void)
     Nst_Pos start = top_start();
     Nst_Pos end = top_end();
     if (top_type() != Nst_TT_L_BRACKET) {
-        set_error(_Nst_EM_EXPECTED_BRACKET, start, end);
+        set_error("expected '['", start, end);
         return NULL;
     }
     destroy_top();
@@ -266,7 +264,7 @@ static Nst_Node *parse_cs_with_brackets(void)
     skip_blank();
 
     if (top_type() != Nst_TT_R_BRACKET) {
-        set_error(_Nst_EM_MISSING_BRACKET, start, end);
+        set_error("unmatched '['", start, end);
         Nst_node_destroy(long_s);
         return NULL;
     }
@@ -303,7 +301,7 @@ static Nst_Node *parse_statement(void)
 
         if (top_type() != Nst_TT_R_BRACKET) {
             Nst_node_destroy(long_s);
-            set_error(_Nst_EM_MISSING_BRACKET, start, start);
+            set_error("unmatched '['", start, start);
             return NULL;
         }
         destroy_top();
@@ -331,7 +329,7 @@ static Nst_Node *parse_statement(void)
         destroy_top();
 
         if (!state.in_func) {
-            set_error(_Nst_EM_BAD_RETURN, start, end);
+            set_error("'=>' outside of a function", start, end);
             return NULL;
         }
 
@@ -365,7 +363,7 @@ static Nst_Node *parse_statement(void)
         destroy_top();
 
         if (!state.in_loop && !state.in_switch) {
-            set_error(_Nst_EM_BAD_CONTINUE, start, end);
+            set_error("'..' outside of a loop", start, end);
             return NULL;
         }
 
@@ -381,7 +379,7 @@ static Nst_Node *parse_statement(void)
         destroy_top();
 
         if (!state.in_loop) {
-            set_error(_Nst_EM_BAD_BREAK, start, end);
+            set_error("';' outside of a loop", start, end);
             return NULL;
         }
 
@@ -555,7 +553,7 @@ static Nst_Node *parse_sw(void)
     skip_blank();
     if (top_type() != Nst_TT_L_BRACKET) {
         Nst_node_destroy(switch_s);
-        set_error(_Nst_EM_EXPECTED_BRACKET, top_start(), top_end());
+        set_error("expected '['", top_start(), top_end());
         return NULL;
     }
     destroy_top();
@@ -565,7 +563,7 @@ static Nst_Node *parse_sw(void)
             break;
         if (top_type() != Nst_TT_IF) {
             Nst_node_destroy(switch_s);
-            set_error(_Nst_EM_EXPECTED_IF, top_start(), top_end());
+            set_error("expected '?'", top_start(), top_end());
             return NULL;
         }
         destroy_top();
@@ -609,7 +607,7 @@ static Nst_Node *parse_sw(void)
     skip_blank();
     if (top_type() != Nst_TT_R_BRACKET) {
         Nst_node_destroy(switch_s);
-        set_error(_Nst_EM_EXPECTED_R_BRACKET, top_start(), top_end());
+        set_error("expected ']'", top_start(), top_end());
         return NULL;
     }
     Nst_node_set_pos(switch_s, start, top_end());
@@ -635,7 +633,7 @@ static Nst_Node *parse_fd(void)
     skip_blank();
     if (!is_lambda && top_type() != Nst_TT_IDENT) {
         Nst_node_destroy(func_declr);
-        set_error(_Nst_EM_EXPECTED_IDENT, top_start(), top_end());
+        set_error("expected an identifier", top_start(), top_end());
         return NULL;
     }
     if (!is_lambda)
@@ -692,7 +690,7 @@ static Nst_Node *parse_stack_expr()
 
     Nst_LList *values = Nst_llist_new();
     if (values == NULL) {
-        Nst_error_add_positions(Nst_error_get(), top_start(), top_end());
+        Nst_error_add_pos(top_start(), top_end());
         return NULL;
     }
 
@@ -717,7 +715,7 @@ static Nst_Node *parse_stack_expr()
         // this can be true only in the first iteration, all other subsequent
         // iterations will have at least the values from the previous one
         if (values->len == 0 && !_Nst_TOK_IS_LOCAL_STACK_OP(top_type())) {
-            set_error(_Nst_EM_EXPECTED_VALUE, top_start(), top_end());
+            set_error("expected a value", top_start(), top_end());
             goto failure;
         }
 
@@ -735,7 +733,7 @@ static Nst_Node *parse_stack_expr()
         else if (state.break_ends_expr && top_type() == Nst_TT_BREAK)
             break;
         else {
-            set_error(_Nst_EM_UNEXPECTED_TOK, top_start(), top_end());
+            set_error("unexpected token", top_start(), top_end());
             goto failure;
         }
 
@@ -751,7 +749,10 @@ static Nst_Node *parse_stack_expr()
     // The expression end token must not be consumed
 
     if (values->len != 1) {
-        set_error(_Nst_EM_EXPECTED_OP, top_start(), top_end());
+        set_error(
+            "expected stack or local stack operator",
+            top_start(),
+            top_end());
         goto failure;
     }
 
@@ -819,16 +820,16 @@ static bool check_local_stack_op_arg_num(usize arg_num, Nst_Pos start,
 {
     Nst_TokType type = top_type();
     if (type == Nst_TT_CAST && arg_num != 1) {
-        set_error(_Nst_EM_LEFT_ARGS_NUM("::", "1", ""), start, end);
+        set_error("'::' expects only 1 argument on the left", start, end);
         return false;
     } else if (type == Nst_TT_RANGE && arg_num != 1 && arg_num != 2) {
-        set_error(_Nst_EM_LEFT_ARGS_NUM("->", "1 or 2", "s"), start, end);
+        set_error("'->' expects only 1 or 2 arguments on the left", start, end);
         return false;
     } else if (type == Nst_TT_THROW && arg_num != 1) {
-        set_error(_Nst_EM_LEFT_ARGS_NUM("!!", "1", ""), start, end);
+        set_error("'!!' expects only 1 argument on the left", start, end);
         return false;
     } else if (type == Nst_TT_SEQ_CALL && arg_num != 1) {
-        set_error(_Nst_EM_LEFT_ARGS_NUM("*@", "1", ""), start, end);
+        set_error("'*@' expects only 1 argument on the left", start, end);
         return false;
     }
     return true;
@@ -849,7 +850,9 @@ static Nst_Node *parse_as_name(bool is_compound)
         if (name == NULL)
             return NULL;
         if (name->type != Nst_NT_AC && name->type != Nst_NT_EX) {
-            set_error(_Nst_EM_EXPECTED_IDENT_OR_EXTR, name->start, name->end);
+            set_error(
+                "expected an identifier or an extraction",
+                name->start, name->end);
             Nst_node_destroy(name);
             return NULL;
         }
@@ -858,7 +861,9 @@ static Nst_Node *parse_as_name(bool is_compound)
     }
 
     if (is_compound) {
-        set_error(_Nst_EM_COMPOUND_ASSIGMENT, top_start(), top_end());
+        set_error(
+            "cannot unpack values in a compound assignment",
+            top_start(), top_end());
         return NULL;
     }
 
@@ -887,7 +892,7 @@ static Nst_Node *parse_as_name(bool is_compound)
             destroy_top();
             break;
         } else {
-            set_error(_Nst_EM_EXPECTED_COMMA_OR_BRACE, top_start(), top_end());
+            set_error("expected ',' or '}'", top_start(), top_end());
             goto failure;
         }
     }
@@ -911,7 +916,10 @@ static Nst_Node *parse_as(Nst_LList **values, Nst_Pos start)
     bool is_compound = type != Nst_TT_ASSIGN;
 
     if ((*values)->len > 1 && !is_compound) {
-        set_error(_Nst_EM_EXPECTED_OP, top_start(), top_end());
+        set_error(
+            "expected stack or local stack operator",
+            top_start(),
+            top_end());
         return NULL;
     }
     destroy_top();
@@ -1033,7 +1041,7 @@ static Nst_Node *parse_atom(void)
         if (expr == NULL)
             return NULL;
         if (top_type() != Nst_TT_R_PAREN) {
-            set_error(_Nst_EM_MISSING_PAREN, start, end);
+            set_error("unmatched '('", start, end);
             Nst_node_destroy(expr);
             return NULL;
         }
@@ -1090,7 +1098,7 @@ static Nst_Node *parse_atom(void)
         if (atom == NULL)
             return NULL;
     } else {
-        set_error(_Nst_EM_EXPECTED_VALUE, top_start(), top_end());
+        set_error("expected a value", top_start(), top_end());
         return NULL;
     }
 
@@ -1149,7 +1157,7 @@ static Nst_Node *parse_arr_or_map_literal(void)
         destroy_top();
         skip_blank();
         if (top_type() != Nst_TT_R_BRACE) {
-            set_error(_Nst_EM_EXPECTED_BRACE, top_start(), top_end());
+            set_error("expected '}'", top_start(), top_end());
             return NULL;
         }
         Nst_Node *arr_lit = new_node(Nst_NT_SL, start, top_end());
@@ -1191,12 +1199,12 @@ static Nst_Node *parse_seq_body(Nst_Pos start, Nst_Node *first_node, bool arr)
 
     Nst_TokType closing_paren = arr ? Nst_TT_R_BRACE : Nst_TT_R_VBRACE;
     const i8 *expected_paren = arr
-        ? _Nst_EM_EXPECTED_BRACE
-        : _Nst_EM_EXPECTED_VBRACE;
+        ? "expected '}'"
+        : "expected '}>'";
 
     const i8 *expected_comma_or_paren = arr
-        ? _Nst_EM_EXPECTED_COMMA_OR_BRACE
-        : _Nst_EM_EXPECTED_COMMA_OR_VBRACE;
+        ? "expected ',' or '}'"
+        : "expected ',' or '}>'";
 
     Nst_Node *seq_lit = new_node(Nst_NT_SL, start, start);
     if (seq_lit == NULL)
@@ -1303,7 +1311,7 @@ static Nst_Node *parse_map_body(Nst_Pos start, Nst_Node *key)
     from_colon:
         skip_blank();
         if (top_type() != Nst_TT_COLON) {
-            set_error(_Nst_EM_EXPECTED_COLON, top_start(), top_end());
+            set_error("expected ':'", top_start(), top_end());
             goto failure;
         }
         destroy_top();
@@ -1322,7 +1330,7 @@ static Nst_Node *parse_map_body(Nst_Pos start, Nst_Node *key)
         } else if (top_type() == Nst_TT_COMMA)
             destroy_top();
         else {
-            set_error(_Nst_EM_EXPECTED_COMMA_OR_BRACE, top_start(), top_end());
+            set_error("expected ',' or '}'", top_start(), top_end());
             goto failure;
         }
     }
@@ -1360,12 +1368,12 @@ static Nst_Node *parse_tc(void)
     skip_blank();
 
     if (top_type() != Nst_TT_CATCH) {
-        set_error(_Nst_EM_EXPECTED_CATCH, top_start(), top_end());
+        set_error("expected '?!'", top_start(), top_end());
         goto failure;
     }
     destroy_top();
     if (top_type() != Nst_TT_IDENT) {
-        set_error(_Nst_EM_EXPECTED_IDENT, top_start(), top_end());
+        set_error("expected an identifier", top_start(), top_end());
         goto failure;
     }
 

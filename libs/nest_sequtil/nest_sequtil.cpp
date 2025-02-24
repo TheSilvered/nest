@@ -49,7 +49,7 @@ Nst_Obj *NstC map_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (Nst_func_arg_num(func) != 1) {
-        Nst_set_value_error_c("the function must take exactly one argument");
+        Nst_error_setc_value("the function must take exactly one argument");
         return nullptr;
     }
 
@@ -90,7 +90,7 @@ Nst_Obj *NstC map_i_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (Nst_func_arg_num(func) != 1) {
-        Nst_set_call_error_c("the function must take exactly one argument");
+        Nst_error_setc_call("the function must take exactly one argument");
         return nullptr;
     }
 
@@ -118,8 +118,8 @@ Nst_Obj *NstC insert_at_(usize arg_num, Nst_Obj **args)
         new_idx = vect_len + idx;
 
     if (new_idx < 0 || new_idx >= (i64)vect_len) {
-        Nst_set_value_errorf(
-            _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+        Nst_error_setf_value(
+            "index %lli out of bounds for 'Vector' of size %zi",
             idx,
             vect_len);
 
@@ -153,8 +153,8 @@ Nst_Obj *NstC remove_at_(usize arg_num, Nst_Obj **args)
         new_idx = vect_len + idx;
 
     if (new_idx < 0 || new_idx >= (i64)vect_len) {
-        Nst_set_value_errorf(
-            _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector"),
+        Nst_error_setf_value(
+            "index %lli out of bounds for 'Vector' of size %zi",
             idx,
             vect_len);
 
@@ -179,7 +179,7 @@ static isize clamp_slice_arguments(usize seq_len, Nst_Obj *start_obj,
     step = Nst_DEF_VAL(step_obj,  Nst_int_i64(step_obj), 1);
 
     if (step == 0) {
-        Nst_set_value_error_c("the step cannot be zero");
+        Nst_error_setc_value("the step cannot be zero");
         return -1;
     }
 
@@ -552,7 +552,7 @@ bool merge(Nst_Obj **values, usize left, usize mid, usize right,
 static Nst_Obj *mapped_sort(Nst_Obj *seq, Nst_Obj *map_func, bool new_seq)
 {
     if (Nst_func_arg_num(map_func) != 1) {
-        Nst_set_call_error_c("the function must take exactly one argument");
+        Nst_error_setc_call("the function must take exactly one argument");
         return nullptr;
     }
 
@@ -700,7 +700,7 @@ Nst_Obj *NstC filter_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (Nst_func_arg_num(func) != 1) {
-        Nst_set_call_error_c("the function must take exactly one argument");
+        Nst_error_setc_call("the function must take exactly one argument");
         return nullptr;
     }
 
@@ -736,7 +736,7 @@ Nst_Obj *NstC filter_i_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (Nst_func_arg_num(func) != 1) {
-        Nst_set_call_error_c("the function must take exactly one argument");
+        Nst_error_setc_call("the function must take exactly one argument");
         Nst_dec_ref(iter);
         return nullptr;
     }
@@ -827,12 +827,12 @@ static i64 check_scan_args(usize seq_len, usize func_arg_num,
         seq_len + 1);
 
     if (func_arg_num != 2) {
-        Nst_set_value_error_c("the function must take exactly two argument");
+        Nst_error_setc_value("the function must take exactly two argument");
         return -1;
     }
 
     if (max_items < 0) {
-        Nst_set_value_error_c(
+        Nst_error_setc_value(
             "the maximum item count must be greater than or equal to zero");
         return -1;
     }
@@ -1109,7 +1109,7 @@ Nst_Obj *NstC enum_(usize arg_num, Nst_Obj **args)
         Nst_Obj *prev_value = Nst_map_get(enum_map, objs[i]);
         if (prev_value != NULL) {
             Nst_dec_ref(prev_value);
-            Nst_set_value_errorf(
+            Nst_error_setf_value(
                 "repeated element '%.100s'",
                 Nst_str_value(objs[i]));
             Nst_dec_ref(enum_map);
@@ -1193,7 +1193,7 @@ Nst_Obj *NstC reverse_(usize arg_num, Nst_Obj **args)
 
     if (Nst_T(seq, Str)) {
         if (in_place) {
-            Nst_set_type_error_c("impossible to reverse a Str in-place");
+            Nst_error_setc_type("impossible to reverse a Str in-place");
             return nullptr;
         }
         return reverse_string(seq);

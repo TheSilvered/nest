@@ -7,14 +7,14 @@
 #define FILE_INFO ", file \"%s\", line %lli, column %lli"
 
 #define SET_INVALID_ESCAPE_ERROR                                              \
-    Nst_set_syntax_errorf(                                                    \
+    Nst_error_setf_syntax(                                                    \
         "JSON: invalid string escape" FILE_INFO,                              \
         state.pos.text->path,                                                 \
         (i64)state.pos.line,                                                  \
         (i64)state.pos.col)
 
 #define SET_INVALID_VALUE_ERROR                                               \
-    Nst_set_syntax_errorf(                                                    \
+    Nst_error_setf_syntax(                                                    \
         "JSON: invalid value" FILE_INFO,                                      \
         state.pos.text->path,                                                 \
         (i64)state.pos.line,                                                  \
@@ -145,7 +145,7 @@ Nst_LList *json_tokenize(i8 *path, i8 *text, usize text_len,
             else
                 tok = nullptr;
         } else {
-            Nst_set_syntax_errorf(
+            Nst_error_setf_syntax(
                 "JSON: invalid character" FILE_INFO,
                 path, (i64)state.pos.line, (i64)state.pos.col);
             tok = nullptr;
@@ -169,8 +169,8 @@ end:
 
 static Nst_Tok *parse_json_str()
 {
-    Nst_Pos start = Nst_copy_pos(state.pos);
-    Nst_Pos escape_start = Nst_copy_pos(state.pos);
+    Nst_Pos start = Nst_pos_copy(state.pos);
+    Nst_Pos escape_start = Nst_pos_copy(state.pos);
     bool escape = false;
 
     Nst_StrBuilder sb;
@@ -188,7 +188,7 @@ static Nst_Tok *parse_json_str()
         if (!escape) {
             if ((u8)state.ch < ' ') {
                 Nst_sb_destroy(&sb);
-                Nst_set_syntax_errorf(
+                Nst_error_setf_syntax(
                     "JSON: invalid character" FILE_INFO,
                     state.pos.text->path,
                     (i64)state.pos.line,
@@ -196,7 +196,7 @@ static Nst_Tok *parse_json_str()
                 return nullptr;
             } else if (state.ch == '\\') {
                 escape = true;
-                escape_start = Nst_copy_pos(state.pos);
+                escape_start = Nst_pos_copy(state.pos);
             } else
                 Nst_sb_push_char(&sb, state.ch);
             advance();
@@ -281,7 +281,7 @@ static bool check_ident(const i8 *name)
 static Nst_Tok *parse_json_num()
 {
     i8 *start_idx = state.pos.text->text + state.idx;
-    Nst_Pos start = Nst_copy_pos(state.pos);
+    Nst_Pos start = Nst_pos_copy(state.pos);
     if (state.ch == '-')
         advance();
 
@@ -306,7 +306,7 @@ static Nst_Tok *parse_json_num()
         errno = 0;
         i64 value = strtoll(start_idx, nullptr, 10);
         if (errno == ERANGE) {
-            Nst_set_memory_errorf(
+            Nst_error_setf_memory(
                 "JSON: number too big" FILE_INFO,
                 state.path,
                 (i64)state.pos.line,
@@ -404,7 +404,7 @@ float_ltrl:
 
 static Nst_Tok *parse_json_val()
 {
-    Nst_Pos start = Nst_copy_pos(state.pos);
+    Nst_Pos start = Nst_pos_copy(state.pos);
     switch (state.ch) {
     case 't':
         if (!check_ident("true"))

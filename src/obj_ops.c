@@ -46,22 +46,22 @@ typedef void * lib_t;
 #define ARE_TYPE(type_obj) (ob1->type == type_obj && ob2->type == type_obj)
 
 #define RETURN_STACK_OP_TYPE_ERROR(operand) do {                              \
-    Nst_set_type_errorf(                                                      \
+    Nst_error_setf_type(                                                      \
         "invalid types '%s' and '%s' for '" operand "'",                      \
         Nst_type_name(ob1->type).value, Nst_type_name(ob2->type).value);      \
     return NULL;                                                              \
     } while (0)
 
 #define RETURN_CAST_TYPE_ERROR(t) do {                                        \
-    Nst_set_type_errorf(                                                      \
-        _Nst_EM_INVALID_CASTING,                                              \
+    Nst_error_setf_type(                                                      \
+        "invalid type cast from '%s' to '%s'",                                \
         Nst_type_name(ob->type).value, Nst_type_name(t).value);               \
     return NULL;                                                              \
     } while (0)
 
 #define RETURN_LOCAL_OP_TYPE_ERROR(operand) do {                              \
-    Nst_set_type_errorf(                                                      \
-        _Nst_EM_INVALID_OPERAND_TYPE(operand),                                \
+    Nst_error_setf_type(                                                      \
+        "invalid type '%s' for '" operand "'",                                \
         Nst_type_name(ob->type).value);                                       \
     return NULL;                                                              \
     } while (0)
@@ -363,8 +363,8 @@ Nst_Obj *Nst_obj_sub(Nst_Obj *ob1, Nst_Obj *ob2)
     } else if (ob1->type == Nst_t.Map) {
         Nst_Obj *res = Nst_map_drop(ob1, ob2);
         if (res == NULL && ob2->hash == -1) {
-            Nst_set_type_errorf(
-                _Nst_EM_UNHASHABLE_TYPE,
+            Nst_error_setf_type(
+                "type '%s' is not hashable",
                 Nst_type_name(ob2->type).value);
             return NULL;
         }
@@ -416,11 +416,16 @@ Nst_Obj *Nst_obj_mul(Nst_Obj *ob1, Nst_Obj *ob2)
 
 Nst_Obj *Nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2)
 {
-    if (ob1->type == Nst_t.Vector && ob2->type == Nst_t.Int)
-        return Nst_vector_pop(ob1, (usize)Nst_int_i64(ob2));
-    else if (ARE_TYPE(Nst_t.Byte)) {
+    if (ob1->type == Nst_t.Vector && ob2->type == Nst_t.Int) {
+        i64 count = Nst_int_i64(ob2);
+        if (count < 0) {
+            Nst_error_setc_value("cannot pop a negative number of items");
+            return NULL;
+        }
+        return Nst_vector_pop(ob1, (usize)count);
+    } else if (ARE_TYPE(Nst_t.Byte)) {
         if (Nst_byte_u8(ob2) == 0) {
-            Nst_set_math_error_c(_Nst_EM_DIVISION_BY_ZERO);
+            Nst_error_setc_math("division by zero");
             return NULL;
         }
 
@@ -430,7 +435,7 @@ Nst_Obj *Nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2)
         i64 v2 = Nst_number_to_i64(ob2);
 
         if (v2 == 0) {
-            Nst_set_math_error_c(_Nst_EM_DIVISION_BY_ZERO);
+            Nst_error_setc_math("division by zero");
             return NULL;
         }
 
@@ -440,7 +445,7 @@ Nst_Obj *Nst_obj_div(Nst_Obj *ob1, Nst_Obj *ob2)
         f64 v2 = Nst_number_to_f64(ob2);
 
         if (v2 == 0.0) {
-            Nst_set_math_error_c(_Nst_EM_DIVISION_BY_ZERO);
+            Nst_error_setc_math("division by zero");
             return NULL;
         }
 
@@ -499,7 +504,7 @@ Nst_Obj *Nst_obj_pow(Nst_Obj *ob1, Nst_Obj *ob2)
 
         // any root of a negative number gives -nan as a result
         if (v1 < 0 && floorl(v2) != v2) {
-            Nst_set_math_error_c(_Nst_EM_COMPLEX_POW);
+            Nst_error_setc_math("fractional power of a negative number");
             return NULL;
         }
 
@@ -512,7 +517,7 @@ Nst_Obj *Nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2)
 {
     if (ARE_TYPE(Nst_t.Byte)) {
         if (Nst_byte_u8(ob2) == 0) {
-            Nst_set_math_error_c(_Nst_EM_MODULO_BY_ZERO);
+            Nst_error_setc_math("modulo by zero");
             return NULL;
         }
 
@@ -522,7 +527,7 @@ Nst_Obj *Nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2)
         i64 v2 = Nst_number_to_i64(ob2);
 
         if (v2 == 0) {
-            Nst_set_math_error_c(_Nst_EM_MODULO_BY_ZERO);
+            Nst_error_setc_math("modulo by zero");
             return NULL;
         }
 
@@ -532,7 +537,7 @@ Nst_Obj *Nst_obj_mod(Nst_Obj *ob1, Nst_Obj *ob2)
         f64 v2 = Nst_number_to_f64(ob2);
 
         if (v2 == 0.0) {
-            Nst_set_math_error_c(_Nst_EM_MODULO_BY_ZERO);
+            Nst_error_setc_math("modulo by zero");
             return NULL;
         }
 
@@ -917,10 +922,10 @@ static Nst_Obj *obj_to_byte(Nst_Obj *ob)
     if (ob_t == Nst_t.Real) {
         f64 val = Nst_real_f64(ob);
         if (isnan(val)) {
-            Nst_set_value_error_c(_Nst_EM_NAN_TO_BYTE);
+            Nst_error_setc_value("cannot cast a NaN to a Byte");
             return NULL;
         } else if (isinf(val)) {
-            Nst_set_value_error_c(_Nst_EM_INF_TO_BYTE);
+            Nst_error_setc_value("cannot cast an infinity to a Byte");
             return NULL;
         }
         return Nst_byte_new((i64)val & 0xff);
@@ -939,10 +944,10 @@ static Nst_Obj *obj_to_int(Nst_Obj *ob)
     if (ob_t == Nst_t.Real) {
         f64 val = Nst_real_f64(ob);
         if (isnan(val)) {
-            Nst_set_value_error_c(_Nst_EM_NAN_TO_INT);
+            Nst_error_setc_value("cannot cast a NaN to an Int");
             return NULL;
         } else if (isinf(val)) {
-            Nst_set_value_error_c(_Nst_EM_INF_TO_INT);
+            Nst_error_setc_value("cannot cast an infinity to an Int");
             return NULL;
         }
         return Nst_int_new((i64)val);
@@ -1103,16 +1108,18 @@ static Nst_Obj *seq_to_map(Nst_Obj *ob)
 
     for (usize i = 0, n = Nst_seq_len(ob); i < n; i++) {
         if (objs[i]->type != Nst_t.Array && objs[i]->type != Nst_t.Vector) {
-            Nst_set_type_errorf(
-                _Nst_EM_MAP_TO_SEQ_TYPE_ERR("index"),
+            Nst_error_setf_type(
+                "expected each element to be a Vector or an Array, found a "
+                "'%s' instead at index %zi",
                 Nst_type_name(objs[i]->type).value, i);
             Nst_dec_ref(map);
             return NULL;
         }
 
         if (Nst_seq_len(objs[i]) != 2) {
-            Nst_set_type_errorf(
-                _Nst_EM_MAP_TO_SEQ_LEN_ERR("index"),
+            Nst_error_setf_type(
+                "expected a sequence of length 2, found one of length %zi "
+                "instead at index %zi",
                 Nst_seq_len(objs[i]), i);
             Nst_dec_ref(map);
             return NULL;
@@ -1124,8 +1131,7 @@ static Nst_Obj *seq_to_map(Nst_Obj *ob)
         i32 hash = Nst_obj_hash(key);
 
         if (hash == -1) {
-            Nst_set_type_errorf(
-                _Nst_EM_MAP_TO_SEQ_HASH("index"), i);
+            Nst_error_setf_type("non-hashable object found at index %zi", i);
             Nst_dec_ref(map);
             return NULL;
         }
@@ -1163,16 +1169,18 @@ static Nst_Obj *iter_to_map(Nst_Obj *ob)
         }
 
         if (result->type != Nst_t.Array && result->type != Nst_t.Vector) {
-            Nst_set_type_errorf(
-                _Nst_EM_MAP_TO_SEQ_TYPE_ERR("iteration"),
+            Nst_error_setf_type(
+                "expected each element to be a Vector or an Array, found a "
+                "'%s' instead at iteration %zi",
                 Nst_type_name(result->type).value, iter_count);
             Nst_dec_ref(map);
             return NULL;
         }
 
         if (Nst_seq_len(result) != 2) {
-            Nst_set_type_errorf(
-                _Nst_EM_MAP_TO_SEQ_LEN_ERR("iteration"),
+            Nst_error_setf_type(
+                "expected a sequence of length 2, found one of length %zi "
+                "instead at iteration %zi",
                 Nst_seq_len(result), iter_count);
             Nst_dec_ref(map);
             return NULL;
@@ -1184,8 +1192,9 @@ static Nst_Obj *iter_to_map(Nst_Obj *ob)
         i32 hash = Nst_obj_hash(key);
 
         if (hash == -1) {
-            Nst_set_type_errorf(
-                _Nst_EM_MAP_TO_SEQ_HASH("iteration"), iter_count);
+            Nst_error_setf_type(
+                "non-hashable object found at iteration %zi",
+                iter_count);
             Nst_dec_ref(map);
             return NULL;
         }
@@ -1304,22 +1313,22 @@ Nst_Obj *Nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2)
 Nst_Obj *Nst_obj_range(Nst_Obj *start, Nst_Obj *stop, Nst_Obj *step)
 {
     if (start->type != Nst_t.Int) {
-        Nst_set_type_errorf(
-            _Nst_EM_INVALID_OPERAND_TYPE("->"),
+        Nst_error_setf_type(
+            "invalid type '%s' for '->'",
             Nst_type_name(start->type).value);
         return NULL;
     }
 
     if (stop->type != Nst_t.Int) {
-        Nst_set_type_errorf(
-            _Nst_EM_INVALID_OPERAND_TYPE("->"),
+        Nst_error_setf_type(
+            "invalid type '%s' for '->'",
             Nst_type_name(stop->type).value);
         return NULL;
     }
 
     if (step->type != Nst_t.Int) {
-        Nst_set_type_errorf(
-            _Nst_EM_INVALID_OPERAND_TYPE("->"),
+        Nst_error_setf_type(
+            "invalid type '%s' for '->'",
             Nst_type_name(step->type).value);
         return NULL;
     }
@@ -1393,30 +1402,37 @@ Nst_Obj *Nst_obj_stdout(Nst_Obj *ob)
     if (result != Nst_IO_SUCCESS) {
         switch (result) {
         case Nst_IO_CLOSED:
-            Nst_set_value_errorf(_Nst_EM_FILE_CLOSED, "@@io._get_stdout");
-            break;
-        case Nst_IO_OP_FAILED:
-            Nst_set_value_error_c(_Nst_EM_WRITE_FAILED);
-            break;
-        case Nst_IO_ERROR:
-            Nst_set_value_error_c(_Nst_EM_CALL_FAILED("Nst_write"));
+            Nst_error_setc_value("the file '@@io._get_stdout' was closed");
             break;
         case Nst_IO_INVALID_DECODING: {
             u32 ch;
             const i8 *name;
             Nst_io_result_get_details(&ch, NULL, &name);
-            Nst_set_value_errorf(_Nst_EM_INVALID_DECODING, (int)ch, name);
+            Nst_error_setf_value(
+                "could not decode code point U+%06X for %s encoding",
+                (int)ch, name);
             break;
         }
         case Nst_IO_INVALID_ENCODING: {
             u32 ch;
             const i8 *name;
             Nst_io_result_get_details(&ch, NULL, &name);
-            Nst_set_value_errorf(_Nst_EM_INVALID_ENCODING, (u8)ch, name);
+            Nst_error_setf_value(
+                "could not encode byte %ib for %s encoding",
+                (u8)ch, name);
             break;
         }
+        case Nst_IO_OP_FAILED:
+        case Nst_IO_ERROR:
+#ifdef _DEBUG
+            Nst_error_setc_value("failed to write to the file");
+            break;
         default:
-            Nst_set_call_error_c(_Nst_EM_CALL_FAILED("_Nst_obj_stdout"));
+            Nst_assert(false);
+#else
+        default:
+            Nst_error_setc_value("failed to write to the file");
+#endif
         }
         return NULL;
     }
@@ -1473,8 +1489,8 @@ Nst_Obj *Nst_obj_typeof(Nst_Obj *ob)
 Nst_Obj *Nst_obj_import(Nst_Obj *ob)
 {
     if (ob->type != Nst_t.Str) {
-        Nst_set_type_errorf(
-            _Nst_EM_EXPECTED_TYPE("Str"),
+        Nst_error_setf_type(
+            "expected type 'Str', got '%s' instead",
             Nst_type_name(ob->type).value
         );
         return NULL;
@@ -1496,8 +1512,8 @@ Nst_Obj *Nst_obj_import(Nst_Obj *ob)
 
     Nst_Obj *import_path = _Nst_get_import_path(file_name, file_name_len);
     if (import_path == NULL) {
-        Nst_set_value_errorf(
-            _Nst_EM_FILE_NOT_FOUND,
+        Nst_error_setf_value(
+            "file '%.4096s' not found",
             file_name
         );
         return NULL;
@@ -1507,7 +1523,7 @@ Nst_Obj *Nst_obj_import(Nst_Obj *ob)
     for (Nst_LLNode *n = Nst_state.lib_paths->head; n != NULL; n = n->next) {
         if (Nst_str_compare(import_path, n->value) == 0) {
             Nst_dec_ref(import_path);
-            Nst_set_import_error_c(_Nst_EM_CIRC_IMPORT);
+            Nst_error_setc_import("circular import");
             return NULL;
         }
     }
@@ -1582,9 +1598,9 @@ static Nst_Obj *import_c_lib(Nst_Obj *file_path)
         Nst_llist_pop(Nst_state.lib_paths);
         Nst_dec_ref(file_path);
 #ifdef Nst_MSVC
-        Nst_set_import_error_c(_Nst_EM_FILE_NOT_DLL);
+        Nst_error_setc_import("the file is not a valid DLL");
 #else
-        Nst_set_import_error_c(dlerror());
+        Nst_error_setc_import(dlerror());
 #endif // !__cplusplus
         return NULL;
     }
@@ -1594,7 +1610,8 @@ static Nst_Obj *import_c_lib(Nst_Obj *file_path)
     if (lib_init == NULL) {
         Nst_llist_pop(Nst_state.lib_paths);
         Nst_dec_ref(file_path);
-        Nst_set_import_error_c(_Nst_EM_NO_LIB_FUNC("lib_init"));
+        Nst_error_setc_import(
+            "the library does not specify a 'lib_init' function");
         dlclose(lib);
         return NULL;
     }
@@ -1606,7 +1623,7 @@ static Nst_Obj *import_c_lib(Nst_Obj *file_path)
         Nst_dec_ref(file_path);
         dlclose(lib);
         if (!Nst_error_occurred())
-            Nst_set_import_error_c(_Nst_EM_LIB_INIT_FAILED);
+            Nst_error_setc_import("the module failed to initialize");
         return NULL;
     }
 
@@ -1727,7 +1744,7 @@ static Nst_Obj *search_stdlib_directory(i8 *initial_path, usize path_len)
 
     i8 *appdata = getenv("LOCALAPPDATA");
     if (appdata == NULL) {
-        Nst_failed_allocation();
+        Nst_error_failed_alloc();
         return NULL;
     }
     usize appdata_len = strlen(appdata);
@@ -1770,7 +1787,7 @@ Nst_Obj *_Nst_get_import_path(i8 *initial_path, usize path_len)
     if (Nst_error_occurred())
         return NULL;
     else if (full_path == NULL) {
-        Nst_set_value_errorf(_Nst_EM_FILE_NOT_FOUND, initial_path);
+        Nst_error_setf_value("file '%.4096s' not found", initial_path);
         return NULL;
     }
     return full_path;

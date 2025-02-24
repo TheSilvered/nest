@@ -8,17 +8,17 @@
 #include "ctype.h"
 
 #define RETURN_INT_ERR do {                                                   \
-    Nst_set_value_error_c(_Nst_EM_BAD_INT_LITERAL);                           \
+    Nst_error_setc_value("invalid Int literal");                              \
     return NULL;                                                              \
     } while (0)
 
 #define RETURN_BYTE_ERR do {                                                  \
-    Nst_set_value_error_c(_Nst_EM_BAD_BYTE_LITERAL);                          \
+    Nst_error_setc_value("invalid Byte literal");                             \
     return NULL;                                                              \
     } while (0)
 
 #define RETURN_REAL_ERR do {                                                  \
-    Nst_set_value_error_c(_Nst_EM_BAD_REAL_LITERAL);                          \
+    Nst_error_setc_value("invalid Real literal");                             \
     return NULL;                                                              \
     } while (0)
 
@@ -119,7 +119,7 @@ Nst_Obj *Nst_sv_parse_int(Nst_StrView sv, i32 base)
     i64 cut_lim = 0;
 
     if ((base < 2 || base > 36) && base != 0) {
-        Nst_set_value_error_c(_Nst_EM_BAD_INT_BASE);
+        Nst_error_setc_value("the base must be between 2 and 36");
         return NULL;
     }
     ERR_IF_END(s, end, RETURN_INT_ERR);
@@ -191,7 +191,7 @@ Nst_Obj *Nst_sv_parse_int(Nst_StrView sv, i32 base)
             RETURN_INT_ERR;
 
         if (num > cut_off || (num == cut_off && ch_val > cut_lim)) {
-            Nst_set_memory_error_c(_Nst_EM_INT_TOO_BIG);
+            Nst_error_setc_memory("Int literal's value is too large");
             return NULL;
         }
         num *= base;

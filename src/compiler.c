@@ -82,7 +82,7 @@ static Nst_InstList *compile_internal(Nst_Node *node, CompilationType ct)
     c_state.loop_id = 0;
     c_state.inst_ls = Nst_llist_new();
     if (c_state.inst_ls == NULL) {
-        Nst_error_add_positions(Nst_error_get(), node->start, node->end);
+        Nst_error_add_pos(node->start, node->end);
         Nst_node_destroy(node);
         return NULL;
     }
@@ -137,7 +137,7 @@ static bool append_inst(Nst_Inst *inst)
 {
     if (Nst_llist_append(c_state.inst_ls, inst, true))
         return true;
-    Nst_error_add_positions(Nst_error_get(), inst->start, inst->end);
+    Nst_error_add_pos(inst->start, inst->end);
     Nst_inst_destroy(inst);
     return false;
 }
@@ -146,7 +146,7 @@ static Nst_Inst *new_inst(Nst_InstID id, Nst_Pos start, Nst_Pos end)
 {
     Nst_Inst *inst = Nst_inst_new(id, start, end);
     if (inst == NULL) {
-        Nst_error_add_positions(Nst_error_get(), start, end);
+        Nst_error_add_pos(start, end);
         return NULL;
     }
     return inst;
@@ -157,7 +157,7 @@ static Nst_Inst *new_inst_v(Nst_InstID id, Nst_Obj *val, Nst_Pos start,
 {
     Nst_Inst *inst = Nst_inst_new_val(id, val, start, end);
     if (inst == NULL) {
-        Nst_error_add_positions(Nst_error_get(), start, end);
+        Nst_error_add_pos(start, end);
         return NULL;
     }
     return inst;
@@ -168,7 +168,7 @@ static Nst_Inst *new_inst_i(Nst_InstID id, i64 val, Nst_Pos start,
 {
     Nst_Inst *inst = Nst_inst_new_int(id, val, start, end);
     if (inst == NULL) {
-        Nst_error_add_positions(Nst_error_get(), start, end);
+        Nst_error_add_pos(start, end);
         return NULL;
     }
     return inst;
@@ -630,7 +630,7 @@ static bool compile_fd(Nst_Node *node)
         node->v.fd.argument_names->len,
         inst_list);
     if (func == NULL) {
-        Nst_error_add_positions(Nst_error_get(), node->start, node->end);
+        Nst_error_add_pos(node->start, node->end);
         return false;
     }
     usize i = 0;
@@ -768,7 +768,7 @@ static bool compile_comp_op(Nst_Node *node)
 
     Nst_LList *jumpif_f_fix_list = Nst_llist_new();
     if (jumpif_f_fix_list == NULL) {
-        Nst_error_add_positions(Nst_error_get(), node->start, node->end);
+        Nst_error_add_pos(node->start, node->end);
         goto failure;
     }
 
@@ -794,7 +794,7 @@ static bool compile_comp_op(Nst_Node *node)
         if (NULL_OR_APPEND_FAILED(inst))
             goto failure;
         if (!Nst_llist_append(jumpif_f_fix_list, inst, false)) {
-            Nst_error_add_positions(Nst_error_get(), node->start, node->end);
+            Nst_error_add_pos(node->start, node->end);
             goto failure;
         }
         inst = new_inst(Nst_IC_POP_VAL, node->start, node->end);
@@ -855,7 +855,7 @@ static bool compile_lg_op(Nst_Node *node)
 
     Nst_LList *jumpif_end = Nst_llist_new();
     if (jumpif_end == NULL) {
-        Nst_error_add_positions(Nst_error_get(), node->start, node->end);
+        Nst_error_add_pos(node->start, node->end);
         goto failure;
     }
 
@@ -876,7 +876,7 @@ static bool compile_lg_op(Nst_Node *node)
         if (NULL_OR_APPEND_FAILED(inst))
             goto failure;
         if (!Nst_llist_append(jumpif_end, inst, false)) {
-            Nst_error_add_positions(Nst_error_get(), node->start, node->end);
+            Nst_error_add_pos(node->start, node->end);
             goto failure;
         }
 
@@ -1395,7 +1395,7 @@ static bool compile_switch_s(Nst_Node *node)
     return !NULL_OR_APPEND_FAILED(pop_val);
 
 failure_add_pos:
-    Nst_error_add_positions(Nst_error_get(), node->start, node->end);
+    Nst_error_add_pos(node->start, node->end);
 failure:
     if (jumps_to_exit != NULL)
         Nst_llist_destroy(jumps_to_exit, NULL);

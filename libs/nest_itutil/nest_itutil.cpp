@@ -164,7 +164,7 @@ Nst_Obj *zipn_(Nst_Obj *seq)
 
     usize seq_len = Nst_seq_len(seq);
     if (seq_len < 2) {
-        Nst_set_value_error_c("the sequence must be at least of length two");
+        Nst_error_setc_value("the sequence must be at least of length two");
         return nullptr;
     }
 
@@ -342,7 +342,7 @@ Nst_Obj *NstC batch_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (batch_size <= 0) {
-        Nst_set_value_error_c("the batch size must be a positive integer");
+        Nst_error_setc_value("the batch size must be a positive integer");
         Nst_dec_ref(seq);
         return nullptr;
     }
@@ -382,7 +382,7 @@ Nst_Obj *NstC batch_padded_(usize arg_num, Nst_Obj **args)
     }
 
     if (batch_size <= 0) {
-        Nst_set_value_error_c("the batch size must be a positive integer");
+        Nst_error_setc_value("the batch size must be a positive integer");
         Nst_dec_ref(seq);
         return nullptr;
     }
@@ -424,7 +424,7 @@ Nst_Obj *NstC new_iterator_(usize arg_num, Nst_Obj **args)
 
     if (Nst_func_arg_num(start) != 1 || Nst_func_arg_num(next) != 1)
     {
-        Nst_set_value_error_c(
+        Nst_error_setc_value(
             "all the functions must accept exactly one argument");
         Nst_dec_ref(start);
         Nst_dec_ref(next);

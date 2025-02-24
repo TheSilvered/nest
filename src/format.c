@@ -391,7 +391,7 @@ NstEXP Nst_Obj *NstC Nst_fmt_objs(Nst_Obj *fmt, Nst_Obj *values)
     if (str == NULL)
         return NULL;
     if (fmt_values.v.arr.i != Nst_seq_len(fmt_values.v.arr.obj)) {
-        Nst_set_value_error_c("too many values for the format placeholder");
+        Nst_error_setc_value("too many values for the format placeholder");
         Nst_free(str);
         return NULL;
     }
@@ -459,7 +459,7 @@ static i8 *general_fmt(const i8 *fmt, usize fmt_len, usize *out_len,
         (void *)fmt,
         fmtlen);
     if (encoding_error != -1) {
-        Nst_set_value_error_c("`fmt` is not valid UTF-8");
+        Nst_error_setc_value("`fmt` is not valid UTF-8");
         return false;
     }
 
@@ -474,7 +474,7 @@ static i8 *general_fmt(const i8 *fmt, usize fmt_len, usize *out_len,
 
         if (fmt[i] == '}') {
             if (fmt[i + 1] != '}') {
-                Nst_set_value_error_c("found single '}' in format string");
+                Nst_error_setc_value("found single '}' in format string");
                 goto failure;
             }
             if (!Nst_sb_push_char(&sb, '}'))
@@ -602,7 +602,7 @@ static const i8 *parse_format(const i8 *fmt, Format *format)
     if (*fmt == '.') {
         fmt++;
         if ((*fmt < '0' || *fmt > '9') && *fmt != '*') {
-            Nst_set_value_error_c("expected a number for precision in format");
+            Nst_error_setc_value("expected a number for precision in format");
             return NULL;
         }
         if (*fmt == '*') {
@@ -615,7 +615,7 @@ static const i8 *parse_format(const i8 *fmt, Format *format)
     if (*fmt == ',') {
         fmt++;
         if ((*fmt < '0' || *fmt > '9') && *fmt != '*') {
-            Nst_set_value_error_c(
+            Nst_error_setc_value(
                 "expected a number for separator width in format");
             return NULL;
         }
@@ -650,16 +650,16 @@ static bool set_fmt_field(FmtValues *values, const i8 *field_name, i32 *field)
 
     Nst_Obj *obj = fmt_values_get_obj(values);
     if (obj == NULL) {
-        Nst_set_value_error_c("not enough values for the format placeholder");
+        Nst_error_setc_value("not enough values for the format placeholder");
         return false;
     }
     if (obj->type != Nst_t.Int) {
-        Nst_set_type_errorf("the value for '%s' is not an Int", field_name);
+        Nst_error_setf_type("the value for '%s' is not an Int", field_name);
         return false;
     }
     i64 val = Nst_int_i64(obj);
     if (val > INT32_MAX) {
-        Nst_set_value_errorf("the value for '%s' is too big", field_name);
+        Nst_error_setf_value("the value for '%s' is too big", field_name);
         return false;
     } else if (val < INT32_MIN)
         *field = -1;
@@ -704,14 +704,14 @@ static const i8 *fmt_value(Nst_StrBuilder *sb, const i8 *fmt, FmtValues *vals)
             fmt++;
             goto format_type;
         } else if (*fmt != ':') {
-            Nst_set_value_error_c("expected ':' in format string");
+            Nst_error_setc_value("expected ':' in format string");
             return NULL;
         }
         fmt++;
     } else {
         obj = fmt_values_get_obj(vals);
         if (obj == NULL) {
-            Nst_set_value_error_c(
+            Nst_error_setc_value(
                 "not enough values for the format placeholder");
             return NULL;
         }
@@ -728,7 +728,7 @@ static const i8 *fmt_value(Nst_StrBuilder *sb, const i8 *fmt, FmtValues *vals)
         return NULL;
 
     if (*fmt != '}') {
-        Nst_set_value_error_c("invalid format string");
+        Nst_error_setc_value("invalid format string");
         return NULL;
     }
     fmt++;
@@ -844,7 +844,7 @@ format_type:
         break;
     }
     default:
-        Nst_set_value_errorf("invalid type letter '%c' in format", *type);
+        Nst_error_setf_value("invalid type letter '%c' in format", *type);
         return NULL;
     }
 
@@ -1070,7 +1070,7 @@ static bool fmt_str(Nst_StrBuilder *sb, i8 *str, isize str_len, Format *format)
         (void *)str,
         str_len);
     if (vaild != -1) {
-        Nst_set_value_error_c("the string to format is not valid UTF-8");
+        Nst_error_setc_value("the string to format is not valid UTF-8");
         return false;
     }
 

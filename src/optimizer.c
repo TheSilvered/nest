@@ -65,7 +65,7 @@ Nst_Node *NstC Nst_optimize_ast(Nst_Node *ast)
     if (!optimize_node(ast)) {
         // should never happen but if it does, it will not crash
         if (Nst_error_get()->positions->len == 0)
-            Nst_error_add_positions(Nst_error_get(), ast->start, ast->end);
+            Nst_error_add_pos(ast->start, ast->end);
         Nst_node_destroy(ast);
         return NULL;
     }
@@ -247,7 +247,7 @@ static bool optimize_stack_values(Nst_LList *values, Nst_TokType op,
         Nst_Obj *result = op_func(curr_value, top_value);
         Nst_dec_ref(curr_value);
         if (result == NULL) {
-            Nst_error_add_positions(Nst_error_get(), node->start, node->end);
+            Nst_error_add_pos(node->start, node->end);
             return false;
         }
         curr_value = result;
@@ -303,7 +303,7 @@ static bool optimize_local_op(Nst_Node *node)
 
     Nst_Obj *result = op_func(value);
     if (result == NULL) {
-        Nst_error_add_positions(Nst_error_get(), node->start, node->end);
+        Nst_error_add_pos(node->start, node->end);
         return false;
     }
     Nst_Node *value_node = node->v.lo.value;
@@ -762,13 +762,10 @@ static bool remove_push_check(Nst_InstList *bc)
         Nst_Obj *obj = inst_list[i - 1].val;
         Nst_obj_hash(obj);
         if (obj->hash == -1) {
-            Nst_set_internal_type_error(
-                Nst_error_get(),
-                inst_list[i].start,
-                inst_list[i].end,
-                Nst_sprintf(
-                _Nst_EM_UNHASHABLE_TYPE,
-                Nst_type_name(obj->type).value));
+            Nst_error_setf_type(
+                "type '%s' is not hashable",
+                Nst_type_name(obj->type).value);
+            Nst_error_add_pos(inst_list[i].start, inst_list[i].end);
             return false;
         }
 

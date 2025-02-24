@@ -3,7 +3,7 @@
 #include "nest_codecs.h"
 
 #define SET_INVALID_UTF8                                                      \
-    Nst_set_value_error_c("the string is not valid UTF-8")
+    Nst_error_setc_value("the string is not valid UTF-8")
 
 static Nst_Declr obj_list_[] = {
     Nst_FUNCDECLR(from_cp_,       1),
@@ -25,16 +25,16 @@ Nst_Obj *NstC from_cp_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (cp < 0 || cp > UINT32_MAX) {
-        Nst_set_value_error(
+        Nst_error_set_value(
             Nst_sprintf("codepoint %#llx ouside the allowed range", cp));
         return nullptr;
     }
 
     if (!Nst_is_valid_cp((u32)cp)) {
         if (cp <= 0xffff)
-            Nst_set_value_errorf("invalid code point U+%04llX", cp);
+            Nst_error_setf_value("invalid code point U+%04llX", cp);
         else
-            Nst_set_value_errorf("invalid code point U+%06llX", cp);
+            Nst_error_setf_value("invalid code point U+%06llX", cp);
 
         return nullptr;
     }
@@ -54,7 +54,7 @@ Nst_Obj *NstC to_cp_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     if (Nst_str_char_len(str) != 1) {
-        Nst_set_value_error_c("the string must contain only one character");
+        Nst_error_setc_value("the string must contain only one character");
         return nullptr;
     }
 
@@ -79,7 +79,7 @@ Nst_Obj *NstC encoding_info_(usize arg_num, Nst_Obj **args)
 
     Nst_EncodingID cpid = Nst_encoding_from_name(Nst_str_value(name_str));
     if (cpid == Nst_EID_UNKNOWN) {
-        Nst_set_value_errorf(
+        Nst_error_setf_value(
             "unknown encoding '%.100s'",
             Nst_str_value(name_str));
         return nullptr;

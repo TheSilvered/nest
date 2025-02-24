@@ -241,14 +241,7 @@ static Nst_SeqObj *seq_create_c(Nst_SeqObj *seq, const i8 *fmt, va_list args)
             break;
         }
         default:
-            if (seq->type == Nst_t.Vector) {
-                Nst_set_value_error_c(
-                    _Nst_EM_INVALID_TYPE_LETTER("Nst_vector_create_c"));
-            } else {
-                Nst_set_value_error_c(
-                    _Nst_EM_INVALID_TYPE_LETTER("Nst_array_create_c"));
-            }
-            goto failed;
+            Nst_assert(0);
         }
         i++;
     }
@@ -335,9 +328,9 @@ bool Nst_seq_set(Nst_Obj *seq, i64 idx, Nst_Obj *val)
 
     if (idx < 0 || idx >= (i64)SEQ(seq)->len) {
         const i8 *fmt = seq->type == Nst_t.Array
-          ? _Nst_EM_INDEX_OUT_OF_BOUNDS("Array")
-          : _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector");
-        Nst_set_value_errorf(fmt, idx, SEQ(seq)->len);
+          ? "index %lli out of bounds for 'Array' of size %zi"
+          : "index %lli out of bounds for 'Vector' of size %zi";
+        Nst_error_setf_value(fmt, idx, SEQ(seq)->len);
         return false;
     }
 
@@ -367,9 +360,9 @@ bool Nst_seq_setn(Nst_Obj *seq, i64 idx, Nst_Obj *val)
 
     if (idx < 0 || idx >= (i64)SEQ(seq)->len) {
         const i8 *fmt = seq->type == Nst_t.Array
-            ? _Nst_EM_INDEX_OUT_OF_BOUNDS("Array")
-            : _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector");
-        Nst_set_value_errorf(fmt, idx, SEQ(seq)->len);
+            ? "index %lli out of bounds for 'Array' of size %zi"
+            : "index %lli out of bounds for 'Vector' of size %zi";
+        Nst_error_setf_value(fmt, idx, SEQ(seq)->len);
         return false;
     }
 
@@ -396,9 +389,9 @@ Nst_Obj *Nst_seq_get(Nst_Obj *seq, i64 idx)
 
     if (idx < 0 || idx >= (i64)SEQ(seq)->len) {
         const i8 *fmt = seq->type == Nst_t.Array
-          ? _Nst_EM_INDEX_OUT_OF_BOUNDS("Array")
-          : _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector");
-        Nst_set_value_errorf(fmt, idx, SEQ(seq)->len);
+          ? "index %lli out of bounds for 'Array' of size %zi"
+          : "index %lli out of bounds for 'Vector' of size %zi";
+        Nst_error_setf_value(fmt, idx, SEQ(seq)->len);
         return NULL;
     }
 
@@ -420,9 +413,9 @@ Nst_Obj *Nst_seq_getn(Nst_Obj *seq, i64 idx)
 
     if (idx < 0 || idx >= (i64)SEQ(seq)->len) {
         const i8 *fmt = seq->type == Nst_t.Array
-            ? _Nst_EM_INDEX_OUT_OF_BOUNDS("Array")
-            : _Nst_EM_INDEX_OUT_OF_BOUNDS("Vector");
-        Nst_set_value_errorf(fmt, idx, SEQ(seq)->len);
+            ? "index %lli out of bounds for 'Array' of size %zi"
+            : "index %lli out of bounds for 'Vector' of size %zi";
+        Nst_error_setf_value(fmt, idx, SEQ(seq)->len);
         return NULL;
     }
 

@@ -144,8 +144,8 @@ bool Nst_fstack_push(Nst_CallStack *f_stack, Nst_FuncCall call)
     usize max_size = f_stack->cap;
 
     if (f_stack->len == max_size && max_size == f_stack->max_recursion_depth) {
-        Nst_set_call_errorf(
-            _Nst_EM_CALL_STACK_SIZE_EXCEEDED,
+        Nst_error_setf_call(
+            "the maximum call stack size (%zi calls) was exceeded",
             f_stack->max_recursion_depth);
         return false;
     }
@@ -168,8 +168,8 @@ Nst_FuncCall Nst_fstack_pop(Nst_CallStack *f_stack)
     Nst_FuncCall call = {
         NULL,
         NULL,
-        Nst_no_pos(),
-        Nst_no_pos(),
+        Nst_pos_empty(),
+        Nst_pos_empty(),
         NULL,
         0, 0
     };
@@ -191,8 +191,8 @@ Nst_FuncCall Nst_fstack_peek(Nst_CallStack *f_stack)
         Nst_FuncCall ret_val = {
             NULL,
             NULL,
-            Nst_no_pos(),
-            Nst_no_pos(),
+            Nst_pos_empty(),
+            Nst_pos_empty(),
             NULL,
             0, 0
         };
