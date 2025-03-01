@@ -169,7 +169,7 @@ success:
     *bytes_read += ch_len;
 
     ch = f->encoding->to_utf32(ch_buf);
-    sb->len += Nst_ext_utf8_from_utf32(ch, (u8 *)(sb->value + sb->len));;
+    sb->len += Nst_ext_utf8_from_utf32(ch, sb->value + sb->len);
     return Nst_IO_SUCCESS;
 }
 
@@ -316,8 +316,8 @@ Nst_IOResult Nst_FILE_write(u8 *buf, usize buf_len, usize *count, Nst_Obj *f)
 
     usize initial_len = buf_len;
     while (buf_len > 0) {
-        i32 ch_len = Nst_check_ext_utf8_bytes((u8 *)buf, buf_len);
-        u32 ch = Nst_ext_utf8_to_utf32((u8 *)buf);
+        i32 ch_len = Nst_check_ext_utf8_bytes(buf, buf_len);
+        u32 ch = Nst_ext_utf8_to_utf32(buf);
         i32 ch_buf_len = IOFILE(f)->encoding->from_utf32(ch, ch_buf);
         if (ch_buf_len < 0) {
             if (count != NULL)

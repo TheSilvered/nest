@@ -969,7 +969,7 @@ static bool fmt_align(Nst_StrBuilder *sb, u8 *str, usize str_len,
     u8 *fill_ch;
     usize fill_ch_len;
     if (format_has_fill_ch(format)) {
-        fill_ch = (u8 *)format->fill_ch;
+        fill_ch = format->fill_ch;
         fill_ch_len = format_fill_ch_len(format);
     } else {
         fill_ch = (u8 *)" ";
@@ -1147,14 +1147,14 @@ static isize fmt_str_repr(Nst_StrBuilder *sb, u8 *str, usize str_len,
     StrRepr repr = format->str_repr;
     if (repr == Nst_FMT_STR_NO_REPR) {
         Nst_sb_push(sb, str, str_len);
-        return Nst_encoding_utf8_char_len((u8 *)str, str_len);
+        return Nst_encoding_utf8_char_len(str, str_len);
     }
 
     usize tot_char_len = 0;
     bool escape_single_quotes = false;
     bool escape_double_quotes = false;
     if (repr & REPR_FULL) {
-        escape_single_quotes = fmt_str_more_double_quotes((u8 *)str, str_len);
+        escape_single_quotes = fmt_str_more_double_quotes(str, str_len);
         escape_double_quotes = !escape_single_quotes;
         if (!Nst_sb_push_char(sb, escape_single_quotes ? '\'' : '"'))
             return -1;
@@ -1338,7 +1338,7 @@ suffix:
         sb,
         temp_sb->value,
         temp_sb->len,
-        Nst_encoding_utf8_char_len((u8 *)temp_sb->value, temp_sb->len),
+        Nst_encoding_utf8_char_len(temp_sb->value, temp_sb->len),
         format, Nst_FMT_ALIGN_RIGHT);
 
 finish:
@@ -1482,7 +1482,7 @@ static bool fmt_uint_sep_and_precision(Nst_StrBuilder *sb, u8 *digits,
     u8 *sep = NULL;
     usize sep_len = 0;
     if (format_has_separator(format)) {
-        sep = (u8 *)format->separator;
+        sep = format->separator;
         sep_len = format_separator_len(format);
     }
     usize min_digits = format->precision < 0 ? 0 : (usize)format->precision;
@@ -1618,7 +1618,7 @@ static bool fmt_double(Nst_StrBuilder *sb, f64 val, Format *format)
         sb,
         temp_sb->value,
         temp_sb->len,
-        Nst_encoding_utf8_char_len((u8 *)temp_sb->value, temp_sb->len),
+        Nst_encoding_utf8_char_len(temp_sb->value, temp_sb->len),
         format, Nst_FMT_ALIGN_RIGHT);
 
 finish:
@@ -1665,7 +1665,7 @@ static bool fmt_double_dec_digits(Nst_StrBuilder *sb, u8 *digits,
             fmt_sep_and_ndigits(
                 sb,
                 digits, decpt, decpt,
-                (u8 *)format->separator, format_separator_len(format),
+                format->separator, format_separator_len(format),
                 (usize)MAX(format->separator_width, 0),
                 false);
         } else
@@ -1680,7 +1680,7 @@ static bool fmt_double_dec_digits(Nst_StrBuilder *sb, u8 *digits,
             fmt_sep_and_ndigits(
                 sb,
                 all_digits, decpt, decpt,
-                (u8 *)format->separator, format_separator_len(format),
+                format->separator, format_separator_len(format),
                 format->separator_width,
                 false);
             Nst_free(all_digits);
@@ -1912,5 +1912,5 @@ static bool fmt_char(Nst_StrBuilder *sb, u8 val, Format *format)
     u8 ch_buf[3];
     i32 ch_len = Nst_ext_utf8_from_utf32((u32)(u8)val, ch_buf);
     ch_buf[ch_len] = '\0';
-    return fmt_str(sb, (u8 *)ch_buf, ch_len, format);
+    return fmt_str(sb, ch_buf, ch_len, format);
 }
