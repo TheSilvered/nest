@@ -12,7 +12,7 @@
 #include "encoding.h"
 #include "format.h"
 
-#define START_CH_SIZE 8 * sizeof(i8)
+#define START_CH_SIZE 8 * sizeof(u8)
 #define CH_TO_HEX(c) (u8)((u8)(c) > '9' ? (u8)(c) - 'a' + 10 : (u8)(c) - '0')
 
 #define CUR_AT_END (cursor.idx >= (i32)cursor.len)
@@ -39,12 +39,12 @@
     Nst_error_add_pos(cursor.pos, cursor.pos)
 
 typedef struct LexerCursor {
-    i8 *text;
+    char *text;
     usize len;
     Nst_Pos pos;
     i32 prev_line_len;
     i32 idx;
-    i8 ch;
+    char ch;
     Nst_LList *tokens;
 } LexerCursor;
 
@@ -59,7 +59,7 @@ static Nst_Tok *make_str_literal(void);
 static Nst_Tok *make_raw_str_literal(void);
 static void invalid_escape_error(Nst_Pos escape_start);
 static i32 find_fmt_str_inline_end(void);
-static void parse_first_line(i8 *text, usize len, i32 *opt_level,
+static void parse_first_line(char *text, usize len, i32 *opt_level,
                              Nst_EncodingID *encoding, bool *no_default);
 bool tokenize_internal(i32 max_idx);
 
@@ -76,12 +76,13 @@ static void cursor_init(Nst_SourceText *text, Nst_LList *tokens)
     advance();
 }
 
-Nst_LList *Nst_tokenizef(i8 *filename, Nst_EncodingID encoding, i32 *opt_level,
-                         bool *no_default, Nst_SourceText *src_text)
+Nst_LList *Nst_tokenizef(const char *filename, Nst_EncodingID encoding,
+                         i32 *opt_level, bool *no_default,
+                         Nst_SourceText *src_text)
 {
     FILE *file = NULL;
-    i8 *text = NULL;
-    i8 *full_path = NULL;
+    char *text = NULL;
+    char *full_path = NULL;
 
     file = Nst_fopen_unicode(filename, "rb");
 
@@ -95,11 +96,11 @@ Nst_LList *Nst_tokenizef(i8 *filename, Nst_EncodingID encoding, i32 *opt_level,
     usize size = ftell(file);
     fseek(file, 0, SEEK_SET);
 
-    text = (i8 *)Nst_calloc(size + 1, sizeof(i8), NULL);
+    text = Nst_calloc(size + 1, sizeof(char), NULL);
     if (text == NULL)
         goto cleanup;
 
-    usize str_len = fread(text, sizeof(i8), size + 1, file);
+    usize str_len = fread(text, sizeof(char), size + 1, file);
     text[str_len] = '\0';
     fclose(file);
     file = NULL;
@@ -248,7 +249,7 @@ inline static void go_back(void)
 static Nst_Tok *make_symbol()
 {
     Nst_Pos start = Nst_pos_copy(cursor.pos);
-    i8 symbol[4] = { cursor.ch, 0, 0, 0 };
+    u8 symbol[4] = { cursor.ch, 0, 0, 0 };
     advance();
     if (!CUR_AT_END && CH_IS_SYMBOL(cursor.ch)) {
         symbol[1] = cursor.ch;
@@ -396,7 +397,7 @@ static i32 oct_ltrl_size(Nst_Pos start, bool *is_byte)
 
 static i32 hex_ltrl_size(Nst_Pos start, bool *is_byte)
 {
-    const i8 *err_msg = "invalid Int literal";
+    const char *err_msg = "invalid Int literal";
     if (cursor.ch == 'h' || cursor.ch == 'H') {
         *is_byte = true;
         err_msg = "invalid Byte literal";
@@ -478,12 +479,12 @@ static i32 dec_ltrl_size(Nst_Pos start, bool *is_byte, bool *is_real)
 
 static Nst_Tok *make_num_literal(void)
 {
-    i8 *start_p = cursor.text + cursor.idx;
+    char *start_p = cursor.text + cursor.idx;
     Nst_Pos start = Nst_pos_copy(cursor.pos);
     Nst_Tok *tok = NULL;
 
     i32 ltrl_size = 0;
-    i8 *ltrl = NULL;
+    u8 *ltrl = NULL;
     bool neg = false;
     bool is_real = false;
     bool is_byte = false;
@@ -534,7 +535,7 @@ dec_num:
         return NULL;
 
 end:
-    ltrl = Nst_malloc_c(ltrl_size + 2, i8);
+    ltrl = Nst_malloc_c(ltrl_size + 2, u8);
     if (ltrl == NULL) {
         ADD_ERR_POS;
         return NULL;
@@ -564,8 +565,8 @@ end:
 static Nst_Tok *make_ident(void)
 {
     Nst_Pos start = Nst_pos_copy(cursor.pos);
-    i8 *str;
-    i8 *str_start = cursor.text + cursor.idx;
+    char *str;
+    char *str_start = cursor.text + cursor.idx;
     usize str_len = 0;
 
     while (!CUR_AT_END
@@ -582,7 +583,7 @@ static Nst_Tok *make_ident(void)
     }
     go_back();
 
-    str = Nst_malloc_c(str_len + 1, i8);
+    str = Nst_malloc_c(str_len + 1, char);
     if (str == NULL) {
         ADD_ERR_POS;
         return NULL;
@@ -614,9 +615,9 @@ static bool x_escape(Nst_StrBuilder *sb, Nst_Pos escape_start)
     }
 
     advance();
-    i8 ch1 = (i8)tolower(cursor.ch);
+    u8 ch1 = (u8)tolower(cursor.ch);
     advance();
-    i8 ch2 = (i8)tolower(cursor.ch);
+    u8 ch2 = (u8)tolower(cursor.ch);
 
     if (!CH_IS_HEX(ch1) || !CH_IS_HEX(ch2)) {
         invalid_escape_error(escape_start);
@@ -625,12 +626,12 @@ static bool x_escape(Nst_StrBuilder *sb, Nst_Pos escape_start)
 
     u8 result = (CH_TO_HEX(ch1) << 4) + CH_TO_HEX(ch2);
     if (result >= 0x80) {
-        i8 utf8_b1 = 0b11000000 | (i8)(result >> 6);
-        i8 utf8_b2 = 0b10000000 | (i8)(result & 0x3f);
+        u8 utf8_b1 = 0b11000000 | (u8)(result >> 6);
+        u8 utf8_b2 = 0b10000000 | (u8)(result & 0x3f);
         Nst_sb_push_char(sb, utf8_b1);
         Nst_sb_push_char(sb, utf8_b2);
     } else
-        Nst_sb_push_char(sb, (i8)result);
+        Nst_sb_push_char(sb, (u8)result);
     return true;
 }
 
@@ -645,13 +646,13 @@ static bool u_escape(Nst_StrBuilder *sb, Nst_Pos escape_start)
     i32 num = 0;
     for (i32 i = 0; i < size; i++) {
         advance();
-        i8 ch = (i8)tolower(cursor.ch);
+        u8 ch = (u8)tolower(cursor.ch);
         if (!CH_IS_HEX(ch)) {
             invalid_escape_error(escape_start);
             return false;
         }
 
-        ch = (i8)CH_TO_HEX(ch);
+        ch = (u8)CH_TO_HEX(ch);
         num += ch << (4 * (size - i - 1));
     }
 
@@ -666,7 +667,7 @@ static bool u_escape(Nst_StrBuilder *sb, Nst_Pos escape_start)
 
 static void o_escape(Nst_StrBuilder *sb)
 {
-    i8 ch1 = cursor.ch - '0';
+    u8 ch1 = cursor.ch - '0';
 
     advance();
     if (!CH_IS_OCT(cursor.ch)) {
@@ -674,7 +675,7 @@ static void o_escape(Nst_StrBuilder *sb)
         go_back();
         return;
     }
-    i8 ch2 = cursor.ch - '0';
+    u8 ch2 = cursor.ch - '0';
 
     advance();
     if (!CH_IS_OCT(cursor.ch)) {
@@ -682,7 +683,7 @@ static void o_escape(Nst_StrBuilder *sb)
         go_back();
         return;
     }
-    i8 ch3 = cursor.ch - '0';
+    u8 ch3 = cursor.ch - '0';
     u32 result = (ch1 << 6) + (ch2 << 3) + ch3;
 
     Nst_sb_push_cps(sb, &result, 1);
@@ -756,7 +757,7 @@ static Nst_Tok *make_str_literal(void)
 {
     Nst_Pos start = Nst_pos_copy(cursor.pos);
     Nst_Pos escape_start = start;
-    i8 closing_ch = cursor.ch;
+    u8 closing_ch = cursor.ch;
     bool allow_multiline = cursor.ch == '"';
     bool is_format_string = false;
     Nst_Tok *tok;
@@ -875,7 +876,7 @@ static void invalid_escape_error(Nst_Pos escape_start)
 
 static bool skip_inline_str(void)
 {
-    i8 closing_char = cursor.ch;
+    u8 closing_char = cursor.ch;
     advance(); // skip the initial " or '
 
     while (cursor.ch != closing_char && !CUR_AT_END) {
@@ -999,8 +1000,8 @@ failure:
 
 bool Nst_add_lines(Nst_SourceText *text)
 {
-    i8 *text_p = text->text;
-    i8 **starts = (i8 **)Nst_calloc(100, sizeof(i8 *), NULL);
+    char *text_p = text->text;
+    char **starts = (char **)Nst_calloc(100, sizeof(char *), NULL);
     if (starts == NULL) {
         text->lines = NULL;
         text->lines_len = 0;
@@ -1049,14 +1050,18 @@ bool Nst_add_lines(Nst_SourceText *text)
         line_count++;
 
         if (line_count % 100 == 0) {
-            void *temp = Nst_realloc(starts, i + 100, sizeof(i8*), 0);
+            char **temp = (char **)Nst_realloc(
+                starts,
+                i + 100,
+                sizeof(char *),
+                0);
             if (temp == NULL) {
                 Nst_free(starts);
                 text->lines = NULL;
                 text->lines_len = 0;
                 return false;
             }
-            starts = (i8 **)temp;
+            starts = temp;
         }
 
         starts[line_count - 1] = text_p + i + 1;
@@ -1132,12 +1137,12 @@ bool Nst_normalize_encoding(Nst_SourceText *text, Nst_EncodingID encoding)
     sb.value[sb.len] = 0;
 
     Nst_free(text->text);
-    text->text = sb.value;
+    text->text = (char *)sb.value;
     text->text_len = sb.len;
     return true;
 }
 
-static void parse_option(i8 *opt, i32 *opt_level, Nst_EncodingID *encoding,
+static void parse_option(char *opt, i32 *opt_level, Nst_EncodingID *encoding,
                          bool *no_default)
 {
     if (strcmp(opt, "-O0") == 0)
@@ -1158,7 +1163,7 @@ static void parse_option(i8 *opt, i32 *opt_level, Nst_EncodingID *encoding,
     }
 }
 
-static void parse_first_line(i8 *text, usize len, i32 *opt_level,
+static void parse_first_line(char *text, usize len, i32 *opt_level,
                              Nst_EncodingID *encoding, bool *no_default)
 {
     i32 bom_size;
@@ -1167,13 +1172,13 @@ static void parse_first_line(i8 *text, usize len, i32 *opt_level,
     len -= bom_size;
 
     // the first line must start with --$
-    if (len < 3 || strncmp((const i8 *)text, "--$", 3) != 0)
+    if (len < 3 || strncmp(text, "--$", 3) != 0)
         return;
 
     // max length: '--encoding=' + 15 characters for the value
-    i8 curr_opt[27];
+    char curr_opt[27];
     usize i = 0;
-    i8 ch = 0;
+    char ch = 0;
     text += 3;
     len -= 3;
 

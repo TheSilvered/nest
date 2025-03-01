@@ -22,7 +22,9 @@ Nst_Obj *make_pos(Nst_Pos start, Nst_Pos end)
 {
     Nst_Obj *map = Nst_map_new();
 
-    Nst_Obj *file_str = Nst_str_new_c_raw(start.text->path, false);
+    Nst_Obj *file_str = Nst_str_new_c_raw(
+        (const char *)start.text->path,
+        false);
     Nst_Obj *arr_start = Nst_array_create_c("ii", start.line, start.col);
     Nst_Obj *arr_end = Nst_array_create_c("ii", end.line, end.col);
 

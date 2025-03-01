@@ -1301,7 +1301,7 @@ ret:
     }
 }
 
-f64 Nst_strtod(const i8 *s00, i8 **se)
+f64 Nst_strtod(const char *s00, char **se)
 {
     int bb2, bb5, bbe, bd2, bd5, bbbits, bs2, c, e, e1;
     int esign, i, j, k, nd, nd0, nf, nz, nz0, nz1, sign;
@@ -1878,14 +1878,14 @@ rve_chk:
     return rv;
 }
 
-void Nst_freedtoa(i8 *s)
+void Nst_freedtoa(char *s)
 {
     Bigint *b = (Bigint *)((int *)s - 1);
     b->maxwds = 1 << (b->k = *(int *)b);
     Bfree(b);
 }
 
-i8 *Nst_dtoa(f64 dd, int mode, int ndigits, int *decpt, int *sign, i8 **rve)
+char *Nst_dtoa(f64 dd, int mode, int ndigits, int *decpt, int *sign, char **rve)
 {
     char *buf = NULL;
     size_t blen = 0;

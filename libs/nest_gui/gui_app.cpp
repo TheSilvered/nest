@@ -68,12 +68,12 @@ void GUI_Window_Destroy(GUI_Window *window)
     Nst_free(window);
 }
 
-void GUI_Window_SetTitle(GUI_Window *window, const i8 *title)
+void GUI_Window_SetTitle(GUI_Window *window, const char *title)
 {
     SDL_SetWindowTitle(window->window, title);
 }
 
-const i8 *GUI_Window_GetTitle(GUI_Window *window)
+const char *GUI_Window_GetTitle(GUI_Window *window)
 {
     return SDL_GetWindowTitle(window->window);
 }

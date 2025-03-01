@@ -180,7 +180,7 @@ not hashable or is not inside the map. No error is set.
 **Synopsis:**
 
 ```better-c
-bool Nst_map_set_str(Nst_Obj *map, const i8 *key, Nst_Obj *value)
+bool Nst_map_set_str(Nst_Obj *map, const char *key, Nst_Obj *value)
 ```
 
 **Description:**
@@ -204,7 +204,7 @@ Inserts or modifies a value in the map.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_map_get_str(Nst_Obj *map, const i8 *key)
+Nst_Obj *Nst_map_get_str(Nst_Obj *map, const char *key)
 ```
 
 **Description:**
@@ -228,7 +228,7 @@ hashable or is not inside the map. No error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_map_drop_str(Nst_Obj *map, const i8 *key)
+Nst_Obj *Nst_map_drop_str(Nst_Obj *map, const char *key)
 ```
 
 **Description:**

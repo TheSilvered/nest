@@ -76,7 +76,7 @@ NstEXP typedef enum _Nst_SeekWhence {
  * position indicator.
  *
  * @param buf: the buffer where the read text is written. If `buf_size` is
- * `0` this parameter should be interpreted as `i8 **` and a malloc'd buffer
+ * `0` this parameter should be interpreted as `u8 **` and a malloc'd buffer
  * of the right size shall be put in it. When the file is opened in normal
  * mode the contents of the buffer must be in `extUTF8` encoding and must
  * terminate with a NUL character.
@@ -108,17 +108,17 @@ NstEXP typedef enum _Nst_SeekWhence {
  *! `Nst_IO_CLOSED` if the file is closed.
  *! `Nst_IO_ERROR` for any other error that might occur.
  */
-NstEXP typedef Nst_IOResult (*Nst_IOFile_read_f)(i8 *buf, usize buf_size,
+NstEXP typedef Nst_IOResult (*Nst_IOFile_read_f)(u8 *buf, usize buf_size,
                                                  usize count, usize *buf_len,
                                                  Nst_Obj *f);
 /**
  * The type that represents a write function of a Nest file object.
  *
  * @brief This function shall write the contents of buf to a file starting from
- * the file position indicator and overwriting any previous content. If count is
- * not `NULL` it is filled with the number of characters written (or the number
- * of bytes if the file is in binary mode). `buf` shall contain UTF-8 text that
- * allows invalid characters under U+10FFFF.
+ * the file position indicator and overwriting any previous content. If count
+ * is not `NULL` it is filled with the number of characters written (or the
+ * number of bytes if the file is in binary mode). `buf` shall contain UTF-8
+ * text that allows invalid characters under U+10FFFF.
  *
  * @param buf: the content to write to the file
  * @param buf_len: the length in bytes of `buf`
@@ -141,7 +141,7 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_read_f)(i8 *buf, usize buf_size,
  *! `Nst_IO_CLOSED` if the file is closed.
  *! `Nst_IO_ERROR` for any other error that might occur.
  */
-NstEXP typedef Nst_IOResult (*Nst_IOFile_write_f)(i8 *buf, usize buf_len,
+NstEXP typedef Nst_IOResult (*Nst_IOFile_write_f)(u8 *buf, usize buf_len,
                                                   usize *count, Nst_Obj *f);
 /**
  * The type that represents a flush function of a Nest file object.
@@ -176,14 +176,13 @@ NstEXP typedef Nst_IOResult (*Nst_IOFile_flush_f)(Nst_Obj *f);
  *! `Nst_IO_SUCCESS` if the function exits successfully.
  *! `Nst_IO_ERROR` for any other error.
  */
-NstEXP typedef Nst_IOResult (*Nst_IOFile_tell_f)(Nst_Obj *f,
-                                                 usize *pos);
+NstEXP typedef Nst_IOResult (*Nst_IOFile_tell_f)(Nst_Obj *f, usize *pos);
 /**
  * The type that represents a seek function of a Nest file object.
  *
- * @brief This function shall move the file-position indicator. `Nst_SEEK_SET` is the start of the file,
- * `Nst_SEEK_CUR` is the current position of the file-position indicator and
- * `Nst_SEEK_END` is the end of the file.
+ * @brief This function shall move the file-position indicator. `Nst_SEEK_SET`
+ * is the start of the file, `Nst_SEEK_CUR` is the current position of the
+ * file-position indicator and `Nst_SEEK_END` is the end of the file.
  *
  * @param origin: where to calculate the offset from, `Nst_SEEK_SET` is the
  * start of the file, `Nst_SEEK_CUR` is the current position of the indicator
@@ -306,10 +305,10 @@ NstEXP Nst_Encoding *NstC Nst_iof_encoding(Nst_Obj *f);
 void _Nst_iofile_destroy(Nst_Obj *obj);
 
 /* Calls the read function of the file, see `Nst_IOFile_read_f`. */
-NstEXP Nst_IOResult NstC Nst_fread(i8 *buf, usize buf_size, usize count,
+NstEXP Nst_IOResult NstC Nst_fread(u8 *buf, usize buf_size, usize count,
                                    usize *buf_len, Nst_Obj *f);
 /* Calls the write function of the file, see `Nst_IOFile_write_f`. */
-NstEXP Nst_IOResult NstC Nst_fwrite(i8 *buf, usize buf_len, usize *count,
+NstEXP Nst_IOResult NstC Nst_fwrite(u8 *buf, usize buf_len, usize *count,
                                     Nst_Obj *f);
 /* Calls the flush function of the file, see `Nst_IOFile_flush_f`. */
 NstEXP Nst_IOResult NstC Nst_fflush(Nst_Obj *f);
@@ -322,10 +321,10 @@ NstEXP Nst_IOResult NstC Nst_fseek(Nst_SeekWhence origin, isize offset,
 NstEXP Nst_IOResult NstC Nst_fclose(Nst_Obj *f);
 
 /* Read function for standard C file descriptors. */
-NstEXP Nst_IOResult NstC Nst_FILE_read(i8 *buf, usize buf_size, usize count,
+NstEXP Nst_IOResult NstC Nst_FILE_read(u8 *buf, usize buf_size, usize count,
                                        usize *buf_len, Nst_Obj *f);
 /* Write function for standard C file descriptors. */
-NstEXP Nst_IOResult NstC Nst_FILE_write(i8 *buf, usize buf_len, usize *count,
+NstEXP Nst_IOResult NstC Nst_FILE_write(u8 *buf, usize buf_len, usize *count,
                                         Nst_Obj *f);
 /* Flush function for standard C file descriptors. */
 NstEXP Nst_IOResult NstC Nst_FILE_flush(Nst_Obj *f);
@@ -358,11 +357,11 @@ NstEXP Nst_IOResult NstC Nst_FILE_close(Nst_Obj *f);
  */
 NstEXP void NstC Nst_io_result_get_details(u32 *ill_encoded_ch,
                                            usize *position,
-                                           const i8 **encoding_name);
+                                           const char **encoding_name);
 /* Sets the values returned with `Nst_io_result_get_details`. */
 NstEXP void NstC Nst_io_result_set_details(u32 ill_encoded_ch,
                                            usize position,
-                                           const i8 *encoding_name);
+                                           const char *encoding_name);
 /**
  * Opens a file given a path that can contain unicode characters in UTF-8.
  *
@@ -372,7 +371,7 @@ NstEXP void NstC Nst_io_result_set_details(u32 ill_encoded_ch,
  * @return The file pointer on success and `NULL` on failure. The error is set
  * only if a `Memory Error` occurs.
  */
-NstEXP FILE *NstC Nst_fopen_unicode(i8 *path, const i8 *mode);
+NstEXP FILE *NstC Nst_fopen_unicode(const char *path, const char *mode);
 
 #ifdef __cplusplus
 }

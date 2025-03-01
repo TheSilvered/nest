@@ -116,7 +116,7 @@ void (*prints[])(Nst_Node *, Nst_LList *) = {
     [Nst_NT_WE] = print_we
 };
 
-const i8 *nt_strings[] = {
+const char *nt_strings[] = {
     [Nst_NT_CS] = "CS (Compound statement)",
     [Nst_NT_WL] = "WL (While loop)",
     [Nst_NT_FL] = "FL (For loop)",
@@ -142,7 +142,7 @@ const i8 *nt_strings[] = {
     [Nst_NT_WE] = "WE (Expression wrapper)"
 };
 
-const i8 *snt_strings[] = {
+const char *snt_strings[] = {
     [Nst_SNT_ARRAY]            = "ARRAY",
     [Nst_SNT_ARRAY_REP]        = "ARRAY_REP",
     [Nst_SNT_VECTOR]           = "VECTOR",
@@ -161,13 +161,13 @@ static void print_levels(Nst_LList *levels)
     }
 }
 
-static bool print_connection(i8 last, bool add_level, Nst_LList *levels)
+static bool print_connection(bool last, bool add_level, Nst_LList *levels)
 {
-    if (last == 1) {
+    if (last) {
         Nst_print("\xE2\x94\x94\xE2\x94\x80\xE2\x94\x80");
         if (add_level && !Nst_llist_append(levels, NULL, false))
             return false;
-    } else if (last == 0) {
+    } else {
         Nst_print("\xE2\x94\x9C\xE2\x94\x80\xE2\x94\x80");
         if (add_level && !Nst_llist_append(levels, (void *)1, false))
             return false;
@@ -194,8 +194,8 @@ static void remove_level(Nst_LList *levels)
     levels->len--;
 }
 
-static void print_node(const i8 *name, Nst_Node *node, Nst_LList *levels,
-                       i8 last)
+static void print_node(const char *name, Nst_Node *node, Nst_LList *levels,
+                       bool last)
 {
     print_levels(levels);
     if (!print_connection(last, true, levels))
@@ -206,7 +206,7 @@ static void print_node(const i8 *name, Nst_Node *node, Nst_LList *levels,
 
     if (node != NULL) {
         Nst_printf(
-            "%s (%li:%li, %li:%li)\n",
+            "%s (%" PRIi32 ":%" PRIi32 ", %" PRIi32 ":%" PRIi32 ")\n",
             nt_strings[node->type],
             node->start.line, node->start.col,
             node->end.line, node->end.col);
@@ -218,8 +218,8 @@ static void print_node(const i8 *name, Nst_Node *node, Nst_LList *levels,
     remove_level(levels);
 }
 
-static void print_node_list(const i8 *name, Nst_LList *nodes,
-                            Nst_LList *levels, i8 last)
+static void print_node_list(const char *name, Nst_LList *nodes,
+                            Nst_LList *levels, bool last)
 {
     print_levels(levels);
     if (!print_connection(last, true, levels))
@@ -239,7 +239,8 @@ static void print_node_list(const i8 *name, Nst_LList *nodes,
     remove_level(levels);
 }
 
-static void print_bool(const i8 *name, bool value, Nst_LList *levels, i8 last)
+static void print_bool(const char *name, bool value, Nst_LList *levels,
+                       bool last)
 {
     print_levels(levels);
     if (!print_connection(last, false, NULL))
@@ -247,8 +248,8 @@ static void print_bool(const i8 *name, bool value, Nst_LList *levels, i8 last)
     Nst_printf("%s: %s\n", name, value ? "true" : "false");
 }
 
-static void print_token(const i8 *name, Nst_Tok *tok, Nst_LList *levels,
-                        i8 last)
+static void print_token(const char *name, Nst_Tok *tok, Nst_LList *levels,
+                        bool last)
 {
     print_levels(levels);
     if (!print_connection(last, false, NULL))
@@ -262,8 +263,8 @@ static void print_token(const i8 *name, Nst_Tok *tok, Nst_LList *levels,
     Nst_print("\n");
 }
 
-static void print_tok_type(const i8 *name, Nst_TokType tok_type,
-                           Nst_LList *levels, i8 last)
+static void print_tok_type(const char *name, Nst_TokType tok_type,
+                           Nst_LList *levels, bool last)
 {
     print_levels(levels);
     if (!print_connection(last, false, NULL))
@@ -272,8 +273,8 @@ static void print_tok_type(const i8 *name, Nst_TokType tok_type,
     Nst_printf("%s: %s\n", name, Nst_tok_type_to_str(tok_type));
 }
 
-static void print_tok_list(const i8 *name, Nst_LList *tokens,
-                           Nst_LList *levels, i8 last)
+static void print_tok_list(const char *name, Nst_LList *tokens,
+                           Nst_LList *levels, bool last)
 {
     print_levels(levels);
     if (!print_connection(last, true, levels))
@@ -297,8 +298,8 @@ static void print_tok_list(const i8 *name, Nst_LList *tokens,
     remove_level(levels);
 }
 
-static void print_seq_node_type(const i8 *name, Nst_SeqNodeType snt,
-                                Nst_LList *levels, i8 last)
+static void print_seq_node_type(const char *name, Nst_SeqNodeType snt,
+                                Nst_LList *levels, bool last)
 {
     print_levels(levels);
     if (!print_connection(last, false, NULL))
@@ -755,7 +756,7 @@ void Nst_print_node(Nst_Node *node)
     Nst_error_clear();
 }
 
-const i8 *Nst_node_type_to_str(Nst_NodeType nt)
+const char *Nst_node_type_to_str(Nst_NodeType nt)
 {
     return nt_strings[nt];
 }

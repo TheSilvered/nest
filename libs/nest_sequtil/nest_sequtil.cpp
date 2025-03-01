@@ -260,7 +260,7 @@ Nst_Obj *NstC slice_(usize arg_num, Nst_Obj **args)
     else if (new_size == 0) {
         Nst_dec_ref(seq);
         if (seq_t == Nst_type()->Str)
-            return Nst_str_new((i8 *)"", 0, false);
+            return Nst_str_new((u8 *)"", 0, false);
         else if (seq_t == Nst_type()->Array)
             return Nst_array_new(0);
         else
@@ -283,7 +283,7 @@ Nst_Obj *NstC slice_(usize arg_num, Nst_Obj **args)
         for (isize i = 0; i < new_size; i++)
             new_len += Nst_str_len(objs[i * step + start]);
 
-        i8 *buf = Nst_malloc_c(new_len + 1, i8);
+        u8 *buf = Nst_malloc_c(new_len + 1, u8);
         if (buf == nullptr) {
             Nst_dec_ref(seq);
             return nullptr;
@@ -1131,10 +1131,10 @@ Nst_Obj *reverse_string(Nst_Obj *str_obj)
 {
     usize old_str_len = Nst_str_len(str_obj);
 
-    i8 *new_str = Nst_malloc_c(old_str_len + 1, i8);
+    u8 *new_str = Nst_malloc_c(old_str_len + 1, u8);
 
     usize i = old_str_len;
-    i8 ch_buf[4] = { 0 };
+    u8 ch_buf[4] = { 0 };
     isize str_idx = -1;
 
     for (i32 ch_len = Nst_str_next_utf8(str_obj, &str_idx, ch_buf);

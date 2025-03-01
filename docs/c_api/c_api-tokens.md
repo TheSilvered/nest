@@ -133,7 +133,7 @@ The new token on success and `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_TokType Nst_tok_from_str(i8 *str)
+Nst_TokType Nst_tok_from_str(u8 *str)
 ```
 
 **Description:**
@@ -172,7 +172,7 @@ Prints a token to the Nest standard output.
 **Synopsis:**
 
 ```better-c
-const i8 *Nst_tok_type_to_str(Nst_TokType type)
+const char *Nst_tok_type_to_str(Nst_TokType type)
 ```
 
 **Description:**

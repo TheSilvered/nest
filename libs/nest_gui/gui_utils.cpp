@@ -22,9 +22,9 @@ void GUI_QuitUtils(void)
 
 void GUI_ThrowSDLError(void)
 {
-    const i8 *error = SDL_GetError();
+    const char *error = SDL_GetError();
     usize error_len = strlen(error);
-    i8 *error_copy = (i8 *)Nst_calloc(1, error_len + 1, (void *)error);
+    u8 *error_copy = (u8 *)Nst_calloc(1, error_len + 1, (void *)error);
     if (error_copy == NULL)
         return;
 

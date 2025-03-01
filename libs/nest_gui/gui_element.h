@@ -43,7 +43,7 @@ typedef enum _GUI_ElementType {
     GUI_ET_RAW_LABEL
 } GUI_ElementType;
 
-typedef enum _GUI_ElementState : i8 {
+typedef enum _GUI_ElementState : u8 {
     GUI_ES_NONE,
     GUI_ES_ENABLED,
     GUI_ES_READONLY,

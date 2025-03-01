@@ -53,8 +53,6 @@ Nst_Obj *Nst_map_new(void)
     if (map == NULL)
         return NULL;
 
-    Nst_GGC_OBJ_INIT(map);
-
     map->len = 0;
     map->nodes = Nst_calloc_c(_Nst_MAP_MIN_SIZE, Nst_MapNode, NULL);
 
@@ -67,6 +65,8 @@ Nst_Obj *Nst_map_new(void)
     map->cap = _Nst_MAP_MIN_SIZE;
     map->head_idx = -1;
     map->tail_idx = -1;
+
+    Nst_GGC_OBJ_INIT(map);
 
     return NstOBJ(map);
 }
@@ -371,7 +371,7 @@ void _Nst_map_destroy(Nst_Obj *map)
     Nst_free(MAP(map)->nodes);
 }
 
-bool Nst_map_set_str(Nst_Obj *map, const i8 *key, Nst_Obj *value)
+bool Nst_map_set_str(Nst_Obj *map, const char *key, Nst_Obj *value)
 {
     Nst_assert(map->type == Nst_t.Map);
     Nst_Obj *key_obj = Nst_str_new_c_raw(key, false);
@@ -382,7 +382,7 @@ bool Nst_map_set_str(Nst_Obj *map, const i8 *key, Nst_Obj *value)
     return res;
 }
 
-Nst_Obj *Nst_map_get_str(Nst_Obj *map, const i8 *key)
+Nst_Obj *Nst_map_get_str(Nst_Obj *map, const char *key)
 {
     Nst_assert(map->type == Nst_t.Map);
 
@@ -394,7 +394,7 @@ Nst_Obj *Nst_map_get_str(Nst_Obj *map, const i8 *key)
     return value;
 }
 
-Nst_Obj *Nst_map_drop_str(Nst_Obj *map, const i8 *key)
+Nst_Obj *Nst_map_drop_str(Nst_Obj *map, const char *key)
 {
     Nst_assert(map->type == Nst_t.Map);
     Nst_Obj *key_ob = Nst_str_new_c_raw(key, false);

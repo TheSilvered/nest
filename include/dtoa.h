@@ -55,10 +55,10 @@ extern "C" {
  * @return An allocated string of digits where trailing zeroes are suppressed.
  * This value must be freed with `Nst_freedtoa`.
  */
-NstEXP i8 *NstC Nst_dtoa(f64 value, int mode, int n_digits, int *decimal_point,
-                         int *sign, i8 **str_end);
+NstEXP char *NstC Nst_dtoa(f64 value, int mode, int n_digits,
+                           int *decimal_point, int *sign, char **str_end);
 /* Frees a string returned by `Nst_dtoa`. */
-NstEXP void NstC Nst_freedtoa(i8 *str);
+NstEXP void NstC Nst_freedtoa(char *str);
 /**
  * Converts a string to a double.
  *
@@ -70,7 +70,7 @@ NstEXP void NstC Nst_freedtoa(i8 *str);
  *
  * @return The parsed number.
  */
-NstEXP f64 NstC Nst_strtod(const i8 *str, i8 **str_end);
+NstEXP f64 NstC Nst_strtod(const char *str, char **str_end);
 
 #ifdef __cplusplus
 }

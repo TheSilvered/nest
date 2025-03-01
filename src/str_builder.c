@@ -11,7 +11,7 @@ bool Nst_sb_init(Nst_StrBuilder *sb, usize reserve)
 {
     if (reserve < _SB_MIN_CAP)
         reserve = _SB_MIN_CAP;
-    i8 *value = Nst_malloc_c(reserve + 1, i8);
+    u8 *value = Nst_malloc_c(reserve + 1, u8);
     if (value == NULL) {
         sb->value = NULL;
         sb->cap = 0;
@@ -40,7 +40,7 @@ bool Nst_sb_reserve(Nst_StrBuilder *sb, usize amount)
     if (new_cap <= sb->cap)
         return true;
     new_cap += new_cap >> 1;
-    i8 *new_data = Nst_realloc_c(sb->value, new_cap + 1, i8, 0);
+    u8 *new_data = Nst_realloc_c(sb->value, new_cap + 1, u8, 0);
     if (new_data == NULL)
         return false;
     sb->value = new_data;
@@ -48,7 +48,7 @@ bool Nst_sb_reserve(Nst_StrBuilder *sb, usize amount)
     return true;
 }
 
-bool Nst_sb_push(Nst_StrBuilder *sb, i8 *chars, usize count)
+bool Nst_sb_push(Nst_StrBuilder *sb, u8 *chars, usize count)
 {
     if (!Nst_sb_reserve(sb, count))
         return false;
@@ -79,7 +79,7 @@ bool Nst_sb_push_str(Nst_StrBuilder *sb, Nst_Obj *str)
     return true;
 }
 
-bool Nst_sb_push_c(Nst_StrBuilder *sb, const i8 *s)
+bool Nst_sb_push_c(Nst_StrBuilder *sb, const char *s)
 {
     usize str_len = strlen(s);
     if (!Nst_sb_reserve(sb, str_len))
@@ -105,7 +105,7 @@ bool Nst_sb_push_cps(Nst_StrBuilder *sb, u32 *cps, usize count)
     return true;
 }
 
-bool Nst_sb_push_char(Nst_StrBuilder *sb, i8 ch)
+bool Nst_sb_push_char(Nst_StrBuilder *sb, char ch)
 {
     if (!Nst_sb_reserve(sb, 1))
         return false;
@@ -116,7 +116,7 @@ bool Nst_sb_push_char(Nst_StrBuilder *sb, i8 ch)
 
 Nst_Obj *Nst_str_from_sb(Nst_StrBuilder *sb)
 {
-    sb->value = Nst_realloc_c(sb->value, sb->len + 1, i8, sb->cap + 1);
+    sb->value = Nst_realloc_c(sb->value, sb->len + 1, u8, sb->cap + 1);
 
     Nst_Obj *str = Nst_str_new(sb->value, sb->len, true);
     if (str == NULL)

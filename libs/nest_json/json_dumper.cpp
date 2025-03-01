@@ -86,9 +86,9 @@ static void dump_str(Nst_Obj *str)
     INC_RECURSION_LVL;
 
     usize unicode_bytes = 0;
-    i8 *s_val = Nst_str_value(str);
+    u8 *s_val = Nst_str_value(str);
     usize s_len = Nst_str_len(str);
-    const i8 *hex_digits = "0123456789abcdef";
+    const char *hex_digits = "0123456789abcdef";
 
     for (usize i = 0; i < s_len; i++) {
         i32 res = Nst_check_ext_utf8_bytes((u8 *)s_val + i, s_len - i);
@@ -158,7 +158,7 @@ static void dump_num(Nst_Obj *number)
 {
     INC_RECURSION_LVL;
     f64 val;
-    i8 loc_buf[27];
+    char loc_buf[27];
     usize len;
 
     if (Nst_T(number, Byte)) {
@@ -166,7 +166,7 @@ static void dump_num(Nst_Obj *number)
         Nst_sb_push_c(&sb, loc_buf);
         goto finish;
     } else if (Nst_T(number, Int)) {
-        sprintf(loc_buf, "%lli", Nst_int_i64(number));
+        sprintf(loc_buf, "%" PRIi64, Nst_int_i64(number));
         Nst_sb_push_c(&sb, loc_buf);
         goto finish;
     }
@@ -218,7 +218,7 @@ static void dump_seq(Nst_Obj *seq, i32 indent)
         Nst_sb_reserve(&sb, indent * indent_level + 1);
         EXCEPT_ERROR;
         Nst_sb_push_char(&sb, '\n');
-        for (i8 i = 0; i < indent * indent_level; i++)
+        for (i32 i = 0; i < indent * indent_level; i++)
             Nst_sb_push_char(&sb, ' ');
     }
 
@@ -264,7 +264,7 @@ static void dump_map(Nst_Obj *map, i32 indent)
         Nst_sb_reserve(&sb, indent * indent_level + 1);
         EXCEPT_ERROR;
         Nst_sb_push_char(&sb, '\n');
-        for (i8 i = 0; i < indent * indent_level; i++)
+        for (i32 i = 0; i < indent * indent_level; i++)
             Nst_sb_push_char(&sb, ' ');
     }
 

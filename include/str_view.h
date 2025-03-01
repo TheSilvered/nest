@@ -22,14 +22,14 @@ extern "C" {
  * @param len: the string length
  */
 NstEXP typedef struct _Nst_StrView {
-    i8 *value;
+    u8 *value;
     usize len;
 } Nst_StrView;
 
 /* Create a new `Nst_StrView` given the `value` and the `len`. */
-NstEXP Nst_StrView NstC Nst_sv_new(i8 *value, usize len);
+NstEXP Nst_StrView NstC Nst_sv_new(u8 *value, usize len);
 /* Create a new `Nst_StrView` given a NUL-terminated string. */
-NstEXP Nst_StrView NstC Nst_sv_new_c(const i8 *value);
+NstEXP Nst_StrView NstC Nst_sv_new_c(const char *value);
 /* Create a new `Nst_StrView` from a Nest `Str` object. */
 NstEXP Nst_StrView NstC Nst_sv_from_str(Nst_Obj *str);
 /**

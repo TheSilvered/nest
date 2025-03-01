@@ -7,7 +7,7 @@
 
 #define CURR_LEN ((i64)(c_state.inst_ls->len))
 #define NULL_OR_APPEND_FAILED(inst) ((inst) == NULL || !append_inst(inst))
-#define PRINT(str, size) Nst_fwrite(str, size, NULL, Nst_io.out)
+#define PRINT(str, size) Nst_fwrite((u8 *)(str), (size), NULL, Nst_io.out)
 
 typedef enum _CompilationType {
     CT_FILE,
@@ -1541,7 +1541,7 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
         for (i32 j = 0; j < indent; j++)
             Nst_print("    ");
         Nst_printf(
-            " %*zi | %*li:%-*li | ",
+            " %*zi | %*" PRIi32 ":%-*" PRIi32 " | ",
             idx_width, i,
             row_width,
             inst.start.line + 1,
@@ -1605,7 +1605,7 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
             || inst.id == Nst_IC_MAKE_VEC || inst.id == Nst_IC_MAKE_MAP
             || inst.int_val != 0)
         {
-            Nst_printf(" | %*lli |", idx_width, inst.int_val);
+            Nst_printf(" | %*" PRIi64 " |", idx_width, inst.int_val);
         } else {
             PRINT(" | ", 3);
             for (i32 j = 0; j < idx_width; j++)

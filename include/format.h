@@ -570,7 +570,7 @@ extern "C" {
  * @return The number of bytes written. If the file is closed `-1` is returned.
  * No error is set.
  */
-NstEXP isize NstC Nst_print(const i8 *buf);
+NstEXP isize NstC Nst_print(const char *buf);
 /**
  * Prints a string to a Nest file object.
  *
@@ -583,7 +583,7 @@ NstEXP isize NstC Nst_print(const i8 *buf);
  * @return The number of bytes written. If the file is closed `-1` is returned.
  * No error is set.
  */
-NstEXP isize NstC Nst_fprint(Nst_Obj *f, const i8 *buf);
+NstEXP isize NstC Nst_fprint(Nst_Obj *f, const char *buf);
 
 /**
  * Prints a string to the Nest standard output appending a newline character.
@@ -599,7 +599,7 @@ NstEXP isize NstC Nst_fprint(Nst_Obj *f, const i8 *buf);
  * @return The number of bytes written, including the newline character. If the
  * file is closed `-1` is returned. No error is set.
  */
-NstEXP isize NstC Nst_println(const i8 *buf);
+NstEXP isize NstC Nst_println(const char *buf);
 /**
  * Prints a string to a Nest file object appending a newline character.
  *
@@ -615,7 +615,7 @@ NstEXP isize NstC Nst_println(const i8 *buf);
  * @return The number of bytes written, including the newline character. If the
  * file is closed `-1` is returned. No error is set.
  */
-NstEXP isize NstC Nst_fprintln(Nst_Obj *f, const i8 *buf);
+NstEXP isize NstC Nst_fprintln(Nst_Obj *f, const char *buf);
 
 /**
  * Prints a formatted string to the Nest standard output. The format specifier
@@ -632,7 +632,7 @@ NstEXP isize NstC Nst_fprintln(Nst_Obj *f, const i8 *buf);
  *! `-3` an error in the format string and
  *! `-4` a memory allocation error.
  */
-NstEXP isize NstC Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
+NstEXP isize NstC Nst_printf(Nst_WIN_FMT const char *fmt, ...)
                              Nst_NIX_FMT(1, 2);
 /**
  * Prints a formatted string to a Nest file object. The format specifier
@@ -650,10 +650,10 @@ NstEXP isize NstC Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
  *! `-3` an error in the format string and
  *! `-4` a memory allocation error.
  */
-NstEXP isize NstC Nst_fprintf(Nst_Obj *f, Nst_WIN_FMT const i8 *fmt, ...)
+NstEXP isize NstC Nst_fprintf(Nst_Obj *f, Nst_WIN_FMT const char *fmt, ...)
                                           Nst_NIX_FMT(2, 3);
 /* `va_list` variant of `Nst_fprintf`. */
-NstEXP isize NstC Nst_vfprintf(Nst_Obj *f, const i8 *fmt, va_list args);
+NstEXP isize NstC Nst_vfprintf(Nst_Obj *f, const char *fmt, va_list args);
 
 /**
  * Creates a Nest string object from a format placeholder. The format specifier
@@ -666,10 +666,10 @@ NstEXP isize NstC Nst_vfprintf(Nst_Obj *f, const i8 *fmt, va_list args);
  *
  * @return The function returns the newly created string object.
  */
-NstEXP Nst_Obj *NstC Nst_sprintf(Nst_WIN_FMT const i8 *fmt, ...)
+NstEXP Nst_Obj *NstC Nst_sprintf(Nst_WIN_FMT const char *fmt, ...)
                                  Nst_NIX_FMT(1, 2);
 /* `va_list` variant of `Nst_sprintf`. */
-NstEXP Nst_Obj *NstC Nst_vsprintf(const i8 *fmt, va_list args);
+NstEXP Nst_Obj *NstC Nst_vsprintf(const char *fmt, va_list args);
 
 /**
  * Creates a heap-allocated string formatted with a more customizable format
@@ -687,9 +687,9 @@ NstEXP Nst_Obj *NstC Nst_vsprintf(const i8 *fmt, va_list args);
  * @return The newly created string or `NULL` on failure, the error is set.
  * When the function fails and `out_len` is not `NULL` it is set to `0`.
  */
-NstEXP i8 *NstC Nst_fmt(const i8 *fmt, usize fmt_len, usize *out_len, ...);
+NstEXP u8 *NstC Nst_fmt(const char *fmt, usize fmt_len, usize *out_len, ...);
 /* `va_list` variant of `Nst_fmt`. */
-NstEXP i8 *NstC Nst_vfmt(const i8 *fmt, usize fmt_len, usize *out_len,
+NstEXP u8 *NstC Nst_vfmt(const char *fmt, usize fmt_len, usize *out_len,
                          va_list args);
 /**
  * Similar to `Nst_fmt`, creates a string object formatted with the values
@@ -719,7 +719,7 @@ NstEXP Nst_Obj *NstC Nst_fmt_objs(Nst_Obj *fmt, Nst_Obj *values);
  * @return A pointer to the string representation or `NULL` on failure. The
  * error is set.
  */
-NstEXP i8 *NstC Nst_repr(i8 *str, usize str_len, usize *out_len,
+NstEXP u8 *NstC Nst_repr(u8 *str, usize str_len, usize *out_len,
                          bool shallow, bool ascii);
 
 #ifdef __cplusplus

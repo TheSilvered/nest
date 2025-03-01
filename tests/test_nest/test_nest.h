@@ -19,7 +19,7 @@ typedef enum _TestResult {
 typedef TestResult (*Test)();
 
 void test_init(void);
-void run_test(Test test, const i8 *name);
+void run_test(Test test, const char *name);
 i32 tests_failed_count(void);
 
 // argv_parser.h

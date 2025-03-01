@@ -8,7 +8,7 @@
 #include "global_consts.h"
 #include "format.h"
 
-const i8 *tt_strings[] = {
+const char *tt_strings[] = {
     [Nst_TT_ADD] = "ADD",
     [Nst_TT_SUB] = "SUB",
     [Nst_TT_MUL] = "MUL",
@@ -143,7 +143,7 @@ void Nst_tok_destroy(Nst_Tok *token)
     Nst_free(token);
 }
 
-Nst_TokType Nst_tok_from_str(i8 *str)
+Nst_TokType Nst_tok_from_str(u8 *str)
 {
     if (str[1] == '\0') {
         switch (str[0]) {
@@ -327,7 +327,7 @@ Nst_TokType Nst_tok_from_str(i8 *str)
 
 void Nst_print_tok(Nst_Tok *token)
 {
-    Nst_printf("%s (%02li:%02li, %02li:%02li",
+    Nst_printf("%s (%02" PRIi32 ":%02" PRIi32 ", %02" PRIi32 ":%02" PRIi32,
         tt_strings[token->type],
         token->start.line,
         token->start.col,
@@ -348,7 +348,7 @@ void Nst_print_tok(Nst_Tok *token)
     Nst_print(")");
 }
 
-const i8 *Nst_tok_type_to_str(Nst_TokType type)
+const char *Nst_tok_type_to_str(Nst_TokType type)
 {
     return tt_strings[type];
 }

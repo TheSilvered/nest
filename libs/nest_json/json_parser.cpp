@@ -3,7 +3,7 @@
 #include "json_parser.h"
 
 bool trailing_commas = false;
-static i8 *file_path; // the text of the position cannot be used
+static char *file_path; // the text of the position cannot be used
 static i32 recursion_level;
 
 // needed because when debugging on Windows it runs out of stack space quickly
@@ -28,7 +28,7 @@ static Nst_Obj *parse_value(Nst_LList *tokens);
 static Nst_Obj *parse_object(Nst_LList *tokens);
 static Nst_Obj *parse_array(Nst_LList *tokens);
 
-Nst_Obj *json_parse(i8 *path, Nst_LList *tokens)
+Nst_Obj *json_parse(char *path, Nst_LList *tokens)
 {
     file_path = path;
     recursion_level = 0;

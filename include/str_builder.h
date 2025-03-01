@@ -24,7 +24,7 @@ extern "C" {
  * @param cap: the size in bytes of the allocated block
  */
 NstEXP typedef struct _Nst_StrBuilder {
-    i8 *value;
+    u8 *value;
     usize len;
     usize cap;
 } Nst_StrBuilder;
@@ -60,7 +60,7 @@ NstEXP bool NstC Nst_sb_reserve(Nst_StrBuilder *sb, usize amount);
  * @return `true` on success and `false` if a memory allocation fails. The
  * error is set.
  */
-NstEXP bool NstC Nst_sb_push(Nst_StrBuilder *sb, i8 *chars, usize count);
+NstEXP bool NstC Nst_sb_push(Nst_StrBuilder *sb, u8 *chars, usize count);
 /**
  * Add the value of a `Nst_StrView` to the end of a `Nst_StrBuilder`.
  *
@@ -81,7 +81,7 @@ NstEXP bool NstC Nst_sb_push_str(Nst_StrBuilder *sb, Nst_Obj *str);
  * @return `true` on success and `false` if a memory allocation fails. The
  * error is set.
  */
-NstEXP bool NstC Nst_sb_push_c(Nst_StrBuilder *sb, const i8 *s);
+NstEXP bool NstC Nst_sb_push_c(Nst_StrBuilder *sb, const char *s);
 /**
  * Add an array of codepoints to the end of a `Nst_StrBuilder`. The codepoints
  * are encoded in extUTF-8.
@@ -94,7 +94,7 @@ NstEXP bool NstC Nst_sb_push_c(Nst_StrBuilder *sb, const i8 *s);
  * error is set.
  */
 NstEXP bool NstC Nst_sb_push_cps(Nst_StrBuilder *sb, u32 *cps, usize count);
-NstEXP bool NstC Nst_sb_push_char(Nst_StrBuilder *sb, i8 ch);
+NstEXP bool NstC Nst_sb_push_char(Nst_StrBuilder *sb, char ch);
 
 /**
  * Create a new Nest `Str` object from a `Nst_StrBuilder`. The string builder

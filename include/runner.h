@@ -116,7 +116,8 @@ NstEXP void NstC Nst_es_set_cwd(Nst_ExecutionState *es, Nst_Obj *cwd);
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP bool NstC Nst_es_push_module(Nst_ExecutionState *es, i8 *filename,
+NstEXP bool NstC Nst_es_push_module(Nst_ExecutionState *es,
+                                    const char *filename,
                                     Nst_SourceText *source_text);
 /**
  * Pushes a function on the call stack and creates a new local variable table
@@ -136,7 +137,7 @@ NstEXP bool NstC Nst_es_push_module(Nst_ExecutionState *es, i8 *filename,
  * @return `true` on success and `false` on failure. The error is set.
  */
 NstEXP bool NstC Nst_es_push_func(Nst_ExecutionState *es, Nst_Obj *func,
-                                  Nst_Pos start, Nst_Pos end, i64 arg_num,
+                                  Nst_Pos start, Nst_Pos end, usize arg_num,
                                   Nst_Obj **args);
 /**
  * Pushes a coroutine that is already running on the call stack of the given

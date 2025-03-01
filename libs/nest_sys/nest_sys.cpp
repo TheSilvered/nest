@@ -67,7 +67,7 @@ Nst_Obj *NstC system_(usize arg_num, Nst_Obj **args)
 
 #ifdef Nst_MSVC
     wchar_t *wide_command = Nst_char_to_wchar_t(
-        Nst_str_value(command),
+        (char *)Nst_str_value(command),
         Nst_str_len(command));
     if (wide_command == nullptr)
         return nullptr;
@@ -75,7 +75,7 @@ Nst_Obj *NstC system_(usize arg_num, Nst_Obj **args)
     Nst_free(wide_command);
     return Nst_int_new(command_result);
 #else
-    return Nst_int_new(system(Nst_str_value(command)));
+    return Nst_int_new(system((char *)Nst_str_value(command)));
 #endif
 }
 
@@ -102,7 +102,7 @@ Nst_Obj *NstC get_env_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &name))
         return nullptr;
 
-    if (strlen(Nst_str_value(name)) != Nst_str_len(name)) {
+    if (strlen((const char *)Nst_str_value(name)) != Nst_str_len(name)) {
         Nst_error_setc_value("the name cannot contain NUL characters");
         return nullptr;
     }
@@ -114,7 +114,7 @@ Nst_Obj *NstC get_env_(usize arg_num, Nst_Obj **args)
 
 #ifdef Nst_MSVC
     wchar_t *wide_name = Nst_char_to_wchar_t(
-        Nst_str_value(name),
+        (char *)Nst_str_value(name),
         Nst_str_len(name));
     if (wide_name == nullptr)
         return nullptr;
@@ -135,16 +135,16 @@ Nst_Obj *NstC get_env_(usize arg_num, Nst_Obj **args)
         Nst_free(wide_env_name);
         return Nst_null_ref();
     }
-    i8 *env_name = Nst_wchar_t_to_char(wide_env_name, buf_len);
+    char *env_name = Nst_wchar_t_to_char(wide_env_name, buf_len);
     Nst_free(wide_env_name);
     if (env_name == nullptr)
         return nullptr;
 #else
-    i8 *env_name_str = getenv(Nst_str_value(name));
+    char *env_name_str = getenv((char *)Nst_str_value(name));
     if (env_name_str == nullptr)
         return Nst_null_ref();
 
-    i8 *env_name = Nst_malloc_c(strlen(env_name_str) + 1, i8);
+    char *env_name = Nst_malloc_c(strlen(env_name_str) + 1, char);
     if (env_name == nullptr)
         return nullptr;
     strcpy(env_name, env_name_str);
@@ -173,8 +173,8 @@ Nst_Obj *NstC set_env_(usize arg_num, Nst_Obj **args)
     else
         overwrite = Nst_obj_to_bool(overwrite_obj);
 
-    if (strlen(Nst_str_value(name)) != Nst_str_len(name)
-        || strlen(Nst_str_value(value)) != Nst_str_len(value))
+    if (strlen((char *)Nst_str_value(name)) != Nst_str_len(name)
+        || strlen((char *)Nst_str_value(value)) != Nst_str_len(value))
     {
         Nst_error_setc_value("the strings cannot contain NUL characters");
         return nullptr;
@@ -187,7 +187,7 @@ Nst_Obj *NstC set_env_(usize arg_num, Nst_Obj **args)
 
 #ifdef Nst_MSVC
     wchar_t *name_buf = Nst_char_to_wchar_t(
-        Nst_str_value(name),
+        (char *)Nst_str_value(name),
         Nst_str_len(name));
     if (name_buf == nullptr)
         return nullptr;
@@ -204,7 +204,7 @@ Nst_Obj *NstC set_env_(usize arg_num, Nst_Obj **args)
     }
 
     wchar_t *value_buf = Nst_char_to_wchar_t(
-        Nst_str_value(value),
+        (char *)Nst_str_value(value),
         Nst_str_len(value));
     if (value_buf == nullptr) {
         Nst_free(name_buf);
@@ -221,8 +221,8 @@ Nst_Obj *NstC set_env_(usize arg_num, Nst_Obj **args)
     Nst_free(value_buf);
 #else
     i32 result = setenv(
-        (const i8 *)Nst_str_value(name),
-        (const i8 *)Nst_str_value(value),
+        (const char *)Nst_str_value(name),
+        (const char *)Nst_str_value(value),
         overwrite);
 
     if (result != 0) {
@@ -240,19 +240,19 @@ Nst_Obj *NstC del_env_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &name))
         return nullptr;
 
-    if (strlen(Nst_str_value(name)) != Nst_str_len(name)) {
+    if (strlen((char *)Nst_str_value(name)) != Nst_str_len(name)) {
         Nst_error_setc_value("the name cannot contain NUL characters");
         return nullptr;
     }
 
-    if (strchr((const char *)Nst_str_value(name), '=') != nullptr) {
+    if (strchr((char *)Nst_str_value(name), '=') != nullptr) {
         Nst_error_setc_value("the name cannot contain an equals sign (=)");
         return nullptr;
     }
 
 #ifdef Nst_MSVC
     wchar_t *name_buf = Nst_char_to_wchar_t(
-        Nst_str_value(name),
+        (char *)Nst_str_value(name),
         Nst_str_len(name));
     if (name_buf == nullptr)
         return nullptr;
@@ -264,7 +264,7 @@ Nst_Obj *NstC del_env_(usize arg_num, Nst_Obj **args)
     }
     Nst_free(name_buf);
 #else
-    if (unsetenv(Nst_str_value(name)) != 0) {
+    if (unsetenv((char *)Nst_str_value(name)) != 0) {
         Nst_error_setc_call("failed to delete the environment variable");
         return nullptr;
     }

@@ -369,7 +369,7 @@ NstEXP void NstC Nst_node_destroy_contents(Nst_Node *node);
 
 NstEXP void NstC Nst_print_node(Nst_Node *node);
 
-NstEXP const i8 *NstC Nst_node_type_to_str(Nst_NodeType nt);
+NstEXP const char *NstC Nst_node_type_to_str(Nst_NodeType nt);
 
 /**
  * Changes the type of a node destroying the previous contents but keeping the

@@ -44,10 +44,10 @@ NstEXP typedef struct _Nst_CLArgs {
     Nst_EncodingID encoding;
     bool no_default;
     i32 opt_level;
-    i8 *command, *filename;
+    char *command, *filename;
     i32 args_start;
     i32 argc;
-    i8 **argv;
+    char **argv;
 } Nst_CLArgs;
 
 /**
@@ -57,7 +57,7 @@ NstEXP typedef struct _Nst_CLArgs {
  * @param argc: the number of arguments passed to main
  * @param argv: the array of arguments passed to main
  */
-NstEXP void NstC Nst_cl_args_init(Nst_CLArgs *args, i32 argc, i8 **argv);
+NstEXP void NstC Nst_cl_args_init(Nst_CLArgs *args, int argc, char **argv);
 
 /**
  * Parses command-line arguments.
@@ -90,7 +90,7 @@ NstEXP void NstC _Nst_supports_color_override(bool value);
  *
  * @return `true` on success and `false` on failure. No error is set.
  */
-NstEXP bool NstC _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv);
+NstEXP bool NstC _Nst_wargv_to_argv(int argc, wchar_t **wargv, char ***argv);
 
 /* WINDOWS ONLY Initializes the console. */
 NstEXP void NstC _Nst_console_mode_init(void);

@@ -85,7 +85,7 @@ NstEXP Nst_Obj *NstC Nst_map_drop(Nst_Obj *map, Nst_Obj *key);
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP bool NstC Nst_map_set_str(Nst_Obj *map, const i8 *key, Nst_Obj *value);
+NstEXP bool NstC Nst_map_set_str(Nst_Obj *map, const char *key, Nst_Obj *value);
 /**
  * Gets the value associated with a key.
  *
@@ -95,7 +95,7 @@ NstEXP bool NstC Nst_map_set_str(Nst_Obj *map, const i8 *key, Nst_Obj *value);
  * @return The object associated with the key on success or `NULL` if the key
  * is not hashable or is not inside the map. No error is set.
  */
-NstEXP Nst_Obj *NstC Nst_map_get_str(Nst_Obj *map, const i8 *key);
+NstEXP Nst_Obj *NstC Nst_map_get_str(Nst_Obj *map, const char *key);
 /**
  * Drops a key from a map and returns its value.
  *
@@ -105,7 +105,7 @@ NstEXP Nst_Obj *NstC Nst_map_get_str(Nst_Obj *map, const i8 *key);
  * @return The object associated with the removed key on success or `NULL` if
  * the key is not hashable or is not inside the map. No error is set.
  */
-NstEXP Nst_Obj *NstC Nst_map_drop_str(Nst_Obj *map, const i8 *key);
+NstEXP Nst_Obj *NstC Nst_map_drop_str(Nst_Obj *map, const char *key);
 
 /**
  * Get the next key-value pair in the map given an index.

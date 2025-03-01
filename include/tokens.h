@@ -191,13 +191,13 @@ NstEXP void NstC Nst_tok_destroy(Nst_Tok *token);
  * @return The parsed token type or `Nst_TT_INVALID` if the string does not
  * contain a valid token literal.
  */
-NstEXP Nst_TokType NstC Nst_tok_from_str(i8 *str);
+NstEXP Nst_TokType NstC Nst_tok_from_str(u8 *str);
 
 /* Prints a token to the Nest standard output. */
 NstEXP void NstC Nst_print_tok(Nst_Tok *token);
 
 /* Returns the type of the token as a string. */
-NstEXP const i8 *NstC Nst_tok_type_to_str(Nst_TokType type);
+NstEXP const char *NstC Nst_tok_type_to_str(Nst_TokType type);
 
 #ifdef __cplusplus
 }

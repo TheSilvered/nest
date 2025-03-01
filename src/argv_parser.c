@@ -74,7 +74,7 @@ bool supports_color = false;
 bool supports_color = true;
 #endif // !Nst_MSVC
 
-void Nst_cl_args_init(Nst_CLArgs *args, i32 argc, i8 **argv)
+void Nst_cl_args_init(Nst_CLArgs *args, int argc, char **argv)
 {
     args->argc = argc;
     args->argv = argv;
@@ -90,7 +90,7 @@ void Nst_cl_args_init(Nst_CLArgs *args, i32 argc, i8 **argv)
     args->args_start = argc >= 1 ? 1 : 0;
 }
 
-static i32 long_arg(i8 *arg, Nst_CLArgs *cl_args)
+static i32 long_arg(char *arg, Nst_CLArgs *cl_args)
 {
     if (strcmp(arg, "--tokens") == 0)
         cl_args->print_tokens = true;
@@ -133,18 +133,18 @@ static i32 long_arg(i8 *arg, Nst_CLArgs *cl_args)
 
 i32 _Nst_cl_args_parse(Nst_CLArgs *cl_args)
 {
-    i32 argc = cl_args->argc;
-    i8 **argv = cl_args->argv;
+    int argc = cl_args->argc;
+    char **argv = cl_args->argv;
 
     if (argc < 2) {
         printf(USAGE_MESSAGE);
         return -1;
     }
 
-    i32 i;
+    int i;
     for (i = 1; i < argc; i++) {
-        i8 *arg = argv[i];
-        i32 arg_len = (i32)strlen(arg);
+        char *arg = argv[i];
+        usize arg_len = strlen(arg);
 
         if (arg[0] != '-') {
             cl_args->filename = arg;
@@ -186,7 +186,7 @@ i32 _Nst_cl_args_parse(Nst_CLArgs *cl_args)
                     return -1;
                 }
                 cl_args->encoding = Nst_encoding_to_single_byte(cl_args->encoding);
-                j = arg_len;
+                j = (i32)arg_len;
                 break;
             case 'O': {
                 if (j != 1) {
@@ -277,16 +277,16 @@ void _Nst_supports_color_override(bool value)
 
 #ifdef Nst_MSVC
 
-bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv)
+bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, char ***argv)
 {
     usize tot_size = 0;
 
     for (i32 i = 0; i < argc; i++)
         tot_size += (wcslen(wargv[i])) * 3 + 1;
 
-    i8 **local_argv = (i8 **)Nst_raw_malloc(
-        ((argc + 1) * sizeof(i8 *))
-      + (tot_size * sizeof(i8)));
+    char **local_argv = (char **)Nst_raw_malloc(
+        ((argc + 1) * sizeof(char *))
+      + (tot_size * sizeof(char)));
 
     if (local_argv == NULL) {
         Nst_free(local_argv);
@@ -294,7 +294,7 @@ bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv)
         return false;
     }
 
-    i8 *argv_ptr = (i8 *)(local_argv + argc + 1);
+    char *argv_ptr = (char *)(local_argv + argc + 1);
 
     for (i32 i = 0; i < argc; i++) {
         wchar_t *warg = wargv[i];
@@ -307,7 +307,7 @@ bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv)
                 puts("Invalid argv enconding");
                 return false;
             }
-            argv_ptr += Nst_utf16_to_utf8(argv_ptr, warg + j, n - j);
+            argv_ptr += Nst_utf16_to_utf8((u8 *)argv_ptr, warg + j, n - j);
             j += ch_len - 1;
         }
         *argv_ptr++ = '\0';

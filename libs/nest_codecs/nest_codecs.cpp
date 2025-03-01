@@ -26,15 +26,15 @@ Nst_Obj *NstC from_cp_(usize arg_num, Nst_Obj **args)
 
     if (cp < 0 || cp > UINT32_MAX) {
         Nst_error_set_value(
-            Nst_sprintf("codepoint %#llx ouside the allowed range", cp));
+            Nst_sprintf("codepoint %#" PRIx64 " ouside the allowed range", cp));
         return nullptr;
     }
 
     if (!Nst_is_valid_cp((u32)cp)) {
         if (cp <= 0xffff)
-            Nst_error_setf_value("invalid code point U+%04llX", cp);
+            Nst_error_setf_value("invalid code point U+%04" PRIX64, cp);
         else
-            Nst_error_setf_value("invalid code point U+%06llX", cp);
+            Nst_error_setf_value("invalid code point U+%06" PRIX64, cp);
 
         return nullptr;
     }
@@ -44,7 +44,7 @@ Nst_Obj *NstC from_cp_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     i32 len = Nst_utf8_from_utf32((u32)cp, str);
-    return Nst_str_new_allocated((i8 *)str, (usize)len);
+    return Nst_str_new_allocated(str, (usize)len);
 }
 
 Nst_Obj *NstC to_cp_(usize arg_num, Nst_Obj **args)
@@ -77,7 +77,8 @@ Nst_Obj *NstC encoding_info_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &name_str))
         return nullptr;
 
-    Nst_EncodingID cpid = Nst_encoding_from_name(Nst_str_value(name_str));
+    Nst_EncodingID cpid = Nst_encoding_from_name(
+        (char *)Nst_str_value(name_str));
     if (cpid == Nst_EID_UNKNOWN) {
         Nst_error_setf_value(
             "unknown encoding '%.100s'",

@@ -16,7 +16,7 @@ TheSilvered
 
 ```better-c
 typedef struct _Nst_StrBuilder {
-    i8 *value;
+    u8 *value;
     usize len;
     usize cap;
 } Nst_StrBuilder
@@ -94,7 +94,7 @@ Ensure that the string can be expanded by `amount` bytes withot reallocating.
 **Synopsis:**
 
 ```better-c
-bool Nst_sb_push(Nst_StrBuilder *sb, i8 *chars, usize count)
+bool Nst_sb_push(Nst_StrBuilder *sb, u8 *chars, usize count)
 ```
 
 **Description:**
@@ -157,7 +157,7 @@ Add the value of a Nest `Str` object to the end of a
 **Synopsis:**
 
 ```better-c
-bool Nst_sb_push_c(Nst_StrBuilder *sb, const i8 *s)
+bool Nst_sb_push_c(Nst_StrBuilder *sb, const char *s)
 ```
 
 **Description:**

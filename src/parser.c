@@ -1198,11 +1198,11 @@ static Nst_Node *parse_seq_body(Nst_Pos start, Nst_Node *first_node, bool arr)
         return NULL;
 
     Nst_TokType closing_paren = arr ? Nst_TT_R_BRACE : Nst_TT_R_VBRACE;
-    const i8 *expected_paren = arr
+    const char *expected_paren = arr
         ? "expected '}'"
         : "expected '}>'";
 
-    const i8 *expected_comma_or_paren = arr
+    const char *expected_comma_or_paren = arr
         ? "expected ',' or '}'"
         : "expected ',' or '}>'";
 

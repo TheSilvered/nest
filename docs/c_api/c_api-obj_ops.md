@@ -549,7 +549,7 @@ The new range object or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *_Nst_get_import_path(i8 *initial_path, usize path_len)
+Nst_Obj *_Nst_get_import_path(const char *initial_path, usize path_len)
 ```
 
 **Description:**

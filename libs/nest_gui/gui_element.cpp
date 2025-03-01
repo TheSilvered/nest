@@ -12,7 +12,6 @@ GUI_Element *GUI_Element_New(usize size, GUI_Element *parent,
 {
     GUI_Element *element = (GUI_Element *)_Nst_obj_alloc(size, element_type);
 
-    Nst_GGC_OBJ_INIT(element);
     element->el_type = GUI_ET_NONE;
     element->rect = { 0, 0, 0, 0 };
     element->pad_t = 0;
@@ -32,6 +31,8 @@ GUI_Element *GUI_Element_New(usize size, GUI_Element *parent,
     element->state = GUI_ES_ENABLED;
     element->prev_state = GUI_ES_NONE;
     element->important = false;
+
+    Nst_GGC_OBJ_INIT(element);
 
     return element;
 }

@@ -392,7 +392,7 @@ static bool has_assignments(Nst_InstList *bc, Nst_Obj *name);
 static bool has_jumps_to(Nst_InstList *bc, i64 idx, i64 avoid_start,
                          i64 avoid_end);
 static void replace_access(Nst_InstList *bc, Nst_Obj *name, Nst_Obj *val);
-static void optimize_const(Nst_InstList *bc, const i8 *name, Nst_Obj *val);
+static void optimize_const(Nst_InstList *bc, const char *name, Nst_Obj *val);
 static void remove_push_pop(Nst_InstList *bc);
 static void remove_assign_pop(Nst_InstList *bc);
 static void remove_assign_loc_get_val(Nst_InstList *bc);
@@ -609,7 +609,7 @@ static void replace_access(Nst_InstList *bc, Nst_Obj *name, Nst_Obj *val)
         replace_access(Nst_func_nest_body(n->value), name, val);
 }
 
-static void optimize_const(Nst_InstList *bc, const i8 *name, Nst_Obj *val)
+static void optimize_const(Nst_InstList *bc, const char *name, Nst_Obj *val)
 {
     Nst_Obj *str_obj = Nst_str_new_c_raw(name, false);
     if (str_obj == NULL) {

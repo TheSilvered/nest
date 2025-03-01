@@ -8,7 +8,7 @@ int wmain(int argc, wchar_t **wargv)
 {
     _Nst_console_mode_init();
 
-    i8 **argv;
+    char **argv;
 
     if (!_Nst_wargv_to_argv(argc, wargv, &argv))
         return -1;

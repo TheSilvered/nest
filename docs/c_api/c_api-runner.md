@@ -189,7 +189,7 @@ a reference from `cwd` and removes one from the previous value in the state.
 **Synopsis:**
 
 ```better-c
-bool Nst_es_push_module(Nst_ExecutionState *es, i8 *filename,
+bool Nst_es_push_module(Nst_ExecutionState *es, const char *filename,
                         Nst_SourceText *source_text)
 ```
 
@@ -215,7 +215,7 @@ Compiles a module given a path and sets up an execution state to run it.
 
 ```better-c
 bool Nst_es_push_func(Nst_ExecutionState *es, Nst_Obj *func, Nst_Pos start,
-                      Nst_Pos end, i64 arg_num, Nst_Obj **args)
+                      Nst_Pos end, usize arg_num, Nst_Obj **args)
 ```
 
 **Description:**

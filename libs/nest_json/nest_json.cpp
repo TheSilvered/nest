@@ -27,13 +27,13 @@ Nst_Obj *NstC load_s_(usize arg_num, Nst_Obj **args)
         return nullptr;
 
     Nst_LList *tokens = json_tokenize(
-        (i8 *)"<Str>",
-        Nst_str_value(str), Nst_str_len(str),
+        (char *)"<Str>",
+        (char *)Nst_str_value(str), Nst_str_len(str),
         true, Nst_EID_EXT_UTF8);
     if (tokens == nullptr)
         return nullptr;
 
-    Nst_Obj *value = json_parse((i8 *)"<Str>", tokens);
+    Nst_Obj *value = json_parse((char *)"<Str>", tokens);
     return value;
 }
 
@@ -46,11 +46,11 @@ Nst_Obj *NstC load_f_(usize arg_num, Nst_Obj **args)
 
     Nst_EncodingID encoding = Nst_DEF_VAL(
         encoding_obj,
-        Nst_encoding_from_name(Nst_str_value(encoding_obj)),
+        Nst_encoding_from_name((char *)Nst_str_value(encoding_obj)),
         Nst_EID_UNKNOWN);
     encoding = Nst_encoding_to_single_byte(encoding);
 
-    FILE *f = Nst_fopen_unicode(Nst_str_value(path), "rb");
+    FILE *f = Nst_fopen_unicode((char *)Nst_str_value(path), "rb");
 
     if (f == nullptr) {
         if (!Nst_error_occurred())
@@ -64,23 +64,23 @@ Nst_Obj *NstC load_f_(usize arg_num, Nst_Obj **args)
     usize buf_size = (usize)ftell(f);
     fseek(f, 0, SEEK_SET);
 
-    i8 *buf = Nst_malloc_c(buf_size + 1, i8);
+    u8 *buf = Nst_malloc_c(buf_size + 1, u8);
     if (buf == nullptr) {
         fclose(f);
         return nullptr;
     }
 
-    usize len = fread(buf, sizeof(i8), buf_size, f);
+    usize len = fread(buf, sizeof(u8), buf_size, f);
     fclose(f);
     buf[len] = 0;
     Nst_LList *tokens = json_tokenize(
-        Nst_str_value(path),
-        buf, len,
+        (char *)Nst_str_value(path),
+        (char *)buf, len,
         false, encoding);
     if (tokens == nullptr)
         return nullptr;
 
-    Nst_Obj *value = json_parse(Nst_str_value(path), tokens);
+    Nst_Obj *value = json_parse((char *)Nst_str_value(path), tokens);
     return value;
 }
 
@@ -114,11 +114,11 @@ Nst_Obj *NstC dump_f_(usize arg_num, Nst_Obj **args)
 
     Nst_EncodingID encoding = Nst_DEF_VAL(
         encoding_obj,
-        Nst_encoding_from_name(Nst_str_value(encoding_obj)),
+        Nst_encoding_from_name((char *)Nst_str_value(encoding_obj)),
         Nst_EID_EXT_UTF8);
     encoding = Nst_encoding_to_single_byte(encoding);
 
-    FILE *f = Nst_fopen_unicode(Nst_str_value(path), "wb");
+    FILE *f = Nst_fopen_unicode((char *)Nst_str_value(path), "wb");
 
     if (f == nullptr) {
         if (!Nst_error_occurred()) {
@@ -135,7 +135,7 @@ Nst_Obj *NstC dump_f_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    i8 *encoded_str;
+    u8 *encoded_str;
     usize encoded_str_len;
 
     bool result = Nst_encoding_translate(
@@ -152,7 +152,7 @@ Nst_Obj *NstC dump_f_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    fwrite(encoded_str, sizeof(i8), encoded_str_len, f);
+    fwrite(encoded_str, sizeof(u8), encoded_str_len, f);
     fclose(f);
     Nst_free(encoded_str);
     return Nst_null_ref();
@@ -179,7 +179,7 @@ Nst_Obj *NstC set_option_(usize arg_num, Nst_Obj **args)
             nan_and_inf = nan_and_inf_default;
             break;
         default:
-            Nst_error_setf_value("option %lli does not exist", option);
+            Nst_error_setf_value("option %" PRIi64 " does not exist", option);
             return nullptr;
         }
         return Nst_null_ref();
@@ -197,7 +197,7 @@ Nst_Obj *NstC set_option_(usize arg_num, Nst_Obj **args)
         nan_and_inf = value;
         break;
     default:
-        Nst_error_setf_value("option %lli does not exist", option);
+        Nst_error_setf_value("option %" PRIi64 " does not exist", option);
         return nullptr;
     }
 
@@ -218,7 +218,7 @@ Nst_Obj *NstC get_option_(usize arg_num, Nst_Obj **args)
     case JSON_OPT_NAN_AND_INF:
         Nst_RETURN_BOOL(nan_and_inf);
     default:
-        Nst_error_setf_value("option %lli does not exist", option);
+        Nst_error_setf_value("option %" PRIi64 " does not exist", option);
         return nullptr;
     }
 }

@@ -111,7 +111,7 @@ static InstResult exe_pop_catch();
 static InstResult exe_save_error();
 static InstResult exe_unpack_seq();
 
-static InstResult call_c_func(bool is_seq_call, i64 arg_num,
+static InstResult call_c_func(bool is_seq_call, usize arg_num,
                               Nst_Obj *args_seq, Nst_Obj *func);
 static void loaded_libs_destructor(lib_t lib);
 static void source_text_destructor(Nst_SourceText *src);
@@ -498,7 +498,7 @@ Nst_Inst *Nst_current_inst(void)
     return &inst_list->instructions[Nst_state.es->idx];
 }
 
-bool Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
+bool Nst_run_module(const char *filename, Nst_SourceText *lib_src)
 {
     if (!Nst_es_push_module(Nst_state.es, filename, lib_src))
         return false;
@@ -512,18 +512,19 @@ bool Nst_run_module(i8 *filename, Nst_SourceText *lib_src)
         return true;
 }
 
-Nst_Obj *Nst_func_call(Nst_Obj *func, i64 arg_num, Nst_Obj **args)
+Nst_Obj *Nst_func_call(Nst_Obj *func, usize arg_num, Nst_Obj **args)
 {
     Nst_assert(func->type == Nst_t.Func);
     if (Nst_FUNC_IS_C(func)) {
-        i64 tot_args = (i64)Nst_func_arg_num(func);
-        i64 null_args = tot_args - arg_num;
+        usize tot_args = Nst_func_arg_num(func);
 
         if (tot_args < arg_num) {
             Nst_error_set_call(
-                _Nst_WRONG_ARG_NUM((usize)tot_args, arg_num));
+                _Nst_WRONG_ARG_NUM(tot_args, arg_num));
             return NULL;
         }
+
+        usize null_args = tot_args - arg_num;
 
         Nst_Obj **all_args;
         Nst_Obj *stack_args[10]; // for up to 10 arguments this array is used
@@ -533,20 +534,19 @@ Nst_Obj *Nst_func_call(Nst_Obj *func, i64 arg_num, Nst_Obj **args)
         else if (null_args == 0)
             all_args = args;
         else if (tot_args <= 10) {
-            memcpy(stack_args, args, (usize)arg_num * sizeof(Nst_Obj *));
+            memcpy(stack_args, args, arg_num * sizeof(Nst_Obj *));
             all_args = stack_args;
         } else {
-            all_args = Nst_malloc_c((usize)tot_args, Nst_Obj *);
-            if (args == NULL) {
+            all_args = Nst_malloc_c(tot_args, Nst_Obj *);
+            if (args == NULL)
                 return NULL;
-            }
-            memcpy(all_args, args, (usize)arg_num * sizeof(Nst_Obj *));
+            memcpy(all_args, args, arg_num * sizeof(Nst_Obj *));
         }
 
-        for (i64 i = 0; i < null_args; i++)
+        for (usize i = 0; i < null_args; i++)
             all_args[arg_num + i] = Nst_inc_ref(Nst_c.Null_null);
 
-        Nst_Obj *res = Nst_func_c_body(func)((usize)tot_args, all_args);
+        Nst_Obj *res = Nst_func_c_body(func)(tot_args, all_args);
         if (all_args != stack_args && all_args != args)
             Nst_free(all_args);
 
@@ -838,19 +838,20 @@ end:
     return return_value;
 }
 
-static InstResult call_c_func(bool is_seq_call, i64 arg_num,
+static InstResult call_c_func(bool is_seq_call, usize arg_num,
                               Nst_Obj *args_seq, Nst_Obj *func)
 {
-    i64 tot_args = (i64)Nst_func_arg_num(func);
-    i64 null_args = tot_args - arg_num;
+    usize tot_args = Nst_func_arg_num(func);
 
     if (tot_args < arg_num) {
         Nst_error_set_call(
-            _Nst_WRONG_ARG_NUM((usize)tot_args, arg_num));
+            _Nst_WRONG_ARG_NUM(tot_args, arg_num));
         Nst_dec_ref(func);
         Nst_ndec_ref(args_seq);
         return INST_FAILED;
     }
+
+    usize null_args = tot_args - arg_num;
 
     Nst_Obj **args;
     Nst_Obj *stack_args[10]; // for up to 10 arguments this array is used
@@ -860,46 +861,40 @@ static InstResult call_c_func(bool is_seq_call, i64 arg_num,
     else if (is_seq_call && null_args == 0)
         args = _Nst_seq_objs(args_seq);
     else if (is_seq_call && tot_args <= 10) {
-        memcpy(
-            stack_args,
-            _Nst_seq_objs(args_seq),
-            (usize)arg_num * sizeof(Nst_Obj *));
+        memcpy(stack_args, _Nst_seq_objs(args_seq), arg_num * sizeof(Nst_Obj *));
         args = stack_args;
     } else if (is_seq_call) {
-        args = Nst_malloc_c((usize)tot_args, Nst_Obj *);
+        args = Nst_malloc_c(tot_args, Nst_Obj *);
         if (args == NULL) {
             Nst_dec_ref(args_seq);
             Nst_dec_ref(func);
             return INST_FAILED;
         }
-        memcpy(
-            args,
-            _Nst_seq_objs(args_seq),
-            (usize)arg_num * sizeof(Nst_Obj *));
+        memcpy(args, _Nst_seq_objs(args_seq), arg_num * sizeof(Nst_Obj *));
     } else if (tot_args <= 10) {
-        for (i64 i = arg_num - 1; i >= 0; i--)
+        for (i64 i = (i64)arg_num - 1; i >= 0; i--)
             stack_args[i] = POP_TOP_VALUE;
         args = stack_args;
     } else {
-        args = Nst_malloc_c((usize)tot_args, Nst_Obj *);
+        args = Nst_malloc_c(tot_args, Nst_Obj *);
         if (args == NULL) {
             Nst_dec_ref(func);
             return INST_FAILED;
         }
-        for (i64 i = arg_num - 1; i >= 0; i--)
+        for (i64 i = (i64)arg_num - 1; i >= 0; i--)
             args[i] = POP_TOP_VALUE;
     }
 
-    for (i64 i = 0; i < null_args; i++)
+    for (usize i = 0; i < null_args; i++)
         args[arg_num + i] = Nst_inc_ref(Nst_c.Null_null);
 
-    Nst_Obj *res = Nst_func_c_body(func)((usize)tot_args, args);
+    Nst_Obj *res = Nst_func_c_body(func)(tot_args, args);
 
     if (!is_seq_call) {
-        for (i64 i = 0; i < tot_args; i++)
+        for (usize i = 0; i < tot_args; i++)
             Nst_dec_ref(args[i]);
     } else {
-        for (i64 i = 0; i < null_args; i++)
+        for (usize i = 0; i < null_args; i++)
             Nst_dec_ref(args[arg_num + i]);
     }
 
@@ -1405,7 +1400,7 @@ static InstResult exe_unpack_seq()
 
     if ((i64)Nst_seq_len(seq) != inst->int_val) {
         Nst_error_setf_value(
-            "expected %lli items to unpack but the sequence contains %zi",
+            "expected %"PRIi64" items to unpack but the sequence contains %zi",
             inst->int_val, Nst_seq_len(seq));
         Nst_dec_ref(seq);
         return INST_FAILED;
@@ -1421,7 +1416,7 @@ static InstResult exe_unpack_seq()
     return INST_SUCCESS;
 }
 
-usize Nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part)
+usize Nst_get_full_path(const char *file_path, char **buf, char **file_part)
 {
     *buf = NULL;
     if (file_part != NULL)
@@ -1472,7 +1467,7 @@ usize Nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part)
     }
     Nst_free(wide_file_path);
 
-    i8 *full_path = Nst_wchar_t_to_char(wide_full_path, full_path_len);
+    char *full_path = Nst_wchar_t_to_char(wide_full_path, full_path_len);
     Nst_free(wide_full_path);
     if (full_path == NULL)
         return 0;
@@ -1491,11 +1486,11 @@ usize Nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part)
 
 #else
 
-    i8 *path = Nst_malloc_c(PATH_MAX, i8);
+    char *path = Nst_malloc_c(PATH_MAX, char);
     if (path == NULL)
         return 0;
 
-    i8 *result = realpath(file_path, path);
+    char *result = realpath(file_path, path);
 
     if (result == NULL) {
         Nst_free(path);
@@ -1525,14 +1520,14 @@ i32 Nst_chdir(Nst_Obj *str)
 {
 #ifdef Nst_MSVC
     wchar_t *wide_cwd = Nst_char_to_wchar_t(
-        Nst_str_value(str),
+        (char *)Nst_str_value(str),
         Nst_str_len(str));
     if (wide_cwd == NULL)
         return -1;
     i32 res = _wchdir(wide_cwd);
     Nst_free(wide_cwd);
 #else
-    i32 res = chdir(Nst_str_value(str));
+    i32 res = chdir((char *)Nst_str_value(str));
 #endif // !Nst_MSVC
 
     if (res != 0)
@@ -1556,22 +1551,22 @@ Nst_Obj *Nst_getcwd(void)
         Nst_error_setc_call("failed to get the current working directory");
         return NULL;
     }
-    i8 *cwd_buf = Nst_wchar_t_to_char(wide_cwd, 0);
+    u8 *cwd_buf = (u8 *)Nst_wchar_t_to_char(wide_cwd, 0);
     Nst_free(wide_cwd);
     if (cwd_buf == NULL)
         return NULL;
-    return Nst_str_new_allocated(cwd_buf, strlen(cwd_buf));
+    return Nst_str_new_allocated(cwd_buf, strlen((char *)cwd_buf));
 #else
-    i8 *cwd_buf = Nst_malloc_c(PATH_MAX, i8);
+    u8 *cwd_buf = Nst_malloc_c(PATH_MAX, u8);
     if (cwd_buf == NULL)
         return NULL;
-    i8 *cwd_result = getcwd(cwd_buf, PATH_MAX);
+    u8 *cwd_result = (u8 *)getcwd((char *)cwd_buf, PATH_MAX);
     if (cwd_result == NULL) {
         Nst_free(cwd_buf);
         Nst_error_setc_call("failed to get the current working directory");
         return NULL;
     }
-    return Nst_str_new_allocated(cwd_buf, strlen(cwd_buf));
+    return Nst_str_new_allocated(cwd_buf, strlen((char *)cwd_buf));
 #endif // !Nst_MSVC
 }
 

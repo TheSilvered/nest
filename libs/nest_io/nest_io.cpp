@@ -65,7 +65,7 @@ static usize get_file_size(Nst_Obj *f)
     return end;
 }
 
-static Nst_IOResult virtual_file_read(i8 *buf, usize buf_size, usize count,
+static Nst_IOResult virtual_file_read(u8 *buf, usize buf_size, usize count,
                                       usize *buf_len, Nst_Obj *f)
 {
     if (Nst_IOF_IS_CLOSED(f))
@@ -74,7 +74,7 @@ static Nst_IOResult virtual_file_read(i8 *buf, usize buf_size, usize count,
     // virtual files always support reading
 
     VirtualFile *vf = (VirtualFile *)Nst_iof_fp(f);
-    i8 *out_buf = buf_size == 0 ? NULL : buf;
+    u8 *out_buf = buf_size == 0 ? NULL : buf;
 
     if (Nst_IOF_IS_BIN(f)) {
         // limit count to stay within the boundaries of the file
@@ -84,16 +84,16 @@ static Nst_IOResult virtual_file_read(i8 *buf, usize buf_size, usize count,
             count = vf->data.len - vf->ptr;
 
         if (out_buf == NULL) {
-            out_buf = (i8 *)Nst_raw_malloc(count);
+            out_buf = (u8 *)Nst_raw_malloc(count);
             if (out_buf == NULL)
                 return Nst_IO_ALLOC_FAILED;
         }
 
-        memcpy(out_buf, (i8 *)vf->data.data + vf->ptr, count);
+        memcpy(out_buf, (u8 *)vf->data.data + vf->ptr, count);
         vf->ptr += count;
 
         if (buf_size == 0)
-            *(i8 **)buf = out_buf;
+            *(u8 **)buf = out_buf;
         if (buf_len != NULL)
             *buf_len = count;
 
@@ -117,7 +117,7 @@ static Nst_IOResult virtual_file_read(i8 *buf, usize buf_size, usize count,
             vf->data.len - vf->ptr - byte_count);
         if (ch_size == -1) {
             Nst_io_result_set_details(
-                (u32)*((i8 *)vf->data.data + vf->ptr + byte_count),
+                (u32)*((u8 *)vf->data.data + vf->ptr + byte_count),
                 vf->ptr + byte_count,
                 Nst_encoding(Nst_EID_EXT_UTF8)->name);
             return Nst_IO_ALLOC_FAILED;
@@ -129,18 +129,18 @@ static Nst_IOResult virtual_file_read(i8 *buf, usize buf_size, usize count,
     }
 
     if (out_buf == NULL) {
-        out_buf = Nst_malloc_c(byte_count + 1, i8);
+        out_buf = Nst_malloc_c(byte_count + 1, u8);
         if (out_buf == NULL)
             return Nst_IO_ALLOC_FAILED;
     }
 
     // the virtual file stores text in extUTF8, just copy the contents
-    memcpy(out_buf, (i8 *)vf->data.data + vf->ptr, byte_count);
+    memcpy(out_buf, (u8 *)vf->data.data + vf->ptr, byte_count);
     out_buf[byte_count] = '\0';
     vf->ptr += byte_count;
 
     if (buf_size == 0)
-        *(i8 **)buf = out_buf;
+        *(u8 **)buf = out_buf;
     if (buf_len != NULL)
         *buf_len = byte_count;
 
@@ -149,7 +149,7 @@ static Nst_IOResult virtual_file_read(i8 *buf, usize buf_size, usize count,
     return Nst_IO_SUCCESS;
 }
 
-static Nst_IOResult virtual_file_write(i8 *buf, usize buf_len, usize *count,
+static Nst_IOResult virtual_file_write(u8 *buf, usize buf_len, usize *count,
                                        Nst_Obj *f)
 {
     if (Nst_IOF_IS_CLOSED(f))
@@ -164,9 +164,9 @@ static Nst_IOResult virtual_file_write(i8 *buf, usize buf_len, usize *count,
     else if (count != NULL) {
         usize char_count = 0;
         usize buf_len_cpy = buf_len;
-        i8 *buf_cpy = buf;
+        u8 *buf_cpy = buf;
         while (buf_len_cpy) {
-            i32 ch_size = Nst_check_ext_utf8_bytes((u8 *)buf_cpy, buf_len_cpy);
+            i32 ch_size = Nst_check_ext_utf8_bytes(buf_cpy, buf_len_cpy);
             // buf is expected to be properly encoded but check nevertheless
             if (ch_size < 0)
                 return Nst_IO_ERROR;
@@ -267,11 +267,11 @@ Nst_Obj *NstC open_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    i8 *file_name = Nst_str_value(file_name_str);
-    i8 *file_mode = Nst_DEF_VAL(
+    u8 *file_name = Nst_str_value(file_name_str);
+    u8 *file_mode = Nst_DEF_VAL(
         file_mode_str,
         Nst_str_value(file_mode_str),
-        (i8 *)"r");
+        (u8 *)"r");
     usize file_mode_len = Nst_DEF_VAL(
         file_mode_str,
         Nst_str_len(file_mode_str), 1);
@@ -345,7 +345,7 @@ Nst_Obj *NstC open_(usize arg_num, Nst_Obj **args)
     } else {
         Nst_EncodingID cpid = Nst_DEF_VAL(
             encoding_obj,
-            Nst_encoding_from_name(Nst_str_value(encoding_obj)),
+            Nst_encoding_from_name((char *)Nst_str_value(encoding_obj)),
             Nst_EID_UTF8);
         if (cpid == Nst_EID_UNKNOWN) {
             Nst_error_setf_value(
@@ -359,7 +359,7 @@ Nst_Obj *NstC open_(usize arg_num, Nst_Obj **args)
         encoding = Nst_encoding(cpid);
     }
 
-    FILE *file_ptr = Nst_fopen_unicode(file_name, bin_mode);
+    FILE *file_ptr = Nst_fopen_unicode((char *)file_name, bin_mode);
 
     if (file_ptr == nullptr) {
         if (!Nst_error_occurred()) {
@@ -393,7 +393,7 @@ Nst_Obj *NstC virtual_file_(usize arg_num, Nst_Obj **args)
     if (vf == nullptr)
         return nullptr;
 
-    if (!Nst_sbuffer_init(&vf->data, sizeof(i8), usize(buf_size))) {
+    if (!Nst_sbuffer_init(&vf->data, sizeof(u8), usize(buf_size))) {
         Nst_free(vf);
         return nullptr;
     }
@@ -454,7 +454,7 @@ Nst_Obj *NstC write_(usize arg_num, Nst_Obj **args)
     if (result == Nst_IO_INVALID_ENCODING) {
         u32 failed_ch;
         usize failed_pos;
-        const i8 *name;
+        const char *name;
         Nst_io_result_get_details(&failed_ch, &failed_pos, &name);
         Nst_error_setf_value(
             "could not encode U+%0*X at %zi for %s encoding",
@@ -495,7 +495,7 @@ Nst_Obj *NstC write_bytes_(usize arg_num, Nst_Obj **args)
 
     usize seq_len = Nst_seq_len(seq);
     Nst_Obj **objs = _Nst_seq_objs(seq);
-    i8 *bytes = Nst_malloc_c(seq_len + 1, i8);
+    u8 *bytes = Nst_malloc_c(seq_len + 1, u8);
     if (bytes == nullptr)
         return nullptr;
 
@@ -551,10 +551,10 @@ Nst_Obj *NstC read_(usize arg_num, Nst_Obj **args)
             bytes_to_read = max_size;
     }
 
-    i8 *buf;
+    u8 *buf;
     usize buf_len;
     Nst_IOResult result = Nst_fread(
-        (i8 *)&buf, 0,
+        (u8 *)&buf, 0,
         usize(bytes_to_read), &buf_len,
         f);
 
@@ -564,7 +564,7 @@ Nst_Obj *NstC read_(usize arg_num, Nst_Obj **args)
     } else if (result == Nst_IO_INVALID_DECODING) {
         u32 failed_ch;
         usize failed_pos;
-        const i8 *name;
+        const char *name;
         Nst_io_result_get_details(&failed_ch, &failed_pos, &name);
         Nst_error_setf_value(
             "could not decode byte %#x at position %zi for %s encoding",
@@ -616,10 +616,10 @@ Nst_Obj *NstC read_bytes_(usize arg_num, Nst_Obj **args)
             bytes_to_read = max_size;
     }
 
-    i8 *buf;
+    u8 *buf;
     usize buf_len;
     Nst_IOResult result = Nst_fread(
-        (i8 *)&buf, 0,
+        (u8 *)&buf, 0,
         usize(bytes_to_read), &buf_len,
         f);
 
@@ -685,7 +685,7 @@ Nst_Obj *NstC seek_(usize arg_num, Nst_Obj **args)
     i64 offset = Nst_DEF_VAL(offset_obj, Nst_int_i64(offset_obj), 0);
 
     if (start < 0 || start > 2) {
-        Nst_error_setf_value("invalid origin '%lli'", start);
+        Nst_error_setf_value("invalid origin '%" PRIi64 "'", start);
         return nullptr;
     }
 
@@ -761,7 +761,7 @@ Nst_Obj *NstC get_flags_(usize arg_num, Nst_Obj **args)
         return nullptr;
     }
 
-    i8 *flags = Nst_malloc_c(6, i8);
+    u8 *flags = Nst_malloc_c(6, u8);
     if (flags == nullptr)
         return nullptr;
 
@@ -901,7 +901,7 @@ Nst_Obj *NstC println_(usize arg_num, Nst_Obj **args)
     } else if (res == Nst_IO_INVALID_ENCODING) {
         u32 failed_ch;
         usize failed_pos;
-        const i8 *name;
+        const char *name;
         Nst_io_result_get_details(&failed_ch, &failed_pos, &name);
         Nst_error_setf_value(
             "could not encode U+%0*X at %zi for %s encoding",

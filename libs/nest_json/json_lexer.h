@@ -11,8 +11,8 @@ const bool nan_and_inf_default = false;
 
 #define JSON_SYNTAX_ERROR(msg, path, pos)                                     \
     Nst_error_setf_syntax(                                                    \
-        "JSON: " msg ", file \"%s\", line %lli, column %lli",                 \
-        path, (i64)(pos).line, (i64)(pos).col)
+        "JSON: " msg ", file \"%s\", line %" PRIi32 ", column %" PRIi32,      \
+        path, (pos).line, (pos).col)
 
 typedef enum _JSONTokenType {
     JSON_LBRACKET,
@@ -25,7 +25,7 @@ typedef enum _JSONTokenType {
     JSON_EOF
 } JSONTokenType;
 
-Nst_LList *json_tokenize(i8 *path, i8 *text, usize text_len,
+Nst_LList *json_tokenize(char *path, char *text, usize text_len,
                          bool readonly_text, Nst_EncodingID encoding);
 
 #endif // !JSON_LEXER_H

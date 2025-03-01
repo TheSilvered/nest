@@ -25,7 +25,7 @@ Value of `idx` in case an error occurs when iterating over a string.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_str_new_c_raw(const i8 *val, bool allocated)
+Nst_Obj *Nst_str_new_c_raw(const char *val, bool allocated)
 ```
 
 **Description:**
@@ -50,7 +50,7 @@ The new string on success and `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_str_new_c(const i8 *val, usize len, bool allocated)
+Nst_Obj *Nst_str_new_c(const char *val, usize len, bool allocated)
 ```
 
 **Description:**
@@ -75,7 +75,7 @@ The new string on success and `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_str_new(i8 *val, usize len, bool allocated)
+Nst_Obj *Nst_str_new(u8 *val, usize len, bool allocated)
 ```
 
 **Description:**
@@ -100,7 +100,7 @@ The new string on success and `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_str_new_allocated(i8 *val, usize len)
+Nst_Obj *Nst_str_new_allocated(u8 *val, usize len)
 ```
 
 **Description:**
@@ -125,7 +125,7 @@ The new string on success and `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_str_new_len(i8 *val, usize len, usize char_len, bool allocated)
+Nst_Obj *Nst_str_new_len(u8 *val, usize len, usize char_len, bool allocated)
 ```
 
 **Description:**
@@ -308,7 +308,7 @@ characters to iterate over or when an error occurs. In case an error occurs
 **Synopsis:**
 
 ```better-c
-i32 Nst_str_next_utf8(Nst_Obj *str, isize *idx, i8 *ch_buf)
+i32 Nst_str_next_utf8(Nst_Obj *str, isize *idx, u8 *ch_buf)
 ```
 
 **Description:**
@@ -445,7 +445,7 @@ and a value `> 0` if `str1` is greater than `str2`.
 **Synopsis:**
 
 ```better-c
-i8 *Nst_str_lfind(i8 *s1, usize l1, i8 *s2, usize l2)
+u8 *Nst_str_lfind(u8 *s1, usize l1, u8 *s2, usize l2)
 ```
 
 **Description:**
@@ -474,7 +474,7 @@ error is set.
 **Synopsis:**
 
 ```better-c
-i8 *Nst_str_rfind(i8 *s1, usize l1, i8 *s2, usize l2)
+u8 *Nst_str_rfind(u8 *s1, usize l1, u8 *s2, usize l2)
 ```
 
 **Description:**
@@ -504,7 +504,7 @@ error is set.
 **Synopsis:**
 
 ```better-c
-i8 *Nst_str_value(Nst_Obj *str)
+u8 *Nst_str_value(Nst_Obj *str)
 ```
 
 **Description:**

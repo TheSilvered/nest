@@ -115,7 +115,7 @@ Nst_Obj *NstC window_set_title_(usize arg_num, Nst_Obj **args)
     if (not_initialized())
         return nullptr;
 
-    GUI_Window_SetTitle(app.window, (const i8*)Nst_str_value(title));
+    GUI_Window_SetTitle(app.window, (const char *)Nst_str_value(title));
     return Nst_null_ref();
 }
 
@@ -126,9 +126,9 @@ Nst_Obj *NstC window_get_title_(usize arg_num, Nst_Obj **args)
     if (not_initialized())
         return nullptr;
 
-    const i8 *title = GUI_Window_GetTitle(app.window);
+    const char *title = GUI_Window_GetTitle(app.window);
     usize title_len = strlen(title);
-    i8 *title_copy = (i8 *)Nst_calloc(1, title_len + 1, (void *)title);
+    u8 *title_copy = (u8 *)Nst_calloc(1, title_len + 1, (void *)title);
     if (title_copy == nullptr)
         return nullptr;
     return Nst_str_new_allocated(title_copy, title_len);

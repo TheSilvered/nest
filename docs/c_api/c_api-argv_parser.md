@@ -21,10 +21,10 @@ typedef struct _Nst_CLArgs {
     Nst_EncodingID encoding;
     bool no_default;
     i32 opt_level;
-    i8 *command, *filename;
+    char *command, *filename;
     i32 args_start;
     i32 argc;
-    i8 **argv;
+    char **argv;
 } Nst_CLArgs
 ```
 
@@ -60,7 +60,7 @@ A structure representing the command-line arguments of Nest.
 **Synopsis:**
 
 ```better-c
-void Nst_cl_args_init(Nst_CLArgs *args, i32 argc, i8 **argv)
+void Nst_cl_args_init(Nst_CLArgs *args, int argc, char **argv)
 ```
 
 **Description:**
@@ -135,7 +135,7 @@ Ovverrides the value returned by
 **Synopsis:**
 
 ```better-c
-bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, i8 ***argv)
+bool _Nst_wargv_to_argv(int argc, wchar_t **wargv, char ***argv)
 ```
 
 **Description:**

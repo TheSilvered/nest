@@ -73,12 +73,12 @@ NstEXP typedef void (*Nst_ObjTrav)(struct _Nst_Obj *);
 #define Nst_OBJ_HEAD                                                          \
     struct _Nst_Obj *type;                                                    \
     struct _Nst_Obj *p_next;                                                  \
-    i32 ref_count;                                                            \
+    isize ref_count;                                                          \
     i32 hash;                                                                 \
     u32 flags;                                                                \
     i32 init_line;                                                            \
     i32 init_col;                                                             \
-    i8 *init_path
+    char *init_path
 
 #else
 
@@ -92,7 +92,7 @@ NstEXP typedef void (*Nst_ObjTrav)(struct _Nst_Obj *);
 #define Nst_OBJ_HEAD                                                          \
     struct _Nst_Obj *type;                                                    \
     struct _Nst_Obj *p_next;                                                  \
-    i32 ref_count;                                                            \
+    isize ref_count;                                                          \
     i32 hash;                                                                 \
     u32 flags
 #endif

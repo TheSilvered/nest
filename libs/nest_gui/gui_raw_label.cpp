@@ -3,7 +3,7 @@
 
 static void raw_label_destructor(GUI_RawLabel *label);
 
-GUI_RawLabel *GUI_RawLabel_New(GUI_Element *parent, i8 *text, isize text_len)
+GUI_RawLabel *GUI_RawLabel_New(GUI_Element *parent, u8 *text, isize text_len)
 {
     GUI_RawLabel *label = (GUI_RawLabel *)GUI_Element_New(
         sizeof(GUI_RawLabel),
@@ -13,10 +13,10 @@ GUI_RawLabel *GUI_RawLabel_New(GUI_Element *parent, i8 *text, isize text_len)
     if (label == nullptr)
         return nullptr;
     if (text_len < 0)
-        label->text_len = strlen(text);
+        label->text_len = strlen((char *)text);
     else
         label->text_len = text_len;
-    label->text = (i8 *)Nst_calloc(1, label->text_len + 1, text);
+    label->text = (u8 *)Nst_calloc(1, label->text_len + 1, text);
     if (label->text == nullptr) {
         Nst_dec_ref(NstOBJ(label));
         return nullptr;
@@ -31,7 +31,7 @@ Nst_Obj *GUI_RawLabel_GetTextObj(GUI_RawLabel *label)
 {
     Nst_assert(label->el_type == GUI_ET_RAW_LABEL);
 
-    i8 *value = (i8 *)Nst_calloc(1, label->text_len + 1, label->text);
+    u8 *value = (u8 *)Nst_calloc(1, label->text_len + 1, label->text);
     if (value == nullptr)
         return nullptr;
     return Nst_str_new_allocated(value, label->text_len);
@@ -40,7 +40,7 @@ Nst_Obj *GUI_RawLabel_GetTextObj(GUI_RawLabel *label)
 bool GUI_RawLabel_SetTextObj(GUI_RawLabel *label, Nst_Obj *text)
 {
     Nst_assert(Nst_T(text, Str));
-    i8 *new_text = (i8 *)Nst_calloc(
+    u8 *new_text = (u8 *)Nst_calloc(
         1, Nst_str_len(text) + 1,
         Nst_str_value(text));
     if (new_text == nullptr)

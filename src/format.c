@@ -17,34 +17,34 @@
 #define MIN(a, b) ((b) < (a) ? (b) : (a))
 #define MAX(a, b) ((b) > (a) ? (b) : (a))
 
-isize Nst_print(const i8 *buf)
+isize Nst_print(const char *buf)
 {
     return Nst_fprint(Nst_io.out, buf);
 }
 
-isize Nst_println(const i8 *buf)
+isize Nst_println(const char *buf)
 {
     return Nst_fprintln(Nst_io.out, buf);
 }
 
-isize Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
+isize Nst_printf(Nst_WIN_FMT const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
     return Nst_vfprintf(Nst_io.out, fmt, args);
 }
 
-isize Nst_fprint(Nst_Obj *f, const i8 *buf)
+isize Nst_fprint(Nst_Obj *f, const char *buf)
 {
     Nst_assert(f->type == Nst_t.IOFile);
     usize len = strlen(buf);
     usize count;
-    if (Nst_fwrite((i8 *)buf, (usize)len, &count, f) < 0)
+    if (Nst_fwrite((u8 *)buf, len, &count, f) < 0)
         return -1;
     return count;
 }
 
-isize Nst_fprintln(Nst_Obj *f, const i8 *buf)
+isize Nst_fprintln(Nst_Obj *f, const char *buf)
 {
     Nst_assert(f->type == Nst_t.IOFile);
     if (Nst_IOF_IS_CLOSED(f))
@@ -52,14 +52,14 @@ isize Nst_fprintln(Nst_Obj *f, const i8 *buf)
 
     usize len = strlen(buf);
     usize count_a, count_b;
-    if (Nst_fwrite((i8 *)buf, len, &count_a, f) < 0)
+    if (Nst_fwrite((u8 *)buf, len, &count_a, f) < 0)
         return -1;
-    if (Nst_fwrite((i8 *)"\n", 1, &count_b, f) < 0)
+    if (Nst_fwrite((u8 *)"\n", 1, &count_b, f) < 0)
         return -1;
     return count_a + count_b;
 }
 
-isize Nst_fprintf(Nst_Obj *f, Nst_WIN_FMT const i8 *fmt, ...)
+isize Nst_fprintf(Nst_Obj *f, Nst_WIN_FMT const char *fmt, ...)
 {
     Nst_assert(f->type == Nst_t.IOFile);
     va_list args;
@@ -67,14 +67,14 @@ isize Nst_fprintf(Nst_Obj *f, Nst_WIN_FMT const i8 *fmt, ...)
     return Nst_vfprintf(f, fmt, args);
 }
 
-Nst_Obj *Nst_sprintf(Nst_WIN_FMT const i8 *fmt, ...)
+Nst_Obj *Nst_sprintf(Nst_WIN_FMT const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
     return Nst_vsprintf(fmt, args);
 }
 
-Nst_Obj *Nst_vsprintf(const i8 *fmt, va_list args)
+Nst_Obj *Nst_vsprintf(const char *fmt, va_list args)
 {
     va_list args_copy;
     va_copy(args_copy, args);
@@ -83,7 +83,7 @@ Nst_Obj *Nst_vsprintf(const i8 *fmt, va_list args)
         va_end(args);
         return NULL;
     }
-    i8 *buf = Nst_calloc_c(buf_size, i8, NULL);
+    char *buf = Nst_calloc_c(buf_size, char, NULL);
     if (buf == NULL) {
         Nst_error_clear();
         va_end(args);
@@ -97,7 +97,7 @@ Nst_Obj *Nst_vsprintf(const i8 *fmt, va_list args)
         return NULL;
     }
 
-    Nst_Obj *str = Nst_str_new(buf, len, true);
+    Nst_Obj *str = Nst_str_new((u8 *)buf, len, true);
     if (str == NULL) {
         Nst_error_clear();
         Nst_free(buf);
@@ -105,7 +105,7 @@ Nst_Obj *Nst_vsprintf(const i8 *fmt, va_list args)
     return str;
 }
 
-isize Nst_vfprintf(Nst_Obj *f, const i8 *fmt, va_list args)
+isize Nst_vfprintf(Nst_Obj *f, const char *fmt, va_list args)
 {
     Nst_assert(f->type == Nst_t.IOFile);
     if (Nst_IOF_IS_CLOSED(f)) {
@@ -120,7 +120,7 @@ isize Nst_vfprintf(Nst_Obj *f, const i8 *fmt, va_list args)
         va_end(args);
         return -3;
     }
-    i8 *buf = Nst_calloc_c(buf_size, i8, NULL);
+    char *buf = Nst_calloc_c(buf_size, char, NULL);
     if (buf == NULL) {
         Nst_error_clear();
         va_end(args);
@@ -134,7 +134,7 @@ isize Nst_vfprintf(Nst_Obj *f, const i8 *fmt, va_list args)
         return -1;
     }
     usize count;
-    Nst_IOResult result = Nst_fwrite(buf, len, &count, f);
+    Nst_IOResult result = Nst_fwrite((u8 *)buf, len, &count, f);
     Nst_free(buf);
     return result >= 0 ? (isize)count : -1;
 }
@@ -266,10 +266,14 @@ static void format_init(Format *format)
     format->separator_width = -1;
 }
 
-static const i8 *format_set_separator(Format *format, const i8 *ch)
+static const char *format_set_separator(Format *format, const char *ch)
 {
     memset(format->separator, 0, 4);
     i32 ch_len = Nst_check_utf8_bytes((u8 *)ch, Nst_ENCODING_MULTIBYTE_MAX_SIZE);
+    if (ch_len < 0) {
+        memset(format->separator, 255, 4);
+        return NULL;
+    }
     memcpy(format->separator, ch, (usize)ch_len);
     return ch + ch_len;
 }
@@ -290,10 +294,14 @@ static usize format_separator_len(Format *format)
     return 4;
 }
 
-static const i8 *format_set_fill_ch(Format *format, const i8 *ch)
+static const char *format_set_fill_ch(Format *format, const char *ch)
 {
     memset(format->fill_ch, 0, 4);
     i32 ch_len = Nst_check_utf8_bytes((u8 *)ch, Nst_ENCODING_MULTIBYTE_MAX_SIZE);
+    if (ch_len < 0) {
+        memset(format->fill_ch, 255, 4);
+        return NULL;
+    }
     memcpy(format->fill_ch, ch, (usize)ch_len);
     return ch + ch_len;
 }
@@ -314,26 +322,26 @@ static usize format_fill_ch_len(Format *format)
     return 4;
 }
 
-static i8 *general_fmt(const i8 *fmt, usize fmt_len, usize *out_len,
+static u8 *general_fmt(const char *fmt, usize fmt_len, usize *out_len,
                        FmtValues *values);
 
-static const i8 *fmt_value(Nst_StrBuilder *sb, const i8 *fmt, FmtValues *vals);
+static const char *fmt_value(Nst_StrBuilder *sb, const char *fmt, FmtValues *vals);
 
-static void fmt_cut(i8 *str, usize str_len, usize char_len, i8 **out_str,
+static void fmt_cut(u8 *str, usize str_len, usize char_len, u8 **out_str,
                     usize *out_len, Format *format,
                     Alignment default_alignment);
-static bool fmt_align(Nst_StrBuilder *sb, i8 *str, usize str_len,
+static bool fmt_align(Nst_StrBuilder *sb, u8 *str, usize str_len,
                       usize char_str_len, Format *format,
                       Alignment default_alignment);
-static bool fmt_sep_and_ndigits(Nst_StrBuilder *sb, i8 *digits, usize digits_len,
-                                usize min_digits, i8 *sep, usize sep_len,
+static bool fmt_sep_and_ndigits(Nst_StrBuilder *sb, u8 *digits, usize digits_len,
+                                usize min_digits, u8 *sep, usize sep_len,
                                 usize sep_width, bool pad_zeroes);
-static bool fmt_align_or_cut(Nst_StrBuilder *sb, i8 *str, usize str_len,
+static bool fmt_align_or_cut(Nst_StrBuilder *sb, u8 *str, usize str_len,
                              usize char_str_len, Format *format,
                              Alignment default_alignment);
 
-static bool  fmt_str(Nst_StrBuilder *sb, i8 *str, isize str_len, Format *format);
-static isize fmt_str_repr(Nst_StrBuilder *sb, i8 *str, usize str_len,
+static bool  fmt_str(Nst_StrBuilder *sb, u8 *str, isize str_len, Format *format);
+static isize fmt_str_repr(Nst_StrBuilder *sb, u8 *str, usize str_len,
                           Format *format);
 static bool  fmt_str_more_double_quotes(u8 *str, usize str_len);
 static isize fmt_str_ascii_escape(Nst_StrBuilder *sb, u8 c, Format *format);
@@ -350,7 +358,7 @@ static bool fmt_uint_bin(Nst_StrBuilder *sb, u64 val);
 static bool fmt_uint_oct(Nst_StrBuilder *sb, u64 val);
 static bool fmt_uint_dec(Nst_StrBuilder *sb, u64 val);
 static bool fmt_uint_hex(Nst_StrBuilder *sb, u64 val, bool upper);
-static bool fmt_uint_sep_and_precision(Nst_StrBuilder *sb, i8 *digits,
+static bool fmt_uint_sep_and_precision(Nst_StrBuilder *sb, u8 *digits,
                                        usize digits_len, Format *format);
 
 static bool fmt_int(Nst_StrBuilder *sb, i64 val, Format *format);
@@ -360,18 +368,18 @@ static bool fmt_byte(Nst_StrBuilder *sb, u8 val, Format *format);
 
 static bool fmt_double(Nst_StrBuilder *sb, f64 val, Format *format);
 static bool fmt_double_dec(Nst_StrBuilder *sb, f64 val, Format *format);
-static bool fmt_double_dec_digits(Nst_StrBuilder *sb, i8 *digits,
+static bool fmt_double_dec_digits(Nst_StrBuilder *sb, u8 *digits,
                                   usize digits_len, int decpt, Format *format);
 static bool fmt_double_std(Nst_StrBuilder *sb, f64 val, Format *format);
-static bool fmt_double_std_digits(Nst_StrBuilder *sb, i8 *digits,
+static bool fmt_double_std_digits(Nst_StrBuilder *sb, u8 *digits,
                                   usize digits_len, int decpt, Format *format);
 static bool fmt_double_gen(Nst_StrBuilder *sb, f64 val, Format *format);
 
 static bool fmt_bool(Nst_StrBuilder *sb, bool val, Format *format);
 static bool fmt_ptr(Nst_StrBuilder *sb, void *val, Format *format);
-static bool fmt_char(Nst_StrBuilder *sb, i8 val, Format *format);
+static bool fmt_char(Nst_StrBuilder *sb, u8 val, Format *format);
 
-i8 *Nst_fmt(const i8 *fmt, usize fmt_len, usize *out_len, ...)
+u8 *Nst_fmt(const char *fmt, usize fmt_len, usize *out_len, ...)
 {
     va_list args;
     va_start(args, out_len);
@@ -383,8 +391,8 @@ NstEXP Nst_Obj *NstC Nst_fmt_objs(Nst_Obj *fmt, Nst_Obj *values)
     FmtValues fmt_values;
     fmt_values_init_sequence(&fmt_values, values);
     usize str_len;
-    i8 *str = general_fmt(
-        (const i8 *)Nst_str_value(fmt),
+    u8 *str = general_fmt(
+        (const char *)Nst_str_value(fmt),
         Nst_str_len(fmt),
         &str_len,
         &fmt_values);
@@ -398,7 +406,7 @@ NstEXP Nst_Obj *NstC Nst_fmt_objs(Nst_Obj *fmt, Nst_Obj *values)
     return Nst_str_new_allocated(str, str_len);
 }
 
-i8 *Nst_vfmt(const i8 *fmt, usize fmt_len, usize *out_len, va_list args)
+u8 *Nst_vfmt(const char *fmt, usize fmt_len, usize *out_len, va_list args)
 {
     va_list args_cpy;
     va_copy(args_cpy, args);
@@ -407,11 +415,11 @@ i8 *Nst_vfmt(const i8 *fmt, usize fmt_len, usize *out_len, va_list args)
     return general_fmt(fmt, fmt_len, out_len, &values);
 }
 
-i8 *NstC Nst_repr(i8 *str, usize str_len, usize *out_len, bool shallow,
+u8 *NstC Nst_repr(u8 *str, usize str_len, usize *out_len, bool shallow,
                   bool ascii)
 {
     if (str_len == 0)
-        str_len = strlen((const i8 *)str);
+        str_len = strlen((const char *)str);
     if (out_len != NULL)
         *out_len = 0;
 
@@ -439,7 +447,7 @@ i8 *NstC Nst_repr(i8 *str, usize str_len, usize *out_len, bool shallow,
     return sb.value;
 }
 
-static i8 *general_fmt(const i8 *fmt, usize fmt_len, usize *out_len,
+static u8 *general_fmt(const char *fmt, usize fmt_len, usize *out_len,
                        FmtValues *values)
 {
     Nst_StrBuilder sb;
@@ -447,7 +455,7 @@ static i8 *general_fmt(const i8 *fmt, usize fmt_len, usize *out_len,
     if (out_len != NULL)
         *out_len = 0;
     if (fmtlen == 0) {
-        i8 *out_str = Nst_malloc_c(1, i8);
+        u8 *out_str = Nst_malloc_c(1, u8);
         if (out_str == NULL)
             return NULL;
         out_str[0] = 0;
@@ -490,7 +498,7 @@ static i8 *general_fmt(const i8 *fmt, usize fmt_len, usize *out_len,
                 i++;
                 continue;
             }
-            const i8 *fmt_end = fmt_value(&sb, fmt + i, values);
+            const char *fmt_end = fmt_value(&sb, fmt + i, values);
             if (fmt_end == NULL)
                 goto failure;
             i += fmt_end - fmt - i - 1;
@@ -506,7 +514,7 @@ failure:
     return NULL;
 }
 
-static const i8 *parse_format(const i8 *fmt, Format *format)
+static const char *parse_format(const char *fmt, Format *format)
 {
     while (true) {
         bool end_loop = false;
@@ -575,12 +583,20 @@ static const i8 *parse_format(const i8 *fmt, Format *format)
             format->as_unsigned = true;
             break;
         case '\'': {
-                fmt = format_set_separator(format, fmt + 1);
-                fmt--;
-                break;
+            fmt = format_set_separator(format, fmt + 1);
+            if (fmt == NULL) {
+                Nst_error_setc_value("format string is not properly encoded");
+                return NULL;
+            }
+            fmt--;
+            break;
         }
         case '_': {
             fmt = format_set_fill_ch(format, fmt + 1);
+            if (fmt == NULL) {
+                Nst_error_setc_value("format string is not properly encoded");
+                return NULL;
+            }
             fmt--;
             break;
         }
@@ -593,7 +609,7 @@ static const i8 *parse_format(const i8 *fmt, Format *format)
     }
 
     if (*fmt > '0' && *fmt <= '9')
-        format->width = strtol(fmt, (i8 **)&fmt, 10);
+        format->width = strtol(fmt, (char **)&fmt, 10);
     else if (*fmt == '*') {
         format->width = -2;
         fmt++;
@@ -609,7 +625,7 @@ static const i8 *parse_format(const i8 *fmt, Format *format)
             format->precision = -2;
             fmt++;
         } else
-            format->precision = strtol(fmt, (i8 **)&fmt, 10);
+            format->precision = strtol(fmt, (char **)&fmt, 10);
     }
 
     if (*fmt == ',') {
@@ -623,7 +639,7 @@ static const i8 *parse_format(const i8 *fmt, Format *format)
             format->separator_width = -2;
             fmt++;
         } else
-            format->separator_width = strtol(fmt, (i8 **)&fmt, 10);
+            format->separator_width = strtol(fmt, (char **)&fmt, 10);
     }
 
     switch (*fmt) {
@@ -643,7 +659,7 @@ static const i8 *parse_format(const i8 *fmt, Format *format)
     return fmt;
 }
 
-static bool set_fmt_field(FmtValues *values, const i8 *field_name, i32 *field)
+static bool set_fmt_field(FmtValues *values, const char *field_name, i32 *field)
 {
     if (*field != -2)
         return true;
@@ -688,9 +704,9 @@ static bool add_format_values(Format *format, FmtValues *values)
     return true;
 }
 
-static const i8 *fmt_value(Nst_StrBuilder *sb, const i8 *fmt, FmtValues *vals)
+static const char *fmt_value(Nst_StrBuilder *sb, const char *fmt, FmtValues *vals)
 {
-    const i8 *type = NULL;
+    const char *type = NULL;
     Nst_Obj *obj = NULL;
     bool result = true;
 
@@ -764,7 +780,7 @@ format_type:
 
     switch (*type) {
     case 's': {
-        i8 *str = fmt_values_get_va_arg(vals, i8 *);
+        u8 *str = fmt_values_get_va_arg(vals, u8 *);
         add_format_values(&format, vals);
         result = fmt_str(sb, str, -1, &format);
         break;
@@ -828,7 +844,7 @@ format_type:
     case 'c': {
         int val = fmt_values_get_va_arg(vals, int);
         add_format_values(&format, vals);
-        result = fmt_char(sb, (i8)val, &format);
+        result = fmt_char(sb, (u8)val, &format);
         break;
     }
     case 'f': {
@@ -855,7 +871,7 @@ end:
 }
 
 /* Cuts a string keeping it left-aligned. */
-static void fmt_cut_left(i8 *str, usize str_len, usize char_len, i8 **out_str,
+static void fmt_cut_left(u8 *str, usize str_len, usize char_len, u8 **out_str,
                          usize *out_len, usize width)
 {
     Nst_UNUSED(char_len);
@@ -878,7 +894,7 @@ static void fmt_cut_left(i8 *str, usize str_len, usize char_len, i8 **out_str,
 }
 
 /* Cuts a string keeping it right-aligned. */
-static void fmt_cut_right(i8 *str, usize str_len, usize char_len, i8 **out_str,
+static void fmt_cut_right(u8 *str, usize str_len, usize char_len, u8 **out_str,
                           usize *out_len, usize width)
 {
     usize cut_size = char_len - width;
@@ -900,8 +916,8 @@ static void fmt_cut_right(i8 *str, usize str_len, usize char_len, i8 **out_str,
 }
 
 /* Cuts a string keeping it center-aligned. */
-static void fmt_cut_center(i8 *str, usize str_len, usize char_len,
-                           i8 **out_str, usize *out_len, usize width)
+static void fmt_cut_center(u8 *str, usize str_len, usize char_len,
+                           u8 **out_str, usize *out_len, usize width)
 {
     usize cut_size = char_len - width;
     // characters to remove from the left
@@ -915,7 +931,7 @@ static void fmt_cut_center(i8 *str, usize str_len, usize char_len,
     fmt_cut_left(str, str_len, char_len - left_chars, out_str, out_len, width);
 }
 
-static void fmt_cut(i8 *str, usize str_len, usize char_len, i8 **out_str,
+static void fmt_cut(u8 *str, usize str_len, usize char_len, u8 **out_str,
                     usize *out_len, Format *format,
                     Alignment default_alignment)
 {
@@ -942,7 +958,7 @@ static void fmt_cut(i8 *str, usize str_len, usize char_len, i8 **out_str,
     }
 }
 
-static bool fmt_align(Nst_StrBuilder *sb, i8 *str, usize str_len,
+static bool fmt_align(Nst_StrBuilder *sb, u8 *str, usize str_len,
                       usize char_str_len, Format *format,
                       Alignment default_alignment)
 {
@@ -950,13 +966,13 @@ static bool fmt_align(Nst_StrBuilder *sb, i8 *str, usize str_len,
     if (alignment == Nst_FMT_ALIGN_AUTO)
         alignment = default_alignment;
 
-    i8 *fill_ch;
+    u8 *fill_ch;
     usize fill_ch_len;
     if (format_has_fill_ch(format)) {
-        fill_ch = (i8 *)format->fill_ch;
+        fill_ch = (u8 *)format->fill_ch;
         fill_ch_len = format_fill_ch_len(format);
     } else {
-        fill_ch = " ";
+        fill_ch = (u8 *)" ";
         fill_ch_len = 1;
     }
 
@@ -991,8 +1007,8 @@ static bool fmt_align(Nst_StrBuilder *sb, i8 *str, usize str_len,
     return true;
 }
 
-static bool fmt_sep_and_ndigits(Nst_StrBuilder *sb, i8 *digits, usize digits_len,
-                                usize min_digits, i8 *sep, usize sep_len,
+static bool fmt_sep_and_ndigits(Nst_StrBuilder *sb, u8 *digits, usize digits_len,
+                                usize min_digits, u8 *sep, usize sep_len,
                                 usize sep_width, bool pad_zeroes)
 {
     if (sep == NULL)
@@ -1032,7 +1048,7 @@ static bool fmt_sep_and_ndigits(Nst_StrBuilder *sb, i8 *digits, usize digits_len
     return true;
 }
 
-static bool fmt_align_or_cut(Nst_StrBuilder *sb, i8 *str, usize str_len,
+static bool fmt_align_or_cut(Nst_StrBuilder *sb, u8 *str, usize str_len,
                              usize char_str_len, Format *format,
                              Alignment default_alignment)
 {
@@ -1054,16 +1070,16 @@ static bool fmt_align_or_cut(Nst_StrBuilder *sb, i8 *str, usize str_len,
 
 /* =========================== String formatting =========================== */
 
-static bool fmt_str(Nst_StrBuilder *sb, i8 *str, isize str_len, Format *format)
+static bool fmt_str(Nst_StrBuilder *sb, u8 *str, isize str_len, Format *format)
 {
     bool result = true;
     if (str == NULL) {
-        str = "(null)";
+        str = (u8 *)"(null)";
         str_len = 6;
     }
 
     if (str_len < 0)
-        str_len = strlen(str);
+        str_len = strlen((const char *)str);
 
     isize vaild = Nst_encoding_check(
         Nst_encoding(Nst_EID_EXT_UTF8),
@@ -1105,7 +1121,7 @@ static bool fmt_str(Nst_StrBuilder *sb, i8 *str, isize str_len, Format *format)
             &str, &temp_sb->len,
             precision);
         char_str_len = precision + 3;
-        result = Nst_sb_push(temp_sb, "...", 3);
+        result = Nst_sb_push(temp_sb, (u8 *)"...", 3);
         if (!result)
             goto finish;
     }
@@ -1121,7 +1137,7 @@ finish:
     return result;
 }
 
-static isize fmt_str_repr(Nst_StrBuilder *sb, i8 *str, usize str_len,
+static isize fmt_str_repr(Nst_StrBuilder *sb, u8 *str, usize str_len,
                           Format *format)
 {
     // Not always the correct size but reduces allocations
@@ -1152,15 +1168,15 @@ static isize fmt_str_repr(Nst_StrBuilder *sb, i8 *str, usize str_len,
          i = Nst_sv_next(sv, i, &c))
     {
         if (c == '"' && escape_double_quotes) {
-            if (!Nst_sb_push(sb, "\\\"", 2))
+            if (!Nst_sb_push(sb, (u8 *)"\\\"", 2))
                 return -1;
             tot_char_len += 2;
         } else if (c == '\'' && escape_single_quotes) {
-            if (!Nst_sb_push(sb, "\\'", 2))
+            if (!Nst_sb_push(sb, (u8 *)"\\'", 2))
                 return -1;
             tot_char_len += 2;
         } else if (c < 0x7f && c >= 0x20 && c != '\\') {
-            if (!Nst_sb_push_char(sb, (i8)c))
+            if (!Nst_sb_push_char(sb, (u8)c))
                 return -1;
             tot_char_len += 1;
         } else if (c <= 0x9f) {
@@ -1214,23 +1230,23 @@ static bool fmt_str_more_double_quotes(u8 *str, usize str_len)
 
 static isize fmt_str_ascii_escape(Nst_StrBuilder *sb, u8 c, Format *format)
 {
-    const i8 *hex_chars = format->pref_suff == Nst_FMT_PREF_SUFF_UPPER
+    const char *hex_chars = format->pref_suff == Nst_FMT_PREF_SUFF_UPPER
         ? "0123456789ABCDEF"
         : "0123456789abcdef";
 
     switch (c) {
-    case '\0': Nst_sb_push(sb, "\\0", 2); return 2;
-    case '\a': Nst_sb_push(sb, "\\a", 2); return 2;
-    case '\b': Nst_sb_push(sb, "\\b", 2); return 2;
-    case'\x1b':Nst_sb_push(sb, "\\e", 2); return 2;
-    case '\f': Nst_sb_push(sb, "\\f", 2); return 2;
-    case '\n': Nst_sb_push(sb, "\\n", 2); return 2;
-    case '\r': Nst_sb_push(sb, "\\r", 2); return 2;
-    case '\t': Nst_sb_push(sb, "\\t", 2); return 2;
-    case '\v': Nst_sb_push(sb, "\\v", 2); return 2;
-    case '\\': Nst_sb_push(sb, "\\\\",2); return 2;
+    case '\0': Nst_sb_push(sb, (u8 *)"\\0", 2); return 2;
+    case '\a': Nst_sb_push(sb, (u8 *)"\\a", 2); return 2;
+    case '\b': Nst_sb_push(sb, (u8 *)"\\b", 2); return 2;
+    case'\x1b':Nst_sb_push(sb, (u8 *)"\\e", 2); return 2;
+    case '\f': Nst_sb_push(sb, (u8 *)"\\f", 2); return 2;
+    case '\n': Nst_sb_push(sb, (u8 *)"\\n", 2); return 2;
+    case '\r': Nst_sb_push(sb, (u8 *)"\\r", 2); return 2;
+    case '\t': Nst_sb_push(sb, (u8 *)"\\t", 2); return 2;
+    case '\v': Nst_sb_push(sb, (u8 *)"\\v", 2); return 2;
+    case '\\': Nst_sb_push(sb, (u8 *)"\\\\",2); return 2;
     default:
-        if (!Nst_sb_push(sb, "\\x", 2))
+        if (!Nst_sb_push(sb, (u8 *)"\\x", 2))
             return -1;
         if (!Nst_sb_push_char(sb, hex_chars[c >> 4]))
             return -1;
@@ -1242,7 +1258,7 @@ static isize fmt_str_ascii_escape(Nst_StrBuilder *sb, u8 c, Format *format)
 
 static isize fmt_str_unicode_escape(Nst_StrBuilder *sb, u32 c, Format *format)
 {
-    const i8 *hex_chars = format->pref_suff == Nst_FMT_PREF_SUFF_UPPER
+    const char *hex_chars = format->pref_suff == Nst_FMT_PREF_SUFF_UPPER
         ? "0123456789ABCDEF"
         : "0123456789abcdef";
 
@@ -1342,7 +1358,7 @@ static bool fmt_uint_prefix(Nst_StrBuilder *sb, bool is_byte, Format *format)
 {
     if (format->pref_suff == Nst_FMT_PREF_SUFF_NONE)
         return true;
-    const i8 *pref = NULL;
+    const char *pref = NULL;
     bool pref_upper = format->pref_suff == Nst_FMT_PREF_SUFF_UPPER;
     switch (format->int_repr) {
     case Nst_FMT_INT_BIN:
@@ -1361,7 +1377,7 @@ static bool fmt_uint_prefix(Nst_StrBuilder *sb, bool is_byte, Format *format)
             pref = pref_upper ? "0X" : "0x";
         break;
     }
-    if (pref != NULL && !Nst_sb_push(sb, (i8 *)pref, 2))
+    if (pref != NULL && !Nst_sb_push(sb, (u8 *)pref, 2))
         return false;
     return true;
 }
@@ -1415,7 +1431,7 @@ static bool fmt_uint_oct(Nst_StrBuilder *sb, u64 val)
     if (!Nst_sb_reserve(sb, str_len))
         return false;
     for (i32 i = 0; i < str_len; i++) {
-        i8 ch = (val & 0b111) + '0';
+        u8 ch = (val & 0b111) + '0';
         sb->value[sb->len + str_len - i - 1] = ch;
         val >>= 3;
     }
@@ -1437,7 +1453,7 @@ static bool fmt_uint_dec(Nst_StrBuilder *sb, u64 val)
     usize final_len = sb->len;
     // reverse the digits
     for (usize i = 0, n = (final_len - initial_len) / 2; i < n; i++) {
-        i8 temp = sb->value[final_len - i - 1];
+        u8 temp = sb->value[final_len - i - 1];
         sb->value[final_len - i - 1] = sb->value[initial_len + i];
         sb->value[initial_len + i] = temp;
     }
@@ -1450,7 +1466,7 @@ static bool fmt_uint_hex(Nst_StrBuilder *sb, u64 val, bool upper)
     u8 str_len = (msb / 4) + 1;
     if (!Nst_sb_reserve(sb, str_len))
         return false;
-    const i8 *hex_chars = upper ? "0123456789ABCDEF" : "0123456789abcdef";
+    const char *hex_chars = upper ? "0123456789ABCDEF" : "0123456789abcdef";
     for (i32 i = 0; i < str_len; i++) {
         sb->value[sb->len + str_len - i - 1] = hex_chars[val & 0xF];
         val >>= 4;
@@ -1460,13 +1476,13 @@ static bool fmt_uint_hex(Nst_StrBuilder *sb, u64 val, bool upper)
     return true;
 }
 
-static bool fmt_uint_sep_and_precision(Nst_StrBuilder *sb, i8 *digits,
+static bool fmt_uint_sep_and_precision(Nst_StrBuilder *sb, u8 *digits,
                                        usize digits_len, Format *format)
 {
-    i8 *sep = NULL;
+    u8 *sep = NULL;
     usize sep_len = 0;
     if (format_has_separator(format)) {
-        sep = (i8 *)format->separator;
+        sep = (u8 *)format->separator;
         sep_len = format_separator_len(format);
     }
     usize min_digits = format->precision < 0 ? 0 : (usize)format->precision;
@@ -1614,21 +1630,27 @@ finish:
 static bool fmt_double_dec(Nst_StrBuilder *sb, f64 val, Format *format)
 {
     int decpt;
-    i8 *str_end;
+    u8 *str_end;
     if (format->double_repr & INCLUDE_POINT && format->precision == 0)
         format->precision++;
-    i8 *digits = Nst_dtoa(val, 3, format->precision, &decpt, NULL, &str_end);
+    u8 *digits = (u8 *)Nst_dtoa(
+        val,
+        3,
+        format->precision,
+        &decpt,
+        NULL,
+        (char **)&str_end);
 
     bool result = fmt_double_dec_digits(
         sb,
         digits, str_end - digits,
         decpt,
         format);
-    Nst_freedtoa(digits);
+    Nst_freedtoa((char *)digits);
     return result;
 }
 
-static bool fmt_double_dec_digits(Nst_StrBuilder *sb, i8 *digits,
+static bool fmt_double_dec_digits(Nst_StrBuilder *sb, u8 *digits,
                                   usize digits_len, int decpt, Format *format)
 {
     i32 precision = format->precision;
@@ -1643,14 +1665,14 @@ static bool fmt_double_dec_digits(Nst_StrBuilder *sb, i8 *digits,
             fmt_sep_and_ndigits(
                 sb,
                 digits, decpt, decpt,
-                (i8 *)format->separator, format_separator_len(format),
+                (u8 *)format->separator, format_separator_len(format),
                 (usize)MAX(format->separator_width, 0),
                 false);
         } else
             Nst_sb_push(sb, digits, decpt);
     } else {
         if (format_has_separator(format)) {
-            i8 *all_digits = Nst_malloc_c(decpt, i8);
+            u8 *all_digits = Nst_malloc_c(decpt, u8);
             if (all_digits == NULL)
                 return false;
             memcpy(all_digits, digits, digits_len);
@@ -1658,7 +1680,7 @@ static bool fmt_double_dec_digits(Nst_StrBuilder *sb, i8 *digits,
             fmt_sep_and_ndigits(
                 sb,
                 all_digits, decpt, decpt,
-                (i8 *)format->separator, format_separator_len(format),
+                (u8 *)format->separator, format_separator_len(format),
                 format->separator_width,
                 false);
             Nst_free(all_digits);
@@ -1704,24 +1726,24 @@ static bool fmt_double_dec_digits(Nst_StrBuilder *sb, i8 *digits,
 static bool fmt_double_std(Nst_StrBuilder *sb, f64 val, Format *format)
 {
     int decpt;
-    i8 *str_end;
+    u8 *str_end;
     if (format->double_repr & INCLUDE_POINT && format->precision == 0)
         format->precision++;
-    i8 *digits = Nst_dtoa(
+    u8 *digits = (u8 *)Nst_dtoa(
         val, 2,
         format->precision + 1,
-        &decpt, NULL, &str_end);
+        &decpt, NULL, (char **)&str_end);
 
     bool result = fmt_double_std_digits(
         sb,
         digits, str_end - digits,
         decpt,
         format);
-    Nst_freedtoa(digits);
+    Nst_freedtoa((char *)digits);
     return result;
 }
 
-static bool fmt_double_std_digits(Nst_StrBuilder *sb, i8 *digits,
+static bool fmt_double_std_digits(Nst_StrBuilder *sb, u8 *digits,
                                   usize digits_len, int decpt, Format *format)
 {
     i32 exponent = decpt - 1;
@@ -1744,8 +1766,8 @@ static bool fmt_double_std_digits(Nst_StrBuilder *sb, i8 *digits,
             Nst_sb_push_char(sb, '.');
     }
 
-    for (i32 i = 1; i < precision + 1; i++) {
-        if ((usize)i < digits_len)
+    for (usize i = 1; i < (usize)precision + 1; i++) {
+        if (i < digits_len)
             Nst_sb_push_char(sb, digits[i]);
         else {
             if (!format->pad_zeroes_precision && i != 1)
@@ -1773,16 +1795,29 @@ static bool fmt_double_gen(Nst_StrBuilder *sb, f64 val, Format *format)
 {
     i32 precision = format->precision;
     int decpt;
-    i8 *str_end;
-    i8 *digits;
+    u8 *str_end;
+    u8 *digits;
 
     if (format->double_repr & INCLUDE_POINT
         && val >= pow(10.0, (double)precision - 1)
         && val < pow(10.0, (double)precision))
     {
-        digits = Nst_dtoa(val, 2, precision + 1, &decpt, NULL, &str_end);
-    } else
-        digits = Nst_dtoa(val, 2, precision, &decpt, NULL, &str_end);
+        digits = (u8 *)Nst_dtoa(
+            val,
+            2,
+            precision + 1,
+            &decpt,
+            NULL,
+            (char **)&str_end);
+    } else {
+        digits = (u8 *)Nst_dtoa(
+            val,
+            2,
+            precision,
+            &decpt,
+            NULL,
+            (char **)&str_end);
+    }
     usize digits_len = str_end - digits;
     i32 exponent = decpt - 1;
     bool result;
@@ -1798,7 +1833,7 @@ static bool fmt_double_gen(Nst_StrBuilder *sb, f64 val, Format *format)
             format->precision++;
         result = fmt_double_std_digits(sb, digits, digits_len, decpt, format);
     }
-    Nst_freedtoa(digits);
+    Nst_freedtoa((char *)digits);
     return result;
 }
 
@@ -1806,7 +1841,7 @@ static bool fmt_double_gen(Nst_StrBuilder *sb, f64 val, Format *format)
 
 static bool fmt_bool(Nst_StrBuilder *sb, bool val, Format *format)
 {
-    const i8 *str;
+    const char *str;
     usize str_len;
     if (val) {
         str = format->pref_suff == Nst_FMT_PREF_SUFF_UPPER ? "TRUE": "true";
@@ -1820,11 +1855,11 @@ static bool fmt_bool(Nst_StrBuilder *sb, bool val, Format *format)
         || (usize)format->width == str_len
         || ((usize)format->width < str_len && !format->cut))
     {
-        return Nst_sb_push(sb, (i8 *)str, str_len);
+        return Nst_sb_push(sb, (u8 *)str, str_len);
     }
 
     return fmt_align_or_cut(
-        sb, (i8 *)str,
+        sb, (u8 *)str,
         str_len, str_len,
         format, Nst_FMT_ALIGN_LEFT);
 }
@@ -1872,10 +1907,10 @@ finish:
 
 /* ============================ Char formatting ============================ */
 
-static bool fmt_char(Nst_StrBuilder *sb, i8 val, Format *format)
+static bool fmt_char(Nst_StrBuilder *sb, u8 val, Format *format)
 {
     u8 ch_buf[3];
     i32 ch_len = Nst_ext_utf8_from_utf32((u32)(u8)val, ch_buf);
     ch_buf[ch_len] = '\0';
-    return fmt_str(sb, (i8 *)ch_buf, ch_len, format);
+    return fmt_str(sb, (u8 *)ch_buf, ch_len, format);
 }

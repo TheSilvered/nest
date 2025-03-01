@@ -16,8 +16,8 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-i8 *Nst_dtoa(f64 value, int mode, int n_digits, int *decimal_point, int *sign,
-             i8 **str_end)
+char *Nst_dtoa(f64 value, int mode, int n_digits, int *decimal_point,
+               int *sign, char **str_end)
 ```
 
 **Description:**
@@ -67,7 +67,7 @@ must be freed with [`Nst_freedtoa`](c_api-dtoa.md#nst_freedtoa).
 **Synopsis:**
 
 ```better-c
-void Nst_freedtoa(i8 *str)
+void Nst_freedtoa(char *str)
 ```
 
 **Description:**
@@ -81,7 +81,7 @@ Frees a string returned by [`Nst_dtoa`](c_api-dtoa.md#nst_dtoa).
 **Synopsis:**
 
 ```better-c
-f64 Nst_strtod(const i8 *str, i8 **str_end)
+f64 Nst_strtod(const char *str, char **str_end)
 ```
 
 **Description:**

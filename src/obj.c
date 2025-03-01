@@ -33,7 +33,7 @@ NstEXP typedef struct _Nst_TypeObj {
 
 #define TYPE(ptr) ((Nst_TypeObj *)(ptr))
 
-Nst_Obj *Nst_type_new(const i8 *name, Nst_ObjDstr dstr)
+Nst_Obj *Nst_type_new(const char *name, Nst_ObjDstr dstr)
 {
     Nst_assert_c(Nst_encoding_check(
         Nst_encoding(Nst_EID_EXT_UTF8),
@@ -53,7 +53,7 @@ Nst_Obj *Nst_type_new(const i8 *name, Nst_ObjDstr dstr)
     return NstOBJ(type);
 }
 
-Nst_Obj *Nst_cont_type_new(const i8 *name, Nst_ObjDstr dstr,
+Nst_Obj *Nst_cont_type_new(const char *name, Nst_ObjDstr dstr,
                            Nst_ObjTrav trav)
 {
     Nst_assert_c(Nst_encoding_check(
@@ -74,7 +74,7 @@ Nst_Obj *Nst_cont_type_new(const i8 *name, Nst_ObjDstr dstr,
     return NstOBJ(type);
 }
 
-Nst_Obj *_Nst_type_new_no_err(const i8 *name, Nst_ObjDstr dstr)
+Nst_Obj *_Nst_type_new_no_err(const char *name, Nst_ObjDstr dstr)
 {
     Nst_TypeObj *type = TYPE(Nst_raw_malloc(sizeof(Nst_TypeObj)));
     if (type == NULL)

@@ -15,7 +15,7 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_type_new(const i8 *name, Nst_ObjDstr dstr)
+Nst_Obj *Nst_type_new(const char *name, Nst_ObjDstr dstr)
 ```
 
 **Description:**
@@ -41,7 +41,8 @@ The new object on success and `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_cont_type_new(const i8 *name, Nst_ObjDstr dstr, Nst_ObjTrav trav)
+Nst_Obj *Nst_cont_type_new(const char *name, Nst_ObjDstr dstr,
+                           Nst_ObjTrav trav)
 ```
 
 **Description:**

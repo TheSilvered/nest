@@ -16,10 +16,10 @@
 
 #define logerr(call) ()
 
-const i8 *RED = "\x1b[31m";
-const i8 *GREEN = "\x1b[32m";
-const i8 *YELLOW = "\x1b[33m";
-const i8 *RESET = "\x1b[0m";
+const char *RED = "\x1b[31m";
+const char *GREEN = "\x1b[32m";
+const char *YELLOW = "\x1b[33m";
+const char *RESET = "\x1b[0m";
 
 static i32 tests_failed = 0;
 static i32 cases_failed = 0;
@@ -35,7 +35,7 @@ void test_init(void)
     tests_failed = 0;
 }
 
-void run_test(Test test, const i8 *test_name)
+void run_test(Test test, const char *test_name)
 {
     cases_failed = 0;
     TestResult result = test();
@@ -207,11 +207,11 @@ static bool is_null(void *ptr)
     return false;
 }
 
-static bool str_neq(i8 *str1, const i8 *str2)
+static bool str_neq(u8 *str1, const char *str2)
 {
     if (str1 == NULL)
         return true;
-    if (strcmp((const i8 *)(str1), str2) != 0) {
+    if (strcmp((const char *)(str1), str2) != 0) {
         Nst_free(str1);
         return true;
     }
@@ -409,7 +409,7 @@ TestResult test_sprintf()
 TestResult test_fmt()
 {
     ENTER_TEST;
-    i8 *str = NULL;
+    u8 *str = NULL;
     usize len = 0;
 
     str = Nst_fmt("Hello", 0, &len);

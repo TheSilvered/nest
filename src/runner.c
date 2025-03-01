@@ -78,7 +78,7 @@ Nst_FuncCall Nst_func_call_from_es(Nst_Obj *func, Nst_Pos start,
     return call;
 }
 
-static Nst_Obj *make_argv(i32 argc, i8 **argv, i8 *filename)
+static Nst_Obj *make_argv(i32 argc, char **argv, char *filename)
 {
     Nst_Obj *args = Nst_array_new(argc + 1);
     if (args == NULL) {
@@ -110,8 +110,8 @@ static Nst_Obj *make_argv(i32 argc, i8 **argv, i8 *filename)
 bool Nst_es_init_vt(Nst_ExecutionState *es, Nst_CLArgs *cl_args)
 {
     i32 argc = cl_args->argc - cl_args->args_start;
-    i8 **argv = cl_args->argv + cl_args->args_start;
-    i8 *filename = cl_args->filename != NULL ? cl_args->filename : (i8 *)"-c";
+    char **argv = cl_args->argv + cl_args->args_start;
+    char *filename = cl_args->filename != NULL ? cl_args->filename : "-c";
     Nst_Obj *argv_obj = make_argv(argc, argv, filename);
     if (argv_obj == NULL)
         return false;
@@ -150,7 +150,7 @@ i32 Nst_execute(Nst_CLArgs args, Nst_ExecutionState *es, Nst_SourceText *src)
             &args.no_default,
             src);
     } else {
-        src->path = (i8 *)"<command>";
+        src->path = "<command>";
         src->text_len = strlen(args.command);
         src->text = args.command;
         src->lines_len = 1;
@@ -225,10 +225,10 @@ void Nst_es_set_cwd(Nst_ExecutionState *es, Nst_Obj *cwd)
     es->curr_path = cwd;
 }
 
-static Nst_Obj *make_cwd(i8 *file_path)
+static Nst_Obj *make_cwd(const char *file_path)
 {
-    i8 *path = NULL;
-    i8 *file_part = NULL;
+    char *path = NULL;
+    char *file_part = NULL;
 
     Nst_get_full_path(file_path, &path, &file_part);
     if (path == NULL) {
@@ -237,16 +237,16 @@ static Nst_Obj *make_cwd(i8 *file_path)
     }
 
     *(file_part - 1) = 0;
-    Nst_Obj *str = Nst_str_new(path, file_part - path - 1, true);
+    Nst_Obj *str = Nst_str_new((u8 *)path, file_part - path - 1, true);
     if (str == NULL) {
         Nst_error_clear();
-        Nst_free(file_path);
+        Nst_free(path);
         return NULL;
     }
     return str;
 }
 
-bool Nst_es_push_module(Nst_ExecutionState *es, i8 *filename,
+bool Nst_es_push_module(Nst_ExecutionState *es, const char *filename,
                         Nst_SourceText *source_text)
 {
     i32 opt_level = Nst_state.opt_level;
@@ -329,10 +329,10 @@ cleanup:
 }
 
 bool Nst_es_push_func(Nst_ExecutionState *es, Nst_Obj *func, Nst_Pos start,
-                      Nst_Pos end, i64 arg_num, Nst_Obj **args)
+                      Nst_Pos end, usize arg_num, Nst_Obj **args)
 {
     usize func_arg_num = Nst_func_arg_num(func);
-    if ((i64)func_arg_num < arg_num) {
+    if (func_arg_num < arg_num) {
         Nst_error_set_call(_Nst_WRONG_ARG_NUM(func_arg_num, arg_num));
         return false;
     }
@@ -350,14 +350,14 @@ bool Nst_es_push_func(Nst_ExecutionState *es, Nst_Obj *func, Nst_Pos start,
     // add the given arguments
     Nst_Obj **func_args = Nst_func_args(func);
     if (args != NULL) {
-        for (i64 i = 0; i < arg_num; i++) {
+        for (usize i = 0; i < arg_num; i++) {
             if (!Nst_vt_set(new_vt, func_args[i], args[i])) {
                 Nst_vt_destroy(new_vt);
                 return false;
             }
         }
     } else {
-        for (i64 i = 0; i < arg_num; i++) {
+        for (usize i = 0; i < arg_num; i++) {
             Nst_Obj *arg = Nst_vstack_pop(&es->v_stack);
             if (!Nst_vt_set(new_vt, func_args[arg_num - i - 1], arg)) {
                 Nst_dec_ref(arg);
@@ -369,7 +369,7 @@ bool Nst_es_push_func(Nst_ExecutionState *es, Nst_Obj *func, Nst_Pos start,
     }
 
     // fill the remaining ones with `null`
-    for (i64 i = arg_num; i < (i64)func_arg_num; i++) {
+    for (usize i = arg_num; i < func_arg_num; i++) {
         if (!Nst_vt_set(new_vt, func_args[i], Nst_null())) {
             Nst_vt_destroy(new_vt);
             return false;

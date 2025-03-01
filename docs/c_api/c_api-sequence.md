@@ -244,7 +244,7 @@ The new vector on success or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_array_create_c(const i8 *fmt, ...)
+Nst_Obj *Nst_array_create_c(const char *fmt, ...)
 ```
 
 **Description:**
@@ -272,7 +272,7 @@ The new array on success or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_vector_create_c(const i8 *fmt, ...)
+Nst_Obj *Nst_vector_create_c(const char *fmt, ...)
 ```
 
 **Description:**

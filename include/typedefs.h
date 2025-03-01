@@ -14,6 +14,8 @@
 #include <stdint.h>
 #include <assert.h>
 #include <stdio.h>
+#include <limits.h>
+#include <inttypes.h>
 
 // DO NOT ENABLE, used for documentation purpuses. If you need to define these
 // macros, define them elsewhere in this file.
@@ -247,7 +249,7 @@
     ||                                                                        \
         ((void)((Nst_current_inst() && fprintf(                               \
             stderr,                                                           \
-            "Assertion failed: %s (C - %s:%i, Nest - %s:%li)\n",              \
+            "Assertion failed: %s (C - %s:%i, Nest - %s:%" PRIi32 ")\n",      \
             #expr,                                                            \
             __FILE__,                                                         \
             __LINE__,                                                         \
@@ -312,25 +314,25 @@ extern "C" {
 /* [docs:link usize <c_api_index.md#type-definitions>] */
 /* [docs:link isize <c_api_index.md#type-definitions>] */
 
-/* `char` alias. */
-NstEXP typedef char i8;
-/* `short` alias. */
-NstEXP typedef short i16;
-/* `long int` alias. */
-NstEXP typedef long i32;
-/* `long long int` alias. */
-NstEXP typedef long long i64;
+/* 8-bit signed integer. */
+NstEXP typedef int8_t i8;
+/* 16-bit signed integer. */
+NstEXP typedef int16_t i16;
+/* 32-bit signed integer. */
+NstEXP typedef int32_t i32;
+/* 64-bit signed integer. */
+NstEXP typedef int64_t i64;
 
-/* `unsigned char` alias. */
-NstEXP typedef unsigned char u8;
-/* `unsigned short` alias. */
-NstEXP typedef unsigned short u16;
+/* 8-bit unsigned integer. */
+NstEXP typedef uint8_t u8;
+/* 16-bit unsigned integer. */
+NstEXP typedef uint16_t u16;
 /* `unsigned int` alias. */
 NstEXP typedef unsigned int uint;
-/* `unsigned long` alias. */
-NstEXP typedef unsigned long u32;
-/* `unsigned long long` alias. */
-NstEXP typedef unsigned long long u64;
+/* 32-bit unsigned integer. */
+NstEXP typedef uint32_t u32;
+/* 64-bit unsigned integer. */
+NstEXP typedef uint64_t u64;
 
 /* `float` alias. */
 NstEXP typedef float f32;
@@ -346,6 +348,10 @@ typedef struct _Nst_Obj Nst_Obj;
 
 /* The signature of a C function callable by Nest. */
 NstEXP typedef Nst_Obj *(*Nst_NestCallable)(usize, Nst_Obj **);
+
+#if UCHAR_MAX != 255
+#error sizeof(char) must be equal to 1
+#endif // !UCHAR_MAX
 
 #ifdef __cplusplus
 }

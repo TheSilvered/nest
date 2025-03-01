@@ -18,7 +18,7 @@
 extern "C" {
 #endif // !__cplusplus
 
-Nst_Obj *NstC _Nst_str_new_no_err(const i8 *val);
+Nst_Obj *NstC _Nst_str_new_no_err(const char *val);
 
 /**
  * Creates a new string object with a value taken from a C string of unknown
@@ -30,7 +30,7 @@ Nst_Obj *NstC _Nst_str_new_no_err(const i8 *val);
  *
  * @return The new string on success and `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_str_new_c_raw(const i8 *val, bool allocated);
+NstEXP Nst_Obj *NstC Nst_str_new_c_raw(const char *val, bool allocated);
 /**
  * Creates a new string object from a string literal of known length.
  *
@@ -41,7 +41,7 @@ NstEXP Nst_Obj *NstC Nst_str_new_c_raw(const i8 *val, bool allocated);
  *
  * @return The new string on success and `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_str_new_c(const i8 *val, usize len, bool allocated);
+NstEXP Nst_Obj *NstC Nst_str_new_c(const char *val, usize len, bool allocated);
 /**
  * Creates a new string object.
  *
@@ -52,7 +52,7 @@ NstEXP Nst_Obj *NstC Nst_str_new_c(const i8 *val, usize len, bool allocated);
  *
  * @return The new string on success and `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_str_new(i8 *val, usize len, bool allocated);
+NstEXP Nst_Obj *NstC Nst_str_new(u8 *val, usize len, bool allocated);
 /**
  * Creates a new string object from a heap-allocated value.
  *
@@ -63,7 +63,7 @@ NstEXP Nst_Obj *NstC Nst_str_new(i8 *val, usize len, bool allocated);
  *
  * @return The new string on success and `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_str_new_allocated(i8 *val, usize len);
+NstEXP Nst_Obj *NstC Nst_str_new_allocated(u8 *val, usize len);
 
 /**
  * Creates a new string object with known length.
@@ -75,7 +75,7 @@ NstEXP Nst_Obj *NstC Nst_str_new_allocated(i8 *val, usize len);
  *
  * @return The new string on success and `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_str_new_len(i8 *val, usize len, usize char_len,
+NstEXP Nst_Obj *NstC Nst_str_new_len(u8 *val, usize len, usize char_len,
                                      bool allocated);
 
 /**
@@ -174,7 +174,7 @@ NstEXP i32 NstC Nst_str_next_utf32(Nst_Obj *str, isize *idx);
  * no more characters to iterate over or when an error occurs. In case an error
  * occurs `idx` is set to `Nst_STR_LOOP_ERROR`.
  */
-NstEXP i32 NstC Nst_str_next_utf8(Nst_Obj *str, isize *idx, i8 *ch_buf);
+NstEXP i32 NstC Nst_str_next_utf8(Nst_Obj *str, isize *idx, u8 *ch_buf);
 
 /**
  * Parses an `Int` object from a string.
@@ -245,7 +245,7 @@ void _Nst_str_destroy(Nst_Obj *str);
  * @return The pointer to the start of `s1` or `NULL` if the string could not
  * be found. No error is set.
  */
-NstEXP i8 *NstC Nst_str_lfind(i8 *s1, usize l1, i8 *s2, usize l2);
+NstEXP u8 *NstC Nst_str_lfind(u8 *s1, usize l1, u8 *s2, usize l2);
 /**
  * Finds the first occurrence of a substring inside a string starting from the
  * right.
@@ -261,10 +261,10 @@ NstEXP i8 *NstC Nst_str_lfind(i8 *s1, usize l1, i8 *s2, usize l2);
  * @return The pointer to the start of `s1` or `NULL` if the string could not
  * be found. No error is set.
  */
-NstEXP i8 *NstC Nst_str_rfind(i8 *s1, usize l1, i8 *s2, usize l2);
+NstEXP u8 *NstC Nst_str_rfind(u8 *s1, usize l1, u8 *s2, usize l2);
 
 /* Get the value of a Nest `Str` object. */
-NstEXP i8 *NstC Nst_str_value(Nst_Obj *str);
+NstEXP u8 *NstC Nst_str_value(Nst_Obj *str);
 /* Get the length in bytes of the value of a Nest `Str` object. */
 NstEXP usize NstC Nst_str_len(Nst_Obj *str);
 /* Get the number of characters in a Nest `Str` object. */

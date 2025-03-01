@@ -153,9 +153,9 @@ builds a formatted string with `fmt`.
 ```better-c
 typedef struct _Nst_SourceText {
     bool allocated;
-    i8 *text;
-    i8 *path;
-    i8 **lines;
+    char *text;
+    char *path;
+    char **lines;
     usize text_len;
     usize lines_len;
 } Nst_SourceText
@@ -497,7 +497,7 @@ It takes a reference of the message.
 **Synopsis:**
 
 ```better-c
-void Nst_error_setc_syntax(const i8 *msg)
+void Nst_error_setc_syntax(const char *msg)
 ```
 
 **Description:**
@@ -512,7 +512,7 @@ and using "Syntax Error" as the name.
 **Synopsis:**
 
 ```better-c
-void Nst_error_setc_memory(const i8 *msg)
+void Nst_error_setc_memory(const char *msg)
 ```
 
 **Description:**
@@ -527,7 +527,7 @@ and using "Memory Error" as the name.
 **Synopsis:**
 
 ```better-c
-void Nst_error_setc_type(const i8 *msg)
+void Nst_error_setc_type(const char *msg)
 ```
 
 **Description:**
@@ -542,7 +542,7 @@ and using "Type Error" as the name.
 **Synopsis:**
 
 ```better-c
-void Nst_error_setc_value(const i8 *msg)
+void Nst_error_setc_value(const char *msg)
 ```
 
 **Description:**
@@ -557,7 +557,7 @@ and using "Value Error" as the name.
 **Synopsis:**
 
 ```better-c
-void Nst_error_setc_math(const i8 *msg)
+void Nst_error_setc_math(const char *msg)
 ```
 
 **Description:**
@@ -572,7 +572,7 @@ and using "Math Error" as the name.
 **Synopsis:**
 
 ```better-c
-void Nst_error_setc_call(const i8 *msg)
+void Nst_error_setc_call(const char *msg)
 ```
 
 **Description:**
@@ -587,7 +587,7 @@ and using "Call Error" as the name.
 **Synopsis:**
 
 ```better-c
-void Nst_error_setc_import(const i8 *msg)
+void Nst_error_setc_import(const char *msg)
 ```
 
 **Description:**

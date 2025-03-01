@@ -26,7 +26,7 @@
  * @brief It must be placed after `Nst_OBJ_HEAD` and before any other fields.
  */
 #define Nst_GGC_HEAD                                                          \
-    i32 ggc_ref_count;                                                        \
+    isize ggc_ref_count;                                                      \
     Nst_Obj *p_prev;                                                          \
     struct _Nst_GGCList *ggc_list
 

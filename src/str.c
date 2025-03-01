@@ -23,7 +23,7 @@ NstEXP typedef struct _Nst_StrObj {
     Nst_OBJ_HEAD;
     usize len;
     usize char_len;
-    i8 *value;
+    u8 *value;
     u8 *indexable_str;
 } Nst_StrObj;
 
@@ -94,7 +94,7 @@ static bool create_indexable_str(Nst_StrObj *str)
     return true;
 }
 
-Nst_Obj *_Nst_str_new_no_err(const i8 *value)
+Nst_Obj *_Nst_str_new_no_err(const char *value)
 {
     Nst_StrObj *str = STR(Nst_raw_malloc(sizeof(Nst_StrObj)));
     if (str == NULL)
@@ -111,7 +111,7 @@ Nst_Obj *_Nst_str_new_no_err(const i8 *value)
     str->hash = -1;
     str->flags = 0;
     str->len = strlen(value);
-    str->value = (i8 *)value;
+    str->value = (u8 *)value;
     str->indexable_str = NULL;
 
     str->type = Nst_t.Str;
@@ -119,17 +119,17 @@ Nst_Obj *_Nst_str_new_no_err(const i8 *value)
     return NstOBJ(str);
 }
 
-Nst_Obj *Nst_str_new_c_raw(const i8 *val, bool allocated)
+Nst_Obj *Nst_str_new_c_raw(const char *val, bool allocated)
 {
-    return Nst_str_new((i8 *)val, strlen(val), allocated);
+    return Nst_str_new((u8 *)val, strlen(val), allocated);
 }
 
-Nst_Obj *Nst_str_new_c(const i8 *val, usize len, bool allocated)
+Nst_Obj *Nst_str_new_c(const char *val, usize len, bool allocated)
 {
-    return Nst_str_new((i8 *)val, len, allocated);
+    return Nst_str_new((u8 *)val, len, allocated);
 }
 
-Nst_Obj *Nst_str_new(i8 *val, usize len, bool allocated)
+Nst_Obj *Nst_str_new(u8 *val, usize len, bool allocated)
 {
     return Nst_str_new_len(
         val,
@@ -138,7 +138,7 @@ Nst_Obj *Nst_str_new(i8 *val, usize len, bool allocated)
         allocated);
 }
 
-Nst_Obj *Nst_str_new_len(i8 *val, usize len, usize char_len, bool allocated)
+Nst_Obj *Nst_str_new_len(u8 *val, usize len, usize char_len, bool allocated)
 {
     Nst_StrObj *str = Nst_obj_alloc(Nst_StrObj, Nst_t.Str);
     if (str == NULL)
@@ -154,7 +154,7 @@ Nst_Obj *Nst_str_new_len(i8 *val, usize len, usize char_len, bool allocated)
     return NstOBJ(str);
 }
 
-Nst_Obj *Nst_str_new_allocated(i8 *val, usize len)
+Nst_Obj *Nst_str_new_allocated(u8 *val, usize len)
 {
     Nst_Obj *str = Nst_str_new(val, len, true);
     if (str == NULL) {
@@ -167,7 +167,7 @@ Nst_Obj *Nst_str_new_allocated(i8 *val, usize len)
 Nst_Obj *Nst_str_copy(Nst_Obj *src)
 {
     Nst_assert(src->type == Nst_t.Str);
-    i8 *buffer = Nst_malloc_c(STR(src)->len + 1, i8);
+    u8 *buffer = Nst_malloc_c(STR(src)->len + 1, u8);
     if (buffer == NULL)
         return NULL;
 
@@ -186,7 +186,7 @@ Nst_Obj *Nst_str_repr(Nst_Obj *src)
 {
     Nst_assert(src->type == Nst_t.Str);
     usize repr_len;
-    i8 *repr_str = Nst_repr(
+    u8 *repr_str = Nst_repr(
         STR(src)->value,
         STR(src)->len,
         &repr_len,
@@ -204,7 +204,7 @@ Nst_Obj *Nst_str_get(Nst_Obj *str, i64 idx)
 
     if (idx < 0 || idx >= (i64)STR(str)->char_len) {
         Nst_error_setf_value(
-            "index %lli out of bounds for 'Str' of size %zi",
+            "index %" PRIi64 " out of bounds for 'Str' of size %zi",
             idx,
             STR(str)->char_len);
         return NULL;
@@ -216,7 +216,7 @@ Nst_Obj *Nst_str_get(Nst_Obj *str, i64 idx)
     }
 
     if (Nst_HAS_FLAG(str, Nst_FLAG_STR_IS_ASCII)) {
-        i8 *c_buf = Nst_malloc_c(2, i8);
+        u8 *c_buf = Nst_malloc_c(2, u8);
         if (c_buf == NULL)
             return NULL;
         c_buf[0] = STR(str)->value[idx];
@@ -225,21 +225,21 @@ Nst_Obj *Nst_str_get(Nst_Obj *str, i64 idx)
     }
 
     if (Nst_HAS_FLAG(str, Nst_FLAG_STR_INDEX_16)) {
-        i8 *c_buf = Nst_calloc_c(4, i8, NULL);
+        u8 *c_buf = Nst_calloc_c(4, u8, NULL);
         if (c_buf == NULL)
             return NULL;
         u32 c = ((u16 *)(STR(str)->indexable_str))[idx];
-        Nst_ext_utf8_from_utf32(c, (u8 *)c_buf);
-        return Nst_str_new_allocated(c_buf, strlen(c_buf));
+        usize len = Nst_ext_utf8_from_utf32(c, (u8 *)c_buf);
+        return Nst_str_new_allocated(c_buf, len);
     }
 
     if (Nst_HAS_FLAG(str, Nst_FLAG_STR_INDEX_32)) {
-        i8 *c_buf = Nst_calloc_c(5, i8, NULL);
+        u8 *c_buf = Nst_calloc_c(5, u8, NULL);
         if (c_buf == NULL)
             return NULL;
         u32 c = ((u32 *)(STR(str)->indexable_str))[idx];
-        Nst_ext_utf8_from_utf32(c, (u8 *)c_buf);
-        return Nst_str_new_allocated(c_buf, strlen(c_buf));
+        usize len = Nst_ext_utf8_from_utf32(c, (u8 *)c_buf);
+        return Nst_str_new_allocated(c_buf, len);
     }
 
     Nst_error_setc_value("failed to index string");
@@ -273,7 +273,7 @@ Nst_Obj *Nst_str_next_obj(Nst_Obj *str, isize *idx)
     i32 ch_len = Nst_check_ext_utf8_bytes(
         (u8 *)STR(str)->value + idx_val,
         STR(str)->len - idx_val);
-    i8 *ch_buf = Nst_malloc_c(ch_len + 1, i8);
+    u8 *ch_buf = Nst_malloc_c(ch_len + 1, u8);
     if (ch_buf == NULL) {
         *idx = Nst_STR_LOOP_ERROR;
         return NULL;
@@ -302,7 +302,7 @@ i32 Nst_str_next_utf32(Nst_Obj *str, isize *idx)
     return (i32)Nst_ext_utf8_to_utf32((u8 *)(STR(str)->value + *idx));
 }
 
-i32 Nst_str_next_utf8(Nst_Obj *str, isize *idx, i8 *ch_buf)
+i32 Nst_str_next_utf8(Nst_Obj *str, isize *idx, u8 *ch_buf)
 {
     Nst_assert(str->type == Nst_t.Str);
     *idx = Nst_str_next(str, *idx);
@@ -357,12 +357,12 @@ i32 Nst_str_compare(Nst_Obj *str1, Nst_Obj *str2)
     return Nst_sv_compare(Nst_sv_from_str(str1), Nst_sv_from_str(str2));
 }
 
-i8 *Nst_str_lfind(i8 *s1, usize l1, i8 *s2, usize l2)
+u8 *Nst_str_lfind(u8 *s1, usize l1, u8 *s2, usize l2)
 {
-    i8 *end1 = s1 + l1;
-    i8 *end2 = s2 + l2;
-    i8 *p1 = NULL;
-    i8 *p2 = NULL;
+    u8 *end1 = s1 + l1;
+    u8 *end2 = s2 + l2;
+    u8 *p1 = NULL;
+    u8 *p2 = NULL;
 
     if (l2 > l1)
         return NULL;
@@ -383,9 +383,9 @@ i8 *Nst_str_lfind(i8 *s1, usize l1, i8 *s2, usize l2)
     return NULL;
 }
 
-i8 *Nst_str_rfind(i8 *s1, usize l1, i8 *s2, usize l2)
+u8 *Nst_str_rfind(u8 *s1, usize l1, u8 *s2, usize l2)
 {
-    i8 *p = s1 + l1 - l2;
+    u8 *p = s1 + l1 - l2;
 
     while (p >= s1) {
         for (usize i = 0; i < l2; i++) {
@@ -401,7 +401,7 @@ i8 *Nst_str_rfind(i8 *s1, usize l1, i8 *s2, usize l2)
     return NULL;
 }
 
-i8 *Nst_str_value(Nst_Obj *str)
+u8 *Nst_str_value(Nst_Obj *str)
 {
     Nst_assert(str->type == Nst_t.Str);
     return STR(str)->value;

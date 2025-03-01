@@ -15,8 +15,9 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-Nst_LList *Nst_tokenizef(i8 *filename, Nst_EncodingID encoding, i32 *opt_level,
-                         bool *no_default, Nst_SourceText *src_text)
+Nst_LList *Nst_tokenizef(const char *filename, Nst_EncodingID encoding,
+                         i32 *opt_level, bool *no_default,
+                         Nst_SourceText *src_text)
 ```
 
 **Description:**

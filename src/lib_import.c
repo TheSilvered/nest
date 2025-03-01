@@ -62,8 +62,8 @@ static void destroy_match_type(MatchType *mt)
     Nst_free(mt);
 }
 
-static MatchType *compile_type_match(i8 *types, i8 **type_end,
-                                     const i8 *full_types, va_list *args,
+static MatchType *compile_type_match(const char *types, const char **type_end,
+                                     const char *full_types, va_list *args,
                                      bool allow_casting)
 {
     MatchType *match_type = Nst_malloc_c(1, MatchType);
@@ -84,7 +84,6 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end,
     bool allow_or = false;
     bool match_any = false;
     Nst_Obj *custom_type = NULL;
-    i8 *t = (i8 *)types;
     u16 accepted_types = 0;
     u16 pending_cast_types = 0;
     u16 pending_c_cast = 0;
@@ -92,15 +91,15 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end,
     bool can_cast = true;
 
     while (true) {
-        if (allow_or && *t != '|')
+        if (allow_or && *types != '|')
             break;
 
-        switch (*t) {
+        switch (*types) {
         case ' ':
         case '\t':
         case '\n':
         case '\r':
-            t++;
+            types++;
             continue;
         case 't':
             accepted_types |= TYPE_IDX;
@@ -238,7 +237,7 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end,
                 Nst_error_setf_type(
                     "argument extraction: expected a 'Type' object at %zi, got"
                     " '%s'",
-                    (t - full_types) + 1,
+                    (types - full_types) + 1,
                     Nst_type_name(custom_type->type).value);
                 Nst_sbuffer_destroy(&custom_types);
                 Nst_free(match_type);
@@ -255,7 +254,7 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end,
             if (!allow_optional) {
                 Nst_error_setf_value(
                     "argument extraction: '?' not allowed at %zi",
-                    (t - full_types) + 1);
+                    (types - full_types) + 1);
                 Nst_sbuffer_destroy(&custom_types);
                 Nst_free(match_type);
                 return NULL;
@@ -263,25 +262,25 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end,
             accepted_types |= NULL_IDX;
             allow_optional = false;
             allow_or = false;
-            t++;
+            types++;
             continue;
         case '|':
             if (!allow_or) {
                 Nst_error_setf_value(
                     "argument extraction: '|' not allowed at %zi",
-                    (t - full_types) + 1);
+                    (types - full_types) + 1);
                 Nst_sbuffer_destroy(&custom_types);
                 Nst_free(match_type);
                 return NULL;
             }
             allow_optional = true;
             allow_or = false;
-            t++;
+            types++;
             continue;
         default:
             Nst_error_setf_value(
                 "argument extraction: syntax error at %zi",
-                (t - full_types) + 1);
+                (types - full_types) + 1);
             Nst_sbuffer_destroy(&custom_types);
             Nst_free(match_type);
             return NULL;
@@ -289,7 +288,7 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end,
 
         allow_optional = false;
         allow_or = true;
-        t++;
+        types++;
     }
 
     Nst_sbuffer_fit(&custom_types);
@@ -308,18 +307,18 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end,
             match_type->final_type = pending_final_type;
     }
 
-    if (*t == '_') {
+    if (*types == '_') {
         if (!allow_casting || accepted_types & NULL_IDX) {
             Nst_error_setf_value(
                 "argument extraction: casting is not allowed at %zi",
-                (t - full_types) + 1);
+                (types - full_types) + 1);
             destroy_match_type(match_type);
             return NULL;
         }
 
-        t++;
+        types++;
         accepted_types |= C_CAST;
-        switch (*t++) {
+        switch (*types++) {
         case 'i':
             accepted_types |= INT_C_CAST;
             break;
@@ -335,22 +334,22 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end,
         default:
             Nst_error_setf_value(
                 "argument extraction: unknown C cast at %zi",
-                (t - full_types) + 1);
+                (types - full_types) + 1);
             destroy_match_type(match_type);
             return NULL;
         }
-    } else if (*t == ':') {
+    } else if (*types == ':') {
         if (!allow_casting) {
             Nst_error_setf_value(
                 "argument extraction: casting is not allowed at %zi",
-                (t - full_types) + 1);
+                (types - full_types) + 1);
             destroy_match_type(match_type);
             return NULL;
         }
         accepted_types &= ~C_CAST;
 
-        t++;
-        switch (*t++) {
+        types++;
+        switch (*types++) {
         case 't': match_type->final_type = Nst_t.Type;   break;
         case 'i': match_type->final_type = Nst_t.Int;    break;
         case 'r': match_type->final_type = Nst_t.Real;   break;
@@ -367,26 +366,26 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end,
         default:
             Nst_error_setf_value(
                 "argument extraction: unknown cast at %zi",
-                (t - full_types) + 1);
+                (types - full_types) + 1);
             Nst_sbuffer_destroy(&custom_types);
             destroy_match_type(match_type);
             return NULL;
         }
-    } else if (*t == '.' && (accepted_types & C_CAST))
+    } else if (*types == '.' && (accepted_types & C_CAST))
         accepted_types &= ~C_CAST;
 
-    if (*t == '.') {
+    if (*types == '.') {
         if (accepted_types & C_CAST) {
             Nst_error_setf_value(
                 "argument extraction: sequence matching is not allowed with a "
                 "C cast at %zi",
-                (t - full_types) + 1);
+                (types - full_types) + 1);
             destroy_match_type(match_type);
             return NULL;
         }
-        t++;
+        types++;
         match_type->seq_match = compile_type_match(
-            t, type_end, full_types,
+            types, type_end, full_types,
             args,
             false);
         if (match_type->seq_match == NULL) {
@@ -394,7 +393,7 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end,
             return NULL;
         }
     } else {
-        *type_end = t;
+        *type_end = types;
         match_type->seq_match = NULL;
     }
 
@@ -405,8 +404,8 @@ static MatchType *compile_type_match(i8 *types, i8 **type_end,
 
     // consume trailing whitespace to make Nst_extract_args check only
     // for NUL
-    while (*t == ' ' || *t == '\t' || *t == '\n' || *t == '\r')
-        t++;
+    while (*types == ' ' || *types == '\t' || *types == '\n' || *types == '\r')
+        types++;
 
     return match_type;
 }
@@ -567,13 +566,13 @@ static bool append_type(Nst_StrView type, Nst_StrBuilder *sb, usize tot_types)
         return false;
     }
 
-    Nst_sb_push(sb, "'", 1);
+    Nst_sb_push_char(sb, '\'');
     Nst_sb_push_sv(sb, type);
-    Nst_sb_push(sb, "'", 1);
+    Nst_sb_push_char(sb, '\'');
 
     switch (tot_types) {
     case 0:
-        Nst_sb_push(sb, " ", 1);
+        Nst_sb_push_char(sb, ' ');
         break;
     case 1:
         Nst_sb_push_c(sb, " or ");
@@ -639,7 +638,7 @@ static bool append_types(MatchType *type, Nst_StrBuilder *sb)
 
 static void set_err(MatchType *type, Nst_Obj *ob, usize idx)
 {
-    const i8 *fmt;
+    const char *fmt;
     if (type->accepted_types & NULL_IDX) {
         fmt = "expected optional type %sfor argument %zi "
               "but got type '%s' instead";
@@ -672,18 +671,18 @@ static void free_type_match(MatchType *type)
     Nst_free(type);
 }
 
-bool Nst_extract_args(const i8 *types, usize arg_num, Nst_Obj **args, ...)
+bool Nst_extract_args(const char *types, usize arg_num, Nst_Obj **args, ...)
 {
     va_list args_list;
     va_start(args_list, args);
-    i8 *t = (i8 *)types;
+    const char *tp = types;
     usize idx = 0;
     allocated_objects = Nst_vector_new(0);
     if (allocated_objects == NULL)
         return false;
 
     do {
-        MatchType *type = compile_type_match(t, &t, types, &args_list, true);
+        MatchType *type = compile_type_match(tp, &tp, types, &args_list, true);
         if (type == NULL) {
             va_end(args_list);
             for (usize i = 0, n = Nst_seq_len(allocated_objects); i < n; i++)
@@ -714,7 +713,7 @@ bool Nst_extract_args(const i8 *types, usize arg_num, Nst_Obj **args, ...)
         }
         free_type_match(type);
     }
-    while (*t != '\0');
+    while (*tp != '\0');
     va_end(args_list);
     Nst_dec_ref(allocated_objects);
 
@@ -725,12 +724,12 @@ bool Nst_extract_args(const i8 *types, usize arg_num, Nst_Obj **args, ...)
     return true;
 }
 
-Nst_Obj *_Nst_obj_custom(usize size, void *data, const i8 *name)
+Nst_Obj *_Nst_obj_custom(usize size, void *data, const char *name)
 {
     return _Nst_obj_custom_ex(size, data, name, NULL);
 }
 
-Nst_Obj *_Nst_obj_custom_ex(usize size, void *data, const i8 *name,
+Nst_Obj *_Nst_obj_custom_ex(usize size, void *data, const char *name,
                             Nst_ObjDstr dstr)
 {
     Nst_Obj *type = Nst_type_new(name, dstr);

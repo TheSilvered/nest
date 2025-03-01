@@ -279,7 +279,7 @@ typedef Nst_Obj *(*Nst_ConstFunc)(void);
 NstEXP typedef struct _Nst_Declr {
     void *ptr;
     isize arg_num;
-    const i8 *name;
+    const char *name;
 } Nst_Declr;
 
 /**
@@ -296,7 +296,7 @@ NstEXP typedef struct _Nst_Declr {
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
-NstEXP bool NstC Nst_extract_args(const i8 *types, usize arg_num,
+NstEXP bool NstC Nst_extract_args(const char *types, usize arg_num,
                                   Nst_Obj **args, ...);
 
 /**
@@ -306,7 +306,7 @@ NstEXP bool NstC Nst_extract_args(const i8 *types, usize arg_num,
  * @param data: the data to copy
  * @param name: the name of the object's type
  */
-NstEXP Nst_Obj *NstC _Nst_obj_custom(usize size, void *data, const i8 *name);
+NstEXP Nst_Obj *NstC _Nst_obj_custom(usize size, void *data, const char *name);
 /**
  * `_Nst_obj_custom` which allows to specify a destructor.
  *
@@ -316,7 +316,7 @@ NstEXP Nst_Obj *NstC _Nst_obj_custom(usize size, void *data, const i8 *name);
  * @brief Warning: The destructor **must not** free the object. It should just
  * destroy its data.
  */
-NstEXP Nst_Obj *NstC _Nst_obj_custom_ex(usize size, void *data, const i8 *name,
+NstEXP Nst_Obj *NstC _Nst_obj_custom_ex(usize size, void *data, const char *name,
                                         Nst_ObjDstr dstr);
 /* Get the data of an object created with `Nst_obj_custom`. */
 NstEXP void *NstC Nst_obj_custom_data(Nst_Obj *obj);

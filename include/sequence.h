@@ -141,7 +141,7 @@ NstEXP Nst_Obj *NstC Nst_vector_create(usize len, ...);
  *
  * @return The new array on success or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_array_create_c(const i8 *fmt, ...);
+NstEXP Nst_Obj *NstC Nst_array_create_c(const char *fmt, ...);
 /**
  * Creates a vector object, creating the contained objects from C values.
  *
@@ -154,7 +154,7 @@ NstEXP Nst_Obj *NstC Nst_array_create_c(const i8 *fmt, ...);
  *
  * @return The new array on success or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_vector_create_c(const i8 *fmt, ...);
+NstEXP Nst_Obj *NstC Nst_vector_create_c(const char *fmt, ...);
 /**
  * Creates a shallow copy of a sequence.
  *

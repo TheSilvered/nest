@@ -29,15 +29,13 @@ static Nst_SeqObj *new_vector(usize len);
 static Nst_Obj *new_seq(usize len, usize size, Nst_Obj *type);
 static void seq_from_objs(usize len, Nst_SeqObj *seq, Nst_Obj **objs, bool ref);
 static void seq_create(usize len, Nst_SeqObj *seq, va_list args);
-static Nst_SeqObj *seq_create_c(Nst_SeqObj *seq, const i8 *fmt, va_list args);
+static Nst_SeqObj *seq_create_c(Nst_SeqObj *seq, const char *fmt, va_list args);
 
 static Nst_SeqObj *new_seq_empty(usize len, usize size, Nst_Obj *type)
 {
     Nst_SeqObj *seq = Nst_obj_alloc(Nst_SeqObj, type);
     if (seq == NULL)
         return NULL;
-
-    Nst_GGC_OBJ_INIT(seq);
 
     Nst_Obj **objs = Nst_calloc_c(size, Nst_Obj *, NULL);
     if (objs == NULL) {
@@ -48,6 +46,8 @@ static Nst_SeqObj *new_seq_empty(usize len, usize size, Nst_Obj *type)
     seq->len = len;
     seq->cap = size;
     seq->objs = objs;
+
+    Nst_GGC_OBJ_INIT(seq);
 
     return seq;
 }
@@ -174,16 +174,15 @@ Nst_Obj *Nst_vector_create(usize len, ...)
     return NstOBJ(vector);
 }
 
-static Nst_SeqObj *seq_create_c(Nst_SeqObj *seq, const i8 *fmt, va_list args)
+static Nst_SeqObj *seq_create_c(Nst_SeqObj *seq, const char *fmt, va_list args)
 {
     if (seq == NULL)
         return NULL;
 
-    i8 *p = (i8 *)fmt;
     usize i = 0;
     Nst_Obj **objs = seq->objs;
-    while (*p) {
-        switch (*p++) {
+    while (*fmt) {
+        switch (*fmt++) {
         case 'I': {
             i64 value = va_arg(args, i64);
             Nst_Obj *obj = Nst_int_new(value);
@@ -253,7 +252,7 @@ failed:
     return NULL;
 }
 
-Nst_Obj *Nst_array_create_c(const i8 *fmt, ...)
+Nst_Obj *Nst_array_create_c(const char *fmt, ...)
 {
     usize len = strlen(fmt);
     Nst_SeqObj *array = new_array(len);
@@ -264,7 +263,7 @@ Nst_Obj *Nst_array_create_c(const i8 *fmt, ...)
     return NstOBJ(array);
 }
 
-Nst_Obj *Nst_vector_create_c(const i8 *fmt, ...)
+Nst_Obj *Nst_vector_create_c(const char *fmt, ...)
 {
     usize len = strlen(fmt);
     Nst_SeqObj *vector = new_vector(len);
@@ -327,7 +326,7 @@ bool Nst_seq_set(Nst_Obj *seq, i64 idx, Nst_Obj *val)
         idx += SEQ(seq)->len;
 
     if (idx < 0 || idx >= (i64)SEQ(seq)->len) {
-        const i8 *fmt = seq->type == Nst_t.Array
+        const char *fmt = seq->type == Nst_t.Array
           ? "index %lli out of bounds for 'Array' of size %zi"
           : "index %lli out of bounds for 'Vector' of size %zi";
         Nst_error_setf_value(fmt, idx, SEQ(seq)->len);
@@ -359,7 +358,7 @@ bool Nst_seq_setn(Nst_Obj *seq, i64 idx, Nst_Obj *val)
         idx += SEQ(seq)->len;
 
     if (idx < 0 || idx >= (i64)SEQ(seq)->len) {
-        const i8 *fmt = seq->type == Nst_t.Array
+        const char *fmt = seq->type == Nst_t.Array
             ? "index %lli out of bounds for 'Array' of size %zi"
             : "index %lli out of bounds for 'Vector' of size %zi";
         Nst_error_setf_value(fmt, idx, SEQ(seq)->len);
@@ -388,7 +387,7 @@ Nst_Obj *Nst_seq_get(Nst_Obj *seq, i64 idx)
         idx += SEQ(seq)->len;
 
     if (idx < 0 || idx >= (i64)SEQ(seq)->len) {
-        const i8 *fmt = seq->type == Nst_t.Array
+        const char *fmt = seq->type == Nst_t.Array
           ? "index %lli out of bounds for 'Array' of size %zi"
           : "index %lli out of bounds for 'Vector' of size %zi";
         Nst_error_setf_value(fmt, idx, SEQ(seq)->len);
@@ -412,7 +411,7 @@ Nst_Obj *Nst_seq_getn(Nst_Obj *seq, i64 idx)
         idx += SEQ(seq)->len;
 
     if (idx < 0 || idx >= (i64)SEQ(seq)->len) {
-        const i8 *fmt = seq->type == Nst_t.Array
+        const char *fmt = seq->type == Nst_t.Array
             ? "index %lli out of bounds for 'Array' of size %zi"
             : "index %lli out of bounds for 'Vector' of size %zi";
         Nst_error_setf_value(fmt, idx, SEQ(seq)->len);

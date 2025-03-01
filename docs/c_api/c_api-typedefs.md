@@ -231,12 +231,12 @@ the expression and the path and line of the C file.
 **Synopsis:**
 
 ```better-c
-typedef char i8
+typedef int8_t i8
 ```
 
 **Description:**
 
-`char` alias.
+8-bit signed integer.
 
 ---
 
@@ -245,12 +245,12 @@ typedef char i8
 **Synopsis:**
 
 ```better-c
-typedef short i16
+typedef int16_t i16
 ```
 
 **Description:**
 
-`short` alias.
+16-bit signed integer.
 
 ---
 
@@ -259,12 +259,12 @@ typedef short i16
 **Synopsis:**
 
 ```better-c
-typedef long i32
+typedef int32_t i32
 ```
 
 **Description:**
 
-`long int` alias.
+32-bit signed integer.
 
 ---
 
@@ -273,12 +273,12 @@ typedef long i32
 **Synopsis:**
 
 ```better-c
-typedef long long i64
+typedef int64_t i64
 ```
 
 **Description:**
 
-`long long int` alias.
+64-bit signed integer.
 
 ---
 
@@ -287,12 +287,12 @@ typedef long long i64
 **Synopsis:**
 
 ```better-c
-typedef unsigned char u8
+typedef uint8_t u8
 ```
 
 **Description:**
 
-`unsigned char` alias.
+8-bit unsigned integer.
 
 ---
 
@@ -301,12 +301,12 @@ typedef unsigned char u8
 **Synopsis:**
 
 ```better-c
-typedef unsigned short u16
+typedef uint16_t u16
 ```
 
 **Description:**
 
-`unsigned short` alias.
+16-bit unsigned integer.
 
 ---
 
@@ -329,12 +329,12 @@ typedef unsigned int uint
 **Synopsis:**
 
 ```better-c
-typedef unsigned long u32
+typedef uint32_t u32
 ```
 
 **Description:**
 
-`unsigned long` alias.
+32-bit unsigned integer.
 
 ---
 
@@ -343,12 +343,12 @@ typedef unsigned long u32
 **Synopsis:**
 
 ```better-c
-typedef unsigned long long u64
+typedef uint64_t u64
 ```
 
 **Description:**
 
-`unsigned long long` alias.
+64-bit unsigned integer.
 
 ---
 

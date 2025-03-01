@@ -581,24 +581,24 @@ u32 Nst_ext_utf8_to_utf32(u8 *str)
 i32 Nst_ext_utf8_from_utf32(u32 ch, u8 *str)
 {
     if (ch <= 0x7f) {
-        *str = (i8)ch;
+        *str = (u8)ch;
         return 1;
     } else if (ch <= 0x7ff) {
-        *str++ = 0b11000000 | (i8)(ch >> 6);
-        *str   = 0b10000000 | (i8)(ch & 0x3f);
+        *str++ = 0b11000000 | (u8)(ch >> 6);
+        *str   = 0b10000000 | (u8)(ch & 0x3f);
         return 2;
     } else if (ch <= 0xffff) {
-        *str++ = 0b11100000 | (i8)(ch >> 12);
-        *str++ = 0b10000000 | (i8)(ch >> 6 & 0x3f);
-        *str   = 0b10000000 | (i8)(ch & 0x3f);
+        *str++ = 0b11100000 | (u8)(ch >> 12);
+        *str++ = 0b10000000 | (u8)(ch >> 6 & 0x3f);
+        *str   = 0b10000000 | (u8)(ch & 0x3f);
         return 3;
     } else if (ch > 0x10ffff)
         return -1;
 
-    *str++ = 0b11110000 | (i8)(ch >> 18);
-    *str++ = 0b10000000 | (i8)(ch >> 12 & 0x3f);
-    *str++ = 0b10000000 | (i8)(ch >> 6 & 0x3f);
-    *str   = 0b10000000 | (i8)(ch & 0x3f);
+    *str++ = 0b11110000 | (u8)(ch >> 18);
+    *str++ = 0b10000000 | (u8)(ch >> 12 & 0x3f);
+    *str++ = 0b10000000 | (u8)(ch >> 6 & 0x3f);
+    *str   = 0b10000000 | (u8)(ch & 0x3f);
     return 4;
 }
 
@@ -1720,13 +1720,13 @@ i32 Nst_iso8859_1_from_utf32(u32 ch, u8 *str)
     return 1;
 }
 
-i32 Nst_utf16_to_utf8(i8 *out_str, u16 *in_str, usize in_str_len)
+i32 Nst_utf16_to_utf8(u8 *out_str, u16 *in_str, usize in_str_len)
 {
     if (Nst_check_utf16_bytes(in_str, in_str_len) < 0)
         return -1;
 
     u32 n = Nst_utf16_to_utf32(in_str);
-    return Nst_utf8_from_utf32(n, (u8 *)out_str);
+    return Nst_utf8_from_utf32(n, out_str);
 }
 
 bool Nst_encoding_translate(Nst_Encoding *from, Nst_Encoding *to,
@@ -1739,7 +1739,7 @@ bool Nst_encoding_translate(Nst_Encoding *from, Nst_Encoding *to,
 
     // copy the string if the encoding is the same
     if (from == to) {
-        *to_buf = (i8 *)Nst_malloc(from_len + 1, from->ch_size);
+        *to_buf = (u8 *)Nst_malloc(from_len + 1, from->ch_size);
         if (*to_buf == NULL) {
             return false;
         }
@@ -1756,7 +1756,7 @@ bool Nst_encoding_translate(Nst_Encoding *from, Nst_Encoding *to,
     // skip BOM of initial string
     if (from->bom != NULL && from_len >= from->bom_size) {
         if (memcmp(from->bom, from_buf, from->bom_size) == 0) {
-            from_buf = (void *)((i8 *)from_buf + from->bom_size);
+            from_buf = (void *)((u8 *)from_buf + from->bom_size);
             from_len -= from->bom_size;
         }
     }
@@ -1913,7 +1913,7 @@ Nst_EncodingID Nst_acp(void)
 
 #endif // !Nst_MSVC
 
-wchar_t *Nst_char_to_wchar_t(i8 *str, usize len)
+wchar_t *Nst_char_to_wchar_t(const char *str, usize len)
 {
     wchar_t *out_str;
     if (len == 0)
@@ -1929,9 +1929,9 @@ wchar_t *Nst_char_to_wchar_t(i8 *str, usize len)
     return out_str;
 }
 
-i8 *Nst_wchar_t_to_char(wchar_t *str, usize len)
+char *Nst_wchar_t_to_char(wchar_t *str, usize len)
 {
-    i8 *out_str;
+    char *out_str;
     if (len == 0)
         len = wcslen(str);
 
@@ -1956,7 +1956,7 @@ bool Nst_is_non_character(u32 cp)
         || ((cp & 0xfff0) == 0xfff0 && (cp & 0xf) > 0xe);
 }
 
-Nst_EncodingID Nst_check_bom(i8 *str, usize len, i32 *bom_size)
+Nst_EncodingID Nst_check_bom(char *str, usize len, i32 *bom_size)
 {
     Nst_EncodingID cpid = Nst_EID_UNKNOWN;
     i32 size = 0;
@@ -1998,7 +1998,7 @@ end:
     return cpid;
 }
 
-Nst_EncodingID Nst_encoding_detect(i8 *str, usize len, i32 *bom_size)
+Nst_EncodingID Nst_encoding_detect(char *str, usize len, i32 *bom_size)
 {
     Nst_EncodingID cpid = Nst_check_bom(str, len, bom_size);
     if (cpid != Nst_EID_UNKNOWN)
@@ -2035,16 +2035,16 @@ Nst_EncodingID Nst_encoding_detect(i8 *str, usize len, i32 *bom_size)
     return Nst_EID_ISO8859_1;
 }
 
-Nst_EncodingID Nst_encoding_from_name(i8 *name)
+Nst_EncodingID Nst_encoding_from_name(const char *name)
 {
     usize name_len = strlen(name);
     if (name_len > 15)
         return Nst_EID_UNKNOWN;
-    i8 name_cpy[16];
-    i8 *name_p = name_cpy;
+    char name_cpy[16];
+    char *name_p = name_cpy;
 
     for (usize i = 0; i < name_len; i++) {
-        name_cpy[i] = (i8)tolower((u8)name[i]);
+        name_cpy[i] = (char)tolower((unsigned char)name[i]);
         if (name_cpy[i] == '_')
             name_cpy[i] = '-';
         else if (name_cpy[i] == ' ')

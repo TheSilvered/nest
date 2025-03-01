@@ -9,12 +9,12 @@ extern "C" {
 
 typedef struct _GUI_RawLabel {
     GUI_ELEMENT_HEAD;
-    i8 *text;
+    u8 *text;
     usize text_len;
 } GUI_RawLabel;
 
 /* Creates a new RawLabel element, if `text_len` is `-1` strlen is used. */
-GUI_RawLabel *GUI_RawLabel_New(GUI_Element *parent, i8 *text, isize text_len);
+GUI_RawLabel *GUI_RawLabel_New(GUI_Element *parent, u8 *text, isize text_len);
 
 Nst_Obj *GUI_RawLabel_GetTextObj(GUI_RawLabel *label);
 bool GUI_RawLabel_SetTextObj(GUI_RawLabel *label, Nst_Obj *text);

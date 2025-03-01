@@ -120,7 +120,7 @@ The exit code of the program.
 **Synopsis:**
 
 ```better-c
-bool Nst_run_module(i8 *file_name, Nst_SourceText *lib_src)
+bool Nst_run_module(const char *file_name, Nst_SourceText *lib_src)
 ```
 
 **Description:**
@@ -147,7 +147,7 @@ set but an internal one is, hence the caller must not set the error.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_func_call(Nst_Obj *func, i64 arg_num, Nst_Obj **args)
+Nst_Obj *Nst_func_call(Nst_Obj *func, usize arg_num, Nst_Obj **args)
 ```
 
 **Description:**
@@ -204,7 +204,7 @@ must not be set by the caller.
 **Synopsis:**
 
 ```better-c
-usize Nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part)
+usize Nst_get_full_path(const char *file_path, char **buf, char **file_part)
 ```
 
 **Description:**

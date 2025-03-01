@@ -4,21 +4,21 @@
 #include <cstring>
 #include "json_lexer.h"
 
-#define FILE_INFO ", file \"%s\", line %lli, column %lli"
+#define FILE_INFO ", file \"%s\", line %" PRIi32 ", column %" PRIi32
 
 #define SET_INVALID_ESCAPE_ERROR                                              \
     Nst_error_setf_syntax(                                                    \
         "JSON: invalid string escape" FILE_INFO,                              \
         state.pos.text->path,                                                 \
-        (i64)state.pos.line,                                                  \
-        (i64)state.pos.col)
+        state.pos.line,                                                       \
+        state.pos.col)
 
 #define SET_INVALID_VALUE_ERROR                                               \
     Nst_error_setf_syntax(                                                    \
         "JSON: invalid value" FILE_INFO,                                      \
         state.pos.text->path,                                                 \
-        (i64)state.pos.line,                                                  \
-        (i64)state.pos.col)
+        state.pos.line,                                                       \
+        state.pos.col)
 
 #define IS_HEX(ch) ((ch >= '0' && ch <= '9') || (ch >= 'a' && ch <= 'f'))
 #define HEX_TO_INT(ch) (ch <= '9' ? ch - '0' : ch - 'a' + 10)
@@ -36,8 +36,8 @@ typedef struct _LexerState {
     Nst_Pos pos;
     usize idx;
     usize len;
-    i8 *path;
-    i8 ch;
+    char *path;
+    char ch;
 } LexerState;
 
 LexerState state;
@@ -69,9 +69,9 @@ static Nst_Tok *parse_json_str();
 static Nst_Tok *parse_json_num();
 static Nst_Tok *parse_json_val();
 static bool ignore_comment();
-static bool check_ident(const i8 *name);
+static bool check_ident(const char *name);
 
-Nst_LList *json_tokenize(i8 *path, i8 *text, usize text_len,
+Nst_LList *json_tokenize(char *path, char *text, usize text_len,
                          bool readonly_text, Nst_EncodingID encoding)
 {
     Nst_SourceText src_text = {
@@ -84,7 +84,7 @@ Nst_LList *json_tokenize(i8 *path, i8 *text, usize text_len,
     };
 
     if (readonly_text) {
-        i8 *text_copy = Nst_malloc_c(text_len, i8);
+        char *text_copy = Nst_malloc_c(text_len, char);
         if (text_copy == nullptr)
             return nullptr;
         memcpy(text_copy, text, text_len);
@@ -147,7 +147,7 @@ Nst_LList *json_tokenize(i8 *path, i8 *text, usize text_len,
         } else {
             Nst_error_setf_syntax(
                 "JSON: invalid character" FILE_INFO,
-                path, (i64)state.pos.line, (i64)state.pos.col);
+                path, state.pos.line, state.pos.col);
             tok = nullptr;
         }
 
@@ -191,8 +191,8 @@ static Nst_Tok *parse_json_str()
                 Nst_error_setf_syntax(
                     "JSON: invalid character" FILE_INFO,
                     state.pos.text->path,
-                    (i64)state.pos.line,
-                    (i64)state.pos.col);
+                    state.pos.line,
+                    state.pos.col);
                 return nullptr;
             } else if (state.ch == '\\') {
                 escape = true;
@@ -264,7 +264,7 @@ static Nst_Tok *parse_json_str()
     return tok_new_value(start, state.pos, JSON_VALUE, val_obj);
 }
 
-static bool check_ident(const i8 *name)
+static bool check_ident(const char *name)
 {
     usize l = strlen(name);
     for (usize i = 0; i < l; i++) {
@@ -280,7 +280,7 @@ static bool check_ident(const i8 *name)
 
 static Nst_Tok *parse_json_num()
 {
-    i8 *start_idx = state.pos.text->text + state.idx;
+    char *start_idx = state.pos.text->text + state.idx;
     Nst_Pos start = Nst_pos_copy(state.pos);
     if (state.ch == '-')
         advance();
@@ -304,13 +304,13 @@ static Nst_Tok *parse_json_num()
             goto float_ltrl;
         go_back();
         errno = 0;
-        i64 value = strtoll(start_idx, nullptr, 10);
+        i64 value = strtoll((char *)start_idx, nullptr, 10);
         if (errno == ERANGE) {
             Nst_error_setf_memory(
                 "JSON: number too big" FILE_INFO,
                 state.path,
-                (i64)state.pos.line,
-                (i64)state.pos.col);
+                state.pos.line,
+                state.pos.col);
             return nullptr;
         }
         return tok_new_value(
@@ -393,7 +393,7 @@ float_ltrl:
         go_back();
 
     {
-        f64 value = Nst_strtod(start_idx, nullptr);
+        f64 value = Nst_strtod((char *)start_idx, nullptr);
         return tok_new_value(
             start,
             state.pos,

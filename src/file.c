@@ -32,7 +32,7 @@ typedef struct _Nst_IOFileObj {
 
 static u32 io_result_ill_encoded_ch;
 static usize io_result_position;
-static const i8 *io_result_encoding_name;
+static const char *io_result_encoding_name;
 
 Nst_Obj *Nst_iof_new(FILE *value, bool bin, bool read, bool write,
                      Nst_Encoding *encoding)
@@ -134,7 +134,7 @@ void _Nst_iofile_destroy(Nst_Obj *obj)
 static Nst_IOResult FILE_read_get_ch(Nst_IOFileObj *f, Nst_StrBuilder *sb,
                                      bool expand_buf, usize *bytes_read)
 {
-    i8 ch_buf[Nst_ENCODING_MULTIBYTE_MAX_SIZE + 1] = { 0 };
+    u8 ch_buf[Nst_ENCODING_MULTIBYTE_MAX_SIZE + 1] = { 0 };
     usize ch_len = 0;
     u32 ch;
     if (!expand_buf || !Nst_sb_reserve(sb, Nst_encoding_utf8.mult_max_sz + 1))
@@ -173,7 +173,7 @@ success:
     return Nst_IO_SUCCESS;
 }
 
-Nst_IOResult Nst_FILE_read(i8 *buf, usize buf_size, usize count,
+Nst_IOResult Nst_FILE_read(u8 *buf, usize buf_size, usize count,
                            usize *buf_len, Nst_Obj *f)
 {
     Nst_assert(f->type == Nst_t.IOFile);
@@ -185,9 +185,9 @@ Nst_IOResult Nst_FILE_read(i8 *buf, usize buf_size, usize count,
 
     usize bytes_read;
     if (Nst_IOF_IS_BIN(f)) {
-        i8 *out_buf;
+        u8 *out_buf;
         if (buf_size == 0)
-            out_buf = (i8 *)Nst_raw_malloc(count);
+            out_buf = (u8 *)Nst_raw_malloc(count);
         else
             out_buf = buf;
 
@@ -202,7 +202,7 @@ Nst_IOResult Nst_FILE_read(i8 *buf, usize buf_size, usize count,
         if (buf_len != NULL)
             *buf_len = bytes_read;
         if (buf_size == 0)
-            *(i8 **)buf = out_buf;
+            *(u8 **)buf = out_buf;
 
         if (bytes_read == count)
             return Nst_IO_EOF_REACHED;
@@ -218,7 +218,7 @@ Nst_IOResult Nst_FILE_read(i8 *buf, usize buf_size, usize count,
         && ftell((FILE *)IOFILE(f)->fp) == 0
         && IOFILE(f)->encoding->bom != NULL)
     {
-        i8 bom[Nst_ENCODING_BOM_MAX_SIZE];
+        u8 bom[Nst_ENCODING_BOM_MAX_SIZE];
         usize b_size = IOFILE(f)->encoding->bom_size;
         if (fread(&bom, 1, b_size, (FILE *)IOFILE(f)->fp) != b_size
             || memcmp(bom, IOFILE(f)->encoding->bom, b_size) != 0)
@@ -249,7 +249,7 @@ Nst_IOResult Nst_FILE_read(i8 *buf, usize buf_size, usize count,
             if (result < 0) {
                 if (expand_buf) {
                     Nst_sb_destroy(&sb);
-                    *(i8 **)buf = NULL;
+                    *(u8 **)buf = NULL;
                 } else
                     memset(buf, 0, buf_size);
 
@@ -257,7 +257,7 @@ Nst_IOResult Nst_FILE_read(i8 *buf, usize buf_size, usize count,
                     *buf_len = 0;
             } else {
                 if (expand_buf)
-                    *(i8 **)buf = sb.value;
+                    *(u8 **)buf = sb.value;
 
                 if (buf_len != NULL)
                     *buf_len = sb.len;
@@ -269,13 +269,13 @@ Nst_IOResult Nst_FILE_read(i8 *buf, usize buf_size, usize count,
     sb.value[sb.len] = '\0';
 
     if (expand_buf)
-        *(i8 **)buf = sb.value;
+        *(u8 **)buf = sb.value;
     if (buf_len != NULL)
         *buf_len = sb.len;
     return Nst_IO_SUCCESS;
 }
 
-Nst_IOResult Nst_FILE_write(i8 *buf, usize buf_len, usize *count, Nst_Obj *f)
+Nst_IOResult Nst_FILE_write(u8 *buf, usize buf_len, usize *count, Nst_Obj *f)
 {
     Nst_assert(f->type == Nst_t.IOFile);
 
@@ -312,7 +312,7 @@ Nst_IOResult Nst_FILE_write(i8 *buf, usize buf_len, usize *count, Nst_Obj *f)
     }
 
     usize chars_written = 0;
-    i8 ch_buf[Nst_ENCODING_MULTIBYTE_MAX_SIZE];
+    u8 ch_buf[Nst_ENCODING_MULTIBYTE_MAX_SIZE];
 
     usize initial_len = buf_len;
     while (buf_len > 0) {
@@ -367,7 +367,7 @@ Nst_IOResult Nst_FILE_tell(Nst_Obj *f, usize *pos)
     off_t fpi_pos = ftello(IOFILE(f)->fp);
 #endif // !Nst_MSVC
 
-    if (fpi_pos == -1) {
+    if (fpi_pos < 0) {
         *pos = 0;
         return Nst_IO_ERROR;
     }
@@ -401,14 +401,14 @@ Nst_IOResult Nst_FILE_close(Nst_Obj *f)
     return fclose(IOFILE(f)->fp) == -1 ? Nst_IO_ERROR : Nst_IO_SUCCESS;
 }
 
-Nst_IOResult Nst_fread(i8 *buf, usize buf_size, usize count, usize *buf_len,
+Nst_IOResult Nst_fread(u8 *buf, usize buf_size, usize count, usize *buf_len,
                        Nst_Obj *f)
 {
     Nst_assert(f->type == Nst_t.IOFile);
     return IOFILE(f)->func_set.read(buf, buf_size, count, buf_len, f);
 }
 
-Nst_IOResult Nst_fwrite(i8 *buf, usize buf_len, usize *count, Nst_Obj *f)
+Nst_IOResult Nst_fwrite(u8 *buf, usize buf_len, usize *count, Nst_Obj *f)
 {
     Nst_assert(f->type == Nst_t.IOFile);
     return IOFILE(f)->func_set.write(buf, buf_len, count, f);
@@ -444,13 +444,13 @@ Nst_IOResult Nst_fclose(Nst_Obj *f)
     return result;
 }
 
-FILE *Nst_fopen_unicode(i8 *path, const i8 *mode)
+FILE *Nst_fopen_unicode(const char *path, const char *mode)
 {
 #ifdef Nst_MSVC
     wchar_t *wide_path = Nst_char_to_wchar_t(path, strlen(path));
     if (wide_path == NULL)
         return NULL;
-    wchar_t *wide_mode = Nst_char_to_wchar_t((i8 *)mode, strlen(mode));
+    wchar_t *wide_mode = Nst_char_to_wchar_t(mode, strlen(mode));
     if (wide_mode == NULL) {
         Nst_free(wide_path);
         return NULL;
@@ -466,7 +466,7 @@ FILE *Nst_fopen_unicode(i8 *path, const i8 *mode)
 }
 
 void Nst_io_result_get_details(u32 *ill_encoded_ch, usize *position,
-                               const i8 **encoding_name)
+                               const char **encoding_name)
 {
     if (ill_encoded_ch != NULL)
         *ill_encoded_ch = io_result_ill_encoded_ch;
@@ -477,7 +477,7 @@ void Nst_io_result_get_details(u32 *ill_encoded_ch, usize *position,
 }
 
 void Nst_io_result_set_details(u32 ill_encoded_ch, usize position,
-                               const i8 *encoding_name)
+                               const char *encoding_name)
 {
     io_result_ill_encoded_ch = ill_encoded_ch;
     io_result_position = position;

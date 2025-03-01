@@ -553,7 +553,7 @@ and the right.
 **Synopsis:**
 
 ```better-c
-isize Nst_print(const i8 *buf)
+isize Nst_print(const char *buf)
 ```
 
 **Description:**
@@ -580,7 +580,7 @@ set.
 **Synopsis:**
 
 ```better-c
-isize Nst_fprint(Nst_Obj *f, const i8 *buf)
+isize Nst_fprint(Nst_Obj *f, const char *buf)
 ```
 
 **Description:**
@@ -608,7 +608,7 @@ set.
 **Synopsis:**
 
 ```better-c
-isize Nst_println(const i8 *buf)
+isize Nst_println(const char *buf)
 ```
 
 **Description:**
@@ -637,7 +637,7 @@ closed `-1` is returned. No error is set.
 **Synopsis:**
 
 ```better-c
-isize Nst_fprintln(Nst_Obj *f, const i8 *buf)
+isize Nst_fprintln(Nst_Obj *f, const char *buf)
 ```
 
 **Description:**
@@ -667,7 +667,7 @@ closed `-1` is returned. No error is set.
 **Synopsis:**
 
 ```better-c
-isize Nst_printf(Nst_WIN_FMT const i8 *fmt, ...)
+isize Nst_printf(Nst_WIN_FMT const char *fmt, ...)
 ```
 
 **Description:**
@@ -698,7 +698,7 @@ error is set. The negative value returned depends on the type of the error:
 **Synopsis:**
 
 ```better-c
-isize Nst_fprintf(Nst_Obj *f, Nst_WIN_FMT const i8 *fmt, ...)
+isize Nst_fprintf(Nst_Obj *f, Nst_WIN_FMT const char *fmt, ...)
 ```
 
 **Description:**
@@ -729,7 +729,7 @@ error is set. The negative value returned depends on the type of the error:
 **Synopsis:**
 
 ```better-c
-isize Nst_vfprintf(Nst_Obj *f, const i8 *fmt, va_list args)
+isize Nst_vfprintf(Nst_Obj *f, const char *fmt, va_list args)
 ```
 
 **Description:**
@@ -743,7 +743,7 @@ isize Nst_vfprintf(Nst_Obj *f, const i8 *fmt, va_list args)
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_sprintf(Nst_WIN_FMT const i8 *fmt, ...)
+Nst_Obj *Nst_sprintf(Nst_WIN_FMT const char *fmt, ...)
 ```
 
 **Description:**
@@ -770,7 +770,7 @@ The function returns the newly created string object.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_vsprintf(const i8 *fmt, va_list args)
+Nst_Obj *Nst_vsprintf(const char *fmt, va_list args)
 ```
 
 **Description:**
@@ -784,7 +784,7 @@ Nst_Obj *Nst_vsprintf(const i8 *fmt, va_list args)
 **Synopsis:**
 
 ```better-c
-i8 *Nst_fmt(const i8 *fmt, usize fmt_len, usize *out_len, ...)
+u8 *Nst_fmt(const char *fmt, usize fmt_len, usize *out_len, ...)
 ```
 
 **Description:**
@@ -816,7 +816,7 @@ function fails and `out_len` is not `NULL` it is set to `0`.
 **Synopsis:**
 
 ```better-c
-i8 *Nst_vfmt(const i8 *fmt, usize fmt_len, usize *out_len, va_list args)
+u8 *Nst_vfmt(const char *fmt, usize fmt_len, usize *out_len, va_list args)
 ```
 
 **Description:**
@@ -854,7 +854,7 @@ A new object of type `Str` or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-i8 *Nst_repr(i8 *str, usize str_len, usize *out_len, bool shallow, bool ascii)
+u8 *Nst_repr(u8 *str, usize str_len, usize *out_len, bool shallow, bool ascii)
 ```
 
 **Description:**

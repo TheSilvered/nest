@@ -125,8 +125,8 @@ NstEXP typedef struct _Nst_Encoding {
     const usize ch_size;
     const usize mult_max_sz;
     const usize mult_min_sz;
-    const i8 *name;
-    const i8 *bom;
+    const char *name;
+    const char *bom;
     const usize bom_size;
     const Nst_CheckBytesFunc check_bytes;
     const Nst_ToUTF32Func to_utf32;
@@ -318,7 +318,7 @@ NstEXP i32 NstC Nst_iso8859_1_from_utf32(u32 ch, u8 *str);
  * @return The function returns the number of bytes written or `-1` on error,
  * no error is set.
  */
-NstEXP i32 NstC Nst_utf16_to_utf8(i8 *out_str, u16 *in_str, usize in_str_len);
+NstEXP i32 NstC Nst_utf16_to_utf8(u8 *out_str, u16 *in_str, usize in_str_len);
 
 /**
  * Translate a string to another encoding.
@@ -414,7 +414,7 @@ NstEXP Nst_EncodingID NstC Nst_acp(void);
  * @return The function returns the new string or NULL on failure. If the
  * function fails, the error is set.
  */
-NstEXP wchar_t *NstC Nst_char_to_wchar_t(i8 *str, usize len);
+NstEXP wchar_t *NstC Nst_char_to_wchar_t(const char *str, usize len);
 
 /**
  * Translates a Unicode (UTF-16) string to UTF-8.
@@ -428,7 +428,7 @@ NstEXP wchar_t *NstC Nst_char_to_wchar_t(i8 *str, usize len);
  * @return The function returns the new string or `NULL` on failure. If the
  * function fails, the error is set.
  */
-NstEXP i8 *NstC Nst_wchar_t_to_char(wchar_t *str, usize len);
+NstEXP char *NstC Nst_wchar_t_to_char(wchar_t *str, usize len);
 
 /**
  * @brief Returns whether a code point is valid. A valid code point is smaller
@@ -443,20 +443,20 @@ NstEXP bool NstC Nst_is_non_character(u32 cp);
  * @return The `Nst_EncodingID` deduced from the Byte Order Mark or
  * `Nst_EID_UNKNOWN` if no BOM was detected.
  */
-NstEXP Nst_EncodingID NstC Nst_check_bom(i8 *str, usize len, i32 *bom_size);
+NstEXP Nst_EncodingID NstC Nst_check_bom(char *str, usize len, i32 *bom_size);
 /**
  * Detects the encoding of a file.
  *
  * @brief If no valid encoding is detected, `Nst_EID_LATIN1` is returned.
  * No error is set.
  */
-NstEXP Nst_EncodingID NstC Nst_encoding_detect(i8 *str, usize len,
+NstEXP Nst_EncodingID NstC Nst_encoding_detect(char *str, usize len,
                                                i32 *bom_size);
 /**
  * @return The encoding ID from a C string, if no matching encoding is found,
  * `Nst_EID_UNKNOWN` is returned. No error is set.
  */
-NstEXP Nst_EncodingID NstC Nst_encoding_from_name(i8 *name);
+NstEXP Nst_EncodingID NstC Nst_encoding_from_name(const char *name);
 /**
  * @return An encoding ID where `ch_size` is one byte. If the given encoding ID
  * has a `ch_size` of one byte already the encoding ID itself is returned.

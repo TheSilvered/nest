@@ -355,7 +355,7 @@ The new object or `NULL` on error.
 typedef struct _Nst_Declr {
     void *ptr;
     isize arg_num;
-    const i8 *name;
+    const char *name;
 } Nst_Declr
 ```
 
@@ -395,7 +395,7 @@ The signarture of a function used to get the constant of a library.
 **Synopsis:**
 
 ```better-c
-bool Nst_extract_args(const i8 *types, usize arg_num, Nst_Obj **args, ...)
+bool Nst_extract_args(const char *types, usize arg_num, Nst_Obj **args, ...)
 ```
 
 **Description:**
@@ -425,7 +425,7 @@ Check the syntax for the types argument in
 **Synopsis:**
 
 ```better-c
-Nst_Obj *_Nst_obj_custom(usize size, void *data, const i8 *name)
+Nst_Obj *_Nst_obj_custom(usize size, void *data, const char *name)
 ```
 
 **Description:**
@@ -445,7 +445,7 @@ Create an object with custom data.
 **Synopsis:**
 
 ```better-c
-Nst_Obj *_Nst_obj_custom_ex(usize size, void *data, const i8 *name,
+Nst_Obj *_Nst_obj_custom_ex(usize size, void *data, const char *name,
                             Nst_ObjDstr dstr)
 ```
 

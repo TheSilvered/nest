@@ -26,7 +26,7 @@ AllocHeader *allocs_head = NULL;
 
 void Nst_log_alloc_count(void)
 {
-    printf("\nAllocation count: %li\n", allocation_count);
+    printf("\nAllocation count: %" PRIi32 "\n", allocation_count);
 }
 
 void Nst_log_alloc_info(void)
@@ -224,7 +224,7 @@ void Nst_memset(void *block, usize size, usize count, void *value)
         return;
     }
     for (usize i = 0; i < count; i++)
-        memcpy((i8 *)block + i * size, value, size);
+        memcpy((u8 *)block + i * size, value, size);
 }
 
 bool Nst_sbuffer_init(Nst_SBuffer *buf, usize unit_size, usize count)
@@ -275,7 +275,7 @@ bool Nst_sbuffer_append(Nst_SBuffer *buf, void *element)
     if (!Nst_sbuffer_expand_by(buf, 1))
         return false;
 
-    void *data_end = (void *)((i8 *)buf->data + (buf->len * buf->unit_size));
+    void *data_end = (void *)((u8 *)buf->data + (buf->len * buf->unit_size));
     memcpy(data_end, element, buf->unit_size);
     buf->len++;
     return true;

@@ -35,8 +35,8 @@ GUI_Window *GUI_Window_New(GUI_Window *parent, GUI_App *app,
                            int width, int height);
 void GUI_Window_Destroy(GUI_Window *window);
 
-void GUI_Window_SetTitle(GUI_Window *window, const i8 *title);
-const i8 *GUI_Window_GetTitle(GUI_Window *window);
+void GUI_Window_SetTitle(GUI_Window *window, const char *title);
+const char *GUI_Window_GetTitle(GUI_Window *window);
 void GUI_Window_SetPosition(GUI_Window *window, int x, int y);
 void GUI_Window_GetPosition(GUI_Window *window, int *x, int *y);
 void GUI_Window_SetSize(GUI_Window *window, int w, int h);

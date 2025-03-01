@@ -144,7 +144,7 @@ typedef struct _Nst_StdIn {
 **Synopsis:**
 
 ```better-c
-typedef Nst_IOResult (*Nst_IOFile_read_f)(i8 *buf, usize buf_size, usize count,
+typedef Nst_IOResult (*Nst_IOFile_read_f)(u8 *buf, usize buf_size, usize count,
                                           usize *buf_len, Nst_Obj *f)
 ```
 
@@ -158,7 +158,7 @@ This function shall read from the given file object `count` characters (or
 **Parameters:**
 
 - `buf`: the buffer where the read text is written. If `buf_size` is `0` this
-  parameter should be interpreted as [`i8 **`](c_api_index.md#type-definitions)
+  parameter should be interpreted as [`u8 **`](c_api_index.md#type-definitions)
   and a malloc'd buffer of the right size shall be put in it. When the file is
   opened in normal mode the contents of the buffer must be in `extUTF8` encoding
   and must terminate with a NUL character.
@@ -206,7 +206,7 @@ This function shall return one of the following
 **Synopsis:**
 
 ```better-c
-typedef Nst_IOResult (*Nst_IOFile_write_f)(i8 *buf, usize buf_len,
+typedef Nst_IOResult (*Nst_IOFile_write_f)(u8 *buf, usize buf_len,
                                            usize *count, Nst_Obj *f)
 ```
 
@@ -518,7 +518,7 @@ Get the encoding of a file.
 **Synopsis:**
 
 ```better-c
-Nst_IOResult Nst_fread(i8 *buf, usize buf_size, usize count, usize *buf_len,
+Nst_IOResult Nst_fread(u8 *buf, usize buf_size, usize count, usize *buf_len,
                        Nst_Obj *f)
 ```
 
@@ -534,7 +534,7 @@ Calls the read function of the file, see
 **Synopsis:**
 
 ```better-c
-Nst_IOResult Nst_fwrite(i8 *buf, usize buf_len, usize *count, Nst_Obj *f)
+Nst_IOResult Nst_fwrite(u8 *buf, usize buf_len, usize *count, Nst_Obj *f)
 ```
 
 **Description:**
@@ -609,7 +609,7 @@ Calls the close function of the file, see
 **Synopsis:**
 
 ```better-c
-Nst_IOResult Nst_FILE_read(i8 *buf, usize buf_size, usize count,
+Nst_IOResult Nst_FILE_read(u8 *buf, usize buf_size, usize count,
                            usize *buf_len, Nst_Obj *f)
 ```
 
@@ -624,7 +624,7 @@ Read function for standard C file descriptors.
 **Synopsis:**
 
 ```better-c
-Nst_IOResult Nst_FILE_write(i8 *buf, usize buf_len, usize *count, Nst_Obj *f)
+Nst_IOResult Nst_FILE_write(u8 *buf, usize buf_len, usize *count, Nst_Obj *f)
 ```
 
 **Description:**
@@ -681,7 +681,7 @@ Close function for standard C file descriptors.
 
 ```better-c
 void Nst_io_result_get_details(u32 *ill_encoded_ch, usize *position,
-                               const i8 **encoding_name)
+                               const char **encoding_name)
 ```
 
 **Description:**
@@ -717,7 +717,7 @@ that failed to decode the byte for
 
 ```better-c
 void Nst_io_result_set_details(u32 ill_encoded_ch, usize position,
-                               const i8 *encoding_name)
+                               const char *encoding_name)
 ```
 
 **Description:**
@@ -732,7 +732,7 @@ Sets the values returned with
 **Synopsis:**
 
 ```better-c
-FILE *Nst_fopen_unicode(i8 *path, const i8 *mode)
+FILE *Nst_fopen_unicode(const char *path, const char *mode)
 ```
 
 **Description:**

@@ -25,8 +25,6 @@
 static bool use_color = true;
 static bool use_stderr = false;
 static Nst_Obj *err_stream = NULL;
-static i8 *printf_buf = NULL;
-static usize buf_size = 0;
 
 void Nst_error_set_color(bool color)
 {
@@ -44,9 +42,9 @@ static inline void set_error_stream(void)
     }
 }
 
-static inline void err_putc(i8 *ch, usize len)
+static inline void err_putc(const char *ch, usize len)
 {
-    Nst_fwrite(ch, len, NULL, err_stream);
+    Nst_fwrite((u8 *)ch, len, NULL, err_stream);
 }
 
 Nst_Pos Nst_pos_copy(Nst_Pos pos)
@@ -66,7 +64,7 @@ Nst_Pos Nst_pos_empty(void)
     return new_pos;
 }
 
-static inline void print_repeat(i8 ch, i32 times)
+static inline void print_repeat(char ch, i32 times)
 {
     if (times < 0)
         times = 0;
@@ -79,7 +77,7 @@ static i32 get_indent(Nst_SourceText *text, i32 lineno)
 {
     i32 indent = 0;
 
-    for (i8 *p = text->lines[lineno]; *p != '\n' && *p != '\0'; p++) {
+    for (char *p = text->lines[lineno]; *p != '\n' && *p != '\0'; p++) {
         if (*p == ' ' || *p == '\t')
             indent++;
         else
@@ -94,8 +92,8 @@ static void print_line(Nst_Pos *pos, i32 start_col, i32 end_col,
     i32 line_length = 0;
     int lineno_len = 0;
     i32 lineno = pos->line;
-    i8 *text = pos->text->lines[lineno];
-    i8 *start = pos->text->text;
+    char *text = pos->text->lines[lineno];
+    char *start = pos->text->text;
     usize tot_len = pos->text->text_len;
     i32 indent = get_indent(pos->text, lineno) - keep_indent;
     i32 spaces = 0;
@@ -120,11 +118,11 @@ static void print_line(Nst_Pos *pos, i32 start_col, i32 end_col,
     if (use_color) {
         Nst_fprintf(
             err_stream,
-            C_CYN " %*li" C_RES " | ",
+            C_CYN " %*" PRIi32 C_RES " | ",
             lineno_len,
             lineno + 1);
     } else
-        Nst_fprintf(err_stream, " %*li | ", lineno_len, lineno + 1);
+        Nst_fprintf(err_stream, " %*" PRIi32 " | ", lineno_len, lineno + 1);
 
     for (i32 i = keep_indent;
          i < (isize)tot_len && text[i] != '\n' && text[i] != '\0';
@@ -146,7 +144,7 @@ static void print_line(Nst_Pos *pos, i32 start_col, i32 end_col,
         if (res == -1)
             continue;
 
-        err_putc(text + i, res);
+        err_putc((char *)text + i, res);
         i += res - 1;
         line_length++;
 
@@ -203,21 +201,24 @@ static void print_position(Nst_Pos start, Nst_Pos end)
     if (start.line != end.line) {
         if (use_color) {
             Nst_fprintf(err_stream,
-                "lines " C_CYN "%li" C_RES " to " C_CYN "%li" C_RES,
+                "lines " C_CYN "%" PRIi32 C_RES " to " C_CYN "%" PRIi32 C_RES,
                 start.line + 1,
                 end.line + 1);
         } else {
             Nst_fprintf(
                 err_stream,
-                "lines %li to %li",
+                "lines %" PRIi32 " to %" PRIi32,
                 start.line + 1,
                 end.line + 1);
         }
     } else {
-        if (use_color)
-            Nst_fprintf(err_stream, "line " C_CYN "%li" C_RES, start.line + 1);
-        else
-            Nst_fprintf(err_stream, "line %li", start.line + 1);
+        if (use_color) {
+            Nst_fprintf(
+                err_stream,
+                "line " C_CYN "%" PRIi32 C_RES,
+                start.line + 1);
+        } else
+            Nst_fprintf(err_stream, "line %" PRIi32, start.line + 1);
     }
     Nst_fprint(err_stream, ":\n");
 
@@ -253,12 +254,13 @@ static inline void print_rep_count(i32 count)
     if (use_color) {
         Nst_fprintf(
             err_stream,
-            C_RED "-- Previous position repeated %li more times --\n" C_RES,
+            C_RED "-- Previous position repeated %" PRIi32 " more times --\n"
+            C_RES,
             count);
     } else {
         Nst_fprintf(
             err_stream,
-            "-- Previous position repeated %li more times --\n",
+            "-- Previous position repeated %" PRIi32 " more times --\n",
             count);
     }
 }
@@ -306,7 +308,7 @@ void Nst_tb_print(Nst_Traceback *tb)
         print_position(*start, *end);
     }
 
-    i8 *err_name = Nst_str_value(tb->error_name);
+    u8 *err_name = Nst_str_value(tb->error_name);
     if (tb->error_msg == Nst_null() && use_color)
         Nst_fprintf(err_stream, C_YEL "%s" C_RES "\n", err_name);
     else if (tb->error_msg == Nst_null())
@@ -324,9 +326,6 @@ void Nst_tb_print(Nst_Traceback *tb)
     }
 
     Nst_fflush(err_stream);
-    if (buf_size != 0)
-        Nst_free(printf_buf);
-
     Nst_dec_ref(err_stream);
 }
 
@@ -410,7 +409,7 @@ void Nst_error_set_import(Nst_Obj *msg)
     Nst_error_set(Nst_inc_ref(Nst_s.e_ImportError), msg);
 }
 
-static void set_error_c(Nst_Obj *name, const i8 *msg)
+static void set_error_c(Nst_Obj *name, const char *msg)
 {
     Nst_Obj *msg_obj = Nst_str_new_c_raw(msg, false);
     if (msg_obj == NULL)
@@ -419,37 +418,37 @@ static void set_error_c(Nst_Obj *name, const i8 *msg)
     Nst_error_set(Nst_inc_ref(name), msg_obj);
 }
 
-void Nst_error_setc_syntax(const i8 *msg)
+void Nst_error_setc_syntax(const char *msg)
 {
     set_error_c(Nst_s.e_SyntaxError, msg);
 }
 
-void Nst_error_setc_memory(const i8 *msg)
+void Nst_error_setc_memory(const char *msg)
 {
     set_error_c(Nst_s.e_MemoryError, msg);
 }
 
-void Nst_error_setc_type(const i8 *msg)
+void Nst_error_setc_type(const char *msg)
 {
     set_error_c(Nst_s.e_TypeError, msg);
 }
 
-void Nst_error_setc_value(const i8 *msg)
+void Nst_error_setc_value(const char *msg)
 {
     set_error_c(Nst_s.e_ValueError, msg);
 }
 
-void Nst_error_setc_math(const i8 *msg)
+void Nst_error_setc_math(const char *msg)
 {
     set_error_c(Nst_s.e_MathError, msg);
 }
 
-void Nst_error_setc_call(const i8 *msg)
+void Nst_error_setc_call(const char *msg)
 {
     set_error_c(Nst_s.e_CallError, msg);
 }
 
-void Nst_error_setc_import(const i8 *msg)
+void Nst_error_setc_import(const char *msg)
 {
     set_error_c(Nst_s.e_ImportError, msg);
 }

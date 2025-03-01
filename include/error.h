@@ -14,7 +14,7 @@
 /* Correctly formats the error message for the wrong number of arguments. */
 #define _Nst_WRONG_ARG_NUM(func_arg_num, arg_num)                             \
     Nst_sprintf(                                                              \
-        "the function expected at most %zi argument%s but %lli %s passed",    \
+        "the function expected at most %zi argument%s but %zi %s passed",     \
         func_arg_num, func_arg_num == 1 ? "" : "s",                           \
         arg_num, arg_num == 1 ? "was" : "were")
 
@@ -80,9 +80,9 @@ extern "C" {
  */
 NstEXP typedef struct _Nst_SourceText {
     bool allocated;
-    i8 *text;
-    i8 *path;
-    i8 **lines;
+    char *text;
+    char *path;
+    char **lines;
     usize text_len;
     usize lines_len;
 } Nst_SourceText;
@@ -200,37 +200,37 @@ NstEXP void NstC Nst_error_set_import(Nst_Obj *msg);
  * @brief Sets the global operation error creating a string object from the
  * given message and using "Syntax Error" as the name.
  */
-NstEXP void NstC Nst_error_setc_syntax(const i8 *msg);
+NstEXP void NstC Nst_error_setc_syntax(const char *msg);
 /**
  * @brief Sets the global operation error creating a string object from the
  * given message and using "Memory Error" as the name.
  */
-NstEXP void NstC Nst_error_setc_memory(const i8 *msg);
+NstEXP void NstC Nst_error_setc_memory(const char *msg);
 /**
  * @brief Sets the global operation error creating a string object from the
  * given message and using "Type Error" as the name.
  */
-NstEXP void NstC Nst_error_setc_type(const i8 *msg);
+NstEXP void NstC Nst_error_setc_type(const char *msg);
 /**
  * @brief Sets the global operation error creating a string object from the
  * given message and using "Value Error" as the name.
  */
-NstEXP void NstC Nst_error_setc_value(const i8 *msg);
+NstEXP void NstC Nst_error_setc_value(const char *msg);
 /**
  * @brief Sets the global operation error creating a string object from the
  * given message and using "Math Error" as the name.
  */
-NstEXP void NstC Nst_error_setc_math(const i8 *msg);
+NstEXP void NstC Nst_error_setc_math(const char *msg);
 /**
  * @brief Sets the global operation error creating a string object from the
  * given message and using "Call Error" as the name.
  */
-NstEXP void NstC Nst_error_setc_call(const i8 *msg);
+NstEXP void NstC Nst_error_setc_call(const char *msg);
 /**
  * @brief Sets the global operation error creating a string object from the
  * given message and using "Import Error" as the name.
  */
-NstEXP void NstC Nst_error_setc_import(const i8 *msg);
+NstEXP void NstC Nst_error_setc_import(const char *msg);
 
 /* Sets the global operation error with a memory error of failed allocation. */
 NstEXP void NstC Nst_error_failed_alloc(void);

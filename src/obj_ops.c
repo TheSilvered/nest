@@ -641,11 +641,11 @@ Nst_Obj *_Nst_repr_str_cast(Nst_Obj *ob)
     if (ob_t == Nst_t.Str)
         return Nst_str_repr(ob);
     else if (ob_t == Nst_t.Byte) {
-        i8 *str = Nst_calloc_c(5, i8, NULL);
+        char *str = Nst_calloc_c(5, char, NULL);
         CHECK_BUFFER(str);
 
-        sprintf(str, "%lib", (i32)Nst_byte_u8(ob));
-        return Nst_str_new_c_raw((const i8 *)str, true);
+        sprintf(str, "%ib", (int)Nst_byte_u8(ob));
+        return Nst_str_new_c_raw((const char *)str, true);
     } else
         return Nst_obj_cast(ob, Nst_t.Str);
 }
@@ -811,12 +811,12 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
 
     if (ob_t == Nst_t.Int) {
         usize str_len;
-        i8 *str = Nst_fmt("{L}", 3, &str_len, Nst_int_i64(ob));
+        u8 *str = Nst_fmt("{L}", 3, &str_len, Nst_int_i64(ob));
         CHECK_BUFFER(str);
         return Nst_str_new_allocated(str, str_len);
     } else if (ob_t == Nst_t.Real) {
         usize str_len;
-        i8 *str = Nst_fmt(
+        u8 *str = Nst_fmt(
             "{f:Gp.*}", 8,
             &str_len,
             Nst_real_f64(ob),
@@ -832,10 +832,10 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
         return Nst_str_from_sv(Nst_type_name(ob));
     } else if (ob_t == Nst_t.Byte) {
         u8 value = Nst_byte_u8(ob);
-        i8 *str = Nst_calloc_c(3, i8, NULL);
+        u8 *str = Nst_calloc_c(3, u8, NULL);
         CHECK_BUFFER(str);
         if (value <= 0x7f) {
-            str[0] = (i8)value;
+            str[0] = value;
             return Nst_str_new_allocated(str, 1);
         }
         str[0] = 0b11000000 | (value >> 6);
@@ -858,9 +858,9 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
     } else if (ob_t == Nst_t.Null)
         return Nst_inc_ref(Nst_s.c_null);
     else if (ob_t == Nst_t.IOFile) {
-        const i8 *empty_val = "<IOFile[-----]>";
-        i8 *buffer = (i8 *)Nst_calloc(
-            1, sizeof(i8) * strlen(empty_val),
+        const char *empty_val = "<IOFile[-----]>";
+        u8 *buffer = (u8 *)Nst_calloc(
+            1, sizeof(u8) * strlen(empty_val),
             (void *)empty_val);
         CHECK_BUFFER(buffer);
         if (Nst_IOF_CAN_READ(ob))
@@ -877,14 +877,14 @@ static Nst_Obj *obj_to_str(Nst_Obj *ob)
     } else if (ob_t == Nst_t.Func) {
         usize str_len;
         usize arg_num = Nst_func_arg_num(ob);
-        i8 *str = Nst_fmt(
+        u8 *str = Nst_fmt(
             "<Func {z} arg{s}>", 17, &str_len,
             arg_num, arg_num == 1 ? "" : "s");
         CHECK_BUFFER(str);
         return Nst_str_new_allocated(str, str_len);
     } else {
         usize str_len;
-        i8 *str = Nst_fmt(
+        u8 *str = Nst_fmt(
             "<{s} object at {p:0X}>", 22, &str_len,
             Nst_type_name(ob->type).value, ob);
         CHECK_BUFFER(str);
@@ -1268,7 +1268,7 @@ Nst_Obj *Nst_obj_contains(Nst_Obj *ob1, Nst_Obj *ob2)
             return Nst_true_ref();
         }
     } else if (ob1->type == Nst_t.Str && ob2->type == Nst_t.Str) {
-        i8 *res = Nst_str_lfind(
+        u8 *res = Nst_str_lfind(
             Nst_str_value(ob1), Nst_str_len(ob1),
             Nst_str_value(ob2), Nst_str_len(ob2));
         Nst_RETURN_BOOL(res != NULL);
@@ -1281,13 +1281,13 @@ Nst_Obj *Nst_obj_concat(Nst_Obj *ob1, Nst_Obj *ob2)
     ob1 = Nst_obj_cast(ob1, Nst_t.Str);
     ob2 = Nst_obj_cast(ob2, Nst_t.Str);
 
-    i8 *s1 = Nst_str_value(ob1);
-    i8 *s2 = Nst_str_value(ob2);
+    u8 *s1 = Nst_str_value(ob1);
+    u8 *s2 = Nst_str_value(ob2);
     usize len1 = Nst_str_len(ob1);
     usize len2 = Nst_str_len(ob2);
     usize tot_len = len1 + len2;
 
-    i8 *buffer = Nst_malloc_c(tot_len + 1, i8);
+    u8 *buffer = Nst_malloc_c(tot_len + 1, u8);
 
     CHECK_BUFFER(buffer);
 
@@ -1406,7 +1406,7 @@ Nst_Obj *Nst_obj_stdout(Nst_Obj *ob)
             break;
         case Nst_IO_INVALID_DECODING: {
             u32 ch;
-            const i8 *name;
+            const char *name;
             Nst_io_result_get_details(&ch, NULL, &name);
             Nst_error_setf_value(
                 "could not decode code point U+%06X for %s encoding",
@@ -1415,7 +1415,7 @@ Nst_Obj *Nst_obj_stdout(Nst_Obj *ob)
         }
         case Nst_IO_INVALID_ENCODING: {
             u32 ch;
-            const i8 *name;
+            const char *name;
             Nst_io_result_get_details(&ch, NULL, &name);
             Nst_error_setf_value(
                 "could not encode byte %ib for %s encoding",
@@ -1440,7 +1440,7 @@ Nst_Obj *Nst_obj_stdout(Nst_Obj *ob)
     return Nst_inc_ref(ob);
 }
 
-static inline i8 get_one_char(i8 *ch)
+static inline u8 get_one_char(u8 *ch)
 {
     ch[0] = 0; ch[1] = 0; ch[2] = 0; ch[3] = 0; ch[4] = 0;
 
@@ -1465,14 +1465,14 @@ Nst_Obj *Nst_obj_stdin(Nst_Obj *ob)
     if (!Nst_sb_init(&sb, 4))
         return NULL;
 
-    i8 ch[5];
+    u8 ch[5];
     while (get_one_char(ch)) {
         if (ch[0] == '\r')
             continue;
         if (ch[0] == '\n')
             break;
 
-        if (!Nst_sb_push_c(&sb, (const i8 *)ch)) {
+        if (!Nst_sb_push_c(&sb, (const char *)ch)) {
             Nst_sb_destroy(&sb);
             return NULL;
         }
@@ -1496,7 +1496,7 @@ Nst_Obj *Nst_obj_import(Nst_Obj *ob)
         return NULL;
     }
 
-    i8 *file_name = Nst_str_value(ob);
+    u8 *file_name = Nst_str_value(ob);
     usize file_name_len = Nst_str_len(ob);
     bool c_import = false;
 
@@ -1510,7 +1510,9 @@ Nst_Obj *Nst_obj_import(Nst_Obj *ob)
         file_name_len -= 6;
     }
 
-    Nst_Obj *import_path = _Nst_get_import_path(file_name, file_name_len);
+    Nst_Obj *import_path = _Nst_get_import_path(
+        (const char *)file_name,
+        file_name_len);
     if (import_path == NULL) {
         Nst_error_setf_value(
             "file '%.4096s' not found",
@@ -1566,7 +1568,7 @@ static Nst_Obj *import_nest_lib(Nst_Obj *file_path)
         goto cleanup;
 
     Nst_source_text_init(lib_src);
-    if (!Nst_run_module(Nst_str_value(file_path), lib_src)) {
+    if (!Nst_run_module((const char *)Nst_str_value(file_path), lib_src)) {
         Nst_llist_push(Nst_state.lib_srcs, lib_src, true);
         goto cleanup;
     }
@@ -1592,7 +1594,7 @@ cleanup:
 static Nst_Obj *import_c_lib(Nst_Obj *file_path)
 {
     void (*lib_quit_func)();
-    lib_t lib = dlopen(Nst_str_value(file_path));
+    lib_t lib = dlopen((const char *)Nst_str_value(file_path));
 
     if (!lib) {
         Nst_llist_pop(Nst_state.lib_paths);
@@ -1675,9 +1677,9 @@ fail:
     return NULL;
 }
 
-static Nst_Obj *search_local_directory(i8 *initial_path)
+static Nst_Obj *search_local_directory(const char *initial_path)
 {
-    i8 *file_path;
+    char *file_path;
     usize new_len = Nst_get_full_path(initial_path, &file_path, NULL);
     if (file_path == NULL)
         return NULL;
@@ -1688,20 +1690,23 @@ static Nst_Obj *search_local_directory(i8 *initial_path)
         return NULL;
     }
     fclose(file);
-    return Nst_str_new_allocated(file_path, new_len);
+    return Nst_str_new_allocated((u8 *)file_path, new_len);
 }
 
-static Nst_Obj *rel_path_to_abs_path_str_if_found(i8 *file_path)
+static Nst_Obj *rel_path_to_abs_path_str_if_found(u8 *file_path)
 {
-    FILE *file = Nst_fopen_unicode(file_path, "rb");
+    FILE *file = Nst_fopen_unicode((const char *)file_path, "rb");
     if (file == NULL) {
         Nst_free(file_path);
         return NULL;
     }
     fclose(file);
 
-    i8 *abs_path;
-    usize abs_path_len = Nst_get_full_path(file_path, &abs_path, NULL);
+    u8 *abs_path;
+    usize abs_path_len = Nst_get_full_path(
+        (const char *)file_path,
+        (char **)&abs_path,
+        NULL);
     Nst_free(file_path);
 
     if (abs_path == NULL)
@@ -1711,17 +1716,18 @@ static Nst_Obj *rel_path_to_abs_path_str_if_found(i8 *file_path)
 
 #if defined(_DEBUG) && defined(Nst_MSVC)
 
-static Nst_Obj *search_debug_directory(i8 *initial_path, usize path_len)
+static Nst_Obj *search_debug_directory(const char *initial_path,
+                                       usize path_len)
 {
     // little hack to get the absolute path without using it explicitly
-    const i8 *root_path = __FILE__;
-    const i8 *obj_ops_path_suffix = "src\\obj_ops.c";
-    const i8 *nest_files = "libs\\_nest_files\\";
+    const char *root_path = __FILE__;
+    const char *obj_ops_path_suffix = "src\\obj_ops.c";
+    const char *nest_files = "libs\\_nest_files\\";
     usize root_len = strlen(root_path) - strlen(obj_ops_path_suffix);
     usize nest_files_len = strlen(nest_files);
     usize full_size = root_len + nest_files_len + path_len;
 
-    i8 *file_path = Nst_malloc_c(full_size + 1, i8);
+    u8 *file_path = Nst_malloc_c(full_size + 1, u8);
     if (file_path == NULL)
         return NULL;
 
@@ -1735,38 +1741,39 @@ static Nst_Obj *search_debug_directory(i8 *initial_path, usize path_len)
 
 #endif
 
-static Nst_Obj *search_stdlib_directory(i8 *initial_path, usize path_len)
+static Nst_Obj *search_stdlib_directory(const char *initial_path,
+                                        usize path_len)
 {
 #if defined(_DEBUG) && defined(Nst_MSVC)
     return search_debug_directory(initial_path, path_len);
 #else
 #ifdef Nst_MSVC
 
-    i8 *appdata = getenv("LOCALAPPDATA");
+    u8 *appdata = getenv("LOCALAPPDATA");
     if (appdata == NULL) {
         Nst_error_failed_alloc();
         return NULL;
     }
     usize appdata_len = strlen(appdata);
-    const i8 *nest_files = "\\Programs\\nest\\nest_libs\\";
+    const char *nest_files = "\\Programs\\nest\\nest_libs\\";
     usize nest_files_len = strlen(nest_files);
     usize tot_len = appdata_len + nest_files_len + path_len;
 
-    i8 *file_path = Nst_malloc_c(tot_len + 1, i8);
+    u8 *file_path = Nst_malloc_c(tot_len + 1, u8);
     if (file_path == NULL)
         return NULL;
     sprintf(file_path, "%s%s%s", appdata, nest_files, initial_path);
 
 #else
 
-    const i8 *nest_files = "/usr/lib/nest/";
+    const char *nest_files = "/usr/lib/nest/";
     usize nest_files_len = strlen(nest_files);
     usize tot_len = nest_files_len + path_len;
 
-    i8 *file_path = Nst_malloc_c(tot_len + 1, i8);
+    u8 *file_path = Nst_malloc_c(tot_len + 1, u8);
     if (file_path == NULL)
         return NULL;
-    sprintf(file_path, "%s%s", nest_files, initial_path);
+    sprintf((char *)file_path, "%s%s", nest_files, initial_path);
 
 #endif // !Nst_MSVC
 
@@ -1774,7 +1781,7 @@ static Nst_Obj *search_stdlib_directory(i8 *initial_path, usize path_len)
 #endif
 }
 
-Nst_Obj *_Nst_get_import_path(i8 *initial_path, usize path_len)
+Nst_Obj *_Nst_get_import_path(const char *initial_path, usize path_len)
 {
     Nst_Obj *full_path = search_local_directory(initial_path);
     if (full_path != NULL)

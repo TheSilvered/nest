@@ -72,9 +72,9 @@ Nst_Declr *lib_init()
     return obj_list_;
 }
 
-static Nst_Obj *heap_str(const i8 *str, usize len)
+static Nst_Obj *heap_str(const char *str, usize len)
 {
-    i8 *heap_s = Nst_malloc_c(len + 1, i8);
+    u8 *heap_s = Nst_malloc_c(len + 1, u8);
     if (heap_s == nullptr)
         return nullptr;
 
@@ -86,13 +86,13 @@ static Nst_Obj *heap_str(const i8 *str, usize len)
 static Nst_Obj *heap_str(fs::path path)
 {
     std::u8string str = path.u8string();
-    return heap_str((const i8 *)str.c_str(), str.length());
+    return heap_str((const char *)str.c_str(), str.length());
 }
 
 static Nst_Obj *error_str(std::string str)
 {
 #ifdef Nst_MSVC
-    i8 *val;
+    u8 *val;
     usize len;
     bool result = Nst_encoding_translate(
         Nst_encoding(Nst_acp()), Nst_encoding(Nst_EID_UTF8),
@@ -134,13 +134,13 @@ static Nst_Obj *throw_c_error(void)
         (LPWSTR)&wide_msg,
         0,
         nullptr);
-    i8 *msg_str = Nst_wchar_t_to_char(wide_msg, wcslen(wide_msg));
+    char *msg_str = Nst_wchar_t_to_char(wide_msg, wcslen(wide_msg));
     LocalFree(wide_msg);
-    Nst_Obj *msg = Nst_str_new_allocated(msg_str, strlen(msg_str));
+    Nst_Obj *msg = Nst_str_new_allocated((u8 *)msg_str, strlen(msg_str));
 #else
-    i8 *val = strerror(errno);
+    char *val = strerror(errno);
     int error = errno;
-    Nst_Obj *msg = heap_str((const i8 *)val, strlen(val));
+    Nst_Obj *msg = heap_str(val, strlen(val));
 #endif // !Nst_MSVC
     Nst_error_set(
         Nst_sprintf("System Error %d", error),
@@ -550,9 +550,9 @@ Nst_Obj *NstC equivalent_(usize arg_num, Nst_Obj **args)
     Nst_RETURN_BOOL(fs::equivalent(utf8_path(path_1), utf8_path(path_2), ec));
 }
 
-static void normalize_path(i8 *path, usize len)
+static void normalize_path(u8 *path, usize len)
 {
-    if (len >= 4 && strncmp((const i8 *)path, "\\\\?\\", 4) == 0) {
+    if (len >= 4 && strncmp((const char *)path, "\\\\?\\", 4) == 0) {
         path += 4;
         len -= 4;
     }
@@ -576,8 +576,8 @@ Nst_Obj *NstC path_join_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s s", arg_num, args, &path_1, &path_2))
         return nullptr;
 
-    i8 *p1 = Nst_str_value(path_1);
-    i8 *p2 = Nst_str_value(path_2);
+    u8 *p1 = Nst_str_value(path_1);
+    u8 *p2 = Nst_str_value(path_2);
     usize p1_len = Nst_str_len(path_1);
     usize p2_len = Nst_str_len(path_2);
 
@@ -613,7 +613,7 @@ Nst_Obj *NstC path_join_(usize arg_num, Nst_Obj **args)
         add_slash = true;
     }
 
-    i8 *new_str = Nst_malloc_c(new_len + 1, i8);
+    u8 *new_str = Nst_malloc_c(new_len + 1, u8);
     if (new_str == nullptr)
         return nullptr;
 
@@ -696,7 +696,7 @@ Nst_Obj *NstC time_creation_(usize arg_num, Nst_Obj **args)
 
 #ifdef Nst_MSVC
     wchar_t *wide_path = Nst_char_to_wchar_t(
-        Nst_str_value(path),
+        (char *)Nst_str_value(path),
         Nst_str_len(path));
     if (wide_path == nullptr)
         return nullptr;
@@ -710,7 +710,7 @@ Nst_Obj *NstC time_creation_(usize arg_num, Nst_Obj **args)
     return Nst_int_new(FILETIME_to_unix_time(data.ftCreationTime));
 #else
     struct stat file_info;
-    if (stat(Nst_str_value(path), &file_info) == -1) {
+    if (stat((char *)Nst_str_value(path), &file_info) == -1) {
         throw_c_error();
         return nullptr;
     }
@@ -726,7 +726,7 @@ Nst_Obj *NstC time_last_access_(usize arg_num, Nst_Obj **args)
 
 #ifdef Nst_MSVC
     wchar_t *wide_path = Nst_char_to_wchar_t(
-        Nst_str_value(path),
+        (char *)Nst_str_value(path),
         Nst_str_len(path));
     if (wide_path == nullptr)
         return nullptr;
@@ -740,7 +740,7 @@ Nst_Obj *NstC time_last_access_(usize arg_num, Nst_Obj **args)
     return Nst_int_new(FILETIME_to_unix_time(data.ftLastAccessTime));
 #else
     struct stat file_info;
-    if (stat(Nst_str_value(path), &file_info) == -1) {
+    if (stat((char *)Nst_str_value(path), &file_info) == -1) {
         throw_c_error();
         return nullptr;
     }
@@ -756,7 +756,7 @@ Nst_Obj *NstC time_last_write_(usize arg_num, Nst_Obj **args)
 
 #ifdef Nst_MSVC
     wchar_t *wide_path = Nst_char_to_wchar_t(
-        Nst_str_value(path),
+        (char *)Nst_str_value(path),
         Nst_str_len(path));
     if (wide_path == nullptr)
         return nullptr;
@@ -770,7 +770,7 @@ Nst_Obj *NstC time_last_write_(usize arg_num, Nst_Obj **args)
     return Nst_int_new(FILETIME_to_unix_time(data.ftLastWriteTime));
 #else
     struct stat file_info;
-    if (stat(Nst_str_value(path), &file_info) == -1) {
+    if (stat((char *)Nst_str_value(path), &file_info) == -1) {
         throw_c_error();
         return nullptr;
     }

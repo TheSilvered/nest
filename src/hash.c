@@ -53,8 +53,8 @@ static i32 hash_str(Nst_Obj *str)
 {
     // taken from https://en.wikipedia.org/wiki/Fowler%E2%80%93Noll%E2%80%93Vo_hash_function
     i64 hash = FNV_OFFSET_BASIS;
-    i8 *s = Nst_str_value(str);
-    i8 *s_end = s + Nst_str_len(str);
+    u8 *s = Nst_str_value(str);
+    u8 *s_end = s + Nst_str_len(str);
 
     while (s != s_end) {
         hash ^= *s++;

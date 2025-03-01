@@ -82,7 +82,7 @@ NstEXP i32 NstC Nst_run(Nst_Obj *main_func);
  * error is not set but an internal one is, hence the caller must not set the
  * error.
  */
-NstEXP bool NstC Nst_run_module(i8 *file_name, Nst_SourceText *lib_src);
+NstEXP bool NstC Nst_run_module(const char *file_name, Nst_SourceText *lib_src);
 /**
  * Calls a `Func` object.
  *
@@ -95,7 +95,8 @@ NstEXP bool NstC Nst_run_module(i8 *file_name, Nst_SourceText *lib_src);
  *
  * @return The result of the function or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC Nst_func_call(Nst_Obj *func, i64 arg_num, Nst_Obj **args);
+NstEXP Nst_Obj *NstC Nst_func_call(Nst_Obj *func, usize arg_num,
+                                   Nst_Obj **args);
 
 /**
  * Executes the body of a `Func` object that has a Nest body using a given
@@ -129,7 +130,8 @@ NstEXP Nst_Obj *NstC Nst_run_paused_coroutine(Nst_Obj *func, i64 idx,
  * @return The length in bytes of the absolute path or 0 on failure. The error
  * is set.
  */
-NstEXP usize NstC Nst_get_full_path(i8 *file_path, i8 **buf, i8 **file_part);
+NstEXP usize NstC Nst_get_full_path(const char *file_path, char **buf,
+                                    char **file_part);
 
 /**
  * @brief Returns a pointer to the current instruction being executed. On

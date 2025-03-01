@@ -158,7 +158,8 @@ NstEXP Nst_Obj *NstC Nst_obj_range(Nst_Obj *start, Nst_Obj *stop,
  * @return The path on success and `NULL` on failure. The error is set. This
  * function fails if the specified library is not found.
  */
-NstEXP Nst_Obj *NstC _Nst_get_import_path(i8 *initial_path, usize path_len);
+NstEXP Nst_Obj *NstC _Nst_get_import_path(const char *initial_path,
+                                          usize path_len);
 
 #ifdef __cplusplus
 }

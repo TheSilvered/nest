@@ -37,8 +37,8 @@ typedef struct _Nst_Encoding {
     const usize ch_size;
     const usize mult_max_sz;
     const usize mult_min_sz;
-    const i8 *name;
-    const i8 *bom;
+    const char *name;
+    const char *bom;
     const usize bom_size;
     const Nst_CheckBytesFunc check_bytes;
     const Nst_ToUTF32Func to_utf32;
@@ -1079,7 +1079,7 @@ i32 Nst_iso8859_1_from_utf32(u32 ch, u8 *str)
 **Synopsis:**
 
 ```better-c
-i32 Nst_utf16_to_utf8(i8 *out_str, u16 *in_str, usize in_str_len)
+i32 Nst_utf16_to_utf8(u8 *out_str, u16 *in_str, usize in_str_len)
 ```
 
 **Description:**
@@ -1250,7 +1250,7 @@ the ANSI code page is not supported,
 **Synopsis:**
 
 ```better-c
-wchar_t *Nst_char_to_wchar_t(i8 *str, usize len)
+wchar_t *Nst_char_to_wchar_t(const char *str, usize len)
 ```
 
 **Description:**
@@ -1278,7 +1278,7 @@ the error is set.
 **Synopsis:**
 
 ```better-c
-i8 *Nst_wchar_t_to_char(wchar_t *str, usize len)
+char *Nst_wchar_t_to_char(wchar_t *str, usize len)
 ```
 
 **Description:**
@@ -1335,7 +1335,7 @@ Returns whether a code is a non character.
 **Synopsis:**
 
 ```better-c
-Nst_EncodingID Nst_check_bom(i8 *str, usize len, i32 *bom_size)
+Nst_EncodingID Nst_check_bom(char *str, usize len, i32 *bom_size)
 ```
 
 **Returns:**
@@ -1351,7 +1351,7 @@ was detected.
 **Synopsis:**
 
 ```better-c
-Nst_EncodingID Nst_encoding_detect(i8 *str, usize len, i32 *bom_size)
+Nst_EncodingID Nst_encoding_detect(char *str, usize len, i32 *bom_size)
 ```
 
 **Description:**
@@ -1369,7 +1369,7 @@ set.
 **Synopsis:**
 
 ```better-c
-Nst_EncodingID Nst_encoding_from_name(i8 *name)
+Nst_EncodingID Nst_encoding_from_name(const char *name)
 ```
 
 **Returns:**

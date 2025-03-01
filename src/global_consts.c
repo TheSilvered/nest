@@ -14,11 +14,11 @@ Nst_Consts Nst_c;
 Nst_StdStreams Nst_io;
 Nst_IterFunctions Nst_itf;
 
-static Nst_IOResult write_std_stream(i8 *buf, usize buf_len, usize *count,
+static Nst_IOResult write_std_stream(u8 *buf, usize buf_len, usize *count,
                                      Nst_Obj *f);
 static Nst_IOResult close_std_stream(Nst_Obj *f);
 
-static Nst_IOResult read_std_stream(i8 *buf, usize buf_size, usize count,
+static Nst_IOResult read_std_stream(u8 *buf, usize buf_size, usize count,
                                     usize *buf_len, Nst_Obj *f);
 
 bool _Nst_globals_init(void)
@@ -319,7 +319,7 @@ Nst_StdStreams *Nst_stdio(void)
     return &Nst_io;
 }
 
-static Nst_IOResult write_std_stream(i8 *buf, usize buf_len, usize *count,
+static Nst_IOResult write_std_stream(u8 *buf, usize buf_len, usize *count,
                                      Nst_Obj *f)
 {
     if (count != NULL)
@@ -404,25 +404,25 @@ static bool get_ch(Nst_StrBuilder *sb)
 #else
 static bool get_ch(Nst_StrBuilder *sb)
 {
-    i8 ch_buf[5] = { 0 };
+    u8 ch_buf[5] = { 0 };
     FILE *fp = Nst_iof_fp(Nst_io.in);
     for (i32 i = 0; i < 4; i++) {
         if (fread(ch_buf + i, 1, 1, fp) == 0)
             return false;
 
-        if (Nst_check_ext_utf8_bytes((u8 *)ch_buf, i + 1) > 0) {
+        if (Nst_check_ext_utf8_bytes(ch_buf, i + 1) > 0) {
             goto success;
         }
     }
     return false;
 
 success:
-    Nst_sb_push_c(sb, ch_buf);
+    Nst_sb_push_c(sb, (char *)ch_buf);
     return true;
 }
 #endif
 
-static Nst_IOResult read_std_stream(i8 *buf, usize buf_size, usize count,
+static Nst_IOResult read_std_stream(u8 *buf, usize buf_size, usize count,
                                     usize *buf_len, Nst_Obj *f)
 {
 #ifdef Nst_MSVC
@@ -457,7 +457,7 @@ static Nst_IOResult read_std_stream(i8 *buf, usize buf_size, usize count,
     buffer.value[buffer.len] = '\0';
 
     if (buf_size == 0)
-        *(i8 **)buf = buffer.value;
+        *(u8 **)buf = buffer.value;
     if (buf_len != NULL)
         *buf_len = buffer.len;
     return Nst_IO_SUCCESS;

@@ -16,7 +16,7 @@ TheSilvered
 
 ```better-c
 typedef struct _Nst_StrView {
-    i8 *value;
+    u8 *value;
     usize len;
 } Nst_StrView
 ```
@@ -39,7 +39,7 @@ A structure representing a string view. It does not own the data in `value`.
 **Synopsis:**
 
 ```better-c
-Nst_StrView Nst_sv_new(i8 *value, usize len)
+Nst_StrView Nst_sv_new(u8 *value, usize len)
 ```
 
 **Description:**
@@ -54,7 +54,7 @@ and the `len`.
 **Synopsis:**
 
 ```better-c
-Nst_StrView Nst_sv_new_c(const i8 *value)
+Nst_StrView Nst_sv_new_c(const char *value)
 ```
 
 **Description:**
