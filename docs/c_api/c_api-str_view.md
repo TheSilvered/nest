@@ -147,6 +147,32 @@ number when no more characters are available.
 
 ---
 
+### `Nst_sv_nextr`
+
+**Synopsis:**
+
+```better-c
+isize Nst_sv_nextr(Nst_StrView sv, isize idx, u32 *out_ch)
+```
+
+**Description:**
+
+Iterate through a [`Nst_StrView`](c_api-str_view.md#nst_strview) from the end,
+assuming it contains `UTF-8`-encoded data.
+
+**Parameters:**
+
+- `sv`: the string view to iterate through
+- `idx`: the current iteration index, use `-1` to begin iterating
+- `out_ch`: pointer set to the codepoint of the character, it may be `NULL`
+
+**Returns:**
+
+The next index to pass to this function to continue iterating or a negative
+number when no more characters are available.
+
+---
+
 ### `Nst_sv_compare`
 
 **Synopsis:**
@@ -204,3 +230,41 @@ Searches for `substr` inside `str` from the end.
 
 The index where the last occurrence of `substr` appears. If `substr` is not
 found in `str` then the function returns `-1`.
+
+---
+
+### `Nst_sv_ltok`
+
+**Synopsis:**
+
+```better-c
+Nst_StrView Nst_sv_ltok(Nst_StrView str, Nst_StrView substr)
+```
+
+**Description:**
+
+Searches for `substr` inside `str` from the beginning.
+
+**Returns:**
+
+A new string view starting from the end of the first occurrence of `substr`. If
+`substr` is not found, the view will have length `0` and a `NULL` value.
+
+---
+
+### `Nst_sv_rtok`
+
+**Synopsis:**
+
+```better-c
+Nst_StrView Nst_sv_rtok(Nst_StrView str, Nst_StrView substr)
+```
+
+**Description:**
+
+Searches for `substr` inside `str` from the end.
+
+**Returns:**
+
+A new string view starting from the end of the last occurrence of `substr`. If
+`substr` is not found, the view will have length `0` and a `NULL` value.

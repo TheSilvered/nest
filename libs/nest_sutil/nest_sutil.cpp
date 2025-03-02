@@ -89,94 +89,104 @@ void get_in_str(Nst_Obj *str, Nst_Obj *start_idx, Nst_Obj *end_idx,
     *out_str_end = Nst_str_value(str) + Nst_str_len(str);
 }
 
+bool clamp_start_end(Nst_Obj *str, Nst_Obj *start_idx, Nst_Obj *end_idx,
+                     i64 &start, i64 &end)
+{
+    usize str_len = Nst_str_char_len(str);
+    start = Nst_DEF_VAL(start_idx, Nst_int_i64(start_idx), 0);
+    end = Nst_DEF_VAL(end_idx, Nst_int_i64(end_idx), str_len);
+
+    if (start < 0)
+        start += str_len;
+    if (end < 0)
+        end += str_len;
+
+    if (start < 0)
+        start = 0;
+    if (end > (isize)str_len)
+        end = str_len;
+
+    return start < end;
+}
+
 Nst_Obj *NstC lfind_(usize arg_num, Nst_Obj **args)
 {
-    Nst_Obj *str1;
-    Nst_Obj *str2;
+    Nst_Obj *str;
+    Nst_Obj *sub;
     Nst_Obj *start_idx;
     Nst_Obj *end_idx;
 
     if (!Nst_extract_args(
             "s s ?i ?i",
             arg_num, args,
-            &str1, &str2, &start_idx, &end_idx))
+            &str, &sub, &start_idx, &end_idx))
     {
         return nullptr;
     }
 
-    u8 *str1_value;
-    usize str1_len;
-
-    if (start_idx != Nst_null() || end_idx != Nst_null()) {
-        u8 *str1_end;
-        get_in_str(str1, start_idx, end_idx, &str1_value, &str1_end);
-        if (str1_value == nullptr)
-            return Nst_inc_ref(Nst_const()->Int_neg1);
-        str1_len = str1_end - str1_value;
-    } else {
-        str1_value = Nst_str_value(str1);
-        str1_len = Nst_str_len(str1);
-    }
-
-    if (str1_value == Nst_str_value(str2))
-        return Nst_inc_ref(Nst_const()->Int_0);
-
-    u8 *sub = Nst_str_lfind(
-        str1_value, str1_len,
-        Nst_str_value(str2), Nst_str_len(str2));
-
-    if (sub == nullptr)
+    i64 idx, end;
+    usize sub_len = Nst_str_char_len(sub);
+    if (!clamp_start_end(str, start_idx, end_idx, idx, end))
         return Nst_inc_ref(Nst_const()->Int_neg1);
+    if (end - idx < (isize)sub_len)
+        return Nst_inc_ref(Nst_const()->Int_neg1);
+    end -= sub_len;
 
-    return Nst_int_new(
-        i64(Nst_encoding_utf8_char_len(
-            (u8 *)Nst_str_value(str1),
-            sub - Nst_str_value(str1))));
+    for (; idx <= end; idx++) {
+        bool found = true;
+        for (i64 i = 0; i < (isize)sub_len; i++) {
+            if (Nst_str_get(str, idx + i) != Nst_str_get(sub, i)) {
+                found = false;
+                break;
+            }
+        }
+        if (found)
+            break;
+    }
+    if (idx > end)
+        return Nst_inc_ref(Nst_const()->Int_neg1);
+    else
+        return Nst_int_new(idx);
 }
 
 Nst_Obj *NstC rfind_(usize arg_num, Nst_Obj **args)
 {
-    Nst_Obj *str1;
-    Nst_Obj *str2;
+    Nst_Obj *str;
+    Nst_Obj *sub;
     Nst_Obj *start_idx;
     Nst_Obj *end_idx;
 
     if (!Nst_extract_args(
-            "s s ?i ?i",
-            arg_num, args,
-            &str1, &str2, &start_idx, &end_idx))
+        "s s ?i ?i",
+        arg_num, args,
+        &str, &sub, &start_idx, &end_idx))
     {
         return nullptr;
     }
 
-    u8 *str1_value;
-    usize str1_len;
-
-    if (start_idx != Nst_null() || end_idx != Nst_null()) {
-        u8 *str1_end;
-        get_in_str(str1, start_idx, end_idx, &str1_value, &str1_end);
-        if (str1_value == nullptr)
-            return Nst_inc_ref(Nst_const()->Int_neg1);
-        str1_len = str1_end - str1_value;
-    } else {
-        str1_value = Nst_str_value(str1);
-        str1_len = Nst_str_len(str1);
-    }
-
-    if (str1_value == Nst_str_value(str2))
-        return Nst_inc_ref(Nst_const()->Int_0);
-
-    u8 *sub = Nst_str_rfind(
-        str1_value, str1_len,
-        Nst_str_value(str2), Nst_str_len(str2));
-
-    if (sub == nullptr)
+    i64 start, idx;
+    usize sub_len = Nst_str_char_len(sub);
+    if (!clamp_start_end(str, start_idx, end_idx, start, idx))
         return Nst_inc_ref(Nst_const()->Int_neg1);
+    if (idx - start < (isize)sub_len)
+        return Nst_inc_ref(Nst_const()->Int_neg1);
+    start += sub_len;
 
-    return Nst_int_new(
-        i64(Nst_encoding_utf8_char_len(
-            (u8 *)Nst_str_value(str1),
-            sub - Nst_str_value(str1))));
+    for (; idx >= start; idx--) {
+        bool found = true;
+        for (i64 i = 1; i <= (isize)sub_len; i++) {
+            if (Nst_str_get(str, idx - i) != Nst_str_get(sub, sub_len - i)) {
+                found = false;
+                break;
+            }
+        }
+        if (found)
+            break;
+    }
+    if (idx < start)
+        return Nst_inc_ref(Nst_const()->Int_neg1);
+    else
+        return Nst_int_new(idx - sub_len);
 }
 
 Nst_Obj *NstC starts_with_(usize arg_num, Nst_Obj **args)
@@ -829,62 +839,66 @@ Nst_Obj *NstC is_ascii_(usize arg_num, Nst_Obj **args)
 
 Nst_Obj *NstC replace_(usize arg_num, Nst_Obj **args)
 {
-    Nst_Obj *str;
-    Nst_Obj *str_from;
-    Nst_Obj *str_to;
+    Nst_Obj *str_obj;
+    Nst_Obj *from_obj;
+    Nst_Obj *to_obj;
 
-    if (!Nst_extract_args("s s ?s", arg_num, args, &str, &str_from, &str_to))
+    if (!Nst_extract_args("s s ?s", arg_num, args, &str_obj, &from_obj, &to_obj))
         return nullptr;
 
-    usize s_len = Nst_str_len(str);
-    usize s_from_len = Nst_str_len(str_from);
-    u8 *s = Nst_str_value(str);
-    u8 *s_from = Nst_str_value(str_from);
-    usize s_to_len = Nst_DEF_VAL(str_to, Nst_str_len(str_to), 0);
-    u8 *s_to = Nst_DEF_VAL(str_to, Nst_str_value(str_to), (u8 *)"");
+    if (Nst_str_char_len(from_obj) == 0)
+        return Nst_inc_ref(str_obj);
 
-    u8 *sub = nullptr;
-    usize new_str_len = 0;
+    Nst_StrView str = Nst_sv_from_str(str_obj);
+    Nst_StrView from = Nst_sv_from_str(from_obj);
+    Nst_StrView to = Nst_DEF_VAL(
+        to_obj,
+        Nst_sv_from_str(to_obj),
+        Nst_sv_new(NULL, 0));
+
+    Nst_StrView str_cpy = str;
     i32 count = 0;
 
-    while (true) {
-        sub = Nst_str_lfind(s, s_len, s_from, s_from_len);
-        if (sub == nullptr)
-            break;
+    // Count the occurrences of the substring
 
-        s_len -= sub + s_from_len - s;
-        s = sub + s_from_len;
-        count++;
+    while (true) {
+        str_cpy = Nst_sv_ltok(str_cpy, from);
+        if (str_cpy.value != nullptr)
+            count++;
+        if (str_cpy.len == 0)
+            break;
     }
 
     if (count == 0)
-        return Nst_inc_ref(str);
+        return Nst_inc_ref(str_obj);
 
-    s_len = Nst_str_len(str);
-    s = Nst_str_value(str);
+    usize new_str_len = 0;
     u8 *new_str = Nst_malloc_c(
-        s_len - s_from_len * count + s_to_len * count + 1,
+        str.len - from.len * count + to.len * count + 1,
         u8);
     if (new_str == nullptr)
         return nullptr;
 
     // Copy replacing the occurrences
-    while (true) {
-        sub = Nst_str_lfind(s, s_len, s_from, s_from_len);
-        if (sub == nullptr)
-            break;
 
-        memcpy(new_str + new_str_len, s, sub - s);
-        new_str_len += sub - s;
-        memcpy(new_str + new_str_len, s_to, s_to_len);
-        new_str_len += s_to_len;
-        s_len -= sub - s + s_from_len;
-        s = sub + s_from_len;
+    str_cpy = str;
+    while (true) {
+        str_cpy = Nst_sv_ltok(str_cpy, from);
+        if (str_cpy.value == nullptr) {
+            break;
+        }
+        usize chunk_len = str_cpy.value - str.value - from.len;
+
+        memcpy(new_str + new_str_len, str.value, chunk_len);
+        new_str_len += chunk_len;
+        memcpy(new_str + new_str_len, to.value, to.len);
+        new_str_len += to.len;
+        str = str_cpy;
     }
 
     // Copy the remaining part
-    memcpy(new_str + new_str_len, s, s_len);
-    new_str_len += s_len;
+    memcpy(new_str + new_str_len, str.value, str.len);
+    new_str_len += str.len;
 
     new_str[new_str_len] = 0;
     return Nst_str_new_allocated(new_str, new_str_len);
@@ -1051,76 +1065,53 @@ Nst_Obj *NstC lsplit_whitespace(Nst_Obj *str_obj, i64 quantity)
     Nst_Obj *vector = Nst_vector_new(0);
 
     if (quantity == 0) {
-        if (!Nst_vector_append(vector, str_obj)) {
+        if (Nst_str_len(str_obj) != 0 && !Nst_vector_append(vector, str_obj)) {
             Nst_dec_ref(vector);
             return nullptr;
         }
         return vector;
     }
 
-    u8 *str = Nst_str_value(str_obj);
-    usize str_len = Nst_str_len(str_obj);
+    Nst_StrView str = Nst_sv_from_str(str_obj);
 
-    while (str_len > 0 && isspace((u8)*str)) {
-        str++;
-        str_len--;
-    }
+    Nst_StrView piece = Nst_sv_new(nullptr, 0);
+    do {
+        if (quantity != 0) {
+            u32 ch;
+            isize i = Nst_sv_next(str, -1, &ch);
+            bool reached_separator = false;
+            for (; i != -1; i = Nst_sv_next(str, i, &ch)) {
+                bool is_whitespace = Nst_unicode_is_whitespace(ch);
+                if (reached_separator && !is_whitespace) {
+                    str.value += i;
+                    str.len -= i;
+                    break;
+                } else if (!reached_separator && is_whitespace) {
+                    piece.value = str.value;
+                    piece.len = i;
+                    reached_separator = true;
+                }
+            }
+            if (i == -1 && reached_separator)
+                str.len = 0;
+            else if (i == -1)
+                piece = str;
+        } else
+            piece = str;
 
-    if (str_len == 0)
-        return vector;
-
-    while (str_len > 0) {
-        u8 *sub_idx = str;
-        while (sub_idx - str < (isize)str_len) {
-            if (!isspace((u8)*sub_idx))
-                sub_idx++;
-            else
-                break;
-        }
-        if (sub_idx - str == (isize)str_len)
-            break;
-
-        usize new_str_len = sub_idx - str;
-        u8 *new_str_val = Nst_malloc_c(new_str_len + 1, u8);
-        if (new_str_val == nullptr) {
-            Nst_dec_ref(vector);
-            return nullptr;
-        }
-
-        memcpy(new_str_val, str, new_str_len);
-        new_str_val[new_str_len] = '\0';
-        Nst_Obj *new_str = Nst_str_new(new_str_val, new_str_len, true);
-        Nst_vector_append(vector, new_str);
-        Nst_dec_ref(new_str);
-        str_len -= new_str_len;
-        str = sub_idx;
-
-        while (str_len > 0 && isspace((u8)*str)) {
-            str++;
-            str_len--;
-        }
-
-        if (str_len == 0)
-            return vector;
-
+        if (piece.len == 0)
+            continue;
         if (quantity > 0)
             quantity--;
-        if (quantity == 0)
-            break;
-    }
 
-    if (str_len != 0) {
-        u8 *new_str_val = Nst_malloc_c(str_len + 1, u8);
-        if (new_str_val == nullptr) {
+        Nst_Obj *new_str = Nst_str_from_sv(piece);
+        if (new_str == nullptr || !Nst_vector_append(vector, new_str)) {
+            Nst_ndec_ref(new_str);
             Nst_dec_ref(vector);
             return nullptr;
         }
-        memcpy(new_str_val, str, str_len);
-        new_str_val[str_len] = '\0';
-        Nst_Obj *new_str = Nst_str_new(new_str_val, str_len, true);
-        Nst_vector_append(vector, new_str);
         Nst_dec_ref(new_str);
-    }
+    } while (str.value != piece.value);
 
     return vector;
 }
@@ -1128,79 +1119,64 @@ Nst_Obj *NstC lsplit_whitespace(Nst_Obj *str_obj, i64 quantity)
 Nst_Obj *NstC lsplit_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *str_obj;
-    Nst_Obj *opt_substr;
+    Nst_Obj *sep_obj;
     Nst_Obj *quantity_obj;
 
     if (!Nst_extract_args(
             "s ?s ?i",
             arg_num, args,
-            &str_obj, &opt_substr, &quantity_obj))
+            &str_obj, &sep_obj, &quantity_obj))
     {
         return nullptr;
     }
 
     i64 quantity = Nst_DEF_VAL(quantity_obj, Nst_int_i64(quantity_obj), -1);
 
-    if (opt_substr == Nst_null())
+    if (sep_obj == Nst_null())
         return lsplit_whitespace(str_obj, quantity);
-    if (Nst_str_len(opt_substr) == 0) {
+    if (Nst_str_len(sep_obj) == 0) {
         Nst_error_setc_value("separator must be at least one character");
         return nullptr;
     }
     Nst_Obj *vector = Nst_vector_new(0);
 
-    if (quantity == 0) {
+    // Avoid creating a new string if no splittig can occur
+
+    if (quantity == 0 || Nst_str_len(str_obj) == 0) {
         if (!Nst_vector_append(vector, str_obj)) {
             Nst_dec_ref(vector);
             return nullptr;
         }
         return vector;
-    } else if (Nst_str_len(str_obj) == 0)
-        return vector;
+    }
 
-    u8 *sub = Nst_str_value(opt_substr);
-    usize sub_len = Nst_str_len(opt_substr);
-    u8 *str = Nst_str_value(str_obj);
-    usize str_len = Nst_str_len(str_obj);
+    Nst_StrView str = Nst_sv_from_str(str_obj);
+    Nst_StrView sep = Nst_sv_from_str(sep_obj);
 
-    while (str_len > 0) {
-        u8 *sub_idx = Nst_str_lfind(str, str_len, sub, sub_len);
-        if (sub_idx == nullptr)
-            break;
+    Nst_StrView piece;
+    do {
+        if (quantity != 0) {
+            if (quantity > 0)
+                quantity--;
+            Nst_StrView match = Nst_sv_ltok(str, sep);
+            if (match.value == nullptr)
+                piece = str;
+            else {
+                piece.value = str.value;
+                piece.len = match.value - str.value - sep.len;
+                str = match;
+            }
+        } else
+            piece = str;
 
-        usize new_str_len = sub_idx - str;
-        u8 *new_str_val = Nst_malloc_c(new_str_len + 1, u8);
-        if (new_str_val == nullptr) {
+        Nst_Obj *new_str = Nst_str_from_sv(piece);
+        if (new_str == nullptr || !Nst_vector_append(vector, new_str)) {
+            Nst_ndec_ref(new_str);
             Nst_dec_ref(vector);
             return nullptr;
         }
-
-        memcpy(new_str_val, str, new_str_len);
-        new_str_val[new_str_len] = '\0';
-        Nst_Obj *new_str = Nst_str_new(new_str_val, new_str_len, true);
-        Nst_vector_append(vector, new_str);
         Nst_dec_ref(new_str);
-        str_len -= new_str_len + sub_len;
-        str = sub_idx + sub_len;
-
-        if (quantity > 0)
-            quantity--;
-        if (quantity == 0)
-            break;
-    }
-
-    {
-        u8 *new_str_val = Nst_malloc_c(str_len + 1, u8);
-        if (new_str_val == nullptr) {
-            Nst_dec_ref(vector);
-            return nullptr;
-        }
-        memcpy(new_str_val, str, str_len);
-        new_str_val[str_len] = '\0';
-        Nst_Obj *new_str = Nst_str_new(new_str_val, str_len, true);
-        Nst_vector_append(vector, new_str);
-        Nst_dec_ref(new_str);
-    }
+    } while (str.value != piece.value);
 
     return vector;
 }
@@ -1222,76 +1198,58 @@ Nst_Obj *NstC rsplit_whitespace(Nst_Obj *str_obj, i64 quantity)
     Nst_Obj *vector = Nst_vector_new(0);
 
     if (quantity == 0) {
-        if (!Nst_vector_append(vector, str_obj)) {
+        if (Nst_str_len(str_obj) != 0 && !Nst_vector_append(vector, str_obj)) {
             Nst_dec_ref(vector);
             return nullptr;
         }
         return vector;
     }
 
-    u8 *str = Nst_str_value(str_obj);
-    usize str_len = Nst_str_len(str_obj);
+    Nst_StrView str = Nst_sv_from_str(str_obj);
 
-    while (str_len > 0 && isspace((u8)*(str + str_len - 1))) {
-        str_len--;
-    }
+    Nst_StrView piece = Nst_sv_new(nullptr, 0);
+    do {
+        if (quantity != 0) {
+            u32 ch;
+            isize prev_i = -1;
+            isize i = Nst_sv_nextr(str, -1, &ch);
+            bool reached_separator = false;
+            for (; i != -1; i = Nst_sv_nextr(str, i, &ch)) {
+                bool is_whitespace = Nst_unicode_is_whitespace(ch);
+                if (reached_separator && !is_whitespace) {
+                    str.len = prev_i;
+                    break;
+                } else if (!reached_separator && is_whitespace) {
+                    if (prev_i != -1) {
+                        piece.value = str.value + prev_i;
+                        piece.len = str.len - prev_i;
+                    } else
+                        piece = Nst_sv_new(NULL, 0);
+                    reached_separator = true;
+                }
+                prev_i = i;
+            }
+            if (i == -1 && reached_separator)
+                str.len = 0;
+            else if (i == -1)
+                piece = str;
+        } else
+            piece = str;
 
-    if (str_len == 0)
-        return vector;
-
-    while (str_len > 0) {
-        u8 *sub_idx = str + str_len - 1;
-        while (sub_idx - str >= 0) {
-            if (!isspace((u8)*sub_idx))
-                sub_idx--;
-            else
-                break;
-        }
-        if (sub_idx - str < 0)
-            break;
-        sub_idx++;
-
-        usize new_str_len = str_len - (sub_idx - str);
-        u8 *new_str_val = Nst_malloc_c(new_str_len + 1, u8);
-        if (new_str_val == nullptr) {
-            Nst_dec_ref(vector);
-            return nullptr;
-        }
-
-        memcpy(new_str_val, sub_idx, new_str_len);
-        new_str_val[new_str_len] = '\0';
-        Nst_Obj *new_str = Nst_str_new(new_str_val, new_str_len, true);
-        Nst_vector_append(vector, new_str);
-        Nst_dec_ref(new_str);
-        str_len -= new_str_len;
-
-        sub_idx--;
-        while (str_len > 0 && isspace((u8)*sub_idx)) {
-            sub_idx--;
-            str_len--;
-        }
-
-        if (str_len == 0)
-            return reverse_vector(vector);
+        if (piece.len == 0)
+            continue;
 
         if (quantity > 0)
             quantity--;
-        if (quantity == 0)
-            break;
-    }
 
-    if (str_len != 0) {
-        u8 *new_str_val = Nst_malloc_c(str_len + 1, u8);
-        if (new_str_val == nullptr) {
+        Nst_Obj *new_str = Nst_str_from_sv(piece);
+        if (new_str == nullptr || !Nst_vector_append(vector, new_str)) {
+            Nst_ndec_ref(new_str);
             Nst_dec_ref(vector);
             return nullptr;
         }
-        memcpy(new_str_val, str, str_len);
-        new_str_val[str_len] = '\0';
-        Nst_Obj *new_str = Nst_str_new(new_str_val, str_len, true);
-        Nst_vector_append(vector, new_str);
         Nst_dec_ref(new_str);
-    }
+    } while (str.value != piece.value);
 
     return reverse_vector(vector);
 }
@@ -1299,78 +1257,61 @@ Nst_Obj *NstC rsplit_whitespace(Nst_Obj *str_obj, i64 quantity)
 Nst_Obj *NstC rsplit_(usize arg_num, Nst_Obj **args)
 {
     Nst_Obj *str_obj;
-    Nst_Obj *opt_substr;
+    Nst_Obj *sep_obj;
     Nst_Obj *quantity_obj;
 
     if (!Nst_extract_args(
         "s ?s ?i",
         arg_num, args,
-        &str_obj, &opt_substr, &quantity_obj))
+        &str_obj, &sep_obj, &quantity_obj))
     {
         return nullptr;
     }
 
     i64 quantity = Nst_DEF_VAL(quantity_obj, Nst_int_i64(quantity_obj), -1);
 
-    if (opt_substr == Nst_null())
+    if (sep_obj == Nst_null())
         return rsplit_whitespace(str_obj, quantity);
-    if (Nst_str_len(opt_substr) == 0) {
+    if (Nst_str_len(sep_obj) == 0) {
         Nst_error_setc_value("separator must be at least one character");
         return nullptr;
     }
     Nst_Obj *vector = Nst_vector_new(0);
 
-    if (quantity == 0) {
+    if (quantity == 0 || Nst_str_len(str_obj) == 0) {
         if (!Nst_vector_append(vector, str_obj)) {
             Nst_dec_ref(vector);
             return nullptr;
         }
         return vector;
-    } else if (Nst_str_len(str_obj) == 0)
-        return vector;
+    }
 
-    u8 *sub = Nst_str_value(opt_substr);
-    usize sub_len = Nst_str_len(opt_substr);
-    u8 *str = Nst_str_value(str_obj);
-    usize str_len = Nst_str_len(str_obj);
+    Nst_StrView str = Nst_sv_from_str(str_obj);
+    Nst_StrView sep = Nst_sv_from_str(sep_obj);
 
-    while (str_len > 0) {
-        u8 *sub_idx = Nst_str_rfind(str, str_len, sub, sub_len);
-        if (sub_idx == nullptr)
-            break;
+    Nst_StrView piece;
+    do {
+        if (quantity != 0) {
+            if (quantity > 0)
+                quantity--;
+            Nst_StrView match = Nst_sv_rtok(str, sep);
+            if (match.value == nullptr)
+                piece = str;
+            else {
+                piece = match;
+                str.len -= match.len + sep.len;
+            }
+        } else
+            piece = str;
 
-        usize new_str_len = str_len - (sub_idx - str) - sub_len;
-        u8 *new_str_val = Nst_malloc_c(new_str_len + 1, u8);
-        if (new_str_val == nullptr) {
+        Nst_Obj *new_str = Nst_str_from_sv(piece);
+        if (new_str == nullptr || !Nst_vector_append(vector, new_str)) {
+            Nst_ndec_ref(new_str);
             Nst_dec_ref(vector);
             return nullptr;
         }
-
-        memcpy(new_str_val, sub_idx + sub_len, new_str_len);
-        new_str_val[new_str_len] = '\0';
-        Nst_Obj *new_str = Nst_str_new(new_str_val, new_str_len, true);
-        Nst_vector_append(vector, new_str);
         Nst_dec_ref(new_str);
-        str_len -= new_str_len + sub_len;
-
-        if (quantity > 0)
-            quantity--;
-        if (quantity == 0)
-            break;
-    }
-
-    {
-        u8 *new_str_val = Nst_malloc_c(str_len + 1, u8);
-        if (new_str_val == nullptr) {
-            Nst_dec_ref(vector);
-            return nullptr;
-        }
-        memcpy(new_str_val, str, str_len);
-        new_str_val[str_len] = '\0';
-        Nst_Obj *new_str = Nst_str_new(new_str_val, str_len, true);
-        Nst_vector_append(vector, new_str);
-        Nst_dec_ref(new_str);
-    }
+    } while (str.value != piece.value);
 
     return reverse_vector(vector);
 }

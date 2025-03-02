@@ -61,6 +61,19 @@ NstEXP Nst_Obj *NstC Nst_str_from_sv(Nst_StrView sv);
  * negative number when no more characters are available.
  */
 NstEXP isize NstC Nst_sv_next(Nst_StrView sv, isize idx, u32 *out_ch);
+/**
+ * Iterate through a `Nst_StrView` from the end, assuming it contains
+ * `UTF-8`-encoded data.
+ *
+ * @param sv: the string view to iterate through
+ * @param idx: the current iteration index, use `-1` to begin iterating
+ * @param out_ch: pointer set to the codepoint of the character, it may be
+ * `NULL`
+ *
+ * @return The next index to pass to this function to continue iterating or a
+ * negative number when no more characters are available.
+ */
+NstEXP isize NstC Nst_sv_nextr(Nst_StrView sv, isize idx, u32 *out_ch);
 
 // These will probably change, I will keep them undocumented for now
 
@@ -91,6 +104,22 @@ NstEXP isize NstC Nst_sv_lfind(Nst_StrView str, Nst_StrView substr);
  * is not found in `str` then the function returns `-1`.
  */
 NstEXP isize NstC Nst_sv_rfind(Nst_StrView str, Nst_StrView substr);
+/**
+ * Searches for `substr` inside `str` from the beginning.
+ *
+ * @return A new string view starting from the end of the first occurrence of
+ * `substr`. If `substr` is not found, the view will have length `0` and a
+ * `NULL` value.
+ */
+NstEXP Nst_StrView NstC Nst_sv_ltok(Nst_StrView str, Nst_StrView substr);
+/**
+ * Searches for `substr` inside `str` from the end.
+ *
+ * @return A new string view starting from the end of the last occurrence of
+ * `substr`. If `substr` is not found, the view will have length `0` and a
+ * `NULL` value.
+ */
+NstEXP Nst_StrView NstC Nst_sv_rtok(Nst_StrView str, Nst_StrView substr);
 
 #ifdef __cplusplus
 }

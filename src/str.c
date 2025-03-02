@@ -196,7 +196,21 @@ Nst_Obj *Nst_str_repr(Nst_Obj *src)
     return Nst_str_new_allocated(repr_str, repr_len);
 }
 
-Nst_Obj *Nst_str_get(Nst_Obj *str, i64 idx)
+Nst_Obj *Nst_str_get_obj(Nst_Obj *str, i64 idx)
+{
+    i32 ch = Nst_str_get(str, idx);
+    if (ch == -1)
+        return NULL;
+
+    u8 *c_buf = Nst_calloc_c(5, u8, NULL);
+    if (c_buf == NULL)
+        return NULL;
+    usize len = Nst_ext_utf8_from_utf32(ch, (u8 *)c_buf);
+    c_buf[len] = '\0';
+    return Nst_str_new_allocated(c_buf, len);
+}
+
+i32 Nst_str_get(Nst_Obj *str, i64 idx)
 {
     Nst_assert(str->type == Nst_t.Str);
     if (idx < 0)
@@ -207,43 +221,23 @@ Nst_Obj *Nst_str_get(Nst_Obj *str, i64 idx)
             "index %" PRIi64 " out of bounds for 'Str' of size %zi",
             idx,
             STR(str)->char_len);
-        return NULL;
+        return -1;
     }
 
     if (!Nst_HAS_FLAG(str, Nst_FLAG_STR_CAN_INDEX)) {
         if (!create_indexable_str(STR(str)))
-            return NULL;
+            return -1;
     }
 
-    if (Nst_HAS_FLAG(str, Nst_FLAG_STR_IS_ASCII)) {
-        u8 *c_buf = Nst_malloc_c(2, u8);
-        if (c_buf == NULL)
-            return NULL;
-        c_buf[0] = STR(str)->value[idx];
-        c_buf[1] = 0;
-        return Nst_str_new_allocated(c_buf, 1);
-    }
-
-    if (Nst_HAS_FLAG(str, Nst_FLAG_STR_INDEX_16)) {
-        u8 *c_buf = Nst_calloc_c(4, u8, NULL);
-        if (c_buf == NULL)
-            return NULL;
-        u32 c = ((u16 *)(STR(str)->indexable_str))[idx];
-        usize len = Nst_ext_utf8_from_utf32(c, (u8 *)c_buf);
-        return Nst_str_new_allocated(c_buf, len);
-    }
-
-    if (Nst_HAS_FLAG(str, Nst_FLAG_STR_INDEX_32)) {
-        u8 *c_buf = Nst_calloc_c(5, u8, NULL);
-        if (c_buf == NULL)
-            return NULL;
-        u32 c = ((u32 *)(STR(str)->indexable_str))[idx];
-        usize len = Nst_ext_utf8_from_utf32(c, (u8 *)c_buf);
-        return Nst_str_new_allocated(c_buf, len);
-    }
+    if (Nst_HAS_FLAG(str, Nst_FLAG_STR_IS_ASCII))
+        return (i32)STR(str)->value[idx];
+    else if (Nst_HAS_FLAG(str, Nst_FLAG_STR_INDEX_16))
+        return (u32)((u16 *)(STR(str)->indexable_str))[idx];
+    else if (Nst_HAS_FLAG(str, Nst_FLAG_STR_INDEX_32))
+        return (i32)((u32 *)(STR(str)->indexable_str))[idx];
 
     Nst_error_setc_value("failed to index string");
-    return NULL;
+    return -1;
 }
 
 isize Nst_str_next(Nst_Obj *str, isize idx)
@@ -355,50 +349,6 @@ i32 Nst_str_compare(Nst_Obj *str1, Nst_Obj *str2)
     Nst_assert(str2->type == Nst_t.Str);
 
     return Nst_sv_compare(Nst_sv_from_str(str1), Nst_sv_from_str(str2));
-}
-
-u8 *Nst_str_lfind(u8 *s1, usize l1, u8 *s2, usize l2)
-{
-    u8 *end1 = s1 + l1;
-    u8 *end2 = s2 + l2;
-    u8 *p1 = NULL;
-    u8 *p2 = NULL;
-
-    if (l2 > l1)
-        return NULL;
-
-    while (s1 != end1) {
-        p1 = s1++;
-        p2 = s2;
-
-        while (p1 != end1 && p2 != end2 && *p1 == *p2) {
-            p1++;
-            p2++;
-        }
-
-        if (p2 == end2)
-            return s1 - 1;
-    }
-
-    return NULL;
-}
-
-u8 *Nst_str_rfind(u8 *s1, usize l1, u8 *s2, usize l2)
-{
-    u8 *p = s1 + l1 - l2;
-
-    while (p >= s1) {
-        for (usize i = 0; i < l2; i++) {
-            if (p[i] != s2[i])
-                goto next_cycle;
-        }
-        return p;
-
-    next_cycle:
-        p--;
-    }
-
-    return NULL;
 }
 
 u8 *Nst_str_value(Nst_Obj *str)

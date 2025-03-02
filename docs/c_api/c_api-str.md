@@ -195,12 +195,12 @@ The copied string on success and `NULL` on failure. The error is set.
 
 ---
 
-### `Nst_str_get`
+### `Nst_str_get_obj`
 
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_str_get(Nst_Obj *str, i64 idx)
+Nst_Obj *Nst_str_get_obj(Nst_Obj *str, i64 idx)
 ```
 
 **Description:**
@@ -217,6 +217,27 @@ If `idx` negative it is subtracted to the length to get the actual index.
 **Returns:**
 
 The new string on success and `NULL` on failure. The error is set. The function
+fails if the index falls outside the string.
+
+---
+
+### `Nst_str_get`
+
+**Synopsis:**
+
+```better-c
+i32 Nst_str_get(Nst_Obj *str, i64 idx)
+```
+
+**Description:**
+
+Get the character at index `idx` of the string.
+
+If `idx` negative it is subtracted to the length to get the actual index.
+
+**Returns:**
+
+The character on success and `-1` on failure. The error is set. The function
 fails if the index falls outside the string.
 
 ---
@@ -437,65 +458,6 @@ account possible `NUL` bytes inside the compared string.
 
 `0` if the two strings are equal, a value `< 0` if `str2` is greater than `str1`
 and a value `> 0` if `str1` is greater than `str2`.
-
----
-
-### `Nst_str_lfind`
-
-**Synopsis:**
-
-```better-c
-u8 *Nst_str_lfind(u8 *s1, usize l1, u8 *s2, usize l2)
-```
-
-**Description:**
-
-Finds the first occurrence of a substring inside a string.
-
-If the pointer returned is not `NULL` it is guaranteed to be between `s1 <= p <
-s1 + l1`, where `p` is the pointer.
-
-**Parameters:**
-
-- `s1`: the main string
-- `l1`: the length of `s1` in bytes
-- `s2`: the substring to find inside the main string
-- `l2`: the length of `s2` in bytes
-
-**Returns:**
-
-The pointer to the start of `s1` or `NULL` if the string could not be found. No
-error is set.
-
----
-
-### `Nst_str_rfind`
-
-**Synopsis:**
-
-```better-c
-u8 *Nst_str_rfind(u8 *s1, usize l1, u8 *s2, usize l2)
-```
-
-**Description:**
-
-Finds the first occurrence of a substring inside a string starting from the
-right.
-
-If the pointer returned is not `NULL` it is guaranteed to be between `s1 <= p <
-s1 + l1`, where `p` is the pointer.
-
-**Parameters:**
-
-- `s1`: the main string
-- `l1`: the length of `s1`
-- `s2`: the substring to find inside the main string
-- `l2`: the length of `s2`
-
-**Returns:**
-
-The pointer to the start of `s1` or `NULL` if the string could not be found. No
-error is set.
 
 ---
 

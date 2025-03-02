@@ -41,13 +41,13 @@ extern "C" {
 NstEXP typedef struct _Nst_CLArgs {
     bool print_tokens, print_ast, print_bytecode;
     bool force_execution;
-    Nst_EncodingID encoding;
     bool no_default;
+    Nst_EncodingID encoding;
     i32 opt_level;
-    char *command, *filename;
     i32 args_start;
     i32 argc;
     char **argv;
+    char *command, *filename;
 } Nst_CLArgs;
 
 /**

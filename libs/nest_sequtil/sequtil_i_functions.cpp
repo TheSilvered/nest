@@ -82,7 +82,7 @@ Nst_Obj *NstC slice_i_str_next(usize arg_num, Nst_Obj **args)
     if (idx >= max_idx)
         return Nst_iend_ref();
 
-    Nst_Obj *obj = Nst_str_get(data->obj, idx * data->step + data->start);
+    Nst_Obj *obj = Nst_str_get_obj(data->obj, idx * data->step + data->start);
     data->idx += 1;
 
     if (obj == nullptr)

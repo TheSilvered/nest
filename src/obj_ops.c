@@ -1268,10 +1268,8 @@ Nst_Obj *Nst_obj_contains(Nst_Obj *ob1, Nst_Obj *ob2)
             return Nst_true_ref();
         }
     } else if (ob1->type == Nst_t.Str && ob2->type == Nst_t.Str) {
-        u8 *res = Nst_str_lfind(
-            Nst_str_value(ob1), Nst_str_len(ob1),
-            Nst_str_value(ob2), Nst_str_len(ob2));
-        Nst_RETURN_BOOL(res != NULL);
+        isize idx = Nst_sv_lfind(Nst_sv_from_str(ob1), Nst_sv_from_str(ob2));
+        Nst_RETURN_BOOL(idx != -1);
     } else
         RETURN_STACK_OP_TYPE_ERROR("<.>");
 }

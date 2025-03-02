@@ -114,7 +114,17 @@ NstEXP Nst_Obj *NstC Nst_str_repr(Nst_Obj *src);
  * @return The new string on success and `NULL` on failure. The error is set.
  * The function fails if the index falls outside the string.
  */
-NstEXP Nst_Obj *NstC Nst_str_get(Nst_Obj *str, i64 idx);
+NstEXP Nst_Obj *NstC Nst_str_get_obj(Nst_Obj *str, i64 idx);
+/**
+ * Get the character at index `idx` of the string.
+ *
+ * @brief If `idx` negative it is subtracted to the length to get the actual
+ * index.
+ *
+ * @return The character on success and `-1` on failure. The error is set.
+ * The function fails if the index falls outside the string.
+ */
+NstEXP i32 NstC Nst_str_get(Nst_Obj *str, i64 idx);
 
 /**
  * Iterates over the characters of a string.
@@ -231,37 +241,6 @@ NstEXP Nst_Obj *NstC Nst_str_parse_real(Nst_Obj *str);
 NstEXP i32 NstC Nst_str_compare(Nst_Obj *str1, Nst_Obj *str2);
 
 void _Nst_str_destroy(Nst_Obj *str);
-/**
- * Finds the first occurrence of a substring inside a string.
- *
- * @brief If the pointer returned is not `NULL` it is guaranteed to be between
- * `s1 <= p < s1 + l1`, where `p` is the pointer.
- *
- * @param s1: the main string
- * @param l1: the length of `s1` in bytes
- * @param s2: the substring to find inside the main string
- * @param l2: the length of `s2` in bytes
- *
- * @return The pointer to the start of `s1` or `NULL` if the string could not
- * be found. No error is set.
- */
-NstEXP u8 *NstC Nst_str_lfind(u8 *s1, usize l1, u8 *s2, usize l2);
-/**
- * Finds the first occurrence of a substring inside a string starting from the
- * right.
- *
- * @brief If the pointer returned is not `NULL` it is guaranteed to be between
- * `s1 <= p < s1 + l1`, where `p` is the pointer.
- *
- * @param s1: the main string
- * @param l1: the length of `s1`
- * @param s2: the substring to find inside the main string
- * @param l2: the length of `s2`
- *
- * @return The pointer to the start of `s1` or `NULL` if the string could not
- * be found. No error is set.
- */
-NstEXP u8 *NstC Nst_str_rfind(u8 *s1, usize l1, u8 *s2, usize l2);
 
 /* Get the value of a Nest `Str` object. */
 NstEXP u8 *NstC Nst_str_value(Nst_Obj *str);

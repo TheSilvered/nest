@@ -1160,7 +1160,7 @@ static InstResult exe_op_extract()
             goto end;
         }
 
-        res = Nst_str_get(cont, Nst_int_i64(idx));
+        res = Nst_str_get_obj(cont, Nst_int_i64(idx));
 
         if (res == NULL)
             return_value = INST_FAILED;

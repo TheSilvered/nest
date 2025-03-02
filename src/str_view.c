@@ -83,6 +83,7 @@ Nst_Obj *Nst_str_from_sv(Nst_StrView sv)
     u8 *buf = (u8 *)Nst_calloc(1, sv.len + 1, sv.value);
     if (buf == NULL)
         return NULL;
+    buf[sv.len] = '\0';
     return Nst_str_new_allocated(buf, sv.len);
 }
 
@@ -93,7 +94,7 @@ isize Nst_sv_next(Nst_StrView sv, isize idx, u32 *ch)
         return -1;
     }
 
-    if (idx != -1) {
+    if (idx >= 0) {
         i32 len = Nst_check_ext_utf8_bytes((u8 *)sv.value + idx, sv.len - idx);
         if (len < 0 || idx + (usize)len >= sv.len) {
             if (ch != NULL) *ch = 0;
@@ -102,6 +103,30 @@ isize Nst_sv_next(Nst_StrView sv, isize idx, u32 *ch)
         idx += len;
     } else
         idx = 0;
+    if (ch != NULL)
+        *ch = Nst_ext_utf8_to_utf32((u8 *)sv.value + idx);
+    return idx;
+}
+
+isize Nst_sv_nextr(Nst_StrView sv, isize idx, u32 *ch)
+{
+    if (sv.len == 0) {
+        if (ch != NULL) *ch = 0;
+        return -1;
+    }
+
+    if (idx < 0)
+        idx = (isize)sv.len;
+
+    do {
+        idx--;
+    } while (idx >= 0 && (sv.value[idx] & 0b11000000) == 0b10000000);
+
+    if (idx == -1) {
+        if (ch != NULL) *ch = 0;
+        return -1;
+    }
+
     if (ch != NULL)
         *ch = Nst_ext_utf8_to_utf32((u8 *)sv.value + idx);
     return idx;
@@ -466,4 +491,24 @@ isize Nst_sv_rfind(Nst_StrView str, Nst_StrView substr)
     }
 
     return -1;
+}
+
+Nst_StrView Nst_sv_ltok(Nst_StrView str, Nst_StrView substr)
+{
+    isize idx = Nst_sv_lfind(str, substr);
+    if (idx == -1)
+        return Nst_sv_new(NULL, 0);
+    return Nst_sv_new(
+        str.value + idx + substr.len,
+        str.len - idx - substr.len);
+}
+
+Nst_StrView Nst_sv_rtok(Nst_StrView str, Nst_StrView substr)
+{
+    isize idx = Nst_sv_rfind(str, substr);
+    if (idx == -1)
+        return Nst_sv_new(NULL, 0);
+    return Nst_sv_new(
+        str.value + idx + substr.len,
+        str.len - idx - substr.len);
 }

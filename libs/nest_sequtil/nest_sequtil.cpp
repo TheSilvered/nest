@@ -119,7 +119,7 @@ Nst_Obj *NstC insert_at_(usize arg_num, Nst_Obj **args)
 
     if (new_idx < 0 || new_idx >= (i64)vect_len) {
         Nst_error_setf_value(
-            "index %lli out of bounds for 'Vector' of size %zi",
+            "index %" PRIi64 " out of bounds for 'Vector' of size %zi",
             idx,
             vect_len);
 
@@ -154,7 +154,7 @@ Nst_Obj *NstC remove_at_(usize arg_num, Nst_Obj **args)
 
     if (new_idx < 0 || new_idx >= (i64)vect_len) {
         Nst_error_setf_value(
-            "index %lli out of bounds for 'Vector' of size %zi",
+            "index %" PRIi64 " out of bounds for 'Vector' of size %zi",
             idx,
             vect_len);
 

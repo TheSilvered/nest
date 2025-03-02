@@ -133,7 +133,7 @@ Nst_Obj *NstC cycle_str_next(usize arg_num, Nst_Obj **args)
 {
     Nst_UNUSED(arg_num);
     CycleData *data = (CycleData *)Nst_obj_custom_data(args[0]);
-    Nst_Obj *ob = Nst_str_get(data->iterable, data->idx);
+    Nst_Obj *ob = Nst_str_get_obj(data->iterable, data->idx);
     data->idx += 1;
     data->idx %= Nst_str_char_len(data->iterable);
     return ob;
