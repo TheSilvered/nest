@@ -1,7 +1,5 @@
 #include <string.h>
-#include "mem.h"
-#include "instructions.h"
-#include "global_consts.h"
+#include "nest.h"
 
 Nst_Inst *Nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end)
 {

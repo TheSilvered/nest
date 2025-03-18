@@ -126,6 +126,9 @@
     <ClInclude Include="..\..\..\..\include\str_view.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\..\include\dyn_array.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="..\..\..\..\libs\dll\dllmain.cpp">
@@ -231,6 +234,9 @@
       <Filter>Source files</Filter>
     </ClCompile>
     <ClCompile Include="..\..\..\..\src\str_view.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\..\..\src\dyn_array.c">
       <Filter>Source files</Filter>
     </ClCompile>
   </ItemGroup>

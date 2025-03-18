@@ -49,21 +49,6 @@
 extern "C" {
 #endif // !__cplusplus
 
-/**
- * Structure representing a buffer of objects with an arbitrary size.
- *
- * @param len: the number of objects currently in the buffer
- * @param cap: the size in bytes of the allocated block
- * @param unit_size: the size in bytes of one object
- * @param data: the array of objects
- */
-NstEXP typedef struct _Nst_SBuffer {
-    usize len;
-    usize cap;
-    usize unit_size;
-    void *data;
-} Nst_SBuffer;
-
 /* [docs:link malloc <https://man7.org/linux/man-pages/man3/malloc.3.html>] */
 /* [docs:link calloc <https://man7.org/linux/man-pages/man3/malloc.3.html>] */
 /* [docs:link realloc <https://man7.org/linux/man-pages/man3/malloc.3.html>] */
@@ -200,104 +185,6 @@ NstEXP void *NstC Nst_crealloc(void *block, usize new_count, usize size,
  * the block is filled with zeroes
  */
 NstEXP void NstC Nst_memset(void *block, usize size, usize count, void *value);
-
-/**
- * Initializes a `Nst_SBuffer`.
- *
- * @param buf: the buffer to initialize
- * @param unit_size: the size of the elements the buffer will contain
- * @param count: the number of elements to initialize the buffer with
- *
- * @return `true` on succes and `false` on failure. The error is set.
- */
-NstEXP bool NstC Nst_sbuffer_init(Nst_SBuffer *buf, usize unit_size,
-                                  usize count);
-/**
- * Expands a sized buffer to contain a specified amount new elements.
- *
- * @brief The buffer is expanded only if needed.
- *
- * @param buf: the buffer to expand
- * @param amount: the number of new elements the buffer needs to contain
- *
- * @return `true` on success and `false` on failure. The error is set.
- */
-NstEXP bool NstC Nst_sbuffer_expand_by(Nst_SBuffer *buf, usize amount);
-/**
- * Expands a sized buffer to contain a total amount of elements.
- *
- * @brief The buffer is expanded only if needed. If the new size is smaller
- * than the current one nothing is done.
- *
- * @param buf: the buffer to expand
- * @param amount: the number of elements the buffer needs to contain
- *
- * @return `true` on success and `false` on failure. The error is set.
- */
-NstEXP bool NstC Nst_sbuffer_expand_to(Nst_SBuffer *buf, usize count);
-/* Shrinks the capacity of a sized buffer to match its length. */
-NstEXP void NstC Nst_sbuffer_fit(Nst_SBuffer *buf);
-/**
- * Appends an element to the end of the buffer.
- *
- * @brief The buffer is expanded more than needed to reduce the overall number
- * of reallocations.
- *
- * @brief If necessary, the buffer is expanded automatically.
- *
- * @param buf: the buffer to append the element to
- * @param element: a pointer to the element to append
- *
- * @return `true` on success and `false` on failure. The error is set.
- */
-NstEXP bool NstC Nst_sbuffer_append(Nst_SBuffer *buf, void *element);
-/**
- * Pops the last element of a sized buffer.
- *
- * @param buf: the buffer to pop the element from
- *
- * @return `true` if the buffer was popped successfully and `false` if there
- * was no item to pop. No error is set.
- */
-NstEXP bool NstC Nst_sbuffer_pop(Nst_SBuffer *buf);
-/**
- * Gets the element of a buffer at a specified index.
- *
- * @param buf: the buffer to index
- * @param index: the index of the element to get
- *
- * @return A pointer to the start of the element in the array or `NULL` if the
- * index was out of bounds. No error is set.
- */
-NstEXP void *NstC Nst_sbuffer_at(Nst_SBuffer *buf, usize index);
-/**
- * Shrinks the size of a sized buffer.
- *
- * @brief The size is not shrunk to the minimum but some slots are kept for
- * possible new values.
- *
- * @param buf: the buffer to shrink
- */
-NstEXP void NstC Nst_sbuffer_shrink_auto(Nst_SBuffer *buf);
-/**
- * Copies the contents of a sized buffer into another.
- *
- * @brief The data of the source buffer is copied into a new block of memory,
- * subsequent changes to the source buffer will not modify the copied one.
- *
- * @param src: the buffer to copy from
- * @param dst: the buffer to copy to
- *
- * @return `true` on success and `false` on failure. The error is set.
- */
-NstEXP bool NstC Nst_sbuffer_copy(Nst_SBuffer *src, Nst_SBuffer *dst);
-/**
- * Destroys the contents of a sized buffer. The buffer itself is not freed.
- *
- * @brief If the data is set to `NULL` the function returns immediately and
- * and leaves the buffer untouched.
- */
-NstEXP void NstC Nst_sbuffer_destroy(Nst_SBuffer *buf);
 
 #ifdef __cplusplus
 }

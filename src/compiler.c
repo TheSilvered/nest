@@ -1,9 +1,4 @@
-#include "tokens.h"
-#include "function.h"
-#include "obj_ops.h"
-#include "global_consts.h"
-#include "mem.h"
-#include "format.h"
+#include "nest.h"
 
 #define CURR_LEN ((i64)(c_state.inst_ls->len))
 #define NULL_OR_APPEND_FAILED(inst) ((inst) == NULL || !append_inst(inst))

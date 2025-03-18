@@ -2,11 +2,7 @@
 #include <string.h>
 #include <errno.h>
 #include <stdio.h>
-#include "tokens.h"
-#include "obj_ops.h"
-#include "mem.h"
-#include "global_consts.h"
-#include "format.h"
+#include "nest.h"
 
 const char *tt_strings[] = {
     [Nst_TT_ADD] = "ADD",

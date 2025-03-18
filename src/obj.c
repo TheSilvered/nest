@@ -1,12 +1,5 @@
 #include <string.h>
-#include "obj.h"
-#include "map.h"
-#include "ggc.h"
-#include "str.h"
-#include "mem.h"
-#include "type.h"
-#include "interpreter.h"
-#include "global_consts.h"
+#include "nest.h"
 
 #define GGC_OBJ(obj) ((Nst_GGCObj *)(obj))
 

@@ -1,9 +1,5 @@
 #include <string.h>
-#include "file.h"
-#include "global_consts.h"
-#include "mem.h"
-#include "str_builder.h"
-#include "interpreter.h" // To use Nst_assert
+#include "nest.h"
 
 #ifdef Nst_MSVC
 

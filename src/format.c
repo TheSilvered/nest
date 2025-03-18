@@ -4,15 +4,7 @@
 #include <stdlib.h>
 #include <stdarg.h>
 #include <stdint.h>
-#include "format.h"
-#include "global_consts.h"
-#include "mem.h"
-#include "str_builder.h"
-#include "file.h"
-#include "dtoa.h"
-#include "obj_ops.h"
-#include "unicode_db.h"
-#include "interpreter.h"
+#include "nest.h"
 
 #define MIN(a, b) ((b) < (a) ? (b) : (a))
 #define MAX(a, b) ((b) > (a) ? (b) : (a))

@@ -2,15 +2,7 @@
 #include <errno.h>
 #include <stdio.h>
 #include <string.h>
-#include "mem.h"
-#include "str_builder.h"
-#include "hash.h"
-#include "lexer.h"
-#include "global_consts.h"
-#include "tokens.h"
-#include "interpreter.h" // Nst_get_full_path
-#include "encoding.h"
-#include "format.h"
+#include "nest.h"
 
 #define START_CH_SIZE 8 * sizeof(u8)
 #define CH_TO_HEX(c) (u8)((u8)(c) > '9' ? (u8)(c) - 'a' + 10 : (u8)(c) - '0')

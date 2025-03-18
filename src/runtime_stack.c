@@ -1,7 +1,4 @@
-#include "mem.h"
-#include "runtime_stack.h"
-#include "interpreter.h"
-#include "format.h"
+#include "nest.h"
 
 #define V_STACK_MIN_SIZE 32
 #define F_STACK_MIN_SIZE 125

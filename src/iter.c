@@ -1,8 +1,6 @@
 #include <errno.h>
 #include <stdlib.h>
-#include "iter.h"
-#include "obj_ops.h"
-#include "format.h"
+#include "nest.h"
 
 typedef struct _Nst_IterObj {
     Nst_OBJ_HEAD;

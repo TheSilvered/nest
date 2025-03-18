@@ -1,6 +1,4 @@
-#include "mem.h"
-#include "interpreter.h"
-#include "type.h"
+#include "nest.h"
 
 #define GGC_OBJ(obj) ((Nst_GGCObj *)(obj))
 

@@ -1,12 +1,6 @@
 #include <string.h>
 #include <math.h>
-#include "global_consts.h"
-#include "lib_import.h"
-#include "mem.h"
-#include "iter.h"
-#include "argv_parser.h"
-#include "type.h"
-#include "str_builder.h"
+#include "nest.h"
 
 Nst_TypeObjs Nst_t;
 Nst_StrConsts Nst_s;

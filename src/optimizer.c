@@ -1,13 +1,6 @@
 #include <errno.h>
 #include <string.h>
-#include "mem.h"
-#include "optimizer.h"
-#include "obj_ops.h"
-#include "tokens.h"
-#include "iter.h"
-#include "hash.h"
-#include "format.h"
-#include "obj_ops.h"
+#include "nest.h"
 
 static bool optimize_node(Nst_Node *node);
 

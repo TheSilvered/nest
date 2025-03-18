@@ -2,9 +2,7 @@
 #include <stdio.h>
 #include <stdarg.h>
 #include <string.h>
-#include "simple_types.h"
-#include "global_consts.h"
-#include "obj_ops.h"
+#include "nest.h"
 
 #define NEW_SIMPLE_TYPE(type, type_obj)                                       \
     type *obj = Nst_obj_alloc(type, type_obj);                                \

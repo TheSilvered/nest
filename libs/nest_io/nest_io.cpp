@@ -177,7 +177,7 @@ static Nst_IOResult virtual_file_write(u8 *buf, usize buf_len, usize *count,
     }
 
     isize space_needed = (isize)vf->ptr + (isize)buf_len - (isize)vf->data.len;
-    if (space_needed > 0 && !Nst_sbuffer_expand_by(&vf->data, space_needed))
+    if (space_needed > 0 && !Nst_da_reserve(&vf->data, space_needed))
         return Nst_IO_ALLOC_FAILED;
 
     memcpy((u8 *)vf->data.data + vf->ptr, buf, buf_len);
@@ -238,7 +238,7 @@ static Nst_IOResult virtual_file_close(Nst_Obj *f)
         return Nst_IO_CLOSED;
 
     VirtualFile *vf = (VirtualFile *)Nst_iof_fp(f);
-    Nst_sbuffer_destroy(&vf->data);
+    Nst_da_clear(&vf->data);
     Nst_free(vf);
 
     return Nst_IO_SUCCESS;
@@ -393,7 +393,7 @@ Nst_Obj *NstC virtual_file_(usize arg_num, Nst_Obj **args)
     if (vf == nullptr)
         return nullptr;
 
-    if (!Nst_sbuffer_init(&vf->data, sizeof(u8), usize(buf_size))) {
+    if (!Nst_da_init(&vf->data, sizeof(u8), usize(buf_size))) {
         Nst_free(vf);
         return nullptr;
     }

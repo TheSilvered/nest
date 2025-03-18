@@ -11,7 +11,7 @@ NstEXP Nst_Declr *NstC lib_init();
 NstEXP void NstC lib_quit();
 
 typedef struct _VirtualFile {
-    Nst_SBuffer data;
+    Nst_DynArray data;
     usize ptr;
 } VirtualFile;
 

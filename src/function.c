@@ -1,8 +1,5 @@
 #include <errno.h>
-#include "function.h"
-#include "global_consts.h"
-#include "mem.h"
-#include "interpreter.h"
+#include "nest.h"
 
 typedef union _Nst_FuncBody {
     Nst_InstList *bytecode;

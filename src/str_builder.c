@@ -1,9 +1,5 @@
 #include <string.h>
-#include "str_builder.h"
-#include "mem.h"
-#include "global_consts.h"
-#include "interpreter.h"
-#include "encoding.h"
+#include "nest.h"
 
 #define _SB_MIN_CAP 127
 

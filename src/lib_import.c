@@ -1,13 +1,7 @@
 #include <stdarg.h>
 #include <stdlib.h>
 #include <string.h>
-#include "lib_import.h"
-#include "iter.h"
-#include "obj_ops.h"
-#include "format.h"
-#include "mem.h"
-#include "str_builder.h"
-#include "error.h"
+#include "nest.h"
 
 /*
 
@@ -70,8 +64,8 @@ static MatchType *compile_type_match(const char *types, const char **type_end,
     if (match_type == NULL)
         return NULL;
 
-    Nst_SBuffer custom_types;
-    if (!Nst_sbuffer_init(&custom_types, sizeof(Nst_Obj *), 4)) {
+    Nst_DynArray custom_types;
+    if (!Nst_da_init(&custom_types, sizeof(Nst_Obj *), 4)) {
         Nst_free(match_type);
         return NULL;
     }
@@ -239,13 +233,13 @@ static MatchType *compile_type_match(const char *types, const char **type_end,
                     " '%s'",
                     (types - full_types) + 1,
                     Nst_type_name(custom_type->type).value);
-                Nst_sbuffer_destroy(&custom_types);
+                Nst_da_clear(&custom_types);
                 Nst_free(match_type);
                 return NULL;
             }
 
-            if (!Nst_sbuffer_append(&custom_types, &custom_type)) {
-                Nst_sbuffer_destroy(&custom_types);
+            if (!Nst_da_append(&custom_types, &custom_type)) {
+                Nst_da_clear(&custom_types);
                 Nst_free(match_type);
                 return NULL;
             }
@@ -255,7 +249,7 @@ static MatchType *compile_type_match(const char *types, const char **type_end,
                 Nst_error_setf_value(
                     "argument extraction: '?' not allowed at %zi",
                     (types - full_types) + 1);
-                Nst_sbuffer_destroy(&custom_types);
+                Nst_da_clear(&custom_types);
                 Nst_free(match_type);
                 return NULL;
             }
@@ -269,7 +263,7 @@ static MatchType *compile_type_match(const char *types, const char **type_end,
                 Nst_error_setf_value(
                     "argument extraction: '|' not allowed at %zi",
                     (types - full_types) + 1);
-                Nst_sbuffer_destroy(&custom_types);
+                Nst_da_clear(&custom_types);
                 Nst_free(match_type);
                 return NULL;
             }
@@ -281,7 +275,7 @@ static MatchType *compile_type_match(const char *types, const char **type_end,
             Nst_error_setf_value(
                 "argument extraction: syntax error at %zi",
                 (types - full_types) + 1);
-            Nst_sbuffer_destroy(&custom_types);
+            Nst_da_clear(&custom_types);
             Nst_free(match_type);
             return NULL;
         }
@@ -291,7 +285,6 @@ static MatchType *compile_type_match(const char *types, const char **type_end,
         types++;
     }
 
-    Nst_sbuffer_fit(&custom_types);
     match_type->custom_types = (Nst_Obj **)custom_types.data;
     match_type->custom_types_size = custom_types.len;
 
@@ -367,7 +360,7 @@ static MatchType *compile_type_match(const char *types, const char **type_end,
             Nst_error_setf_value(
                 "argument extraction: unknown cast at %zi",
                 (types - full_types) + 1);
-            Nst_sbuffer_destroy(&custom_types);
+            Nst_da_clear(&custom_types);
             destroy_match_type(match_type);
             return NULL;
         }

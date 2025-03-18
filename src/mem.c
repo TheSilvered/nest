@@ -1,9 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
-#include "mem.h"
-#include "sequence.h" // _Nst_VECTOR_GROWTH_RATIO, _Nst_VECTOR_MIN_CAP
-#include "global_consts.h"
-#include "interpreter.h"
+#include "nest.h"
 
 #ifdef Nst_DBG_COUNT_ALLOC
 
@@ -225,107 +222,4 @@ void Nst_memset(void *block, usize size, usize count, void *value)
     }
     for (usize i = 0; i < count; i++)
         memcpy((u8 *)block + i * size, value, size);
-}
-
-bool Nst_sbuffer_init(Nst_SBuffer *buf, usize unit_size, usize count)
-{
-    void *data = Nst_malloc(count, unit_size);
-    if (data == NULL)
-        return false;
-
-    buf->data = data;
-    buf->cap = count;
-    buf->unit_size = unit_size;
-    buf->len = 0;
-    return true;
-}
-
-bool Nst_sbuffer_expand_by(Nst_SBuffer *buf, usize amount)
-{
-    return Nst_sbuffer_expand_to(buf, buf->len + amount);
-}
-
-bool Nst_sbuffer_expand_to(Nst_SBuffer *buf, usize count)
-{
-    if (buf->cap >= count)
-        return true;
-
-    usize new_size = (usize)(count * 1.5);
-    void *new_data = Nst_realloc(buf->data, new_size, buf->unit_size, 0);
-    if (new_data == NULL)
-        return false;
-
-    buf->data = new_data;
-    buf->cap = new_size;
-    return true;
-}
-
-void Nst_sbuffer_fit(Nst_SBuffer *buf)
-{
-    usize len = buf->len;
-    if (len == 0)
-        len = 1;
-
-    buf->data = Nst_realloc(buf->data, len, buf->unit_size, buf->cap);
-    buf->cap = len;
-}
-
-bool Nst_sbuffer_append(Nst_SBuffer *buf, void *element)
-{
-    if (!Nst_sbuffer_expand_by(buf, 1))
-        return false;
-
-    void *data_end = (void *)((u8 *)buf->data + (buf->len * buf->unit_size));
-    memcpy(data_end, element, buf->unit_size);
-    buf->len++;
-    return true;
-}
-
-bool Nst_sbuffer_pop(Nst_SBuffer *buf)
-{
-    if (buf->len == 0)
-        return false;
-    buf->len--;
-    return true;
-}
-
-void *Nst_sbuffer_at(Nst_SBuffer *buf, usize index)
-{
-    if (index >= buf->len)
-        return NULL;
-    return (void *)((u8 *)buf->data + (buf->unit_size * index));
-}
-
-void Nst_sbuffer_shrink_auto(Nst_SBuffer *buf)
-{
-    if (buf->cap >> 2 < buf->len)
-        return;
-    usize new_cap = (usize)(buf->cap / _Nst_VECTOR_GROWTH_RATIO);
-    if (new_cap < _Nst_VECTOR_MIN_CAP)
-        return;
-    buf->data = Nst_realloc(buf->data, new_cap, buf->unit_size, buf->cap);
-    buf->cap = new_cap;
-}
-
-bool Nst_sbuffer_copy(Nst_SBuffer *src, Nst_SBuffer *dst)
-{
-    void *new_data = Nst_calloc(1, src->len, src->data);
-    if (new_data == NULL)
-        return false;
-
-    dst->cap = src->len;
-    dst->len = src->len;
-    dst->unit_size = src->unit_size;
-    dst->data = new_data;
-    return true;
-}
-
-void Nst_sbuffer_destroy(Nst_SBuffer *buf)
-{
-    if (buf->data != NULL)
-        Nst_free(buf->data);
-    buf->data = NULL;
-    buf->cap = 0;
-    buf->len = 0;
-    buf->unit_size = 0;
 }

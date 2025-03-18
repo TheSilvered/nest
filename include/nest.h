@@ -46,5 +46,6 @@
 #include "unicode_db.h"
 #include "str_builder.h"
 #include "str_view.h"
+#include "dyn_array.h"
 
 #endif // !NEST_H

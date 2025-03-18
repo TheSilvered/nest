@@ -1,11 +1,7 @@
 #include <string.h>
 #include <wchar.h>
 #include <ctype.h>
-#include "encoding.h"
-#include "mem.h"
-#include "str_builder.h"
-#include "lib_import.h"
-#include "format.h"
+#include "nest.h"
 
 #ifdef Nst_MSVC
 #include <windows.h>

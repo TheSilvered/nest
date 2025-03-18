@@ -154,6 +154,7 @@
     <ClInclude Include="..\..\..\..\include\argv_parser.h" />
     <ClInclude Include="..\..\..\..\include\compiler.h" />
     <ClInclude Include="..\..\..\..\include\dtoa.h" />
+    <ClInclude Include="..\..\..\..\include\dyn_array.h" />
     <ClInclude Include="..\..\..\..\include\encoding.h" />
     <ClInclude Include="..\..\..\..\include\error.h" />
     <ClInclude Include="..\..\..\..\include\file.h" />
@@ -194,6 +195,7 @@
     <ClCompile Include="..\..\..\..\src\argv_parser.c" />
     <ClCompile Include="..\..\..\..\src\compiler.c" />
     <ClCompile Include="..\..\..\..\src\dtoa.c" />
+    <ClCompile Include="..\..\..\..\src\dyn_array.c" />
     <ClCompile Include="..\..\..\..\src\encoding.c" />
     <ClCompile Include="..\..\..\..\src\error.c" />
     <ClCompile Include="..\..\..\..\src\file.c" />

@@ -21,7 +21,7 @@ static bool update_window(GUI_Window *window)
     // updating windows in reverse allows them to be closed
     usize child_windows_len = window->child_windows.len;
     for (usize i = 0; i < child_windows_len; i++) {
-        GUI_Window *child_window = (GUI_Window *)Nst_sbuffer_at(
+        GUI_Window *child_window = (GUI_Window *)Nst_da_at(
             &window->child_windows,
             child_windows_len - i - 1);
         if (!GUI_Window_IsRunning(child_window)) {

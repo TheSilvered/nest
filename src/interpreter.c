@@ -1,15 +1,7 @@
 #include <errno.h>
 #include <signal.h>
 #include <stdlib.h>
-#include "obj_ops.h"
-#include "hash.h"
-#include "tokens.h"
-#include "iter.h"
-#include "optimizer.h"
-#include "parser.h"
-#include "lexer.h"
-#include "format.h"
-#include "encoding.h"
+#include "nest.h"
 
 #ifdef Nst_MSVC
 

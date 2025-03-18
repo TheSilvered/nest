@@ -37,7 +37,7 @@ GUI_Window *GUI_Window_New(GUI_Window *parent, GUI_App *app,
     window->window = sdl_window;
     window->renderer = renderer;
     window->root_element = GUI_Root_New(window, app);
-    if (!Nst_sbuffer_init(&window->child_windows, sizeof(GUI_Window *), 0))
+    if (!Nst_da_init(&window->child_windows, sizeof(GUI_Window *), 0))
         goto cleanup;
     window->keep_open = true;
 
@@ -58,12 +58,12 @@ void GUI_Window_Destroy(GUI_Window *window)
     Nst_dec_ref(NstOBJ(window->root_element));
 
     for (usize i = 0, n = window->child_windows.len; i < n; i++) {
-        GUI_Window *child = (GUI_Window *)Nst_sbuffer_at(
+        GUI_Window *child = (GUI_Window *)Nst_da_at(
             &window->child_windows,
             i);
         GUI_Window_Destroy(child);
     }
-    Nst_sbuffer_destroy(&window->child_windows);
+    Nst_da_clear(&window->child_windows);
 
     Nst_free(window);
 }

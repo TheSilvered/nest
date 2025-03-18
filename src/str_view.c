@@ -1,11 +1,5 @@
 #include <string.h>
-#include "str_view.h"
-#include "str.h"
-#include "global_consts.h"
-#include "interpreter.h"
-#include "mem.h"
-#include "dtoa.h"
-#include "ctype.h"
+#include "nest.h"
 
 #define RETURN_INT_ERR do {                                                   \
     Nst_error_setc_value("invalid Int literal");                              \

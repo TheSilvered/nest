@@ -1,12 +1,7 @@
 #include <errno.h>
 #include <stdarg.h>
 #include <string.h>
-#include "mem.h"
-#include "sequence.h"
-#include "obj_ops.h"
-#include "lib_import.h"
-#include "format.h"
-#include "type.h"
+#include "nest.h"
 
 #define assert_sequence(seq)                                                  \
     Nst_assert((seq)->type == Nst_t.Array || (seq)->type == Nst_t.Vector)

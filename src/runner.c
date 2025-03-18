@@ -1,16 +1,5 @@
 #include <string.h>
-#include "runner.h"
-#include "interpreter.h"
-#include "mem.h"
-#include "lexer.h"
-#include "tokens.h"
-#include "nodes.h"
-#include "parser.h"
-#include "compiler.h"
-#include "optimizer.h"
-#include "function.h"
-#include "format.h"
-#include "global_consts.h"
+#include "nest.h"
 
 bool Nst_es_init(Nst_ExecutionState *es)
 {

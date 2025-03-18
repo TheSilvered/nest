@@ -1,7 +1,4 @@
-#include "lib_import.h"
-#include "var_table.h"
-#include "global_consts.h"
-#include "mem.h"
+#include "nest.h"
 
 Nst_VarTable *Nst_vt_new(Nst_Obj *global_table, Nst_Obj *args,
                          bool no_default)

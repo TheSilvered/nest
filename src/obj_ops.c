@@ -2,15 +2,7 @@
 #include <math.h>
 #include <stdio.h>
 #include <errno.h>
-#include "obj_ops.h"
-#include "iter.h"
-#include "interpreter.h"
-#include "lib_import.h"
-#include "map.h"
-#include "error.h"
-#include "format.h"
-#include "hash.h"
-#include "str_builder.h"
+#include "nest.h"
 
 #ifdef Nst_MSVC
 

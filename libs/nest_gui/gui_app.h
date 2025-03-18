@@ -20,7 +20,7 @@ typedef struct _GUI_Window {
     SDL_Window *window;
     SDL_Renderer *renderer;
     GUI_Root *root_element;
-    Nst_SBuffer child_windows; // contains other GUI_Windows
+    Nst_DynArray child_windows; // contains other GUI_Windows
     bool keep_open;
 } GUI_Window;
 

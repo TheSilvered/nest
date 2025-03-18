@@ -1,12 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
-#include "simple_types.h"
-#include "error.h"
-#include "global_consts.h"
-#include "encoding.h"
-#include "format.h"
-#include "interpreter.h"
+#include "nest.h"
 
 #ifdef Nst_MSVC
 #include <windows.h>

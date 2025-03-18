@@ -1,6 +1,5 @@
 #include <string.h>
-#include "hash.h"
-#include "global_consts.h"
+#include "nest.h"
 
 #define FNV_OFFSET_BASIS 0xcbf29ce484222325
 #define FNV_PRIME 0x00000100000001B3
