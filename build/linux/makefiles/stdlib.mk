@@ -1,8 +1,3 @@
-ifeq ($(LIB_NAME),gui)
-    LIB_FLAGS=$(shell pkg-config --cflags sdl2 SDL2_ttf)
-    LIB_LINKS=$(shell pkg-config --libs sdl2 SDL2_ttf)
-endif
-
 MAKE_FILE = $(MAKE) --no-print-directory -f
 
 CC = gcc

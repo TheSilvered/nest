@@ -195,9 +195,11 @@ static void remove_level(Nst_LList *levels)
 static void print_node(const char *name, Nst_Node *node, Nst_LList *levels,
                        bool last)
 {
-    print_levels(levels);
-    if (!print_connection(last, true, levels))
-        return;
+    if (levels->len != 0) {
+        print_levels(levels);
+        if (!print_connection(last, true, levels))
+            return;
+    }
 
     if (name != NULL)
         Nst_printf("%s: ", name);
@@ -749,7 +751,7 @@ void Nst_print_node(Nst_Node *node)
         return;
     }
 
-    print_node(NULL, node, levels, -1);
+    print_node(NULL, node, levels, true);
     Nst_llist_destroy(levels, NULL);
     Nst_error_clear();
 }

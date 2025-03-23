@@ -684,7 +684,7 @@
 ]
 
 #_split_args text [
-    text ',' @su.lsplit su.trim @sequ.map = maybe_args
+    text 'Nst_WIN_FMT ' @su.replace ',' @su.lsplit su.trim @sequ.map = maybe_args
 
     <{}> = args
     '' = curr_arg

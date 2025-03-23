@@ -142,6 +142,15 @@ NstEXP Nst_InstList *NstC Nst_inst_list_new(Nst_LList *instructions);
 /* Destroys a `Nst_InstList`. */
 NstEXP void NstC Nst_inst_list_destroy(Nst_InstList *inst_list);
 
+/**
+ * Prints an `Nst_InstList`.
+ *
+ * @brief This function is called when using the -b option.
+ *
+ * @param ls: the instruction list to print, it is expected to be valid
+ */
+NstEXP void NstC Nst_inst_list_print(Nst_InstList *ls);
+
 #ifdef __cplusplus
 }
 #endif // !__cplusplus

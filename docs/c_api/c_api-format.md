@@ -667,7 +667,7 @@ closed `-1` is returned. No error is set.
 **Synopsis:**
 
 ```better-c
-isize Nst_printf(Nst_WIN_FMT const char *fmt, ...)
+isize Nst_printf(const char *fmt, ...)
 ```
 
 **Description:**
@@ -698,7 +698,7 @@ error is set. The negative value returned depends on the type of the error:
 **Synopsis:**
 
 ```better-c
-isize Nst_fprintf(Nst_Obj *f, Nst_WIN_FMT const char *fmt, ...)
+isize Nst_fprintf(Nst_Obj *f, const char *fmt, ...)
 ```
 
 **Description:**
@@ -743,7 +743,7 @@ isize Nst_vfprintf(Nst_Obj *f, const char *fmt, va_list args)
 **Synopsis:**
 
 ```better-c
-Nst_Obj *Nst_sprintf(Nst_WIN_FMT const char *fmt, ...)
+Nst_Obj *Nst_sprintf(const char *fmt, ...)
 ```
 
 **Description:**

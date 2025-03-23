@@ -201,6 +201,26 @@ Destroys a [`Nst_InstList`](c_api-instructions.md#nst_instlist).
 
 ---
 
+### `Nst_inst_list_print`
+
+**Synopsis:**
+
+```better-c
+void Nst_inst_list_print(Nst_InstList *ls)
+```
+
+**Description:**
+
+Prints an [`Nst_InstList`](c_api-instructions.md#nst_instlist).
+
+This function is called when using the -b option.
+
+**Parameters:**
+
+- `ls`: the instruction list to print, it is expected to be valid
+
+---
+
 ## Enums
 
 ### `Nst_InstID`

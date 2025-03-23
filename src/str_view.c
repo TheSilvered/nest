@@ -1,4 +1,5 @@
 #include <string.h>
+#include <ctype.h>
 #include "nest.h"
 
 #define RETURN_INT_ERR do {                                                   \

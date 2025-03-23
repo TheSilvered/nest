@@ -95,7 +95,6 @@ all:
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=codecs
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=err
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=fs
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=gui
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=io
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=itutil
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x64 LIB_NAME=json
@@ -113,7 +112,6 @@ all-x86:
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=codecs
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=err
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=fs
-	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=gui
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=io
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=itutil
 	@$(MAKE_FILE) stdlib.mk __no_libnest_x86 LIB_NAME=json
@@ -131,7 +129,6 @@ all-debug:
 	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=codecs
 	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=err
 	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=fs
-	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=gui
 	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=io
 	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=itutil
 	@$(MAKE_FILE) stdlib.mk __no_libnest_dbg LIB_NAME=json
@@ -160,7 +157,7 @@ install-debug:
 	@cd .. && ./_update_files.sh py && ./_install_debug.sh
 
 uninstall:
-	@cd .. && ./uninstall.sh
+	@cd .. && bash ./uninstall.sh
 
 help:
 	@echo "makefile help:"

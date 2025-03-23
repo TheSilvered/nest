@@ -42,14 +42,14 @@
     "                        encoding (e.g. --encoding=utf8)\n\n"                        \
                                                                                          \
     "  -m --monochrome       prints the error messages without ANSI color escapes\n"     \
-    "                        sets also 'sys.SUPPORTS_COLOR' to false"
+    "                        sets also 'sys.SUPPORTS_COLOR' to false\n"
 
 #define USAGE_MESSAGE                                                         \
     "USAGE: nest [options] <filename | -c command> [args]\n"                  \
     "Run 'nest --help' for more information\n"
 
 #define VERSION_MESSAGE                                                       \
-    "Using Nest version: " Nst_VERSION " (" __DATE__ ", " __TIME__ ")"
+    "Using Nest version: " Nst_VERSION " (" __DATE__ ", " __TIME__ ")\n"
 
 #define ENCODING_MESSAGE                                                             \
     "The supported encodings are:\n"                                                 \
@@ -66,7 +66,7 @@
     "- iso-8859-1 (aka iso8859-1, latin1, latin-1, latin, l1)\n\n"                   \
                                                                                      \
     "All names are case-insensitive. Underscores (_), hyphens (-) and spaces are\n"  \
-    "interchangeable."
+    "interchangeable.\n"
 
 #ifdef Nst_MSVC
 bool supports_color = false;
@@ -108,7 +108,7 @@ static i32 long_arg(char *arg, Nst_CLArgs *cl_args)
         printf(HELP_MESSAGE);
         return 1;
     } else if (strcmp(arg, "--version") == 0) {
-        printf(VERSION_MESSAGE "\n");
+        printf(VERSION_MESSAGE);
         return 1;
     } else if (strncmp(arg, "--encoding", 10) == 0) {
         if (strlen(arg) < 12 || arg[10] != '=') {

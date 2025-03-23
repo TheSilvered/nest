@@ -21,13 +21,11 @@ versions are not properly tested and might crash unexpectedly.**
 ### Future planned features
 
 - Regular expressions in the standard library [^1]
-- A custom graphics and UI standard library built on top of SDL2 [^2]
+- A custom graphics and UI standard library built on top of SDL2
 - Closures
 - Multithreading
 
 [^1]: will probably be a port of PCRE
-
-[^2]: currently in the workings and undocumented
 
 ## Documentation
 

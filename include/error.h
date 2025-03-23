@@ -18,52 +18,6 @@
         func_arg_num, func_arg_num == 1 ? "" : "s",                           \
         arg_num, arg_num == 1 ? "was" : "were")
 
-/* Alias for `Nst_error_set` that builds a formatted string with `fmt`. */
-#define Nst_error_setf(name, fmt, ...)                                        \
-    Nst_error_set(name, Nst_sprintf(fmt, __VA_ARGS__))
-/**
- * @brief Alias for `Nst_error_set_syntax` that builds a formatted string with
- * `fmt`.
- */
-#define Nst_error_setf_syntax(fmt, ...)                                       \
-    Nst_error_set_syntax(Nst_sprintf(fmt, __VA_ARGS__))
-/**
- * @brief Alias for `Nst_error_set_memory` that builds a formatted string with
- * `fmt`.
- */
-#define Nst_error_setf_memory(fmt, ...)                                       \
-    Nst_error_set_memory(Nst_sprintf(fmt, __VA_ARGS__))
-/**
- * @brief Alias for `Nst_error_set_type` that builds a formatted string with
- * `fmt`.
- */
-#define Nst_error_setf_type(fmt, ...)                                         \
-    Nst_error_set_type(Nst_sprintf(fmt, __VA_ARGS__))
-/**
- * @brief Alias for `Nst_error_set_value` that builds a formatted string with
- * `fmt`.
- */
-#define Nst_error_setf_value(fmt, ...)                                        \
-    Nst_error_set_value(Nst_sprintf(fmt, __VA_ARGS__))
-/**
- * @brief Alias for `Nst_error_set_math` that builds a formatted string with
- * `fmt`.
- */
-#define Nst_error_setf_math(fmt, ...)                                         \
-    Nst_error_set_math(Nst_sprintf(fmt, __VA_ARGS__))
-/**
- * @brief Alias for `Nst_error_set_call` that builds a formatted string with
- * `fmt`.
- */
-#define Nst_error_setf_call(fmt, ...)                                         \
-    Nst_error_set_call(Nst_sprintf(fmt, __VA_ARGS__))
-/**
- * @brief Alias for `Nst_error_set_import` that builds a formatted string with
- * `fmt`.
- */
-#define Nst_error_setf_import(fmt, ...)                                       \
-    Nst_error_set_import(Nst_sprintf(fmt, __VA_ARGS__))
-
 #ifdef __cplusplus
 extern "C" {
 #endif // !__cplusplus
@@ -141,96 +95,132 @@ NstEXP void NstC Nst_source_text_init(Nst_SourceText *src);
 NstEXP void NstC Nst_source_text_destroy(Nst_SourceText *text);
 
 /**
- * Sets the global operation error with the given name and message.
+ * Sets the error with the given name and message.
  *
- * @brief It takes a reference of both name and message.
+ * @brief It takes a reference from both `name` and `msg`.
  */
 NstEXP void NstC Nst_error_set(Nst_Obj *name, Nst_Obj *msg);
 /**
- * Sets the global operation error with the given message and "Syntax Error"
- * as the name.
+ * Sets the error with the given message and "Syntax Error" as the name.
  *
- * @brief It takes a reference of the message.
+ * @brief It takes a reference from `msg`.
  */
 NstEXP void NstC Nst_error_set_syntax(Nst_Obj *msg);
 /**
- * Sets the global operation error with the given message and "Memory Error"
- * as the name.
+ * Sets the error with the given message and "Memory Error" as the name.
  *
- * @brief It takes a reference of the message.
+ * @brief It takes a reference from `msg`.
  */
 NstEXP void NstC Nst_error_set_memory(Nst_Obj *msg);
 /**
- * Sets the global operation error with the given message and "Type Error"
- * as the name.
+ * Sets the error with the given message and "Type Error" as the name.
  *
- * @brief It takes a reference of the message.
+ * @brief It takes a reference from `msg`.
  */
 NstEXP void NstC Nst_error_set_type(Nst_Obj *msg);
 /**
- * Sets the global operation error with the given message and "Value Error"
- * as the name.
+ * Sets the error with the given message and "Value Error" as the name.
  *
- * @brief It takes a reference of the message.
+ * @brief It takes a reference from `msg`.
  */
 NstEXP void NstC Nst_error_set_value(Nst_Obj *msg);
 /**
- * Sets the global operation error with the given message and "Math Error"
- * as the name.
+ * Sets the error with the given message and "Math Error" as the name.
  *
- * @brief It takes a reference of the message.
+ * @brief It takes a reference from `msg`.
  */
 NstEXP void NstC Nst_error_set_math(Nst_Obj *msg);
 /**
- * Sets the global operation error with the given message and "Call Error"
- * as the name.
+ * Sets the error with the given message and "Call Error" as the name.
  *
- * @brief It takes a reference of the message.
+ * @brief It takes a reference from `msg`.
  */
 NstEXP void NstC Nst_error_set_call(Nst_Obj *msg);
 /**
- * Sets the global operation error with the given message and "Import Error"
- * as the name.
+ * Sets the error with the given message and "Import Error" as the name.
  *
- * @brief It takes a reference of the message.
+ * @brief It takes a reference from `msg`.
  */
 NstEXP void NstC Nst_error_set_import(Nst_Obj *msg);
 
 /**
- * @brief Sets the global operation error creating a string object from the
- * given message and using "Syntax Error" as the name.
+ * @brief Sets the error creating a `String` object from `msg` and using
+ * "Syntax Error" as the name.
  */
 NstEXP void NstC Nst_error_setc_syntax(const char *msg);
 /**
- * @brief Sets the global operation error creating a string object from the
- * given message and using "Memory Error" as the name.
+ * @brief Sets the error creating a `String` object from `msg` and using
+ * "Memory Error" as the name.
  */
 NstEXP void NstC Nst_error_setc_memory(const char *msg);
 /**
- * @brief Sets the global operation error creating a string object from the
- * given message and using "Type Error" as the name.
+ * @brief Sets the error creating a `String` object from `msg` and using
+ * "Type Error" as the name.
  */
 NstEXP void NstC Nst_error_setc_type(const char *msg);
 /**
- * @brief Sets the global operation error creating a string object from the
- * given message and using "Value Error" as the name.
+ * @brief Sets the error creating a `String` object from `msg` and using
+ * "Value Error" as the name.
  */
 NstEXP void NstC Nst_error_setc_value(const char *msg);
 /**
- * @brief Sets the global operation error creating a string object from the
- * given message and using "Math Error" as the name.
+ * @brief Sets the error creating a `String` object from `msg` and using
+ * "Math Error" as the name.
  */
 NstEXP void NstC Nst_error_setc_math(const char *msg);
 /**
- * @brief Sets the global operation error creating a string object from the
- * given message and using "Call Error" as the name.
+ * @brief Sets the error creating a `String` object from `msg` and using
+ * "Call Error" as the name.
  */
 NstEXP void NstC Nst_error_setc_call(const char *msg);
 /**
- * @brief Sets the global operation error creating a string object from the
- * given message and using "Import Error" as the name.
+ * @brief Sets the error creating a `String` object from `msg` and using
+ * "Import Error" as the name.
  */
 NstEXP void NstC Nst_error_setc_import(const char *msg);
+
+/**
+ * @brief Set the error creating a formatted `String` object and using
+ * "Syntax Error" as the name
+ */
+NstEXP void NstC Nst_error_setf_syntax(Nst_WIN_FMT const char *fmt, ...)
+                                       Nst_NIX_FMT(1, 2);
+/**
+ * @brief Set the error creating a formatted `String` object and using
+ * "Memory Error" as the name
+ */
+NstEXP void NstC Nst_error_setf_memory(Nst_WIN_FMT const char *fmt, ...)
+                                       Nst_NIX_FMT(1, 2);
+/**
+ * @brief Set the error creating a formatted `String` object and using
+ * "Type Error" as the name
+ */
+NstEXP void NstC Nst_error_setf_type(Nst_WIN_FMT const char *fmt, ...)
+                                     Nst_NIX_FMT(1, 2);
+/**
+ * @brief Set the error creating a formatted `String` object and using
+ * "Value Error" as the name
+ */
+NstEXP void NstC Nst_error_setf_value(Nst_WIN_FMT const char *fmt, ...)
+                                      Nst_NIX_FMT(1, 2);
+/**
+ * @brief Set the error creating a formatted `String` object and using
+ * "Math Error" as the name
+ */
+NstEXP void NstC Nst_error_setf_math(Nst_WIN_FMT const char *fmt, ...)
+                                     Nst_NIX_FMT(1, 2);
+/**
+ * @brief Set the error creating a formatted `String` object and using
+ * "Call Error" as the name
+ */
+NstEXP void NstC Nst_error_setf_call(Nst_WIN_FMT const char *fmt, ...)
+                                     Nst_NIX_FMT(1, 2);
+/**
+ * @brief Set the error creating a formatted `String` object and using
+ * "Import Error" as the name
+ */
+NstEXP void NstC Nst_error_setf_import(Nst_WIN_FMT const char *fmt, ...)
+                                       Nst_NIX_FMT(1, 2);
 
 /* Sets the global operation error with a memory error of failed allocation. */
 NstEXP void NstC Nst_error_failed_alloc(void);

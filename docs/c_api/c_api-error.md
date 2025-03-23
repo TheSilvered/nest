@@ -24,126 +24,6 @@ Correctly formats the error message for the wrong number of arguments.
 
 ---
 
-### `Nst_error_setf`
-
-**Synopsis:**
-
-```better-c
-#define Nst_error_setf(name, fmt, ...)
-```
-
-**Description:**
-
-Alias for [`Nst_error_set`](c_api-error.md#nst_error_set) that builds a
-formatted string with `fmt`.
-
----
-
-### `Nst_error_setf_syntax`
-
-**Synopsis:**
-
-```better-c
-#define Nst_error_setf_syntax(fmt, ...)
-```
-
-**Description:**
-
-Alias for [`Nst_error_set_syntax`](c_api-error.md#nst_error_set_syntax) that
-builds a formatted string with `fmt`.
-
----
-
-### `Nst_error_setf_memory`
-
-**Synopsis:**
-
-```better-c
-#define Nst_error_setf_memory(fmt, ...)
-```
-
-**Description:**
-
-Alias for [`Nst_error_set_memory`](c_api-error.md#nst_error_set_memory) that
-builds a formatted string with `fmt`.
-
----
-
-### `Nst_error_setf_type`
-
-**Synopsis:**
-
-```better-c
-#define Nst_error_setf_type(fmt, ...)
-```
-
-**Description:**
-
-Alias for [`Nst_error_set_type`](c_api-error.md#nst_error_set_type) that builds
-a formatted string with `fmt`.
-
----
-
-### `Nst_error_setf_value`
-
-**Synopsis:**
-
-```better-c
-#define Nst_error_setf_value(fmt, ...)
-```
-
-**Description:**
-
-Alias for [`Nst_error_set_value`](c_api-error.md#nst_error_set_value) that
-builds a formatted string with `fmt`.
-
----
-
-### `Nst_error_setf_math`
-
-**Synopsis:**
-
-```better-c
-#define Nst_error_setf_math(fmt, ...)
-```
-
-**Description:**
-
-Alias for [`Nst_error_set_math`](c_api-error.md#nst_error_set_math) that builds
-a formatted string with `fmt`.
-
----
-
-### `Nst_error_setf_call`
-
-**Synopsis:**
-
-```better-c
-#define Nst_error_setf_call(fmt, ...)
-```
-
-**Description:**
-
-Alias for [`Nst_error_set_call`](c_api-error.md#nst_error_set_call) that builds
-a formatted string with `fmt`.
-
----
-
-### `Nst_error_setf_import`
-
-**Synopsis:**
-
-```better-c
-#define Nst_error_setf_import(fmt, ...)
-```
-
-**Description:**
-
-Alias for [`Nst_error_set_import`](c_api-error.md#nst_error_set_import) that
-builds a formatted string with `fmt`.
-
----
-
 ## Structs
 
 ### `Nst_SourceText`
@@ -367,9 +247,9 @@ void Nst_error_set(Nst_Obj *name, Nst_Obj *msg)
 
 **Description:**
 
-Sets the global operation error with the given name and message.
+Sets the error with the given name and message.
 
-It takes a reference of both name and message.
+It takes a reference from both `name` and `msg`.
 
 ---
 
@@ -383,10 +263,9 @@ void Nst_error_set_syntax(Nst_Obj *msg)
 
 **Description:**
 
-Sets the global operation error with the given message and "Syntax Error" as the
-name.
+Sets the error with the given message and "Syntax Error" as the name.
 
-It takes a reference of the message.
+It takes a reference from `msg`.
 
 ---
 
@@ -400,10 +279,9 @@ void Nst_error_set_memory(Nst_Obj *msg)
 
 **Description:**
 
-Sets the global operation error with the given message and "Memory Error" as the
-name.
+Sets the error with the given message and "Memory Error" as the name.
 
-It takes a reference of the message.
+It takes a reference from `msg`.
 
 ---
 
@@ -417,10 +295,9 @@ void Nst_error_set_type(Nst_Obj *msg)
 
 **Description:**
 
-Sets the global operation error with the given message and "Type Error" as the
-name.
+Sets the error with the given message and "Type Error" as the name.
 
-It takes a reference of the message.
+It takes a reference from `msg`.
 
 ---
 
@@ -434,10 +311,9 @@ void Nst_error_set_value(Nst_Obj *msg)
 
 **Description:**
 
-Sets the global operation error with the given message and "Value Error" as the
-name.
+Sets the error with the given message and "Value Error" as the name.
 
-It takes a reference of the message.
+It takes a reference from `msg`.
 
 ---
 
@@ -451,10 +327,9 @@ void Nst_error_set_math(Nst_Obj *msg)
 
 **Description:**
 
-Sets the global operation error with the given message and "Math Error" as the
-name.
+Sets the error with the given message and "Math Error" as the name.
 
-It takes a reference of the message.
+It takes a reference from `msg`.
 
 ---
 
@@ -468,10 +343,9 @@ void Nst_error_set_call(Nst_Obj *msg)
 
 **Description:**
 
-Sets the global operation error with the given message and "Call Error" as the
-name.
+Sets the error with the given message and "Call Error" as the name.
 
-It takes a reference of the message.
+It takes a reference from `msg`.
 
 ---
 
@@ -485,10 +359,9 @@ void Nst_error_set_import(Nst_Obj *msg)
 
 **Description:**
 
-Sets the global operation error with the given message and "Import Error" as the
-name.
+Sets the error with the given message and "Import Error" as the name.
 
-It takes a reference of the message.
+It takes a reference from `msg`.
 
 ---
 
@@ -502,8 +375,8 @@ void Nst_error_setc_syntax(const char *msg)
 
 **Description:**
 
-Sets the global operation error creating a string object from the given message
-and using "Syntax Error" as the name.
+Sets the error creating a `String` object from `msg` and using "Syntax Error" as
+the name.
 
 ---
 
@@ -517,8 +390,8 @@ void Nst_error_setc_memory(const char *msg)
 
 **Description:**
 
-Sets the global operation error creating a string object from the given message
-and using "Memory Error" as the name.
+Sets the error creating a `String` object from `msg` and using "Memory Error" as
+the name.
 
 ---
 
@@ -532,8 +405,8 @@ void Nst_error_setc_type(const char *msg)
 
 **Description:**
 
-Sets the global operation error creating a string object from the given message
-and using "Type Error" as the name.
+Sets the error creating a `String` object from `msg` and using "Type Error" as
+the name.
 
 ---
 
@@ -547,8 +420,8 @@ void Nst_error_setc_value(const char *msg)
 
 **Description:**
 
-Sets the global operation error creating a string object from the given message
-and using "Value Error" as the name.
+Sets the error creating a `String` object from `msg` and using "Value Error" as
+the name.
 
 ---
 
@@ -562,8 +435,8 @@ void Nst_error_setc_math(const char *msg)
 
 **Description:**
 
-Sets the global operation error creating a string object from the given message
-and using "Math Error" as the name.
+Sets the error creating a `String` object from `msg` and using "Math Error" as
+the name.
 
 ---
 
@@ -577,8 +450,8 @@ void Nst_error_setc_call(const char *msg)
 
 **Description:**
 
-Sets the global operation error creating a string object from the given message
-and using "Call Error" as the name.
+Sets the error creating a `String` object from `msg` and using "Call Error" as
+the name.
 
 ---
 
@@ -592,8 +465,113 @@ void Nst_error_setc_import(const char *msg)
 
 **Description:**
 
-Sets the global operation error creating a string object from the given message
-and using "Import Error" as the name.
+Sets the error creating a `String` object from `msg` and using "Import Error" as
+the name.
+
+---
+
+### `Nst_error_setf_syntax`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_setf_syntax(const char *fmt, ...)
+```
+
+**Description:**
+
+Set the error creating a formatted `String` object and using "Syntax Error" as
+the name
+
+---
+
+### `Nst_error_setf_memory`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_setf_memory(const char *fmt, ...)
+```
+
+**Description:**
+
+Set the error creating a formatted `String` object and using "Memory Error" as
+the name
+
+---
+
+### `Nst_error_setf_type`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_setf_type(const char *fmt, ...)
+```
+
+**Description:**
+
+Set the error creating a formatted `String` object and using "Type Error" as the
+name
+
+---
+
+### `Nst_error_setf_value`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_setf_value(const char *fmt, ...)
+```
+
+**Description:**
+
+Set the error creating a formatted `String` object and using "Value Error" as
+the name
+
+---
+
+### `Nst_error_setf_math`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_setf_math(const char *fmt, ...)
+```
+
+**Description:**
+
+Set the error creating a formatted `String` object and using "Math Error" as the
+name
+
+---
+
+### `Nst_error_setf_call`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_setf_call(const char *fmt, ...)
+```
+
+**Description:**
+
+Set the error creating a formatted `String` object and using "Call Error" as the
+name
+
+---
+
+### `Nst_error_setf_import`
+
+**Synopsis:**
+
+```better-c
+void Nst_error_setf_import(const char *fmt, ...)
+```
+
+**Description:**
+
+Set the error creating a formatted `String` object and using "Import Error" as
+the name
 
 ---
 

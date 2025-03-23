@@ -15,7 +15,7 @@ for f in /usr/lib/nest/*; do
         continue
     fi
 
-    if [[ ! $f =~ ^/usr/lib/nest/_?std.+\.c?nest$ ]]; then
+    if [[ ! $f =~ ^/usr/lib/nest/_?std.*\.c?nest$ ]]; then
         echo File $f is not part of the standard installation, nest cannot be uninstalled. Exiting...
         exit 3
     fi
