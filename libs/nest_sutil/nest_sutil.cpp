@@ -1212,9 +1212,9 @@ Nst_Obj *NstC rsplit_whitespace(Nst_Obj *str_obj, i64 quantity)
         if (quantity != 0) {
             u32 ch;
             isize prev_i = -1;
-            isize i = Nst_sv_nextr(str, -1, &ch);
+            isize i = Nst_sv_prev(str, -1, &ch);
             bool reached_separator = false;
-            for (; i != -1; i = Nst_sv_nextr(str, i, &ch)) {
+            for (; i != -1; i = Nst_sv_prev(str, i, &ch)) {
                 bool is_whitespace = Nst_unicode_is_whitespace(ch);
                 if (reached_separator && !is_whitespace) {
                     str.len = prev_i;

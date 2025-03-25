@@ -73,21 +73,32 @@ NstEXP isize NstC Nst_sv_next(Nst_StrView sv, isize idx, u32 *out_ch);
  * @return The next index to pass to this function to continue iterating or a
  * negative number when no more characters are available.
  */
-NstEXP isize NstC Nst_sv_nextr(Nst_StrView sv, isize idx, u32 *out_ch);
+NstEXP isize NstC Nst_sv_prev(Nst_StrView sv, isize idx, u32 *out_ch);
 
-// These will probably change, I will keep them undocumented for now
+NstEXP typedef enum _Nst_SvNumFlags {
+    Nst_SVFLAG_CAN_OVERFLOW =  1,
+    Nst_SVFLAG_FULL_MATCH   =  2,
+    Nst_SVFLAG_CHAR_BYTE    =  4,
+    Nst_SVFLAG_DISABLE_SEP  =  8,
+    Nst_SVFLAG_STRICT_REAL  = 16
+} Nst_SvNumFlags;
 
-NstEXP Nst_Obj *NstC Nst_sv_parse_int(Nst_StrView sv, i32 base);
-NstEXP Nst_Obj *NstC Nst_sv_parse_byte(Nst_StrView sv);
-NstEXP Nst_Obj *NstC Nst_sv_parse_real(Nst_StrView sv);
+NstEXP bool NstC Nst_sv_parse_int(Nst_StrView sv,
+                                  u8 base, Nst_SvNumFlags flags,
+                                  i64 *out_num, Nst_StrView *out_rest);
+NstEXP bool NstC Nst_sv_parse_byte(Nst_StrView sv,
+                                   u8 base, Nst_SvNumFlags flags,
+                                   u8 *out_num, Nst_StrView *out_rest);
+NstEXP bool NstC Nst_sv_parse_real(Nst_StrView sv, Nst_SvNumFlags flags,
+                                   f64 *out_num, Nst_StrView *out_rest);
 
 /**
  * Compare two `Nst_StrView`'s.
  *
  * @return The one of the following values:
- *! `> 0`: `str1 > str2`
- *! `== 0`: `str1 == str2`
- *! `< 0`: `str1 < str2`
+ *! `> 0` if `str1 > str2`
+ *! `== 0` if `str1 == str2`
+ *! `< 0` if `str1 < str2`
  */
 NstEXP i32 NstC Nst_sv_compare(Nst_StrView str1, Nst_StrView str2);
 /**

@@ -68,7 +68,7 @@ NstEXP void NstC Nst_cl_args_init(Nst_CLArgs *args, int argc, char **argv);
  * @return `-1` on failure, `0` on success where the program can continue, `1`
  * on success when the program should stop because an info message was printed.
  */
-NstEXP i32 NstC _Nst_cl_args_parse(Nst_CLArgs *cl_args);
+NstEXP i32 NstC Nst_cl_args_parse(Nst_CLArgs *cl_args);
 
 /**
  * @return `true` if ANSI escapes are supported on the current console and

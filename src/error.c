@@ -448,7 +448,7 @@ void Nst_error_setc_import(const char *msg)
     set_error_c(Nst_s.e_ImportError, msg);
 }
 
-void Nst_error_setf_syntax(const char *fmt, ...)
+void Nst_error_setf_syntax(Nst_WIN_FMT const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -457,7 +457,7 @@ void Nst_error_setf_syntax(const char *fmt, ...)
         Nst_error_set_syntax(msg);
 }
 
-void Nst_error_setf_memory(const char *fmt, ...)
+void Nst_error_setf_memory(Nst_WIN_FMT const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -466,7 +466,7 @@ void Nst_error_setf_memory(const char *fmt, ...)
         Nst_error_set_memory(msg);
 }
 
-void Nst_error_setf_type(const char *fmt, ...)
+void Nst_error_setf_type(Nst_WIN_FMT const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -475,7 +475,7 @@ void Nst_error_setf_type(const char *fmt, ...)
         Nst_error_set_type(msg);
 }
 
-void Nst_error_setf_value(const char *fmt, ...)
+void Nst_error_setf_value(Nst_WIN_FMT const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -484,7 +484,7 @@ void Nst_error_setf_value(const char *fmt, ...)
         Nst_error_set_value(msg);
 }
 
-void Nst_error_setf_math(const char *fmt, ...)
+void Nst_error_setf_math(Nst_WIN_FMT const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -493,7 +493,7 @@ void Nst_error_setf_math(const char *fmt, ...)
         Nst_error_set_math(msg);
 }
 
-void Nst_error_setf_call(const char *fmt, ...)
+void Nst_error_setf_call(Nst_WIN_FMT const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);
@@ -502,7 +502,7 @@ void Nst_error_setf_call(const char *fmt, ...)
         Nst_error_set_call(msg);
 }
 
-void Nst_error_setf_import(const char *fmt, ...)
+void Nst_error_setf_import(Nst_WIN_FMT const char *fmt, ...)
 {
     va_list args;
     va_start(args, fmt);

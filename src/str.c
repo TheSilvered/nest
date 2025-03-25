@@ -320,19 +320,43 @@ void _Nst_str_destroy(Nst_Obj *str)
 Nst_Obj *Nst_str_parse_int(Nst_Obj *str, i32 base)
 {
     Nst_assert(str->type == Nst_t.Str);
-    return Nst_sv_parse_int(Nst_sv_from_str(str), base);
+    i64 value;
+    bool result = Nst_sv_parse_int(
+        Nst_sv_from_str(str), (u8)base,
+        Nst_SVFLAG_FULL_MATCH,
+        &value,
+        NULL);
+    if (!result)
+        return NULL;
+    return Nst_int_new(value);
 }
 
 Nst_Obj *Nst_str_parse_byte(Nst_Obj *str)
 {
     Nst_assert(str->type == Nst_t.Str);
-    return Nst_sv_parse_byte(Nst_sv_from_str(str));
+    u8 value;
+    bool result = Nst_sv_parse_byte(
+        Nst_sv_from_str(str), 0,
+        Nst_SVFLAG_FULL_MATCH | Nst_SVFLAG_CHAR_BYTE | Nst_SVFLAG_CAN_OVERFLOW,
+        &value,
+        NULL);
+    if (!result)
+        return NULL;
+    return Nst_byte_new(value);
 }
 
 Nst_Obj *Nst_str_parse_real(Nst_Obj *str)
 {
     Nst_assert(str->type == Nst_t.Str);
-    return Nst_sv_parse_real(Nst_sv_from_str(str));
+    f64 value;
+    bool result = Nst_sv_parse_real(
+        Nst_sv_from_str(str),
+        Nst_SVFLAG_STRICT_REAL | Nst_SVFLAG_FULL_MATCH,
+        &value,
+        NULL);
+    if (!result)
+        return NULL;
+    return Nst_real_new(value);
 }
 
 i32 Nst_str_compare(Nst_Obj *str1, Nst_Obj *str2)

@@ -4,22 +4,17 @@
 
 #define RETURN_INT_ERR do {                                                   \
     Nst_error_setc_value("invalid Int literal");                              \
-    return NULL;                                                              \
+    goto error;                                                               \
     } while (0)
 
 #define RETURN_BYTE_ERR do {                                                  \
     Nst_error_setc_value("invalid Byte literal");                             \
-    return NULL;                                                              \
+    goto error;                                                              \
     } while (0)
 
 #define RETURN_REAL_ERR do {                                                  \
     Nst_error_setc_value("invalid Real literal");                             \
-    return NULL;                                                              \
-    } while (0)
-
-#define ERR_IF_END(s, end, err_macro) do {                                    \
-    if (s == end)                                                             \
-        err_macro;                                                            \
+    goto error;                                                               \
     } while (0)
 
 Nst_StrView Nst_sv_new(u8 *value, usize len)
@@ -103,7 +98,7 @@ isize Nst_sv_next(Nst_StrView sv, isize idx, u32 *ch)
     return idx;
 }
 
-isize Nst_sv_nextr(Nst_StrView sv, isize idx, u32 *ch)
+isize Nst_sv_prev(Nst_StrView sv, isize idx, u32 *ch)
 {
     if (sv.len == 0) {
         if (ch != NULL) *ch = 0;
@@ -127,12 +122,26 @@ isize Nst_sv_nextr(Nst_StrView sv, isize idx, u32 *ch)
     return idx;
 }
 
-Nst_Obj *Nst_sv_parse_int(Nst_StrView sv, i32 base)
+static isize skip_whitespace(Nst_StrView sv, isize offset, u32 *out_final_ch)
 {
-    u8 *s = sv.value;
-    u8 *end = s + sv.len;
-    u8 ch;
-    i32 ch_val;
+    u32 ch;
+    if (offset == -1)
+        offset = Nst_sv_next(sv, -1, &ch);
+    else
+        ch = Nst_utf8_to_utf32(sv.value + offset);
+    for (; offset != -1; offset = Nst_sv_next(sv, offset, &ch)) {
+        if (!Nst_unicode_is_whitespace(ch))
+            break;
+    }
+    if (out_final_ch != NULL)
+        *out_final_ch = ch;
+    return offset;
+}
+
+bool Nst_sv_parse_int(Nst_StrView sv, u8 base, Nst_SvNumFlags flags,
+                      i64 *out_num, Nst_StrView *out_rest)
+{
+    u32 ch;
     i32 sign = 1;
     i64 num = 0;
     i64 cut_off = 0;
@@ -140,288 +149,423 @@ Nst_Obj *Nst_sv_parse_int(Nst_StrView sv, i32 base)
 
     if ((base < 2 || base > 36) && base != 0) {
         Nst_error_setc_value("the base must be between 2 and 36");
-        return NULL;
+        goto error;
     }
-    ERR_IF_END(s, end, RETURN_INT_ERR);
 
-    ch = *s;
-    while (isspace(ch))
-        ch = *++s;
-    ERR_IF_END(s, end, RETURN_INT_ERR);
+    isize offset = skip_whitespace(sv, -1, &ch);
+    if (offset < 0)
+        RETURN_INT_ERR;
 
     if (ch == '-' || ch == '+') {
         sign = ch == '-' ? -1 : 1;
-        ch = *++s;
+        offset = Nst_sv_next(sv, offset, &ch);
     }
-    ERR_IF_END(s, end, RETURN_INT_ERR);
+    if (offset < 0)
+        RETURN_INT_ERR;
 
     if (ch == '0') {
-        ch = *++s;
+        isize prev_offset = offset;
+        offset = Nst_sv_next(sv, offset, &ch);
+        if (offset < 0) {
+            offset = prev_offset;
+            ch = '0';
+        }
         switch (ch) {
         case 'B':
         case 'b':
             if (base == 2 || base == 0) {
                 base = 2;
-                ch = *++s;
-            } else
-                ch = *--s;
+                offset = Nst_sv_next(sv, offset, &ch);
+            } else {
+                offset = prev_offset;
+                ch = '0';
+            }
             break;
         case 'O':
         case 'o':
             if (base == 8 || base == 0) {
                 base = 8;
-                ch = *++s;
-            } else
-                ch = *--s;
+                offset = Nst_sv_next(sv, offset, &ch);
+            } else {
+                offset = prev_offset;
+                ch = '0';
+            }
             break;
         case 'X':
         case 'x':
             if (base == 16 || base == 0) {
                 base = 16;
-                ch = *++s;
-            } else
-                ch = *--s;
+                offset = Nst_sv_next(sv, offset, &ch);
+            } else {
+                offset = prev_offset;
+                ch = '0';
+            }
             break;
         default:
-            ch = *--s;
             break;
         }
+        if (offset < 0) {
+            offset = prev_offset;
+            ch = '0';
+            base = 10;
+        }
     }
-    ERR_IF_END(s, end, RETURN_INT_ERR);
     if (base == 0)
         base = 10;
 
     cut_off = sign == -1 ? -9223372036854775807 - 1 : 9223372036854775807;
     cut_lim = sign * (cut_off % base);
     cut_off /= sign * base;
-    while (true) {
+    while (offset >= 0) {
+        i32 ch_val;
         if (ch >= '0' && ch <= '9')
             ch_val = ch - '0';
         else if (ch >= 'a' && ch <= 'z')
             ch_val = ch - 'a' + 10;
         else if (ch >= 'A' && ch <= 'Z')
             ch_val = ch - 'A' + 10;
-        else if (ch == '_') {
-            ch = *++s;
+        else if (ch == '_' && !(flags & Nst_SVFLAG_DISABLE_SEP)) {
+            offset = Nst_sv_next(sv, offset, &ch);
             continue;
         } else
             break;
 
         if (ch_val < 0 || ch_val > base - 1)
-            RETURN_INT_ERR;
+            break;
 
-        if (num > cut_off || (num == cut_off && ch_val > cut_lim)) {
-            Nst_error_setc_memory("Int literal's value is too large");
-            return NULL;
+        if (!(flags & Nst_SVFLAG_CAN_OVERFLOW)) {
+            if (num > cut_off || (num == cut_off && ch_val > cut_lim)) {
+                Nst_error_setc_memory("Int value overflows");
+                goto error;
+            }
         }
         num *= base;
         num += ch_val;
-        ch = *++s;
+        offset = Nst_sv_next(sv, offset, &ch);
     }
 
-    while (isspace((u8)ch))
-        ch = *++s;
+    if (offset >= 0)
+        offset = skip_whitespace(sv, offset, NULL);
 
-    if (s != end)
+    if (flags & Nst_SVFLAG_FULL_MATCH && offset >= 0)
         RETURN_INT_ERR;
 
-    return Nst_int_new(num * sign);
+    if (out_num != NULL)
+        *out_num = sign * num;
+    if (out_rest != NULL) {
+        if (offset < 0)
+            offset = sv.len;
+        *out_rest = Nst_sv_new(sv.value + offset, sv.len - offset);
+    }
+    return true;
+
+error:
+    if (out_num != NULL)
+        *out_num = 0;
+    if (out_rest != NULL)
+        *out_rest = Nst_sv_new(NULL, 0);
+    return false;
 }
 
-Nst_Obj *Nst_sv_parse_byte(Nst_StrView sv)
+bool Nst_sv_parse_byte(Nst_StrView sv, u8 base, Nst_SvNumFlags flags,
+                       u8 *out_num, Nst_StrView *out_rest)
 {
-    if (Nst_check_ext_utf8_bytes(sv.value, sv.len) == (isize)sv.len) {
+    if (flags & Nst_SVFLAG_CHAR_BYTE
+        && Nst_check_ext_utf8_bytes(sv.value, sv.len) == (isize)sv.len)
+    {
         u32 utf32_ch = Nst_ext_utf8_to_utf32(sv.value);
-        if (utf32_ch <= 0xff)
-            return Nst_byte_new((u8)utf32_ch);
-        else
+        if (utf32_ch <= 0xff) {
+            if (out_num != NULL)
+                *out_num = (u8)utf32_ch;
+            if (out_rest != NULL)
+                *out_rest = Nst_sv_new(NULL, 0);
+            return true;
+        } else
             RETURN_BYTE_ERR;
     }
 
-    u8 *s = sv.value;
-    u8 *end = s + sv.len;
-    u8 ch = *s;
+    if ((base < 2 || base > 36) && base != 0) {
+        Nst_error_setc_value("the base must be between 2 and 36");
+        goto error;
+    }
+
+    u32 ch = 0;
     i32 num = 0;
-    i32 ch_val = 0;
     i32 sign = 1;
-    i32 base = 10;
 
-    ERR_IF_END(s, end, RETURN_BYTE_ERR);
-
-    while (isspace(ch))
-        ch = *++s;
-    ERR_IF_END(s, end, RETURN_BYTE_ERR);
+    isize offset = skip_whitespace(sv, 0, &ch);
+    if (offset < 0)
+        RETURN_BYTE_ERR;
 
     if (ch == '-') {
         sign = -1;
-        ch = *++s;
+        offset = Nst_sv_next(sv, offset, &ch);
     } else if (ch == '+')
-        ch = *++s;
-    ERR_IF_END(s, end, RETURN_BYTE_ERR);
+        offset = Nst_sv_next(sv, offset, &ch);
+    if (offset < 0)
+        RETURN_BYTE_ERR;
 
     if (ch == '0') {
-        ch = *++s;
+        isize prev_offset = offset;
+        offset = Nst_sv_next(sv, offset, &ch);
+        if (offset < 0) {
+            offset = prev_offset;
+            ch = '0';
+        }
         switch (ch) {
-        case 'b':
         case 'B':
-            base = 2;
-            ch = *++s;
+        case 'b':
+            if (base == 2 || base == 0) {
+                base = 2;
+                offset = Nst_sv_next(sv, offset, &ch);
+            } else {
+                offset = prev_offset;
+                ch = '0';
+            }
             break;
-        case 'o':
         case 'O':
-            base = 8;
-            ch = *++s;
+        case 'o':
+            if (base == 8 || base == 0) {
+                base = 8;
+                offset = Nst_sv_next(sv, offset, &ch);
+            } else {
+                offset = prev_offset;
+                ch = '0';
+            }
             break;
-        case 'h':
         case 'H':
-            base = 16;
-            ch = *++s;
+        case 'h':
+            if (base == 16 || base == 0) {
+                base = 16;
+                offset = Nst_sv_next(sv, offset, &ch);
+            } else {
+                offset = prev_offset;
+                ch = '0';
+            }
+            break;
+        case 'X':
+        case 'x':
+            if ((base == 16 || base == 0)
+                && !(flags & Nst_SVFLAG_CHAR_BYTE))
+            {
+                base = 16;
+                offset = Nst_sv_next(sv, offset, &ch);
+            } else {
+                offset = prev_offset;
+                ch = '0';
+            }
             break;
         default:
-            ch = *--s;
+            break;
+        }
+        if (offset < 0) {
+            offset = prev_offset;
+            ch = '0';
+            base = 10;
         }
     }
+    if (base == 0)
+        base = 10;
 
     bool has_digits = false;
-    while (true) {
+    while (offset >= 0) {
+        i32 ch_val;
         if (ch >= '0' && ch <= '9')
             ch_val = ch - '0';
-        else if (ch >= 'a' && ch <= 'f' && base == 16)
+        else if (ch >= 'a' && ch <= 'z')
             ch_val = ch - 'a' + 10;
-        else if (ch >= 'A' && ch <= 'F' && base == 16)
+        else if (ch >= 'A' && ch <= 'Z')
             ch_val = ch - 'A' + 10;
-        else if (ch == '_') {
-            ch = *++s;
+        else if (ch == '_' && !(flags & Nst_SVFLAG_DISABLE_SEP)) {
+            offset = Nst_sv_next(sv, offset, &ch);
             continue;
         } else
             break;
 
-        if (ch_val >= base)
-            RETURN_BYTE_ERR;
-        has_digits = true;
+        if (ch_val < 0 || ch_val > base - 1)
+            break;
+
         num *= base;
         num += ch_val;
-        num %= 256;
-        ch = *++s;
+        has_digits = true;
+
+        if (!(flags & Nst_SVFLAG_CAN_OVERFLOW)) {
+            if (num > 255 || num * sign < 0) {
+                Nst_error_setc_memory("Byte value overflows");
+                goto error;
+            }
+        } else
+            num &= 0xff;
+
+        offset = Nst_sv_next(sv, offset, &ch);
     }
-    num *= sign;
 
-    if (base != 2 && !has_digits)
+    bool has_suffix = false;
+    if (!has_digits && base == 2) // if the literal is 0b without other digits
+        has_suffix = true;
+    else if (base >= 12)
+        has_suffix = true;
+    else if (ch == 'b' || ch == 'B') {
+        has_suffix = true;
+        offset = Nst_sv_next(sv, offset, &ch);
+    }
+
+    if (flags & Nst_SVFLAG_CHAR_BYTE && !has_suffix)
         RETURN_BYTE_ERR;
 
-    if ((base != 2 || has_digits) && base != 16 && ch != 'b' && ch != 'B')
-        RETURN_BYTE_ERR;
-    if ((base != 2 || has_digits) && base != 16)
-        ch = *++s;
+    if (offset >= 0)
+        offset = skip_whitespace(sv, offset, NULL);
 
-    while (isspace(ch))
-        ch = *++s;
-    if (s != end)
+    if (flags & Nst_SVFLAG_FULL_MATCH && offset >= 0)
         RETURN_BYTE_ERR;
-    return Nst_byte_new(num & 0xff);
+
+    if (out_num != NULL)
+        *out_num = (u8)((sign * num) & 0xff);
+    if (out_rest != NULL) {
+        if (offset < 0)
+            offset = sv.len;
+        *out_rest = Nst_sv_new(sv.value + offset, sv.len - offset);
+    }
+
+    return true;
+
+error:
+    if (out_num != NULL)
+        *out_num = 0;
+    if (out_rest != NULL)
+        *out_rest = Nst_sv_new(NULL, 0);
+    return false;
 }
 
-Nst_Obj *Nst_sv_parse_real(Nst_StrView sv)
+bool Nst_sv_parse_real(Nst_StrView sv, Nst_SvNumFlags flags, f64 *out_num,
+                       Nst_StrView *out_rest)
 {
-    // \s*[+-]?\d+\.\d+(?:[eE][+-]?\d+)
-
-    // strtod accepts also things like .5, 1e2, -1., ecc. that I do not
-    // so I need to check if the literal is valid first
-    u8 *s = sv.value;
-    u8 *end = s + sv.len;
-    u8 *start = s;
-    usize len = 0;
-    u8 ch = *s;
+    u32 ch;
     u8 *buf;
     f64 res;
     bool contains_underscores = false;
 
-    if (s == end)
+    isize offset_without_exp = -1;
+    isize offset = skip_whitespace(sv, 0, &ch);
+    if (offset < 0)
         RETURN_REAL_ERR;
 
-    while (isspace(ch)) {
-        ch = *++s;
-        start++;
-    }
-    ERR_IF_END(s, end, RETURN_REAL_ERR);
-
-    if (ch == '+' || ch == '-') {
-        ch = *++s;
-        len++;
-    }
-    ERR_IF_END(s, end, RETURN_REAL_ERR);
-
-    if (ch < '0' || ch > '9')
+    if (ch == '+' || ch == '-')
+        offset = Nst_sv_next(sv, offset, &ch);
+    if (offset < 0)
         RETURN_REAL_ERR;
-    while ((ch >= '0' && ch <= '9') || ch == '_') {
-        ch = *++s;
-        len++;
-        if (ch == '_')
+
+    bool has_digit = false;
+
+    while (offset >= 0) {
+        if (ch >= '0' && ch <= '9')
+            has_digit = true;
+        else if (ch == '_' && !(flags & Nst_SVFLAG_DISABLE_SEP))
             contains_underscores = true;
+        else
+            break;
+        offset = Nst_sv_next(sv, offset, &ch);
     }
 
-    if (ch != '.') {
-        while (isspace(ch))
-            ch = *++s;
-        if (s != end)
+    if (!has_digit && ch != '.')
+        RETURN_REAL_ERR;
+    else if (has_digit && ch != '.') {
+        if (flags & Nst_SVFLAG_STRICT_REAL)
             RETURN_REAL_ERR;
-        goto end;
-    }
-    ch = *++s;
-    len++;
+        else
+            goto exp;
+    } else if (!has_digit && ch == '.') {
+        if (flags & Nst_SVFLAG_STRICT_REAL)
+            RETURN_REAL_ERR;
+        offset = Nst_sv_next(sv, offset, &ch);
+    } else
+        offset = Nst_sv_next(sv, offset, &ch);
 
-    if (ch < '0' || ch > '9')
-        RETURN_REAL_ERR;
-    while ((ch >= '0' && ch <= '9') || ch == '_') {
-        ch = *++s;
-        len++;
+    has_digit = false;
 
-        if (ch == '_')
+    while (offset >= 0) {
+        if (ch >= '0' && ch <= '9')
+            has_digit = true;
+        else if (ch == '_' && !(flags & Nst_SVFLAG_DISABLE_SEP))
             contains_underscores = true;
+        else
+            break;
+        offset = Nst_sv_next(sv, offset, &ch);
     }
+
+    if (!has_digit && flags & Nst_SVFLAG_STRICT_REAL)
+        RETURN_REAL_ERR;
+
+exp:
+    // if the exponent is not valid and the syntax is not strict this is where
+    // the number actually ends
+    offset_without_exp = offset;
 
     if (ch == 'e' || ch == 'E') {
-        ch = *++s;
-        len++;
+        offset = Nst_sv_next(sv, offset, &ch);
 
-        if (ch == '+' || ch == '-') {
-            ch = *++s;
-            len++;
-        }
-        ERR_IF_END(s, end, RETURN_REAL_ERR);
+        if (ch == '+' || ch == '-')
+            offset = Nst_sv_next(sv, offset, &ch);
 
-        if (ch < '0' || ch > '9')
-            RETURN_REAL_ERR;
-        while ((ch >= '0' && ch <= '9') || ch == '_') {
-            ch = *++s;
-            len++;
-            if (ch == '_')
+        has_digit = false;
+        while (true) {
+            if (ch >= '0' && ch <= '9')
+                has_digit = true;
+            else if (ch == '_' && !(flags & Nst_SVFLAG_DISABLE_SEP))
                 contains_underscores = true;
+            else
+                break;
+            offset = Nst_sv_next(sv, offset, &ch);
+        }
+        if (!has_digit) {
+            if (flags & Nst_SVFLAG_STRICT_REAL)
+                RETURN_REAL_ERR;
+            else
+                offset = offset_without_exp;
         }
     }
 
-    while (isspace(ch))
-        ch = *++s;
-    if (s != end)
+    if (offset >= 0)
+        offset = skip_whitespace(sv, offset, &ch);
+    if (flags & Nst_SVFLAG_FULL_MATCH && offset >= 0)
         RETURN_REAL_ERR;
-end:
+
     if (contains_underscores) {
-        buf = Nst_malloc_c(len + 1, u8);
+        if (offset < 0)
+            offset = sv.len;
+        buf = Nst_malloc_c(offset, u8);
         if (buf == NULL)
-            return NULL;
-        s = buf;
-        while (len--) {
-            if ((ch = *start++) != '_')
-                *s++ = ch;
+            return false;
+        u8 *p = buf;
+        for (usize i = 0; i < (usize)offset; i++) {
+            if (sv.value[i] != '_')
+                *p++ = sv.value[i];
         }
-        *s = '\0';
+        *p = '\0';
     } else
-        buf = start;
+        buf = sv.value;
 
     res = Nst_strtod((char *)buf, NULL);
     if (contains_underscores)
         Nst_free(buf);
-    return Nst_real_new(res);
+
+    if (out_num != NULL)
+        *out_num = res;
+    if (out_rest != NULL) {
+        if (offset < 0)
+            offset = sv.len;
+        *out_rest = Nst_sv_new(sv.value + offset, sv.len - offset);
+    }
+
+    return true;
+
+error:
+    if (out_num != NULL)
+        *out_num = 0.0;
+    if (out_rest != NULL) {
+        *out_rest = Nst_sv_new(NULL, 0);
+    }
+    return false;
 }
 
 i32 Nst_sv_compare(Nst_StrView str1, Nst_StrView str2)

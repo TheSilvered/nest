@@ -193,7 +193,7 @@ static bool optimize_stack_values(Nst_LList *values, Nst_TokType op,
             return false;
     }
 
-    if (values->len == 1)
+    if (values->len == 1 || values->head == NULL)
         return true;
 
     Nst_Obj *(*op_func)(Nst_Obj *, Nst_Obj *) = NULL;

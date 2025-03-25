@@ -131,7 +131,7 @@ static i32 long_arg(char *arg, Nst_CLArgs *cl_args)
     return 0;
 }
 
-i32 _Nst_cl_args_parse(Nst_CLArgs *cl_args)
+i32 Nst_cl_args_parse(Nst_CLArgs *cl_args)
 {
     int argc = cl_args->argc;
     char **argv = cl_args->argv;

@@ -32,7 +32,7 @@ int main(int argc, char **argv)
 
     Nst_CLArgs cl_args;
     Nst_cl_args_init(&cl_args, argc, argv);
-    i32 parse_result = _Nst_cl_args_parse(&cl_args);
+    i32 parse_result = Nst_cl_args_parse(&cl_args);
     if (parse_result == -1)
         return -1;
     else if (parse_result == 1)

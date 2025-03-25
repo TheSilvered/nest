@@ -480,7 +480,8 @@ static Nst_Tok *make_num_literal(void)
     bool neg = false;
     bool is_real = false;
     bool is_byte = false;
-    Nst_Obj *res;
+    bool parse_res = false;
+    Nst_Obj *res = NULL;
 
     if (cursor.ch == '-' || cursor.ch == '+') {
         neg = cursor.ch == '-';
@@ -536,15 +537,36 @@ end:
     memcpy(ltrl + 1, start_p, ltrl_size);
     ltrl[ltrl_size + 1] = '\0';
 
-    if (is_real)
-        res = Nst_sv_parse_real(Nst_sv_new(ltrl, ltrl_size + 1));
-    else if (is_byte)
-        res = Nst_sv_parse_byte(Nst_sv_new(ltrl, ltrl_size + 1));
-    else
-        res = Nst_sv_parse_int(Nst_sv_new(ltrl, ltrl_size + 1), 0);
+    if (is_real) {
+        f64 value;
+        parse_res = Nst_sv_parse_real(
+            Nst_sv_new(ltrl, ltrl_size + 1),
+            Nst_SVFLAG_STRICT_REAL | Nst_SVFLAG_FULL_MATCH,
+            &value, NULL);
+        if (parse_res)
+            res = Nst_real_new(value);
+    } else if (is_byte) {
+        u8 value;
+        parse_res = Nst_sv_parse_byte(
+            Nst_sv_new(ltrl, ltrl_size + 1), 0,
+            Nst_SVFLAG_CHAR_BYTE
+            | Nst_SVFLAG_FULL_MATCH
+            | Nst_SVFLAG_CAN_OVERFLOW,
+            &value, NULL);
+        if (parse_res)
+            res = Nst_byte_new(value);
+    } else {
+        i64 value;
+        parse_res = Nst_sv_parse_int(
+            Nst_sv_new(ltrl, ltrl_size + 1),
+            0, Nst_SVFLAG_FULL_MATCH,
+            &value, NULL);
+        if (parse_res)
+            res = Nst_int_new(value);
+    }
     Nst_free(ltrl);
 
-    if (res == NULL) {
+    if (!parse_res || res == NULL) {
         ADD_ERR_POS;
         return NULL;
     }

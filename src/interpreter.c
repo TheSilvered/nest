@@ -518,7 +518,7 @@ Nst_Obj *Nst_func_call(Nst_Obj *func, usize arg_num, Nst_Obj **args)
 
         usize null_args = tot_args - arg_num;
 
-        Nst_Obj **all_args;
+        Nst_Obj **all_args = NULL;
         Nst_Obj *stack_args[10]; // for up to 10 arguments this array is used
 
         if (tot_args == 0)
@@ -535,7 +535,7 @@ Nst_Obj *Nst_func_call(Nst_Obj *func, usize arg_num, Nst_Obj **args)
             memcpy(all_args, args, arg_num * sizeof(Nst_Obj *));
         }
 
-        for (usize i = 0; i < null_args; i++)
+        for (usize i = 0; all_args && i < null_args; i++)
             all_args[arg_num + i] = Nst_inc_ref(Nst_c.Null_null);
 
         Nst_Obj *res = Nst_func_c_body(func)(tot_args, all_args);

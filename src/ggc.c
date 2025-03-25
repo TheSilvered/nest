@@ -38,7 +38,7 @@ static inline void move_obj(Nst_GGCObj *obj, Nst_GGCList *from, Nst_GGCList *to)
 
 static void move_list(Nst_GGCList *from, Nst_GGCList *to)
 {
-    if (from->len == 0)
+    if (from->head == NULL)
         return;
 
     for (Nst_GGCObj *cursor = from->head;
