@@ -32,7 +32,7 @@ Checks whether a given instruction ID represents a jump instruction.
 
 ```better-c
 typedef struct _Nst_Inst {
-    struct _Nst_InstID id;
+    Nst_InstID id;
     i64 int_val;
     Nst_Obj *val;
     Nst_Pos start;

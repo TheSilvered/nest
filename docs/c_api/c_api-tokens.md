@@ -34,7 +34,7 @@ Casts expr to [`Nst_Tok *`](c_api-tokens.md#nst_tok).
 typedef struct _Nst_Tok {
     Nst_Pos start;
     Nst_Pos end;
-    struct _Nst_TokType type;
+    Nst_TokType type;
     Nst_Obj *value;
 } Nst_Tok
 ```

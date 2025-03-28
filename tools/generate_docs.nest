@@ -759,7 +759,7 @@
     symbol_text null close_brace @sequ.slice = synopsis
     synopsis 'struct _' @su.replace = synopsis
     symbol_type SYMBOL_TYPES.struct == ?
-        synopsis name 'struct _\(name)' @su.replace = synopsis
+        synopsis '\(name) ' 'struct _\(name) ' @su.replace = synopsis
     '} \(name)' ><= synopsis
 
     symbol_type @_symbol_data_map = data_map

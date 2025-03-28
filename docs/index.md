@@ -26,5 +26,5 @@ USAGE: nest [options] <filename | -c command> [args]
 Run 'nest --help' for more information
 ```
 
-From here you can read the [general syntax](syntax.md) of Nest programs or start
-creating [your own C library](tutorials/c-lib-tutorial.md).
+From here you can read [a quick tour](tour.md) of the language or check out the
+[full syntax](syntax.md).

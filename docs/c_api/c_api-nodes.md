@@ -391,28 +391,28 @@ The data for a [`Nst_NT_WE`](c_api-nodes.md#nst_nodetype) node.
 typedef struct _Nst_Node {
     Nst_Pos start;
     Nst_Pos end;
-    struct _Nst_NodeType type;
+    Nst_NodeType type;
     union {
-        struct _Nst_NodeData_Cs cs;
-        struct _Nst_NodeData_Wl wl;
-        struct _Nst_NodeData_Fl fl;
-        struct _Nst_NodeData_Fd fd;
-        struct _Nst_NodeData_Rt rt;
-        struct _Nst_NodeData_Sw sw;
-        struct _Nst_NodeData_Tc tc;
-        struct _Nst_NodeData_Ws ws;
-        struct _Nst_NodeData_So so;
-        struct _Nst_NodeData_Ls ls;
-        struct _Nst_NodeData_Lo lo;
-        struct _Nst_NodeData_Sl sl;
-        struct _Nst_NodeData_Ml ml;
-        struct _Nst_NodeData_Vl vl;
-        struct _Nst_NodeData_Ac ac;
-        struct _Nst_NodeData_Ex ex;
-        struct _Nst_NodeData_As as;
-        struct _Nst_NodeData_Ca ca;
-        struct _Nst_NodeData_Ie ie;
-        struct _Nst_NodeData_We we;
+        Nst_NodeData_Cs cs;
+        Nst_NodeData_Wl wl;
+        Nst_NodeData_Fl fl;
+        Nst_NodeData_Fd fd;
+        Nst_NodeData_Rt rt;
+        Nst_NodeData_Sw sw;
+        Nst_NodeData_Tc tc;
+        Nst_NodeData_Ws ws;
+        Nst_NodeData_So so;
+        Nst_NodeData_Ls ls;
+        Nst_NodeData_Lo lo;
+        Nst_NodeData_Sl sl;
+        Nst_NodeData_Ml ml;
+        Nst_NodeData_Vl vl;
+        Nst_NodeData_Ac ac;
+        Nst_NodeData_Ex ex;
+        Nst_NodeData_As as;
+        Nst_NodeData_Ca ca;
+        Nst_NodeData_Ie ie;
+        Nst_NodeData_We we;
     } v;
 } Nst_Node
 ```

@@ -1,4 +1,4 @@
-# General Nest syntax
+# General syntax
 
 ## Comments
 
@@ -31,7 +31,7 @@ have any combination of the following space-separated arguments:
   latter is used
 - `--encoding=<name>` forces the file to be read with the given encoding, the
   list of valid encodings can be found [here](stdlib/io_library.md#open)
-- `--no-default` will not add any [predefined variable](#predefined-variables)
+- `--no-default` will not add any [predefined variables](#predefined-variables)
   to the global scope except for `_vars_`
 
 In this example the file will be read using CP1252, only simple expressions are
