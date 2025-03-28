@@ -419,9 +419,9 @@ isize Nst_map_next(isize idx, Nst_Obj *map, Nst_Obj **out_key,
     isize new_idx = idx == -1
         ? MAP(map)->head_idx
         : MAP(map)->nodes[idx].next_idx;
-    if (out_key != NULL)
+    if (new_idx != -1 && out_key != NULL)
         *out_key = MAP(map)->nodes[new_idx].key;
-    if (out_val != NULL)
+    if (new_idx != -1 && out_val != NULL)
         *out_val = MAP(map)->nodes[new_idx].value;
     return new_idx;
 }
@@ -433,9 +433,9 @@ isize Nst_map_prev(isize idx, Nst_Obj *map, Nst_Obj **out_key,
     isize new_idx = idx == -1
         ? MAP(map)->tail_idx
         : MAP(map)->nodes[idx].prev_idx;
-    if (out_key != NULL)
+    if (new_idx != -1 && out_key != NULL)
         *out_key = MAP(map)->nodes[new_idx].key;
-    if (out_val != NULL)
+    if (new_idx != -1 && out_val != NULL)
         *out_val = MAP(map)->nodes[new_idx].value;
     return new_idx;
 }

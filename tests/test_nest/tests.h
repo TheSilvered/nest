@@ -70,10 +70,7 @@ i32 tests_failed_count(void);
 
 bool fail_if_(bool cond, TestResult *result, int line, ...);
 bool crit_fail_if_(bool cond, TestResult *result, int line, ...);
-// Check if a pointer is NULL, free it if it is not NULL.
-bool is_null(void *ptr);
-// Check if strings are different, frees str1.
-// If str1 is NULL the function returns true.
+// Check if strings are different, if str1 is NULL it returns true.
 bool str_neq(u8 *str1, const char *str2);
 // Object to bool, takes a reference from the object
 bool ref_obj_to_bool(Nst_Obj *obj);

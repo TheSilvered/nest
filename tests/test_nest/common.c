@@ -143,25 +143,11 @@ bool crit_fail_if_(bool cond, TestResult *result, int line, ...)
     return cond;
 }
 
-bool is_null(void *ptr)
-{
-    if (ptr == NULL) {
-        return true;
-    }
-    Nst_free(ptr);
-    return false;
-}
-
 bool str_neq(u8 *str1, const char *str2)
 {
     if (str1 == NULL)
         return true;
-    if (strcmp((const char *)(str1), str2) != 0) {
-        Nst_free(str1);
-        return true;
-    }
-    Nst_free(str1);
-    return false;
+    return strcmp((const char *)(str1), str2) != 0;
 }
 
 bool ref_obj_to_bool(Nst_Obj *obj)

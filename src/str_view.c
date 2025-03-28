@@ -202,6 +202,8 @@ bool Nst_sv_parse_int(Nst_StrView sv, u8 base, Nst_SvNumFlags flags,
             }
             break;
         default:
+            offset = prev_offset;
+            ch = '0';
             break;
         }
         if (offset < 0) {
@@ -213,6 +215,7 @@ bool Nst_sv_parse_int(Nst_StrView sv, u8 base, Nst_SvNumFlags flags,
     if (base == 0)
         base = 10;
 
+    bool has_digits = false;
     cut_off = sign == -1 ? -9223372036854775807 - 1 : 9223372036854775807;
     cut_lim = sign * (cut_off % base);
     cut_off /= sign * base;
@@ -239,10 +242,13 @@ bool Nst_sv_parse_int(Nst_StrView sv, u8 base, Nst_SvNumFlags flags,
                 goto error;
             }
         }
+        has_digits = true;
         num *= base;
         num += ch_val;
         offset = Nst_sv_next(sv, offset, &ch);
     }
+    if (!has_digits)
+        RETURN_INT_ERR;
 
     if (offset >= 0)
         offset = skip_whitespace(sv, offset, NULL);
@@ -263,7 +269,7 @@ error:
     if (out_num != NULL)
         *out_num = 0;
     if (out_rest != NULL)
-        *out_rest = Nst_sv_new(NULL, 0);
+        *out_rest = sv;
     return false;
 }
 
@@ -356,6 +362,8 @@ bool Nst_sv_parse_byte(Nst_StrView sv, u8 base, Nst_SvNumFlags flags,
             }
             break;
         default:
+            offset = prev_offset;
+            ch = '0';
             break;
         }
         if (offset < 0) {
@@ -433,7 +441,7 @@ error:
     if (out_num != NULL)
         *out_num = 0;
     if (out_rest != NULL)
-        *out_rest = Nst_sv_new(NULL, 0);
+        *out_rest = sv;
     return false;
 }
 
@@ -456,6 +464,7 @@ bool Nst_sv_parse_real(Nst_StrView sv, Nst_SvNumFlags flags, f64 *out_num,
         RETURN_REAL_ERR;
 
     bool has_digit = false;
+    bool has_digit_before_exp = false;
 
     while (offset >= 0) {
         if (ch >= '0' && ch <= '9')
@@ -481,6 +490,7 @@ bool Nst_sv_parse_real(Nst_StrView sv, Nst_SvNumFlags flags, f64 *out_num,
     } else
         offset = Nst_sv_next(sv, offset, &ch);
 
+    has_digit_before_exp = has_digit;
     has_digit = false;
 
     while (offset >= 0) {
@@ -494,6 +504,10 @@ bool Nst_sv_parse_real(Nst_StrView sv, Nst_SvNumFlags flags, f64 *out_num,
     }
 
     if (!has_digit && flags & Nst_SVFLAG_STRICT_REAL)
+        RETURN_REAL_ERR;
+    has_digit_before_exp = has_digit_before_exp || has_digit;
+
+    if (!has_digit_before_exp)
         RETURN_REAL_ERR;
 
 exp:
@@ -563,7 +577,7 @@ error:
     if (out_num != NULL)
         *out_num = 0.0;
     if (out_rest != NULL) {
-        *out_rest = Nst_sv_new(NULL, 0);
+        *out_rest = sv;
     }
     return false;
 }

@@ -76,12 +76,12 @@ default values.
 
 ---
 
-### `_Nst_cl_args_parse`
+### `Nst_cl_args_parse`
 
 **Synopsis:**
 
 ```better-c
-i32 _Nst_cl_args_parse(Nst_CLArgs *cl_args)
+i32 Nst_cl_args_parse(Nst_CLArgs *cl_args)
 ```
 
 **Description:**

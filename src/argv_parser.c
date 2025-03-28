@@ -171,7 +171,7 @@ i32 Nst_cl_args_parse(Nst_CLArgs *cl_args)
                 printf(HELP_MESSAGE);
                 return 1;
             case 'V':
-                printf(VERSION_MESSAGE "\n");
+                printf(VERSION_MESSAGE);
                 return 1;
             case 'e':
                 if (j != 1 || arg_len < 4 || arg[2] != '=') {

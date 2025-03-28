@@ -108,42 +108,42 @@ TestResult test_sv_parse_int(void)
     if (!fail_if(!Nst_sv_parse_int(SV("0smth"), 0, 0, &num, &rest))) {
         fail_if(num != 0);
         fail_if(rest.len != 4);
-        fail_if(rest.value[0] != 's');
+        fail_if(str_neq(rest.value, "smth"));
     }
     if (!fail_if(!Nst_sv_parse_int(SV("14 other"), 0, 0, &num, &rest))) {
         fail_if(num != 14);
         fail_if(rest.len != 5);
-        fail_if(rest.value[0] != 'o');
+        fail_if(str_neq(rest.value, "other"));
     }
     if (!fail_if(!Nst_sv_parse_int(SV("0b"), 0, 0, &num, &rest))) {
         fail_if(num != 0);
         fail_if(rest.len != 1);
-        fail_if(rest.value[0] != 'b');
+        fail_if(str_neq(rest.value, "b"));
     }
     if (!fail_if(!Nst_sv_parse_int(SV("0B"), 0, 0, &num, &rest))) {
         fail_if(num != 0);
         fail_if(rest.len != 1);
-        fail_if(rest.value[0] != 'B');
+        fail_if(str_neq(rest.value, "B"));
     }
     if (!fail_if(!Nst_sv_parse_int(SV("0o"), 0, 0, &num, &rest))) {
         fail_if(num != 0);
         fail_if(rest.len != 1);
-        fail_if(rest.value[0] != 'o');
+        fail_if(str_neq(rest.value, "o"));
     }
     if (!fail_if(!Nst_sv_parse_int(SV("0O"), 0, 0, &num, &rest))) {
         fail_if(num != 0);
         fail_if(rest.len != 1);
-        fail_if(rest.value[0] != 'O');
+        fail_if(str_neq(rest.value, "O"));
     }
     if (!fail_if(!Nst_sv_parse_int(SV("0x"), 0, 0, &num, &rest))) {
         fail_if(num != 0);
         fail_if(rest.len != 1);
-        fail_if(rest.value[0] != 'x');
+        fail_if(str_neq(rest.value, "x"));
     }
     if (!fail_if(!Nst_sv_parse_int(SV("0X"), 0, 0, &num, &rest))) {
         fail_if(num != 0);
         fail_if(rest.len != 1);
-        fail_if(rest.value[0] != 'X');
+        fail_if(str_neq(rest.value, "X"));
     }
 
     EXIT_TEST;
