@@ -5,8 +5,8 @@ el.appendChild(node);
 
 hljs.registerLanguage("nest", hljs => {
   const kw = {
-    $pattern: /[?..;><#!:=>]+|\w+/,
-    keyword: ["?..", "..?", "...", "..", ";", "??", "?!", "?", ":", "=>"],
+    $pattern: /[?..;><#!:=>|]+|\w+/,
+    keyword: ["?..", "..?", "...", "..", ";", "??", "?!", "?", ":", "=>", "|>", ":="],
     built_in: ["_vars_", "_globals_", "_args_", "_debug_", "_debug_arch_", ">>>", "<<<", "!!", "::"],
     literal: ["true", "false", "null"],
     type: ["Int", "Real", "Byte", "Bool", "Map", "Array", "Vector", "Iter", "Func", "Null", "IOFile", "Str", "Type"]

@@ -41,7 +41,7 @@ include
 
 !!!note
     Check the full list of stack operators in
-    [general syntax](syntax/#stack-operators)
+    [general syntax](syntax.md/#stack-operators)
 
 You can limit the amount of arguments an operator consumes using parenthesis:
 
@@ -55,7 +55,7 @@ This program will output `true`.
 
 This expression is normally written as `2^2 == 2*2` (or `2**2 + 2*2`) and
 strictly speaking the first pair of parenthesis is redundant but it makes the
-core more readable in my opinion.
+code more readable in my opinion.
 
 ## Local operators
 
@@ -75,7 +75,7 @@ imports a library.
 
 !!!note
     Check the full list of local operators in
-    [general syntax](syntax/#local-operators)
+    [general syntax](syntax.md/#local-operators)
 
 ## Comments
 
@@ -126,6 +126,14 @@ b @std.io.println --> prints 2
 
 1 b += a -- compound assignments behave like stack operators
 a @std.io.println --> prints 5
+```
+
+Accessing a variable that does not exist results in a special `null` object:
+
+```nest
+|#| 'std.nest' = std
+
+not_defined @std.io.println --> prints null
 ```
 
 ## Conditional statements
@@ -209,6 +217,17 @@ interpolation with `\(...)` where instead of `...` there is an expression.
 'Hello, \(var)!' @std.io.println  --> prints Hello, World!
 ```
 
+To join multiple strings together use the `><` operator, this works with
+objects of any type and converts them to a string first:
+
+```nest
+|#| 'std.nest' = std
+
+3 = apples
+
+'I have ' apples ' apples' >< @std.io.println --> prints I have 3 apples
+```
+
 ### Vectors and arrays
 
 These are ordered sequences that can contain objects of any type. The
@@ -223,8 +242,76 @@ and the second one does not.
 !!!note
     Empty arrays are written as `{,}` because `{}` are empty maps.
 
-To append one or more values to a vector you can use the `+` operator and `/`
-pops them.
+### Hash maps
+
+Hash maps contain key-value pairs with unique keys. They are ordered.
+
+```nest
+{'first': 1, 2: 'second'}
+```
+
+## Working with collections
+
+### Accessing items
+
+To access an item inside a collection you can use a dot (`.`). The object after
+the dot is then used to access the collection. For strings, vectors and array
+an integer is expeced to be used as an index, maps expect a key instead.
+
+If an identifier is fount right after the dot it is interpreted as a string, so
+`my_map.key` is the same as `my_map.'key'`. To interpret the identifier as a
+variable name use parenthesis: `my_map.(key)`.
+
+```nest
+|#| 'std.nest' = std
+
+{'a', 2, 'c'} = my_arr
+<{1, 'b', 3}> = my_vec
+{'key': 'value', 1: 2} = my_map
+'string' = my_str
+
+1 = var
+
+my_arr.0 @std.io.println --> prints a
+my_vec.2 @std.io.println --> prints 3
+my_map.key @std.io.println --> prints value
+my_map.(var) @std.io.println --> prints 2
+my_str.4 @std.io.println --> prints n
+```
+
+Negative indices work too where `-1` is the last item of a sequence, `-2` the
+second to last and so on:
+
+```nest
+|#| 'std.nest' = std
+
+{'first', 'second', 'last'} = arr
+'❗❌✅' = str
+
+arr.-1 @std.io.println --> prints last
+str.-1 @std.io.println --> prints ✅
+```
+
+Using this notation you can also modify the items inside (except in strings as
+they are immutable):
+
+```nest
+|#| 'std.nest' = std
+
+{'a', 2, 'c'} = vec
+vec @std.io.println --> prints {'a', 2, 'c'}
+'b' = vec.1
+vec @std.io.println --> prints {'a', 'b', 'c'}
+
+{'name': 'Nets', 'type': 'language'} = info
+info @std.io.println --> prints {'name': 'Nets', 'type': 'language'}
+'Nest' = info.name
+info @std.io.println --> prints {'name': 'Nest', 'type': 'language'}
+```
+
+### Adding items
+
+To append one or more values to a vector you can use the `+` operator:
 
 ```nest
 |#| 'std.nest' = std
@@ -235,13 +322,67 @@ vec 2 3 +
 vec @std.io.println --> prints <{2, 3}>
 ```
 
-### Hash maps
-
-Hash maps contain key-value pairs with unique keys. They are ordered.
+To add a new key-value pair to a map just assign the new key to the value:
 
 ```nest
-{'first': 1, 2: 'second'}
+|#| 'std.nest' = std
+
+{1: 'st', 3: 'rd'} = map
+map @std.io.println --> prints {1: 'st', 3: 'rd'}
+'nd' = map.2
+map @std.io.println --> prints {1: 'st', 3: 'rd', 2: 'nd'}
 ```
+
+### Removing items
+
+To remove a pair from a map use the `-` operator with the map followed by the
+key or keys you want to remove, this operation results in the map itself.
+
+```nest
+|#| 'std.nest' = std
+
+{1: 'st', 2: 'nd', 3: 'rd'} = map
+map @std.io.println --> prints {1: 'st', 2: 'nd', 3: 'rd'}
+map 2 3 - = result
+map @std.io.println --> prints {1: 'st'}
+result @std.io.println --> prints {1: 'st'}
+```
+
+To remove an item from a vector you can also use the `-` and this will remove
+the first matching item, this operation results in the vector itself.
+
+```nest
+|#| 'std.nest' = std
+
+<{1, 2, 3}> = vec
+vec @std.io.println --> prints <{1, 2, 3}>
+vec 1 3 - = result
+vec @std.io.println --> prints <{2}>
+result @std.io.println --> prints <{2}>
+```
+
+To remove items from the end of a vector use `/` to pop them off. This
+operation results in the last item popped.
+
+```nest
+|#| 'std.nest' = std
+
+<{1, 2, 3, 4}> = vec
+vec @std.io.println --> prints <{1, 2, 3, 4}>
+
+vec 1 / = result
+vec @std.io.println --> prints <{1, 2, 3}>
+result @std.io.println --> prints 4
+
+vec 2 / = result
+vec @std.io.println --> prints <{1}>
+result @std.io.println --> prints 2
+```
+
+!!!note
+    More complex operations can be performed with the functions in the
+    [`stdsequtil.nest`](stdlib/sequence_utilities_library.md) standard library,
+    accessible as `std.sequ` when importing `|#| 'std.nest' = std`.
 
 ## Iterative loops
 
