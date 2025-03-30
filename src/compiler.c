@@ -608,6 +608,7 @@ static bool compile_fd(Nst_Node *node)
     Func declaration bytecode
 
     PUSH_VAL function
+    MAKE_FUNC
     SET_VAL_LOC name
     */
 
@@ -620,7 +621,7 @@ static bool compile_fd(Nst_Node *node)
     c_state.loop_id = prev_loop_id;
     if (inst_list == NULL)
         return false;
-    Nst_Obj *func = Nst_func_new(
+    Nst_Obj *func = _Nst_func_new(
         node->v.fd.argument_names->len,
         inst_list);
     if (func == NULL) {
@@ -638,6 +639,10 @@ static bool compile_fd(Nst_Node *node)
         node->end);
     Nst_dec_ref(func);
     if (NULL_OR_APPEND_FAILED(push_val_func))
+        return false;
+
+    Nst_Inst *make_func = new_inst(Nst_IC_MAKE_FUNC, node->start, node->end);
+    if (NULL_OR_APPEND_FAILED(make_func))
         return false;
 
     // if the function is a lambda it does not have a name to be set

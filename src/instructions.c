@@ -75,6 +75,7 @@ Nst_InstList *Nst_inst_list_new(Nst_LList *instructions)
         Nst_free(inst_ls);
         return NULL;
     }
+    inst_ls->ref_count = 1;
     inst_ls->instructions = inst_array;
     inst_ls->total_size = instructions->len;
 
@@ -112,8 +113,18 @@ failure:
     return NULL;
 }
 
+Nst_InstList *Nst_inst_list_copy(Nst_InstList *inst_list)
+{
+    inst_list->ref_count++;
+    return inst_list;
+}
+
 void Nst_inst_list_destroy(Nst_InstList *inst_list)
 {
+    if (inst_list->ref_count > 1) {
+        inst_list->ref_count--;
+        return;
+    }
     Nst_Inst *instructions = inst_list->instructions;
     for (i64 i = 0, n = inst_list->total_size; i < n; i++) {
         if (instructions[i].val != NULL)
@@ -234,6 +245,7 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
         case Nst_IC_MAKE_VEC:      PRINT("MAKE_VEC     ", 13); break;
         case Nst_IC_MAKE_VEC_REP:  PRINT("MAKE_VEC_REP ", 13); break;
         case Nst_IC_MAKE_MAP:      PRINT("MAKE_MAP     ", 13); break;
+        case Nst_IC_MAKE_FUNC:     PRINT("MAKE_FUNC    ", 13); break;
         case Nst_IC_JUMPIF_IEND:   PRINT("FOR_IS_DONE  ", 13); break;
         case Nst_IC_FOR_NEXT:      PRINT("FOR_NEXT     ", 13); break;
         case Nst_IC_SAVE_ERROR:    PRINT("SAVE_ERROR   ", 13); break;

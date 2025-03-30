@@ -62,6 +62,7 @@ NstEXP typedef enum _Nst_InstID {
     Nst_IC_MAKE_VEC,
     Nst_IC_MAKE_VEC_REP,
     Nst_IC_MAKE_MAP,
+    Nst_IC_MAKE_FUNC,
     Nst_IC_SAVE_ERROR,
     Nst_IC_UNPACK_SEQ
 } Nst_InstID;
@@ -91,6 +92,7 @@ NstEXP typedef struct _Nst_Inst {
  * @param functions: the list of functions declared withing the bytecode
  */
 NstEXP typedef struct _Nst_InstList {
+    usize ref_count;
     usize total_size;
     Nst_Inst *instructions;
     Nst_LList *functions;
@@ -138,6 +140,8 @@ NstEXP void NstC Nst_inst_destroy(Nst_Inst *inst);
 
 /* Creates a new `Nst_InstList` from a list of instructions. */
 NstEXP Nst_InstList *NstC Nst_inst_list_new(Nst_LList *instructions);
+/* Copy a `Nst_InstList`. */
+NstEXP Nst_InstList *NstC Nst_inst_list_copy(Nst_InstList *inst_list);
 
 /* Destroys a `Nst_InstList`. */
 NstEXP void NstC Nst_inst_list_destroy(Nst_InstList *inst_list);

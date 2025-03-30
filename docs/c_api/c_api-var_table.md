@@ -117,25 +117,3 @@ Sets a value in a variable table.
 **Returns:**
 
 `true` on success and `false` on failure. The error is set.
-
----
-
-### `Nst_vt_from_func`
-
-**Synopsis:**
-
-```better-c
-Nst_VarTable *Nst_vt_from_func(Nst_Obj *f)
-```
-
-**Description:**
-
-Creates a new variable table with the correct global table of the function.
-
-**Parameters:**
-
-- `f`: the function where the global table is stored
-
-**Returns:**
-
-The new var table or `NULL` on failure. The error is set.

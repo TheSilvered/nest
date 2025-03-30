@@ -10,32 +10,6 @@ TheSilvered
 
 ## Functions
 
-### `Nst_func_new`
-
-**Synopsis:**
-
-```better-c
-Nst_Obj *Nst_func_new(usize arg_num, Nst_InstList *bytecode)
-```
-
-**Description:**
-
-Creates a new function object with an instruction-list body.
-
-!!!note
-    The `args` array must be set manually after instantiation.
-
-**Parameters:**
-
-- `arg_num`: the maximum number of arguments the function accepts
-- `bytecode`: the body of the function
-
-**Returns:**
-
-The new function object or `NULL` on failure. The error is set.
-
----
-
 ### `Nst_func_new_c`
 
 **Synopsis:**
@@ -59,28 +33,6 @@ Creates a new function object with a C function body.
 **Returns:**
 
 The new function object or `NULL` on failure. The error is set.
-
----
-
-### `Nst_func_set_vt`
-
-**Synopsis:**
-
-```better-c
-void Nst_func_set_vt(Nst_Obj *func, Nst_Obj *map)
-```
-
-**Description:**
-
-Sets the `mod_globals` table of a function and all the functions defined inside
-it.
-
-If the field is already set or the function has a C body, it is not modified.
-
-**Parameters:**
-
-- `func`: the function to change the `mod_globals` field of
-- `map`: the map to set as the new value
 
 ---
 
@@ -152,6 +104,20 @@ Nst_Obj *Nst_func_mod_globals(Nst_Obj *func)
 
 Gets the `_globals_` variable map of a function. No reference is added. It may
 be `NULL`.
+
+---
+
+### `Nst_func_outer_vars`
+
+**Synopsis:**
+
+```better-c
+Nst_Obj *Nst_func_outer_vars(Nst_Obj *func)
+```
+
+**Description:**
+
+Gets the outer variables that the function can access when defined.
 
 ---
 

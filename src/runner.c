@@ -204,7 +204,7 @@ i32 Nst_execute(Nst_CLArgs args, Nst_ExecutionState *es, Nst_SourceText *src)
     }
 
     Nst_es_init_vt(es, &args);
-    Nst_Obj *main_func = Nst_func_new(0, inst_ls);
+    Nst_Obj *main_func = _Nst_func_new(0, inst_ls);
     return Nst_run(main_func);
 }
 
@@ -276,7 +276,7 @@ bool Nst_es_push_module(Nst_ExecutionState *es, const char *filename,
     if (inst_ls == NULL)
         goto cleanup;
 
-    mod_func = Nst_func_new(0, inst_ls);
+    mod_func = _Nst_func_new(0, inst_ls);
     if (mod_func == NULL)
         goto cleanup;
     inst_ls = NULL;
@@ -296,7 +296,7 @@ bool Nst_es_push_module(Nst_ExecutionState *es, const char *filename,
     if (vt == NULL)
         goto cleanup;
 
-    Nst_func_set_vt(mod_func, vt->vars);
+    _Nst_func_set_mod_globals(mod_func, vt->vars);
     Nst_es_set_cwd(es, path_str);
     path_str = NULL; // the reference is taken by the execution state
     es->vt = vt;
@@ -331,10 +331,35 @@ bool Nst_es_push_func(Nst_ExecutionState *es, Nst_Obj *func, Nst_Pos start,
     Nst_fstack_push(&es->f_stack, call);
     es->idx = 0;
 
-    Nst_VarTable *new_vt = Nst_vt_from_func(func);
+    Nst_VarTable *new_vt;
+
+    Nst_Obj *func_globals = Nst_func_mod_globals(func);
+    if (func_globals != NULL)
+        new_vt = Nst_vt_new(func_globals, NULL, false);
+    else if (Nst_state.es->vt->global_table == NULL)
+        new_vt = Nst_vt_new(Nst_state.es->vt->vars, NULL, false);
+    else
+        new_vt = Nst_vt_new(Nst_state.es->vt->global_table, NULL, false);
+
     if (new_vt == NULL)
         return false;
     es->vt = new_vt;
+
+    // add the outer variables if needed
+    Nst_Obj *outer_vars = Nst_func_outer_vars(func);
+    if (outer_vars != NULL) {
+        Nst_Obj *key;
+        Nst_Obj *val;
+        for (isize i = Nst_map_next(-1, outer_vars, &key, &val);
+             i != -1;
+             i = Nst_map_next(i, outer_vars, &key, &val))
+        {
+            if (!Nst_vt_set(new_vt, key, val)) {
+                Nst_vt_destroy(new_vt);
+                return false;
+            }
+        }
+    }
 
     // add the given arguments
     Nst_Obj **func_args = Nst_func_args(func);

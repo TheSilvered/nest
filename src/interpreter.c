@@ -98,6 +98,7 @@ static InstResult exe_make_vec();
 static InstResult exe_make_arr_rep();
 static InstResult exe_make_vec_rep();
 static InstResult exe_make_map();
+static InstResult exe_make_func();
 static InstResult exe_push_catch();
 static InstResult exe_pop_catch();
 static InstResult exe_save_error();
@@ -146,6 +147,7 @@ InstResult (*inst_func[])() = {
     [Nst_IC_MAKE_VEC]     = exe_make_vec,
     [Nst_IC_MAKE_VEC_REP] = exe_make_vec_rep,
     [Nst_IC_MAKE_MAP]     = exe_make_map,
+    [Nst_IC_MAKE_FUNC]    = exe_make_func,
     [Nst_IC_SAVE_ERROR]   = exe_save_error,
     [Nst_IC_UNPACK_SEQ]   = exe_unpack_seq
 };
@@ -329,7 +331,7 @@ i32 Nst_run(Nst_Obj *main_func)
         .cwd = NULL
     };
     Nst_fstack_push(&Nst_state.es->f_stack, call);
-    Nst_func_set_vt(main_func, Nst_state.es->vt->vars);
+    _Nst_func_set_mod_globals(main_func, Nst_state.es->vt->vars);
 
     complete_function(UNTIL_ALL_FUNCS_FINISH);
     Nst_dec_ref(main_func);
@@ -1335,6 +1337,32 @@ static InstResult exe_make_map()
     Nst_state.es->v_stack.len -= (usize)map_size;
     Nst_vstack_push(&Nst_state.es->v_stack, map);
     Nst_dec_ref(map);
+    return INST_SUCCESS;
+}
+
+static InstResult exe_make_func()
+{
+    if (Nst_state.es->vt->global_table == NULL)
+        return INST_SUCCESS;
+
+    Nst_Obj *vars_copy = Nst_map_copy(Nst_state.es->vt->vars);
+    if (vars_copy == NULL)
+        return INST_FAILED;
+
+    Nst_ndec_ref(Nst_map_drop(vars_copy, Nst_s.o__vars_));
+    if (Nst_map_len(vars_copy) != 0) {
+        Nst_Obj *func = POP_TOP_VALUE;
+        Nst_Obj *new_func = _Nst_func_new_outer_vars(func, vars_copy);
+        Nst_dec_ref(func);
+        if (new_func == NULL) {
+            Nst_dec_ref(vars_copy);
+            return INST_FAILED;
+        }
+        Nst_vstack_push(&Nst_state.es->v_stack, new_func);
+        Nst_dec_ref(new_func);
+    }
+    Nst_dec_ref(vars_copy);
+
     return INST_SUCCESS;
 }
 

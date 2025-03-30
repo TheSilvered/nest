@@ -62,15 +62,6 @@ NstEXP Nst_Obj *NstC Nst_vt_get(Nst_VarTable *vt, Nst_Obj *name);
  */
 NstEXP bool NstC Nst_vt_set(Nst_VarTable *vt, Nst_Obj *name, Nst_Obj *val);
 
-/**
- * Creates a new variable table with the correct global table of the function.
- *
- * @param f: the function where the global table is stored
- *
- * @return The new var table or `NULL` on failure. The error is set.
- */
-NstEXP Nst_VarTable *NstC Nst_vt_from_func(Nst_Obj *f);
-
 #ifdef __cplusplus
 }
 #endif // !__cplusplus

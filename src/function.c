@@ -1,4 +1,5 @@
 #include <errno.h>
+#include <string.h>
 #include "nest.h"
 
 typedef union _Nst_FuncBody {
@@ -13,11 +14,12 @@ typedef struct _Nst_FuncObj {
     Nst_Obj **args;
     isize arg_num;
     Nst_Obj *mod_globals;
+    Nst_Obj *outer_vars;
 } Nst_FuncObj;
 
 #define FUNC(ptr) ((Nst_FuncObj *)(ptr))
 
-Nst_Obj *Nst_func_new(usize arg_num, Nst_InstList *bytecode)
+Nst_Obj *_Nst_func_new(usize arg_num, Nst_InstList *bytecode)
 {
     Nst_FuncObj *func = Nst_obj_alloc(Nst_FuncObj, Nst_t.Func);
     Nst_Obj **args = Nst_malloc_c(arg_num, Nst_Obj *);
@@ -30,6 +32,7 @@ Nst_Obj *Nst_func_new(usize arg_num, Nst_InstList *bytecode)
     func->args = args;
     func->arg_num = arg_num;
     func->mod_globals = NULL;
+    func->outer_vars = NULL;
 
     return NstOBJ(func);
 }
@@ -37,14 +40,14 @@ Nst_Obj *Nst_func_new(usize arg_num, Nst_InstList *bytecode)
 Nst_Obj *Nst_func_new_c(usize arg_num, Nst_NestCallable cbody)
 {
     Nst_FuncObj *func = Nst_obj_alloc(Nst_FuncObj, Nst_t.Func);
-    Nst_Obj **args = NULL;
     if (func == NULL)
         return NULL;
 
     func->body.c_func = cbody;
-    func->args = args;
+    func->args = NULL;
     func->arg_num = arg_num;
     func->mod_globals = NULL;
+    func->outer_vars = NULL;
 
     Nst_SET_FLAG(func, Nst_FLAG_FUNC_IS_C);
 
@@ -54,11 +57,42 @@ Nst_Obj *Nst_func_new_c(usize arg_num, Nst_NestCallable cbody)
     return NstOBJ(func);
 }
 
+Nst_Obj *_Nst_func_new_outer_vars(Nst_Obj *func, Nst_Obj *vars)
+{
+    Nst_assert(func->type == Nst_t.Func);
+    Nst_assert(vars->type == Nst_t.Map);
+
+    if (Nst_FUNC_IS_C(func))
+        return Nst_inc_ref(func);
+
+    usize arg_num = FUNC(func)->arg_num;
+    Nst_FuncObj *new_func = Nst_obj_alloc(Nst_FuncObj, Nst_t.Func);
+    Nst_Obj **args = Nst_malloc_c(arg_num, Nst_Obj *);
+    if (func == NULL || args == NULL)
+        return NULL;
+
+    Nst_GGC_OBJ_INIT(new_func);
+
+    memcpy(args, FUNC(func)->args, sizeof(Nst_Obj *) * arg_num);
+    for (usize i = 0, n = arg_num; i < n; i++)
+        Nst_inc_ref(args[i]);
+
+    new_func->body.bytecode = Nst_inst_list_copy(FUNC(func)->body.bytecode);
+    new_func->args = args;
+    new_func->arg_num = FUNC(func)->arg_num;
+    new_func->mod_globals = Nst_ninc_ref(FUNC(func)->mod_globals);
+    new_func->outer_vars = Nst_inc_ref(vars);
+
+    return NstOBJ(new_func);
+}
+
 void _Nst_func_traverse(Nst_Obj *func)
 {
     Nst_assert(func->type == Nst_t.Func);
     if (FUNC(func)->mod_globals != NULL)
         Nst_ggc_obj_reachable(FUNC(func)->mod_globals);
+    if (FUNC(func)->outer_vars != NULL)
+        Nst_ggc_obj_reachable(FUNC(func)->outer_vars);
 }
 
 void _Nst_func_destroy(Nst_Obj *func)
@@ -73,23 +107,25 @@ void _Nst_func_destroy(Nst_Obj *func)
         Nst_inst_list_destroy(FUNC(func)->body.bytecode);
     if (FUNC(func)->mod_globals != NULL)
         Nst_dec_ref(FUNC(func)->mod_globals);
+    if (FUNC(func)->outer_vars != NULL)
+        Nst_dec_ref(FUNC(func)->outer_vars);
 }
 
-void Nst_func_set_vt(Nst_Obj *func, Nst_Obj *map)
+void _Nst_func_set_mod_globals(Nst_Obj *func, Nst_Obj *globals)
 {
     Nst_assert(func->type == Nst_t.Func);
-    Nst_assert(map->type == Nst_t.Map);
+    Nst_assert(globals->type == Nst_t.Map);
 
     if (Nst_FUNC_IS_C(func) || FUNC(func)->mod_globals != NULL)
         return;
 
-    FUNC(func)->mod_globals = Nst_inc_ref(map);
+    FUNC(func)->mod_globals = Nst_inc_ref(globals);
 
     for (Nst_LLNode *n = FUNC(func)->body.bytecode->functions->head;
          n != NULL;
          n = n->next)
     {
-        Nst_func_set_vt(n->value, map);
+        _Nst_func_set_mod_globals(n->value, globals);
     }
 }
 
@@ -123,4 +159,10 @@ Nst_Obj *Nst_func_mod_globals(Nst_Obj *func)
 {
     Nst_assert(func->type == Nst_t.Func);
     return FUNC(func)->mod_globals;
+}
+
+Nst_Obj *Nst_func_outer_vars(Nst_Obj *func)
+{
+    Nst_assert(func->type == Nst_t.Func);
+    return FUNC(func)->outer_vars;
 }

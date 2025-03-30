@@ -98,13 +98,3 @@ void Nst_vt_destroy(Nst_VarTable *vt)
     Nst_ndec_ref(vt->global_table);
     Nst_free(vt);
 }
-
-Nst_VarTable *Nst_vt_from_func(Nst_Obj *f)
-{
-    Nst_Obj *func_globals = Nst_func_mod_globals(f);
-    if (func_globals != NULL)
-        return Nst_vt_new(func_globals, NULL, false);
-    else if (Nst_state.es->vt->global_table == NULL)
-        return Nst_vt_new(Nst_state.es->vt->vars, NULL, false);
-    return Nst_vt_new(Nst_state.es->vt->global_table, NULL, false);
-}

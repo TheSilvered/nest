@@ -18,17 +18,9 @@
 extern "C" {
 #endif // !__cplusplus
 
-/**
- * Creates a new function object with an instruction-list body.
- *
- * @brief Note: the `args` array must be set manually after instantiation.
- *
- * @param arg_num: the maximum number of arguments the function accepts
- * @param bytecode: the body of the function
- *
- * @return The new function object or `NULL` on failure. The error is set.
- */
-NstEXP Nst_Obj *NstC Nst_func_new(usize arg_num, Nst_InstList *bytecode);
+Nst_Obj *_Nst_func_new(usize arg_num, Nst_InstList *bytecode);
+Nst_Obj *_Nst_func_new_outer_vars(Nst_Obj *func, Nst_Obj *vars);
+
 /**
  * Creates a new function object with a C function body.
  *
@@ -40,17 +32,8 @@ NstEXP Nst_Obj *NstC Nst_func_new(usize arg_num, Nst_InstList *bytecode);
  * @return The new function object or `NULL` on failure. The error is set.
  */
 NstEXP Nst_Obj *NstC Nst_func_new_c(usize arg_num, Nst_NestCallable cbody);
-/**
- * Sets the `mod_globals` table of a function and all the functions defined
- * inside it.
- *
- * @brief If the field is already set or the function has a C body, it is not
- * modified.
- *
- * @param func: the function to change the `mod_globals` field of
- * @param map: the map to set as the new value
- */
-NstEXP void NstC Nst_func_set_vt(Nst_Obj *func, Nst_Obj *map);
+
+void _Nst_func_set_mod_globals(Nst_Obj *func, Nst_Obj *globals);
 
 /* Gets the number of arguments a function takes. */
 NstEXP usize NstC Nst_func_arg_num(Nst_Obj *func);
@@ -65,6 +48,8 @@ NstEXP Nst_InstList *NstC Nst_func_nest_body(Nst_Obj *func);
  * added. It may be `NULL`.
  */
 NstEXP Nst_Obj *NstC Nst_func_mod_globals(Nst_Obj *func);
+/* Gets the outer variables that the function can access when defined. */
+NstEXP Nst_Obj *NstC Nst_func_outer_vars(Nst_Obj *func);
 
 /* Traverse function for `Func` objects. */
 NstEXP void NstC _Nst_func_traverse(Nst_Obj *func);

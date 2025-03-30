@@ -60,6 +60,7 @@ The structure representing an instruction in Nest.
 
 ```better-c
 typedef struct _Nst_InstList {
+    usize ref_count;
     usize total_size;
     Nst_Inst *instructions;
     Nst_LList *functions;
@@ -187,6 +188,20 @@ of instructions.
 
 ---
 
+### `Nst_inst_list_copy`
+
+**Synopsis:**
+
+```better-c
+Nst_InstList *Nst_inst_list_copy(Nst_InstList *inst_list)
+```
+
+**Description:**
+
+Copy a [`Nst_InstList`](c_api-instructions.md#nst_instlist).
+
+---
+
 ### `Nst_inst_list_destroy`
 
 **Synopsis:**
@@ -266,8 +281,9 @@ typedef enum _Nst_InstID {
     Nst_IC_MAKE_VEC,
     Nst_IC_MAKE_VEC_REP,
     Nst_IC_MAKE_MAP,
+    Nst_IC_MAKE_FUNC,
     Nst_IC_SAVE_ERROR,
-    Nst_IC_UNPACK_SEQ
+    Nst_IC_UNPACK_SEQ,
 } Nst_InstID
 ```
 
