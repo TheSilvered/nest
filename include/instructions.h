@@ -11,6 +11,7 @@
 
 #include "simple_types.h"
 #include "error.h"
+#include "llist.h"
 
 /* Checks whether a given instruction ID represents a jump instruction. */
 #define Nst_INST_IS_JUMP(inst_id)                                             \
@@ -73,15 +74,13 @@ NstEXP typedef enum _Nst_InstID {
  * @param id: the ID of the instruction
  * @param int_val: an integer value used by the instruction
  * @param val: an object used by the instruction
- * @param start: the start position of the instruction
- * @param end: the end position of the instruction
+ * @param span: the span of the instruction
  */
 NstEXP typedef struct _Nst_Inst {
     Nst_InstID id;
     i64 int_val;
     Nst_Obj *val;
-    Nst_Pos start;
-    Nst_Pos end;
+    Nst_Span span;
 } Nst_Inst;
 
 /**
@@ -107,7 +106,7 @@ NstEXP typedef struct _Nst_InstList {
  *
  * @return The new instruction or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Inst *NstC Nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end);
+NstEXP Nst_Inst *NstC Nst_inst_new(Nst_InstID id, Nst_Span span);
 /**
  * Creates a new instruction on the heap with a Nest object value.
  *
@@ -121,7 +120,7 @@ NstEXP Nst_Inst *NstC Nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end);
  * @return The new instruction or `NULL` on failure. The error is set.
  */
 NstEXP Nst_Inst *NstC Nst_inst_new_val(Nst_InstID id, Nst_Obj *val,
-                                        Nst_Pos start, Nst_Pos end);
+                                       Nst_Span span);
 /**
  * Creates a new instruction on the heap with an integer value.
  *
@@ -133,7 +132,7 @@ NstEXP Nst_Inst *NstC Nst_inst_new_val(Nst_InstID id, Nst_Obj *val,
  * @return The new instruction or `NULL` on failure. The error is set.
  */
 NstEXP Nst_Inst *NstC Nst_inst_new_int(Nst_InstID id, i64 int_val,
-                                       Nst_Pos start, Nst_Pos end);
+                                       Nst_Span span);
 
 /* Destroys a `Nst_Inst` allocated on the heap. */
 NstEXP void NstC Nst_inst_destroy(Nst_Inst *inst);

@@ -66,8 +66,7 @@ NstEXP void NstC Nst_es_destroy(Nst_ExecutionState *es);
  *
  * @return An initialized `Nst_FuncCall` structure.
  */
-NstEXP Nst_FuncCall NstC Nst_func_call_from_es(Nst_Obj *func, Nst_Pos start,
-                                               Nst_Pos end,
+NstEXP Nst_FuncCall NstC Nst_func_call_from_es(Nst_Obj *func, Nst_Span span,
                                                Nst_ExecutionState *es);
 /**
  * Initializes the variable table and command-line arguments array of an
@@ -128,8 +127,7 @@ NstEXP bool NstC Nst_es_push_module(Nst_ExecutionState *es,
  *
  * @param es: the execution state to push the function onto
  * @param func: the function to push on the execution state
- * @param start: the starting position of the call
- * @param end: the ending position of the call
+ * @param span: the position of the call
  * @param arg_num: the number of arguments passed to the function
  * @param args: the values of the arguments to pass to the function, if `NULL`
  * `arg_num` values are taken from the value stack in reverse order
@@ -137,25 +135,22 @@ NstEXP bool NstC Nst_es_push_module(Nst_ExecutionState *es,
  * @return `true` on success and `false` on failure. The error is set.
  */
 NstEXP bool NstC Nst_es_push_func(Nst_ExecutionState *es, Nst_Obj *func,
-                                  Nst_Pos start, Nst_Pos end, usize arg_num,
-                                  Nst_Obj **args);
+                                  Nst_Span span, usize arg_num, Nst_Obj **args);
 /**
  * Pushes a coroutine that is already running on the call stack of the given
  * execution state.
  *
  * @param es: the execution state to push the coroutine onto
  * @param func: the function of the coroutine to push
- * @param start: the starting position of the call
- * @param end: the ending position of the call
+ * @param span: the position of the call
  * @param idx: the instruction index where the coroutine was paused at
  * @param vt: the variable table of the coroutine
  *
  * @return `true` on success and `false` on failure. The error is set.
  */
 NstEXP bool NstC Nst_es_push_paused_coroutine(Nst_ExecutionState *es,
-                                              Nst_Obj *func, Nst_Pos start,
-                                              Nst_Pos end, i64 idx,
-                                              Nst_VarTable *vt);
+                                              Nst_Obj *func, Nst_Span span,
+                                              i64 idx, Nst_VarTable *vt);
 /* Forces the top function of the execution state to end. */
 NstEXP void NstC Nst_es_force_function_end(Nst_ExecutionState *es);
 

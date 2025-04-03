@@ -56,9 +56,6 @@ NstEXP typedef struct _Nst_LList {
     usize len;
 } Nst_LList;
 
-/* The type of a list destructor. */
-NstEXP typedef void (*Nst_LListDestructor)(void *);
-
 /**
  * Adds a value to the front of the list.
  *
@@ -156,7 +153,7 @@ NstEXP Nst_LLNode *NstC Nst_llnode_new(void *value, bool allocated);
  * @param item_destructor: the destructor to use on allocated values
  */
 NstEXP void NstC Nst_llist_destroy(Nst_LList *llist,
-                                   void (*item_destructor)(void *));
+                                   Nst_Destructor item_destructor);
 /**
  * Destroys all the nodes inside a list.
  *
@@ -167,7 +164,7 @@ NstEXP void NstC Nst_llist_destroy(Nst_LList *llist,
  * @param item_destructor: the destructor to use on allocated values
  */
 NstEXP void NstC Nst_llist_empty(Nst_LList *llist,
-                                 void (*item_destructor)(void *));
+                                 Nst_Destructor item_destructor);
 /**
  * Moves all the nodes from a list to the end of another.
  *

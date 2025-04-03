@@ -26,14 +26,14 @@ Nst_Obj *NstC load_s_(usize arg_num, Nst_Obj **args)
     if (!Nst_extract_args("s", arg_num, args, &str))
         return nullptr;
 
-    Nst_LList *tokens = json_tokenize(
+    Nst_DynArray tokens = json_tokenize(
         (char *)"<Str>",
         (char *)Nst_str_value(str), Nst_str_len(str),
         true, Nst_EID_EXT_UTF8);
-    if (tokens == nullptr)
+    if (tokens.len == 0)
         return nullptr;
 
-    Nst_Obj *value = json_parse((char *)"<Str>", tokens);
+    Nst_Obj *value = json_parse((char *)"<Str>", &tokens);
     return value;
 }
 
@@ -73,14 +73,14 @@ Nst_Obj *NstC load_f_(usize arg_num, Nst_Obj **args)
     usize len = fread(buf, sizeof(u8), buf_size, f);
     fclose(f);
     buf[len] = 0;
-    Nst_LList *tokens = json_tokenize(
+    Nst_DynArray tokens = json_tokenize(
         (char *)Nst_str_value(path),
         (char *)buf, len,
         false, encoding);
-    if (tokens == nullptr)
+    if (tokens.len == 0)
         return nullptr;
 
-    Nst_Obj *value = json_parse((char *)Nst_str_value(path), tokens);
+    Nst_Obj *value = json_parse((char *)Nst_str_value(path), &tokens);
     return value;
 }
 

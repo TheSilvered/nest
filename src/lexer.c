@@ -28,7 +28,7 @@
                        ||  ch == ']' || ch == '^')
 
 #define ADD_ERR_POS                                                           \
-    Nst_error_add_pos(cursor.pos, cursor.pos)
+    Nst_error_add_span(Nst_span_from_pos(cursor.pos))
 
 typedef struct LexerCursor {
     char *text;
@@ -37,25 +37,25 @@ typedef struct LexerCursor {
     i32 prev_line_len;
     i32 idx;
     char ch;
-    Nst_LList *tokens;
+    Nst_DynArray *tokens;
 } LexerCursor;
 
 static LexerCursor cursor;
 
 static inline void advance(void);
 static inline void go_back(void);
-static Nst_Tok *make_symbol(void);
-static Nst_Tok *make_num_literal(void);
-static Nst_Tok *make_ident(void);
-static Nst_Tok *make_str_literal(void);
-static Nst_Tok *make_raw_str_literal(void);
+static Nst_Tok make_symbol(void);
+static Nst_Tok make_num_literal(void);
+static Nst_Tok make_ident(void);
+static Nst_Tok make_str_literal(void);
+static Nst_Tok make_raw_str_literal(void);
 static void invalid_escape_error(Nst_Pos escape_start);
 static i32 find_fmt_str_inline_end(void);
 static void parse_first_line(char *text, usize len, i32 *opt_level,
                              Nst_EncodingID *encoding, bool *no_default);
 bool tokenize_internal(i32 max_idx);
 
-static void cursor_init(Nst_SourceText *text, Nst_LList *tokens)
+static void cursor_init(Nst_SourceText *text, Nst_DynArray *tokens)
 {
     cursor.idx = -1;
     cursor.ch = ' ';
@@ -68,10 +68,13 @@ static void cursor_init(Nst_SourceText *text, Nst_LList *tokens)
     advance();
 }
 
-Nst_LList *Nst_tokenizef(const char *filename, Nst_EncodingID encoding,
-                         i32 *opt_level, bool *no_default,
-                         Nst_SourceText *src_text)
+Nst_DynArray Nst_tokenizef(const char *filename, Nst_EncodingID encoding,
+                           i32 *opt_level, bool *no_default,
+                           Nst_SourceText *src_text)
 {
+    Nst_DynArray tokens;
+    Nst_da_init(&tokens, sizeof(Nst_Tok), 0);
+
     FILE *file = NULL;
     char *text = NULL;
     char *full_path = NULL;
@@ -81,7 +84,7 @@ Nst_LList *Nst_tokenizef(const char *filename, Nst_EncodingID encoding,
     if (file == NULL) {
         if (!Nst_error_occurred())
             Nst_error_setf_value("File \"%.100s\" not found.", filename);
-        return NULL;
+        return tokens;
     }
 
     fseek(file, 0, SEEK_END);
@@ -113,40 +116,37 @@ Nst_LList *Nst_tokenizef(const char *filename, Nst_EncodingID encoding,
     if (!Nst_add_lines(src_text))
         goto cleanup;
 
-    Nst_LList *tokens = Nst_tokenize(src_text);
-    return tokens;
+    return Nst_tokenize(src_text);
 cleanup:
     if (file != NULL)
         fclose(file);
-    return NULL;
+    return tokens;
 }
 
-Nst_LList *Nst_tokenize(Nst_SourceText *text)
+Nst_DynArray Nst_tokenize(Nst_SourceText *text)
 {
-    Nst_LList *tokens = Nst_llist_new();
+    Nst_DynArray tokens;
 
-    if (tokens == NULL) {
+    if (!Nst_da_init(&tokens, sizeof(Nst_Tok), 16)) {
         ADD_ERR_POS;
-        return NULL;
+        Nst_da_init(&tokens, sizeof(Nst_Tok), 0);
+        return tokens;
     }
-    cursor_init(text, tokens);
+    cursor_init(text, &tokens);
 
     if (!tokenize_internal((i32)cursor.len)) {
-        Nst_llist_destroy(tokens, (Nst_LListDestructor)Nst_tok_destroy);
-        return NULL;
+        Nst_da_clear(&tokens, (Nst_Destructor)Nst_tok_destroy);
+        return tokens;
     }
 
-    Nst_Tok *tok = Nst_tok_new_noend(cursor.pos, Nst_TT_EOFILE);
-    if (tok == NULL) {
-        ADD_ERR_POS;
-        Nst_llist_destroy(tokens, (Nst_LListDestructor)Nst_tok_destroy);
-        return NULL;
-    }
+    Nst_Tok tok = Nst_tok_new(
+        Nst_span_from_pos(cursor.pos),
+        Nst_TT_EOFILE,
+        NULL);
 
-    if (!Nst_llist_append(tokens, tok, true)) {
+    if (!Nst_da_append(&tokens, &tok)) {
         ADD_ERR_POS;
-        Nst_llist_destroy(tokens, (Nst_LListDestructor)Nst_tok_destroy);
-        return NULL;
+        Nst_da_clear(&tokens, (Nst_Destructor)Nst_tok_destroy);
     }
 
     return tokens;
@@ -154,9 +154,8 @@ Nst_LList *Nst_tokenize(Nst_SourceText *text)
 
 bool tokenize_internal(i32 max_idx)
 {
-    Nst_Tok *tok = NULL;
-
     while (cursor.idx < max_idx) {
+        Nst_Tok tok = Nst_tok_invalid();
         if (cursor.ch == ' ' || cursor.ch == '\t') {
             advance();
             continue;
@@ -174,9 +173,7 @@ bool tokenize_internal(i32 max_idx)
         else if (cursor.ch == '`')
             tok = make_raw_str_literal();
         else if (cursor.ch == '\n') {
-            tok = Nst_tok_new_noend(Nst_pos_copy(cursor.pos), Nst_TT_ENDL);
-            if (tok == NULL)
-                ADD_ERR_POS;
+            tok = Nst_tok_new(Nst_span_from_pos(cursor.pos), Nst_TT_ENDL, NULL);
         } else if (cursor.ch == '\\') {
             advance();
             i32 res = Nst_check_utf8_bytes(
@@ -186,18 +183,13 @@ bool tokenize_internal(i32 max_idx)
                 advance();
         } else {
             Nst_error_setc_syntax("invalid character");
-            Nst_error_add_pos(cursor.pos, cursor.pos);
+            Nst_error_add_span(Nst_span_from_pos(cursor.pos));
         }
 
-        if (Nst_error_occurred()) {
-            if (tok != NULL)
-                Nst_tok_destroy(tok);
+        if (Nst_error_occurred())
             return false;
-        }
-
-        if (tok != NULL)
-            Nst_llist_append(cursor.tokens, tok, true);
-        tok = NULL;
+        if (tok.type != Nst_TT_INVALID && !Nst_da_append(cursor.tokens, &tok))
+            return false;
         advance();
     }
 
@@ -238,9 +230,9 @@ inline static void go_back(void)
     }
 }
 
-static Nst_Tok *make_symbol()
+static Nst_Tok make_symbol(void)
 {
-    Nst_Pos start = Nst_pos_copy(cursor.pos);
+    Nst_Pos start = cursor.pos;
     u8 symbol[4] = { cursor.ch, 0, 0, 0 };
     advance();
     if (!CUR_AT_END && CH_IS_SYMBOL(cursor.ch)) {
@@ -266,7 +258,7 @@ static Nst_Tok *make_symbol()
             advance();
         }
         go_back();
-        return NULL;
+        return Nst_tok_invalid();
     } else if (symbol[0] == '-' && symbol[1] == '/') {
         bool can_close = false;
         bool was_closed = false;
@@ -286,10 +278,10 @@ static Nst_Tok *make_symbol()
 
         if (!was_closed) {
             Nst_error_setc_syntax("multi-line comment was never closed");
-            Nst_error_add_pos(start, cursor.pos);
+            Nst_error_add_span(Nst_span_new(start, cursor.pos));
         }
 
-        return NULL;
+        return Nst_tok_invalid();
     }
 
     if (symbol[1] == '-' && symbol[2] == '-') {
@@ -309,7 +301,7 @@ static Nst_Tok *make_symbol()
         go_back();
     }
 
-    Nst_TokType token_type = Nst_tok_from_str(symbol);
+    Nst_TokType token_type = Nst_tok_type_from_str(symbol);
 
     while (token_type == Nst_TT_INVALID) {
         go_back();
@@ -319,16 +311,10 @@ static Nst_Tok *make_symbol()
         else if (symbol[1] != '\0')
             symbol[1] = '\0';
 
-        token_type = Nst_tok_from_str(symbol);
+        token_type = Nst_tok_type_from_str(symbol);
     }
 
-    Nst_Tok *tok = Nst_tok_new_noval(
-        start,
-        Nst_pos_copy(cursor.pos),
-        token_type);
-    if (tok == NULL)
-        ADD_ERR_POS;
-    return tok;
+    return Nst_tok_new(Nst_span_new(start, cursor.pos), token_type, NULL);
 }
 
 static i32 bin_ltrl_size(Nst_Pos start, bool *is_byte)
@@ -348,7 +334,7 @@ static i32 bin_ltrl_size(Nst_Pos start, bool *is_byte)
     } while (CH_IS_BIN(cursor.ch) || cursor.ch == '_');
     if (CH_IS_DEC(cursor.ch)) {
         Nst_error_setc_syntax("invalid Int literal");
-        Nst_error_add_pos(start, cursor.pos);
+        Nst_error_add_span(Nst_span_new(start, cursor.pos));
         return -1;
     }
     if (cursor.ch == 'b' || cursor.ch == 'B') {
@@ -366,7 +352,7 @@ static i32 oct_ltrl_size(Nst_Pos start, bool *is_byte)
     if (!CH_IS_OCT(cursor.ch)) {
         go_back();
         Nst_error_setc_syntax("invalid Int literal");
-        Nst_error_add_pos(start, cursor.pos);
+        Nst_error_add_span(Nst_span_new(start, cursor.pos));
         return -1;
     }
     i32 ltrl_size = 2;
@@ -376,7 +362,7 @@ static i32 oct_ltrl_size(Nst_Pos start, bool *is_byte)
     } while (CH_IS_OCT(cursor.ch) || cursor.ch == '_');
     if (CH_IS_DEC(cursor.ch)) {
         Nst_error_setc_syntax("invalid Int literal");
-        Nst_error_add_pos(start, cursor.pos);
+        Nst_error_add_span(Nst_span_new(start, cursor.pos));
         return -1;
     }
     if (cursor.ch == 'b' || cursor.ch == 'B') {
@@ -398,7 +384,7 @@ static i32 hex_ltrl_size(Nst_Pos start, bool *is_byte)
     if (!CH_IS_HEX(cursor.ch)) {
         go_back();
         Nst_error_setc_syntax(err_msg);
-        Nst_error_add_pos(start, cursor.pos);
+        Nst_error_add_span(Nst_span_new(start, cursor.pos));
         return -1;
     }
     i32 ltrl_size = 2;
@@ -408,7 +394,7 @@ static i32 hex_ltrl_size(Nst_Pos start, bool *is_byte)
     } while (CH_IS_HEX(cursor.ch) || cursor.ch == '_');
     if (CH_IS_ALPHA(cursor.ch)) {
         Nst_error_setc_syntax(err_msg);
-        Nst_error_add_pos(start, cursor.pos);
+        Nst_error_add_span(Nst_span_new(start, cursor.pos));
         return -1;
     }
     go_back();
@@ -438,7 +424,7 @@ static i32 dec_ltrl_size(Nst_Pos start, bool *is_byte, bool *is_real)
 
     if (!CH_IS_DEC(cursor.ch)) {
         Nst_error_setc_syntax("invalid Real literal");
-        Nst_error_add_pos(start, cursor.pos);
+        Nst_error_add_span(Nst_span_new(start, cursor.pos));
         return -1;
     }
     do {
@@ -458,7 +444,7 @@ static i32 dec_ltrl_size(Nst_Pos start, bool *is_byte, bool *is_real)
     }
     if (!CH_IS_DEC(cursor.ch)) {
         Nst_error_setc_syntax("invalid Real literal");
-        Nst_error_add_pos(start, cursor.pos);
+        Nst_error_add_span(Nst_span_new(start, cursor.pos));
         return -1;
     }
     do {
@@ -469,11 +455,10 @@ static i32 dec_ltrl_size(Nst_Pos start, bool *is_byte, bool *is_real)
     return ltrl_size;
 }
 
-static Nst_Tok *make_num_literal(void)
+static Nst_Tok make_num_literal(void)
 {
     char *start_p = cursor.text + cursor.idx;
-    Nst_Pos start = Nst_pos_copy(cursor.pos);
-    Nst_Tok *tok = NULL;
+    Nst_Pos start = cursor.pos;
 
     i32 ltrl_size = 0;
     u8 *ltrl = NULL;
@@ -502,13 +487,13 @@ static Nst_Tok *make_num_literal(void)
     case 'B':
         ltrl_size = bin_ltrl_size(start, &is_byte);
         if (ltrl_size < 0)
-            return NULL;
+            return Nst_tok_invalid();
         goto end;
     case 'o':
     case 'O':
         ltrl_size = oct_ltrl_size(start, &is_byte);
         if (ltrl_size < 0)
-            return NULL;
+            return Nst_tok_invalid();
         goto end;
     case 'x':
     case 'X':
@@ -516,7 +501,7 @@ static Nst_Tok *make_num_literal(void)
     case 'H':
         ltrl_size = hex_ltrl_size(start, &is_byte);
         if (ltrl_size < 0)
-            return NULL;
+            return Nst_tok_invalid();
         goto end;
     default:
         go_back();
@@ -525,13 +510,13 @@ static Nst_Tok *make_num_literal(void)
 dec_num:
     ltrl_size = dec_ltrl_size(start, &is_byte, &is_real);
     if (ltrl_size < 0)
-        return NULL;
+        return Nst_tok_invalid();
 
 end:
     ltrl = Nst_malloc_c(ltrl_size + 2, u8);
     if (ltrl == NULL) {
         ADD_ERR_POS;
-        return NULL;
+        return Nst_tok_invalid();
     }
     ltrl[0] = neg ? '-' : '+';
     memcpy(ltrl + 1, start_p, ltrl_size);
@@ -568,17 +553,14 @@ end:
 
     if (!parse_res || res == NULL) {
         ADD_ERR_POS;
-        return NULL;
+        return Nst_tok_invalid();
     }
-    tok = Nst_tok_new_value(start, cursor.pos, Nst_TT_VALUE, res);
-    if (tok == NULL)
-        ADD_ERR_POS;
-    return tok;
+    return Nst_tok_new(Nst_span_new(start, cursor.pos), Nst_TT_VALUE, res);
 }
 
-static Nst_Tok *make_ident(void)
+static Nst_Tok make_ident(void)
 {
-    Nst_Pos start = Nst_pos_copy(cursor.pos);
+    Nst_Pos start = cursor.pos;
     char *str;
     char *str_start = cursor.text + cursor.idx;
     usize str_len = 0;
@@ -600,25 +582,22 @@ static Nst_Tok *make_ident(void)
     str = Nst_malloc_c(str_len + 1, char);
     if (str == NULL) {
         ADD_ERR_POS;
-        return NULL;
+        return Nst_tok_invalid();
     }
 
     memcpy(str, str_start, str_len);
     str[str_len] = '\0';
 
-    Nst_Pos end = Nst_pos_copy(cursor.pos);
+    Nst_Pos end = cursor.pos;
     Nst_Obj *val_obj = Nst_str_new_c_raw(str, true);
     if (val_obj == NULL) {
         Nst_free(str);
         ADD_ERR_POS;
-        return NULL;
+        return Nst_tok_invalid();
     }
     Nst_obj_hash(val_obj);
 
-    Nst_Tok *tok = Nst_tok_new_value(start, end, Nst_TT_IDENT, val_obj);
-    if (tok == NULL)
-        ADD_ERR_POS;
-    return tok;
+    return Nst_tok_new(Nst_span_new(start, end), Nst_TT_IDENT, val_obj);
 }
 
 static bool x_escape(Nst_StrBuilder *sb, Nst_Pos escape_start)
@@ -703,34 +682,22 @@ static void o_escape(Nst_StrBuilder *sb)
     Nst_sb_push_cps(sb, &result, 1);
 }
 
-static bool add_token(Nst_Tok *tok)
-{
-    if (tok == NULL)
-        return false;
-    if (Nst_llist_append(cursor.tokens, tok, true))
-        return true;
-    Nst_free(tok);
-    return false;
-}
-
 static bool format_escape(Nst_StrBuilder *sb, bool is_format_string,
                           Nst_Pos *start)
 {
     i32 max_idx = find_fmt_str_inline_end();
     if (max_idx == -1) {
         Nst_error_setc_syntax("invalid format string");
-        Nst_error_add_pos(cursor.pos, cursor.pos);
+        Nst_error_add_span(Nst_span_from_pos(cursor.pos));
         return false;
     }
     advance();
 
-    Nst_Tok *tok = NULL;
+    Nst_Tok tok;
 
     if (!is_format_string) {
-        tok = Nst_tok_new_noend(cursor.pos, Nst_TT_L_PAREN);
-        if (tok == NULL)
-            return false;
-        else if (!Nst_llist_append(cursor.tokens, tok, true))
+        tok = Nst_tok_new(Nst_span_from_pos(cursor.pos), Nst_TT_L_PAREN, NULL);
+        if (!Nst_da_append(cursor.tokens, &tok))
             return false;
     }
 
@@ -741,45 +708,44 @@ static bool format_escape(Nst_StrBuilder *sb, bool is_format_string,
     }
     Nst_obj_hash(val_obj);
 
-    tok = Nst_tok_new_value(
-        *start, cursor.pos,
+    tok = Nst_tok_new(
+        Nst_span_new(*start, cursor.pos),
         Nst_TT_VALUE,
         val_obj);
-    if (!add_token(tok))
+    if (!Nst_da_append(cursor.tokens, &tok))
         return false;
 
-    tok = Nst_tok_new_noend(cursor.pos, Nst_TT_L_PAREN);
-    if (!add_token(tok))
+    tok = Nst_tok_new(Nst_span_from_pos(cursor.pos), Nst_TT_L_PAREN, NULL);
+    if (!Nst_da_append(cursor.tokens, &tok))
         return false;
 
     if (!tokenize_internal(max_idx))
         return false;
 
-    tok = Nst_tok_new_noend(cursor.pos, Nst_TT_R_PAREN);
-    if (!add_token(tok))
+    tok = Nst_tok_new(Nst_span_from_pos(cursor.pos), Nst_TT_R_PAREN, NULL);
+    if (!Nst_da_append(cursor.tokens, &tok))
         return false;
 
     if (!Nst_sb_init(sb, START_CH_SIZE)) {
         ADD_ERR_POS;
         return false;
     }
-    *start = Nst_pos_copy(cursor.pos);
+    *start = cursor.pos;
     return true;
 }
 
-static Nst_Tok *make_str_literal(void)
+static Nst_Tok make_str_literal(void)
 {
-    Nst_Pos start = Nst_pos_copy(cursor.pos);
+    Nst_Pos start = cursor.pos;
     Nst_Pos escape_start = start;
     u8 closing_ch = cursor.ch;
     bool allow_multiline = cursor.ch == '"';
     bool is_format_string = false;
-    Nst_Tok *tok;
 
     Nst_StrBuilder sb;
     if (!Nst_sb_init(&sb, START_CH_SIZE)) {
         ADD_ERR_POS;
-        return NULL;
+        return Nst_tok_invalid();
     }
 
     advance(); // still on the opening character
@@ -795,10 +761,10 @@ static Nst_Tok *make_str_literal(void)
         if (cursor.ch == '\n' && !allow_multiline) {
             Nst_error_setc_syntax(
                 "single-quote strings cannot span multiple lines");
-            Nst_error_add_pos(cursor.pos, cursor.pos);
+            Nst_error_add_span(Nst_span_from_pos(cursor.pos));
             goto failure;
         } else if (cursor.ch == '\\') {
-            escape_start = Nst_pos_copy(cursor.pos);
+            escape_start = cursor.pos;
             advance();
         } else {
             Nst_sb_push_char(&sb, cursor.ch);
@@ -846,46 +812,48 @@ static Nst_Tok *make_str_literal(void)
 
     if (cursor.ch != closing_ch) {
         Nst_error_setc_syntax("string literal was never closed");
-        Nst_error_add_pos(cursor.pos, cursor.pos);
+        Nst_error_add_span(Nst_span_from_pos(cursor.pos));
         goto failure;
     }
 
     Nst_Obj *val_obj = Nst_str_from_sb(&sb);
     if (val_obj == NULL) {
         ADD_ERR_POS;
-        return NULL;
+        return Nst_tok_invalid();
     }
     Nst_obj_hash(val_obj);
 
     if (!is_format_string) {
-        tok = Nst_tok_new_value(start, cursor.pos, Nst_TT_VALUE, val_obj);
-        if (tok == NULL)
-            ADD_ERR_POS;
-        return tok;
+        return Nst_tok_new(
+            Nst_span_new(start, cursor.pos),
+            Nst_TT_VALUE,
+            val_obj);
     }
+
+    Nst_Tok tok;
     if (Nst_str_len(val_obj) == 0)
         Nst_dec_ref(val_obj);
     else {
-        tok = Nst_tok_new_value(start, cursor.pos, Nst_TT_VALUE, val_obj);
-        if (!add_token(tok))
-            return NULL;
+        tok = Nst_tok_new(
+            Nst_span_new(start, cursor.pos),
+            Nst_TT_VALUE,
+            val_obj);
+        if (!Nst_da_append(cursor.tokens, &tok))
+            return Nst_tok_invalid();
     }
-    tok = Nst_tok_new_noend(cursor.pos, Nst_TT_CONCAT);
-    if (!add_token(tok))
-        return NULL;
-    tok = Nst_tok_new_noend(cursor.pos, Nst_TT_R_PAREN);
-    if (tok == NULL)
-        ADD_ERR_POS;
-    return tok;
+    tok = Nst_tok_new(Nst_span_from_pos(cursor.pos), Nst_TT_CONCAT, NULL);
+    if (!Nst_da_append(cursor.tokens, &tok))
+        return Nst_tok_invalid();
+    return Nst_tok_new(Nst_span_from_pos(cursor.pos), Nst_TT_R_PAREN, NULL);
 failure:
     Nst_sb_destroy(&sb);
-    return NULL;
+    return Nst_tok_invalid();
 }
 
 static void invalid_escape_error(Nst_Pos escape_start)
 {
     Nst_error_setc_syntax("invalid escape sequence");
-    Nst_error_add_pos(escape_start, cursor.pos);
+    Nst_error_add_span(Nst_span_new(escape_start, cursor.pos));
 }
 
 static bool skip_inline_str(void)
@@ -960,22 +928,21 @@ static i32 find_fmt_str_inline_end(void)
     return max_idx;
 }
 
-static Nst_Tok *make_raw_str_literal(void)
+static Nst_Tok make_raw_str_literal(void)
 {
-    Nst_Pos start = Nst_pos_copy(cursor.pos);
+    Nst_Pos start = cursor.pos;
     Nst_Pos end = start;
-    Nst_Tok *tok;
 
     Nst_StrBuilder sb;
     if (!Nst_sb_init(&sb, START_CH_SIZE)) {
         ADD_ERR_POS;
-        return NULL;
+        return Nst_tok_invalid();
     }
     advance(); // still on the opening character
 
     while (!CUR_AT_END) {
         if (cursor.ch == '`') {
-            end = Nst_pos_copy(cursor.pos);
+            end = cursor.pos;
             advance();
             if (CUR_AT_END || cursor.ch != '`') {
                 go_back();
@@ -992,24 +959,21 @@ static Nst_Tok *make_raw_str_literal(void)
 
     if (cursor.ch != '`') {
         Nst_error_setc_syntax("string literal was never closed");
-        Nst_error_add_pos(cursor.pos, cursor.pos);
+        Nst_error_add_span(Nst_span_from_pos(cursor.pos));
         goto failure;
     }
 
     Nst_Obj *val_obj = Nst_str_from_sb(&sb);
     if (val_obj == NULL) {
         ADD_ERR_POS;
-        return NULL;
+        return Nst_tok_invalid();
     }
     Nst_obj_hash(val_obj);
 
-    tok = Nst_tok_new_value(start, end, Nst_TT_VALUE, val_obj);
-    if (tok == NULL)
-        ADD_ERR_POS;
-    return tok;
+    return Nst_tok_new(Nst_span_new(start, end), Nst_TT_VALUE, val_obj);
 failure:
     Nst_sb_destroy(&sb);
-    return NULL;
+    return Nst_tok_invalid();
 }
 
 bool Nst_add_lines(Nst_SourceText *text)
@@ -1100,7 +1064,7 @@ bool Nst_normalize_encoding(Nst_SourceText *text, Nst_EncodingID encoding)
     Nst_Pos pos = { 0, 0, text };
     Nst_StrBuilder sb;
     if (!Nst_sb_init(&sb, text->text_len + 40)) {
-        Nst_error_add_pos(pos, pos);
+        Nst_error_add_span(Nst_span_from_pos(pos));
         return false;
     }
 
@@ -1117,7 +1081,7 @@ bool Nst_normalize_encoding(Nst_SourceText *text, Nst_EncodingID encoding)
             Nst_error_setf_syntax(
                 "could not encode byte %ib for %s encoding",
                 *text_p, from->name);
-            Nst_error_add_pos(pos, pos);
+            Nst_error_add_span(Nst_span_from_pos(pos));
             return false;
         }
         usize ch_size = ch_len * from->ch_size;
@@ -1141,7 +1105,7 @@ bool Nst_normalize_encoding(Nst_SourceText *text, Nst_EncodingID encoding)
         // Re-encode character
         if (!Nst_sb_reserve(&sb, 5)) {
             Nst_sb_destroy(&sb);
-            Nst_error_add_pos(pos, pos);
+            Nst_error_add_span(Nst_span_from_pos(pos));
             return false;
         }
         ch_len = Nst_encoding_ext_utf8.from_utf32(utf32_ch, sb.value + sb.len);
@@ -1196,7 +1160,7 @@ static void parse_first_line(char *text, usize len, i32 *opt_level,
     text += 3;
     len -= 3;
 
-    while ((ch = *text) != '\n' && *text != '\r' && len-- != 0) {
+    while ((ch = *text++) != '\n' && ch != '\r' && len-- != 0) {
         if (ch != ' ') {
             if (i < 26)
                 curr_opt[i] = ch;

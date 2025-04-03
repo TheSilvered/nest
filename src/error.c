@@ -42,21 +42,114 @@ static inline void err_putc(const char *ch, usize len)
     Nst_fwrite((u8 *)ch, len, NULL, err_stream);
 }
 
-Nst_Pos Nst_pos_copy(Nst_Pos pos)
-{
-    Nst_Pos new_pos = {
-        pos.line,
-        pos.col,
-        pos.text
-    };
-
-    return new_pos;
-}
-
 Nst_Pos Nst_pos_empty(void)
 {
     Nst_Pos new_pos = { 0, 0, NULL };
     return new_pos;
+}
+
+Nst_Span Nst_span_new(Nst_Pos start, Nst_Pos end)
+{
+    Nst_Span span = {
+        .start_line = start.line,
+        .start_col = start.col,
+        .end_line = end.line,
+        .end_col = end.col,
+        .text = start.text
+    };
+    return span;
+}
+
+Nst_Span Nst_span_from_pos(Nst_Pos pos)
+{
+    Nst_Span span = {
+        .start_line = pos.line,
+        .start_col = pos.col,
+        .end_line = pos.line,
+        .end_col = pos.col,
+        .text = pos.text
+    };
+    return span;
+}
+
+Nst_Span Nst_span_empty(void)
+{
+    Nst_Span span = {
+        .start_line = 0,
+        .start_col = 0,
+        .end_line = 0,
+        .end_col = 0,
+        .text = NULL
+    };
+    return span;
+}
+
+Nst_Span Nst_span_join(Nst_Span span1, Nst_Span span2)
+{
+    if (span1.text != span2.text)
+        return span1;
+    Nst_Span new_span = {
+        .text = span1.text
+    };
+    if (span1.start_line < span2.start_line
+        || (span1.start_line == span2.start_line
+            && span1.start_col <= span2.start_col))
+    {
+        new_span.start_line = span1.start_line;
+        new_span.start_col = span1.start_col;
+    } else {
+        new_span.start_line = span2.start_line;
+        new_span.start_col = span2.start_col;
+    }
+
+    if (span1.end_line > span2.end_line
+        || (span1.end_line == span2.end_line
+        && span1.end_col >= span2.end_col))
+    {
+        new_span.end_line = span1.end_line;
+        new_span.end_col = span1.end_col;
+    } else {
+        new_span.end_line = span2.end_line;
+        new_span.end_col = span2.end_col;
+    }
+    return new_span;
+}
+
+Nst_Span Nst_span_expand(Nst_Span span, Nst_Pos pos)
+{
+    if (span.text != pos.text)
+        return span;
+    if (pos.line < span.start_line) {
+        span.start_line = pos.line;
+        span.start_col = pos.col;
+    } else if (pos.line == span.start_line && pos.col < span.start_col)
+        span.start_col = pos.col;
+    else if (pos.line > span.end_line) {
+        span.end_line = pos.line;
+        span.end_col = pos.col;
+    } else if (pos.line == span.end_line && pos.col > span.end_col)
+        span.end_col = pos.col;
+    return span;
+}
+
+Nst_Pos Nst_span_start(Nst_Span span)
+{
+    Nst_Pos start = {
+        .line = span.start_line,
+        .col = span.start_col,
+        .text = span.text
+    };
+    return start;
+}
+
+Nst_Pos Nst_span_end(Nst_Span span)
+{
+    Nst_Pos end = {
+        .line = span.end_line,
+        .col = span.end_col,
+        .text = span.text
+    };
+    return end;
 }
 
 static inline void print_repeat(char ch, i32 times)
@@ -263,44 +356,32 @@ static inline void print_rep_count(i32 count)
 void Nst_tb_print(Nst_Traceback *tb)
 {
     Nst_fflush(Nst_io.out);
-    Nst_assert_c(tb->positions->len % 2 == 0);
     set_error_stream();
 
     Nst_Pos prev_start = { -1, -1, NULL };
     Nst_Pos prev_end = { -1, -1, NULL };
     i32 repeat_count = 0;
-    i32 i = 0;
-    for (Nst_LLNode *n1 = tb->positions->head, *n2 = NULL;
-         n1 != NULL;
-         n1 = n2->next, n2 = n1 == NULL ? n1 : n1->next)
-    {
-        n2 = n1->next;
-
-        i++;
-        Nst_Pos *start = (Nst_Pos *)n1->value;
-        Nst_Pos *end   = (Nst_Pos *)n2->value;
-
-        if (start->text == NULL)
-            continue;
-
-        if (start->col     == prev_start.col
-            && start->line == prev_start.line
-            && end->col    == prev_end.col
-            && end->line   == prev_end.line
-            && start->text == prev_start.text)
+    for (usize i = 0, n = tb->positions.len; i < n; i++) {
+        Nst_Span *span = (Nst_Span *)Nst_da_get(&tb->positions, n - i - 1);
+        Nst_Pos start = Nst_span_start(*span);
+        Nst_Pos end = Nst_span_end(*span);
+        if (start.col == prev_start.col
+            && start.line == prev_start.line
+            && end.col == prev_end.col
+            && end.line == prev_end.line
+            && start.text == prev_start.text)
         {
             repeat_count++;
             continue;
-        } else {
-            if (repeat_count > 0)
-                print_rep_count(repeat_count);
-
-            repeat_count = 0;
-            prev_start = *start;
-            prev_end = *end;
         }
 
-        print_position(*start, *end);
+        if (repeat_count > 0)
+            print_rep_count(repeat_count);
+        repeat_count = 0;
+        prev_start = start;
+        prev_end = end;
+
+        print_position(start, end);
     }
 
     u8 *err_name = Nst_str_value(tb->error_name);
@@ -340,7 +421,7 @@ static void clear_error(Nst_Traceback *tb)
 {
     if (!tb->error_occurred)
         return;
-    Nst_llist_empty(tb->positions, Nst_free);
+    Nst_da_clear(&tb->positions, NULL);
     Nst_dec_ref(tb->error_name);
     Nst_dec_ref(tb->error_msg);
     tb->error_name = NULL;
@@ -519,9 +600,9 @@ void Nst_error_failed_alloc(void)
     );
 }
 
-void Nst_error_add_pos(Nst_Pos start, Nst_Pos end)
+void Nst_error_add_span(Nst_Span span)
 {
-    Nst_tb_add_pos(Nst_error_get(), start, end);
+    Nst_tb_add_span(Nst_error_get(), span);
 }
 
 Nst_ErrorKind Nst_error_occurred(void)
@@ -553,24 +634,21 @@ void Nst_error_clear(void)
     clear_error(&Nst_state.global_traceback);
 }
 
-bool Nst_tb_init(Nst_Traceback *tb)
+void Nst_tb_init(Nst_Traceback *tb)
 {
     tb->error_name = NULL;
     tb->error_msg = NULL;
     tb->error_occurred = false;
-    tb->positions = Nst_llist_new();
-
-    return tb->positions != NULL;
+    Nst_da_init(&tb->positions, sizeof(Nst_Span), 0);
 }
 
 void Nst_tb_destroy(Nst_Traceback *tb)
 {
-    Nst_llist_destroy(tb->positions, Nst_free);
+    Nst_da_clear(&tb->positions, NULL);
     if (tb->error_name != NULL)
         Nst_dec_ref(tb->error_name);
     if (tb->error_msg != NULL)
         Nst_dec_ref(tb->error_msg);
-    tb->positions = NULL;
 }
 
 void Nst_source_text_init(Nst_SourceText *src)
@@ -583,33 +661,10 @@ void Nst_source_text_init(Nst_SourceText *src)
     src->lines_len = 0;
 }
 
-void Nst_tb_add_pos(Nst_Traceback *tb, Nst_Pos start, Nst_Pos end)
+void Nst_tb_add_span(Nst_Traceback *tb, Nst_Span span)
 {
-    // when the text is null Nst_pos_empty was used and no position should be
-    // added
-    if (start.text == NULL)
+    if (span.text == NULL)
         return;
 
-    Nst_Pos *positions = Nst_raw_malloc(2 * sizeof(Nst_Pos));
-    if (positions == NULL)
-        return;
-
-    positions[0] = start;
-    positions[1] = end;
-    bool result = Nst_llist_push(
-        tb->positions,
-        positions + 1,
-        false);
-    if (!result) {
-        Nst_free(positions);
-        return;
-    }
-    result = Nst_llist_push(
-        tb->positions,
-        positions,
-        true);
-    if (!result) {
-        Nst_llist_pop(tb->positions);
-        Nst_free(positions);
-    }
+    Nst_da_append(&tb->positions, &span);
 }

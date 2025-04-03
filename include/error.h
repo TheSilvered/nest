@@ -9,7 +9,7 @@
 #define ERROR_H
 
 #include "str.h"
-#include "llist.h"
+#include "dyn_array.h"
 
 /* Correctly formats the error message for the wrong number of arguments. */
 #define _Nst_WRONG_ARG_NUM(func_arg_num, arg_num)                             \
@@ -55,6 +55,23 @@ NstEXP typedef struct _Nst_Pos {
 } Nst_Pos;
 
 /**
+ * The structure representing a text span inside a source file.
+ *
+ * @param start_line: the starting line, the first is line 0
+ * @param start_col: the starting column, the first is column 0
+ * @param end_line: the ending line, included in the span
+ * @param end_col: the ending column, included in the span
+ * @param text: the text this position refers to
+ */
+NstEXP typedef struct _Nst_Span {
+    i32 start_line;
+    i32 start_col;
+    i32 end_line;
+    i32 end_col;
+    Nst_SourceText *text;
+} Nst_Span;
+
+/**
  * The structure containing the full traceback of the error.
  *
  * @param error_occurred: whether the traceback contains an error
@@ -63,26 +80,39 @@ NstEXP typedef struct _Nst_Pos {
  * @param error_msg: the message of the error
  * @param positions: the list of positions that led to the error
  */
-NstEXP typedef volatile struct _Nst_Traceback {
+NstEXP typedef struct _Nst_Traceback {
     bool error_occurred;
     Nst_Obj *error_name;
     Nst_Obj *error_msg;
-    Nst_LList *positions;
+    Nst_DynArray positions;
 } Nst_Traceback;
 
 /* Sets how the error message is printed (with or without ANSI escapes). */
 NstEXP void NstC Nst_error_set_color(bool color);
-/* Forces a copy of the position. */
-NstEXP Nst_Pos NstC Nst_pos_copy(Nst_Pos pos);
-/* Creates an empty position, with no valid text. */
+/* Creates an empty position with no valid text. */
 NstEXP Nst_Pos NstC Nst_pos_empty(void);
 
+/* Make a new span from a start and an end posiiton. */
+NstEXP Nst_Span NstC Nst_span_new(Nst_Pos start, Nst_Pos end);
+/* Make a new span with the same start and end. */
+NstEXP Nst_Span NstC Nst_span_from_pos(Nst_Pos pos);
+/* Creates an empty span with no valid text. */
+NstEXP Nst_Span NstC Nst_span_empty(void);
+/* Make a span that includes both. */
+NstEXP Nst_Span NstC Nst_span_join(Nst_Span span1, Nst_Span span2);
+/* Expands a span to include the given position. */
+NstEXP Nst_Span NstC Nst_span_expand(Nst_Span span, Nst_Pos pos);
+/* Get the start position of a span. */
+NstEXP Nst_Pos NstC Nst_span_start(Nst_Span span);
+/* Get the end position of a span. */
+NstEXP Nst_Pos NstC Nst_span_end(Nst_Span span);
+
 /* Initializes the traceback of the current `Nst_state`. */
-NstEXP bool NstC Nst_tb_init(Nst_Traceback *tb);
+NstEXP void NstC Nst_tb_init(Nst_Traceback *tb);
 /* Frees the traceback of the current `Nst_state`. */
 NstEXP void NstC Nst_tb_destroy(Nst_Traceback *tb);
 /* Adds a pair of positions to an `Nst_Traceback`. */
-NstEXP void NstC Nst_tb_add_pos(Nst_Traceback *tb, Nst_Pos start, Nst_Pos end);
+NstEXP void NstC Nst_tb_add_span(Nst_Traceback *tb, Nst_Span span);
 /* Prints a formatted `Nst_Traceback`. */
 NstEXP void NstC Nst_tb_print(Nst_Traceback *tb);
 
@@ -226,7 +256,7 @@ NstEXP void NstC Nst_error_setf_import(Nst_WIN_FMT const char *fmt, ...)
 NstEXP void NstC Nst_error_failed_alloc(void);
 
 /* Adds a pair of positions to the current error. */
-NstEXP void NstC Nst_error_add_pos(Nst_Pos start, Nst_Pos end);
+NstEXP void NstC Nst_error_add_span(Nst_Span span);
 
 /* [docs:ignore_sym Nst_EK_NONE] */
 /* [docs:ignore_sym Nst_EK_LOCAL] */

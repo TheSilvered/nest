@@ -112,7 +112,7 @@ void *Nst_llist_peek_back(Nst_LList *llist)
     return llist->tail->value;
 }
 
-void Nst_llist_destroy(Nst_LList *llist, void (*item_destructor)(void*))
+void Nst_llist_destroy(Nst_LList *llist, Nst_Destructor item_destructor)
 {
     if (llist == NULL)
         return;
@@ -120,7 +120,7 @@ void Nst_llist_destroy(Nst_LList *llist, void (*item_destructor)(void*))
     Nst_free(llist);
 }
 
-void Nst_llist_empty(Nst_LList *llist, void (*item_destructor)(void *))
+void Nst_llist_empty(Nst_LList *llist, Nst_Destructor item_destructor)
 {
     if (llist == NULL)
         return;

@@ -58,11 +58,8 @@ bool Nst_da_append(Nst_DynArray *arr, void *element)
     return true;
 }
 
-bool Nst_da_pop(Nst_DynArray *arr)
+static void shrink(Nst_DynArray *arr)
 {
-    if (arr->len == 0)
-        return false;
-    arr->len--;
     if (arr->len <= arr->cap / 4) {
         arr->data = Nst_realloc(
             arr->data,
@@ -70,45 +67,135 @@ bool Nst_da_pop(Nst_DynArray *arr)
             arr->unit_size,
             arr->cap);
     }
+}
+
+bool Nst_da_pop(Nst_DynArray *arr, Nst_Destructor dstr)
+{
+    if (arr->len == 0)
+        return false;
+    if (dstr != NULL)
+        dstr(Nst_da_get(arr, arr->len - 1));
+    arr->len--;
+    shrink(arr);
 
     return true;
 }
 
-bool Nst_da_remove_swap(Nst_DynArray *arr, usize index)
+bool Nst_da_pop_p(Nst_DynArray *arr, Nst_Destructor dstr)
+{
+    Nst_assert_c(arr->unit_size == sizeof(void *));
+    if (arr->len == 0)
+        return false;
+    if (dstr != NULL)
+        dstr(Nst_da_get_p(arr, arr->len - 1));
+    arr->len--;
+    shrink(arr);
+
+    return true;
+}
+
+bool Nst_da_remove_swap(Nst_DynArray *arr, usize index, Nst_Destructor dstr)
 {
     if (index >= arr->len)
         return false;
+    if (dstr != NULL)
+        dstr(Nst_da_get(arr, index));
     usize unit_size = arr->unit_size;
     memcpy(
         (u8 *)arr->data + index * unit_size,
         (u8 *)arr->data + arr->len * unit_size,
         unit_size);
+    arr->len--;
+    shrink(arr);
     return true;
 }
 
-bool Nst_da_remove_shift(Nst_DynArray *arr, usize index)
+bool Nst_da_remove_swap_p(Nst_DynArray *arr, usize index, Nst_Destructor dstr)
+{
+    Nst_assert_c(arr->unit_size == sizeof(void *));
+    if (index >= arr->len)
+        return false;
+    if (dstr != NULL)
+        dstr(Nst_da_get_p(arr, index));
+    memcpy(
+        (u8 *)arr->data + index * sizeof(void *),
+        (u8 *)arr->data + arr->len * sizeof(void *),
+        sizeof(void *));
+    arr->len--;
+    shrink(arr);
+    return true;
+}
+
+bool Nst_da_remove_shift(Nst_DynArray *arr, usize index, Nst_Destructor dstr)
 {
     if (index >= arr->len)
         return false;
+    if (dstr != NULL)
+        dstr(Nst_da_get(arr, index));
     usize unit_size = arr->unit_size;
     memmove(
         (u8 *)arr->data + index * unit_size,
         (u8 *)arr->data + (index + 1) * unit_size,
         (arr->len - index - 1) * unit_size);
+    arr->len--;
+    shrink(arr);
     return true;
 }
 
-void *Nst_da_at(Nst_DynArray *arr, usize index)
+bool Nst_da_remove_shift_p(Nst_DynArray *arr, usize index, Nst_Destructor dstr)
+{
+    Nst_assert_c(arr->unit_size == sizeof(void *));
+    if (index >= arr->len)
+        return false;
+    if (dstr != NULL)
+        dstr(Nst_da_get_p(arr, index));
+    memmove(
+        (u8 *)arr->data + index * sizeof(void *),
+        (u8 *)arr->data + (index + 1) * sizeof(void *),
+        (arr->len - index - 1) * sizeof(void *));
+    arr->len--;
+    shrink(arr);
+    return true;
+}
+
+void *Nst_da_get(Nst_DynArray *arr, usize index)
 {
     if (index >= arr->len)
         return NULL;
     return (void *)((u8 *)arr->data + (arr->unit_size * index));
 }
 
-void Nst_da_clear(Nst_DynArray *arr)
+void *Nst_da_get_p(Nst_DynArray *arr, usize index)
 {
-    if (arr->data != NULL)
+    Nst_assert_c(arr->unit_size == sizeof(void *));
+    if (index >= arr->len)
+        return NULL;
+    return ((void **)arr->data)[index];
+}
+
+void Nst_da_clear(Nst_DynArray *arr, Nst_Destructor dstr)
+{
+    if (arr->data != NULL) {
+        if (dstr != NULL) {
+            for (usize i = 0; i < arr->len; i++)
+                dstr(Nst_da_get(arr, i));
+        }
         Nst_free(arr->data);
+    }
+    arr->data = NULL;
+    arr->cap = 0;
+    arr->len = 0;
+}
+
+void Nst_da_clear_p(Nst_DynArray *arr, Nst_Destructor dstr)
+{
+    if (arr->data != NULL) {
+        if (dstr != NULL) {
+            for (usize i = 0; i < arr->len; i++)
+                dstr(Nst_da_get_p(arr, i));
+        }
+        Nst_free(arr->data);
+    }
     arr->data = NULL;
     arr->cap = 0;
     arr->len = 0;

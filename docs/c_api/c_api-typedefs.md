@@ -419,3 +419,17 @@ typedef Nst_Obj *(*Nst_NestCallable)(usize, Nst_Obj **)
 **Description:**
 
 The signature of a C function callable by Nest.
+
+---
+
+### `Nst_Destructor`
+
+**Synopsis:**
+
+```better-c
+typedef void (*Nst_Destructor)(void *)
+```
+
+**Description:**
+
+The signature of a generic destructor.

@@ -238,7 +238,7 @@ static Nst_IOResult virtual_file_close(Nst_Obj *f)
         return Nst_IO_CLOSED;
 
     VirtualFile *vf = (VirtualFile *)Nst_iof_fp(f);
-    Nst_da_clear(&vf->data);
+    Nst_da_clear(&vf->data, NULL);
     Nst_free(vf);
 
     return Nst_IO_SUCCESS;

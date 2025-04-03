@@ -16,6 +16,7 @@
 - fixed expressions escapes in strings that would not close properly when the last character was `-`
 - fixed an infinte loop occurring when escaping a non-ASCII character in the source code
 - fixed `su.lsplit` and `su.rsplit` that would ignore separators at the end and at the beginning respectively
+- fixed file arguments (ex. `--$ --no-default`) not working
 
 ### C API
 
@@ -181,6 +182,7 @@
     - `Nst_obj_destroy`, `_Nst_obj_destroy`
     - `_Nst_obj_free`
 - removed `Nst_Buffer` and all `Nst_buffer_*` functions, use `Nst_StrBuilder` instead
+- removed `Nst_SizedBuffer` and all `Nst_sbuffer_*` functions, use `Nst_DynArray` instead
 
 **Bug fixes**
 

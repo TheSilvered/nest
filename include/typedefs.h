@@ -253,8 +253,8 @@
             #expr,                                                            \
             __FILE__,                                                         \
             __LINE__,                                                         \
-            Nst_current_inst()->start.text->path,                             \
-            Nst_current_inst()->start.line) >= 0                              \
+            Nst_current_inst()->span.text->path,                              \
+            Nst_current_inst()->span.start_line) >= 0                         \
         ) || fprintf(                                                         \
             stderr,                                                           \
             "Assertion failed: %s (C - %s:%i, Nest - <unknown>)\n",           \
@@ -348,6 +348,8 @@ typedef struct _Nst_Obj Nst_Obj;
 
 /* The signature of a C function callable by Nest. */
 NstEXP typedef Nst_Obj *(*Nst_NestCallable)(usize, Nst_Obj **);
+/* The signature of a generic destructor. */
+NstEXP typedef void (*Nst_Destructor)(void *);
 
 #if UCHAR_MAX != 255
 #error sizeof(char) must be equal to 1

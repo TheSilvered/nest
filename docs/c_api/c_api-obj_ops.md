@@ -430,12 +430,12 @@ Implements the `|#|` operator. On failure the error is set.
 
 ---
 
-### `_Nst_repr_str_cast`
+### `Nst_obj_to_repr_str`
 
 **Synopsis:**
 
 ```better-c
-Nst_Obj *_Nst_repr_str_cast(Nst_Obj *ob)
+Nst_Obj *Nst_obj_to_repr_str(Nst_Obj *ob)
 ```
 
 **Description:**

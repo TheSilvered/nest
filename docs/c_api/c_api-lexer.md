@@ -15,9 +15,9 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-Nst_LList *Nst_tokenizef(const char *filename, Nst_EncodingID encoding,
-                         i32 *opt_level, bool *no_default,
-                         Nst_SourceText *src_text)
+Nst_DynArray Nst_tokenizef(const char *filename, Nst_EncodingID encoding,
+                           i32 *opt_level, bool *no_default,
+                           Nst_SourceText *src_text)
 ```
 
 **Description:**
@@ -38,8 +38,9 @@ Opens and tokenizes a file.
 
 **Returns:**
 
-A [`Nst_LList`](c_api-llist.md#nst_llist) of tokens or `NULL` on failure. The
-error is set.
+A [`Nst_DynArray`](c_api-dyn_array.md#nst_dynarray) of
+[`Nst_Tok`](c_api-tokens.md#nst_tok). On failure it has length `0`. The error is
+set.
 
 ---
 
@@ -48,7 +49,7 @@ error is set.
 **Synopsis:**
 
 ```better-c
-Nst_LList *Nst_tokenize(Nst_SourceText *text)
+Nst_DynArray Nst_tokenize(Nst_SourceText *text)
 ```
 
 **Description:**
@@ -61,8 +62,9 @@ Tokenizes text.
 
 **Returns:**
 
-A [`Nst_LList`](c_api-llist.md#nst_llist) of tokens or `NULL` on failure. The
-error is set.
+A [`Nst_DynArray`](c_api-dyn_array.md#nst_dynarray) of
+[`Nst_Tok`](c_api-tokens.md#nst_tok). On failure it has length `0`. The error is
+set.
 
 ---
 

@@ -626,7 +626,7 @@ Nst_Obj *Nst_obj_lgxor(Nst_Obj *ob1, Nst_Obj *ob2)
 
 // Other
 
-Nst_Obj *_Nst_repr_str_cast(Nst_Obj *ob)
+Nst_Obj *Nst_obj_to_repr_str(Nst_Obj *ob)
 {
     Nst_Obj *ob_t = ob->type;
 
@@ -692,7 +692,7 @@ Nst_Obj *_Nst_obj_str_cast_seq(Nst_Obj *seq_obj, Nst_LList *all_objs)
         else if (ob->type == Nst_t.Map)
             ob_str = _Nst_obj_str_cast_map(ob, all_objs);
         else
-            ob_str = _Nst_repr_str_cast(ob);
+            ob_str = Nst_obj_to_repr_str(ob);
         if (ob_str == NULL) {
             Nst_sb_destroy(&sb);
             return NULL;
@@ -748,7 +748,7 @@ Nst_Obj *_Nst_obj_str_cast_map(Nst_Obj *map_obj, Nst_LList *all_objs)
          idx = Nst_map_next(idx, map_obj, &key, &val))
     {
         // Key cannot be a vector, an array or a map
-        Nst_Obj *key_str = _Nst_repr_str_cast(key);
+        Nst_Obj *key_str = Nst_obj_to_repr_str(key);
         Nst_Obj *val_str;
 
         if (key_str == NULL) {
@@ -761,7 +761,7 @@ Nst_Obj *_Nst_obj_str_cast_map(Nst_Obj *map_obj, Nst_LList *all_objs)
         else if (val->type == Nst_t.Map)
             val_str = _Nst_obj_str_cast_map(val, all_objs);
         else
-            val_str = _Nst_repr_str_cast(val);
+            val_str = Nst_obj_to_repr_str(val);
 
         if (key_str == NULL) {
             Nst_dec_ref(key_str);

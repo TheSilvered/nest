@@ -15,7 +15,7 @@ TheSilvered
 **Synopsis:**
 
 ```better-c
-Nst_Node *Nst_parse(Nst_LList *tokens)
+Nst_Node *Nst_parse(Nst_DynArray *tokens)
 ```
 
 **Description:**

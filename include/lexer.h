@@ -10,6 +10,7 @@
 #define LEXER_H
 
 #include "encoding.h"
+#include "dyn_array.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,19 +28,22 @@ extern "C" {
  * with file arguments
  * @param src_text: where the source of the file is saved
  *
- * @return A `Nst_LList` of tokens or `NULL` on failure. The error is set.
+ * @return A `Nst_DynArray` of `Nst_Tok`. On failure it has length `0`. The
+ * error is set.
  */
-NstEXP Nst_LList *NstC Nst_tokenizef(const char *filename,
-                                     Nst_EncodingID encoding, i32 *opt_level,
-                                     bool *no_default, Nst_SourceText *src_text);
+NstEXP Nst_DynArray NstC Nst_tokenizef(const char *filename,
+                                       Nst_EncodingID encoding, i32 *opt_level,
+                                       bool *no_default,
+                                       Nst_SourceText *src_text);
 /**
  * Tokenizes text.
  *
  * @param text: the text to tokenize
  *
- * @return A `Nst_LList` of tokens or `NULL` on failure. The error is set.
+ * @return A `Nst_DynArray` of `Nst_Tok`. On failure it has length `0`. The
+ * error is set.
  */
-NstEXP Nst_LList *NstC Nst_tokenize(Nst_SourceText *text);
+NstEXP Nst_DynArray NstC Nst_tokenize(Nst_SourceText *text);
 
 /**
  * Adds the `lines` array to the given text.

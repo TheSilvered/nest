@@ -37,8 +37,7 @@ NstEXP typedef struct _Nst_ValueStack {
  * @param func: the function being called
  * @param cwd: the current working directory, changed when the call is back on
  * top of the stack; nothing is done if it is `NULL`
- * @param start: the start position of the call
- * @param end: the end position of the call
+ * @param span: the position of the call
  * @param vt: the variable table of the call
  * @param idx: the instruction index of the call
  * @param cstack_len: the size of the catch stack when the function was called
@@ -46,8 +45,7 @@ NstEXP typedef struct _Nst_ValueStack {
 NstEXP typedef struct _Nst_FuncCall {
     Nst_Obj *func;
     Nst_Obj *cwd;
-    Nst_Pos start;
-    Nst_Pos end;
+    Nst_Span span;
     Nst_VarTable *vt;
     i64 idx;
     usize cstack_len;

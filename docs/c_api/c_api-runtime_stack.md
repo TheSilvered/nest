@@ -42,8 +42,7 @@ A structure representing the value stack.
 typedef struct _Nst_FuncCall {
     Nst_Obj *func;
     Nst_Obj *cwd;
-    Nst_Pos start;
-    Nst_Pos end;
+    Nst_Span span;
     Nst_VarTable *vt;
     i64 idx;
     usize cstack_len;
@@ -59,8 +58,7 @@ A structure representing a function call.
 - `func`: the function being called
 - `cwd`: the current working directory, changed when the call is back on top of
   the stack; nothing is done if it is `NULL`
-- `start`: the start position of the call
-- `end`: the end position of the call
+- `span`: the position of the call
 - `vt`: the variable table of the call
 - `idx`: the instruction index of the call
 - `cstack_len`: the size of the catch stack when the function was called

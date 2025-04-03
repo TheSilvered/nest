@@ -81,22 +81,6 @@ The structure representing a linked list.
 
 ---
 
-## Type aliases
-
-### `Nst_LListDestructor`
-
-**Synopsis:**
-
-```better-c
-typedef void (*Nst_LListDestructor)(void *)
-```
-
-**Description:**
-
-The type of a list destructor.
-
----
-
 ## Functions
 
 ### `Nst_llist_push`
@@ -325,7 +309,7 @@ The new node or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-void Nst_llist_destroy(Nst_LList *llist, void (*item_destructor)(void *))
+void Nst_llist_destroy(Nst_LList *llist, Nst_Destructor item_destructor)
 ```
 
 **Description:**
@@ -347,7 +331,7 @@ item_destructor otherwise it is left untouched.
 **Synopsis:**
 
 ```better-c
-void Nst_llist_empty(Nst_LList *llist, void (*item_destructor)(void *))
+void Nst_llist_empty(Nst_LList *llist, Nst_Destructor item_destructor)
 ```
 
 **Description:**

@@ -85,49 +85,20 @@ const char *tt_strings[] = {
     [Nst_TT_CONTAINS] = "CONTAINS"
 };
 
-Nst_Tok *Nst_tok_new_value(Nst_Pos start, Nst_Pos end, Nst_TokType type,
-                           Nst_Obj *value)
+Nst_Tok Nst_tok_new(Nst_Span span, i32 type, Nst_Obj *val)
 {
-    Nst_Tok *token = Nst_TOK(Nst_malloc(1, sizeof(Nst_Tok)));
-    if (token == NULL) {
-        Nst_ndec_ref(value);
-        return NULL;
-    }
-
-    token->start = start;
-    token->end = end;
-    token->value = value;
-    token->type = type;
+    Nst_Tok token = {
+        .span = span,
+        .type = type,
+        .value = val
+    };
 
     return token;
 }
 
-Nst_Tok *Nst_tok_new_noval(Nst_Pos start, Nst_Pos end, Nst_TokType type)
+Nst_Tok Nst_tok_invalid(void)
 {
-    Nst_Tok *token = Nst_TOK(Nst_malloc(1, sizeof(Nst_Tok)));
-    if (token == NULL)
-        return NULL;
-
-    token->start = start;
-    token->end = end;
-    token->value = NULL;
-    token->type = type;
-
-    return token;
-}
-
-Nst_Tok *Nst_tok_new_noend(Nst_Pos start, Nst_TokType type)
-{
-    Nst_Tok *token = Nst_TOK(Nst_malloc(1, sizeof(Nst_Tok)));
-    if (token == NULL)
-        return NULL;
-
-    token->start = start;
-    token->end = start;
-    token->value = NULL;
-    token->type = type;
-
-    return token;
+    return Nst_tok_new(Nst_span_empty(), Nst_TT_INVALID, NULL);
 }
 
 void Nst_tok_destroy(Nst_Tok *token)
@@ -136,10 +107,9 @@ void Nst_tok_destroy(Nst_Tok *token)
         return;
 
     Nst_ndec_ref(token->value);
-    Nst_free(token);
 }
 
-Nst_TokType Nst_tok_from_str(u8 *str)
+Nst_TokType Nst_tok_type_from_str(u8 *str)
 {
     if (str[1] == '\0') {
         switch (str[0]) {
@@ -325,15 +295,15 @@ void Nst_print_tok(Nst_Tok *token)
 {
     Nst_printf("%s (%02" PRIi32 ":%02" PRIi32 ", %02" PRIi32 ":%02" PRIi32,
         tt_strings[token->type],
-        token->start.line,
-        token->start.col,
-        token->end.line,
-        token->end.col);
+        token->span.start_line,
+        token->span.start_col,
+        token->span.end_line,
+        token->span.end_col);
 
     if (token->value != NULL) {
         Nst_print(" - ");
 
-        Nst_Obj *s = _Nst_repr_str_cast(token->value);
+        Nst_Obj *s = Nst_obj_to_repr_str(token->value);
         if (s != NULL) {
             Nst_error_clear();
             Nst_fwrite(Nst_str_value(s), Nst_str_len(s), NULL, Nst_io.out);

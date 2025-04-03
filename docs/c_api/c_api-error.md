@@ -80,16 +80,44 @@ The structure representing a position inside a source file.
 
 ---
 
+### `Nst_Span`
+
+**Synopsis:**
+
+```better-c
+typedef struct _Nst_Span {
+    i32 start_line;
+    i32 start_col;
+    i32 end_line;
+    i32 end_col;
+    Nst_SourceText *text;
+} Nst_Span
+```
+
+**Description:**
+
+The structure representing a text span inside a source file.
+
+**Fields:**
+
+- `start_line`: the starting line, the first is line 0
+- `start_col`: the starting column, the first is column 0
+- `end_line`: the ending line, included in the span
+- `end_col`: the ending column, included in the span
+- `text`: the text this position refers to
+
+---
+
 ### `Nst_Traceback`
 
 **Synopsis:**
 
 ```better-c
-typedef volatile struct _Nst_Traceback {
+typedef struct _Nst_Traceback {
     bool error_occurred;
     Nst_Obj *error_name;
     Nst_Obj *error_msg;
-    Nst_LList *positions;
+    Nst_DynArray positions;
 } Nst_Traceback
 ```
 
@@ -122,20 +150,6 @@ Sets how the error message is printed (with or without ANSI escapes).
 
 ---
 
-### `Nst_pos_copy`
-
-**Synopsis:**
-
-```better-c
-Nst_Pos Nst_pos_copy(Nst_Pos pos)
-```
-
-**Description:**
-
-Forces a copy of the position.
-
----
-
 ### `Nst_pos_empty`
 
 **Synopsis:**
@@ -146,7 +160,105 @@ Nst_Pos Nst_pos_empty(void)
 
 **Description:**
 
-Creates an empty position, with no valid text.
+Creates an empty position with no valid text.
+
+---
+
+### `Nst_span_new`
+
+**Synopsis:**
+
+```better-c
+Nst_Span Nst_span_new(Nst_Pos start, Nst_Pos end)
+```
+
+**Description:**
+
+Make a new span from a start and an end posiiton.
+
+---
+
+### `Nst_span_from_pos`
+
+**Synopsis:**
+
+```better-c
+Nst_Span Nst_span_from_pos(Nst_Pos pos)
+```
+
+**Description:**
+
+Make a new span with the same start and end.
+
+---
+
+### `Nst_span_empty`
+
+**Synopsis:**
+
+```better-c
+Nst_Span Nst_span_empty(void)
+```
+
+**Description:**
+
+Creates an empty span with no valid text.
+
+---
+
+### `Nst_span_join`
+
+**Synopsis:**
+
+```better-c
+Nst_Span Nst_span_join(Nst_Span span1, Nst_Span span2)
+```
+
+**Description:**
+
+Make a span that includes both.
+
+---
+
+### `Nst_span_expand`
+
+**Synopsis:**
+
+```better-c
+Nst_Span Nst_span_expand(Nst_Span span, Nst_Pos pos)
+```
+
+**Description:**
+
+Expands a span to include the given position.
+
+---
+
+### `Nst_span_start`
+
+**Synopsis:**
+
+```better-c
+Nst_Pos Nst_span_start(Nst_Span span)
+```
+
+**Description:**
+
+Get the start position of a span.
+
+---
+
+### `Nst_span_end`
+
+**Synopsis:**
+
+```better-c
+Nst_Pos Nst_span_end(Nst_Span span)
+```
+
+**Description:**
+
+Get the end position of a span.
 
 ---
 
@@ -155,7 +267,7 @@ Creates an empty position, with no valid text.
 **Synopsis:**
 
 ```better-c
-bool Nst_tb_init(Nst_Traceback *tb)
+void Nst_tb_init(Nst_Traceback *tb)
 ```
 
 **Description:**
@@ -180,12 +292,12 @@ Frees the traceback of the current
 
 ---
 
-### `Nst_tb_add_pos`
+### `Nst_tb_add_span`
 
 **Synopsis:**
 
 ```better-c
-void Nst_tb_add_pos(Nst_Traceback *tb, Nst_Pos start, Nst_Pos end)
+void Nst_tb_add_span(Nst_Traceback *tb, Nst_Span span)
 ```
 
 **Description:**
@@ -589,12 +701,12 @@ Sets the global operation error with a memory error of failed allocation.
 
 ---
 
-### `Nst_error_add_pos`
+### `Nst_error_add_span`
 
 **Synopsis:**
 
 ```better-c
-void Nst_error_add_pos(Nst_Pos start, Nst_Pos end)
+void Nst_error_add_span(Nst_Span span)
 ```
 
 **Description:**

@@ -24,7 +24,7 @@ extern "C" {
  *
  * @return The AST or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Node *NstC Nst_parse(Nst_LList *tokens);
+NstEXP Nst_Node *NstC Nst_parse(Nst_DynArray *tokens);
 
 #ifdef __cplusplus
 }

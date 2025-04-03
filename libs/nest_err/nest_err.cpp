@@ -18,15 +18,21 @@ Nst_Declr *lib_init()
     return obj_list_;
 }
 
-Nst_Obj *make_pos(Nst_Pos start, Nst_Pos end)
+Nst_Obj *make_pos(Nst_Span span)
 {
     Nst_Obj *map = Nst_map_new();
 
     Nst_Obj *file_str = Nst_str_new_c_raw(
-        (const char *)start.text->path,
+        (const char *)span.text->path,
         false);
-    Nst_Obj *arr_start = Nst_array_create_c("ii", start.line, start.col);
-    Nst_Obj *arr_end = Nst_array_create_c("ii", end.line, end.col);
+    Nst_Obj *arr_start = Nst_array_create_c(
+        "ii",
+        span.start_line,
+        span.start_col);
+    Nst_Obj *arr_end = Nst_array_create_c(
+        "ii",
+        span.end_line,
+        span.end_col);
 
     Nst_map_set_str(map, "file", file_str);
     Nst_map_set_str(map, "start", arr_start);
@@ -58,8 +64,6 @@ Nst_Obj *failure(bool catch_exit, bool catch_interrupt)
     Nst_Obj *error_message_str = nullptr;
     Nst_Obj *error_traceback = nullptr;
     Nst_Traceback *error = Nst_error_get();
-    usize i = 0;
-    usize pos_count = 0;
     Nst_Obj **tb_objs = nullptr;
 
     if (!error->error_occurred) {
@@ -78,26 +82,14 @@ Nst_Obj *failure(bool catch_exit, bool catch_interrupt)
         goto cleanup;
     }
 
-    pos_count = error->positions->len / 2;
-    tb_objs = Nst_malloc_c(pos_count, Nst_Obj *);
-    for (Nst_LLNode *n_start = error->positions->head, *n_end = nullptr;
-         n_start != nullptr && n_start->next != nullptr;
-         n_start = n_end->next)
-    {
-        n_end = n_start->next;
-        if (((Nst_Pos *)n_start->value)->text == nullptr) {
-            pos_count--;
-            continue;
-        }
-
-        Nst_Obj *pos = make_pos(
-            *(Nst_Pos *)n_start->value,
-            *(Nst_Pos *)n_end->value);
-
-        tb_objs[i++] = pos;
+    tb_objs = Nst_malloc_c(error->positions.len, Nst_Obj *);
+    for (usize i = 0, n = error->positions.len; i < n; i++) {
+        Nst_Span span = *(Nst_Span *)Nst_da_get(&error->positions, n - i - 1);
+        Nst_Obj *pos = make_pos(span);
+        tb_objs[i] = pos;
     }
 
-    error_traceback = Nst_array_from_objsn(pos_count, tb_objs);
+    error_traceback = Nst_array_from_objsn(error->positions.len, tb_objs);
     Nst_free(tb_objs);
 
     Nst_error_clear();

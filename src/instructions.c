@@ -1,7 +1,7 @@
 #include <string.h>
 #include "nest.h"
 
-Nst_Inst *Nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end)
+Nst_Inst *Nst_inst_new(Nst_InstID id, Nst_Span span)
 {
     Nst_Inst *inst = Nst_malloc_c(1, Nst_Inst);
     if (inst == NULL)
@@ -10,17 +10,14 @@ Nst_Inst *Nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end)
     inst->id = id;
     inst->int_val = 0;
     inst->val = NULL;
-    inst->start = start;
-    inst->end = end;
+    inst->span = span;
 
-    Nst_assert_c(start.text != NULL);
-    Nst_assert_c(end.text != NULL);
+    Nst_assert_c(span.text != NULL);
 
     return inst;
 }
 
-Nst_Inst *Nst_inst_new_val(Nst_InstID id, Nst_Obj *val, Nst_Pos start,
-                            Nst_Pos end)
+Nst_Inst *Nst_inst_new_val(Nst_InstID id, Nst_Obj *val, Nst_Span span)
 {
     Nst_Inst *inst = Nst_malloc_c(1, Nst_Inst);
     if (inst == NULL)
@@ -29,17 +26,14 @@ Nst_Inst *Nst_inst_new_val(Nst_InstID id, Nst_Obj *val, Nst_Pos start,
     inst->id = id;
     inst->int_val = 0;
     inst->val = Nst_inc_ref(val);
-    inst->start = start;
-    inst->end = end;
+    inst->span = span;
 
-    Nst_assert_c(start.text != NULL);
-    Nst_assert_c(end.text != NULL);
+    Nst_assert_c(span.text != NULL);
 
     return inst;
 }
 
-Nst_Inst *Nst_inst_new_int(Nst_InstID id, i64 int_val, Nst_Pos start,
-                           Nst_Pos end)
+Nst_Inst *Nst_inst_new_int(Nst_InstID id, i64 int_val, Nst_Span span)
 {
     Nst_Inst *inst = Nst_malloc_c(1, Nst_Inst);
     if (inst == NULL)
@@ -48,11 +42,9 @@ Nst_Inst *Nst_inst_new_int(Nst_InstID id, i64 int_val, Nst_Pos start,
     inst->id = id;
     inst->int_val = int_val;
     inst->val = NULL;
-    inst->start = start;
-    inst->end = end;
+    inst->span = span;
 
-    Nst_assert_c(start.text != NULL);
-    Nst_assert_c(end.text != NULL);
+    Nst_assert_c(span.text != NULL);
 
     return inst;
 }
@@ -107,7 +99,7 @@ Nst_InstList *Nst_inst_list_new(Nst_LList *instructions)
     return inst_ls;
 
 failure:
-    Nst_llist_destroy(functions, (Nst_LListDestructor)Nst_dec_ref);
+    Nst_llist_destroy(functions, (Nst_Destructor)Nst_dec_ref);
     Nst_free(inst_array);
     Nst_free(inst_ls);
     return NULL;
@@ -132,7 +124,7 @@ void Nst_inst_list_destroy(Nst_InstList *inst_list)
     }
 
     Nst_free(instructions);
-    Nst_llist_destroy(inst_list->functions, (Nst_LListDestructor)Nst_dec_ref);
+    Nst_llist_destroy(inst_list->functions, (Nst_Destructor)Nst_dec_ref);
     Nst_free(inst_list);
 }
 
@@ -153,10 +145,10 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
         Nst_Inst inst = ls->instructions[i];
         if (inst.int_val > max_int)
             max_int = inst.int_val;
-        if (inst.start.col > max_col)
-            max_col = inst.start.col;
-        if (inst.start.line > max_row)
-            max_row = inst.start.line;
+        if (inst.span.start_col > max_col)
+            max_col = inst.span.start_col;
+        if (inst.span.start_line > max_row)
+            max_row = inst.span.start_line;
     }
 
     while (tot_size >= 10) {
@@ -205,9 +197,9 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
             " %*zi | %*" PRIi32 ":%-*" PRIi32 " | ",
             idx_width, i,
             row_width,
-            inst.start.line + 1,
+            inst.span.start_line + 1,
             col_width,
-            inst.start.col + 1);
+            inst.span.start_col + 1);
 
         switch (inst.id) {
         case Nst_IC_NO_OP:         PRINT("NO_OP        ", 13); break;
@@ -277,7 +269,7 @@ static void print_bytecode(Nst_InstList *ls, i32 indent)
 
         if (inst.val != NULL) {
             Nst_printf(" (%s) ", Nst_type_name(inst.val->type).value);
-            Nst_Obj *s = _Nst_repr_str_cast(inst.val);
+            Nst_Obj *s = Nst_obj_to_repr_str(inst.val);
             if (Nst_error_occurred())
                 Nst_error_clear();
             else {

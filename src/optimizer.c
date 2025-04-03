@@ -57,8 +57,8 @@ Nst_Node *NstC Nst_optimize_ast(Nst_Node *ast)
 {
     if (!optimize_node(ast)) {
         // should never happen but if it does, it will not crash
-        if (Nst_error_get()->positions->len == 0)
-            Nst_error_add_pos(ast->start, ast->end);
+        if (Nst_error_get()->positions.len == 0)
+            Nst_error_add_span(ast->span);
         Nst_node_destroy(ast);
         return NULL;
     }
@@ -71,7 +71,7 @@ static Nst_Obj *get_value(Nst_Node *node)
     if (node->type != Nst_NT_VL)
         return NULL;
     else
-        return node->v.vl.value->value;
+        return node->v.vl.value;
 }
 
 static void move_into(Nst_Node *new_node, Nst_Node *old_node)
@@ -92,8 +92,8 @@ static bool optimize_node(Nst_Node *node)
 
 static bool optimize_cs(Nst_Node *node)
 {
-    for (Nst_LLIST_ITER(lnode, node->v.cs.statements)) {
-        if (!optimize_node(Nst_NODE(lnode->value)))
+    for (usize i = 0, n = node->v.cs.statements.len; i < n; i++) {
+        if (!optimize_node(Nst_NODE(Nst_da_get_p(&node->v.cs.statements, i))))
             return false;
     }
     return true;
@@ -155,12 +155,12 @@ static bool optimize_switch_s(Nst_Node *node)
 
     // it cannot be optimized to jump to the correct value if known because of
     // possible fallthrough
-    for (Nst_LLIST_ITER(lnode, node->v.sw.values)) {
-        if (!optimize_node(Nst_NODE(lnode->value)))
+    for (usize i = 0, n = node->v.sw.values.len; i < n; i++) {
+        if (!optimize_node(Nst_NODE(Nst_da_get_p(&node->v.sw.values, i))))
             return false;
     }
-    for (Nst_LLIST_ITER(lnode, node->v.sw.bodies)) {
-        if (!optimize_node(Nst_NODE(lnode->value)))
+    for (usize i = 0, n = node->v.sw.bodies.len; i < n; i++) {
+        if (!optimize_node(Nst_NODE(Nst_da_get_p(&node->v.sw.bodies, i))))
             return false;
     }
     return optimize_node(node->v.sw.default_body);
@@ -185,15 +185,15 @@ static bool optimize_s_wrapper(Nst_Node *node)
     return true;
 }
 
-static bool optimize_stack_values(Nst_LList *values, Nst_TokType op,
+static bool optimize_stack_values(Nst_DynArray *values, Nst_TokType op,
                                   Nst_Node *node)
 {
-    for (Nst_LLIST_ITER(lnode, values)) {
-        if (!optimize_node(Nst_NODE(lnode->value)))
+    for (usize i = 0, n = values->len; i < n; i++) {
+        if (!optimize_node(Nst_NODE(Nst_da_get_p(values, i))))
             return false;
     }
 
-    if (values->len == 1 || values->head == NULL)
+    if (values->len <= 1)
         return true;
 
     Nst_Obj *(*op_func)(Nst_Obj *, Nst_Obj *) = NULL;
@@ -219,47 +219,43 @@ static bool optimize_stack_values(Nst_LList *values, Nst_TokType op,
         return true;
     }
 
-    Nst_Obj *curr_value = get_value(Nst_NODE(values->head->value));
+    Nst_Node *first_node = Nst_NODE(Nst_da_get_p(values, 0));
+    Nst_Obj *curr_value = get_value(first_node);
     if (curr_value == NULL)
         return true;
     Nst_inc_ref(curr_value);
-    Nst_LLNode *prev_lnode = Nst_llist_pop_llnode(values);
-    Nst_Node *prev_node = Nst_NODE(prev_lnode->value);
 
-    while (values->len != 0) {
-        Nst_Obj *top_value = get_value(Nst_NODE(values->head->value));
-        if (top_value == NULL) {
-            Nst_dec_ref(prev_node->v.vl.value->value);
-            prev_node->v.vl.value->value = curr_value;
-            Nst_llist_push_llnode(values, prev_lnode);
+    while (values->len != 1) {
+        Nst_Obj *new_value = get_value(Nst_NODE(Nst_da_get_p(values, 1)));
+        if (new_value == NULL) {
+            Nst_dec_ref(first_node->v.vl.value);
+            first_node->v.vl.value = curr_value;
             return true;
         }
-        Nst_free(prev_lnode);
-        Nst_node_destroy(prev_node);
+        Nst_da_remove_shift_p(values, 0, (Nst_Destructor)Nst_node_destroy);
 
-        Nst_Obj *result = op_func(curr_value, top_value);
+        first_node = Nst_NODE(Nst_da_get_p(values, 0));
+        Nst_Obj *result = op_func(curr_value, new_value);
         Nst_dec_ref(curr_value);
         if (result == NULL) {
-            Nst_error_add_pos(node->start, node->end);
+            Nst_error_add_span(node->span);
             return false;
         }
         curr_value = result;
-        prev_lnode = Nst_llist_pop_llnode(values);
-        prev_node = Nst_NODE(prev_lnode->value);
     }
-    Nst_dec_ref(prev_node->v.vl.value->value);
-    prev_node->v.vl.value->value = curr_value;
-    Nst_llist_push_llnode(values, prev_lnode);
+    Nst_dec_ref(first_node->v.vl.value);
+    first_node->v.vl.value = curr_value;
     return true;
 }
 
 static bool optimize_stack_op(Nst_Node *node)
 {
-    if (!optimize_stack_values(node->v.so.values, node->v.so.op, node))
+    if (!optimize_stack_values(&node->v.so.values, node->v.so.op, node))
         return false;
 
-    if (node->v.so.values->len == 1) {
-        Nst_Node *expr = Nst_llist_pop(node->v.so.values);
+    if (node->v.so.values.len == 1) {
+        Nst_Node *expr = Nst_da_get_p(&node->v.so.values, 0);
+        Nst_da_clear(&node->v.so.values, NULL);
         move_into(expr, node);
     }
     return true;
@@ -267,8 +263,8 @@ static bool optimize_stack_op(Nst_Node *node)
 
 static bool optimize_local_stack_op(Nst_Node *node)
 {
-    for (Nst_LLIST_ITER(lnode, node->v.ls.values)) {
-        if (!optimize_node(lnode->value))
+    for (usize i = 0, n = node->v.ls.values.len; i < n; i++) {
+        if (!optimize_node(Nst_NODE(Nst_da_get_p(&node->v.ls.values, i))))
             return false;
     }
 
@@ -296,21 +292,21 @@ static bool optimize_local_op(Nst_Node *node)
 
     Nst_Obj *result = op_func(value);
     if (result == NULL) {
-        Nst_error_add_pos(node->start, node->end);
+        Nst_error_add_span(node->span);
         return false;
     }
     Nst_Node *value_node = node->v.lo.value;
     node->v.lo.value = NULL;
-    Nst_dec_ref(value_node->v.vl.value->value);
-    value_node->v.vl.value->value = result;
+    Nst_dec_ref(value_node->v.vl.value);
+    value_node->v.vl.value = result;
     move_into(value_node, node);
     return true;
 }
 
 static bool optimize_seq_lit(Nst_Node *node)
 {
-    for (Nst_LLIST_ITER(lnode, node->v.sl.values)) {
-        if (!optimize_node(Nst_NODE(lnode->value)))
+    for (usize i = 0, n = node->v.sl.values.len; i < n; i++) {
+        if (!optimize_node(Nst_NODE(Nst_da_get_p(&node->v.sl.values, i))))
             return false;
     }
     return true;
@@ -318,13 +314,13 @@ static bool optimize_seq_lit(Nst_Node *node)
 
 static bool optimize_map_lit(Nst_Node *node)
 {
-    for (Nst_LLIST_ITER(lnode, node->v.ml.keys)) {
-        if (!optimize_node(Nst_NODE(lnode->value)))
+    for (usize i = 0, n = node->v.ml.keys.len; i < n; i++) {
+        if (!optimize_node(Nst_NODE(Nst_da_get_p(&node->v.ml.keys, i))))
             return false;
     }
 
-    for (Nst_LLIST_ITER(lnode, node->v.ml.values)) {
-        if (!optimize_node(Nst_NODE(lnode->value)))
+    for (usize i = 0, n = node->v.ml.values.len; i < n; i++) {
+        if (!optimize_node(Nst_NODE(Nst_da_get_p(&node->v.ml.values, i))))
             return false;
     }
     return true;
@@ -352,7 +348,7 @@ static bool optimize_comp_assign_e(Nst_Node *node)
 {
     if (!optimize_node(node->v.ca.name))
         return false;
-    if (!optimize_stack_values(node->v.ca.values, node->v.ca.op, node))
+    if (!optimize_stack_values(&node->v.ca.values, node->v.ca.op, node))
         return false;
     return true;
 }
@@ -758,7 +754,7 @@ static bool remove_push_check(Nst_InstList *bc)
             Nst_error_setf_type(
                 "type '%s' is not hashable",
                 Nst_type_name(obj->type).value);
-            Nst_error_add_pos(inst_list[i].start, inst_list[i].end);
+            Nst_error_add_span(inst_list[i].span);
             return false;
         }
 

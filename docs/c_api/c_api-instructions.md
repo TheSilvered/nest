@@ -35,8 +35,7 @@ typedef struct _Nst_Inst {
     Nst_InstID id;
     i64 int_val;
     Nst_Obj *val;
-    Nst_Pos start;
-    Nst_Pos end;
+    Nst_Span span;
 } Nst_Inst
 ```
 
@@ -49,8 +48,7 @@ The structure representing an instruction in Nest.
 - `id`: the ID of the instruction
 - `int_val`: an integer value used by the instruction
 - `val`: an object used by the instruction
-- `start`: the start position of the instruction
-- `end`: the end position of the instruction
+- `span`: the span of the instruction
 
 ---
 
@@ -86,7 +84,7 @@ The structure representing a list of instructions in Nest.
 **Synopsis:**
 
 ```better-c
-Nst_Inst *Nst_inst_new(Nst_InstID id, Nst_Pos start, Nst_Pos end)
+Nst_Inst *Nst_inst_new(Nst_InstID id, Nst_Span span)
 ```
 
 **Description:**
@@ -110,8 +108,7 @@ The new instruction or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Inst *Nst_inst_new_val(Nst_InstID id, Nst_Obj *val, Nst_Pos start,
-                           Nst_Pos end)
+Nst_Inst *Nst_inst_new_val(Nst_InstID id, Nst_Obj *val, Nst_Span span)
 ```
 
 **Description:**
@@ -138,8 +135,7 @@ The new instruction or `NULL` on failure. The error is set.
 **Synopsis:**
 
 ```better-c
-Nst_Inst *Nst_inst_new_int(Nst_InstID id, i64 int_val, Nst_Pos start,
-                           Nst_Pos end)
+Nst_Inst *Nst_inst_new_int(Nst_InstID id, i64 int_val, Nst_Span span)
 ```
 
 **Description:**
@@ -283,7 +279,7 @@ typedef enum _Nst_InstID {
     Nst_IC_MAKE_MAP,
     Nst_IC_MAKE_FUNC,
     Nst_IC_SAVE_ERROR,
-    Nst_IC_UNPACK_SEQ,
+    Nst_IC_UNPACK_SEQ
 } Nst_InstID
 ```
 

@@ -50,6 +50,8 @@ bool Nst_da_init(Nst_DynArray *arr, usize unit_size, usize reserve)
 
 Initializes a [`Nst_DynArray`](c_api-dyn_array.md#nst_dynarray).
 
+If `reserve` is `0` no memory is allocated.
+
 **Parameters:**
 
 - `buf`: the buffer to initialize
@@ -129,7 +131,7 @@ Append an element to the end of the array.
 **Synopsis:**
 
 ```better-c
-bool Nst_da_pop(Nst_DynArray *arr)
+bool Nst_da_pop(Nst_DynArray *arr, Nst_Destructor dstr)
 ```
 
 **Description:**
@@ -143,12 +145,32 @@ to pop. No error is set.
 
 ---
 
+### `Nst_da_pop_p`
+
+**Synopsis:**
+
+```better-c
+bool Nst_da_pop_p(Nst_DynArray *arr, Nst_Destructor dstr)
+```
+
+**Description:**
+
+Pops the last element of the array. The array is considered to be an array of
+`void *` and the element itself is passed to the destructor.
+
+**Returns:**
+
+`true` if the element was popped successfully and `false` if there was no item
+to pop. No error is set.
+
+---
+
 ### `Nst_da_remove_swap`
 
 **Synopsis:**
 
 ```better-c
-bool Nst_da_remove_swap(Nst_DynArray *arr, usize index)
+bool Nst_da_remove_swap(Nst_DynArray *arr, usize index, Nst_Destructor dstr)
 ```
 
 **Description:**
@@ -166,18 +188,42 @@ element to remove. No error is set.
 
 ---
 
-### `Nst_da_remove_shift`
+### `Nst_da_remove_swap_p`
 
 **Synopsis:**
 
 ```better-c
-bool Nst_da_remove_shift(Nst_DynArray *arr, usize index)
+bool Nst_da_remove_swap_p(Nst_DynArray *arr, usize index, Nst_Destructor dstr)
 ```
 
 **Description:**
 
 Remove the element of an array at `index` and puts the last element of the array
-in its place
+in its place. The array is considered to be an array of `void *` and the element
+itself is passed to the destructor.
+
+!!!note
+    This function operates in constant time.
+
+**Returns:**
+
+`true` if the element was removed successfully and `false` if there was no
+element to remove. No error is set.
+
+---
+
+### `Nst_da_remove_shift`
+
+**Synopsis:**
+
+```better-c
+bool Nst_da_remove_shift(Nst_DynArray *arr, usize index, Nst_Destructor dstr)
+```
+
+**Description:**
+
+Remove the element of an array at `index` and puts the last element of the array
+in its place.
 
 !!!note
     This function operates in linear time.
@@ -189,17 +235,41 @@ element to remove. No error is set.
 
 ---
 
-### `Nst_da_at`
+### `Nst_da_remove_shift_p`
 
 **Synopsis:**
 
 ```better-c
-void *Nst_da_at(Nst_DynArray *arr, usize index)
+bool Nst_da_remove_shift_p(Nst_DynArray *arr, usize index, Nst_Destructor dstr)
 ```
 
 **Description:**
 
-Get the element of an array at `index`.
+Remove the element of an array at `index` and puts the last element of the array
+in its place. The array is considered to be an array of `void *` and the element
+itself is passed to the destructor.
+
+!!!note
+    This function operates in linear time.
+
+**Returns:**
+
+`true` if the element was removed successfully and `false` if there was no
+element to remove. No error is set.
+
+---
+
+### `Nst_da_get`
+
+**Synopsis:**
+
+```better-c
+void *Nst_da_get(Nst_DynArray *arr, usize index)
+```
+
+**Description:**
+
+Get the pointer to the element of an array at `index`.
 
 **Returns:**
 
@@ -208,14 +278,49 @@ of bounds. No error is set.
 
 ---
 
+### `Nst_da_get_p`
+
+**Synopsis:**
+
+```better-c
+void *Nst_da_get_p(Nst_DynArray *arr, usize index)
+```
+
+**Description:**
+
+Get the element of an array at `index`. The array is considered to be an array
+of `void *` and the element itself is returned.
+
+**Returns:**
+
+The element at `index` or `NULL` if the index is out of bounds. No error is set.
+
+---
+
 ### `Nst_da_clear`
 
 **Synopsis:**
 
 ```better-c
-void Nst_da_clear(Nst_DynArray *arr)
+void Nst_da_clear(Nst_DynArray *arr, Nst_Destructor dstr)
 ```
 
 **Description:**
 
 Clear the contents of an array freeing any allocated memory.
+
+---
+
+### `Nst_da_clear_p`
+
+**Synopsis:**
+
+```better-c
+void Nst_da_clear_p(Nst_DynArray *arr, Nst_Destructor dstr)
+```
+
+**Description:**
+
+Clear the contents of an array freeing any allocated memory. The array is
+considered to be an array of `void *` and the elements themselves are passed to
+the destructor.

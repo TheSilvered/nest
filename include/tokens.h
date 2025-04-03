@@ -140,45 +140,24 @@ NstEXP typedef enum _Nst_TokType {
  * @param value: the value of the token
  */
 NstEXP typedef struct _Nst_Tok {
-    Nst_Pos start;
-    Nst_Pos end;
+    Nst_Span span;
     Nst_TokType type;
     Nst_Obj *value;
 } Nst_Tok;
 
 /**
- * Creates a new token on the heap with a value.
+ * Creates a new token.
  *
- * @param start: the start position of the token
- * @param end: the end position of the token
+ * @param span: the span of the token
  * @param type: the type of the token
- * @param value: the value of the token
+ * @param val: the value of the token, can be `NULL`
  *
- * @return The new token on success and `NULL` on failure. The error is set.
+ * @return The new token.
  */
-NstEXP Nst_Tok *NstC Nst_tok_new_value(Nst_Pos start, Nst_Pos end,
-                                       Nst_TokType type, Nst_Obj *value);
-/**
- * Creates a new token on the heap that has no value.
- *
- * @param start: the start position of the token
- * @param end: the end position of the token
- * @param type: the type of the token
- *
- * @return The new token on success and `NULL` on failure. The error is set.
- */
-NstEXP Nst_Tok *NstC Nst_tok_new_noval(Nst_Pos start, Nst_Pos end,
-                                       Nst_TokType type);
-/**
- * Creates a new token on the heap that has no value and that uses the same
- * start and end positions.
- *
- * @param start: the start position of the token
- * @param type: the type of the token
- *
- * @return The new token on success and `NULL` on failure. The error is set.
- */
-NstEXP Nst_Tok *NstC Nst_tok_new_noend(Nst_Pos start, Nst_TokType type);
+NstEXP Nst_Tok NstC Nst_tok_new(Nst_Span span, i32 type, Nst_Obj *val);
+/* Creates a new token with the type set to `Nst_TT_INVALID`. */
+NstEXP Nst_Tok NstC Nst_tok_invalid(void);
+
 NstEXP void NstC Nst_tok_destroy(Nst_Tok *token);
 
 /**
@@ -191,7 +170,7 @@ NstEXP void NstC Nst_tok_destroy(Nst_Tok *token);
  * @return The parsed token type or `Nst_TT_INVALID` if the string does not
  * contain a valid token literal.
  */
-NstEXP Nst_TokType NstC Nst_tok_from_str(u8 *str);
+NstEXP Nst_TokType NstC Nst_tok_type_from_str(u8 *str);
 
 /* Prints a token to the Nest standard output. */
 NstEXP void NstC Nst_print_tok(Nst_Tok *token);

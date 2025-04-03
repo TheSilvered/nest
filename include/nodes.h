@@ -108,7 +108,7 @@ struct _Nst_Node;
 
 /* The data for a `Nst_NT_CS` node. */
 NstEXP typedef struct _Nst_NodeData_Cs {
-    Nst_LList *statements;
+    Nst_DynArray statements;
 } Nst_NodeData_Cs;
 
 /* The data for a `Nst_NT_WL` node. */
@@ -127,8 +127,8 @@ NstEXP typedef struct _Nst_NodeData_Fl {
 
 /* The data for a `Nst_NT_FD` node. */
 NstEXP typedef struct _Nst_NodeData_Fd {
-    Nst_Tok *name;
-    Nst_LList *argument_names;
+    Nst_Obj *name;
+    Nst_DynArray argument_names;
     struct _Nst_Node *body;
 } Nst_NodeData_Fd;
 
@@ -140,8 +140,8 @@ NstEXP typedef struct _Nst_NodeData_Rt {
 /* The data for a `Nst_NT_SW` node. */
 NstEXP typedef struct _Nst_NodeData_Sw {
     struct _Nst_Node *expr;
-    Nst_LList *values;
-    Nst_LList *bodies;
+    Nst_DynArray values;
+    Nst_DynArray bodies;
     struct _Nst_Node *default_body;
 } Nst_NodeData_Sw;
 
@@ -149,7 +149,7 @@ NstEXP typedef struct _Nst_NodeData_Sw {
 NstEXP typedef struct _Nst_NodeData_Tc {
     struct _Nst_Node *try_body;
     struct _Nst_Node *catch_body;
-    Nst_Tok *error_name;
+    Nst_Obj *error_name;
 } Nst_NodeData_Tc;
 
 /* The data for a `Nst_NT_WS` node. */
@@ -159,13 +159,13 @@ NstEXP typedef struct _Nst_NodeData_Ws {
 
 /* The data for a `Nst_NT_SO` node. */
 NstEXP typedef struct _Nst_NodeData_So {
-    Nst_LList *values;
+    Nst_DynArray values;
     Nst_TokType op;
 } Nst_NodeData_So;
 
 /* The data for a `Nst_NT_LS` node. */
 NstEXP typedef struct _Nst_NodeData_Ls {
-    Nst_LList *values;
+    Nst_DynArray values;
     struct _Nst_Node *special_value;
     Nst_TokType op;
 } Nst_NodeData_Ls;
@@ -178,23 +178,23 @@ NstEXP typedef struct _Nst_NodeData_Lo {
 
 /* The data for a `Nst_NT_SL` node. */
 NstEXP typedef struct _Nst_NodeData_Sl {
-    Nst_LList *values;
+    Nst_DynArray values;
     Nst_SeqNodeType type;
 } Nst_NodeData_Sl;
 
 /* The data for a `Nst_NT_ML` node. */
 NstEXP typedef struct _Nst_NodeData_Ml {
-    Nst_LList *keys;
-    Nst_LList *values;
+    Nst_DynArray keys;
+    Nst_DynArray values;
 } Nst_NodeData_Ml;
 
 /* The data for a `Nst_NT_VL` node. */
 NstEXP typedef struct _Nst_NodeData_Vl {
-    Nst_Tok *value;
+    Nst_Obj *value;
 } Nst_NodeData_Vl;
 /* The data for a `Nst_NT_AC` node. */
 NstEXP typedef struct _Nst_NodeData_Ac {
-    Nst_Tok *value;
+    Nst_Obj *value;
 } Nst_NodeData_Ac;
 /* The data for a `Nst_NT_EX` node. */
 NstEXP typedef struct _Nst_NodeData_Ex {
@@ -208,7 +208,7 @@ NstEXP typedef struct _Nst_NodeData_As {
 } Nst_NodeData_As;
 /* The data for a `Nst_NT_CA` node. */
 NstEXP typedef struct _Nst_NodeData_Ca {
-    Nst_LList *values;
+    Nst_DynArray values;
     struct _Nst_Node *name;
     Nst_TokType op;
 } Nst_NodeData_Ca;
@@ -225,15 +225,14 @@ NstEXP typedef struct _Nst_NodeData_We {
 
 /**
  * The structure representing a parser node.
- * 
+ *
  * @param start: the starting position of the node
  * @param end: the ending position of the node
  * @param type: the `Nst_NodeType` of the node
  * @param v: a union that contains the node's data
  */
 NstEXP typedef struct _Nst_Node {
-    Nst_Pos start;
-    Nst_Pos end;
+    Nst_Span span;
     Nst_NodeType type;
     union {
         Nst_NodeData_Cs cs;
@@ -360,7 +359,7 @@ NstEXP bool NstC _Nst_node_we_init(Nst_Node *node);
 NstEXP void NstC _Nst_node_we_destroy(Nst_Node *node);
 
 NstEXP Nst_Node *NstC Nst_node_new(Nst_NodeType type);
-NstEXP void NstC Nst_node_set_pos(Nst_Node *node, Nst_Pos start, Nst_Pos end);
+NstEXP void NstC Nst_node_set_span(Nst_Node *node, Nst_Span span);
 
 /* Destroys the contents of `node` and frees it. */
 NstEXP void NstC Nst_node_destroy(Nst_Node *node);

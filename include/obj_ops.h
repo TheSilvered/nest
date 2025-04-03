@@ -105,7 +105,7 @@ NstEXP Nst_Obj *NstC Nst_obj_import(Nst_Obj *ob);
  *
  * @return The new string or `NULL` on failure. The error is set.
  */
-NstEXP Nst_Obj *NstC _Nst_repr_str_cast(Nst_Obj *ob);
+NstEXP Nst_Obj *NstC Nst_obj_to_repr_str(Nst_Obj *ob);
 
 /**
  * Casts an object from a type to another.

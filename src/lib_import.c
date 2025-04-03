@@ -233,13 +233,13 @@ static MatchType *compile_type_match(const char *types, const char **type_end,
                     " '%s'",
                     (types - full_types) + 1,
                     Nst_type_name(custom_type->type).value);
-                Nst_da_clear(&custom_types);
+                Nst_da_clear(&custom_types, NULL);
                 Nst_free(match_type);
                 return NULL;
             }
 
             if (!Nst_da_append(&custom_types, &custom_type)) {
-                Nst_da_clear(&custom_types);
+                Nst_da_clear(&custom_types, NULL);
                 Nst_free(match_type);
                 return NULL;
             }
@@ -249,7 +249,7 @@ static MatchType *compile_type_match(const char *types, const char **type_end,
                 Nst_error_setf_value(
                     "argument extraction: '?' not allowed at %zi",
                     (types - full_types) + 1);
-                Nst_da_clear(&custom_types);
+                Nst_da_clear(&custom_types, NULL);
                 Nst_free(match_type);
                 return NULL;
             }
@@ -263,7 +263,7 @@ static MatchType *compile_type_match(const char *types, const char **type_end,
                 Nst_error_setf_value(
                     "argument extraction: '|' not allowed at %zi",
                     (types - full_types) + 1);
-                Nst_da_clear(&custom_types);
+                Nst_da_clear(&custom_types, NULL);
                 Nst_free(match_type);
                 return NULL;
             }
@@ -275,7 +275,7 @@ static MatchType *compile_type_match(const char *types, const char **type_end,
             Nst_error_setf_value(
                 "argument extraction: syntax error at %zi",
                 (types - full_types) + 1);
-            Nst_da_clear(&custom_types);
+            Nst_da_clear(&custom_types, NULL);
             Nst_free(match_type);
             return NULL;
         }
@@ -360,7 +360,7 @@ static MatchType *compile_type_match(const char *types, const char **type_end,
             Nst_error_setf_value(
                 "argument extraction: unknown cast at %zi",
                 (types - full_types) + 1);
-            Nst_da_clear(&custom_types);
+            Nst_da_clear(&custom_types, NULL);
             destroy_match_type(match_type);
             return NULL;
         }

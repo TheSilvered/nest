@@ -1,17 +1,5 @@
 #include "nest.h"
 
-#define DESTROY_NODE_IF_NOT_NULL(node)                                        \
-    if (node != NULL) Nst_node_destroy(node);
-
-#define DESTROY_TOK_IF_NOT_NULL(tok)                                          \
-    if (tok != NULL) Nst_tok_destroy(tok);
-
-#define DESTROY_NODE_LLIST(llist)                                             \
-    Nst_llist_destroy(llist, (Nst_LListDestructor)Nst_node_destroy)
-
-#define DESTROY_TOK_LLIST(llist)                                              \
-    Nst_llist_destroy(llist, (Nst_LListDestructor)Nst_tok_destroy)
-
 // extract property, used to avoid mistakes when printing node data
 #define EP(data_name, name) #name, node->v.data_name.name, levels
 
@@ -208,8 +196,8 @@ static void print_node(const char *name, Nst_Node *node, Nst_LList *levels,
         Nst_printf(
             "%s (%" PRIi32 ":%" PRIi32 ", %" PRIi32 ":%" PRIi32 ")\n",
             nt_strings[node->type],
-            node->start.line, node->start.col,
-            node->end.line, node->end.col);
+            node->span.start_line, node->span.start_col,
+            node->span.end_line, node->span.end_col);
         if (prints[node->type] != NULL)
             prints[node->type](node, levels);
     } else
@@ -218,14 +206,14 @@ static void print_node(const char *name, Nst_Node *node, Nst_LList *levels,
     remove_level(levels);
 }
 
-static void print_node_list(const char *name, Nst_LList *nodes,
+static void print_node_list(const char *name, Nst_DynArray nodes,
                             Nst_LList *levels, bool last)
 {
     print_levels(levels);
     if (!print_connection(last, true, levels))
         return;
 
-    if (nodes->len == 0) {
+    if (nodes.len == 0) {
         Nst_printf("%s: (empty)\n", name);
         remove_level(levels);
         return;
@@ -233,8 +221,12 @@ static void print_node_list(const char *name, Nst_LList *nodes,
 
     Nst_printf("%s:\n", name);
 
-    for (Nst_LLIST_ITER(node, nodes)) {
-        print_node(NULL, Nst_NODE(node->value), levels, node == nodes->tail);
+    for (usize i = 0; i < nodes.len; i++) {
+        print_node(
+            NULL,
+            Nst_NODE(Nst_da_get_p(&nodes, i)),
+            levels,
+            i == nodes.len - 1);
     }
     remove_level(levels);
 }
@@ -248,17 +240,22 @@ static void print_bool(const char *name, bool value, Nst_LList *levels,
     Nst_printf("%s: %s\n", name, value ? "true" : "false");
 }
 
-static void print_token(const char *name, Nst_Tok *tok, Nst_LList *levels,
-                        bool last)
+static void print_obj(const char *name, Nst_Obj *obj, Nst_LList *levels,
+                      bool last)
 {
     print_levels(levels);
     if (!print_connection(last, false, NULL))
         return;
     if (name != NULL)
         Nst_printf("%s: ", name);
-    if (tok != NULL)
-        Nst_print_tok(tok);
-    else
+    if (obj != NULL) {
+        Nst_Obj *repr_obj = Nst_obj_to_repr_str(obj);
+        if (repr_obj != NULL) {
+            Nst_fwrite(Nst_str_value(repr_obj), Nst_str_len(repr_obj), NULL,
+                       Nst_io.out);
+            Nst_dec_ref(repr_obj);
+        }
+    } else
         Nst_print("(null)\n");
     Nst_print("\n");
 }
@@ -273,14 +270,14 @@ static void print_tok_type(const char *name, Nst_TokType tok_type,
     Nst_printf("%s: %s\n", name, Nst_tok_type_to_str(tok_type));
 }
 
-static void print_tok_list(const char *name, Nst_LList *tokens,
+static void print_obj_list(const char *name, Nst_DynArray objs,
                            Nst_LList *levels, bool last)
 {
     print_levels(levels);
     if (!print_connection(last, true, levels))
         return;
 
-    if (tokens->len == 0) {
+    if (objs.len == 0) {
         Nst_printf("%s: (empty)\n", name);
         remove_level(levels);
         return;
@@ -288,12 +285,12 @@ static void print_tok_list(const char *name, Nst_LList *tokens,
 
     Nst_printf("%s:\n", name);
 
-    for (Nst_LLIST_ITER(token, tokens)) {
-        print_token(
+    for (usize i = 0; i < objs.len; i++) {
+        print_obj(
             NULL,
-            Nst_TOK(token->value),
+            NstOBJ(Nst_da_get_p(&objs, i)),
             levels,
-            token == tokens->tail);
+            i == objs.len - 1);
     }
     remove_level(levels);
 }
@@ -310,13 +307,12 @@ static void print_seq_node_type(const char *name, Nst_SeqNodeType snt,
 
 bool _Nst_node_cs_init(Nst_Node *node)
 {
-    node->v.cs.statements = Nst_llist_new();
-    return node->v.cs.statements != NULL;
+    return Nst_da_init(&node->v.cs.statements, sizeof(Nst_Node *), 4);
 }
 
 void _Nst_node_cs_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_LLIST(node->v.cs.statements);
+    Nst_da_clear_p(&node->v.cs.statements, (Nst_Destructor)Nst_node_destroy);
 }
 
 void print_cs(Nst_Node *node, Nst_LList *levels)
@@ -334,8 +330,10 @@ bool _Nst_node_wl_init(Nst_Node *node)
 
 void _Nst_node_wl_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_IF_NOT_NULL(node->v.wl.condition);
-    DESTROY_NODE_IF_NOT_NULL(node->v.wl.body);
+    if (node->v.wl.condition != NULL)
+        Nst_node_destroy(node->v.wl.condition);
+    if (node->v.wl.body != NULL)
+        Nst_node_destroy(node->v.wl.body);
 }
 
 void print_wl(Nst_Node *node, Nst_LList *levels)
@@ -355,9 +353,12 @@ bool _Nst_node_fl_init(Nst_Node *node)
 
 void _Nst_node_fl_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_IF_NOT_NULL(node->v.fl.iterator);
-    DESTROY_NODE_IF_NOT_NULL(node->v.fl.assignment);
-    DESTROY_NODE_IF_NOT_NULL(node->v.fl.body);
+    if (node->v.fl.iterator != NULL)
+        Nst_node_destroy(node->v.fl.iterator);
+    if (node->v.fl.assignment != NULL)
+        Nst_node_destroy(node->v.fl.assignment);
+    if (node->v.fl.body != NULL)
+        Nst_node_destroy(node->v.fl.body);
 }
 
 void print_fl(Nst_Node *node, Nst_LList *levels)
@@ -371,21 +372,21 @@ bool _Nst_node_fd_init(Nst_Node *node)
 {
     node->v.fd.name = NULL;
     node->v.fd.body = NULL;
-    node->v.fd.argument_names = Nst_llist_new();
-    return node->v.fd.argument_names != NULL;
+    return Nst_da_init(&node->v.fd.argument_names, sizeof(Nst_Obj *), 2);
 }
 
 void _Nst_node_fd_destroy(Nst_Node *node)
 {
-    DESTROY_TOK_IF_NOT_NULL(node->v.fd.name);
-    DESTROY_NODE_IF_NOT_NULL(node->v.fd.body);
-    DESTROY_TOK_LLIST(node->v.fd.argument_names);
+    Nst_ndec_ref(node->v.fd.name);
+    if (node->v.fd.body != NULL)
+        Nst_node_destroy(node->v.fd.body);
+    Nst_da_clear_p(&node->v.fd.argument_names, (Nst_Destructor)Nst_dec_ref);
 }
 
 void print_fd(Nst_Node *node, Nst_LList *levels)
 {
-    print_token(EP(fd, name), false);
-    print_tok_list(EP(fd, argument_names), false);
+    print_obj(EP(fd, name), false);
+    print_obj_list(EP(fd, argument_names), false);
     print_node(EP(fd, body), true);
 }
 
@@ -397,7 +398,8 @@ bool _Nst_node_rt_init(Nst_Node *node)
 
 void _Nst_node_rt_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_IF_NOT_NULL(node->v.rt.value);
+    if (node->v.rt.value != NULL)
+        Nst_node_destroy(node->v.rt.value);
 }
 
 void print_rt(Nst_Node *node, Nst_LList *levels)
@@ -408,24 +410,20 @@ void print_rt(Nst_Node *node, Nst_LList *levels)
 bool _Nst_node_sw_init(Nst_Node *node)
 {
     node->v.sw.expr = NULL;
-    node->v.sw.values = Nst_llist_new();
-    if (node->v.sw.values == NULL)
-        return false;
-    node->v.sw.bodies = Nst_llist_new();
-    if (node->v.sw.bodies == NULL) {
-        DESTROY_NODE_LLIST(node->v.sw.values);
-        return false;
-    }
+    Nst_da_init(&node->v.sw.values, sizeof(Nst_Node *), 0);
+    Nst_da_init(&node->v.sw.bodies, sizeof(Nst_Node *), 0);
     node->v.sw.default_body = NULL;
     return true;
 }
 
 void _Nst_node_sw_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_IF_NOT_NULL(node->v.sw.expr);
-    DESTROY_NODE_LLIST(node->v.sw.values);
-    DESTROY_NODE_LLIST(node->v.sw.bodies);
-    DESTROY_NODE_IF_NOT_NULL(node->v.sw.default_body);
+    if (node->v.sw.expr != NULL)
+        Nst_node_destroy(node->v.sw.expr);
+    Nst_da_clear_p(&node->v.sw.values, (Nst_Destructor)Nst_node_destroy);
+    Nst_da_clear_p(&node->v.sw.bodies, (Nst_Destructor)Nst_node_destroy);
+    if (node->v.sw.default_body != NULL)
+        Nst_node_destroy(node->v.sw.default_body);
 }
 
 void print_sw(Nst_Node *node, Nst_LList *levels)
@@ -446,14 +444,16 @@ bool _Nst_node_tc_init(Nst_Node *node)
 
 void _Nst_node_tc_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_IF_NOT_NULL(node->v.tc.try_body);
-    DESTROY_NODE_IF_NOT_NULL(node->v.tc.catch_body);
-    DESTROY_TOK_IF_NOT_NULL(node->v.tc.error_name);
+    if (node->v.tc.try_body != NULL)
+        Nst_node_destroy(node->v.tc.try_body);
+    if (node->v.tc.catch_body != NULL)
+        Nst_node_destroy(node->v.tc.catch_body);
+    Nst_ndec_ref(node->v.tc.error_name);
 }
 
 void print_tc(Nst_Node *node, Nst_LList *levels)
 {
-    print_token(EP(tc, error_name), false);
+    print_obj(EP(tc, error_name), false);
     print_node(EP(tc, try_body), false);
     print_node(EP(tc, catch_body), true);
 }
@@ -466,7 +466,8 @@ bool _Nst_node_ws_init(Nst_Node *node)
 
 void _Nst_node_ws_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_IF_NOT_NULL(node->v.ws.statement);
+    if (node->v.ws.statement != NULL)
+        Nst_node_destroy(node->v.ws.statement);
 }
 
 void print_ws(Nst_Node *node, Nst_LList *levels)
@@ -476,14 +477,13 @@ void print_ws(Nst_Node *node, Nst_LList *levels)
 
 bool _Nst_node_so_init(Nst_Node *node)
 {
-    node->v.so.values = Nst_llist_new();
     node->v.so.op = Nst_TT_INVALID;
-    return node->v.so.values != NULL;
+    return Nst_da_init(&node->v.so.values, sizeof(Nst_Node *), 2);
 }
 
 void _Nst_node_so_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_LLIST(node->v.so.values);
+    Nst_da_clear_p(&node->v.so.values, (Nst_Destructor)Nst_node_destroy);
 }
 
 void print_so(Nst_Node *node, Nst_LList *levels)
@@ -494,16 +494,16 @@ void print_so(Nst_Node *node, Nst_LList *levels)
 
 bool _Nst_node_ls_init(Nst_Node *node)
 {
-    node->v.ls.values = Nst_llist_new();
     node->v.ls.special_value = NULL;
     node->v.ls.op = Nst_TT_INVALID;
-    return node->v.ls.values != NULL;
+    return Nst_da_init(&node->v.ls.values, sizeof(Nst_Node *), 3);
 }
 
 void _Nst_node_ls_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_LLIST(node->v.ls.values);
-    DESTROY_NODE_IF_NOT_NULL(node->v.ls.special_value);
+    Nst_da_clear_p(&node->v.ls.values, (Nst_Destructor)Nst_node_destroy);
+    if (node->v.ls.special_value != NULL)
+        Nst_node_destroy(node->v.ls.special_value);
 }
 
 void print_ls(Nst_Node *node, Nst_LList *levels)
@@ -522,7 +522,8 @@ bool _Nst_node_lo_init(Nst_Node *node)
 
 void _Nst_node_lo_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_IF_NOT_NULL(node->v.lo.value);
+    if (node->v.lo.value != NULL)
+        Nst_node_destroy(node->v.lo.value);
 }
 
 void print_lo(Nst_Node *node, Nst_LList *levels)
@@ -533,14 +534,14 @@ void print_lo(Nst_Node *node, Nst_LList *levels)
 
 bool _Nst_node_sl_init(Nst_Node *node)
 {
-    node->v.sl.values = Nst_llist_new();
+    Nst_da_init(&node->v.sl.values, sizeof(Nst_Node *), 0);
     node->v.sl.type = Nst_SNT_NOT_SET;
-    return node->v.sl.values != NULL;
+    return true;
 }
 
 void _Nst_node_sl_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_LLIST(node->v.sl.values);
+    Nst_da_clear_p(&node->v.sl.values, (Nst_Destructor)Nst_node_destroy);
 }
 
 void print_sl(Nst_Node *node, Nst_LList *levels)
@@ -551,21 +552,15 @@ void print_sl(Nst_Node *node, Nst_LList *levels)
 
 bool _Nst_node_ml_init(Nst_Node *node)
 {
-    node->v.ml.keys = Nst_llist_new();
-    if (node->v.ml.keys == NULL)
-        return false;
-    node->v.ml.values = Nst_llist_new();
-    if (node->v.ml.values == NULL) {
-        DESTROY_NODE_LLIST(node->v.ml.keys);
-        return false;
-    }
+    Nst_da_init(&node->v.ml.keys, sizeof(Nst_Node *), 0);
+    Nst_da_init(&node->v.ml.values, sizeof(Nst_Node *), 0);
     return true;
 }
 
 void _Nst_node_ml_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_LLIST(node->v.ml.keys);
-    DESTROY_NODE_LLIST(node->v.ml.values);
+    Nst_da_clear_p(&node->v.ml.keys, (Nst_Destructor)Nst_node_destroy);
+    Nst_da_clear_p(&node->v.ml.values, (Nst_Destructor)Nst_node_destroy);
 }
 
 void print_ml(Nst_Node *node, Nst_LList *levels)
@@ -582,12 +577,12 @@ bool _Nst_node_vl_init(Nst_Node *node)
 
 void _Nst_node_vl_destroy(Nst_Node *node)
 {
-    DESTROY_TOK_IF_NOT_NULL(node->v.vl.value);
+    Nst_ndec_ref(node->v.vl.value);
 }
 
 void print_vl(Nst_Node *node, Nst_LList *levels)
 {
-    print_token(EP(vl, value), true);
+    print_obj(EP(vl, value), true);
 }
 
 bool _Nst_node_ac_init(Nst_Node *node)
@@ -598,12 +593,12 @@ bool _Nst_node_ac_init(Nst_Node *node)
 
 void _Nst_node_ac_destroy(Nst_Node *node)
 {
-    DESTROY_TOK_IF_NOT_NULL(node->v.ac.value);
+    Nst_ndec_ref(node->v.ac.value);
 }
 
 void print_ac(Nst_Node *node, Nst_LList *levels)
 {
-    print_token(EP(ac, value), true);
+    print_obj(EP(ac, value), true);
 }
 
 bool _Nst_node_ex_init(Nst_Node *node)
@@ -615,8 +610,10 @@ bool _Nst_node_ex_init(Nst_Node *node)
 
 void _Nst_node_ex_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_IF_NOT_NULL(node->v.ex.container);
-    DESTROY_NODE_IF_NOT_NULL(node->v.ex.key);
+    if (node->v.ex.container != NULL)
+        Nst_node_destroy(node->v.ex.container);
+    if (node->v.ex.key != NULL)
+        Nst_node_destroy(node->v.ex.key);
 }
 
 void print_ex(Nst_Node *node, Nst_LList *levels)
@@ -634,8 +631,10 @@ bool _Nst_node_as_init(Nst_Node *node)
 
 void _Nst_node_as_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_IF_NOT_NULL(node->v.as.value);
-    DESTROY_NODE_IF_NOT_NULL(node->v.as.name);
+    if (node->v.as.value != NULL)
+        Nst_node_destroy(node->v.as.value);
+    if (node->v.as.name != NULL)
+        Nst_node_destroy(node->v.as.name);
 }
 
 void print_as(Nst_Node *node, Nst_LList *levels)
@@ -646,18 +645,16 @@ void print_as(Nst_Node *node, Nst_LList *levels)
 
 bool _Nst_node_ca_init(Nst_Node *node)
 {
-    node->v.ca.values = Nst_llist_new();
-    if (node->v.ca.values == NULL)
-        return false;
     node->v.ca.name = NULL;
     node->v.ca.op = Nst_TT_INVALID;
-    return true;
+    return Nst_da_init(&node->v.ca.values, sizeof(Nst_Node *), 2);
 }
 
 void _Nst_node_ca_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_LLIST(node->v.ca.values);
-    DESTROY_NODE_IF_NOT_NULL(node->v.ca.name);
+    Nst_da_clear_p(&node->v.ca.values, (Nst_Destructor)Nst_node_destroy);
+    if (node->v.ca.name != NULL)
+        Nst_node_destroy(node->v.ca.name);
 }
 
 void print_ca(Nst_Node *node, Nst_LList *levels)
@@ -677,9 +674,12 @@ bool _Nst_node_ie_init(Nst_Node *node)
 
 void _Nst_node_ie_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_IF_NOT_NULL(node->v.ie.condition);
-    DESTROY_NODE_IF_NOT_NULL(node->v.ie.body_if_true);
-    DESTROY_NODE_IF_NOT_NULL(node->v.ie.body_if_false);
+    if (node->v.ie.condition != NULL)
+        Nst_node_destroy(node->v.ie.condition);
+    if (node->v.ie.body_if_true != NULL)
+        Nst_node_destroy(node->v.ie.body_if_true);
+    if (node->v.ie.body_if_false != NULL)
+        Nst_node_destroy(node->v.ie.body_if_false);
 }
 
 void print_ie(Nst_Node *node, Nst_LList *levels)
@@ -697,7 +697,8 @@ bool _Nst_node_we_init(Nst_Node *node)
 
 void _Nst_node_we_destroy(Nst_Node *node)
 {
-    DESTROY_NODE_IF_NOT_NULL(node->v.we.expr);
+    if (node->v.we.expr != NULL)
+        Nst_node_destroy(node->v.we.expr);
 }
 
 void print_we(Nst_Node *node, Nst_LList *levels)
@@ -708,8 +709,7 @@ void print_we(Nst_Node *node, Nst_LList *levels)
 Nst_Node *Nst_node_new(Nst_NodeType type)
 {
    Nst_Node *node = Nst_malloc_c(1, Nst_Node);
-   node->start = Nst_pos_empty();
-   node->end = Nst_pos_empty();
+   node->span = Nst_span_empty();
    node->type = type;
    if (initializers[type] != NULL && !initializers[type](node)) {
        Nst_free(node);
@@ -718,10 +718,9 @@ Nst_Node *Nst_node_new(Nst_NodeType type)
    return node;
 }
 
-void Nst_node_set_pos(Nst_Node *node, Nst_Pos start, Nst_Pos end)
+void Nst_node_set_span(Nst_Node *node, Nst_Span span)
 {
-    node->start = start;
-    node->end = end;
+    node->span = span;
 }
 
 void Nst_node_destroy(Nst_Node *node)

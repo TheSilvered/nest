@@ -165,8 +165,7 @@ Nst_FuncCall Nst_fstack_pop(Nst_CallStack *f_stack)
     Nst_FuncCall call = {
         NULL,
         NULL,
-        Nst_pos_empty(),
-        Nst_pos_empty(),
+        Nst_span_empty(),
         NULL,
         0, 0
     };
@@ -188,8 +187,7 @@ Nst_FuncCall Nst_fstack_peek(Nst_CallStack *f_stack)
         Nst_FuncCall ret_val = {
             NULL,
             NULL,
-            Nst_pos_empty(),
-            Nst_pos_empty(),
+            Nst_span_empty(),
             NULL,
             0, 0
         };

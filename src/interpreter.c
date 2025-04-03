@@ -209,21 +209,14 @@ bool Nst_init(Nst_CLArgs *args)
 
     Nst_error_set_color(Nst_supports_color());
 
-    // these need to be set to allow _Nst_globals_init to be called
     Nst_state.es = NULL;
-    Nst_state.global_traceback.error_occurred = false;
-    Nst_state.global_traceback.positions = NULL;
+    Nst_tb_init(&Nst_state.global_traceback);
 
     if (!_Nst_globals_init()) {
         fprintf(stderr, "Memory Error - memory allocation failed...\n");
         return false;
     }
 
-    if (!Nst_tb_init(&Nst_state.global_traceback)) {
-        fprintf(stderr, "Memory Error - memory allocation failed...\n");
-        Nst_error_clear();
-        goto cleanup;
-    }
     _Nst_ggc_init();
 
     if (args != NULL)
@@ -256,18 +249,17 @@ void Nst_quit(void)
 
     state_init = false;
 
-    if (Nst_state.global_traceback.positions != NULL)
-        Nst_tb_destroy(&Nst_state.global_traceback);
+    Nst_tb_destroy(&Nst_state.global_traceback);
     if (Nst_state.lib_paths != NULL) {
         Nst_llist_destroy(
             Nst_state.lib_paths,
-            (Nst_LListDestructor)Nst_dec_ref);
+            (Nst_Destructor)Nst_dec_ref);
     }
 #if !defined(_DEBUG) || !defined(Nst_DBG_TRACK_OBJ_INIT_POS)
     if (Nst_state.lib_srcs != NULL) {
         Nst_llist_destroy(
             Nst_state.lib_srcs,
-            (Nst_LListDestructor)source_text_destructor);
+            (Nst_Destructor)source_text_destructor);
     }
 #else
     // in debug mode the libraries are not unloaded to allow for debug checks
@@ -295,7 +287,7 @@ void Nst_quit(void)
     if (Nst_state.loaded_libs != NULL) {
         Nst_llist_destroy(
             Nst_state.loaded_libs,
-            (Nst_LListDestructor)loaded_libs_destructor);
+            (Nst_Destructor)loaded_libs_destructor);
     }
 }
 
@@ -323,8 +315,7 @@ i32 Nst_run(Nst_Obj *main_func)
     // Execute main function
     Nst_FuncCall call = {
         .func = main_func,
-        .start = Nst_pos_empty(),
-        .end = Nst_pos_empty(),
+        .span = Nst_span_empty(),
         .vt = NULL,
         .cstack_len = 0,
         .idx = 0,
@@ -386,10 +377,9 @@ static inline void destroy_call(Nst_FuncCall *call)
     }
 }
 
-static inline void set_global_error(usize final_stack_size,
-                                    Nst_Pos start, Nst_Pos end)
+static inline void set_global_error(usize final_stack_size, Nst_Span span)
 {
-    Nst_error_add_pos(start, end);
+    Nst_error_add_span(span);
 
     Nst_CatchFrame top_catch = Nst_cstack_peek(&Nst_state.es->c_stack);
     if (Nst_error_get()->error_name == Nst_c.Null_null
@@ -416,7 +406,7 @@ static inline void set_global_error(usize final_stack_size,
             obj = POP_TOP_VALUE;
         }
 
-        Nst_error_add_pos(call.start, call.end);
+        Nst_error_add_span(call.span);
     }
 
     if (end_size == final_stack_size)
@@ -466,10 +456,7 @@ static void complete_function(usize final_stack_size)
             Nst_state.es->idx++;
             continue;
         } else if (result == INST_FAILED) {
-            set_global_error(
-                final_stack_size,
-                instructions[idx].start,
-                instructions[idx].end);
+            set_global_error(final_stack_size, instructions[idx].span);
             if (Nst_state.es->f_stack.len <= final_stack_size)
                 return;
         }
@@ -550,7 +537,7 @@ Nst_Obj *Nst_func_call(Nst_Obj *func, usize arg_num, Nst_Obj **args)
     bool result = Nst_es_push_func(
         Nst_state.es,
         func,
-        Nst_pos_empty(), Nst_pos_empty(),
+        Nst_span_empty(),
         arg_num, args);
     if (!result)
         return NULL;
@@ -569,8 +556,7 @@ Nst_Obj *Nst_run_paused_coroutine(Nst_Obj *func, i64 idx, Nst_VarTable *vt)
     bool result = Nst_es_push_paused_coroutine(
         Nst_state.es,
         func,
-        Nst_pos_empty(),
-        Nst_pos_empty(),
+        Nst_span_empty(),
         idx,
         vt);
 
@@ -949,8 +935,7 @@ static InstResult exe_op_call()
     bool result = Nst_es_push_func(
         Nst_state.es,
         func,
-        inst->start,
-        inst->end,
+        inst->span,
         arg_num,
         is_seq_call ? _Nst_seq_objs(args_seq) : NULL);
 

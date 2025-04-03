@@ -999,7 +999,7 @@ Nst_Obj *NstC repr_(usize arg_num, Nst_Obj **args)
     Nst_Obj *obj;
     if (!Nst_extract_args("o", arg_num, args, &obj))
         return nullptr;
-    return _Nst_repr_str_cast(obj);
+    return Nst_obj_to_repr_str(obj);
 }
 
 Nst_Obj *NstC join_(usize arg_num, Nst_Obj **args)
